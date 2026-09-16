@@ -1,4 +1,5 @@
 import type { ShopState, LeaderEntry } from './engine';
+import { CHARACTER_DEFS, CHARACTER_LIST, DEFAULT_CHARACTER_ID, type CharacterId, type CharacterProfile } from './characters';
 
 const GOLD_KEY = 'echosphere_gold';
 const SHOP_KEY = 'echosphere_shop';
@@ -6,6 +7,8 @@ const LEADER_KEY = 'echosphere_leaderboard';
 const LANG_KEY = 'echosphere_lang';
 const NAME_KEY = 'echosphere_name';
 const HANDEDNESS_KEY = 'echosphere_handedness';
+const CHARACTER_KEY = 'echosphere_character';
+const CHARACTER_PROFILES_KEY = 'echosphere_character_profiles';
 
 export type Handedness = 'right' | 'left';
 
@@ -75,6 +78,68 @@ export function saveHandedness(value: Handedness): void {
   localStorage.setItem(HANDEDNESS_KEY, value);
 }
 
+export function loadCharacterId(): CharacterId {
+  const raw = localStorage.getItem(CHARACTER_KEY);
+  return raw && raw in CHARACTER_DEFS ? raw as CharacterId : DEFAULT_CHARACTER_ID;
+}
+
+export function saveCharacterId(id: CharacterId): void {
+  if (!(id in CHARACTER_DEFS)) return;
+  localStorage.setItem(CHARACTER_KEY, id);
+}
+
+export function loadCharacterProfiles(): CharacterProfile[] {
+  const raw = localStorage.getItem(CHARACTER_PROFILES_KEY);
+  const defaults: CharacterProfile[] = CHARACTER_LIST.map((character) => ({
+    id: character.id,
+    masteryLevel: 1,
+    unlocked: character.id === DEFAULT_CHARACTER_ID,
+  }));
+  if (!raw) return defaults;
+  try {
+    const parsed = JSON.parse(raw) as unknown;
+    if (!Array.isArray(parsed)) return defaults;
+    const byId = new Map(defaults.map((profile) => [profile.id, profile]));
+    for (const item of parsed) {
+      if (!item || typeof item !== 'object') continue;
+      const candidate = item as Partial<CharacterProfile>;
+      if (!candidate.id || !(candidate.id in CHARACTER_DEFS)) continue;
+      const base = byId.get(candidate.id as CharacterId);
+      if (!base) continue;
+      base.unlocked = candidate.id === DEFAULT_CHARACTER_ID || candidate.unlocked === true;
+      base.masteryLevel = Math.max(1, Math.min(5, Number(candidate.masteryLevel) || 1));
+    }
+    return defaults;
+  } catch {
+    return defaults;
+  }
+}
+
+export function saveCharacterProfiles(profiles: CharacterProfile[]): void {
+  localStorage.setItem(CHARACTER_PROFILES_KEY, JSON.stringify(profiles));
+}
+
+export function isCharacterUnlocked(id: CharacterId): boolean {
+  return loadCharacterProfiles().some((profile) => profile.id === id && profile.unlocked);
+}
+
+export function unlockCharacter(id: CharacterId): boolean {
+  const profiles = loadCharacterProfiles();
+  const profile = profiles.find((item) => item.id === id);
+  if (!profile || profile.unlocked) return false;
+  profile.unlocked = true;
+  saveCharacterProfiles(profiles);
+  return true;
+}
+
+export function setCharacterMasteryLevel(id: CharacterId, level: number): void {
+  const profiles = loadCharacterProfiles();
+  const profile = profiles.find((item) => item.id === id);
+  if (!profile) return;
+  profile.masteryLevel = Math.max(1, Math.min(5, Math.floor(level)));
+  saveCharacterProfiles(profiles);
+}
+
 const ACH_KEY = 'echosphere_achievements';
 const DIFF_KEY = 'echosphere_difficulty';
 const SOUND_KEY = 'echosphere_sound';
@@ -119,4 +184,9 @@ export function resetAll(): void {
   localStorage.removeItem(ACH_KEY);
   localStorage.removeItem(DIFF_KEY);
   localStorage.removeItem(SOUND_KEY);
+  localStorage.removeItem(CHARACTER_KEY);
+  localStorage.removeItem(CHARACTER_PROFILES_KEY);
+  localStorage.removeItem(HANDEDNESS_KEY);
+  localStorage.removeItem(LANG_KEY);
+  localStorage.removeItem(NAME_KEY);
 }
