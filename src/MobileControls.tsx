@@ -10,6 +10,7 @@ import {
   type GameState,
 } from './engine';
 import type { Lang, TranslationKey } from './i18n';
+import { loadInterfaceScale } from './interfaceScale';
 
 export type Handedness = 'right' | 'left';
 
@@ -37,6 +38,7 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
   const joystickIdRef = useRef<number | null>(null);
   const lastDirectionRef = useRef({ x: 0, y: -1 });
   const [joystick, setJoystick] = useState<JoystickVisual | null>(null);
+  const interfaceScale = loadInterfaceScale();
 
   const controlsOnRight = handedness === 'right';
   const controlsSide = controlsOnRight ? 'right-3' : 'left-3';
@@ -144,14 +146,30 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
       onPointerCancel={(e) => endPointer(e.pointerId, e.clientX, e.clientY)}
     >
       {joystick && (
-        <div className="absolute pointer-events-none" style={{ left: joystick.x - JOYSTICK_RADIUS, top: joystick.y - JOYSTICK_RADIUS, width: JOYSTICK_RADIUS * 2, height: JOYSTICK_RADIUS * 2 }}>
+        <div
+          className="absolute pointer-events-none"
+          style={{
+            left: joystick.x - JOYSTICK_RADIUS,
+            top: joystick.y - JOYSTICK_RADIUS,
+            width: JOYSTICK_RADIUS * 2,
+            height: JOYSTICK_RADIUS * 2,
+            transform: `scale(${interfaceScale})`,
+            transformOrigin: 'center',
+          }}
+        >
           <div className="absolute inset-0 rounded-full border border-white/20 bg-black/20 backdrop-blur-[2px]" />
           <div className={`absolute rounded-full border border-white/30 bg-white/25 ${joystick.active ? 'opacity-90' : 'opacity-70'}`}
             style={{ width: JOYSTICK_KNOB_RADIUS * 2, height: JOYSTICK_KNOB_RADIUS * 2, left: JOYSTICK_RADIUS - JOYSTICK_KNOB_RADIUS + joystick.dx, top: JOYSTICK_RADIUS - JOYSTICK_KNOB_RADIUS + joystick.dy }} />
         </div>
       )}
 
-      <div className={`absolute bottom-4 ${controlsSide} flex flex-col ${controlsAlign} gap-2 pointer-events-none`}>
+      <div
+        className={`absolute bottom-4 ${controlsSide} flex flex-col ${controlsAlign} gap-2 pointer-events-none`}
+        style={{
+          transform: `scale(${interfaceScale})`,
+          transformOrigin: controlsOnRight ? 'right bottom' : 'left bottom',
+        }}
+      >
         <button data-mobile-control="true" className="pointer-events-auto w-12 h-12 rounded-full bg-[#e8dcc0]/90 border border-[#c4b890] shadow-lg flex items-center justify-center text-[#5a4a32] active:scale-95" onPointerDown={(e) => { e.stopPropagation(); onPause(); }} aria-label={t('pause')}>
           <Pause size={18} />
         </button>
