@@ -5,6 +5,9 @@ const SHOP_KEY = 'echosphere_shop';
 const LEADER_KEY = 'echosphere_leaderboard';
 const LANG_KEY = 'echosphere_lang';
 const NAME_KEY = 'echosphere_name';
+const HANDEDNESS_KEY = 'echosphere_handedness';
+
+export type Handedness = 'right' | 'left';
 
 export function loadGold(): number {
   return Number(localStorage.getItem(GOLD_KEY) || 0);
@@ -62,6 +65,14 @@ export function loadName(): string {
 }
 export function saveName(name: string): void {
   localStorage.setItem(NAME_KEY, name);
+}
+
+export function loadHandedness(): Handedness {
+  const raw = localStorage.getItem(HANDEDNESS_KEY);
+  return raw === 'left' ? 'left' : 'right';
+}
+export function saveHandedness(value: Handedness): void {
+  localStorage.setItem(HANDEDNESS_KEY, value);
 }
 
 const ACH_KEY = 'echosphere_achievements';
