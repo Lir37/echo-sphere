@@ -48,6 +48,9 @@ export function render(ctx: CanvasRenderingContext2D, s: GameState, canvasW: num
   ctx.fillRect(0, 0, canvasW, canvasH);
   drawPaperTexture(ctx, canvasW, canvasH, theme);
 
+  // ===== Static grid (screen space) =====
+  drawGrid(ctx, canvasW, canvasH, theme);
+
   // ===== World space =====
   ctx.save();
 
@@ -57,8 +60,6 @@ export function render(ctx: CanvasRenderingContext2D, s: GameState, canvasW: num
     shakeY = (Math.random() - 0.5) * s.screenShake * 20;
   }
   ctx.translate(canvasW / 2 - s.camera.x + shakeX, canvasH / 2 - s.camera.y + shakeY);
-
-  drawGrid(ctx, s, canvasW, canvasH, theme);
 
   // world bounds
   ctx.strokeStyle = theme.border;
@@ -200,24 +201,27 @@ function drawPaperTexture(ctx: CanvasRenderingContext2D, w: number, h: number, t
   }
 }
 
-function drawGrid(ctx: CanvasRenderingContext2D, s: GameState, canvasW: number, canvasH: number, theme: Theme): void {
+function drawGrid(ctx: CanvasRenderingContext2D, canvasW: number, canvasH: number, theme: Theme): void {
   const grid = 80;
-  const startX = Math.floor((s.camera.x - canvasW / 2) / grid) * grid;
-  const startY = Math.floor((s.camera.y - canvasH / 2) / grid) * grid;
+
+  ctx.save();
   ctx.strokeStyle = theme.grid;
   ctx.lineWidth = 1;
   ctx.setLineDash([4, 4]);
+
   ctx.beginPath();
-  for (let x = startX; x < s.camera.x + canvasW / 2 + grid; x += grid) {
-    ctx.moveTo(x, s.camera.y - canvasH / 2 - grid);
-    ctx.lineTo(x, s.camera.y + canvasH / 2 + grid);
+  for (let x = 0; x <= canvasW; x += grid) {
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, canvasH);
   }
-  for (let y = startY; y < s.camera.y + canvasH / 2 + grid; y += grid) {
-    ctx.moveTo(s.camera.x - canvasW / 2 - grid, y);
-    ctx.lineTo(s.camera.x + canvasW / 2 + grid, y);
+  for (let y = 0; y <= canvasH; y += grid) {
+    ctx.moveTo(0, y);
+    ctx.lineTo(canvasW, y);
   }
   ctx.stroke();
+
   ctx.setLineDash([]);
+  ctx.restore();
 }
 
 // ===== Paper helpers =====
@@ -321,10 +325,10 @@ function drawOrigamiAirplane(ctx: CanvasRenderingContext2D, r: number, fill: str
   // main body — swept wings
   ctx.fillStyle = fill;
   ctx.beginPath();
-  ctx.moveTo(0, -r * 1.2);          // nose
-  ctx.lineTo(r * 1.3, r * 0.8);     // right wing tip
-  ctx.lineTo(0, r * 0.4);           // center tail
-  ctx.lineTo(-r * 1.3, r * 0.8);    // left wing tip
+  ctx.moveTo(0, -r * 1.2);
+  ctx.lineTo(r * 1.3, r * 0.8);
+  ctx.lineTo(0, r * 0.4);
+  ctx.lineTo(-r * 1.3, r * 0.8);
   ctx.closePath(); ctx.fill();
   // right wing highlight
   ctx.fillStyle = highlight; ctx.globalAlpha = 0.35;
@@ -389,14 +393,14 @@ function drawOrigamiCrane(ctx: CanvasRenderingContext2D, r: number, fill: string
   // body
   ctx.fillStyle = fill;
   ctx.beginPath();
-  ctx.moveTo(0, -r);            // head
-  ctx.lineTo(r * 0.3, -r * 0.2); // neck
-  ctx.lineTo(r, r * 0.5);       // right wing
-  ctx.lineTo(r * 0.2, r * 0.3); // body right
-  ctx.lineTo(0, r);             // tail
-  ctx.lineTo(-r * 0.2, r * 0.3); // body left
-  ctx.lineTo(-r, r * 0.5);      // left wing
-  ctx.lineTo(-r * 0.3, -r * 0.2); // neck left
+  ctx.moveTo(0, -r);
+  ctx.lineTo(r * 0.3, -r * 0.2);
+  ctx.lineTo(r, r * 0.5);
+  ctx.lineTo(r * 0.2, r * 0.3);
+  ctx.lineTo(0, r);
+  ctx.lineTo(-r * 0.2, r * 0.3);
+  ctx.lineTo(-r, r * 0.5);
+  ctx.lineTo(-r * 0.3, -r * 0.2);
   ctx.closePath(); ctx.fill();
   // wing highlight
   ctx.fillStyle = highlight; ctx.globalAlpha = 0.3;
