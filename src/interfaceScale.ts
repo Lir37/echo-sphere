@@ -28,7 +28,8 @@ function installSettingsControl(): void {
     const handednessLabel = Array.from(document.querySelectorAll('label')).find(
       (element) => element.textContent?.trim() === 'Расположение управления' || element.textContent?.trim() === 'Control layout',
     );
-    if (!handednessLabel?.parentElement) return;
+    const handednessSection = handednessLabel?.parentElement?.parentElement;
+    if (!handednessSection || !handednessSection.parentElement) return;
 
     const section = document.createElement('div');
     section.setAttribute('data-interface-scale-settings', 'true');
@@ -56,11 +57,12 @@ function installSettingsControl(): void {
     const controlsLabel = Array.from(document.querySelectorAll('label')).find(
       (element) => element.textContent?.trim() === 'Управление' || element.textContent?.trim() === 'Controls',
     );
-    const parent = controlsLabel?.parentElement?.parentElement;
-    if (parent && parent.parentElement === handednessLabel.parentElement.parentElement) {
-      parent.parentElement.insertBefore(section, parent);
+    const controlsSection = controlsLabel?.parentElement?.parentElement;
+
+    if (controlsSection?.parentElement === handednessSection.parentElement) {
+      controlsSection.parentElement.insertBefore(section, controlsSection);
     } else {
-      handednessLabel.parentElement.parentElement.after(section);
+      handednessSection.after(section);
     }
 
     const range = section.querySelector<HTMLInputElement>('[data-interface-scale-range]');
