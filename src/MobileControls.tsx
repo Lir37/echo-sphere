@@ -38,9 +38,11 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
   const lastDirectionRef = useRef({ x: 0, y: -1 });
   const [joystick, setJoystick] = useState<JoystickVisual | null>(null);
 
-  // Правша -> управление большим пальцем справа.
-  // Левша -> управление большим пальцем слева.
-  const controlSideIsRight = handedness === 'right';
+  const controlsOnRight = handedness === 'right';
+  const controlsSide = controlsOnRight ? 'right-3' : 'left-3';
+  const controlsAlign = controlsOnRight ? 'items-end' : 'items-start';
+  const joystickZoneStart = controlsOnRight ? window.innerWidth * 0.5 : 0;
+  const joystickZoneEnd = controlsOnRight ? window.innerWidth : window.innerWidth * 0.5;
 
   const clearMovementKeys = () => {
     const st = stateRef.current;
@@ -97,6 +99,9 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
 
   useEffect(() => {
     clearMovementKeys();
+    setJoystick(null);
+    joystickIdRef.current = null;
+    pointersRef.current.clear();
     return () => clearMovementKeys();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [handedness]);
@@ -117,7 +122,7 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
           startX: e.clientX,
           startY: e.clientY,
           moved: false,
-          joystickCandidate: joystickIdRef.current === null && (controlSideIsRight ? e.clientX >= window.innerWidth * 0.5 : e.clientX < window.innerWidth * 0.5),
+          joystickCandidate: joystickIdRef.current === null && e.clientX >= joystickZoneStart && e.clientX < joystickZoneEnd,
         };
         pointersRef.current.set(e.pointerId, pointer);
         if (pointer.joystickCandidate) startJoystick(e.pointerId, e.clientX, e.clientY);
@@ -146,7 +151,7 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
         </div>
       )}
 
-      <div className={`absolute bottom-4 ${controlSideIsRight ? 'right-3' : 'left-3'} flex flex-col ${controlSideIsRight ? 'items-end' : 'items-start'} gap-2 pointer-events-none`}>
+      <div className={`absolute bottom-4 ${controlsSide} flex flex-col ${controlsAlign} gap-2 pointer-events-none`}>
         <button data-mobile-control="true" className="pointer-events-auto w-12 h-12 rounded-full bg-[#e8dcc0]/90 border border-[#c4b890] shadow-lg flex items-center justify-center text-[#5a4a32] active:scale-95" onPointerDown={(e) => { e.stopPropagation(); onPause(); }} aria-label={t('pause')}>
           <Pause size={18} />
         </button>
