@@ -32,8 +32,10 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
   const [joystick, setJoystick] = useState<JoystickVisual | null>(null);
   const interfaceScale = loadInterfaceScale();
 
-  const controlsOnRight = handedness === 'right';
-  const joystickOnRight = !controlsOnRight;
+  // Right-handed: joystick right, action controls left.
+  // Left-handed: joystick left, action controls right.
+  const joystickOnRight = handedness === 'right';
+  const controlsOnRight = !joystickOnRight;
   const controlsSide = controlsOnRight ? 'right-3' : 'left-3';
   const controlsAlign = controlsOnRight ? 'items-end' : 'items-start';
   const joystickZoneStart = joystickOnRight ? window.innerWidth * 0.5 : 0;
