@@ -3,9 +3,23 @@ import type { EnemyEntity, GameState, SphereEntity, Vec } from './engine';
 
 export type CharacterFormation = 'none' | 'line' | 'triangle' | 'square' | 'cluster';
 
+interface CharacterRuntimePlayer {
+  characterId?: CharacterId;
+  characterMasteryLevel?: number;
+  hunterMarkTarget?: EnemyEntity | null;
+  hunterMarkTimer?: number;
+  hunterHuntTarget?: EnemyEntity | null;
+  hunterHuntTimer?: number;
+  alchemistCatalystTimer?: number;
+}
+
 export interface CharacterFormationResult {
   type: CharacterFormation;
   strength: number;
+}
+
+function runtimePlayer(s: GameState): CharacterRuntimePlayer {
+  return s.player as GameState['player'] & CharacterRuntimePlayer;
 }
 
 export function getCharacterDamageMultiplier(s: GameState, sphere: SphereEntity): number {
@@ -14,7 +28,6 @@ export function getCharacterDamageMultiplier(s: GameState, sphere: SphereEntity)
 
   if (character === 'spherist') {
     multiplier += getSpheristFiveSphereBonus(character, s.spheres.length);
-    multiplier += getSphereCountResonanceBonus(character, s.spheres.length) * 0;
   }
 
   if (character === 'berserker') {
@@ -24,10 +37,10 @@ export function getCharacterDamageMultiplier(s: GameState, sphere: SphereEntity)
   }
 
   if (character === 'engineer') {
-    const neighbours = getSphereNeighbours(s, sphere, 220).length;
+    const neighbours = getSphereNeighbours(s, sphere, getEngineerNetworkRange(s)).length;
     multiplier += Math.min(2, neighbours) * 0.06;
-    if (neighbours === 2 && (s.player.characterMasteryLevel || 1) >= 5) multiplier += 0.02;
-    const networkSize = getConnectedNetworkSize(s, sphere, 220);
+    if (neighbours === 2 && (runtimePlayer(s).characterMasteryLevel || 1) >= 5) multiplier += 0.02;
+    const networkSize = getConnectedNetworkSize(s, sphere, getEngineerNetworkRange(s));
     if (networkSize >= 4) multiplier += 0.03;
   }
 
@@ -40,7 +53,7 @@ export function getCharacterAttackSpeedMultiplier(s: GameState): number {
 
   if (character === 'spherist') {
     multiplier += getSphereCountResonanceBonus(character, s.spheres.length);
-    if (s.spheres.length >= 8 && (s.player.characterMasteryLevel || 1) >= 5) multiplier += 0.05;
+    if (s.spheres.length >= 8 && (runtimePlayer(s).characterMasteryLevel || 1) >= 5) multiplier += 0.05;
   }
 
   if (character === 'berserker') {
@@ -106,36 +119,32 @@ export function getCharacterFormation(s: GameState): CharacterFormationResult {
 }
 
 export function getFormationDamageMultiplier(s: GameState): number {
-  const formation = getCharacterFormation(s).type;
   if (getCharacterId(s) !== 'architect') return 1;
-  if (formation === 'line') return 1.10;
-  return 1;
+  return getCharacterFormation(s).type === 'line' ? 1.10 : 1;
 }
 
 export function getFormationCritBonus(s: GameState): number {
-  const formation = getCharacterFormation(s).type;
   if (getCharacterId(s) !== 'architect') return 0;
-  return formation === 'triangle' ? 0.10 : 0;
+  return getCharacterFormation(s).type === 'triangle' ? 0.10 : 0;
 }
 
 export function getFormationDamageTakenMultiplier(s: GameState): number {
-  const formation = getCharacterFormation(s).type;
   if (getCharacterId(s) !== 'architect') return 1;
-  return formation === 'square' ? 0.88 : 1;
+  return getCharacterFormation(s).type === 'square' ? 0.88 : 1;
 }
 
 export function getFormationAttackSpeedBonus(s: GameState): number {
-  const formation = getCharacterFormation(s).type;
   if (getCharacterId(s) !== 'architect') return 0;
-  return formation === 'cluster' ? 0.15 : 0;
+  return getCharacterFormation(s).type === 'cluster' ? 0.15 : 0;
 }
 
 export function getHunterMarkMultiplier(s: GameState, enemy: EnemyEntity): number {
   if (getCharacterId(s) !== 'hunter') return 1;
-  const markedUntil = s.player.hunterMarkTarget === enemy ? (s.player.hunterMarkTimer || 0) : 0;
+  const p = runtimePlayer(s);
+  const markedUntil = p.hunterMarkTarget === enemy ? (p.hunterMarkTimer || 0) : 0;
   if (markedUntil <= 0) return 1;
-  const huntActive = (s.player.hunterHuntTimer || 0) > 0;
-  return 1.20 * (huntActive && (s.player.hunterHuntTarget === enemy) ? 1.30 : 1);
+  const huntActive = (p.hunterHuntTimer || 0) > 0;
+  return 1.20 * (huntActive && p.hunterHuntTarget === enemy ? 1.30 : 1);
 }
 
 export function shouldMarkHunterTarget(enemy: EnemyEntity): boolean {
@@ -149,7 +158,8 @@ export function applyAlchemistReaction(s: GameState, enemy: EnemyEntity): boolea
   const poison = enemy.poisonTimer > 0;
   if (!((fire && poison) || (freeze && poison) || (fire && freeze))) return false;
 
-  const reactionRadius = (s.player.characterMasteryLevel || 1) >= 2 ? 60.5 : 55;
+  const p = runtimePlayer(s);
+  const reactionRadius = (p.characterMasteryLevel || 1) >= 2 ? 60 : 55;
   const baseDamage = 20 + s.player.level * 2;
   let burstMultiplier = 1;
   if (fire && poison) burstMultiplier = 2;
@@ -172,17 +182,17 @@ export function applyAlchemistReaction(s: GameState, enemy: EnemyEntity): boolea
     enemy.slowFactor = 0.4;
   }
 
-  if (s.player.characterMasteryLevel && s.player.characterMasteryLevel >= 4) {
+  if ((p.characterMasteryLevel || 1) >= 4) {
     const target = s.enemies.find((other) => other !== enemy && other.hp > 0 && distance(other.pos, enemy.pos) <= reactionRadius);
     if (target) target.hp -= baseDamage * burstMultiplier * 0.5;
   }
 
-  s.player.alchemistCatalystTimer = (s.player.characterMasteryLevel || 1) >= 5 ? 2 : 0;
+  if ((p.characterMasteryLevel || 1) >= 5) p.alchemistCatalystTimer = 2;
   return true;
 }
 
 export function getEngineerNetworkRange(s: GameState): number {
-  return (s.player.characterMasteryLevel || 1) >= 2 ? 240 : 220;
+  return (runtimePlayer(s).characterMasteryLevel || 1) >= 2 ? 240 : 220;
 }
 
 export function getEngineerNetworkSize(s: GameState, sphere: SphereEntity): number {
@@ -190,7 +200,8 @@ export function getEngineerNetworkSize(s: GameState, sphere: SphereEntity): numb
 }
 
 export function getCharacterId(s: GameState): CharacterId {
-  return (s.player.characterId || 'spherist') as CharacterId;
+  const raw = runtimePlayer(s).characterId;
+  return raw && raw in CHARACTER_DEFS ? raw : 'spherist';
 }
 
 function getSphereNeighbours(s: GameState, sphere: SphereEntity, range: number): SphereEntity[] {
