@@ -111,8 +111,6 @@ export default function MobileControls({
     const world = touchToWorld(clientX, clientY);
     if (!world) return;
 
-    // Keep this local guard explicit so future touch-radius changes stay isolated
-    // from the engine's own placement/removal toggle.
     const nearExistingTower = st.spheres.some((sphere) =>
       sphere.alive && Math.hypot(sphere.pos.x - world.x, sphere.pos.y - world.y) < TOWER_TOUCH_TOLERANCE,
     );
@@ -134,6 +132,7 @@ export default function MobileControls({
       joystickIdRef.current = null;
       clearMovementKeys();
       setJoystick(null);
+      if (pointer && !pointer.moved) handleTowerTap(clientX, clientY);
     } else if (pointer && !pointer.moved) {
       handleTowerTap(clientX, clientY);
     }
@@ -213,7 +212,7 @@ export default function MobileControls({
       )}
 
       <div
-        className={`absolute bottom-4 ${controlSideIsLeft ? 'right-3' : 'left-3'} flex flex-col items-${controlSideIsLeft ? 'end' : 'start'} gap-2 pointer-events-none`}
+        className={`absolute bottom-4 ${controlSideIsLeft ? 'right-3' : 'left-3'} flex flex-col ${controlSideIsLeft ? 'items-end' : 'items-start'} gap-2 pointer-events-none`}
       >
         <button
           data-mobile-control="true"
