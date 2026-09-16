@@ -1,15 +1,15 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Settings, Store, Trophy, Play, Globe, ArrowLeft, RotateCcw, Award, Volume2, VolumeX } from 'lucide-react';
 import { translations, type Lang, type TranslationKey } from './i18n';
 import {
   ABILITIES, ARTIFACTS, ARTIFACT_MAP, EVOLUTION_MAP, SHOP_UPGRADES, shopCost,
   abilityName, artifactName, type AbilityType, type ArtifactId,
-  DIFFICULTIES, ACHIEVEMENTS, SPHERE_TYPES, type Difficulty, type SphereType,
+  DIFFICULTIES, ACHIEVEMENTS, type Difficulty,
 } from './gameData';
 import {
-  createInitialState, update, placeSphere, activateByKey,
+  createInitialState, update,
   generateUpgradeChoices, applyUpgrade, applyArtifact,
-  applyTowerUpgrade, activateDash, openChest, setSphereType,
+  applyTowerUpgrade, openChest,
   getMaxSpheres, getMoveSpeed, getSphereRadius, getSphereDamage, getSphereDelay,
   getCritChance, getDodgeChance, getVampirePercent,
   type GameState, type ShopState, type LeaderEntry, type UpgradeChoice,
@@ -20,26 +20,10 @@ import {
   loadShop, saveShop, loadLeaderboard, addLeaderEntry, loadLang, saveLang,
   loadName, saveName, resetAll, saveGold, loadGold,
   loadAchievements, unlockAchievement, loadDifficulty, saveDifficulty,
-  loadSound, saveSound,
+  loadSound, saveSound, loadHandedness, saveHandedness, type Handedness,
 } from './persistence';
 import { playSound, setAudioEnabled } from './audio';
-
-function normalizeKey(e: KeyboardEvent): string {
-  const code = e.code;
-  if (code === 'KeyW' || code === 'ArrowUp') return 'w';
-  if (code === 'KeyS' || code === 'ArrowDown') return 's';
-  if (code === 'KeyA' || code === 'ArrowLeft') return 'a';
-  if (code === 'KeyD' || code === 'ArrowRight') return 'd';
-  if (code === 'Space') return ' ';
-  if (code === 'Escape') return 'escape';
-  if (code === 'ShiftLeft' || code === 'ShiftRight') return 'shift';
-  if (code === 'KeyE') return 'e';
-  if (code === 'KeyQ') return 'q';
-  if (code === 'KeyR') return 'r';
-  if (code === 'KeyF') return 'f';
-  if (code === 'KeyG') return 'g';
-  return e.key.toLowerCase();
-}
+import MobileControls from './MobileControls';
 
 type Screen = 'menu' | 'game' | 'shop' | 'leaderboard' | 'settings' | 'achievements';
 
@@ -49,24 +33,26 @@ export default function App() {
   const [shop, setShop] = useState<ShopState>(() => loadShop());
   const [difficulty, setDifficulty] = useState<Difficulty>(() => loadDifficulty() as Difficulty);
   const [soundOn, setSoundOn] = useState<boolean>(() => loadSound());
+  const [handedness, setHandedness] = useState<Handedness>(() => loadHandedness());
   const [mapTheme, setMapTheme] = useState<MapTheme>(() => (localStorage.getItem('echosphere_map') || 'parchment') as MapTheme);
 
   const t = (k: TranslationKey) => translations[lang][k];
 
   useEffect(() => { saveLang(lang); }, [lang]);
   useEffect(() => { saveDifficulty(difficulty); }, [difficulty]);
+  useEffect(() => { saveHandedness(handedness); }, [handedness]);
   useEffect(() => {
     saveSound(soundOn);
     setAudioEnabled(soundOn);
   }, [soundOn]);
 
   return (
-    <div className="min-h-screen w-full bg-[#f4ecd8] text-[#3a2e1f] overflow-hidden flex items-center justify-center" style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}>
+    <div className="min-h-screen w-full bg-[#f4ecd8] text-[#3a2e1f] overflow-hidden flex items-center justify-center" style={{ fontFamily: 'Georgia, \"Times New Roman\", serif' }}>
       {screen === 'menu' && <Menu lang={lang} setLang={setLang} t={t} difficulty={difficulty} setDifficulty={setDifficulty} soundOn={soundOn} setSoundOn={setSoundOn} mapTheme={mapTheme} setMapTheme={setMapTheme} onPlay={(mt) => { setMapTheme(mt); setScreen('game'); }} onShop={() => setScreen('shop')} onLeader={() => setScreen('leaderboard')} onSettings={() => setScreen('settings')} onAchievements={() => setScreen('achievements')} />}
-      {screen === 'game' && <GameScreen lang={lang} t={t} shop={shop} difficulty={difficulty} mapTheme={mapTheme} onExit={() => { setShop(loadShop()); setScreen('menu'); }} />}
+      {screen === 'game' && <GameScreen lang={lang} t={t} shop={shop} difficulty={difficulty} mapTheme={mapTheme} handedness={handedness} onExit={() => { setShop(loadShop()); setScreen('menu'); }} />}
       {screen === 'shop' && <ShopScreen lang={lang} t={t} shop={shop} setShop={setShop} onBack={() => setScreen('menu')} />}
       {screen === 'leaderboard' && <LeaderboardScreen lang={lang} t={t} onBack={() => setScreen('menu')} />}
-      {screen === 'settings' && <SettingsScreen lang={lang} setLang={setLang} t={t} soundOn={soundOn} setSoundOn={setSoundOn} onBack={() => setScreen('menu')} />}
+      {screen === 'settings' && <SettingsScreen lang={lang} setLang={setLang} t={t} soundOn={soundOn} setSoundOn={setSoundOn} handedness={handedness} setHandedness={setHandedness} onBack={() => setScreen('menu')} />}
       {screen === 'achievements' && <AchievementsScreen lang={lang} t={t} onBack={() => setScreen('menu')} />}
     </div>
   );
@@ -188,8 +174,8 @@ function MenuButton({ icon, label, onClick, primary }: { icon: React.ReactNode; 
 }
 
 // ===== Game Screen =====
-function GameScreen({ lang, t, shop, difficulty, mapTheme, onExit }: {
-  lang: Lang; t: (k: TranslationKey) => string; shop: ShopState; difficulty: Difficulty; mapTheme: MapTheme; onExit: () => void;
+function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }: {
+  lang: Lang; t: (k: TranslationKey) => string; shop: ShopState; difficulty: Difficulty; mapTheme: MapTheme; handedness: Handedness; onExit: () => void;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const stateRef = useRef<GameState | null>(null);
@@ -246,80 +232,36 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, onExit }: {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      const st = stateRef.current;
-      if (!st) return;
-      const key = normalizeKey(e);
-      if (key === 'escape') {
-        e.preventDefault();
-        if (e.type === 'keydown' && !e.repeat) {
-          setPaused(p => { const np = !p; if (st) { st.paused = np; if (np) st.keys = {}; } return np; });
-        }
-        return;
-      }
-      if (st.gameOver || st.paused) return;
-      if (st.pendingUpgrade || st.pendingArtifact || st.pendingEvolution || st.pendingTowerUpgrade || st.pendingChest) {
-        if (e.type === 'keyup') st.keys[key] = false;
-        return;
-      }
-      st.keys[key] = e.type === 'keydown';
-      if (e.type === 'keydown' && ['e', 'q', 'r', 'f', 'g'].includes(key) && !e.repeat) {
-        activateByKey(st, key);
-      }
-      if (e.type === 'keydown' && key === 'shift' && !e.repeat) {
-        e.preventDefault();
-        activateDash(st);
-      }
-      if (e.type === 'keydown' && key === ' ' && !e.repeat) {
-        e.preventDefault();
-        placeSphere(st, st.player.pos.x, st.player.pos.y);
-      }
-      if (e.type === 'keydown' && ['1','2','3','4','5'].includes(key) && !e.repeat) {
-        const types: SphereType[] = ['standard', 'sniper', 'shotgun', 'chain', 'aura'];
-        const idx = parseInt(key) - 1;
-        if (idx < types.length) setSphereType(st, types[idx]);
-      }
-    };
-    window.addEventListener('keydown', onKey);
-    window.addEventListener('keyup', onKey);
-    return () => { window.removeEventListener('keydown', onKey); window.removeEventListener('keyup', onKey); };
-  }, []);
-
-  const onCanvasClick = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
-    const st = stateRef.current;
-    if (!st || st.gameOver || st.paused) return;
-    if (st.pendingUpgrade || st.pendingArtifact || st.pendingEvolution || st.pendingTowerUpgrade || st.pendingChest) return;
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const rect = canvas.getBoundingClientRect();
-    const sx = e.clientX - rect.left - canvas.width / 2 + st.camera.x;
-    const sy = e.clientY - rect.top - canvas.height / 2 + st.camera.y;
-    placeSphere(st, sx, sy);
-  }, []);
-
   const st = stateRef.current;
 
   return (
-    <div className="relative w-full h-screen flex items-center justify-center">
+    <div className="relative w-full h-screen flex items-center justify-center" style={{ touchAction: 'none' }}>
       <canvas
         ref={canvasRef}
         width={Math.min(window.innerWidth, 1280)}
         height={Math.min(window.innerHeight, 800)}
-        onClick={onCanvasClick}
-        className="max-w-full max-h-full"
-        style={{ cursor: 'crosshair' }}
+        className="max-w-full max-h-full select-none"
+        style={{ touchAction: 'none', userSelect: 'none', WebkitUserSelect: 'none' }}
       />
 
-      {/* HUD */}
       {st && !gameOverData && (
         <>
           <Hud lang={lang} t={t} st={st} />
-          <SphereTypeSelector lang={lang} st={st} />
-          <AbilityBar lang={lang} t={t} st={st} />
-          {/* Combo indicator */}
+          <MobileControls
+            lang={lang}
+            t={t}
+            stateRef={stateRef}
+            canvasRef={canvasRef}
+            handedness={handedness}
+            onPause={() => {
+              if (st.pendingUpgrade || st.pendingArtifact || st.pendingEvolution || st.pendingTowerUpgrade || st.pendingChest) return;
+              const next = !st.paused;
+              st.paused = next;
+              setPaused(next);
+            }}
+          />
           {st.player.combo >= 5 && (
-            <div className="absolute top-16 left-1/2 -translate-x-1/2 pointer-events-none text-center">
+            <div className="absolute top-16 left-1/2 -translate-x-1/2 pointer-events-none text-center z-10">
               <div className="text-2xl font-bold" style={{ color: st.player.combo >= 50 ? '#d4943d' : st.player.combo >= 25 ? '#c46d3d' : '#c4453d' }}>
                 {t('combo')} x{st.player.combo}
               </div>
@@ -331,12 +273,6 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, onExit }: {
               </div>
             </div>
           )}
-          {/* Dash cooldown indicator */}
-          <div className="absolute bottom-20 left-1/2 -translate-x-1/2 pointer-events-none">
-            <div className={`text-xs font-bold ${st.player.dashCooldown <= 0 ? 'text-[#4a7a8a]' : 'text-[#8a7a5a]/50'}`}>
-              {st.player.dashCooldown <= 0 ? t('dashCooldown') : t('dashOnCooldown').replace('{sec}', String(Math.ceil(st.player.dashCooldown)))}
-            </div>
-          </div>
           {st.pendingUpgrade && <UpgradeModal lang={lang} t={t} st={st} onPick={(c) => { applyUpgrade(st, c); st.pendingUpgrade = null; }} />}
           {st.pendingArtifact && <ArtifactModal lang={lang} t={t} choices={st.pendingArtifact} onPick={(id) => { applyArtifact(st, id); st.pendingArtifact = null; }} />}
           {st.pendingTowerUpgrade && <TowerUpgradeModal lang={lang} t={t} choices={st.pendingTowerUpgrade} onPick={(c) => { applyTowerUpgrade(st, c); }} />}
@@ -369,7 +305,6 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, onExit }: {
         </>
       )}
 
-      {/* Game Over */}
       {gameOverData && (
         <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-50">
           <div className="text-center max-w-sm px-6">
@@ -393,55 +328,6 @@ function Row({ label, value }: { label: string; value: string }) {
   return <div className="flex justify-between"><span className="text-[#8a7a5a]">{label}</span><span className="font-medium">{value}</span></div>;
 }
 
-// ===== Sphere Type Selector =====
-function SphereTypeSelector({ lang, st }: { lang: Lang; st: GameState }) {
-  const types: SphereType[] = ['standard', 'sniper', 'shotgun', 'chain', 'aura'];
-  const [hovered, setHovered] = useState<SphereType | null>(null);
-  const hoveredDef = hovered ? SPHERE_TYPES[hovered] : null;
-  return (
-    <>
-      <div className="absolute bottom-20 right-4 flex flex-col gap-1.5 pointer-events-auto">
-        {types.map((type, i) => {
-          const def = SPHERE_TYPES[type];
-          const selected = st.selectedSphereType === type;
-          return (
-            <button
-              key={type}
-              onClick={() => setSphereType(st, type)}
-              onMouseEnter={() => setHovered(type)}
-              onMouseLeave={() => setHovered(null)}
-              onPointerDown={() => setHovered(type)}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition text-left ${selected ? 'bg-[#e0d4b8] border-[#8a7a5a]' : 'bg-[#e8dcc0] border-[#c4b890] opacity-50 hover:opacity-80'}`}
-              style={{ borderColor: selected ? def.color : undefined }}
-            >
-              <span className="text-xs font-bold text-[#8a7a5a]/70 w-4">{i + 1}</span>
-              <span className="w-3 h-3 rounded-full" style={{ backgroundColor: def.color, boxShadow: selected ? '0 0 8px ' + def.color : 'none' }} />
-              <span className="text-xs font-medium" style={{ color: selected ? def.color : '#8a7a5a' }}>{def.name[lang]}</span>
-            </button>
-          );
-        })}
-      </div>
-      {hoveredDef && (
-        <div className="absolute bottom-20 right-24 w-56 p-3 rounded-xl bg-[#f4ecd8] border border-[#8a7a5a]/40 shadow-lg z-30 pointer-events-none">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: hoveredDef.color }} />
-            <span className="font-bold text-sm" style={{ color: hoveredDef.color }}>{hoveredDef.name[lang]}</span>
-          </div>
-          <div className="text-xs text-[#5a4a32] mb-2">{hoveredDef.desc[lang]}</div>
-          <div className="text-[10px] text-[#8a7a5a] space-y-0.5">
-            <div>{lang === 'ru' ? 'Урон' : 'Damage'}: x{hoveredDef.damageMult}</div>
-            <div>{lang === 'ru' ? 'Дальность' : 'Range'}: x{hoveredDef.rangeMult}</div>
-            <div>{lang === 'ru' ? 'Скорость' : 'Speed'}: x{hoveredDef.projectileSpeedMult}</div>
-            {hoveredDef.pellets > 1 && <div>{lang === 'ru' ? 'Снаряды' : 'Pellets'}: {hoveredDef.pellets}</div>}
-            {hoveredDef.chain && <div>{lang === 'ru' ? 'Цепная молния' : 'Chain lightning'}</div>}
-            {hoveredDef.aura && <div>{lang === 'ru' ? 'Аура урона' : 'Damage aura'}: {hoveredDef.auraRadius}px</div>}
-          </div>
-        </div>
-      )}
-    </>
-  );
-}
-
 // ===== HUD =====
 function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st: GameState }) {
   const xpPct = (st.player.xp / st.player.xpToNext) * 100;
@@ -450,7 +336,7 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
   const secs = Math.floor(st.time % 60);
   return (
     <>
-      <div className="absolute top-3 left-3 flex flex-col gap-1.5 w-56 pointer-events-none">
+      <div className="absolute top-3 left-3 flex flex-col gap-1.5 w-56 pointer-events-none z-10">
         <div className="flex items-center gap-2 text-sm">
           <span className="text-[#4a7a8a] font-bold">{t('level')} {st.player.level}</span>
           <div className="flex-1 h-2 bg-[#2a2218] rounded-full overflow-hidden border border-[#3a2e1f]">
@@ -467,50 +353,13 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
           <div className="text-[#c4453d] font-bold text-xs animate-pulse">{t('bossWave')}</div>
         )}
       </div>
-      <div className="absolute top-3 right-3 flex flex-col items-end gap-1 text-sm pointer-events-none">
+      <div className="absolute top-3 right-3 flex flex-col items-end gap-1 text-sm pointer-events-none z-10">
         <span className="text-[#5a4a32] font-mono">{mins.toString().padStart(2, '0')}:{secs.toString().padStart(2, '0')}</span>
         <span className="text-[#4a7a8a]/80 text-xs">{t('spheres')}: {st.spheres.length}/{getMaxSpheres(st)}</span>
         <span className="text-[#8a7a5a]/70 text-xs">{t('wave')} {st.wave}</span>
         {st.player.buffTimer > 0 && <span className="text-[#c46d3d] text-xs font-bold animate-pulse">BUFF {Math.ceil(st.player.buffTimer)}s</span>}
       </div>
     </>
-  );
-}
-
-// ===== Ability Bar =====
-function AbilityBar({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st: GameState }) {
-  const activeAbilities = Object.entries(st.activeKeyMap) as [string, AbilityType][];
-  const cooldownMap: Partial<Record<AbilityType, number>> = {
-    blast: st.player.blastCooldown, shield: st.player.shieldCooldown, teleport: st.player.teleportCooldown,
-    firetrail: st.player.fireTrailCooldown, minion: st.player.minionCooldown, lightning: st.player.lightningCooldown,
-    timestop: st.player.timestopCooldown, darkritual: st.player.darkritualCooldown,
-  };
-  const maxCdMap: Partial<Record<AbilityType, number>> = {
-    blast: 30, shield: 20, teleport: 15, firetrail: 25, minion: 30, lightning: 20, timestop: 40, darkritual: 30,
-  };
-  return (
-    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 pointer-events-none">
-      {activeAbilities.map(([key, ability]) => {
-        const def = ABILITIES[ability];
-        const cd = cooldownMap[ability] || 0;
-        const maxCd = maxCdMap[ability] || 1;
-        const pct = cd > 0 ? (cd / maxCd) * 100 : 0;
-        return (
-          <div key={key} className="relative w-14 h-14 rounded-lg bg-[#e8dcc0] border border-[#c4b890] flex flex-col items-center justify-center overflow-hidden">
-            <span className="text-[10px] text-[#8a7a5a]/70 uppercase absolute top-1 left-1">{key}</span>
-            <span className="text-[9px] text-[#3a2e1f] text-center px-1 leading-tight">{def.name[lang]}</span>
-            {cd > 0 && (
-              <>
-                <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-                  <span className="text-sm font-bold text-[#3a2e1f]">{Math.ceil(cd)}</span>
-                </div>
-                <div className="absolute bottom-0 left-0 right-0 h-1 bg-[#c4453d]" style={{ width: `${pct}%` }} />
-              </>
-            )}
-          </div>
-        );
-      })}
-    </div>
   );
 }
 
@@ -676,7 +525,7 @@ function ShopScreen({ lang, t, shop, setShop, onBack }: {
 
 // ===== Leaderboard =====
 function LeaderboardScreen({ lang, t, onBack }: { lang: Lang; t: (k: TranslationKey) => string; onBack: () => void }) {
-  const [entries, setEntries] = useState<LeaderEntry[]>(() => loadLeaderboard());
+  const [entries] = useState<LeaderEntry[]>(() => loadLeaderboard());
   return (
     <div className="w-full max-w-2xl mx-auto px-6 py-8 overflow-y-auto max-h-screen">
       <div className="flex items-center justify-between mb-6">
@@ -709,7 +558,7 @@ function LeaderboardScreen({ lang, t, onBack }: { lang: Lang; t: (k: Translation
 
 // ===== Achievements =====
 function AchievementsScreen({ lang, t, onBack }: { lang: Lang; t: (k: TranslationKey) => string; onBack: () => void }) {
-  const [unlocked, setUnlocked] = useState<string[]>(() => loadAchievements());
+  const [unlocked] = useState<string[]>(() => loadAchievements());
   return (
     <div className="w-full max-w-2xl mx-auto px-6 py-8 overflow-y-auto max-h-screen">
       <div className="flex items-center justify-between mb-6">
@@ -741,8 +590,15 @@ function AchievementsScreen({ lang, t, onBack }: { lang: Lang; t: (k: Translatio
 }
 
 // ===== Settings =====
-function SettingsScreen({ lang, setLang, t, soundOn, setSoundOn, onBack }: {
-  lang: Lang; setLang: (l: Lang) => void; t: (k: TranslationKey) => string; soundOn: boolean; setSoundOn: (v: boolean) => void; onBack: () => void;
+function SettingsScreen({ lang, setLang, t, soundOn, setSoundOn, handedness, setHandedness, onBack }: {
+  lang: Lang;
+  setLang: (l: Lang) => void;
+  t: (k: TranslationKey) => string;
+  soundOn: boolean;
+  setSoundOn: (v: boolean) => void;
+  handedness: Handedness;
+  setHandedness: (value: Handedness) => void;
+  onBack: () => void;
 }) {
   return (
     <div className="w-full max-w-md mx-auto px-6 py-8">
@@ -763,6 +619,13 @@ function SettingsScreen({ lang, setLang, t, soundOn, setSoundOn, onBack }: {
           <div className="flex gap-2">
             <button onClick={() => setSoundOn(true)} className={`flex-1 py-3 rounded-xl border transition ${soundOn ? 'bg-[#4a7a8a]/20 border-[#4a7a8a]/40 text-[#3a2e1f]' : 'bg-[#e8dcc0] border-[#c4b890] text-[#8a7a5a]'}`}>{t('soundOn')}</button>
             <button onClick={() => setSoundOn(false)} className={`flex-1 py-3 rounded-xl border transition ${!soundOn ? 'bg-[#4a7a8a]/20 border-[#4a7a8a]/40 text-[#3a2e1f]' : 'bg-[#e8dcc0] border-[#c4b890] text-[#8a7a5a]'}`}>{t('soundOff')}</button>
+          </div>
+        </div>
+        <div>
+          <label className="text-xs text-[#8a7a5a] uppercase tracking-wider mb-2 block">{t('handedness')}</label>
+          <div className="flex gap-2">
+            <button onClick={() => setHandedness('right')} className={`flex-1 py-3 rounded-xl border transition ${handedness === 'right' ? 'bg-[#4a7a8a]/20 border-[#4a7a8a]/40 text-[#3a2e1f]' : 'bg-[#e8dcc0] border-[#c4b890] text-[#8a7a5a]'}`}>{t('rightHanded')}</button>
+            <button onClick={() => setHandedness('left')} className={`flex-1 py-3 rounded-xl border transition ${handedness === 'left' ? 'bg-[#4a7a8a]/20 border-[#4a7a8a]/40 text-[#3a2e1f]' : 'bg-[#e8dcc0] border border-[#c4b890] text-[#8a7a5a]'}`}>{t('leftHanded')}</button>
           </div>
         </div>
         <div>
