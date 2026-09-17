@@ -756,6 +756,25 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
   if (s.player.buffTimer > 0) actual *= 1.3;
   enemy.hp -= actual;
   enemy.hitFlash = 0.15;
+
+  // Juicier impact: a short, directional burst makes every tower hit readable.
+  const impactCount = enemy.isBoss ? 10 : isCrit ? 9 : enemy.isElite ? 7 : 4;
+  for (let i = 0; i < impactCount; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = rand(isCrit ? 120 : 80, isCrit ? 260 : 180);
+    s.particles.push({
+      pos: { x: enemy.pos.x, y: enemy.pos.y },
+      vel: { x: Math.cos(angle) * speed, y: Math.sin(angle) * speed },
+      life: rand(0.16, isCrit ? 0.42 : 0.3),
+      maxLife: 0.42,
+      color: isCrit ? '#c4453d' : enemy.color,
+      size: rand(isCrit ? 2.5 : 1.5, isCrit ? 4.5 : 3.2),
+    });
+  }
+  if (isCrit) {
+    s.screenShake = Math.min(0.24, s.screenShake + 0.06);
+  }
+
   // damage number
   s.damageNumbers.push({
     pos: { x: enemy.pos.x + rand(-8, 8), y: enemy.pos.y - enemy.radius - 5 },
@@ -809,8 +828,9 @@ function onEnemyDeath(s: GameState, enemy: EnemyEntity): void {
     s.player.hunterHuntTimer = 0;
   }
   playSound(enemy.isBoss ? 'explosion' : 'kill');
-  // particles
-  for (let i = 0; i < (enemy.isBoss ? 40 : 8); i++) {
+  // Stronger death burst, scaled by enemy importance.
+  const deathParticles = enemy.isBoss ? 56 : enemy.isElite ? 18 : 10;
+  for (let i = 0; i < deathParticles; i++) {
     s.particles.push({
       pos: { x: enemy.pos.x, y: enemy.pos.y },
       vel: { x: rand(-180, 180), y: rand(-180, 180) },

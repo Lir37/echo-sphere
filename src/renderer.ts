@@ -1024,10 +1024,24 @@ function drawOrigamiFish(ctx: CanvasRenderingContext2D, r: number, fill: string,
 
 function drawEnemy(ctx: CanvasRenderingContext2D, e: EnemyEntity): void {
   ctx.save();
+  const hitStrength = Math.max(0, Math.min(1, e.hitFlash / 0.15));
   ctx.translate(e.pos.x, e.pos.y);
   ctx.rotate(e.rotation);
-  const color = e.hitFlash > 0 ? '#f4ecd8' : e.color;
-  const highlight = e.hitFlash > 0 ? '#ffffff' : shade(e.color, 35);
+  if (hitStrength > 0) ctx.scale(1 + hitStrength * 0.1, 1 + hitStrength * 0.1);
+
+  // Paper-crumple shock ring on impact. It fades with the existing hitFlash timer.
+  if (hitStrength > 0) {
+    ctx.save();
+    ctx.strokeStyle = `rgba(196,69,61,${hitStrength * 0.45})`;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(0, 0, e.radius + 7 + (1 - hitStrength) * 8, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  const color = hitStrength > 0 ? '#f4ecd8' : e.color;
+  const highlight = hitStrength > 0 ? '#ffffff' : shade(e.color, 35);
   const frozen = e.freezeTimer > 0;
   const fc = '#6a9ab0', fh = '#8ac0d8';
   if (e.shape === 'triangle') {
