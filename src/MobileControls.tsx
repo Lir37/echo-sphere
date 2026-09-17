@@ -5,6 +5,8 @@ import { activateByKey, activateDash, getMaxSpheres, placeSphere, setSphereType,
 import { CHARACTER_DEFS } from './characters';
 import type { Lang, TranslationKey } from './i18n';
 import { loadInterfaceScale } from './interfaceScale';
+import { createMasteryRunTracker, getMasteryRunXp, tickCharacterMastery } from './characterMastery';
+import { addCharacterMasteryXp } from './persistence';
 
 export type Handedness = 'right' | 'left';
 type PointerState = { startX: number; startY: number; moved: boolean; joystickCandidate: boolean };
@@ -238,13 +240,25 @@ function CharacterAvatarOverlay({ stateRef }: { stateRef: React.MutableRefObject
   const [characterId, setCharacterId] = useState(() => stateRef.current?.player.characterId || 'spherist');
   const [mutationStage, setMutationStage] = useState(() => stateRef.current?.player.mutationStage || 0);
   const frameRef = useRef<number | null>(null);
+  const masteryRef = useRef(createMasteryRunTracker());
+  const rewardedRef = useRef(false);
 
   useEffect(() => {
     const tick = () => {
-      const nextCharacter = stateRef.current?.player.characterId || 'spherist';
-      const nextMutation = stateRef.current?.player.mutationStage || 0;
+      const st = stateRef.current;
+      const nextCharacter = st?.player.characterId || 'spherist';
+      const nextMutation = st?.player.mutationStage || 0;
       setCharacterId((current) => current === nextCharacter ? current : nextCharacter);
       setMutationStage((current) => current === nextMutation ? current : nextMutation);
+
+      if (st && !st.gameOver) {
+        tickCharacterMastery(st, 1 / 60, masteryRef.current);
+      } else if (st?.gameOver && !rewardedRef.current) {
+        const gainedXp = getMasteryRunXp(masteryRef.current);
+        if (gainedXp > 0) addCharacterMasteryXp(st.player.characterId, gainedXp);
+        rewardedRef.current = true;
+      }
+
       frameRef.current = requestAnimationFrame(tick);
     };
     frameRef.current = requestAnimationFrame(tick);
