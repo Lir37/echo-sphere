@@ -1,0 +1,409 @@
+name: Apply artifact system patch
+
+on:
+  push:
+    branches: [cleanup-android]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[artifact-system-applied]')"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: cleanup-android
+          fetch-depth: 1
+
+      - name: Apply artifact architecture
+        shell: bash
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          import re
+
+          ROOT = Path('.')
+
+          artifact_system = r'''import type { ArtifactId } from './gameData';
+
+export type ArtifactRarity = 'common' | 'rare' | 'epic' | 'special' | 'legendary';
+
+export interface ArtifactEffects {
+  moveSpeed?: number;
+  maxHp?: number;
+  xpGain?: number;
+  regen?: number;
+  sphereRadius?: number;
+  sphereDamage?: number;
+  cooldown?: number;
+  damageTakenReduction?: number;
+  critChance?: number;
+  dodgeChance?: number;
+  vampire?: number;
+  towerDamage?: number;
+  towerDelay?: number;
+  towerRadius?: number;
+  standardDamage?: number;
+  sniperDamage?: number;
+  shotgunDamage?: number;
+  chainDamage?: number;
+  auraDamage?: number;
+  standardRadius?: number;
+  sniperRadius?: number;
+  shotgunRadius?: number;
+  chainRadius?: number;
+  auraRadius?: number;
+}
+
+export interface ArtifactMeta {
+  id: ArtifactId;
+  rarity: ArtifactRarity;
+  effects: ArtifactEffects;
+  mechanic?:
+    | 'swift'
+    | 'mirror'
+    | 'resonance'
+    | 'lone'
+    | 'fivefold'
+    | 'relay'
+    | 'triangle'
+    | 'overclock'
+    | 'network'
+    | 'singularity'
+    | 'zero'
+    | 'unified';
+}
+
+const meta = (id: ArtifactId, rarity: ArtifactRarity, effects: ArtifactEffects = {}, mechanic?: ArtifactMeta['mechanic']): ArtifactMeta => ({ id, rarity, effects, mechanic });
+
+export const ARTIFACT_METADATA: ArtifactMeta[] = [
+  // Common
+  meta('crystal_speed', 'common', { moveSpeed: 0.15 }),
+  meta('amulet_hp', 'common', { maxHp: 30 }),
+  meta('ring_xp', 'common', { xpGain: 0.20 }),
+  meta('regen_stone', 'common', { regen: 1 }),
+  meta('radius_shard', 'common', { sphereRadius: 0.10 }),
+  meta('vampire_ring', 'common', { vampire: 0.03 }),
+  meta('swift_boots', 'common', {}, 'swift'),
+  meta('luck_talisman', 'common', { critChance: 0.15 }),
+  meta('defense_medallion', 'common', { damageTakenReduction: 0.15 }),
+  meta('mage_pendant', 'common', { cooldown: -0.10 }),
+  meta('long_lens', 'common', { sniperRadius: 0.18 }),
+  meta('supply_core', 'common', { maxHp: 20, xpGain: 0.05 }),
+
+  // Rare
+  meta('dragon_heart', 'rare', { maxHp: 50, moveSpeed: -0.10 }),
+  meta('mirror', 'rare', {}, 'mirror'),
+  meta('predator_claw', 'rare', { sphereDamage: 0.08 }),
+  meta('foresight_eye', 'rare', { critChance: 0.10, sniperDamage: 0.08 }),
+  meta('echo_conductor', 'rare', { chainDamage: 0.12 }),
+  meta('heavy_core', 'rare', { standardDamage: 0.15 }),
+  meta('scattering_matrix', 'rare', { shotgunDamage: 0.12 }),
+  meta('aura_lens', 'rare', { auraRadius: 0.18 }),
+  meta('network_relay', 'rare', { towerDamage: 0.06 }, 'network'),
+  meta('stability_matrix', 'rare', { towerDelay: -0.06 }),
+
+  // Epic
+  meta('resonance_core', 'epic', { towerDamage: 0.05 }, 'resonance'),
+  meta('lone_bastion', 'epic', { towerDamage: 0.08 }, 'lone'),
+  meta('fivefold_resonance', 'epic', { towerDamage: 0.02 }, 'fivefold'),
+  meta('relay_matrix', 'epic', { towerDamage: 0.04 }, 'relay'),
+  meta('triangle_circuit', 'epic', { towerDamage: 0.04 }, 'triangle'),
+  meta('overclock', 'epic', { towerDamage: 0.03, towerDelay: -0.12 }, 'overclock'),
+  meta('soul_engine', 'epic', { sphereDamage: 0.05, xpGain: 0.10 }),
+  meta('time_anchor', 'epic', { cooldown: -0.12 }),
+
+  // Special
+  meta('void_contract', 'special', { sphereDamage: 0.12, towerDamage: 0.10, damageTakenReduction: -0.15 }),
+  meta('mirror_network', 'special', { towerDamage: 0.08 }, 'network'),
+  meta('singularity_engine', 'special', { towerDamage: 0.10 }, 'singularity'),
+  meta('quantum_core', 'special', { sphereDamage: 0.08, dodgeChance: 0.08 }),
+
+  // Legendary
+  meta('zero_sphere', 'legendary', { towerDamage: 0.15, sphereDamage: 0.10 }, 'zero'),
+  meta('unified_mind', 'legendary', { towerDamage: 0.08, sphereDamage: 0.08 }, 'unified'),
+];
+
+export const ARTIFACT_META: Record<ArtifactId, ArtifactMeta> = Object.fromEntries(
+  ARTIFACT_METADATA.map((item) => [item.id, item]),
+) as Record<ArtifactId, ArtifactMeta>;
+
+export const RARITY_ORDER: ArtifactRarity[] = ['common', 'rare', 'epic', 'special', 'legendary'];
+export const RARITY_LABELS: Record<ArtifactRarity, { ru: string; en: string }> = {
+  common: { ru: 'Обычный', en: 'Common' },
+  rare: { ru: 'Редкий', en: 'Rare' },
+  epic: { ru: 'Эпический', en: 'Epic' },
+  special: { ru: 'Особый', en: 'Special' },
+  legendary: { ru: 'Легендарный', en: 'Legendary' },
+};
+
+export function getArtifactMeta(id: ArtifactId): ArtifactMeta {
+  return ARTIFACT_META[id];
+}
+
+export function artifactRarity(id: ArtifactId): ArtifactRarity {
+  return ARTIFACT_META[id].rarity;
+}
+
+export function hasArtifact(s: { player: { artifacts: ArtifactId[] } }, id: ArtifactId): boolean {
+  return s.player.artifacts.includes(id);
+}
+
+function effectSum(s: { player: { artifacts: ArtifactId[] } }, key: keyof ArtifactEffects): number {
+  let total = 0;
+  for (const id of s.player.artifacts) total += ARTIFACT_META[id]?.effects[key] || 0;
+  return total;
+}
+
+export function getArtifactMoveSpeedMultiplier(s: any): number { return Math.max(0.5, 1 + effectSum(s, 'moveSpeed')); }
+export function getArtifactMaxHpBonus(id: ArtifactId): number { return ARTIFACT_META[id]?.effects.maxHp || 0; }
+export function getArtifactXpMultiplier(s: any): number { return Math.max(0.5, 1 + effectSum(s, 'xpGain')); }
+export function getArtifactRegenPerSecond(s: any): number { return Math.max(0, effectSum(s, 'regen')); }
+export function getArtifactSphereRadiusMultiplier(s: any): number { return Math.max(0.5, 1 + effectSum(s, 'sphereRadius')); }
+export function getArtifactSphereDamageMultiplier(s: any): number { return Math.max(0.25, 1 + effectSum(s, 'sphereDamage')); }
+export function getArtifactCooldownMultiplier(s: any): number { return Math.max(0.55, 1 + effectSum(s, 'cooldown')); }
+export function getArtifactDamageTakenMultiplier(s: any): number { return Math.max(0.45, 1 - effectSum(s, 'damageTakenReduction')); }
+export function getArtifactCritChanceBonus(s: any): number { return effectSum(s, 'critChance'); }
+export function getArtifactDodgeChanceBonus(s: any): number { return effectSum(s, 'dodgeChance'); }
+export function getArtifactVampireBonus(s: any): number { return effectSum(s, 'vampire'); }
+export function getArtifactReflectChance(s: any): number { return hasArtifact(s, 'mirror') ? 0.20 : 0; }
+
+function uniqueTowerCount(s: any): number {
+  return new Set((s.spheres || []).filter((sphere: any) => sphere.alive !== false).map((sphere: any) => sphere.type)).size;
+}
+
+function hasNearbyTower(s: any, sphere: any, maxDistance: number): boolean {
+  if (!sphere) return false;
+  return (s.spheres || []).some((other: any) => other !== sphere && other.alive !== false && Math.hypot(other.pos.x - sphere.pos.x, other.pos.y - sphere.pos.y) <= maxDistance);
+}
+
+function formsTriangle(s: any, sphere: any): boolean {
+  const others = (s.spheres || []).filter((other: any) => other !== sphere && other.alive !== false);
+  for (let i = 0; i < others.length; i++) {
+    for (let j = i + 1; j < others.length; j++) {
+      const a = others[i];
+      const b = others[j];
+      const ab = Math.hypot(a.pos.x - b.pos.x, a.pos.y - b.pos.y);
+      const as = Math.hypot(a.pos.x - sphere.pos.x, a.pos.y - sphere.pos.y);
+      const bs = Math.hypot(b.pos.x - sphere.pos.x, b.pos.y - sphere.pos.y);
+      if (ab <= 300 && as <= 300 && bs <= 300) return true;
+    }
+  }
+  return false;
+}
+
+export function getTowerArtifactModifiers(s: any, type: string): { damage: number; delay: number; radius: number } {
+  let damage = 1 + effectSum(s, 'towerDamage');
+  let delay = Math.max(0.55, 1 + effectSum(s, 'towerDelay'));
+  let radius = Math.max(0.6, 1 + effectSum(s, 'towerRadius'));
+  const effects: keyof ArtifactEffects = `${type}Damage` as keyof ArtifactEffects;
+  const radiusEffect: keyof ArtifactEffects = `${type}Radius` as keyof ArtifactEffects;
+  damage *= 1 + effectSum(s, effects);
+  radius *= 1 + effectSum(s, radiusEffect);
+
+  const unique = uniqueTowerCount(s);
+  if (hasArtifact(s, 'lone_bastion') && unique <= 1) damage *= 1.30;
+  if (hasArtifact(s, 'fivefold_resonance') && unique > 1) damage *= 1 + Math.min(5, unique) * 0.04;
+  if (hasArtifact(s, 'network_relay') && unique >= 2) damage *= 1.05;
+  if (hasArtifact(s, 'relay_matrix') && Object.values(s.player.towerProgression || {}).some((level: any) => level >= 7)) damage *= 1.10;
+  if (hasArtifact(s, 'singularity_engine') && unique <= 2) damage *= 1.18;
+  if (hasArtifact(s, 'mirror_network') && unique >= 2) damage *= 1.12;
+  if (hasArtifact(s, 'overclock')) { damage *= 0.99; delay *= 0.88; }
+  return { damage, delay, radius };
+}
+
+export function getSphereArtifactDamageMultiplier(s: any, sphere: any): number {
+  let multiplier = 1;
+  if (hasArtifact(s, 'resonance_core') && hasNearbyTower(s, sphere, 190)) multiplier *= 1.12;
+  if (hasArtifact(s, 'triangle_circuit') && formsTriangle(s, sphere)) multiplier *= 1.15;
+  if (hasArtifact(s, 'unified_mind')) {
+    const levels = Object.values(s.player.towerProgression || {}) as number[];
+    const strongest = Math.max(0, ...levels);
+    multiplier *= 1 + strongest * 0.03;
+  }
+  if (hasArtifact(s, 'zero_sphere')) multiplier *= 1.20;
+  return multiplier;
+}
+
+const rarityWeight = (rarity: ArtifactRarity): number => ({ common: 62, rare: 24, epic: 9, special: 4, legendary: 1 }[rarity]);
+
+function randomWeighted<T>(items: T[], weight: (item: T) => number): T {
+  const total = items.reduce((sum, item) => sum + Math.max(0, weight(item)), 0);
+  if (total <= 0) return items[Math.floor(Math.random() * items.length)];
+  let roll = Math.random() * total;
+  for (const item of items) {
+    roll -= Math.max(0, weight(item));
+    if (roll <= 0) return item;
+  }
+  return items[items.length - 1];
+}
+
+export function pickArtifactChoices(s: { player: { artifacts: ArtifactId[] } }, count = 3): ArtifactId[] {
+  const owned = new Set(s.player.artifacts);
+  const available = ARTIFACT_METADATA.filter((item) => !owned.has(item.id));
+  const result: ArtifactId[] = [];
+  const pool = [...available];
+  while (result.length < count && pool.length > 0) {
+    const chosen = randomWeighted(pool, (item) => rarityWeight(item.rarity));
+    result.push(chosen.id);
+    pool.splice(pool.indexOf(chosen), 1);
+  }
+  return result;
+}
+'''
+
+          # Replace the legacy artifact catalog in gameData.ts.
+          game_data_path = ROOT / 'src/gameData.ts'
+          game_data = game_data_path.read_text(encoding='utf-8')
+          artifact_block = r'''export type ArtifactId = 'crystal_speed' | 'amulet_hp' | 'ring_xp' | 'regen_stone' | 'radius_shard' | 'vampire_ring' | 'swift_boots' | 'luck_talisman' | 'defense_medallion' | 'mage_pendant' | 'long_lens' | 'supply_core' | 'dragon_heart' | 'mirror' | 'predator_claw' | 'foresight_eye' | 'echo_conductor' | 'heavy_core' | 'scattering_matrix' | 'aura_lens' | 'network_relay' | 'stability_matrix' | 'resonance_core' | 'lone_bastion' | 'fivefold_resonance' | 'relay_matrix' | 'triangle_circuit' | 'overclock' | 'soul_engine' | 'time_anchor' | 'void_contract' | 'mirror_network' | 'singularity_engine' | 'quantum_core' | 'zero_sphere' | 'unified_mind';
+
+export interface ArtifactDef {
+  id: ArtifactId;
+  name: { ru: string; en: string };
+  desc: { ru: string; en: string };
+}
+
+export const ARTIFACTS: ArtifactDef[] = [
+  // Common
+  { id: 'crystal_speed', name: { ru: 'Кристалл скорости', en: 'Crystal of Speed' }, desc: { ru: 'Обычный • +15% скорости движения', en: 'Common • +15% move speed' } },
+  { id: 'amulet_hp', name: { ru: 'Амулет здоровья', en: 'Health Amulet' }, desc: { ru: 'Обычный • +30 макс. HP', en: 'Common • +30 max HP' } },
+  { id: 'ring_xp', name: { ru: 'Кольцо опыта', en: 'XP Ring' }, desc: { ru: 'Обычный • +20% получаемого опыта', en: 'Common • +20% XP gained' } },
+  { id: 'regen_stone', name: { ru: 'Камень восстановления', en: 'Regen Stone' }, desc: { ru: 'Обычный • +1 HP/сек', en: 'Common • +1 HP/sec' } },
+  { id: 'radius_shard', name: { ru: 'Осколок радиуса', en: 'Radius Shard' }, desc: { ru: 'Обычный • +10% радиуса сфер', en: 'Common • +10% sphere radius' } },
+  { id: 'vampire_ring', name: { ru: 'Кольцо вампира', en: 'Vampire Ring' }, desc: { ru: 'Обычный • +3% вампиризма', en: 'Common • +3% lifesteal' } },
+  { id: 'swift_boots', name: { ru: 'Ботинки скорости', en: 'Swift Boots' }, desc: { ru: 'Обычный • после убийства +10% скорости на 3с', en: 'Common • kills grant +10% speed for 3s' } },
+  { id: 'luck_talisman', name: { ru: 'Талисман удачи', en: 'Luck Talisman' }, desc: { ru: 'Обычный • +15% шанс крита', en: 'Common • +15% crit chance' } },
+  { id: 'defense_medallion', name: { ru: 'Медальон защиты', en: 'Defense Medallion' }, desc: { ru: 'Обычный • -15% получаемого урона', en: 'Common • -15% damage taken' } },
+  { id: 'mage_pendant', name: { ru: 'Кулон мага', en: 'Mage Pendant' }, desc: { ru: 'Обычный • -10% перезарядки способностей', en: 'Common • -10% ability cooldowns' } },
+  { id: 'long_lens', name: { ru: 'Дальняя линза', en: 'Long Lens' }, desc: { ru: 'Обычный • +18% радиуса снайперской башни', en: 'Common • +18% sniper range' } },
+  { id: 'supply_core', name: { ru: 'Резервное ядро', en: 'Supply Core' }, desc: { ru: 'Обычный • +20 HP и +5% опыта', en: 'Common • +20 HP and +5% XP' } },
+
+  // Rare
+  { id: 'dragon_heart', name: { ru: 'Сердце дракона', en: 'Dragon Heart' }, desc: { ru: 'Редкий • +50 HP, -10% скорости', en: 'Rare • +50 HP, -10% speed' } },
+  { id: 'mirror', name: { ru: 'Зеркало', en: 'Mirror' }, desc: { ru: 'Редкий • 20% полученного урона отражается ближайшему врагу', en: 'Rare • 20% of incoming damage is reflected' } },
+  { id: 'predator_claw', name: { ru: 'Коготь хищника', en: 'Predator Claw' }, desc: { ru: 'Редкий • +8% урона сфер', en: 'Rare • +8% sphere damage' } },
+  { id: 'foresight_eye', name: { ru: 'Око предвидения', en: 'Foresight Eye' }, desc: { ru: 'Редкий • +10% крита и +8% урона снайперской башни', en: 'Rare • +10% crit and +8% sniper damage' } },
+  { id: 'echo_conductor', name: { ru: 'Проводник Эха', en: 'Echo Conductor' }, desc: { ru: 'Редкий • +12% урона цепной башни', en: 'Rare • +12% chain tower damage' } },
+  { id: 'heavy_core', name: { ru: 'Тяжёлое ядро', en: 'Heavy Core' }, desc: { ru: 'Редкий • +15% урона стандартной башни', en: 'Rare • +15% standard tower damage' } },
+  { id: 'scattering_matrix', name: { ru: 'Матрица рассеивания', en: 'Scattering Matrix' }, desc: { ru: 'Редкий • +12% урона дробовика', en: 'Rare • +12% shotgun damage' } },
+  { id: 'aura_lens', name: { ru: 'Линза ауры', en: 'Aura Lens' }, desc: { ru: 'Редкий • +18% радиуса ауры', en: 'Rare • +18% aura radius' } },
+  { id: 'network_relay', name: { ru: 'Сетевой реле', en: 'Network Relay' }, desc: { ru: 'Редкий • при 2+ типах башен +5% урона сети', en: 'Rare • with 2+ tower types, +5% network damage' } },
+  { id: 'stability_matrix', name: { ru: 'Матрица стабильности', en: 'Stability Matrix' }, desc: { ru: 'Редкий • -6% задержки атак башен', en: 'Rare • -6% tower attack delay' } },
+
+  // Epic
+  { id: 'resonance_core', name: { ru: 'Сердце резонанса', en: 'Resonance Core' }, desc: { ru: 'Эпический • башня рядом с другой башней получает +12% урона', en: 'Epic • nearby towers deal +12% damage' } },
+  { id: 'lone_bastion', name: { ru: 'Одинокий бастион', en: 'Lone Bastion' }, desc: { ru: 'Эпический • если активен только один тип башни, он получает +30% урона', en: 'Epic • with one tower type, it gains +30% damage' } },
+  { id: 'fivefold_resonance', name: { ru: 'Резонанс пяти', en: 'Fivefold Resonance' }, desc: { ru: 'Эпический • каждый уникальный тип башни даёт +4% урона сети', en: 'Epic • each unique tower type grants +4% network damage' } },
+  { id: 'relay_matrix', name: { ru: 'Релейная матрица', en: 'Relay Matrix' }, desc: { ru: 'Эпический • наличие башни VII уровня усиливает остальные на +10%', en: 'Epic • a level VII tower empowers the network by +10%' } },
+  { id: 'triangle_circuit', name: { ru: 'Треугольный контур', en: 'Triangle Circuit' }, desc: { ru: 'Эпический • башни внутри треугольной сети получают +15% урона', en: 'Epic • towers in a triangular network deal +15% damage' } },
+  { id: 'overclock', name: { ru: 'Разгон ядра', en: 'Overclock' }, desc: { ru: 'Эпический • -12% задержки башен, но небольшая потеря эффективности', en: 'Epic • -12% tower delay with a small efficiency cost' } },
+  { id: 'soul_engine', name: { ru: 'Двигатель душ', en: 'Soul Engine' }, desc: { ru: 'Эпический • +5% урона сфер и +10% опыта', en: 'Epic • +5% sphere damage and +10% XP' } },
+  { id: 'time_anchor', name: { ru: 'Якорь времени', en: 'Time Anchor' }, desc: { ru: 'Эпический • -12% перезарядки способностей', en: 'Epic • -12% ability cooldowns' } },
+
+  // Special
+  { id: 'void_contract', name: { ru: 'Контракт пустоты', en: 'Void Contract' }, desc: { ru: 'Особый • +12% урона сфер и +10% урона башен, но +15% получаемого урона', en: 'Special • +12% sphere and +10% tower damage, but +15% damage taken' } },
+  { id: 'mirror_network', name: { ru: 'Зеркальная сеть', en: 'Mirror Network' }, desc: { ru: 'Особый • две и более башни дают сети +12% урона', en: 'Special • two or more tower types grant +12% network damage' } },
+  { id: 'singularity_engine', name: { ru: 'Двигатель сингулярности', en: 'Singularity Engine' }, desc: { ru: 'Особый • билд из 1–2 типов башен получает ещё +18% урона', en: 'Special • a 1–2 tower-type build gains +18% damage' } },
+  { id: 'quantum_core', name: { ru: 'Квантовое ядро', en: 'Quantum Core' }, desc: { ru: 'Особый • +8% урона сфер и +8% уклонения', en: 'Special • +8% sphere damage and +8% dodge' } },
+
+  // Legendary
+  { id: 'zero_sphere', name: { ru: 'Нулевая сфера', en: 'Zero Sphere' }, desc: { ru: 'Легендарный • +35% мощности башен и +20% урона сфер', en: 'Legendary • +35% tower power and +20% sphere damage' } },
+  { id: 'unified_mind', name: { ru: 'Единый разум', en: 'Unified Mind' }, desc: { ru: 'Легендарный • самый высокий уровень башни передаёт 3% за уровень всей сети', en: 'Legendary • the highest tower level grants 3% damage per level' } },
+];
+
+export const ARTIFACT_MAP: Record<ArtifactId, ArtifactDef> = Object.fromEntries(ARTIFACTS.map(a => [a.id, a])) as Record<ArtifactId, ArtifactDef>;
+'''
+          pattern = r"export type ArtifactId = .*?export const ARTIFACT_MAP: Record<ArtifactId, ArtifactDef> = Object\.fromEntries\(ARTIFACTS\.map\(a => \[a\.id, a\]\)\) as Record<ArtifactId, ArtifactDef>;\n"
+          new_game_data, count = re.subn(pattern, artifact_block, game_data, count=1, flags=re.S)
+          if count != 1:
+              raise SystemExit('Could not replace artifact catalog in gameData.ts')
+          game_data_path.write_text(new_game_data, encoding='utf-8')
+
+          # Add the artifact runtime layer to engine.ts.
+          engine_path = ROOT / 'src/engine.ts'
+          engine = engine_path.read_text(encoding='utf-8')
+          import_anchor = "import { loadCharacterId, loadCharacterProfiles } from './persistence';\n"
+          artifact_import = "import { getArtifactMoveSpeedMultiplier, getArtifactMaxHpBonus, getArtifactXpMultiplier, getArtifactRegenPerSecond, getArtifactSphereRadiusMultiplier, getArtifactSphereDamageMultiplier, getArtifactCooldownMultiplier, getArtifactDamageTakenMultiplier, getArtifactCritChanceBonus, getArtifactDodgeChanceBonus, getArtifactVampireBonus, getArtifactReflectChance, getSphereArtifactDamageMultiplier, pickArtifactChoices } from './artifactSystem';\n"
+          if artifact_import not in engine:
+              engine = engine.replace(import_anchor, import_anchor + artifact_import)
+
+          engine = engine.replace("  const startHp = baseHp * getCharacterMaxHpMultiplierForId(characterId);", "  const startHp = baseHp * getCharacterMaxHpMultiplierForId(characterId);")
+
+          engine = engine.replace("  if (s.player.artifacts.includes('crystal_speed')) sp *= 1.15;\n  if (s.player.artifacts.includes('dragon_heart')) sp *= 0.9;", "  sp *= getArtifactMoveSpeedMultiplier(s);")
+          engine = engine.replace("  if (s.player.artifacts.includes('radius_shard')) r *= 1.1;", "  r *= getArtifactSphereRadiusMultiplier(s);")
+          engine = engine.replace("  d *= towerModifiers(s, sphere.type).damage;\n  d *= towerModifiers(s, sphere.type).damage;", "  d *= getArtifactSphereDamageMultiplier(s);\n  d *= getSphereArtifactDamageMultiplier(s, sphere);\n  d *= towerModifiers(s, sphere.type).damage;")
+          engine = engine.replace("  d /= Math.max(0.01, getCharacterAttackSpeedMultiplier(s));\n  return d;", "  d /= Math.max(0.01, getCharacterAttackSpeedMultiplier(s));\n  d *= Math.max(0.5, 1 + (1 - 1 / getArtifactCooldownMultiplier(s)));\n  return d;")
+          engine = engine.replace("  if (s.player.artifacts.includes('luck_talisman')) c += 0.15;", "  c += getArtifactCritChanceBonus(s);")
+          engine = engine.replace("  return (s.player.abilities.dodge || 0) * 0.1;", "  return Math.min(0.75, (s.player.abilities.dodge || 0) * 0.1 + getArtifactDodgeChanceBonus(s));")
+          engine = engine.replace("  return lvl * 0.03; // 3% per level — 3% at lvl1, 15% at lvl5", "  return lvl * 0.03 + getArtifactVampireBonus(s);")
+          engine = engine.replace("  m *= 1 + (s.shopUpgrades.xp || 0) * 0.05;\n  if (s.player.artifacts.includes('ring_xp')) m *= 1.2;", "  m *= 1 + (s.shopUpgrades.xp || 0) * 0.05;\n  m *= getArtifactXpMultiplier(s);")
+          engine = engine.replace("  let m = 1;\n  if (s.player.artifacts.includes('mage_pendant')) m *= 0.9;\n  return m;", "  return getArtifactCooldownMultiplier(s);")
+          engine = engine.replace("  // regen stone artifact\n  if (s.player.artifacts.includes('regen_stone')) {\n    s.player.hp = Math.min(s.player.maxHp, s.player.hp + dt);\n  }", "  const artifactRegen = getArtifactRegenPerSecond(s);\n  if (artifactRegen > 0) {\n    s.player.hp = Math.min(s.player.maxHp, s.player.hp + artifactRegen * dt);\n  }")
+          damage_anchor = "  if (Math.random() < getDodgeChance(s)) {\n    s.particles.push({ pos: { ...s.player.pos }, vel: { x: 0, y: -60 }, life: 0.5, maxLife: 0.5, color: '#e8dcc0', size: 3 });\n    return;\n  }\n"
+          damage_insert = damage_anchor + "  amount *= getArtifactDamageTakenMultiplier(s);\n  if (Math.random() < getArtifactReflectChance(s)) {\n    const nearest = s.enemies.reduce((best: EnemyEntity | null, enemy) => {\n      if (enemy.hp <= 0) return best;\n      const d = Math.hypot(enemy.pos.x - s.player.pos.x, enemy.pos.y - s.player.pos.y);\n      if (d > 180) return best;\n      if (!best) return enemy;\n      const bestD = Math.hypot(best.pos.x - s.player.pos.x, best.pos.y - s.player.pos.y);\n      return d < bestD ? enemy : best;\n    }, null);\n    if (nearest) dealDamageToEnemy(s, nearest, amount * 1.25);\n  }\n"
+          if damage_anchor in engine and "getArtifactDamageTakenMultiplier(s);" not in engine:
+              engine = engine.replace(damage_anchor, damage_insert)
+
+          # Apply immediate HP bonuses when an artifact is acquired mid-run.
+          old_apply = "export function applyArtifact(s: GameState, id: ArtifactId): void {\n  s.player.artifacts.push(id);\n  if (id === 'amulet_hp') { s.player.maxHp += 30; s.player.hp += 30; }\n  if (id === 'dragon_heart') { s.player.maxHp += 50; s.player.hp += 50; }\n  playSound('chest');\n}"
+          new_apply = "export function applyArtifact(s: GameState, id: ArtifactId): void {\n  if (s.player.artifacts.includes(id)) return;\n  s.player.artifacts.push(id);\n  const hpBonus = getArtifactMaxHpBonus(id);\n  if (hpBonus > 0) { s.player.maxHp += hpBonus; s.player.hp += hpBonus; }\n  playSound('chest');\n}"
+          if old_apply in engine:
+              engine = engine.replace(old_apply, new_apply)
+          else:
+              raise SystemExit('Could not locate applyArtifact in engine.ts')
+
+          old_pick = "function pickArtifacts(s: GameState): ArtifactId[] {\n  const owned = new Set(s.player.artifacts);\n  const pool = (Object.keys(ARTIFACT_MAP) as ArtifactId[]).filter(a => !owned.has(a));\n  const choices: ArtifactId[] = [];\n  while (choices.length < 3 && pool.length > 0) {\n    const idx = Math.floor(Math.random() * pool.length);\n    choices.push(pool.splice(idx, 1)[0]);\n  }\n  return choices;\n}"
+          new_pick = "function pickArtifacts(s: GameState): ArtifactId[] {\n  return pickArtifactChoices(s, 3);\n}"
+          if old_pick in engine:
+              engine = engine.replace(old_pick, new_pick)
+          else:
+              raise SystemExit('Could not locate pickArtifacts in engine.ts')
+
+          engine_path.write_text(engine, encoding='utf-8')
+
+          # Integrate the new artifact modifiers with per-tower progression.
+          tower_path = ROOT / 'src/towerProgression.ts'
+          tower = tower_path.read_text(encoding='utf-8')
+          if "from './artifactSystem'" not in tower:
+              tower = tower.replace("import type { CharacterId } from './characters';\n", "import type { CharacterId } from './characters';\nimport { getTowerArtifactModifiers } from './artifactSystem';\n")
+          old_tower_fn = "export function towerModifiers(s:any,type:SphereType){const l=towerLevel(s,type);return {damage:1+l*.08+(l>=4?.12:0)+(l>=7?.18:0),radius:1+(l>=2?.05:0)+(l>=5?.06:0)+(l>=7?.08:0),delay:Math.max(.58,1-l*.045),pierce:l>=2?1:0,multishot:type==='shotgun'&&l>=1?1:0,chainTargets:type==='chain'?Math.max(1,l+1):0,auraRadius:l>=2?1.08:1,auraPulse:l>=4?.75:.5};}"
+          new_tower_fn = "export function towerModifiers(s:any,type:SphereType){const l=towerLevel(s,type);const artifact=getTowerArtifactModifiers(s,type);return {damage:(1+l*.08+(l>=4?.12:0)+(l>=7?.18:0))*artifact.damage,radius:(1+(l>=2?.05:0)+(l>=5?.06:0)+(l>=7?.08:0))*artifact.radius,delay:Math.max(.48,1-l*.045)*artifact.delay,pierce:l>=2?1:0,multishot:type==='shotgun'&&l>=1?1:0,chainTargets:type==='chain'?Math.max(1,l+1):0,auraRadius:l>=2?1.08:1,auraPulse:l>=4?.75:.5};}"
+          if old_tower_fn not in tower:
+              raise SystemExit('Could not locate towerModifiers in towerProgression.ts')
+          tower = tower.replace(old_tower_fn, new_tower_fn)
+          tower_path.write_text(tower, encoding='utf-8')
+
+          # Remove the stale component reference that caused the latest APK typecheck failure.
+          app_path = ROOT / 'src/App.tsx'
+          app = app_path.read_text(encoding='utf-8')
+          stale_line = "          {st.pendingTowerUpgrade && <TowerUpgradeModal lang={lang} t={t} choices={st.pendingTowerUpgrade} onPick={(c) => { applyTowerUpgrade(st, c); }} />}\n"
+          if stale_line in app:
+              app = app.replace(stale_line, '')
+          else:
+              # Treat an already-clean file as success, but fail if the old symbols still exist.
+              if 'TowerUpgradeModal' in app or 'applyTowerUpgrade' in app:
+                  raise SystemExit('Stale TowerUpgradeModal symbols remain in App.tsx')
+          app_path.write_text(app, encoding='utf-8')
+
+          # Idempotency marker for future checks.
+          marker = ROOT / 'src/artifactSystem.ts'
+          if not marker.exists():
+              raise SystemExit('artifactSystem.ts was not created')
+          print('Artifact system patch applied.')
+          PY
+
+      - name: Typecheck
+        run: npm ci && npm run typecheck
+
+      - name: Commit patch and remove helper workflow
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/gameData.ts src/engine.ts src/towerProgression.ts src/App.tsx src/artifactSystem.ts
+          git rm .github/workflows/apply-artifact-system.yml
+          git commit -m "feat: implement artifact system [artifact-system-applied]"
+          git push origin cleanup-android
