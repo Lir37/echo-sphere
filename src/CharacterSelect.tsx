@@ -3,11 +3,9 @@ import { ArrowLeft, Check, Lock } from 'lucide-react';
 import {
   CHARACTER_LIST,
   CHARACTER_UNLOCK_COST,
-  DEFAULT_CHARACTER_ID,
   type CharacterId,
 } from './characters';
 import {
-  isCharacterUnlocked,
   loadCharacterId,
   loadCharacterProfiles,
   saveCharacterId,
