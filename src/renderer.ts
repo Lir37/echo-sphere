@@ -975,6 +975,63 @@ function drawTowerPaperFrame(ctx: CanvasRenderingContext2D, sphere: SphereEntity
   ctx.strokeStyle = FOLD_LINE; ctx.lineWidth = 1;
   for (let i = 0; i < 8; i += 2) { ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(points[i].x, points[i].y); ctx.stroke(); }
 
+  // Distinct folded-paper body silhouette for each tower role.
+  // The silhouette is intentionally compact so the existing tower frame remains visible.
+  ctx.save();
+  ctx.rotate(sphere.rotation * 0.35);
+  ctx.fillStyle = shade(color, -24);
+  ctx.strokeStyle = INK;
+  ctx.lineWidth = 1.4;
+  if (sphere.type === 'sniper') {
+    // Tall crystal/periscope: visually points forward.
+    ctx.beginPath();
+    ctx.moveTo(-8, 13); ctx.lineTo(-6, -12); ctx.lineTo(2, -18);
+    ctx.lineTo(13, -10); ctx.lineTo(10, 15); ctx.lineTo(0, 20);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = shade(color, 22);
+    ctx.beginPath(); ctx.moveTo(-6, -12); ctx.lineTo(2, -18); ctx.lineTo(2, -1); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = FOLD_LINE;
+    ctx.beginPath(); ctx.moveTo(2, -1); ctx.lineTo(0, 20); ctx.stroke();
+  } else if (sphere.type === 'shotgun') {
+    // Broad folded receiver with three short barrels.
+    ctx.beginPath();
+    ctx.moveTo(-15, -10); ctx.lineTo(4, -13); ctx.lineTo(14, -7);
+    ctx.lineTo(14, 7); ctx.lineTo(4, 13); ctx.lineTo(-15, 10);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.strokeStyle = shade(color, 24); ctx.lineWidth = 2;
+    for (let i = -1; i <= 1; i++) {
+      ctx.beginPath(); ctx.moveTo(0, i * 4); ctx.lineTo(19, i * 6); ctx.stroke();
+    }
+  } else if (sphere.type === 'chain') {
+    // Two interlocking paper loops, animated against each other.
+    const pulse = 0.5 + Math.sin(t * 7 + sphere.pos.y * 0.01) * 0.5;
+    ctx.strokeStyle = shade(color, 20); ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.arc(-7, 0, 8 + pulse, -0.8, Math.PI + 0.8); ctx.stroke();
+    ctx.beginPath(); ctx.arc(7, 0, 8 + (1 - pulse), Math.PI - 0.8, Math.PI * 2 - 0.8); ctx.stroke();
+    ctx.strokeStyle = INK; ctx.lineWidth = 1.4;
+    ctx.beginPath(); ctx.arc(-7, 0, 8 + pulse, -0.8, Math.PI + 0.8); ctx.stroke();
+    ctx.beginPath(); ctx.arc(7, 0, 8 + (1 - pulse), Math.PI - 0.8, Math.PI * 2 - 0.8); ctx.stroke();
+  } else if (sphere.type === 'aura') {
+    // Hexagonal amplifier/basin.
+    ctx.beginPath();
+    ctx.moveTo(0, -18); ctx.lineTo(14, -8); ctx.lineTo(12, 9);
+    ctx.lineTo(0, 18); ctx.lineTo(-12, 9); ctx.lineTo(-14, -8);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(0, 2, 9 + Math.sin(t * 5) * 1.4, 0, Math.PI * 2); ctx.stroke();
+    ctx.strokeStyle = FOLD_LINE; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0, -18); ctx.lineTo(0, 18); ctx.stroke();
+  } else {
+    // Default folded emitter/node.
+    ctx.beginPath();
+    ctx.moveTo(0, -17); ctx.lineTo(15, -7); ctx.lineTo(12, 11);
+    ctx.lineTo(0, 17); ctx.lineTo(-12, 11); ctx.lineTo(-15, -7);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = shade(color, 26);
+    ctx.beginPath(); ctx.moveTo(0, -17); ctx.lineTo(15, -7); ctx.lineTo(0, 2); ctx.closePath(); ctx.fill();
+  }
+  ctx.restore();
+
   // Animated paper braces.
   ctx.save();
   ctx.rotate(t * 0.32 + sphere.rotation * 0.15);
