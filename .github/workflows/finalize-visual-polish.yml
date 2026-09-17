@@ -1,0 +1,70 @@
+name: Finalize enemy and tower visual polish
+on:
+  push:
+    branches:
+      - cleanup-android
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: cleanup-android
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Apply visual patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp scripts/polish-visuals.js /tmp/polish-visuals.cjs
+          node /tmp/polish-visuals.cjs
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('src/renderer.ts')
+          t = p.read_text()
+          call = '  drawTowerPaperFrame(ctx, sphere, baseColor, t);\n'
+          t = t.replace(call, '')
+          anchor = '  const stype = SPHERE_TYPES[sphere.type];\n'
+          if anchor not in t:
+              raise SystemExit('drawSphere type anchor not found')
+          t = t.replace(anchor, anchor + call, 1)
+          t = t.replace('  const points = [];\n', '  const points: Array<{ x: number; y: number }> = [];\n', 1)
+          p.write_text(t)
+          PY
+          grep -q 'getEnemyFacingAngle(e)' src/renderer.ts
+          grep -q 'drawTowerPaperFrame(ctx, sphere, baseColor, t);' src/renderer.ts
+          if grep -q 'ctx.rotate(e.rotation);' src/renderer.ts; then
+            echo 'Enemy still uses simulation rotation'
+            exit 1
+          fi
+          git diff --check
+      - name: Typecheck
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci --ignore-scripts
+          npm run typecheck
+      - name: Commit and clean all temporary files
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f \
+            scripts/polish-visuals.js \
+            .github/workflows/finalize-visual-polish.yml \
+            .github/workflows/run-visual-polish-v2.yml \
+            .github/workflows/run-visual-polish-now.yml \
+            .github/workflows/apply-visual-polish.yml \
+            .github/workflows/polish-enemies-towers.yml \
+            .github/workflows/fix-visual-patcher.yml \
+            .github/workflows/fix-visual-patcher-2.yml \
+            .github/workflows/fix-visual-patcher-3.yml \
+            .github/workflows/fix-visual-patcher-4.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/renderer.ts scripts/polish-visuals.js .github/workflows
+          git commit -m 'Polish enemies and towers [enemy-tower-visuals]'
+          git push origin cleanup-android
