@@ -3,7 +3,7 @@ import { Pause, Zap } from 'lucide-react';
 import { ABILITIES, SPHERE_TYPES, type AbilityType, type SphereType } from './gameData';
 import { activateByKey, activateDash, getMaxSpheres, placeSphere, setSphereType, type GameState } from './engine';
 import { CHARACTER_DEFS } from './characters';
-import { getCharacterFormation, getEngineerNetworkRange } from './characterRuntime';
+import { getCharacterFormation, getEngineerNetworkRange, getEngineerNetworkSpheres } from './characterRuntime';
 import { playSound } from './audio';
 import type { Lang, TranslationKey } from './i18n';
 import { loadInterfaceScale } from './interfaceScale';
@@ -236,8 +236,7 @@ function readCharacterVisualState(st: GameState): CharacterVisualState {
   const visual = getEmptyCharacterVisualState();
 
   if (characterId === 'engineer') {
-    const range = getEngineerNetworkRange(st);
-    visual.linkedCount = aliveSpheres.filter((sphere) => aliveSpheres.some((other) => other !== sphere && Math.hypot(other.pos.x - sphere.pos.x, other.pos.y - sphere.pos.y) <= range)).length;
+    visual.linkedCount = getEngineerNetworkSpheres(st).length;
   }
 
   if (characterId === 'berserker') {
