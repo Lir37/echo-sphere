@@ -3,6 +3,7 @@ import { Pause, Zap } from 'lucide-react';
 import { ABILITIES, SPHERE_TYPES, type AbilityType, type SphereType } from './gameData';
 import { activateByKey, activateDash, getMaxSpheres, placeSphere, setSphereType, type GameState } from './engine';
 import { CHARACTER_DEFS } from './characters';
+import { getCharacterFormation, getEngineerNetworkRange, getEngineerNetworkSpheres, getLocalCharacterSpheres } from './characterRuntime';
 import type { Lang, TranslationKey } from './i18n';
 import { loadInterfaceScale } from './interfaceScale';
 
@@ -22,9 +23,7 @@ function isBlockedByControl(target: EventTarget | null): boolean {
 }
 
 function getSoftPlacementPoint(st: GameState, desired: { x: number; y: number }): { x: number; y: number } | null {
-  const occupied = st.spheres
-    .filter((sphere) => sphere.alive)
-    .map((sphere) => sphere.pos);
+  const occupied = st.spheres.filter((sphere) => sphere.alive).map((sphere) => sphere.pos);
   const candidates = Array.from({ length: PLACEMENT_NODES }, (_, index) => {
     const angle = (index / PLACEMENT_NODES) * Math.PI * 2;
     const x = st.player.pos.x + Math.cos(angle) * PLACEMENT_RADIUS;
@@ -150,6 +149,25 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
   const preferredSphereTypes = stateRef.current
     ? CHARACTER_DEFS[stateRef.current.player.characterId]?.preferredSphereTypes || []
     : [];
+  const characterId = stateRef.current?.player.characterId;
+  const engineerNetwork = characterId === 'engineer' ? getEngineerNetworkSpheres(stateRef.current!) : [];
+  const localCharacterSpheres = characterId === 'architect' ? getLocalCharacterSpheres(stateRef.current!) : [];
+  const formation = characterId === 'architect' ? getCharacterFormation(stateRef.current!) : { type: 'none' as const, strength: 0 };
+  const engineerRange = characterId === 'engineer' ? getEngineerNetworkRange(stateRef.current!) : 0;
+
+  const worldToScreen = (position: { x: number; y: number }): { x: number; y: number } | null => {
+    const st = stateRef.current;
+    const canvas = canvasRef.current;
+    if (!st || !canvas) return null;
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) return null;
+    const scaleX = rect.width / canvas.width;
+    const scaleY = rect.height / canvas.height;
+    return {
+      x: rect.left + (canvas.width / 2 + position.x - st.camera.x) * scaleX,
+      y: rect.top + (canvas.height / 2 + position.y - st.camera.y) * scaleY,
+    };
+  };
 
   return (
     <div className="absolute inset-0 z-20 overflow-hidden select-none" style={{ touchAction: 'none', userSelect: 'none', WebkitUserSelect: 'none' }}
@@ -188,6 +206,27 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
       onPointerUp={(e) => endPointer(e.pointerId, e.clientX, e.clientY)}
       onPointerCancel={(e) => endPointer(e.pointerId, e.clientX, e.clientY)}
     >
+      {(engineerNetwork.length > 1 || localCharacterSpheres.length > 1) && (
+        <svg className="absolute inset-0 w-full h-full pointer-events-none" aria-hidden="true">
+          {characterId === 'engineer' && engineerNetwork.slice(0, -1).map((sphere, index) => {
+            const from = worldToScreen(sphere.pos);
+            if (!from) return null;
+            return engineerNetwork.slice(index + 1).map((other) => {
+              const to = worldToScreen(other.pos);
+              if (!to) return null;
+              const nearby = Math.hypot(sphere.pos.x - other.pos.x, sphere.pos.y - other.pos.y) <= engineerRange;
+              if (!nearby) return null;
+              return <line key={`${index}-${other.pos.x}-${other.pos.y}`} x1={from.x} y1={from.y} x2={to.x} y2={to.y} stroke="rgba(74,122,138,0.42)" strokeWidth="2" strokeDasharray="5 4" />;
+            });
+          })}
+          {characterId === 'architect' && formation.type !== 'none' && localCharacterSpheres.slice(0, 8).map((sphere) => {
+            const point = worldToScreen(sphere.pos);
+            if (!point) return null;
+            return <circle key={`${sphere.pos.x}-${sphere.pos.y}`} cx={point.x} cy={point.y} r="20" fill="rgba(212,148,61,0.08)" stroke="rgba(212,148,61,0.55)" strokeWidth="2" />;
+          })}
+        </svg>
+      )}
+
       {joystick && (
         <div className="absolute pointer-events-none" style={{ left: joystick.x - JOYSTICK_RADIUS, top: joystick.y - JOYSTICK_RADIUS, width: JOYSTICK_RADIUS * 2, height: JOYSTICK_RADIUS * 2, transform: `scale(${interfaceScale})`, transformOrigin: 'center' }}>
           <div className="absolute inset-0 rounded-full border border-white/20 bg-black/20 backdrop-blur-[2px]" />
