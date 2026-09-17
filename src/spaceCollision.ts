@@ -35,6 +35,13 @@ function getCellCoord(value: number): number {
   return Math.floor(value / ENEMY_SEPARATION_CELL);
 }
 
+function getEnemyMass(enemy: EnemyEntity): number {
+  if (enemy.isBoss) return 8;
+  if (enemy.type === 'tank') return 2.5;
+  if (enemy.type === 'fast') return 0.7;
+  return 1;
+}
+
 /**
  * Validate a new tower placement before placeSphere() is called.
  *
@@ -139,12 +146,17 @@ function resolveEnemyEnemyCollisions(s: GameState): void {
 
           const normal = normalize(dx, dy);
           const overlap = minDistance - currentDistance;
-          const pushA = overlap * 0.5;
-          const pushB = overlap - pushA;
-          a.pos.x -= normal.x * pushA;
-          a.pos.y -= normal.y * pushA;
-          b.pos.x += normal.x * pushB;
-          b.pos.y += normal.y * pushB;
+          const massA = getEnemyMass(a);
+          const massB = getEnemyMass(b);
+          const totalMass = massA + massB;
+          const moveA = overlap * (massB / totalMass);
+          const moveB = overlap * (massA / totalMass);
+
+          // Heavy units barely move while light units are displaced more.
+          a.pos.x -= normal.x * moveA;
+          a.pos.y -= normal.y * moveA;
+          b.pos.x += normal.x * moveB;
+          b.pos.y += normal.y * moveB;
         }
       }
     }
@@ -184,11 +196,13 @@ function resolveEnemyPlayerCollisions(s: GameState): void {
     touchingPlayer = true;
     const normal = normalize(dx, dy);
     const overlap = minDistance - currentDistance;
-    const enemyPush = overlap * 0.7;
-    const playerPush = overlap - enemyPush;
+    const enemyMass = getEnemyMass(enemy);
+    const playerMass = 2;
+    const totalMass = enemyMass + playerMass;
+    const enemyPush = overlap * (playerMass / totalMass);
+    const playerPush = overlap * (enemyMass / totalMass);
 
-    // Enemy receives the larger correction so the player feels physically
-    // blocked instead of being thrown around by the horde.
+    // Large enemies shove the player more; light enemies yield more.
     enemy.pos.x -= normal.x * enemyPush;
     enemy.pos.y -= normal.y * enemyPush;
     pushX += normal.x * playerPush;
