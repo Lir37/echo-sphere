@@ -128,7 +128,10 @@ export function loadCharacterProfiles(): PersistedCharacterProfile[] {
       const legacyLevel = Math.max(1, Math.min(5, Number(candidate.masteryLevel) || 1));
       const legacyXp = CHARACTER_MASTERY_THRESHOLDS[legacyLevel - 1];
       const storedXp = Number(candidate.masteryXp);
-      base.masteryXp = Math.max(legacyXp, Number.isFinite(storedXp) ? Math.max(0, storedXp) : 0);
+      base.masteryXp = Math.min(
+        CHARACTER_MASTERY_THRESHOLDS[CHARACTER_MASTERY_THRESHOLDS.length - 1],
+        Math.max(legacyXp, Number.isFinite(storedXp) ? Math.max(0, storedXp) : 0),
+      );
       base.masteryLevel = Math.max(legacyLevel, getCharacterMasteryLevelForXp(base.masteryXp));
     }
     return defaults;
@@ -176,9 +179,10 @@ export function addCharacterMasteryXp(id: CharacterId, amount: number): {
     return { gainedXp: 0, totalXp: 0, previousLevel: 1, level: 1 };
   }
 
-  const gainedXp = Math.max(0, Math.floor(amount));
+  const maxXp = CHARACTER_MASTERY_THRESHOLDS[CHARACTER_MASTERY_THRESHOLDS.length - 1];
+  const gainedXp = Math.max(0, Math.min(Math.floor(amount), maxXp - profile.masteryXp));
   const previousLevel = profile.masteryLevel;
-  profile.masteryXp = Math.max(0, profile.masteryXp + gainedXp);
+  profile.masteryXp = Math.min(maxXp, profile.masteryXp + gainedXp);
   profile.masteryLevel = Math.max(profile.masteryLevel, getCharacterMasteryLevelForXp(profile.masteryXp));
   saveCharacterProfiles(profiles);
 
