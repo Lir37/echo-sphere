@@ -4,10 +4,12 @@ import type { EnemyEntity, GameState, Vec } from './engine';
 export const TOWER_BODY_RADIUS = 26;
 const TOWER_PLACEMENT_GAP = 8;
 const PLAYER_BUILD_GAP = 48;
+const ENEMY_PLACEMENT_GAP = 10;
 const ENEMY_NAV_RADIUS = 22;
 const NAV_CELL_SIZE = 40;
 const ENEMY_SEPARATION_CELL = 80;
 const MAX_PLAYER_PUSH_PER_FRAME = 14;
+const PLAYER_RADIUS = 16;
 
 function distance(a: Vec, b: Vec): number {
   return Math.hypot(a.x - b.x, a.y - b.y);
@@ -43,6 +45,13 @@ export function canPlaceSphere(s: GameState, x: number, y: number): boolean {
   for (const sphere of s.spheres) {
     if (!sphere.alive) continue;
     if (distance({ x, y }, sphere.pos) < TOWER_BODY_RADIUS * 2 + TOWER_PLACEMENT_GAP) return false;
+  }
+
+  // Never materialize a solid tower under an enemy. This avoids a sudden
+  // artificial displacement of the horde and keeps placement predictable.
+  for (const enemy of s.enemies) {
+    if (enemy.hp <= 0) continue;
+    if (distance({ x, y }, enemy.pos) < TOWER_BODY_RADIUS + enemy.radius + ENEMY_PLACEMENT_GAP) return false;
   }
 
   return hasRouteToOutside(s, { x, y });
@@ -147,7 +156,7 @@ function resolveEnemyPlayerCollisions(s: GameState): void {
     if (enemy.hp <= 0) continue;
     const dx = s.player.pos.x - enemy.pos.x;
     const dy = s.player.pos.y - enemy.pos.y;
-    const minDistance = enemy.radius + 16;
+    const minDistance = enemy.radius + PLAYER_RADIUS;
     const currentDistance = Math.hypot(dx, dy);
     if (currentDistance >= minDistance) continue;
 
@@ -173,8 +182,8 @@ function resolveEnemyPlayerCollisions(s: GameState): void {
 }
 
 function clampPosition(pos: Vec, s: GameState): void {
-  const limitX = s.worldWidth / 2 - 16;
-  const limitY = s.worldHeight / 2 - 16;
+  const limitX = s.worldWidth / 2 - PLAYER_RADIUS;
+  const limitY = s.worldHeight / 2 - PLAYER_RADIUS;
   pos.x = clampScalar(pos.x, -limitX, limitX);
   pos.y = clampScalar(pos.y, -limitY, limitY);
 }
