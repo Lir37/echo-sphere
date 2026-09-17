@@ -26,6 +26,7 @@ import {
   getFormationDamageTakenMultiplier,
 } from './characterRuntime';
 import { loadCharacterId, loadCharacterProfiles } from './persistence';
+import { TOWER_PROGRESSION, towerPriority, towerLevel, towerModifiers, TOWER_ABILITY_SYNERGIES } from './towerProgression';
 
 export interface Vec { x: number; y: number; }
 
@@ -66,6 +67,7 @@ export interface PlayerState {
   sphereXpAccumulator: number;
   towerUpgradeCount: number;
   towerMods: TowerMods;
+  towerProgression: Partial<Record<SphereType, number>>;
   dashCooldown: number;
   dashTimer: number; // active dash i-frames
   dashDir: Vec;
@@ -373,6 +375,7 @@ export function createInitialState(
     blinkHpCost: false,
     sphereXpAccumulator: 0,
     towerUpgradeCount: 0,
+    towerProgression: { standard: 0, sniper: 0, shotgun: 0, chain: 0, aura: 0 },
     towerMods: { multishot: 0, pierce: 0, ricochet: 0, fire: 0, freeze: 0, poison: 0 },
     dashCooldown: 0,
     dashTimer: 0,
@@ -476,6 +479,7 @@ export function getSphereRadius(s: GameState, sphere: SphereEntity): number {
   if (s.player.chaosOrbBuff === 'radius' && s.player.chaosOrbBuffTimer > 0) r *= 1.2;
   if (s.player.mutationStage >= 2) r *= 1.15;
   r *= getCharacterRadiusMultiplier(s);
+  r *= towerModifiers(s, sphere.type).radius;
   if (getCharacterId(s) === 'architect' && s.player.characterMasteryLevel >= 3) r *= 1.02;
   return r;
 }
@@ -496,6 +500,7 @@ export function getSphereDamage(s: GameState, sphere: SphereEntity): number {
   if (s.player.evolutions.includes('echoaccumulator')) {
     d += s.player.sphereXpAccumulator * 0.5;
   }
+  d *= towerModifiers(s, sphere.type).damage;
   return d;
 }
 
@@ -1240,24 +1245,20 @@ export function applyUpgrade(s: GameState, choice: UpgradeChoice): void {
 }
 
 export function applyTowerUpgrade(s: GameState, choice: TowerUpgradeChoice): void {
-  s.player.towerMods[choice.id] = (s.player.towerMods[choice.id] || 0) + 1;
-  s.pendingTowerUpgrade = null;
+  const type=(choice as TowerUpgradeChoice & {towerType?:SphereType}).towerType;
+  if(type){
+    const current=towerLevel(s,type); if(current<7){const next=current+1; s.player.towerProgression[type]=next; for(const sp of s.spheres) if(sp.type===type) sp.visualTier=next;
+      if(next===4){s.player.evolutions.push(`tower:${type}:4`);s.evolutionsThisRun++;s.flashText={text:`${TOWER_PROGRESSION[type].name.ru}: ${TOWER_PROGRESSION[type].evolution4.name.ru}`,life:1.8,color:'#d4943d'};playSound('evolve');}
+      if(next===7){s.player.evolutions.push(`tower:${type}:7`);s.evolutionsThisRun++;s.flashText={text:`${TOWER_PROGRESSION[type].name.ru}: ${TOWER_PROGRESSION[type].evolution7.name.ru}`,life:2.2,color:'#c4453d'};playSound('evolve');}
+      if(next===7){const syn=TOWER_ABILITY_SYNERGIES.find(x=>x.tower===type&&(s.player.abilities[x.ability]||0)>=7);if(syn&&!s.player.evolutions.includes(`synergy:${type}:${syn.ability}`)){s.player.evolutions.push(`synergy:${type}:${syn.ability}`);s.flashText={text:syn.name.ru,life:2.2,color:'#8a5a8a'};playSound('evolve');}}
+    } s.pendingTowerUpgrade=null;s.pendingUpgrade=null;return;
+  }
+  s.player.towerMods[choice.id]=(s.player.towerMods[choice.id]||0)+1;s.pendingTowerUpgrade=null;
 }
-
-function generateTowerUpgradeChoices(s: GameState): TowerUpgradeChoice[] {
-  const all: TowerUpgradeChoice[] = [
-    { id: 'multishot', name: { ru: 'Мультивыстрел', en: 'Multishot' }, desc: { ru: '+1 снаряд за выстрел', en: '+1 projectile per shot' } },
-    { id: 'pierce', name: { ru: 'Пробитие', en: 'Pierce' }, desc: { ru: 'Снаряд пробивает +1 врага', en: 'Projectile pierces +1 enemy' } },
-    { id: 'ricochet', name: { ru: 'Рикошет', en: 'Ricochet' }, desc: { ru: '+1 отскок снаряда', en: '+1 projectile bounce' } },
-    { id: 'fire', name: { ru: 'Поджог', en: 'Fire' }, desc: { ru: 'Снаряды поджигают врагов (DoT)', en: 'Projectiles set enemies on fire (DoT)' } },
-    { id: 'freeze', name: { ru: 'Заморозка', en: 'Freeze' }, desc: { ru: 'Снаряды замедляют врагов', en: 'Projectiles slow enemies' } },
-    { id: 'poison', name: { ru: 'Яд', en: 'Poison' }, desc: { ru: 'Снаряды отравливают врагов (DoT)', en: 'Projectiles poison enemies (DoT)' } },
-  ];
-  // filter out maxed ones (max 3 levels each)
-  const available = all.filter(c => (s.player.towerMods[c.id] || 0) < 3);
-  // pick 3 random
-  const shuffled = [...available].sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, 3);
+function generateTowerProgressionChoices(s: GameState): TowerUpgradeChoice[] {
+  const candidates=(Object.keys(TOWER_PROGRESSION) as SphereType[]).filter(x=>towerLevel(s,x)<7).sort((a,b)=>towerPriority(s.player.characterId,b)-towerPriority(s.player.characterId,a));
+  const selected=[...candidates.slice(0,3)].sort(()=>Math.random()-.5);
+  return selected.map(towerType=>{const n=towerLevel(s,towerType)+1;const d=TOWER_PROGRESSION[towerType];const u=d.levels[n-1];const major=n===4?d.evolution4:n===7?d.evolution7:null;return {id:'multishot',towerType,name:{ru:`${d.name.ru} — уровень ${n}: ${major?.name.ru||u.name.ru}`,en:`${d.name.en} — level ${n}: ${major?.name.en||u.name.en}`},desc:{ru:major?.desc.ru||u.desc.ru,en:major?.desc.en||u.desc.en}} as TowerUpgradeChoice & {towerType:SphereType};});
 }
 
 export function applyArtifact(s: GameState, id: ArtifactId): void {
@@ -1527,16 +1528,16 @@ function updateSpheres(s: GameState, dt: number): void {
     const stype = SPHERE_TYPES[sphere.type];
     const radius = getSphereRadius(s, sphere) * stype.rangeMult;
     const damage = getSphereDamage(s, sphere) * stype.damageMult;
-    const delay = getSphereDelay(s) * stype.delayMult;
+    const delay = getSphereDelay(s) * stype.delayMult * towerModifiers(s, sphere.type).delay;
     // aura type: continuous AoE damage — no barrel rotation
     if (stype.aura) {
       sphere.auraTimer -= dt;
       if (sphere.auraTimer <= 0) {
-        sphere.auraTimer = 0.5;
+        sphere.auraTimer = towerModifiers(s, sphere.type).auraPulse;
         let attacked = false;
         for (const e of s.enemies) {
           if (e.hp <= 0) continue;
-          if (dist(e.pos, sphere.pos) < stype.auraRadius) {
+          if (dist(e.pos, sphere.pos) < stype.auraRadius * towerModifiers(s, sphere.type).auraRadius) {
             dealDamageToEnemy(s, e, damage, sphere);
             attacked = true;
           }
@@ -1569,7 +1570,7 @@ function updateSpheres(s: GameState, dt: number): void {
         const dirX = dx / d;
         const dirY = dy / d;
         const mods = s.player.towerMods;
-        const shots = (1 + mods.multishot) * stype.pellets;
+        const shots = (1 + mods.multishot + (sphere.type === 'shotgun' ? towerModifiers(s, sphere.type).multishot : 0)) * stype.pellets;
         const relayMultiplier = consumeEngineerRelayBonus(s, sphere);
         const formation = getCharacterFormation(s);
         const formationPierce = getCharacterId(s) === 'architect' && formation.type === 'line' ? 1 : 0;
@@ -1592,7 +1593,7 @@ function updateSpheres(s: GameState, dt: number): void {
             radius: 5,
             alive: true,
             color,
-            pierce: mods.pierce + formationPierce + (stype.chain ? 99 : 0),
+            pierce: mods.pierce + formationPierce + (stype.chain ? Math.max(1, towerModifiers(s, 'chain').chainTargets) : towerModifiers(s, sphere.type).pierce),
             hitEnemies: new Set(),
             effect,
             ricochet: mods.ricochet,
@@ -1963,6 +1964,7 @@ function gainXp(s: GameState, amount: number): void {
     s.player.maxHp += 8;
     s.player.hp += 8;
     s.pendingUpgrade = generateUpgradeChoices(s);
+    if (s.player.level > 1) s.pendingTowerUpgrade = generateTowerProgressionChoices(s);
     playSound('levelup');
   }
 }
@@ -2030,7 +2032,7 @@ export function placeSphere(s: GameState, x: number, y: number): void {
     rotation: 0,
     alive: true,
     killsContribution: 0,
-    visualTier: Math.floor(s.player.towerUpgradeCount / 5),
+    visualTier: towerLevel(s, s.selectedSphereType),
     type: s.selectedSphereType,
     auraTimer: 0,
   });

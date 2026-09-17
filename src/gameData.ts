@@ -13,26 +13,26 @@ export interface AbilityDef {
 }
 
 export const ABILITIES: Record<AbilityType, AbilityDef> = {
-  radius: { id: 'radius', category: 'passive', maxLevel: 5, name: { ru: 'Радиус сфер', en: 'Sphere Radius' }, desc: { ru: () => '+15% радиуса', en: () => '+15% radius' } },
-  damage: { id: 'damage', category: 'passive', maxLevel: 5, name: { ru: 'Урон сфер', en: 'Sphere Damage' }, desc: { ru: () => '+20% урона', en: () => '+20% damage' } },
-  attackspeed: { id: 'attackspeed', category: 'passive', maxLevel: 5, name: { ru: 'Скорость атаки', en: 'Attack Speed' }, desc: { ru: () => '-10% задержки', en: () => '-10% delay' } },
+  radius: { id: 'radius', category: 'passive', maxLevel: 7, name: { ru: 'Радиус сфер', en: 'Sphere Radius' }, desc: { ru: () => '+15% радиуса', en: () => '+15% radius' } },
+  damage: { id: 'damage', category: 'passive', maxLevel: 7, name: { ru: 'Урон сфер', en: 'Sphere Damage' }, desc: { ru: () => '+20% урона', en: () => '+20% damage' } },
+  attackspeed: { id: 'attackspeed', category: 'passive', maxLevel: 7, name: { ru: 'Скорость атаки', en: 'Attack Speed' }, desc: { ru: () => '-10% задержки', en: () => '-10% delay' } },
   maxspheres: { id: 'maxspheres', category: 'passive', maxLevel: 3, name: { ru: '+1 Сфера', en: '+1 Sphere' }, desc: { ru: () => '+1 макс. сфер', en: () => '+1 max spheres' } },
-  blast: { id: 'blast', category: 'active', maxLevel: 5, key: 'e', name: { ru: 'Взрывная волна', en: 'Blast Wave' }, desc: { ru: (l) => `Урон по радиусу 200px, КД ${30 - (l - 1) * 2}с`, en: (l) => `Damage in 200px, CD ${30 - (l - 1) * 2}s` } },
-  shield: { id: 'shield', category: 'active', maxLevel: 5, key: 'q', name: { ru: 'Щит', en: 'Shield' }, desc: { ru: (l) => `Поглощает ${1 + Math.floor((l - 1) / 2)} ударов, КД 20с`, en: (l) => `Absorbs ${1 + Math.floor((l - 1) / 2)} hits, CD 20s` } },
-  teleport: { id: 'teleport', category: 'active', maxLevel: 5, key: 'r', name: { ru: 'Телепорт', en: 'Teleport' }, desc: { ru: (l) => `Прыжок в случайную точку, КД ${15 - (l - 1) * 2}с`, en: (l) => `Jump to random spot, CD ${15 - (l - 1) * 2}s` } },
-  movespeed: { id: 'movespeed', category: 'passive', maxLevel: 5, name: { ru: 'Скорость движения', en: 'Move Speed' }, desc: { ru: () => '+10% скорости', en: () => '+10% speed' } },
-  slow: { id: 'slow', category: 'passive', maxLevel: 5, name: { ru: 'Замедление врагов', en: 'Enemy Slow' }, desc: { ru: (l) => `-${10 + (l - 1) * 5}% скорости врагов`, en: (l) => `-${10 + (l - 1) * 5}% enemy speed` } },
-  vitality: { id: 'vitality', category: 'passive', maxLevel: 5, name: { ru: 'Живучесть', en: 'Vitality' }, desc: { ru: () => '+20 макс. HP', en: () => '+20 max HP' } },
-  firetrail: { id: 'firetrail', category: 'active', maxLevel: 5, key: 'f', name: { ru: 'Огненный след', en: 'Fire Trail' }, desc: { ru: (l) => `След ${5 + (l - 1)}с, КД 25с`, en: (l) => `Trail ${5 + (l - 1)}s, CD 25s` } },
-  minion: { id: 'minion', category: 'active', maxLevel: 5, key: 'g', name: { ru: 'Призыв миньона', en: 'Summon Minion' }, desc: { ru: (l) => `${1 + Math.floor((l - 1) / 2)} миньон(а), 10с, КД 30с`, en: (l) => `${1 + Math.floor((l - 1) / 2)} minion(s), 10s, CD 30s` } },
-  vampire: { id: 'vampire', category: 'passive', maxLevel: 5, name: { ru: 'Вампиризм', en: 'Vampirism' }, desc: { ru: (l) => `${l * 3}% урона -> HP`, en: (l) => `${l * 3}% damage -> HP` } },
-  lightning: { id: 'lightning', category: 'active', maxLevel: 5, key: 'e', name: { ru: 'Молния', en: 'Lightning' }, desc: { ru: (l) => `${1 + Math.floor((l - 1) / 2)} цель, КД 20с`, en: (l) => `${1 + Math.floor((l - 1) / 2)} target(s), CD 20s` } },
-  dodge: { id: 'dodge', category: 'passive', maxLevel: 5, name: { ru: 'Уклонение', en: 'Dodge' }, desc: { ru: (l) => `${10 + (l - 1) * 5}% шанс`, en: (l) => `${10 + (l - 1) * 5}% chance` } },
-  crit: { id: 'crit', category: 'passive', maxLevel: 5, name: { ru: 'Критический урон', en: 'Critical Hit' }, desc: { ru: (l) => `${10 + (l - 1) * 5}% шанс x2`, en: (l) => `${10 + (l - 1) * 5}% chance x2` } },
-  timestop: { id: 'timestop', category: 'active', maxLevel: 5, key: 'q', name: { ru: 'Временная остановка', en: 'Time Stop' }, desc: { ru: (l) => `Заморозка ${3 + (l - 1)}с, КД 40с`, en: (l) => `Freeze ${3 + (l - 1)}s, CD 40s` } },
-  magnet: { id: 'magnet', category: 'passive', maxLevel: 5, name: { ru: 'Магнит опыта', en: 'XP Magnet' }, desc: { ru: () => '+20% радиус подбора', en: () => '+20% pickup radius' } },
-  sphereboost: { id: 'sphereboost', category: 'passive', maxLevel: 5, name: { ru: 'Усиление сфер', en: 'Sphere Boost' }, desc: { ru: (l) => `+1 урон за ${Math.max(50, 100 - (l - 1) * 10)} убийств`, en: (l) => `+1 dmg per ${Math.max(50, 100 - (l - 1) * 10)} kills` } },
-  darkritual: { id: 'darkritual', category: 'active', maxLevel: 5, key: 'r', name: { ru: 'Тёмный ритуал', en: 'Dark Ritual' }, desc: { ru: (l) => `-20% HP, урон по 500px, КД 30с`, en: (l) => `-20% HP, damage in 500px, CD 30s` } },
+  blast: { id: 'blast', category: 'active', maxLevel: 7, key: 'e', name: { ru: 'Взрывная волна', en: 'Blast Wave' }, desc: { ru: (l) => `Урон по радиусу 200px, КД ${30 - (l - 1) * 2}с`, en: (l) => `Damage in 200px, CD ${30 - (l - 1) * 2}s` } },
+  shield: { id: 'shield', category: 'active', maxLevel: 7, key: 'q', name: { ru: 'Щит', en: 'Shield' }, desc: { ru: (l) => `Поглощает ${1 + Math.floor((l - 1) / 2)} ударов, КД 20с`, en: (l) => `Absorbs ${1 + Math.floor((l - 1) / 2)} hits, CD 20s` } },
+  teleport: { id: 'teleport', category: 'active', maxLevel: 7, key: 'r', name: { ru: 'Телепорт', en: 'Teleport' }, desc: { ru: (l) => `Прыжок в случайную точку, КД ${15 - (l - 1) * 2}с`, en: (l) => `Jump to random spot, CD ${15 - (l - 1) * 2}s` } },
+  movespeed: { id: 'movespeed', category: 'passive', maxLevel: 7, name: { ru: 'Скорость движения', en: 'Move Speed' }, desc: { ru: () => '+10% скорости', en: () => '+10% speed' } },
+  slow: { id: 'slow', category: 'passive', maxLevel: 7, name: { ru: 'Замедление врагов', en: 'Enemy Slow' }, desc: { ru: (l) => `-${10 + (l - 1) * 5}% скорости врагов`, en: (l) => `-${10 + (l - 1) * 5}% enemy speed` } },
+  vitality: { id: 'vitality', category: 'passive', maxLevel: 7, name: { ru: 'Живучесть', en: 'Vitality' }, desc: { ru: () => '+20 макс. HP', en: () => '+20 max HP' } },
+  firetrail: { id: 'firetrail', category: 'active', maxLevel: 7, key: 'f', name: { ru: 'Огненный след', en: 'Fire Trail' }, desc: { ru: (l) => `След ${5 + (l - 1)}с, КД 25с`, en: (l) => `Trail ${5 + (l - 1)}s, CD 25s` } },
+  minion: { id: 'minion', category: 'active', maxLevel: 7, key: 'g', name: { ru: 'Призыв миньона', en: 'Summon Minion' }, desc: { ru: (l) => `${1 + Math.floor((l - 1) / 2)} миньон(а), 10с, КД 30с`, en: (l) => `${1 + Math.floor((l - 1) / 2)} minion(s), 10s, CD 30s` } },
+  vampire: { id: 'vampire', category: 'passive', maxLevel: 7, name: { ru: 'Вампиризм', en: 'Vampirism' }, desc: { ru: (l) => `${l * 3}% урона -> HP`, en: (l) => `${l * 3}% damage -> HP` } },
+  lightning: { id: 'lightning', category: 'active', maxLevel: 7, key: 'e', name: { ru: 'Молния', en: 'Lightning' }, desc: { ru: (l) => `${1 + Math.floor((l - 1) / 2)} цель, КД 20с`, en: (l) => `${1 + Math.floor((l - 1) / 2)} target(s), CD 20s` } },
+  dodge: { id: 'dodge', category: 'passive', maxLevel: 7, name: { ru: 'Уклонение', en: 'Dodge' }, desc: { ru: (l) => `${10 + (l - 1) * 5}% шанс`, en: (l) => `${10 + (l - 1) * 5}% chance` } },
+  crit: { id: 'crit', category: 'passive', maxLevel: 7, name: { ru: 'Критический урон', en: 'Critical Hit' }, desc: { ru: (l) => `${10 + (l - 1) * 5}% шанс x2`, en: (l) => `${10 + (l - 1) * 5}% chance x2` } },
+  timestop: { id: 'timestop', category: 'active', maxLevel: 7, key: 'q', name: { ru: 'Временная остановка', en: 'Time Stop' }, desc: { ru: (l) => `Заморозка ${3 + (l - 1)}с, КД 40с`, en: (l) => `Freeze ${3 + (l - 1)}s, CD 40s` } },
+  magnet: { id: 'magnet', category: 'passive', maxLevel: 7, name: { ru: 'Магнит опыта', en: 'XP Magnet' }, desc: { ru: () => '+20% радиус подбора', en: () => '+20% pickup radius' } },
+  sphereboost: { id: 'sphereboost', category: 'passive', maxLevel: 7, name: { ru: 'Усиление сфер', en: 'Sphere Boost' }, desc: { ru: (l) => `+1 урон за ${Math.max(50, 100 - (l - 1) * 10)} убийств`, en: (l) => `+1 dmg per ${Math.max(50, 100 - (l - 1) * 10)} kills` } },
+  darkritual: { id: 'darkritual', category: 'active', maxLevel: 7, key: 'r', name: { ru: 'Тёмный ритуал', en: 'Dark Ritual' }, desc: { ru: (l) => `-20% HP, урон по 500px, КД 30с`, en: (l) => `-20% HP, damage in 500px, CD 30s` } },
 };
 
 // Active ability hotkey assignment (order of acquisition). Keys: e, q, r, f, g
@@ -105,11 +105,11 @@ export interface ShopUpgradeDef {
 export const SHOP_UPGRADES: ShopUpgradeDef[] = [
   { id: 'dmg', name: { ru: 'Урон сфер', en: 'Sphere Damage' }, desc: { ru: () => '+5% урона', en: () => '+5% damage' }, baseCost: 200, maxLevel: 10 },
   { id: 'radius', name: { ru: 'Радиус сфер', en: 'Sphere Radius' }, desc: { ru: () => '+5% радиуса', en: () => '+5% radius' }, baseCost: 200, maxLevel: 10 },
-  { id: 'speed', name: { ru: 'Скорость движения', en: 'Move Speed' }, desc: { ru: () => '+5% скорости', en: () => '+5% speed' }, baseCost: 300, maxLevel: 5 },
+  { id: 'speed', name: { ru: 'Скорость движения', en: 'Move Speed' }, desc: { ru: () => '+5% скорости', en: () => '+5% speed' }, baseCost: 300, maxLevel: 7 },
   { id: 'spheres', name: { ru: 'Стартовые сферы', en: 'Start Spheres' }, desc: { ru: () => '+1 сфера', en: () => '+1 sphere' }, baseCost: 500, maxLevel: 3 },
   { id: 'hp', name: { ru: 'Стартовое HP', en: 'Start HP' }, desc: { ru: () => '+10 HP', en: () => '+10 HP' }, baseCost: 150, maxLevel: 10 },
-  { id: 'crit', name: { ru: 'Шанс крита', en: 'Crit Chance' }, desc: { ru: () => '+5% шанс крита', en: () => '+5% crit chance' }, baseCost: 400, maxLevel: 5 },
-  { id: 'xp', name: { ru: 'Получаемый опыт', en: 'XP Gain' }, desc: { ru: () => '+5% опыта', en: () => '+5% XP' }, baseCost: 300, maxLevel: 5 },
+  { id: 'crit', name: { ru: 'Шанс крита', en: 'Crit Chance' }, desc: { ru: () => '+5% шанс крита', en: () => '+5% crit chance' }, baseCost: 400, maxLevel: 7 },
+  { id: 'xp', name: { ru: 'Получаемый опыт', en: 'XP Gain' }, desc: { ru: () => '+5% опыта', en: () => '+5% XP' }, baseCost: 300, maxLevel: 7 },
 ];
 
 export function shopCost(def: ShopUpgradeDef, currentLevel: number): number {
