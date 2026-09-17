@@ -33,10 +33,8 @@ export function getCharacterDamageMultiplier(s: GameState, sphere: SphereEntity)
   let multiplier = 1 + CHARACTER_DEFS[character].baseModifiers.sphereDamage;
 
   if (character === 'spherist') {
-    // Mastery 2 lowers the full-resonance threshold from 5 to 4 spheres.
     const fullResonanceThreshold = mastery >= 2 ? 4 : 5;
     if (s.spheres.filter((item) => item.alive).length >= fullResonanceThreshold) multiplier += 0.05;
-    // Mastery 3: Stability.
     if (mastery >= 3) multiplier += 0.02;
   }
 
@@ -51,7 +49,6 @@ export function getCharacterDamageMultiplier(s: GameState, sphere: SphereEntity)
     const neighbours = getSphereNeighbours(s, sphere, range);
     multiplier += Math.min(2, neighbours.length) * 0.06;
 
-    // Master Node mastery: a node with two neighbours empowers those neighbours.
     if (mastery >= 5) {
       const connectedToMasterNode = neighbours.some((neighbour) => getSphereNeighbours(s, neighbour, range).length >= 2);
       if (connectedToMasterNode) multiplier += 0.02;
@@ -70,17 +67,14 @@ export function getCharacterAttackSpeedMultiplier(s: GameState): number {
   let multiplier = 1 + CHARACTER_DEFS[character].baseModifiers.sphereAttackSpeed;
 
   if (character === 'spherist') {
-    multiplier += getSphereCountResonanceBonus(character, s.spheres.filter((sphere) => sphere.alive).length);
-    // Mastery 4: each sphere after the first adds another +0.5% attack speed.
-    if (mastery >= 4) {
-      multiplier += Math.max(0, s.spheres.filter((sphere) => sphere.alive).length - 1) * 0.005;
-    }
-    if (s.spheres.filter((sphere) => sphere.alive).length >= 8 && mastery >= 5) multiplier += 0.05;
+    const sphereCount = s.spheres.filter((sphere) => sphere.alive).length;
+    multiplier += getSphereCountResonanceBonus(character, sphereCount);
+    if (mastery >= 4) multiplier += Math.max(0, sphereCount - 1) * 0.005;
+    if (sphereCount >= 8 && mastery >= 5) multiplier += 0.05;
   }
 
   if (character === 'berserker') {
     multiplier += getBerserkerFuryBonus(character, s.player.hp / Math.max(1, s.player.maxHp)).attackSpeed;
-    // Mastery 3: Frenzy.
     if (mastery >= 3) multiplier += 0.02;
   }
 
@@ -102,7 +96,6 @@ export function getCharacterRadiusMultiplier(s: GameState): number {
 
   if (character === 'architect' && getLocalCharacterSpheres(s).length >= 4) multiplier += 0.05;
 
-  // Engineer: a stable network of 3+ spheres increases the working radius of its spheres.
   if (character === 'engineer' && getEngineerNetworkSpheres(s).length >= 3) multiplier += 0.08;
 
   return multiplier;
@@ -197,14 +190,11 @@ function getArchitectFormationBonusScale(s: GameState, type: CharacterFormation)
   let scale = 1;
   const mastery = p.characterMasteryLevel || 1;
 
-  // Mastery 4: a newly formed formation gets +25% efficiency for 2 seconds.
   if (mastery >= 4 && p.architectFormationType === type && typeof p.architectFormationChangedAt === 'number') {
     if (s.time - p.architectFormationChangedAt <= 2) scale *= 1.25;
   }
 
-  // Mastery 5: with 5+ local spheres, the active formation's key bonus is 5% stronger.
   if (mastery >= 5 && getLocalCharacterSpheres(s).length >= 5) scale *= 1.05;
-
   return scale;
 }
 
@@ -397,5 +387,3 @@ function getSquareStrength(spheres: SphereEntity[]): number {
   const variance = sides.reduce((sum, side) => sum + Math.abs(side - mean), 0) / (4 * mean);
   return 1 - Math.min(1, variance * 2.5);
 }
-
-distance;
