@@ -394,7 +394,7 @@ function UpgradeModal({ lang, t, st, onPick }: {
     </div>
   );
 }
-// ===== Artifact Modal =====// ===== Artifact Modal =====
+// ===== Artifact Modal =====// ===== Artifact Modal =====// ===== Artifact Modal =====
 function ArtifactModal({ lang, t, choices, onPick }: {
   lang: Lang; t: (k: TranslationKey) => string; choices: ArtifactId[]; onPick: (id: ArtifactId) => void;
 }) {
