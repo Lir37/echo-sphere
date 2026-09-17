@@ -4,11 +4,11 @@ import { ABILITIES, SPHERE_TYPES, type AbilityType, type SphereType } from './ga
 import { activateByKey, activateDash, getMaxSpheres, placeSphere, setSphereType, type GameState } from './engine';
 import { CHARACTER_DEFS } from './characters';
 import { getCharacterFormation, getEngineerNetworkSpheres } from './characterRuntime';
-import { playSound } from './audio';
 import type { Lang, TranslationKey } from './i18n';
 import { loadInterfaceScale } from './interfaceScale';
 import { createMasteryRunTracker, getMasteryRunXp, tickCharacterMastery } from './characterMastery';
 import { addCharacterMasteryXp } from './persistence';
+import { canPlaceSphere } from './spaceCollision';
 
 type PointerState = { startX: number; startY: number; moved: boolean; joystickCandidate: boolean };
 type JoystickVisual = { pointerId: number; x: number; y: number; dx: number; dy: number; active: boolean };
@@ -98,19 +98,35 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
     const nearExistingTower = st.spheres.some(
       (sphere) => sphere.alive && Math.hypot(sphere.pos.x - world.x, sphere.pos.y - world.y) < TOWER_TOUCH_TOLERANCE
     );
-    const beforeCount = st.spheres.length;
-    if (nearExistingTower || st.spheres.length < getMaxSpheres(st)) {
+
+    // Tapping an existing tower keeps the old toggle/remove behavior.
+    if (nearExistingTower) {
+      const beforeCount = st.spheres.length;
       placeSphere(st, world.x, world.y);
-      if (st.spheres.length > beforeCount) {
-        playSound('place');
-        haptic(8);
-        setPlacementFx({
-          x: clientX,
-          y: clientY,
-          color: SPHERE_TYPES[st.selectedSphereType].color,
-          id: Date.now(),
-        });
-      }
+      if (st.spheres.length < beforeCount) haptic(10);
+      return;
+    }
+
+    if (st.spheres.length >= getMaxSpheres(st)) return;
+
+    // A new tower cannot overlap another tower, cover the player, or close
+    // the last usable route from the player to the outside of the arena.
+    if (!canPlaceSphere(st, world.x, world.y)) {
+      st.flashText = { text: lang === 'ru' ? 'Путь перекрыт' : 'Path blocked', life: 0.8, color: '#c4453d' };
+      haptic(35);
+      return;
+    }
+
+    const beforeCount = st.spheres.length;
+    placeSphere(st, world.x, world.y);
+    if (st.spheres.length > beforeCount) {
+      haptic(8);
+      setPlacementFx({
+        x: clientX,
+        y: clientY,
+        color: SPHERE_TYPES[st.selectedSphereType].color,
+        id: Date.now(),
+      });
     }
   };
 
