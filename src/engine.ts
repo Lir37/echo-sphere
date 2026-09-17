@@ -26,6 +26,7 @@ import {
   getFormationDamageTakenMultiplier,
 } from './characterRuntime';
 import { loadCharacterId, loadCharacterProfiles } from './persistence';
+import { TOWER_PROGRESSION, towerPriority, towerLevel, towerModifiers, TOWER_ABILITY_SYNERGIES } from './towerProgression';
 import { TOWER_PROGRESSION, ABILITY_PROGRESSION, towerPriority, towerLevel, towerModifiers, TOWER_ABILITY_SYNERGIES } from './towerProgression';
 
 export interface Vec { x: number; y: number; }
@@ -67,6 +68,7 @@ export interface PlayerState {
   sphereXpAccumulator: number;
   towerUpgradeCount: number;
   towerMods: TowerMods;
+  towerProgression: Partial<Record<SphereType, number>>;
   towerProgression: Partial<Record<SphereType, number>>;
   dashCooldown: number;
   dashTimer: number; // active dash i-frames
@@ -480,6 +482,7 @@ export function getSphereRadius(s: GameState, sphere: SphereEntity): number {
   if (s.player.mutationStage >= 2) r *= 1.15;
   r *= getCharacterRadiusMultiplier(s);
   r *= towerModifiers(s, sphere.type).radius;
+  r *= towerModifiers(s, sphere.type).radius;
   if (getCharacterId(s) === 'architect' && s.player.characterMasteryLevel >= 3) r *= 1.02;
   return r;
 }
@@ -500,6 +503,7 @@ export function getSphereDamage(s: GameState, sphere: SphereEntity): number {
   if (s.player.evolutions.includes('echoaccumulator')) {
     d += s.player.sphereXpAccumulator * 0.5;
   }
+  d *= towerModifiers(s, sphere.type).damage;
   d *= towerModifiers(s, sphere.type).damage;
   return d;
 }
