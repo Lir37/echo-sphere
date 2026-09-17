@@ -68,6 +68,7 @@ export interface PlayerState {
   towerUpgradeCount: number;
   towerMods: TowerMods;
   towerProgression: Partial<Record<SphereType, number>>;
+  towerBranches: Partial<Record<SphereType, import('./towerProgression').TowerEvolutionId>>;
   dashCooldown: number;
   dashTimer: number; // active dash i-frames
   dashDir: Vec;
@@ -210,9 +211,15 @@ export interface LightningBolt {
 }
 
 export interface UpgradeChoice {
-  type: 'ability' | 'evolve';
+  type: 'ability' | 'evolve' | 'tower';
   ability?: AbilityType;
   evolution?: string;
+  towerType?: SphereType;
+  towerBranch?: import('./towerProgression').TowerEvolutionId;
+  towerFinalIndex?: number;
+  towerStage?: 'upgrade' | 'branch' | 'final';
+  name?: { ru: string; en: string };
+  desc?: { ru: string; en: string };
   currentLevel: number;
   newLevel: number;
 }
@@ -376,6 +383,7 @@ export function createInitialState(
     sphereXpAccumulator: 0,
     towerUpgradeCount: 0,
     towerProgression: { standard: 0, sniper: 0, shotgun: 0, chain: 0, aura: 0 },
+    towerBranches: {},
     towerMods: { multishot: 0, pierce: 0, ricochet: 0, fire: 0, freeze: 0, poison: 0 },
     dashCooldown: 0,
     dashTimer: 0,
@@ -1170,45 +1178,81 @@ export function activateByKey(s: GameState, key: string): void {
 
 // ===== Upgrade generation =====
 export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
-  // Legacy pair evolutions are disabled: Echo Sphere now uses the 7-level progression system.
-  // Major ability evolutions happen automatically at levels 4 and 7.
+  const towerTypes = Object.keys(TOWER_PROGRESSION) as SphereType[];
+
+  // A tower at Lv.3 or Lv.6 gets its dedicated milestone choice first.
+  const milestone = towerTypes.find(type => towerLevel(s, type) === 3 || towerLevel(s, type) === 6);
+  if (milestone) {
+    const level = towerLevel(s, milestone);
+    const def = TOWER_PROGRESSION[milestone];
+    if (level === 3) {
+      return def.evolution4Choices.map(branch => ({
+        type: 'tower' as const,
+        towerType: milestone,
+        towerBranch: branch.id,
+        towerStage: 'branch' as const,
+        name: branch.name,
+        desc: branch.desc,
+        currentLevel: 3,
+        newLevel: 4,
+      }));
+    }
+    const branchId = s.player.towerBranches[milestone];
+    const branch = def.evolution4Choices.find(x => x.id === branchId) ?? def.evolution4Choices[0];
+    return branch.final.map((finalChoice, index) => ({
+      type: 'tower' as const,
+      towerType: milestone,
+      towerBranch: branch.id,
+      towerFinalIndex: index,
+      towerStage: 'final' as const,
+      name: finalChoice.name,
+      desc: finalChoice.desc,
+      currentLevel: 6,
+      newLevel: 7,
+    }));
+  }
 
   const choices: UpgradeChoice[] = [];
-  const available: AbilityType[] = [];
-  for (const id of Object.keys(ABILITIES) as AbilityType[]) {
-    const def = ABILITIES[id];
-    const cur = s.player.abilities[id] || 0;
-    if (cur < def.maxLevel) available.push(id);
-  }
-  // shuffle
-  const pool = [...available].sort(() => Math.random() - 0.5);
-  for (const id of pool.slice(0, 3)) {
-    const cur = s.player.abilities[id] || 0;
-    choices.push({ type: 'ability', ability: id, currentLevel: cur, newLevel: cur + 1 });
-  }
-  return choices;
-}
+  const abilityPool = (Object.keys(ABILITIES) as AbilityType[])
+    .filter(id => (s.player.abilities[id] || 0) < ABILITIES[id].maxLevel)
+    .sort(() => Math.random() - 0.5);
 
-function generateTowerUpgradeChoices(s: GameState): TowerUpgradeChoice[] {
-  const candidates = (Object.keys(SPHERE_TYPES) as SphereType[])
-    .filter((type) => towerLevel(s, type) < 7)
-    .map((type) => ({ type, priority: towerPriority(s.player.characterId, type) + Math.random() * 0.15 }))
-    .sort((a, b) => b.priority - a.priority)
-    .slice(0, 3);
+  // Guarantee one ability/passive slot whenever the pool has anything available.
+  if (abilityPool.length) {
+    const id = abilityPool[0];
+    const currentLevel = s.player.abilities[id] || 0;
+    choices.push({ type: 'ability', ability: id, currentLevel, newLevel: currentLevel + 1 });
+  }
 
-  return candidates.map(({ type }) => {
-    const def = TOWER_PROGRESSION[type];
-    const currentLevel = towerLevel(s, type);
-    const nextLevel = currentLevel + 1;
-    const levelDef = def.levels[nextLevel - 1];
-    const evolution = nextLevel === 4 ? def.evolution4 : nextLevel === 7 ? def.evolution7 : null;
-    return {
-      id: 'multishot' as keyof TowerMods,
-      name: evolution ? evolution.name : levelDef.name,
-      desc: evolution ? evolution.desc : levelDef.desc,
-      towerType: type,
-    };
+  const towerPool = towerTypes
+    .filter(type => towerLevel(s, type) < 7)
+    .map(type => {
+      const currentLevel = towerLevel(s, type);
+      const nextLevel = currentLevel + 1;
+      const def = TOWER_PROGRESSION[type];
+      const levelDef = def.levels[nextLevel - 1];
+      return {
+        type: 'tower' as const,
+        towerType: type,
+        towerStage: 'upgrade' as const,
+        currentLevel,
+        newLevel: nextLevel,
+        name: levelDef.name,
+        desc: levelDef.desc,
+      };
+    })
+    .sort(() => Math.random() - 0.5);
+
+  const abilityRest = abilityPool.slice(1).map(id => {
+    const currentLevel = s.player.abilities[id] || 0;
+    return { type: 'ability' as const, ability: id, currentLevel, newLevel: currentLevel + 1 };
   });
+
+  for (const choice of [...towerPool, ...abilityRest].sort(() => Math.random() - 0.5)) {
+    if (choices.length >= 3) break;
+    choices.push(choice);
+  }
+  return choices.slice(0, 3);
 }
 
 function checkEvolution(s: GameState): string | null {
@@ -1228,11 +1272,35 @@ function checkEvolution(s: GameState): string | null {
 }
 
 export function applyUpgrade(s: GameState, choice: UpgradeChoice): void {
+  if (choice.type === 'tower' && choice.towerType) {
+    const type = choice.towerType;
+    const current = towerLevel(s, type);
+    if (current >= 7) return;
+    const next = current + 1;
+    s.player.towerProgression[type] = next;
+    for (const sphere of s.spheres) if (sphere.type === type) sphere.visualTier = next;
+
+    if (choice.towerStage === 'branch' && choice.towerBranch) {
+      s.player.towerBranches[type] = choice.towerBranch;
+      s.player.evolutions.push(`tower:${type}:4:${choice.towerBranch}`);
+      s.evolutionsThisRun++;
+      playSound('evolve');
+    }
+    if (choice.towerStage === 'final') {
+      s.player.evolutions.push(`tower:${type}:7:${choice.towerBranch ?? 'unknown'}:${choice.towerFinalIndex ?? 0}`);
+      s.evolutionsThisRun++;
+      s.flashText = { text: choice.name?.ru ?? 'Эволюция башни', life: 2.2, color: '#c4453d' };
+      playSound('evolve');
+    }
+    s.pendingUpgrade = null;
+    return;
+  }
+
   if (choice.type === 'ability' && choice.ability) {
     s.player.abilities[choice.ability] = Math.min(7, choice.newLevel);
-    const abilityProgression = ABILITY_PROGRESSION[choice.ability];
-    if (abilityProgression && (choice.newLevel === 4 || choice.newLevel === 7)) {
-      const evolution = choice.newLevel === 4 ? abilityProgression.evolution4 : abilityProgression.evolution7;
+    const progression = ABILITY_PROGRESSION[choice.ability];
+    if (progression && (choice.newLevel === 4 || choice.newLevel === 7)) {
+      const evolution = choice.newLevel === 4 ? progression.evolution4 : progression.evolution7;
       const marker = `ability:${choice.ability}:${choice.newLevel}`;
       if (!s.player.evolutions.includes(marker)) {
         s.player.evolutions.push(marker);
@@ -1241,63 +1309,30 @@ export function applyUpgrade(s: GameState, choice: UpgradeChoice): void {
         playSound('evolve');
       }
     }
-    if (choice.newLevel === 7) {
-      const synergy = TOWER_ABILITY_SYNERGIES.find(x => (s.player.abilities[x.ability] || 0) >= 7 && towerLevel(s, x.tower as SphereType) >= 7 && x.ability === choice.ability);
-      if (synergy && !s.player.evolutions.includes(`synergy:${synergy.tower}:${synergy.ability}`)) {
-        s.player.evolutions.push(`synergy:${synergy.tower}:${synergy.ability}`);
-        s.flashText = { text: synergy.name.ru, life: 2.2, color: '#8a5a8a' };
-        playSound('evolve');
-      }
-    }
-    // assign hotkey for active abilities
     const def = ABILITIES[choice.ability];
-    if (def.category === 'active' && choice.currentLevel === 0) {
-      assignHotkey(s, choice.ability);
-    }
-    // vitality increases maxHp
+    if (def.category === 'active' && choice.currentLevel === 0) assignHotkey(s, choice.ability);
     if (choice.ability === 'vitality') {
       s.player.maxHp += 20;
       s.player.hp += 20;
     }
-    // track tower-related upgrades
-    const towerAbilities = ['radius', 'damage', 'attackspeed', 'maxspheres', 'sphereboost'] as const;
-    if (towerAbilities.includes(choice.ability as any)) {
-      s.player.towerUpgradeCount++;
-      // upgrade sphere visual tiers
-      const newTier = Math.floor(s.player.towerUpgradeCount / 5);
-      for (const sp of s.spheres) sp.visualTier = Math.max(sp.visualTier, newTier);
-      // every 5 tower upgrades, offer tower mod choice
-      if (s.player.towerUpgradeCount % 5 === 0) {
-        s.pendingTowerUpgrade = generateTowerUpgradeChoices(s);
-      }
-    }
-  } else if (choice.type === 'evolve' && choice.evolution) {
+    return;
+  }
+
+  if (choice.type === 'evolve' && choice.evolution) {
     const def = EVOLUTION_MAP[choice.evolution];
+    if (!def) return;
     s.player.abilities[def.a] = undefined;
     s.player.abilities[def.b] = undefined;
     s.player.evolutions.push(choice.evolution);
     s.evolutionsThisRun++;
     playSound('evolve');
-    // assign hotkey if needed (barrier uses blast key, etc.)
-    // re-assign hotkeys for evolved active abilities
-    if (choice.evolution === 'barrier') assignHotkey(s, 'blast');
-    if (choice.evolution === 'blink') assignHotkey(s, 'teleport');
-    if (choice.evolution === 'icepath') assignHotkey(s, 'firetrail');
-    if (choice.evolution === 'devourers') assignHotkey(s, 'minion');
-    if (choice.evolution === 'thunderstorm') assignHotkey(s, 'lightning');
   }
 }
 
 export function applyTowerUpgrade(s: GameState, choice: TowerUpgradeChoice): void {
-  const type=(choice as TowerUpgradeChoice & {towerType?:SphereType}).towerType;
-  if(type){
-    const current=towerLevel(s,type); if(current<7){const next=current+1; s.player.towerProgression[type]=next; for(const sp of s.spheres) if(sp.type===type) sp.visualTier=next;
-      if(next===4){s.player.evolutions.push(`tower:${type}:4`);s.evolutionsThisRun++;s.flashText={text:`${TOWER_PROGRESSION[type].name.ru}: ${TOWER_PROGRESSION[type].evolution4.name.ru}`,life:1.8,color:'#d4943d'};playSound('evolve');}
-      if(next===7){s.player.evolutions.push(`tower:${type}:7`);s.evolutionsThisRun++;s.flashText={text:`${TOWER_PROGRESSION[type].name.ru}: ${TOWER_PROGRESSION[type].evolution7.name.ru}`,life:2.2,color:'#c4453d'};playSound('evolve');}
-      if(next===7){const syn=TOWER_ABILITY_SYNERGIES.find(x=>x.tower===type&&(s.player.abilities[x.ability]||0)>=7);if(syn&&!s.player.evolutions.includes(`synergy:${type}:${syn.ability}`)){s.player.evolutions.push(`synergy:${type}:${syn.ability}`);s.flashText={text:syn.name.ru,life:2.2,color:'#8a5a8a'};playSound('evolve');}}
-    } s.pendingTowerUpgrade=null;s.pendingUpgrade=null;return;
-  }
-  s.player.towerMods[choice.id]=(s.player.towerMods[choice.id]||0)+1;s.pendingTowerUpgrade=null;
+  const type = (choice as TowerUpgradeChoice & { towerType?: SphereType }).towerType;
+  if (!type) return;
+  applyUpgrade(s, { type: 'tower', towerType: type, towerStage: 'upgrade', currentLevel: towerLevel(s, type), newLevel: towerLevel(s, type) + 1 });
 }
 function generateTowerProgressionChoices(s: GameState): TowerUpgradeChoice[] {
   const candidates=(Object.keys(TOWER_PROGRESSION) as SphereType[]).filter(x=>towerLevel(s,x)<7).sort((a,b)=>towerPriority(s.player.characterId,b)-towerPriority(s.player.characterId,a));
@@ -2008,7 +2043,7 @@ function gainXp(s: GameState, amount: number): void {
     s.player.maxHp += 8;
     s.player.hp += 8;
     s.pendingUpgrade = generateUpgradeChoices(s);
-    if (s.player.level > 1) s.pendingTowerUpgrade = generateTowerProgressionChoices(s);
+    s.pendingTowerUpgrade = null;
     playSound('levelup');
   }
 }
