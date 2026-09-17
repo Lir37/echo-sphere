@@ -32,8 +32,8 @@ function weightedPermutation<T>(items: T[], isPreferred: (item: T) => boolean): 
   return items;
 }
 
-function isRandomShuffle(compareFn?: (a: unknown, b: unknown) => number): boolean {
-  if (!compareFn) return false;
+function isRandomShuffle(compareFn?: unknown): boolean {
+  if (typeof compareFn !== 'function') return false;
   return RANDOM_SHUFFLE_PATTERN.test(Function.prototype.toString.call(compareFn));
 }
 
