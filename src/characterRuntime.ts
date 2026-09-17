@@ -1,4 +1,4 @@
-import { CHARACTER_DEFS, getBerserkerFuryBonus, getSphereCountResonanceBonus, getSpheristFiveSphereBonus, type CharacterId } from './characters';
+import { CHARACTER_DEFS, getBerserkerFuryBonus, getSphereCountResonanceBonus, type CharacterId } from './characters';
 import type { EnemyEntity, GameState, SphereEntity, Vec } from './engine';
 
 export type CharacterFormation = 'none' | 'line' | 'triangle' | 'square' | 'cluster';
@@ -14,6 +14,8 @@ interface CharacterRuntimePlayer {
   hunterHuntTarget?: EnemyEntity | null;
   hunterHuntTimer?: number;
   alchemistCatalystTimer?: number;
+  architectFormationType?: CharacterFormation;
+  architectFormationChangedAt?: number;
 }
 
 export interface CharacterFormationResult {
@@ -27,16 +29,21 @@ function runtimePlayer(s: GameState): CharacterRuntimePlayer {
 
 export function getCharacterDamageMultiplier(s: GameState, sphere: SphereEntity): number {
   const character = getCharacterId(s);
+  const mastery = runtimePlayer(s).characterMasteryLevel || 1;
   let multiplier = 1 + CHARACTER_DEFS[character].baseModifiers.sphereDamage;
 
   if (character === 'spherist') {
-    multiplier += getSpheristFiveSphereBonus(character, s.spheres.length);
+    // Mastery 2 lowers the full-resonance threshold from 5 to 4 spheres.
+    const fullResonanceThreshold = mastery >= 2 ? 4 : 5;
+    if (s.spheres.filter((item) => item.alive).length >= fullResonanceThreshold) multiplier += 0.05;
+    // Mastery 3: Stability.
+    if (mastery >= 3) multiplier += 0.02;
   }
 
   if (character === 'berserker') {
     multiplier += getBerserkerFuryBonus(character, s.player.hp / Math.max(1, s.player.maxHp)).damage;
     const closeEnemy = s.enemies.some((enemy) => enemy.hp > 0 && distance(enemy.pos, s.player.pos) <= 110);
-    if (closeEnemy) multiplier += (runtimePlayer(s).characterMasteryLevel || 1) >= 2 ? 0.15 : 0.12;
+    if (closeEnemy) multiplier += mastery >= 2 ? 0.15 : 0.12;
   }
 
   if (character === 'engineer') {
@@ -45,7 +52,7 @@ export function getCharacterDamageMultiplier(s: GameState, sphere: SphereEntity)
     multiplier += Math.min(2, neighbours.length) * 0.06;
 
     // Master Node mastery: a node with two neighbours empowers those neighbours.
-    if ((runtimePlayer(s).characterMasteryLevel || 1) >= 5) {
+    if (mastery >= 5) {
       const connectedToMasterNode = neighbours.some((neighbour) => getSphereNeighbours(s, neighbour, range).length >= 2);
       if (connectedToMasterNode) multiplier += 0.02;
     }
@@ -59,15 +66,22 @@ export function getCharacterDamageMultiplier(s: GameState, sphere: SphereEntity)
 
 export function getCharacterAttackSpeedMultiplier(s: GameState): number {
   const character = getCharacterId(s);
+  const mastery = runtimePlayer(s).characterMasteryLevel || 1;
   let multiplier = 1 + CHARACTER_DEFS[character].baseModifiers.sphereAttackSpeed;
 
   if (character === 'spherist') {
-    multiplier += getSphereCountResonanceBonus(character, s.spheres.length);
-    if (s.spheres.length >= 8 && (runtimePlayer(s).characterMasteryLevel || 1) >= 5) multiplier += 0.05;
+    multiplier += getSphereCountResonanceBonus(character, s.spheres.filter((sphere) => sphere.alive).length);
+    // Mastery 4: each sphere after the first adds another +0.5% attack speed.
+    if (mastery >= 4) {
+      multiplier += Math.max(0, s.spheres.filter((sphere) => sphere.alive).length - 1) * 0.005;
+    }
+    if (s.spheres.filter((sphere) => sphere.alive).length >= 8 && mastery >= 5) multiplier += 0.05;
   }
 
   if (character === 'berserker') {
     multiplier += getBerserkerFuryBonus(character, s.player.hp / Math.max(1, s.player.maxHp)).attackSpeed;
+    // Mastery 3: Frenzy.
+    if (mastery >= 3) multiplier += 0.02;
   }
 
   if (character === 'architect' && getLocalCharacterSpheres(s).length >= 5) {
@@ -79,7 +93,13 @@ export function getCharacterAttackSpeedMultiplier(s: GameState): number {
 
 export function getCharacterRadiusMultiplier(s: GameState): number {
   const character = getCharacterId(s);
+  const mastery = runtimePlayer(s).characterMasteryLevel || 1;
   let multiplier = 1 + CHARACTER_DEFS[character].baseModifiers.sphereRadius;
+
+  if (character === 'spherist' && mastery >= 5 && s.spheres.filter((sphere) => sphere.alive).length >= 8) {
+    multiplier += 0.05;
+  }
+
   if (character === 'architect' && getLocalCharacterSpheres(s).length >= 4) multiplier += 0.05;
 
   // Engineer: a stable network of 3+ spheres increases the working radius of its spheres.
@@ -138,27 +158,67 @@ export function getCharacterFormation(s: GameState): CharacterFormationResult {
   if (spheres.length >= 3 && lineStrength >= 0.80) candidates.push({ type: 'line', strength: lineStrength });
 
   candidates.sort((a, b) => b.strength - a.strength);
-  return candidates[0] || { type: 'none', strength: 0 };
+  const result = candidates[0] || { type: 'none', strength: 0 };
+  trackArchitectFormationChange(s, result.type);
+  return result;
 }
 
 export function getFormationDamageMultiplier(s: GameState): number {
   if (getCharacterId(s) !== 'architect') return 1;
-  return getCharacterFormation(s).type === 'line' ? 1.10 : 1;
+  const formation = getCharacterFormation(s);
+  if (formation.type !== 'line') return 1;
+  return 1 + 0.10 * getArchitectFormationBonusScale(s, formation.type);
 }
 
 export function getFormationCritBonus(s: GameState): number {
   if (getCharacterId(s) !== 'architect') return 0;
-  return getCharacterFormation(s).type === 'triangle' ? 0.10 : 0;
+  const formation = getCharacterFormation(s);
+  if (formation.type !== 'triangle') return 0;
+  return 0.10 * getArchitectFormationBonusScale(s, formation.type);
 }
 
 export function getFormationDamageTakenMultiplier(s: GameState): number {
   if (getCharacterId(s) !== 'architect') return 1;
-  return getCharacterFormation(s).type === 'square' ? 0.88 : 1;
+  const formation = getCharacterFormation(s);
+  if (formation.type !== 'square') return 1;
+  const reduction = 0.12 * getArchitectFormationBonusScale(s, formation.type);
+  return Math.max(0.70, 1 - reduction);
 }
 
 export function getFormationAttackSpeedBonus(s: GameState): number {
   if (getCharacterId(s) !== 'architect') return 0;
-  return getCharacterFormation(s).type === 'cluster' ? 0.15 : 0;
+  const formation = getCharacterFormation(s);
+  if (formation.type !== 'cluster') return 0;
+  return 0.15 * getArchitectFormationBonusScale(s, formation.type);
+}
+
+function getArchitectFormationBonusScale(s: GameState, type: CharacterFormation): number {
+  const p = runtimePlayer(s);
+  let scale = 1;
+  const mastery = p.characterMasteryLevel || 1;
+
+  // Mastery 4: a newly formed formation gets +25% efficiency for 2 seconds.
+  if (mastery >= 4 && p.architectFormationType === type && typeof p.architectFormationChangedAt === 'number') {
+    if (s.time - p.architectFormationChangedAt <= 2) scale *= 1.25;
+  }
+
+  // Mastery 5: with 5+ local spheres, the active formation's key bonus is 5% stronger.
+  if (mastery >= 5 && getLocalCharacterSpheres(s).length >= 5) scale *= 1.05;
+
+  return scale;
+}
+
+function trackArchitectFormationChange(s: GameState, nextType: CharacterFormation): void {
+  const p = runtimePlayer(s);
+  if (p.architectFormationType === undefined) {
+    p.architectFormationType = nextType;
+    p.architectFormationChangedAt = Number.NEGATIVE_INFINITY;
+    return;
+  }
+  if (p.architectFormationType !== nextType) {
+    p.architectFormationType = nextType;
+    p.architectFormationChangedAt = s.time;
+  }
 }
 
 export function getHunterMarkMultiplier(s: GameState, enemy: EnemyEntity): number {
@@ -338,6 +398,4 @@ function getSquareStrength(spheres: SphereEntity[]): number {
   return 1 - Math.min(1, variance * 2.5);
 }
 
-function distance(a: Vec, b: Vec): number {
-  return Math.hypot(a.x - b.x, a.y - b.y);
-}
+distance;
