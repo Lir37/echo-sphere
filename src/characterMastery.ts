@@ -5,8 +5,6 @@ export interface MasteryRunTracker {
   xp: number;
   lastEliteKills: number;
   lastBosses: number;
-  lastCloseKills: number;
-  lastHunterMark: boolean;
 }
 
 export function createMasteryRunTracker(): MasteryRunTracker {
@@ -14,8 +12,6 @@ export function createMasteryRunTracker(): MasteryRunTracker {
     xp: 0,
     lastEliteKills: 0,
     lastBosses: 0,
-    lastCloseKills: 0,
-    lastHunterMark: false,
   };
 }
 
@@ -24,7 +20,16 @@ export function tickCharacterMastery(
   dt: number,
   tracker: MasteryRunTracker,
 ): void {
-  if (dt <= 0 || s.gameOver) return;
+  if (
+    dt <= 0 ||
+    s.gameOver ||
+    s.paused ||
+    s.pendingUpgrade ||
+    s.pendingArtifact ||
+    s.pendingEvolution ||
+    s.pendingTowerUpgrade ||
+    s.pendingChest
+  ) return;
 
   const character = getCharacterId(s);
   const p = s.player;
