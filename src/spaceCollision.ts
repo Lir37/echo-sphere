@@ -1,7 +1,8 @@
 import type { EnemyEntity, GameState, Vec } from './engine';
 
 // Physical size of a tower is intentionally much smaller than its attack radius.
-export const TOWER_BODY_RADIUS = 26;
+// It closely follows the visible tower base instead of its much larger firing range.
+export const TOWER_BODY_RADIUS = 20;
 const TOWER_PLACEMENT_GAP = 8;
 const PLAYER_BUILD_GAP = 48;
 const ENEMY_PLACEMENT_GAP = 10;
@@ -47,8 +48,8 @@ export function canPlaceSphere(s: GameState, x: number, y: number): boolean {
     if (distance({ x, y }, sphere.pos) < TOWER_BODY_RADIUS * 2 + TOWER_PLACEMENT_GAP) return false;
   }
 
-  // Never materialize a solid tower under an enemy. This avoids a sudden
-  // artificial displacement of the horde and keeps placement predictable.
+  // Never materialize a solid tower under an enemy. This keeps placement
+  // predictable and avoids a sudden artificial displacement of the horde.
   for (const enemy of s.enemies) {
     if (enemy.hp <= 0) continue;
     if (distance({ x, y }, enemy.pos) < TOWER_BODY_RADIUS + enemy.radius + ENEMY_PLACEMENT_GAP) return false;
@@ -165,6 +166,8 @@ function resolveEnemyPlayerCollisions(s: GameState): void {
     const enemyPush = overlap * 0.7;
     const playerPush = overlap - enemyPush;
 
+    // Enemy receives the larger correction so the player feels physically
+    // blocked instead of being thrown around by the horde.
     enemy.pos.x -= normal.x * enemyPush;
     enemy.pos.y -= normal.y * enemyPush;
     pushX += normal.x * playerPush;
