@@ -3,7 +3,6 @@ import { Pause, Zap } from 'lucide-react';
 import { ABILITIES, SPHERE_TYPES, type AbilityType, type SphereType } from './gameData';
 import { activateByKey, activateDash, getMaxSpheres, placeSphere, setSphereType, type GameState } from './engine';
 import { CHARACTER_DEFS } from './characters';
-import { getCharacterFormation, getEngineerNetworkRange, getEngineerNetworkSpheres, getLocalCharacterSpheres } from './characterRuntime';
 import type { Lang, TranslationKey } from './i18n';
 import { loadInterfaceScale } from './interfaceScale';
 
@@ -23,7 +22,9 @@ function isBlockedByControl(target: EventTarget | null): boolean {
 }
 
 function getSoftPlacementPoint(st: GameState, desired: { x: number; y: number }): { x: number; y: number } | null {
-  const occupied = st.spheres.filter((sphere) => sphere.alive).map((sphere) => sphere.pos);
+  const occupied = st.spheres
+    .filter((sphere) => sphere.alive)
+    .map((sphere) => sphere.pos);
   const candidates = Array.from({ length: PLACEMENT_NODES }, (_, index) => {
     const angle = (index / PLACEMENT_NODES) * Math.PI * 2;
     const x = st.player.pos.x + Math.cos(angle) * PLACEMENT_RADIUS;
@@ -149,25 +150,6 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
   const preferredSphereTypes = stateRef.current
     ? CHARACTER_DEFS[stateRef.current.player.characterId]?.preferredSphereTypes || []
     : [];
-  const characterId = stateRef.current?.player.characterId;
-  const engineerNetwork = characterId === 'engineer' ? getEngineerNetworkSpheres(stateRef.current!) : [];
-  const localCharacterSpheres = characterId === 'architect' ? getLocalCharacterSpheres(stateRef.current!) : [];
-  const formation = characterId === 'architect' ? getCharacterFormation(stateRef.current!) : { type: 'none' as const, strength: 0 };
-  const engineerRange = characterId === 'engineer' ? getEngineerNetworkRange(stateRef.current!) : 0;
-
-  const worldToScreen = (position: { x: number; y: number }): { x: number; y: number } | null => {
-    const st = stateRef.current;
-    const canvas = canvasRef.current;
-    if (!st || !canvas) return null;
-    const rect = canvas.getBoundingClientRect();
-    if (rect.width <= 0 || rect.height <= 0) return null;
-    const scaleX = rect.width / canvas.width;
-    const scaleY = rect.height / canvas.height;
-    return {
-      x: rect.left + (canvas.width / 2 + position.x - st.camera.x) * scaleX,
-      y: rect.top + (canvas.height / 2 + position.y - st.camera.y) * scaleY,
-    };
-  };
 
   return (
     <div className="absolute inset-0 z-20 overflow-hidden select-none" style={{ touchAction: 'none', userSelect: 'none', WebkitUserSelect: 'none' }}
@@ -206,26 +188,7 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
       onPointerUp={(e) => endPointer(e.pointerId, e.clientX, e.clientY)}
       onPointerCancel={(e) => endPointer(e.pointerId, e.clientX, e.clientY)}
     >
-      {(engineerNetwork.length > 1 || localCharacterSpheres.length > 1) && (
-        <svg className="absolute inset-0 w-full h-full pointer-events-none" aria-hidden="true">
-          {characterId === 'engineer' && engineerNetwork.slice(0, -1).map((sphere, index) => {
-            const from = worldToScreen(sphere.pos);
-            if (!from) return null;
-            return engineerNetwork.slice(index + 1).map((other) => {
-              const to = worldToScreen(other.pos);
-              if (!to) return null;
-              const nearby = Math.hypot(sphere.pos.x - other.pos.x, sphere.pos.y - other.pos.y) <= engineerRange;
-              if (!nearby) return null;
-              return <line key={`${index}-${other.pos.x}-${other.pos.y}`} x1={from.x} y1={from.y} x2={to.x} y2={to.y} stroke="rgba(74,122,138,0.42)" strokeWidth="2" strokeDasharray="5 4" />;
-            });
-          })}
-          {characterId === 'architect' && formation.type !== 'none' && localCharacterSpheres.slice(0, 8).map((sphere) => {
-            const point = worldToScreen(sphere.pos);
-            if (!point) return null;
-            return <circle key={`${sphere.pos.x}-${sphere.pos.y}`} cx={point.x} cy={point.y} r="20" fill="rgba(212,148,61,0.08)" stroke="rgba(212,148,61,0.55)" strokeWidth="2" />;
-          })}
-        </svg>
-      )}
+      <CharacterAvatarOverlay stateRef={stateRef} />
 
       {joystick && (
         <div className="absolute pointer-events-none" style={{ left: joystick.x - JOYSTICK_RADIUS, top: joystick.y - JOYSTICK_RADIUS, width: JOYSTICK_RADIUS * 2, height: JOYSTICK_RADIUS * 2, transform: `scale(${interfaceScale})`, transformOrigin: 'center' }}>
@@ -269,6 +232,110 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
       </div>
     </div>
   );
+}
+
+function CharacterAvatarOverlay({ stateRef }: { stateRef: React.MutableRefObject<GameState | null> }) {
+  const [characterId, setCharacterId] = useState(() => stateRef.current?.player.characterId || 'spherist');
+  const [mutationStage, setMutationStage] = useState(() => stateRef.current?.player.mutationStage || 0);
+  const frameRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const tick = () => {
+      const nextCharacter = stateRef.current?.player.characterId || 'spherist';
+      const nextMutation = stateRef.current?.player.mutationStage || 0;
+      setCharacterId((current) => current === nextCharacter ? current : nextCharacter);
+      setMutationStage((current) => current === nextMutation ? current : nextMutation);
+      frameRef.current = requestAnimationFrame(tick);
+    };
+    frameRef.current = requestAnimationFrame(tick);
+    return () => {
+      if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
+    };
+  }, [stateRef]);
+
+  const color = CHARACTER_DEFS[characterId]?.color || '#5a8c4a';
+  const background = getAvatarBackground(stateRef.current?.mapTheme);
+  const pulse = mutationStage >= 3 ? 'animate-pulse' : '';
+
+  return (
+    <div className="absolute left-1/2 top-1/2 pointer-events-none" style={{ transform: 'translate(-50%, -50%)', width: 74, height: 74 }}>
+      <div className="absolute inset-0 rounded-full" style={{ background, boxShadow: '0 3px 7px rgba(58,46,31,0.14)' }} />
+      <div className={`absolute inset-0 flex items-center justify-center ${pulse}`}>
+        <CharacterSvg characterId={characterId} color={color} mutationStage={mutationStage} />
+      </div>
+    </div>
+  );
+}
+
+function CharacterSvg({ characterId, color, mutationStage }: { characterId: string; color: string; mutationStage: number }) {
+  const shade = characterId === 'berserker' ? '#7e2e2c' : '#f4ecd8';
+  const common = { width: 58, height: 58, viewBox: '0 0 58 58', fill: 'none', xmlns: 'http://www.w3.org/2000/svg' } as const;
+
+  if (characterId === 'hunter') return (
+    <svg {...common}>
+      <path d="M29 6L46 17V34L29 49L12 34V17L29 6Z" fill={color} fillOpacity=".93" stroke="#3a2e1f" strokeWidth="2"/>
+      <path d="M18 20H40L35 31H23L18 20Z" fill="#e8dcc0" stroke="#3a2e1f" strokeWidth="1.5"/>
+      <circle cx="29" cy="25" r="3" fill="#3a2e1f"/>
+      <path d="M29 11V17M29 39V46M11 29H17M41 29H47" stroke="#d4943d" strokeWidth="2" strokeLinecap="round"/>
+    </svg>
+  );
+
+  if (characterId === 'engineer') return (
+    <svg {...common}>
+      <path d="M29 5L45 14V32L29 47L13 32V14L29 5Z" fill={color} fillOpacity=".92" stroke="#3a2e1f" strokeWidth="2"/>
+      <path d="M22 20L29 14L36 20V32L29 38L22 32V20Z" fill="#e8dcc0" stroke="#3a2e1f" strokeWidth="1.5"/>
+      <circle cx="29" cy="26" r="4" fill={color}/>
+      <path d="M11 18L17 22M47 18L41 22M11 40L17 35M47 40L41 35" stroke={color} strokeWidth="2" strokeLinecap="round"/>
+      <circle cx="9" cy="17" r="2.5" fill="#4a7a8a"/><circle cx="49" cy="17" r="2.5" fill="#4a7a8a"/>
+    </svg>
+  );
+
+  if (characterId === 'berserker') return (
+    <svg {...common}>
+      <path d="M14 17L22 10L29 15L36 10L44 17L41 39L29 50L17 39L14 17Z" fill={color} stroke="#3a2e1f" strokeWidth="2"/>
+      <path d="M14 17L7 10L10 25L18 21M44 17L51 10L48 25L40 21" fill={color} stroke="#3a2e1f" strokeWidth="2" strokeLinejoin="round"/>
+      <path d="M20 27L25 25M38 27L33 25M22 34L29 38L36 34" stroke={shade} strokeWidth="2.4" strokeLinecap="round"/>
+      {mutationStage > 0 && <path d="M29 7L31 2L33 8M20 46L16 52M38 46L42 52" stroke="#d4943d" strokeWidth="2" strokeLinecap="round"/>}
+    </svg>
+  );
+
+  if (characterId === 'alchemist') return (
+    <svg {...common}>
+      <path d="M23 7H35V16L43 23V39C43 44 37 48 29 48C21 48 15 44 15 39V23L23 16V7Z" fill={color} fillOpacity=".9" stroke="#3a2e1f" strokeWidth="2"/>
+      <path d="M23 7H35" stroke="#3a2e1f" strokeWidth="3" strokeLinecap="round"/>
+      <path d="M18 31C23 27 35 27 40 31V39C35 43 23 43 18 39V31Z" fill="#e8dcc0" fillOpacity=".65"/>
+      <path d="M24 17H34" stroke="#e8dcc0" strokeWidth="2" strokeLinecap="round"/>
+      {mutationStage > 0 && <circle cx="29" cy="35" r="3" fill="#d4943d"/>}
+    </svg>
+  );
+
+  if (characterId === 'architect') return (
+    <svg {...common}>
+      <rect x="11" y="11" width="36" height="36" rx="3" fill="#e8dcc0" stroke={color} strokeWidth="3" transform="rotate(45 29 29)"/>
+      <path d="M29 13L43 37H15L29 13Z" fill={color} fillOpacity=".78" stroke="#3a2e1f" strokeWidth="2"/>
+      <path d="M29 21V36M21 34H37" stroke="#e8dcc0" strokeWidth="2" strokeLinecap="round"/>
+      {mutationStage > 1 && <circle cx="29" cy="29" r="20" stroke="#d4943d" strokeWidth="2" strokeDasharray="4 4"/>}
+    </svg>
+  );
+
+  return (
+    <svg {...common}>
+      <path d="M29 5L47 19L38 43L29 50L20 43L11 19L29 5Z" fill={color} fillOpacity=".92" stroke="#3a2e1f" strokeWidth="2"/>
+      <path d="M20 17L29 11L38 17L34 29L29 38L24 29L20 17Z" fill="#e8dcc0" fillOpacity=".55" stroke="#3a2e1f" strokeWidth="1.5"/>
+      <circle cx="29" cy="28" r="4" fill="#3a2e1f"/>
+      <path d="M9 18L15 23M49 18L43 23M11 42L18 36M47 42L40 36" stroke={color} strokeWidth="2" strokeLinecap="round"/>
+      {mutationStage > 1 && <circle cx="29" cy="28" r="21" stroke="#d4943d" strokeWidth="2" strokeDasharray="3 4"/>}
+    </svg>
+  );
+}
+
+function getAvatarBackground(mapTheme: GameState['mapTheme'] | undefined): string {
+  switch (mapTheme) {
+    case 'bamboo': return '#e8e0c4';
+    case 'ocean': return '#d8e0e4';
+    case 'sunset': return '#f0d8c0';
+    default: return '#f4ecd8';
+  }
 }
 
 function getAbilityCooldown(st: GameState | null, ability: AbilityType): number {
