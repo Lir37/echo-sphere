@@ -281,7 +281,6 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
           )}
           {st.pendingUpgrade && <UpgradeModal lang={lang} t={t} st={st} onPick={(c) => { applyUpgrade(st, c); st.pendingUpgrade = null; }} />}
           {st.pendingArtifact && <ArtifactModal lang={lang} t={t} choices={st.pendingArtifact} onPick={(id) => { applyArtifact(st, id); st.pendingArtifact = null; }} />}
-          {st.pendingTowerUpgrade && <TowerUpgradeModal lang={lang} t={t} choices={st.pendingTowerUpgrade} onPick={(c) => { applyTowerUpgrade(st, c); }} />}
           {st.pendingChest && <ChestModal lang={lang} t={t} st={st} onPick={() => { openChest(st, 'artifact'); }} />}
           {paused && !st.pendingUpgrade && !st.pendingArtifact && !st.pendingChest && (
             <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-50">

@@ -26,6 +26,7 @@ import {
   getFormationDamageTakenMultiplier,
 } from './characterRuntime';
 import { loadCharacterId, loadCharacterProfiles } from './persistence';
+import { getArtifactMoveSpeedMultiplier, getArtifactMaxHpBonus, getArtifactXpMultiplier, getArtifactRegenPerSecond, getArtifactSphereRadiusMultiplier, getArtifactSphereDamageMultiplier, getArtifactCooldownMultiplier, getArtifactSphereDelayMultiplier, getArtifactDamageTakenMultiplier, getArtifactCritChanceBonus, getArtifactDodgeChanceBonus, getArtifactVampireBonus, getArtifactReflectChance, getSphereArtifactDamageMultiplier, pickArtifactChoices } from './artifactSystem';
 import { TOWER_PROGRESSION, ABILITY_PROGRESSION, towerPriority, towerLevel, towerModifiers, TOWER_ABILITY_SYNERGIES } from './towerProgression';
 
 export interface Vec { x: number; y: number; }
@@ -468,8 +469,7 @@ export function getMoveSpeed(s: GameState): number {
   const lvl = s.player.abilities.movespeed || 0;
   sp *= 1 + lvl * 0.1;
   sp *= 1 + (s.shopUpgrades.speed || 0) * 0.05;
-  if (s.player.artifacts.includes('crystal_speed')) sp *= 1.15;
-  if (s.player.artifacts.includes('dragon_heart')) sp *= 0.9;
+  sp *= getArtifactMoveSpeedMultiplier(s);
   if (s.player.swiftBootsTimer > 0) sp *= 1.1;
   if (s.player.mutationStage >= 3) sp *= 1.2;
   sp *= getCharacterMoveSpeedMultiplier(s);
@@ -483,7 +483,7 @@ export function getSphereRadius(s: GameState, sphere: SphereEntity): number {
   const lvl = s.player.abilities.radius || 0;
   r *= 1 + lvl * 0.15;
   r *= 1 + (s.shopUpgrades.radius || 0) * 0.05;
-  if (s.player.artifacts.includes('radius_shard')) r *= 1.1;
+  r *= getArtifactSphereRadiusMultiplier(s);
   if (s.player.chaosOrbBuff === 'radius' && s.player.chaosOrbBuffTimer > 0) r *= 1.2;
   if (s.player.mutationStage >= 2) r *= 1.15;
   r *= getCharacterRadiusMultiplier(s);
@@ -509,7 +509,8 @@ export function getSphereDamage(s: GameState, sphere: SphereEntity): number {
   if (s.player.evolutions.includes('echoaccumulator')) {
     d += s.player.sphereXpAccumulator * 0.5;
   }
-  d *= towerModifiers(s, sphere.type).damage;
+  d *= getArtifactSphereDamageMultiplier(s);
+  d *= getSphereArtifactDamageMultiplier(s, sphere);
   d *= towerModifiers(s, sphere.type).damage;
   return d;
 }
@@ -519,23 +520,24 @@ export function getSphereDelay(s: GameState): number {
   const lvl = s.player.abilities.attackspeed || 0;
   d *= Math.pow(0.9, lvl);
   d /= Math.max(0.01, getCharacterAttackSpeedMultiplier(s));
+  d *= getArtifactSphereDelayMultiplier(s);
   return d;
 }
 
 export function getCritChance(s: GameState): number {
   let c = (s.player.abilities.crit || 0) * 0.1;
   c += (s.shopUpgrades.crit || 0) * 0.05;
-  if (s.player.artifacts.includes('luck_talisman')) c += 0.15;
+  c += getArtifactCritChanceBonus(s);
   return c;
 }
 
 export function getDodgeChance(s: GameState): number {
-  return (s.player.abilities.dodge || 0) * 0.1;
+  return Math.min(0.75, (s.player.abilities.dodge || 0) * 0.1 + getArtifactDodgeChanceBonus(s));
 }
 
 export function getVampirePercent(s: GameState): number {
   const lvl = s.player.abilities.vampire || 0;
-  return lvl * 0.03; // 3% per level — 3% at lvl1, 15% at lvl5
+  return lvl * 0.03 + getArtifactVampireBonus(s);
 }
 
 export function getSlowRadius(): number {
@@ -548,14 +550,11 @@ export function getSlowFactor(s: GameState): number {
 }
 
 export function getCooldownMult(s: GameState): number {
-  let m = 1;
-  if (s.player.artifacts.includes('mage_pendant')) m *= 0.9;
-  return m;
+  return getArtifactCooldownMultiplier(s);
 }
 
 export function getDamageTakenMult(s: GameState): number {
   let m = 1;
-  if (s.player.artifacts.includes('defense_medallion')) m *= 0.85;
   m *= getCharacterDamageTakenMultiplier(s);
   m *= getFormationDamageTakenMultiplier(s);
   return m;
@@ -564,7 +563,7 @@ export function getDamageTakenMult(s: GameState): number {
 export function getXpMult(s: GameState): number {
   let m = 1;
   m *= 1 + (s.shopUpgrades.xp || 0) * 0.05;
-  if (s.player.artifacts.includes('ring_xp')) m *= 1.2;
+  m *= getArtifactXpMultiplier(s);
   return m;
 }
 
@@ -931,14 +930,7 @@ function onEnemyDeath(s: GameState, enemy: EnemyEntity): void {
 }
 
 function pickArtifacts(s: GameState): ArtifactId[] {
-  const owned = new Set(s.player.artifacts);
-  const pool = (Object.keys(ARTIFACT_MAP) as ArtifactId[]).filter(a => !owned.has(a));
-  const choices: ArtifactId[] = [];
-  while (choices.length < 3 && pool.length > 0) {
-    const idx = Math.floor(Math.random() * pool.length);
-    choices.push(pool.splice(idx, 1)[0]);
-  }
-  return choices;
+  return pickArtifactChoices(s, 3);
 }
 
 function damagePlayer(s: GameState, amount: number): void {
@@ -947,6 +939,18 @@ function damagePlayer(s: GameState, amount: number): void {
   if (Math.random() < getDodgeChance(s)) {
     s.particles.push({ pos: { ...s.player.pos }, vel: { x: 0, y: -60 }, life: 0.5, maxLife: 0.5, color: '#e8dcc0', size: 3 });
     return;
+  }
+  amount *= getArtifactDamageTakenMultiplier(s);
+  if (Math.random() < getArtifactReflectChance(s)) {
+    const nearest = s.enemies.reduce((best: EnemyEntity | null, enemy) => {
+      if (enemy.hp <= 0) return best;
+      const d = Math.hypot(enemy.pos.x - s.player.pos.x, enemy.pos.y - s.player.pos.y);
+      if (d > 180) return best;
+      if (!best) return enemy;
+      const bestD = Math.hypot(best.pos.x - s.player.pos.x, best.pos.y - s.player.pos.y);
+      return d < bestD ? enemy : best;
+    }, null);
+    if (nearest) dealDamageToEnemy(s, nearest, amount * 1.25);
   }
   // shield
   if (s.player.shieldCharges > 0) {
@@ -976,7 +980,7 @@ function damagePlayer(s: GameState, amount: number): void {
   s.player.comboMult = 1;
   s.player.comboTimer = 0;
   // freeze amulet
-  if (s.player.artifacts.includes('freeze_amulet')) {
+  if (s.player.artifacts.includes('stasis_core')) {
     for (const e of s.enemies) {
       e.slowTimer = 2; e.slowFactor = 0.5;
     }
@@ -1296,9 +1300,10 @@ function generateTowerProgressionChoices(s: GameState): TowerUpgradeChoice[] {
 }
 
 export function applyArtifact(s: GameState, id: ArtifactId): void {
+  if (s.player.artifacts.includes(id)) return;
   s.player.artifacts.push(id);
-  if (id === 'amulet_hp') { s.player.maxHp += 30; s.player.hp += 30; }
-  if (id === 'dragon_heart') { s.player.maxHp += 50; s.player.hp += 50; }
+  const hpBonus = getArtifactMaxHpBonus(id);
+  if (hpBonus > 0) { s.player.maxHp += hpBonus; s.player.hp += hpBonus; }
   playSound('chest');
 }
 
@@ -1409,9 +1414,9 @@ export function update(s: GameState, dt: number): void {
     s.fireTrails.push({ pos: { ...s.player.pos }, life: 0.6, maxLife: 0.6, damage: dmg });
   }
 
-  // regen stone artifact
-  if (s.player.artifacts.includes('regen_stone')) {
-    s.player.hp = Math.min(s.player.maxHp, s.player.hp + dt);
+  const artifactRegen = getArtifactRegenPerSecond(s);
+  if (artifactRegen > 0) {
+    s.player.hp = Math.min(s.player.maxHp, s.player.hp + artifactRegen * dt);
   }
   // mutation stage 4: +25% regen
   if (s.player.mutationStage >= 4) {
@@ -1838,7 +1843,7 @@ function updateEnemies(s: GameState, dt: number): void {
     }
     // invisibility cloak: lower aggression
     let aggro = 1;
-    if (s.player.artifacts.includes('invisibility_cloak') && s.player.hp / s.player.maxHp < 0.3) {
+    if (s.player.artifacts.includes('veil_cloak') && s.player.hp / s.player.maxHp < 0.3) {
       aggro = 0.5;
     }
 
