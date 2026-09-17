@@ -1,0 +1,48 @@
+name: Run artifact system migration
+
+on:
+  push:
+    branches: [cleanup-android]
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: cleanup-android
+          fetch-depth: 1
+
+      - name: Execute stored migration
+        shell: bash
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          import re
+          import textwrap
+          import subprocess
+
+          workflow = Path('.github/workflows/apply-artifact-system.yml').read_text(encoding='utf-8')
+          match = re.search(r"python3 <<'PY'\n(.*?)\n\s*PY\n\s*- name: Typecheck", workflow, flags=re.S)
+          if not match:
+              raise SystemExit('Stored migration script was not found')
+          script = textwrap.dedent(match.group(1))
+          exec(compile(script, 'stored-artifact-migration.py', 'exec'), {})
+          PY
+
+      - name: Typecheck
+        run: npm ci && npm run typecheck
+
+      - name: Commit and remove temporary workflows
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/gameData.ts src/engine.ts src/towerProgression.ts src/App.tsx src/artifactSystem.ts
+          git rm -f .github/workflows/apply-artifact-system.yml .github/workflows/run-artifact-patch.yml
+          git commit -m "feat: implement artifact system [artifact-system-applied]"
+          git push origin cleanup-android
