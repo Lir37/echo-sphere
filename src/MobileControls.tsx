@@ -271,7 +271,6 @@ function getEmptyCharacterVisualState(): CharacterVisualState {
 
 function readCharacterVisualState(st: GameState): CharacterVisualState {
   const characterId = st.player.characterId;
-  const aliveSpheres = st.spheres.filter((sphere) => sphere.alive);
   const hpRatio = st.player.hp / Math.max(1, st.player.maxHp);
   const visual = getEmptyCharacterVisualState();
 
