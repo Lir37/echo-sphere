@@ -14,9 +14,38 @@ const JOYSTICK_DEADZONE = 12;
 const JOYSTICK_RADIUS = 58;
 const JOYSTICK_KNOB_RADIUS = 24;
 const TOWER_TOUCH_TOLERANCE = 26;
+const PLACEMENT_RADIUS = 175;
+const PLACEMENT_NODES = 8;
 
 function isBlockedByControl(target: EventTarget | null): boolean {
   return target instanceof Element && Boolean(target.closest('[data-mobile-control="true"]'));
+}
+
+function getSoftPlacementPoint(st: GameState, desired: { x: number; y: number }): { x: number; y: number } | null {
+  const occupied = st.spheres
+    .filter((sphere) => sphere.alive)
+    .map((sphere) => sphere.pos);
+  const candidates = Array.from({ length: PLACEMENT_NODES }, (_, index) => {
+    const angle = (index / PLACEMENT_NODES) * Math.PI * 2;
+    const x = st.player.pos.x + Math.cos(angle) * PLACEMENT_RADIUS;
+    const y = st.player.pos.y + Math.sin(angle) * PLACEMENT_RADIUS;
+    const worldLimitX = st.worldWidth / 2 - 80;
+    const worldLimitY = st.worldHeight / 2 - 80;
+    return {
+      x: Math.max(-worldLimitX, Math.min(worldLimitX, x)),
+      y: Math.max(-worldLimitY, Math.min(worldLimitY, y)),
+    };
+  });
+
+  const available = candidates.filter((candidate) =>
+    !occupied.some((position) => Math.hypot(position.x - candidate.x, position.y - candidate.y) < 70)
+  );
+  if (available.length === 0) return null;
+
+  available.sort((a, b) =>
+    Math.hypot(a.x - desired.x, a.y - desired.y) - Math.hypot(b.x - desired.x, b.y - desired.y)
+  );
+  return available[0];
 }
 
 export default function MobileControls({ lang, t, stateRef, canvasRef, handedness, onPause }: {
@@ -75,8 +104,18 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
     if (st.pendingUpgrade || st.pendingArtifact || st.pendingEvolution || st.pendingTowerUpgrade || st.pendingChest) return;
     const world = touchToWorld(clientX, clientY);
     if (!world) return;
-    const nearExistingTower = st.spheres.some((sphere) => sphere.alive && Math.hypot(sphere.pos.x - world.x, sphere.pos.y - world.y) < TOWER_TOUCH_TOLERANCE);
-    if (nearExistingTower || st.spheres.length < getMaxSpheres(st)) placeSphere(st, world.x, world.y);
+
+    const nearExistingTower = st.spheres.some(
+      (sphere) => sphere.alive && Math.hypot(sphere.pos.x - world.x, sphere.pos.y - world.y) < TOWER_TOUCH_TOLERANCE
+    );
+    if (nearExistingTower) {
+      placeSphere(st, world.x, world.y);
+      return;
+    }
+
+    if (st.spheres.length >= getMaxSpheres(st)) return;
+    const placementPoint = getSoftPlacementPoint(st, world);
+    if (placementPoint) placeSphere(st, placementPoint.x, placementPoint.y);
   };
 
   const startJoystick = (pointerId: number, x: number, y: number) => {
