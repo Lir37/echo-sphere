@@ -2,6 +2,8 @@ name: Tower body shapes
 on:
   push:
     branches: [cleanup-android]
+permissions:
+  contents: write
 jobs:
   polish:
     runs-on: ubuntu-latest
