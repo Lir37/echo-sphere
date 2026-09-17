@@ -12,6 +12,7 @@ import { addCharacterMasteryXp } from './persistence';
 
 type PointerState = { startX: number; startY: number; moved: boolean; joystickCandidate: boolean };
 type JoystickVisual = { pointerId: number; x: number; y: number; dx: number; dy: number; active: boolean };
+type PlacementVisual = { x: number; y: number; color: string; id: number };
 type CharacterVisualState = {
   linkedCount: number;
   furySteps: number;
@@ -47,6 +48,7 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
   const joystickIdRef = useRef<number | null>(null);
   const lastDirectionRef = useRef({ x: 0, y: -1 });
   const [joystick, setJoystick] = useState<JoystickVisual | null>(null);
+  const [placementFx, setPlacementFx] = useState<PlacementVisual | null>(null);
   const interfaceScale = loadInterfaceScale();
 
   const joystickOnRight = handedness === 'right';
@@ -124,6 +126,12 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [handedness]);
 
+  useEffect(() => {
+    if (!placementFx) return;
+    const timer = window.setTimeout(() => setPlacementFx(null), 450);
+    return () => window.clearTimeout(timer);
+  }, [placementFx]);
+
   const activeAbilities = Object.entries(stateRef.current?.activeKeyMap || {}) as [string, AbilityType][];
   const types: SphereType[] = ['standard', 'sniper', 'shotgun', 'chain', 'aura'];
   const selectedType = stateRef.current?.selectedSphereType || 'standard';
@@ -170,6 +178,13 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
       onPointerCancel={(e) => endPointer(e.pointerId, e.clientX, e.clientY)}
     >
       <CharacterAvatarOverlay stateRef={stateRef} />
+
+      {placementFx && (
+        <div key={placementFx.id} className="absolute pointer-events-none" style={{ left: placementFx.x - 26, top: placementFx.y - 26, width: 52, height: 52, transform: `scale(${interfaceScale})`, transformOrigin: 'center' }}>
+          <div className="absolute inset-0 rounded-full border-2 opacity-70 animate-ping" style={{ borderColor: placementFx.color }} />
+          <div className="absolute inset-[9px] rounded-full border" style={{ borderColor: placementFx.color, opacity: 0.55 }} />
+        </div>
+      )}
 
       {joystick && (
         <div className="absolute pointer-events-none" style={{ left: joystick.x - JOYSTICK_RADIUS, top: joystick.y - JOYSTICK_RADIUS, width: JOYSTICK_RADIUS * 2, height: JOYSTICK_RADIUS * 2, transform: `scale(${interfaceScale})`, transformOrigin: 'center' }}>
