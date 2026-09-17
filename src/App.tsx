@@ -9,11 +9,11 @@ import {
 import {
   createInitialState, update,
   generateUpgradeChoices, applyUpgrade, applyArtifact,
-  applyTowerUpgrade, openChest,
+  openChest,
   getMaxSpheres, getMoveSpeed, getSphereRadius, getSphereDamage, getSphereDelay,
   getCritChance, getDodgeChance, getVampirePercent,
   type GameState, type ShopState, type LeaderEntry, type UpgradeChoice,
-  type TowerUpgradeChoice, MAP_THEMES, type MapTheme,
+  MAP_THEMES, type MapTheme,
 } from './engine';
 import { render } from './renderer';
 import { resolveSpaceCollisions } from './spaceCollision';
@@ -260,7 +260,7 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
             canvasRef={canvasRef}
             handedness={handedness}
             onPause={() => {
-              if (st.pendingUpgrade || st.pendingArtifact || st.pendingEvolution || st.pendingTowerUpgrade || st.pendingChest) return;
+              if (st.pendingUpgrade || st.pendingArtifact || st.pendingEvolution || st.pendingChest) return;
               const next = !st.paused;
               st.paused = next;
               setPaused(next);
@@ -283,7 +283,7 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
           {st.pendingArtifact && <ArtifactModal lang={lang} t={t} choices={st.pendingArtifact} onPick={(id) => { applyArtifact(st, id); st.pendingArtifact = null; }} />}
           {st.pendingTowerUpgrade && <TowerUpgradeModal lang={lang} t={t} choices={st.pendingTowerUpgrade} onPick={(c) => { applyTowerUpgrade(st, c); }} />}
           {st.pendingChest && <ChestModal lang={lang} t={t} st={st} onPick={() => { openChest(st, 'artifact'); }} />}
-          {paused && !st.pendingUpgrade && !st.pendingArtifact && !st.pendingTowerUpgrade && !st.pendingChest && (
+          {paused && !st.pendingUpgrade && !st.pendingArtifact && !st.pendingChest && (
             <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-50">
               <div className="text-center max-w-md w-full px-6">
                 <h2 className="text-3xl font-bold mb-4">{t('pauseTitle')}</h2>
@@ -373,63 +373,28 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
 function UpgradeModal({ lang, t, st, onPick }: {
   lang: Lang; t: (k: TranslationKey) => string; st: GameState; onPick: (c: UpgradeChoice) => void;
 }) {
-  const choices = st.pendingUpgrade || [];
+  const choices = st.pendingUpgrade || []; const first = choices[0];
+  const title = first?.towerStage === 'branch' ? (lang === 'ru' ? 'Эволюция башни I' : 'Tower Evolution I') : first?.towerStage === 'final' ? (lang === 'ru' ? 'Финальная специализация' : 'Final Specialization') : t('chooseUpgrade');
   return (
     <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-50">
       <div className="max-w-2xl w-full px-6">
-        <h2 className="text-2xl font-bold text-center mb-6 text-[#4a7a8a]">
-          {choices[0]?.type === 'evolve' ? t('evolution') : t('chooseUpgrade')}
-        </h2>
+        <h2 className="text-2xl font-bold text-center mb-6 text-[#4a7a8a]">{title}</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {choices.map((c, i) => {
-            if (c.type === 'evolve' && c.evolution) {
-              const evo = EVOLUTION_MAP[c.evolution];
-              return (
-                <button key={i} onClick={() => onPick(c)} className="p-5 rounded-xl bg-[#e8dcc0] from-[#d4943d]/20 to-[#c46d3d]/10 border border-[#d4943d]/40 hover:border-[#d4943d]/60 hover:scale-105 transition-all text-left">
-                  <div className="text-[#d4943d] text-xs uppercase mb-1">{t('evolution')}</div>
-                  <div className="font-bold text-lg mb-2">{evo.name[lang]}</div>
-                  <div className="text-sm text-[#5a4a32]">{evo.desc[lang]}</div>
-                </button>
-              );
+            if (c.type === 'tower') {
+              const label = c.towerStage === 'branch' ? (lang === 'ru' ? 'ВЕТКА БАШНИ' : 'TOWER BRANCH') : c.towerStage === 'final' ? (lang === 'ru' ? 'ФИНАЛЬНАЯ СПЕЦИАЛИЗАЦИЯ' : 'FINAL SPECIALIZATION') : (lang === 'ru' ? 'УЛУЧШЕНИЕ БАШНИ' : 'TOWER UPGRADE');
+              return <button key={i} onClick={() => onPick(c)} className="p-5 rounded-xl bg-[#e8dcc0] border border-[#5a8c4a]/30 hover:border-[#5a8c4a]/60 hover:scale-105 transition-all text-left"><div className="text-[#5a8c4a] text-[10px] uppercase tracking-wider mb-1">{label}</div><div className="font-bold text-lg mb-2">{c.name?.[lang] || 'Tower'}</div><div className="text-sm text-[#5a4a32] mb-2">{c.desc?.[lang] || ''}</div><div className="text-xs text-[#8a7a5a]/70">{t('level')} {c.currentLevel} → {c.newLevel}</div></button>;
             }
+            if (c.type === 'evolve' && c.evolution) { const evo = EVOLUTION_MAP[c.evolution]; return <button key={i} onClick={() => onPick(c)} className="p-5 rounded-xl bg-[#e8dcc0] border border-[#d4943d]/40 hover:border-[#d4943d]/60 hover:scale-105 transition-all text-left"><div className="text-[#d4943d] text-xs uppercase mb-1">{t('evolution')}</div><div className="font-bold text-lg mb-2">{evo.name[lang]}</div><div className="text-sm text-[#5a4a32]">{evo.desc[lang]}</div></button>; }
             const def = ABILITIES[c.ability!];
-            return (
-              <button key={i} onClick={() => onPick(c)} className="p-5 rounded-xl bg-[#e8dcc0] from-[#4a7a8a]/15 to-[#4a7a8a]/5 border border-[#4a7a8a]/30 hover:border-[#4a7a8a]/60 hover:scale-105 transition-all text-left">
-                <div className="text-[#4a7a8a] text-xs uppercase mb-1">{def.category === 'active' ? t('active') : t('passive')}</div>
-                <div className="font-bold text-lg mb-2">{def.name[lang]}</div>
-                <div className="text-sm text-[#5a4a32] mb-2">{def.desc[lang](c.newLevel)}</div>
-                <div className="text-xs text-[#8a7a5a]/70">{t('level')} {c.currentLevel} → {c.newLevel} / {def.maxLevel}</div>
-              </button>
-            );
+            return <button key={i} onClick={() => onPick(c)} className="p-5 rounded-xl bg-[#e8dcc0] border border-[#4a7a8a]/30 hover:border-[#4a7a8a]/60 hover:scale-105 transition-all text-left"><div className="text-[#4a7a8a] text-xs uppercase mb-1">{def.category === 'active' ? t('active') : t('passive')}</div><div className="font-bold text-lg mb-2">{def.name[lang]}</div><div className="text-sm text-[#5a4a32] mb-2">{def.desc[lang](c.newLevel)}</div><div className="text-xs text-[#8a7a5a]/70">{t('level')} {c.currentLevel} → {c.newLevel} / {def.maxLevel}</div></button>;
           })}
         </div>
       </div>
     </div>
   );
 }
-
-// ===== Tower Upgrade Modal =====
-function TowerUpgradeModal({ lang, t, choices, onPick }: {
-  lang: Lang; t: (k: TranslationKey) => string; choices: TowerUpgradeChoice[]; onPick: (c: TowerUpgradeChoice) => void;
-}) {
-  return (
-    <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-50">
-      <div className="max-w-2xl w-full px-6">
-        <h2 className="text-2xl font-bold text-center mb-6 text-[#5a8c4a]">{t('chooseTowerUpgrade')}</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {choices.map((c, i) => (
-            <button key={i} onClick={() => onPick(c)} className="p-5 rounded-xl bg-[#e8dcc0] border border-[#5a8c4a]/30 hover:border-[#5a8c4a]/60 hover:scale-105 transition-all text-left">
-              <div className="text-[10px] uppercase tracking-wider text-[#8a7a5a] mb-1">{(c as TowerUpgradeChoice & { towerType?: string }).towerType ? 'TOWER PROGRESSION' : 'LEGACY MOD'}</div><div className="font-bold text-lg mb-2 text-[#5a8c4a]">{c.name[lang]}</div>
-              <div className="text-sm text-[#5a4a32]">{c.desc[lang]}</div>
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ===== Artifact Modal =====
+// ===== Artifact Modal =====// ===== Artifact Modal =====
 function ArtifactModal({ lang, t, choices, onPick }: {
   lang: Lang; t: (k: TranslationKey) => string; choices: ArtifactId[]; onPick: (id: ArtifactId) => void;
 }) {
