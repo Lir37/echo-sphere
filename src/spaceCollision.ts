@@ -1,4 +1,4 @@
-import type { EnemyEntity, GameState, SphereEntity, Vec } from './engine';
+import type { EnemyEntity, GameState, Vec } from './engine';
 
 // Physical size of a tower is intentionally much smaller than its attack radius.
 export const TOWER_BODY_RADIUS = 26;
@@ -13,7 +13,7 @@ function distance(a: Vec, b: Vec): number {
   return Math.hypot(a.x - b.x, a.y - b.y);
 }
 
-function clamp(value: number, min: number, max: number): number {
+function clampScalar(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
 }
 
@@ -34,15 +34,12 @@ function getCellCoord(value: number): number {
 /**
  * Validate a new tower placement before placeSphere() is called.
  *
- * The important rule is not "never build a wall" — walls and corridors are
- * intentional. The rule is "never remove the last navigable route between
- * the player and the outside world".
+ * Walls and corridors are intentional. The rule is that a new tower must not
+ * remove the last navigable route between the player and the outside world.
  */
 export function canPlaceSphere(s: GameState, x: number, y: number): boolean {
-  // Keep the new tower from covering the character itself.
   if (distance({ x, y }, s.player.pos) < TOWER_BODY_RADIUS + PLAYER_BUILD_GAP) return false;
 
-  // Towers are solid and cannot overlap one another.
   for (const sphere of s.spheres) {
     if (!sphere.alive) continue;
     if (distance({ x, y }, sphere.pos) < TOWER_BODY_RADIUS * 2 + TOWER_PLACEMENT_GAP) return false;
@@ -53,21 +50,18 @@ export function canPlaceSphere(s: GameState, x: number, y: number): boolean {
 
 /** Resolve solid-space collisions after the normal game update. */
 export function resolveSpaceCollisions(s: GameState, dt: number): void {
-  // Two short passes make crowded clusters settle without turning this into a
-  // heavy physics simulation.
   for (let pass = 0; pass < 2; pass++) {
     resolveEnemyTowerCollisions(s, dt);
     resolveEnemyEnemyCollisions(s);
     resolveEnemyPlayerCollisions(s);
   }
 
-  clamp(s.player.pos, s);
+  clampPosition(s.player.pos, s);
   for (const enemy of s.enemies) clampEnemy(enemy, s);
 }
 
 function resolveEnemyTowerCollisions(s: GameState, dt: number): void {
-  for (let index = 0; index < s.enemies.length; index++) {
-    const enemy = s.enemies[index];
+  for (const enemy of s.enemies) {
     if (enemy.hp <= 0) continue;
 
     for (const tower of s.spheres) {
@@ -162,8 +156,6 @@ function resolveEnemyPlayerCollisions(s: GameState): void {
     const enemyPush = overlap * 0.7;
     const playerPush = overlap - enemyPush;
 
-    // Enemy receives the larger correction so the player feels physically
-    // blocked instead of being thrown around by the horde.
     enemy.pos.x -= normal.x * enemyPush;
     enemy.pos.y -= normal.y * enemyPush;
     pushX += normal.x * playerPush;
@@ -180,18 +172,18 @@ function resolveEnemyPlayerCollisions(s: GameState): void {
   s.player.pos.y += pushY;
 }
 
-function clamp(pos: Vec, s: GameState): void {
+function clampPosition(pos: Vec, s: GameState): void {
   const limitX = s.worldWidth / 2 - 16;
   const limitY = s.worldHeight / 2 - 16;
-  pos.x = clamp(pos.x, -limitX, limitX);
-  pos.y = clamp(pos.y, -limitY, limitY);
+  pos.x = clampScalar(pos.x, -limitX, limitX);
+  pos.y = clampScalar(pos.y, -limitY, limitY);
 }
 
 function clampEnemy(enemy: EnemyEntity, s: GameState): void {
   const limitX = s.worldWidth / 2 - enemy.radius;
   const limitY = s.worldHeight / 2 - enemy.radius;
-  enemy.pos.x = clamp(enemy.pos.x, -limitX, limitX);
-  enemy.pos.y = clamp(enemy.pos.y, -limitY, limitY);
+  enemy.pos.x = clampScalar(enemy.pos.x, -limitX, limitX);
+  enemy.pos.y = clampScalar(enemy.pos.y, -limitY, limitY);
 }
 
 function hasRouteToOutside(s: GameState, candidate: Vec): boolean {
@@ -206,8 +198,8 @@ function hasRouteToOutside(s: GameState, candidate: Vec): boolean {
   const rows = Math.ceil(s.worldHeight / NAV_CELL_SIZE);
 
   const toCell = (pos: Vec) => ({
-    x: clamp(Math.floor((pos.x - minX) / NAV_CELL_SIZE), 0, cols - 1),
-    y: clamp(Math.floor((pos.y - minY) / NAV_CELL_SIZE), 0, rows - 1),
+    x: clampScalar(Math.floor((pos.x - minX) / NAV_CELL_SIZE), 0, cols - 1),
+    y: clampScalar(Math.floor((pos.y - minY) / NAV_CELL_SIZE), 0, rows - 1),
   });
 
   const isBlocked = (cx: number, cy: number): boolean => {
