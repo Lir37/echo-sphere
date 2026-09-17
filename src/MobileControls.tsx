@@ -12,7 +12,6 @@ import { addCharacterMasteryXp } from './persistence';
 type PointerState = { startX: number; startY: number; moved: boolean; joystickCandidate: boolean };
 type JoystickVisual = { pointerId: number; x: number; y: number; dx: number; dy: number; active: boolean };
 type CharacterVisualState = {
-  sphereCount: number;
   linkedCount: number;
   furySteps: number;
   closeEnemy: boolean;
@@ -30,36 +29,9 @@ const JOYSTICK_DEADZONE = 12;
 const JOYSTICK_RADIUS = 58;
 const JOYSTICK_KNOB_RADIUS = 24;
 const TOWER_TOUCH_TOLERANCE = 26;
-const PLACEMENT_RADIUS = 175;
-const PLACEMENT_NODES = 8;
 
 function isBlockedByControl(target: EventTarget | null): boolean {
   return target instanceof Element && Boolean(target.closest('[data-mobile-control="true"]'));
-}
-
-function getSoftPlacementPoint(st: GameState, desired: { x: number; y: number }): { x: number; y: number } | null {
-  const occupied = st.spheres
-    .filter((sphere) => sphere.alive)
-    .map((sphere) => sphere.pos);
-  const candidates = Array.from({ length: PLACEMENT_NODES }, (_, index) => {
-    const angle = (index / PLACEMENT_NODES) * Math.PI * 2;
-    const x = st.player.pos.x + Math.cos(angle) * PLACEMENT_RADIUS;
-    const y = st.player.pos.y + Math.sin(angle) * PLACEMENT_RADIUS;
-    const worldLimitX = st.worldWidth / 2 - 80;
-    const worldLimitY = st.worldHeight / 2 - 80;
-    return {
-      x: Math.max(-worldLimitX, Math.min(worldLimitX, x)),
-      y: Math.max(-worldLimitY, Math.min(worldLimitY, y)),
-    };
-  });
-  const available = candidates.filter((candidate) =>
-    !occupied.some((position) => Math.hypot(position.x - candidate.x, position.y - candidate.y) < 70)
-  );
-  if (available.length === 0) return null;
-  available.sort((a, b) =>
-    Math.hypot(a.x - desired.x, a.y - desired.y) - Math.hypot(b.x - desired.x, b.y - desired.y)
-  );
-  return available[0];
 }
 
 export default function MobileControls({ lang, t, stateRef, canvasRef, handedness, onPause }: {
@@ -119,13 +91,7 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
     const nearExistingTower = st.spheres.some(
       (sphere) => sphere.alive && Math.hypot(sphere.pos.x - world.x, sphere.pos.y - world.y) < TOWER_TOUCH_TOLERANCE
     );
-    if (nearExistingTower) {
-      placeSphere(st, world.x, world.y);
-      return;
-    }
-    if (st.spheres.length >= getMaxSpheres(st)) return;
-    const placementPoint = getSoftPlacementPoint(st, world);
-    if (placementPoint) placeSphere(st, placementPoint.x, placementPoint.y);
+    if (nearExistingTower || st.spheres.length < getMaxSpheres(st)) placeSphere(st, world.x, world.y);
   };
 
   const startJoystick = (pointerId: number, x: number, y: number) => {
@@ -246,7 +212,6 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
 
 function getEmptyCharacterVisualState(): CharacterVisualState {
   return {
-    sphereCount: 0,
     linkedCount: 0,
     furySteps: 0,
     closeEnemy: false,
@@ -264,7 +229,6 @@ function readCharacterVisualState(st: GameState): CharacterVisualState {
   const aliveSpheres = st.spheres.filter((sphere) => sphere.alive);
   const hpRatio = st.player.hp / Math.max(1, st.player.maxHp);
   const visual = getEmptyCharacterVisualState();
-  visual.sphereCount = aliveSpheres.length;
 
   if (characterId === 'engineer') {
     const range = getEngineerNetworkRange(st);
@@ -333,12 +297,10 @@ function CharacterAvatarOverlay({ stateRef }: { stateRef: React.MutableRefObject
   }, [stateRef]);
 
   const color = CHARACTER_DEFS[characterId]?.color || '#5a8c4a';
-  const background = getAvatarBackground(stateRef.current?.mapTheme);
   const pulse = mutationStage >= 3 ? 'animate-pulse' : '';
 
   return (
     <div className="absolute left-1/2 top-1/2 pointer-events-none" style={{ transform: 'translate(-50%, -50%)', width: 74, height: 74 }}>
-      <div className="absolute inset-0 rounded-full" style={{ background, boxShadow: '0 3px 7px rgba(58,46,31,0.14)' }} />
       <div className={`absolute inset-0 flex items-center justify-center ${pulse}`}>
         <CharacterSvg characterId={characterId} color={color} mutationStage={mutationStage} visual={visual} />
       </div>
@@ -431,14 +393,6 @@ function CharacterSvg({ characterId, color, mutationStage, visual }: {
 
   return (
     <svg {...common}>
-      {visual.sphereCount >= 2 && <>
-        {Array.from({ length: 8 }, (_, index) => {
-          const active = index < Math.min(8, visual.sphereCount);
-          const a = (index / 8) * Math.PI * 2 - Math.PI / 2;
-          return <circle key={index} cx={29 + Math.cos(a) * 25} cy={29 + Math.sin(a) * 25} r="2.4" fill={active ? color : '#c4b890'} opacity={active ? .95 : .35} />;
-        })}
-        <circle cx="29" cy="29" r="24" stroke={color} strokeWidth="1.5" strokeDasharray="3 5" opacity=".7" />
-      </>}
       <path d="M29 5L47 19L38 43L29 50L20 43L11 19L29 5Z" fill={color} fillOpacity=".92" stroke="#3a2e1f" strokeWidth="2"/>
       <path d="M20 17L29 11L38 17L34 29L29 38L24 29L20 17Z" fill="#e8dcc0" fillOpacity=".55" stroke="#3a2e1f" strokeWidth="1.5"/>
       <circle cx="29" cy="28" r="4" fill="#3a2e1f"/>
@@ -446,15 +400,6 @@ function CharacterSvg({ characterId, color, mutationStage, visual }: {
       {mutationStage > 1 && <circle cx="29" cy="28" r="21" stroke="#d4943d" strokeWidth="2" strokeDasharray="3 4"/>}
     </svg>
   );
-}
-
-function getAvatarBackground(mapTheme: GameState['mapTheme'] | undefined): string {
-  switch (mapTheme) {
-    case 'bamboo': return '#e8e0c4';
-    case 'ocean': return '#d8e0e4';
-    case 'sunset': return '#f0d8c0';
-    default: return '#f4ecd8';
-  }
 }
 
 function getAbilityCooldown(st: GameState | null, ability: AbilityType): number {
