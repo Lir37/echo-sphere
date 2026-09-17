@@ -1,0 +1,112 @@
+name: Implement progression system v2
+on:
+  push:
+    branches: [cleanup-android]
+permissions:
+  contents: write
+jobs:
+  implement:
+    if: "!contains(github.event.head_commit.message, '[progression-v2]')"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply progression architecture
+        shell: bash
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          import re
+          root=Path('.')
+          progression = r'''import type { CharacterId } from './characters';
+          import type { SphereType, AbilityType } from './gameData';
+          export type TowerEvolutionId = 'standard_resonator' | 'sniper_oracle' | 'shotgun_burst' | 'chain_web' | 'aura_sanctum';
+          export type AbilityEvolutionId = 'echo_pulse' | 'echo_guard' | 'echo_jump' | 'echo_overdrive' | 'echo_drone' | 'echo_storm' | 'echo_phase';
+          export interface TowerUpgradeDef { level:number; name:{ru:string;en:string}; desc:{ru:string;en:string}; }
+          export interface TowerDef { type:SphereType; name:{ru:string;en:string}; priority:Partial<Record<CharacterId,number>>; levels:TowerUpgradeDef[]; evolution4:{id:TowerEvolutionId;name:{ru:string;en:string};desc:{ru:string;en:string}}; evolution7:{id:TowerEvolutionId;name:{ru:string;en:string};desc:{ru:string;en:string}}; }
+          export interface AbilityProgressionDef { ability:AbilityType; levels:TowerUpgradeDef[]; evolution4:{id:AbilityEvolutionId;name:{ru:string;en:string};desc:{ru:string;en:string}}; evolution7:{id:AbilityEvolutionId;name:{ru:string;en:string};desc:{ru:string;en:string}}; }
+          const levels=(firstRu:string,firstEn:string,secondRu:string,secondEn:string,thirdRu:string,thirdEn:string):TowerUpgradeDef[]=>[
+            {level:1,name:{ru:'Ядро',en:'Core'},desc:{ru:firstRu,en:firstEn}},
+            {level:2,name:{ru:'Механизм',en:'Mechanism'},desc:{ru:secondRu,en:secondEn}},
+            {level:3,name:{ru:'Настройка',en:'Tuning'},desc:{ru:thirdRu,en:thirdEn}},
+            {level:4,name:{ru:'Эволюция I',en:'Evolution I'},desc:{ru:'Башня получает новую форму и механику',en:'The tower gains a new form and mechanic'}},
+            {level:5,name:{ru:'Контур',en:'Circuit'},desc:{ru:'Усиление после первой эволюции',en:'Post-evolution enhancement'}},
+            {level:6,name:{ru:'Стабилизатор',en:'Stabilizer'},desc:{ru:'Усиление специального поведения',en:'Strengthens the special behavior'}},
+            {level:7,name:{ru:'Эволюция II',en:'Evolution II'},desc:{ru:'Финальная форма башни',en:'Final tower form'}}];
+          export const TOWER_PROGRESSION:Record<SphereType,TowerDef>={
+            standard:{type:'standard',name:{ru:'Стандартная',en:'Standard'},priority:{spherist:1,engineer:.9,berserker:.8,architect:.7,hunter:.4,alchemist:.4},levels:levels('+15% урона','+15% damage','+1 пробитие','+1 pierce','-10% задержки','-10% attack delay'),evolution4:{id:'standard_resonator',name:{ru:'Резонатор',en:'Resonator'},desc:{ru:'Каждое третье попадание выпускает дополнительный импульс',en:'Every third hit releases a bonus pulse'}},evolution7:{id:'standard_resonator',name:{ru:'Гиперрезонатор',en:'Hyper Resonator'},desc:{ru:'Импульс пробивает врагов и усиливается от близких сфер',en:'Pulse pierces enemies and scales with nearby spheres'}}},
+            sniper:{type:'sniper',name:{ru:'Снайперская',en:'Sniper'},priority:{hunter:1,architect:.9,spherist:.4,engineer:.4,berserker:.3,alchemist:.3},levels:levels('+25% урона','+25% damage','+15% дальности','+15% range','+15% крита','+15% critical chance'),evolution4:{id:'sniper_oracle',name:{ru:'Оракул',en:'Oracle'},desc:{ru:'Дальний выстрел гарантированно критует отмеченную цель',en:'Long-range shots always crit marked targets'}},evolution7:{id:'sniper_oracle',name:{ru:'Провидец',en:'Seer'},desc:{ru:'Выстрел проходит сквозь элит и цепляется к ближайшей цели',en:'Shots pierce elites and chain to a nearby target'}}},
+            shotgun:{type:'shotgun',name:{ru:'Дробовик',en:'Shotgun'},priority:{berserker:1,alchemist:.8,spherist:.6,engineer:.4,hunter:.3,architect:.3},levels:levels('+1 дробь','+1 pellet','+20% урона вблизи','+20% close damage','-12% разброса','-12% spread'),evolution4:{id:'shotgun_burst',name:{ru:'Разрыв',en:'Burst'},desc:{ru:'Центральные дробины наносят повышенный урон',en:'Center pellets deal increased damage'}},evolution7:{id:'shotgun_burst',name:{ru:'Катаклизм',en:'Cataclysm'},desc:{ru:'Выстрел выпускает волну отбрасывания',en:'Shots release a knockback wave'}}},
+            chain:{type:'chain',name:{ru:'Цепная',en:'Chain'},priority:{spherist:1,hunter:.95,engineer:.9,alchemist:.8,architect:.5,berserker:.4},levels:levels('+1 цель цепи','+1 chain target','+10% урона цепи','+10% chain damage','+15% скорости перехода','+15% chain speed'),evolution4:{id:'chain_web',name:{ru:'Паутина',en:'Web'},desc:{ru:'Цепь может вернуться к первой цели',en:'The chain can return to the first target'}},evolution7:{id:'chain_web',name:{ru:'Сеть Эха',en:'Echo Web'},desc:{ru:'Связанные цепью цели получают общий импульс',en:'Chained targets share an echo damage pulse'}}},
+            aura:{type:'aura',name:{ru:'Аура',en:'Aura'},priority:{engineer:1,alchemist:1,architect:.9,spherist:.7,hunter:.4,berserker:.4},levels:levels('+20% радиуса ауры','+20% aura radius','-10% интервала импульса','-10% pulse interval','+10% урона ауры','+10% aura damage'),evolution4:{id:'aura_sanctum',name:{ru:'Святилище',en:'Sanctum'},desc:{ru:'Аура замедляет врагов и усиливает соседние сферы',en:'Aura slows enemies and empowers nearby spheres'}},evolution7:{id:'aura_sanctum',name:{ru:'Эхо-святилище',en:'Echo Sanctum'},desc:{ru:'Аура периодически выпускает волну по периметру',en:'Aura periodically emits a perimeter wave'}}}
+          };
+          export const ABILITY_PROGRESSION:Partial<Record<AbilityType,AbilityProgressionDef>>={
+            blast:{ability:'blast',levels:levels('+20% урона','+20% damage','+15% радиуса','+15% radius','-10% КД','-10% cooldown'),evolution4:{id:'echo_pulse',name:{ru:'Эхо-импульс',en:'Echo Pulse'},desc:{ru:'Волна проходит через установленные сферы',en:'Pulse propagates through placed spheres'}},evolution7:{id:'echo_pulse',name:{ru:'Резонансный импульс',en:'Resonant Pulse'},desc:{ru:'Каждая связанная сфера усиливает волну',en:'Each linked sphere amplifies the pulse'}}},
+            shield:{ability:'shield',levels:levels('+1 заряд','+1 charge','+20% прочности','+20% strength','+1с длительности','+1s duration'),evolution4:{id:'echo_guard',name:{ru:'Эхо-барьер',en:'Echo Guard'},desc:{ru:'Ближайшие сферы принимают часть удара',en:'Nearby spheres absorb part of the hit'}},evolution7:{id:'echo_guard',name:{ru:'Бастион',en:'Bastion'},desc:{ru:'Щит создаёт защитное кольцо вокруг сети',en:'Shield creates a defensive ring around the network'}}},
+            teleport:{ability:'teleport',levels:levels('-2с КД','-2s cooldown','+1 выбор точки','+1 target option','+20% дальности','+20% range'),evolution4:{id:'echo_jump',name:{ru:'Эхо-прыжок',en:'Echo Jump'},desc:{ru:'Телепорт к выбранной сфере',en:'Teleport to a selected sphere'}},evolution7:{id:'echo_jump',name:{ru:'Разрыв пространства',en:'Space Break'},desc:{ru:'Прыжок оставляет ударную волну',en:'Jump leaves a shockwave'}}},
+            firetrail:{ability:'firetrail',levels:levels('+1с длительности','+1s duration','+20% урона','+20% damage','+20% ширины','+20% width'),evolution4:{id:'echo_overdrive',name:{ru:'Перегрев',en:'Overdrive'},desc:{ru:'Огненный след усиливает огненные сферы',en:'Trail overcharges fire spheres'}},evolution7:{id:'echo_overdrive',name:{ru:'Термоядерный след',en:'Thermal Overdrive'},desc:{ru:'Перегрев распространяется по сети',en:'Overdrive propagates through the network'}}},
+            minion:{ability:'minion',levels:levels('+1 миньон','+1 minion','+20% урона','+20% damage','+2с жизни','+2s lifetime'),evolution4:{id:'echo_drone',name:{ru:'Эхо-дрон',en:'Echo Drone'},desc:{ru:'Миньон становится частью сети сфер',en:'Minion joins the sphere network'}},evolution7:{id:'echo_drone',name:{ru:'Рой Эха',en:'Echo Swarm'},desc:{ru:'Дроны создают временные узлы',en:'Drones create temporary nodes'}}},
+            lightning:{ability:'lightning',levels:levels('+1 цель','+1 target','+20% урона','+20% damage','-15% КД','-15% cooldown'),evolution4:{id:'echo_storm',name:{ru:'Эхо-шторм',en:'Echo Storm'},desc:{ru:'Молния проводится через ближайшую сферу',en:'Lightning conducts through the nearest sphere'}},evolution7:{id:'echo_storm',name:{ru:'Грозовая сеть',en:'Storm Network'},desc:{ru:'Сеть сфер создаёт последовательные разряды',en:'The sphere network creates chained strikes'}}},
+            timestop:{ability:'timestop',levels:levels('+0.5с остановки','+0.5s freeze','+20% радиуса','+20% radius','-10% КД','-10% cooldown'),evolution4:{id:'echo_phase',name:{ru:'Фазовый разрыв',en:'Phase Break'},desc:{ru:'Сферы продолжают атаковать во время остановки',en:'Spheres keep attacking during time stop'}},evolution7:{id:'echo_phase',name:{ru:'Вне времени',en:'Outside Time'},desc:{ru:'Каждая сфера продлевает остановку',en:'Each sphere extends the time stop'}}}
+          };
+          export const CHARACTER_TOWER_PRIORITY:Record<CharacterId,SphereType[]>={spherist:['standard','chain'],hunter:['sniper','chain'],engineer:['aura','standard','chain'],berserker:['shotgun','standard'],alchemist:['aura','chain'],architect:['sniper','aura','standard']};
+          export const TOWER_ABILITY_SYNERGIES=[
+            {tower:'standard',ability:'blast',name:{ru:'Резонансный удар',en:'Resonant Strike'},desc:{ru:'Импульс отскакивает от Standard-сфер',en:'Pulse bounces from Standard spheres'}},
+            {tower:'sniper',ability:'teleport',name:{ru:'Маяк охотника',en:'Hunter Beacon'},desc:{ru:'Прыжок к Sniper отмечает ближайшую элиту',en:'Jumping to Sniper marks a nearby elite'}},
+            {tower:'shotgun',ability:'shield',name:{ru:'Железный купол',en:'Iron Dome'},desc:{ru:'Щит выпускает дробовой залп при поглощении удара',en:'Shield fires a shotgun burst when hit'}},
+            {tower:'chain',ability:'lightning',name:{ru:'Цепной разряд',en:'Chain Discharge'},desc:{ru:'Молния проходит по цепи башни',en:'Lightning travels along the tower chain'}},
+            {tower:'aura',ability:'timestop',name:{ru:'Замкнутое время',en:'Closed Time'},desc:{ru:'Аура расширяется на время остановки',en:'Aura expands during time stop'}},
+            {tower:'standard',ability:'darkritual',name:{ru:'Жертвенный резонанс',en:'Sacrificial Resonance'},desc:{ru:'Ритуал временно удваивает Standard-урон',en:'Ritual temporarily doubles Standard damage'}},
+            {tower:'aura',ability:'firetrail',name:{ru:'Пылающее святилище',en:'Burning Sanctum'},desc:{ru:'Огненный след заряжает ауру',en:'Fire trail charges the aura'}},
+            {tower:'sniper',ability:'crit',name:{ru:'Око Эха',en:'Echo Eye'},desc:{ru:'Снайпер получает усиление критов',en:'Sniper gains stronger criticals'}}
+          ] as const;
+          export function towerPriority(character:CharacterId,type:SphereType){const list=CHARACTER_TOWER_PRIORITY[character]||[];const i=list.indexOf(type);return i<0 ? .25 : 1-i*.18;}
+          export function towerLevel(s:any,type:SphereType){return s.player.towerProgression?.[type]||0;}
+          export function towerModifiers(s:any,type:SphereType){const l=towerLevel(s,type);return {damage:1+l*.08+(l>=4?.12:0)+(l>=7?.18:0),radius:1+(l>=2?.05:0)+(l>=5?.06:0)+(l>=7?.08:0),delay:Math.max(.58,1-l*.045),pierce:l>=2?1:0,multishot:type==='shotgun'&&l>=1?1:0,chainTargets:type==='chain'?Math.max(1,l+1):0,auraRadius:l>=2?1.08:1,auraPulse:l>=4?.75:.5};}
+          '''
+          (root/'src/towerProgression.ts').write_text(progression,encoding='utf-8')
+          gd=root/'src/gameData.ts'; t=gd.read_text(); t=re.sub(r'maxLevel: 5','maxLevel: 7',t); gd.write_text(t,encoding='utf-8')
+          eng=root/'src/engine.ts'; t=eng.read_text()
+          t=t.replace("import { loadCharacterId, loadCharacterProfiles } from './persistence';", "import { loadCharacterId, loadCharacterProfiles } from './persistence';\nimport { TOWER_PROGRESSION, towerPriority, towerLevel, towerModifiers, TOWER_ABILITY_SYNERGIES } from './towerProgression';")
+          t=t.replace('  towerUpgradeCount: number;\n  towerMods: TowerMods;', '  towerUpgradeCount: number;\n  towerMods: TowerMods;\n  towerProgression: Partial<Record<SphereType, number>>;')
+          t=t.replace('    towerUpgradeCount: 0,\n    towerMods:', '    towerUpgradeCount: 0,\n    towerProgression: { standard: 0, sniper: 0, shotgun: 0, chain: 0, aura: 0 },\n    towerMods:')
+          t=t.replace('  r *= getCharacterRadiusMultiplier(s);', '  r *= getCharacterRadiusMultiplier(s);\n  r *= towerModifiers(s, sphere.type).radius;')
+          t=t.replace('  return d;\n}\n\nexport function getSphereDelay','  d *= towerModifiers(s, sphere.type).damage;\n  return d;\n}\n\nexport function getSphereDelay',1)
+          t=t.replace('const delay = getSphereDelay(s) * stype.delayMult;','const delay = getSphereDelay(s) * stype.delayMult * towerModifiers(s, sphere.type).delay;')
+          t=t.replace('visualTier: Math.floor(s.player.towerUpgradeCount / 5),','visualTier: towerLevel(s, s.selectedSphereType),')
+          t=t.replace("    s.pendingUpgrade = generateUpgradeChoices(s);\n    playSound('levelup');","    s.pendingUpgrade = generateUpgradeChoices(s);\n    if (s.player.level > 1) s.pendingTowerUpgrade = generateTowerProgressionChoices(s);\n    playSound('levelup');")
+          t=t.replace('pierce: mods.pierce + formationPierce + (stype.chain ? 99 : 0),',"pierce: mods.pierce + formationPierce + (stype.chain ? Math.max(1, towerModifiers(s, 'chain').chainTargets) : towerModifiers(s, sphere.type).pierce),")
+          t=t.replace('const shots = (1 + mods.multishot) * stype.pellets;',"const shots = (1 + mods.multishot + (sphere.type === 'shotgun' ? towerModifiers(s, sphere.type).multishot : 0)) * stype.pellets;")
+          t=t.replace('if (dist(e.pos, sphere.pos) < stype.auraRadius) {','if (dist(e.pos, sphere.pos) < stype.auraRadius * towerModifiers(s, sphere.type).auraRadius) {')
+          t=t.replace('sphere.auraTimer = 0.5;','sphere.auraTimer = towerModifiers(s, sphere.type).auraPulse;')
+          start=t.index('export function applyTowerUpgrade(s: GameState, choice: TowerUpgradeChoice): void {'); end=t.index('export function applyArtifact',start)
+          repl=r'''export function applyTowerUpgrade(s: GameState, choice: TowerUpgradeChoice): void {
+            const type=(choice as TowerUpgradeChoice & {towerType?:SphereType}).towerType;
+            if(type){
+              const current=towerLevel(s,type); if(current<7){const next=current+1; s.player.towerProgression[type]=next; for(const sp of s.spheres) if(sp.type===type) sp.visualTier=next;
+                if(next===4){s.player.evolutions.push(`tower:${type}:4`);s.evolutionsThisRun++;s.flashText={text:`${TOWER_PROGRESSION[type].name.ru}: ${TOWER_PROGRESSION[type].evolution4.name.ru}`,life:1.8,color:'#d4943d'};playSound('evolve');}
+                if(next===7){s.player.evolutions.push(`tower:${type}:7`);s.evolutionsThisRun++;s.flashText={text:`${TOWER_PROGRESSION[type].name.ru}: ${TOWER_PROGRESSION[type].evolution7.name.ru}`,life:2.2,color:'#c4453d'};playSound('evolve');}
+                if(next===7){const syn=TOWER_ABILITY_SYNERGIES.find(x=>x.tower===type&&(s.player.abilities[x.ability]||0)>=7);if(syn&&!s.player.evolutions.includes(`synergy:${type}:${syn.ability}`)){s.player.evolutions.push(`synergy:${type}:${syn.ability}`);s.flashText={text:syn.name.ru,life:2.2,color:'#8a5a8a'};playSound('evolve');}}
+              } s.pendingTowerUpgrade=null;s.pendingUpgrade=null;return;
+            }
+            s.player.towerMods[choice.id]=(s.player.towerMods[choice.id]||0)+1;s.pendingTowerUpgrade=null;
+          }
+          function generateTowerProgressionChoices(s: GameState): TowerUpgradeChoice[] {
+            const candidates=(Object.keys(TOWER_PROGRESSION) as SphereType[]).filter(x=>towerLevel(s,x)<7).sort((a,b)=>towerPriority(s.player.characterId,b)-towerPriority(s.player.characterId,a));
+            const selected=[...candidates.slice(0,3)].sort(()=>Math.random()-.5);
+            return selected.map(towerType=>{const n=towerLevel(s,towerType)+1;const d=TOWER_PROGRESSION[towerType];const u=d.levels[n-1];const major=n===4?d.evolution4:n===7?d.evolution7:null;return {id:'multishot',towerType,name:{ru:`${d.name.ru} — уровень ${n}: ${major?.name.ru||u.name.ru}`,en:`${d.name.en} — level ${n}: ${major?.name.en||u.name.en}`},desc:{ru:major?.desc.ru||u.desc.ru,en:major?.desc.en||u.desc.en}} as TowerUpgradeChoice & {towerType:SphereType};});
+          }
+
+          '''
+          t=t[:start]+repl+t[end:]
+          eng.write_text(t,encoding='utf-8')
+          app=root/'src/App.tsx'; a=app.read_text(); a=a.replace('<div className="font-bold text-lg mb-2 text-[#5a8c4a]">{c.name[lang]}</div>','<div className="text-[10px] uppercase tracking-wider text-[#8a7a5a] mb-1">{(c as TowerUpgradeChoice & { towerType?: string }).towerType ? \'TOWER PROGRESSION\' : \'LEGACY MOD\'}</div><div className="font-bold text-lg mb-2 text-[#5a8c4a]">{c.name[lang]}</div>'); app.write_text(a,encoding='utf-8')
+          PY
+      - name: Typecheck and commit
+        run: |
+          npm ci
+          npm run typecheck
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add src/towerProgression.ts src/gameData.ts src/engine.ts src/App.tsx
+          git diff --cached --quiet || git commit -m "Implement full tower and ability progression [progression-v2]"
+          git push
