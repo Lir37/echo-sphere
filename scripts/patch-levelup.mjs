@@ -1,35 +1,56 @@
 import fs from 'node:fs';
 
-const path = 'src/engine.ts';
-let s = fs.readFileSync(path, 'utf8');
+const enginePath = 'src/engine.ts';
+const appPath = 'src/App.tsx';
 
-// This script is intentionally a local migration helper. It is not executed automatically.
-// It migrates the old split tower/ability level-up flow to the unified progression model.
+let engine = fs.readFileSync(enginePath, 'utf8');
+let app = fs.readFileSync(appPath, 'utf8');
 
-s = s.replace(
-  "export interface UpgradeChoice {\n  type: 'ability' | 'evolve';\n  ability?: AbilityType;\n  evolution?: string;\n  currentLevel: number;\n  newLevel: number;\n}",
-  "export interface UpgradeChoice {\n  type: 'ability' | 'evolve' | 'tower';\n  ability?: AbilityType;\n  evolution?: string;\n  towerType?: SphereType;\n  towerBranch?: import('./towerProgression').TowerEvolutionId;\n  towerFinalIndex?: number;\n  towerStage?: 'upgrade' | 'branch' | 'final';\n  name?: { ru: string; en: string };\n  desc?: { ru: string; en: string };\n  currentLevel: number;\n  newLevel: number;\n}",
-);
+function replaceSection(text, startMarker, endMarker, replacement) {
+  const start = text.indexOf(startMarker);
+  const end = text.indexOf(endMarker, start);
+  if (start < 0 || end < 0) throw new Error(`Could not locate section: ${startMarker}`);
+  return text.slice(0, start) + replacement + text.slice(end);
+}
 
-s = s.replace(
-  "  towerProgression: Partial<Record<SphereType, number>>;",
-  "  towerProgression: Partial<Record<SphereType, number>>;\n  towerBranches: Partial<Record<SphereType, import('./towerProgression').TowerEvolutionId>>;",
-);
+// Player/choice types. These replacements are idempotent.
+if (!engine.includes("type: 'ability' | 'evolve' | 'tower';")) {
+  engine = engine.replace(
+    /export interface UpgradeChoice \{[\s\S]*?\n\}/,
+    `export interface UpgradeChoice {
+  type: 'ability' | 'evolve' | 'tower';
+  ability?: AbilityType;
+  evolution?: string;
+  towerType?: SphereType;
+  towerBranch?: import('./towerProgression').TowerEvolutionId;
+  towerFinalIndex?: number;
+  towerStage?: 'upgrade' | 'branch' | 'final';
+  name?: { ru: string; en: string };
+  desc?: { ru: string; en: string };
+  currentLevel: number;
+  newLevel: number;
+}`,
+  );
+}
+if (!engine.includes('towerBranches: Partial<Record<SphereType')) {
+  engine = engine.replace(
+    '  towerProgression: Partial<Record<SphereType, number>>;',
+    "  towerProgression: Partial<Record<SphereType, number>>;\n  towerBranches: Partial<Record<SphereType, import('./towerProgression').TowerEvolutionId>>;",
+  );
+}
+if (!engine.includes('towerBranches: {},')) {
+  engine = engine.replace(
+    '    towerProgression: { standard: 0, sniper: 0, shotgun: 0, chain: 0, aura: 0 },',
+    '    towerProgression: { standard: 0, sniper: 0, shotgun: 0, chain: 0, aura: 0 },\n    towerBranches: {},',
+  );
+}
 
-s = s.replace(
-  "    towerProgression: { standard: 0, sniper: 0, shotgun: 0, chain: 0, aura: 0 },",
-  "    towerProgression: { standard: 0, sniper: 0, shotgun: 0, chain: 0, aura: 0 },\n    towerBranches: {},",
-);
-
-const start = s.indexOf('export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {');
-const towerStart = s.indexOf('function generateTowerUpgradeChoices(s: GameState): TowerUpgradeChoice[] {', start);
-const checkStart = s.indexOf('function checkEvolution(s: GameState): string | null {', start);
-if (start < 0 || towerStart < 0 || checkStart < 0) throw new Error('Could not locate level-up functions');
-
-const newGenerator = `export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
+// One unified level-up generator.
+const generator = `export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
   const towerTypes = Object.keys(TOWER_PROGRESSION) as SphereType[];
 
-  // A tower at Lv.3 or Lv.6 gets its dedicated milestone choice first.
+  // Level 4: a tower at Lv.3 forces its own three branch choices.
+  // Level 7: a tower at Lv.6 forces the three finals of the selected branch.
   const milestone = towerTypes.find(type => towerLevel(s, type) === 3 || towerLevel(s, type) === 6);
   if (milestone) {
     const level = towerLevel(s, milestone);
@@ -66,7 +87,7 @@ const newGenerator = `export function generateUpgradeChoices(s: GameState): Upgr
     .filter(id => (s.player.abilities[id] || 0) < ABILITIES[id].maxLevel)
     .sort(() => Math.random() - 0.5);
 
-  // Guarantee one ability/passive slot whenever the pool has anything available.
+  // Every ordinary level-up contains at least one ability/passive/active option.
   if (abilityPool.length) {
     const id = abilityPool[0];
     const currentLevel = s.player.abilities[id] || 0;
@@ -80,14 +101,31 @@ const newGenerator = `export function generateUpgradeChoices(s: GameState): Upgr
       const nextLevel = currentLevel + 1;
       const def = TOWER_PROGRESSION[type];
       const levelDef = def.levels[nextLevel - 1];
+      const branchId = s.player.towerBranches[type];
+      const branch = branchId ? def.evolution4Choices.find(x => x.id === branchId) : null;
+      const branchProgress = nextLevel === 5 || nextLevel === 6;
+      const name = branchProgress && branch
+        ? { ru: `${branch.name.ru} — уровень ${nextLevel}`, en: `${branch.name.en} — level ${nextLevel}` }
+        : levelDef.name;
+      const desc = branchProgress && branch
+        ? {
+            ru: nextLevel === 5
+              ? `Развитие ветки «${branch.name.ru}»: ${branch.desc.ru}`
+              : `Углубление механики ветки «${branch.name.ru}»`,
+            en: nextLevel === 5
+              ? `Develop the “${branch.name.en}” branch: ${branch.desc.en}`
+              : `Deepen the “${branch.name.en}” branch mechanic`,
+          }
+        : levelDef.desc;
       return {
         type: 'tower' as const,
         towerType: type,
+        towerBranch: branchId,
         towerStage: 'upgrade' as const,
         currentLevel,
         newLevel: nextLevel,
-        name: levelDef.name,
-        desc: levelDef.desc,
+        name,
+        desc,
       };
     })
     .sort(() => Math.random() - 0.5);
@@ -105,18 +143,10 @@ const newGenerator = `export function generateUpgradeChoices(s: GameState): Upgr
 }
 
 `;
-s = s.slice(0, start) + newGenerator + s.slice(checkStart);
+engine = replaceSection(engine, 'export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {', 'function checkEvolution(s: GameState): string | null {', generator);
 
-s = s.replace(
-  "    s.pendingUpgrade = generateUpgradeChoices(s);\n    if (s.player.level > 1) s.pendingTowerUpgrade = generateTowerProgressionChoices(s);",
-  "    s.pendingUpgrade = generateUpgradeChoices(s);\n    s.pendingTowerUpgrade = null;",
-);
-
-const applyStart = s.indexOf('export function applyUpgrade(s: GameState, choice: UpgradeChoice): void {');
-const applyTowerStart = s.indexOf('export function applyTowerUpgrade(s: GameState, choice: TowerUpgradeChoice): void {', applyStart);
-if (applyStart < 0 || applyTowerStart < 0) throw new Error('Could not locate apply functions');
-
-const applyBody = `export function applyUpgrade(s: GameState, choice: UpgradeChoice): void {
+// Unified tower/ability application. Lv.4 stores the branch; Lv.5-6 keep it; Lv.7 stores the final specialization.
+const apply = `export function applyUpgrade(s: GameState, choice: UpgradeChoice): void {
   if (choice.type === 'tower' && choice.towerType) {
     const type = choice.towerType;
     const current = towerLevel(s, type);
@@ -129,15 +159,14 @@ const applyBody = `export function applyUpgrade(s: GameState, choice: UpgradeCho
       s.player.towerBranches[type] = choice.towerBranch;
       s.player.evolutions.push(\`tower:\${type}:4:\${choice.towerBranch}\`);
       s.evolutionsThisRun++;
+      s.flashText = { text: choice.name?.ru ?? 'Эволюция башни', life: 2.2, color: '#d4943d' };
       playSound('evolve');
-    }
-    if (choice.towerStage === 'final') {
+    } else if (choice.towerStage === 'final') {
       s.player.evolutions.push(\`tower:\${type}:7:\${choice.towerBranch ?? 'unknown'}:\${choice.towerFinalIndex ?? 0}\`);
       s.evolutionsThisRun++;
-      s.flashText = { text: choice.name?.ru ?? 'Эволюция башни', life: 2.2, color: '#c4453d' };
+      s.flashText = { text: choice.name?.ru ?? 'Финальная специализация', life: 2.2, color: '#c4453d' };
       playSound('evolve');
     }
-    s.pendingUpgrade = null;
     return;
   }
 
@@ -175,14 +204,88 @@ const applyBody = `export function applyUpgrade(s: GameState, choice: UpgradeCho
 }
 
 `;
-s = s.slice(0, applyStart) + applyBody + s.slice(applyTowerStart);
+engine = replaceSection(engine, 'export function applyUpgrade(s: GameState, choice: UpgradeChoice): void {', 'export function applyTowerUpgrade(s: GameState, choice: TowerUpgradeChoice): void {', apply);
 
-// Keep the legacy API callable by older UI code, but route it into the new system.
-const towerBodyStart = s.indexOf('export function applyTowerUpgrade(s: GameState, choice: TowerUpgradeChoice): void {');
-const towerBodyEnd = s.indexOf('\n}', towerBodyStart) + 2;
-if (towerBodyStart >= 0 && towerBodyEnd > towerBodyStart) {
-  s = s.slice(0, towerBodyStart) + `export function applyTowerUpgrade(s: GameState, choice: TowerUpgradeChoice): void {\n  const type = (choice as TowerUpgradeChoice & { towerType?: SphereType }).towerType;\n  if (!type) return;\n  applyUpgrade(s, { type: 'tower', towerType: type, towerStage: 'upgrade', currentLevel: towerLevel(s, type), newLevel: towerLevel(s, type) + 1 });\n}` + s.slice(towerBodyEnd);
+// Legacy API stays available for any old caller, but no separate progression modal is generated anymore.
+const legacyTower = `export function applyTowerUpgrade(s: GameState, choice: TowerUpgradeChoice): void {
+  const type = (choice as TowerUpgradeChoice & { towerType?: SphereType }).towerType;
+  if (!type) return;
+  applyUpgrade(s, { type: 'tower', towerType: type, towerStage: 'upgrade', towerBranch: s.player.towerBranches[type], currentLevel: towerLevel(s, type), newLevel: towerLevel(s, type) + 1 });
+}
+`;
+engine = replaceSection(engine, 'export function applyTowerUpgrade(s: GameState, choice: TowerUpgradeChoice): void {', 'function generateTowerProgressionChoices', legacyTower);
+
+engine = engine.replace('if (s.player.level > 1) s.pendingTowerUpgrade = generateTowerProgressionChoices(s);', 's.pendingTowerUpgrade = null;');
+
+// App: one modal for all level-up choices. Remove the old second tower modal/import.
+app = app.replace('  applyTowerUpgrade, openChest,', '  openChest,');
+app = app.replace('  type TowerUpgradeChoice, MAP_THEMES, type MapTheme,', '  MAP_THEMES, type MapTheme,');
+app = app.replace(/\n\s*\{st\.pendingTowerUpgrade && <TowerUpgradeModal[\s\S]*?\n\s*\}\}\n/, '\n');
+app = app.replace(/\nfunction TowerUpgradeModal\([\s\S]*?\n\}\n\n\/\/ ===== Artifact Modal =====/, '\n// ===== Artifact Modal =====');
+app = app.replace(/\s*\|\| st\.pendingTowerUpgrade/g, '');
+app = app.replace(/\s*&& !st\.pendingTowerUpgrade/g, '');
+
+const modal = `function UpgradeModal({ lang, t, st, onPick }: {
+  lang: Lang; t: (k: TranslationKey) => string; st: GameState; onPick: (c: UpgradeChoice) => void;
+}) {
+  const choices = st.pendingUpgrade || [];
+  const first = choices[0];
+  const title = first?.towerStage === 'branch'
+    ? (lang === 'ru' ? 'Эволюция башни I' : 'Tower Evolution I')
+    : first?.towerStage === 'final'
+      ? (lang === 'ru' ? 'Финальная специализация' : 'Final Specialization')
+      : t('chooseUpgrade');
+
+  return (
+    <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-50">
+      <div className="max-w-2xl w-full px-6">
+        <h2 className="text-2xl font-bold text-center mb-6 text-[#4a7a8a]">{title}</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {choices.map((c, i) => {
+            if (c.type === 'tower') {
+              const label = c.towerStage === 'branch'
+                ? (lang === 'ru' ? 'ВЕТКА БАШНИ' : 'TOWER BRANCH')
+                : c.towerStage === 'final'
+                  ? (lang === 'ru' ? 'ФИНАЛЬНАЯ СПЕЦИАЛИЗАЦИЯ' : 'FINAL SPECIALIZATION')
+                  : (lang === 'ru' ? 'УЛУЧШЕНИЕ БАШНИ' : 'TOWER UPGRADE');
+              return (
+                <button key={i} onClick={() => onPick(c)} className="p-5 rounded-xl bg-[#e8dcc0] border border-[#5a8c4a]/30 hover:border-[#5a8c4a]/60 hover:scale-105 transition-all text-left">
+                  <div className="text-[#5a8c4a] text-[10px] uppercase tracking-wider mb-1">{label}</div>
+                  <div className="font-bold text-lg mb-2">{c.name?.[lang] || 'Tower'}</div>
+                  <div className="text-sm text-[#5a4a32] mb-2">{c.desc?.[lang] || ''}</div>
+                  <div className="text-xs text-[#8a7a5a]/70">{t('level')} {c.currentLevel} → {c.newLevel}</div>
+                </button>
+              );
+            }
+            if (c.type === 'evolve' && c.evolution) {
+              const evo = EVOLUTION_MAP[c.evolution];
+              return (
+                <button key={i} onClick={() => onPick(c)} className="p-5 rounded-xl bg-[#e8dcc0] border border-[#d4943d]/40 hover:border-[#d4943d]/60 hover:scale-105 transition-all text-left">
+                  <div className="text-[#d4943d] text-xs uppercase mb-1">{t('evolution')}</div>
+                  <div className="font-bold text-lg mb-2">{evo.name[lang]}</div>
+                  <div className="text-sm text-[#5a4a32]">{evo.desc[lang]}</div>
+                </button>
+              );
+            }
+            const def = ABILITIES[c.ability!];
+            return (
+              <button key={i} onClick={() => onPick(c)} className="p-5 rounded-xl bg-[#e8dcc0] border border-[#4a7a8a]/30 hover:border-[#4a7a8a]/60 hover:scale-105 transition-all text-left">
+                <div className="text-[#4a7a8a] text-xs uppercase mb-1">{def.category === 'active' ? t('active') : t('passive')}</div>
+                <div className="font-bold text-lg mb-2">{def.name[lang]}</div>
+                <div className="text-sm text-[#5a4a32] mb-2">{def.desc[lang](c.newLevel)}</div>
+                <div className="text-xs text-[#8a7a5a]/70">{t('level')} {c.currentLevel} → {c.newLevel} / {def.maxLevel}</div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
 }
 
-fs.writeFileSync(path, s);
-console.log('Level-up migration applied to src/engine.ts');
+// ===== Artifact Modal =====`;
+app = replaceSection(app, 'function UpgradeModal({ lang, t, st, onPick }: {', '// ===== Artifact Modal =====', modal);
+
+fs.writeFileSync(enginePath, engine);
+fs.writeFileSync(appPath, app);
+console.log('Unified level-up progression and modal migration applied.');
