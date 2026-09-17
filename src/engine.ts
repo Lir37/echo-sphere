@@ -1310,7 +1310,7 @@ export function applyArtifact(s: GameState, id: ArtifactId): void {
 // ===== Main update =====
 export function update(s: GameState, dt: number): void {
   if (s.paused || s.gameOver) return;
-  if (s.pendingUpgrade || s.pendingArtifact || s.pendingEvolution || s.pendingTowerUpgrade || s.pendingChest) return;
+  if (s.pendingUpgrade || s.pendingArtifact || s.pendingEvolution || s.pendingChest) return;
 
   s.time += dt;
   s.stats.time = s.time;
@@ -2003,7 +2003,6 @@ function gainXp(s: GameState, amount: number): void {
     s.player.maxHp += 8;
     s.player.hp += 8;
     s.pendingUpgrade = generateUpgradeChoices(s);
-    s.pendingTowerUpgrade = null;
     playSound('levelup');
   }
 }

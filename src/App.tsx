@@ -385,15 +385,17 @@ function UpgradeModal({ lang, t, st, onPick }: {
               return <button key={i} onClick={() => onPick(c)} className="p-5 rounded-xl bg-[#e8dcc0] border border-[#5a8c4a]/30 hover:border-[#5a8c4a]/60 hover:scale-105 transition-all text-left"><div className="text-[#5a8c4a] text-[10px] uppercase tracking-wider mb-1">{label}</div><div className="font-bold text-lg mb-2">{c.name?.[lang] || 'Tower'}</div><div className="text-sm text-[#5a4a32] mb-2">{c.desc?.[lang] || ''}</div><div className="text-xs text-[#8a7a5a]/70">{t('level')} {c.currentLevel} → {c.newLevel}</div></button>;
             }
             if (c.type === 'evolve' && c.evolution) { const evo = EVOLUTION_MAP[c.evolution]; return <button key={i} onClick={() => onPick(c)} className="p-5 rounded-xl bg-[#e8dcc0] border border-[#d4943d]/40 hover:border-[#d4943d]/60 hover:scale-105 transition-all text-left"><div className="text-[#d4943d] text-xs uppercase mb-1">{t('evolution')}</div><div className="font-bold text-lg mb-2">{evo.name[lang]}</div><div className="text-sm text-[#5a4a32]">{evo.desc[lang]}</div></button>; }
-            const def = ABILITIES[c.ability!];
-            return <button key={i} onClick={() => onPick(c)} className="p-5 rounded-xl bg-[#e8dcc0] border border-[#4a7a8a]/30 hover:border-[#4a7a8a]/60 hover:scale-105 transition-all text-left"><div className="text-[#4a7a8a] text-xs uppercase mb-1">{def.category === 'active' ? t('active') : t('passive')}</div><div className="font-bold text-lg mb-2">{def.name[lang]}</div><div className="text-sm text-[#5a4a32] mb-2">{def.desc[lang](c.newLevel)}</div><div className="text-xs text-[#8a7a5a]/70">{t('level')} {c.currentLevel} → {c.newLevel} / {def.maxLevel}</div></button>;
+            const def = c.ability ? ABILITIES[c.ability] : undefined;
+            if (!def) return null;
+            const desc = typeof def.desc[lang] === 'function' ? def.desc[lang](c.newLevel) : String(def.desc[lang] ?? '');
+            return <button key={i} onClick={() => onPick(c)} className="p-5 rounded-xl bg-[#e8dcc0] border border-[#4a7a8a]/30 hover:border-[#4a7a8a]/60 hover:scale-105 transition-all text-left"><div className="text-[#4a7a8a] text-xs uppercase mb-1">{def.category === 'active' ? t('active') : t('passive')}</div><div className="font-bold text-lg mb-2">{def.name[lang]}</div><div className="text-sm text-[#5a4a32] mb-2">{desc}</div><div className="text-xs text-[#8a7a5a]/70">{t('level')} {c.currentLevel} → {c.newLevel} / {def.maxLevel}</div></button>;
           })}
         </div>
       </div>
     </div>
   );
 }
-// ===== Artifact Modal =====// ===== Artifact Modal =====// ===== Artifact Modal =====// ===== Artifact Modal =====
+// ===== Artifact Modal =====// ===== Artifact Modal =====// ===== Artifact Modal =====// ===== Artifact Modal =====// ===== Artifact Modal =====
 function ArtifactModal({ lang, t, choices, onPick }: {
   lang: Lang; t: (k: TranslationKey) => string; choices: ArtifactId[]; onPick: (id: ArtifactId) => void;
 }) {
