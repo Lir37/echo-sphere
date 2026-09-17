@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Pause, Zap } from 'lucide-react';
 import { ABILITIES, SPHERE_TYPES, type AbilityType, type SphereType } from './gameData';
 import { activateByKey, activateDash, getMaxSpheres, placeSphere, setSphereType, type GameState } from './engine';
+import { CHARACTER_DEFS } from './characters';
 import type { Lang, TranslationKey } from './i18n';
 import { loadInterfaceScale } from './interfaceScale';
 
@@ -107,6 +108,9 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
   const types: SphereType[] = ['standard', 'sniper', 'shotgun', 'chain', 'aura'];
   const selectedType = stateRef.current?.selectedSphereType || 'standard';
   const selectedDef = SPHERE_TYPES[selectedType];
+  const preferredSphereTypes = stateRef.current
+    ? CHARACTER_DEFS[stateRef.current.player.characterId]?.preferredSphereTypes || []
+    : [];
 
   return (
     <div className="absolute inset-0 z-20 overflow-hidden select-none" style={{ touchAction: 'none', userSelect: 'none', WebkitUserSelect: 'none' }}
@@ -180,7 +184,8 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
           {types.map((type) => {
             const def = SPHERE_TYPES[type];
             const selected = selectedType === type;
-            return <button key={type} data-mobile-control="true" className={`w-11 h-11 rounded-xl border bg-[#e8dcc0]/90 shadow-lg flex items-center justify-center active:scale-95 ${selected ? 'border-[#8a7a5a]' : 'border-[#c4b890]'}`} style={{ borderColor: selected ? def.color : undefined }} onPointerDown={(e) => { e.stopPropagation(); const st = stateRef.current; if (!st) return; setSphereType(st, type); }} aria-label={`${def.name[lang]} — ${def.desc[lang]}`}><span className="w-4 h-4 rounded-full" style={{ backgroundColor: def.color }} /></button>;
+            const preferred = preferredSphereTypes.includes(type);
+            return <button key={type} data-mobile-control="true" className={`w-11 h-11 rounded-xl border bg-[#e8dcc0]/90 shadow-lg flex items-center justify-center active:scale-95 ${selected ? 'border-[#8a7a5a]' : 'border-[#c4b890]'} ${preferred ? 'ring-2 ring-[#d4943d]/45 ring-offset-1 ring-offset-[#e8dcc0]' : ''}`} style={{ borderColor: selected ? def.color : undefined }} onPointerDown={(e) => { e.stopPropagation(); const st = stateRef.current; if (!st) return; setSphereType(st, type); }} aria-label={`${def.name[lang]} — ${def.desc[lang]}`}><span className="w-4 h-4 rounded-full" style={{ backgroundColor: def.color }} /></button>;
           })}
         </div>
       </div>
