@@ -3,14 +3,28 @@ import { Pause, Zap } from 'lucide-react';
 import { ABILITIES, SPHERE_TYPES, type AbilityType, type SphereType } from './gameData';
 import { activateByKey, activateDash, getMaxSpheres, placeSphere, setSphereType, type GameState } from './engine';
 import { CHARACTER_DEFS } from './characters';
+import { getCharacterFormation, getEngineerNetworkRange } from './characterRuntime';
 import type { Lang, TranslationKey } from './i18n';
 import { loadInterfaceScale } from './interfaceScale';
 import { createMasteryRunTracker, getMasteryRunXp, tickCharacterMastery } from './characterMastery';
 import { addCharacterMasteryXp } from './persistence';
 
-export type Handedness = 'right' | 'left';
 type PointerState = { startX: number; startY: number; moved: boolean; joystickCandidate: boolean };
 type JoystickVisual = { pointerId: number; x: number; y: number; dx: number; dy: number; active: boolean };
+type CharacterVisualState = {
+  sphereCount: number;
+  linkedCount: number;
+  furySteps: number;
+  closeEnemy: boolean;
+  marked: boolean;
+  hunt: boolean;
+  reactionReady: boolean;
+  catalyst: boolean;
+  formation: 'none' | 'line' | 'triangle' | 'square' | 'cluster';
+  formationStrength: number;
+};
+
+export type Handedness = 'right' | 'left';
 
 const JOYSTICK_DEADZONE = 12;
 const JOYSTICK_RADIUS = 58;
@@ -38,12 +52,10 @@ function getSoftPlacementPoint(st: GameState, desired: { x: number; y: number })
       y: Math.max(-worldLimitY, Math.min(worldLimitY, y)),
     };
   });
-
   const available = candidates.filter((candidate) =>
     !occupied.some((position) => Math.hypot(position.x - candidate.x, position.y - candidate.y) < 70)
   );
   if (available.length === 0) return null;
-
   available.sort((a, b) =>
     Math.hypot(a.x - desired.x, a.y - desired.y) - Math.hypot(b.x - desired.x, b.y - desired.y)
   );
@@ -64,8 +76,6 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
   const [joystick, setJoystick] = useState<JoystickVisual | null>(null);
   const interfaceScale = loadInterfaceScale();
 
-  // Right-handed: joystick right, action controls left.
-  // Left-handed: joystick left, action controls right.
   const joystickOnRight = handedness === 'right';
   const controlsOnRight = !joystickOnRight;
   const controlsSide = controlsOnRight ? 'right-3' : 'left-3';
@@ -106,7 +116,6 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
     if (st.pendingUpgrade || st.pendingArtifact || st.pendingEvolution || st.pendingTowerUpgrade || st.pendingChest) return;
     const world = touchToWorld(clientX, clientY);
     if (!world) return;
-
     const nearExistingTower = st.spheres.some(
       (sphere) => sphere.alive && Math.hypot(sphere.pos.x - world.x, sphere.pos.y - world.y) < TOWER_TOUCH_TOLERANCE
     );
@@ -114,7 +123,6 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
       placeSphere(st, world.x, world.y);
       return;
     }
-
     if (st.spheres.length >= getMaxSpheres(st)) return;
     const placementPoint = getSoftPlacementPoint(st, world);
     if (placementPoint) placeSphere(st, placementPoint.x, placementPoint.y);
@@ -236,15 +244,68 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
   );
 }
 
+function getEmptyCharacterVisualState(): CharacterVisualState {
+  return {
+    sphereCount: 0,
+    linkedCount: 0,
+    furySteps: 0,
+    closeEnemy: false,
+    marked: false,
+    hunt: false,
+    reactionReady: false,
+    catalyst: false,
+    formation: 'none',
+    formationStrength: 0,
+  };
+}
+
+function readCharacterVisualState(st: GameState): CharacterVisualState {
+  const characterId = st.player.characterId;
+  const aliveSpheres = st.spheres.filter((sphere) => sphere.alive);
+  const hpRatio = st.player.hp / Math.max(1, st.player.maxHp);
+  const visual = getEmptyCharacterVisualState();
+  visual.sphereCount = aliveSpheres.length;
+
+  if (characterId === 'engineer') {
+    const range = getEngineerNetworkRange(st);
+    visual.linkedCount = aliveSpheres.filter((sphere) => aliveSpheres.some((other) => other !== sphere && Math.hypot(other.pos.x - sphere.pos.x, other.pos.y - sphere.pos.y) <= range)).length;
+  }
+
+  if (characterId === 'berserker') {
+    visual.furySteps = Math.min(4, Math.floor(Math.max(0, 1 - hpRatio) / 0.2));
+    visual.closeEnemy = st.enemies.some((enemy) => enemy.hp > 0 && Math.hypot(enemy.pos.x - st.player.pos.x, enemy.pos.y - st.player.pos.y) <= 110);
+  }
+
+  if (characterId === 'hunter') {
+    visual.marked = st.player.hunterMarkTarget !== null && st.player.hunterMarkTimer > 0;
+    visual.hunt = st.player.hunterHuntTimer > 0;
+  }
+
+  if (characterId === 'alchemist') {
+    visual.reactionReady = st.enemies.some((enemy) => enemy.hp > 0 && countStatusEffects(enemy) >= 2);
+    visual.catalyst = st.player.alchemistCatalystTimer > 0;
+  }
+
+  if (characterId === 'architect') {
+    const formation = getCharacterFormation(st);
+    visual.formation = formation.type;
+    visual.formationStrength = formation.strength;
+  }
+
+  return visual;
+}
+
 function CharacterAvatarOverlay({ stateRef }: { stateRef: React.MutableRefObject<GameState | null> }) {
   const [characterId, setCharacterId] = useState(() => stateRef.current?.player.characterId || 'spherist');
   const [mutationStage, setMutationStage] = useState(() => stateRef.current?.player.mutationStage || 0);
+  const [visual, setVisual] = useState<CharacterVisualState>(getEmptyCharacterVisualState);
   const frameRef = useRef<number | null>(null);
   const masteryRef = useRef(createMasteryRunTracker());
   const rewardedRef = useRef(false);
 
   useEffect(() => {
-    const tick = () => {
+    let lastVisualUpdate = 0;
+    const tick = (now: number) => {
       const st = stateRef.current;
       const nextCharacter = st?.player.characterId || 'spherist';
       const nextMutation = st?.player.mutationStage || 0;
@@ -253,6 +314,10 @@ function CharacterAvatarOverlay({ stateRef }: { stateRef: React.MutableRefObject
 
       if (st && !st.gameOver) {
         tickCharacterMastery(st, 1 / 60, masteryRef.current);
+        if (now - lastVisualUpdate >= 100) {
+          setVisual(readCharacterVisualState(st));
+          lastVisualUpdate = now;
+        }
       } else if (st?.gameOver && !rewardedRef.current) {
         const gainedXp = getMasteryRunXp(masteryRef.current);
         if (gainedXp > 0) addCharacterMasteryXp(st.player.characterId, gainedXp);
@@ -275,15 +340,20 @@ function CharacterAvatarOverlay({ stateRef }: { stateRef: React.MutableRefObject
     <div className="absolute left-1/2 top-1/2 pointer-events-none" style={{ transform: 'translate(-50%, -50%)', width: 74, height: 74 }}>
       <div className="absolute inset-0 rounded-full" style={{ background, boxShadow: '0 3px 7px rgba(58,46,31,0.14)' }} />
       <div className={`absolute inset-0 flex items-center justify-center ${pulse}`}>
-        <CharacterSvg characterId={characterId} color={color} mutationStage={mutationStage} />
+        <CharacterSvg characterId={characterId} color={color} mutationStage={mutationStage} visual={visual} />
       </div>
     </div>
   );
 }
 
-function CharacterSvg({ characterId, color, mutationStage }: { characterId: string; color: string; mutationStage: number }) {
+function CharacterSvg({ characterId, color, mutationStage, visual }: {
+  characterId: string;
+  color: string;
+  mutationStage: number;
+  visual: CharacterVisualState;
+}) {
   const shade = characterId === 'berserker' ? '#7e2e2c' : '#f4ecd8';
-  const common = { width: 58, height: 58, viewBox: '0 0 58 58', fill: 'none', xmlns: 'http://www.w3.org/2000/svg' } as const;
+  const common = { width: 58, height: 58, viewBox: '0 0 58 58', fill: 'none', xmlns: 'http://www.w3.org/2000/svg', overflow: 'visible' } as const;
 
   if (characterId === 'hunter') return (
     <svg {...common}>
@@ -291,6 +361,8 @@ function CharacterSvg({ characterId, color, mutationStage }: { characterId: stri
       <path d="M18 20H40L35 31H23L18 20Z" fill="#e8dcc0" stroke="#3a2e1f" strokeWidth="1.5"/>
       <circle cx="29" cy="25" r="3" fill="#3a2e1f"/>
       <path d="M29 11V17M29 39V46M11 29H17M41 29H47" stroke="#d4943d" strokeWidth="2" strokeLinecap="round"/>
+      {visual.marked && <circle cx="29" cy="29" r={visual.hunt ? 26 : 23} stroke={visual.hunt ? '#d4943d' : '#c46d3d'} strokeWidth={visual.hunt ? 3 : 2} strokeDasharray={visual.hunt ? '5 4' : '3 4'} />}
+      {visual.hunt && <circle cx="29" cy="29" r="4" stroke="#d4943d" strokeWidth="2" />}
     </svg>
   );
 
@@ -301,15 +373,29 @@ function CharacterSvg({ characterId, color, mutationStage }: { characterId: stri
       <circle cx="29" cy="26" r="4" fill={color}/>
       <path d="M11 18L17 22M47 18L41 22M11 40L17 35M47 40L41 35" stroke={color} strokeWidth="2" strokeLinecap="round"/>
       <circle cx="9" cy="17" r="2.5" fill="#4a7a8a"/><circle cx="49" cy="17" r="2.5" fill="#4a7a8a"/>
+      {visual.linkedCount >= 2 && <>
+        {[0, 1, 2, 3].map((index) => {
+          const a = (index / 4) * Math.PI * 2 - Math.PI / 4;
+          const x = 29 + Math.cos(a) * 22;
+          const y = 29 + Math.sin(a) * 22;
+          return <g key={index}><line x1="29" y1="29" x2={x} y2={y} stroke="#4a7a8a" strokeWidth="1.5" opacity=".65" /><circle cx={x} cy={y} r="3" fill="#4a7a8a" opacity={visual.linkedCount >= 4 ? 1 : .7} /></g>;
+        })}
+      </>}
+      {visual.linkedCount >= 3 && <circle cx="29" cy="29" r="25" stroke="#4a7a8a" strokeWidth="1.5" strokeDasharray="2 4" opacity=".8" />}
     </svg>
   );
 
   if (characterId === 'berserker') return (
     <svg {...common}>
+      {visual.closeEnemy && <circle cx="29" cy="29" r={26 + visual.furySteps * 2} stroke="#c4453d" strokeWidth={2 + visual.furySteps * .5} strokeDasharray="6 3" opacity=".7" />}
       <path d="M14 17L22 10L29 15L36 10L44 17L41 39L29 50L17 39L14 17Z" fill={color} stroke="#3a2e1f" strokeWidth="2"/>
       <path d="M14 17L7 10L10 25L18 21M44 17L51 10L48 25L40 21" fill={color} stroke="#3a2e1f" strokeWidth="2" strokeLinejoin="round"/>
       <path d="M20 27L25 25M38 27L33 25M22 34L29 38L36 34" stroke={shade} strokeWidth="2.4" strokeLinecap="round"/>
       {mutationStage > 0 && <path d="M29 7L31 2L33 8M20 46L16 52M38 46L42 52" stroke="#d4943d" strokeWidth="2" strokeLinecap="round"/>}
+      {Array.from({ length: 4 }, (_, index) => index < visual.furySteps ? index : null).filter((index): index is number => index !== null).map((index) => {
+        const a = -Math.PI / 2 + index * (Math.PI / 2);
+        return <circle key={index} cx={29 + Math.cos(a) * 27} cy={29 + Math.sin(a) * 27} r="2.5" fill="#c4453d" />;
+      })}
     </svg>
   );
 
@@ -320,6 +406,13 @@ function CharacterSvg({ characterId, color, mutationStage }: { characterId: stri
       <path d="M18 31C23 27 35 27 40 31V39C35 43 23 43 18 39V31Z" fill="#e8dcc0" fillOpacity=".65"/>
       <path d="M24 17H34" stroke="#e8dcc0" strokeWidth="2" strokeLinecap="round"/>
       {mutationStage > 0 && <circle cx="29" cy="35" r="3" fill="#d4943d"/>}
+      {visual.reactionReady && <>
+        <circle cx="13" cy="13" r="4" fill="#c46d3d" opacity=".9" />
+        <circle cx="45" cy="13" r="4" fill="#5a8c4a" opacity=".9" />
+        <circle cx="29" cy="52" r="4" fill="#4a7a8a" opacity=".9" />
+        <path d="M16 15L24 23M42 15L34 23M29 48L29 40" stroke="#8a5a8a" strokeWidth="1.5" strokeDasharray="2 2" />
+      </>}
+      {visual.catalyst && <circle cx="29" cy="29" r="25" stroke="#d4943d" strokeWidth="2.5" strokeDasharray="5 3" />}
     </svg>
   );
 
@@ -329,11 +422,23 @@ function CharacterSvg({ characterId, color, mutationStage }: { characterId: stri
       <path d="M29 13L43 37H15L29 13Z" fill={color} fillOpacity=".78" stroke="#3a2e1f" strokeWidth="2"/>
       <path d="M29 21V36M21 34H37" stroke="#e8dcc0" strokeWidth="2" strokeLinecap="round"/>
       {mutationStage > 1 && <circle cx="29" cy="29" r="20" stroke="#d4943d" strokeWidth="2" strokeDasharray="4 4"/>}
+      {visual.formation === 'line' && <line x1="7" y1="51" x2="51" y2="7" stroke="#d4943d" strokeWidth="2.5" opacity={Math.max(.35, visual.formationStrength)} />}
+      {visual.formation === 'triangle' && <path d="M29 5L52 48H6Z" fill="none" stroke="#d4943d" strokeWidth="2" opacity={Math.max(.35, visual.formationStrength)} />}
+      {visual.formation === 'square' && <rect x="6" y="6" width="46" height="46" fill="none" stroke="#d4943d" strokeWidth="2" opacity={Math.max(.35, visual.formationStrength)} />}
+      {visual.formation === 'cluster' && <circle cx="29" cy="29" r="24" fill="none" stroke="#d4943d" strokeWidth="2" strokeDasharray="3 3" opacity={Math.max(.35, visual.formationStrength)} />}
     </svg>
   );
 
   return (
     <svg {...common}>
+      {visual.sphereCount >= 2 && <>
+        {Array.from({ length: 8 }, (_, index) => {
+          const active = index < Math.min(8, visual.sphereCount);
+          const a = (index / 8) * Math.PI * 2 - Math.PI / 2;
+          return <circle key={index} cx={29 + Math.cos(a) * 25} cy={29 + Math.sin(a) * 25} r="2.4" fill={active ? color : '#c4b890'} opacity={active ? .95 : .35} />;
+        })}
+        <circle cx="29" cy="29" r="24" stroke={color} strokeWidth="1.5" strokeDasharray="3 5" opacity=".7" />
+      </>}
       <path d="M29 5L47 19L38 43L29 50L20 43L11 19L29 5Z" fill={color} fillOpacity=".92" stroke="#3a2e1f" strokeWidth="2"/>
       <path d="M20 17L29 11L38 17L34 29L29 38L24 29L20 17Z" fill="#e8dcc0" fillOpacity=".55" stroke="#3a2e1f" strokeWidth="1.5"/>
       <circle cx="29" cy="28" r="4" fill="#3a2e1f"/>
@@ -366,4 +471,8 @@ function getAbilityMaxCooldown(ability: AbilityType): number {
 function stDashLabel(st: GameState | null, lang: Lang, t: (key: TranslationKey) => string): string {
   if (!st) return t('dashCooldown');
   return st.player.dashCooldown > 0 ? t('dashOnCooldown').replace('{sec}', String(Math.ceil(st.player.dashCooldown))) : (lang === 'ru' ? 'Рывок' : 'Dash');
+}
+
+function countStatusEffects(enemy: GameState['enemies'][number]): number {
+  return Number(enemy.fireTimer > 0) + Number(enemy.freezeTimer > 0) + Number(enemy.poisonTimer > 0);
 }
