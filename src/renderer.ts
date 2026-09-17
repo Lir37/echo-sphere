@@ -553,7 +553,17 @@ function drawPaperStar(ctx: CanvasRenderingContext2D, x: number, y: number, r: n
 
 function drawPaperDart(ctx: CanvasRenderingContext2D, x: number, y: number, vx: number, vy: number, r: number, color: string): void {
   const angle = Math.atan2(vy, vx);
-  ctx.save(); ctx.translate(x, y); ctx.rotate(angle);
+  const speed = Math.hypot(vx, vy) || 1;
+  const trail = Math.min(18, 7 + speed * 0.035);
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(angle);
+  ctx.strokeStyle = `rgba(${hexToRgb(color)},0.28)`;
+  ctx.lineWidth = Math.max(1, r * 0.45);
+  ctx.beginPath();
+  ctx.moveTo(-trail, 0);
+  ctx.lineTo(-r * 0.7, 0);
+  ctx.stroke();
   ctx.fillStyle = 'rgba(58,46,31,0.12)';
   ctx.beginPath(); ctx.moveTo(r * 1.5 + 2, 2); ctx.lineTo(-r + 2, -r * 0.7 + 2); ctx.lineTo(-r + 2, r * 0.7 + 2); ctx.closePath(); ctx.fill();
   ctx.fillStyle = color;
@@ -919,13 +929,22 @@ function drawSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: SphereE
   ctx.beginPath(); ctx.arc(0, 0, radius, 0, Math.PI * 2); ctx.stroke();
   ctx.setLineDash([]);
   if (stype.aura) {
+    const auraPulse = 1 + Math.sin(t * 4) * 0.06;
     ctx.strokeStyle = baseColor; ctx.lineWidth = 2;
     ctx.globalAlpha = 0.25 + Math.sin(t * 3) * 0.08;
     ctx.setLineDash([8, 4]);
-    ctx.beginPath(); ctx.arc(0, 0, stype.auraRadius, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.arc(0, 0, stype.auraRadius * auraPulse, 0, Math.PI * 2); ctx.stroke();
     ctx.setLineDash([]); ctx.globalAlpha = 1;
   }
   const tier = sphere.visualTier;
+  const hasTarget = s.enemies.some((enemy) => enemy.hp > 0 && Math.hypot(enemy.pos.x - sphere.pos.x, enemy.pos.y - sphere.pos.y) < radius);
+  if (hasTarget) {
+    const pulse = 0.5 + Math.sin(t * 10) * 0.5;
+    ctx.fillStyle = `rgba(${hexToRgb(baseColor)},${0.08 + pulse * 0.09})`;
+    ctx.beginPath();
+    ctx.arc(0, 0, 21 + pulse * 4, 0, Math.PI * 2);
+    ctx.fill();
+  }
   ctx.fillStyle = 'rgba(58,46,31,0.15)';
   ctx.beginPath(); ctx.ellipse(2, 3, 16, 12, 0, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = shade(baseColor, -30);
