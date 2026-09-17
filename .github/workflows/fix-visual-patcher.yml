@@ -33,6 +33,7 @@ jobs:
                   continue
               body = match.group(1)
               body = body.replace(r'\${', '${').replace(r'\`', '`')
+              body = body.replace('  const legBeat = Math.sin(t * 11);\n', '')
               replacement = f"const {name} = {json.dumps(body)};"
               text = text[:match.start()] + replacement + text[match.end():]
 
