@@ -1,0 +1,36 @@
+name: Finalize progression logic
+on:
+  push:
+    branches: [cleanup-android]
+permissions:
+  contents: write
+jobs:
+  finalize:
+    if: "!contains(github.event.head_commit.message, '[progression-final]')"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Finalize ability evolution and synergy logic
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('src/engine.ts')
+          s=p.read_text()
+          s=s.replace("import { TOWER_PROGRESSION, towerPriority, towerLevel, towerModifiers, TOWER_ABILITY_SYNERGIES } from './towerProgression';", "import { TOWER_PROGRESSION, ABILITY_PROGRESSION, towerPriority, towerLevel, towerModifiers, TOWER_ABILITY_SYNERGIES } from './towerProgression';")
+          old="""  // check evolution availability\n  const evo = checkEvolution(s);\n  if (evo) {\n    return [{ type: 'evolve', evolution: evo, currentLevel: 5, newLevel: 1 }];\n  }"""
+          new="""  // Legacy pair evolutions are disabled: Echo Sphere now uses the 7-level progression system.\n  // Major ability evolutions happen automatically at levels 4 and 7.\n"""
+          s=s.replace(old,new)
+          s=s.replace("function checkEvolution(s: GameState): string | null {\n  for (const evo of Object.keys(EVOLUTION_MAP)) {", "function checkEvolution(s: GameState): string | null {\n  return null;\n  /*\n  for (const evo of Object.keys(EVOLUTION_MAP)) {")
+          s=s.replace("  return null;\n}\n\nexport function applyUpgrade", "  return null;\n  */\n}\n\nexport function applyUpgrade",1)
+          needle="""    s.player.abilities[choice.ability] = choice.newLevel;\n    // assign hotkey for active abilities"""
+          repl="""    s.player.abilities[choice.ability] = Math.min(7, choice.newLevel);\n    const abilityProgression = ABILITY_PROGRESSION[choice.ability];\n    if (abilityProgression && (choice.newLevel === 4 || choice.newLevel === 7)) {\n      const evolution = choice.newLevel === 4 ? abilityProgression.evolution4 : abilityProgression.evolution7;\n      const marker = `ability:${choice.ability}:${choice.newLevel}`;\n      if (!s.player.evolutions.includes(marker)) {\n        s.player.evolutions.push(marker);\n        s.evolutionsThisRun++;\n        s.flashText = { text: evolution.name.ru, life: 1.8, color: choice.newLevel === 7 ? '#c4453d' : '#d4943d' };\n        playSound('evolve');\n      }\n    }\n    if (choice.newLevel === 7) {\n      const synergy = TOWER_ABILITY_SYNERGIES.find(x => (s.player.abilities[x.ability] || 0) >= 7 && towerLevel(s, x.tower as SphereType) >= 7 && x.ability === choice.ability);\n      if (synergy && !s.player.evolutions.includes(`synergy:${synergy.tower}:${synergy.ability}`)) {\n        s.player.evolutions.push(`synergy:${synergy.tower}:${synergy.ability}`);\n        s.flashText = { text: synergy.name.ru, life: 2.2, color: '#8a5a8a' };\n        playSound('evolve');\n      }\n    }\n    // assign hotkey for active abilities"""
+          s=s.replace(needle,repl)
+          p.write_text(s)
+          PY
+      - name: Commit
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add src/engine.ts
+          git diff --cached --quiet || git commit -m "Finalize seven-level ability evolution and synergy logic [progression-final]"
+          git push
