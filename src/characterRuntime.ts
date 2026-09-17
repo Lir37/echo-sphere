@@ -121,21 +121,12 @@ export function getCharacterDamageTakenMultiplier(s: GameState): number {
 
 export function getCharacterStatusDurationMultiplier(s: GameState): number {
   const character = getCharacterId(s);
-  const mastery = runtimePlayer(s).characterMasteryLevel || 1;
-  let multiplier = 1 + CHARACTER_DEFS[character].baseModifiers.statusDuration;
-  if (character === 'alchemist' && mastery >= 5 && (runtimePlayer(s).alchemistCatalystTimer || 0) > 0) {
-    multiplier *= 1.5;
-  }
-  return multiplier;
+  return 1 + CHARACTER_DEFS[character].baseModifiers.statusDuration;
 }
 
 export function getCharacterStatusDamageMultiplier(s: GameState): number {
   const character = getCharacterId(s);
-  const mastery = runtimePlayer(s).characterMasteryLevel || 1;
-  let multiplier = 1 + CHARACTER_DEFS[character].baseModifiers.statusDamage;
-  if (character === 'alchemist' && mastery >= 3) multiplier += 0.05;
-  if (character === 'alchemist' && mastery >= 5 && (runtimePlayer(s).alchemistCatalystTimer || 0) > 0) multiplier += 0.05;
-  return multiplier;
+  return 1 + CHARACTER_DEFS[character].baseModifiers.statusDamage;
 }
 
 export function getLocalCharacterSpheres(s: GameState, radius = CHARACTER_LOCAL_RADIUS): SphereEntity[] {
