@@ -4,6 +4,7 @@ import { ABILITIES, SPHERE_TYPES, type AbilityType, type SphereType } from './ga
 import { activateByKey, activateDash, getMaxSpheres, placeSphere, setSphereType, type GameState } from './engine';
 import { CHARACTER_DEFS } from './characters';
 import { getCharacterFormation, getEngineerNetworkRange } from './characterRuntime';
+import { playSound } from './audio';
 import type { Lang, TranslationKey } from './i18n';
 import { loadInterfaceScale } from './interfaceScale';
 import { createMasteryRunTracker, getMasteryRunXp, tickCharacterMastery } from './characterMastery';
@@ -91,7 +92,11 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
     const nearExistingTower = st.spheres.some(
       (sphere) => sphere.alive && Math.hypot(sphere.pos.x - world.x, sphere.pos.y - world.y) < TOWER_TOUCH_TOLERANCE
     );
-    if (nearExistingTower || st.spheres.length < getMaxSpheres(st)) placeSphere(st, world.x, world.y);
+    const beforeCount = st.spheres.length;
+    if (nearExistingTower || st.spheres.length < getMaxSpheres(st)) {
+      placeSphere(st, world.x, world.y);
+      if (st.spheres.length > beforeCount) playSound('place');
+    }
   };
 
   const startJoystick = (pointerId: number, x: number, y: number) => {
