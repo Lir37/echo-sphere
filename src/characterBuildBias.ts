@@ -26,7 +26,9 @@ function weightedPermutation<T>(items: T[], isPreferred: (item: T) => boolean): 
   });
 
   ranked.sort((a, b) => a.key - b.key);
-  return ranked.map(({ item }) => item);
+  const result = ranked.map(({ item }) => item);
+  for (let index = 0; index < result.length; index++) items[index] = result[index];
+  return items;
 }
 
 function isAbilityPool(value: unknown[]): value is AbilityType[] {
