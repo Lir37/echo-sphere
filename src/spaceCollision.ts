@@ -11,6 +11,7 @@ const NAV_CELL_SIZE = 40;
 const ENEMY_SEPARATION_CELL = 80;
 const MAX_PLAYER_PUSH_PER_FRAME = 14;
 const PLAYER_RADIUS = 16;
+const CONTACT_INVULNERABILITY = 0.25;
 
 function distance(a: Vec, b: Vec): number {
   return Math.hypot(a.x - b.x, a.y - b.y);
@@ -152,6 +153,7 @@ function resolveEnemyEnemyCollisions(s: GameState): void {
 function resolveEnemyPlayerCollisions(s: GameState): void {
   let pushX = 0;
   let pushY = 0;
+  let touchingPlayer = false;
 
   for (const enemy of s.enemies) {
     if (enemy.hp <= 0) continue;
@@ -161,6 +163,7 @@ function resolveEnemyPlayerCollisions(s: GameState): void {
     const currentDistance = Math.hypot(dx, dy);
     if (currentDistance >= minDistance) continue;
 
+    touchingPlayer = true;
     const normal = normalize(dx, dy);
     const overlap = minDistance - currentDistance;
     const enemyPush = overlap * 0.7;
@@ -182,6 +185,13 @@ function resolveEnemyPlayerCollisions(s: GameState): void {
   }
   s.player.pos.x += pushX;
   s.player.pos.y += pushY;
+
+  // updateEnemies() applies the first contact hit before this resolver runs.
+  // Give the player a brief contact grace period so a solid enemy does not
+  // deal damage every animation frame while pinning the player in place.
+  if (touchingPlayer && s.player.invulnerableTimer <= 0) {
+    s.player.invulnerableTimer = CONTACT_INVULNERABILITY;
+  }
 }
 
 function clampPosition(pos: Vec, s: GameState): void {
