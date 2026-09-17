@@ -29,18 +29,12 @@ jobs:
           if not match:
               raise SystemExit('Stored migration script was not found')
 
-          # The migration lives inside a YAML block scalar. Remove only the
-          # workflow indentation, while preserving Python indentation.
           lines = match.group(1).splitlines()
           script = '\n'.join(line[10:] if line.startswith('          ') else line for line in lines)
-
-          # The stored script declares the artifact-system source but does not
-          # persist it. Extract and write that source before running the script.
           artifact_match = re.search(r"artifact_system = r'''(.*?)'''", script, flags=re.S)
           if not artifact_match:
               raise SystemExit('artifact_system source was not found')
           Path('src/artifactSystem.ts').write_text(artifact_match.group(1), encoding='utf-8')
-
           exec(compile(script, 'stored-artifact-migration.py', 'exec'), {})
           PY
 
@@ -68,6 +62,55 @@ jobs:
           engine.write_text(text, encoding='utf-8')
           PY
 
+      - name: Preserve legacy artifact mechanics in the 36-item pool
+        shell: bash
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+
+          # Keep the target pool at 36 by replacing three generic artifacts
+          # with the three legacy mechanics that are still referenced by the engine.
+          replacements = {
+              'freeze_amulet': 'stasis_core',
+              'invisibility_cloak': 'veil_cloak',
+          }
+
+          engine = Path('src/engine.ts')
+          text = engine.read_text(encoding='utf-8')
+          for old, new in replacements.items():
+              text = text.replace(old, new)
+          engine.write_text(text, encoding='utf-8')
+
+          game = Path('src/gameData.ts')
+          text = game.read_text(encoding='utf-8')
+          text = text.replace('supply_core', 'stasis_core')
+          text = text.replace('stability_matrix', 'chaos_orb')
+          text = text.replace('defense_medallion', 'veil_cloak')
+          text = text.replace('Резервное ядро', 'Ядро стазиса')
+          text = text.replace('Supply Core', 'Stasis Core')
+          text = text.replace('Редкий • -6% задержки атак башен', 'Редкий • каждые 10 секунд даёт случайный бонус урона или радиуса на 3 секунды')
+          text = text.replace('Rare • -6% tower attack delay', 'Rare • every 10s grants a random damage or radius buff for 3s')
+          text = text.replace('Медальон защиты', 'Плащ сокрытия')
+          text = text.replace('Defense Medallion', 'Veil Cloak')
+          text = text.replace('Обычный • -15% получаемого урона', 'Обычный • при HP ниже 30% снижает агрессию врагов на 50%')
+          text = text.replace('Common • -15% damage taken', 'Common • below 30% HP, reduces enemy aggression by 50%')
+          text = text.replace('Обычный • +20 HP и +5% опыта', 'Обычный • при получении урона замедляет всех врагов на 2 секунды')
+          text = text.replace('Common • +20 HP and +5% XP', 'Common • taking damage slows all enemies for 2s')
+          game.write_text(text, encoding='utf-8')
+
+          artifact = Path('src/artifactSystem.ts')
+          text = artifact.read_text(encoding='utf-8')
+          text = text.replace("meta('supply_core', 'common', { maxHp: 20, xpGain: 0.05 })", "meta('stasis_core', 'common', {})")
+          text = text.replace("meta('stability_matrix', 'rare', { towerDelay: -0.06 })", "meta('chaos_orb', 'rare', {})")
+          text = text.replace("meta('defense_medallion', 'common', { damageTakenReduction: 0.15 })", "meta('veil_cloak', 'common', {})")
+          artifact.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Verify no removed artifact IDs remain
+        shell: bash
+        run: |
+          ! grep -R -n -E "freeze_amulet|invisibility_cloak|supply_core|stability_matrix|defense_medallion" src
+
       - name: Typecheck
         run: npm ci && npm run typecheck
 
@@ -77,6 +120,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add src/gameData.ts src/engine.ts src/towerProgression.ts src/App.tsx src/artifactSystem.ts
-          git rm -f .github/workflows/apply-artifact-system.yml .github/workflows/run-artifact-patch.yml artifact-migration.trigger
+          git rm -f .github/workflows/apply-artifact-system.yml .github/workflows/run-artifact-patch.yml artifact-migration.trigger artifact-migration.trigger-2 artifact-migration.trigger-3
           git commit -m "feat: implement artifact system [artifact-system-applied]"
           git push origin cleanup-android
