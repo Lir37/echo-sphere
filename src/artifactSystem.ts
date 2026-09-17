@@ -1,3 +1,6 @@
+// Echo Sphere artifact system v1
+// Artifact architecture: weighted rarities, build-defining mechanics, and tower/network synergies.
+
 import type { ArtifactId } from './gameData';
 
 export type ArtifactRarity = 'common' | 'rare' | 'epic' | 'special' | 'legendary';
@@ -51,7 +54,6 @@ export interface ArtifactMeta {
 const meta = (id: ArtifactId, rarity: ArtifactRarity, effects: ArtifactEffects = {}, mechanic?: ArtifactMeta['mechanic']): ArtifactMeta => ({ id, rarity, effects, mechanic });
 
 export const ARTIFACT_METADATA: ArtifactMeta[] = [
-  // Common
   meta('crystal_speed', 'common', { moveSpeed: 0.15 }),
   meta('amulet_hp', 'common', { maxHp: 30 }),
   meta('ring_xp', 'common', { xpGain: 0.20 }),
@@ -64,8 +66,6 @@ export const ARTIFACT_METADATA: ArtifactMeta[] = [
   meta('mage_pendant', 'common', { cooldown: -0.10 }),
   meta('long_lens', 'common', { sniperRadius: 0.18 }),
   meta('stasis_core', 'common', {}),
-
-  // Rare
   meta('dragon_heart', 'rare', { maxHp: 50, moveSpeed: -0.10 }),
   meta('mirror', 'rare', {}, 'mirror'),
   meta('predator_claw', 'rare', { sphereDamage: 0.08 }),
@@ -76,8 +76,6 @@ export const ARTIFACT_METADATA: ArtifactMeta[] = [
   meta('aura_lens', 'rare', { auraRadius: 0.18 }),
   meta('network_relay', 'rare', { towerDamage: 0.06 }, 'network'),
   meta('chaos_orb', 'rare', {}),
-
-  // Epic
   meta('resonance_core', 'epic', { towerDamage: 0.05 }, 'resonance'),
   meta('lone_bastion', 'epic', { towerDamage: 0.08 }, 'lone'),
   meta('fivefold_resonance', 'epic', { towerDamage: 0.02 }, 'fivefold'),
@@ -86,14 +84,10 @@ export const ARTIFACT_METADATA: ArtifactMeta[] = [
   meta('overclock', 'epic', { towerDamage: 0.03, towerDelay: -0.12 }, 'overclock'),
   meta('soul_engine', 'epic', { sphereDamage: 0.05, xpGain: 0.10 }),
   meta('time_anchor', 'epic', { cooldown: -0.12 }),
-
-  // Special
   meta('void_contract', 'special', { sphereDamage: 0.12, towerDamage: 0.10, damageTakenReduction: -0.15 }),
   meta('mirror_network', 'special', { towerDamage: 0.08 }, 'network'),
   meta('singularity_engine', 'special', { towerDamage: 0.10 }, 'singularity'),
   meta('quantum_core', 'special', { sphereDamage: 0.08, dodgeChance: 0.08 }),
-
-  // Legendary
   meta('zero_sphere', 'legendary', { towerDamage: 0.15, sphereDamage: 0.10 }, 'zero'),
   meta('unified_mind', 'legendary', { towerDamage: 0.08, sphereDamage: 0.08 }, 'unified'),
 ];
