@@ -259,7 +259,7 @@ export interface TowerMods {
   ricochet: number;  // bounce count
   fire: number;      // fire effect level (DoT)
   freeze: number;    // freeze effect level
-  poison: number;    // poison effect level
+  poison: number;    // poison effect level (DoT)
 }
 
 export interface TowerUpgradeChoice {
@@ -298,7 +298,6 @@ export function createInitialState(
   difficulty: Difficulty = 'normal',
   mapTheme: MapTheme = 'parchment',
 ): GameState {
-  const startSpheres = DEFAULT_MAX_SPHERES + (shop.upgrades.spheres || 0);
   const startHp = 100 + (shop.upgrades.hp || 0) * 10;
   const player: PlayerState = {
     pos: { x: 0, y: 0 },
@@ -348,22 +347,9 @@ export function createInitialState(
     eliteKills: 0,
     chestOpens: 0,
   };
-  const sphere: SphereEntity = {
-    pos: { x: 0, y: 0 },
-    radius: BASE_SPHERE_RADIUS,
-    damage: BASE_SPHERE_DAMAGE,
-    attackDelay: BASE_SPHERE_DELAY,
-    attackTimer: 0,
-    rotation: 0,
-    alive: true,
-    killsContribution: 0,
-    visualTier: 0,
-    type: 'standard',
-    auraTimer: 0,
-  };
   return {
     player,
-    spheres: [sphere],
+    spheres: [],
     enemies: [],
     xpOrbs: [],
     healthPacks: [],
