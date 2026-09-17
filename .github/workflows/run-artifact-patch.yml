@@ -68,8 +68,6 @@ jobs:
           python3 <<'PY'
           from pathlib import Path
 
-          # Keep the target pool at 36 by replacing three generic artifacts
-          # with the three legacy mechanics that are still referenced by the engine.
           replacements = {
               'freeze_amulet': 'stasis_core',
               'invisibility_cloak': 'veil_cloak',
@@ -79,6 +77,7 @@ jobs:
           text = engine.read_text(encoding='utf-8')
           for old, new in replacements.items():
               text = text.replace(old, new)
+          text = text.replace("  if (s.player.artifacts.includes('defense_medallion')) m *= 0.85;\n", '')
           engine.write_text(text, encoding='utf-8')
 
           game = Path('src/gameData.ts')
