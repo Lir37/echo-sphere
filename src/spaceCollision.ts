@@ -64,6 +64,7 @@ export function resolveSpaceCollisions(s: GameState, dt: number): void {
   for (let pass = 0; pass < 2; pass++) {
     resolveEnemyTowerCollisions(s, dt);
     resolveEnemyEnemyCollisions(s);
+    resolvePlayerTowerCollisions(s);
     resolveEnemyPlayerCollisions(s);
   }
 
@@ -147,6 +148,23 @@ function resolveEnemyEnemyCollisions(s: GameState): void {
         }
       }
     }
+  }
+}
+
+function resolvePlayerTowerCollisions(s: GameState): void {
+  for (const tower of s.spheres) {
+    if (!tower.alive) continue;
+
+    const dx = s.player.pos.x - tower.pos.x;
+    const dy = s.player.pos.y - tower.pos.y;
+    const minDistance = PLAYER_RADIUS + TOWER_BODY_RADIUS;
+    const currentDistance = Math.hypot(dx, dy);
+    if (currentDistance >= minDistance) continue;
+
+    const normal = normalize(dx, dy);
+    const overlap = minDistance - currentDistance;
+    s.player.pos.x += normal.x * overlap;
+    s.player.pos.y += normal.y * overlap;
   }
 }
 
