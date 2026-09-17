@@ -44,11 +44,10 @@ const THEMES: Record<MapTheme, Theme> = {
 export function render(ctx: CanvasRenderingContext2D, s: GameState, canvasW: number, canvasH: number): void {
   const theme = THEMES[s.mapTheme] || THEMES.parchment;
 
-  // ===== Static background (screen space) — reset transform to identity =====
+  // ===== Base background =====
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.fillStyle = theme.bg;
   ctx.fillRect(0, 0, canvasW, canvasH);
-  drawPaperTexture(ctx, canvasW, canvasH, theme);
 
   // ===== World space =====
   ctx.save();
@@ -60,6 +59,8 @@ export function render(ctx: CanvasRenderingContext2D, s: GameState, canvasW: num
   }
   ctx.translate(canvasW / 2 - s.camera.x + shakeX, canvasH / 2 - s.camera.y + shakeY);
 
+  // Paper texture belongs to the world, just like the grid.
+  drawPaperTexture(ctx, s.worldWidth, s.worldHeight, theme, -s.worldWidth / 2, -s.worldHeight / 2);
   drawGrid(ctx, s, canvasW, canvasH, theme);
 
   // world bounds
@@ -108,7 +109,7 @@ export function render(ctx: CanvasRenderingContext2D, s: GameState, canvasW: num
   // boss projectiles
   for (const e of s.enemies) for (const bp of e.bossProjectiles) drawPaperDiamond(ctx, bp.pos.x, bp.pos.y, bp.radius, '#c4453d', '#e06b63');
 
-  // player
+  // Legacy fox/wolf player body is intentionally disabled. The mobile overlay owns the character visual.
   drawPlayer(ctx, s.player);
 
   // particles
@@ -415,9 +416,9 @@ function drawPolygon(ctx: CanvasRenderingContext2D, spheres: SphereEntity[]): vo
   ctx.fill();
 }
 
-// ===== Static paper texture (screen space) =====
+// ===== Paper texture (world space) =====
 let _textureCanvases: Partial<Record<MapTheme, HTMLCanvasElement>> = {};
-function drawPaperTexture(ctx: CanvasRenderingContext2D, w: number, h: number, theme: Theme): void {
+function drawPaperTexture(ctx: CanvasRenderingContext2D, w: number, h: number, theme: Theme, offsetX = 0, offsetY = 0): void {
   if (!_textureCanvases[theme.bg as MapTheme]) {
     const tc = document.createElement('canvas');
     tc.width = 256; tc.height = 256;
@@ -446,10 +447,9 @@ function drawPaperTexture(ctx: CanvasRenderingContext2D, w: number, h: number, t
     _textureCanvases[theme.bg as MapTheme] = tc;
   }
   const tile = _textureCanvases[theme.bg as MapTheme]!;
-  // Tile manually in screen space — drawImage is not affected by pattern transform issues
   for (let x = 0; x < w; x += 256) {
     for (let y = 0; y < h; y += 256) {
-      ctx.drawImage(tile, x, y);
+      ctx.drawImage(tile, x + offsetX, y + offsetY);
     }
   }
 }
@@ -572,7 +572,6 @@ function drawOrigamiAirplane(ctx: CanvasRenderingContext2D, r: number, fill: str
     ctx.moveTo(3, -r + 4); ctx.lineTo(r + 3, r + 4); ctx.lineTo(-r + 3, r + 4);
     ctx.closePath(); ctx.fill();
   });
-  // main body — swept wings
   ctx.fillStyle = fill;
   ctx.beginPath();
   ctx.moveTo(0, -r * 1.2);
@@ -580,17 +579,14 @@ function drawOrigamiAirplane(ctx: CanvasRenderingContext2D, r: number, fill: str
   ctx.lineTo(0, r * 0.4);
   ctx.lineTo(-r * 1.3, r * 0.8);
   ctx.closePath(); ctx.fill();
-  // right wing highlight
   ctx.fillStyle = highlight; ctx.globalAlpha = 0.35;
   ctx.beginPath();
   ctx.moveTo(0, -r * 1.2); ctx.lineTo(r * 1.3, r * 0.8); ctx.lineTo(0, r * 0.4);
   ctx.closePath(); ctx.fill();
   ctx.globalAlpha = 1;
-  // fold lines — keel
   ctx.strokeStyle = FOLD_LINE; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(0, -r * 1.2); ctx.lineTo(0, r * 0.4); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(-r * 1.3, r * 0.8); ctx.lineTo(0, r * 0.4); ctx.lineTo(r * 1.3, r * 0.8); ctx.stroke();
-  // outline
   ctx.strokeStyle = INK; ctx.lineWidth = 1.5;
   ctx.beginPath();
   ctx.moveTo(0, -r * 1.2); ctx.lineTo(r * 1.3, r * 0.8); ctx.lineTo(0, r * 0.4); ctx.lineTo(-r * 1.3, r * 0.8);
@@ -604,26 +600,21 @@ function drawOrigamiBoat(ctx: CanvasRenderingContext2D, r: number, fill: string,
     ctx.moveTo(-r + 3, -r * 0.3 + 4); ctx.lineTo(r + 3, -r * 0.3 + 4); ctx.lineTo(r * 0.6 + 3, r + 4); ctx.lineTo(-r * 0.6 + 3, r + 4);
     ctx.closePath(); ctx.fill();
   });
-  // hull
   ctx.fillStyle = fill;
   ctx.beginPath();
   ctx.moveTo(-r, -r * 0.3); ctx.lineTo(r, -r * 0.3); ctx.lineTo(r * 0.6, r); ctx.lineTo(-r * 0.6, r);
   ctx.closePath(); ctx.fill();
-  // sail
   ctx.fillStyle = highlight;
   ctx.beginPath();
   ctx.moveTo(0, -r * 0.3); ctx.lineTo(r * 0.8, -r * 0.3); ctx.lineTo(0, -r * 1.2);
   ctx.closePath(); ctx.fill();
-  // left sail
   ctx.fillStyle = fill;
   ctx.beginPath();
   ctx.moveTo(0, -r * 0.3); ctx.lineTo(-r * 0.8, -r * 0.3); ctx.lineTo(0, -r * 1.2);
   ctx.closePath(); ctx.fill();
-  // fold lines
   ctx.strokeStyle = FOLD_LINE; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(0, -r * 1.2); ctx.lineTo(0, r); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(-r, -r * 0.3); ctx.lineTo(r, -r * 0.3); ctx.stroke();
-  // outline
   ctx.strokeStyle = INK; ctx.lineWidth = 1.5;
   ctx.beginPath();
   ctx.moveTo(-r, -r * 0.3); ctx.lineTo(r, -r * 0.3); ctx.lineTo(r * 0.6, r); ctx.lineTo(-r * 0.6, r);
@@ -640,7 +631,6 @@ function drawOrigamiCrane(ctx: CanvasRenderingContext2D, r: number, fill: string
     ctx.moveTo(3, -r + 4); ctx.lineTo(r + 3, r * 0.3 + 4); ctx.lineTo(-r + 3, r * 0.3 + 4);
     ctx.closePath(); ctx.fill();
   });
-  // body
   ctx.fillStyle = fill;
   ctx.beginPath();
   ctx.moveTo(0, -r);
@@ -652,17 +642,14 @@ function drawOrigamiCrane(ctx: CanvasRenderingContext2D, r: number, fill: string
   ctx.lineTo(-r, r * 0.5);
   ctx.lineTo(-r * 0.3, -r * 0.2);
   ctx.closePath(); ctx.fill();
-  // wing highlight
   ctx.fillStyle = highlight; ctx.globalAlpha = 0.3;
   ctx.beginPath();
   ctx.moveTo(0, -r); ctx.lineTo(r * 0.3, -r * 0.2); ctx.lineTo(r, r * 0.5); ctx.lineTo(0, r);
   ctx.closePath(); ctx.fill();
   ctx.globalAlpha = 1;
-  // fold lines
   ctx.strokeStyle = FOLD_LINE; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(0, -r); ctx.lineTo(0, r); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(-r, r * 0.5); ctx.lineTo(r, r * 0.5); ctx.stroke();
-  // outline
   ctx.strokeStyle = INK; ctx.lineWidth = 1.5;
   ctx.beginPath();
   ctx.moveTo(0, -r); ctx.lineTo(r * 0.3, -r * 0.2); ctx.lineTo(r, r * 0.5); ctx.lineTo(r * 0.2, r * 0.3);
@@ -677,23 +664,18 @@ function drawOrigamiFrog(ctx: CanvasRenderingContext2D, r: number, fill: string,
     ctx.ellipse(3, 4, r, r * 0.8, 0, 0, Math.PI * 2);
     ctx.fill();
   });
-  // body — diamond with legs
   ctx.fillStyle = fill;
   ctx.beginPath();
   ctx.moveTo(0, -r); ctx.lineTo(r, 0); ctx.lineTo(0, r); ctx.lineTo(-r, 0);
   ctx.closePath(); ctx.fill();
-  // back legs
   ctx.fillStyle = shade(fill, -20);
   ctx.beginPath(); ctx.moveTo(-r, 0); ctx.lineTo(-r * 1.4, r * 0.8); ctx.lineTo(-r * 0.5, r * 0.3); ctx.closePath(); ctx.fill();
   ctx.beginPath(); ctx.moveTo(r, 0); ctx.lineTo(r * 1.4, r * 0.8); ctx.lineTo(r * 0.5, r * 0.3); ctx.closePath(); ctx.fill();
-  // highlight
   ctx.fillStyle = highlight; ctx.globalAlpha = 0.3;
   ctx.beginPath(); ctx.moveTo(0, -r); ctx.lineTo(r, 0); ctx.lineTo(0, 0); ctx.closePath(); ctx.fill();
   ctx.globalAlpha = 1;
-  // fold lines
   ctx.strokeStyle = FOLD_LINE; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(0, -r); ctx.lineTo(0, r); ctx.moveTo(-r, 0); ctx.lineTo(r, 0); ctx.stroke();
-  // outline
   ctx.strokeStyle = INK; ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.moveTo(0, -r); ctx.lineTo(r, 0); ctx.lineTo(0, r); ctx.lineTo(-r, 0); ctx.closePath(); ctx.stroke();
 }
@@ -705,25 +687,19 @@ function drawOrigamiButterfly(ctx: CanvasRenderingContext2D, r: number, fill: st
     ctx.ellipse(3, 4, r * 1.2, r, 0, 0, Math.PI * 2);
     ctx.fill();
   });
-  // upper wings
   ctx.fillStyle = fill;
   ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-r * 1.2, -r); ctx.lineTo(-r * 0.5, -r * 0.2); ctx.closePath(); ctx.fill();
   ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(r * 1.2, -r); ctx.lineTo(r * 0.5, -r * 0.2); ctx.closePath(); ctx.fill();
-  // lower wings
   ctx.fillStyle = shade(fill, -15);
   ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-r, r * 0.8); ctx.lineTo(-r * 0.3, r * 0.2); ctx.closePath(); ctx.fill();
   ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(r, r * 0.8); ctx.lineTo(r * 0.3, r * 0.2); ctx.closePath(); ctx.fill();
-  // body
   ctx.fillStyle = INK;
   ctx.beginPath(); ctx.ellipse(0, 0, r * 0.1, r * 0.5, 0, 0, Math.PI * 2); ctx.fill();
-  // highlight on upper wings
   ctx.fillStyle = highlight; ctx.globalAlpha = 0.3;
   ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-r * 1.2, -r); ctx.lineTo(-r * 0.5, -r * 0.2); ctx.closePath(); ctx.fill();
   ctx.globalAlpha = 1;
-  // fold lines
   ctx.strokeStyle = FOLD_LINE; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(0, -r * 0.5); ctx.lineTo(0, r * 0.5); ctx.stroke();
-  // outline
   ctx.strokeStyle = INK; ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-r * 1.2, -r); ctx.lineTo(-r * 0.5, -r * 0.2); ctx.closePath(); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(r * 1.2, -r); ctx.lineTo(r * 0.5, -r * 0.2); ctx.closePath(); ctx.stroke();
@@ -738,7 +714,6 @@ function drawOrigamiLotus(ctx: CanvasRenderingContext2D, r: number, fill: string
   drawShadow(ctx, () => {
     ctx.beginPath(); ctx.arc(4, 5, r * 1.1, 0, Math.PI * 2); ctx.fill();
   });
-  // outer petals
   for (let i = 0; i < petals; i++) {
     const a = (i / petals) * Math.PI * 2;
     ctx.fillStyle = i % 2 === 0 ? fill : shade(fill, -15);
@@ -751,7 +726,6 @@ function drawOrigamiLotus(ctx: CanvasRenderingContext2D, r: number, fill: string
     ctx.strokeStyle = INK; ctx.lineWidth = 1.2;
     ctx.stroke();
   }
-  // inner petals
   for (let i = 0; i < petals / 2; i++) {
     const a = (i / (petals / 2)) * Math.PI * 2 + Math.PI / petals;
     ctx.fillStyle = highlight;
@@ -764,7 +738,6 @@ function drawOrigamiLotus(ctx: CanvasRenderingContext2D, r: number, fill: string
     ctx.strokeStyle = INK; ctx.lineWidth = 1;
     ctx.stroke();
   }
-  // center
   ctx.fillStyle = INK;
   ctx.beginPath(); ctx.arc(0, 0, r * 0.12, 0, Math.PI * 2); ctx.fill();
 }
@@ -773,7 +746,6 @@ function drawOrigamiDragon(ctx: CanvasRenderingContext2D, r: number, fill: strin
   drawShadow(ctx, () => {
     ctx.beginPath(); ctx.ellipse(4, 5, r * 1.2, r * 0.8, 0, 0, Math.PI * 2); ctx.fill();
   });
-  // serpentine body segments
   const segments = 7;
   for (let i = segments - 1; i >= 0; i--) {
     const phase = t * 2 + i * 0.4;
@@ -790,7 +762,6 @@ function drawOrigamiDragon(ctx: CanvasRenderingContext2D, r: number, fill: strin
     ctx.strokeStyle = INK; ctx.lineWidth = 1.2;
     ctx.stroke();
   }
-  // head — larger diamond at top
   const headX = Math.sin(t * 2) * r * 0.6;
   const headY = -r * 0.7;
   ctx.fillStyle = highlight;
@@ -798,7 +769,6 @@ function drawOrigamiDragon(ctx: CanvasRenderingContext2D, r: number, fill: strin
   ctx.moveTo(headX, headY - r * 0.5); ctx.lineTo(headX + r * 0.6, headY); ctx.lineTo(headX, headY + r * 0.3); ctx.lineTo(headX - r * 0.6, headY);
   ctx.closePath(); ctx.fill();
   ctx.strokeStyle = INK; ctx.lineWidth = 1.5; ctx.stroke();
-  // eyes
   ctx.fillStyle = INK;
   ctx.beginPath(); ctx.arc(headX - r * 0.2, headY - r * 0.1, 2, 0, Math.PI * 2); ctx.fill();
   ctx.beginPath(); ctx.arc(headX + r * 0.2, headY - r * 0.1, 2, 0, Math.PI * 2); ctx.fill();
@@ -808,7 +778,6 @@ function drawOrigamiPhoenix(ctx: CanvasRenderingContext2D, r: number, fill: stri
   drawShadow(ctx, () => {
     ctx.beginPath(); ctx.ellipse(4, 5, r * 1.3, r, 0, 0, Math.PI * 2); ctx.fill();
   });
-  // tail feathers
   const feathers = 7;
   for (let i = 0; i < feathers; i++) {
     const a = Math.PI * 0.3 + (i / (feathers - 1)) * Math.PI * 0.4;
@@ -821,12 +790,10 @@ function drawOrigamiPhoenix(ctx: CanvasRenderingContext2D, r: number, fill: stri
     ctx.closePath(); ctx.fill();
     ctx.strokeStyle = INK; ctx.lineWidth = 1.2; ctx.stroke();
   }
-  // body
   ctx.fillStyle = fill;
   ctx.beginPath();
   ctx.moveTo(0, -r * 0.8); ctx.lineTo(r * 0.5, 0); ctx.lineTo(0, r * 0.5); ctx.lineTo(-r * 0.5, 0);
   ctx.closePath(); ctx.fill();
-  // wings spread
   ctx.fillStyle = shade(fill, -10);
   const flap = Math.sin(t * 4) * 0.2;
   ctx.beginPath();
@@ -835,21 +802,17 @@ function drawOrigamiPhoenix(ctx: CanvasRenderingContext2D, r: number, fill: stri
   ctx.beginPath();
   ctx.moveTo(0, -r * 0.3); ctx.lineTo(-r * 1.3, -r * 0.3 + flap * r); ctx.lineTo(-r * 0.8, r * 0.2); ctx.lineTo(0, 0);
   ctx.closePath(); ctx.fill();
-  // head
   ctx.fillStyle = highlight;
   ctx.beginPath();
   ctx.moveTo(0, -r * 0.8); ctx.lineTo(r * 0.3, -r * 1.1); ctx.lineTo(-r * 0.3, -r * 1.1);
   ctx.closePath(); ctx.fill();
-  // fold lines
   ctx.strokeStyle = FOLD_LINE; ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(0, -r * 0.8); ctx.lineTo(0, r * 0.5); ctx.stroke();
-  // outlines
   ctx.strokeStyle = INK; ctx.lineWidth = 1.5;
   ctx.beginPath();
   ctx.moveTo(0, -r * 0.8); ctx.lineTo(r * 0.5, 0); ctx.lineTo(0, r * 0.5); ctx.lineTo(-r * 0.5, 0); ctx.closePath(); ctx.stroke();
   ctx.beginPath();
   ctx.moveTo(0, -r * 0.8); ctx.lineTo(r * 0.3, -r * 1.1); ctx.lineTo(-r * 0.3, -r * 1.1); ctx.closePath(); ctx.stroke();
-  // eye
   ctx.fillStyle = INK;
   ctx.beginPath(); ctx.arc(0, -r * 0.9, 2, 0, Math.PI * 2); ctx.fill();
 }
@@ -858,11 +821,9 @@ function drawOrigamiOctopus(ctx: CanvasRenderingContext2D, r: number, fill: stri
   drawShadow(ctx, () => {
     ctx.beginPath(); ctx.arc(4, 5, r, 0, Math.PI * 2); ctx.fill();
   });
-  // head
   ctx.fillStyle = fill;
   ctx.beginPath(); ctx.arc(0, -r * 0.2, r * 0.7, 0, Math.PI * 2); ctx.fill();
   ctx.strokeStyle = INK; ctx.lineWidth = 1.5; ctx.stroke();
-  // tentacles
   ctx.strokeStyle = shade(fill, -10); ctx.lineWidth = 3; ctx.lineCap = 'round';
   for (let i = 0; i < 8; i++) {
     const a = (i / 8) * Math.PI * 2 + t * 0.5;
@@ -876,26 +837,21 @@ function drawOrigamiOctopus(ctx: CanvasRenderingContext2D, r: number, fill: stri
     }
     ctx.stroke();
   }
-  // eyes
   ctx.fillStyle = INK;
   ctx.beginPath(); ctx.arc(-r * 0.2, -r * 0.3, 3, 0, Math.PI * 2); ctx.fill();
   ctx.beginPath(); ctx.arc(r * 0.2, -r * 0.3, 3, 0, Math.PI * 2); ctx.fill();
-  // highlight
   ctx.fillStyle = highlight; ctx.globalAlpha = 0.3;
   ctx.beginPath(); ctx.arc(-r * 0.2, -r * 0.4, r * 0.3, 0, Math.PI * 2); ctx.fill();
   ctx.globalAlpha = 1;
 }
 
-// ===== Player — origami fox/wolf =====
+// ===== Player — status effects only =====
 function drawPlayer(ctx: CanvasRenderingContext2D, p: PlayerState): void {
   ctx.save();
   ctx.translate(p.pos.x, p.pos.y);
-  const color = MUTATION_COLORS[p.mutationStage];
   const t = Date.now() / 1000;
-  const pulse = 1 + Math.sin(t * 5) * 0.06;
-  const r = PLAYER_RADIUS * pulse;
+  const r = PLAYER_RADIUS;
 
-  // shield
   if (p.shieldCharges > 0 || p.shieldTimer > 0) {
     ctx.strokeStyle = '#4a7a8a'; ctx.lineWidth = 2.5;
     ctx.globalAlpha = 0.5 + Math.sin(t * 6) * 0.2;
@@ -907,73 +863,6 @@ function drawPlayer(ctx: CanvasRenderingContext2D, p: PlayerState): void {
     ctx.strokeStyle = '#d4943d'; ctx.lineWidth = 3;
     ctx.beginPath(); ctx.arc(0, 0, r + 14, 0, Math.PI * 2); ctx.stroke();
   }
-
-  // drop shadow
-  ctx.fillStyle = 'rgba(58,46,31,0.15)';
-  ctx.beginPath();
-  ctx.ellipse(3, 4, r * 1.1, r * 0.8, 0, 0, Math.PI * 2); ctx.fill();
-
-  // ===== Origami fox body — diamond head with ears =====
-  // main head diamond
-  const grad = ctx.createLinearGradient(0, -r * 1.4, 0, r);
-  grad.addColorStop(0, shade(color, 40));
-  grad.addColorStop(1, shade(color, -30));
-  ctx.fillStyle = grad;
-  ctx.beginPath();
-  ctx.moveTo(0, -r * 1.2); ctx.lineTo(r * 1.1, 0); ctx.lineTo(0, r * 0.9); ctx.lineTo(-r * 1.1, 0);
-  ctx.closePath(); ctx.fill();
-
-  // ears — two triangles at top
-  ctx.fillStyle = shade(color, 20);
-  ctx.beginPath();
-  ctx.moveTo(-r * 0.6, -r * 0.7); ctx.lineTo(-r * 0.3, -r * 1.5); ctx.lineTo(-r * 0.1, -r * 0.8); ctx.closePath(); ctx.fill();
-  ctx.beginPath();
-  ctx.moveTo(r * 0.6, -r * 0.7); ctx.lineTo(r * 0.3, -r * 1.5); ctx.lineTo(r * 0.1, -r * 0.8); ctx.closePath(); ctx.fill();
-
-  // inner ears
-  ctx.fillStyle = shade(color, -20);
-  ctx.beginPath();
-  ctx.moveTo(-r * 0.45, -r * 0.8); ctx.lineTo(-r * 0.3, -r * 1.3); ctx.lineTo(-r * 0.2, -r * 0.85); ctx.closePath(); ctx.fill();
-  ctx.beginPath();
-  ctx.moveTo(r * 0.45, -r * 0.8); ctx.lineTo(r * 0.3, -r * 1.3); ctx.lineTo(r * 0.2, -r * 0.85); ctx.closePath(); ctx.fill();
-
-  // snout — lighter triangle
-  ctx.fillStyle = shade(color, 50);
-  ctx.beginPath();
-  ctx.moveTo(0, -r * 0.3); ctx.lineTo(r * 0.4, r * 0.2); ctx.lineTo(-r * 0.4, r * 0.2); ctx.closePath(); ctx.fill();
-
-  // fold lines
-  ctx.strokeStyle = FOLD_LINE; ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(0, -r * 1.2); ctx.lineTo(0, r * 0.9);
-  ctx.moveTo(-r * 1.1, 0); ctx.lineTo(r * 1.1, 0); ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(0, -r * 0.3); ctx.lineTo(r * 0.4, r * 0.2); ctx.lineTo(-r * 0.4, r * 0.2); ctx.closePath(); ctx.stroke();
-
-  // outlines
-  ctx.strokeStyle = INK; ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(0, -r * 1.2); ctx.lineTo(r * 1.1, 0); ctx.lineTo(0, r * 0.9); ctx.lineTo(-r * 1.1, 0); ctx.closePath(); ctx.stroke();
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  ctx.moveTo(-r * 0.6, -r * 0.7); ctx.lineTo(-r * 0.3, -r * 1.5); ctx.lineTo(-r * 0.1, -r * 0.8); ctx.closePath(); ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(r * 0.6, -r * 0.7); ctx.lineTo(r * 0.3, -r * 1.5); ctx.lineTo(r * 0.1, -r * 0.8); ctx.closePath(); ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(0, -r * 0.3); ctx.lineTo(r * 0.4, r * 0.2); ctx.lineTo(-r * 0.4, r * 0.2); ctx.closePath(); ctx.stroke();
-
-  // eyes
-  ctx.fillStyle = INK;
-  ctx.beginPath(); ctx.arc(-r * 0.3, -r * 0.2, 2.5, 0, Math.PI * 2); ctx.fill();
-  ctx.beginPath(); ctx.arc(r * 0.3, -r * 0.2, 2.5, 0, Math.PI * 2); ctx.fill();
-  // nose
-  ctx.beginPath(); ctx.arc(0, r * 0.15, 2, 0, Math.PI * 2); ctx.fill();
-
-  // mutations
-  if (p.mutationStage >= 1) drawSpikes(ctx, color);
-  if (p.mutationStage >= 2) drawWings(ctx, color);
-  if (p.mutationStage >= 3) drawHalo(ctx);
-  if (p.mutationStage >= 4) drawTentacles(ctx);
 
   ctx.restore();
 }
@@ -1025,13 +914,10 @@ function drawSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: SphereE
   const baseColor = stype.color;
   const radius = sphere.radius * (1 + (s.player.abilities.radius || 0) * 0.15) * (s.player.artifacts.includes('radius_shard') ? 1.1 : 1) * stype.rangeMult;
   const t = Date.now() / 1000;
-
-  // range indicator
   ctx.strokeStyle = `rgba(${hexToRgb(baseColor)},0.12)`;
   ctx.lineWidth = 1; ctx.setLineDash([5, 5]);
   ctx.beginPath(); ctx.arc(0, 0, radius, 0, Math.PI * 2); ctx.stroke();
   ctx.setLineDash([]);
-
   if (stype.aura) {
     ctx.strokeStyle = baseColor; ctx.lineWidth = 2;
     ctx.globalAlpha = 0.25 + Math.sin(t * 3) * 0.08;
@@ -1039,137 +925,62 @@ function drawSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: SphereE
     ctx.beginPath(); ctx.arc(0, 0, stype.auraRadius, 0, Math.PI * 2); ctx.stroke();
     ctx.setLineDash([]); ctx.globalAlpha = 1;
   }
-
   const tier = sphere.visualTier;
-
-  // ===== Origami turret base =====
-  // shadow
   ctx.fillStyle = 'rgba(58,46,31,0.15)';
   ctx.beginPath(); ctx.ellipse(2, 3, 16, 12, 0, 0, Math.PI * 2); ctx.fill();
-
-  // base — octagonal platform
   ctx.fillStyle = shade(baseColor, -30);
   ctx.beginPath();
-  for (let i = 0; i < 8; i++) {
-    const a = (i / 8) * Math.PI * 2 + Math.PI / 8;
-    const x = Math.cos(a) * 16, y = Math.sin(a) * 16;
-    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-  }
+  for (let i = 0; i < 8; i++) { const a = (i / 8) * Math.PI * 2 + Math.PI / 8; const x = Math.cos(a) * 16, y = Math.sin(a) * 16; if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y); }
   ctx.closePath(); ctx.fill();
   ctx.strokeStyle = INK; ctx.lineWidth = 1.5; ctx.stroke();
-
-  // fold lines on base
   ctx.strokeStyle = FOLD_LINE; ctx.lineWidth = 1;
-  for (let i = 0; i < 4; i++) {
-    const a = (i / 4) * Math.PI * 2 + Math.PI / 8;
-    ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(Math.cos(a) * 16, Math.sin(a) * 16); ctx.stroke();
-  }
-
-  // turret barrel — type-specific origami shape
-  ctx.save();
-  ctx.rotate(sphere.rotation);
-
+  for (let i = 0; i < 4; i++) { const a = (i / 4) * Math.PI * 2 + Math.PI / 8; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(Math.cos(a) * 16, Math.sin(a) * 16); ctx.stroke(); }
+  ctx.save(); ctx.rotate(sphere.rotation);
   if (sphere.type === 'sniper') {
-    // Sniper: long barrel — elongated diamond
     ctx.fillStyle = baseColor;
-    ctx.beginPath();
-  ctx.moveTo(0, -4); ctx.lineTo(22, 0); ctx.lineTo(0, 4); ctx.lineTo(-6, 0);
-  ctx.closePath(); ctx.fill();
-  ctx.strokeStyle = FOLD_LINE; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(-6, 0); ctx.lineTo(22, 0); ctx.stroke();
-  ctx.strokeStyle = INK; ctx.lineWidth = 1.5;
-  ctx.beginPath(); ctx.moveTo(0, -4); ctx.lineTo(22, 0); ctx.lineTo(0, 4); ctx.lineTo(-6, 0); ctx.closePath(); ctx.stroke();
-  // scope on top
-  ctx.fillStyle = shade(baseColor, 30);
-  ctx.beginPath(); ctx.arc(4, -6, 3, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, -4); ctx.lineTo(22, 0); ctx.lineTo(0, 4); ctx.lineTo(-6, 0); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = FOLD_LINE; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(-6, 0); ctx.lineTo(22, 0); ctx.stroke();
+    ctx.strokeStyle = INK; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(0, -4); ctx.lineTo(22, 0); ctx.lineTo(0, 4); ctx.lineTo(-6, 0); ctx.closePath(); ctx.stroke();
+    ctx.fillStyle = shade(baseColor, 30); ctx.beginPath(); ctx.arc(4, -6, 3, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
   } else if (sphere.type === 'shotgun') {
-    // Shotgun: wide triple barrel
     ctx.fillStyle = baseColor;
-    for (let i = -1; i <= 1; i++) {
-      ctx.beginPath();
-      ctx.moveTo(i * 5 - 3, -3); ctx.lineTo(i * 5 + 14, i * 2); ctx.lineTo(i * 5 + 14, i * 2 + 3); ctx.lineTo(i * 5 - 3, 3);
-      ctx.closePath(); ctx.fill();
-      ctx.strokeStyle = INK; ctx.lineWidth = 1; ctx.stroke();
-    }
+    for (let i = -1; i <= 1; i++) { ctx.beginPath(); ctx.moveTo(i * 5 - 3, -3); ctx.lineTo(i * 5 + 14, i * 2); ctx.lineTo(i * 5 + 14, i * 2 + 3); ctx.lineTo(i * 5 - 3, 3); ctx.closePath(); ctx.fill(); ctx.strokeStyle = INK; ctx.lineWidth = 1; ctx.stroke(); }
   } else if (sphere.type === 'chain') {
-    // Chain: forked antenna
     ctx.fillStyle = baseColor;
-    ctx.beginPath();
-  ctx.moveTo(-4, -3); ctx.lineTo(8, -8); ctx.lineTo(10, -6); ctx.lineTo(0, 0); ctx.closePath(); ctx.fill();
-  ctx.beginPath(); ctx.moveTo(-4, 3); ctx.lineTo(8, 8); ctx.lineTo(10, 6); ctx.lineTo(0, 0); ctx.closePath(); ctx.fill();
-  ctx.strokeStyle = INK; ctx.lineWidth = 1.5; ctx.stroke();
-  // spark at tip
-  ctx.fillStyle = '#d4a830';
-  ctx.beginPath(); ctx.arc(10, -7, 2 + Math.sin(t * 8) * 1, 0, Math.PI * 2); ctx.fill();
-  ctx.beginPath(); ctx.arc(10, 7, 2 + Math.sin(t * 8 + 1) * 1, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(-4, -3); ctx.lineTo(8, -8); ctx.lineTo(10, -6); ctx.lineTo(0, 0); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(-4, 3); ctx.lineTo(8, 8); ctx.lineTo(10, 6); ctx.lineTo(0, 0); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = INK; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.fillStyle = '#d4a830';
+    ctx.beginPath(); ctx.arc(10, -7, 2 + Math.sin(t * 8), 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(10, 7, 2 + Math.sin(t * 8 + 1), 0, Math.PI * 2); ctx.fill();
   } else if (sphere.type === 'aura') {
-    // Aura: paper lantern — no barrel, radiating folds
     ctx.fillStyle = baseColor;
-    ctx.beginPath();
-  ctx.moveTo(0, -10); ctx.lineTo(10, 0); ctx.lineTo(0, 10); ctx.lineTo(-10, 0);
-  ctx.closePath(); ctx.fill();
-  ctx.strokeStyle = FOLD_LINE; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(0, -10); ctx.lineTo(0, 10); ctx.moveTo(-10, 0); ctx.lineTo(10, 0); ctx.stroke();
-  ctx.strokeStyle = INK; ctx.lineWidth = 1.5;
-  ctx.beginPath(); ctx.moveTo(0, -10); ctx.lineTo(10, 0); ctx.lineTo(0, 10); ctx.lineTo(-10, 0); ctx.closePath(); ctx.stroke();
-  // glow
-  ctx.fillStyle = `rgba(${hexToRgb(baseColor)},0.2)`;
-  ctx.beginPath(); ctx.arc(0, 0, 14 + Math.sin(t * 4) * 2, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(0, -10); ctx.lineTo(10, 0); ctx.lineTo(0, 10); ctx.lineTo(-10, 0); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = FOLD_LINE; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(0, -10); ctx.lineTo(0, 10); ctx.moveTo(-10, 0); ctx.lineTo(10, 0); ctx.stroke();
+    ctx.strokeStyle = INK; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(0, -10); ctx.lineTo(10, 0); ctx.lineTo(0, 10); ctx.lineTo(-10, 0); ctx.closePath(); ctx.stroke();
+    ctx.fillStyle = `rgba(${hexToRgb(baseColor)},0.2)`; ctx.beginPath(); ctx.arc(0, 0, 14 + Math.sin(t * 4) * 2, 0, Math.PI * 2); ctx.fill();
   } else {
-    // Standard: short barrel
     ctx.fillStyle = baseColor;
-    ctx.beginPath();
-  ctx.moveTo(0, -4); ctx.lineTo(14, -2); ctx.lineTo(14, 2); ctx.lineTo(0, 4); ctx.lineTo(-4, 0);
-  ctx.closePath(); ctx.fill();
-  ctx.strokeStyle = FOLD_LINE; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(-4, 0); ctx.lineTo(14, 0); ctx.stroke();
-  ctx.strokeStyle = INK; ctx.lineWidth = 1.5;
-  ctx.beginPath(); ctx.moveTo(0, -4); ctx.lineTo(14, -2); ctx.lineTo(14, 2); ctx.lineTo(0, 4); ctx.lineTo(-4, 0); ctx.closePath(); ctx.stroke();
-  // muzzle tip
-  ctx.fillStyle = shade(baseColor, 40);
-  ctx.beginPath(); ctx.arc(14, 0, 2.5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, -4); ctx.lineTo(14, -2); ctx.lineTo(14, 2); ctx.lineTo(0, 4); ctx.lineTo(-4, 0); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = FOLD_LINE; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(-4, 0); ctx.lineTo(14, 0); ctx.stroke();
+    ctx.strokeStyle = INK; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(0, -4); ctx.lineTo(14, -2); ctx.lineTo(14, 2); ctx.lineTo(0, 4); ctx.lineTo(-4, 0); ctx.closePath(); ctx.stroke();
+    ctx.fillStyle = shade(baseColor, 40); ctx.beginPath(); ctx.arc(14, 0, 2.5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
   }
-
   ctx.restore();
-
-  // tier mutations
   if (tier >= 1) {
-    // spikes around base
     ctx.fillStyle = shade(baseColor, 30); ctx.strokeStyle = INK; ctx.lineWidth = 1;
-    for (let i = 0; i < 8; i++) {
-      const a = (i / 8) * Math.PI * 2 + t * 0.3;
-      ctx.beginPath();
-      ctx.moveTo(Math.cos(a - 0.1) * 17, Math.sin(a - 0.1) * 17);
-      ctx.lineTo(Math.cos(a) * 22, Math.sin(a) * 22);
-      ctx.lineTo(Math.cos(a + 0.1) * 17, Math.sin(a + 0.1) * 17);
-      ctx.closePath(); ctx.fill(); ctx.stroke();
-    }
+    for (let i = 0; i < 8; i++) { const a = (i / 8) * Math.PI * 2 + t * 0.3; ctx.beginPath(); ctx.moveTo(Math.cos(a - 0.1) * 17, Math.sin(a - 0.1) * 17); ctx.lineTo(Math.cos(a) * 22, Math.sin(a) * 22); ctx.lineTo(Math.cos(a + 0.1) * 17, Math.sin(a + 0.1) * 17); ctx.closePath(); ctx.fill(); ctx.stroke(); }
   }
-  if (tier >= 2) {
-    // ring
-    ctx.strokeStyle = '#d4943d'; ctx.lineWidth = 2; ctx.globalAlpha = 0.5;
-    ctx.beginPath(); ctx.arc(0, 0, 24, 0, Math.PI * 2); ctx.stroke(); ctx.globalAlpha = 1;
-  }
+  if (tier >= 2) { ctx.strokeStyle = '#d4943d'; ctx.lineWidth = 2; ctx.globalAlpha = 0.5; ctx.beginPath(); ctx.arc(0, 0, 24, 0, Math.PI * 2); ctx.stroke(); ctx.globalAlpha = 1; }
   if (tier >= 3) {
-    // rotating segments
     ctx.strokeStyle = '#c4453d'; ctx.lineWidth = 2;
-    for (let i = 0; i < 4; i++) {
-      const a = t * 2 + (i / 4) * Math.PI * 2;
-      ctx.beginPath(); ctx.arc(0, 0, 28, a, a + 0.4); ctx.stroke();
-    }
+    for (let i = 0; i < 4; i++) { const a = t * 2 + (i / 4) * Math.PI * 2; ctx.beginPath(); ctx.arc(0, 0, 28, a, a + 0.4); ctx.stroke(); }
   }
-  if (tier >= 4) {
-    // core crystal
-    ctx.fillStyle = '#d4943d';
-    ctx.beginPath();
-    ctx.moveTo(0, -5); ctx.lineTo(4, 0); ctx.lineTo(0, 5); ctx.lineTo(-4, 0); ctx.closePath(); ctx.fill();
-    ctx.strokeStyle = INK; ctx.lineWidth = 1; ctx.stroke();
-  }
+  if (tier >= 4) { ctx.fillStyle = '#d4943d'; ctx.beginPath(); ctx.moveTo(0, -5); ctx.lineTo(4, 0); ctx.lineTo(0, 5); ctx.lineTo(-4, 0); ctx.closePath(); ctx.fill(); ctx.strokeStyle = INK; ctx.lineWidth = 1; ctx.stroke(); }
   ctx.restore();
 }
 
 // ===== Enemy — origami figures =====
-// ===== Origami Mouse (normal circle enemy — distinct from boss crane) =====
 function drawOrigamiMouse(ctx: CanvasRenderingContext2D, r: number, fill: string, highlight: string): void {
   drawShadow(ctx, () => { ctx.beginPath(); ctx.ellipse(3, 4, r, r * 0.7, 0, 0, Math.PI * 2); ctx.fill(); });
   ctx.fillStyle = fill;
@@ -1182,8 +993,7 @@ function drawOrigamiMouse(ctx: CanvasRenderingContext2D, r: number, fill: string
   ctx.beginPath(); ctx.arc(r * 0.4, -r * 0.6, r * 0.15, 0, Math.PI * 2); ctx.fill();
   ctx.strokeStyle = shade(fill, -10); ctx.lineWidth = 2; ctx.lineCap = 'round';
   ctx.beginPath(); ctx.moveTo(0, r * 0.5); ctx.quadraticCurveTo(r * 0.6, r * 0.8, r * 0.8, r * 0.4); ctx.stroke();
-  ctx.strokeStyle = FOLD_LINE; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(0, -r * 0.8); ctx.lineTo(0, r * 0.5); ctx.stroke();
+  ctx.strokeStyle = FOLD_LINE; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(0, -r * 0.8); ctx.lineTo(0, r * 0.5); ctx.stroke();
   ctx.strokeStyle = INK; ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.moveTo(0, -r * 0.8); ctx.lineTo(r * 0.9, r * 0.5); ctx.lineTo(-r * 0.9, r * 0.5); ctx.closePath(); ctx.stroke();
   ctx.beginPath(); ctx.arc(-r * 0.4, -r * 0.6, r * 0.3, 0, Math.PI * 2); ctx.stroke();
@@ -1193,7 +1003,6 @@ function drawOrigamiMouse(ctx: CanvasRenderingContext2D, r: number, fill: string
   ctx.beginPath(); ctx.arc(r * 0.2, -r * 0.1, 1.5, 0, Math.PI * 2); ctx.fill();
 }
 
-// ===== Origami Fish (normal square enemy — distinct from boss boat) =====
 function drawOrigamiFish(ctx: CanvasRenderingContext2D, r: number, fill: string, highlight: string): void {
   drawShadow(ctx, () => { ctx.beginPath(); ctx.ellipse(3, 4, r, r * 0.6, 0, 0, Math.PI * 2); ctx.fill(); });
   ctx.fillStyle = fill;
@@ -1205,8 +1014,7 @@ function drawOrigamiFish(ctx: CanvasRenderingContext2D, r: number, fill: string,
   ctx.fillStyle = highlight; ctx.globalAlpha = 0.3;
   ctx.beginPath(); ctx.moveTo(r, 0); ctx.lineTo(0, -r * 0.7); ctx.lineTo(0, 0); ctx.closePath(); ctx.fill();
   ctx.globalAlpha = 1;
-  ctx.strokeStyle = FOLD_LINE; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(r, 0); ctx.lineTo(-r * 0.8, 0); ctx.stroke();
+  ctx.strokeStyle = FOLD_LINE; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(r, 0); ctx.lineTo(-r * 0.8, 0); ctx.stroke();
   ctx.strokeStyle = INK; ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.moveTo(r, 0); ctx.lineTo(0, -r * 0.7); ctx.lineTo(-r * 0.8, 0); ctx.lineTo(0, r * 0.7); ctx.closePath(); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(-r * 0.8, 0); ctx.lineTo(-r * 1.3, -r * 0.4); ctx.lineTo(-r * 1.3, r * 0.4); ctx.closePath(); ctx.stroke();
@@ -1222,7 +1030,6 @@ function drawEnemy(ctx: CanvasRenderingContext2D, e: EnemyEntity): void {
   const highlight = e.hitFlash > 0 ? '#ffffff' : shade(e.color, 35);
   const frozen = e.freezeTimer > 0;
   const fc = '#6a9ab0', fh = '#8ac0d8';
-
   if (e.shape === 'triangle') {
     drawOrigamiAirplane(ctx, e.radius, frozen ? fc : color, frozen ? fh : highlight);
   } else if (e.shape === 'square') {
@@ -1234,9 +1041,7 @@ function drawEnemy(ctx: CanvasRenderingContext2D, e: EnemyEntity): void {
   } else if (e.shape === 'hexagon') {
     drawBoss(ctx, e);
   }
-
   if (!e.isBoss && e.tier > 0) drawEnemyTierDetails(ctx, e);
-
   if (e.isElite) {
     ctx.strokeStyle = '#8a4a8a'; ctx.lineWidth = 2;
     ctx.globalAlpha = 0.5 + Math.sin(Date.now() / 200) * 0.2;
@@ -1244,18 +1049,9 @@ function drawEnemy(ctx: CanvasRenderingContext2D, e: EnemyEntity): void {
     ctx.beginPath(); ctx.arc(0, 0, e.radius + 8, 0, Math.PI * 2); ctx.stroke();
     ctx.setLineDash([]); ctx.globalAlpha = 1;
   }
-
-  if (e.fireTimer > 0) {
-    ctx.fillStyle = 'rgba(180,80,30,0.25)';
-    ctx.beginPath(); ctx.arc(0, 0, e.radius + 2, 0, Math.PI * 2); ctx.fill();
-  }
-  if (e.poisonTimer > 0) {
-    ctx.fillStyle = 'rgba(90,140,60,0.2)';
-    ctx.beginPath(); ctx.arc(0, 0, e.radius + 2, 0, Math.PI * 2); ctx.fill();
-  }
-
+  if (e.fireTimer > 0) { ctx.fillStyle = 'rgba(180,80,30,0.25)'; ctx.beginPath(); ctx.arc(0, 0, e.radius + 2, 0, Math.PI * 2); ctx.fill(); }
+  if (e.poisonTimer > 0) { ctx.fillStyle = 'rgba(90,140,60,0.2)'; ctx.beginPath(); ctx.arc(0, 0, e.radius + 2, 0, Math.PI * 2); ctx.fill(); }
   ctx.restore();
-
   if (e.isBoss) {
     const barW = 80, barH = 6;
     ctx.fillStyle = 'rgba(58,46,31,0.5)';
@@ -1271,23 +1067,10 @@ function drawEnemyTierDetails(ctx: CanvasRenderingContext2D, e: EnemyEntity): vo
   const t = Date.now() / 1000;
   if (e.tier >= 1) {
     ctx.fillStyle = shade(e.color, 30);
-    for (let i = 0; i < 3; i++) {
-      const a = t * 2 + (i / 3) * Math.PI * 2;
-      ctx.beginPath(); ctx.arc(Math.cos(a) * (e.radius + 5), Math.sin(a) * (e.radius + 5), 2, 0, Math.PI * 2); ctx.fill();
-    }
+    for (let i = 0; i < 3; i++) { const a = t * 2 + (i / 3) * Math.PI * 2; ctx.beginPath(); ctx.arc(Math.cos(a) * (e.radius + 5), Math.sin(a) * (e.radius + 5), 2, 0, Math.PI * 2); ctx.fill(); }
   }
-  if (e.tier >= 2) {
-    ctx.strokeStyle = shade(e.color, 20); ctx.lineWidth = 1.5;
-    ctx.globalAlpha = 0.4 + Math.sin(t * 4) * 0.15;
-    ctx.beginPath(); ctx.arc(0, 0, e.radius + 4, 0, Math.PI * 2); ctx.stroke(); ctx.globalAlpha = 1;
-  }
-  if (e.tier >= 3) {
-    ctx.strokeStyle = shade(e.color, 50); ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.moveTo(-e.radius * 0.5, 0); ctx.lineTo(e.radius * 0.5, 0);
-    ctx.moveTo(0, -e.radius * 0.5); ctx.lineTo(0, e.radius * 0.5);
-    ctx.stroke();
-  }
+  if (e.tier >= 2) { ctx.strokeStyle = shade(e.color, 20); ctx.lineWidth = 1.5; ctx.globalAlpha = 0.4 + Math.sin(t * 4) * 0.15; ctx.beginPath(); ctx.arc(0, 0, e.radius + 4, 0, Math.PI * 2); ctx.stroke(); ctx.globalAlpha = 1; }
+  if (e.tier >= 3) { ctx.strokeStyle = shade(e.color, 50); ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(-e.radius * 0.5, 0); ctx.lineTo(e.radius * 0.5, 0); ctx.moveTo(0, -e.radius * 0.5); ctx.lineTo(0, e.radius * 0.5); ctx.stroke(); }
 }
 
 // ===== Boss — beautiful diverse origami figures =====
@@ -1297,76 +1080,23 @@ function drawBoss(ctx: CanvasRenderingContext2D, e: EnemyEntity): void {
   const color = e.freezeTimer > 0 ? '#6a9ab0' : e.color;
   const highlight = e.freezeTimer > 0 ? '#8ac0d8' : shade(e.color, 35);
   const r = e.radius;
-
-  if (e.bossType === 'shooter') {
-    drawOrigamiPhoenix(ctx, r, color, highlight, t);
-  } else if (e.bossType === 'charger') {
-    drawOrigamiDragon(ctx, r, color, highlight, t);
-  } else if (e.bossType === 'summoner') {
-    drawOrigamiLotus(ctx, r, color, highlight);
-  } else if (e.bossType === 'aura') {
-    drawOrigamiOctopus(ctx, r, color, highlight, t);
-  } else {
-    drawOrigamiLotus(ctx, r, color, highlight);
-  }
-
-  if (e.bossType === 'aura' && e.auraRadius) {
-    ctx.strokeStyle = color; ctx.lineWidth = 2;
-    ctx.globalAlpha = 0.2 + Math.sin(t * 2) * 0.08;
-    ctx.setLineDash([6, 4]);
-    ctx.beginPath(); ctx.arc(0, 0, e.auraRadius, 0, Math.PI * 2); ctx.stroke();
-    ctx.setLineDash([]); ctx.globalAlpha = 1;
-  }
-  if (e.isCharging) {
-    ctx.strokeStyle = '#c4453d'; ctx.lineWidth = 2.5;
-    ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(e.chargeDir.x * 60, e.chargeDir.y * 60); ctx.stroke();
-  }
-  if (e.bossType === 'summoner') {
-    ctx.strokeStyle = '#8a4a8a'; ctx.lineWidth = 1.5; ctx.globalAlpha = 0.4;
-    for (let i = 0; i < 3; i++) {
-      const a = t * 2 + (i / 3) * Math.PI * 2;
-      ctx.beginPath(); ctx.arc(Math.cos(a) * 30, Math.sin(a) * 30, 8, 0, Math.PI * 2); ctx.stroke();
-    }
-    ctx.globalAlpha = 1;
-  }
-
-  if (tier >= 1) {
-    ctx.fillStyle = shade(color, 30); ctx.strokeStyle = INK; ctx.lineWidth = 1;
-    for (let i = 0; i < 6; i++) {
-      const a = (i / 6) * Math.PI * 2 + t * 0.5;
-      ctx.beginPath();
-      ctx.moveTo(Math.cos(a - 0.1) * r, Math.sin(a - 0.1) * r);
-      ctx.lineTo(Math.cos(a) * (r + 10), Math.sin(a) * (r + 10));
-      ctx.lineTo(Math.cos(a + 0.1) * r, Math.sin(a + 0.1) * r);
-      ctx.closePath(); ctx.fill(); ctx.stroke();
-    }
-  }
-  if (tier >= 2) {
-    ctx.strokeStyle = '#c4453d'; ctx.lineWidth = 2;
-    ctx.globalAlpha = 0.4 + Math.sin(t * 3) * 0.2;
-    ctx.beginPath(); ctx.arc(0, 0, r + 14, 0, Math.PI * 2); ctx.stroke(); ctx.globalAlpha = 1;
-  }
-  if (tier >= 3) {
-    ctx.strokeStyle = '#d4943d'; ctx.lineWidth = 2;
-    for (let i = 0; i < 8; i++) {
-      const a = -t + (i / 8) * Math.PI * 2;
-      ctx.beginPath();
-      ctx.moveTo(Math.cos(a) * (r + 18), Math.sin(a) * (r + 18));
-      ctx.lineTo(Math.cos(a) * (r + 24), Math.sin(a) * (r + 24));
-      ctx.stroke();
-    }
-  }
+  if (e.bossType === 'shooter') drawOrigamiPhoenix(ctx, r, color, highlight, t);
+  else if (e.bossType === 'charger') drawOrigamiDragon(ctx, r, color, highlight, t);
+  else if (e.bossType === 'summoner') drawOrigamiLotus(ctx, r, color, highlight);
+  else if (e.bossType === 'aura') drawOrigamiOctopus(ctx, r, color, highlight, t);
+  else drawOrigamiLotus(ctx, r, color, highlight);
+  if (e.bossType === 'aura' && e.auraRadius) { ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.globalAlpha = 0.2 + Math.sin(t * 2) * 0.08; ctx.setLineDash([6, 4]); ctx.beginPath(); ctx.arc(0, 0, e.auraRadius, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1; }
+  if (e.isCharging) { ctx.strokeStyle = '#c4453d'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(e.chargeDir.x * 60, e.chargeDir.y * 60); ctx.stroke(); }
+  if (e.bossType === 'summoner') { ctx.strokeStyle = '#8a4a8a'; ctx.lineWidth = 1.5; ctx.globalAlpha = 0.4; for (let i = 0; i < 3; i++) { const a = t * 2 + (i / 3) * Math.PI * 2; ctx.beginPath(); ctx.arc(Math.cos(a) * 30, Math.sin(a) * 30, 8, 0, Math.PI * 2); ctx.stroke(); } ctx.globalAlpha = 1; }
+  if (tier >= 1) { ctx.fillStyle = shade(color, 30); ctx.strokeStyle = INK; ctx.lineWidth = 1; for (let i = 0; i < 6; i++) { const a = (i / 6) * Math.PI * 2 + t * 0.5; ctx.beginPath(); ctx.moveTo(Math.cos(a - 0.1) * r, Math.sin(a - 0.1) * r); ctx.lineTo(Math.cos(a) * (r + 10), Math.sin(a) * (r + 10)); ctx.lineTo(Math.cos(a + 0.1) * r, Math.sin(a + 0.1) * r); ctx.closePath(); ctx.fill(); ctx.stroke(); } }
+  if (tier >= 2) { ctx.strokeStyle = '#c4453d'; ctx.lineWidth = 2; ctx.globalAlpha = 0.4 + Math.sin(t * 3) * 0.2; ctx.beginPath(); ctx.arc(0, 0, r + 14, 0, Math.PI * 2); ctx.stroke(); ctx.globalAlpha = 1; }
+  if (tier >= 3) { ctx.strokeStyle = '#d4943d'; ctx.lineWidth = 2; for (let i = 0; i < 8; i++) { const a = -t + (i / 8) * Math.PI * 2; ctx.beginPath(); ctx.moveTo(Math.cos(a) * (r + 18), Math.sin(a) * (r + 18)); ctx.lineTo(Math.cos(a) * (r + 24), Math.sin(a) * (r + 24)); ctx.stroke(); } }
 }
 
 function drawLightning(ctx: CanvasRenderingContext2D, from: { x: number; y: number }, to: { x: number; y: number }): void {
   const segments = 8;
   ctx.beginPath(); ctx.moveTo(from.x, from.y);
-  for (let i = 1; i < segments; i++) {
-    const t = i / segments;
-    const x = from.x + (to.x - from.x) * t + (Math.random() - 0.5) * 25;
-    const y = from.y + (to.y - from.y) * t + (Math.random() - 0.5) * 25;
-    ctx.lineTo(x, y);
-  }
+  for (let i = 1; i < segments; i++) { const t = i / segments; const x = from.x + (to.x - from.x) * t + (Math.random() - 0.5) * 25; const y = from.y + (to.y - from.y) * t + (Math.random() - 0.5) * 25; ctx.lineTo(x, y); }
   ctx.lineTo(to.x, to.y); ctx.stroke();
 }
 
