@@ -23,26 +23,60 @@ jobs:
           python3 <<'PY'
           from pathlib import Path
           import re
-          import textwrap
-          import subprocess
 
           workflow = Path('.github/workflows/apply-artifact-system.yml').read_text(encoding='utf-8')
           match = re.search(r"python3 <<'PY'\n(.*?)\n\s*PY\n\s*- name: Typecheck", workflow, flags=re.S)
           if not match:
               raise SystemExit('Stored migration script was not found')
-          script = textwrap.dedent(match.group(1))
+
+          # The migration lives inside a YAML block scalar. Remove only the
+          # workflow indentation, while preserving Python indentation.
+          lines = match.group(1).splitlines()
+          script = '\n'.join(line[10:] if line.startswith('          ') else line for line in lines)
+
+          # The stored script declares the artifact-system source but does not
+          # persist it. Extract and write that source before running the script.
+          artifact_match = re.search(r"artifact_system = r'''(.*?)'''", script, flags=re.S)
+          if not artifact_match:
+              raise SystemExit('artifact_system source was not found')
+          Path('src/artifactSystem.ts').write_text(artifact_match.group(1), encoding='utf-8')
+
           exec(compile(script, 'stored-artifact-migration.py', 'exec'), {})
+          PY
+
+      - name: Fix artifact delay integration
+        shell: bash
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+
+          artifact = Path('src/artifactSystem.ts')
+          text = artifact.read_text(encoding='utf-8')
+          marker = "export function getArtifactCooldownMultiplier(s: any): number { return Math.max(0.55, 1 + effectSum(s, 'cooldown')); }\n"
+          addition = marker + "export function getArtifactSphereDelayMultiplier(s: any): number { return Math.max(0.5, 1 + effectSum(s, 'towerDelay')); }\n"
+          if 'getArtifactSphereDelayMultiplier' not in text:
+              text = text.replace(marker, addition)
+          artifact.write_text(text, encoding='utf-8')
+
+          engine = Path('src/engine.ts')
+          text = engine.read_text(encoding='utf-8')
+          old_import = 'getArtifactSphereRadiusMultiplier, getArtifactSphereDamageMultiplier, getArtifactCooldownMultiplier, getArtifactDamageTakenMultiplier'
+          new_import = 'getArtifactSphereRadiusMultiplier, getArtifactSphereDamageMultiplier, getArtifactCooldownMultiplier, getArtifactSphereDelayMultiplier, getArtifactDamageTakenMultiplier'
+          text = text.replace(old_import, new_import)
+          wrong = 'd *= Math.max(0.5, 1 + (1 - 1 / getArtifactCooldownMultiplier(s)));'
+          text = text.replace(wrong, 'd *= getArtifactSphereDelayMultiplier(s);')
+          engine.write_text(text, encoding='utf-8')
           PY
 
       - name: Typecheck
         run: npm ci && npm run typecheck
 
-      - name: Commit and remove temporary workflows
+      - name: Commit and remove temporary migration files
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add src/gameData.ts src/engine.ts src/towerProgression.ts src/App.tsx src/artifactSystem.ts
-          git rm -f .github/workflows/apply-artifact-system.yml .github/workflows/run-artifact-patch.yml
+          git rm -f .github/workflows/apply-artifact-system.yml .github/workflows/run-artifact-patch.yml artifact-migration.trigger
           git commit -m "feat: implement artifact system [artifact-system-applied]"
           git push origin cleanup-android
