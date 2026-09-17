@@ -5,17 +5,18 @@ import { loadCharacterId } from './persistence';
 const INSTALL_KEY = '__echosphere_character_build_bias_installed__';
 const PREFERRED_WEIGHT = 3;
 const TOWER_MOD_IDS = new Set(['multishot', 'pierce', 'ricochet', 'fire', 'freeze', 'poison']);
+const RANDOM_SHUFFLE_PATTERN = /Math\.random\(\)\s*-\s*0\.5/;
 
 type TowerModId = 'multishot' | 'pierce' | 'ricochet' | 'fire' | 'freeze' | 'poison';
-
-function getCharacter(): CharacterDefWithPreferences | null {
-  const id = loadCharacterId() as CharacterId;
-  return CHARACTER_DEFS[id] || null;
-}
 
 interface CharacterDefWithPreferences {
   preferredAbilities: AbilityType[];
   preferredTowerMods: TowerModId[];
+}
+
+function getCharacter(): CharacterDefWithPreferences | null {
+  const id = loadCharacterId() as CharacterId;
+  return CHARACTER_DEFS[id] || null;
 }
 
 function weightedPermutation<T>(items: T[], isPreferred: (item: T) => boolean): T[] {
@@ -29,6 +30,11 @@ function weightedPermutation<T>(items: T[], isPreferred: (item: T) => boolean): 
   const result = ranked.map(({ item }) => item);
   for (let index = 0; index < result.length; index++) items[index] = result[index];
   return items;
+}
+
+function isRandomShuffle(compareFn?: (a: unknown, b: unknown) => number): boolean {
+  if (!compareFn) return false;
+  return RANDOM_SHUFFLE_PATTERN.test(Function.prototype.toString.call(compareFn));
 }
 
 function isAbilityPool(value: unknown[]): value is AbilityType[] {
@@ -51,17 +57,19 @@ export function installCharacterBuildBias(): void {
 
   const originalSort = Array.prototype.sort;
   Array.prototype.sort = function <T>(this: T[], compareFn?: (a: T, b: T) => number): T[] {
-    const character = getCharacter();
+    if (compareFn && isRandomShuffle(compareFn)) {
+      const character = getCharacter();
 
-    if (character && compareFn && isAbilityPool(this as unknown[])) {
-      return weightedPermutation(this, (item) => character.preferredAbilities.includes(item as AbilityType));
-    }
+      if (character && isAbilityPool(this as unknown[])) {
+        return weightedPermutation(this, (item) => character.preferredAbilities.includes(item as AbilityType));
+      }
 
-    if (character && compareFn && isTowerPool(this as unknown[])) {
-      return weightedPermutation(this, (item) => {
-        const id = (item as { id?: TowerModId }).id;
-        return !!id && character.preferredTowerMods.includes(id);
-      });
+      if (character && isTowerPool(this as unknown[])) {
+        return weightedPermutation(this, (item) => {
+          const id = (item as { id?: TowerModId }).id;
+          return !!id && character.preferredTowerMods.includes(id);
+        });
+      }
     }
 
     return originalSort.call(this, compareFn);
