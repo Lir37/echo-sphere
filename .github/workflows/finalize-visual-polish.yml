@@ -21,22 +21,14 @@ jobs:
         run: |
           set -euo pipefail
           cp scripts/polish-visuals.js /tmp/polish-visuals.cjs
-          python3 - <<'PY'
-          from pathlib import Path
-          p = Path('/tmp/polish-visuals.cjs')
-          t = p.read_text()
-          old = "  const marker = '  const baseColor = stype.color;\\n';\n  const insert = marker + '  drawTowerPaperFrame(ctx, sphere, baseColor, t);\\n';"
-          new = "  const marker = '  const t = Date.now() / 1000;\\n';\n  const insert = marker + '  drawTowerPaperFrame(ctx, sphere, baseColor, t);\\n';"
-          if old not in t:
-              raise SystemExit('Expected tower timing marker not found')
-          p.write_text(t.replace(old, new, 1))
-          PY
           node /tmp/polish-visuals.cjs
           python3 - <<'PY'
           from pathlib import Path
           p = Path('src/renderer.ts')
           t = p.read_text()
           call = '  drawTowerPaperFrame(ctx, sphere, baseColor, t);\n'
+          if call not in t:
+              raise SystemExit('Tower frame call was not generated')
           t = t.replace(call, '', 1)
           anchor = '  const t = Date.now() / 1000;\n'
           if anchor not in t:
@@ -47,6 +39,10 @@ jobs:
           PY
           grep -q 'getEnemyFacingAngle(e)' src/renderer.ts
           grep -q 'drawTowerPaperFrame(ctx, sphere, baseColor, t);' src/renderer.ts
+          if grep -q 'ctx.rotate(e.rotation);' src/renderer.ts; then
+            echo 'Enemy still uses simulation rotation'
+            exit 1
+          fi
           git diff --check
       - name: Typecheck
         shell: bash
