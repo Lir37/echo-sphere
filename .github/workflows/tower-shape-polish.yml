@@ -1,0 +1,51 @@
+name: Tower shape polish
+on:
+  workflow_dispatch:
+  push:
+    branches: [cleanup-android]
+jobs:
+  polish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Apply tower silhouette polish
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('src/renderer.ts')
+          s = p.read_text()
+          old = "  drawTowerPaperFrame(ctx, sphere, baseColor, t);\n  drawTowerPaperFrame(ctx, sphere, stype.color, t);"
+          new = "  drawTowerPaperFrame(ctx, sphere, baseColor, t);"
+          if old in s:
+              s = s.replace(old, new, 1)
+          marker = "\nfunction drawSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: SphereEntity): void {"
+          helper = r'''\n\nfunction drawTowerSilhouette(ctx: CanvasRenderingContext2D, sphere: SphereEntity, color: string, t: number): void {\n  const pulse = 0.5 + Math.sin(t * 4 + sphere.pos.x * 0.01) * 0.5;\n  ctx.save();\n  ctx.rotate(sphere.rotation * 0.35);\n  ctx.fillStyle = shade(color, -22);\n  ctx.strokeStyle = INK;\n  ctx.lineWidth = 1.5;\n\n  if (sphere.type === 'sniper') {\n    // Long folded crystal / periscope.\n    ctx.beginPath();\n    ctx.moveTo(-15, 9); ctx.lineTo(-8, -13); ctx.lineTo(5, -18);\n    ctx.lineTo(17, -7); ctx.lineTo(12, 14); ctx.lineTo(-3, 18);\n    ctx.closePath(); ctx.fill(); ctx.stroke();\n    ctx.fillStyle = shade(color, 18);\n    ctx.beginPath(); ctx.moveTo(-8, -13); ctx.lineTo(5, -18); ctx.lineTo(1, -2); ctx.closePath(); ctx.fill();\n    ctx.strokeStyle = FOLD_LINE; ctx.beginPath(); ctx.moveTo(1, -2); ctx.lineTo(-3, 18); ctx.stroke();\n  } else if (sphere.type === 'shotgun') {\n    // Three folded barrels on a broad paper body.\n    ctx.beginPath();\n    ctx.moveTo(-17, -12); ctx.lineTo(4, -15); ctx.lineTo(17, -7);\n    ctx.lineTo(17, 7); ctx.lineTo(4, 15); ctx.lineTo(-17, 12);\n    ctx.closePath(); ctx.fill(); ctx.stroke();\n    ctx.strokeStyle = shade(color, 22); ctx.lineWidth = 2;\n    for (let i = -1; i <= 1; i++) {\n      ctx.beginPath(); ctx.moveTo(0, i * 5); ctx.lineTo(20, i * 7); ctx.stroke();\n    }\n  } else if (sphere.type === 'chain') {\n    // Interlocking folded rings.\n    ctx.strokeStyle = shade(color, 18); ctx.lineWidth = 4;\n    ctx.beginPath(); ctx.arc(-7, 0, 9 + pulse * 1.5, -0.8, Math.PI + 0.8); ctx.stroke();\n    ctx.beginPath(); ctx.arc(7, 0, 9 + (1 - pulse) * 1.5, Math.PI - 0.8, Math.PI * 2 - 0.8); ctx.stroke();\n    ctx.strokeStyle = INK; ctx.lineWidth = 1.5;\n    ctx.beginPath(); ctx.arc(-7, 0, 9 + pulse * 1.5, -0.8, Math.PI + 0.8); ctx.stroke();\n    ctx.beginPath(); ctx.arc(7, 0, 9 + (1 - pulse) * 1.5, Math.PI - 0.8, Math.PI * 2 - 0.8); ctx.stroke();\n  } else if (sphere.type === 'aura') {\n    // Layered alchemy basin / amplifier.\n    ctx.beginPath();\n    ctx.moveTo(0, -18); ctx.lineTo(15, -7); ctx.lineTo(11, 12);\n    ctx.lineTo(0, 19); ctx.lineTo(-11, 12); ctx.lineTo(-15, -7);\n    ctx.closePath(); ctx.fill(); ctx.stroke();\n    ctx.strokeStyle = color; ctx.lineWidth = 2;\n    ctx.beginPath(); ctx.arc(0, 2, 9 + pulse * 2, 0, Math.PI * 2); ctx.stroke();\n  } else {\n    // Default folded emitter.\n    ctx.beginPath();\n    ctx.moveTo(0, -18); ctx.lineTo(16, -6); ctx.lineTo(13, 12);\n    ctx.lineTo(0, 18); ctx.lineTo(-13, 12); ctx.lineTo(-16, -6);\n    ctx.closePath(); ctx.fill(); ctx.stroke();\n    ctx.fillStyle = shade(color, 24);\n    ctx.beginPath(); ctx.moveTo(0, -18); ctx.lineTo(16, -6); ctx.lineTo(0, 1); ctx.closePath(); ctx.fill();\n  }\n  ctx.restore();\n}\n'''
+          if 'function drawTowerSilhouette(' not in s:
+              if marker not in s:
+                  raise SystemExit('drawSphere marker not found')
+              s = s.replace(marker, helper + marker, 1)
+          target = "  drawTowerPaperFrame(ctx, sphere, baseColor, t);\n"
+          if "  drawTowerSilhouette(ctx, sphere, baseColor, t);" not in s:
+              if target not in s:
+                  raise SystemExit('tower frame call not found')
+              s = s.replace(target, target + "  drawTowerSilhouette(ctx, sphere, baseColor, t);\n", 1)
+          p.write_text(s)
+          PY
+      - name: Typecheck
+        run: |
+          npm ci --ignore-scripts
+          npm run typecheck
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/renderer.ts
+          git diff --cached --quiet || git commit -m "Polish tower silhouettes [tower-shapes]"
+          git push
+      - name: Cleanup workflow
+        if: always()
+        run: rm -f .github/workflows/tower-shape-polish.yml
