@@ -1,0 +1,59 @@
+name: Fix TypeScript
+
+on:
+  push:
+    branches:
+      - cleanup-android
+
+jobs:
+  fix:
+    if: "!contains(github.event.head_commit.message, '[typecheck-fix]')"
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Fix TypeScript errors
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path('src/engine.ts')
+          text = path.read_text()
+
+          duplicate = "  towerProgression: Partial<Record<SphereType, number>>;\n  towerProgression: Partial<Record<SphereType, number>>;"
+          single = "  towerProgression: Partial<Record<SphereType, number>>;"
+          if duplicate in text:
+              text = text.replace(duplicate, single, 1)
+
+          marker = "function checkEvolution(s: GameState): string | null {"
+          function = '''function generateTowerUpgradeChoices(s: GameState): TowerUpgradeChoice[] {\n  const candidates = SPHERE_TYPES\n    .filter((type) => towerLevel(s, type) < 7)\n    .map((type) => ({ type, priority: towerPriority(s.player.characterId, type) + Math.random() * 0.15 }))\n    .sort((a, b) => b.priority - a.priority)\n    .slice(0, 3);\n\n  return candidates.map(({ type }) => {\n    const def = TOWER_PROGRESSION[type];\n    const currentLevel = towerLevel(s, type);\n    const nextLevel = currentLevel + 1;\n    const levelDef = def.levels[nextLevel - 1];\n    const evolution = nextLevel === 4 ? def.evolution4 : nextLevel === 7 ? def.evolution7 : null;\n    return {\n      id: 'multishot' as keyof TowerMods,\n      name: evolution ? evolution.name : levelDef.name,\n      desc: evolution ? evolution.desc : levelDef.desc,\n      towerType: type,\n    };\n  });\n}\n\n'''
+          if "function generateTowerUpgradeChoices" not in text:
+              text = text.replace(marker, function + marker, 1)
+
+          path.write_text(text)
+
+          app = Path('src/App.tsx')
+          app_text = app.read_text()
+          duplicated = "<div className=\"text-[10px] uppercase tracking-wider text-[#8a7a5a] mb-1\">{(c as TowerUpgradeChoice & { towerType?: string }).towerType ? 'TOWER PROGRESSION' : 'LEGACY MOD'}</div><div className=\"text-[10px] uppercase tracking-wider text-[#8a7a5a] mb-1\">{(c as TowerUpgradeChoice & { towerType?: string }).towerType ? 'TOWER PROGRESSION' : 'LEGACY MOD'}</div>"
+          single_ui = "<div className=\"text-[10px] uppercase tracking-wider text-[#8a7a5a] mb-1\">{(c as TowerUpgradeChoice & { towerType?: string }).towerType ? 'TOWER PROGRESSION' : 'LEGACY MOD'}</div>"
+          if duplicated in app_text:
+              app_text = app_text.replace(duplicated, single_ui, 1)
+          app.write_text(app_text)
+          PY
+
+      - name: Typecheck
+        run: |
+          npm ci
+          npm run typecheck
+
+      - name: Commit fixes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/engine.ts src/App.tsx
+          git diff --cached --quiet && exit 0
+          git commit -m "Fix TypeScript errors [typecheck-fix]"
+          git push
