@@ -1,0 +1,451 @@
+name: One-time enemy and tower visual polish
+on:
+  push:
+    branches:
+      - cleanup-android
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: cleanup-android
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Patch renderer
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git log -1 --pretty=%B | grep -Fq '[enemy-tower-visuals]'; then
+            exit 0
+          fi
+          node <<'NODE'
+          const fs = require('fs');
+          const path = 'src/renderer.ts';
+          let text = fs.readFileSync(path, 'utf8');
+
+          function replaceBetween(source, startMarker, endMarker, replacement) {
+            const start = source.indexOf(startMarker);
+            if (start < 0) throw new Error(`Missing start marker: ${startMarker}`);
+            const end = source.indexOf(endMarker, start);
+            if (end < 0) throw new Error(`Missing end marker: ${endMarker}`);
+            return source.slice(0, start) + replacement + source.slice(end);
+          }
+
+          const sphere = String.raw`function drawSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: SphereEntity): void {
+            ctx.save();
+            ctx.translate(sphere.pos.x, sphere.pos.y);
+            const stype = SPHERE_TYPES[sphere.type];
+            const baseColor = stype.color;
+            const radius = sphere.radius * (1 + (s.player.abilities.radius || 0) * 0.15) * (s.player.artifacts.includes('radius_shard') ? 1.1 : 1) * stype.rangeMult;
+            const t = Date.now() / 1000;
+            const pulse = 0.5 + Math.sin(t * 5) * 0.5;
+            const targetPulse = 0.5 + Math.sin(t * 10) * 0.5;
+            const hasTarget = s.enemies.some((enemy) => enemy.hp > 0 && Math.hypot(enemy.pos.x - sphere.pos.x, enemy.pos.y - sphere.pos.y) < radius);
+
+            ctx.save();
+            ctx.strokeStyle = \`rgba(\${hexToRgb(baseColor)},0.11)\`;
+            ctx.lineWidth = 1;
+            ctx.setLineDash([6, 6]);
+            ctx.beginPath(); ctx.arc(0, 0, radius, 0, Math.PI * 2); ctx.stroke();
+            ctx.setLineDash([]);
+            if (stype.aura) {
+              const auraPulse = 1 + Math.sin(t * 4) * 0.07;
+              ctx.strokeStyle = baseColor;
+              ctx.globalAlpha = 0.22 + pulse * 0.12;
+              ctx.lineWidth = 2;
+              ctx.setLineDash([10, 5]);
+              ctx.beginPath(); ctx.arc(0, 0, stype.auraRadius * auraPulse, 0, Math.PI * 2); ctx.stroke();
+              ctx.setLineDash([]);
+              ctx.globalAlpha = 1;
+            }
+            if (hasTarget) {
+              ctx.fillStyle = \`rgba(\${hexToRgb(baseColor)},\${0.07 + targetPulse * 0.1})\`;
+              ctx.beginPath(); ctx.arc(0, 0, 25 + targetPulse * 5, 0, Math.PI * 2); ctx.fill();
+            }
+            ctx.restore();
+
+            // A deeper folded-paper pedestal makes every tower read as a placed object.
+            ctx.fillStyle = 'rgba(58,46,31,0.13)';
+            ctx.beginPath(); ctx.ellipse(3, 8, 18, 8, 0, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = shade(baseColor, -48);
+            ctx.beginPath();
+            ctx.moveTo(-16, -1); ctx.lineTo(0, -7); ctx.lineTo(16, -1); ctx.lineTo(12, 12); ctx.lineTo(0, 16); ctx.lineTo(-12, 12);
+            ctx.closePath(); ctx.fill();
+            ctx.strokeStyle = INK; ctx.lineWidth = 1.5; ctx.stroke();
+            ctx.fillStyle = shade(baseColor, -18);
+            ctx.beginPath(); ctx.moveTo(-16, -1); ctx.lineTo(0, -7); ctx.lineTo(0, 9); ctx.lineTo(-12, 12); ctx.closePath(); ctx.fill();
+            ctx.fillStyle = baseColor;
+            ctx.beginPath(); ctx.moveTo(0, -7); ctx.lineTo(16, -1); ctx.lineTo(12, 12); ctx.lineTo(0, 9); ctx.closePath(); ctx.fill();
+            ctx.strokeStyle = FOLD_LINE; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(0, -7); ctx.lineTo(0, 9); ctx.moveTo(-12, 12); ctx.lineTo(12, 12); ctx.stroke();
+
+            // Animated outer braces sell the tower as folded, mechanical paper.
+            ctx.save();
+            ctx.rotate(t * (sphere.type === 'aura' ? 0.35 : 0.18));
+            ctx.strokeStyle = shade(baseColor, 22);
+            ctx.lineWidth = 1.4;
+            for (let i = 0; i < 4; i++) {
+              const a = i * Math.PI / 2 + Math.PI / 4;
+              ctx.beginPath();
+              ctx.moveTo(Math.cos(a) * 12, Math.sin(a) * 12);
+              ctx.lineTo(Math.cos(a) * 21, Math.sin(a) * 21);
+              ctx.stroke();
+            }
+            ctx.restore();
+
+            // Main folded core.
+            ctx.fillStyle = shade(baseColor, -30);
+            ctx.beginPath();
+            for (let i = 0; i < 8; i++) {
+              const a = (i / 8) * Math.PI * 2 + Math.PI / 8;
+              const x = Math.cos(a) * 16, y = Math.sin(a) * 16;
+              if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+            }
+            ctx.closePath(); ctx.fill();
+            ctx.strokeStyle = INK; ctx.lineWidth = 1.5; ctx.stroke();
+            ctx.fillStyle = baseColor;
+            ctx.beginPath(); ctx.moveTo(0, -14); ctx.lineTo(14, 0); ctx.lineTo(0, 14); ctx.closePath(); ctx.fill();
+            ctx.fillStyle = shade(baseColor, 22);
+            ctx.beginPath(); ctx.moveTo(0, -14); ctx.lineTo(-14, 0); ctx.lineTo(0, 14); ctx.closePath(); ctx.fill();
+            ctx.strokeStyle = FOLD_LINE; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(-14, 0); ctx.lineTo(14, 0); ctx.moveTo(0, -14); ctx.lineTo(0, 14); ctx.stroke();
+
+            ctx.save();
+            ctx.rotate(sphere.rotation);
+            if (sphere.type === 'sniper') {
+              ctx.fillStyle = shade(baseColor, 12);
+              ctx.beginPath(); ctx.moveTo(-7, -4); ctx.lineTo(27, -3); ctx.lineTo(31, 0); ctx.lineTo(27, 3); ctx.lineTo(-7, 4); ctx.closePath(); ctx.fill();
+              ctx.strokeStyle = INK; ctx.lineWidth = 1.5; ctx.stroke();
+              ctx.fillStyle = shade(baseColor, 35);
+              ctx.beginPath(); ctx.moveTo(3, -7); ctx.lineTo(13, -7); ctx.lineTo(10, -2); ctx.lineTo(4, -2); ctx.closePath(); ctx.fill(); ctx.stroke();
+              ctx.beginPath(); ctx.arc(29, 0, 3, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+            } else if (sphere.type === 'shotgun') {
+              ctx.fillStyle = shade(baseColor, 10);
+              for (let i = -1; i <= 1; i++) {
+                const y = i * 5;
+                ctx.beginPath(); ctx.moveTo(-5, y - 2); ctx.lineTo(17, y - 2); ctx.lineTo(19, y); ctx.lineTo(17, y + 2); ctx.lineTo(-5, y + 2); ctx.closePath(); ctx.fill();
+                ctx.strokeStyle = INK; ctx.lineWidth = 1; ctx.stroke();
+                ctx.fillStyle = shade(baseColor, 30);
+                ctx.beginPath(); ctx.arc(18, y, 2, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = shade(baseColor, 10);
+              }
+            } else if (sphere.type === 'chain') {
+              ctx.strokeStyle = INK; ctx.lineWidth = 2;
+              ctx.fillStyle = shade(baseColor, 12);
+              ctx.beginPath(); ctx.moveTo(-6, -5); ctx.lineTo(9, -10); ctx.lineTo(15, -4); ctx.lineTo(4, 0); ctx.closePath(); ctx.fill(); ctx.stroke();
+              ctx.beginPath(); ctx.moveTo(-6, 5); ctx.lineTo(9, 10); ctx.lineTo(15, 4); ctx.lineTo(4, 0); ctx.closePath(); ctx.fill(); ctx.stroke();
+              ctx.strokeStyle = '#d4a830'; ctx.lineWidth = 2;
+              ctx.beginPath(); ctx.arc(16, -6, 4 + pulse * 1.4, 0, Math.PI * 2); ctx.stroke();
+              ctx.beginPath(); ctx.arc(16, 6, 4 + (1 - pulse) * 1.4, 0, Math.PI * 2); ctx.stroke();
+            } else if (sphere.type === 'aura') {
+              ctx.fillStyle = shade(baseColor, 8);
+              ctx.beginPath(); ctx.moveTo(0, -13); ctx.lineTo(11, -4); ctx.lineTo(8, 9); ctx.lineTo(0, 14); ctx.lineTo(-8, 9); ctx.lineTo(-11, -4); ctx.closePath(); ctx.fill();
+              ctx.strokeStyle = INK; ctx.lineWidth = 1.5; ctx.stroke();
+              ctx.strokeStyle = \`rgba(\${hexToRgb(baseColor)},0.65)\`;
+              ctx.lineWidth = 2;
+              ctx.beginPath(); ctx.arc(0, 0, 17 + pulse * 2, 0, Math.PI * 2); ctx.stroke();
+              ctx.fillStyle = \`rgba(\${hexToRgb(baseColor)},0.28)\`;
+              ctx.beginPath(); ctx.arc(0, 0, 7 + pulse * 2, 0, Math.PI * 2); ctx.fill();
+            } else {
+              ctx.fillStyle = shade(baseColor, 16);
+              ctx.beginPath(); ctx.moveTo(-7, -5); ctx.lineTo(15, -5); ctx.lineTo(20, 0); ctx.lineTo(15, 5); ctx.lineTo(-7, 5); ctx.closePath(); ctx.fill();
+              ctx.strokeStyle = INK; ctx.lineWidth = 1.5; ctx.stroke();
+              ctx.fillStyle = shade(baseColor, 38);
+              ctx.beginPath(); ctx.arc(17, 0, 3, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+            }
+            ctx.restore();
+
+            if (hasTarget) {
+              ctx.strokeStyle = \`rgba(\${hexToRgb(baseColor)},\${0.35 + targetPulse * 0.35})\`;
+              ctx.lineWidth = 1.8;
+              ctx.beginPath(); ctx.arc(0, 0, 20 + targetPulse * 4, 0, Math.PI * 2); ctx.stroke();
+            }
+
+            const tier = sphere.visualTier;
+            if (tier >= 1) {
+              ctx.save();
+              ctx.rotate(t * 0.28);
+              ctx.fillStyle = shade(baseColor, 28);
+              ctx.strokeStyle = INK; ctx.lineWidth = 1;
+              for (let i = 0; i < 6; i++) {
+                const a = i * Math.PI / 3;
+                ctx.beginPath();
+                ctx.moveTo(Math.cos(a - 0.08) * 18, Math.sin(a - 0.08) * 18);
+                ctx.lineTo(Math.cos(a) * 24, Math.sin(a) * 24);
+                ctx.lineTo(Math.cos(a + 0.08) * 18, Math.sin(a + 0.08) * 18);
+                ctx.closePath(); ctx.fill(); ctx.stroke();
+              }
+              ctx.restore();
+            }
+            if (tier >= 2) {
+              ctx.strokeStyle = '#d4943d'; ctx.lineWidth = 2; ctx.globalAlpha = 0.65;
+              ctx.beginPath(); ctx.arc(0, 0, 26 + pulse * 2, 0, Math.PI * 2); ctx.stroke();
+              ctx.globalAlpha = 1;
+            }
+            if (tier >= 3) {
+              ctx.strokeStyle = '#c4453d'; ctx.lineWidth = 2;
+              ctx.setLineDash([5, 4]);
+              ctx.beginPath(); ctx.arc(0, 0, 30, -t * 1.7, -t * 1.7 + Math.PI * 1.35); ctx.stroke();
+              ctx.setLineDash([]);
+            }
+            if (tier >= 4) {
+              ctx.fillStyle = '#d4943d';
+              for (let i = 0; i < 4; i++) {
+                const a = t * 2 + i * Math.PI / 2;
+                const x = Math.cos(a) * 33, y = Math.sin(a) * 33;
+                ctx.beginPath(); ctx.moveTo(x, y - 3); ctx.lineTo(x + 4, y); ctx.lineTo(x, y + 3); ctx.lineTo(x - 4, y); ctx.closePath(); ctx.fill();
+              }
+            }
+            ctx.restore();
+          }
+
+          const mouse = String.raw`function drawOrigamiMouse(ctx: CanvasRenderingContext2D, r: number, fill: string, highlight: string, t: number): void {
+            const legBeat = Math.sin(t * 11);
+            drawShadow(ctx, () => { ctx.beginPath(); ctx.ellipse(3, 5, r * 0.78, r * 0.48, 0, 0, Math.PI * 2); ctx.fill(); });
+            ctx.strokeStyle = INK; ctx.lineWidth = 1.6; ctx.lineCap = 'round';
+            for (let i = 0; i < 3; i++) {
+              const x = -r * 0.45 + i * r * 0.45;
+              const swing = Math.sin(t * 11 + i * 1.7) * r * 0.14;
+              ctx.beginPath();
+              ctx.moveTo(x, -r * 0.25); ctx.lineTo(x - r * 0.24, -r * 0.75 + swing); ctx.lineTo(x + r * 0.02, -r * 1.0 + swing * 0.6); ctx.stroke();
+              ctx.beginPath();
+              ctx.moveTo(x, r * 0.25); ctx.lineTo(x + r * 0.24, r * 0.75 - swing); ctx.lineTo(x + r * 0.02, r * 1.0 - swing * 0.6); ctx.stroke();
+            }
+            ctx.lineCap = 'butt';
+            ctx.fillStyle = fill;
+            ctx.beginPath(); ctx.ellipse(0, 0, r * 0.72, r * 0.46, 0, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = highlight;
+            ctx.beginPath(); ctx.moveTo(-r * 0.5, -r * 0.25); ctx.lineTo(r * 0.4, -r * 0.36); ctx.lineTo(r * 0.62, 0); ctx.lineTo(r * 0.35, r * 0.2); ctx.closePath(); ctx.fill();
+            ctx.strokeStyle = FOLD_LINE; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(-r * 0.45, 0); ctx.lineTo(r * 0.58, 0); ctx.stroke();
+            ctx.fillStyle = shade(fill, 25);
+            ctx.beginPath(); ctx.moveTo(r * 0.45, -r * 0.35); ctx.lineTo(r * 0.9, 0); ctx.lineTo(r * 0.45, r * 0.35); ctx.closePath(); ctx.fill();
+            ctx.strokeStyle = INK; ctx.lineWidth = 1.5; ctx.stroke();
+            ctx.fillStyle = INK; ctx.beginPath(); ctx.arc(r * 0.58, -r * 0.15, 2.4, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(r * 0.58, r * 0.15, 2.4, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.moveTo(r * 0.9, 0); ctx.lineTo(r * 1.08, -r * 0.08); ctx.lineTo(r * 0.9, r * 0.08); ctx.closePath(); ctx.fill();
+            ctx.strokeStyle = shade(fill, -22); ctx.lineWidth = 1.2;
+            ctx.beginPath(); ctx.moveTo(-r * 0.7, -r * 0.15); ctx.lineTo(-r * 1.1, -r * 0.32); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(-r * 0.7, r * 0.15); ctx.lineTo(-r * 1.1, r * 0.32); ctx.stroke();
+          }
+
+          const fish = String.raw`function drawOrigamiFish(ctx: CanvasRenderingContext2D, r: number, fill: string, highlight: string, t: number): void {
+            drawShadow(ctx, () => { ctx.beginPath(); ctx.ellipse(4, 6, r * 0.8, r * 0.58, 0, 0, Math.PI * 2); ctx.fill(); });
+            ctx.strokeStyle = shade(fill, -25); ctx.lineWidth = 1.7; ctx.lineCap = 'round';
+            for (let i = 0; i < 3; i++) {
+              const x = -r * 0.35 + i * r * 0.35;
+              const swing = Math.sin(t * 9 + i * 1.8) * r * 0.12;
+              ctx.beginPath(); ctx.moveTo(x, -r * 0.3); ctx.lineTo(x - r * 0.32, -r * 0.72 + swing); ctx.lineTo(x - r * 0.06, -r * 0.95 + swing); ctx.stroke();
+              ctx.beginPath(); ctx.moveTo(x, r * 0.3); ctx.lineTo(x + r * 0.32, r * 0.72 - swing); ctx.lineTo(x - r * 0.06, r * 0.95 - swing); ctx.stroke();
+            }
+            ctx.lineCap = 'butt';
+            ctx.fillStyle = fill;
+            ctx.beginPath(); ctx.moveTo(-r * 0.68, -r * 0.4); ctx.lineTo(r * 0.62, -r * 0.48); ctx.lineTo(r * 0.85, 0); ctx.lineTo(r * 0.62, r * 0.48); ctx.lineTo(-r * 0.68, r * 0.4); ctx.closePath(); ctx.fill();
+            ctx.fillStyle = highlight; ctx.globalAlpha = 0.55;
+            ctx.beginPath(); ctx.moveTo(-r * 0.58, -r * 0.35); ctx.lineTo(r * 0.52, -r * 0.43); ctx.lineTo(r * 0.7, -r * 0.08); ctx.lineTo(-r * 0.15, -r * 0.05); ctx.closePath(); ctx.fill();
+            ctx.globalAlpha = 1;
+            ctx.strokeStyle = FOLD_LINE; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(-r * 0.58, 0); ctx.lineTo(r * 0.64, 0); ctx.moveTo(-r * 0.1, -r * 0.4); ctx.lineTo(-r * 0.1, r * 0.4); ctx.stroke();
+            ctx.strokeStyle = INK; ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.moveTo(-r * 0.68, -r * 0.4); ctx.lineTo(r * 0.62, -r * 0.48); ctx.lineTo(r * 0.85, 0); ctx.lineTo(r * 0.62, r * 0.48); ctx.lineTo(-r * 0.68, r * 0.4); ctx.closePath(); ctx.stroke();
+            ctx.fillStyle = INK; ctx.beginPath(); ctx.arc(r * 0.5, -r * 0.12, 2.4, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(r * 0.5, r * 0.12, 2.4, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = shade(fill, 20);
+            ctx.beginPath(); ctx.moveTo(-r * 0.52, 0); ctx.lineTo(-r * 0.92, -r * 0.45); ctx.lineTo(-r * 0.82, 0); ctx.lineTo(-r * 0.92, r * 0.45); ctx.closePath(); ctx.fill(); ctx.stroke();
+          }
+
+          const frog = String.raw`function drawOrigamiFrog(ctx: CanvasRenderingContext2D, r: number, fill: string, highlight: string, t: number): void {
+            drawShadow(ctx, () => { ctx.beginPath(); ctx.ellipse(4, 5, r * 0.8, r * 0.48, 0, 0, Math.PI * 2); ctx.fill(); });
+            ctx.strokeStyle = shade(fill, -22); ctx.lineWidth = 2; ctx.lineCap = 'round';
+            for (let i = 0; i < 2; i++) {
+              const x = -r * 0.28 + i * r * 0.35;
+              const swing = Math.sin(t * 13 + i * Math.PI) * r * 0.22;
+              ctx.beginPath(); ctx.moveTo(x, -r * 0.22); ctx.lineTo(x + r * 0.28, -r * 0.72 + swing); ctx.lineTo(x + r * 0.58, -r * 0.55 + swing); ctx.stroke();
+              ctx.beginPath(); ctx.moveTo(x, r * 0.22); ctx.lineTo(x + r * 0.42, r * 0.7 - swing); ctx.lineTo(x + r * 0.75, r * 0.48 - swing); ctx.stroke();
+            }
+            ctx.lineCap = 'butt';
+            ctx.fillStyle = fill;
+            ctx.beginPath(); ctx.moveTo(-r * 0.7, -r * 0.35); ctx.lineTo(r * 0.45, -r * 0.5); ctx.lineTo(r * 0.8, 0); ctx.lineTo(r * 0.45, r * 0.5); ctx.lineTo(-r * 0.7, r * 0.35); ctx.closePath(); ctx.fill();
+            ctx.fillStyle = shade(fill, 22);
+            ctx.beginPath(); ctx.moveTo(0, -r * 0.5); ctx.lineTo(r * 0.42, -r * 0.48); ctx.lineTo(r * 0.18, 0); ctx.lineTo(-r * 0.3, 0); ctx.closePath(); ctx.fill();
+            ctx.fillStyle = highlight; ctx.globalAlpha = 0.5;
+            ctx.beginPath(); ctx.moveTo(r * 0.08, -r * 0.45); ctx.lineTo(r * 0.58, -r * 0.12); ctx.lineTo(r * 0.1, -r * 0.02); ctx.closePath(); ctx.fill();
+            ctx.globalAlpha = 1;
+            ctx.strokeStyle = FOLD_LINE; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(-r * 0.45, 0); ctx.lineTo(r * 0.58, 0); ctx.stroke();
+            ctx.strokeStyle = INK; ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.moveTo(-r * 0.7, -r * 0.35); ctx.lineTo(r * 0.45, -r * 0.5); ctx.lineTo(r * 0.8, 0); ctx.lineTo(r * 0.45, r * 0.5); ctx.lineTo(-r * 0.7, r * 0.35); ctx.closePath(); ctx.stroke();
+            ctx.fillStyle = INK; ctx.beginPath(); ctx.arc(r * 0.55, -r * 0.12, 2.5, 0, Math.PI * 2); ctx.fill(); ctx.beginPath(); ctx.arc(r * 0.55, r * 0.12, 2.5, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = shade(fill, -15); ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(r * 0.78, 0); ctx.lineTo(r * 1.05, -r * 0.12); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(r * 0.78, 0); ctx.lineTo(r * 1.05, r * 0.12); ctx.stroke();
+          }
+
+          const airplane = String.raw`function drawOrigamiAirplane(ctx: CanvasRenderingContext2D, r: number, fill: string, highlight: string, t: number): void {
+            const flap = Math.sin(t * 8) * 0.16;
+            drawShadow(ctx, () => { ctx.beginPath(); ctx.ellipse(4, 5, r * 0.55, r * 0.7, 0, 0, Math.PI * 2); ctx.fill(); });
+            ctx.strokeStyle = shade(fill, -18); ctx.lineWidth = 1.8; ctx.lineCap = 'round';
+            for (let i = 0; i < 2; i++) {
+              const side = i === 0 ? -1 : 1;
+              ctx.beginPath();
+              ctx.moveTo(-r * 0.1, side * r * 0.35);
+              ctx.lineTo(-r * 0.2, side * (r * 0.9 + flap * r));
+              ctx.lineTo(r * 0.25, side * (r * 1.05 + flap * r));
+              ctx.stroke();
+            }
+            ctx.lineCap = 'butt';
+            ctx.fillStyle = fill;
+            ctx.beginPath(); ctx.moveTo(-r * 0.58, -r * 0.58); ctx.lineTo(r * 0.45, -r * 0.88); ctx.lineTo(r * 0.88, 0); ctx.lineTo(r * 0.45, r * 0.88); ctx.lineTo(-r * 0.58, r * 0.58); ctx.closePath(); ctx.fill();
+            ctx.fillStyle = highlight; ctx.globalAlpha = 0.5;
+            ctx.beginPath(); ctx.moveTo(-r * 0.48, -r * 0.52); ctx.lineTo(r * 0.42, -r * 0.76); ctx.lineTo(r * 0.2, -r * 0.05); ctx.closePath(); ctx.fill();
+            ctx.globalAlpha = 1;
+            ctx.strokeStyle = FOLD_LINE; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(-r * 0.5, 0); ctx.lineTo(r * 0.72, 0); ctx.stroke();
+            ctx.strokeStyle = INK; ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.moveTo(-r * 0.58, -r * 0.58); ctx.lineTo(r * 0.45, -r * 0.88); ctx.lineTo(r * 0.88, 0); ctx.lineTo(r * 0.45, r * 0.88); ctx.lineTo(-r * 0.58, r * 0.58); ctx.closePath(); ctx.stroke();
+            ctx.fillStyle = shade(fill, 24);
+            ctx.beginPath(); ctx.arc(r * 0.5, -r * 0.16, 2.6, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+            ctx.beginPath(); ctx.arc(r * 0.5, r * 0.16, 2.6, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+            ctx.fillStyle = INK;
+            ctx.beginPath(); ctx.moveTo(r * 0.88, 0); ctx.lineTo(r * 1.12, -r * 0.08); ctx.lineTo(r * 0.88, r * 0.08); ctx.closePath(); ctx.fill();
+          }
+
+          const butterfly = String.raw`function drawOrigamiButterfly(ctx: CanvasRenderingContext2D, r: number, fill: string, highlight: string, t: number): void {
+            const pulse = Math.sin(t * 7) * 0.08;
+            drawShadow(ctx, () => { ctx.beginPath(); ctx.ellipse(4, 6, r * 1.05, r * 0.62, 0, 0, Math.PI * 2); ctx.fill(); });
+            ctx.strokeStyle = shade(fill, -25); ctx.lineWidth = 2.2; ctx.lineCap = 'round';
+            for (let i = 0; i < 3; i++) {
+              const x = -r * 0.35 + i * r * 0.35;
+              const swing = Math.sin(t * 8 + i * 1.4) * r * 0.1;
+              ctx.beginPath(); ctx.moveTo(x, -r * 0.24); ctx.lineTo(x - r * 0.38, -r * (0.75 + pulse) + swing); ctx.lineTo(x - r * 0.08, -r * (0.92 + pulse) + swing); ctx.stroke();
+              ctx.beginPath(); ctx.moveTo(x, r * 0.24); ctx.lineTo(x + r * 0.38, r * (0.75 + pulse) - swing); ctx.lineTo(x - r * 0.08, r * (0.92 + pulse) - swing); ctx.stroke();
+            }
+            ctx.lineCap = 'butt';
+            ctx.fillStyle = fill;
+            ctx.beginPath(); ctx.moveTo(-r * 0.72, -r * 0.48); ctx.lineTo(r * 0.5, -r * 0.52); ctx.lineTo(r * 0.82, 0); ctx.lineTo(r * 0.5, r * 0.52); ctx.lineTo(-r * 0.72, r * 0.48); ctx.closePath(); ctx.fill();
+            ctx.fillStyle = shade(fill, -35);
+            ctx.beginPath(); ctx.moveTo(-r * 0.15, -r * 0.52); ctx.lineTo(r * 0.75, 0); ctx.lineTo(-r * 0.15, r * 0.52); ctx.closePath(); ctx.fill();
+            ctx.fillStyle = highlight; ctx.globalAlpha = 0.3;
+            ctx.beginPath(); ctx.moveTo(-r * 0.55, -r * 0.4); ctx.lineTo(r * 0.35, -r * 0.44); ctx.lineTo(r * 0.1, -r * 0.1); ctx.lineTo(-r * 0.3, -r * 0.16); ctx.closePath(); ctx.fill();
+            ctx.globalAlpha = 1;
+            ctx.strokeStyle = FOLD_LINE; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(-r * 0.5, 0); ctx.lineTo(r * 0.7, 0); ctx.stroke();
+            ctx.strokeStyle = INK; ctx.lineWidth = 1.6;
+            ctx.beginPath(); ctx.moveTo(-r * 0.72, -r * 0.48); ctx.lineTo(r * 0.5, -r * 0.52); ctx.lineTo(r * 0.82, 0); ctx.lineTo(r * 0.5, r * 0.52); ctx.lineTo(-r * 0.72, r * 0.48); ctx.closePath(); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(r * 0.25, -r * 0.52); ctx.lineTo(r * 0.55, -r * 0.92); ctx.lineTo(r * 0.72, -r * 0.55); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(r * 0.25, r * 0.52); ctx.lineTo(r * 0.55, r * 0.92); ctx.lineTo(r * 0.72, r * 0.55); ctx.stroke();
+            ctx.fillStyle = INK; ctx.beginPath(); ctx.arc(r * 0.5, -r * 0.14, 2.5, 0, Math.PI * 2); ctx.fill(); ctx.beginPath(); ctx.arc(r * 0.5, r * 0.14, 2.5, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = shade(fill, -15); ctx.lineWidth = 1.1;
+            ctx.beginPath(); ctx.moveTo(r * 0.82, 0); ctx.lineTo(r * 1.08, -r * 0.14); ctx.moveTo(r * 0.82, 0); ctx.lineTo(r * 1.08, r * 0.14); ctx.stroke();
+          }
+
+          const enemy = String.raw`function drawEnemy(ctx: CanvasRenderingContext2D, e: EnemyEntity): void {
+            const t = Date.now() / 1000;
+            const facing = getEnemyFacingAngle(e);
+            ctx.save();
+            ctx.translate(e.pos.x, e.pos.y);
+            ctx.rotate(facing);
+            const hitStrength = Math.max(0, Math.min(1, e.hitFlash / 0.15));
+            if (hitStrength > 0) ctx.scale(1 + hitStrength * 0.1, 1 + hitStrength * 0.1);
+
+            if (hitStrength > 0) {
+              ctx.save();
+              ctx.strokeStyle = \`rgba(196,69,61,\${hitStrength * 0.45})\`;
+              ctx.lineWidth = 2;
+              ctx.beginPath(); ctx.arc(0, 0, e.radius + 7 + (1 - hitStrength) * 8, 0, Math.PI * 2); ctx.stroke();
+              ctx.restore();
+            }
+
+            const color = hitStrength > 0 ? '#f4ecd8' : e.color;
+            const highlight = hitStrength > 0 ? '#ffffff' : shade(e.color, 35);
+            const frozen = e.freezeTimer > 0;
+            const fc = '#6a9ab0', fh = '#8ac0d8';
+            if (e.shape === 'triangle') drawOrigamiAirplane(ctx, e.radius, frozen ? fc : color, frozen ? fh : highlight, t);
+            else if (e.shape === 'square') {
+              if (e.type === 'tank') drawOrigamiButterfly(ctx, e.radius * 1.12, frozen ? fc : color, frozen ? fh : highlight, t);
+              else drawOrigamiFish(ctx, e.radius, frozen ? fc : color, frozen ? fh : highlight, t);
+            } else if (e.shape === 'circle') {
+              if (e.type === 'fast') drawOrigamiFrog(ctx, e.radius, frozen ? fc : color, frozen ? fh : highlight, t);
+              else drawOrigamiMouse(ctx, e.radius, frozen ? fc : color, frozen ? fh : highlight, t);
+            } else if (e.shape === 'hexagon') drawBoss(ctx, e);
+
+            if (!e.isBoss && e.tier > 0) drawEnemyTierDetails(ctx, e);
+            if (e.isElite) {
+              ctx.strokeStyle = '#8a4a8a'; ctx.lineWidth = 2;
+              ctx.globalAlpha = 0.5 + Math.sin(t * 5) * 0.2;
+              ctx.setLineDash([4, 3]);
+              ctx.beginPath(); ctx.arc(0, 0, e.radius + 8, 0, Math.PI * 2); ctx.stroke();
+              ctx.setLineDash([]); ctx.globalAlpha = 1;
+            }
+            if (e.fireTimer > 0) { ctx.fillStyle = 'rgba(180,80,30,0.25)'; ctx.beginPath(); ctx.arc(0, 0, e.radius + 2, 0, Math.PI * 2); ctx.fill(); }
+            if (e.poisonTimer > 0) { ctx.fillStyle = 'rgba(90,140,60,0.2)'; ctx.beginPath(); ctx.arc(0, 0, e.radius + 2, 0, Math.PI * 2); ctx.fill(); }
+            ctx.restore();
+
+            if (e.isBoss) {
+              const barW = 80, barH = 6;
+              ctx.fillStyle = 'rgba(58,46,31,0.5)';
+              ctx.fillRect(e.pos.x - barW / 2, e.pos.y - e.radius - 24, barW, barH);
+              ctx.fillStyle = '#c4453d';
+              ctx.fillRect(e.pos.x - barW / 2, e.pos.y - e.radius - 24, barW * (e.hp / e.maxHp), barH);
+              ctx.strokeStyle = INK; ctx.lineWidth = 1;
+              ctx.strokeRect(e.pos.x - barW / 2, e.pos.y - e.radius - 24, barW, barH);
+            }
+          }`;
+
+          const facingHelper = String.raw`const ENEMY_LAST_POS = new WeakMap<EnemyEntity, { x: number; y: number }>();
+          const ENEMY_FACING = new WeakMap<EnemyEntity, number>();
+
+          function getEnemyFacingAngle(e: EnemyEntity): number {
+            const previous = ENEMY_LAST_POS.get(e);
+            const current = ENEMY_FACING.get(e) ?? 0;
+            if (previous) {
+              const dx = e.pos.x - previous.x;
+              const dy = e.pos.y - previous.y;
+              if (dx * dx + dy * dy > 0.04) ENEMY_FACING.set(e, Math.atan2(dy, dx));
+            }
+            ENEMY_LAST_POS.set(e, { x: e.pos.x, y: e.pos.y });
+            return ENEMY_FACING.get(e) ?? current;
+          }
+
+          `;
+
+          if (text.indexOf(facingHelper.trim()) < 0) {
+            const marker = `// ===== Enemy — origami figures =====`;
+            const idx = text.indexOf(marker);
+            if (idx < 0) throw new Error('Enemy section marker not found');
+            text = text.slice(0, idx) + facingHelper + text.slice(idx);
+          }
+
+          text = replaceBetween(text, 'function drawSphere(', '// ===== Enemy — origami figures =====', sphere + '\n\n');
+          text = replaceBetween(text, 'function drawEnemy(', 'function drawEnemyTierDetails(', enemy + '\n\n');
+          text = replaceBetween(text, 'function drawOrigamiMouse(', 'function drawOrigamiFish(', mouse + '\n\n');
+          text = replaceBetween(text, 'function drawOrigamiFish(', 'function drawEnemy(', fish + '\n\n');
+          text = replaceBetween(text, 'function drawOrigamiAirplane(', 'function drawOrigamiBoat(', airplane + '\n\n');
+          text = replaceBetween(text, 'function drawOrigamiFrog(', 'function drawOrigamiButterfly(', frog + '\n\n');
+          text = replaceBetween(text, 'function drawOrigamiButterfly(', '// ===== Origami Lotus (boss shapes) =====', butterfly + '\n\n');
+
+          fs.writeFileSync(path, text);
+          NODE
+          git diff --check
+      - name: Typecheck
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci --ignore-scripts
+          npm run typecheck
+      - name: Commit and self-delete
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet; then exit 0; fi
+          rm .github/workflows/polish-enemies-towers.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/renderer.ts .github/workflows/polish-enemies-towers.yml package-lock.json
+          git commit -m 'Polish enemies and towers [enemy-tower-visuals]'
+          git push origin cleanup-android
