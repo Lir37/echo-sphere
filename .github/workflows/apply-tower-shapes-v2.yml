@@ -1,0 +1,92 @@
+name: Apply tower shapes
+on:
+  push:
+    branches: [cleanup-android]
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Patch renderer
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('src/renderer.ts')
+          s = p.read_text()
+          marker = "\nfunction drawSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: SphereEntity): void {"
+          helper = """
+function drawTowerSilhouette(ctx: CanvasRenderingContext2D, sphere: SphereEntity, color: string, t: number): void {
+  const pulse = 0.5 + Math.sin(t * 4 + sphere.pos.x * 0.01) * 0.5;
+  ctx.save();
+  ctx.rotate(sphere.rotation * 0.35);
+  ctx.fillStyle = shade(color, -22);
+  ctx.strokeStyle = INK;
+  ctx.lineWidth = 1.5;
+
+  if (sphere.type === 'sniper') {
+    ctx.beginPath();
+    ctx.moveTo(-15, 9); ctx.lineTo(-8, -13); ctx.lineTo(5, -18);
+    ctx.lineTo(17, -7); ctx.lineTo(12, 14); ctx.lineTo(-3, 18);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = shade(color, 18);
+    ctx.beginPath(); ctx.moveTo(-8, -13); ctx.lineTo(5, -18); ctx.lineTo(1, -2); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = FOLD_LINE; ctx.beginPath(); ctx.moveTo(1, -2); ctx.lineTo(-3, 18); ctx.stroke();
+  } else if (sphere.type === 'shotgun') {
+    ctx.beginPath();
+    ctx.moveTo(-17, -12); ctx.lineTo(4, -15); ctx.lineTo(17, -7);
+    ctx.lineTo(17, 7); ctx.lineTo(4, 15); ctx.lineTo(-17, 12);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.strokeStyle = shade(color, 22); ctx.lineWidth = 2;
+    for (let i = -1; i <= 1; i++) {
+      ctx.beginPath(); ctx.moveTo(0, i * 5); ctx.lineTo(20, i * 7); ctx.stroke();
+    }
+  } else if (sphere.type === 'chain') {
+    ctx.strokeStyle = shade(color, 18); ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.arc(-7, 0, 9 + pulse * 1.5, -0.8, Math.PI + 0.8); ctx.stroke();
+    ctx.beginPath(); ctx.arc(7, 0, 9 + (1 - pulse) * 1.5, Math.PI - 0.8, Math.PI * 2 - 0.8); ctx.stroke();
+    ctx.strokeStyle = INK; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(-7, 0, 9 + pulse * 1.5, -0.8, Math.PI + 0.8); ctx.stroke();
+    ctx.beginPath(); ctx.arc(7, 0, 9 + (1 - pulse) * 1.5, Math.PI - 0.8, Math.PI * 2 - 0.8); ctx.stroke();
+  } else if (sphere.type === 'aura') {
+    ctx.beginPath();
+    ctx.moveTo(0, -18); ctx.lineTo(15, -7); ctx.lineTo(11, 12);
+    ctx.lineTo(0, 19); ctx.lineTo(-11, 12); ctx.lineTo(-15, -7);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.strokeStyle = color; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(0, 2, 9 + pulse * 2, 0, Math.PI * 2); ctx.stroke();
+  } else {
+    ctx.beginPath();
+    ctx.moveTo(0, -18); ctx.lineTo(16, -6); ctx.lineTo(13, 12);
+    ctx.lineTo(0, 18); ctx.lineTo(-13, 12); ctx.lineTo(-16, -6);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = shade(color, 24);
+    ctx.beginPath(); ctx.moveTo(0, -18); ctx.lineTo(16, -6); ctx.lineTo(0, 1); ctx.closePath(); ctx.fill();
+  }
+  ctx.restore();
+}
+"""
+          if 'function drawTowerSilhouette(' not in s:
+              if marker not in s:
+                  raise SystemExit('drawSphere marker not found')
+              s = s.replace(marker, '\n' + helper + marker, 1)
+          duplicate = "  drawTowerPaperFrame(ctx, sphere, baseColor, t);\n  drawTowerPaperFrame(ctx, sphere, stype.color, t);"
+          s = s.replace(duplicate, "  drawTowerPaperFrame(ctx, sphere, baseColor, t);", 1)
+          call = "  drawTowerPaperFrame(ctx, sphere, baseColor, t);\n"
+          if '  drawTowerSilhouette(ctx, sphere, baseColor, t);' not in s:
+              s = s.replace(call, call + '  drawTowerSilhouette(ctx, sphere, baseColor, t);\n', 1)
+          p.write_text(s)
+          PY
+      - name: Verify and commit
+        run: |
+          npm ci --ignore-scripts
+          npm run typecheck
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/renderer.ts .github/workflows/apply-tower-shapes-v2.yml
+          git rm .github/workflows/apply-tower-shapes-v2.yml
+          git commit -m "Polish tower silhouettes [tower-shapes]"
+          git push
