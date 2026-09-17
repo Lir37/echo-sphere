@@ -40,10 +40,17 @@ export function getCharacterDamageMultiplier(s: GameState, sphere: SphereEntity)
   }
 
   if (character === 'engineer') {
-    const neighbours = getSphereNeighbours(s, sphere, getEngineerNetworkRange(s)).length;
-    multiplier += Math.min(2, neighbours) * 0.06;
-    if (neighbours === 2 && (runtimePlayer(s).characterMasteryLevel || 1) >= 5) multiplier += 0.02;
-    const networkSize = getConnectedNetworkSize(s, sphere, getEngineerNetworkRange(s));
+    const range = getEngineerNetworkRange(s);
+    const neighbours = getSphereNeighbours(s, sphere, range);
+    multiplier += Math.min(2, neighbours.length) * 0.06;
+
+    // Master Node mastery: a node with two neighbours empowers those neighbours.
+    if ((runtimePlayer(s).characterMasteryLevel || 1) >= 5) {
+      const connectedToMasterNode = neighbours.some((neighbour) => getSphereNeighbours(s, neighbour, range).length >= 2);
+      if (connectedToMasterNode) multiplier += 0.02;
+    }
+
+    const networkSize = getConnectedNetworkSize(s, sphere, range);
     if (networkSize >= 4) multiplier += 0.03;
   }
 
@@ -74,6 +81,10 @@ export function getCharacterRadiusMultiplier(s: GameState): number {
   const character = getCharacterId(s);
   let multiplier = 1 + CHARACTER_DEFS[character].baseModifiers.sphereRadius;
   if (character === 'architect' && getLocalCharacterSpheres(s).length >= 4) multiplier += 0.05;
+
+  // Engineer: a stable network of 3+ spheres increases the working radius of its spheres.
+  if (character === 'engineer' && getEngineerNetworkSpheres(s).length >= 3) multiplier += 0.08;
+
   return multiplier;
 }
 
