@@ -42,4 +42,4 @@ export const TOWER_ABILITY_SYNERGIES=[
 ] as const;
 export function towerPriority(character:CharacterId,type:SphereType){const list=CHARACTER_TOWER_PRIORITY[character]||[];const i=list.indexOf(type);return i<0 ? .25 : 1-i*.18;}
 export function towerLevel(s:any,type:SphereType){return s.player.towerProgression?.[type]||0;}
-export function towerModifiers(s:any,type:SphereType){const l=towerLevel(s,type);return {damage:1+l*.08+(l>=4?.12:0)+(l>=7?.18:0),radius:1+(l>=2?.05:0)+(l>=5?.06:0)+(l>=7?.08:0),delay:Math.max(.58,1-l*.045),pierce:l>=2?1:0,multishot:type==='shotgun'&&l>=1?1:0,chainTargets:type==='chain'?Math.max(1,l+1):0,auraRadius:l>=2?1.08:1,auraPulse:l>=4?.75:.5};}
+export function towerModifiers(s:any,type:SphereType){const l=towerLevel(s,type);return {damage:1+l*.08+(l>=4 ? .12 : 0)+(l>=7 ? .18 : 0),radius:1+(l>=2 ? .05 : 0)+(l>=5 ? .06 : 0)+(l>=7 ? .08 : 0),delay:Math.max(.58,1-l*.045),pierce:l>=2?1:0,multishot:type==='shotgun'&&l>=1?1:0,chainTargets:type==='chain'?Math.max(1,l+1):0,auraRadius:l>=2?1.08:1,auraPulse:l>=4 ? .75 : .5};}
