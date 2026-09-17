@@ -222,12 +222,37 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
             const def = SPHERE_TYPES[type];
             const selected = selectedType === type;
             const preferred = preferredSphereTypes.includes(type);
-            return <button key={type} data-mobile-control="true" className={`w-11 h-11 rounded-xl border bg-[#e8dcc0]/90 shadow-lg flex items-center justify-center active:scale-95 ${selected ? 'border-[#8a7a5a]' : 'border-[#c4b890]'} ${preferred ? 'ring-2 ring-[#d4943d]/45 ring-offset-1 ring-offset-[#e8dcc0]' : ''}`} style={{ borderColor: selected ? def.color : undefined }} onPointerDown={(e) => { e.stopPropagation(); const st = stateRef.current; if (!st) return; setSphereType(st, type); }} aria-label={`${def.name[lang]} — ${def.desc[lang]}`}><span className="w-4 h-4 rounded-full" style={{ backgroundColor: def.color }} /></button>;
+            return <button key={type} data-mobile-control="true" className={`w-11 h-11 rounded-xl border bg-[#e8dcc0]/90 shadow-lg flex items-center justify-center active:scale-95 ${selected ? 'border-[#8a7a5a]' : 'border-[#c4b890]'} ${preferred ? 'ring-2 ring-[#d4943d]/45 ring-offset-1 ring-offset-[#e8dcc0]' : ''}`} style={{ borderColor: selected ? def.color : undefined }} onPointerDown={(e) => { e.stopPropagation(); const st = stateRef.current; if (!st) return; setSphereType(st, type); }} aria-label={`${def.name[lang]} — ${def.desc[lang]}`}>
+              <SphereTypeGlyph type={type} color={def.color} />
+            </button>;
           })}
         </div>
       </div>
     </div>
   );
+}
+
+function SphereTypeGlyph({ type, color }: { type: SphereType; color: string }) {
+  if (type === 'sniper') {
+    return <span className="w-4 h-4 rotate-45 border-2" style={{ borderColor: color, backgroundColor: `${color}33` }} />;
+  }
+  if (type === 'shotgun') {
+    return <span className="relative w-5 h-4" aria-hidden="true">
+      <span className="absolute left-0 top-1 w-3 h-2 rounded-sm border-2" style={{ borderColor: color, backgroundColor: `${color}33` }} />
+      <span className="absolute left-3 top-0 w-2 h-4 rounded-r border-2 border-l-0" style={{ borderColor: color }} />
+    </span>;
+  }
+  if (type === 'chain') {
+    return <span className="flex items-center gap-0.5" aria-hidden="true">
+      <span className="w-2.5 h-2.5 rounded-full border-2" style={{ borderColor: color, backgroundColor: `${color}33` }} />
+      <span className="w-2.5 h-2.5 rounded-full border-2" style={{ borderColor: color, backgroundColor: `${color}33` }} />
+      <span className="w-2.5 h-2.5 rounded-full border-2" style={{ borderColor: color, backgroundColor: `${color}33` }} />
+    </span>;
+  }
+  if (type === 'aura') {
+    return <span className="w-5 h-5 rounded-full border-2" style={{ borderColor: color, boxShadow: `0 0 0 3px ${color}22` }} />;
+  }
+  return <span className="w-4 h-4 rounded-full border-2" style={{ borderColor: color, backgroundColor: `${color}44` }} />;
 }
 
 function getEmptyCharacterVisualState(): CharacterVisualState {
