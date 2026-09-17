@@ -20,6 +20,16 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('scripts/polish-visuals.js')
+          t = p.read_text()
+          old = "  const marker = '  ctx.save(); ctx.rotate(sphere.rotation);\\n';\n  const insert = '  drawTowerPaperFrame(ctx, sphere, baseColor, t);\\n' + marker;"
+          new = "  const marker = '  const baseColor = stype.color;\\n';\n  const insert = marker + '  drawTowerPaperFrame(ctx, sphere, baseColor, t);\\n';"
+          if old not in t:
+              raise SystemExit('Expected tower insertion code not found')
+          p.write_text(t.replace(old, new, 1))
+          PY
           node -e "const fs=require('fs'),vm=require('vm'); vm.runInNewContext(fs.readFileSync('scripts/polish-visuals.js','utf8'),{require,console,process});"
           git diff --check
       - name: Typecheck
