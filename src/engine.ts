@@ -26,7 +26,7 @@ import {
   getFormationDamageTakenMultiplier,
 } from './characterRuntime';
 import { loadCharacterId, loadCharacterProfiles } from './persistence';
-import { TOWER_PROGRESSION, towerPriority, towerLevel, towerModifiers, TOWER_ABILITY_SYNERGIES } from './towerProgression';
+import { TOWER_PROGRESSION, ABILITY_PROGRESSION, towerPriority, towerLevel, towerModifiers, TOWER_ABILITY_SYNERGIES } from './towerProgression';
 
 export interface Vec { x: number; y: number; }
 
@@ -1168,11 +1168,9 @@ export function activateByKey(s: GameState, key: string): void {
 
 // ===== Upgrade generation =====
 export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
-  // check evolution availability
-  const evo = checkEvolution(s);
-  if (evo) {
-    return [{ type: 'evolve', evolution: evo, currentLevel: 5, newLevel: 1 }];
-  }
+  // Legacy pair evolutions are disabled: Echo Sphere now uses the 7-level progression system.
+  // Major ability evolutions happen automatically at levels 4 and 7.
+
   const choices: UpgradeChoice[] = [];
   const available: AbilityType[] = [];
   for (const id of Object.keys(ABILITIES) as AbilityType[]) {
@@ -1190,6 +1188,8 @@ export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
 }
 
 function checkEvolution(s: GameState): string | null {
+  return null;
+  /*
   for (const evo of Object.keys(EVOLUTION_MAP)) {
     const def = EVOLUTION_MAP[evo];
     if (s.player.evolutions.includes(evo)) continue;
@@ -1200,11 +1200,31 @@ function checkEvolution(s: GameState): string | null {
     }
   }
   return null;
+  */
 }
 
 export function applyUpgrade(s: GameState, choice: UpgradeChoice): void {
   if (choice.type === 'ability' && choice.ability) {
-    s.player.abilities[choice.ability] = choice.newLevel;
+    s.player.abilities[choice.ability] = Math.min(7, choice.newLevel);
+    const abilityProgression = ABILITY_PROGRESSION[choice.ability];
+    if (abilityProgression && (choice.newLevel === 4 || choice.newLevel === 7)) {
+      const evolution = choice.newLevel === 4 ? abilityProgression.evolution4 : abilityProgression.evolution7;
+      const marker = `ability:${choice.ability}:${choice.newLevel}`;
+      if (!s.player.evolutions.includes(marker)) {
+        s.player.evolutions.push(marker);
+        s.evolutionsThisRun++;
+        s.flashText = { text: evolution.name.ru, life: 1.8, color: choice.newLevel === 7 ? '#c4453d' : '#d4943d' };
+        playSound('evolve');
+      }
+    }
+    if (choice.newLevel === 7) {
+      const synergy = TOWER_ABILITY_SYNERGIES.find(x => (s.player.abilities[x.ability] || 0) >= 7 && towerLevel(s, x.tower as SphereType) >= 7 && x.ability === choice.ability);
+      if (synergy && !s.player.evolutions.includes(`synergy:${synergy.tower}:${synergy.ability}`)) {
+        s.player.evolutions.push(`synergy:${synergy.tower}:${synergy.ability}`);
+        s.flashText = { text: synergy.name.ru, life: 2.2, color: '#8a5a8a' };
+        playSound('evolve');
+      }
+    }
     // assign hotkey for active abilities
     const def = ABILITIES[choice.ability];
     if (def.category === 'active' && choice.currentLevel === 0) {
