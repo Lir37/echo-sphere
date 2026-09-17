@@ -32,6 +32,10 @@ const JOYSTICK_RADIUS = 58;
 const JOYSTICK_KNOB_RADIUS = 24;
 const TOWER_TOUCH_TOLERANCE = 26;
 
+function haptic(duration = 8): void {
+  if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') navigator.vibrate(duration);
+}
+
 function isBlockedByControl(target: EventTarget | null): boolean {
   return target instanceof Element && Boolean(target.closest('[data-mobile-control="true"]'));
 }
@@ -97,7 +101,16 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
     const beforeCount = st.spheres.length;
     if (nearExistingTower || st.spheres.length < getMaxSpheres(st)) {
       placeSphere(st, world.x, world.y);
-      if (st.spheres.length > beforeCount) playSound('place');
+      if (st.spheres.length > beforeCount) {
+        playSound('place');
+        haptic(8);
+        setPlacementFx({
+          x: clientX,
+          y: clientY,
+          color: SPHERE_TYPES[st.selectedSphereType].color,
+          id: Date.now(),
+        });
+      }
     }
   };
 
@@ -194,13 +207,13 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
       )}
 
       <div className={`absolute bottom-4 ${controlsSide} flex flex-col ${controlsAlign} gap-2 pointer-events-none`} style={{ transform: `scale(${interfaceScale})`, transformOrigin: controlsOnRight ? 'right bottom' : 'left bottom' }}>
-        <button data-mobile-control="true" className="pointer-events-auto w-12 h-12 rounded-full bg-[#e8dcc0]/90 border border-[#c4b890] shadow-lg flex items-center justify-center text-[#5a4a32] active:scale-95" onPointerDown={(e) => { e.stopPropagation(); onPause(); }} aria-label={t('pause')}><Pause size={18} /></button>
+        <button data-mobile-control="true" className="pointer-events-auto w-12 h-12 rounded-full bg-[#e8dcc0]/90 border border-[#c4b890] shadow-lg flex items-center justify-center text-[#5a4a32] active:scale-95" onPointerDown={(e) => { e.stopPropagation(); haptic(6); onPause(); }} aria-label={t('pause')}><Pause size={18} /></button>
 
         <div className="grid grid-cols-2 gap-1.5 pointer-events-auto">
           {activeAbilities.map(([key, ability]) => {
             const def = ABILITIES[ability];
             const cd = getAbilityCooldown(stateRef.current, ability);
-            return <button key={`${key}-${ability}`} data-mobile-control="true" className="relative w-16 h-12 rounded-xl bg-[#e8dcc0]/90 border border-[#c4b890] shadow-lg px-1 overflow-hidden active:scale-95" onPointerDown={(e) => { e.stopPropagation(); const st = stateRef.current; if (!st || st.gameOver || st.paused) return; if (st.pendingUpgrade || st.pendingArtifact || st.pendingEvolution || st.pendingTowerUpgrade || st.pendingChest) return; activateByKey(st, key); }}>
+            return <button key={`${key}-${ability}`} data-mobile-control="true" className="relative w-16 h-12 rounded-xl bg-[#e8dcc0]/90 border border-[#c4b890] shadow-lg px-1 overflow-hidden active:scale-95" onPointerDown={(e) => { e.stopPropagation(); const st = stateRef.current; if (!st || st.gameOver || st.paused) return; if (st.pendingUpgrade || st.pendingArtifact || st.pendingEvolution || st.pendingTowerUpgrade || st.pendingChest) return; haptic(12); activateByKey(st, key); }}>
               <span className="text-[9px] text-[#8a7a5a] block truncate">{def.name[lang]}</span>
               <span className="text-[8px] text-[#5a4a32]/60">{cd > 0 ? `${Math.ceil(cd)}s` : t('ready')}</span>
               {cd > 0 && <span className="absolute inset-x-0 bottom-0 h-1 bg-[#c4453d]/70" style={{ width: `${Math.min(100, (cd / getAbilityMaxCooldown(ability)) * 100)}%` }} />}
@@ -208,7 +221,7 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
           })}
         </div>
 
-        <button data-mobile-control="true" className="pointer-events-auto w-16 h-16 rounded-full bg-[#d4943d]/85 border border-[#c46d3d] shadow-lg flex flex-col items-center justify-center text-[#3a2e1f] active:scale-95" onPointerDown={(e) => { e.stopPropagation(); const st = stateRef.current; if (!st || st.gameOver || st.paused) return; const { x, y } = lastDirectionRef.current; clearMovementKeys(); if (y < -0.2) st.keys.w = true; if (y > 0.2) st.keys.s = true; if (x < -0.2) st.keys.a = true; if (x > 0.2) st.keys.d = true; activateDash(st); clearMovementKeys(); }} aria-label={t('dashCooldown')}>
+        <button data-mobile-control="true" className="pointer-events-auto w-16 h-16 rounded-full bg-[#d4943d]/85 border border-[#c46d3d] shadow-lg flex flex-col items-center justify-center text-[#3a2e1f] active:scale-95" onPointerDown={(e) => { e.stopPropagation(); const st = stateRef.current; if (!st || st.gameOver || st.paused) return; const { x, y } = lastDirectionRef.current; clearMovementKeys(); if (y < -0.2) st.keys.w = true; if (y > 0.2) st.keys.s = true; if (x < -0.2) st.keys.a = true; if (x > 0.2) st.keys.d = true; haptic(16); activateDash(st); clearMovementKeys(); }} aria-label={t('dashCooldown')}>
           <Zap size={20} /><span className="text-[8px] font-bold">{stDashLabel(stateRef.current, lang, t)}</span>
         </button>
 
@@ -222,7 +235,7 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
             const def = SPHERE_TYPES[type];
             const selected = selectedType === type;
             const preferred = preferredSphereTypes.includes(type);
-            return <button key={type} data-mobile-control="true" className={`w-11 h-11 rounded-xl border bg-[#e8dcc0]/90 shadow-lg flex items-center justify-center active:scale-95 ${selected ? 'border-[#8a7a5a]' : 'border-[#c4b890]'} ${preferred ? 'ring-2 ring-[#d4943d]/45 ring-offset-1 ring-offset-[#e8dcc0]' : ''}`} style={{ borderColor: selected ? def.color : undefined }} onPointerDown={(e) => { e.stopPropagation(); const st = stateRef.current; if (!st) return; setSphereType(st, type); }} aria-label={`${def.name[lang]} — ${def.desc[lang]}`}>
+            return <button key={type} data-mobile-control="true" className={`w-11 h-11 rounded-xl border bg-[#e8dcc0]/90 shadow-lg flex items-center justify-center active:scale-95 ${selected ? 'border-[#8a7a5a]' : 'border-[#c4b890]'} ${preferred ? 'ring-2 ring-[#d4943d]/45 ring-offset-1 ring-offset-[#e8dcc0]' : ''}`} style={{ borderColor: selected ? def.color : undefined }} onPointerDown={(e) => { e.stopPropagation(); const st = stateRef.current; if (!st) return; haptic(6); setSphereType(st, type); }} aria-label={`${def.name[lang]} — ${def.desc[lang]}`}>
               <SphereTypeGlyph type={type} color={def.color} />
             </button>;
           })}
