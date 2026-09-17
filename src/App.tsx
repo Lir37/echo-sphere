@@ -419,7 +419,7 @@ function TowerUpgradeModal({ lang, t, choices, onPick }: {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {choices.map((c, i) => (
             <button key={i} onClick={() => onPick(c)} className="p-5 rounded-xl bg-[#e8dcc0] border border-[#5a8c4a]/30 hover:border-[#5a8c4a]/60 hover:scale-105 transition-all text-left">
-              <div className="text-[10px] uppercase tracking-wider text-[#8a7a5a] mb-1">{(c as TowerUpgradeChoice & { towerType?: string }).towerType ? 'TOWER PROGRESSION' : 'LEGACY MOD'}</div><div className="text-[10px] uppercase tracking-wider text-[#8a7a5a] mb-1">{(c as TowerUpgradeChoice & { towerType?: string }).towerType ? 'TOWER PROGRESSION' : 'LEGACY MOD'}</div><div className="font-bold text-lg mb-2 text-[#5a8c4a]">{c.name[lang]}</div>
+              <div className="text-[10px] uppercase tracking-wider text-[#8a7a5a] mb-1">{(c as TowerUpgradeChoice & { towerType?: string }).towerType ? 'TOWER PROGRESSION' : 'LEGACY MOD'}</div><div className="font-bold text-lg mb-2 text-[#5a8c4a]">{c.name[lang]}</div>
               <div className="text-sm text-[#5a4a32]">{c.desc[lang]}</div>
             </button>
           ))}

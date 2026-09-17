@@ -68,7 +68,6 @@ export interface PlayerState {
   towerUpgradeCount: number;
   towerMods: TowerMods;
   towerProgression: Partial<Record<SphereType, number>>;
-  towerProgression: Partial<Record<SphereType, number>>;
   dashCooldown: number;
   dashTimer: number; // active dash i-frames
   dashDir: Vec;
@@ -1188,6 +1187,28 @@ export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
     choices.push({ type: 'ability', ability: id, currentLevel: cur, newLevel: cur + 1 });
   }
   return choices;
+}
+
+function generateTowerUpgradeChoices(s: GameState): TowerUpgradeChoice[] {
+  const candidates = (Object.keys(SPHERE_TYPES) as SphereType[])
+    .filter((type) => towerLevel(s, type) < 7)
+    .map((type) => ({ type, priority: towerPriority(s.player.characterId, type) + Math.random() * 0.15 }))
+    .sort((a, b) => b.priority - a.priority)
+    .slice(0, 3);
+
+  return candidates.map(({ type }) => {
+    const def = TOWER_PROGRESSION[type];
+    const currentLevel = towerLevel(s, type);
+    const nextLevel = currentLevel + 1;
+    const levelDef = def.levels[nextLevel - 1];
+    const evolution = nextLevel === 4 ? def.evolution4 : nextLevel === 7 ? def.evolution7 : null;
+    return {
+      id: 'multishot' as keyof TowerMods,
+      name: evolution ? evolution.name : levelDef.name,
+      desc: evolution ? evolution.desc : levelDef.desc,
+      towerType: type,
+    };
+  });
 }
 
 function checkEvolution(s: GameState): string | null {
