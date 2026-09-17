@@ -46,14 +46,26 @@ export function playSound(name: SoundName): void {
   gain.connect(masterGain);
 
   switch (name) {
-    case 'hit':
+    case 'hit': {
+      // Short paper-like snap with a softer body tone.
       osc.type = 'square';
-      osc.frequency.setValueAtTime(220, now);
-      osc.frequency.exponentialRampToValueAtTime(80, now + 0.05);
-      gain.gain.setValueAtTime(0.08, now);
+      osc.frequency.setValueAtTime(260, now);
+      osc.frequency.exponentialRampToValueAtTime(105, now + 0.05);
+      gain.gain.setValueAtTime(0.055, now);
       gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
       osc.start(now); osc.stop(now + 0.07);
+
+      const body = c.createOscillator();
+      const bodyGain = c.createGain();
+      body.connect(bodyGain); bodyGain.connect(masterGain);
+      body.type = 'triangle';
+      body.frequency.setValueAtTime(520, now);
+      body.frequency.exponentialRampToValueAtTime(250, now + 0.045);
+      bodyGain.gain.setValueAtTime(0.018, now);
+      bodyGain.gain.exponentialRampToValueAtTime(0.001, now + 0.055);
+      body.start(now); body.stop(now + 0.06);
       break;
+    }
     case 'shoot':
       osc.type = 'sine';
       osc.frequency.setValueAtTime(400, now);
@@ -62,22 +74,46 @@ export function playSound(name: SoundName): void {
       gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
       osc.start(now); osc.stop(now + 0.06);
       break;
-    case 'crit':
+    case 'crit': {
+      // Two-tone impact so a crit is immediately distinguishable from a normal hit.
       osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(600, now);
-      osc.frequency.exponentialRampToValueAtTime(120, now + 0.1);
-      gain.gain.setValueAtTime(0.12, now);
+      osc.frequency.setValueAtTime(720, now);
+      osc.frequency.exponentialRampToValueAtTime(145, now + 0.1);
+      gain.gain.setValueAtTime(0.105, now);
       gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
       osc.start(now); osc.stop(now + 0.13);
+
+      const ping = c.createOscillator();
+      const pingGain = c.createGain();
+      ping.connect(pingGain); pingGain.connect(masterGain);
+      ping.type = 'sine';
+      ping.frequency.setValueAtTime(980, now);
+      ping.frequency.exponentialRampToValueAtTime(560, now + 0.12);
+      pingGain.gain.setValueAtTime(0.045, now);
+      pingGain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+      ping.start(now); ping.stop(now + 0.17);
       break;
-    case 'kill':
+    }
+    case 'kill': {
+      // A low snap plus a tiny upward chime gives the kill a clearer resolution.
       osc.type = 'triangle';
-      osc.frequency.setValueAtTime(150, now);
-      osc.frequency.exponentialRampToValueAtTime(60, now + 0.08);
-      gain.gain.setValueAtTime(0.06, now);
+      osc.frequency.setValueAtTime(165, now);
+      osc.frequency.exponentialRampToValueAtTime(65, now + 0.08);
+      gain.gain.setValueAtTime(0.055, now);
       gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
       osc.start(now); osc.stop(now + 0.11);
+
+      const chime = c.createOscillator();
+      const chimeGain = c.createGain();
+      chime.connect(chimeGain); chimeGain.connect(masterGain);
+      chime.type = 'sine';
+      chime.frequency.setValueAtTime(360, now + 0.015);
+      chime.frequency.linearRampToValueAtTime(520, now + 0.1);
+      chimeGain.gain.setValueAtTime(0.022, now + 0.015);
+      chimeGain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+      chime.start(now + 0.015); chime.stop(now + 0.18);
       break;
+    }
     case 'levelup':
       osc.type = 'sine';
       osc.frequency.setValueAtTime(440, now);
@@ -112,14 +148,26 @@ export function playSound(name: SoundName): void {
       gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
       osc.start(now); osc.stop(now + 0.12);
       break;
-    case 'place':
+    case 'place': {
+      // Clean confirmation tone for placing a sphere/tower.
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(300, now);
-      osc.frequency.linearRampToValueAtTime(500, now + 0.1);
-      gain.gain.setValueAtTime(0.08, now);
+      osc.frequency.setValueAtTime(280, now);
+      osc.frequency.linearRampToValueAtTime(520, now + 0.1);
+      gain.gain.setValueAtTime(0.065, now);
       gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
       osc.start(now); osc.stop(now + 0.2);
+
+      const harmonic = c.createOscillator();
+      const harmonicGain = c.createGain();
+      harmonic.connect(harmonicGain); harmonicGain.connect(masterGain);
+      harmonic.type = 'triangle';
+      harmonic.frequency.setValueAtTime(840, now + 0.035);
+      harmonic.frequency.linearRampToValueAtTime(620, now + 0.12);
+      harmonicGain.gain.setValueAtTime(0.018, now + 0.035);
+      harmonicGain.gain.exponentialRampToValueAtTime(0.001, now + 0.17);
+      harmonic.start(now + 0.035); harmonic.stop(now + 0.19);
       break;
+    }
     case 'damage':
       osc.type = 'sawtooth';
       osc.frequency.setValueAtTime(200, now);
