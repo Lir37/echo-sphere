@@ -1,0 +1,37 @@
+name: Tower body shapes
+on:
+  push:
+    branches: [cleanup-android]
+jobs:
+  polish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Patch renderer
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('src/renderer.ts')
+          s = p.read_text()
+          anchor = '  // Animated paper braces.\n'
+          overlay = '''  // Distinct folded-paper body silhouette for each tower role.\n  // The silhouette is intentionally compact so the existing tower frame remains visible.\n  ctx.save();\n  ctx.rotate(sphere.rotation * 0.35);\n  ctx.fillStyle = shade(color, -24);\n  ctx.strokeStyle = INK;\n  ctx.lineWidth = 1.4;\n  if (sphere.type === 'sniper') {\n    // Tall crystal/periscope: visually points forward.\n    ctx.beginPath();\n    ctx.moveTo(-8, 13); ctx.lineTo(-6, -12); ctx.lineTo(2, -18);\n    ctx.lineTo(13, -10); ctx.lineTo(10, 15); ctx.lineTo(0, 20);\n    ctx.closePath(); ctx.fill(); ctx.stroke();\n    ctx.fillStyle = shade(color, 22);\n    ctx.beginPath(); ctx.moveTo(-6, -12); ctx.lineTo(2, -18); ctx.lineTo(2, -1); ctx.closePath(); ctx.fill();\n    ctx.strokeStyle = FOLD_LINE;\n    ctx.beginPath(); ctx.moveTo(2, -1); ctx.lineTo(0, 20); ctx.stroke();\n  } else if (sphere.type === 'shotgun') {\n    // Broad folded receiver with three short barrels.\n    ctx.beginPath();\n    ctx.moveTo(-15, -10); ctx.lineTo(4, -13); ctx.lineTo(14, -7);\n    ctx.lineTo(14, 7); ctx.lineTo(4, 13); ctx.lineTo(-15, 10);\n    ctx.closePath(); ctx.fill(); ctx.stroke();\n    ctx.strokeStyle = shade(color, 24); ctx.lineWidth = 2;\n    for (let i = -1; i <= 1; i++) {\n      ctx.beginPath(); ctx.moveTo(0, i * 4); ctx.lineTo(19, i * 6); ctx.stroke();\n    }\n  } else if (sphere.type === 'chain') {\n    // Two interlocking paper loops, animated against each other.\n    const pulse = 0.5 + Math.sin(t * 7 + sphere.pos.y * 0.01) * 0.5;\n    ctx.strokeStyle = shade(color, 20); ctx.lineWidth = 4;\n    ctx.beginPath(); ctx.arc(-7, 0, 8 + pulse, -0.8, Math.PI + 0.8); ctx.stroke();\n    ctx.beginPath(); ctx.arc(7, 0, 8 + (1 - pulse), Math.PI - 0.8, Math.PI * 2 - 0.8); ctx.stroke();\n    ctx.strokeStyle = INK; ctx.lineWidth = 1.4;\n    ctx.beginPath(); ctx.arc(-7, 0, 8 + pulse, -0.8, Math.PI + 0.8); ctx.stroke();\n    ctx.beginPath(); ctx.arc(7, 0, 8 + (1 - pulse), Math.PI - 0.8, Math.PI * 2 - 0.8); ctx.stroke();\n  } else if (sphere.type === 'aura') {\n    // Hexagonal amplifier/basin.\n    ctx.beginPath();\n    ctx.moveTo(0, -18); ctx.lineTo(14, -8); ctx.lineTo(12, 9);\n    ctx.lineTo(0, 18); ctx.lineTo(-12, 9); ctx.lineTo(-14, -8);\n    ctx.closePath(); ctx.fill(); ctx.stroke();\n    ctx.strokeStyle = color; ctx.lineWidth = 2;\n    ctx.beginPath(); ctx.arc(0, 2, 9 + Math.sin(t * 5) * 1.4, 0, Math.PI * 2); ctx.stroke();\n    ctx.strokeStyle = FOLD_LINE; ctx.lineWidth = 1;\n    ctx.beginPath(); ctx.moveTo(0, -18); ctx.lineTo(0, 18); ctx.stroke();\n  } else {\n    // Default folded emitter/node.\n    ctx.beginPath();\n    ctx.moveTo(0, -17); ctx.lineTo(15, -7); ctx.lineTo(12, 11);\n    ctx.lineTo(0, 17); ctx.lineTo(-12, 11); ctx.lineTo(-15, -7);\n    ctx.closePath(); ctx.fill(); ctx.stroke();\n    ctx.fillStyle = shade(color, 26);\n    ctx.beginPath(); ctx.moveTo(0, -17); ctx.lineTo(15, -7); ctx.lineTo(0, 2); ctx.closePath(); ctx.fill();\n  }\n  ctx.restore();\n\n'''
+          if 'Distinct folded-paper body silhouette for each tower role.' not in s:
+              if anchor not in s:
+                  raise SystemExit('tower brace anchor not found')
+              s = s.replace(anchor, overlay + anchor, 1)
+          p.write_text(s)
+          PY
+      - name: Verify and commit
+        run: |
+          npm ci --ignore-scripts
+          npm run typecheck
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/renderer.ts
+          git rm .github/workflows/tower-body-shapes.yml
+          git commit -m "Polish distinct tower silhouettes [tower-shapes]"
+          git push
