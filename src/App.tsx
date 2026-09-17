@@ -16,6 +16,7 @@ import {
   type TowerUpgradeChoice, MAP_THEMES, type MapTheme,
 } from './engine';
 import { render } from './renderer';
+import { resolveSpaceCollisions } from './spaceCollision';
 import {
   loadShop, saveShop, loadLeaderboard, addLeaderEntry, loadLang, saveLang,
   loadName, saveName, resetAll, saveGold, loadGold,
@@ -200,6 +201,7 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
       const st = stateRef.current;
       if (st) {
         update(st, dt);
+        resolveSpaceCollisions(st, dt);
         if (st.gameOver && !gameOverData) {
           const time = Math.floor(st.time);
           const diff = DIFFICULTIES.find(d => d.id === st.difficulty)!;
@@ -629,7 +631,7 @@ function SettingsScreen({ lang, setLang, t, soundOn, setSoundOn, handedness, set
           <label className="text-xs text-[#8a7a5a] uppercase tracking-wider mb-2 block">{t('handedness')}</label>
           <div className="flex gap-2">
             <button onClick={() => setHandedness('right')} className={`flex-1 py-3 rounded-xl border transition ${handedness === 'right' ? 'bg-[#4a7a8a]/20 border-[#4a7a8a]/40 text-[#3a2e1f]' : 'bg-[#e8dcc0] border-[#c4b890] text-[#8a7a5a]'}`}>{t('rightHanded')}</button>
-            <button onClick={() => setHandedness('left')} className={`flex-1 py-3 rounded-xl border transition ${handedness === 'left' ? 'bg-[#4a7a8a]/20 border-[#4a7a8a]/40 text-[#3a2e1f]' : 'bg-[#e8dcc0] border border-[#c4b890] text-[#8a7a5a]'}`}>{t('leftHanded')}</button>
+            <button onClick={() => setHandedness('left')} className={`flex-1 py-3 rounded-xl border transition ${handedness === 'left' ? 'bg-[#4a7a8a]/20 border-[#4a7a8a]/40 text-[#3a2e1f]' : 'bg-[#e8dcc0] border-[#c4b890] text-[#8a7a5a]'}`}>{t('leftHanded')}</button>
           </div>
         </div>
         <div>
