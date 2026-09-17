@@ -2,6 +2,8 @@ import type { GameState, PlayerState, SphereEntity, EnemyEntity, DamageNumber, C
 import { PLAYER_RADIUS } from './engine';
 import { SPHERE_TYPES, BOSS_TYPES } from './gameData';
 import type { MapTheme } from './engine';
+import { CHARACTER_DEFS } from './characters';
+import { getCharacterId, getCharacterFormation, getEngineerNetworkRange } from './characterRuntime';
 
 // ===== Origami / Paper Craft Style =====
 // Warm backgrounds, faceted folded-paper shapes, fold lines, drop shadows.
@@ -67,6 +69,9 @@ export function render(ctx: CanvasRenderingContext2D, s: GameState, canvasW: num
   ctx.strokeRect(-s.worldWidth / 2, -s.worldHeight / 2, s.worldWidth, s.worldHeight);
   ctx.setLineDash([]);
 
+  // character-specific world indicators
+  drawCharacterWorldIndicators(ctx, s);
+
   // fire trails
   for (const ft of s.fireTrails) {
     const alpha = ft.life / ft.maxLife;
@@ -96,6 +101,9 @@ export function render(ctx: CanvasRenderingContext2D, s: GameState, canvasW: num
 
   // enemies
   for (const e of s.enemies) drawEnemy(ctx, e);
+
+  // hunter mark and alchemist reaction indicators sit above enemies
+  drawCharacterTargetIndicators(ctx, s);
 
   // boss projectiles
   for (const e of s.enemies) for (const bp of e.bossProjectiles) drawPaperDiamond(ctx, bp.pos.x, bp.pos.y, bp.radius, '#c4453d', '#e06b63');
@@ -149,6 +157,9 @@ export function render(ctx: CanvasRenderingContext2D, s: GameState, canvasW: num
     ctx.restore();
   }
 
+  // character HUD (screen space)
+  drawCharacterHud(ctx, s, canvasW, canvasH);
+
   // flash text
   if (s.flashText) {
     ctx.save();
@@ -159,6 +170,249 @@ export function render(ctx: CanvasRenderingContext2D, s: GameState, canvasW: num
     ctx.fillText(s.flashText.text, canvasW / 2, canvasH / 2 - 60);
     ctx.restore();
   }
+}
+
+function drawCharacterHud(ctx: CanvasRenderingContext2D, s: GameState, canvasW: number, _canvasH: number): void {
+  const characterId = getCharacterId(s);
+  const def = CHARACTER_DEFS[characterId];
+  const mastery = s.player.characterMasteryLevel || 1;
+  const x = 12;
+  const y = 78;
+  const width = Math.min(210, Math.max(165, canvasW * 0.34));
+  const lineH = 14;
+  const lines: string[] = [];
+
+  switch (characterId) {
+    case 'spherist': {
+      const afterFirst = Math.max(0, s.spheres.length - 1);
+      lines.push(`RESONANCE  +${Math.round(afterFirst * 3 + (mastery >= 4 ? afterFirst * 0.5 : 0))}% AS`);
+      if (s.spheres.length >= (mastery >= 2 ? 4 : 5)) lines.push(`CHORUS  +${mastery >= 3 ? 7 : 5}% DMG`);
+      break;
+    }
+    case 'hunter': {
+      const marked = s.player.hunterMarkTarget !== null && s.player.hunterMarkTimer > 0;
+      const hunt = s.player.hunterHuntTimer > 0;
+      if (hunt) lines.push(`HUNT  ${Math.ceil(s.player.hunterHuntTimer)}s  +30%`);
+      else if (marked) lines.push(`MARK  ${Math.ceil(s.player.hunterMarkTimer)}s  ${s.player.hunterHitCount}/5`);
+      else lines.push('MARK  —');
+      if (s.player.hunterTrophyTimer > 0) lines.push(`TROPHY  ${Math.ceil(s.player.hunterTrophyTimer)}s`);
+      break;
+    }
+    case 'engineer': {
+      const range = getEngineerNetworkRange(s);
+      const linked = s.spheres.filter((sphere) => s.spheres.some((other) => other !== sphere && other.alive && sphere.alive && dist2D(sphere.pos, other.pos) <= range)).length;
+      const formationSize = getEngineerFormationSize(s, range);
+      lines.push(`LINKS  ${linked}/${s.spheres.length}`);
+      if (formationSize >= 3) lines.push(`NETWORK  ${formationSize}`);
+      if (s.player.engineerRelayTimer > 0) lines.push(`RELAY  ${s.player.engineerRelayTimer.toFixed(1)}s`);
+      break;
+    }
+    case 'berserker': {
+      const missing = Math.max(0, 1 - s.player.hp / Math.max(1, s.player.maxHp));
+      const steps = Math.min(4, Math.floor(missing / 0.2));
+      lines.push(`FURY  ${steps}/4  +${steps * 7}% DMG`);
+      lines.push(`CLOSE  ${hasCloseEnemy(s) ? '+12% DMG' : 'READY'}`);
+      if (mastery >= 5 && s.player.buffTimer > 0) lines.push(`BLOOD TRAIL  ${Math.ceil(s.player.buffTimer)}s`);
+      break;
+    }
+    case 'alchemist': {
+      const reaction = s.enemies.some((enemy) => enemy.hp > 0 && countStatusEffects(enemy) >= 2);
+      lines.push(reaction ? 'REACTION  READY' : 'REACTION  —');
+      if (s.player.alchemistCatalystTimer > 0) lines.push(`CATALYST  ${s.player.alchemistCatalystTimer.toFixed(1)}s`);
+      break;
+    }
+    case 'architect': {
+      const formation = getCharacterFormation(s);
+      lines.push(`FORM  ${formation.type.toUpperCase()}`);
+      lines.push(`STRENGTH  ${Math.round(formation.strength * 100)}%`);
+      break;
+    }
+  }
+
+  ctx.save();
+  ctx.fillStyle = 'rgba(232,220,192,0.88)';
+  ctx.strokeStyle = 'rgba(58,46,31,0.2)';
+  ctx.lineWidth = 1;
+  const height = 30 + lines.length * lineH;
+  ctx.beginPath();
+  ctx.roundRect(x, y, width, height, 8);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = def.color;
+  ctx.font = 'bold 11px Georgia, serif';
+  ctx.textAlign = 'left';
+  ctx.fillText(`${def.name.en.toUpperCase()}  •  M${mastery}`, x + 9, y + 15);
+
+  ctx.fillStyle = '#5a4a32';
+  ctx.font = '10px Georgia, serif';
+  lines.forEach((line, index) => {
+    ctx.fillText(line, x + 9, y + 29 + index * lineH);
+  });
+  ctx.restore();
+}
+
+function drawCharacterWorldIndicators(ctx: CanvasRenderingContext2D, s: GameState): void {
+  const characterId = getCharacterId(s);
+  if (characterId === 'engineer') drawEngineerLinks(ctx, s);
+  if (characterId === 'architect') drawArchitectFormation(ctx, s);
+  if (characterId === 'berserker') drawBerserkerRange(ctx, s);
+}
+
+function drawCharacterTargetIndicators(ctx: CanvasRenderingContext2D, s: GameState): void {
+  const characterId = getCharacterId(s);
+  if (characterId === 'hunter') drawHunterTarget(ctx, s);
+  if (characterId === 'alchemist') drawAlchemistReactions(ctx, s);
+}
+
+function drawEngineerLinks(ctx: CanvasRenderingContext2D, s: GameState): void {
+  const range = getEngineerNetworkRange(s);
+  ctx.save();
+  ctx.strokeStyle = 'rgba(74,122,138,0.42)';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([5, 4]);
+  for (let i = 0; i < s.spheres.length; i++) {
+    const a = s.spheres[i];
+    if (!a.alive) continue;
+    for (let j = i + 1; j < s.spheres.length; j++) {
+      const b = s.spheres[j];
+      if (!b.alive || dist2D(a.pos, b.pos) > range) continue;
+      ctx.beginPath();
+      ctx.moveTo(a.pos.x, a.pos.y);
+      ctx.lineTo(b.pos.x, b.pos.y);
+      ctx.stroke();
+    }
+  }
+  ctx.setLineDash([]);
+  ctx.restore();
+}
+
+function drawArchitectFormation(ctx: CanvasRenderingContext2D, s: GameState): void {
+  const result = getCharacterFormation(s);
+  if (result.type === 'none') return;
+  const spheres = s.spheres.filter((sphere) => sphere.alive).slice(0, 8);
+  ctx.save();
+  ctx.strokeStyle = 'rgba(212,148,61,0.55)';
+  ctx.fillStyle = 'rgba(212,148,61,0.08)';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([8, 5]);
+
+  if (result.type === 'line') {
+    const ordered = [...spheres].sort((a, b) => a.pos.x === b.pos.x ? a.pos.y - b.pos.y : a.pos.x - b.pos.x);
+    drawPolyline(ctx, ordered);
+  } else if (result.type === 'triangle') {
+    drawPolygon(ctx, spheres.slice(0, 3));
+  } else if (result.type === 'square') {
+    const center = spheres.reduce((acc, sphere) => ({ x: acc.x + sphere.pos.x, y: acc.y + sphere.pos.y }), { x: 0, y: 0 });
+    center.x /= spheres.length; center.y /= spheres.length;
+    const ordered = [...spheres.slice(0, 4)].sort((a, b) => Math.atan2(a.pos.y - center.y, a.pos.x - center.x) - Math.atan2(b.pos.y - center.y, b.pos.x - center.x));
+    drawPolygon(ctx, ordered);
+  } else if (result.type === 'cluster') {
+    for (let i = 0; i < spheres.length; i++) {
+      const a = spheres[i];
+      if (dist2D(a.pos, s.player.pos) > 220) continue;
+      ctx.beginPath(); ctx.arc(a.pos.x, a.pos.y, 20, 0, Math.PI * 2); ctx.stroke();
+    }
+  }
+  ctx.setLineDash([]);
+  ctx.restore();
+}
+
+function drawHunterTarget(ctx: CanvasRenderingContext2D, s: GameState): void {
+  const target = s.player.hunterMarkTarget;
+  if (target && target.hp > 0 && s.player.hunterMarkTimer > 0) {
+    ctx.save();
+    const hunt = s.player.hunterHuntTarget === target && s.player.hunterHuntTimer > 0;
+    ctx.strokeStyle = hunt ? '#d4943d' : '#c46d3d';
+    ctx.lineWidth = hunt ? 3 : 2;
+    ctx.setLineDash(hunt ? [10, 5] : [6, 4]);
+    ctx.beginPath(); ctx.arc(target.pos.x, target.pos.y, target.radius + (hunt ? 14 : 9), 0, Math.PI * 2); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = hunt ? '#d4943d' : '#c46d3d';
+    ctx.font = 'bold 10px Georgia, serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(hunt ? 'HUNT' : 'MARK', target.pos.x, target.pos.y - target.radius - 12);
+    ctx.restore();
+  }
+}
+
+function drawAlchemistReactions(ctx: CanvasRenderingContext2D, s: GameState): void {
+  for (const enemy of s.enemies) {
+    if (enemy.hp <= 0) continue;
+    const count = countStatusEffects(enemy);
+    if (count < 2) continue;
+    let symbol = '✦';
+    if (enemy.fireTimer > 0 && enemy.poisonTimer > 0) symbol = 'TP';
+    else if (enemy.freezeTimer > 0 && enemy.poisonTimer > 0) symbol = 'CP';
+    else if (enemy.fireTimer > 0 && enemy.freezeTimer > 0) symbol = 'TS';
+    ctx.save();
+    ctx.fillStyle = '#8a5a8a';
+    ctx.font = 'bold 10px Georgia, serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(symbol, enemy.pos.x, enemy.pos.y - enemy.radius - 6);
+    ctx.restore();
+  }
+}
+
+function drawBerserkerRange(ctx: CanvasRenderingContext2D, s: GameState): void {
+  ctx.save();
+  const missing = Math.max(0, 1 - s.player.hp / Math.max(1, s.player.maxHp));
+  const steps = Math.min(4, Math.floor(missing / 0.2));
+  ctx.strokeStyle = steps > 0 ? 'rgba(196,69,61,0.22)' : 'rgba(196,69,61,0.10)';
+  ctx.lineWidth = steps > 0 ? 2 : 1;
+  ctx.setLineDash([6, 5]);
+  ctx.beginPath(); ctx.arc(s.player.pos.x, s.player.pos.y, 110, 0, Math.PI * 2); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
+}
+
+function getEngineerFormationSize(s: GameState, range: number): number {
+  let best = 0;
+  for (const start of s.spheres) {
+    if (!start.alive) continue;
+    const visited = new Set<SphereEntity>([start]);
+    const queue: SphereEntity[] = [start];
+    while (queue.length > 0) {
+      const current = queue.shift()!;
+      for (const neighbour of s.spheres) {
+        if (!neighbour.alive || visited.has(neighbour)) continue;
+        if (dist2D(current.pos, neighbour.pos) <= range) {
+          visited.add(neighbour);
+          queue.push(neighbour);
+        }
+      }
+    }
+    best = Math.max(best, visited.size);
+  }
+  return best;
+}
+
+function countStatusEffects(enemy: EnemyEntity): number {
+  return Number(enemy.fireTimer > 0) + Number(enemy.freezeTimer > 0) + Number(enemy.poisonTimer > 0);
+}
+
+function hasCloseEnemy(s: GameState): boolean {
+  return s.enemies.some((enemy) => enemy.hp > 0 && dist2D(enemy.pos, s.player.pos) <= 110);
+}
+
+function dist2D(a: { x: number; y: number }, b: { x: number; y: number }): number {
+  return Math.hypot(a.x - b.x, a.y - b.y);
+}
+
+function drawPolyline(ctx: CanvasRenderingContext2D, spheres: SphereEntity[]): void {
+  if (spheres.length < 2) return;
+  ctx.beginPath();
+  spheres.forEach((sphere, index) => index === 0 ? ctx.moveTo(sphere.pos.x, sphere.pos.y) : ctx.lineTo(sphere.pos.x, sphere.pos.y));
+  ctx.stroke();
+}
+
+function drawPolygon(ctx: CanvasRenderingContext2D, spheres: SphereEntity[]): void {
+  if (spheres.length < 3) return;
+  ctx.beginPath();
+  spheres.forEach((sphere, index) => index === 0 ? ctx.moveTo(sphere.pos.x, sphere.pos.y) : ctx.lineTo(sphere.pos.x, sphere.pos.y));
+  ctx.closePath();
+  ctx.stroke();
+  ctx.fill();
 }
 
 // ===== Static paper texture (screen space) =====
