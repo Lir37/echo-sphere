@@ -6,6 +6,7 @@ import {
   type CharacterId,
 } from './characters';
 import {
+  getCharacterMasteryNextThreshold,
   loadCharacterId,
   loadCharacterProfiles,
   saveCharacterId,
@@ -103,6 +104,12 @@ export default function CharacterSelect({ lang, gold, onGoldChange, onBack, onSe
           const unlocked = profile.unlocked;
           const active = selected === character.id;
           const cost = CHARACTER_UNLOCK_COST[character.id];
+          const nextThreshold = getCharacterMasteryNextThreshold(profile.masteryLevel);
+          const previousThreshold = profile.masteryLevel <= 1 ? 0 : getCharacterMasteryNextThreshold(profile.masteryLevel - 1) || 0;
+          const masteryProgress = nextThreshold === null
+            ? 100
+            : Math.min(100, Math.max(0, ((profile.masteryXp - previousThreshold) / Math.max(1, nextThreshold - previousThreshold)) * 100));
+          const masteryTitle = character.mastery.find((item) => item.level === profile.masteryLevel)?.title[lang];
 
           return (
             <button
@@ -149,10 +156,22 @@ export default function CharacterSelect({ lang, gold, onGoldChange, onBack, onSe
                     {character.mechanic[lang]}
                   </div>
 
-                  <div className="mt-3 flex items-center justify-between">
-                    <span className="text-[10px] text-[#8a7a5a]">
-                      {lang === 'ru' ? `Мастерство: ${profile.masteryLevel}/5` : `Mastery: ${profile.masteryLevel}/5`}
-                    </span>
+                  <div className="mt-3">
+                    <div className="flex items-center justify-between gap-2 text-[10px]">
+                      <span className="text-[#8a7a5a]">
+                        {lang === 'ru' ? `Мастерство: ${profile.masteryLevel}/5` : `Mastery: ${profile.masteryLevel}/5`}
+                        {masteryTitle ? ` · ${masteryTitle}` : ''}
+                      </span>
+                      <span className="font-mono text-[#6b5b42]">
+                        {nextThreshold === null ? (lang === 'ru' ? 'МАКС' : 'MAX') : `${Math.floor(profile.masteryXp)}/${nextThreshold} XP`}
+                      </span>
+                    </div>
+                    <div className="mt-1 h-1.5 rounded-full bg-[#c4b890]/70 overflow-hidden">
+                      <div className="h-full rounded-full bg-[#4a7a8a] transition-all" style={{ width: `${masteryProgress}%` }} />
+                    </div>
+                  </div>
+
+                  <div className="mt-3 flex items-center justify-end">
                     {unlocked ? (
                       <span className="text-xs font-bold text-[#4a7a8a]">
                         {active ? (lang === 'ru' ? 'Выбран' : 'Selected') : (lang === 'ru' ? 'Выбрать' : 'Select')}
