@@ -27,7 +27,6 @@ import {
 } from './characterRuntime';
 import { loadCharacterId, loadCharacterProfiles } from './persistence';
 import { TOWER_PROGRESSION, ABILITY_PROGRESSION, towerPriority, towerLevel, towerModifiers, TOWER_ABILITY_SYNERGIES } from './towerProgression';
-import { TOWER_PROGRESSION, ABILITY_PROGRESSION, towerPriority, towerLevel, towerModifiers, TOWER_ABILITY_SYNERGIES } from './towerProgression';
 
 export interface Vec { x: number; y: number; }
 
