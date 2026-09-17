@@ -12,6 +12,20 @@ const CHARACTER_PROFILES_KEY = 'echosphere_character_profiles';
 
 export type Handedness = 'right' | 'left';
 
+export const CHARACTER_MASTERY_THRESHOLDS = [0, 250, 750, 1500, 2500] as const;
+
+export function getCharacterMasteryLevelForXp(xp: number): number {
+  let level = 1;
+  for (let index = 1; index < CHARACTER_MASTERY_THRESHOLDS.length; index++) {
+    if (xp >= CHARACTER_MASTERY_THRESHOLDS[index]) level = index + 1;
+  }
+  return level;
+}
+
+export function getCharacterMasteryNextThreshold(level: number): number | null {
+  return level >= 5 ? null : CHARACTER_MASTERY_THRESHOLDS[level];
+}
+
 export function loadGold(): number {
   return Number(localStorage.getItem(GOLD_KEY) || 0);
 }
@@ -93,6 +107,7 @@ export function loadCharacterProfiles(): CharacterProfile[] {
   const defaults: CharacterProfile[] = CHARACTER_LIST.map((character) => ({
     id: character.id,
     masteryLevel: 1,
+    masteryXp: 0,
     unlocked: character.id === DEFAULT_CHARACTER_ID,
   }));
   if (!raw) return defaults;
@@ -107,7 +122,12 @@ export function loadCharacterProfiles(): CharacterProfile[] {
       const base = byId.get(candidate.id as CharacterId);
       if (!base) continue;
       base.unlocked = candidate.id === DEFAULT_CHARACTER_ID || candidate.unlocked === true;
-      base.masteryLevel = Math.max(1, Math.min(5, Number(candidate.masteryLevel) || 1));
+
+      const legacyLevel = Math.max(1, Math.min(5, Number(candidate.masteryLevel) || 1));
+      const legacyXp = CHARACTER_MASTERY_THRESHOLDS[legacyLevel - 1];
+      const storedXp = Number(candidate.masteryXp);
+      base.masteryXp = Math.max(legacyXp, Number.isFinite(storedXp) ? Math.max(0, storedXp) : 0);
+      base.masteryLevel = Math.max(legacyLevel, getCharacterMasteryLevelForXp(base.masteryXp));
     }
     return defaults;
   } catch {
@@ -136,8 +156,36 @@ export function setCharacterMasteryLevel(id: CharacterId, level: number): void {
   const profiles = loadCharacterProfiles();
   const profile = profiles.find((item) => item.id === id);
   if (!profile) return;
-  profile.masteryLevel = Math.max(1, Math.min(5, Math.floor(level)));
+  const clamped = Math.max(1, Math.min(5, Math.floor(level)));
+  profile.masteryLevel = clamped;
+  profile.masteryXp = Math.max(profile.masteryXp, CHARACTER_MASTERY_THRESHOLDS[clamped - 1]);
   saveCharacterProfiles(profiles);
+}
+
+export function addCharacterMasteryXp(id: CharacterId, amount: number): {
+  gainedXp: number;
+  totalXp: number;
+  previousLevel: number;
+  level: number;
+} {
+  const profiles = loadCharacterProfiles();
+  const profile = profiles.find((item) => item.id === id);
+  if (!profile) {
+    return { gainedXp: 0, totalXp: 0, previousLevel: 1, level: 1 };
+  }
+
+  const gainedXp = Math.max(0, Math.floor(amount));
+  const previousLevel = profile.masteryLevel;
+  profile.masteryXp = Math.max(0, profile.masteryXp + gainedXp);
+  profile.masteryLevel = Math.max(profile.masteryLevel, getCharacterMasteryLevelForXp(profile.masteryXp));
+  saveCharacterProfiles(profiles);
+
+  return {
+    gainedXp,
+    totalXp: profile.masteryXp,
+    previousLevel,
+    level: profile.masteryLevel,
+  };
 }
 
 const ACH_KEY = 'echosphere_achievements';
