@@ -89,16 +89,37 @@ function resolveEnemyTowerCollisions(s: GameState, dt: number): void {
       const dy = enemy.pos.y - tower.pos.y;
       const minDistance = enemy.radius + TOWER_BODY_RADIUS;
       const currentDistance = Math.hypot(dx, dy);
-      if (currentDistance >= minDistance) continue;
 
-      const normal = normalize(dx, dy);
-      const overlap = minDistance - currentDistance;
-      enemy.pos.x += normal.x * overlap;
-      enemy.pos.y += normal.y * overlap;
+      // Continuous collision check prevents fast enemies from tunneling through towers between frames.
+      if (currentDistance >= minDistance) {
+        const travel = Math.min(enemy.speed * dt, 140);
+        const toPlayer = normalize(s.player.pos.x - enemy.pos.x, s.player.pos.y - enemy.pos.y);
+        const previous = { x: enemy.pos.x - toPlayer.x * travel, y: enemy.pos.y - toPlayer.y * travel };
+        const segmentX = enemy.pos.x - previous.x;
+        const segmentY = enemy.pos.y - previous.y;
+        const segmentLengthSq = segmentX * segmentX + segmentY * segmentY;
+        const projection = segmentLengthSq > 0
+          ? Math.max(0, Math.min(1, ((tower.pos.x - previous.x) * segmentX + (tower.pos.y - previous.y) * segmentY) / segmentLengthSq))
+          : 0;
+        const closest = { x: previous.x + segmentX * projection, y: previous.y + segmentY * projection };
+        const sweptDx = closest.x - tower.pos.x;
+        const sweptDy = closest.y - tower.pos.y;
+        const sweptDistance = Math.hypot(sweptDx, sweptDy);
+        if (sweptDistance >= minDistance) continue;
+        const sweptNormal = normalize(sweptDx, sweptDy);
+        enemy.pos.x = tower.pos.x + sweptNormal.x * minDistance;
+        enemy.pos.y = tower.pos.y + sweptNormal.y * minDistance;
+      } else {
+        const normal = normalize(dx, dy);
+        const overlap = minDistance - currentDistance;
+        enemy.pos.x += normal.x * overlap;
+        enemy.pos.y += normal.y * overlap;
+      }
 
       // A pure radial push can stall an enemy against the exact center of a
       // wall. A tiny deterministic tangent bias makes it slide around the wall.
-      const tangent = { x: -normal.y, y: normal.x };
+      const slideNormal = normalize(enemy.pos.x - tower.pos.x, enemy.pos.y - tower.pos.y);
+      const tangent = { x: -slideNormal.y, y: slideNormal.x };
       const toPlayer = normalize(s.player.pos.x - enemy.pos.x, s.player.pos.y - enemy.pos.y);
       const tangentSign = (toPlayer.x * tangent.x + toPlayer.y * tangent.y) >= 0 ? 1 : -1;
       const slide = Math.min(enemy.speed * dt * 0.35, 4);
