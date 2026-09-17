@@ -1,15 +1,15 @@
-name: One-time character FX
+name: Character FX patch
 
 on:
   push:
-    branches: [cleanup-android]
+    branches:
+      - cleanup-android
 
 permissions:
   contents: write
 
 jobs:
   patch:
-    if: ${{ !contains(github.event.head_commit.message, '[character-fx]') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -18,134 +18,57 @@ jobs:
       - name: Apply character FX
         shell: bash
         run: |
+          if git log -1 --pretty=%B | grep -Fq '[character-fx]'; then
+            exit 0
+          fi
+
           node <<'NODE'
           const fs = require('fs');
 
           const enginePath = 'src/engine.ts';
           let engine = fs.readFileSync(enginePath, 'utf8');
 
-          const hunterOld = `  if (!activeSameTarget) {
-    p.hunterMarkTarget = enemy;
-    p.hunterMarkTimer = duration;
-    p.hunterHitCount = 1;
-    return;
-  }
+          let old = `    p.hunterMarkHitCount = 1;`;
+          let replacement = `    p.hunterMarkHitCount = 1;`;
+          // Support the actual field name used by this branch.
+          old = `    p.hunterHitCount = 1;\n    return;`;
+          replacement = `    p.hunterHitCount = 1;\n    for (let i = 0; i < 10; i++) {\n      const a = Math.random() * Math.PI * 2;\n      const speed = 50 + Math.random() * 80;\n      s.particles.push({\n        pos: { ...enemy.pos },\n        vel: { x: Math.cos(a) * speed, y: Math.sin(a) * speed },\n        life: 0.35, maxLife: 0.35, color: '#b8475a', size: 2.5,\n      });\n    }\n    return;`;
+          if (!engine.includes(old)) throw new Error('hunter mark insertion point not found');
+          engine = engine.replace(old, replacement);
 
-  p.hunterMarkTimer = duration;
-  p.hunterHitCount++;
-  if (p.hunterHitCount >= threshold) {
-    p.hunterHuntTarget = enemy;
-    p.hunterHuntTimer = 3;
-    p.hunterHitCount = 0;
-  }
-`;
-          const hunterNew = `  if (!activeSameTarget) {
-    p.hunterMarkTarget = enemy;
-    p.hunterMarkTimer = duration;
-    p.hunterHitCount = 1;
-    for (let i = 0; i < 10; i++) {
-      const a = Math.random() * Math.PI * 2;
-      const speed = 50 + Math.random() * 80;
-      s.particles.push({
-        pos: { ...enemy.pos },
-        vel: { x: Math.cos(a) * speed, y: Math.sin(a) * speed },
-        life: 0.35, maxLife: 0.35, color: '#b8475a', size: 2.5,
-      });
-    }
-    return;
-  }
+          old = `    p.hunterHitCount = 0;\n  }\n}`;
+          replacement = `    p.hunterHitCount = 0;\n    for (let i = 0; i < 18; i++) {\n      const a = Math.random() * Math.PI * 2;\n      const r = 18 + Math.random() * 24;\n      s.particles.push({\n        pos: { x: enemy.pos.x + Math.cos(a) * r, y: enemy.pos.y + Math.sin(a) * r },\n        vel: { x: 0, y: -25 },\n        life: 0.5, maxLife: 0.5, color: '#c4453d', size: 3,\n      });\n    }\n    s.screenShake = Math.min(0.16, s.screenShake + 0.04);\n  }\n}`;
+          if (!engine.includes(old)) throw new Error('hunter hunt insertion point not found');
+          engine = engine.replace(old, replacement, 1);
 
-  p.hunterMarkTimer = duration;
-  p.hunterHitCount++;
-  if (p.hunterHitCount >= threshold) {
-    p.hunterHuntTarget = enemy;
-    p.hunterHuntTimer = 3;
-    p.hunterHitCount = 0;
-    for (let i = 0; i < 18; i++) {
-      const a = Math.random() * Math.PI * 2;
-      const radius = 18 + Math.random() * 24;
-      s.particles.push({
-        pos: { x: enemy.pos.x + Math.cos(a) * radius, y: enemy.pos.y + Math.sin(a) * radius },
-        vel: { x: 0, y: -25 },
-        life: 0.5, maxLife: 0.5, color: '#c4453d', size: 3,
-      });
-    }
-    s.screenShake = Math.min(0.16, s.screenShake + 0.04);
-  }
-`;
-          if (!engine.includes(hunterOld)) throw new Error('hunter block not found');
-          engine = engine.replace(hunterOld, hunterNew);
-
-          const relayOld = `  s.player.engineerRelaySource = sphere;
-  s.player.engineerRelayTimer = s.player.characterMasteryLevel >= 4 ? 0.55 : 0.4;
-`;
-          const relayNew = `  s.player.engineerRelaySource = sphere;
-  s.player.engineerRelayTimer = s.player.characterMasteryLevel >= 4 ? 0.55 : 0.4;
-  for (const neighbour of s.spheres) {
-    if (neighbour === sphere || !neighbour.alive) continue;
-    if (dist(neighbour.pos, sphere.pos) <= getEngineerNetworkRange(s)) {
-      s.lightnings.push({ from: { ...sphere.pos }, to: { ...neighbour.pos }, life: 0.12 });
-    }
-  }
-`;
-          if (!engine.includes(relayOld)) throw new Error('relay block not found');
-          engine = engine.replace(relayOld, relayNew);
+          old = `  s.player.engineerRelayTimer = s.player.characterMasteryLevel >= 4 ? 0.55 : 0.4;`;
+          replacement = `  s.player.engineerRelayTimer = s.player.characterMasteryLevel >= 4 ? 0.55 : 0.4;\n  for (const neighbour of s.spheres) {\n    if (neighbour === sphere || !neighbour.alive) continue;\n    if (dist(neighbour.pos, sphere.pos) <= getEngineerNetworkRange(s)) {\n      s.lightnings.push({ from: { ...sphere.pos }, to: { ...neighbour.pos }, life: 0.12 });\n    }\n  }`;
+          if (!engine.includes(old)) throw new Error('engineer relay insertion point not found');
+          engine = engine.replace(old, replacement, 1);
           fs.writeFileSync(enginePath, engine);
 
           const runtimePath = 'src/characterRuntime.ts';
           let runtime = fs.readFileSync(runtimePath, 'utf8');
-          const formationOld = `  if (p.architectFormationType !== nextType) {
-    p.architectFormationType = nextType;
-    p.architectFormationChangedAt = s.time;
-  }
-`;
-          const formationNew = `  if (p.architectFormationType !== nextType) {
-    p.architectFormationType = nextType;
-    p.architectFormationChangedAt = s.time;
-    if (nextType !== 'none') {
-      const color = nextType === 'triangle' ? '#c4453d' : nextType === 'square' ? '#4a7a8a' : nextType === 'cluster' ? '#5a8c4a' : '#d4943d';
-      for (let i = 0; i < 14; i++) {
-        const a = Math.random() * Math.PI * 2;
-        const speed = 40 + Math.random() * 90;
-        s.particles.push({
-          pos: { ...s.player.pos },
-          vel: { x: Math.cos(a) * speed, y: Math.sin(a) * speed },
-          life: 0.45, maxLife: 0.45, color, size: 2.5,
-        });
-      }
-      s.screenShake = Math.min(0.12, s.screenShake + 0.025);
-    }
-  }
-`;
-          if (!runtime.includes(formationOld)) throw new Error('formation block not found');
-          runtime = runtime.replace(formationOld, formationNew);
 
-          const reactionOld = `  if ((p.characterMasteryLevel || 1) >= 5) p.alchemistCatalystTimer = 2;
-  return true;
-`;
-          const reactionNew = `  const burstCount = (p.characterMasteryLevel || 1) >= 4 ? 26 : 18;
-  for (let i = 0; i < burstCount; i++) {
-    const a = Math.random() * Math.PI * 2;
-    const speed = 70 + Math.random() * 150;
-    s.particles.push({
-      pos: { ...enemy.pos },
-      vel: { x: Math.cos(a) * speed, y: Math.sin(a) * speed },
-      life: 0.5, maxLife: 0.5, color: fire && poison ? '#5a8c4a' : freeze && poison ? '#4a7a8a' : '#c46d3d', size: 3,
-    });
-  }
-  s.screenShake = Math.min(0.18, s.screenShake + 0.035);
-  if ((p.characterMasteryLevel || 1) >= 5) p.alchemistCatalystTimer = 2;
-  return true;
-`;
-          if (!runtime.includes(reactionOld)) throw new Error('reaction block not found');
-          runtime = runtime.replace(reactionOld, reactionNew);
+          old = `    p.architectFormationType = nextType;\n    p.architectFormationChangedAt = s.time;\n`;
+          replacement = `    p.architectFormationType = nextType;\n    p.architectFormationChangedAt = s.time;\n    if (nextType !== 'none') {\n      const color = nextType === 'triangle' ? '#c4453d' : nextType === 'square' ? '#4a7a8a' : nextType === 'cluster' ? '#5a8c4a' : '#d4943d';\n      for (let i = 0; i < 14; i++) {\n        const a = Math.random() * Math.PI * 2;\n        const speed = 40 + Math.random() * 90;\n        s.particles.push({\n          pos: { ...s.player.pos },\n          vel: { x: Math.cos(a) * speed, y: Math.sin(a) * speed },\n          life: 0.45, maxLife: 0.45, color, size: 2.5,\n        });\n      }\n      s.screenShake = Math.min(0.12, s.screenShake + 0.025);\n    }\n`;
+          if (!runtime.includes(old)) throw new Error('architect formation insertion point not found');
+          runtime = runtime.replace(old, replacement, 1);
+
+          old = `  if ((p.characterMasteryLevel || 1) >= 5) p.alchemistCatalystTimer = 2;\n  return true;`;
+          replacement = `  const burstCount = (p.characterMasteryLevel || 1) >= 4 ? 26 : 18;\n  for (let i = 0; i < burstCount; i++) {\n    const a = Math.random() * Math.PI * 2;\n    const speed = 70 + Math.random() * 150;\n    s.particles.push({\n      pos: { ...enemy.pos },\n      vel: { x: Math.cos(a) * speed, y: Math.sin(a) * speed },\n      life: 0.5, maxLife: 0.5, color: fire && poison ? '#5a8c4a' : freeze && poison ? '#4a7a8a' : '#c46d3d', size: 3,\n    });\n  }\n  s.screenShake = Math.min(0.18, s.screenShake + 0.035);\n  if ((p.characterMasteryLevel || 1) >= 5) p.alchemistCatalystTimer = 2;\n  return true;`;
+          if (!runtime.includes(old)) throw new Error('alchemist reaction insertion point not found');
+          runtime = runtime.replace(old, replacement, 1);
           fs.writeFileSync(runtimePath, runtime);
           NODE
-          rm .github/workflows/polish-character-fx.yml
 
       - name: Commit and push
         shell: bash
         run: |
+          if git diff --quiet; then
+            exit 0
+          fi
+          rm .github/workflows/polish-character-fx.yml
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add src/engine.ts src/characterRuntime.ts .github/workflows/polish-character-fx.yml
