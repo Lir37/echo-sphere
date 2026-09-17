@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './canvasLocale';
 import './characterBuildBias';
+import './characterDataValidation';
 import './index.css';
 
 createRoot(document.getElementById('root')!).render(
