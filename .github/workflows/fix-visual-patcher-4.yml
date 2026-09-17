@@ -1,0 +1,68 @@
+name: Repair visual patcher safely
+on:
+  push:
+    branches:
+      - cleanup-android
+permissions:
+  contents: write
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: cleanup-android
+          fetch-depth: 0
+      - name: Rewrite embedded blocks
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path('.github/workflows/polish-enemies-towers.yml')
+          text = path.read_text()
+          names = ['sphere', 'mouse', 'fish', 'frog', 'airplane', 'butterfly', 'enemy', 'facingHelper']
+
+          for name in names:
+              marker = f'const {name} = String.raw`'
+              start = text.find(marker)
+              if start < 0:
+                  raise SystemExit(f'Missing block: {name}')
+              body_start = start + len(marker)
+              i = body_start
+              while i < len(text):
+                  if text[i] == '`':
+                      backslashes = 0
+                      j = i - 1
+                      while j >= body_start and text[j] == '\\':
+                          backslashes += 1
+                          j -= 1
+                      if backslashes % 2 == 0 and text.startswith(';', i + 1):
+                          break
+                  i += 1
+              else:
+                  raise SystemExit(f'Unterminated block: {name}')
+              body = text[body_start:i]
+              body = body.replace(r'\${', '${').replace(r'\`', '`')
+              body = body.replace('  const legBeat = Math.sin(t * 11);\n', '')
+              replacement = f'const {name} = {json.dumps(body)};'
+              text = text[:start] + replacement + text[i + 2:]
+
+          path.write_text(text)
+          PY
+          git diff --check
+          grep -q 'const sphere = "' .github/workflows/polish-enemies-towers.yml
+          grep -q 'const mouse = "' .github/workflows/polish-enemies-towers.yml
+          grep -q 'const enemy = "' .github/workflows/polish-enemies-towers.yml
+      - name: Commit and self-delete
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f .github/workflows/fix-visual-patcher-4.yml .github/workflows/fix-visual-patcher-3.yml .github/workflows/fix-visual-patcher-2.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .github/workflows/polish-enemies-towers.yml .github/workflows/fix-visual-patcher-4.yml .github/workflows/fix-visual-patcher-3.yml .github/workflows/fix-visual-patcher-2.yml
+          git commit -m 'Fix visual patcher block encoding'
+          git push origin cleanup-android
