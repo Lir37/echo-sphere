@@ -5,6 +5,7 @@ export interface MasteryRunTracker {
   xp: number;
   lastEliteKills: number;
   lastBosses: number;
+  lastGameTime: number | null;
 }
 
 export function createMasteryRunTracker(): MasteryRunTracker {
@@ -12,16 +13,16 @@ export function createMasteryRunTracker(): MasteryRunTracker {
     xp: 0,
     lastEliteKills: 0,
     lastBosses: 0,
+    lastGameTime: null,
   };
 }
 
 export function tickCharacterMastery(
   s: GameState,
-  dt: number,
+  _dt: number,
   tracker: MasteryRunTracker,
 ): void {
   if (
-    dt <= 0 ||
     s.gameOver ||
     s.paused ||
     s.pendingUpgrade ||
@@ -29,7 +30,17 @@ export function tickCharacterMastery(
     s.pendingEvolution ||
     s.pendingTowerUpgrade ||
     s.pendingChest
-  ) return;
+  ) {
+    tracker.lastGameTime = s.time;
+    return;
+  }
+
+  // Use the engine's simulation clock rather than render-frame frequency.
+  // This keeps mastery gain stable on 60/90/120 Hz displays and under FPS drops.
+  const previousTime = tracker.lastGameTime;
+  tracker.lastGameTime = s.time;
+  const dt = previousTime === null ? 0 : Math.max(0, Math.min(0.1, s.time - previousTime));
+  if (dt <= 0) return;
 
   const character = getCharacterId(s);
   const p = s.player;
