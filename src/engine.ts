@@ -698,6 +698,15 @@ function registerHunterHit(s: GameState, enemy: EnemyEntity, sphere: SphereEntit
     p.hunterMarkTarget = enemy;
     p.hunterMarkTimer = duration;
     p.hunterHitCount = 1;
+    for (let i = 0; i < 10; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const speed = 50 + Math.random() * 80;
+      s.particles.push({
+        pos: { ...enemy.pos },
+        vel: { x: Math.cos(a) * speed, y: Math.sin(a) * speed },
+        life: 0.35, maxLife: 0.35, color: '#b8475a', size: 2.5,
+      });
+    }
     return;
   }
 
@@ -707,6 +716,16 @@ function registerHunterHit(s: GameState, enemy: EnemyEntity, sphere: SphereEntit
     p.hunterHuntTarget = enemy;
     p.hunterHuntTimer = 3;
     p.hunterHitCount = 0;
+    for (let i = 0; i < 18; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const r = 18 + Math.random() * 24;
+      s.particles.push({
+        pos: { x: enemy.pos.x + Math.cos(a) * r, y: enemy.pos.y + Math.sin(a) * r },
+        vel: { x: 0, y: -25 },
+        life: 0.5, maxLife: 0.5, color: '#c4453d', size: 3,
+      });
+    }
+    s.screenShake = Math.min(0.16, s.screenShake + 0.04);
   }
 }
 
@@ -725,6 +744,12 @@ function triggerEngineerRelay(s: GameState, sphere: SphereEntity): void {
   if (getCharacterId(s) !== 'engineer') return;
   s.player.engineerRelaySource = sphere;
   s.player.engineerRelayTimer = s.player.characterMasteryLevel >= 4 ? 0.55 : 0.4;
+  for (const neighbour of s.spheres) {
+    if (neighbour === sphere || !neighbour.alive) continue;
+    if (dist(neighbour.pos, sphere.pos) <= getEngineerNetworkRange(s)) {
+      s.lightnings.push({ from: { ...sphere.pos }, to: { ...neighbour.pos }, life: 0.12 });
+    }
+  }
 }
 
 // ===== Damage application =====

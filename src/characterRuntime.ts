@@ -216,6 +216,19 @@ function trackArchitectFormationChange(s: GameState, nextType: CharacterFormatio
   if (p.architectFormationType !== nextType) {
     p.architectFormationType = nextType;
     p.architectFormationChangedAt = s.time;
+    if (nextType !== 'none') {
+      const color = nextType === 'triangle' ? '#c4453d' : nextType === 'square' ? '#4a7a8a' : nextType === 'cluster' ? '#5a8c4a' : '#d4943d';
+      for (let i = 0; i < 14; i++) {
+        const a = Math.random() * Math.PI * 2;
+        const speed = 40 + Math.random() * 90;
+        s.particles.push({
+          pos: { ...s.player.pos },
+          vel: { x: Math.cos(a) * speed, y: Math.sin(a) * speed },
+          life: 0.45, maxLife: 0.45, color, size: 2.5,
+        });
+      }
+      s.screenShake = Math.min(0.12, s.screenShake + 0.025);
+    }
   }
 }
 
@@ -268,6 +281,17 @@ export function applyAlchemistReaction(s: GameState, enemy: EnemyEntity): boolea
     if (target) target.hp -= baseDamage * burstMultiplier * 0.5;
   }
 
+  const burstCount = (p.characterMasteryLevel || 1) >= 4 ? 26 : 18;
+  for (let i = 0; i < burstCount; i++) {
+    const a = Math.random() * Math.PI * 2;
+    const speed = 70 + Math.random() * 150;
+    s.particles.push({
+      pos: { ...enemy.pos },
+      vel: { x: Math.cos(a) * speed, y: Math.sin(a) * speed },
+      life: 0.5, maxLife: 0.5, color: fire && poison ? '#5a8c4a' : freeze && poison ? '#4a7a8a' : '#c46d3d', size: 3,
+    });
+  }
+  s.screenShake = Math.min(0.18, s.screenShake + 0.035);
   if ((p.characterMasteryLevel || 1) >= 5) p.alchemistCatalystTimer = 2;
   return true;
 }
