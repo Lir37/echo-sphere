@@ -1,0 +1,49 @@
+name: One-time tower polish
+
+on:
+  push:
+    branches: [cleanup-android]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: ${{ !contains(github.event.head_commit.message, '[tower-polish]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Apply tower polish
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path('src/renderer.ts')
+          text = path.read_text(encoding='utf-8')
+
+          old_sphere = """  const tier = sphere.visualTier;\n  ctx.fillStyle = 'rgba(58,46,31,0.15)';\n"""
+          new_sphere = """  const tier = sphere.visualTier;\n\n  // Active targeting pulse: the tower visually wakes up while it has something in range.\n  const hasTarget = s.enemies.some((enemy) => enemy.hp > 0 && Math.hypot(enemy.pos.x - sphere.pos.x, enemy.pos.y - sphere.pos.y) < radius);\n  if (hasTarget) {\n    const pulse = 0.5 + Math.sin(t * 10) * 0.5;\n    ctx.fillStyle = `rgba(${hexToRgb(baseColor)},${0.08 + pulse * 0.09})`;\n    ctx.beginPath();\n    ctx.arc(0, 0, 21 + pulse * 4, 0, Math.PI * 2);\n    ctx.fill();\n  }\n  ctx.fillStyle = 'rgba(58,46,31,0.15)';\n"""
+          if old_sphere not in text:\n              raise SystemExit('renderer.ts sphere block not found')\n          text = text.replace(old_sphere, new_sphere, 1)
+
+          old_dart = """function drawPaperDart(ctx: CanvasRenderingContext2D, x: number, y: number, vx: number, vy: number, r: number, color: string): void {\n  const angle = Math.atan2(vy, vx);\n  ctx.save(); ctx.translate(x, y); ctx.rotate(angle);\n"""
+          new_dart = """function drawPaperDart(ctx: CanvasRenderingContext2D, x: number, y: number, vx: number, vy: number, r: number, color: string): void {\n  const angle = Math.atan2(vy, vx);\n  const speed = Math.hypot(vx, vy) || 1;\n  const trail = Math.min(18, 7 + speed * 0.035);\n  ctx.save();\n  ctx.translate(x, y);\n  ctx.rotate(angle);\n  ctx.strokeStyle = `rgba(${hexToRgb(color)},0.28)`;\n  ctx.lineWidth = Math.max(1, r * 0.45);\n  ctx.beginPath();\n  ctx.moveTo(-trail, 0);\n  ctx.lineTo(-r * 0.7, 0);\n  ctx.stroke();\n"""
+          if old_dart not in text:\n              raise SystemExit('renderer.ts dart block not found')\n          text = text.replace(old_dart, new_dart, 1)
+
+          old_aura = """  if (stype.aura) {\n    ctx.strokeStyle = baseColor; ctx.lineWidth = 2;\n"""
+          new_aura = """  if (stype.aura) {\n    const auraPulse = 1 + Math.sin(t * 4) * 0.06;\n    ctx.strokeStyle = baseColor; ctx.lineWidth = 2;\n"""
+          if old_aura not in text:\n              raise SystemExit('renderer.ts aura block not found')\n          text = text.replace(old_aura, new_aura, 1)
+          text = text.replace("ctx.beginPath(); ctx.arc(0, 0, stype.auraRadius, 0, Math.PI * 2); ctx.stroke();", "ctx.beginPath(); ctx.arc(0, 0, stype.auraRadius * auraPulse, 0, Math.PI * 2); ctx.stroke();", 1)
+
+          path.write_text(text, encoding='utf-8')
+          Path('.github/workflows/polish-towers.yml').unlink()
+
+      - name: Commit and push
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/renderer.ts .github/workflows/polish-towers.yml
+          git commit -m "Polish tower targeting and projectiles [tower-polish]"
+          git push
