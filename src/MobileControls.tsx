@@ -3,7 +3,7 @@ import { Pause, Zap } from 'lucide-react';
 import { ABILITIES, SPHERE_TYPES, type AbilityType, type SphereType } from './gameData';
 import { activateByKey, activateDash, getMaxSpheres, placeSphere, setSphereType, type GameState } from './engine';
 import { CHARACTER_DEFS } from './characters';
-import { getCharacterFormation, getEngineerNetworkRange, getEngineerNetworkSpheres } from './characterRuntime';
+import { getCharacterFormation, getEngineerNetworkSpheres } from './characterRuntime';
 import { playSound } from './audio';
 import type { Lang, TranslationKey } from './i18n';
 import { loadInterfaceScale } from './interfaceScale';
