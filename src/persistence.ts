@@ -14,6 +14,8 @@ export type Handedness = 'right' | 'left';
 
 export const CHARACTER_MASTERY_THRESHOLDS = [0, 250, 750, 1500, 2500] as const;
 
+type PersistedCharacterProfile = CharacterProfile & { masteryXp: number };
+
 export function getCharacterMasteryLevelForXp(xp: number): number {
   let level = 1;
   for (let index = 1; index < CHARACTER_MASTERY_THRESHOLDS.length; index++) {
@@ -102,9 +104,9 @@ export function saveCharacterId(id: CharacterId): void {
   localStorage.setItem(CHARACTER_KEY, id);
 }
 
-export function loadCharacterProfiles(): CharacterProfile[] {
+export function loadCharacterProfiles(): PersistedCharacterProfile[] {
   const raw = localStorage.getItem(CHARACTER_PROFILES_KEY);
-  const defaults: CharacterProfile[] = CHARACTER_LIST.map((character) => ({
+  const defaults: PersistedCharacterProfile[] = CHARACTER_LIST.map((character) => ({
     id: character.id,
     masteryLevel: 1,
     masteryXp: 0,
@@ -117,7 +119,7 @@ export function loadCharacterProfiles(): CharacterProfile[] {
     const byId = new Map(defaults.map((profile) => [profile.id, profile]));
     for (const item of parsed) {
       if (!item || typeof item !== 'object') continue;
-      const candidate = item as Partial<CharacterProfile>;
+      const candidate = item as Partial<CharacterProfile> & { masteryXp?: unknown };
       if (!candidate.id || !(candidate.id in CHARACTER_DEFS)) continue;
       const base = byId.get(candidate.id as CharacterId);
       if (!base) continue;
