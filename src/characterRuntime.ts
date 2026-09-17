@@ -3,6 +3,9 @@ import type { EnemyEntity, GameState, SphereEntity, Vec } from './engine';
 
 export type CharacterFormation = 'none' | 'line' | 'triangle' | 'square' | 'cluster';
 
+export const CHARACTER_LOCAL_RADIUS = 420;
+export const CHARACTER_LOCAL_SPHERE_CAP = 8;
+
 interface CharacterRuntimePlayer {
   characterId?: CharacterId;
   characterMasteryLevel?: number;
@@ -33,7 +36,7 @@ export function getCharacterDamageMultiplier(s: GameState, sphere: SphereEntity)
   if (character === 'berserker') {
     multiplier += getBerserkerFuryBonus(character, s.player.hp / Math.max(1, s.player.maxHp)).damage;
     const closeEnemy = s.enemies.some((enemy) => enemy.hp > 0 && distance(enemy.pos, s.player.pos) <= 110);
-    if (closeEnemy) multiplier += 0.12;
+    if (closeEnemy) multiplier += (runtimePlayer(s).characterMasteryLevel || 1) >= 2 ? 0.15 : 0.12;
   }
 
   if (character === 'engineer') {
@@ -60,7 +63,7 @@ export function getCharacterAttackSpeedMultiplier(s: GameState): number {
     multiplier += getBerserkerFuryBonus(character, s.player.hp / Math.max(1, s.player.maxHp)).attackSpeed;
   }
 
-  if (character === 'architect' && s.spheres.length >= 5) {
+  if (character === 'architect' && getLocalCharacterSpheres(s).length >= 5) {
     multiplier += getFormationAttackSpeedBonus(s);
   }
 
@@ -70,7 +73,7 @@ export function getCharacterAttackSpeedMultiplier(s: GameState): number {
 export function getCharacterRadiusMultiplier(s: GameState): number {
   const character = getCharacterId(s);
   let multiplier = 1 + CHARACTER_DEFS[character].baseModifiers.sphereRadius;
-  if (character === 'architect' && s.spheres.length >= 4) multiplier += 0.05;
+  if (character === 'architect' && getLocalCharacterSpheres(s).length >= 4) multiplier += 0.05;
   return multiplier;
 }
 
@@ -99,10 +102,19 @@ export function getCharacterStatusDamageMultiplier(s: GameState): number {
   return 1 + CHARACTER_DEFS[character].baseModifiers.statusDamage;
 }
 
-export function getCharacterFormation(s: GameState): CharacterFormationResult {
-  if (getCharacterId(s) !== 'architect' || s.spheres.length < 3) return { type: 'none', strength: 0 };
+export function getLocalCharacterSpheres(s: GameState, radius = CHARACTER_LOCAL_RADIUS): SphereEntity[] {
+  return s.spheres
+    .filter((sphere) => sphere.alive && distance(sphere.pos, s.player.pos) <= radius)
+    .sort((a, b) => distance(a.pos, s.player.pos) - distance(b.pos, s.player.pos))
+    .slice(0, CHARACTER_LOCAL_SPHERE_CAP);
+}
 
-  const spheres = s.spheres.filter((sphere) => sphere.alive).slice(0, 8);
+export function getCharacterFormation(s: GameState): CharacterFormationResult {
+  if (getCharacterId(s) !== 'architect') return { type: 'none', strength: 0 };
+
+  const spheres = getLocalCharacterSpheres(s);
+  if (spheres.length < 3) return { type: 'none', strength: 0 };
+
   const clusterStrength = getClusterStrength(spheres);
   const lineStrength = getLineStrength(spheres);
   const squareStrength = getSquareStrength(spheres);
@@ -199,27 +211,47 @@ export function getEngineerNetworkSize(s: GameState, sphere: SphereEntity): numb
   return getConnectedNetworkSize(s, sphere, getEngineerNetworkRange(s));
 }
 
+export function getEngineerNetworkSpheres(s: GameState): SphereEntity[] {
+  const local = getLocalCharacterSpheres(s);
+  if (local.length === 0) return [];
+
+  const range = getEngineerNetworkRange(s);
+  let best: SphereEntity[] = [];
+  for (const start of local) {
+    const connected = getConnectedNetworkSizeFromPool(start, local, range);
+    if (connected.length > best.length) best = connected;
+  }
+  return best;
+}
+
 export function getCharacterId(s: GameState): CharacterId {
   const raw = runtimePlayer(s).characterId;
   return raw && raw in CHARACTER_DEFS ? raw : 'spherist';
 }
 
 function getSphereNeighbours(s: GameState, sphere: SphereEntity, range: number): SphereEntity[] {
-  return s.spheres.filter((candidate) => candidate !== sphere && candidate.alive && distance(candidate.pos, sphere.pos) <= range);
+  return getLocalCharacterSpheres(s).filter((candidate) => candidate !== sphere && distance(candidate.pos, sphere.pos) <= range);
 }
 
 function getConnectedNetworkSize(s: GameState, start: SphereEntity, range: number): number {
+  return getConnectedNetworkSizeFromPool(start, getLocalCharacterSpheres(s), range).length;
+}
+
+function getConnectedNetworkSizeFromPool(start: SphereEntity, pool: SphereEntity[], range: number): SphereEntity[] {
+  if (!pool.includes(start)) return [];
+
   const visited = new Set<SphereEntity>([start]);
   const queue: SphereEntity[] = [start];
   while (queue.length > 0) {
     const current = queue.shift()!;
-    for (const neighbour of getSphereNeighbours(s, current, range)) {
+    for (const neighbour of pool) {
       if (visited.has(neighbour)) continue;
+      if (distance(neighbour.pos, current.pos) > range) continue;
       visited.add(neighbour);
       queue.push(neighbour);
     }
   }
-  return visited.size;
+  return [...visited];
 }
 
 function getClusterStrength(spheres: SphereEntity[]): number {
