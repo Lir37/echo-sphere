@@ -4,6 +4,28 @@ import {
   type AbilityType, type ArtifactId, type SphereType, type BossType, type Difficulty,
 } from './gameData';
 import { playSound } from './audio';
+import {
+  CHARACTER_DEFS,
+  type CharacterId,
+} from './characters';
+import {
+  getCharacterId,
+  getCharacterDamageMultiplier,
+  getCharacterAttackSpeedMultiplier,
+  getCharacterRadiusMultiplier,
+  getCharacterMoveSpeedMultiplier,
+  getCharacterMaxHpMultiplier,
+  getCharacterDamageTakenMultiplier,
+  getCharacterStatusDurationMultiplier,
+  getCharacterStatusDamageMultiplier,
+  getHunterMarkMultiplier,
+  shouldMarkHunterTarget,
+  applyAlchemistReaction,
+  getEngineerNetworkRange,
+  getCharacterFormation,
+  getFormationDamageTakenMultiplier,
+} from './characterRuntime';
+import { loadCharacterId, loadCharacterProfiles } from './persistence';
 
 export interface Vec { x: number; y: number; }
 
@@ -54,6 +76,17 @@ export interface PlayerState {
   buffTimer: number; // temporary damage buff from chest
   eliteKills: number;
   chestOpens: number;
+  characterId: CharacterId;
+  characterMasteryLevel: number;
+  hunterMarkTarget: EnemyEntity | null;
+  hunterMarkTimer: number;
+  hunterHitCount: number;
+  hunterHuntTarget: EnemyEntity | null;
+  hunterHuntTimer: number;
+  hunterTrophyTimer: number;
+  engineerRelaySource: SphereEntity | null;
+  engineerRelayTimer: number;
+  alchemistCatalystTimer: number;
 }
 
 export interface SphereEntity {
@@ -82,6 +115,7 @@ export interface SphereProjectile {
   effect: 'none' | 'fire' | 'freeze' | 'poison';
   ricochet: number; // bounces remaining
   life: number;
+  sourceSphere?: SphereEntity;
 }
 
 export interface EnemyEntity {
@@ -298,7 +332,11 @@ export function createInitialState(
   difficulty: Difficulty = 'normal',
   mapTheme: MapTheme = 'parchment',
 ): GameState {
-  const startHp = 100 + (shop.upgrades.hp || 0) * 10;
+  const characterId = loadCharacterId();
+  const profile = loadCharacterProfiles().find((item) => item.id === characterId);
+  const characterMasteryLevel = profile?.masteryLevel || 1;
+  const baseHp = 100 + (shop.upgrades.hp || 0) * 10;
+  const startHp = baseHp * getCharacterMaxHpMultiplierForId(characterId);
   const player: PlayerState = {
     pos: { x: 0, y: 0 },
     hp: startHp,
@@ -346,6 +384,17 @@ export function createInitialState(
     buffTimer: 0,
     eliteKills: 0,
     chestOpens: 0,
+    characterId,
+    characterMasteryLevel,
+    hunterMarkTarget: null,
+    hunterMarkTimer: 0,
+    hunterHitCount: 0,
+    hunterHuntTarget: null,
+    hunterHuntTimer: 0,
+    hunterTrophyTimer: 0,
+    engineerRelaySource: null,
+    engineerRelayTimer: 0,
+    alchemistCatalystTimer: 0,
   };
   return {
     player,
@@ -393,6 +442,10 @@ export function createInitialState(
   };
 }
 
+function getCharacterMaxHpMultiplierForId(id: CharacterId): number {
+  return 1 + CHARACTER_DEFS[id].baseModifiers.maxHp;
+}
+
 // ===== Derived stats =====
 export function getMaxSpheres(s: GameState): number {
   let m = DEFAULT_MAX_SPHERES + (s.player.abilities.maxspheres || 0) + (s.shopUpgrades.spheres || 0);
@@ -408,6 +461,9 @@ export function getMoveSpeed(s: GameState): number {
   if (s.player.artifacts.includes('dragon_heart')) sp *= 0.9;
   if (s.player.swiftBootsTimer > 0) sp *= 1.1;
   if (s.player.mutationStage >= 3) sp *= 1.2;
+  sp *= getCharacterMoveSpeedMultiplier(s);
+  if (s.player.hunterTrophyTimer > 0 && getCharacterId(s) === 'hunter') sp *= 1.1;
+  if (getCharacterId(s) === 'berserker' && s.player.characterMasteryLevel >= 5 && s.player.buffTimer > 0) sp *= 1.05;
   return sp;
 }
 
@@ -419,6 +475,8 @@ export function getSphereRadius(s: GameState, sphere: SphereEntity): number {
   if (s.player.artifacts.includes('radius_shard')) r *= 1.1;
   if (s.player.chaosOrbBuff === 'radius' && s.player.chaosOrbBuffTimer > 0) r *= 1.2;
   if (s.player.mutationStage >= 2) r *= 1.15;
+  r *= getCharacterRadiusMultiplier(s);
+  if (getCharacterId(s) === 'architect' && s.player.characterMasteryLevel >= 3) r *= 1.02;
   return r;
 }
 
@@ -445,6 +503,7 @@ export function getSphereDelay(s: GameState): number {
   let d = BASE_SPHERE_DELAY;
   const lvl = s.player.abilities.attackspeed || 0;
   d *= Math.pow(0.9, lvl);
+  d /= Math.max(0.01, getCharacterAttackSpeedMultiplier(s));
   return d;
 }
 
@@ -482,6 +541,8 @@ export function getCooldownMult(s: GameState): number {
 export function getDamageTakenMult(s: GameState): number {
   let m = 1;
   if (s.player.artifacts.includes('defense_medallion')) m *= 0.85;
+  m *= getCharacterDamageTakenMultiplier(s);
+  m *= getFormationDamageTakenMultiplier(s);
   return m;
 }
 
@@ -623,12 +684,69 @@ function startWave(s: GameState): void {
   s.waveSpawnTimer = 0.5;
 }
 
+function registerHunterHit(s: GameState, enemy: EnemyEntity, sphere: SphereEntity): void {
+  if (getCharacterId(s) !== 'hunter') return;
+  if (!['sniper', 'chain'].includes(sphere.type)) return;
+  if (!shouldMarkHunterTarget(enemy)) return;
+
+  const p = s.player;
+  const duration = p.characterMasteryLevel >= 2 ? 6 : 5;
+  const threshold = p.characterMasteryLevel >= 4 ? 4 : 5;
+  const activeSameTarget = p.hunterMarkTarget === enemy && p.hunterMarkTimer > 0;
+
+  if (!activeSameTarget) {
+    p.hunterMarkTarget = enemy;
+    p.hunterMarkTimer = duration;
+    p.hunterHitCount = 1;
+    return;
+  }
+
+  p.hunterMarkTimer = duration;
+  p.hunterHitCount++;
+  if (p.hunterHitCount >= threshold) {
+    p.hunterHuntTarget = enemy;
+    p.hunterHuntTimer = 3;
+    p.hunterHitCount = 0;
+  }
+}
+
+function consumeEngineerRelayBonus(s: GameState, sphere: SphereEntity): number {
+  if (getCharacterId(s) !== 'engineer') return 1;
+  const source = s.player.engineerRelaySource;
+  if (!source || s.player.engineerRelayTimer <= 0 || source === sphere) return 1;
+  const range = getEngineerNetworkRange(s);
+  if (dist(source.pos, sphere.pos) > range) return 1;
+  s.player.engineerRelaySource = null;
+  s.player.engineerRelayTimer = 0;
+  return 1.25;
+}
+
+function triggerEngineerRelay(s: GameState, sphere: SphereEntity): void {
+  if (getCharacterId(s) !== 'engineer') return;
+  s.player.engineerRelaySource = sphere;
+  s.player.engineerRelayTimer = s.player.characterMasteryLevel >= 4 ? 0.55 : 0.4;
+}
+
 // ===== Damage application =====
 function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSphere?: SphereEntity): void {
+  if (enemy.hp <= 0) return;
+  if (fromSphere) registerHunterHit(s, enemy, fromSphere);
+
   let actual = dmg;
+  if (fromSphere) {
+    actual *= getCharacterDamageMultiplier(s, fromSphere);
+    actual *= getHunterMarkMultiplier(s, enemy);
+  }
   let isCrit = false;
+  let critChance = getCritChance(s);
+  if (fromSphere && getCharacterId(s) === 'hunter' && s.player.hunterMarkTarget === enemy && s.player.hunterMarkTimer > 0 && s.player.characterMasteryLevel >= 3) {
+    critChance += 0.02;
+  }
+  if (fromSphere && getCharacterId(s) === 'architect' && getCharacterFormation(s).type === 'triangle') {
+    critChance += 0.10;
+  }
   // crit
-  if (fromSphere && Math.random() < getCritChance(s)) { actual *= 2; isCrit = true; }
+  if (fromSphere && Math.random() < critChance) { actual *= 2; isCrit = true; }
   // predator claw: every 5th hit
   if (fromSphere && s.player.artifacts.includes('predator_claw')) {
     fromSphere.killsContribution++;
@@ -676,7 +794,19 @@ function onEnemyDeath(s: GameState, enemy: EnemyEntity): void {
   }
   if (enemy.isElite) {
     s.player.eliteKills++;
+    if (getCharacterId(s) === 'hunter' && s.player.characterMasteryLevel >= 5 && s.player.hunterMarkTarget === enemy) {
+      s.player.hunterTrophyTimer = 4;
+    }
     playSound('elite');
+  }
+  if (getCharacterId(s) === 'hunter' && s.player.hunterMarkTarget === enemy) {
+    s.player.hunterMarkTarget = null;
+    s.player.hunterMarkTimer = 0;
+    s.player.hunterHitCount = 0;
+  }
+  if (getCharacterId(s) === 'hunter' && s.player.hunterHuntTarget === enemy) {
+    s.player.hunterHuntTarget = null;
+    s.player.hunterHuntTimer = 0;
   }
   playSound(enemy.isBoss ? 'explosion' : 'kill');
   // particles
@@ -707,6 +837,10 @@ function onEnemyDeath(s: GameState, enemy: EnemyEntity): void {
   // swift boots
   if (s.player.artifacts.includes('swift_boots')) {
     s.player.swiftBootsTimer = 3;
+  }
+  // berserker mastery 5: close-range kill gives temporary speed via buffTimer
+  if (getCharacterId(s) === 'berserker' && s.player.characterMasteryLevel >= 5 && dist(enemy.pos, s.player.pos) <= 110) {
+    s.player.buffTimer = Math.max(s.player.buffTimer, 2);
   }
   // supernova evolution: sphere explodes on kill
   if (s.player.evolutions.includes('supernova')) {
@@ -1091,10 +1225,36 @@ export function applyArtifact(s: GameState, id: ArtifactId): void {
 // ===== Main update =====
 export function update(s: GameState, dt: number): void {
   if (s.paused || s.gameOver) return;
-  if (s.pendingUpgrade || s.pendingArtifact || s.pendingEvolution || s.pendingTowerUpgrade) return;
+  if (s.pendingUpgrade || s.pendingArtifact || s.pendingEvolution || s.pendingTowerUpgrade || s.pendingChest) return;
 
   s.time += dt;
   s.stats.time = s.time;
+
+  // character timers
+  if (s.player.hunterMarkTimer > 0) {
+    s.player.hunterMarkTimer -= dt;
+    if (s.player.hunterMarkTimer <= 0) {
+      s.player.hunterMarkTimer = 0;
+      s.player.hunterMarkTarget = null;
+      s.player.hunterHitCount = 0;
+    }
+  }
+  if (s.player.hunterHuntTimer > 0) {
+    s.player.hunterHuntTimer -= dt;
+    if (s.player.hunterHuntTimer <= 0) {
+      s.player.hunterHuntTimer = 0;
+      s.player.hunterHuntTarget = null;
+    }
+  }
+  if (s.player.hunterTrophyTimer > 0) s.player.hunterTrophyTimer = Math.max(0, s.player.hunterTrophyTimer - dt);
+  if (s.player.engineerRelayTimer > 0) {
+    s.player.engineerRelayTimer -= dt;
+    if (s.player.engineerRelayTimer <= 0) {
+      s.player.engineerRelayTimer = 0;
+      s.player.engineerRelaySource = null;
+    }
+  }
+  if (s.player.alchemistCatalystTimer > 0) s.player.alchemistCatalystTimer = Math.max(0, s.player.alchemistCatalystTimer - dt);
 
   // combo timer
   if (s.player.comboTimer > 0) {
@@ -1328,12 +1488,15 @@ function updateSpheres(s: GameState, dt: number): void {
       sphere.auraTimer -= dt;
       if (sphere.auraTimer <= 0) {
         sphere.auraTimer = 0.5;
+        let attacked = false;
         for (const e of s.enemies) {
           if (e.hp <= 0) continue;
           if (dist(e.pos, sphere.pos) < stype.auraRadius) {
-            dealDamageToEnemy(s, e, damage);
+            dealDamageToEnemy(s, e, damage, sphere);
+            attacked = true;
           }
         }
+        if (attacked) triggerEngineerRelay(s, sphere);
       }
       continue;
     }
@@ -1362,6 +1525,9 @@ function updateSpheres(s: GameState, dt: number): void {
         const dirY = dy / d;
         const mods = s.player.towerMods;
         const shots = (1 + mods.multishot) * stype.pellets;
+        const relayMultiplier = consumeEngineerRelayBonus(s, sphere);
+        const formation = getCharacterFormation(s);
+        const formationPierce = getCharacterId(s) === 'architect' && formation.type === 'line' ? 1 : 0;
         for (let i = 0; i < shots; i++) {
           const spread = shots > 1 ? (i - (shots - 1) / 2) * (stype.spread / Math.max(1, shots - 1) || 0.15) : 0;
           const a = Math.atan2(dirY, dirX) + spread;
@@ -1377,15 +1543,16 @@ function updateSpheres(s: GameState, dt: number): void {
           s.sphereProjectiles.push({
             pos: { ...sphere.pos },
             vel: { x: Math.cos(a) * speed, y: Math.sin(a) * speed },
-            damage,
+            damage: damage * relayMultiplier,
             radius: 5,
             alive: true,
             color,
-            pierce: mods.pierce + (stype.chain ? 99 : 0),
+            pierce: mods.pierce + formationPierce + (stype.chain ? 99 : 0),
             hitEnemies: new Set(),
             effect,
             ricochet: mods.ricochet,
             life: 2,
+            sourceSphere: sphere,
           });
           // chain lightning: instantly hit nearby enemies
           if (stype.chain) {
@@ -1407,11 +1574,12 @@ function updateSpheres(s: GameState, dt: number): void {
             }
             // apply damage to chain targets
             for (const ct of chainTargets) {
-              dealDamageToEnemy(s, ct, damage * 0.7);
+              dealDamageToEnemy(s, ct, damage * 0.7 * relayMultiplier, sphere);
               s.lightnings.push({ from: { ...nearest.pos }, to: { ...ct.pos }, life: 0.3 });
             }
           }
         }
+        triggerEngineerRelay(s, sphere);
         playSound('shoot');
       }
     }
@@ -1426,7 +1594,7 @@ function updateSpheres(s: GameState, dt: number): void {
     for (const e of s.enemies) {
       if (e.hp <= 0 || p.hitEnemies.has(e)) continue;
       if (dist(p.pos, e.pos) < p.radius + e.radius) {
-        dealDamageToEnemy(s, e, p.damage);
+        dealDamageToEnemy(s, e, p.damage, p.sourceSphere);
         p.hitEnemies.add(e);
         hit = true;
         // impact effect particles
@@ -1436,13 +1604,35 @@ function updateSpheres(s: GameState, dt: number): void {
         }
         // apply status effects
         if (p.effect === 'fire') {
-          e.fireTimer = (e.fireTimer || 0) + 3;
-          e.fireDps = 5 + s.player.towerMods.fire * 3;
+          let duration = 3 * getCharacterStatusDurationMultiplier(s);
+          let dps = (5 + s.player.towerMods.fire * 3) * getCharacterStatusDamageMultiplier(s);
+          if (getCharacterId(s) === 'alchemist' && s.player.characterMasteryLevel >= 3) dps *= 1.05;
+          if (getCharacterId(s) === 'alchemist' && s.player.alchemistCatalystTimer > 0) {
+            duration *= 1.5;
+            s.player.alchemistCatalystTimer = 0;
+          }
+          e.fireTimer = (e.fireTimer || 0) + duration;
+          e.fireDps = dps;
         } else if (p.effect === 'freeze') {
-          e.freezeTimer = Math.max(e.freezeTimer || 0, 0.5 + s.player.towerMods.freeze * 0.3);
+          let duration = (0.5 + s.player.towerMods.freeze * 0.3) * getCharacterStatusDurationMultiplier(s);
+          if (getCharacterId(s) === 'alchemist' && s.player.alchemistCatalystTimer > 0) {
+            duration *= 1.5;
+            s.player.alchemistCatalystTimer = 0;
+          }
+          e.freezeTimer = Math.max(e.freezeTimer || 0, duration);
         } else if (p.effect === 'poison') {
-          e.poisonTimer = (e.poisonTimer || 0) + 4;
-          e.poisonDps = 3 + s.player.towerMods.poison * 2;
+          let duration = 4 * getCharacterStatusDurationMultiplier(s);
+          let dps = (3 + s.player.towerMods.poison * 2) * getCharacterStatusDamageMultiplier(s);
+          if (getCharacterId(s) === 'alchemist' && s.player.characterMasteryLevel >= 3) dps *= 1.05;
+          if (getCharacterId(s) === 'alchemist' && s.player.alchemistCatalystTimer > 0) {
+            duration *= 1.5;
+            s.player.alchemistCatalystTimer = 0;
+          }
+          e.poisonTimer = (e.poisonTimer || 0) + duration;
+          e.poisonDps = dps;
+        }
+        if (p.effect !== 'none' && applyAlchemistReaction(s, e) && e.hp <= 0) {
+          onEnemyDeath(s, e);
         }
         if (p.pierce > 0) {
           p.pierce--;
@@ -1810,6 +2000,10 @@ export function placeSphere(s: GameState, x: number, y: number): void {
 export function removeSphere(s: GameState, sphere: SphereEntity): void {
   sphere.alive = false;
   s.spheres = s.spheres.filter(sp => sp !== sphere);
+  if (s.player.engineerRelaySource === sphere) {
+    s.player.engineerRelaySource = null;
+    s.player.engineerRelayTimer = 0;
+  }
   for (let i = 0; i < 15; i++) {
     const a = Math.random() * Math.PI * 2;
     s.particles.push({ pos: { ...sphere.pos }, vel: { x: Math.cos(a) * 120, y: Math.sin(a) * 120 }, life: 0.5, maxLife: 0.5, color: '#b8475a', size: 3 });
