@@ -1075,7 +1075,6 @@ function drawSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: SphereE
   const radius = sphere.radius * (1 + (s.player.abilities.radius || 0) * 0.15) * (s.player.artifacts.includes('radius_shard') ? 1.1 : 1) * stype.rangeMult;
   const t = Date.now() / 1000;
   drawTowerPaperFrame(ctx, sphere, baseColor, t);
-  drawTowerPaperFrame(ctx, sphere, stype.color, t);
   ctx.strokeStyle = `rgba(${hexToRgb(baseColor)},0.12)`;
   ctx.lineWidth = 1; ctx.setLineDash([5, 5]);
   ctx.beginPath(); ctx.arc(0, 0, radius, 0, Math.PI * 2); ctx.stroke();
