@@ -94,7 +94,10 @@ export function getCharacterRadiusMultiplier(s: GameState): number {
     multiplier += 0.05;
   }
 
-  if (character === 'architect' && getLocalCharacterSpheres(s).length >= 4) multiplier += 0.05;
+  if (character === 'architect') {
+    if (getLocalCharacterSpheres(s).length >= 4) multiplier += 0.05;
+    if (mastery >= 3) multiplier += 0.02;
+  }
 
   if (character === 'engineer' && getEngineerNetworkSpheres(s).length >= 3) multiplier += 0.08;
 
@@ -118,12 +121,21 @@ export function getCharacterDamageTakenMultiplier(s: GameState): number {
 
 export function getCharacterStatusDurationMultiplier(s: GameState): number {
   const character = getCharacterId(s);
-  return 1 + CHARACTER_DEFS[character].baseModifiers.statusDuration;
+  const mastery = runtimePlayer(s).characterMasteryLevel || 1;
+  let multiplier = 1 + CHARACTER_DEFS[character].baseModifiers.statusDuration;
+  if (character === 'alchemist' && mastery >= 5 && (runtimePlayer(s).alchemistCatalystTimer || 0) > 0) {
+    multiplier *= 1.5;
+  }
+  return multiplier;
 }
 
 export function getCharacterStatusDamageMultiplier(s: GameState): number {
   const character = getCharacterId(s);
-  return 1 + CHARACTER_DEFS[character].baseModifiers.statusDamage;
+  const mastery = runtimePlayer(s).characterMasteryLevel || 1;
+  let multiplier = 1 + CHARACTER_DEFS[character].baseModifiers.statusDamage;
+  if (character === 'alchemist' && mastery >= 3) multiplier += 0.05;
+  if (character === 'alchemist' && mastery >= 5 && (runtimePlayer(s).alchemistCatalystTimer || 0) > 0) multiplier += 0.05;
+  return multiplier;
 }
 
 export function getLocalCharacterSpheres(s: GameState, radius = CHARACTER_LOCAL_RADIUS): SphereEntity[] {
@@ -139,10 +151,11 @@ export function getCharacterFormation(s: GameState): CharacterFormationResult {
   const spheres = getLocalCharacterSpheres(s);
   if (spheres.length < 3) return { type: 'none', strength: 0 };
 
-  const clusterStrength = getClusterStrength(spheres);
-  const lineStrength = getLineStrength(spheres);
-  const squareStrength = getSquareStrength(spheres);
-  const triangleStrength = getTriangleStrength(spheres);
+  const toleranceMultiplier = (runtimePlayer(s).characterMasteryLevel || 1) >= 2 ? 1.15 : 1;
+  const clusterStrength = Math.min(1, getClusterStrength(spheres) * toleranceMultiplier);
+  const lineStrength = Math.min(1, getLineStrength(spheres) * toleranceMultiplier);
+  const squareStrength = Math.min(1, getSquareStrength(spheres) * toleranceMultiplier);
+  const triangleStrength = Math.min(1, getTriangleStrength(spheres) * toleranceMultiplier);
 
   const candidates: CharacterFormationResult[] = [];
   if (spheres.length >= 4 && clusterStrength >= 0.78) candidates.push({ type: 'cluster', strength: clusterStrength });
