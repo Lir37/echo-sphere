@@ -84,40 +84,40 @@ export const ARTIFACTS: ArtifactDef[] = [
   { id: 'luck_talisman', name: { ru: 'Талисман удачи', en: 'Luck Talisman' }, desc: { ru: 'Обычный • +15% шанс крита', en: 'Common • +15% crit chance' } },
   { id: 'veil_cloak', name: { ru: 'Плащ сокрытия', en: 'Veil Cloak' }, desc: { ru: 'Обычный • при HP ниже 30% снижает агрессию врагов на 50%', en: 'Common • below 30% HP, reduces enemy aggression by 50%' } },
   { id: 'mage_pendant', name: { ru: 'Кулон мага', en: 'Mage Pendant' }, desc: { ru: 'Обычный • -10% перезарядки способностей', en: 'Common • -10% ability cooldowns' } },
-  { id: 'long_lens', name: { ru: 'Дальняя линза', en: 'Long Lens' }, desc: { ru: 'Обычный • +18% радиуса снайперской башни', en: 'Common • +18% sniper range' } },
+  { id: 'long_lens', name: { ru: 'Дальняя линза', en: 'Long Lens' }, desc: { ru: 'Обычный • +18% радиуса снайперской сферы', en: 'Common • +18% sniper range' } },
   { id: 'stasis_core', name: { ru: 'Ядро стазиса', en: 'Stasis Core' }, desc: { ru: 'Обычный • при получении урона замедляет всех врагов на 2 секунды', en: 'Common • taking damage slows all enemies for 2s' } },
 
   // Rare
   { id: 'dragon_heart', name: { ru: 'Сердце дракона', en: 'Dragon Heart' }, desc: { ru: 'Редкий • +50 HP, -10% скорости', en: 'Rare • +50 HP, -10% speed' } },
   { id: 'mirror', name: { ru: 'Зеркало', en: 'Mirror' }, desc: { ru: 'Редкий • 20% полученного урона отражается ближайшему врагу', en: 'Rare • 20% of incoming damage is reflected' } },
   { id: 'predator_claw', name: { ru: 'Коготь хищника', en: 'Predator Claw' }, desc: { ru: 'Редкий • +8% урона сфер', en: 'Rare • +8% sphere damage' } },
-  { id: 'foresight_eye', name: { ru: 'Око предвидения', en: 'Foresight Eye' }, desc: { ru: 'Редкий • +10% крита и +8% урона снайперской башни', en: 'Rare • +10% crit and +8% sniper damage' } },
-  { id: 'echo_conductor', name: { ru: 'Проводник Эха', en: 'Echo Conductor' }, desc: { ru: 'Редкий • +12% урона цепной башни', en: 'Rare • +12% chain tower damage' } },
-  { id: 'heavy_core', name: { ru: 'Тяжёлое ядро', en: 'Heavy Core' }, desc: { ru: 'Редкий • +15% урона стандартной башни', en: 'Rare • +15% standard tower damage' } },
+  { id: 'foresight_eye', name: { ru: 'Око предвидения', en: 'Foresight Eye' }, desc: { ru: 'Редкий • +10% крита и +8% урона снайперской сферы', en: 'Rare • +10% crit and +8% sniper damage' } },
+  { id: 'echo_conductor', name: { ru: 'Проводник Эха', en: 'Echo Conductor' }, desc: { ru: 'Редкий • +12% урона цепной сферы', en: 'Rare • +12% chain tower damage' } },
+  { id: 'heavy_core', name: { ru: 'Тяжёлое ядро', en: 'Heavy Core' }, desc: { ru: 'Редкий • +15% урона стандартной сферы', en: 'Rare • +15% standard tower damage' } },
   { id: 'scattering_matrix', name: { ru: 'Матрица рассеивания', en: 'Scattering Matrix' }, desc: { ru: 'Редкий • +12% урона дробовика', en: 'Rare • +12% shotgun damage' } },
   { id: 'aura_lens', name: { ru: 'Линза ауры', en: 'Aura Lens' }, desc: { ru: 'Редкий • +18% радиуса ауры', en: 'Rare • +18% aura radius' } },
-  { id: 'network_relay', name: { ru: 'Сетевой реле', en: 'Network Relay' }, desc: { ru: 'Редкий • при 2+ типах башен +5% урона сети', en: 'Rare • with 2+ tower types, +5% network damage' } },
+  { id: 'network_relay', name: { ru: 'Сетевой реле', en: 'Network Relay' }, desc: { ru: 'Редкий • при 2+ типах сфер +5% урона сети', en: 'Rare • with 2+ tower types, +5% network damage' } },
   { id: 'chaos_orb', name: { ru: 'Матрица стабильности', en: 'Stability Matrix' }, desc: { ru: 'Редкий • каждые 10 секунд даёт случайный бонус урона или радиуса на 3 секунды', en: 'Rare • every 10s grants a random damage or radius buff for 3s' } },
 
   // Epic
-  { id: 'resonance_core', name: { ru: 'Сердце резонанса', en: 'Resonance Core' }, desc: { ru: 'Эпический • башня рядом с другой башней получает +12% урона', en: 'Epic • nearby towers deal +12% damage' } },
-  { id: 'lone_bastion', name: { ru: 'Одинокий бастион', en: 'Lone Bastion' }, desc: { ru: 'Эпический • если активен только один тип башни, он получает +30% урона', en: 'Epic • with one tower type, it gains +30% damage' } },
-  { id: 'fivefold_resonance', name: { ru: 'Резонанс пяти', en: 'Fivefold Resonance' }, desc: { ru: 'Эпический • каждый уникальный тип башни даёт +4% урона сети', en: 'Epic • each unique tower type grants +4% network damage' } },
-  { id: 'relay_matrix', name: { ru: 'Релейная матрица', en: 'Relay Matrix' }, desc: { ru: 'Эпический • наличие башни VII уровня усиливает остальные на +10%', en: 'Epic • a level VII tower empowers the network by +10%' } },
-  { id: 'triangle_circuit', name: { ru: 'Треугольный контур', en: 'Triangle Circuit' }, desc: { ru: 'Эпический • башни внутри треугольной сети получают +15% урона', en: 'Epic • towers in a triangular network deal +15% damage' } },
-  { id: 'overclock', name: { ru: 'Разгон ядра', en: 'Overclock' }, desc: { ru: 'Эпический • -12% задержки башен, но небольшая потеря эффективности', en: 'Epic • -12% tower delay with a small efficiency cost' } },
+  { id: 'resonance_core', name: { ru: 'Сердце резонанса', en: 'Resonance Core' }, desc: { ru: 'Эпический • сфера рядом с другой сферой получает +12% урона', en: 'Epic • nearby towers deal +12% damage' } },
+  { id: 'lone_bastion', name: { ru: 'Одинокий бастион', en: 'Lone Bastion' }, desc: { ru: 'Эпический • если активен только один тип сферы, он получает +30% урона', en: 'Epic • with one tower type, it gains +30% damage' } },
+  { id: 'fivefold_resonance', name: { ru: 'Резонанс пяти', en: 'Fivefold Resonance' }, desc: { ru: 'Эпический • каждый уникальный тип сферы даёт +4% урона сети', en: 'Epic • each unique tower type grants +4% network damage' } },
+  { id: 'relay_matrix', name: { ru: 'Релейная матрица', en: 'Relay Matrix' }, desc: { ru: 'Эпический • наличие сферы VII уровня усиливает остальные на +10%', en: 'Epic • a level VII tower empowers the network by +10%' } },
+  { id: 'triangle_circuit', name: { ru: 'Треугольный контур', en: 'Triangle Circuit' }, desc: { ru: 'Эпический • сферы внутри треугольной сети получают +15% урона', en: 'Epic • towers in a triangular network deal +15% damage' } },
+  { id: 'overclock', name: { ru: 'Разгон ядра', en: 'Overclock' }, desc: { ru: 'Эпический • -12% задержки сфер, но небольшая потеря эффективности', en: 'Epic • -12% tower delay with a small efficiency cost' } },
   { id: 'soul_engine', name: { ru: 'Двигатель душ', en: 'Soul Engine' }, desc: { ru: 'Эпический • +5% урона сфер и +10% опыта', en: 'Epic • +5% sphere damage and +10% XP' } },
   { id: 'time_anchor', name: { ru: 'Якорь времени', en: 'Time Anchor' }, desc: { ru: 'Эпический • -12% перезарядки способностей', en: 'Epic • -12% ability cooldowns' } },
 
   // Special
-  { id: 'void_contract', name: { ru: 'Контракт пустоты', en: 'Void Contract' }, desc: { ru: 'Особый • +12% урона сфер и +10% урона башен, но +15% получаемого урона', en: 'Special • +12% sphere and +10% tower damage, but +15% damage taken' } },
-  { id: 'mirror_network', name: { ru: 'Зеркальная сеть', en: 'Mirror Network' }, desc: { ru: 'Особый • две и более башни дают сети +12% урона', en: 'Special • two or more tower types grant +12% network damage' } },
-  { id: 'singularity_engine', name: { ru: 'Двигатель сингулярности', en: 'Singularity Engine' }, desc: { ru: 'Особый • билд из 1–2 типов башен получает ещё +18% урона', en: 'Special • a 1–2 tower-type build gains +18% damage' } },
+  { id: 'void_contract', name: { ru: 'Контракт пустоты', en: 'Void Contract' }, desc: { ru: 'Особый • +12% урона сфер и +10% урона сфер, но +15% получаемого урона', en: 'Special • +12% sphere and +10% tower damage, but +15% damage taken' } },
+  { id: 'mirror_network', name: { ru: 'Зеркальная сеть', en: 'Mirror Network' }, desc: { ru: 'Особый • две и более сферы дают сети +12% урона', en: 'Special • two or more tower types grant +12% network damage' } },
+  { id: 'singularity_engine', name: { ru: 'Двигатель сингулярности', en: 'Singularity Engine' }, desc: { ru: 'Особый • билд из 1–2 типов сфер получает ещё +18% урона', en: 'Special • a 1–2 tower-type build gains +18% damage' } },
   { id: 'quantum_core', name: { ru: 'Квантовое ядро', en: 'Quantum Core' }, desc: { ru: 'Особый • +8% урона сфер и +8% уклонения', en: 'Special • +8% sphere damage and +8% dodge' } },
 
   // Legendary
-  { id: 'zero_sphere', name: { ru: 'Нулевая сфера', en: 'Zero Sphere' }, desc: { ru: 'Легендарный • +35% мощности башен и +20% урона сфер', en: 'Legendary • +35% tower power and +20% sphere damage' } },
-  { id: 'unified_mind', name: { ru: 'Единый разум', en: 'Unified Mind' }, desc: { ru: 'Легендарный • самый высокий уровень башни передаёт 3% за уровень всей сети', en: 'Legendary • the highest tower level grants 3% damage per level' } },
+  { id: 'zero_sphere', name: { ru: 'Нулевая сфера', en: 'Zero Sphere' }, desc: { ru: 'Легендарный • +35% мощности сфер и +20% урона сфер', en: 'Legendary • +35% tower power and +20% sphere damage' } },
+  { id: 'unified_mind', name: { ru: 'Единый разум', en: 'Unified Mind' }, desc: { ru: 'Легендарный • самый высокий уровень сферы передаёт 3% за уровень всей сети', en: 'Legendary • the highest tower level grants 3% damage per level' } },
 ];
 
 export const ARTIFACT_MAP: Record<ArtifactId, ArtifactDef> = Object.fromEntries(ARTIFACTS.map(a => [a.id, a])) as Record<ArtifactId, ArtifactDef>;
