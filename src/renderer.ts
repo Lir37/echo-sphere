@@ -1518,6 +1518,19 @@ function glowCircle(ctx: CanvasRenderingContext2D, radius: number, color: string
 }
 
 function drawGroundShadow(ctx:CanvasRenderingContext2D,rx:number,ry:number,blur:number):void{ctx.save();ctx.shadowColor='rgba(0,0,0,.48)';ctx.shadowBlur=blur;ctx.fillStyle='rgba(0,0,0,.34)';ctx.beginPath();ctx.ellipse(0,5,rx,ry,0,0,Math.PI*2);ctx.fill();ctx.restore();}
+function drawSphereBase(ctx:CanvasRenderingContext2D,r:number,color:string):void{
+  const rgb=hexToRgb(color);
+  ctx.save();
+  ctx.translate(0,r*.55);
+  const base=ctx.createLinearGradient(0,-r*.20,0,r*.32);
+  base.addColorStop(0,'#40576e');base.addColorStop(.25,'#172a3d');base.addColorStop(1,'#02050b');
+  ctx.fillStyle=base;ctx.strokeStyle=`rgba(${rgb},.34)`;ctx.lineWidth=Math.max(1,r*.055);
+  ctx.beginPath();ctx.ellipse(0,0,r*.78,r*.22,0,0,Math.PI*2);ctx.fill();ctx.stroke();
+  ctx.fillStyle='rgba(170,220,255,.07)';
+  ctx.beginPath();ctx.ellipse(-r*.16,-r*.08,r*.48,r*.10,0,0,Math.PI*2);ctx.fill();
+  ctx.restore();
+}
+
 function drawModernSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: SphereEntity): void {
   const def = SPHERE_TYPES[sphere.type];
   const color = def.color;
@@ -1536,6 +1549,7 @@ function drawModernSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: S
   ctx.translate(sphere.pos.x, sphere.pos.y);
 
   drawGroundShadow(ctx, r * 1.05, r * 0.26, 5 + tier);
+  drawSphereBase(ctx, r, color);
   ctx.fillStyle = 'rgba(1,7,14,0.90)';
   ctx.strokeStyle = `rgba(${rgb},0.34)`;
   ctx.lineWidth = 1;
