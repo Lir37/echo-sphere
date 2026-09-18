@@ -14,8 +14,8 @@ export interface AbilityDef {
 
 export const ABILITIES: Record<AbilityType, AbilityDef> = {
   radius: { id: 'radius', category: 'passive', maxLevel: 7, name: { ru: 'Радиус сфер', en: 'Sphere Radius' }, desc: { ru: () => '+15% радиуса', en: () => '+15% radius' } },
-  damage: { id: 'damage', category: 'passive', maxLevel: 7, name: { ru: 'Урон сфер', en: 'Sphere Damage' }, desc: { ru: () => '+20% урона', en: () => '+20% damage' } },
-  attackspeed: { id: 'attackspeed', category: 'passive', maxLevel: 7, name: { ru: 'Скорость атаки', en: 'Attack Speed' }, desc: { ru: () => '-10% задержки', en: () => '-10% delay' } },
+  damage: { id: 'damage', category: 'passive', maxLevel: 7, name: { ru: 'Урон сфер', en: 'Sphere Damage' }, desc: { ru: () => '+15% урона', en: () => '+15% damage' } },
+  attackspeed: { id: 'attackspeed', category: 'passive', maxLevel: 7, name: { ru: 'Скорость атаки', en: 'Attack Speed' }, desc: { ru: () => '-7% задержки', en: () => '-7% delay' } },
   maxspheres: { id: 'maxspheres', category: 'passive', maxLevel: 3, name: { ru: '+1 Сфера', en: '+1 Sphere' }, desc: { ru: () => '+1 макс. сфер', en: () => '+1 max spheres' } },
   blast: { id: 'blast', category: 'active', maxLevel: 7, key: 'e', name: { ru: 'Эхо-импульс', en: 'Echo Pulse' }, desc: { ru: (l) => `Импульс проходит через сферы, КД ${Math.max(8, 30 - (l - 1) * 2)}с`, en: (l) => `Pulse travels through spheres, CD ${Math.max(8, 30 - (l - 1) * 2)}s` } },
   shield: { id: 'shield', category: 'active', maxLevel: 7, key: 'q', name: { ru: 'Сферный барьер', en: 'Sphere Barrier' }, desc: { ru: (l) => `Сферы создают защитный контур, КД 20с`, en: (l) => `Spheres create a defensive network, CD 20s` } },
@@ -201,7 +201,7 @@ export interface DifficultyDef {
 }
 
 export const DIFFICULTIES: DifficultyDef[] = [
-  { id: 'easy', name: { ru: 'Лёгкая', en: 'Easy' }, desc: { ru: 'Медленные враги, больше HP', en: 'Slower enemies, more HP' },
+  { id: 'easy', name: { ru: 'Лёгкая', en: 'Easy' }, desc: { ru: 'Медленные враги, меньше HP', en: 'Slower enemies, less HP' },
     enemyHpMult: 0.7, enemySpeedMult: 0.8, enemyDamageMult: 0.7, goldMult: 0.8, spawnRateMult: 0.8 },
   { id: 'normal', name: { ru: 'Обычная', en: 'Normal' }, desc: { ru: 'Сбалансированный вызов', en: 'Balanced challenge' },
     enemyHpMult: 1, enemySpeedMult: 1, enemyDamageMult: 1, goldMult: 1, spawnRateMult: 1 },
