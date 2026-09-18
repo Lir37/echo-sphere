@@ -92,7 +92,7 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
   const handleTowerTap = (clientX: number, clientY: number) => {
     const st = stateRef.current;
     if (!st || st.gameOver || st.paused) return;
-    if (st.pendingUpgrade || st.pendingArtifact || st.pendingEvolution || st.pendingTowerUpgrade || st.pendingChest) return;
+    if (st.pendingUpgrade || st.pendingArtifact || st.pendingUpgrade || st.pendingChest) return;
     const world = touchToWorld(clientX, clientY);
     if (!world) return;
     const nearExistingTower = st.spheres.some(
@@ -229,7 +229,7 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
           {activeAbilities.map(([key, ability]) => {
             const def = ABILITIES[ability];
             const cd = getAbilityCooldown(stateRef.current, ability);
-            return <button key={`${key}-${ability}`} data-mobile-control="true" className="relative w-16 h-12 rounded-xl bg-[#e8dcc0]/90 border border-[#c4b890] shadow-lg px-1 overflow-hidden active:scale-95" onPointerDown={(e) => { e.stopPropagation(); const st = stateRef.current; if (!st || st.gameOver || st.paused) return; if (st.pendingUpgrade || st.pendingArtifact || st.pendingEvolution || st.pendingTowerUpgrade || st.pendingChest) return; haptic(12); activateByKey(st, key); }}>
+            return <button key={`${key}-${ability}`} data-mobile-control="true" className="relative w-16 h-12 rounded-xl bg-[#e8dcc0]/90 border border-[#c4b890] shadow-lg px-1 overflow-hidden active:scale-95" onPointerDown={(e) => { e.stopPropagation(); const st = stateRef.current; if (!st || st.gameOver || st.paused) return; if (st.pendingUpgrade || st.pendingArtifact || st.pendingUpgrade || st.pendingChest) return; haptic(12); activateByKey(st, key); }}>
               <span className="text-[9px] text-[#8a7a5a] block truncate">{def.name[lang]}</span>
               <span className="text-[8px] text-[#5a4a32]/60">{cd > 0 ? `${Math.ceil(cd)}s` : t('ready')}</span>
               {cd > 0 && <span className="absolute inset-x-0 bottom-0 h-1 bg-[#c4453d]/70" style={{ width: `${Math.min(100, (cd / getAbilityMaxCooldown(ability)) * 100)}%` }} />}
