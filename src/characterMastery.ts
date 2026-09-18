@@ -27,8 +27,8 @@ export function tickCharacterMastery(
     s.paused ||
     s.pendingUpgrade ||
     s.pendingArtifact ||
-    s.pendingEvolution ||
-    s.pendingTowerUpgrade ||
+    s.pendingUpgrade ||
+    s.pendingUpgrade ||
     s.pendingChest
   ) {
     tracker.lastGameTime = s.time;
