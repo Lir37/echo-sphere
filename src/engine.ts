@@ -507,6 +507,7 @@ export function getSphereDamage(s: GameState, sphere: SphereEntity): number {
     d *= 1.2 + (s.player.abilities.firetrail || 0) * 0.025;
   }
   if (s.player.fireCatalystTimer > 0 && sphere && s.player.sphereMods.fire > 0) d *= 1.35;
+  if (sphere && s.player.sphereMods.fire > 0 && getAbilityBranchId(s, 'firetrail', 4) === 'firetrail_overdrive') d *= 1.15;
   if (s.player.timestopTimer > 0 && s.player.timestopTimer <= 1 && getAbilityBranchId(s, 'timestop', 7) === 'timestop_temporal_core') d *= 2;
   const sbLvl = s.player.abilities.sphereboost || 0;
   if (sbLvl > 0) {
@@ -780,6 +781,10 @@ function triggerEngineerRelay(s: GameState, sphere: SphereEntity): void {
 function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSphere?: SphereEntity, allowSphereProc = true): void {
   if (enemy.hp <= 0) return;
   if (fromSphere) registerHunterHit(s, enemy, fromSphere);
+
+  if (s.player.timestopTimer > 0 && getAbilityBranchId(s, 'timestop', 7) === 'timestop_outside_time') {
+    enemy.freezeTimer = Math.max(enemy.freezeTimer, 0.35);
+  }
 
   let actual = dmg;
   if (fromSphere) {
