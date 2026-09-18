@@ -766,7 +766,7 @@ function triggerEngineerRelay(s: GameState, sphere: SphereEntity): void {
 }
 
 // ===== Damage application =====
-function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSphere?: SphereEntity): void {
+function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSphere?: SphereEntity, allowTowerProc = true): void {
   if (enemy.hp <= 0) return;
   if (fromSphere) registerHunterHit(s, enemy, fromSphere);
 
@@ -791,7 +791,7 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
     if (fromSphere.killsContribution % 5 === 0) { actual *= 2; isCrit = true; }
   }
   // Tower branch mechanics: evolutions alter the combat loop, not just stats.
-  if (fromSphere) {
+  if (fromSphere && allowTowerProc) {
     const branch = s.player.towerBranches?.[fromSphere.type];
     const finalId = (s.player.evolutions || []).find((x: string) => x.startsWith('tower:' + fromSphere.type + ':7:'));
     const finalIndex = finalId ? Number(finalId.split(':').pop()) : null;
@@ -851,7 +851,7 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
       if (finalIndex === 0) {
         for (const nearby of s.enemies) {
           if (nearby !== enemy && nearby.hp > 0 && dist(nearby.pos, enemy.pos) < 60) {
-            dealDamageToEnemy(s, nearby, actual * 0.45, fromSphere);
+            dealDamageToEnemy(s, nearby, actual * 0.45, fromSphere, false);
           }
         }
       }
@@ -872,7 +872,7 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
       if (finalIndex === 0) {
         for (const nearby of s.enemies) {
           if (nearby !== enemy && nearby.hp > 0 && dist(nearby.pos, enemy.pos) < 70) {
-            dealDamageToEnemy(s, nearby, actual * 0.25, fromSphere);
+            dealDamageToEnemy(s, nearby, actual * 0.25, fromSphere, false);
             s.lightnings.push({ from: { ...enemy.pos }, to: { ...nearby.pos }, life: 0.2 });
           }
         }
