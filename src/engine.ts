@@ -2081,6 +2081,12 @@ function updateSpheres(s: GameState, dt: number): void {
               const d = Math.hypot(dx, dy) || 1;
               e.pos.x += dx / d * 28 * dt;
               e.pos.y += dy / d * 28 * dt;
+            } else if (branch === 'aura_sanctum') {
+              for (const ally of s.spheres) {
+                if (ally !== sphere && ally.alive && dist(ally.pos, sphere.pos) < 120) {
+                  ally.attackTimer = Math.max(0, ally.attackTimer - dt * 0.12);
+                }
+              }
             } else if (branch === 'aura_overgrowth') {
               for (const ally of s.spheres) {
                 if (ally !== sphere && ally.alive && dist(ally.pos, sphere.pos) < 110) {
@@ -2274,10 +2280,20 @@ function updateMinions(s: GameState, dt: number): void {
       m.pos.x += (targetX - m.pos.x) * Math.min(1, dt * 4);
       m.pos.y += (targetY - m.pos.y) * Math.min(1, dt * 4);
 
+      const abilityBranch = getAbilityBranchId(s, 'minion', 4);
+      const abilityFinal = getAbilityBranchId(s, 'minion', 7);
       const nearby = getNearestSphere(s, m.pos, (sphere) => sphere !== anchor && dist(sphere.pos, m.pos) < 240);
-      if (nearby && Math.random() < dt * 4) {
+      if (abilityBranch === 'minion_relay_drone' && nearby && Math.random() < dt * 4) {
         s.lightnings.push({ from: { ...anchor.pos }, to: { ...nearby.pos }, life: 0.1 });
-        anchor.attackTimer = Math.max(0, anchor.attackTimer - 0.08);
+        anchor.attackTimer = Math.max(0, anchor.attackTimer - 0.16);
+        nearby.attackTimer = Math.max(0, nearby.attackTimer - 0.08);
+      } else if (abilityBranch === 'minion_guardian') {
+        anchor.attackTimer = Math.max(0, anchor.attackTimer - dt * 0.18);
+      } else if (nearby && Math.random() < dt * 2) {
+        s.lightnings.push({ from: { ...anchor.pos }, to: { ...nearby.pos }, life: 0.08 });
+      }
+      if (abilityFinal === 'minion_sphere_guard') {
+        anchor.attackTimer = Math.max(0, anchor.attackTimer - dt * 0.12);
       }
     } else {
       const dx = s.player.pos.x - m.pos.x;
