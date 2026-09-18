@@ -71,7 +71,7 @@ export default function CharacterSelect({ lang, gold, onGoldChange, onBack, onSe
   };
 
   return (
-    <div className="relative w-full max-w-md mx-auto h-screen flex flex-col px-4 py-5 overflow-hidden">
+    <div className="es-character-screen relative w-full max-w-md mx-auto h-screen flex flex-col px-4 py-5 overflow-hidden">
       <div className="flex items-center justify-between mb-4 shrink-0">
         <button
           onClick={onBack}
@@ -143,7 +143,7 @@ export default function CharacterSelect({ lang, gold, onGoldChange, onBack, onSe
                     className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 border border-[#c4b890] bg-[#f4ecd8]"
                     style={{ color: character.color }}
                   >
-                    {unlocked ? <span className="text-xl">◈</span> : <Lock size={18} />}
+                    {unlocked ? <span className="es-character-glyph">✦</span> : <Lock size={18} />}
                   </div>
 
                   <div className="min-w-0 flex-1">
