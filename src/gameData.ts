@@ -38,32 +38,6 @@ export const ABILITIES: Record<AbilityType, AbilityDef> = {
 // Active ability hotkey assignment (order of acquisition). Keys: e, q, r, f, g
 export const ACTIVE_KEYS = ['e', 'q', 'r', 'f', 'g'] as const;
 
-export interface EvolutionDef {
-  id: string;
-  a: AbilityType;
-  b: AbilityType;
-  name: { ru: string; en: string };
-  desc: { ru: string; en: string };
-}
-
-export const EVOLUTIONS: EvolutionDef[] = [
-  { id: 'supernova', a: 'radius', b: 'damage', name: { ru: 'Сверхновая', en: 'Supernova' }, desc: { ru: 'Сферы взрываются при убийстве врага', en: 'Spheres explode on enemy kill' } },
-  { id: 'barrier', a: 'blast', b: 'shield', name: { ru: 'Барьер', en: 'Barrier' }, desc: { ru: 'Взрывная волна создаёт щит на 5с', en: 'Blast creates a shield for 5s' } },
-  { id: 'blink', a: 'teleport', b: 'movespeed', name: { ru: 'Мгновенное перемещение', en: 'Blink' }, desc: { ru: 'Телепорт без КД, -10% HP за use', en: 'No-CD teleport, -10% HP per use' } },
-  { id: 'icepath', a: 'firetrail', b: 'slow', name: { ru: 'Ледяной плен', en: 'Ice Path' }, desc: { ru: 'След замораживает врагов на 2с', en: 'Trail freezes enemies for 2s' } },
-  { id: 'devourers', a: 'minion', b: 'vampire', name: { ru: 'Пожиратели', en: 'Devourers' }, desc: { ru: 'Миньоны восстанавливают HP за убийство', en: 'Minions heal you on kill' } },
-  { id: 'thunderstorm', a: 'lightning', b: 'crit', name: { ru: 'Громовой шторм', en: 'Thunderstorm' }, desc: { ru: 'Молния бьёт по всем врагам', en: 'Lightning hits all enemies' } },
-  { id: 'invulnerability', a: 'dodge', b: 'vitality', name: { ru: 'Неуязвимость', en: 'Invulnerability' }, desc: { ru: 'При HP<20% неуязвимость 3с (1 раз)', en: 'At HP<20% invulnerable 3s (once)' } },
-  { id: 'echoaccumulator', a: 'magnet', b: 'sphereboost', name: { ru: 'Эхо-накопитель', en: 'Echo Accumulator' }, desc: { ru: 'Сферы поглощают опыт, +урон постоянно', en: 'Spheres absorb XP, +damage permanently' } },
-];
-
-export const EVOLUTION_MAP: Record<string, EvolutionDef> = Object.fromEntries(EVOLUTIONS.map(e => [e.id, e]));
-export const EVOLUTION_BY_PAIR: Record<string, string> = {};
-for (const e of EVOLUTIONS) {
-  EVOLUTION_BY_PAIR[`${e.a}+${e.b}`] = e.id;
-  EVOLUTION_BY_PAIR[`${e.b}+${e.a}`] = e.id;
-}
-
 export type ArtifactId = 'crystal_speed' | 'amulet_hp' | 'ring_xp' | 'regen_stone' | 'radius_shard' | 'vampire_ring' | 'swift_boots' | 'luck_talisman' | 'veil_cloak' | 'mage_pendant' | 'long_lens' | 'stasis_core' | 'dragon_heart' | 'mirror' | 'predator_claw' | 'foresight_eye' | 'echo_conductor' | 'heavy_core' | 'scattering_matrix' | 'aura_lens' | 'network_relay' | 'chaos_orb' | 'resonance_core' | 'lone_bastion' | 'fivefold_resonance' | 'relay_matrix' | 'triangle_circuit' | 'overclock' | 'soul_engine' | 'time_anchor' | 'void_contract' | 'mirror_network' | 'singularity_engine' | 'quantum_core' | 'zero_sphere' | 'unified_mind';
 
 export interface ArtifactDef {
