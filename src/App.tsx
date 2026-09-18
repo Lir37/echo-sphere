@@ -9,7 +9,7 @@ import {
 import {
   createInitialState, update,
   generateUpgradeChoices, applyUpgrade, applyArtifact,
-  getMaxSpheres, getMoveSpeed, getSphereRadius, getSphereDamage, getSphereDelay,
+  getMaxSpheres, getMoveSpeed, getSphereRadius, getSphereDamage, getSphereDelay, getSphereDpsEstimate,
   getCritChance, getDodgeChance, getVampirePercent,
   type GameState, type ShopState, type LeaderEntry, type UpgradeChoice,
   MAP_THEMES, type MapTheme,
@@ -412,6 +412,7 @@ function PausePlanner({ lang, t, st, tab, setTab, onResume, onExit }: {
                             <MiniStat label={lang === 'ru' ? 'урон' : 'damage'} value={live.type === 'aura' ? `${Math.round(getSphereDamage(st, live))}/имп.` : `${Math.round(getSphereDamage(st, live))}`} />
                             <MiniStat label={lang === 'ru' ? 'интервал' : 'delay'} value={`${getSphereDelay(st, live).toFixed(2)}с`} />
                             <MiniStat label={lang === 'ru' ? 'дальность' : 'range'} value={`${Math.round(getSphereRadius(st, live))}`} />
+                            <MiniStat label={lang === 'ru' ? 'DPS' : 'DPS'} value={`${getSphereDpsEstimate(st, live).toFixed(1)}`} />
                           </div>
                         ) : (
                           <div className="text-[10px] text-[#8a7a5a] mt-2">{lang === 'ru' ? def.desc[lang] : def.desc[lang]}</div>
