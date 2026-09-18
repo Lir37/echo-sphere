@@ -459,18 +459,39 @@ function drawVoidField(ctx: CanvasRenderingContext2D, w: number, h: number, them
   }
   ctx.restore();
 
+  // Physical arena floor. The lines recede toward a shared horizon so every
+  // object reads as standing on the same surface rather than floating in space.
   ctx.save();
   ctx.translate(cx, cy + h * 0.015);
-  ctx.scale(1,0.46);
-  const arena=ctx.createRadialGradient(0,0,0,0,0,outer*0.40);
-  arena.addColorStop(0,'rgba(26,63,102,0.15)');
-  arena.addColorStop(0.58,'rgba(11,24,44,0.10)');
+  ctx.scale(1, 0.46);
+  const arena=ctx.createRadialGradient(0,0,0,0,0,outer*0.46);
+  arena.addColorStop(0,'rgba(44,91,138,0.20)');
+  arena.addColorStop(0.42,'rgba(14,35,60,0.13)');
+  arena.addColorStop(0.78,'rgba(5,13,25,0.08)');
   arena.addColorStop(1,'rgba(2,7,14,0)');
-  ctx.fillStyle=arena;ctx.beginPath();ctx.arc(0,0,outer*0.42,0,Math.PI*2);ctx.fill();
-  ctx.strokeStyle='rgba(103,213,255,0.10)';ctx.lineWidth=1;
-  for(let i=0;i<7;i++){ctx.beginPath();ctx.ellipse(0,0,outer*(0.10+i*0.055),outer*(0.10+i*0.055),0,0,Math.PI*2);ctx.stroke();}
-  ctx.strokeStyle='rgba(110,193,255,0.055)';
-  for(let i=-12;i<=12;i++){const x=i*outer*0.028;ctx.beginPath();ctx.moveTo(x,-outer*0.02);ctx.lineTo(x*2.5,outer*0.44);ctx.stroke();}
+  ctx.fillStyle=arena;ctx.beginPath();ctx.arc(0,0,outer*0.46,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='rgba(111,214,255,0.075)';ctx.lineWidth=1;
+  for(let i=0;i<9;i++){
+    const rr=outer*(0.07+i*0.048);
+    ctx.beginPath();ctx.ellipse(0,0,rr,rr,0,0,Math.PI*2);ctx.stroke();
+  }
+  ctx.strokeStyle='rgba(111,198,255,0.048)';
+  for(let i=-16;i<=16;i++){
+    const x=i*outer*0.024;
+    ctx.beginPath();ctx.moveTo(x,-outer*0.045);ctx.lineTo(x*2.9,outer*0.46);ctx.stroke();
+  }
+  ctx.strokeStyle='rgba(184,225,255,0.045)';
+  ctx.beginPath();ctx.ellipse(0,0,outer*0.27,outer*0.27,0,0,Math.PI*2);ctx.stroke();
+  ctx.restore();
+
+  // A few near-field plates create scale and depth without becoming a grid.
+  ctx.save();
+  ctx.strokeStyle='rgba(96,184,255,0.032)';
+  ctx.lineWidth=1;
+  for(let i=1;i<5;i++){
+    const y=cy+h*0.22+i*i*h*0.045;
+    ctx.beginPath();ctx.moveTo(ox+w*.08,y);ctx.lineTo(ox+w*.92,y);ctx.stroke();
+  }
   ctx.restore();
 
   ctx.save();
@@ -1843,7 +1864,16 @@ function drawModernEnemy(ctx: CanvasRenderingContext2D, e: EnemyEntity): void {
 }
 
 function drawModernBossBody(ctx:CanvasRenderingContext2D,e:EnemyEntity,color:string,t:number):void{
-  const r=e.radius,boss=e.bossType,rgb=hexToRgb(color),pulse=1+Math.sin(t*2.8)*.03;ctx.save();drawGroundShadow(ctx,r*1.28,r*.39,14);
+  const r=e.radius,boss=e.bossType,rgb=hexToRgb(color),pulse=1+Math.sin(t*2.8)*.03;ctx.save();
+  // Massive base shadow anchors the boss to the battlefield.
+  drawGroundShadow(ctx,r*1.45,r*.48,18);
+  ctx.fillStyle='rgba(0,3,9,.72)';
+  ctx.beginPath();ctx.ellipse(0,r*.28,r*1.08,r*.26,0,0,Math.PI*2);ctx.fill();
+  // Rear containment frame gives the boss a layered, almost sculptural silhouette.
+  ctx.strokeStyle='rgba(148,207,255,.10)';ctx.lineWidth=Math.max(2,r*.018);
+  ctx.beginPath();ctx.ellipse(0,-r*.08,r*1.18,r*.72,0,0,Math.PI*2);ctx.stroke();
+  ctx.strokeStyle=`rgba(${rgb},.18)`;ctx.lineWidth=Math.max(1,r*.012);
+  ctx.beginPath();ctx.ellipse(0,-r*.10,r*1.30,r*.34,0,0,Math.PI*2);ctx.stroke();
   const body=ctx.createLinearGradient(-r,-r*1.10,r*.75,r);body.addColorStop(0,'#8494aa');body.addColorStop(.10,'#364a63');body.addColorStop(.28,'#172a42');body.addColorStop(.62,'#071321');body.addColorStop(.88,'#02060e');body.addColorStop(1,'#010208');
   ctx.fillStyle=body;ctx.strokeStyle=`rgba(${rgb},.72)`;ctx.lineWidth=Math.max(1.8,r*.022);
   if(boss==='charger'){ctx.beginPath();ctx.moveTo(-r*1.02,r*.18);ctx.quadraticCurveTo(-r*.86,-r*.58,-r*.20,-r*.84);ctx.lineTo(r*.56,-r*.54);ctx.lineTo(r*1.02,0);ctx.lineTo(r*.62,r*.50);ctx.lineTo(-r*.18,r*.78);ctx.quadraticCurveTo(-r*.84,r*.60,-r*1.02,r*.18);ctx.closePath();ctx.fill();ctx.stroke();}
