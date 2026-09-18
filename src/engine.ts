@@ -584,6 +584,16 @@ export function getSphereDamage(s: GameState, sphere: SphereEntity): number {
   return d;
 }
 
+export function getSphereDpsEstimate(s: GameState, sphere: SphereEntity): number {
+  const def = SPHERE_TYPES[sphere.type];
+  const mods = sphereModifiers(s, sphere.type, sphere);
+  const damage = getSphereDamage(s, sphere);
+  const delay = Math.max(0.05, getSphereDelay(s, sphere) * def.delayMult * mods.delay);
+  if (def.aura) return damage / delay;
+  const shots = (1 + mods.multishot) * def.pellets;
+  return (damage * shots) / delay;
+}
+
 export function getSphereDelay(s: GameState, sphere?: SphereEntity): number {
   let d = BASE_SPHERE_DELAY;
   const lvl = s.player.abilities.attackspeed || 0;
