@@ -16,7 +16,7 @@ import {
   MAP_THEMES, type MapTheme,
 } from './engine';
 import { render } from './renderer';
-import { ARTIFACT_META, RARITY_LABELS, artifactRarity, getActiveArtifactSynergies } from './artifactSystem';
+import { ARTIFACT_META, RARITY_LABELS, artifactRarity, getActiveArtifactSynergies, getArtifactSynergiesAfterPick } from './artifactSystem';
 import { resolveSpaceCollisions } from './spaceCollision';
 import {
   loadShop, saveShop, loadLeaderboard, addLeaderEntry, loadLang, saveLang,
@@ -281,7 +281,7 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
             </div>
           )}
           {st.pendingUpgrade && <UpgradeModal lang={lang} t={t} st={st} onPick={(c) => { applyUpgrade(st, c); st.pendingUpgrade = null; }} />}
-          {st.pendingArtifact && <ArtifactModal lang={lang} t={t} choices={st.pendingArtifact} onPick={(id) => { applyArtifact(st, id); st.pendingArtifact = null; }} />}
+          {st.pendingArtifact && <ArtifactModal lang={lang} t={t} st={st} choices={st.pendingArtifact} onPick={(id) => { applyArtifact(st, id); st.pendingArtifact = null; }} />}
           {st.pendingChest && <ChestModal lang={lang} t={t} st={st} onPick={() => { openChest(st, 'artifact'); }} />}
           {paused && !st.pendingUpgrade && !st.pendingArtifact && !st.pendingChest && (
             <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-50">
@@ -477,7 +477,7 @@ function ArtifactModal({ lang, t, choices, onPick }: {
                 </div>
                 <div className="font-bold text-lg leading-tight text-[#3a2e1f] mb-2">{a.name[lang]}</div>
                 <div className="text-sm leading-relaxed text-[#5a4a32] min-h-[4.5rem]">{a.desc[lang]}</div>
-                {mechanic && mechanicText[mechanic] && (
+                {getArtifactSynergiesAfterPick(st, id).filter((x) => !getActiveArtifactSynergies(st).some((active) => active.id === x.id)).map((synergy) => (\n                  <div key={synergy.id} className="mt-3 rounded-lg bg-[#8064a8]/10 border border-[#8064a8]/30 px-2 py-1.5">\n                    <div className="text-[9px] uppercase tracking-wider font-bold text-[#8064a8]">{lang === 'ru' ? 'Активирует синергию' : 'Activates synergy'}</div>\n                    <div className="text-xs font-bold text-[#8064a8]">{synergy.name[lang]}</div>\n                  </div>\n                ))}\n                {mechanic && mechanicText[mechanic] && (
                   <div className={`mt-3 inline-flex px-2 py-1 rounded-md bg-black/5 text-[10px] uppercase tracking-wider font-bold ${rarityText[rarity]}`}>
                     {mechanicText[mechanic][lang]}
                   </div>
