@@ -515,33 +515,29 @@ function drawModernHealth(ctx: CanvasRenderingContext2D, x: number, y: number, c
 }
 
 function drawModernProjectile(ctx: CanvasRenderingContext2D, x: number, y: number, vx: number, vy: number, r: number, color: string): void {
-  const angle = Math.atan2(vy, vx);
-  const speed = Math.hypot(vx, vy) || 1;
-  const trail = Math.min(28, 8 + speed * 0.045);
-  ctx.save();
-  ctx.translate(x, y); ctx.rotate(angle);
-  const rgb = hexToRgb(color);
-  ctx.strokeStyle = `rgba(${rgb},0.25)`;
-  ctx.lineWidth = Math.max(1, r * 0.7);
-  ctx.shadowColor = color; ctx.shadowBlur = 12;
-  ctx.beginPath(); ctx.moveTo(-trail, 0); ctx.lineTo(-r, 0); ctx.stroke();
-  ctx.fillStyle = '#ffffff';
-  ctx.beginPath(); ctx.ellipse(0, 0, r * 1.15, r * 0.55, 0, 0, Math.PI * 2); ctx.fill();
-  ctx.fillStyle = color;
-  ctx.beginPath(); ctx.moveTo(r * 1.8, 0); ctx.lineTo(-r * 0.8, -r * 0.72); ctx.lineTo(-r * 0.35, 0); ctx.lineTo(-r * 0.8, r * 0.72); ctx.closePath(); ctx.fill();
-  ctx.shadowBlur = 0; ctx.restore();
+  const angle=Math.atan2(vy,vx), speed=Math.hypot(vx,vy)||1;
+  const trail=Math.min(42,10+speed*.055), rgb=hexToRgb(color);
+  ctx.save();ctx.translate(x,y);ctx.rotate(angle);
+  ctx.shadowColor=color;ctx.shadowBlur=18;
+  ctx.strokeStyle=`rgba(${rgb},.22)`;ctx.lineWidth=Math.max(3,r*1.3);
+  ctx.beginPath();ctx.moveTo(-trail,0);ctx.lineTo(-r*.25,0);ctx.stroke();
+  ctx.shadowBlur=0;
+  ctx.fillStyle='#effcff';ctx.beginPath();ctx.arc(0,0,r*.75,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle=color;ctx.beginPath();
+  ctx.moveTo(r*2.1,0);ctx.lineTo(-r*.55,-r*.8);ctx.lineTo(-r*.1,0);ctx.lineTo(-r*.55,r*.8);ctx.closePath();ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,.72)';ctx.lineWidth=.8;ctx.stroke();
+  ctx.restore();
 }
 
 function drawModernMinion(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, rotation: number, color: string): void {
-  ctx.save(); ctx.translate(x, y); ctx.rotate(rotation);
-  glowCircle(ctx, r * 2.5, color, 0.14);
-  ctx.fillStyle = '#070d18';
-  ctx.strokeStyle = color; ctx.lineWidth = Math.max(1.2, r * 0.12);
-  ctx.beginPath();
-  ctx.moveTo(0, -r); ctx.lineTo(r * 0.9, 0); ctx.lineTo(0, r); ctx.lineTo(-r * 0.9, 0); ctx.closePath();
-  ctx.fill(); ctx.stroke();
-  ctx.fillStyle = color;
-  ctx.beginPath(); ctx.arc(r * 0.18, -r * 0.18, r * 0.22, 0, Math.PI * 2); ctx.fill();
+  ctx.save();ctx.translate(x,y);ctx.rotate(rotation);
+  const rgb=hexToRgb(color);
+  ctx.shadowColor=color;ctx.shadowBlur=16;
+  ctx.fillStyle='rgba(3,8,20,.94)';ctx.strokeStyle=`rgba(${rgb},.9)`;ctx.lineWidth=1.4;
+  ctx.beginPath();ctx.moveTo(0,-r);ctx.lineTo(r*.72,-r*.25);ctx.lineTo(r*.48,r*.72);ctx.lineTo(0,r*.42);ctx.lineTo(-r*.48,r*.72);ctx.lineTo(-r*.72,-r*.25);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.shadowBlur=0;
+  ctx.fillStyle=color;ctx.globalAlpha=.75;ctx.beginPath();ctx.arc(r*.18,-r*.12,r*.22,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
+  ctx.strokeStyle='rgba(255,255,255,.38)';ctx.lineWidth=.8;ctx.beginPath();ctx.moveTo(-r*.45,0);ctx.lineTo(r*.45,0);ctx.stroke();
   ctx.restore();
 }
 
@@ -1052,23 +1048,57 @@ function drawOrigamiOctopus(ctx: CanvasRenderingContext2D, r: number, fill: stri
 
 // ===== Player — status effects only =====
 function drawPlayer(ctx: CanvasRenderingContext2D, p: PlayerState): void {
-  ctx.save();
-  ctx.translate(p.pos.x, p.pos.y);
   const t = Date.now() / 1000;
   const r = PLAYER_RADIUS;
+  ctx.save();
+  ctx.translate(p.pos.x, p.pos.y);
 
-  if (p.shieldCharges > 0 || p.shieldTimer > 0) {
-    ctx.strokeStyle = '#4a7a8a'; ctx.lineWidth = 2.5;
-    ctx.globalAlpha = 0.5 + Math.sin(t * 6) * 0.2;
-    ctx.setLineDash([6, 4]);
-    ctx.beginPath(); ctx.arc(0, 0, r + 10, 0, Math.PI * 2); ctx.stroke();
-    ctx.setLineDash([]); ctx.globalAlpha = 1;
+  // Central living energy core, matching the concept's luminous protagonist silhouette.
+  const pulse = 1 + Math.sin(t * 4.2) * 0.045;
+  ctx.shadowColor = '#65e8ff';
+  ctx.shadowBlur = 28;
+  const aura = ctx.createRadialGradient(0,0,2,0,0,r*2.2);
+  aura.addColorStop(0,'rgba(255,255,255,.72)');
+  aura.addColorStop(.16,'rgba(101,232,255,.34)');
+  aura.addColorStop(.55,'rgba(108,88,255,.10)');
+  aura.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=aura; ctx.beginPath(); ctx.arc(0,0,r*2.2,0,Math.PI*2); ctx.fill();
+  ctx.shadowBlur=0;
+
+  ctx.strokeStyle='rgba(150,240,255,.65)'; ctx.lineWidth=1.4;
+  ctx.beginPath(); ctx.arc(0,0,r*1.32*pulse,0,Math.PI*2); ctx.stroke();
+  ctx.strokeStyle='rgba(157,124,255,.38)'; ctx.lineWidth=2;
+  ctx.setLineDash([10,7]); ctx.beginPath(); ctx.arc(0,0,r*1.62,-.7,2.1); ctx.stroke(); ctx.setLineDash([]);
+
+  ctx.fillStyle='#071225';
+  ctx.strokeStyle='#a9f3ff'; ctx.lineWidth=1.8;
+  ctx.beginPath();
+  for(let i=0;i<8;i++){
+    const a=-Math.PI/2+i*Math.PI/4;
+    const rr=i%2?r*.76:r*1.04;
+    const x=Math.cos(a)*rr,y=Math.sin(a)*rr;
+    i?ctx.lineTo(x,y):ctx.moveTo(x,y);
   }
-  if (p.invulnerableTimer > 0) {
-    ctx.strokeStyle = '#d4943d'; ctx.lineWidth = 3;
-    ctx.beginPath(); ctx.arc(0, 0, r + 14, 0, Math.PI * 2); ctx.stroke();
+  ctx.closePath();ctx.fill();ctx.stroke();
+
+  const core=ctx.createRadialGradient(-2,-3,1,0,0,r*.72);
+  core.addColorStop(0,'#ffffff'); core.addColorStop(.18,'#9ff7ff'); core.addColorStop(.52,'#65e8ff'); core.addColorStop(1,'rgba(101,232,255,0)');
+  ctx.fillStyle=core;ctx.beginPath();ctx.arc(0,0,r*.72,0,Math.PI*2);ctx.fill();
+
+  for(let i=0;i<3;i++){
+    ctx.save();ctx.rotate(t*(i%2?-.35:.5)+i*2);
+    ctx.strokeStyle=i===1?'rgba(230,108,255,.58)':'rgba(101,232,255,.48)';
+    ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(0,0,r*(1.75+i*.32),-.65,.85);ctx.stroke();ctx.restore();
   }
 
+  if(p.shieldCharges>0||p.shieldTimer>0){
+    ctx.strokeStyle='rgba(101,232,255,.72)';ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(0,0,r+12+Math.sin(t*6)*2,0,Math.PI*2);ctx.stroke();
+  }
+  if(p.invulnerableTimer>0){
+    ctx.strokeStyle='#ffffff';ctx.lineWidth=2.5;ctx.globalAlpha=.7;
+    ctx.beginPath();ctx.arc(0,0,r+16,0,Math.PI*2);ctx.stroke();ctx.globalAlpha=1;
+  }
   ctx.restore();
 }
 
