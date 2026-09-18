@@ -2423,7 +2423,7 @@ function updateSpheres(s: GameState, dt: number): void {
         const dirX = dx / d;
         const dirY = dy / d;
         const mods = s.player.sphereMods;
-        const shots = (1 + mods.multishot + (sphere.type === 'shotgun' ? sphereModifiers(s, sphere.type).multishot : 0)) * stype.pellets;
+        const shots = (1 + mods.multishot) * stype.pellets;
         const relayMultiplier = consumeEngineerRelayBonus(s, sphere);
         const formation = getCharacterFormation(s);
         const formationPierce = getCharacterId(s) === 'architect' && formation.type === 'line' ? 1 : 0;
