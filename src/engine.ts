@@ -27,7 +27,7 @@ import {
 } from './characterRuntime';
 import { loadCharacterId, loadCharacterProfiles } from './persistence';
 import { getArtifactMoveSpeedMultiplier, getArtifactMaxHpBonus, getArtifactXpMultiplier, getArtifactRegenPerSecond, getArtifactSphereRadiusMultiplier, getArtifactSphereDamageMultiplier, getArtifactCooldownMultiplier, getArtifactSphereDelayMultiplier, getArtifactDamageTakenMultiplier, getArtifactCritChanceBonus, getArtifactDodgeChanceBonus, getArtifactVampireBonus, getArtifactReflectChance, getSphereArtifactDamageMultiplier, pickArtifactChoices } from './artifactSystem';
-import { SPHERE_PROGRESSION, ABILITY_PROGRESSION, spherePriority, sphereLevel, sphereModifiers, SPHERE_ABILITY_SYNERGIES } from './sphereProgression';
+import { SPHERE_PROGRESSION, ABILITY_PROGRESSION, spherePriority, sphereLevel, sphereModifiers, SPHERE_ABILITY_SYNERGIES, getActiveSphereAbilitySynergies } from './sphereProgression';
 
 export interface Vec { x: number; y: number; }
 
@@ -806,7 +806,19 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
     fromSphere.killsContribution++;
     if (fromSphere.killsContribution % 5 === 0) { actual *= 2; isCrit = true; }
   }
+  // Basic Shotgun II: +20% damage at close range.
+  if (fromSphere?.type === 'shotgun' && sphereLevel(s, 'shotgun') >= 2 && dist(enemy.pos, fromSphere.pos) < 110) {
+    actual *= 1.20;
+  }
+
   // Sphere evolution mechanics: evolutions alter the combat loop, not just stats.
+  const executioner = getActiveSphereAbilitySynergies(s).some((link) =>
+    link.character === 'hunter' && link.sphere === 'sniper' && link.ability === 'crit'
+  );
+  if (executioner && fromSphere?.type === 'sniper' && s.player.hunterMarkTarget === enemy && isCrit) {
+    actual *= 1.18;
+  }
+
   if (fromSphere && allowSphereProc) {
     const branch = s.player.sphereBranches?.[fromSphere.type];
     const finalId = (s.player.evolutions || []).find((x: string) => x.startsWith('sphere:' + fromSphere.type + ':7:'));
@@ -893,7 +905,6 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
       }
     } else if (branch === 'shotgun_burst') {
       if (dist(enemy.pos, fromSphere.pos) < (finalIndex === 1 ? 180 : 150)) actual *= finalIndex === 0 ? 1.3 : finalIndex === 1 ? 1.5 : 1.22;
-      if (fromSphere.type === 'shotgun' && sphereLevel(s, 'shotgun') >= 2 && dist(enemy.pos, fromSphere.pos) < 110) actual *= 1.20;
       if (finalIndex === 2 && dist(enemy.pos, fromSphere.pos) < 90) enemy.slowTimer = Math.max(enemy.slowTimer, 0.4);
     } else if (branch === 'shotgun_cataclysm') {
       const radius = finalIndex === 0 ? 60 : finalIndex === 1 ? 85 : 55;
@@ -1287,12 +1298,16 @@ function activateBlast(s: GameState): void {
       }
       ordered = network.length > 0 ? network : ordered;
     }
+    const networkCore = getActiveSphereAbilitySynergies(s).some((link) =>
+      link.character === 'engineer' && link.sphere === 'standard' && link.ability === 'blast'
+    );
     let strength = 1;
     for (const sphere of ordered) {
       emitSpherePulse(s, sphere, baseDamage * strength, radius, '#c46d3d', final === 'blast_resonant_core');
       if (branch === 'blast_resonance' && sphere.type === 'standard') {
         emitSpherePulse(s, sphere, baseDamage * 0.4, radius * 0.72, '#d4943d');
       }
+      if (networkCore && sphere.type === 'standard') triggerEngineerRelay(s, sphere);
       if (branch === 'blast_core') strength *= 1.12;
       if (branch === 'blast_network') strength *= 1.08;
       if (final === 'blast_echo_network') strength *= 1.15;
@@ -1307,6 +1322,15 @@ function activateBlast(s: GameState): void {
     }
   }
 
+  const geometricCore = getActiveSphereAbilitySynergies(s).some((link) =>
+    link.character === 'architect' && link.sphere === 'standard' && link.ability === 'blast'
+  );
+  if (geometricCore) {
+    const standards = s.spheres.filter((sphere) => sphere.alive && sphere.type === 'standard');
+    for (let i = 1; i < standards.length; i++) {
+      s.lightnings.push({ from: { ...standards[i - 1].pos }, to: { ...standards[i].pos }, life: 0.3 });
+    }
+  }
   if (branch === 'blast_core') {
     for (const e of s.enemies) {
       if (e.hp > 0 && dist(e.pos, s.player.pos) <= 100) dealDamageToEnemy(s, e, baseDamage * 0.5);
@@ -1332,7 +1356,10 @@ function activateShield(s: GameState): void {
   const branchBonus = branch === 'shield_echo_guard' ? Math.min(2, Math.floor(nearby / 2)) : 0;
   const bastionBonus = branch === 'shield_bastion' ? 1 : 0;
   const networkGuardBonus = final === 'shield_network_guard' ? Math.min(2, Math.floor(nearby / 2)) : 0;
-  s.player.shieldCharges = Math.min(5, 1 + Math.floor((lvl - 1) / 2) + networkBonus + branchBonus + bastionBonus + networkGuardBonus);
+  const barrierCore = getActiveSphereAbilitySynergies(s).some((link) =>
+    link.character === 'berserker' && link.sphere === 'shotgun' && link.ability === 'shield' && link.effect === 'defense'
+  );
+  s.player.shieldCharges = Math.min(5, 1 + Math.floor((lvl - 1) / 2) + networkBonus + branchBonus + bastionBonus + networkGuardBonus + (barrierCore ? 1 : 0));
   s.player.shieldTimer = 10 + (lvl >= 5 ? 2 : 0);
   if (branch === 'shield_echo_guard' || final === 'shield_network_guard') {
     for (const sphere of s.spheres) {
@@ -1422,6 +1449,26 @@ function activateTeleport(s: GameState): void {
     if (branch === 'teleport_beacon') s.player.teleportDamageBuffTimer = 4;
     if (branch === 'teleport_phase') s.player.invulnerableTimer = Math.max(s.player.invulnerableTimer, 1.25);
     if (final === 'teleport_hunter_beacon' && targetSphere.type === 'sniper') s.player.teleportDamageBuffTimer = 5;
+    const predatorChain = getActiveSphereAbilitySynergies(s).some((link) =>
+      link.character === 'hunter' && link.sphere === 'chain' && link.ability === 'teleport'
+    );
+    if (predatorChain && targetSphere.type === 'chain') {
+      const chainSpheres = s.spheres.filter((sphere) => sphere.alive && sphere.type === 'chain');
+      const prey = s.enemies
+        .filter((enemy) => enemy.hp > 0)
+        .sort((a, b) => {
+          const da = chainSpheres.length ? Math.min(...chainSpheres.map((sphere) => dist(a.pos, sphere.pos))) : dist(a.pos, s.player.pos);
+          const db = chainSpheres.length ? Math.min(...chainSpheres.map((sphere) => dist(b.pos, sphere.pos))) : dist(b.pos, s.player.pos);
+          return da - db;
+        })[0];
+      if (prey) {
+        s.player.hunterMarkTarget = prey;
+        s.player.hunterMarkTimer = 4;
+        for (const sphere of chainSpheres) {
+          s.particles.push({ pos: { ...sphere.pos }, vel: { x: 0, y: 0 }, life: 0.5, maxLife: 0.5, color: '#c4453d', size: 4 });
+        }
+      }
+    }
     if (final === 'teleport_spatial_network') {
       s.lightnings.push({ from: origin, to: target, life: 0.5 });
       for (const enemy of s.enemies) if (enemy.hp > 0 && dist(enemy.pos, target) < 90) dealDamageToEnemy(s, enemy, 22);
@@ -1455,6 +1502,10 @@ function activateFireTrail(s: GameState): void {
       if (sphere.alive && sphere.type === 'aura') sphere.attackTimer = 0;
     }
   }
+  const catalystField = getActiveSphereAbilitySynergies(s).some((link) =>
+    link.character === 'alchemist' && link.sphere === 'aura' && link.ability === 'firetrail'
+  );
+  if (catalystField) s.player.alchemistCatalystTimer = 4;
   if (branch === 'firetrail_ignition' || final === 'firetrail_catalyst') {
     for (const e of s.enemies) {
       if (e.hp > 0 && (e.fireTimer > 0 || e.poisonTimer > 0 || e.freezeTimer > 0)) {
@@ -1495,6 +1546,15 @@ function activateMinion(s: GameState): void {
       s.particles.push({ pos: { ...anchor.pos }, vel: { x: 0, y: 0 }, life: 0.7, maxLife: 0.7, color: '#4a7a8a', size: 5 });
     }
   }
+  if (branch === 'minion_echo_drone') {
+    for (const drone of s.minions.slice(-count)) {
+      const anchor = getNearestSphere(s, drone.pos);
+      if (anchor) {
+        anchor.attackTimer = Math.max(0, anchor.attackTimer - 0.45);
+        s.particles.push({ pos: { ...anchor.pos }, vel: { x: 0, y: 0 }, life: 0.45, maxLife: 0.45, color: '#4a7a8a', size: 5 });
+      }
+    }
+  }
   if (branch === 'minion_relay_drone' || final === 'minion_network_nodes') {
     const alive = s.spheres.filter((sphere) => sphere.alive);
     for (let i = 0; i < count; i++) {
@@ -1527,14 +1587,32 @@ function activateLightning(s: GameState): void {
   const chainSpheres = s.spheres.filter((sphere) => sphere.alive && sphere.type === 'chain');
   const ordered = [...chainSpheres].sort((a, b) => dist(a.pos, s.player.pos) - dist(b.pos, s.player.pos));
   const targets = s.enemies.filter((e) => e.hp > 0).sort((a, b) => dist(a.pos, s.player.pos) - dist(b.pos, s.player.pos));
+  const toxicNetwork = getActiveSphereAbilitySynergies(s).some((link) =>
+    link.character === 'alchemist' && link.sphere === 'chain' && link.ability === 'lightning'
+  );
   if (targets.length === 0) return;
   const maxTargets = 1 + Math.floor((lvl - 1) / 2);
   let previous: Vec = { ...s.player.pos };
   let jump = 0;
   for (const sphere of ordered) {
     s.lightnings.push({ from: { ...previous }, to: { ...sphere.pos }, life: 0.24 });
+    if (branch === 'lightning_echo_storm') {
+      for (const enemy of s.enemies) {
+        if (enemy.hp > 0 && dist(enemy.pos, sphere.pos) < 55) {
+          dealDamageToEnemy(s, enemy, 10 + lvl * 3);
+        }
+      }
+    }
     previous = { ...sphere.pos };
     jump++;
+  }
+  const relayStorm = getActiveSphereAbilitySynergies(s).some((link) =>
+    link.character === 'engineer' && link.sphere === 'chain' && link.ability === 'lightning'
+  );
+  if (relayStorm) {
+    for (const sphere of ordered) {
+      triggerEngineerRelay(s, sphere);
+    }
   }
   const finalBonusTargets = final === 'lightning_thunder_chain' ? ordered.length : 0;
   const targetCount = Math.min(targets.length, maxTargets + finalBonusTargets);
@@ -1543,6 +1621,10 @@ function activateLightning(s: GameState): void {
     s.lightnings.push({ from: { ...previous }, to: { ...target.pos }, life: 0.3 });
     const damage = (40 + lvl * 15) * (1 + jump * 0.12);
     dealDamageToEnemy(s, target, damage);
+    if (toxicNetwork) {
+      target.fireTimer = Math.max(target.fireTimer || 0, 1.5);
+      target.poisonTimer = Math.max(target.poisonTimer || 0, 1.5);
+    }
     previous = { ...target.pos };
     jump++;
     if (branch === 'lightning_relay') {
@@ -1582,8 +1664,11 @@ function activateTimeStop(s: GameState): void {
   const nearest = getNearestSphere(s, s.player.pos);
   const branch = getAbilityBranchId(s, 'timestop', 4);
   const final = getAbilityBranchId(s, 'timestop', 7);
+  const fieldMatrix = getActiveSphereAbilitySynergies(s).some((link) =>
+    link.character === 'architect' && link.sphere === 'aura' && link.ability === 'timestop'
+  );
   const radius = nearest
-    ? branch === 'timestop_closed_time' || final === 'timestop_closed_network' ? 760 : 520
+    ? (branch === 'timestop_closed_time' || final === 'timestop_closed_network' ? 760 : 520) * (fieldMatrix ? 1.25 : 1)
     : Infinity;
   for (const e of s.enemies) {
     if (e.hp <= 0) continue;
@@ -1597,6 +1682,11 @@ function activateTimeStop(s: GameState): void {
       for (const e of s.enemies) {
         if (e.hp > 0 && dist(e.pos, sphere.pos) < 260) e.freezeTimer = Math.max(e.freezeTimer, s.player.timestopTimer);
       }
+    }
+  }
+  if (branch === 'timestop_echo_phase') {
+    for (const sphere of s.spheres) {
+      if (sphere.alive) sphere.attackTimer = Math.max(0, sphere.attackTimer - 0.65);
     }
   }
   if (nearest) {
@@ -1620,6 +1710,17 @@ function activateDarkRitual(s: GameState): void {
     if (!sphere.alive) continue;
     sphere.attackTimer = Math.max(0, sphere.attackTimer - 0.8);
     s.particles.push({ pos: { ...sphere.pos }, vel: { x: 0, y: 0 }, life: 1, maxLife: 1, color: '#8a5a8a', size: 7 });
+  }
+  const bloodResonance = getActiveSphereAbilitySynergies(s).some((link) =>
+    link.character === 'berserker' && link.sphere === 'standard' && link.ability === 'darkritual'
+  );
+  if (bloodResonance) {
+    for (const sphere of s.spheres) {
+      if (sphere.alive && sphere.type === 'standard') {
+        sphere.attackTimer = Math.max(0, sphere.attackTimer - 0.8);
+        emitSpherePulse(s, sphere, 10 + lvl * 3, 75, '#c4453d');
+      }
+    }
   }
   if (branch === 'darkritual_blood_link' || final === 'darkritual_blood_network') {
     const standard = s.spheres.filter((sphere) => sphere.alive && sphere.type === 'standard');
@@ -2201,12 +2302,6 @@ function updateSpheres(s: GameState, dt: number): void {
               const d = Math.hypot(dx, dy) || 1;
               e.pos.x += dx / d * 28 * dt;
               e.pos.y += dy / d * 28 * dt;
-            } else if (branch === 'aura_sanctum') {
-              for (const ally of s.spheres) {
-                if (ally !== sphere && ally.alive && dist(ally.pos, sphere.pos) < 120) {
-                  ally.attackTimer = Math.max(0, ally.attackTimer - dt * 0.12);
-                }
-              }
             } else if (branch === 'aura_overgrowth') {
               for (const ally of s.spheres) {
                 if (ally !== sphere && ally.alive && dist(ally.pos, sphere.pos) < 110) {
@@ -2216,6 +2311,14 @@ function updateSpheres(s: GameState, dt: number): void {
             }
             dealDamageToEnemy(s, e, damage, sphere);
             attacked = true;
+          }
+        }
+        if (branch === 'aura_sanctum') {
+          for (const ally of s.spheres) {
+            if (ally !== sphere && ally.alive && dist(ally.pos, sphere.pos) < 120) {
+              ally.attackTimer = Math.max(0, ally.attackTimer - 0.12);
+              s.particles.push({ pos: { ...ally.pos }, vel: { x: 0, y: 0 }, life: 0.18, maxLife: 0.18, color: '#8a5a8a', size: 3 });
+            }
           }
         }
         if (attacked) triggerEngineerRelay(s, sphere);
@@ -2303,6 +2406,10 @@ function updateSpheres(s: GameState, dt: number): void {
               const stormMultiplier = chainBranch === 'chain_storm' ? 1 + chainIndex * 0.15 : 1;
               const finalMultiplier = chainFinalIndex === 0 ? 1.15 : 1;
               dealDamageToEnemy(s, ct, damage * 0.7 * relayMultiplier * stormMultiplier * finalMultiplier, sphere);
+              if (toxicNetwork) {
+                ct.fireTimer = Math.max(ct.fireTimer || 0, 1.5);
+                ct.poisonTimer = Math.max(ct.poisonTimer || 0, 1.5);
+              }
               s.lightnings.push({ from: { ...nearest.pos }, to: { ...ct.pos }, life: 0.3 });
             }
           }
