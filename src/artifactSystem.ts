@@ -131,6 +131,12 @@ export function getActiveArtifactSynergies(s: { player: { artifacts: ArtifactId[
 }
 
 
+export function getArtifactSynergiesAfterPick(s: { player: { artifacts: ArtifactId[] } }, id: ArtifactId): ArtifactSynergy[] {
+  const owned = new Set(s.player.artifacts);
+  owned.add(id);
+  return ARTIFACT_SYNERGIES.filter((synergy) => synergy.requires.every((requiredId) => owned.has(requiredId)));
+}
+
 export function artifactRarity(id: ArtifactId): ArtifactRarity {
   return ARTIFACT_META[id].rarity;
 }
