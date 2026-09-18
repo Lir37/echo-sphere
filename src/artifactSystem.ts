@@ -117,12 +117,12 @@ export interface ArtifactSynergy {
 }
 
 export const ARTIFACT_SYNERGIES: ArtifactSynergy[] = [
-  { id: 'fortress_network', requires: ['heavy_core', 'resonance_core'], name: { ru: 'Крепостная сеть', en: 'Fortress Network' }, desc: { ru: 'Соседние башни получают +10% урона.', en: 'Nearby towers gain +10% damage.' } },
-  { id: 'echo_relay', requires: ['echo_conductor', 'network_relay'], name: { ru: 'Эхо-реле', en: 'Echo Relay' }, desc: { ru: 'Сеть из 2+ типов башен получает ещё +8% урона.', en: 'A network with 2+ tower types gains another +8% damage.' } },
-  { id: 'glass_cannon', requires: ['overclock', 'void_contract'], name: { ru: 'Стеклянная пушка', en: 'Glass Cannon' }, desc: { ru: 'Башни получают +12% урона, но персонаж получает ещё +5% входящего урона.', en: 'Towers gain +12% damage, but the player takes 5% more damage.' } },
-  { id: 'singularity', requires: ['lone_bastion', 'singularity_engine'], name: { ru: 'Сингулярность', en: 'Singularity' }, desc: { ru: 'При 1 типе башни её урон увеличивается ещё на 20%.', en: 'With one tower type, its damage is increased by another 20%.' } },
-  { id: 'perfect_network', requires: ['fivefold_resonance', 'triangle_circuit'], name: { ru: 'Идеальная сеть', en: 'Perfect Network' }, desc: { ru: 'При 3+ типах башен геометрические связи дают +10% урона.', en: 'With 3+ tower types, geometric links grant +10% damage.' } },
-  { id: 'unified_core', requires: ['unified_mind', 'zero_sphere'], name: { ru: 'Единое ядро', en: 'Unified Core' }, desc: { ru: 'Максимально прокачанная башня усиливает остальные на 5% за уровень.', en: 'The strongest tower boosts the others by 5% per level.' } },
+  { id: 'fortress_network', requires: ['heavy_core', 'resonance_core'], name: { ru: 'Крепостная сеть', en: 'Fortress Network' }, desc: { ru: 'Соседние сферы получают +10% урона.', en: 'Nearby towers gain +10% damage.' } },
+  { id: 'echo_relay', requires: ['echo_conductor', 'network_relay'], name: { ru: 'Эхо-реле', en: 'Echo Relay' }, desc: { ru: 'Сеть из 2+ типов сфер получает ещё +8% урона.', en: 'A network with 2+ tower types gains another +8% damage.' } },
+  { id: 'glass_cannon', requires: ['overclock', 'void_contract'], name: { ru: 'Стеклянная пушка', en: 'Glass Cannon' }, desc: { ru: 'сферы получают +12% урона, но персонаж получает ещё +5% входящего урона.', en: 'Towers gain +12% damage, but the player takes 5% more damage.' } },
+  { id: 'singularity', requires: ['lone_bastion', 'singularity_engine'], name: { ru: 'Сингулярность', en: 'Singularity' }, desc: { ru: 'При 1 типе сферы её урон увеличивается ещё на 20%.', en: 'With one tower type, its damage is increased by another 20%.' } },
+  { id: 'perfect_network', requires: ['fivefold_resonance', 'triangle_circuit'], name: { ru: 'Идеальная сеть', en: 'Perfect Network' }, desc: { ru: 'При 3+ типах сфер геометрические связи дают +10% урона.', en: 'With 3+ tower types, geometric links grant +10% damage.' } },
+  { id: 'unified_core', requires: ['unified_mind', 'zero_sphere'], name: { ru: 'Единое ядро', en: 'Unified Core' }, desc: { ru: 'Максимально прокачанная сфера усиливает остальные на 5% за уровень.', en: 'The strongest tower boosts the others by 5% per level.' } },
 ];
 
 export function getActiveArtifactSynergies(s: { player: { artifacts: ArtifactId[] } }): ArtifactSynergy[] {
@@ -212,15 +212,15 @@ export function getTowerArtifactModifiers(s: any, type: string, sphere?: any): {
   if (hasArtifact(s, 'lone_bastion') && unique <= 1) damage *= 1.30;
   if (hasArtifact(s, 'fivefold_resonance') && unique > 1) damage *= 1 + Math.min(5, unique) * 0.04;
   if (hasArtifact(s, 'network_relay') && unique >= 2) damage *= 1.05;
-  if (hasArtifact(s, 'relay_matrix') && Object.values(s.player.towerProgression || {}).some((level: any) => level >= 7)) damage *= 1.10;
+  if (hasArtifact(s, 'relay_matrix') && Object.values(s.player.sphereProgression || {}).some((level: any) => level >= 7)) damage *= 1.10;
   if (hasArtifact(s, 'singularity_engine') && unique <= 2) damage *= 1.18;
   if (hasArtifact(s, 'mirror_network') && unique >= 2) damage *= 1.12;
   if (hasArtifact(s, 'overclock')) { damage *= 0.99; delay *= 0.88; }
 
   if (synergies.some((x) => x.id === 'unified_core') && sphere) {
-    const levels = Object.values(s.player.towerProgression || {}) as number[];
+    const levels = Object.values(s.player.sphereProgression || {}) as number[];
     const strongest = Math.max(0, ...levels);
-    const sphereLevel = Number(s.player.towerProgression?.[sphere.type] || 0);
+    const sphereLevel = Number(s.player.sphereProgression?.[sphere.type] || 0);
     if (sphereLevel < strongest) damage *= 1 + strongest * 0.05;
   }
   return { damage, delay, radius };
@@ -231,7 +231,7 @@ export function getSphereArtifactDamageMultiplier(s: any, sphere: any): number {
   if (hasArtifact(s, 'resonance_core') && hasNearbyTower(s, sphere, 190)) multiplier *= 1.12;
   if (hasArtifact(s, 'triangle_circuit') && formsTriangle(s, sphere)) multiplier *= 1.15;
   if (hasArtifact(s, 'unified_mind')) {
-    const levels = Object.values(s.player.towerProgression || {}) as number[];
+    const levels = Object.values(s.player.sphereProgression || {}) as number[];
     const strongest = Math.max(0, ...levels);
     multiplier *= 1 + strongest * 0.03;
   }
