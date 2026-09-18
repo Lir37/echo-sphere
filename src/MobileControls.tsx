@@ -113,7 +113,7 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
     // A new sphere cannot overlap another sphere, cover the player, or close
     // the last usable route from the player to the outside of the arena.
     if (!canPlaceSphere(st, world.x, world.y)) {
-      st.flashText = { text: lang === 'ru' ? 'Путь перекрыт' : 'Path blocked', life: 0.8, color: '#c4453d' };
+      st.flashText = { text: lang === 'ru' ? 'Путь перекрыт' : 'Path blocked', life: 0.8, color: '#ff4d5d' };
       haptic(35);
       return;
     }
@@ -224,27 +224,27 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
       )}
 
       <div className={`absolute bottom-4 ${controlsSide} flex flex-col ${controlsAlign} gap-2 pointer-events-none`} style={{ transform: `scale(${interfaceScale})`, transformOrigin: controlsOnRight ? 'right bottom' : 'left bottom' }}>
-        <button data-mobile-control="true" className="pointer-events-auto w-12 h-12 rounded-full bg-[#e8dcc0]/90 border border-[#c4b890] shadow-lg flex items-center justify-center text-[#5a4a32] active:scale-95" onPointerDown={(e) => { e.stopPropagation(); haptic(6); onPause(); }} aria-label={t('pause')}><Pause size={18} /></button>
+        <button data-mobile-control="true" className="pointer-events-auto w-12 h-12 rounded-full bg-[#0d1726]/90 border border-[#243b55] shadow-lg flex items-center justify-center text-[#b6c9de] active:scale-95" onPointerDown={(e) => { e.stopPropagation(); haptic(6); onPause(); }} aria-label={t('pause')}><Pause size={18} /></button>
 
         <div className="grid grid-cols-2 gap-1.5 pointer-events-auto">
           {activeAbilities.map(([key, ability]) => {
             const def = ABILITIES[ability];
             const cd = getAbilityCooldown(stateRef.current, ability);
-            return <button key={`${key}-${ability}`} data-mobile-control="true" className="relative w-16 h-12 rounded-xl bg-[#e8dcc0]/90 border border-[#c4b890] shadow-lg px-1 overflow-hidden active:scale-95" onPointerDown={(e) => { e.stopPropagation(); const st = stateRef.current; if (!st || st.gameOver || st.paused) return; if (st.pendingUpgrade || st.pendingArtifact) return; haptic(12); activateByKey(st, key); }}>
-              <span className="text-[9px] text-[#8a7a5a] block truncate">{getAbilityDisplayName(stateRef.current, ability, lang) || def.name[lang]}</span>
-              <span className="text-[8px] text-[#5a4a32]/60">{cd > 0 ? `${Math.ceil(cd)}s` : t('ready')}</span>
-              {cd > 0 && <span className="absolute inset-x-0 bottom-0 h-1 bg-[#c4453d]/70" style={{ width: `${Math.min(100, (cd / getAbilityMaxCooldown(ability)) * 100)}%` }} />}
+            return <button key={`${key}-${ability}`} data-mobile-control="true" className="relative w-16 h-12 rounded-xl bg-[#0d1726]/90 border border-[#243b55] shadow-lg px-1 overflow-hidden active:scale-95" onPointerDown={(e) => { e.stopPropagation(); const st = stateRef.current; if (!st || st.gameOver || st.paused) return; if (st.pendingUpgrade || st.pendingArtifact) return; haptic(12); activateByKey(st, key); }}>
+              <span className="text-[9px] text-[#7f9bb8] block truncate">{getAbilityDisplayName(stateRef.current, ability, lang) || def.name[lang]}</span>
+              <span className="text-[8px] text-[#b6c9de]/60">{cd > 0 ? `${Math.ceil(cd)}s` : t('ready')}</span>
+              {cd > 0 && <span className="absolute inset-x-0 bottom-0 h-1 bg-[#ff4d5d]/70" style={{ width: `${Math.min(100, (cd / getAbilityMaxCooldown(ability)) * 100)}%` }} />}
             </button>;
           })}
         </div>
 
-        <button data-mobile-control="true" className="pointer-events-auto w-16 h-16 rounded-full bg-[#d4943d]/85 border border-[#c46d3d] shadow-lg flex flex-col items-center justify-center text-[#3a2e1f] active:scale-95" onPointerDown={(e) => { e.stopPropagation(); const st = stateRef.current; if (!st || st.gameOver || st.paused) return; const { x, y } = lastDirectionRef.current; clearMovementKeys(); if (y < -0.2) st.keys.w = true; if (y > 0.2) st.keys.s = true; if (x < -0.2) st.keys.a = true; if (x > 0.2) st.keys.d = true; haptic(16); activateDash(st); clearMovementKeys(); }} aria-label={t('dashCooldown')}>
+        <button data-mobile-control="true" className="pointer-events-auto w-16 h-16 rounded-full bg-[#ffb84d]/85 border border-[#ff6b6b] shadow-lg flex flex-col items-center justify-center text-[#dcecff] active:scale-95" onPointerDown={(e) => { e.stopPropagation(); const st = stateRef.current; if (!st || st.gameOver || st.paused) return; const { x, y } = lastDirectionRef.current; clearMovementKeys(); if (y < -0.2) st.keys.w = true; if (y > 0.2) st.keys.s = true; if (x < -0.2) st.keys.a = true; if (x > 0.2) st.keys.d = true; haptic(16); activateDash(st); clearMovementKeys(); }} aria-label={t('dashCooldown')}>
           <Zap size={20} /><span className="text-[8px] font-bold">{stDashLabel(stateRef.current, lang, t)}</span>
         </button>
 
-        <div className="rounded-xl border border-[#c4b890] bg-[#e8dcc0]/90 shadow-lg px-3 py-2 w-[220px] pointer-events-none text-center">
-          <div className="font-bold text-sm text-[#3a2e1f]">{selectedDef.name[lang]}</div>
-          <div className="text-[10px] leading-tight text-[#8a7a5a] mt-0.5">{selectedDef.desc[lang]}</div>
+        <div className="rounded-xl border border-[#243b55] bg-[#0d1726]/90 shadow-lg px-3 py-2 w-[220px] pointer-events-none text-center">
+          <div className="font-bold text-sm text-[#dcecff]">{selectedDef.name[lang]}</div>
+          <div className="text-[10px] leading-tight text-[#7f9bb8] mt-0.5">{selectedDef.desc[lang]}</div>
         </div>
 
         <div className="grid grid-cols-5 gap-1.5 pointer-events-auto">
@@ -252,7 +252,7 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
             const def = SPHERE_TYPES[type];
             const selected = selectedType === type;
             const preferred = preferredSphereTypes.includes(type);
-            return <button key={type} data-mobile-control="true" className={`w-11 h-11 rounded-xl border bg-[#e8dcc0]/90 shadow-lg flex items-center justify-center active:scale-95 ${selected ? 'border-[#8a7a5a]' : 'border-[#c4b890]'} ${preferred ? 'ring-2 ring-[#d4943d]/45 ring-offset-1 ring-offset-[#e8dcc0]' : ''}`} style={{ borderColor: selected ? def.color : undefined }} onPointerDown={(e) => { e.stopPropagation(); const st = stateRef.current; if (!st) return; haptic(6); setSphereType(st, type); }} aria-label={`${def.name[lang]} — ${def.desc[lang]}`}>
+            return <button key={type} data-mobile-control="true" className={`w-11 h-11 rounded-xl border bg-[#0d1726]/90 shadow-lg flex items-center justify-center active:scale-95 ${selected ? 'border-[#7f9bb8]' : 'border-[#243b55]'} ${preferred ? 'ring-2 ring-[#ffb84d]/45 ring-offset-1 ring-offset-[#0d1726]' : ''}`} style={{ borderColor: selected ? def.color : undefined }} onPointerDown={(e) => { e.stopPropagation(); const st = stateRef.current; if (!st) return; haptic(6); setSphereType(st, type); }} aria-label={`${def.name[lang]} — ${def.desc[lang]}`}>
               <SphereTypeGlyph type={type} color={def.color} />
             </button>;
           })}
@@ -387,90 +387,90 @@ function CharacterSvg({ characterId, color, mutationStage, visual }: {
   mutationStage: number;
   visual: CharacterVisualState;
 }) {
-  const shade = characterId === 'berserker' ? '#7e2e2c' : '#f4ecd8';
+  const shade = characterId === 'berserker' ? '#7e2e2c' : '#070d18';
   const common = { width: 58, height: 58, viewBox: '0 0 58 58', fill: 'none', xmlns: 'http://www.w3.org/2000/svg', overflow: 'visible' } as const;
 
   if (characterId === 'hunter') return (
     <svg {...common}>
-      <path d="M29 6L46 17V34L29 49L12 34V17L29 6Z" fill={color} fillOpacity=".93" stroke="#3a2e1f" strokeWidth="2"/>
-      <path d="M18 20H40L35 31H23L18 20Z" fill="#e8dcc0" stroke="#3a2e1f" strokeWidth="1.5"/>
-      <circle cx="29" cy="25" r="3" fill="#3a2e1f"/>
-      <path d="M29 11V17M29 39V46M11 29H17M41 29H47" stroke="#d4943d" strokeWidth="2" strokeLinecap="round"/>
-      {visual.marked && <circle cx="29" cy="29" r={visual.hunt ? 26 : 23} stroke={visual.hunt ? '#d4943d' : '#c46d3d'} strokeWidth={visual.hunt ? 3 : 2} strokeDasharray={visual.hunt ? '5 4' : '3 4'} />}
-      {visual.hunt && <circle cx="29" cy="29" r="4" stroke="#d4943d" strokeWidth="2" />}
+      <path d="M29 6L46 17V34L29 49L12 34V17L29 6Z" fill={color} fillOpacity=".93" stroke="#dcecff" strokeWidth="2"/>
+      <path d="M18 20H40L35 31H23L18 20Z" fill="#0d1726" stroke="#dcecff" strokeWidth="1.5"/>
+      <circle cx="29" cy="25" r="3" fill="#dcecff"/>
+      <path d="M29 11V17M29 39V46M11 29H17M41 29H47" stroke="#ffb84d" strokeWidth="2" strokeLinecap="round"/>
+      {visual.marked && <circle cx="29" cy="29" r={visual.hunt ? 26 : 23} stroke={visual.hunt ? '#ffb84d' : '#ff6b6b'} strokeWidth={visual.hunt ? 3 : 2} strokeDasharray={visual.hunt ? '5 4' : '3 4'} />}
+      {visual.hunt && <circle cx="29" cy="29" r="4" stroke="#ffb84d" strokeWidth="2" />}
     </svg>
   );
 
   if (characterId === 'engineer') return (
     <svg {...common}>
-      <path d="M29 5L45 14V32L29 47L13 32V14L29 5Z" fill={color} fillOpacity=".92" stroke="#3a2e1f" strokeWidth="2"/>
-      <path d="M22 20L29 14L36 20V32L29 38L22 32V20Z" fill="#e8dcc0" stroke="#3a2e1f" strokeWidth="1.5"/>
+      <path d="M29 5L45 14V32L29 47L13 32V14L29 5Z" fill={color} fillOpacity=".92" stroke="#dcecff" strokeWidth="2"/>
+      <path d="M22 20L29 14L36 20V32L29 38L22 32V20Z" fill="#0d1726" stroke="#dcecff" strokeWidth="1.5"/>
       <circle cx="29" cy="26" r="4" fill={color}/>
       <path d="M11 18L17 22M47 18L41 22M11 40L17 35M47 40L41 35" stroke={color} strokeWidth="2" strokeLinecap="round"/>
-      <circle cx="9" cy="17" r="2.5" fill="#4a7a8a"/><circle cx="49" cy="17" r="2.5" fill="#4a7a8a"/>
+      <circle cx="9" cy="17" r="2.5" fill="#39d8ff"/><circle cx="49" cy="17" r="2.5" fill="#39d8ff"/>
       {visual.linkedCount >= 2 && <>
         {[0, 1, 2, 3].map((index) => {
           const a = (index / 4) * Math.PI * 2 - Math.PI / 4;
           const x = 29 + Math.cos(a) * 22;
           const y = 29 + Math.sin(a) * 22;
-          return <g key={index}><line x1="29" y1="29" x2={x} y2={y} stroke="#4a7a8a" strokeWidth="1.5" opacity=".65" /><circle cx={x} cy={y} r="3" fill="#4a7a8a" opacity={visual.linkedCount >= 4 ? 1 : .7} /></g>;
+          return <g key={index}><line x1="29" y1="29" x2={x} y2={y} stroke="#39d8ff" strokeWidth="1.5" opacity=".65" /><circle cx={x} cy={y} r="3" fill="#39d8ff" opacity={visual.linkedCount >= 4 ? 1 : .7} /></g>;
         })}
       </>}
-      {visual.linkedCount >= 3 && <circle cx="29" cy="29" r="25" stroke="#4a7a8a" strokeWidth="1.5" strokeDasharray="2 4" opacity=".8" />}
+      {visual.linkedCount >= 3 && <circle cx="29" cy="29" r="25" stroke="#39d8ff" strokeWidth="1.5" strokeDasharray="2 4" opacity=".8" />}
     </svg>
   );
 
   if (characterId === 'berserker') return (
     <svg {...common}>
-      {visual.closeEnemy && <circle cx="29" cy="29" r={26 + visual.furySteps * 2} stroke="#c4453d" strokeWidth={2 + visual.furySteps * .5} strokeDasharray="6 3" opacity=".7" />}
-      <path d="M14 17L22 10L29 15L36 10L44 17L41 39L29 50L17 39L14 17Z" fill={color} stroke="#3a2e1f" strokeWidth="2"/>
-      <path d="M14 17L7 10L10 25L18 21M44 17L51 10L48 25L40 21" fill={color} stroke="#3a2e1f" strokeWidth="2" strokeLinejoin="round"/>
+      {visual.closeEnemy && <circle cx="29" cy="29" r={26 + visual.furySteps * 2} stroke="#ff4d5d" strokeWidth={2 + visual.furySteps * .5} strokeDasharray="6 3" opacity=".7" />}
+      <path d="M14 17L22 10L29 15L36 10L44 17L41 39L29 50L17 39L14 17Z" fill={color} stroke="#dcecff" strokeWidth="2"/>
+      <path d="M14 17L7 10L10 25L18 21M44 17L51 10L48 25L40 21" fill={color} stroke="#dcecff" strokeWidth="2" strokeLinejoin="round"/>
       <path d="M20 27L25 25M38 27L33 25M22 34L29 38L36 34" stroke={shade} strokeWidth="2.4" strokeLinecap="round"/>
-      {mutationStage > 0 && <path d="M29 7L31 2L33 8M20 46L16 52M38 46L42 52" stroke="#d4943d" strokeWidth="2" strokeLinecap="round"/>}
+      {mutationStage > 0 && <path d="M29 7L31 2L33 8M20 46L16 52M38 46L42 52" stroke="#ffb84d" strokeWidth="2" strokeLinecap="round"/>}
       {Array.from({ length: 4 }, (_, index) => index < visual.furySteps ? index : null).filter((index): index is number => index !== null).map((index) => {
         const a = -Math.PI / 2 + index * (Math.PI / 2);
-        return <circle key={index} cx={29 + Math.cos(a) * 27} cy={29 + Math.sin(a) * 27} r="2.5" fill="#c4453d" />;
+        return <circle key={index} cx={29 + Math.cos(a) * 27} cy={29 + Math.sin(a) * 27} r="2.5" fill="#ff4d5d" />;
       })}
     </svg>
   );
 
   if (characterId === 'alchemist') return (
     <svg {...common}>
-      <path d="M23 7H35V16L43 23V39C43 44 37 48 29 48C21 48 15 44 15 39V23L23 16V7Z" fill={color} fillOpacity=".9" stroke="#3a2e1f" strokeWidth="2"/>
-      <path d="M23 7H35" stroke="#3a2e1f" strokeWidth="3" strokeLinecap="round"/>
-      <path d="M18 31C23 27 35 27 40 31V39C35 43 23 43 18 39V31Z" fill="#e8dcc0" fillOpacity=".65"/>
-      <path d="M24 17H34" stroke="#e8dcc0" strokeWidth="2" strokeLinecap="round"/>
-      {mutationStage > 0 && <circle cx="29" cy="35" r="3" fill="#d4943d"/>}
+      <path d="M23 7H35V16L43 23V39C43 44 37 48 29 48C21 48 15 44 15 39V23L23 16V7Z" fill={color} fillOpacity=".9" stroke="#dcecff" strokeWidth="2"/>
+      <path d="M23 7H35" stroke="#dcecff" strokeWidth="3" strokeLinecap="round"/>
+      <path d="M18 31C23 27 35 27 40 31V39C35 43 23 43 18 39V31Z" fill="#0d1726" fillOpacity=".65"/>
+      <path d="M24 17H34" stroke="#0d1726" strokeWidth="2" strokeLinecap="round"/>
+      {mutationStage > 0 && <circle cx="29" cy="35" r="3" fill="#ffb84d"/>}
       {visual.reactionReady && <>
-        <circle cx="13" cy="13" r="4" fill="#c46d3d" opacity=".9" />
+        <circle cx="13" cy="13" r="4" fill="#ff6b6b" opacity=".9" />
         <circle cx="45" cy="13" r="4" fill="#5a8c4a" opacity=".9" />
-        <circle cx="29" cy="52" r="4" fill="#4a7a8a" opacity=".9" />
+        <circle cx="29" cy="52" r="4" fill="#39d8ff" opacity=".9" />
         <path d="M16 15L24 23M42 15L34 23M29 48L29 40" stroke="#8a5a8a" strokeWidth="1.5" strokeDasharray="2 2" />
       </>}
-      {visual.catalyst && <circle cx="29" cy="29" r="25" stroke="#d4943d" strokeWidth="2.5" strokeDasharray="5 3" />}
+      {visual.catalyst && <circle cx="29" cy="29" r="25" stroke="#ffb84d" strokeWidth="2.5" strokeDasharray="5 3" />}
     </svg>
   );
 
   if (characterId === 'architect') return (
     <svg {...common}>
-      <rect x="11" y="11" width="36" height="36" rx="3" fill="#e8dcc0" stroke={color} strokeWidth="3" transform="rotate(45 29 29)"/>
-      <path d="M29 13L43 37H15L29 13Z" fill={color} fillOpacity=".78" stroke="#3a2e1f" strokeWidth="2"/>
-      <path d="M29 21V36M21 34H37" stroke="#e8dcc0" strokeWidth="2" strokeLinecap="round"/>
-      {mutationStage > 1 && <circle cx="29" cy="29" r="20" stroke="#d4943d" strokeWidth="2" strokeDasharray="4 4"/>}
-      {visual.formation === 'line' && <line x1="7" y1="51" x2="51" y2="7" stroke="#d4943d" strokeWidth="2.5" opacity={Math.max(.35, visual.formationStrength)} />}
-      {visual.formation === 'triangle' && <path d="M29 5L52 48H6Z" fill="none" stroke="#d4943d" strokeWidth="2" opacity={Math.max(.35, visual.formationStrength)} />}
-      {visual.formation === 'square' && <rect x="6" y="6" width="46" height="46" fill="none" stroke="#d4943d" strokeWidth="2" opacity={Math.max(.35, visual.formationStrength)} />}
-      {visual.formation === 'cluster' && <circle cx="29" cy="29" r="24" fill="none" stroke="#d4943d" strokeWidth="2" strokeDasharray="3 3" opacity={Math.max(.35, visual.formationStrength)} />}
+      <rect x="11" y="11" width="36" height="36" rx="3" fill="#0d1726" stroke={color} strokeWidth="3" transform="rotate(45 29 29)"/>
+      <path d="M29 13L43 37H15L29 13Z" fill={color} fillOpacity=".78" stroke="#dcecff" strokeWidth="2"/>
+      <path d="M29 21V36M21 34H37" stroke="#0d1726" strokeWidth="2" strokeLinecap="round"/>
+      {mutationStage > 1 && <circle cx="29" cy="29" r="20" stroke="#ffb84d" strokeWidth="2" strokeDasharray="4 4"/>}
+      {visual.formation === 'line' && <line x1="7" y1="51" x2="51" y2="7" stroke="#ffb84d" strokeWidth="2.5" opacity={Math.max(.35, visual.formationStrength)} />}
+      {visual.formation === 'triangle' && <path d="M29 5L52 48H6Z" fill="none" stroke="#ffb84d" strokeWidth="2" opacity={Math.max(.35, visual.formationStrength)} />}
+      {visual.formation === 'square' && <rect x="6" y="6" width="46" height="46" fill="none" stroke="#ffb84d" strokeWidth="2" opacity={Math.max(.35, visual.formationStrength)} />}
+      {visual.formation === 'cluster' && <circle cx="29" cy="29" r="24" fill="none" stroke="#ffb84d" strokeWidth="2" strokeDasharray="3 3" opacity={Math.max(.35, visual.formationStrength)} />}
     </svg>
   );
 
   return (
     <svg {...common}>
-      <path d="M29 5L47 19L38 43L29 50L20 43L11 19L29 5Z" fill={color} fillOpacity=".92" stroke="#3a2e1f" strokeWidth="2"/>
-      <path d="M20 17L29 11L38 17L34 29L29 38L24 29L20 17Z" fill="#e8dcc0" fillOpacity=".55" stroke="#3a2e1f" strokeWidth="1.5"/>
-      <circle cx="29" cy="28" r="4" fill="#3a2e1f"/>
+      <path d="M29 5L47 19L38 43L29 50L20 43L11 19L29 5Z" fill={color} fillOpacity=".92" stroke="#dcecff" strokeWidth="2"/>
+      <path d="M20 17L29 11L38 17L34 29L29 38L24 29L20 17Z" fill="#0d1726" fillOpacity=".55" stroke="#dcecff" strokeWidth="1.5"/>
+      <circle cx="29" cy="28" r="4" fill="#dcecff"/>
       <path d="M9 18L15 23M49 18L43 23M11 42L18 36M47 42L40 36" stroke={color} strokeWidth="2" strokeLinecap="round"/>
-      {mutationStage > 1 && <circle cx="29" cy="28" r="21" stroke="#d4943d" strokeWidth="2" strokeDasharray="3 4"/>}
+      {mutationStage > 1 && <circle cx="29" cy="28" r="21" stroke="#ffb84d" strokeWidth="2" strokeDasharray="3 4"/>}
     </svg>
   );
 }
