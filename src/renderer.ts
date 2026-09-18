@@ -1967,131 +1967,66 @@ function drawModernEnemy(ctx: CanvasRenderingContext2D, e: EnemyEntity): void {
     const barW = Math.max(90, e.radius * 1.45);
     const barH = 6;
     const ratio = Math.max(0, Math.min(1, e.hp / Math.max(1, e.maxHp)));
-    ctx.fillStyle = 'rgba(0,0,0,0.55)';
-    ctx.fillRect(e.pos.x - barW / 2, e.pos.y - e.radius - 28, barW, barH);
-    ctx.fillStyle = color;
-    ctx.fillRect(e.pos.x - barW / 2, e.pos.y - e.radius - 28, barW * ratio, barH);
-    ctx.strokeStyle = 'rgba(190,220,255,0.45)';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(e.pos.x - barW / 2, e.pos.y - e.radius - 28, barW, barH);
+    const bx=e.pos.x-barW/2, by=e.pos.y-e.radius-30;
+    ctx.save();ctx.shadowColor=color;ctx.shadowBlur=12;
+    ctx.fillStyle='rgba(2,7,18,.86)';ctx.fillRect(bx,by,barW,barH);
+    ctx.fillStyle=color;ctx.fillRect(bx,by,barW*ratio,barH);
+    ctx.strokeStyle='rgba(180,235,255,.65)';ctx.lineWidth=1;ctx.strokeRect(bx,by,barW,barH);
+    ctx.shadowBlur=0;ctx.fillStyle='rgba(220,248,255,.75)';ctx.font='bold 8px system-ui,sans-serif';ctx.textAlign='center';
+    ctx.fillText('VOID ENTITY',e.pos.x,by-4);ctx.restore();
   }
 }
 
 function drawModernBossBody(ctx: CanvasRenderingContext2D, e: EnemyEntity, color: string, t: number): void {
-  const r = e.radius;
-  const boss = e.bossType;
+  const r=e.radius,boss=e.bossType,rgb=hexToRgb(color),pulse=1+Math.sin(t*3.2)*.045;
+  ctx.save();
+  ctx.shadowColor=color;ctx.shadowBlur=32;ctx.fillStyle='rgba(2,5,16,.97)';
+  ctx.strokeStyle=`rgba(${rgb},.9)`;ctx.lineWidth=Math.max(2,r*.035);
 
-  if (boss === 'charger') {
-    // Massive horned beetle: low silhouette, armored plates, forward mandibles.
-    ctx.strokeStyle = shade(color, -55); ctx.lineWidth = Math.max(3, r * 0.07); ctx.lineCap = 'round';
-    for (let i = 0; i < 4; i++) {
-      const x = -r * 0.55 + i * r * 0.36;
-      insectLeg(ctx, r, x, -1, t * 6 + i, 0.92);
-      insectLeg(ctx, r, x, 1, t * 6 + i + Math.PI, 0.92);
-    }
-    ctx.lineCap = 'butt';
-    ctx.fillStyle = shade(color, -50);
-    ctx.beginPath(); ctx.ellipse(-r * 0.1, 0, r * 0.9, r * 0.62, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = color;
-    ctx.beginPath(); ctx.ellipse(-r * 0.08, 0, r * 0.78, r * 0.52, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = shade(color, 24);
-    ctx.beginPath(); ctx.moveTo(-r * 0.62, -r * 0.45); ctx.lineTo(r * 0.52, -r * 0.36); ctx.lineTo(0, 0); ctx.closePath(); ctx.fill();
-    ctx.beginPath(); ctx.moveTo(-r * 0.62, r * 0.45); ctx.lineTo(r * 0.52, r * 0.36); ctx.lineTo(0, 0); ctx.closePath(); ctx.fill();
-    ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.lineWidth = Math.max(1, r * 0.025);
-    ctx.beginPath(); ctx.moveTo(-r * 0.55, 0); ctx.lineTo(r * 0.55, 0); ctx.stroke();
-    ctx.strokeStyle = color; ctx.lineWidth = Math.max(2, r * 0.045);
-    ctx.beginPath(); ctx.moveTo(r * 0.4, -r * 0.12); ctx.quadraticCurveTo(r * 0.85, -r * 0.55, r * 0.72, -r * 0.9); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(r * 0.4, r * 0.12); ctx.quadraticCurveTo(r * 0.85, r * 0.55, r * 0.72, r * 0.9); ctx.stroke();
-    drawInsectEye(ctx, r * 0.62, -r * 0.15, Math.max(3, r * 0.08), '#ff5b48');
-    drawInsectEye(ctx, r * 0.62, r * 0.15, Math.max(3, r * 0.08), '#ff5b48');
-  } else if (boss === 'shooter') {
-    // Void moth: huge wings, a luminous thorax and multiple eyes.
-    const flap = Math.sin(t * 4.5) * r * 0.08;
-    ctx.fillStyle = shade(color, -30);
-    ctx.beginPath(); ctx.ellipse(0, 0, r * 0.23, r * 0.7, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = shade(color, 18);
-    ctx.beginPath(); ctx.moveTo(-r * 0.08, -r * 0.08); ctx.quadraticCurveTo(-r * 1.2, -r * 0.8 - flap, -r * 1.05, -r * 0.05); ctx.quadraticCurveTo(-r * 0.9, r * 0.3, -r * 0.08, r * 0.12); ctx.closePath(); ctx.fill();
-    ctx.beginPath(); ctx.moveTo(r * 0.08, -r * 0.08); ctx.quadraticCurveTo(r * 1.2, -r * 0.8 + flap, r * 1.05, -r * 0.05); ctx.quadraticCurveTo(r * 0.9, r * 0.3, r * 0.08, r * 0.12); ctx.closePath(); ctx.fill();
-    ctx.strokeStyle = 'rgba(255,255,255,0.28)'; ctx.lineWidth = Math.max(1, r * 0.022);
-    for (let i = 0; i < 3; i++) {
-      ctx.beginPath(); ctx.moveTo(-r * 0.12, -r * 0.15); ctx.lineTo(-r * (0.45 + i * 0.22), -r * (0.25 + i * 0.18)); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(r * 0.12, -r * 0.15); ctx.lineTo(r * (0.45 + i * 0.22), -r * (0.25 + i * 0.18)); ctx.stroke();
-    }
-    ctx.fillStyle = color;
-    ctx.beginPath(); ctx.ellipse(0, 0, r * 0.3, r * 0.58, 0, 0, Math.PI * 2); ctx.fill();
-    for (const y of [-0.25, 0, 0.25]) drawInsectEye(ctx, r * 0.22, y * r, Math.max(2.4, r * 0.055), '#ffe06b');
-  } else if (boss === 'summoner') {
-    // Brood queen: spider-like abdomen, crown mandibles and orbiting eggs.
-    ctx.fillStyle = shade(color, -48);
-    ctx.beginPath(); ctx.ellipse(-r * 0.12, r * 0.12, r * 0.72, r * 0.68, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = color;
-    ctx.beginPath(); ctx.ellipse(-r * 0.08, r * 0.08, r * 0.58, r * 0.56, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.strokeStyle = shade(color, -52); ctx.lineWidth = Math.max(2, r * 0.045); ctx.lineCap = 'round';
-    for (let i = 0; i < 4; i++) {
-      const a = -1.15 + i * 0.76;
-      ctx.beginPath(); ctx.moveTo(-r * 0.35, -r * 0.1); ctx.lineTo(Math.cos(a) * r * 1.05, Math.sin(a) * r * 1.05); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(-r * 0.35, r * 0.1); ctx.lineTo(Math.cos(-a) * r * 1.05, Math.sin(-a) * r * 1.05); ctx.stroke();
-    }
-    ctx.lineCap = 'butt';
-    ctx.fillStyle = shade(color, 26);
-    ctx.beginPath(); ctx.moveTo(r * 0.3, -r * 0.35); ctx.lineTo(r * 0.78, -r * 0.15); ctx.lineTo(r * 0.3, 0); ctx.closePath(); ctx.fill();
-    ctx.beginPath(); ctx.moveTo(r * 0.3, r * 0.35); ctx.lineTo(r * 0.78, r * 0.15); ctx.lineTo(r * 0.3, 0); ctx.closePath(); ctx.fill();
-    for (let i = 0; i < 4; i++) {
-      const a = t * 0.8 + i * Math.PI / 2;
-      ctx.fillStyle = i % 2 ? '#d879ff' : color;
-      ctx.beginPath(); ctx.arc(Math.cos(a) * r * 0.92, Math.sin(a) * r * 0.92, Math.max(4, r * 0.07), 0, Math.PI * 2); ctx.fill();
-    }
-    drawInsectEye(ctx, r * 0.55, -r * 0.12, Math.max(3, r * 0.07), '#d879ff');
-    drawInsectEye(ctx, r * 0.55, r * 0.12, Math.max(3, r * 0.07), '#d879ff');
-  } else {
-    // Aura boss: enormous spider with a glowing core and eight articulated legs.
-    const coreR = r * 0.42;
-    ctx.strokeStyle = shade(color, -55); ctx.lineWidth = Math.max(2.5, r * 0.055); ctx.lineCap = 'round';
-    for (let i = 0; i < 8; i++) {
-      const a = i * Math.PI / 4 + Math.sin(t * 1.8 + i) * 0.06;
-      const x0 = Math.cos(a) * coreR * 0.65, y0 = Math.sin(a) * coreR * 0.65;
-      const x1 = Math.cos(a) * r * 0.8, y1 = Math.sin(a) * r * 0.8;
-      const bend = a + (i % 2 ? 0.28 : -0.28);
-      ctx.beginPath(); ctx.moveTo(x0, y0);
-      ctx.lineTo(Math.cos(bend) * r * 0.58, Math.sin(bend) * r * 0.58);
-      ctx.lineTo(x1, y1); ctx.stroke();
-    }
-    ctx.lineCap = 'butt';
-    ctx.fillStyle = shade(color, -42);
-    ctx.beginPath(); ctx.arc(0, 0, coreR * 1.15, 0, Math.PI * 2); ctx.fill();
-    const g = ctx.createRadialGradient(-r * 0.1, -r * 0.12, 2, 0, 0, coreR);
-    g.addColorStop(0, '#ffffff'); g.addColorStop(0.18, shade(color, 50)); g.addColorStop(0.7, color); g.addColorStop(1, shade(color, -30));
-    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, coreR, 0, Math.PI * 2); ctx.fill();
-    ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = Math.max(1, r * 0.02);
-    ctx.beginPath(); ctx.arc(0, 0, coreR * 0.7, 0, Math.PI * 2); ctx.stroke();
-    for (let i = 0; i < 4; i++) drawInsectEye(ctx, Math.cos(i * Math.PI / 2) * coreR * 0.62, Math.sin(i * Math.PI / 2) * coreR * 0.62, Math.max(2.5, r * 0.045), '#ff67b7');
+  if(boss==='charger'){
+    ctx.beginPath();ctx.moveTo(-r*.95,0);ctx.quadraticCurveTo(-r*.72,-r*.68,0,-r*.58);
+    ctx.quadraticCurveTo(r*.72,-r*.52,r*.98,0);ctx.quadraticCurveTo(r*.72,r*.52,0,r*.58);
+    ctx.quadraticCurveTo(-r*.72,r*.68,-r*.95,0);ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.strokeStyle=`rgba(${rgb},.55)`;ctx.lineWidth=Math.max(2,r*.06);
+    for(const sy of [-1,1]){ctx.beginPath();ctx.moveTo(r*.25,sy*r*.28);ctx.quadraticCurveTo(r*.72,sy*r*.55,r*.95,sy*r*.92);ctx.stroke();}
+  }else if(boss==='shooter'){
+    ctx.beginPath();ctx.moveTo(0,-r*.7);ctx.quadraticCurveTo(-r*1.15,-r*1.05,-r*1.32,-r*.15);
+    ctx.quadraticCurveTo(-r*1.05,r*.38,-r*.22,r*.25);ctx.quadraticCurveTo(0,r*.65,r*.22,r*.25);
+    ctx.quadraticCurveTo(r*1.05,r*.38,r*1.32,-r*.15);ctx.quadraticCurveTo(r*1.15,-r*1.05,0,-r*.7);
+    ctx.fill();ctx.stroke();
+    ctx.strokeStyle='rgba(210,245,255,.28)';ctx.lineWidth=1;
+    for(let i=1;i<4;i++){ctx.beginPath();ctx.moveTo(-r*.12,-r*.12);ctx.lineTo(-r*(.35+i*.2),-r*(.22+i*.16));ctx.stroke();ctx.beginPath();ctx.moveTo(r*.12,-r*.12);ctx.lineTo(r*(.35+i*.2),-r*(.22+i*.16));ctx.stroke();}
+  }else if(boss==='summoner'){
+    ctx.beginPath();ctx.ellipse(-r*.12,r*.08,r*.72,r*.64,0,0,Math.PI*2);ctx.fill();ctx.stroke();
+    ctx.strokeStyle=`rgba(${rgb},.65)`;ctx.lineWidth=Math.max(2,r*.035);
+    for(let i=0;i<6;i++){const a=-1.25+i*.5;ctx.beginPath();ctx.moveTo(-r*.35,0);ctx.quadraticCurveTo(Math.cos(a)*r*.65,Math.sin(a)*r*.65,Math.cos(a)*r*1.05,Math.sin(a)*r*1.05);ctx.stroke();}
+    for(let i=0;i<5;i++){const a=t*.7+i*Math.PI*2/5;ctx.fillStyle=i%2?'#a66bff':color;ctx.beginPath();ctx.arc(Math.cos(a)*r*.92,Math.sin(a)*r*.92,r*.075,0,Math.PI*2);ctx.fill();}
+  }else{
+    ctx.beginPath();ctx.moveTo(0,-r*.68);ctx.quadraticCurveTo(r*.95,-r*.52,r*.82,r*.15);
+    ctx.quadraticCurveTo(r*.7,r*.68,0,r*.72);ctx.quadraticCurveTo(-r*.7,r*.68,-r*.82,r*.15);
+    ctx.quadraticCurveTo(-r*.95,-r*.52,0,-r*.68);ctx.fill();ctx.stroke();
+    ctx.strokeStyle=`rgba(${rgb},.65)`;ctx.lineWidth=Math.max(2,r*.035);
+    for(let i=0;i<8;i++){const a=-Math.PI*.95+i*Math.PI*1.9/7;ctx.beginPath();ctx.moveTo(Math.cos(a)*r*.5,Math.sin(a)*r*.5);ctx.lineTo(Math.cos(a)*r*1.05,Math.sin(a)*r*1.05);ctx.stroke();}
   }
+  ctx.shadowBlur=0;
 
-  if (e.isCharging) {
-    ctx.strokeStyle = '#ff4d58'; ctx.lineWidth = Math.max(2, r * 0.025);
-    ctx.globalAlpha = 0.85;
-    ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(e.chargeDir.x * r * 1.5, e.chargeDir.y * r * 1.5); ctx.stroke();
-    ctx.globalAlpha = 1;
-  }
+  ctx.strokeStyle='rgba(220,250,255,.18)';ctx.lineWidth=Math.max(1,r*.018);
+  for(let i=0;i<4;i++){const yy=(-.36+i*.24)*r;ctx.beginPath();ctx.moveTo(-r*.52,yy);ctx.quadraticCurveTo(0,yy+r*.12,r*.52,yy);ctx.stroke();}
 
-  if (e.bossType === 'aura' && e.auraRadius) {
-    ctx.strokeStyle = `rgba(${hexToRgb(color)},0.16)`;
-    ctx.lineWidth = 1.5;
-    ctx.setLineDash([14, 9]);
-    ctx.beginPath(); ctx.arc(0, 0, e.auraRadius, 0, Math.PI * 2); ctx.stroke();
-    ctx.setLineDash([]);
-  }
+  const coreR=r*.22*pulse;
+  ctx.shadowColor=color;ctx.shadowBlur=42;
+  const core=ctx.createRadialGradient(-r*.04,-r*.06,1,0,0,coreR*2.8);
+  core.addColorStop(0,'#ffffff');core.addColorStop(.16,'#dffcff');core.addColorStop(.42,color);core.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=core;ctx.beginPath();ctx.arc(0,0,coreR*2.8,0,Math.PI*2);ctx.fill();
+  ctx.shadowBlur=0;
+  ctx.strokeStyle='rgba(255,255,255,.78)';ctx.lineWidth=Math.max(1,r*.018);ctx.beginPath();ctx.arc(0,0,coreR,0,Math.PI*2);ctx.stroke();
 
-  // Boss core pulse.
-  const p = 0.5 + Math.sin(t * 3.2) * 0.5;
-  ctx.strokeStyle = `rgba(255,255,255,${0.18 + p * 0.22})`;
-  ctx.lineWidth = 1.5;
-  ctx.beginPath(); ctx.arc(0, 0, r + 8 + p * 5, 0, Math.PI * 2); ctx.stroke();
+  ctx.save();ctx.rotate(t*.32);ctx.strokeStyle=`rgba(${rgb},.48)`;ctx.lineWidth=Math.max(1,r*.018);
+  ctx.beginPath();ctx.ellipse(0,0,r*1.02,r*.31,0,0,Math.PI*2);ctx.stroke();ctx.restore();
+  ctx.save();ctx.rotate(-t*.21);ctx.strokeStyle='rgba(218,125,255,.35)';ctx.lineWidth=Math.max(1,r*.014);
+  ctx.beginPath();ctx.ellipse(0,0,r*.82,r*1.02,0,0,Math.PI*2);ctx.stroke();ctx.restore();
+  ctx.restore();
 }
-
-// Override the world draw calls without touching gameplay simulation.
-const renderLegacyWorld = render;
-void renderLegacyWorld;
 
 function drawLightning(ctx: CanvasRenderingContext2D, from: { x: number; y: number }, to: { x: number; y: number }): void {
   const segments = 8;
