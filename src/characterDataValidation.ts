@@ -19,12 +19,12 @@ export function validateCharacterData(): void {
 
     if (character.id !== id) report(`${id}: id does not match CHARACTER_DEFS key`);
     if (character.preferredSphereTypes.length === 0) report(`${id}: no preferred sphere types configured`);
-    if (character.preferredTowerMods.length === 0) report(`${id}: no preferred tower mods configured`);
+    if (character.preferredSphereMods.length === 0) report(`${id}: no preferred tower mods configured`);
     if (character.preferredAbilities.length === 0) report(`${id}: no preferred abilities configured`);
     if (character.mastery.length !== 5) report(`${id}: expected exactly 5 mastery levels, got ${character.mastery.length}`);
 
     validateUnique(character.preferredSphereTypes, 'sphere types', id);
-    validateUnique(character.preferredTowerMods, 'tower mods', id);
+    validateUnique(character.preferredSphereMods, 'tower mods', id);
     validateUnique(character.preferredAbilities, 'abilities', id);
 
     for (const ability of character.preferredAbilities) {
