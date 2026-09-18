@@ -2283,6 +2283,7 @@ function updateSpheres(s: GameState, dt: number): void {
     const radius = getSphereRadius(s, sphere) * stype.rangeMult;
     const damage = getSphereDamage(s, sphere) * stype.damageMult;
     const delay = getSphereDelay(s, sphere) * stype.delayMult * sphereModifiers(s, sphere.type).delay;
+    const branch = s.player.sphereBranches?.[sphere.type];
     // aura type: continuous AoE damage — no barrel rotation
     if (stype.aura) {
       sphere.auraTimer -= dt;
@@ -2401,6 +2402,9 @@ function updateSpheres(s: GameState, dt: number): void {
             const chainBranch = s.player.sphereBranches?.[sphere.type];
             const chainFinalId = (s.player.evolutions || []).find((x: string) => x.startsWith('sphere:' + sphere.type + ':7:'));
             const chainFinalIndex = chainFinalId ? Number(chainFinalId.split(':').pop()) : null;
+            const toxicNetwork = getActiveSphereAbilitySynergies(s).some((link) =>
+              link.character === 'alchemist' && link.sphere === 'chain' && link.ability === 'lightning'
+            );
             for (let chainIndex = 0; chainIndex < chainTargets.length; chainIndex++) {
               const ct = chainTargets[chainIndex];
               const stormMultiplier = chainBranch === 'chain_storm' ? 1 + chainIndex * 0.15 : 1;
