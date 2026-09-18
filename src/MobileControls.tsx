@@ -30,7 +30,7 @@ export type Handedness = 'right' | 'left';
 const JOYSTICK_DEADZONE = 12;
 const JOYSTICK_RADIUS = 58;
 const JOYSTICK_KNOB_RADIUS = 24;
-const TOWER_TOUCH_TOLERANCE = 26;
+const sphere_TOUCH_TOLERANCE = 26;
 
 function haptic(duration = 8): void {
   if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') navigator.vibrate(duration);
@@ -89,18 +89,18 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
     return { x: canvasX - canvas.width / 2 + st.camera.x, y: canvasY - canvas.height / 2 + st.camera.y };
   };
 
-  const handleTowerTap = (clientX: number, clientY: number) => {
+  const handlesphereTap = (clientX: number, clientY: number) => {
     const st = stateRef.current;
     if (!st || st.gameOver || st.paused) return;
     if (st.pendingUpgrade || st.pendingArtifact || st.pendingUpgrade || st.pendingChest) return;
     const world = touchToWorld(clientX, clientY);
     if (!world) return;
-    const nearExistingTower = st.spheres.some(
-      (sphere) => sphere.alive && Math.hypot(sphere.pos.x - world.x, sphere.pos.y - world.y) < TOWER_TOUCH_TOLERANCE
+    const nearExistingsphere = st.spheres.some(
+      (sphere) => sphere.alive && Math.hypot(sphere.pos.x - world.x, sphere.pos.y - world.y) < sphere_TOUCH_TOLERANCE
     );
 
-    // Tapping an existing tower keeps the old toggle/remove behavior.
-    if (nearExistingTower) {
+    // Tapping an existing sphere keeps the old toggle/remove behavior.
+    if (nearExistingsphere) {
       const beforeCount = st.spheres.length;
       placeSphere(st, world.x, world.y);
       if (st.spheres.length < beforeCount) haptic(10);
@@ -109,7 +109,7 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
 
     if (st.spheres.length >= getMaxSpheres(st)) return;
 
-    // A new tower cannot overlap another tower, cover the player, or close
+    // A new sphere cannot overlap another sphere, cover the player, or close
     // the last usable route from the player to the outside of the arena.
     if (!canPlaceSphere(st, world.x, world.y)) {
       st.flashText = { text: lang === 'ru' ? 'Путь перекрыт' : 'Path blocked', life: 0.8, color: '#c4453d' };
@@ -142,8 +142,8 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
       joystickIdRef.current = null;
       clearMovementKeys();
       setJoystick(null);
-      if (pointer && !pointer.moved) handleTowerTap(clientX, clientY);
-    } else if (pointer && !pointer.moved) handleTowerTap(clientX, clientY);
+      if (pointer && !pointer.moved) handlesphereTap(clientX, clientY);
+    } else if (pointer && !pointer.moved) handlesphereTap(clientX, clientY);
   };
 
   useEffect(() => {
