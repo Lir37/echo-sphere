@@ -80,87 +80,70 @@ function Menu({ lang, setLang, t, difficulty, setDifficulty, soundOn, setSoundOn
   useEffect(() => { saveName(name); }, [name]);
   useEffect(() => { localStorage.setItem('echosphere_map', mapTheme); }, [mapTheme]);
 
-  const spherePalette: Array<{ type: keyof typeof SPHERE_TYPES; color: string }> = [
-    { type: 'standard', color: '#55dfff' },
-    { type: 'sniper', color: '#e86cff' },
-    { type: 'shotgun', color: '#ff9c3d' },
-    { type: 'chain', color: '#ffe25b' },
-    { type: 'aura', color: '#57e6b4' },
-  ];
-
   return (
-    <div className="es-menu-shell">
-      <header className="es-menu-brand">
+    <div className="es-main-menu">
+      <header className="es-main-topbar">
         <div>
-          <div className="es-menu-brand-title">ECHO SPHERE</div>
-          <div className="es-menu-brand-subtitle">
-            {lang === 'ru' ? 'СФЕРЫ · ЭВОЛЮЦИЯ · СИНЕРГИЯ' : 'SPHERES · EVOLUTION · SYNERGY'}
-          </div>
+          <div className="es-main-logo">ECHO SPHERE</div>
+          <div className="es-main-sub">RESONANCE SURVIVAL SYSTEM</div>
         </div>
-        <div className="flex items-center gap-2">
-          <button onClick={() => setSoundOn(!soundOn)} className="es-menu-item es-icon-button" aria-label={soundOn ? 'Mute' : 'Sound'}>
+        <div className="es-main-tools">
+          <button onClick={() => setSoundOn(!soundOn)} className="es-tech-button" aria-label={soundOn ? 'Mute' : 'Sound'}>
             {soundOn ? <Volume2 size={15} /> : <VolumeX size={15} />}
           </button>
-          <button onClick={() => setLang(lang === 'ru' ? 'en' : 'ru')} className="es-menu-item es-icon-button text-[9px]">
-            <Globe size={14} />{lang.toUpperCase()}
+          <button onClick={() => setLang(lang === 'ru' ? 'en' : 'ru')} className="es-tech-button">
+            <Globe size={14} /> {lang.toUpperCase()}
           </button>
         </div>
       </header>
 
-      <section className="es-glass-panel es-menu-side es-character-panel">
-        <div className="es-panel-kicker">{lang === 'ru' ? 'Персонажи' : 'Characters'}</div>
-        <div className="es-panel-title">{lang === 'ru' ? 'Выберите стиль резонанса' : 'Choose your resonance style'}</div>
-
-        <button onClick={onCharacters} className="es-selected-character mt-3">
-          <div className="es-selected-character-orb" style={{ ['--character-color' as string]: selectedCharacter.color }}>✦</div>
-          <div className="min-w-0 text-left">
-            <div className="es-menu-item-title">{selectedCharacter.name[lang]}</div>
-            <div className="es-menu-item-sub">{selectedCharacter.role[lang]}</div>
-            <div className="text-[9px] text-[#86a4ba] mt-1 leading-relaxed">{selectedCharacter.description[lang]}</div>
-          </div>
-        </button>
-
-        <div className="es-character-roster mt-4">
-          {Object.values(CHARACTER_DEFS).map((character) => {
-            const active = character.id === selectedCharacter.id;
-            return (
-              <button key={character.id} onClick={onCharacters} className={"es-roster-item " + (active ? "is-active" : "")} title={character.name[lang]}>
-                <span className="es-roster-orb" style={{ color: character.color }}>✦</span>
-                <span className="truncate">{character.name[lang]}</span>
-              </button>
-            );
-          })}
+      <main className="es-main-stage">
+        <div className="es-main-side-note es-note-left">
+          <span>01</span>
+          <b>{lang === 'ru' ? 'РЕЗОНАНС' : 'RESONANCE'}</b>
+          <small>{selectedCharacter.name[lang]}</small>
         </div>
-      </section>
 
-      <section className="es-glass-panel es-menu-center">
-        <div className="es-menu-center-glow" />
-        <div className="es-menu-center-content">
-          <div className="es-panel-kicker">ECHO CORE // ONLINE</div>
-          <div className="es-orbit-mark" aria-hidden="true">
-            <div className="absolute inset-[36%] rounded-full bg-[radial-gradient(circle_at_35%_30%,#fff_0%,#c6faff_18%,#50cfff_40%,#1f5db5_65%,#030711_100%)] shadow-[0_0_42px_rgba(69,211,255,.48),0_0_100px_rgba(136,89,255,.16)]" />
-            <div className="absolute inset-[28%] rounded-full border border-[#dffcff]/30" />
+        <section className="es-main-core">
+          <div className="es-core-caption">ECHO CORE // {lang === 'ru' ? 'ГОТОВ' : 'READY'}</div>
+          <div className="es-main-core-art" aria-hidden="true">
+            <div className="es-core-orbit orbit-a" />
+            <div className="es-core-orbit orbit-b" />
+            <div className="es-core-orbit orbit-c" />
+            <div className="es-core-ring ring-a" />
+            <div className="es-core-ring ring-b" />
+            <div className="es-core-body" />
+            <div className="es-core-highlight" />
           </div>
-          <div className="mt-3 text-[10px] uppercase tracking-[0.26em] text-[#91b7d4]">
-            {lang === 'ru' ? 'РАЗМЕСТИ · СОЕДИНЯЙ · ЭВОЛЮЦИОНИРУЙ' : 'DEPLOY · CONNECT · EVOLVE'}
+          <div className="es-main-core-title">ENTER THE ECHO</div>
+          <div className="es-main-core-copy">
+            {lang === 'ru' ? 'Размещай сферы. Строй резонанс. Переживи волну.' : 'Deploy spheres. Build resonance. Survive the wave.'}
           </div>
 
-          <div className="es-run-config mt-4">
-            <div>
-              <div className="es-panel-kicker">{lang === 'ru' ? 'Имя' : 'Name'}</div>
-              <input value={name} onChange={(e) => setName(e.target.value.slice(0, 16))} placeholder={t('namePlaceholder')} />
-            </div>
-            <div>
-              <div className="es-panel-kicker">{t('difficulty')}</div>
-              <div className="es-config-inline">
+          <div className="es-main-loadout">
+            <button onClick={onCharacters} className="es-loadout-character">
+              <span className="es-loadout-avatar" style={{ ['--character-color' as string]: selectedCharacter.color }}>✦</span>
+              <span>
+                <b>{selectedCharacter.name[lang]}</b>
+                <small>{selectedCharacter.role[lang]}</small>
+              </span>
+              <UserRound size={14} />
+            </button>
+
+            <div className="es-loadout-divider" />
+
+            <div className="es-loadout-setting">
+              <span>{t('difficulty')}</span>
+              <div className="es-loadout-options">
                 {DIFFICULTIES.map((d) => (
                   <button key={d.id} onClick={() => setDifficulty(d.id)} className={difficulty === d.id ? 'is-active' : ''}>{d.name[lang]}</button>
                 ))}
               </div>
             </div>
-            <div>
-              <div className="es-panel-kicker">{t('chooseMap')}</div>
-              <div className="es-config-inline">
+
+            <div className="es-loadout-setting">
+              <span>{t('chooseMap')}</span>
+              <div className="es-loadout-options">
                 {MAP_THEMES.map((m) => (
                   <button key={m.id} onClick={() => setMapTheme(m.id)} className={mapTheme === m.id ? 'is-active' : ''}>{m.name[lang]}</button>
                 ))}
@@ -168,62 +151,37 @@ function Menu({ lang, setLang, t, difficulty, setDifficulty, soundOn, setSoundOn
             </div>
           </div>
 
-          <button onClick={() => onPlay(mapTheme)} className="es-menu-play">
-            <span className="mr-2">▶</span>{t('play')}
+          <div className="es-main-name">
+            <span>ID</span>
+            <input value={name} onChange={(e) => setName(e.target.value.slice(0, 16))} placeholder={t('namePlaceholder')} />
+          </div>
+
+          <button onClick={() => onPlay(mapTheme)} className="es-main-play">
+            <Play size={18} fill="currentColor" />
+            <span>{t('play')}</span>
+            <small>START RUN</small>
           </button>
+        </section>
 
-          <div className="es-menu-status mt-3">
-            <span>5 {lang === 'ru' ? 'типов сфер' : 'sphere types'}</span>
-            <span>VII {lang === 'ru' ? 'макс. уровень' : 'max level'}</span>
-            <span>{lang === 'ru' ? 'синергии' : 'synergies'}</span>
-          </div>
+        <div className="es-main-side-note es-note-right">
+          <span>02</span>
+          <b>{lang === 'ru' ? 'СФЕРЫ' : 'SPHERES'}</b>
+          <small>5 TYPES // VII</small>
         </div>
-      </section>
+      </main>
 
-      <section className="es-glass-panel es-menu-side es-sphere-panel">
-        <div className="es-panel-kicker">{lang === 'ru' ? 'Сферы' : 'Spheres'}</div>
-        <div className="es-panel-title">{lang === 'ru' ? 'Боевой комплект' : 'Combat loadout'}</div>
-        <div className="mt-3">
-          {spherePalette.map(({ type, color }) => {
-            const def = SPHERE_TYPES[type];
-            return (
-              <div key={type} className="es-sphere-row">
-                <div className="es-sphere-orb" style={{ ['--orb-color' as string]: color }} />
-                <div className="min-w-0">
-                  <div className="text-[11px] font-bold text-[#dff3ff]">{def.name[lang]}</div>
-                  <div className="text-[9px] text-[#718ca5] truncate">{def.desc[lang]}</div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="mt-4">
-          <div className="es-panel-kicker">{lang === 'ru' ? 'Эволюция' : 'Evolution'}</div>
-          <div className="es-evolution-strip mt-2">
-            {[1,2,3,4,5,6,7].map((level) => (
-              <div key={level} className={"es-evolution-node " + (level === 4 ? "is-branch" : level === 7 ? "is-final" : "")}>
-                <span className="es-evolution-orb" />
-                <span>{['I','II','III','IV','V','VI','VII'][level - 1]}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <nav className="es-bottom-nav">
-        <button onClick={onCharacters}><UserRound size={15} className="mx-auto mb-1" />{lang === 'ru' ? 'Персонажи' : 'Characters'}</button>
-        <button onClick={onShop}><Store size={15} className="mx-auto mb-1" />{t('shop')}</button>
-        <button onClick={onLeader}><Trophy size={15} className="mx-auto mb-1" />{t('leaderboard')}</button>
-        <button onClick={onAchievements}><Award size={15} className="mx-auto mb-1" />{t('achievements')}</button>
-        <button onClick={onSettings}><Settings size={15} className="mx-auto mb-1" />{t('settings')}</button>
+      <nav className="es-main-nav">
+        <button onClick={onCharacters}><UserRound size={16} /><span>{lang === 'ru' ? 'Персонажи' : 'Characters'}</span></button>
+        <button onClick={onShop}><Store size={16} /><span>{t('shop')}</span></button>
+        <button onClick={onLeader}><Trophy size={16} /><span>{t('leaderboard')}</span></button>
+        <button onClick={onAchievements}><Award size={16} /><span>{t('achievements')}</span></button>
+        <button onClick={onSettings}><Settings size={16} /><span>{t('settings')}</span></button>
       </nav>
     </div>
   );
 }
 
 
-// ===== Game Screen =====
 function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }: {
   lang: Lang; t: (k: TranslationKey) => string; shop: ShopState; difficulty: Difficulty; mapTheme: MapTheme; handedness: Handedness; onExit: () => void;
 }) {
