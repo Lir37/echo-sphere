@@ -141,31 +141,31 @@ export const SPHERE_TYPES: Record<SphereType, SphereTypeDef> = {
   standard: {
     id: 'standard', name: { ru: 'Стандартная', en: 'Standard' },
     desc: { ru: 'Сбалансированная сфера', en: 'Balanced sphere' },
-    color: '#5a8c4a', damageMult: 1, rangeMult: 1, delayMult: 1, projectileSpeedMult: 1,
+    color: '#55dfff', damageMult: 1, rangeMult: 1, delayMult: 1, projectileSpeedMult: 1,
     pellets: 1, spread: 0, chain: false, aura: false, auraRadius: 0,
   },
   sniper: {
     id: 'sniper', name: { ru: 'Снайпер', en: 'Sniper' },
     desc: { ru: 'Высокий урон, большая дальность, медленная', en: 'High damage, long range, slow' },
-    color: '#c46d3d', damageMult: 2.5, rangeMult: 2, delayMult: 2, projectileSpeedMult: 2,
+    color: '#e86cff', damageMult: 2.5, rangeMult: 2, delayMult: 2, projectileSpeedMult: 2,
     pellets: 1, spread: 0, chain: false, aura: false, auraRadius: 0,
   },
   shotgun: {
     id: 'shotgun', name: { ru: 'Дробовик', en: 'Shotgun' },
     desc: { ru: '3 снаряда, короткая дальность', en: '3 pellets, short range' },
-    color: '#c4453d', damageMult: 0.6, rangeMult: 0.6, delayMult: 1.2, projectileSpeedMult: 0.8,
+    color: '#ff8f3d', damageMult: 0.6, rangeMult: 0.6, delayMult: 1.2, projectileSpeedMult: 0.8,
     pellets: 3, spread: 0.4, chain: false, aura: false, auraRadius: 0,
   },
   chain: {
     id: 'chain', name: { ru: 'Цепная', en: 'Chain' },
     desc: { ru: 'Молния прыгает между врагами', en: 'Lightning jumps between enemies' },
-    color: '#d4a830', damageMult: 1, rangeMult: 1, delayMult: 1.3, projectileSpeedMult: 1.5,
+    color: '#ffe25b', damageMult: 1, rangeMult: 1, delayMult: 1.3, projectileSpeedMult: 1.5,
     pellets: 1, spread: 0, chain: true, aura: false, auraRadius: 0,
   },
   aura: {
     id: 'aura', name: { ru: 'Аура', en: 'Aura' },
     desc: { ru: 'Непрерывный урон по площади', en: 'Continuous AoE damage' },
-    color: '#8a5a8a', damageMult: 0.4, rangeMult: 0.5, delayMult: 0.2, projectileSpeedMult: 1,
+    color: '#57e6b4', damageMult: 0.4, rangeMult: 0.5, delayMult: 0.2, projectileSpeedMult: 1,
     pellets: 0, spread: 0, chain: false, aura: true, auraRadius: 80,
   },
 };
@@ -180,10 +180,10 @@ export interface BossTypeDef {
 }
 
 export const BOSS_TYPES: Record<BossType, BossTypeDef> = {
-  shooter: { id: 'shooter', name: { ru: 'Стрелок', en: 'Shooter' }, color: '#c4453d' },
-  charger: { id: 'charger', name: { ru: 'Зарядник', en: 'Charger' }, color: '#d4943d' },
-  summoner: { id: 'summoner', name: { ru: 'Призыватель', en: 'Summoner' }, color: '#8a5a8a' },
-  aura: { id: 'aura', name: { ru: 'Аура', en: 'Aura' }, color: '#b8475a' },
+  shooter: { id: 'shooter', name: { ru: 'Стрелок', en: 'Shooter' }, color: '#ff6a5f' },
+  charger: { id: 'charger', name: { ru: 'Зарядник', en: 'Charger' }, color: '#ff9c3d' },
+  summoner: { id: 'summoner', name: { ru: 'Призыватель', en: 'Summoner' }, color: '#a27cff' },
+  aura: { id: 'aura', name: { ru: 'Аура', en: 'Aura' }, color: '#ff62b9' },
 };
 
 // ===== Difficulty =====
