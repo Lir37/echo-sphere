@@ -412,8 +412,8 @@ function UpgradeModal({ lang, t, st, onPick }: {
   );
 }
 // ===== Artifact Modal =====// ===== Artifact Modal =====
-function ArtifactModal({ lang, t, choices, onPick }: {
-  lang: Lang; t: (k: TranslationKey) => string; choices: ArtifactId[]; onPick: (id: ArtifactId) => void;
+function ArtifactModal({ lang, t, st, choices, onPick }: {
+  lang: Lang; t: (k: TranslationKey) => string; st: GameState; choices: ArtifactId[]; onPick: (id: ArtifactId) => void;
 }) {
   const rarityClass: Record<string, string> = {
     common: 'border-[#a89878]/50',
