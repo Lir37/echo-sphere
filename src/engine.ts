@@ -329,6 +329,55 @@ export const BASE_SPHERE_DAMAGE = 12;
 export const BASE_SPHERE_DELAY = 1.2;
 export const PLAYER_RADIUS = 16;
 
+// Centralised run-balance constants. Keep the early game readable and let
+// difficulty come from enemy composition + gradual scaling rather than HP walls.
+export const BALANCE = {
+  startingHp: 100,
+  hpPerLevel: 6,
+  firstLevelXp: 10,
+  xpGrowthLinear: 3,
+  xpGrowthQuadratic: 0.08,
+  normalHpBase: 18,
+  normalHpPerWave: 5.5,
+  normalSpeedBase: 68,
+  normalSpeedPerWave: 1.8,
+  normalDamageBase: 7,
+  normalDamagePerWave: 0.30,
+  fastHpBase: 11,
+  fastHpPerWave: 3.4,
+  fastSpeedBase: 125,
+  fastSpeedPerWave: 2.4,
+  fastDamageBase: 8,
+  fastDamagePerWave: 0.32,
+  tankHpBase: 42,
+  tankHpPerWave: 10.5,
+  tankSpeedBase: 44,
+  tankSpeedPerWave: 0.8,
+  tankDamageBase: 11,
+  tankDamagePerWave: 0.38,
+  bossHpBase: 450,
+  bossHpPerWave: 55,
+  bossSpeedBase: 48,
+  bossSpeedPerWave: 1.2,
+  bossChargerSpeedBase: 72,
+  bossChargerSpeedPerWave: 1.8,
+  bossDamageBase: 28,
+  bossDamagePerWave: 0.65,
+  enemiesPerWaveBase: 4,
+  enemiesPerWaveGrowth: 1.1,
+} as const;
+
+export function getXpToNextLevel(level: number): number {
+  return Math.max(
+    BALANCE.firstLevelXp,
+    Math.round(
+      BALANCE.firstLevelXp +
+      Math.max(0, level - 1) * BALANCE.xpGrowthLinear +
+      Math.pow(Math.max(0, level - 1), 2) * BALANCE.xpGrowthQuadratic
+    ),
+  );
+}
+
 export type MapTheme = 'parchment' | 'bamboo' | 'ocean' | 'sunset';
 
 export const MAP_THEMES: { id: MapTheme; name: { ru: string; en: string } }[] = [
@@ -347,7 +396,7 @@ export function createInitialState(
   const characterId = loadCharacterId();
   const profile = loadCharacterProfiles().find((item) => item.id === characterId);
   const characterMasteryLevel = profile?.masteryLevel || 1;
-  const baseHp = 100 + (shop.upgrades.hp || 0) * 10;
+  const baseHp = BALANCE.startingHp + (shop.upgrades.hp || 0) * 10;
   const startHp = baseHp * getCharacterMaxHpMultiplierForId(characterId);
   const player: PlayerState = {
     pos: { x: 0, y: 0 },
@@ -356,7 +405,7 @@ export function createInitialState(
     speed: BASE_PLAYER_SPEED,
     level: 1,
     xp: 0,
-    xpToNext: 5,
+    xpToNext: BALANCE.firstLevelXp,
     abilities: {},
     evolutions: [],
     artifacts: [],
@@ -414,7 +463,19 @@ export function createInitialState(
   };
   return {
     player,
-    spheres: [],
+    spheres: [{
+      pos: { x: 0, y: -95 },
+      radius: BASE_SPHERE_RADIUS,
+      damage: BASE_SPHERE_DAMAGE,
+      attackDelay: BASE_SPHERE_DELAY,
+      attackTimer: 0,
+      rotation: 0,
+      alive: true,
+      killsContribution: 0,
+      visualTier: 0,
+      type: 'standard',
+      auraTimer: 0,
+    }],
     enemies: [],
     xpOrbs: [],
     healthPacks: [],
@@ -619,18 +680,20 @@ function spawnEnemy(s: GameState, isBoss: boolean): EnemyEntity {
   const py = s.player.pos.y + Math.sin(angle) * spawnDist;
   const diff = DIFFICULTIES.find(d => d.id === s.difficulty)!;
   if (isBoss) {
-    const hp = (400 + wave * 60) * diff.enemyHpMult;
+    const hp = (BALANCE.bossHpBase + wave * BALANCE.bossHpPerWave) * diff.enemyHpMult;
     // pick boss type based on boss count
     const bossTypes: BossType[] = ['shooter', 'charger', 'summoner', 'aura'];
     const bt = bossTypes[s.bossDefeated % bossTypes.length];
     const bdef = BOSS_TYPES[bt];
-    const baseSpeed = bt === 'charger' ? 80 + wave * 2 : 50 + wave * 1.5;
+    const baseSpeed = bt === 'charger'
+      ? BALANCE.bossChargerSpeedBase + wave * BALANCE.bossChargerSpeedPerWave
+      : BALANCE.bossSpeedBase + wave * BALANCE.bossSpeedPerWave;
     return {
       pos: { x: px, y: py },
       hp, maxHp: hp,
       speed: baseSpeed * diff.enemySpeedMult,
       radius: 42,
-      damage: 25 * diff.enemyDamageMult,
+      damage: (BALANCE.bossDamageBase + wave * BALANCE.bossDamagePerWave) * diff.enemyDamageMult,
       type: 'boss',
       color: bdef.color,
       shape: 'hexagon',
@@ -656,14 +719,14 @@ function spawnEnemy(s: GameState, isBoss: boolean): EnemyEntity {
   }
   const r = Math.random();
   let type: EnemyEntity['type'] = 'normal';
-  let hp = (20 + wave * 6) * diff.enemyHpMult;
-  let speed = (70 + wave * 2) * diff.enemySpeedMult;
+  let hp = (BALANCE.normalHpBase + wave * BALANCE.normalHpPerWave) * diff.enemyHpMult;
+  let speed = (BALANCE.normalSpeedBase + wave * BALANCE.normalSpeedPerWave) * diff.enemySpeedMult;
   let radius = 14;
-  let dmg = 10 * diff.enemyDamageMult;
+  let dmg = (BALANCE.normalDamageBase + wave * BALANCE.normalDamagePerWave) * diff.enemyDamageMult;
   let color = '#4a7a8a';
   let shape: EnemyEntity['shape'] = 'circle';
-  if (r < 0.2 && wave > 2) { type = 'fast'; hp = (12 + wave * 4) * diff.enemyHpMult; speed = (130 + wave * 3) * diff.enemySpeedMult; radius = 10; color = '#d4a830'; shape = 'triangle'; }
-  else if (r < 0.35 && wave > 4) { type = 'tank'; hp = (50 + wave * 14) * diff.enemyHpMult; speed = (45 + wave) * diff.enemySpeedMult; radius = 20; color = '#8a5a8a'; shape = 'square'; dmg = 10 * diff.enemyDamageMult; }
+  if (r < 0.2 && wave > 2) { type = 'fast'; hp = (BALANCE.fastHpBase + wave * BALANCE.fastHpPerWave) * diff.enemyHpMult; speed = (BALANCE.fastSpeedBase + wave * BALANCE.fastSpeedPerWave) * diff.enemySpeedMult; radius = 10; dmg = (BALANCE.fastDamageBase + wave * BALANCE.fastDamagePerWave) * diff.enemyDamageMult; color = '#d4a830'; shape = 'triangle'; }
+  else if (r < 0.35 && wave > 4) { type = 'tank'; hp = (BALANCE.tankHpBase + wave * BALANCE.tankHpPerWave) * diff.enemyHpMult; speed = (BALANCE.tankSpeedBase + wave * BALANCE.tankSpeedPerWave) * diff.enemySpeedMult; radius = 20; dmg = (BALANCE.tankDamageBase + wave * BALANCE.tankDamagePerWave) * diff.enemyDamageMult; color = '#8a5a8a'; shape = 'square'; }
   // elite chance: 5% after wave 5, scales up
   const isElite = wave > 5 && Math.random() < Math.min(0.12, 0.03 + wave * 0.005);
   if (isElite) {
@@ -703,7 +766,7 @@ function startWave(s: GameState): void {
     s.waveEnemiesToSpawn = 3 + Math.floor(s.wave / 10);
     playSound('boss');
   } else {
-    s.waveEnemiesToSpawn = 4 + Math.floor(s.wave * 1.4);
+    s.waveEnemiesToSpawn = BALANCE.enemiesPerWaveBase + Math.floor(s.wave * BALANCE.enemiesPerWaveGrowth);
     playSound('wave');
   }
   s.waveSpawnTimer = 0.5;
@@ -2757,10 +2820,10 @@ function gainXp(s: GameState, amount: number): void {
   while (s.player.xp >= s.player.xpToNext) {
     s.player.xp -= s.player.xpToNext;
     s.player.level++;
-    s.player.xpToNext = Math.floor(s.player.xpToNext * 1.4 + 3);
     // HP per level: +8 max HP and heal 8
-    s.player.maxHp += 8;
-    s.player.hp += 8;
+    s.player.maxHp += BALANCE.hpPerLevel;
+    s.player.hp = Math.min(s.player.maxHp, s.player.hp + BALANCE.hpPerLevel);
+    s.player.xpToNext = getXpToNextLevel(s.player.level);
     s.pendingUpgrade = generateUpgradeChoices(s);
     playSound('levelup');
   }
