@@ -171,7 +171,7 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
     : [];
 
   return (
-    <div className="absolute inset-0 z-20 overflow-hidden select-none" style={{ touchAction: 'none', userSelect: 'none', WebkitUserSelect: 'none' }}
+    <div className="es-mobile-controls absolute inset-0 z-20 overflow-hidden select-none" style={{ touchAction: 'none', userSelect: 'none', WebkitUserSelect: 'none' }}
       onPointerDown={(e) => {
         if (isBlockedByControl(e.target)) return;
         const st = stateRef.current;
