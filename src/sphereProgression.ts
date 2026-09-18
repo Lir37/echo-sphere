@@ -353,10 +353,40 @@ export function getActiveSphereAbilitySynergies(s:any): SphereAbilitySynergy[] {
 
 export function sphereModifiers(s:any,type:SphereType,sphere?:any){
   const l=sphereLevel(s,type), branch=s.player.sphereBranches?.[type], final=sphereFinalIndex(s,type), artifact=getSphereArtifactModifiers(s,type,sphere);
-  let damage=1+l*.08+(l>=4?.12:0)+(l>=7?.18:0), radius=1+(l>=2?.05:0)+(l>=5?.06:0)+(l>=7?.08:0), delay=Math.max(.48,1-l*.045);
-  let pierce=l>=2?1:0, multishot=type==='shotgun'&&l>=1?1:0, chainTargets=type==='chain'?Math.max(1,l+1):0, auraRadius=l>=2?1.08:1, auraPulse=l>=4?.75:.5;
+  let damage=1, radius=1, delay=1, pierce=0, multishot=0, chainTargets=1, auraRadius=1, auraPulse=.5;
+  let spreadMult=1;
+
+  // Levels I-III mirror their written upgrades instead of silently stacking generic bonuses.
+  if(type==='standard'){
+    if(l>=1) damage*=1.15;
+    if(l>=2) pierce+=1;
+    if(l>=3) delay*=.9;
+  }
+  if(type==='sniper'){
+    if(l>=1) damage*=1.25;
+    if(l>=2) radius*=1.15;
+  }
+  if(type==='shotgun'){
+    if(l>=1) multishot+=1;
+    if(l>=3) spreadMult*=.88;
+  }
+  if(type==='chain'){
+    if(l>=1) chainTargets+=1;
+    if(l>=2) damage*=1.10;
+  }
+  if(type==='aura'){
+    if(l>=1) auraRadius*=1.20;
+    if(l>=2) auraPulse*=.9;
+    if(l>=3) damage*=1.10;
+  }
+
+  // Shared post-evolution scaling.
+  if(l>=4) damage*=1.12;
+  if(l>=5){ damage*=1.06; radius*=1.06; }
+  if(l>=7){ damage*=1.18; radius*=1.08; }
+
   if(type==='standard'&&branch==='standard_resonator'){damage*=1.08;if(final===0)radius*=1.12;}
-  if(type==='standard'&&branch==='standard_singularity'){damage*=1.06;if(final===0)auraRadius=1.15;}
+  if(type==='standard'&&branch==='standard_singularity'){damage*=1.06;if(final===0)auraRadius*=1.15;}
   if(type==='standard'&&branch==='standard_swarm'){multishot+=1;if(final===0)multishot+=1;}
   if(type==='sniper'&&branch==='sniper_oracle'){damage*=1.10;if(final===0)damage*=1.18;}
   if(type==='sniper'&&branch==='sniper_assassin'){damage*=1.12;if(final===0)damage*=1.20;}
@@ -371,8 +401,6 @@ export function sphereModifiers(s:any,type:SphereType,sphere?:any){
   if(type==='aura'&&branch==='aura_gravity'){auraRadius*=1.10;if(final===0)auraRadius*=1.18;}
   if(type==='aura'&&branch==='aura_overgrowth'){damage*=1.06;auraRadius*=1.08;if(final===0)damage*=1.15;}
 
-  // A sphere + active ability synergy unlocks only when both reach VII.
-  // This is a build-defining rule change, not another generic stat bonus.
   for (const link of getActiveSphereAbilitySynergies(s)) {
     if (link.sphere !== type) continue;
     if (link.effect === 'damage') damage *= 1.12;
@@ -381,5 +409,5 @@ export function sphereModifiers(s:any,type:SphereType,sphere?:any){
     if (link.effect === 'chain') chainTargets += 1;
   }
 
-  return {damage:damage*artifact.damage,radius:radius*artifact.radius,delay:delay*artifact.delay,pierce,multishot,chainTargets,auraRadius,auraPulse};
+  return {damage:damage*artifact.damage,radius:radius*artifact.radius,delay:delay*artifact.delay,pierce,multishot,chainTargets,auraRadius,auraPulse,spreadMult};
 }
