@@ -121,6 +121,7 @@ export interface SphereProjectile {
   ricochet: number; // bounces remaining
   life: number;
   sourceSphere?: SphereEntity;
+  procOnHit?: boolean;
 }
 
 export interface EnemyEntity {
@@ -2196,7 +2197,7 @@ function updateSpheres(s: GameState, dt: number): void {
     for (const e of s.enemies) {
       if (e.hp <= 0 || p.hitEnemies.has(e)) continue;
       if (dist(p.pos, e.pos) < p.radius + e.radius) {
-        dealDamageToEnemy(s, e, p.damage, p.sourceSphere);
+        dealDamageToEnemy(s, e, p.damage, p.sourceSphere, p.procOnHit !== false);
         p.hitEnemies.add(e);
         hit = true;
         // impact effect particles
