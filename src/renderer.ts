@@ -198,83 +198,55 @@ export function render(ctx: CanvasRenderingContext2D, s: GameState, canvasW: num
   }
 }
 
-function drawCharacterHud(ctx: CanvasRenderingContext2D, s: GameState, canvasW: number, _canvasH: number): void {
+function drawCharacterHud(ctx: CanvasRenderingContext2D, s: GameState, _canvasW: number, _canvasH: number): void {
   const characterId = getCharacterId(s);
   const def = CHARACTER_DEFS[characterId];
   const mastery = s.player.characterMasteryLevel || 1;
   const x = 12;
-  const y = 78;
-  const width = Math.min(210, Math.max(165, canvasW * 0.34));
-  const lineH = 14;
+  const y = 74;
+  const width = 178;
   const lines: string[] = [];
 
   switch (characterId) {
-    case 'spherist': {
-      const afterFirst = Math.max(0, s.spheres.length - 1);
-      lines.push(`RESONANCE  +${Math.round(afterFirst * 3 + (mastery >= 4 ? afterFirst * 0.5 : 0))}% AS`);
-      if (s.spheres.length >= (mastery >= 2 ? 4 : 5)) lines.push(`CHORUS  +${mastery >= 3 ? 7 : 5}% DMG`);
+    case 'spherist':
+      lines.push(`RESONANCE  +${Math.round(Math.max(0, s.spheres.length - 1) * 3)}%`);
       break;
-    }
-    case 'hunter': {
-      const marked = s.player.hunterMarkTarget !== null && s.player.hunterMarkTimer > 0;
-      const hunt = s.player.hunterHuntTimer > 0;
-      if (hunt) lines.push(`HUNT  ${Math.ceil(s.player.hunterHuntTimer)}s  +30%`);
-      else if (marked) lines.push(`MARK  ${Math.ceil(s.player.hunterMarkTimer)}s  ${s.player.hunterHitCount}/5`);
-      else lines.push('MARK  —');
-      if (s.player.hunterTrophyTimer > 0) lines.push(`TROPHY  ${Math.ceil(s.player.hunterTrophyTimer)}s`);
+    case 'hunter':
+      lines.push(s.player.hunterHuntTimer > 0 ? `HUNT  ${Math.ceil(s.player.hunterHuntTimer)}s` : s.player.hunterMarkTimer > 0 ? `MARK  ${Math.ceil(s.player.hunterMarkTimer)}s` : 'MARK  —');
       break;
-    }
-    case 'engineer': {
-      const range = getEngineerNetworkRange(s);
-      const linked = s.spheres.filter((sphere) => s.spheres.some((other) => other !== sphere && other.alive && sphere.alive && dist2D(sphere.pos, other.pos) <= range)).length;
-      const formationSize = getEngineerFormationSize(s, range);
-      lines.push(`LINKS  ${linked}/${s.spheres.length}`);
-      if (formationSize >= 3) lines.push(`NETWORK  ${formationSize}`);
-      if (s.player.engineerRelayTimer > 0) lines.push(`RELAY  ${s.player.engineerRelayTimer.toFixed(1)}s`);
+    case 'engineer':
+      lines.push(`LINKS  ${Math.min(s.spheres.length, 8)}/${s.spheres.length}`);
       break;
-    }
     case 'berserker': {
-      const missing = Math.max(0, 1 - s.player.hp / Math.max(1, s.player.maxHp));
-      const steps = Math.min(4, Math.floor(missing / 0.2));
-      lines.push(`FURY  ${steps}/4  +${steps * 7}% DMG`);
-      lines.push(`CLOSE  ${hasCloseEnemy(s) ? '+12% DMG' : 'READY'}`);
-      if (mastery >= 5 && s.player.buffTimer > 0) lines.push(`BLOOD TRAIL  ${Math.ceil(s.player.buffTimer)}s`);
+      const steps = Math.min(4, Math.floor(Math.max(0, 1 - s.player.hp / Math.max(1, s.player.maxHp)) / 0.2));
+      lines.push(`FURY  ${steps}/4`);
       break;
     }
-    case 'alchemist': {
-      const reaction = s.enemies.some((enemy) => enemy.hp > 0 && countStatusEffects(enemy) >= 2);
-      lines.push(reaction ? 'REACTION  READY' : 'REACTION  —');
-      if (s.player.alchemistCatalystTimer > 0) lines.push(`CATALYST  ${s.player.alchemistCatalystTimer.toFixed(1)}s`);
+    case 'alchemist':
+      lines.push(s.enemies.some((enemy) => enemy.hp > 0 && countStatusEffects(enemy) >= 2) ? 'REACTION  READY' : 'REACTION  —');
       break;
-    }
-    case 'architect': {
-      const formation = getCharacterFormation(s);
-      lines.push(`FORM  ${formation.type.toUpperCase()}`);
-      lines.push(`STRENGTH  ${Math.round(formation.strength * 100)}%`);
+    case 'architect':
+      lines.push(`FORM  ${getCharacterFormation(s).type.toUpperCase()}`);
       break;
-    }
   }
 
   ctx.save();
-  ctx.fillStyle = 'rgba(232,220,192,0.88)';
-  ctx.strokeStyle = 'rgba(58,46,31,0.2)';
+  ctx.fillStyle = 'rgba(4,10,20,0.80)';
+  ctx.strokeStyle = 'rgba(91,199,255,0.18)';
   ctx.lineWidth = 1;
-  const height = 30 + lines.length * lineH;
   ctx.beginPath();
-  ctx.roundRect(x, y, width, height, 8);
+  ctx.roundRect(x, y, width, 28 + lines.length * 14, 7);
   ctx.fill();
   ctx.stroke();
 
   ctx.fillStyle = def.color;
-  ctx.font = 'bold 11px Georgia, serif';
+  ctx.font = 'bold 9px system-ui, sans-serif';
   ctx.textAlign = 'left';
-  ctx.fillText(`${def.name.en.toUpperCase()}  •  M${mastery}`, x + 9, y + 15);
+  ctx.fillText(`${def.name.en.toUpperCase()}  •  M${mastery}`, x + 9, y + 13);
 
-  ctx.fillStyle = '#5a4a32';
-  ctx.font = '10px Georgia, serif';
-  lines.forEach((line, index) => {
-    ctx.fillText(line, x + 9, y + 29 + index * lineH);
-  });
+  ctx.fillStyle = '#89a8bf';
+  ctx.font = '8px system-ui, sans-serif';
+  lines.forEach((line, index) => ctx.fillText(line, x + 9, y + 27 + index * 14));
   ctx.restore();
 }
 
@@ -1520,56 +1492,206 @@ function glowCircle(ctx: CanvasRenderingContext2D, radius: number, color: string
 
 function drawGroundShadow(ctx:CanvasRenderingContext2D,rx:number,ry:number,blur:number):void{ctx.save();ctx.shadowColor='rgba(0,0,0,.48)';ctx.shadowBlur=blur;ctx.fillStyle='rgba(0,0,0,.34)';ctx.beginPath();ctx.ellipse(0,5,rx,ry,0,0,Math.PI*2);ctx.fill();ctx.restore();}
 function drawModernSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: SphereEntity): void {
-  const def=SPHERE_TYPES[sphere.type],color=def.color,rgb=hexToRgb(color),time=Date.now()/1000,tier=sphere.visualTier;
-  const range=sphere.radius*(1+(s.player.abilities.radius||0)*0.15)*(s.player.artifacts.includes('radius_shard')?1.1:1)*def.rangeMult;
-  const r=Math.max(12,sphere.radius*1.02),h=15+tier*3;
-  ctx.save();ctx.translate(sphere.pos.x,sphere.pos.y);
-  drawGroundShadow(ctx,r*1.20,r*0.34,7+tier*2);
-  ctx.fillStyle='rgba(1,7,14,.92)';ctx.strokeStyle=`rgba(${rgb},.34)`;ctx.lineWidth=1;
-  ctx.beginPath();ctx.ellipse(0,h*.54,r*.84,r*.25,0,0,Math.PI*2);ctx.fill();ctx.stroke();
-  ctx.fillStyle=`rgba(${rgb},.08)`;ctx.beginPath();ctx.ellipse(0,h*.50,r*.64,r*.15,0,0,Math.PI*2);ctx.fill();
+  const def = SPHERE_TYPES[sphere.type];
+  const color = def.color;
+  const rgb = hexToRgb(color);
+  const time = Date.now() / 1000;
+  const tier = sphere.visualTier;
 
-  ctx.save();ctx.translate(0,-h*.28);ctx.rotate(sphere.rotation*.10);
-  const shell=ctx.createLinearGradient(-r,-r,r*.9,r);
-  shell.addColorStop(0,'#7188a0');shell.addColorStop(.08,'#294159');shell.addColorStop(.26,'#102138');shell.addColorStop(.60,'#07111f');shell.addColorStop(1,'#01040a');
-  ctx.fillStyle=shell;ctx.strokeStyle=`rgba(${rgb},.82)`;ctx.lineWidth=1.3;
+  // Combat radius is deliberately separate from visual size.
+  // The tower controls a large area, but the machine itself stays compact.
+  const range = sphere.radius * (1 + (s.player.abilities.radius || 0) * 0.15)
+    * (s.player.artifacts.includes('radius_shard') ? 1.1 : 1) * def.rangeMult;
+  const r = Math.max(17, Math.min(34, sphere.radius * 0.26 + tier * 1.35));
+  const h = 9 + tier * 1.8;
 
-  if(sphere.type==='sniper'){
-    ctx.beginPath();ctx.moveTo(-r*.36,r*.48);ctx.lineTo(-r*.30,-r*.54);ctx.lineTo(-r*.02,-r*.94);ctx.lineTo(r*.16,-r*.70);ctx.lineTo(r*.34,r*.42);ctx.closePath();ctx.fill();ctx.stroke();
-    ctx.fillStyle='rgba(221,239,255,.055)';ctx.beginPath();ctx.moveTo(-r*.28,-r*.40);ctx.lineTo(-r*.02,-r*.78);ctx.lineTo(r*.13,-r*.56);ctx.lineTo(-r*.06,-r*.12);ctx.closePath();ctx.fill();
-    ctx.strokeStyle=`rgba(${rgb},.82)`;ctx.lineWidth=Math.max(2,r*.055);ctx.beginPath();ctx.moveTo(r*.02,-r*.36);ctx.lineTo(r*.82,-r*.80);ctx.stroke();
-  }else if(sphere.type==='shotgun'){
-    ctx.beginPath();ctx.moveTo(-r*.72,-r*.30);ctx.lineTo(-r*.16,-r*.66);ctx.lineTo(r*.52,-r*.48);ctx.lineTo(r*.72,r*.22);ctx.lineTo(r*.10,r*.52);ctx.lineTo(-r*.72,r*.30);ctx.closePath();ctx.fill();ctx.stroke();
-    ctx.fillStyle='rgba(245,250,255,.06)';ctx.beginPath();ctx.moveTo(-r*.45,-r*.18);ctx.lineTo(r*.48,-r*.28);ctx.lineTo(r*.50,r*.05);ctx.lineTo(-r*.42,r*.15);ctx.closePath();ctx.fill();
-    ctx.strokeStyle=`rgba(${rgb},.90)`;ctx.lineWidth=Math.max(1.4,r*.052);for(let i=-1;i<=1;i++){ctx.beginPath();ctx.moveTo(r*.12,i*r*.095);ctx.lineTo(r*.82,i*r*.12);ctx.stroke();}
-  }else if(sphere.type==='chain'){
-    ctx.strokeStyle=`rgba(${rgb},.86)`;ctx.lineWidth=Math.max(3.5,r*.15);
-    ctx.beginPath();ctx.ellipse(-r*.26,0,r*.37,r*.54,-.18,-1.05,Math.PI+.70);ctx.stroke();
-    ctx.beginPath();ctx.ellipse(r*.26,0,r*.37,r*.54,.18,Math.PI-.70,Math.PI*2+1.05);ctx.stroke();
-    ctx.fillStyle=shell;ctx.beginPath();ctx.arc(0,0,r*.40,0,Math.PI*2);ctx.fill();
-  }else if(sphere.type==='aura'){
-    ctx.beginPath();ctx.moveTo(0,-r*.92);ctx.lineTo(r*.66,-r*.34);ctx.lineTo(r*.52,r*.46);ctx.lineTo(0,r*.62);ctx.lineTo(-r*.52,r*.46);ctx.lineTo(-r*.66,-r*.34);ctx.closePath();ctx.fill();ctx.stroke();
-    ctx.strokeStyle=`rgba(${rgb},.86)`;ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(0,-r*.08,r*.40,r*.24,0,0,Math.PI*2);ctx.stroke();
-  }else{
-    ctx.beginPath();ctx.moveTo(0,-r);ctx.lineTo(r*.66,-r*.38);ctx.lineTo(r*.52,r*.46);ctx.lineTo(0,r*.68);ctx.lineTo(-r*.52,r*.46);ctx.lineTo(-r*.66,-r*.38);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.save();
+  ctx.translate(sphere.pos.x, sphere.pos.y);
+
+  drawGroundShadow(ctx, r * 1.05, r * 0.26, 5 + tier);
+  ctx.fillStyle = 'rgba(1,7,14,0.90)';
+  ctx.strokeStyle = `rgba(${rgb},0.34)`;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.ellipse(0, h * 0.72, r * 0.78, r * 0.20, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.save();
+  ctx.translate(0, -h * 0.36);
+  ctx.rotate(sphere.rotation * 0.10);
+
+  const shell = ctx.createLinearGradient(-r, -r, r * 0.9, r);
+  shell.addColorStop(0, '#7088a0');
+  shell.addColorStop(0.08, '#2a425b');
+  shell.addColorStop(0.26, '#102138');
+  shell.addColorStop(0.60, '#07111f');
+  shell.addColorStop(1, '#01040a');
+  ctx.fillStyle = shell;
+  ctx.strokeStyle = `rgba(${rgb},0.82)`;
+  ctx.lineWidth = Math.max(1, r * 0.045);
+
+  if (sphere.type === 'sniper') {
+    ctx.beginPath();
+    ctx.moveTo(-r * 0.34, r * 0.50);
+    ctx.lineTo(-r * 0.28, -r * 0.56);
+    ctx.lineTo(-r * 0.01, -r * 0.96);
+    ctx.lineTo(r * 0.18, -r * 0.70);
+    ctx.lineTo(r * 0.34, r * 0.42);
+    ctx.closePath();
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = 'rgba(224,240,255,0.055)';
+    ctx.beginPath();
+    ctx.moveTo(-r * 0.25, -r * 0.40);
+    ctx.lineTo(-r * 0.01, -r * 0.76);
+    ctx.lineTo(r * 0.13, -r * 0.54);
+    ctx.lineTo(-r * 0.05, -r * 0.12);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = `rgba(${rgb},0.86)`;
+    ctx.lineWidth = Math.max(1.4, r * 0.055);
+    ctx.beginPath();
+    ctx.moveTo(r * 0.02, -r * 0.34);
+    ctx.lineTo(r * 0.80, -r * 0.78);
+    ctx.stroke();
+  } else if (sphere.type === 'shotgun') {
+    ctx.beginPath();
+    ctx.moveTo(-r * 0.72, -r * 0.30);
+    ctx.lineTo(-r * 0.16, -r * 0.66);
+    ctx.lineTo(r * 0.52, -r * 0.48);
+    ctx.lineTo(r * 0.72, r * 0.22);
+    ctx.lineTo(r * 0.10, r * 0.52);
+    ctx.lineTo(-r * 0.72, r * 0.30);
+    ctx.closePath();
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = 'rgba(245,250,255,0.06)';
+    ctx.beginPath();
+    ctx.moveTo(-r * 0.45, -r * 0.18);
+    ctx.lineTo(r * 0.48, -r * 0.28);
+    ctx.lineTo(r * 0.50, r * 0.05);
+    ctx.lineTo(-r * 0.42, r * 0.15);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = `rgba(${rgb},0.90)`;
+    ctx.lineWidth = Math.max(1.2, r * 0.050);
+    for (let i = -1; i <= 1; i++) {
+      ctx.beginPath();
+      ctx.moveTo(r * 0.12, i * r * 0.095);
+      ctx.lineTo(r * 0.82, i * r * 0.12);
+      ctx.stroke();
+    }
+  } else if (sphere.type === 'chain') {
+    ctx.strokeStyle = `rgba(${rgb},0.88)`;
+    ctx.lineWidth = Math.max(2.6, r * 0.145);
+    ctx.beginPath();
+    ctx.ellipse(-r * 0.26, 0, r * 0.37, r * 0.54, -0.18, -1.05, Math.PI + 0.70);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.ellipse(r * 0.26, 0, r * 0.37, r * 0.54, 0.18, Math.PI - 0.70, Math.PI * 2 + 1.05);
+    ctx.stroke();
+    ctx.fillStyle = shell;
+    ctx.beginPath();
+    ctx.arc(0, 0, r * 0.39, 0, Math.PI * 2);
+    ctx.fill();
+  } else if (sphere.type === 'aura') {
+    ctx.beginPath();
+    ctx.moveTo(0, -r * 0.92);
+    ctx.lineTo(r * 0.66, -r * 0.34);
+    ctx.lineTo(r * 0.52, r * 0.46);
+    ctx.lineTo(0, r * 0.62);
+    ctx.lineTo(-r * 0.52, r * 0.46);
+    ctx.lineTo(-r * 0.66, -r * 0.34);
+    ctx.closePath();
+    ctx.fill(); ctx.stroke();
+    ctx.strokeStyle = `rgba(${rgb},0.86)`;
+    ctx.lineWidth = Math.max(1.3, r * 0.065);
+    ctx.beginPath();
+    ctx.ellipse(0, -r * 0.08, r * 0.40, r * 0.24, 0, 0, Math.PI * 2);
+    ctx.stroke();
+  } else {
+    ctx.beginPath();
+    ctx.moveTo(0, -r);
+    ctx.lineTo(r * 0.66, -r * 0.38);
+    ctx.lineTo(r * 0.52, r * 0.46);
+    ctx.lineTo(0, r * 0.68);
+    ctx.lineTo(-r * 0.52, r * 0.46);
+    ctx.lineTo(-r * 0.66, -r * 0.38);
+    ctx.closePath();
+    ctx.fill(); ctx.stroke();
   }
 
-  ctx.strokeStyle='rgba(231,248,255,.28)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(-r*.36,-r*.58);ctx.lineTo(-r*.06,-r*.86);ctx.lineTo(r*.30,-r*.48);ctx.stroke();
+  ctx.strokeStyle = 'rgba(231,248,255,0.25)';
+  ctx.lineWidth = 0.8;
+  ctx.beginPath();
+  ctx.moveTo(-r * 0.34, -r * 0.58);
+  ctx.lineTo(-r * 0.06, -r * 0.84);
+  ctx.lineTo(r * 0.30, -r * 0.48);
+  ctx.stroke();
 
-  const core=ctx.createRadialGradient(-r*.14,-r*.18,1,0,0,r*.56);
-  core.addColorStop(0,'#fff');core.addColorStop(.13,'#ebffff');core.addColorStop(.30,color);core.addColorStop(.63,`rgba(${rgb},.58)`);core.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.shadowColor=color;ctx.shadowBlur=16+tier*3;ctx.fillStyle=core;ctx.beginPath();ctx.arc(0,-r*.05,r*.50,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
-  ctx.fillStyle='rgba(2,7,15,.56)';ctx.beginPath();ctx.arc(0,-r*.05,r*.28,0,Math.PI*2);ctx.fill();
-  ctx.strokeStyle='rgba(232,253,255,.70)';ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(0,-r*.05,r*.30,r*.22,0,0,Math.PI*2);ctx.stroke();
+  const core = ctx.createRadialGradient(-r * 0.14, -r * 0.18, 1, 0, 0, r * 0.54);
+  core.addColorStop(0, '#ffffff');
+  core.addColorStop(0.13, '#ebffff');
+  core.addColorStop(0.30, color);
+  core.addColorStop(0.63, `rgba(${rgb},0.58)`);
+  core.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 12 + tier * 2;
+  ctx.fillStyle = core;
+  ctx.beginPath();
+  ctx.arc(0, -r * 0.05, r * 0.48, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.shadowBlur = 0;
 
-  if(tier>=2){ctx.save();ctx.rotate(time*(tier>=5?-0.34:.26));ctx.strokeStyle=`rgba(${rgb},.45)`;ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(0,-r*.04,r*.94,r*.27,0,0,Math.PI*2);ctx.stroke();ctx.restore();}
-  if(tier>=4){ctx.strokeStyle='rgba(233,250,255,.58)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(-r*.98,-r*.03);ctx.lineTo(-r*.72,-r*.03);ctx.moveTo(r*.72,-r*.03);ctx.lineTo(r*.98,-r*.03);ctx.stroke();}
+  ctx.fillStyle = 'rgba(2,7,15,0.58)';
+  ctx.beginPath();
+  ctx.arc(0, -r * 0.05, r * 0.26, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.strokeStyle = 'rgba(232,253,255,0.68)';
+  ctx.lineWidth = 0.9;
+  ctx.beginPath();
+  ctx.ellipse(0, -r * 0.05, r * 0.28, r * 0.20, 0, 0, Math.PI * 2);
+  ctx.stroke();
+
+  if (tier >= 2) {
+    ctx.save();
+    ctx.rotate(time * (tier >= 5 ? -0.34 : 0.26));
+    ctx.strokeStyle = `rgba(${rgb},0.42)`;
+    ctx.lineWidth = 0.9;
+    ctx.beginPath();
+    ctx.ellipse(0, -r * 0.04, r * 0.92, r * 0.25, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+  }
+
   ctx.restore();
 
-  ctx.strokeStyle=`rgba(${rgb},.055)`;ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(0,4,range*1.35,range*.30,0,0,Math.PI*2);ctx.stroke();
-  if(def.aura){const pulse=1+Math.sin(time*4)*.04;ctx.strokeStyle=`rgba(${rgb},.16)`;ctx.lineWidth=1.4;ctx.beginPath();ctx.ellipse(0,4,def.auraRadius*pulse,def.auraRadius*pulse*.30,0,0,Math.PI*2);ctx.stroke();}
-  const targetNearby=s.enemies.some(enemy=>enemy.hp>0&&Math.hypot(enemy.pos.x-sphere.pos.x,enemy.pos.y-sphere.pos.y)<range);
-  if(targetNearby){const pulse=.4+.4*Math.sin(time*8);ctx.strokeStyle=`rgba(${rgb},${.10+pulse*.10})`;ctx.lineWidth=1.1;ctx.beginPath();ctx.ellipse(0,4,r*.90,r*.25,0,0,Math.PI*2);ctx.stroke();}
+  // The combat range is projected as a faint floor ellipse.
+  ctx.strokeStyle = `rgba(${rgb},0.050)`;
+  ctx.lineWidth = 0.9;
+  ctx.beginPath();
+  ctx.ellipse(0, 5, range * 1.18, range * 0.25, 0, 0, Math.PI * 2);
+  ctx.stroke();
+
+  if (def.aura) {
+    const pulse = 1 + Math.sin(time * 4) * 0.04;
+    ctx.strokeStyle = `rgba(${rgb},0.13)`;
+    ctx.lineWidth = 1.1;
+    ctx.beginPath();
+    ctx.ellipse(0, 5, def.auraRadius * pulse, def.auraRadius * pulse * 0.25, 0, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  const targetNearby = s.enemies.some((enemy) => enemy.hp > 0 && Math.hypot(enemy.pos.x - sphere.pos.x, enemy.pos.y - sphere.pos.y) < range);
+  if (targetNearby) {
+    const pulse = 0.35 + 0.30 * Math.sin(time * 8);
+    ctx.strokeStyle = `rgba(${rgb},${0.08 + pulse * 0.08})`;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.ellipse(0, 5, r * 0.95, r * 0.22, 0, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
   ctx.restore();
 }
 
