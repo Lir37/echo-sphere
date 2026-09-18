@@ -1540,99 +1540,45 @@ function drawInsectEye(ctx: CanvasRenderingContext2D, x: number, y: number, r: n
   ctx.globalAlpha = 1;
 }
 
-function drawVoidSkitter(ctx: CanvasRenderingContext2D, r: number, color: string, t: number): void {
-  ctx.strokeStyle = shade(color, -45); ctx.lineWidth = Math.max(1.3, r * 0.09); ctx.lineCap = 'round';
-  for (let i = 0; i < 3; i++) {
-    const x = -r * 0.42 + i * r * 0.38;
-    insectLeg(ctx, r, x, -1, t * 12 + i * 1.7, 0.95);
-    insectLeg(ctx, r, x, 1, t * 12 + i * 1.7 + Math.PI, 0.95);
-  }
-  ctx.lineCap = 'butt';
-
-  ctx.fillStyle = shade(color, -35);
-  ctx.beginPath(); ctx.ellipse(-r * 0.18, 0, r * 0.62, r * 0.42, 0, 0, Math.PI * 2); ctx.fill();
-  ctx.fillStyle = color;
-  ctx.beginPath(); ctx.ellipse(-r * 0.02, 0, r * 0.5, r * 0.34, 0, 0, Math.PI * 2); ctx.fill();
-  ctx.fillStyle = shade(color, 18);
-  ctx.beginPath(); ctx.ellipse(r * 0.42, 0, r * 0.36, r * 0.29, 0, 0, Math.PI * 2); ctx.fill();
-
-  ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.lineWidth = 0.8;
-  ctx.beginPath(); ctx.moveTo(-r * 0.45, 0); ctx.lineTo(r * 0.52, 0); ctx.stroke();
-  drawInsectEye(ctx, r * 0.58, -r * 0.11, Math.max(1.6, r * 0.11), '#ff526d');
-  drawInsectEye(ctx, r * 0.58, r * 0.11, Math.max(1.6, r * 0.11), '#ff526d');
-
-  ctx.strokeStyle = shade(color, -35); ctx.lineWidth = Math.max(1, r * 0.045);
-  const a = Math.sin(t * 7) * 0.08;
-  ctx.beginPath(); ctx.moveTo(r * 0.62, -r * 0.08); ctx.quadraticCurveTo(r * 0.92, -r * 0.4 + a * r, r * 1.18, -r * 0.28); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(r * 0.62, r * 0.08); ctx.quadraticCurveTo(r * 0.92, r * 0.4 - a * r, r * 1.18, r * 0.28); ctx.stroke();
+function drawVoidSkitter(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
+ const rgb=hexToRgb(color);ctx.save();ctx.translate(0,r*.08);drawGroundShadow(ctx,r*.7,r*.20,3);
+ ctx.strokeStyle='rgba(2,5,11,.95)';ctx.lineWidth=Math.max(1.5,r*.075);ctx.lineCap='round';
+ for(let i=0;i<3;i++){const x=-r*.42+i*r*.38;insectLeg(ctx,r,x,-1,t*12+i*1.7,.95);insectLeg(ctx,r,x,1,t*12+i*1.7+Math.PI,.95);}ctx.lineCap='butt';
+ const body=ctx.createLinearGradient(-r,-r,r,r);body.addColorStop(0,'#48556b');body.addColorStop(.22,'#172238');body.addColorStop(.7,'#050a15');body.addColorStop(1,'#01030a');
+ ctx.fillStyle=body;ctx.strokeStyle=`rgba(${{rgb},.65)`;ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(-r*.6,-r*.28);ctx.quadraticCurveTo(-r*.2,-r*.58,r*.35,-r*.36);ctx.quadraticCurveTo(r*.68,-r*.28,r*.72,0);ctx.quadraticCurveTo(r*.5,r*.38,r*.08,r*.4);ctx.quadraticCurveTo(-r*.38,r*.5,-r*.6,r*.28);ctx.closePath();ctx.fill();ctx.stroke();
+ ctx.fillStyle=color;ctx.shadowColor=color;ctx.shadowBlur=8;ctx.beginPath();ctx.ellipse(r*.48,-r*.08,r*.075,r*.10,0,0,Math.PI*2);ctx.ellipse(r*.48,r*.08,r*.075,r*.10,0,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.restore();
 }
-
-function drawVoidBeetle(ctx: CanvasRenderingContext2D, r: number, color: string, t: number): void {
-  ctx.strokeStyle = shade(color, -48); ctx.lineWidth = Math.max(1.5, r * 0.085); ctx.lineCap = 'round';
-  for (let i = 0; i < 3; i++) {
-    const x = -r * 0.45 + i * r * 0.42;
-    insectLeg(ctx, r, x, -1, t * 9 + i * 1.9, 0.86);
-    insectLeg(ctx, r, x, 1, t * 9 + i * 1.9 + Math.PI, 0.86);
-  }
-  ctx.lineCap = 'butt';
-
-  ctx.fillStyle = shade(color, -42);
-  ctx.beginPath(); ctx.ellipse(-r * 0.08, 0, r * 0.82, r * 0.55, 0, 0, Math.PI * 2); ctx.fill();
-  ctx.fillStyle = color;
-  ctx.beginPath(); ctx.ellipse(-r * 0.08, 0, r * 0.7, r * 0.47, 0, 0, Math.PI * 2); ctx.fill();
-
-  // Hard wing cases and central seam.
-  ctx.fillStyle = shade(color, 20);
-  ctx.beginPath(); ctx.moveTo(-r * 0.68, -r * 0.42); ctx.quadraticCurveTo(0, -r * 0.7, r * 0.6, -r * 0.28); ctx.lineTo(0, 0); ctx.closePath(); ctx.fill();
-  ctx.fillStyle = shade(color, -12);
-  ctx.beginPath(); ctx.moveTo(-r * 0.68, r * 0.42); ctx.quadraticCurveTo(0, r * 0.7, r * 0.6, r * 0.28); ctx.lineTo(0, 0); ctx.closePath(); ctx.fill();
-  ctx.strokeStyle = 'rgba(255,255,255,0.26)'; ctx.lineWidth = 0.9;
-  ctx.beginPath(); ctx.moveTo(0, -r * 0.48); ctx.lineTo(0, r * 0.48); ctx.stroke();
-
-  ctx.fillStyle = shade(color, 28);
-  ctx.beginPath(); ctx.moveTo(r * 0.42, -r * 0.28); ctx.lineTo(r * 0.95, -r * 0.16); ctx.lineTo(r * 0.8, r * 0.16); ctx.lineTo(r * 0.42, r * 0.28); ctx.closePath(); ctx.fill();
-  drawInsectEye(ctx, r * 0.68, -r * 0.1, Math.max(1.8, r * 0.1), '#ff7b3f');
-  drawInsectEye(ctx, r * 0.68, r * 0.1, Math.max(1.8, r * 0.1), '#ff7b3f');
+function drawVoidBeetle(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
+ const rgb=hexToRgb(color);ctx.save();ctx.translate(0,r*.10);drawGroundShadow(ctx,r*.78,r*.24,4);
+ ctx.strokeStyle='rgba(2,5,12,.95)';ctx.lineWidth=Math.max(2,r*.11);ctx.lineCap='round';
+ for(let i=0;i<3;i++){const x=-r*.45+i*r*.42;insectLeg(ctx,r,x,-1,t*9+i*1.9,.86);insectLeg(ctx,r,x,1,t*9+i*1.9+Math.PI,.86);}ctx.lineCap='butt';
+ const body=ctx.createLinearGradient(-r,-r,r,r);body.addColorStop(0,'#40556a');body.addColorStop(.28,'#18283b');body.addColorStop(.65,'#08111f');body.addColorStop(1,'#02050b');
+ ctx.fillStyle=body;ctx.strokeStyle=`rgba(${{rgb},.72)`;ctx.lineWidth=1.4;
+ ctx.beginPath();ctx.moveTo(-r*.72,-r*.32);ctx.quadraticCurveTo(-r*.45,-r*.72,r*.05,-r*.58);ctx.quadraticCurveTo(r*.68,-r*.48,r*.86,0);ctx.quadraticCurveTo(r*.64,r*.55,r*.04,r*.58);ctx.quadraticCurveTo(-r*.52,r*.7,-r*.72,r*.32);ctx.closePath();ctx.fill();ctx.stroke();
+ ctx.fillStyle='rgba(105,185,220,.10)';ctx.beginPath();ctx.moveTo(-r*.58,-r*.28);ctx.quadraticCurveTo(-r*.15,-r*.62,r*.42,-r*.36);ctx.lineTo(r*.02,0);ctx.lineTo(-r*.55,r*.28);ctx.closePath();ctx.fill();
+ ctx.strokeStyle='rgba(220,245,255,.28)';ctx.lineWidth=.9;ctx.beginPath();ctx.moveTo(0,-r*.48);ctx.lineTo(0,r*.42);ctx.stroke();
+ ctx.fillStyle=color;ctx.shadowColor=color;ctx.shadowBlur=9;ctx.beginPath();ctx.ellipse(r*.57,-r*.11,r*.09,r*.15,0,0,Math.PI*2);ctx.ellipse(r*.57,r*.11,r*.09,r*.15,0,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.restore();
 }
-
-function drawVoidMantis(ctx: CanvasRenderingContext2D, r: number, color: string, t: number): void {
-  ctx.strokeStyle = shade(color, -50); ctx.lineWidth = Math.max(1.3, r * 0.075); ctx.lineCap = 'round';
-  // Long rear legs.
-  for (let i = 0; i < 2; i++) {
-    const x = -r * 0.28 + i * r * 0.48;
-    const phase = t * 13 + i * Math.PI;
-    ctx.beginPath(); ctx.moveTo(x, -r * 0.1); ctx.lineTo(x - r * 0.32, -r * 0.7 + Math.sin(phase) * r * 0.18); ctx.lineTo(x - r * 0.72, -r * 0.5); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(x, r * 0.1); ctx.lineTo(x - r * 0.32, r * 0.7 - Math.sin(phase) * r * 0.18); ctx.lineTo(x - r * 0.72, r * 0.5); ctx.stroke();
-  }
-  // Raptorial arms.
-  ctx.lineWidth = Math.max(1.5, r * 0.09);
-  ctx.beginPath(); ctx.moveTo(r * 0.15, -r * 0.18); ctx.lineTo(r * 0.52, -r * 0.58); ctx.lineTo(r * 0.8, -r * 0.32); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(r * 0.15, r * 0.18); ctx.lineTo(r * 0.52, r * 0.58); ctx.lineTo(r * 0.8, r * 0.32); ctx.stroke();
-
-  ctx.fillStyle = shade(color, -36);
-  ctx.beginPath(); ctx.ellipse(-r * 0.1, 0, r * 0.56, r * 0.7, 0, 0, Math.PI * 2); ctx.fill();
-  ctx.fillStyle = color;
-  ctx.beginPath(); ctx.ellipse(r * 0.28, 0, r * 0.48, r * 0.42, 0, 0, Math.PI * 2); ctx.fill();
-  ctx.fillStyle = shade(color, 24);
-  ctx.beginPath(); ctx.moveTo(-r * 0.28, -r * 0.58); ctx.lineTo(r * 0.48, -r * 0.4); ctx.lineTo(r * 0.08, 0); ctx.closePath(); ctx.fill();
-  ctx.beginPath(); ctx.moveTo(-r * 0.28, r * 0.58); ctx.lineTo(r * 0.48, r * 0.4); ctx.lineTo(r * 0.08, 0); ctx.closePath(); ctx.fill();
-  drawInsectEye(ctx, r * 0.56, -r * 0.12, Math.max(1.8, r * 0.105), '#a875ff');
-  drawInsectEye(ctx, r * 0.56, r * 0.12, Math.max(1.8, r * 0.105), '#a875ff');
+function drawVoidMantis(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
+ const rgb=hexToRgb(color);ctx.save();ctx.translate(0,r*.08);drawGroundShadow(ctx,r*.72,r*.22,4);
+ ctx.strokeStyle='rgba(1,4,10,.96)';ctx.lineWidth=Math.max(1.8,r*.08);ctx.lineCap='round';
+ for(let i=0;i<2;i++){const x=-r*.28+i*r*.48,a=t*13+i*Math.PI;ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x-r*.32,-r*.72+Math.sin(a)*r*.14);ctx.lineTo(x-r*.72,-r*.48);ctx.stroke();ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x-r*.32,r*.72-Math.sin(a)*r*.14);ctx.lineTo(x-r*.72,r*.48);ctx.stroke();}
+ ctx.lineWidth=Math.max(2,r*.095);ctx.beginPath();ctx.moveTo(r*.1,-r*.16);ctx.lineTo(r*.5,-r*.58);ctx.lineTo(r*.82,-r*.28);ctx.stroke();ctx.beginPath();ctx.moveTo(r*.1,r*.16);ctx.lineTo(r*.5,r*.58);ctx.lineTo(r*.82,r*.28);ctx.stroke();
+ const body=ctx.createLinearGradient(-r,-r,r,r);body.addColorStop(0,'#526176');body.addColorStop(.2,'#17243a');body.addColorStop(.68,'#050b17');body.addColorStop(1,'#01040b');
+ ctx.fillStyle=body;ctx.strokeStyle=`rgba(${{rgb},.7)`;ctx.lineWidth=1.4;ctx.beginPath();ctx.ellipse(-r*.08,0,r*.56,r*.7,0,0,Math.PI*2);ctx.fill();ctx.stroke();
+ ctx.fillStyle='rgba(140,92,220,.13)';ctx.beginPath();ctx.moveTo(-r*.28,-r*.56);ctx.lineTo(r*.48,-r*.4);ctx.lineTo(r*.08,0);ctx.closePath();ctx.fill();
+ ctx.fillStyle=color;ctx.shadowColor=color;ctx.shadowBlur=9;ctx.beginPath();ctx.ellipse(r*.5,-r*.11,r*.075,r*.11,0,0,Math.PI*2);ctx.ellipse(r*.5,r*.11,r*.075,r*.11,0,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.restore();
 }
-
-function drawVoidMoth(ctx: CanvasRenderingContext2D, r: number, color: string, t: number): void {
-  const flap = Math.sin(t * 12) * 0.12;
-  ctx.fillStyle = shade(color, -25);
-  ctx.beginPath(); ctx.ellipse(0, 0, r * 0.22, r * 0.7, 0, 0, Math.PI * 2); ctx.fill();
-  ctx.fillStyle = shade(color, 12);
-  ctx.beginPath(); ctx.moveTo(-r * 0.05, -r * 0.1); ctx.lineTo(-r * 0.88, -r * 0.72 - flap * r); ctx.lineTo(-r * 0.4, 0); ctx.lineTo(-r * 0.88, r * 0.72 + flap * r); ctx.closePath(); ctx.fill();
-  ctx.beginPath(); ctx.moveTo(r * 0.05, -r * 0.1); ctx.lineTo(r * 0.88, -r * 0.72 + flap * r); ctx.lineTo(r * 0.4, 0); ctx.lineTo(r * 0.88, r * 0.72 - flap * r); ctx.closePath(); ctx.fill();
-  ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(-r * 0.06, -r * 0.1); ctx.lineTo(-r * 0.75, -r * 0.62); ctx.moveTo(r * 0.06, -r * 0.1); ctx.lineTo(r * 0.75, -r * 0.62); ctx.stroke();
-  drawInsectEye(ctx, r * 0.12, -r * 0.2, Math.max(1.5, r * 0.08), '#ffcf55');
-  drawInsectEye(ctx, r * 0.12, r * 0.2, Math.max(1.5, r * 0.08), '#ffcf55');
+function drawVoidMoth(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
+ const flap=Math.sin(t*12)*.12;ctx.save();ctx.translate(0,-r*.05);drawGroundShadow(ctx,r*.65,r*.18,3);
+ const body=ctx.createLinearGradient(0,-r,0,r);body.addColorStop(0,'#33445c');body.addColorStop(.5,'#0c1527');body.addColorStop(1,'#02050c');
+ ctx.fillStyle=body;ctx.strokeStyle=`rgba(${{hexToRgb(color)},.7)`;ctx.lineWidth=1.2;
+ ctx.beginPath();ctx.moveTo(-r*.12,-r*.72);ctx.quadraticCurveTo(r*.18,-r*.4,r*.12,r*.62);ctx.quadraticCurveTo(0,r*.78,-r*.14,r*.62);ctx.quadraticCurveTo(-r*.22,-r*.38,-r*.12,-r*.72);ctx.fill();ctx.stroke();
+ for(const side of [-1,1]){ctx.save();ctx.scale(side,1);ctx.fillStyle='rgba(24,39,62,.96)';ctx.strokeStyle=`rgba(${{hexToRgb(color)},.52)`;
+   ctx.beginPath();ctx.moveTo(r*.02,-r*.18);ctx.quadraticCurveTo(r*.48,-r*.82,r*.94,-r*.62-flap*r);ctx.lineTo(r*.55,0);ctx.quadraticCurveTo(r*.78,r*.58,r*.88,r*.78+flap*r);ctx.quadraticCurveTo(r*.38,r*.58,r*.02,r*.18);ctx.closePath();ctx.fill();ctx.stroke();
+   ctx.fillStyle='rgba(145,105,220,.10)';ctx.beginPath();ctx.moveTo(r*.08,-r*.12);ctx.lineTo(r*.78,-r*.55);ctx.lineTo(r*.54,-r*.02);ctx.closePath();ctx.fill();ctx.restore();}
+ ctx.shadowColor=color;ctx.shadowBlur=10;ctx.fillStyle=color;ctx.beginPath();ctx.ellipse(r*.12,-r*.16,r*.055,r*.12,0,0,Math.PI*2);ctx.ellipse(r*.12,r*.16,r*.055,r*.12,0,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.restore();
 }
-
 function drawModernEnemy(ctx: CanvasRenderingContext2D, e: EnemyEntity): void {
   const t = Date.now() / 1000;
   const facing = e.isBoss ? 0 : getEnemyFacingAngle(e);
@@ -1719,57 +1665,20 @@ function drawModernEnemy(ctx: CanvasRenderingContext2D, e: EnemyEntity): void {
   }
 }
 
-function drawModernBossBody(ctx: CanvasRenderingContext2D, e: EnemyEntity, color: string, t: number): void {
-  const r=e.radius,boss=e.bossType,rgb=hexToRgb(color),pulse=1+Math.sin(t*3.2)*.045;
-  ctx.save();
-  ctx.shadowColor=color;ctx.shadowBlur=32;ctx.fillStyle='rgba(2,5,16,.97)';
-  ctx.strokeStyle=`rgba(${rgb},.9)`;ctx.lineWidth=Math.max(2,r*.035);
-
-  if(boss==='charger'){
-    ctx.beginPath();ctx.moveTo(-r*.95,0);ctx.quadraticCurveTo(-r*.72,-r*.68,0,-r*.58);
-    ctx.quadraticCurveTo(r*.72,-r*.52,r*.98,0);ctx.quadraticCurveTo(r*.72,r*.52,0,r*.58);
-    ctx.quadraticCurveTo(-r*.72,r*.68,-r*.95,0);ctx.closePath();ctx.fill();ctx.stroke();
-    ctx.strokeStyle=`rgba(${rgb},.55)`;ctx.lineWidth=Math.max(2,r*.06);
-    for(const sy of [-1,1]){ctx.beginPath();ctx.moveTo(r*.25,sy*r*.28);ctx.quadraticCurveTo(r*.72,sy*r*.55,r*.95,sy*r*.92);ctx.stroke();}
-  }else if(boss==='shooter'){
-    ctx.beginPath();ctx.moveTo(0,-r*.7);ctx.quadraticCurveTo(-r*1.15,-r*1.05,-r*1.32,-r*.15);
-    ctx.quadraticCurveTo(-r*1.05,r*.38,-r*.22,r*.25);ctx.quadraticCurveTo(0,r*.65,r*.22,r*.25);
-    ctx.quadraticCurveTo(r*1.05,r*.38,r*1.32,-r*.15);ctx.quadraticCurveTo(r*1.15,-r*1.05,0,-r*.7);
-    ctx.fill();ctx.stroke();
-    ctx.strokeStyle='rgba(210,245,255,.28)';ctx.lineWidth=1;
-    for(let i=1;i<4;i++){ctx.beginPath();ctx.moveTo(-r*.12,-r*.12);ctx.lineTo(-r*(.35+i*.2),-r*(.22+i*.16));ctx.stroke();ctx.beginPath();ctx.moveTo(r*.12,-r*.12);ctx.lineTo(r*(.35+i*.2),-r*(.22+i*.16));ctx.stroke();}
-  }else if(boss==='summoner'){
-    ctx.beginPath();ctx.ellipse(-r*.12,r*.08,r*.72,r*.64,0,0,Math.PI*2);ctx.fill();ctx.stroke();
-    ctx.strokeStyle=`rgba(${rgb},.65)`;ctx.lineWidth=Math.max(2,r*.035);
-    for(let i=0;i<6;i++){const a=-1.25+i*.5;ctx.beginPath();ctx.moveTo(-r*.35,0);ctx.quadraticCurveTo(Math.cos(a)*r*.65,Math.sin(a)*r*.65,Math.cos(a)*r*1.05,Math.sin(a)*r*1.05);ctx.stroke();}
-    for(let i=0;i<5;i++){const a=t*.7+i*Math.PI*2/5;ctx.fillStyle=i%2?'#a66bff':color;ctx.beginPath();ctx.arc(Math.cos(a)*r*.92,Math.sin(a)*r*.92,r*.075,0,Math.PI*2);ctx.fill();}
-  }else{
-    ctx.beginPath();ctx.moveTo(0,-r*.68);ctx.quadraticCurveTo(r*.95,-r*.52,r*.82,r*.15);
-    ctx.quadraticCurveTo(r*.7,r*.68,0,r*.72);ctx.quadraticCurveTo(-r*.7,r*.68,-r*.82,r*.15);
-    ctx.quadraticCurveTo(-r*.95,-r*.52,0,-r*.68);ctx.fill();ctx.stroke();
-    ctx.strokeStyle=`rgba(${rgb},.65)`;ctx.lineWidth=Math.max(2,r*.035);
-    for(let i=0;i<8;i++){const a=-Math.PI*.95+i*Math.PI*1.9/7;ctx.beginPath();ctx.moveTo(Math.cos(a)*r*.5,Math.sin(a)*r*.5);ctx.lineTo(Math.cos(a)*r*1.05,Math.sin(a)*r*1.05);ctx.stroke();}
-  }
-  ctx.shadowBlur=0;
-
-  ctx.strokeStyle='rgba(220,250,255,.18)';ctx.lineWidth=Math.max(1,r*.018);
-  for(let i=0;i<4;i++){const yy=(-.36+i*.24)*r;ctx.beginPath();ctx.moveTo(-r*.52,yy);ctx.quadraticCurveTo(0,yy+r*.12,r*.52,yy);ctx.stroke();}
-
-  const coreR=r*.22*pulse;
-  ctx.shadowColor=color;ctx.shadowBlur=42;
-  const core=ctx.createRadialGradient(-r*.04,-r*.06,1,0,0,coreR*2.8);
-  core.addColorStop(0,'#ffffff');core.addColorStop(.16,'#dffcff');core.addColorStop(.42,color);core.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle=core;ctx.beginPath();ctx.arc(0,0,coreR*2.8,0,Math.PI*2);ctx.fill();
-  ctx.shadowBlur=0;
-  ctx.strokeStyle='rgba(255,255,255,.78)';ctx.lineWidth=Math.max(1,r*.018);ctx.beginPath();ctx.arc(0,0,coreR,0,Math.PI*2);ctx.stroke();
-
-  ctx.save();ctx.rotate(t*.32);ctx.strokeStyle=`rgba(${rgb},.48)`;ctx.lineWidth=Math.max(1,r*.018);
-  ctx.beginPath();ctx.ellipse(0,0,r*1.02,r*.31,0,0,Math.PI*2);ctx.stroke();ctx.restore();
-  ctx.save();ctx.rotate(-t*.21);ctx.strokeStyle='rgba(218,125,255,.35)';ctx.lineWidth=Math.max(1,r*.014);
-  ctx.beginPath();ctx.ellipse(0,0,r*.82,r*1.02,0,0,Math.PI*2);ctx.stroke();ctx.restore();
-  ctx.restore();
+function drawModernBossBody(ctx:CanvasRenderingContext2D,e:EnemyEntity,color:string,t:number):void{
+ const r=e.radius,boss=e.bossType,rgb=hexToRgb(color),pulse=1+Math.sin(t*3)*.035;ctx.save();drawGroundShadow(ctx,r*1.05,r*.34,12);
+ const body=ctx.createLinearGradient(-r,-r*1.1,r,r);body.addColorStop(0,'#3b4b60');body.addColorStop(.16,'#18283e');body.addColorStop(.48,'#091322');body.addColorStop(.8,'#030711');body.addColorStop(1,'#010309');
+ ctx.shadowColor=color;ctx.shadowBlur=28;ctx.fillStyle=body;ctx.strokeStyle=`rgba(${{rgb},.82)`;ctx.lineWidth=Math.max(2,r*.028);
+ if(boss==='charger'){ctx.beginPath();ctx.moveTo(-r*1,r*.18);ctx.quadraticCurveTo(-r*.9,-r*.55,-r*.15,-r*.72);ctx.lineTo(r*.72,-r*.42);ctx.lineTo(r*1.02,0);ctx.lineTo(r*.72,r*.45);ctx.lineTo(-r*.18,r*.72);ctx.quadraticCurveTo(-r*.85,r*.55,-r*1,r*.18);ctx.fill();ctx.stroke();}
+ else if(boss==='shooter'){ctx.beginPath();ctx.moveTo(0,-r*.9);ctx.lineTo(-r*.72,-r*.55);ctx.lineTo(-r*1.12,r*.05);ctx.lineTo(-r*.55,r*.52);ctx.lineTo(0,r*.35);ctx.lineTo(r*.55,r*.52);ctx.lineTo(r*1.12,r*.05);ctx.lineTo(r*.72,-r*.55);ctx.closePath();ctx.fill();ctx.stroke();}
+ else if(boss==='summoner'){ctx.beginPath();ctx.ellipse(0,r*.05,r*.82,r*.72,0,0,Math.PI*2);ctx.fill();ctx.stroke();}
+ else{ctx.beginPath();ctx.moveTo(0,-r*.92);ctx.lineTo(r*.75,-r*.62);ctx.lineTo(r*.92,r*.08);ctx.lineTo(r*.5,r*.7);ctx.lineTo(0,r*.82);ctx.lineTo(-r*.5,r*.7);ctx.lineTo(-r*.92,r*.08);ctx.lineTo(-r*.75,-r*.62);ctx.closePath();ctx.fill();ctx.stroke();}
+ ctx.shadowBlur=0;ctx.strokeStyle='rgba(210,235,255,.18)';ctx.lineWidth=Math.max(1,r*.018);
+ for(let i=0;i<3;i++){const yy=(-.38+i*.3)*r;ctx.beginPath();ctx.moveTo(-r*.48,yy);ctx.quadraticCurveTo(0,yy+r*.11,r*.48,yy);ctx.stroke();}
+ const coreR=r*.19*pulse;ctx.shadowColor=color;ctx.shadowBlur=34;const core=ctx.createRadialGradient(-r*.05,-r*.08,1,0,0,coreR*2.5);core.addColorStop(0,'#fff');core.addColorStop(.18,'#dffcff');core.addColorStop(.42,color);core.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=core;ctx.beginPath();ctx.arc(0,0,coreR*2.5,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+ ctx.fillStyle='rgba(1,5,14,.72)';ctx.beginPath();ctx.arc(0,0,coreR*1.18,0,Math.PI*2);ctx.fill();ctx.strokeStyle='rgba(220,250,255,.72)';ctx.lineWidth=1.3;ctx.beginPath();ctx.arc(0,0,coreR,0,Math.PI*2);ctx.stroke();
+ ctx.restore();
 }
-
 function drawBossProjectile(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, color: string): void {
   const rgb=hexToRgb(color);
   ctx.save();ctx.translate(x,y);ctx.shadowColor=color;ctx.shadowBlur=18;
