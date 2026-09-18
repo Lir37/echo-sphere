@@ -488,7 +488,6 @@ export function getSphereRadius(s: GameState, sphere: SphereEntity): number {
   if (s.player.mutationStage >= 2) r *= 1.15;
   r *= getCharacterRadiusMultiplier(s);
   r *= towerModifiers(s, sphere.type).radius;
-  r *= towerModifiers(s, sphere.type).radius;
   if (getCharacterId(s) === 'architect' && s.player.characterMasteryLevel >= 3) r *= 1.02;
   return r;
 }
@@ -791,6 +790,30 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
     fromSphere.killsContribution++;
     if (fromSphere.killsContribution % 5 === 0) { actual *= 2; isCrit = true; }
   }
+  // Tower branch mechanics: evolutions alter the combat loop, not just stats.
+  if (fromSphere) {
+    const branch = s.player.towerBranches?.[fromSphere.type];
+    if (branch === 'standard_resonator') {
+      const hits = ((fromSphere as any).evolutionHits || 0) + 1;
+      (fromSphere as any).evolutionHits = hits;
+      if (hits % 3 === 0) {
+        for (const nearby of s.enemies) {
+          if (nearby !== enemy && nearby.hp > 0 && dist(nearby.pos, enemy.pos) < 85) dealDamageToEnemy(s, nearby, actual * 0.35, fromSphere);
+        }
+        s.screenShake = Math.min(0.12, s.screenShake + 0.025);
+      }
+    } else if (branch === 'standard_singularity') {
+      enemy.slowTimer = Math.max(enemy.slowTimer, 0.7);
+      enemy.slowFactor = Math.min(enemy.slowFactor, 0.72);
+    } else if (branch === 'sniper_oracle' && s.player.hunterMarkTarget === enemy) {
+      actual *= 1.25;
+    } else if (branch === 'sniper_assassin' && enemy.hp / enemy.maxHp < 0.35) {
+      actual *= 1.35;
+    } else if (branch === 'chain_leech') {
+      s.player.hp = Math.min(s.player.maxHp, s.player.hp + actual * 0.012);
+    }
+  }
+
   // buff from chest
   if (s.player.buffTimer > 0) actual *= 1.3;
   enemy.hp -= actual;
@@ -1576,7 +1599,24 @@ function updateSpheres(s: GameState, dt: number): void {
         let attacked = false;
         for (const e of s.enemies) {
           if (e.hp <= 0) continue;
-          if (dist(e.pos, sphere.pos) < stype.auraRadius * towerModifiers(s, sphere.type).auraRadius) {
+          const towerStats = towerModifiers(s, sphere.type);
+          if (dist(e.pos, sphere.pos) < stype.auraRadius * towerStats.auraRadius) {
+            const branch = s.player.towerBranches?.[sphere.type];
+            if (branch === 'aura_sanctum') {
+              e.slowTimer = Math.max(e.slowTimer, 0.8);
+              e.slowFactor = Math.min(e.slowFactor, 0.65);
+            } else if (branch === 'aura_gravity') {
+              const dx = sphere.pos.x - e.pos.x, dy = sphere.pos.y - e.pos.y;
+              const d = Math.hypot(dx, dy) || 1;
+              e.pos.x += dx / d * 28 * dt;
+              e.pos.y += dy / d * 28 * dt;
+            } else if (branch === 'aura_overgrowth') {
+              for (const ally of s.spheres) {
+                if (ally !== sphere && ally.alive && dist(ally.pos, sphere.pos) < 110) {
+                  ally.attackTimer = Math.max(0, ally.attackTimer - dt * 0.08);
+                }
+              }
+            }
             dealDamageToEnemy(s, e, damage, sphere);
             attacked = true;
           }
