@@ -500,7 +500,7 @@ export function getSphereDamage(s: GameState, sphere: SphereEntity): number {
   if (s.player.chaosOrbBuff === 'dmg' && s.player.chaosOrbBuffTimer > 0) d *= 1.2;
   if (s.player.teleportDamageBuffTimer > 0) d *= 2;
   if (s.player.overloadTimer > 0) d *= 1.25 + (s.player.abilities.darkritual || 0) * 0.04;
-  if (s.player.fireTrailTimer > 0 && s.player.sphereMods.fire > 0) d *= 1.2 + (s.player.abilities.firetrail || 0) * 0.025;
+  if (s.player.fireTrailTimer > 0) d *= 1.2 + (s.player.abilities.firetrail || 0) * 0.025 + (s.player.sphereMods.fire > 0 ? 0.05 : 0);
   const sbLvl = s.player.abilities.sphereboost || 0;
   if (sbLvl > 0) {
     const per = Math.max(50, 100 - (sbLvl - 1) * 10);
@@ -522,7 +522,7 @@ export function getSphereDelay(s: GameState): number {
   d /= Math.max(0.01, getCharacterAttackSpeedMultiplier(s));
   d *= getArtifactSphereDelayMultiplier(s);
   if (s.player.overloadTimer > 0) d *= 0.72;
-  if (s.player.fireTrailTimer > 0 && s.player.sphereMods.fire > 0) d *= 0.78;
+  if (s.player.fireTrailTimer > 0) d *= 0.78;
   return d;
 }
 
@@ -1329,8 +1329,7 @@ function activateFireTrail(s: GameState): void {
   s.player.fireTrailTimer = 5 + Math.min(3, lvl - 1);
   const branch = getAbilityBranchId(s, 'firetrail', 4);
   const final = getAbilityBranchId(s, 'firetrail', 7);
-  const fireAligned = s.spheres.filter((sphere) => sphere.alive && s.player.sphereMods.fire > 0);
-  for (const sphere of fireAligned) {
+    for (const sphere of fireAligned) {
     sphere.attackTimer = Math.max(0, sphere.attackTimer - 0.5);
     s.particles.push({ pos: { ...sphere.pos }, vel: { x: 0, y: 0 }, life: 0.9, maxLife: 0.9, color: '#c46d3d', size: 6 });
   }
@@ -1455,9 +1454,7 @@ function activateDarkRitual(s: GameState): void {
   }
   if (branch === 'darkritual_blood_link' || final === 'darkritual_blood_network') {
     for (const sphere of s.spheres) {
-      if (sphere.alive && sphere.type === 'standard') {
-        sphere.damage *= 1.15;
-      }
+      if (sphere.alive && sphere.type === 'standard') sphere.attackTimer = Math.max(0, sphere.attackTimer - 0.8);
     }
   }
   if (branch === 'darkritual_void_pact' || final === 'darkritual_void_engine') {
