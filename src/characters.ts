@@ -1,5 +1,5 @@
 import type { AbilityType, SphereType } from './gameData';
-import type { TowerMods } from './engine';
+import type { SphereMods } from './engine';
 
 export type CharacterId =
   | 'spherist'
@@ -30,7 +30,7 @@ export interface CharacterBaseModifiers {
   damageTaken: number;
 }
 
-export type CharacterFavoriteTowerMod = keyof TowerMods;
+export type CharacterFavoriteTowerMod = keyof SphereMods;
 
 export interface CharacterMasteryLevel {
   level: 1 | 2 | 3 | 4 | 5;
@@ -46,7 +46,7 @@ export interface CharacterDef {
   color: string;
   baseModifiers: CharacterBaseModifiers;
   preferredSphereTypes: SphereType[];
-  preferredTowerMods: CharacterFavoriteTowerMod[];
+  preferredSphereMods: CharacterFavoriteTowerMod[];
   preferredAbilities: AbilityType[];
   mastery: CharacterMasteryLevel[];
   mechanic: {
@@ -78,7 +78,7 @@ export const CHARACTER_DEFS: Record<CharacterId, CharacterDef> = {
     color: '#5a8c4a',
     baseModifiers: { ...ZERO_MODIFIERS, sphereDamage: 0.05, sphereRadius: 0.05 },
     preferredSphereTypes: ['standard', 'chain'],
-    preferredTowerMods: ['multishot', 'ricochet'],
+    preferredSphereMods: ['multishot', 'ricochet'],
     preferredAbilities: ['maxspheres', 'attackspeed', 'sphereboost', 'damage'],
     mechanic: {
       ru: 'Резонанс: +3% скорости атаки всех сфер за каждую сферу после первой. При 5+ сферах дополнительно +5% урона.',
@@ -104,7 +104,7 @@ export const CHARACTER_DEFS: Record<CharacterId, CharacterDef> = {
     color: '#c46d3d',
     baseModifiers: { ...ZERO_MODIFIERS, sphereDamage: 0.08, sphereRadius: 0.10, sphereAttackSpeed: -0.05 },
     preferredSphereTypes: ['sniper', 'chain'],
-    preferredTowerMods: ['pierce', 'ricochet'],
+    preferredSphereMods: ['pierce', 'ricochet'],
     preferredAbilities: ['damage', 'crit', 'radius', 'sphereboost'],
     mechanic: {
       ru: 'Метка добычи: элиты и боссы получают Метку на 5 секунд. Сферы наносят отмеченной цели +20% урона; 5 попаданий подряд запускают Охоту ещё на 3 секунды (+30% урона от Sniper/Chain).',
@@ -130,7 +130,7 @@ export const CHARACTER_DEFS: Record<CharacterId, CharacterDef> = {
     color: '#4a7a8a',
     baseModifiers: { ...ZERO_MODIFIERS, maxHp: 0.10, sphereRadius: 0.05, moveSpeed: -0.05 },
     preferredSphereTypes: ['standard', 'aura'],
-    preferredTowerMods: ['freeze', 'multishot'],
+    preferredSphereMods: ['freeze', 'multishot'],
     preferredAbilities: ['radius', 'attackspeed', 'slow', 'vitality'],
     mechanic: {
       ru: 'Связь: сфера получает +6% урона за каждого соседнего союзника в пределах 220 px, максимум 2 соседа. Сеть из 3+ связанных сфер получает +8% дальности. Попадание одной связанной сферы открывает 0.4-секундное окно ретрансляции для другой.',
@@ -156,7 +156,7 @@ export const CHARACTER_DEFS: Record<CharacterId, CharacterDef> = {
     color: '#c4453d',
     baseModifiers: { ...ZERO_MODIFIERS, maxHp: -0.10, moveSpeed: 0.08, sphereDamage: 0.08, sphereRadius: -0.05 },
     preferredSphereTypes: ['shotgun', 'standard'],
-    preferredTowerMods: ['multishot', 'fire'],
+    preferredSphereMods: ['multishot', 'fire'],
     preferredAbilities: ['vampire', 'damage', 'movespeed', 'shield'],
     mechanic: {
       ru: 'Ярость: каждые потерянные 20% HP дают +7% урона и +4% скорости атаки, максимум +28%/+16%. Сферы получают ещё +12% урона по врагам в радиусе 110 px от игрока.',
@@ -182,7 +182,7 @@ export const CHARACTER_DEFS: Record<CharacterId, CharacterDef> = {
     color: '#8a5a8a',
     baseModifiers: { ...ZERO_MODIFIERS, sphereDamage: -0.05, statusDuration: 0.30, statusDamage: 0.15 },
     preferredSphereTypes: ['aura', 'chain'],
-    preferredTowerMods: ['fire', 'freeze', 'poison'],
+    preferredSphereMods: ['fire', 'freeze', 'poison'],
     preferredAbilities: ['slow', 'radius', 'attackspeed', 'timestop'],
     mechanic: {
       ru: 'Реакции: Fire+Poison = Воспламенение токсинов; Freeze+Poison = Крио-токсин; Fire+Freeze = Термошок. Реакции должны быть мгновенными, но расходуют участвующие статусы.',
@@ -208,7 +208,7 @@ export const CHARACTER_DEFS: Record<CharacterId, CharacterDef> = {
     color: '#d4943d',
     baseModifiers: { ...ZERO_MODIFIERS, sphereRadius: 0.05, moveSpeed: -0.05 },
     preferredSphereTypes: ['standard', 'aura', 'sniper'],
-    preferredTowerMods: ['pierce', 'freeze'],
+    preferredSphereMods: ['pierce', 'freeze'],
     preferredAbilities: ['maxspheres', 'radius', 'crit', 'slow'],
     mechanic: {
       ru: 'Форма: игра автоматически распознаёт Линию (3+ сферы), Треугольник (3), Квадрат (4) или Кластер (4+). Одновременно активна только одна форма.',
@@ -276,5 +276,5 @@ export function isPreferredSphere(character: CharacterId, sphereType: SphereType
 }
 
 export function isPreferredTowerMod(character: CharacterId, mod: CharacterFavoriteTowerMod): boolean {
-  return CHARACTER_DEFS[character].preferredTowerMods.includes(mod);
+  return CHARACTER_DEFS[character].preferredSphereMods.includes(mod);
 }
