@@ -79,7 +79,7 @@ export const CHARACTER_DEFS: Record<CharacterId, CharacterDef> = {
     baseModifiers: { ...ZERO_MODIFIERS, sphereDamage: 0.05, sphereRadius: 0.05 },
     preferredSphereTypes: ['standard', 'chain'],
     preferredSphereMods: ['multishot', 'ricochet'],
-    preferredAbilities: ['maxspheres', 'attackspeed', 'sphereboost', 'damage'],
+    preferredAbilities: ['blast', 'lightning', 'shield'],
     mechanic: {
       ru: 'Резонанс: +3% скорости атаки всех сфер за каждую сферу после первой. При 5+ сферах дополнительно +5% урона.',
       en: 'Resonance: +3% attack speed for all spheres for each sphere after the first. At 5+ spheres, gain an additional +5% damage.',
@@ -105,7 +105,7 @@ export const CHARACTER_DEFS: Record<CharacterId, CharacterDef> = {
     baseModifiers: { ...ZERO_MODIFIERS, sphereDamage: 0.08, sphereRadius: 0.10, sphereAttackSpeed: -0.05 },
     preferredSphereTypes: ['sniper', 'chain'],
     preferredSphereMods: ['pierce', 'ricochet'],
-    preferredAbilities: ['damage', 'crit', 'radius', 'sphereboost'],
+    preferredAbilities: ['teleport', 'lightning', 'blast'],
     mechanic: {
       ru: 'Метка добычи: элиты и боссы получают Метку на 5 секунд. Сферы наносят отмеченной цели +20% урона; 5 попаданий подряд запускают Охоту ещё на 3 секунды (+30% урона от Sniper/Chain).',
       en: 'Prey Mark: elites and bosses are marked for 5 seconds. Spheres deal +20% damage to the marked target; 5 consecutive hits trigger Hunt for 3 more seconds (+30% Sniper/Chain damage).',
@@ -131,7 +131,7 @@ export const CHARACTER_DEFS: Record<CharacterId, CharacterDef> = {
     baseModifiers: { ...ZERO_MODIFIERS, maxHp: 0.10, sphereRadius: 0.05, moveSpeed: -0.05 },
     preferredSphereTypes: ['standard', 'aura'],
     preferredSphereMods: ['freeze', 'multishot'],
-    preferredAbilities: ['radius', 'attackspeed', 'slow', 'vitality'],
+    preferredAbilities: ['shield', 'minion', 'lightning'],
     mechanic: {
       ru: 'Связь: сфера получает +6% урона за каждого соседнего союзника в пределах 220 px, максимум 2 соседа. Сеть из 3+ связанных сфер получает +8% дальности. Попадание одной связанной сферы открывает 0.4-секундное окно ретрансляции для другой.',
       en: 'Link: a sphere gains +6% damage for each allied sphere within 220 px, up to 2 neighbours. A network of 3+ linked spheres gains +8% range. A hit by one linked sphere opens a 0.4-second relay window for another linked sphere.',
@@ -157,7 +157,7 @@ export const CHARACTER_DEFS: Record<CharacterId, CharacterDef> = {
     baseModifiers: { ...ZERO_MODIFIERS, maxHp: -0.10, moveSpeed: 0.08, sphereDamage: 0.08, sphereRadius: -0.05 },
     preferredSphereTypes: ['shotgun', 'standard'],
     preferredSphereMods: ['multishot', 'fire'],
-    preferredAbilities: ['vampire', 'damage', 'movespeed', 'shield'],
+    preferredAbilities: ['shield', 'darkritual', 'firetrail'],
     mechanic: {
       ru: 'Ярость: каждые потерянные 20% HP дают +7% урона и +4% скорости атаки, максимум +28%/+16%. Сферы получают ещё +12% урона по врагам в радиусе 110 px от игрока.',
       en: 'Fury: every missing 20% HP grants +7% damage and +4% attack speed, up to +28%/+16%. Spheres also deal +12% damage to enemies within 110 px of the player.',
@@ -183,7 +183,7 @@ export const CHARACTER_DEFS: Record<CharacterId, CharacterDef> = {
     baseModifiers: { ...ZERO_MODIFIERS, sphereDamage: -0.05, statusDuration: 0.30, statusDamage: 0.15 },
     preferredSphereTypes: ['aura', 'chain'],
     preferredSphereMods: ['fire', 'freeze', 'poison'],
-    preferredAbilities: ['slow', 'radius', 'attackspeed', 'timestop'],
+    preferredAbilities: ['firetrail', 'lightning', 'timestop'],
     mechanic: {
       ru: 'Реакции: Fire+Poison = Воспламенение токсинов; Freeze+Poison = Крио-токсин; Fire+Freeze = Термошок. Реакции должны быть мгновенными, но расходуют участвующие статусы.',
       en: 'Reactions: Fire+Poison = Toxin Ignition; Freeze+Poison = Cryotoxin; Fire+Freeze = Thermal Shock. Reactions are instant and consume the participating statuses.',
@@ -209,7 +209,7 @@ export const CHARACTER_DEFS: Record<CharacterId, CharacterDef> = {
     baseModifiers: { ...ZERO_MODIFIERS, sphereRadius: 0.05, moveSpeed: -0.05 },
     preferredSphereTypes: ['standard', 'aura', 'sniper'],
     preferredSphereMods: ['pierce', 'freeze'],
-    preferredAbilities: ['maxspheres', 'radius', 'crit', 'slow'],
+    preferredAbilities: ['teleport', 'timestop', 'shield'],
     mechanic: {
       ru: 'Форма: игра автоматически распознаёт Линию (3+ сферы), Треугольник (3), Квадрат (4) или Кластер (4+). Одновременно активна только одна форма.',
       en: 'Formation: the game automatically recognizes Line (3+ spheres), Triangle (3), Square (4), or Cluster (4+). Only one formation is active at a time.',
