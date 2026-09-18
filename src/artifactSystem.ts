@@ -12,14 +12,12 @@ export interface ArtifactEffects {
   regen?: number;
   sphereRadius?: number;
   sphereDamage?: number;
+  sphereDelay?: number;
   cooldown?: number;
   damageTakenReduction?: number;
   critChance?: number;
   dodgeChance?: number;
   vampire?: number;
-  sphereDamage?: number;
-  sphereDelay?: number;
-  sphereRadius?: number;
   standardDamage?: number;
   sniperDamage?: number;
   shotgunDamage?: number;
@@ -193,7 +191,7 @@ function formsTriangle(s: any, sphere: any): boolean {
   return false;
 }
 
-export function getsphereArtifactModifiers(s: any, type: string, sphere?: any): { damage: number; delay: number; radius: number } {
+export function getSphereArtifactModifiers(s: any, type: string, sphere?: any): { damage: number; delay: number; radius: number } {
   let damage = 1 + effectSum(s, 'sphereDamage');
   let delay = Math.max(0.55, 1 + effectSum(s, 'sphereDelay'));
   let radius = Math.max(0.6, 1 + effectSum(s, 'sphereRadius'));
