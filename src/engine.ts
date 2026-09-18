@@ -1,5 +1,5 @@
 import {
-  ABILITIES, ACTIVE_KEYS, ARTIFACT_MAP, EVOLUTION_BY_PAIR, EVOLUTION_MAP,
+  ABILITIES, ACTIVE_KEYS, ARTIFACT_MAP,
   SPHERE_TYPES, BOSS_TYPES, DIFFICULTIES,
   type AbilityType, type ArtifactId, type SphereType, type BossType, type Difficulty,
 } from './gameData';
@@ -212,7 +212,7 @@ export interface LightningBolt {
 }
 
 export interface UpgradeChoice {
-  type: 'ability' | 'evolve' | 'sphere';
+  type: 'ability' | 'sphere';
   ability?: AbilityType;
   evolution?: string;
   sphereType?: SphereType;
@@ -268,7 +268,6 @@ export interface GameState {
   gameOver: boolean;
   pendingUpgrade: UpgradeChoice[] | null;
   pendingArtifact: ArtifactId[] | null;
-  pendingEvolution: { choices: string[] } | null;
   stats: GameStats;
   screenShake: number;
   bossArrow: Vec | null;
@@ -429,7 +428,6 @@ export function createInitialState(
     gameOver: false,
     pendingUpgrade: null,
     pendingArtifact: null,
-    pendingEvolution: null,
     stats: { time: 0, wave: 0, enemiesKilled: 0, goldEarned: 0 },
     screenShake: 0,
     bossArrow: null,
@@ -1386,21 +1384,6 @@ export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
     .sort(() => Math.random() - 0.5);
   return activePool.slice(0,3).map(id => ({ type:'ability' as const, ability:id, currentLevel:s.player.abilities[id]||0, newLevel:(s.player.abilities[id]||0)+1 }));
 }
-function checkEvolution(s: GameState): string | null {
-  return null;
-  /*
-  for (const evo of Object.keys(EVOLUTION_MAP)) {
-    const def = EVOLUTION_MAP[evo];
-    if (s.player.evolutions.includes(evo)) continue;
-    const aLvl = s.player.abilities[def.a] || 0;
-    const bLvl = s.player.abilities[def.b] || 0;
-    if (aLvl >= ABILITIES[def.a].maxLevel && bLvl >= ABILITIES[def.b].maxLevel) {
-      return evo;
-    }
-  }
-  return null;
-  */
-}
 
 export function applyUpgrade(s: GameState, choice: UpgradeChoice): void {
   if (choice.type === 'sphere' && choice.sphereType) {
@@ -1452,7 +1435,7 @@ export function applyArtifact(s: GameState, id: ArtifactId): void {
 // ===== Main update =====
 export function update(s: GameState, dt: number): void {
   if (s.paused || s.gameOver) return;
-  if (s.pendingUpgrade || s.pendingArtifact || s.pendingEvolution || s.pendingChest) return;
+  if (s.pendingUpgrade || s.pendingArtifact || s.pendingChest) return;
 
   s.time += dt;
   s.stats.time = s.time;
