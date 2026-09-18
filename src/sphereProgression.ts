@@ -3,12 +3,11 @@ import { getSphereArtifactModifiers } from './artifactSystem';
 import type { SphereType, AbilityType } from './gameData';
 
 export type SphereEvolutionId = 'standard_resonator' | 'standard_singularity' | 'standard_swarm' | 'sniper_oracle' | 'sniper_assassin' | 'sniper_beacon' | 'shotgun_burst' | 'shotgun_cataclysm' | 'shotgun_hail' | 'chain_web' | 'chain_storm' | 'chain_leech' | 'aura_sanctum' | 'aura_gravity' | 'aura_overgrowth';
-export type AbilityEvolutionId = 'echo_pulse' | 'echo_guard' | 'echo_jump' | 'echo_overdrive' | 'echo_drone' | 'echo_storm' | 'echo_phase';
+export type AbilityEvolutionId = string;
 export interface SphereUpgradeDef { level:number; name:{ru:string;en:string}; desc:{ru:string;en:string}; }
 export interface SphereEvolutionDef { id:SphereEvolutionId; name:{ru:string;en:string}; desc:{ru:string;en:string}; }
 export interface SphereEvolutionBranch extends SphereEvolutionDef { final:[SphereEvolutionDef,SphereEvolutionDef,SphereEvolutionDef]; }
 export interface SphereDef { type:SphereType; name:{ru:string;en:string}; priority:Partial<Record<CharacterId,number>>; levels:SphereUpgradeDef[]; evolution4:SphereEvolutionDef; evolution7:SphereEvolutionDef; evolution4Choices:SphereEvolutionBranch[]; }
-export interface AbilityProgressionDef { ability:AbilityType; levels:SphereUpgradeDef[]; evolution4:{id:AbilityEvolutionId;name:{ru:string;en:string};desc:{ru:string;en:string}}; evolution7:{id:AbilityEvolutionId;name:{ru:string;en:string};desc:{ru:string;en:string}}; }
 const lv=(a:string,b:string,c:string):SphereUpgradeDef[]=>[{level:1,name:{ru:'Ядро',en:'Core'},desc:{ru:a,en:a}},{level:2,name:{ru:'Механизм',en:'Mechanism'},desc:{ru:b,en:b}},{level:3,name:{ru:'Настройка',en:'Tuning'},desc:{ru:c,en:c}},{level:4,name:{ru:'Эволюция I',en:'Evolution I'},desc:{ru:'Выбор одной из трёх веток',en:'Choose one of three branches'}},{level:5,name:{ru:'Контур',en:'Circuit'},desc:{ru:'Усиление выбранной ветки',en:'Strengthens the selected branch'}},{level:6,name:{ru:'Стабилизатор',en:'Stabilizer'},desc:{ru:'Усиление специальной механики',en:'Strengthens the special mechanic'}},{level:7,name:{ru:'Эволюция II',en:'Evolution II'},desc:{ru:'Финальная специализация',en:'Final specialization'}}];
 const e=(id:SphereEvolutionId,ru:string,desc:string):SphereEvolutionDef=>({id,name:{ru,en:ru},desc:{ru:desc,en:desc}});
 const br=(id:SphereEvolutionId,ru:string,desc:string,fin:[SphereEvolutionDef,SphereEvolutionDef,SphereEvolutionDef]):SphereEvolutionBranch=>({...e(id,ru,desc),final:fin});
@@ -40,7 +39,7 @@ export const SPHERE_PROGRESSION:Record<SphereType,SphereDef>={
  chain:sphere('chain','Цепная',{spherist:1,hunter:.95,engineer:.9,alchemist:.8,architect:.5,berserker:.4},['+1 цель цепи','+10% урона цепи','+15% скорости перехода'],[br('chain_web','Паутина','Цели остаются связанными',finals('Паутина','Сеть Эха',['chain_web','chain_storm','chain_leech'])),br('chain_storm','Шторм','Каждый переход усиливает следующий',finals('Шторм','Разряд',['chain_storm','chain_web','chain_leech'])),br('chain_leech','Паразит','Цепь возвращает часть урона',finals('Паразит','Пожиратель',['chain_leech','chain_storm','chain_web']))]),
  aura:sphere('aura','Аура',{engineer:1,alchemist:1,architect:.9,spherist:.7,hunter:.4,berserker:.4},['+20% радиуса ауры','-10% интервала импульса','+10% урона ауры'],[br('aura_sanctum','Святилище','Замедляет врагов и усиливает сферы',finals('Святилище','Эхо-святилище',['aura_sanctum','aura_gravity','aura_overgrowth'])),br('aura_gravity','Гравитация','Стягивает врагов к центру',finals('Гравитация','Сингулярность',['aura_gravity','aura_sanctum','aura_overgrowth'])),br('aura_overgrowth','Живая сеть','Усиливает сферы внутри ауры',finals('Живая сеть','Рост',['aura_overgrowth','aura_sanctum','aura_gravity']))])
 };
-const abilityLevels=(a:string,b:string,c:string,d:string,e:string,f:string,g:string):SphereUpgradeDef[] => [
+const abilityLevels=(a:string,b:string,c:string,d:string,e:string,f:string,g:string=''):SphereUpgradeDef[] => [
   {level:1,name:{ru:'Пробуждение',en:'Awakening'},desc:{ru:a,en:a}},
   {level:2,name:{ru:'Настройка',en:'Tuning'},desc:{ru:b,en:b}},
   {level:3,name:{ru:'Раскрытие',en:'Expansion'},desc:{ru:c,en:c}},
@@ -98,6 +97,8 @@ export const SPHERE_ABILITY_SYNERGIES: SphereAbilitySynergy[] = [
   {character:'berserker',sphere:'shotgun',ability:'shield',name:{ru:'Barrier Core',en:'Barrier Core'},desc:{ru:'Shield превращает Shotgun-сферы в ударный барьер.',en:'Shield turns Shotgun spheres into an impact barrier.'},effect:'defense'},
   {character:'berserker',sphere:'standard',ability:'darkritual',name:{ru:'Blood Resonance',en:'Blood Resonance'},desc:{ru:'Dark Ritual усиливает Standard в ближнем бою.',en:'Dark Ritual empowers Standard at close range.'},effect:'damage'},
 ];
+
+export const CHARACTER_SPHERE_PRIORITY:Record<CharacterId,SphereType[]>={spherist:['standard','chain'],hunter:['sniper','chain'],engineer:['aura','standard','chain'],berserker:['shotgun','standard'],alchemist:['aura','chain'],architect:['sniper','aura','standard']};
 
 export function spherePriority(character:CharacterId,type:SphereType){const list=CHARACTER_SPHERE_PRIORITY[character]||[];const i=list.indexOf(type);return i<0?.25:1-i*.18;}
 export function sphereLevel(s:any,type:SphereType){return s.player.sphereProgression?.[type]||0;}
