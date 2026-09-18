@@ -459,32 +459,7 @@ function drawVoidField(ctx: CanvasRenderingContext2D, w: number, h: number, them
   }
   ctx.restore();
 
-  // Physical arena floor. The lines recede toward a shared horizon so every
-  // object reads as standing on the same surface rather than floating in space.
-  ctx.save();
-  ctx.translate(cx, cy + h * 0.015);
-  ctx.scale(1, 0.46);
-  const arena=ctx.createRadialGradient(0,0,0,0,0,outer*0.46);
-  arena.addColorStop(0,'rgba(44,91,138,0.20)');
-  arena.addColorStop(0.42,'rgba(14,35,60,0.13)');
-  arena.addColorStop(0.78,'rgba(5,13,25,0.08)');
-  arena.addColorStop(1,'rgba(2,7,14,0)');
-  ctx.fillStyle=arena;ctx.beginPath();ctx.arc(0,0,outer*0.46,0,Math.PI*2);ctx.fill();
-  ctx.strokeStyle='rgba(111,214,255,0.075)';ctx.lineWidth=1;
-  for(let i=0;i<9;i++){
-    const rr=outer*(0.07+i*0.048);
-    ctx.beginPath();ctx.ellipse(0,0,rr,rr,0,0,Math.PI*2);ctx.stroke();
-  }
-  ctx.strokeStyle='rgba(111,198,255,0.048)';
-  for(let i=-16;i<=16;i++){
-    const x=i*outer*0.024;
-    ctx.beginPath();ctx.moveTo(x,-outer*0.045);ctx.lineTo(x*2.9,outer*0.46);ctx.stroke();
-  }
-  ctx.strokeStyle='rgba(184,225,255,0.045)';
-  ctx.beginPath();ctx.ellipse(0,0,outer*0.27,outer*0.27,0,0,Math.PI*2);ctx.stroke();
-  ctx.restore();
-
-  // A few near-field plates create scale and depth without becoming a grid.
+  // Circular resonance arena, matching the reference's layered combat geometry.\n  ctx.save();\n  ctx.translate(cx, cy);\n  const arenaRadius = outer * 0.43;\n  const coreGlow = ctx.createRadialGradient(0, 0, 0, 0, 0, arenaRadius);\n  coreGlow.addColorStop(0, 'rgba(75,190,255,0.16)');\n  coreGlow.addColorStop(0.16, 'rgba(79,111,255,0.08)');\n  coreGlow.addColorStop(0.52, 'rgba(9,24,48,0.055)');\n  coreGlow.addColorStop(1, 'rgba(0,0,0,0)');\n  ctx.fillStyle = coreGlow;\n  ctx.beginPath(); ctx.arc(0, 0, arenaRadius, 0, Math.PI * 2); ctx.fill();\n  for (let i = 1; i <= 8; i++) {\n    const rr = arenaRadius * (i / 8);\n    ctx.strokeStyle = i === 1 ? 'rgba(119,224,255,0.16)' : 'rgba(102,202,255,0.065)';\n    ctx.lineWidth = i === 1 ? 1.2 : 0.8;\n    ctx.beginPath(); ctx.arc(0, 0, rr, 0, Math.PI * 2); ctx.stroke();\n  }\n  ctx.strokeStyle = 'rgba(130,218,255,0.055)';\n  ctx.lineWidth = 0.8;\n  for (let i = 0; i < 20; i++) {\n    const a = (Math.PI * 2 * i) / 20;\n    const inner = arenaRadius * 0.08;\n    ctx.beginPath();\n    ctx.moveTo(Math.cos(a) * inner, Math.sin(a) * inner);\n    ctx.lineTo(Math.cos(a) * arenaRadius, Math.sin(a) * arenaRadius);\n    ctx.stroke();\n  }\n  const arcs = [\n    { radius: arenaRadius * 0.38, start: -0.35, end: 2.15, color: 'rgba(92,223,255,0.20)' },\n    { radius: arenaRadius * 0.62, start: 1.55, end: 4.70, color: 'rgba(166,112,255,0.16)' },\n    { radius: arenaRadius * 0.82, start: -2.35, end: 0.55, color: 'rgba(255,119,188,0.12)' },\n  ];\n  for (const arc of arcs) {\n    ctx.strokeStyle = arc.color;\n    ctx.lineWidth = 1.1;\n    ctx.beginPath(); ctx.arc(0, 0, arc.radius, arc.start, arc.end); ctx.stroke();\n  }\n  ctx.restore();\n\n  // A few near-field plates create scale and depth without becoming a grid.
   ctx.save();
   ctx.strokeStyle='rgba(96,184,255,0.032)';
   ctx.lineWidth=1;
