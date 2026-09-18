@@ -398,7 +398,7 @@ function UpgradeModal({ lang, t, st, onPick }: {
           {choices.map((c, i) => {
             if (c.type === 'sphere') {
               const label = c.sphereStage === 'branch' ? (lang === 'ru' ? 'ВЕТКА сферы' : 'SPHERE BRANCH') : c.sphereStage === 'final' ? (lang === 'ru' ? 'ФИНАЛЬНАЯ СПЕЦИАЛИЗАЦИЯ' : 'FINAL SPECIALIZATION') : (lang === 'ru' ? 'УЛУЧШЕНИЕ сферы' : 'SPHERE UPGRADE');
-              return <button key={i} onClick={() => onPick(c)} className="p-5 rounded-xl bg-[#e8dcc0] border border-[#5a8c4a]/30 hover:border-[#5a8c4a]/60 hover:scale-105 transition-all text-left"><div className="text-[#5a8c4a] text-[10px] uppercase tracking-wider mb-1">{label}</div><div className="font-bold text-lg mb-2">{c.name?.[lang] || 'Tower'}</div><div className="text-sm text-[#5a4a32] mb-2">{c.desc?.[lang] || ''}</div><div className="text-xs text-[#8a7a5a]/70">{t('level')} {c.currentLevel} → {c.newLevel}</div></button>;
+              return <button key={i} onClick={() => onPick(c)} className="p-5 rounded-xl bg-[#e8dcc0] border border-[#5a8c4a]/30 hover:border-[#5a8c4a]/60 hover:scale-105 transition-all text-left"><div className="text-[#5a8c4a] text-[10px] uppercase tracking-wider mb-1">{label}</div><div className="font-bold text-lg mb-2">{c.name?.[lang] || 'sphere'}</div><div className="text-sm text-[#5a4a32] mb-2">{c.desc?.[lang] || ''}</div><div className="text-xs text-[#8a7a5a]/70">{t('level')} {c.currentLevel} → {c.newLevel}</div></button>;
             }
             if (c.type === 'evolve' && c.evolution) { const evo = EVOLUTION_MAP[c.evolution]; return <button key={i} onClick={() => onPick(c)} className="p-5 rounded-xl bg-[#e8dcc0] border border-[#d4943d]/40 hover:border-[#d4943d]/60 hover:scale-105 transition-all text-left"><div className="text-[#d4943d] text-xs uppercase mb-1">{t('evolution')}</div><div className="font-bold text-lg mb-2">{evo.name[lang]}</div><div className="text-sm text-[#5a4a32]">{evo.desc[lang]}</div></button>; }
             const def = c.ability ? ABILITIES[c.ability] : undefined;
@@ -452,7 +452,7 @@ function ArtifactModal({ lang, t, st, choices, onPick }: {
             const mechanicText: Record<string, { ru: string; en: string }> = {
               swift: { ru: 'Темп', en: 'Tempo' },
               mirror: { ru: 'Контратака', en: 'Counter' },
-              resonance: { ru: 'Связь сфер', en: 'Tower Link' },
+              resonance: { ru: 'Связь сфер', en: 'sphere Link' },
               lone: { ru: 'Одинокая сфера', en: 'Solo Sphere' },
               fivefold: { ru: 'Сеть', en: 'Network' },
               relay: { ru: 'Прогрессия', en: 'Progression' },
