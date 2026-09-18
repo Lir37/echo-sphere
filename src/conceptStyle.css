@@ -1,0 +1,108 @@
+/* Echo Sphere — concept-art visual direction
+   Deep-space sci-fi, luminous energy, glass/obsidian UI, restrained neon. */
+
+:root {
+  --es-bg: #03040b;
+  --es-panel: rgba(8, 11, 24, 0.82);
+  --es-panel-strong: rgba(10, 14, 30, 0.94);
+  --es-line: rgba(117, 143, 255, 0.28);
+  --es-cyan: #65e8ff;
+  --es-violet: #9d7cff;
+  --es-magenta: #e66cff;
+  --es-white: #edf4ff;
+}
+
+html, body, #root {
+  background:
+    radial-gradient(circle at 50% 42%, rgba(77, 61, 190, 0.14), transparent 34%),
+    radial-gradient(circle at 18% 82%, rgba(0, 184, 255, 0.08), transparent 28%),
+    var(--es-bg) !important;
+}
+
+body {
+  color: var(--es-white);
+}
+
+/* The canvas is the main concept-art surface. */
+canvas {
+  filter:
+    saturate(1.18)
+    contrast(1.08)
+    brightness(0.94)
+    drop-shadow(0 0 18px rgba(80, 110, 255, 0.08));
+}
+
+/* Dark glass UI panels. */
+button,
+input {
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.045),
+    0 8px 28px rgba(0,0,0,0.18) !important;
+}
+
+button {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Override the old parchment/brown visual language with the new sci-fi palette. */
+.bg-\\[\\#0d1726\\] {
+  background: var(--es-panel) !important;
+}
+
+.border-\\[\\#243b55\\] {
+  border-color: var(--es-line) !important;
+}
+
+.text-\\[\\#dcecff\\] {
+  color: var(--es-white) !important;
+}
+
+/* Cyan/violet energy accents used throughout the concept. */
+.text-\\[\\#39d8ff\\] {
+  color: var(--es-cyan) !important;
+}
+
+.bg-\\[\\#39d8ff\\]\\/20 {
+  background: rgba(101, 232, 255, 0.12) !important;
+}
+
+.border-\\[\\#39d8ff\\]\\/40 {
+  border-color: rgba(101, 232, 255, 0.42) !important;
+}
+
+.text-\\[\\#ffb84d\\] {
+  color: #d7b6ff !important;
+}
+
+.bg-\\[\\#ffb84d\\]\\/10 {
+  background: rgba(157, 124, 255, 0.10) !important;
+}
+
+.border-\\[\\#ffb84d\\]\\/30 {
+  border-color: rgba(157, 124, 255, 0.30) !important;
+}
+
+/* Make the main menu feel like a holographic control surface. */
+input {
+  background: rgba(5, 8, 19, 0.72) !important;
+  border-color: rgba(117, 143, 255, 0.30) !important;
+}
+
+button:hover {
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.07),
+    0 0 24px rgba(101, 232, 255, 0.10),
+    0 10px 32px rgba(0,0,0,0.24) !important;
+}
+
+/* Upgrade / artifact screens: stronger separation and energy glow. */
+.absolute.inset-0 {
+  background-color: rgba(1, 2, 8, 0.78);
+}
+
+@media (max-width: 640px) {
+  canvas {
+    filter: saturate(1.12) contrast(1.06) brightness(0.96);
+  }
+}
