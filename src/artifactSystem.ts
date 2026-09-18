@@ -109,6 +109,28 @@ export function getArtifactMeta(id: ArtifactId): ArtifactMeta {
   return ARTIFACT_META[id];
 }
 
+export interface ArtifactSynergy {
+  id: string;
+  requires: ArtifactId[];
+  name: { ru: string; en: string };
+  desc: { ru: string; en: string };
+}
+
+export const ARTIFACT_SYNERGIES: ArtifactSynergy[] = [
+  { id: 'fortress_network', requires: ['heavy_core', 'resonance_core'], name: { ru: 'Крепостная сеть', en: 'Fortress Network' }, desc: { ru: 'Соседние башни получают +10% урона.', en: 'Nearby towers gain +10% damage.' } },
+  { id: 'echo_relay', requires: ['echo_conductor', 'network_relay'], name: { ru: 'Эхо-реле', en: 'Echo Relay' }, desc: { ru: 'Сеть из 2+ типов башен получает ещё +8% урона.', en: 'A network with 2+ tower types gains another +8% damage.' } },
+  { id: 'glass_cannon', requires: ['overclock', 'void_contract'], name: { ru: 'Стеклянная пушка', en: 'Glass Cannon' }, desc: { ru: 'Башни получают +12% урона, но персонаж получает ещё +5% входящего урона.', en: 'Towers gain +12% damage, but the player takes 5% more damage.' } },
+  { id: 'singularity', requires: ['lone_bastion', 'singularity_engine'], name: { ru: 'Сингулярность', en: 'Singularity' }, desc: { ru: 'При 1 типе башни её урон увеличивается ещё на 20%.', en: 'With one tower type, its damage is increased by another 20%.' } },
+  { id: 'perfect_network', requires: ['fivefold_resonance', 'triangle_circuit'], name: { ru: 'Идеальная сеть', en: 'Perfect Network' }, desc: { ru: 'При 3+ типах башен геометрические связи дают +10% урона.', en: 'With 3+ tower types, geometric links grant +10% damage.' } },
+  { id: 'unified_core', requires: ['unified_mind', 'zero_sphere'], name: { ru: 'Единое ядро', en: 'Unified Core' }, desc: { ru: 'Максимально прокачанная башня усиливает остальные на 5% за уровень.', en: 'The strongest tower boosts the others by 5% per level.' } },
+];
+
+export function getActiveArtifactSynergies(s: { player: { artifacts: ArtifactId[] } }): ArtifactSynergy[] {
+  const owned = new Set(s.player.artifacts);
+  return ARTIFACT_SYNERGIES.filter((synergy) => synergy.requires.every((id) => owned.has(id)));
+}
+
+
 export function artifactRarity(id: ArtifactId): ArtifactRarity {
   return ARTIFACT_META[id].rarity;
 }
@@ -171,6 +193,12 @@ export function getTowerArtifactModifiers(s: any, type: string): { damage: numbe
   radius *= 1 + effectSum(s, radiusEffect);
 
   const unique = uniqueTowerCount(s);
+  const synergies = getActiveArtifactSynergies(s);
+  if (synergies.some((x) => x.id === 'fortress_network') && hasNearbyTower(s, (s.spheres || []).find((x: any) => x.type === type), 190)) damage *= 1.10;
+  if (synergies.some((x) => x.id === 'echo_relay') && unique >= 2) damage *= 1.08;
+  if (synergies.some((x) => x.id === 'glass_cannon')) damage *= 1.12;
+  if (synergies.some((x) => x.id === 'singularity') && unique <= 1) damage *= 1.20;
+  if (synergies.some((x) => x.id === 'perfect_network') && unique >= 3) damage *= 1.10;
   if (hasArtifact(s, 'lone_bastion') && unique <= 1) damage *= 1.30;
   if (hasArtifact(s, 'fivefold_resonance') && unique > 1) damage *= 1 + Math.min(5, unique) * 0.04;
   if (hasArtifact(s, 'network_relay') && unique >= 2) damage *= 1.05;
