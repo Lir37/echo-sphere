@@ -460,11 +460,15 @@ function UpgradeModal({ lang, t, st, onPick }: {
 }) {
   const choices = st.pendingUpgrade || [];
   const first = choices[0];
-  const title = first?.sphereStage === 'branch'
-    ? (lang === 'ru' ? 'Эволюция сферы I' : 'Sphere Evolution I')
-    : first?.sphereStage === 'final'
-      ? (lang === 'ru' ? 'Финальная специализация сферы' : 'Final Sphere Specialization')
-      : t('chooseUpgrade');
+  const title = first?.abilityStage === 'branch'
+    ? (lang === 'ru' ? 'Эволюция способности I' : 'Ability Evolution I')
+    : first?.abilityStage === 'final'
+      ? (lang === 'ru' ? 'Финальная форма способности' : 'Final Ability Form')
+      : first?.sphereStage === 'branch'
+        ? (lang === 'ru' ? 'Эволюция сферы I' : 'Sphere Evolution I')
+        : first?.sphereStage === 'final'
+          ? (lang === 'ru' ? 'Финальная специализация сферы' : 'Final Sphere Specialization')
+          : t('chooseUpgrade');
   return (
     <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-50">
       <div className="max-w-2xl w-full px-6">
@@ -473,8 +477,11 @@ function UpgradeModal({ lang, t, st, onPick }: {
           {choices.map((choice, i) => (
             <button key={i} onClick={() => onPick(choice)} className="p-5 rounded-xl bg-[#e8dcc0] border border-[#5a8c4a]/30 hover:border-[#5a8c4a]/60 hover:scale-105 transition-all text-left">
               <div className="text-[#5a8c4a] text-[10px] uppercase tracking-wider mb-1">
-                {choice.sphereStage === 'branch' ? (lang === 'ru' ? 'ВЕТКА СФЕРЫ' : 'SPHERE BRANCH')
+                {choice.abilityStage === 'branch' ? (lang === 'ru' ? 'ВЕТКА СПОСОБНОСТИ' : 'ABILITY BRANCH')
+                  : choice.abilityStage === 'final' ? (lang === 'ru' ? 'ФИНАЛЬНАЯ ФОРМА СПОСОБНОСТИ' : 'FINAL ABILITY FORM')
+                  : choice.sphereStage === 'branch' ? (lang === 'ru' ? 'ВЕТКА СФЕРЫ' : 'SPHERE BRANCH')
                   : choice.sphereStage === 'final' ? (lang === 'ru' ? 'ФИНАЛЬНАЯ СПЕЦИАЛИЗАЦИЯ' : 'FINAL SPECIALIZATION')
+                  : choice.type === 'ability' ? (lang === 'ru' ? 'АКТИВНАЯ СПОСОБНОСТЬ' : 'ACTIVE ABILITY')
                   : (lang === 'ru' ? 'УЛУЧШЕНИЕ СФЕРЫ' : 'SPHERE UPGRADE')}
               </div>
               <div className="font-bold text-lg mb-2">{choice.name?.[lang] || 'Sphere'}</div>
