@@ -1535,180 +1535,239 @@ function drawModernSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: S
   const def = SPHERE_TYPES[sphere.type];
   const color = def.color;
   const rgb = hexToRgb(color);
-  const time = Date.now() / 1000;
   const tier = sphere.visualTier;
-
-  // Combat radius is deliberately separate from visual size.
-  // The tower controls a large area, but the machine itself stays compact.
-  const range = sphere.radius * (1 + (s.player.abilities.radius || 0) * 0.15)
-    * (s.player.artifacts.includes('radius_shard') ? 1.1 : 1) * def.rangeMult;
-  const r = Math.max(12, Math.min(23, sphere.radius * 0.18 + tier * 0.85));
-  const h = 7 + tier * 1.25;
+  const time = Date.now() / 1000;
+  const range = sphere.radius;
 
   ctx.save();
   ctx.translate(sphere.pos.x, sphere.pos.y);
+  ctx.rotate(sphere.rotation);
 
-  drawGroundShadow(ctx, r * 1.05, r * 0.26, 5 + tier);
-  drawSphereBase(ctx, r, color);
-  ctx.fillStyle = 'rgba(1,7,14,0.90)';
-  ctx.strokeStyle = `rgba(${rgb},0.34)`;
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.ellipse(0, h * 0.72, r * 0.78, r * 0.20, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.stroke();
+  // Shared 2.5D language: anchored base, heavy body, recessed reactor, top-plane highlight.
+  drawGroundShadow(ctx, 15, 5.5, 5);
+  drawSphereBase(ctx, Math.max(11, Math.min(20, sphere.radius * 0.16)), color);
 
-  ctx.save();
-  ctx.translate(0, -h * 0.36);
-  ctx.rotate(sphere.rotation * 0.10);
+  const r = Math.max(12, Math.min(23, sphere.radius * 0.18 + tier * 0.85));
+  const material = ctx.createLinearGradient(-r, -r, r * 0.9, r);
+  material.addColorStop(0, '#50677d');
+  material.addColorStop(0.14, '#31485e');
+  material.addColorStop(0.38, '#132438');
+  material.addColorStop(0.72, '#07111e');
+  material.addColorStop(1, '#030812');
 
-  const shell = ctx.createLinearGradient(-r, -r, r * 0.9, r);
-  shell.addColorStop(0, '#7088a0');
-  shell.addColorStop(0.08, '#2a425b');
-  shell.addColorStop(0.26, '#102138');
-  shell.addColorStop(0.60, '#07111f');
-  shell.addColorStop(1, '#01040a');
-  ctx.fillStyle = shell;
-  ctx.strokeStyle = `rgba(${rgb},0.82)`;
-  ctx.lineWidth = Math.max(1, r * 0.045);
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 7;
+  ctx.fillStyle = material;
+  ctx.strokeStyle = 'rgba(190,225,245,0.28)';
+  ctx.lineWidth = 0.9;
 
   if (sphere.type === 'sniper') {
+    // Elevated long-range weapon platform.
     ctx.beginPath();
-    ctx.moveTo(-r * 0.34, r * 0.50);
-    ctx.lineTo(-r * 0.28, -r * 0.56);
-    ctx.lineTo(-r * 0.01, -r * 0.96);
-    ctx.lineTo(r * 0.18, -r * 0.70);
-    ctx.lineTo(r * 0.34, r * 0.42);
+    ctx.moveTo(-r * 0.66, r * 0.42);
+    ctx.lineTo(-r * 0.52, -r * 0.34);
+    ctx.lineTo(-r * 0.16, -r * 0.60);
+    ctx.lineTo(r * 0.38, -r * 0.44);
+    ctx.lineTo(r * 0.62, -r * 0.18);
+    ctx.lineTo(r * 0.40, r * 0.46);
+    ctx.lineTo(-r * 0.18, r * 0.62);
     ctx.closePath();
     ctx.fill(); ctx.stroke();
-    ctx.fillStyle = 'rgba(224,240,255,0.055)';
+
+    const barrel = ctx.createLinearGradient(0, -r, 0, r);
+    barrel.addColorStop(0, '#667c90');
+    barrel.addColorStop(0.28, '#263b50');
+    barrel.addColorStop(0.75, '#081322');
+    barrel.addColorStop(1, '#02050b');
+    ctx.fillStyle = barrel;
     ctx.beginPath();
-    ctx.moveTo(-r * 0.25, -r * 0.40);
-    ctx.lineTo(-r * 0.01, -r * 0.76);
-    ctx.lineTo(r * 0.13, -r * 0.54);
-    ctx.lineTo(-r * 0.05, -r * 0.12);
-    ctx.closePath();
+    ctx.roundRect(-r * 0.08, -r * 0.78, r * 1.02, r * 0.22, r * 0.07);
     ctx.fill();
-    ctx.strokeStyle = `rgba(${rgb},0.86)`;
-    ctx.lineWidth = Math.max(1.4, r * 0.055);
-    ctx.beginPath();
-    ctx.moveTo(r * 0.02, -r * 0.34);
-    ctx.lineTo(r * 0.80, -r * 0.78);
+    ctx.strokeStyle = 'rgba(188,220,238,0.34)';
     ctx.stroke();
-  } else if (sphere.type === 'shotgun') {
+
+    ctx.fillStyle = '#091522';
     ctx.beginPath();
-    ctx.moveTo(-r * 0.72, -r * 0.30);
-    ctx.lineTo(-r * 0.16, -r * 0.66);
-    ctx.lineTo(r * 0.52, -r * 0.48);
-    ctx.lineTo(r * 0.72, r * 0.22);
-    ctx.lineTo(r * 0.10, r * 0.52);
-    ctx.lineTo(-r * 0.72, r * 0.30);
+    ctx.roundRect(r * 0.58, -r * 0.84, r * 0.28, r * 0.34, r * 0.05);
+    ctx.fill(); ctx.stroke();
+
+    ctx.fillStyle = color;
+    ctx.shadowBlur = 11;
+    ctx.beginPath();
+    ctx.ellipse(r * 0.78, -r * 0.67, r * 0.09, r * 0.06, 0, 0, Math.PI * 2);
+    ctx.fill();
+  } else if (sphere.type === 'shotgun') {
+    // Wide, low chassis with twin emitters.
+    ctx.beginPath();
+    ctx.moveTo(-r * 0.82, -r * 0.22);
+    ctx.lineTo(-r * 0.52, -r * 0.64);
+    ctx.lineTo(r * 0.48, -r * 0.64);
+    ctx.lineTo(r * 0.82, -r * 0.18);
+    ctx.lineTo(r * 0.60, r * 0.56);
+    ctx.lineTo(-r * 0.62, r * 0.56);
     ctx.closePath();
     ctx.fill(); ctx.stroke();
-    ctx.fillStyle = 'rgba(245,250,255,0.06)';
-    ctx.beginPath();
-    ctx.moveTo(-r * 0.45, -r * 0.18);
-    ctx.lineTo(r * 0.48, -r * 0.28);
-    ctx.lineTo(r * 0.50, r * 0.05);
-    ctx.lineTo(-r * 0.42, r * 0.15);
-    ctx.closePath();
-    ctx.fill();
-    ctx.strokeStyle = `rgba(${rgb},0.90)`;
-    ctx.lineWidth = Math.max(1.2, r * 0.050);
-    for (let i = -1; i <= 1; i++) {
+
+    for (const y of [-0.22, 0.22]) {
+      const tube = ctx.createLinearGradient(-r, y * r, r, y * r);
+      tube.addColorStop(0, '#657b8f');
+      tube.addColorStop(0.22, '#24394d');
+      tube.addColorStop(0.7, '#07111e');
+      tube.addColorStop(1, '#01040a');
+      ctx.fillStyle = tube;
       ctx.beginPath();
-      ctx.moveTo(r * 0.12, i * r * 0.095);
-      ctx.lineTo(r * 0.82, i * r * 0.12);
+      ctx.roundRect(r * 0.05, y * r - r * 0.12, r * 0.82, r * 0.20, r * 0.06);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(' + rgb + ',0.42)';
       ctx.stroke();
+      ctx.fillStyle = color;
+      ctx.shadowBlur = 9;
+      ctx.beginPath();
+      ctx.arc(r * 0.86, y * r - r * 0.02, r * 0.065, 0, Math.PI * 2);
+      ctx.fill();
     }
   } else if (sphere.type === 'chain') {
-    ctx.strokeStyle = `rgba(${rgb},0.88)`;
-    ctx.lineWidth = Math.max(2.6, r * 0.145);
+    // Central reactor with articulated conductor arms.
     ctx.beginPath();
-    ctx.ellipse(-r * 0.26, 0, r * 0.37, r * 0.54, -0.18, -1.05, Math.PI + 0.70);
+    ctx.moveTo(-r * 0.52, -r * 0.58);
+    ctx.lineTo(r * 0.18, -r * 0.72);
+    ctx.lineTo(r * 0.62, -r * 0.18);
+    ctx.lineTo(r * 0.46, r * 0.52);
+    ctx.lineTo(-r * 0.20, r * 0.68);
+    ctx.lineTo(-r * 0.68, r * 0.18);
+    ctx.closePath();
+    ctx.fill(); ctx.stroke();
+
+    ctx.strokeStyle = '#30485e';
+    ctx.lineWidth = Math.max(2.2, r * 0.11);
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(-r * 0.30, -r * 0.16);
+    ctx.lineTo(-r * 0.86, -r * 0.48);
+    ctx.lineTo(-r * 0.98, -r * 0.10);
     ctx.stroke();
     ctx.beginPath();
-    ctx.ellipse(r * 0.26, 0, r * 0.37, r * 0.54, 0.18, Math.PI - 0.70, Math.PI * 2 + 1.05);
+    ctx.moveTo(r * 0.30, r * 0.16);
+    ctx.lineTo(r * 0.86, r * 0.48);
+    ctx.lineTo(r * 0.98, r * 0.10);
     ctx.stroke();
-    ctx.fillStyle = shell;
+
+    ctx.strokeStyle = 'rgba(' + rgb + ',0.78)';
+    ctx.lineWidth = Math.max(1.2, r * 0.055);
     ctx.beginPath();
-    ctx.arc(0, 0, r * 0.39, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.moveTo(-r * 0.72, -r * 0.39);
+    ctx.lineTo(-r * 0.90, -r * 0.12);
+    ctx.moveTo(r * 0.72, r * 0.39);
+    ctx.lineTo(r * 0.90, r * 0.12);
+    ctx.stroke();
+    ctx.lineCap = 'butt';
   } else if (sphere.type === 'aura') {
+    // Low reactor with a physical ring emitter.
     ctx.beginPath();
-    ctx.moveTo(0, -r * 0.92);
-    ctx.lineTo(r * 0.66, -r * 0.34);
-    ctx.lineTo(r * 0.52, r * 0.46);
-    ctx.lineTo(0, r * 0.62);
-    ctx.lineTo(-r * 0.52, r * 0.46);
-    ctx.lineTo(-r * 0.66, -r * 0.34);
+    ctx.moveTo(-r * 0.82, -r * 0.12);
+    ctx.lineTo(-r * 0.48, -r * 0.58);
+    ctx.lineTo(r * 0.48, -r * 0.58);
+    ctx.lineTo(r * 0.82, -r * 0.12);
+    ctx.lineTo(r * 0.58, r * 0.48);
+    ctx.lineTo(-r * 0.58, r * 0.48);
     ctx.closePath();
     ctx.fill(); ctx.stroke();
-    ctx.strokeStyle = `rgba(${rgb},0.86)`;
-    ctx.lineWidth = Math.max(1.3, r * 0.065);
+
+    ctx.save();
+    ctx.translate(0, -r * 0.22);
+    ctx.rotate(-0.12);
+    const ring = ctx.createLinearGradient(-r, 0, r, 0);
+    ring.addColorStop(0, '#07101c');
+    ring.addColorStop(0.22, '#4c6578');
+    ring.addColorStop(0.50, color);
+    ring.addColorStop(0.78, '#344b5f');
+    ring.addColorStop(1, '#06101c');
+    ctx.fillStyle = ring;
+    ctx.strokeStyle = 'rgba(207,239,255,0.38)';
+    ctx.lineWidth = 0.9;
     ctx.beginPath();
-    ctx.ellipse(0, -r * 0.08, r * 0.40, r * 0.24, 0, 0, Math.PI * 2);
-    ctx.stroke();
+    ctx.ellipse(0, 0, r * 0.96, r * 0.28, 0, 0, Math.PI * 2);
+    ctx.fill(); ctx.stroke();
+    ctx.restore();
   } else {
+    // Standard compact hexagonal reactor.
     ctx.beginPath();
-    ctx.moveTo(0, -r);
-    ctx.lineTo(r * 0.66, -r * 0.38);
-    ctx.lineTo(r * 0.52, r * 0.46);
-    ctx.lineTo(0, r * 0.68);
-    ctx.lineTo(-r * 0.52, r * 0.46);
-    ctx.lineTo(-r * 0.66, -r * 0.38);
+    ctx.moveTo(0, -r * 0.84);
+    ctx.lineTo(r * 0.68, -r * 0.46);
+    ctx.lineTo(r * 0.72, r * 0.30);
+    ctx.lineTo(r * 0.30, r * 0.66);
+    ctx.lineTo(-r * 0.40, r * 0.62);
+    ctx.lineTo(-r * 0.74, r * 0.18);
+    ctx.lineTo(-r * 0.62, -r * 0.52);
     ctx.closePath();
     ctx.fill(); ctx.stroke();
+
+    ctx.fillStyle = 'rgba(104,133,157,0.22)';
+    ctx.beginPath();
+    ctx.moveTo(-r * 0.46, -r * 0.50);
+    ctx.lineTo(0, -r * 0.72);
+    ctx.lineTo(r * 0.46, -r * 0.44);
+    ctx.lineTo(r * 0.18, -r * 0.18);
+    ctx.lineTo(-r * 0.36, -r * 0.24);
+    ctx.closePath();
+    ctx.fill();
   }
 
-  ctx.strokeStyle = 'rgba(231,248,255,0.25)';
+  ctx.shadowBlur = 0;
+
+  // Recessed reactor, the main light source.
+  const coreSize = sphere.type === 'aura' ? r * 0.30 : r * 0.34;
+  ctx.fillStyle = 'rgba(1,5,11,0.90)';
+  ctx.strokeStyle = 'rgba(191,226,245,0.24)';
   ctx.lineWidth = 0.8;
   ctx.beginPath();
-  ctx.moveTo(-r * 0.34, -r * 0.58);
-  ctx.lineTo(-r * 0.06, -r * 0.84);
-  ctx.lineTo(r * 0.30, -r * 0.48);
-  ctx.stroke();
+  ctx.ellipse(0, r * 0.02, coreSize * 1.08, coreSize * 0.78, 0, 0, Math.PI * 2);
+  ctx.fill(); ctx.stroke();
 
-  const core = ctx.createRadialGradient(-r * 0.14, -r * 0.18, 1, 0, 0, r * 0.54);
+  const core = ctx.createRadialGradient(-coreSize * 0.22, -coreSize * 0.20, 0.5, 0, 0, coreSize * 1.25);
   core.addColorStop(0, '#ffffff');
-  core.addColorStop(0.13, '#ebffff');
-  core.addColorStop(0.30, color);
-  core.addColorStop(0.63, `rgba(${rgb},0.58)`);
+  core.addColorStop(0.16, '#efffff');
+  core.addColorStop(0.38, color);
+  core.addColorStop(0.72, 'rgba(' + rgb + ',0.48)');
   core.addColorStop(1, 'rgba(0,0,0,0)');
-  ctx.shadowColor = color;
-  ctx.shadowBlur = 12 + tier * 2;
   ctx.fillStyle = core;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 9 + tier * 1.4;
   ctx.beginPath();
-  ctx.arc(0, -r * 0.05, r * 0.48, 0, Math.PI * 2);
+  ctx.ellipse(0, r * 0.02, coreSize, coreSize * 0.72, 0, 0, Math.PI * 2);
   ctx.fill();
   ctx.shadowBlur = 0;
 
-  ctx.fillStyle = 'rgba(2,7,15,0.58)';
-  ctx.beginPath();
-  ctx.arc(0, -r * 0.05, r * 0.26, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.strokeStyle = 'rgba(232,253,255,0.68)';
-  ctx.lineWidth = 0.9;
-  ctx.beginPath();
-  ctx.ellipse(0, -r * 0.05, r * 0.28, r * 0.20, 0, 0, Math.PI * 2);
-  ctx.stroke();
-
   if (tier >= 2) {
-    ctx.save();
-    ctx.rotate(time * (tier >= 5 ? -0.34 : 0.26));
-    ctx.strokeStyle = `rgba(${rgb},0.42)`;
-    ctx.lineWidth = 0.9;
+    ctx.strokeStyle = 'rgba(' + rgb + ',0.62)';
+    ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.ellipse(0, -r * 0.04, r * 0.92, r * 0.25, 0, 0, Math.PI * 2);
+    ctx.moveTo(-r * 0.62, r * 0.34);
+    ctx.lineTo(-r * 0.88, r * 0.52);
+    ctx.lineTo(-r * 0.54, r * 0.54);
+    ctx.moveTo(r * 0.62, r * 0.34);
+    ctx.lineTo(r * 0.88, r * 0.52);
+    ctx.lineTo(r * 0.54, r * 0.54);
+    ctx.stroke();
+  }
+
+  if (tier >= 4) {
+    ctx.save();
+    ctx.rotate(time * 0.18);
+    ctx.strokeStyle = 'rgba(' + rgb + ',0.36)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, r * 1.02, r * 0.30, 0, 0, Math.PI * 2);
     ctx.stroke();
     ctx.restore();
   }
 
   ctx.restore();
 
-  // Range is shown as a subtle floor footprint, never as a giant halo around the machine.
-  ctx.strokeStyle = `rgba(${rgb},0.032)`;
+  // Small floor footprint, not a giant halo.
+  ctx.save();
+  ctx.translate(sphere.pos.x, sphere.pos.y);
+  ctx.strokeStyle = 'rgba(' + rgb + ',0.025)';
   ctx.lineWidth = 0.8;
   ctx.beginPath();
   ctx.ellipse(0, 6, Math.min(range * 0.58, 150), Math.min(range * 0.13, 28), 0, 0, Math.PI * 2);
@@ -1716,7 +1775,7 @@ function drawModernSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: S
 
   if (def.aura) {
     const pulse = 1 + Math.sin(time * 4) * 0.04;
-    ctx.strokeStyle = `rgba(${rgb},0.13)`;
+    ctx.strokeStyle = 'rgba(' + rgb + ',0.12)';
     ctx.lineWidth = 1.1;
     ctx.beginPath();
     ctx.ellipse(0, 5, def.auraRadius * pulse, def.auraRadius * pulse * 0.25, 0, 0, Math.PI * 2);
@@ -1726,13 +1785,12 @@ function drawModernSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: S
   const targetNearby = s.enemies.some((enemy) => enemy.hp > 0 && Math.hypot(enemy.pos.x - sphere.pos.x, enemy.pos.y - sphere.pos.y) < range);
   if (targetNearby) {
     const pulse = 0.35 + 0.30 * Math.sin(time * 8);
-    ctx.strokeStyle = `rgba(${rgb},${0.08 + pulse * 0.08})`;
-    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(' + rgb + ',' + (0.06 + pulse * 0.07) + ')';
+    ctx.lineWidth = 0.8;
     ctx.beginPath();
-    ctx.ellipse(0, 5, r * 0.95, r * 0.22, 0, 0, Math.PI * 2);
+    ctx.ellipse(0, 5, r * 0.90, r * 0.20, 0, 0, Math.PI * 2);
     ctx.stroke();
   }
-
   ctx.restore();
 }
 
