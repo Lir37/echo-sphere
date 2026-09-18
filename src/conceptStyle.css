@@ -1783,3 +1783,149 @@ html, body, #root {
   .es-main-loadout { display: none; }
   .es-main-name { display: none; }
 }
+
+
+/* ===== Reference-board visual language for individual screens ===== */
+.es-character-screen,
+.es-list-screen {
+  background:
+    radial-gradient(circle at 50% 15%, rgba(62,145,201,.10), transparent 35%),
+    linear-gradient(180deg, rgba(2,7,14,.98), rgba(3,8,15,.98)) !important;
+  color: #dcefff !important;
+}
+
+.es-character-screen {
+  max-width: 760px !important;
+  width: 100%;
+  padding: 16px !important;
+}
+
+.es-character-screen > div:first-child button,
+.es-character-screen button {
+  border-radius: 6px !important;
+}
+
+.es-character-screen > div:nth-child(2) h2 {
+  color: #e9f8ff !important;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.es-character-screen > div:nth-child(2) p {
+  color: #648198 !important;
+}
+
+.es-character-screen .flex-1 > div {
+  background: linear-gradient(180deg, rgba(9,22,36,.88), rgba(3,10,18,.94)) !important;
+  border-color: rgba(79,174,225,.18) !important;
+  box-shadow: inset 0 0 30px rgba(52,148,202,.025);
+}
+
+.es-character-screen .flex-1 > div:hover {
+  border-color: rgba(89,210,255,.35) !important;
+}
+
+.es-character-screen .flex-1 > div .text-\[\#3a2e1f\],
+.es-character-screen .flex-1 > div .text-\[\#5a4a32\] {
+  color: #d8ecf8 !important;
+}
+
+.es-character-screen .flex-1 > div .text-\[\#8a7a5a\],
+.es-character-screen .flex-1 > div .text-\[\#6b5b42\] {
+  color: #607f96 !important;
+}
+
+.es-character-screen .flex-1 > div .bg-\[\#f4ecd8\] {
+  background: radial-gradient(circle at 32% 28%, #fff, var(--character-color, #55dfff) 22%, #163650 55%, #02060d 78%) !important;
+  border-color: rgba(101,215,255,.25) !important;
+}
+
+.es-character-screen .flex-1 > div .bg-\[\#e8dcc0\],
+.es-character-screen .flex-1 > div .bg-\[\#c4b890\] {
+  background: rgba(7,17,28,.72) !important;
+  border-color: rgba(79,174,225,.13) !important;
+}
+
+.es-character-screen .flex-1 > div .bg-\[\#4a7a8a\] {
+  background: #55dfff !important;
+}
+
+.es-pause-overlay,
+.es-pause-overlay * {
+  --pause-line: rgba(80,185,235,.17);
+}
+
+.es-pause-overlay {
+  background: rgba(1,4,10,.82) !important;
+}
+
+.es-modal-shell {
+  border: 1px solid rgba(84,190,238,.24) !important;
+  border-radius: 8px !important;
+  background:
+    linear-gradient(180deg, rgba(8,20,32,.97), rgba(3,9,16,.98)) !important;
+  box-shadow: 0 20px 80px rgba(0,0,0,.60), inset 0 0 60px rgba(52,145,202,.035);
+}
+
+.es-modal-shell .rounded-xl,
+.es-modal-shell .rounded-lg {
+  border-radius: 6px !important;
+}
+
+.es-modal-shell button {
+  border-radius: 5px !important;
+}
+
+.es-modal-shell .bg-\[\#0d1726\] {
+  background: rgba(6,17,29,.78) !important;
+}
+
+.es-modal-shell .border-\[\#243b55\] {
+  border-color: rgba(76,165,214,.16) !important;
+}
+
+.es-modal-shell .text-\[\#7f9bb8\] {
+  color: #64849b !important;
+}
+
+.es-modal-shell .text-\[\#b6c9de\],
+.es-modal-shell .text-\[\#dcecff\] {
+  color: #cfe7f3 !important;
+}
+
+/* Skill / sphere choice cards: compact holographic modules, not generic web cards. */
+.absolute.z-50 .max-w-2xl > .grid > button,
+.absolute.z-50 .max-w-5xl > .grid > button {
+  border-radius: 7px !important;
+  background:
+    linear-gradient(150deg, rgba(12,29,45,.96), rgba(4,11,19,.98)) !important;
+  border-color: rgba(82,184,234,.20) !important;
+  box-shadow: inset 0 0 24px rgba(65,166,215,.035);
+}
+
+.absolute.z-50 .max-w-2xl > .grid > button:hover,
+.absolute.z-50 .max-w-5xl > .grid > button:hover {
+  border-color: rgba(93,221,255,.52) !important;
+  box-shadow: 0 0 24px rgba(55,202,255,.09), inset 0 0 24px rgba(65,166,215,.06);
+}
+
+.absolute.z-50 .max-w-2xl h2,
+.absolute.z-50 .max-w-5xl h2 {
+  text-shadow: 0 0 20px rgba(72,211,255,.18);
+  letter-spacing: .08em;
+}
+
+/* Avoid accidentally rendering a second information layer on short phones. */
+@media (max-width: 650px) {
+  .es-character-screen {
+    padding: 10px !important;
+  }
+
+  .es-character-screen .flex-1 > div {
+    padding: 11px !important;
+  }
+
+  .es-character-screen .flex-1 > div .text-xs {
+    font-size: 10px !important;
+  }
+}
