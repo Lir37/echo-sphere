@@ -35,4 +35,30 @@ export const CHARACTER_TOWER_PRIORITY:Record<CharacterId,SphereType[]>={spherist
 export const TOWER_ABILITY_SYNERGIES=[{tower:'standard',ability:'blast',name:{ru:'Резонансный удар',en:'Resonant Strike'},desc:{ru:'Импульс отскакивает от Standard-сфер',en:'Pulse bounces from Standard spheres'}},{tower:'sniper',ability:'teleport',name:{ru:'Маяк охотника',en:'Hunter Beacon'},desc:{ru:'Прыжок к Sniper отмечает элиту',en:'Jumping to Sniper marks an elite'}},{tower:'shotgun',ability:'shield',name:{ru:'Железный купол',en:'Iron Dome'},desc:{ru:'Щит выпускает дробовой залп',en:'Shield fires a shotgun burst'}},{tower:'chain',ability:'lightning',name:{ru:'Цепной разряд',en:'Chain Discharge'},desc:{ru:'Молния проходит по цепи',en:'Lightning travels along the chain'}},{tower:'aura',ability:'timestop',name:{ru:'Замкнутое время',en:'Closed Time'},desc:{ru:'Аура расширяется при остановке',en:'Aura expands during time stop'}},{tower:'standard',ability:'darkritual',name:{ru:'Жертвенный резонанс',en:'Sacrificial Resonance'},desc:{ru:'Ритуал удваивает Standard-урон',en:'Ritual doubles Standard damage'}},{tower:'aura',ability:'firetrail',name:{ru:'Пылающее святилище',en:'Burning Sanctum'},desc:{ru:'След заряжает ауру',en:'Trail charges the aura'}},{tower:'sniper',ability:'crit',name:{ru:'Око Эха',en:'Echo Eye'},desc:{ru:'Снайпер усиливает криты',en:'Sniper strengthens criticals'}}] as const;
 export function towerPriority(character:CharacterId,type:SphereType){const list=CHARACTER_TOWER_PRIORITY[character]||[];const i=list.indexOf(type);return i<0?.25:1-i*.18;}
 export function towerLevel(s:any,type:SphereType){return s.player.towerProgression?.[type]||0;}
-export function towerModifiers(s:any,type:SphereType){const l=towerLevel(s,type);const artifact=getTowerArtifactModifiers(s,type);return {damage:(1+l*.08+(l>=4?.12:0)+(l>=7?.18:0))*artifact.damage,radius:(1+(l>=2?.05:0)+(l>=5?.06:0)+(l>=7?.08:0))*artifact.radius,delay:Math.max(.48,1-l*.045)*artifact.delay,pierce:l>=2?1:0,multishot:type==='shotgun'&&l>=1?1:0,chainTargets:type==='chain'?Math.max(1,l+1):0,auraRadius:l>=2?1.08:1,auraPulse:l>=4?.75:.5};}
+function towerFinalIndex(s:any,type:SphereType):number|null{
+  const id=(s.player.evolutions||[]).find((x:string)=>x.startsWith('tower:'+type+':7:'));
+  if(!id)return null;
+  const n=Number(id.split(':').pop());
+  return Number.isFinite(n)?n:null;
+}
+export function towerModifiers(s:any,type:SphereType){
+  const l=towerLevel(s,type), branch=s.player.towerBranches?.[type], final=towerFinalIndex(s,type), artifact=getTowerArtifactModifiers(s,type);
+  let damage=1+l*.08+(l>=4?.12:0)+(l>=7?.18:0), radius=1+(l>=2?.05:0)+(l>=5?.06:0)+(l>=7?.08:0), delay=Math.max(.48,1-l*.045);
+  let pierce=l>=2?1:0, multishot=type==='shotgun'&&l>=1?1:0, chainTargets=type==='chain'?Math.max(1,l+1):0, auraRadius=l>=2?1.08:1, auraPulse=l>=4?.75:.5;
+  if(type==='standard'&&branch==='standard_resonator'){damage*=1.08;if(final===0)radius*=1.12;}
+  if(type==='standard'&&branch==='standard_singularity'){damage*=1.06;if(final===0)auraRadius=1.15;}
+  if(type==='standard'&&branch==='standard_swarm'){multishot+=1;if(final===0)multishot+=1;}
+  if(type==='sniper'&&branch==='sniper_oracle'){damage*=1.10;if(final===0)damage*=1.18;}
+  if(type==='sniper'&&branch==='sniper_assassin'){damage*=1.12;if(final===0)damage*=1.20;}
+  if(type==='sniper'&&branch==='sniper_beacon'){radius*=1.15;if(final===0)radius*=1.20;}
+  if(type==='shotgun'&&branch==='shotgun_burst'){damage*=1.08;if(final===0)damage*=1.20;}
+  if(type==='shotgun'&&branch==='shotgun_cataclysm'){damage*=1.12;pierce+=2;if(final===0)pierce+=2;}
+  if(type==='shotgun'&&branch==='shotgun_hail'){multishot+=1;if(final===0)multishot+=1;}
+  if(type==='chain'&&branch==='chain_web'){chainTargets+=2;if(final===0)chainTargets+=2;}
+  if(type==='chain'&&branch==='chain_storm'){damage*=1.08;chainTargets+=1;if(final===0)damage*=1.18;}
+  if(type==='chain'&&branch==='chain_leech'){damage*=1.05;if(final===0)damage*=1.15;}
+  if(type==='aura'&&branch==='aura_sanctum'){auraRadius*=1.15;if(final===0)auraPulse*=0.8;}
+  if(type==='aura'&&branch==='aura_gravity'){auraRadius*=1.10;if(final===0)auraRadius*=1.18;}
+  if(type==='aura'&&branch==='aura_overgrowth'){damage*=1.06;auraRadius*=1.08;if(final===0)damage*=1.15;}
+  return {damage:damage*artifact.damage,radius:radius*artifact.radius,delay:delay*artifact.delay,pierce,multishot,chainTargets,auraRadius,auraPulse};
+}
