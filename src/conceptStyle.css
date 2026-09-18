@@ -1151,3 +1151,241 @@ canvas {
     font-size: 6.5px;
   }
 }
+
+
+/* ===== Menu layout: mobile-first, no clipping ===== */
+html, body, #root {
+  height: 100%;
+}
+
+.es-app {
+  height: 100dvh;
+  min-height: 100dvh;
+  overflow: hidden !important;
+}
+
+.es-menu-shell {
+  height: 100dvh;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  align-content: start;
+}
+
+.es-menu-brand {
+  position: relative;
+}
+
+.es-icon-button {
+  min-height: 36px !important;
+  width: 36px !important;
+  padding: 0 !important;
+  justify-content: center !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.es-selected-character {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px;
+  border: 1px solid rgba(90,190,245,0.20);
+  border-radius: 9px;
+  background: linear-gradient(180deg, rgba(11,26,43,0.76), rgba(4,11,19,0.88));
+  text-align: left;
+}
+
+.es-selected-character:hover {
+  border-color: rgba(105,232,255,0.40);
+}
+
+.es-selected-character-orb {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--character-color) 70%, white);
+  border-radius: 50%;
+  color: #f3fcff;
+  font-size: 18px;
+  background:
+    radial-gradient(circle at 34% 28%, #fff 0 7%, var(--character-color) 20%, #204d7c 46%, #02070f 73%);
+  box-shadow:
+    0 0 22px color-mix(in srgb, var(--character-color) 18%, transparent),
+    inset 0 0 14px rgba(255,255,255,0.04);
+}
+
+.es-run-config {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid rgba(82,177,231,0.14);
+  border-radius: 9px;
+  background: rgba(3,10,18,0.52);
+  text-align: left;
+}
+
+.es-run-config input {
+  width: 100%;
+  margin-top: 5px;
+  min-height: 34px;
+  padding: 6px 9px;
+  border: 1px solid rgba(94,185,240,0.22) !important;
+  border-radius: 6px !important;
+  outline: none;
+}
+
+.es-config-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 5px;
+}
+
+.es-config-inline button {
+  padding: 4px 7px;
+  border-radius: 5px;
+  border: 1px solid rgba(90,184,237,0.14);
+  background: rgba(8,19,32,0.72);
+  color: #7797ad;
+  font-size: 8px;
+}
+
+.es-config-inline button.is-active {
+  color: #e8fbff;
+  border-color: rgba(100,226,255,0.46);
+  background: rgba(21,66,88,0.48);
+  box-shadow: inset 0 0 12px rgba(70,210,255,0.06);
+}
+
+.es-menu-status {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+  color: #6e8ba3;
+  font-size: 7px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.es-menu-status span {
+  padding: 5px 4px;
+  border: 1px solid rgba(79,169,222,0.11);
+  border-radius: 5px;
+  text-align: center;
+  background: rgba(3,10,18,0.34);
+}
+
+/* Avoid giant menu panels on short phone screens. */
+@media (max-width: 900px) {
+  .es-menu-shell {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-auto-rows: auto;
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .es-menu-brand {
+    grid-column: 1;
+    min-height: 58px;
+  }
+
+  .es-menu-center {
+    order: 1;
+    min-height: 0 !important;
+    padding: 18px 12px;
+  }
+
+  .es-menu-center-content {
+    max-width: 500px;
+  }
+
+  .es-orbit-mark {
+    width: min(190px, 55vw);
+    margin-top: 5px;
+  }
+
+  .es-character-panel {
+    order: 2;
+  }
+
+  .es-sphere-panel {
+    order: 3;
+  }
+
+  .es-bottom-nav {
+    order: 4;
+  }
+
+  .es-menu-side {
+    padding: 12px;
+  }
+
+  .es-menu-play {
+    margin-top: 12px;
+    min-height: 50px;
+  }
+}
+
+@media (min-width: 901px) {
+  .es-menu-shell {
+    overflow-y: auto;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+  }
+
+  .es-character-panel,
+  .es-sphere-panel,
+  .es-menu-center {
+    min-height: 0;
+  }
+}
+
+@media (max-width: 560px) {
+  .es-menu-shell {
+    padding: 10px;
+    gap: 8px;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom));
+  }
+
+  .es-menu-brand-title {
+    font-size: 22px;
+    letter-spacing: 0.16em;
+  }
+
+  .es-menu-brand-subtitle {
+    margin-top: 2px;
+    font-size: 6px;
+    letter-spacing: 0.17em;
+  }
+
+  .es-character-roster {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .es-run-config {
+    gap: 6px;
+    padding: 8px;
+  }
+
+  .es-menu-status {
+    font-size: 6px;
+  }
+
+  .es-bottom-nav {
+    padding: 6px;
+    gap: 4px;
+  }
+}
+
+/* Canvas towers use a compact visual footprint. Keep control/interaction radius
+   independent from the rendered machine size. */
+.es-game-screen canvas {
+  will-change: transform;
+}
