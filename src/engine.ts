@@ -793,24 +793,112 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
   // Tower branch mechanics: evolutions alter the combat loop, not just stats.
   if (fromSphere) {
     const branch = s.player.towerBranches?.[fromSphere.type];
+    const finalId = (s.player.evolutions || []).find((x: string) => x.startsWith('tower:' + fromSphere.type + ':7:'));
+    const finalIndex = finalId ? Number(finalId.split(':').pop()) : null;
+
     if (branch === 'standard_resonator') {
       const hits = ((fromSphere as any).evolutionHits || 0) + 1;
       (fromSphere as any).evolutionHits = hits;
       if (hits % 3 === 0) {
+        const shockDamage = finalIndex === 0 ? actual * 0.65 : actual * 0.35;
         for (const nearby of s.enemies) {
-          if (nearby !== enemy && nearby.hp > 0 && dist(nearby.pos, enemy.pos) < 85) dealDamageToEnemy(s, nearby, actual * 0.35, fromSphere);
+          if (nearby !== enemy && nearby.hp > 0 && dist(nearby.pos, enemy.pos) < (finalIndex === 0 ? 115 : 85)) {
+            dealDamageToEnemy(s, nearby, shockDamage, fromSphere);
+          }
         }
-        s.screenShake = Math.min(0.12, s.screenShake + 0.025);
+        s.screenShake = Math.min(0.14, s.screenShake + (finalIndex === 0 ? 0.04 : 0.025));
       }
     } else if (branch === 'standard_singularity') {
-      enemy.slowTimer = Math.max(enemy.slowTimer, 0.7);
-      enemy.slowFactor = Math.min(enemy.slowFactor, 0.72);
+      enemy.slowTimer = Math.max(enemy.slowTimer, finalIndex === 0 ? 1.2 : 0.7);
+      enemy.slowFactor = Math.min(enemy.slowFactor, finalIndex === 0 ? 0.5 : 0.72);
+      if (finalIndex === 0) {
+        for (const nearby of s.enemies) {
+          if (nearby !== enemy && nearby.hp > 0 && dist(nearby.pos, enemy.pos) < 75) {
+            const dx = enemy.pos.x - nearby.pos.x, dy = enemy.pos.y - nearby.pos.y;
+            const d = Math.hypot(dx, dy) || 1;
+            nearby.pos.x += dx / d * 24;
+            nearby.pos.y += dy / d * 24;
+          }
+        }
+      }
+    } else if (branch === 'standard_swarm') {
+      if (finalIndex === 0 && Math.random() < 0.35) {
+        const a = Math.atan2(enemy.pos.y - fromSphere.pos.y, enemy.pos.x - fromSphere.pos.x) + (Math.random() < 0.5 ? 0.35 : -0.35);
+        s.sphereProjectiles.push({
+          pos: { ...fromSphere.pos }, vel: { x: Math.cos(a) * 430, y: Math.sin(a) * 430 },
+          damage: actual * 0.28, radius: 4, alive: true, color: '#d4943d', pierce: 0,
+          hitEnemies: new Set(), effect: 'none', ricochet: 0, life: 1.2, sourceSphere: fromSphere,
+        });
+      }
     } else if (branch === 'sniper_oracle' && s.player.hunterMarkTarget === enemy) {
-      actual *= 1.25;
+      actual *= finalIndex === 0 ? 1.5 : 1.25;
     } else if (branch === 'sniper_assassin' && enemy.hp / enemy.maxHp < 0.35) {
-      actual *= 1.35;
+      actual *= finalIndex === 0 ? 1.7 : 1.35;
+    } else if (branch === 'sniper_beacon') {
+      if (finalIndex === 0) {
+        enemy.slowTimer = Math.max(enemy.slowTimer, 0.9);
+        enemy.slowFactor = Math.min(enemy.slowFactor, 0.65);
+        for (const nearby of s.enemies) {
+          if (nearby !== enemy && nearby.hp > 0 && dist(nearby.pos, enemy.pos) < 90) {
+            nearby.slowTimer = Math.max(nearby.slowTimer, 0.5);
+            nearby.slowFactor = Math.min(nearby.slowFactor, 0.8);
+          }
+        }
+      }
+    } else if (branch === 'shotgun_burst') {
+      if (finalIndex === 0 && dist(enemy.pos, fromSphere.pos) < 150) actual *= 1.3;
+    } else if (branch === 'shotgun_cataclysm') {
+      if (finalIndex === 0) {
+        for (const nearby of s.enemies) {
+          if (nearby !== enemy && nearby.hp > 0 && dist(nearby.pos, enemy.pos) < 60) {
+            dealDamageToEnemy(s, nearby, actual * 0.45, fromSphere);
+          }
+        }
+      }
+    } else if (branch === 'shotgun_hail') {
+      if (finalIndex === 0 && Math.random() < 0.25) {
+        for (const nearby of s.enemies) {
+          if (nearby !== enemy && nearby.hp > 0 && dist(nearby.pos, enemy.pos) < 45) {
+            dealDamageToEnemy(s, nearby, actual * 0.3, fromSphere);
+          }
+        }
+      }
+    } else if (branch === 'chain_web') {
+      if (finalIndex === 0) {
+        enemy.slowTimer = Math.max(enemy.slowTimer, 0.7);
+        enemy.slowFactor = Math.min(enemy.slowFactor, 0.7);
+      }
+    } else if (branch === 'chain_storm') {
+      if (finalIndex === 0) {
+        for (const nearby of s.enemies) {
+          if (nearby !== enemy && nearby.hp > 0 && dist(nearby.pos, enemy.pos) < 70) {
+            dealDamageToEnemy(s, nearby, actual * 0.25, fromSphere);
+            s.lightnings.push({ from: { ...enemy.pos }, to: { ...nearby.pos }, life: 0.2 });
+          }
+        }
+      }
     } else if (branch === 'chain_leech') {
-      s.player.hp = Math.min(s.player.maxHp, s.player.hp + actual * 0.012);
+      s.player.hp = Math.min(s.player.maxHp, s.player.hp + actual * (finalIndex === 0 ? 0.025 : 0.012));
+    } else if (branch === 'aura_sanctum') {
+      enemy.slowTimer = Math.max(enemy.slowTimer, finalIndex === 0 ? 1.4 : 0.8);
+      enemy.slowFactor = Math.min(enemy.slowFactor, finalIndex === 0 ? 0.5 : 0.65);
+    } else if (branch === 'aura_gravity') {
+      if (finalIndex === 0) {
+        for (const nearby of s.enemies) {
+          if (nearby.hp > 0 && dist(nearby.pos, fromSphere.pos) < 150) {
+            const dx = fromSphere.pos.x - nearby.pos.x, dy = fromSphere.pos.y - nearby.pos.y;
+            const d = Math.hypot(dx, dy) || 1;
+            nearby.pos.x += dx / d * 55;
+            nearby.pos.y += dy / d * 55;
+          }
+        }
+      }
+    } else if (branch === 'aura_overgrowth' && finalIndex === 0) {
+      for (const ally of s.spheres) {
+        if (ally !== fromSphere && ally.alive && dist(ally.pos, fromSphere.pos) < 140) {
+          ally.attackTimer = Math.max(0, ally.attackTimer - 0.18);
+        }
+      }
     }
   }
 
