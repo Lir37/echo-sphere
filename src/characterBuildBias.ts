@@ -11,7 +11,7 @@ type TowerModId = 'multishot' | 'pierce' | 'ricochet' | 'fire' | 'freeze' | 'poi
 
 interface CharacterDefWithPreferences {
   preferredAbilities: AbilityType[];
-  preferredTowerMods: TowerModId[];
+  preferredSphereMods: TowerModId[];
 }
 
 function getCharacter(): CharacterDefWithPreferences | null {
@@ -67,7 +67,7 @@ export function installCharacterBuildBias(): void {
       if (character && isTowerPool(this as unknown[])) {
         return weightedPermutation(this, (item) => {
           const id = (item as { id?: TowerModId }).id;
-          return !!id && character.preferredTowerMods.includes(id);
+          return !!id && character.preferredSphereMods.includes(id);
         });
       }
     }
