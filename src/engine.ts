@@ -800,105 +800,148 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
       const hits = ((fromSphere as any).evolutionHits || 0) + 1;
       (fromSphere as any).evolutionHits = hits;
       if (hits % 3 === 0) {
-        const shockDamage = finalIndex === 0 ? actual * 0.65 : actual * 0.35;
+        const shockDamage = finalIndex === 0 ? actual * 0.65 : finalIndex === 1 ? actual * 0.45 : actual * 0.35;
+        const shockRadius = finalIndex === 0 ? 115 : finalIndex === 1 ? 100 : 90;
         for (const nearby of s.enemies) {
-          if (nearby !== enemy && nearby.hp > 0 && dist(nearby.pos, enemy.pos) < (finalIndex === 0 ? 115 : 85)) {
-            dealDamageToEnemy(s, nearby, shockDamage, fromSphere);
+          if (nearby !== enemy && nearby.hp > 0 && dist(nearby.pos, enemy.pos) < shockRadius) {
+            dealDamageToEnemy(s, nearby, shockDamage, fromSphere, false);
+            if (finalIndex === 2) {
+              nearby.slowTimer = Math.max(nearby.slowTimer, 0.8);
+              nearby.slowFactor = Math.min(nearby.slowFactor, 0.7);
+            }
+          }
+        }
+        if (finalIndex === 1) {
+          for (const nearby of s.enemies) {
+            if (nearby !== enemy && nearby.hp > 0 && dist(nearby.pos, enemy.pos) < 100) {
+              const dx = nearby.pos.x - enemy.pos.x, dy = nearby.pos.y - enemy.pos.y;
+              const d = Math.hypot(dx, dy) || 1;
+              nearby.pos.x += dx / d * 18;
+              nearby.pos.y += dy / d * 18;
+            }
           }
         }
         s.screenShake = Math.min(0.14, s.screenShake + (finalIndex === 0 ? 0.04 : 0.025));
       }
     } else if (branch === 'standard_singularity') {
-      enemy.slowTimer = Math.max(enemy.slowTimer, finalIndex === 0 ? 1.2 : 0.7);
-      enemy.slowFactor = Math.min(enemy.slowFactor, finalIndex === 0 ? 0.5 : 0.72);
-      if (finalIndex === 0) {
+      enemy.slowTimer = Math.max(enemy.slowTimer, finalIndex === 0 ? 1.2 : finalIndex === 1 ? 1.8 : 0.9);
+      enemy.slowFactor = Math.min(enemy.slowFactor, finalIndex === 0 ? 0.5 : finalIndex === 1 ? 0.58 : 0.68);
+      if (finalIndex === 0 || finalIndex === 2) {
+        const pull = finalIndex === 0 ? 24 : 40;
         for (const nearby of s.enemies) {
-          if (nearby !== enemy && nearby.hp > 0 && dist(nearby.pos, enemy.pos) < 75) {
+          if (nearby !== enemy && nearby.hp > 0 && dist(nearby.pos, enemy.pos) < (finalIndex === 0 ? 75 : 100)) {
             const dx = enemy.pos.x - nearby.pos.x, dy = enemy.pos.y - nearby.pos.y;
             const d = Math.hypot(dx, dy) || 1;
-            nearby.pos.x += dx / d * 24;
-            nearby.pos.y += dy / d * 24;
+            nearby.pos.x += dx / d * pull;
+            nearby.pos.y += dy / d * pull;
           }
         }
       }
+      if (finalIndex === 2 && enemy.hp < enemy.maxHp * 0.5) actual *= 1.15;
     } else if (branch === 'standard_swarm') {
-      if (finalIndex === 0 && Math.random() < 0.35) {
-        const a = Math.atan2(enemy.pos.y - fromSphere.pos.y, enemy.pos.x - fromSphere.pos.x) + (Math.random() < 0.5 ? 0.35 : -0.35);
-        s.sphereProjectiles.push({
-          pos: { ...fromSphere.pos }, vel: { x: Math.cos(a) * 430, y: Math.sin(a) * 430 },
-          damage: actual * 0.28, radius: 4, alive: true, color: '#d4943d', pierce: 0,
-          hitEnemies: new Set(), effect: 'none', ricochet: 0, life: 1.2, sourceSphere: fromSphere,
-        });
+      if (finalIndex === 0 && Math.random() < 0.35 || finalIndex === 1 && Math.random() < 0.55 || finalIndex === 2) {
+        const count = finalIndex === 2 ? 2 : 1;
+        for (let i = 0; i < count; i++) {
+          const a = Math.atan2(enemy.pos.y - fromSphere.pos.y, enemy.pos.x - fromSphere.pos.x) + (i === 0 ? 0.35 : -0.35);
+          s.sphereProjectiles.push({
+            pos: { ...fromSphere.pos }, vel: { x: Math.cos(a) * 430, y: Math.sin(a) * 430 },
+            damage: actual * (finalIndex === 0 ? 0.28 : 0.22), radius: 4, alive: true, color: '#d4943d', pierce: 0,
+            hitEnemies: new Set(), effect: 'none', ricochet: 0, life: 1.2, sourceSphere: fromSphere,
+          });
+        }
       }
     } else if (branch === 'sniper_oracle' && s.player.hunterMarkTarget === enemy) {
-      actual *= finalIndex === 0 ? 1.5 : 1.25;
-    } else if (branch === 'sniper_assassin' && enemy.hp / enemy.maxHp < 0.35) {
-      actual *= finalIndex === 0 ? 1.7 : 1.35;
-    } else if (branch === 'sniper_beacon') {
-      if (finalIndex === 0) {
-        enemy.slowTimer = Math.max(enemy.slowTimer, 0.9);
-        enemy.slowFactor = Math.min(enemy.slowFactor, 0.65);
+      actual *= finalIndex === 0 ? 1.5 : finalIndex === 1 ? 1.3 : 1.22;
+      if (finalIndex === 2) {
         for (const nearby of s.enemies) {
-          if (nearby !== enemy && nearby.hp > 0 && dist(nearby.pos, enemy.pos) < 90) {
-            nearby.slowTimer = Math.max(nearby.slowTimer, 0.5);
-            nearby.slowFactor = Math.min(nearby.slowFactor, 0.8);
+          if (nearby !== enemy && nearby.hp > 0 && dist(nearby.pos, enemy.pos) < 65) {
+            dealDamageToEnemy(s, nearby, actual * 0.25, fromSphere, false);
           }
+        }
+      }
+    } else if (branch === 'sniper_assassin' && enemy.hp / enemy.maxHp < 0.35) {
+      actual *= finalIndex === 0 ? 1.7 : finalIndex === 1 ? 2.2 : 1.45;
+      if (finalIndex === 2) s.player.hp = Math.min(s.player.maxHp, s.player.hp + actual * 0.01);
+    } else if (branch === 'sniper_beacon') {
+      enemy.slowTimer = Math.max(enemy.slowTimer, finalIndex === 0 ? 0.9 : finalIndex === 1 ? 1.2 : 0.7);
+      enemy.slowFactor = Math.min(enemy.slowFactor, finalIndex === 0 ? 0.65 : finalIndex === 1 ? 0.7 : 0.6);
+      const radius = finalIndex === 0 ? 90 : finalIndex === 1 ? 140 : 110;
+      for (const nearby of s.enemies) {
+        if (nearby !== enemy && nearby.hp > 0 && dist(nearby.pos, enemy.pos) < radius) {
+          nearby.slowTimer = Math.max(nearby.slowTimer, finalIndex === 1 ? 1 : 0.5);
+          nearby.slowFactor = Math.min(nearby.slowFactor, finalIndex === 2 ? 0.65 : 0.8);
         }
       }
     } else if (branch === 'shotgun_burst') {
-      if (finalIndex === 0 && dist(enemy.pos, fromSphere.pos) < 150) actual *= 1.3;
+      if (dist(enemy.pos, fromSphere.pos) < (finalIndex === 1 ? 180 : 150)) actual *= finalIndex === 0 ? 1.3 : finalIndex === 1 ? 1.5 : 1.22;
+      if (finalIndex === 2 && dist(enemy.pos, fromSphere.pos) < 90) enemy.slowTimer = Math.max(enemy.slowTimer, 0.4);
     } else if (branch === 'shotgun_cataclysm') {
-      if (finalIndex === 0) {
-        for (const nearby of s.enemies) {
-          if (nearby !== enemy && nearby.hp > 0 && dist(nearby.pos, enemy.pos) < 60) {
-            dealDamageToEnemy(s, nearby, actual * 0.45, fromSphere, false);
-          }
+      const radius = finalIndex === 0 ? 60 : finalIndex === 1 ? 85 : 55;
+      const splash = finalIndex === 0 ? 0.45 : finalIndex === 1 ? 0.65 : 0.35;
+      for (const nearby of s.enemies) {
+        if (nearby !== enemy && nearby.hp > 0 && dist(nearby.pos, enemy.pos) < radius) {
+          dealDamageToEnemy(s, nearby, actual * splash, fromSphere, false);
         }
+      }
+      if (finalIndex === 2) {
+        enemy.slowTimer = Math.max(enemy.slowTimer, 0.8);
+        enemy.slowFactor = Math.min(enemy.slowFactor, 0.65);
       }
     } else if (branch === 'shotgun_hail') {
-      if (finalIndex === 0 && Math.random() < 0.25) {
+      const chance = finalIndex === 0 ? 0.25 : finalIndex === 1 ? 0.4 : 0.32;
+      if (Math.random() < chance) {
+        const radius = finalIndex === 1 ? 65 : 45;
         for (const nearby of s.enemies) {
-          if (nearby !== enemy && nearby.hp > 0 && dist(nearby.pos, enemy.pos) < 45) {
-            dealDamageToEnemy(s, nearby, actual * 0.3, fromSphere);
+          if (nearby !== enemy && nearby.hp > 0 && dist(nearby.pos, enemy.pos) < radius) {
+            dealDamageToEnemy(s, nearby, actual * (finalIndex === 1 ? 0.38 : 0.3), fromSphere, false);
           }
         }
+        if (finalIndex === 2) actual *= 1.08;
       }
     } else if (branch === 'chain_web') {
-      if (finalIndex === 0) {
-        enemy.slowTimer = Math.max(enemy.slowTimer, 0.7);
-        enemy.slowFactor = Math.min(enemy.slowFactor, 0.7);
-      }
+      enemy.slowTimer = Math.max(enemy.slowTimer, finalIndex === 0 ? 0.7 : finalIndex === 1 ? 1.4 : 0.5);
+      enemy.slowFactor = Math.min(enemy.slowFactor, finalIndex === 0 ? 0.7 : finalIndex === 1 ? 0.55 : 0.72);
+      if (finalIndex === 2 && s.player.hunterMarkTarget === enemy) actual *= 1.25;
     } else if (branch === 'chain_storm') {
-      if (finalIndex === 0) {
-        for (const nearby of s.enemies) {
-          if (nearby !== enemy && nearby.hp > 0 && dist(nearby.pos, enemy.pos) < 70) {
-            dealDamageToEnemy(s, nearby, actual * 0.25, fromSphere, false);
-            s.lightnings.push({ from: { ...enemy.pos }, to: { ...nearby.pos }, life: 0.2 });
-          }
+      const radius = finalIndex === 0 ? 70 : finalIndex === 1 ? 100 : 55;
+      const splash = finalIndex === 0 ? 0.25 : finalIndex === 1 ? 0.4 : 0.2;
+      for (const nearby of s.enemies) {
+        if (nearby !== enemy && nearby.hp > 0 && dist(nearby.pos, enemy.pos) < radius) {
+          dealDamageToEnemy(s, nearby, actual * splash, fromSphere, false);
+          s.lightnings.push({ from: { ...enemy.pos }, to: { ...nearby.pos }, life: 0.2 });
         }
       }
+      if (finalIndex === 2) actual *= 1.12;
     } else if (branch === 'chain_leech') {
-      s.player.hp = Math.min(s.player.maxHp, s.player.hp + actual * (finalIndex === 0 ? 0.025 : 0.012));
+      const heal = finalIndex === 0 ? 0.025 : finalIndex === 1 ? 0.045 : 0.018;
+      s.player.hp = Math.min(s.player.maxHp, s.player.hp + actual * heal);
+      if (finalIndex === 2 && enemy.hp < enemy.maxHp * 0.4) actual *= 1.2;
     } else if (branch === 'aura_sanctum') {
-      enemy.slowTimer = Math.max(enemy.slowTimer, finalIndex === 0 ? 1.4 : 0.8);
-      enemy.slowFactor = Math.min(enemy.slowFactor, finalIndex === 0 ? 0.5 : 0.65);
+      enemy.slowTimer = Math.max(enemy.slowTimer, finalIndex === 0 ? 1.4 : finalIndex === 1 ? 2 : 0.9);
+      enemy.slowFactor = Math.min(enemy.slowFactor, finalIndex === 0 ? 0.5 : finalIndex === 1 ? 0.42 : 0.62);
+      if (finalIndex === 2) actual *= 1.12;
     } else if (branch === 'aura_gravity') {
-      if (finalIndex === 0) {
+      if (finalIndex === 0 || finalIndex === 1) {
+        const pull = finalIndex === 0 ? 55 : 80;
         for (const nearby of s.enemies) {
-          if (nearby.hp > 0 && dist(nearby.pos, fromSphere.pos) < 150) {
+          if (nearby.hp > 0 && dist(nearby.pos, fromSphere.pos) < (finalIndex === 0 ? 150 : 190)) {
             const dx = fromSphere.pos.x - nearby.pos.x, dy = fromSphere.pos.y - nearby.pos.y;
             const d = Math.hypot(dx, dy) || 1;
-            nearby.pos.x += dx / d * 55;
-            nearby.pos.y += dy / d * 55;
+            nearby.pos.x += dx / d * pull;
+            nearby.pos.y += dy / d * pull;
           }
         }
+      } else {
+        actual *= 1.18;
       }
-    } else if (branch === 'aura_overgrowth' && finalIndex === 0) {
+    } else if (branch === 'aura_overgrowth') {
+      const bonus = finalIndex === 0 ? 0.18 : finalIndex === 1 ? 0.3 : 0.1;
       for (const ally of s.spheres) {
-        if (ally !== fromSphere && ally.alive && dist(ally.pos, fromSphere.pos) < 140) {
-          ally.attackTimer = Math.max(0, ally.attackTimer - 0.18);
+        if (ally !== fromSphere && ally.alive && dist(ally.pos, fromSphere.pos) < (finalIndex === 1 ? 180 : 140)) {
+          ally.attackTimer = Math.max(0, ally.attackTimer - bonus);
         }
       }
+      if (finalIndex === 2) actual *= 1.12;
     }
   }
 
@@ -1392,7 +1435,7 @@ export function applyUpgrade(s: GameState, choice: UpgradeChoice): void {
     s.player.abilities[def.a] = undefined; s.player.abilities[def.b] = undefined; s.player.evolutions.push(choice.evolution); s.evolutionsThisRun++; playSound('evolve');
   }
 }
-export function applyTowerUpgrade(s: GameState, choice: SphereUpgradeChoice): void {
+export function applysphereUpgrade(s: GameState, choice: SphereUpgradeChoice): void {
   const type = (choice as SphereUpgradeChoice & { sphereType?: SphereType }).sphereType;
   if (!type) return;
   applyUpgrade(s, { type: 'sphere', sphereType: type, sphereStage: 'upgrade', sphereBranch: s.player.sphereBranches[type], currentLevel: sphereLevel(s, type), newLevel: sphereLevel(s, type) + 1 });
