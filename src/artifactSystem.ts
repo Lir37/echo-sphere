@@ -84,12 +84,12 @@ export const ARTIFACT_METADATA: ArtifactMeta[] = [
   meta('overclock', 'epic', { sphereDamage: 0.03, sphereDelay: -0.12 }, 'overclock'),
   meta('soul_engine', 'epic', { sphereDamage: 0.05, xpGain: 0.10 }),
   meta('time_anchor', 'epic', { cooldown: -0.12 }),
-  meta('void_contract', 'special', { sphereDamage: 0.12, sphereDamage: 0.10, damageTakenReduction: -0.15 }),
+  meta('void_contract', 'special', { sphereDamage: 0.22, damageTakenReduction: -0.15 }),
   meta('mirror_network', 'special', { sphereDamage: 0.08 }, 'network'),
   meta('singularity_engine', 'special', { sphereDamage: 0.10 }, 'singularity'),
   meta('quantum_core', 'special', { sphereDamage: 0.08, dodgeChance: 0.08 }),
-  meta('zero_sphere', 'legendary', { sphereDamage: 0.15, sphereDamage: 0.10 }, 'zero'),
-  meta('unified_mind', 'legendary', { sphereDamage: 0.08, sphereDamage: 0.08 }, 'unified'),
+  meta('zero_sphere', 'legendary', { sphereDamage: 0.35 }, 'zero'),
+  meta('unified_mind', 'legendary', { sphereDamage: 0.16 }, 'unified'),
 ];
 
 export const ARTIFACT_META: Record<ArtifactId, ArtifactMeta> = Object.fromEntries(
@@ -119,7 +119,7 @@ export interface ArtifactSynergy {
 export const ARTIFACT_SYNERGIES: ArtifactSynergy[] = [
   { id: 'fortress_network', requires: ['heavy_core', 'resonance_core'], name: { ru: 'Крепостная сеть', en: 'Fortress Network' }, desc: { ru: 'Соседние сферы получают +10% урона.', en: 'Nearby spheres gain +10% damage.' } },
   { id: 'echo_relay', requires: ['echo_conductor', 'network_relay'], name: { ru: 'Эхо-реле', en: 'Echo Relay' }, desc: { ru: 'Сеть из 2+ типов сфер получает ещё +8% урона.', en: 'A network with 2+ sphere types gains another +8% damage.' } },
-  { id: 'glass_cannon', requires: ['overclock', 'void_contract'], name: { ru: 'Стеклянная пушка', en: 'Glass Cannon' }, desc: { ru: 'сферы получают +12% урона, но персонаж получает ещё +5% входящего урона.', en: 'Towers gain +12% damage, but the player takes 5% more damage.' } },
+  { id: 'glass_cannon', requires: ['overclock', 'void_contract'], name: { ru: 'Стеклянная пушка', en: 'Glass Cannon' }, desc: { ru: 'сферы получают +12% урона, но персонаж получает ещё +5% входящего урона.', en: 'spheres gain +12% damage, but the player takes 5% more damage.' } },
   { id: 'singularity', requires: ['lone_bastion', 'singularity_engine'], name: { ru: 'Сингулярность', en: 'Singularity' }, desc: { ru: 'При 1 типе сферы её урон увеличивается ещё на 20%.', en: 'With one sphere type, its damage is increased by another 20%.' } },
   { id: 'perfect_network', requires: ['fivefold_resonance', 'triangle_circuit'], name: { ru: 'Идеальная сеть', en: 'Perfect Network' }, desc: { ru: 'При 3+ типах сфер геометрические связи дают +10% урона.', en: 'With 3+ sphere types, geometric links grant +10% damage.' } },
   { id: 'unified_core', requires: ['unified_mind', 'zero_sphere'], name: { ru: 'Единое ядро', en: 'Unified Core' }, desc: { ru: 'Максимально прокачанная сфера усиливает остальные на 5% за уровень.', en: 'The strongest sphere boosts the others by 5% per level.' } },
@@ -169,11 +169,11 @@ export function getArtifactDodgeChanceBonus(s: any): number { return effectSum(s
 export function getArtifactVampireBonus(s: any): number { return effectSum(s, 'vampire'); }
 export function getArtifactReflectChance(s: any): number { return hasArtifact(s, 'mirror') ? 0.20 : 0; }
 
-function uniqueTowerCount(s: any): number {
+function uniquesphereCount(s: any): number {
   return new Set((s.spheres || []).filter((sphere: any) => sphere.alive !== false).map((sphere: any) => sphere.type)).size;
 }
 
-function hasNearbyTower(s: any, sphere: any, maxDistance: number): boolean {
+function hasNearbysphere(s: any, sphere: any, maxDistance: number): boolean {
   if (!sphere) return false;
   return (s.spheres || []).some((other: any) => other !== sphere && other.alive !== false && Math.hypot(other.pos.x - sphere.pos.x, other.pos.y - sphere.pos.y) <= maxDistance);
 }
@@ -193,7 +193,7 @@ function formsTriangle(s: any, sphere: any): boolean {
   return false;
 }
 
-export function getTowerArtifactModifiers(s: any, type: string, sphere?: any): { damage: number; delay: number; radius: number } {
+export function getsphereArtifactModifiers(s: any, type: string, sphere?: any): { damage: number; delay: number; radius: number } {
   let damage = 1 + effectSum(s, 'sphereDamage');
   let delay = Math.max(0.55, 1 + effectSum(s, 'sphereDelay'));
   let radius = Math.max(0.6, 1 + effectSum(s, 'sphereRadius'));
@@ -202,9 +202,9 @@ export function getTowerArtifactModifiers(s: any, type: string, sphere?: any): {
   damage *= 1 + effectSum(s, effects);
   radius *= 1 + effectSum(s, radiusEffect);
 
-  const unique = uniqueTowerCount(s);
+  const unique = uniquesphereCount(s);
   const synergies = getActiveArtifactSynergies(s);
-  if (synergies.some((x) => x.id === 'fortress_network') && sphere && hasNearbyTower(s, sphere, 190)) damage *= 1.10;
+  if (synergies.some((x) => x.id === 'fortress_network') && sphere && hasNearbysphere(s, sphere, 190)) damage *= 1.10;
   if (synergies.some((x) => x.id === 'echo_relay') && unique >= 2) damage *= 1.08;
   if (synergies.some((x) => x.id === 'glass_cannon')) damage *= 1.12;
   if (synergies.some((x) => x.id === 'singularity') && unique <= 1) damage *= 1.20;
@@ -228,7 +228,7 @@ export function getTowerArtifactModifiers(s: any, type: string, sphere?: any): {
 
 export function getSphereArtifactDamageMultiplier(s: any, sphere: any): number {
   let multiplier = 1;
-  if (hasArtifact(s, 'resonance_core') && hasNearbyTower(s, sphere, 190)) multiplier *= 1.12;
+  if (hasArtifact(s, 'resonance_core') && hasNearbysphere(s, sphere, 190)) multiplier *= 1.12;
   if (hasArtifact(s, 'triangle_circuit') && formsTriangle(s, sphere)) multiplier *= 1.15;
   if (hasArtifact(s, 'unified_mind')) {
     const levels = Object.values(s.player.sphereProgression || {}) as number[];
