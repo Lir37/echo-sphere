@@ -55,7 +55,7 @@ export default function App() {
   }, [soundOn]);
 
   return (
-    <div className="min-h-screen w-full bg-[#f4ecd8] text-[#3a2e1f] overflow-hidden flex items-center justify-center" style={{ fontFamily: 'Georgia, \"Times New Roman\", serif' }}>
+    <div className="min-h-screen w-full bg-[#070d18] text-[#dcecff] overflow-hidden flex items-center justify-center" style={{ fontFamily: 'Georgia, \"Times New Roman\", serif' }}>
       {screen === 'menu' && <Menu lang={lang} setLang={setLang} t={t} difficulty={difficulty} setDifficulty={setDifficulty} soundOn={soundOn} setSoundOn={setSoundOn} mapTheme={mapTheme} setMapTheme={setMapTheme} onPlay={(mt) => { setMapTheme(mt); setScreen('game'); }} onShop={() => { setShop(loadShop()); setGold(loadGold()); setScreen('shop'); }} onCharacters={() => { setGold(loadGold()); setScreen('characters'); }} onLeader={() => setScreen('leaderboard')} onSettings={() => setScreen('settings')} onAchievements={() => setScreen('achievements')} />}
       {screen === 'game' && <GameScreen lang={lang} t={t} shop={shop} difficulty={difficulty} mapTheme={mapTheme} handedness={handedness} onExit={() => { setShop(loadShop()); setGold(loadGold()); setScreen('menu'); }} />}
       {screen === 'shop' && <ShopScreen lang={lang} t={t} shop={shop} setShop={setShop} onBack={() => { setGold(loadGold()); setScreen('menu'); }} />}
@@ -82,55 +82,55 @@ function Menu({ lang, setLang, t, difficulty, setDifficulty, soundOn, setSoundOn
   return (
     <div className="relative w-full max-w-md mx-auto px-6 py-12 flex flex-col items-center gap-6 overflow-y-auto max-h-screen">
       <div className="text-center mt-4">
-        <h1 className="text-5xl font-bold tracking-tight" style={{ color: '#3a2e1f', textShadow: '2px 2px 0 rgba(58,46,31,0.1)' }}>
+        <h1 className="text-5xl font-bold tracking-tight" style={{ color: '#dcecff', textShadow: '2px 2px 0 rgba(58,46,31,0.1)' }}>
           {t('title')}
         </h1>
-        <p className="text-sm text-[#8a7a5a] mt-2 tracking-widest uppercase">Horde Survival</p>
+        <p className="text-sm text-[#7f9bb8] mt-2 tracking-widest uppercase">Horde Survival</p>
       </div>
 
       <div className="w-full flex flex-col gap-3">
-        <label className="text-xs text-[#8a7a5a] uppercase tracking-wider">{t('name')}</label>
+        <label className="text-xs text-[#7f9bb8] uppercase tracking-wider">{t('name')}</label>
         <input
           value={name}
           onChange={(e) => setName(e.target.value.slice(0, 16))}
           placeholder={t('namePlaceholder')}
-          className="w-full px-4 py-3 bg-[#e8dcc0] border border-[#c4b890] rounded-xl text-[#3a2e1f] placeholder-[#8a7a5a]/50 focus:outline-none focus:border-[#8a7a5a] transition"
+          className="w-full px-4 py-3 bg-[#0d1726] border border-[#243b55] rounded-xl text-[#dcecff] placeholder-[#7f9bb8]/50 focus:outline-none focus:border-[#7f9bb8] transition"
         />
       </div>
 
       {/* Difficulty selection */}
       <div className="w-full flex flex-col gap-2">
-        <label className="text-xs text-[#8a7a5a] uppercase tracking-wider">{t('difficulty')}</label>
+        <label className="text-xs text-[#7f9bb8] uppercase tracking-wider">{t('difficulty')}</label>
         <div className="grid grid-cols-2 gap-2">
           {DIFFICULTIES.map((d) => (
             <button
               key={d.id}
               onClick={() => setDifficulty(d.id)}
               className={`px-3 py-3 rounded-xl border transition text-center ${difficulty === d.id
-                ? 'bg-[#d4943d]/20 border-[#c46d3d]/50 text-[#3a2e1f]'
-                : 'bg-[#e8dcc0] border-[#c4b890] text-[#8a7a5a] hover:border-[#8a7a5a]'}`}
+                ? 'bg-[#ffb84d]/20 border-[#ff6b6b]/50 text-[#dcecff]'
+                : 'bg-[#0d1726] border-[#243b55] text-[#7f9bb8] hover:border-[#7f9bb8]'}`}
             >
               <div className="font-bold text-sm">{d.name[lang]}</div>
-              <div className="text-[10px] text-[#8a7a5a]/70 mt-1">{t('goldMultiplier')}: x{d.goldMult}</div>
+              <div className="text-[10px] text-[#7f9bb8]/70 mt-1">{t('goldMultiplier')}: x{d.goldMult}</div>
             </button>
           ))}
         </div>
-        <p className="text-xs text-[#8a7a5a]/70 mt-1">
+        <p className="text-xs text-[#7f9bb8]/70 mt-1">
           {DIFFICULTIES.find(d => d.id === difficulty)?.desc[lang]}
         </p>
       </div>
 
       {/* Map selection */}
       <div className="w-full flex flex-col gap-2">
-        <label className="text-xs text-[#8a7a5a] uppercase tracking-wider">{t('chooseMap')}</label>
+        <label className="text-xs text-[#7f9bb8] uppercase tracking-wider">{t('chooseMap')}</label>
         <div className="grid grid-cols-4 gap-2">
           {MAP_THEMES.map((m) => (
             <button
               key={m.id}
               onClick={() => setMapTheme(m.id)}
               className={`px-2 py-3 rounded-xl border transition text-center ${mapTheme === m.id
-                ? 'bg-[#d4943d]/20 border-[#c46d3d]/50 text-[#3a2e1f]'
-                : 'bg-[#e8dcc0] border-[#c4b890] text-[#8a7a5a] hover:border-[#8a7a5a]'}`}
+                ? 'bg-[#ffb84d]/20 border-[#ff6b6b]/50 text-[#dcecff]'
+                : 'bg-[#0d1726] border-[#243b55] text-[#7f9bb8] hover:border-[#7f9bb8]'}`}
             >
               <div className="font-bold text-xs">{m.name[lang]}</div>
             </button>
@@ -152,13 +152,13 @@ function Menu({ lang, setLang, t, difficulty, setDifficulty, soundOn, setSoundOn
       <div className="absolute top-4 right-4 flex gap-2">
         <button
           onClick={() => setSoundOn(!soundOn)}
-          className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#e8dcc0] border border-[#c4b890] text-[#5a4a32] hover:text-[#3a2e1f] hover:border-[#8a7a5a] transition text-sm"
+          className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#0d1726] border border-[#243b55] text-[#b6c9de] hover:text-[#dcecff] hover:border-[#7f9bb8] transition text-sm"
         >
           {soundOn ? <Volume2 size={16} /> : <VolumeX size={16} />}
         </button>
         <button
           onClick={() => setLang(lang === 'ru' ? 'en' : 'ru')}
-          className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#e8dcc0] border border-[#c4b890] text-[#5a4a32] hover:text-[#3a2e1f] hover:border-[#8a7a5a] transition text-sm"
+          className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#0d1726] border border-[#243b55] text-[#b6c9de] hover:text-[#dcecff] hover:border-[#7f9bb8] transition text-sm"
         >
           <Globe size={16} /> {lang.toUpperCase()}
         </button>
@@ -173,11 +173,11 @@ function MenuButton({ icon, label, onClick, primary }: { icon: React.ReactNode; 
       onClick={onClick}
       className={`w-full flex items-center gap-3 px-5 py-4 rounded-xl border transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
         primary
-          ? 'bg-[#e8dcc0] from-[#4a7a8a]/20 to-[#4a7a8a]/10 border-[#4a7a8a]/40 text-[#3a2e1f] hover:border-[#4a7a8a]/60 shadow-lg shadow-[#4a7a8a]/10'
-          : 'bg-[#e8dcc0] border-[#c4b890] text-[#5a4a32] hover:border-[#a89878] hover:bg-[#e0d4b8]'
+          ? 'bg-[#0d1726] from-[#39d8ff]/20 to-[#39d8ff]/10 border-[#39d8ff]/40 text-[#dcecff] hover:border-[#39d8ff]/60 shadow-lg shadow-[#39d8ff]/10'
+          : 'bg-[#0d1726] border-[#243b55] text-[#b6c9de] hover:border-[#45617e] hover:bg-[#122238]'
       }`}
     >
-      <span className={primary ? 'text-[#4a7a8a]' : 'text-[#8a7a5a]'}>{icon}</span>
+      <span className={primary ? 'text-[#39d8ff]' : 'text-[#7f9bb8]'}>{icon}</span>
       <span className="font-medium">{label}</span>
     </button>
   );
@@ -274,14 +274,14 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
           />
           {st.player.combo >= 5 && (
             <div className="absolute top-16 left-1/2 -translate-x-1/2 pointer-events-none text-center z-10">
-              <div className="text-2xl font-bold" style={{ color: st.player.combo >= 50 ? '#d4943d' : st.player.combo >= 25 ? '#c46d3d' : '#c4453d' }}>
+              <div className="text-2xl font-bold" style={{ color: st.player.combo >= 50 ? '#ffb84d' : st.player.combo >= 25 ? '#ff6b6b' : '#ff4d5d' }}>
                 {t('combo')} x{st.player.combo}
               </div>
-              <div className="text-sm font-bold text-[#5a4a32]">
+              <div className="text-sm font-bold text-[#b6c9de]">
                 {t('comboMultiplier').replace('{mult}', String(st.player.comboMult))}
               </div>
-              <div className="w-24 h-1 bg-[#c4b890] rounded-full mt-1 overflow-hidden">
-                <div className="h-full bg-[#d4943d] transition-all" style={{ width: `${(st.player.comboTimer / 3) * 100}%` }} />
+              <div className="w-24 h-1 bg-[#243b55] rounded-full mt-1 overflow-hidden">
+                <div className="h-full bg-[#ffb84d] transition-all" style={{ width: `${(st.player.comboTimer / 3) * 100}%` }} />
               </div>
             </div>
           )}
@@ -304,15 +304,15 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
       {gameOverData && (
         <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-50">
           <div className="text-center max-w-sm px-6">
-            <h2 className="text-4xl font-bold text-[#c4453d] mb-2">{t('gameOver')}</h2>
-            {gameOverData.isNewRecord && <p className="text-2xl font-bold text-[#d4943d] mb-4 animate-pulse">{t('newRecord')}</p>}
-            <div className="bg-[#e8dcc0] border border-[#c4b890] rounded-xl p-6 mb-6 space-y-2 text-left">
+            <h2 className="text-4xl font-bold text-[#ff4d5d] mb-2">{t('gameOver')}</h2>
+            {gameOverData.isNewRecord && <p className="text-2xl font-bold text-[#ffb84d] mb-4 animate-pulse">{t('newRecord')}</p>}
+            <div className="bg-[#0d1726] border border-[#243b55] rounded-xl p-6 mb-6 space-y-2 text-left">
               <Row label={t('survived')} value={`${gameOverData.time} ${t('seconds')}`} />
               <Row label={t('wave')} value={`${gameOverData.wave}`} />
               <Row label={t('goldEarned')} value={`${gameOverData.gold}`} />
               {gameOverData.rank > 0 && gameOverData.rank <= 10 && <Row label={t('rank')} value={`#${gameOverData.rank}`} />}
             </div>
-            <button onClick={onExit} className="px-8 py-3 rounded-xl bg-[#4a7a8a]/20 border border-[#4a7a8a]/40 text-[#3a2e1f] hover:bg-[#4a7a8a]/30 transition w-full">{t('return')}</button>
+            <button onClick={onExit} className="px-8 py-3 rounded-xl bg-[#39d8ff]/20 border border-[#39d8ff]/40 text-[#dcecff] hover:bg-[#39d8ff]/30 transition w-full">{t('return')}</button>
           </div>
         </div>
       )}
@@ -321,7 +321,7 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
 }
 
 function Row({ label, value }: { label: string; value: string }) {
-  return <div className="flex justify-between"><span className="text-[#8a7a5a]">{label}</span><span className="font-medium">{value}</span></div>;
+  return <div className="flex justify-between"><span className="text-[#7f9bb8]">{label}</span><span className="font-medium">{value}</span></div>;
 }
 
 type PauseTab = 'stats' | 'skills' | 'artifacts' | 'synergies';
@@ -348,19 +348,19 @@ function PausePlanner({ lang, t, st, tab, setTab, onResume, onExit }: {
 
   return (
     <div className="absolute inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center z-50 p-3">
-      <div className="w-full max-w-3xl max-h-[92vh] rounded-2xl bg-[#f4ecd8] border border-[#c4b890] shadow-2xl overflow-hidden flex flex-col">
-        <div className="px-4 pt-4 pb-3 border-b border-[#c4b890] shrink-0">
+      <div className="w-full max-w-3xl max-h-[92vh] rounded-2xl bg-[#070d18] border border-[#243b55] shadow-2xl overflow-hidden flex flex-col">
+        <div className="px-4 pt-4 pb-3 border-b border-[#243b55] shrink-0">
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0">
-              <div className="text-[10px] uppercase tracking-[0.2em] text-[#8a7a5a]">{lang === 'ru' ? 'Билд забега' : 'Run Build'}</div>
+              <div className="text-[10px] uppercase tracking-[0.2em] text-[#7f9bb8]">{lang === 'ru' ? 'Билд забега' : 'Run Build'}</div>
               <div className="text-xl font-bold truncate">{t('pauseTitle')} · {character.name[lang]}</div>
-              <div className="text-xs text-[#8a7a5a] mt-0.5">{character.role[lang]} · {lang === 'ru' ? 'уровень' : 'level'} {st.player.level} · Wave {st.wave}</div>
+              <div className="text-xs text-[#7f9bb8] mt-0.5">{character.role[lang]} · {lang === 'ru' ? 'уровень' : 'level'} {st.player.level} · Wave {st.wave}</div>
             </div>
-            <button onClick={onResume} className="w-9 h-9 rounded-full bg-[#e8dcc0] border border-[#c4b890] flex items-center justify-center" aria-label={t('resume')}><X size={18} /></button>
+            <button onClick={onResume} className="w-9 h-9 rounded-full bg-[#0d1726] border border-[#243b55] flex items-center justify-center" aria-label={t('resume')}><X size={18} /></button>
           </div>
           <div className="grid grid-cols-4 gap-1.5 mt-3">
             {tabDefs.map((item) => (
-              <button key={item.id} onClick={() => setTab(item.id)} className={`flex items-center justify-center gap-1 px-2 py-2 rounded-lg border text-[10px] font-bold transition ${tab === item.id ? 'bg-[#4a7a8a]/15 border-[#4a7a8a]/50 text-[#3a2e1f]' : 'bg-[#e8dcc0] border-[#c4b890] text-[#8a7a5a]'}`}>
+              <button key={item.id} onClick={() => setTab(item.id)} className={`flex items-center justify-center gap-1 px-2 py-2 rounded-lg border text-[10px] font-bold transition ${tab === item.id ? 'bg-[#39d8ff]/15 border-[#39d8ff]/50 text-[#dcecff]' : 'bg-[#0d1726] border-[#243b55] text-[#7f9bb8]'}`}>
                 {item.icon}{item.label}
               </button>
             ))}
@@ -398,14 +398,14 @@ function PausePlanner({ lang, t, st, tab, setTab, onResume, onExit }: {
                       Number((st.player.evolutions.find((x) => x.startsWith('sphere:' + type + ':7:')) || '').split(':').pop())
                     ] : null;
                     return (
-                      <div key={type} className="rounded-xl bg-[#e8dcc0] border border-[#c4b890] p-3">
+                      <div key={type} className="rounded-xl bg-[#0d1726] border border-[#243b55] p-3">
                         <div className="flex items-center justify-between gap-2">
                           <div className="flex items-center gap-2 min-w-0">
                             <span className="w-3 h-3 rounded-full border-2" style={{ borderColor: def.color }} />
                             <span className="font-bold truncate">{def.name[lang]}</span>
-                            <span className="text-[10px] text-[#8a7a5a]">{lang === 'ru' ? 'ур.' : 'lvl'} {lvl}</span>
+                            <span className="text-[10px] text-[#7f9bb8]">{lang === 'ru' ? 'ур.' : 'lvl'} {lvl}</span>
                           </div>
-                          <span className={`text-[10px] font-bold px-2 py-1 rounded-md ${placed.length ? 'bg-[#5a8c4a]/15 text-[#5a8c4a]' : 'bg-black/5 text-[#8a7a5a]'}`}>{placed.length ? (lang === 'ru' ? `на поле ×${placed.length}` : `field ×${placed.length}`) : (lang === 'ru' ? 'не установлена' : 'not placed')}</span>
+                          <span className={`text-[10px] font-bold px-2 py-1 rounded-md ${placed.length ? 'bg-[#5a8c4a]/15 text-[#5a8c4a]' : 'bg-black/5 text-[#7f9bb8]'}`}>{placed.length ? (lang === 'ru' ? `на поле ×${placed.length}` : `field ×${placed.length}`) : (lang === 'ru' ? 'не установлена' : 'not placed')}</span>
                         </div>
                         {live ? (
                           <div className="grid grid-cols-3 gap-2 mt-2 text-[10px]">
@@ -415,12 +415,12 @@ function PausePlanner({ lang, t, st, tab, setTab, onResume, onExit }: {
                             <MiniStat label={lang === 'ru' ? 'DPS' : 'DPS'} value={`${getSphereDpsEstimate(st, live).toFixed(1)}`} />
                           </div>
                         ) : (
-                          <div className="text-[10px] text-[#8a7a5a] mt-2">{lang === 'ru' ? def.desc[lang] : def.desc[lang]}</div>
+                          <div className="text-[10px] text-[#7f9bb8] mt-2">{lang === 'ru' ? def.desc[lang] : def.desc[lang]}</div>
                         )}
                         {branch && (
                           <div className="mt-2 text-[10px]">
                             <span className="text-[#8064a8] font-bold">{lang === 'ru' ? 'Ветка:' : 'Branch:'}</span> {SPHERE_PROGRESSION[type].evolution4Choices.find((x) => x.id === branch)?.name[lang]}
-                            {finalChoice && <> <span className="text-[#c46d3d] font-bold ml-1">{lang === 'ru' ? '→' : '→'}</span> <span className="text-[#c46d3d] font-bold">{finalChoice.name[lang]}</span></>}
+                            {finalChoice && <> <span className="text-[#ff6b6b] font-bold ml-1">{lang === 'ru' ? '→' : '→'}</span> <span className="text-[#ff6b6b] font-bold">{finalChoice.name[lang]}</span></>}
                           </div>
                         )}
                       </div>
@@ -441,16 +441,16 @@ function PausePlanner({ lang, t, st, tab, setTab, onResume, onExit }: {
                 const branch = getAbilityEvolutionChoice(st, id, 4);
                 const final = getAbilityEvolutionChoice(st, id, 7);
                 return (
-                  <div key={id} className={`rounded-xl bg-[#e8dcc0] border p-3 ${level ? 'border-[#4a7a8a]/30' : 'border-[#c4b890] opacity-75'}`}>
+                  <div key={id} className={`rounded-xl bg-[#0d1726] border p-3 ${level ? 'border-[#39d8ff]/30' : 'border-[#243b55] opacity-75'}`}>
                     <div className="flex items-center justify-between gap-2">
                       <div className="font-bold text-sm">{level ? getAbilityDisplayName(st, id, lang) : def.name[lang]}</div>
-                      <span className="text-[10px] font-bold text-[#4a7a8a]">{level}/7</span>
+                      <span className="text-[10px] font-bold text-[#39d8ff]">{level}/7</span>
                     </div>
-                    <div className="text-[10px] text-[#8a7a5a] mt-1">{level ? getAbilityDisplayDesc(st, id, lang) : def.desc[lang](1)}</div>
+                    <div className="text-[10px] text-[#7f9bb8] mt-1">{level ? getAbilityDisplayDesc(st, id, lang) : def.desc[lang](1)}</div>
                     {progression && (
                       <div className="mt-2 space-y-1.5 text-[10px]">
                         <div><span className="font-bold text-[#8064a8]">{lang === 'ru' ? 'IV:' : 'IV:'}</span> {branch ? branch.name[lang] : progression.evolution4.map((x) => x.name[lang]).join(' · ')}</div>
-                        <div><span className="font-bold text-[#c46d3d]">{lang === 'ru' ? 'VII:' : 'VII:'}</span> {final ? final.name[lang] : progression.evolution7.map((x) => x.name[lang]).join(' · ')}</div>
+                        <div><span className="font-bold text-[#ff6b6b]">{lang === 'ru' ? 'VII:' : 'VII:'}</span> {final ? final.name[lang] : progression.evolution7.map((x) => x.name[lang]).join(' · ')}</div>
                       </div>
                     )}
                   </div>
@@ -462,9 +462,9 @@ function PausePlanner({ lang, t, st, tab, setTab, onResume, onExit }: {
                   <SectionTitle>{lang === 'ru' ? 'Пассивные' : 'Passive'}</SectionTitle>
                   <div className="space-y-2">
                     {acquiredAbilities.filter((id) => ABILITIES[id].category === 'passive').map((id) => (
-                      <div key={id} className="rounded-lg bg-[#e8dcc0] border border-[#c4b890] p-3 text-xs">
+                      <div key={id} className="rounded-lg bg-[#0d1726] border border-[#243b55] p-3 text-xs">
                         <div className="flex justify-between font-bold"><span>{abilityName(id, lang)}</span><span>{st.player.abilities[id]}/7</span></div>
-                        <div className="text-[10px] text-[#8a7a5a] mt-1">{ABILITIES[id].desc[lang](st.player.abilities[id] || 1)}</div>
+                        <div className="text-[10px] text-[#7f9bb8] mt-1">{ABILITIES[id].desc[lang](st.player.abilities[id] || 1)}</div>
                       </div>
                     ))}
                   </div>
@@ -477,16 +477,16 @@ function PausePlanner({ lang, t, st, tab, setTab, onResume, onExit }: {
             <div className="space-y-3">
               <SectionTitle>{lang === 'ru' ? `Собрано: ${st.player.artifacts.length}` : `Owned: ${st.player.artifacts.length}`}</SectionTitle>
               {st.player.artifacts.length === 0 ? (
-                <div className="rounded-xl bg-[#e8dcc0] border border-[#c4b890] p-5 text-center text-sm text-[#8a7a5a]">{lang === 'ru' ? 'Артефактов пока нет.' : 'No artifacts yet.'}</div>
+                <div className="rounded-xl bg-[#0d1726] border border-[#243b55] p-5 text-center text-sm text-[#7f9bb8]">{lang === 'ru' ? 'Артефактов пока нет.' : 'No artifacts yet.'}</div>
               ) : st.player.artifacts.map((id) => {
                 const rarity = artifactRarity(id);
                 return (
-                  <div key={id} className="rounded-xl bg-[#e8dcc0] border-2 p-3" style={{ borderColor: rarity === 'legendary' ? '#d4943d' : rarity === 'special' ? '#c46d3d' : rarity === 'epic' ? '#8064a8' : rarity === 'rare' ? '#4a7a8a' : '#c4b890' }}>
+                  <div key={id} className="rounded-xl bg-[#0d1726] border-2 p-3" style={{ borderColor: rarity === 'legendary' ? '#ffb84d' : rarity === 'special' ? '#ff6b6b' : rarity === 'epic' ? '#8064a8' : rarity === 'rare' ? '#39d8ff' : '#243b55' }}>
                     <div className="flex items-center justify-between gap-2">
                       <span className="font-bold text-sm">{ARTIFACT_MAP[id].name[lang]}</span>
-                      <span className="text-[9px] uppercase tracking-wider text-[#8a7a5a]">{RARITY_LABELS[rarity][lang]}</span>
+                      <span className="text-[9px] uppercase tracking-wider text-[#7f9bb8]">{RARITY_LABELS[rarity][lang]}</span>
                     </div>
-                    <div className="text-[10px] text-[#5a4a32] mt-1">{ARTIFACT_MAP[id].desc[lang]}</div>
+                    <div className="text-[10px] text-[#b6c9de] mt-1">{ARTIFACT_MAP[id].desc[lang]}</div>
                   </div>
                 );
               })}
@@ -503,13 +503,13 @@ function PausePlanner({ lang, t, st, tab, setTab, onResume, onExit }: {
                     const abilityOk = (st.player.abilities[link.ability] || 0) >= 7;
                     const active = sphereOk && abilityOk;
                     return (
-                      <div key={link.name.ru} className={`rounded-xl border p-3 ${active ? 'bg-[#8064a8]/10 border-[#8064a8]/40' : 'bg-[#e8dcc0] border-[#c4b890]'}`}>
+                      <div key={link.name.ru} className={`rounded-xl border p-3 ${active ? 'bg-[#8064a8]/10 border-[#8064a8]/40' : 'bg-[#0d1726] border-[#243b55]'}`}>
                         <div className="flex items-center justify-between gap-2">
                           <span className="font-bold text-sm">{link.name[lang]}</span>
-                          <span className={`text-[9px] uppercase font-bold ${active ? 'text-[#8064a8]' : 'text-[#8a7a5a]'}`}>{active ? (lang === 'ru' ? 'АКТИВНА' : 'ACTIVE') : (lang === 'ru' ? 'ЦЕЛЬ' : 'TARGET')}</span>
+                          <span className={`text-[9px] uppercase font-bold ${active ? 'text-[#8064a8]' : 'text-[#7f9bb8]'}`}>{active ? (lang === 'ru' ? 'АКТИВНА' : 'ACTIVE') : (lang === 'ru' ? 'ЦЕЛЬ' : 'TARGET')}</span>
                         </div>
-                        <div className="text-[10px] text-[#5a4a32] mt-1">{link.desc[lang]}</div>
-                        <div className="text-[10px] text-[#8a7a5a] mt-1">
+                        <div className="text-[10px] text-[#b6c9de] mt-1">{link.desc[lang]}</div>
+                        <div className="text-[10px] text-[#7f9bb8] mt-1">
                           {SPHERE_TYPES[link.sphere].name[lang]} VII {sphereOk ? '✓' : '•'} · {ABILITIES[link.ability].name[lang]} VII {abilityOk ? '✓' : '•'}
                         </div>
                       </div>
@@ -524,15 +524,15 @@ function PausePlanner({ lang, t, st, tab, setTab, onResume, onExit }: {
                     const owned = synergy.requires.filter((id) => st.player.artifacts.includes(id)).length;
                     const active = owned === synergy.requires.length;
                     return (
-                      <div key={synergy.id} className={`rounded-xl border p-3 ${active ? 'bg-[#8064a8]/10 border-[#8064a8]/40' : 'bg-[#e8dcc0] border-[#c4b890]'}`}>
+                      <div key={synergy.id} className={`rounded-xl border p-3 ${active ? 'bg-[#8064a8]/10 border-[#8064a8]/40' : 'bg-[#0d1726] border-[#243b55]'}`}>
                         <div className="flex items-center justify-between gap-2">
                           <span className="font-bold text-sm">{synergy.name[lang]}</span>
-                          <span className={`text-[9px] font-bold ${active ? 'text-[#8064a8]' : 'text-[#8a7a5a]'}`}>{owned}/{synergy.requires.length}</span>
+                          <span className={`text-[9px] font-bold ${active ? 'text-[#8064a8]' : 'text-[#7f9bb8]'}`}>{owned}/{synergy.requires.length}</span>
                         </div>
-                        <div className="text-[10px] text-[#5a4a32] mt-1">{synergy.desc[lang]}</div>
+                        <div className="text-[10px] text-[#b6c9de] mt-1">{synergy.desc[lang]}</div>
                         <div className="flex flex-wrap gap-1 mt-2">
                           {synergy.requires.map((id) => (
-                            <span key={id} className={`px-1.5 py-1 rounded-md text-[9px] border ${st.player.artifacts.includes(id) ? 'bg-[#5a8c4a]/10 border-[#5a8c4a]/25 text-[#5a8c4a]' : 'bg-black/5 border-[#c4b890] text-[#8a7a5a]'}`}>
+                            <span key={id} className={`px-1.5 py-1 rounded-md text-[9px] border ${st.player.artifacts.includes(id) ? 'bg-[#5a8c4a]/10 border-[#5a8c4a]/25 text-[#5a8c4a]' : 'bg-black/5 border-[#243b55] text-[#7f9bb8]'}`}>
                               {ARTIFACT_MAP[id].name[lang]}
                             </span>
                           ))}
@@ -546,10 +546,10 @@ function PausePlanner({ lang, t, st, tab, setTab, onResume, onExit }: {
           )}
         </div>
 
-        <div className="shrink-0 px-4 py-3 border-t border-[#c4b890] bg-[#eee4cd]">
+        <div className="shrink-0 px-4 py-3 border-t border-[#243b55] bg-[#eee4cd]">
           <div className="flex gap-2 justify-center">
-            <button onClick={onResume} className="px-5 py-2.5 rounded-xl bg-[#4a7a8a] border border-[#3a6a7a] text-white font-bold">{t('resume')}</button>
-            <button onClick={onExit} className="px-5 py-2.5 rounded-xl bg-[#e8dcc0] border border-[#c4b890] text-[#5a4a32]">{t('return')}</button>
+            <button onClick={onResume} className="px-5 py-2.5 rounded-xl bg-[#39d8ff] border border-[#3a6a7a] text-white font-bold">{t('resume')}</button>
+            <button onClick={onExit} className="px-5 py-2.5 rounded-xl bg-[#0d1726] border border-[#243b55] text-[#b6c9de]">{t('return')}</button>
           </div>
         </div>
       </div>
@@ -558,15 +558,15 @@ function PausePlanner({ lang, t, st, tab, setTab, onResume, onExit }: {
 }
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
-  return <div className="text-[10px] uppercase tracking-wider font-bold text-[#8a7a5a] mb-2">{children}</div>;
+  return <div className="text-[10px] uppercase tracking-wider font-bold text-[#7f9bb8] mb-2">{children}</div>;
 }
 
 function StatBox({ label, value }: { label: string; value: string }) {
-  return <div className="rounded-xl bg-[#e8dcc0] border border-[#c4b890] px-3 py-2"><div className="text-[9px] uppercase text-[#8a7a5a]">{label}</div><div className="font-bold text-sm">{value}</div></div>;
+  return <div className="rounded-xl bg-[#0d1726] border border-[#243b55] px-3 py-2"><div className="text-[9px] uppercase text-[#7f9bb8]">{label}</div><div className="font-bold text-sm">{value}</div></div>;
 }
 
 function MiniStat({ label, value }: { label: string; value: string }) {
-  return <div className="rounded-lg bg-black/5 px-2 py-1.5"><div className="text-[9px] text-[#8a7a5a]">{label}</div><div className="font-bold">{value}</div></div>;
+  return <div className="rounded-lg bg-black/5 px-2 py-1.5"><div className="text-[9px] text-[#7f9bb8]">{label}</div><div className="font-bold">{value}</div></div>;
 }
 
 function getXpPlannerMult(st: GameState): number {
@@ -588,26 +588,26 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
     <>
       <div className="absolute top-3 left-3 flex flex-col gap-1.5 w-56 pointer-events-none z-10">
         <div className="flex items-center gap-2 text-sm">
-          <span className="text-[#4a7a8a] font-bold">{t('level')} {st.player.level}</span>
-          <div className="flex-1 h-2 bg-[#2a2218] rounded-full overflow-hidden border border-[#3a2e1f]">
+          <span className="text-[#39d8ff] font-bold">{t('level')} {st.player.level}</span>
+          <div className="flex-1 h-2 bg-[#2a2218] rounded-full overflow-hidden border border-[#dcecff]">
             <div className="h-full bg-gradient-to-r from-[#3a8ab0] to-[#6acaff] transition-all" style={{ width: `${xpPct}%` }} />
           </div>
         </div>
         <div className="flex items-center gap-2 text-sm">
-          <span className="text-[#c4453d] font-bold text-xs w-10">{Math.ceil(st.player.hp)} HP</span>
-          <div className="flex-1 h-3 bg-[#2a2218] rounded-full overflow-hidden border border-[#3a2e1f]">
-            <div className="h-full bg-gradient-to-r from-[#c4453d] to-[#ff6b63] transition-all" style={{ width: `${hpPct}%` }} />
+          <span className="text-[#ff4d5d] font-bold text-xs w-10">{Math.ceil(st.player.hp)} HP</span>
+          <div className="flex-1 h-3 bg-[#2a2218] rounded-full overflow-hidden border border-[#dcecff]">
+            <div className="h-full bg-gradient-to-r from-[#ff4d5d] to-[#ff6b63] transition-all" style={{ width: `${hpPct}%` }} />
           </div>
         </div>
         {st.wave % 10 === 0 && st.bossActive && (
-          <div className="text-[#c4453d] font-bold text-xs animate-pulse">{t('bossWave')}</div>
+          <div className="text-[#ff4d5d] font-bold text-xs animate-pulse">{t('bossWave')}</div>
         )}
       </div>
       <div className="absolute top-3 right-3 flex flex-col items-end gap-1 text-sm pointer-events-none z-10">
-        <span className="text-[#5a4a32] font-mono">{mins.toString().padStart(2, '0')}:{secs.toString().padStart(2, '0')}</span>
-        <span className="text-[#4a7a8a]/80 text-xs">{t('spheres')}: {st.spheres.length}/{getMaxSpheres(st)}</span>
-        <span className="text-[#8a7a5a]/70 text-xs">{t('wave')} {st.wave}</span>
-        {st.player.buffTimer > 0 && <span className="text-[#c46d3d] text-xs font-bold animate-pulse">BUFF {Math.ceil(st.player.buffTimer)}s</span>}
+        <span className="text-[#b6c9de] font-mono">{mins.toString().padStart(2, '0')}:{secs.toString().padStart(2, '0')}</span>
+        <span className="text-[#39d8ff]/80 text-xs">{t('spheres')}: {st.spheres.length}/{getMaxSpheres(st)}</span>
+        <span className="text-[#7f9bb8]/70 text-xs">{t('wave')} {st.wave}</span>
+        {st.player.buffTimer > 0 && <span className="text-[#ff6b6b] text-xs font-bold animate-pulse">BUFF {Math.ceil(st.player.buffTimer)}s</span>}
       </div>
     </>
   );
@@ -621,18 +621,18 @@ function ArtifactModal({ lang, t, st, choices, onPick }: {
   onPick: (id: ArtifactId) => void;
 }) {
   const rarityClass: Record<string,string> = {
-    common: 'border-[#c4b890]',
-    rare: 'border-[#4a7a8a]',
+    common: 'border-[#243b55]',
+    rare: 'border-[#39d8ff]',
     epic: 'border-[#8064a8]',
-    special: 'border-[#c46d3d]',
-    legendary: 'border-[#d4943d]',
+    special: 'border-[#ff6b6b]',
+    legendary: 'border-[#ffb84d]',
   };
   const rarityText: Record<string,string> = {
-    common: 'text-[#8a7a5a]',
-    rare: 'text-[#4a7a8a]',
+    common: 'text-[#7f9bb8]',
+    rare: 'text-[#39d8ff]',
     epic: 'text-[#8064a8]',
-    special: 'text-[#c46d3d]',
-    legendary: 'text-[#d4943d]',
+    special: 'text-[#ff6b6b]',
+    legendary: 'text-[#ffb84d]',
   };
   const mechanicText: Record<string,{ru:string;en:string}> = {
     swift: {ru:'Темп',en:'Tempo'}, mirror:{ru:'Контратака',en:'Counter'},
@@ -647,7 +647,7 @@ function ArtifactModal({ lang, t, st, choices, onPick }: {
     <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="max-w-5xl w-full px-6">
         <h2 className="text-2xl font-bold text-center mb-2">{lang === 'ru' ? 'Артефакт' : 'Artifact'}</h2>
-        <p className="text-sm text-center text-[#8a7a5a] mb-6">{lang === 'ru' ? 'Артефакты меняют правила взаимодействия сфер и персонажа' : 'Artifacts change the rules of how spheres and the player interact'}</p>
+        <p className="text-sm text-center text-[#7f9bb8] mb-6">{lang === 'ru' ? 'Артефакты меняют правила взаимодействия сфер и персонажа' : 'Artifacts change the rules of how spheres and the player interact'}</p>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {choices.map((id) => {
             const meta = ARTIFACT_META[id];
@@ -656,13 +656,13 @@ function ArtifactModal({ lang, t, st, choices, onPick }: {
             const mechanic = meta.mechanic;
             const newSynergies = getArtifactSynergiesAfterPick(st, id).filter((x) => !active.some((y) => y.id === x.id));
             return (
-              <button key={id} onClick={() => onPick(id)} className={`p-5 rounded-xl bg-[#e8dcc0] border-2 ${rarityClass[rarity] || 'border-[#c4b890]'} hover:scale-[1.02] transition-all text-left`}>
+              <button key={id} onClick={() => onPick(id)} className={`p-5 rounded-xl bg-[#0d1726] border-2 ${rarityClass[rarity] || 'border-[#243b55]'} hover:scale-[1.02] transition-all text-left`}>
                 <div className="flex items-center justify-between mb-3">
                   <span className={`text-[10px] uppercase tracking-widest font-bold ${rarityText[rarity] || ''}`}>{RARITY_LABELS[rarity][lang]}</span>
-                  <span className="text-[#d4943d]">✦</span>
+                  <span className="text-[#ffb84d]">✦</span>
                 </div>
                 <div className="font-bold text-lg mb-2">{a.name[lang]}</div>
-                <div className="text-sm text-[#5a4a32] min-h-[4.5rem]">{a.desc[lang]}</div>
+                <div className="text-sm text-[#b6c9de] min-h-[4.5rem]">{a.desc[lang]}</div>
                 {newSynergies.map((synergy) => (
                   <div key={synergy.id} className="mt-3 rounded-lg bg-[#8064a8]/10 border border-[#8064a8]/30 px-2 py-1.5">
                     <div className="text-[9px] uppercase tracking-wider font-bold text-[#8064a8]">{lang === 'ru' ? 'Активирует синергию' : 'Activates synergy'}</div>
@@ -701,10 +701,10 @@ function UpgradeModal({ lang, t, st, onPick }: {
   return (
     <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-50">
       <div className="max-w-2xl w-full px-6">
-        <h2 className="text-2xl font-bold text-center mb-6 text-[#4a7a8a]">{title}</h2>
+        <h2 className="text-2xl font-bold text-center mb-6 text-[#39d8ff]">{title}</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {choices.map((choice, i) => (
-            <button key={i} onClick={() => onPick(choice)} className="p-5 rounded-xl bg-[#e8dcc0] border border-[#5a8c4a]/30 hover:border-[#5a8c4a]/60 hover:scale-105 transition-all text-left">
+            <button key={i} onClick={() => onPick(choice)} className="p-5 rounded-xl bg-[#0d1726] border border-[#5a8c4a]/30 hover:border-[#5a8c4a]/60 hover:scale-105 transition-all text-left">
               <div className="text-[#5a8c4a] text-[10px] uppercase tracking-wider mb-1">
                 {choice.abilityStage === 'branch' ? (lang === 'ru' ? 'ВЕТКА СПОСОБНОСТИ' : 'ABILITY BRANCH')
                   : choice.abilityStage === 'final' ? (lang === 'ru' ? 'ФИНАЛЬНАЯ ФОРМА СПОСОБНОСТИ' : 'FINAL ABILITY FORM')
@@ -714,8 +714,8 @@ function UpgradeModal({ lang, t, st, onPick }: {
                   : (lang === 'ru' ? 'УЛУЧШЕНИЕ СФЕРЫ' : 'SPHERE UPGRADE')}
               </div>
               <div className="font-bold text-lg mb-2">{choice.name?.[lang] || 'Sphere'}</div>
-              <div className="text-sm text-[#5a4a32] mb-2">{choice.desc?.[lang] || ''}</div>
-              <div className="text-xs text-[#8a7a5a]/70">
+              <div className="text-sm text-[#b6c9de] mb-2">{choice.desc?.[lang] || ''}</div>
+              <div className="text-xs text-[#7f9bb8]/70">
                 {choice.sphereStage === 'branch' || choice.abilityStage === 'branch'
                   ? (lang === 'ru' ? 'Уровень IV • выбор ветки' : 'Level IV • choose a branch')
                   : choice.sphereStage === 'final' || choice.abilityStage === 'final'
@@ -752,8 +752,8 @@ function ShopScreen({ lang, t, shop, setShop, onBack }: {
   return (
     <div className="w-full max-w-2xl mx-auto px-6 py-8 overflow-y-auto max-h-screen">
       <div className="flex items-center justify-between mb-6">
-        <button onClick={onBack} className="flex items-center gap-2 text-[#8a7a5a] hover:text-[#3a2e1f] transition"><ArrowLeft size={20} /> {t('back')}</button>
-        <div className="flex items-center gap-2 text-[#d4943d] font-bold"><span className="text-2xl">●</span> {shop.gold}</div>
+        <button onClick={onBack} className="flex items-center gap-2 text-[#7f9bb8] hover:text-[#dcecff] transition"><ArrowLeft size={20} /> {t('back')}</button>
+        <div className="flex items-center gap-2 text-[#ffb84d] font-bold"><span className="text-2xl">●</span> {shop.gold}</div>
       </div>
       <h2 className="text-2xl font-bold mb-6 text-center">{t('shopTitle')}</h2>
       <div className="grid gap-3">
@@ -763,16 +763,16 @@ function ShopScreen({ lang, t, shop, setShop, onBack }: {
           const cost = shopCost(def, cur);
           const canBuy = !maxed && shop.gold >= cost;
           return (
-            <div key={def.id} className="flex items-center gap-4 p-4 rounded-xl bg-[#e8dcc0] border border-[#c4b890]">
+            <div key={def.id} className="flex items-center gap-4 p-4 rounded-xl bg-[#0d1726] border border-[#243b55]">
               <div className="flex-1">
                 <div className="font-medium">{def.name[lang]}</div>
-                <div className="text-sm text-[#8a7a5a]">{def.desc[lang](cur)}</div>
-                <div className="text-xs text-[#8a7a5a]/50 mt-1">{t('owned')}: {cur}/{def.maxLevel}</div>
+                <div className="text-sm text-[#7f9bb8]">{def.desc[lang](cur)}</div>
+                <div className="text-xs text-[#7f9bb8]/50 mt-1">{t('owned')}: {cur}/{def.maxLevel}</div>
               </div>
               <button
                 onClick={() => buy(def.id)}
                 disabled={!canBuy}
-                className={`px-5 py-2.5 rounded-lg font-medium text-sm transition min-w-24 ${maxed ? 'bg-[#e8dcc0] text-[#8a7a5a]/50' : canBuy ? 'bg-[#4a7a8a]/20 border border-[#4a7a8a]/40 text-[#3a2e1f] hover:bg-[#4a7a8a]/30' : 'bg-[#e8dcc0] border border-[#c4b890] text-[#8a7a5a]/50'}`}
+                className={`px-5 py-2.5 rounded-lg font-medium text-sm transition min-w-24 ${maxed ? 'bg-[#0d1726] text-[#7f9bb8]/50' : canBuy ? 'bg-[#39d8ff]/20 border border-[#39d8ff]/40 text-[#dcecff] hover:bg-[#39d8ff]/30' : 'bg-[#0d1726] border border-[#243b55] text-[#7f9bb8]/50'}`}
               >
                 {maxed ? t('max') : `${cost} ●`}
               </button>
@@ -790,24 +790,24 @@ function LeaderboardScreen({ lang, t, onBack }: { lang: Lang; t: (k: Translation
   return (
     <div className="w-full max-w-2xl mx-auto px-6 py-8 overflow-y-auto max-h-screen">
       <div className="flex items-center justify-between mb-6">
-        <button onClick={onBack} className="flex items-center gap-2 text-[#8a7a5a] hover:text-[#3a2e1f] transition"><ArrowLeft size={20} /> {t('back')}</button>
+        <button onClick={onBack} className="flex items-center gap-2 text-[#7f9bb8] hover:text-[#dcecff] transition"><ArrowLeft size={20} /> {t('back')}</button>
       </div>
       <h2 className="text-2xl font-bold mb-6 text-center">{t('leaderTitle')}</h2>
       {entries.length === 0 ? (
-        <p className="text-center text-[#8a7a5a]/70 py-12">{t('noScores')}</p>
+        <p className="text-center text-[#7f9bb8]/70 py-12">{t('noScores')}</p>
       ) : (
         <div className="space-y-2">
-          <div className="grid grid-cols-12 gap-2 text-xs text-[#8a7a5a]/70 uppercase px-4">
+          <div className="grid grid-cols-12 gap-2 text-xs text-[#7f9bb8]/70 uppercase px-4">
             <div className="col-span-2">{t('rank')}</div>
             <div className="col-span-6">{t('player')}</div>
             <div className="col-span-2 text-right">{t('wave')}</div>
             <div className="col-span-2 text-right">{t('score')}</div>
           </div>
           {entries.map((e, i) => (
-            <div key={i} className={`grid grid-cols-12 gap-2 px-4 py-3 rounded-lg items-center ${i === 0 ? 'bg-[#d4943d]/10 border border-[#d4943d]/30' : 'bg-[#e8dcc0]'}`}>
-              <div className="col-span-2 font-bold text-[#4a7a8a]">#{i + 1}</div>
+            <div key={i} className={`grid grid-cols-12 gap-2 px-4 py-3 rounded-lg items-center ${i === 0 ? 'bg-[#ffb84d]/10 border border-[#ffb84d]/30' : 'bg-[#0d1726]'}`}>
+              <div className="col-span-2 font-bold text-[#39d8ff]">#{i + 1}</div>
               <div className="col-span-6 truncate">{e.name}</div>
-              <div className="col-span-2 text-right text-[#8a7a5a] text-sm">{e.wave}</div>
+              <div className="col-span-2 text-right text-[#7f9bb8] text-sm">{e.wave}</div>
               <div className="col-span-2 text-right font-mono text-sm">{e.time}s</div>
             </div>
           ))}
@@ -823,23 +823,23 @@ function AchievementsScreen({ lang, t, onBack }: { lang: Lang; t: (k: Translatio
   return (
     <div className="w-full max-w-2xl mx-auto px-6 py-8 overflow-y-auto max-h-screen">
       <div className="flex items-center justify-between mb-6">
-        <button onClick={onBack} className="flex items-center gap-2 text-[#8a7a5a] hover:text-[#3a2e1f] transition"><ArrowLeft size={20} /> {t('back')}</button>
-        <span className="text-sm text-[#8a7a5a]/70">{unlocked.length}/{ACHIEVEMENTS.length}</span>
+        <button onClick={onBack} className="flex items-center gap-2 text-[#7f9bb8] hover:text-[#dcecff] transition"><ArrowLeft size={20} /> {t('back')}</button>
+        <span className="text-sm text-[#7f9bb8]/70">{unlocked.length}/{ACHIEVEMENTS.length}</span>
       </div>
       <h2 className="text-2xl font-bold mb-6 text-center">{t('achievementsTitle')}</h2>
       <div className="grid gap-3">
         {ACHIEVEMENTS.map((ach) => {
           const isUnlocked = unlocked.includes(ach.id);
           return (
-            <div key={ach.id} className={`flex items-center gap-4 p-4 rounded-xl border transition ${isUnlocked ? 'bg-[#d4943d]/10 border-[#d4943d]/30' : 'bg-[#e8dcc0] border-[#c4b890] opacity-50'}`}>
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isUnlocked ? 'bg-[#d4943d]/20' : 'bg-[#e8dcc0]'}`}>
-                <Award size={20} className={isUnlocked ? 'text-[#d4943d]' : 'text-[#8a7a5a]/50'} />
+            <div key={ach.id} className={`flex items-center gap-4 p-4 rounded-xl border transition ${isUnlocked ? 'bg-[#ffb84d]/10 border-[#ffb84d]/30' : 'bg-[#0d1726] border-[#243b55] opacity-50'}`}>
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isUnlocked ? 'bg-[#ffb84d]/20' : 'bg-[#0d1726]'}`}>
+                <Award size={20} className={isUnlocked ? 'text-[#ffb84d]' : 'text-[#7f9bb8]/50'} />
               </div>
               <div className="flex-1">
-                <div className={`font-medium ${isUnlocked ? 'text-[#d4943d]' : 'text-[#8a7a5a]'}`}>{ach.name[lang]}</div>
-                <div className="text-sm text-[#8a7a5a]/70">{ach.desc[lang]}</div>
+                <div className={`font-medium ${isUnlocked ? 'text-[#ffb84d]' : 'text-[#7f9bb8]'}`}>{ach.name[lang]}</div>
+                <div className="text-sm text-[#7f9bb8]/70">{ach.desc[lang]}</div>
               </div>
-              <span className={`text-xs font-bold ${isUnlocked ? 'text-[#d4943d]' : 'text-[#3a2e1f]/20'}`}>
+              <span className={`text-xs font-bold ${isUnlocked ? 'text-[#ffb84d]' : 'text-[#dcecff]/20'}`}>
                 {isUnlocked ? t('achievementsUnlocked') : t('achievementsLocked')}
               </span>
             </div>
@@ -864,34 +864,34 @@ function SettingsScreen({ lang, setLang, t, soundOn, setSoundOn, handedness, set
   return (
     <div className="w-full max-w-md mx-auto px-6 py-8">
       <div className="flex items-center justify-between mb-6">
-        <button onClick={onBack} className="flex items-center gap-2 text-[#8a7a5a] hover:text-[#3a2e1f] transition"><ArrowLeft size={20} /> {t('back')}</button>
+        <button onClick={onBack} className="flex items-center gap-2 text-[#7f9bb8] hover:text-[#dcecff] transition"><ArrowLeft size={20} /> {t('back')}</button>
       </div>
       <h2 className="text-2xl font-bold mb-6 text-center">{t('settingsTitle')}</h2>
       <div className="space-y-6">
         <div>
-          <label className="text-xs text-[#8a7a5a] uppercase tracking-wider mb-2 block">{t('language')}</label>
+          <label className="text-xs text-[#7f9bb8] uppercase tracking-wider mb-2 block">{t('language')}</label>
           <div className="flex gap-2">
-            <button onClick={() => setLang('ru')} className={`flex-1 py-3 rounded-xl border transition ${lang === 'ru' ? 'bg-[#4a7a8a]/20 border-[#4a7a8a]/40 text-[#3a2e1f]' : 'bg-[#e8dcc0] border-[#c4b890] text-[#8a7a5a]'}`}>Русский</button>
-            <button onClick={() => setLang('en')} className={`flex-1 py-3 rounded-xl border transition ${lang === 'en' ? 'bg-[#4a7a8a]/20 border-[#4a7a8a]/40 text-[#3a2e1f]' : 'bg-[#e8dcc0] border-[#c4b890] text-[#8a7a5a]'}`}>English</button>
+            <button onClick={() => setLang('ru')} className={`flex-1 py-3 rounded-xl border transition ${lang === 'ru' ? 'bg-[#39d8ff]/20 border-[#39d8ff]/40 text-[#dcecff]' : 'bg-[#0d1726] border-[#243b55] text-[#7f9bb8]'}`}>Русский</button>
+            <button onClick={() => setLang('en')} className={`flex-1 py-3 rounded-xl border transition ${lang === 'en' ? 'bg-[#39d8ff]/20 border-[#39d8ff]/40 text-[#dcecff]' : 'bg-[#0d1726] border-[#243b55] text-[#7f9bb8]'}`}>English</button>
           </div>
         </div>
         <div>
-          <label className="text-xs text-[#8a7a5a] uppercase tracking-wider mb-2 block">{t('sound')}</label>
+          <label className="text-xs text-[#7f9bb8] uppercase tracking-wider mb-2 block">{t('sound')}</label>
           <div className="flex gap-2">
-            <button onClick={() => setSoundOn(true)} className={`flex-1 py-3 rounded-xl border transition ${soundOn ? 'bg-[#4a7a8a]/20 border-[#4a7a8a]/40 text-[#3a2e1f]' : 'bg-[#e8dcc0] border-[#c4b890] text-[#8a7a5a]'}`}>{t('soundOn')}</button>
-            <button onClick={() => setSoundOn(false)} className={`flex-1 py-3 rounded-xl border transition ${!soundOn ? 'bg-[#4a7a8a]/20 border-[#4a7a8a]/40 text-[#3a2e1f]' : 'bg-[#e8dcc0] border-[#c4b890] text-[#8a7a5a]'}`}>{t('soundOff')}</button>
+            <button onClick={() => setSoundOn(true)} className={`flex-1 py-3 rounded-xl border transition ${soundOn ? 'bg-[#39d8ff]/20 border-[#39d8ff]/40 text-[#dcecff]' : 'bg-[#0d1726] border-[#243b55] text-[#7f9bb8]'}`}>{t('soundOn')}</button>
+            <button onClick={() => setSoundOn(false)} className={`flex-1 py-3 rounded-xl border transition ${!soundOn ? 'bg-[#39d8ff]/20 border-[#39d8ff]/40 text-[#dcecff]' : 'bg-[#0d1726] border-[#243b55] text-[#7f9bb8]'}`}>{t('soundOff')}</button>
           </div>
         </div>
         <div>
-          <label className="text-xs text-[#8a7a5a] uppercase tracking-wider mb-2 block">{t('handedness')}</label>
+          <label className="text-xs text-[#7f9bb8] uppercase tracking-wider mb-2 block">{t('handedness')}</label>
           <div className="flex gap-2">
-            <button onClick={() => setHandedness('right')} className={`flex-1 py-3 rounded-xl border transition ${handedness === 'right' ? 'bg-[#4a7a8a]/20 border-[#4a7a8a]/40 text-[#3a2e1f]' : 'bg-[#e8dcc0] border-[#c4b890] text-[#8a7a5a]'}`}>{t('rightHanded')}</button>
-            <button onClick={() => setHandedness('left')} className={`flex-1 py-3 rounded-xl border transition ${handedness === 'left' ? 'bg-[#4a7a8a]/20 border-[#4a7a8a]/40 text-[#3a2e1f]' : 'bg-[#e8dcc0] border-[#c4b890] text-[#8a7a5a]'}`}>{t('leftHanded')}</button>
+            <button onClick={() => setHandedness('right')} className={`flex-1 py-3 rounded-xl border transition ${handedness === 'right' ? 'bg-[#39d8ff]/20 border-[#39d8ff]/40 text-[#dcecff]' : 'bg-[#0d1726] border-[#243b55] text-[#7f9bb8]'}`}>{t('rightHanded')}</button>
+            <button onClick={() => setHandedness('left')} className={`flex-1 py-3 rounded-xl border transition ${handedness === 'left' ? 'bg-[#39d8ff]/20 border-[#39d8ff]/40 text-[#dcecff]' : 'bg-[#0d1726] border-[#243b55] text-[#7f9bb8]'}`}>{t('leftHanded')}</button>
           </div>
         </div>
         <div>
-          <label className="text-xs text-[#8a7a5a] uppercase tracking-wider mb-2 block">{t('controls')}</label>
-          <div className="space-y-2 text-sm text-[#8a7a5a] bg-[#e8dcc0] rounded-xl p-4 border border-[#c4b890]">
+          <label className="text-xs text-[#7f9bb8] uppercase tracking-wider mb-2 block">{t('controls')}</label>
+          <div className="space-y-2 text-sm text-[#7f9bb8] bg-[#0d1726] rounded-xl p-4 border border-[#243b55]">
             <div>{t('moveControls')}</div>
             <div>{t('placeSphere')}</div>
             <div>{t('activeAbilities')}</div>
@@ -900,7 +900,7 @@ function SettingsScreen({ lang, setLang, t, soundOn, setSoundOn, handedness, set
         </div>
         <button
           onClick={() => { if (confirm(t('resetConfirm'))) { resetAll(); location.reload(); } }}
-          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-[#c4453d]/10 border border-[#c4453d]/30 text-[#c4453d] hover:bg-[#c4453d]/20 transition"
+          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-[#ff4d5d]/10 border border-[#ff4d5d]/30 text-[#ff4d5d] hover:bg-[#ff4d5d]/20 transition"
         >
           <RotateCcw size={18} /> {t('reset')}
         </button>
