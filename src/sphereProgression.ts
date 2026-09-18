@@ -1,6 +1,6 @@
 import type { CharacterId } from './characters';
 import { getSphereArtifactModifiers } from './artifactSystem';
-import type { SphereType, AbilityType } from './gameData';
+import { ABILITIES, type SphereType, type AbilityType } from './gameData';
 
 export type SphereEvolutionId = 'standard_resonator' | 'standard_singularity' | 'standard_swarm' | 'sniper_oracle' | 'sniper_assassin' | 'sniper_beacon' | 'shotgun_burst' | 'shotgun_cataclysm' | 'shotgun_hail' | 'chain_web' | 'chain_storm' | 'chain_leech' | 'aura_sanctum' | 'aura_gravity' | 'aura_overgrowth';
 export type AbilityEvolutionId = string;
@@ -277,17 +277,17 @@ export function getAbilityEvolutionChoice(s:any, ability:AbilityType, stage:4|7)
 }
 
 export function getAbilityDisplayName(s:any, ability:AbilityType, lang:'ru'|'en'):string {
+  const base=ABILITIES[ability].name[lang];
   const level=s.player.abilities?.[ability]||0;
   if(level>=7){
     const final=getAbilityEvolutionChoice(s,ability,7);
-    if(final) return final.name[lang];
+    if(final) return base+' · '+final.name[lang];
   }
   if(level>=4){
     const branch=getAbilityEvolutionChoice(s,ability,4);
-    if(branch) return branch.name[lang];
+    if(branch) return base+' · '+branch.name[lang];
   }
-  const progression=ABILITY_PROGRESSION[ability];
-  return progression?.levels[level-1]?.name[lang] || '';
+  return base;
 }
 
 export function getAbilityDisplayDesc(s:any, ability:AbilityType, lang:'ru'|'en'):string {
