@@ -55,7 +55,7 @@ export default function App() {
   }, [soundOn]);
 
   return (
-    <div className="min-h-screen w-full bg-[#070d18] text-[#dcecff] overflow-hidden flex items-center justify-center" style={{ fontFamily: 'Georgia, \"Times New Roman\", serif' }}>
+    <div className="es-app min-h-screen w-full text-[#dcecff] overflow-hidden flex items-center justify-center">
       {screen === 'menu' && <Menu lang={lang} setLang={setLang} t={t} difficulty={difficulty} setDifficulty={setDifficulty} soundOn={soundOn} setSoundOn={setSoundOn} mapTheme={mapTheme} setMapTheme={setMapTheme} onPlay={(mt) => { setMapTheme(mt); setScreen('game'); }} onShop={() => { setShop(loadShop()); setGold(loadGold()); setScreen('shop'); }} onCharacters={() => { setGold(loadGold()); setScreen('characters'); }} onLeader={() => setScreen('leaderboard')} onSettings={() => setScreen('settings')} onAchievements={() => setScreen('achievements')} />}
       {screen === 'game' && <GameScreen lang={lang} t={t} shop={shop} difficulty={difficulty} mapTheme={mapTheme} handedness={handedness} onExit={() => { setShop(loadShop()); setGold(loadGold()); setScreen('menu'); }} />}
       {screen === 'shop' && <ShopScreen lang={lang} t={t} shop={shop} setShop={setShop} onBack={() => { setGold(loadGold()); setScreen('menu'); }} />}
@@ -618,36 +618,90 @@ function getXpPlannerMult(st: GameState): number {
 
 // ===== HUD =====
 function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st: GameState }) {
-  const xpPct = (st.player.xp / st.player.xpToNext) * 100;
-  const hpPct = (st.player.hp / st.player.maxHp) * 100;
+  const xpPct = Math.max(0, Math.min(100, (st.player.xp / st.player.xpToNext) * 100));
+  const hpPct = Math.max(0, Math.min(100, (st.player.hp / st.player.maxHp) * 100));
   const mins = Math.floor(st.time / 60);
   const secs = Math.floor(st.time % 60);
+  const timer = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  const activeBoss = st.bossActive;
+
   return (
     <>
-      <div className="es-hud-panel absolute top-3 left-3 flex flex-col gap-1.5 w-56 pointer-events-none z-10 px-3 py-2">
-        <div className="flex items-center gap-2 text-sm">
-          <span className="text-[#39d8ff] font-bold">{t('level')} {st.player.level}</span>
-          <div className="flex-1 h-2 bg-[#2a2218] rounded-full overflow-hidden border border-[#dcecff]">
-            <div className="h-full bg-gradient-to-r from-[#3a8ab0] to-[#6acaff] transition-all" style={{ width: `${xpPct}%` }} />
+      <div className="es-hud-panel es-top-left absolute top-3 left-3 z-30 pointer-events-none">
+        <div className="flex items-center gap-2">
+          <div className="es-hud-avatar">✦</div>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center justify-between gap-2">
+              <span className="es-hud-title">{t('level')} {st.player.level}</span>
+              <span className="es-hud-value">{Math.ceil(st.player.hp)}/{Math.ceil(st.player.maxHp)}</span>
+            </div>
+            <div className="es-progress mt-1.5"><span style={{ width: `${xpPct}%` }} /></div>
+            <div className="es-hp-progress mt-1"><span style={{ width: `${hpPct}%` }} /></div>
           </div>
         </div>
-        <div className="flex items-center gap-2 text-sm">
-          <span className="text-[#ff4d5d] font-bold text-xs w-10">{Math.ceil(st.player.hp)} HP</span>
-          <div className="flex-1 h-3 bg-[#2a2218] rounded-full overflow-hidden border border-[#dcecff]">
-            <div className="h-full bg-gradient-to-r from-[#ff4d5d] to-[#ff6b63] transition-all" style={{ width: `${hpPct}%` }} />
-          </div>
+        <div className="es-hud-meta-grid mt-2">
+          <span>{t('spheres').toUpperCase()} <b>{st.spheres.length}/{getMaxSpheres(st)}</b></span>
+          <span>{t('wave').toUpperCase()} <b>{st.wave}</b></span>
         </div>
-        {st.wave % 10 === 0 && st.bossActive && (
-          <div className="text-[#ff4d5d] font-bold text-xs animate-pulse">{t('bossWave')}</div>
-        )}
       </div>
-      <div className="es-hud-panel absolute top-3 right-3 flex flex-col items-end gap-1 text-sm pointer-events-none z-10 px-3 py-2">
-        <span className="text-[#b6c9de] font-mono">{mins.toString().padStart(2, '0')}:{secs.toString().padStart(2, '0')}</span>
-        <span className="text-[#39d8ff]/80 text-xs">{t('spheres')}: {st.spheres.length}/{getMaxSpheres(st)}</span>
-        <span className="text-[#7f9bb8]/70 text-xs">{t('wave')} {st.wave}</span>
-        {st.player.buffTimer > 0 && <span className="text-[#ff6b6b] text-xs font-bold animate-pulse">BUFF {Math.ceil(st.player.buffTimer)}s</span>}
+
+      <div className="es-time-hud absolute top-3 left-1/2 -translate-x-1/2 z-30 pointer-events-none">
+        <div className="es-time-hud-line">
+          <span className="es-time-hud-dot" />
+          <span className="es-time-hud-value">{timer}</span>
+          <span className="es-time-hud-dot" />
+        </div>
+        <div className="es-time-hud-phase">{activeBoss ? 'VOID BREACH // BOSS' : 'ECHO FIELD // ACTIVE'}</div>
+      </div>
+
+      <div className="es-hud-panel es-top-right absolute top-3 right-3 z-30 pointer-events-none">
+        <div className="flex items-start gap-3">
+          <RadarHud st={st} />
+          <div className="min-w-[64px] pt-1 text-right">
+            <div className="es-hud-stat"><span className="es-stat-gem">◆</span>{Math.floor(st.xpOrbs.reduce((sum, orb) => sum + orb.radius, 0))}</div>
+            <div className="es-hud-stat text-[#c8b7ff]"><span className="es-stat-gem">◇</span>{st.player.kills}</div>
+            {st.player.buffTimer > 0 && <div className="es-hud-buff">{Math.ceil(st.player.buffTimer)}s</div>}
+          </div>
+        </div>
+        {activeBoss && <div className="es-boss-telemetry mt-2">{t('bossWave')}</div>}
       </div>
     </>
+  );
+}
+
+function RadarHud({ st }: { st: GameState }) {
+  const radius = 900;
+  const dots = st.enemies.filter((enemy) => enemy.hp > 0).slice(0, 40).map((enemy, index) => {
+    const dx = enemy.pos.x - st.player.pos.x;
+    const dy = enemy.pos.y - st.player.pos.y;
+    const distance = Math.hypot(dx, dy);
+    const scale = Math.min(1, distance / radius);
+    const angle = Math.atan2(dy, dx);
+    const rr = scale * 25;
+    return {
+      key: `${enemy.type}-${enemy.pos.x}-${index}`,
+      x: 50 + Math.cos(angle) * rr,
+      y: 50 + Math.sin(angle) * rr,
+      boss: enemy.isBoss,
+      elite: enemy.isElite,
+    };
+  });
+
+  return (
+    <div className="es-radar" aria-hidden="true">
+      <span className="es-radar-ring es-radar-ring-1" />
+      <span className="es-radar-ring es-radar-ring-2" />
+      <span className="es-radar-cross-h" />
+      <span className="es-radar-cross-v" />
+      {dots.map((dot) => (
+        <span
+          key={dot.key}
+          className={dot.boss ? 'es-radar-dot boss' : dot.elite ? 'es-radar-dot elite' : 'es-radar-dot'}
+          style={{ left: `${dot.x}%`, top: `${dot.y}%` }}
+        />
+      ))}
+      <span className="es-radar-player" />
+    </div>
   );
 }
 
