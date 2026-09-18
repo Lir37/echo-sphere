@@ -1,7 +1,7 @@
 import type { GameState, PlayerState, SphereEntity, EnemyEntity, DamageNumber, ChestEntity } from './engine';
 import { PLAYER_RADIUS } from './engine';
 import { SPHERE_TYPES, BOSS_TYPES } from './gameData';
-import type { MapTheme } from './engine';
+import type { MapTheme, Vec } from './engine';
 import { CHARACTER_DEFS } from './characters';
 import { getCharacterId, getCharacterFormation, getEngineerNetworkRange } from './characterRuntime';
 
@@ -84,11 +84,16 @@ export function render(ctx: CanvasRenderingContext2D, s: GameState, canvasW: num
 
   // fire trails
   for (const ft of s.fireTrails) {
-    const alpha = ft.life / ft.maxLife;
-    ctx.fillStyle = `rgba(180,100,40,${alpha * 0.35})`;
-    ctx.beginPath(); ctx.arc(ft.pos.x, ft.pos.y, 28, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = `rgba(120,60,20,${alpha * 0.2})`;
-    ctx.beginPath(); ctx.arc(ft.pos.x, ft.pos.y, 18, 0, Math.PI * 2); ctx.fill();
+    const alpha = Math.max(0, Math.min(1, ft.life / ft.maxLife));
+    ctx.save();
+    ctx.translate(ft.pos.x, ft.pos.y);
+    glowCircle(ctx, 34, '#ff613d', alpha * 0.24);
+    ctx.fillStyle = `rgba(255,91,56,${alpha * 0.16})`;
+    ctx.beginPath(); ctx.arc(0, 0, 22, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = `rgba(255,180,70,${alpha * 0.75})`;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(0, 0, 15 + Math.sin(Date.now() * 0.02 + ft.pos.x) * 2, 0, Math.PI * 2); ctx.stroke();
+    ctx.restore();
   }
 
   // pickups
@@ -139,10 +144,13 @@ export function render(ctx: CanvasRenderingContext2D, s: GameState, canvasW: num
   for (const dn of s.damageNumbers) {
     const alpha = Math.min(1, dn.life / dn.maxLife * 1.5);
     ctx.globalAlpha = alpha;
-    ctx.fillStyle = dn.crit ? '#c4453d' : INK;
-    ctx.font = `bold ${dn.crit ? 20 : 14}px Georgia, serif`;
+    ctx.fillStyle = dn.crit ? '#ffd166' : '#e8f6ff';
+    ctx.shadowColor = dn.crit ? '#ff7a3d' : '#39d8ff';
+    ctx.shadowBlur = dn.crit ? 12 : 7;
+    ctx.font = `bold ${dn.crit ? 20 : 14}px system-ui, sans-serif`;
     ctx.textAlign = 'center';
     ctx.fillText(String(dn.value), dn.pos.x, dn.pos.y);
+    ctx.shadowBlur = 0;
   }
   ctx.globalAlpha = 1;
 
@@ -160,12 +168,18 @@ export function render(ctx: CanvasRenderingContext2D, s: GameState, canvasW: num
     const ax = canvasW / 2 + s.bossArrow.x * (canvasW / 2 - 40);
     const ay = canvasH / 2 + s.bossArrow.y * (canvasH / 2 - 40);
     ctx.save();
-    ctx.fillStyle = '#c4453d';
     ctx.translate(ax, ay);
     ctx.rotate(Math.atan2(s.bossArrow.y, s.bossArrow.x));
+    ctx.shadowColor = '#ff4d70';
+    ctx.shadowBlur = 14;
+    ctx.fillStyle = '#ff5c79';
     ctx.beginPath();
-    ctx.moveTo(15, 0); ctx.lineTo(-5, -8); ctx.lineTo(-5, 8);
+    ctx.moveTo(16, 0); ctx.lineTo(-6, -9); ctx.lineTo(-2, 0); ctx.lineTo(-6, 9);
     ctx.closePath(); ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = '#ffdbe4';
+    ctx.lineWidth = 1;
+    ctx.stroke();
     ctx.restore();
   }
 
