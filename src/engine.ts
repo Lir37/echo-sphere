@@ -1372,15 +1372,25 @@ export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
 
   // Character priority changes the probability of seeing a tower, but never removes
   // towers from the level-up system. This avoids showing the same tower every time.
-  const weightedTowers = [...availableTowers].sort(
-    (a, b) => towerPriority(s.player.characterId, b.towerType!) - towerPriority(s.player.characterId, a.towerType!),
-  );
+  if (availableTowers.length === 0) {
+    const activePool = (Object.keys(ABILITIES) as AbilityType[])
+      .filter(id => ABILITIES[id].category === 'active' && (s.player.abilities[id] || 0) < ABILITIES[id].maxLevel)
+      .sort(() => Math.random() - 0.5);
+
+    return activePool.slice(0, 3).map(id => {
+      const currentLevel = s.player.abilities[id] || 0;
+      return { type: 'ability' as const, ability: id, currentLevel, newLevel: currentLevel + 1 };
+    });
+  }
+
+  const weightedTowers = [...availableTowers];
   const totalWeight = weightedTowers.reduce(
     (sum, tower) => sum + Math.max(0.1, towerPriority(s.player.characterId, tower.towerType!)),
     0,
   );
   let roll = Math.random() * totalWeight;
-  let guaranteedTower = weightedTowers[0];
+  let guaranteedTower = weightedTowers[weightedTowers.length - 1];
+
   for (const tower of weightedTowers) {
     roll -= Math.max(0.1, towerPriority(s.player.characterId, tower.towerType!));
     if (roll <= 0) {
