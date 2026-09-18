@@ -1572,9 +1572,9 @@ function drawVoidMantis(ctx:CanvasRenderingContext2D,r:number,color:string,t:num
 function drawVoidMoth(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
  const flap=Math.sin(t*12)*.12;ctx.save();ctx.translate(0,-r*.05);drawGroundShadow(ctx,r*.65,r*.18,3);
  const body=ctx.createLinearGradient(0,-r,0,r);body.addColorStop(0,'#33445c');body.addColorStop(.5,'#0c1527');body.addColorStop(1,'#02050c');
- ctx.fillStyle=body;ctx.strokeStyle=`rgba(${{hexToRgb(color)},.7)`;ctx.lineWidth=1.2;
+ ctx.fillStyle=body;ctx.strokeStyle=`rgba(${hexToRgb(color)},.7)`;ctx.lineWidth=1.2;
  ctx.beginPath();ctx.moveTo(-r*.12,-r*.72);ctx.quadraticCurveTo(r*.18,-r*.4,r*.12,r*.62);ctx.quadraticCurveTo(0,r*.78,-r*.14,r*.62);ctx.quadraticCurveTo(-r*.22,-r*.38,-r*.12,-r*.72);ctx.fill();ctx.stroke();
- for(const side of [-1,1]){ctx.save();ctx.scale(side,1);ctx.fillStyle='rgba(24,39,62,.96)';ctx.strokeStyle=`rgba(${{hexToRgb(color)},.52)`;
+ for(const side of [-1,1]){ctx.save();ctx.scale(side,1);ctx.fillStyle='rgba(24,39,62,.96)';ctx.strokeStyle=`rgba(${hexToRgb(color)},.52)`;
    ctx.beginPath();ctx.moveTo(r*.02,-r*.18);ctx.quadraticCurveTo(r*.48,-r*.82,r*.94,-r*.62-flap*r);ctx.lineTo(r*.55,0);ctx.quadraticCurveTo(r*.78,r*.58,r*.88,r*.78+flap*r);ctx.quadraticCurveTo(r*.38,r*.58,r*.02,r*.18);ctx.closePath();ctx.fill();ctx.stroke();
    ctx.fillStyle='rgba(145,105,220,.10)';ctx.beginPath();ctx.moveTo(r*.08,-r*.12);ctx.lineTo(r*.78,-r*.55);ctx.lineTo(r*.54,-r*.02);ctx.closePath();ctx.fill();ctx.restore();}
  ctx.shadowColor=color;ctx.shadowBlur=10;ctx.fillStyle=color;ctx.beginPath();ctx.ellipse(r*.12,-r*.16,r*.055,r*.12,0,0,Math.PI*2);ctx.ellipse(r*.12,r*.16,r*.055,r*.12,0,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.restore();
