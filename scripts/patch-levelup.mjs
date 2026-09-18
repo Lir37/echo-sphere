@@ -21,10 +21,10 @@ if (!engine.includes("type: 'ability' | 'evolve' | 'tower';")) {
   type: 'ability' | 'evolve' | 'tower';
   ability?: AbilityType;
   evolution?: string;
-  towerType?: SphereType;
-  towerBranch?: import('./towerProgression').TowerEvolutionId;
-  towerFinalIndex?: number;
-  towerStage?: 'upgrade' | 'branch' | 'final';
+  sphereType?: SphereType;
+  sphereBranch?: import('./sphereProgression').SphereEvolutionId;
+  sphereFinalIndex?: number;
+  sphereStage?: 'upgrade' | 'branch' | 'final';
   name?: { ru: string; en: string };
   desc?: { ru: string; en: string };
   currentLevel: number;
@@ -32,49 +32,49 @@ if (!engine.includes("type: 'ability' | 'evolve' | 'tower';")) {
 }`,
   );
 }
-if (!engine.includes('towerBranches: Partial<Record<SphereType')) {
+if (!engine.includes('sphereBranches: Partial<Record<SphereType')) {
   engine = engine.replace(
-    '  towerProgression: Partial<Record<SphereType, number>>;',
-    "  towerProgression: Partial<Record<SphereType, number>>;\n  towerBranches: Partial<Record<SphereType, import('./towerProgression').TowerEvolutionId>>;",
+    '  sphereProgression: Partial<Record<SphereType, number>>;',
+    "  sphereProgression: Partial<Record<SphereType, number>>;\n  sphereBranches: Partial<Record<SphereType, import('./sphereProgression').SphereEvolutionId>>;",
   );
 }
-if (!engine.includes('towerBranches: {},')) {
+if (!engine.includes('sphereBranches: {},')) {
   engine = engine.replace(
-    '    towerProgression: { standard: 0, sniper: 0, shotgun: 0, chain: 0, aura: 0 },',
-    '    towerProgression: { standard: 0, sniper: 0, shotgun: 0, chain: 0, aura: 0 },\n    towerBranches: {},',
+    '    sphereProgression: { standard: 0, sniper: 0, shotgun: 0, chain: 0, aura: 0 },',
+    '    sphereProgression: { standard: 0, sniper: 0, shotgun: 0, chain: 0, aura: 0 },\n    sphereBranches: {},',
   );
 }
 
 // One unified level-up generator.
 const generator = `export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
-  const towerTypes = Object.keys(TOWER_PROGRESSION) as SphereType[];
+  const sphereTypes = Object.keys(SPHERE_PROGRESSION) as SphereType[];
 
   // Level 4: a tower at Lv.3 forces its own three branch choices.
   // Level 7: a tower at Lv.6 forces the three finals of the selected branch.
-  const milestone = towerTypes.find(type => towerLevel(s, type) === 3 || towerLevel(s, type) === 6);
+  const milestone = sphereTypes.find(type => sphereLevel(s, type) === 3 || sphereLevel(s, type) === 6);
   if (milestone) {
-    const level = towerLevel(s, milestone);
-    const def = TOWER_PROGRESSION[milestone];
+    const level = sphereLevel(s, milestone);
+    const def = SPHERE_PROGRESSION[milestone];
     if (level === 3) {
       return def.evolution4Choices.map(branch => ({
         type: 'tower' as const,
-        towerType: milestone,
-        towerBranch: branch.id,
-        towerStage: 'branch' as const,
+        sphereType: milestone,
+        sphereBranch: branch.id,
+        sphereStage: 'branch' as const,
         name: branch.name,
         desc: branch.desc,
         currentLevel: 3,
         newLevel: 4,
       }));
     }
-    const branchId = s.player.towerBranches[milestone];
+    const branchId = s.player.sphereBranches[milestone];
     const branch = def.evolution4Choices.find(x => x.id === branchId) ?? def.evolution4Choices[0];
     return branch.final.map((finalChoice, index) => ({
       type: 'tower' as const,
-      towerType: milestone,
-      towerBranch: branch.id,
-      towerFinalIndex: index,
-      towerStage: 'final' as const,
+      sphereType: milestone,
+      sphereBranch: branch.id,
+      sphereFinalIndex: index,
+      sphereStage: 'final' as const,
       name: finalChoice.name,
       desc: finalChoice.desc,
       currentLevel: 6,
@@ -94,14 +94,14 @@ const generator = `export function generateUpgradeChoices(s: GameState): Upgrade
     choices.push({ type: 'ability', ability: id, currentLevel, newLevel: currentLevel + 1 });
   }
 
-  const towerPool = towerTypes
-    .filter(type => towerLevel(s, type) < 7)
+  const towerPool = sphereTypes
+    .filter(type => sphereLevel(s, type) < 7)
     .map(type => {
-      const currentLevel = towerLevel(s, type);
+      const currentLevel = sphereLevel(s, type);
       const nextLevel = currentLevel + 1;
-      const def = TOWER_PROGRESSION[type];
+      const def = SPHERE_PROGRESSION[type];
       const levelDef = def.levels[nextLevel - 1];
-      const branchId = s.player.towerBranches[type];
+      const branchId = s.player.sphereBranches[type];
       const branch = branchId ? def.evolution4Choices.find(x => x.id === branchId) : null;
       const branchProgress = nextLevel === 5 || nextLevel === 6;
       const name = branchProgress && branch
@@ -119,9 +119,9 @@ const generator = `export function generateUpgradeChoices(s: GameState): Upgrade
         : levelDef.desc;
       return {
         type: 'tower' as const,
-        towerType: type,
-        towerBranch: branchId,
-        towerStage: 'upgrade' as const,
+        sphereType: type,
+        sphereBranch: branchId,
+        sphereStage: 'upgrade' as const,
         currentLevel,
         newLevel: nextLevel,
         name,
@@ -147,22 +147,22 @@ engine = replaceSection(engine, 'export function generateUpgradeChoices(s: GameS
 
 // Unified tower/ability application. Lv.4 stores the branch; Lv.5-6 keep it; Lv.7 stores the final specialization.
 const apply = `export function applyUpgrade(s: GameState, choice: UpgradeChoice): void {
-  if (choice.type === 'tower' && choice.towerType) {
-    const type = choice.towerType;
-    const current = towerLevel(s, type);
+  if (choice.type === 'tower' && choice.sphereType) {
+    const type = choice.sphereType;
+    const current = sphereLevel(s, type);
     if (current >= 7) return;
     const next = current + 1;
-    s.player.towerProgression[type] = next;
+    s.player.sphereProgression[type] = next;
     for (const sphere of s.spheres) if (sphere.type === type) sphere.visualTier = next;
 
-    if (choice.towerStage === 'branch' && choice.towerBranch) {
-      s.player.towerBranches[type] = choice.towerBranch;
-      s.player.evolutions.push(\`tower:\${type}:4:\${choice.towerBranch}\`);
+    if (choice.sphereStage === 'branch' && choice.sphereBranch) {
+      s.player.sphereBranches[type] = choice.sphereBranch;
+      s.player.evolutions.push(\`tower:\${type}:4:\${choice.sphereBranch}\`);
       s.evolutionsThisRun++;
-      s.flashText = { text: choice.name?.ru ?? 'Эволюция башни', life: 2.2, color: '#d4943d' };
+      s.flashText = { text: choice.name?.ru ?? 'Эволюция сферы', life: 2.2, color: '#d4943d' };
       playSound('evolve');
-    } else if (choice.towerStage === 'final') {
-      s.player.evolutions.push(\`tower:\${type}:7:\${choice.towerBranch ?? 'unknown'}:\${choice.towerFinalIndex ?? 0}\`);
+    } else if (choice.sphereStage === 'final') {
+      s.player.evolutions.push(\`tower:\${type}:7:\${choice.sphereBranch ?? 'unknown'}:\${choice.sphereFinalIndex ?? 0}\`);
       s.evolutionsThisRun++;
       s.flashText = { text: choice.name?.ru ?? 'Финальная специализация', life: 2.2, color: '#c4453d' };
       playSound('evolve');
@@ -204,35 +204,35 @@ const apply = `export function applyUpgrade(s: GameState, choice: UpgradeChoice)
 }
 
 `;
-engine = replaceSection(engine, 'export function applyUpgrade(s: GameState, choice: UpgradeChoice): void {', 'export function applyTowerUpgrade(s: GameState, choice: TowerUpgradeChoice): void {', apply);
+engine = replaceSection(engine, 'export function applyUpgrade(s: GameState, choice: UpgradeChoice): void {', 'export function applyTowerUpgrade(s: GameState, choice: SphereUpgradeChoice): void {', apply);
 
 // Legacy API stays available for any old caller, but no separate progression modal is generated anymore.
-const legacyTower = `export function applyTowerUpgrade(s: GameState, choice: TowerUpgradeChoice): void {
-  const type = (choice as TowerUpgradeChoice & { towerType?: SphereType }).towerType;
+const legacyTower = `export function applyTowerUpgrade(s: GameState, choice: SphereUpgradeChoice): void {
+  const type = (choice as SphereUpgradeChoice & { sphereType?: SphereType }).sphereType;
   if (!type) return;
-  applyUpgrade(s, { type: 'tower', towerType: type, towerStage: 'upgrade', towerBranch: s.player.towerBranches[type], currentLevel: towerLevel(s, type), newLevel: towerLevel(s, type) + 1 });
+  applyUpgrade(s, { type: 'tower', sphereType: type, sphereStage: 'upgrade', sphereBranch: s.player.sphereBranches[type], currentLevel: sphereLevel(s, type), newLevel: sphereLevel(s, type) + 1 });
 }
 `;
-engine = replaceSection(engine, 'export function applyTowerUpgrade(s: GameState, choice: TowerUpgradeChoice): void {', 'function generateTowerProgressionChoices', legacyTower);
+engine = replaceSection(engine, 'export function applyTowerUpgrade(s: GameState, choice: SphereUpgradeChoice): void {', 'function generateSphereProgressionChoices', legacyTower);
 
-engine = engine.replace('if (s.player.level > 1) s.pendingTowerUpgrade = generateTowerProgressionChoices(s);', 's.pendingTowerUpgrade = null;');
+engine = engine.replace('if (s.player.level > 1) s.pendingSphereUpgrade = generateSphereProgressionChoices(s);', 's.pendingSphereUpgrade = null;');
 
 // App: one modal for all level-up choices. Remove the old second tower modal/import.
 app = app.replace('  applyTowerUpgrade, openChest,', '  openChest,');
-app = app.replace('  type TowerUpgradeChoice, MAP_THEMES, type MapTheme,', '  MAP_THEMES, type MapTheme,');
-app = app.replace(/\n\s*\{st\.pendingTowerUpgrade && <TowerUpgradeModal[\s\S]*?\n\s*\}\}\n/, '\n');
+app = app.replace('  type SphereUpgradeChoice, MAP_THEMES, type MapTheme,', '  MAP_THEMES, type MapTheme,');
+app = app.replace(/\n\s*\{st\.pendingSphereUpgrade && <TowerUpgradeModal[\s\S]*?\n\s*\}\}\n/, '\n');
 app = app.replace(/\nfunction TowerUpgradeModal\([\s\S]*?\n\}\n\n\/\/ ===== Artifact Modal =====/, '\n// ===== Artifact Modal =====');
-app = app.replace(/\s*\|\| st\.pendingTowerUpgrade/g, '');
-app = app.replace(/\s*&& !st\.pendingTowerUpgrade/g, '');
+app = app.replace(/\s*\|\| st\.pendingSphereUpgrade/g, '');
+app = app.replace(/\s*&& !st\.pendingSphereUpgrade/g, '');
 
 const modal = `function UpgradeModal({ lang, t, st, onPick }: {
   lang: Lang; t: (k: TranslationKey) => string; st: GameState; onPick: (c: UpgradeChoice) => void;
 }) {
   const choices = st.pendingUpgrade || [];
   const first = choices[0];
-  const title = first?.towerStage === 'branch'
-    ? (lang === 'ru' ? 'Эволюция башни I' : 'Tower Evolution I')
-    : first?.towerStage === 'final'
+  const title = first?.sphereStage === 'branch'
+    ? (lang === 'ru' ? 'Эволюция сферы I' : 'Tower Evolution I')
+    : first?.sphereStage === 'final'
       ? (lang === 'ru' ? 'Финальная специализация' : 'Final Specialization')
       : t('chooseUpgrade');
 
@@ -243,11 +243,11 @@ const modal = `function UpgradeModal({ lang, t, st, onPick }: {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {choices.map((c, i) => {
             if (c.type === 'tower') {
-              const label = c.towerStage === 'branch'
-                ? (lang === 'ru' ? 'ВЕТКА БАШНИ' : 'TOWER BRANCH')
-                : c.towerStage === 'final'
+              const label = c.sphereStage === 'branch'
+                ? (lang === 'ru' ? 'ВЕТКА сферы' : 'TOWER BRANCH')
+                : c.sphereStage === 'final'
                   ? (lang === 'ru' ? 'ФИНАЛЬНАЯ СПЕЦИАЛИЗАЦИЯ' : 'FINAL SPECIALIZATION')
-                  : (lang === 'ru' ? 'УЛУЧШЕНИЕ БАШНИ' : 'TOWER UPGRADE');
+                  : (lang === 'ru' ? 'УЛУЧШЕНИЕ сферы' : 'TOWER UPGRADE');
               return (
                 <button key={i} onClick={() => onPick(c)} className="p-5 rounded-xl bg-[#e8dcc0] border border-[#5a8c4a]/30 hover:border-[#5a8c4a]/60 hover:scale-105 transition-all text-left">
                   <div className="text-[#5a8c4a] text-[10px] uppercase tracking-wider mb-1">{label}</div>
