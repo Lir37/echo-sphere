@@ -66,7 +66,7 @@ export function render(ctx: CanvasRenderingContext2D, s: GameState, canvasW: num
   }
   ctx.translate(canvasW / 2 - s.camera.x + shakeX, canvasH / 2 - s.camera.y + shakeY);
 
-  drawVoidField(ctx, s.worldWidth, s.worldHeight, theme, -s.worldWidth / 2, -s.worldHeight / 2);
+  drawVoidField(ctx, s.worldWidth, s.worldHeight, theme, -s.worldWidth / 2, -s.worldHeight / 2, s.player.pos.x, s.player.pos.y);
   drawGrid(ctx, s, canvasW, canvasH, theme);
 
   // world bounds
@@ -128,13 +128,20 @@ export function render(ctx: CanvasRenderingContext2D, s: GameState, canvasW: num
   for (const p of s.particles) {
     const alpha = p.life / p.maxLife;
     const rgb = hexToRgb(p.color);
-    ctx.fillStyle = `rgba(${rgb},${alpha * 0.9})`;
+    ctx.fillStyle = `rgba(${rgb},${alpha * 0.82})`;
     ctx.shadowColor = p.color;
-    ctx.shadowBlur = 10;
-    ctx.save(); ctx.translate(p.pos.x, p.pos.y);
-    ctx.rotate(p.pos.x * 0.01 + Date.now() * 0.003);
-    const s2 = p.size * (0.7 + alpha * 0.8);
-    ctx.fillRect(-s2, -s2, s2 * 2, s2 * 2);
+    ctx.shadowBlur = 7;
+    ctx.save();
+    ctx.translate(p.pos.x, p.pos.y);
+    const s2 = p.size * (0.55 + alpha * 0.65);
+    ctx.rotate(Math.atan2(p.vel?.y || 0, p.vel?.x || 1));
+    ctx.beginPath();
+    ctx.moveTo(s2 * 1.8, 0);
+    ctx.lineTo(0, -s2 * 0.55);
+    ctx.lineTo(-s2 * 1.2, 0);
+    ctx.lineTo(0, s2 * 0.55);
+    ctx.closePath();
+    ctx.fill();
     ctx.restore();
     ctx.shadowBlur = 0;
   }
@@ -429,9 +436,9 @@ function drawVoidAmbient(ctx: CanvasRenderingContext2D, w: number, h: number, ti
   ctx.restore();
 }
 
-function drawVoidField(ctx: CanvasRenderingContext2D, w: number, h: number, theme: Theme, ox = 0, oy = 0): void {
-  const cx = ox + w * 0.5;
-  const cy = oy + h * 0.52;
+function drawVoidField(ctx: CanvasRenderingContext2D, w: number, h: number, theme: Theme, ox = 0, oy = 0, focusX = 0, focusY = 0): void {
+  const cx = focusX;
+  const cy = focusY;
   const outer = Math.max(w, h);
   const g = ctx.createRadialGradient(cx, cy - h * 0.14, 10, cx, cy, outer * 0.78);
   g.addColorStop(0, 'rgba(41,84,142,0.18)');
@@ -454,7 +461,7 @@ function drawVoidField(ctx: CanvasRenderingContext2D, w: number, h: number, them
   ctx.restore();
 
   ctx.save();
-  ctx.translate(cx, cy+h*0.015);
+  ctx.translate(cx, cy + h * 0.015);
   ctx.scale(1,0.46);
   const arena=ctx.createRadialGradient(0,0,0,0,0,outer*0.40);
   arena.addColorStop(0,'rgba(26,63,102,0.15)');
@@ -1502,8 +1509,8 @@ function drawModernSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: S
   // The tower controls a large area, but the machine itself stays compact.
   const range = sphere.radius * (1 + (s.player.abilities.radius || 0) * 0.15)
     * (s.player.artifacts.includes('radius_shard') ? 1.1 : 1) * def.rangeMult;
-  const r = Math.max(17, Math.min(34, sphere.radius * 0.26 + tier * 1.35));
-  const h = 9 + tier * 1.8;
+  const r = Math.max(12, Math.min(23, sphere.radius * 0.18 + tier * 0.85));
+  const h = 7 + tier * 1.25;
 
   ctx.save();
   ctx.translate(sphere.pos.x, sphere.pos.y);
@@ -1666,11 +1673,11 @@ function drawModernSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: S
 
   ctx.restore();
 
-  // The combat range is projected as a faint floor ellipse.
-  ctx.strokeStyle = `rgba(${rgb},0.050)`;
-  ctx.lineWidth = 0.9;
+  // Range is shown as a subtle floor footprint, never as a giant halo around the machine.
+  ctx.strokeStyle = `rgba(${rgb},0.032)`;
+  ctx.lineWidth = 0.8;
   ctx.beginPath();
-  ctx.ellipse(0, 5, range * 1.18, range * 0.25, 0, 0, Math.PI * 2);
+  ctx.ellipse(0, 6, Math.min(range * 0.58, 150), Math.min(range * 0.13, 28), 0, 0, Math.PI * 2);
   ctx.stroke();
 
   if (def.aura) {
