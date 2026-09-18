@@ -60,8 +60,8 @@ function towerFinalIndex(s:any,type:SphereType):number|null{
   const n=Number(id.split(':').pop());
   return Number.isFinite(n)?n:null;
 }
-export function towerModifiers(s:any,type:SphereType){
-  const l=towerLevel(s,type), branch=s.player.towerBranches?.[type], final=towerFinalIndex(s,type), artifact=getTowerArtifactModifiers(s,type);
+export function towerModifiers(s:any,type:SphereType,sphere?:any){
+  const l=towerLevel(s,type), branch=s.player.towerBranches?.[type], final=towerFinalIndex(s,type), artifact=getTowerArtifactModifiers(s,type,sphere);
   let damage=1+l*.08+(l>=4?.12:0)+(l>=7?.18:0), radius=1+(l>=2?.05:0)+(l>=5?.06:0)+(l>=7?.08:0), delay=Math.max(.48,1-l*.045);
   let pierce=l>=2?1:0, multishot=type==='shotgun'&&l>=1?1:0, chainTargets=type==='chain'?Math.max(1,l+1):0, auraRadius=l>=2?1.08:1, auraPulse=l>=4?.75:.5;
   if(type==='standard'&&branch==='standard_resonator'){damage*=1.08;if(final===0)radius*=1.12;}
