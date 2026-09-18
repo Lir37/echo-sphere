@@ -130,6 +130,19 @@ function Menu({ lang, setLang, t, difficulty, setDifficulty, soundOn, setSoundOn
           </div>
         </div>
 
+        <div className="mt-5 es-panel-kicker">{lang === 'ru' ? 'Персонажи' : 'Characters'}</div>
+        <div className="es-character-roster mt-2">
+          {Object.values(CHARACTER_DEFS).map((character) => {
+            const active = character.id === selectedCharacter.id;
+            return (
+              <button key={character.id} onClick={onCharacters} className={"es-roster-item " + (active ? "is-active" : "")} title={character.name[lang]}>
+                <span className="es-roster-orb" style={{ color: character.color }}>✦</span>
+                <span>{character.name[lang]}</span>
+              </button>
+            );
+          })}
+        </div>
+
         <div className="mt-5 es-panel-kicker">{lang === 'ru' ? 'Параметры забега' : 'Run parameters'}</div>
         <div className="es-menu-stack mt-2">
           <label className="es-menu-item">
@@ -200,6 +213,17 @@ function Menu({ lang, setLang, t, difficulty, setDifficulty, soundOn, setSoundOn
               </div>
             );
           })}
+        </div>
+        <div className="mt-4">
+          <div className="es-panel-kicker">{lang === 'ru' ? 'Эволюция сфер' : 'Sphere evolution'}</div>
+          <div className="es-evolution-strip mt-2">
+            {[1,2,3,4,5,6,7].map((level) => (
+              <div key={level} className={"es-evolution-node " + (level === 4 ? "is-branch" : level === 7 ? "is-final" : "")}>
+                <span className="es-evolution-orb" />
+                <span>{['I','II','III','IV','V','VI','VII'][level - 1]}</span>
+              </div>
+            ))}
+          </div>
         </div>
         <div className="mt-4 rounded-lg border border-[#60d8ff]/16 bg-[#061422]/70 px-3 py-2">
           <div className="es-panel-kicker">{lang === 'ru' ? 'Текущая идея' : 'Current doctrine'}</div>
@@ -880,7 +904,7 @@ function ShopScreen({ lang, t, shop, setShop, onBack }: {
 function LeaderboardScreen({ lang, t, onBack }: { lang: Lang; t: (k: TranslationKey) => string; onBack: () => void }) {
   const [entries] = useState<LeaderEntry[]>(() => loadLeaderboard());
   return (
-    <div className="w-full max-w-2xl mx-auto px-6 py-8 overflow-y-auto max-h-screen">
+    <div className="es-list-screen w-full max-w-2xl mx-auto px-6 py-8 overflow-y-auto max-h-screen">
       <div className="flex items-center justify-between mb-6">
         <button onClick={onBack} className="flex items-center gap-2 text-[#7f9bb8] hover:text-[#dcecff] transition"><ArrowLeft size={20} /> {t('back')}</button>
       </div>
