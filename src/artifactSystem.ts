@@ -153,7 +153,11 @@ export function getArtifactSphereRadiusMultiplier(s: any): number { return Math.
 export function getArtifactSphereDamageMultiplier(s: any): number { return Math.max(0.25, 1 + effectSum(s, 'sphereDamage')); }
 export function getArtifactCooldownMultiplier(s: any): number { return Math.max(0.55, 1 + effectSum(s, 'cooldown')); }
 export function getArtifactSphereDelayMultiplier(s: any): number { return Math.max(0.5, 1 + effectSum(s, 'towerDelay')); }
-export function getArtifactDamageTakenMultiplier(s: any): number {\n  let multiplier = Math.max(0.45, 1 - effectSum(s, 'damageTakenReduction'));\n  if (getActiveArtifactSynergies(s).some((x) => x.id === 'glass_cannon')) multiplier *= 1.05;\n  return multiplier;\n}
+export function getArtifactDamageTakenMultiplier(s: any): number {
+  let multiplier = Math.max(0.45, 1 - effectSum(s, 'damageTakenReduction'));
+  if (getActiveArtifactSynergies(s).some((x) => x.id === 'glass_cannon')) multiplier *= 1.05;
+  return multiplier;
+}
 export function getArtifactCritChanceBonus(s: any): number { return effectSum(s, 'critChance'); }
 export function getArtifactDodgeChanceBonus(s: any): number { return effectSum(s, 'dodgeChance'); }
 export function getArtifactVampireBonus(s: any): number { return effectSum(s, 'vampire'); }
@@ -205,7 +209,14 @@ export function getTowerArtifactModifiers(s: any, type: string, sphere?: any): {
   if (hasArtifact(s, 'relay_matrix') && Object.values(s.player.towerProgression || {}).some((level: any) => level >= 7)) damage *= 1.10;
   if (hasArtifact(s, 'singularity_engine') && unique <= 2) damage *= 1.18;
   if (hasArtifact(s, 'mirror_network') && unique >= 2) damage *= 1.12;
-  if (hasArtifact(s, 'overclock')) { damage *= 0.99; delay *= 0.88; }\n\n  if (synergies.some((x) => x.id === 'unified_core') && sphere) {\n    const levels = Object.values(s.player.towerProgression || {}) as number[];\n    const strongest = Math.max(0, ...levels);\n    const sphereLevel = Number(s.player.towerProgression?.[sphere.type] || 0);\n    if (sphereLevel < strongest) damage *= 1 + strongest * 0.05;\n  }
+  if (hasArtifact(s, 'overclock')) { damage *= 0.99; delay *= 0.88; }
+
+  if (synergies.some((x) => x.id === 'unified_core') && sphere) {
+    const levels = Object.values(s.player.towerProgression || {}) as number[];
+    const strongest = Math.max(0, ...levels);
+    const sphereLevel = Number(s.player.towerProgression?.[sphere.type] || 0);
+    if (sphereLevel < strongest) damage *= 1 + strongest * 0.05;
+  }
   return { damage, delay, radius };
 }
 
