@@ -1439,14 +1439,16 @@ export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
     let name=levelDef?.name??ABILITIES[id].name;
     let desc=levelDef?.desc??{ru:ABILITIES[id].desc.ru(nextLevel),en:ABILITIES[id].desc.en(nextLevel)};
 
-    if(nextLevel===4){
-      name={ru:'Мутация I: '+(progression?.ability===id?'Выбери ветку '+ABILITIES[id].name.ru:ABILITIES[id].name.ru),en:'Mutation I: '+ABILITIES[id].name.en};
+    if(nextLevel<=3){
+      name={ru:ABILITIES[id].name.ru+' — уровень '+nextLevel,en:ABILITIES[id].name.en+' — level '+nextLevel};
+    } else if(nextLevel===4){
+      name={ru:ABILITIES[id].name.ru+' — уровень IV: Мутация I',en:ABILITIES[id].name.en+' — level IV: Mutation I'};
       desc={
         ru:'Повышает способность до IV уровня. После выбора откроется отдельное окно с 3 ветками мутации.',
         en:'Raises the ability to level IV. After this choice, a separate window opens with 3 mutation branches.',
       };
     } else if(nextLevel===7){
-      name={ru:'Мутация II: '+ABILITIES[id].name.ru,en:'Mutation II: '+ABILITIES[id].name.en};
+      name={ru:ABILITIES[id].name.ru+' — уровень VII: Мутация II',en:ABILITIES[id].name.en+' — level VII: Mutation II'};
       desc={
         ru:'Повышает способность до VII уровня. После этого откроется отдельное окно с 3 финальными формами.',
         en:'Raises the ability to level VII. After this choice, a separate window opens with 3 final forms.',
