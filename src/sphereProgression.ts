@@ -373,6 +373,7 @@ export function sphereModifiers(s:any,type:SphereType,sphere?:any){
   if(type==='chain'){
     if(l>=1) chainTargets+=1;
     if(l>=2) damage*=1.10;
+    if(l>=3) delay*=0.85;
   }
   if(type==='aura'){
     if(l>=1) auraRadius*=1.20;
