@@ -192,9 +192,11 @@ function formsTriangle(s: any, sphere: any): boolean {
 }
 
 export function getSphereArtifactModifiers(s: any, type: string, sphere?: any): { damage: number; delay: number; radius: number } {
-  let damage = 1 + effectSum(s, 'sphereDamage');
-  let delay = Math.max(0.55, 1 + effectSum(s, 'sphereDelay'));
-  let radius = Math.max(0.6, 1 + effectSum(s, 'sphereRadius'));
+  // Global sphere stats are applied once in engine.ts. This helper contains
+  // only type-specific artifact modifiers and interaction/synergy effects.
+  let damage = 1;
+  let delay = 1;
+  let radius = 1;
   const effects: keyof ArtifactEffects = `${type}Damage` as keyof ArtifactEffects;
   const radiusEffect: keyof ArtifactEffects = `${type}Radius` as keyof ArtifactEffects;
   damage *= 1 + effectSum(s, effects);
@@ -213,7 +215,7 @@ export function getSphereArtifactModifiers(s: any, type: string, sphere?: any): 
   if (hasArtifact(s, 'relay_matrix') && Object.values(s.player.sphereProgression || {}).some((level: any) => level >= 7)) damage *= 1.10;
   if (hasArtifact(s, 'singularity_engine') && unique <= 2) damage *= 1.18;
   if (hasArtifact(s, 'mirror_network') && unique >= 2) damage *= 1.12;
-  if (hasArtifact(s, 'overclock')) { damage *= 0.99; delay *= 0.88; }
+
 
   if (synergies.some((x) => x.id === 'unified_core') && sphere) {
     const levels = Object.values(s.player.sphereProgression || {}) as number[];
