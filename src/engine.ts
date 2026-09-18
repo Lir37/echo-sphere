@@ -511,7 +511,7 @@ export function getSphereDamage(s: GameState, sphere: SphereEntity): number {
   }
   d *= getArtifactSphereDamageMultiplier(s);
   d *= getSphereArtifactDamageMultiplier(s, sphere);
-  d *= towerModifiers(s, sphere.type).damage;
+  d *= towerModifiers(s, sphere.type, sphere).damage;
   return d;
 }
 
