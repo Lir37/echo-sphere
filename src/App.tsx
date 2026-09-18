@@ -389,15 +389,15 @@ function UpgradeModal({ lang, t, st, onPick }: {
   lang: Lang; t: (k: TranslationKey) => string; st: GameState; onPick: (c: UpgradeChoice) => void;
 }) {
   const choices = st.pendingUpgrade || []; const first = choices[0];
-  const title = first?.sphereStage === 'branch' ? (lang === 'ru' ? 'Эволюция сферы I' : 'Tower Evolution I') : first?.sphereStage === 'final' ? (lang === 'ru' ? 'Финальная специализация' : 'Final Specialization') : t('chooseUpgrade');
+  const title = first?.sphereStage === 'branch' ? (lang === 'ru' ? 'Эволюция сферы I' : 'Sphere Evolution I') : first?.sphereStage === 'final' ? (lang === 'ru' ? 'Финальная специализация' : 'Final Specialization') : t('chooseUpgrade');
   return (
     <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-50">
       <div className="max-w-2xl w-full px-6">
         <h2 className="text-2xl font-bold text-center mb-6 text-[#4a7a8a]">{title}</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {choices.map((c, i) => {
-            if (c.type === 'tower') {
-              const label = c.sphereStage === 'branch' ? (lang === 'ru' ? 'ВЕТКА сферы' : 'TOWER BRANCH') : c.sphereStage === 'final' ? (lang === 'ru' ? 'ФИНАЛЬНАЯ СПЕЦИАЛИЗАЦИЯ' : 'FINAL SPECIALIZATION') : (lang === 'ru' ? 'УЛУЧШЕНИЕ сферы' : 'TOWER UPGRADE');
+            if (c.type === 'sphere') {
+              const label = c.sphereStage === 'branch' ? (lang === 'ru' ? 'ВЕТКА сферы' : 'SPHERE BRANCH') : c.sphereStage === 'final' ? (lang === 'ru' ? 'ФИНАЛЬНАЯ СПЕЦИАЛИЗАЦИЯ' : 'FINAL SPECIALIZATION') : (lang === 'ru' ? 'УЛУЧШЕНИЕ сферы' : 'SPHERE UPGRADE');
               return <button key={i} onClick={() => onPick(c)} className="p-5 rounded-xl bg-[#e8dcc0] border border-[#5a8c4a]/30 hover:border-[#5a8c4a]/60 hover:scale-105 transition-all text-left"><div className="text-[#5a8c4a] text-[10px] uppercase tracking-wider mb-1">{label}</div><div className="font-bold text-lg mb-2">{c.name?.[lang] || 'Tower'}</div><div className="text-sm text-[#5a4a32] mb-2">{c.desc?.[lang] || ''}</div><div className="text-xs text-[#8a7a5a]/70">{t('level')} {c.currentLevel} → {c.newLevel}</div></button>;
             }
             if (c.type === 'evolve' && c.evolution) { const evo = EVOLUTION_MAP[c.evolution]; return <button key={i} onClick={() => onPick(c)} className="p-5 rounded-xl bg-[#e8dcc0] border border-[#d4943d]/40 hover:border-[#d4943d]/60 hover:scale-105 transition-all text-left"><div className="text-[#d4943d] text-xs uppercase mb-1">{t('evolution')}</div><div className="font-bold text-lg mb-2">{evo.name[lang]}</div><div className="text-sm text-[#5a4a32]">{evo.desc[lang]}</div></button>; }
@@ -453,7 +453,7 @@ function ArtifactModal({ lang, t, st, choices, onPick }: {
               swift: { ru: 'Темп', en: 'Tempo' },
               mirror: { ru: 'Контратака', en: 'Counter' },
               resonance: { ru: 'Связь сфер', en: 'Tower Link' },
-              lone: { ru: 'Одинокая сфера', en: 'Solo Tower' },
+              lone: { ru: 'Одинокая сфера', en: 'Solo Sphere' },
               fivefold: { ru: 'Сеть', en: 'Network' },
               relay: { ru: 'Прогрессия', en: 'Progression' },
               triangle: { ru: 'Геометрия', en: 'Geometry' },
