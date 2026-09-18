@@ -9,7 +9,6 @@ import {
 import {
   createInitialState, update,
   generateUpgradeChoices, applyUpgrade, applyArtifact,
-  openChest,
   getMaxSpheres, getMoveSpeed, getSphereRadius, getSphereDamage, getSphereDelay,
   getCritChance, getDodgeChance, getVampirePercent,
   type GameState, type ShopState, type LeaderEntry, type UpgradeChoice,
