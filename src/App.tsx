@@ -16,7 +16,7 @@ import {
   MAP_THEMES, type MapTheme,
 } from './engine';
 import { render } from './renderer';
-import { ARTIFACT_META, RARITY_LABELS, artifactRarity } from './artifactSystem';
+import { ARTIFACT_META, RARITY_LABELS, artifactRarity, getActiveArtifactSynergies } from './artifactSystem';
 import { resolveSpaceCollisions } from './spaceCollision';
 import {
   loadShop, saveShop, loadLeaderboard, addLeaderEntry, loadLang, saveLang,
@@ -300,6 +300,21 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
                           </div>
                         );
                       })}
+                    </div>
+                  </div>
+                )}
+                {getActiveArtifactSynergies(st).length > 0 && (
+                  <div className="mb-6 bg-[#e8dcc0] border border-[#8064a8]/40 rounded-xl p-4 text-left">
+                    <div className="text-xs text-[#8064a8] uppercase tracking-wider mb-2">
+                      {lang === 'ru' ? 'Активные синергии' : 'Active Synergies'}
+                    </div>
+                    <div className="space-y-2">
+                      {getActiveArtifactSynergies(st).map((synergy) => (
+                        <div key={synergy.id} className="rounded-lg bg-[#8064a8]/10 border border-[#8064a8]/20 p-2">
+                          <div className="text-sm font-bold text-[#8064a8]">{synergy.name[lang]}</div>
+                          <div className="text-xs text-[#5a4a32] mt-0.5">{synergy.desc[lang]}</div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )}
