@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Settings, Store, Trophy, Play, Globe, ArrowLeft, RotateCcw, Award, Volume2, VolumeX, UserRound } from 'lucide-react';
+import { Settings, Store, Trophy, Play, Globe, ArrowLeft, RotateCcw, Award, Volume2, VolumeX, UserRound, BarChart3, Sparkles, Package, Network, X } from 'lucide-react';
 import { translations, type Lang, type TranslationKey } from './i18n';
 import {
   ABILITIES, ARTIFACTS, ARTIFACT_MAP, SHOP_UPGRADES, shopCost,
@@ -15,7 +15,7 @@ import {
   MAP_THEMES, type MapTheme,
 } from './engine';
 import { render } from './renderer';
-import { ARTIFACT_META, RARITY_LABELS, artifactRarity, getActiveArtifactSynergies, getArtifactSynergiesAfterPick } from './artifactSystem';
+import { ARTIFACT_META, RARITY_LABELS, artifactRarity, getActiveArtifactSynergies, getArtifactSynergiesAfterPick, ARTIFACT_SYNERGIES } from './artifactSystem';
 import { resolveSpaceCollisions } from './spaceCollision';
 import {
   loadShop, saveShop, loadLeaderboard, addLeaderEntry, loadLang, saveLang,
@@ -26,6 +26,11 @@ import {
 import { playSound, setAudioEnabled } from './audio';
 import MobileControls from './MobileControls';
 import CharacterSelect from './CharacterSelect';
+import { CHARACTER_DEFS } from './characters';
+import {
+  ABILITY_PROGRESSION, SPHERE_PROGRESSION, getAbilityDisplayName, getAbilityDisplayDesc,
+  getAbilityEvolutionChoice, sphereLevel, sphereModifiers, getActiveSphereAbilitySynergies,
+} from './sphereProgression';
 
 type Screen = 'menu' | 'game' | 'shop' | 'leaderboard' | 'settings' | 'achievements' | 'characters';
 
@@ -189,6 +194,7 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
   const [, forceRender] = useState(0);
   const [gameOverData, setGameOverData] = useState<{ time: number; wave: number; gold: number; rank: number; isNewRecord: boolean } | null>(null);
   const [paused, setPaused] = useState(false);
+  const [pauseTab, setPauseTab] = useState<PauseTab>('stats');
 
   useEffect(() => {
     const name = loadName() || translations[lang].namePlaceholder;
@@ -282,44 +288,15 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
           {st.pendingUpgrade && <UpgradeModal lang={lang} t={t} st={st} onPick={(c) => { applyUpgrade(st, c); }} />}
           {st.pendingArtifact && <ArtifactModal lang={lang} t={t} st={st} choices={st.pendingArtifact} onPick={(id) => { applyArtifact(st, id); st.pendingArtifact = null; }} />}
           {paused && !st.pendingUpgrade && !st.pendingArtifact && (
-            <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-50">
-              <div className="text-center max-w-md w-full px-6">
-                <h2 className="text-3xl font-bold mb-4">{t('pauseTitle')}</h2>
-                {st.player.artifacts.length > 0 && (
-                  <div className="mb-6 bg-[#e8dcc0] border border-[#c4b890] rounded-xl p-4 text-left">
-                    <div className="text-xs text-[#8a7a5a] uppercase tracking-wider mb-2">{t('artifacts')}</div>
-                    <div className="flex flex-wrap gap-2">
-                      {st.player.artifacts.map((id) => {
-                        const a = ARTIFACT_MAP[id];
-                        return (
-                          <div key={id} className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-[#d4943d]/10 border border-[#d4943d]/20">
-                            <span className="text-[#d4943d]">✦</span>
-                            <span className="text-xs font-medium text-[#3a2e1f]">{a.name[lang]}</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-                {getActiveArtifactSynergies(st).length > 0 && (
-                  <div className="mb-6 bg-[#e8dcc0] border border-[#8064a8]/40 rounded-xl p-4 text-left">
-                    <div className="text-xs text-[#8064a8] uppercase tracking-wider mb-2">
-                      {lang === 'ru' ? 'Активные синергии' : 'Active Synergies'}
-                    </div>
-                    <div className="space-y-2">
-                      {getActiveArtifactSynergies(st).map((synergy) => (
-                        <div key={synergy.id} className="rounded-lg bg-[#8064a8]/10 border border-[#8064a8]/20 p-2">
-                          <div className="text-sm font-bold text-[#8064a8]">{synergy.name[lang]}</div>
-                          <div className="text-xs text-[#5a4a32] mt-0.5">{synergy.desc[lang]}</div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                <button onClick={() => { setPaused(false); st.paused = false; }} className="px-6 py-3 rounded-xl bg-[#4a7a8a] border border-[#3a6a7a] text-white font-bold hover:bg-[#5a8a9a] transition mb-3 block w-48 mx-auto">{t('resume')}</button>
-                <button onClick={onExit} className="px-6 py-3 rounded-xl bg-[#e8dcc0] border border-[#c4b890] text-[#5a4a32] hover:bg-[#e0d4b8] transition block w-48 mx-auto">{t('return')}</button>
-              </div>
-            </div>
+            <PausePlanner
+              lang={lang}
+              t={t}
+              st={st}
+              tab={pauseTab}
+              setTab={setPauseTab}
+              onResume={() => { setPaused(false); st.paused = false; }}
+              onExit={onExit}
+            />
           )}
         </>
       )}
@@ -345,6 +322,259 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
 
 function Row({ label, value }: { label: string; value: string }) {
   return <div className="flex justify-between"><span className="text-[#8a7a5a]">{label}</span><span className="font-medium">{value}</span></div>;
+}
+
+type PauseTab = 'stats' | 'skills' | 'artifacts' | 'synergies';
+
+function PausePlanner({ lang, t, st, tab, setTab, onResume, onExit }: {
+  lang: Lang;
+  t: (k: TranslationKey) => string;
+  st: GameState;
+  tab: PauseTab;
+  setTab: (tab: PauseTab) => void;
+  onResume: () => void;
+  onExit: () => void;
+}) {
+  const character = CHARACTER_DEFS[st.player.characterId];
+  const activeAbilities = (Object.keys(ABILITIES) as AbilityType[]).filter((id) => ABILITIES[id].category === 'active');
+  const acquiredAbilities = (Object.keys(ABILITIES) as AbilityType[]).filter((id) => (st.player.abilities[id] || 0) > 0);
+
+  const tabDefs: Array<{ id: PauseTab; label: string; icon: React.ReactNode }> = [
+    { id: 'stats', label: lang === 'ru' ? 'Статы' : 'Stats', icon: <BarChart3 size={15} /> },
+    { id: 'skills', label: lang === 'ru' ? 'Скиллы' : 'Skills', icon: <Sparkles size={15} /> },
+    { id: 'artifacts', label: lang === 'ru' ? 'Артефакты' : 'Artifacts', icon: <Package size={15} /> },
+    { id: 'synergies', label: lang === 'ru' ? 'Синергии' : 'Synergies', icon: <Network size={15} /> },
+  ];
+
+  return (
+    <div className="absolute inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center z-50 p-3">
+      <div className="w-full max-w-3xl max-h-[92vh] rounded-2xl bg-[#f4ecd8] border border-[#c4b890] shadow-2xl overflow-hidden flex flex-col">
+        <div className="px-4 pt-4 pb-3 border-b border-[#c4b890] shrink-0">
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <div className="text-[10px] uppercase tracking-[0.2em] text-[#8a7a5a]">{lang === 'ru' ? 'Билд забега' : 'Run Build'}</div>
+              <div className="text-xl font-bold truncate">{t('pauseTitle')} · {character.name[lang]}</div>
+              <div className="text-xs text-[#8a7a5a] mt-0.5">{character.role[lang]} · {lang === 'ru' ? 'уровень' : 'level'} {st.player.level} · Wave {st.wave}</div>
+            </div>
+            <button onClick={onResume} className="w-9 h-9 rounded-full bg-[#e8dcc0] border border-[#c4b890] flex items-center justify-center" aria-label={t('resume')}><X size={18} /></button>
+          </div>
+          <div className="grid grid-cols-4 gap-1.5 mt-3">
+            {tabDefs.map((item) => (
+              <button key={item.id} onClick={() => setTab(item.id)} className={`flex items-center justify-center gap-1 px-2 py-2 rounded-lg border text-[10px] font-bold transition ${tab === item.id ? 'bg-[#4a7a8a]/15 border-[#4a7a8a]/50 text-[#3a2e1f]' : 'bg-[#e8dcc0] border-[#c4b890] text-[#8a7a5a]'}`}>
+                {item.icon}{item.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="overflow-y-auto px-4 py-4 min-h-0">
+          {tab === 'stats' && (
+            <div className="space-y-4">
+              <section>
+                <SectionTitle>{lang === 'ru' ? 'Персонаж' : 'Character'}</SectionTitle>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  <StatBox label="HP" value={`${Math.ceil(st.player.hp)} / ${Math.ceil(st.player.maxHp)}`} />
+                  <StatBox label={lang === 'ru' ? 'Скорость' : 'Speed'} value={`${Math.round(getMoveSpeed(st))}`} />
+                  <StatBox label={lang === 'ru' ? 'Крит' : 'Crit'} value={`${Math.round(getCritChance(st) * 100)}%`} />
+                  <StatBox label={lang === 'ru' ? 'Уклонение' : 'Dodge'} value={`${Math.round(getDodgeChance(st) * 100)}%`} />
+                  <StatBox label={lang === 'ru' ? 'Вампиризм' : 'Lifesteal'} value={`${Math.round(getVampirePercent(st) * 100)}%`} />
+                  <StatBox label={lang === 'ru' ? 'Сфер' : 'Spheres'} value={`${st.spheres.length} / ${getMaxSpheres(st)}`} />
+                  <StatBox label={lang === 'ru' ? 'Убийства' : 'Kills'} value={`${st.player.kills}`} />
+                  <StatBox label={lang === 'ru' ? 'Множитель XP' : 'XP Mult'} value={`${Math.round((getXpPlannerMult(st)) * 100)}%`} />
+                </div>
+              </section>
+
+              <section>
+                <SectionTitle>{lang === 'ru' ? 'Сферы' : 'Spheres'}</SectionTitle>
+                <div className="space-y-2">
+                  {(['standard','sniper','shotgun','chain','aura'] as const).map((type) => {
+                    const def = SPHERE_TYPES[type];
+                    const lvl = sphereLevel(st, type);
+                    const placed = st.spheres.filter((sphere) => sphere.type === type && sphere.alive);
+                    const live = placed[0];
+                    const mods = sphereModifiers(st, type, live);
+                    const branch = st.player.sphereBranches[type];
+                    const finalChoice = branch ? SPHERE_PROGRESSION[type].evolution4Choices.find((x) => x.id === branch)?.final[
+                      Number((st.player.evolutions.find((x) => x.startsWith('sphere:' + type + ':7:')) || '').split(':').pop())
+                    ] : null;
+                    return (
+                      <div key={type} className="rounded-xl bg-[#e8dcc0] border border-[#c4b890] p-3">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="w-3 h-3 rounded-full border-2" style={{ borderColor: def.color }} />
+                            <span className="font-bold truncate">{def.name[lang]}</span>
+                            <span className="text-[10px] text-[#8a7a5a]">{lang === 'ru' ? 'ур.' : 'lvl'} {lvl}</span>
+                          </div>
+                          <span className={`text-[10px] font-bold px-2 py-1 rounded-md ${placed.length ? 'bg-[#5a8c4a]/15 text-[#5a8c4a]' : 'bg-black/5 text-[#8a7a5a]'}`}>{placed.length ? (lang === 'ru' ? `на поле ×${placed.length}` : `field ×${placed.length}`) : (lang === 'ru' ? 'не установлена' : 'not placed')}</span>
+                        </div>
+                        {live ? (
+                          <div className="grid grid-cols-3 gap-2 mt-2 text-[10px]">
+                            <MiniStat label={lang === 'ru' ? 'урон' : 'damage'} value={live.type === 'aura' ? `${Math.round(getSphereDamage(st, live))}/имп.` : `${Math.round(getSphereDamage(st, live))}`} />
+                            <MiniStat label={lang === 'ru' ? 'интервал' : 'delay'} value={`${getSphereDelay(st, live).toFixed(2)}с`} />
+                            <MiniStat label={lang === 'ru' ? 'дальность' : 'range'} value={`${Math.round(getSphereRadius(st, live))}`} />
+                          </div>
+                        ) : (
+                          <div className="text-[10px] text-[#8a7a5a] mt-2">{lang === 'ru' ? def.desc[lang] : def.desc[lang]}</div>
+                        )}
+                        {branch && (
+                          <div className="mt-2 text-[10px]">
+                            <span className="text-[#8064a8] font-bold">{lang === 'ru' ? 'Ветка:' : 'Branch:'}</span> {SPHERE_PROGRESSION[type].evolution4Choices.find((x) => x.id === branch)?.name[lang]}
+                            {finalChoice && <> <span className="text-[#c46d3d] font-bold ml-1">{lang === 'ru' ? '→' : '→'}</span> <span className="text-[#c46d3d] font-bold">{finalChoice.name[lang]}</span></>}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+            </div>
+          )}
+
+          {tab === 'skills' && (
+            <div className="space-y-3">
+              <SectionTitle>{lang === 'ru' ? 'Активные способности' : 'Active abilities'}</SectionTitle>
+              {activeAbilities.map((id) => {
+                const level = st.player.abilities[id] || 0;
+                const def = ABILITIES[id];
+                const progression = ABILITY_PROGRESSION[id];
+                const branch = getAbilityEvolutionChoice(st, id, 4);
+                const final = getAbilityEvolutionChoice(st, id, 7);
+                return (
+                  <div key={id} className={`rounded-xl bg-[#e8dcc0] border p-3 ${level ? 'border-[#4a7a8a]/30' : 'border-[#c4b890] opacity-75'}`}>
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="font-bold text-sm">{level ? getAbilityDisplayName(st, id, lang) : def.name[lang]}</div>
+                      <span className="text-[10px] font-bold text-[#4a7a8a]">{level}/7</span>
+                    </div>
+                    <div className="text-[10px] text-[#8a7a5a] mt-1">{level ? getAbilityDisplayDesc(st, id, lang) : def.desc[lang](1)}</div>
+                    {progression && (
+                      <div className="mt-2 space-y-1.5 text-[10px]">
+                        <div><span className="font-bold text-[#8064a8]">{lang === 'ru' ? 'IV:' : 'IV:'}</span> {branch ? branch.name[lang] : progression.evolution4.map((x) => x.name[lang]).join(' · ')}</div>
+                        <div><span className="font-bold text-[#c46d3d]">{lang === 'ru' ? 'VII:' : 'VII:'}</span> {final ? final.name[lang] : progression.evolution7.map((x) => x.name[lang]).join(' · ')}</div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+
+              {acquiredAbilities.some((id) => ABILITIES[id].category === 'passive') && (
+                <section className="pt-2">
+                  <SectionTitle>{lang === 'ru' ? 'Пассивные' : 'Passive'}</SectionTitle>
+                  <div className="space-y-2">
+                    {acquiredAbilities.filter((id) => ABILITIES[id].category === 'passive').map((id) => (
+                      <div key={id} className="rounded-lg bg-[#e8dcc0] border border-[#c4b890] p-3 text-xs">
+                        <div className="flex justify-between font-bold"><span>{abilityName(id, lang)}</span><span>{st.player.abilities[id]}/7</span></div>
+                        <div className="text-[10px] text-[#8a7a5a] mt-1">{ABILITIES[id].desc[lang](st.player.abilities[id] || 1)}</div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+            </div>
+          )}
+
+          {tab === 'artifacts' && (
+            <div className="space-y-3">
+              <SectionTitle>{lang === 'ru' ? `Собрано: ${st.player.artifacts.length}` : `Owned: ${st.player.artifacts.length}`}</SectionTitle>
+              {st.player.artifacts.length === 0 ? (
+                <div className="rounded-xl bg-[#e8dcc0] border border-[#c4b890] p-5 text-center text-sm text-[#8a7a5a]">{lang === 'ru' ? 'Артефактов пока нет.' : 'No artifacts yet.'}</div>
+              ) : st.player.artifacts.map((id) => {
+                const rarity = artifactRarity(id);
+                return (
+                  <div key={id} className="rounded-xl bg-[#e8dcc0] border-2 p-3" style={{ borderColor: rarity === 'legendary' ? '#d4943d' : rarity === 'special' ? '#c46d3d' : rarity === 'epic' ? '#8064a8' : rarity === 'rare' ? '#4a7a8a' : '#c4b890' }}>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-bold text-sm">{ARTIFACT_MAP[id].name[lang]}</span>
+                      <span className="text-[9px] uppercase tracking-wider text-[#8a7a5a]">{RARITY_LABELS[rarity][lang]}</span>
+                    </div>
+                    <div className="text-[10px] text-[#5a4a32] mt-1">{ARTIFACT_MAP[id].desc[lang]}</div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {tab === 'synergies' && (
+            <div className="space-y-4">
+              <section>
+                <SectionTitle>{lang === 'ru' ? 'Персонаж + сфера + способность' : 'Character + sphere + ability'}</SectionTitle>
+                <div className="space-y-2">
+                  {SPHERE_ABILITY_SYNERGIES.filter((link) => link.character === st.player.characterId).map((link) => {
+                    const sphereOk = sphereLevel(st, link.sphere) >= 7;
+                    const abilityOk = (st.player.abilities[link.ability] || 0) >= 7;
+                    const active = sphereOk && abilityOk;
+                    return (
+                      <div key={link.name.ru} className={`rounded-xl border p-3 ${active ? 'bg-[#8064a8]/10 border-[#8064a8]/40' : 'bg-[#e8dcc0] border-[#c4b890]'}`}>
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="font-bold text-sm">{link.name[lang]}</span>
+                          <span className={`text-[9px] uppercase font-bold ${active ? 'text-[#8064a8]' : 'text-[#8a7a5a]'}`}>{active ? (lang === 'ru' ? 'АКТИВНА' : 'ACTIVE') : (lang === 'ru' ? 'ЦЕЛЬ' : 'TARGET')}</span>
+                        </div>
+                        <div className="text-[10px] text-[#5a4a32] mt-1">{link.desc[lang]}</div>
+                        <div className="text-[10px] text-[#8a7a5a] mt-1">
+                          {SPHERE_TYPES[link.sphere].name[lang]} VII {sphereOk ? '✓' : '•'} · {ABILITIES[link.ability].name[lang]} VII {abilityOk ? '✓' : '•'}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+              <section>
+                <SectionTitle>{lang === 'ru' ? 'Синергии артефактов' : 'Artifact synergies'}</SectionTitle>
+                <div className="space-y-2">
+                  {ARTIFACT_SYNERGIES.map((synergy) => {
+                    const owned = synergy.requires.filter((id) => st.player.artifacts.includes(id)).length;
+                    const active = owned === synergy.requires.length;
+                    return (
+                      <div key={synergy.id} className={`rounded-xl border p-3 ${active ? 'bg-[#8064a8]/10 border-[#8064a8]/40' : 'bg-[#e8dcc0] border-[#c4b890]'}`}>
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="font-bold text-sm">{synergy.name[lang]}</span>
+                          <span className={`text-[9px] font-bold ${active ? 'text-[#8064a8]' : 'text-[#8a7a5a]'}`}>{owned}/{synergy.requires.length}</span>
+                        </div>
+                        <div className="text-[10px] text-[#5a4a32] mt-1">{synergy.desc[lang]}</div>
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {synergy.requires.map((id) => (
+                            <span key={id} className={`px-1.5 py-1 rounded-md text-[9px] border ${st.player.artifacts.includes(id) ? 'bg-[#5a8c4a]/10 border-[#5a8c4a]/25 text-[#5a8c4a]' : 'bg-black/5 border-[#c4b890] text-[#8a7a5a]'}`}>
+                              {ARTIFACT_MAP[id].name[lang]}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+            </div>
+          )}
+        </div>
+
+        <div className="shrink-0 px-4 py-3 border-t border-[#c4b890] bg-[#eee4cd]">
+          <div className="flex gap-2 justify-center">
+            <button onClick={onResume} className="px-5 py-2.5 rounded-xl bg-[#4a7a8a] border border-[#3a6a7a] text-white font-bold">{t('resume')}</button>
+            <button onClick={onExit} className="px-5 py-2.5 rounded-xl bg-[#e8dcc0] border border-[#c4b890] text-[#5a4a32]">{t('return')}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SectionTitle({ children }: { children: React.ReactNode }) {
+  return <div className="text-[10px] uppercase tracking-wider font-bold text-[#8a7a5a] mb-2">{children}</div>;
+}
+
+function StatBox({ label, value }: { label: string; value: string }) {
+  return <div className="rounded-xl bg-[#e8dcc0] border border-[#c4b890] px-3 py-2"><div className="text-[9px] uppercase text-[#8a7a5a]">{label}</div><div className="font-bold text-sm">{value}</div></div>;
+}
+
+function MiniStat({ label, value }: { label: string; value: string }) {
+  return <div className="rounded-lg bg-black/5 px-2 py-1.5"><div className="text-[9px] text-[#8a7a5a]">{label}</div><div className="font-bold">{value}</div></div>;
+}
+
+function getXpPlannerMult(st: GameState): number {
+  let mult = 1 + (st.shopUpgrades.xp || 0) * 0.05;
+  for (const id of st.player.artifacts) {
+    const meta = ARTIFACT_META[id];
+    if (meta?.effects.xpGain) mult += meta.effects.xpGain;
+  }
+  return mult;
 }
 
 // ===== HUD =====
