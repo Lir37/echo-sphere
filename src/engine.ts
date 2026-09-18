@@ -1462,21 +1462,23 @@ function activateTimeStop(s: GameState): void {
   s.player.timestopCooldown = 40 * getCooldownMult(s);
   s.player.timestopTimer = 3 + Math.min(2, lvl - 1);
   const nearest = getNearestSphere(s, s.player.pos);
-  for (const e of s.enemies) {
-    if (e.hp <= 0) continue;
-    const branch = getAbilityBranchId(s, 'timestop', 4);
+  const branch = getAbilityBranchId(s, 'timestop', 4);
   const final = getAbilityBranchId(s, 'timestop', 7);
   const radius = nearest
     ? branch === 'timestop_closed_time' || final === 'timestop_closed_network' ? 760 : 520
     : Infinity;
   for (const e of s.enemies) {
     if (e.hp <= 0) continue;
-    if (!nearest || dist(e.pos, nearest.pos) <= radius) e.freezeTimer = s.player.timestopTimer + (branch === 'timestop_time_anchor' ? 1 : 0);
+    if (!nearest || dist(e.pos, nearest.pos) <= radius) {
+      e.freezeTimer = s.player.timestopTimer + (branch === 'timestop_time_anchor' ? 1 : 0);
+    }
   }
   if (final === 'timestop_closed_network') {
     for (const sphere of s.spheres) {
       if (!sphere.alive) continue;
-      for (const e of s.enemies) if (e.hp > 0 && dist(e.pos, sphere.pos) < 260) e.freezeTimer = Math.max(e.freezeTimer, s.player.timestopTimer);
+      for (const e of s.enemies) {
+        if (e.hp > 0 && dist(e.pos, sphere.pos) < 260) e.freezeTimer = Math.max(e.freezeTimer, s.player.timestopTimer);
+      }
     }
   }
   if (nearest) {
@@ -1496,7 +1498,6 @@ function activateDarkRitual(s: GameState): void {
   s.player.overloadTimer = 5 + Math.min(3, lvl - 1);
   const branch = getAbilityBranchId(s, 'darkritual', 4);
   const final = getAbilityBranchId(s, 'darkritual', 7);
-  const fireAligned = s.spheres.filter((sphere) => sphere.alive && s.player.sphereMods.fire > 0);
   for (const sphere of s.spheres) {
     if (!sphere.alive) continue;
     sphere.attackTimer = Math.max(0, sphere.attackTimer - 0.8);
