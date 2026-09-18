@@ -1784,6 +1784,81 @@ function drawModernSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: S
   ctx.restore();
 }
 
+
+function drawVoidCore(ctx:CanvasRenderingContext2D,r:number,color:string,pulse=1):void{
+  const rgb=hexToRgb(color);
+  const glow=ctx.createRadialGradient(0,-r*.12,0,0,0,r*1.35);
+  glow.addColorStop(0,'rgba(255,255,255,.96)');
+  glow.addColorStop(.10,'rgba(215,250,255,.82)');
+  glow.addColorStop(.30,`rgba(${rgb},.58)`);
+  glow.addColorStop(.68,`rgba(${rgb},.12)`);
+  glow.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.save();
+  ctx.scale(pulse,pulse);
+  ctx.shadowColor=color;ctx.shadowBlur=r*.9;
+  ctx.fillStyle=glow;ctx.beginPath();ctx.arc(0,-r*.08,r*.92,0,Math.PI*2);ctx.fill();
+  ctx.shadowBlur=0;
+  ctx.fillStyle='rgba(1,7,15,.76)';ctx.beginPath();ctx.arc(0,0,r*.43,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle=`rgba(${rgb},.80)`;ctx.lineWidth=Math.max(1,r*.055);ctx.stroke();
+  ctx.restore();
+}
+
+function drawVoidMantis(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
+  const rgb=hexToRgb(color);
+  ctx.save();
+  ctx.strokeStyle=`rgba(${rgb},.82)`;ctx.lineWidth=Math.max(1.2,r*.10);ctx.lineCap='round';
+  // Razor wings / forelegs create the angular silhouette from the reference.
+  for(const s of [-1,1]){
+    ctx.beginPath();ctx.moveTo(s*r*.18,-r*.05);ctx.lineTo(s*r*1.18,-r*.72);ctx.lineTo(s*r*.82,r*.05);ctx.lineTo(s*r*1.20,r*.58);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(s*r*.30,r*.12);ctx.lineTo(s*r*.92,r*.30);ctx.lineTo(s*r*1.12,r*.82);ctx.stroke();
+  }
+  const body=ctx.createLinearGradient(-r*.5,-r,r*.5,r);
+  body.addColorStop(0,'#8299aa');body.addColorStop(.18,'#263d51');body.addColorStop(.55,'#071525');body.addColorStop(1,'#01050b');
+  ctx.fillStyle=body;ctx.strokeStyle=`rgba(${rgb},.76)`;ctx.lineWidth=Math.max(1,r*.05);
+  ctx.beginPath();ctx.moveTo(0,-r*.92);ctx.lineTo(r*.48,-r*.28);ctx.lineTo(r*.38,r*.62);ctx.lineTo(0,r*.86);ctx.lineTo(-r*.38,r*.62);ctx.lineTo(-r*.48,-r*.28);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.strokeStyle=`rgba(${rgb},.28)`;ctx.lineWidth=1;
+  for(let i=0;i<3;i++){ctx.beginPath();ctx.moveTo(-r*.28,(i-.7)*r*.32);ctx.lineTo(r*.28,(i-.7)*r*.32);ctx.stroke();}
+  drawVoidCore(ctx,r*.72,color,1+Math.sin(t*7)*.035);
+  ctx.restore();
+}
+
+function drawVoidBeetle(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
+  const rgb=hexToRgb(color);
+  ctx.save();
+  ctx.rotate(Math.sin(t*1.5)*.025);
+  ctx.fillStyle='#071321';ctx.strokeStyle=`rgba(${rgb},.78)`;ctx.lineWidth=Math.max(1.4,r*.06);
+  ctx.beginPath();ctx.moveTo(0,-r);ctx.lineTo(r*.70,-r*.62);ctx.lineTo(r*.92,r*.15);ctx.lineTo(r*.54,r*.78);ctx.lineTo(0,r);ctx.lineTo(-r*.54,r*.78);ctx.lineTo(-r*.92,r*.15);ctx.lineTo(-r*.70,-r*.62);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.strokeStyle='rgba(193,229,245,.22)';ctx.lineWidth=Math.max(1,r*.035);
+  ctx.beginPath();ctx.moveTo(-r*.56,-r*.45);ctx.lineTo(0,-r*.78);ctx.lineTo(r*.56,-r*.45);ctx.moveTo(-r*.64,r*.20);ctx.lineTo(0,r*.52);ctx.lineTo(r*.64,r*.20);ctx.stroke();
+  for(const s of [-1,1]){ctx.beginPath();ctx.moveTo(s*r*.48,-r*.05);ctx.lineTo(s*r*1.10,r*.38);ctx.lineTo(s*r*1.18,r*.70);ctx.stroke();}
+  drawVoidCore(ctx,r*.74,color,1+Math.sin(t*4)*.025);
+  ctx.restore();
+}
+
+function drawVoidMoth(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
+  const rgb=hexToRgb(color),flap=Math.sin(t*5)*.12;
+  ctx.save();
+  ctx.strokeStyle=`rgba(${rgb},.70)`;ctx.lineWidth=Math.max(1,r*.045);
+  ctx.fillStyle='rgba(7,18,31,.88)';
+  for(const s of [-1,1]){
+    ctx.beginPath();ctx.moveTo(s*r*.12,0);ctx.quadraticCurveTo(s*r*.72,-r*(.75+flap),s*r*1.15,-r*.35);ctx.quadraticCurveTo(s*r*.86,r*.10,s*r*.16,r*.18);ctx.closePath();ctx.fill();ctx.stroke();
+  }
+  ctx.beginPath();ctx.moveTo(0,-r*.78);ctx.lineTo(r*.24,-r*.18);ctx.lineTo(0,r*.70);ctx.lineTo(-r*.24,-r*.18);ctx.closePath();ctx.fill();ctx.stroke();
+  drawVoidCore(ctx,r*.55,color,1+Math.sin(t*6)*.04);
+  ctx.restore();
+}
+
+function drawVoidSkitter(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
+  const rgb=hexToRgb(color);
+  ctx.save();
+  ctx.fillStyle='#06111e';ctx.strokeStyle=`rgba(${rgb},.74)`;ctx.lineWidth=Math.max(1,r*.055);
+  ctx.beginPath();ctx.moveTo(0,-r*.78);ctx.lineTo(r*.72,-r*.35);ctx.lineTo(r*.82,r*.38);ctx.lineTo(r*.35,r*.78);ctx.lineTo(-r*.35,r*.78);ctx.lineTo(-r*.82,r*.38);ctx.lineTo(-r*.72,-r*.35);ctx.closePath();ctx.fill();ctx.stroke();
+  for(let i=0;i<4;i++){const y=(-.45+i*.30)*r;ctx.beginPath();ctx.moveTo(-r*.55,y);ctx.lineTo(r*.55,y);ctx.stroke();}
+  for(const s of [-1,1]){ctx.beginPath();ctx.moveTo(s*r*.52,-r*.05);ctx.lineTo(s*r*1.05,-r*.58);ctx.moveTo(s*r*.52,r*.12);ctx.lineTo(s*r*1.12,r*.60);ctx.stroke();}
+  drawVoidCore(ctx,r*.58,color,1+Math.sin(t*8)*.05);
+  ctx.restore();
+}
+
 function drawModernEnemy(ctx: CanvasRenderingContext2D, e: EnemyEntity): void {
   const t = Date.now() / 1000;
   const facing = e.isBoss ? 0 : getEnemyFacingAngle(e);
