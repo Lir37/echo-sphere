@@ -260,7 +260,7 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
             canvasRef={canvasRef}
             handedness={handedness}
             onPause={() => {
-              if (st.pendingUpgrade || st.pendingArtifact || st.pendingChest) return;
+              if (st.pendingUpgrade || st.pendingArtifact) return;
               const next = !st.paused;
               st.paused = next;
               setPaused(next);
@@ -281,7 +281,7 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
           )}
           {st.pendingUpgrade && <UpgradeModal lang={lang} t={t} st={st} onPick={(c) => { applyUpgrade(st, c); }} />}
           {st.pendingArtifact && <ArtifactModal lang={lang} t={t} st={st} choices={st.pendingArtifact} onPick={(id) => { applyArtifact(st, id); st.pendingArtifact = null; }} />}
-          {paused && !st.pendingUpgrade && !st.pendingArtifact && !st.pendingChest && (
+          {paused && !st.pendingUpgrade && !st.pendingArtifact && (
             <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-50">
               <div className="text-center max-w-md w-full px-6">
                 <h2 className="text-3xl font-bold mb-4">{t('pauseTitle')}</h2>
