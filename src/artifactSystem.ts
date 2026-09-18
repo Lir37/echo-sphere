@@ -153,7 +153,7 @@ export function getArtifactSphereRadiusMultiplier(s: any): number { return Math.
 export function getArtifactSphereDamageMultiplier(s: any): number { return Math.max(0.25, 1 + effectSum(s, 'sphereDamage')); }
 export function getArtifactCooldownMultiplier(s: any): number { return Math.max(0.55, 1 + effectSum(s, 'cooldown')); }
 export function getArtifactSphereDelayMultiplier(s: any): number { return Math.max(0.5, 1 + effectSum(s, 'towerDelay')); }
-export function getArtifactDamageTakenMultiplier(s: any): number { return Math.max(0.45, 1 - effectSum(s, 'damageTakenReduction')); }
+export function getArtifactDamageTakenMultiplier(s: any): number {\n  let multiplier = Math.max(0.45, 1 - effectSum(s, 'damageTakenReduction'));\n  if (getActiveArtifactSynergies(s).some((x) => x.id === 'glass_cannon')) multiplier *= 1.05;\n  return multiplier;\n}
 export function getArtifactCritChanceBonus(s: any): number { return effectSum(s, 'critChance'); }
 export function getArtifactDodgeChanceBonus(s: any): number { return effectSum(s, 'dodgeChance'); }
 export function getArtifactVampireBonus(s: any): number { return effectSum(s, 'vampire'); }
@@ -183,7 +183,7 @@ function formsTriangle(s: any, sphere: any): boolean {
   return false;
 }
 
-export function getTowerArtifactModifiers(s: any, type: string): { damage: number; delay: number; radius: number } {
+export function getTowerArtifactModifiers(s: any, type: string, sphere?: any): { damage: number; delay: number; radius: number } {
   let damage = 1 + effectSum(s, 'towerDamage');
   let delay = Math.max(0.55, 1 + effectSum(s, 'towerDelay'));
   let radius = Math.max(0.6, 1 + effectSum(s, 'towerRadius'));
@@ -194,18 +194,18 @@ export function getTowerArtifactModifiers(s: any, type: string): { damage: numbe
 
   const unique = uniqueTowerCount(s);
   const synergies = getActiveArtifactSynergies(s);
-  if (synergies.some((x) => x.id === 'fortress_network') && hasNearbyTower(s, (s.spheres || []).find((x: any) => x.type === type), 190)) damage *= 1.10;
+  if (synergies.some((x) => x.id === 'fortress_network') && sphere && hasNearbyTower(s, sphere, 190)) damage *= 1.10;
   if (synergies.some((x) => x.id === 'echo_relay') && unique >= 2) damage *= 1.08;
   if (synergies.some((x) => x.id === 'glass_cannon')) damage *= 1.12;
   if (synergies.some((x) => x.id === 'singularity') && unique <= 1) damage *= 1.20;
-  if (synergies.some((x) => x.id === 'perfect_network') && unique >= 3) damage *= 1.10;
+  if (synergies.some((x) => x.id === 'perfect_network') && unique >= 3 && sphere && formsTriangle(s, sphere)) damage *= 1.10;
   if (hasArtifact(s, 'lone_bastion') && unique <= 1) damage *= 1.30;
   if (hasArtifact(s, 'fivefold_resonance') && unique > 1) damage *= 1 + Math.min(5, unique) * 0.04;
   if (hasArtifact(s, 'network_relay') && unique >= 2) damage *= 1.05;
   if (hasArtifact(s, 'relay_matrix') && Object.values(s.player.towerProgression || {}).some((level: any) => level >= 7)) damage *= 1.10;
   if (hasArtifact(s, 'singularity_engine') && unique <= 2) damage *= 1.18;
   if (hasArtifact(s, 'mirror_network') && unique >= 2) damage *= 1.12;
-  if (hasArtifact(s, 'overclock')) { damage *= 0.99; delay *= 0.88; }
+  if (hasArtifact(s, 'overclock')) { damage *= 0.99; delay *= 0.88; }\n\n  if (synergies.some((x) => x.id === 'unified_core') && sphere) {\n    const levels = Object.values(s.player.towerProgression || {}) as number[];\n    const strongest = Math.max(0, ...levels);\n    const sphereLevel = Number(s.player.towerProgression?.[sphere.type] || 0);\n    if (sphereLevel < strongest) damage *= 1 + strongest * 0.05;\n  }
   return { damage, delay, radius };
 }
 
