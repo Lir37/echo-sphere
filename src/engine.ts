@@ -500,7 +500,9 @@ export function getSphereDamage(s: GameState, sphere: SphereEntity): number {
   if (s.player.chaosOrbBuff === 'dmg' && s.player.chaosOrbBuffTimer > 0) d *= 1.2;
   if (s.player.teleportDamageBuffTimer > 0) d *= 2;
   if (s.player.overloadTimer > 0) d *= 1.25 + (s.player.abilities.darkritual || 0) * 0.04;
-  if (s.player.fireTrailTimer > 0) d *= 1.2 + (s.player.abilities.firetrail || 0) * 0.025 + (s.player.sphereMods.fire > 0 ? 0.05 : 0);
+  if (s.player.fireTrailTimer > 0 && sphere && s.player.sphereMods.fire > 0) {
+    d *= 1.2 + (s.player.abilities.firetrail || 0) * 0.025;
+  }
   const sbLvl = s.player.abilities.sphereboost || 0;
   if (sbLvl > 0) {
     const per = Math.max(50, 100 - (sbLvl - 1) * 10);
@@ -526,10 +528,11 @@ export function getSphereDelay(s: GameState): number {
   return d;
 }
 
-export function getCritChance(s: GameState): number {
+export function getCritChance(s: GameState, sphere?: SphereEntity): number {
   let c = (s.player.abilities.crit || 0) * 0.1;
   c += (s.shopUpgrades.crit || 0) * 0.05;
   c += getArtifactCritChanceBonus(s);
+  if (sphere?.type === 'sniper' && sphereLevel(s, 'sniper') >= 3) c += 0.15;
   return c;
 }
 
@@ -779,7 +782,7 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
     actual *= getHunterMarkMultiplier(s, enemy);
   }
   let isCrit = false;
-  let critChance = getCritChance(s);
+  let critChance = getCritChance(s, fromSphere);
   if (fromSphere && getCharacterId(s) === 'hunter' && s.player.hunterMarkTarget === enemy && s.player.hunterMarkTimer > 0 && s.player.characterMasteryLevel >= 3) {
     critChance += 0.02;
   }
@@ -842,8 +845,9 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
       }
       if (finalIndex === 2 && enemy.hp < enemy.maxHp * 0.5) actual *= 1.15;
     } else if (branch === 'standard_swarm') {
-      if (finalIndex === 0 && Math.random() < 0.35 || finalIndex === 1 && Math.random() < 0.55 || finalIndex === 2) {
-        const count = finalIndex === 2 ? 2 : 1;
+      const count = finalIndex === 2 ? 2 : 1;
+      const chance = finalIndex === null ? 1 : finalIndex === 0 ? 0.35 : finalIndex === 1 ? 0.55 : 1;
+      if (Math.random() < chance) {
         for (let i = 0; i < count; i++) {
           const a = Math.atan2(enemy.pos.y - fromSphere.pos.y, enemy.pos.x - fromSphere.pos.x) + (i === 0 ? 0.35 : -0.35);
           s.sphereProjectiles.push({
@@ -853,7 +857,7 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
           });
         }
       }
-    } else if (branch === 'sniper_oracle' && s.player.hunterMarkTarget === enemy) {
+    } else if (branch === 'sniper_oracle' && s.player.hunterMarkTarget === enemy && isCrit) {
       actual *= finalIndex === 0 ? 1.5 : finalIndex === 1 ? 1.3 : 1.22;
       if (finalIndex === 2) {
         for (const nearby of s.enemies) {
@@ -866,6 +870,8 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
       actual *= finalIndex === 0 ? 1.7 : finalIndex === 1 ? 2.2 : 1.45;
       if (finalIndex === 2) s.player.hp = Math.min(s.player.maxHp, s.player.hp + actual * 0.01);
     } else if (branch === 'sniper_beacon') {
+      s.player.hunterMarkTarget = enemy;
+      s.player.hunterMarkTimer = Math.max(s.player.hunterMarkTimer, finalIndex === 1 ? 5 : 3);
       enemy.slowTimer = Math.max(enemy.slowTimer, finalIndex === 0 ? 0.9 : finalIndex === 1 ? 1.2 : 0.7);
       enemy.slowFactor = Math.min(enemy.slowFactor, finalIndex === 0 ? 0.65 : finalIndex === 1 ? 0.7 : 0.6);
       const radius = finalIndex === 0 ? 90 : finalIndex === 1 ? 140 : 110;
@@ -877,6 +883,7 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
       }
     } else if (branch === 'shotgun_burst') {
       if (dist(enemy.pos, fromSphere.pos) < (finalIndex === 1 ? 180 : 150)) actual *= finalIndex === 0 ? 1.3 : finalIndex === 1 ? 1.5 : 1.22;
+      if (fromSphere.type === 'shotgun' && sphereLevel(s, 'shotgun') >= 2 && dist(enemy.pos, fromSphere.pos) < 110) actual *= 1.20;
       if (finalIndex === 2 && dist(enemy.pos, fromSphere.pos) < 90) enemy.slowTimer = Math.max(enemy.slowTimer, 0.4);
     } else if (branch === 'shotgun_cataclysm') {
       const radius = finalIndex === 0 ? 60 : finalIndex === 1 ? 85 : 55;
@@ -1215,7 +1222,7 @@ function activateBlast(s: GameState): void {
   s.player.blastCooldown = Math.max(8, (30 - (lvl - 1) * 2) * getCooldownMult(s));
 
   const spheres = s.spheres.filter((sphere) => sphere.alive);
-  const baseDamage = 22 + lvl * 8;
+  const baseDamage = 30 + (lvl - 1) * 10;
   const radius = 125 + lvl * 12;
   const branch = getAbilityBranchId(s, 'blast', 4);
   const final = getAbilityBranchId(s, 'blast', 7);
@@ -1262,8 +1269,9 @@ function activateShield(s: GameState): void {
   if (lvl === 0 || s.player.shieldCooldown > 0) return;
   s.player.shieldCooldown = 20 * getCooldownMult(s);
   const nearby = s.spheres.filter((sphere) => sphere.alive && dist(sphere.pos, s.player.pos) <= 260).length;
-  const networkBonus = Math.min(3, Math.floor(nearby / 2));
-  s.player.shieldCharges = Math.min(5, 1 + Math.floor((lvl - 1) / 2) + networkBonus);
+  const networkBonus = lvl >= 2 ? Math.min(3, Math.floor(nearby / 2)) : 0;
+  const branchBonus = getAbilityBranchId(s, 'shield', 4) === 'shield_echo_guard' ? Math.min(2, Math.floor(nearby / 3)) : 0;
+  s.player.shieldCharges = Math.min(5, 1 + Math.floor((lvl - 1) / 2) + networkBonus + branchBonus);
   s.player.shieldTimer = 10 + (lvl >= 5 ? 2 : 0);
   const branch = getAbilityBranchId(s, 'shield', 4);
   const final = getAbilityBranchId(s, 'shield', 7);
@@ -1276,6 +1284,8 @@ function activateShield(s: GameState): void {
     }
   }
   if (branch === 'shield_bastion' || final === 'shield_iron_dome' || final === 'shield_resonant_guard') {
+    if (branch === 'shield_bastion') s.player.shieldCharges = Math.min(5, s.player.shieldCharges + 1);
+    if (final === 'shield_iron_dome') s.player.shieldCharges = Math.min(5, s.player.shieldCharges + 2);
     for (const sphere of s.spheres) {
       if (sphere.alive && dist(sphere.pos, s.player.pos) <= 260) {
         s.particles.push({ pos: { ...sphere.pos }, vel: { x: 0, y: 0 }, life: 0.8, maxLife: 0.8, color: '#4a7a8a', size: 5 });
@@ -1299,6 +1309,19 @@ function doTeleportTo(s: GameState, target: Vec): void {
   const final = getAbilityBranchId(s, 'teleport', 7);
   if (branch === 'teleport_phase' || final === 'teleport_phase_break') {
     s.player.invulnerableTimer = Math.max(s.player.invulnerableTimer, 0.8);
+  }
+  if (final === 'teleport_phase_break') {
+    const origin = from;
+    const dx = s.player.pos.x - origin.x, dy = s.player.pos.y - origin.y;
+    const distanceTravelled = Math.hypot(dx, dy);
+    if (distanceTravelled > 140) {
+      const steps = Math.max(1, Math.floor(distanceTravelled / 140));
+      for (let i = 1; i < steps; i++) {
+        const point = { x: origin.x + dx * (i / steps), y: origin.y + dy * (i / steps) };
+        for (const enemy of s.enemies) if (enemy.hp > 0 && dist(enemy.pos, point) < 70) dealDamageToEnemy(s, enemy, 14, undefined);
+        s.particles.push({ pos: point, vel: { x: 0, y: 0 }, life: 0.35, maxLife: 0.35, color: '#5a8c4a', size: 5 });
+      }
+    }
   }
   if (final === 'teleport_spatial_network') {
     const destination = getNearestSphere(s, s.player.pos);
@@ -1441,11 +1464,24 @@ function activateTimeStop(s: GameState): void {
   const nearest = getNearestSphere(s, s.player.pos);
   for (const e of s.enemies) {
     if (e.hp <= 0) continue;
-    const radius = nearest ? 520 : Infinity;
-    if (!nearest || dist(e.pos, nearest.pos) <= radius) e.freezeTimer = s.player.timestopTimer;
+    const branch = getAbilityBranchId(s, 'timestop', 4);
+  const final = getAbilityBranchId(s, 'timestop', 7);
+  const radius = nearest
+    ? branch === 'timestop_closed_time' || final === 'timestop_closed_network' ? 760 : 520
+    : Infinity;
+  for (const e of s.enemies) {
+    if (e.hp <= 0) continue;
+    if (!nearest || dist(e.pos, nearest.pos) <= radius) e.freezeTimer = s.player.timestopTimer + (branch === 'timestop_time_anchor' ? 1 : 0);
+  }
+  if (final === 'timestop_closed_network') {
+    for (const sphere of s.spheres) {
+      if (!sphere.alive) continue;
+      for (const e of s.enemies) if (e.hp > 0 && dist(e.pos, sphere.pos) < 260) e.freezeTimer = Math.max(e.freezeTimer, s.player.timestopTimer);
+    }
   }
   if (nearest) {
-    emitSpherePulse(s, nearest, 10 + lvl * 4, 150, '#4a7a8a');
+    const pulseDamage = final === 'timestop_temporal_core' ? 10 + lvl * 8 : 10 + lvl * 4;
+    emitSpherePulse(s, nearest, pulseDamage, 150, '#4a7a8a');
   }
   s.flashText = { text: 'ECHO FREEZE', life: 1.2, color: '#4a7a8a' };
 }
@@ -1467,8 +1503,11 @@ function activateDarkRitual(s: GameState): void {
     s.particles.push({ pos: { ...sphere.pos }, vel: { x: 0, y: 0 }, life: 1, maxLife: 1, color: '#8a5a8a', size: 7 });
   }
   if (branch === 'darkritual_blood_link' || final === 'darkritual_blood_network') {
-    for (const sphere of s.spheres) {
-      if (sphere.alive && sphere.type === 'standard') sphere.attackTimer = Math.max(0, sphere.attackTimer - 0.8);
+    const standard = s.spheres.filter((sphere) => sphere.alive && sphere.type === 'standard');
+    const target = getNearestSphere(s, s.player.pos, (sphere) => sphere.type === 'standard');
+    if (branch === 'darkritual_blood_link' && target) target.attackTimer = Math.max(0, target.attackTimer - 1.4);
+    for (const sphere of standard) {
+      if (final === 'darkritual_blood_network' || branch === 'darkritual_blood_link') sphere.attackTimer = Math.max(0, sphere.attackTimer - 0.8);
     }
   }
   if (branch === 'darkritual_void_pact' || final === 'darkritual_void_engine') {
@@ -2085,7 +2124,7 @@ function updateSpheres(s: GameState, dt: number): void {
         const formation = getCharacterFormation(s);
         const formationPierce = getCharacterId(s) === 'architect' && formation.type === 'line' ? 1 : 0;
         for (let i = 0; i < shots; i++) {
-          const spread = shots > 1 ? (i - (shots - 1) / 2) * (stype.spread / Math.max(1, shots - 1) || 0.15) : 0;
+          const spread = shots > 1 ? (i - (shots - 1) / 2) * ((stype.spread * (sphereModifiers(s, sphere.type).spreadMult || 1)) / Math.max(1, shots - 1) || 0.15) : 0;
           const a = Math.atan2(dirY, dirX) + spread;
           let effect: 'none' | 'fire' | 'freeze' | 'poison' = 'none';
           if (mods.fire > 0) effect = 'fire';
