@@ -21,7 +21,7 @@ import {
   loadShop, saveShop, loadLeaderboard, addLeaderEntry, loadLang, saveLang,
   loadName, saveName, resetAll, saveGold, loadGold,
   loadAchievements, unlockAchievement, loadDifficulty, saveDifficulty,
-  loadSound, saveSound, loadHandedness, saveHandedness, type Handedness,
+  loadSound, saveSound, loadHandedness, saveHandedness, loadCharacterId, type Handedness,
 } from './persistence';
 import { playSound, setAudioEnabled } from './audio';
 import MobileControls from './MobileControls';
@@ -76,7 +76,7 @@ function Menu({ lang, setLang, t, difficulty, setDifficulty, soundOn, setSoundOn
   onPlay: (mapTheme: MapTheme) => void; onShop: () => void; onCharacters: () => void; onLeader: () => void; onSettings: () => void; onAchievements: () => void;
 }) {
   const [name, setName] = useState(() => loadName());
-  const selectedCharacter = CHARACTER_DEFS[loadCharacterIdSafe()];
+  const selectedCharacter = CHARACTER_DEFS[loadCharacterId()];
   useEffect(() => { saveName(name); }, [name]);
   useEffect(() => { localStorage.setItem('echosphere_map', mapTheme); }, [mapTheme]);
 
@@ -220,10 +220,6 @@ function Menu({ lang, setLang, t, difficulty, setDifficulty, soundOn, setSoundOn
   );
 }
 
-function loadCharacterIdSafe(): keyof typeof CHARACTER_DEFS {
-  const value = localStorage.getItem('echosphere_character');
-  return value && value in CHARACTER_DEFS ? value as keyof typeof CHARACTER_DEFS : 'spherist';
-}
 
 // ===== Game Screen =====
 function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }: {
