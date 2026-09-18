@@ -1112,6 +1112,19 @@ function damagePlayer(s: GameState, amount: number): void {
   // shield
   if (s.player.shieldCharges > 0) {
     s.player.shieldCharges--;
+    const shieldBranch = getAbilityBranchId(s, 'shield', 4);
+    const shieldFinal = getAbilityBranchId(s, 'shield', 7);
+    if (shieldBranch === 'shield_reflector') {
+      const nearest = s.enemies
+        .filter((enemy) => enemy.hp > 0)
+        .sort((a, b) => dist(a.pos, s.player.pos) - dist(b.pos, s.player.pos))[0];
+      if (nearest && dist(nearest.pos, s.player.pos) < 220) {
+        dealDamageToEnemy(s, nearest, amount * 0.75);
+      }
+    }
+    if (shieldFinal === 'shield_resonant_guard') {
+      s.player.shieldCharges = Math.min(5, s.player.shieldCharges + 1);
+    }
     for (let i = 0; i < 12; i++) {
       s.particles.push({ pos: { ...s.player.pos }, vel: { x: rand(-150, 150), y: rand(-150, 150) }, life: 0.4, maxLife: 0.4, color: '#4a7a8a', size: 3 });
     }
