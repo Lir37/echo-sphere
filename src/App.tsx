@@ -384,6 +384,75 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
   );
 }
 
+function ArtifactModal({ lang, t, st, choices, onPick }: {
+  lang: Lang;
+  t: (k: TranslationKey) => string;
+  st: GameState;
+  choices: ArtifactId[];
+  onPick: (id: ArtifactId) => void;
+}) {
+  const rarityClass: Record<string,string> = {
+    common: 'border-[#c4b890]',
+    rare: 'border-[#4a7a8a]',
+    epic: 'border-[#8064a8]',
+    special: 'border-[#c46d3d]',
+    legendary: 'border-[#d4943d]',
+  };
+  const rarityText: Record<string,string> = {
+    common: 'text-[#8a7a5a]',
+    rare: 'text-[#4a7a8a]',
+    epic: 'text-[#8064a8]',
+    special: 'text-[#c46d3d]',
+    legendary: 'text-[#d4943d]',
+  };
+  const mechanicText: Record<string,{ru:string;en:string}> = {
+    swift: {ru:'Темп',en:'Tempo'}, mirror:{ru:'Контратака',en:'Counter'},
+    resonance:{ru:'Связь сфер',en:'Sphere Link'}, lone:{ru:'Одна сфера',en:'Solo Sphere'},
+    fivefold:{ru:'Сеть',en:'Network'}, relay:{ru:'Прогрессия',en:'Progression'},
+    triangle:{ru:'Геометрия',en:'Geometry'}, overclock:{ru:'Разгон',en:'Overclock'},
+    network:{ru:'Сеть',en:'Network'}, singularity:{ru:'Сингулярность',en:'Singularity'},
+    zero:{ru:'Архитектура',en:'Architecture'}, unified:{ru:'Единый разум',en:'Unified Mind'},
+  };
+  const active = getActiveArtifactSynergies(st);
+  return (
+    <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="max-w-5xl w-full px-6">
+        <h2 className="text-2xl font-bold text-center mb-2">{lang === 'ru' ? 'Артефакт' : 'Artifact'}</h2>
+        <p className="text-sm text-center text-[#8a7a5a] mb-6">{lang === 'ru' ? 'Артефакты меняют правила взаимодействия сфер и персонажа' : 'Artifacts change the rules of how spheres and the player interact'}</p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {choices.map((id) => {
+            const a = ARTIFACT_META[id];
+            const rarity = artifactRarity(id);
+            const mechanic = a.mechanic;
+            const newSynergies = getArtifactSynergiesAfterPick(st, id).filter((x) => !active.some((y) => y.id === x.id));
+            return (
+              <button key={id} onClick={() => onPick(id)} className={`p-5 rounded-xl bg-[#e8dcc0] border-2 ${rarityClass[rarity] || 'border-[#c4b890]'} hover:scale-[1.02] transition-all text-left`}>
+                <div className="flex items-center justify-between mb-3">
+                  <span className={`text-[10px] uppercase tracking-widest font-bold ${rarityText[rarity] || ''}`}>{RARITY_LABELS[rarity][lang]}</span>
+                  <span className="text-[#d4943d]">✦</span>
+                </div>
+                <div className="font-bold text-lg mb-2">{a.name[lang]}</div>
+                <div className="text-sm text-[#5a4a32] min-h-[4.5rem]">{a.desc[lang]}</div>
+                {newSynergies.map((synergy) => (
+                  <div key={synergy.id} className="mt-3 rounded-lg bg-[#8064a8]/10 border border-[#8064a8]/30 px-2 py-1.5">
+                    <div className="text-[9px] uppercase tracking-wider font-bold text-[#8064a8]">{lang === 'ru' ? 'Активирует синергию' : 'Activates synergy'}</div>
+                    <div className="text-xs font-bold text-[#8064a8]">{synergy.name[lang]}</div>
+                  </div>
+                ))}
+                {mechanic && mechanicText[mechanic] && (
+                  <div className={`mt-3 inline-flex px-2 py-1 rounded-md bg-black/5 text-[10px] uppercase tracking-wider font-bold ${rarityText[rarity] || ''}`}>
+                    {mechanicText[mechanic][lang]}
+                  </div>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ===== Upgrade Modal =====
 function UpgradeModal({ lang, t, st, onPick }: {
   lang: Lang; t: (k: TranslationKey) => string; st: GameState; onPick: (c: UpgradeChoice) => void;
