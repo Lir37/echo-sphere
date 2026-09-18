@@ -477,7 +477,13 @@ function ArtifactModal({ lang, t, choices, onPick }: {
                 </div>
                 <div className="font-bold text-lg leading-tight text-[#3a2e1f] mb-2">{a.name[lang]}</div>
                 <div className="text-sm leading-relaxed text-[#5a4a32] min-h-[4.5rem]">{a.desc[lang]}</div>
-                {getArtifactSynergiesAfterPick(st, id).filter((x) => !getActiveArtifactSynergies(st).some((active) => active.id === x.id)).map((synergy) => (\n                  <div key={synergy.id} className="mt-3 rounded-lg bg-[#8064a8]/10 border border-[#8064a8]/30 px-2 py-1.5">\n                    <div className="text-[9px] uppercase tracking-wider font-bold text-[#8064a8]">{lang === 'ru' ? 'Активирует синергию' : 'Activates synergy'}</div>\n                    <div className="text-xs font-bold text-[#8064a8]">{synergy.name[lang]}</div>\n                  </div>\n                ))}\n                {mechanic && mechanicText[mechanic] && (
+                {getArtifactSynergiesAfterPick(st, id).filter((x) => !getActiveArtifactSynergies(st).some((active) => active.id === x.id)).map((synergy) => (
+                  <div key={synergy.id} className="mt-3 rounded-lg bg-[#8064a8]/10 border border-[#8064a8]/30 px-2 py-1.5">
+                    <div className="text-[9px] uppercase tracking-wider font-bold text-[#8064a8]">{lang === 'ru' ? 'Активирует синергию' : 'Activates synergy'}</div>
+                    <div className="text-xs font-bold text-[#8064a8]">{synergy.name[lang]}</div>
+                  </div>
+                ))}
+                {mechanic && mechanicText[mechanic] && (
                   <div className={`mt-3 inline-flex px-2 py-1 rounded-md bg-black/5 text-[10px] uppercase tracking-wider font-bold ${rarityText[rarity]}`}>
                     {mechanicText[mechanic][lang]}
                   </div>
