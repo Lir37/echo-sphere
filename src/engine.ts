@@ -214,7 +214,8 @@ export interface LightningBolt {
 export interface UpgradeChoice {
   type: 'ability' | 'sphere';
   ability?: AbilityType;
-  evolution?: string;
+  abilityEvolutionIndex?: number;
+  abilityStage?: 'upgrade' | 'branch' | 'final';
   sphereType?: SphereType;
   sphereBranch?: import('./sphereProgression').SphereEvolutionId;
   sphereFinalIndex?: number;
@@ -1503,10 +1504,18 @@ export function applyUpgrade(s: GameState, choice: UpgradeChoice): void {
   if (choice.type === 'ability' && choice.ability) {
     s.player.abilities[choice.ability] = Math.min(7, choice.newLevel);
     const progression = ABILITY_PROGRESSION[choice.ability];
-    if (progression && (choice.newLevel === 4 || choice.newLevel === 7)) {
-      const evolution = choice.newLevel === 4 ? progression.evolution4 : progression.evolution7;
-      const marker = 'ability:' + choice.ability + ':' + choice.newLevel;
-      if (!s.player.evolutions.includes(marker)) { s.player.evolutions.push(marker); s.evolutionsThisRun++; s.flashText = { text: evolution.name.ru, life: 1.8, color: choice.newLevel === 7 ? '#c4453d' : '#d4943d' }; playSound('evolve'); }
+    if (progression && (choice.abilityStage === 'branch' || choice.abilityStage === 'final')) {
+      const pool = choice.abilityStage === 'branch' ? progression.evolution4 : progression.evolution7;
+      const evolution = pool[Math.max(0, Math.min(pool.length - 1, choice.abilityEvolutionIndex ?? 0))];
+      if (evolution) {
+        const marker = 'ability:' + choice.ability + ':' + choice.newLevel + ':' + evolution.id;
+        if (!s.player.evolutions.includes(marker)) {
+          s.player.evolutions.push(marker);
+          s.evolutionsThisRun++;
+          s.flashText = { text: evolution.name.ru, life: 2.2, color: choice.newLevel === 7 ? '#c4453d' : '#d4943d' };
+          playSound('evolve');
+        }
+      }
     }
     const def = ABILITIES[choice.ability]; if (def.category === 'active' && choice.currentLevel === 0) assignHotkey(s, choice.ability);
     if (choice.ability === 'vitality') { s.player.maxHp += 20; s.player.hp += 20; }
