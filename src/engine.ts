@@ -1413,12 +1413,9 @@ export function applyUpgrade(s: GameState, choice: UpgradeChoice): void {
     if (choice.ability === 'vitality') { s.player.maxHp += 20; s.player.hp += 20; }
     return;
   }
-  if (choice.type === 'evolve' && choice.evolution) {
-    const def = EVOLUTION_MAP[choice.evolution]; if (!def) return;
-    s.player.abilities[def.a] = undefined; s.player.abilities[def.b] = undefined; s.player.evolutions.push(choice.evolution); s.evolutionsThisRun++; playSound('evolve');
-  }
+
 }
-export function applysphereUpgrade(s: GameState, choice: SphereUpgradeChoice): void {
+export function applySphereUpgrade(s: GameState, choice: SphereUpgradeChoice): void {
   const type = (choice as SphereUpgradeChoice & { sphereType?: SphereType }).sphereType;
   if (!type) return;
   applyUpgrade(s, { type: 'sphere', sphereType: type, sphereStage: 'upgrade', sphereBranch: s.player.sphereBranches[type], currentLevel: sphereLevel(s, type), newLevel: sphereLevel(s, type) + 1 });
