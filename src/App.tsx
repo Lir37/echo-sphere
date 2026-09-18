@@ -792,7 +792,7 @@ function ShopScreen({ lang, t, shop, setShop, onBack }: {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto px-6 py-8 overflow-y-auto max-h-screen">
+    <div className="es-list-screen w-full max-w-2xl mx-auto px-6 py-8 overflow-y-auto max-h-screen">
       <div className="flex items-center justify-between mb-6">
         <button onClick={onBack} className="flex items-center gap-2 text-[#7f9bb8] hover:text-[#dcecff] transition"><ArrowLeft size={20} /> {t('back')}</button>
         <div className="flex items-center gap-2 text-[#ffb84d] font-bold"><span className="text-2xl">●</span> {shop.gold}</div>
@@ -904,7 +904,7 @@ function SettingsScreen({ lang, setLang, t, soundOn, setSoundOn, handedness, set
   onBack: () => void;
 }) {
   return (
-    <div className="w-full max-w-md mx-auto px-6 py-8">
+    <div className="es-list-screen w-full max-w-md mx-auto px-6 py-8">
       <div className="flex items-center justify-between mb-6">
         <button onClick={onBack} className="flex items-center gap-2 text-[#7f9bb8] hover:text-[#dcecff] transition"><ArrowLeft size={20} /> {t('back')}</button>
       </div>
