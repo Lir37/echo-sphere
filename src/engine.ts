@@ -1290,6 +1290,9 @@ function activateBlast(s: GameState): void {
     let strength = 1;
     for (const sphere of ordered) {
       emitSpherePulse(s, sphere, baseDamage * strength, radius, '#c46d3d', final === 'blast_resonant_core');
+      if (branch === 'blast_resonance' && sphere.type === 'standard') {
+        emitSpherePulse(s, sphere, baseDamage * 0.4, radius * 0.72, '#d4943d');
+      }
       if (branch === 'blast_core') strength *= 1.12;
       if (branch === 'blast_network') strength *= 1.08;
       if (final === 'blast_echo_network') strength *= 1.15;
@@ -1324,12 +1327,13 @@ function activateShield(s: GameState): void {
   s.player.shieldCooldown = 20 * getCooldownMult(s);
   const nearby = s.spheres.filter((sphere) => sphere.alive && dist(sphere.pos, s.player.pos) <= 260).length;
   const networkBonus = lvl >= 3 ? Math.min(2, Math.floor(nearby / 2)) : lvl >= 2 ? Math.min(1, Math.floor(nearby / 2)) : 0;
-  const branchBonus = getAbilityBranchId(s, 'shield', 4) === 'shield_echo_guard' ? Math.min(2, Math.floor(nearby / 3)) : 0;
-  s.player.shieldCharges = Math.min(5, 1 + Math.floor((lvl - 1) / 2) + networkBonus + branchBonus);
-  s.player.shieldTimer = 10 + (lvl >= 5 ? 2 : 0);
   const branch = getAbilityBranchId(s, 'shield', 4);
   const final = getAbilityBranchId(s, 'shield', 7);
-
+  const branchBonus = branch === 'shield_echo_guard' ? Math.min(2, Math.floor(nearby / 2)) : 0;
+  const bastionBonus = branch === 'shield_bastion' ? 1 : 0;
+  const networkGuardBonus = final === 'shield_network_guard' ? Math.min(2, Math.floor(nearby / 2)) : 0;
+  s.player.shieldCharges = Math.min(5, 1 + Math.floor((lvl - 1) / 2) + networkBonus + branchBonus + bastionBonus + networkGuardBonus);
+  s.player.shieldTimer = 10 + (lvl >= 5 ? 2 : 0);
   if (branch === 'shield_echo_guard' || final === 'shield_network_guard') {
     for (const sphere of s.spheres) {
       if (sphere.alive && dist(sphere.pos, s.player.pos) <= 260) {
@@ -1339,10 +1343,20 @@ function activateShield(s: GameState): void {
   }
   if (branch === 'shield_bastion' || final === 'shield_iron_dome' || final === 'shield_resonant_guard') {
     if (branch === 'shield_bastion') s.player.shieldCharges = Math.min(5, s.player.shieldCharges + 1);
-    if (final === 'shield_iron_dome') s.player.shieldCharges = Math.min(5, s.player.shieldCharges + 2);
+    if (final === 'shield_iron_dome') {
+      const protectedCount = s.spheres.filter((sphere) => sphere.alive && dist(sphere.pos, s.player.pos) <= 300).length;
+      s.player.shieldCharges = Math.min(5, s.player.shieldCharges + Math.min(2, protectedCount));
+    }
     for (const sphere of s.spheres) {
       if (sphere.alive && dist(sphere.pos, s.player.pos) <= 260) {
         s.particles.push({ pos: { ...sphere.pos }, vel: { x: 0, y: 0 }, life: 0.8, maxLife: 0.8, color: '#4a7a8a', size: 5 });
+      }
+    }
+  }
+  if (final === 'shield_network_guard') {
+    for (const sphere of s.spheres) {
+      if (sphere.alive && dist(sphere.pos, s.player.pos) <= 300) {
+        s.lightnings.push({ from: { ...s.player.pos }, to: { ...sphere.pos }, life: 0.22 });
       }
     }
   }
@@ -1403,9 +1417,15 @@ function activateTeleport(s: GameState): void {
 
   if (targetSphere) {
     const target = { ...targetSphere.pos };
+    const origin = { ...s.player.pos };
     doTeleportTo(s, target);
     if (branch === 'teleport_beacon') s.player.teleportDamageBuffTimer = 4;
-    if (final === 'teleport_hunter_beacon') s.player.teleportDamageBuffTimer = 5;
+    if (branch === 'teleport_phase') s.player.invulnerableTimer = Math.max(s.player.invulnerableTimer, 1.25);
+    if (final === 'teleport_hunter_beacon' && targetSphere.type === 'sniper') s.player.teleportDamageBuffTimer = 5;
+    if (final === 'teleport_spatial_network') {
+      s.lightnings.push({ from: origin, to: target, life: 0.5 });
+      for (const enemy of s.enemies) if (enemy.hp > 0 && dist(enemy.pos, target) < 90) dealDamageToEnemy(s, enemy, 22);
+    }
   } else {
     doTeleportTo(s, { x: rand(s.player.pos.x - 300, s.player.pos.x + 300), y: rand(s.player.pos.y - 300, s.player.pos.y + 300) });
   }
