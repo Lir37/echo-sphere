@@ -65,6 +65,7 @@ export interface PlayerState {
   chaosOrbBuff: 'dmg' | 'radius' | null;
   chaosOrbBuffTimer: number;
   teleportDamageBuffTimer: number;
+  fireCatalystTimer: number;
   blinkHpCost: boolean;
   sphereXpAccumulator: number;
   sphereUpgradeCount: number;
@@ -382,6 +383,7 @@ export function createInitialState(
     chaosOrbBuff: null,
     chaosOrbBuffTimer: 0,
     teleportDamageBuffTimer: 0,
+    fireCatalystTimer: 0,
     blinkHpCost: false,
     sphereXpAccumulator: 0,
     sphereUpgradeCount: 0,
@@ -504,6 +506,8 @@ export function getSphereDamage(s: GameState, sphere: SphereEntity): number {
   if (s.player.fireTrailTimer > 0 && sphere && s.player.sphereMods.fire > 0) {
     d *= 1.2 + (s.player.abilities.firetrail || 0) * 0.025;
   }
+  if (s.player.fireCatalystTimer > 0 && sphere && s.player.sphereMods.fire > 0) d *= 1.35;
+  if (s.player.timestopTimer > 0 && s.player.timestopTimer <= 1 && getAbilityBranchId(s, 'timestop', 7) === 'timestop_temporal_core') d *= 2;
   const sbLvl = s.player.abilities.sphereboost || 0;
   if (sbLvl > 0) {
     const per = Math.max(50, 100 - (sbLvl - 1) * 10);
@@ -518,14 +522,14 @@ export function getSphereDamage(s: GameState, sphere: SphereEntity): number {
   return d;
 }
 
-export function getSphereDelay(s: GameState): number {
+export function getSphereDelay(s: GameState, sphere?: SphereEntity): number {
   let d = BASE_SPHERE_DELAY;
   const lvl = s.player.abilities.attackspeed || 0;
   d *= Math.pow(0.9, lvl);
   d /= Math.max(0.01, getCharacterAttackSpeedMultiplier(s));
   d *= getArtifactSphereDelayMultiplier(s);
   if (s.player.overloadTimer > 0) d *= 0.72;
-  if (s.player.fireTrailTimer > 0) d *= 0.78;
+  if (s.player.fireTrailTimer > 0 && sphere && s.player.sphereMods.fire > 0) d *= 0.78;
   return d;
 }
 
@@ -889,6 +893,10 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
     } else if (branch === 'shotgun_cataclysm') {
       const radius = finalIndex === 0 ? 60 : finalIndex === 1 ? 85 : 55;
       const splash = finalIndex === 0 ? 0.45 : finalIndex === 1 ? 0.65 : 0.35;
+      for (let i = 0; i < 14; i++) {
+        const a = Math.random() * Math.PI * 2;
+        s.particles.push({ pos: { ...enemy.pos }, vel: { x: Math.cos(a) * 90, y: Math.sin(a) * 90 }, life: 0.35, maxLife: 0.35, color: '#c4453d', size: 3 });
+      }
       for (const nearby of s.enemies) {
         if (nearby !== enemy && nearby.hp > 0 && dist(nearby.pos, enemy.pos) < radius) {
           dealDamageToEnemy(s, nearby, actual * splash, fromSphere, false);
@@ -902,17 +910,37 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
       const chance = finalIndex === 0 ? 0.25 : finalIndex === 1 ? 0.4 : 0.32;
       if (Math.random() < chance) {
         const radius = finalIndex === 1 ? 65 : 45;
+        const shardCount = finalIndex === 1 ? 8 : 6;
+        for (let i = 0; i < shardCount; i++) {
+          const angle = (i / shardCount) * Math.PI * 2 + Math.random() * 0.18;
+          s.sphereProjectiles.push({
+            pos: { ...enemy.pos },
+            vel: { x: Math.cos(angle) * 300, y: Math.sin(angle) * 300 },
+            damage: actual * (finalIndex === 1 ? 0.22 : 0.16),
+            radius: 5, alive: true, color: '#f0b35a', pierce: 0,
+            hitEnemies: new Set(), effect: 'none', ricochet: 0, life: 0.45, sourceSphere: fromSphere, procOnHit: false,
+          });
+        }
         for (const nearby of s.enemies) {
           if (nearby !== enemy && nearby.hp > 0 && dist(nearby.pos, enemy.pos) < radius) {
-            dealDamageToEnemy(s, nearby, actual * (finalIndex === 1 ? 0.38 : 0.3), fromSphere, false);
+            dealDamageToEnemy(s, nearby, actual * (finalIndex === 1 ? 0.18 : 0.12), fromSphere, false);
           }
         }
         if (finalIndex === 2) actual *= 1.08;
+        for (let i = 0; i < shardCount; i++) {
+          const angle = (i / shardCount) * Math.PI * 2;
+          s.particles.push({ pos: { ...enemy.pos }, vel: { x: Math.cos(angle) * 110, y: Math.sin(angle) * 110 }, life: 0.35, maxLife: 0.35, color: '#f0b35a', size: 3 });
+        }
       }
     } else if (branch === 'chain_web') {
       enemy.slowTimer = Math.max(enemy.slowTimer, finalIndex === 0 ? 0.7 : finalIndex === 1 ? 1.4 : 0.5);
       enemy.slowFactor = Math.min(enemy.slowFactor, finalIndex === 0 ? 0.7 : finalIndex === 1 ? 0.55 : 0.72);
-      if (finalIndex === 2 && s.player.hunterMarkTarget === enemy) actual *= 1.25;
+      if (finalIndex === 2) actual *= 1.25;
+      for (const nearby of s.enemies) {
+        if (nearby !== enemy && nearby.hp > 0 && dist(nearby.pos, enemy.pos) < 90) {
+          s.lightnings.push({ from: { ...enemy.pos }, to: { ...nearby.pos }, life: 0.12 });
+        }
+      }
     } else if (branch === 'chain_storm') {
       const radius = finalIndex === 0 ? 70 : finalIndex === 1 ? 100 : 55;
       const splash = finalIndex === 0 ? 0.25 : finalIndex === 1 ? 0.4 : 0.2;
@@ -1239,7 +1267,21 @@ function activateBlast(s: GameState): void {
       if (e.hp > 0 && dist(e.pos, s.player.pos) <= 180) dealDamageToEnemy(s, e, baseDamage);
     }
   } else {
-    const ordered = [...spheres].sort((a, b) => dist(a.pos, s.player.pos) - dist(b.pos, s.player.pos));
+    let ordered = [...spheres].sort((a, b) => dist(a.pos, s.player.pos) - dist(b.pos, s.player.pos));
+    if (branch === 'blast_network' || final === 'blast_echo_network' || final === 'blast_infinite_pulse') {
+      const network: SphereEntity[] = [];
+      const remaining = new Set(ordered);
+      let current: SphereEntity | null = ordered[0] ?? null;
+      while (current) {
+        network.push(current);
+        remaining.delete(current);
+        const next = [...remaining]
+          .filter((candidate) => dist(candidate.pos, current!.pos) <= 240)
+          .sort((a, b) => dist(a.pos, current!.pos) - dist(b.pos, current!.pos))[0];
+        current = next ?? null;
+      }
+      ordered = network.length > 0 ? network : ordered;
+    }
     let strength = 1;
     for (const sphere of ordered) {
       emitSpherePulse(s, sphere, baseDamage * strength, radius, '#c46d3d', final === 'blast_resonant_core');
@@ -1276,7 +1318,7 @@ function activateShield(s: GameState): void {
   if (lvl === 0 || s.player.shieldCooldown > 0) return;
   s.player.shieldCooldown = 20 * getCooldownMult(s);
   const nearby = s.spheres.filter((sphere) => sphere.alive && dist(sphere.pos, s.player.pos) <= 260).length;
-  const networkBonus = lvl >= 2 ? Math.min(3, Math.floor(nearby / 2)) : 0;
+  const networkBonus = lvl >= 3 ? Math.min(2, Math.floor(nearby / 2)) : lvl >= 2 ? Math.min(1, Math.floor(nearby / 2)) : 0;
   const branchBonus = getAbilityBranchId(s, 'shield', 4) === 'shield_echo_guard' ? Math.min(2, Math.floor(nearby / 3)) : 0;
   s.player.shieldCharges = Math.min(5, 1 + Math.floor((lvl - 1) / 2) + networkBonus + branchBonus);
   s.player.shieldTimer = 10 + (lvl >= 5 ? 2 : 0);
@@ -1377,6 +1419,12 @@ function activateFireTrail(s: GameState): void {
     sphere.attackTimer = Math.max(0, sphere.attackTimer - 0.5);
     s.particles.push({ pos: { ...sphere.pos }, vel: { x: 0, y: 0 }, life: 0.9, maxLife: 0.9, color: '#c46d3d', size: 6 });
   }
+  if (branch === 'firetrail_overdrive') {
+    for (const sphere of fireAligned) {
+      sphere.attackTimer = Math.max(0, sphere.attackTimer - 0.7);
+      s.particles.push({ pos: { ...sphere.pos }, vel: { x: 0, y: 0 }, life: 0.45, maxLife: 0.45, color: '#f0b35a', size: 5 });
+    }
+  }
   if (branch === 'firetrail_sanctum') {
     for (const sphere of s.spheres) {
       if (sphere.alive && sphere.type === 'aura') sphere.attackTimer = 0;
@@ -1387,6 +1435,17 @@ function activateFireTrail(s: GameState): void {
       if (e.hp > 0 && (e.fireTimer > 0 || e.poisonTimer > 0 || e.freezeTimer > 0)) {
         e.fireTimer = Math.max(e.fireTimer, 2);
         e.fireDps = Math.max(e.fireDps, 5 + lvl * 2);
+      }
+    }
+  }
+  if (final === 'firetrail_catalyst') s.player.fireCatalystTimer = 4;
+  if (final === 'firetrail_network' || final === 'firetrail_inferno') {
+    const chain = [...fireAligned];
+    for (let i = 1; i < chain.length; i++) {
+      if (dist(chain[i - 1].pos, chain[i].pos) <= 240) {
+        s.lightnings.push({ from: { ...chain[i - 1].pos }, to: { ...chain[i].pos }, life: 0.18 });
+        chain[i - 1].attackTimer = Math.max(0, chain[i - 1].attackTimer - (final === 'firetrail_inferno' ? 0.35 * i : 0.2));
+        chain[i].attackTimer = Math.max(0, chain[i].attackTimer - 0.2);
       }
     }
   }
@@ -1405,7 +1464,7 @@ function activateMinion(s: GameState): void {
     const angle = (i / Math.max(1, count)) * Math.PI * 2;
     s.minions.push({
       pos: anchor ? { x: anchor.pos.x + Math.cos(angle) * 42, y: anchor.pos.y + Math.sin(angle) * 42 } : { ...s.player.pos },
-      hp: 1, attackTimer: 0, life: 10 + (lvl >= 5 ? 2 : 0), radius: 12, damage: 6 + lvl * 2, rotation: 0,
+      hp: 1, attackTimer: 0, life: 10 + (lvl >= 5 ? 2 : 0), radius: 12, damage: 6 + Math.max(0, lvl - 1) * 2, rotation: 0,
     });
     if (anchor) {
       s.particles.push({ pos: { ...anchor.pos }, vel: { x: 0, y: 0 }, life: 0.7, maxLife: 0.7, color: '#4a7a8a', size: 5 });
@@ -1413,8 +1472,22 @@ function activateMinion(s: GameState): void {
   }
   if (branch === 'minion_relay_drone' || final === 'minion_network_nodes') {
     const alive = s.spheres.filter((sphere) => sphere.alive);
-    for (let i = 1; i < alive.length; i++) {
-      s.lightnings.push({ from: { ...alive[i - 1].pos }, to: { ...alive[i].pos }, life: 0.12 });
+    for (let i = 0; i < count; i++) {
+      const drone = s.minions[s.minions.length - 1 - i];
+      if (!drone) continue;
+      const anchor = getNearestSphere(s, drone.pos);
+      const second = anchor ? getNearestSphere(s, anchor.pos, (candidate) => candidate !== anchor && dist(candidate.pos, anchor.pos) <= 240) : null;
+      if (anchor && second) s.lightnings.push({ from: { ...anchor.pos }, to: { ...second.pos }, life: 0.18 });
+    }
+  }
+  if (final === 'minion_echo_swarm') {
+    for (const drone of s.minions.slice(-count)) {
+      s.particles.push({ pos: { ...drone.pos }, vel: { x: 0, y: 0 }, life: 0.8, maxLife: 0.8, color: '#d4943d', size: 6 });
+    }
+  }
+  if (final === 'minion_sphere_guard') {
+    for (const sphere of s.spheres) {
+      if (sphere.alive && dist(sphere.pos, s.player.pos) < 300) sphere.attackTimer = Math.max(0, sphere.attackTimer - 0.35);
     }
   }
   s.flashText = { text: 'ECHO DRONE', life: 0.9, color: '#4a7a8a' };
@@ -1438,16 +1511,25 @@ function activateLightning(s: GameState): void {
     previous = { ...sphere.pos };
     jump++;
   }
-  for (let i = 0; i < Math.min(maxTargets, targets.length); i++) {
+  const finalBonusTargets = final === 'lightning_thunder_chain' ? ordered.length : 0;
+  const targetCount = Math.min(targets.length, maxTargets + finalBonusTargets);
+  for (let i = 0; i < targetCount; i++) {
     const target = targets[i];
     s.lightnings.push({ from: { ...previous }, to: { ...target.pos }, life: 0.3 });
     const damage = (40 + lvl * 15) * (1 + jump * 0.12);
     dealDamageToEnemy(s, target, damage);
     previous = { ...target.pos };
     jump++;
-    if (branch === 'lightning_relay' || final === 'lightning_thunder_chain') {
+    if (branch === 'lightning_relay') {
+      const nextSphere = ordered[(i + 1) % Math.max(1, ordered.length)];
+      if (nextSphere) s.lightnings.push({ from: { ...target.pos }, to: { ...nextSphere.pos }, life: 0.22 });
+    }
+    if (final === 'lightning_thunder_chain') {
       const next = targets[(i + 1) % targets.length];
-      if (next && next !== target) s.lightnings.push({ from: { ...target.pos }, to: { ...next.pos }, life: 0.22 });
+      if (next && next !== target) {
+        s.lightnings.push({ from: { ...target.pos }, to: { ...next.pos }, life: 0.22 });
+        dealDamageToEnemy(s, next, damage * 0.25);
+      }
     }
   }
   if (branch === 'lightning_overload' || final === 'lightning_overload_core') {
@@ -1457,7 +1539,11 @@ function activateLightning(s: GameState): void {
   if (final === 'lightning_storm_network' && ordered.length > 0) {
     for (let i = ordered.length - 1; i >= 0; i--) {
       const from = i > 0 ? ordered[i - 1].pos : s.player.pos;
-      s.lightnings.push({ from: { ...from }, to: { ...ordered[i].pos }, life: 0.18 });
+      const to = ordered[i].pos;
+      s.lightnings.push({ from: { ...from }, to: { ...to }, life: 0.18 });
+      for (const enemy of s.enemies) {
+        if (enemy.hp > 0 && dist(enemy.pos, to) < 85) dealDamageToEnemy(s, enemy, (35 + lvl * 8) * 0.35);
+      }
     }
   }
   s.flashText = { text: 'CHAIN LIGHTNING', life: 0.9, color: '#4a7a8a' };
@@ -1947,8 +2033,10 @@ export function update(s: GameState, dt: number): void {
   if (p.fireTrailCooldown > 0) p.fireTrailCooldown = Math.max(0, p.fireTrailCooldown - dt);
   if (s.player.shieldTimer > 0) s.player.shieldTimer -= dt;
   if (s.player.swiftBootsTimer > 0) s.player.swiftBootsTimer -= dt;
-  if (s.player.teleportDamageBuffTimer > 0) s.player.teleportDamageBuffTimer -= dt;
-  if (s.player.invulnerableTimer > 0) s.player.invulnerableTimer -= dt;
+  if (s.player.teleportDamageBuffTimer > 0) s.player.teleportDamageBuffTimer = Math.max(0, s.player.teleportDamageBuffTimer - dt);
+  if (s.player.fireCatalystTimer > 0) s.player.fireCatalystTimer = Math.max(0, s.player.fireCatalystTimer - dt);
+  if (s.player.timestopTimer > 0) s.player.timestopTimer = Math.max(0, s.player.timestopTimer - dt);
+  if (s.player.invulnerableTimer > 0) s.player.invulnerableTimer = Math.max(0, s.player.invulnerableTimer - dt);
   if (s.player.dodgeTimer > 0) s.player.dodgeTimer -= dt;
 
   // spheres
@@ -2068,7 +2156,7 @@ function updateSpheres(s: GameState, dt: number): void {
     const stype = SPHERE_TYPES[sphere.type];
     const radius = getSphereRadius(s, sphere) * stype.rangeMult;
     const damage = getSphereDamage(s, sphere) * stype.damageMult;
-    const delay = getSphereDelay(s) * stype.delayMult * sphereModifiers(s, sphere.type).delay;
+    const delay = getSphereDelay(s, sphere) * stype.delayMult * sphereModifiers(s, sphere.type).delay;
     // aura type: continuous AoE damage — no barrel rotation
     if (stype.aura) {
       sphere.auraTimer -= dt;
