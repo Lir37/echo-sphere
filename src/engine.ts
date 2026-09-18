@@ -1151,6 +1151,12 @@ function damagePlayer(s: GameState, amount: number): void {
     return;
   }
   s.player.hp -= dmg;
+  if (getAbilityBranchId(s, 'darkritual', 7) === 'darkritual_sacrifice_core') {
+    const sacrificeSphere = getNearestSphere(s, s.player.pos);
+    if (sacrificeSphere) {
+      emitSpherePulse(s, sacrificeSphere, Math.max(8, dmg * 0.6), 95, '#8a5a8a');
+    }
+  }
   s.screenShake = Math.min(0.4, s.screenShake + 0.2);
   playSound('damage');
   // combo break on taking damage
@@ -2176,8 +2182,14 @@ function updateSpheres(s: GameState, dt: number): void {
               current = next;
             }
             // apply damage to chain targets
-            for (const ct of chainTargets) {
-              dealDamageToEnemy(s, ct, damage * 0.7 * relayMultiplier, sphere);
+            const chainBranch = s.player.sphereBranches?.[sphere.type];
+            const chainFinalId = (s.player.evolutions || []).find((x: string) => x.startsWith('sphere:' + sphere.type + ':7:'));
+            const chainFinalIndex = chainFinalId ? Number(chainFinalId.split(':').pop()) : null;
+            for (let chainIndex = 0; chainIndex < chainTargets.length; chainIndex++) {
+              const ct = chainTargets[chainIndex];
+              const stormMultiplier = chainBranch === 'chain_storm' ? 1 + chainIndex * 0.15 : 1;
+              const finalMultiplier = chainFinalIndex === 0 ? 1.15 : 1;
+              dealDamageToEnemy(s, ct, damage * 0.7 * relayMultiplier * stormMultiplier * finalMultiplier, sphere);
               s.lightnings.push({ from: { ...nearest.pos }, to: { ...ct.pos }, life: 0.3 });
             }
           }
