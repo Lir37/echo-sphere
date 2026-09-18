@@ -98,12 +98,6 @@ function Menu({ lang, setLang, t, difficulty, setDifficulty, soundOn, setSoundOn
       </header>
 
       <main className="es-main-stage">
-        <div className="es-main-side-note es-note-left">
-          <span>01</span>
-          <b>{lang === 'ru' ? 'РЕЗОНАНС' : 'RESONANCE'}</b>
-          <small>{selectedCharacter.name[lang]}</small>
-        </div>
-
         <section className="es-main-core">
           <div className="es-core-caption">ECHO CORE // {lang === 'ru' ? 'ГОТОВ' : 'READY'}</div>
           <div className="es-main-core-art" aria-hidden="true">
@@ -163,11 +157,6 @@ function Menu({ lang, setLang, t, difficulty, setDifficulty, soundOn, setSoundOn
           </button>
         </section>
 
-        <div className="es-main-side-note es-note-right">
-          <span>02</span>
-          <b>{lang === 'ru' ? 'СФЕРЫ' : 'SPHERES'}</b>
-          <small>5 TYPES // VII</small>
-        </div>
       </main>
 
       <nav className="es-main-nav">
