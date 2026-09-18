@@ -1415,22 +1415,60 @@ export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
   // the first level-up and do not require all five spheres to reach level 7.
   // Passive stats stay out of the normal level-up pool.
   const preferredAbilities = CHARACTER_DEFS[s.player.characterId]?.preferredAbilities ?? [];
-  const activeChoices = (Object.keys(ABILITIES) as AbilityType[])
-    .filter(id => ABILITIES[id].category === 'active' && (s.player.abilities[id] || 0) < ABILITIES[id].maxLevel)
-    .sort((a, b) => {
-      const ap = preferredAbilities.includes(a) ? 1 : 0;
-      const bp = preferredAbilities.includes(b) ? 1 : 0;
-      return (bp - ap) || (Math.random() - 0.5);
-    })
-    .map(id => {
-      const currentLevel = s.player.abilities[id] || 0;
-      return { type: 'ability' as const, ability: id, currentLevel, newLevel: currentLevel + 1 };
-    });
+  const activeIds = (Object.keys(ABILITIES) as AbilityType[])
+    .filter(id => ABILITIES[id].category === 'active' && (s.player.abilities[id] || 0) < ABILITIES[id].maxLevel);
 
-  // Spheres remain the main progression. When both tracks are available,
-  // normally show 2 sphere choices + 1 active skill. This keeps sphere
-  // development frequent while making active skills a real build decision
-  // throughout the run.
+  // Ability evolutions are their own milestones. Reaching IV or VII never
+  // depends on the sphere roster, and always presents three distinct forms.
+  const abilityMilestone = activeIds.find(id => {
+    const level = s.player.abilities[id] || 0;
+    return level === 3 || level === 6;
+  });
+  if (abilityMilestone) {
+    const progression = ABILITY_PROGRESSION[abilityMilestone];
+    const level = s.player.abilities[abilityMilestone] || 0;
+    const evolutionChoices = level === 3 ? progression?.evolution4 : progression?.evolution7;
+    if (progression && evolutionChoices?.length) {
+      return evolutionChoices.slice(0, 3).map((evolution, index) => ({
+        type: 'ability' as const,
+        ability: abilityMilestone,
+        abilityEvolutionIndex: index,
+        abilityStage: level === 3 ? 'branch' as const : 'final' as const,
+        name: evolution.name,
+        desc: evolution.desc,
+        currentLevel: level,
+        newLevel: level + 1,
+      }));
+    }
+  }
+
+  const activeChoices = activeIds
+    .map(id => {
+      const level = s.player.abilities[id] || 0;
+      const progression = ABILITY_PROGRESSION[id];
+      const nextLevel = level + 1;
+      const levelDef = progression?.levels[nextLevel - 1];
+      const preferred = preferredAbilities.includes(id);
+      return {
+        id,
+        score: Math.random() * (preferred ? 1.35 : 0.75),
+        choice: {
+          type: 'ability' as const,
+          ability: id,
+          abilityStage: 'upgrade' as const,
+          name: levelDef?.name ?? ABILITIES[id].name,
+          desc: levelDef?.desc ?? {
+            ru: ABILITIES[id].desc.ru(nextLevel),
+            en: ABILITIES[id].desc.en(nextLevel),
+          },
+          currentLevel: level,
+          newLevel: nextLevel,
+        },
+      };
+    })
+    .sort((a, b) => b.score - a.score)
+    .map(item => item.choice);
+
   if (sphereChoices.length >= 2 && activeChoices.length > 0) {
     const firstTwo = sphereChoices.slice(0, 2);
     const active = activeChoices[Math.floor(Math.random() * Math.min(3, activeChoices.length))];
