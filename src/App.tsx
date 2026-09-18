@@ -16,6 +16,7 @@ import {
   MAP_THEMES, type MapTheme,
 } from './engine';
 import { render } from './renderer';
+import { ARTIFACT_META, RARITY_LABELS, artifactRarity } from './artifactSystem';
 import { resolveSpaceCollisions } from './spaceCollision';
 import {
   loadShop, saveShop, loadLeaderboard, addLeaderEntry, loadLang, saveLang,
@@ -395,21 +396,77 @@ function UpgradeModal({ lang, t, st, onPick }: {
     </div>
   );
 }
-// ===== Artifact Modal =====// ===== Artifact Modal =====// ===== Artifact Modal =====// ===== Artifact Modal =====// ===== Artifact Modal =====
+// ===== Artifact Modal =====
 function ArtifactModal({ lang, t, choices, onPick }: {
   lang: Lang; t: (k: TranslationKey) => string; choices: ArtifactId[]; onPick: (id: ArtifactId) => void;
 }) {
+  const rarityClass: Record<string, string> = {
+    common: 'border-[#a89878]/50',
+    rare: 'border-[#4a7a8a]/50',
+    epic: 'border-[#8064a8]/60',
+    special: 'border-[#c46d3d]/60',
+    legendary: 'border-[#d4943d]/70',
+  };
+  const rarityText: Record<string, string> = {
+    common: 'text-[#8a7a5a]',
+    rare: 'text-[#4a7a8a]',
+    epic: 'text-[#8064a8]',
+    special: 'text-[#c46d3d]',
+    legendary: 'text-[#d4943d]',
+  };
+
   return (
-    <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-50">
-      <div className="max-w-2xl w-full px-6">
-        <h2 className="text-2xl font-bold text-center mb-6 text-[#d4943d]">{t('chooseArtifact')}</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div className="absolute inset-0 bg-black/75 backdrop-blur-[2px] flex items-center justify-center z-50 p-4">
+      <div className="w-full max-w-3xl max-h-[92vh] overflow-y-auto">
+        <div className="text-center mb-5">
+          <div className="text-[10px] uppercase tracking-[0.3em] text-[#8a7a5a] mb-1">
+            {lang === 'ru' ? 'Новый артефакт' : 'New Artifact'}
+          </div>
+          <h2 className="text-3xl font-bold text-[#d4943d]">{t('chooseArtifact')}</h2>
+          <p className="text-xs text-[#8a7a5a]/80 mt-2">
+            {lang === 'ru' ? 'Артефакт меняет правила твоей боевой системы' : 'Artifacts change the rules of your combat system'}
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {choices.map((id) => {
             const a = ARTIFACT_MAP[id];
+            const meta = ARTIFACT_META[id];
+            const rarity = artifactRarity(id);
+            const mechanic = meta?.mechanic;
+            const mechanicText: Record<string, { ru: string; en: string }> = {
+              swift: { ru: 'Темп', en: 'Tempo' },
+              mirror: { ru: 'Контратака', en: 'Counter' },
+              resonance: { ru: 'Связь башен', en: 'Tower Link' },
+              lone: { ru: 'Одинокая башня', en: 'Solo Tower' },
+              fivefold: { ru: 'Сеть', en: 'Network' },
+              relay: { ru: 'Прогрессия', en: 'Progression' },
+              triangle: { ru: 'Геометрия', en: 'Geometry' },
+              overclock: { ru: 'Перегрузка', en: 'Overclock' },
+              network: { ru: 'Сеть', en: 'Network' },
+              singularity: { ru: 'Концентрация', en: 'Concentration' },
+              zero: { ru: 'Архитектура', en: 'Architecture' },
+              unified: { ru: 'Единый разум', en: 'Unified Mind' },
+            };
             return (
-              <button key={id} onClick={() => onPick(id)} className="p-5 rounded-xl bg-[#e8dcc0] from-[#d4943d]/15 to-[#c4a060]/5 border border-[#d4943d]/30 hover:border-[#d4943d]/60 hover:scale-105 transition-all text-left">
-                <div className="font-bold text-lg mb-2 text-[#d4943d]">{a.name[lang]}</div>
-                <div className="text-sm text-[#5a4a32]">{a.desc[lang]}</div>
+              <button
+                key={id}
+                onClick={() => onPick(id)}
+                className={`group p-4 rounded-2xl bg-[#e8dcc0] border-2 ${rarityClass[rarity] || 'border-[#c4b890]'} hover:scale-[1.02] hover:bg-[#eee3ca] transition-all text-left shadow-lg`}
+              >
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <span className={`text-[10px] uppercase tracking-widest font-bold ${rarityText[rarity] || 'text-[#8a7a5a]'}`}>
+                    {RARITY_LABELS[rarity][lang]}
+                  </span>
+                  <span className="text-[#d4943d] text-lg">✦</span>
+                </div>
+                <div className="font-bold text-lg leading-tight text-[#3a2e1f] mb-2">{a.name[lang]}</div>
+                <div className="text-sm leading-relaxed text-[#5a4a32] min-h-[4.5rem]">{a.desc[lang]}</div>
+                {mechanic && mechanicText[mechanic] && (
+                  <div className={`mt-3 inline-flex px-2 py-1 rounded-md bg-black/5 text-[10px] uppercase tracking-wider font-bold ${rarityText[rarity]}`}>
+                    {mechanicText[mechanic][lang]}
+                  </div>
+                )}
               </button>
             );
           })}
@@ -419,7 +476,7 @@ function ArtifactModal({ lang, t, choices, onPick }: {
   );
 }
 
-// ===== Chest Modal =====
+//// ===== Chest Modal =====
 function ChestModal({ lang, t, st, onPick }: {
   lang: Lang; t: (k: TranslationKey) => string; st: GameState; onPick: (r: 'artifact') => void;
 }) {
