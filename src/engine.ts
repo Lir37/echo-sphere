@@ -558,7 +558,7 @@ export function getSphereRadius(s: GameState, sphere: SphereEntity): number {
 export function getSphereDamage(s: GameState, sphere: SphereEntity): number {
   let d = BASE_SPHERE_DAMAGE;
   const lvl = s.player.abilities.damage || 0;
-  d *= 1 + lvl * 0.2;
+  d *= 1 + lvl * 0.15;
   d *= 1 + (s.shopUpgrades.dmg || 0) * 0.05;
   if (s.player.mutationStage >= 1) d *= 1.1;
   if (s.player.chaosOrbBuff === 'dmg' && s.player.chaosOrbBuffTimer > 0) d *= 1.2;
@@ -587,7 +587,7 @@ export function getSphereDamage(s: GameState, sphere: SphereEntity): number {
 export function getSphereDelay(s: GameState, sphere?: SphereEntity): number {
   let d = BASE_SPHERE_DELAY;
   const lvl = s.player.abilities.attackspeed || 0;
-  d *= Math.pow(0.9, lvl);
+  d *= Math.pow(0.93, lvl);
   d /= Math.max(0.01, getCharacterAttackSpeedMultiplier(s));
   d *= getArtifactSphereDelayMultiplier(s);
   if (s.player.overloadTimer > 0) d *= 0.72;
