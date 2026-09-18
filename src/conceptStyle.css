@@ -553,3 +553,235 @@ canvas {
     padding: 10px 4px;
   }
 }
+
+
+/* ===== Mobile combat HUD ===== */
+.es-mobile-controls [data-mobile-control="true"] {
+  border-color: rgba(105, 224, 255, 0.24) !important;
+  background:
+    linear-gradient(180deg, rgba(10, 25, 40, 0.90), rgba(3, 9, 17, 0.94)) !important;
+  color: #dff7ff !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.055),
+    0 10px 24px rgba(0,0,0,0.28) !important;
+}
+
+.es-mobile-controls [data-mobile-control="true"]:active {
+  transform: scale(0.95);
+  border-color: rgba(105, 232, 255, 0.56) !important;
+  box-shadow:
+    inset 0 0 22px rgba(72, 208, 255, 0.10),
+    0 0 26px rgba(71, 208, 255, 0.12) !important;
+}
+
+.es-mobile-controls [class*="bg-[#ffb84d]/85"] {
+  border-color: rgba(255, 196, 104, 0.55) !important;
+  background: linear-gradient(180deg, rgba(90, 55, 35, 0.92), rgba(34, 17, 18, 0.95)) !important;
+}
+
+.es-mobile-controls [class*="ring-[#ffb84d]"] {
+  box-shadow: 0 0 0 1px rgba(255, 208, 116, 0.36), 0 0 16px rgba(255, 170, 80, 0.08);
+}
+
+.es-mobile-controls .absolute.rounded-full.border {
+  border-color: rgba(134, 228, 255, 0.34) !important;
+}
+
+.es-mobile-controls .bg-black\/20 {
+  background: rgba(2, 8, 16, 0.52) !important;
+}
+
+.es-mobile-controls .bg-white\/25 {
+  background: rgba(111, 218, 255, 0.22) !important;
+  border-color: rgba(190, 246, 255, 0.42) !important;
+  box-shadow: 0 0 16px rgba(80, 215, 255, 0.10);
+}
+
+/* Sphere selector buttons and their miniature "reactors". */
+.es-mobile-controls .grid.grid-cols-5 button {
+  border-radius: 50% !important;
+  position: relative;
+}
+
+.es-mobile-controls .grid.grid-cols-5 button::after {
+  content: "";
+  position: absolute;
+  inset: 7px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  opacity: 0.16;
+  transform: scaleY(0.42) rotate(-18deg);
+}
+
+.es-mobile-controls .grid.grid-cols-5 button span {
+  filter: drop-shadow(0 0 7px currentColor);
+}
+
+/* Character core should read as one coherent holographic object, not a sticker. */
+.es-character-avatar {
+  filter: drop-shadow(0 0 16px rgba(84, 214, 255, 0.08));
+  z-index: 5;
+}
+
+/* Character selection screen. */
+.es-character-screen,
+.es-list-screen {
+  color: var(--es-text);
+}
+
+.es-character-screen > div:first-child button,
+.es-list-screen button {
+  transition: 160ms ease;
+}
+
+.es-character-screen .rounded-2xl {
+  background:
+    linear-gradient(180deg, rgba(10, 22, 38, 0.88), rgba(3, 9, 17, 0.96)) !important;
+  border-color: rgba(81, 178, 235, 0.20) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.035),
+    0 14px 32px rgba(0,0,0,0.20);
+}
+
+.es-character-screen .rounded-2xl .text-\[\#3a2e1f\] {
+  color: #e4f3ff !important;
+}
+
+.es-character-screen .rounded-2xl .text-\[\#5a4a32\] {
+  color: #a9c1d4 !important;
+}
+
+.es-character-screen .rounded-2xl .text-\[\#8a7a5a\] {
+  color: #708da5 !important;
+}
+
+.es-character-screen .rounded-2xl .border-\[\#c4b890\] {
+  border-color: rgba(82, 175, 230, 0.20) !important;
+}
+
+.es-character-orb {
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 50% !important;
+  position: relative;
+  border: 1px solid currentColor !important;
+  background:
+    radial-gradient(circle at 34% 28%, #fff 0 7%, currentColor 18%, rgba(20,50,85,0.66) 42%, rgba(2,7,15,0.96) 70%) !important;
+  box-shadow:
+    0 0 22px color-mix(in srgb, currentColor 24%, transparent),
+    inset 0 0 18px rgba(255,255,255,0.05);
+}
+
+.es-character-orb::before,
+.es-character-orb::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  opacity: 0.28;
+}
+
+.es-character-orb::after {
+  inset: 7px;
+  transform: rotate(36deg) scaleY(0.38);
+  opacity: 0.34;
+}
+
+.es-character-glyph {
+  color: #effcff;
+  position: relative;
+  z-index: 2;
+  text-shadow: 0 0 10px currentColor;
+}
+
+.es-list-screen .rounded-xl,
+.es-list-screen .rounded-lg {
+  background:
+    linear-gradient(180deg, rgba(9, 20, 34, 0.84), rgba(3, 9, 17, 0.94)) !important;
+  border-color: rgba(86, 182, 238, 0.20) !important;
+}
+
+.es-list-screen h2 {
+  color: #e3f4ff !important;
+  letter-spacing: 0.06em;
+}
+
+.es-list-screen label {
+  color: #7193ac !important;
+}
+
+/* Modal depth and concept-art frame. */
+.es-pause-overlay {
+  background:
+    radial-gradient(circle at 50% 50%, rgba(39, 113, 168, 0.07), transparent 44%),
+    rgba(1, 4, 10, 0.82) !important;
+}
+
+.es-modal-shell {
+  position: relative;
+}
+
+.es-modal-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, transparent, rgba(110, 225, 255, 0.035), transparent),
+    radial-gradient(circle at 50% 0%, rgba(113, 101, 255, 0.08), transparent 38%);
+}
+
+/* Remove remaining warm UI colors in active game overlays. */
+.es-game-screen [class*="bg-[#eee4cd]"],
+.es-game-screen [class*="bg-[#e8dcc0]"],
+.es-game-screen [class*="bg-[#f4ecd8]"] {
+  background: rgba(5, 13, 23, 0.92) !important;
+}
+
+.es-game-screen [class*="text-[#5a4a32]"],
+.es-game-screen [class*="text-[#3a2e1f]"] {
+  color: #bad0df !important;
+}
+
+.es-game-screen [class*="text-[#8a7a5a]"] {
+  color: #6f8ba2 !important;
+}
+
+.es-game-screen [class*="border-[#c4b890]"] {
+  border-color: rgba(88, 182, 237, 0.18) !important;
+}
+
+/* Game-over / upgrade / artifact surfaces. */
+.es-game-screen [class*="bg-black/80"],
+.es-game-screen [class*="bg-black/70"] {
+  background:
+    radial-gradient(circle at 50% 35%, rgba(49, 103, 155, 0.08), transparent 38%),
+    rgba(1, 4, 9, 0.86) !important;
+  backdrop-filter: blur(6px);
+}
+
+@media (min-width: 901px) {
+  .es-game-screen .es-hud-panel {
+    min-width: 200px;
+  }
+}
+
+@media (max-width: 640px) {
+  .es-menu-brand-title {
+    letter-spacing: 0.18em;
+    font-size: 25px;
+  }
+
+  .es-menu-brand-subtitle {
+    letter-spacing: 0.20em;
+  }
+
+  .es-menu-center {
+    min-height: 250px;
+  }
+
+  .es-menu-play {
+    min-height: 54px;
+  }
+}
