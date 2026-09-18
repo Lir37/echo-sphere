@@ -8,12 +8,12 @@ import { getCharacterId, getCharacterFormation, getEngineerNetworkRange } from '
 // ===== Origami / Paper Craft Style =====
 // Warm backgrounds, faceted folded-paper shapes, fold lines, drop shadows.
 
-const INK = '#d8e7ff';
-const FOLD_LINE = 'rgba(190,215,245,0.18)';
-const VOID_BG = '#070d18';
-const VOID_PANEL = '#0d1726';
+const INK = '#eaf6ff';
+const FOLD_LINE = 'rgba(120,190,255,0.16)';
+const VOID_BG = '#02040b';
+const VOID_PANEL = '#080d1b';
 
-const MUTATION_COLORS = ['#c46d3d', '#b85a30', '#a04830', '#d4943d', '#e8c878'];
+const MUTATION_COLORS = ['#6eeaff', '#9b7cff', '#d86cff', '#55e6c1', '#b9a7ff'];
 
 interface Theme {
   bg: string;
@@ -458,36 +458,35 @@ function drawVoidAmbient(ctx: CanvasRenderingContext2D, w: number, h: number, ti
 }
 
 function drawVoidField(ctx: CanvasRenderingContext2D, w: number, h: number, theme: Theme, ox = 0, oy = 0): void {
-  const tileKey = `void-${theme.bg}`;
-  if (!_textureCanvases[tileKey as MapTheme]) {
-    const tc = document.createElement('canvas');
-    tc.width = 320; tc.height = 320;
-    const tctx = tc.getContext('2d')!;
-    tctx.fillStyle = theme.bg;
-    tctx.fillRect(0, 0, 320, 320);
-    for (let i = 0; i < 120; i++) {
-      const x = (i * 73.17) % 320;
-      const y = (i * 127.41) % 320;
-      const r = 0.35 + (i % 4) * 0.25;
-      tctx.fillStyle = `rgba(150,205,255,${0.03 + (i % 5) * 0.012})`;
-      tctx.beginPath(); tctx.arc(x, y, r, 0, Math.PI * 2); tctx.fill();
-    }
-    for (let i = 0; i <= 4; i++) {
-      const inset = 8 + i * 64;
-      tctx.strokeStyle = `rgba(${hexToRgb(theme.accent)},${0.018 + i * 0.008})`;
-      tctx.lineWidth = 1;
-      tctx.strokeRect(inset, inset, 320 - inset * 2, 320 - inset * 2);
-    }
-    _textureCanvases[tileKey as MapTheme] = tc;
-  }
-  const tile = _textureCanvases[tileKey as MapTheme]!;
-  for (let x = -256; x < w + 256; x += 320) {
-    for (let y = -256; y < h + 256; y += 320) {
-      ctx.drawImage(tile, x + ox, y + oy);
-    }
-  }
-}
+  const g = ctx.createRadialGradient(w*.5,h*.48,20,w*.5,h*.48,Math.max(w,h)*.7);
+  g.addColorStop(0,'rgba(30,22,72,0.30)');
+  g.addColorStop(.35,'rgba(8,20,48,0.18)');
+  g.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle = g;
+  ctx.fillRect(ox,oy,w,h);
 
+  // Slow, deterministic starfield. It stays attached to the world and does not scroll like a UI texture.
+  ctx.save();
+  for(let i=0;i<170;i++){
+    const x=ox+((i*137.31)%w), y=oy+((i*71.93)%h);
+    const tw=.25+.18*Math.sin(Date.now()/1100+i);
+    ctx.fillStyle=`rgba(150,205,255,${tw})`;
+    ctx.beginPath(); ctx.arc(x,y,.45+(i%3)*.25,0,Math.PI*2); ctx.fill();
+  }
+  ctx.restore();
+
+  // Large faint energy arcs give the arena the same monumental scale as the concept art.
+  ctx.save();
+  ctx.translate(ox+w*.5,oy+h*.5);
+  ctx.strokeStyle='rgba(101,232,255,0.035)';
+  ctx.lineWidth=2;
+  for(let i=0;i<4;i++){
+    ctx.beginPath();
+    ctx.arc(0,0,Math.min(w,h)*(.22+i*.12),0,Math.PI*2);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
 function drawModernXp(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, color: string): void {
   ctx.save(); ctx.translate(x, y);
   glowCircle(ctx, r * 3.5, color, 0.16);
@@ -617,12 +616,12 @@ function drawPaperTexture(ctx: CanvasRenderingContext2D, w: number, h: number, t
 }
 
 function drawGrid(ctx: CanvasRenderingContext2D, s: GameState, canvasW: number, canvasH: number, theme: Theme): void {
-  const grid = 80;
+  const grid = 160;
   const startX = Math.floor((s.camera.x - canvasW / 2) / grid) * grid;
   const startY = Math.floor((s.camera.y - canvasH / 2) / grid) * grid;
-  ctx.strokeStyle = theme.grid;
+  ctx.save();
+  ctx.strokeStyle = 'rgba(85,130,255,0.045)';
   ctx.lineWidth = 1;
-  ctx.setLineDash([4, 4]);
   ctx.beginPath();
   for (let x = startX; x < s.camera.x + canvasW / 2 + grid; x += grid) {
     ctx.moveTo(x, s.camera.y - canvasH / 2 - grid);
@@ -633,9 +632,8 @@ function drawGrid(ctx: CanvasRenderingContext2D, s: GameState, canvasW: number, 
     ctx.lineTo(s.camera.x + canvasW / 2 + grid, y);
   }
   ctx.stroke();
-  ctx.setLineDash([]);
+  ctx.restore();
 }
-
 // ===== Paper helpers =====
 function drawShadow(ctx: CanvasRenderingContext2D, fn: () => void, dx = 3, dy = 4): void {
   ctx.save(); ctx.translate(dx, dy);
@@ -1115,120 +1113,112 @@ function drawTentacles(ctx: CanvasRenderingContext2D): void {
 
 // ===== Sphere — origami turret/tower =====
 function drawTowerPaperFrame(ctx: CanvasRenderingContext2D, sphere: SphereEntity, color: string, t: number): void {
-  const pulse = 0.5 + Math.sin(t * 5 + sphere.pos.x * 0.01) * 0.5;
-  const lift = Math.sin(t * 3.5 + sphere.pos.y * 0.008) * 0.8;
+  const pulse = 0.5 + Math.sin(t * 4.5 + sphere.pos.x * 0.01) * 0.5;
+  const r = 20 + sphere.visualTier * 2;
+  const rgb = hexToRgb(color);
+
   ctx.save();
-  ctx.translate(0, lift);
 
-  ctx.fillStyle = 'rgba(58,46,31,0.13)';
-  ctx.beginPath(); ctx.ellipse(3, 9, 21, 9, 0, 0, Math.PI * 2); ctx.fill();
+  // Floating sci-fi reactor base.
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 24;
+  ctx.fillStyle = 'rgba(2,6,18,0.92)';
+  ctx.strokeStyle = `rgba(${rgb},0.78)`;
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.ellipse(0, 9, r * 0.9, r * 0.34, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.shadowBlur = 0;
 
-  // Layered folded base.
-  const points: Array<{ x: number; y: number }> = [];
-  for (let i = 0; i < 8; i++) {
-    const a = (i / 8) * Math.PI * 2 + Math.PI / 8;
-    points.push({ x: Math.cos(a) * 19, y: Math.sin(a) * 19 });
-  }
-  ctx.fillStyle = shade(color, -48);
-  ctx.beginPath(); points.forEach((p, i) => i ? ctx.lineTo(p.x, p.y + 3) : ctx.moveTo(p.x, p.y + 3)); ctx.closePath(); ctx.fill();
-  ctx.strokeStyle = INK; ctx.lineWidth = 1.5; ctx.stroke();
-  ctx.fillStyle = shade(color, -16);
-  ctx.beginPath(); points.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)); ctx.closePath(); ctx.fill();
-  ctx.strokeStyle = FOLD_LINE; ctx.lineWidth = 1;
-  for (let i = 0; i < 8; i += 2) { ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(points[i].x, points[i].y); ctx.stroke(); }
+  // Energy ring beneath every tower.
+  ctx.strokeStyle = `rgba(${rgb},${0.28 + pulse * 0.22})`;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.ellipse(0, 7, r * (0.72 + pulse * 0.08), r * 0.23, 0, 0, Math.PI * 2);
+  ctx.stroke();
 
-  // Distinct folded-paper body silhouette for each tower role.
-  // The silhouette is intentionally compact so the existing tower frame remains visible.
   ctx.save();
-  ctx.rotate(sphere.rotation * 0.35);
-  ctx.fillStyle = shade(color, -24);
-  ctx.strokeStyle = INK;
-  ctx.lineWidth = 1.4;
+  ctx.rotate(sphere.rotation * 0.22);
+
+  // Angular alien-tech silhouette. Each tower keeps a distinct role profile.
+  const top = -r * 1.18;
+  const bottom = r * 0.72;
+  ctx.fillStyle = 'rgba(8,14,32,0.96)';
+  ctx.strokeStyle = `rgba(${rgb},0.92)`;
+  ctx.lineWidth = 1.7;
+
   if (sphere.type === 'sniper') {
-    // Tall crystal/periscope: visually points forward.
     ctx.beginPath();
-    ctx.moveTo(-8, 13); ctx.lineTo(-6, -12); ctx.lineTo(2, -18);
-    ctx.lineTo(13, -10); ctx.lineTo(10, 15); ctx.lineTo(0, 20);
-    ctx.closePath(); ctx.fill(); ctx.stroke();
-    ctx.fillStyle = shade(color, 22);
-    ctx.beginPath(); ctx.moveTo(-6, -12); ctx.lineTo(2, -18); ctx.lineTo(2, -1); ctx.closePath(); ctx.fill();
-    ctx.strokeStyle = FOLD_LINE;
-    ctx.beginPath(); ctx.moveTo(2, -1); ctx.lineTo(0, 20); ctx.stroke();
+    ctx.moveTo(-r * .36, bottom); ctx.lineTo(-r * .30, -r * .82);
+    ctx.lineTo(-r * .10, top); ctx.lineTo(r * .16, -r * .92);
+    ctx.lineTo(r * .32, bottom); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.strokeStyle = `rgba(255,255,255,0.55)`;
+    ctx.beginPath(); ctx.moveTo(0, top); ctx.lineTo(0, -r * .25); ctx.lineTo(r * .72, -r * .25); ctx.stroke();
   } else if (sphere.type === 'shotgun') {
-    // Broad folded receiver with three short barrels.
     ctx.beginPath();
-    ctx.moveTo(-15, -10); ctx.lineTo(4, -13); ctx.lineTo(14, -7);
-    ctx.lineTo(14, 7); ctx.lineTo(4, 13); ctx.lineTo(-15, 10);
-    ctx.closePath(); ctx.fill(); ctx.stroke();
-    ctx.strokeStyle = shade(color, 24); ctx.lineWidth = 2;
+    ctx.moveTo(-r * .72, -r * .45); ctx.lineTo(r * .28, -r * .62);
+    ctx.lineTo(r * .65, -.05); ctx.lineTo(r * .28, r * .48);
+    ctx.lineTo(-r * .72, r * .34); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.strokeStyle = color; ctx.lineWidth = 2.4;
     for (let i = -1; i <= 1; i++) {
-      ctx.beginPath(); ctx.moveTo(0, i * 4); ctx.lineTo(19, i * 6); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(r * .05, i * 4); ctx.lineTo(r * 1.0, i * 6); ctx.stroke();
     }
   } else if (sphere.type === 'chain') {
-    // Two interlocking paper loops, animated against each other.
-    const pulse = 0.5 + Math.sin(t * 7 + sphere.pos.y * 0.01) * 0.5;
-    ctx.strokeStyle = shade(color, 20); ctx.lineWidth = 4;
-    ctx.beginPath(); ctx.arc(-7, 0, 8 + pulse, -0.8, Math.PI + 0.8); ctx.stroke();
-    ctx.beginPath(); ctx.arc(7, 0, 8 + (1 - pulse), Math.PI - 0.8, Math.PI * 2 - 0.8); ctx.stroke();
-    ctx.strokeStyle = INK; ctx.lineWidth = 1.4;
-    ctx.beginPath(); ctx.arc(-7, 0, 8 + pulse, -0.8, Math.PI + 0.8); ctx.stroke();
-    ctx.beginPath(); ctx.arc(7, 0, 8 + (1 - pulse), Math.PI - 0.8, Math.PI * 2 - 0.8); ctx.stroke();
+    ctx.strokeStyle = `rgba(${rgb},0.95)`;
+    ctx.lineWidth = 5;
+    ctx.beginPath(); ctx.arc(-r * .28, 0, r * .42, -.9, Math.PI + .65); ctx.stroke();
+    ctx.beginPath(); ctx.arc(r * .28, 0, r * .42, Math.PI - .65, Math.PI * 2 + .9); ctx.stroke();
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = '#ffffff';
+    ctx.globalAlpha = .45;
+    ctx.beginPath(); ctx.arc(-r * .28, 0, r * .42, -.9, Math.PI + .65); ctx.stroke();
+    ctx.beginPath(); ctx.arc(r * .28, 0, r * .42, Math.PI - .65, Math.PI * 2 + .9); ctx.stroke();
+    ctx.globalAlpha = 1;
   } else if (sphere.type === 'aura') {
-    // Hexagonal amplifier/basin.
     ctx.beginPath();
-    ctx.moveTo(0, -18); ctx.lineTo(14, -8); ctx.lineTo(12, 9);
-    ctx.lineTo(0, 18); ctx.lineTo(-12, 9); ctx.lineTo(-14, -8);
-    ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.moveTo(0, -r); ctx.lineTo(r * .78, -.42*r); ctx.lineTo(r*.62, r*.58);
+    ctx.lineTo(0, r*.82); ctx.lineTo(-r*.62, r*.58); ctx.lineTo(-r*.78, -.42*r); ctx.closePath();
+    ctx.fill(); ctx.stroke();
     ctx.strokeStyle = color; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.arc(0, 2, 9 + Math.sin(t * 5) * 1.4, 0, Math.PI * 2); ctx.stroke();
-    ctx.strokeStyle = FOLD_LINE; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(0, -18); ctx.lineTo(0, 18); ctx.stroke();
+    ctx.beginPath(); ctx.arc(0, 0, r * (.48 + pulse * .04), 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.arc(0, 0, r * .23, 0, Math.PI * 2); ctx.stroke();
   } else {
-    // Default folded emitter/node.
     ctx.beginPath();
-    ctx.moveTo(0, -17); ctx.lineTo(15, -7); ctx.lineTo(12, 11);
-    ctx.lineTo(0, 17); ctx.lineTo(-12, 11); ctx.lineTo(-15, -7);
-    ctx.closePath(); ctx.fill(); ctx.stroke();
-    ctx.fillStyle = shade(color, 26);
-    ctx.beginPath(); ctx.moveTo(0, -17); ctx.lineTo(15, -7); ctx.lineTo(0, 2); ctx.closePath(); ctx.fill();
+    ctx.moveTo(0, -r); ctx.lineTo(r*.68, -r*.35); ctx.lineTo(r*.52, r*.58);
+    ctx.lineTo(0, r*.82); ctx.lineTo(-r*.52, r*.58); ctx.lineTo(-r*.68, -r*.35); ctx.closePath();
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = color;
+    ctx.globalAlpha = .16 + pulse * .12;
+    ctx.beginPath(); ctx.arc(0, 0, r*.45, 0, Math.PI*2); ctx.fill();
+    ctx.globalAlpha = 1;
   }
+
+  // Luminous core.
+  const core = ctx.createRadialGradient(-2,-3,1,0,0,r*.42);
+  core.addColorStop(0,'#ffffff');
+  core.addColorStop(.2,color);
+  core.addColorStop(1,`rgba(${rgb},0)`);
+  ctx.fillStyle = core;
+  ctx.beginPath(); ctx.arc(0,0,r*.38,0,Math.PI*2); ctx.fill();
+
   ctx.restore();
 
-  // Animated paper braces.
-  ctx.save();
-  ctx.rotate(t * 0.32 + sphere.rotation * 0.15);
-  ctx.strokeStyle = 'rgba(' + hexToRgb(color) + ',0.48)';
-  ctx.lineWidth = 1.6;
-  ctx.setLineDash([6, 4]);
-  ctx.beginPath(); ctx.arc(0, 0, 23 + pulse * 2, -0.55, 0.95); ctx.stroke();
-  ctx.beginPath(); ctx.arc(0, 0, 23 + pulse * 2, Math.PI - 0.95, Math.PI + 0.55); ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.restore();
-
-  // Folded directional crown, unique to the tower type.
-  ctx.save(); ctx.rotate(sphere.rotation);
-  ctx.strokeStyle = INK; ctx.lineWidth = 1.2;
-  if (sphere.type === 'sniper') {
-    ctx.fillStyle = shade(color, 22);
-    ctx.beginPath(); ctx.moveTo(0, -9); ctx.lineTo(10, -2); ctx.lineTo(0, 2); ctx.lineTo(-10, -2); ctx.closePath(); ctx.fill(); ctx.stroke();
-  } else if (sphere.type === 'shotgun') {
-    ctx.fillStyle = shade(color, 18);
-    for (let i = -1; i <= 1; i++) { ctx.beginPath(); ctx.moveTo(-7, i * 5 - 2); ctx.lineTo(2, i * 5 - 5); ctx.lineTo(4, i * 5); ctx.lineTo(2, i * 5 + 5); ctx.lineTo(-7, i * 5 + 2); ctx.closePath(); ctx.fill(); ctx.stroke(); }
-  } else if (sphere.type === 'chain') {
-    ctx.strokeStyle = '#d4a830'; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.arc(0, -7, 4 + pulse, 0.4, Math.PI * 1.6); ctx.stroke();
-    ctx.beginPath(); ctx.arc(0, 7, 4 + (1 - pulse), Math.PI * 1.4, Math.PI * 0.4); ctx.stroke();
-  } else if (sphere.type === 'aura') {
-    ctx.strokeStyle = color; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.arc(0, 0, 12 + pulse * 2, 0, Math.PI * 2); ctx.stroke();
-  } else {
-    ctx.fillStyle = shade(color, 28);
-    ctx.beginPath(); ctx.moveTo(0, -8); ctx.lineTo(7, 0); ctx.lineTo(0, 8); ctx.lineTo(-7, 0); ctx.closePath(); ctx.fill(); ctx.stroke();
+  // Tier rings communicate evolution without UI clutter.
+  for (let i = 0; i < Math.min(3, sphere.visualTier); i++) {
+    ctx.save();
+    ctx.rotate(t * (i % 2 ? -.28 : .34) + i);
+    ctx.strokeStyle = `rgba(${rgb},${.34 - i*.07})`;
+    ctx.lineWidth = 1.2;
+    ctx.setLineDash([7 + i*3, 8]);
+    ctx.beginPath();
+    ctx.arc(0,0,r + 8 + i*6,0,Math.PI*2);
+    ctx.stroke();
+    ctx.restore();
   }
-  ctx.restore();
+
   ctx.restore();
 }
-
 function drawSphereLegacy(ctx: CanvasRenderingContext2D, s: GameState, sphere: SphereEntity): void {
   ctx.save();
   ctx.translate(sphere.pos.x, sphere.pos.y);
