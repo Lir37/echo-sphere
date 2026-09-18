@@ -1772,7 +1772,7 @@ function updateSpheres(s: GameState, dt: number): void {
             const chainTargets: EnemyEntity[] = [];
             let current = nearest;
             const hitSet = new Set<EnemyEntity>([current]);
-            for (let c = 0; c < 3; c++) {
+            for (let c = 0; c < Math.max(0, towerModifiers(s, sphere.type).chainTargets); c++) {
               let next: EnemyEntity | null = null;
               let cd2 = Infinity;
               for (const e2 of s.enemies) {
