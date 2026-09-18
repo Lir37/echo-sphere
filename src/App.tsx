@@ -280,9 +280,8 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
               </div>
             </div>
           )}
-          {st.pendingUpgrade && <UpgradeModal lang={lang} t={t} st={st} onPick={(c) => { applyUpgrade(st, c); st.pendingUpgrade = null; }} />}
+          {st.pendingUpgrade && <UpgradeModal lang={lang} t={t} st={st} onPick={(c) => { applyUpgrade(st, c); }} />}
           {st.pendingArtifact && <ArtifactModal lang={lang} t={t} st={st} choices={st.pendingArtifact} onPick={(id) => { applyArtifact(st, id); st.pendingArtifact = null; }} />}
-          {st.pendingChest && <ChestModal lang={lang} t={t} st={st} onPick={() => { openChest(st, 'artifact'); }} />}
           {paused && !st.pendingUpgrade && !st.pendingArtifact && !st.pendingChest && (
             <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-50">
               <div className="text-center max-w-md w-full px-6">
@@ -465,9 +464,9 @@ function UpgradeModal({ lang, t, st, onPick }: {
     : first?.abilityStage === 'final'
       ? (lang === 'ru' ? 'Финальная форма способности' : 'Final Ability Form')
       : first?.sphereStage === 'branch'
-        ? (lang === 'ru' ? 'Эволюция сферы I' : 'Sphere Evolution I')
+        ? (lang === 'ru' ? 'Мутация сферы I' : 'Sphere Mutation I')
         : first?.sphereStage === 'final'
-          ? (lang === 'ru' ? 'Финальная специализация сферы' : 'Final Sphere Specialization')
+          ? (lang === 'ru' ? 'Мутация сферы II' : 'Sphere Mutation II')
           : t('chooseUpgrade');
   return (
     <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-50">
@@ -489,28 +488,6 @@ function UpgradeModal({ lang, t, st, onPick }: {
               <div className="text-xs text-[#8a7a5a]/70">{t('level')} {choice.currentLevel} → {choice.newLevel}</div>
             </button>
           ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-//// ===== Chest Modal =====
-function ChestModal({ lang, t, st, onPick }: {
-  lang: Lang; t: (k: TranslationKey) => string; st: GameState; onPick: (r: 'artifact') => void;
-}) {
-  return (
-    <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-50">
-      <div className="max-w-lg w-full px-6">
-        <h2 className="text-2xl font-bold text-center mb-2 text-[#d4943d]">{t('chestFound')}</h2>
-        <p className="text-center text-[#8a7a5a] mb-6">{t('chooseChestReward')}</p>
-        <div className="grid grid-cols-1 gap-4">
-          <button onClick={() => onPick('artifact')} className="p-5 rounded-xl bg-[#e8dcc0] border border-[#8a5a8a]/30 hover:border-[#8a5a8a]/60 hover:scale-105 transition-all text-left flex items-center gap-4">
-            <span className="text-3xl">✦</span>
-            <div>
-              <div className="font-bold text-lg text-[#8a5a8a]">{t('chestArtifact')}</div>
-            </div>
-          </button>
         </div>
       </div>
     </div>
