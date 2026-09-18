@@ -458,55 +458,6 @@ function ArtifactModal({ lang, t, st, choices, onPick }: {
 function UpgradeModal({ lang, t, st, onPick }: {
   lang: Lang; t: (k: TranslationKey) => string; st: GameState; onPick: (c: UpgradeChoice) => void;
 }) {
-  const choices = st.pendingUpgrade || []; const first = choices[0];
-  const title = first?.sphereStage === 'branch' ? (lang === 'ru' ? 'Эволюция сферы I' : 'Sphere Evolution I') : first?.sphereStage === 'final' ? (lang === 'ru' ? 'Финальная специализация' : 'Final Specialization') : t('chooseUpgrade');
-  return (
-    <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-50">
-      <div className="max-w-2xl w-full px-6">
-        <h2 className="text-2xl font-bold text-center mb-6 text-[#4a7a8a]">{title}</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {choices.map((c, i) => {
-            if (c.type === 'sphere') {
-              const label = c.sphereStage === 'branch' ? (lang === 'ru' ? 'ВЕТКА сферы' : 'SPHERE BRANCH') : c.sphereStage === 'final' ? (lang === 'ru' ? 'ФИНАЛЬНАЯ СПЕЦИАЛИЗАЦИЯ' : 'FINAL SPECIALIZATION') : (lang === 'ru' ? 'УЛУЧШЕНИЕ сферы' : 'SPHERE UPGRADE');
-              return <button key={i} onClick={() => onPick(c)} className="p-5 rounded-xl bg-[#e8dcc0] border border-[#5a8c4a]/30 hover:border-[#5a8c4a]/60 hover:scale-105 transition-all text-left"><div className="text-[#5a8c4a] text-[10px] uppercase tracking-wider mb-1">{label}</div><div className="font-bold text-lg mb-2">{c.name?.[lang] || 'sphere'}</div><div className="text-sm text-[#5a4a32] mb-2">{c.desc?.[lang] || ''}</div><div className="text-xs text-[#8a7a5a]/70">{t('level')} {c.currentLevel} → {c.newLevel}</div></button>;
-            };
-            return (
-              <button
-                key={id}
-                onClick={() => onPick(id)}
-                className={`group p-4 rounded-2xl bg-[#e8dcc0] border-2 ${rarityClass[rarity] || 'border-[#c4b890]'} hover:scale-[1.02] hover:bg-[#eee3ca] transition-all text-left shadow-lg`}
-              >
-                <div className="flex items-center justify-between gap-2 mb-3">
-                  <span className={`text-[10px] uppercase tracking-widest font-bold ${rarityText[rarity] || 'text-[#8a7a5a]'}`}>
-                    {RARITY_LABELS[rarity][lang]}
-                  </span>
-                  <span className="text-[#d4943d] text-lg">✦</span>
-                </div>
-                <div className="font-bold text-lg leading-tight text-[#3a2e1f] mb-2">{a.name[lang]}</div>
-                <div className="text-sm leading-relaxed text-[#5a4a32] min-h-[4.5rem]">{a.desc[lang]}</div>
-                {getArtifactSynergiesAfterPick(st, id).filter((x) => !getActiveArtifactSynergies(st).some((active) => active.id === x.id)).map((synergy) => (
-                  <div key={synergy.id} className="mt-3 rounded-lg bg-[#8064a8]/10 border border-[#8064a8]/30 px-2 py-1.5">
-                    <div className="text-[9px] uppercase tracking-wider font-bold text-[#8064a8]">{lang === 'ru' ? 'Активирует синергию' : 'Activates synergy'}</div>
-                    <div className="text-xs font-bold text-[#8064a8]">{synergy.name[lang]}</div>
-                  </div>
-                ))}
-                {mechanic && mechanicText[mechanic] && (
-                  <div className={`mt-3 inline-flex px-2 py-1 rounded-md bg-black/5 text-[10px] uppercase tracking-wider font-bold ${rarityText[rarity]}`}>
-                    {mechanicText[mechanic][lang]}
-                  </div>
-                )}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function UpgradeModal({ lang, t, st, onPick }: {
-  lang: Lang; t: (k: TranslationKey) => string; st: GameState; onPick: (c: UpgradeChoice) => void;
-}) {
   const choices = st.pendingUpgrade || [];
   const first = choices[0];
   const title = first?.sphereStage === 'branch'
