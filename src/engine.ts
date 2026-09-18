@@ -212,7 +212,7 @@ export interface LightningBolt {
 }
 
 export interface UpgradeChoice {
-  type: 'ability' | 'evolve' | 'tower';
+  type: 'ability' | 'evolve' | 'sphere';
   ability?: AbilityType;
   evolution?: string;
   sphereType?: SphereType;
@@ -766,7 +766,7 @@ function triggerEngineerRelay(s: GameState, sphere: SphereEntity): void {
 }
 
 // ===== Damage application =====
-function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSphere?: SphereEntity, allowTowerProc = true): void {
+function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSphere?: SphereEntity, allowSphereProc = true): void {
   if (enemy.hp <= 0) return;
   if (fromSphere) registerHunterHit(s, enemy, fromSphere);
 
@@ -790,10 +790,10 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
     fromSphere.killsContribution++;
     if (fromSphere.killsContribution % 5 === 0) { actual *= 2; isCrit = true; }
   }
-  // Tower branch mechanics: evolutions alter the combat loop, not just stats.
-  if (fromSphere && allowTowerProc) {
+  // Sphere evolution mechanics: evolutions alter the combat loop, not just stats.
+  if (fromSphere && allowSphereProc) {
     const branch = s.player.sphereBranches?.[fromSphere.type];
-    const finalId = (s.player.evolutions || []).find((x: string) => x.startsWith('tower:' + fromSphere.type + ':7:'));
+    const finalId = (s.player.evolutions || []).find((x: string) => x.startsWith('sphere:' + fromSphere.type + ':7:'));
     const finalIndex = finalId ? Number(finalId.split(':').pop()) : null;
 
     if (branch === 'standard_resonator') {
@@ -907,7 +907,7 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
   enemy.hp -= actual;
   enemy.hitFlash = 0.15;
 
-  // Juicier impact: a short, directional burst makes every tower hit readable.
+  // Juicier impact: a short, directional burst makes every sphere hit readable.
   const impactCount = enemy.isBoss ? 10 : isCrit ? 9 : enemy.isElite ? 7 : 4;
   for (let i = 0; i < impactCount; i++) {
     const angle = Math.random() * Math.PI * 2;
@@ -1300,7 +1300,7 @@ export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
     const def = SPHERE_PROGRESSION[milestone];
     if (level === 3) {
       return def.evolution4Choices.map(branch => ({
-        type: 'tower' as const, sphereType: milestone, sphereBranch: branch.id, sphereStage: 'branch' as const,
+        type: 'sphere' as const, sphereType: milestone, sphereBranch: branch.id, sphereStage: 'branch' as const,
         name: { ru: def.name.ru + ' — ' + branch.name.ru, en: def.name.en + ' — ' + branch.name.en },
         desc: branch.desc, currentLevel: 3, newLevel: 4,
       }));
@@ -1308,7 +1308,7 @@ export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
     const branchId = s.player.sphereBranches[milestone];
     const branch = def.evolution4Choices.find(x => x.id === branchId) ?? def.evolution4Choices[0];
     return branch.final.map((finalChoice, index) => ({
-      type: 'tower' as const, sphereType: milestone, sphereBranch: branch.id, sphereFinalIndex: index, sphereStage: 'final' as const,
+      type: 'sphere' as const, sphereType: milestone, sphereBranch: branch.id, sphereFinalIndex: index, sphereStage: 'final' as const,
       name: { ru: def.name.ru + ' — ' + branch.name.ru + ' ' + ['I','II','III'][index], en: def.name.en + ' — ' + branch.name.en + ' ' + ['I','II','III'][index] },
       desc: finalChoice.desc, currentLevel: 6, newLevel: 7,
     }));
@@ -1327,7 +1327,7 @@ export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
       const branch = branchId ? def.evolution4Choices.find(x => x.id === branchId) : null;
       const branchProgress = (nextLevel === 5 || nextLevel === 6) && !!branch;
       return {
-        type: 'tower' as const, sphereType: type, sphereBranch: branchId, sphereStage: 'upgrade' as const,
+        type: 'sphere' as const, sphereType: type, sphereBranch: branchId, sphereStage: 'upgrade' as const,
         currentLevel, newLevel: nextLevel,
         name: { ru: def.name.ru + ' — уровень ' + nextLevel + ': ' + (branchProgress ? branch!.name.ru : levelDef.name.ru),
                 en: def.name.en + ' — level ' + nextLevel + ': ' + (branchProgress ? branch!.name.en : levelDef.name.en) },
@@ -1360,17 +1360,17 @@ function checkEvolution(s: GameState): string | null {
 }
 
 export function applyUpgrade(s: GameState, choice: UpgradeChoice): void {
-  if (choice.type === 'tower' && choice.sphereType) {
+  if (choice.type === 'sphere' && choice.sphereType) {
     const type = choice.sphereType; const current = sphereLevel(s, type);
     if (current >= 7) return;
     const next = current + 1; s.player.sphereProgression[type] = next;
     for (const sphere of s.spheres) if (sphere.type === type) sphere.visualTier = next;
     if (choice.sphereStage === 'branch' && choice.sphereBranch) {
       s.player.sphereBranches[type] = choice.sphereBranch;
-      s.player.evolutions.push('tower:' + type + ':4:' + choice.sphereBranch); s.evolutionsThisRun++;
+      s.player.evolutions.push('sphere:' + type + ':4:' + choice.sphereBranch); s.evolutionsThisRun++;
       s.flashText = { text: choice.name?.ru ?? 'Эволюция сферы', life: 2.2, color: '#d4943d' }; playSound('evolve');
     } else if (choice.sphereStage === 'final') {
-      s.player.evolutions.push('tower:' + type + ':7:' + (choice.sphereBranch ?? 'unknown') + ':' + (choice.sphereFinalIndex ?? 0));
+      s.player.evolutions.push('sphere:' + type + ':7:' + (choice.sphereBranch ?? 'unknown') + ':' + (choice.sphereFinalIndex ?? 0));
       s.evolutionsThisRun++; s.flashText = { text: choice.name?.ru ?? 'Финальная специализация', life: 2.2, color: '#c4453d' }; playSound('evolve');
     }
     return;
@@ -1395,7 +1395,7 @@ export function applyUpgrade(s: GameState, choice: UpgradeChoice): void {
 export function applyTowerUpgrade(s: GameState, choice: SphereUpgradeChoice): void {
   const type = (choice as SphereUpgradeChoice & { sphereType?: SphereType }).sphereType;
   if (!type) return;
-  applyUpgrade(s, { type: 'tower', sphereType: type, sphereStage: 'upgrade', sphereBranch: s.player.sphereBranches[type], currentLevel: sphereLevel(s, type), newLevel: sphereLevel(s, type) + 1 });
+  applyUpgrade(s, { type: 'sphere', sphereType: type, sphereStage: 'upgrade', sphereBranch: s.player.sphereBranches[type], currentLevel: sphereLevel(s, type), newLevel: sphereLevel(s, type) + 1 });
 }
 
 export function applyArtifact(s: GameState, id: ArtifactId): void {
@@ -1675,8 +1675,8 @@ function updateSpheres(s: GameState, dt: number): void {
         let attacked = false;
         for (const e of s.enemies) {
           if (e.hp <= 0) continue;
-          const towerStats = sphereModifiers(s, sphere.type);
-          if (dist(e.pos, sphere.pos) < stype.auraRadius * towerStats.auraRadius) {
+          const sphereStats = sphereModifiers(s, sphere.type);
+          if (dist(e.pos, sphere.pos) < stype.auraRadius * sphereStats.auraRadius) {
             const branch = s.player.sphereBranches?.[sphere.type];
             if (branch === 'aura_sanctum') {
               e.slowTimer = Math.max(e.slowTimer, 0.8);
