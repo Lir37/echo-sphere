@@ -107,6 +107,15 @@ function sphereFinalIndex(s:any,type:SphereType):number|null{
   const n=Number(id.split(':').pop());
   return Number.isFinite(n)?n:null;
 }
+export function getActiveSphereAbilitySynergies(s:any): SphereAbilitySynergy[] {
+  const character = s.player.characterId as CharacterId;
+  return SPHERE_ABILITY_SYNERGIES.filter(link =>
+    link.character === character &&
+    sphereLevel(s, link.sphere) >= 7 &&
+    (s.player.abilities?.[link.ability] || 0) >= 7
+  );
+}
+
 export function sphereModifiers(s:any,type:SphereType,sphere?:any){
   const l=sphereLevel(s,type), branch=s.player.sphereBranches?.[type], final=sphereFinalIndex(s,type), artifact=getSphereArtifactModifiers(s,type,sphere);
   let damage=1+l*.08+(l>=4?.12:0)+(l>=7?.18:0), radius=1+(l>=2?.05:0)+(l>=5?.06:0)+(l>=7?.08:0), delay=Math.max(.48,1-l*.045);
@@ -126,5 +135,16 @@ export function sphereModifiers(s:any,type:SphereType,sphere?:any){
   if(type==='aura'&&branch==='aura_sanctum'){auraRadius*=1.15;if(final===0)auraPulse*=0.8;}
   if(type==='aura'&&branch==='aura_gravity'){auraRadius*=1.10;if(final===0)auraRadius*=1.18;}
   if(type==='aura'&&branch==='aura_overgrowth'){damage*=1.06;auraRadius*=1.08;if(final===0)damage*=1.15;}
+
+  // A sphere + active ability synergy unlocks only when both reach VII.
+  // This is a build-defining rule change, not another generic stat bonus.
+  for (const link of getActiveSphereAbilitySynergies(s)) {
+    if (link.sphere !== type) continue;
+    if (link.effect === 'damage') damage *= 1.12;
+    if (link.effect === 'attackSpeed') delay *= 0.88;
+    if (link.effect === 'radius') radius *= 1.12;
+    if (link.effect === 'chain') chainTargets += 1;
+  }
+
   return {damage:damage*artifact.damage,radius:radius*artifact.radius,delay:delay*artifact.delay,pierce,multishot,chainTargets,auraRadius,auraPulse};
 }
