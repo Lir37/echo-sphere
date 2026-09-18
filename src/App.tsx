@@ -421,9 +421,10 @@ function ArtifactModal({ lang, t, st, choices, onPick }: {
         <p className="text-sm text-center text-[#8a7a5a] mb-6">{lang === 'ru' ? 'Артефакты меняют правила взаимодействия сфер и персонажа' : 'Artifacts change the rules of how spheres and the player interact'}</p>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {choices.map((id) => {
-            const a = ARTIFACT_META[id];
+            const meta = ARTIFACT_META[id];
+            const a = ARTIFACT_MAP[id];
             const rarity = artifactRarity(id);
-            const mechanic = a.mechanic;
+            const mechanic = meta.mechanic;
             const newSynergies = getArtifactSynergiesAfterPick(st, id).filter((x) => !active.some((y) => y.id === x.id));
             return (
               <button key={id} onClick={() => onPick(id)} className={`p-5 rounded-xl bg-[#e8dcc0] border-2 ${rarityClass[rarity] || 'border-[#c4b890]'} hover:scale-[1.02] transition-all text-left`}>
@@ -497,6 +498,39 @@ function UpgradeModal({ lang, t, st, onPick }: {
               </button>
             );
           })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function UpgradeModal({ lang, t, st, onPick }: {
+  lang: Lang; t: (k: TranslationKey) => string; st: GameState; onPick: (c: UpgradeChoice) => void;
+}) {
+  const choices = st.pendingUpgrade || [];
+  const first = choices[0];
+  const title = first?.sphereStage === 'branch'
+    ? (lang === 'ru' ? 'Эволюция сферы I' : 'Sphere Evolution I')
+    : first?.sphereStage === 'final'
+      ? (lang === 'ru' ? 'Финальная специализация сферы' : 'Final Sphere Specialization')
+      : t('chooseUpgrade');
+  return (
+    <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-50">
+      <div className="max-w-2xl w-full px-6">
+        <h2 className="text-2xl font-bold text-center mb-6 text-[#4a7a8a]">{title}</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {choices.map((choice, i) => (
+            <button key={i} onClick={() => onPick(choice)} className="p-5 rounded-xl bg-[#e8dcc0] border border-[#5a8c4a]/30 hover:border-[#5a8c4a]/60 hover:scale-105 transition-all text-left">
+              <div className="text-[#5a8c4a] text-[10px] uppercase tracking-wider mb-1">
+                {choice.sphereStage === 'branch' ? (lang === 'ru' ? 'ВЕТКА СФЕРЫ' : 'SPHERE BRANCH')
+                  : choice.sphereStage === 'final' ? (lang === 'ru' ? 'ФИНАЛЬНАЯ СПЕЦИАЛИЗАЦИЯ' : 'FINAL SPECIALIZATION')
+                  : (lang === 'ru' ? 'УЛУЧШЕНИЕ СФЕРЫ' : 'SPHERE UPGRADE')}
+              </div>
+              <div className="font-bold text-lg mb-2">{choice.name?.[lang] || 'Sphere'}</div>
+              <div className="text-sm text-[#5a4a32] mb-2">{choice.desc?.[lang] || ''}</div>
+              <div className="text-xs text-[#8a7a5a]/70">{t('level')} {choice.currentLevel} → {choice.newLevel}</div>
+            </button>
+          ))}
         </div>
       </div>
     </div>
