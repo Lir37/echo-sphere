@@ -1295,60 +1295,126 @@ export function activateByKey(s: GameState, key: string): void {
 export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
   const towerTypes = Object.keys(TOWER_PROGRESSION) as SphereType[];
 
-  // Lv.4: choose one of three branches for the tower at Lv.3.
-  // Lv.7: choose one of three finals for the selected branch at Lv.6.
+  // Level-up is tower-first. Passive global abilities are no longer offered here.
+  // Levels 1-3 are tower-specific upgrades, level 4 is the tower's first evolution,
+  // levels 5-6 deepen the selected branch, and level 7 is the final specialization.
   const milestone = towerTypes.find(type => towerLevel(s, type) === 3 || towerLevel(s, type) === 6);
   if (milestone) {
     const level = towerLevel(s, milestone);
     const def = TOWER_PROGRESSION[milestone];
+
     if (level === 3) {
       return def.evolution4Choices.map(branch => ({
-        type: 'tower' as const, towerType: milestone, towerBranch: branch.id,
-        towerStage: 'branch' as const, name: branch.name, desc: branch.desc,
-        currentLevel: 3, newLevel: 4,
+        type: 'tower' as const,
+        towerType: milestone,
+        towerBranch: branch.id,
+        towerStage: 'branch' as const,
+        name: {
+          ru: def.name.ru + ' — ' + branch.name.ru,
+          en: def.name.en + ' — ' + branch.name.en,
+        },
+        desc: branch.desc,
+        currentLevel: 3,
+        newLevel: 4,
       }));
     }
+
     const branchId = s.player.towerBranches[milestone];
     const branch = def.evolution4Choices.find(x => x.id === branchId) ?? def.evolution4Choices[0];
-    return branch.final.map((finalChoice, index) => ({
-      type: 'tower' as const, towerType: milestone, towerBranch: branch.id,
-      towerFinalIndex: index, towerStage: 'final' as const, name: finalChoice.name, desc: finalChoice.desc,
-      currentLevel: 6, newLevel: 7,
+    const finalNames = ['I', 'II', 'III'];
+    const finalDescriptions = [
+      'Максимально усиливает основную механику выбранной ветки',
+      'Добавляет дополнительный эффект к механике выбранной ветки',
+      'Раскрывает альтернативный стиль выбранной ветки',
+    ];
+
+    return finalNames.map((suffix, index) => ({
+      type: 'tower' as const,
+      towerType: milestone,
+      towerBranch: branch.id,
+      towerFinalIndex: index,
+      towerStage: 'final' as const,
+      name: {
+        ru: def.name.ru + ' — ' + branch.name.ru + ' ' + suffix,
+        en: def.name.en + ' — ' + branch.name.en + ' ' + suffix,
+      },
+      desc: {
+        ru: finalDescriptions[index] + ': ' + branch.desc.ru,
+        en: finalDescriptions[index] + ': ' + branch.desc.en,
+      },
+      currentLevel: 6,
+      newLevel: 7,
     }));
   }
 
-  const choices: UpgradeChoice[] = [];
-  const abilityPool = (Object.keys(ABILITIES) as AbilityType[])
-    .filter(id => (s.player.abilities[id] || 0) < ABILITIES[id].maxLevel)
+  const availableTowers = towerTypes.filter(type => towerLevel(s, type) < 7);
+
+  // Always present three different tower choices while towers remain available.
+  // Character preference affects weighting, but can never replace tower choices
+  // with passive global skills.
+  if (availableTowers.length > 0) {
+    const ranked = availableTowers
+      .map(type => ({
+        type,
+        score: Math.random() * (0.75 + towerPriority(s.player.characterId, type)),
+      }))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, Math.min(3, availableTowers.length))
+      .map(item => item.type);
+
+    return ranked.map(type => {
+      const currentLevel = towerLevel(s, type);
+      const nextLevel = currentLevel + 1;
+      const def = TOWER_PROGRESSION[type];
+      const levelDef = def.levels[nextLevel - 1];
+      const branchId = s.player.towerBranches[type];
+      const branch = branchId ? def.evolution4Choices.find(x => x.id === branchId) : null;
+      const branchProgress = (nextLevel === 5 || nextLevel === 6) && !!branch;
+
+      return {
+        type: 'tower' as const,
+        towerType: type,
+        towerBranch: branchId,
+        towerStage: 'upgrade' as const,
+        currentLevel,
+        newLevel: nextLevel,
+        name: {
+          ru: def.name.ru + ' — уровень ' + nextLevel + ': ' +
+            (branchProgress ? branch!.name.ru : levelDef.name.ru),
+          en: def.name.en + ' — level ' + nextLevel + ': ' +
+            (branchProgress ? branch!.name.en : levelDef.name.en),
+        },
+        desc: branchProgress
+          ? {
+              ru: 'Развитие именно этой башни и ветки «' + branch!.name.ru + '»: ' +
+                (nextLevel === 5 ? branch!.desc.ru : 'углубление её специальной механики'),
+              en: 'Develop this tower and the «' + branch!.name.en + '» branch: ' +
+                (nextLevel === 5 ? branch!.desc.en : 'deepen its special mechanic'),
+            }
+          : {
+              ru: levelDef.desc.ru,
+              en: levelDef.desc.en,
+            },
+      };
+    });
+  }
+
+  // Only when all towers have reached level 7 do active abilities become available.
+  const activePool = (Object.keys(ABILITIES) as AbilityType[])
+    .filter(id => ABILITIES[id].category === 'active' && (s.player.abilities[id] || 0) < ABILITIES[id].maxLevel)
     .sort(() => Math.random() - 0.5);
-  if (abilityPool.length) {
-    const id = abilityPool[0]; const currentLevel = s.player.abilities[id] || 0;
-    choices.push({ type: 'ability', ability: id, currentLevel, newLevel: currentLevel + 1 });
-  }
 
-  const towerPool = towerTypes.filter(type => towerLevel(s, type) < 7).map(type => {
-    const currentLevel = towerLevel(s, type); const nextLevel = currentLevel + 1;
-    const def = TOWER_PROGRESSION[type]; const levelDef = def.levels[nextLevel - 1];
-    const branchId = s.player.towerBranches[type];
-    const branch = branchId ? def.evolution4Choices.find(x => x.id === branchId) : null;
-    const branchProgress = (nextLevel === 5 || nextLevel === 6) && !!branch;
-    const name = branchProgress ? { ru: branch.name.ru + ' — уровень ' + nextLevel, en: branch.name.en + ' — level ' + nextLevel } : levelDef.name;
-    const desc = branchProgress ? {
-      ru: nextLevel === 5 ? 'Развитие ветки «' + branch.name.ru + '»: ' + branch.desc.ru : 'Углубление механики ветки «' + branch.name.ru + '»',
-      en: nextLevel === 5 ? 'Develop the “' + branch.name.en + '” branch: ' + branch.desc.en : 'Deepen the “' + branch.name.en + '” branch mechanic',
-    } : levelDef.desc;
-    return { type: 'tower' as const, towerType: type, towerBranch: branchId, towerStage: 'upgrade' as const, currentLevel, newLevel: nextLevel, name, desc };
-  }).sort(() => Math.random() - 0.5);
-
-  const abilityRest = abilityPool.slice(1).map(id => {
+  return activePool.slice(0, 3).map(id => {
     const currentLevel = s.player.abilities[id] || 0;
-    return { type: 'ability' as const, ability: id, currentLevel, newLevel: currentLevel + 1 };
+    return {
+      type: 'ability' as const,
+      ability: id,
+      currentLevel,
+      newLevel: currentLevel + 1,
+    };
   });
-  for (const choice of [...towerPool, ...abilityRest].sort(() => Math.random() - 0.5)) {
-    if (choices.length >= 3) break; choices.push(choice);
-  }
-  return choices.slice(0, 3);
 }
+
 function checkEvolution(s: GameState): string | null {
   return null;
   /*
