@@ -1335,54 +1335,115 @@ export function activateByKey(s: GameState, key: string): void {
 // ===== Upgrade generation =====
 export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
   const sphereTypes = Object.keys(SPHERE_PROGRESSION) as SphereType[];
+
+  // Lv.4 and Lv.7 are mandatory sphere milestones. They deliberately replace
+  // the normal pool so the player always completes the evolution decision.
   const milestone = sphereTypes.find(type => sphereLevel(s, type) === 3 || sphereLevel(s, type) === 6);
   if (milestone) {
     const level = sphereLevel(s, milestone);
     const def = SPHERE_PROGRESSION[milestone];
+
     if (level === 3) {
       return def.evolution4Choices.map(branch => ({
-        type: 'sphere' as const, sphereType: milestone, sphereBranch: branch.id, sphereStage: 'branch' as const,
+        type: 'sphere' as const,
+        sphereType: milestone,
+        sphereBranch: branch.id,
+        sphereStage: 'branch' as const,
         name: { ru: def.name.ru + ' — ' + branch.name.ru, en: def.name.en + ' — ' + branch.name.en },
-        desc: branch.desc, currentLevel: 3, newLevel: 4,
+        desc: branch.desc,
+        currentLevel: 3,
+        newLevel: 4,
       }));
     }
+
     const branchId = s.player.sphereBranches[milestone];
     const branch = def.evolution4Choices.find(x => x.id === branchId) ?? def.evolution4Choices[0];
     return branch.final.map((finalChoice, index) => ({
-      type: 'sphere' as const, sphereType: milestone, sphereBranch: branch.id, sphereFinalIndex: index, sphereStage: 'final' as const,
-      name: { ru: def.name.ru + ' — ' + branch.name.ru + ' ' + ['I','II','III'][index], en: def.name.en + ' — ' + branch.name.en + ' ' + ['I','II','III'][index] },
-      desc: finalChoice.desc, currentLevel: 6, newLevel: 7,
+      type: 'sphere' as const,
+      sphereType: milestone,
+      sphereBranch: branch.id,
+      sphereFinalIndex: index,
+      sphereStage: 'final' as const,
+      name: {
+        ru: def.name.ru + ' — ' + branch.name.ru + ' ' + ['I', 'II', 'III'][index],
+        en: def.name.en + ' — ' + branch.name.en + ' ' + ['I', 'II', 'III'][index],
+      },
+      desc: finalChoice.desc,
+      currentLevel: 6,
+      newLevel: 7,
     }));
   }
+
   const availableSpheres = sphereTypes.filter(type => sphereLevel(s, type) < 7);
-  if (availableSpheres.length > 0) {
-    const ranked = availableSpheres
-      .map(type => ({ type, score: Math.random() * (0.75 + spherePriority(s.player.characterId, type)) }))
-      .sort((a,b) => b.score - a.score)
-      .slice(0, Math.min(3, availableSpheres.length))
-      .map(item => item.type);
-    return ranked.map(type => {
-      const currentLevel = sphereLevel(s, type), nextLevel = currentLevel + 1;
-      const def = SPHERE_PROGRESSION[type], levelDef = def.levels[nextLevel - 1];
+  const sphereChoices = availableSpheres
+    .map(type => ({
+      type,
+      score: Math.random() * (0.75 + spherePriority(s.player.characterId, type)),
+    }))
+    .sort((a, b) => b.score - a.score)
+    .map(item => item.type)
+    .map(type => {
+      const currentLevel = sphereLevel(s, type);
+      const nextLevel = currentLevel + 1;
+      const def = SPHERE_PROGRESSION[type];
+      const levelDef = def.levels[nextLevel - 1];
       const branchId = s.player.sphereBranches[type];
       const branch = branchId ? def.evolution4Choices.find(x => x.id === branchId) : null;
       const branchProgress = (nextLevel === 5 || nextLevel === 6) && !!branch;
+
       return {
-        type: 'sphere' as const, sphereType: type, sphereBranch: branchId, sphereStage: 'upgrade' as const,
-        currentLevel, newLevel: nextLevel,
-        name: { ru: def.name.ru + ' — уровень ' + nextLevel + ': ' + (branchProgress ? branch!.name.ru : levelDef.name.ru),
-                en: def.name.en + ' — level ' + nextLevel + ': ' + (branchProgress ? branch!.name.en : levelDef.name.en) },
+        type: 'sphere' as const,
+        sphereType: type,
+        sphereBranch: branchId,
+        sphereStage: 'upgrade' as const,
+        currentLevel,
+        newLevel: nextLevel,
+        name: {
+          ru: def.name.ru + ' — уровень ' + nextLevel + ': ' + (branchProgress ? branch!.name.ru : levelDef.name.ru),
+          en: def.name.en + ' — level ' + nextLevel + ': ' + (branchProgress ? branch!.name.en : levelDef.name.en),
+        },
         desc: branchProgress
-          ? { ru: 'Развитие именно этой сферы и ветки «' + branch!.name.ru + '»: ' + (nextLevel === 5 ? branch!.desc.ru : 'углубление её специальной механики'),
-              en: 'Develop this sphere and the «' + branch!.name.en + '» branch: ' + (nextLevel === 5 ? branch!.desc.en : 'deepen its special mechanic') }
+          ? {
+              ru: 'Развитие именно этой сферы и ветки «' + branch!.name.ru + '»: ' + (nextLevel === 5 ? branch!.desc.ru : 'углубление её специальной механики'),
+              en: 'Develop this sphere and the «' + branch!.name.en + '» branch: ' + (nextLevel === 5 ? branch!.desc.en : 'deepen its special mechanic'),
+            }
           : levelDef.desc,
       };
     });
-  }
-  const activePool = (Object.keys(ABILITIES) as AbilityType[])
+
+  // Active skills are an independent progression track. They can appear from
+  // the first level-up and do not require all five spheres to reach level 7.
+  // Passive stats stay out of the normal level-up pool.
+  const preferredAbilities = CHARACTER_DEFS[s.player.characterId]?.preferredAbilities ?? [];
+  const activeChoices = (Object.keys(ABILITIES) as AbilityType[])
     .filter(id => ABILITIES[id].category === 'active' && (s.player.abilities[id] || 0) < ABILITIES[id].maxLevel)
-    .sort(() => Math.random() - 0.5);
-  return activePool.slice(0,3).map(id => ({ type:'ability' as const, ability:id, currentLevel:s.player.abilities[id]||0, newLevel:(s.player.abilities[id]||0)+1 }));
+    .sort((a, b) => {
+      const ap = preferredAbilities.includes(a) ? 1 : 0;
+      const bp = preferredAbilities.includes(b) ? 1 : 0;
+      return (bp - ap) || (Math.random() - 0.5);
+    })
+    .map(id => {
+      const currentLevel = s.player.abilities[id] || 0;
+      return { type: 'ability' as const, ability: id, currentLevel, newLevel: currentLevel + 1 };
+    });
+
+  // Spheres remain the main progression. When both tracks are available,
+  // normally show 2 sphere choices + 1 active skill. This keeps sphere
+  // development frequent while making active skills a real build decision
+  // throughout the run.
+  if (sphereChoices.length >= 2 && activeChoices.length > 0) {
+    const firstTwo = sphereChoices.slice(0, 2);
+    const active = activeChoices[Math.floor(Math.random() * Math.min(3, activeChoices.length))];
+    return [firstTwo[0], firstTwo[1], active].sort(() => Math.random() - 0.5);
+  }
+
+  if (sphereChoices.length === 1 && activeChoices.length > 0) {
+    const actives = activeChoices.slice(0, 2);
+    return [sphereChoices[0], ...actives].slice(0, 3).sort(() => Math.random() - 0.5);
+  }
+
+  if (sphereChoices.length > 0) return sphereChoices.slice(0, 3);
+  return activeChoices.slice(0, 3);
 }
 
 export function applyUpgrade(s: GameState, choice: UpgradeChoice): void {
