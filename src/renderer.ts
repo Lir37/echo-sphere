@@ -48,8 +48,13 @@ export function render(ctx: CanvasRenderingContext2D, s: GameState, canvasW: num
 
   // ===== Base background =====
   ctx.setTransform(1, 0, 0, 1, 0, 0);
-  ctx.fillStyle = theme.bg;
+  const bg = ctx.createRadialGradient(canvasW * 0.5, canvasH * 0.46, 0, canvasW * 0.5, canvasH * 0.46, Math.max(canvasW, canvasH) * 0.72);
+  bg.addColorStop(0, theme.bg);
+  bg.addColorStop(0.68, theme.bgDark);
+  bg.addColorStop(1, '#02050b');
+  ctx.fillStyle = bg;
   ctx.fillRect(0, 0, canvasW, canvasH);
+  drawVoidAmbient(ctx, canvasW, canvasH, s.time);
 
   // ===== World space =====
   ctx.save();
@@ -61,16 +66,18 @@ export function render(ctx: CanvasRenderingContext2D, s: GameState, canvasW: num
   }
   ctx.translate(canvasW / 2 - s.camera.x + shakeX, canvasH / 2 - s.camera.y + shakeY);
 
-  // Paper texture belongs to the world, just like the grid.
-  drawPaperTexture(ctx, s.worldWidth, s.worldHeight, theme, -s.worldWidth / 2, -s.worldHeight / 2);
+  drawVoidField(ctx, s.worldWidth, s.worldHeight, theme, -s.worldWidth / 2, -s.worldHeight / 2);
   drawGrid(ctx, s, canvasW, canvasH, theme);
 
   // world bounds
   ctx.strokeStyle = theme.border;
-  ctx.lineWidth = 3;
-  ctx.setLineDash([12, 6]);
+  ctx.shadowColor = `rgba(${hexToRgb(theme.accent)},0.22)`;
+  ctx.shadowBlur = 10;
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([10, 8]);
   ctx.strokeRect(-s.worldWidth / 2, -s.worldHeight / 2, s.worldWidth, s.worldHeight);
   ctx.setLineDash([]);
+  ctx.shadowBlur = 0;
 
   // character-specific world indicators
   drawCharacterWorldIndicators(ctx, s);
@@ -84,11 +91,9 @@ export function render(ctx: CanvasRenderingContext2D, s: GameState, canvasW: num
     ctx.beginPath(); ctx.arc(ft.pos.x, ft.pos.y, 18, 0, Math.PI * 2); ctx.fill();
   }
 
-  // xp orbs
-  for (const orb of s.xpOrbs) drawPaperDiamond(ctx, orb.pos.x, orb.pos.y, orb.radius, '#5a8c4a', '#7ab068');
-
-  // health packs
-  for (const hp of s.healthPacks) drawPaperCross(ctx, hp.pos.x, hp.pos.y, '#c4453d', '#e06b63');
+  // pickups
+  for (const orb of s.xpOrbs) drawModernXp(ctx, orb.pos.x, orb.pos.y, orb.radius, '#63e6ff');
+  for (const hp of s.healthPacks) drawModernHealth(ctx, hp.pos.x, hp.pos.y, '#ff5c72');
 
   // chests
   for (const chest of s.chests) if (chest.alive) drawChest(ctx, chest);
@@ -97,10 +102,10 @@ export function render(ctx: CanvasRenderingContext2D, s: GameState, canvasW: num
   for (const sphere of s.spheres) drawModernSphere(ctx, s, sphere);
 
   // sphere projectiles
-  for (const p of s.sphereProjectiles) drawPaperDart(ctx, p.pos.x, p.pos.y, p.vel.x, p.vel.y, p.radius, p.color);
+  for (const p of s.sphereProjectiles) drawModernProjectile(ctx, p.pos.x, p.pos.y, p.vel.x, p.vel.y, p.radius, p.color);
 
   // minions
-  for (const m of s.minions) drawPaperStar(ctx, m.pos.x, m.pos.y, m.radius, m.rotation, '#d4943d', '#e8b870');
+  for (const m of s.minions) drawModernMinion(ctx, m.pos.x, m.pos.y, m.radius, m.rotation, '#ffb84d');
 
   // enemies
   for (const e of s.enemies) drawModernEnemy(ctx, e);
@@ -117,11 +122,16 @@ export function render(ctx: CanvasRenderingContext2D, s: GameState, canvasW: num
   // particles
   for (const p of s.particles) {
     const alpha = p.life / p.maxLife;
-    ctx.fillStyle = p.color; ctx.globalAlpha = alpha;
+    const rgb = hexToRgb(p.color);
+    ctx.fillStyle = `rgba(${rgb},${alpha * 0.9})`;
+    ctx.shadowColor = p.color;
+    ctx.shadowBlur = 10;
     ctx.save(); ctx.translate(p.pos.x, p.pos.y);
     ctx.rotate(p.pos.x * 0.01 + Date.now() * 0.003);
-    ctx.fillRect(-p.size, -p.size, p.size * 2, p.size * 2);
+    const s2 = p.size * (0.7 + alpha * 0.8);
+    ctx.fillRect(-s2, -s2, s2 * 2, s2 * 2);
     ctx.restore();
+    ctx.shadowBlur = 0;
   }
   ctx.globalAlpha = 1;
 
@@ -138,9 +148,8 @@ export function render(ctx: CanvasRenderingContext2D, s: GameState, canvasW: num
 
   // lightnings
   for (const l of s.lightnings) {
-    ctx.strokeStyle = INK; ctx.lineWidth = 2.5;
-    ctx.globalAlpha = l.life / 0.3;
-    drawLightning(ctx, l.from, l.to);
+    const a = Math.max(0, Math.min(1, l.life / 0.3));
+    drawEnergyBolt(ctx, l.from, l.to, a);
     ctx.globalAlpha = 1;
   }
 
@@ -416,6 +425,143 @@ function drawPolygon(ctx: CanvasRenderingContext2D, spheres: SphereEntity[]): vo
   ctx.closePath();
   ctx.stroke();
   ctx.fill();
+}
+
+
+function drawVoidAmbient(ctx: CanvasRenderingContext2D, w: number, h: number, time: number): void {
+  ctx.save();
+  const count = Math.min(90, Math.floor((w * h) / 11000));
+  for (let i = 0; i < count; i++) {
+    const x = ((i * 97.13) % w);
+    const y = ((i * 53.71 + time * (2 + (i % 3))) % h);
+    const pulse = 0.28 + 0.22 * Math.sin(time * 1.4 + i);
+    ctx.fillStyle = `rgba(120,190,255,${pulse * 0.16})`;
+    ctx.beginPath();
+    ctx.arc(x, y, 0.7 + (i % 3) * 0.35, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawVoidField(ctx: CanvasRenderingContext2D, w: number, h: number, theme: Theme, ox = 0, oy = 0): void {
+  const tileKey = `void-${theme.bg}`;
+  if (!_textureCanvases[tileKey as MapTheme]) {
+    const tc = document.createElement('canvas');
+    tc.width = 320; tc.height = 320;
+    const tctx = tc.getContext('2d')!;
+    tctx.fillStyle = theme.bg;
+    tctx.fillRect(0, 0, 320, 320);
+    for (let i = 0; i < 120; i++) {
+      const x = (i * 73.17) % 320;
+      const y = (i * 127.41) % 320;
+      const r = 0.35 + (i % 4) * 0.25;
+      tctx.fillStyle = `rgba(150,205,255,${0.03 + (i % 5) * 0.012})`;
+      tctx.beginPath(); tctx.arc(x, y, r, 0, Math.PI * 2); tctx.fill();
+    }
+    for (let i = 0; i <= 4; i++) {
+      const inset = 8 + i * 64;
+      tctx.strokeStyle = `rgba(${hexToRgb(theme.accent)},${0.018 + i * 0.008})`;
+      tctx.lineWidth = 1;
+      tctx.strokeRect(inset, inset, 320 - inset * 2, 320 - inset * 2);
+    }
+    _textureCanvases[tileKey as MapTheme] = tc;
+  }
+  const tile = _textureCanvases[tileKey as MapTheme]!;
+  for (let x = -256; x < w + 256; x += 320) {
+    for (let y = -256; y < h + 256; y += 320) {
+      ctx.drawImage(tile, x + ox, y + oy);
+    }
+  }
+}
+
+function drawModernXp(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, color: string): void {
+  ctx.save(); ctx.translate(x, y);
+  glowCircle(ctx, r * 3.5, color, 0.16);
+  ctx.rotate(Math.PI / 4);
+  ctx.fillStyle = color;
+  ctx.globalAlpha = 0.9;
+  ctx.fillRect(-r * 0.65, -r * 0.65, r * 1.3, r * 1.3);
+  ctx.globalAlpha = 1;
+  ctx.strokeStyle = '#dffaff'; ctx.lineWidth = Math.max(0.8, r * 0.16);
+  ctx.strokeRect(-r * 0.65, -r * 0.65, r * 1.3, r * 1.3);
+  ctx.restore();
+}
+
+function drawModernHealth(ctx: CanvasRenderingContext2D, x: number, y: number, color: string): void {
+  ctx.save(); ctx.translate(x, y);
+  glowCircle(ctx, 22, color, 0.10);
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(-4, -11); ctx.lineTo(4, -11); ctx.lineTo(4, -4); ctx.lineTo(11, -4);
+  ctx.lineTo(11, 4); ctx.lineTo(4, 4); ctx.lineTo(4, 11); ctx.lineTo(-4, 11);
+  ctx.lineTo(-4, 4); ctx.lineTo(-11, 4); ctx.lineTo(-11, -4); ctx.lineTo(-4, -4); ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = '#ffeaf0'; ctx.lineWidth = 1;
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawModernProjectile(ctx: CanvasRenderingContext2D, x: number, y: number, vx: number, vy: number, r: number, color: string): void {
+  const angle = Math.atan2(vy, vx);
+  const speed = Math.hypot(vx, vy) || 1;
+  const trail = Math.min(28, 8 + speed * 0.045);
+  ctx.save();
+  ctx.translate(x, y); ctx.rotate(angle);
+  const rgb = hexToRgb(color);
+  ctx.strokeStyle = `rgba(${rgb},0.25)`;
+  ctx.lineWidth = Math.max(1, r * 0.7);
+  ctx.shadowColor = color; ctx.shadowBlur = 12;
+  ctx.beginPath(); ctx.moveTo(-trail, 0); ctx.lineTo(-r, 0); ctx.stroke();
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath(); ctx.ellipse(0, 0, r * 1.15, r * 0.55, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = color;
+  ctx.beginPath(); ctx.moveTo(r * 1.8, 0); ctx.lineTo(-r * 0.8, -r * 0.72); ctx.lineTo(-r * 0.35, 0); ctx.lineTo(-r * 0.8, r * 0.72); ctx.closePath(); ctx.fill();
+  ctx.shadowBlur = 0; ctx.restore();
+}
+
+function drawModernMinion(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, rotation: number, color: string): void {
+  ctx.save(); ctx.translate(x, y); ctx.rotate(rotation);
+  glowCircle(ctx, r * 2.5, color, 0.14);
+  ctx.fillStyle = '#070d18';
+  ctx.strokeStyle = color; ctx.lineWidth = Math.max(1.2, r * 0.12);
+  ctx.beginPath();
+  ctx.moveTo(0, -r); ctx.lineTo(r * 0.9, 0); ctx.lineTo(0, r); ctx.lineTo(-r * 0.9, 0); ctx.closePath();
+  ctx.fill(); ctx.stroke();
+  ctx.fillStyle = color;
+  ctx.beginPath(); ctx.arc(r * 0.18, -r * 0.18, r * 0.22, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+}
+
+function drawEnergyBolt(ctx: CanvasRenderingContext2D, from: Vec, to: Vec, alpha: number): void {
+  const dx = to.x - from.x, dy = to.y - from.y;
+  const len = Math.hypot(dx, dy) || 1;
+  const nx = -dy / len, ny = dx / len;
+  const points = 7;
+  const wobble = Math.min(26, len * 0.08);
+  ctx.save();
+  ctx.lineCap = 'round';
+  ctx.shadowColor = '#6eeaff';
+  ctx.shadowBlur = 16;
+  ctx.strokeStyle = `rgba(105,235,255,${0.22 * alpha})`;
+  ctx.lineWidth = 6;
+  ctx.beginPath(); ctx.moveTo(from.x, from.y);
+  for (let i = 1; i < points; i++) {
+    const p = i / points;
+    const wave = Math.sin(i * 3.7 + Date.now() * 0.03) * wobble * 0.35;
+    ctx.lineTo(from.x + dx * p + nx * wave, from.y + dy * p + ny * wave);
+  }
+  ctx.lineTo(to.x, to.y); ctx.stroke();
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = `rgba(235,252,255,${0.9 * alpha})`;
+  ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(from.x, from.y);
+  for (let i = 1; i < points; i++) {
+    const p = i / points;
+    const wave = Math.sin(i * 3.7 + Date.now() * 0.03) * wobble * 0.35;
+    ctx.lineTo(from.x + dx * p + nx * wave, from.y + dy * p + ny * wave);
+  }
+  ctx.lineTo(to.x, to.y); ctx.stroke();
+  ctx.restore();
 }
 
 // ===== Paper texture (world space) =====
