@@ -12,7 +12,26 @@ export interface AbilityProgressionDef { ability:AbilityType; levels:TowerUpgrad
 const lv=(a:string,b:string,c:string):TowerUpgradeDef[]=>[{level:1,name:{ru:'Ядро',en:'Core'},desc:{ru:a,en:a}},{level:2,name:{ru:'Механизм',en:'Mechanism'},desc:{ru:b,en:b}},{level:3,name:{ru:'Настройка',en:'Tuning'},desc:{ru:c,en:c}},{level:4,name:{ru:'Эволюция I',en:'Evolution I'},desc:{ru:'Выбор одной из трёх веток',en:'Choose one of three branches'}},{level:5,name:{ru:'Контур',en:'Circuit'},desc:{ru:'Усиление выбранной ветки',en:'Strengthens the selected branch'}},{level:6,name:{ru:'Стабилизатор',en:'Stabilizer'},desc:{ru:'Усиление специальной механики',en:'Strengthens the special mechanic'}},{level:7,name:{ru:'Эволюция II',en:'Evolution II'},desc:{ru:'Финальная специализация',en:'Final specialization'}}];
 const e=(id:TowerEvolutionId,ru:string,desc:string):TowerEvolutionDef=>({id,name:{ru,en:ru},desc:{ru:desc,en:desc}});
 const br=(id:TowerEvolutionId,ru:string,desc:string,fin:[TowerEvolutionDef,TowerEvolutionDef,TowerEvolutionDef]):TowerEvolutionBranch=>({...e(id,ru,desc),final:fin});
-const finals=(base:string,prefix:string,ids:[TowerEvolutionId,TowerEvolutionId,TowerEvolutionId]):[TowerEvolutionDef,TowerEvolutionDef,TowerEvolutionDef]=>ids.map((id,i)=>e(id,`${prefix} ${['I','II','III'][i]}`,`Финально усиливает ветку «${base}»`)) as [TowerEvolutionDef,TowerEvolutionDef,TowerEvolutionDef];
+const finals=(base:string,prefix:string,ids:[TowerEvolutionId,TowerEvolutionId,TowerEvolutionId]):[TowerEvolutionDef,TowerEvolutionDef,TowerEvolutionDef]=>{
+  const desc:Partial<Record<TowerEvolutionId,string>>={
+    standard_resonator:'Каждое третье попадание создаёт мощный импульс по группе врагов',
+    standard_singularity:'Попадания создают гравитационный коллапс и стягивают врагов',
+    standard_swarm:'Башня периодически выпускает дополнительные осколки по бокам',
+    sniper_oracle:'По отмеченной цели наносится значительно усиленный урон',
+    sniper_assassin:'Урон по врагам ниже 35% здоровья резко возрастает',
+    sniper_beacon:'Попадание создаёт зону метки, замедляющую ближайших врагов',
+    shotgun_burst:'Ближние попадания получают дополнительный множитель урона',
+    shotgun_cataclysm:'Попадание вызывает взрыв, поражающий соседних врагов',
+    shotgun_hail:'Попадания периодически создают дополнительный град осколков',
+    chain_web:'Цели цепи получают длительное замедление, формируя паутину',
+    chain_storm:'Каждый переход цепи вызывает дополнительный электрический всплеск',
+    chain_leech:'Цепь возвращает больше здоровья при нанесении урона',
+    aura_sanctum:'Импульс ауры накладывает особо сильное замедление',
+    aura_gravity:'Импульс создаёт мощный гравитационный толчок к центру',
+    aura_overgrowth:'Ближайшие башни получают заметное ускорение атак',
+  };
+  return ids.map((id,i)=>e(id,prefix+' '+['I','II','III'][i],desc[id]||('Финально усиливает ветку «'+base+'»'))) as [TowerEvolutionDef,TowerEvolutionDef,TowerEvolutionDef];
+};
 const tower=(type:SphereType,name:string,priority:Partial<Record<CharacterId,number>>,l:[string,string,string],branches:[TowerEvolutionBranch,TowerEvolutionBranch,TowerEvolutionBranch]):TowerDef=>({type,name:{ru:name,en:name},priority,levels:lv(...l),evolution4:branches[0],evolution7:branches[0].final[0],evolution4Choices:branches});
 export const TOWER_PROGRESSION:Record<SphereType,TowerDef>={
  standard:tower('standard','Стандартная',{spherist:1,engineer:.9,berserker:.8,architect:.7,hunter:.4,alchemist:.4},['+15% урона','+1 пробитие','-10% задержки'],[br('standard_resonator','Резонатор','Каждое третье попадание выпускает импульс',finals('Резонатор','Гиперрезонатор',['standard_resonator','standard_singularity','standard_swarm'])),br('standard_singularity','Сингулярность','Попадания притягивают врагов',finals('Сингулярность','Коллапс',['standard_singularity','standard_resonator','standard_swarm'])),br('standard_swarm','Рой','Попадания выпускают осколки',finals('Рой','Каскад',['standard_swarm','standard_singularity','standard_resonator']))]),
