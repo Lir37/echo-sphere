@@ -119,7 +119,7 @@ export function render(ctx: CanvasRenderingContext2D, s: GameState, canvasW: num
   drawCharacterTargetIndicators(ctx, s);
 
   // boss projectiles
-  for (const e of s.enemies) for (const bp of e.bossProjectiles) drawPaperDiamond(ctx, bp.pos.x, bp.pos.y, bp.radius, '#c4453d', '#e06b63');
+  for (const e of s.enemies) for (const bp of e.bossProjectiles) drawBossProjectile(ctx, bp.pos.x, bp.pos.y, bp.radius, e.color);
 
   // Legacy fox/wolf player body is intentionally disabled. The mobile overlay owns the character visual.
   drawPlayer(ctx, s.player);
@@ -2028,6 +2028,15 @@ function drawModernBossBody(ctx: CanvasRenderingContext2D, e: EnemyEntity, color
   ctx.restore();
 }
 
+function drawBossProjectile(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, color: string): void {
+  const rgb=hexToRgb(color);
+  ctx.save();ctx.translate(x,y);ctx.shadowColor=color;ctx.shadowBlur=18;
+  ctx.fillStyle='rgba(2,6,18,.9)';ctx.strokeStyle=`rgba(${rgb},.95)`;ctx.lineWidth=Math.max(1,r*.14);
+  ctx.beginPath();ctx.moveTo(r*1.8,0);ctx.lineTo(0,-r);ctx.lineTo(-r*1.8,0);ctx.lineTo(0,r);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.shadowBlur=0;ctx.fillStyle='#f3ffff';ctx.beginPath();ctx.arc(0,0,r*.32,0,Math.PI*2);ctx.fill();
+  ctx.restore();
+}
+
 function drawLightning(ctx: CanvasRenderingContext2D, from: { x: number; y: number }, to: { x: number; y: number }): void {
   const segments = 8;
   ctx.beginPath(); ctx.moveTo(from.x, from.y);
@@ -2037,18 +2046,13 @@ function drawLightning(ctx: CanvasRenderingContext2D, from: { x: number; y: numb
 
 // ===== Chest — paper box =====
 function drawChest(ctx: CanvasRenderingContext2D, chest: ChestEntity): void {
-  ctx.save();
-  ctx.translate(chest.pos.x, chest.pos.y);
-  const pulse = 1 + Math.sin(Date.now() / 300) * 0.08;
-  ctx.scale(pulse, pulse);
-  drawShadow(ctx, () => { ctx.fillRect(-12 + 3, -8 + 4, 24, 16); });
-  ctx.fillStyle = '#b8854a'; ctx.fillRect(-12, -8, 24, 16);
-  ctx.fillStyle = '#d4a06a'; ctx.fillRect(-12, -12, 24, 8);
-  ctx.strokeStyle = FOLD_LINE; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(-12, -4); ctx.lineTo(12, -4); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(0, -12); ctx.lineTo(0, 8); ctx.stroke();
-  ctx.strokeStyle = '#d4943d'; ctx.lineWidth = 2; ctx.strokeRect(-12, -12, 24, 20);
-  ctx.fillStyle = '#d4943d'; ctx.fillRect(-3, -4, 6, 6);
-  ctx.strokeStyle = INK; ctx.lineWidth = 1; ctx.strokeRect(-3, -4, 6, 6);
+  ctx.save();ctx.translate(chest.pos.x,chest.pos.y);
+  const t=Date.now()/1000,p=1+Math.sin(t*3)*.08;
+  ctx.scale(p,p);ctx.shadowColor='#d879ff';ctx.shadowBlur=22;
+  ctx.fillStyle='rgba(3,8,20,.94)';ctx.strokeStyle='rgba(205,155,255,.9)';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.roundRect(-14,-9,28,18,4);ctx.fill();ctx.stroke();
+  ctx.shadowBlur=0;ctx.strokeStyle='rgba(101,232,255,.6)';ctx.beginPath();ctx.moveTo(-10,-9);ctx.lineTo(-6,-15);ctx.lineTo(6,-15);ctx.lineTo(10,-9);ctx.stroke();
+  ctx.fillStyle='#dffcff';ctx.beginPath();ctx.arc(0,0,3+Math.sin(t*6),0,Math.PI*2);ctx.fill();
   ctx.restore();
 }
+
