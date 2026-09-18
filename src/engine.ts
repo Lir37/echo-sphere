@@ -285,7 +285,6 @@ export interface GameState {
   pendingSphereUpgrade: SphereUpgradeChoice[] | null;
   damageNumbers: DamageNumber[];
   chests: ChestEntity[];
-  pendingChest: ChestEntity | null;
   difficulty: Difficulty;
   evolutionsThisRun: number;
   selectedSphereType: SphereType;
@@ -445,7 +444,6 @@ export function createInitialState(
     pendingSphereUpgrade: null,
     damageNumbers: [],
     chests: [],
-    pendingChest: null,
     difficulty: difficulty,
     evolutionsThisRun: 0,
     selectedSphereType: 'standard',
@@ -1597,7 +1595,7 @@ export function applyArtifact(s: GameState, id: ArtifactId): void {
 // ===== Main update =====
 export function update(s: GameState, dt: number): void {
   if (s.paused || s.gameOver) return;
-  if (s.pendingUpgrade || s.pendingArtifact || s.pendingChest) return;
+  if (s.pendingUpgrade || s.pendingArtifact) return;
 
   s.time += dt;
   s.stats.time = s.time;
@@ -2346,14 +2344,6 @@ export function activateDash(s: GameState): void {
 export function setSphereType(s: GameState, type: SphereType): void {
   s.selectedSphereType = type;
   playSound('place');
-}
-
-export function openChest(s: GameState, _reward: 'artifact'): void {
-  const choices = pickArtifacts(s);
-  if (choices.length > 0) {
-    s.pendingArtifact = choices;
-  }
-  s.pendingChest = null;
 }
 
 export function placeSphere(s: GameState, x: number, y: number): void {
