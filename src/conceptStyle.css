@@ -1043,3 +1043,111 @@ canvas {
     font-size: 8px;
   }
 }
+
+
+/* ===== Character roster / evolution board ===== */
+.es-character-roster {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.es-roster-item {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 6px;
+  border: 1px solid rgba(80,173,228,0.13);
+  border-radius: 7px;
+  background: rgba(4,11,19,0.58);
+  color: #7795aa;
+  font-size: 7px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-align: left;
+}
+
+.es-roster-item.is-active {
+  border-color: rgba(102,226,255,0.38);
+  color: #d8f7ff;
+  background: linear-gradient(180deg, rgba(23,64,88,0.36), rgba(5,17,28,0.76));
+}
+
+.es-roster-item:hover {
+  border-color: rgba(105,232,255,0.34);
+}
+
+.es-roster-orb {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 28%, #fff 0 8%, currentColor 21%, rgba(10,24,42,0.8) 51%, #02060d 72%);
+  box-shadow: 0 0 10px color-mix(in srgb, currentColor 22%, transparent);
+  font-size: 9px;
+}
+
+.es-evolution-strip {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+}
+
+.es-evolution-node {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  color: #68859c;
+  font-size: 7px;
+  letter-spacing: 0.04em;
+}
+
+.es-evolution-node::before {
+  content: "";
+  position: absolute;
+  top: 10px;
+  left: calc(50% + 8px);
+  right: calc(-50% + 8px);
+  height: 1px;
+  background: rgba(94,194,248,0.15);
+}
+
+.es-evolution-node:last-child::before {
+  display: none;
+}
+
+.es-evolution-orb {
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  border: 1px solid rgba(102,220,255,0.48);
+  background: radial-gradient(circle at 36% 30%, #fff 0 7%, #55dfff 20%, #154b86 47%, #02060e 72%);
+  box-shadow: 0 0 11px rgba(69,207,255,0.10);
+}
+
+.es-evolution-node.is-branch .es-evolution-orb {
+  border-color: rgba(229,108,255,0.62);
+  background: radial-gradient(circle at 36% 30%, #fff 0 7%, #e86cff 20%, #4b1d79 48%, #02060e 72%);
+}
+
+.es-evolution-node.is-final .es-evolution-orb {
+  width: 20px;
+  height: 20px;
+  border-color: rgba(205,226,255,0.78);
+  box-shadow: 0 0 16px rgba(90,215,255,0.18);
+}
+
+@media (max-width: 560px) {
+  .es-character-roster {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .es-roster-item {
+    font-size: 6.5px;
+  }
+}
