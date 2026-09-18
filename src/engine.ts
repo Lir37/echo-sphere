@@ -1370,12 +1370,27 @@ export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
       };
     });
 
-  // Character priority only affects which tower choices are shown more often,
-  // never whether a tower choice appears at all.
-  const shuffledTowers = [...availableTowers]
-    .sort((a, b) => towerPriority(s.player.characterId, b.towerType!) - towerPriority(s.player.characterId, a.towerType!));
+  // Character priority changes the probability of seeing a tower, but never removes
+  // towers from the level-up system. This avoids showing the same tower every time.
+  const weightedTowers = [...availableTowers].sort(
+    (a, b) => towerPriority(s.player.characterId, b.towerType!) - towerPriority(s.player.characterId, a.towerType!),
+  );
+  const totalWeight = weightedTowers.reduce(
+    (sum, tower) => sum + Math.max(0.1, towerPriority(s.player.characterId, tower.towerType!)),
+    0,
+  );
+  let roll = Math.random() * totalWeight;
+  let guaranteedTower = weightedTowers[0];
+  for (const tower of weightedTowers) {
+    roll -= Math.max(0.1, towerPriority(s.player.characterId, tower.towerType!));
+    if (roll <= 0) {
+      guaranteedTower = tower;
+      break;
+    }
+  }
 
-  const guaranteedTower = shuffledTowers[0];
+  const shuffledTowers = [guaranteedTower, ...weightedTowers.filter(tower => tower !== guaranteedTower)]
+    .sort(() => Math.random() - 0.5);
   if (!guaranteedTower) {
     // All towers are maxed. At this point only active skills can be offered.
     const activePool = (Object.keys(ABILITIES) as AbilityType[])
