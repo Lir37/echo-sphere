@@ -375,7 +375,7 @@ function CharacterAvatarOverlay({ stateRef }: { stateRef: React.MutableRefObject
   return (
     <div className="absolute left-1/2 top-1/2 pointer-events-none" style={{ transform: 'translate(-50%, -50%)', width: 74, height: 74 }}>
       <div className={`absolute inset-0 flex items-center justify-center ${pulse}`}>
-        <CharacterSvg characterId={characterId} color={color} mutationStage={mutationStage} visual={visual} />
+        <CharacterCore characterId={characterId} color={color} mutationStage={mutationStage} visual={visual} />
       </div>
     </div>
   );
@@ -494,3 +494,104 @@ function stDashLabel(st: GameState | null, lang: Lang, t: (key: TranslationKey) 
 function countStatusEffects(enemy: GameState['enemies'][number]): number {
   return Number(enemy.fireTimer > 0) + Number(enemy.freezeTimer > 0) + Number(enemy.poisonTimer > 0);
 }
+
+function CharacterCore({ characterId, color, mutationStage, visual }: {
+  characterId: string;
+  color: string;
+  mutationStage: number;
+  visual: CharacterVisualState;
+}) {
+  const rgb = hexRgb(color);
+  const pulse = 1 + Math.sin(Date.now() / 240) * 0.04;
+  const glow = mutationStage >= 3 ? 0.9 : 0.62;
+
+  return (
+    <svg width="78" height="78" viewBox="0 0 78 78" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ overflow: 'visible' }}>
+      <defs>
+        <radialGradient id="echo-core-gradient" cx="35%" cy="30%" r="75%">
+          <stop offset="0%" stopColor="#ffffff" />
+          <stop offset="18%" stopColor="#dff6ff" />
+          <stop offset="48%" stopColor={color} />
+          <stop offset="100%" stopColor={shadeHex(color, -55)} />
+        </radialGradient>
+      </defs>
+
+      <circle cx="39" cy="39" r={30 * pulse} fill={`rgba(${rgb},0.09)`} />
+      <circle cx="39" cy="39" r={24 + mutationStage * 2} stroke={`rgba(${rgb},${glow})`} strokeWidth="1" strokeDasharray={mutationStage >= 2 ? "2 4" : "5 6"} />
+      {mutationStage >= 1 && (
+        <g opacity=".72">
+          <path d="M39 7L45 18L39 23L33 18L39 7Z" stroke={color} />
+          <path d="M71 39L60 45L55 39L60 33L71 39Z" stroke={color} />
+          <path d="M39 71L33 60L39 55L45 60L39 71Z" stroke={color} />
+          <path d="M7 39L18 33L23 39L18 45L7 39Z" stroke={color} />
+        </g>
+      )}
+
+      {characterId === 'engineer' && (
+        <g opacity={visual.linkedCount >= 2 ? ".95" : ".65"} stroke={color}>
+          <path d="M14 20L28 30M64 20L50 30M14 58L28 48M64 58L50 48" strokeWidth="1.4" />
+          <circle cx="14" cy="20" r="3" fill={color} /><circle cx="64" cy="20" r="3" fill={color} />
+          <circle cx="14" cy="58" r="3" fill={color} /><circle cx="64" cy="58" r="3" fill={color} />
+          {visual.linkedCount >= 3 && <circle cx="39" cy="39" r="31" strokeDasharray="3 5" />}
+        </g>
+      )}
+
+      {characterId === 'hunter' && (
+        <g stroke={visual.hunt ? '#ffe07a' : color}>
+          <path d="M8 39H23M55 39H70M39 8V23M39 55V70" strokeWidth={visual.hunt ? "2" : "1.2"} />
+          {visual.marked && <circle cx="39" cy="39" r={visual.hunt ? "29" : "26"} strokeDasharray={visual.hunt ? "5 3" : "2 5"} opacity=".85" />}
+        </g>
+      )}
+
+      {characterId === 'berserker' && (
+        <g stroke="#ff5b58" opacity=".8">
+          <path d="M39 4L43 14L52 7L51 19L63 15L57 25L70 28L58 34" strokeWidth={1.4 + visual.furySteps * .35} />
+          <path d="M39 74L35 64L26 71L27 59L15 63L21 53L8 50L20 44" strokeWidth={1.4 + visual.furySteps * .35} />
+          {visual.closeEnemy && <circle cx="39" cy="39" r={27 + visual.furySteps * 2} strokeDasharray="6 4" />}
+        </g>
+      )}
+
+      {characterId === 'alchemist' && (
+        <g stroke={color} opacity=".85">
+          <circle cx="39" cy="39" r="29" strokeDasharray="1 5" />
+          <path d="M39 10V68M10 39H68" opacity=".35" />
+          {visual.reactionReady && <path d="M39 12L45 25L59 19L53 33L66 39L53 45L59 59L45 53L39 66L33 53L19 59L25 45L12 39L25 33L19 19L33 25L39 12Z" stroke="#e7a4ff" />}
+        </g>
+      )}
+
+      {characterId === 'architect' && (
+        <g stroke={color} opacity=".88">
+          {visual.formation === 'triangle' && <path d="M39 9L67 58H11L39 9Z" />}
+          {visual.formation === 'square' && <rect x="14" y="14" width="50" height="50" transform="rotate(45 39 39)" />}
+          {visual.formation === 'line' && <path d="M9 39H69" />}
+          {visual.formation === 'cluster' && <circle cx="39" cy="39" r="29" />}
+          {mutationStage >= 2 && <circle cx="39" cy="39" r="20" strokeDasharray="2 4" />}
+        </g>
+      )}
+
+      <circle cx="39" cy="39" r={13 + mutationStage * 1.2} fill="rgba(0,5,15,0.55)" stroke={`rgba(255,255,255,0.72)`} strokeWidth="1" />
+      <circle cx="39" cy="39" r={10 + mutationStage * .8} fill="url(#echo-core-gradient)" />
+      <circle cx="35.5" cy="35" r="3.5" fill="#fff" opacity=".92" />
+      <circle cx="39" cy="39" r={17 + mutationStage * 1.5} stroke={`rgba(${rgb},0.28)`} strokeWidth="2" />
+      {mutationStage >= 4 && (
+        <g stroke="#fff" opacity=".7">
+          <path d="M39 1V8M39 70V77M1 39H8M70 39H77" />
+        </g>
+      )}
+    </svg>
+  );
+}
+
+function hexRgb(hex: string): string {
+  const h = hex.replace('#', '');
+  return `${parseInt(h.slice(0, 2), 16)},${parseInt(h.slice(2, 4), 16)},${parseInt(h.slice(4, 6), 16)}`;
+}
+
+function shadeHex(hex: string, amount: number): string {
+  const h = hex.replace('#', '');
+  const r = Math.max(0, Math.min(255, parseInt(h.slice(0, 2), 16) + amount));
+  const g = Math.max(0, Math.min(255, parseInt(h.slice(2, 4), 16) + amount));
+  const b = Math.max(0, Math.min(255, parseInt(h.slice(4, 6), 16) + amount));
+  return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+}
+
