@@ -1342,7 +1342,8 @@ function activateFireTrail(s: GameState): void {
   s.player.fireTrailTimer = 5 + Math.min(3, lvl - 1);
   const branch = getAbilityBranchId(s, 'firetrail', 4);
   const final = getAbilityBranchId(s, 'firetrail', 7);
-    for (const sphere of fireAligned) {
+  const fireAligned = s.spheres.filter((sphere) => sphere.alive && s.player.sphereMods.fire > 0);
+  for (const sphere of fireAligned) {
     sphere.attackTimer = Math.max(0, sphere.attackTimer - 0.5);
     s.particles.push({ pos: { ...sphere.pos }, vel: { x: 0, y: 0 }, life: 0.9, maxLife: 0.9, color: '#c46d3d', size: 6 });
   }
