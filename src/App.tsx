@@ -4,7 +4,7 @@ import { translations, type Lang, type TranslationKey } from './i18n';
 import {
   ABILITIES, ARTIFACTS, ARTIFACT_MAP, SHOP_UPGRADES, shopCost,
   abilityName, artifactName, type AbilityType, type ArtifactId,
-  DIFFICULTIES, ACHIEVEMENTS, type Difficulty,
+  DIFFICULTIES, ACHIEVEMENTS, SPHERE_TYPES, type Difficulty,
 } from './gameData';
 import {
   createInitialState, update,
@@ -29,7 +29,7 @@ import CharacterSelect from './CharacterSelect';
 import { CHARACTER_DEFS } from './characters';
 import {
   ABILITY_PROGRESSION, SPHERE_PROGRESSION, getAbilityDisplayName, getAbilityDisplayDesc,
-  getAbilityEvolutionChoice, sphereLevel, sphereModifiers, getActiveSphereAbilitySynergies,
+  getAbilityEvolutionChoice, sphereLevel, sphereModifiers, getActiveSphereAbilitySynergies, SPHERE_ABILITY_SYNERGIES,
 } from './sphereProgression';
 
 type Screen = 'menu' | 'game' | 'shop' | 'leaderboard' | 'settings' | 'achievements' | 'characters';
