@@ -1334,195 +1334,252 @@ export function activateByKey(s: GameState, key: string): void {
 }
 
 // ===== Upgrade generation =====
-export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
-  const sphereTypes = Object.keys(SPHERE_PROGRESSION) as SphereType[];
-
-  // Lv.4 and Lv.7 are mandatory sphere milestones. They deliberately replace
-  // the normal pool so the player always completes the evolution decision.
-  const milestone = sphereTypes.find(type => sphereLevel(s, type) === 3 || sphereLevel(s, type) === 6);
-  if (milestone) {
-    const level = sphereLevel(s, milestone);
-    const def = SPHERE_PROGRESSION[milestone];
-
-    if (level === 3) {
-      return def.evolution4Choices.map(branch => ({
-        type: 'sphere' as const,
-        sphereType: milestone,
-        sphereBranch: branch.id,
-        sphereStage: 'branch' as const,
-        name: { ru: def.name.ru + ' — ' + branch.name.ru, en: def.name.en + ' — ' + branch.name.en },
-        desc: branch.desc,
-        currentLevel: 3,
-        newLevel: 4,
-      }));
-    }
-
-    const branchId = s.player.sphereBranches[milestone];
-    const branch = def.evolution4Choices.find(x => x.id === branchId) ?? def.evolution4Choices[0];
-    return branch.final.map((finalChoice, index) => ({
-      type: 'sphere' as const,
-      sphereType: milestone,
-      sphereBranch: branch.id,
-      sphereFinalIndex: index,
-      sphereStage: 'final' as const,
-      name: {
-        ru: def.name.ru + ' — ' + branch.name.ru + ' ' + ['I', 'II', 'III'][index],
-        en: def.name.en + ' — ' + branch.name.en + ' ' + ['I', 'II', 'III'][index],
-      },
-      desc: finalChoice.desc,
-      currentLevel: 6,
-      newLevel: 7,
+function getSphereEvolutionChoices(s:GameState, type:SphereType, level:4|7):UpgradeChoice[] {
+  const def=SPHERE_PROGRESSION[type];
+  if(level===4){
+    return def.evolution4Choices.slice(0,3).map((branch)=>({
+      type:'sphere' as const,
+      sphereType:type,
+      sphereBranch:branch.id,
+      sphereStage:'branch' as const,
+      name:{ru:branch.name.ru,en:branch.name.en},
+      desc:branch.desc,
+      currentLevel:4,
+      newLevel:4,
     }));
   }
-
-  const availableSpheres = sphereTypes.filter(type => sphereLevel(s, type) < 7);
-  const sphereChoices = availableSpheres
-    .map(type => ({
-      type,
-      score: Math.random() * (0.75 + spherePriority(s.player.characterId, type)),
-    }))
-    .sort((a, b) => b.score - a.score)
-    .map(item => item.type)
-    .map(type => {
-      const currentLevel = sphereLevel(s, type);
-      const nextLevel = currentLevel + 1;
-      const def = SPHERE_PROGRESSION[type];
-      const levelDef = def.levels[nextLevel - 1];
-      const branchId = s.player.sphereBranches[type];
-      const branch = branchId ? def.evolution4Choices.find(x => x.id === branchId) : null;
-      const branchProgress = (nextLevel === 5 || nextLevel === 6) && !!branch;
-
-      return {
-        type: 'sphere' as const,
-        sphereType: type,
-        sphereBranch: branchId,
-        sphereStage: 'upgrade' as const,
-        currentLevel,
-        newLevel: nextLevel,
-        name: {
-          ru: def.name.ru + ' — уровень ' + nextLevel + ': ' + (branchProgress ? branch!.name.ru : levelDef.name.ru),
-          en: def.name.en + ' — level ' + nextLevel + ': ' + (branchProgress ? branch!.name.en : levelDef.name.en),
-        },
-        desc: branchProgress
-          ? {
-              ru: 'Развитие именно этой сферы и ветки «' + branch!.name.ru + '»: ' + (nextLevel === 5 ? branch!.desc.ru : 'углубление её специальной механики'),
-              en: 'Develop this sphere and the «' + branch!.name.en + '» branch: ' + (nextLevel === 5 ? branch!.desc.en : 'deepen its special mechanic'),
-            }
-          : levelDef.desc,
-      };
-    });
-
-  // Active skills are an independent progression track. They can appear from
-  // the first level-up and do not require all five spheres to reach level 7.
-  // Passive stats stay out of the normal level-up pool.
-  const preferredAbilities = CHARACTER_DEFS[s.player.characterId]?.preferredAbilities ?? [];
-  const activeIds = (Object.keys(ABILITIES) as AbilityType[])
-    .filter(id => ABILITIES[id].category === 'active' && (s.player.abilities[id] || 0) < ABILITIES[id].maxLevel);
-
-  // Ability evolutions are their own milestones. Reaching IV or VII never
-  // depends on the sphere roster, and always presents three distinct forms.
-  const abilityMilestone = activeIds.find(id => {
-    const level = s.player.abilities[id] || 0;
-    return level === 3 || level === 6;
-  });
-  if (abilityMilestone) {
-    const progression = ABILITY_PROGRESSION[abilityMilestone];
-    const level = s.player.abilities[abilityMilestone] || 0;
-    const evolutionChoices = level === 3 ? progression?.evolution4 : progression?.evolution7;
-    if (progression && evolutionChoices?.length) {
-      return evolutionChoices.slice(0, 3).map((evolution, index) => ({
-        type: 'ability' as const,
-        ability: abilityMilestone,
-        abilityEvolutionIndex: index,
-        abilityStage: level === 3 ? 'branch' as const : 'final' as const,
-        name: evolution.name,
-        desc: evolution.desc,
-        currentLevel: level,
-        newLevel: level + 1,
-      }));
-    }
-  }
-
-  const activeChoices = activeIds
-    .map(id => {
-      const level = s.player.abilities[id] || 0;
-      const progression = ABILITY_PROGRESSION[id];
-      const nextLevel = level + 1;
-      const levelDef = progression?.levels[nextLevel - 1];
-      const preferred = preferredAbilities.includes(id);
-      return {
-        id,
-        score: Math.random() * (preferred ? 1.35 : 0.75),
-        choice: {
-          type: 'ability' as const,
-          ability: id,
-          abilityStage: 'upgrade' as const,
-          name: levelDef?.name ?? ABILITIES[id].name,
-          desc: levelDef?.desc ?? {
-            ru: ABILITIES[id].desc.ru(nextLevel),
-            en: ABILITIES[id].desc.en(nextLevel),
-          },
-          currentLevel: level,
-          newLevel: nextLevel,
-        },
-      };
-    })
-    .sort((a, b) => b.score - a.score)
-    .map(item => item.choice);
-
-  if (sphereChoices.length >= 2 && activeChoices.length > 0) {
-    const firstTwo = sphereChoices.slice(0, 2);
-    const active = activeChoices[Math.floor(Math.random() * Math.min(3, activeChoices.length))];
-    return [firstTwo[0], firstTwo[1], active].sort(() => Math.random() - 0.5);
-  }
-
-  if (sphereChoices.length === 1 && activeChoices.length > 0) {
-    const actives = activeChoices.slice(0, 2);
-    return [sphereChoices[0], ...actives].slice(0, 3).sort(() => Math.random() - 0.5);
-  }
-
-  if (sphereChoices.length > 0) return sphereChoices.slice(0, 3);
-  return activeChoices.slice(0, 3);
+  const branchId=s.player.sphereBranches[type];
+  const branch=def.evolution4Choices.find((x)=>x.id===branchId);
+  if(!branch) return [];
+  return branch.final.slice(0,3).map((finalChoice,index)=>({
+    type:'sphere' as const,
+    sphereType:type,
+    sphereBranch:branch.id,
+    sphereFinalIndex:index,
+    sphereStage:'final' as const,
+    name:finalChoice.name,
+    desc:finalChoice.desc,
+    currentLevel:7,
+    newLevel:7,
+  }));
 }
 
-export function applyUpgrade(s: GameState, choice: UpgradeChoice): void {
-  if (choice.type === 'sphere' && choice.sphereType) {
-    const type = choice.sphereType; const current = sphereLevel(s, type);
-    if (current >= 7) return;
-    const next = current + 1; s.player.sphereProgression[type] = next;
-    for (const sphere of s.spheres) if (sphere.type === type) sphere.visualTier = next;
-    if (choice.sphereStage === 'branch' && choice.sphereBranch) {
-      s.player.sphereBranches[type] = choice.sphereBranch;
-      s.player.evolutions.push('sphere:' + type + ':4:' + choice.sphereBranch); s.evolutionsThisRun++;
-      s.flashText = { text: choice.name?.ru ?? 'Эволюция сферы', life: 2.2, color: '#d4943d' }; playSound('evolve');
-    } else if (choice.sphereStage === 'final') {
-      s.player.evolutions.push('sphere:' + type + ':7:' + (choice.sphereBranch ?? 'unknown') + ':' + (choice.sphereFinalIndex ?? 0));
-      s.evolutionsThisRun++; s.flashText = { text: choice.name?.ru ?? 'Финальная специализация', life: 2.2, color: '#c4453d' }; playSound('evolve');
+function getAbilityEvolutionChoices(s:GameState, ability:AbilityType, level:4|7):UpgradeChoice[] {
+  const progression=ABILITY_PROGRESSION[ability];
+  if(!progression) return [];
+  const pool=level===4?progression.evolution4:progression.evolution7;
+  return pool.slice(0,3).map((evolution,index)=>({
+    type:'ability' as const,
+    ability,
+    abilityEvolutionIndex:index,
+    abilityStage:level===4?'branch' as const:'final' as const,
+    name:evolution.name,
+    desc:evolution.desc,
+    currentLevel:level,
+    newLevel:level,
+  }));
+}
+
+export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
+  const sphereTypes=Object.keys(SPHERE_PROGRESSION) as SphereType[];
+  const availableSpheres=sphereTypes.filter((type)=>sphereLevel(s,type)<7);
+  const sphereChoices=availableSpheres.map((type)=>{
+    const currentLevel=sphereLevel(s,type);
+    const nextLevel=currentLevel+1;
+    const def=SPHERE_PROGRESSION[type];
+    const levelDef=def.levels[nextLevel-1];
+    const branchId=s.player.sphereBranches[type];
+    const branch=branchId?def.evolution4Choices.find((x)=>x.id===branchId):null;
+    const branchProgress=(nextLevel===5||nextLevel===6)&&!!branch;
+    const isFirstMutation=nextLevel===4;
+    const isFinalMutation=nextLevel===7;
+
+    let nameRu=def.name.ru+' — уровень '+nextLevel;
+    let nameEn=def.name.en+' — level '+nextLevel;
+    let descRu=levelDef.desc.ru;
+    let descEn=levelDef.desc.en;
+
+    if(isFirstMutation){
+      nameRu+=': Мутация I';
+      nameEn+=': Mutation I';
+      descRu='Повышает сферу до IV уровня. После выбора откроется отдельное окно с 3 мутациями, из которых можно выбрать одну.';
+      descEn='Raises the sphere to level IV. After this choice, a separate window opens with 3 mutations and you choose one.';
+    } else if(isFinalMutation){
+      nameRu+=': Мутация II';
+      nameEn+=': Mutation II';
+      descRu='Повышает сферу до VII уровня. После этого откроется отдельное окно с 3 финальными специализациями.';
+      descEn='Raises the sphere to level VII. After this choice, a separate window opens with 3 final specializations.';
+    } else if(branchProgress){
+      descRu=nextLevel===5?branch!.level5.ru:branch!.level6.ru;
+      descEn=nextLevel===5?branch!.level5.en:branch!.level6.en;
+      nameRu+=': ветка «'+branch!.name.ru+'»';
+      nameEn+=': branch “'+branch!.name.en+'”';
     }
-    return;
-  }
-  if (choice.type === 'ability' && choice.ability) {
-    s.player.abilities[choice.ability] = Math.min(7, choice.newLevel);
-    const progression = ABILITY_PROGRESSION[choice.ability];
-    if (progression && (choice.abilityStage === 'branch' || choice.abilityStage === 'final')) {
-      const pool = choice.abilityStage === 'branch' ? progression.evolution4 : progression.evolution7;
-      const evolution = pool[Math.max(0, Math.min(pool.length - 1, choice.abilityEvolutionIndex ?? 0))];
-      if (evolution) {
-        const marker = 'ability:' + choice.ability + ':' + choice.newLevel + ':' + evolution.id;
-        if (!s.player.evolutions.includes(marker)) {
-          s.player.evolutions.push(marker);
-          s.evolutionsThisRun++;
-          s.flashText = { text: evolution.name.ru, life: 2.2, color: choice.newLevel === 7 ? '#c4453d' : '#d4943d' };
-          playSound('evolve');
+
+    return {
+      type:'sphere' as const,
+      sphereType:type,
+      sphereBranch:branchId,
+      sphereStage:'upgrade' as const,
+      currentLevel,
+      newLevel:nextLevel,
+      name:{ru:nameRu,en:nameEn},
+      desc:{ru:descRu,en:descEn},
+    };
+  });
+
+  const preferredAbilities=CHARACTER_DEFS[s.player.characterId]?.preferredAbilities??[];
+  const activeIds=(Object.keys(ABILITIES) as AbilityType[])
+    .filter((id)=>ABILITIES[id].category==='active'&&(s.player.abilities[id]||0)<ABILITIES[id].maxLevel);
+
+  const activeChoices=activeIds.map((id)=>{
+    const level=s.player.abilities[id]||0;
+    const nextLevel=level+1;
+    const progression=ABILITY_PROGRESSION[id];
+    const levelDef=progression?.levels[nextLevel-1];
+    const preferred=preferredAbilities.includes(id);
+    let name=levelDef?.name??ABILITIES[id].name;
+    let desc=levelDef?.desc??{ru:ABILITIES[id].desc.ru(nextLevel),en:ABILITIES[id].desc.en(nextLevel)};
+
+    if(nextLevel===4){
+      name={ru:'Мутация I: '+(progression?.ability===id?'Выбери ветку '+ABILITIES[id].name.ru:ABILITIES[id].name.ru),en:'Mutation I: '+ABILITIES[id].name.en};
+      desc={
+        ru:'Повышает способность до IV уровня. После выбора откроется отдельное окно с 3 ветками мутации.',
+        en:'Raises the ability to level IV. After this choice, a separate window opens with 3 mutation branches.',
+      };
+    } else if(nextLevel===7){
+      name={ru:'Мутация II: '+ABILITIES[id].name.ru,en:'Mutation II: '+ABILITIES[id].name.en};
+      desc={
+        ru:'Повышает способность до VII уровня. После этого откроется отдельное окно с 3 финальными формами.',
+        en:'Raises the ability to level VII. After this choice, a separate window opens with 3 final forms.',
+      };
+    } else if(level>=5&&progression){
+      const branch=s.player.evolutions?.find((x:string)=>x.startsWith('ability:'+id+':4:'));
+      if(branch){
+        const evolutionId=branch.split(':').slice(3).join(':');
+        const selected=progression.evolution4.find((x)=>x.id===evolutionId);
+        if(selected){
+          desc=progression.levels[nextLevel-1].desc;
+          name={ru:progression.levels[nextLevel-1].name.ru+' · '+selected.name.ru,en:progression.levels[nextLevel-1].name.en+' · '+selected.name.en};
         }
       }
     }
-    const def = ABILITIES[choice.ability]; if (def.category === 'active' && choice.currentLevel === 0) assignHotkey(s, choice.ability);
-    if (choice.ability === 'vitality') { s.player.maxHp += 20; s.player.hp += 20; }
+
+    return {
+      id,
+      score:Math.random()*(preferred?1.35:0.75),
+      choice:{
+        type:'ability' as const,
+        ability:id,
+        abilityStage:'upgrade' as const,
+        name,
+        desc,
+        currentLevel:level,
+        newLevel:nextLevel,
+      },
+    };
+  }).sort((a,b)=>b.score-a.score).map((item)=>item.choice);
+
+  if(sphereChoices.length>=2&&activeChoices.length>0){
+    const firstTwo=sphereChoices.slice(0,2);
+    const active=activeChoices[Math.floor(Math.random()*Math.min(3,activeChoices.length))];
+    return [firstTwo[0],firstTwo[1],active].sort(()=>Math.random()-0.5);
+  }
+  if(sphereChoices.length===1&&activeChoices.length>0){
+    return [sphereChoices[0],...activeChoices.slice(0,2)].slice(0,3).sort(()=>Math.random()-0.5);
+  }
+  if(sphereChoices.length>0) return sphereChoices.slice(0,3);
+  return activeChoices.slice(0,3);
+}
+
+export function applyUpgrade(s: GameState, choice: UpgradeChoice): void {
+  s.pendingUpgrade=null;
+
+  if(choice.type==='sphere'&&choice.sphereType){
+    const type=choice.sphereType;
+    const current=sphereLevel(s,type);
+
+    // Mutation choices are a second, separate decision. They do not advance
+    // the level again because the normal upgrade already moved the sphere to IV/VII.
+    if(choice.sphereStage==='branch'&&choice.sphereBranch){
+      if(current!==4) return;
+      s.player.sphereBranches[type]=choice.sphereBranch;
+      s.player.evolutions.push('sphere:'+type+':4:'+choice.sphereBranch);
+      s.evolutionsThisRun++;
+      s.flashText={text:choice.name?.ru??'Мутация сферы I',life:2.2,color:'#d4943d'};
+      playSound('evolve');
+      return;
+    }
+
+    if(choice.sphereStage==='final'){
+      if(current!==7) return;
+      s.player.evolutions.push('sphere:'+type+':7:'+(choice.sphereBranch??'unknown')+':'+(choice.sphereFinalIndex??0));
+      s.evolutionsThisRun++;
+      s.flashText={text:choice.name?.ru??'Мутация сферы II',life:2.2,color:'#c4453d'};
+      playSound('evolve');
+      return;
+    }
+
+    if(current>=7) return;
+    const next=current+1;
+    s.player.sphereProgression[type]=next;
+    for(const sphere of s.spheres) if(sphere.type===type) sphere.visualTier=next;
+
+    if(next===4){
+      s.pendingUpgrade=getSphereEvolutionChoices(s,type,4);
+    } else if(next===7){
+      s.pendingUpgrade=getSphereEvolutionChoices(s,type,7);
+    }
     return;
   }
 
+  if(choice.type==='ability'&&choice.ability){
+    const ability=choice.ability;
+    const current=s.player.abilities[ability]||0;
+
+    if(choice.abilityStage==='branch'){
+      if(current!==4) return;
+      const progression=ABILITY_PROGRESSION[ability];
+      const evolution=progression?.evolution4[Math.max(0,Math.min((progression?.evolution4.length||1)-1,choice.abilityEvolutionIndex??0))];
+      if(evolution){
+        const marker='ability:'+ability+':4:'+evolution.id;
+        s.player.evolutions.push(marker);
+        s.evolutionsThisRun++;
+        s.flashText={text:evolution.name.ru,life:2.2,color:'#d4943d'};
+        playSound('evolve');
+      }
+      return;
+    }
+
+    if(choice.abilityStage==='final'){
+      if(current!==7) return;
+      const progression=ABILITY_PROGRESSION[ability];
+      const evolution=progression?.evolution7[Math.max(0,Math.min((progression?.evolution7.length||1)-1,choice.abilityEvolutionIndex??0))];
+      if(evolution){
+        const marker='ability:'+ability+':7:'+evolution.id;
+        s.player.evolutions.push(marker);
+        s.evolutionsThisRun++;
+        s.flashText={text:evolution.name.ru,life:2.2,color:'#c4453d'};
+        playSound('evolve');
+      }
+      return;
+    }
+
+    if(current>=7) return;
+    const next=Math.min(7,current+1);
+    s.player.abilities[ability]=next;
+    const def=ABILITIES[ability];
+    if(def.category==='active'&&current===0) assignHotkey(s,ability);
+
+    if(next===4){
+      s.pendingUpgrade=getAbilityEvolutionChoices(s,ability,4);
+    } else if(next===7){
+      s.pendingUpgrade=getAbilityEvolutionChoices(s,ability,7);
+    }
+    return;
+  }
 }
+
 export function applySphereUpgrade(s: GameState, choice: SphereUpgradeChoice): void {
   const type = (choice as SphereUpgradeChoice & { sphereType?: SphereType }).sphereType;
   if (!type) return;
@@ -1613,7 +1670,7 @@ export function update(s: GameState, dt: number): void {
     if (dist(chest.pos, s.player.pos) < PLAYER_RADIUS + chest.radius) {
       chest.alive = false;
       s.player.chestOpens++;
-      s.pendingChest = chest;
+      s.pendingArtifact = pickArtifacts(s);
       s.chests.splice(i, 1);
       playSound('chest');
     }
