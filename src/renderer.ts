@@ -67,7 +67,6 @@ export function render(ctx: CanvasRenderingContext2D, s: GameState, canvasW: num
   ctx.translate(canvasW / 2 - s.camera.x + shakeX, canvasH / 2 - s.camera.y + shakeY);
 
   drawVoidField(ctx, s.worldWidth, s.worldHeight, theme, -s.worldWidth / 2, -s.worldHeight / 2, s.player.pos.x, s.player.pos.y);
-  drawGrid(ctx, s, canvasW, canvasH, theme);
 
   // world bounds
   ctx.strokeStyle = theme.border;
