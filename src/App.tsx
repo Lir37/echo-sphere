@@ -484,7 +484,13 @@ function UpgradeModal({ lang, t, st, onPick }: {
               </div>
               <div className="font-bold text-lg mb-2">{choice.name?.[lang] || 'Sphere'}</div>
               <div className="text-sm text-[#5a4a32] mb-2">{choice.desc?.[lang] || ''}</div>
-              <div className="text-xs text-[#8a7a5a]/70">{t('level')} {choice.currentLevel} → {choice.newLevel}</div>
+              <div className="text-xs text-[#8a7a5a]/70">
+                {choice.sphereStage === 'branch' || choice.abilityStage === 'branch'
+                  ? (lang === 'ru' ? 'Уровень IV • выбор ветки' : 'Level IV • choose a branch')
+                  : choice.sphereStage === 'final' || choice.abilityStage === 'final'
+                    ? (lang === 'ru' ? 'Уровень VII • выбор финальной формы' : 'Level VII • choose final form')
+                    : <>{t('level')} {choice.currentLevel} → {choice.newLevel}</>}
+              </div>
             </button>
           ))}
         </div>
