@@ -673,6 +673,38 @@ export class Echo3DRenderer {
     }
 
     // --- ARTICULATED SECONDARY ORBITS -----------------------------------
+    // Faceted "petals" are the small structural members visible between the
+    // reference's great-circle lines. They give the cage a designed, fabricated
+    // silhouette instead of a purely mathematical wireframe.
+    if(tier>=3){
+      const petals=tier>=7?12:tier>=5?10:8;
+      const petalR=cageR*(tier>=7?1.02:.92);
+      for(let i=0;i<petals;i++){
+        const a=i/petals*Math.PI*2+rot*.18;
+        const p:Vec3=[
+          origin[0]+Math.cos(a)*petalR,
+          origin[1]+Math.sin(a*2.0)*petalR*.12,
+          origin[2]+Math.sin(a)*petalR
+        ];
+        const pm=mat4Multiply(
+          mat4Translate(...p),
+          mat4Multiply(
+            mat4RotateY(-a),
+            mat4Multiply(mat4RotateZ(Math.sin(a*3.0+t*.7)*.12),mat4Scale(
+              base*(tier>=7?.115:.085),
+              base*(tier>=7?.032:.026),
+              base*(tier>=7?.032:.026)
+            ))
+          )
+        );
+        this.drawModelAdditive(
+          this.facetCoreMesh,pm,vp,def.accent,'#ffffff',
+          tier>=7?.48:tier>=5?.37:.30
+        );
+      }
+    }
+
+
     // Small mechanical halos sit between the main cage and the authored body.
     // Their phase offsets prevent the object from looking mathematically static.
     if(tier>=3){
