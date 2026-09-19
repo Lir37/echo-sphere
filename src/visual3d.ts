@@ -29,6 +29,10 @@ function mat4RotateX(a:number): Float32Array {
   const c=Math.cos(a), s=Math.sin(a);
   return new Float32Array([1,0,0,0, 0,c,s,0, 0,-s,c,0, 0,0,0,1]);
 }
+function mat4RotateZ(a:number): Float32Array {
+  const c=Math.cos(a), s=Math.sin(a);
+  return new Float32Array([c,s,0,0, -s,c,0,0, 0,0,1,0, 0,0,0,1]);
+}
 function mat4Perspective(fov:number, aspect:number, near:number, far:number):Float32Array {
   const f=1/Math.tan(fov/2), nf=1/(near-far);
   return new Float32Array([f/aspect,0,0,0, 0,f,0,0, 0,0,(far+near)*nf,-1, 0,0,(2*far*near)*nf,0]);
@@ -142,6 +146,8 @@ export class Echo3DRenderer {
   private torusMesh: Mesh;
   private fineTorusMesh: Mesh;
   private cylinderMesh: Mesh;
+  private reactorShellMesh: Mesh;
+  private facetCoreMesh: Mesh;
   private quad: WebGLBuffer;
   private posLoc:number;
   private normalLoc:number;
@@ -171,6 +177,10 @@ export class Echo3DRenderer {
     this.torusMesh=this.makeTorus(1,0.055,32,8);
     this.fineTorusMesh=this.makeTorus(1,0.022,48,6);
     this.cylinderMesh=this.makeCylinder(1,1,10);
+    this.reactorShellMesh=this.makeLathe([
+      [-1.00,0.48],[-0.88,0.68],[-0.58,0.84],[-0.22,0.91],[0.22,0.91],[0.58,0.84],[0.88,0.68],[1.00,0.48]
+    ],20);
+    this.facetCoreMesh=this.makeIcoSphere(1);
     void this.loadModelAssets();
     this.quad=this.makeGroundBuffer();
     this.posLoc=gl.getAttribLocation(this.program,'a_position');
@@ -244,93 +254,112 @@ export class Echo3DRenderer {
 
   private drawPlayer(s:GameState,t:number,vp:Float32Array){
     const p=s.player.pos;
-    // Hero model: a compact sci-fi energy reactor built from several independent
-    // 3D volumes. The silhouette is intentionally close to the reference:
-    // luminous nucleus, dark containment shell, three orbital bands and nodes.
-    const bob=21+Math.sin(t*2.8)*1.2;
-    const pulse=1+Math.sin(t*3.2)*0.035;
-    const size=24*pulse;
+    const pulse=1+Math.sin(t*3.15)*0.032;
+    const size=25*pulse;
+    const bob=21+Math.sin(t*2.7)*1.15;
     const base=mat4Translate(p.x,bob,p.y);
 
-    // 1. Contained luminous nucleus. Two scales create a real volumetric core
-    // rather than a flat glowing disc.
-    const core=mat4Multiply(
-      base,
-      mat4Multiply(mat4RotateY(t*.22),mat4Scale(size*.29,size*.33,size*.29))
-    );
-    this.drawModel(this.sphereMesh,core,vp,'#d9f8ff','#ffffff',1);
-
-    const coreAura=mat4Multiply(
-      base,
-      mat4Scale(size*.40,size*.40,size*.40)
-    );
-    this.drawModel(this.sphereMesh,coreAura,vp,'#12527f','#55dcff',.16);
-
-    // 2. Containment shell. It is transparent and offset from the core, so the
-    // nucleus remains readable through the blue glass volume.
+    // Primary silhouette: a faceted reactor body with a tapered, machined profile.
     const shell=mat4Multiply(
       base,
-      mat4Multiply(mat4RotateY(-t*.13),mat4Scale(size*.53,size*.53,size*.53))
+      mat4Multiply(mat4RotateY(t*.11),mat4Scale(size*.64,size*.72,size*.64))
     );
-    this.drawModel(this.sphereMesh,shell,vp,'#061522','#176b9e',.25);
+    this.drawModel(this.reactorShellMesh,shell,vp,'#071a29','#2b9fc8',.78);
 
-    // 3. Inner containment hoops. These make the shell feel constructed instead
-    // of looking like a plain sphere.
-    const innerR=size*.50;
-    const inner=[
-      mat4Multiply(base,mat4Multiply(mat4RotateX(72*DEG),mat4RotateY(t*.7))),
-      mat4Multiply(base,mat4Multiply(mat4RotateX(-68*DEG),mat4RotateY(-t*.55))),
-      mat4Multiply(base,mat4Multiply(mat4RotateX(18*DEG),mat4RotateY(t*.36)))
+    // Dark inset volume gives the shell actual depth instead of a flat outer glow.
+    const inner=mat4Multiply(
+      base,
+      mat4Multiply(mat4RotateY(-t*.18),mat4Scale(size*.49,size*.57,size*.49))
+    );
+    this.drawModel(this.reactorShellMesh,inner,vp,'#03101b','#0c5d83',.92);
+
+    // Faceted luminous nucleus. Two nested volumes create a hot center and a cooler energy envelope.
+    const core=mat4Multiply(
+      base,
+      mat4Multiply(mat4RotateY(t*.34),mat4Scale(size*.285,size*.34,size*.285))
+    );
+    this.drawModel(this.facetCoreMesh,core,vp,'#bfefff','#ffffff',1);
+
+    const coreGlow=mat4Multiply(base,mat4Scale(size*.39,size*.44,size*.39));
+    this.drawModel(this.sphereMesh,coreGlow,vp,'#0b5d87','#51ddff',.19);
+
+    // Machined collar rings lock the central body to the containment frame.
+    const collarR=size*.60;
+    for(const [ang,tilt,scale] of [
+      [t*.52,68*DEG,1.0],[-t*.43,-68*DEG,1.0],[t*.27,18*DEG,.88]
+    ] as Array<[number,number,number]>){
+      const m=mat4Multiply(
+        mat4Multiply(base,mat4Multiply(mat4RotateX(tilt),mat4RotateY(ang))),
+        mat4Scale(collarR*scale,collarR*scale,collarR*scale)
+      );
+      this.drawModel(this.fineTorusMesh,m,vp,'#63c9e8','#b8f5ff',.62);
+    }
+
+    // Three independent orbital bands form the recognizable outer cage.
+    const cageR=size*.82;
+    const rings=[
+      mat4Multiply(base,mat4RotateY(t*.62)),
+      mat4Multiply(base,mat4Multiply(mat4RotateX(61*DEG),mat4RotateY(-t*.47))),
+      mat4Multiply(base,mat4Multiply(mat4RotateZ(61*DEG),mat4RotateY(t*.31)))
     ];
-    for(const r of inner){
+    for(const r of rings){
       this.drawModel(
         this.fineTorusMesh,
-        mat4Multiply(r,mat4Scale(innerR,innerR,innerR)),
-        vp,'#2f9bc7','#8fefff',.42
+        mat4Multiply(r,mat4Scale(cageR,cageR,cageR)),
+        vp,'#b7efff','#efffff',.94
       );
     }
 
-    // 4. Main orbital cage. The three rings use different axes and angular
-    // velocities so the object reads as a genuine 3D assembly in motion.
-    const cageR=size*.77;
-    const rings=[
-      mat4Multiply(base,mat4RotateY(t*.58)),
-      mat4Multiply(base,mat4Multiply(mat4RotateX(62*DEG),mat4RotateY(-t*.43))),
-      mat4Multiply(base,mat4Multiply(mat4RotateX(-62*DEG),mat4RotateY(t*.29)))
-    ];
-    for(const r of rings){
-      const m=mat4Multiply(r,mat4Scale(cageR,cageR,cageR));
-      this.drawModel(this.fineTorusMesh,m,vp,'#9deaff','#eaffff',.95);
-    }
-
-    // 5. Four micro-emitters sit on the cage axes. They are true 3D volumes and
-    // remain tiny so they do not turn the character into a mechanical prop.
+    // Six structural emitters sit at the cage poles. They are volumetric, not sprites.
     const nodeR=cageR*1.015;
-    const nodeSize=size*.052;
-    const nodes:[[number,number,number],[number,number,number],[number,number,number],[number,number,number]]=[
-      [nodeR,0,0],[-nodeR,0,0],
-      [0,nodeR*Math.cos(62*DEG),nodeR*Math.sin(62*DEG)],
-      [0,-nodeR*Math.cos(62*DEG),-nodeR*Math.sin(62*DEG)]
+    const nodeSize=size*.064;
+    const nodes=[
+      [ nodeR,0,0],[-nodeR,0,0],
+      [0, nodeR*Math.cos(61*DEG), nodeR*Math.sin(61*DEG)],
+      [0,-nodeR*Math.cos(61*DEG),-nodeR*Math.sin(61*DEG)],
+      [nodeR*.54,0,nodeR*.84],[-nodeR*.54,0,-nodeR*.84]
     ];
     for(let i=0;i<nodes.length;i++){
       const [nx,ny,nz]=nodes[i];
       const nm=mat4Multiply(
         mat4Translate(p.x+nx,bob+ny,p.y+nz),
-        mat4Scale(nodeSize,nodeSize,nodeSize)
+        mat4Scale(nodeSize*(i%2?0.9:1.08),nodeSize,nodeSize*(i%2?0.9:1.08))
       );
-      this.drawModel(this.sphereMesh,nm,vp,'#d9fbff','#ffffff',.98);
+      this.drawModel(this.facetCoreMesh,nm,vp,'#d9fbff','#ffffff',.98);
     }
 
-    // 6. A very subtle external energy field gives the model the polished,
-    // layered look of a finished game asset without adding bulky geometry.
+    // Short structural struts connect the cage to the body. They are deliberately thin,
+    // so the silhouette stays elegant rather than becoming a robotic ball.
+    const strutR=size*.037;
+    const strutL=cageR*.72;
+    const struts=[
+      mat4Multiply(base,mat4RotateZ(90*DEG)),
+      mat4Multiply(base,mat4RotateX(90*DEG)),
+      mat4Multiply(base,mat4Multiply(mat4RotateX(61*DEG),mat4RotateY(t*.31)))
+    ];
+    for(const r of struts){
+      const m=mat4Multiply(r,mat4Scale(strutR,strutL,strutR));
+      this.drawModel(this.cylinderMesh,m,vp,'#2b7796','#9ceeff',.72);
+    }
+
+    // Small rotating energy filaments add motion at close range.
+    const filamentR=size*.70;
+    for(let i=0;i<3;i++){
+      const a=t*(1.1+i*.21)+i*Math.PI*2/3;
+      const fm=mat4Multiply(
+        mat4Translate(p.x+Math.cos(a)*filamentR,bob+Math.sin(a*1.7)*size*.12,p.y+Math.sin(a)*filamentR),
+        mat4Scale(size*.026,size*.026,size*.13)
+      );
+      this.drawModel(this.facetCoreMesh,fm,vp,'#7ee9ff','#dfffff',.8);
+    }
+
+    // External energy field and the separate ground halo complete the presentation.
     const outer=mat4Multiply(
       base,
-      mat4Multiply(mat4RotateX(36*DEG),mat4Scale(size*.88,size*.88,size*.88))
+      mat4Multiply(mat4RotateX(34*DEG),mat4Scale(size*.94,size*.94,size*.94))
     );
-    this.drawModel(this.fineTorusMesh,outer,vp,'#3aafdc','#77eaff',.22);
-
-    // Separate floor reflection/halo.
-    this.drawRing(p.x,p.y,size*1.02,t*.45,'#52ddff',t,vp,.18);
+    this.drawModel(this.fineTorusMesh,outer,vp,'#3aafdc','#77eaff',.20);
+    this.drawRing(p.x,p.y,size*1.06,t*.45,'#52ddff',t,vp,.18);
   }
 
   private drawSphere(s:SphereEntity,t:number,vp:Float32Array,cx:number,cy:number){
@@ -441,6 +470,47 @@ export class Echo3DRenderer {
     gl.drawElements(gl.TRIANGLES,mesh.count,gl.UNSIGNED_SHORT,0);
   }
 
+  private makeIcoSphere(r:number):Mesh{
+    const phi=(1+Math.sqrt(5))/2;
+    const raw=[
+      [-1,phi,0],[1,phi,0],[-1,-phi,0],[1,-phi,0],
+      [0,-1,phi],[0,1,phi],[0,-1,-phi],[0,1,-phi],
+      [phi,0,-1],[phi,0,1],[-phi,0,-1],[-phi,0,1]
+    ];
+    const faces=[
+      [0,11,5],[0,5,1],[0,1,7],[0,7,10],[0,10,11],
+      [1,5,9],[5,11,4],[11,10,2],[10,7,6],[7,1,8],
+      [3,9,4],[3,4,2],[3,2,6],[3,6,8],[3,8,9],
+      [4,9,5],[2,4,11],[6,2,10],[8,6,7],[9,8,1]
+    ];
+    const positions:number[]=[],normals:number[]=[],indices:number[]=[];
+    for(const v of raw){
+      const l=Math.hypot(v[0],v[1],v[2])||1;
+      positions.push(v[0]/l*r,v[1]/l*r,v[2]/l*r);
+      normals.push(v[0]/l,v[1]/l,v[2]/l);
+    }
+    for(const f of faces) indices.push(f[0],f[1],f[2]);
+    return this.makeMesh(positions,normals,indices);
+  }
+  private makeLathe(profile:Array<[number,number]>,segments:number):Mesh{
+    const p:number[]=[],n:number[]=[],idx:number[]=[];
+    for(let i=0;i<profile.length;i++){
+      const [y,rad]=profile[i];
+      const prev=profile[Math.max(0,i-1)],next=profile[Math.min(profile.length-1,i+1)];
+      const slope=(next[1]-prev[1])/(next[0]-prev[0]||1);
+      for(let j=0;j<=segments;j++){
+        const a=j/segments*Math.PI*2,c=Math.cos(a),s=Math.sin(a);
+        p.push(rad*c,y,rad*s);
+        const nx=c,ny=-slope,nz=s,l=Math.hypot(nx,ny,nz)||1;
+        n.push(nx/l,ny/l,nz/l);
+      }
+    }
+    for(let i=0;i<profile.length-1;i++) for(let j=0;j<segments;j++){
+      const a=i*(segments+1)+j,b=a+segments+1;
+      idx.push(a,b,a+1,b,b+1,a+1);
+    }
+    return this.makeMesh(p,n,idx);
+  }
   private makeUvSphere(r:number,segments:number,rings:number):Mesh{
     const positions:number[]=[], normals:number[]=[], indices:number[]=[];
     for(let y=0;y<=rings;y++){
