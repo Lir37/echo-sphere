@@ -138,6 +138,8 @@ export class Echo3DRenderer {
   private groundCenterLoc:WebGLUniformLocation;
   private width=1;
   private height=1;
+  private modelAssets=new Map<string,Mesh>();
+  private modelLoadStarted=false;
 
   constructor(private canvas:HTMLCanvasElement){
     const gl=canvas.getContext('webgl',{alpha:false,antialias:true,powerPreference:'high-performance'});
@@ -148,6 +150,7 @@ export class Echo3DRenderer {
     this.sphereMesh=this.makeUvSphere(1,18,12);
     this.torusMesh=this.makeTorus(1,0.055,32,8);
     this.cylinderMesh=this.makeCylinder(1,1,10);
+    void this.loadModelAssets();
     this.quad=this.makeGroundBuffer();
     this.posLoc=gl.getAttribLocation(this.program,'a_position');
     this.normalLoc=gl.getAttribLocation(this.program,'a_normal');
@@ -215,53 +218,54 @@ export class Echo3DRenderer {
   dispose(){ /* WebGL resources are owned by the canvas and released with its context. */ }
 
   private drawPlayer(s:GameState,t:number,vp:Float32Array){
-    const p=s.player.pos;
-    this.drawModel(this.sphereMesh,mat4Multiply(mat4Translate(p.x,18,p.y),mat4Scale(19,19,19)),vp,'#182d42','#4fdcff',1);
-    this.drawRing(p.x,p.y,30,0.75,'#52ddff',t,vp,0.3);
-    this.drawRing(p.x,p.y,43,-0.42,'#8c68ff',t*0.8,vp,0.18);
-    this.drawModel(this.sphereMesh,mat4Multiply(mat4Multiply(mat4Translate(p.x,20+Math.sin(t*3)*1.5,p.y),mat4Scale(9,9,9)),mat4RotateY(t*2.2)),vp,'#07131e','#b9f5ff',1);
-    if(s.player.invulnerableTimer>0||s.player.dashTimer>0) this.drawRing(p.x,p.y,50,t*1.8,'#ffffff',t,vp,0.55);
+    const p=s.player.pos,asset=this.modelAssets.get('player'),pulse=1+Math.sin(t*3)*.035;
+    if(asset){
+      const m=mat4Multiply(mat4Multiply(mat4Translate(p.x,22+Math.sin(t*4)*1.2,p.y),mat4RotateY(t*.35)),mat4Scale(25*pulse,25*pulse,25*pulse));
+      this.drawModel(asset,m,vp,'#142638','#72eaff',1);
+    }else{
+      this.drawModel(this.sphereMesh,mat4Multiply(mat4Translate(p.x,18,p.y),mat4Scale(19,19,19)),vp,'#182d42','#4fdcff',1);
+    }
+    this.drawRing(p.x,p.y,30,.75,'#52ddff',t,vp,.30);
+    this.drawRing(p.x,p.y,43,-.42,'#8c68ff',t*.8,vp,.18);
+    if(s.player.invulnerableTimer>0||s.player.dashTimer>0)this.drawRing(p.x,p.y,50,t*1.8,'#ffffff',t,vp,.55);
   }
 
   private drawSphere(s:SphereEntity,t:number,vp:Float32Array,cx:number,cy:number){
-    const def=sphereTypes[s.type];
-    const pulse=1+Math.sin(t*3+s.rotation)*0.045;
-    const y=24+Math.sin(t*2.4+s.pos.x*0.01)*3;
-    const base=18+Math.min(10,s.visualTier*1.5);
-    const model=mat4Multiply(mat4Multiply(mat4Translate(s.pos.x,y,s.pos.y),mat4RotateY(s.rotation+t*0.55)),mat4Scale(base*pulse,base*pulse,base*pulse));
-    this.drawModel(this.sphereMesh,model,vp,def.color,def.accent,1);
-    this.drawModel(this.sphereMesh,mat4Multiply(mat4Multiply(mat4Translate(s.pos.x,y+2,s.pos.y),mat4Scale(base*0.45,base*0.45,base*0.45)),mat4RotateY(-t*2)),vp,'#06111b',def.accent,1);
-    this.drawRing(s.pos.x,s.pos.y,base*1.45,t*(s.type==='sniper'?-1.3:1.0),def.color,t,vp,0.34);
-    if(s.type==='aura') {
-      this.drawRing(s.pos.x,s.pos.y,base*2.4,t*0.5,def.color,t,vp,0.18);
-      this.drawRing(s.pos.x,s.pos.y,base*3.0,-t*0.3,def.accent,t,vp,0.10);
-    }
-    if(s.visualTier>=4) this.drawRing(s.pos.x,s.pos.y,base*1.8,-t*1.6,def.accent,t,vp,0.5);
-    void cx; void cy;
+    const def=sphereTypes[s.type],pulse=1+Math.sin(t*3+s.rotation)*.045,y=24+Math.sin(t*2.4+s.pos.x*.01)*3,base=17+Math.min(10,s.visualTier*1.5),asset=this.modelAssets.get('sphere_'+s.type);
+    const m=mat4Multiply(mat4Multiply(mat4Translate(s.pos.x,y,s.pos.y),mat4RotateY(s.rotation+t*.55)),mat4Scale(base*pulse,base*pulse,base*pulse));
+    if(asset)this.drawModel(asset,m,vp,def.color,def.accent,1);else this.drawModel(this.sphereMesh,m,vp,def.color,def.accent,1);
+    this.drawRing(s.pos.x,s.pos.y,base*1.45,t*(s.type==='sniper'?-1.3:1),def.color,t,vp,.34);
+    if(s.type==='aura'){this.drawRing(s.pos.x,s.pos.y,base*2.4,t*.5,def.color,t,vp,.18);this.drawRing(s.pos.x,s.pos.y,base*3,-t*.3,def.accent,t,vp,.1);}
+    if(s.visualTier>=4)this.drawRing(s.pos.x,s.pos.y,base*1.8,-t*1.6,def.accent,t,vp,.5);
+    void cx;void cy;
   }
 
   private drawEnemy(e:EnemyEntity,t:number,vp:Float32Array){
-    const c=e.isBoss?enemyColors.boss:(enemyColors[e.type]||e.color||enemyColors.normal);
-    const scale=e.isBoss?Math.max(30,e.radius*1.7):Math.max(13,e.radius*0.95);
-    const hit=e.hitFlash>0?1.7:1;
-    const y=scale*0.72+Math.sin(t*2.2+e.rotation)*1.5;
-    const rot=e.rotation+t*(e.type==='fast'?1.8:0.7);
-    const shapeScale=e.shape==='triangle'?[1.18,0.72,1.18]:e.shape==='square'?[1.0,0.9,1.0]:e.shape==='hexagon'?[1.12,0.82,1.12]:[1,1,1];
-    const m=mat4Multiply(mat4Multiply(mat4Translate(e.pos.x,y,e.pos.y),mat4RotateY(rot)),mat4Scale(scale*shapeScale[0]*hit,scale*shapeScale[1]*hit,scale*shapeScale[2]*hit));
-    this.drawModel(e.isBoss?this.sphereMesh:(e.shape==='square'?this.cylinderMesh:this.sphereMesh),m,vp,'#0a101a',c,1);
-    this.drawModel(this.sphereMesh,mat4Multiply(mat4Translate(e.pos.x,y+scale*0.18,e.pos.y),mat4Scale(scale*0.32,scale*0.32,scale*0.32)),vp,'#05080e',c,1);
-    this.drawRing(e.pos.x,e.pos.y,scale*(e.isBoss?1.35:1.2),rot,c,t,vp,e.isBoss?0.42:0.22);
-    if(e.isElite) this.drawRing(e.pos.x,e.pos.y,scale*1.5,-t*1.3,'#ffe36d',t,vp,0.45);
-    if(e.freezeTimer>0) this.drawRing(e.pos.x,e.pos.y,scale*1.65,t*0.9,'#8fdcff',t,vp,0.42);
-    if(e.fireTimer>0) this.drawRing(e.pos.x,e.pos.y,scale*1.55,-t*1.1,'#ff643d',t,vp,0.30);
+    const c=e.isBoss?enemyColors.boss:(enemyColors[e.type]||e.color||enemyColors.normal),scale=e.isBoss?Math.max(34,e.radius*1.7):Math.max(13,e.radius*.95),hit=e.hitFlash>0?1.7:1;
+    const y=scale*.62+Math.sin(t*2.2+e.rotation)*1.5,rot=e.rotation+t*(e.type==='fast'?1.8:.7),key=e.isBoss?'boss':'enemy_'+(e.type==='fast'?'fast':e.type==='tank'?'tank':'normal'),asset=this.modelAssets.get(key);
+    if(asset){
+      const m=mat4Multiply(mat4Multiply(mat4Translate(e.pos.x,y,e.pos.y),mat4RotateY(rot)),mat4Scale(scale*1.18*hit,scale*1.18*hit,scale*1.18*hit));
+      this.drawModel(asset,m,vp,'#07111c',c,1);
+    }else{
+      const m=mat4Multiply(mat4Multiply(mat4Translate(e.pos.x,y,e.pos.y),mat4RotateY(rot)),mat4Scale(scale*hit,scale*.85*hit,scale*hit));
+      this.drawModel(this.sphereMesh,m,vp,'#0a101a',c,1);
+    }
+    this.drawRing(e.pos.x,e.pos.y,scale*(e.isBoss?1.35:1.15),rot,c,t,vp,e.isBoss?.42:.22);
+    if(e.isElite)this.drawRing(e.pos.x,e.pos.y,scale*1.5,-t*1.3,'#ffe36d',t,vp,.45);
+    if(e.freezeTimer>0)this.drawRing(e.pos.x,e.pos.y,scale*1.65,t*.9,'#8fdcff',t,vp,.42);
+    if(e.fireTimer>0)this.drawRing(e.pos.x,e.pos.y,scale*1.55,-t*1.1,'#ff643d',t,vp,.3);
   }
 
   private drawProjectile(p:SphereProjectile,t:number,vp:Float32Array){
-    const len=Math.max(7,Math.hypot(p.vel.x,p.vel.y)*0.045);
-    const a=Math.atan2(p.vel.y,p.vel.x);
-    const model=mat4Multiply(mat4Multiply(mat4Translate(p.pos.x,11,p.pos.y),mat4RotateY(-a)),mat4Scale(Math.max(4,p.radius*1.5),Math.max(4,p.radius*1.5),len));
-    this.drawModel(this.sphereMesh,model,vp,p.color,'#ffffff',1);
-    this.drawRing(p.pos.x,p.pos.y,Math.max(7,p.radius*2.2),t*4,p.color,t,vp,0.18);
+    const len=Math.max(7,Math.hypot(p.vel.x,p.vel.y)*.045),a=Math.atan2(p.vel.y,p.vel.x),asset=this.modelAssets.get('projectile');
+    if(asset){
+      const m=mat4Multiply(mat4Multiply(mat4Translate(p.pos.x,11,p.pos.y),mat4RotateY(-a)),mat4Scale(Math.max(4,p.radius*1.45),Math.max(4,p.radius*1.45),Math.max(6,len*1.1)));
+      this.drawModel(asset,m,vp,p.color,'#ffffff',1);
+    }else{
+      const m=mat4Multiply(mat4Multiply(mat4Translate(p.pos.x,11,p.pos.y),mat4RotateY(-a)),mat4Scale(Math.max(4,p.radius*1.5),Math.max(4,p.radius*1.5),len));
+      this.drawModel(this.sphereMesh,m,vp,p.color,'#ffffff',1);
+    }
+    this.drawRing(p.pos.x,p.pos.y,Math.max(7,p.radius*2.2),t*4,p.color,t,vp,.18);
   }
 
   private drawParticle(p:Particle,t:number,vp:Float32Array){
@@ -286,6 +290,37 @@ export class Echo3DRenderer {
     const m=mat4Multiply(mat4Translate(x,7,z),mat4Multiply(mat4RotateY(rot),mat4Scale(r,r,r)));
     this.drawModel(this.torusMesh,m,vp,color,color,alpha);
     void t;
+  }
+
+  private async loadModelAssets(): Promise<void>{
+    if(this.modelLoadStarted)return;this.modelLoadStarted=true;
+    const paths:Record<string,string>={player:'/art3d/player.glb',sphere_standard:'/art3d/sphere-standard.glb',sphere_sniper:'/art3d/sphere-sniper.glb',sphere_shotgun:'/art3d/sphere-shotgun.glb',sphere_chain:'/art3d/sphere-chain.glb',sphere_aura:'/art3d/sphere-aura.glb',enemy_normal:'/art3d/enemy-normal.glb',enemy_fast:'/art3d/enemy-fast.glb',enemy_tank:'/art3d/enemy-tank.glb',boss:'/art3d/boss.glb',projectile:'/art3d/projectile.glb'};
+    for(const [key,path] of Object.entries(paths)){
+      try{const r=await fetch(path,{cache:'force-cache'});if(!r.ok)throw new Error('HTTP '+r.status);const mesh=this.loadGlbMesh(await r.arrayBuffer());if(mesh)this.modelAssets.set(key,mesh);}
+      catch(error){console.warn('Echo3D asset failed:',key,error);}
+    }
+  }
+  private loadGlbMesh(buffer:ArrayBuffer):Mesh|null{
+    if(buffer.byteLength<20)return null;const dv=new DataView(buffer);
+    if(dv.getUint32(0,true)!==0x46546c67||dv.getUint32(4,true)!==2)return null;
+    let off=12,json=null,bin=null;
+    while(off+8<=buffer.byteLength){const len=dv.getUint32(off,true),type=dv.getUint32(off+4,true),start=off+8;
+      if(type===0x4e4f534a)json=JSON.parse(new TextDecoder().decode(new Uint8Array(buffer,start,len)));
+      else if(type===0x004e4942)bin=new Uint8Array(buffer,start,len);off=start+len;
+    }
+    if(!json||!bin||!json.meshes?.length)return null;const prim=json.meshes[0]?.primitives?.[0];if(!prim?.attributes?.POSITION)return null;
+    const read=(idx)=>{const a=json.accessors[idx],v=json.bufferViews[a.bufferView],cc=a.type==='VEC3'?3:a.type==='VEC2'?2:1,start=(v.byteOffset||0)+(a.byteOffset||0);
+      if(a.componentType===5126)return new Float32Array(bin.buffer,bin.byteOffset+start,a.count*cc).slice();
+      if(a.componentType===5123)return new Uint16Array(bin.buffer,bin.byteOffset+start,a.count*cc).slice();
+      return null;};
+    const pos=read(prim.attributes.POSITION),norm=prim.attributes.NORMAL!==undefined?read(prim.attributes.NORMAL):null,idx=prim.indices!==undefined?read(prim.indices):null;
+    if(!(pos instanceof Float32Array)||!(idx instanceof Uint16Array))return null;const n=norm instanceof Float32Array?norm:new Float32Array(pos.length);
+    if(!norm)for(let i=0;i<n.length;i+=3){n[i]=0;n[i+1]=1;n[i+2]=0;}
+    return this.makeMeshFromTypedArrays(pos,n,idx);
+  }
+  private makeMeshFromTypedArrays(pos:Float32Array,norm:Float32Array,idx:Uint16Array):Mesh{
+    const gl=this.gl,pb=gl.createBuffer(),nb=gl.createBuffer(),ib=gl.createBuffer();if(!pb||!nb||!ib)throw new Error('buffer');
+    gl.bindBuffer(gl.ARRAY_BUFFER,pb);gl.bufferData(gl.ARRAY_BUFFER,pos,gl.STATIC_DRAW);gl.bindBuffer(gl.ARRAY_BUFFER,nb);gl.bufferData(gl.ARRAY_BUFFER,norm,gl.STATIC_DRAW);gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,ib);gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,idx,gl.STATIC_DRAW);return{pos:pb,normal:nb,index:ib,count:idx.length};
   }
 
   private drawModel(mesh:Mesh,model:Float32Array,vp:Float32Array,color:string,emissive:string,alpha:number){
