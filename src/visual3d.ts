@@ -107,11 +107,15 @@ void main(){
   float pulse=0.88+0.12*sin(u_time*3.0+v_local.y*4.0);
   vec3 base=mix(u_color,u_color*vec3(0.48,0.58,0.72),micro*0.28);
   vec3 H=normalize(L+vec3(0.35,0.78,0.45));
-  float spec=pow(max(dot(N,H),0.0),32.0);
-  vec3 col=base*(0.14+ndl*0.82);
-  col+=u_emissive*(0.28+rim*1.15+fresnel*1.45)*pulse;
-  col+=u_emissive*spec*1.55;
-  col+=u_emissive*micro*0.08;
+  float spec=pow(max(dot(N,H),0.0),42.0);
+  float edge=pow(1.0-max(dot(N,V),0.0),5.5);
+  float contour=0.5+0.5*sin(v_local.y*13.0+v_local.x*4.0);
+  vec3 col=base*(0.10+ndl*0.90);
+  col+=u_emissive*(0.22+rim*0.92+fresnel*1.72)*pulse;
+  col+=u_emissive*spec*(1.75+edge*1.8);
+  col+=u_emissive*micro*0.06;
+  col+=u_emissive*edge*0.75;
+  col+=base*contour*0.035;
   gl_FragColor=vec4(col,u_alpha);
 }`;
 
@@ -284,7 +288,15 @@ export class Echo3DRenderer {
     this.drawModel(this.sphereMesh,coreGlow,vp,'#0b5d87','#51ddff',.19);
 
     // Machined collar rings lock the central body to the containment frame.
+    // A second, slightly wider set creates visible stepped geometry at the shell joints.
     const collarR=size*.60;
+    for(const [tilt,rot] of [[0,t*.34],[90*DEG,-t*.28]] as Array<[number,number]>){
+      const collar=mat4Multiply(
+        mat4Multiply(base,mat4Multiply(mat4RotateX(tilt),mat4RotateY(rot))),
+        mat4Scale(size*.66,size*.66,size*.66)
+      );
+      this.drawModel(this.torusMesh,collar,vp,'#173e52','#62dfff',.55);
+    }
     for(const [ang,tilt,scale] of [
       [t*.52,68*DEG,1.0],[-t*.43,-68*DEG,1.0],[t*.27,18*DEG,.88]
     ] as Array<[number,number,number]>){
@@ -296,6 +308,7 @@ export class Echo3DRenderer {
     }
 
     // Three independent orbital bands form the recognizable outer cage.
+    // The slight radius offset between layers prevents the silhouette from collapsing into one ring.
     const cageR=size*.82;
     const rings=[
       mat4Multiply(base,mat4RotateY(t*.62)),
@@ -351,6 +364,15 @@ export class Echo3DRenderer {
         mat4Scale(size*.026,size*.026,size*.13)
       );
       this.drawModel(this.facetCoreMesh,fm,vp,'#7ee9ff','#dfffff',.8);
+    }
+
+    // A small top and bottom cap make the reactor read as a manufactured artifact.
+    for(const y of [-1,1]){
+      const cap=mat4Multiply(
+        mat4Translate(p.x,bob+y*size*.67,p.y),
+        mat4Scale(size*.23,size*.075,size*.23)
+      );
+      this.drawModel(this.facetCoreMesh,cap,vp,'#12394d','#54dfff',.8);
     }
 
     // External energy field and the separate ground halo complete the presentation.
