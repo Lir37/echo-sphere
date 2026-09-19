@@ -283,7 +283,7 @@ export class Echo3DRenderer {
   }
 
   private drawRing(x:number,z:number,r:number,rot:number,color:string,t:number,vp:Float32Array,alpha:number){
-    const m=mat4Multiply(mat4Multiply(mat4Translate(x,7,z),mat4RotateX(Math.PI/2)),mat4Multiply(mat4RotateY(rot),mat4Scale(r,r,r)));
+    const m=mat4Multiply(mat4Translate(x,7,z),mat4Multiply(mat4RotateY(rot),mat4Scale(r,r,r)));
     this.drawModel(this.torusMesh,m,vp,color,color,alpha);
     void t;
   }
