@@ -345,35 +345,30 @@ export function createRealtime3DRenderer(canvas:HTMLCanvasElement):Realtime3DRen
         }
         for(const e of state.enemies)if(e.hp>0)enemyDraw(e,t);
         const p0=state.player,x=p0.pos.x-state.camera.x,z=p0.pos.y-state.camera.y,bob=Math.sin(t*3)*1.5,pr=PLAYER_RADIUS;
-        // Central ECHO core: layered reactor, armored petals, radial energy cage and floating nodes.
-        draw(m.cyl,model(x,pr*.16+bob,z,0,t*.2,0,pr*.94,pr*.16,pr*.94),'#182c40',.18,.96);
-        draw(m.torus,model(x,pr*.30+bob,z,.14,t*.18,0,pr*.86,pr*.07,pr*.86),'#29465f',.22,.72);
-        draw(m.sphere,model(x,pr*.50+bob,z,0,t*.08,0,pr*.78,pr*.5,pr*.78),'#07101a',.55,.99);
-        draw(m.sphere,model(x,pr*.70+bob,z,0,-t*.12,0,pr*.50,pr*.32,pr*.50),'#10263a',.22,.98);
-        // Four overlapping armor petals give the player a mechanical silhouette around the luminous center.
+        // ECHO player: match the reference as a luminous orb contained inside a thin spherical energy cage.
+        // The silhouette is intentionally clean: no mechanical petals or bulky armor hide the central core.
+        const py=bob+pr*.72;
+        draw(m.sphere,model(x,py,z,0,t*.10,0,pr*.62,pr*.62,pr*.62),'#071426',.34,.94);
+        draw(m.sphere,model(x,py,z,0,-t*.18,0,pr*.48,pr*.48,pr*.48),'#123452',.18,.96);
+
+        // White-blue reactor nucleus, with a small hot center to reproduce the blown-out reference highlight.
+        draw(m.sphere,model(x,py,z,0,t*.65,0,pr*.30,pr*.30,pr*.30),'#2ccfff',1.35,.99);
+        draw(m.sphere,model(x,py+pr*.035,z,0,-t*.8,0,pr*.13,pr*.13,pr*.13),'#f5ffff',1.5,.99);
+
+        // A three-axis wire cage. Each ring has a different tilt and rotation, so it reads as a real 3D object.
+        draw(m.torus,model(x,py,z,.05,t*.42,0,pr*.72,pr*.055,pr*.72),'#d8fbff',1.05,.88);
+        draw(m.torus,model(x,py,z,Math.PI/2,t*.31,0,pr*.72,pr*.055,pr*.72),'#63e6ff',.9,.82);
+        draw(m.torus,model(x,py,z,.62,t*.22,0,pr*.76,pr*.045,pr*.76),'#b7eaff',.72,.68);
+
+        // Four tiny energy couplers sit on the cage, rather than turning the character into a cluster of primitives.
         for(let i=0;i<4;i++){
-          const a=t*.20+i*Math.PI/2;
-          const px=x+Math.cos(a)*pr*.66,pz=z+Math.sin(a)*pr*.66;
-          draw(m.cone,model(px,pr*.58+bob,pz,Math.PI/2,a,0,pr*.13,pr*.42,pr*.10),'#1d3a53',.22,.96);
-          draw(m.sphere,model(px,pr*.79+bob,pz,0,a,0,pr*.105,pr*.13,pr*.105),'#63e6ff',.8,.94);
+          const a=t*.28+i*Math.PI/2;
+          const nr=pr*.69;
+          draw(m.sphere,model(x+Math.cos(a)*nr,py,z+Math.sin(a)*nr,0,0,0,pr*.045,pr*.045,pr*.045),'#e8fdff',1.0,.9);
         }
-        core(x,z,pr*.92+bob,pr*.36,'#63e6ff');
-        draw(m.sphere,model(x,pr*1.02+bob,z,0,t*1.4,0,pr*.17,pr*.13,pr*.17),'#eaffff',1.3,.99);
-        // Three independent orbital rings rotate at different speeds and tilt, producing the reference-like energy cage.
-        ring(x,z,pr*.88+bob,pr*1.20,'#63e6ff',t*.50);
-        ring(x,z,pr*1.02+bob,pr*1.42,'#b06dff',-t*.35);
-        ring(x,z,pr*1.10+bob,pr*1.58,'#7deaff',t*.18);
-        // Six bright anchor nodes travel around the outer cage.
-        for(let i=0;i<6;i++){
-          const a=t*.28+i*Math.PI/3;
-          const nr=pr*1.38;
-          draw(m.sphere,model(x+Math.cos(a)*nr,pr*.92+bob,z+Math.sin(a)*nr,0,0,0,pr*.065,pr*.065,pr*.065),'#dffcff',1.0,.96);
-        }
-        // Four radial energy beams connect the reactor to the cage.
-        for(let i=0;i<4;i++){
-          const a=t*.16+i*Math.PI/2;
-          segment(x+Math.cos(a)*pr*.76,z+Math.sin(a)*pr*.76,pr*.91+bob,pr*.50,pr*.035,a,'#63e6ff',.75); 
-        }
+
+        // A very soft outer containment shell gives the orb depth without changing its clean silhouette.
+        draw(m.sphere,model(x,py,z,0,-t*.06,0,pr*.86,pr*.86,pr*.86),'#63e6ff',.10,.16);
       },
       dispose(){gl.getExtension('WEBGL_lose_context')?.loseContext();}
     };
