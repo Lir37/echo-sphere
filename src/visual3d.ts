@@ -137,6 +137,7 @@ export class Echo3DRenderer {
   private groundProgram: WebGLProgram;
   private sphereMesh: Mesh;
   private torusMesh: Mesh;
+  private fineTorusMesh: Mesh;
   private cylinderMesh: Mesh;
   private quad: WebGLBuffer;
   private posLoc:number;
@@ -164,6 +165,7 @@ export class Echo3DRenderer {
     this.groundProgram=this.makeProgram(GROUND_V,GROUND_F);
     this.sphereMesh=this.makeUvSphere(1,18,12);
     this.torusMesh=this.makeTorus(1,0.055,32,8);
+    this.fineTorusMesh=this.makeTorus(1,0.022,48,6);
     this.cylinderMesh=this.makeCylinder(1,1,10);
     void this.loadModelAssets();
     this.quad=this.makeGroundBuffer();
@@ -235,16 +237,69 @@ export class Echo3DRenderer {
   dispose(){ /* WebGL resources are owned by the canvas and released with its context. */ }
 
   private drawPlayer(s:GameState,t:number,vp:Float32Array){
-    const p=s.player.pos,asset=this.modelAssets.get('player'),pulse=1+Math.sin(t*3)*.035;
-    if(asset){
-      const m=mat4Multiply(mat4Multiply(mat4Translate(p.x,22+Math.sin(t*4)*1.2,p.y),mat4RotateY(t*.35)),mat4Scale(25*pulse,25*pulse,25*pulse));
-      this.drawModel(asset,m,vp,'#142638','#72eaff',1);
-    }else{
-      this.drawModel(this.sphereMesh,mat4Multiply(mat4Translate(p.x,18,p.y),mat4Scale(19,19,19)),vp,'#182d42','#4fdcff',1);
+    const p=s.player.pos;
+    // The reference player is a compact energy sphere, not a mechanical body:
+    // white-blue luminous core + dark blue shell + three intersecting energy rings.
+    const bob=21+Math.sin(t*2.8)*1.2;
+    const pulse=1+Math.sin(t*3.2)*0.035;
+    const size=24*pulse;
+
+    // Deep shell gives the orb real volume and a dark, glass-like silhouette.
+    const shell=mat4Multiply(
+      mat4Translate(p.x,bob,p.y),
+      mat4Multiply(mat4RotateY(t*.18),mat4Scale(size*.78,size*.78,size*.78))
+    );
+    this.drawModel(this.sphereMesh,shell,vp,'#071522','#123e68',.72);
+
+    // Bright inner energy core. It stays visibly smaller than the cage.
+    const core=mat4Multiply(
+      mat4Translate(p.x,bob+Math.sin(t*4)*.35,p.y),
+      mat4Scale(size*.43,size*.43,size*.43)
+    );
+    this.drawModel(this.sphereMesh,core,vp,'#bfefff','#e9fdff',1);
+
+    // A second translucent layer makes the center read as volumetric energy.
+    const glow=mat4Multiply(
+      mat4Translate(p.x,bob,p.y),
+      mat4Scale(size*.52,size*.52,size*.52)
+    );
+    this.drawModel(this.sphereMesh,glow,vp,'#1b78bb','#75eaff',.18);
+
+    // Fine cage: three differently tilted great circles, matching the reference.
+    const cageR=size*.70;
+    const base=mat4Translate(p.x,7,p.y);
+    const rings=[
+      mat4Multiply(base,mat4RotateY(t*.65)),
+      mat4Multiply(base,mat4Multiply(mat4RotateX(66*DEG),mat4RotateY(-t*.48))),
+      mat4Multiply(base,mat4Multiply(mat4RotateX(-58*DEG),mat4RotateY(t*.31)))
+    ];
+    for(const r of rings){
+      const m=mat4Multiply(r,mat4Scale(cageR,cageR,cageR));
+      this.drawModel(this.fineTorusMesh,m,vp,'#9feaff','#dffcff',.92);
     }
-    this.drawRing(p.x,p.y,30,.75,'#52ddff',t,vp,.30);
-    this.drawRing(p.x,p.y,43,-.42,'#8c68ff',t*.8,vp,.18);
-    if(s.player.invulnerableTimer>0||s.player.dashTimer>0)this.drawRing(p.x,p.y,50,t*1.8,'#ffffff',t,vp,.55);
+
+    // Four small luminous nodes sit on the cage and make the silhouette read as a
+    // constructed 3D energy device rather than a plain sphere.
+    const nodeR=cageR*1.01;
+    const nodes:[
+      [number,number,number],[number,number,number],[number,number,number],[number,number,number]
+    ]=[
+      [p.x+nodeR,p.y,0],
+      [p.x-nodeR,p.y,0],
+      [p.x,p.y+nodeR,0],
+      [p.x,p.y-nodeR,0]
+    ];
+    for(let i=0;i<nodes.length;i++){
+      const [nx,nz]=[nodes[i][0],nodes[i][1]];
+      const nm=mat4Multiply(
+        mat4Translate(nx,bob+(i%2===0?1:-1)*.4,nz),
+        mat4Scale(size*.075,size*.075,size*.075)
+      );
+      this.drawModel(this.sphereMesh,nm,vp,'#d7f9ff','#ffffff',.95);
+    }
+
+    // Soft ground halo is deliberately separate from the model.
+    this.drawRing(p.x,p.y,size*1.05,t*.45,'#52ddff',t,vp,.20);
   }
 
   private drawSphere(s:SphereEntity,t:number,vp:Float32Array,cx:number,cy:number){
