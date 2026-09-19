@@ -43,7 +43,7 @@ const THEMES: Record<MapTheme, Theme> = {
   },
 };
 
-export function render(ctx: CanvasRenderingContext2D, s: GameState, canvasW: number, canvasH: number): void {
+export function render(ctx: CanvasRenderingContext2D, s: GameState, canvasW: number, canvasH: number, options: { hideWorldEntities?: boolean } = {}): void {
   const theme = THEMES[s.mapTheme] || THEMES.parchment;
 
   // ===== Base background =====
@@ -103,25 +103,25 @@ export function render(ctx: CanvasRenderingContext2D, s: GameState, canvasW: num
   for (const chest of s.chests) if (chest.alive) drawChest(ctx, chest);
 
   // spheres
-  for (const sphere of s.spheres) drawModernSphere(ctx, s, sphere);
+  if (!options.hideWorldEntities) for (const sphere of s.spheres) drawModernSphere(ctx, s, sphere);
 
   // sphere projectiles
-  for (const p of s.sphereProjectiles) drawModernProjectile(ctx, p.pos.x, p.pos.y, p.vel.x, p.vel.y, p.radius, p.color);
+  if (!options.hideWorldEntities) for (const p of s.sphereProjectiles) drawModernProjectile(ctx, p.pos.x, p.pos.y, p.vel.x, p.vel.y, p.radius, p.color);
 
   // minions
-  for (const m of s.minions) drawModernMinion(ctx, m.pos.x, m.pos.y, m.radius, m.rotation, '#ffb84d');
+  if (!options.hideWorldEntities) for (const m of s.minions) drawModernMinion(ctx, m.pos.x, m.pos.y, m.radius, m.rotation, '#ffb84d');
 
   // enemies
-  for (const e of s.enemies) drawModernEnemy(ctx, e);
+  if (!options.hideWorldEntities) for (const e of s.enemies) drawModernEnemy(ctx, e);
 
   // hunter mark and alchemist reaction indicators sit above enemies
-  drawCharacterTargetIndicators(ctx, s);
+  if (!options.hideWorldEntities) drawCharacterTargetIndicators(ctx, s);
 
   // boss projectiles
-  for (const e of s.enemies) for (const bp of e.bossProjectiles) drawBossProjectile(ctx, bp.pos.x, bp.pos.y, bp.radius, e.color);
+  if (!options.hideWorldEntities) for (const e of s.enemies) for (const bp of e.bossProjectiles) drawBossProjectile(ctx, bp.pos.x, bp.pos.y, bp.radius, e.color);
 
   // Legacy fox/wolf player body is intentionally disabled. The mobile overlay owns the character visual.
-  drawPlayer(ctx, s.player);
+  if (!options.hideWorldEntities) drawPlayer(ctx, s.player);
 
   // particles
   for (const p of s.particles) {
