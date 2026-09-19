@@ -110,7 +110,7 @@ void main(){
   float minor=1.0-smoothstep(0.0,0.018,abs(fract(p.x/20.0)-0.5));
   float majorZ=1.0-smoothstep(0.0,0.035,abs(fract(p.y/80.0)-0.5));
   float minorZ=1.0-smoothstep(0.0,0.018,abs(fract(p.y/20.0)-0.5));
-  float d=length(p-u_center);
+  float d=length(p-u_center.xz);
   float glow=1.0-smoothstep(0.0,650.0,d);
   vec3 col=vec3(0.008,0.015,0.028)+vec3(0.025,0.07,0.11)*(minor+minorZ)*0.35+vec3(0.02,0.12,0.18)*(major+majorZ)*0.55;
   col+=vec3(0.035,0.015,0.08)*glow;
@@ -231,7 +231,7 @@ export class Echo3DRenderer {
     const model=mat4Multiply(mat4Multiply(mat4Translate(s.pos.x,y,s.pos.y),mat4RotateY(s.rotation+t*0.55)),mat4Scale(base*pulse,base*pulse,base*pulse));
     this.drawModel(this.sphereMesh,model,vp,def.color,def.accent,1);
     this.drawModel(this.sphereMesh,mat4Multiply(mat4Multiply(mat4Translate(s.pos.x,y+2,s.pos.y),mat4Scale(base*0.45,base*0.45,base*0.45)),mat4RotateY(-t*2)),vp,'#06111b',def.accent,1);
-    this.drawRing(s.pos.x,s.pos.y,base*1.45,t*(s.type==='sniper'?-1.3:1.0),def.color,vp? t:0,vp,0.34);
+    this.drawRing(s.pos.x,s.pos.y,base*1.45,t*(s.type==='sniper'?-1.3:1.0),def.color,t,vp,0.34);
     if(s.type==='aura') {
       this.drawRing(s.pos.x,s.pos.y,base*2.4,t*0.5,def.color,t,vp,0.18);
       this.drawRing(s.pos.x,s.pos.y,base*3.0,-t*0.3,def.accent,t,vp,0.10);
