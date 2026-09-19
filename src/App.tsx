@@ -15,6 +15,7 @@ import {
   MAP_THEMES, type MapTheme,
 } from './engine';
 import { render } from './renderer';
+import { createRealtime3DRenderer, type Realtime3DRenderer } from './webglRenderer';
 import { ARTIFACT_META, RARITY_LABELS, artifactRarity, getActiveArtifactSynergies, getArtifactSynergiesAfterPick, ARTIFACT_SYNERGIES } from './artifactSystem';
 import { resolveSpaceCollisions } from './spaceCollision';
 import {
@@ -175,6 +176,8 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
   lang: Lang; t: (k: TranslationKey) => string; shop: ShopState; difficulty: Difficulty; mapTheme: MapTheme; handedness: Handedness; onExit: () => void;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const webglCanvasRef = useRef<HTMLCanvasElement>(null);
+  const webglRendererRef = useRef<Realtime3DRenderer | null>(null);
   const stateRef = useRef<GameState | null>(null);
   const rafRef = useRef<number>(0);
   const lastTimeRef = useRef<number>(0);
@@ -187,6 +190,8 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
     const name = loadName() || translations[lang].namePlaceholder;
     const s = createInitialState(shop, name, difficulty, mapTheme);
     stateRef.current = s;
+    const webglCanvas = webglCanvasRef.current;
+    if (webglCanvas) webglRendererRef.current = createRealtime3DRenderer(webglCanvas);
     lastTimeRef.current = performance.now();
     const loop = (now: number) => {
       const dt = Math.min(0.05, (now - lastTimeRef.current) / 1000);
@@ -220,14 +225,20 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
         const canvas = canvasRef.current;
         if (canvas) {
           const ctx = canvas.getContext('2d');
-          if (ctx) render(ctx, st, canvas.width, canvas.height);
+          if (ctx) render(ctx, st, canvas.width, canvas.height, { hideWorldEntities: Boolean(webglRendererRef.current) });
+          const webgl = webglCanvasRef.current;
+          if (webgl && webglRendererRef.current) webglRendererRef.current.render(st, canvas.width, canvas.height);
         }
         forceRender(v => v + 1);
       }
       rafRef.current = requestAnimationFrame(loop);
     };
     rafRef.current = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(rafRef.current);
+    return () => {
+      cancelAnimationFrame(rafRef.current);
+      webglRendererRef.current?.dispose();
+      webglRendererRef.current = null;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -235,13 +246,22 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
 
   return (
     <div className="es-game-screen relative w-full h-screen flex items-center justify-center" style={{ touchAction: 'none' }}>
-      <canvas
-        ref={canvasRef}
-        width={Math.min(window.innerWidth, 1280)}
-        height={Math.min(window.innerHeight, 800)}
-        className="max-w-full max-h-full select-none"
-        style={{ touchAction: 'none', userSelect: 'none', WebkitUserSelect: 'none' }}
-      />
+      <div className="relative max-w-full max-h-full">
+        <canvas
+          ref={canvasRef}
+          width={Math.min(window.innerWidth, 1280)}
+          height={Math.min(window.innerHeight, 800)}
+          className="max-w-full max-h-full select-none"
+          style={{ touchAction: 'none', userSelect: 'none', WebkitUserSelect: 'none' }}
+        />
+        <canvas
+          ref={webglCanvasRef}
+          width={Math.min(window.innerWidth, 1280)}
+          height={Math.min(window.innerHeight, 800)}
+          className="absolute inset-0 w-full h-full max-w-full max-h-full pointer-events-none select-none"
+          aria-hidden="true"
+        />
+      </div>
 
       {st && !gameOverData && (
         <>
