@@ -244,13 +244,6 @@ export class Echo3DRenderer {
     const pulse=1+Math.sin(t*3.2)*0.035;
     const size=24*pulse;
 
-    // Deep shell gives the orb real volume and a dark, glass-like silhouette.
-    const shell=mat4Multiply(
-      mat4Translate(p.x,bob,p.y),
-      mat4Multiply(mat4RotateY(t*.18),mat4Scale(size*.78,size*.78,size*.78))
-    );
-    this.drawModel(this.sphereMesh,shell,vp,'#071522','#123e68',.72);
-
     // Bright inner energy core. It stays visibly smaller than the cage.
     const core=mat4Multiply(
       mat4Translate(p.x,bob+Math.sin(t*4)*.35,p.y),
@@ -264,6 +257,13 @@ export class Echo3DRenderer {
       mat4Scale(size*.52,size*.52,size*.52)
     );
     this.drawModel(this.sphereMesh,glow,vp,'#1b78bb','#75eaff',.18);
+
+    // Deep shell gives the orb real volume and a dark, glass-like silhouette.
+    const shell=mat4Multiply(
+      mat4Translate(p.x,bob,p.y),
+      mat4Multiply(mat4RotateY(t*.18),mat4Scale(size*.78,size*.78,size*.78))
+    );
+    this.drawModel(this.sphereMesh,shell,vp,'#071522','#123e68',.42);
 
     // Fine cage: three differently tilted great circles, matching the reference.
     const cageR=size*.70;
