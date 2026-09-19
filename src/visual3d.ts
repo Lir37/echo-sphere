@@ -86,6 +86,7 @@ precision mediump float;
 uniform vec3 u_color;
 uniform vec3 u_emissive;
 uniform vec3 u_light;
+uniform vec3 u_camera;
 uniform float u_alpha;
 uniform float u_time;
 varying vec3 v_normal;
@@ -95,6 +96,8 @@ void main(){
   vec3 N=normalize(v_normal);
   vec3 L=normalize(u_light);
   float ndl=max(dot(N,L),0.0);
+  vec3 V=normalize(u_camera-v_world);
+  float fresnel=pow(1.0-max(dot(N,V),0.0),3.2);
   float rim=pow(1.0-max(dot(N,vec3(0.0,1.0,0.0)),0.0),2.4);
   float micro=0.5+0.5*sin(v_local.x*9.0+v_local.z*7.0+sin(v_local.y*6.0)*1.7);
   float pulse=0.88+0.12*sin(u_time*3.0+v_local.y*4.0);
@@ -102,8 +105,8 @@ void main(){
   vec3 H=normalize(L+vec3(0.35,0.78,0.45));
   float spec=pow(max(dot(N,H),0.0),32.0);
   vec3 col=base*(0.14+ndl*0.82);
-  col+=u_emissive*(0.34+rim*1.55)*pulse;
-  col+=u_emissive*spec*1.15;
+  col+=u_emissive*(0.28+rim*1.15+fresnel*1.45)*pulse;
+  col+=u_emissive*spec*1.55;
   col+=u_emissive*micro*0.08;
   gl_FragColor=vec4(col,u_alpha);
 }`;
@@ -149,6 +152,7 @@ export class Echo3DRenderer {
   private alphaLoc:WebGLUniformLocation;
   private timeLoc:WebGLUniformLocation;
   private lightLoc:WebGLUniformLocation;
+  private cameraLoc:WebGLUniformLocation;
   private groundPosLoc:number;
   private groundMvpLoc:WebGLUniformLocation;
   private groundCenterLoc:WebGLUniformLocation;
@@ -178,6 +182,7 @@ export class Echo3DRenderer {
     this.alphaLoc=this.mustUniform(this.program,'u_alpha');
     this.timeLoc=this.mustUniform(this.program,'u_time');
     this.lightLoc=this.mustUniform(this.program,'u_light');
+    this.cameraLoc=this.mustUniform(this.program,'u_camera');
     this.groundPosLoc=gl.getAttribLocation(this.groundProgram,'a_position');
     this.groundMvpLoc=this.mustUniform(this.groundProgram,'u_mvp');
     this.groundCenterLoc=this.mustUniform(this.groundProgram,'u_center');
@@ -222,6 +227,7 @@ export class Echo3DRenderer {
 
     gl.useProgram(this.program);
     gl.uniform3f(this.lightLoc,-0.35,0.8,0.45);
+    gl.uniform3f(this.cameraLoc,eye[0],eye[1],eye[2]);
     gl.uniform1f(this.timeLoc,t);
     for(const sphere of s.spheres) if(sphere.alive) this.drawSphere(sphere,t,vp,player.x,player.y);
     for(const enemy of s.enemies) if(enemy.hp>0) this.drawEnemy(enemy,t,vp);
@@ -238,48 +244,55 @@ export class Echo3DRenderer {
 
   private drawPlayer(s:GameState,t:number,vp:Float32Array){
     const p=s.player.pos;
-    // Player silhouette from the reference: a compact luminous nucleus enclosed
-    // by a dark blue energy shell and a thin spatial cage. Keep the nucleus small
-    // enough that the cage is visually dominant.
+    // Hero model: a compact sci-fi energy reactor built from several independent
+    // 3D volumes. The silhouette is intentionally close to the reference:
+    // luminous nucleus, dark containment shell, three orbital bands and nodes.
     const bob=21+Math.sin(t*2.8)*1.2;
     const pulse=1+Math.sin(t*3.2)*0.035;
     const size=24*pulse;
+    const base=mat4Translate(p.x,bob,p.y);
 
-    // Soft atmospheric halo behind the device.
-    const halo=mat4Multiply(
-      mat4Translate(p.x,bob,p.y),
-      mat4Scale(size*.58,size*.58,size*.58)
-    );
-    this.drawModel(this.sphereMesh,halo,vp,'#123b61','#48dfff',.10);
-
-    // Bright nucleus. The reference has a small, very bright white-blue center,
-    // rather than a large opaque ball.
+    // 1. Contained luminous nucleus. Two scales create a real volumetric core
+    // rather than a flat glowing disc.
     const core=mat4Multiply(
-      mat4Translate(p.x,bob+Math.sin(t*4)*.25,p.y),
-      mat4Scale(size*.30,size*.30,size*.30)
+      base,
+      mat4Multiply(mat4RotateY(t*.22),mat4Scale(size*.29,size*.33,size*.29))
     );
     this.drawModel(this.sphereMesh,core,vp,'#d9f8ff','#ffffff',1);
 
-    // Thin translucent energy volume around the nucleus.
-    const energy=mat4Multiply(
-      mat4Translate(p.x,bob,p.y),
-      mat4Scale(size*.38,size*.38,size*.38)
+    const coreAura=mat4Multiply(
+      base,
+      mat4Scale(size*.40,size*.40,size*.40)
     );
-    this.drawModel(this.sphereMesh,energy,vp,'#1d75ad','#6fe9ff',.20);
+    this.drawModel(this.sphereMesh,coreAura,vp,'#12527f','#55dcff',.16);
 
-    // Dark blue glass-like shell. It is deliberately smaller than the cage and
-    // translucent enough for the white nucleus to remain visible.
+    // 2. Containment shell. It is transparent and offset from the core, so the
+    // nucleus remains readable through the blue glass volume.
     const shell=mat4Multiply(
-      mat4Translate(p.x,bob,p.y),
-      mat4Multiply(mat4RotateY(t*.18),mat4Scale(size*.50,size*.50,size*.50))
+      base,
+      mat4Multiply(mat4RotateY(-t*.13),mat4Scale(size*.53,size*.53,size*.53))
     );
-    this.drawModel(this.sphereMesh,shell,vp,'#071522','#1f72a7',.34);
+    this.drawModel(this.sphereMesh,shell,vp,'#061522','#176b9e',.25);
 
-    // Three very thin elliptical energy bands. One lies close to the horizontal
-    // plane and two cross it at opposing angles, producing the same "orbital cage"
-    // silhouette as the reference instead of a stack of thick neon rings.
-    const cageR=size*.78;
-    const base=mat4Translate(p.x,bob,p.y);
+    // 3. Inner containment hoops. These make the shell feel constructed instead
+    // of looking like a plain sphere.
+    const innerR=size*.50;
+    const inner=[
+      mat4Multiply(base,mat4Multiply(mat4RotateX(72*DEG),mat4RotateY(t*.7))),
+      mat4Multiply(base,mat4Multiply(mat4RotateX(-68*DEG),mat4RotateY(-t*.55))),
+      mat4Multiply(base,mat4Multiply(mat4RotateX(18*DEG),mat4RotateY(t*.36)))
+    ];
+    for(const r of inner){
+      this.drawModel(
+        this.fineTorusMesh,
+        mat4Multiply(r,mat4Scale(innerR,innerR,innerR)),
+        vp,'#2f9bc7','#8fefff',.42
+      );
+    }
+
+    // 4. Main orbital cage. The three rings use different axes and angular
+    // velocities so the object reads as a genuine 3D assembly in motion.
+    const cageR=size*.77;
     const rings=[
       mat4Multiply(base,mat4RotateY(t*.58)),
       mat4Multiply(base,mat4Multiply(mat4RotateX(62*DEG),mat4RotateY(-t*.43))),
@@ -287,38 +300,36 @@ export class Echo3DRenderer {
     ];
     for(const r of rings){
       const m=mat4Multiply(r,mat4Scale(cageR,cageR,cageR));
-      this.drawModel(this.fineTorusMesh,m,vp,'#a9edff','#e8fdff',.92);
+      this.drawModel(this.fineTorusMesh,m,vp,'#9deaff','#eaffff',.95);
     }
 
-    // Tiny construction nodes are placed on the actual cage planes, not on a
-    // flat 2D cross. Their small size keeps the reference's clean silhouette.
-    const nodeSize=size*.045;
-    const nodePoints:[number,number,number][]=[
-      [ cageR, 0, 0],
-      [-cageR, 0, 0],
-      [0, cageR*Math.cos(62*DEG), cageR*Math.sin(62*DEG)],
-      [0,-cageR*Math.cos(62*DEG),-cageR*Math.sin(62*DEG)],
-      [cageR*.52, cageR*.36, cageR*.63],
-      [-cageR*.52,-cageR*.36,-cageR*.63]
+    // 5. Four micro-emitters sit on the cage axes. They are true 3D volumes and
+    // remain tiny so they do not turn the character into a mechanical prop.
+    const nodeR=cageR*1.015;
+    const nodeSize=size*.052;
+    const nodes:[[number,number,number],[number,number,number],[number,number,number],[number,number,number]]=[
+      [nodeR,0,0],[-nodeR,0,0],
+      [0,nodeR*Math.cos(62*DEG),nodeR*Math.sin(62*DEG)],
+      [0,-nodeR*Math.cos(62*DEG),-nodeR*Math.sin(62*DEG)]
     ];
-    for(let i=0;i<nodePoints.length;i++){
-      const [nx,ny,nz]=nodePoints[i];
+    for(let i=0;i<nodes.length;i++){
+      const [nx,ny,nz]=nodes[i];
       const nm=mat4Multiply(
         mat4Translate(p.x+nx,bob+ny,p.y+nz),
         mat4Scale(nodeSize,nodeSize,nodeSize)
       );
-      this.drawModel(this.sphereMesh,nm,vp,'#d9faff','#ffffff',.82);
+      this.drawModel(this.sphereMesh,nm,vp,'#d9fbff','#ffffff',.98);
     }
 
-    // Two almost invisible inner guide rings give the core the concentric,
-    // high-energy appearance visible in the reference without adding bulk.
-    const innerBase=mat4Translate(p.x,bob,p.y);
-    const inner1=mat4Multiply(innerBase,mat4Multiply(mat4RotateX(74*DEG),mat4Scale(size*.34,size*.34,size*.34)));
-    const inner2=mat4Multiply(innerBase,mat4Multiply(mat4RotateX(-70*DEG),mat4Scale(size*.31,size*.31,size*.31)));
-    this.drawModel(this.fineTorusMesh,inner1,vp,'#58dfff','#dfffff',.28);
-    this.drawModel(this.fineTorusMesh,inner2,vp,'#58dfff','#dfffff',.20);
+    // 6. A very subtle external energy field gives the model the polished,
+    // layered look of a finished game asset without adding bulky geometry.
+    const outer=mat4Multiply(
+      base,
+      mat4Multiply(mat4RotateX(36*DEG),mat4Scale(size*.88,size*.88,size*.88))
+    );
+    this.drawModel(this.fineTorusMesh,outer,vp,'#3aafdc','#77eaff',.22);
 
-    // Soft ground halo remains separate from the 3D device.
+    // Separate floor reflection/halo.
     this.drawRing(p.x,p.y,size*1.02,t*.45,'#52ddff',t,vp,.18);
   }
 
