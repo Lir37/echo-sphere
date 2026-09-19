@@ -267,7 +267,7 @@ export class Echo3DRenderer {
 
     // Fine cage: three differently tilted great circles, matching the reference.
     const cageR=size*.70;
-    const base=mat4Translate(p.x,7,p.y);
+    const base=mat4Translate(p.x,bob,p.y);
     const rings=[
       mat4Multiply(base,mat4RotateY(t*.65)),
       mat4Multiply(base,mat4Multiply(mat4RotateX(66*DEG),mat4RotateY(-t*.48))),
