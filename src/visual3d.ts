@@ -72,9 +72,11 @@ uniform mat4 u_mvp;
 uniform mat4 u_model;
 varying vec3 v_normal;
 varying vec3 v_world;
+varying vec3 v_local;
 void main(){
   vec4 world=u_model*vec4(a_position,1.0);
   v_world=world.xyz;
+  v_local=a_position;
   v_normal=normalize(mat3(u_model)*a_normal);
   gl_Position=u_mvp*vec4(a_position,1.0);
 }`;
@@ -85,12 +87,24 @@ uniform vec3 u_color;
 uniform vec3 u_emissive;
 uniform vec3 u_light;
 uniform float u_alpha;
+uniform float u_time;
 varying vec3 v_normal;
 varying vec3 v_world;
+varying vec3 v_local;
 void main(){
-  float ndl=max(dot(normalize(v_normal),normalize(u_light)),0.0);
-  float rim=pow(1.0-max(dot(normalize(v_normal),vec3(0.0,1.0,0.0)),0.0),2.0);
-  vec3 col=u_color*(0.22+ndl*0.72)+u_emissive*(0.55+rim*1.25);
+  vec3 N=normalize(v_normal);
+  vec3 L=normalize(u_light);
+  float ndl=max(dot(N,L),0.0);
+  float rim=pow(1.0-max(dot(N,vec3(0.0,1.0,0.0)),0.0),2.4);
+  float micro=0.5+0.5*sin(v_local.x*9.0+v_local.z*7.0+sin(v_local.y*6.0)*1.7);
+  float pulse=0.88+0.12*sin(u_time*3.0+v_local.y*4.0);
+  vec3 base=mix(u_color,u_color*vec3(0.48,0.58,0.72),micro*0.28);
+  vec3 H=normalize(L+vec3(0.35,0.78,0.45));
+  float spec=pow(max(dot(N,H),0.0),32.0);
+  vec3 col=base*(0.14+ndl*0.82);
+  col+=u_emissive*(0.34+rim*1.55)*pulse;
+  col+=u_emissive*spec*1.15;
+  col+=u_emissive*micro*0.08;
   gl_FragColor=vec4(col,u_alpha);
 }`;
 
@@ -132,6 +146,7 @@ export class Echo3DRenderer {
   private colorLoc:WebGLUniformLocation;
   private emissiveLoc:WebGLUniformLocation;
   private alphaLoc:WebGLUniformLocation;
+  private timeLoc:WebGLUniformLocation;
   private lightLoc:WebGLUniformLocation;
   private groundPosLoc:number;
   private groundMvpLoc:WebGLUniformLocation;
@@ -159,6 +174,7 @@ export class Echo3DRenderer {
     this.colorLoc=this.mustUniform(this.program,'u_color');
     this.emissiveLoc=this.mustUniform(this.program,'u_emissive');
     this.alphaLoc=this.mustUniform(this.program,'u_alpha');
+    this.timeLoc=this.mustUniform(this.program,'u_time');
     this.lightLoc=this.mustUniform(this.program,'u_light');
     this.groundPosLoc=gl.getAttribLocation(this.groundProgram,'a_position');
     this.groundMvpLoc=this.mustUniform(this.groundProgram,'u_mvp');
@@ -204,6 +220,7 @@ export class Echo3DRenderer {
 
     gl.useProgram(this.program);
     gl.uniform3f(this.lightLoc,-0.35,0.8,0.45);
+    gl.uniform1f(this.timeLoc,t);
     for(const sphere of s.spheres) if(sphere.alive) this.drawSphere(sphere,t,vp,player.x,player.y);
     for(const enemy of s.enemies) if(enemy.hp>0) this.drawEnemy(enemy,t,vp);
     this.drawPlayer(s,t,vp);
@@ -294,7 +311,7 @@ export class Echo3DRenderer {
 
   private async loadModelAssets(): Promise<void>{
     if(this.modelLoadStarted)return;this.modelLoadStarted=true;
-    const paths:Record<string,string>={player:'/art3d/player.glb',sphere_standard:'/art3d/sphere-standard.glb',sphere_sniper:'/art3d/sphere-sniper.glb',sphere_shotgun:'/art3d/sphere-shotgun.glb',sphere_chain:'/art3d/sphere-chain.glb',sphere_aura:'/art3d/sphere-aura.glb',enemy_normal:'/art3d/enemy-normal.glb',enemy_fast:'/art3d/enemy-fast.glb',enemy_tank:'/art3d/enemy-tank.glb',boss:'/art3d/boss.glb',projectile:'/art3d/projectile.glb'};
+    const paths:Record<string,string>={player:'/art3d/player.glb',sphere_standard:'/art3d/sphere-standard.glb',sphere_sniper:'/art3d/sphere-sniper.glb',sphere_shotgun:'/art3d/sphere-shotgun.glb',sphere_chain:'/art3d/sphere-chain.glb',sphere_aura:'/art3d/sphere-aura.glb',enemy_normal:'/art3d/enemy-normal.glb',enemy_fast:'/art3d/enemy-fast.glb',enemy_tank:'/art3d/enemy-tank.glb',boss_shooter:'/art3d/boss-shooter.glb',boss_charger:'/art3d/boss-charger.glb',boss_summoner:'/art3d/boss-summoner.glb',boss_aura:'/art3d/boss-aura.glb',projectile:'/art3d/projectile.glb'};
     for(const [key,path] of Object.entries(paths)){
       try{const r=await fetch(path,{cache:'force-cache'});if(!r.ok)throw new Error('HTTP '+r.status);const mesh=this.loadGlbMesh(await r.arrayBuffer());if(mesh)this.modelAssets.set(key,mesh);}
       catch(error){console.warn('Echo3D asset failed:',key,error);}
