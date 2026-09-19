@@ -218,13 +218,65 @@ export function createRealtime3DRenderer(canvas:HTMLCanvasElement):Realtime3DRen
       }
     };
     const sphereDraw=(s:GameState,e:SphereEntity,t:number)=>{
-      const x=e.pos.x-s.camera.x,z=e.pos.y-s.camera.y,def=SPHERE_TYPES[e.type],r=clamp(17+e.radius*.09+e.visualTier*1.8,18,30),spin=e.rotation+t*.15;
-      draw(m.cyl,model(x,3,z,0,0,0,r*.72,r*.18,r*.72),'#263c50',.15,.95);
-      draw(m.sphere,model(x,r*.62,z,0,spin,0,r*.82,r*.55,r*.82),'#0b1726',.2,.98);
-      core(x,z,r*.94,r*.35,def.color);ring(x,z,r*.88,r*.88,def.color,spin);
-      if(e.visualTier>1)ring(x,z,r*1.14,r*1.05,'#f6d477',-spin*.7);
-      if(e.visualTier>2)for(let i=0;i<4;i++){const a=i*Math.PI/2+spin;draw(m.cone,model(x+Math.cos(a)*r*1.12,r*.98,z+Math.sin(a)*r*1.12,Math.PI/2,a,0,r*.1,r*.36,r*.1),def.color,.7,.9);}
+      const x=e.pos.x-s.camera.x,z=e.pos.y-s.camera.y,def=SPHERE_TYPES[e.type];
+      const r=clamp(17+e.radius*.09+e.visualTier*1.8,18,30);
+      const spin=e.rotation+t*.15;
+      const pulse=1+Math.sin(t*3.2+e.rotation)*.035;
+      // Floating industrial pedestal and armored core.
+      draw(m.cyl,model(x,2.4,z,0,spin*.35,0,r*.82,r*.16,r*.82),'#172b3d',.12,.96);
+      draw(m.torus,model(x,4.1,z,.12,spin*.7,0,r*.78,r*.055,r*.78),def.color,.55,.68);
+      draw(m.sphere,model(x,r*.63,z,0,spin,0,r*.86*pulse,r*.58,r*.86*pulse),'#071321',.28,.99);
+      draw(m.sphere,model(x,r*.86,z,0,-spin*.55,0,r*.52,r*.38,r*.52),'#13283c',.16,.98);
+      core(x,z,r*.98,r*.34,def.color);
+      draw(m.sphere,model(x,r*1.02,z,0,spin*1.4,0,r*.16,r*.12,r*.16),'#e9fbff',1.1,.98);
+
+      if(e.type==='sniper'){
+        // Long precision rail.
+        segment(x+Math.cos(spin)*r*.62,z+Math.sin(spin)*r*.62,r*.72,r*1.45,r*.10,spin,'#5a6f86',.22);
+        segment(x+Math.cos(spin)*r*1.38,z+Math.sin(spin)*r*1.38,r*.72,r*.62,r*.055,spin,def.color,.8);
+        draw(m.cone,model(x+Math.cos(spin)*r*1.7,r*.72,z+Math.sin(spin)*r*1.7,Math.PI/2,spin,0,r*.14,r*.32,r*.14),def.color,1,.95);
+      }else if(e.type==='shotgun'){
+        for(const offset of [-.18,0,.18]){
+          const a=spin+offset;
+          segment(x+Math.cos(a)*r*.62,z+Math.sin(a)*r*.62,r*.68,r*.82,r*.085,a,'#4b5d70',.18);
+          draw(m.cone,model(x+Math.cos(a)*r*1.03,r*.70,z+Math.sin(a)*r*1.03,Math.PI/2,a,0,r*.11,r*.22,r*.11),def.color,.65,.95);
+        }
+      }else if(e.type==='chain'){
+        for(let i=0;i<6;i++){
+          const a=spin+i*Math.PI/3;
+          const rr=r*(.78+.12*(i%2));
+          draw(m.torus,model(x+Math.cos(a)*rr*.45,r*.73,z+Math.sin(a)*rr*.45,.25,a,0,r*.22,r*.045,r*.22),def.color,.5,.72);
+        }
+        ring(x,z,r*.98,r*1.34,def.color,-spin*1.4);
+      }else if(e.type==='aura'){
+        ring(x,z,r*.86,r*1.05,def.color,spin);
+        ring(x,z,r*1.05,r*1.36,def.color,-spin*.8);
+        draw(m.sphere,model(x,r*1.18,z,0,-spin,0,r*.22,r*.42,r*.22),'#eaffff',1.15,.78);
+      }else{
+        // Standard sphere: four rotating emitters.
+        for(let i=0;i<4;i++){
+          const a=spin+i*Math.PI/2;
+          draw(m.cyl,model(x+Math.cos(a)*r*.83,r*.80,z+Math.sin(a)*r*.83,0,a,0,r*.075,r*.34,r*.075),'#35516a',.18,.94);
+          draw(m.sphere,model(x+Math.cos(a)*r*1.08,r*.80,z+Math.sin(a)*r*1.08,0,0,0,r*.10,r*.10,r*.10),def.color,.65,.92);
+        }
+      }
+
+      if(e.visualTier>1){
+        ring(x,z,r*1.13,r*1.06,'#f6d477',-spin*.7);
+        for(let i=0;i<4;i++){
+          const a=i*Math.PI/2-spin*.4;
+          draw(m.cone,model(x+Math.cos(a)*r*1.12,r*.98,z+Math.sin(a)*r*1.12,Math.PI/2,a,0,r*.09,r*.38,r*.09),'#f6d477',.75,.9);
+        }
+      }
+      if(e.visualTier>2){
+        ring(x,z,r*1.34,r*1.28,'#e8fbff',spin*.55);
+        for(let i=0;i<6;i++){
+          const a=i*Math.PI/3+spin*.2;
+          draw(m.sphere,model(x+Math.cos(a)*r*1.32,r*1.02,z+Math.sin(a)*r*1.32,0,spin,0,r*.075,r*.075,r*.075),def.color,.9,.95);
+        }
+      }
     };
+
     const enemyDraw=(e:EnemyEntity,t:number)=>{
       const x=e.pos.x-stateCameraX,z=e.pos.y-stateCameraY,r=Math.max(11,e.radius),f=e.rotation;
       if(e.isBoss){
