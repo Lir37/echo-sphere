@@ -238,68 +238,88 @@ export class Echo3DRenderer {
 
   private drawPlayer(s:GameState,t:number,vp:Float32Array){
     const p=s.player.pos;
-    // The reference player is a compact energy sphere, not a mechanical body:
-    // white-blue luminous core + dark blue shell + three intersecting energy rings.
+    // Player silhouette from the reference: a compact luminous nucleus enclosed
+    // by a dark blue energy shell and a thin spatial cage. Keep the nucleus small
+    // enough that the cage is visually dominant.
     const bob=21+Math.sin(t*2.8)*1.2;
     const pulse=1+Math.sin(t*3.2)*0.035;
     const size=24*pulse;
 
-    // Bright inner energy core. It stays visibly smaller than the cage.
-    const core=mat4Multiply(
-      mat4Translate(p.x,bob+Math.sin(t*4)*.35,p.y),
-      mat4Scale(size*.43,size*.43,size*.43)
-    );
-    this.drawModel(this.sphereMesh,core,vp,'#bfefff','#e9fdff',1);
-
-    // A second translucent layer makes the center read as volumetric energy.
-    const glow=mat4Multiply(
+    // Soft atmospheric halo behind the device.
+    const halo=mat4Multiply(
       mat4Translate(p.x,bob,p.y),
-      mat4Scale(size*.52,size*.52,size*.52)
+      mat4Scale(size*.58,size*.58,size*.58)
     );
-    this.drawModel(this.sphereMesh,glow,vp,'#1b78bb','#75eaff',.18);
+    this.drawModel(this.sphereMesh,halo,vp,'#123b61','#48dfff',.10);
 
-    // Deep shell gives the orb real volume and a dark, glass-like silhouette.
+    // Bright nucleus. The reference has a small, very bright white-blue center,
+    // rather than a large opaque ball.
+    const core=mat4Multiply(
+      mat4Translate(p.x,bob+Math.sin(t*4)*.25,p.y),
+      mat4Scale(size*.30,size*.30,size*.30)
+    );
+    this.drawModel(this.sphereMesh,core,vp,'#d9f8ff','#ffffff',1);
+
+    // Thin translucent energy volume around the nucleus.
+    const energy=mat4Multiply(
+      mat4Translate(p.x,bob,p.y),
+      mat4Scale(size*.38,size*.38,size*.38)
+    );
+    this.drawModel(this.sphereMesh,energy,vp,'#1d75ad','#6fe9ff',.20);
+
+    // Dark blue glass-like shell. It is deliberately smaller than the cage and
+    // translucent enough for the white nucleus to remain visible.
     const shell=mat4Multiply(
       mat4Translate(p.x,bob,p.y),
-      mat4Multiply(mat4RotateY(t*.18),mat4Scale(size*.78,size*.78,size*.78))
+      mat4Multiply(mat4RotateY(t*.18),mat4Scale(size*.50,size*.50,size*.50))
     );
-    this.drawModel(this.sphereMesh,shell,vp,'#071522','#123e68',.42);
+    this.drawModel(this.sphereMesh,shell,vp,'#071522','#1f72a7',.34);
 
-    // Fine cage: three differently tilted great circles, matching the reference.
-    const cageR=size*.70;
+    // Three very thin elliptical energy bands. One lies close to the horizontal
+    // plane and two cross it at opposing angles, producing the same "orbital cage"
+    // silhouette as the reference instead of a stack of thick neon rings.
+    const cageR=size*.78;
     const base=mat4Translate(p.x,bob,p.y);
     const rings=[
-      mat4Multiply(base,mat4RotateY(t*.65)),
-      mat4Multiply(base,mat4Multiply(mat4RotateX(66*DEG),mat4RotateY(-t*.48))),
-      mat4Multiply(base,mat4Multiply(mat4RotateX(-58*DEG),mat4RotateY(t*.31)))
+      mat4Multiply(base,mat4RotateY(t*.58)),
+      mat4Multiply(base,mat4Multiply(mat4RotateX(62*DEG),mat4RotateY(-t*.43))),
+      mat4Multiply(base,mat4Multiply(mat4RotateX(-62*DEG),mat4RotateY(t*.29)))
     ];
     for(const r of rings){
       const m=mat4Multiply(r,mat4Scale(cageR,cageR,cageR));
-      this.drawModel(this.fineTorusMesh,m,vp,'#9feaff','#dffcff',.92);
+      this.drawModel(this.fineTorusMesh,m,vp,'#a9edff','#e8fdff',.92);
     }
 
-    // Four small luminous nodes sit on the cage and make the silhouette read as a
-    // constructed 3D energy device rather than a plain sphere.
-    const nodeR=cageR*1.01;
-    const nodes:[
-      [number,number,number],[number,number,number],[number,number,number],[number,number,number]
-    ]=[
-      [p.x+nodeR,p.y,0],
-      [p.x-nodeR,p.y,0],
-      [p.x,p.y+nodeR,0],
-      [p.x,p.y-nodeR,0]
+    // Tiny construction nodes are placed on the actual cage planes, not on a
+    // flat 2D cross. Their small size keeps the reference's clean silhouette.
+    const nodeSize=size*.045;
+    const nodePoints:[number,number,number][]=[
+      [ cageR, 0, 0],
+      [-cageR, 0, 0],
+      [0, cageR*Math.cos(62*DEG), cageR*Math.sin(62*DEG)],
+      [0,-cageR*Math.cos(62*DEG),-cageR*Math.sin(62*DEG)],
+      [cageR*.52, cageR*.36, cageR*.63],
+      [-cageR*.52,-cageR*.36,-cageR*.63]
     ];
-    for(let i=0;i<nodes.length;i++){
-      const [nx,nz]=[nodes[i][0],nodes[i][1]];
+    for(let i=0;i<nodePoints.length;i++){
+      const [nx,ny,nz]=nodePoints[i];
       const nm=mat4Multiply(
-        mat4Translate(nx,bob+(i%2===0?1:-1)*.4,nz),
-        mat4Scale(size*.075,size*.075,size*.075)
+        mat4Translate(p.x+nx,bob+ny,p.y+nz),
+        mat4Scale(nodeSize,nodeSize,nodeSize)
       );
-      this.drawModel(this.sphereMesh,nm,vp,'#d7f9ff','#ffffff',.95);
+      this.drawModel(this.sphereMesh,nm,vp,'#d9faff','#ffffff',.82);
     }
 
-    // Soft ground halo is deliberately separate from the model.
-    this.drawRing(p.x,p.y,size*1.05,t*.45,'#52ddff',t,vp,.20);
+    // Two almost invisible inner guide rings give the core the concentric,
+    // high-energy appearance visible in the reference without adding bulk.
+    const innerBase=mat4Translate(p.x,bob,p.y);
+    const inner1=mat4Multiply(innerBase,mat4Multiply(mat4RotateX(74*DEG),mat4Scale(size*.34,size*.34,size*.34)));
+    const inner2=mat4Multiply(innerBase,mat4Multiply(mat4RotateX(-70*DEG),mat4Scale(size*.31,size*.31,size*.31)));
+    this.drawModel(this.fineTorusMesh,inner1,vp,'#58dfff','#dfffff',.28);
+    this.drawModel(this.fineTorusMesh,inner2,vp,'#58dfff','#dfffff',.20);
+
+    // Soft ground halo remains separate from the 3D device.
+    this.drawRing(p.x,p.y,size*1.02,t*.45,'#52ddff',t,vp,.18);
   }
 
   private drawSphere(s:SphereEntity,t:number,vp:Float32Array,cx:number,cy:number){
