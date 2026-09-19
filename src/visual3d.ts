@@ -171,15 +171,22 @@ export class Echo3DRenderer {
   private modelAssets=new Map<string,Mesh>();
   private modelLoadStarted=false;
 
+  // High-fidelity tower animation state. The game simulation stays untouched:
+  // these timestamps are derived from the existing attack/aura timers.
+  private sphereAttackTimers=new Map<SphereEntity,number>();
+  private sphereAuraTimers=new Map<SphereEntity,number>();
+  private sphereShotTimes=new Map<SphereEntity,number>();
+  private spherePulseTimes=new Map<SphereEntity,number>();
+
   constructor(private canvas:HTMLCanvasElement){
     const gl=canvas.getContext('webgl',{alpha:false,antialias:true,powerPreference:'high-performance'});
     if(!gl) throw new Error('WebGL is not supported');
     this.gl=gl;
     this.program=this.makeProgram(VERTEX,FRAGMENT);
     this.groundProgram=this.makeProgram(GROUND_V,GROUND_F);
-    this.sphereMesh=this.makeUvSphere(1,18,12);
-    this.torusMesh=this.makeTorus(1,0.055,32,8);
-    this.fineTorusMesh=this.makeTorus(1,0.022,48,6);
+    this.sphereMesh=this.makeUvSphere(1,32,20);
+    this.torusMesh=this.makeTorus(1,0.055,48,10);
+    this.fineTorusMesh=this.makeTorus(1,0.022,64,8);
     this.cylinderMesh=this.makeCylinder(1,1,10);
     this.reactorShellMesh=this.makeLathe([
       [-1.00,0.48],[-0.88,0.68],[-0.58,0.84],[-0.22,0.91],[0.22,0.91],[0.58,0.84],[0.88,0.68],[1.00,0.48]
@@ -246,6 +253,7 @@ export class Echo3DRenderer {
     for(const sphere of s.spheres) if(sphere.alive) this.drawSphere(sphere,t,vp,player.x,player.y);
     for(const enemy of s.enemies) if(enemy.hp>0) this.drawEnemy(enemy,t,vp);
     this.drawPlayer(s,t,vp);
+    for(const lightning of s.lightnings) if(lightning.life>0) this.drawLightning(lightning,t,vp);
     for(const p of s.sphereProjectiles) if(p.alive) this.drawProjectile(p,t,vp);
     for(const p of s.particles) if(p.life>0 && p.size>1) this.drawParticle(p,t,vp);
     for(const orb of s.xpOrbs) if(orb.alive) this.drawOrb(orb.pos.x,orb.pos.y,orb.radius,t,vp);
@@ -421,12 +429,305 @@ export class Echo3DRenderer {
   }
 
   private drawSphere(s:SphereEntity,t:number,vp:Float32Array,cx:number,cy:number){
-    const def=sphereTypes[s.type],pulse=1+Math.sin(t*3+s.rotation)*.045,y=24+Math.sin(t*2.4+s.pos.x*.01)*3,base=17+Math.min(10,s.visualTier*1.5),asset=this.modelAssets.get('sphere_'+s.type);
-    const m=mat4Multiply(mat4Multiply(mat4Translate(s.pos.x,y,s.pos.y),mat4RotateY(s.rotation+t*.55)),mat4Scale(base*pulse,base*pulse,base*pulse));
-    if(asset)this.drawModel(asset,m,vp,def.color,def.accent,1);else this.drawModel(this.sphereMesh,m,vp,def.color,def.accent,1);
-    this.drawRing(s.pos.x,s.pos.y,base*1.45,t*(s.type==='sniper'?-1.3:1),def.color,t,vp,.34);
-    if(s.type==='aura'){this.drawRing(s.pos.x,s.pos.y,base*2.4,t*.5,def.color,t,vp,.18);this.drawRing(s.pos.x,s.pos.y,base*3,-t*.3,def.accent,t,vp,.1);}
-    if(s.visualTier>=4)this.drawRing(s.pos.x,s.pos.y,base*1.8,-t*1.6,def.accent,t,vp,.5);
+    const def=sphereTypes[s.type];
+    const tier=Math.max(1,Math.min(7,Math.round(s.visualTier||1)));
+    const pulse=1+Math.sin(t*3.1+s.rotation*0.7)*0.035;
+    const y=24+Math.sin(t*2.4+s.pos.x*.01)*2.5;
+    const base=17+Math.min(10,tier*1.45);
+
+    const previousAttack=this.sphereAttackTimers.get(s);
+    const previousAura=this.sphereAuraTimers.get(s);
+    const delay=Math.max(0.15,s.attackDelay);
+    const fired=
+      (previousAttack===undefined && s.attackTimer>delay*0.7) ||
+      (previousAttack!==undefined && s.attackTimer>previousAttack+Math.max(0.12,delay*0.35));
+    const auraPulse=
+      previousAura===undefined && s.auraTimer>0.01 ||
+      (previousAura!==undefined && s.auraTimer>previousAura+0.12);
+    if(fired) this.sphereShotTimes.set(s,t);
+    if(auraPulse) this.spherePulseTimes.set(s,t);
+    this.sphereAttackTimers.set(s,s.attackTimer);
+    this.sphereAuraTimers.set(s,s.auraTimer);
+
+    const shotAge=t-(this.sphereShotTimes.get(s)??-999);
+    const auraAge=t-(this.spherePulseTimes.get(s)??-999);
+    const shotFlash=Math.max(0,1-shotAge/0.22);
+    const auraFlash=Math.max(0,1-auraAge/0.55);
+    const rot=s.rotation+t*(s.type==='sniper'?.16:s.type==='chain'?.72:.45);
+    const origin:[number,number,number]=[s.pos.x,y,s.pos.y];
+
+    // The reference language is a luminous "contained energy core":
+    // one bright heart, transparent-looking orbital bands, and articulated
+    // nodes. Every tier adds real 3D structure instead of merely scaling it.
+    const coreR=base*(0.23+Math.min(7,tier)*0.012);
+    const outerCore=mat4Multiply(
+      mat4Translate(origin[0],origin[1],origin[2]),
+      mat4Scale(coreR*1.35*pulse,coreR*1.35*pulse,coreR*1.35*pulse)
+    );
+    this.drawModel(this.sphereMesh,outerCore,vp,'#071321',def.color,.95);
+
+    const core=mat4Multiply(
+      mat4Translate(origin[0],origin[1],origin[2]),
+      mat4Scale(coreR*pulse,coreR*0.96*pulse,coreR*pulse)
+    );
+    this.drawModelAdditive(this.sphereMesh,core,vp,def.color,def.accent,.95);
+
+    const coreHot=mat4Multiply(
+      mat4Translate(origin[0],origin[1]+Math.sin(t*6+s.rotation)*coreR*.06,origin[2]),
+      mat4Scale(coreR*.52*pulse,coreR*.52*pulse,coreR*.52*pulse)
+    );
+    this.drawModelAdditive(this.facetCoreMesh,coreHot,vp,def.accent,'#ffffff',1);
+
+    const haloR=base*(0.68+tier*.025);
+    this.drawModelAdditive(
+      this.sphereMesh,
+      mat4Multiply(mat4Translate(origin[0],origin[1],origin[2]),mat4Scale(haloR,haloR,haloR)),
+      vp,
+      def.color,
+      def.accent,
+      0.08+Math.sin(t*2.2)*0.02
+    );
+
+    const ringAlpha=0.58+Math.min(tier,4)*0.045;
+    const drawRing3D=(rotation:Float32Array,scale:[number,number,number],alpha:number,thick=false)=>{
+      const ring=mat4Multiply(
+        mat4Translate(origin[0],origin[1],origin[2]),
+        mat4Multiply(rotation,mat4Scale(haloR*scale[0],haloR*scale[1],haloR*scale[2]))
+      );
+      this.drawModel(this.fineTorusMesh,ring,vp,def.accent,def.accent,alpha*(thick?1.22:1));
+    };
+
+    // Tier I: the simple reference sphere. Tier II-III build the tri-axial cage.
+    drawRing3D(mat4RotateY(rot),[1,1,1],ringAlpha);
+    if(tier>=2) drawRing3D(mat4RotateX(Math.PI/2),[1,1,1],ringAlpha*.94);
+    if(tier>=3) drawRing3D(mat4RotateZ(Math.PI/2),[1,1,1],ringAlpha*.9);
+
+    // Tier III onward gets the diagonal "orbital cage" visible in the reference.
+    const diagonal=[
+      mat4Multiply(mat4RotateX(54*DEG),mat4RotateY(rot*.73)),
+      mat4Multiply(mat4RotateZ(54*DEG),mat4RotateY(-rot*.61)),
+      mat4Multiply(mat4RotateX(-54*DEG),mat4RotateY(rot*1.12)),
+      mat4Multiply(mat4RotateZ(-54*DEG),mat4RotateY(-rot*.91)),
+    ];
+    for(let i=0;i<Math.min(diagonal.length,Math.max(0,tier-2));i++){
+      drawRing3D(diagonal[i],[1,0.93,1],ringAlpha*.72);
+    }
+
+    // Tier V-VI fill the spaces between the main rings with finer latitude bands.
+    if(tier>=5){
+      for(const tilt of [-28,28]){
+        const r=mat4Multiply(mat4RotateX(tilt*DEG),mat4RotateY(rot*(tilt>0?.55:-.47)));
+        drawRing3D(r,[1,.72,1],ringAlpha*.56);
+      }
+    }
+    if(tier>=6){
+      for(const tilt of [-43,43]){
+        const r=mat4Multiply(mat4RotateZ(tilt*DEG),mat4RotateY(rot*(tilt>0?.44:-.38)));
+        drawRing3D(r,[.76,1,.76],ringAlpha*.46);
+      }
+    }
+
+    // Tier VII is the final "sphere of spheres": a larger external cage, bright
+    // anchor nodes, radial braces and a living halo.
+    if(tier>=7){
+      const outerScale=haloR*1.18;
+      const outerRings=[
+        mat4RotateY(rot*.83),
+        mat4Multiply(mat4RotateX(67*DEG),mat4RotateY(-rot*.52)),
+        mat4Multiply(mat4RotateZ(67*DEG),mat4RotateY(rot*.36)),
+      ];
+      for(const r of outerRings){
+        this.drawModel(
+          this.fineTorusMesh,
+          mat4Multiply(
+            mat4Translate(origin[0],origin[1],origin[2]),
+            mat4Multiply(r,mat4Scale(outerScale,outerScale,outerScale))
+          ),
+          vp,def.accent,'#ffffff',.72
+        );
+      }
+      this.drawRing(s.pos.x,s.pos.y,base*1.62,t*.74,def.accent,t,vp,.3);
+      this.drawRing(s.pos.x,s.pos.y,base*2.08,-t*.48,def.color,t,vp,.19);
+      this.drawRing(s.pos.x,s.pos.y,base*2.62,t*.25,def.accent,t,vp,.11);
+    }
+
+    // Structural anchor points make the model read as manufactured hardware, not
+    // as a collection of floating circles.
+    const nodeR=haloR*(tier>=7?1.02:.97);
+    const nodes:Array<[number,number,number]>=[
+      [nodeR,0,0],[-nodeR,0,0],[0,nodeR,0],[0,-nodeR,0],[0,0,nodeR],[0,0,-nodeR]
+    ];
+    if(tier>=3){
+      for(let i=0;i<8;i++){
+        const a=i/8*Math.PI*2+rot*.16;
+        nodes.push([nodeR*.82*Math.cos(a),nodeR*.26*Math.sin(a*2),nodeR*.82*Math.sin(a)]);
+      }
+    }
+    if(tier>=5){
+      for(let i=0;i<8;i++){
+        const a=i/8*Math.PI*2-rot*.12;
+        nodes.push([nodeR*.70*Math.cos(a),nodeR*.54*Math.sin(a),nodeR*.70*Math.sin(a)]);
+      }
+    }
+
+    const nodeSize=base*(tier>=6?.061:tier>=3?.052:.045);
+    const nodeLimit=tier>=7?nodes.length:tier>=5?16:tier>=3?14:6;
+    for(let i=0;i<nodeLimit;i++){
+      const n=nodes[i];
+      const wobble=1+Math.sin(t*2.6+i*.87)*0.035;
+      const nm=mat4Multiply(
+        mat4Translate(origin[0]+n[0]*wobble,origin[1]+n[1]*wobble,origin[2]+n[2]*wobble),
+        mat4Scale(nodeSize*(i%3===0?1.12:1),nodeSize,nodeSize*(i%2===0?1.08:1))
+      );
+      this.drawModelAdditive(this.sphereMesh,nm,vp,def.color,def.accent,.88);
+      if(tier>=6 && i%2===0){
+        const nm2=mat4Multiply(
+          mat4Translate(origin[0]+n[0]*wobble,origin[1]+n[1]*wobble,origin[2]+n[2]*wobble),
+          mat4Scale(nodeSize*.42,nodeSize*.42,nodeSize*.42)
+        );
+        this.drawModelAdditive(this.sphereMesh,nm2,vp,def.accent,'#ffffff',1);
+      }
+    }
+
+    // Braces tie cardinal nodes into the central reactor.
+    if(tier>=3){
+      for(let i=0;i<Math.min(6,nodes.length);i++){
+        const n=nodes[i];
+        this.drawBeamBetween(
+          [origin[0],origin[1],origin[2]],
+          [origin[0]+n[0],origin[1]+n[1],origin[2]+n[2]],
+          base*(tier>=7?.012:.009),
+          def.color,def.accent,tier>=7?.56:.42,vp
+        );
+      }
+    }
+    if(tier>=5){
+      for(let i=6;i<Math.min(14,nodes.length);i+=2){
+        const a=nodes[i],b=nodes[(i+2)%Math.min(14,nodes.length)];
+        this.drawBeamBetween(
+          [origin[0]+a[0],origin[1]+a[1],origin[2]+a[2]],
+          [origin[0]+b[0],origin[1]+b[1],origin[2]+b[2]],
+          base*.006,def.accent,def.accent,.22,vp
+        );
+      }
+    }
+
+    // Functional modules by tower type. The silhouette stays reference-faithful,
+    // while each weapon gets a readable "job" built into the reactor.
+    const dirX=Math.cos(s.rotation), dirZ=Math.sin(s.rotation);
+    const sideX=-dirZ, sideZ=dirX;
+    const forward=(d:number,side:number,yOff:number):[number,number,number]=>[
+      origin[0]+dirX*d+sideX*side,
+      origin[1]+yOff,
+      origin[2]+dirZ*d+sideZ*side
+    ];
+
+    if(s.type==='sniper'){
+      const emitter=forward(base*.98,0,0);
+      this.drawBeamBetween(origin,emitter,base*.028,def.color,def.accent,.74,vp);
+      const lens=mat4Multiply(
+        mat4Translate(emitter[0],emitter[1],emitter[2]),
+        mat4Scale(base*.095,base*.095,base*.095)
+      );
+      this.drawModelAdditive(this.sphereMesh,lens,vp,def.accent,'#ffffff',1);
+      this.drawModel(
+        this.fineTorusMesh,
+        mat4Multiply(
+          mat4Translate(emitter[0],emitter[1],emitter[2]),
+          mat4Multiply(mat4RotateY(s.rotation),mat4Scale(base*.18,base*.18,base*.18))
+        ),
+        vp,def.accent,'#ffffff',.85
+      );
+      if(shotFlash>0){
+        const muzzle=forward(base*(1.06+shotFlash*.18),0,0);
+        this.drawBeamBetween(emitter,muzzle,base*(.05+.06*shotFlash),def.accent,'#ffffff',.55*shotFlash,vp);
+        this.drawModelAdditive(
+          this.sphereMesh,
+          mat4Multiply(mat4Translate(muzzle[0],muzzle[1],muzzle[2]),mat4Scale(base*(.10+.12*shotFlash),base*(.10+.12*shotFlash),base*(.10+.12*shotFlash))),
+          vp,def.accent,'#ffffff',.95
+        );
+      }
+    }else if(s.type==='shotgun'){
+      const spread=.12;
+      for(let i=-1;i<=1;i++){
+        const a=s.rotation+i*spread;
+        const dx=Math.cos(a),dz=Math.sin(a);
+        const emitter:[number,number,number]=[origin[0]+dx*base*.82,origin[1]+i*base*.06,origin[2]+dz*base*.82];
+        this.drawBeamBetween(origin,emitter,base*.019,def.color,def.accent,.55,vp);
+        const pellet=mat4Multiply(
+          mat4Translate(emitter[0],emitter[1],emitter[2]),
+          mat4Scale(base*.052,base*.052,base*.052)
+        );
+        this.drawModelAdditive(this.sphereMesh,pellet,vp,def.accent,'#ffffff',.95);
+        if(shotFlash>0){
+          const end:[number,number,number]=[emitter[0]+dx*base*(.22+.20*shotFlash),emitter[1],emitter[2]+dz*base*(.22+.20*shotFlash)];
+          this.drawBeamBetween(emitter,end,base*(.022+.032*shotFlash),def.accent,'#ffffff',.38*shotFlash,vp);
+        }
+      }
+    }else if(s.type==='chain'){
+      const chainCount=tier>=5?8:6;
+      for(let i=0;i<chainCount;i++){
+        const a=i/chainCount*Math.PI*2-t*.72;
+        const n:[number,number,number]=[
+          origin[0]+Math.cos(a)*base*.74,
+          origin[1]+Math.sin(a*2.0+t*.45)*base*.32,
+          origin[2]+Math.sin(a)*base*.74
+        ];
+        const rr=mat4Multiply(
+          mat4Translate(n[0],n[1],n[2]),
+          mat4Scale(base*.042,base*.042,base*.042)
+        );
+        this.drawModelAdditive(this.sphereMesh,rr,vp,def.color,'#ffffff',.9);
+        if(i>0){
+          const pA:[number,number,number]=[
+            origin[0]+Math.cos((i-1)/chainCount*Math.PI*2-t*.72)*base*.74,
+            origin[1]+Math.sin(((i-1)/chainCount*Math.PI*2-t*.72)*2+t*.45)*base*.32,
+            origin[2]+Math.sin((i-1)/chainCount*Math.PI*2-t*.72)*base*.74
+          ];
+          this.drawBeamBetween(pA,n,base*.0055,def.accent,def.accent,.22,vp);
+        }
+      }
+    }else if(s.type==='aura'){
+      const fieldBase=base*(1.7+.22*tier);
+      this.drawRing(s.pos.x,s.pos.y,fieldBase,t*.34,def.color,t,vp,.11+.035*auraFlash);
+      this.drawRing(s.pos.x,s.pos.y,fieldBase*1.28,-t*.28,def.accent,t,vp,.07+.025*auraFlash);
+      this.drawRing(s.pos.x,s.pos.y,fieldBase*1.62,t*.17,def.color,t,vp,.045+.018*auraFlash);
+      if(auraFlash>0){
+        this.drawModelAdditive(
+          this.sphereMesh,
+          mat4Multiply(
+            mat4Translate(origin[0],origin[1],origin[2]),
+            mat4Scale(base*(.40+.22*auraFlash),base*(.40+.22*auraFlash),base*(.40+.22*auraFlash))
+          ),
+          vp,def.color,'#ffffff',.13*auraFlash
+        );
+      }
+    }else{
+      // Standard sphere gets a clean forward "core rail" and a restrained pulse.
+      const rail=forward(base*.76,0,0);
+      this.drawBeamBetween(origin,rail,base*.014,def.color,def.accent,.36,vp);
+      if(shotFlash>0){
+        const p=forward(base*(.86+.22*shotFlash),0,0);
+        this.drawBeamBetween(rail,p,base*(.024+.038*shotFlash),def.accent,'#ffffff',.38*shotFlash,vp);
+      }
+    }
+
+    // Every tower gets the reference's breathing halo. Higher tiers are brighter
+    // and more "contained" instead of simply becoming bigger.
+    const breath=.12+.08*Math.sin(t*2.1+s.rotation);
+    this.drawRing(s.pos.x,s.pos.y,base*(1.16+tier*.045),rot,def.accent,t,vp,.16+breath);
+    if(tier>=4) this.drawRing(s.pos.x,s.pos.y,base*(1.45+tier*.05),-rot*.7,def.color,t,vp,.10+shotFlash*.16);
+    if(shotFlash>0){
+      this.drawModelAdditive(
+        this.sphereMesh,
+        mat4Multiply(
+          mat4Translate(origin[0],origin[1],origin[2]),
+          mat4Scale(base*(.48+.42*shotFlash),base*(.48+.42*shotFlash),base*(.48+.42*shotFlash))
+        ),
+        vp,def.accent,'#ffffff',.10+.18*shotFlash
+      );
+    }
+
     void cx;void cy;
   }
 
@@ -447,14 +748,34 @@ export class Echo3DRenderer {
   }
 
   private drawProjectile(p:SphereProjectile,t:number,vp:Float32Array){
-    const len=Math.max(7,Math.hypot(p.vel.x,p.vel.y)*.045),a=Math.atan2(p.vel.y,p.vel.x),asset=this.modelAssets.get('projectile');
+    const len=Math.max(7,Math.hypot(p.vel.x,p.vel.y)*.045);
+    const a=Math.atan2(p.vel.y,p.vel.x);
+    const asset=this.modelAssets.get('projectile');
     if(asset){
-      const m=mat4Multiply(mat4Multiply(mat4Translate(p.pos.x,11,p.pos.y),mat4RotateY(-a)),mat4Scale(Math.max(4,p.radius*1.45),Math.max(4,p.radius*1.45),Math.max(6,len*1.1)));
+      const m=mat4Multiply(
+        mat4Multiply(mat4Translate(p.pos.x,11,p.pos.y),mat4RotateY(-a)),
+        mat4Scale(Math.max(4,p.radius*1.45),Math.max(4,p.radius*1.45),Math.max(6,len*1.1))
+      );
       this.drawModel(asset,m,vp,p.color,'#ffffff',1);
     }else{
-      const m=mat4Multiply(mat4Multiply(mat4Translate(p.pos.x,11,p.pos.y),mat4RotateY(-a)),mat4Scale(Math.max(4,p.radius*1.5),Math.max(4,p.radius*1.5),len));
+      const m=mat4Multiply(
+        mat4Multiply(mat4Translate(p.pos.x,11,p.pos.y),mat4RotateY(-a)),
+        mat4Scale(Math.max(4,p.radius*1.5),Math.max(4,p.radius*1.5),len)
+      );
       this.drawModel(this.sphereMesh,m,vp,p.color,'#ffffff',1);
     }
+
+    // Short volumetric trail. It keeps fast projectiles readable on small Android
+    // displays without turning them into flat sprites.
+    const speed=Math.hypot(p.vel.x,p.vel.y)||1;
+    const tx=p.vel.x/speed, tz=p.vel.y/speed;
+    const trailLen=Math.min(32,Math.max(10,len*1.35));
+    this.drawBeamBetween(
+      [p.pos.x-tx*trailLen,11,p.pos.y-tz*trailLen],
+      [p.pos.x,11,p.pos.y],
+      Math.max(1.3,p.radius*.34),
+      p.color,'#ffffff',.42,vp
+    );
     this.drawRing(p.pos.x,p.pos.y,Math.max(7,p.radius*2.2),t*4,p.color,t,vp,.18);
   }
 
@@ -474,6 +795,65 @@ export class Echo3DRenderer {
     const model=mat4Multiply(mat4Translate(x,8,z),mat4Scale(Math.max(5,r),Math.max(3,r*0.55),Math.max(5,r)));
     this.drawModel(this.cylinderMesh,model,vp,'#34101b','#ff6680',1);
     this.drawRing(x,z,Math.max(8,r*1.8),-t*2,'#ff6680',t,vp,0.25);
+  }
+
+  private drawBeamBetween(
+    from:[number,number,number],
+    to:[number,number,number],
+    radius:number,
+    color:string,
+    emissive:string,
+    alpha:number,
+    vp:Float32Array
+  ){
+    const dx=to[0]-from[0],dy=to[1]-from[1],dz=to[2]-from[2];
+    const len=Math.hypot(dx,dy,dz)||0.001;
+    const mid:[number,number,number]=[
+      (from[0]+to[0])*.5,
+      (from[1]+to[1])*.5,
+      (from[2]+to[2])*.5,
+    ];
+    const yaw=Math.atan2(dx,dz);
+    const pitch=Math.atan2(Math.hypot(dx,dz),dy);
+    const orient=mat4Multiply(mat4RotateY(yaw),mat4RotateX(pitch));
+    const model=mat4Multiply(
+      mat4Translate(mid[0],mid[1],mid[2]),
+      mat4Multiply(orient,mat4Scale(radius,len,radius))
+    );
+    this.drawModelAdditive(this.cylinderMesh,model,vp,color,emissive,alpha);
+  }
+
+  private drawLightning(lightning:{from:{x:number;y:number};to:{x:number;y:number};life:number},t:number,vp:Float32Array){
+    const life=Math.max(0,Math.min(1,lightning.life/.3));
+    const ax=lightning.from.x, az=lightning.from.y;
+    const bx=lightning.to.x, bz=lightning.to.y;
+    const dx=bx-ax,dz=bz-az;
+    const length=Math.hypot(dx,dz)||1;
+    const nx=-dz/length,nz=dx/length;
+    const segments=5;
+    let px=ax, pz=az;
+    for(let i=1;i<=segments;i++){
+      const f=i/segments;
+      const amp=(1-f*.55)*Math.min(20,length*.07);
+      const wobble=Math.sin(t*95+i*8.73+ax*.013+bz*.017);
+      const j=(i===segments?0:wobble*amp);
+      const qx= i===segments ? bx : ax+dx*f+nx*j;
+      const qz= i===segments ? bz : az+dz*f+nz*j;
+      const from:[number,number,number]=[px,12,pz];
+      const to:[number,number,number]=[qx,12,qz];
+      this.drawBeamBetween(from,to,2.2+life*1.8,'#66ddff','#ffffff',.30+life*.42,vp);
+      px=qx;pz=qz;
+    }
+    this.drawRing((ax+bx)*.5,(az+bz)*.5,8+length*.025,t*3.5,'#66ddff',t,vp,.09+life*.16);
+  }
+
+  private drawModelAdditive(mesh:Mesh,model:Float32Array,vp:Float32Array,color:string,emissive:string,alpha:number){
+    const gl=this.gl;
+    gl.depthMask(false);
+    gl.blendFunc(gl.SRC_ALPHA,gl.ONE);
+    this.drawModel(mesh,model,vp,color,emissive,Math.max(0,Math.min(1,alpha)));
+    gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
+    gl.depthMask(true);
   }
 
   private drawRing(x:number,z:number,r:number,rot:number,color:string,t:number,vp:Float32Array,alpha:number){
