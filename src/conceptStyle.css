@@ -1993,3 +1993,168 @@ html, body, #root {
   .es-main-core-title { letter-spacing: .18em !important; }
 }
 @media (max-height: 700px) { .es-main-core-art { width: min(175px, 34vh) !important; } }
+
+
+/* =========================================================
+   NEW-DESING / ART-FIRST UI
+   The reference is a game interface, not a glassmorphism dashboard.
+   Reduce "web card" language and let artwork carry the visual weight.
+   ========================================================= */
+.es-glass-panel,
+.es-modal-shell,
+.es-hud-panel {
+  border-radius: 3px !important;
+  background:
+    linear-gradient(180deg, rgba(7, 15, 25, 0.92), rgba(2, 7, 13, 0.97)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.035),
+    0 12px 34px rgba(0,0,0,0.34) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.es-glass-panel::after {
+  inset: 5px !important;
+  border-radius: 1px !important;
+  border-color: rgba(108, 221, 255, 0.06) !important;
+}
+
+.es-menu-shell {
+  grid-template-columns: minmax(150px, .62fr) minmax(360px, 1.8fr) minmax(170px, .68fr);
+  gap: 12px;
+  padding: clamp(14px, 2.4vw, 28px);
+}
+
+.es-menu-brand {
+  padding: 8px 10px 11px;
+  border-bottom-color: rgba(96, 213, 255, 0.26);
+}
+
+.es-menu-brand-title {
+  font-weight: 400;
+  letter-spacing: 0.26em;
+  text-shadow: 0 0 22px rgba(83, 213, 255, 0.12);
+}
+
+.es-menu-center {
+  min-height: 430px;
+  padding: 18px;
+  border-color: rgba(96, 211, 255, 0.16);
+}
+
+.es-menu-center-glow {
+  background:
+    radial-gradient(circle at 50% 48%, rgba(52, 210, 255, 0.055), transparent 25%),
+    radial-gradient(circle at 50% 58%, rgba(151, 99, 255, 0.045), transparent 48%);
+}
+
+.es-orbit-mark {
+  width: min(330px, 55vw);
+  background:
+    radial-gradient(circle at 40% 36%, rgba(255,255,255,.94) 0 2%, rgba(118,241,255,.54) 7%, rgba(66,141,255,.08) 27%, transparent 52%);
+  box-shadow:
+    0 0 45px rgba(64,189,255,.10),
+    0 0 120px rgba(123,85,255,.055);
+}
+
+.es-menu-side {
+  padding: 11px;
+}
+
+.es-menu-item {
+  min-height: 40px;
+  border-radius: 2px;
+  padding: 8px 10px;
+  background: rgba(4, 12, 21, 0.88);
+}
+
+.es-menu-item:hover {
+  transform: none;
+}
+
+.es-menu-item.active {
+  box-shadow: inset 2px 0 0 rgba(103,227,255,.82);
+}
+
+.es-bottom-nav {
+  border-radius: 2px;
+  padding: 5px;
+  gap: 4px;
+  background: rgba(2,7,13,.94);
+}
+
+.es-bottom-nav button {
+  border-radius: 2px;
+  padding: 7px 5px;
+}
+
+.es-menu-play {
+  border-radius: 2px;
+  min-height: 52px;
+  background:
+    linear-gradient(90deg, rgba(24,73,97,.22), rgba(17,35,62,.68), rgba(24,73,97,.22));
+  position: relative;
+  overflow: hidden;
+}
+
+.es-menu-play::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(114,230,255,.10), transparent);
+  transform: translateX(-100%);
+  animation: es-scan 3.8s linear infinite;
+}
+
+@keyframes es-scan {
+  to { transform: translateX(100%); }
+}
+
+/* Combat overlays become compact telemetry modules. */
+.es-top-left,
+.es-top-right {
+  border-radius: 2px !important;
+  border-color: rgba(91,199,255,.20) !important;
+  background: rgba(2,8,15,.84) !important;
+}
+
+.es-time-hud {
+  border-left: 1px solid rgba(104,218,255,.12);
+  border-right: 1px solid rgba(104,218,255,.12);
+}
+
+.es-modal-shell {
+  border-radius: 3px !important;
+}
+
+.es-modal-tab {
+  border-radius: 2px !important;
+}
+
+.es-app .rounded-xl,
+.es-app .rounded-2xl {
+  border-radius: 3px !important;
+}
+
+/* The mobile controls are part of the HUD, not floating glass buttons. */
+.es-mobile-controls [data-mobile-control="true"] {
+  border-radius: 2px !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Stronger separation between art and interface. */
+.es-game-screen canvas {
+  filter: saturate(0.98) contrast(1.08) brightness(0.92);
+}
+
+@media (max-width: 900px) {
+  .es-menu-shell {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .es-menu-center {
+    min-height: 300px;
+  }
+}
