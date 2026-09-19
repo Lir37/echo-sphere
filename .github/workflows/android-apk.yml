@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - cleanup-android
+      - 3d-fidelity
   workflow_dispatch:
 
 jobs:
