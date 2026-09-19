@@ -1,0 +1,103 @@
+name: Build Android APK + Web Visual QA
+
+on:
+  push:
+    branches: [new-desing, main]
+  pull_request:
+    branches: [new-desing, main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-web-and-visual-qa:
+    name: Web build + Playwright render check
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build web
+        run: npm run build
+
+      - name: Install Playwright test runner
+        run: npm install --no-save @playwright/test@1.55.0
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run headless visual smoke test
+        run: npx playwright test tests/render-screenshot.spec.mjs
+
+      - name: Upload web build
+        uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: echo-sphere-web
+          path: dist/
+          retention-days: 14
+
+      - name: Upload render screenshot
+        uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: echo-sphere-render-screenshot
+          path: |
+            test-results/echo-sphere-render.png
+            test-results/render-metrics.json
+          retention-days: 30
+
+  build-android:
+    name: Android APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build web assets for Capacitor
+        run: npm run build
+
+      - name: Sync Capacitor Android project
+        run: npx cap sync android
+
+      - name: Build debug APK
+        working-directory: android
+        run: ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: echo-sphere-android-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
