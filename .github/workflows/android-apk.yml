@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - cleanup-android
+      - new-desing
   workflow_dispatch:
 
 jobs:
