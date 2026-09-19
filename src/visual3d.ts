@@ -470,6 +470,31 @@ export class Echo3DRenderer {
     const rot=s.rotation+t*(s.type==='sniper'?.13:s.type==='chain'?.63:.36);
     const coreR=base*(.255+tier*.006);
 
+    // Imported authored tower mesh. This is the hard-surface "hero" body;
+    // the procedural cage below acts as its animated containment architecture.
+    // Keeping the authored mesh visible at every tier makes the tower read as
+    // a designed 3D asset rather than a collection of primitives.
+    const authored=this.modelAssets.get('sphere_'+s.type);
+    if(authored){
+      const authoredScale=base*(.56+tier*.012);
+      const authoredModel=mat4Multiply(
+        mat4Translate(origin[0],origin[1],origin[2]),
+        mat4Multiply(
+          mat4RotateY(rot*.55),
+          mat4Scale(authoredScale,authoredScale,authoredScale)
+        )
+      );
+      this.drawModel(authored,authoredModel,vp,'#061321',def.color,.94);
+      // A second, slightly expanded emissive pass gives the authored mesh
+      // controlled energy around its silhouette without turning it into a blob.
+      const glowScale=authoredScale*1.035;
+      const glowModel=mat4Multiply(
+        mat4Translate(origin[0],origin[1],origin[2]),
+        mat4Multiply(mat4RotateY(-rot*.22),mat4Scale(glowScale,glowScale,glowScale))
+      );
+      this.drawModelAdditive(authored,glowModel,vp,def.color,def.accent,.105+.045*Math.sin(t*2.4));
+    }
+
     // --- CENTRAL REACTOR ----------------------------------------------------
     // Three nested volumes give the core real depth: dark containment volume,
     // hot inner crystal, and a white-hot point source.
@@ -643,6 +668,33 @@ export class Echo3DRenderer {
           this.sphereMesh,
           mat4Multiply(mat4Translate(...n),mat4Scale(nodeSize*.48,nodeSize*.48,nodeSize*.48)),
           vp,def.color,'#ffffff',.72
+        );
+      }
+    }
+
+    // --- ARTICULATED SECONDARY ORBITS -----------------------------------
+    // Small mechanical halos sit between the main cage and the authored body.
+    // Their phase offsets prevent the object from looking mathematically static.
+    if(tier>=3){
+      const orbitCount=tier>=7?6:tier>=5?4:2;
+      for(let i=0;i<orbitCount;i++){
+        const a=(i/orbitCount)*Math.PI*2+rot*(i%2===0?.37:-.29);
+        const rr=cageR*(.78+(i%3)*.045);
+        const center:Vec3=[
+          origin[0]+Math.cos(a)*rr*.22,
+          origin[1]+Math.sin(a*2.0+t*.34)*rr*.13,
+          origin[2]+Math.sin(a)*rr*.22
+        ];
+        const orbit=mat4Multiply(
+          mat4Translate(...center),
+          mat4Multiply(
+            mat4RotateX((i*31-38)*DEG),
+            mat4Multiply(mat4RotateY(a),mat4Scale(rr*.43,rr*.43,rr*.43))
+          )
+        );
+        this.drawModel(
+          this.fineTorusMesh,orbit,vp,def.accent,'#ffffff',
+          tier>=7?.38:tier>=5?.31:.25
         );
       }
     }
