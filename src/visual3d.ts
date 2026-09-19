@@ -309,7 +309,7 @@ export class Echo3DRenderer {
       else if(type===0x004e4942)bin=new Uint8Array(buffer,start,len);off=start+len;
     }
     if(!json||!bin||!json.meshes?.length)return null;const prim=json.meshes[0]?.primitives?.[0];if(!prim?.attributes?.POSITION)return null;
-    const read=(idx)=>{const a=json.accessors[idx],v=json.bufferViews[a.bufferView],cc=a.type==='VEC3'?3:a.type==='VEC2'?2:1,start=(v.byteOffset||0)+(a.byteOffset||0);
+    const read=(idx:number)=>{const a=json.accessors[idx],v=json.bufferViews[a.bufferView],cc=a.type==='VEC3'?3:a.type==='VEC2'?2:1,start=(v.byteOffset||0)+(a.byteOffset||0);
       if(a.componentType===5126)return new Float32Array(bin.buffer,bin.byteOffset+start,a.count*cc).slice();
       if(a.componentType===5123)return new Uint16Array(bin.buffer,bin.byteOffset+start,a.count*cc).slice();
       return null;};
