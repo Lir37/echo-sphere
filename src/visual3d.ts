@@ -109,11 +109,15 @@ void main(){
   vec3 H=normalize(L+vec3(0.35,0.78,0.45));
   float spec=pow(max(dot(N,H),0.0),42.0);
   float edge=pow(1.0-max(dot(N,V),0.0),5.5);
-  float contour=0.5+0.5*sin(v_local.y*13.0+v_local.x*4.0);
+  float contour=0.5+0.5*sin(v_local.y*13.0+v_local.x*4.0+v_local.z*2.0);
+  float cavity=1.0-smoothstep(0.05,0.62,length(v_local));
+  float energyBand=0.5+0.5*sin(v_local.x*18.0+v_local.z*15.0+u_time*2.2);
   vec3 col=base*(0.10+ndl*0.90);
   col+=u_emissive*(0.22+rim*0.92+fresnel*1.72)*pulse;
   col+=u_emissive*spec*(1.75+edge*1.8);
   col+=u_emissive*micro*0.06;
+  col+=u_emissive*energyBand*(0.025+fresnel*0.08);
+  col+=u_emissive*cavity*0.08;
   col+=u_emissive*edge*0.75;
   col+=base*contour*0.035;
   gl_FragColor=vec4(col,u_alpha);
@@ -177,6 +181,18 @@ export class Echo3DRenderer {
   private sphereAuraTimers=new Map<SphereEntity,number>();
   private sphereShotTimes=new Map<SphereEntity,number>();
   private spherePulseTimes=new Map<SphereEntity,number>();
+  private readonly icosaEdges:Array<[number,number]>=[
+    [0,1],[0,4],[0,5],[0,7],[0,10],
+    [1,5],[1,6],[1,8],[1,11],
+    [2,3],[2,4],[2,6],[2,7],[2,9],
+    [3,5],[3,6],[3,10],[3,11],
+    [4,7],[4,8],[4,9],
+    [5,8],[5,10],[5,11],
+    [6,9],[6,11],
+    [7,8],[7,9],
+    [8,9],
+    [10,11]
+  ];
 
   constructor(private canvas:HTMLCanvasElement){
     const gl=canvas.getContext('webgl',{alpha:false,antialias:true,powerPreference:'high-performance'});
@@ -431,303 +447,290 @@ export class Echo3DRenderer {
   private drawSphere(s:SphereEntity,t:number,vp:Float32Array,cx:number,cy:number){
     const def=sphereTypes[s.type];
     const tier=Math.max(1,Math.min(7,Math.round(s.visualTier||1)));
-    const pulse=1+Math.sin(t*3.1+s.rotation*0.7)*0.035;
-    const y=24+Math.sin(t*2.4+s.pos.x*.01)*2.5;
-    const base=17+Math.min(10,tier*1.45);
+    const pulse=1+Math.sin(t*2.65+s.rotation*.71)*.035;
+    const y=24+Math.sin(t*1.9+s.pos.x*.01)*1.8;
+    const base=17+Math.min(11,tier*1.55);
+    const origin:Vec3=[s.pos.x,y,s.pos.y];
 
-    const previousAttack=this.sphereAttackTimers.get(s);
-    const previousAura=this.sphereAuraTimers.get(s);
-    const delay=Math.max(0.15,s.attackDelay);
-    const fired=
-      (previousAttack===undefined && s.attackTimer>delay*0.7) ||
-      (previousAttack!==undefined && s.attackTimer>previousAttack+Math.max(0.12,delay*0.35));
-    const auraPulse=
-      previousAura===undefined && s.auraTimer>0.01 ||
-      (previousAura!==undefined && s.auraTimer>previousAura+0.12);
-    if(fired) this.sphereShotTimes.set(s,t);
-    if(auraPulse) this.spherePulseTimes.set(s,t);
+    // Attack/aura edge detection drives visual events without touching gameplay.
+    const prevAttack=this.sphereAttackTimers.get(s);
+    const prevAura=this.sphereAuraTimers.get(s);
+    const delay=Math.max(.15,s.attackDelay);
+    const fired=(prevAttack===undefined&&s.attackTimer>delay*.7) ||
+      (prevAttack!==undefined&&s.attackTimer>prevAttack+Math.max(.12,delay*.35));
+    const auraPulse=(prevAura===undefined&&s.auraTimer>.01) ||
+      (prevAura!==undefined&&s.auraTimer>prevAura+.12);
+    if(fired)this.sphereShotTimes.set(s,t);
+    if(auraPulse)this.spherePulseTimes.set(s,t);
     this.sphereAttackTimers.set(s,s.attackTimer);
     this.sphereAuraTimers.set(s,s.auraTimer);
+    const shotFlash=Math.max(0,1-(t-(this.sphereShotTimes.get(s)??-999))/.24);
+    const auraFlash=Math.max(0,1-(t-(this.spherePulseTimes.get(s)??-999))/.60);
 
-    const shotAge=t-(this.sphereShotTimes.get(s)??-999);
-    const auraAge=t-(this.spherePulseTimes.get(s)??-999);
-    const shotFlash=Math.max(0,1-shotAge/0.22);
-    const auraFlash=Math.max(0,1-auraAge/0.55);
-    const rot=s.rotation+t*(s.type==='sniper'?.16:s.type==='chain'?.72:.45);
-    const origin:[number,number,number]=[s.pos.x,y,s.pos.y];
+    const rot=s.rotation+t*(s.type==='sniper'?.13:s.type==='chain'?.63:.36);
+    const coreR=base*(.255+tier*.006);
 
-    // The reference language is a luminous "contained energy core":
-    // one bright heart, transparent-looking orbital bands, and articulated
-    // nodes. Every tier adds real 3D structure instead of merely scaling it.
-    const coreR=base*(0.23+Math.min(7,tier)*0.012);
-    const outerCore=mat4Multiply(
-      mat4Translate(origin[0],origin[1],origin[2]),
-      mat4Scale(coreR*1.35*pulse,coreR*1.35*pulse,coreR*1.35*pulse)
+    // --- CENTRAL REACTOR ----------------------------------------------------
+    // Three nested volumes give the core real depth: dark containment volume,
+    // hot inner crystal, and a white-hot point source.
+    const shell=mat4Multiply(
+      mat4Translate(...origin),
+      mat4Scale(coreR*1.45,coreR*1.45,coreR*1.45)
     );
-    this.drawModel(this.sphereMesh,outerCore,vp,'#071321',def.color,.95);
+    this.drawModel(this.sphereMesh,shell,vp,'#020914',def.color,.98);
 
     const core=mat4Multiply(
+      mat4Translate(origin[0],origin[1]+Math.sin(t*5.4)*coreR*.055,origin[2]),
+      mat4Multiply(mat4RotateY(rot*.7),mat4Scale(coreR*pulse,coreR*.96*pulse,coreR*pulse))
+    );
+    this.drawModelAdditive(this.facetCoreMesh,core,vp,def.color,def.accent,.98);
+
+    const hot=mat4Multiply(
       mat4Translate(origin[0],origin[1],origin[2]),
-      mat4Scale(coreR*pulse,coreR*0.96*pulse,coreR*pulse)
+      mat4Scale(coreR*.47,coreR*.47,coreR*.47)
     );
-    this.drawModelAdditive(this.sphereMesh,core,vp,def.color,def.accent,.95);
+    this.drawModelAdditive(this.facetCoreMesh,hot,vp,def.accent,'#ffffff',1);
 
-    const coreHot=mat4Multiply(
-      mat4Translate(origin[0],origin[1]+Math.sin(t*6+s.rotation)*coreR*.06,origin[2]),
-      mat4Scale(coreR*.52*pulse,coreR*.52*pulse,coreR*.52*pulse)
-    );
-    this.drawModelAdditive(this.facetCoreMesh,coreHot,vp,def.accent,'#ffffff',1);
-
-    const haloR=base*(0.68+tier*.025);
+    // Subtle volume around the reactor, intentionally soft so the hard-surface
+    // cage remains readable.
     this.drawModelAdditive(
       this.sphereMesh,
-      mat4Multiply(mat4Translate(origin[0],origin[1],origin[2]),mat4Scale(haloR,haloR,haloR)),
-      vp,
-      def.color,
-      def.accent,
-      0.08+Math.sin(t*2.2)*0.02
+      mat4Multiply(mat4Translate(...origin),mat4Scale(base*.70,base*.70,base*.70)),
+      vp,def.color,def.accent,.055+.018*Math.sin(t*2.1)
     );
 
-    const ringAlpha=0.58+Math.min(tier,4)*0.045;
-    const drawRing3D=(rotation:Float32Array,scale:[number,number,number],alpha:number,thick=false)=>{
-      const ring=mat4Multiply(
-        mat4Translate(origin[0],origin[1],origin[2]),
-        mat4Multiply(rotation,mat4Scale(haloR*scale[0],haloR*scale[1],haloR*scale[2]))
-      );
-      this.drawModel(this.fineTorusMesh,ring,vp,def.accent,def.accent,alpha*(thick?1.22:1));
+    // --- REFERENCE-FAITHFUL SPHERICAL FRAME -------------------------------
+    // The reference is built around great-circle lines and articulated vertices.
+    // We reproduce that as actual 3D struts, not flat decals or sprites.
+    const cageR=base*(.73+tier*.045);
+    const phi=(1+Math.sqrt(5))/2;
+    const raw:Vec3=[
+      [-1, phi,0],[1,phi,0],[-1,-phi,0],[1,-phi,0],
+      [0,-1,phi],[0,1,phi],[0,-1,-phi],[0,1,-phi],
+      [phi,0,-1],[phi,0,1],[-phi,0,-1],[-phi,0,1]
+    ];
+    const verts=raw.map(v=>{
+      const l=Math.hypot(v[0],v[1],v[2])||1;
+      return [v[0]/l*cageR,v[1]/l*cageR,v[2]/l*cageR] as Vec3;
+    });
+
+    const drawCage=(scale:number,spin:number,alpha:number,thickness:number)=>{
+      for(let i=0;i<verts.length;i++){
+        const v=verts[i];
+        const c=Math.cos(spin),sn=Math.sin(spin);
+        const x=v[0]*c-v[2]*sn, z=v[0]*sn+v[2]*c;
+        const n:Vec3=[origin[0]+x,origin[1]+v[1],origin[2]+z];
+        const nm=mat4Multiply(
+          mat4Translate(...n),
+          mat4Scale(base*(tier>=6?.048:.055)*scale,base*(tier>=6?.048:.055)*scale,base*(tier>=6?.048:.048)*scale)
+        );
+        this.drawModelAdditive(this.facetCoreMesh,nm,vp,def.accent,'#ffffff',Math.min(1,alpha+.12));
+      }
+      for(const [a,b] of this.icosaEdges){
+        const va=verts[a],vb=verts[b];
+        const c=Math.cos(spin),sn=Math.sin(spin);
+        const A:[number,number,number]=[
+          origin[0]+(va[0]*c-va[2]*sn)*scale,
+          origin[1]+va[1]*scale,
+          origin[2]+(va[0]*sn+va[2]*c)*scale
+        ];
+        const B:[number,number,number]=[
+          origin[0]+(vb[0]*c-vb[2]*sn)*scale,
+          origin[1]+vb[1]*scale,
+          origin[2]+(vb[0]*sn+vb[2]*c)*scale
+        ];
+        this.drawBeamBetween(A,B,base*thickness,def.color,def.accent,alpha,vp);
+      }
     };
 
-    // Tier I: the simple reference sphere. Tier II-III build the tri-axial cage.
-    drawRing3D(mat4RotateY(rot),[1,1,1],ringAlpha);
-    if(tier>=2) drawRing3D(mat4RotateX(Math.PI/2),[1,1,1],ringAlpha*.94);
-    if(tier>=3) drawRing3D(mat4RotateZ(Math.PI/2),[1,1,1],ringAlpha*.9);
-
-    // Tier III onward gets the diagonal "orbital cage" visible in the reference.
-    const diagonal=[
-      mat4Multiply(mat4RotateX(54*DEG),mat4RotateY(rot*.73)),
-      mat4Multiply(mat4RotateZ(54*DEG),mat4RotateY(-rot*.61)),
-      mat4Multiply(mat4RotateX(-54*DEG),mat4RotateY(rot*1.12)),
-      mat4Multiply(mat4RotateZ(-54*DEG),mat4RotateY(-rot*.91)),
-    ];
-    for(let i=0;i<Math.min(diagonal.length,Math.max(0,tier-2));i++){
-      drawRing3D(diagonal[i],[1,0.93,1],ringAlpha*.72);
+    // I is intentionally sparse. Each subsequent tier adds another physical
+    // layer, matching the reference's I -> VII silhouette progression.
+    if(tier>=1)this.drawModel(
+      this.fineTorusMesh,
+      mat4Multiply(mat4Translate(...origin),mat4Multiply(mat4RotateY(rot),mat4Scale(cageR,cageR,cageR))),
+      vp,def.accent,'#ffffff',.80
+    );
+    if(tier>=2){
+      this.drawModel(
+        this.fineTorusMesh,
+        mat4Multiply(mat4Translate(...origin),mat4Multiply(mat4RotateX(Math.PI/2),mat4Scale(cageR,cageR,cageR))),
+        vp,def.accent,'#ffffff',.76
+      );
     }
-
-    // Tier V-VI fill the spaces between the main rings with finer latitude bands.
+    if(tier>=3){
+      drawCage(1,rot*.38,.64,.0105);
+      this.drawModel(
+        this.fineTorusMesh,
+        mat4Multiply(mat4Translate(...origin),mat4Multiply(mat4RotateZ(Math.PI/2),mat4Scale(cageR,cageR,cageR))),
+        vp,def.accent,'#ffffff',.62
+      );
+    }
+    if(tier>=4){
+      drawCage(1,-rot*.27,.47,.0075);
+      const crossR=cageR*1.13;
+      this.drawModel(
+        this.fineTorusMesh,
+        mat4Multiply(mat4Translate(...origin),mat4Multiply(mat4RotateX(58*DEG),mat4RotateY(rot*.41)),mat4Scale(crossR,crossR,crossR)),
+        vp,def.accent,'#ffffff',.62
+      );
+    }
     if(tier>=5){
-      for(const tilt of [-28,28]){
-        const r=mat4Multiply(mat4RotateX(tilt*DEG),mat4RotateY(rot*(tilt>0?.55:-.47)));
-        drawRing3D(r,[1,.72,1],ringAlpha*.56);
+      drawCage(.86,rot*.52,.42,.0062);
+      for(const tilt of [-27,27]){
+        const rr=mat4Multiply(
+          mat4Translate(...origin),
+          mat4Multiply(mat4RotateX(tilt*DEG),mat4RotateY(rot*(tilt>0?.31:-.28)))
+        );
+        this.drawModel(this.torusMesh,mat4Multiply(rr,mat4Scale(cageR*1.02,cageR*.76,cageR*1.02)),vp,def.accent,'#ffffff',.55);
       }
     }
     if(tier>=6){
-      for(const tilt of [-43,43]){
-        const r=mat4Multiply(mat4RotateZ(tilt*DEG),mat4RotateY(rot*(tilt>0?.44:-.38)));
-        drawRing3D(r,[.76,1,.76],ringAlpha*.46);
+      drawCage(.72,-rot*.63,.36,.0052);
+      const fineR=cageR*1.23;
+      for(const tilt of [-44,44]){
+        const rr=mat4Multiply(
+          mat4Translate(...origin),
+          mat4Multiply(mat4RotateZ(tilt*DEG),mat4RotateY(rot*.22))
+        );
+        this.drawModel(this.fineTorusMesh,mat4Multiply(rr,mat4Scale(fineR,fineR*.78,fineR)),vp,def.accent,'#ffffff',.48);
       }
     }
-
-    // Tier VII is the final "sphere of spheres": a larger external cage, bright
-    // anchor nodes, radial braces and a living halo.
     if(tier>=7){
-      const outerScale=haloR*1.18;
-      const outerRings=[
-        mat4RotateY(rot*.83),
-        mat4Multiply(mat4RotateX(67*DEG),mat4RotateY(-rot*.52)),
-        mat4Multiply(mat4RotateZ(67*DEG),mat4RotateY(rot*.36)),
+      // Final evolution: three nested cages at different scales create the same
+      // dense "contained star" impression as the large VII reference.
+      drawCage(1.24,rot*.23,.66,.009);
+      drawCage(.91,-rot*.49,.48,.006);
+      const outerR=cageR*1.34;
+      const outer=[
+        mat4RotateY(rot*.17),
+        mat4Multiply(mat4RotateX(63*DEG),mat4RotateY(-rot*.21)),
+        mat4Multiply(mat4RotateZ(63*DEG),mat4RotateY(rot*.15))
       ];
-      for(const r of outerRings){
+      for(const r of outer){
         this.drawModel(
           this.fineTorusMesh,
-          mat4Multiply(
-            mat4Translate(origin[0],origin[1],origin[2]),
-            mat4Multiply(r,mat4Scale(outerScale,outerScale,outerScale))
-          ),
+          mat4Multiply(mat4Translate(...origin),mat4Multiply(r,mat4Scale(outerR,outerR,outerR))),
           vp,def.accent,'#ffffff',.72
         );
       }
-      this.drawRing(s.pos.x,s.pos.y,base*1.62,t*.74,def.accent,t,vp,.3);
-      this.drawRing(s.pos.x,s.pos.y,base*2.08,-t*.48,def.color,t,vp,.19);
-      this.drawRing(s.pos.x,s.pos.y,base*2.62,t*.25,def.accent,t,vp,.11);
-    }
-
-    // Structural anchor points make the model read as manufactured hardware, not
-    // as a collection of floating circles.
-    const nodeR=haloR*(tier>=7?1.02:.97);
-    const nodes:Array<[number,number,number]>=[
-      [nodeR,0,0],[-nodeR,0,0],[0,nodeR,0],[0,-nodeR,0],[0,0,nodeR],[0,0,-nodeR]
-    ];
-    if(tier>=3){
-      for(let i=0;i<8;i++){
-        const a=i/8*Math.PI*2+rot*.16;
-        nodes.push([nodeR*.82*Math.cos(a),nodeR*.26*Math.sin(a*2),nodeR*.82*Math.sin(a)]);
-      }
-    }
-    if(tier>=5){
-      for(let i=0;i<8;i++){
-        const a=i/8*Math.PI*2-rot*.12;
-        nodes.push([nodeR*.70*Math.cos(a),nodeR*.54*Math.sin(a),nodeR*.70*Math.sin(a)]);
+      // Radial energy spokes connect the inner reactor to the outer shell.
+      for(let i=0;i<12;i++){
+        const a=i*Math.PI/6+rot*.13;
+        const q:Vec3=[origin[0]+Math.cos(a)*outerR*.98,origin[1]+Math.sin(a*2)*outerR*.20,origin[2]+Math.sin(a)*outerR*.98];
+        this.drawBeamBetween(origin,q,base*.010,def.color,'#ffffff',.50,vp);
       }
     }
 
-    const nodeSize=base*(tier>=6?.061:tier>=3?.052:.045);
-    const nodeLimit=tier>=7?nodes.length:tier>=5?16:tier>=3?14:6;
-    for(let i=0;i<nodeLimit;i++){
-      const n=nodes[i];
-      const wobble=1+Math.sin(t*2.6+i*.87)*0.035;
+    // Articulated vertex caps make the cage read as manufactured geometry.
+    const nodeScale=tier>=7?1.12:tier>=5?1.04:1;
+    const nodeSize=base*(tier>=6?.054:tier>=3?.050:.046)*nodeScale;
+    const nodeCount=tier>=7?12:tier>=5?12:tier>=3?12:0;
+    for(let i=0;i<nodeCount;i++){
+      const v=verts[i];
+      const c=Math.cos(rot*.38),sn=Math.sin(rot*.38);
+      const n:[number,number,number]=[
+        origin[0]+(v[0]*c-v[2]*sn),
+        origin[1]+v[1],
+        origin[2]+(v[0]*sn+v[2]*c)
+      ];
       const nm=mat4Multiply(
-        mat4Translate(origin[0]+n[0]*wobble,origin[1]+n[1]*wobble,origin[2]+n[2]*wobble),
-        mat4Scale(nodeSize*(i%3===0?1.12:1),nodeSize,nodeSize*(i%2===0?1.08:1))
+        mat4Translate(...n),
+        mat4Scale(nodeSize*(i%3===0?1.24:1),nodeSize,nodeSize*(i%2===0?1.12:1))
       );
-      this.drawModelAdditive(this.sphereMesh,nm,vp,def.color,def.accent,.88);
-      if(tier>=6 && i%2===0){
-        const nm2=mat4Multiply(
-          mat4Translate(origin[0]+n[0]*wobble,origin[1]+n[1]*wobble,origin[2]+n[2]*wobble),
-          mat4Scale(nodeSize*.42,nodeSize*.42,nodeSize*.42)
-        );
-        this.drawModelAdditive(this.sphereMesh,nm2,vp,def.accent,'#ffffff',1);
-      }
-    }
-
-    // Braces tie cardinal nodes into the central reactor.
-    if(tier>=3){
-      for(let i=0;i<Math.min(6,nodes.length);i++){
-        const n=nodes[i];
-        this.drawBeamBetween(
-          [origin[0],origin[1],origin[2]],
-          [origin[0]+n[0],origin[1]+n[1],origin[2]+n[2]],
-          base*(tier>=7?.012:.009),
-          def.color,def.accent,tier>=7?.56:.42,vp
-        );
-      }
-    }
-    if(tier>=5){
-      for(let i=6;i<Math.min(14,nodes.length);i+=2){
-        const a=nodes[i],b=nodes[(i+2)%Math.min(14,nodes.length)];
-        this.drawBeamBetween(
-          [origin[0]+a[0],origin[1]+a[1],origin[2]+a[2]],
-          [origin[0]+b[0],origin[1]+b[1],origin[2]+b[2]],
-          base*.006,def.accent,def.accent,.22,vp
+      this.drawModelAdditive(this.facetCoreMesh,nm,vp,def.accent,'#ffffff',.96);
+      if(tier>=6&&i%2===0){
+        this.drawModelAdditive(
+          this.sphereMesh,
+          mat4Multiply(mat4Translate(...n),mat4Scale(nodeSize*.48,nodeSize*.48,nodeSize*.48)),
+          vp,def.color,'#ffffff',.72
         );
       }
     }
 
-    // Functional modules by tower type. The silhouette stays reference-faithful,
-    // while each weapon gets a readable "job" built into the reactor.
-    const dirX=Math.cos(s.rotation), dirZ=Math.sin(s.rotation);
-    const sideX=-dirZ, sideZ=dirX;
-    const forward=(d:number,side:number,yOff:number):[number,number,number]=>[
-      origin[0]+dirX*d+sideX*side,
-      origin[1]+yOff,
-      origin[2]+dirZ*d+sideZ*side
+    // --- TYPE-SPECIFIC WEAPON ARCHITECTURE -------------------------------
+    const dirX=Math.cos(s.rotation),dirZ=Math.sin(s.rotation);
+    const sideX=-dirZ,sideZ=dirX;
+    const forward=(d:number,side:number,yo:number):Vec3=>[
+      origin[0]+dirX*d+sideX*side,origin[1]+yo,origin[2]+dirZ*d+sideZ*side
     ];
 
     if(s.type==='sniper'){
-      const emitter=forward(base*.98,0,0);
-      this.drawBeamBetween(origin,emitter,base*.028,def.color,def.accent,.74,vp);
-      const lens=mat4Multiply(
-        mat4Translate(emitter[0],emitter[1],emitter[2]),
-        mat4Scale(base*.095,base*.095,base*.095)
-      );
-      this.drawModelAdditive(this.sphereMesh,lens,vp,def.accent,'#ffffff',1);
-      this.drawModel(
-        this.fineTorusMesh,
-        mat4Multiply(
-          mat4Translate(emitter[0],emitter[1],emitter[2]),
-          mat4Multiply(mat4RotateY(s.rotation),mat4Scale(base*.18,base*.18,base*.18))
-        ),
-        vp,def.accent,'#ffffff',.85
-      );
+      // Long precision barrel with a focusing lens.
+      const mount=forward(base*.36,0,0), muzzle=forward(base*1.04,0,0);
+      this.drawBeamBetween(mount,muzzle,base*.034,def.color,def.accent,.72,vp);
+      this.drawBeamBetween(muzzle,forward(base*1.16,0,0),base*.012,def.accent,'#ffffff',.55,vp);
+      this.drawModelAdditive(this.facetCoreMesh,
+        mat4Multiply(mat4Translate(...muzzle),mat4Scale(base*.105,base*.105,base*.105)),
+        vp,def.accent,'#ffffff',1);
       if(shotFlash>0){
-        const muzzle=forward(base*(1.06+shotFlash*.18),0,0);
-        this.drawBeamBetween(emitter,muzzle,base*(.05+.06*shotFlash),def.accent,'#ffffff',.55*shotFlash,vp);
-        this.drawModelAdditive(
-          this.sphereMesh,
-          mat4Multiply(mat4Translate(muzzle[0],muzzle[1],muzzle[2]),mat4Scale(base*(.10+.12*shotFlash),base*(.10+.12*shotFlash),base*(.10+.12*shotFlash))),
-          vp,def.accent,'#ffffff',.95
-        );
+        const blast=forward(base*(1.14+shotFlash*.30),0,0);
+        this.drawBeamBetween(muzzle,blast,base*(.055+.07*shotFlash),def.accent,'#ffffff',.8*shotFlash,vp);
+        this.drawModelAdditive(this.sphereMesh,
+          mat4Multiply(mat4Translate(...blast),mat4Scale(base*(.12+.15*shotFlash),base*(.12+.15*shotFlash),base*(.12+.15*shotFlash))),
+          vp,def.accent,'#ffffff',.95);
       }
     }else if(s.type==='shotgun'){
-      const spread=.12;
+      // Three physical emitters, like a compact energy shotgun.
       for(let i=-1;i<=1;i++){
-        const a=s.rotation+i*spread;
-        const dx=Math.cos(a),dz=Math.sin(a);
-        const emitter:[number,number,number]=[origin[0]+dx*base*.82,origin[1]+i*base*.06,origin[2]+dz*base*.82];
-        this.drawBeamBetween(origin,emitter,base*.019,def.color,def.accent,.55,vp);
-        const pellet=mat4Multiply(
-          mat4Translate(emitter[0],emitter[1],emitter[2]),
-          mat4Scale(base*.052,base*.052,base*.052)
-        );
-        this.drawModelAdditive(this.sphereMesh,pellet,vp,def.accent,'#ffffff',.95);
+        const a=s.rotation+i*.13;
+        const d:Vec3=[Math.cos(a),0,Math.sin(a)];
+        const muzzle:Vec3=[origin[0]+d[0]*base*.93,origin[1]+i*base*.075,origin[2]+d[2]*base*.93];
+        this.drawBeamBetween(origin,muzzle,base*.020,def.color,def.accent,.58,vp);
+        this.drawModelAdditive(this.facetCoreMesh,
+          mat4Multiply(mat4Translate(...muzzle),mat4Scale(base*.06,base*.06,base*.06)),
+          vp,def.accent,'#ffffff',1);
         if(shotFlash>0){
-          const end:[number,number,number]=[emitter[0]+dx*base*(.22+.20*shotFlash),emitter[1],emitter[2]+dz*base*(.22+.20*shotFlash)];
-          this.drawBeamBetween(emitter,end,base*(.022+.032*shotFlash),def.accent,'#ffffff',.38*shotFlash,vp);
+          const blast:Vec3=[muzzle[0]+d[0]*base*(.20+.26*shotFlash),muzzle[1],muzzle[2]+d[2]*base*(.20+.26*shotFlash)];
+          this.drawBeamBetween(muzzle,blast,base*(.026+.045*shotFlash),def.accent,'#ffffff',.65*shotFlash,vp);
         }
       }
     }else if(s.type==='chain'){
-      const chainCount=tier>=5?8:6;
-      for(let i=0;i<chainCount;i++){
-        const a=i/chainCount*Math.PI*2-t*.72;
-        const n:[number,number,number]=[
-          origin[0]+Math.cos(a)*base*.74,
-          origin[1]+Math.sin(a*2.0+t*.45)*base*.32,
-          origin[2]+Math.sin(a)*base*.74
-        ];
-        const rr=mat4Multiply(
-          mat4Translate(n[0],n[1],n[2]),
-          mat4Scale(base*.042,base*.042,base*.042)
-        );
-        this.drawModelAdditive(this.sphereMesh,rr,vp,def.color,'#ffffff',.9);
-        if(i>0){
-          const pA:[number,number,number]=[
-            origin[0]+Math.cos((i-1)/chainCount*Math.PI*2-t*.72)*base*.74,
-            origin[1]+Math.sin(((i-1)/chainCount*Math.PI*2-t*.72)*2+t*.45)*base*.32,
-            origin[2]+Math.sin((i-1)/chainCount*Math.PI*2-t*.72)*base*.74
-          ];
-          this.drawBeamBetween(pA,n,base*.0055,def.accent,def.accent,.22,vp);
-        }
+      // The yellow reference sphere becomes a segmented kinetic lattice.
+      const count=tier>=5?12:8;
+      const pts:Vec3[]=[];
+      for(let i=0;i<count;i++){
+        const a=i/count*Math.PI*2-rot*.82;
+        const p:Vec3=[origin[0]+Math.cos(a)*base*.78,origin[1]+Math.sin(a*2+t*.45)*base*.28,origin[2]+Math.sin(a)*base*.78];
+        pts.push(p);
+        this.drawModelAdditive(this.facetCoreMesh,
+          mat4Multiply(mat4Translate(...p),mat4Scale(base*.045,base*.045,base*.045)),
+          vp,def.color,'#ffffff',.95);
+        if(i) this.drawBeamBetween(pts[i-1],p,base*.006,def.accent,'#ffffff',.40,vp);
       }
+      this.drawBeamBetween(pts[pts.length-1],pts[0],base*.006,def.accent,'#ffffff',.40,vp);
     }else if(s.type==='aura'){
-      const fieldBase=base*(1.7+.22*tier);
-      this.drawRing(s.pos.x,s.pos.y,fieldBase,t*.34,def.color,t,vp,.11+.035*auraFlash);
-      this.drawRing(s.pos.x,s.pos.y,fieldBase*1.28,-t*.28,def.accent,t,vp,.07+.025*auraFlash);
-      this.drawRing(s.pos.x,s.pos.y,fieldBase*1.62,t*.17,def.color,t,vp,.045+.018*auraFlash);
+      // Aura keeps the same physical cage but adds a layered field volume.
+      const field=base*(1.58+.19*tier);
+      this.drawRing(s.pos.x,s.pos.y,field,t*.31,def.color,t,vp,.13+.035*auraFlash);
+      this.drawRing(s.pos.x,s.pos.y,field*1.25,-t*.24,def.accent,t,vp,.08+.025*auraFlash);
+      this.drawRing(s.pos.x,s.pos.y,field*1.54,t*.17,def.color,t,vp,.045+.018*auraFlash);
       if(auraFlash>0){
-        this.drawModelAdditive(
-          this.sphereMesh,
-          mat4Multiply(
-            mat4Translate(origin[0],origin[1],origin[2]),
-            mat4Scale(base*(.40+.22*auraFlash),base*(.40+.22*auraFlash),base*(.40+.22*auraFlash))
-          ),
-          vp,def.color,'#ffffff',.13*auraFlash
-        );
+        this.drawModelAdditive(this.sphereMesh,
+          mat4Multiply(mat4Translate(...origin),mat4Scale(base*(.36+.24*auraFlash),base*(.36+.24*auraFlash),base*(.36+.24*auraFlash))),
+          vp,def.color,'#ffffff',.16*auraFlash);
       }
     }else{
-      // Standard sphere gets a clean forward "core rail" and a restrained pulse.
-      const rail=forward(base*.76,0,0);
-      this.drawBeamBetween(origin,rail,base*.014,def.color,def.accent,.36,vp);
+      const rail=forward(base*.34,0,0),muzzle=forward(base*.90,0,0);
+      this.drawBeamBetween(rail,muzzle,base*.015,def.color,def.accent,.38,vp);
+      this.drawModelAdditive(this.facetCoreMesh,
+        mat4Multiply(mat4Translate(...muzzle),mat4Scale(base*.052,base*.052,base*.052)),
+        vp,def.accent,'#ffffff',.9);
       if(shotFlash>0){
-        const p=forward(base*(.86+.22*shotFlash),0,0);
-        this.drawBeamBetween(rail,p,base*(.024+.038*shotFlash),def.accent,'#ffffff',.38*shotFlash,vp);
+        const blast=forward(base*(.93+.28*shotFlash),0,0);
+        this.drawBeamBetween(muzzle,blast,base*(.028+.045*shotFlash),def.accent,'#ffffff',.65*shotFlash,vp);
       }
     }
 
-    // Every tower gets the reference's breathing halo. Higher tiers are brighter
-    // and more "contained" instead of simply becoming bigger.
-    const breath=.12+.08*Math.sin(t*2.1+s.rotation);
-    this.drawRing(s.pos.x,s.pos.y,base*(1.16+tier*.045),rot,def.accent,t,vp,.16+breath);
-    if(tier>=4) this.drawRing(s.pos.x,s.pos.y,base*(1.45+tier*.05),-rot*.7,def.color,t,vp,.10+shotFlash*.16);
+    // A controlled breathing halo, plus an impact/shot energy bloom.
+    this.drawRing(s.pos.x,s.pos.y,base*(1.12+tier*.05),rot,def.accent,t,vp,.15+.07*Math.sin(t*2.0+s.rotation));
+    if(tier>=4)this.drawRing(s.pos.x,s.pos.y,base*(1.38+tier*.065),-rot*.71,def.color,t,vp,.075+.11*shotFlash);
     if(shotFlash>0){
       this.drawModelAdditive(
         this.sphereMesh,
-        mat4Multiply(
-          mat4Translate(origin[0],origin[1],origin[2]),
-          mat4Scale(base*(.48+.42*shotFlash),base*(.48+.42*shotFlash),base*(.48+.42*shotFlash))
-        ),
-        vp,def.accent,'#ffffff',.10+.18*shotFlash
+        mat4Multiply(mat4Translate(...origin),mat4Scale(base*(.40+.48*shotFlash),base*(.40+.48*shotFlash),base*(.40+.48*shotFlash))),
+        vp,def.accent,'#ffffff',.09+.16*shotFlash
       );
     }
-
     void cx;void cy;
   }
 
