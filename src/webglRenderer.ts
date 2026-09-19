@@ -145,6 +145,78 @@ export function createRealtime3DRenderer(canvas:HTMLCanvasElement):Realtime3DRen
     const ring=(x:number,z:number,y:number,r:number,color:string,rot:number)=>{
       draw(m.torus,model(x,y,z,.25,rot,0,r,r*.08,r),color,.65,.7);
     };
+
+    const segment=(x:number,z:number,y:number,len:number,width:number,angle:number,color:string,glow=0.15)=>{
+      draw(m.cyl,model(x,y,z,Math.PI/2,angle,0,width,len,width),color,glow,.94);
+    };
+    const insect=(x:number,z:number,y:number,r:number,color:string,t:number,legs:number,scale=1)=>{
+      const phase=t*2.8+x*.006+z*.004;
+      const body='#07111e';
+      const shell='#102338';
+      const legColor='#203950';
+      const wobble=Math.sin(phase)*r*.035;
+      draw(m.sphere,model(x,y+r*.42+wobble,z,0,phase*.12,0,r*.92*scale,r*.46*scale,r*1.08*scale),body,.18,.98);
+      draw(m.sphere,model(x-r*.22*scale,y+r*.72+wobble,z+r*.08*scale,0,phase*.18,0,r*.58*scale,r*.40*scale,r*.62*scale),shell,.2,.98);
+      draw(m.sphere,model(x+r*.42*scale,y+r*.77+wobble,z,0,phase*.22,0,r*.34*scale,r*.30*scale,r*.40*scale),body,.22,.98);
+      core(x+r*.63*scale,z,r*.79*scale,r*.15*scale,color);
+      for(let i=0;i<legs;i++){
+        const a=(i/legs)*Math.PI*2+0.12;
+        const side=i%2===0?1:-1;
+        const gait=Math.sin(phase*1.7+a*2)*0.12*side;
+        const a1=a+gait;
+        const a2=a1+(i%2===0?.20:-.20);
+        const p1x=x+Math.cos(a1)*r*.56*scale;
+        const p1z=z+Math.sin(a1)*r*.56*scale;
+        const p2x=x+Math.cos(a1)*r*.94*scale;
+        const p2z=z+Math.sin(a1)*r*.94*scale;
+        const p3x=x+Math.cos(a2)*r*1.30*scale;
+        const p3z=z+Math.sin(a2)*r*1.30*scale;
+        segment(p1x,p1z,y+r*.30,p2x-p1x>0?Math.hypot(p2x-p1x,p2z-p1z):Math.hypot(p2x-p1x,p2z-p1z),r*.075*scale,Math.atan2(p2z-p1z,p2x-p1x),legColor,.1);
+        segment(p3x*.5+p2x*.5,p3z*.5+p2z*.5,y+r*.23,Math.hypot(p3x-p2x,p3z-p2z),r*.055*scale,Math.atan2(p3z-p2z,p3x-p2x),legColor,.08);
+        draw(m.sphere,model(p2x,y+r*.28,p2z,0,0,0,r*.09*scale,r*.07*scale,r*.09*scale),color,.22,.9);
+      }
+      for(const side of [-1,1]){
+        const a=phase*.1+side*.38;
+        segment(x+Math.cos(a)*r*.66*scale,z+Math.sin(a)*r*.66*scale,y+r*.83,r*.34*scale,r*.07*scale,a,legColor,.15);
+      }
+    };
+    const bossSpider=(x:number,z:number,r:number,color:string,t:number,bossType:string)=>{
+      const pulse=1+Math.sin(t*2.4)*.035;
+      draw(m.sphere,model(x,r*.52,z,0,t*.09,0,r*1.18*pulse,r*.58*pulse,r*1.32*pulse),'#050a13',.28,.99);
+      draw(m.sphere,model(x-r*.12,r*.92,z+r*.10,0,t*.16,0,r*.70,r*.42,r*.76),'#14283b',.25,.98);
+      core(x,z,r*.98,r*.31,color);
+      core(x-r*.05,z+r*.01,r*1.01,r*.12,'#e8fbff');
+      ring(x,z,r*.92,r*1.28,color,t*.16);
+      for(let i=0;i<8;i++){
+        const a=i/8*Math.PI*2+t*.12;
+        const midR=r*1.02;
+        const endR=r*(1.55+(i%2)*.16);
+        const mx=x+Math.cos(a)*midR,mz=z+Math.sin(a)*midR;
+        const ex=x+Math.cos(a+(i%2?-.14:.14))*endR,ez=z+Math.sin(a+(i%2?-.14:.14))*endR;
+        segment((x+mx)*.5,(z+mz)*.5,r*.34,Math.hypot(mx-x,mz-z),r*.095,a,'#28445e',.2);
+        segment((mx+ex)*.5,(mz+ez)*.5,r*.25,Math.hypot(ex-mx,ez-mz),r*.065,Math.atan2(ez-mz,ex-mx),'#1b3148',.15);
+        draw(m.sphere,model(ex,r*.22,ez,0,0,0,r*.10,r*.07,r*.10),color,.35,.92);
+      }
+      if(bossType==='charger'){
+        for(const side of [-1,1]){
+          const a=side*.72;
+          draw(m.cone,model(x+Math.cos(a)*r*.78,r*1.02,z+Math.sin(a)*r*.78,Math.PI/2,a,0,r*.15,r*.72,r*.15),color,.8,.94);
+        }
+      }else if(bossType==='shooter'){
+        for(let i=0;i<3;i++){
+          const a=t*.25+i*Math.PI*2/3;
+          draw(m.cyl,model(x+Math.cos(a)*r*.68,r*.82,z+Math.sin(a)*r*.68,0,a,0,r*.13,r*.38,r*.13),color,.65,.94);
+        }
+      }else if(bossType==='summoner'){
+        for(let i=0;i<4;i++){
+          const a=i*Math.PI/2+t*.18;
+          core(x+Math.cos(a)*r*1.05,z+Math.sin(a)*r*1.05,r*.82,r*.13,color);
+        }
+      }else{
+        ring(x,z,r*1.12,r*1.65,'#b06dff',-t*.24);
+        ring(x,z,r*1.28,r*1.9,color,t*.18);
+      }
+    };
     const sphereDraw=(s:GameState,e:SphereEntity,t:number)=>{
       const x=e.pos.x-s.camera.x,z=e.pos.y-s.camera.y,def=SPHERE_TYPES[e.type],r=clamp(17+e.radius*.09+e.visualTier*1.8,18,30),spin=e.rotation+t*.15;
       draw(m.cyl,model(x,3,z,0,0,0,r*.72,r*.18,r*.72),'#263c50',.15,.95);
@@ -154,26 +226,27 @@ export function createRealtime3DRenderer(canvas:HTMLCanvasElement):Realtime3DRen
       if(e.visualTier>2)for(let i=0;i<4;i++){const a=i*Math.PI/2+spin;draw(m.cone,model(x+Math.cos(a)*r*1.12,r*.98,z+Math.sin(a)*r*1.12,Math.PI/2,a,0,r*.1,r*.36,r*.1),def.color,.7,.9);}
     };
     const enemyDraw=(e:EnemyEntity,t:number)=>{
-      const x=e.pos.x-stateCameraX,z=e.pos.y-stateCameraY,r=Math.max(11,e.radius),f=e.rotation,phase=t*7+x*.01;
+      const x=e.pos.x-stateCameraX,z=e.pos.y-stateCameraY,r=Math.max(11,e.radius),f=e.rotation;
       if(e.isBoss){
-        draw(m.sphere,model(x,r*.62,z,0,t*.12,0,r*1.25,r*.65,r*1.25),'#090e19',.3,.98);
-        core(x,z,r*.98,r*.30,e.color);ring(x,z,r*.92,r*1.35,e.color,t*.2);
-        for(let i=0;i<8;i++){const a=i/8*Math.PI*2+t*.18;draw(m.cone,model(x+Math.cos(a)*r*.92,r*.82,z+Math.sin(a)*r*.92,Math.PI/2,a,0,r*.11,r*.6,r*.11),e.color,1,.92);}
+        bossSpider(x,z,r,e.color,t,e.bossType);
         return;
       }
-      const bob=Math.sin(phase)*r*.05;
+      const bob=Math.sin(t*4+x*.01+z*.007)*r*.035;
       if(e.type==='fast'){
-        draw(m.sphere,model(x,r*.48+bob,z,0,f,0,r*.56,r*.38,r*.9),'#0b1422',.2,.98);
-        core(x+Math.cos(f)*r*.58,z+Math.sin(f)*r*.58,r*.65,r*.20,e.color);ring(x,z,r*.78,r*.72,e.color,f+t*.4);
-        for(const side of [-1,1])draw(m.cone,model(x+Math.cos(f+side*1.1)*r*.55,r*.35,z+Math.sin(f+side*1.1)*r*.55,0,f+side*.8,0,r*.09,r*.48,r*.09),e.color,.4,.9);
+        insect(x,z,r*.04+bob,r*.82,e.color,t,4,0.82);
+        for(const side of [-1,1]){
+          const a=f+side*.62;
+          draw(m.sphere,model(x+Math.cos(a)*r*.62,r*.86+bob,z+Math.sin(a)*r*.62,0,a,0,r*.72,r*.045,r*.34),e.color,.45,.45);
+        }
       }else if(e.type==='tank'){
-        draw(m.sphere,model(x,r*.55+bob,z,0,f,0,r*.95,r*.5,r*1.1),'#111827',.25,.98);
-        core(x+Math.cos(f)*r*.5,z+Math.sin(f)*r*.5,r*.7,r*.22,e.color);ring(x,z,r*.82,r*1.05,e.color,t*.25);
-        for(const side of [-1,1])draw(m.cone,model(x+Math.cos(f+side*.35)*r*.75,r*.7,z+Math.sin(f+side*.35)*r*.75,0,f+side*.2,0,r*.12,r*.45,r*.12),e.color,.5,.92);
+        insect(x,z,r*.03+bob,r*1.12,e.color,t,6,1.15);
+        draw(m.torus,model(x,r*.76+bob,z,.15,f,0,r*.82,r*.10,r*.82),e.color,.5,.72);
+        for(let i=0;i<6;i++){
+          const a=i/6*Math.PI*2+f;
+          draw(m.cone,model(x+Math.cos(a)*r*.78,r*.94+bob,z+Math.sin(a)*r*.78,Math.PI/2,a,0,r*.12,r*.55,r*.12),e.color,.55,.9);
+        }
       }else{
-        draw(m.sphere,model(x,r*.5+bob,z,0,f,0,r*.72,r*.42,r*.72),'#0a1220',.2,.98);
-        for(const side of [-1,1])for(let i=0;i<3;i++){const a=f+side*(.45+i*.28),len=r*(.75+i*.2);draw(m.cyl,model(x+Math.cos(a)*r*.45,r*.28,z+Math.sin(a)*r*.45,0,a,0,r*.055,len,r*.055),'#263c50',.15,.95);}
-        core(x+Math.cos(f)*r*.58,z+Math.sin(f)*r*.58,r*.68,r*.19,e.color);ring(x,z,r*.8,r*.9,e.color,t*.3);
+        insect(x,z,r*.02+bob,r*.98,e.color,t,6,1);
       }
     };
     let stateCameraX=0,stateCameraY=0;
@@ -186,7 +259,10 @@ export function createRealtime3DRenderer(canvas:HTMLCanvasElement):Realtime3DRen
           const x=p0.pos.x-state.camera.x,z=p0.pos.y-state.camera.y,a=Math.atan2(p0.vel.y,p0.vel.x),r=clamp(p0.radius*1.6,4,8);
           draw(m.cone,model(x,3,z,Math.PI/2,a,0,r*.8,r*1.8,r*.8),'#25394b',.2,.9);core(x,z,5,r*.65,p0.color);
         }
-        for(const m0 of state.minions)draw(m.sphere,model(m0.pos.x-state.camera.x,m0.radius*.55,m0.pos.y-state.camera.y,0,m0.rotation,0,m0.radius*.75,m0.radius*.5,m0.radius*.95),'#0b1420',.2,.96);
+        for(const m0 of state.minions){
+          const mx=m0.pos.x-state.camera.x,mz=m0.pos.y-state.camera.y,mr=Math.max(7,m0.radius);
+          insect(mx,mz,mr*.02,mr,'#ffb84d',t+m0.rotation,4,.62);
+        }
         for(const e of state.enemies)if(e.hp>0)enemyDraw(e,t);
         const p0=state.player,x=p0.pos.x-state.camera.x,z=p0.pos.y-state.camera.y,bob=Math.sin(t*3)*1.5,pr=PLAYER_RADIUS;
         draw(m.sphere,model(x,pr*.48+bob,z,0,t*.08,0,pr*.78,pr*.5,pr*.78),'#07101a',.4,.98);
