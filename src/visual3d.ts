@@ -208,7 +208,7 @@ export class Echo3DRenderer {
     for(const p of s.particles) if(p.life>0 && p.size>1) this.drawParticle(p,t,vp);
     for(const orb of s.xpOrbs) if(orb.alive) this.drawOrb(orb.pos.x,orb.pos.y,orb.radius,t,vp);
     for(const hp of s.healthPacks) if(hp.alive) this.drawHealth(hp.pos.x,hp.pos.y,hp.radius,t,vp);
-    for(const trail of s.fireTrails) if(trail.life>0) this.drawRing(trail.pos.x,trail.pos.y,18*(trail.life/trail.maxLife),trail.life/trail.maxLife,'#ff663d',t,vp);
+    for(const trail of s.fireTrails) if(trail.life>0) this.drawRing(trail.pos.x,trail.pos.y,18*(trail.life/trail.maxLife),trail.life/trail.maxLife,'#ff663d',t,vp,0.45);
     for(const enemy of s.enemies) for(const bp of enemy.bossProjectiles) if(bp.alive) this.drawOrb(bp.pos.x,bp.pos.y,bp.radius*1.7,t,vp);
   }
 
