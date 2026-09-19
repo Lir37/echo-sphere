@@ -15,6 +15,67 @@ const VOID_PANEL = '#080d1b';
 
 const MUTATION_COLORS = ['#6eeaff', '#9b7cff', '#d86cff', '#55e6c1', '#b9a7ff'];
 
+type ArtKey =
+  | 'player'
+  | 'sphere-standard' | 'sphere-sniper' | 'sphere-shotgun' | 'sphere-chain' | 'sphere-aura'
+  | 'enemy-skitter' | 'enemy-fast' | 'enemy-tank' | 'enemy-moth'
+  | 'boss';
+
+const ART_PATHS: Record<ArtKey, string> = {
+  player: '/art/player.svg',
+  'sphere-standard': '/art/standard.svg',
+  'sphere-sniper': '/art/sniper.svg',
+  'sphere-shotgun': '/art/shotgun.svg',
+  'sphere-chain': '/art/chain.svg',
+  'sphere-aura': '/art/aura.svg',
+  'enemy-skitter': '/art/enemy-skitter.svg',
+  'enemy-fast': '/art/enemy-fast.svg',
+  'enemy-tank': '/art/enemy-tank.svg',
+  'enemy-moth': '/art/enemy-moth.svg',
+  boss: '/art/boss.svg',
+};
+
+const ART_CACHE = new Map<ArtKey, HTMLImageElement>();
+
+function getReferenceArt(key: ArtKey): HTMLImageElement | null {
+  const cached = ART_CACHE.get(key);
+  if (cached) return cached.complete && cached.naturalWidth > 0 ? cached : null;
+
+  const image = new Image();
+  image.decoding = 'async';
+  image.src = ART_PATHS[key];
+  ART_CACHE.set(key, image);
+  return null;
+}
+
+function drawReferenceSprite(
+  ctx: CanvasRenderingContext2D,
+  key: ArtKey,
+  x: number,
+  y: number,
+  size: number,
+  color: string,
+  rotation = 0,
+  opacity = 1,
+): boolean {
+  const image = getReferenceArt(key);
+  if (!image) return false;
+
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(rotation);
+  ctx.globalAlpha = opacity;
+
+  // The artwork carries the silhouette. Canvas only supplies a restrained light halo.
+  ctx.shadowColor = color;
+  ctx.shadowBlur = Math.max(4, size * 0.09);
+  ctx.drawImage(image, -size / 2, -size / 2, size, size);
+  ctx.shadowBlur = 0;
+
+  ctx.restore();
+  return true;
+}
+
 interface Theme {
   bg: string;
   bgDark: string;
@@ -1019,7 +1080,23 @@ function drawOrigamiOctopus(ctx: CanvasRenderingContext2D, r: number, fill: stri
 
 // ===== Player — status effects only =====
 function drawPlayer(ctx: CanvasRenderingContext2D, p: PlayerState): void {
-  const t=Date.now()/1000,r=PLAYER_RADIUS;ctx.save();ctx.translate(p.pos.x,p.pos.y);
+  const t=Date.now()/1000,r=PLAYER_RADIUS;
+  if (drawReferenceSprite(ctx, 'player', p.pos.x, p.pos.y - r * 0.10, r * 2.9, '#63e6ff', 0, 1)) {
+    drawGroundShadow(ctx, r * 0.90, r * 0.26, 7);
+    if (p.shieldCharges > 0 || p.shieldTimer > 0 || p.invulnerableTimer > 0) {
+      ctx.save();
+      ctx.translate(p.pos.x, p.pos.y);
+      ctx.strokeStyle = p.invulnerableTimer > 0 ? 'rgba(255,255,255,.78)' : 'rgba(105,232,255,.58)';
+      ctx.lineWidth = p.invulnerableTimer > 0 ? 1.8 : 1.2;
+      ctx.beginPath();
+      ctx.ellipse(0, -4, r + 12, 8, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    }
+    return;
+  }
+
+  ctx.save();ctx.translate(p.pos.x,p.pos.y);
   drawGroundShadow(ctx,r*.90,r*.26,7);
   const aura=ctx.createRadialGradient(0,-10,2,0,0,r*2.2);aura.addColorStop(0,'rgba(236,252,255,.28)');aura.addColorStop(.20,'rgba(91,228,255,.17)');aura.addColorStop(.56,'rgba(126,89,255,.06)');aura.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle=aura;ctx.beginPath();ctx.arc(0,-8,r*2.2,0,Math.PI*2);ctx.fill();
@@ -1517,14 +1594,32 @@ function drawModernSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: S
     * (s.player.artifacts.includes('radius_shard') ? 1.1 : 1)
     * def.rangeMult;
 
-  // The references read as luminous "spheres" first and weapons second.
-  // Keep the physical volume small, then let the reactor and its silhouette
-  // communicate the tower type. Glow is the light source, not the geometry.
+  // New-desing pass: real illustrated sprite first, procedural geometry only as fallback.
   const r = Math.max(13, Math.min(21, sphere.radius * 0.17 + tier * 0.7));
   const bob = Math.sin(time * 2.2 + sphere.pos.x * 0.01) * 0.7;
+  const artKey: ArtKey = `sphere-${sphere.type}` as ArtKey;
 
   ctx.save();
   ctx.translate(sphere.pos.x, sphere.pos.y + bob);
+  drawGroundShadow(ctx, r * 0.90, r * 0.24, 6);
+
+  const drawn = drawReferenceSprite(ctx, artKey, 0, -r * 0.14, r * 3.15, color, Math.sin(time * 0.7 + sphere.pos.x * 0.01) * 0.025);
+  if (drawn) {
+    // Tier/evolution information stays in the game renderer, but is deliberately secondary to the art.
+    if (tier >= 4) {
+      ctx.save();
+      ctx.strokeStyle = `rgba(${rgb},0.42)`;
+      ctx.lineWidth = 1;
+      ctx.setLineDash([5, 7]);
+      ctx.beginPath();
+      ctx.ellipse(0, -r * 0.12, r * 1.75, r * 0.50, time * 0.22, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.restore();
+    }
+    ctx.restore();
+    return;
+  }
 
   // Contact shadow anchors the object to the arena.
   drawGroundShadow(ctx, r * 0.78, r * 0.22, 5);
@@ -1873,9 +1968,30 @@ function drawModernEnemy(ctx: CanvasRenderingContext2D, e: EnemyEntity): void {
     ctx.scale(1 + hit * 0.07, 1 + hit * 0.07);
   }
 
-  glowCircle(ctx, e.radius * (e.isBoss ? 1.8 : 1.25), color, e.isBoss ? 0.22 : 0.10);
+  const artKey: ArtKey = e.isBoss
+    ? 'boss'
+    : e.type === 'fast'
+      ? 'enemy-fast'
+      : e.type === 'tank'
+        ? 'enemy-tank'
+        : e.shape === 'triangle'
+          ? 'enemy-moth'
+          : 'enemy-skitter';
 
-  if (e.isBoss) {
+  glowCircle(ctx, e.radius * (e.isBoss ? 1.55 : 1.10), color, e.isBoss ? 0.16 : 0.065);
+
+  const spriteSize = e.isBoss ? e.radius * 3.45 : e.radius * 2.85;
+  const spriteDrawn = drawReferenceSprite(ctx, artKey, 0, e.isBoss ? -e.radius * 0.06 : 0, spriteSize, color, 0, 1);
+  if (spriteDrawn) {
+    // Keep gameplay state readable without putting UI geometry over the illustration.
+    if (e.isElite) {
+      ctx.strokeStyle = 'rgba(216,121,255,.62)';
+      ctx.lineWidth = 1.2;
+      ctx.setLineDash([4, 6]);
+      ctx.beginPath(); ctx.arc(0, 0, e.radius + 8, 0, Math.PI * 2); ctx.stroke();
+      ctx.setLineDash([]);
+    }
+  } else if (e.isBoss) {
     drawModernBossBody(ctx, e, color, t);
   } else if (e.type === 'fast') {
     drawVoidMantis(ctx, e.radius, color, t);
