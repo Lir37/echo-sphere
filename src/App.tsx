@@ -15,6 +15,7 @@ import {
   MAP_THEMES, type MapTheme,
 } from './engine';
 import { render } from './renderer';
+import { createEcho3DRenderer, type Echo3DRenderer } from './visual3d';
 import { ARTIFACT_META, RARITY_LABELS, artifactRarity, getActiveArtifactSynergies, getArtifactSynergiesAfterPick, ARTIFACT_SYNERGIES } from './artifactSystem';
 import { resolveSpaceCollisions } from './spaceCollision';
 import {
@@ -175,6 +176,7 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
   lang: Lang; t: (k: TranslationKey) => string; shop: ShopState; difficulty: Difficulty; mapTheme: MapTheme; handedness: Handedness; onExit: () => void;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const renderer3dRef = useRef<Echo3DRenderer | null>(null);
   const stateRef = useRef<GameState | null>(null);
   const rafRef = useRef<number>(0);
   const lastTimeRef = useRef<number>(0);
@@ -187,7 +189,12 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
     const name = loadName() || translations[lang].namePlaceholder;
     const s = createInitialState(shop, name, difficulty, mapTheme);
     stateRef.current = s;
+
+    const canvas = canvasRef.current;
+    if (canvas) renderer3dRef.current = createEcho3DRenderer(canvas);
+
     lastTimeRef.current = performance.now();
+
     const loop = (now: number) => {
       const dt = Math.min(0.05, (now - lastTimeRef.current) / 1000);
       lastTimeRef.current = now;
@@ -195,6 +202,7 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
       if (st) {
         update(st, dt);
         resolveSpaceCollisions(st, dt);
+
         if (st.gameOver && !gameOverData) {
           const time = Math.floor(st.time);
           const diff = DIFFICULTIES.find(d => d.id === st.difficulty)!;
@@ -202,7 +210,6 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
           saveGold(loadGold() + gold);
           const entry: LeaderEntry = { name: name || 'Player', time, wave: st.wave, date: Date.now() };
           const { rank, isNewRecord } = addLeaderEntry(entry);
-          // unlock achievements
           if (st.stats.enemiesKilled >= 500) unlockAchievement('kills_500');
           if (st.stats.enemiesKilled >= 1000) unlockAchievement('kills_1000');
           if (st.wave >= 30) unlockAchievement('wave_30');
@@ -217,17 +224,25 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
           if (st.player.dashCount >= 50) unlockAchievement('dash_50');
           setGameOverData({ time, wave: st.wave, gold, rank, isNewRecord });
         }
-        const canvas = canvasRef.current;
-        if (canvas) {
+
+        if (renderer3dRef.current) {
+          renderer3dRef.current.render(st);
+        } else if (canvas) {
           const ctx = canvas.getContext('2d');
           if (ctx) render(ctx, st, canvas.width, canvas.height);
         }
+
         forceRender(v => v + 1);
       }
       rafRef.current = requestAnimationFrame(loop);
     };
+
     rafRef.current = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(rafRef.current);
+    return () => {
+      cancelAnimationFrame(rafRef.current);
+      renderer3dRef.current?.dispose();
+      renderer3dRef.current = null;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
