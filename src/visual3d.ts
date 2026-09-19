@@ -258,74 +258,92 @@ export class Echo3DRenderer {
 
   private drawPlayer(s:GameState,t:number,vp:Float32Array){
     const p=s.player.pos;
-    const pulse=1+Math.sin(t*3.15)*0.032;
+    const playerAsset=this.modelAssets.get('player');
+    const moving=Math.hypot(s.player.dashDir.x,s.player.dashDir.y)>0.01 || s.player.dashTimer>0;
+    const dash=s.player.dashTimer>0;
+    const pulse=1+Math.sin(t*3.15)*0.025;
+    const bob=21+Math.sin(t*2.7)*1.15+(moving?Math.sin(t*10)*0.8:0);
     const size=25*pulse;
-    const bob=21+Math.sin(t*2.7)*1.15;
-    const base=mat4Translate(p.x,bob,p.y);
 
-    // Primary silhouette: a faceted reactor body with a tapered, machined profile.
-    const shell=mat4Multiply(
-      base,
-      mat4Multiply(mat4RotateY(t*.11),mat4Scale(size*.64,size*.72,size*.64))
+    // The GLB is the actual hero body. The procedural geometry below is only the
+    // containment hardware and energy system around it, so the player no longer
+    // reads as a stack of primitive spheres.
+    if(playerAsset){
+      const bodyScale=size*(dash?1.10:1.0);
+      const body=mat4Multiply(
+        mat4Translate(p.x,bob,p.y),
+        mat4Multiply(
+          mat4RotateY(t*.10),
+          mat4Scale(bodyScale,bodyScale,bodyScale)
+        )
+      );
+      const bodyColor=s.player.mutationStage>=3?'#102b3d':'#071522';
+      const bodyGlow=s.player.mutationStage>=3?'#9a6dff':'#73eaff';
+      this.drawModel(playerAsset,body,vp,bodyColor,bodyGlow,1);
+    }else{
+      const shell=mat4Multiply(
+        mat4Translate(p.x,bob,p.y),
+        mat4Multiply(mat4RotateY(t*.11),mat4Scale(size*.64,size*.72,size*.64))
+      );
+      this.drawModel(this.reactorShellMesh,shell,vp,'#071a29','#2b9fc8',.78);
+
+      const inner=mat4Multiply(
+        mat4Translate(p.x,bob,p.y),
+        mat4Multiply(mat4RotateY(-t*.18),mat4Scale(size*.49,size*.57,size*.49))
+      );
+      this.drawModel(this.reactorShellMesh,inner,vp,'#03101b','#0c5d83',.92);
+
+      const core=mat4Multiply(
+        mat4Translate(p.x,bob,p.y),
+        mat4Multiply(mat4RotateY(t*.34),mat4Scale(size*.285,size*.34,size*.285))
+      );
+      this.drawModel(this.facetCoreMesh,core,vp,'#bfefff','#ffffff',1);
+    }
+
+    // Hot reactor core remains visually separate from the shell and is now framed
+    // by the imported hero mesh.
+    const coreGlow=mat4Multiply(
+      mat4Translate(p.x,bob,p.y),
+      mat4Scale(size*.36,size*.41,size*.36)
     );
-    this.drawModel(this.reactorShellMesh,shell,vp,'#071a29','#2b9fc8',.78);
-
-    // Dark inset volume gives the shell actual depth instead of a flat outer glow.
-    const inner=mat4Multiply(
-      base,
-      mat4Multiply(mat4RotateY(-t*.18),mat4Scale(size*.49,size*.57,size*.49))
+    this.drawModel(this.sphereMesh,coreGlow,vp,
+      s.player.mutationStage>=3?'#32145f':'#0b5d87',
+      s.player.mutationStage>=3?'#d39aff':'#51ddff',
+      dash?0.28:0.18
     );
-    this.drawModel(this.reactorShellMesh,inner,vp,'#03101b','#0c5d83',.92);
 
-    // Faceted luminous nucleus. Two nested volumes create a hot center and a cooler energy envelope.
-    const core=mat4Multiply(
-      base,
-      mat4Multiply(mat4RotateY(t*.34),mat4Scale(size*.285,size*.34,size*.285))
-    );
-    this.drawModel(this.facetCoreMesh,core,vp,'#bfefff','#ffffff',1);
-
-    const coreGlow=mat4Multiply(base,mat4Scale(size*.39,size*.44,size*.39));
-    this.drawModel(this.sphereMesh,coreGlow,vp,'#0b5d87','#51ddff',.19);
-
-    // Machined collar rings lock the central body to the containment frame.
-    // A second, slightly wider set creates visible stepped geometry at the shell joints.
+    // Machined collar rings lock the body to the containment frame.
     const collarR=size*.60;
     for(const [tilt,rot] of [[0,t*.34],[90*DEG,-t*.28]] as Array<[number,number]>){
       const collar=mat4Multiply(
-        mat4Multiply(base,mat4Multiply(mat4RotateX(tilt),mat4RotateY(rot))),
+        mat4Multiply(
+          mat4Translate(p.x,bob,p.y),
+          mat4Multiply(mat4RotateX(tilt),mat4RotateY(rot))
+        ),
         mat4Scale(size*.66,size*.66,size*.66)
       );
       this.drawModel(this.torusMesh,collar,vp,'#173e52','#62dfff',.55);
     }
-    for(const [ang,tilt,scale] of [
-      [t*.52,68*DEG,1.0],[-t*.43,-68*DEG,1.0],[t*.27,18*DEG,.88]
-    ] as Array<[number,number,number]>){
-      const m=mat4Multiply(
-        mat4Multiply(base,mat4Multiply(mat4RotateX(tilt),mat4RotateY(ang))),
-        mat4Scale(collarR*scale,collarR*scale,collarR*scale)
-      );
-      this.drawModel(this.fineTorusMesh,m,vp,'#63c9e8','#b8f5ff',.62);
-    }
 
-    // Three independent orbital bands form the recognizable outer cage.
-    // The slight radius offset between layers prevents the silhouette from collapsing into one ring.
+    // Three independently rotating containment bands create the characteristic
+    // sci-fi silhouette seen in the reference.
     const cageR=size*.82;
     const rings=[
-      mat4Multiply(base,mat4RotateY(t*.62)),
-      mat4Multiply(base,mat4Multiply(mat4RotateX(61*DEG),mat4RotateY(-t*.47))),
-      mat4Multiply(base,mat4Multiply(mat4RotateZ(61*DEG),mat4RotateY(t*.31)))
+      mat4Multiply(mat4Translate(p.x,bob,p.y),mat4RotateY(t*.62)),
+      mat4Multiply(mat4Translate(p.x,bob,p.y),mat4Multiply(mat4RotateX(61*DEG),mat4RotateY(-t*.47))),
+      mat4Multiply(mat4Translate(p.x,bob,p.y),mat4Multiply(mat4RotateZ(61*DEG),mat4RotateY(t*.31)))
     ];
     for(const r of rings){
       this.drawModel(
         this.fineTorusMesh,
         mat4Multiply(r,mat4Scale(cageR,cageR,cageR)),
-        vp,'#b7efff','#efffff',.94
+        vp,'#b7efff','#efffff',dash?1:0.94
       );
     }
 
-    // Six structural emitters sit at the cage poles. They are volumetric, not sprites.
+    // Structural emitters are individual 3D nodes, not particles/sprites.
     const nodeR=cageR*1.015;
-    const nodeSize=size*.064;
+    const nodeSize=size*.064*(dash?1.18:1);
     const nodes=[
       [ nodeR,0,0],[-nodeR,0,0],
       [0, nodeR*Math.cos(61*DEG), nodeR*Math.sin(61*DEG)],
@@ -338,35 +356,45 @@ export class Echo3DRenderer {
         mat4Translate(p.x+nx,bob+ny,p.y+nz),
         mat4Scale(nodeSize*(i%2?0.9:1.08),nodeSize,nodeSize*(i%2?0.9:1.08))
       );
-      this.drawModel(this.facetCoreMesh,nm,vp,'#d9fbff','#ffffff',.98);
+      this.drawModel(this.facetCoreMesh,nm,vp,
+        s.player.mutationStage>=3?'#e2d6ff':'#d9fbff',
+        s.player.mutationStage>=3?'#c88cff':'#ffffff',.98);
     }
 
-    // Short structural struts connect the cage to the body. They are deliberately thin,
-    // so the silhouette stays elegant rather than becoming a robotic ball.
+    // Thin struts make the frame physically believable and visually connected.
     const strutR=size*.037;
     const strutL=cageR*.72;
     const struts=[
-      mat4Multiply(base,mat4RotateZ(90*DEG)),
-      mat4Multiply(base,mat4RotateX(90*DEG)),
-      mat4Multiply(base,mat4Multiply(mat4RotateX(61*DEG),mat4RotateY(t*.31)))
+      mat4Multiply(mat4Translate(p.x,bob,p.y),mat4RotateZ(90*DEG)),
+      mat4Multiply(mat4Translate(p.x,bob,p.y),mat4RotateX(90*DEG)),
+      mat4Multiply(
+        mat4Translate(p.x,bob,p.y),
+        mat4Multiply(mat4RotateX(61*DEG),mat4RotateY(t*.31))
+      )
     ];
     for(const r of struts){
-      const m=mat4Multiply(r,mat4Scale(strutR,strutL,strutR));
-      this.drawModel(this.cylinderMesh,m,vp,'#2b7796','#9ceeff',.72);
+      this.drawModel(
+        this.cylinderMesh,
+        mat4Multiply(r,mat4Scale(strutR,strutL,strutR)),
+        vp,'#2b7796','#9ceeff',.72
+      );
     }
 
-    // Small rotating energy filaments add motion at close range.
+    // Animated energy filaments and caps provide the final manufactured detail.
     const filamentR=size*.70;
     for(let i=0;i<3;i++){
       const a=t*(1.1+i*.21)+i*Math.PI*2/3;
       const fm=mat4Multiply(
-        mat4Translate(p.x+Math.cos(a)*filamentR,bob+Math.sin(a*1.7)*size*.12,p.y+Math.sin(a)*filamentR),
+        mat4Translate(
+          p.x+Math.cos(a)*filamentR,
+          bob+Math.sin(a*1.7)*size*.12,
+          p.y+Math.sin(a)*filamentR
+        ),
         mat4Scale(size*.026,size*.026,size*.13)
       );
       this.drawModel(this.facetCoreMesh,fm,vp,'#7ee9ff','#dfffff',.8);
     }
 
-    // A small top and bottom cap make the reactor read as a manufactured artifact.
     for(const y of [-1,1]){
       const cap=mat4Multiply(
         mat4Translate(p.x,bob+y*size*.67,p.y),
@@ -375,13 +403,21 @@ export class Echo3DRenderer {
       this.drawModel(this.facetCoreMesh,cap,vp,'#12394d','#54dfff',.8);
     }
 
-    // External energy field and the separate ground halo complete the presentation.
+    // Dash state gets a stronger energy shell without changing gameplay geometry.
+    if(dash){
+      const dashRing=mat4Multiply(
+        mat4Translate(p.x,bob,p.y),
+        mat4Multiply(mat4RotateZ(t*2.4),mat4Scale(size*1.02,size*1.02,size*1.02))
+      );
+      this.drawModel(this.torusMesh,dashRing,vp,'#d5faff','#ffffff',.70);
+    }
+
     const outer=mat4Multiply(
-      base,
+      mat4Translate(p.x,bob,p.y),
       mat4Multiply(mat4RotateX(34*DEG),mat4Scale(size*.94,size*.94,size*.94))
     );
-    this.drawModel(this.fineTorusMesh,outer,vp,'#3aafdc','#77eaff',.20);
-    this.drawRing(p.x,p.y,size*1.06,t*.45,'#52ddff',t,vp,.18);
+    this.drawModel(this.fineTorusMesh,outer,vp,'#3aafdc','#77eaff',dash?.34:.20);
+    this.drawRing(p.x,p.y,size*(dash?1.16:1.06),t*.45,'#52ddff',t,vp,dash?.28:.18);
   }
 
   private drawSphere(s:SphereEntity,t:number,vp:Float32Array,cx:number,cy:number){
