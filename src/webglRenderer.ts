@@ -175,9 +175,18 @@ export function createRealtime3DRenderer(canvas:HTMLCanvasElement):Realtime3DRen
         segment(p3x*.5+p2x*.5,p3z*.5+p2z*.5,y+r*.23,Math.hypot(p3x-p2x,p3z-p2z),r*.055*scale,Math.atan2(p3z-p2z,p3x-p2x),legColor,.08);
         draw(m.sphere,model(p2x,y+r*.28,p2z,0,0,0,r*.09*scale,r*.07*scale,r*.09*scale),color,.22,.9);
       }
+      // Antennae and articulated mandibles make the silhouette read as an insect rather than primitives.
       for(const side of [-1,1]){
         const a=phase*.1+side*.38;
         segment(x+Math.cos(a)*r*.66*scale,z+Math.sin(a)*r*.66*scale,y+r*.83,r*.34*scale,r*.07*scale,a,legColor,.15);
+        const jawA=phase*.08+side*.42;
+        segment(x+Math.cos(jawA)*r*.73*scale,z+Math.sin(jawA)*r*.73*scale,y+r*.58,r*.25*scale,r*.065*scale,jawA,color,.24);
+        draw(m.cone,model(x+Math.cos(jawA)*r*.92*scale,y+r*.55,z+Math.sin(jawA)*r*.92*scale,Math.PI/2,jawA,0,r*.07*scale,r*.22*scale,r*.07*scale),color,.4,.92);
+      }
+      // Small dorsal plates give the abdomen a segmented mechanical shell.
+      for(let i=0;i<3;i++){
+        const q=i/3;
+        draw(m.torus,model(x-r*.18*scale*q,y+r*(.28+.16*q),z,.18,phase*.12,0,r*(.56-.08*i)*scale,r*.045*scale,r*(.56-.08*i)*scale),shell,.16,.7);
       }
     };
     const bossSpider=(x:number,z:number,r:number,color:string,t:number,bossType:string)=>{
@@ -286,9 +295,11 @@ export function createRealtime3DRenderer(canvas:HTMLCanvasElement):Realtime3DRen
       const bob=Math.sin(t*4+x*.01+z*.007)*r*.035;
       if(e.type==='fast'){
         insect(x,z,r*.04+bob,r*.82,e.color,t,4,0.82);
+        // Transparent insectoid wings with a hard leading edge.
         for(const side of [-1,1]){
-          const a=f+side*.62;
-          draw(m.sphere,model(x+Math.cos(a)*r*.62,r*.86+bob,z+Math.sin(a)*r*.62,0,a,0,r*.72,r*.045,r*.34),e.color,.45,.45);
+          const a=f+side*.68+Math.sin(t*7+side)*.05;
+          draw(m.sphere,model(x+Math.cos(a)*r*.78,r*.96+bob,z+Math.sin(a)*r*.78,0,a,0,r*.82,r*.035,r*.30),e.color,.38,.30);
+          draw(m.cyl,model(x+Math.cos(a)*r*.72,r*1.01+bob,z+Math.sin(a)*r*.72,0,a,0,r*.035,r*.78,r*.035),'#8ca8c2',.18,.72);
         }
       }else if(e.type==='tank'){
         insect(x,z,r*.03+bob,r*1.12,e.color,t,6,1.15);
@@ -317,8 +328,17 @@ export function createRealtime3DRenderer(canvas:HTMLCanvasElement):Realtime3DRen
         }
         for(const e of state.enemies)if(e.hp>0)enemyDraw(e,t);
         const p0=state.player,x=p0.pos.x-state.camera.x,z=p0.pos.y-state.camera.y,bob=Math.sin(t*3)*1.5,pr=PLAYER_RADIUS;
-        draw(m.sphere,model(x,pr*.48+bob,z,0,t*.08,0,pr*.78,pr*.5,pr*.78),'#07101a',.4,.98);
-        core(x,z,pr*.92+bob,pr*.36,'#63e6ff');ring(x,z,pr*.88+bob,pr*1.2,'#63e6ff',t*.5);ring(x,z,pr*1.02+bob,pr,'#b06dff',-t*.35);
+        // Central ECHO core: armored shell, floating reactor, fins and a rotating halo.
+        draw(m.cyl,model(x,pr*.16+bob,z,0,t*.2,0,pr*.94,pr*.16,pr*.94),'#182c40',.18,.96);
+        draw(m.sphere,model(x,pr*.50+bob,z,0,t*.08,0,pr*.78,pr*.5,pr*.78),'#07101a',.55,.99);
+        draw(m.sphere,model(x,pr*.70+bob,z,0,-t*.12,0,pr*.50,pr*.32,pr*.50),'#10263a',.22,.98);
+        core(x,z,pr*.92+bob,pr*.36,'#63e6ff');
+        for(let i=0;i<4;i++){
+          const a=t*.35+i*Math.PI/2;
+          draw(m.cone,model(x+Math.cos(a)*pr*.72,pr*.64+bob,z+Math.sin(a)*pr*.72,Math.PI/2,a,0,pr*.09,pr*.34,pr*.09),'#7deaff',.55,.92);
+        }
+        ring(x,z,pr*.88+bob,pr*1.2,'#63e6ff',t*.5);
+        ring(x,z,pr*1.02+bob,pr,'#b06dff',-t*.35);
       },
       dispose(){gl.getExtension('WEBGL_lose_context')?.loseContext();}
     };
