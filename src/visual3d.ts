@@ -504,7 +504,7 @@ export class Echo3DRenderer {
     // We reproduce that as actual 3D struts, not flat decals or sprites.
     const cageR=base*(.73+tier*.045);
     const phi=(1+Math.sqrt(5))/2;
-    const raw:Vec3=[
+    const raw:Vec3[]=[
       [-1, phi,0],[1,phi,0],[-1,-phi,0],[1,-phi,0],
       [0,-1,phi],[0,1,phi],[0,-1,-phi],[0,1,-phi],
       [phi,0,-1],[phi,0,1],[-phi,0,-1],[-phi,0,1]
@@ -570,7 +570,7 @@ export class Echo3DRenderer {
       const crossR=cageR*1.13;
       this.drawModel(
         this.fineTorusMesh,
-        mat4Multiply(mat4Translate(...origin),mat4Multiply(mat4RotateX(58*DEG),mat4RotateY(rot*.41)),mat4Scale(crossR,crossR,crossR)),
+        mat4Multiply(mat4Translate(...origin),mat4Multiply(mat4Multiply(mat4RotateX(58*DEG),mat4RotateY(rot*.41)),mat4Scale(crossR,crossR,crossR))),
         vp,def.accent,'#ffffff',.62
       );
     }
