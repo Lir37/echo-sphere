@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { GameState, SphereEntity, SphereProjectile, EnemyEntity, Particle, LightningBolt, MinionEntity } from './engine';
 import type { SphereType } from './gameData';
 
