@@ -411,6 +411,7 @@ export class Echo3DRenderer {
   private arenaRingBuffer: WebGLBuffer | null = null;
   private arenaGridCount = 0;
   private arenaRingCount = 0;
+  private currentGlow = 1.0;
 
   constructor(private canvas: HTMLCanvasElement) {
     const gl = (canvas.getContext('webgl2', { alpha: false, antialias: true, powerPreference: 'high-performance' })
@@ -654,7 +655,7 @@ export class Echo3DRenderer {
   private drawPlayer(s: GameState, vp: Mat4, t: number) {
     const pulse = 1 + 0.06 * Math.sin(t * 4);
     const tilt = Math.sin(t * 2.2) * 0.035;
-    this.drawAsset('player_core', s.player.pos.x, 0, s.player.pos.y, 19.0 * pulse, vp, t, 'player', t * 0.3 + tilt);
+    this.drawAsset('player_core', s.player.pos.x, 0, s.player.pos.y, 25.0 * pulse, vp, t, 'player', t * 0.3 + tilt);
   }
 
   private drawMinion(m: MinionEntity, vp: Mat4, t: number) {
@@ -671,7 +672,7 @@ export class Echo3DRenderer {
     this.drawAsset(name, x, 0, z, Math.max(0.28, size / 5.5), vp, t, 'fx', t * 2);
   }
 
-  private drawAsset(name: string, x: number, y: number, z: number, scale: number, vp: Mat4, t: number, _tag: string, angle = 0) {
+  private drawAsset(name: string, x: number, y: number, z: number, scale: number, vp: Mat4, t: number, tag: string, angle = 0) {
     const a = this.assets.get(name);
     if (!a) { void this.load(name); return; }
     const root = mul(tr(x, y, z), mul(ry(angle), sc(scale, scale, scale)));
@@ -749,7 +750,7 @@ export class Echo3DRenderer {
       g.uniform3f(g.getUniformLocation(this.program, 'u_camera'), this.cameraPos.x, this.cameraPos.y, this.cameraPos.z);
       g.uniform1f(g.getUniformLocation(this.program, 'u_time'), t);
       g.uniform1f(g.getUniformLocation(this.program, 'u_alpha'), m.alpha);
-      g.uniform1f(g.getUniformLocation(this.program, 'u_glow'), 1.28);
+      g.uniform1f(g.getUniformLocation(this.program, 'u_glow'), this.currentGlow);
       g.uniform1f(g.getUniformLocation(this.program, 'u_metallic'), m.metallic);
       g.uniform1f(g.getUniformLocation(this.program, 'u_roughness'), Math.max(0.04, m.roughness));
 
