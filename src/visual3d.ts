@@ -450,11 +450,17 @@ export class Echo3DRenderer {
     const g = this.gl;
     g.bindTexture(g.TEXTURE_2D, tex);
     g.pixelStorei(g.UNPACK_FLIP_Y_WEBGL, 0);
-    g.texParameteri(g.TEXTURE_2D, g.TEXTURE_MIN_FILTER, g.LINEAR);
+    const isPOT = (value: number) => value > 0 && (value & (value - 1)) === 0;
     g.texParameteri(g.TEXTURE_2D, g.TEXTURE_MAG_FILTER, g.LINEAR);
     g.texParameteri(g.TEXTURE_2D, g.TEXTURE_WRAP_S, g.REPEAT);
     g.texParameteri(g.TEXTURE_2D, g.TEXTURE_WRAP_T, g.REPEAT);
     g.texImage2D(g.TEXTURE_2D, 0, g.RGBA, g.RGBA, g.UNSIGNED_BYTE, bitmap);
+    if (isPOT(bitmap.width) && isPOT(bitmap.height)) {
+      g.generateMipmap(g.TEXTURE_2D);
+      g.texParameteri(g.TEXTURE_2D, g.TEXTURE_MIN_FILTER, g.LINEAR_MIPMAP_LINEAR);
+    } else {
+      g.texParameteri(g.TEXTURE_2D, g.TEXTURE_MIN_FILTER, g.LINEAR);
+    }
     bitmap.close();
     return tex;
   }
