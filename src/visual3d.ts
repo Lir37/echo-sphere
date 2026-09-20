@@ -407,7 +407,10 @@ export class Echo3DRenderer {
   private height = 1;
   private cameraPos: V3 = { x: 0, y: 500, z: 500 };
   private renderStats = { frame: 0, drawCalls: 0, triangles: 0, visibleEntities: 0 };
-  private arenaGridBuffer: WebGLBuffer | null = null;\n  private arenaRingBuffer: WebGLBuffer | null = null;\n  private arenaGridCount = 0;\n  private arenaRingCount = 0;
+  private arenaGridBuffer: WebGLBuffer | null = null;
+  private arenaRingBuffer: WebGLBuffer | null = null;
+  private arenaGridCount = 0;
+  private arenaRingCount = 0;
 
   constructor(private canvas: HTMLCanvasElement) {
     const gl = (canvas.getContext('webgl2', { alpha: false, antialias: true, powerPreference: 'high-performance' })
@@ -641,7 +644,8 @@ export class Echo3DRenderer {
         : e.shape === 'square' ? 'enemy_slime' : 'enemy_worker');
     const bob = e.type === 'fast' ? Math.sin(t * 7 + e.pos.x * 0.01) * 0.08 : Math.sin(t * 3 + e.pos.y * 0.01) * 0.025;
     const bossPulse = e.isBoss ? 1 + 0.045 * Math.sin(t * 2.6) : 1;
-    // Enemies keep a stable authored orientation. They move, bob, recoil and animate through VFX, but do not spin like rigid turntables.\n    this.drawAsset(n, e.pos.x, bob, e.pos.y, Math.max(7.5, e.radius / 1.05) * (e.isBoss ? 1.55 : 1) * bossPulse, vp, t, 'enemy', 0);
+    // Enemies keep a stable authored orientation. They move, bob, recoil and animate through VFX, but do not spin like rigid turntables.
+    this.drawAsset(n, e.pos.x, bob, e.pos.y, Math.max(7.5, e.radius / 1.05) * (e.isBoss ? 1.55 : 1) * bossPulse, vp, t, 'enemy', 0);
   }
 
   private drawPlayer(s: GameState, vp: Mat4, t: number) {
