@@ -640,7 +640,7 @@ export class Echo3DRenderer {
         : e.shape === 'square' ? 'enemy_slime' : 'enemy_worker');
     const bob = e.type === 'fast' ? Math.sin(t * 7 + e.pos.x * 0.01) * 0.08 : Math.sin(t * 3 + e.pos.y * 0.01) * 0.025;
     const bossPulse = e.isBoss ? 1 + 0.045 * Math.sin(t * 2.6) : 1;
-    this.drawAsset(n, e.pos.x, bob, e.pos.y, Math.max(7.5, e.radius / 1.05) * (e.isBoss ? 1.55 : 1) * bossPulse, vp, t, 'enemy', e.rotation);
+    // Enemies keep a stable authored orientation. They move, bob, recoil and animate through VFX, but do not spin like rigid turntables.\n    this.drawAsset(n, e.pos.x, bob, e.pos.y, Math.max(7.5, e.radius / 1.05) * (e.isBoss ? 1.55 : 1) * bossPulse, vp, t, 'enemy', 0);
   }
 
   private drawPlayer(s: GameState, vp: Mat4, t: number) {
