@@ -17,7 +17,7 @@ test('capture the actual rendered game after pressing Play', async ({ page }, te
     );
   });
 
-  await page.goto('http://127.0.0.1:4173/', { waitUntil: 'networkidle' });
+  await page.goto('/', { waitUntil: 'networkidle' });
 
   const playButton = page.getByRole('button', { name: /Играть|Play|START RUN/i }).first();
   await expect(playButton).toBeVisible();
