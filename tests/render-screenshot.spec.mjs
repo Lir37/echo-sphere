@@ -14,7 +14,7 @@ test('capture the actual rendered game after pressing Play', async ({ page }, te
 
   // CI runs with an English browser locale, but support both translations so
   // the test follows the real UI rather than bypassing the menu.
-  const playButton = page.getByRole('button', { name: /^(Play|Играть)$/i }).first();
+  const playButton = page.getByRole('button', { name: /Играть|Play|START RUN/i }).first();
   await expect(playButton).toBeVisible();
   await playButton.click();
 
