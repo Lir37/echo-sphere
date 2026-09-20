@@ -260,7 +260,7 @@ def save(name, parts):
 # ---------------------------------------------------------------------------
 
 def sphere_asset(name, base, glow, tier, family_seed):
-    shell = pbr("Shell", (0.015, 0.035, 0.07), glow, 0.92, max(0.12, 0.27 - tier * 0.018), seed=family_seed)
+    shell = pbr("Shell", (0.008, 0.025, 0.065), glow, 0.88, max(0.10, 0.22 - tier * 0.014), 0.72, seed=family_seed)
     core = pbr("Core", base, glow, 0.35, 0.08, seed=family_seed + 1)
     metal = pbr("Frame", tuple(min(1.0, x * 0.75) for x in glow), glow, 0.9, 0.16, seed=family_seed + 2)
 
@@ -269,11 +269,41 @@ def sphere_asset(name, base, glow, tier, family_seed):
         ico("Housing", 0.96 + tier * 0.035, shell, (1.0, 0.88, 0.94), 4),
     ]
 
+    # The reference sphere is a luminous geodesic device, not a solid ball.
+    # Build orthogonal and diagonal orbital frames so every tier has a recognisable
+    # silhouette and tier VII reads as the fully evolved version.
     ring_count = 1 if tier == 1 else 2 if tier <= 3 else 3 if tier <= 5 else 4
+    ring_radius = 1.00 + tier * 0.018
     for i in range(ring_count):
-        r = 0.70 + i * 0.16
-        rot = (math.pi / 2, 0, 0) if i % 3 == 1 else (0, math.pi / 2, 0) if i % 3 == 2 else (0, 0, 0)
-        parts.append(torus(f"Ring_{i}", r, 0.035 + tier * 0.005, metal, rot))
+        r = ring_radius + (i - (ring_count - 1) * 0.5) * 0.11
+        rot = (
+            (0, 0, 0),
+            (math.pi / 2, 0, 0),
+            (0, math.pi / 2, 0),
+            (math.pi / 4, math.pi / 4, 0),
+        )[i % 4]
+        parts.append(torus(f"Ring_{i}", r, 0.028 + tier * 0.004, metal, rot))
+
+    if tier >= 3:
+        diagonal_count = 2 if tier <= 5 else 4
+        for i in range(diagonal_count):
+            a = math.tau * i / diagonal_count
+            rot = (math.pi / 4, a, math.pi / 5)
+            parts.append(torus(f"Orbit_{i}", 1.08 + tier * 0.012, 0.020 + tier * 0.003, metal, rot))
+
+    if tier >= 5:
+        # Six radial energy struts visually connect the core to the cage.
+        for i in range(6):
+            a = math.tau * i / 6
+            parts.append(cone_between(
+                f"RadialStrut_{i}",
+                (0.30 * math.cos(a), 0.30 * math.sin(a), 0),
+                (1.05 * math.cos(a), 1.05 * math.sin(a), 0),
+                0.028 + tier * 0.003,
+                0.009,
+                metal,
+                12,
+            ))
 
     node_count = 2 + tier
     for i in range(node_count):
