@@ -262,10 +262,33 @@ def wing(name, center, length, width, material, rotation=(0, 0, 0)):
 
 
 def save(name, parts):
+    """Export a compact production GLB while preserving only parts that animate independently.
+
+    Most authored pieces are rigid and can share a draw call when they use the same
+    material. Legs/wings/rings/core are kept separate because the runtime animates them.
+    """
     scene = trimesh.Scene()
+    animated_tokens = ("Leg_", "Wing_", "Ring_", "VerticalRing", "Core", "VoidCore", "SingularityCore", "Mandible_")
+    static_groups: dict[int, list[trimesh.Trimesh]] = {}
+    static_names: dict[int, list[str]] = {}
+
     for index, part in enumerate(parts):
         node = part.metadata.get("name", f"Part_{index:02d}")
-        scene.add_geometry(part, node_name=node)
+        is_animated = any(token in node for token in animated_tokens)
+        if is_animated:
+            scene.add_geometry(part, node_name=node)
+            continue
+
+        material = getattr(getattr(part, "visual", None), "material", None)
+        key = id(material)
+        static_groups.setdefault(key, []).append(part)
+        static_names.setdefault(key, []).append(node)
+
+    for group_index, group in enumerate(static_groups.values()):
+        merged = trimesh.util.concatenate(group) if len(group) > 1 else group[0]
+        merged.metadata["name"] = f"Static_{group_index:02d}"
+        scene.add_geometry(merged, node_name=f"Static_{group_index:02d}")
+
     scene.export(OUT / f"{name}.glb", file_type="glb")
 
 
