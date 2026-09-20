@@ -55,27 +55,14 @@ jobs:
           cd android
           ./gradlew assembleDebug --no-daemon --stacktrace
 
-      - name: Install Playwright
-        run: |
-          npm install --no-save playwright@1.55.0
-          npx playwright install --with-deps chromium
+      - name: Install Playwright test runner
+        run: npm install --no-save @playwright/test@1.55.0
 
-      - name: Start preview server
-        run: |
-          npm run preview -- --host 0.0.0.0 > /tmp/echo-vite.log 2>&1 &
-          echo $! > /tmp/echo-vite.pid
-
-      - name: Wait for preview server
-        run: |
-          for i in {1..30}; do
-            if curl -fsS http://127.0.0.1:4173 >/dev/null; then exit 0; fi
-            sleep 1
-          done
-          cat /tmp/echo-vite.log
-          exit 1
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
 
       - name: Run visual smoke test
-        run: node scripts/playwright_smoke.mjs
+        run: npx playwright test tests/render-screenshot.spec.mjs
 
       - name: Upload visual screenshot
         uses: actions/upload-artifact@v4
