@@ -150,7 +150,7 @@ function tangentFromMesh(position: Float32Array, normal: Float32Array, uv: Float
 export class GLTFLoader {
   async load(url: string): Promise<GLBAsset> {
     const r = await fetch(url);
-    if (!r.ok) throw new Error(\`GLB \${url}: \${r.status}\`);
+    if (!r.ok) throw new Error(`GLB ${url}: ${r.status}`);
     return this.parse(await r.arrayBuffer());
   }
 
@@ -272,7 +272,7 @@ interface GPUAsset {
   gpu: GPUPrim[][];
 }
 
-const VERT = \`
+const VERT = `
 attribute vec3 a_position;
 attribute vec3 a_normal;
 attribute vec2 a_uv;
@@ -290,9 +290,9 @@ void main(){
   v_uv=a_uv;
   v_tangent=a_tangent;
   gl_Position=u_mvp*vec4(a_position,1.0);
-}\`;
+}`;
 
-const FRAG = \`
+const FRAG = `
 precision mediump float;
 uniform vec3 u_color;
 uniform vec3 u_emissive;
@@ -345,26 +345,26 @@ void main(){
   vec3 c=base.rgb*(.07+.93*ndl)*(1.0-metallic*.22)+vec3(spec)+e*(.28+2.9*fres)*pulse*u_glow;
   c+=e*fres*.28;
   gl_FragColor=vec4(c,base.a*u_alpha);
-}\`;
+}`;
 
-const LINE_V = \`
+const LINE_V = `
 attribute vec3 a_position;
 uniform mat4 u_mvp;
 void main(){gl_Position=u_mvp*vec4(a_position,1.0);}
-\`;
-const LINE_F = \`
+`;
+const LINE_F = `
 precision mediump float;
 uniform vec3 u_color;
 uniform float u_alpha;
 uniform float u_time;
 void main(){float p=.82+.18*sin(u_time*8.0+gl_FragCoord.x*.02);gl_FragColor=vec4(u_color*p,u_alpha);}
-\`;
-const POST_V = \`
+`;
+const POST_V = `
 attribute vec2 a_position;
 varying vec2 v_uv;
 void main(){v_uv=a_position*.5+.5;gl_Position=vec4(a_position,0,1);}
-\`;
-const POST_F = \`
+`;
+const POST_F = `
 precision mediump float;
 varying vec2 v_uv;
 uniform sampler2D u_scene;
@@ -380,7 +380,7 @@ void main(){
   float l=max(max(b.r,b.g),b.b);
   float k=smoothstep(.22,.7,l);
   gl_FragColor=vec4(c+b*k*1.15,1.0);
-}\`;
+}`;
 
 export class Echo3DRenderer {
   private gl: WebGLRenderingContext;
@@ -472,14 +472,14 @@ export class Echo3DRenderer {
       'boss_colony', 'boss_distortion', 'boss_singularity',
       'projectile_energy', 'projectile_fire',
       ...['standard', 'sniper', 'shotgun', 'chain', 'aura'].flatMap(t =>
-        Array.from({ length: 7 }, (_, i) => \`sphere_\${t}_t\${i + 1}\`)
+        Array.from({ length: 7 }, (_, i) => `sphere_${t}_t${i + 1}`)
       ),
     ];
     await Promise.all(names.map(async name => {
       try { await this.load(name); }
       catch (e) {
         const message = String(e);
-        this.loadErrors.push(\`\${name}: \${message}\`);
+        this.loadErrors.push(`${name}: ${message}`);
         console.warn('[Echo3D]', message);
       }
     }));
@@ -490,7 +490,7 @@ export class Echo3DRenderer {
     if (this.assets.has(name)) return;
     if (this.loading.has(name)) return this.loading.get(name)!;
 
-    const p = this.loader.load(\`\${ASSET_BASE}\${name}.glb\`).then(async asset => {
+    const p = this.loader.load(`${ASSET_BASE}${name}.glb`).then(async asset => {
       const textureCache = new Map<number, WebGLTexture>();
       const getTex = async (index: number | null) => {
         if (index === null) return null;
@@ -601,12 +601,12 @@ export class Echo3DRenderer {
   }
 
   private modelForSphere(type: SphereType, tier: number) {
-    return \`sphere_\${type}_t\${tier}\`;
+    return `sphere_${type}_t${tier}`;
   }
 
   private drawSphere(s: SphereEntity, vp: Mat4, t: number) {
     const tier = Math.max(1, Math.min(7, s.visualTier));
-    this.drawAsset(this.modelForSphere(s.type, tier), s.pos.x, 0, s.pos.y, Math.max(0.5, s.radius / 130), vp, t, \`sphere:\${tier}\`, s.rotation + t * 0.12);
+    this.drawAsset(this.modelForSphere(s.type, tier), s.pos.x, 0, s.pos.y, Math.max(0.5, s.radius / 130), vp, t, `sphere:${tier}`, s.rotation + t * 0.12);
   }
 
   private drawEnemy(e: EnemyEntity, vp: Mat4, t: number) {
