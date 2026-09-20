@@ -68,7 +68,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: echo-sphere-visual-smoke
-          path: artifacts/echo-sphere-play.png
+          path: test-results/echo-sphere-render.png
+          if-no-files-found: error
           if-no-files-found: error
 
       - name: Upload GLB validation report
