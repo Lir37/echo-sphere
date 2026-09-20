@@ -406,7 +406,8 @@ export class Echo3DRenderer {
   private width = 1;
   private height = 1;
   private cameraPos: V3 = { x: 0, y: 500, z: 500 };
-  private renderStats = { frame: 0, drawCalls: 0, triangles: 0, visibleEntities: 0 };\n  private arenaGridBuffer: WebGLBuffer | null = null;\n  private arenaRingBuffer: WebGLBuffer | null = null;\n  private arenaGridCount = 0;\n  private arenaRingCount = 0;
+  private renderStats = { frame: 0, drawCalls: 0, triangles: 0, visibleEntities: 0 };
+  private arenaGridBuffer: WebGLBuffer | null = null;\n  private arenaRingBuffer: WebGLBuffer | null = null;\n  private arenaGridCount = 0;\n  private arenaRingCount = 0;
 
   constructor(private canvas: HTMLCanvasElement) {
     const gl = (canvas.getContext('webgl2', { alpha: false, antialias: true, powerPreference: 'high-performance' })
