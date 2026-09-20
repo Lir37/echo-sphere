@@ -124,7 +124,7 @@ def cone_between(name, a, b, r1, r2, material, sections=20):
     b = np.asarray(b, dtype=np.float64)
     d = b - a
     length = float(np.linalg.norm(d))
-    mesh = trimesh.creation.conical_frustum(r1, r2, height=length, sections=sections)
+    mesh = trimesh.creation.cone(r1, height=length, sections=sections, radius2=r2)
     mesh.apply_translation((a + b) / 2.0)
     mesh.apply_transform(trimesh.geometry.align_vectors([0, 0, 1], d))
     mesh.metadata["name"] = name
