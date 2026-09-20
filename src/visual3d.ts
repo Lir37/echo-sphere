@@ -375,6 +375,10 @@ uniform sampler2D u_scene;
 uniform vec2 u_texel;
 void main(){
   vec3 c=texture2D(u_scene,v_uv).rgb;
+  float radial=1.0-distance(v_uv,vec2(0.5));
+  vec3 bg=vec3(0.0025,0.006,0.018)*(0.72+0.58*radial);
+  bg+=vec3(0.0,0.015,0.045)*smoothstep(0.0,1.0,radial);
+  c=max(c,bg);
   vec3 b=vec3(0.0);
   for(int i=-4;i<=4;i++){
     vec2 o=vec2(float(i))*u_texel*2.0;
@@ -559,8 +563,8 @@ export class Echo3DRenderer {
     const t = s.time;
     const p = s.player.pos;
     const aspect = this.width / Math.max(1, this.height);
-    const distance = Math.max(330, Math.min(600, Math.max(s.worldWidth, s.worldHeight) * 0.27));
-    this.cameraPos = { x: p.x, y: distance * 0.72, z: p.y + distance * 0.72 };
+    const distance = Math.max(285, Math.min(410, Math.max(s.worldWidth, s.worldHeight) * 0.17));
+    this.cameraPos = { x: p.x, y: distance * 0.78, z: p.y + distance * 0.78 };
     const vp = mul(
       persp(48 * DEG, aspect, 1, 2400),
       lookAt(this.cameraPos, { x: p.x, y: 0, z: p.y }, { x: 0, y: 1, z: 0 }),
@@ -569,7 +573,7 @@ export class Echo3DRenderer {
     const g = this.gl;
     g.bindFramebuffer(g.FRAMEBUFFER, this.sceneFb);
     g.viewport(0, 0, this.width, this.height);
-    g.clearColor(0.002, 0.004, 0.009, 1);
+    g.clearColor(0.004, 0.009, 0.024, 1);
     g.clear(g.COLOR_BUFFER_BIT | g.DEPTH_BUFFER_BIT);
     this.drawArena(vp, t, s.worldWidth, s.worldHeight);
     for (const sp of s.spheres) if (sp.alive) this.drawSphere(sp, vp, t);
@@ -613,7 +617,7 @@ export class Echo3DRenderer {
     const tier = Math.max(1, Math.min(7, s.visualTier));
     // Generated GLBs use Blender-style unit scale; gameplay radii are much larger world units.
     // Normalize the authored model to the same visual footprint as the legacy 2D sphere.
-    const visualScale = Math.max(15.5, s.radius / 4.7);
+    const visualScale = Math.max(24, s.radius / 3.35);
     this.drawAsset(this.modelForSphere(s.type, tier), s.pos.x, 0, s.pos.y, visualScale, vp, t, `sphere:${tier}`, s.rotation + t * 0.12);
   }
 
@@ -628,18 +632,18 @@ export class Echo3DRenderer {
         : e.shape === 'square' ? 'enemy_slime' : 'enemy_worker');
     const bob = e.type === 'fast' ? Math.sin(t * 7 + e.pos.x * 0.01) * 0.08 : Math.sin(t * 3 + e.pos.y * 0.01) * 0.025;
     const bossPulse = e.isBoss ? 1 + 0.045 * Math.sin(t * 2.6) : 1;
-    this.drawAsset(n, e.pos.x, bob, e.pos.y, Math.max(4.5, e.radius / 1.5) * (e.isBoss ? 1.65 : 1) * bossPulse, vp, t, 'enemy', e.rotation);
+    this.drawAsset(n, e.pos.x, bob, e.pos.y, Math.max(7.5, e.radius / 1.05) * (e.isBoss ? 1.55 : 1) * bossPulse, vp, t, 'enemy', e.rotation);
   }
 
   private drawPlayer(s: GameState, vp: Mat4, t: number) {
     const pulse = 1 + 0.06 * Math.sin(t * 4);
     const tilt = Math.sin(t * 2.2) * 0.035;
-    this.drawAsset('player_core', s.player.pos.x, 0, s.player.pos.y, 11.5 * pulse, vp, t, 'player', t * 0.3 + tilt);
+    this.drawAsset('player_core', s.player.pos.x, 0, s.player.pos.y, 19.0 * pulse, vp, t, 'player', t * 0.3 + tilt);
   }
 
   private drawMinion(m: MinionEntity, vp: Mat4, t: number) {
     const pulse = 0.46 + 0.035 * Math.sin(t * 5 + m.pos.x * 0.02);
-    this.drawAsset('player_core', m.pos.x, 0, m.pos.y, Math.max(6.0, m.radius / 1.7) * pulse, vp, t, 'minion', m.rotation + t);
+    this.drawAsset('player_core', m.pos.x, 0, m.pos.y, Math.max(8.0, m.radius / 1.45) * pulse, vp, t, 'minion', m.rotation + t);
   }
 
   private drawProjectile(p: SphereProjectile, vp: Mat4, t: number) {
