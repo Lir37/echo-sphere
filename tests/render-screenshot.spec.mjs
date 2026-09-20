@@ -13,11 +13,11 @@ test('capture the actual rendered game after pressing Play', async ({ page }, te
   const failedRequests = [];
   page.on('requestfailed', (request) => {
     failedRequests.push(
-      \`\${request.method()} \${request.url()} :: \${request.failure()?.errorText || 'failed'}\`,
+      request.method() + ' ' + request.url() + ' :: ' + (request.failure()?.errorText || 'failed'),
     );
   });
 
-  await page.goto('/', { waitUntil: 'networkidle' });
+  await page.goto('http://127.0.0.1:4173/', { waitUntil: 'networkidle' });
 
   const playButton = page.getByRole('button', { name: /Играть|Play|START RUN/i }).first();
   await expect(playButton).toBeVisible();
