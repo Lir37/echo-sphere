@@ -15,19 +15,19 @@ import trimesh
 ROOT = Path(__file__).resolve().parents[1] / "public" / "art3d"
 
 
-def role_threshold(path: Path) -> tuple[int, int]:
+def role_threshold(path: Path) -> tuple[int, int, int]:
     name = path.stem
     if name.startswith("boss_"):
-        return 15_000, 80_000
+        return 15_000, 80_000, 500_000
     if name.startswith("player_"):
-        return 10_000, 80_000
+        return 10_000, 80_000, 500_000
     if "_t7" in name:
-        return 6_000, 60_000
+        return 6_000, 60_000, 650_000
     if name.startswith("enemy_"):
-        return 3_000, 70_000
+        return 3_000, 70_000, 250_000
     if name.startswith("sphere_"):
-        return 1_500, 60_000
-    return 100, 30_000
+        return 1_500, 60_000, 300_000
+    return 100, 30_000, 40_000
 
 
 def validate(path: Path):
@@ -39,6 +39,8 @@ def validate(path: Path):
     triangles = 0
     materials = set()
     textured = 0
+    normal_textured = 0
+    mr_textured = 0
 
     for geom in scene.geometry.values():
         vertices += len(getattr(geom, "vertices", []))
@@ -48,8 +50,14 @@ def validate(path: Path):
             materials.add(getattr(material, "name", repr(material)))
             if getattr(material, "baseColorTexture", None) is not None:
                 textured += 1
+            if getattr(material, "normalTexture", None) is not None:
+                normal_textured += 1
+            if getattr(material, "metallicRoughnessTexture", None) is not None:
+                mr_textured += 1
 
-    min_tri, max_tri = role_threshold(path)
+    min_tri, max_tri, min_bytes = role_threshold(path)
+    if path.stat().st_size < min_bytes:
+        raise RuntimeError(f"suspiciously small GLB: {path.stat().st_size} bytes < {min_bytes}")
     if triangles < min_tri:
         raise RuntimeError(f"too few triangles: {triangles} < {min_tri}")
     if triangles > max_tri:
@@ -57,6 +65,12 @@ def validate(path: Path):
 
     if materials == set():
         raise RuntimeError("no material data")
+    if path.stem.startswith(("boss_", "player_", "sphere_")) and textured == 0:
+        raise RuntimeError("complex asset has no base-color texture")
+    if path.stem.startswith(("boss_", "player_", "sphere_")) and normal_textured == 0:
+        raise RuntimeError("complex asset has no normal texture")
+    if path.stem.startswith(("boss_", "player_", "sphere_")) and mr_textured == 0:
+        raise RuntimeError("complex asset has no metallic/roughness texture")
 
     return {
         "file": path.name,
@@ -65,6 +79,8 @@ def validate(path: Path):
         "triangles": triangles,
         "materials": len(materials),
         "textured_primitives": textured,
+        "normal_textured_primitives": normal_textured,
+        "mr_textured_primitives": mr_textured,
     }
 
 
@@ -98,7 +114,8 @@ def main() -> int:
         print(
             f'{row["file"]}: {row["triangles"]:,} tris, '
             f'{row["bytes"] / 1024:.0f} KiB, '
-            f'{row["materials"]} materials, {row["textured_primitives"]} textured'
+            f'{row["materials"]} materials, {row["textured_primitives"]} base, '
+            f'{row["normal_textured_primitives"]} normal, {row["mr_textured_primitives"]} MR'
         )
     return 0
 
