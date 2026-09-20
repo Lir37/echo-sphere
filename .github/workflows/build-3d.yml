@@ -70,7 +70,6 @@ jobs:
           name: echo-sphere-visual-smoke
           path: test-results/echo-sphere-render.png
           if-no-files-found: error
-          if-no-files-found: error
 
       - name: Upload GLB validation report
         uses: actions/upload-artifact@v4
