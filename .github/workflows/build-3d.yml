@@ -1,0 +1,41 @@
+name: Build 3D assets and app
+
+on:
+  push:
+    branches: ["main", "new-desing", "echo-3d-glb"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Generate offline GLB assets
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install trimesh numpy
+          python scripts/generate_art3d.py
+          test -f public/art3d/player_core.glb
+          test -f public/art3d/boss_singularity.glb
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run build
+      - name: Upload 3D assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: echo-sphere-art3d
+          path: public/art3d/*.glb
+          if-no-files-found: error
+      - name: Upload web build
+        uses: actions/upload-artifact@v4
+        with:
+          name: echo-sphere-web
+          path: dist
+          if-no-files-found: error
