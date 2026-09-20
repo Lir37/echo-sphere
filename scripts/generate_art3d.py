@@ -276,7 +276,7 @@ def save(name, parts):
 def sphere_asset(name, base, glow, tier, family_seed):
     shell = pbr("Shell", (0.008, 0.025, 0.065), glow, 0.72, max(0.06, 0.16 - tier * 0.014), 0.24, seed=family_seed)
     core = pbr("Core", base, glow, 0.35, 0.08, seed=family_seed + 1)
-    frame_glow = tuple(min(1.0, x * 0.34) for x in glow)
+    frame_glow = tuple(min(1.0, x * 0.16) for x in glow)
     metal = pbr("Frame", tuple(min(1.0, x * 0.62) for x in glow), frame_glow, 0.88, 0.18, seed=family_seed + 2)
 
     parts = [
@@ -288,7 +288,7 @@ def sphere_asset(name, base, glow, tier, family_seed):
     cage_subdivisions = 1
     cage_radius = 1.08 + tier * 0.07
     parts.extend(geodesic_cage("Cage", cage_radius, metal, cage_subdivisions,
-                               thickness=0.052 + tier * 0.004))
+                               thickness=0.082 + tier * 0.006))
 
     # The reference sphere is a luminous geodesic device, not a solid ball.
     # Build orthogonal and diagonal orbital frames so every tier has a recognisable
