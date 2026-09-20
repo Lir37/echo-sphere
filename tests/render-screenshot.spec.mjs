@@ -28,12 +28,13 @@ test('capture the actual rendered game after pressing Play', async ({ page }, te
   const canvas = page.locator('canvas').first();
   await expect(canvas).toBeVisible();
 
-  await page.waitForTimeout(25_000);
+  await page.waitForTimeout(7_000);
 
   const renderMetrics = await canvas.evaluate((element) => ({
     width: element.width,
     height: element.height,
     renderActive: element.width > 0 && element.height > 0,
+    stats: window.__ECHO3D_STATS || null,
   }));
 
   const assetErrors = await page.evaluate(
