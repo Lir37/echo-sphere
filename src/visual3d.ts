@@ -376,8 +376,8 @@ uniform vec2 u_texel;
 void main(){
   vec3 c=texture2D(u_scene,v_uv).rgb;
   float radial=1.0-distance(v_uv,vec2(0.5));
-  vec3 bg=vec3(0.0025,0.006,0.018)*(0.72+0.58*radial);
-  bg+=vec3(0.0,0.015,0.045)*smoothstep(0.0,1.0,radial);
+  vec3 bg=vec3(0.004,0.010,0.030)*(0.78+0.72*radial);
+  bg+=vec3(0.0,0.028,0.080)*smoothstep(0.0,1.0,radial);
   c=max(c,bg);
   vec3 b=vec3(0.0);
   for(int i=-4;i<=4;i++){
@@ -387,7 +387,7 @@ void main(){
   b/=9.0;
   float l=max(max(b.r,b.g),b.b);
   float k=smoothstep(.22,.7,l);
-  gl_FragColor=vec4(c+b*k*1.15,1.0);
+  gl_FragColor=vec4(c+b*k*1.55,1.0);
 }`;
 
 export class Echo3DRenderer {
@@ -625,7 +625,7 @@ export class Echo3DRenderer {
     const tier = Math.max(1, Math.min(7, s.visualTier));
     // Generated GLBs use Blender-style unit scale; gameplay radii are much larger world units.
     // Normalize the authored model to the same visual footprint as the legacy 2D sphere.
-    const visualScale = Math.max(24, s.radius / 3.35);
+    const visualScale = Math.max(21, s.radius / 4.65);
     this.drawAsset(this.modelForSphere(s.type, tier), s.pos.x, 0, s.pos.y, visualScale, vp, t, `sphere:${tier}`, s.rotation + t * 0.12);
   }
 
@@ -730,7 +730,7 @@ export class Echo3DRenderer {
       g.uniform3f(g.getUniformLocation(this.program, 'u_camera'), this.cameraPos.x, this.cameraPos.y, this.cameraPos.z);
       g.uniform1f(g.getUniformLocation(this.program, 'u_time'), t);
       g.uniform1f(g.getUniformLocation(this.program, 'u_alpha'), m.alpha);
-      g.uniform1f(g.getUniformLocation(this.program, 'u_glow'), 1.0);
+      g.uniform1f(g.getUniformLocation(this.program, 'u_glow'), 1.28);
       g.uniform1f(g.getUniformLocation(this.program, 'u_metallic'), m.metallic);
       g.uniform1f(g.getUniformLocation(this.program, 'u_roughness'), Math.max(0.04, m.roughness));
 
@@ -764,8 +764,8 @@ export class Echo3DRenderer {
 
   private drawArena(vp: Mat4, t: number, worldWidth: number, worldHeight: number) {
     const extent = Math.max(worldWidth, worldHeight, 1000);
-    for (let x = -extent; x <= extent; x += 80) this.line([x, -2.9, -extent], [x, -2.9, extent], vp, [0.03, 0.12, 0.18], 0.18, t);
-    for (let z = -extent; z <= extent; z += 80) this.line([-extent, -2.9, z], [extent, -2.9, z], vp, [0.03, 0.12, 0.18], 0.18, t);
+    for (let x = -extent; x <= extent; x += 80) this.line([x, -2.9, -extent], [x, -2.9, extent], vp, [0.03, 0.16, 0.28], 0.25, t);
+    for (let z = -extent; z <= extent; z += 80) this.line([-extent, -2.9, z], [extent, -2.9, z], vp, [0.03, 0.16, 0.28], 0.25, t);
 
     for (let r = 160; r <= Math.min(extent, 900); r += 160) {
       const points: number[] = [];
@@ -773,7 +773,7 @@ export class Echo3DRenderer {
         const a = i / 64 * Math.PI * 2;
         points.push(Math.cos(a) * r, -2.6, Math.sin(a) * r);
       }
-      this.polyline(points, vp, [0.08, 0.28, 0.45], 0.22 + 0.06 * Math.sin(t * 2 + r), t);
+      this.polyline(points, vp, [0.08, 0.34, 0.60], 0.30 + 0.08 * Math.sin(t * 2 + r), t);
     }
   }
 
