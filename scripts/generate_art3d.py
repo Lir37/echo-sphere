@@ -443,9 +443,17 @@ def insect_asset(name, kind, base, glow, scale, seed):
 
     parts = []
     body_scale = (1.25, 0.78, 0.95) if kind != "flyer" else (1.0, 0.7, 0.8)
-    parts.append(ico("Body", 0.78 * scale, chitin, body_scale, 4))
-    parts.append(ico("Core", 0.30 * scale, core, (1, 1, 1.2), 3))
-    parts.append(ico("Head", 0.44 * scale, dark, (1.0, 0.82, 0.78), 3))
+    # Insect silhouette: distinct thorax + abdomen + head. The worker/guard/flyer
+    # should read as a creature from a gameplay camera, not a spherical hub with
+    # spokes attached.
+    parts.append(ico("Thorax", 0.62 * scale, chitin, (1.18, 0.78, 0.86), 4))
+    abdomen = ico("Abdomen", 0.64 * scale, dark, (1.38, 0.72, 0.82), 4)
+    abdomen.apply_translation((-0.62 * scale, -0.01 * scale, 0.0))
+    parts.append(abdomen)
+    parts.append(ico("Core", 0.24 * scale, core, (1, 1, 1.25), 3))
+    head = ico("Head", 0.43 * scale, dark, (1.05, 0.80, 0.78), 3)
+    head.apply_translation((0.60 * scale, 0.05 * scale, 0.0))
+    parts.append(head)
 
     eye_count = 4 if kind in {"worker", "flyer"} else 6
     for i in range(eye_count):
@@ -453,16 +461,32 @@ def insect_asset(name, kind, base, glow, scale, seed):
         eye = ico(f"Eye_{i}", 0.07 * scale, core, 1)
         eye.apply_translation((0.35 * scale, 0.18 * scale, a * scale))
 
-    leg_count = 6 if kind in {"worker", "flyer"} else 8 if kind != "queen" else 10
-    for i in range(leg_count):
-        a = math.tau * i / leg_count
-        spread = 0.62 if leg_count <= 6 else 0.74
-        hip = (math.cos(a) * spread * scale, -0.04 * scale, math.sin(a) * spread * scale)
-        knee = (math.cos(a) * 1.08 * scale, -0.10 * scale + 0.08 * math.sin(a * 2), math.sin(a) * 1.08 * scale)
-        foot = (math.cos(a) * (1.70 if kind != "queen" else 2.05) * scale, -0.32 * scale, math.sin(a) * (1.70 if kind != "queen" else 2.05) * scale)
-        parts.append(cone_between(f"Leg_{i}_Upper", hip, knee, 0.12 * scale, 0.075 * scale, chitin, 18))
-        parts.append(cone_between(f"Leg_{i}_Lower", knee, foot, 0.075 * scale, 0.028 * scale, dark, 16))
-        parts.append(ico(f"Leg_{i}_Joint", 0.10 * scale, core, 2))
+    if kind in {"worker", "guard", "flyer"}:
+        # Six articulated insect legs, arranged as three bilateral pairs along the
+        # body. This is deliberately not a radial spider pose.
+        for pair, x in enumerate((0.42, 0.0, -0.42)):
+            for side_index, side in enumerate((-1, 1)):
+                s = float(side)
+                i = pair * 2 + side_index
+                hip = (x * scale, -0.08 * scale, s * 0.30 * scale)
+                knee = ((x + (0.12 if pair == 0 else -0.05 if pair == 2 else 0.02)) * scale,
+                        -0.20 * scale, s * 0.78 * scale)
+                foot = ((x + (0.30 if pair == 0 else -0.12 if pair == 2 else 0.04)) * scale,
+                        -0.30 * scale, s * 1.18 * scale)
+                parts.append(cone_between(f"Leg_{i}_Upper", hip, knee, 0.105 * scale, 0.062 * scale, chitin, 18))
+                parts.append(cone_between(f"Leg_{i}_Lower", knee, foot, 0.062 * scale, 0.020 * scale, dark, 16))
+                parts.append(ico(f"Leg_{i}_Joint", 0.085 * scale, core, 2))
+    else:
+        leg_count = 8 if kind == "spider" else 10
+        for i in range(leg_count):
+            a = math.tau * i / leg_count
+            spread = 0.72 if kind == "spider" else 0.82
+            hip = (math.cos(a) * spread * scale, -0.04 * scale, math.sin(a) * spread * scale)
+            knee = (math.cos(a) * 1.18 * scale, -0.12 * scale, math.sin(a) * 1.18 * scale)
+            foot = (math.cos(a) * (1.72 if kind == "spider" else 2.0) * scale, -0.34 * scale, math.sin(a) * (1.72 if kind == "spider" else 2.0) * scale)
+            parts.append(cone_between(f"Leg_{i}_Upper", hip, knee, 0.12 * scale, 0.075 * scale, chitin, 18))
+            parts.append(cone_between(f"Leg_{i}_Lower", knee, foot, 0.075 * scale, 0.028 * scale, dark, 16))
+            parts.append(ico(f"Leg_{i}_Joint", 0.10 * scale, core, 2))
 
     # Mandibles / front armor make the silhouette read as a creature, not a ball
     # with cylinders attached.
