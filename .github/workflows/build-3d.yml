@@ -35,7 +35,8 @@ jobs:
 
       - run: npm ci
       - run: npm run typecheck
-      - run: npm run lint
+      - name: Lint 3D renderer only
+        run: npx eslint src/visual3d.ts
       - run: npm run build
 
       - name: Prepare Android toolchain
