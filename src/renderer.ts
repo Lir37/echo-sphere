@@ -181,8 +181,9 @@ export function render(ctx: CanvasRenderingContext2D, s: GameState, canvasW: num
   // boss projectiles
   for (const e of s.enemies) for (const bp of e.bossProjectiles) drawBossProjectile(ctx, bp.pos.x, bp.pos.y, bp.radius, e.color);
 
-  // Legacy fox/wolf player body is intentionally disabled. The mobile overlay owns the character visual.
-  drawPlayer(ctx, s.player);
+  // Player body is rendered exclusively by the WebGL 3D pipeline.
+  // Do not draw the legacy/procedural 2D sphere here, otherwise it sits directly
+  // on top of the authored player_core GLB.
 
   // particles
   for (const p of s.particles) {
