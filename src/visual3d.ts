@@ -675,8 +675,19 @@ export class Echo3DRenderer {
     let local = node.local;
     if (node.name.includes('Leg_')) {
       const side = parseInt(node.name.split('_')[1] || '0', 10) % 2 ? 1 : -1;
-      local = mul(local, rz(Math.sin(t * 8 + side) * 0.14));
-      local = mul(local, rx(Math.sin(t * 8 + side) * 0.08));
+      const legPhase = t * 8.5 + parseInt(node.name.split('_')[1] || '0', 10) * 0.85;
+      local = mul(local, rz(Math.sin(legPhase) * 0.13 * side));
+      local = mul(local, rx(Math.sin(legPhase + side) * 0.06));
+    }
+    if (node.name.includes('Wing_')) {
+      const bits = node.name.split('_');
+      const side = bits[1] === '-1' ? -1 : 1;
+      const row = Number(bits[2] || 0);
+      const flap = Math.sin(t * 14 + row * 0.7) * 0.16 * side;
+      local = mul(local, rz(flap));
+    }
+    if (node.name.includes('Mandible_')) {
+      local = mul(local, rz(Math.sin(t * 5 + (node.name.includes('-1') ? 0 : Math.PI)) * 0.045));
     }
     if (node.name.includes('Ring_')) local = mul(local, ry(t * (node.name.endsWith('2') ? 0.75 : 1.2)));
     if (node.name.includes('Core') || node.name.includes('VoidCore') || node.name.includes('SingularityCore')) {
