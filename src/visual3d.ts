@@ -649,7 +649,8 @@ export class Echo3DRenderer {
     const bob = e.type === 'fast' ? Math.sin(t * 7 + e.pos.x * 0.01) * 0.08 : Math.sin(t * 3 + e.pos.y * 0.01) * 0.025;
     const bossPulse = e.isBoss ? 1 + 0.045 * Math.sin(t * 2.6) : 1;
     // Enemies keep a stable authored orientation. They move, bob, recoil and animate through VFX, but do not spin like rigid turntables.
-    this.drawAsset(n, e.pos.x, bob, e.pos.y, Math.max(9.5, e.radius / 0.95) * (e.isBoss ? 1.55 : 1) * bossPulse, vp, t, 'enemy', 0);
+    const authoredFacing = Math.PI / 2;
+    this.drawAsset(n, e.pos.x, bob, e.pos.y, Math.max(9.5, e.radius / 0.95) * (e.isBoss ? 1.55 : 1) * bossPulse, vp, t, 'enemy', authoredFacing);
   }
 
   private drawPlayer(s: GameState, vp: Mat4, t: number) {
@@ -689,22 +690,10 @@ export class Echo3DRenderer {
   private walk(a: GPUAsset, ni: number, parent: Mat4, vp: Mat4, t: number) {
     const node = a.asset.nodes[ni];
     let local = node.local;
-    if (node.name.includes('Leg_')) {
-      const side = parseInt(node.name.split('_')[1] || '0', 10) % 2 ? 1 : -1;
-      const legPhase = t * 8.5 + parseInt(node.name.split('_')[1] || '0', 10) * 0.85;
-      local = mul(local, rz(Math.sin(legPhase) * 0.13 * side));
-      local = mul(local, rx(Math.sin(legPhase + side) * 0.06));
-    }
-    if (node.name.includes('Wing_')) {
-      const bits = node.name.split('_');
-      const side = bits[1] === '-1' ? -1 : 1;
-      const row = Number(bits[2] || 0);
-      const flap = Math.sin(t * 14 + row * 0.7) * 0.16 * side;
-      local = mul(local, rz(flap));
-    }
-    if (node.name.includes('Mandible_')) {
-      local = mul(local, rz(Math.sin(t * 5 + (node.name.includes('-1') ? 0 : Math.PI)) * 0.045));
-    }
+    // Authored enemy limbs are already posed in model space. Do not rotate each
+    // leg/wing around the world origin: that produces the artificial "turntable"
+    // motion and tangles the silhouette. Creature motion is conveyed by translation,
+    // recoil and local VFX instead.
     if (node.name.includes('Ring_')) local = mul(local, ry(t * (node.name.endsWith('2') ? 0.75 : 1.2)));
     if (node.name.includes('Core') || node.name.includes('VoidCore') || node.name.includes('SingularityCore')) {
       const q = 1 + 0.055 * Math.sin(t * 4.5);
