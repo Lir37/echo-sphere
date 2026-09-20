@@ -28,7 +28,7 @@ test('capture the actual rendered game after pressing Play', async ({ page }, te
   const canvas = page.locator('canvas').first();
   await expect(canvas).toBeVisible();
 
-  await page.waitForTimeout(15_000);
+  await page.waitForTimeout(25_000);
 
   const renderMetrics = await canvas.evaluate((element) => ({
     width: element.width,
