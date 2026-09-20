@@ -122,13 +122,44 @@ def ico(name, radius, material, scale=(1, 1, 1), subdivisions=3):
 def cone_between(name, a, b, r1, r2, material, sections=20):
     a = np.asarray(a, dtype=np.float64)
     b = np.asarray(b, dtype=np.float64)
-    d = b - a
-    length = float(np.linalg.norm(d))
-    mesh = trimesh.creation.cone(r1, height=length, sections=sections, radius2=r2)
-    mesh.apply_translation((a + b) / 2.0)
-    mesh.apply_transform(trimesh.geometry.align_vectors([0, 0, 1], d))
+    axis = b - a
+    length = float(np.linalg.norm(axis))
+    if length < 1e-7:
+        return ico(name, max(r1, r2), material, subdivisions=2)
+
+    # Build a true tapered frustum explicitly. This avoids version-specific
+    # trimesh creation helpers and gives us deterministic topology/UVs.
+    z = np.linspace(0.0, length, 2)
+    angles = np.linspace(0.0, math.tau, sections, endpoint=False)
+    circle0 = np.column_stack((r1 * np.cos(angles), r1 * np.sin(angles), np.full(sections, z[0])))
+    circle1 = np.column_stack((r2 * np.cos(angles), r2 * np.sin(angles), np.full(sections, z[1])))
+    vertices = np.vstack((circle0, circle1))
+    faces = []
+    for i in range(sections):
+        j = (i + 1) % sections
+        faces.append((i, j, sections + j))
+        faces.append((i, sections + j, sections + i))
+    faces.extend(
+        [(0, i + 1, i) for i in range(1, sections - 1)]
+        + [(sections, sections + i, sections + i + 1) for i in range(1, sections - 1)]
+    )
+    mesh = trimesh.Trimesh(vertices=vertices, faces=np.asarray(faces, dtype=np.int64), process=True)
     mesh.metadata["name"] = name
-    return assign(mesh, material)
+
+    # Local XY cylindrical UVs.
+    rr = np.maximum(np.linalg.norm(vertices[:, :2], axis=1), 1e-6)
+    uv = np.column_stack(
+        (
+            np.arctan2(vertices[:, 1], vertices[:, 0]) / math.tau + 0.5,
+            vertices[:, 2] / max(length, 1e-6),
+        )
+    ).astype(np.float32)
+    mesh.visual = trimesh.visual.TextureVisuals(uv=uv, material=material)
+
+    # Align the local +Z axis with the segment direction, then place it midway.
+    mesh.apply_translation((a + b) / 2.0 - np.array([0.0, 0.0, length / 2.0]))
+    mesh.apply_transform(trimesh.geometry.align_vectors([0, 0, 1], axis))
+    return mesh
 
 
 def torus(name, major, minor, material, rotation=(0, 0, 0), sections=64):
