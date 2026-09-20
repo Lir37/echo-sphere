@@ -559,7 +559,7 @@ export class Echo3DRenderer {
     const t = s.time;
     const p = s.player.pos;
     const aspect = this.width / Math.max(1, this.height);
-    const distance = Math.max(430, Math.min(760, Math.max(s.worldWidth, s.worldHeight) * 0.33));
+    const distance = Math.max(330, Math.min(600, Math.max(s.worldWidth, s.worldHeight) * 0.27));
     this.cameraPos = { x: p.x, y: distance * 0.72, z: p.y + distance * 0.72 };
     const vp = mul(
       persp(48 * DEG, aspect, 1, 2400),
