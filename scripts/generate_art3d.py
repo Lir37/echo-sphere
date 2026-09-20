@@ -276,7 +276,8 @@ def save(name, parts):
 def sphere_asset(name, base, glow, tier, family_seed):
     shell = pbr("Shell", (0.008, 0.025, 0.065), glow, 0.72, max(0.06, 0.16 - tier * 0.014), 0.24, seed=family_seed)
     core = pbr("Core", base, glow, 0.35, 0.08, seed=family_seed + 1)
-    metal = pbr("Frame", tuple(min(1.0, x * 0.75) for x in glow), glow, 0.9, 0.16, seed=family_seed + 2)
+    frame_glow = tuple(min(1.0, x * 0.34) for x in glow)
+    metal = pbr("Frame", tuple(min(1.0, x * 0.62) for x in glow), frame_glow, 0.88, 0.18, seed=family_seed + 2)
 
     parts = [
         ico("Core", 0.52 + tier * 0.012, core, (1.0, 1.0, 1.12), 4),
