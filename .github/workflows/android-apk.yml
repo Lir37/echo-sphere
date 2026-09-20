@@ -5,6 +5,7 @@ on:
     branches:
       - cleanup-android
       - new-desing
+      - echo-3d-glb
   workflow_dispatch:
 
 jobs:
