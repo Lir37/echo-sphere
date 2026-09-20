@@ -301,8 +301,8 @@ def sphere_asset(name, base, glow, tier, family_seed):
     core_base = tuple(min(1.0, 0.62 + x * 0.38) for x in base)
     core_glow = tuple(min(1.0, 0.62 + x * 0.38) for x in glow)
     core = pbr("Core", core_base, core_glow, 0.28, 0.06, seed=family_seed + 1)
-    frame_base = tuple(min(1.0, 0.60 + x * 0.40) for x in glow)
-    frame_glow = tuple(min(1.0, 0.70 + x * 0.30) for x in glow)
+    frame_base = tuple(min(1.0, 0.24 + x * 0.48) for x in glow)
+    frame_glow = tuple(min(1.0, 0.30 + x * 0.55) for x in glow)
     metal = pbr("Frame", frame_base, frame_glow, 0.90, 0.12, seed=family_seed + 2)
 
     parts = [
@@ -314,7 +314,7 @@ def sphere_asset(name, base, glow, tier, family_seed):
     cage_subdivisions = 1
     cage_radius = 1.08 + tier * 0.07
     parts.extend(geodesic_cage("Cage", cage_radius, metal, cage_subdivisions,
-                               thickness=0.082 + tier * 0.006))
+                               thickness=0.050 + tier * 0.004))
 
     # The reference sphere is a luminous geodesic device, not a solid ball.
     # Build orthogonal and diagonal orbital frames so every tier has a recognisable
@@ -329,7 +329,7 @@ def sphere_asset(name, base, glow, tier, family_seed):
             (0, math.pi / 2, 0),
             (math.pi / 4, math.pi / 4, 0),
         )[i % 4]
-        parts.append(torus(f"Ring_{i}", r, 0.028 + tier * 0.004, metal, rot))
+        parts.append(torus(f"Ring_{i}", r, 0.020 + tier * 0.0025, metal, rot))
 
     if tier >= 2:
         diagonal_count = 2 if tier <= 4 else 4
