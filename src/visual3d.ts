@@ -24,17 +24,9 @@ function tr(x: number, y: number, z: number): Mat4 {
 function sc(x: number, y: number, z: number): Mat4 {
   const m = identity(); m[0] = x; m[5] = y; m[10] = z; return m;
 }
-function rx(a: number): Mat4 {
-  const c = Math.cos(a), s = Math.sin(a);
-  return new Float32Array([1, 0, 0, 0, 0, c, s, 0, 0, -s, c, 0, 0, 0, 0, 1]);
-}
 function ry(a: number): Mat4 {
   const c = Math.cos(a), s = Math.sin(a);
   return new Float32Array([c, 0, -s, 0, 0, 1, 0, 0, s, 0, c, 0, 0, 0, 0, 1]);
-}
-function rz(a: number): Mat4 {
-  const c = Math.cos(a), s = Math.sin(a);
-  return new Float32Array([c, s, 0, 0, -s, c, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
 }
 function persp(fov: number, aspect: number, near: number, far: number): Mat4 {
   const f = 1 / Math.tan(fov / 2), nf = 1 / (near - far);
