@@ -675,6 +675,13 @@ export class Echo3DRenderer {
   private drawAsset(name: string, x: number, y: number, z: number, scale: number, vp: Mat4, t: number, tag: string, angle = 0) {
     const a = this.assets.get(name);
     if (!a) { void this.load(name); return; }
+    if (tag === 'enemy') this.currentGlow = 0.55;
+    else if (tag.startsWith('sphere:7')) this.currentGlow = 0.72;
+    else if (tag.startsWith('sphere:')) this.currentGlow = 0.60;
+    else if (tag === 'player') this.currentGlow = 0.82;
+    else if (tag === 'projectile') this.currentGlow = 1.15;
+    else if (tag === 'fx') this.currentGlow = 1.0;
+    else this.currentGlow = 0.82;
     const root = mul(tr(x, y, z), mul(ry(angle), sc(scale, scale, scale)));
     for (const i of a.asset.roots) this.walk(a, i, root, vp, t);
   }
