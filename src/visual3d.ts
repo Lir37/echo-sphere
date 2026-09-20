@@ -472,9 +472,10 @@ export class Echo3DRenderer {
       'enemy_worker', 'enemy_guard', 'enemy_flyer', 'enemy_spider', 'enemy_slime', 'enemy_psionic', 'enemy_queen',
       'boss_colony', 'boss_distortion', 'boss_singularity',
       'projectile_energy', 'projectile_fire',
-      ...['standard', 'sniper', 'shotgun', 'chain', 'aura'].flatMap(t =>
-        Array.from({ length: 7 }, (_, i) => `sphere_${t}_t${i + 1}`)
-      ),
+      // Load only the first tier of each family at startup. Higher tiers stay
+      // as real GLB assets but are streamed on demand after an upgrade, so
+      // heavy geodesic cages never stall the first gameplay frame.
+      ...['standard', 'sniper', 'shotgun', 'chain', 'aura'].map(t => `sphere_${t}_t1`),
     ];
     await Promise.all(names.map(async name => {
       try { await this.load(name); }
