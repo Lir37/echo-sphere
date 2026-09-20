@@ -1,5 +1,4 @@
 import type { GameState, PlayerState, SphereEntity, EnemyEntity, DamageNumber, ChestEntity } from './engine';
-import { PLAYER_RADIUS } from './engine';
 import { SPHERE_TYPES, BOSS_TYPES } from './gameData';
 import type { MapTheme, Vec } from './engine';
 import { CHARACTER_DEFS } from './characters';
@@ -1077,79 +1076,6 @@ function drawOrigamiOctopus(ctx: CanvasRenderingContext2D, r: number, fill: stri
   ctx.fillStyle = highlight; ctx.globalAlpha = 0.3;
   ctx.beginPath(); ctx.arc(-r * 0.2, -r * 0.4, r * 0.3, 0, Math.PI * 2); ctx.fill();
   ctx.globalAlpha = 1;
-}
-
-// ===== Player — status effects only =====
-function drawPlayer(ctx: CanvasRenderingContext2D, p: PlayerState): void {
-  const t=Date.now()/1000,r=PLAYER_RADIUS;
-  if (drawReferenceSprite(ctx, 'player', p.pos.x, p.pos.y - r * 0.10, r * 2.9, '#63e6ff', 0, 1)) {
-    drawGroundShadow(ctx, r * 0.90, r * 0.26, 7);
-    if (p.shieldCharges > 0 || p.shieldTimer > 0 || p.invulnerableTimer > 0) {
-      ctx.save();
-      ctx.translate(p.pos.x, p.pos.y);
-      ctx.strokeStyle = p.invulnerableTimer > 0 ? 'rgba(255,255,255,.78)' : 'rgba(105,232,255,.58)';
-      ctx.lineWidth = p.invulnerableTimer > 0 ? 1.8 : 1.2;
-      ctx.beginPath();
-      ctx.ellipse(0, -4, r + 12, 8, 0, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.restore();
-    }
-    return;
-  }
-
-  ctx.save();ctx.translate(p.pos.x,p.pos.y);
-  drawGroundShadow(ctx,r*.90,r*.26,7);
-  const aura=ctx.createRadialGradient(0,-10,2,0,0,r*2.2);aura.addColorStop(0,'rgba(236,252,255,.28)');aura.addColorStop(.20,'rgba(91,228,255,.17)');aura.addColorStop(.56,'rgba(126,89,255,.06)');aura.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle=aura;ctx.beginPath();ctx.arc(0,-8,r*2.2,0,Math.PI*2);ctx.fill();
-  const shell=ctx.createLinearGradient(-r,-r,r,r);shell.addColorStop(0,'#7892ad');shell.addColorStop(.10,'#29445f');shell.addColorStop(.34,'#102239');shell.addColorStop(.72,'#06111f');shell.addColorStop(1,'#01040a');
-  ctx.fillStyle=shell;ctx.strokeStyle='rgba(151,237,255,.88)';ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(0,-r*1.05);ctx.lineTo(r*.68,-r*.43);ctx.lineTo(r*.60,r*.34);ctx.lineTo(0,r*.70);ctx.lineTo(-r*.60,r*.34);ctx.lineTo(-r*.68,-r*.43);ctx.closePath();ctx.fill();ctx.stroke();
-  ctx.strokeStyle='rgba(228,249,255,.24)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(-r*.28,-r*.57);ctx.lineTo(-r*.04,-r*.83);ctx.lineTo(r*.28,-r*.49);ctx.stroke();
-  const core=ctx.createRadialGradient(-r*.18,-r*.26,1,0,-r*.02,r*.74);core.addColorStop(0,'#fff');core.addColorStop(.14,'#d6fbff');core.addColorStop(.40,'#57e3ff');core.addColorStop(.68,'#5d7cff');core.addColorStop(1,'rgba(48,89,255,0)');
-  ctx.shadowColor='#5cdfff';ctx.shadowBlur=20;ctx.fillStyle=core;ctx.beginPath();ctx.ellipse(0,-r*.08,r*.52,r*.46,0,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
-  ctx.fillStyle='rgba(0,7,15,.44)';ctx.beginPath();ctx.ellipse(0,-r*.06,r*.23,r*.18,0,0,Math.PI*2);ctx.fill();
-  for(let i=0;i<3;i++){ctx.save();ctx.translate(0,-5-i*1.5);ctx.rotate(t*(i%2?-.25:.32)+i*.7);ctx.strokeStyle=i===1?'rgba(224,106,255,.40)':'rgba(103,232,255,.42)';ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(0,0,r*(1.06+i*.16),r*(.23+i*.035),0,0,Math.PI*2);ctx.stroke();ctx.restore();}
-  if(p.shieldCharges>0||p.shieldTimer>0){ctx.strokeStyle='rgba(105,232,255,.68)';ctx.lineWidth=1.3;ctx.beginPath();ctx.ellipse(0,-4,r+11,7,0,0,Math.PI*2);ctx.stroke();}
-  if(p.invulnerableTimer>0){ctx.strokeStyle='#fff';ctx.lineWidth=1.8;ctx.globalAlpha=.72;ctx.beginPath();ctx.ellipse(0,-6,r+15,8,0,0,Math.PI*2);ctx.stroke();ctx.globalAlpha=1;}
-  ctx.restore();
-}
-
-function drawSpikes(ctx: CanvasRenderingContext2D, color: string): void {
-  ctx.fillStyle = shade(color, 20); ctx.strokeStyle = INK; ctx.lineWidth = 1.2;
-  for (let i = 0; i < 8; i++) {
-    const a = (i / 8) * Math.PI * 2 + Date.now() / 1000;
-    const r1 = PLAYER_RADIUS, r2 = PLAYER_RADIUS + 7;
-    ctx.beginPath();
-    ctx.moveTo(Math.cos(a - 0.12) * r1, Math.sin(a - 0.12) * r1);
-    ctx.lineTo(Math.cos(a) * r2, Math.sin(a) * r2);
-    ctx.lineTo(Math.cos(a + 0.12) * r1, Math.sin(a + 0.12) * r1);
-    ctx.closePath(); ctx.fill(); ctx.stroke();
-  }
-}
-function drawWings(ctx: CanvasRenderingContext2D, color: string): void {
-  ctx.strokeStyle = shade(color, 10); ctx.lineWidth = 2.5;
-  const flap = Math.sin(Date.now() / 200) * 0.3;
-  ctx.beginPath(); ctx.arc(-PLAYER_RADIUS - 4, 0, PLAYER_RADIUS - 2, -0.8 - flap, 0.8 + flap); ctx.stroke();
-  ctx.beginPath(); ctx.arc(PLAYER_RADIUS + 4, 0, PLAYER_RADIUS - 2, Math.PI - 0.8 - flap, Math.PI + 0.8 + flap); ctx.stroke();
-}
-function drawHalo(ctx: CanvasRenderingContext2D): void {
-  const pulse = 1 + Math.sin(Date.now() / 300) * 0.12;
-  ctx.strokeStyle = '#d4943d'; ctx.lineWidth = 2.5;
-  ctx.beginPath(); ctx.ellipse(0, -PLAYER_RADIUS - 12, (PLAYER_RADIUS + 6) * pulse, 5, 0, 0, Math.PI * 2); ctx.stroke();
-}
-function drawTentacles(ctx: CanvasRenderingContext2D): void {
-  ctx.strokeStyle = INK; ctx.lineWidth = 1.5;
-  const t = Date.now() / 400;
-  for (let i = 0; i < 6; i++) {
-    const a = (i / 6) * Math.PI * 2 + t * 0.5;
-    ctx.beginPath();
-    ctx.moveTo(Math.cos(a) * PLAYER_RADIUS, Math.sin(a) * PLAYER_RADIUS);
-    for (let k = 1; k <= 8; k++) {
-      const r = PLAYER_RADIUS + k * 3;
-      const wave = Math.sin(t + k * 0.5 + i) * 4;
-      ctx.lineTo(Math.cos(a) * r + Math.cos(a + Math.PI / 2) * wave, Math.sin(a) * r + Math.sin(a + Math.PI / 2) * wave);
-    }
-    ctx.stroke();
-  }
 }
 
 // ===== Sphere — origami turret/tower =====
