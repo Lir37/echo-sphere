@@ -343,8 +343,11 @@ void main(){
   float pulse=.90+.10*sin(u_time*3.2+v_w.y*4.0);
   vec3 e=u_emissive;
   if(u_hasEmissive>0.5) e*=texture2D(u_emissiveTex,v_uv).rgb;
-  vec3 c=base.rgb*(.07+.93*ndl)*(1.0-metallic*.22)+vec3(spec)+e*(.28+2.9*fres)*pulse*u_glow;
-  c+=e*fres*.28;
+  vec3 c=base.rgb*(.10+.90*ndl)*(1.0-metallic*.22)+vec3(spec)+e*(.16+1.65*fres)*pulse*u_glow;
+  c+=e*fres*.14;
+  c=max(c,vec3(0.0));
+  c=c/(vec3(1.0)+c);
+  c=pow(c,vec3(0.88));
   gl_FragColor=vec4(c,base.a*u_alpha);
 }`;
 
@@ -610,7 +613,7 @@ export class Echo3DRenderer {
     const tier = Math.max(1, Math.min(7, s.visualTier));
     // Generated GLBs use Blender-style unit scale; gameplay radii are much larger world units.
     // Normalize the authored model to the same visual footprint as the legacy 2D sphere.
-    const visualScale = Math.max(12.0, s.radius / 5.4);
+    const visualScale = Math.max(15.5, s.radius / 4.7);
     this.drawAsset(this.modelForSphere(s.type, tier), s.pos.x, 0, s.pos.y, visualScale, vp, t, `sphere:${tier}`, s.rotation + t * 0.12);
   }
 
