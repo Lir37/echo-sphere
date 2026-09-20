@@ -69,9 +69,13 @@ def validate(path: Path):
 
 
 def main() -> int:
-    files = sorted(ROOT.glob("*.glb"))
+    prefixes = ("sphere_", "enemy_", "boss_", "projectile_", "player_core")
+    files = sorted(
+        path for path in ROOT.glob("*.glb")
+        if path.stem.startswith(prefixes)
+    )
     if not files:
-        print("No GLB files found", file=sys.stderr)
+        print("No generated GLB files found", file=sys.stderr)
         return 1
 
     rows = []
