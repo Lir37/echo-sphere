@@ -593,7 +593,7 @@ export class Echo3DRenderer {
     for (const f of s.fireTrails) if (f.life > 0) this.drawPointAsset('projectile_fire', f.pos.x, f.pos.y, 10 + f.life * 3, vp, t);
     this.drawNetwork(s.spheres, vp, t);
     this.drawLightnings(s.lightnings, vp, t);
-    for (const pa of s.particles) if (pa.life > 0) this.drawParticle(pa, vp, t);
+    for (const pa of s.particles) if (pa.life > 0 && this.nearCamera(pa.pos.x, pa.pos.y, 1100)) this.drawParticle(pa, vp, t);
 
     (window as any).__ECHO3D_STATS = { ...this.renderStats };
 
