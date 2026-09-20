@@ -220,6 +220,20 @@ def torus(name, major, minor, material, rotation=(0, 0, 0), sections=64):
     return assign(mesh, material)
 
 
+def geodesic_cage(name, radius, material, subdivisions=2, thickness=0.018):
+    """Turn an icosphere into a luminous geodesic edge cage."""
+    ico_mesh = trimesh.creation.icosphere(subdivisions=subdivisions, radius=radius)
+    edges = np.unique(np.sort(ico_mesh.edges_unique, axis=1), axis=0)
+    parts = []
+    for i, (a_idx, b_idx) in enumerate(edges):
+        a = ico_mesh.vertices[a_idx]
+        b = ico_mesh.vertices[b_idx]
+        parts.append(cone_between(
+            f"{name}_Edge_{i}", a, b, thickness, thickness * 0.72, material, sections=8
+        ))
+    return parts
+
+
 def plate(name, center, scale, material, rotation=(0, 0, 0), subdivisions=2):
     mesh = trimesh.creation.icosphere(subdivisions=subdivisions, radius=1.0)
     mesh.apply_scale(scale)
@@ -260,14 +274,20 @@ def save(name, parts):
 # ---------------------------------------------------------------------------
 
 def sphere_asset(name, base, glow, tier, family_seed):
-    shell = pbr("Shell", (0.008, 0.025, 0.065), glow, 0.88, max(0.10, 0.22 - tier * 0.014), 0.72, seed=family_seed)
+    shell = pbr("Shell", (0.008, 0.025, 0.065), glow, 0.72, max(0.06, 0.16 - tier * 0.014), 0.24, seed=family_seed)
     core = pbr("Core", base, glow, 0.35, 0.08, seed=family_seed + 1)
     metal = pbr("Frame", tuple(min(1.0, x * 0.75) for x in glow), glow, 0.9, 0.16, seed=family_seed + 2)
 
     parts = [
         ico("Core", 0.52 + tier * 0.012, core, (1.0, 1.0, 1.12), 4),
-        ico("Housing", 0.96 + tier * 0.035, shell, (1.0, 0.88, 0.94), 4),
+        ico("Housing", 0.96 + tier * 0.035, shell, (1.0, 0.88, 0.94), 3),
     ]
+    # The reference is a luminous geodesic device. The cage is deliberately
+    # made from real 3D struts so it remains readable at gameplay distance.
+    cage_subdivisions = 1 if tier <= 2 else 2
+    cage_radius = 1.02 + tier * 0.055
+    parts.extend(geodesic_cage("Cage", cage_radius, metal, cage_subdivisions,
+                               thickness=0.022 + tier * 0.0025))
 
     # The reference sphere is a luminous geodesic device, not a solid ball.
     # Build orthogonal and diagonal orbital frames so every tier has a recognisable
@@ -284,15 +304,15 @@ def sphere_asset(name, base, glow, tier, family_seed):
         )[i % 4]
         parts.append(torus(f"Ring_{i}", r, 0.028 + tier * 0.004, metal, rot))
 
-    if tier >= 3:
-        diagonal_count = 2 if tier <= 5 else 4
+    if tier >= 2:
+        diagonal_count = 2 if tier <= 4 else 4
         for i in range(diagonal_count):
             a = math.tau * i / diagonal_count
             rot = (math.pi / 4, a, math.pi / 5)
             parts.append(torus(f"Orbit_{i}", 1.08 + tier * 0.012, 0.020 + tier * 0.003, metal, rot))
 
-    if tier >= 5:
-        # Six radial energy struts visually connect the core to the cage.
+    if tier >= 4:
+        # Radial energy struts visually connect the core to the cage.
         for i in range(6):
             a = math.tau * i / 6
             parts.append(cone_between(
@@ -351,7 +371,7 @@ def sphere_asset(name, base, glow, tier, family_seed):
                 )
             )
 
-    if tier >= 7:
+    if tier >= 6:
         for i in range(8):
             a = i * math.tau / 8
             parts.append(
