@@ -516,8 +516,8 @@ def psionic_asset(name, seed=83):
 
 def player_asset():
     shell = pbr("PlayerShell", (0.025, 0.07, 0.16), (0.12, 0.65, 1.0), 0.94, 0.12, seed=101)
-    core = pbr("PlayerCore", (0.72, 0.92, 1.0), (0.22, 0.95, 1.0), 0.35, 0.05, seed=102)
-    frame = pbr("PlayerFrame", (0.04, 0.12, 0.24), (0.10, 0.55, 1.0), 0.88, 0.16, seed=103)
+    core = pbr("PlayerCore", (0.86, 0.96, 1.0), (0.45, 0.98, 1.0), 0.25, 0.04, seed=102)
+    frame = pbr("PlayerFrame", (0.22, 0.36, 0.58), (0.25, 0.88, 1.0), 0.90, 0.11, seed=103)
     parts = [
         ico("Core", 0.34, core, (1.0, 1.0, 1.18), 4),
     ]
