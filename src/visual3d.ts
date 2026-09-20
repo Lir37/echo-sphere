@@ -609,7 +609,7 @@ export class Echo3DRenderer {
     const tier = Math.max(1, Math.min(7, s.visualTier));
     // Generated GLBs use Blender-style unit scale; gameplay radii are much larger world units.
     // Normalize the authored model to the same visual footprint as the legacy 2D sphere.
-    const visualScale = Math.max(0.9, s.radius / 18);
+    const visualScale = Math.max(8.0, s.radius / 1.55);
     this.drawAsset(this.modelForSphere(s.type, tier), s.pos.x, 0, s.pos.y, visualScale, vp, t, `sphere:${tier}`, s.rotation + t * 0.12);
   }
 
@@ -624,23 +624,23 @@ export class Echo3DRenderer {
         : e.shape === 'square' ? 'enemy_slime' : 'enemy_worker');
     const bob = e.type === 'fast' ? Math.sin(t * 7 + e.pos.x * 0.01) * 0.08 : Math.sin(t * 3 + e.pos.y * 0.01) * 0.025;
     const bossPulse = e.isBoss ? 1 + 0.045 * Math.sin(t * 2.6) : 1;
-    this.drawAsset(n, e.pos.x, bob, e.pos.y, Math.max(1.0, e.radius / 2.8) * (e.isBoss ? 1.65 : 1) * bossPulse, vp, t, 'enemy', e.rotation);
+    this.drawAsset(n, e.pos.x, bob, e.pos.y, Math.max(4.5, e.radius / 1.5) * (e.isBoss ? 1.65 : 1) * bossPulse, vp, t, 'enemy', e.rotation);
   }
 
   private drawPlayer(s: GameState, vp: Mat4, t: number) {
     const pulse = 1 + 0.06 * Math.sin(t * 4);
     const tilt = Math.sin(t * 2.2) * 0.035;
-    this.drawAsset('player_core', s.player.pos.x, 0, s.player.pos.y, 1.25 * pulse, vp, t, 'player', t * 0.3 + tilt);
+    this.drawAsset('player_core', s.player.pos.x, 0, s.player.pos.y, 11.5 * pulse, vp, t, 'player', t * 0.3 + tilt);
   }
 
   private drawMinion(m: MinionEntity, vp: Mat4, t: number) {
     const pulse = 0.46 + 0.035 * Math.sin(t * 5 + m.pos.x * 0.02);
-    this.drawAsset('player_core', m.pos.x, 0, m.pos.y, 3.2 * pulse, vp, t, 'minion', m.rotation + t);
+    this.drawAsset('player_core', m.pos.x, 0, m.pos.y, Math.max(6.0, m.radius / 1.7) * pulse, vp, t, 'minion', m.rotation + t);
   }
 
   private drawProjectile(p: SphereProjectile, vp: Mat4, t: number) {
     const n = p.effect === 'fire' ? 'projectile_fire' : 'projectile_energy';
-    this.drawAsset(n, p.pos.x, 0, p.pos.y, Math.max(0.5, p.radius / 2.5), vp, t, 'projectile', Math.atan2(p.vel.y, p.vel.x));
+    this.drawAsset(n, p.pos.x, 0, p.pos.y, Math.max(4.0, p.radius / 0.6), vp, t, 'projectile', Math.atan2(p.vel.y, p.vel.x));
   }
 
   private drawPointAsset(name: string, x: number, z: number, size: number, vp: Mat4, t: number) {
