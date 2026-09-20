@@ -627,10 +627,13 @@ export class Echo3DRenderer {
 
   private drawSphere(s: SphereEntity, vp: Mat4, t: number) {
     const tier = Math.max(1, Math.min(7, s.visualTier));
+    const playerY = this.cameraPos.z - this.cameraPos.y;
+    const distance = Math.hypot(s.pos.x - this.cameraPos.x, s.pos.y - playerY);
+    const lodTier = distance > 720 ? Math.min(tier, 3) : distance > 470 ? Math.min(tier, 5) : tier;
     // Generated GLBs use Blender-style unit scale; gameplay radii are much larger world units.
     // Normalize the authored model to the same visual footprint as the legacy 2D sphere.
     const visualScale = Math.max(21, s.radius / 4.65);
-    this.drawAsset(this.modelForSphere(s.type, tier), s.pos.x, 0, s.pos.y, visualScale, vp, t, `sphere:${tier}`, s.rotation + t * 0.12);
+    this.drawAsset(this.modelForSphere(s.type, lodTier), s.pos.x, 0, s.pos.y, visualScale, vp, t, `sphere:${lodTier}`, s.rotation + t * 0.12);
   }
 
   private drawEnemy(e: EnemyEntity, vp: Mat4, t: number) {
