@@ -130,8 +130,8 @@ def pbr(
     seed: int = 1,
 ):
     image = _texture(base, glow, seed)
-    normal = _normal_texture(seed + 101, 512)
-    metallic_roughness = _metal_rough_texture(metallic, rough, seed + 211, 512)
+    normal = _normal_texture(seed + 101, 256)
+    metallic_roughness = _metal_rough_texture(metallic, rough, seed + 211, 256)
     return trimesh.visual.material.PBRMaterial(
         name=name,
         baseColorFactor=(1.0, 1.0, 1.0, alpha),
