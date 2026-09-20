@@ -585,11 +585,11 @@ export class Echo3DRenderer {
     g.clearColor(0.004, 0.009, 0.024, 1);
     g.clear(g.COLOR_BUFFER_BIT | g.DEPTH_BUFFER_BIT);
     this.drawArena(vp, t, s.worldWidth, s.worldHeight);
-    for (const sp of s.spheres) if (sp.alive) { this.renderStats.visibleEntities += 1; this.drawSphere(sp, vp, t); }
-    for (const e of s.enemies) if (e.hp > 0) { this.renderStats.visibleEntities += 1; this.drawEnemy(e, vp, t); }
+    for (const sp of s.spheres) if (sp.alive && this.nearCamera(sp.pos.x, sp.pos.y)) { this.renderStats.visibleEntities += 1; this.drawSphere(sp, vp, t); }
+    for (const e of s.enemies) if (e.hp > 0 && this.nearCamera(e.pos.x, e.pos.y)) { this.renderStats.visibleEntities += 1; this.drawEnemy(e, vp, t); }
     this.renderStats.visibleEntities += 1;
     this.drawPlayer(s, vp, t);
-    for (const m of s.minions) this.drawMinion(m, vp, t);
+    for (const m of s.minions) if (this.nearCamera(m.pos.x, m.pos.y)) this.drawMinion(m, vp, t);
     for (const q of s.sphereProjectiles) if (q.alive) this.drawProjectile(q, vp, t);
     for (const e of s.enemies) for (const q of e.bossProjectiles) if (q.alive) this.drawPointAsset('projectile_energy', q.pos.x, q.pos.y, q.radius * 2, vp, t);
     for (const o of s.xpOrbs) if (o.alive) this.drawPointAsset('projectile_energy', o.pos.x, o.pos.y, o.radius * 1.6, vp, t);
@@ -778,6 +778,12 @@ export class Echo3DRenderer {
     }
   }
 
+  private nearCamera(x: number, z: number, range = 980): boolean {
+    const dx = x - this.cameraPos.x;
+    const dz = z - this.cameraPos.z;
+    return dx * dx + dz * dz <= range * range;
+  }
+
   private drawArena(vp: Mat4, t: number, worldWidth: number, worldHeight: number) {
     const extent = Math.min(1800, Math.max(worldWidth, worldHeight) * 0.5 + 420);
     if (!this.arenaGridBuffer) {
@@ -803,8 +809,8 @@ export class Echo3DRenderer {
       this.arenaRingCount = rings.length / 3;
     }
 
-    this.drawLineBuffer(this.arenaGridBuffer, this.arenaGridCount, vp, [0.04, 0.20, 0.36], 0.34, t);
-    this.drawLineBuffer(this.arenaRingBuffer, this.arenaRingCount, vp, [0.08, 0.34, 0.60], 0.34 + 0.06 * Math.sin(t * 2), t);
+    if (this.arenaGridBuffer) this.drawLineBuffer(this.arenaGridBuffer, this.arenaGridCount, vp, [0.04, 0.20, 0.36], 0.34, t);
+    if (this.arenaRingBuffer) this.drawLineBuffer(this.arenaRingBuffer, this.arenaRingCount, vp, [0.08, 0.34, 0.60], 0.34 + 0.06 * Math.sin(t * 2), t);
   }
 
   private drawLineBuffer(buffer: WebGLBuffer, count: number, vp: Mat4, color: number[], alpha: number, t: number) {
