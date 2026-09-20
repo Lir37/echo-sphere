@@ -1,4 +1,4 @@
-name: Build 3D assets and app
+name: Build 3D assets, web and visual smoke test
 
 on:
   push:
@@ -27,6 +27,19 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm run build
+
+      - name: Install Playwright
+        run: npx playwright@1.55.0 install --with-deps chromium
+      - name: Start preview server
+        run: npm run preview -- --host 0.0.0.0 > /tmp/echo-vite.log 2>&1 &
+      - name: Run visual smoke test
+        run: node scripts/playwright_smoke.mjs
+      - name: Upload visual screenshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: echo-sphere-visual-smoke
+          path: artifacts/echo-sphere-play.png
+          if-no-files-found: error
       - name: Upload 3D assets
         uses: actions/upload-artifact@v4
         with:
