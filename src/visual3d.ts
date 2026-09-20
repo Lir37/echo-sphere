@@ -406,7 +406,7 @@ export class Echo3DRenderer {
   private width = 1;
   private height = 1;
   private cameraPos: V3 = { x: 0, y: 500, z: 500 };
-  private renderStats = { frame: 0, drawCalls: 0, triangles: 0, visibleEntities: 0 };
+  private renderStats = { frame: 0, drawCalls: 0, triangles: 0, visibleEntities: 0 };\n  private arenaGridBuffer: WebGLBuffer | null = null;\n  private arenaRingBuffer: WebGLBuffer | null = null;\n  private arenaGridCount = 0;\n  private arenaRingCount = 0;
 
   constructor(private canvas: HTMLCanvasElement) {
     const gl = (canvas.getContext('webgl2', { alpha: false, antialias: true, powerPreference: 'high-performance' })
@@ -774,18 +774,48 @@ export class Echo3DRenderer {
   }
 
   private drawArena(vp: Mat4, t: number, worldWidth: number, worldHeight: number) {
-    const extent = Math.max(worldWidth, worldHeight, 1000);
-    for (let x = -extent; x <= extent; x += 80) this.line([x, -2.9, -extent], [x, -2.9, extent], vp, [0.03, 0.16, 0.28], 0.25, t);
-    for (let z = -extent; z <= extent; z += 80) this.line([-extent, -2.9, z], [extent, -2.9, z], vp, [0.03, 0.16, 0.28], 0.25, t);
+    const extent = Math.min(1800, Math.max(worldWidth, worldHeight) * 0.5 + 420);
+    if (!this.arenaGridBuffer) {
+      const grid: number[] = [];
+      for (let x = -extent; x <= extent; x += 80) grid.push(x, -2.9, -extent, x, -2.9, extent);
+      for (let z = -extent; z <= extent; z += 80) grid.push(-extent, -2.9, z, extent, -2.9, z);
+      this.arenaGridBuffer = this.buf(new Float32Array(grid));
+      this.arenaGridCount = grid.length / 3;
 
-    for (let r = 160; r <= Math.min(extent, 900); r += 160) {
-      const points: number[] = [];
-      for (let i = 0; i <= 64; i++) {
-        const a = i / 64 * Math.PI * 2;
-        points.push(Math.cos(a) * r, -2.6, Math.sin(a) * r);
+      const rings: number[] = [];
+      for (let radius = 160; radius <= Math.min(extent, 900); radius += 160) {
+        const steps = 72;
+        for (let i = 0; i < steps; i++) {
+          const a0 = i / steps * Math.PI * 2;
+          const a1 = (i + 1) / steps * Math.PI * 2;
+          rings.push(
+            Math.cos(a0) * radius, -2.6, Math.sin(a0) * radius,
+            Math.cos(a1) * radius, -2.6, Math.sin(a1) * radius,
+          );
+        }
       }
-      this.polyline(points, vp, [0.08, 0.34, 0.60], 0.30 + 0.08 * Math.sin(t * 2 + r), t);
+      this.arenaRingBuffer = this.buf(new Float32Array(rings));
+      this.arenaRingCount = rings.length / 3;
     }
+
+    this.drawLineBuffer(this.arenaGridBuffer, this.arenaGridCount, vp, [0.04, 0.20, 0.36], 0.34, t);
+    this.drawLineBuffer(this.arenaRingBuffer, this.arenaRingCount, vp, [0.08, 0.34, 0.60], 0.34 + 0.06 * Math.sin(t * 2), t);
+  }
+
+  private drawLineBuffer(buffer: WebGLBuffer, count: number, vp: Mat4, color: number[], alpha: number, t: number) {
+    const g = this.gl;
+    g.useProgram(this.lineProgram);
+    const a = g.getAttribLocation(this.lineProgram, 'a_position');
+    g.bindBuffer(g.ARRAY_BUFFER, buffer);
+    g.enableVertexAttribArray(a);
+    g.vertexAttribPointer(a, 3, g.FLOAT, false, 0, 0);
+    g.uniformMatrix4fv(g.getUniformLocation(this.lineProgram, 'u_mvp'), false, vp);
+    g.uniform3f(g.getUniformLocation(this.lineProgram, 'u_color'), color[0], color[1], color[2]);
+    g.uniform1f(g.getUniformLocation(this.lineProgram, 'u_alpha'), alpha);
+    g.uniform1f(g.getUniformLocation(this.lineProgram, 'u_time'), t);
+    g.lineWidth(2);
+    g.drawArrays(g.LINES, 0, count);
+    this.renderStats.drawCalls += 1;
   }
 
   private drawNetwork(ss: SphereEntity[], vp: Mat4, t: number) {
