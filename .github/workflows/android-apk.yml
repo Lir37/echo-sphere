@@ -25,8 +25,9 @@ jobs:
       - name: Generate 3D assets
         run: |
           python -m pip install --upgrade pip
-          python -m pip install trimesh numpy
+          python -m pip install trimesh numpy pillow
           python scripts/generate_art3d.py
+          python scripts/validate_art3d.py
 
       - name: Setup Node
         uses: actions/setup-node@v4
