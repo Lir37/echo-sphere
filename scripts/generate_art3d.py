@@ -516,29 +516,31 @@ def player_asset():
     core = pbr("PlayerCore", (0.72, 0.92, 1.0), (0.22, 0.95, 1.0), 0.35, 0.05, seed=102)
     frame = pbr("PlayerFrame", (0.04, 0.12, 0.24), (0.10, 0.55, 1.0), 0.88, 0.16, seed=103)
     parts = [
-        ico("Housing", 0.98, shell, (1.0, 0.92, 1.08), 5),
-        ico("Core", 0.47, core, (1.0, 1.0, 1.16), 4),
+        ico("Core", 0.34, core, (1.0, 1.0, 1.18), 4),
     ]
-    for i, (r, minor) in enumerate(((0.70, 0.045), (0.86, 0.032), (1.04, 0.020))):
+    for i, (r, minor) in enumerate(((0.58, 0.040), (0.82, 0.030), (1.02, 0.018))):
         parts.append(torus(f"Ring_{i}", r, minor, frame, (math.pi / 2 if i == 1 else 0, 0, 0)))
-    for i in range(6):
-        a = math.tau * i / 6
-        parts.append(cone_between(
-            f"EnergySpine_{i}",
-            (0.50 * math.cos(a), -0.04, 0.50 * math.sin(a)),
-            (1.08 * math.cos(a), 0.12, 1.08 * math.sin(a)),
-            0.045, 0.015, frame, 14
-        ))
     for i in range(4):
         a = math.tau * i / 4 + math.pi / 4
+        ca, sa = math.cos(a), math.sin(a)
+        parts.append(cone_between(
+            f"EnergyBlade_{i}",
+            (0.16 * ca, 0.0, 0.16 * sa),
+            (1.18 * ca, 0.04, 1.18 * sa),
+            0.16, 0.012, frame, 18
+        ))
         parts.append(plate(
-            f"ShellPlate_{i}",
-            (0.0, 0.0, 0.82),
-            (0.32, 0.06, 0.26),
-            frame,
-            (0, a, 0),
+            f"BladePlate_{i}",
+            (0.62 * ca, 0.0, 0.62 * sa),
+            (0.42, 0.035, 0.11),
+            shell,
+            (0, -a, 0.16 * sa),
             2,
         ))
+    for i in range(4):
+        a = math.tau * i / 4
+        parts.append(ico(f"EnergyNode_{i}", 0.055, core, (1.0, 1.0, 1.3), 2))
+        parts[-1].apply_translation((0.92 * math.cos(a), 0.03, 0.92 * math.sin(a)))
     save("player_core", parts)
 
 
