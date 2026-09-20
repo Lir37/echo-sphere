@@ -610,7 +610,7 @@ export class Echo3DRenderer {
     const tier = Math.max(1, Math.min(7, s.visualTier));
     // Generated GLBs use Blender-style unit scale; gameplay radii are much larger world units.
     // Normalize the authored model to the same visual footprint as the legacy 2D sphere.
-    const visualScale = Math.max(8.0, s.radius / 1.55);
+    const visualScale = Math.max(12.0, s.radius / 5.4);
     this.drawAsset(this.modelForSphere(s.type, tier), s.pos.x, 0, s.pos.y, visualScale, vp, t, `sphere:${tier}`, s.rotation + t * 0.12);
   }
 
