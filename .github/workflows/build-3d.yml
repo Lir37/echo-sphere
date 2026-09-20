@@ -29,9 +29,19 @@ jobs:
       - run: npm run build
 
       - name: Install Playwright
-        run: npx playwright@1.55.0 install --with-deps chromium
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
       - name: Start preview server
         run: npm run preview -- --host 0.0.0.0 > /tmp/echo-vite.log 2>&1 &
+      - name: Wait for preview server
+        run: |
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4173 >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/echo-vite.log
+          exit 1
       - name: Run visual smoke test
         run: node scripts/playwright_smoke.mjs
       - name: Upload visual screenshot
