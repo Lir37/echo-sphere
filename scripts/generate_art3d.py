@@ -285,10 +285,10 @@ def sphere_asset(name, base, glow, tier, family_seed):
     ]
     # The reference is a luminous geodesic device. The cage is deliberately
     # made from real 3D struts so it remains readable at gameplay distance.
-    cage_subdivisions = 1 if tier <= 2 else 2
-    cage_radius = 1.02 + tier * 0.055
+    cage_subdivisions = 1
+    cage_radius = 1.08 + tier * 0.07
     parts.extend(geodesic_cage("Cage", cage_radius, metal, cage_subdivisions,
-                               thickness=0.022 + tier * 0.0025))
+                               thickness=0.052 + tier * 0.004))
 
     # The reference sphere is a luminous geodesic device, not a solid ball.
     # Build orthogonal and diagonal orbital frames so every tier has a recognisable
