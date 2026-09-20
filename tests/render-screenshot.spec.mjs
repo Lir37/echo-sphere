@@ -65,6 +65,8 @@ test('capture the actual rendered game after pressing Play', async ({ page }, te
   });
 
   expect(renderMetrics.renderActive).toBeTruthy();
+  expect(renderMetrics.stats?.triangles || 0, '3D renderer produced no geometry').toBeGreaterThan(5000);
+  expect(renderMetrics.stats?.visibleEntities || 0, '3D entities are not visible').toBeGreaterThan(0);
   expect(assetErrors, '3D asset loading errors').toEqual([]);
   expect(consoleErrors, 'Browser console errors').toEqual([]);
   expect(pageErrors, 'Unhandled page errors').toEqual([]);
