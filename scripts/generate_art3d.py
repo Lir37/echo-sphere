@@ -136,6 +136,24 @@ for n, c, e, l, s in [
 ]:
     creature(n, c, e, l, s)
 
+def player_core():
+    shell = mat((0.03, 0.08, 0.16), (0.15, 0.65, 1.0), 0.9, 0.12)
+    core = mat((0.72, 0.92, 1.0), (0.25, 0.95, 1.0), 0.35, 0.06)
+    dark = mat((0.01, 0.02, 0.05), (0.05, 0.25, 0.55), 0.7, 0.16)
+    parts = [
+        ico(0.95, shell, (1.0, 0.92, 1.08), subdivisions=4),
+        ico(0.48, core, (1.0, 1.0, 1.15), subdivisions=4),
+    ]
+    for radius, minor in ((0.72, 0.045), (0.88, 0.028), (1.05, 0.018)):
+        parts.append(torus(radius, minor, core, sections=64))
+    for i in range(4):
+        a = i * math.tau / 4 + math.pi / 4
+        x, z = math.cos(a), math.sin(a)
+        parts.append(tube((x * 0.58, -0.05, z * 0.58), (x * 1.12, 0.18, z * 1.12), 0.045, dark, sections=12))
+    save("player_core", parts)
+
+player_core()
+
 boss("boss_colony", (.22, .03, .015), (1, .16, .02), 10)
 boss("boss_distortion", (.08, .03, .16), (.75, .1, 1), 12)
 boss("boss_singularity", (.04, .1, .18), (.1, .6, 1), 9)
