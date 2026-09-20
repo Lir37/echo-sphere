@@ -406,6 +406,7 @@ export class Echo3DRenderer {
   private width = 1;
   private height = 1;
   private cameraPos: V3 = { x: 0, y: 500, z: 500 };
+  private renderStats = { frame: 0, drawCalls: 0, triangles: 0, visibleEntities: 0 };
 
   constructor(private canvas: HTMLCanvasElement) {
     const gl = (canvas.getContext('webgl2', { alpha: false, antialias: true, powerPreference: 'high-performance' })
@@ -560,6 +561,10 @@ export class Echo3DRenderer {
 
   render(s: GameState) {
     this.resize();
+    this.renderStats.frame += 1;
+    this.renderStats.drawCalls = 0;
+    this.renderStats.triangles = 0;
+    this.renderStats.visibleEntities = 0;
     const t = s.time;
     const p = s.player.pos;
     const aspect = this.width / Math.max(1, this.height);
@@ -576,8 +581,9 @@ export class Echo3DRenderer {
     g.clearColor(0.004, 0.009, 0.024, 1);
     g.clear(g.COLOR_BUFFER_BIT | g.DEPTH_BUFFER_BIT);
     this.drawArena(vp, t, s.worldWidth, s.worldHeight);
-    for (const sp of s.spheres) if (sp.alive) this.drawSphere(sp, vp, t);
-    for (const e of s.enemies) if (e.hp > 0) this.drawEnemy(e, vp, t);
+    for (const sp of s.spheres) if (sp.alive) { this.renderStats.visibleEntities += 1; this.drawSphere(sp, vp, t); }
+    for (const e of s.enemies) if (e.hp > 0) { this.renderStats.visibleEntities += 1; this.drawEnemy(e, vp, t); }
+    this.renderStats.visibleEntities += 1;
     this.drawPlayer(s, vp, t);
     for (const m of s.minions) this.drawMinion(m, vp, t);
     for (const q of s.sphereProjectiles) if (q.alive) this.drawProjectile(q, vp, t);
@@ -588,6 +594,8 @@ export class Echo3DRenderer {
     this.drawNetwork(s.spheres, vp, t);
     this.drawLightnings(s.lightnings, vp, t);
     for (const pa of s.particles) if (pa.life > 0) this.drawParticle(pa, vp, t);
+
+    (window as any).__ECHO3D_STATS = { ...this.renderStats };
 
     g.bindFramebuffer(g.FRAMEBUFFER, null);
     g.disable(g.DEPTH_TEST);
@@ -748,6 +756,8 @@ export class Echo3DRenderer {
         g.depthMask(true);
       }
       g.drawElements(g.TRIANGLES, m.count, m.indexType, 0);
+      this.renderStats.drawCalls += 1;
+      this.renderStats.triangles += Math.floor(m.count / 3);
       if (m.alpha < 0.98) g.depthMask(true);
     }
   }
