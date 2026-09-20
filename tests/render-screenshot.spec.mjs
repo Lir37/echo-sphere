@@ -10,10 +10,15 @@ test('capture the actual rendered game after pressing Play', async ({ page }, te
   const pageErrors = [];
   page.on('pageerror', (error) => pageErrors.push(error.message));
 
+  const failedRequests = [];
+  page.on('requestfailed', (request) => {
+    failedRequests.push(
+      \`\${request.method()} \${request.url()} :: \${request.failure()?.errorText || 'failed'}\`,
+    );
+  });
+
   await page.goto('/', { waitUntil: 'networkidle' });
 
-  // CI runs with an English browser locale, but support both translations so
-  // the test follows the real UI rather than bypassing the menu.
   const playButton = page.getByRole('button', { name: /Играть|Play|START RUN/i }).first();
   await expect(playButton).toBeVisible();
   await playButton.click();
@@ -21,22 +26,28 @@ test('capture the actual rendered game after pressing Play', async ({ page }, te
   const canvas = page.locator('canvas').first();
   await expect(canvas).toBeVisible();
 
-  // Give the game loop five seconds to spawn/render actual gameplay.
   await page.waitForTimeout(5_000);
 
-  const renderMetrics = await canvas.evaluate((element) => {
-    const canvas = element;
-    return {
-      width: canvas.width,
-      height: canvas.height,
-      renderActive: canvas.width > 0 && canvas.height > 0,
-    };
-  });
+  const renderMetrics = await canvas.evaluate((element) => ({
+    width: element.width,
+    height: element.height,
+    renderActive: element.width > 0 && element.height > 0,
+  }));
+
+  const assetErrors = await page.evaluate(
+    () => window.__ECHO3D_LOAD_ERRORS || [],
+  );
 
   await fs.mkdir('test-results', { recursive: true });
   await fs.writeFile(
     'test-results/render-metrics.json',
-    JSON.stringify({ renderMetrics, consoleErrors, pageErrors }, null, 2),
+    JSON.stringify({
+      renderMetrics,
+      assetErrors,
+      consoleErrors,
+      pageErrors,
+      failedRequests,
+    }, null, 2),
     'utf8',
   );
 
@@ -51,6 +62,8 @@ test('capture the actual rendered game after pressing Play', async ({ page }, te
   });
 
   expect(renderMetrics.renderActive).toBeTruthy();
+  expect(assetErrors, '3D asset loading errors').toEqual([]);
   expect(consoleErrors, 'Browser console errors').toEqual([]);
   expect(pageErrors, 'Unhandled page errors').toEqual([]);
+  expect(failedRequests, 'Failed network requests').toEqual([]);
 });
