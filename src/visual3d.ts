@@ -343,7 +343,7 @@ void main(){
   float pulse=.90+.10*sin(u_time*3.2+v_w.y*4.0);
   vec3 e=u_emissive;
   if(u_hasEmissive>0.5) e*=texture2D(u_emissiveTex,v_uv).rgb;
-  vec3 c=base.rgb*(.24+.76*ndl)*(1.0-metallic*.16)+vec3(spec)+e*(.22+2.10*fres)*pulse*u_glow;
+  vec3 c=base.rgb*(.17+.83*ndl)*(1.0-metallic*.16)+vec3(spec)+e*(.10+0.85*fres)*pulse*u_glow;
   c+=e*fres*.14;
   c=max(c,vec3(0.0));
   c=c/(vec3(1.0)+c);
@@ -376,8 +376,8 @@ uniform vec2 u_texel;
 void main(){
   vec3 c=texture2D(u_scene,v_uv).rgb;
   float radial=1.0-distance(v_uv,vec2(0.5));
-  vec3 bg=vec3(0.010,0.024,0.070)*(0.82+0.95*radial);
-  bg+=vec3(0.0,0.055,0.16)*smoothstep(0.0,1.0,radial);
+  vec3 bg=vec3(0.006,0.015,0.042)*(0.82+0.82*radial);
+  bg+=vec3(0.0,0.032,0.095)*smoothstep(0.0,1.0,radial);
   c=max(c,bg);
   vec3 b=vec3(0.0);
   for(int i=-4;i<=4;i++){
@@ -386,8 +386,8 @@ void main(){
   }
   b/=9.0;
   float l=max(max(b.r,b.g),b.b);
-  float k=smoothstep(.16,.58,l);
-  float scan=0.985+0.015*sin(v_uv.y*900.0); gl_FragColor=vec4((c+b*k*1.85)*scan,1.0);
+  float k=smoothstep(.24,.72,l);
+  float scan=0.985+0.015*sin(v_uv.y*900.0); gl_FragColor=vec4((c+b*k*0.95)*scan,1.0);
 }`;
 
 export class Echo3DRenderer {
@@ -573,8 +573,8 @@ export class Echo3DRenderer {
     const t = s.time;
     const p = s.player.pos;
     const aspect = this.width / Math.max(1, this.height);
-    const distance = Math.max(210, Math.min(310, Math.max(s.worldWidth, s.worldHeight) * 0.135));
-    this.cameraPos = { x: p.x, y: distance * 0.72, z: p.y + distance * 0.72 };
+    const distance = Math.max(245, Math.min(345, Math.max(s.worldWidth, s.worldHeight) * 0.15));
+    this.cameraPos = { x: p.x, y: distance * 0.74, z: p.y + distance * 0.74 };
     const vp = mul(
       persp(48 * DEG, aspect, 1, 2400),
       lookAt(this.cameraPos, { x: p.x, y: 0, z: p.y }, { x: 0, y: 1, z: 0 }),
@@ -649,13 +649,13 @@ export class Echo3DRenderer {
     const bob = e.type === 'fast' ? Math.sin(t * 7 + e.pos.x * 0.01) * 0.08 : Math.sin(t * 3 + e.pos.y * 0.01) * 0.025;
     const bossPulse = e.isBoss ? 1 + 0.045 * Math.sin(t * 2.6) : 1;
     // Enemies keep a stable authored orientation. They move, bob, recoil and animate through VFX, but do not spin like rigid turntables.
-    this.drawAsset(n, e.pos.x, bob, e.pos.y, Math.max(11.0, e.radius / 0.82) * (e.isBoss ? 1.55 : 1) * bossPulse, vp, t, 'enemy', 0);
+    this.drawAsset(n, e.pos.x, bob, e.pos.y, Math.max(9.5, e.radius / 0.95) * (e.isBoss ? 1.55 : 1) * bossPulse, vp, t, 'enemy', 0);
   }
 
   private drawPlayer(s: GameState, vp: Mat4, t: number) {
     const pulse = 1 + 0.06 * Math.sin(t * 4);
     const tilt = Math.sin(t * 2.2) * 0.035;
-    this.drawAsset('player_core', s.player.pos.x, 0, s.player.pos.y, 34.0 * pulse, vp, t, 'player', t * 0.3 + tilt);
+    this.drawAsset('player_core', s.player.pos.x, 0, s.player.pos.y, 28.0 * pulse, vp, t, 'player', t * 0.3 + tilt);
   }
 
   private drawMinion(m: MinionEntity, vp: Mat4, t: number) {
