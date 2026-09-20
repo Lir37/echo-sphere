@@ -1,4 +1,4 @@
-name: Build 3D assets, web and visual smoke test
+name: Build 3D assets, web, Android APK and visual smoke test
 
 on:
   push:
@@ -8,32 +8,62 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Generate offline GLB assets
+
+      - name: Generate production GLB assets
         run: |
           python -m pip install --upgrade pip
-          python -m pip install trimesh numpy
+          python -m pip install trimesh numpy pillow
           python scripts/generate_art3d.py
+          python scripts/validate_art3d.py
           test -f public/art3d/player_core.glb
           test -f public/art3d/boss_singularity.glb
+          test -f public/art3d/sphere_standard_t7.glb
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
+
       - run: npm ci
       - run: npm run typecheck
+      - run: npm run lint
       - run: npm run build
+
+      - name: Prepare Android toolchain
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: gradle
+
+      - name: Sync Capacitor Android project
+        run: npx cap sync android
+
+      - name: Build Android debug APK
+        run: |
+          chmod +x android/gradlew
+          cd android
+          ./gradlew assembleDebug --no-daemon --stacktrace
 
       - name: Install Playwright
         run: |
           npm install --no-save playwright@1.55.0
           npx playwright install --with-deps chromium
+
       - name: Start preview server
-        run: npm run preview -- --host 0.0.0.0 > /tmp/echo-vite.log 2>&1 &
+        run: |
+          npm run preview -- --host 0.0.0.0 > /tmp/echo-vite.log 2>&1 &
+          echo $! > /tmp/echo-vite.pid
+
       - name: Wait for preview server
         run: |
           for i in {1..30}; do
@@ -42,23 +72,41 @@ jobs:
           done
           cat /tmp/echo-vite.log
           exit 1
+
       - name: Run visual smoke test
         run: node scripts/playwright_smoke.mjs
+
       - name: Upload visual screenshot
         uses: actions/upload-artifact@v4
         with:
           name: echo-sphere-visual-smoke
           path: artifacts/echo-sphere-play.png
           if-no-files-found: error
+
+      - name: Upload GLB validation report
+        uses: actions/upload-artifact@v4
+        with:
+          name: echo-sphere-3d-validation
+          path: public/art3d/validation-report.json
+          if-no-files-found: error
+
       - name: Upload 3D assets
         uses: actions/upload-artifact@v4
         with:
           name: echo-sphere-art3d
           path: public/art3d/*.glb
           if-no-files-found: error
+
       - name: Upload web build
         uses: actions/upload-artifact@v4
         with:
           name: echo-sphere-web
           path: dist
+          if-no-files-found: error
+
+      - name: Upload Android APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: echo-sphere-apk-debug
+          path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
