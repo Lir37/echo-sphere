@@ -274,7 +274,7 @@ def save(name, parts):
 # ---------------------------------------------------------------------------
 
 def sphere_asset(name, base, glow, tier, family_seed):
-    shell = pbr("Shell", (0.008, 0.025, 0.065), glow, 0.72, max(0.06, 0.16 - tier * 0.014), 0.24, seed=family_seed)
+    shell = pbr("Shell", (0.008, 0.025, 0.065), glow, 0.72, max(0.025, 0.085 - tier * 0.006), 0.24, seed=family_seed)
     core = pbr("Core", base, glow, 0.35, 0.08, seed=family_seed + 1)
     frame_glow = tuple(min(1.0, x * 0.16) for x in glow)
     metal = pbr("Frame", tuple(min(1.0, x * 0.62) for x in glow), frame_glow, 0.88, 0.18, seed=family_seed + 2)
@@ -293,7 +293,7 @@ def sphere_asset(name, base, glow, tier, family_seed):
     # The reference sphere is a luminous geodesic device, not a solid ball.
     # Build orthogonal and diagonal orbital frames so every tier has a recognisable
     # silhouette and tier VII reads as the fully evolved version.
-    ring_count = 1 if tier == 1 else 2 if tier <= 3 else 3 if tier <= 5 else 4
+    ring_count = 3 if tier <= 2 else 4 if tier <= 4 else 5 if tier <= 6 else 6
     ring_radius = 1.00 + tier * 0.018
     for i in range(ring_count):
         r = ring_radius + (i - (ring_count - 1) * 0.5) * 0.11
@@ -326,14 +326,14 @@ def sphere_asset(name, base, glow, tier, family_seed):
                 12,
             ))
 
-    node_count = 2 + tier
+    node_count = 1 if tier == 1 else 2 + tier
     for i in range(node_count):
         a = math.tau * i / node_count
         radius = 0.82 + 0.025 * (tier - 1)
         parts.append(
             ico(
                 f"EnergyNode_{i}",
-                0.075 + tier * 0.006,
+                0.050 + tier * 0.004,
                 core,
                 (1.0, 1.0, 1.35),
                 2,
