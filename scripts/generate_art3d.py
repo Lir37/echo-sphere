@@ -375,6 +375,21 @@ def sphere_asset(name, base, glow, tier, family_seed):
                 )
             )
 
+    if tier >= 7:
+        for i in range(6):
+            a = i * math.tau / 6
+            parts.append(
+                cone_between(
+                    f"CardinalTip_{i}",
+                    (1.02 * math.cos(a), 0.0, 1.02 * math.sin(a)),
+                    (1.62 * math.cos(a), 0.0, 1.62 * math.sin(a)),
+                    0.095,
+                    0.006,
+                    metal,
+                    18,
+                )
+            )
+
     if tier >= 6:
         for i in range(8):
             a = i * math.tau / 8
@@ -523,8 +538,9 @@ def player_asset():
     ]
     for i, (r, minor) in enumerate(((0.58, 0.040), (0.82, 0.030), (1.02, 0.018))):
         parts.append(torus(f"Ring_{i}", r, minor, frame, (math.pi / 2 if i == 1 else 0, 0, 0)))
-    for i in range(4):
-        a = math.tau * i / 4 + math.pi / 4
+    parts.append(torus("VerticalRing", 0.88, 0.022, frame, (0, math.pi / 2, 0)))
+    for i in range(6):
+        a = math.tau * i / 6 + math.pi / 4
         ca, sa = math.cos(a), math.sin(a)
         parts.append(cone_between(
             f"EnergyBlade_{i}",
