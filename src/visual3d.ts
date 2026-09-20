@@ -36,7 +36,7 @@ export class GLTFLoader {
     const materials=(json.materials||[]).map((m:any)=>({c:(m.pbrMetallicRoughness?.baseColorFactor||[1,1,1,1]).slice(0,3),e:m.emissiveFactor||[0,0,0]}));
     const meshes=(json.meshes||[]).map((m:any)=> (m.primitives||[]).map((p:any)=>{const pos=read(json.accessors[p.attributes.POSITION]);const normal=p.attributes.NORMAL!==undefined?read(json.accessors[p.attributes.NORMAL]):new Float32Array(pos.length);let idx:any;if(p.indices!==undefined){idx=read(json.accessors[p.indices]);}else{idx=new Uint32Array(pos.length/3);for(let i=0;i<idx.length;i++)idx[i]=i;}const mm=materials[p.material||0]||{c:[1,1,1],e:[0,0,0]};return{position:pos,normal,indices:idx,color:mm.c as [number,number,number],emissive:mm.e as [number,number,number]};}));
     const nodes=(json.nodes||[]).map((n:any)=>({name:n.name||'node',local:n.matrix?new Float32Array(n.matrix):trs(n.translation,n.rotation,n.scale),children:n.children||[],mesh:n.mesh===undefined?null:n.mesh}));
-    const child=new Set<number>();nodes.forEach((n:GLBNode)=>n.children.forEach(i=>child.add(i)));const roots=nodes.map((_,i)=>i).filter(i=>!child.has(i));return{nodes,meshes,roots};
+    const child=new Set<number>();nodes.forEach((n:GLBNode)=>n.children.forEach(i=>child.add(i)));const roots=nodes.map((_:GLBNode,i:number)=>i).filter((i:number)=>!child.has(i));return{nodes,meshes,roots};
   }
 }
 
