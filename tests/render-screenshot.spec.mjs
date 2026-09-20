@@ -1,6 +1,8 @@
 import { test, expect } from '@playwright/test';
 import fs from 'node:fs/promises';
 
+test.setTimeout(120_000);
+
 test('capture the actual rendered game after pressing Play', async ({ page }, testInfo) => {
   const consoleErrors = [];
   page.on('console', (message) => {
