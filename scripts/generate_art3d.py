@@ -27,6 +27,48 @@ OUT.mkdir(parents=True, exist_ok=True)
 _TEXTURE_CACHE: dict[str, Image.Image] = {}
 
 
+def _surface_field(seed: int, size: int = 512) -> np.ndarray:
+    rng = np.random.default_rng(seed)
+    low = Image.fromarray(np.uint8(rng.random((64, 64)) * 255), "L")
+    low = low.resize((size, size), Image.Resampling.BICUBIC).filter(ImageFilter.GaussianBlur(1.4))
+    noise = np.asarray(low, dtype=np.float32) / 255.0
+    y, x = np.mgrid[0:size, 0:size]
+    micro = (
+        0.55
+        + 0.22 * np.sin(x / 7.0)
+        + 0.16 * np.sin(y / 11.0)
+        + 0.10 * np.sin((x + y) / 19.0)
+    )
+    return np.clip(0.55 * noise + 0.45 * micro, 0.0, 1.0)
+
+
+def _normal_texture(seed: int, size: int = 512) -> Image.Image:
+    height = _surface_field(seed, size)
+    dx = np.gradient(height, axis=1) * 3.2
+    dy = np.gradient(height, axis=0) * 3.2
+    nx = -dx
+    ny = np.ones_like(height)
+    nz = -dy
+    length = np.sqrt(nx * nx + ny * ny + nz * nz)
+    rgb = np.stack(
+        (
+            nx / length * 0.5 + 0.5,
+            ny / length * 0.5 + 0.5,
+            nz / length * 0.5 + 0.5,
+        ),
+        axis=-1,
+    )
+    return Image.fromarray(np.uint8(np.clip(rgb, 0, 1) * 255), "RGB")
+
+
+def _metal_rough_texture(metallic: float, roughness: float, seed: int, size: int = 512) -> Image.Image:
+    field = _surface_field(seed + 17, size)
+    rough = np.clip(roughness * (0.82 + 0.25 * field), 0.04, 1.0)
+    metal = np.clip(metallic * (0.95 + 0.08 * field), 0.0, 1.0)
+    rgb = np.stack((np.zeros_like(rough), rough, metal), axis=-1)
+    return Image.fromarray(np.uint8(np.clip(rgb, 0, 1) * 255), "RGB")
+
+
 def _texture(base, glow, seed: int, size: int = 512) -> Image.Image:
     key = f"{base}-{glow}-{seed}-{size}"
     if key in _TEXTURE_CACHE:
@@ -88,10 +130,14 @@ def pbr(
     seed: int = 1,
 ):
     image = _texture(base, glow, seed)
+    normal = _normal_texture(seed + 101, 512)
+    metallic_roughness = _metal_rough_texture(metallic, rough, seed + 211, 512)
     return trimesh.visual.material.PBRMaterial(
         name=name,
         baseColorFactor=(1.0, 1.0, 1.0, alpha),
         baseColorTexture=image,
+        normalTexture=normal,
+        metallicRoughnessTexture=metallic_roughness,
         emissiveFactor=tuple(float(x) for x in glow),
         metallicFactor=metallic,
         roughnessFactor=rough,
