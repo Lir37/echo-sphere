@@ -459,7 +459,7 @@ def insect_asset(name, kind, base, glow, scale, seed):
     for i in range(eye_count):
         a = (i - (eye_count - 1) / 2) * 0.24
         eye = ico(f"Eye_{i}", 0.07 * scale, core, 1)
-        eye.apply_translation((0.35 * scale, 0.18 * scale, a * scale))
+        eye.apply_translation((0.74 * scale, 0.27 * scale, a * scale))
 
     if kind in {"worker", "guard", "flyer"}:
         # Six articulated insect legs, arranged as three bilateral pairs along the
@@ -494,8 +494,8 @@ def insect_asset(name, kind, base, glow, scale, seed):
         s = float(side)
         parts.append(cone_between(
             f"Mandible_{side}",
-            (0.36 * scale, 0.0, 0.24 * s * scale),
-            (0.78 * scale, -0.08 * scale, 0.50 * s * scale),
+            (0.62 * scale, 0.0, 0.24 * s * scale),
+            (1.02 * scale, -0.08 * scale, 0.50 * s * scale),
             0.09 * scale, 0.018 * scale, dark, 18
         ))
 
