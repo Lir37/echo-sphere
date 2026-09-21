@@ -138,51 +138,8 @@ export function render(ctx: CanvasRenderingContext2D, s: GameState, canvasW: num
   ctx.setLineDash([]);
   ctx.shadowBlur = 0;
 
-  // character-specific world indicators
-  drawCharacterWorldIndicators(ctx, s);
-
-  // fire trails
-  for (const ft of s.fireTrails) {
-    const alpha = Math.max(0, Math.min(1, ft.life / ft.maxLife));
-    ctx.save();
-    ctx.translate(ft.pos.x, ft.pos.y);
-    glowCircle(ctx, 34, '#ff613d', alpha * 0.24);
-    ctx.fillStyle = `rgba(255,91,56,${alpha * 0.16})`;
-    ctx.beginPath(); ctx.arc(0, 0, 22, 0, Math.PI * 2); ctx.fill();
-    ctx.strokeStyle = `rgba(255,180,70,${alpha * 0.75})`;
-    ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.arc(0, 0, 15 + Math.sin(Date.now() * 0.02 + ft.pos.x) * 2, 0, Math.PI * 2); ctx.stroke();
-    ctx.restore();
-  }
-
-  // pickups
-  for (const orb of s.xpOrbs) drawModernXp(ctx, orb.pos.x, orb.pos.y, orb.radius, '#63e6ff');
-  for (const hp of s.healthPacks) drawModernHealth(ctx, hp.pos.x, hp.pos.y, '#ff5c72');
-
-  // chests
-  for (const chest of s.chests) if (chest.alive) drawChest(ctx, chest);
-
-  // spheres
-  for (const sphere of s.spheres) drawModernSphere(ctx, s, sphere);
-
-  // sphere projectiles
-  for (const p of s.sphereProjectiles) drawModernProjectile(ctx, p.pos.x, p.pos.y, p.vel.x, p.vel.y, p.radius, p.color);
-
-  // minions
-  for (const m of s.minions) drawModernMinion(ctx, m.pos.x, m.pos.y, m.radius, m.rotation, '#ffb84d');
-
-  // enemies
-  for (const e of s.enemies) drawModernEnemy(ctx, e);
-
-  // hunter mark and alchemist reaction indicators sit above enemies
-  drawCharacterTargetIndicators(ctx, s);
-
-  // boss projectiles
-  for (const e of s.enemies) for (const bp of e.bossProjectiles) drawBossProjectile(ctx, bp.pos.x, bp.pos.y, bp.radius, e.color);
-
-  // Player body is rendered exclusively by the WebGL 3D pipeline.
-  // Do not draw the legacy/procedural 2D sphere here, otherwise it sits directly
-  // on top of the authored player_core GLB.
+  // Gameplay entities and world-space overlays are owned by the WebGL renderer.
+  // The legacy 2D layer must not paint flat circles/spheres over authored GLB models.
 
   // particles
   for (const p of s.particles) {
@@ -520,7 +477,8 @@ function drawVoidField(ctx: CanvasRenderingContext2D, w: number, h: number, them
   }
   ctx.restore();
 
-  // Circular resonance arena, matching the reference's layered combat geometry.\n  ctx.save();\n  ctx.translate(cx, cy);\n  const arenaRadius = outer * 0.43;\n  const coreGlow = ctx.createRadialGradient(0, 0, 0, 0, 0, arenaRadius);\n  coreGlow.addColorStop(0, 'rgba(75,190,255,0.16)');\n  coreGlow.addColorStop(0.16, 'rgba(79,111,255,0.08)');\n  coreGlow.addColorStop(0.52, 'rgba(9,24,48,0.055)');\n  coreGlow.addColorStop(1, 'rgba(0,0,0,0)');\n  ctx.fillStyle = coreGlow;\n  ctx.beginPath(); ctx.arc(0, 0, arenaRadius, 0, Math.PI * 2); ctx.fill();\n  for (let i = 1; i <= 8; i++) {\n    const rr = arenaRadius * (i / 8);\n    ctx.strokeStyle = i === 1 ? 'rgba(119,224,255,0.16)' : 'rgba(102,202,255,0.065)';\n    ctx.lineWidth = i === 1 ? 1.2 : 0.8;\n    ctx.beginPath(); ctx.arc(0, 0, rr, 0, Math.PI * 2); ctx.stroke();\n  }\n  ctx.strokeStyle = 'rgba(130,218,255,0.055)';\n  ctx.lineWidth = 0.8;\n  for (let i = 0; i < 20; i++) {\n    const a = (Math.PI * 2 * i) / 20;\n    const inner = arenaRadius * 0.08;\n    ctx.beginPath();\n    ctx.moveTo(Math.cos(a) * inner, Math.sin(a) * inner);\n    ctx.lineTo(Math.cos(a) * arenaRadius, Math.sin(a) * arenaRadius);\n    ctx.stroke();\n  }\n  const arcs = [\n    { radius: arenaRadius * 0.38, start: -0.35, end: 2.15, color: 'rgba(92,223,255,0.20)' },\n    { radius: arenaRadius * 0.62, start: 1.55, end: 4.70, color: 'rgba(166,112,255,0.16)' },\n    { radius: arenaRadius * 0.82, start: -2.35, end: 0.55, color: 'rgba(255,119,188,0.12)' },\n  ];\n  for (const arc of arcs) {\n    ctx.strokeStyle = arc.color;\n    ctx.lineWidth = 1.1;\n    ctx.beginPath(); ctx.arc(0, 0, arc.radius, arc.start, arc.end); ctx.stroke();\n  }\n  ctx.restore();\n\n  // A few near-field plates create scale and depth without becoming a grid.
+  // Arena rings and the player-space disc are rendered by WebGL only.
+  // A few near-field plates create scale and depth without becoming a grid.
   ctx.save();
   ctx.strokeStyle='rgba(96,184,255,0.032)';
   ctx.lineWidth=1;
