@@ -17,7 +17,8 @@ from PIL import Image, ImageFilter, ImageDraw
 import trimesh
 
 
-OUT = Path(__file__).resolve().parents[1] / "public" / "art3d"
+ROOT = Path(__file__).resolve().parents[1]
+OUT = ROOT / "public" / "art3d"
 OUT.mkdir(parents=True, exist_ok=True)
 
 # Source assets supplied outside this generator are benchmarks and must never be
