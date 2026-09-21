@@ -46,9 +46,11 @@ test('capture the actual rendered game after Play', async ({ page }, testInfo) =
     assetErrors: window.__ECHO3D_LOAD_ERRORS || [],
   }));
 
-  await fs.mkdir('test-results', { recursive: true });
+  const metricsPath = testInfo.outputPath('render-metrics.json');
+  const screenshotPath = testInfo.outputPath('echo-sphere-render.png');
+  await fs.mkdir(testInfo.outputDir, { recursive: true });
   await fs.writeFile(
-    'test-results/render-metrics.json',
+    metricsPath,
     JSON.stringify({
       runtime,
       consoleErrors,
@@ -60,17 +62,24 @@ test('capture the actual rendered game after Play', async ({ page }, testInfo) =
   );
 
   await page.screenshot({
-    path: 'test-results/echo-sphere-render.png',
+    path: screenshotPath,
     fullPage: false,
   });
 
   await testInfo.attach('echo-sphere-render', {
-    path: 'test-results/echo-sphere-render.png',
+    path: screenshotPath,
     contentType: 'image/png',
+  });
+
+  await testInfo.attach('render-metrics', {
+    path: metricsPath,
+    contentType: 'application/json',
   });
 
   expect(runtime.width).toBeGreaterThan(0);
   expect(runtime.height).toBeGreaterThan(0);
+  expect(runtime.stats?.drawCalls || 0, 'no 3D draw calls').toBeGreaterThan(0);
+  expect(runtime.stats?.triangles || 0, 'no rendered triangles').toBeGreaterThan(1000);
   expect(runtime.stats?.players || 0, 'player was not rendered').toBeGreaterThanOrEqual(1);
   expect(runtime.stats?.spheres || 0, 'tower was not rendered').toBeGreaterThanOrEqual(1);
   expect(runtime.stats?.enemies || 0, 'enemy was not rendered').toBeGreaterThanOrEqual(1);
