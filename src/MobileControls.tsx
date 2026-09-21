@@ -31,7 +31,7 @@ export type Handedness = 'right' | 'left';
 const JOYSTICK_DEADZONE = 12;
 const JOYSTICK_RADIUS = 58;
 const JOYSTICK_KNOB_RADIUS = 24;
-const sphere_TOUCH_TOLERANCE = 26;
+const sphere_TOUCH_TOLERANCE = 52;
 
 function haptic(duration = 8): void {
   if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') navigator.vibrate(duration);
@@ -96,9 +96,13 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
     if (st.pendingUpgrade || st.pendingArtifact) return;
     const world = touchToWorld(clientX, clientY);
     if (!world) return;
-    const nearExistingsphere = st.spheres.some(
-      (sphere) => sphere.alive && Math.hypot(sphere.pos.x - world.x, sphere.pos.y - world.y) < sphere_TOUCH_TOLERANCE
-    );
+    const nearExistingsphere = st.spheres.some((sphere) => {
+      if (!sphere.alive) return false;
+      // Hit testing follows the authored tower footprint rather than a tiny
+      // invisible 26 px point, so a normal mobile tap on the visible model removes it.
+      const hitRadius = Math.max(sphere_TOUCH_TOLERANCE, sphere.radius * 0.42);
+      return Math.hypot(sphere.pos.x - world.x, sphere.pos.y - world.y) < hitRadius;
+    });
 
     // Tapping an existing sphere keeps the old toggle/remove behavior.
     if (nearExistingsphere) {
