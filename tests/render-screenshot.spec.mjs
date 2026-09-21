@@ -27,15 +27,17 @@ test('capture the actual rendered game after Play', async ({ page }, testInfo) =
   const canvas = page.locator('canvas').first();
   await expect(canvas).toBeVisible();
 
-  // Gameplay must run before the QA capture. Place one real tower shortly before
-  // the 15-second mark so the screenshot contains player + enemies + tower.
-  await page.waitForTimeout(13_000);
+  // Place a real tower early enough that later enemy movement cannot make the
+  // placement invalid. The point is deliberately away from the left joystick
+  // and right-side action controls, and projects to ~77 world units from the
+  // player, beyond the placement exclusion radius.
+  await page.waitForTimeout(1_500);
 
   const box = await canvas.boundingBox();
   expect(box).not.toBeNull();
-  await page.mouse.click(box.x + box.width * 0.50, box.y + box.height * 0.44);
+  await page.mouse.click(box.x + box.width * 0.50, box.y + box.height * 0.70);
 
-  await page.waitForTimeout(2_000);
+  await page.waitForTimeout(13_500);
 
   const runtime = await canvas.evaluate((element) => ({
     width: element.width,
