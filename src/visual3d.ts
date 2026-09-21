@@ -422,12 +422,18 @@ void main(){
   // Lightweight reflection environment for the custom WebGL renderer. It is not
   // a fake glow: metallic surfaces receive a directional sky/ground contribution
   // so bevels and curved surfaces remain readable without a full IBL texture.
-  vec3 envTop=vec3(0.055,0.12,0.24);
-  vec3 envBottom=vec3(0.012,0.025,0.055);
+  vec3 envTop=vec3(0.095,0.19,0.36);
+  vec3 envBottom=vec3(0.022,0.050,0.105);
   float envMix=0.5+0.5*N.y;
   vec3 environment=mix(envBottom,envTop,envMix);
-  vec3 ambient=base.rgb*(0.075+0.12*nv)+environment*(0.045+0.22*metallic);
-  vec3 direct=(diffuse+spec)*(u_lightColor*nl+u_fillColor*nfl);
+  // Keep dark authored materials readable under the reference's cold neon lighting.
+  // This is still a PBR surface response: the lift comes from ambient environment and
+  // secondary directional illumination, not from painting the whole mesh emissive.
+  vec3 ambient=base.rgb*(0.18+0.20*nv)+environment*(0.10+0.30*metallic);
+  vec3 rimL=normalize(vec3(-0.18,0.38,-0.90));
+  float nrl=sat(dot(N,rimL));
+  vec3 rimLight=vec3(0.10,0.20,0.34)*nrl*(0.45+0.55*metallic);
+  vec3 direct=(diffuse+spec)*(u_lightColor*nl+u_fillColor*nfl)+rimLight;
 
   float rim=pow(1.0-nv,3.0);
   float pulse=0.96+0.04*sin(u_time*3.2+v_w.y*2.5);
@@ -750,10 +756,10 @@ export class Echo3DRenderer {
     const t = s.time;
     const p = s.player.pos;
     const aspect = this.width / Math.max(1, this.height);
-    const distance = Math.max(180, Math.min(255, Math.max(s.worldWidth, s.worldHeight) * 0.105));
-    this.cameraPos = { x: p.x, y: distance * 0.74, z: p.y + distance * 0.74 };
+    const distance = Math.max(165, Math.min(220, Math.max(s.worldWidth, s.worldHeight) * 0.095));
+    this.cameraPos = { x: p.x, y: distance * 0.78, z: p.y + distance * 0.78 };
     const vp = mul(
-      persp(48 * DEG, aspect, 1, 2400),
+      persp(50 * DEG, aspect, 1, 2400),
       lookAt(this.cameraPos, { x: p.x, y: 0, z: p.y }, { x: 0, y: 1, z: 0 }),
     );
 
@@ -811,7 +817,7 @@ export class Echo3DRenderer {
     const lodTier = distance > 720 ? Math.min(tier, 3) : distance > 470 ? Math.min(tier, 5) : tier;
     // Generated GLBs use Blender-style unit scale; gameplay radii are much larger world units.
     // Normalize the authored model to the same visual footprint as the legacy 2D sphere.
-    const visualScale = Math.max(21, s.radius / 4.65);
+    const visualScale = Math.max(23, s.radius / 4.40);
     this.drawAsset(this.findSphereAsset(s.type, lodTier), s.pos.x, 0, s.pos.y, visualScale, vp, t, `sphere:${lodTier}`, s.rotation);
   }
 
@@ -827,7 +833,7 @@ export class Echo3DRenderer {
       ? e.velocity
       : e.facing;
     const movementAngle = Math.atan2(facing.y, facing.x) + this.assetFacingOffset(n);
-    const creatureScale = Math.max(8.0, e.radius / 1.02) * (e.isBoss ? 1.60 : 0.98) * bossPulse;
+    const creatureScale = Math.max(8.5, e.radius / 1.00) * (e.isBoss ? 1.58 : 1.02) * bossPulse;
     this.drawAsset(n, e.pos.x, bob, e.pos.y, creatureScale, vp, t, 'enemy', movementAngle);
   }
 
@@ -841,7 +847,7 @@ export class Echo3DRenderer {
       alchemist: 'player_alchemist',
       architect: 'player_architect',
     } as Record<string, string>)[s.player.characterId] || 'player_spherist';
-    this.drawAsset(characterAsset, s.player.pos.x, 0, s.player.pos.y, 26.0 * pulse, vp, t, 'player', 0);
+    this.drawAsset(characterAsset, s.player.pos.x, 0, s.player.pos.y, 29.0 * pulse, vp, t, 'player', 0);
   }
 
   private drawMinion(m: MinionEntity, vp: Mat4, t: number) {
@@ -953,8 +959,8 @@ export class Echo3DRenderer {
       g.uniformMatrix4fv(g.getUniformLocation(this.program, 'u_mvp'), false, mul(vp, model));
       g.uniform3f(g.getUniformLocation(this.program, 'u_color'), m.color[0], m.color[1], m.color[2]);
       g.uniform3f(g.getUniformLocation(this.program, 'u_emissive'), m.emissive[0], m.emissive[1], m.emissive[2]);
-      g.uniform3f(g.getUniformLocation(this.program, 'u_lightColor'), 1.0, 0.92, 0.84);
-      g.uniform3f(g.getUniformLocation(this.program, 'u_fillColor'), 0.22, 0.30, 0.48);
+      g.uniform3f(g.getUniformLocation(this.program, 'u_lightColor'), 1.18, 1.08, 0.98);
+      g.uniform3f(g.getUniformLocation(this.program, 'u_fillColor'), 0.34, 0.44, 0.68);
       g.uniform3f(g.getUniformLocation(this.program, 'u_camera'), this.cameraPos.x, this.cameraPos.y, this.cameraPos.z);
       g.uniform1f(g.getUniformLocation(this.program, 'u_time'), t);
       g.uniform1f(g.getUniformLocation(this.program, 'u_alpha'), m.alpha);
