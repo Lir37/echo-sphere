@@ -539,12 +539,16 @@ export class Echo3DRenderer {
     g.pixelStorei(g.UNPACK_FLIP_Y_WEBGL, 0);
     const isPOT = (value: number) => value > 0 && (value & (value - 1)) === 0;
     g.texParameteri(g.TEXTURE_2D, g.TEXTURE_MAG_FILTER, g.LINEAR);
-    g.texParameteri(g.TEXTURE_2D, g.TEXTURE_WRAP_S, g.REPEAT);
-    g.texParameteri(g.TEXTURE_2D, g.TEXTURE_WRAP_T, g.REPEAT);
+    const pot = isPOT(bitmap.width) && isPOT(bitmap.height);
+    // WebGL1 forbids REPEAT + mipmaps for NPOT textures. Use repeat only for POT
+    // assets so the same GLB material renders correctly on older Android WebViews.
+    const wrap = pot ? g.REPEAT : g.CLAMP_TO_EDGE;
+    g.texParameteri(g.TEXTURE_2D, g.TEXTURE_WRAP_S, wrap);
+    g.texParameteri(g.TEXTURE_2D, g.TEXTURE_WRAP_T, wrap);
     const internal = g instanceof WebGL2RenderingContext && colorSpace === 'srgb'
       ? (g as WebGL2RenderingContext).SRGB8_ALPHA8 : g.RGBA;
     g.texImage2D(g.TEXTURE_2D, 0, internal, g.RGBA, g.UNSIGNED_BYTE, bitmap);
-    if (isPOT(bitmap.width) && isPOT(bitmap.height)) {
+    if (pot) {
       g.generateMipmap(g.TEXTURE_2D);
       g.texParameteri(g.TEXTURE_2D, g.TEXTURE_MIN_FILTER, g.LINEAR_MIPMAP_LINEAR);
     } else {
