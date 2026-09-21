@@ -27,6 +27,14 @@ function ry(a: number): Mat4 {
   const c = Math.cos(a), s = Math.sin(a);
   return new Float32Array([c, 0, -s, 0, 0, 1, 0, 0, s, 0, c, 0, 0, 0, 0, 1]);
 }
+function rx(a: number): Mat4 {
+  const c = Math.cos(a), s = Math.sin(a);
+  return new Float32Array([1, 0, 0, 0, 0, c, s, 0, 0, -s, c, 0, 0, 0, 0, 1]);
+}
+function rz(a: number): Mat4 {
+  const c = Math.cos(a), s = Math.sin(a);
+  return new Float32Array([c, s, 0, 0, -s, c, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+}
 function persp(fov: number, aspect: number, near: number, far: number): Mat4 {
   const f = 1 / Math.tan(fov / 2), nf = 1 / (near - far);
   return new Float32Array([f / aspect, 0, 0, 0, 0, f, 0, 0, 0, 0, (far + near) * nf, -1, 0, 0, 2 * far * near * nf, 0]);
@@ -568,14 +576,12 @@ export class Echo3DRenderer {
 
   private async preload() {
     const names = [
+      // Startup-critical authored assets only. Other hero/boss/tier assets remain
+      // real GLBs and stream on demand, keeping the first gameplay frame responsive.
       'player_core',
-      'player_spherist', 'player_hunter', 'player_engineer', 'player_berserker', 'player_alchemist', 'player_architect',
-      'enemy_worker', 'enemy_guard', 'enemy_flyer', 'enemy_spider', 'enemy_slime', 'enemy_psionic', 'enemy_queen',
-      'boss_colony', 'boss_distortion', 'boss_singularity',
+      'player_spherist',
+      'enemy_spider', 'enemy_worker', 'enemy_guard', 'enemy_flyer', 'enemy_slime', 'enemy_psionic',
       'projectile_energy', 'projectile_fire',
-      // Load only the first tier of each family at startup. Higher tiers stay
-      // as real GLB assets but are streamed on demand after an upgrade, so
-      // heavy geodesic cages never stall the first gameplay frame.
       ...['standard', 'sniper', 'shotgun', 'chain', 'aura'].map(t => `sphere_${t}_t1`),
     ];
     await Promise.all(names.map(async name => {
@@ -740,7 +746,7 @@ export class Echo3DRenderer {
         : e.type === 'tank' ? 'enemy_guard'
         : e.type === 'boss' ? 'enemy_queen'
         : e.shape === 'triangle' ? 'enemy_psionic'
-        : e.shape === 'square' ? 'enemy_slime' : 'enemy_worker');
+        : e.shape === 'square' ? 'enemy_slime' : 'enemy_spider');
     const bob = e.type === 'fast' ? Math.sin(t * 7 + e.pos.x * 0.01) * 0.08 : Math.sin(t * 3 + e.pos.y * 0.01) * 0.025;
     const bossPulse = e.isBoss ? 1 + 0.045 * Math.sin(t * 2.6) : 1;
     // Enemies keep a stable authored orientation. They move, bob, recoil and animate through VFX, but do not spin like rigid turntables.
@@ -793,10 +799,31 @@ export class Echo3DRenderer {
   private walk(a: GPUAsset, ni: number, parent: Mat4, vp: Mat4, t: number) {
     const node = a.asset.nodes[ni];
     let local = node.local;
-    // Authored enemy limbs are already posed in model space. Do not rotate each
-    // leg/wing around the world origin: that produces the artificial "turntable"
-    // motion and tangles the silhouette. Creature motion is conveyed by translation,
-    // recoil and local VFX instead.
+    // Animate authored parts locally. The creature's world-facing orientation stays
+    // stable, while articulated legs/wings/tendrils create movement from the model.
+    const legMatch = node.name.match(/^Leg_(\d+)_(Upper|Lower)/);
+    if (legMatch) {
+      const index = Number(legMatch[1]);
+      const limb = legMatch[2];
+      const phase = index * 0.72 + (limb === 'Lower' ? 1.45 : 0);
+      const amp = limb === 'Lower' ? 0.105 : 0.075;
+      const gait = Math.sin(t * 4.8 + phase) * amp;
+      local = mul(local, rz(gait * (index % 2 === 0 ? 1 : -1)));
+      local = mul(local, rx(gait * 0.55));
+    }
+    if (node.name.startsWith('Wing_')) {
+      const parts = node.name.split('_');
+      const side = parts[1] === '-1' ? -1 : 1;
+      const row = Number(parts[2] || 0);
+      const flap = Math.sin(t * 7.0 + row * 0.9 + side * 0.4) * (0.10 - row * 0.015);
+      local = mul(local, rz(flap * side));
+    }
+    if (node.name.startsWith('Tendril_') || node.name.startsWith('VoidTendril_')) {
+      const numeric = Number((node.name.match(/(\d+)$/) || ['0', '0'])[1]);
+      const wave = Math.sin(t * 3.8 + numeric * 0.7) * 0.08;
+      local = mul(local, rz(wave));
+      local = mul(local, rx(Math.cos(t * 3.1 + numeric) * 0.045));
+    }
     if (node.name.includes('Ring_')) local = mul(local, ry(t * (node.name.endsWith('2') ? 0.75 : 1.2)));
     if (node.name.includes('Core') || node.name.includes('VoidCore') || node.name.includes('SingularityCore')) {
       const q = 1 + 0.055 * Math.sin(t * 4.5);
