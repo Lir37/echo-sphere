@@ -281,6 +281,19 @@ export class GLTFLoader {
   }
 }
 
+
+interface AssetManifestEntry {
+  id: string;
+  path: string;
+  category: 'sphere' | 'enemy' | 'boss' | 'player' | 'projectile';
+  type?: string;
+  tier?: number;
+  gameType?: string;
+  shape?: string;
+  facingOffset?: number;
+  animation?: string;
+}
+
 interface GPUPrim extends GLBPrimitive {
   p: WebGLBuffer;
   n: WebGLBuffer;
@@ -466,13 +479,13 @@ void main(){
     float w=5.0-abs(fi);
     vec2 o=vec2(fi)*u_texel*2.0;
     vec3 tap=texture2D(u_scene,v_uv+o).rgb;
-    bloom+=max(tap-vec3(0.80),vec3(0.0))*w;
+    bloom+=max(tap-vec3(0.95),vec3(0.0))*w;
     weights+=w;
   }
   bloom/=max(weights,1.0);
   float radial=1.0-smoothstep(0.15,0.78,distance(v_uv,vec2(0.5)));
   vec3 bg=vec3(0.004,0.010,0.030)+vec3(0.0,0.018,0.055)*radial;
-  vec3 c=max(scene,bg)+bloom*(0.46+0.12*radial);
+  vec3 c=max(scene,bg)+bloom*(0.30+0.08*radial);
   c=c/(vec3(1.0)+c);
   c=pow(max(c,vec3(0.0)),vec3(1.0/2.2));
   c*=0.992+0.008*sin(v_uv.y*1100.0);
@@ -487,6 +500,7 @@ export class Echo3DRenderer {
   private postProgram: WebGLProgram;
   private loader = new GLTFLoader();
   private assets = new Map<string, GPUAsset>();
+  private manifest = new Map<string, AssetManifestEntry>();
   private loading = new Map<string, Promise<void>>();
   private loadErrors: string[] = [];
   private quad: WebGLBuffer;
@@ -583,16 +597,70 @@ export class Echo3DRenderer {
     (window as any).__ECHO3D_LOAD_ERRORS = [...this.loadErrors];
   }
 
+  private async loadManifest(): Promise<Map<string, AssetManifestEntry>> {
+    if (this.manifest.size > 0) return this.manifest;
+    try {
+      const response = await fetch('/art3d/manifest.json', { cache: 'no-store' });
+      if (!response.ok) throw new Error(`manifest HTTP ${response.status}`);
+      const payload = await response.json() as { assets?: AssetManifestEntry[] };
+      for (const entry of payload.assets || []) {
+        if (entry?.id) this.manifest.set(entry.id, entry);
+      }
+    } catch (error) {
+      console.warn('[Echo3D] manifest unavailable:', String(error));
+    }
+    return this.manifest;
+  }
+
+  private findSphereAsset(type: SphereType, tier: number): string {
+    const exact = [...this.manifest.values()].find(
+      entry => entry.category === 'sphere' && entry.type === type && entry.tier === tier,
+    );
+    return exact?.id || 'sphere_' + type + '_t' + tier;
+  }
+
+  private findEnemyAsset(e: EnemyEntity): string {
+    const category = e.isBoss ? 'boss' : 'enemy';
+    const candidates = [...this.manifest.values()].filter(entry => entry.category === category);
+
+    if (!e.isBoss) {
+      const wanted = e.type === 'fast' ? 'flyer'
+        : e.type === 'tank' ? 'guard'
+        : e.shape === 'triangle' ? 'psionic'
+        : e.shape === 'square' ? 'slime'
+        : 'spider';
+      const match = candidates.find(entry => entry.gameType === wanted || entry.type === wanted);
+      return match?.id || 'enemy_' + wanted;
+    }
+
+    const bossKey = String(e.bossType || '').toLowerCase();
+    const wanted = bossKey.includes('dist') ? 'distortion'
+      : bossKey.includes('sing') ? 'singularity'
+      : 'colony';
+    const match = candidates.find(entry => entry.gameType === wanted || entry.type === wanted);
+    return match?.id || 'boss_' + wanted;
+  }
+
+  private assetFacingOffset(name: string): number {
+    return this.manifest.get(name)?.facingOffset ?? Math.PI / 2;
+  }
+
   private async preload() {
-    const names = [
-      // Startup-critical authored assets only. Other hero/boss/tier assets remain
-      // real GLBs and stream on demand, keeping the first gameplay frame responsive.
-      'player_core',
-      'player_spherist',
-      'enemy_spider', 'enemy_worker', 'enemy_guard', 'enemy_flyer', 'enemy_slime', 'enemy_psionic',
-      'projectile_energy', 'projectile_fire',
-      ...['standard', 'sniper', 'shotgun', 'chain', 'aura'].map(t => `sphere_${t}_t1`),
-    ];
+    const manifest = await this.loadManifest();
+    const names = manifest.size > 0
+      ? [
+          ...[...manifest.values()].filter(entry => entry.category === 'player').map(entry => entry.id),
+          ...[...manifest.values()].filter(entry => entry.category === 'enemy').map(entry => entry.id),
+          ...[...manifest.values()].filter(entry => entry.category === 'projectile').map(entry => entry.id),
+          ...[...manifest.values()].filter(entry => entry.category === 'sphere' && entry.tier === 1).map(entry => entry.id),
+        ]
+      : [
+          'player_core',
+          'player_spherist',
+          'enemy_spider', 'enemy_worker', 'enemy_guard', 'enemy_flyer', 'enemy_slime', 'enemy_psionic',
+          'projectile_energy', 'projectile_fire',
+          ...['standard', 'sniper', 'shotgun', 'chain', 'aura'].map(t => 'sphere_' + t + '_t1'),
+        ];
     await Promise.all(names.map(async name => {
       try { await this.load(name); }
       catch (e) {
@@ -744,18 +812,11 @@ export class Echo3DRenderer {
     // Generated GLBs use Blender-style unit scale; gameplay radii are much larger world units.
     // Normalize the authored model to the same visual footprint as the legacy 2D sphere.
     const visualScale = Math.max(21, s.radius / 4.65);
-    this.drawAsset(this.modelForSphere(s.type, lodTier), s.pos.x, 0, s.pos.y, visualScale, vp, t, `sphere:${lodTier}`, s.rotation);
+    this.drawAsset(this.findSphereAsset(s.type, lodTier), s.pos.x, 0, s.pos.y, visualScale, vp, t, `sphere:${lodTier}`, s.rotation);
   }
 
   private drawEnemy(e: EnemyEntity, vp: Mat4, t: number) {
-    const n = e.isBoss
-      ? (String(e.bossType).toLowerCase().includes('dist') ? 'boss_distortion'
-        : String(e.bossType).toLowerCase().includes('sing') ? 'boss_singularity' : 'boss_colony')
-      : (e.type === 'fast' ? 'enemy_flyer'
-        : e.type === 'tank' ? 'enemy_guard'
-        : e.type === 'boss' ? 'enemy_queen'
-        : e.shape === 'triangle' ? 'enemy_psionic'
-        : e.shape === 'square' ? 'enemy_slime' : 'enemy_spider');
+    const n = this.findEnemyAsset(e);
     const bob = e.type === 'fast' ? Math.sin(t * 7 + e.pos.x * 0.01) * 0.08 : Math.sin(t * 3 + e.pos.y * 0.01) * 0.025;
     const bossPulse = e.isBoss ? 1 + 0.045 * Math.sin(t * 2.6) : 1;
     // Runtime-facing is derived from authoritative gameplay velocity. When an enemy
@@ -765,8 +826,7 @@ export class Echo3DRenderer {
     const facing = e.velocity && Math.hypot(e.velocity.x, e.velocity.y) > 1e-4
       ? e.velocity
       : e.facing;
-    const authoredFacingOffset = Math.PI / 2;
-    const movementAngle = Math.atan2(facing.y, facing.x) + authoredFacingOffset;
+    const movementAngle = Math.atan2(facing.y, facing.x) + this.assetFacingOffset(n);
     const creatureScale = Math.max(10.5, e.radius / 0.88) * (e.isBoss ? 1.65 : 1.25) * bossPulse;
     this.drawAsset(n, e.pos.x, bob, e.pos.y, creatureScale, vp, t, 'enemy', movementAngle);
   }
