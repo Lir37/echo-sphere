@@ -748,8 +748,7 @@ export class Echo3DRenderer {
 
   private drawPlayer(s: GameState, vp: Mat4, t: number) {
     const pulse = 1 + 0.06 * Math.sin(t * 4);
-    const tilt = 0;
-    const characterAsset = ({
+        const characterAsset = ({
       spherist: 'player_spherist',
       hunter: 'player_hunter',
       engineer: 'player_engineer',
