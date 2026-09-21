@@ -642,7 +642,8 @@ export class Echo3DRenderer {
     const bossPulse = e.isBoss ? 1 + 0.045 * Math.sin(t * 2.6) : 1;
     // Enemies keep a stable authored orientation. They move, bob, recoil and animate through VFX, but do not spin like rigid turntables.
     const authoredFacing = Math.PI / 2;
-    this.drawAsset(n, e.pos.x, bob, e.pos.y, Math.max(9.5, e.radius / 0.95) * (e.isBoss ? 1.55 : 1) * bossPulse, vp, t, 'enemy', authoredFacing);
+    const creatureScale = Math.max(10.5, e.radius / 0.88) * (e.isBoss ? 1.65 : 1.25) * bossPulse;
+    this.drawAsset(n, e.pos.x, bob, e.pos.y, creatureScale, vp, t, 'enemy', authoredFacing);
   }
 
   private drawPlayer(s: GameState, vp: Mat4, t: number) {
