@@ -1,0 +1,79 @@
+name: Echo Sphere 3D Production QA
+
+on:
+  push:
+    branches: [echo-3d-glb]
+  pull_request:
+    branches: [echo-3d-glb]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-test-android-visual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Install Node dependencies
+        run: npm install
+      - name: Install asset generation dependencies
+        run: python -m pip install --upgrade pip pillow numpy trimesh
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Lint
+        run: npm run lint
+      - name: Smoke tests
+        run: node tests/smoke.mjs
+      - name: Generate production GLB assets
+        run: npm run assets:3d
+      - name: Validate GLB assets and materials
+        run: npm run validate:glb
+      - name: Build web production bundle
+        run: npm run build
+      - name: Sync Capacitor Android
+        run: npx cap sync android
+      - name: Build Android APK
+        run: |
+          chmod +x android/gradlew
+          ./android/gradlew assembleDebug --no-daemon
+        env:
+          CI: true
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Runtime visual QA x2
+        run: npx playwright test tests/render-screenshot.spec.mjs --repeat-each=2
+      - name: Upload APK
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: echo-sphere-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: warn
+      - name: Upload visual QA and GLB metrics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: echo-sphere-visual-qa
+          path: |
+            test-results/**
+            playwright-report/**
+            glb-validation-report.json
+          if-no-files-found: warn
