@@ -429,11 +429,14 @@ void main(){
   // Keep dark authored materials readable under the reference's cold neon lighting.
   // This is still a PBR surface response: the lift comes from ambient environment and
   // secondary directional illumination, not from painting the whole mesh emissive.
-  vec3 ambient=base.rgb*(0.18+0.20*nv)+environment*(0.10+0.30*metallic);
+  vec3 ambient=base.rgb*(0.32+0.26*nv)+environment*(0.14+0.34*metallic);
   vec3 rimL=normalize(vec3(-0.18,0.38,-0.90));
   float nrl=sat(dot(N,rimL));
-  vec3 rimLight=vec3(0.10,0.20,0.34)*nrl*(0.45+0.55*metallic);
+  vec3 rimLight=vec3(0.12,0.24,0.40)*nrl*(0.50+0.60*metallic);
   vec3 direct=(diffuse+spec)*(u_lightColor*nl+u_fillColor*nfl)+rimLight;
+  // A restrained view-facing fill prevents near-black authored albedo from
+  // collapsing into a silhouette on small mobile screens.
+  vec3 viewFill=base.rgb*(0.055+0.10*nv);
 
   float rim=pow(1.0-nv,3.0);
   float pulse=0.96+0.04*sin(u_time*3.2+v_w.y*2.5);
@@ -444,7 +447,7 @@ void main(){
   // the post-process create only a restrained halo around genuinely bright pixels.
   emission*=u_glow*(0.10+0.62*rim)*pulse;
 
-  vec3 c=max(ambient+direct+emission,vec3(0.0));
+  vec3 c=max(ambient+direct+viewFill+emission,vec3(0.0));
   if(u_alphaMode > 0.5 && u_alphaMode < 1.5 && base.a*u_alpha < u_alphaCutoff) discard;
   gl_FragColor=vec4(c,base.a*u_alpha);
 }`
