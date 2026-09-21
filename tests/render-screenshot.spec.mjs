@@ -51,7 +51,7 @@ test('capture the actual rendered game after pressing Play', async ({ page }, te
   }));
   expect(placedMetrics.stats?.visibleEntities || 0, 'tower was not rendered after tap').toBeGreaterThanOrEqual(2);
   await page.screenshot({
-    path: 'test-results/echo-sphere-tower-placement.png',
+    path: 'test-results/echo-sphere-render.png',
     fullPage: false,
   });
   await testInfo.attach('echo-sphere-tower-placement', {
@@ -59,8 +59,13 @@ test('capture the actual rendered game after pressing Play', async ({ page }, te
     contentType: 'image/png',
   });
 
+  const placedVisibleEntities = placedMetrics.stats?.visibleEntities || 0;
   await page.mouse.click(placementPoint.x, placementPoint.y);
   await page.waitForTimeout(250);
+
+  const removedMetrics = await canvas.evaluate(() => window.__ECHO3D_STATS || null);
+  expect(removedMetrics?.visibleEntities || 0, 'tower did not disappear after tapping it again')
+    .toBeLessThan(placedVisibleEntities);
 
   const renderMetrics = await canvas.evaluate((element) => ({
     width: element.width,
@@ -87,12 +92,12 @@ test('capture the actual rendered game after pressing Play', async ({ page }, te
   );
 
   await page.screenshot({
-    path: 'test-results/echo-sphere-render.png',
+    path: 'test-results/echo-sphere-after-removal.png',
     fullPage: false,
   });
 
-  await testInfo.attach('echo-sphere-render', {
-    path: 'test-results/echo-sphere-render.png',
+  await testInfo.attach('echo-sphere-after-removal', {
+    path: 'test-results/echo-sphere-after-removal.png',
     contentType: 'image/png',
   });
 
