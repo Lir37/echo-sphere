@@ -832,8 +832,8 @@
       "animation": "articulated-parts+body-bob"
     },
     {
-      "id": "enemy_slime",
-      "path": "public/art3d/enemy_slime.glb",
+      "id": "enemy_crawler",
+      "path": "public/art3d/enemy_crawler.glb",
       "category": "enemy",
       "type": "slime",
       "tier": null,
