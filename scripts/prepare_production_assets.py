@@ -62,15 +62,7 @@ def runtime_asset_entry(item: dict) -> dict:
 
     if asset_id.startswith("enemy_"):
         name = asset_id.removeprefix("enemy_")
-        entry["gameType"] = {
-            "worker": "spider",
-            "guard": "tank",
-            "flyer": "flyer",
-            "spider": "spider",
-            "slime": "slime",
-            "psionic": "psionic",
-            "queen": "queen",
-        }.get(name, name)
+        entry["gameType"] = name
     elif asset_id.startswith("boss_"):
         entry["gameType"] = asset_id.removeprefix("boss_")
     elif asset_id.startswith("sphere_"):
