@@ -576,38 +576,147 @@ def psionic_asset(name, seed=83):
 # Player / bosses / projectiles
 # ---------------------------------------------------------------------------
 
-def player_asset():
-    shell = pbr("PlayerShell", (0.025, 0.07, 0.16), (0.12, 0.65, 1.0), 0.94, 0.12, seed=101)
-    core = pbr("PlayerCore", (0.86, 0.96, 1.0), (0.45, 0.98, 1.0), 0.25, 0.04, seed=102)
-    frame = pbr("PlayerFrame", (0.22, 0.36, 0.58), (0.25, 0.88, 1.0), 0.90, 0.11, seed=103)
+def player_asset(kind, base, glow, seed):
+    # Six distinct character silhouettes. These are authored offline as GLBs, so the
+    # gameplay renderer only loads meshes and never reconstructs them from primitives.
+    shell = pbr("CharacterShell", tuple(x * 0.22 for x in base), glow, 0.90, 0.11, 1.0, seed=seed)
+    core = pbr("CharacterCore", tuple(min(1.0, 0.70 + x * 0.30) for x in base), glow, 0.22, 0.045, 1.0, seed=seed + 1)
+    frame = pbr("CharacterFrame", tuple(min(1.0, 0.18 + x * 0.34) for x in glow), glow, 0.95, 0.075, 1.0, seed=seed + 2)
+    accent = pbr("CharacterAccent", tuple(min(1.0, 0.24 + x * 0.30) for x in glow), glow, 0.74, 0.095, 1.0, seed=seed + 3)
+
     parts = [
-        ico("Core", 0.34, core, (1.0, 1.0, 1.18), 4),
+        ico("Core", 0.34, core, (1.0, 1.0, 1.10), 4),
+        ico("CoreShell", 0.50, shell, (1.0, 0.92, 0.98), 3),
     ]
-    for i, (r, minor) in enumerate(((0.58, 0.040), (0.82, 0.030), (1.02, 0.018))):
-        parts.append(torus(f"Ring_{i}", r, minor, frame, (math.pi / 2 if i == 1 else 0, 0, 0)))
-    parts.append(torus("VerticalRing", 0.88, 0.022, frame, (0, math.pi / 2, 0)))
-    for i in range(6):
-        a = math.tau * i / 6 + math.pi / 4
-        ca, sa = math.cos(a), math.sin(a)
-        parts.append(cone_between(
-            f"EnergyBlade_{i}",
-            (0.16 * ca, 0.0, 0.16 * sa),
-            (1.18 * ca, 0.04, 1.18 * sa),
-            0.16, 0.012, frame, 18
-        ))
-        parts.append(plate(
-            f"BladePlate_{i}",
-            (0.62 * ca, 0.0, 0.62 * sa),
-            (0.42, 0.035, 0.11),
-            shell,
-            (0, -a, 0.16 * sa),
-            2,
-        ))
-    for i in range(4):
-        a = math.tau * i / 4
-        parts.append(ico(f"EnergyNode_{i}", 0.055, core, (1.0, 1.0, 1.3), 2))
-        parts[-1].apply_translation((0.92 * math.cos(a), 0.03, 0.92 * math.sin(a)))
-    save("player_core", parts)
+
+    def ring(name, radius, minor, material, rot=(0, 0, 0), sections=80):
+        parts.append(torus(name, radius, minor, material, rot, sections=sections))
+
+    def spike(name, direction, length, thickness, material, offset=0.18):
+        d = np.asarray(direction, dtype=np.float64)
+        d = d / (np.linalg.norm(d) or 1.0)
+        start = d * offset
+        end = d * length
+        parts.append(cone_between(name, start, end, thickness, 0.008, material, 18))
+
+    def node(name, pos, radius=0.055, material=accent):
+        n = ico(name, radius, material, (1.0, 1.0, 1.25), 2)
+        n.apply_translation(np.asarray(pos, dtype=np.float64))
+        parts.append(n)
+
+    if kind == "spherist":
+        for i, (r, minor, rot) in enumerate((
+            (0.63, 0.034, (0, 0, 0)),
+            (0.84, 0.027, (math.pi / 2, 0, 0)),
+            (1.04, 0.018, (0, math.pi / 2, 0)),
+        )):
+            ring(f"Ring_{i}", r, minor, frame, rot)
+        for i, a in enumerate((0, math.pi / 2, math.pi, math.pi * 1.5)):
+            d = (math.cos(a), 0.0, math.sin(a))
+            spike(f"Cardinal_{i}", d, 1.25, 0.055, frame)
+            node(f"EnergyNode_{i}", (0.86 * d[0], 0.03, 0.86 * d[2]))
+        ring("Halo", 1.13, 0.010, accent, (math.pi / 4, 0, math.pi / 8), sections=96)
+
+    elif kind == "hunter":
+        # Targeting reticle: concentric planes and four precise cardinal emitters.
+        for i, r in enumerate((0.56, 0.76, 0.96, 1.14)):
+            ring(f"Ring_{i}", r, 0.022 if i < 3 else 0.014, frame if i < 3 else accent,
+                 (0, 0, 0) if i % 2 == 0 else (math.pi / 2, 0, 0), sections=96)
+        for i, a in enumerate((0, math.pi / 2, math.pi, math.pi * 1.5)):
+            d = (math.cos(a), 0, math.sin(a))
+            spike(f"Cardinal_{i}", d, 1.42, 0.070, accent)
+            node(f"TargetNode_{i}", (0.86 * d[0], 0.0, 0.86 * d[2]), 0.060, core)
+        for i, a in enumerate((math.pi / 4, 3 * math.pi / 4, 5 * math.pi / 4, 7 * math.pi / 4)):
+            d = (math.cos(a), 0.12, math.sin(a))
+            node(f"TrackNode_{i}", tuple(0.92 * np.asarray(d)), 0.042, accent)
+
+    elif kind == "engineer":
+        # A suspended 3D network. Nodes are connected into a real volumetric lattice.
+        verts = np.array([
+            (-0.86, -0.42, -0.58), (-0.86, -0.42, 0.58), (-0.86, 0.42, -0.58), (-0.86, 0.42, 0.58),
+            (0.86, -0.42, -0.58), (0.86, -0.42, 0.58), (0.86, 0.42, -0.58), (0.86, 0.42, 0.58),
+        ], dtype=np.float64)
+        edges = []
+        for i, v in enumerate(verts):
+            node(f"NetworkNode_{i}", v * 1.02, 0.070, core)
+            for j in range(i + 1, len(verts)):
+                w = verts[j]
+                if np.linalg.norm(v - w) < 1.25 or abs(v[0] - w[0]) < 0.01:
+                    edges.append((i, j))
+        for i, (u, v) in enumerate(edges):
+            parts.append(cone_between(f"Link_{i}", verts[u], verts[v], 0.018, 0.010, frame, 14))
+        ring("Ring_0", 0.98, 0.016, accent, (0, 0, 0), sections=96)
+        ring("Ring_1", 1.10, 0.010, frame, (math.pi / 2, 0, 0), sections=96)
+        ring("VerticalRing", 1.02, 0.010, accent, (0, math.pi / 2, 0), sections=96)
+
+    elif kind == "berserker":
+        # Dense radial crystal burst with uneven shard lengths. No uniform gear look.
+        ring("Ring_0", 0.68, 0.026, frame, (0, 0, 0), sections=96)
+        ring("Ring_1", 0.93, 0.018, accent, (math.pi / 2, 0, 0), sections=96)
+        for i in range(16):
+            a = math.tau * i / 16.0
+            length = 1.18 + 0.27 * (0.5 + 0.5 * math.sin(i * 2.7 + 1.4))
+            d = (math.cos(a), 0.0, math.sin(a))
+            spike(f"RageSpike_{i}", d, length, 0.078 if i % 2 == 0 else 0.050, accent, 0.22)
+            if i % 2 == 0:
+                node(f"RageNode_{i}", (0.76 * d[0], 0.02, 0.76 * d[2]), 0.050, core)
+        for i in range(8):
+            a = math.tau * i / 8.0 + math.pi / 8
+            d = (0.52 * math.cos(a), 0.24 * math.sin(i), 0.52 * math.sin(a))
+            plate = ico(f"RageShard_{i}", 0.14, accent, (1.8, 0.22, 0.60), 2)
+            plate.apply_translation(d)
+            plate.apply_transform(trimesh.transformations.rotation_matrix(a, [0, 1, 0]))
+            parts.append(plate)
+
+    elif kind == "alchemist":
+        # Organic alchemical compass: layered rings, leaf-like satellite crystals and a
+        # central catalyst. The silhouette is asymmetric enough to read as its own hero.
+        ring("Ring_0", 0.62, 0.028, frame, (0, 0, 0), sections=96)
+        ring("Ring_1", 0.86, 0.019, accent, (math.pi / 2, 0, 0), sections=96)
+        ring("Ring_2", 1.06, 0.012, frame, (0, math.pi / 2, 0), sections=96)
+        for i, a in enumerate((math.pi / 4, 3 * math.pi / 4, 5 * math.pi / 4, 7 * math.pi / 4)):
+            d = (math.cos(a), 0, math.sin(a))
+            spike(f"LeafSpine_{i}", d, 1.24, 0.042, accent)
+            leaf = ico(f"Leaf_{i}", 0.16, accent, (1.65, 0.26, 0.72), 2)
+            leaf.apply_translation((0.84 * d[0], 0.16 * math.sin(a * 2), 0.84 * d[2]))
+            leaf.apply_transform(trimesh.transformations.rotation_matrix(a, [0, 1, 0]))
+            parts.append(leaf)
+            node(f"ReagentNode_{i}", (0.56 * d[0], 0.05, 0.56 * d[2]), 0.050, core)
+        ring("CatalystHalo", 0.42, 0.012, core, (math.pi / 4, math.pi / 7, 0), sections=72)
+
+    elif kind == "architect":
+        # Gold wireframe polyhedron: outer cube, diagonals, inner octahedral frame.
+        cube = np.array([
+            (-0.90,-0.90,-0.90), (-0.90,-0.90,0.90), (-0.90,0.90,-0.90), (-0.90,0.90,0.90),
+            (0.90,-0.90,-0.90), (0.90,-0.90,0.90), (0.90,0.90,-0.90), (0.90,0.90,0.90),
+        ], dtype=np.float64)
+        cube_edges = [(0,1),(0,2),(0,4),(1,3),(1,5),(2,3),(2,6),(3,7),(4,5),(4,6),(5,7),(6,7)]
+        for i,p in enumerate(cube):
+            node(f"Vertex_{i}", p, 0.060, accent)
+        for i,(u,v) in enumerate(cube_edges):
+            parts.append(cone_between(f"Frame_{i}", cube[u], cube[v], 0.020, 0.010, frame, 16))
+        diagonals = [(0,7),(1,6),(2,5),(3,4),(0,3),(1,2),(4,7),(5,6)]
+        for i,(u,v) in enumerate(diagonals):
+            parts.append(cone_between(f"Diagonal_{i}", cube[u], cube[v], 0.014, 0.007, accent, 12))
+        for i,d in enumerate(((1,0,0),(-1,0,0),(0,1,0),(0,-1,0),(0,0,1),(0,0,-1))):
+            spike(f"AxisTip_{i}", d, 1.32, 0.052, accent, 0.32)
+        ring("Ring_0", 1.10, 0.010, frame, (0, 0, 0), sections=96)
+        ring("Ring_1", 1.12, 0.010, frame, (math.pi / 2, 0, 0), sections=96)
+        ring("VerticalRing", 1.12, 0.010, accent, (0, math.pi / 2, 0), sections=96)
+
+    else:
+        raise ValueError(f"unknown character visual: {kind}")
+
+    save(f"player_{kind}", parts)
+
+
+def player_core_compat():
+    player_asset("spherist", (.05, .55, 1.0), (.25, .95, 1.0), 101)
+    generated = OUT / "player_spherist.glb"
+    # Keep the legacy filename for minions and older saves, using the same authored
+    # Spherist model rather than a second procedural fallback asset.
+    generated.replace(OUT / "player_core.glb")
+
 
 
 def boss_asset(name, kind, seed):
@@ -683,7 +792,12 @@ slime_asset("enemy_slime")
 psionic_asset("enemy_psionic")
 insect_asset("enemy_queen", "queen", (.18, .07, .02), (1.0, .45, .06), 1.18, 241)
 
-player_asset()
+player_asset("spherist", (.05, .55, 1.0), (.25, .95, 1.0), 101)
+player_asset("hunter", (.45, .05, .95), (.80, .25, 1.0), 111)
+player_asset("engineer", (.03, .60, .78), (.15, 1.0, 1.0), 121)
+player_asset("berserker", (.82, .03, .02), (1.0, .13, .04), 131)
+player_asset("alchemist", (.12, .72, .04), (.42, 1.0, .18), 141)
+player_asset("architect", (.72, .48, .03), (1.0, .78, .18), 151)
 boss_asset("boss_colony", "colony", 301)
 boss_asset("boss_distortion", "distortion", 311)
 boss_asset("boss_singularity", "singularity", 321)
