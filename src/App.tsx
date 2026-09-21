@@ -14,7 +14,6 @@ import {
   type GameState, type ShopState, type LeaderEntry, type UpgradeChoice,
   MAP_THEMES, type MapTheme,
 } from './engine';
-import { render } from './renderer';
 import { createEcho3DRenderer, type Echo3DRenderer } from './visual3d';
 import { ARTIFACT_META, RARITY_LABELS, artifactRarity, getActiveArtifactSynergies, getArtifactSynergiesAfterPick, ARTIFACT_SYNERGIES } from './artifactSystem';
 import { resolveSpaceCollisions } from './spaceCollision';
@@ -225,12 +224,7 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
           setGameOverData({ time, wave: st.wave, gold, rank, isNewRecord });
         }
 
-        if (renderer3dRef.current) {
-          renderer3dRef.current.render(st);
-        } else if (canvas) {
-          const ctx = canvas.getContext('2d');
-          if (ctx) render(ctx, st, canvas.width, canvas.height);
-        }
+        renderer3dRef.current?.render(st);
 
         forceRender(v => v + 1);
       }
