@@ -319,7 +319,7 @@ def sphere_asset(name, base, glow, tier, family_seed):
     # Sphere/tower assets are visible primarily at gameplay distance. Keep their
     # source textures at the standard 1024/512 profile; close-up hero assets get
     # the 2048/1024 profile explicitly in their own generators.
-    _TEXTURE_PROFILE = "standard"
+    _TEXTURE_PROFILE = "hero" if tier >= 7 else "compact"
     """Build a clean energy-orbit tower family matching the supplied reference.
 
     The reference is not a mechanical ball covered in spokes. It is a luminous core
@@ -338,16 +338,18 @@ def sphere_asset(name, base, glow, tier, family_seed):
     frame = pbr("OrbitalFrame", frame_base, frame_glow, 0.90, 0.07, seed=family_seed + 2)
     bright = pbr("OrbitalBright", frame_glow, frame_glow, 0.68, 0.055, seed=family_seed + 3)
 
-    core_radius = 0.40 + tier * 0.016
+    # The physical energy nucleus is deliberately small. Outer frames carry the
+    # silhouette; bloom is not allowed to inflate the core into the whole asset.
+    core_radius = 0.22 + tier * 0.008
     parts = [
         ico("Core", core_radius, core, (1.0, 1.0, 1.04), 6 if tier >= 5 else 5),
-        ico("CoreInner", core_radius * 0.38, inner, (1.0, 1.0, 1.08), 5),
+        ico("CoreInner", core_radius * 0.34, inner, (1.0, 1.0, 1.08), 5),
     ]
 
     # A recessed dark shell gives the tower a physical volume between the
     # luminous nucleus and the orbital hardware.
     shell = pbr("CoreShell", tuple(x * 0.18 for x in base), tuple(x * 0.42 for x in glow), 0.86, 0.16, seed=family_seed + 5)
-    parts.append(ico("CoreShell", core_radius * 1.16, shell, (1.02, 0.96, 1.02), 5 if tier >= 5 else 4))
+    parts.append(ico("CoreShell", core_radius * 1.42, shell, (1.04, 0.92, 1.04), 5 if tier >= 5 else 4))
 
     # Four small anchor collars visually connect the energy core to the frame.
     for i, a in enumerate((0.0, math.pi / 2, math.pi, math.pi * 1.5)):
@@ -358,7 +360,7 @@ def sphere_asset(name, base, glow, tier, family_seed):
 
     # Every tier keeps the same visual language: a glowing core plus three major
     # great-circle orbits. There are deliberately no free-standing radial rods.
-    radius = 0.76 + tier * 0.028
+    radius = 0.74 + tier * 0.034
     major_orbits = (
         (0, 0, 0),
         (math.pi / 2, 0, 0),
