@@ -474,6 +474,7 @@ export class Echo3DRenderer {
   private async preload() {
     const names = [
       'player_core',
+      'player_spherist', 'player_hunter', 'player_engineer', 'player_berserker', 'player_alchemist', 'player_architect',
       'enemy_worker', 'enemy_guard', 'enemy_flyer', 'enemy_spider', 'enemy_slime', 'enemy_psionic', 'enemy_queen',
       'boss_colony', 'boss_distortion', 'boss_singularity',
       'projectile_energy', 'projectile_fire',
@@ -649,7 +650,15 @@ export class Echo3DRenderer {
   private drawPlayer(s: GameState, vp: Mat4, t: number) {
     const pulse = 1 + 0.06 * Math.sin(t * 4);
     const tilt = Math.sin(t * 2.2) * 0.035;
-    this.drawAsset('player_core', s.player.pos.x, 0, s.player.pos.y, 28.0 * pulse, vp, t, 'player', t * 0.3 + tilt);
+    const characterAsset = ({
+      spherist: 'player_spherist',
+      hunter: 'player_hunter',
+      engineer: 'player_engineer',
+      berserker: 'player_berserker',
+      alchemist: 'player_alchemist',
+      architect: 'player_architect',
+    } as Record<string, string>)[s.player.characterId] || 'player_spherist';
+    this.drawAsset(characterAsset, s.player.pos.x, 0, s.player.pos.y, 28.0 * pulse, vp, t, 'player', t * 0.3 + tilt);
   }
 
   private drawMinion(m: MinionEntity, vp: Mat4, t: number) {
