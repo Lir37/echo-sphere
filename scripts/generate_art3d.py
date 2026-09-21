@@ -297,132 +297,129 @@ def save(name, parts):
 # ---------------------------------------------------------------------------
 
 def sphere_asset(name, base, glow, tier, family_seed):
-    shell = pbr("Shell", (0.008, 0.025, 0.065), glow, 0.72, max(0.025, 0.085 - tier * 0.006), 0.24, seed=family_seed)
-    core_base = tuple(min(1.0, 0.62 + x * 0.38) for x in base)
-    core_glow = tuple(min(1.0, 0.62 + x * 0.38) for x in glow)
-    core = pbr("Core", core_base, core_glow, 0.28, 0.06, seed=family_seed + 1)
-    frame_base = tuple(min(1.0, 0.24 + x * 0.48) for x in glow)
-    frame_glow = tuple(min(1.0, 0.30 + x * 0.55) for x in glow)
-    metal = pbr("Frame", frame_base, frame_glow, 0.90, 0.12, seed=family_seed + 2)
+    # Build the family from a deliberately clean silhouette progression that follows
+    # the supplied reference: core sphere -> globe rings -> geodesic cage -> evolved
+    # orbital frame. The first tiers must remain readable at gameplay distance.
+    shell = pbr(
+        "Shell",
+        (0.006, 0.018, 0.045),
+        glow,
+        0.72,
+        max(0.032, 0.10 - tier * 0.008),
+        0.18,
+        seed=family_seed,
+    )
+    core_base = tuple(min(1.0, 0.74 + x * 0.26) for x in base)
+    core_glow = tuple(min(1.0, 0.72 + x * 0.28) for x in glow)
+    core = pbr("Core", core_base, core_glow, 0.18, 0.055, seed=family_seed + 1)
+    frame_base = tuple(min(1.0, 0.18 + x * 0.36) for x in glow)
+    frame_glow = tuple(min(1.0, 0.28 + x * 0.58) for x in glow)
+    metal = pbr("Frame", frame_base, frame_glow, 0.94, 0.085, seed=family_seed + 2)
 
-    parts = [
-        ico("Core", 0.52 + tier * 0.012, core, (1.0, 1.0, 1.12), 4),
-        ico("Housing", 0.96 + tier * 0.035, shell, (1.0, 0.88, 0.94), 3),
-    ]
-    # The reference is a luminous geodesic device. The cage is deliberately
-    # made from real 3D struts so it remains readable at gameplay distance.
-    cage_subdivisions = 1
-    cage_radius = 1.08 + tier * 0.07
-    parts.extend(geodesic_cage("Cage", cage_radius, metal, cage_subdivisions,
-                               thickness=0.050 + tier * 0.004))
+    core_radius = 0.43 + min(tier, 7) * 0.018
+    parts = [ico("Core", core_radius, core, (1.0, 1.0, 1.04), 4)]
 
-    # The reference sphere is a luminous geodesic device, not a solid ball.
-    # Build orthogonal and diagonal orbital frames so every tier has a recognisable
-    # silhouette and tier VII reads as the fully evolved version.
-    ring_count = 3 if tier <= 2 else 4 if tier <= 4 else 5 if tier <= 6 else 6
-    ring_radius = 1.00 + tier * 0.018
-    for i in range(ring_count):
-        r = ring_radius + (i - (ring_count - 1) * 0.5) * 0.11
-        rot = (
+    # Tier I starts as the clean reference globe: one shell and three great-circle
+    # rings. No dense cage is allowed here, otherwise it reads as a tangled object.
+    if tier >= 1:
+        parts.append(ico("Housing", 0.78 + tier * 0.028, shell, (1.0, 1.0, 1.0), 3))
+        great_r = 0.84 + tier * 0.035
+        ring_minor = 0.014 + tier * 0.0022
+        ring_rotations = (
             (0, 0, 0),
             (math.pi / 2, 0, 0),
             (0, math.pi / 2, 0),
-            (math.pi / 4, math.pi / 4, 0),
-        )[i % 4]
-        parts.append(torus(f"Ring_{i}", r, 0.020 + tier * 0.0025, metal, rot))
+        )
+        for i, rot in enumerate(ring_rotations):
+            parts.append(torus(f"Ring_{i}", great_r, ring_minor, metal, rot, sections=72))
 
-    if tier >= 2:
-        diagonal_count = 2 if tier <= 4 else 4
-        for i in range(diagonal_count):
-            a = math.tau * i / diagonal_count
-            rot = (math.pi / 4, a, math.pi / 5)
-            parts.append(torus(f"Orbit_{i}", 1.08 + tier * 0.012, 0.020 + tier * 0.003, metal, rot))
-
-    if tier >= 4:
-        # Radial energy struts visually connect the core to the cage.
-        for i in range(6):
-            a = math.tau * i / 6
-            parts.append(cone_between(
-                f"RadialStrut_{i}",
-                (0.30 * math.cos(a), 0.30 * math.sin(a), 0),
-                (1.05 * math.cos(a), 1.05 * math.sin(a), 0),
-                0.028 + tier * 0.003,
-                0.009,
+    # Tier III introduces the wireframe cage visible in the reference.
+    if tier >= 3:
+        cage_radius = 0.91 + tier * 0.055
+        parts.extend(
+            geodesic_cage(
+                "Cage",
+                cage_radius,
                 metal,
-                12,
-            ))
-
-    node_count = 1 if tier == 1 else 2 + tier
-    for i in range(node_count):
-        a = math.tau * i / node_count
-        radius = 0.82 + 0.025 * (tier - 1)
-        parts.append(
-            ico(
-                f"EnergyNode_{i}",
-                0.050 + tier * 0.004,
-                core,
-                (1.0, 1.0, 1.35),
-                2,
+                subdivisions=1,
+                thickness=0.027 + tier * 0.0035,
             )
         )
-        parts[-1].apply_translation((radius * math.cos(a), 0.08 * math.sin(a * 2), radius * math.sin(a)))
 
-    # Outer "cage" becomes progressively more complex, matching the reference's
-    # visual evolution instead of merely scaling the same object.
-    if tier >= 3:
-        for i in range(4):
-            a = i * math.pi / 2
+    # From II onward, add only a small number of distinct orbital planes. This gives
+    # evolution without collapsing into a noisy ball of intersecting tubes.
+    orbit_count = 0 if tier == 1 else 1 if tier <= 3 else 2 if tier <= 5 else 3
+    orbit_radius = 0.98 + tier * 0.055
+    for i in range(orbit_count):
+        rot = (
+            (math.pi / 2, 0, 0),
+            (0, math.pi / 2, 0),
+            (math.pi / 4, 0, math.pi / 5),
+        )[i]
+        parts.append(torus(f"Orbit_{i}", orbit_radius + i * 0.055, 0.018 + tier * 0.0025, metal, rot, sections=80))
+
+    # Tiers IV-VI receive structural spokes and luminous nodes. They stay sparse and
+    # directional instead of forming a uniform porcupine.
+    if tier >= 4:
+        spoke_count = 4 if tier <= 5 else 6
+        for i in range(spoke_count):
+            a = math.tau * i / spoke_count
+            start = (0.38 * math.cos(a), 0.0, 0.38 * math.sin(a))
+            end = ((0.98 + tier * 0.03) * math.cos(a), 0.0, (0.98 + tier * 0.03) * math.sin(a))
             parts.append(
                 cone_between(
-                    f"Strut_{i}",
-                    (0, 0, 0),
-                    (1.02 * math.cos(a), 0.28, 1.02 * math.sin(a)),
-                    0.022 + tier * 0.003,
-                    0.006,
+                    f"RadialStrut_{i}",
+                    start,
+                    end,
+                    0.020 + tier * 0.0025,
+                    0.008,
                     metal,
                     12,
                 )
             )
 
+    if tier >= 3:
+        node_count = 2 if tier <= 4 else 4 if tier <= 6 else 6
+        for i in range(node_count):
+            a = math.tau * i / node_count + math.pi / 6
+            radius = 0.82 + tier * 0.04
+            node = ico(
+                f"EnergyNode_{i}",
+                0.045 + tier * 0.003,
+                core,
+                (1.0, 1.0, 1.28),
+                2,
+            )
+            node.apply_translation((radius * math.cos(a), 0.02 * math.sin(i * 1.7), radius * math.sin(a)))
+            parts.append(node)
+
+    # V-VII gain the characteristic crown/blade silhouette. These are the elements
+    # that should make VII instantly read as an evolved tower rather than "more rings".
     if tier >= 5:
-        for i in range(6):
-            a = i * math.tau / 6
+        blade_count = 4 if tier <= 6 else 6
+        for i in range(blade_count):
+            a = math.tau * i / blade_count
             parts.append(
                 plate(
                     f"Blade_{i}",
-                    (0.95 * math.cos(a), 0.0, 0.95 * math.sin(a)),
-                    (0.24 + tier * 0.018, 0.055, 0.13 + tier * 0.01),
+                    ((1.00 + tier * 0.04) * math.cos(a), 0.0, (1.00 + tier * 0.04) * math.sin(a)),
+                    (0.20 + tier * 0.018, 0.045, 0.11 + tier * 0.012),
                     metal,
-                    (0, -a, math.sin(a) * 0.22),
+                    (0, -a, 0.16 * math.sin(a)),
                     2,
                 )
             )
 
     if tier >= 7:
         for i in range(6):
-            a = i * math.tau / 6
+            a = math.tau * i / 6
             parts.append(
                 cone_between(
                     f"CardinalTip_{i}",
-                    (1.02 * math.cos(a), 0.0, 1.02 * math.sin(a)),
-                    (1.62 * math.cos(a), 0.0, 1.62 * math.sin(a)),
-                    0.095,
-                    0.006,
-                    metal,
-                    18,
-                )
-            )
-
-    if tier >= 6:
-        for i in range(8):
-            a = i * math.tau / 8
-            parts.append(
-                cone_between(
-                    f"Spike_{i}",
-                    (0.62 * math.cos(a), 0.0, 0.62 * math.sin(a)),
-                    (1.38 * math.cos(a), 0.0, 1.38 * math.sin(a)),
-                    0.07,
-                    0.008,
+                    (1.08 * math.cos(a), 0.0, 1.08 * math.sin(a)),
+                    (1.48 * math.cos(a), 0.08 * math.sin(a * 2), 1.48 * math.sin(a)),
+                    0.065,
+                    0.010,
                     metal,
                     16,
                 )
