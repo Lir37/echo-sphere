@@ -1,0 +1,979 @@
+{
+  "version": 1,
+  "root": "public/art3d",
+  "productionOnly": true,
+  "assets": [
+    {
+      "id": "sphere_standard_t1",
+      "path": "public/art3d/sphere_standard_t1.glb",
+      "category": "sphere",
+      "type": "standard",
+      "tier": 1,
+      "expectedUsage": "gameplay sphere/tower",
+      "lod": {
+        "strategy": "tier-distance"
+      },
+      "textures": {
+        "profile": "standard",
+        "baseColor": 1024,
+        "normal": 512,
+        "metallicRoughness": 512
+      },
+      "animation": "orbital-rings+core-pulse"
+    },
+    {
+      "id": "sphere_standard_t2",
+      "path": "public/art3d/sphere_standard_t2.glb",
+      "category": "sphere",
+      "type": "standard",
+      "tier": 2,
+      "expectedUsage": "gameplay sphere/tower",
+      "lod": {
+        "strategy": "tier-distance"
+      },
+      "textures": {
+        "profile": "standard",
+        "baseColor": 1024,
+        "normal": 512,
+        "metallicRoughness": 512
+      },
+      "animation": "orbital-rings+core-pulse"
+    },
+    {
+      "id": "sphere_standard_t3",
+      "path": "public/art3d/sphere_standard_t3.glb",
+      "category": "sphere",
+      "type": "standard",
+      "tier": 3,
+      "expectedUsage": "gameplay sphere/tower",
+      "lod": {
+        "strategy": "tier-distance"
+      },
+      "textures": {
+        "profile": "standard",
+        "baseColor": 1024,
+        "normal": 512,
+        "metallicRoughness": 512
+      },
+      "animation": "orbital-rings+core-pulse"
+    },
+    {
+      "id": "sphere_standard_t4",
+      "path": "public/art3d/sphere_standard_t4.glb",
+      "category": "sphere",
+      "type": "standard",
+      "tier": 4,
+      "expectedUsage": "gameplay sphere/tower",
+      "lod": {
+        "strategy": "tier-distance"
+      },
+      "textures": {
+        "profile": "standard",
+        "baseColor": 1024,
+        "normal": 512,
+        "metallicRoughness": 512
+      },
+      "animation": "orbital-rings+core-pulse"
+    },
+    {
+      "id": "sphere_standard_t5",
+      "path": "public/art3d/sphere_standard_t5.glb",
+      "category": "sphere",
+      "type": "standard",
+      "tier": 5,
+      "expectedUsage": "gameplay sphere/tower",
+      "lod": {
+        "strategy": "tier-distance"
+      },
+      "textures": {
+        "profile": "standard",
+        "baseColor": 1024,
+        "normal": 512,
+        "metallicRoughness": 512
+      },
+      "animation": "orbital-rings+core-pulse"
+    },
+    {
+      "id": "sphere_standard_t6",
+      "path": "public/art3d/sphere_standard_t6.glb",
+      "category": "sphere",
+      "type": "standard",
+      "tier": 6,
+      "expectedUsage": "gameplay sphere/tower",
+      "lod": {
+        "strategy": "tier-distance"
+      },
+      "textures": {
+        "profile": "standard",
+        "baseColor": 1024,
+        "normal": 512,
+        "metallicRoughness": 512
+      },
+      "animation": "orbital-rings+core-pulse"
+    },
+    {
+      "id": "sphere_standard_t7",
+      "path": "public/art3d/sphere_standard_t7.glb",
+      "category": "sphere",
+      "type": "standard",
+      "tier": 7,
+      "expectedUsage": "gameplay sphere/tower",
+      "lod": {
+        "strategy": "tier-distance"
+      },
+      "textures": {
+        "profile": "standard",
+        "baseColor": 1024,
+        "normal": 512,
+        "metallicRoughness": 512
+      },
+      "animation": "orbital-rings+core-pulse"
+    },
+    {
+      "id": "sphere_sniper_t1",
+      "path": "public/art3d/sphere_sniper_t1.glb",
+      "category": "sphere",
+      "type": "sniper",
+      "tier": 1,
+      "expectedUsage": "gameplay sphere/tower",
+      "lod": {
+        "strategy": "tier-distance"
+      },
+      "textures": {
+        "profile": "standard",
+        "baseColor": 1024,
+        "normal": 512,
+        "metallicRoughness": 512
+      },
+      "animation": "orbital-rings+core-pulse"
+    },
+    {
+      "id": "sphere_sniper_t2",
+      "path": "public/art3d/sphere_sniper_t2.glb",
+      "category": "sphere",
+      "type": "sniper",
+      "tier": 2,
+      "expectedUsage": "gameplay sphere/tower",
+      "lod": {
+        "strategy": "tier-distance"
+      },
+      "textures": {
+        "profile": "standard",
+        "baseColor": 1024,
+        "normal": 512,
+        "metallicRoughness": 512
+      },
+      "animation": "orbital-rings+core-pulse"
+    },
+    {
+      "id": "sphere_sniper_t3",
+      "path": "public/art3d/sphere_sniper_t3.glb",
+      "category": "sphere",
+      "type": "sniper",
+      "tier": 3,
+      "expectedUsage": "gameplay sphere/tower",
+      "lod": {
+        "strategy": "tier-distance"
+      },
+      "textures": {
+        "profile": "standard",
+        "baseColor": 1024,
+        "normal": 512,
+        "metallicRoughness": 512
+      },
+      "animation": "orbital-rings+core-pulse"
+    },
+    {
+      "id": "sphere_sniper_t4",
+      "path": "public/art3d/sphere_sniper_t4.glb",
+      "category": "sphere",
+      "type": "sniper",
+      "tier": 4,
+      "expectedUsage": "gameplay sphere/tower",
+      "lod": {
+        "strategy": "tier-distance"
+      },
+      "textures": {
+        "profile": "standard",
+        "baseColor": 1024,
+        "normal": 512,
+        "metallicRoughness": 512
+      },
+      "animation": "orbital-rings+core-pulse"
+    },
+    {
+      "id": "sphere_sniper_t5",
+      "path": "public/art3d/sphere_sniper_t5.glb",
+      "category": "sphere",
+      "type": "sniper",
+      "tier": 5,
+      "expectedUsage": "gameplay sphere/tower",
+      "lod": {
+        "strategy": "tier-distance"
+      },
+      "textures": {
+        "profile": "standard",
+        "baseColor": 1024,
+        "normal": 512,
+        "metallicRoughness": 512
+      },
+      "animation": "orbital-rings+core-pulse"
+    },
+    {
+      "id": "sphere_sniper_t6",
+      "path": "public/art3d/sphere_sniper_t6.glb",
+      "category": "sphere",
+      "type": "sniper",
+      "tier": 6,
+      "expectedUsage": "gameplay sphere/tower",
+      "lod": {
+        "strategy": "tier-distance"
+      },
+      "textures": {
+        "profile": "standard",
+        "baseColor": 1024,
+        "normal": 512,
+        "metallicRoughness": 512
+      },
+      "animation": "orbital-rings+core-pulse"
+    },
+    {
+      "id": "sphere_sniper_t7",
+      "path": "public/art3d/sphere_sniper_t7.glb",
+      "category": "sphere",
+      "type": "sniper",
+      "tier": 7,
+      "expectedUsage": "gameplay sphere/tower",
+      "lod": {
+        "strategy": "tier-distance"
+      },
+      "textures": {
+        "profile": "standard",
+        "baseColor": 1024,
+        "normal": 512,
+        "metallicRoughness": 512
+      },
+      "animation": "orbital-rings+core-pulse"
+    },
+    {
+      "id": "sphere_shotgun_t1",
+      "path": "public/art3d/sphere_shotgun_t1.glb",
+      "category": "sphere",
+      "type": "shotgun",
+      "tier": 1,
+      "expectedUsage": "gameplay sphere/tower",
+      "lod": {
+        "strategy": "tier-distance"
+      },
+      "textures": {
+        "profile": "standard",
+        "baseColor": 1024,
+        "normal": 512,
+        "metallicRoughness": 512
+      },
+      "animation": "orbital-rings+core-pulse"
+    },
+    {
+      "id": "sphere_shotgun_t2",
+      "path": "public/art3d/sphere_shotgun_t2.glb",
+      "category": "sphere",
+      "type": "shotgun",
+      "tier": 2,
+      "expectedUsage": "gameplay sphere/tower",
+      "lod": {
+        "strategy": "tier-distance"
+      },
+      "textures": {
+        "profile": "standard",
+        "baseColor": 1024,
+        "normal": 512,
+        "metallicRoughness": 512
+      },
+      "animation": "orbital-rings+core-pulse"
+    },
+    {
+      "id": "sphere_shotgun_t3",
+      "path": "public/art3d/sphere_shotgun_t3.glb",
+      "category": "sphere",
+      "type": "shotgun",
+      "tier": 3,
+      "expectedUsage": "gameplay sphere/tower",
+      "lod": {
+        "strategy": "tier-distance"
+      },
+      "textures": {
+        "profile": "standard",
+        "baseColor": 1024,
+        "normal": 512,
+        "metallicRoughness": 512
+      },
+      "animation": "orbital-rings+core-pulse"
+    },
+    {
+      "id": "sphere_shotgun_t4",
+      "path": "public/art3d/sphere_shotgun_t4.glb",
+      "category": "sphere",
+      "type": "shotgun",
+      "tier": 4,
+      "expectedUsage": "gameplay sphere/tower",
+      "lod": {
+        "strategy": "tier-distance"
+      },
+      "textures": {
+        "profile": "standard",
+        "baseColor": 1024,
+        "normal": 512,
+        "metallicRoughness": 512
+      },
+      "animation": "orbital-rings+core-pulse"
+    },
+    {
+      "id": "sphere_shotgun_t5",
+      "path": "public/art3d/sphere_shotgun_t5.glb",
+      "category": "sphere",
+      "type": "shotgun",
+      "tier": 5,
+      "expectedUsage": "gameplay sphere/tower",
+      "lod": {
+        "strategy": "tier-distance"
+      },
+      "textures": {
+        "profile": "standard",
+        "baseColor": 1024,
+        "normal": 512,
+        "metallicRoughness": 512
+      },
+      "animation": "orbital-rings+core-pulse"
+    },
+    {
+      "id": "sphere_shotgun_t6",
+      "path": "public/art3d/sphere_shotgun_t6.glb",
+      "category": "sphere",
+      "type": "shotgun",
+      "tier": 6,
+      "expectedUsage": "gameplay sphere/tower",
+      "lod": {
+        "strategy": "tier-distance"
+      },
+      "textures": {
+        "profile": "standard",
+        "baseColor": 1024,
+        "normal": 512,
+        "metallicRoughness": 512
+      },
+      "animation": "orbital-rings+core-pulse"
+    },
+    {
+      "id": "sphere_shotgun_t7",
+      "path": "public/art3d/sphere_shotgun_t7.glb",
+      "category": "sphere",
+      "type": "shotgun",
+      "tier": 7,
+      "expectedUsage": "gameplay sphere/tower",
+      "lod": {
+        "strategy": "tier-distance"
+      },
+      "textures": {
+        "profile": "standard",
+        "baseColor": 1024,
+        "normal": 512,
+        "metallicRoughness": 512
+      },
+      "animation": "orbital-rings+core-pulse"
+    },
+    {
+      "id": "sphere_chain_t1",
+      "path": "public/art3d/sphere_chain_t1.glb",
+      "category": "sphere",
+      "type": "chain",
+      "tier": 1,
+      "expectedUsage": "gameplay sphere/tower",
+      "lod": {
+        "strategy": "tier-distance"
+      },
+      "textures": {
+        "profile": "standard",
+        "baseColor": 1024,
+        "normal": 512,
+        "metallicRoughness": 512
+      },
+      "animation": "orbital-rings+core-pulse"
+    },
+    {
+      "id": "sphere_chain_t2",
+      "path": "public/art3d/sphere_chain_t2.glb",
+      "category": "sphere",
+      "type": "chain",
+      "tier": 2,
+      "expectedUsage": "gameplay sphere/tower",
+      "lod": {
+        "strategy": "tier-distance"
+      },
+      "textures": {
+        "profile": "standard",
+        "baseColor": 1024,
+        "normal": 512,
+        "metallicRoughness": 512
+      },
+      "animation": "orbital-rings+core-pulse"
+    },
+    {
+      "id": "sphere_chain_t3",
+      "path": "public/art3d/sphere_chain_t3.glb",
+      "category": "sphere",
+      "type": "chain",
+      "tier": 3,
+      "expectedUsage": "gameplay sphere/tower",
+      "lod": {
+        "strategy": "tier-distance"
+      },
+      "textures": {
+        "profile": "standard",
+        "baseColor": 1024,
+        "normal": 512,
+        "metallicRoughness": 512
+      },
+      "animation": "orbital-rings+core-pulse"
+    },
+    {
+      "id": "sphere_chain_t4",
+      "path": "public/art3d/sphere_chain_t4.glb",
+      "category": "sphere",
+      "type": "chain",
+      "tier": 4,
+      "expectedUsage": "gameplay sphere/tower",
+      "lod": {
+        "strategy": "tier-distance"
+      },
+      "textures": {
+        "profile": "standard",
+        "baseColor": 1024,
+        "normal": 512,
+        "metallicRoughness": 512
+      },
+      "animation": "orbital-rings+core-pulse"
+    },
+    {
+      "id": "sphere_chain_t5",
+      "path": "public/art3d/sphere_chain_t5.glb",
+      "category": "sphere",
+      "type": "chain",
+      "tier": 5,
+      "expectedUsage": "gameplay sphere/tower",
+      "lod": {
+        "strategy": "tier-distance"
+      },
+      "textures": {
+        "profile": "standard",
+        "baseColor": 1024,
+        "normal": 512,
+        "metallicRoughness": 512
+      },
+      "animation": "orbital-rings+core-pulse"
+    },
+    {
+      "id": "sphere_chain_t6",
+      "path": "public/art3d/sphere_chain_t6.glb",
+      "category": "sphere",
+      "type": "chain",
+      "tier": 6,
+      "expectedUsage": "gameplay sphere/tower",
+      "lod": {
+        "strategy": "tier-distance"
+      },
+      "textures": {
+        "profile": "standard",
+        "baseColor": 1024,
+        "normal": 512,
+        "metallicRoughness": 512
+      },
+      "animation": "orbital-rings+core-pulse"
+    },
+    {
+      "id": "sphere_chain_t7",
+      "path": "public/art3d/sphere_chain_t7.glb",
+      "category": "sphere",
+      "type": "chain",
+      "tier": 7,
+      "expectedUsage": "gameplay sphere/tower",
+      "lod": {
+        "strategy": "tier-distance"
+      },
+      "textures": {
+        "profile": "standard",
+        "baseColor": 1024,
+        "normal": 512,
+        "metallicRoughness": 512
+      },
+      "animation": "orbital-rings+core-pulse"
+    },
+    {
+      "id": "sphere_aura_t1",
+      "path": "public/art3d/sphere_aura_t1.glb",
+      "category": "sphere",
+      "type": "aura",
+      "tier": 1,
+      "expectedUsage": "gameplay sphere/tower",
+      "lod": {
+        "strategy": "tier-distance"
+      },
+      "textures": {
+        "profile": "standard",
+        "baseColor": 1024,
+        "normal": 512,
+        "metallicRoughness": 512
+      },
+      "animation": "orbital-rings+core-pulse"
+    },
+    {
+      "id": "sphere_aura_t2",
+      "path": "public/art3d/sphere_aura_t2.glb",
+      "category": "sphere",
+      "type": "aura",
+      "tier": 2,
+      "expectedUsage": "gameplay sphere/tower",
+      "lod": {
+        "strategy": "tier-distance"
+      },
+      "textures": {
+        "profile": "standard",
+        "baseColor": 1024,
+        "normal": 512,
+        "metallicRoughness": 512
+      },
+      "animation": "orbital-rings+core-pulse"
+    },
+    {
+      "id": "sphere_aura_t3",
+      "path": "public/art3d/sphere_aura_t3.glb",
+      "category": "sphere",
+      "type": "aura",
+      "tier": 3,
+      "expectedUsage": "gameplay sphere/tower",
+      "lod": {
+        "strategy": "tier-distance"
+      },
+      "textures": {
+        "profile": "standard",
+        "baseColor": 1024,
+        "normal": 512,
+        "metallicRoughness": 512
+      },
+      "animation": "orbital-rings+core-pulse"
+    },
+    {
+      "id": "sphere_aura_t4",
+      "path": "public/art3d/sphere_aura_t4.glb",
+      "category": "sphere",
+      "type": "aura",
+      "tier": 4,
+      "expectedUsage": "gameplay sphere/tower",
+      "lod": {
+        "strategy": "tier-distance"
+      },
+      "textures": {
+        "profile": "standard",
+        "baseColor": 1024,
+        "normal": 512,
+        "metallicRoughness": 512
+      },
+      "animation": "orbital-rings+core-pulse"
+    },
+    {
+      "id": "sphere_aura_t5",
+      "path": "public/art3d/sphere_aura_t5.glb",
+      "category": "sphere",
+      "type": "aura",
+      "tier": 5,
+      "expectedUsage": "gameplay sphere/tower",
+      "lod": {
+        "strategy": "tier-distance"
+      },
+      "textures": {
+        "profile": "standard",
+        "baseColor": 1024,
+        "normal": 512,
+        "metallicRoughness": 512
+      },
+      "animation": "orbital-rings+core-pulse"
+    },
+    {
+      "id": "sphere_aura_t6",
+      "path": "public/art3d/sphere_aura_t6.glb",
+      "category": "sphere",
+      "type": "aura",
+      "tier": 6,
+      "expectedUsage": "gameplay sphere/tower",
+      "lod": {
+        "strategy": "tier-distance"
+      },
+      "textures": {
+        "profile": "standard",
+        "baseColor": 1024,
+        "normal": 512,
+        "metallicRoughness": 512
+      },
+      "animation": "orbital-rings+core-pulse"
+    },
+    {
+      "id": "sphere_aura_t7",
+      "path": "public/art3d/sphere_aura_t7.glb",
+      "category": "sphere",
+      "type": "aura",
+      "tier": 7,
+      "expectedUsage": "gameplay sphere/tower",
+      "lod": {
+        "strategy": "tier-distance"
+      },
+      "textures": {
+        "profile": "standard",
+        "baseColor": 1024,
+        "normal": 512,
+        "metallicRoughness": 512
+      },
+      "animation": "orbital-rings+core-pulse"
+    },
+    {
+      "id": "player_spherist",
+      "path": "public/art3d/player_spherist.glb",
+      "category": "player",
+      "type": "spherist",
+      "tier": null,
+      "expectedUsage": "selectable hero",
+      "lod": {
+        "strategy": "runtime-distance"
+      },
+      "textures": {
+        "profile": "hero",
+        "baseColor": 2048,
+        "normal": 1024,
+        "metallicRoughness": 1024
+      },
+      "animation": "authored-parts+core-pulse"
+    },
+    {
+      "id": "player_hunter",
+      "path": "public/art3d/player_hunter.glb",
+      "category": "player",
+      "type": "hunter",
+      "tier": null,
+      "expectedUsage": "selectable hero",
+      "lod": {
+        "strategy": "runtime-distance"
+      },
+      "textures": {
+        "profile": "hero",
+        "baseColor": 2048,
+        "normal": 1024,
+        "metallicRoughness": 1024
+      },
+      "animation": "authored-parts+core-pulse"
+    },
+    {
+      "id": "player_engineer",
+      "path": "public/art3d/player_engineer.glb",
+      "category": "player",
+      "type": "engineer",
+      "tier": null,
+      "expectedUsage": "selectable hero",
+      "lod": {
+        "strategy": "runtime-distance"
+      },
+      "textures": {
+        "profile": "hero",
+        "baseColor": 2048,
+        "normal": 1024,
+        "metallicRoughness": 1024
+      },
+      "animation": "authored-parts+core-pulse"
+    },
+    {
+      "id": "player_berserker",
+      "path": "public/art3d/player_berserker.glb",
+      "category": "player",
+      "type": "berserker",
+      "tier": null,
+      "expectedUsage": "selectable hero",
+      "lod": {
+        "strategy": "runtime-distance"
+      },
+      "textures": {
+        "profile": "hero",
+        "baseColor": 2048,
+        "normal": 1024,
+        "metallicRoughness": 1024
+      },
+      "animation": "authored-parts+core-pulse"
+    },
+    {
+      "id": "player_alchemist",
+      "path": "public/art3d/player_alchemist.glb",
+      "category": "player",
+      "type": "alchemist",
+      "tier": null,
+      "expectedUsage": "selectable hero",
+      "lod": {
+        "strategy": "runtime-distance"
+      },
+      "textures": {
+        "profile": "hero",
+        "baseColor": 2048,
+        "normal": 1024,
+        "metallicRoughness": 1024
+      },
+      "animation": "authored-parts+core-pulse"
+    },
+    {
+      "id": "player_architect",
+      "path": "public/art3d/player_architect.glb",
+      "category": "player",
+      "type": "architect",
+      "tier": null,
+      "expectedUsage": "selectable hero",
+      "lod": {
+        "strategy": "runtime-distance"
+      },
+      "textures": {
+        "profile": "hero",
+        "baseColor": 2048,
+        "normal": 1024,
+        "metallicRoughness": 1024
+      },
+      "animation": "authored-parts+core-pulse"
+    },
+    {
+      "id": "player_core",
+      "path": "public/art3d/player_core.glb",
+      "category": "support",
+      "type": "minion-core",
+      "tier": null,
+      "expectedUsage": "minion visual",
+      "lod": {
+        "strategy": "runtime-distance"
+      },
+      "textures": {
+        "profile": "standard",
+        "baseColor": 1024,
+        "normal": 512,
+        "metallicRoughness": 512
+      },
+      "animation": "ring-pulse+core-pulse"
+    },
+    {
+      "id": "enemy_worker",
+      "path": "public/art3d/enemy_worker.glb",
+      "category": "enemy",
+      "type": "worker",
+      "tier": null,
+      "expectedUsage": "gameplay enemy",
+      "lod": {
+        "strategy": "runtime-distance"
+      },
+      "textures": {
+        "profile": "standard",
+        "baseColor": 1024,
+        "normal": 512,
+        "metallicRoughness": 512
+      },
+      "animation": "articulated-parts+body-bob"
+    },
+    {
+      "id": "enemy_guard",
+      "path": "public/art3d/enemy_guard.glb",
+      "category": "enemy",
+      "type": "guard",
+      "tier": null,
+      "expectedUsage": "gameplay enemy",
+      "lod": {
+        "strategy": "runtime-distance"
+      },
+      "textures": {
+        "profile": "standard",
+        "baseColor": 1024,
+        "normal": 512,
+        "metallicRoughness": 512
+      },
+      "animation": "articulated-parts+body-bob"
+    },
+    {
+      "id": "enemy_flyer",
+      "path": "public/art3d/enemy_flyer.glb",
+      "category": "enemy",
+      "type": "flyer",
+      "tier": null,
+      "expectedUsage": "gameplay enemy",
+      "lod": {
+        "strategy": "runtime-distance"
+      },
+      "textures": {
+        "profile": "standard",
+        "baseColor": 1024,
+        "normal": 512,
+        "metallicRoughness": 512
+      },
+      "animation": "wing-flap+body-bob"
+    },
+    {
+      "id": "enemy_spider",
+      "path": "public/art3d/enemy_spider.glb",
+      "category": "enemy",
+      "type": "spider",
+      "tier": null,
+      "expectedUsage": "benchmark enemy / gameplay",
+      "lod": {
+        "strategy": "runtime-distance"
+      },
+      "textures": {
+        "profile": "hero",
+        "baseColor": 2048,
+        "normal": 1024,
+        "metallicRoughness": 1024
+      },
+      "animation": "articulated-parts+body-bob"
+    },
+    {
+      "id": "enemy_slime",
+      "path": "public/art3d/enemy_slime.glb",
+      "category": "enemy",
+      "type": "slime",
+      "tier": null,
+      "expectedUsage": "gameplay enemy",
+      "lod": {
+        "strategy": "runtime-distance"
+      },
+      "textures": {
+        "profile": "standard",
+        "baseColor": 1024,
+        "normal": 512,
+        "metallicRoughness": 512
+      },
+      "animation": "articulated-parts+body-bob"
+    },
+    {
+      "id": "enemy_psionic",
+      "path": "public/art3d/enemy_psionic.glb",
+      "category": "enemy",
+      "type": "psionic",
+      "tier": null,
+      "expectedUsage": "gameplay enemy",
+      "lod": {
+        "strategy": "runtime-distance"
+      },
+      "textures": {
+        "profile": "standard",
+        "baseColor": 1024,
+        "normal": 512,
+        "metallicRoughness": 512
+      },
+      "animation": "articulated-parts+body-bob"
+    },
+    {
+      "id": "enemy_queen",
+      "path": "public/art3d/enemy_queen.glb",
+      "category": "enemy",
+      "type": "queen",
+      "tier": null,
+      "expectedUsage": "gameplay enemy",
+      "lod": {
+        "strategy": "runtime-distance"
+      },
+      "textures": {
+        "profile": "hero",
+        "baseColor": 2048,
+        "normal": 1024,
+        "metallicRoughness": 1024
+      },
+      "animation": "articulated-parts+body-bob"
+    },
+    {
+      "id": "boss_colony",
+      "path": "public/art3d/boss_colony.glb",
+      "category": "boss",
+      "type": "colony",
+      "tier": null,
+      "expectedUsage": "boss gameplay",
+      "lod": {
+        "strategy": "runtime-distance"
+      },
+      "textures": {
+        "profile": "hero",
+        "baseColor": 2048,
+        "normal": 1024,
+        "metallicRoughness": 1024
+      },
+      "animation": "rings+core-pulse"
+    },
+    {
+      "id": "boss_distortion",
+      "path": "public/art3d/boss_distortion.glb",
+      "category": "boss",
+      "type": "distortion",
+      "tier": null,
+      "expectedUsage": "boss gameplay",
+      "lod": {
+        "strategy": "runtime-distance"
+      },
+      "textures": {
+        "profile": "hero",
+        "baseColor": 2048,
+        "normal": 1024,
+        "metallicRoughness": 1024
+      },
+      "animation": "rings+core-pulse"
+    },
+    {
+      "id": "boss_singularity",
+      "path": "public/art3d/boss_singularity.glb",
+      "category": "boss",
+      "type": "singularity",
+      "tier": null,
+      "expectedUsage": "boss gameplay",
+      "lod": {
+        "strategy": "runtime-distance"
+      },
+      "textures": {
+        "profile": "hero",
+        "baseColor": 2048,
+        "normal": 1024,
+        "metallicRoughness": 1024
+      },
+      "animation": "rings+core-pulse"
+    },
+    {
+      "id": "projectile_energy",
+      "path": "public/art3d/projectile_energy.glb",
+      "category": "projectile",
+      "type": "energy",
+      "tier": null,
+      "expectedUsage": "combat projectile",
+      "lod": {
+        "strategy": "runtime-distance"
+      },
+      "textures": {
+        "profile": "standard",
+        "baseColor": 1024,
+        "normal": 512,
+        "metallicRoughness": 512
+      },
+      "animation": "spin"
+    },
+    {
+      "id": "projectile_fire",
+      "path": "public/art3d/projectile_fire.glb",
+      "category": "projectile",
+      "type": "fire",
+      "tier": null,
+      "expectedUsage": "combat projectile",
+      "lod": {
+        "strategy": "runtime-distance"
+      },
+      "textures": {
+        "profile": "standard",
+        "baseColor": 1024,
+        "normal": 512,
+        "metallicRoughness": 512
+      },
+      "animation": "spin"
+    }
+  ]
+}
