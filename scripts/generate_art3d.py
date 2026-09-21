@@ -316,7 +316,10 @@ def save(name, parts):
 
 def sphere_asset(name, base, glow, tier, family_seed):
     global _TEXTURE_PROFILE
-    _TEXTURE_PROFILE = "hero" if tier >= 5 else "standard"
+    # Sphere/tower assets are visible primarily at gameplay distance. Keep their
+    # source textures at the standard 1024/512 profile; close-up hero assets get
+    # the 2048/1024 profile explicitly in their own generators.
+    _TEXTURE_PROFILE = "standard"
     """Build a clean energy-orbit tower family matching the supplied reference.
 
     The reference is not a mechanical ball covered in spokes. It is a luminous core
@@ -799,12 +802,17 @@ def player_asset(kind, base, glow, seed):
     save(f"player_{kind}", parts)
 
 
-def player_core_compat():
-    player_asset("spherist", (.05, .55, 1.0), (.25, .95, 1.0), 101)
-    generated = OUT / "player_spherist.glb"
-    # Keep the legacy filename for minions and older saves, using the same authored
-    # Spherist model rather than a second procedural fallback asset.
-    shutil.copy2(generated, OUT / "player_core.glb")
+def player_core_asset():
+    """Small authored energy core used by minions, not a duplicate hero model."""
+    global _TEXTURE_PROFILE
+    _TEXTURE_PROFILE = "standard"
+    core = pbr("MinionCore", (.035, .22, .42), (.10, .65, .95), 0.22, 0.07, seed=171)
+    frame = pbr("MinionCoreFrame", (.04, .16, .30), (.08, .42, .85), 0.78, 0.11, seed=172)
+    save("player_core", [
+        ico("Core", 0.32, core, (1.0, 1.0, 1.08), 5),
+        torus("Ring_0", 0.47, 0.026, frame, (math.pi / 2, 0, 0), sections=96, minor_sections=12),
+        torus("Ring_1", 0.49, 0.018, frame, (0, math.pi / 2, 0), sections=96, minor_sections=10),
+    ])
 
 
 
@@ -891,7 +899,7 @@ player_asset("engineer", (.03, .60, .78), (.15, 1.0, 1.0), 121)
 player_asset("berserker", (.82, .03, .02), (1.0, .13, .04), 131)
 player_asset("alchemist", (.12, .72, .04), (.42, 1.0, .18), 141)
 player_asset("architect", (.72, .48, .03), (1.0, .78, .18), 151)
-player_core_compat()
+player_core_asset()
 boss_asset("boss_colony", "colony", 301)
 boss_asset("boss_distortion", "distortion", 311)
 boss_asset("boss_singularity", "singularity", 321)
