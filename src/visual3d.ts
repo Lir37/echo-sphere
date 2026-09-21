@@ -410,7 +410,7 @@ void main(){
   emission*=u_glow*(0.28+1.18*rim)*pulse;
 
   vec3 c=max(ambient+direct+emission,vec3(0.0));
-  if(u_alphaMode>0.5 && base.a*u_alpha<u_alphaCutoff) discard;
+  if(u_alphaMode > 0.5 && u_alphaMode < 1.5 && base.a*u_alpha < u_alphaCutoff) discard;
   gl_FragColor=vec4(c,base.a*u_alpha);
 }`
 
@@ -555,6 +555,14 @@ export class Echo3DRenderer {
     return tex;
   }
 
+  private recordLoadError(name: string, error: unknown) {
+    const message = String(error);
+    if (!this.loadErrors.some(entry => entry.startsWith(`${name}:`))) {
+      this.loadErrors.push(`${name}: ${message}`);
+    }
+    (window as any).__ECHO3D_LOAD_ERRORS = [...this.loadErrors];
+  }
+
   private async preload() {
     const names = [
       'player_core',
@@ -570,9 +578,8 @@ export class Echo3DRenderer {
     await Promise.all(names.map(async name => {
       try { await this.load(name); }
       catch (e) {
-        const message = String(e);
-        this.loadErrors.push(`${name}: ${message}`);
-        console.warn('[Echo3D]', message);
+        this.recordLoadError(name, e);
+        console.warn('[Echo3D]', String(e));
       }
     }));
     (window as any).__ECHO3D_LOAD_ERRORS = [...this.loadErrors];
@@ -618,6 +625,9 @@ export class Echo3DRenderer {
     });
 
     this.loading.set(name, p);
+    p.catch(error => {
+      this.recordLoadError(name, error);
+    });
     return p;
   }
 
@@ -752,7 +762,7 @@ export class Echo3DRenderer {
 
   private drawMinion(m: MinionEntity, vp: Mat4, t: number) {
     const pulse = 0.46 + 0.035 * Math.sin(t * 5 + m.pos.x * 0.02);
-    this.drawAsset('player_core', m.pos.x, 0, m.pos.y, Math.max(8.0, m.radius / 1.45) * pulse, vp, t, 'minion', m.rotation + t);
+    this.drawAsset('player_core', m.pos.x, 0, m.pos.y, Math.max(8.0, m.radius / 1.45) * pulse, vp, t, 'minion', m.rotation);
   }
 
   private drawProjectile(p: SphereProjectile, vp: Mat4, t: number) {
