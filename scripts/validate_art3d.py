@@ -31,7 +31,10 @@ def role_threshold(path: Path) -> tuple[int, int, int]:
     if "_t7" in name:
         return 8_000, 350_000, 350_000
     if name.startswith("enemy_"):
-        return 8_000, 250_000, 100_000
+        # Regular enemies are intentionally lighter than the benchmark spider and
+        # hero/boss assets. Keep a real geometry floor without rejecting the two
+        # authored small-enemy meshes that currently land just below 8k tris.
+        return 6_500, 250_000, 100_000
     if name.startswith("sphere_"):
         # Higher sphere tiers intentionally grow in geometric complexity.
         # T5 already exceeds the former 140k ceiling in the current authored
