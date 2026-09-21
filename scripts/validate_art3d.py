@@ -26,6 +26,8 @@ def role_threshold(path: Path) -> tuple[int, int, int]:
         return 100_000, 650_000, 5_000_000
     if name.startswith("boss_"):
         return 25_000, 600_000, 750_000
+    if name == "player_core":
+        return 2_000, 40_000, 100_000
     if name.startswith("player_"):
         return 18_000, 600_000, 750_000
     if "_t7" in name:
