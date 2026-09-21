@@ -906,8 +906,12 @@ export class Echo3DRenderer {
       local = mul(local, sc(q, q, q));
     }
     const world = mul(parent, local);
+    const savedGlow = this.currentGlow;
+    const isEnergyCore = /(^|_)(Core|VoidCore|SingularityCore|CoreInner|CoreShell)($|_)/i.test(node.name);
+    if (isEnergyCore) this.currentGlow *= 0.42;
     if (node.mesh !== null) this.drawMesh(a.gpu[node.mesh], world, vp, t);
     for (const c of node.children) this.walk(a, c, world, vp, t);
+    this.currentGlow = savedGlow;
   }
 
   private drawMesh(ms: GPUPrim[], model: Mat4, vp: Mat4, t: number) {
