@@ -269,7 +269,7 @@ def save(name, parts):
     material. Legs/wings/rings/core are kept separate because the runtime animates them.
     """
     scene = trimesh.Scene()
-    animated_tokens = ("Leg_", "Wing_", "Ring_", "VerticalRing", "Core", "VoidCore", "SingularityCore", "Mandible_")
+    animated_tokens = ("Leg_", "Wing_", "Ring_", "Orbit_", "CageCurve_", "Latitude_", "Petal_", "VerticalRing", "Core", "VoidCore", "SingularityCore", "Mandible_")
     static_groups: dict[int, list[trimesh.Trimesh]] = {}
     static_names: dict[int, list[str]] = {}
 
@@ -298,136 +298,102 @@ def save(name, parts):
 # ---------------------------------------------------------------------------
 
 def sphere_asset(name, base, glow, tier, family_seed):
-    # Build the family from a deliberately clean silhouette progression that follows
-    # the supplied reference: core sphere -> globe rings -> geodesic cage -> evolved
-    # orbital frame. The first tiers must remain readable at gameplay distance.
-    shell = pbr(
-        "Shell",
-        (0.006, 0.018, 0.045),
-        glow,
-        0.72,
-        max(0.032, 0.10 - tier * 0.008),
-        0.14,
-        seed=family_seed,
-    )
-    core_base = tuple(min(1.0, 0.74 + x * 0.26) for x in base)
-    core_glow = tuple(min(1.0, 0.72 + x * 0.28) for x in glow)
-    core = pbr("Core", core_base, core_glow, 0.18, 0.055, seed=family_seed + 1)
-    frame_base = tuple(min(1.0, 0.18 + x * 0.36) for x in glow)
-    frame_glow = tuple(min(1.0, 0.28 + x * 0.58) for x in glow)
-    metal = pbr("Frame", frame_base, frame_glow, 0.94, 0.085, seed=family_seed + 2)
+    """Build a clean energy-orbit tower family matching the supplied reference.
 
-    core_radius = 0.43 + min(tier, 7) * 0.018
+    The reference is not a mechanical ball covered in spokes. It is a luminous core
+    held by a small number of coherent curved orbital frames. Evolution increases
+    the number/complexity of those frames while preserving one readable silhouette.
+    """
+    core_base = tuple(min(1.0, 0.72 + x * 0.28) for x in base)
+    core_glow = tuple(min(1.0, 0.78 + x * 0.22) for x in glow)
+    core = pbr("Core", core_base, core_glow, 0.16, 0.045, seed=family_seed + 1)
+
+    frame_base = tuple(min(1.0, 0.12 + x * 0.28) for x in glow)
+    frame_glow = tuple(min(1.0, 0.55 + x * 0.45) for x in glow)
+    frame = pbr("OrbitalFrame", frame_base, frame_glow, 0.90, 0.07, seed=family_seed + 2)
+    bright = pbr("OrbitalBright", frame_glow, frame_glow, 0.68, 0.055, seed=family_seed + 3)
+
+    core_radius = 0.40 + tier * 0.016
     parts = [ico("Core", core_radius, core, (1.0, 1.0, 1.04), 4)]
 
-    # Tier I starts as the clean reference globe: one shell and three great-circle
-    # rings. No dense cage is allowed here, otherwise it reads as a tangled object.
-    if tier >= 1:
-        # Tiers I-II are intentionally transparent: the reference reads as an energy
-        # core inside thin luminous orbital lines, not as a filled gray sphere.
-        if tier >= 3:
-            parts.append(ico("Housing", 0.78 + tier * 0.028, shell, (1.0, 1.0, 1.0), 3))
-        great_r = 0.84 + tier * 0.035
-        ring_minor = 0.014 + tier * 0.0022
-        ring_rotations = (
-            (0, 0, 0),
-            (math.pi / 2, 0, 0),
-            (0, math.pi / 2, 0),
-        )
-        for i, rot in enumerate(ring_rotations):
-            parts.append(torus(f"Ring_{i}", great_r, ring_minor, metal, rot, sections=72))
+    # Every tier keeps the same visual language: a glowing core plus three major
+    # great-circle orbits. There are deliberately no free-standing radial rods.
+    radius = 0.76 + tier * 0.028
+    major_orbits = (
+        (0, 0, 0),
+        (math.pi / 2, 0, 0),
+        (0, math.pi / 2, 0),
+    )
+    for i, rot in enumerate(major_orbits):
+        parts.append(torus(f"Ring_{i}", radius, 0.013 + tier * 0.0015, frame, rot, sections=96))
 
-    # Tier III introduces the wireframe cage visible in the reference.
+    if tier >= 2:
+        # A pair of diagonal orbital planes creates the characteristic faceted globe
+        # from the reference without introducing crossing sticks.
+        for i, rot in enumerate((
+            (math.pi / 4, 0.0, math.pi / 6),
+            (-math.pi / 4, 0.0, -math.pi / 6),
+        )):
+            parts.append(torus(f"Orbit_{i}", radius + 0.055, 0.011 + tier * 0.0014, frame, rot, sections=96))
+
     if tier >= 3:
-        cage_radius = 0.91 + tier * 0.055
-        parts.extend(
-            geodesic_cage(
-                "Cage",
-                cage_radius,
-                metal,
-                subdivisions=1,
-                thickness=0.027 + tier * 0.0035,
-            )
-        )
+        # Third-stage cage: four tilted curves form a stable diamond/sphere envelope.
+        for i, rot in enumerate((
+            (math.pi / 4, math.pi / 4, 0),
+            (-math.pi / 4, math.pi / 4, 0),
+            (math.pi / 4, -math.pi / 4, 0),
+            (-math.pi / 4, -math.pi / 4, 0),
+        )):
+            parts.append(torus(f"CageCurve_{i}", radius + 0.105, 0.010 + tier * 0.0012, frame, rot, sections=96))
 
-    # From II onward, add only a small number of distinct orbital planes. This gives
-    # evolution without collapsing into a noisy ball of intersecting tubes.
-    orbit_count = 0 if tier == 1 else 1 if tier <= 3 else 2 if tier <= 5 else 3
-    orbit_radius = 0.98 + tier * 0.055
-    for i in range(orbit_count):
-        rot = (
-            (math.pi / 2, 0, 0),
-            (0, math.pi / 2, 0),
-            (math.pi / 4, 0, math.pi / 5),
-        )[i]
-        parts.append(torus(f"Orbit_{i}", orbit_radius + i * 0.055, 0.018 + tier * 0.0025, metal, rot, sections=80))
-
-    # Tiers IV-VI receive structural spokes and luminous nodes. They stay sparse and
-    # directional instead of forming a uniform porcupine.
     if tier >= 4:
-        spoke_count = 4 if tier <= 5 else 6
-        for i in range(spoke_count):
-            a = math.tau * i / spoke_count
-            start = (0.38 * math.cos(a), 0.0, 0.38 * math.sin(a))
-            end = ((0.98 + tier * 0.03) * math.cos(a), 0.0, (0.98 + tier * 0.03) * math.sin(a))
-            parts.append(
-                cone_between(
-                    f"RadialStrut_{i}",
-                    start,
-                    end,
-                    0.020 + tier * 0.0025,
-                    0.008,
-                    metal,
-                    12,
-                )
-            )
+        # Higher tiers add offset latitude curves, still all curved and connected.
+        # These are the visual density increase, not a collection of spokes.
+        for i, y in enumerate((-0.34, 0.34)):
+            ring = torus(f"Latitude_{i}", radius * 0.82, 0.012 + tier * 0.0012, bright, (0, 0, 0), sections=96)
+            ring.apply_translation((0.0, y, 0.0))
+            parts.append(ring)
 
-    if tier >= 3:
-        node_count = 2 if tier <= 4 else 4 if tier <= 6 else 6
+    if tier >= 5:
+        # Add four large tilted "orbital petals". Scaling the torus produces the
+        # diamond-like silhouette of the reference while keeping a continuous curve.
+        for i, rot in enumerate((
+            (0.0, math.pi / 4, 0.0),
+            (0.0, -math.pi / 4, 0.0),
+            (math.pi / 4, 0.0, 0.0),
+            (-math.pi / 4, 0.0, 0.0),
+        )):
+            petal = torus(f"Petal_{i}", radius + 0.16, 0.015 + tier * 0.0013, bright, rot, sections=96)
+            petal.apply_scale((1.0, 0.62, 1.0))
+            parts.append(petal)
+
+    if tier >= 6:
+        # Energy nodes sit on the existing orbital frame, rather than being connected
+        # by additional sticks. They become bright visual anchors at gameplay distance.
+        node_count = 6
         for i in range(node_count):
-            a = math.tau * i / node_count + math.pi / 6
-            radius = 0.82 + tier * 0.04
-            node = ico(
-                f"EnergyNode_{i}",
-                0.045 + tier * 0.003,
-                core,
-                (1.0, 1.0, 1.28),
-                2,
-            )
-            node.apply_translation((radius * math.cos(a), 0.02 * math.sin(i * 1.7), radius * math.sin(a)))
+            a = math.tau * i / node_count
+            r = radius + 0.16
+            node = ico(f"EnergyNode_{i}", 0.042 + tier * 0.003, bright, (1.0, 1.0, 1.25), 2)
+            node.apply_translation((r * math.cos(a), 0.12 * math.sin(a * 2.0), r * math.sin(a)))
             parts.append(node)
 
-    # V-VII gain the characteristic crown/blade silhouette. These are the elements
-    # that should make VII instantly read as an evolved tower rather than "more rings".
-    if tier >= 5:
-        blade_count = 4 if tier <= 6 else 6
-        for i in range(blade_count):
-            a = math.tau * i / blade_count
-            parts.append(
-                plate(
-                    f"Blade_{i}",
-                    ((1.00 + tier * 0.04) * math.cos(a), 0.0, (1.00 + tier * 0.04) * math.sin(a)),
-                    (0.20 + tier * 0.018, 0.045, 0.11 + tier * 0.012),
-                    metal,
-                    (0, -a, 0.16 * math.sin(a)),
-                    2,
-                )
-            )
-
     if tier >= 7:
+        # VII gets six short crystal tips at the cardinal points. They are compact
+        # faceted crystals, not long rods, so the silhouette remains intentional.
         for i in range(6):
             a = math.tau * i / 6
-            parts.append(
-                cone_between(
-                    f"CardinalTip_{i}",
-                    (1.08 * math.cos(a), 0.0, 1.08 * math.sin(a)),
-                    (1.48 * math.cos(a), 0.08 * math.sin(a * 2), 1.48 * math.sin(a)),
-                    0.065,
-                    0.010,
-                    metal,
-                    16,
-                )
+            d = np.array((math.cos(a), 0.0, math.sin(a)), dtype=np.float64)
+            crystal = ico(
+                f"CrownCrystal_{i}",
+                0.12,
+                bright,
+                (1.9, 0.55, 0.55),
+                2,
             )
+            crystal.apply_translation(d * (radius + 0.33))
+            crystal.apply_transform(trimesh.transformations.rotation_matrix(-a, [0, 1, 0]))
+            parts.append(crystal)
 
     save(name, parts)
 
@@ -594,11 +560,12 @@ def player_asset(kind, base, glow, seed):
         parts.append(torus(name, radius, minor, material, rot, sections=sections))
 
     def spike(name, direction, length, thickness, material, offset=0.18):
+        # Character accents are compact emitters, not long floating rods.
         d = np.asarray(direction, dtype=np.float64)
         d = d / (np.linalg.norm(d) or 1.0)
         start = d * offset
-        end = d * length
-        parts.append(cone_between(name, start, end, thickness, 0.008, material, 18))
+        end = d * min(length, 0.92)
+        parts.append(cone_between(name, start, end, thickness * 1.15, thickness * 0.18, material, 14))
 
     def node(name, pos, radius=0.055, material=accent):
         n = ico(name, radius, material, (1.0, 1.0, 1.25), 2)
@@ -614,7 +581,7 @@ def player_asset(kind, base, glow, seed):
             ring(f"Ring_{i}", r, minor, frame, rot)
         for i, a in enumerate((0, math.pi / 2, math.pi, math.pi * 1.5)):
             d = (math.cos(a), 0.0, math.sin(a))
-            spike(f"Cardinal_{i}", d, 1.25, 0.055, frame)
+            spike(f"Cardinal_{i}", d, 0.92, 0.045, frame, 0.30)
             node(f"EnergyNode_{i}", (0.86 * d[0], 0.03, 0.86 * d[2]))
         ring("Halo", 1.13, 0.010, accent, (math.pi / 4, 0, math.pi / 8), sections=96)
 
@@ -625,7 +592,7 @@ def player_asset(kind, base, glow, seed):
                  (0, 0, 0) if i % 2 == 0 else (math.pi / 2, 0, 0), sections=96)
         for i, a in enumerate((0, math.pi / 2, math.pi, math.pi * 1.5)):
             d = (math.cos(a), 0, math.sin(a))
-            spike(f"Cardinal_{i}", d, 1.42, 0.070, accent)
+            spike(f"Cardinal_{i}", d, 0.96, 0.052, accent, 0.34)
             node(f"TargetNode_{i}", (0.86 * d[0], 0.0, 0.86 * d[2]), 0.060, core)
         for i, a in enumerate((math.pi / 4, 3 * math.pi / 4, 5 * math.pi / 4, 7 * math.pi / 4)):
             d = (math.cos(a), 0.12, math.sin(a))
@@ -658,7 +625,7 @@ def player_asset(kind, base, glow, seed):
             a = math.tau * i / 16.0
             length = 1.18 + 0.27 * (0.5 + 0.5 * math.sin(i * 2.7 + 1.4))
             d = (math.cos(a), 0.0, math.sin(a))
-            spike(f"RageSpike_{i}", d, length, 0.078 if i % 2 == 0 else 0.050, accent, 0.22)
+            spike(f"RageSpike_{i}", d, min(length, 0.98), 0.062 if i % 2 == 0 else 0.042, accent, 0.26)
             if i % 2 == 0:
                 node(f"RageNode_{i}", (0.76 * d[0], 0.02, 0.76 * d[2]), 0.050, core)
         for i in range(8):
@@ -677,7 +644,7 @@ def player_asset(kind, base, glow, seed):
         ring("Ring_2", 1.06, 0.012, frame, (0, math.pi / 2, 0), sections=96)
         for i, a in enumerate((math.pi / 4, 3 * math.pi / 4, 5 * math.pi / 4, 7 * math.pi / 4)):
             d = (math.cos(a), 0, math.sin(a))
-            spike(f"LeafSpine_{i}", d, 1.24, 0.042, accent)
+            spike(f"LeafSpine_{i}", d, 0.92, 0.036, accent, 0.28)
             leaf = ico(f"Leaf_{i}", 0.16, accent, (1.65, 0.26, 0.72), 2)
             leaf.apply_translation((0.84 * d[0], 0.16 * math.sin(a * 2), 0.84 * d[2]))
             leaf.apply_transform(trimesh.transformations.rotation_matrix(a, [0, 1, 0]))
@@ -700,7 +667,7 @@ def player_asset(kind, base, glow, seed):
         for i,(u,v) in enumerate(diagonals):
             parts.append(cone_between(f"Diagonal_{i}", cube[u], cube[v], 0.014, 0.007, accent, 12))
         for i,d in enumerate(((1,0,0),(-1,0,0),(0,1,0),(0,-1,0),(0,0,1),(0,0,-1))):
-            spike(f"AxisTip_{i}", d, 1.32, 0.052, accent, 0.32)
+            spike(f"AxisTip_{i}", d, 0.94, 0.042, accent, 0.34)
         ring("Ring_0", 1.10, 0.010, frame, (0, 0, 0), sections=96)
         ring("Ring_1", 1.12, 0.010, frame, (math.pi / 2, 0, 0), sections=96)
         ring("VerticalRing", 1.12, 0.010, accent, (0, math.pi / 2, 0), sections=96)
