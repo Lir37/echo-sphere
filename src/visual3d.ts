@@ -423,7 +423,7 @@ void main(){
   if(u_decodeEmissive>0.5) emission=srgbToLinear(emission);
   // Emissive is an accent layer. Keep the physical surface readable and let
   // the post-process create only a restrained halo around genuinely bright pixels.
-  emission*=u_glow*(0.12+0.62*rim)*pulse;
+  emission*=u_glow*(0.16+0.78*rim)*pulse;
 
   vec3 c=max(ambient+direct+emission,vec3(0.0));
   if(u_alphaMode > 0.5 && u_alphaMode < 1.5 && base.a*u_alpha < u_alphaCutoff) discard;
@@ -466,13 +466,13 @@ void main(){
     float w=5.0-abs(fi);
     vec2 o=vec2(fi)*u_texel*2.0;
     vec3 tap=texture2D(u_scene,v_uv+o).rgb;
-    bloom+=max(tap-vec3(0.86),vec3(0.0))*w;
+    bloom+=max(tap-vec3(0.80),vec3(0.0))*w;
     weights+=w;
   }
   bloom/=max(weights,1.0);
   float radial=1.0-smoothstep(0.15,0.78,distance(v_uv,vec2(0.5)));
   vec3 bg=vec3(0.004,0.010,0.030)+vec3(0.0,0.018,0.055)*radial;
-  vec3 c=max(scene,bg)+bloom*(0.34+0.10*radial);
+  vec3 c=max(scene,bg)+bloom*(0.46+0.12*radial);
   c=c/(vec3(1.0)+c);
   c=pow(max(c,vec3(0.0)),vec3(1.0/2.2));
   c*=0.992+0.008*sin(v_uv.y*1100.0);
@@ -801,10 +801,10 @@ export class Echo3DRenderer {
   private drawAsset(name: string, x: number, y: number, z: number, scale: number, vp: Mat4, t: number, tag: string, angle = 0) {
     const a = this.assets.get(name);
     if (!a) { void this.load(name); return; }
-    if (tag === 'enemy') this.currentGlow = 0.34;
-    else if (tag.startsWith('sphere:7')) this.currentGlow = 0.42;
-    else if (tag.startsWith('sphere:')) this.currentGlow = 0.34;
-    else if (tag === 'player') this.currentGlow = 0.46;
+    if (tag === 'enemy') this.currentGlow = 0.45;
+    else if (tag.startsWith('sphere:7')) this.currentGlow = 0.58;
+    else if (tag.startsWith('sphere:')) this.currentGlow = 0.50;
+    else if (tag === 'player') this.currentGlow = 0.62;
     else if (tag === 'projectile') this.currentGlow = 1.15;
     else if (tag === 'fx') this.currentGlow = 1.0;
     else this.currentGlow = 0.82;
