@@ -19,11 +19,11 @@ ROOT = Path(__file__).resolve().parents[1] / "public" / "art3d"
 def role_threshold(path: Path) -> tuple[int, int, int]:
     name = path.stem
     if name.startswith("boss_"):
-        return 15_000, 80_000, 500_000
+        return 15_000, 500_000, 500_000
     if name.startswith("player_"):
-        return 10_000, 80_000, 500_000
+        return 10_000, 500_000, 500_000
     if "_t7" in name:
-        return 6_000, 180_000, 650_000
+        return 6_000, 450_000, 650_000
     if name.startswith("enemy_"):
         return 3_000, 70_000, 250_000
     if name.startswith("sphere_"):
