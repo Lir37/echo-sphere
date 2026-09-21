@@ -306,7 +306,7 @@ def sphere_asset(name, base, glow, tier, family_seed):
         glow,
         0.72,
         max(0.032, 0.10 - tier * 0.008),
-        0.30,
+        0.14,
         seed=family_seed,
     )
     core_base = tuple(min(1.0, 0.74 + x * 0.26) for x in base)
@@ -322,7 +322,10 @@ def sphere_asset(name, base, glow, tier, family_seed):
     # Tier I starts as the clean reference globe: one shell and three great-circle
     # rings. No dense cage is allowed here, otherwise it reads as a tangled object.
     if tier >= 1:
-        parts.append(ico("Housing", 0.78 + tier * 0.028, shell, (1.0, 1.0, 1.0), 3))
+        # Tiers I-II are intentionally transparent: the reference reads as an energy
+        # core inside thin luminous orbital lines, not as a filled gray sphere.
+        if tier >= 3:
+            parts.append(ico("Housing", 0.78 + tier * 0.028, shell, (1.0, 1.0, 1.0), 3))
         great_r = 0.84 + tier * 0.035
         ring_minor = 0.014 + tier * 0.0022
         ring_rotations = (
