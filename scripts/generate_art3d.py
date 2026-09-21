@@ -20,6 +20,11 @@ import trimesh
 OUT = Path(__file__).resolve().parents[1] / "public" / "art3d"
 OUT.mkdir(parents=True, exist_ok=True)
 
+# Source assets supplied outside this generator are benchmarks and must never be
+# deleted or overwritten by a regeneration pass. The supplied spider GLB is the
+# current geometry/PBR benchmark for the enemy family.
+PROTECTED_SOURCE_ASSETS = {"enemy_spider.glb"}
+
 
 # ---------------------------------------------------------------------------
 # PBR material + procedural texture helpers
@@ -36,7 +41,7 @@ _TEXTURE_PROFILE = "standard"
 
 def _surface_field(seed: int, size: int = 512) -> np.ndarray:
     rng = np.random.default_rng(seed)
-    low = Image.fromarray(np.uint8(rng.random((64, 64)) * 255), "L")
+    low = Image.fromarray(np.uint8(rng.random((64, 64)) * 255))
     low = low.resize((size, size), Image.Resampling.BICUBIC).filter(ImageFilter.GaussianBlur(1.4))
     noise = np.asarray(low, dtype=np.float32) / 255.0
     y, x = np.mgrid[0:size, 0:size]
@@ -65,7 +70,7 @@ def _normal_texture(seed: int, size: int = 512) -> Image.Image:
         ),
         axis=-1,
     )
-    return Image.fromarray(np.uint8(np.clip(rgb, 0, 1) * 255), "RGB")
+    return Image.fromarray(np.uint8(np.clip(rgb, 0, 1) * 255))
 
 
 def _metal_rough_texture(metallic: float, roughness: float, seed: int, size: int = 512) -> Image.Image:
@@ -298,7 +303,11 @@ def save(name, parts):
         merged.metadata["name"] = f"Static_{group_index:02d}"
         scene.add_geometry(merged, node_name=f"Static_{group_index:02d}")
 
-    scene.export(OUT / f"{name}.glb", file_type="glb")
+    destination = OUT / f"{name}.glb"
+    if destination.name in PROTECTED_SOURCE_ASSETS and destination.exists():
+        print(f"Preserving protected source asset: {destination.name}")
+        return
+    scene.export(destination, file_type="glb")
 
 
 # ---------------------------------------------------------------------------
@@ -460,7 +469,7 @@ def sphere_asset(name, base, glow, tier, family_seed):
 
 def insect_asset(name, kind, base, glow, scale, seed):
     global _TEXTURE_PROFILE
-    _TEXTURE_PROFILE = "standard"
+    _TEXTURE_PROFILE = "hero" if kind in {"spider", "queen"} else "standard"
     # Dark chitin + restrained emissive seams gives the insects the armored,
     # high-contrast silhouette from the reference instead of a flat orange blob.
     chitin = pbr("Chitin", tuple(x * 0.58 for x in base), tuple(x * 0.72 for x in glow), 0.90, 0.20, seed=seed)
@@ -473,8 +482,9 @@ def insect_asset(name, kind, base, glow, scale, seed):
     # Insect silhouette: distinct thorax + abdomen + head. The worker/guard/flyer
     # should read as a creature from a gameplay camera, not a spherical hub with
     # spokes attached.
-    parts.append(ico("Thorax", 0.62 * scale, chitin, (1.18, 0.78, 0.86), 5))
-    abdomen = ico("Abdomen", 0.64 * scale, dark, (1.38, 0.72, 0.82), 5)
+    body_subdivisions = 6 if kind in {"spider", "queen"} else 5
+    parts.append(ico("Thorax", 0.62 * scale, chitin, (1.18, 0.78, 0.86), body_subdivisions))
+    abdomen = ico("Abdomen", 0.64 * scale, dark, (1.38, 0.72, 0.82), body_subdivisions)
     abdomen.apply_translation((-0.62 * scale, -0.01 * scale, 0.0))
     parts.append(abdomen)
     parts.append(ico("Core", 0.24 * scale, core, (1, 1, 1.25), 3))
@@ -536,7 +546,7 @@ def insect_asset(name, kind, base, glow, scale, seed):
                     (0.52 * scale, 0.09 * scale, 0.34 * scale),
                     dark,
                     (0.0, a * 0.18, 0.0),
-                    2,
+                    4 if kind in {"spider", "queen"} else 2,
                 )
             )
 
@@ -553,6 +563,23 @@ def insect_asset(name, kind, base, glow, scale, seed):
                         (0.0, side * 0.18, side * (0.18 + row * 0.12)),
                     )
                 )
+
+    if kind == "spider":
+        # Additional dorsal plates and sensory nodes give the spider a stronger
+        # authored silhouette when the protected benchmark GLB is not present.
+        for i, a in enumerate((0.0, math.pi / 2, math.pi, 3 * math.pi / 2)):
+            plate_pos = (0.18 * math.cos(a) * scale, 0.34 * scale, 0.48 * math.sin(a) * scale)
+            parts.append(plate(
+                f"DorsalPlate_{i}",
+                plate_pos,
+                (0.38 * scale, 0.10 * scale, 0.24 * scale),
+                chitin,
+                (0.0, -a, 0.12),
+                4,
+            ))
+            sensor = ico(f"Sensor_{i}", 0.075 * scale, core, (1.0, 1.0, 1.25), 3)
+            sensor.apply_translation((0.66 * scale, 0.18 * scale, 0.24 * math.sin(a) * scale))
+            parts.append(sensor)
 
     if kind == "queen":
         for i in range(6):
