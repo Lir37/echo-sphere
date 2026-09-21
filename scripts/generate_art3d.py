@@ -10,6 +10,7 @@ LOD/culling/material limits, not by making the source assets primitive.
 from pathlib import Path
 import math
 import hashlib
+import shutil
 
 import numpy as np
 from PIL import Image, ImageFilter, ImageDraw
@@ -715,7 +716,7 @@ def player_core_compat():
     generated = OUT / "player_spherist.glb"
     # Keep the legacy filename for minions and older saves, using the same authored
     # Spherist model rather than a second procedural fallback asset.
-    generated.replace(OUT / "player_core.glb")
+    shutil.copy2(generated, OUT / "player_core.glb")
 
 
 
