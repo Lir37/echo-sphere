@@ -54,8 +54,8 @@ test('capture the actual rendered game after pressing Play', async ({ page }, te
     path: 'test-results/echo-sphere-render.png',
     fullPage: false,
   });
-  await testInfo.attach('echo-sphere-tower-placement', {
-    path: 'test-results/echo-sphere-tower-placement.png',
+  await testInfo.attach('echo-sphere-render', {
+    path: 'test-results/echo-sphere-render.png',
     contentType: 'image/png',
   });
 
