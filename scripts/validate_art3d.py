@@ -106,7 +106,7 @@ def main() -> int:
     parser.add_argument("--json-out", default=None, help="optional CI report path")
     args = parser.parse_args()
 
-    prefixes = ("sphere_", "enemy_", "boss_", "projectile_", "player_core")
+    prefixes = ("sphere_", "enemy_", "boss_", "projectile_", "player_")
     files = sorted(
         path for path in ROOT.glob("*.glb")
         if path.stem.startswith(prefixes)
