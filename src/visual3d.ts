@@ -82,6 +82,8 @@ interface GLBPrimitive {
   mrImage: number | null;
   normalImage: number | null;
   emissiveImage: number | null;
+  alphaMode: 'OPAQUE' | 'MASK' | 'BLEND';
+  alphaCutoff: number;
 }
 interface GLBNode {
   name: string;
@@ -144,10 +146,10 @@ export class GLTFLoader {
   async load(url: string): Promise<GLBAsset> {
     const r = await fetch(url);
     if (!r.ok) throw new Error(`GLB ${url}: ${r.status}`);
-    return this.parse(await r.arrayBuffer());
+    return this.parse(await r.arrayBuffer(), url);
   }
 
-  private parse(buf: ArrayBuffer): GLBAsset {
+  private async parse(buf: ArrayBuffer, baseUrl: string): Promise<GLBAsset> {
     const dv = new DataView(buf);
     if (dv.getUint32(0, true) !== 0x46546c67) throw new Error('Not a GLB');
     let off = 12;
@@ -182,12 +184,34 @@ export class GLTFLoader {
       return out;
     };
 
-    const images: GLBImage[] = (json.images || []).map((img: any) => {
-      if (img.bufferView === undefined) return { bytes: new Uint8Array(), mime: img.mimeType || 'image/png' };
-      const bv = json.bufferViews[img.bufferView];
-      const start = bv.byteOffset || 0;
-      return { bytes: bin.slice(start, start + bv.byteLength), mime: img.mimeType || 'image/png' };
-    });
+    const decodeDataUri = (uri: string): Uint8Array => {
+      const comma = uri.indexOf(',');
+      if (comma < 0) throw new Error('Invalid data URI image');
+      const meta = uri.slice(0, comma);
+      const payload = uri.slice(comma + 1);
+      if (/;base64/i.test(meta)) {
+        const binary = atob(payload);
+        const out = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) out[i] = binary.charCodeAt(i);
+        return out;
+      }
+      return new TextEncoder().encode(decodeURIComponent(payload));
+    };
+
+    const images: GLBImage[] = await Promise.all((json.images || []).map(async (img: any) => {
+      if (img.bufferView !== undefined) {
+        const bv = json.bufferViews[img.bufferView];
+        const start = bv.byteOffset || 0;
+        return { bytes: bin.slice(start, start + bv.byteLength), mime: img.mimeType || 'image/png' };
+      }
+      if (typeof img.uri === 'string') {
+        const bytes = img.uri.startsWith('data:')
+          ? decodeDataUri(img.uri)
+          : new Uint8Array(await (await fetch(new URL(img.uri, baseUrl))).arrayBuffer());
+        return { bytes, mime: img.mimeType || 'image/png' };
+      }
+      return { bytes: new Uint8Array(), mime: img.mimeType || 'image/png' };
+    }));
 
     const textureImage = (textureIndex: number | undefined): number | null => {
       if (textureIndex === undefined) return null;
@@ -204,6 +228,8 @@ export class GLTFLoader {
         metallic: Number(p.metallicFactor ?? 1),
         roughness: Number(p.roughnessFactor ?? 1),
         doubleSided: Boolean(m.doubleSided),
+        alphaMode: (m.alphaMode || 'OPAQUE') as 'OPAQUE' | 'MASK' | 'BLEND',
+        alphaCutoff: Number(m.alphaCutoff ?? 0.5),
         baseImage: textureImage(p.baseColorTexture?.index),
         mrImage: textureImage(p.metallicRoughnessTexture?.index),
         normalImage: textureImage(m.normalTexture?.index),
@@ -223,12 +249,14 @@ export class GLTFLoader {
       }
       const m = materials[p.material || 0] || {
         c: [1, 1, 1], alpha: 1, e: [0, 0, 0], metallic: 0, roughness: 1,
-        doubleSided: false, baseImage: null, mrImage: null, normalImage: null, emissiveImage: null,
+        doubleSided: false, alphaMode: 'OPAQUE' as const, alphaCutoff: 0.5,
+        baseImage: null, mrImage: null, normalImage: null, emissiveImage: null,
       };
       return {
         position, normal, uv, tangent: tangentFromMesh(position, normal, uv, indices), indices,
         color: m.c as [number, number, number], alpha: m.alpha, emissive: m.e as [number, number, number],
         metallic: m.metallic, roughness: m.roughness, doubleSided: m.doubleSided,
+        alphaMode: m.alphaMode, alphaCutoff: m.alphaCutoff,
         baseImage: m.baseImage, mrImage: m.mrImage, normalImage: m.normalImage, emissiveImage: m.emissiveImage,
       };
     }));
@@ -286,10 +314,16 @@ void main(){
 }`;
 
 const FRAG = `
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
 precision mediump float;
+#endif
 uniform vec3 u_color;
 uniform vec3 u_emissive;
 uniform vec3 u_camera;
+uniform vec3 u_lightColor;
+uniform vec3 u_fillColor;
 uniform float u_time;
 uniform float u_alpha;
 uniform float u_glow;
@@ -299,6 +333,10 @@ uniform float u_hasBase;
 uniform float u_hasMR;
 uniform float u_hasNormal;
 uniform float u_hasEmissive;
+uniform float u_decodeBase;
+uniform float u_decodeEmissive;
+uniform float u_alphaMode;
+uniform float u_alphaCutoff;
 uniform sampler2D u_baseTex;
 uniform sampler2D u_mrTex;
 uniform sampler2D u_normalTex;
@@ -307,9 +345,29 @@ varying vec3 v_n;
 varying vec3 v_w;
 varying vec2 v_uv;
 varying vec4 v_tangent;
+
+vec3 srgbToLinear(vec3 c){ return pow(max(c, vec3(0.0)), vec3(2.2)); }
+float sat(float x){ return clamp(x,0.0,1.0); }
+vec3 fresnelSchlick(float cosTheta, vec3 F0){ return F0 + (1.0-F0)*pow(1.0-sat(cosTheta),5.0); }
+
+float D_GGX(vec3 N, vec3 H, float r){
+  float a=r*r, a2=a*a, nh=sat(dot(N,H)), nh2=nh*nh;
+  float d=nh2*(a2-1.0)+1.0;
+  return a2/max(3.14159265*d*d,0.0001);
+}
+float G_Schlick(float nv, float r){
+  float k=((r+1.0)*(r+1.0))/8.0;
+  return nv/max(nv*(1.0-k)+k,0.0001);
+}
+float G_Smith(vec3 N, vec3 V, vec3 L, float r){
+  return G_Schlick(sat(dot(N,V)),r)*G_Schlick(sat(dot(N,L)),r);
+}
+
 void main(){
   vec4 base=vec4(u_color,1.0);
   if(u_hasBase>0.5) base*=texture2D(u_baseTex,v_uv);
+  if(u_decodeBase>0.5) base.rgb=srgbToLinear(base.rgb);
+
   vec3 N=normalize(v_n);
   if(u_hasNormal>0.5 && length(v_tangent.xyz)>0.1){
     vec3 T=normalize(v_tangent.xyz-N*dot(N,v_tangent.xyz));
@@ -317,31 +375,45 @@ void main(){
     vec3 nm=texture2D(u_normalTex,v_uv).xyz*2.0-1.0;
     N=normalize(mat3(T,B,N)*nm);
   }
-  float metallic=u_metallic;
-  float rough=u_roughness;
+
+  float metallic=clamp(u_metallic,0.0,1.0);
+  float roughness=clamp(u_roughness,0.045,1.0);
   if(u_hasMR>0.5){
     vec4 mr=texture2D(u_mrTex,v_uv);
-    rough*=mr.g;
-    metallic*=mr.b;
+    roughness=clamp(roughness*mr.g,0.045,1.0);
+    metallic=clamp(metallic*mr.b,0.0,1.0);
   }
+
   vec3 V=normalize(u_camera-v_w);
-  vec3 L=normalize(vec3(-.35,.8,.45));
+  vec3 L=normalize(vec3(-0.42,0.82,0.40));
   vec3 H=normalize(V+L);
-  float ndl=max(dot(N,L),0.0);
-  float ndh=max(dot(N,H),0.0);
-  float specPow=mix(96.0,8.0,rough);
-  float spec=pow(ndh,specPow)*(0.08+0.75*metallic);
-  float fres=pow(1.0-max(dot(N,V),0.0),3.0);
-  float pulse=.90+.10*sin(u_time*3.2+v_w.y*4.0);
-  vec3 e=u_emissive;
-  if(u_hasEmissive>0.5) e*=texture2D(u_emissiveTex,v_uv).rgb;
-  vec3 c=base.rgb*(.17+.83*ndl)*(1.0-metallic*.16)+vec3(spec)+e*(.10+0.85*fres)*pulse*u_glow;
-  c+=e*fres*.14;
-  c=max(c,vec3(0.0));
-  c=c/(vec3(1.0)+c);
-  c=pow(c,vec3(0.88));
+  float nv=sat(dot(N,V)), nl=sat(dot(N,L));
+  vec3 F0=mix(vec3(0.04),base.rgb,metallic);
+  vec3 F=fresnelSchlick(sat(dot(H,V)),F0);
+  float D=D_GGX(N,H,roughness);
+  float G=G_Smith(N,V,L,roughness);
+  vec3 spec=(D*G*F)/max(4.0*nv*nl,0.001);
+  vec3 kS=F;
+  vec3 kD=(vec3(1.0)-kS)*(1.0-metallic);
+  vec3 diffuse=kD*base.rgb/3.14159265;
+
+  vec3 fillL=normalize(vec3(0.55,0.48,-0.62));
+  float nfl=sat(dot(N,fillL));
+  vec3 ambient=base.rgb*(0.065+0.10*nv);
+  vec3 direct=(diffuse+spec)*(u_lightColor*nl+u_fillColor*nfl);
+
+  float rim=pow(1.0-nv,3.0);
+  float pulse=0.96+0.04*sin(u_time*3.2+v_w.y*2.5);
+  vec3 emission=u_emissive;
+  if(u_hasEmissive>0.5) emission*=texture2D(u_emissiveTex,v_uv).rgb;
+  if(u_decodeEmissive>0.5) emission=srgbToLinear(emission);
+  emission*=u_glow*(0.28+1.18*rim)*pulse;
+
+  vec3 c=max(ambient+direct+emission,vec3(0.0));
+  if(u_alphaMode>0.5 && base.a*u_alpha<u_alphaCutoff) discard;
   gl_FragColor=vec4(c,base.a*u_alpha);
-}`;
+}`
+
 
 const LINE_V = `
 attribute vec3 a_position;
@@ -361,26 +433,36 @@ varying vec2 v_uv;
 void main(){v_uv=a_position*.5+.5;gl_Position=vec4(a_position,0,1);}
 `;
 const POST_F = `
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
 precision mediump float;
+#endif
 varying vec2 v_uv;
 uniform sampler2D u_scene;
 uniform vec2 u_texel;
 void main(){
-  vec3 c=texture2D(u_scene,v_uv).rgb;
-  float radial=1.0-distance(v_uv,vec2(0.5));
-  vec3 bg=vec3(0.006,0.015,0.042)*(0.82+0.82*radial);
-  bg+=vec3(0.0,0.032,0.095)*smoothstep(0.0,1.0,radial);
-  c=max(c,bg);
-  vec3 b=vec3(0.0);
+  vec3 scene=texture2D(u_scene,v_uv).rgb;
+  vec3 bloom=vec3(0.0);
+  float weights=0.0;
   for(int i=-4;i<=4;i++){
-    vec2 o=vec2(float(i))*u_texel*2.0;
-    b+=texture2D(u_scene,v_uv+o).rgb;
+    float fi=float(i);
+    float w=5.0-abs(fi);
+    vec2 o=vec2(fi)*u_texel*2.0;
+    vec3 tap=texture2D(u_scene,v_uv+o).rgb;
+    bloom+=max(tap-vec3(0.72),vec3(0.0))*w;
+    weights+=w;
   }
-  b/=9.0;
-  float l=max(max(b.r,b.g),b.b);
-  float k=smoothstep(.24,.72,l);
-  float scan=0.985+0.015*sin(v_uv.y*900.0); gl_FragColor=vec4((c+b*k*0.95)*scan,1.0);
-}`;
+  bloom/=max(weights,1.0);
+  float radial=1.0-smoothstep(0.15,0.78,distance(v_uv,vec2(0.5)));
+  vec3 bg=vec3(0.004,0.010,0.030)+vec3(0.0,0.018,0.055)*radial;
+  vec3 c=max(scene,bg)+bloom*(0.72+0.18*radial);
+  c=c/(vec3(1.0)+c);
+  c=pow(max(c,vec3(0.0)),vec3(1.0/2.2));
+  c*=0.992+0.008*sin(v_uv.y*1100.0);
+  gl_FragColor=vec4(c,1.0);
+}`
+
 
 export class Echo3DRenderer {
   private gl: WebGLRenderingContext;
@@ -398,7 +480,7 @@ export class Echo3DRenderer {
   private width = 1;
   private height = 1;
   private cameraPos: V3 = { x: 0, y: 500, z: 500 };
-  private renderStats = { frame: 0, drawCalls: 0, triangles: 0, visibleEntities: 0 };
+  private renderStats = { frame: 0, drawCalls: 0, triangles: 0, visibleEntities: 0, players: 0, spheres: 0, enemies: 0 };
   private arenaGridBuffer: WebGLBuffer | null = null;
   private arenaRingBuffer: WebGLBuffer | null = null;
   private arenaGridCount = 0;
@@ -449,7 +531,7 @@ export class Echo3DRenderer {
     return b;
   }
 
-  private async texture(image: GLBImage): Promise<WebGLTexture> {
+  private async texture(image: GLBImage, colorSpace: 'srgb' | 'linear'): Promise<WebGLTexture> {
     const blob = new Blob([image.bytes], { type: image.mime });
     const bitmap = await createImageBitmap(blob);
     const tex = this.gl.createTexture()!;
@@ -460,7 +542,9 @@ export class Echo3DRenderer {
     g.texParameteri(g.TEXTURE_2D, g.TEXTURE_MAG_FILTER, g.LINEAR);
     g.texParameteri(g.TEXTURE_2D, g.TEXTURE_WRAP_S, g.REPEAT);
     g.texParameteri(g.TEXTURE_2D, g.TEXTURE_WRAP_T, g.REPEAT);
-    g.texImage2D(g.TEXTURE_2D, 0, g.RGBA, g.RGBA, g.UNSIGNED_BYTE, bitmap);
+    const internal = g instanceof WebGL2RenderingContext && colorSpace === 'srgb'
+      ? (g as WebGL2RenderingContext).SRGB8_ALPHA8 : g.RGBA;
+    g.texImage2D(g.TEXTURE_2D, 0, internal, g.RGBA, g.UNSIGNED_BYTE, bitmap);
     if (isPOT(bitmap.width) && isPOT(bitmap.height)) {
       g.generateMipmap(g.TEXTURE_2D);
       g.texParameteri(g.TEXTURE_2D, g.TEXTURE_MIN_FILTER, g.LINEAR_MIPMAP_LINEAR);
@@ -499,15 +583,16 @@ export class Echo3DRenderer {
     if (this.loading.has(name)) return this.loading.get(name)!;
 
     const p = this.loader.load(`${ASSET_BASE}${name}.glb`).then(async asset => {
-      const textureCache = new Map<number, WebGLTexture>();
-      const getTex = async (index: number | null) => {
+      const textureCache = new Map<string, WebGLTexture>();
+      const getTex = async (index: number | null, role: 'srgb' | 'linear') => {
         if (index === null) return null;
-        const cached = textureCache.get(index);
+        const key = `${index}:${role}`;
+        const cached = textureCache.get(key);
         if (cached) return cached;
         const image = asset.images[index];
         if (!image || image.bytes.length === 0) return null;
-        const tex = await this.texture(image);
-        textureCache.set(index, tex);
+        const tex = await this.texture(image, role);
+        textureCache.set(key, tex);
         return tex;
       };
 
@@ -523,10 +608,10 @@ export class Echo3DRenderer {
           m.indices instanceof Uint16Array ? this.gl.UNSIGNED_SHORT : this.gl.UNSIGNED_BYTE;
         return {
           ...m, p, n, u, t, i, count: m.indices.length, indexType,
-          baseTex: await getTex(m.baseImage),
-          mrTex: await getTex(m.mrImage),
-          normalTex: await getTex(m.normalImage),
-          emissiveTex: await getTex(m.emissiveImage),
+          baseTex: await getTex(m.baseImage, 'srgb'),
+          mrTex: await getTex(m.mrImage, 'linear'),
+          normalTex: await getTex(m.normalImage, 'linear'),
+          emissiveTex: await getTex(m.emissiveImage, 'srgb'),
         };
       }))));
       this.assets.set(name, { asset, gpu });
@@ -563,6 +648,9 @@ export class Echo3DRenderer {
     this.renderStats.drawCalls = 0;
     this.renderStats.triangles = 0;
     this.renderStats.visibleEntities = 0;
+    this.renderStats.players = 0;
+    this.renderStats.spheres = 0;
+    this.renderStats.enemies = 0;
     const t = s.time;
     const p = s.player.pos;
     const aspect = this.width / Math.max(1, this.height);
@@ -579,9 +667,10 @@ export class Echo3DRenderer {
     g.clearColor(0.008, 0.018, 0.048, 1);
     g.clear(g.COLOR_BUFFER_BIT | g.DEPTH_BUFFER_BIT);
     this.drawArena(vp, t, s.worldWidth, s.worldHeight);
-    for (const sp of s.spheres) if (sp.alive && this.nearCamera(sp.pos.x, sp.pos.y)) { this.renderStats.visibleEntities += 1; this.drawSphere(sp, vp, t); }
-    for (const e of s.enemies) if (e.hp > 0 && this.nearCamera(e.pos.x, e.pos.y)) { this.renderStats.visibleEntities += 1; this.drawEnemy(e, vp, t); }
+    for (const sp of s.spheres) if (sp.alive && this.nearCamera(sp.pos.x, sp.pos.y)) { this.renderStats.visibleEntities += 1; this.renderStats.spheres += 1; this.drawSphere(sp, vp, t); }
+    for (const e of s.enemies) if (e.hp > 0 && this.nearCamera(e.pos.x, e.pos.y)) { this.renderStats.visibleEntities += 1; this.renderStats.enemies += 1; this.drawEnemy(e, vp, t); }
     this.renderStats.visibleEntities += 1;
+    this.renderStats.players = 1;
     this.drawPlayer(s, vp, t);
     for (const m of s.minions) if (this.nearCamera(m.pos.x, m.pos.y)) this.drawMinion(m, vp, t);
     for (const q of s.sphereProjectiles) if (q.alive) this.drawProjectile(q, vp, t);
@@ -627,7 +716,7 @@ export class Echo3DRenderer {
     // Generated GLBs use Blender-style unit scale; gameplay radii are much larger world units.
     // Normalize the authored model to the same visual footprint as the legacy 2D sphere.
     const visualScale = Math.max(21, s.radius / 4.65);
-    this.drawAsset(this.modelForSphere(s.type, lodTier), s.pos.x, 0, s.pos.y, visualScale, vp, t, `sphere:${lodTier}`, s.rotation + t * 0.12);
+    this.drawAsset(this.modelForSphere(s.type, lodTier), s.pos.x, 0, s.pos.y, visualScale, vp, t, `sphere:${lodTier}`, s.rotation);
   }
 
   private drawEnemy(e: EnemyEntity, vp: Mat4, t: number) {
@@ -649,7 +738,7 @@ export class Echo3DRenderer {
 
   private drawPlayer(s: GameState, vp: Mat4, t: number) {
     const pulse = 1 + 0.06 * Math.sin(t * 4);
-    const tilt = Math.sin(t * 2.2) * 0.035;
+    const tilt = 0;
     const characterAsset = ({
       spherist: 'player_spherist',
       hunter: 'player_hunter',
@@ -658,7 +747,7 @@ export class Echo3DRenderer {
       alchemist: 'player_alchemist',
       architect: 'player_architect',
     } as Record<string, string>)[s.player.characterId] || 'player_spherist';
-    this.drawAsset(characterAsset, s.player.pos.x, 0, s.player.pos.y, 28.0 * pulse, vp, t, 'player', t * 0.3 + tilt);
+    this.drawAsset(characterAsset, s.player.pos.x, 0, s.player.pos.y, 28.0 * pulse, vp, t, 'player', 0);
   }
 
   private drawMinion(m: MinionEntity, vp: Mat4, t: number) {
@@ -745,12 +834,18 @@ export class Echo3DRenderer {
       g.uniformMatrix4fv(g.getUniformLocation(this.program, 'u_mvp'), false, mul(vp, model));
       g.uniform3f(g.getUniformLocation(this.program, 'u_color'), m.color[0], m.color[1], m.color[2]);
       g.uniform3f(g.getUniformLocation(this.program, 'u_emissive'), m.emissive[0], m.emissive[1], m.emissive[2]);
+      g.uniform3f(g.getUniformLocation(this.program, 'u_lightColor'), 1.0, 0.92, 0.84);
+      g.uniform3f(g.getUniformLocation(this.program, 'u_fillColor'), 0.22, 0.30, 0.48);
       g.uniform3f(g.getUniformLocation(this.program, 'u_camera'), this.cameraPos.x, this.cameraPos.y, this.cameraPos.z);
       g.uniform1f(g.getUniformLocation(this.program, 'u_time'), t);
       g.uniform1f(g.getUniformLocation(this.program, 'u_alpha'), m.alpha);
       g.uniform1f(g.getUniformLocation(this.program, 'u_glow'), this.currentGlow);
       g.uniform1f(g.getUniformLocation(this.program, 'u_metallic'), m.metallic);
-      g.uniform1f(g.getUniformLocation(this.program, 'u_roughness'), Math.max(0.04, m.roughness));
+      g.uniform1f(g.getUniformLocation(this.program, 'u_roughness'), Math.max(0.045, m.roughness));
+      g.uniform1f(g.getUniformLocation(this.program, 'u_alphaMode'), m.alphaMode === 'BLEND' ? 2 : m.alphaMode === 'MASK' ? 1 : 0);
+      g.uniform1f(g.getUniformLocation(this.program, 'u_alphaCutoff'), m.alphaCutoff);
+      g.uniform1f(g.getUniformLocation(this.program, 'u_decodeBase'), m.baseTex && !(this.gl instanceof WebGL2RenderingContext) ? 1 : 0);
+      g.uniform1f(g.getUniformLocation(this.program, 'u_decodeEmissive'), m.emissiveTex && !(this.gl instanceof WebGL2RenderingContext) ? 1 : 0);
 
       const bindTex = (unit: number, uniform: string, tex: WebGLTexture | null) => {
         g.activeTexture(g.TEXTURE0 + unit);
@@ -767,16 +862,18 @@ export class Echo3DRenderer {
       g.uniform1f(g.getUniformLocation(this.program, 'u_hasEmissive'), m.emissiveTex ? 1 : 0);
 
       if (m.doubleSided) g.disable(g.CULL_FACE); else g.enable(g.CULL_FACE);
-      if (m.alpha < 0.98) {
+      if (m.alphaMode === 'BLEND') {
+        g.enable(g.BLEND);
         g.depthMask(false);
         g.blendFunc(g.SRC_ALPHA, g.ONE_MINUS_SRC_ALPHA);
       } else {
+        g.disable(g.BLEND);
         g.depthMask(true);
       }
       g.drawElements(g.TRIANGLES, m.count, m.indexType, 0);
       this.renderStats.drawCalls += 1;
       this.renderStats.triangles += Math.floor(m.count / 3);
-      if (m.alpha < 0.98) g.depthMask(true);
+      if (m.alphaMode === 'BLEND') g.depthMask(true);
     }
   }
 
@@ -823,6 +920,8 @@ export class Echo3DRenderer {
 
   private drawLineBuffer(buffer: WebGLBuffer, count: number, vp: Mat4, color: number[], alpha: number, t: number) {
     const g = this.gl;
+    g.enable(g.BLEND);
+    g.blendFunc(g.SRC_ALPHA, g.ONE_MINUS_SRC_ALPHA);
     g.useProgram(this.lineProgram);
     const a = g.getAttribLocation(this.lineProgram, 'a_position');
     g.bindBuffer(g.ARRAY_BUFFER, buffer);
