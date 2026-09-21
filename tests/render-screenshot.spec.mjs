@@ -50,6 +50,14 @@ test('capture the actual rendered game after pressing Play', async ({ page }, te
     stats: window.__ECHO3D_STATS || null,
   }));
   expect(placedMetrics.stats?.visibleEntities || 0, 'tower was not rendered after tap').toBeGreaterThanOrEqual(2);
+  await page.screenshot({
+    path: 'test-results/echo-sphere-tower-placement.png',
+    fullPage: false,
+  });
+  await testInfo.attach('echo-sphere-tower-placement', {
+    path: 'test-results/echo-sphere-tower-placement.png',
+    contentType: 'image/png',
+  });
 
   await page.mouse.click(placementPoint.x, placementPoint.y);
   await page.waitForTimeout(250);
