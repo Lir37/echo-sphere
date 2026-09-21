@@ -912,10 +912,14 @@ insect_asset("enemy_flyer", "flyer", (.12, .02, .18), (.80, .15, 1.0), .60, 221)
 # and is copied into public/art3d as player_spherist.glb before generation.
 # Until it is committed, keep a clearly marked fallback so CI remains executable
 # without silently claiming that the production source asset was used.
-source_spherist = ROOT / "scripts" / "source_assets" / "player_spherist_raw.glb"
-if source_spherist.exists():
+source_candidates = [
+    ROOT / "scripts" / "source_assets" / "player_spherist_raw.glb",
+    OUT / "de80b509_2dcb_40b3_b17e_4802aec27878_79b3619d2a4c854002c9a24f66dddd8a.glb",
+]
+source_spherist = next((p for p in source_candidates if p.exists()), None)
+if source_spherist is not None:
     shutil.copy2(source_spherist, OUT / "player_spherist.glb")
-    print("[SOURCE] using user-authored player_spherist_raw.glb")
+    print(f"[SOURCE] using user-authored Spherist GLB: {source_spherist.name}")
 elif not (OUT / "player_spherist.glb").exists():
     print("[WARN] player_spherist source GLB is not present; generating fallback Spherist asset")
 
@@ -923,7 +927,15 @@ elif not (OUT / "player_spherist.glb").exists():
 # verbatim. Until that source file is committed to the repository, generate a
 # clearly marked fallback so CI remains executable rather than silently claiming
 # the benchmark was used.
-if not (OUT / "enemy_spider.glb").exists():
+spider_source_candidates = [
+    ROOT / "scripts" / "source_assets" / "enemy_spider_raw.glb",
+    OUT / "49477ab9_cf73_43f0_9f92_bd4aa01b5ba8_27b16027165b95c3b3b1a7a422bc3b5a.glb",
+]
+spider_source = next((p for p in spider_source_candidates if p.exists()), None)
+if spider_source is not None:
+    shutil.copy2(spider_source, OUT / "enemy_spider.glb")
+    print(f"[SOURCE] using user-authored Spider GLB: {spider_source.name}")
+elif not (OUT / "enemy_spider.glb").exists():
     print("[WARN] enemy_spider benchmark GLB is not present; generating fallback spider asset")
     insect_asset("enemy_spider", "spider", (.08, .015, .12), (1.0, .10, .55), .98, 231)
 crawler_asset("enemy_crawler")
