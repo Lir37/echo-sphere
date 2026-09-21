@@ -144,6 +144,8 @@ export interface EnemyEntity {
   bossProjectiles: BossProjectile[];
   xpValue: number;
   rotation: number;
+  velocity: Vec;
+  facing: Vec;
   tier: number;
   trailTimer: number;
   fireTimer: number;
@@ -703,6 +705,8 @@ function spawnEnemy(s: GameState, isBoss: boolean): EnemyEntity {
       bossProjectiles: [],
       xpValue: 50 + wave * 5,
       rotation: 0,
+      velocity: { x: 0, y: 0 },
+      facing: { x: 0, y: 1 },
       tier: Math.floor(wave / 10),
       trailTimer: 0,
       fireTimer: 0, fireDps: 0,
@@ -744,6 +748,8 @@ function spawnEnemy(s: GameState, isBoss: boolean): EnemyEntity {
     isBoss: false, bossShootTimer: 0, bossProjectiles: [],
     xpValue: (type === 'tank' ? 4 : type === 'fast' ? 2 : 1) * (isElite ? 5 : 1),
     rotation: 0,
+    velocity: { x: 0, y: 1 },
+    facing: { x: 0, y: 1 },
     tier: s.bossDefeated,
     trailTimer: 0,
     fireTimer: 0, fireDps: 0,
@@ -2626,7 +2632,6 @@ function updateEnemies(s: GameState, dt: number): void {
   for (let i = s.enemies.length - 1; i >= 0; i--) {
     const e = s.enemies[i];
     if (e.hp <= 0) { s.enemies.splice(i, 1); continue; }
-    e.rotation += dt;
     if (e.hitFlash > 0) e.hitFlash -= dt;
     // DoT: fire
     if (e.fireTimer > 0) {
@@ -2672,8 +2677,22 @@ function updateEnemies(s: GameState, dt: number): void {
     const dx = s.player.pos.x - e.pos.x;
     const dy = s.player.pos.y - e.pos.y;
     const d = Math.hypot(dx, dy) || 1;
-    e.pos.x += (dx / d) * e.speed * speedMult * aggro * dt;
-    e.pos.y += (dy / d) * e.speed * speedMult * aggro * dt;
+    const moveScale = e.speed * speedMult * aggro;
+    let vx = (dx / d) * moveScale;
+    let vy = (dy / d) * moveScale;
+    if (e.isBoss && e.bossType === 'charger' && e.isCharging) {
+      vx += e.chargeDir.x * e.speed * 3;
+      vy += e.chargeDir.y * e.speed * 3;
+    }
+    e.velocity.x = vx;
+    e.velocity.y = vy;
+    const velocityLength = Math.hypot(vx, vy);
+    if (velocityLength > 1e-4) {
+      e.facing.x = vx / velocityLength;
+      e.facing.y = vy / velocityLength;
+    }
+    e.pos.x += vx * dt;
+    e.pos.y += vy * dt;
 
     // collision with player
     if (d < e.radius + PLAYER_RADIUS) {
@@ -2691,9 +2710,7 @@ function updateEnemies(s: GameState, dt: number): void {
       if (e.bossType === 'charger') {
         e.chargeTimer -= dt;
         if (e.isCharging) {
-          e.pos.x += e.chargeDir.x * e.speed * 3 * dt;
-          e.pos.y += e.chargeDir.y * e.speed * 3 * dt;
-          e.isCharging = false; // will re-check below
+          e.isCharging = false; // one-frame charge impulse
           // damage on contact during charge
           if (dist(e.pos, s.player.pos) < e.radius + PLAYER_RADIUS) {
             damagePlayer(s, e.damage * 1.5);
@@ -2728,7 +2745,7 @@ function updateEnemies(s: GameState, dt: number): void {
               color: '#8a5a8a', shape: 'circle',
               slowTimer: 0, slowFactor: 1, freezeTimer: 0, hitFlash: 0,
               isBoss: false, bossShootTimer: 0, bossProjectiles: [],
-              xpValue: 2, rotation: 0, tier: 0, trailTimer: 0,
+              xpValue: 2, rotation: 0, velocity: { x: 0, y: 1 }, facing: { x: 0, y: 1 }, tier: 0, trailTimer: 0,
               fireTimer: 0, fireDps: 0, poisonTimer: 0, poisonDps: 0,
               isElite: false, bossType: 'shooter',
               chargeTimer: 0, isCharging: false, chargeDir: { x: 0, y: 0 },
