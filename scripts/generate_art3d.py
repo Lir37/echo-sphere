@@ -878,14 +878,14 @@ SPHERE_FAMILIES = [
 owned_prefixes = (
     "sphere_", "enemy_", "boss_", "projectile_", "player_core",
 )
+protected_names = PROTECTED_SOURCE_ASSETS
 for old in OUT.glob("*.glb"):
-    if old.stem.startswith(owned_prefixes):
+    if old.stem.startswith(owned_prefixes) and old.name not in protected_names:
         old.unlink()
 
 for family, base, glow, seed in SPHERE_FAMILIES:
     for tier in range(1, 8):
         sphere_asset(f"sphere_{family}_t{tier}", base, glow, tier, seed + tier * 7)
-    sphere_asset(f"sphere_{family}", base, glow, 7, seed + 70)
 
 insect_asset("enemy_worker", "worker", (.15, .02, .03), (1.0, .25, .04), .58, 201)
 insect_asset("enemy_guard", "guard", (.16, .02, .03), (1.0, .08, .02), .82, 211)
