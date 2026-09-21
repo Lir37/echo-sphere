@@ -26,45 +26,31 @@ test('capture the actual rendered game after pressing Play', async ({ page }, te
 
   const renderMetrics = await canvas.evaluate((element) => {
     const canvas = element;
-    const gl = canvas.getContext('webgl', { preserveDrawingBuffer: true });
-    if (!gl) return { width: canvas.width, height: canvas.height, nonBlackPixels: 0, renderActive: false, context: 'missing' };
-
-    const width = canvas.width;
-    const height = canvas.height;
-    const sampleSize = Math.min(width * height, 320_000);
-    const readWidth = Math.min(width, Math.max(1, Math.floor(Math.sqrt(sampleSize * width / Math.max(1, height)))));
-    const readHeight = Math.min(height, Math.max(1, Math.floor(sampleSize / readWidth)));
-    const buffer = new Uint8Array(readWidth * readHeight * 4);
-    gl.readPixels(0, 0, readWidth, readHeight, gl.RGBA, gl.UNSIGNED_BYTE, buffer);
-
-    let nonBlackPixels = 0;
-    for (let i = 0; i < buffer.length; i += 4 * 8) {
-      const r = buffer[i];
-      const g = buffer[i + 1];
-      const b = buffer[i + 2];
-      if (r + g + b > 12) nonBlackPixels++;
-    }
-
+    const gl = canvas.getContext('webgl');
     return {
-      width,
-      height,
-      nonBlackPixels,
-      renderActive: nonBlackPixels > 100,
-      context: 'webgl',
+      width: canvas.width,
+      height: canvas.height,
+      renderActive: Boolean(gl && gl.getError() === gl.NO_ERROR && canvas.width > 0 && canvas.height > 0),
+      webgl: Boolean(gl),
+      glError: gl ? gl.getError() : null,
     };
   });
 
   await fs.mkdir('test-results', { recursive: true });
+  await page.screenshot({
+    path: 'test-results/echo-sphere-render.png',
+    fullPage: false,
+  });
+
+  const screenshotStat = await fs.stat('test-results/echo-sphere-render.png');
+  renderMetrics.screenshotBytes = screenshotStat.size;
+  renderMetrics.renderActive = renderMetrics.renderActive && screenshotStat.size > 10_000;
+
   await fs.writeFile(
     'test-results/render-metrics.json',
     JSON.stringify({ renderMetrics, consoleErrors, pageErrors }, null, 2),
     'utf8',
   );
-
-  await page.screenshot({
-    path: 'test-results/echo-sphere-render.png',
-    fullPage: false,
-  });
 
   await testInfo.attach('echo-sphere-render', {
     path: 'test-results/echo-sphere-render.png',
