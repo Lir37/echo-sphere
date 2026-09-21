@@ -294,7 +294,7 @@ interface AssetManifestEntry {
   animation?: string;
 }
 
-interface GPUPrim extends GLBPrimitive {
+interface GPUPrim {
   p: WebGLBuffer;
   n: WebGLBuffer;
   u: WebGLBuffer | null;
@@ -302,6 +302,14 @@ interface GPUPrim extends GLBPrimitive {
   i: WebGLBuffer;
   count: number;
   indexType: number;
+  color: [number, number, number];
+  alpha: number;
+  emissive: [number, number, number];
+  metallic: number;
+  roughness: number;
+  doubleSided: boolean;
+  alphaMode: 'OPAQUE' | 'MASK' | 'BLEND';
+  alphaCutoff: number;
   baseTex: WebGLTexture | null;
   mrTex: WebGLTexture | null;
   normalTex: WebGLTexture | null;
@@ -543,7 +551,6 @@ export class Echo3DRenderer {
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     this.resize();
-    void this.preload();
   }
 
   private make(v: string, f: string): WebGLProgram {
@@ -570,9 +577,16 @@ export class Echo3DRenderer {
     return b;
   }
 
-  private async texture(image: GLBImage, colorSpace: 'srgb' | 'linear'): Promise<WebGLTexture> {
+  private async texture(image: GLBImage, colorSpace: 'srgb' | 'linear', maxDimension: number): Promise<WebGLTexture> {
     const blob = new Blob([image.bytes], { type: image.mime });
-    const bitmap = await createImageBitmap(blob);
+    const source = await createImageBitmap(blob);
+    const scale = Math.min(1, maxDimension / Math.max(source.width, source.height));
+    const width = Math.max(1, Math.round(source.width * scale));
+    const height = Math.max(1, Math.round(source.height * scale));
+    const bitmap = scale < 1
+      ? await createImageBitmap(source, { resizeWidth: width, resizeHeight: height, resizeQuality: 'high' })
+      : source;
+    if (bitmap !== source) source.close();
     const tex = this.gl.createTexture()!;
     const g = this.gl;
     g.bindTexture(g.TEXTURE_2D, tex);
@@ -654,38 +668,56 @@ export class Echo3DRenderer {
     return this.manifest.get(name)?.facingOffset ?? 0;
   }
 
-  private async preload() {
-    const manifest = await this.loadManifest();
-    const names = manifest.size > 0
-      ? [
-          ...[...manifest.values()].filter(entry => entry.category === 'player').map(entry => entry.id),
-          ...[...manifest.values()].filter(entry => entry.category === 'enemy').map(entry => entry.id),
-          ...[...manifest.values()].filter(entry => entry.category === 'projectile').map(entry => entry.id),
-          ...[...manifest.values()].filter(entry => entry.category === 'sphere' && entry.tier === 1).map(entry => entry.id),
-        ]
-      : [
-          'player_core',
-          'player_spherist',
-          'enemy_spider', 'enemy_worker', 'enemy_guard', 'enemy_flyer', 'enemy_crawler', 'enemy_psionic',
-          'projectile_energy', 'projectile_fire',
-          ...['standard', 'sniper', 'shotgun', 'chain', 'aura'].map(t => 'sphere_' + t + '_t1'),
-        ];
-    await Promise.all(names.map(async name => {
-      try { await this.load(name); }
-      catch (e) {
-        this.recordLoadError(name, e);
-        console.warn('[Echo3D]', String(e));
-      }
-    }));
-    (window as any).__ECHO3D_LOAD_ERRORS = [...this.loadErrors];
+  private loadQueue: string[] = [];
+  private activeLoads = 0;
+  private readonly maxConcurrentLoads = 2;
+
+  private drainLoadQueue() {
+    while (this.activeLoads < this.maxConcurrentLoads && this.loadQueue.length > 0) {
+      const name = this.loadQueue.shift()!;
+      this.activeLoads += 1;
+      void this.loadNow(name).finally(() => {
+        this.activeLoads -= 1;
+        this.loading.delete(name);
+        this.drainLoadQueue();
+      });
+    }
   }
 
-  private async load(name: string) {
-    if (this.assets.has(name)) return;
-    if (this.loading.has(name)) return this.loading.get(name)!;
+  private load(name: string): Promise<void> {
+    if (this.assets.has(name)) return Promise.resolve();
+    const existing = this.loading.get(name);
+    if (existing) return existing;
 
-    const p = this.loader.load(`${ASSET_BASE}${name}.glb`).then(async asset => {
+    const promise = new Promise<void>((resolve, reject) => {
+      this.loadQueue.push(name);
+      (this as any).__echoLoadResolvers ??= new Map<string, { resolve: () => void; reject: (error: unknown) => void }>();
+      (this as any).__echoLoadResolvers.set(name, { resolve, reject });
+    });
+    this.loading.set(name, promise);
+    this.drainLoadQueue();
+    return promise;
+  }
+
+  private async loadNow(name: string) {
+    const resolvers = (this as any).__echoLoadResolvers as Map<string, { resolve: () => void; reject: (error: unknown) => void }>;
+    const finish = (error?: unknown) => {
+      const pair = resolvers.get(name);
+      if (!pair) return;
+      resolvers.delete(name);
+      if (error) pair.reject(error);
+      else pair.resolve();
+    };
+
+    try {
+      const asset = await this.loader.load(`${ASSET_BASE}${name}.glb`);
       const textureCache = new Map<string, WebGLTexture>();
+      const manifestEntry = this.manifest.get(name);
+      const heroTexture = manifestEntry?.category === 'player'
+        || manifestEntry?.category === 'boss'
+        || manifestEntry?.tier === 7;
+      const maxTextureDimension = heroTexture ? 1024 : 512;
+
       const getTex = async (index: number | null, role: 'srgb' | 'linear') => {
         if (index === null) return null;
         const key = `${index}:${role}`;
@@ -693,41 +725,54 @@ export class Echo3DRenderer {
         if (cached) return cached;
         const image = asset.images[index];
         if (!image || image.bytes.length === 0) return null;
-        const tex = await this.texture(image, role);
+        const tex = await this.texture(image, role, maxTextureDimension);
         textureCache.set(key, tex);
         return tex;
       };
 
-      const gpu = await Promise.all(asset.meshes.map(ms => Promise.all(ms.map(async m => {
-        const p = this.buf(m.position);
-        const n = this.buf(m.normal);
-        const u = m.uv ? this.buf(m.uv) : null;
-        const t = m.tangent ? this.buf(m.tangent) : null;
-        const i = this.gl.createBuffer()!;
-        this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, i);
-        this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, m.indices, this.gl.STATIC_DRAW);
-        const indexType = m.indices instanceof Uint32Array ? this.gl.UNSIGNED_INT :
-          m.indices instanceof Uint16Array ? this.gl.UNSIGNED_SHORT : this.gl.UNSIGNED_BYTE;
-        return {
-          ...m, p, n, u, t, i, count: m.indices.length, indexType,
-          baseTex: await getTex(m.baseImage, 'srgb'),
-          mrTex: await getTex(m.mrImage, 'linear'),
-          normalTex: await getTex(m.normalImage, 'linear'),
-          emissiveTex: await getTex(m.emissiveImage, 'srgb'),
-        };
-      }))));
-      this.assets.set(name, { asset, gpu });
-    });
+      const gpu: GPUPrim[][] = [];
+      for (const ms of asset.meshes) {
+        const gpuMs: GPUPrim[] = [];
+        for (const m of ms) {
+          const p = this.buf(m.position);
+          const n = this.buf(m.normal);
+          const u = m.uv ? this.buf(m.uv) : null;
+          const t = m.tangent ? this.buf(m.tangent) : null;
+          const i = this.gl.createBuffer()!;
+          this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, i);
+          this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, m.indices, this.gl.STATIC_DRAW);
+          const indexType = m.indices instanceof Uint32Array ? this.gl.UNSIGNED_INT :
+            m.indices instanceof Uint16Array ? this.gl.UNSIGNED_SHORT : this.gl.UNSIGNED_BYTE;
+          gpuMs.push({
+            p, n, u, t, i, count: m.indices.length, indexType,
+            color: m.color, alpha: m.alpha, emissive: m.emissive,
+            metallic: m.metallic, roughness: m.roughness,
+            doubleSided: m.doubleSided, alphaMode: m.alphaMode, alphaCutoff: m.alphaCutoff,
+            baseTex: await getTex(m.baseImage, 'srgb'),
+            mrTex: await getTex(m.mrImage, 'linear'),
+            normalTex: await getTex(m.normalImage, 'linear'),
+            emissiveTex: await getTex(m.emissiveImage, 'srgb'),
+          });
+        }
+        gpu.push(gpuMs);
+      }
 
-    this.loading.set(name, p);
-    p.catch(error => {
+      // CPU-side decoded mesh/image arrays are no longer needed after GPU upload.
+      // Keeping them doubled memory usage on Android WebView.
+      asset.meshes.length = 0;
+      for (const image of asset.images) image.bytes = new Uint8Array();
+      asset.images.length = 0;
+
+      this.assets.set(name, { asset, gpu });
+      finish();
+    } catch (error) {
       this.recordLoadError(name, error);
-    });
-    return p;
+      finish(error);
+    }
   }
 
   private resize() {
-    const d = Math.min(devicePixelRatio || 1, 2);
+    const d = Math.min(devicePixelRatio || 1, 1.25);
     const w = Math.max(1, Math.floor(this.canvas.clientWidth * d));
     const h = Math.max(1, Math.floor(this.canvas.clientHeight * d));
     if (w === this.width && h === this.height) return;
@@ -869,7 +914,12 @@ export class Echo3DRenderer {
 
   private drawAsset(name: string, x: number, y: number, z: number, scale: number, vp: Mat4, t: number, tag: string, angle = 0) {
     const a = this.assets.get(name);
-    if (!a) { void this.load(name); return; }
+    if (!a) {
+      void this.load(name).catch((error) => {
+        this.recordLoadError(name, error);
+      });
+      return;
+    }
     if (tag === 'enemy') this.currentGlow = 0.45;
     else if (tag.startsWith('sphere:7')) this.currentGlow = 0.58;
     else if (tag.startsWith('sphere:')) this.currentGlow = 0.50;
