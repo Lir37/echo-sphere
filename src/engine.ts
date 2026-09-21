@@ -147,6 +147,7 @@ export interface EnemyEntity {
   velocity: Vec;
   facing: Vec;
   tier: number;
+  visualId?: 'worker' | 'spider' | 'guard' | 'flyer' | 'slime' | 'psionic' | 'queen';
   trailTimer: number;
   fireTimer: number;
   fireDps: number;
@@ -705,6 +706,7 @@ function spawnEnemy(s: GameState, isBoss: boolean): EnemyEntity {
       bossProjectiles: [],
       xpValue: 50 + wave * 5,
       rotation: 0,
+      visualId: 'queen',
       velocity: { x: 0, y: 0 },
       facing: { x: 0, y: 1 },
       tier: Math.floor(wave / 10),
@@ -748,6 +750,15 @@ function spawnEnemy(s: GameState, isBoss: boolean): EnemyEntity {
     isBoss: false, bossShootTimer: 0, bossProjectiles: [],
     xpValue: (type === 'tank' ? 4 : type === 'fast' ? 2 : 1) * (isElite ? 5 : 1),
     rotation: 0,
+    visualId: type === 'fast'
+      ? 'flyer'
+      : type === 'tank'
+        ? 'guard'
+        : shape === 'triangle'
+          ? 'psionic'
+          : shape === 'square'
+            ? 'slime'
+            : (Math.random() < 0.38 ? 'spider' : 'worker'),
     velocity: { x: 0, y: 1 },
     facing: { x: 0, y: 1 },
     tier: s.bossDefeated,
