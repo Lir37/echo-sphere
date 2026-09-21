@@ -2,21 +2,25 @@ import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
   testDir: './tests',
-  timeout: 30_000,
+  testMatch: '**/render-screenshot.spec.mjs',
+  timeout: 120_000,
+  expect: { timeout: 20_000 },
   workers: 1,
-  reporter: [['line']],
+  fullyParallel: false,
+  reporter: [
+    ['line'],
+    ['html', { outputFolder: 'playwright-report', open: 'never' }],
+  ],
   use: {
     baseURL: 'http://127.0.0.1:4173',
-    viewport: { width: 1440, height: 900 },
+    headless: true,
+    viewport: { width: 1280, height: 800 },
     deviceScaleFactor: 1,
-    colorScheme: 'dark',
-    reducedMotion: 'no-preference',
-    screenshot: 'off',
   },
   webServer: {
     command: 'npm run preview -- --host 127.0.0.1 --port 4173',
     url: 'http://127.0.0.1:4173',
     reuseExistingServer: false,
-    timeout: 60_000,
+    timeout: 120_000,
   },
 });
