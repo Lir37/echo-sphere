@@ -323,7 +323,7 @@ def sphere_asset(name, base, glow, tier, family_seed):
     # Sphere/tower assets are visible primarily at gameplay distance. Keep their
     # source textures at the standard 1024/512 profile; close-up hero assets get
     # the 2048/1024 profile explicitly in their own generators.
-    _TEXTURE_PROFILE = "hero" if tier >= 7 else "compact"
+    _TEXTURE_PROFILE = "hero" if tier >= 7 else "standard"
     """Build a clean energy-orbit tower family matching the supplied reference.
 
     The reference is not a mechanical ball covered in spokes. It is a luminous core
@@ -344,7 +344,7 @@ def sphere_asset(name, base, glow, tier, family_seed):
 
     # The physical energy nucleus is deliberately small. Outer frames carry the
     # silhouette; bloom is not allowed to inflate the core into the whole asset.
-    core_radius = 0.22 + tier * 0.008
+    core_radius = 0.145 + tier * 0.0045
     parts = [
         ico("Core", core_radius, core, (1.0, 1.0, 1.04), 6 if tier >= 5 else 5),
         ico("CoreInner", core_radius * 0.34, inner, (1.0, 1.0, 1.08), 5),
@@ -605,22 +605,34 @@ def insect_asset(name, kind, base, glow, scale, seed):
     save(name, parts)
 
 
-def slime_asset(name, seed=71):
+def crawler_asset(name, seed=71):
     global _TEXTURE_PROFILE
     _TEXTURE_PROFILE = "standard"
-    body = pbr("Slime", (0.03, 0.24, 0.12), (0.10, 1.0, 0.42), 0.25, 0.16, 0.88, seed)
-    core = pbr("SlimeCore", (0.08, 0.45, 0.18), (0.25, 1.0, 0.42), 0.15, 0.08, seed=seed + 1)
-    parts = [ico("Body", 0.78, body, (1.25, 0.58, 0.92), 4), ico("Core", 0.32, core, 3)]
-    for i in range(8):
-        a = math.tau * i / 8
-        parts.append(cone_between(
-            f"Tendril_{i}",
-            (0.35 * math.cos(a), -0.20, 0.35 * math.sin(a)),
-            (1.15 * math.cos(a), -0.48, 1.15 * math.sin(a)),
-            0.10, 0.018, body, 14
-        ))
-    save(name, parts)
-
+    shell = pbr("CrawlerShell", (0.04, 0.15, 0.05), (0.18, 0.85, 0.08), 0.88, 0.20, seed=seed)
+    dark = pbr("CrawlerArmor", (0.012, 0.028, 0.018), (0.08, 0.42, 0.04), 0.92, 0.28, seed=seed + 1)
+    core = pbr("CrawlerCore", (0.08, 0.38, 0.05), (0.28, 1.0, 0.12), 0.18, 0.08, seed=seed + 2)
+    parts = [
+        ico("Thorax", 0.56, shell, (1.30, 0.62, 0.88), 5),
+        ico("Abdomen", 0.68, dark, (1.48, 0.52, 0.82), 5),
+        ico("Head", 0.32, dark, (1.08, 0.70, 0.72), 4),
+        ico("Core", 0.16, core, (1.0, 1.0, 1.15), 3),
+    ]
+    parts[2].apply_translation((0.66, 0.0, 0.0))
+    for i, x in enumerate((0.48, 0.16, -0.18, -0.50)):
+        for side in (-1, 1):
+            s=float(side)
+            hip=(x,-0.04,0.20*s)
+            knee=(x+(0.10 if i<2 else -0.04),-0.18,0.64*s)
+            foot=(x+(0.22 if i<2 else -0.16),-0.31,0.98*s)
+            parts.append(cone_between(f"Leg_{i}_{side}_Upper",hip,knee,0.085,0.045,shell,16))
+            parts.append(cone_between(f"Leg_{i}_{side}_Lower",knee,foot,0.045,0.014,dark,14))
+            parts.append(ico(f"Leg_{i}_{side}_Joint",0.065,core,2))
+    for i,x in enumerate((-0.42,-0.08,0.26,0.58)):
+        parts.append(plate(f"ArmorScale_{i}",(x,0.24,0.0),(0.25,0.07,0.22),shell,(0.0,0.1*i,0.0),3))
+    parts.append(cone_between("ToxinLance",(0.72,0.0,0.0),(1.20,-0.04,0.0),0.08,0.014,core,16))
+    for side in (-1,1):
+        parts.append(cone_between(f"Mandible_{side}",(0.72,0.0,0.13*side),(1.02,-0.10,0.30*side),0.06,0.012,dark,14))
+    save(name,parts)
 
 def psionic_asset(name, seed=83):
     global _TEXTURE_PROFILE
@@ -655,9 +667,9 @@ def player_asset(kind, base, glow, seed):
     accent = pbr("CharacterAccent", tuple(min(1.0, 0.24 + x * 0.30) for x in glow), glow, 0.74, 0.095, 1.0, seed=seed + 3)
 
     parts = [
-        ico("Core", 0.34, core, (1.0, 1.0, 1.10), 6),
-        ico("CoreInner", 0.13, core_inner, (1.0, 1.0, 1.12), 5),
-        ico("CoreShell", 0.50, shell, (1.0, 0.92, 0.98), 5),
+        ico("Core", 0.19, core, (1.0, 1.0, 1.10), 6),
+        ico("CoreInner", 0.065, core_inner, (1.0, 1.0, 1.12), 5),
+        ico("CoreShell", 0.43, shell, (1.0, 0.92, 0.98), 5),
     ]
 
     # Layered armor gives the hero a readable 3D body before the orbital FX are
@@ -901,7 +913,7 @@ insect_asset("enemy_flyer", "flyer", (.12, .02, .18), (.80, .15, 1.0), .60, 221)
 if not (OUT / "enemy_spider.glb").exists():
     print("[WARN] enemy_spider benchmark GLB is not present; generating fallback spider asset")
     insect_asset("enemy_spider", "spider", (.08, .015, .12), (1.0, .10, .55), .98, 231)
-slime_asset("enemy_slime")
+crawler_asset("enemy_crawler")
 psionic_asset("enemy_psionic")
 insect_asset("enemy_queen", "queen", (.18, .07, .02), (1.0, .45, .06), 1.18, 241)
 
