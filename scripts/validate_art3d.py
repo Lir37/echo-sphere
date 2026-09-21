@@ -27,7 +27,7 @@ def role_threshold(path: Path) -> tuple[int, int, int]:
     # gameplay enemies. Keep its quality floor separate from the regular enemy
     # budget so the benchmark can ship without weakening every enemy check.
     if name == "enemy_spider":
-        return 100_000, 650_000, 5_000_000
+        return 100_000, 650_000, 1_000_000
     if name.startswith("boss_"):
         return 25_000, 600_000, 750_000
     if name == "player_core":
@@ -64,6 +64,12 @@ def validate(path: Path):
     mr_textured = 0
     max_texture_width = 0
     max_texture_height = 0
+    max_base_width = 0
+    max_base_height = 0
+    max_normal_width = 0
+    max_normal_height = 0
+    max_mr_width = 0
+    max_mr_height = 0
     min_dim = math.inf
     max_dim = 0.0
 
@@ -100,8 +106,19 @@ def validate(path: Path):
                     image = getattr(texture, "data", None)
                     if image is not None:
                         width, height = getattr(image, "size", (0, 0))
-                        max_texture_width = max(max_texture_width, int(width))
-                        max_texture_height = max(max_texture_height, int(height))
+                    elif hasattr(texture, "size"):
+                        width, height = texture.size
+                    else:
+                        width = height = 0
+                    width, height = int(width), int(height)
+                    max_texture_width = max(max_texture_width, width)
+                    max_texture_height = max(max_texture_height, height)
+                    if attr == "baseColorTexture":
+                        max_base_width = max(max_base_width, width); max_base_height = max(max_base_height, height)
+                    elif attr == "normalTexture":
+                        max_normal_width = max(max_normal_width, width); max_normal_height = max(max_normal_height, height)
+                    elif attr == "metallicRoughnessTexture":
+                        max_mr_width = max(max_mr_width, width); max_mr_height = max(max_mr_height, height)
             if getattr(material, "baseColorTexture", None) is not None:
                 textured += 1
             if getattr(material, "normalTexture", None) is not None:
@@ -131,8 +148,15 @@ def validate(path: Path):
     if max_dim / max(min_dim, 1e-7) > 5000:
         raise RuntimeError(f"pathological bounding aspect ratio: {max_dim / min_dim:.0f}:1")
     if path.stem.startswith(("boss_", "player_", "sphere_")):
-        if max_texture_width < 512 or max_texture_height < 512:
-            raise RuntimeError("complex asset texture resolution is below 512px")
+        hero = path.stem.startswith(("boss_", "player_")) or "_t7" in path.stem
+        minimum_base = 1024 if hero else 512
+        minimum_detail = 512 if hero else 256
+        if max_base_width < minimum_base or max_base_height < minimum_base:
+            raise RuntimeError(f"base-color texture resolution below {minimum_base}px")
+        if max_normal_width < minimum_detail or max_normal_height < minimum_detail:
+            raise RuntimeError(f"normal texture resolution below {minimum_detail}px")
+        if max_mr_width < minimum_detail or max_mr_height < minimum_detail:
+            raise RuntimeError(f"metallic/roughness texture resolution below {minimum_detail}px")
 
     return {
         "file": path.name,
@@ -145,6 +169,12 @@ def validate(path: Path):
         "mr_textured_primitives": mr_textured,
         "max_texture_width": max_texture_width,
         "max_texture_height": max_texture_height,
+        "max_base_width": max_base_width,
+        "max_base_height": max_base_height,
+        "max_normal_width": max_normal_width,
+        "max_normal_height": max_normal_height,
+        "max_mr_width": max_mr_width,
+        "max_mr_height": max_mr_height,
         "min_nonzero_dimension": 0 if not math.isfinite(min_dim) else min_dim,
         "max_dimension": max_dim,
     }
