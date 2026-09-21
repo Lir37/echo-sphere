@@ -63,6 +63,7 @@ interface Mesh {
   texture: WebGLTexture | null;
   indexType: number;
   count: number;
+  parts?: Mesh[];
 }
 
 const sphereTypes: Record<SphereType, {color:string; accent:string}> = {
@@ -929,11 +930,9 @@ export class Echo3DRenderer {
     }
     if(!json||!bin||!json.meshes?.length)return null;
 
-    const prim=json.meshes[0]?.primitives?.[0];
-    if(!prim?.attributes?.POSITION||prim.mode!==undefined&&prim.mode!==4)return null;
-
     const accessorRead=(idx:number):Float32Array|Uint16Array|Uint32Array|null=>{
-      const a=json.accessors?.[idx], view=a?json.bufferViews?.[a.bufferView]:null;
+      const a=json.accessors?.[idx];
+      const view=a?json.bufferViews?.[a.bufferView]:null;
       if(!a||!view)return null;
       const cc=a.type==='VEC4'?4:a.type==='VEC3'?3:a.type==='VEC2'?2:a.type==='SCALAR'?1:0;
       if(!cc)return null;
@@ -941,7 +940,7 @@ export class Echo3DRenderer {
       if(!componentSize)return null;
       const stride=view.byteStride||componentSize*cc;
       const base=(view.byteOffset||0)+(a.byteOffset||0);
-      if(base<0||base+stride*(a.count-1)+componentSize*cc>bin.length)return null;
+      if(a.count<=0||base<0||base+stride*(a.count-1)+componentSize*cc>bin.length)return null;
       const dvBin=new DataView(bin.buffer,bin.byteOffset,bin.byteLength);
 
       if(a.componentType===5126){
@@ -962,40 +961,95 @@ export class Echo3DRenderer {
       return null;
     };
 
-    const pos=accessorRead(prim.attributes.POSITION) as Float32Array|null;
-    const norm=prim.attributes.NORMAL!==undefined ? accessorRead(prim.attributes.NORMAL) as Float32Array|null : null;
-    const uv=prim.attributes.TEXCOORD_0!==undefined ? accessorRead(prim.attributes.TEXCOORD_0) as Float32Array|null : null;
-    if(!(pos instanceof Float32Array))return null;
+    const meshDefs:any[] = json.meshes[0]?.primitives ?? [];
+    const parts:Mesh[]=[];
+    for(let primitiveIndex=0;primitiveIndex<meshDefs.length;primitiveIndex++){
+      const prim=meshDefs[primitiveIndex];
+      if(!prim?.attributes?.POSITION || (prim.mode!==undefined&&prim.mode!==4))continue;
 
-    let idx=prim.indices!==undefined ? accessorRead(prim.indices) : null;
-    if(!(idx instanceof Uint16Array)&&!(idx instanceof Uint32Array)){
-      idx=new Uint32Array(pos.length/3);
-      for(let i=0;i<idx.length;i++)idx[i]=i;
-    }
+      const pos=accessorRead(prim.attributes.POSITION) as Float32Array|null;
+      const norm=prim.attributes.NORMAL!==undefined
+        ? accessorRead(prim.attributes.NORMAL) as Float32Array|null
+        : null;
+      const uv=prim.attributes.TEXCOORD_0!==undefined
+        ? accessorRead(prim.attributes.TEXCOORD_0) as Float32Array|null
+        : null;
+      if(!(pos instanceof Float32Array))continue;
 
-    const n=norm instanceof Float32Array?norm:new Float32Array(pos.length);
-    if(!norm)for(let i=0;i<n.length;i+=3){n[i]=0;n[i+1]=1;n[i+2]=0;}
+      let idx=prim.indices!==undefined ? accessorRead(prim.indices) : null;
+      if(!(idx instanceof Uint16Array)&&!(idx instanceof Uint32Array)){
+        idx=new Uint32Array(pos.length/3);
+        for(let i=0;i<idx.length;i++)idx[i]=i;
+      }
 
-    let texture:WebGLTexture|null=null;
-    const mat=json.materials?.[prim.material??0];
-    const texInfo=mat?.pbrMetallicRoughness?.baseColorTexture;
-    const texDef=texInfo?json.textures?.[texInfo.index]:null;
-    const imageDef=texDef?json.images?.[texDef.source]:null;
-    if(imageDef?.bufferView!==undefined){
-      const iv=json.bufferViews?.[imageDef.bufferView];
-      if(iv){
-        const start=(iv.byteOffset||0), end=start+(iv.byteLength||0);
-        const key=imageDef.name||String(imageDef.bufferView);
-        const cached=this.textureCache.get(key);
-        if(cached)texture=cached;
-        else if(end<=bin.length){
-          texture=await this.createTextureFromBytes(bin.subarray(start,end),imageDef.mimeType||'image/png');
-          if(texture)this.textureCache.set(key,texture);
+      const n=norm instanceof Float32Array?norm:new Float32Array(pos.length);
+      if(!norm)for(let i=0;i<n.length;i+=3){n[i]=0;n[i+1]=1;n[i+2]=0;}
+
+      let texture:WebGLTexture|null=null;
+      const mat=json.materials?.[prim.material??0];
+      const texInfo=mat?.pbrMetallicRoughness?.baseColorTexture;
+      const texDef=texInfo?json.textures?.[texInfo.index]:null;
+      const imageDef=texDef?json.images?.[texDef.source]:null;
+
+      if(imageDef?.bufferView!==undefined){
+        const iv=json.bufferViews?.[imageDef.bufferView];
+        if(iv){
+          const start=(iv.byteOffset||0), end=start+(iv.byteLength||0);
+          const key=(imageDef.name||'embedded')+':'+imageDef.bufferView;
+          const cached=this.textureCache.get(key);
+          if(cached)texture=cached;
+          else if(end<=bin.length){
+            texture=await this.createTextureFromBytes(
+              bin.subarray(start,end),
+              imageDef.mimeType||'image/png'
+            );
+            if(texture)this.textureCache.set(key,texture);
+          }
+        }
+      }else if(typeof imageDef?.uri==='string' && imageDef.uri.startsWith('data:')){
+        const comma=imageDef.uri.indexOf(',');
+        if(comma>0){
+          const head=imageDef.uri.slice(0,comma);
+          const data=imageDef.uri.slice(comma+1);
+          try{
+            const bytes=head.includes(';base64')
+              ? Uint8Array.from(atob(data),ch=>ch.charCodeAt(0))
+              : new TextEncoder().encode(decodeURIComponent(data));
+            const key=imageDef.name||imageDef.uri;
+            const cached=this.textureCache.get(key);
+            if(cached)texture=cached;
+            else{
+              texture=await this.createTextureFromBytes(
+                bytes,
+                head.slice(5).split(';')[0]||'image/png'
+              );
+              if(texture)this.textureCache.set(key,texture);
+            }
+          }catch(error){
+            console.warn('Echo3D data URI texture decode failed:',error);
+          }
         }
       }
+
+      parts.push(this.makeMeshFromTypedArrays(pos,n,idx,uv,texture));
     }
 
-    return this.makeMeshFromTypedArrays(pos,n,idx,uv,texture);
+    if(parts.length===0)return null;
+    if(parts.length===1)return parts[0];
+
+    const first=parts[0];
+    // Wrapper mesh contains no geometry itself. drawModel() fans out over every
+    // primitive so a multi-material GLB keeps all authored surfaces.
+    return {
+      pos:first.pos,
+      normal:first.normal,
+      index:first.index,
+      uv:null,
+      texture:null,
+      indexType:gl.UNSIGNED_SHORT,
+      count:0,
+      parts,
+    };
   }
 
   private async createTextureFromBytes(bytes:Uint8Array,mime:string):Promise<WebGLTexture|null>{
@@ -1072,39 +1126,43 @@ export class Echo3DRenderer {
     const mvp=mat4Multiply(vp,model);
     gl.uniformMatrix4fv(this.mvpLoc,false,mvp);
     gl.uniformMatrix4fv(this.modelLoc,false,model);
-    const c=hex(color), e=hex(emissive);
-    gl.uniform3f(this.colorLoc,c[0],c[1],c[2]);
-    gl.uniform3f(this.emissiveLoc,e[0],e[1],e[2]);
     gl.uniform1f(this.alphaLoc,alpha);
 
-    gl.bindBuffer(gl.ARRAY_BUFFER,mesh.pos);
-    gl.enableVertexAttribArray(this.posLoc);
-    gl.vertexAttribPointer(this.posLoc,3,gl.FLOAT,false,0,0);
+    const parts=mesh.parts??[mesh];
+    for(const part of parts){
+      const c=hex(color), e=hex(emissive);
+      gl.uniform3f(this.colorLoc,c[0],c[1],c[2]);
+      gl.uniform3f(this.emissiveLoc,e[0],e[1],e[2]);
 
-    gl.bindBuffer(gl.ARRAY_BUFFER,mesh.normal);
-    gl.enableVertexAttribArray(this.normalLoc);
-    gl.vertexAttribPointer(this.normalLoc,3,gl.FLOAT,false,0,0);
+      gl.bindBuffer(gl.ARRAY_BUFFER,part.pos);
+      gl.enableVertexAttribArray(this.posLoc);
+      gl.vertexAttribPointer(this.posLoc,3,gl.FLOAT,false,0,0);
 
-    if(mesh.uv){
-      gl.bindBuffer(gl.ARRAY_BUFFER,mesh.uv);
-      gl.enableVertexAttribArray(this.uvLoc);
-      gl.vertexAttribPointer(this.uvLoc,2,gl.FLOAT,false,0,0);
-    }else{
-      gl.disableVertexAttribArray(this.uvLoc);
-      gl.vertexAttrib2f(this.uvLoc,0,0);
+      gl.bindBuffer(gl.ARRAY_BUFFER,part.normal);
+      gl.enableVertexAttribArray(this.normalLoc);
+      gl.vertexAttribPointer(this.normalLoc,3,gl.FLOAT,false,0,0);
+
+      if(part.uv){
+        gl.bindBuffer(gl.ARRAY_BUFFER,part.uv);
+        gl.enableVertexAttribArray(this.uvLoc);
+        gl.vertexAttribPointer(this.uvLoc,2,gl.FLOAT,false,0,0);
+      }else{
+        gl.disableVertexAttribArray(this.uvLoc);
+        gl.vertexAttrib2f(this.uvLoc,0,0);
+      }
+
+      if(part.texture){
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D,part.texture);
+        gl.uniform1i(this.baseColorMapLoc,0);
+        gl.uniform1f(this.hasTextureLoc,1);
+      }else{
+        gl.uniform1f(this.hasTextureLoc,0);
+      }
+
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,part.index);
+      gl.drawElements(gl.TRIANGLES,part.count,part.indexType,0);
     }
-
-    if(mesh.texture){
-      gl.activeTexture(gl.TEXTURE0);
-      gl.bindTexture(gl.TEXTURE_2D,mesh.texture);
-      gl.uniform1i(this.baseColorMapLoc,0);
-      gl.uniform1f(this.hasTextureLoc,1);
-    }else{
-      gl.uniform1f(this.hasTextureLoc,0);
-    }
-
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,mesh.index);
-    gl.drawElements(gl.TRIANGLES,mesh.count,mesh.indexType,0);
   }
 
   private makeIcoSphere(r:number):Mesh{
