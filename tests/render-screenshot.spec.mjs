@@ -18,7 +18,7 @@ test('capture the actual rendered game after Play', async ({ page }, testInfo) =
     );
   });
 
-  await page.goto('/', { waitUntil: 'networkidle' });
+  await page.goto(process.env.BASE_URL || 'http://127.0.0.1:4173', { waitUntil: 'networkidle' });
 
   const playButton = page.getByRole('button', { name: /Играть|Play|START RUN/i }).first();
   await expect(playButton).toBeVisible();
@@ -33,7 +33,7 @@ test('capture the actual rendered game after Play', async ({ page }, testInfo) =
 
   const box = await canvas.boundingBox();
   expect(box).not.toBeNull();
-  await page.mouse.click(box.x + box.width * 0.68, box.y + box.height * 0.52);
+  await page.mouse.click(box.x + box.width * 0.50, box.y + box.height * 0.44);
 
   await page.waitForTimeout(2_000);
 
