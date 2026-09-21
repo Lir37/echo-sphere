@@ -318,9 +318,21 @@ def sphere_asset(name, base, glow, tier, family_seed):
 
     core_radius = 0.40 + tier * 0.016
     parts = [
-        ico("Core", core_radius, core, (1.0, 1.0, 1.04), 4),
-        ico("CoreInner", core_radius * 0.38, inner, (1.0, 1.0, 1.08), 4),
+        ico("Core", core_radius, core, (1.0, 1.0, 1.04), 5),
+        ico("CoreInner", core_radius * 0.38, inner, (1.0, 1.0, 1.08), 5),
     ]
+
+    # A recessed dark shell gives the tower a physical volume between the
+    # luminous nucleus and the orbital hardware.
+    shell = pbr("CoreShell", tuple(x * 0.18 for x in base), tuple(x * 0.42 for x in glow), 0.86, 0.16, seed=family_seed + 5)
+    parts.append(ico("CoreShell", core_radius * 1.16, shell, (1.02, 0.96, 1.02), 4))
+
+    # Four small anchor collars visually connect the energy core to the frame.
+    for i, a in enumerate((0.0, math.pi / 2, math.pi, math.pi * 1.5)):
+        d = np.array((math.cos(a), 0.0, math.sin(a)))
+        collar = torus(f"AnchorCollar_{i}", core_radius * 0.78, 0.026 + tier * 0.002, bright, (0.0, math.pi / 2, a))
+        collar.apply_translation(d * (core_radius * 0.78))
+        parts.append(collar)
 
     # Every tier keeps the same visual language: a glowing core plus three major
     # great-circle orbits. There are deliberately no free-standing radial rods.
@@ -344,6 +356,19 @@ def sphere_asset(name, base, glow, tier, family_seed):
 
     if tier >= 3:
         # Third-stage cage: four tilted curves form a stable diamond/sphere envelope.
+        # Add broad armor petals at the same anchor points. These are shallow,
+        # faceted surfaces, so the silhouette gains real mass instead of more rods.
+        for i, a in enumerate((0.0, math.pi / 2, math.pi, math.pi * 1.5)):
+            d = np.array((math.cos(a), 0.0, math.sin(a)))
+            armor = plate(
+                f"ArmorPetal_{i}",
+                d * (radius * 0.78),
+                (0.28 + tier * 0.012, 0.055 + tier * 0.004, 0.19 + tier * 0.008),
+                frame,
+                (0.0, -a, 0.0),
+                3,
+            )
+            parts.append(armor)
         for i, rot in enumerate((
             (math.pi / 4, math.pi / 4, 0),
             (-math.pi / 4, math.pi / 4, 0),
@@ -372,6 +397,21 @@ def sphere_asset(name, base, glow, tier, family_seed):
             petal = torus(f"Petal_{i}", radius + 0.16, 0.015 + tier * 0.0013, bright, rot, sections=96)
             petal.apply_scale((1.0, 0.62, 1.0))
             parts.append(petal)
+
+    if tier >= 5:
+        # Secondary emitter housings sit between the major orbital planes.
+        for i, a in enumerate((math.pi / 4, 3 * math.pi / 4, 5 * math.pi / 4, 7 * math.pi / 4)):
+            d = np.array((math.cos(a), 0.18 * math.sin(a * 2.0), math.sin(a)))
+            emitter = ico(
+                f"EmitterHousing_{i}",
+                0.10 + tier * 0.008,
+                frame,
+                (1.55, 0.62, 0.82),
+                3,
+            )
+            emitter.apply_translation(d * (radius + 0.19))
+            emitter.apply_transform(trimesh.transformations.rotation_matrix(-a, [0, 1, 0]))
+            parts.append(emitter)
 
     if tier >= 6:
         # Energy nodes sit on the existing orbital frame, rather than being connected
