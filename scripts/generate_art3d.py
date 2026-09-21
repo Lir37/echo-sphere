@@ -141,8 +141,12 @@ def pbr(
     alpha: float = 1.0,
     seed: int = 1,
 ):
-    color_size = 2048 if _TEXTURE_PROFILE == "hero" else 1024
-    detail_size = 1024 if _TEXTURE_PROFILE == "hero" else 512
+    if _TEXTURE_PROFILE == "hero":
+        color_size, detail_size = 2048, 1024
+    elif _TEXTURE_PROFILE == "compact":
+        color_size, detail_size = 512, 256
+    else:
+        color_size, detail_size = 1024, 512
     image = _texture(base, glow, seed, color_size)
     normal = _normal_texture(seed + 101, detail_size)
     metallic_roughness = _metal_rough_texture(metallic, rough, seed + 211, detail_size)
