@@ -85,9 +85,39 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
     if (!st || !canvas) return null;
     const rect = canvas.getBoundingClientRect();
     if (rect.width <= 0 || rect.height <= 0) return null;
-    const canvasX = (clientX - rect.left) * (canvas.width / rect.width);
-    const canvasY = (clientY - rect.top) * (canvas.height / rect.height);
-    return { x: canvasX - canvas.width / 2 + st.camera.x, y: canvasY - canvas.height / 2 + st.camera.y };
+
+    // The gameplay world is rendered by the perspective WebGL camera, not the
+    // legacy 2D canvas transform. Convert the tap into a camera ray and intersect
+    // it with the arena plane (Y=0). This keeps a tower exactly under the user's
+    // finger and makes a second tap hit the same authored tower footprint.
+    const sx = (clientX - rect.left) / rect.width;
+    const sy = (clientY - rect.top) / rect.height;
+    const ndcX = sx * 2 - 1;
+    const ndcY = 1 - sy * 2;
+    const aspect = canvas.width / Math.max(1, canvas.height);
+    const fov = 48 * Math.PI / 180;
+    const tanHalf = Math.tan(fov / 2);
+    const distance = Math.max(245, Math.min(345, Math.max(st.worldWidth, st.worldHeight) * 0.15));
+    const cameraHeight = distance * 0.74;
+    const eye = { x: st.camera.x, y: cameraHeight, z: st.camera.y + cameraHeight };
+
+    // Exact basis used by the WebGL lookAt camera: forward points from the camera
+    // to the player, right is world +X, and camera-up lies diagonally in the XZ plane.
+    const invSqrt2 = Math.SQRT1_2;
+    const rayX = ndcX * tanHalf * aspect;
+    const rayY = -invSqrt2 + ndcY * tanHalf * invSqrt2;
+    const rayZ = -invSqrt2 + ndcY * tanHalf * invSqrt2;
+    const rayLength = Math.hypot(rayX, rayY, rayZ) || 1;
+    const dx = rayX / rayLength;
+    const dy = rayY / rayLength;
+    const dz = rayZ / rayLength;
+    if (dy >= -0.0001) return null;
+
+    const travel = -eye.y / dy;
+    return {
+      x: eye.x + dx * travel,
+      y: eye.z + dz * travel,
+    };
   };
 
   const handlesphereTap = (clientX: number, clientY: number) => {
