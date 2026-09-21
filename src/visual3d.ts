@@ -55,7 +55,15 @@ function hex(hex:string):[number,number,number] {
   return [parseInt(h.slice(0,2),16)/255,parseInt(h.slice(2,4),16)/255,parseInt(h.slice(4,6),16)/255];
 }
 
-interface Mesh { pos: WebGLBuffer; normal: WebGLBuffer; index: WebGLBuffer; count:number; }
+interface Mesh {
+  pos: WebGLBuffer;
+  normal: WebGLBuffer;
+  index: WebGLBuffer;
+  uv: WebGLBuffer | null;
+  texture: WebGLTexture | null;
+  indexType: number;
+  count: number;
+}
 
 const sphereTypes: Record<SphereType, {color:string; accent:string}> = {
   standard:{color:'#53ddff',accent:'#d8fbff'},
@@ -72,15 +80,18 @@ const enemyColors: Record<string,string> = {
 const VERTEX = `
 attribute vec3 a_position;
 attribute vec3 a_normal;
+attribute vec2 a_uv;
 uniform mat4 u_mvp;
 uniform mat4 u_model;
 varying vec3 v_normal;
 varying vec3 v_world;
 varying vec3 v_local;
+varying vec2 v_uv;
 void main(){
   vec4 world=u_model*vec4(a_position,1.0);
   v_world=world.xyz;
   v_local=a_position;
+  v_uv=a_uv;
   v_normal=normalize(mat3(u_model)*a_normal);
   gl_Position=u_mvp*vec4(a_position,1.0);
 }`;
@@ -93,6 +104,8 @@ uniform vec3 u_light;
 uniform vec3 u_camera;
 uniform float u_alpha;
 uniform float u_time;
+uniform sampler2D u_baseColorMap;
+uniform float u_hasTexture;
 varying vec3 v_normal;
 varying vec3 v_world;
 varying vec3 v_local;
@@ -105,7 +118,12 @@ void main(){
   float rim=pow(1.0-max(dot(N,vec3(0.0,1.0,0.0)),0.0),2.4);
   float micro=0.5+0.5*sin(v_local.x*9.0+v_local.z*7.0+sin(v_local.y*6.0)*1.7);
   float pulse=0.88+0.12*sin(u_time*3.0+v_local.y*4.0);
-  vec3 base=mix(u_color,u_color*vec3(0.48,0.58,0.72),micro*0.28);
+  vec3 albedo=u_color;
+  if(u_hasTexture>0.5){
+    vec4 texel=texture2D(u_baseColorMap,v_uv);
+    albedo*=texel.rgb;
+  }
+  vec3 base=mix(albedo,albedo*vec3(0.48,0.58,0.72),micro*0.28);
   vec3 H=normalize(L+vec3(0.35,0.78,0.45));
   float spec=pow(max(dot(N,H),0.0),42.0);
   float edge=pow(1.0-max(dot(N,V),0.0),5.5);
@@ -159,12 +177,15 @@ export class Echo3DRenderer {
   private quad: WebGLBuffer;
   private posLoc:number;
   private normalLoc:number;
+  private uvLoc:number;
   private mvpLoc:WebGLUniformLocation;
   private modelLoc:WebGLUniformLocation;
   private colorLoc:WebGLUniformLocation;
   private emissiveLoc:WebGLUniformLocation;
   private alphaLoc:WebGLUniformLocation;
   private timeLoc:WebGLUniformLocation;
+  private baseColorMapLoc:WebGLUniformLocation;
+  private hasTextureLoc:WebGLUniformLocation;
   private lightLoc:WebGLUniformLocation;
   private cameraLoc:WebGLUniformLocation;
   private groundPosLoc:number;
@@ -212,12 +233,15 @@ export class Echo3DRenderer {
     this.quad=this.makeGroundBuffer();
     this.posLoc=gl.getAttribLocation(this.program,'a_position');
     this.normalLoc=gl.getAttribLocation(this.program,'a_normal');
+    this.uvLoc=gl.getAttribLocation(this.program,'a_uv');
     this.mvpLoc=this.mustUniform(this.program,'u_mvp');
     this.modelLoc=this.mustUniform(this.program,'u_model');
     this.colorLoc=this.mustUniform(this.program,'u_color');
     this.emissiveLoc=this.mustUniform(this.program,'u_emissive');
     this.alphaLoc=this.mustUniform(this.program,'u_alpha');
     this.timeLoc=this.mustUniform(this.program,'u_time');
+    this.baseColorMapLoc=this.mustUniform(this.program,'u_baseColorMap');
+    this.hasTextureLoc=this.mustUniform(this.program,'u_hasTexture');
     this.lightLoc=this.mustUniform(this.program,'u_light');
     this.cameraLoc=this.mustUniform(this.program,'u_camera');
     this.groundPosLoc=gl.getAttribLocation(this.groundProgram,'a_position');
@@ -301,40 +325,14 @@ export class Echo3DRenderer {
           mat4Scale(bodyScale,bodyScale,bodyScale)
         )
       );
-      const bodyColor=s.player.mutationStage>=3?'#102b3d':'#071522';
       const bodyGlow=s.player.mutationStage>=3?'#9a6dff':'#73eaff';
-      this.drawModel(playerAsset,body,vp,bodyColor,bodyGlow,1);
+      this.drawModel(playerAsset,body,vp,'#ffffff',bodyGlow,1);
     }else{
-      const shell=mat4Multiply(
-        mat4Translate(p.x,bob,p.y),
-        mat4Multiply(mat4RotateY(t*.11),mat4Scale(size*.64,size*.72,size*.64))
-      );
-      this.drawModel(this.reactorShellMesh,shell,vp,'#071a29','#2b9fc8',.78);
-
-      const inner=mat4Multiply(
-        mat4Translate(p.x,bob,p.y),
-        mat4Multiply(mat4RotateY(-t*.18),mat4Scale(size*.49,size*.57,size*.49))
-      );
-      this.drawModel(this.reactorShellMesh,inner,vp,'#03101b','#0c5d83',.92);
-
-      const core=mat4Multiply(
-        mat4Translate(p.x,bob,p.y),
-        mat4Multiply(mat4RotateY(t*.34),mat4Scale(size*.285,size*.34,size*.285))
-      );
-      this.drawModel(this.facetCoreMesh,core,vp,'#bfefff','#ffffff',1);
+      // Never substitute a primitive body for the authored hero. During the
+      // asynchronous asset load only the containment halo is shown, so the
+      // temporary state cannot look like a giant placeholder sphere.
+      this.drawRing(p.x,p.y,size*.82,t*.35,'#52ddff',t,vp,.16);
     }
-
-    // Hot reactor core remains visually separate from the shell and is now framed
-    // by the imported hero mesh.
-    const coreGlow=mat4Multiply(
-      mat4Translate(p.x,bob,p.y),
-      mat4Scale(size*.36,size*.41,size*.36)
-    );
-    this.drawModel(this.sphereMesh,coreGlow,vp,
-      s.player.mutationStage>=3?'#32145f':'#0b5d87',
-      s.player.mutationStage>=3?'#d39aff':'#51ddff',
-      dash?0.28:0.18
-    );
 
     // Machined collar rings lock the body to the containment frame.
     const collarR=size*.60;
@@ -365,69 +363,8 @@ export class Echo3DRenderer {
       );
     }
 
-    // Structural emitters are individual 3D nodes, not particles/sprites.
-    const nodeR=cageR*1.015;
-    const nodeSize=size*.064*(dash?1.18:1);
-    const nodes=[
-      [ nodeR,0,0],[-nodeR,0,0],
-      [0, nodeR*Math.cos(61*DEG), nodeR*Math.sin(61*DEG)],
-      [0,-nodeR*Math.cos(61*DEG),-nodeR*Math.sin(61*DEG)],
-      [nodeR*.54,0,nodeR*.84],[-nodeR*.54,0,-nodeR*.84]
-    ];
-    for(let i=0;i<nodes.length;i++){
-      const [nx,ny,nz]=nodes[i];
-      const nm=mat4Multiply(
-        mat4Translate(p.x+nx,bob+ny,p.y+nz),
-        mat4Scale(nodeSize*(i%2?0.9:1.08),nodeSize,nodeSize*(i%2?0.9:1.08))
-      );
-      this.drawModel(this.facetCoreMesh,nm,vp,
-        s.player.mutationStage>=3?'#e2d6ff':'#d9fbff',
-        s.player.mutationStage>=3?'#c88cff':'#ffffff',.98);
-    }
-
-    // Thin struts make the frame physically believable and visually connected.
-    const strutR=size*.037;
-    const strutL=cageR*.72;
-    const struts=[
-      mat4Multiply(mat4Translate(p.x,bob,p.y),mat4RotateZ(90*DEG)),
-      mat4Multiply(mat4Translate(p.x,bob,p.y),mat4RotateX(90*DEG)),
-      mat4Multiply(
-        mat4Translate(p.x,bob,p.y),
-        mat4Multiply(mat4RotateX(61*DEG),mat4RotateY(t*.31))
-      )
-    ];
-    for(const r of struts){
-      this.drawModel(
-        this.cylinderMesh,
-        mat4Multiply(r,mat4Scale(strutR,strutL,strutR)),
-        vp,'#2b7796','#9ceeff',.72
-      );
-    }
-
-    // Animated energy filaments and caps provide the final manufactured detail.
-    const filamentR=size*.70;
-    for(let i=0;i<3;i++){
-      const a=t*(1.1+i*.21)+i*Math.PI*2/3;
-      const fm=mat4Multiply(
-        mat4Translate(
-          p.x+Math.cos(a)*filamentR,
-          bob+Math.sin(a*1.7)*size*.12,
-          p.y+Math.sin(a)*filamentR
-        ),
-        mat4Scale(size*.026,size*.026,size*.13)
-      );
-      this.drawModel(this.facetCoreMesh,fm,vp,'#7ee9ff','#dfffff',.8);
-    }
-
-    for(const y of [-1,1]){
-      const cap=mat4Multiply(
-        mat4Translate(p.x,bob+y*size*.67,p.y),
-        mat4Scale(size*.23,size*.075,size*.23)
-      );
-      this.drawModel(this.facetCoreMesh,cap,vp,'#12394d','#54dfff',.8);
-    }
-
-    // Dash state gets a stronger energy shell without changing gameplay geometry.
+    // Keep the silhouette clean: authored hero geometry carries the detail;
+    // the only procedural elements around it are deliberate energy bands.    // Dash state gets a stronger energy shell without changing gameplay geometry.
     if(dash){
       const dashRing=mat4Multiply(
         mat4Translate(p.x,bob,p.y),
@@ -484,7 +421,7 @@ export class Echo3DRenderer {
           mat4Scale(authoredScale,authoredScale,authoredScale)
         )
       );
-      this.drawModel(authored,authoredModel,vp,'#061321',def.color,.94);
+      this.drawModel(authored,authoredModel,vp,'#ffffff',def.color,.98);
       // A second, slightly expanded emissive pass gives the authored mesh
       // controlled energy around its silhouette without turning it into a blob.
       const glowScale=authoredScale*1.035;
@@ -495,34 +432,21 @@ export class Echo3DRenderer {
       this.drawModelAdditive(authored,glowModel,vp,def.color,def.accent,.105+.045*Math.sin(t*2.4));
     }
 
-    // --- CENTRAL REACTOR ----------------------------------------------------
-    // Three nested volumes give the core real depth: dark containment volume,
-    // hot inner crystal, and a white-hot point source.
-    const shell=mat4Multiply(
-      mat4Translate(...origin),
-      mat4Scale(coreR*1.45,coreR*1.45,coreR*1.45)
-    );
-    this.drawModel(this.sphereMesh,shell,vp,'#020914',def.color,.98);
+    // The authored tower owns its central reactor. The procedural fallback is
+    // intentionally limited to a tiny signal only while an asset is loading.
+    if(!authored){
+      const shell=mat4Multiply(
+        mat4Translate(...origin),
+        mat4Scale(coreR*1.25,coreR*1.25,coreR*1.25)
+      );
+      this.drawModel(this.sphereMesh,shell,vp,'#020914',def.color,.92);
 
-    const core=mat4Multiply(
-      mat4Translate(origin[0],origin[1]+Math.sin(t*5.4)*coreR*.055,origin[2]),
-      mat4Multiply(mat4RotateY(rot*.7),mat4Scale(coreR*pulse,coreR*.96*pulse,coreR*pulse))
-    );
-    this.drawModelAdditive(this.facetCoreMesh,core,vp,def.color,def.accent,.98);
-
-    const hot=mat4Multiply(
-      mat4Translate(origin[0],origin[1],origin[2]),
-      mat4Scale(coreR*.47,coreR*.47,coreR*.47)
-    );
-    this.drawModelAdditive(this.facetCoreMesh,hot,vp,def.accent,'#ffffff',1);
-
-    // Subtle volume around the reactor, intentionally soft so the hard-surface
-    // cage remains readable.
-    this.drawModelAdditive(
-      this.sphereMesh,
-      mat4Multiply(mat4Translate(...origin),mat4Scale(base*.70,base*.70,base*.70)),
-      vp,def.color,def.accent,.055+.018*Math.sin(t*2.1)
-    );
+      const core=mat4Multiply(
+        mat4Translate(origin[0],origin[1]+Math.sin(t*5.4)*coreR*.055,origin[2]),
+        mat4Multiply(mat4RotateY(rot*.7),mat4Scale(coreR*pulse,coreR*.96*pulse,coreR*pulse))
+      );
+      this.drawModelAdditive(this.facetCoreMesh,core,vp,def.color,def.accent,.94);
+    }
 
     // --- REFERENCE-FAITHFUL SPHERICAL FRAME -------------------------------
     // The reference is built around great-circle lines and articulated vertices.
@@ -540,17 +464,6 @@ export class Echo3DRenderer {
     });
 
     const drawCage=(scale:number,spin:number,alpha:number,thickness:number)=>{
-      for(let i=0;i<verts.length;i++){
-        const v=verts[i];
-        const c=Math.cos(spin),sn=Math.sin(spin);
-        const x=v[0]*c-v[2]*sn, z=v[0]*sn+v[2]*c;
-        const n:Vec3=[origin[0]+x,origin[1]+v[1],origin[2]+z];
-        const nm=mat4Multiply(
-          mat4Translate(...n),
-          mat4Scale(base*(tier>=6?.048:.055)*scale,base*(tier>=6?.048:.055)*scale,base*(tier>=6?.048:.048)*scale)
-        );
-        this.drawModelAdditive(this.facetCoreMesh,nm,vp,def.accent,'#ffffff',Math.min(1,alpha+.12));
-      }
       for(const [a,b] of this.icosaEdges){
         const va=verts[a],vb=verts[b];
         const c=Math.cos(spin),sn=Math.sin(spin);
@@ -564,7 +477,7 @@ export class Echo3DRenderer {
           origin[1]+vb[1]*scale,
           origin[2]+(vb[0]*sn+vb[2]*c)*scale
         ];
-        this.drawBeamBetween(A,B,base*thickness,def.color,def.accent,alpha,vp);
+        this.drawBeamBetween(A,B,base*thickness*.72,def.color,def.accent,alpha*.82,vp);
       }
     };
 
@@ -819,16 +732,29 @@ export class Echo3DRenderer {
   }
 
   private drawEnemy(e:EnemyEntity,t:number,vp:Float32Array){
-    const c=e.isBoss?enemyColors.boss:(enemyColors[e.type]||e.color||enemyColors.normal),scale=e.isBoss?Math.max(34,e.radius*1.7):Math.max(13,e.radius*.95),hit=e.hitFlash>0?1.7:1;
-    const y=scale*.62+Math.sin(t*2.2+e.rotation)*1.5,rot=e.rotation+t*(e.type==='fast'?1.8:.7),key=e.isBoss?'boss':'enemy_'+(e.type==='fast'?'fast':e.type==='tank'?'tank':'normal'),asset=this.modelAssets.get(key);
+    const c=e.isBoss?enemyColors.boss:(enemyColors[e.type]||e.color||enemyColors.normal);
+    const scale=e.isBoss?Math.max(34,e.radius*1.7):Math.max(13,e.radius*.95);
+    const hit=e.hitFlash>0?1.7:1;
+    const y=scale*.62+Math.sin(t*2.2+e.rotation)*1.5;
+    const facing=e.isCharging ? Math.atan2(e.chargeDir.x,e.chargeDir.y) : 0;
+    const key=e.isBoss
+      ? (e.bossType==='charger'?'boss_charger':e.bossType==='shooter'?'boss_shooter':e.bossType==='summoner'?'boss_summoner':'boss_aura')
+      : e.type==='fast'?'enemy_fast'
+        : e.type==='tank'?'enemy_tank'
+        : 'enemy_normal';
+    const asset=this.modelAssets.get(key);
     if(asset){
-      const m=mat4Multiply(mat4Multiply(mat4Translate(e.pos.x,y,e.pos.y),mat4RotateY(rot)),mat4Scale(scale*1.18*hit,scale*1.18*hit,scale*1.18*hit));
-      this.drawModel(asset,m,vp,'#07111c',c,1);
+      const m=mat4Multiply(
+        mat4Multiply(mat4Translate(e.pos.x,y,e.pos.y),mat4RotateY(facing)),
+        mat4Scale(scale*1.18*hit,scale*1.18*hit,scale*1.18*hit)
+      );
+      this.drawModel(asset,m,vp,'#ffffff',c,1);
     }else{
-      const m=mat4Multiply(mat4Multiply(mat4Translate(e.pos.x,y,e.pos.y),mat4RotateY(rot)),mat4Scale(scale*hit,scale*.85*hit,scale*hit));
-      this.drawModel(this.sphereMesh,m,vp,'#0a101a',c,1);
+      // Missing authored assets are represented only by an unobtrusive signal ring.
+      this.drawRing(e.pos.x,e.pos.y,scale*(e.isBoss?1.35:1.12),t*.22,c,t,vp,e.isBoss?.24:.14);
     }
-    this.drawRing(e.pos.x,e.pos.y,scale*(e.isBoss?1.35:1.15),rot,c,t,vp,e.isBoss?.42:.22);
+    const effectRot=t*(e.isBoss?.16:.28);
+    this.drawRing(e.pos.x,e.pos.y,scale*(e.isBoss?1.35:1.15),effectRot,c,t,vp,e.isBoss?.42:.22);
     if(e.isElite)this.drawRing(e.pos.x,e.pos.y,scale*1.5,-t*1.3,'#ffe36d',t,vp,.45);
     if(e.freezeTimer>0)this.drawRing(e.pos.x,e.pos.y,scale*1.65,t*.9,'#8fdcff',t,vp,.42);
     if(e.fireTimer>0)this.drawRing(e.pos.x,e.pos.y,scale*1.55,-t*1.1,'#ff643d',t,vp,.3);
@@ -843,7 +769,7 @@ export class Echo3DRenderer {
         mat4Multiply(mat4Translate(p.pos.x,11,p.pos.y),mat4RotateY(-a)),
         mat4Scale(Math.max(4,p.radius*1.45),Math.max(4,p.radius*1.45),Math.max(6,len*1.1))
       );
-      this.drawModel(asset,m,vp,p.color,'#ffffff',1);
+      this.drawModel(asset,m,vp,'#ffffff','#ffffff',1);
     }else{
       const m=mat4Multiply(
         mat4Multiply(mat4Translate(p.pos.x,11,p.pos.y),mat4RotateY(-a)),
@@ -949,35 +875,194 @@ export class Echo3DRenderer {
     void t;
   }
 
+  private textureCache=new Map<string,WebGLTexture>();
+
   private async loadModelAssets(): Promise<void>{
-    if(this.modelLoadStarted)return;this.modelLoadStarted=true;
-    const paths:Record<string,string>={player:'/art3d/player.glb',sphere_standard:'/art3d/sphere-standard.glb',sphere_sniper:'/art3d/sphere-sniper.glb',sphere_shotgun:'/art3d/sphere-shotgun.glb',sphere_chain:'/art3d/sphere-chain.glb',sphere_aura:'/art3d/sphere-aura.glb',enemy_normal:'/art3d/enemy-normal.glb',enemy_fast:'/art3d/enemy-fast.glb',enemy_tank:'/art3d/enemy-tank.glb',boss_shooter:'/art3d/boss-shooter.glb',boss_charger:'/art3d/boss-charger.glb',boss_summoner:'/art3d/boss-summoner.glb',boss_aura:'/art3d/boss-aura.glb',projectile:'/art3d/projectile.glb'};
-    for(const [key,path] of Object.entries(paths)){
-      try{const r=await fetch(path,{cache:'force-cache'});if(!r.ok)throw new Error('HTTP '+r.status);const mesh=this.loadGlbMesh(await r.arrayBuffer());if(mesh)this.modelAssets.set(key,mesh);}
-      catch(error){console.warn('Echo3D asset failed:',key,error);}
-    }
+    if(this.modelLoadStarted)return;
+    this.modelLoadStarted=true;
+    const paths:Record<string,string>={
+      player:'/art3d/player.glb',
+      sphere_standard:'/art3d/sphere-standard.glb',
+      sphere_sniper:'/art3d/sphere-sniper.glb',
+      sphere_shotgun:'/art3d/sphere-shotgun.glb',
+      sphere_chain:'/art3d/sphere-chain.glb',
+      sphere_aura:'/art3d/sphere-aura.glb',
+      enemy_normal:'/art3d/enemy-normal.glb',
+      enemy_fast:'/art3d/enemy-fast.glb',
+      enemy_tank:'/art3d/enemy-tank.glb',
+      boss_shooter:'/art3d/boss-shooter.glb',
+      boss_charger:'/art3d/boss-charger.glb',
+      boss_summoner:'/art3d/boss-summoner.glb',
+      boss_aura:'/art3d/boss-aura.glb',
+      projectile:'/art3d/projectile.glb',
+    };
+    await Promise.all(Object.entries(paths).map(async ([key,path])=>{
+      try{
+        const r=await fetch(path,{cache:'force-cache'});
+        if(!r.ok)throw new Error('HTTP '+r.status);
+        const mesh=await this.loadGlbMesh(await r.arrayBuffer());
+        if(mesh)this.modelAssets.set(key,mesh);
+      }catch(error){
+        console.warn('Echo3D asset failed:',key,error);
+      }
+    }));
   }
-  private loadGlbMesh(buffer:ArrayBuffer):Mesh|null{
-    if(buffer.byteLength<20)return null;const dv=new DataView(buffer);
+
+  private async loadGlbMesh(buffer:ArrayBuffer):Promise<Mesh|null>{
+    if(buffer.byteLength<20)return null;
+    const dv=new DataView(buffer);
     if(dv.getUint32(0,true)!==0x46546c67||dv.getUint32(4,true)!==2)return null;
-    let off=12,json=null,bin=null;
-    while(off+8<=buffer.byteLength){const len=dv.getUint32(off,true),type=dv.getUint32(off+4,true),start=off+8;
+
+    let off=12;
+    let json:any=null;
+    let bin:Uint8Array|null=null;
+    while(off+8<=buffer.byteLength){
+      const len=dv.getUint32(off,true);
+      const type=dv.getUint32(off+4,true);
+      const start=off+8;
+      if(start+len>buffer.byteLength)break;
       if(type===0x4e4f534a)json=JSON.parse(new TextDecoder().decode(new Uint8Array(buffer,start,len)));
-      else if(type===0x004e4942)bin=new Uint8Array(buffer,start,len);off=start+len;
+      else if(type===0x004e4942)bin=new Uint8Array(buffer,start,len);
+      off=start+len;
     }
-    if(!json||!bin||!json.meshes?.length)return null;const prim=json.meshes[0]?.primitives?.[0];if(!prim?.attributes?.POSITION)return null;
-    const read=(idx:number)=>{const a=json.accessors[idx],v=json.bufferViews[a.bufferView],cc=a.type==='VEC3'?3:a.type==='VEC2'?2:1,start=(v.byteOffset||0)+(a.byteOffset||0);
-      if(a.componentType===5126)return new Float32Array(bin.buffer,bin.byteOffset+start,a.count*cc).slice();
-      if(a.componentType===5123)return new Uint16Array(bin.buffer,bin.byteOffset+start,a.count*cc).slice();
-      return null;};
-    const pos=read(prim.attributes.POSITION),norm=prim.attributes.NORMAL!==undefined?read(prim.attributes.NORMAL):null,idx=prim.indices!==undefined?read(prim.indices):null;
-    if(!(pos instanceof Float32Array)||!(idx instanceof Uint16Array))return null;const n=norm instanceof Float32Array?norm:new Float32Array(pos.length);
+    if(!json||!bin||!json.meshes?.length)return null;
+
+    const prim=json.meshes[0]?.primitives?.[0];
+    if(!prim?.attributes?.POSITION||prim.mode!==undefined&&prim.mode!==4)return null;
+
+    const accessorRead=(idx:number):Float32Array|Uint16Array|Uint32Array|null=>{
+      const a=json.accessors?.[idx], view=a?json.bufferViews?.[a.bufferView]:null;
+      if(!a||!view)return null;
+      const cc=a.type==='VEC4'?4:a.type==='VEC3'?3:a.type==='VEC2'?2:a.type==='SCALAR'?1:0;
+      if(!cc)return null;
+      const componentSize=a.componentType===5120||a.componentType===5121?1:a.componentType===5122||a.componentType===5123?2:a.componentType===5125||a.componentType===5126?4:0;
+      if(!componentSize)return null;
+      const stride=view.byteStride||componentSize*cc;
+      const base=(view.byteOffset||0)+(a.byteOffset||0);
+      if(base<0||base+stride*(a.count-1)+componentSize*cc>bin.length)return null;
+      const dvBin=new DataView(bin.buffer,bin.byteOffset,bin.byteLength);
+
+      if(a.componentType===5126){
+        const out=new Float32Array(a.count*cc);
+        for(let i=0;i<a.count;i++)for(let j=0;j<cc;j++)out[i*cc+j]=dvBin.getFloat32(base+i*stride+j*4,true);
+        return out;
+      }
+      if(a.componentType===5123){
+        const out=new Uint16Array(a.count*cc);
+        for(let i=0;i<a.count;i++)for(let j=0;j<cc;j++)out[i*cc+j]=dvBin.getUint16(base+i*stride+j*2,true);
+        return out;
+      }
+      if(a.componentType===5125){
+        const out=new Uint32Array(a.count*cc);
+        for(let i=0;i<a.count;i++)for(let j=0;j<cc;j++)out[i*cc+j]=dvBin.getUint32(base+i*stride+j*4,true);
+        return out;
+      }
+      return null;
+    };
+
+    const pos=accessorRead(prim.attributes.POSITION) as Float32Array|null;
+    const norm=prim.attributes.NORMAL!==undefined ? accessorRead(prim.attributes.NORMAL) as Float32Array|null : null;
+    const uv=prim.attributes.TEXCOORD_0!==undefined ? accessorRead(prim.attributes.TEXCOORD_0) as Float32Array|null : null;
+    if(!(pos instanceof Float32Array))return null;
+
+    let idx=prim.indices!==undefined ? accessorRead(prim.indices) : null;
+    if(!(idx instanceof Uint16Array)&&!(idx instanceof Uint32Array)){
+      idx=new Uint32Array(pos.length/3);
+      for(let i=0;i<idx.length;i++)idx[i]=i;
+    }
+
+    const n=norm instanceof Float32Array?norm:new Float32Array(pos.length);
     if(!norm)for(let i=0;i<n.length;i+=3){n[i]=0;n[i+1]=1;n[i+2]=0;}
-    return this.makeMeshFromTypedArrays(pos,n,idx);
+
+    let texture:WebGLTexture|null=null;
+    const mat=json.materials?.[prim.material??0];
+    const texInfo=mat?.pbrMetallicRoughness?.baseColorTexture;
+    const texDef=texInfo?json.textures?.[texInfo.index]:null;
+    const imageDef=texDef?json.images?.[texDef.source]:null;
+    if(imageDef?.bufferView!==undefined){
+      const iv=json.bufferViews?.[imageDef.bufferView];
+      if(iv){
+        const start=(iv.byteOffset||0), end=start+(iv.byteLength||0);
+        const key=imageDef.name||String(imageDef.bufferView);
+        const cached=this.textureCache.get(key);
+        if(cached)texture=cached;
+        else if(end<=bin.length){
+          texture=await this.createTextureFromBytes(bin.subarray(start,end),imageDef.mimeType||'image/png');
+          if(texture)this.textureCache.set(key,texture);
+        }
+      }
+    }
+
+    return this.makeMeshFromTypedArrays(pos,n,idx,uv,texture);
   }
-  private makeMeshFromTypedArrays(pos:Float32Array,norm:Float32Array,idx:Uint16Array):Mesh{
-    const gl=this.gl,pb=gl.createBuffer(),nb=gl.createBuffer(),ib=gl.createBuffer();if(!pb||!nb||!ib)throw new Error('buffer');
-    gl.bindBuffer(gl.ARRAY_BUFFER,pb);gl.bufferData(gl.ARRAY_BUFFER,pos,gl.STATIC_DRAW);gl.bindBuffer(gl.ARRAY_BUFFER,nb);gl.bufferData(gl.ARRAY_BUFFER,norm,gl.STATIC_DRAW);gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,ib);gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,idx,gl.STATIC_DRAW);return{pos:pb,normal:nb,index:ib,count:idx.length};
+
+  private async createTextureFromBytes(bytes:Uint8Array,mime:string):Promise<WebGLTexture|null>{
+    const gl=this.gl;
+    const tex=gl.createTexture();
+    if(!tex)return null;
+
+    const blob=new Blob([bytes],{type:mime});
+    let source:ImageBitmap|HTMLImageElement|null=null;
+    let objectUrl:string|null=null;
+    try{
+      if(typeof createImageBitmap==='function'){
+        source=await createImageBitmap(blob);
+      }else{
+        objectUrl=URL.createObjectURL(blob);
+        const img=new Image();
+        img.src=objectUrl;
+        await img.decode();
+        source=img;
+      }
+      gl.bindTexture(gl.TEXTURE_2D,tex);
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,1);
+      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+      gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,source);
+      gl.bindTexture(gl.TEXTURE_2D,null);
+      if(source instanceof ImageBitmap)source.close();
+      return tex;
+    }catch(error){
+      console.warn('Echo3D texture decode failed:',error);
+      gl.deleteTexture(tex);
+      return null;
+    }finally{
+      if(objectUrl)URL.revokeObjectURL(objectUrl);
+    }
+  }
+
+  private makeMeshFromTypedArrays(
+    pos:Float32Array,
+    norm:Float32Array,
+    idx:Uint16Array|Uint32Array,
+    uv:Float32Array|null=null,
+    texture:WebGLTexture|null=null,
+  ):Mesh{
+    const gl=this.gl;
+    let indexData:Uint16Array|Uint32Array=idx;
+    let indexType=gl.UNSIGNED_SHORT;
+    if(idx instanceof Uint32Array){
+      let max=0;
+      for(let i=0;i<idx.length;i++)max=Math.max(max,idx[i]);
+      if(max>65535){
+        const ext=gl.getExtension('OES_element_index_uint');
+        if(!ext)throw new Error('32-bit indices require OES_element_index_uint');
+        indexType=gl.UNSIGNED_INT;
+      }else{
+        const compact=new Uint16Array(idx.length);
+        compact.set(idx);
+        indexData=compact;
+      }
+    }
+    const pb=gl.createBuffer(),nb=gl.createBuffer(),ib=gl.createBuffer(),ub=uv?gl.createBuffer():null;
+    if(!pb||!nb||!ib)throw new Error('buffer');
+    gl.bindBuffer(gl.ARRAY_BUFFER,pb);gl.bufferData(gl.ARRAY_BUFFER,pos,gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER,nb);gl.bufferData(gl.ARRAY_BUFFER,norm,gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,ib);gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,indexData,gl.STATIC_DRAW);
+    if(ub&&uv){gl.bindBuffer(gl.ARRAY_BUFFER,ub);gl.bufferData(gl.ARRAY_BUFFER,uv,gl.STATIC_DRAW);}
+    return {pos:pb,normal:nb,index:ib,uv:ub,texture,indexType,count:indexData.length};
   }
 
   private drawModel(mesh:Mesh,model:Float32Array,vp:Float32Array,color:string,emissive:string,alpha:number){
@@ -989,10 +1074,35 @@ export class Echo3DRenderer {
     gl.uniform3f(this.colorLoc,c[0],c[1],c[2]);
     gl.uniform3f(this.emissiveLoc,e[0],e[1],e[2]);
     gl.uniform1f(this.alphaLoc,alpha);
-    gl.bindBuffer(gl.ARRAY_BUFFER,mesh.pos); gl.enableVertexAttribArray(this.posLoc); gl.vertexAttribPointer(this.posLoc,3,gl.FLOAT,false,0,0);
-    gl.bindBuffer(gl.ARRAY_BUFFER,mesh.normal); gl.enableVertexAttribArray(this.normalLoc); gl.vertexAttribPointer(this.normalLoc,3,gl.FLOAT,false,0,0);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER,mesh.pos);
+    gl.enableVertexAttribArray(this.posLoc);
+    gl.vertexAttribPointer(this.posLoc,3,gl.FLOAT,false,0,0);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER,mesh.normal);
+    gl.enableVertexAttribArray(this.normalLoc);
+    gl.vertexAttribPointer(this.normalLoc,3,gl.FLOAT,false,0,0);
+
+    if(mesh.uv){
+      gl.bindBuffer(gl.ARRAY_BUFFER,mesh.uv);
+      gl.enableVertexAttribArray(this.uvLoc);
+      gl.vertexAttribPointer(this.uvLoc,2,gl.FLOAT,false,0,0);
+    }else{
+      gl.disableVertexAttribArray(this.uvLoc);
+      gl.vertexAttrib2f(this.uvLoc,0,0);
+    }
+
+    if(mesh.texture){
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D,mesh.texture);
+      gl.uniform1i(this.baseColorMapLoc,0);
+      gl.uniform1f(this.hasTextureLoc,1);
+    }else{
+      gl.uniform1f(this.hasTextureLoc,0);
+    }
+
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,mesh.index);
-    gl.drawElements(gl.TRIANGLES,mesh.count,gl.UNSIGNED_SHORT,0);
+    gl.drawElements(gl.TRIANGLES,mesh.count,mesh.indexType,0);
   }
 
   private makeIcoSphere(r:number):Mesh{
