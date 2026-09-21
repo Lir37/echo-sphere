@@ -1046,7 +1046,7 @@ export class Echo3DRenderer {
       index:first.index,
       uv:null,
       texture:null,
-      indexType:gl.UNSIGNED_SHORT,
+      indexType:this.gl.UNSIGNED_SHORT,
       count:0,
       parts,
     };
