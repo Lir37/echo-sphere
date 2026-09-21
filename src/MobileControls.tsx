@@ -106,7 +106,7 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
     const invSqrt2 = Math.SQRT1_2;
     const rayX = ndcX * tanHalf * aspect;
     const rayY = -invSqrt2 + ndcY * tanHalf * invSqrt2;
-    const rayZ = -invSqrt2 + ndcY * tanHalf * invSqrt2;
+    const rayZ = -invSqrt2 - ndcY * tanHalf * invSqrt2;
     const rayLength = Math.hypot(rayX, rayY, rayZ) || 1;
     const dx = rayX / rayLength;
     const dy = rayY / rayLength;
