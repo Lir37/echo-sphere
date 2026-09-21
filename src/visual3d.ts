@@ -1044,7 +1044,7 @@ export class Echo3DRenderer {
   ):Mesh{
     const gl=this.gl;
     let indexData:Uint16Array|Uint32Array=idx;
-    let indexType=gl.UNSIGNED_SHORT;
+    let indexType:number=gl.UNSIGNED_SHORT;
     if(idx instanceof Uint32Array){
       let max=0;
       for(let i=0;i<idx.length;i++)max=Math.max(max,idx[i]);
