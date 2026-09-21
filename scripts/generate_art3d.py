@@ -27,6 +27,12 @@ OUT.mkdir(parents=True, exist_ok=True)
 
 _TEXTURE_CACHE: dict[str, Image.Image] = {}
 
+# Texture quality profile. Standard assets use 1024px color maps and 512px
+# detail maps. Hero, boss, and T7 assets use a 2048px color map plus 1024px
+# normal/metallic-roughness maps. This keeps Android memory reasonable without
+# making the important close/readable assets look soft.
+_TEXTURE_PROFILE = "standard"
+
 
 def _surface_field(seed: int, size: int = 512) -> np.ndarray:
     rng = np.random.default_rng(seed)
@@ -130,9 +136,11 @@ def pbr(
     alpha: float = 1.0,
     seed: int = 1,
 ):
-    image = _texture(base, glow, seed, 1024)
-    normal = _normal_texture(seed + 101, 512)
-    metallic_roughness = _metal_rough_texture(metallic, rough, seed + 211, 512)
+    color_size = 2048 if _TEXTURE_PROFILE == "hero" else 1024
+    detail_size = 1024 if _TEXTURE_PROFILE == "hero" else 512
+    image = _texture(base, glow, seed, color_size)
+    normal = _normal_texture(seed + 101, detail_size)
+    metallic_roughness = _metal_rough_texture(metallic, rough, seed + 211, detail_size)
     return trimesh.visual.material.PBRMaterial(
         name=name,
         baseColorFactor=(1.0, 1.0, 1.0, alpha),
@@ -298,6 +306,8 @@ def save(name, parts):
 # ---------------------------------------------------------------------------
 
 def sphere_asset(name, base, glow, tier, family_seed):
+    global _TEXTURE_PROFILE
+    _TEXTURE_PROFILE = "hero" if tier >= 7 else "standard"
     """Build a clean energy-orbit tower family matching the supplied reference.
 
     The reference is not a mechanical ball covered in spokes. It is a luminous core
@@ -449,6 +459,8 @@ def sphere_asset(name, base, glow, tier, family_seed):
 # ---------------------------------------------------------------------------
 
 def insect_asset(name, kind, base, glow, scale, seed):
+    global _TEXTURE_PROFILE
+    _TEXTURE_PROFILE = "standard"
     # Dark chitin + restrained emissive seams gives the insects the armored,
     # high-contrast silhouette from the reference instead of a flat orange blob.
     chitin = pbr("Chitin", tuple(x * 0.58 for x in base), tuple(x * 0.72 for x in glow), 0.90, 0.20, seed=seed)
@@ -558,6 +570,8 @@ def insect_asset(name, kind, base, glow, scale, seed):
 
 
 def slime_asset(name, seed=71):
+    global _TEXTURE_PROFILE
+    _TEXTURE_PROFILE = "standard"
     body = pbr("Slime", (0.03, 0.24, 0.12), (0.10, 1.0, 0.42), 0.25, 0.16, 0.88, seed)
     core = pbr("SlimeCore", (0.08, 0.45, 0.18), (0.25, 1.0, 0.42), 0.15, 0.08, seed=seed + 1)
     parts = [ico("Body", 0.78, body, (1.25, 0.58, 0.92), 4), ico("Core", 0.32, core, 3)]
@@ -573,6 +587,8 @@ def slime_asset(name, seed=71):
 
 
 def psionic_asset(name, seed=83):
+    global _TEXTURE_PROFILE
+    _TEXTURE_PROFILE = "standard"
     dark = pbr("PsionicShell", (0.035, 0.025, 0.13), (0.55, 0.20, 1.0), 0.72, 0.15, seed=seed)
     core = pbr("PsionicCore", (0.28, 0.06, 0.5), (0.8, 0.18, 1.0), 0.2, 0.06, seed=seed + 1)
     parts = [ico("Body", 0.64, dark, (0.9, 1.2, 0.9), 4), ico("Core", 0.32, core, 4)]
@@ -592,6 +608,8 @@ def psionic_asset(name, seed=83):
 # ---------------------------------------------------------------------------
 
 def player_asset(kind, base, glow, seed):
+    global _TEXTURE_PROFILE
+    _TEXTURE_PROFILE = "hero"
     # Six distinct character silhouettes. These are authored offline as GLBs, so the
     # gameplay renderer only loads meshes and never reconstructs them from primitives.
     shell = pbr("CharacterShell", tuple(x * 0.22 for x in base), glow, 0.90, 0.11, 1.0, seed=seed)
@@ -764,6 +782,8 @@ def player_core_compat():
 
 
 def boss_asset(name, kind, seed):
+    global _TEXTURE_PROFILE
+    _TEXTURE_PROFILE = "hero"
     if kind == "colony":
         insect_asset(name, "queen", (0.18, 0.025, 0.018), (1.0, 0.16, 0.02), 1.35, seed)
         return
@@ -793,6 +813,8 @@ def boss_asset(name, kind, seed):
 
 
 def projectile(name, base, glow, seed):
+    global _TEXTURE_PROFILE
+    _TEXTURE_PROFILE = "standard"
     mat = pbr("Projectile", base, glow, 0.35, 0.06, seed=seed)
     frame = pbr("ProjectileFrame", glow, glow, 0.5, 0.08, seed=seed + 1)
     save(name, [
