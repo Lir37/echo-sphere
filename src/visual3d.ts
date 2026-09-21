@@ -624,11 +624,11 @@ export class Echo3DRenderer {
     const candidates = [...this.manifest.values()].filter(entry => entry.category === category);
 
     if (!e.isBoss) {
-      const wanted = e.type === 'fast' ? 'flyer'
+      const wanted = e.visualId || (e.type === 'fast' ? 'flyer'
         : e.type === 'tank' ? 'guard'
         : e.shape === 'triangle' ? 'psionic'
         : e.shape === 'square' ? 'slime'
-        : 'spider';
+        : 'worker');
       const match = candidates.find(entry => entry.gameType === wanted || entry.type === wanted);
       return match?.id || 'enemy_' + wanted;
     }
