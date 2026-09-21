@@ -463,21 +463,9 @@ export function createInitialState(
   };
   return {
     player,
-    spheres: [{
-      // Start off-axis so the first authored tower frames the player instead of
-      // sitting directly on top of the character silhouette.
-      pos: { x: 82, y: -64 },
-      radius: BASE_SPHERE_RADIUS,
-      damage: BASE_SPHERE_DAMAGE,
-      attackDelay: BASE_SPHERE_DELAY,
-      attackTimer: 0,
-      rotation: 0,
-      alive: true,
-      killsContribution: 0,
-      visualTier: 0,
-      type: 'standard',
-      auraTimer: 0,
-    }],
+    // Towers are player-placed. There is no hidden/random starter tower:
+    // the first authored sphere appears exactly where the player taps.
+    spheres: [],
     enemies: [],
     xpOrbs: [],
     healthPacks: [],
