@@ -14,7 +14,7 @@ test('capture the actual rendered game after pressing Play', async ({ page }, te
 
   // CI runs with an English browser locale, but support both translations so
   // the test follows the real UI rather than bypassing the menu.
-  const playButton = page.getByRole('button', { name: /^(Play|Играть)$/i }).first();
+  const playButton = page.locator('button.es-main-play').first();
   await expect(playButton).toBeVisible();
   await playButton.click();
 
@@ -32,7 +32,6 @@ test('capture the actual rendered game after pressing Play', async ({ page }, te
     const width = canvas.width;
     const height = canvas.height;
     const sampleSize = Math.min(width * height, 320_000);
-    const pixels = new Uint8Array(sampleSize * 4);
     const readWidth = Math.min(width, Math.max(1, Math.floor(Math.sqrt(sampleSize * width / Math.max(1, height)))));
     const readHeight = Math.min(height, Math.max(1, Math.floor(sampleSize / readWidth)));
     const buffer = new Uint8Array(readWidth * readHeight * 4);
