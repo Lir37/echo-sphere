@@ -55,7 +55,7 @@ jobs:
         run: npm run validate:glb
 
       - name: Build Web
-        run: npm run build
+        run: npx vite build
 
       - name: Verify Web build contains 3D assets
         run: |
