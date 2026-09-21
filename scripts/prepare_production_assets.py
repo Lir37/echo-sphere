@@ -58,7 +58,7 @@ def inspect_embedded_images(path: Path) -> list[dict]:
 def runtime_asset_entry(item: dict) -> dict:
     entry = dict(item)
     asset_id = str(entry.get("id", ""))
-    entry["facingOffset"] = 1.5707963267948966 if asset_id.startswith(("enemy_", "boss_")) else 0.0
+    entry["facingOffset"] = float(entry.get("facingOffset", 0.0))
 
     if asset_id.startswith("enemy_"):
         name = asset_id.removeprefix("enemy_")
