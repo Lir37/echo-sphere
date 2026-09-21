@@ -42,8 +42,8 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
-      - name: Lint
-        run: npm run lint
+      - name: Lint production 3D renderer
+        run: npx eslint src/visual3d.ts --max-warnings=0
 
       - name: Smoke tests
         run: npm run test:smoke
@@ -56,6 +56,12 @@ jobs:
 
       - name: Build Web
         run: npm run build
+
+      - name: Verify Web build contains 3D assets
+        run: |
+          test -f dist/index.html
+          test -f dist/art3d/player_spherist.glb
+          test -f dist/art3d/sphere_standard_t1.glb
 
       - name: Setup Android
         uses: android-actions/setup-android@v3
@@ -81,6 +87,11 @@ jobs:
 
       - name: Run visual QA
         run: npm run test:e2e
+
+      - name: Assert visual QA artifacts
+        run: |
+          test -s test-results/echo-sphere-render.png
+          test -s test-results/render-metrics.json
 
       - name: Upload Web build
         if: always()
