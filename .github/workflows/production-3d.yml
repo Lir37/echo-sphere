@@ -51,6 +51,9 @@ jobs:
       - name: Generate GLB assets
         run: npm run assets:3d
 
+      - name: Prepare production 3D assets
+        run: npm run prepare:3d
+
       - name: Validate GLB assets
         run: npm run validate:glb
 
@@ -62,6 +65,28 @@ jobs:
           test -f dist/index.html
           test -f dist/art3d/player_spherist.glb
           test -f dist/art3d/sphere_standard_t1.glb
+
+      - name: Write build size report
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          def total_bytes(root: Path) -> int:
+              return sum(p.stat().st_size for p in root.rglob('*') if p.is_file())
+
+          dist = Path('dist')
+          art3d = Path('public/art3d')
+          apk_files = list(Path('android/app/build/outputs/apk/debug').glob('*.apk')) if Path('android').exists() else []
+          report = {
+              'dist_bytes': total_bytes(dist),
+              'production_art3d_bytes': total_bytes(art3d),
+              'production_glb_count': len(list(art3d.glob('*.glb'))),
+              'apk_bytes': apk_files[0].stat().st_size if apk_files else None,
+          }
+          Path('build-size-report.json').write_text(json.dumps(report, indent=2), encoding='utf-8')
+          print(json.dumps(report, indent=2))
+          PY
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -128,6 +153,8 @@ jobs:
           path: |
             test-results/
             glb-validation-report.json
-            public/art3d/*.glb
+            production-3d-report.json
+            build-size-report.json
+            scripts/production_assets.json
           if-no-files-found: warn
           retention-days: 14
