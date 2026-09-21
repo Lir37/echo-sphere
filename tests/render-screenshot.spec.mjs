@@ -28,7 +28,9 @@ test('capture the actual rendered game after pressing Play', async ({ page }, te
   const canvas = page.locator('canvas').first();
   await expect(canvas).toBeVisible();
 
-  await page.waitForTimeout(7_000);
+  // The menu/start transition consumes a few seconds; capture after roughly
+  // five seconds of actual gameplay rather than five seconds after the Play click.
+  await page.waitForTimeout(11_000);
 
   const renderMetrics = await canvas.evaluate((element) => ({
     width: element.width,
