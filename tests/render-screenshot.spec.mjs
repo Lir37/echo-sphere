@@ -31,13 +31,19 @@ test('capture the actual rendered game after Play', async ({ page }, testInfo) =
   // placement invalid. The point is deliberately away from the left joystick
   // and right-side action controls, and projects to ~77 world units from the
   // player, beyond the placement exclusion radius.
-  await page.waitForTimeout(1_500);
+  await page.waitForTimeout(1_200);
 
   const box = await canvas.boundingBox();
   expect(box).not.toBeNull();
-  await page.mouse.click(box.x + box.width * 0.50, box.y + box.height * 0.70);
+  for (const [rx, ry] of [[0.50, 0.70], [0.62, 0.66], [0.38, 0.66]]) {
+    await page.mouse.click(box.x + box.width * rx, box.y + box.height * ry);
+    await page.waitForTimeout(450);
+  }
 
-  await page.waitForTimeout(13_500);
+  // Capture while the first wave is still visibly approaching the player.
+  // Waiting too long can produce a technically valid but compositionally empty
+  // frame after the starting sphere has already cleared the nearby enemies.
+  await page.waitForTimeout(4_800);
 
   const runtime = await canvas.evaluate((element) => ({
     width: element.width,
@@ -56,7 +62,7 @@ test('capture the actual rendered game after Play', async ({ page }, testInfo) =
       consoleErrors,
       pageErrors,
       failedRequests,
-      gameplaySeconds: 15,
+      gameplaySeconds: 7.8,
     }, null, 2),
     'utf8',
   );
