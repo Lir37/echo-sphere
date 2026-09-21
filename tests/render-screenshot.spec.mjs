@@ -32,6 +32,28 @@ test('capture the actual rendered game after pressing Play', async ({ page }, te
   // five seconds of actual gameplay rather than five seconds after the Play click.
   await page.waitForTimeout(11_000);
 
+  // Exercise the real mobile placement path: one tap creates a tower exactly at
+  // the tapped world position. The follow-up tap on the same point must toggle it
+  // back out instead of spawning/removing a random tower elsewhere.
+  const box = await canvas.boundingBox();
+  expect(box).not.toBeNull();
+  const placementPoint = {
+    x: box.x + box.width * 0.68,
+    y: box.y + box.height * 0.52,
+  };
+  await page.mouse.click(placementPoint.x, placementPoint.y);
+  await page.waitForTimeout(700);
+
+  const placedMetrics = await canvas.evaluate((element) => ({
+    width: element.width,
+    height: element.height,
+    stats: window.__ECHO3D_STATS || null,
+  }));
+  expect(placedMetrics.stats?.visibleEntities || 0, 'tower was not rendered after tap').toBeGreaterThanOrEqual(2);
+
+  await page.mouse.click(placementPoint.x, placementPoint.y);
+  await page.waitForTimeout(250);
+
   const renderMetrics = await canvas.evaluate((element) => ({
     width: element.width,
     height: element.height,
