@@ -436,7 +436,7 @@ void main(){
   if(u_decodeEmissive>0.5) emission=srgbToLinear(emission);
   // Emissive is an accent layer. Keep the physical surface readable and let
   // the post-process create only a restrained halo around genuinely bright pixels.
-  emission*=u_glow*(0.16+0.78*rim)*pulse;
+  emission*=u_glow*(0.10+0.62*rim)*pulse;
 
   vec3 c=max(ambient+direct+emission,vec3(0.0));
   if(u_alphaMode > 0.5 && u_alphaMode < 1.5 && base.a*u_alpha < u_alphaCutoff) discard;
@@ -479,13 +479,13 @@ void main(){
     float w=5.0-abs(fi);
     vec2 o=vec2(fi)*u_texel*2.0;
     vec3 tap=texture2D(u_scene,v_uv+o).rgb;
-    bloom+=max(tap-vec3(0.95),vec3(0.0))*w;
+    bloom+=max(tap-vec3(1.05),vec3(0.0))*w;
     weights+=w;
   }
   bloom/=max(weights,1.0);
   float radial=1.0-smoothstep(0.15,0.78,distance(v_uv,vec2(0.5)));
   vec3 bg=vec3(0.004,0.010,0.030)+vec3(0.0,0.018,0.055)*radial;
-  vec3 c=max(scene,bg)+bloom*(0.30+0.08*radial);
+  vec3 c=max(scene,bg)+bloom*(0.24+0.06*radial);
   c=c/(vec3(1.0)+c);
   c=pow(max(c,vec3(0.0)),vec3(1.0/2.2));
   c*=0.992+0.008*sin(v_uv.y*1100.0);
@@ -627,7 +627,7 @@ export class Echo3DRenderer {
       const wanted = e.visualId || (e.type === 'fast' ? 'flyer'
         : e.type === 'tank' ? 'guard'
         : e.shape === 'triangle' ? 'psionic'
-        : e.shape === 'square' ? 'slime'
+        : e.shape === 'square' ? 'crawler'
         : 'worker');
       const match = candidates.find(entry => entry.gameType === wanted || entry.type === wanted);
       return match?.id || 'enemy_' + wanted;
@@ -642,7 +642,7 @@ export class Echo3DRenderer {
   }
 
   private assetFacingOffset(name: string): number {
-    return this.manifest.get(name)?.facingOffset ?? Math.PI / 2;
+    return this.manifest.get(name)?.facingOffset ?? 0;
   }
 
   private async preload() {
@@ -657,7 +657,7 @@ export class Echo3DRenderer {
       : [
           'player_core',
           'player_spherist',
-          'enemy_spider', 'enemy_worker', 'enemy_guard', 'enemy_flyer', 'enemy_slime', 'enemy_psionic',
+          'enemy_spider', 'enemy_worker', 'enemy_guard', 'enemy_flyer', 'enemy_crawler', 'enemy_psionic',
           'projectile_energy', 'projectile_fire',
           ...['standard', 'sniper', 'shotgun', 'chain', 'aura'].map(t => 'sphere_' + t + '_t1'),
         ];
@@ -827,12 +827,12 @@ export class Echo3DRenderer {
       ? e.velocity
       : e.facing;
     const movementAngle = Math.atan2(facing.y, facing.x) + this.assetFacingOffset(n);
-    const creatureScale = Math.max(10.5, e.radius / 0.88) * (e.isBoss ? 1.65 : 1.25) * bossPulse;
+    const creatureScale = Math.max(8.0, e.radius / 1.02) * (e.isBoss ? 1.60 : 0.98) * bossPulse;
     this.drawAsset(n, e.pos.x, bob, e.pos.y, creatureScale, vp, t, 'enemy', movementAngle);
   }
 
   private drawPlayer(s: GameState, vp: Mat4, t: number) {
-    const pulse = 1 + 0.06 * Math.sin(t * 4);
+    const pulse = 1 + 0.035 * Math.sin(t * 4);
         const characterAsset = ({
       spherist: 'player_spherist',
       hunter: 'player_hunter',
@@ -841,7 +841,7 @@ export class Echo3DRenderer {
       alchemist: 'player_alchemist',
       architect: 'player_architect',
     } as Record<string, string>)[s.player.characterId] || 'player_spherist';
-    this.drawAsset(characterAsset, s.player.pos.x, 0, s.player.pos.y, 28.0 * pulse, vp, t, 'player', 0);
+    this.drawAsset(characterAsset, s.player.pos.x, 0, s.player.pos.y, 26.0 * pulse, vp, t, 'player', 0);
   }
 
   private drawMinion(m: MinionEntity, vp: Mat4, t: number) {
@@ -902,7 +902,7 @@ export class Echo3DRenderer {
     }
     if (node.name.includes('Ring_')) local = mul(local, ry(t * (node.name.endsWith('2') ? 0.75 : 1.2)));
     if (node.name.includes('Core') || node.name.includes('VoidCore') || node.name.includes('SingularityCore')) {
-      const q = 1 + 0.055 * Math.sin(t * 4.5);
+      const q = 1 + 0.025 * Math.sin(t * 4.5);
       local = mul(local, sc(q, q, q));
     }
     const world = mul(parent, local);
