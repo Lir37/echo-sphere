@@ -406,7 +406,14 @@ void main(){
 
   vec3 fillL=normalize(vec3(0.55,0.48,-0.62));
   float nfl=sat(dot(N,fillL));
-  vec3 ambient=base.rgb*(0.065+0.10*nv);
+  // Lightweight reflection environment for the custom WebGL renderer. It is not
+  // a fake glow: metallic surfaces receive a directional sky/ground contribution
+  // so bevels and curved surfaces remain readable without a full IBL texture.
+  vec3 envTop=vec3(0.055,0.12,0.24);
+  vec3 envBottom=vec3(0.012,0.025,0.055);
+  float envMix=0.5+0.5*N.y;
+  vec3 environment=mix(envBottom,envTop,envMix);
+  vec3 ambient=base.rgb*(0.075+0.12*nv)+environment*(0.045+0.22*metallic);
   vec3 direct=(diffuse+spec)*(u_lightColor*nl+u_fillColor*nfl);
 
   float rim=pow(1.0-nv,3.0);
@@ -675,7 +682,7 @@ export class Echo3DRenderer {
     const t = s.time;
     const p = s.player.pos;
     const aspect = this.width / Math.max(1, this.height);
-    const distance = Math.max(190, Math.min(270, Math.max(s.worldWidth, s.worldHeight) * 0.115));
+    const distance = Math.max(180, Math.min(255, Math.max(s.worldWidth, s.worldHeight) * 0.105));
     this.cameraPos = { x: p.x, y: distance * 0.74, z: p.y + distance * 0.74 };
     const vp = mul(
       persp(48 * DEG, aspect, 1, 2400),
