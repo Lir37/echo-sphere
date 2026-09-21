@@ -217,12 +217,12 @@ def cone_between(name, a, b, r1, r2, material, sections=20):
     return mesh
 
 
-def torus(name, major, minor, material, rotation=(0, 0, 0), sections=64):
+def torus(name, major, minor, material, rotation=(0, 0, 0), sections=64, minor_sections=18):
     mesh = trimesh.creation.torus(
         major_radius=major,
         minor_radius=minor,
         major_sections=sections,
-        minor_sections=14,
+        minor_sections=minor_sections,
         transform=trimesh.transformations.euler_matrix(*rotation),
     )
     mesh.metadata["name"] = name
@@ -307,7 +307,7 @@ def save(name, parts):
 
 def sphere_asset(name, base, glow, tier, family_seed):
     global _TEXTURE_PROFILE
-    _TEXTURE_PROFILE = "hero" if tier >= 7 else "standard"
+    _TEXTURE_PROFILE = "hero" if tier >= 5 else "standard"
     """Build a clean energy-orbit tower family matching the supplied reference.
 
     The reference is not a mechanical ball covered in spokes. It is a luminous core
@@ -328,14 +328,14 @@ def sphere_asset(name, base, glow, tier, family_seed):
 
     core_radius = 0.40 + tier * 0.016
     parts = [
-        ico("Core", core_radius, core, (1.0, 1.0, 1.04), 5),
+        ico("Core", core_radius, core, (1.0, 1.0, 1.04), 6 if tier >= 5 else 5),
         ico("CoreInner", core_radius * 0.38, inner, (1.0, 1.0, 1.08), 5),
     ]
 
     # A recessed dark shell gives the tower a physical volume between the
     # luminous nucleus and the orbital hardware.
     shell = pbr("CoreShell", tuple(x * 0.18 for x in base), tuple(x * 0.42 for x in glow), 0.86, 0.16, seed=family_seed + 5)
-    parts.append(ico("CoreShell", core_radius * 1.16, shell, (1.02, 0.96, 1.02), 4))
+    parts.append(ico("CoreShell", core_radius * 1.16, shell, (1.02, 0.96, 1.02), 5 if tier >= 5 else 4))
 
     # Four small anchor collars visually connect the energy core to the frame.
     for i, a in enumerate((0.0, math.pi / 2, math.pi, math.pi * 1.5)):
@@ -353,7 +353,7 @@ def sphere_asset(name, base, glow, tier, family_seed):
         (0, math.pi / 2, 0),
     )
     for i, rot in enumerate(major_orbits):
-        parts.append(torus(f"Ring_{i}", radius, 0.013 + tier * 0.0015, frame, rot, sections=96))
+        parts.append(torus(f"Ring_{i}", radius, 0.013 + tier * 0.0015, frame, rot, sections=128, minor_sections=20))
 
     if tier >= 2:
         # A pair of diagonal orbital planes creates the characteristic faceted globe
@@ -362,7 +362,7 @@ def sphere_asset(name, base, glow, tier, family_seed):
             (math.pi / 4, 0.0, math.pi / 6),
             (-math.pi / 4, 0.0, -math.pi / 6),
         )):
-            parts.append(torus(f"Orbit_{i}", radius + 0.055, 0.011 + tier * 0.0014, frame, rot, sections=96))
+            parts.append(torus(f"Orbit_{i}", radius + 0.055, 0.011 + tier * 0.0014, frame, rot, sections=128, minor_sections=18))
 
     if tier >= 3:
         # Third-stage cage: four tilted curves form a stable diamond/sphere envelope.
@@ -385,13 +385,13 @@ def sphere_asset(name, base, glow, tier, family_seed):
             (math.pi / 4, -math.pi / 4, 0),
             (-math.pi / 4, -math.pi / 4, 0),
         )):
-            parts.append(torus(f"CageCurve_{i}", radius + 0.105, 0.010 + tier * 0.0012, frame, rot, sections=96))
+            parts.append(torus(f"CageCurve_{i}", radius + 0.105, 0.010 + tier * 0.0012, frame, rot, sections=128, minor_sections=18))
 
     if tier >= 4:
         # Higher tiers add offset latitude curves, still all curved and connected.
         # These are the visual density increase, not a collection of spokes.
         for i, y in enumerate((-0.34, 0.34)):
-            ring = torus(f"Latitude_{i}", radius * 0.82, 0.012 + tier * 0.0012, bright, (0, 0, 0), sections=96)
+            ring = torus(f"Latitude_{i}", radius * 0.82, 0.012 + tier * 0.0012, bright, (0, 0, 0), sections=128, minor_sections=18)
             ring.apply_translation((0.0, y, 0.0))
             parts.append(ring)
 
@@ -404,7 +404,7 @@ def sphere_asset(name, base, glow, tier, family_seed):
             (math.pi / 4, 0.0, 0.0),
             (-math.pi / 4, 0.0, 0.0),
         )):
-            petal = torus(f"Petal_{i}", radius + 0.16, 0.015 + tier * 0.0013, bright, rot, sections=96)
+            petal = torus(f"Petal_{i}", radius + 0.16, 0.015 + tier * 0.0013, bright, rot, sections=128, minor_sections=18)
             petal.apply_scale((1.0, 0.62, 1.0))
             parts.append(petal)
 
@@ -473,12 +473,12 @@ def insect_asset(name, kind, base, glow, scale, seed):
     # Insect silhouette: distinct thorax + abdomen + head. The worker/guard/flyer
     # should read as a creature from a gameplay camera, not a spherical hub with
     # spokes attached.
-    parts.append(ico("Thorax", 0.62 * scale, chitin, (1.18, 0.78, 0.86), 4))
-    abdomen = ico("Abdomen", 0.64 * scale, dark, (1.38, 0.72, 0.82), 4)
+    parts.append(ico("Thorax", 0.62 * scale, chitin, (1.18, 0.78, 0.86), 5))
+    abdomen = ico("Abdomen", 0.64 * scale, dark, (1.38, 0.72, 0.82), 5)
     abdomen.apply_translation((-0.62 * scale, -0.01 * scale, 0.0))
     parts.append(abdomen)
     parts.append(ico("Core", 0.24 * scale, core, (1, 1, 1.25), 3))
-    head = ico("Head", 0.43 * scale, dark, (1.05, 0.80, 0.78), 3)
+    head = ico("Head", 0.43 * scale, dark, (1.05, 0.80, 0.78), 4)
     head.apply_translation((0.60 * scale, 0.05 * scale, 0.0))
     parts.append(head)
 
@@ -619,9 +619,9 @@ def player_asset(kind, base, glow, seed):
     accent = pbr("CharacterAccent", tuple(min(1.0, 0.24 + x * 0.30) for x in glow), glow, 0.74, 0.095, 1.0, seed=seed + 3)
 
     parts = [
-        ico("Core", 0.34, core, (1.0, 1.0, 1.10), 5),
+        ico("Core", 0.34, core, (1.0, 1.0, 1.10), 6),
         ico("CoreInner", 0.13, core_inner, (1.0, 1.0, 1.12), 5),
-        ico("CoreShell", 0.50, shell, (1.0, 0.92, 0.98), 4),
+        ico("CoreShell", 0.50, shell, (1.0, 0.92, 0.98), 5),
     ]
 
     # Layered armor gives the hero a readable 3D body before the orbital FX are
@@ -634,7 +634,7 @@ def player_asset(kind, base, glow, seed):
             (0.25, 0.075, 0.18),
             shell,
             (0.0, -a, 0.0),
-            3,
+            4,
         )
         parts.append(armor)
 
@@ -795,7 +795,7 @@ def boss_asset(name, kind, seed):
                (0.85, 0.15, 1.0) if kind == "distortion" else (0.10, 0.75, 1.0),
                0.25, 0.05, seed=seed + 1)
     parts = [
-        ico("Body", 1.15, body, (1.1, 0.9, 1.1), 5),
+        ico("Body", 1.15, body, (1.1, 0.9, 1.1), 6),
         ico("VoidCore" if kind == "distortion" else "SingularityCore", 0.50, core, (1, 1, 1.2), 4),
     ]
     count = 14 if kind == "distortion" else 12
@@ -808,7 +808,7 @@ def boss_asset(name, kind, seed):
             0.13, 0.018, body, 20
         ))
     for i, r in enumerate((1.22, 1.48, 1.74)):
-        parts.append(torus(f"Ring_{i}", r, 0.035 + i * 0.008, core, (0, 0, 0) if i != 1 else (math.pi / 2, 0, 0)))
+        parts.append(torus(f"Ring_{i}", r, 0.035 + i * 0.008, core, (0, 0, 0) if i != 1 else (math.pi / 2, 0, 0), sections=128, minor_sections=22))
     save(name, parts)
 
 
