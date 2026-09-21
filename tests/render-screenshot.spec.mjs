@@ -82,7 +82,7 @@ test('capture the actual rendered game after Play', async ({ page }, testInfo) =
   expect(runtime.stats?.triangles || 0, 'no rendered triangles').toBeGreaterThan(1000);
   expect(runtime.stats?.players || 0, 'player was not rendered').toBeGreaterThanOrEqual(1);
   expect(runtime.stats?.spheres || 0, 'tower was not rendered').toBeGreaterThanOrEqual(1);
-  expect(runtime.stats?.enemies || 0, 'enemy was not rendered').toBeGreaterThanOrEqual(1);
+  expect(runtime.stats?.enemies || 0, 'not enough enemies rendered for gameplay QA').toBeGreaterThanOrEqual(3);
   expect(runtime.assetErrors, '3D asset loading errors').toEqual([]);
   expect(consoleErrors, 'Browser console errors').toEqual([]);
   expect(pageErrors, 'Unhandled page errors').toEqual([]);
