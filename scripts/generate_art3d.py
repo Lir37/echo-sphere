@@ -306,7 +306,7 @@ def sphere_asset(name, base, glow, tier, family_seed):
         glow,
         0.72,
         max(0.032, 0.10 - tier * 0.008),
-        0.18,
+        0.30,
         seed=family_seed,
     )
     core_base = tuple(min(1.0, 0.74 + x * 0.26) for x in base)
