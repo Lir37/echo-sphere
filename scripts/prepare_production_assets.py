@@ -28,7 +28,7 @@ def inspect_embedded_images(path: Path) -> list[dict]:
     json_length, json_type = struct.unpack_from("<II", data, 12)
     if json_type != 0x4E4F534A:
         return []
-    document = json.loads(data[20:20 + json_length].decode("utf-8").rstrip(" \\x00"))
+    document = json.loads(data[20:20 + json_length].decode("utf-8").rstrip(" \x00"))
     bin_offset = 20 + json_length
     images = []
     for index, image in enumerate(document.get("images", [])):
