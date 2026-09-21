@@ -26,6 +26,10 @@ def role_threshold(path: Path) -> tuple[int, int, int]:
         return 6_000, 450_000, 650_000
     if name.startswith("enemy_"):
         return 3_000, 70_000, 250_000
+    if name == "sphere_aura":
+        # Aura is a deliberately dense close-up VFX mesh used around the hero.
+        # It is not a gameplay tower and must not be forced into the tower budget.
+        return 1_500, 250_000, 300_000
     if name.startswith("sphere_"):
         return 1_500, 140_000, 300_000
     return 100, 30_000, 40_000
