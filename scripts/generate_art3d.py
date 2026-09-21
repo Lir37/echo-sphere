@@ -601,10 +601,36 @@ def player_asset(kind, base, glow, seed):
     accent = pbr("CharacterAccent", tuple(min(1.0, 0.24 + x * 0.30) for x in glow), glow, 0.74, 0.095, 1.0, seed=seed + 3)
 
     parts = [
-        ico("Core", 0.34, core, (1.0, 1.0, 1.10), 4),
-        ico("CoreInner", 0.13, core_inner, (1.0, 1.0, 1.12), 4),
-        ico("CoreShell", 0.50, shell, (1.0, 0.92, 0.98), 3),
+        ico("Core", 0.34, core, (1.0, 1.0, 1.10), 5),
+        ico("CoreInner", 0.13, core_inner, (1.0, 1.0, 1.12), 5),
+        ico("CoreShell", 0.50, shell, (1.0, 0.92, 0.98), 4),
     ]
+
+    # Layered armor gives the hero a readable 3D body before the orbital FX are
+    # added. Each plate is a shallow faceted shield around the central core.
+    for i, a in enumerate((0.0, math.pi / 3, 2 * math.pi / 3, math.pi, 4 * math.pi / 3, 5 * math.pi / 3)):
+        d = np.array((math.cos(a), 0.0, math.sin(a)))
+        armor = plate(
+            f"ArmorPanel_{i}",
+            d * 0.43 + np.array((0.0, 0.02 * math.sin(a * 3.0), 0.0)),
+            (0.25, 0.075, 0.18),
+            shell,
+            (0.0, -a, 0.0),
+            3,
+        )
+        parts.append(armor)
+
+    for i, a in enumerate((math.pi / 6, math.pi / 2, 5 * math.pi / 6, 7 * math.pi / 6, 3 * math.pi / 2, 11 * math.pi / 6)):
+        d = np.array((math.cos(a), 0.20 * math.sin(a), math.sin(a)))
+        fin = plate(
+            f"EnergyFin_{i}",
+            d * 0.70,
+            (0.18, 0.035, 0.065),
+            accent,
+            (0.0, -a, math.pi / 10),
+            2,
+        )
+        parts.append(fin)
 
     def ring(name, radius, minor, material, rot=(0, 0, 0), sections=80):
         parts.append(torus(name, radius, minor, material, rot, sections=sections))
