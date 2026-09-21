@@ -464,7 +464,9 @@ export function createInitialState(
   return {
     player,
     spheres: [{
-      pos: { x: 0, y: -95 },
+      // Start off-axis so the first authored tower frames the player instead of
+      // sitting directly on top of the character silhouette.
+      pos: { x: 82, y: -64 },
       radius: BASE_SPHERE_RADIUS,
       damage: BASE_SPHERE_DAMAGE,
       attackDelay: BASE_SPHERE_DELAY,
