@@ -55,6 +55,35 @@ def inspect_embedded_images(path: Path) -> list[dict]:
     return images
 
 
+def runtime_asset_entry(item: dict) -> dict:
+    entry = dict(item)
+    asset_id = str(entry.get("id", ""))
+    entry["facingOffset"] = 1.5707963267948966 if asset_id.startswith(("enemy_", "boss_")) else 0.0
+
+    if asset_id.startswith("enemy_"):
+        name = asset_id.removeprefix("enemy_")
+        entry["gameType"] = {
+            "worker": "spider",
+            "guard": "tank",
+            "flyer": "flyer",
+            "spider": "spider",
+            "slime": "slime",
+            "psionic": "psionic",
+            "queen": "queen",
+        }.get(name, name)
+    elif asset_id.startswith("boss_"):
+        entry["gameType"] = asset_id.removeprefix("boss_")
+    elif asset_id.startswith("sphere_"):
+        parts = asset_id.split("_")
+        if len(parts) >= 3:
+            entry["type"] = parts[1]
+            try:
+                entry["tier"] = int(parts[-1].removeprefix("t"))
+            except ValueError:
+                pass
+    return entry
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--json-out", default="production-3d-report.json")
@@ -118,8 +147,19 @@ def main() -> int:
         {**image, "file": row["file"]}
         for row in rows for image in row["embedded_images"]
     ]
+    runtime_manifest = {
+        "version": manifest["version"],
+        "assets": [runtime_asset_entry(item) for item in manifest["assets"]],
+    }
+    (ART3D / "manifest.json").write_text(
+        json.dumps(runtime_manifest, indent=2),
+        encoding="utf-8",
+    )
+
+    total_art3d_bytes = sum(path.stat().st_size for path in ART3D.rglob("*") if path.is_file() and path.name != "manifest.json")
     report = {
         "manifest_version": manifest["version"],
+        "production_art3d_bytes": total_art3d_bytes,
         "production_asset_count": len(rows),
         "removed_unlisted_glbs": removed,
         "total_glb_bytes": total_bytes,
@@ -129,10 +169,12 @@ def main() -> int:
         "largest_texture": max(all_images, key=lambda item: item["bytes"]) if all_images else None,
         "largest_glb": max(rows, key=lambda row: row["bytes"]) if rows else None,
         "assets": rows,
+        "runtime_manifest": "public/art3d/manifest.json",
     }
     Path(args.json_out).write_text(json.dumps(report, indent=2), encoding="utf-8")
     print(f"Production GLBs: {len(rows)}")
     print(f"Production GLB disk size: {total_bytes / (1024 * 1024):.1f} MiB")
+    print(f"Production art3d disk size: {total_art3d_bytes / (1024 * 1024):.1f} MiB")
     print(f"Embedded texture payload: {total_embedded_textures / (1024 * 1024):.1f} MiB")
     print(f"Embedded texture count: {len(all_images)}")
     print(f"Decoded texture memory footprint: {total_decoded_textures / (1024 * 1024):.1f} MiB")
