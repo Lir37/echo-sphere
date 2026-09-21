@@ -365,7 +365,8 @@ export class Echo3DRenderer {
     }
 
     // Keep the silhouette clean: authored hero geometry carries the detail;
-    // the only procedural elements around it are deliberate energy bands.    // Dash state gets a stronger energy shell without changing gameplay geometry.
+    // the only procedural elements around it are deliberate energy bands.
+    // Dash state gets a stronger energy shell without changing gameplay geometry.
     if(dash){
       const dashRing=mat4Multiply(
         mat4Translate(p.x,bob,p.y),
@@ -1189,7 +1190,15 @@ export class Echo3DRenderer {
     gl.bindBuffer(gl.ARRAY_BUFFER,pb);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(pos),gl.STATIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER,nb);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(normal),gl.STATIC_DRAW);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,ib);gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,new Uint16Array(indices),gl.STATIC_DRAW);
-    return {pos:pb,normal:nb,index:ib,count:indices.length};
+    return {
+      pos:pb,
+      normal:nb,
+      index:ib,
+      uv:null,
+      texture:null,
+      indexType:gl.UNSIGNED_SHORT,
+      count:indices.length,
+    };
   }
   private makeProgram(vs:string,fs:string):WebGLProgram{
     const gl=this.gl;
