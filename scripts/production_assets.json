@@ -14,10 +14,10 @@
         "strategy": "tier-distance"
       },
       "textures": {
-        "profile": "standard",
-        "baseColor": 1024,
-        "normal": 512,
-        "metallicRoughness": 512
+        "profile": "compact",
+        "baseColor": 512,
+        "normal": 256,
+        "metallicRoughness": 256
       },
       "animation": "orbital-rings+core-pulse"
     },
@@ -32,10 +32,10 @@
         "strategy": "tier-distance"
       },
       "textures": {
-        "profile": "standard",
-        "baseColor": 1024,
-        "normal": 512,
-        "metallicRoughness": 512
+        "profile": "compact",
+        "baseColor": 512,
+        "normal": 256,
+        "metallicRoughness": 256
       },
       "animation": "orbital-rings+core-pulse"
     },
@@ -50,10 +50,10 @@
         "strategy": "tier-distance"
       },
       "textures": {
-        "profile": "standard",
-        "baseColor": 1024,
-        "normal": 512,
-        "metallicRoughness": 512
+        "profile": "compact",
+        "baseColor": 512,
+        "normal": 256,
+        "metallicRoughness": 256
       },
       "animation": "orbital-rings+core-pulse"
     },
@@ -68,10 +68,10 @@
         "strategy": "tier-distance"
       },
       "textures": {
-        "profile": "standard",
-        "baseColor": 1024,
-        "normal": 512,
-        "metallicRoughness": 512
+        "profile": "compact",
+        "baseColor": 512,
+        "normal": 256,
+        "metallicRoughness": 256
       },
       "animation": "orbital-rings+core-pulse"
     },
@@ -86,10 +86,10 @@
         "strategy": "tier-distance"
       },
       "textures": {
-        "profile": "standard",
-        "baseColor": 1024,
-        "normal": 512,
-        "metallicRoughness": 512
+        "profile": "compact",
+        "baseColor": 512,
+        "normal": 256,
+        "metallicRoughness": 256
       },
       "animation": "orbital-rings+core-pulse"
     },
@@ -104,10 +104,10 @@
         "strategy": "tier-distance"
       },
       "textures": {
-        "profile": "standard",
-        "baseColor": 1024,
-        "normal": 512,
-        "metallicRoughness": 512
+        "profile": "compact",
+        "baseColor": 512,
+        "normal": 256,
+        "metallicRoughness": 256
       },
       "animation": "orbital-rings+core-pulse"
     },
@@ -122,10 +122,10 @@
         "strategy": "tier-distance"
       },
       "textures": {
-        "profile": "standard",
-        "baseColor": 1024,
-        "normal": 512,
-        "metallicRoughness": 512
+        "profile": "hero",
+        "baseColor": 2048,
+        "normal": 1024,
+        "metallicRoughness": 1024
       },
       "animation": "orbital-rings+core-pulse"
     },
@@ -140,10 +140,10 @@
         "strategy": "tier-distance"
       },
       "textures": {
-        "profile": "standard",
-        "baseColor": 1024,
-        "normal": 512,
-        "metallicRoughness": 512
+        "profile": "compact",
+        "baseColor": 512,
+        "normal": 256,
+        "metallicRoughness": 256
       },
       "animation": "orbital-rings+core-pulse"
     },
@@ -158,10 +158,10 @@
         "strategy": "tier-distance"
       },
       "textures": {
-        "profile": "standard",
-        "baseColor": 1024,
-        "normal": 512,
-        "metallicRoughness": 512
+        "profile": "compact",
+        "baseColor": 512,
+        "normal": 256,
+        "metallicRoughness": 256
       },
       "animation": "orbital-rings+core-pulse"
     },
@@ -176,10 +176,10 @@
         "strategy": "tier-distance"
       },
       "textures": {
-        "profile": "standard",
-        "baseColor": 1024,
-        "normal": 512,
-        "metallicRoughness": 512
+        "profile": "compact",
+        "baseColor": 512,
+        "normal": 256,
+        "metallicRoughness": 256
       },
       "animation": "orbital-rings+core-pulse"
     },
@@ -194,10 +194,10 @@
         "strategy": "tier-distance"
       },
       "textures": {
-        "profile": "standard",
-        "baseColor": 1024,
-        "normal": 512,
-        "metallicRoughness": 512
+        "profile": "compact",
+        "baseColor": 512,
+        "normal": 256,
+        "metallicRoughness": 256
       },
       "animation": "orbital-rings+core-pulse"
     },
@@ -212,10 +212,10 @@
         "strategy": "tier-distance"
       },
       "textures": {
-        "profile": "standard",
-        "baseColor": 1024,
-        "normal": 512,
-        "metallicRoughness": 512
+        "profile": "compact",
+        "baseColor": 512,
+        "normal": 256,
+        "metallicRoughness": 256
       },
       "animation": "orbital-rings+core-pulse"
     },
@@ -230,10 +230,10 @@
         "strategy": "tier-distance"
       },
       "textures": {
-        "profile": "standard",
-        "baseColor": 1024,
-        "normal": 512,
-        "metallicRoughness": 512
+        "profile": "compact",
+        "baseColor": 512,
+        "normal": 256,
+        "metallicRoughness": 256
       },
       "animation": "orbital-rings+core-pulse"
     },
@@ -248,10 +248,10 @@
         "strategy": "tier-distance"
       },
       "textures": {
-        "profile": "standard",
-        "baseColor": 1024,
-        "normal": 512,
-        "metallicRoughness": 512
+        "profile": "hero",
+        "baseColor": 2048,
+        "normal": 1024,
+        "metallicRoughness": 1024
       },
       "animation": "orbital-rings+core-pulse"
     },
@@ -266,10 +266,10 @@
         "strategy": "tier-distance"
       },
       "textures": {
-        "profile": "standard",
-        "baseColor": 1024,
-        "normal": 512,
-        "metallicRoughness": 512
+        "profile": "compact",
+        "baseColor": 512,
+        "normal": 256,
+        "metallicRoughness": 256
       },
       "animation": "orbital-rings+core-pulse"
     },
@@ -284,10 +284,10 @@
         "strategy": "tier-distance"
       },
       "textures": {
-        "profile": "standard",
-        "baseColor": 1024,
-        "normal": 512,
-        "metallicRoughness": 512
+        "profile": "compact",
+        "baseColor": 512,
+        "normal": 256,
+        "metallicRoughness": 256
       },
       "animation": "orbital-rings+core-pulse"
     },
@@ -302,10 +302,10 @@
         "strategy": "tier-distance"
       },
       "textures": {
-        "profile": "standard",
-        "baseColor": 1024,
-        "normal": 512,
-        "metallicRoughness": 512
+        "profile": "compact",
+        "baseColor": 512,
+        "normal": 256,
+        "metallicRoughness": 256
       },
       "animation": "orbital-rings+core-pulse"
     },
@@ -320,10 +320,10 @@
         "strategy": "tier-distance"
       },
       "textures": {
-        "profile": "standard",
-        "baseColor": 1024,
-        "normal": 512,
-        "metallicRoughness": 512
+        "profile": "compact",
+        "baseColor": 512,
+        "normal": 256,
+        "metallicRoughness": 256
       },
       "animation": "orbital-rings+core-pulse"
     },
@@ -338,10 +338,10 @@
         "strategy": "tier-distance"
       },
       "textures": {
-        "profile": "standard",
-        "baseColor": 1024,
-        "normal": 512,
-        "metallicRoughness": 512
+        "profile": "compact",
+        "baseColor": 512,
+        "normal": 256,
+        "metallicRoughness": 256
       },
       "animation": "orbital-rings+core-pulse"
     },
@@ -356,10 +356,10 @@
         "strategy": "tier-distance"
       },
       "textures": {
-        "profile": "standard",
-        "baseColor": 1024,
-        "normal": 512,
-        "metallicRoughness": 512
+        "profile": "compact",
+        "baseColor": 512,
+        "normal": 256,
+        "metallicRoughness": 256
       },
       "animation": "orbital-rings+core-pulse"
     },
@@ -374,10 +374,10 @@
         "strategy": "tier-distance"
       },
       "textures": {
-        "profile": "standard",
-        "baseColor": 1024,
-        "normal": 512,
-        "metallicRoughness": 512
+        "profile": "hero",
+        "baseColor": 2048,
+        "normal": 1024,
+        "metallicRoughness": 1024
       },
       "animation": "orbital-rings+core-pulse"
     },
@@ -392,10 +392,10 @@
         "strategy": "tier-distance"
       },
       "textures": {
-        "profile": "standard",
-        "baseColor": 1024,
-        "normal": 512,
-        "metallicRoughness": 512
+        "profile": "compact",
+        "baseColor": 512,
+        "normal": 256,
+        "metallicRoughness": 256
       },
       "animation": "orbital-rings+core-pulse"
     },
@@ -410,10 +410,10 @@
         "strategy": "tier-distance"
       },
       "textures": {
-        "profile": "standard",
-        "baseColor": 1024,
-        "normal": 512,
-        "metallicRoughness": 512
+        "profile": "compact",
+        "baseColor": 512,
+        "normal": 256,
+        "metallicRoughness": 256
       },
       "animation": "orbital-rings+core-pulse"
     },
@@ -428,10 +428,10 @@
         "strategy": "tier-distance"
       },
       "textures": {
-        "profile": "standard",
-        "baseColor": 1024,
-        "normal": 512,
-        "metallicRoughness": 512
+        "profile": "compact",
+        "baseColor": 512,
+        "normal": 256,
+        "metallicRoughness": 256
       },
       "animation": "orbital-rings+core-pulse"
     },
@@ -446,10 +446,10 @@
         "strategy": "tier-distance"
       },
       "textures": {
-        "profile": "standard",
-        "baseColor": 1024,
-        "normal": 512,
-        "metallicRoughness": 512
+        "profile": "compact",
+        "baseColor": 512,
+        "normal": 256,
+        "metallicRoughness": 256
       },
       "animation": "orbital-rings+core-pulse"
     },
@@ -464,10 +464,10 @@
         "strategy": "tier-distance"
       },
       "textures": {
-        "profile": "standard",
-        "baseColor": 1024,
-        "normal": 512,
-        "metallicRoughness": 512
+        "profile": "compact",
+        "baseColor": 512,
+        "normal": 256,
+        "metallicRoughness": 256
       },
       "animation": "orbital-rings+core-pulse"
     },
@@ -482,10 +482,10 @@
         "strategy": "tier-distance"
       },
       "textures": {
-        "profile": "standard",
-        "baseColor": 1024,
-        "normal": 512,
-        "metallicRoughness": 512
+        "profile": "compact",
+        "baseColor": 512,
+        "normal": 256,
+        "metallicRoughness": 256
       },
       "animation": "orbital-rings+core-pulse"
     },
@@ -500,10 +500,10 @@
         "strategy": "tier-distance"
       },
       "textures": {
-        "profile": "standard",
-        "baseColor": 1024,
-        "normal": 512,
-        "metallicRoughness": 512
+        "profile": "hero",
+        "baseColor": 2048,
+        "normal": 1024,
+        "metallicRoughness": 1024
       },
       "animation": "orbital-rings+core-pulse"
     },
@@ -518,10 +518,10 @@
         "strategy": "tier-distance"
       },
       "textures": {
-        "profile": "standard",
-        "baseColor": 1024,
-        "normal": 512,
-        "metallicRoughness": 512
+        "profile": "compact",
+        "baseColor": 512,
+        "normal": 256,
+        "metallicRoughness": 256
       },
       "animation": "orbital-rings+core-pulse"
     },
@@ -536,10 +536,10 @@
         "strategy": "tier-distance"
       },
       "textures": {
-        "profile": "standard",
-        "baseColor": 1024,
-        "normal": 512,
-        "metallicRoughness": 512
+        "profile": "compact",
+        "baseColor": 512,
+        "normal": 256,
+        "metallicRoughness": 256
       },
       "animation": "orbital-rings+core-pulse"
     },
@@ -554,10 +554,10 @@
         "strategy": "tier-distance"
       },
       "textures": {
-        "profile": "standard",
-        "baseColor": 1024,
-        "normal": 512,
-        "metallicRoughness": 512
+        "profile": "compact",
+        "baseColor": 512,
+        "normal": 256,
+        "metallicRoughness": 256
       },
       "animation": "orbital-rings+core-pulse"
     },
@@ -572,10 +572,10 @@
         "strategy": "tier-distance"
       },
       "textures": {
-        "profile": "standard",
-        "baseColor": 1024,
-        "normal": 512,
-        "metallicRoughness": 512
+        "profile": "compact",
+        "baseColor": 512,
+        "normal": 256,
+        "metallicRoughness": 256
       },
       "animation": "orbital-rings+core-pulse"
     },
@@ -590,10 +590,10 @@
         "strategy": "tier-distance"
       },
       "textures": {
-        "profile": "standard",
-        "baseColor": 1024,
-        "normal": 512,
-        "metallicRoughness": 512
+        "profile": "compact",
+        "baseColor": 512,
+        "normal": 256,
+        "metallicRoughness": 256
       },
       "animation": "orbital-rings+core-pulse"
     },
@@ -608,10 +608,10 @@
         "strategy": "tier-distance"
       },
       "textures": {
-        "profile": "standard",
-        "baseColor": 1024,
-        "normal": 512,
-        "metallicRoughness": 512
+        "profile": "compact",
+        "baseColor": 512,
+        "normal": 256,
+        "metallicRoughness": 256
       },
       "animation": "orbital-rings+core-pulse"
     },
@@ -626,10 +626,10 @@
         "strategy": "tier-distance"
       },
       "textures": {
-        "profile": "standard",
-        "baseColor": 1024,
-        "normal": 512,
-        "metallicRoughness": 512
+        "profile": "hero",
+        "baseColor": 2048,
+        "normal": 1024,
+        "metallicRoughness": 1024
       },
       "animation": "orbital-rings+core-pulse"
     },
