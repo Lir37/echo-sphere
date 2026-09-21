@@ -670,7 +670,7 @@ export class Echo3DRenderer {
 
   private loadQueue: string[] = [];
   private activeLoads = 0;
-  private readonly maxConcurrentLoads = 2;
+  private readonly maxConcurrentLoads = 1;
 
   private drainLoadQueue() {
     while (this.activeLoads < this.maxConcurrentLoads && this.loadQueue.length > 0) {
@@ -817,11 +817,13 @@ export class Echo3DRenderer {
     g.clearColor(0.008, 0.018, 0.048, 1);
     g.clear(g.COLOR_BUFFER_BIT | g.DEPTH_BUFFER_BIT);
     this.drawArena(vp, t, s.worldWidth, s.worldHeight);
-    for (const sp of s.spheres) if (sp.alive && this.nearCamera(sp.pos.x, sp.pos.y)) { this.renderStats.visibleEntities += 1; this.renderStats.spheres += 1; this.drawSphere(sp, vp, t); }
-    for (const e of s.enemies) if (e.hp > 0 && this.nearCamera(e.pos.x, e.pos.y)) { this.renderStats.visibleEntities += 1; this.renderStats.enemies += 1; this.drawEnemy(e, vp, t); }
+    // Queue the hero first so Android gets a useful frame before the heavier
+    // enemy/tower assets start streaming. The loader itself is single-flight.
     this.renderStats.visibleEntities += 1;
     this.renderStats.players = 1;
     this.drawPlayer(s, vp, t);
+    for (const sp of s.spheres) if (sp.alive && this.nearCamera(sp.pos.x, sp.pos.y)) { this.renderStats.visibleEntities += 1; this.renderStats.spheres += 1; this.drawSphere(sp, vp, t); }
+    for (const e of s.enemies) if (e.hp > 0 && this.nearCamera(e.pos.x, e.pos.y)) { this.renderStats.visibleEntities += 1; this.renderStats.enemies += 1; this.drawEnemy(e, vp, t); }
     for (const m of s.minions) if (this.nearCamera(m.pos.x, m.pos.y)) this.drawMinion(m, vp, t);
     for (const q of s.sphereProjectiles) if (q.alive) this.drawProjectile(q, vp, t);
     for (const e of s.enemies) for (const q of e.bossProjectiles) if (q.alive) this.drawPointAsset('projectile_energy', q.pos.x, q.pos.y, q.radius * 2, vp, t);
