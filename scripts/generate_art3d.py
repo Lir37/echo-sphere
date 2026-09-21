@@ -890,7 +890,13 @@ for family, base, glow, seed in SPHERE_FAMILIES:
 insect_asset("enemy_worker", "worker", (.15, .02, .03), (1.0, .25, .04), .58, 201)
 insect_asset("enemy_guard", "guard", (.16, .02, .03), (1.0, .08, .02), .82, 211)
 insect_asset("enemy_flyer", "flyer", (.12, .02, .18), (.80, .15, 1.0), .60, 221)
-insect_asset("enemy_spider", "spider", (.08, .015, .12), (1.0, .10, .55), .98, 231)
+# If the user-supplied benchmark GLB is present it survives generation and is used
+# verbatim. Until that source file is committed to the repository, generate a
+# clearly marked fallback so CI remains executable rather than silently claiming
+# the benchmark was used.
+if not (OUT / "enemy_spider.glb").exists():
+    print("[WARN] enemy_spider benchmark GLB is not present; generating fallback spider asset")
+    insect_asset("enemy_spider", "spider", (.08, .015, .12), (1.0, .10, .55), .98, 231)
 slime_asset("enemy_slime")
 psionic_asset("enemy_psionic")
 insect_asset("enemy_queen", "queen", (.18, .07, .02), (1.0, .45, .06), 1.18, 241)
