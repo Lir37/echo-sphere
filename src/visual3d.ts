@@ -749,10 +749,17 @@ export class Echo3DRenderer {
         : e.shape === 'square' ? 'enemy_slime' : 'enemy_spider');
     const bob = e.type === 'fast' ? Math.sin(t * 7 + e.pos.x * 0.01) * 0.08 : Math.sin(t * 3 + e.pos.y * 0.01) * 0.025;
     const bossPulse = e.isBoss ? 1 + 0.045 * Math.sin(t * 2.6) : 1;
-    // Enemies keep a stable authored orientation. They move, bob, recoil and animate through VFX, but do not spin like rigid turntables.
-    const authoredFacing = Math.PI / 2;
+    // Runtime-facing is derived from authoritative gameplay velocity. When an enemy
+    // is stationary, EnemyEntity.facing retains its previous non-zero direction.
+    // The authored GLB forward axis is corrected once here, instead of hard-coding
+    // a world-facing direction for every enemy.
+    const facing = e.velocity && Math.hypot(e.velocity.x, e.velocity.y) > 1e-4
+      ? e.velocity
+      : e.facing;
+    const authoredFacingOffset = Math.PI / 2;
+    const movementAngle = Math.atan2(facing.y, facing.x) + authoredFacingOffset;
     const creatureScale = Math.max(10.5, e.radius / 0.88) * (e.isBoss ? 1.65 : 1.25) * bossPulse;
-    this.drawAsset(n, e.pos.x, bob, e.pos.y, creatureScale, vp, t, 'enemy', authoredFacing);
+    this.drawAsset(n, e.pos.x, bob, e.pos.y, creatureScale, vp, t, 'enemy', movementAngle);
   }
 
   private drawPlayer(s: GameState, vp: Mat4, t: number) {
