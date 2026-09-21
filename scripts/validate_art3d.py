@@ -8,6 +8,7 @@ tiny placeholder mesh.
 from pathlib import Path
 import json
 import sys
+import argparse
 
 import trimesh
 
@@ -85,6 +86,10 @@ def validate(path: Path):
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--json-out", default=None, help="optional CI report path")
+    args = parser.parse_args()
+
     prefixes = ("sphere_", "enemy_", "boss_", "projectile_", "player_core")
     files = sorted(
         path for path in ROOT.glob("*.glb")
@@ -102,7 +107,8 @@ def main() -> int:
             print(f"[FAIL] {path.name}: {exc}", file=sys.stderr)
             return 1
 
-    report = ROOT / "validation-report.json"
+    report = Path(args.json_out) if args.json_out else ROOT / "validation-report.json"
+    report.parent.mkdir(parents=True, exist_ok=True)
     report.write_text(json.dumps(rows, indent=2), encoding="utf-8")
 
     total_triangles = sum(row["triangles"] for row in rows)
