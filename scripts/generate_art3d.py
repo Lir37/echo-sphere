@@ -304,9 +304,12 @@ def sphere_asset(name, base, glow, tier, family_seed):
     held by a small number of coherent curved orbital frames. Evolution increases
     the number/complexity of those frames while preserving one readable silhouette.
     """
-    core_base = tuple(min(1.0, 0.72 + x * 0.28) for x in base)
-    core_glow = tuple(min(1.0, 0.78 + x * 0.22) for x in glow)
-    core = pbr("Core", core_base, core_glow, 0.16, 0.045, seed=family_seed + 1)
+    # Keep the orb's body dark and volumetric. The reference reads as a dark
+    # energy shell with a concentrated luminous nucleus, not as a white ball.
+    core_base = tuple(min(1.0, 0.055 + x * 0.26) for x in base)
+    core_glow = tuple(min(1.0, 0.72 + x * 0.28) for x in glow)
+    core = pbr("Core", core_base, core_glow, 0.34, 0.075, seed=family_seed + 1)
+    inner = pbr("CoreInner", (0.72, 0.82, 1.0), core_glow, 0.08, 0.045, seed=family_seed + 4)
 
     frame_base = tuple(min(1.0, 0.12 + x * 0.28) for x in glow)
     frame_glow = tuple(min(1.0, 0.55 + x * 0.45) for x in glow)
@@ -314,7 +317,10 @@ def sphere_asset(name, base, glow, tier, family_seed):
     bright = pbr("OrbitalBright", frame_glow, frame_glow, 0.68, 0.055, seed=family_seed + 3)
 
     core_radius = 0.40 + tier * 0.016
-    parts = [ico("Core", core_radius, core, (1.0, 1.0, 1.04), 4)]
+    parts = [
+        ico("Core", core_radius, core, (1.0, 1.0, 1.04), 4),
+        ico("CoreInner", core_radius * 0.38, inner, (1.0, 1.0, 1.08), 4),
+    ]
 
     # Every tier keeps the same visual language: a glowing core plus three major
     # great-circle orbits. There are deliberately no free-standing radial rods.
@@ -403,8 +409,10 @@ def sphere_asset(name, base, glow, tier, family_seed):
 # ---------------------------------------------------------------------------
 
 def insect_asset(name, kind, base, glow, scale, seed):
-    chitin = pbr("Chitin", base, glow, 0.86, 0.18, seed=seed)
-    dark = pbr("ArmorDark", tuple(x * 0.22 for x in base), glow, 0.72, 0.24, seed=seed + 1)
+    # Dark chitin + restrained emissive seams gives the insects the armored,
+    # high-contrast silhouette from the reference instead of a flat orange blob.
+    chitin = pbr("Chitin", tuple(x * 0.58 for x in base), tuple(x * 0.72 for x in glow), 0.90, 0.20, seed=seed)
+    dark = pbr("ArmorDark", tuple(x * 0.12 for x in base), tuple(x * 0.62 for x in glow), 0.80, 0.27, seed=seed + 1)
     core = pbr("Core", tuple(min(1.0, x * 0.55 + 0.05) for x in glow), glow, 0.35, 0.08, seed=seed + 2)
     wingmat = pbr("Wing", tuple(min(1.0, x * 0.18 + 0.02) for x in glow), glow, 0.15, 0.12, 0.48, seed=seed + 3)
 
@@ -547,12 +555,14 @@ def player_asset(kind, base, glow, seed):
     # Six distinct character silhouettes. These are authored offline as GLBs, so the
     # gameplay renderer only loads meshes and never reconstructs them from primitives.
     shell = pbr("CharacterShell", tuple(x * 0.22 for x in base), glow, 0.90, 0.11, 1.0, seed=seed)
-    core = pbr("CharacterCore", tuple(min(1.0, 0.70 + x * 0.30) for x in base), glow, 0.22, 0.045, 1.0, seed=seed + 1)
+    core = pbr("CharacterCore", tuple(min(1.0, 0.16 + x * 0.48) for x in base), glow, 0.26, 0.06, 1.0, seed=seed + 1)
+    core_inner = pbr("CharacterCoreInner", (0.72, 0.84, 1.0), glow, 0.08, 0.045, 1.0, seed=seed + 4)
     frame = pbr("CharacterFrame", tuple(min(1.0, 0.18 + x * 0.34) for x in glow), glow, 0.95, 0.075, 1.0, seed=seed + 2)
     accent = pbr("CharacterAccent", tuple(min(1.0, 0.24 + x * 0.30) for x in glow), glow, 0.74, 0.095, 1.0, seed=seed + 3)
 
     parts = [
         ico("Core", 0.34, core, (1.0, 1.0, 1.10), 4),
+        ico("CoreInner", 0.13, core_inner, (1.0, 1.0, 1.12), 4),
         ico("CoreShell", 0.50, shell, (1.0, 0.92, 0.98), 3),
     ]
 
