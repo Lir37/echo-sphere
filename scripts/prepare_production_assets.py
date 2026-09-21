@@ -8,14 +8,51 @@ from __future__ import annotations
 
 import argparse
 import json
+import struct
+from io import BytesIO
 from pathlib import Path
 
+from PIL import Image
 import trimesh
 
 
 ROOT = Path(__file__).resolve().parents[1]
 ART3D = ROOT / "public" / "art3d"
 MANIFEST = ROOT / "scripts" / "production_assets.json"
+
+
+def inspect_embedded_images(path: Path) -> list[dict]:
+    data = path.read_bytes()
+    if data[:4] != b"glTF":
+        return []
+    json_length, json_type = struct.unpack_from("<II", data, 12)
+    if json_type != 0x4E4F534A:
+        return []
+    document = json.loads(data[20:20 + json_length].decode("utf-8").rstrip(" \\x00"))
+    bin_offset = 20 + json_length
+    images = []
+    for index, image in enumerate(document.get("images", [])):
+        view_index = image.get("bufferView")
+        if view_index is None:
+            continue
+        view = document["bufferViews"][view_index]
+        start = bin_offset + view.get("byteOffset", 0)
+        end = start + view["byteLength"]
+        payload = data[start:end]
+        width = height = None
+        try:
+            with Image.open(BytesIO(payload)) as im:
+                width, height = im.size
+        except Exception:
+            pass
+        images.append({
+            "index": index,
+            "bytes": len(payload),
+            "width": width,
+            "height": height,
+            "mime": image.get("mimeType"),
+        })
+    return images
 
 
 def main() -> int:
@@ -46,6 +83,8 @@ def main() -> int:
         vertices = 0
         texture_count = 0
         decoded_texture_bytes = 0
+        embedded_images = inspect_embedded_images(path)
+        embedded_texture_bytes = sum(item["bytes"] for item in embedded_images)
         if isinstance(scene, trimesh.Scene):
             for geom in scene.geometry.values():
                 vertices += len(getattr(geom, "vertices", []))
@@ -68,22 +107,34 @@ def main() -> int:
             "triangles": triangles,
             "texture_slots": texture_count,
             "decoded_texture_bytes": decoded_texture_bytes,
+            "embedded_texture_bytes": embedded_texture_bytes,
+            "embedded_images": embedded_images,
         })
 
     total_bytes = sum(row["bytes"] for row in rows)
     total_decoded_textures = sum(row["decoded_texture_bytes"] for row in rows)
+    total_embedded_textures = sum(row["embedded_texture_bytes"] for row in rows)
+    all_images = [
+        {**image, "file": row["file"]}
+        for row in rows for image in row["embedded_images"]
+    ]
     report = {
         "manifest_version": manifest["version"],
         "production_asset_count": len(rows),
         "removed_unlisted_glbs": removed,
         "total_glb_bytes": total_bytes,
         "total_decoded_texture_bytes": total_decoded_textures,
+        "total_embedded_texture_bytes": total_embedded_textures,
+        "texture_count": len(all_images),
+        "largest_texture": max(all_images, key=lambda item: item["bytes"]) if all_images else None,
         "largest_glb": max(rows, key=lambda row: row["bytes"]) if rows else None,
         "assets": rows,
     }
     Path(args.json_out).write_text(json.dumps(report, indent=2), encoding="utf-8")
     print(f"Production GLBs: {len(rows)}")
     print(f"Production GLB disk size: {total_bytes / (1024 * 1024):.1f} MiB")
+    print(f"Embedded texture payload: {total_embedded_textures / (1024 * 1024):.1f} MiB")
+    print(f"Embedded texture count: {len(all_images)}")
     print(f"Decoded texture memory footprint: {total_decoded_textures / (1024 * 1024):.1f} MiB")
     print(f"Removed unlisted GLBs: {len(removed)}")
     for name in removed:
