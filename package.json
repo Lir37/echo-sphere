@@ -5,10 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "python scripts/generate_art3d.py && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit -p tsconfig.app.json"
+    "typecheck": "tsc --noEmit -p tsconfig.app.json",
+    "assets:3d": "python scripts/generate_art3d.py",
+    "validate:glb": "python scripts/validate_art3d.py --json-out glb-validation-report.json",
+    "test:smoke": "node tests/smoke.mjs",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.2",
