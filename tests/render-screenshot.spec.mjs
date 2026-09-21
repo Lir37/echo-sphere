@@ -26,20 +26,23 @@ test('capture the actual rendered game after pressing Play', async ({ page }, te
 
   const renderMetrics = await canvas.evaluate((element) => {
     const canvas = element;
-    const ctx = canvas.getContext('2d', { willReadFrequently: true });
-    if (!ctx) return { width: canvas.width, height: canvas.height, nonBlackPixels: 0, renderActive: false };
+    const gl = canvas.getContext('webgl', { preserveDrawingBuffer: true });
+    if (!gl) return { width: canvas.width, height: canvas.height, nonBlackPixels: 0, renderActive: false, context: 'missing' };
 
     const width = canvas.width;
     const height = canvas.height;
-    const sample = ctx.getImageData(0, 0, width, height);
-    let nonBlackPixels = 0;
+    const sampleSize = Math.min(width * height, 320_000);
+    const pixels = new Uint8Array(sampleSize * 4);
+    const readWidth = Math.min(width, Math.max(1, Math.floor(Math.sqrt(sampleSize * width / Math.max(1, height)))));
+    const readHeight = Math.min(height, Math.max(1, Math.floor(sampleSize / readWidth)));
+    const buffer = new Uint8Array(readWidth * readHeight * 4);
+    gl.readPixels(0, 0, readWidth, readHeight, gl.RGBA, gl.UNSIGNED_BYTE, buffer);
 
-    // Sample every 8th pixel. This is intentionally lightweight but proves
-    // that the canvas contains rendered frame data, not just an empty surface.
-    for (let i = 0; i < sample.data.length; i += 4 * 8) {
-      const r = sample.data[i];
-      const g = sample.data[i + 1];
-      const b = sample.data[i + 2];
+    let nonBlackPixels = 0;
+    for (let i = 0; i < buffer.length; i += 4 * 8) {
+      const r = buffer[i];
+      const g = buffer[i + 1];
+      const b = buffer[i + 2];
       if (r + g + b > 12) nonBlackPixels++;
     }
 
@@ -48,6 +51,7 @@ test('capture the actual rendered game after pressing Play', async ({ page }, te
       height,
       nonBlackPixels,
       renderActive: nonBlackPixels > 100,
+      context: 'webgl',
     };
   });
 
