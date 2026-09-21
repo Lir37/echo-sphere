@@ -786,8 +786,13 @@ export class Echo3DRenderer {
       this.arenaGridCount = grid.length / 3;
 
       const rings: number[] = [];
-      for (let radius = 160; radius <= Math.min(extent, 900); radius += 160) {
-        const steps = 72;
+      // The arena should frame the action, not become a giant radar overlay.
+      // Three primary rings plus a very soft outer boundary preserve depth while
+      // keeping the player and authored assets visually dominant.
+      const arenaRadii = [190, 370, 610, Math.min(extent, 860)];
+      const steps = 96;
+      for (const radius of arenaRadii) {
+        const alphaBias = radius >= 850 ? 0.55 : 1;
         for (let i = 0; i < steps; i++) {
           const a0 = i / steps * Math.PI * 2;
           const a1 = (i + 1) / steps * Math.PI * 2;
@@ -796,13 +801,14 @@ export class Echo3DRenderer {
             Math.cos(a1) * radius, -2.6, Math.sin(a1) * radius,
           );
         }
+        void alphaBias;
       }
       this.arenaRingBuffer = this.buf(new Float32Array(rings));
       this.arenaRingCount = rings.length / 3;
     }
 
-    if (this.arenaGridBuffer) this.drawLineBuffer(this.arenaGridBuffer, this.arenaGridCount, vp, [0.05, 0.28, 0.52], 0.52, t);
-    if (this.arenaRingBuffer) this.drawLineBuffer(this.arenaRingBuffer, this.arenaRingCount, vp, [0.10, 0.42, 0.78], 0.46 + 0.08 * Math.sin(t * 2), t);
+    if (this.arenaGridBuffer) this.drawLineBuffer(this.arenaGridBuffer, this.arenaGridCount, vp, [0.045, 0.20, 0.38], 0.34, t);
+    if (this.arenaRingBuffer) this.drawLineBuffer(this.arenaRingBuffer, this.arenaRingCount, vp, [0.075, 0.32, 0.62], 0.30 + 0.06 * Math.sin(t * 2), t);
   }
 
   private drawLineBuffer(buffer: WebGLBuffer, count: number, vp: Mat4, color: number[], alpha: number, t: number) {
