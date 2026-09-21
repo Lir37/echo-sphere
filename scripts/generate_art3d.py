@@ -707,10 +707,10 @@ def player_asset(kind, base, glow, seed):
         for i in range(8):
             a = math.tau * i / 8.0 + math.pi / 8
             d = (0.52 * math.cos(a), 0.24 * math.sin(i), 0.52 * math.sin(a))
-            plate = ico(f"RageShard_{i}", 0.14, accent, (1.8, 0.22, 0.60), 2)
-            plate.apply_translation(d)
-            plate.apply_transform(trimesh.transformations.rotation_matrix(a, [0, 1, 0]))
-            parts.append(plate)
+            rage_plate = ico(f"RageShard_{i}", 0.14, accent, (1.8, 0.22, 0.60), 2)
+            rage_plate.apply_translation(d)
+            rage_plate.apply_transform(trimesh.transformations.rotation_matrix(a, [0, 1, 0]))
+            parts.append(rage_plate)
 
     elif kind == "alchemist":
         # Organic alchemical compass: layered rings, leaf-like satellite crystals and a
