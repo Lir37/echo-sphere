@@ -23,7 +23,7 @@ OUT.mkdir(parents=True, exist_ok=True)
 # Source assets supplied outside this generator are benchmarks and must never be
 # deleted or overwritten by a regeneration pass. The supplied spider GLB is the
 # current geometry/PBR benchmark for the enemy family.
-PROTECTED_SOURCE_ASSETS = {"enemy_spider.glb"}
+PROTECTED_SOURCE_ASSETS = {"enemy_spider.glb", "player_spherist.glb"}
 
 
 # ---------------------------------------------------------------------------
@@ -906,6 +906,19 @@ for family, base, glow, seed in SPHERE_FAMILIES:
 insect_asset("enemy_worker", "worker", (.15, .02, .03), (1.0, .25, .04), .58, 201)
 insect_asset("enemy_guard", "guard", (.16, .02, .03), (1.0, .08, .02), .82, 211)
 insect_asset("enemy_flyer", "flyer", (.12, .02, .18), (.80, .15, 1.0), .60, 221)
+# User-authored source assets survive generation and are used verbatim.
+# The raw Spherist GLB should be committed to:
+#   scripts/source_assets/player_spherist_raw.glb
+# and is copied into public/art3d as player_spherist.glb before generation.
+# Until it is committed, keep a clearly marked fallback so CI remains executable
+# without silently claiming that the production source asset was used.
+source_spherist = ROOT / "scripts" / "source_assets" / "player_spherist_raw.glb"
+if source_spherist.exists():
+    shutil.copy2(source_spherist, OUT / "player_spherist.glb")
+    print("[SOURCE] using user-authored player_spherist_raw.glb")
+elif not (OUT / "player_spherist.glb").exists():
+    print("[WARN] player_spherist source GLB is not present; generating fallback Spherist asset")
+
 # If the user-supplied benchmark GLB is present it survives generation and is used
 # verbatim. Until that source file is committed to the repository, generate a
 # clearly marked fallback so CI remains executable rather than silently claiming
@@ -917,7 +930,10 @@ crawler_asset("enemy_crawler")
 psionic_asset("enemy_psionic")
 insect_asset("enemy_queen", "queen", (.18, .07, .02), (1.0, .45, .06), 1.18, 241)
 
-player_asset("spherist", (.05, .55, 1.0), (.25, .95, 1.0), 101)
+if not (OUT / "player_spherist.glb").exists():
+    player_asset("spherist", (.05, .55, 1.0), (.25, .95, 1.0), 101)
+else:
+    print("[SOURCE] preserved player_spherist.glb")
 player_asset("hunter", (.45, .05, .95), (.80, .25, 1.0), 111)
 player_asset("engineer", (.03, .60, .78), (.15, 1.0, 1.0), 121)
 player_asset("berserker", (.82, .03, .02), (1.0, .13, .04), 131)
