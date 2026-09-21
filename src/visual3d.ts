@@ -109,6 +109,7 @@ uniform float u_hasTexture;
 varying vec3 v_normal;
 varying vec3 v_world;
 varying vec3 v_local;
+varying vec2 v_uv;
 void main(){
   vec3 N=normalize(v_normal);
   vec3 L=normalize(u_light);
