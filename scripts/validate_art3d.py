@@ -9,11 +9,15 @@ from pathlib import Path
 import json
 import sys
 import argparse
+import math
 
+import numpy as np
 import trimesh
 
 
-ROOT = Path(__file__).resolve().parents[1] / "public" / "art3d"
+BASE = Path(__file__).resolve().parents[1]
+ROOT = BASE / "public" / "art3d"
+MANIFEST = BASE / "scripts" / "production_assets.json"
 
 
 def role_threshold(path: Path) -> tuple[int, int, int]:
@@ -58,6 +62,31 @@ def validate(path: Path):
     textured = 0
     normal_textured = 0
     mr_textured = 0
+    max_texture_width = 0
+    max_texture_height = 0
+    min_dim = math.inf
+    max_dim = 0.0
+
+    for geom in scene.geometry.values():
+        geom_vertices = np.asarray(getattr(geom, "vertices", []), dtype=np.float64)
+        geom_faces = np.asarray(getattr(geom, "faces", []), dtype=np.int64)
+        if geom_vertices.size and not np.isfinite(geom_vertices).all():
+            raise RuntimeError("vertex buffer contains NaN/Inf")
+        if geom_faces.size and (geom_faces.min() < 0 or geom_faces.max() >= len(geom_vertices)):
+            raise RuntimeError("face index outside vertex buffer")
+
+        extents = np.asarray(getattr(geom, "extents", [0, 0, 0]), dtype=np.float64)
+        if extents.size and np.isfinite(extents).all():
+            nz = extents[extents > 1e-7]
+            if len(nz):
+                min_dim = min(min_dim, float(nz.min()))
+                max_dim = max(max_dim, float(nz.max()))
+
+        uv = getattr(getattr(geom, "visual", None), "uv", None)
+        if uv is not None:
+            uv_array = np.asarray(uv, dtype=np.float64)
+            if uv_array.size and not np.isfinite(uv_array).all():
+                raise RuntimeError("UV buffer contains NaN/Inf")
 
     for geom in scene.geometry.values():
         vertices += len(getattr(geom, "vertices", []))
@@ -65,6 +94,14 @@ def validate(path: Path):
         material = getattr(getattr(geom, "visual", None), "material", None)
         if material is not None:
             materials.add(getattr(material, "name", repr(material)))
+            for attr in ("baseColorTexture", "normalTexture", "metallicRoughnessTexture", "emissiveTexture"):
+                texture = getattr(material, attr, None)
+                if texture is not None:
+                    image = getattr(texture, "data", None)
+                    if image is not None:
+                        width, height = getattr(image, "size", (0, 0))
+                        max_texture_width = max(max_texture_width, int(width))
+                        max_texture_height = max(max_texture_height, int(height))
             if getattr(material, "baseColorTexture", None) is not None:
                 textured += 1
             if getattr(material, "normalTexture", None) is not None:
@@ -89,6 +126,14 @@ def validate(path: Path):
     if path.stem.startswith(("boss_", "player_", "sphere_")) and mr_textured == 0:
         raise RuntimeError("complex asset has no metallic/roughness texture")
 
+    if not math.isfinite(min_dim) or min_dim <= 1e-7 or not math.isfinite(max_dim) or max_dim <= 1e-7:
+        raise RuntimeError("invalid or empty bounding dimensions")
+    if max_dim / max(min_dim, 1e-7) > 5000:
+        raise RuntimeError(f"pathological bounding aspect ratio: {max_dim / min_dim:.0f}:1")
+    if path.stem.startswith(("boss_", "player_", "sphere_")):
+        if max_texture_width < 512 or max_texture_height < 512:
+            raise RuntimeError("complex asset texture resolution is below 512px")
+
     return {
         "file": path.name,
         "bytes": path.stat().st_size,
@@ -98,6 +143,10 @@ def validate(path: Path):
         "textured_primitives": textured,
         "normal_textured_primitives": normal_textured,
         "mr_textured_primitives": mr_textured,
+        "max_texture_width": max_texture_width,
+        "max_texture_height": max_texture_height,
+        "min_nonzero_dimension": 0 if not math.isfinite(min_dim) else min_dim,
+        "max_dimension": max_dim,
     }
 
 
@@ -115,6 +164,17 @@ def main() -> int:
         print("No generated GLB files found", file=sys.stderr)
         return 1
 
+    expected = {Path(item["path"]).name for item in json.loads(MANIFEST.read_text(encoding="utf-8"))["assets"]}
+    actual = {path.name for path in files}
+    missing = sorted(expected - actual)
+    extra = sorted(actual - expected)
+    if missing:
+        print(f"Manifest assets missing: {', '.join(missing)}", file=sys.stderr)
+        return 1
+    if extra:
+        print(f"Unlisted production GLBs present: {', '.join(extra)}", file=sys.stderr)
+        return 1
+
     rows = []
     failures = []
     for path in files:
@@ -127,7 +187,14 @@ def main() -> int:
     report = Path(args.json_out) if args.json_out else ROOT / "validation-report.json"
     report.parent.mkdir(parents=True, exist_ok=True)
     report.write_text(
-        json.dumps({"assets": rows, "failures": failures}, indent=2),
+        json.dumps({
+            "assets": rows,
+            "failures": failures,
+            "production_glb_bytes": sum(row["bytes"] for row in rows),
+            "production_art3d_bytes": sum(path.stat().st_size for path in ROOT.iterdir() if path.is_file()),
+            "glb_count": len(rows),
+            "texture_slots": sum(row["textured_primitives"] + row["normal_textured_primitives"] + row["mr_textured_primitives"] for row in rows),
+        }, indent=2),
         encoding="utf-8",
     )
 
