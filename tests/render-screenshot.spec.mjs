@@ -40,10 +40,14 @@ test('capture the actual rendered game after Play', async ({ page }, testInfo) =
     await page.waitForTimeout(450);
   }
 
-  // Capture while the first wave is still visibly approaching the player.
-  // Waiting too long can produce a technically valid but compositionally empty
-  // frame after the starting sphere has already cleared the nearby enemies.
-  await page.waitForTimeout(4_800);
+  // Wait for an actually populated gameplay frame instead of guessing from wall-clock
+  // time. This keeps the visual gate deterministic when CI startup speed varies.
+  await page.waitForFunction(
+    () => (window.__ECHO3D_STATS?.enemies || 0) >= 3,
+    null,
+    { timeout: 15_000 },
+  );
+  await page.waitForTimeout(900);
 
   const runtime = await canvas.evaluate((element) => ({
     width: element.width,
