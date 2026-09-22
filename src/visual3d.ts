@@ -1069,11 +1069,11 @@ export class Echo3DRenderer {
   }
 
   private drawArena(vp: Mat4, t: number, worldWidth: number, worldHeight: number) {
-    const extent = Math.min(1800, Math.max(worldWidth, worldHeight) * 0.5 + 420);
+    const extent = Math.min(2600, Math.max(worldWidth, worldHeight) * 0.5 + 900);
     if (!this.arenaGridBuffer) {
       const grid: number[] = [];
-      for (let x = -extent; x <= extent; x += 80) grid.push(x, -2.9, -extent, x, -2.9, extent);
-      for (let z = -extent; z <= extent; z += 80) grid.push(-extent, -2.9, z, extent, -2.9, z);
+      for (let x = -extent; x <= extent; x += 120) grid.push(x, -2.9, -extent, x, -2.9, extent);
+      for (let z = -extent; z <= extent; z += 120) grid.push(-extent, -2.9, z, extent, -2.9, z);
       this.arenaGridBuffer = this.buf(new Float32Array(grid));
       this.arenaGridCount = grid.length / 3;
 
@@ -1101,8 +1101,8 @@ export class Echo3DRenderer {
       this.arenaRingCount = rings.length / 3;
     }
 
-    if (this.arenaGridBuffer) this.drawLineBuffer(this.arenaGridBuffer, this.arenaGridCount, vp, [0.045, 0.20, 0.38], 0.34, t);
-    if (this.arenaRingBuffer) this.drawLineBuffer(this.arenaRingBuffer, this.arenaRingCount, vp, [0.075, 0.32, 0.62], 0.30 + 0.06 * Math.sin(t * 2), t);
+    if (this.arenaGridBuffer) this.drawLineBuffer(this.arenaGridBuffer, this.arenaGridCount, vp, [0.045, 0.20, 0.38], 0.13, t);
+    if (this.arenaRingBuffer) this.drawLineBuffer(this.arenaRingBuffer, this.arenaRingCount, vp, [0.075, 0.32, 0.62], 0.22 + 0.035 * Math.sin(t * 2), t);
   }
 
   private drawLineBuffer(buffer: WebGLBuffer, count: number, vp: Mat4, color: number[], alpha: number, t: number) {
