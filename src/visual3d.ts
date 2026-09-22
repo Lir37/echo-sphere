@@ -691,6 +691,14 @@ export class Echo3DRenderer {
 
     const promise = new Promise<void>((resolve, reject) => {
       this.loadQueue.push(name);
+      // Keep gameplay-critical authored actors ahead of decorative/progression assets.
+      // A large tower GLB must not monopolize the single-flight mobile loader while
+      // the first enemies are still waiting to become visible.
+      const loadPriority = (assetName: string) =>
+        assetName.startsWith('player_') ? 0 :
+        assetName.startsWith('enemy_') || assetName.startsWith('boss_') ? 1 :
+        assetName.startsWith('sphere_') ? 2 : 3;
+      this.loadQueue.sort((a, b) => loadPriority(a) - loadPriority(b));
       (this as any).__echoLoadResolvers ??= new Map<string, { resolve: () => void; reject: (error: unknown) => void }>();
       (this as any).__echoLoadResolvers.set(name, { resolve, reject });
     });
