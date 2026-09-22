@@ -86,31 +86,36 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
     const rect = canvas.getBoundingClientRect();
     if (rect.width <= 0 || rect.height <= 0) return null;
 
-    // The gameplay world is rendered by the perspective WebGL camera, not the
-    // legacy 2D canvas transform. Convert the tap into a camera ray and intersect
-    // it with the arena plane (Y=0). This keeps a tower exactly under the user's
-    // finger and makes a second tap hit the same authored tower footprint.
+    // Match the production WebGL camera exactly. The previous placement ray
+    // used the legacy 2.5D camera, so after the near-top-down camera change taps
+    // landed far away from the visible arena and tower placement silently failed.
     const sx = (clientX - rect.left) / rect.width;
     const sy = (clientY - rect.top) / rect.height;
     const ndcX = sx * 2 - 1;
     const ndcY = 1 - sy * 2;
     const aspect = canvas.width / Math.max(1, canvas.height);
-    const fov = 48 * Math.PI / 180;
+    const fov = 54 * Math.PI / 180;
     const tanHalf = Math.tan(fov / 2);
-    const distance = Math.max(245, Math.min(345, Math.max(st.worldWidth, st.worldHeight) * 0.15));
-    const cameraHeight = distance * 0.74;
-    const eye = { x: st.camera.x, y: cameraHeight, z: st.camera.y + cameraHeight };
-
-    // Exact basis used by the WebGL lookAt camera: forward points from the camera
-    // to the player, right is world +X, and camera-up lies diagonally in the XZ plane.
-    const invSqrt2 = Math.SQRT1_2;
-    const rayX = ndcX * tanHalf * aspect;
-    const rayY = -invSqrt2 + ndcY * tanHalf * invSqrt2;
-    const rayZ = -invSqrt2 - ndcY * tanHalf * invSqrt2;
-    const rayLength = Math.hypot(rayX, rayY, rayZ) || 1;
-    const dx = rayX / rayLength;
-    const dy = rayY / rayLength;
-    const dz = rayZ / rayLength;
+    const distance = Math.max(125, Math.min(170, Math.max(st.worldWidth, st.worldHeight) * 0.072));
+    const eye = { x: st.camera.x, y: distance * 1.28, z: st.camera.y + distance * 0.18 };
+    const target = { x: st.camera.x, y: -2, z: st.camera.y };
+    const fx0 = target.x - eye.x, fy0 = target.y - eye.y, fz0 = target.z - eye.z;
+    const fl = Math.hypot(fx0, fy0, fz0) || 1;
+    const fx = fx0 / fl, fy = fy0 / fl, fz = fz0 / fl;
+    const upX = 0, upY = 1, upZ = 0;
+    const rx0 = upY * fz - upZ * fy, ry0 = upZ * fx - upX * fz, rz0 = upX * fy - upY * fx;
+    const rl = Math.hypot(rx0, ry0, rz0) || 1;
+    const rightX = rx0 / rl, rightY = ry0 / rl, rightZ = rz0 / rl;
+    const up2X = fy * rightZ - fz * rightY;
+    const up2Y = fz * rightX - fx * rightZ;
+    const up2Z = fx * rightY - fy * rightX;
+    const rayX0 = fx + rightX * ndcX * tanHalf * aspect + up2X * ndcY * tanHalf;
+    const rayY0 = fy + rightY * ndcX * tanHalf * aspect + up2Y * ndcY * tanHalf;
+    const rayZ0 = fz + rightZ * ndcX * tanHalf * aspect + up2Z * ndcY * tanHalf;
+    const rayLength = Math.hypot(rayX0, rayY0, rayZ0) || 1;
+    const dx = rayX0 / rayLength;
+    const dy = rayY0 / rayLength;
+    const dz = rayZ0 / rayLength;
     if (dy >= -0.0001) return null;
 
     const travel = -eye.y / dy;
