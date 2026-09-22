@@ -804,13 +804,13 @@ export class Echo3DRenderer {
     const t = s.time;
     const p = s.player.pos;
     const aspect = this.width / Math.max(1, this.height);
-    const distance = Math.max(155, Math.min(205, Math.max(s.worldWidth, s.worldHeight) * 0.089));
-    // Slightly more top-down than the legacy framing. The gameplay field should
-    // occupy the viewport instead of leaving a large black horizon above it.
-    this.cameraPos = { x: p.x, y: distance * 0.92, z: p.y + distance * 0.56 };
+    const distance = Math.max(125, Math.min(170, Math.max(s.worldWidth, s.worldHeight) * 0.072));
+    // Gameplay is intentionally near top-down: the combat arena must occupy
+    // almost the entire viewport, with no black "sky" band swallowing the scene.
+    this.cameraPos = { x: p.x, y: distance * 1.28, z: p.y + distance * 0.18 };
     const vp = mul(
-      persp(50 * DEG, aspect, 1, 2400),
-      lookAt(this.cameraPos, { x: p.x, y: 0, z: p.y }, { x: 0, y: 1, z: 0 }),
+      persp(54 * DEG, aspect, 1, 2400),
+      lookAt(this.cameraPos, { x: p.x, y: -2, z: p.y }, { x: 0, y: 1, z: 0 }),
     );
 
     const g = this.gl;
