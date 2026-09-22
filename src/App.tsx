@@ -248,7 +248,7 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
         ref={canvasRef}
         width={Math.min(window.innerWidth, 1280)}
         height={Math.min(window.innerHeight, 800)}
-        className="w-full h-full max-w-full max-h-full block select-none"
+        className="w-full h-auto max-w-full max-h-[800px] block select-none"
         style={{ touchAction: 'none', userSelect: 'none', WebkitUserSelect: 'none' }}
       />
 
