@@ -830,7 +830,9 @@ export class Echo3DRenderer {
     for (const o of s.xpOrbs) if (o.alive) this.drawPointAsset('projectile_energy', o.pos.x, o.pos.y, o.radius * 1.6, vp, t);
     for (const h of s.healthPacks) if (h.alive) this.drawPointAsset('projectile_fire', h.pos.x, h.pos.y, h.radius * 1.8, vp, t);
     for (const f of s.fireTrails) if (f.life > 0) this.drawPointAsset('projectile_fire', f.pos.x, f.pos.y, 10 + f.life * 3, vp, t);
-    this.drawNetwork(s.spheres, vp, t);
+    // Sphere-to-sphere network lines are a legacy overlay and visually compete
+    // with authored 3D geometry. Keep combat lightnings, but never draw the old
+    // orbital/network decoration over the production scene.
     this.drawLightnings(s.lightnings, vp, t);
     for (const pa of s.particles) if (pa.life > 0 && this.nearCamera(pa.pos.x, pa.pos.y, 1100)) this.drawParticle(pa, vp, t);
 
@@ -866,7 +868,8 @@ export class Echo3DRenderer {
     const distance = Math.hypot(s.pos.x - this.cameraPos.x, s.pos.y - playerY);
     const lodTier = distance > 720 ? Math.min(tier, 3) : distance > 470 ? Math.min(tier, 5) : tier;
     // Generated GLBs use Blender-style unit scale; gameplay radii are much larger world units.
-    // Normalize the authored model to the same visual footprint as the legacy 2D sphere.
+    // Normalize authored GLBs to the gameplay footprint without recreating any
+    // legacy 2D geometry or decorative sphere overlay.
     const visualScale = Math.max(23, s.radius / 4.40);
     this.drawAsset(this.findSphereAsset(s.type, lodTier), s.pos.x, 0, s.pos.y, visualScale, vp, t, `sphere:${lodTier}`, s.rotation);
   }
