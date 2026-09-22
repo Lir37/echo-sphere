@@ -325,6 +325,7 @@ def sphere_asset(name, base, glow, tier, family_seed):
     # source textures at the standard 1024/512 profile; close-up hero assets get
     # the 2048/1024 profile explicitly in their own generators.
     _TEXTURE_PROFILE = "hero" if tier >= 7 else "standard"
+    family = name.removeprefix("sphere_").rsplit("_t", 1)[0]
     """Build a clean energy-orbit tower family matching the supplied reference.
 
     The reference is not a mechanical ball covered in spokes. It is a luminous core
@@ -362,6 +363,71 @@ def sphere_asset(name, base, glow, tier, family_seed):
         collar = torus(f"AnchorCollar_{i}", core_radius * 0.78, 0.026 + tier * 0.002, bright, (0.0, math.pi / 2, a))
         collar.apply_translation(d * (core_radius * 0.78))
         parts.append(collar)
+
+    # Family-specific hardware makes each tower class readable by silhouette,
+    # not just by material color. These pieces are baked into the GLB and remain
+    # real production geometry at runtime.
+    if family == "standard":
+        for i, a in enumerate((0.0, math.pi / 3, 2 * math.pi / 3, math.pi, 4 * math.pi / 3, 5 * math.pi / 3)):
+            d = np.array((math.cos(a), 0.0, math.sin(a)))
+            panel = plate(
+                f"StandardArmor_{i}",
+                d * 0.48,
+                (0.18 + tier * 0.012, 0.22 + tier * 0.012, 0.055 + tier * 0.004),
+                frame,
+                (0.0, -a, math.pi / 2),
+                2,
+            )
+            parts.append(panel)
+    elif family == "sniper":
+        for i, y in enumerate((-0.12, 0.12)):
+            barrel = cone_between(
+                f"SniperBarrel_{i}",
+                (0.0, y, 0.16),
+                (0.0, y, 0.98 + tier * 0.025),
+                0.065 + tier * 0.004,
+                0.038 + tier * 0.002,
+                bright,
+                sections=24,
+            )
+            parts.append(barrel)
+        parts.append(plate("SniperSight", (0.0, 0.0, 0.52), (0.10, 0.08, 0.20), bright, (0.0, 0.0, 0.0), 2))
+    elif family == "shotgun":
+        for i, x in enumerate((-0.16, 0.0, 0.16)):
+            barrel = cone_between(
+                f"ShotgunBarrel_{i}",
+                (x, 0.0, 0.08),
+                (x * 1.15, 0.0, 0.78 + tier * 0.022),
+                0.075 + tier * 0.004,
+                0.048 + tier * 0.002,
+                frame,
+                sections=24,
+            )
+            parts.append(barrel)
+        parts.append(torus("ShotgunMuzzle", 0.19, 0.022 + tier * 0.001, bright, (0.0, 0.0, 0.0), sections=64, minor_sections=14))
+    elif family == "chain":
+        for i, a in enumerate((0.0, math.pi / 2, math.pi, 3 * math.pi / 2)):
+            link = torus(f"ChainLink_{i}", 0.15 + tier * 0.006, 0.025 + tier * 0.002, bright, (math.pi / 2, 0.0, a), sections=64, minor_sections=14)
+            link.apply_translation((0.46 * math.cos(a), 0.08 * math.sin(a * 2.0), 0.46 * math.sin(a)))
+            parts.append(link)
+        for i, a in enumerate((math.pi / 4, 3 * math.pi / 4, 5 * math.pi / 4, 7 * math.pi / 4)):
+            node = ico(f"ChainNode_{i}", 0.055 + tier * 0.004, bright, (1.0, 1.0, 1.2), 3)
+            node.apply_translation((0.55 * math.cos(a), 0.0, 0.55 * math.sin(a)))
+            parts.append(node)
+    elif family == "aura":
+        for i, rot in enumerate(((0.0, 0.0, 0.0), (math.pi / 2, 0.0, 0.0))):
+            halo = torus(f"AuraHalo_{i}", 0.93 + tier * 0.035, 0.022 + tier * 0.002, bright, rot, sections=128, minor_sections=18)
+            parts.append(halo)
+        for i, a in enumerate((0.0, math.pi / 2, math.pi, 3 * math.pi / 2)):
+            fin = plate(
+                f"AuraFin_{i}",
+                np.array((0.60 * math.cos(a), 0.0, 0.60 * math.sin(a))),
+                (0.10, 0.30 + tier * 0.012, 0.035),
+                frame,
+                (0.0, -a, 0.0),
+                2,
+            )
+            parts.append(fin)
 
     # Every tier keeps the same visual language: a glowing core plus three major
     # great-circle orbits. There are deliberately no free-standing radial rods.
