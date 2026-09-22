@@ -804,8 +804,10 @@ export class Echo3DRenderer {
     const t = s.time;
     const p = s.player.pos;
     const aspect = this.width / Math.max(1, this.height);
-    const distance = Math.max(165, Math.min(220, Math.max(s.worldWidth, s.worldHeight) * 0.095));
-    this.cameraPos = { x: p.x, y: distance * 0.78, z: p.y + distance * 0.78 };
+    const distance = Math.max(155, Math.min(205, Math.max(s.worldWidth, s.worldHeight) * 0.089));
+    // Slightly more top-down than the legacy framing. The gameplay field should
+    // occupy the viewport instead of leaving a large black horizon above it.
+    this.cameraPos = { x: p.x, y: distance * 0.92, z: p.y + distance * 0.56 };
     const vp = mul(
       persp(50 * DEG, aspect, 1, 2400),
       lookAt(this.cameraPos, { x: p.x, y: 0, z: p.y }, { x: 0, y: 1, z: 0 }),
@@ -900,7 +902,7 @@ export class Echo3DRenderer {
       alchemist: 'player_alchemist',
       architect: 'player_architect',
     } as Record<string, string>)[s.player.characterId] || 'player_spherist';
-    this.drawAsset(characterAsset, s.player.pos.x, 0, s.player.pos.y, 29.0 * pulse, vp, t, 'player', 0);
+    this.drawAsset(characterAsset, s.player.pos.x, 0, s.player.pos.y, 34.0 * pulse, vp, t, 'player', 0);
   }
 
   private drawMinion(m: MinionEntity, vp: Mat4, t: number) {
@@ -926,9 +928,9 @@ export class Echo3DRenderer {
       return;
     }
     if (tag === 'enemy') this.currentGlow = 0.45;
-    else if (tag.startsWith('sphere:7')) this.currentGlow = 0.58;
-    else if (tag.startsWith('sphere:')) this.currentGlow = 0.50;
-    else if (tag === 'player') this.currentGlow = 0.62;
+    else if (tag.startsWith('sphere:7')) this.currentGlow = 0.72;
+    else if (tag.startsWith('sphere:')) this.currentGlow = 0.66;
+    else if (tag === 'player') this.currentGlow = 0.72;
     else if (tag === 'projectile') this.currentGlow = 1.15;
     else if (tag === 'fx') this.currentGlow = 1.0;
     else this.currentGlow = 0.82;
@@ -1079,7 +1081,9 @@ export class Echo3DRenderer {
       // The arena should frame the action, not become a giant radar overlay.
       // Three primary rings plus a very soft outer boundary preserve depth while
       // keeping the player and authored assets visually dominant.
-      const arenaRadii = [190, 370, 610, Math.min(extent, 860)];
+      // Keep one outer boundary only. The previous stack of inner circles reads
+      // like a legacy orbital overlay and competes with authored 3D assets.
+      const arenaRadii = [Math.min(extent, 860)];
       const steps = 96;
       for (const radius of arenaRadii) {
         const alphaBias = radius >= 850 ? 0.55 : 1;
