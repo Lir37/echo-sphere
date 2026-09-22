@@ -43,9 +43,10 @@ test('capture the actual rendered game after Play', async ({ page }, testInfo) =
   // Wait for an actually populated gameplay frame instead of guessing from wall-clock
   // time. This keeps the visual gate deterministic when CI startup speed varies.
   await page.waitForFunction(
-    () => (window.__ECHO3D_STATS?.enemies || 0) >= 3,
+    () => (window.__ECHO3D_STATS?.enemies || 0) >= 3
+      && (window.__ECHO3D_STATS?.spheres || 0) >= 1,
     null,
-    { timeout: 15_000 },
+    { timeout: 30_000 },
   );
   await page.waitForTimeout(900);
 
