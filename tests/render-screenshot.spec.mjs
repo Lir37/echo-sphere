@@ -29,13 +29,13 @@ test('capture the actual rendered game after Play', async ({ page }, testInfo) =
 
   // Place a real tower early enough that later enemy movement cannot make the
   // placement invalid. The point is deliberately away from the left joystick
-  // and right-side action controls, and projects to ~77 world units from the
+  // and right-side action controls, and projects to ~74-76 world units from the
   // player, beyond the placement exclusion radius.
   await page.waitForTimeout(1_200);
 
   const box = await canvas.boundingBox();
   expect(box).not.toBeNull();
-  for (const [rx, ry] of [[0.50, 0.70], [0.62, 0.66], [0.38, 0.66]]) {
+  for (const [rx, ry] of [[0.50, 0.92], [0.62, 0.90], [0.38, 0.90]]) {
     await page.mouse.click(box.x + box.width * rx, box.y + box.height * ry);
     await page.waitForTimeout(450);
   }
