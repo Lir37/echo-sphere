@@ -1,0 +1,150 @@
+ECHO SPHERE
+GAMEPLAY IMPLEMENTATION SPECIFICATION
+Version 1.1
+Date: 2026-09-23
+
+WORKING BRANCH
+new-desing
+
+BASELINE
+c79850b9a4e413ad5cad1cbd360d152d22fa7829
+
+DOCUMENT PURPOSE
+Operational gameplay specification for the first production gameplay slice.
+
+CRITICAL PRESERVATION RULE
+"First slice", "initial" and task numbers describe implementation priority, not permission to delete compatible existing content.
+
+If the repository already contains a compatible system or content item:
+- preserve it;
+- keep it functional where practical;
+- do not remove it merely because the current slice does not require it;
+- restrict the exposed choice pool if needed instead of deleting the implementation.
+
+Example:
+The repository has five Sphere types: Standard, Sniper, Shotgun, Chain and Aura.
+The first-slice controlled pool is Standard, Sniper and Chain.
+Shotgun and Aura are preserved for later use.
+
+PLAYER CORE
+- movement;
+- HP;
+- damage intake;
+- regeneration/healing;
+- Dash.
+Dash:
+- short burst;
+- cooldown;
+- temporary invulnerability;
+- clear feedback.
+
+SPHERE SYSTEM
+Existing baseline:
+1. Standard
+2. Sniper
+3. Shotgun
+4. Chain
+5. Aura
+
+First-slice controlled pool:
+1. Standard
+2. Sniper
+3. Chain
+
+Sphere data remains data-driven:
+- id;
+- displayName;
+- type;
+- level;
+- damage;
+- attackDelay;
+- range;
+- projectileSpeed;
+- projectileCount;
+- spread;
+- targetingRule;
+- specialBehavior;
+- modifiers;
+- evolutionBranch.
+
+NETWORK
+Player can place/remove/reposition Spheres.
+Minimum geometry:
+- line;
+- triangle;
+- cluster.
+Network state should be visible and understandable.
+
+MODIFIERS
+Initial six:
+- Multishot;
+- Pierce;
+- Ricochet;
+- Fire;
+- Freeze;
+- Poison.
+They should change behaviour, not only percentages.
+
+XP / LEVEL-UP
+XP drops from enemies.
+Level-up presents meaningful choices.
+Existing progression beyond the minimum is preserved.
+
+ARTIFACTS
+Artifacts are a build language, not just stat sticks.
+First-slice target: 10-15 meaningful artifacts.
+If more compatible artifacts already exist, preserve them and improve them later.
+
+RARITY
+- Common;
+- Rare;
+- Epic;
+- Special;
+- Legendary.
+
+STELLA
+Stella is the primary Legendary reward path after boss events.
+Around 25 minutes in Endless, Stella transitions toward normal artifact rewards.
+Threshold must remain configurable.
+
+SYNERGY
+Three layers:
+1. Pair Synergy
+2. Artifact Set
+3. Protocol
+Existing pair synergies are retained and extended later into Sets/Protocols.
+
+ENEMIES
+First-slice roles:
+- Normal;
+- Fast;
+- Tank;
+- Elite.
+Existing compatible enemy/boss content is preserved.
+
+BOSS
+At least one boss with readable attacks, meaningful threat and reward event.
+
+UI / READABILITY
+Priorities:
+1. HP;
+2. danger;
+3. active Sphere/network state;
+4. XP;
+5. level-up;
+6. cooldown;
+7. artifact/build state.
+
+VISUAL PRIORITY
+Gameplay > readability > VFX > UI polish > major new 3D production.
+This does not authorize deletion of existing compatible GLB/3D assets.
+
+TECHNICAL RULES
+- data-driven definitions where practical;
+- gameplay rules testable without rendering;
+- avoid hard-coded behaviour in UI;
+- keep balance values configurable.
+
+DEFINITION OF DONE
+SPEC -> IMPLEMENT -> TEST -> BUILD -> PLAY -> REVIEW -> FIX -> COMMIT
+A feature is not complete merely because it compiles.
