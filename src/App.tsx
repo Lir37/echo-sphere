@@ -16,6 +16,7 @@ import {
 } from './engine';
 import { render } from './renderer';
 import { createEcho3DRenderer, type Echo3DRenderer } from './visual3d';
+import { analyzeSphereNetwork } from './network';
 import { ARTIFACT_META, RARITY_LABELS, artifactRarity, getActiveArtifactSynergies, getArtifactSynergiesAfterPick, ARTIFACT_SYNERGIES } from './artifactSystem';
 import { resolveSpaceCollisions } from './spaceCollision';
 import {
@@ -593,6 +594,18 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
   const secs = Math.floor(st.time % 60);
   const timer = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   const activeBoss = st.bossActive;
+  const network = analyzeSphereNetwork(st.spheres);
+  const triangleCharge = network.triangle
+    ? Math.round(
+        network.triangle.nodes.reduce((sum, index) => sum + (st.spheres[index]?.resonanceHits || 0) % 3, 0)
+        / network.triangle.nodes.length,
+      )
+    : null;
+  const networkBadges = [
+    network.line ? { label: lang === 'ru' ? 'ЛИНИЯ' : 'LINE', className: 'border-[#63e6ff]/45 text-[#9fefff]' } : null,
+    network.triangle ? { label: triangleCharge !== null ? `${lang === 'ru' ? 'ТРЕУГОЛЬНИК' : 'TRIANGLE'} ${triangleCharge}/3` : (lang === 'ru' ? 'ТРЕУГОЛЬНИК' : 'TRIANGLE'), className: 'border-[#ffb84d]/45 text-[#ffd48f]' } : null,
+    network.cluster ? { label: lang === 'ru' ? 'КЛАСТЕР' : 'CLUSTER', className: 'border-[#b38cff]/45 text-[#d4c0ff]' } : null,
+  ].filter((badge): badge is { label: string; className: string } => badge !== null);
 
   return (
     <>
@@ -611,6 +624,27 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
         <div className="es-hud-meta-grid mt-2">
           <span>{t('spheres').toUpperCase()} <b>{st.spheres.length}/{getMaxSpheres(st)}</b></span>
           <span>{t('wave').toUpperCase()} <b>{st.wave}</b></span>
+        </div>
+      </div>
+
+      <div className="absolute top-[94px] left-3 z-30 pointer-events-none max-w-[calc(100vw-24px)]">
+        <div className="rounded-xl border border-[#243b55] bg-[#07111f]/90 px-2.5 py-2 shadow-lg backdrop-blur-sm">
+          <div className="flex items-center gap-1.5 text-[8px] uppercase tracking-[0.14em] text-[#7f9bb8]">
+            <Network size={11} />
+            <span>{lang === 'ru' ? 'СЕТЬ' : 'NETWORK'}</span>
+            <span className="text-[#dcecff]">{network.links.length}</span>
+          </div>
+          <div className="mt-1.5 flex flex-wrap gap-1">
+            {networkBadges.length > 0 ? networkBadges.map((badge) => (
+              <span key={badge.label} className={`rounded-md border px-1.5 py-0.5 text-[8px] font-bold tracking-wide ${badge.className}`}>
+                {badge.label}
+              </span>
+            )) : (
+              <span className="rounded-md border border-[#243b55] px-1.5 py-0.5 text-[8px] font-bold text-[#7f9bb8]">
+                {lang === 'ru' ? 'ОЖИДАНИЕ ФОРМАЦИИ' : 'AWAITING FORMATION'}
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
