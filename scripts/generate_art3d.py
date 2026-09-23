@@ -16,6 +16,8 @@ import numpy as np
 from PIL import Image, ImageFilter, ImageDraw
 import trimesh
 
+from build_spherist_hybrid import build_hybrid
+
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "public" / "art3d"
@@ -985,8 +987,8 @@ source_candidates = [
 ]
 source_spherist = next((p for p in source_candidates if p.exists()), None)
 if source_spherist is not None:
-    shutil.copy2(source_spherist, OUT / "player_spherist.glb")
-    print(f"[SOURCE] using user-authored Spherist GLB: {source_spherist.name}")
+    build_hybrid(source_spherist, OUT / "player_spherist.glb")
+    print(f"[SOURCE] building hybrid Spherist from user-authored GLB: {source_spherist.name}")
 elif not (OUT / "player_spherist.glb").exists():
     print("[WARN] player_spherist source GLB is not present; generating fallback Spherist asset")
 
@@ -1012,7 +1014,7 @@ insect_asset("enemy_queen", "queen", (.18, .07, .02), (1.0, .45, .06), 1.18, 241
 if not (OUT / "player_spherist.glb").exists():
     player_asset("spherist", (.05, .55, 1.0), (.25, .95, 1.0), 101)
 else:
-    print("[SOURCE] preserved player_spherist.glb")
+    print("[SOURCE] player_spherist.glb is the user-body + previous-Spherist hybrid")
 player_asset("hunter", (.45, .05, .95), (.80, .25, 1.0), 111)
 player_asset("engineer", (.03, .60, .78), (.15, 1.0, 1.0), 121)
 player_asset("berserker", (.82, .03, .02), (1.0, .13, .04), 131)
