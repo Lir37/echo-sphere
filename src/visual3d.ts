@@ -818,7 +818,7 @@ export class Echo3DRenderer {
     const portrait = aspect < 0.82;
     const baseDistance = Math.max(125, Math.min(170, Math.max(s.worldWidth, s.worldHeight) * 0.072));
     const distance = portrait
-      ? Math.max(250, Math.min(320, Math.max(s.worldWidth, s.worldHeight) * 0.125))
+      ? Math.max(420, Math.min(460, Math.max(s.worldWidth, s.worldHeight) * 0.18))
       : baseDistance;
     this.cameraPos = { x: p.x, y: distance * 1.34, z: p.y };
     const vp = mul(
@@ -915,7 +915,7 @@ export class Echo3DRenderer {
       alchemist: 'player_alchemist',
       architect: 'player_architect',
     } as Record<string, string>)[s.player.characterId] || 'player_spherist';
-    this.drawAsset(characterAsset, s.player.pos.x, 0, s.player.pos.y, 34.0 * pulse, vp, t, 'player', 0);
+    this.drawAsset(characterAsset, s.player.pos.x, 0, s.player.pos.y, 42.0 * pulse, vp, t, 'player', 0);
   }
 
   private drawMinion(m: MinionEntity, vp: Mat4, t: number) {
