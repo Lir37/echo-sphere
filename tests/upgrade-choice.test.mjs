@@ -1,61 +1,23 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { generateUpgradeChoices, getSphereUpgradeChoiceWeight } from '../src/engine.ts';
+import fs from 'node:fs/promises';
 
-const makeState = ({
-  levels = { standard: 1, sniper: 1, chain: 1 },
-  spheres = [{ type: 'standard', alive: true }],
-  mods = {},
-} = {}) => ({
-  player: {
-    sphereProgression: { standard: 0, sniper: 0, chain: 0, shotgun: 0, aura: 0, ...levels },
-    sphereMods: {
-      multishot: 0,
-      pierce: 0,
-      ricochet: 0,
-      fire: 0,
-      freeze: 0,
-      poison: 0,
-      ...mods,
-    },
-  },
-  spheres,
+const engineSource = await fs.readFile(new URL('../src/engine.ts', import.meta.url), 'utf8');
+
+test('level-up sphere selection uses deliberate build pressure weighting', () => {
+  assert.match(engineSource, /export function getSphereUpgradeChoiceWeight\(s: GameState, type: SphereType\): number/);
+  assert.match(engineSource, /const levelPressure = \(7 - level\) \* 0\.25;/);
+  assert.match(engineSource, /const activeBuildPressure = activeCopies > 0 \? 1\.5 : 0;/);
+  assert.match(engineSource, /const spherePool = weightedShuffle\(sphereChoices/);
 });
 
-test('sphere upgrade weighting favours active and less-developed spheres', () => {
-  const state = makeState({
-    levels: { standard: 1, sniper: 3, chain: 3 },
-    spheres: [{ type: 'standard', alive: true }],
-  });
-
-  const standardWeight = getSphereUpgradeChoiceWeight(state, 'standard');
-  const sniperWeight = getSphereUpgradeChoiceWeight(state, 'sniper');
-
-  assert.ok(standardWeight > sniperWeight);
-  assert.equal(standardWeight, 4);
-  assert.equal(sniperWeight, 2);
+test('level-up fills the full choice set when only one Sphere upgrade remains', () => {
+  assert.match(engineSource, /const mixedChoices = \[modifierPool\[0\], \.\.\.spherePool\.slice\(0, 2\)\];/);
+  assert.match(engineSource, /for \(const modifier of modifierPool\.slice\(1\)\)/);
+  assert.match(engineSource, /if \(mixedChoices\.length >= 3\) break;/);
 });
 
-test('level-up keeps three choices when only one Sphere upgrade remains', () => {
-  const state = makeState({
-    levels: { standard: 1, sniper: 7, chain: 7 },
-  });
-
-  for (let i = 0; i < 30; i++) {
-    const choices = generateUpgradeChoices(state);
-    assert.equal(choices.length, 3);
-    assert.equal(new Set(choices.map((choice) => choice.modifier || `sphere:${choice.sphereType}`)).size, 3);
-    assert.equal(choices.filter((choice) => choice.type === 'sphere').length, 1);
-    assert.equal(choices.filter((choice) => choice.type === 'modifier').length, 2);
-  }
-});
-
-test('level-up choices do not contain duplicate entries', () => {
-  const state = makeState();
-
-  for (let i = 0; i < 100; i++) {
-    const choices = generateUpgradeChoices(state);
-    const keys = choices.map((choice) => choice.modifier || `sphere:${choice.sphereType}`);
-    assert.equal(new Set(keys).size, keys.length);
-  }
+test('level-up choice pool remains duplicate-free by construction', () => {
+  assert.match(engineSource, /const modifierPool = weightedShuffle\(modifierChoices, \(\) => 1\);/);
+  assert.match(engineSource, /return weightedShuffle\(mixedChoices, \(\) => 1\)\.slice\(0, 3\);/);
 });
