@@ -837,8 +837,14 @@ export class Echo3DRenderer {
     this.renderStats.visibleEntities += 1;
     this.renderStats.players = 1;
     this.drawPlayer(s, vp, t);
-    for (const sp of s.spheres) if (sp.alive && this.nearCamera(sp.pos.x, sp.pos.y)) { this.renderStats.visibleEntities += 1; this.renderStats.spheres += 1; this.drawSphere(sp, vp, t); }
-    for (const e of s.enemies) if (e.hp > 0 && this.nearCamera(e.pos.x, e.pos.y)) { this.renderStats.visibleEntities += 1; this.renderStats.enemies += 1; this.drawEnemy(e, vp, t); }
+    for (const sp of s.spheres) if (sp.alive && this.nearCamera(sp.pos.x, sp.pos.y)) {
+      this.drawSphere(sp, vp, t);
+      if (this.pointOnScreen(vp, sp.pos.x, 0, sp.pos.y, 0.18)) { this.renderStats.visibleEntities += 1; this.renderStats.spheres += 1; }
+    }
+    for (const e of s.enemies) if (e.hp > 0 && this.nearCamera(e.pos.x, e.pos.y)) {
+      this.drawEnemy(e, vp, t);
+      if (this.pointOnScreen(vp, e.pos.x, 0, e.pos.y, 0.18)) { this.renderStats.visibleEntities += 1; this.renderStats.enemies += 1; }
+    }
     for (const m of s.minions) if (this.nearCamera(m.pos.x, m.pos.y)) this.drawMinion(m, vp, t);
     for (const q of s.sphereProjectiles) if (q.alive) this.drawProjectile(q, vp, t);
     for (const e of s.enemies) for (const q of e.bossProjectiles) if (q.alive) this.drawPointAsset('projectile_energy', q.pos.x, q.pos.y, q.radius * 2, vp, t);
@@ -1079,6 +1085,16 @@ export class Echo3DRenderer {
     const dx = x - this.cameraPos.x;
     const dz = z - this.cameraPos.z;
     return dx * dx + dz * dz <= range * range;
+  }
+
+  private pointOnScreen(vp: Mat4, x: number, y: number, z: number, margin = 0): boolean {
+    const clipX = vp[0] * x + vp[4] * y + vp[8] * z + vp[12];
+    const clipY = vp[1] * x + vp[5] * y + vp[9] * z + vp[13];
+    const clipW = vp[3] * x + vp[7] * y + vp[11] * z + vp[15];
+    if (clipW <= 0) return false;
+    const nx = clipX / clipW;
+    const ny = clipY / clipW;
+    return nx >= -1 - margin && nx <= 1 + margin && ny >= -1 - margin && ny <= 1 + margin;
   }
 
   private drawArena(vp: Mat4, t: number, worldWidth: number, worldHeight: number) {
