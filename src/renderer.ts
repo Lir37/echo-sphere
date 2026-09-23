@@ -1986,14 +1986,6 @@ function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, network:
     cx /= network.line.nodes.length;
     cy /= network.line.nodes.length;
 
-    drawFormationTag(
-      cx,
-      cy - 26 - Math.abs(Math.sin(t * 2.3)) * 4,
-      'LINE // ACTIVE',
-      '#63e6ff',
-      100,
-    );
-
     ctx.save();
     ctx.translate(cx, cy);
     ctx.strokeStyle = '#63e6ff';
@@ -2041,14 +2033,6 @@ function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, network:
     cx /= network.triangle.nodes.length;
     cy /= network.triangle.nodes.length;
     const averageCharge = Math.round(totalCharge / network.triangle.nodes.length);
-
-    drawFormationTag(
-      cx,
-      cy - 38,
-      activePulse ? 'TRIANGLE // RESONATE!' : 'TRIANGLE // ACTIVE',
-      '#ffb84d',
-      activePulse ? 120 : 110,
-    );
 
     for (const index of network.triangle.nodes) {
       const sphere = s.spheres[index];
@@ -2170,7 +2154,6 @@ function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, network:
     ctx.fill();
     ctx.restore();
 
-    drawFormationTag(cx, cy - radius - 34, 'CLUSTER // ACTIVE', '#b38cff', 116);
   }
 }
 function drawVoidCore(ctx:CanvasRenderingContext2D,r:number,color:string,pulse=1):void{
