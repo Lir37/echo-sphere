@@ -32,7 +32,7 @@ PHASE 0. PROJECT AUDIT
 0.9 [DONE] Fresh web build verification after rollback. Verified by GitHub Actions run 35909196487 on 2026-09-23; web build, Playwright render-after-Play test and screenshot artifact completed successfully.
 0.10 [DONE] Fresh APK CI verification after rollback. Verified by GitHub Actions run 35909196487 on 2026-09-23; debug APK assembled and uploaded successfully.
 0.11 [DONE] Fresh post-rollback baseline recorded after automated play/render and build verification. Current branch HEAD is a64356af244439a51df7dc24b35b1e3b3f609e98; gameplay baseline remains c79850b9a4e413ad5cad1cbd360d152d22fa7829.
-0.12 [PENDING] Human acceptance of restored baseline.
+0.12 [PARTIAL] Human spot-check passed 2026-09-23 (movement, Dash, Sphere operation and attacks reported normal); formal 5-minute acceptance gate remains pending.
 
 PHASE 1. COMBAT FOUNDATION
 1.1 [DONE] Responsive player movement.
@@ -66,8 +66,8 @@ PHASE 2. NETWORK / GEOMETRY
 2.6 [DONE] Line geometry detection.
 2.7 [DONE] Triangle geometry detection.
 2.8 [DONE] Cluster geometry detection.
-2.9 [PARTIAL] Resonance state/effects exist; full gameplay gate unverified.
-2.10 [PARTIAL] Visual/network feedback exists; acceptance unverified.
+2.9 [PARTIAL] Resonance state/effects exist; triangle resonance now has visible charge feedback; gameplay gate still requires human network playtest.
+2.10 [PARTIAL] Visual/network feedback exists and was strengthened with triangle resonance charge feedback; acceptance unverified.
 2.11 [PARTIAL] Geometry bonus effects exist; playtest validation needed.
 2.12 [PENDING] Dedicated UI for active network state needs verification/implementation.
 EXIT GATE [GATE] Player must actively care about positioning.
@@ -181,3 +181,12 @@ GATE J [PENDING] Only then scale content/meta/visuals.
 NEXT WORK RULE
 Start from the earliest unfinished task that materially advances the current gate.
 Do not delete or shrink existing compatible content to make the roadmap look cleaner.
+
+
+LATEST SESSION NOTE (2026-09-23)
+- Preserved all existing gameplay/content, including Shotgun and Aura Sphere implementations.
+- Added non-destructive triangle resonance charge visualization in src/renderer.ts (commit 230747a6622798786b93e59c83b413947c9453b4).
+- No resonance gameplay rules were changed.
+- Manual user spot-check reported movement, Dash, Sphere operation and attacks as normal; formal 5-minute/network acceptance remains open.
+- CI run 35913004106 passed Typecheck, Unit tests and Web build; Playwright/Android stages were still running at handoff time.
+- Next step: human playtest line/triangle/cluster placement and resonance readability, then fix only issues found.
