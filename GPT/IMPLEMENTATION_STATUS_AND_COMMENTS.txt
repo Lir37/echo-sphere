@@ -12,9 +12,28 @@ new-desing
 RESTORED BASELINE
 c79850b9a4e413ad5cad1cbd360d152d22fa7829
 
+CURRENT HEAD
+a64356af244439a51df7dc24b35b1e3b3f609e98
+
 ROLLBACK
 The branch was moved back from 219301fb2647a76088b0411ddb95438016b54c63 to c79850b9a4e413ad5cad1cbd360d152d22fa7829.
 The later commit was after the requested 21:40 local cutoff.
+
+POST-ROLLBACK VERIFICATION
+GitHub Actions run 35909196487 on new-desing / HEAD a64356af244439a51df7dc24b35b1e3b3f609e98 completed successfully on 2026-09-23.
+Verified steps include:
+- typecheck;
+- unit tests;
+- web build;
+- Playwright test that presses Play and renders gameplay for 5 seconds;
+- rendered screenshot and metrics artifacts;
+- Capacitor Android sync;
+- debug APK build and upload.
+Artifacts produced:
+- echo-sphere-web;
+- echo-sphere-render-screenshot;
+- echo-sphere-debug-apk.
+This is automated build/render evidence, not human fun/acceptance.
 
 DO NOT RETURN TO THESE AS NEW IMPLEMENTATION
 - Player movement.
@@ -47,7 +66,7 @@ The first vertical slice intentionally exposes only three as the controlled sele
 Shotgun and Aura are not obsolete and must not be deleted.
 
 CURRENT GAPS
-1. Fresh web/APK/playtest verification after rollback.
+1. Human acceptance of the restored baseline / 5-minute combat gate.
 2. Network/resonance readability and gameplay gate.
 3. Build-choice weighting and RNG protection validation.
 4. Artifact behaviour depth.
@@ -88,3 +107,7 @@ SESSION LOG
 - Added this persistent implementation status/comments file.
 - Added the explicit rule that roadmap scope never authorizes deletion of compatible existing content.
 - Preserved all five Sphere types in the project; first-slice pool remains three.
+- Verified fresh post-rollback web build and automated render-after-Play flow in GitHub Actions run 35909196487.
+- Verified fresh post-rollback debug APK build and upload in GitHub Actions run 35909196487.
+- No gameplay/code files changed during this audit; the six commits above c79850b9 are documentation-only according to GitHub compare.
+- Next step: human 5-minute combat playtest / acceptance gate before advancing implementation.
