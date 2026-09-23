@@ -1,0 +1,90 @@
+ECHO SPHERE
+GPT IMPLEMENTATION STATUS / WORKING COMMENTS
+Last updated: 2026-09-23
+
+PURPOSE
+Persistent assistant handoff log.
+This file records completed implementation work, incomplete work, gates requiring human testing, and items that must not be repeated as new work.
+
+WORKING BRANCH
+new-desing
+
+RESTORED BASELINE
+c79850b9a4e413ad5cad1cbd360d152d22fa7829
+
+ROLLBACK
+The branch was moved back from 219301fb2647a76088b0411ddb95438016b54c63 to c79850b9a4e413ad5cad1cbd360d152d22fa7829.
+The later commit was after the requested 21:40 local cutoff.
+
+DO NOT RETURN TO THESE AS NEW IMPLEMENTATION
+- Player movement.
+- Dash foundation.
+- Sphere entity architecture.
+- Standard Sphere.
+- Sniper Sphere.
+- Chain Sphere.
+- Shotgun Sphere.
+- Aura Sphere.
+- Projectile system.
+- Target selection.
+- Damage system.
+- Normal/Fast/Tank/Elite enemy roles.
+- Wave scaling.
+- XP progression.
+- Level-up choices.
+- Six core modifiers.
+- Network link detection.
+- Line/Triangle/Cluster detection.
+- Artifact metadata, rarities and reward selection.
+- Boss/Stella/Legendary base flow.
+- Existing character systems.
+- Existing shop/permanent progression.
+- Existing compatible 3D/GLB assets and 3D path.
+
+CRITICAL CONTENT PRESERVATION COMMENT
+The repository contains five Sphere types.
+The first vertical slice intentionally exposes only three as the controlled selection pool.
+Shotgun and Aura are not obsolete and must not be deleted.
+
+CURRENT GAPS
+1. Fresh web/APK/playtest verification after rollback.
+2. Network/resonance readability and gameplay gate.
+3. Build-choice weighting and RNG protection validation.
+4. Artifact behaviour depth.
+5. Dedicated control/execution/explosion artifact coverage.
+6. Full Artifact Set and Protocol framework.
+7. Full first vertical-slice fun gate.
+8. Formal balance-data pass.
+
+STATUS RULE
+[DONE] = implementation exists and evidence is clear.
+[PARTIAL] = some implementation exists, but the intended task or gate is incomplete.
+[GATE] = requires human playtest/acceptance.
+[PENDING] = not sufficiently implemented or verified.
+
+DELETION RULE
+Do not delete compatible existing content unless:
+- it conflicts with final design;
+- it is demonstrably obsolete or broken;
+- it creates a concrete technical/performance problem;
+- or the user explicitly asks for removal.
+If deletion is proposed, record the reason here first.
+
+NEW SESSION PROCEDURE
+1. Read all five GPT specification files.
+2. Read this file.
+3. Confirm branch new-desing.
+4. Inspect the relevant repository code.
+5. Identify the earliest unfinished roadmap task.
+6. Implement only that task.
+7. Test/build/playtest.
+8. Update the roadmap and this file.
+
+SESSION LOG
+2026-09-23:
+- Working branch confirmed: new-desing.
+- Rolled back post-21:40 changes to c79850b9a4e413ad5cad1cbd360d152d22fa7829.
+- Added the five updated GPT specification documents.
+- Added this persistent implementation status/comments file.
+- Added the explicit rule that roadmap scope never authorizes deletion of compatible existing content.
+- Preserved all five Sphere types in the project; first-slice pool remains three.
