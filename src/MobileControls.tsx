@@ -94,11 +94,14 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
     const ndcX = sx * 2 - 1;
     const ndcY = 1 - sy * 2;
     const aspect = canvas.width / Math.max(1, canvas.height);
-    const fov = 54 * Math.PI / 180;
+    const portrait = aspect < 0.82;
+    const fov = (portrait ? 52 : 54) * Math.PI / 180;
     const tanHalf = Math.tan(fov / 2);
-    const distance = Math.max(125, Math.min(170, Math.max(st.worldWidth, st.worldHeight) * 0.072));
-    const eye = { x: st.camera.x, y: distance * 1.28, z: st.camera.y + distance * 0.18 };
-    const target = { x: st.camera.x, y: -2, z: st.camera.y };
+    const distance = portrait
+      ? Math.max(420, Math.min(460, Math.max(st.worldWidth, st.worldHeight) * 0.18))
+      : Math.max(125, Math.min(170, Math.max(st.worldWidth, st.worldHeight) * 0.072));
+    const eye = { x: st.camera.x, y: distance * 1.34, z: st.camera.y };
+    const target = { x: st.camera.x, y: 0, z: st.camera.y };
     const fx0 = target.x - eye.x, fy0 = target.y - eye.y, fz0 = target.z - eye.z;
     const fl = Math.hypot(fx0, fy0, fz0) || 1;
     const fx = fx0 / fl, fy = fy0 / fl, fz = fz0 / fl;
