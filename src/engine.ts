@@ -520,6 +520,7 @@ export function createInitialState(
       alive: true,
       killsContribution: 0,
       resonanceHits: 0,
+      resonancePulseTimer: 0,
       visualTier: 0,
       type: 'standard',
       auraTimer: 0,
