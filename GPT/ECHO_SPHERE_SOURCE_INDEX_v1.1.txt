@@ -1,0 +1,75 @@
+ECHO SPHERE
+PROJECT SOURCE INDEX / DOCUMENT MAP
+Version 1.1
+Date: 2026-09-23
+
+WORKING BRANCH
+new-desing
+
+BASELINE
+c79850b9a4e413ad5cad1cbd360d152d22fa7829
+
+SOURCE PRIORITY
+1. ECHO_SPHERE_GAMEPLAY_SPEC_v1.1.txt
+2. ECHO_SPHERE_DEVELOPMENT_ROADMAP_v1.1.txt
+3. ECHO_SPHERE_MASTER_GDD_v4.1.txt
+4. ECHO_SPHERE_TECHNICAL_ARCHITECTURE_v1.1.txt
+5. Repository code
+6. Reference images/assets
+
+CRITICAL PRESERVATION RULE
+The roadmap is a production sequence, not a deletion list.
+
+If a feature, content item, asset, Sphere type, enemy, UI element or system already exists and is compatible with the final ECHO SPHERE direction, KEEP IT unless there is a concrete documented reason to remove, replace or isolate it.
+
+A feature being outside the current phase means it is not the current priority. It does not mean that existing compatible work must be deleted.
+
+Example:
+The first slice specifies 3 controlled Sphere choices: Standard, Sniper and Chain.
+The repository already contains 5 Sphere types: Standard, Sniper, Shotgun, Chain and Aura.
+Shotgun and Aura remain in the project. The first-slice pool may expose only the three target types without deleting the other two.
+
+CURRENT DEVELOPMENT PRINCIPLE
+Gameplay quality first. Preserve compatible existing content while implementing the next justified roadmap slice.
+
+CORE IDENTITY
+Arena survival in which the player builds a living combat network of Spheres.
+
+DISTINCTIVE SYSTEM CHAIN
+Sphere -> Modifier -> Network -> Geometry -> Resonance -> Artifact -> Protocol -> Evolution
+
+CURRENT ART DIRECTION
+Folded Technology / Geometric Resonance.
+
+CURRENT FIRST VERTICAL SLICE
+- movement;
+- dash;
+- 3 primary Sphere choices;
+- network placement;
+- line/triangle/cluster;
+- resonance;
+- 6 modifiers;
+- 4 enemy roles;
+- 1 boss;
+- XP/level-up;
+- 10-15 behaviourally diverse artifacts;
+- 3 Artifact Sets;
+- Stella;
+- Legendary scarcity.
+
+IMPORTANT
+The target list is a minimum proof set, not a maximum-content limit.
+
+NEW SESSION PROTOCOL
+1. Read this index.
+2. Read Gameplay Specification.
+3. Read Development Roadmap.
+4. Read Master GDD and Technical Architecture as needed.
+5. Read GPT/IMPLEMENTATION_STATUS_AND_COMMENTS.txt.
+6. Confirm branch new-desing.
+7. Inspect relevant repository code.
+8. Determine the next unfinished roadmap task.
+9. Do not repeat tasks marked DONE unless verification is required.
+10. Implement only the next justified slice.
+11. Test/build/playtest.
+12. Update roadmap status and implementation comments.
