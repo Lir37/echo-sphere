@@ -220,6 +220,7 @@ export interface UpgradeChoice {
   abilityEvolutionIndex?: number;
   abilityStage?: 'upgrade' | 'branch' | 'final';
   sphereType?: SphereType;
+  modifier?: keyof SphereMods;
   sphereBranch?: import('./sphereProgression').SphereEvolutionId;
   sphereFinalIndex?: number;
   sphereStage?: 'upgrade' | 'branch' | 'final';
@@ -313,6 +314,43 @@ export interface SphereUpgradeChoice {
   name: { ru: string; en: string };
   desc: { ru: string; en: string };
 }
+
+const SPHERE_MODIFIER_CHOICES: ReadonlyArray<{
+  id: keyof SphereMods;
+  name: { ru: string; en: string };
+  desc: { ru: string; en: string };
+}> = [
+  {
+    id: 'multishot',
+    name: { ru: 'Мультивыстрел', en: 'Multishot' },
+    desc: { ru: 'Каждый выстрел выпускает ещё один снаряд.', en: 'Each shot fires one additional projectile.' },
+  },
+  {
+    id: 'pierce',
+    name: { ru: 'Пробитие', en: 'Pierce' },
+    desc: { ru: 'Снаряд проходит ещё через одного врага.', en: 'Projectiles pass through one additional enemy.' },
+  },
+  {
+    id: 'ricochet',
+    name: { ru: 'Рикошет', en: 'Ricochet' },
+    desc: { ru: 'После попадания снаряд может перейти к новой цели.', en: 'After a hit, the projectile can redirect to a new target.' },
+  },
+  {
+    id: 'fire',
+    name: { ru: 'Огонь', en: 'Fire' },
+    desc: { ru: 'Попадания поджигают врагов и наносят урон со временем.', en: 'Hits ignite enemies and deal damage over time.' },
+  },
+  {
+    id: 'freeze',
+    name: { ru: 'Заморозка', en: 'Freeze' },
+    desc: { ru: 'Попадания замедляют врага полной остановкой на короткое время.', en: 'Hits briefly freeze the enemy.' },
+  },
+  {
+    id: 'poison',
+    name: { ru: 'Яд', en: 'Poison' },
+    desc: { ru: 'Попадания отравляют врагов и наносят урон со временем.', en: 'Hits poison enemies and deal damage over time.' },
+  },
+];
 
 export interface LeaderEntry {
   name: string;
@@ -1882,121 +1920,89 @@ function getAbilityEvolutionChoices(s:GameState, ability:AbilityType, level:4|7)
 }
 
 export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
-  const sphereTypes=Object.keys(SPHERE_PROGRESSION) as SphereType[];
-  const availableSpheres=sphereTypes.filter((type)=>sphereLevel(s,type)<7);
-  const sphereChoices=availableSpheres.map((type)=>{
-    const currentLevel=sphereLevel(s,type);
-    const nextLevel=currentLevel+1;
-    const def=SPHERE_PROGRESSION[type];
-    const levelDef=def.levels[nextLevel-1];
-    const branchId=s.player.sphereBranches[type];
-    const branch=branchId?def.evolution4Choices.find((x)=>x.id===branchId):null;
-    const branchProgress=(nextLevel===5||nextLevel===6)&&!!branch;
-    const isFirstMutation=nextLevel===4;
-    const isFinalMutation=nextLevel===7;
+  const sphereTypes = Object.keys(SPHERE_PROGRESSION) as SphereType[];
+  const availableSpheres = sphereTypes.filter((type) => sphereLevel(s, type) < 7);
 
-    let nameRu=def.name.ru+' — уровень '+nextLevel;
-    let nameEn=def.name.en+' — level '+nextLevel;
-    let descRu=levelDef.desc.ru;
-    let descEn=levelDef.desc.en;
+  const sphereChoices: UpgradeChoice[] = availableSpheres.map((type) => {
+    const currentLevel = sphereLevel(s, type);
+    const nextLevel = currentLevel + 1;
+    const def = SPHERE_PROGRESSION[type];
+    const levelDef = def.levels[nextLevel - 1];
+    const branchId = s.player.sphereBranches[type];
+    const branch = branchId ? def.evolution4Choices.find((x) => x.id === branchId) : null;
+    const branchProgress = (nextLevel === 5 || nextLevel === 6) && !!branch;
+    const isFirstMutation = nextLevel === 4;
+    const isFinalMutation = nextLevel === 7;
 
-    if(isFirstMutation){
-      nameRu+=': Мутация I';
-      nameEn+=': Mutation I';
-      descRu='Повышает сферу до IV уровня. После выбора откроется отдельное окно с 3 мутациями, из которых можно выбрать одну.';
-      descEn='Raises the sphere to level IV. After this choice, a separate window opens with 3 mutations and you choose one.';
-    } else if(isFinalMutation){
-      nameRu+=': Мутация II';
-      nameEn+=': Mutation II';
-      descRu='Повышает сферу до VII уровня. После этого откроется отдельное окно с 3 финальными специализациями.';
-      descEn='Raises the sphere to level VII. After this choice, a separate window opens with 3 final specializations.';
-    } else if(branchProgress){
-      descRu=nextLevel===5?branch!.level5.ru:branch!.level6.ru;
-      descEn=nextLevel===5?branch!.level5.en:branch!.level6.en;
-      nameRu+=': ветка «'+branch!.name.ru+'»';
-      nameEn+=': branch “'+branch!.name.en+'”';
+    let nameRu = def.name.ru + ' — уровень ' + nextLevel;
+    let nameEn = def.name.en + ' — level ' + nextLevel;
+    let descRu = levelDef.desc.ru;
+    let descEn = levelDef.desc.en;
+
+    if (isFirstMutation) {
+      nameRu += ': Мутация I';
+      nameEn += ': Mutation I';
+      descRu = 'Повышает сферу до IV уровня. После выбора откроется отдельное окно с 3 мутациями, из которых можно выбрать одну.';
+      descEn = 'Raises the sphere to level IV. After this choice, a separate window opens with 3 mutations and you choose one.';
+    } else if (isFinalMutation) {
+      nameRu += ': Мутация II';
+      nameEn += ': Mutation II';
+      descRu = 'Повышает сферу до VII уровня. После этого откроется отдельное окно с 3 финальными специализациями.';
+      descEn = 'Raises the sphere to level VII. After this choice, a separate window opens with 3 final specializations.';
+    } else if (branchProgress) {
+      descRu = nextLevel === 5 ? branch!.level5.ru : branch!.level6.ru;
+      descEn = nextLevel === 5 ? branch!.level5.en : branch!.level6.en;
+      nameRu += ': ветка «' + branch!.name.ru + '»';
+      nameEn += ': branch “' + branch!.name.en + '”';
     }
 
     return {
-      type:'sphere' as const,
-      sphereType:type,
-      sphereBranch:branchId,
-      sphereStage:'upgrade' as const,
+      type: 'sphere' as const,
+      sphereType: type,
+      sphereBranch: branchId,
+      sphereStage: 'upgrade' as const,
       currentLevel,
-      newLevel:nextLevel,
-      name:{ru:nameRu,en:nameEn},
-      desc:{ru:descRu,en:descEn},
+      newLevel: nextLevel,
+      name: { ru: nameRu, en: nameEn },
+      desc: { ru: descRu, en: descEn },
     };
   });
 
-  const preferredAbilities=CHARACTER_DEFS[s.player.characterId]?.preferredAbilities??[];
-  const activeIds=(Object.keys(ABILITIES) as AbilityType[])
-    .filter((id)=>ABILITIES[id].category==='active'&&(s.player.abilities[id]||0)<ABILITIES[id].maxLevel);
+  const modifierChoices: UpgradeChoice[] = SPHERE_MODIFIER_CHOICES
+    .filter((modifier) => (s.player.sphereMods[modifier.id] || 0) === 0)
+    .map((modifier) => ({
+      type: 'modifier' as const,
+      modifier: modifier.id,
+      currentLevel: 0,
+      newLevel: 1,
+      name: modifier.name,
+      desc: modifier.desc,
+    }));
 
-  const activeChoices=activeIds.map((id)=>{
-    const level=s.player.abilities[id]||0;
-    const nextLevel=level+1;
-    const progression=ABILITY_PROGRESSION[id];
-    const levelDef=progression?.levels[nextLevel-1];
-    const preferred=preferredAbilities.includes(id);
-    let name=levelDef?.name??ABILITIES[id].name;
-    let desc=levelDef?.desc??{ru:ABILITIES[id].desc.ru(nextLevel),en:ABILITIES[id].desc.en(nextLevel)};
+  // First-slice active kit is Dash. The larger ability system remains implemented,
+  // but it is not injected into the level-up pool until later roadmap phases.
+  const shuffled = <T,>(items: T[]): T[] => [...items].sort(() => Math.random() - 0.5);
+  const spherePool = shuffled(sphereChoices);
+  const modifierPool = shuffled(modifierChoices);
 
-    if(nextLevel<=3){
-      name={ru:ABILITIES[id].name.ru+' — уровень '+nextLevel,en:ABILITIES[id].name.en+' — level '+nextLevel};
-    } else if(nextLevel===4){
-      name={ru:ABILITIES[id].name.ru+' — уровень IV: Мутация I',en:ABILITIES[id].name.en+' — level IV: Mutation I'};
-      desc={
-        ru:'Повышает способность до IV уровня. После выбора откроется отдельное окно с 3 ветками мутации.',
-        en:'Raises the ability to level IV. After this choice, a separate window opens with 3 mutation branches.',
-      };
-    } else if(nextLevel===7){
-      name={ru:ABILITIES[id].name.ru+' — уровень VII: Мутация II',en:ABILITIES[id].name.en+' — level VII: Mutation II'};
-      desc={
-        ru:'Повышает способность до VII уровня. После этого откроется отдельное окно с 3 финальными формами.',
-        en:'Raises the ability to level VII. After this choice, a separate window opens with 3 final forms.',
-      };
-    } else if(level>=5&&progression){
-      const branch=s.player.evolutions?.find((x:string)=>x.startsWith('ability:'+id+':4:'));
-      if(branch){
-        const evolutionId=branch.split(':').slice(3).join(':');
-        const selected=progression.evolution4.find((x)=>x.id===evolutionId);
-        if(selected){
-          desc=progression.levels[nextLevel-1].desc;
-          name={ru:progression.levels[nextLevel-1].name.ru+' · '+selected.name.ru,en:progression.levels[nextLevel-1].name.en+' · '+selected.name.en};
-        }
-      }
-    }
-
-    return {
-      id,
-      score:Math.random()*(preferred?1.35:0.75),
-      choice:{
-        type:'ability' as const,
-        ability:id,
-        abilityStage:'upgrade' as const,
-        name,
-        desc,
-        currentLevel:level,
-        newLevel:nextLevel,
-      },
-    };
-  }).sort((a,b)=>b.score-a.score).map((item)=>item.choice);
-
-  if(sphereChoices.length>=2&&activeChoices.length>0){
-    const firstTwo=sphereChoices.slice(0,2);
-    const active=activeChoices[Math.floor(Math.random()*Math.min(3,activeChoices.length))];
-    return [firstTwo[0],firstTwo[1],active].sort(()=>Math.random()-0.5);
+  if (modifierPool.length > 0 && spherePool.length > 0) {
+    return shuffled([modifierPool[0], ...spherePool.slice(0, 2)]).slice(0, 3);
   }
-  if(sphereChoices.length===1&&activeChoices.length>0){
-    return [sphereChoices[0],...activeChoices.slice(0,2)].slice(0,3).sort(()=>Math.random()-0.5);
-  }
-  if(sphereChoices.length>0) return sphereChoices.slice(0,3);
-  return activeChoices.slice(0,3);
+  if (spherePool.length > 0) return spherePool.slice(0, 3);
+  return modifierPool.slice(0, 3);
 }
 
 export function applyUpgrade(s: GameState, choice: UpgradeChoice): void {
   s.pendingUpgrade=null;
+
+  if (choice.type === 'modifier' && choice.modifier) {
+    if ((s.player.sphereMods[choice.modifier] || 0) > 0) return;
+    s.player.sphereMods[choice.modifier] = 1;
+    const modifier = SPHERE_MODIFIER_CHOICES.find((item) => item.id === choice.modifier);
+    s.flashText = { text: modifier?.name.ru ?? 'Модификатор', life: 1.2, color: '#39d8ff' };
+    playSound('place');
+    return;
+  }
 
   if(choice.type==='sphere'&&choice.sphereType){
     const type=choice.sphereType;
