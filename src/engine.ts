@@ -135,7 +135,7 @@ export interface EnemyEntity {
   speed: number;
   radius: number;
   damage: number;
-  type: 'normal' | 'fast' | 'tank' | 'boss';
+  type: 'normal' | 'fast' | 'tank' | 'elite' | 'boss';
   color: string;
   shape: 'circle' | 'square' | 'triangle' | 'hexagon';
   slowTimer: number;
@@ -785,12 +785,14 @@ function spawnEnemy(s: GameState, isBoss: boolean): EnemyEntity {
   if (r < 0.2 && wave > 2) { type = 'fast'; hp = (BALANCE.fastHpBase + wave * BALANCE.fastHpPerWave) * diff.enemyHpMult; speed = (BALANCE.fastSpeedBase + wave * BALANCE.fastSpeedPerWave) * diff.enemySpeedMult; radius = 10; dmg = (BALANCE.fastDamageBase + wave * BALANCE.fastDamagePerWave) * diff.enemyDamageMult; color = '#d4a830'; shape = 'triangle'; }
   else if (r < 0.35 && wave > 4) { type = 'tank'; hp = (BALANCE.tankHpBase + wave * BALANCE.tankHpPerWave) * diff.enemyHpMult; speed = (BALANCE.tankSpeedBase + wave * BALANCE.tankSpeedPerWave) * diff.enemySpeedMult; radius = 20; dmg = (BALANCE.tankDamageBase + wave * BALANCE.tankDamagePerWave) * diff.enemyDamageMult; color = '#8a5a8a'; shape = 'square'; }
   // elite chance: 5% after wave 5, scales up
+  const baseType = type;
   const isElite = wave > 5 && Math.random() < Math.min(0.12, 0.03 + wave * 0.005);
   if (isElite) {
     hp *= 3;
     radius += 4;
     dmg *= 1.5;
     color = '#b8475a';
+    type = 'elite';
   }
   return {
     pos: { x: px, y: py },
@@ -799,7 +801,7 @@ function spawnEnemy(s: GameState, isBoss: boolean): EnemyEntity {
     color, shape,
     slowTimer: 0, slowFactor: 1, freezeTimer: 0, hitFlash: 0,
     isBoss: false, bossShootTimer: 0, bossProjectiles: [],
-    xpValue: (type === 'tank' ? 4 : type === 'fast' ? 2 : 1) * (isElite ? 5 : 1),
+    xpValue: (baseType === 'tank' ? 4 : baseType === 'fast' ? 2 : 1) * (isElite ? 5 : 1),
     rotation: 0,
     tier: s.bossDefeated,
     trailTimer: 0,
