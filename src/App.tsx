@@ -7,7 +7,7 @@ import {
   DIFFICULTIES, ACHIEVEMENTS, SPHERE_TYPES, type Difficulty,
 } from './gameData';
 import {
-  createInitialState, update,
+  createInitialState, update, claimStella,
   generateUpgradeChoices, applyUpgrade, applyArtifact,
   getMaxSpheres, getMoveSpeed, getSphereRadius, getSphereDamage, getSphereDelay, getSphereDpsEstimate,
   getCritChance, getDodgeChance, getVampirePercent,
@@ -292,8 +292,9 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
             </div>
           )}
           {st.pendingUpgrade && <UpgradeModal lang={lang} t={t} st={st} onPick={(c) => { applyUpgrade(st, c); }} />}
+          {st.pendingStella && <StellaModal lang={lang} onClaim={() => claimStella(st)} />}
           {st.pendingArtifact && <ArtifactModal lang={lang} t={t} st={st} choices={st.pendingArtifact} onPick={(id) => { applyArtifact(st, id); st.pendingArtifact = null; }} />}
-          {paused && !st.pendingUpgrade && !st.pendingArtifact && (
+          {paused && !st.pendingUpgrade && !st.pendingArtifact && !st.pendingStella && (
             <PausePlanner
               lang={lang}
               t={t}
@@ -738,6 +739,29 @@ function ArtifactModal({ lang, t, st, choices, onPick }: {
             );
           })}
         </div>
+      </div>
+    </div>
+  );
+}
+
+function StellaModal({ lang, onClaim }: { lang: Lang; onClaim: () => void }) {
+  return (
+    <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 px-6">
+      <div className="w-full max-w-md rounded-2xl border border-[#ffb84d]/50 bg-[#0b1220] p-6 text-center shadow-2xl">
+        <div className="text-[10px] uppercase tracking-[0.32em] text-[#ffb84d] mb-3">STELLA // BOSS REWARD</div>
+        <div className="mx-auto mb-4 w-20 h-20 rounded-full border border-[#ffb84d]/50 bg-[#ffb84d]/10 flex items-center justify-center text-4xl text-[#ffb84d] shadow-[0_0_42px_rgba(255,184,77,0.18)]">✦</div>
+        <h2 className="text-3xl font-black text-[#f7fbff]">{lang === 'ru' ? 'СТЕЛЛА' : 'STELLA'}</h2>
+        <p className="mt-2 text-sm text-[#b6c9de] leading-6">
+          {lang === 'ru'
+            ? 'Победа над боссом открыла редкий узел награды. До порога Endless Stella может выдать легендарный артефакт.'
+            : 'The boss victory opened a rare reward node. Before the Endless threshold, Stella can grant a Legendary Artifact.'}
+        </p>
+        <button
+          onClick={onClaim}
+          className="mt-6 w-full py-3 rounded-xl bg-[#ffb84d]/15 border border-[#ffb84d]/50 text-[#ffcf82] font-bold hover:bg-[#ffb84d]/25 transition"
+        >
+          {lang === 'ru' ? 'ПОЛУЧИТЬ НАГРАДУ' : 'CLAIM REWARD'}
+        </button>
       </div>
     </div>
   );
