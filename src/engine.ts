@@ -1980,6 +1980,34 @@ function getAbilityEvolutionChoices(s:GameState, ability:AbilityType, level:4|7)
   }));
 }
 
+function weightedShuffle<T>(items: T[], getWeight: (item: T) => number): T[] {
+  const pool = [...items];
+  const result: T[] = [];
+  while (pool.length > 0) {
+    let totalWeight = 0;
+    for (const item of pool) totalWeight += Math.max(0.01, getWeight(item));
+    let roll = Math.random() * totalWeight;
+    let selectedIndex = pool.length - 1;
+    for (let index = 0; index < pool.length; index++) {
+      roll -= Math.max(0.01, getWeight(pool[index]));
+      if (roll <= 0) {
+        selectedIndex = index;
+        break;
+      }
+    }
+    result.push(pool.splice(selectedIndex, 1)[0]);
+  }
+  return result;
+}
+
+export function getSphereUpgradeChoiceWeight(s: GameState, type: SphereType): number {
+  const level = sphereLevel(s, type);
+  const activeCopies = s.spheres.filter((sphere) => sphere.alive && sphere.type === type).length;
+  const levelPressure = (7 - level) * 0.25;
+  const activeBuildPressure = activeCopies > 0 ? 1.5 : 0;
+  return 1 + levelPressure + activeBuildPressure;
+}
+
 export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
   const sphereTypes = VERTICAL_SLICE_SPHERE_TYPES.filter((type) => type in SPHERE_PROGRESSION);
   const availableSpheres = sphereTypes.filter((type) => sphereLevel(s, type) < 7);
@@ -2042,12 +2070,18 @@ export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
 
   // First-slice active kit is Dash. The larger ability system remains implemented,
   // but it is not injected into the level-up pool until later roadmap phases.
-  const shuffled = <T,>(items: T[]): T[] => [...items].sort(() => Math.random() - 0.5);
-  const spherePool = shuffled(sphereChoices);
-  const modifierPool = shuffled(modifierChoices);
+  const spherePool = weightedShuffle(sphereChoices, (choice) =>
+    choice.sphereType ? getSphereUpgradeChoiceWeight(s, choice.sphereType) : 1,
+  );
+  const modifierPool = weightedShuffle(modifierChoices, () => 1);
 
   if (modifierPool.length > 0 && spherePool.length > 0) {
-    return shuffled([modifierPool[0], ...spherePool.slice(0, 2)]).slice(0, 3);
+    const mixedChoices = [modifierPool[0], ...spherePool.slice(0, 2)];
+    for (const modifier of modifierPool.slice(1)) {
+      if (mixedChoices.length >= 3) break;
+      mixedChoices.push(modifier);
+    }
+    return weightedShuffle(mixedChoices, () => 1).slice(0, 3);
   }
   if (spherePool.length > 0) return spherePool.slice(0, 3);
   return modifierPool.slice(0, 3);
