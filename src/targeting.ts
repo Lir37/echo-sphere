@@ -21,7 +21,7 @@ function distanceSquared(a: TargetPosition, b: TargetPosition): number {
 
 function valueTier(enemy: TargetableEnemy): number {
   if (enemy.isBoss || enemy.type === 'boss') return 4;
-  if (enemy.isElite) return 3;
+  if (enemy.isElite || enemy.type === 'elite') return 3;
   if (enemy.type === 'tank') return 2;
   if (enemy.type === 'fast') return 1;
   return 0;
