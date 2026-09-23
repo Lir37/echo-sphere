@@ -67,7 +67,7 @@ PHASE 2. NETWORK / GEOMETRY
 2.7 [DONE] Triangle geometry detection.
 2.8 [DONE] Cluster geometry detection.
 2.9 [PARTIAL] Resonance state/effects exist; triangle resonance now has explicit charge and proc feedback; gameplay gate still requires human network playtest.
-2.10 [PARTIAL] Visual/network feedback now explicitly labels active LINE/TRIANGLE/CLUSTER formations, animates active links, and highlights triangle resonance proc; acceptance requires a fresh human playtest.
+2.10 [PARTIAL] Visual/network feedback animates active LINE/TRIANGLE/CLUSTER links and highlights triangle resonance charge/proc without persistent formation labels; acceptance requires a fresh human playtest.
 2.11 [PARTIAL] Geometry bonus effects exist; playtest validation needed.
 2.12 [PENDING] Dedicated UI for active network state needs verification/implementation.
 EXIT GATE [GATE] Player must actively care about positioning.
@@ -190,3 +190,12 @@ LATEST SESSION NOTE (2026-09-23)
 - Manual user spot-check reported movement, Dash, Sphere operation and attacks as normal; formal 5-minute/network acceptance remains open.
 - CI run 35913004106 passed Typecheck, Unit tests and Web build; Playwright/Android stages were still running at handoff time.
 - Next step: human playtest line/triangle/cluster placement and resonance readability, then fix only issues found.
+
+
+LATEST SESSION NOTE (2026-09-24, formation label cleanup):
+- User playtest confirmed LINE, TRIANGLE and CLUSTER activation visuals are readable without persistent text labels; user requested removal of the "// ACTIVE" formation badges.
+- Removed only the redundant LINE/TRIANGLE/CLUSTER formation label overlays from src/renderer.ts.
+- Preserved all underlying network detection, active-link animation, triangle charge/proc feedback, and resonance gameplay rules.
+- Implementation commit: 85576b756f241009f8f669e9832af4e4e4ba1039.
+- Simultaneous formation states remain allowed by the current non-exclusive network model; no geometry rules were changed.
+- Human network acceptance gate remains open; next verification should focus on whether the visual-only formation cues remain immediately understandable during active play.
