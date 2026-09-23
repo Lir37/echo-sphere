@@ -136,9 +136,9 @@ def _cone_between(name, a, b, r1, r2, material, sections=14):
 
 def _armor_panel(name, angle, center_y, material):
     direction = np.array([math.cos(angle), 0.0, math.sin(angle)])
-    mesh = _ico(name, 1.0, material, (0.25, 0.07, 0.17), 3)
+    mesh = _ico(name, 1.0, material, (0.34, 0.10, 0.24), 3)
     mesh.apply_transform(trimesh.transformations.rotation_matrix(-angle, [0, 1, 0]))
-    mesh.apply_translation(direction * 0.45 + np.array([0.0, center_y, 0.0]))
+    mesh.apply_translation(direction * 0.70 + np.array([0.0, center_y, 0.0]))
     return mesh
 
 
@@ -147,6 +147,10 @@ def build_hybrid(source: Path, destination: Path) -> None:
     raw = next(iter(scene.geometry.values()))
     lo, hi = raw.bounds
     center_y = float((lo[1] + hi[1]) * 0.5)
+    # The user-authored body is the hero geometry. Enlarge it slightly so its
+    # detailed silhouette and PBR surface remain visible instead of being read
+    # as the small core inside the old orbital language.
+    raw.apply_scale(1.32)
 
     # The user's authored GLB defines the silhouette, surface detail and PBR body.
     # Added geometry stays deliberately subordinate to that body.
@@ -169,16 +173,16 @@ def build_hybrid(source: Path, destination: Path) -> None:
     # previous Spherist. They are centered on the user's actual mesh, not replaced.
     for index, (radius, minor, rotation) in enumerate(
         (
-            (0.56, 0.018, (0, 0, 0)),
-            (0.69, 0.015, (math.pi / 2, 0, 0)),
-            (0.84, 0.011, (0, math.pi / 2, 0)),
+            (0.78, 0.018, (0, 0, 0)),
+            (0.98, 0.015, (math.pi / 2, 0, 0)),
+            (1.18, 0.011, (0, math.pi / 2, 0)),
         )
     ):
         ring = _torus(f"Ring_{index}", radius, minor, frame, rotation)
         ring.apply_translation((0.0, center_y, 0.0))
         parts.append(ring)
 
-    halo = _torus("Halo", 0.93, 0.008, accent, (math.pi / 4, 0, math.pi / 8), 128)
+    halo = _torus("Halo", 1.30, 0.008, accent, (math.pi / 4, 0, math.pi / 8), 128)
     halo.apply_translation((0.0, center_y, 0.0))
     parts.append(halo)
 
@@ -192,9 +196,9 @@ def build_hybrid(source: Path, destination: Path) -> None:
         np.linspace(math.pi / 6, math.tau + math.pi / 6, 6, endpoint=False)
     ):
         direction = np.array([math.cos(angle), 0.12 * math.sin(angle), math.sin(angle)])
-        fin = _ico(f"EnergyFin_{index}", 1.0, accent, (0.15, 0.028, 0.055), 2)
+        fin = _ico(f"EnergyFin_{index}", 1.0, accent, (0.22, 0.045, 0.085), 2)
         fin.apply_transform(trimesh.transformations.rotation_matrix(-angle, [0, 1, 0]))
-        fin.apply_translation(direction * 0.70 + np.array([0.0, center_y, 0.0]))
+        fin.apply_translation(direction * 0.95 + np.array([0.0, center_y, 0.0]))
         parts.append(fin)
 
     # Compact cardinal emitters and energy nodes are deliberately shorter than the
@@ -205,15 +209,15 @@ def build_hybrid(source: Path, destination: Path) -> None:
         parts.append(
             _cone_between(
                 f"Cardinal_{index}",
-                origin + direction * 0.25,
-                origin + direction * 0.72,
+                origin + direction * 0.35,
+                origin + direction * 0.92,
                 0.020,
                 0.006,
                 frame,
             )
         )
         node = _ico(f"EnergyNode_{index}", 0.038, core, (1, 1, 1.25), 3)
-        node.apply_translation(origin + direction * 0.76)
+        node.apply_translation(origin + direction * 0.96)
         parts.append(node)
 
     # The raw model is opaque in places but has cavities and bright seams. A small
