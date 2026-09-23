@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Pause, Zap } from 'lucide-react';
 import { ABILITIES, SPHERE_TYPES, type AbilityType, type SphereType } from './gameData';
-import { activateByKey, activateDash, getMaxSpheres, placeSphere, setSphereType, type GameState } from './engine';
+import { activateByKey, activateDash, getMaxSpheres, placeSphere, setSphereType, type GameState, type SphereEntity } from './engine';
 import { CHARACTER_DEFS } from './characters';
 import { getAbilityDisplayName } from './sphereProgression';
 import { getCharacterFormation, getEngineerNetworkSpheres } from './characterRuntime';
