@@ -252,9 +252,13 @@ function randomWeighted<T>(items: T[], weight: (item: T) => number): T {
   return items[items.length - 1];
 }
 
-export function pickArtifactChoices(s: { player: { artifacts: ArtifactId[] } }, count = 3): ArtifactId[] {
+export function pickArtifactChoices(
+  s: { player: { artifacts: ArtifactId[] } },
+  count = 3,
+  includeLegendary = false,
+): ArtifactId[] {
   const owned = new Set(s.player.artifacts);
-  const available = ARTIFACT_METADATA.filter((item) => !owned.has(item.id));
+  const available = ARTIFACT_METADATA.filter((item) => !owned.has(item.id) && (includeLegendary || item.rarity !== 'legendary'));
   const result: ArtifactId[] = [];
   const pool = [...available];
   while (result.length < count && pool.length > 0) {
@@ -263,4 +267,13 @@ export function pickArtifactChoices(s: { player: { artifacts: ArtifactId[] } }, 
     pool.splice(pool.indexOf(chosen), 1);
   }
   return result;
+}
+
+export function pickStellaArtifactChoice(
+  s: { player: { artifacts: ArtifactId[] } },
+): ArtifactId | null {
+  const owned = new Set(s.player.artifacts);
+  const available = ARTIFACT_METADATA.filter((item) => item.rarity === 'legendary' && !owned.has(item.id));
+  if (available.length === 0) return null;
+  return randomWeighted(available, () => 1).id;
 }
