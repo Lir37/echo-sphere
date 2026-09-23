@@ -1,6 +1,6 @@
 ECHO SPHERE
 GPT IMPLEMENTATION STATUS / WORKING COMMENTS
-Last updated: 2026-09-23
+Last updated: 2026-09-24
 
 PURPOSE
 Persistent assistant handoff log.
@@ -13,10 +13,10 @@ RESTORED BASELINE
 c79850b9a4e413ad5cad1cbd360d152d22fa7829
 
 CURRENT IMPLEMENTATION COMMIT
-85576b756f241009f8f669e9832af4e4e4ba1039
+43fd82afa6b72ae2c8e3bd9f89851ca92b89f007
 
 LATEST DOCS COMMIT
-fb6ba5b65bf689892553eca9ec420bb8ee62bc93
+4011ada10929261e0f26e5ad7125dd368f3bef00
 
 ROLLBACK
 The branch was moved back from 219301fb2647a76088b0411ddb95438016b54c63 to c79850b9a4e413ad5cad1cbd360d152d22fa7829.
@@ -155,3 +155,19 @@ SESSION LOG
 - Roadmap documentation commit: fb6ba5b65bf689892553eca9ec420bb8ee62bc93.
 - Remaining: human Phase 2.9/2.10 network acceptance, Phase 2.11 geometry-bonus playtest, Phase 2.12 dedicated network-state UI verification, then the broader Slice 0.1 fun gate.
 - Next step: review the CI result for 85576b756f241009f8f669e9832af4e4e4ba1039; then continue with the earliest open network acceptance item only.
+
+SESSION LOG
+2026-09-24 (network HUD + level-up choice pass, verified):
+- Implemented the next open implementation work without removing compatible later content.
+- Added a dedicated active-network HUD in src/App.tsx showing live link count, active LINE/TRIANGLE/CLUSTER state and triangle Resonance charge.
+- Extended src/engine.ts level-up choice generation with deliberate Sphere weighting based on remaining level pressure and active build presence.
+- Fixed a concrete choice-pool edge case: when only one Sphere upgrade remained, the generator could previously return only two cards. It now fills the remaining slots with additional unowned modifiers when available.
+- Kept choice entries duplicate-free and added tests/contract checks in tests/upgrade-choice.test.mjs for weighting, full-card fallback and duplicate-free construction.
+- Intermediate CI run 35922117806 failed in the new test only because Node could not resolve engine.ts extensionless internal imports. The test was adapted to the repository's established source-contract test style.
+- Final CI run 35922375901 on implementation HEAD passed Typecheck, Unit tests, Web build, Playwright render-after-Play, screenshot/metrics artifacts, Capacitor Android sync, debug APK assembly and APK upload.
+- Implementation commits: 7d41510f879000d73e5fd57a4fae60a85f1a51ec, 26f221ba9127c42b77ac1da504c77f46a0188aae, 43fd82afa6b72ae2c8e3bd9f89851ca92b89f007.
+- Roadmap update commit: 4011ada10929261e0f26e5ad7125dd368f3bef00.
+- Remaining work is intentionally still gated by human playtest: 5-minute combat, multi-Sphere network/resonance readability, geometry-bonus validation, network HUD verification, build-quality/RNG validation and the complete Slice 0.1 fun gate.
+- Preserved older/later compatible systems: all five Sphere types with Shotgun and Aura, characters, artifacts, bosses/Stella/Legendary flow, shop/permanent progression, Pair Synergy and compatible 3D/GLB assets/path.
+- Next step: morning human PlayerCheck. Do not start artifact-set/content expansion before the network/combat gates are validated; fix only issues observed in playtest.
+
