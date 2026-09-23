@@ -1,4 +1,4 @@
-import type { EnemyEntity, GameState, Vec } from './engine';
+import type { EnemyEntity, GameState, SphereEntity, Vec } from './engine';
 
 // Physical size of a tower is intentionally much smaller than its attack radius.
 // It closely follows the visible tower base instead of its much larger firing range.
@@ -48,11 +48,11 @@ function getEnemyMass(enemy: EnemyEntity): number {
  * Walls and corridors are intentional. The rule is that a new tower must not
  * remove the last navigable route between the player and the outside world.
  */
-export function canPlaceSphere(s: GameState, x: number, y: number): boolean {
+export function canPlaceSphere(s: GameState, x: number, y: number, ignoreSphere?: SphereEntity): boolean {
   if (distance({ x, y }, s.player.pos) < TOWER_BODY_RADIUS + PLAYER_BUILD_GAP) return false;
 
   for (const sphere of s.spheres) {
-    if (!sphere.alive) continue;
+    if (!sphere.alive || sphere === ignoreSphere) continue;
     if (distance({ x, y }, sphere.pos) < TOWER_BODY_RADIUS * 2 + TOWER_PLACEMENT_GAP) return false;
   }
 
@@ -63,7 +63,19 @@ export function canPlaceSphere(s: GameState, x: number, y: number): boolean {
     if (distance({ x, y }, enemy.pos) < TOWER_BODY_RADIUS + enemy.radius + ENEMY_PLACEMENT_GAP) return false;
   }
 
-  return hasRouteToOutside(s, { x, y });
+  return hasRouteToOutside(s, { x, y }, ignoreSphere);
+}
+
+/** Move an existing sphere while preserving the same placement safety rules. */
+export function canRepositionSphere(s: GameState, sphere: SphereEntity, x: number, y: number): boolean {
+  return canPlaceSphere(s, x, y, sphere);
+}
+
+export function repositionSphere(s: GameState, sphere: SphereEntity, x: number, y: number): boolean {
+  if (!sphere.alive || !canRepositionSphere(s, sphere, x, y)) return false;
+  sphere.pos.x = clampScalar(x, -s.worldWidth / 2, s.worldWidth / 2);
+  sphere.pos.y = clampScalar(y, -s.worldHeight / 2, s.worldHeight / 2);
+  return true;
 }
 
 /** Resolve solid-space collisions after the normal game update. */
@@ -261,9 +273,9 @@ function clampEnemy(enemy: EnemyEntity, s: GameState): void {
   enemy.pos.y = clampScalar(enemy.pos.y, -limitY, limitY);
 }
 
-function hasRouteToOutside(s: GameState, candidate: Vec): boolean {
+function hasRouteToOutside(s: GameState, candidate: Vec, ignoreSphere?: SphereEntity): boolean {
   const obstacles = s.spheres
-    .filter((sphere) => sphere.alive)
+    .filter((sphere) => sphere.alive && sphere !== ignoreSphere)
     .map((sphere) => sphere.pos)
     .concat([candidate]);
 
