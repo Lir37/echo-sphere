@@ -26,7 +26,7 @@ import {
   getFormationDamageTakenMultiplier,
 } from './characterRuntime';
 import { loadCharacterId, loadCharacterProfiles } from './persistence';
-import { getArtifactMoveSpeedMultiplier, getArtifactMaxHpBonus, getArtifactXpMultiplier, getArtifactRegenPerSecond, getArtifactSphereRadiusMultiplier, getArtifactSphereDamageMultiplier, getArtifactCooldownMultiplier, getArtifactSphereDelayMultiplier, getArtifactDamageTakenMultiplier, getArtifactCritChanceBonus, getArtifactDodgeChanceBonus, getArtifactVampireBonus, getArtifactReflectChance, getSphereArtifactDamageMultiplier, pickArtifactChoices } from './artifactSystem';
+import { getArtifactMoveSpeedMultiplier, getArtifactMaxHpBonus, getArtifactXpMultiplier, getArtifactRegenPerSecond, getArtifactSphereRadiusMultiplier, getArtifactSphereDamageMultiplier, getArtifactCooldownMultiplier, getArtifactSphereDelayMultiplier, getArtifactDamageTakenMultiplier, getArtifactCritChanceBonus, getArtifactDodgeChanceBonus, getArtifactVampireBonus, getArtifactReflectChance, getSphereArtifactDamageMultiplier, pickArtifactChoices, pickStellaArtifactChoice } from './artifactSystem';
 import { SPHERE_PROGRESSION, ABILITY_PROGRESSION, spherePriority, sphereLevel, sphereModifiers, SPHERE_ABILITY_SYNERGIES, getActiveSphereAbilitySynergies } from './sphereProgression';
 import { selectSphereTarget } from './targeting';
 import { analyzeSphereNetwork, getSphereNetworkProfile } from './network';
@@ -276,6 +276,9 @@ export interface GameState {
   gameOver: boolean;
   pendingUpgrade: UpgradeChoice[] | null;
   pendingArtifact: ArtifactId[] | null;
+  pendingStella: boolean;
+  stellaClaims: number;
+  stellaLegendaryClaims: number;
   stats: GameStats;
   screenShake: number;
   bossArrow: Vec | null;
@@ -369,6 +372,7 @@ export const BASE_SPHERE_RADIUS = 130;
 export const BASE_SPHERE_DAMAGE = 12;
 export const BASE_SPHERE_DELAY = 1.2;
 export const PLAYER_RADIUS = 16;
+export const STELLA_LEGENDARY_CUTOFF_SECONDS = 25 * 60;
 
 // Centralised run-balance constants. Keep the early game readable and let
 // difficulty come from enemy composition + gradual scaling rather than HP walls.
@@ -536,6 +540,9 @@ export function createInitialState(
     gameOver: false,
     pendingUpgrade: null,
     pendingArtifact: null,
+    pendingStella: false,
+    stellaClaims: 0,
+    stellaLegendaryClaims: 0,
     stats: { time: 0, wave: 0, enemiesKilled: 0, goldEarned: 0 },
     screenShake: 0,
     bossArrow: null,
@@ -1275,13 +1282,32 @@ function onEnemyDeath(s: GameState, enemy: EnemyEntity): void {
     s.screenShake = 0.5;
     s.flashText = { text: 'BOSS DEFEATED!', life: 2, color: '#d4943d' };
     playSound('boss');
-    // trigger artifact choice
-    s.pendingArtifact = pickArtifacts(s);
+    // Bosses create a distinct Stella event. Stella is the only gateway to Legendary rewards.
+    s.pendingStella = true;
+    s.stellaClaims++;
+    s.pendingArtifact = null;
   }
 }
 
 function pickArtifacts(s: GameState): ArtifactId[] {
-  return pickArtifactChoices(s, 3);
+  return pickArtifactChoices(s, 3, false);
+}
+
+export function claimStella(s: GameState): void {
+  if (!s.pendingStella) return;
+
+  s.pendingStella = false;
+  const legendary = s.time < STELLA_LEGENDARY_CUTOFF_SECONDS
+    ? pickStellaArtifactChoice(s)
+    : null;
+
+  if (legendary) {
+    s.stellaLegendaryClaims++;
+    s.pendingArtifact = [legendary];
+  } else {
+    s.pendingArtifact = pickArtifacts(s);
+  }
+  playSound('chest');
 }
 
 function damagePlayer(s: GameState, amount: number): void {
@@ -2137,7 +2163,7 @@ export function applyArtifact(s: GameState, id: ArtifactId): void {
 // ===== Main update =====
 export function update(s: GameState, dt: number): void {
   if (s.paused || s.gameOver) return;
-  if (s.pendingUpgrade || s.pendingArtifact) return;
+  if (s.pendingUpgrade || s.pendingArtifact || s.pendingStella) return;
 
   s.time += dt;
   s.stats.time = s.time;
