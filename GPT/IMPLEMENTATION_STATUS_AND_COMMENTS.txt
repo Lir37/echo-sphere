@@ -13,10 +13,10 @@ RESTORED BASELINE
 c79850b9a4e413ad5cad1cbd360d152d22fa7829
 
 CURRENT IMPLEMENTATION COMMIT
-f68ffe21d3f84bf103a8655dd53825b7287d8069
+85576b756f241009f8f669e9832af4e4e4ba1039
 
 LATEST DOCS COMMIT
-e15a42f13d92c07f51881e975297f71aec63ae25
+fb6ba5b65bf689892553eca9ec420bb8ee62bc93
 
 ROLLBACK
 The branch was moved back from 219301fb2647a76088b0411ddb95438016b54c63 to c79850b9a4e413ad5cad1cbd360d152d22fa7829.
@@ -142,3 +142,16 @@ SESSION LOG
 - Preserved all five Sphere types (Standard, Sniper, Shotgun, Chain, Aura), existing characters, artifacts, bosses, shop/progression and compatible 3D/GLB path. No roadmap-driven deletion was performed.
 - Remaining current gate: Phase 2.9/2.10 human verification; Phase 2.11 geometry bonus playtest; Phase 2.12 dedicated network-state UI verification.
 - Next step: fresh human line/triangle/cluster playtest and verify that formation state and triangle Resonance proc are immediately understandable.
+
+
+SESSION LOG
+2026-09-24 (formation label cleanup, user-accepted direction):
+- User manually verified that LINE, TRIANGLE and CLUSTER activate and stated that persistent "// ACTIVE" labels are unnecessary because the visual effects are sufficient.
+- Removed redundant formation active labels from src/renderer.ts only.
+- Preserved active-link animation, triangle charge visualization, RESONANCE/PROC feedback, all network detection, and all resonance gameplay rules.
+- Simultaneous formation states were intentionally preserved: network.line, network.triangle and network.cluster are independently detected and can overlap for the same Sphere network. No exclusivity rule was introduced.
+- Existing compatible systems/content preserved: all five Sphere types, characters, artifacts, bosses, shop/progression and compatible 3D/GLB path.
+- Implementation commit: 85576b756f241009f8f669e9832af4e4e4ba1039.
+- Roadmap documentation commit: fb6ba5b65bf689892553eca9ec420bb8ee62bc93.
+- Remaining: human Phase 2.9/2.10 network acceptance, Phase 2.11 geometry-bonus playtest, Phase 2.12 dedicated network-state UI verification, then the broader Slice 0.1 fun gate.
+- Next step: review the CI result for 85576b756f241009f8f669e9832af4e4e4ba1039; then continue with the earliest open network acceptance item only.
