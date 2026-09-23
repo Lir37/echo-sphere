@@ -368,6 +368,7 @@ export interface LeaderEntry {
 export const DEFAULT_MAX_SPHERES = 5;
 export const MAX_SPHERES_CAP = 8;
 export const BASE_PLAYER_SPEED = 180;
+export const VERTICAL_SLICE_SPHERE_TYPES: readonly SphereType[] = ['standard', 'sniper', 'chain'];
 export const BASE_SPHERE_RADIUS = 130;
 export const BASE_SPHERE_DAMAGE = 12;
 export const BASE_SPHERE_DELAY = 1.2;
@@ -1977,7 +1978,7 @@ function getAbilityEvolutionChoices(s:GameState, ability:AbilityType, level:4|7)
 }
 
 export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
-  const sphereTypes = Object.keys(SPHERE_PROGRESSION) as SphereType[];
+  const sphereTypes = VERTICAL_SLICE_SPHERE_TYPES.filter((type) => type in SPHERE_PROGRESSION);
   const availableSpheres = sphereTypes.filter((type) => sphereLevel(s, type) < 7);
 
   const sphereChoices: UpgradeChoice[] = availableSpheres.map((type) => {
