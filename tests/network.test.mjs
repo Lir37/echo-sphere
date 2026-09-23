@@ -5,7 +5,7 @@ import { analyzeSphereNetwork, getSphereNetworkProfile } from '../src/network.ts
 const node = (x, y) => ({ pos: { x, y }, alive: true });
 
 test('links connect neighbouring spheres inside the network radius', () => {
-  const state = analyzeSphereNetwork([node(0, 0), node(100, 0), node(320, 0)]);
+  const state = analyzeSphereNetwork([node(0, 0), node(100, 0), node(330, 0)]);
   assert.equal(state.links.length, 1);
   assert.deepEqual(state.links[0], { a: 0, b: 1, distance: 100 });
 });
