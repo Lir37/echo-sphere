@@ -169,11 +169,15 @@ export function analyzeSphereNetwork(
       : null;
   })();
 
+  // Geometry readability rule: TRIANGLE + CLUSTER may coexist,
+  // but LINE is suppressed when both higher-order formations are active.
+  const resolvedLine = triangle && cluster ? null : line;
+
   return {
     linkDistance,
     nodes: indexes,
     links,
-    line,
+    line: resolvedLine,
     triangle,
     cluster,
   };

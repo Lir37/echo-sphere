@@ -44,3 +44,17 @@ test('dead spheres do not contribute links or geometry', () => {
   assert.equal(state.nodes.length, 2);
   assert.equal(state.links.length, 1);
 });
+
+
+test('triangle and cluster can coexist while line is suppressed', () => {
+  const h = Math.sqrt(3) * 100 / 2;
+  const state = analyzeSphereNetwork([
+    node(0, 0),
+    node(100, 0),
+    node(50, h),
+    node(50, h / 2),
+  ]);
+  assert.ok(state.triangle);
+  assert.ok(state.cluster);
+  assert.equal(state.line, null);
+});

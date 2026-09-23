@@ -135,6 +135,70 @@ export function getArtifactSynergiesAfterPick(s: { player: { artifacts: Artifact
   return ARTIFACT_SYNERGIES.filter((synergy) => synergy.requires.every((requiredId) => owned.has(requiredId)));
 }
 
+
+export interface ArtifactSetDef {
+  id: 'resonance_grid' | 'echo_architecture' | 'singularity_path';
+  name: { ru: string; en: string };
+  desc: { ru: string; en: string };
+  synergyIds: string[];
+}
+
+export interface ArtifactSetProgress {
+  id: ArtifactSetDef['id'];
+  name: ArtifactSetDef['name'];
+  desc: ArtifactSetDef['desc'];
+  activeSynergies: number;
+  totalSynergies: number;
+  complete: boolean;
+}
+
+// Phase 5.2 framework: existing pair synergies are grouped into three
+// data-driven Sets. No additional completion gameplay is granted yet.
+// Set UI and completion effects are separate roadmap tasks.
+export const ARTIFACT_SETS: ArtifactSetDef[] = [
+  {
+    id: 'resonance_grid',
+    name: { ru: 'Резонансная решётка', en: 'Resonance Grid' },
+    desc: { ru: 'Сеть, построенная вокруг соседства сфер и геометрических связей.', en: 'A network built around sphere proximity and geometric links.' },
+    synergyIds: ['fortress_network', 'perfect_network'],
+  },
+  {
+    id: 'echo_architecture',
+    name: { ru: 'Архитектура Эха', en: 'Echo Architecture' },
+    desc: { ru: 'Развитие сети через реле и передачу силы от ведущей сферы.', en: 'Network growth through relay links and power transfer from the leading Sphere.' },
+    synergyIds: ['echo_relay', 'unified_core'],
+  },
+  {
+    id: 'singularity_path',
+    name: { ru: 'Путь сингулярности', en: 'Singularity Path' },
+    desc: { ru: 'Специализированный билд, усиливающий концентрацию силы и риск.', en: 'A specialised build that concentrates power and risk.' },
+    synergyIds: ['glass_cannon', 'singularity'],
+  },
+];
+
+export function getArtifactSetProgress(
+  s: { player: { artifacts: ArtifactId[] } },
+): ArtifactSetProgress[] {
+  const activeSynergyIds = new Set(getActiveArtifactSynergies(s).map((synergy) => synergy.id));
+  return ARTIFACT_SETS.map((set) => {
+    const activeSynergies = set.synergyIds.filter((id) => activeSynergyIds.has(id)).length;
+    return {
+      id: set.id,
+      name: set.name,
+      desc: set.desc,
+      activeSynergies,
+      totalSynergies: set.synergyIds.length,
+      complete: activeSynergies === set.synergyIds.length,
+    };
+  });
+}
+
+export function getCompletedArtifactSets(
+  s: { player: { artifacts: ArtifactId[] } },
+): ArtifactSetProgress[] {
+  return getArtifactSetProgress(s).filter((set) => set.complete);
+}
+
 export function artifactRarity(id: ArtifactId): ArtifactRarity {
   return ARTIFACT_META[id].rarity;
 }
