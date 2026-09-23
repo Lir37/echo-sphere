@@ -4,6 +4,7 @@ import { SPHERE_TYPES, BOSS_TYPES } from './gameData';
 import type { MapTheme, Vec } from './engine';
 import { CHARACTER_DEFS } from './characters';
 import { getCharacterId, getCharacterFormation, getEngineerNetworkRange } from './characterRuntime';
+import { analyzeSphereNetwork, type SphereNetworkState } from './network';
 
 // ===== Origami / Paper Craft Style =====
 // Warm backgrounds, faceted folded-paper shapes, fold lines, drop shadows.
@@ -155,6 +156,10 @@ export function render(ctx: CanvasRenderingContext2D, s: GameState, canvasW: num
     ctx.beginPath(); ctx.arc(0, 0, 15 + Math.sin(Date.now() * 0.02 + ft.pos.x) * 2, 0, Math.PI * 2); ctx.stroke();
     ctx.restore();
   }
+
+  // The network is part of the battlefield, not a hidden calculation. Draw it
+  // before the Spheres so links stay behind the authored sphere silhouettes.
+  drawSphereNetwork(ctx, s, analyzeSphereNetwork(s.spheres));
 
   // pickups
   for (const orb of s.xpOrbs) drawModernXp(ctx, orb.pos.x, orb.pos.y, orb.radius, '#63e6ff');
@@ -1879,6 +1884,100 @@ function drawModernSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: S
   ctx.restore();
 }
 
+
+function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, network: SphereNetworkState): void {
+  if (network.nodes.length < 2) return;
+
+  const t = s.time;
+  const pulse = 0.55 + Math.sin(t * 4.2) * 0.12;
+
+  const hasNode = (shape: { nodes: number[] } | null, index: number): boolean =>
+    Boolean(shape?.nodes.includes(index));
+
+  for (const link of network.links) {
+    const lineNode = hasNode(network.line, link.a) && hasNode(network.line, link.b);
+    const triangleNode = hasNode(network.triangle, link.a) && hasNode(network.triangle, link.b);
+    const clusterNode = hasNode(network.cluster, link.a) && hasNode(network.cluster, link.b);
+
+    let alpha = 0.18;
+    let color = '#63b9ff';
+    if (lineNode) {
+      alpha = 0.42;
+      color = '#63e6ff';
+    } else if (triangleNode) {
+      alpha = 0.48;
+      color = '#ffb84d';
+    } else if (clusterNode) {
+      alpha = 0.34;
+      color = '#b38cff';
+    }
+
+    const a = s.spheres[link.a].pos;
+    const b = s.spheres[link.b].pos;
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.globalAlpha = alpha * pulse;
+    ctx.lineWidth = lineNode || triangleNode ? 1.5 : 1;
+    ctx.shadowColor = color;
+    ctx.shadowBlur = lineNode || triangleNode ? 9 : 5;
+    ctx.setLineDash(lineNode ? [8, 6] : [4, 8]);
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(b.x, b.y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+  }
+
+  if (network.triangle) {
+    const points = network.triangle.nodes.map((index) => s.spheres[index].pos);
+    ctx.save();
+    ctx.fillStyle = '#ffb84d';
+    ctx.globalAlpha = 0.028 + 0.018 * Math.sin(t * 3);
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+    ctx.lineTo(points[1].x, points[1].y);
+    ctx.lineTo(points[2].x, points[2].y);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = '#ffcf73';
+    ctx.globalAlpha = 0.24 + 0.08 * Math.sin(t * 4);
+    ctx.lineWidth = 1;
+    ctx.shadowColor = '#ffb84d';
+    ctx.shadowBlur = 10;
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  if (network.cluster) {
+    let cx = 0;
+    let cy = 0;
+    for (const index of network.cluster.nodes) {
+      cx += s.spheres[index].pos.x;
+      cy += s.spheres[index].pos.y;
+    }
+    cx /= network.cluster.nodes.length;
+    cy /= network.cluster.nodes.length;
+
+    let radius = 0;
+    for (const index of network.cluster.nodes) {
+      radius = Math.max(radius, Math.hypot(s.spheres[index].pos.x - cx, s.spheres[index].pos.y - cy));
+    }
+
+    ctx.save();
+    ctx.strokeStyle = '#b38cff';
+    ctx.globalAlpha = 0.16 + 0.06 * Math.sin(t * 3.2);
+    ctx.lineWidth = 1.2;
+    ctx.shadowColor = '#b38cff';
+    ctx.shadowBlur = 13;
+    ctx.setLineDash([3, 7]);
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius + 18 + Math.sin(t * 3) * 3, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+  }
+}
 
 function drawVoidCore(ctx:CanvasRenderingContext2D,r:number,color:string,pulse=1):void{
   const rgb=hexToRgb(color);
