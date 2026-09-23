@@ -120,3 +120,19 @@ SESSION LOG
 - CI run 35913004106: Typecheck, Unit tests and Web build completed successfully; Playwright/Android stages were still in progress at the time of this handoff.
 - Roadmap updated to reflect the new resonance readability pass; no DONE item was reimplemented.
 - Next step: human playtest line/triangle/cluster placement and resonance readability, then fix only issues found.
+
+
+SESSION LOG
+2026-09-23 (network resonance readability follow-up):
+- User playtest: Sphere positioning creates visible links; triangle becomes orange, while other formations were not clearly distinguishable as active.
+- Root cause confirmed in current code: only triangle has gameplay Resonance proc; line and cluster had weaker visual state communication.
+- Implemented a non-destructive visual/readability pass:
+  * active LINE / TRIANGLE / CLUSTER formations now have explicit in-world status tags;
+  * active links receive animated energy pulses;
+  * cluster receives stronger core/spoke feedback;
+  * triangle displays charge progress and an explicit RESONATE!/PROC flash on the existing every-third-hit trigger.
+- Added SphereEntity resonancePulseTimer only for transient visual feedback; existing triangle pulse damage remains unchanged.
+- Preserved all compatible gameplay/content and the full five-Sphere implementation; no roadmap-driven deletion.
+- Roadmap 2.9/2.10 remain PARTIAL until fresh human network playtest acceptance.
+- Implementation commit: PENDING AT HANDOFF.
+- Next step: fresh build + human playtest of line, triangle and cluster placement and triangle Resonance proc readability.

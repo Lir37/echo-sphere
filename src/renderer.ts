@@ -1894,6 +1894,34 @@ function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, network:
   const hasNode = (shape: { nodes: number[] } | null, index: number): boolean =>
     Boolean(shape?.nodes.includes(index));
 
+  const drawFormationTag = (
+    x: number,
+    y: number,
+    label: string,
+    color: string,
+    width = 96,
+  ): void => {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.fillStyle = 'rgba(3,8,18,0.86)';
+    ctx.strokeStyle = color;
+    ctx.globalAlpha = 0.92;
+    ctx.lineWidth = 1;
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 8;
+    ctx.beginPath();
+    ctx.roundRect(-width / 2, -10, width, 20, 7);
+    ctx.fill();
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#eef9ff';
+    ctx.font = 'bold 8px system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(label, 0, 0.5);
+    ctx.restore();
+  };
+
   for (const link of network.links) {
     const lineNode = hasNode(network.line, link.a) && hasNode(network.line, link.b);
     const triangleNode = hasNode(network.triangle, link.a) && hasNode(network.triangle, link.b);
@@ -1901,15 +1929,19 @@ function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, network:
 
     let alpha = 0.18;
     let color = '#63b9ff';
+    let active = false;
     if (lineNode) {
-      alpha = 0.42;
+      alpha = 0.58;
       color = '#63e6ff';
+      active = true;
     } else if (triangleNode) {
-      alpha = 0.48;
+      alpha = 0.62;
       color = '#ffb84d';
+      active = true;
     } else if (clusterNode) {
-      alpha = 0.34;
+      alpha = 0.46;
       color = '#b38cff';
+      active = true;
     }
 
     const a = s.spheres[link.a].pos;
@@ -1917,15 +1949,62 @@ function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, network:
     ctx.save();
     ctx.strokeStyle = color;
     ctx.globalAlpha = alpha * pulse;
-    ctx.lineWidth = lineNode || triangleNode ? 1.5 : 1;
+    ctx.lineWidth = active ? 1.6 : 1;
     ctx.shadowColor = color;
-    ctx.shadowBlur = lineNode || triangleNode ? 9 : 5;
-    ctx.setLineDash(lineNode ? [8, 6] : [4, 8]);
+    ctx.shadowBlur = active ? 11 : 5;
+    ctx.setLineDash(lineNode ? [8, 6] : clusterNode ? [3, 7] : [4, 8]);
     ctx.beginPath();
     ctx.moveTo(a.x, a.y);
     ctx.lineTo(b.x, b.y);
     ctx.stroke();
+
+    if (active) {
+      const speed = lineNode ? 0.42 : triangleNode ? 0.50 : 0.34;
+      const phase = ((t * speed) + link.a * 0.17 + link.b * 0.11) % 1;
+      const px = a.x + (b.x - a.x) * phase;
+      const py = a.y + (b.y - a.y) * phase;
+      ctx.fillStyle = color;
+      ctx.globalAlpha = 0.85;
+      ctx.shadowColor = color;
+      ctx.shadowBlur = 9;
+      ctx.beginPath();
+      ctx.arc(px, py, 2.2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
     ctx.setLineDash([]);
+    ctx.restore();
+  }
+
+  if (network.line) {
+    let cx = 0;
+    let cy = 0;
+    for (const index of network.line.nodes) {
+      cx += s.spheres[index].pos.x;
+      cy += s.spheres[index].pos.y;
+    }
+    cx /= network.line.nodes.length;
+    cy /= network.line.nodes.length;
+
+    drawFormationTag(
+      cx,
+      cy - 26 - Math.abs(Math.sin(t * 2.3)) * 4,
+      'LINE // ACTIVE',
+      '#63e6ff',
+      100,
+    );
+
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.strokeStyle = '#63e6ff';
+    ctx.globalAlpha = 0.20 + 0.05 * Math.sin(t * 5);
+    ctx.lineWidth = 1;
+    ctx.setLineDash([2, 8]);
+    const spread = 34 + network.line.nodes.length * 5;
+    ctx.beginPath();
+    ctx.moveTo(-spread, 0);
+    ctx.lineTo(spread, 0);
+    ctx.stroke();
     ctx.restore();
   }
 
@@ -1948,8 +2027,29 @@ function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, network:
     ctx.stroke();
     ctx.restore();
 
-    // Triangle resonance already fires every third qualifying hit.
-    // This ring makes that existing charge legible before the proc occurs.
+    let cx = 0;
+    let cy = 0;
+    let totalCharge = 0;
+    let activePulse = false;
+    for (const index of network.triangle.nodes) {
+      const sphere = s.spheres[index];
+      cx += sphere.pos.x;
+      cy += sphere.pos.y;
+      totalCharge += sphere.resonanceHits % 3;
+      activePulse ||= sphere.resonancePulseTimer > 0;
+    }
+    cx /= network.triangle.nodes.length;
+    cy /= network.triangle.nodes.length;
+    const averageCharge = Math.round(totalCharge / network.triangle.nodes.length);
+
+    drawFormationTag(
+      cx,
+      cy - 38,
+      activePulse ? 'TRIANGLE // RESONATE!' : 'TRIANGLE // ACTIVE',
+      '#ffb84d',
+      activePulse ? 120 : 110,
+    );
+
     for (const index of network.triangle.nodes) {
       const sphere = s.spheres[index];
       const charge = sphere.resonanceHits % 3;
@@ -1966,7 +2066,7 @@ function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, network:
       ctx.stroke();
 
       if (charge > 0) {
-        ctx.globalAlpha = 0.78;
+        ctx.globalAlpha = 0.86;
         ctx.shadowColor = '#ffb84d';
         ctx.shadowBlur = 8;
         ctx.beginPath();
@@ -1974,11 +2074,22 @@ function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, network:
         ctx.stroke();
       }
 
+      if (sphere.resonancePulseTimer > 0) {
+        const flash = sphere.resonancePulseTimer / 0.45;
+        ctx.globalAlpha = 0.45 + 0.4 * flash;
+        ctx.shadowColor = '#fff0c2';
+        ctx.shadowBlur = 18;
+        ctx.lineWidth = 2.6;
+        ctx.beginPath();
+        ctx.arc(0, 0, radius + 5 + (1 - flash) * 10, -Math.PI / 2, Math.PI * 1.5);
+        ctx.stroke();
+      }
+
       for (let tick = 0; tick < 3; tick++) {
         const a = -Math.PI / 2 + (tick / 3) * Math.PI * 2;
         const inner = radius + 2;
-        const outer = inner + (tick < charge ? 4 : 2);
-        ctx.globalAlpha = tick < charge ? 0.88 : 0.30;
+        const outer = inner + (tick < charge ? 5 : 2);
+        ctx.globalAlpha = tick < charge ? 0.95 : 0.30;
         ctx.beginPath();
         ctx.moveTo(Math.cos(a) * inner, Math.sin(a) * inner);
         ctx.lineTo(Math.cos(a) * outer, Math.sin(a) * outer);
@@ -1986,6 +2097,29 @@ function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, network:
       }
       ctx.restore();
     }
+
+    ctx.save();
+    ctx.translate(cx, cy);
+    const corePulse = 1 + (activePulse ? 0.28 + 0.08 * Math.sin(t * 24) : 0.04 * Math.sin(t * 6));
+    ctx.scale(corePulse, corePulse);
+    ctx.fillStyle = '#ffb84d';
+    ctx.globalAlpha = activePulse ? 0.9 : 0.26;
+    ctx.shadowColor = activePulse ? '#fff0c2' : '#ffb84d';
+    ctx.shadowBlur = activePulse ? 18 : 8;
+    ctx.beginPath();
+    ctx.arc(0, 0, activePulse ? 4.5 : 2.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    ctx.save();
+    ctx.fillStyle = '#ffc977';
+    ctx.globalAlpha = 0.82;
+    ctx.font = 'bold 8px system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('RESONANCE', cx, cy + 4);
+    ctx.font = 'bold 10px system-ui, sans-serif';
+    ctx.fillText(activePulse ? 'PROC' : `${averageCharge}/3`, cx, cy + 16);
+    ctx.restore();
   }
 
   if (network.cluster) {
@@ -2004,17 +2138,39 @@ function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, network:
     }
 
     ctx.save();
+    const clusterPulse = 1 + Math.sin(t * 3.4) * 0.035;
     ctx.strokeStyle = '#b38cff';
-    ctx.globalAlpha = 0.16 + 0.06 * Math.sin(t * 3.2);
-    ctx.lineWidth = 1.2;
+    ctx.globalAlpha = 0.20 + 0.07 * Math.sin(t * 3.2);
+    ctx.lineWidth = 1.4;
     ctx.shadowColor = '#b38cff';
-    ctx.shadowBlur = 13;
+    ctx.shadowBlur = 15;
     ctx.setLineDash([3, 7]);
     ctx.beginPath();
     ctx.arc(cx, cy, radius + 18 + Math.sin(t * 3) * 3, 0, Math.PI * 2);
     ctx.stroke();
     ctx.setLineDash([]);
+
+    ctx.strokeStyle = 'rgba(206,178,255,0.42)';
+    ctx.globalAlpha = 0.55;
+    ctx.lineWidth = 0.8;
+    for (const index of network.cluster.nodes) {
+      const p = s.spheres[index].pos;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+    }
+
+    ctx.fillStyle = '#b38cff';
+    ctx.globalAlpha = 0.42 + 0.1 * Math.sin(t * 7);
+    ctx.shadowColor = '#b38cff';
+    ctx.shadowBlur = 11;
+    ctx.beginPath();
+    ctx.arc(cx, cy, 4.2 * clusterPulse, 0, Math.PI * 2);
+    ctx.fill();
     ctx.restore();
+
+    drawFormationTag(cx, cy - radius - 34, 'CLUSTER // ACTIVE', '#b38cff', 116);
   }
 }
 function drawVoidCore(ctx:CanvasRenderingContext2D,r:number,color:string,pulse=1):void{

@@ -107,6 +107,7 @@ export interface SphereEntity {
   alive: boolean;
   killsContribution: number;
   resonanceHits: number;
+  resonancePulseTimer: number;
   visualTier: number;
   type: SphereType;
   auraTimer: number;
@@ -1143,6 +1144,7 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
     if (profile.triangle) {
       fromSphere.resonanceHits++;
       if (fromSphere.resonanceHits % 3 === 0) {
+        fromSphere.resonancePulseTimer = 0.45;
         const pulseDamage = actual * 0.35;
         const pulseRadius = 88;
         for (const nearby of s.enemies) {
@@ -2416,6 +2418,7 @@ function checkMutation(s: GameState): void {
 function updateSpheres(s: GameState, dt: number): void {
   for (const sphere of s.spheres) {
     if (!sphere.alive) continue;
+    sphere.resonancePulseTimer = Math.max(0, sphere.resonancePulseTimer - dt);
     const stype = SPHERE_TYPES[sphere.type];
     const radius = getSphereRadius(s, sphere) * stype.rangeMult;
     const damage = getSphereDamage(s, sphere) * stype.damageMult;
@@ -2960,6 +2963,7 @@ export function placeSphere(s: GameState, x: number, y: number): void {
     alive: true,
     killsContribution: 0,
     resonanceHits: 0,
+    resonancePulseTimer: 0,
     visualTier: sphereLevel(s, s.selectedSphereType),
     type: s.selectedSphereType,
     auraTimer: 0,
