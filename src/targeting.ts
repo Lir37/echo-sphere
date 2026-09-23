@@ -10,7 +10,7 @@ export interface TargetableEnemy {
   hp: number;
   isBoss?: boolean;
   isElite?: boolean;
-  type?: 'normal' | 'fast' | 'tank' | 'boss';
+  type?: 'normal' | 'fast' | 'tank' | 'elite' | 'boss';
 }
 
 function distanceSquared(a: TargetPosition, b: TargetPosition): number {
