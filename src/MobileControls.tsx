@@ -9,9 +9,9 @@ import type { Lang, TranslationKey } from './i18n';
 import { loadInterfaceScale } from './interfaceScale';
 import { createMasteryRunTracker, getMasteryRunXp, tickCharacterMastery } from './characterMastery';
 import { addCharacterMasteryXp } from './persistence';
-import { canPlaceSphere } from './spaceCollision';
+import { canPlaceSphere, repositionSphere } from './spaceCollision';
 
-type PointerState = { startX: number; startY: number; moved: boolean; joystickCandidate: boolean };
+type PointerState = { startX: number; startY: number; moved: boolean; joystickCandidate: boolean; draggingSphere: SphereEntity | null; repositioned: boolean };
 type JoystickVisual = { pointerId: number; x: number; y: number; dx: number; dy: number; active: boolean };
 type PlacementVisual = { x: number; y: number; color: string; id: number };
 type CharacterVisualState = {
@@ -139,6 +139,20 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
   const endPointer = (pointerId: number, clientX: number, clientY: number) => {
     const pointer = pointersRef.current.get(pointerId);
     pointersRef.current.delete(pointerId);
+    if (pointer?.draggingSphere) {
+      const st = stateRef.current;
+      if (st && !pointer.moved) {
+        placeSphere(st, pointer.draggingSphere.pos.x, pointer.draggingSphere.pos.y);
+        haptic(10);
+      } else if (st && pointer.repositioned) {
+        st.flashText = { text: lang === 'ru' ? 'Сфера перемещена' : 'Sphere moved', life: 0.8, color: SPHERE_TYPES[pointer.draggingSphere.type].color };
+        haptic(12);
+      } else if (st && pointer.moved) {
+        st.flashText = { text: lang === 'ru' ? 'Недоступная позиция' : 'Invalid position', life: 0.65, color: '#ff4d5d' };
+        haptic(22);
+      }
+      return;
+    }
     if (joystickIdRef.current === pointerId) {
       joystickIdRef.current = null;
       clearMovementKeys();
@@ -181,8 +195,19 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
           startX: e.clientX,
           startY: e.clientY,
           moved: false,
-          joystickCandidate: joystickIdRef.current === null && e.clientX >= joystickZoneStart && e.clientX < joystickZoneEnd,
+          joystickCandidate: false,
+          draggingSphere: null,
+          repositioned: false,
         };
+        const world = touchToWorld(e.clientX, e.clientY);
+        if (world) {
+          const draggable = st.spheres.find((sphere) => sphere.alive && Math.hypot(sphere.pos.x - world.x, sphere.pos.y - world.y) < 34) || null;
+          if (draggable) {
+            pointer.draggingSphere = draggable;
+          } else {
+            pointer.joystickCandidate = joystickIdRef.current === null && e.clientX >= joystickZoneStart && e.clientX < joystickZoneEnd;
+          }
+        }
         pointersRef.current.set(e.pointerId, pointer);
         if (pointer.joystickCandidate) startJoystick(e.pointerId, e.clientX, e.clientY);
       }}
@@ -191,6 +216,17 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
         if (!pointer) return;
         const dx = e.clientX - pointer.startX, dy = e.clientY - pointer.startY;
         const distance = Math.hypot(dx, dy);
+        if (pointer.draggingSphere) {
+          if (distance > JOYSTICK_DEADZONE) pointer.moved = true;
+          if (distance > JOYSTICK_DEADZONE) {
+            const world = touchToWorld(e.clientX, e.clientY);
+            const st = stateRef.current;
+            if (world && st && repositionSphere(st, pointer.draggingSphere, world.x, world.y)) {
+              pointer.repositioned = true;
+            }
+          }
+          return;
+        }
         if (distance > JOYSTICK_DEADZONE) pointer.moved = true;
         if (joystickIdRef.current === e.pointerId) {
           const length = Math.hypot(dx, dy) || 1;
