@@ -12,8 +12,11 @@ new-desing
 RESTORED BASELINE
 c79850b9a4e413ad5cad1cbd360d152d22fa7829
 
-CURRENT HEAD
-a64356af244439a51df7dc24b35b1e3b3f609e98
+CURRENT IMPLEMENTATION COMMIT
+230747a6622798786b93e59c83b413947c9453b4
+
+LATEST DOCS COMMIT
+997ff2bd8988aa531572cbf646ba5bc25c0adc11
 
 ROLLBACK
 The branch was moved back from 219301fb2647a76088b0411ddb95438016b54c63 to c79850b9a4e413ad5cad1cbd360d152d22fa7829.
@@ -66,8 +69,8 @@ The first vertical slice intentionally exposes only three as the controlled sele
 Shotgun and Aura are not obsolete and must not be deleted.
 
 CURRENT GAPS
-1. Human acceptance of the restored baseline / 5-minute combat gate.
-2. Network/resonance readability and gameplay gate.
+1. Formal 5-minute combat gate acceptance.
+2. Network/resonance human playtest and readability gate.
 3. Build-choice weighting and RNG protection validation.
 4. Artifact behaviour depth.
 5. Dedicated control/execution/explosion artifact coverage.
@@ -109,5 +112,11 @@ SESSION LOG
 - Preserved all five Sphere types in the project; first-slice pool remains three.
 - Verified fresh post-rollback web build and automated render-after-Play flow in GitHub Actions run 35909196487.
 - Verified fresh post-rollback debug APK build and upload in GitHub Actions run 35909196487.
-- No gameplay/code files changed during this audit; the six commits above c79850b9 are documentation-only according to GitHub compare.
-- Next step: human 5-minute combat playtest / acceptance gate before advancing implementation.
+- No gameplay/code files changed during the initial audit; the gameplay baseline was preserved.
+- Added non-destructive triangle resonance charge visualization in src/renderer.ts in implementation commit 230747a6622798786b93e59c83b413947c9453b4.
+- Existing resonance gameplay rules were preserved: triangle resonance still triggers on every third qualifying hit; no damage/cooldown rule was changed.
+- Preserved existing content including all five Sphere types (Standard, Sniper, Shotgun, Chain, Aura), characters, artifacts, bosses and compatible 3D/GLB path.
+- Manual user spot-check on 2026-09-23 reported movement, Dash, Sphere operation and attacks as normal. Formal 5-minute combat and network acceptance gates remain open.
+- CI run 35913004106: Typecheck, Unit tests and Web build completed successfully; Playwright/Android stages were still in progress at the time of this handoff.
+- Roadmap updated to reflect the new resonance readability pass; no DONE item was reimplemented.
+- Next step: human playtest line/triangle/cluster placement and resonance readability, then fix only issues found.
