@@ -29,6 +29,7 @@ import { loadCharacterId, loadCharacterProfiles } from './persistence';
 import { getArtifactMoveSpeedMultiplier, getArtifactMaxHpBonus, getArtifactXpMultiplier, getArtifactRegenPerSecond, getArtifactSphereRadiusMultiplier, getArtifactSphereDamageMultiplier, getArtifactCooldownMultiplier, getArtifactSphereDelayMultiplier, getArtifactDamageTakenMultiplier, getArtifactCritChanceBonus, getArtifactDodgeChanceBonus, getArtifactVampireBonus, getArtifactReflectChance, getSphereArtifactDamageMultiplier, pickArtifactChoices } from './artifactSystem';
 import { SPHERE_PROGRESSION, ABILITY_PROGRESSION, spherePriority, sphereLevel, sphereModifiers, SPHERE_ABILITY_SYNERGIES, getActiveSphereAbilitySynergies } from './sphereProgression';
 import { selectSphereTarget } from './targeting';
+import { analyzeSphereNetwork, getSphereNetworkProfile } from './network';
 
 export interface Vec { x: number; y: number; }
 
@@ -105,6 +106,7 @@ export interface SphereEntity {
   rotation: number;
   alive: boolean;
   killsContribution: number;
+  resonanceHits: number;
   visualTier: number;
   type: SphereType;
   auraTimer: number;
@@ -511,6 +513,7 @@ export function createInitialState(
       rotation: 0,
       alive: true,
       killsContribution: 0,
+      resonanceHits: 0,
       visualTier: 0,
       type: 'standard',
       auraTimer: 0,
@@ -641,6 +644,11 @@ export function getSphereDelay(s: GameState, sphere?: SphereEntity): number {
   d *= getArtifactSphereDelayMultiplier(s);
   if (s.player.overloadTimer > 0) d *= 0.72;
   if (s.player.fireTrailTimer > 0 && sphere && s.player.sphereMods.fire > 0) d *= 0.78;
+  if (sphere) {
+    const network = analyzeSphereNetwork(s.spheres);
+    const profile = getSphereNetworkProfile(network, s.spheres.indexOf(sphere));
+    if (profile.cluster) d *= 0.90;
+  }
   return d;
 }
 
@@ -1118,6 +1126,26 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
   enemy.hitFlash = 0.15;
 
   // Juicier impact: a short, directional burst makes every sphere hit readable.
+  if (fromSphere) {
+    const sphereIndex = s.spheres.indexOf(fromSphere);
+    const network = analyzeSphereNetwork(s.spheres);
+    const profile = getSphereNetworkProfile(network, sphereIndex);
+    if (profile.triangle) {
+      fromSphere.resonanceHits++;
+      if (fromSphere.resonanceHits % 3 === 0) {
+        const pulseDamage = actual * 0.35;
+        const pulseRadius = 88;
+        for (const nearby of s.enemies) {
+          if (nearby !== enemy && nearby.hp > 0 && dist(nearby.pos, enemy.pos) <= pulseRadius) {
+            dealDamageToEnemy(s, nearby, pulseDamage, fromSphere, false);
+          }
+        }
+        s.lightnings.push({ from: { ...fromSphere.pos }, to: { ...enemy.pos }, life: 0.24 });
+        s.screenShake = Math.min(0.16, s.screenShake + 0.025);
+      }
+    }
+  }
+
   const impactCount = enemy.isBoss ? 10 : isCrit ? 9 : enemy.isElite ? 7 : 4;
   for (let i = 0; i < impactCount; i++) {
     const angle = Math.random() * Math.PI * 2;
@@ -2364,6 +2392,8 @@ function updateSpheres(s: GameState, dt: number): void {
     const damage = getSphereDamage(s, sphere) * stype.damageMult;
     const delay = getSphereDelay(s, sphere) * stype.delayMult * sphereModifiers(s, sphere.type).delay;
     const branch = s.player.sphereBranches?.[sphere.type];
+    const networkState = analyzeSphereNetwork(s.spheres);
+    const networkProfile = getSphereNetworkProfile(networkState, s.spheres.indexOf(sphere));
     // aura type: continuous AoE damage — no barrel rotation
     if (stype.aura) {
       sphere.auraTimer -= dt;
@@ -2452,7 +2482,7 @@ function updateSpheres(s: GameState, dt: number): void {
             radius: 5,
             alive: true,
             color,
-            pierce: mods.pierce + formationPierce + (stype.chain ? Math.max(1, sphereModifiers(s, 'chain').chainTargets) : sphereModifiers(s, sphere.type).pierce),
+            pierce: mods.pierce + formationPierce + (networkProfile.line ? 1 : 0) + (stype.chain ? Math.max(1, sphereModifiers(s, 'chain').chainTargets) : sphereModifiers(s, sphere.type).pierce),
             hitEnemies: new Set(),
             effect,
             ricochet: mods.ricochet,
@@ -2900,6 +2930,7 @@ export function placeSphere(s: GameState, x: number, y: number): void {
     rotation: 0,
     alive: true,
     killsContribution: 0,
+    resonanceHits: 0,
     visualTier: sphereLevel(s, s.selectedSphereType),
     type: s.selectedSphereType,
     auraTimer: 0,
