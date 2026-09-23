@@ -1,0 +1,182 @@
+ECHO SPHERE
+DEVELOPMENT ROADMAP & PRODUCTION PLAN
+Version 1.1
+Date: 2026-09-23
+
+WORKING BRANCH
+new-desing
+
+BASELINE
+c79850b9a4e413ad5cad1cbd360d152d22fa7829
+
+STATUS LEGEND
+[DONE] implemented in repository baseline.
+[PARTIAL] implementation exists but task/acceptance is incomplete.
+[PENDING] not sufficiently implemented or verified.
+[GATE] requires human playtest/acceptance.
+
+ROADMAP INTERPRETATION
+This roadmap is additive and sequential, not destructive.
+A later task does not mean earlier or already-existing compatible content must be deleted.
+If the repository already contains compatible later-phase content, mark it EXISTING EARLY / PRESERVED and keep it.
+
+PHASE 0. PROJECT AUDIT
+0.1 [DONE] Baseline inspected/restored.
+0.2 [DONE] Working branch confirmed: new-desing.
+0.3 [GATE] Stable restored gameplay baseline still needs human playtest.
+0.4 [DONE] 3D/GLB code/assets are known in the repository.
+0.5 [PARTIAL] Active 3D path exists; do not remove compatible assets blindly.
+0.6 [DONE] Core systems are inventoried in repository code.
+0.7 [DONE] Automated tests exist.
+0.8 [DONE] lint/typecheck/test scripts exist.
+0.9 [PENDING] Fresh web build verification after rollback.
+0.10 [PENDING] Fresh APK CI verification after rollback.
+0.11 [PENDING] Record fresh post-rollback baseline after play/build.
+
+PHASE 1. COMBAT FOUNDATION
+1.1 [DONE] Responsive player movement.
+1.2 [DONE] Dash with cooldown/i-frames.
+1.3 [DONE] Sphere entity architecture.
+1.4 [DONE] Standard Sphere.
+1.5 [DONE] Sniper Sphere.
+1.6 [DONE] Chain Sphere.
+1.7 [DONE] Projectile system.
+1.8 [DONE] Target selection.
+1.9 [DONE] Damage system.
+1.10 [DONE] Normal enemy.
+1.11 [DONE] Fast enemy.
+1.12 [DONE] Tank enemy.
+1.13 [DONE] Elite enemy.
+1.14 [DONE] Wave/time scaling.
+1.15 [DONE] XP drops/progression.
+1.16 [DONE] Level-up choice system.
+PRESERVED EARLY CONTENT:
+- Shotgun Sphere.
+- Aura Sphere.
+These remain in the project even though the first-slice pool is restricted to three primary choices.
+EXIT GATE [GATE] 5-minute combat session must be readable and enjoyable.
+
+PHASE 2. NETWORK / GEOMETRY
+2.1 [DONE] Sphere network placement/state exists.
+2.2 [DONE] Sphere removal/state exists.
+2.3 [DONE] Sphere repositioning/state exists.
+2.4 [DONE] Neighbour/link detection.
+2.5 [DONE] Distance calculation.
+2.6 [DONE] Line geometry detection.
+2.7 [DONE] Triangle geometry detection.
+2.8 [DONE] Cluster geometry detection.
+2.9 [PARTIAL] Resonance state/effects exist; full gameplay gate unverified.
+2.10 [PARTIAL] Visual/network feedback exists; acceptance unverified.
+2.11 [PARTIAL] Geometry bonus effects exist; playtest validation needed.
+2.12 [PENDING] Dedicated UI for active network state needs verification/implementation.
+EXIT GATE [GATE] Player must actively care about positioning.
+
+PHASE 3. BUILD SYSTEM
+3.1 [DONE] Sphere upgrade choices.
+3.2 [DONE] Sphere level progression.
+3.3 [DONE] Modifier architecture.
+3.4 [DONE] Multishot.
+3.5 [DONE] Pierce.
+3.6 [DONE] Ricochet.
+3.7 [DONE] Fire.
+3.8 [DONE] Freeze.
+3.9 [DONE] Poison.
+3.10 [PARTIAL] Basic passive/shop progression exists; build quality not validated.
+3.11 [PARTIAL] Choice generation exists; deliberate weighting needs verification.
+3.12 [PARTIAL] Constrained pools provide some RNG protection; full protection not proven.
+EXIT GATE [GATE] At least 3 recognizable builds must be viable.
+
+PHASE 4. ARTIFACTS
+4.1 [DONE] Artifact data model.
+4.2 [DONE] Rarity system.
+4.3 [DONE] Reward generation.
+4.4 [DONE] Common artifacts.
+4.5 [DONE] Rare artifacts.
+4.6 [DONE] Epic artifacts.
+4.7 [DONE] Special artifacts.
+4.8 [PARTIAL] Behaviour mechanics exist, but catalogue remains heavily stat-focused.
+4.9 [PARTIAL] Event-style mechanics exist; target event catalogue incomplete.
+4.10 [PENDING] Dedicated control-artifact coverage.
+4.11 [PENDING] Dedicated execution-artifact coverage.
+4.12 [PENDING] Dedicated explosion-artifact coverage.
+4.13 [PARTIAL] Sphere-specific modifiers exist.
+4.14 [PARTIAL] Network/geometry artifacts exist; depth incomplete.
+CONTENT NOTE
+The baseline contains more compatible artifact content than the minimum 10-15 target. Preserve it.
+EXIT GATE [GATE] Artifact choices must alter strategy.
+
+PHASE 5. ARTIFACT SYNERGY
+5.1 [DONE] Pair Synergy framework.
+5.2 [PARTIAL] Pair synergies exist; full Artifact Set framework incomplete.
+5.3 [PENDING] Protocol framework.
+5.4 [PENDING] Set progress UI.
+5.5 [PENDING] Discovered/unknown state.
+5.6 [PENDING] Triangle Protocol.
+5.7 [PENDING] Sphere behaviour set.
+5.8 [PENDING] Event/combat-condition set.
+5.9 [PENDING] Completion VFX.
+5.10 [PENDING] Completion gameplay effects.
+Existing pair synergies are preserved and should be extended, not replaced.
+EXIT GATE [GATE]
+
+PHASE 6. BOSS + STELLA + LEGENDARY
+6.1 [DONE] Boss implementation exists.
+6.2 [PARTIAL] Boss telegraph/presentation needs playtest validation.
+6.3 [DONE] Boss attack patterns/types exist.
+6.4 [PARTIAL] Boss reward flow exists; full acceptance unverified.
+6.5 [DONE] Stella reward flow exists.
+6.6 [DONE] Legendary artifact pool exists.
+6.7 [DONE] Legendary selection flow exists.
+6.8 [PARTIAL] Scarcity logic exists; full run validation pending.
+6.9 [DONE] Endless threshold is configurable.
+6.10 [DONE] Stella transition logic exists.
+EXIT GATE [GATE] Legendary choice must meaningfully steer the build.
+
+PHASE 7. FIRST VERTICAL SLICE
+[PENDING GATE]
+Most implementation exists, but the complete 10-15 minute human fun test is not accepted.
+Do not restart implementation from zero.
+
+PHASE 8. BALANCE PASS
+[PENDING]
+Collect playtest data before formal tuning.
+
+PHASE 9. VERTICAL SLICE 0.2
+[PENDING]
+Begin only after Slice 0.1 passes the fun gate.
+
+PHASE 10. CHARACTER SYSTEM
+[EXISTING EARLY / PRESERVED]
+Character systems already exist. Preserve them; do not expand them merely because they exist.
+
+PHASE 11. META PROGRESSION
+[EXISTING EARLY / PRESERVED]
+Shop/permanent progression systems already exist. Preserve compatible implementation.
+
+PHASE 12. LONG-TERM CONTENT
+[PENDING]
+
+PHASE 13. VISUAL / AUDIO POLISH
+[PENDING]
+Do not use visual work to avoid gameplay gates.
+
+PHASE 14. 3D RE-EVALUATION
+[EXISTING EARLY / PRESERVED]
+3D/GLB assets and a 3D path already exist. Preserve them.
+This does not make mass 3D production the current priority.
+
+QUALITY GATES
+GATE A [GATE] Combat works.
+GATE B [GATE] Network matters.
+GATE C [GATE] Build choices matter.
+GATE D [GATE] Artifacts change strategy.
+GATE E [PENDING] Synergies create emergent builds.
+GATE F [GATE] Boss/Stella creates a meaningful pivot.
+GATE G [PENDING] A 10-15 minute run is fun.
+GATE H [PENDING] Multiple builds are viable.
+GATE I [PENDING] Performance is stable.
+GATE J [PENDING] Only then scale content/meta/visuals.
+
+NEXT WORK RULE
+Start from the earliest unfinished task that materially advances the current gate.
+Do not delete or shrink existing compatible content to make the roadmap look cleaner.
