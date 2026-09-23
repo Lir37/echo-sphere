@@ -121,10 +121,13 @@ export function shopCost(def: ShopUpgradeDef, currentLevel: number): number {
 // ===== Sphere Types =====
 export type SphereType = 'standard' | 'sniper' | 'shotgun' | 'chain' | 'aura';
 
+export type SphereTargetingRule = 'nearest' | 'high_value_far';
+
 export interface SphereTypeDef {
   id: SphereType;
   name: { ru: string; en: string };
   desc: { ru: string; en: string };
+  targetingRule: SphereTargetingRule;
   color: string;
   damageMult: number;
   rangeMult: number;
@@ -141,30 +144,35 @@ export const SPHERE_TYPES: Record<SphereType, SphereTypeDef> = {
   standard: {
     id: 'standard', name: { ru: 'Стандартная', en: 'Standard' },
     desc: { ru: 'Сбалансированная сфера', en: 'Balanced sphere' },
+    targetingRule: 'nearest',
     color: '#55dfff', damageMult: 1, rangeMult: 1, delayMult: 1, projectileSpeedMult: 1,
     pellets: 1, spread: 0, chain: false, aura: false, auraRadius: 0,
   },
   sniper: {
     id: 'sniper', name: { ru: 'Снайпер', en: 'Sniper' },
     desc: { ru: 'Высокий урон, большая дальность, медленная', en: 'High damage, long range, slow' },
+    targetingRule: 'high_value_far',
     color: '#e86cff', damageMult: 2.5, rangeMult: 2, delayMult: 2, projectileSpeedMult: 2,
     pellets: 1, spread: 0, chain: false, aura: false, auraRadius: 0,
   },
   shotgun: {
     id: 'shotgun', name: { ru: 'Дробовик', en: 'Shotgun' },
     desc: { ru: '3 снаряда, короткая дальность', en: '3 pellets, short range' },
+    targetingRule: 'nearest',
     color: '#ff8f3d', damageMult: 0.6, rangeMult: 0.6, delayMult: 1.2, projectileSpeedMult: 0.8,
     pellets: 3, spread: 0.4, chain: false, aura: false, auraRadius: 0,
   },
   chain: {
     id: 'chain', name: { ru: 'Цепная', en: 'Chain' },
     desc: { ru: 'Молния прыгает между врагами', en: 'Lightning jumps between enemies' },
+    targetingRule: 'nearest',
     color: '#ffe25b', damageMult: 1, rangeMult: 1, delayMult: 1.3, projectileSpeedMult: 1.5,
     pellets: 1, spread: 0, chain: true, aura: false, auraRadius: 0,
   },
   aura: {
     id: 'aura', name: { ru: 'Аура', en: 'Aura' },
     desc: { ru: 'Непрерывный урон по площади', en: 'Continuous AoE damage' },
+    targetingRule: 'nearest',
     color: '#57e6b4', damageMult: 0.4, rangeMult: 0.5, delayMult: 0.2, projectileSpeedMult: 1,
     pellets: 0, spread: 0, chain: false, aura: true, auraRadius: 80,
   },

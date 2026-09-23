@@ -28,6 +28,7 @@ import {
 import { loadCharacterId, loadCharacterProfiles } from './persistence';
 import { getArtifactMoveSpeedMultiplier, getArtifactMaxHpBonus, getArtifactXpMultiplier, getArtifactRegenPerSecond, getArtifactSphereRadiusMultiplier, getArtifactSphereDamageMultiplier, getArtifactCooldownMultiplier, getArtifactSphereDelayMultiplier, getArtifactDamageTakenMultiplier, getArtifactCritChanceBonus, getArtifactDodgeChanceBonus, getArtifactVampireBonus, getArtifactReflectChance, getSphereArtifactDamageMultiplier, pickArtifactChoices } from './artifactSystem';
 import { SPHERE_PROGRESSION, ABILITY_PROGRESSION, spherePriority, sphereLevel, sphereModifiers, SPHERE_ABILITY_SYNERGIES, getActiveSphereAbilitySynergies } from './sphereProgression';
+import { selectSphereTarget } from './targeting';
 
 export interface Vec { x: number; y: number; }
 
@@ -2405,14 +2406,13 @@ function updateSpheres(s: GameState, dt: number): void {
       }
       continue;
     }
-    // find nearest enemy for aiming (every frame, not just on fire)
-    let nearest: EnemyEntity | null = null;
-    let nd = Infinity;
-    for (const e of s.enemies) {
-      if (e.hp <= 0) continue;
-      const d = dist(e.pos, sphere.pos);
-      if (d < radius && d < nd) { nd = d; nearest = e; }
-    }
+    // Target selection is data-driven per Sphere type.
+    const nearest = selectSphereTarget(
+      sphere.pos,
+      radius,
+      s.enemies,
+      stype.targetingRule,
+    );
     // aim turret at nearest enemy; stay static if no enemies
     if (nearest) {
       const adx = nearest.pos.x - sphere.pos.x;
