@@ -1947,6 +1947,45 @@ function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, network:
     ctx.shadowBlur = 10;
     ctx.stroke();
     ctx.restore();
+
+    // Triangle resonance already fires every third qualifying hit.
+    // This ring makes that existing charge legible before the proc occurs.
+    for (const index of network.triangle.nodes) {
+      const sphere = s.spheres[index];
+      const charge = sphere.resonanceHits % 3;
+      const progress = charge / 3;
+      const radius = 25 + Math.sin(t * 5 + index) * 1.5;
+
+      ctx.save();
+      ctx.translate(sphere.pos.x, sphere.pos.y);
+      ctx.strokeStyle = '#ffb84d';
+      ctx.lineWidth = 1.4;
+      ctx.globalAlpha = 0.20;
+      ctx.beginPath();
+      ctx.arc(0, 0, radius, -Math.PI / 2, Math.PI * 1.5);
+      ctx.stroke();
+
+      if (charge > 0) {
+        ctx.globalAlpha = 0.78;
+        ctx.shadowColor = '#ffb84d';
+        ctx.shadowBlur = 8;
+        ctx.beginPath();
+        ctx.arc(0, 0, radius, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * progress);
+        ctx.stroke();
+      }
+
+      for (let tick = 0; tick < 3; tick++) {
+        const a = -Math.PI / 2 + (tick / 3) * Math.PI * 2;
+        const inner = radius + 2;
+        const outer = inner + (tick < charge ? 4 : 2);
+        ctx.globalAlpha = tick < charge ? 0.88 : 0.30;
+        ctx.beginPath();
+        ctx.moveTo(Math.cos(a) * inner, Math.sin(a) * inner);
+        ctx.lineTo(Math.cos(a) * outer, Math.sin(a) * outer);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
   }
 
   if (network.cluster) {
@@ -1978,7 +2017,6 @@ function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, network:
     ctx.restore();
   }
 }
-
 function drawVoidCore(ctx:CanvasRenderingContext2D,r:number,color:string,pulse=1):void{
   const rgb=hexToRgb(color);
   const glow=ctx.createRadialGradient(0,-r*.12,0,0,0,r*1.35);
