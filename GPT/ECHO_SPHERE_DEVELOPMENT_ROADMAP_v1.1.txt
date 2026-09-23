@@ -66,8 +66,8 @@ PHASE 2. NETWORK / GEOMETRY
 2.6 [DONE] Line geometry detection.
 2.7 [DONE] Triangle geometry detection.
 2.8 [DONE] Cluster geometry detection.
-2.9 [PARTIAL] Resonance state/effects exist; triangle resonance now has explicit charge and proc feedback; gameplay gate still requires human network playtest.
-2.10 [PARTIAL] Visual/network feedback now explicitly labels active LINE/TRIANGLE/CLUSTER formations, animates active links, and highlights triangle resonance proc; acceptance requires a fresh human playtest.
+2.9 [PARTIAL] Resonance state/effects exist; triangle resonance now has visible charge feedback; gameplay gate still requires human network playtest.
+2.10 [PARTIAL] Visual/network feedback exists and was strengthened with triangle resonance charge feedback; acceptance unverified.
 2.11 [PARTIAL] Geometry bonus effects exist; playtest validation needed.
 2.12 [PENDING] Dedicated UI for active network state needs verification/implementation.
 EXIT GATE [GATE] Player must actively care about positioning.
