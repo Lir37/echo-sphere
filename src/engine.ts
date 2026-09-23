@@ -215,7 +215,7 @@ export interface LightningBolt {
 }
 
 export interface UpgradeChoice {
-  type: 'ability' | 'sphere';
+  type: 'ability' | 'sphere' | 'modifier';
   ability?: AbilityType;
   abilityEvolutionIndex?: number;
   abilityStage?: 'upgrade' | 'branch' | 'final';
