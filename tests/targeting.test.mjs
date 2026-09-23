@@ -32,3 +32,9 @@ test('target selection ignores dead and out-of-range enemies', () => {
   const result = selectSphereTarget(sphere, 100, [dead, outside, inside], 'nearest');
   assert.equal(result?.id, 'inside');
 });
+test('sniper targeting recognises the explicit elite enemy role', () => {
+  const closeNormal = { id: 'normal', pos: { x: 25, y: 0 }, hp: 10, type: 'normal' };
+  const elite = { id: 'elite', pos: { x: 75, y: 0 }, hp: 10, type: 'elite' };
+  const result = selectSphereTarget(sphere, 100, [closeNormal, elite], 'high_value_far');
+  assert.equal(result?.id, 'elite');
+});
