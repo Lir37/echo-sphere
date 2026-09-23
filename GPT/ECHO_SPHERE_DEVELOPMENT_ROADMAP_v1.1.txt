@@ -67,7 +67,7 @@ PHASE 2. NETWORK / GEOMETRY
 2.7 [DONE] Triangle geometry detection.
 2.8 [DONE] Cluster geometry detection.
 2.9 [PARTIAL] Resonance state/effects exist; triangle resonance now has explicit charge and proc feedback; gameplay gate still requires human network playtest.
-2.10 [PARTIAL] Visual/network feedback animates active LINE/TRIANGLE/CLUSTER links and highlights triangle resonance charge/proc without persistent formation labels; acceptance requires a fresh human playtest.
+2.10 [PARTIAL] Visual/network feedback animates active LINE/TRIANGLE/CLUSTER links and highlights triangle resonance charge/proc without persistent formation labels. Textual network state is carried by the HUD. TRIANGLE + CLUSTER may coexist; when both are active, LINE is suppressed for readability. Acceptance requires a fresh human playtest.
 2.11 [PARTIAL] Geometry bonus effects exist; playtest validation needed.
 2.12 [PARTIAL] Dedicated active-network UI is implemented in src/App.tsx. It shows link count, active LINE/TRIANGLE/CLUSTER state and triangle resonance charge; human verification during real multi-Sphere play remains pending.
 EXIT GATE [GATE] Player must actively care about positioning.
@@ -108,7 +108,7 @@ EXIT GATE [GATE] Artifact choices must alter strategy.
 
 PHASE 5. ARTIFACT SYNERGY
 5.1 [DONE] Pair Synergy framework.
-5.2 [PARTIAL] Pair synergies exist; full Artifact Set framework incomplete.
+5.2 [DONE] Artifact Set framework implemented as a data-driven layer over existing Pair Synergy nodes. Three initial Sets expose partial/completed progress in code; no completion gameplay effect or dedicated Set UI is added at this step.
 5.3 [PENDING] Protocol framework.
 5.4 [PENDING] Set progress UI.
 5.5 [PENDING] Discovered/unknown state.
@@ -200,8 +200,10 @@ LATEST SESSION NOTE (2026-09-24, formation label cleanup):
 - Simultaneous formation states remain allowed by the current non-exclusive network model; no geometry rules were changed.
 - Human network acceptance gate remains open; next verification should focus on whether the visual-only formation cues remain immediately understandable during active play.
 
-LATEST SESSION NOTE (2026-09-24, network HUD + level-up choice pass):
+LATEST SESSION NOTE (2026-09-24, Phase 5.2 + geometry priority pass):
 - Preserved the full existing gameplay/content scope and did not delete or reduce later-compatible systems.
+- Implemented the geometry priority rule: TRIANGLE + CLUSTER may coexist, but LINE is suppressed when both higher-order formations are active.
+- Implemented Phase 5.2 as a data-driven Artifact Set framework over the existing Pair Synergy layer: three Sets with progress/completion helpers, without introducing new completion gameplay.
 - Implemented Phase 2.12 as a dedicated in-game network state HUD in src/App.tsx: live link count, active LINE/TRIANGLE/CLUSTER indicators, and triangle Resonance charge.
 - Implemented Phase 3.11 progress in src/engine.ts: weighted Sphere upgrade choice generation now considers remaining level pressure and whether that Sphere is actively present in the current build.
 - Implemented Phase 3.12 progress in src/engine.ts: when only one Sphere upgrade remains, the choice generator fills the remaining slots from additional unowned modifiers instead of returning only two cards; choice entries remain duplicate-free.
@@ -211,4 +213,6 @@ LATEST SESSION NOTE (2026-09-24, network HUD + level-up choice pass):
 - Implementation commits: 7d41510f879000d73e5fd57a4fae60a85f1a51ec, 26f221ba9127c42b77ac1da504c77f46a0188aae, 43fd82afa6b72ae2c8e3bd9f89851ca92b89f007.
 - Human acceptance gates remain open: 5-minute combat, network/resonance readability, geometry-bonus validation, network HUD verification, build-quality/RNG validation and the full Slice 0.1 fun gate.
 - Existing later systems preserved: Shotgun/Aura Sphere, characters, artifacts, bosses/Stella, shop/permanent progression, Pair Synergy, compatible 3D/GLB path.
-- Next step: morning human PlayerCheck covering combat plus multi-Sphere LINE/TRIANGLE/CLUSTER positioning, triangle Resonance proc, network HUD readability, and a few level-up rolls. Only fix issues actually observed.
+- Automated validation for the Phase 5.2/geometry pass: GitHub Actions run 35926354341 passed Typecheck, Unit tests, Web build, Playwright render-after-Play, screenshot/metrics artifacts, Capacitor Android sync, debug APK assembly and APK upload.
+- Human acceptance gates remain intentionally open for combat, network/resonance, geometry bonus, network HUD, build-quality/RNG and the full Slice 0.1 fun gate.
+- Next step: morning human PlayerCheck covering combat plus multi-Sphere LINE/TRIANGLE/CLUSTER positioning, triangle Resonance proc, network HUD readability, geometry priority and a few level-up rolls. After that, continue with Phase 5.3 Protocol framework unless the PlayerCheck exposes an earlier concrete defect.

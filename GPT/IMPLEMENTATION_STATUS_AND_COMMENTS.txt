@@ -13,10 +13,10 @@ RESTORED BASELINE
 c79850b9a4e413ad5cad1cbd360d152d22fa7829
 
 CURRENT IMPLEMENTATION COMMIT
-43fd82afa6b72ae2c8e3bd9f89851ca92b89f007
+f4177e364ca90dfe92bde2f1fd5815bb8128a002
 
 LATEST DOCS COMMIT
-4011ada10929261e0f26e5ad7125dd368f3bef00
+36581e39fc78477d4168a9efb0837d37bfc034ca
 
 ROLLBACK
 The branch was moved back from 219301fb2647a76088b0411ddb95438016b54c63 to c79850b9a4e413ad5cad1cbd360d152d22fa7829.
@@ -157,7 +157,7 @@ SESSION LOG
 - Next step: review the CI result for 85576b756f241009f8f669e9832af4e4e4ba1039; then continue with the earliest open network acceptance item only.
 
 SESSION LOG
-2026-09-24 (network HUD + level-up choice pass, verified):
+2026-09-24 (Phase 5.2 + geometry priority pass, verified):
 - Implemented the next open implementation work without removing compatible later content.
 - Added a dedicated active-network HUD in src/App.tsx showing live link count, active LINE/TRIANGLE/CLUSTER state and triangle Resonance charge.
 - Extended src/engine.ts level-up choice generation with deliberate Sphere weighting based on remaining level pressure and active build presence.
@@ -171,3 +171,17 @@ SESSION LOG
 - Preserved older/later compatible systems: all five Sphere types with Shotgun and Aura, characters, artifacts, bosses/Stella/Legendary flow, shop/permanent progression, Pair Synergy and compatible 3D/GLB assets/path.
 - Next step: morning human PlayerCheck. Do not start artifact-set/content expansion before the network/combat gates are validated; fix only issues observed in playtest.
 
+
+SESSION LOG
+2026-09-24 (Phase 5.2 + geometry priority + preservation):
+- Audited branch new-desing and found the previous handoff metadata one implementation commit behind the actual HEAD; actual HEAD before this pass was 36581e39fc78477d4168a9efb0837d37bfc034ca.
+- Implemented the requested network readability rule without deleting any network capability: TRIANGLE + CLUSTER may coexist, while LINE is suppressed when both are active.
+- Preserved the existing field geometry visuals and HUD. Current src/renderer.ts contains no separate persistent textual TRIANGLE formation label on the field; the textual network state remains in the dedicated HUD.
+- Implemented Phase 5.2 as a data-driven Artifact Set framework in src/artifactSystem.ts, derived from the existing Pair Synergy layer. Added three initial Sets and progress/completion helpers. Completion gameplay effects and Set UI were intentionally left for later roadmap tasks.
+- Added automated coverage in tests/network.test.mjs and tests/artifact-sets.test.mjs.
+- No existing Sphere, artifact, character, boss, shop, progression, Pair Synergy or 3D/GLB content was deleted or reduced.
+- GitHub Actions run 35926354341 passed Typecheck, Unit tests, Web build, Playwright render-after-Play, screenshot/metrics artifact generation, Capacitor Android sync, debug APK assembly and APK upload.
+- Implementation commit: f4177e364ca90dfe92bde2f1fd5815bb8128a002.
+- Remaining: morning human combat/network/HUD/geometry/RNG gates; Phase 5.3 Protocol framework; later Set UI, discovery state, Protocol variants, completion VFX and completion gameplay effects; then the Slice 0.1 fun gate and balance pass.
+- Preserved later-compatible systems: all five Sphere types including Shotgun and Aura, characters, artifacts, bosses/Stella/Legendary flow, shop/permanent progression, Pair Synergy, and compatible 3D/GLB assets/path.
+- Next step: morning PlayerCheck. After concrete playtest feedback, continue Phase 5.3 unless an observed defect takes priority.
