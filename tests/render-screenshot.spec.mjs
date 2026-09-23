@@ -26,13 +26,18 @@ test('capture the actual rendered game after pressing Play', async ({ page }, te
 
   const renderMetrics = await canvas.evaluate((element) => {
     const canvas = element;
-    const gl = canvas.getContext('webgl');
+    const ctx = canvas.getContext('2d');
+    const sampleWidth = Math.min(canvas.width, 16);
+    const sampleHeight = Math.min(canvas.height, 16);
+    const pixels = ctx && sampleWidth > 0 && sampleHeight > 0
+      ? ctx.getImageData(0, 0, sampleWidth, sampleHeight).data
+      : null;
+    const hasRenderedPixels = Boolean(pixels && Array.from(pixels).some((value) => value !== 0));
     return {
       width: canvas.width,
       height: canvas.height,
-      renderActive: Boolean(gl && gl.getError() === gl.NO_ERROR && canvas.width > 0 && canvas.height > 0),
-      webgl: Boolean(gl),
-      glError: gl ? gl.getError() : null,
+      rendererMode: ctx ? '2d' : 'unknown',
+      renderActive: Boolean(ctx && canvas.width > 0 && canvas.height > 0 && hasRenderedPixels),
     };
   });
 
