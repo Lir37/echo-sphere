@@ -13,10 +13,10 @@ RESTORED BASELINE
 c79850b9a4e413ad5cad1cbd360d152d22fa7829
 
 CURRENT IMPLEMENTATION COMMIT
-230747a6622798786b93e59c83b413947c9453b4
+f68ffe21d3f84bf103a8655dd53825b7287d8069
 
 LATEST DOCS COMMIT
-997ff2bd8988aa531572cbf646ba5bc25c0adc11
+PENDING
 
 ROLLBACK
 The branch was moved back from 219301fb2647a76088b0411ddb95438016b54c63 to c79850b9a4e413ad5cad1cbd360d152d22fa7829.
@@ -119,4 +119,26 @@ SESSION LOG
 - Manual user spot-check on 2026-09-23 reported movement, Dash, Sphere operation and attacks as normal. Formal 5-minute combat and network acceptance gates remain open.
 - CI run 35913004106: Typecheck, Unit tests and Web build completed successfully; Playwright/Android stages were still in progress at the time of this handoff.
 - Roadmap updated to reflect the new resonance readability pass; no DONE item was reimplemented.
-- Next step: human playtest line/triangle/cluster placement and resonance readability, then fix only issues found.
+- CI run 35916943867 passed Typecheck, Unit tests, Web build, Playwright render-after-Play, Capacitor Android sync and debug APK build/upload for code commit f68ffe21d3f84bf103a8655dd53825b7287d8069.
+- Automated render screenshot was produced successfully, but the 5-second scenario does not create a multi-Sphere formation, so it does not validate LINE/TRIANGLE/CLUSTER network acceptance.
+- Next step: fresh human playtest of line, triangle and cluster placement and triangle Resonance proc readability, then fix only issues found.
+
+
+SESSION LOG
+2026-09-23 (network resonance readability follow-up, verified):
+- User playtest before the fix: Sphere positioning produced visible links; triangle became orange, while line/cluster activation was not sufficiently clear.
+- Root cause confirmed: triangle is the only formation with an existing gameplay Resonance proc; line and cluster had weaker visual state communication.
+- Implemented non-destructive readability feedback in src/renderer.ts:
+  * LINE // ACTIVE, TRIANGLE // ACTIVE / RESONATE!, and CLUSTER // ACTIVE labels;
+  * animated energy points on active links;
+  * stronger cluster core/spoke/ring feedback;
+  * triangle charge display and explicit RESONATE!/PROC flash.
+- Added SphereEntity.resonancePulseTimer in src/engine.ts only for transient visual feedback. Existing every-third-hit triangle pulse damage and rules were preserved.
+- Implementation commit: d3d7050fd279858697232b2ab786952e860315ed.
+- Compile-fix commit: f68ffe21d3f84bf103a8655dd53825b7287d8069.
+- CI run 35916943867 on f68ffe21d3f84bf103a8655dd53825b7287d8069 passed Typecheck, Unit tests, Web build, Playwright render-after-Play, screenshot artifact generation, Capacitor Android sync, debug APK assembly and APK upload.
+- Artifacts: echo-sphere-web (539333 bytes), echo-sphere-render-screenshot (580055 bytes), echo-sphere-debug-apk (4242175 bytes).
+- Automated Playwright screenshot does not exercise a multi-Sphere formation, therefore the human network gate remains open.
+- Preserved all five Sphere types (Standard, Sniper, Shotgun, Chain, Aura), existing characters, artifacts, bosses, shop/progression and compatible 3D/GLB path. No roadmap-driven deletion was performed.
+- Remaining current gate: Phase 2.9/2.10 human verification; Phase 2.11 geometry bonus playtest; Phase 2.12 dedicated network-state UI verification.
+- Next step: fresh human line/triangle/cluster playtest and verify that formation state and triangle Resonance proc are immediately understandable.
