@@ -678,7 +678,7 @@ export function assignHotkey(s: GameState, ability: AbilityType): string {
 function spawnEnemy(s: GameState, isBoss: boolean): EnemyEntity {
   const wave = s.wave;
   const angle = Math.random() * Math.PI * 2;
-  const spawnDist = 500;
+  const spawnDist = 280;
   const px = s.player.pos.x + Math.cos(angle) * spawnDist;
   const py = s.player.pos.y + Math.sin(angle) * spawnDist;
   const diff = DIFFICULTIES.find(d => d.id === s.difficulty)!;
