@@ -35,6 +35,10 @@ import {
 
 type Screen = 'menu' | 'game' | 'shop' | 'leaderboard' | 'settings' | 'achievements' | 'characters';
 
+// Gameplay-first baseline: keep authored 3D available for later evaluation,
+// but do not make it part of the active vertical-slice renderer by default.
+const ENABLE_3D_RENDERER = import.meta.env.VITE_ECHO_ENABLE_3D === 'true';
+
 export default function App() {
   const [lang, setLang] = useState<Lang>(() => loadLang());
   const [screen, setScreen] = useState<Screen>('menu');
@@ -191,7 +195,7 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
     stateRef.current = s;
 
     const canvas = canvasRef.current;
-    if (canvas) renderer3dRef.current = createEcho3DRenderer(canvas);
+    if (canvas && ENABLE_3D_RENDERER) renderer3dRef.current = createEcho3DRenderer(canvas);
 
     lastTimeRef.current = performance.now();
 
@@ -225,7 +229,7 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
           setGameOverData({ time, wave: st.wave, gold, rank, isNewRecord });
         }
 
-        if (renderer3dRef.current) {
+        if (ENABLE_3D_RENDERER && renderer3dRef.current) {
           renderer3dRef.current.render(st);
         } else if (canvas) {
           const ctx = canvas.getContext('2d');
