@@ -46,6 +46,15 @@ test('dead spheres do not contribute links or geometry', () => {
 });
 
 
+test('four evenly spaced points form a square and expose square membership', () => {
+  const state = analyzeSphereNetwork([
+    node(0, 0), node(100, 0), node(100, 100), node(0, 100),
+  ]);
+  assert.ok(state.square);
+  assert.equal(state.square.nodes.length, 4);
+  for (let i = 0; i < 4; i++) assert.equal(getSphereNetworkProfile(state, i).square, true);
+});
+
 test('triangle and cluster can coexist while line is suppressed', () => {
   const h = Math.sqrt(3) * 100 / 2;
   const state = analyzeSphereNetwork([
