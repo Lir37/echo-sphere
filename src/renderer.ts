@@ -1999,6 +1999,7 @@ function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, network:
     const lineNode = hasNode(network.line, link.a) && hasNode(network.line, link.b);
     const triangleNode = hasNode(network.triangle, link.a) && hasNode(network.triangle, link.b);
     const clusterNode = hasNode(network.cluster, link.a) && hasNode(network.cluster, link.b);
+    const squareNode = hasNode(network.square, link.a) && hasNode(network.square, link.b);
 
     let alpha = 0.18;
     let color = '#63b9ff';
@@ -2006,6 +2007,10 @@ function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, network:
     if (lineNode) {
       alpha = 0.58;
       color = '#63e6ff';
+      active = true;
+    } else if (squareNode) {
+      alpha = 0.58;
+      color = '#69b7ff';
       active = true;
     } else if (triangleNode) {
       alpha = 0.62;
@@ -2025,7 +2030,7 @@ function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, network:
     ctx.lineWidth = active ? 1.6 : 1;
     ctx.shadowColor = color;
     ctx.shadowBlur = active ? 11 : 5;
-    ctx.setLineDash(lineNode ? [8, 6] : clusterNode ? [3, 7] : [4, 8]);
+    ctx.setLineDash(lineNode ? [8, 6] : squareNode ? [6, 5] : clusterNode ? [3, 7] : [4, 8]);
     ctx.beginPath();
     ctx.moveTo(a.x, a.y);
     ctx.lineTo(b.x, b.y);
@@ -2170,6 +2175,59 @@ function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, network:
 
     // Resonance is communicated by the triangle geometry, charge rings/ticks
     // and the dedicated HUD. Do not add a persistent field text label here.
+  }
+
+  if (network.square) {
+    const points = network.square.nodes.map((index) => s.spheres[index].pos);
+    let cx = 0;
+    let cy = 0;
+    for (const p of points) { cx += p.x; cy += p.y; }
+    cx /= points.length;
+    cy /= points.length;
+
+    ctx.save();
+    const shieldPulse = 1 + Math.sin(t * 4.8) * 0.035;
+    ctx.translate(cx, cy);
+    ctx.scale(shieldPulse, shieldPulse);
+    ctx.strokeStyle = '#69b7ff';
+    ctx.globalAlpha = 0.28 + 0.08 * Math.sin(t * 4);
+    ctx.lineWidth = 1.8;
+    ctx.shadowColor = '#69b7ff';
+    ctx.shadowBlur = 16;
+    ctx.beginPath();
+    points.forEach((p, i) => {
+      const x = p.x - cx;
+      const y = p.y - cy;
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    ctx.closePath();
+    ctx.stroke();
+
+    const radius = Math.max(...points.map((p) => Math.hypot(p.x - cx, p.y - cy))) + 22;
+    ctx.globalAlpha = 0.16 + 0.05 * Math.sin(t * 6);
+    ctx.setLineDash([5, 7]);
+    ctx.beginPath();
+    ctx.arc(0, 0, radius, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.fillStyle = '#69b7ff';
+    ctx.globalAlpha = 0.30 + 0.10 * Math.sin(t * 8);
+    ctx.shadowBlur = 20;
+    ctx.beginPath();
+    ctx.arc(0, 0, 4.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    for (let i = 0; i < 4; i++) {
+      const a = t * 0.8 + i * Math.PI / 2;
+      const x = Math.cos(a) * radius;
+      const y = Math.sin(a) * radius;
+      ctx.globalAlpha = 0.65;
+      ctx.beginPath();
+      ctx.arc(x, y, 2.2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
   }
 
   if (network.cluster) {
