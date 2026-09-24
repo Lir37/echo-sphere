@@ -1,1 +1,35 @@
-import test from 'node:test';\nimport assert from 'node:assert/strict';\nimport fs from 'node:fs/promises';\n\nconst engine = await fs.readFile(new URL('../src/engine.ts', import.meta.url), 'utf8');\nconst progression = await fs.readFile(new URL('../src/sphereProgression.ts', import.meta.url), 'utf8');\nconst gameData = await fs.readFile(new URL('../src/gameData.ts', import.meta.url), 'utf8');\n\nconst activeIds = ['blast','shield','teleport','firetrail','minion','lightning','timestop','darkritual'];\n\ntest('all current active Abilities have progression data', () => {\n  for (const id of activeIds) assert.ok(progression.includes("ability:'" + id + "'"), 'missing progression for ' + id);\n});\n\ntest('every Ability evolution id is referenced by engine logic', () => {\n  const ids = [...progression.matchAll(/ae\\('([^']+)'/g)].map((m) => m[1]);\n  assert.ok(ids.length >= 40);\n  for (const id of ids) assert.ok(engine.includes(id), 'unwired ability evolution ' + id);\n});\n\ntest('all Sphere branch ids are referenced by engine combat logic', () => {\n  const ids = [...progression.matchAll(/br\\('([^']+)'/g)].map((m) => m[1]);\n  for (const id of ids) assert.ok(engine.includes(id), 'unwired sphere branch ' + id);\n});\n\ntest('Standard Swarm is not implemented as hidden permanent Multishot', () => {\n  assert.match(engine, /Standard Swarm creates side shards/);\n  assert.doesNotMatch(engine, /type==='standard'&&branch==='standard_swarm'\\)\\{multishot\\+=1/);\n});\n\ntest('Vitality has a real max-HP effect when acquired', () => {\n  assert.match(engine, /if \\(ability === 'vitality'\\)/);\n  assert.match(engine, /s\\.player\\.maxHp \\+= hpGain/);\n});\n
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+
+const engine = await fs.readFile(new URL('../src/engine.ts', import.meta.url), 'utf8');
+const progression = await fs.readFile(new URL('../src/sphereProgression.ts', import.meta.url), 'utf8');
+
+const activeIds = ['blast','shield','teleport','firetrail','minion','lightning','timestop','darkritual'];
+
+test('all current active Abilities have progression data', () => {
+  for (const id of activeIds) {
+    assert.ok(progression.includes("ability:'" + id + "'"), 'missing progression for ' + id);
+  }
+});
+
+test('every Ability evolution id is referenced by engine logic', () => {
+  const ids = [...progression.matchAll(/ae\('([^']+)'/g)].map((m) => m[1]);
+  assert.ok(ids.length >= 40);
+  for (const id of ids) assert.ok(engine.includes(id), 'unwired ability evolution ' + id);
+});
+
+test('all Sphere branch ids are referenced by engine combat logic', () => {
+  const ids = [...progression.matchAll(/br\('([^']+)'/g)].map((m) => m[1]);
+  for (const id of ids) assert.ok(engine.includes(id), 'unwired sphere branch ' + id);
+});
+
+test('Standard Swarm is not implemented as hidden permanent Multishot', () => {
+  assert.match(engine, /Standard Swarm creates side shards/);
+  assert.doesNotMatch(engine, /type==='standard'&&branch==='standard_swarm'\)\{multishot\+=1/);
+});
+
+test('Vitality has a real max-HP effect when acquired', () => {
+  assert.match(engine, /if \(ability === 'vitality'\)/);
+  assert.match(engine, /s\.player\.maxHp \+= hpGain/);
+});
