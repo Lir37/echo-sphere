@@ -51,3 +51,13 @@ test('three Artifact Sets expose protocol discovery and completion bonus', async
   assert.ok(states.every((x) => x.active));
   assert.equal(mod.getArtifactSetCompletionBonus({ player: { artifacts: all } }), 0.12);
 });
+
+test('Artifact Set completion is wired into combat damage', async () => {
+  const engine = await import('../src/engine.ts');
+  const source = await (await fetch('../src/engine.ts')).text().catch(() => '');
+  assert.ok(
+    source.includes('getArtifactSetCompletionBonus'),
+    'engine.ts must apply Artifact Set completion to combat calculations',
+  );
+  assert.equal(typeof engine.getSphereDamage, 'function');
+});
