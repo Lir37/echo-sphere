@@ -261,4 +261,5 @@ LATEST SESSION NOTE (2026-09-24, player overlay cleanup):
 - Removed only those redundant player-centered presentation overlays. Player gameplay state, shield/invulnerability timers, Berserker mechanics, Sphere/network systems and all existing content remain intact.
 - The authored 2.5D player sprite remains the actual player visual. This cleanup does not remove the player itself and does not alter gameplay logic.
 - Added tests/player-visual.test.mjs as a source-contract regression check to prevent reintroduction of the removed player-centered ring/ellipse overlays.
+- Implementation commit: 1c9810cdf84a056eb10592791be9c2431c0b04c2.
 - Next step: CI verification and fresh APK playtest focused on confirming the player appears without the blue containment/ring overlay.
