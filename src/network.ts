@@ -199,8 +199,10 @@ export function analyzeSphereNetwork(
 
   // Square is an explicit higher-order formation. Triangle + Cluster retain their
   // previous coexistence contract, while Line is suppressed by higher-order shapes.
-  const resolvedTriangle = square ? null : triangle;
-  const resolvedCluster = square ? null : cluster;
+  // Higher-order shapes do not erase other valid formations. A square is also
+  // a compact cluster by definition, so keep both signals available to gameplay.
+  const resolvedTriangle = triangle;
+  const resolvedCluster = cluster;
   const resolvedLine = square || (triangle && cluster) ? null : line;
 
   return {
