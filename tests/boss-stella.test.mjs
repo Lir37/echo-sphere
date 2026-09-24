@@ -32,7 +32,7 @@ test('Phase 6 Stella scarcity remains gated by the configurable Endless threshol
   assert.match(engine, /s\.time < STELLA_LEGENDARY_CUTOFF_SECONDS/);
   assert.match(engine, /\? pickStellaArtifactChoice\(s\)/);
   assert.match(engine, /: pickArtifacts\(s\)/);
-  assert.match(artifacts, /rarity === 'legendary'/);
-  assert.match(artifacts, /!owned\.has\(item\.id\)/);
-  assert.match(artifacts, /rarity !== 'legendary'/);
+  assert.ok(artifacts.includes("rarity === 'legendary'"));
+  assert.ok(artifacts.includes('!owned.has(item.id)'));
+  assert.ok(artifacts.includes("rarity !== 'legendary'"));
 });
