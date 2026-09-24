@@ -2092,15 +2092,8 @@ function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, network:
     ctx.fill();
     ctx.restore();
 
-    ctx.save();
-    ctx.fillStyle = '#ffc977';
-    ctx.globalAlpha = 0.82;
-    ctx.font = 'bold 8px system-ui, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('RESONANCE', cx, cy + 4);
-    ctx.font = 'bold 10px system-ui, sans-serif';
-    ctx.fillText(activePulse ? 'PROC' : `${averageCharge}/3`, cx, cy + 16);
-    ctx.restore();
+    // Resonance is communicated by the triangle geometry, charge rings/ticks
+    // and the dedicated HUD. Do not add a persistent field text label here.
   }
 
   if (network.cluster) {
