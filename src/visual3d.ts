@@ -315,9 +315,8 @@ export class Echo3DRenderer {
     const bob=21+Math.sin(t*2.7)*1.15+(moving?Math.sin(t*10)*0.8:0);
     const size=25*pulse;
 
-    // The GLB is the actual hero body. The procedural geometry below is only the
-    // containment hardware and energy system around it, so the player no longer
-    // reads as a stack of primitive spheres.
+    // The authored GLB is the complete hero presentation. Do not wrap it in
+    // the old procedural blue sphere/circular containment frame.
     if(playerAsset){
       const bodyScale=size*(dash?1.10:1.0);
       const body=mat4Multiply(
@@ -329,45 +328,10 @@ export class Echo3DRenderer {
       );
       const bodyGlow=s.player.mutationStage>=3?'#9a6dff':'#73eaff';
       this.drawModel(playerAsset,body,vp,'#ffffff',bodyGlow,1);
-    }else{
-      // Never substitute a primitive body for the authored hero. During the
-      // asynchronous asset load only the containment halo is shown, so the
-      // temporary state cannot look like a giant placeholder sphere.
-      this.drawRing(p.x,p.y,size*.82,t*.35,'#52ddff',t,vp,.16);
     }
 
-    // Machined collar rings lock the body to the containment frame.
-    const collarR=size*.60;
-    for(const [tilt,rot] of [[0,t*.34],[90*DEG,-t*.28]] as Array<[number,number]>){
-      const collar=mat4Multiply(
-        mat4Multiply(
-          mat4Translate(p.x,bob,p.y),
-          mat4Multiply(mat4RotateX(tilt),mat4RotateY(rot))
-        ),
-        mat4Scale(size*.66,size*.66,size*.66)
-      );
-      this.drawModel(this.torusMesh,collar,vp,'#173e52','#62dfff',.55);
-    }
-
-    // Three independently rotating containment bands create the characteristic
-    // sci-fi silhouette seen in the reference.
-    const cageR=size*.82;
-    const rings=[
-      mat4Multiply(mat4Translate(p.x,bob,p.y),mat4RotateY(t*.62)),
-      mat4Multiply(mat4Translate(p.x,bob,p.y),mat4Multiply(mat4RotateX(61*DEG),mat4RotateY(-t*.47))),
-      mat4Multiply(mat4Translate(p.x,bob,p.y),mat4Multiply(mat4RotateZ(61*DEG),mat4RotateY(t*.31)))
-    ];
-    for(const r of rings){
-      this.drawModel(
-        this.fineTorusMesh,
-        mat4Multiply(r,mat4Scale(cageR,cageR,cageR)),
-        vp,'#b7efff','#efffff',dash?1:0.94
-      );
-    }
-
-    // Keep the silhouette clean: authored hero geometry carries the detail;
-    // the only procedural elements around it are deliberate energy bands.
-    // Dash state gets a stronger energy shell without changing gameplay geometry.
+    // Keep only a restrained dash cue. It is gameplay feedback, not a persistent
+    // containment frame around the hero.
     if(dash){
       const dashRing=mat4Multiply(
         mat4Translate(p.x,bob,p.y),
@@ -375,13 +339,6 @@ export class Echo3DRenderer {
       );
       this.drawModel(this.torusMesh,dashRing,vp,'#d5faff','#ffffff',.70);
     }
-
-    const outer=mat4Multiply(
-      mat4Translate(p.x,bob,p.y),
-      mat4Multiply(mat4RotateX(34*DEG),mat4Scale(size*.94,size*.94,size*.94))
-    );
-    this.drawModel(this.fineTorusMesh,outer,vp,'#3aafdc','#77eaff',dash?.34:.20);
-    this.drawRing(p.x,p.y,size*(dash?1.16:1.06),t*.45,'#52ddff',t,vp,dash?.28:.18);
   }
 
   private drawSphere(s:SphereEntity,t:number,vp:Float32Array,cx:number,cy:number){

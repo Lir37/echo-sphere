@@ -199,6 +199,80 @@ export function getCompletedArtifactSets(
   return getArtifactSetProgress(s).filter((set) => set.complete);
 }
 
+
+export type ArtifactProtocolKind = 'triangle' | 'sphere' | 'event';
+
+export interface ArtifactProtocol {
+  id: string;
+  kind: ArtifactProtocolKind;
+  setId: ArtifactSetDef['id'];
+  name: { ru: string; en: string };
+  desc: { ru: string; en: string };
+  requires: string[];
+}
+
+export const ARTIFACT_PROTOCOLS: ArtifactProtocol[] = [
+  {
+    id: 'triangle_resonance',
+    kind: 'triangle',
+    setId: 'resonance_grid',
+    name: { ru: 'Треугольный резонанс', en: 'Triangle Resonance' },
+    desc: { ru: 'Активируется при завершённой Резонансной решётке и рабочем треугольнике.', en: 'Activates with a completed Resonance Grid and an active triangle.' },
+    requires: ['resonance_grid'],
+  },
+  {
+    id: 'sphere_relay',
+    kind: 'sphere',
+    setId: 'echo_architecture',
+    name: { ru: 'Релейный контур', en: 'Sphere Relay' },
+    desc: { ru: 'Усиливает сеть при наличии двух и более типов сфер.', en: 'Strengthens the network when two or more Sphere types are present.' },
+    requires: ['echo_architecture'],
+  },
+  {
+    id: 'critical_echo',
+    kind: 'event',
+    setId: 'singularity_path',
+    name: { ru: 'Критическое Эхо', en: 'Critical Echo' },
+    desc: { ru: 'Даёт дополнительный импульс урона во время активной серии убийств.', en: 'Adds a damage pulse during an active kill streak.' },
+    requires: ['singularity_path'],
+  },
+];
+
+export interface ArtifactProtocolState extends ArtifactProtocol {
+  discovered: boolean;
+  active: boolean;
+}
+
+function protocolSetComplete(s: { player: { artifacts: ArtifactId[] } }, setId: ArtifactSetDef['id']): boolean {
+  return getArtifactSetProgress(s).some((set) => set.id === setId && set.complete);
+}
+
+export function getArtifactProtocolStates(s: {
+  player: { artifacts: ArtifactId[]; combo: number };
+  spheres?: Array<{ type: string; alive?: boolean; pos: { x: number; y: number } }>;
+}): ArtifactProtocolState[] {
+  const sphereTypes = new Set((s.spheres || []).filter((x) => x.alive !== false).map((x) => x.type));
+  const triangle = (s.spheres || []).filter((x) => x.alive !== false).length >= 3;
+  return ARTIFACT_PROTOCOLS.map((protocol) => {
+    const discovered = protocolSetComplete(s, protocol.setId);
+    const active =
+      protocol.id === 'triangle_resonance'
+        ? discovered && triangle
+        : protocol.id === 'sphere_relay'
+          ? discovered && sphereTypes.size >= 2
+          : discovered && s.player.combo >= 5;
+    return { ...protocol, discovered, active };
+  });
+}
+
+export function getArtifactSetCompletionBonus(s: { player: { artifacts: ArtifactId[] } }): number {
+  return getCompletedArtifactSets(s).length * 0.04;
+}
+
+export function getArtifactSetCompletionPulse(s: { player: { artifacts: ArtifactId[] } }): number {
+  return Math.min(1, getCompletedArtifactSets(s).length / ARTIFACT_SETS.length);
+}
+
 export function artifactRarity(id: ArtifactId): ArtifactRarity {
   return ARTIFACT_META[id].rarity;
 }

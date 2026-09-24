@@ -36,3 +36,18 @@ test('Artifact Set completion is derived from its pair synergies', () => {
     ['resonance_grid', 'echo_architecture', 'singularity_path'],
   );
 });
+
+
+test('three Artifact Sets expose protocol discovery and completion bonus', async () => {
+  const mod = await import('../src/artifactSystem.ts');
+  const all = Object.values(mod.ARTIFACT_META).map((item) => item.id);
+  const states = mod.getArtifactProtocolStates({ player: { artifacts: all, combo: 10 }, spheres: [
+    { type: 'standard', alive: true, pos: { x: 0, y: 0 } },
+    { type: 'sniper', alive: true, pos: { x: 10, y: 0 } },
+    { type: 'chain', alive: true, pos: { x: 0, y: 10 } },
+  ]});
+  assert.equal(states.length, 3);
+  assert.ok(states.every((x) => x.discovered));
+  assert.ok(states.every((x) => x.active));
+  assert.equal(mod.getArtifactSetCompletionBonus({ player: { artifacts: all } }), 0.12);
+});

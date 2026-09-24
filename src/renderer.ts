@@ -186,8 +186,6 @@ export function render(ctx: CanvasRenderingContext2D, s: GameState, canvasW: num
   // boss projectiles
   for (const e of s.enemies) for (const bp of e.bossProjectiles) drawBossProjectile(ctx, bp.pos.x, bp.pos.y, bp.radius, e.color);
 
-  // Legacy fox/wolf player body is intentionally disabled. The mobile overlay owns the character visual.
-  drawPlayer(ctx, s.player);
 
   // particles
   for (const p of s.particles) {
@@ -281,7 +279,6 @@ function drawCharacterHud(ctx: CanvasRenderingContext2D, s: GameState, _canvasW:
 
   switch (characterId) {
     case 'spherist':
-      lines.push(`RESONANCE  +${Math.round(Math.max(0, s.spheres.length - 1) * 3)}%`);
       break;
     case 'hunter':
       lines.push(s.player.hunterHuntTimer > 0 ? `HUNT  ${Math.ceil(s.player.hunterHuntTimer)}s` : s.player.hunterMarkTimer > 0 ? `MARK  ${Math.ceil(s.player.hunterMarkTimer)}s` : 'MARK  —');

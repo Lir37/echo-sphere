@@ -17,7 +17,7 @@ import {
 import { render } from './renderer';
 import { createEcho3DRenderer, type Echo3DRenderer } from './visual3d';
 import { analyzeSphereNetwork } from './network';
-import { ARTIFACT_META, RARITY_LABELS, artifactRarity, getActiveArtifactSynergies, getArtifactSynergiesAfterPick, ARTIFACT_SYNERGIES } from './artifactSystem';
+import { ARTIFACT_META, RARITY_LABELS, artifactRarity, getActiveArtifactSynergies, getArtifactSynergiesAfterPick, ARTIFACT_SYNERGIES, getArtifactSetProgress, getArtifactProtocolStates } from './artifactSystem';
 import { resolveSpaceCollisions } from './spaceCollision';
 import {
   loadShop, saveShop, loadLeaderboard, addLeaderEntry, loadLang, saveLang,
@@ -523,6 +523,36 @@ function PausePlanner({ lang, t, st, tab, setTab, onResume, onExit }: {
                       </div>
                     );
                   })}
+                </div>
+              </section>
+              <section>
+                <SectionTitle>{lang === 'ru' ? 'Сеты артефактов' : 'Artifact Sets'}</SectionTitle>
+                <div className="space-y-2">
+                  {getArtifactSetProgress(st).map((set) => (
+                    <div key={set.id} className={`rounded-xl border p-3 ${set.complete ? 'bg-[#ffb84d]/10 border-[#ffb84d]/40' : 'bg-[#0d1726] border-[#243b55]'}`}>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-bold text-sm">{set.complete ? set.name[lang] : '???'}</span>
+                        <span className="text-[9px] font-bold text-[#7f9bb8]">{set.activeSynergies}/{set.totalSynergies}</span>
+                      </div>
+                      <div className="text-[10px] text-[#b6c9de] mt-1">{set.complete ? set.desc[lang] : (lang === 'ru' ? 'Сет ещё не открыт.' : 'Set not discovered yet.')}</div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+              <section>
+                <SectionTitle>{lang === 'ru' ? 'Протоколы' : 'Protocols'}</SectionTitle>
+                <div className="space-y-2">
+                  {getArtifactProtocolStates(st).map((protocol) => (
+                    <div key={protocol.id} className={`rounded-xl border p-3 ${protocol.active ? 'bg-[#63e6ff]/10 border-[#63e6ff]/40' : 'bg-[#0d1726] border-[#243b55]'}`}>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-bold text-sm">{protocol.discovered ? protocol.name[lang] : '???'}</span>
+                        <span className={`text-[9px] font-bold ${protocol.active ? 'text-[#63e6ff]' : 'text-[#7f9bb8]'}`}>
+                          {protocol.active ? (lang === 'ru' ? 'АКТИВЕН' : 'ACTIVE') : protocol.discovered ? (lang === 'ru' ? 'ОТКРЫТ' : 'DISCOVERED') : '???'}
+                        </span>
+                      </div>
+                      <div className="text-[10px] text-[#b6c9de] mt-1">{protocol.discovered ? protocol.desc[lang] : (lang === 'ru' ? 'Неизвестный протокол.' : 'Unknown protocol.')}</div>
+                    </div>
+                  ))}
                 </div>
               </section>
               <section>

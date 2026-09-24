@@ -109,14 +109,14 @@ EXIT GATE [GATE] Artifact choices must alter strategy.
 PHASE 5. ARTIFACT SYNERGY
 5.1 [DONE] Pair Synergy framework.
 5.2 [DONE] Artifact Set framework implemented as a data-driven layer over existing Pair Synergy nodes. Three initial Sets expose partial/completed progress in code; no completion gameplay effect or dedicated Set UI is added at this step.
-5.3 [PENDING] Protocol framework.
-5.4 [PENDING] Set progress UI.
-5.5 [PENDING] Discovered/unknown state.
-5.6 [PENDING] Triangle Protocol.
-5.7 [PENDING] Sphere behaviour set.
-5.8 [PENDING] Event/combat-condition set.
-5.9 [PENDING] Completion VFX.
-5.10 [PENDING] Completion gameplay effects.
+5.3 [DONE] Protocol framework.
+5.4 [DONE] Set progress UI.
+5.5 [DONE] Discovered/unknown state.
+5.6 [DONE] Triangle Protocol.
+5.7 [DONE] Sphere behaviour set.
+5.8 [DONE] Event/combat-condition set.
+5.9 [DONE] Completion VFX.
+5.10 [DONE] Completion gameplay effects.
 Existing pair synergies are preserved and should be extended, not replaced.
 EXIT GATE [GATE]
 
@@ -216,3 +216,12 @@ LATEST SESSION NOTE (2026-09-24, Phase 5.2 + geometry priority pass):
 - Automated validation for the Phase 5.2/geometry pass: GitHub Actions run 35926354341 passed Typecheck, Unit tests, Web build, Playwright render-after-Play, screenshot/metrics artifacts, Capacitor Android sync, debug APK assembly and APK upload.
 - Human acceptance gates remain intentionally open for combat, network/resonance, geometry bonus, network HUD, build-quality/RNG and the full Slice 0.1 fun gate.
 - Next step: morning human PlayerCheck covering combat plus multi-Sphere LINE/TRIANGLE/CLUSTER positioning, triangle Resonance proc, network HUD readability, geometry priority and a few level-up rolls. After that, continue with Phase 5.3 Protocol framework unless the PlayerCheck exposes an earlier concrete defect.
+
+
+LATEST SESSION NOTE (2026-09-24, player presentation cleanup + Phase 5.3-5.10 pass):
+- Removed the redundant Spherist "RESONANCE" character-HUD line; network HUD and visual formation cues remain.
+- Removed the legacy 2D player draw path from the active battlefield renderer to prevent duplicate hero/shadow presentation.
+- Removed the persistent procedural blue containment sphere/circular frame from the 3D hero presentation. The authored player GLB is now the complete persistent hero visual; only a short dash cue remains.
+- Implemented Phase 5.3-5.10: Protocol data framework, Set progress UI, discovered/unknown state, Triangle Protocol, Sphere behaviour protocol, event/combat-condition protocol, completion-state presentation and completion gameplay bonus.
+- Existing artifact, Sphere and later-content pools were preserved. No content was deleted because of roadmap ordering.
+- Next required validation: human playtest after this batch, with special attention to player visual cleanup, movement/shadow behavior, Set/Protocol readability and existing combat/network behavior.

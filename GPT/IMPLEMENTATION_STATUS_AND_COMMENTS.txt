@@ -185,3 +185,16 @@ SESSION LOG
 - Remaining: morning human combat/network/HUD/geometry/RNG gates; Phase 5.3 Protocol framework; later Set UI, discovery state, Protocol variants, completion VFX and completion gameplay effects; then the Slice 0.1 fun gate and balance pass.
 - Preserved later-compatible systems: all five Sphere types including Shotgun and Aura, characters, artifacts, bosses/Stella/Legendary flow, shop/permanent progression, Pair Synergy, and compatible 3D/GLB assets/path.
 - Next step: morning PlayerCheck. After concrete playtest feedback, continue Phase 5.3 unless an observed defect takes priority.
+
+
+SESSION LOG
+2026-09-24 (player presentation cleanup + Phase 5.3-5.10 implementation):
+- User playtest requested three presentation fixes: remove redundant RESONANCE text, remove the blue spherical/circular frame over the player GLB, and remove the stationary spawn shadow artifact.
+- Removed the Spherist RESONANCE character-HUD line.
+- Removed the legacy 2D player draw from the active renderer, eliminating its old player/shadow layer while preserving the authored 3D path.
+- Simplified src/visual3d.ts drawPlayer(): authored player.glb remains; the persistent procedural containment collars/rings were removed; only a temporary dash cue remains.
+- Implemented ten roadmap steps, Phase 5.3 through 5.10: Protocol framework; Set progress UI; discovered/unknown state; Triangle Protocol; Sphere behaviour protocol; event/combat-condition protocol; completion-state presentation; and completion gameplay bonus.
+- Artifact Sets remain data-driven over the existing Pair Synergy layer. Existing Shotgun/Aura Sphere, characters, artifacts, bosses/Stella/Legendary flow, shop/progression and compatible 3D/GLB content were preserved.
+- Added automated coverage for protocol discovery/activation and Set completion bonus.
+- Human validation remains required for the visual cleanup and the combined Set/Protocol presentation before treating the corresponding gates as accepted.
+- Next step: test this batch in the real build; fix only concrete playtest issues found.
