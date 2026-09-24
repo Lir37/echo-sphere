@@ -1,0 +1,708 @@
+ECHO SPHERE
+DEVELOPMENT STATE & GAP REPORT
+Version 1.0
+Date: 2026-09-24
+Branch: new-desing
+
+======================================================================
+0. PURPOSE
+======================================================================
+
+This is the second operational document for ECHO SPHERE.
+
+Together with:
+GPT/ECHO_SPHERE_MASTER_FINAL_GAMEPLAY_BLUEPRINT_v1.1.txt
+
+it is sufficient for a new working session.
+
+The Blueprint says WHAT the finished game must be.
+This report says WHAT ALREADY EXISTS, WHAT IS COMPATIBLE, WHAT NEEDS
+REWORK, and WHERE DEVELOPMENT CURRENTLY STOPS.
+
+A new session must NOT restart systems already marked DONE/PRESERVED.
+
+======================================================================
+1. CURRENT REPOSITORY SNAPSHOT
+======================================================================
+
+Branch:
+new-desing
+
+Latest commit is the validated Blueprint documentation commit:
+112dbfc95278cc957442fe562e8357c300e3da0d
+
+Latest gameplay implementation baseline documented in the preceding
+implementation log:
+4ce6da853ed1a4d42617c6322280c5a080839d8d
+
+Important:
+the repository contains subsequent presentation/documentation corrections
+recorded in the implementation history. The assistant must inspect actual
+HEAD before modifying code.
+
+Primary gameplay direction:
+Canvas / authored 2.5D.
+
+Complex GLB production:
+PARKED by explicit project decision.
+
+======================================================================
+2. STATUS LEGEND
+======================================================================
+
+[DONE]
+Implemented and compatible with the final Blueprint.
+
+[PRESERVED]
+Already exists and fits the final design; do not rebuild from zero.
+
+[PARTIAL]
+Core exists but meaningful final requirements are incomplete.
+
+[REWORK]
+Exists but final design requires a structural change.
+
+[MISSING]
+Final-design capability is absent.
+
+[PARKED]
+Explicitly postponed.
+
+[GATE]
+Implementation may exist, but human playtest/acceptance is still required.
+
+======================================================================
+3. CURRENT CONTENT INVENTORY
+======================================================================
+
+PLAYER
+[DONE] movement
+[DONE] HP / damage intake
+[DONE] Dash
+[DONE] status/death foundation
+
+SPHERES
+[PRESERVED] Standard
+[PRESERVED] Sniper
+[PRESERVED] Chain
+[PRESERVED] Shotgun
+[PRESERVED] Aura
+[MISSING] Orbital
+[MISSING] Prism
+[MISSING] Gravity
+[MISSING] Pulse
+[MISSING] Void
+
+SPHERE PROGRESSION
+[DONE] 7-level data model
+[DONE] branch selection
+[DONE] final specialization
+[PARTIAL] final content depth for all ten planned Spheres
+
+MODIFIERS
+[DONE] Multishot
+[DONE] Pierce
+[DONE] Ricochet
+[DONE] Fire
+[DONE] Freeze
+[DONE] Poison
+[MISSING] final expanded Modifier catalogue
+
+ABILITIES
+[PARTIAL] current repository contains 21 Ability definitions
+[PARTIAL] active and passive categories exist
+[DONE] 7-level ability progression framework
+[DONE] branch/final evolution framework
+[REWORK] final active-slot structure
+[REWORK] final ability acquisition/choice distribution
+[MISSING] several final Ability definitions
+
+NETWORK
+[DONE] node placement
+[DONE] removal
+[DONE] repositioning
+[DONE] link detection
+[DONE] line detection
+[DONE] triangle detection
+[DONE] cluster detection
+[PARTIAL] geometry bonus depth
+[GATE] network readability / human acceptance
+[GATE] geometry importance during real play
+
+RESONANCE
+[DONE] foundation
+[DONE] triangle charge/proc
+[DONE] visual feedback
+[PARTIAL] final seven-geometry Resonance system
+[PARTIAL] overflow rules
+[REWORK] full Resonance event catalogue
+
+RUNES
+[MISSING] no dedicated final Rune system in current repository
+
+ARTIFACTS
+[PARTIAL] Artifact data architecture
+[PARTIAL] rarity architecture
+[DONE] reward generation
+[DONE] existing Common/Rare/Epic/Special/Legendary framework
+[PARTIAL] behavior depth
+[PARTIAL] network/geometry artifact depth
+[PARTIAL] control/execution/explosion coverage
+[PARTIAL] final catalogue scale
+
+Current Artifact definition count:
+36.
+
+Final target:
+90-120.
+
+SYNERGY
+[DONE] Pair Synergy
+[DONE] Artifact Sets
+[DONE] Protocol framework
+[DONE] discovered/unknown state
+[DONE] Set completion gameplay integration
+[PARTIAL] catalogue depth
+
+Current Artifact Sets:
+3 initial Sets.
+
+Current Protocols:
+3 initial Protocols.
+
+CHARACTERS
+[PRESERVED] Spherist
+[PRESERVED] Hunter
+[PRESERVED] Engineer
+[PRESERVED] Berserker
+[PRESERVED] Alchemist
+[PRESERVED] Architect
+[MISSING] Conductor
+[MISSING] Oracle
+[MISSING] Voidwalker
+[MISSING] Fractal
+
+Current character count:
+6.
+
+Final target:
+10.
+
+Character Mastery:
+[DONE] existing mastery framework
+[PARTIAL] currently 5 levels
+[REWORK] final target is 10 levels with stronger mechanical unlocks
+
+ENEMIES
+[PRESERVED] Normal
+[PRESERVED] Fast
+[PRESERVED] Tank
+[PRESERVED] Elite
+[MISSING] remaining final enemy roles
+
+Current core Enemy roles:
+4 plus boss roles.
+
+Final target:
+15+ meaningful roles.
+
+BOSSES
+[PRESERVED] Shooter
+[PRESERVED] Charger
+[PRESERVED] Summoner
+[PRESERVED] Aura
+[DONE] boss telegraphs for existing types
+[DONE] Charger wind-up
+[DONE] Boss -> Stella handoff foundation
+[DONE] Legendary scarcity foundation
+[MISSING] Conductor
+[MISSING] Architect
+[MISSING] Null
+[MISSING] Stella Warden
+
+Final target:
+8 boss families.
+
+XP
+[DONE] XP drops
+[DONE] XP collection
+[DONE] Level Up
+[DONE] centralized XP formula
+[GATE] pacing validation
+
+CURRENT XP CONSTANTS
+firstLevelXp = 10
+xpGrowthLinear = 3
+xpGrowthQuadratic = 0.08
+hpPerLevel = 6
+
+These values are the current verified repository baseline and must be
+tuned through playtest data rather than replaced blindly.
+
+DIFFICULTY
+[PRESERVED] Easy
+[PRESERVED] Normal
+[PRESERVED] Hard
+[PRESERVED] Nightmare
+[DONE] Endless infrastructure
+[REWORK] Void is a challenge vocabulary, not a fifth named difficulty
+
+SHOP / META
+[PRESERVED] current permanent Shop
+[PRESERVED] seven basic upgrade categories
+[PARTIAL] meta content depth
+[REWORK] expand unlock-based progression beyond raw stat inflation
+
+CURRENT SHOP UPGRADE CATEGORIES
+- Sphere Damage
+- Sphere Radius
+- Move Speed
+- Start Spheres
+- Start HP
+- Crit Chance
+- XP Gain
+
+ECONOMY
+[PARTIAL] gold/shop foundation
+[PARTIAL] run resources
+[MISSING] final four-currency architecture
+[MISSING] final distinction between run currency and meta unlock economy
+
+ACHIEVEMENTS
+[PRESERVED] current achievement system
+[PARTIAL] final achievement catalogue
+
+COLLECTION
+[PARTIAL] existing archive/menu systems
+[MISSING] final full collection coverage
+
+UI
+[PRESERVED] Battle HUD
+[PRESERVED] XP
+[PRESERVED] Level Up modal
+[PRESERVED] Artifact modal
+[PRESERVED] Stella modal
+[PRESERVED] Shop
+[PRESERVED] Achievements
+[PARTIAL] final Network/Resonance presentation
+[REWORK] final active Ability slot UX
+
+VISUAL
+[PRESERVED] current authored 2.5D player
+[PRESERVED] Canvas gameplay presentation
+[PRESERVED] geometric/emissive direction
+[GATE] final visual readability
+[PARKED] mass GLB production
+
+======================================================================
+4. PHASE STATUS
+======================================================================
+
+PHASE 0 — PROJECT AUDIT
+[DONE] repository baseline
+[DONE] branch
+[DONE] code inventory
+[DONE] CI/build pipeline
+[DONE] automated web render
+[DONE] automated APK build
+
+PHASE 1 — COMBAT FOUNDATION
+[DONE] movement
+[DONE] Dash
+[DONE] five preserved Spheres
+[DONE] projectile
+[DONE] targeting
+[DONE] damage
+[DONE] four initial enemy roles
+[DONE] wave scaling
+[DONE] XP
+[DONE] Level Up
+
+Human acceptance:
+[GATE]
+
+PHASE 2 — NETWORK / GEOMETRY
+[DONE] placement
+[DONE] removal
+[DONE] reposition
+[DONE] links
+[DONE] Line
+[DONE] Triangle
+[DONE] Cluster
+[PARTIAL] Resonance depth
+[GATE] network playtest
+[GATE] geometry value
+[GATE] Network HUD validation
+
+PHASE 3 — BUILD SYSTEM
+[DONE] Sphere upgrades
+[DONE] Sphere levels
+[DONE] six core Modifiers
+[DONE] weighted Sphere choice improvements
+[DONE] duplicate-free fallback
+[PARTIAL] full build quality
+[GATE] RNG quality
+[GATE] multiple viable builds
+
+PHASE 4 — ARTIFACTS
+[DONE] data model
+[DONE] rarity
+[DONE] reward generation
+[DONE] current catalogue
+[PARTIAL] behavior diversity
+[PARTIAL] control coverage
+[PARTIAL] execution coverage
+[PARTIAL] explosion coverage
+[PARTIAL] geometry/network depth
+[GATE] Artifact strategic impact
+
+PHASE 5 — SYNERGY
+[DONE] Pair Synergy
+[DONE] Sets
+[DONE] Set UI/progress
+[DONE] discovered/unknown
+[DONE] Protocols
+[DONE] Set completion gameplay
+[PARTIAL] catalogue depth
+[GATE] practical build interaction
+
+PHASE 6 — BOSS / STELLA / LEGENDARY
+[DONE] Boss foundation
+[DONE] Boss telegraphs
+[DONE] Charger wind-up
+[DONE] Stella flow
+[DONE] Legendary pool
+[DONE] scarcity rules
+[GATE] human Boss/Stella acceptance
+
+PHASE 7 — FIRST VERTICAL SLICE
+[NOT ACCEPTED]
+
+Reason:
+implementation is broad enough to form the slice, but the required
+human 10-15 minute fun/build/network gate has not been accepted.
+
+PHASE 8 — BALANCE PASS
+[NOT STARTED FORMALLY]
+
+Do not perform broad numerical tuning before playtest evidence is collected.
+
+PHASE 9 — VERTICAL SLICE 0.2
+[NOT STARTED]
+
+PHASE 10 — FINAL CHARACTER SCALE
+[EARLY FOUNDATION EXISTS]
+
+PHASE 11 — FINAL META
+[EARLY FOUNDATION EXISTS]
+
+PHASE 12 — LONG-TERM CONTENT
+[PENDING]
+
+PHASE 13 — VISUAL/AUDIO POLISH
+[PENDING]
+
+PHASE 14 — MASS COMPLEX GLB
+[PARKED]
+
+======================================================================
+5. WHAT WAS DONE AND FITS
+======================================================================
+
+The following should be treated as already solved foundations:
+
+1. Player movement.
+2. Dash.
+3. Sphere entity architecture.
+4. Standard/Sniper/Chain/Shotgun/Aura.
+5. Projectile and target systems.
+6. Damage.
+7. Normal/Fast/Tank/Elite.
+8. Wave scaling.
+9. XP.
+10. Level Up.
+11. Six core Modifiers.
+12. Sphere branch/final progression.
+13. Network links.
+14. Line/Triangle/Cluster.
+15. Resonance foundation.
+16. Artifact rarity/reward foundation.
+17. Pair Synergy.
+18. Artifact Sets.
+19. Protocol foundation.
+20. Character foundation.
+21. Character Mastery foundation.
+22. Boss foundation.
+23. Boss telegraphs.
+24. Charger wind-up.
+25. Stella.
+26. Legendary scarcity.
+27. Shop/meta foundation.
+28. Achievement foundation.
+29. Canvas/2.5D player presentation.
+
+Do not rebuild these from zero.
+
+======================================================================
+6. WHAT EXISTS BUT NEEDS REWORK
+======================================================================
+
+6.1 ABILITY SYSTEM
+Current state:
+21 definitions with active/passive categorization and evolution.
+
+Problem:
+it has grown organically and does not yet obey the final active-slot and
+reward architecture.
+
+Required:
+- map all existing compatible abilities into the final 30-item vocabulary;
+- reserve Dash as baseline;
+- limit simultaneous non-Dash actives to 3;
+- define when slots unlock;
+- remove duplicate/conflicting hotkey assumptions;
+- ensure abilities create tactical decisions.
+
+6.2 ARTIFACTS
+Current state:
+36 definitions.
+
+Problem:
+too much of the catalogue is still stat-focused.
+
+Required:
+- expand behavioral Artifacts;
+- add control/execution/explosion/network/geometry categories;
+- add 90-120 final catalogue;
+- preserve current items when compatible;
+- rework only entries that conflict.
+
+6.3 NETWORK / GEOMETRY
+Current state:
+strong foundation with Line/Triangle/Cluster.
+
+Problem:
+only three geometry types exist and advanced geometry is not implemented.
+
+Required:
+Square, Ring, Lattice, Fractal.
+
+6.4 ARCHITECT
+Current state:
+Character already references several formation mechanics.
+
+Problem:
+older documentation/code assumptions included Square while the actual
+Network system did not support Square.
+
+Resolution:
+Square is now explicitly a later real Geometry.
+
+6.5 META SHOP
+Current state:
+seven flat upgrade categories.
+
+Problem:
+useful foundation but too dependent on raw permanent stats.
+
+Required:
+add unlocks for branches, characters, active slots, Rune interactions,
+archive and cosmetics.
+
+6.6 ECONOMY
+Current state:
+gold/meta Shop foundation and run resources.
+
+Required:
+formalize:
+Echo
+Credits
+Resonance Shards
+Archive Data.
+
+6.7 VISUAL 3D PATH
+Current state:
+compatible GLB code/assets exist.
+
+Decision:
+PARKED.
+
+Do not spend implementation time on mass complex GLB creation during the
+current gameplay/system phase.
+
+======================================================================
+7. WHAT IS COMPLETELY MISSING
+======================================================================
+
+1. Dedicated Rune system.
+2. Six additional final Spheres.
+3. Expanded Modifier catalogue.
+4. Expanded Ability/Passive catalogue.
+5. Advanced Geometry.
+6. Full Artifact target.
+7. Expanded Sets/Protocols.
+8. Four final Characters.
+9. Expanded enemy roster.
+10. Four additional bosses.
+11. Full run event system.
+12. Final Merchant as a run system distinct from Meta Shop.
+13. Final four-currency economy.
+14. Final Archive completeness.
+15. Final challenge modifiers.
+16. Final Endless escalation.
+17. Full long-term progression.
+18. Formal balance-data pass.
+
+======================================================================
+8. CURRENT BLOCKING GATES
+======================================================================
+
+The biggest blocker is NOT missing content.
+
+The current blockers are:
+
+GATE 1:
+human 5-minute combat validation.
+
+GATE 2:
+network/geometry validation during real play.
+
+GATE 3:
+Level Up / RNG quality validation.
+
+GATE 4:
+Artifact/Synergy strategic impact validation.
+
+GATE 5:
+Boss/Stella acceptance.
+
+GATE 6:
+10-15 minute fun/build gate.
+
+Until these pass:
+do not use visual production or content volume as a substitute.
+
+======================================================================
+9. NEXT IMPLEMENTATION ORDER
+======================================================================
+
+When work resumes from this report:
+
+STEP 1
+Run a focused PlayerCheck on:
+- movement;
+- Dash;
+- three/five Sphere operation;
+- Line;
+- Triangle;
+- Cluster;
+- Resonance;
+- Network HUD;
+- Level Up;
+- a few Artifact choices;
+- boss telegraphs;
+- Stella.
+
+STEP 2
+Fix concrete defects exposed by PlayerCheck.
+
+STEP 3
+Run the full 10-15 minute vertical-slice gate.
+
+STEP 4
+Only after the fun/build gate:
+formalize Balance Pass.
+
+STEP 5
+Implement Rune system.
+
+STEP 6
+Expand Artifact behavior and final catalogue.
+
+STEP 7
+Complete advanced Geometry and Resonance.
+
+STEP 8
+Expand Characters / enemies / bosses / events.
+
+STEP 9
+Expand meta.
+
+STEP 10
+Only then visual/audio polishing.
+
+Complex GLB production remains PARKED.
+
+======================================================================
+10. DO NOT REPEAT THESE MISTAKES
+======================================================================
+
+DO NOT:
+- restart already working systems;
+- delete Shotgun/Aura;
+- delete existing Characters;
+- delete existing Artifacts;
+- shrink content just to make phases look clean;
+- replace mechanics with decorative VFX;
+- expand 3D because screenshots look too simple;
+- add random stats instead of behavior;
+- add more buttons just because the system exists;
+- let RNG create dead Level Up screens;
+- turn Meta into infinite damage inflation;
+- make advanced Geometry only visual.
+
+======================================================================
+11. SOURCE OF TRUTH RULE
+======================================================================
+
+For new chats, use ONLY these two operational documents:
+
+1. GPT/ECHO_SPHERE_MASTER_FINAL_GAMEPLAY_BLUEPRINT_v1.1.txt
+2. GPT/ECHO_SPHERE_DEVELOPMENT_STATE_AND_GAP_REPORT_v1.0.txt
+
+Older GPT documents can remain as historical context, but they must not
+override these two documents.
+
+If a conflict is discovered:
+- Blueprint defines final desired behavior;
+- Gap Report defines current implementation state.
+
+Do not silently invent a third interpretation.
+
+======================================================================
+12. HANDOFF SUMMARY
+======================================================================
+
+CURRENT STAGE:
+First Vertical Slice implementation foundation exists.
+
+CURRENT DEVELOPMENT POSITION:
+Late Phase 6 / pre-acceptance Phase 7.
+
+IMPLEMENTATION:
+Broad foundation already exists.
+
+CONTENT DEPTH:
+Still below final-product target.
+
+BIGGEST DESIGN GAP:
+Network is the intended differentiator but currently exists mainly at the
+first three Geometry levels.
+
+BIGGEST CONTENT GAP:
+Artifact/Ability/Character/Enemy/Rune scale.
+
+BIGGEST PROCESS GAP:
+Human playtest gates and formal balance data are not yet closed.
+
+BIGGEST TECHNICAL DECISION:
+2.5D remains active.
+Mass complex GLB production is parked.
+
+NEXT CORRECT ACTION:
+PlayerCheck -> concrete fixes -> Slice 0.1 acceptance -> Balance ->
+Rune/Artifact/Geometry expansion.
+
+======================================================================
+END OF DEVELOPMENT STATE & GAP REPORT v1.0
+======================================================================
