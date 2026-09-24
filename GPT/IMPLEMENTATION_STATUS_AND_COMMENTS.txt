@@ -273,8 +273,9 @@ SESSION LOG
 - Added tests/boss-stella.test.mjs for telegraph coverage, boss -> Stella handoff, and Legendary scarcity.
 - Initial CI runs 35972776777 and 35973022461 failed only on the newly added source-contract coverage: the first exposed brittle scarcity/call assertions, the second exposed the missing active renderer call. Both defects were fixed.
 - Final Phase 6 code/test commit: 4ce6da853ed1a4d42617c6322280c5a080839d8d.
-- CI verification for 4ce6da... is the current acceptance target; human playtest is still required and must not be marked DONE from compilation/build alone.
+- Final CI verification is complete: GitHub Actions run 35974421856 (run 435) on final documentation HEAD passed typecheck, unit tests, web build, Playwright rendered gameplay, Capacitor Android sync and debug APK build/upload. This is automated evidence; human Phase 6 acceptance is still required.
 - No compatible existing gameplay/content was deleted, reduced, or replaced for roadmap alignment.
 - Preserved: Standard/Sniper/Shotgun/Chain/Aura Sphere content, characters, artifacts, bosses/Stella/Legendary flows, shop/permanent progression, Pair Synergy, Artifact Sets/Protocols, Canvas/2.5D player path, compatible GLB/3D assets and rendering path.
 - Remaining after Phase 6 implementation: human validation of boss telegraphs, boss reward flow, Legendary scarcity and build-steering impact, plus the earlier combat/network/geometry/HUD/RNG gates.
-- Next step: finish CI verification, then consolidated PlayerCheck. Do not begin Phase 7/8 content or balance work before that gate review.
+- Prior Phase 6 documentation commit: 9193cbaaf6f1c30c3b239daa66b858984113bbe1.
+- Next step: consolidated PlayerCheck covering boss telegraphs, boss -> Stella reward flow, Legendary scarcity and build-steering value, together with the still-open earlier combat/network/build/RNG gates. Do not begin Phase 7/8 content or balance work before that gate review.
