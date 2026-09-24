@@ -242,3 +242,14 @@ LATEST SESSION NOTE (2026-09-24, player visual path correction):
 CORRECTION (2026-09-24):
 - Final implementation commit for the player visual-path correction is 58a670328761945e0d42b1b03d85dcfa47c895cc; it only clarifies the 3D-default configuration comment after the functional commits.
 - Functional commits remain 88ba27285a82e6237a2cbb24bfedd4c093db05d2 and 8846f2b2523d1560157f0badd048097b4d07959e.
+
+
+LATEST SESSION NOTE (2026-09-24, restore 2.5D player direction):
+- User clarified that the current intended player presentation is NOT a mandatory GLB/3D character. The active visual direction is Canvas/2.5D, with the player belonging to the same authored geometric/emissive visual family as the Spheres.
+- Reverted the active battlefield switch in src/App.tsx to Canvas renderer by default. The existing visual3d.ts + public/art3d assets remain preserved for the later controlled 3D re-evaluation phase and were not deleted.
+- Restored drawPlayer(ctx, s.player) to the active Canvas battlefield in src/renderer.ts. This uses the existing authored public/art/player.svg first, with the existing procedural geometric fallback if the asset is not ready.
+- Removed the player-only ground shadow from both drawPlayer paths. Other entity shadows were not changed.
+- The persistent field RESONANCE text remains removed; network charge/proc visualization and HUD remain.
+- Functional commits for this correction: 51fe6a90b9607a9dcc68718943a1ef70800627b3 and ed864a50acb4df5f386a7c59f602e2d4edbf49e4.
+- No Sphere types, gameplay systems, artifacts, characters, bosses, progression, Pair Synergy, Artifact Sets/Protocols or preserved GLB assets were deleted or reduced.
+- Next validation: CI build first, then real APK playtest focused on player visibility/movement, absence of the stationary player shadow, absence of redundant RESONANCE field text, and consistency of the player visual with the Spheres.
