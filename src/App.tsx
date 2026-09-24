@@ -36,8 +36,8 @@ import {
 
 type Screen = 'menu' | 'game' | 'shop' | 'leaderboard' | 'settings' | 'achievements' | 'characters';
 
-// Gameplay-first baseline: keep authored 3D available for later evaluation,
-// but do not make it part of the active vertical-slice renderer by default.
+// Authored 3D is the active battlefield renderer by default.
+// Set VITE_ECHO_ENABLE_3D=false only for fallback/debug validation.
 const ENABLE_3D_RENDERER = import.meta.env.VITE_ECHO_ENABLE_3D !== 'false';
 
 export default function App() {
