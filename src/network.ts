@@ -197,10 +197,11 @@ export function analyzeSphereNetwork(
     return strength >= 0.78 ? { type: 'cluster' as const, strength, nodes: [...indexes] } : null;
   })();
 
-  // Readability priority: Square > Triangle > Cluster > Line when formations overlap.
+  // Square is an explicit higher-order formation. Triangle + Cluster retain their
+  // previous coexistence contract, while Line is suppressed by higher-order shapes.
   const resolvedTriangle = square ? null : triangle;
-  const resolvedCluster = square || triangle ? null : cluster;
-  const resolvedLine = square || triangle || cluster ? null : line;
+  const resolvedCluster = square ? null : cluster;
+  const resolvedLine = square || (triangle && cluster) ? null : line;
 
   return {
     linkDistance: linkDistance,
