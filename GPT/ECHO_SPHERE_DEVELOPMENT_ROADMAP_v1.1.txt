@@ -290,7 +290,13 @@ LATEST SESSION NOTE (2026-09-24, Phase 6 implementation pass)
 - Boss telegraphs are presentation-only except for the charger timing change required to create a visible wind-up window. Shooter, summoner and aura attack rules were otherwise preserved.
 - Added tests/boss-stella.test.mjs covering charger wind-up, four boss telegraph branches, Stella handoff and Legendary scarcity contracts.
 - Initial CI run 35972776777 exposed two brittle source-contract assertions in the new test; follow-up run 35973022461 exposed the missing active-renderer helper call. These were corrected in the final implementation fix commit.
-- Final Phase 6 implementation commit: d5e189a1eb95234a1fbfe8aff17041ae7d155111.
+- Final Phase 6 code/test commit: 4ce6da853ed1a4d42617c6322280c5a080839d8d.
 - Human Phase 6 acceptance remains a gate: boss telegraph readability, reward flow, Legendary scarcity and build-steering value must be checked in the next PlayerCheck.
 - Preserved all existing compatible content: all five Sphere types including Shotgun/Aura, characters, artifacts, bosses/Stella/Legendary systems, shop/progression, Pair Synergy, Artifact Sets/Protocols, and compatible GLB/3D assets/path.
 - Next step: complete CI verification on the documented HEAD, then perform the consolidated Phase 6 + earlier combat/network/build human PlayerCheck before changing later roadmap scope.
+
+PHASE 6 FINAL HANDOFF NOTE (2026-09-24)
+- Final code/test commit: 4ce6da853ed1a4d42617c6322280c5a080839d8d.
+- The final code change set preserves all previously implemented Phase 6 rules and adds readable boss telegraphs plus stable regression coverage.
+- Phase 6 remains [PARTIAL] only where the roadmap requires human acceptance: boss telegraph readability, reward flow, Legendary scarcity and build-steering value.
+- Next step after CI: consolidated PlayerCheck. Do not start Phase 7 implementation before that review.

@@ -13,10 +13,10 @@ RESTORED BASELINE
 c79850b9a4e413ad5cad1cbd360d152d22fa7829
 
 CURRENT IMPLEMENTATION COMMIT
-d5e189a1eb95234a1fbfe8aff17041ae7d155111
+4ce6da853ed1a4d42617c6322280c5a080839d8d
 
 LATEST DOCS COMMIT
-5d5b223fd99dc4fdbb7869e25f84d7dd285a5980
+tracked in the latest Phase 6 documentation session below
 
 ROLLBACK
 The branch was moved back from 219301fb2647a76088b0411ddb95438016b54c63 to c79850b9a4e413ad5cad1cbd360d152d22fa7829.
@@ -272,8 +272,8 @@ SESSION LOG
 - Implemented/verified 6.8: normal artifact choices exclude Legendary; Stella considers only unowned Legendary artifacts and returns null after the current Legendary pool is exhausted, with the existing post-cutoff fallback preserved.
 - Added tests/boss-stella.test.mjs for telegraph coverage, boss -> Stella handoff, and Legendary scarcity.
 - Initial CI runs 35972776777 and 35973022461 failed only on the newly added source-contract coverage: the first exposed brittle scarcity/call assertions, the second exposed the missing active renderer call. Both defects were fixed.
-- Final implementation commit for the Phase 6 code/test pass: d5e189a1eb95234a1fbfe8aff17041ae7d155111.
-- CI verification for d5e189... is the current acceptance target; human playtest is still required and must not be marked DONE from compilation/build alone.
+- Final Phase 6 code/test commit: 4ce6da853ed1a4d42617c6322280c5a080839d8d.
+- CI verification for 4ce6da... is the current acceptance target; human playtest is still required and must not be marked DONE from compilation/build alone.
 - No compatible existing gameplay/content was deleted, reduced, or replaced for roadmap alignment.
 - Preserved: Standard/Sniper/Shotgun/Chain/Aura Sphere content, characters, artifacts, bosses/Stella/Legendary flows, shop/permanent progression, Pair Synergy, Artifact Sets/Protocols, Canvas/2.5D player path, compatible GLB/3D assets and rendering path.
 - Remaining after Phase 6 implementation: human validation of boss telegraphs, boss reward flow, Legendary scarcity and build-steering impact, plus the earlier combat/network/geometry/HUD/RNG gates.
