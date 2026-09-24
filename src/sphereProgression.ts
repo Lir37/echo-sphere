@@ -388,7 +388,8 @@ export function sphereModifiers(s:any,type:SphereType,sphere?:any){
 
   if(type==='standard'&&branch==='standard_resonator'){damage*=1.08;if(final===0)radius*=1.12;}
   if(type==='standard'&&branch==='standard_singularity'){damage*=1.06;if(final===0)auraRadius*=1.15;}
-  if(type==='standard'&&branch==='standard_swarm'){multishot+=1;if(final===0)multishot+=1;}
+  // Standard Swarm is implemented as side shards in the combat proc,
+  // not as hidden permanent Multishot. This keeps the branch distinct.
   if(type==='sniper'&&branch==='sniper_oracle'){damage*=1.10;if(final===0)damage*=1.18;}
   if(type==='sniper'&&branch==='sniper_assassin'){damage*=1.12;if(final===0)damage*=1.20;}
   if(type==='sniper'&&branch==='sniper_beacon'){radius*=1.15;if(final===0)radius*=1.20;}
