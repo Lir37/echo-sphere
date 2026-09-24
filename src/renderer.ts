@@ -1084,9 +1084,12 @@ function drawOrigamiOctopus(ctx: CanvasRenderingContext2D, r: number, fill: stri
   ctx.globalAlpha = 1;
 }
 
-// ===== Player — status effects only =====
+// ===== Player — authored 2.5D core, no containment sphere =====
 function drawPlayer(ctx: CanvasRenderingContext2D, p: PlayerState): void {
-  const t=Date.now()/1000,r=PLAYER_RADIUS;
+  const r = PLAYER_RADIUS;
+
+  // Same authored geometric language as the Spheres.
+  // No large circular body, orbit ring or containment sphere is drawn here.
   if (drawReferenceSprite(ctx, 'player', p.pos.x, p.pos.y - r * 0.10, r * 2.9, '#63e6ff', 0, 1)) {
     if (p.shieldCharges > 0 || p.shieldTimer > 0 || p.invulnerableTimer > 0) {
       ctx.save();
@@ -1101,18 +1104,91 @@ function drawPlayer(ctx: CanvasRenderingContext2D, p: PlayerState): void {
     return;
   }
 
-  ctx.save();ctx.translate(p.pos.x,p.pos.y);
-  const aura=ctx.createRadialGradient(0,-10,2,0,0,r*2.2);aura.addColorStop(0,'rgba(236,252,255,.28)');aura.addColorStop(.20,'rgba(91,228,255,.17)');aura.addColorStop(.56,'rgba(126,89,255,.06)');aura.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle=aura;ctx.beginPath();ctx.arc(0,-8,r*2.2,0,Math.PI*2);ctx.fill();
-  const shell=ctx.createLinearGradient(-r,-r,r,r);shell.addColorStop(0,'#7892ad');shell.addColorStop(.10,'#29445f');shell.addColorStop(.34,'#102239');shell.addColorStop(.72,'#06111f');shell.addColorStop(1,'#01040a');
-  ctx.fillStyle=shell;ctx.strokeStyle='rgba(151,237,255,.88)';ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(0,-r*1.05);ctx.lineTo(r*.68,-r*.43);ctx.lineTo(r*.60,r*.34);ctx.lineTo(0,r*.70);ctx.lineTo(-r*.60,r*.34);ctx.lineTo(-r*.68,-r*.43);ctx.closePath();ctx.fill();ctx.stroke();
-  ctx.strokeStyle='rgba(228,249,255,.24)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(-r*.28,-r*.57);ctx.lineTo(-r*.04,-r*.83);ctx.lineTo(r*.28,-r*.49);ctx.stroke();
-  const core=ctx.createRadialGradient(-r*.18,-r*.26,1,0,-r*.02,r*.74);core.addColorStop(0,'#fff');core.addColorStop(.14,'#d6fbff');core.addColorStop(.40,'#57e3ff');core.addColorStop(.68,'#5d7cff');core.addColorStop(1,'rgba(48,89,255,0)');
-  ctx.shadowColor='#5cdfff';ctx.shadowBlur=20;ctx.fillStyle=core;ctx.beginPath();ctx.ellipse(0,-r*.08,r*.52,r*.46,0,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
-  ctx.fillStyle='rgba(0,7,15,.44)';ctx.beginPath();ctx.ellipse(0,-r*.06,r*.23,r*.18,0,0,Math.PI*2);ctx.fill();
-  for(let i=0;i<3;i++){ctx.save();ctx.translate(0,-5-i*1.5);ctx.rotate(t*(i%2?-.25:.32)+i*.7);ctx.strokeStyle=i===1?'rgba(224,106,255,.40)':'rgba(103,232,255,.42)';ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(0,0,r*(1.06+i*.16),r*(.23+i*.035),0,0,Math.PI*2);ctx.stroke();ctx.restore();}
-  if(p.shieldCharges>0||p.shieldTimer>0){ctx.strokeStyle='rgba(105,232,255,.68)';ctx.lineWidth=1.3;ctx.beginPath();ctx.ellipse(0,-4,r+11,7,0,0,Math.PI*2);ctx.stroke();}
-  if(p.invulnerableTimer>0){ctx.strokeStyle='#fff';ctx.lineWidth=1.8;ctx.globalAlpha=.72;ctx.beginPath();ctx.ellipse(0,-6,r+15,8,0,0,Math.PI*2);ctx.stroke();ctx.globalAlpha=1;}
+  // Deterministic fallback with the same angular silhouette language.
+  ctx.save();
+  ctx.translate(p.pos.x, p.pos.y - r * 0.10);
+
+  const shell = ctx.createLinearGradient(-r, -r, r, r);
+  shell.addColorStop(0, '#7892ad');
+  shell.addColorStop(0.12, '#29445f');
+  shell.addColorStop(0.38, '#102239');
+  shell.addColorStop(0.74, '#06111f');
+  shell.addColorStop(1, '#01040a');
+
+  ctx.fillStyle = shell;
+  ctx.strokeStyle = 'rgba(151,237,255,.88)';
+  ctx.lineWidth = 1.4;
+  ctx.beginPath();
+  ctx.moveTo(0, -r * 1.05);
+  ctx.lineTo(r * 0.72, -r * 0.52);
+  ctx.lineTo(r * 0.62, r * 0.48);
+  ctx.lineTo(r * 0.18, r * 0.82);
+  ctx.lineTo(0, r * 0.72);
+  ctx.lineTo(-r * 0.18, r * 0.82);
+  ctx.lineTo(-r * 0.62, r * 0.48);
+  ctx.lineTo(-r * 0.72, -r * 0.52);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = '#102638';
+  ctx.strokeStyle = 'rgba(105,232,255,.72)';
+  ctx.lineWidth = 1;
+  for (const side of [-1, 1]) {
+    ctx.beginPath();
+    ctx.moveTo(side * r * 0.62, -r * 0.28);
+    ctx.lineTo(side * r * 1.02, -r * 0.55);
+    ctx.lineTo(side * r * 0.88, 0);
+    ctx.lineTo(side * r * 0.60, r * 0.10);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+  }
+
+  const core = ctx.createLinearGradient(-r * 0.32, -r * 0.34, r * 0.32, r * 0.38);
+  core.addColorStop(0, '#fff');
+  core.addColorStop(0.28, '#bff8ff');
+  core.addColorStop(0.62, '#57e3ff');
+  core.addColorStop(1, '#536cff');
+  ctx.shadowColor = '#5cdfff';
+  ctx.shadowBlur = 14;
+  ctx.fillStyle = core;
+  ctx.beginPath();
+  ctx.moveTo(0, -r * 0.38);
+  ctx.lineTo(r * 0.28, -r * 0.06);
+  ctx.lineTo(r * 0.18, r * 0.30);
+  ctx.lineTo(0, r * 0.44);
+  ctx.lineTo(-r * 0.18, r * 0.30);
+  ctx.lineTo(-r * 0.28, -r * 0.06);
+  ctx.closePath();
+  ctx.fill();
+  ctx.shadowBlur = 0;
+
+  ctx.strokeStyle = 'rgba(228,249,255,.24)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(-r * 0.30, -r * 0.60);
+  ctx.lineTo(0, -r * 0.86);
+  ctx.lineTo(r * 0.30, -r * 0.60);
+  ctx.stroke();
+
+  if (p.shieldCharges > 0 || p.shieldTimer > 0) {
+    ctx.strokeStyle = 'rgba(105,232,255,.68)';
+    ctx.lineWidth = 1.3;
+    ctx.beginPath();
+    ctx.ellipse(0, r * 0.56, r * 0.62, r * 0.14, 0, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  if (p.invulnerableTimer > 0) {
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 1.8;
+    ctx.globalAlpha = .72;
+    ctx.beginPath();
+    ctx.ellipse(0, r * 0.56, r * 0.78, r * 0.16, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+
   ctx.restore();
 }
 
