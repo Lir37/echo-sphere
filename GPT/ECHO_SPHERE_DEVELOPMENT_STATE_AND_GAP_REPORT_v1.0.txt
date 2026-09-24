@@ -28,8 +28,11 @@ A new session must NOT restart systems already marked DONE/PRESERVED.
 Branch:
 new-desing
 
-Latest commit is the validated Blueprint documentation commit:
-112dbfc95278cc957442fe562e8357c300e3da0d
+Latest implementation commit:
+2c4bc05b006d1cc13d2544eba6db4492262c963a
+
+This HEAD includes Network Square combat integration and the first functional
+Rune layer.
 
 Latest gameplay implementation baseline documented in the preceding
 implementation log:
@@ -127,6 +130,7 @@ NETWORK
 [DONE] cluster detection
 [PARTIAL] geometry bonus depth
 [DONE] Square detection and membership
+[DONE] Square combat modifiers and defensive Resonance trigger
 [GATE] network readability / human acceptance
 [GATE] geometry importance during real play
 
@@ -135,12 +139,16 @@ RESONANCE
 [DONE] triangle charge/proc
 [DONE] visual feedback
 [PARTIAL] final seven-geometry Resonance system
-[PARTIAL] Square gameplay bonus is not yet wired as final Resonance content
+[PARTIAL] Square Resonance is wired as a first playable combat effect; final seven-geometry event depth remains
 [PARTIAL] overflow rules
 [REWORK] full Resonance event catalogue
 
 RUNES
-[MISSING] no dedicated final Rune system in current repository
+[DONE] dedicated Rune definitions and temporary field pickups
+[DONE] elite/boss Rune drops
+[DONE] Rune pickup effects for all 9 core Rune types
+[PARTIAL] final Rune balancing, rarity rules, and special event sources
+[PARTIAL] Rune archive/UI presentation
 
 ARTIFACTS
 [PARTIAL] Artifact data architecture
