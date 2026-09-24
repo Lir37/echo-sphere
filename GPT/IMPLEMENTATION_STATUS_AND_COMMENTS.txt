@@ -74,7 +74,7 @@ CURRENT GAPS
 3. Build-choice weighting and RNG protection validation.
 4. Artifact behaviour depth.
 5. Dedicated control/execution/explosion artifact coverage.
-6. Full Artifact Set and Protocol framework.
+6. Formal Phase 5 integration/acceptance validation.
 7. Full first vertical-slice fun gate.
 8. Formal balance-data pass.
 
@@ -247,3 +247,17 @@ LATEST SESSION CORRECTION (2026-09-24, exact source of player overlay identified
 - Preserved old systems/content: Canvas player rendering, character mastery tracking, character visual-state logic, Berserker gameplay and range indicator, all Sphere/network systems, all existing assets.
 - Remaining: CI result for this correction, then human APK playtest of the exact reported visual. Later roadmap acceptance gates remain unchanged.
 - Next step: inspect CI/visual artifact for this correction and have the fresh APK playtested on-device.
+
+SESSION LOG
+2026-09-24 (Phase 5 completion wiring pass):
+- User confirmed the latest player presentation PlayerCheck is OK and requested the complete Phase 5 pass before the next PlayerCheck.
+- Audit result: Phase 5.1-5.10 implementation was already present, so no completed Phase 5 feature was reimplemented or removed.
+- Concrete gap found: getArtifactSetCompletionBonus() existed in src/artifactSystem.ts but was not wired into combat damage.
+- Wired Artifact Set completion bonus into src/engine.ts Sphere damage calculation.
+- Added visible completion feedback to completed Artifact Set cards in src/App.tsx.
+- Added a regression/source-contract test in tests/artifact-sets.test.mjs.
+- Implementation commits: 4e362f83880a555baf971188168ac13976573264, 87ca149484bee57986ca30adc3f3354f4bac5852, 4abd0e9529deac5a2cc89032d2f1b77924fe36e1.
+- Roadmap documentation commit: 6aea0f8fffe42b16ffa763b015445569791d17fb.
+- Preserved old/later-compatible systems and content: Pair Synergy, all three Artifact Sets, Protocols, discovered/unknown state, all five Sphere types including Shotgun/Aura, characters, artifacts, bosses/Stella/Legendary flow, shop/permanent progression and compatible 3D/GLB path.
+- Remaining: fresh CI/build verification and human Phase 5 acceptance. Existing broader combat/network/build/RNG/Slice 0.1 gates remain open.
+- Next step: fresh CI/build, then PlayerCheck of Set completion gameplay effect + completion feedback + Protocol discovery/activation, followed by regression check of combat/network.
