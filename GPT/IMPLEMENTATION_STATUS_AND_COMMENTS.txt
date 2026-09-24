@@ -210,3 +210,8 @@ LATEST SESSION NOTE (2026-09-24, player visual path correction):
 - Preserved all gameplay/content systems, all five Sphere types, characters, artifacts, bosses/Stella/Legendary flow, shop/progression, Pair Synergy, Artifact Sets/Protocols and the existing GLB asset path.
 - Automated CI for these two new commits is not yet verifiable through the available workflow-run connector because it exposes pull-request-associated runs only. Do not mark the build green until a fresh CI run is observed.
 - Next step: fresh CI build and real APK playtest. Acceptance target: authored player GLB visible and moving with the player, no old player sphere/containment frame, no stationary spawn shadow, and no RESONANCE field text.
+
+
+CORRECTION (2026-09-24):
+- Final implementation commit for the player visual-path correction is 58a670328761945e0d42b1b03d85dcfa47c895cc; it only clarifies the 3D-default configuration comment after the functional commits.
+- Functional commits remain 88ba27285a82e6237a2cbb24bfedd4c093db05d2 and 8846f2b2523d1560157f0badd048097b4d07959e.
