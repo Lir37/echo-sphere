@@ -5,6 +5,9 @@ on:
     branches:
       - cleanup-android
       - new-desing
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
