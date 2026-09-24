@@ -2115,7 +2115,7 @@ export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
   // Abilities are real Level-Up choices. The old first-slice gate left the
   // 21-definition Ability system effectively unreachable during a normal run.
   // Dash remains free and does not consume these slots.
-  const activeCount = (Object.keys(s.player.activeKeyMap || {}).length);
+  const activeCount = Object.keys(s.activeKeyMap || {}).length;
   const activePool = (Object.keys(ABILITIES) as AbilityType[])
     .filter((id) => ABILITIES[id].category === 'active')
     .filter((id) => (s.player.abilities[id] || 0) < ABILITIES[id].maxLevel)
