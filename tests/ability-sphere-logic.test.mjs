@@ -25,8 +25,9 @@ test('all Sphere branch ids are referenced by engine combat logic', () => {
 });
 
 test('Standard Swarm is not implemented as hidden permanent Multishot', () => {
-  assert.match(engine, /Standard Swarm creates side shards/);
-  assert.doesNotMatch(engine, /type==='standard'&&branch==='standard_swarm'\)\{multishot\+=1/);
+  assert.match(engine, /branch === 'standard_swarm'/);
+  assert.match(progression, /Standard Swarm is implemented as side shards/);
+  assert.doesNotMatch(progression, /type==='standard'&&branch==='standard_swarm'\)\{multishot\+=1/);
 });
 
 test('Vitality has a real max-HP effect when acquired', () => {
