@@ -26,7 +26,7 @@ import {
   getFormationDamageTakenMultiplier,
 } from './characterRuntime';
 import { loadCharacterId, loadCharacterProfiles } from './persistence';
-import { getArtifactMoveSpeedMultiplier, getArtifactMaxHpBonus, getArtifactXpMultiplier, getArtifactRegenPerSecond, getArtifactSphereRadiusMultiplier, getArtifactSphereDamageMultiplier, getArtifactCooldownMultiplier, getArtifactSphereDelayMultiplier, getArtifactDamageTakenMultiplier, getArtifactCritChanceBonus, getArtifactDodgeChanceBonus, getArtifactVampireBonus, getArtifactReflectChance, getSphereArtifactDamageMultiplier, pickArtifactChoices, pickStellaArtifactChoice } from './artifactSystem';
+import { getArtifactMoveSpeedMultiplier, getArtifactMaxHpBonus, getArtifactXpMultiplier, getArtifactRegenPerSecond, getArtifactSphereRadiusMultiplier, getArtifactSphereDamageMultiplier, getArtifactCooldownMultiplier, getArtifactSphereDelayMultiplier, getArtifactDamageTakenMultiplier, getArtifactCritChanceBonus, getArtifactDodgeChanceBonus, getArtifactVampireBonus, getArtifactReflectChance, getSphereArtifactDamageMultiplier, getArtifactSetCompletionBonus, pickArtifactChoices, pickStellaArtifactChoice } from './artifactSystem';
 import { SPHERE_PROGRESSION, ABILITY_PROGRESSION, spherePriority, sphereLevel, sphereModifiers, SPHERE_ABILITY_SYNERGIES, getActiveSphereAbilitySynergies } from './sphereProgression';
 import { selectSphereTarget } from './targeting';
 import { analyzeSphereNetwork, getSphereNetworkProfile } from './network';
@@ -632,6 +632,9 @@ export function getSphereDamage(s: GameState, sphere: SphereEntity): number {
   }
   d *= getArtifactSphereDamageMultiplier(s);
   d *= getSphereArtifactDamageMultiplier(s, sphere);
+  // Phase 5: completing an Artifact Set is a real build milestone, not UI-only state.
+  // The bonus is data-driven and stacks only for fully completed Sets.
+  d *= 1 + getArtifactSetCompletionBonus(s);
   d *= sphereModifiers(s, sphere.type, sphere).damage;
   return d;
 }
