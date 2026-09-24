@@ -43,6 +43,7 @@ export interface PlayerState {
   xp: number;
   xpToNext: number;
   abilities: Partial<Record<AbilityType, number>>; // ability -> level
+  activeAbilitySlots: number; // non-Dash active slots currently unlocked
   evolutions: string[];
   artifacts: ArtifactId[];
   kills: number;
@@ -464,6 +465,7 @@ export function createInitialState(
     xp: 0,
     xpToNext: BALANCE.firstLevelXp,
     abilities: {},
+    activeAbilitySlots: 0,
     evolutions: [],
     artifacts: [],
     kills: 0,
@@ -960,8 +962,7 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
       fromSphere.resonanceHits++;
       if (fromSphere.resonanceHits % 4 === 0) {
         fromSphere.resonancePulseTimer = 0.55;
-        s.player.shieldCharges = Math.min(2, s.player.shieldCharges + 1);
-        s.flashText = { text: 'SQUARE SHELL', life: 0.7, color: '#69b7ff' };
+        s.player.shieldCharges = Math.min(5, s.player.shieldCharges + 1);
       }
     }
   }
@@ -1032,6 +1033,8 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
       }
       if (finalIndex === 2 && enemy.hp < enemy.maxHp * 0.5) actual *= 1.15;
     } else if (branch === 'standard_swarm') {
+      // Swarm is a side-projectile evolution. It must not secretly become
+      // permanent Multishot, otherwise it double-counts its own mechanic.
       const count = finalIndex === 2 ? 2 : 1;
       const chance = finalIndex === null ? 1 : finalIndex === 0 ? 0.35 : finalIndex === 1 ? 0.55 : 1;
       if (Math.random() < chance) {
@@ -1039,7 +1042,7 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
           const a = Math.atan2(enemy.pos.y - fromSphere.pos.y, enemy.pos.x - fromSphere.pos.x) + (i === 0 ? 0.35 : -0.35);
           s.sphereProjectiles.push({
             pos: { ...fromSphere.pos }, vel: { x: Math.cos(a) * 430, y: Math.sin(a) * 430 },
-            damage: actual * (finalIndex === 0 ? 0.28 : 0.22), radius: 4, alive: true, color: '#d4943d', pierce: 0,
+            damage: actual * (finalIndex === 0 ? 0.30 : finalIndex === 1 ? 0.26 : 0.22), radius: 4, alive: true, color: '#d4943d', pierce: 0,
             hitEnemies: new Set(), effect: 'none', ricochet: 0, life: 1.2, sourceSphere: fromSphere,
           });
         }
@@ -2109,23 +2112,69 @@ export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
       desc: modifier.desc,
     }));
 
-  // First-slice active kit is Dash. The larger ability system remains implemented,
-  // but it is not injected into the level-up pool until later roadmap phases.
+  // Abilities are real Level-Up choices. The old first-slice gate left the
+  // 21-definition Ability system effectively unreachable during a normal run.
+  // Dash remains free and does not consume these slots.
+  const activeCount = (Object.keys(s.player.activeKeyMap || {}).length);
+  const activePool = (Object.keys(ABILITIES) as AbilityType[])
+    .filter((id) => ABILITIES[id].category === 'active')
+    .filter((id) => (s.player.abilities[id] || 0) < ABILITIES[id].maxLevel)
+    .filter((id) => (s.player.abilities[id] || 0) > 0 || activeCount < s.player.activeAbilitySlots)
+    .map((id) => ({
+      type: 'ability' as const,
+      ability: id,
+      currentLevel: s.player.abilities[id] || 0,
+      newLevel: Math.min(ABILITIES[id].maxLevel, (s.player.abilities[id] || 0) + 1),
+      name: ABILITIES[id].name,
+      desc: {
+        ru: ABILITY_PROGRESSION[id]?.levels[(s.player.abilities[id] || 0)]?.desc.ru || ABILITIES[id].desc.ru((s.player.abilities[id] || 0) + 1),
+        en: ABILITY_PROGRESSION[id]?.levels[(s.player.abilities[id] || 0)]?.desc.en || ABILITIES[id].desc.en((s.player.abilities[id] || 0) + 1),
+      },
+    }));
+
+  const passivePool = (Object.keys(ABILITIES) as AbilityType[])
+    .filter((id) => ABILITIES[id].category === 'passive')
+    .filter((id) => (s.player.abilities[id] || 0) < ABILITIES[id].maxLevel)
+    .map((id) => ({
+      type: 'ability' as const,
+      ability: id,
+      currentLevel: s.player.abilities[id] || 0,
+      newLevel: Math.min(ABILITIES[id].maxLevel, (s.player.abilities[id] || 0) + 1),
+      name: ABILITIES[id].name,
+      desc: {
+        ru: ABILITY_PROGRESSION[id]?.levels[(s.player.abilities[id] || 0)]?.desc.ru || ABILITIES[id].desc.ru((s.player.abilities[id] || 0) + 1),
+        en: ABILITY_PROGRESSION[id]?.levels[(s.player.abilities[id] || 0)]?.desc.en || ABILITIES[id].desc.en((s.player.abilities[id] || 0) + 1),
+      },
+    }));
+
+  const abilityPool = weightedShuffle([...activePool, ...passivePool], (choice) => {
+    const current = choice.currentLevel;
+    const unfinished = current === 0 ? 1.35 : 1.15;
+    const categoryBoost = choice.ability && ABILITIES[choice.ability].category === 'active' ? 1.05 : 1;
+    return unfinished * categoryBoost;
+  });
+
   const spherePool = weightedShuffle(sphereChoices, (choice) =>
     choice.sphereType ? getSphereUpgradeChoiceWeight(s, choice.sphereType) : 1,
   );
   const modifierPool = weightedShuffle(modifierChoices, () => 1);
 
-  if (modifierPool.length > 0 && spherePool.length > 0) {
-    const mixedChoices = [modifierPool[0], ...spherePool.slice(0, 2)];
-    for (const modifier of modifierPool.slice(1)) {
-      if (mixedChoices.length >= 3) break;
-      mixedChoices.push(modifier);
-    }
-    return weightedShuffle(mixedChoices, () => 1).slice(0, 3);
+  const mixedPool: UpgradeChoice[] = [];
+  const sources = [
+    abilityPool[0],
+    spherePool[0],
+    modifierPool[0],
+    abilityPool[1],
+    spherePool[1],
+    modifierPool[1],
+    abilityPool[2],
+  ].filter(Boolean) as UpgradeChoice[];
+
+  for (const choice of weightedShuffle(sources, () => 1)) {
+    if (mixedPool.length >= 3) break;
+    mixedPool.push(choice);
   }
-  if (spherePool.length > 0) return spherePool.slice(0, 3);
-  return modifierPool.slice(0, 3);
+  return mixedPool;
 }
 
 export function applyUpgrade(s: GameState, choice: UpgradeChoice): void {
@@ -2214,7 +2263,12 @@ export function applyUpgrade(s: GameState, choice: UpgradeChoice): void {
     const next=Math.min(7,current+1);
     s.player.abilities[ability]=next;
     const def=ABILITIES[ability];
-    if(def.category==='active'&&current===0) assignHotkey(s,ability);
+    if (def.category === 'active' && current === 0) assignHotkey(s, ability);
+    if (ability === 'vitality') {
+      const hpGain = 20;
+      s.player.maxHp += hpGain;
+      s.player.hp = Math.min(s.player.maxHp, s.player.hp + hpGain);
+    }
 
     if(next===4){
       s.pendingUpgrade=getAbilityEvolutionChoices(s,ability,4);
@@ -2246,6 +2300,12 @@ export function update(s: GameState, dt: number): void {
 
   s.time += dt;
   s.stats.time = s.time;
+  // Progressive active slots: Dash is always free, then three non-Dash slots
+  // open during the run. This keeps the active layer tactical rather than
+  // turning the HUD into a keyboard.
+  if (s.player.level >= 5) s.player.activeAbilitySlots = Math.max(s.player.activeAbilitySlots, 1);
+  if (s.player.level >= 12) s.player.activeAbilitySlots = Math.max(s.player.activeAbilitySlots, 2);
+  if (s.player.level >= 20) s.player.activeAbilitySlots = Math.max(s.player.activeAbilitySlots, 3);
 
   // character timers
   if (s.player.hunterMarkTimer > 0) {
