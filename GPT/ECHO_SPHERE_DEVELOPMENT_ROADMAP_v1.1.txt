@@ -225,3 +225,15 @@ LATEST SESSION NOTE (2026-09-24, player presentation cleanup + Phase 5.3-5.10 pa
 - Implemented Phase 5.3-5.10: Protocol data framework, Set progress UI, discovered/unknown state, Triangle Protocol, Sphere behaviour protocol, event/combat-condition protocol, completion-state presentation and completion gameplay bonus.
 - Existing artifact, Sphere and later-content pools were preserved. No content was deleted because of roadmap ordering.
 - Next required validation: human playtest after this batch, with special attention to player visual cleanup, movement/shadow behavior, Set/Protocol readability and existing combat/network behavior.
+
+
+LATEST SESSION NOTE (2026-09-24, player visual path correction):
+- Human playtest after the previous batch showed the field was still using the legacy 2D renderer path: the player GLB was absent while the old field presentation remained, and the triangle still displayed a RESONANCE text overlay.
+- Root cause confirmed in src/App.tsx: ENABLE_3D_RENDERER was opt-in only (VITE_ECHO_ENABLE_3D === 'true'), so normal builds stayed on the 2D renderer even though the authored GLB path existed.
+- Changed the renderer switch to enable authored 3D by default, with an explicit VITE_ECHO_ENABLE_3D=false override available for fallback/debug.
+- Removed the persistent field RESONANCE text from src/renderer.ts; triangle charge/proc visualization and the dedicated HUD remain.
+- Verified that public/art3d/player.glb exists on new-desing and is a valid GLB with one mesh/one primitive, so the authored player asset is available to the 3D loader.
+- Implementation commits: 88ba27285a82e6237a2cbb24bfedd4c093db05d2 and 8846f2b2523d1560157f0badd048097b4d07959e.
+- Preserved all gameplay/content systems, all five Sphere types, characters, artifacts, bosses/Stella/Legendary flow, shop/progression, Pair Synergy, Artifact Sets/Protocols and the existing GLB asset path.
+- Automated CI for these two new commits is not yet verifiable through the available workflow-run connector because it exposes pull-request-associated runs only. Do not mark the build green until a fresh CI run is observed.
+- Next step: fresh CI build and real APK playtest. Acceptance target: authored player GLB visible and moving with the player, no old player sphere/containment frame, no stationary spawn shadow, and no RESONANCE field text.
