@@ -8,7 +8,7 @@ export interface NetworkNode {
   alive?: boolean;
 }
 
-export type NetworkFormation = 'none' | 'line' | 'triangle' | 'cluster';
+export type NetworkFormation = 'none' | 'line' | 'triangle' | 'square' | 'cluster';
 
 export interface NetworkLink {
   a: number;
@@ -28,6 +28,7 @@ export interface SphereNetworkState {
   links: NetworkLink[];
   line: NetworkShape | null;
   triangle: NetworkShape | null;
+  square: NetworkShape | null;
   cluster: NetworkShape | null;
 }
 
@@ -35,6 +36,7 @@ export interface SphereNetworkProfile {
   linkedNeighbours: number;
   line: boolean;
   triangle: boolean;
+  square: boolean;
   cluster: boolean;
 }
 
@@ -107,6 +109,24 @@ function triangleStrength(nodes: NetworkNode[], indexes: number[], linkDistance:
   return 1 - Math.min(1, variance * 2.2);
 }
 
+
+function squareStrength(nodes: NetworkNode[], indexes: number[], linkDistance: number): number {
+  if (indexes.length !== 4) return 0;
+  const points = indexes.map((index) => ({ index, pos: nodes[index].pos }));
+  const center = points.reduce((acc, p) => ({ x: acc.x + p.pos.x, y: acc.y + p.pos.y }), { x: 0, y: 0 });
+  center.x /= 4; center.y /= 4;
+  const ordered = [...points].sort((a, b) => Math.atan2(a.pos.y - center.y, a.pos.x - center.x) - Math.atan2(b.pos.y - center.y, b.pos.x - center.x));
+  const sides = [0, 1, 2, 3].map((i) => distance(ordered[i].pos, ordered[(i + 1) % 4].pos));
+  const diagonals = [distance(ordered[0].pos, ordered[2].pos), distance(ordered[1].pos, ordered[3].pos)];
+  const sideMean = sides.reduce((a, b) => a + b, 0) / 4;
+  if (sideMean < 60 || sideMean > linkDistance || sides.some((side) => side > linkDistance)) return 0;
+  const sideVariance = sides.reduce((sum, side) => sum + Math.abs(side - sideMean), 0) / (4 * sideMean);
+  const diagonalMean = (diagonals[0] + diagonals[1]) / 2;
+  const diagonalVariance = Math.abs(diagonals[0] - diagonals[1]) / Math.max(1, diagonalMean);
+  const rightAngleError = Math.abs(diagonalMean / sideMean - Math.SQRT2) / Math.SQRT2;
+  return Math.max(0, 1 - Math.min(1, sideVariance * 2 + diagonalVariance + rightAngleError));
+}
+
 function clusterStrength(nodes: NetworkNode[], indexes: number[], linkDistance: number): number {
   if (indexes.length < 4) return 0;
 
@@ -162,24 +182,34 @@ export function analyzeSphereNetwork(
     }
   }
 
-  const cluster = (() => {
-    const strength = clusterStrength(nodes, indexes, linkDistance);
-    return strength >= 0.78
-      ? { type: 'cluster' as const, strength, nodes: [...indexes] }
-      : null;
+  const square = (() => {
+    let best: NetworkShape | null = null;
+    for (let i = 0; i < indexes.length - 3; i++) for (let j = i + 1; j < indexes.length - 2; j++) for (let k = j + 1; k < indexes.length - 1; k++) for (let l = k + 1; l < indexes.length; l++) {
+      const combo = [indexes[i], indexes[j], indexes[k], indexes[l]];
+      const strength = squareStrength(nodes, combo, linkDistance);
+      if (strength >= 0.84 && (!best || strength > best.strength)) best = { type: 'square', strength, nodes: combo };
+    }
+    return best;
   })();
 
-  // Geometry readability rule: TRIANGLE + CLUSTER may coexist,
-  // but LINE is suppressed when both higher-order formations are active.
-  const resolvedLine = triangle && cluster ? null : line;
+  const cluster = (() => {
+    const strength = clusterStrength(nodes, indexes, linkDistance);
+    return strength >= 0.78 ? { type: 'cluster' as const, strength, nodes: [...indexes] } : null;
+  })();
+
+  // Readability priority: Square > Triangle > Cluster > Line when formations overlap.
+  const resolvedTriangle = square ? null : triangle;
+  const resolvedCluster = square || triangle ? null : cluster;
+  const resolvedLine = square || triangle || cluster ? null : line;
 
   return {
-    linkDistance,
+    linkDistance: linkDistance,
     nodes: indexes,
     links,
     line: resolvedLine,
-    triangle,
-    cluster,
+    triangle: resolvedTriangle,
+    square,
+    cluster: resolvedCluster,
   };
 }
 
@@ -196,6 +226,7 @@ export function getSphereNetworkProfile(
     linkedNeighbours,
     line: Boolean(state.line?.nodes.includes(sphereIndex)),
     triangle: Boolean(state.triangle?.nodes.includes(sphereIndex)),
+    square: Boolean(state.square?.nodes.includes(sphereIndex)),
     cluster: Boolean(state.cluster?.nodes.includes(sphereIndex)),
   };
 }
