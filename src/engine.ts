@@ -30,6 +30,7 @@ import { getArtifactMoveSpeedMultiplier, getArtifactMaxHpBonus, getArtifactXpMul
 import { SPHERE_PROGRESSION, ABILITY_PROGRESSION, spherePriority, sphereLevel, sphereModifiers, SPHERE_ABILITY_SYNERGIES, getActiveSphereAbilitySynergies } from './sphereProgression';
 import { selectSphereTarget } from './targeting';
 import { analyzeSphereNetwork, getSphereNetworkProfile } from './network';
+import { RUNE_DEFS, type RuneType } from './runes';
 
 export interface Vec { x: number; y: number; }
 
@@ -256,6 +257,14 @@ export interface ChestEntity {
   radius: number;
 }
 
+export interface RuneEntity {
+  pos: Vec;
+  alive: boolean;
+  radius: number;
+  type: RuneType;
+  life: number;
+}
+
 export interface GameState {
   player: PlayerState;
   spheres: SphereEntity[];
@@ -296,6 +305,7 @@ export interface GameState {
   pendingSphereUpgrade: SphereUpgradeChoice[] | null;
   damageNumbers: DamageNumber[];
   chests: ChestEntity[];
+  runes: RuneEntity[];
   difficulty: Difficulty;
   evolutionsThisRun: number;
   selectedSphereType: SphereType;
@@ -562,6 +572,7 @@ export function createInitialState(
     pendingSphereUpgrade: null,
     damageNumbers: [],
     chests: [],
+    runes: [],
     difficulty: difficulty,
     evolutionsThisRun: 0,
     selectedSphereType: 'standard',
@@ -1271,6 +1282,14 @@ function onEnemyDeath(s: GameState, enemy: EnemyEntity): void {
   const dropChance = enemy.isBoss ? 1 : (enemy.isElite ? 0.5 : 0.04);
   if (Math.random() < dropChance) {
     s.healthPacks.push({ pos: { x: enemy.pos.x, y: enemy.pos.y }, alive: true, radius: 10 });
+  }
+  // Runes are temporary tactical field drops. They are deliberately rarer than XP
+  // and independent from the persistent Artifact inventory.
+  const runeChance = enemy.isBoss ? 1 : (enemy.isElite ? 0.35 : 0);
+  if (Math.random() < runeChance) {
+    const runeTypes = Object.keys(RUNE_DEFS) as RuneType[];
+    const type = runeTypes[Math.floor(Math.random() * runeTypes.length)];
+    s.runes.push({ pos: { ...enemy.pos }, alive: true, radius: 15, type, life: 22 });
   }
   // chest drop: 2% from normal, 20% from elite, 100% from boss
   const chestChance = enemy.isBoss ? 1 : (enemy.isElite ? 0.2 : 0.02);
@@ -2391,6 +2410,7 @@ export function update(s: GameState, dt: number): void {
 
   // health packs
   updateHealthPacks(s);
+  updateRunes(s, dt);
 
   // particles
   for (let i = s.particles.length - 1; i >= 0; i--) {
@@ -2965,6 +2985,89 @@ function gainXp(s: GameState, amount: number): void {
     s.player.xpToNext = getXpToNextLevel(s.player.level);
     s.pendingUpgrade = generateUpgradeChoices(s);
     playSound('levelup');
+  }
+}
+
+function activateRune(s: GameState, rune: RuneEntity): void {
+  const radius = 240;
+  switch (rune.type) {
+    case 'overdrive':
+      for (const sphere of s.spheres) sphere.attackTimer = Math.max(0, sphere.attackTimer - sphere.attackDelay * 0.75);
+      break;
+    case 'phase':
+      s.player.invulnerableTimer = Math.max(s.player.invulnerableTimer, 1.0);
+      break;
+    case 'harvest':
+      for (let i = s.xpOrbs.length - 1; i >= 0; i--) {
+        const orb = s.xpOrbs[i];
+        if (dist(orb.pos, rune.pos) <= 450) {
+          gainXp(s, orb.value);
+          s.xpOrbs.splice(i, 1);
+        }
+      }
+      break;
+    case 'purge':
+      for (const enemy of s.enemies) {
+        if (!enemy.isBoss && enemy.hp > 0 && dist(enemy.pos, rune.pos) <= radius) {
+          dealDamageToEnemy(s, enemy, 45 + s.player.level * 4);
+        }
+      }
+      break;
+    case 'resonance':
+      for (const sphere of s.spheres) {
+        sphere.resonanceHits += 2;
+        sphere.resonancePulseTimer = Math.max(sphere.resonancePulseTimer, 0.5);
+      }
+      break;
+    case 'fortify':
+      s.player.shieldCharges = Math.min(5, s.player.shieldCharges + 2);
+      break;
+    case 'hunt': {
+      const target = s.enemies
+        .filter((enemy) => enemy.hp > 0 && (enemy.isElite || enemy.isBoss))
+        .sort((a, b) => dist(a.pos, rune.pos) - dist(b.pos, rune.pos))[0];
+      if (target) {
+        s.player.hunterMarkTarget = target;
+        s.player.hunterMarkTimer = 8;
+      }
+      break;
+    }
+    case 'echo':
+      s.player.buffTimer = Math.max(s.player.buffTimer, 4);
+      break;
+    case 'gravity':
+      for (const enemy of s.enemies) {
+        if (enemy.hp <= 0 || dist(enemy.pos, rune.pos) > radius) continue;
+        const dx = rune.pos.x - enemy.pos.x;
+        const dy = rune.pos.y - enemy.pos.y;
+        const d = Math.hypot(dx, dy) || 1;
+        const pull = Math.min(90, d * 0.55);
+        enemy.pos.x += dx / d * pull;
+        enemy.pos.y += dy / d * pull;
+      }
+      break;
+  }
+  const def = RUNE_DEFS[rune.type];
+  s.flashText = { text: def.name.ru.toUpperCase(), life: 1.0, color: def.color };
+  for (let i = 0; i < 18; i++) {
+    const a = Math.random() * Math.PI * 2;
+    s.particles.push({ pos: { ...rune.pos }, vel: { x: Math.cos(a) * 150, y: Math.sin(a) * 150 }, life: 0.55, maxLife: 0.55, color: def.color, size: 3 });
+  }
+}
+
+function updateRunes(s: GameState, dt: number): void {
+  for (let i = s.runes.length - 1; i >= 0; i--) {
+    const rune = s.runes[i];
+    rune.life -= dt;
+    if (rune.life <= 0 || !rune.alive) {
+      s.runes.splice(i, 1);
+      continue;
+    }
+    rune.pos.y += Math.sin((s.time + i) * 3) * dt * 3;
+    if (dist(rune.pos, s.player.pos) <= rune.radius + PLAYER_RADIUS) {
+      activateRune(s, rune);
+      s.runes.splice(i, 1);
+    }
   }
 }
 
