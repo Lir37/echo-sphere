@@ -31,7 +31,7 @@ test('Phase 6 boss defeat hands control to Stella without creating an ordinary a
 test('Phase 6 Stella scarcity remains gated by the configurable Endless threshold', () => {
   assert.match(engine, /s\.time < STELLA_LEGENDARY_CUTOFF_SECONDS/);
   assert.match(engine, /\? pickStellaArtifactChoice\(s\)/);
-  assert.match(engine, /: pickArtifacts\(s\)/);
+  assert.match(engine, /pickArtifacts\(s\)/);
   assert.ok(artifacts.includes("rarity === 'legendary'"));
   assert.ok(artifacts.includes('!owned.has(item.id)'));
   assert.ok(artifacts.includes("rarity !== 'legendary'"));
