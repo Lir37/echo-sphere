@@ -180,6 +180,10 @@ export function render(ctx: CanvasRenderingContext2D, s: GameState, canvasW: num
   // enemies
   for (const e of s.enemies) drawModernEnemy(ctx, e);
 
+  // Player is part of the same Canvas/2.5D visual family as the Spheres.
+  // It is deliberately rendered after enemies so the hero remains readable.
+  drawPlayer(ctx, s.player);
+
   // hunter mark and alchemist reaction indicators sit above enemies
   drawCharacterTargetIndicators(ctx, s);
 
@@ -1084,7 +1088,6 @@ function drawOrigamiOctopus(ctx: CanvasRenderingContext2D, r: number, fill: stri
 function drawPlayer(ctx: CanvasRenderingContext2D, p: PlayerState): void {
   const t=Date.now()/1000,r=PLAYER_RADIUS;
   if (drawReferenceSprite(ctx, 'player', p.pos.x, p.pos.y - r * 0.10, r * 2.9, '#63e6ff', 0, 1)) {
-    drawGroundShadow(ctx, r * 0.90, r * 0.26, 7);
     if (p.shieldCharges > 0 || p.shieldTimer > 0 || p.invulnerableTimer > 0) {
       ctx.save();
       ctx.translate(p.pos.x, p.pos.y);
@@ -1099,7 +1102,6 @@ function drawPlayer(ctx: CanvasRenderingContext2D, p: PlayerState): void {
   }
 
   ctx.save();ctx.translate(p.pos.x,p.pos.y);
-  drawGroundShadow(ctx,r*.90,r*.26,7);
   const aura=ctx.createRadialGradient(0,-10,2,0,0,r*2.2);aura.addColorStop(0,'rgba(236,252,255,.28)');aura.addColorStop(.20,'rgba(91,228,255,.17)');aura.addColorStop(.56,'rgba(126,89,255,.06)');aura.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle=aura;ctx.beginPath();ctx.arc(0,-8,r*2.2,0,Math.PI*2);ctx.fill();
   const shell=ctx.createLinearGradient(-r,-r,r,r);shell.addColorStop(0,'#7892ad');shell.addColorStop(.10,'#29445f');shell.addColorStop(.34,'#102239');shell.addColorStop(.72,'#06111f');shell.addColorStop(1,'#01040a');
