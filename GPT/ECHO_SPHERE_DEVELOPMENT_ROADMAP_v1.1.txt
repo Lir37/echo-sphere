@@ -116,7 +116,7 @@ PHASE 5. ARTIFACT SYNERGY
 5.7 [DONE] Sphere behaviour set.
 5.8 [DONE] Event/combat-condition set.
 5.9 [DONE] Completion VFX.
-5.10 [DONE] Completion gameplay effects.
+5.10 [DONE] Completion gameplay effects are wired into combat: each fully completed Artifact Set contributes its configured completion bonus.
 Existing pair synergies are preserved and should be extended, not replaced.
 EXIT GATE [GATE]
 
@@ -272,3 +272,14 @@ LATEST SESSION CORRECTION (2026-09-24, exact source of player overlay identified
 - The Berserker world-range indicator removed in the prior cleanup was unrelated to the blue center overlay and has been restored. No unrelated character mechanic is intentionally removed.
 - Implementation commit: b65829d45530ece60030f71d2b9784f5364910ee.
 - CI run for this correction is triggered by the new commit; fresh APK playtest remains the final human visual check.
+
+LATEST SESSION NOTE (2026-09-24, Phase 5 completion wiring pass):
+- User confirmed the latest player presentation check is OK and requested the complete Phase 5 pass before the next PlayerCheck.
+- Audit confirmed Phase 5.1-5.10 implementation already existed; no Phase 5 feature was restarted or deleted.
+- Found one concrete integration gap: the Phase 5 completion bonus existed as a data helper but was not consumed by combat damage.
+- Wired getArtifactSetCompletionBonus() into Sphere damage calculation in src/engine.ts.
+- Added visible completion feedback to the Artifact Set UI in src/App.tsx without changing Set state or discovery rules.
+- Added a source-contract regression test in tests/artifact-sets.test.mjs for the combat integration.
+- Preserved Pair Synergy, all three Artifact Sets, Protocols, discovered/unknown state, existing artifact catalogue, all Sphere types, characters, bosses/Stella/Legendary flow, shop/progression and compatible 3D/GLB assets/path.
+- Implementation commits: 4e362f83880a555baf971188168ac13976573264, 87ca149484bee57986ca30adc3f3354f4bac5852, 4abd0e9529deac5a2cc89032d2f1b77924fe36e1.
+- Next step: run CI/build and the next human PlayerCheck focused on Set completion, Protocol discovery/activation, combat bonus, and regression of existing combat/network behavior.
