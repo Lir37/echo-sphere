@@ -13,7 +13,7 @@ RESTORED BASELINE
 c79850b9a4e413ad5cad1cbd360d152d22fa7829
 
 CURRENT IMPLEMENTATION COMMIT
-ed864a50acb4df5f386a7c59f602e2d4edbf49e4
+d5e189a1eb95234a1fbfe8aff17041ae7d155111
 
 LATEST DOCS COMMIT
 7b9bd6c1873f89ee0f806995fb0001dacb87e92a
@@ -75,8 +75,9 @@ CURRENT GAPS
 4. Artifact behaviour depth.
 5. Dedicated control/execution/explosion artifact coverage.
 6. Formal Phase 5 integration/acceptance validation.
-7. Full first vertical-slice fun gate.
-8. Formal balance-data pass.
+7. Phase 6 boss/Stella/Legendary human acceptance gate.
+8. Full first vertical-slice fun gate.
+9. Formal balance-data pass.
 
 STATUS RULE
 [DONE] = implementation exists and evidence is clear.
@@ -261,3 +262,19 @@ SESSION LOG
 - Preserved old/later-compatible systems and content: Pair Synergy, all three Artifact Sets, Protocols, discovered/unknown state, all five Sphere types including Shotgun/Aura, characters, artifacts, bosses/Stella/Legendary flow, shop/permanent progression and compatible 3D/GLB path.
 - Remaining: fresh CI/build verification and human Phase 5 acceptance. Existing broader combat/network/build/RNG/Slice 0.1 gates remain open.
 - Next step: fresh CI/build, then PlayerCheck of Set completion gameplay effect + completion feedback + Protocol discovery/activation, followed by regression check of combat/network.
+
+SESSION LOG
+2026-09-24 (Phase 6 boss + Stella + Legendary implementation pass):
+- User requested the complete Phase 6 implementation before the next PlayerCheck.
+- Audit result: 6.1 Boss implementation, 6.3 attack types, 6.5 Stella flow, 6.6 Legendary pool, 6.7 Legendary selection, 6.9 Endless threshold and 6.10 Stella transition were already implemented and were preserved.
+- Implemented 6.2: charger now has a readable wind-up before the committed dash; renderer adds presentation-only pre-attack cues for shooter, charger, summoner and aura without adding persistent labels.
+- Implemented/verified 6.4: boss death explicitly opens the Stella state and clears the ordinary artifact modal; claiming Stella then produces either one unowned Legendary before the configurable cutoff or an ordinary artifact choice after it.
+- Implemented/verified 6.8: normal artifact choices exclude Legendary; Stella considers only unowned Legendary artifacts and returns null after the current Legendary pool is exhausted, with the existing post-cutoff fallback preserved.
+- Added tests/boss-stella.test.mjs for telegraph coverage, boss -> Stella handoff, and Legendary scarcity.
+- Initial CI runs 35972776777 and 35973022461 failed only on the newly added source-contract coverage: the first exposed brittle scarcity/call assertions, the second exposed the missing active renderer call. Both defects were fixed.
+- Final implementation commit for the Phase 6 code/test pass: d5e189a1eb95234a1fbfe8aff17041ae7d155111.
+- CI verification for d5e189... is the current acceptance target; human playtest is still required and must not be marked DONE from compilation/build alone.
+- No compatible existing gameplay/content was deleted, reduced, or replaced for roadmap alignment.
+- Preserved: Standard/Sniper/Shotgun/Chain/Aura Sphere content, characters, artifacts, bosses/Stella/Legendary flows, shop/permanent progression, Pair Synergy, Artifact Sets/Protocols, Canvas/2.5D player path, compatible GLB/3D assets and rendering path.
+- Remaining after Phase 6 implementation: human validation of boss telegraphs, boss reward flow, Legendary scarcity and build-steering impact, plus the earlier combat/network/geometry/HUD/RNG gates.
+- Next step: finish CI verification, then consolidated PlayerCheck. Do not begin Phase 7/8 content or balance work before that gate review.

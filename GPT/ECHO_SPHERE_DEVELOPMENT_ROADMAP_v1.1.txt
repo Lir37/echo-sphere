@@ -122,13 +122,13 @@ EXIT GATE [GATE]
 
 PHASE 6. BOSS + STELLA + LEGENDARY
 6.1 [DONE] Boss implementation exists.
-6.2 [PARTIAL] Boss telegraph/presentation needs playtest validation.
+6.2 [PARTIAL] Boss telegraph/presentation implementation is complete: charger wind-up/dash cue plus pre-attack cues for shooter, summoner and aura. Human playtest validation remains open.
 6.3 [DONE] Boss attack patterns/types exist.
-6.4 [PARTIAL] Boss reward flow exists; full acceptance unverified.
+6.4 [PARTIAL] Boss -> Stella -> Artifact reward handoff is implemented and source-covered; human reward acceptance remains open.
 6.5 [DONE] Stella reward flow exists.
 6.6 [DONE] Legendary artifact pool exists.
 6.7 [DONE] Legendary selection flow exists.
-6.8 [PARTIAL] Scarcity logic exists; full run validation pending.
+6.8 [PARTIAL] Legendary scarcity is implemented and source-covered: ordinary artifact rolls exclude Legendary, Stella selects only unowned Legendary before the configurable Endless threshold, then falls back to ordinary artifacts. Full-run validation remains open.
 6.9 [DONE] Endless threshold is configurable.
 6.10 [DONE] Stella transition logic exists.
 EXIT GATE [GATE] Legendary choice must meaningfully steer the build.
@@ -283,3 +283,14 @@ LATEST SESSION NOTE (2026-09-24, Phase 5 completion wiring pass):
 - Preserved Pair Synergy, all three Artifact Sets, Protocols, discovered/unknown state, existing artifact catalogue, all Sphere types, characters, bosses/Stella/Legendary flow, shop/progression and compatible 3D/GLB assets/path.
 - Implementation commits: 4e362f83880a555baf971188168ac13976573264, 87ca149484bee57986ca30adc3f3354f4bac5852, 4abd0e9529deac5a2cc89032d2f1b77924fe36e1.
 - Next step: run CI/build and the next human PlayerCheck focused on Set completion, Protocol discovery/activation, combat bonus, and regression of existing combat/network behavior.
+
+LATEST SESSION NOTE (2026-09-24, Phase 6 implementation pass)
+- Phase 6 audit confirmed 6.1, 6.3 and 6.5-6.10 foundations already existed, so completed content was preserved rather than reimplemented.
+- Implemented the remaining Phase 6 implementation gaps: readable boss attack telegraphs; a real charger wind-up before its committed dash; explicit boss -> Stella reward handoff coverage; and Legendary scarcity coverage.
+- Boss telegraphs are presentation-only except for the charger timing change required to create a visible wind-up window. Shooter, summoner and aura attack rules were otherwise preserved.
+- Added tests/boss-stella.test.mjs covering charger wind-up, four boss telegraph branches, Stella handoff and Legendary scarcity contracts.
+- Initial CI run 35972776777 exposed two brittle source-contract assertions in the new test; follow-up run 35973022461 exposed the missing active-renderer helper call. These were corrected in the final implementation fix commit.
+- Final Phase 6 implementation commit: d5e189a1eb95234a1fbfe8aff17041ae7d155111.
+- Human Phase 6 acceptance remains a gate: boss telegraph readability, reward flow, Legendary scarcity and build-steering value must be checked in the next PlayerCheck.
+- Preserved all existing compatible content: all five Sphere types including Shotgun/Aura, characters, artifacts, bosses/Stella/Legendary systems, shop/progression, Pair Synergy, Artifact Sets/Protocols, and compatible GLB/3D assets/path.
+- Next step: complete CI verification on the documented HEAD, then perform the consolidated Phase 6 + earlier combat/network/build human PlayerCheck before changing later roadmap scope.
