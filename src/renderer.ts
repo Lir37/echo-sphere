@@ -5,6 +5,7 @@ import type { MapTheme, Vec } from './engine';
 import { CHARACTER_DEFS } from './characters';
 import { getCharacterId, getCharacterFormation, getEngineerNetworkRange } from './characterRuntime';
 import { analyzeSphereNetwork, type SphereNetworkState } from './network';
+import { RUNE_DEFS } from './runes';
 
 // ===== Origami / Paper Craft Style =====
 // Warm backgrounds, faceted folded-paper shapes, fold lines, drop shadows.
