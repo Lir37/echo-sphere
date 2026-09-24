@@ -529,7 +529,7 @@ function PausePlanner({ lang, t, st, tab, setTab, onResume, onExit }: {
                 <SectionTitle>{lang === 'ru' ? 'Сеты артефактов' : 'Artifact Sets'}</SectionTitle>
                 <div className="space-y-2">
                   {getArtifactSetProgress(st).map((set) => (
-                    <div key={set.id} className={`rounded-xl border p-3 ${set.complete ? 'bg-[#ffb84d]/10 border-[#ffb84d]/40' : 'bg-[#0d1726] border-[#243b55]'}`}>
+                    <div key={set.id} className={`rounded-xl border p-3 transition-all ${set.complete ? 'bg-[#ffb84d]/10 border-[#ffb84d]/40 animate-pulse' : 'bg-[#0d1726] border-[#243b55]'}`}>
                       <div className="flex items-center justify-between gap-2">
                         <span className="font-bold text-sm">{set.complete ? set.name[lang] : '???'}</span>
                         <span className="text-[9px] font-bold text-[#7f9bb8]">{set.activeSynergies}/{set.totalSynergies}</span>
