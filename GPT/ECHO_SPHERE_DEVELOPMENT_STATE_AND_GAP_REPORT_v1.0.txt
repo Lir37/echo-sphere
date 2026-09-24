@@ -29,7 +29,7 @@ Branch:
 new-desing
 
 Latest implementation commit:
-2c4bc05b006d1cc13d2544eba6db4492262c963a
+f0f28dbfd6265b8fd6f6a8d5a01291e901046114
 
 This HEAD includes Network Square combat integration and the first functional
 Rune layer.
