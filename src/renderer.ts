@@ -327,7 +327,6 @@ function drawCharacterWorldIndicators(ctx: CanvasRenderingContext2D, s: GameStat
   const characterId = getCharacterId(s);
   if (characterId === 'engineer') drawEngineerLinks(ctx, s);
   if (characterId === 'architect') drawArchitectFormation(ctx, s);
-  if (characterId === 'berserker') drawBerserkerRange(ctx, s);
 }
 
 function drawCharacterTargetIndicators(ctx: CanvasRenderingContext2D, s: GameState): void {
@@ -423,18 +422,6 @@ function drawAlchemistReactions(ctx: CanvasRenderingContext2D, s: GameState): vo
     ctx.fillText(symbol, enemy.pos.x, enemy.pos.y - enemy.radius - 6);
     ctx.restore();
   }
-}
-
-function drawBerserkerRange(ctx: CanvasRenderingContext2D, s: GameState): void {
-  ctx.save();
-  const missing = Math.max(0, 1 - s.player.hp / Math.max(1, s.player.maxHp));
-  const steps = Math.min(4, Math.floor(missing / 0.2));
-  ctx.strokeStyle = steps > 0 ? 'rgba(196,69,61,0.22)' : 'rgba(196,69,61,0.10)';
-  ctx.lineWidth = steps > 0 ? 2 : 1;
-  ctx.setLineDash([6, 5]);
-  ctx.beginPath(); ctx.arc(s.player.pos.x, s.player.pos.y, 110, 0, Math.PI * 2); ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.restore();
 }
 
 function getEngineerFormationSize(s: GameState, range: number): number {
@@ -1088,19 +1075,9 @@ function drawOrigamiOctopus(ctx: CanvasRenderingContext2D, r: number, fill: stri
 function drawPlayer(ctx: CanvasRenderingContext2D, p: PlayerState): void {
   const r = PLAYER_RADIUS;
 
-  // Same authored geometric language as the Spheres.
-  // No large circular body, orbit ring or containment sphere is drawn here.
+  // Player presentation is the authored core only.
+  // Do not draw containment spheres, orbit rings, selection rings or status ellipses around it.
   if (drawReferenceSprite(ctx, 'player', p.pos.x, p.pos.y - r * 0.10, r * 2.9, '#63e6ff', 0, 1)) {
-    if (p.shieldCharges > 0 || p.shieldTimer > 0 || p.invulnerableTimer > 0) {
-      ctx.save();
-      ctx.translate(p.pos.x, p.pos.y);
-      ctx.strokeStyle = p.invulnerableTimer > 0 ? 'rgba(255,255,255,.78)' : 'rgba(105,232,255,.58)';
-      ctx.lineWidth = p.invulnerableTimer > 0 ? 1.8 : 1.2;
-      ctx.beginPath();
-      ctx.ellipse(0, -4, r + 12, 8, 0, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.restore();
-    }
     return;
   }
 
@@ -1171,23 +1148,6 @@ function drawPlayer(ctx: CanvasRenderingContext2D, p: PlayerState): void {
   ctx.lineTo(0, -r * 0.86);
   ctx.lineTo(r * 0.30, -r * 0.60);
   ctx.stroke();
-
-  if (p.shieldCharges > 0 || p.shieldTimer > 0) {
-    ctx.strokeStyle = 'rgba(105,232,255,.68)';
-    ctx.lineWidth = 1.3;
-    ctx.beginPath();
-    ctx.ellipse(0, r * 0.56, r * 0.62, r * 0.14, 0, 0, Math.PI * 2);
-    ctx.stroke();
-  }
-  if (p.invulnerableTimer > 0) {
-    ctx.strokeStyle = '#fff';
-    ctx.lineWidth = 1.8;
-    ctx.globalAlpha = .72;
-    ctx.beginPath();
-    ctx.ellipse(0, r * 0.56, r * 0.78, r * 0.16, 0, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.globalAlpha = 1;
-  }
 
   ctx.restore();
 }

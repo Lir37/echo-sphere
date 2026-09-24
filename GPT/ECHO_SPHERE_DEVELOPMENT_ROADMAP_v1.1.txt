@@ -253,3 +253,12 @@ LATEST SESSION NOTE (2026-09-24, restore 2.5D player direction):
 - Functional commits for this correction: 51fe6a90b9607a9dcc68718943a1ef70800627b3 and ed864a50acb4df5f386a7c59f602e2d4edbf49e4.
 - No Sphere types, gameplay systems, artifacts, characters, bosses, progression, Pair Synergy, Artifact Sets/Protocols or preserved GLB assets were deleted or reduced.
 - Next validation: CI build first, then real APK playtest focused on player visibility/movement, absence of the stationary player shadow, absence of redundant RESONANCE field text, and consistency of the player visual with the Spheres.
+
+
+LATEST SESSION NOTE (2026-09-24, player overlay cleanup):
+- User supplied a fresh playtest screenshot with the remaining player-centered blue circular/dashed visual marked in red.
+- Root-cause audit identified the dashed player-centered ring as the legacy Berserker range renderer in src/renderer.ts; player rendering also still contained circular shield/invulnerability status ellipses.
+- Removed only those redundant player-centered presentation overlays. Player gameplay state, shield/invulnerability timers, Berserker mechanics, Sphere/network systems and all existing content remain intact.
+- The authored 2.5D player sprite remains the actual player visual. This cleanup does not remove the player itself and does not alter gameplay logic.
+- Added tests/player-visual.test.mjs as a source-contract regression check to prevent reintroduction of the removed player-centered ring/ellipse overlays.
+- Next step: CI verification and fresh APK playtest focused on confirming the player appears without the blue containment/ring overlay.
