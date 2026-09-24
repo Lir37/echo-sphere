@@ -126,6 +126,7 @@ NETWORK
 [DONE] triangle detection
 [DONE] cluster detection
 [PARTIAL] geometry bonus depth
+[DONE] Square detection and membership
 [GATE] network readability / human acceptance
 [GATE] geometry importance during real play
 
@@ -134,6 +135,7 @@ RESONANCE
 [DONE] triangle charge/proc
 [DONE] visual feedback
 [PARTIAL] final seven-geometry Resonance system
+[PARTIAL] Square gameplay bonus is not yet wired as final Resonance content
 [PARTIAL] overflow rules
 [REWORK] full Resonance event catalogue
 
@@ -329,6 +331,7 @@ PHASE 2 — NETWORK / GEOMETRY
 [DONE] Line
 [DONE] Triangle
 [DONE] Cluster
+[DONE] Square detection
 [PARTIAL] Resonance depth
 [GATE] network playtest
 [GATE] geometry value
@@ -606,6 +609,9 @@ Run a focused PlayerCheck on:
 STEP 2
 Fix concrete defects exposed by PlayerCheck.
 
+STEP 2A
+Network geometry correction already started: Square detection is now implemented and regression-tested in source; final gameplay bonus remains pending.
+
 STEP 3
 Run the full 10-15 minute vertical-slice gate.
 
@@ -686,8 +692,8 @@ CONTENT DEPTH:
 Still below final-product target.
 
 BIGGEST DESIGN GAP:
-Network is the intended differentiator but currently exists mainly at the
-first three Geometry levels.
+Network is the intended differentiator; Square detection is now present,
+but gameplay-level Geometry/Resonance depth remains incomplete.
 
 BIGGEST CONTENT GAP:
 Artifact/Ability/Character/Enemy/Rune scale.
