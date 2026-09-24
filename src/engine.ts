@@ -2807,25 +2807,29 @@ function updateEnemies(s: GameState, dt: number): void {
       if (e.bossType === 'charger') {
         e.chargeTimer -= dt;
         if (e.isCharging) {
-          e.pos.x += e.chargeDir.x * e.speed * 3 * dt;
-          e.pos.y += e.chargeDir.y * e.speed * 3 * dt;
-          e.isCharging = false; // will re-check below
-          // damage on contact during charge
-          if (dist(e.pos, s.player.pos) < e.radius + PLAYER_RADIUS) {
-            damagePlayer(s, e.damage * 1.5);
+          // Keep a readable wind-up window, then convert it into a short committed dash.
+          if (e.chargeTimer <= 0.35) {
+            e.pos.x += e.chargeDir.x * e.speed * 3 * dt;
+            e.pos.y += e.chargeDir.y * e.speed * 3 * dt;
+            // damage on contact during the committed dash
+            if (dist(e.pos, s.player.pos) < e.radius + PLAYER_RADIUS) {
+              damagePlayer(s, e.damage * 1.5);
+              e.isCharging = false;
+              e.chargeTimer = 4;
+            }
+          }
+          if (e.isCharging && e.chargeTimer <= 0) {
             e.isCharging = false;
             e.chargeTimer = 4;
           }
-          // stop charging after some distance
-          if (!e.isCharging) e.chargeTimer = 4;
         } else if (e.chargeTimer <= 0) {
-          // start charge
+          // start charge with an explicit telegraph before the dash begins
           const cdx = s.player.pos.x - e.pos.x;
           const cdy = s.player.pos.y - e.pos.y;
           const cd = Math.hypot(cdx, cdy) || 1;
           e.chargeDir = { x: cdx / cd, y: cdy / cd };
           e.isCharging = true;
-          e.chargeTimer = 0.5; // charge duration
+          e.chargeTimer = 0.8; // 0.45s wind-up + 0.35s committed dash
           playSound('bosshit');
         }
       } else if (e.bossType === 'summoner') {

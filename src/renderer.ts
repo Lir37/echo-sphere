@@ -178,7 +178,7 @@ export function render(ctx: CanvasRenderingContext2D, s: GameState, canvasW: num
   for (const m of s.minions) drawModernMinion(ctx, m.pos.x, m.pos.y, m.radius, m.rotation, '#ffb84d');
 
   // enemies
-  for (const e of s.enemies) drawModernEnemy(ctx, e);
+  for (const e of s.enemies) drawModernEnemy(ctx, e, s.player.pos);
 
   // Player is part of the same Canvas/2.5D visual family as the Spheres.
   // It is deliberately rendered after enemies so the hero remains readable.
@@ -2271,7 +2271,100 @@ function drawVoidSkitter(ctx:CanvasRenderingContext2D,r:number,color:string,t:nu
   ctx.restore();
 }
 
-function drawModernEnemy(ctx: CanvasRenderingContext2D, e: EnemyEntity): void {
+function drawBossAttackTelegraph(
+  ctx: CanvasRenderingContext2D,
+  e: EnemyEntity,
+  playerPos: { x: number; y: number },
+  t: number,
+): void {
+  if (!e.isBoss) return;
+
+  const r = e.radius;
+  const pulse = 0.55 + Math.sin(t * 14) * 0.16;
+  ctx.save();
+
+  if (e.bossType === 'charger' && e.isCharging) {
+    const windup = e.chargeTimer > 0.35;
+    const reach = windup ? r * 2.7 : r * 4.2;
+    ctx.strokeStyle = windup
+      ? `rgba(255,184,77,${0.58 + pulse * 0.25})`
+      : `rgba(255,98,87,${0.70 + pulse * 0.20})`;
+    ctx.lineWidth = windup ? Math.max(2, r * 0.025) : Math.max(3, r * 0.04);
+    ctx.setLineDash(windup ? [r * 0.22, r * 0.16] : []);
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(e.chargeDir.x * reach, e.chargeDir.y * reach);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    if (windup) {
+      const nx = -e.chargeDir.y;
+      const ny = e.chargeDir.x;
+      const tip = r * 2.05;
+      const half = r * 0.55;
+      ctx.fillStyle = `rgba(255,184,77,${0.08 + pulse * 0.05})`;
+      ctx.beginPath();
+      ctx.moveTo(e.chargeDir.x * r * 0.82, e.chargeDir.y * r * 0.82);
+      ctx.lineTo(e.chargeDir.x * tip + nx * half, e.chargeDir.y * tip + ny * half);
+      ctx.lineTo(e.chargeDir.x * tip - nx * half, e.chargeDir.y * tip - ny * half);
+      ctx.closePath();
+      ctx.fill();
+    }
+  }
+
+  if (e.bossType === 'shooter' && e.bossShootTimer <= 0.7) {
+    const dx = playerPos.x - e.pos.x;
+    const dy = playerPos.y - e.pos.y;
+    const angle = Math.atan2(dy, dx);
+    ctx.strokeStyle = `rgba(255,106,95,${0.46 + pulse * 0.22})`;
+    ctx.lineWidth = Math.max(1.5, r * 0.018);
+    ctx.setLineDash([r * 0.18, r * 0.13]);
+    for (let k = -1; k <= 1; k++) {
+      const a = angle + k * 0.11;
+      ctx.beginPath();
+      ctx.moveTo(Math.cos(a) * r * 1.05, Math.sin(a) * r * 1.05);
+      ctx.lineTo(Math.cos(a) * r * 4.8, Math.sin(a) * r * 4.8);
+      ctx.stroke();
+    }
+    ctx.setLineDash([]);
+  }
+
+  if (e.bossType === 'summoner' && e.summonTimer <= 0.9) {
+    const progress = 1 - Math.max(0, e.summonTimer) / 0.9;
+    const ringRadius = r * (1.15 + progress * 2.2);
+    ctx.strokeStyle = `rgba(162,124,255,${0.34 + pulse * 0.18})`;
+    ctx.lineWidth = Math.max(1.5, r * 0.02);
+    ctx.setLineDash([r * 0.2, r * 0.14]);
+    ctx.beginPath();
+    ctx.arc(0, 0, ringRadius, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    for (let i = 0; i < 3; i++) {
+      const a = t * 2.2 + (i / 3) * Math.PI * 2;
+      const nx = Math.cos(a) * (r * (0.95 + progress * 0.8));
+      const ny = Math.sin(a) * (r * (0.95 + progress * 0.8));
+      ctx.fillStyle = `rgba(201,181,255,${0.48 + pulse * 0.18})`;
+      ctx.beginPath();
+      ctx.arc(nx, ny, Math.max(2, r * 0.045), 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  if (e.bossType === 'aura' && e.bossShootTimer <= 0.8) {
+    const ringRadius = e.auraRadius + r * (0.12 + (0.10 + pulse * 0.05));
+    ctx.strokeStyle = `rgba(255,98,185,${0.42 + pulse * 0.20})`;
+    ctx.lineWidth = Math.max(1.5, r * 0.02);
+    ctx.setLineDash([r * 0.2, r * 0.14]);
+    ctx.beginPath();
+    ctx.arc(0, 0, ringRadius, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  ctx.restore();
+}
+
+function drawModernEnemy(ctx: CanvasRenderingContext2D, e: EnemyEntity, playerPos: { x: number; y: number }): void {
   const t = Date.now() / 1000;
   const facing = e.isBoss ? 0 : getEnemyFacingAngle(e);
   const color = e.freezeTimer > 0 ? '#69d6ff' : e.color;
