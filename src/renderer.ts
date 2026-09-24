@@ -161,9 +161,33 @@ export function render(ctx: CanvasRenderingContext2D, s: GameState, canvasW: num
   // before the Spheres so links stay behind the authored sphere silhouettes.
   drawSphereNetwork(ctx, s, analyzeSphereNetwork(s.spheres));
 
+function drawRune(ctx: CanvasRenderingContext2D, rune: GameState['runes'][number]): void {
+  const def = RUNE_DEFS[rune.type];
+  const pulse = 1 + Math.sin(rune.life * 5) * 0.08;
+  ctx.save();
+  ctx.translate(rune.pos.x, rune.pos.y);
+  ctx.scale(pulse, pulse);
+  ctx.shadowColor = def.color;
+  ctx.shadowBlur = 18;
+  ctx.strokeStyle = def.color;
+  ctx.lineWidth = 2;
+  ctx.globalAlpha = Math.max(0.35, Math.min(1, rune.life / 3));
+  ctx.beginPath();
+  ctx.arc(0, 0, 14, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(0, -9); ctx.lineTo(9, 0); ctx.lineTo(0, 9); ctx.lineTo(-9, 0); ctx.closePath();
+  ctx.stroke();
+  ctx.fillStyle = def.color;
+  ctx.globalAlpha *= 0.45;
+  ctx.fill();
+  ctx.restore();
+}
+
   // pickups
   for (const orb of s.xpOrbs) drawModernXp(ctx, orb.pos.x, orb.pos.y, orb.radius, '#63e6ff');
   for (const hp of s.healthPacks) drawModernHealth(ctx, hp.pos.x, hp.pos.y, '#ff5c72');
+  for (const rune of s.runes) if (rune.alive) drawRune(ctx, rune);
 
   // chests
   for (const chest of s.chests) if (chest.alive) drawChest(ctx, chest);
