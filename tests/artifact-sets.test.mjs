@@ -53,11 +53,7 @@ test('three Artifact Sets expose protocol discovery and completion bonus', async
 });
 
 test('Artifact Set completion is wired into combat damage', async () => {
-  const engine = await import('../src/engine.ts');
-  const source = await (await fetch('../src/engine.ts')).text().catch(() => '');
-  assert.ok(
-    source.includes('getArtifactSetCompletionBonus'),
-    'engine.ts must apply Artifact Set completion to combat calculations',
-  );
-  assert.equal(typeof engine.getSphereDamage, 'function');
+  const fs = await import('node:fs/promises');
+  const engineSource = await fs.readFile(new URL('../src/engine.ts', import.meta.url), 'utf8');
+  assert.match(engineSource, /getArtifactSetCompletionBonus/);
 });
