@@ -327,6 +327,7 @@ function drawCharacterWorldIndicators(ctx: CanvasRenderingContext2D, s: GameStat
   const characterId = getCharacterId(s);
   if (characterId === 'engineer') drawEngineerLinks(ctx, s);
   if (characterId === 'architect') drawArchitectFormation(ctx, s);
+  if (characterId === 'berserker') drawBerserkerRange(ctx, s);
 }
 
 function drawCharacterTargetIndicators(ctx: CanvasRenderingContext2D, s: GameState): void {
@@ -422,6 +423,18 @@ function drawAlchemistReactions(ctx: CanvasRenderingContext2D, s: GameState): vo
     ctx.fillText(symbol, enemy.pos.x, enemy.pos.y - enemy.radius - 6);
     ctx.restore();
   }
+}
+
+function drawBerserkerRange(ctx: CanvasRenderingContext2D, s: GameState): void {
+  ctx.save();
+  const missing = Math.max(0, 1 - s.player.hp / Math.max(1, s.player.maxHp));
+  const steps = Math.min(4, Math.floor(missing / 0.2));
+  ctx.strokeStyle = steps > 0 ? 'rgba(196,69,61,0.22)' : 'rgba(196,69,61,0.10)';
+  ctx.lineWidth = steps > 0 ? 2 : 1;
+  ctx.setLineDash([6, 5]);
+  ctx.beginPath(); ctx.arc(s.player.pos.x, s.player.pos.y, 110, 0, Math.PI * 2); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
 }
 
 function getEngineerFormationSize(s: GameState, range: number): number {

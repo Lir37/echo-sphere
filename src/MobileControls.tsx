@@ -409,7 +409,12 @@ function CharacterAvatarOverlay({ stateRef }: { stateRef: React.MutableRefObject
   const pulse = mutationStage >= 3 ? 'animate-pulse' : '';
 
   return (
-    <div className="absolute left-1/2 top-1/2 pointer-events-none" style={{ transform: 'translate(-50%, -50%)', width: 74, height: 74 }}>
+    <div
+      className="absolute left-1/2 top-1/2 pointer-events-none"
+      data-character-avatar-overlay="disabled"
+      aria-hidden="true"
+      style={{ transform: 'translate(-50%, -50%)', width: 74, height: 74, display: 'none' }}
+    >
       <div className={`absolute inset-0 flex items-center justify-center ${pulse}`}>
         <CharacterCore characterId={characterId} color={color} mutationStage={mutationStage} visual={visual} />
       </div>
