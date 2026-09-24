@@ -2389,6 +2389,8 @@ function drawModernEnemy(ctx: CanvasRenderingContext2D, e: EnemyEntity, playerPo
           : 'enemy-skitter';
 
   glowCircle(ctx, e.radius * (e.isBoss ? 1.55 : 1.10), color, e.isBoss ? 0.16 : 0.065);
+  // Boss telegraphs are presentation-only cues; attack rules remain in engine.ts.
+  drawBossAttackTelegraph(ctx, e, playerPos, t);
 
   const spriteSize = e.isBoss ? e.radius * 3.45 : e.radius * 2.85;
   const spriteDrawn = drawReferenceSprite(ctx, artKey, 0, e.isBoss ? -e.radius * 0.06 : 0, spriteSize, color, 0, 1);
