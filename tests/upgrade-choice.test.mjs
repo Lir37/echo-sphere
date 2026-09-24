@@ -11,13 +11,16 @@ test('level-up sphere selection uses deliberate build pressure weighting', () =>
   assert.match(engineSource, /const spherePool = weightedShuffle\(sphereChoices/);
 });
 
-test('level-up fills the full choice set when only one Sphere upgrade remains', () => {
-  assert.match(engineSource, /const mixedChoices = \[modifierPool\[0\], \.\.\.spherePool\.slice\(0, 2\)\];/);
-  assert.match(engineSource, /for \(const modifier of modifierPool\.slice\(1\)\)/);
-  assert.match(engineSource, /if \(mixedChoices\.length >= 3\) break;/);
+test('level-up mixes Sphere, Modifier and Ability sources without dead slots', () => {
+  assert.match(engineSource, /const activePool = \(Object\.keys\(ABILITIES\) as AbilityType\[\]\)/);
+  assert.match(engineSource, /const passivePool = \(Object\.keys\(ABILITIES\) as AbilityType\[\]\)/);
+  assert.match(engineSource, /const mixedPool: UpgradeChoice\[\] = \[\];/);
+  assert.match(engineSource, /for \(const choice of weightedShuffle\(sources, \(\) => 1\)\)/);
 });
 
-test('level-up choice pool remains duplicate-free by construction', () => {
-  assert.match(engineSource, /const modifierPool = weightedShuffle\(modifierChoices, \(\) => 1\);/);
-  assert.match(engineSource, /return weightedShuffle\(mixedChoices, \(\) => 1\)\.slice\(0, 3\);/);
+test('active Ability slots stay bounded and progressive', () => {
+  assert.match(engineSource, /if \(s\.player\.level >= 5\) s\.player\.activeAbilitySlots/);
+  assert.match(engineSource, /if \(s\.player\.level >= 12\) s\.player\.activeAbilitySlots/);
+  assert.match(engineSource, /if \(s\.player\.level >= 20\) s\.player\.activeAbilitySlots/);
+  assert.match(engineSource, /activeCount < s\.player\.activeAbilitySlots/);
 });
