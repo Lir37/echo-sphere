@@ -636,6 +636,11 @@ export function getSphereDamage(s: GameState, sphere: SphereEntity): number {
   // The bonus is data-driven and stacks only for fully completed Sets.
   d *= 1 + getArtifactSetCompletionBonus(s);
   d *= sphereModifiers(s, sphere.type, sphere).damage;
+  if (sphere) {
+    const network = analyzeSphereNetwork(s.spheres);
+    const profile = getSphereNetworkProfile(network, s.spheres.indexOf(sphere));
+    if (profile.square) d *= 1.08;
+  }
   return d;
 }
 
@@ -661,6 +666,7 @@ export function getSphereDelay(s: GameState, sphere?: SphereEntity): number {
     const network = analyzeSphereNetwork(s.spheres);
     const profile = getSphereNetworkProfile(network, s.spheres.indexOf(sphere));
     if (profile.cluster) d *= 0.90;
+    if (profile.square) d *= 0.94;
   }
   return d;
 }
@@ -936,6 +942,19 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
   }
   // crit
   if (fromSphere && Math.random() < critChance) { actual *= 2; isCrit = true; }
+  if (fromSphere) {
+    const squareNetwork = analyzeSphereNetwork(s.spheres);
+    const squareProfile = getSphereNetworkProfile(squareNetwork, s.spheres.indexOf(fromSphere));
+    if (squareProfile.square) {
+      fromSphere.resonanceHits++;
+      if (fromSphere.resonanceHits % 4 === 0) {
+        fromSphere.resonancePulseTimer = 0.55;
+        s.player.shieldCharges = Math.min(2, s.player.shieldCharges + 1);
+        s.flashText = { text: 'SQUARE SHELL', life: 0.7, color: '#69b7ff' };
+      }
+    }
+  }
+
   // predator claw: every 5th hit
   if (fromSphere && s.player.artifacts.includes('predator_claw')) {
     fromSphere.killsContribution++;
@@ -2552,7 +2571,7 @@ function updateSpheres(s: GameState, dt: number): void {
             radius: 5,
             alive: true,
             color,
-            pierce: mods.pierce + formationPierce + (networkProfile.line ? 1 : 0) + (stype.chain ? Math.max(1, sphereModifiers(s, 'chain').chainTargets) : sphereModifiers(s, sphere.type).pierce),
+            pierce: mods.pierce + formationPierce + (networkProfile.line ? 1 : 0) + (networkProfile.square ? 1 : 0) + (stype.chain ? Math.max(1, sphereModifiers(s, 'chain').chainTargets) : sphereModifiers(s, sphere.type).pierce),
             hitEnemies: new Set(),
             effect,
             ricochet: mods.ricochet,
