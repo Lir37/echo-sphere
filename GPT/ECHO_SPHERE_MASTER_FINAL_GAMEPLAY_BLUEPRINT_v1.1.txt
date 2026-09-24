@@ -1,0 +1,2909 @@
+ECHO SPHERE
+MASTER FINAL GAMEPLAY BLUEPRINT
+Version 1.1 — VALIDATED
+Date: 2026-09-24
+Branch: new-desing
+
+======================================================================
+0. ROLE OF THIS DOCUMENT
+======================================================================
+
+This is the single authoritative design specification for the final
+GAMEPLAY of ECHO SPHERE.
+
+It defines:
+- player experience;
+- run structure;
+- combat;
+- Spheres;
+- Sphere progression;
+- Modifiers;
+- Abilities;
+- Passives;
+- Network;
+- Geometry;
+- Resonance;
+- temporary field Runes;
+- Artifacts;
+- Artifact Sets;
+- Protocols;
+- Synergies;
+- Characters;
+- Character Mastery;
+- enemies;
+- elites;
+- bosses;
+- waves;
+- XP;
+- rewards;
+- RNG;
+- economy;
+- merchant;
+- meta progression;
+- collection;
+- achievements;
+- difficulty;
+- Endless;
+- UI;
+- audiovisual language;
+- monetization boundaries;
+- balance model;
+- test requirements;
+- final content targets;
+- current-repository compatibility rules.
+
+This document supersedes all older GAMEPLAY-level assumptions when they
+conflict with it.
+
+Historical GPT documents may remain in the repository as history, but a
+new working session should use this Blueprint plus the separate
+Development State & Gap Report as the operational source of truth.
+
+CRITICAL:
+"Current repository" describes what exists today.
+"Final Blueprint" describes what the finished game must become.
+
+Compatible existing systems are preserved unless explicitly marked
+CONFLICT / REWORK in the Development State & Gap Report.
+
+======================================================================
+1. DESIGN REFERENCE: MAGIC SURVIVAL
+======================================================================
+
+Magic Survival is used only as a benchmark for systemic depth and
+long-term buildcraft.
+
+Research consulted during validation:
+- unofficial Magic Survival wiki, current pages crawled in September 2026;
+- Magic, Artifact, Class, Research and Basics pages;
+- community build references and mechanics notes.
+
+The benchmark shows the value of:
+- separate combat and passive progression layers;
+- repeated level-up decisions;
+- persistent Class/Research progression;
+- Artifact rewards independent from level-up;
+- Synergy created by collections of Artifacts;
+- merchants and rerolls;
+- special field pickups;
+- rare legendary reward moments;
+- build-specific value changing over time;
+- explicit formulas and community theorycrafting.
+
+The benchmark also confirms that its RNG is a real build-construction
+constraint: Level Up normally offers three random choices, existing
+choices are weighted, some systems can create four choices, and Artifact
+rewards can also be rerolled in specific contexts.
+
+ECHO SPHERE does NOT copy:
+- names;
+- characters;
+- art;
+- lore;
+- UI layouts;
+- descriptions;
+- exact abilities;
+- exact Artifact designs;
+- exact progression tables.
+
+Instead, ECHO SPHERE keeps the structural lesson and makes NETWORK +
+GEOMETRY + RESONANCE its own core system.
+
+Benchmark facts and source references are listed in Appendix A.
+
+======================================================================
+2. PRODUCT IDENTITY
+======================================================================
+
+Genre:
+mobile arena survival / action roguelite / buildcraft.
+
+Core fantasy:
+"I build a living combat network around the Core."
+
+Primary game question:
+"What kind of combat system can I assemble this run?"
+
+Distinctive product chain:
+
+CORE
+ -> SPHERES
+ -> MODIFIERS
+ -> NETWORK
+ -> GEOMETRY
+ -> RESONANCE
+ -> RUNE EVENTS
+ -> ARTIFACTS
+ -> SYNERGY
+ -> PROTOCOL
+ -> EVOLUTION
+ -> META
+
+The Network is not decoration.
+If a player rearranges Spheres, gameplay must change.
+
+A valid run should produce a recognizable build identity.
+
+======================================================================
+3. PLAYER EXPERIENCE
+======================================================================
+
+The player must:
+- understand movement immediately;
+- survive without manual aiming;
+- make frequent but understandable choices;
+- feel that Sphere placement matters;
+- recognize build direction;
+- adapt to RNG without waiting for one perfect item;
+- read enemy danger;
+- understand boss attacks before damage lands;
+- feel major reward moments;
+- understand death;
+- want another run.
+
+The intended sensation is:
+EARLY:
+"I am building."
+MID:
+"My network now behaves differently."
+LATE:
+"I engineered this build on purpose."
+
+======================================================================
+4. RUN LENGTH
+======================================================================
+
+NORMAL RUN:
+15-20 minutes.
+
+EXTENDED RUN:
+20-30 minutes.
+
+ENDLESS:
+30+ minutes.
+
+Design target:
+the main run should reach its decisive build pivot before minute 12-14.
+
+No requirement to make 45-60 minute runs.
+
+Boss cadence:
+- first major boss approximately 5-6 min;
+- second major boss approximately 10-12 min;
+- final encounter approximately 15-20 min.
+
+Exact timing is configurable by stage.
+
+======================================================================
+5. INPUT
+======================================================================
+
+Battle controls:
+- virtual joystick / touch movement;
+- Dash;
+- optional active Ability buttons;
+- all Spheres attack automatically.
+
+Interaction controls:
+- tap Sphere / hold Sphere for reposition mode;
+- tap reward;
+- tap Artifact;
+- drag only when spatial placement is required.
+
+The player is not required to manually aim the main attack layer.
+
+======================================================================
+6. PLAYER CORE
+======================================================================
+
+Core statistics:
+
+MAX_HP
+REGEN
+MOVE_SPEED
+DASH_DISTANCE
+DASH_COOLDOWN
+DASH_IFRAME
+PICKUP_RADIUS
+CORE_ARMOR
+CORE_CRIT_CHANCE
+CORE_CRIT_MULTIPLIER
+GLOBAL_HASTE
+
+Starting target values:
+MAX_HP = 100
+MOVE_SPEED = 1.00
+DASH_DISTANCE = 2.8 gamefield units
+DASH_COOLDOWN = 3.0 sec
+DASH_IFRAME = 0.30 sec
+CRIT_BASE = 5%
+CRIT_MULTIPLIER_BASE = 1.50x
+
+The current implementation already has compatible Player Core and Dash
+behavior. Final tuning happens during balance pass.
+
+======================================================================
+7. DASH
+======================================================================
+
+Dash is the basic active defensive action and must always remain useful.
+
+Base:
+- burst movement;
+- 0.30 sec invulnerability;
+- cooldown;
+- readable trail.
+
+Final Dash modifiers may:
+- increase distance;
+- increase invulnerability;
+- reduce cooldown;
+- clean status effects;
+- create an after-image;
+- trigger a Network event;
+- convert next attack to Breach.
+
+Dash must not become the main source of damage.
+
+======================================================================
+8. SPHERE SYSTEM
+======================================================================
+
+FINAL CORE SPHERE ROSTER:
+
+01 STANDARD
+02 SNIPER
+03 CHAIN
+04 SHOTGUN
+05 AURA
+06 ORBITAL
+07 PRISM
+08 GRAVITY
+09 PULSE
+10 VOID
+
+The current repository already contains:
+STANDARD, SNIPER, SHOTGUN, CHAIN, AURA.
+
+These five are PRESERVED.
+
+Sphere architecture is data-driven.
+
+Each Sphere stores:
+- id;
+- level;
+- damage;
+- attack delay;
+- range;
+- projectile speed;
+- projectile count;
+- spread;
+- targeting rule;
+- special behavior;
+- modifiers;
+- branch;
+- final evolution;
+- network affinity;
+- resonance affinity.
+
+======================================================================
+9. SPHERE ROLES
+======================================================================
+
+STANDARD
+Universal sustained damage.
+Best general-purpose node.
+
+SNIPER
+Long-range single target.
+Boss/Elite specialization.
+Strong in spread Line geometry.
+
+CHAIN
+Multi-target relay.
+Targets bounce through enemies.
+Strong in Triangle and Resonance.
+
+SHOTGUN
+Close-range burst.
+Multiple projectiles.
+Strong in compact Cluster.
+
+AURA
+Persistent local field.
+Control and area pressure.
+Strong in Cluster.
+
+ORBITAL
+Rotating attack units.
+Scales with network radius.
+
+PRISM
+Beam/refraction behavior.
+Links create secondary beam paths.
+
+GRAVITY
+Pull/control.
+Compresses enemies toward network zones.
+
+PULSE
+Periodic burst.
+Synchronizes to Resonance.
+
+VOID
+Late-game execution/distortion.
+High risk, high build dependence.
+
+======================================================================
+10. SPHERE LEVELS
+======================================================================
+
+FINAL STANDARD:
+7 levels per Sphere.
+
+Reason for validation:
+the current repository's actual Sphere progression is already built around
+levels 1-7, branch selection and final specialization. The former
+8-level proposal was inconsistent and is removed from the final design.
+
+LEVEL 1:
+Core mechanic.
+
+LEVEL 2:
+Mechanical enhancement.
+
+LEVEL 3:
+Behavioral tuning.
+
+LEVEL 4:
+Choose one of three evolution branches.
+
+LEVEL 5:
+Branch enhancement.
+
+LEVEL 6:
+Signature mechanical enhancement.
+
+LEVEL 7:
+Choose one of three final forms.
+
+Every Sphere therefore has:
+3 baseline upgrade steps
++
+3 branch/final decision steps
++
+1 final specialization.
+
+At least 3 of the 7 levels must change behavior, not just a stat.
+
+======================================================================
+11. SPHERE EVOLUTION EXAMPLES
+======================================================================
+
+STANDARD branches:
+- Resonator;
+- Singularity;
+- Swarm.
+
+SNIPER:
+- Oracle;
+- Assassin;
+- Beacon.
+
+SHOTGUN:
+- Burst;
+- Cataclysm;
+- Hail.
+
+CHAIN:
+- Web;
+- Storm;
+- Leech.
+
+AURA:
+- Sanctum;
+- Gravity;
+- Overgrowth.
+
+Late Spheres follow the same structure.
+
+Final evolution examples:
+SNIPER:
+- Execution Lens;
+- Quantum Beacon;
+- Hunter Protocol.
+
+CHAIN:
+- Storm Network;
+- Recursive Arc;
+- Leech Relay.
+
+AURA:
+- Compression Field;
+- Gravity Garden;
+- Regrowth Matrix.
+
+======================================================================
+12. MODIFIERS
+======================================================================
+
+CORE SIX, already present in the repository:
+
+MULTISHOT
+PIERCE
+RICOCHET
+FIRE
+FREEZE
+POISON
+
+FINAL MODIFIER ROSTER:
+
+01 MULTISHOT
+02 PIERCE
+03 RICOCHET
+04 FIRE
+05 FREEZE
+06 POISON
+07 BREACH
+08 OVERLOAD
+09 SPLIT
+10 SHATTER
+11 EXECUTE
+12 MARK
+13 ECHO
+14 ANCHOR
+15 PHASE
+16 STATIC
+17 RESONANT
+18 MAGNETIC
+19 VAMPIRIC
+20 CORRUPT
+21 DRAIN
+22 AFTERIMAGE
+23 IMPACT
+24 GRAVITIC
+
+Design rule:
+Modifier must change behavior, targeting, status, projectile logic or
+network interaction whenever practical.
+
+Pure +5% stat modifiers should be represented as Passives instead.
+
+======================================================================
+13. ABILITY SYSTEM
+======================================================================
+
+The repository already contains an Ability framework with 21 current
+Ability definitions and 7-level progression. Preserve compatible
+implementation, but reorganize it under the final model.
+
+FINAL ACTIVE ABILITIES:
+
+01 ECHO PULSE
+02 SPHERE BARRIER
+03 ECHO JUMP
+04 OVERHEAT
+05 ECHO DRONE
+06 CHAIN LIGHTNING
+07 ECHO FREEZE
+08 OVERLOAD
+09 NOVA
+10 GRAVITY WELL
+11 RESONANCE PULSE
+12 NODE SWAP
+13 PHASE SHELL
+14 VOID LANCE
+15 TIME FRACTURE
+
+FINAL PASSIVE ABILITIES:
+
+16 SPHERE RADIUS
+17 SPHERE DAMAGE
+18 ATTACK SPEED
+19 MAX SPHERES
+20 MOVE SPEED
+21 ENEMY SLOW
+22 VITALITY
+23 VAMPIRISM
+24 DODGE
+25 CRITICAL
+26 XP MAGNET
+27 SPHERE BOOST
+28 NETWORK CAPACITY
+29 LINK STABILITY
+30 RESONANCE CHARGE
+
+This is the final design vocabulary.
+The current repository's 21 IDs map into this vocabulary where possible.
+
+ACTIVE-SLOT RULE:
+- player starts with Dash;
+- first active Ability slot opens during progression;
+- second slot is a later unlock;
+- third slot is endgame/meta gated;
+- no more than 3 simultaneously equipped non-Dash actives.
+
+This prevents the battlefield from becoming a button panel.
+
+======================================================================
+14. ABILITY EVOLUTION
+======================================================================
+
+Every major Ability has:
+- base level 1-3;
+- branch decision at level 4;
+- enhancement 5-6;
+- final form at level 7.
+
+Example ECHO PULSE:
+
+Base:
+pulse travels through active Spheres.
+
+Branch A:
+Relay Pulse.
+Each linked Sphere transmits a secondary pulse.
+
+Branch B:
+Impact Pulse.
+Pulse detonates at every second node.
+
+Branch C:
+Resonant Pulse.
+Pulse grants Resonance charge.
+
+Final:
+- Cascade;
+- Overdrive;
+- Harmonic Core.
+
+Ability evolution must create a new tactical use.
+
+======================================================================
+15. PASSIVE STAT SYSTEM
+======================================================================
+
+PASSIVES cover:
+- damage;
+- haste;
+- radius;
+- projectile count;
+- projectile speed;
+- area;
+- duration;
+- HP;
+- regen;
+- armor;
+- crit;
+- movement;
+- pickup;
+- link range;
+- network capacity;
+- Resonance generation;
+- status power.
+
+Hard cap / diminishing return rules prevent runaway scaling.
+
+======================================================================
+16. LEVEL UP
+======================================================================
+
+Level Up is the main build-construction engine.
+
+Default:
+3 cards.
+
+Possible categories:
+- new Sphere;
+- Sphere upgrade;
+- Modifier;
+- Ability;
+- Passive;
+- Network;
+- Resonance;
+- special milestone.
+
+At important milestones:
+4-card choice may unlock by meta or special effect.
+
+Choice generation:
+
+WEIGHT =
+BASE
++ BUILD_AFFINITY
++ UNFINISHED_SPHERE_PRESSURE
++ UNDERREPRESENTED_SYSTEM_PRESSURE
++ CHARACTER_AFFINITY
+
+Then apply:
+- duplicate suppression;
+- dead-option suppression;
+- pity weight;
+- rarity control;
+- reward-source rules.
+
+The player is never guaranteed a specific item.
+
+The player is also never supposed to receive three functionally dead
+choices repeatedly.
+
+REROLL is limited.
+
+LOCK protects one choice.
+
+BAN removes one choice source after sufficient meta progression.
+
+======================================================================
+17. NETWORK
+======================================================================
+
+Every active Sphere is a Network Node.
+
+A Link is active when:
+distance <= LINK_DISTANCE
+and both nodes are alive.
+
+Current repository uses a pixel-space implementation around 220 px.
+The final design treats this as a configurable gamefield distance,
+not a fixed real-world measurement.
+
+Base target:
+LINK_DISTANCE = 220 logical field units.
+
+Each Link has:
+- endpoints;
+- distance;
+- strength;
+- resonance state.
+
+Network statistics:
+- node count;
+- link count;
+- average link distance;
+- density;
+- stability;
+- active geometry;
+- Resonance charge.
+
+======================================================================
+18. NETWORK PLACEMENT
+======================================================================
+
+Player can:
+- place;
+- remove;
+- reposition;
+- intentionally compact;
+- intentionally spread.
+
+Placement is a build decision.
+
+COMPACT STYLE:
+Cluster/Aura/Gravity/Control.
+
+SPREAD STYLE:
+Line/Sniper/Beacon/Range.
+
+Neither style may become universally dominant.
+
+======================================================================
+19. GEOMETRY
+======================================================================
+
+FINAL GEOMETRY ROSTER:
+
+01 LINE
+02 TRIANGLE
+03 CLUSTER
+04 SQUARE
+05 RING
+06 LATTICE
+07 FRACTAL
+
+EARLY CORE:
+Line
+Triangle
+Cluster
+
+CURRENT REPOSITORY ALREADY DETECTS:
+Line
+Triangle
+Cluster
+
+Final design resolves an earlier documentation conflict:
+Architect can prefer Square, so Square becomes a real later Geometry,
+not a phantom character-only rule.
+
+GEOMETRY STATES:
+
+LINE
+2-3+ aligned nodes.
+Primary effect:
+range + projectile velocity + single-target efficiency.
+
+TRIANGLE
+3 mutually linked nodes forming a stable triangle.
+Primary effect:
+Resonance generation + relay/chain efficiency.
+
+CLUSTER
+4+ compact nodes.
+Primary effect:
+area + synchronization + control.
+
+SQUARE
+4-node stable quadrilateral.
+Primary effect:
+defensive stability + shield/armor interaction.
+
+RING
+closed multi-node loop.
+Primary effect:
+continuous Resonance circulation.
+
+LATTICE
+multiple connected cells.
+Primary effect:
+network synchronization.
+
+FRACTAL
+nested geometries.
+Primary effect:
+recursive propagation.
+
+======================================================================
+20. GEOMETRY PRIORITY
+======================================================================
+
+The network can contain multiple overlapping shapes.
+
+Readability rule:
+- TRIANGLE + CLUSTER may coexist;
+- LINE may be visually suppressed when higher-order formations make it
+  redundant;
+- no hidden mechanic is removed by visual suppression.
+
+Current repository already implements:
+Triangle + Cluster coexistence;
+Line suppression when both are active.
+
+This remains the final direction unless later playtests show confusion.
+
+======================================================================
+21. RESONANCE
+======================================================================
+
+Resonance is the energy resource generated by the Network.
+
+Sources:
+- Sphere hits;
+- completed Geometry;
+- network events;
+- character effects;
+- artifacts;
+- certain Runes.
+
+At 100 charge:
+Resonance Event.
+
+Events by formation:
+
+LINE SURGE
+next focused attack gains a burst.
+
+TRIANGLE ARC
+relay damage through linked targets/nodes.
+
+CLUSTER BURST
+AoE discharge.
+
+SQUARE SHELL
+temporary defensive field.
+
+RING LOOP
+continuous cyclic attacks for a short duration.
+
+LATTICE CASCADE
+synchronized firing.
+
+FRACTAL ECHO
+recursive replay.
+
+Resonance may temporarily overflow only through specific effects.
+
+Default cap:
+100.
+
+Special cap:
+150.
+
+Overflow is never baseline.
+
+======================================================================
+22. RUNES
+======================================================================
+
+The previous Blueprint missed this system.
+
+ECHO SPHERE now has a Rune layer inspired by the benchmark's temporary
+field-pickup role, but not its names or exact effects.
+
+Rune is NOT an Artifact.
+
+Rune:
+- appears in the battlefield;
+- is temporary;
+- activates immediately on pickup;
+- creates a short-lived tactical swing;
+- is not part of the permanent Artifact inventory.
+
+CORE RUNE TYPES:
+
+OVERDRIVE RUNE
++35% network attack speed for 8 sec.
+
+PHASE RUNE
+0.8 sec invulnerability burst + status cleanse.
+
+HARVEST RUNE
+pickup radius x2 and XP attraction for 5 sec.
+
+PURGE RUNE
+damages/clears normal enemies in a radius.
+
+RESONANCE RUNE
+instantly grants 60 Resonance.
+
+FORTIFY RUNE
++35% damage reduction for 8 sec.
+
+HUNT RUNE
+marks an Elite or Boss for 8 sec.
+
+ECHO RUNE
+next successful Sphere cast repeats.
+
+GRAVITY RUNE
+creates a temporary pull zone.
+
+RUNIC CELL
+grants a small amount of meta currency only in special modes.
+
+Rune rules:
+- one pickup has one effect;
+- effects are visually unmistakable;
+- no Rune permanently changes the collection;
+- Rune rarity does not equal Artifact rarity.
+
+Rune source:
+- Elite drops;
+- special events;
+- exploration nodes;
+- selected boss mechanics;
+- rare world spawns.
+
+======================================================================
+23. FIELD PICKUPS
+======================================================================
+
+Additional temporary pickups:
+
+ECHO SHARD
+normal XP unit.
+
+CORE SHARD
+larger XP value.
+
+REPAIR CELL
+healing.
+
+ENERGY FRAGMENT
+Resonance.
+
+RUNE
+temporary combat effect.
+
+TREASURE CACHE
+Artifact choice.
+
+ANOMALY NODE
+risk/reward event.
+
+Field pickups should make movement routes meaningful.
+
+======================================================================
+24. ARTIFACTS
+======================================================================
+
+Artifact = persistent run-level build object.
+
+RARITIES:
+Common
+Rare
+Epic
+Special
+Legendary
+
+ARTIFACT FAMILIES:
+- Core;
+- Sphere;
+- Network;
+- Geometry;
+- Resonance;
+- Status;
+- Survival;
+- Control;
+- Economy;
+- Event;
+- Transformation.
+
+Target final catalogue:
+90-120.
+
+Current repository catalogue:
+36 definitions.
+This is PRESERVED but clearly below final target.
+
+======================================================================
+25. ARTIFACT DESIGN LAW
+======================================================================
+
+New Artifact should answer at least one:
+- changes Sphere behavior;
+- changes Network;
+- changes Geometry;
+- changes Resonance;
+- changes status interactions;
+- changes reward loop;
+- creates a trade-off;
+- creates a build identity.
+
+Flat stat-only artifacts are allowed primarily at Common/Rare tiers.
+
+Target final distribution:
+25% stat/support
+30% Sphere behavior
+20% Network/Geometry/Resonance
+10% control/survival
+10% economy/event
+5% transformation
+
+======================================================================
+26. ARTIFACT CORE CATALOGUE
+======================================================================
+
+COMMON
+
+01 CORE BATTERY
++10% Resonance gain.
+
+02 VECTOR FIN
++10% projectile speed.
+
+03 PHASE GEL
++8% Dash distance.
+
+04 MICRO CORE
++8% Sphere damage.
+
+05 SALVAGE NODE
++10% pickup radius.
+
+06 REPAIR CELL
++0.2% max HP/sec.
+
+07 RANGE LENS
++8% Sphere range.
+
+08 DENSITY CHIP
++6% network density efficiency.
+
+09 COOLANT
+-8% Sphere attack interval.
+
+10 SIGNAL BOOSTER
++8% link stability.
+
+RARE
+
+11 LINK AMPLIFIER
++18% link distance.
+
+12 CHAIN MEMORY
+Chain gains one additional relay.
+
+13 BREACH NEEDLE
+first hit to a full-HP target applies Breach.
+
+14 FROST MATRIX
+Frozen targets remain slowed briefly after Freeze ends.
+
+15 ECHO COIL
+every 5th Sphere cast repeats at 35% power.
+
+16 SPLITTER
+projectiles split after first impact.
+
+17 HUNTER OPTIC
+Marked targets take increased Sniper damage.
+
+18 CLUSTER CELL
+Cluster grants +10% area.
+
+19 STATIC RELAY
+hits can create a short energy link.
+
+20 STATUS VIAL
++15% status duration.
+
+21 MAGNETIC GUIDE
+projectiles curve mildly toward marked targets.
+
+22 THORN CORE
+contact damage creates a short retaliation pulse.
+
+EPIC
+
+23 RESONANCE HEART
+first Resonance event every 25 sec costs no charge.
+
+24 GRAVITY ANCHOR
+Cluster periodically pulls enemies inward.
+
+25 SHATTER ENGINE
+breaking Freeze triggers an explosion.
+
+26 PHASE MIRROR
+Dash leaves an after-image that absorbs one projectile.
+
+27 PRISMATIC CORE
+two Sphere types hitting the same target create a Prism hit.
+
+28 VOID NEEDLE
+targets below 20% HP take increased damage.
+
+29 NETWORK LENS
+Line raises range more than normal.
+
+30 TRIANGLE CIRCUIT
+Triangle increases relay damage.
+
+31 ORBITAL CROWN
+Orbital receives an extra evolution interaction.
+
+32 REACTIVE ARMOR
+Square Geometry gains a temporary shield after hits.
+
+SPECIAL
+
+33 ARCHITECT KEY
+one selected Sphere can be repositioned without breaking one selected
+Link.
+
+34 LIVING CIRCUIT
+moving a Sphere immediately grants Resonance.
+
+35 SINGULAR NODE
+selected Sphere gets double link distance but becomes the Network anchor.
+
+36 TEMPORAL MESH
+once per minute lethal damage is prevented and time briefly fractures.
+
+37 BLACK BOX
+one future Artifact category is previewed.
+
+38 UNSTABLE CORE
+large damage bonus while Network stability is low.
+
+39 FRACTAL SEED
+first completed advanced Geometry can spawn a temporary sub-node.
+
+40 NULL MIRROR
+Dash can erase one enemy status zone.
+
+41 PROTOCOL KEY
+reduces one Protocol activation requirement once per run.
+
+42 NETWORK HEART
+four connected Spheres synchronize their next attack.
+
+LEGENDARY
+
+43 ZERO POINT
+Resonance cap increases to 150; overflow becomes temporary damage.
+
+44 GAIA ENGINE
+each completed Geometry adds a run-specific specialization.
+
+45 AKASHIC GRID
+once per run replaces a Level Up roll with build-compatible choices.
+
+46 ECLIPSE NODE
+critical HP state accelerates Resonance for a short duration.
+
+47 VOID ARCHITECT
+permits one temporary phantom network node.
+
+48 ORBITAL CROWN PRIME
+unlocks a unique Orbital final form.
+
+49 SINGULARITY LAW
+one compact node can carry effects of two Geometry types.
+
+50 RESONANCE SOVEREIGN
+every 4th Resonance Event is duplicated at reduced power.
+
+51 FRACTAL ENGINE
+Lattice can recursively echo one completed cell.
+
+52 CORE ASCENDANT
+selected Sphere evolves immediately by one valid branch step, once.
+
+Additional catalogue slots 53-120 are reserved for content expansion while
+obeying the same design law. They must be authored in the data layer, not
+generated as arbitrary stat filler.
+
+======================================================================
+27. ARTIFACT ACQUISITION
+======================================================================
+
+Sources:
+- Treasure Cache;
+- Elite;
+- Boss;
+- Stella;
+- Merchant;
+- Event;
+- Exploration;
+- special objective.
+
+Default Treasure:
+3 Artifact choices, choose 1.
+
+Special Cache:
+higher-quality pool.
+
+Legendary:
+normally excluded from ordinary Artifact rolls.
+
+======================================================================
+28. ARTIFACT SYNERGY
+======================================================================
+
+Three tiers:
+
+PAIR SYNERGY
+small interaction.
+
+SET
+3-4 related Artifact conditions.
+
+PROTOCOL
+rule-changing build state.
+
+One Artifact may participate in multiple Synergies.
+
+Activating a Synergy never consumes the Artifact.
+
+======================================================================
+29. FINAL ARTIFACT SETS
+======================================================================
+
+01 RESONANCE GRID
+02 ECHO ARCHITECTURE
+03 SINGULARITY PATH
+04 FRACTURE
+05 LIVING CIRCUIT
+06 GRAVITY FIELD
+07 PHASE MATRIX
+08 HUNTER'S VECTOR
+09 STATUS ALCHEMY
+10 ORBITAL ORDER
+11 VOID ENGINE
+12 FORTRESS
+13 OVERCLOCK
+14 PRISM NETWORK
+15 FRACTAL ARCHITECTURE
+16 SHATTER LOOP
+17 MARKED HUNT
+18 DENSE CORE
+19 LONG VECTOR
+20 RISK PROTOCOL
+
+Set completion must change behavior, not only show a badge.
+
+======================================================================
+30. FINAL PROTOCOLS
+======================================================================
+
+01 TRIANGLE RESONANCE
+completed Resonance Grid + active Triangle.
+
+02 SPHERE RELAY
+completed Echo Architecture + multiple Sphere types.
+
+03 CRITICAL ECHO
+completed Singularity Path + active kill streak.
+
+04 OVERCLOCK
+Resonance event temporarily synchronizes Sphere cooldowns.
+
+05 PHANTOM NODE
+advanced geometry may create one temporary node.
+
+06 VOID LINK
+low-HP enemies can become temporary nodes.
+
+07 FRACTURE CASCADE
+status-break effects propagate through a Link.
+
+08 FORTRESS PROTOCOL
+Square/Ring produces defensive circulation.
+
+09 GRAVITY LOOP
+Cluster pull repeats through completed cycles.
+
+10 PRISM CIRCUIT
+different Sphere families create beam refraction.
+
+11 HARMONIC CORE
+three distinct Resonance triggers combine into one enhanced event.
+
+12 FRACTAL LAW
+advanced geometries can recursively trigger one subordinate geometry.
+
+======================================================================
+31. STELLA / LEGENDARY REWARD
+======================================================================
+
+Stella is ECHO SPHERE's dramatic Legendary reward event.
+
+Boss victory can open Stella.
+
+Before the main Endless threshold:
+- Stella offers Legendary-quality build-defining choices;
+- ordinary Level Up cannot randomly produce Legendary;
+- ordinary Artifact pool normally excludes Legendary.
+
+After the configurable Endless threshold:
+Stella transitions toward standard high-tier rewards.
+
+Default target:
+25 min.
+
+The threshold remains data-configurable.
+
+The purpose is not rarity for its own sake.
+The purpose is a major mid/late-run pivot.
+
+======================================================================
+32. CHARACTERS
+======================================================================
+
+FINAL CHARACTER TARGET:
+10.
+
+CURRENT REPOSITORY:
+6.
+All six are compatible and preserved.
+
+01 SPHERIST
+Many Spheres / general resonance.
+
+02 HUNTER
+Single-target / Mark.
+
+03 ENGINEER
+Links / relay / compact networks.
+
+04 BERSERKER
+Low-HP risk/reward.
+
+05 ALCHEMIST
+Status reactions.
+
+06 ARCHITECT
+Geometry.
+
+07 CONDUCTOR
+Resonance specialist.
+
+08 ORACLE
+Choice information / prediction.
+
+09 VOIDWALKER
+Instability / phantom nodes.
+
+10 FRACTAL
+Advanced geometry.
+
+Character identity is mechanical.
+Character selection must alter decisions during a run.
+
+======================================================================
+33. CHARACTER MASTERY
+======================================================================
+
+Current repository already has compatible mastery for the six starting
+characters, currently 5 levels.
+
+Final design:
+10 mastery levels.
+
+Important rule:
+not every mastery level may be a generic +2%.
+
+Examples:
+- unlock interaction;
+- change threshold;
+- add branch;
+- change placement behavior;
+- unlock Protocol interaction;
+- improve a character-specific status.
+
+Mastery final tier grants one Signature mechanic.
+
+======================================================================
+34. SUBJECT-LIKE START SYSTEM
+======================================================================
+
+Magic Survival separates visual Subject identity from deeper Class
+progression.
+
+ECHO SPHERE uses a differentiated two-layer equivalent:
+
+CHARACTER
+= gameplay identity.
+
+CORE SKIN
+= cosmetic identity with optional tiny non-combat presentation effects.
+
+Core Skin never supplies mandatory combat power.
+
+Starter loadout:
+- 1 starting Sphere;
+- 1 Character passive/mechanic;
+- 0-1 starter Artifact only for special unlock modes.
+
+This keeps the character system meaningful without copying the
+benchmark's Subject structure.
+
+======================================================================
+35. ENEMIES
+======================================================================
+
+FINAL CORE ROLES:
+
+01 NORMAL
+02 FAST
+03 TANK
+04 SWARM
+05 RANGED
+06 SHIELDED
+07 PHASER
+08 DISRUPTOR
+09 LEECH
+10 ANCHOR
+11 SPLITTER
+12 HUNTER
+13 MIMIC
+14 VOIDLING
+15 ELITE
+
+The current repository already has Normal, Fast, Tank and Elite.
+They are preserved.
+
+Enemy role must answer:
+"What player decision does this enemy test?"
+
+======================================================================
+36. ENEMY STATES
+======================================================================
+
+BURN
+damage over time.
+
+FREEZE
+movement control.
+
+POISON
+stacking damage.
+
+BREACH
+defense reduction.
+
+MARK
+targeting bonus.
+
+FRACTURE
+bonus after control/status break.
+
+DISRUPTED
+Sphere/Network behavior weakened.
+
+RESONANT
+receives increased Network interaction.
+
+GRAVITY-BOUND
+movement altered.
+
+CORRUPTED
+special Void interaction.
+
+Each state requires:
+- gameplay effect;
+- visible cue;
+- duration;
+- stacking rule;
+- interaction rule.
+
+======================================================================
+37. ELITES
+======================================================================
+
+Elite is not simply a larger HP bar.
+
+Elite receives:
+- one special mechanic;
+- stronger silhouette;
+- unique reward chance;
+- possible Rune drop;
+- distinct damage telegraph.
+
+Examples:
+- Link Breaker;
+- Resonance Leech;
+- Phantom Hunter;
+- Geometry Shifter;
+- Splitter Prime.
+
+======================================================================
+38. BOSSES
+======================================================================
+
+CURRENT REPOSITORY:
+4 boss types:
+- Shooter;
+- Charger;
+- Summoner;
+- Aura.
+
+They are PRESERVED.
+
+FINAL TARGET:
+8 meaningful boss families.
+
+05 CONDUCTOR
+beams / link disruption.
+
+06 ARCHITECT
+changes Geometry.
+
+07 NULL
+deletes temporary nodes.
+
+08 STELLA WARDEN
+controls the Legendary event.
+
+Each boss:
+- has 3+ attacks;
+- telegraphs;
+- wind-up;
+- recovery;
+- punish window;
+- at least one phase transition.
+
+Current Charger wind-up and telegraph work are part of this direction.
+
+======================================================================
+39. WAVE SYSTEM
+======================================================================
+
+Wave difficulty uses multiple axes:
+
+time
++
+wave index
++
+enemy composition
++
+elite pressure
++
+boss state
++
+optional difficulty modifier.
+
+Do NOT scale only HP.
+
+Every 2-3 minutes:
+- introduce or rotate a tactical threat;
+- adjust density;
+- alter enemy role mix.
+
+Example:
+
+0-2:
+Normal + Fast.
+
+2-4:
+Fast + Tank.
+
+4-6:
+Ranged + Elite.
+
+6-8:
+Disruptor.
+
+8-10:
+mixed pressure.
+
+10+:
+boss preparation.
+
+After boss:
+reward pivot.
+
+======================================================================
+40. XP
+======================================================================
+
+Primary run XP:
+Echo Shards.
+
+Grades:
+Small
+Medium
+Large
+Elite Core
+Boss Core
+
+Final Level XP formula is based on the repository's existing verified
+model, with tuning constants centralized:
+
+XP_next(level) =
+max(
+  FIRST_XP,
+  round(
+    FIRST_XP
+    + (level-1)*XP_LINEAR
+    + (level-1)^2*XP_QUADRATIC
+  )
+)
+
+Current verified constants:
+FIRST_XP = 10
+XP_LINEAR = 3
+XP_QUADRATIC = 0.08
+
+These are baseline tuning constants, not immutable laws.
+
+Target pacing:
+early level-ups roughly every 25-45 sec;
+late level-ups roughly every 50-80 sec.
+
+Telemetry decides final tuning.
+
+======================================================================
+41. RUN LEVEL TARGET
+======================================================================
+
+Normal run:
+Level ~1-35/40.
+
+Extended:
+~35-55.
+
+Endless:
+55+.
+
+No design dependency on level 100.
+
+This is a deliberate difference from benchmark patterns where very high
+run levels can exist.
+
+======================================================================
+42. REWARD SOURCES
+======================================================================
+
+LEVEL UP
+build choices.
+
+ELITE
+chance for Artifact/Rune.
+
+TREASURE CACHE
+Artifact choice.
+
+EXPLORATION NODE
+risk/reward.
+
+MERCHANT
+purchases.
+
+BOSS
+Stella / Legendary event.
+
+SECRET
+rare rule-changing event.
+
+======================================================================
+43. MERCHANT
+======================================================================
+
+Merchant is an optional economy decision.
+
+Offers:
+- Artifact;
+- reroll;
+- temporary boost;
+- heal;
+- Sphere upgrade;
+- rare resource;
+- Rune-related item in selected modes.
+
+Price rises over a run.
+
+Merchant should force:
+buy now vs save.
+
+Current repository has a Shop/meta layer.
+Final design distinguishes:
+RUN MERCHANT
+from
+META SHOP.
+
+======================================================================
+44. REROLL / LOCK / BAN
+======================================================================
+
+REROLL:
+replace current options.
+
+LOCK:
+protect one option.
+
+BAN:
+remove one category/item from future rolls.
+
+Unlock order:
+- Reroll first;
+- Lock later;
+- Ban after foundational mastery.
+
+Limits:
+never enough to turn RNG into deterministic drafting.
+
+======================================================================
+45. EVENTS
+======================================================================
+
+FINAL EVENT VOCABULARY:
+
+OVERLOAD
+enemy pressure up, rewards up.
+
+BLACKOUT
+reduced peripheral readability, improved reward.
+
+RESONANCE STORM
+Resonance gain increases, enemy pressure increases.
+
+HUNT
+Elite priority target.
+
+BREACH
+Arena danger changes.
+
+ANOMALY
+unknown reward with risk.
+
+MERCHANT
+shop opportunity.
+
+STELLA
+Legendary opportunity.
+
+MIRROR FIELD
+enemy behavior changes.
+
+GEOMETRY SHIFT
+available formations change.
+
+Events exist to force a decision.
+
+======================================================================
+46. BUILD ARCHETYPES
+======================================================================
+
+The game recognizes build identity diagnostically.
+
+SNIPER LINE
+Sniper + Line + Breach + Precision.
+
+CHAIN TRIANGLE
+Chain + Triangle + Resonance.
+
+CONTROL GRID
+Aura + Cluster + Freeze + Gravity.
+
+FIRE FRACTURE
+Fire + Breach + Shatter.
+
+VOID EXECUTION
+Void + Mark + Execute.
+
+PHASE ARCHITECT
+Dash + repositioning + Network artifacts.
+
+PRISM CIRCUIT
+Prism + multiple Sphere types + refraction.
+
+FORTRESS CORE
+Square/Ring + defensive artifacts.
+
+Build Identity is informational.
+It is not a power ranking.
+
+======================================================================
+47. BUILD DIAGNOSTICS
+======================================================================
+
+UI diagnostics:
+OFFENSE
+CONTROL
+SURVIVAL
+NETWORK
+RESONANCE
+SYNERGY
+
+This is NOT a score and must not imply:
+- best build;
+- weakest build;
+- ranking.
+
+It explains the shape of the current configuration.
+
+======================================================================
+48. DAMAGE MODEL
+======================================================================
+
+Base damage is separated into categories.
+
+FinalDamage =
+BaseDamage
+× SphereMultiplier
+× ModifierMultiplier
+× NetworkMultiplier
+× ArtifactMultiplier
+× ResonanceMultiplier
+× CritMultiplier
+× CharacterMultiplier
+
+Not every effect is multiplicative.
+
+Stacking policy:
+- same-family small bonuses generally add;
+- category-level bonuses may multiply;
+- character signatures use explicit category;
+- critical multiplier is applied only on a successful crit;
+- diminishing returns apply to extreme haste, radius and density.
+
+No uncontrolled chain of multiplicative bonuses.
+
+======================================================================
+49. COOLDOWN MODEL
+======================================================================
+
+FinalCooldown =
+BaseCooldown
+× LocalModifier
+× AbilityModifier
+× CharacterModifier
+× ArtifactModifier
+× NetworkModifier
+
+Hard floor:
+20% of BaseCooldown.
+
+Temporary exceptions may bypass the floor for a short effect.
+
+Every override must be explicit in data.
+
+======================================================================
+50. CRIT
+======================================================================
+
+Base crit:
+5%.
+
+Crit chance:
+0-100%.
+
+Base crit multiplier:
+1.5x.
+
+Recommended range for ordinary builds:
+5-45%.
+
+Special builds may exceed this temporarily.
+
+Crit should interact with:
+- Mark;
+- Breach;
+- Sniper;
+- Void;
+- Precision.
+
+Never let several independent systems multiply crit chance and crit
+multiplier without caps.
+
+======================================================================
+51. STATUS MODEL
+======================================================================
+
+Each Status stores:
+duration
+intensity
+stacks
+source
+interaction flags.
+
+Rules:
+- Burn = DoT;
+- Poison = stacking DoT;
+- Freeze = control;
+- Breach = defense reduction;
+- Mark = targeted amplification;
+- Fracture = reaction state.
+
+Alchemist can create:
+Fire + Poison = Toxin Ignition
+Freeze + Poison = Cryotoxin
+Fire + Freeze = Thermal Shock
+
+Reactions consume participating statuses.
+
+======================================================================
+52. NETWORK BALANCE
+======================================================================
+
+Define:
+
+DENSITY =
+activeLinks / maxPossibleLinks
+
+At high density:
+diminishing returns.
+
+Suggested:
+D <= 0.60
+full efficiency.
+
+0.60 < D <= 0.80
+90% incremental efficiency.
+
+D > 0.80
+70% incremental efficiency.
+
+This keeps compact networks good without making "stack everything in
+one point" the dominant answer.
+
+======================================================================
+53. POSITIONING BALANCE
+======================================================================
+
+Two intentional schools:
+
+SPREAD
+best for:
+- Sniper;
+- Line;
+- range;
+- marked targets.
+
+COMPACT
+best for:
+- Aura;
+- Cluster;
+- control;
+- Resonance.
+
+Balanced build:
+may switch between both during a run.
+
+Artifacts/Characters can specialize but no single positioning pattern is
+universally correct.
+
+======================================================================
+54. RNG PRINCIPLE
+======================================================================
+
+RNG creates direction, not denial.
+
+Mechanisms:
+- weighted pool;
+- build affinity;
+- pity pressure;
+- duplicate suppression;
+- dead-choice suppression;
+- reroll;
+- lock;
+- ban;
+- merchant;
+- boss rewards;
+- deterministic milestone branches.
+
+The player should often have:
+"good / good / interesting"
+
+instead of:
+"useless / useless / useless".
+
+======================================================================
+55. META PROGRESSION
+======================================================================
+
+Permanent systems:
+
+CORE
+- HP;
+- movement;
+- Dash;
+- pickup.
+
+NETWORK
+- link distance;
+- node capacity;
+- Resonance.
+
+SPHERES
+- unlocks;
+- evolution access.
+
+CHARACTERS
+- unlocks;
+- mastery.
+
+ARCHIVE
+- discoveries;
+- collection.
+
+Meta should expand the decision space.
+
+Permanent damage inflation must remain limited.
+
+======================================================================
+56. CURRENCIES
+======================================================================
+
+FINAL:
+
+ECHO
+run resource.
+
+CREDITS
+meta upgrade currency.
+
+RESONANCE SHARDS
+rare unlock/mastery resource.
+
+ARCHIVE DATA
+collection/lore/cosmetic progression.
+
+Keep currencies understandable.
+Do not create currencies without a distinct economic purpose.
+
+======================================================================
+57. META SHOP
+======================================================================
+
+Current repository already has a compatible Shop with:
+- sphere damage;
+- radius;
+- movement;
+- start spheres;
+- HP;
+- crit;
+- XP.
+
+It is PRESERVED.
+
+However, final intent is to rebalance the shop so long-term progression
+does not become only:
+"buy damage until numbers are larger".
+
+Preferred new meta unlocks:
+- Sphere branches;
+- Character mastery;
+- additional reroll;
+- additional active slot;
+- Rune interactions;
+- Archive functions;
+- cosmetic content.
+
+Flat stat upgrades remain but have clear caps.
+
+======================================================================
+58. DEATH
+======================================================================
+
+Death screen shows:
+
+time
+level
+kills
+damage
+damage taken
+Spheres
+Sphere levels
+Artifacts
+active Geometry
+Resonance events
+boss reached
+major status
+cause of death
+build identity
+
+Cause of death must be readable.
+
+Examples:
+"Charger's committed dash"
+"Disruptor disabled your network"
+"Too much incoming contact damage"
+"Overload reduced your survival margin"
+
+======================================================================
+59. VICTORY
+======================================================================
+
+Victory screen:
+
+survival time
+build
+Sphere levels
+Artifacts
+Sets
+Protocols
+Geometry
+Resonance events
+damage breakdown
+bosses
+unlocks
+
+No meaningless giant number as the only result.
+
+======================================================================
+60. COLLECTION / ARCHIVE
+======================================================================
+
+Archive entries:
+
+Characters
+Spheres
+Abilities
+Modifiers
+Artifacts
+Sets
+Protocols
+Enemies
+Elites
+Bosses
+Geometry
+Runes
+Events
+
+Each entry:
+- discovered/not discovered;
+- description;
+- mechanics;
+- known interactions;
+- mastery/progression;
+- appearance.
+
+======================================================================
+61. ACHIEVEMENTS
+======================================================================
+
+Examples:
+
+FIRST NETWORK
+first valid Link.
+
+TRIANGLE MASTER
+10 Resonance events from Triangle.
+
+DENSE CORE
+survive 5 min with Cluster active.
+
+LONG VECTOR
+defeat a boss while maintaining spread geometry.
+
+NO SAFE DISTANCE
+win a boss phase with compact network.
+
+VOID ARCHITECT
+complete a run using Void evolution.
+
+ZERO DASH
+boss defeated without taking contact damage during the phase.
+
+Achievements may unlock:
+- Characters;
+- Sphere branches;
+- cosmetics;
+- Archive entries;
+- challenge modes.
+
+======================================================================
+62. DIFFICULTY
+======================================================================
+
+FINAL:
+
+EASY
+NORMAL
+HARD
+NIGHTMARE
+ENDLESS
+
+The existing repository's difficulty vocabulary is:
+Easy / Normal / Hard / Nightmare.
+
+This is retained.
+
+"Void" is treated as a challenge/event vocabulary, not forced as a new
+difficulty name.
+
+Difficulty increases:
+- enemy composition;
+- special mechanics;
+- hazards;
+- event intensity.
+
+Not only HP.
+
+======================================================================
+63. RUN MODIFIERS
+======================================================================
+
+Optional challenge modifiers:
+
+LOW GRAVITY
+movement behavior changes.
+
+FRACTURED NETWORK
+shorter links.
+
+OVERLOAD
+higher density.
+
+NO MERCHANT
+no merchant.
+
+RAPID RESONANCE
+faster charge.
+
+ONE CORE
+lower node capacity.
+
+Rewards scale with challenge.
+
+======================================================================
+64. ENDLESS
+======================================================================
+
+Endless begins after the main scenario.
+
+Default Stella transition threshold:
+~25 min.
+
+Escalation:
+- enemy density;
+- new elite combinations;
+- boss modifiers;
+- arena hazards;
+- geometry disruption;
+- Rune pressure.
+
+Endless is a build stress test.
+
+Not:
+"HP x 1000".
+
+======================================================================
+65. UI HIERARCHY
+======================================================================
+
+Battle HUD priority:
+
+1 HP / danger.
+2 Time / boss state.
+3 XP.
+4 Dash / active ability.
+5 Network state.
+6 Resonance.
+7 Artifact/build state.
+
+Do not put every system on screen at once.
+
+======================================================================
+66. NETWORK HUD
+======================================================================
+
+Dedicated small HUD shows:
+- nodes;
+- links;
+- active Geometry;
+- Resonance charge.
+
+Field VFX communicates the actual formation.
+
+Avoid persistent textual labels such as:
+"LINE // ACTIVE".
+
+The current repository has already removed those redundant field labels.
+That direction is final.
+
+======================================================================
+67. LEVEL UP CARD
+======================================================================
+
+Card contains:
+
+ICON
+NAME
+TYPE
+CURRENT -> NEW
+BEHAVIOR CHANGE
+TAGS
+SYNERGY HINT
+
+Example:
+
+TRIANGLE RESONATOR
+NETWORK
+
+"Triangle Resonance now jumps to the nearest linked node."
+
+Tags:
+TRIANGLE
+RESONANCE
+CHAIN
+
+The player should understand why the choice matters.
+
+======================================================================
+68. VISUAL IDENTITY
+======================================================================
+
+STYLE:
+FOLDED TECHNOLOGY / GEOMETRIC RESONANCE.
+
+Primary palette:
+dark navy
+cold blue
+violet
+cyan
+white energy
+yellow/orange danger
+
+Rules:
+- emissive = gameplay meaning;
+- Sphere silhouettes must differ;
+- enemy silhouettes must differ;
+- boss attacks must have unique shape language;
+- Network must be readable against the arena.
+
+Avoid:
+- generic neon soup;
+- decorative sci-fi panels without function;
+- giant opaque structures;
+- excessive bloom;
+- visual clutter that hides hitboxes.
+
+======================================================================
+69. 2.5D / 3D POLICY
+======================================================================
+
+CURRENT FINAL POLICY:
+
+PRIMARY GAMEPLAY:
+Canvas / authored 2.5D presentation.
+
+3D/GLB:
+PARKED.
+
+Do NOT return to mass production of complex GLB assets during current
+gameplay/system development.
+
+Reason:
+the present production path is not cost-effective for the project at the
+current tooling/subscription constraints, and it distracts from gameplay.
+
+Existing compatible GLB assets and code remain preserved unless they
+create a concrete technical problem.
+
+The visual target is:
+high-quality authored 2.5D geometric/emissive presentation.
+
+3D can be reconsidered only after gameplay, balance, readability and
+content systems pass their gates.
+
+======================================================================
+70. SPHERE VISUAL LANGUAGE
+======================================================================
+
+STANDARD:
+stable concentric core.
+
+SNIPER:
+focused aperture.
+
+CHAIN:
+segmented conductive structure.
+
+SHOTGUN:
+multi-aperture burst core.
+
+AURA:
+field petals / local energy field.
+
+ORBITAL:
+rotating modules.
+
+PRISM:
+faceted refraction.
+
+GRAVITY:
+distorted shell.
+
+PULSE:
+periodic energy ring.
+
+VOID:
+dark core / edge distortion.
+
+======================================================================
+71. ENEMY VISUAL LANGUAGE
+======================================================================
+
+NORMAL:
+compact shard.
+
+FAST:
+elongated mobile geometry.
+
+TANK:
+layered heavy shell.
+
+RANGED:
+remote artillery structure.
+
+DISRUPTOR:
+broken signal geometry.
+
+PHASER:
+unstable partially transparent silhouette.
+
+BOSS:
+large articulated authored form.
+
+Every enemy role must have:
+silhouette
+movement signature
+attack signature
+death signature.
+
+======================================================================
+72. VFX
+======================================================================
+
+Categories:
+
+Projectile
+Impact
+Status
+Network
+Geometry
+Resonance
+Dash
+Rune
+Boss Telegraph
+Death
+Artifact
+Legendary
+
+VFX must explain state.
+
+Triangle Resonance:
+0-30 subtle.
+30-70 active.
+70-99 pulse.
+100 major event.
+
+======================================================================
+73. AUDIO
+======================================================================
+
+Audio is informational.
+
+Dash:
+short transient.
+
+Hit:
+role-dependent.
+
+Resonance:
+rising harmonic.
+
+Geometry completion:
+unique confirmation.
+
+Boss:
+telegraph motif.
+
+Legendary:
+rare signature.
+
+Avoid constant maximum-volume combat.
+
+======================================================================
+74. MONETIZATION
+======================================================================
+
+Core gameplay remains fair.
+
+Allowed:
+- cosmetics;
+- optional ads for revival/reward;
+- cosmetic bundles;
+- optional convenience;
+- premium currency for non-essential content.
+
+Not allowed as final design:
+- required combat power purchases;
+- guaranteed dominant builds for payment;
+- basic systems locked behind payment;
+- artificial death pressure designed to force payment.
+
+======================================================================
+75. SHOP
+======================================================================
+
+META SHOP:
+progression.
+
+RUN MERCHANT:
+temporary run choices.
+
+COSMETIC:
+skins;
+Core effects;
+Sphere visual variants;
+Arena themes.
+
+Premium does not replace mastery.
+
+======================================================================
+76. PERFORMANCE PRINCIPLES
+======================================================================
+
+Because this is mobile:
+
+Must prioritize:
+- deterministic gameplay state;
+- capped VFX particles;
+- object reuse where useful;
+- predictable enemy count;
+- no unnecessary postprocessing;
+- no giant persistent world objects.
+
+A readable 2.5D frame is more important than expensive geometry.
+
+======================================================================
+77. DATA ARCHITECTURE
+======================================================================
+
+Data entities:
+
+CharacterDefinition
+SphereDefinition
+ModifierDefinition
+AbilityDefinition
+PassiveDefinition
+ArtifactDefinition
+ArtifactSetDefinition
+ProtocolDefinition
+RuneDefinition
+EnemyDefinition
+EliteDefinition
+BossDefinition
+WaveDefinition
+EventDefinition
+DifficultyDefinition
+MetaUpgradeDefinition
+
+Balance values must be centralized.
+
+UI must consume definitions, not duplicate rules.
+
+======================================================================
+78. FINAL CONTENT TARGET
+======================================================================
+
+Characters:
+10
+
+Spheres:
+10
+
+Modifiers:
+24
+
+Abilities/Passives:
+30
+
+Artifacts:
+90-120
+
+Artifact Sets:
+20
+
+Protocols:
+12+
+
+Enemy roles:
+15+
+
+Elite variants:
+10+
+
+Boss families:
+8
+
+Geometry:
+7
+
+Runes:
+9+
+
+Events:
+10+
+
+Difficulty:
+5 modes including Endless
+
+This is a complete-product target.
+Implementation remains staged.
+
+======================================================================
+79. TEST MATRIX
+======================================================================
+
+UNIT:
+
+Damage
+Cooldown
+Crit
+XP
+Level Up
+Sphere level
+Sphere evolution
+Modifier
+Status
+Network links
+Geometry
+Resonance
+Rune
+Artifact
+Artifact Set
+Protocol
+Character mechanic
+Boss
+Stella
+Legendary scarcity
+RNG protection
+Meta purchase
+
+INTEGRATION:
+
+Sphere + Modifier
+Sphere + Geometry
+Sphere + Artifact
+Artifact + Network
+Artifact + Resonance
+Character + Sphere
+Character + Ability
+Status + Reaction
+Boss -> Stella
+Stella -> Legendary
+Rune + Network
+Protocol + Geometry
+
+PLAYTEST:
+
+5-minute combat.
+Network placement.
+Triangle Resonance.
+Cluster behavior.
+Boss telegraphs.
+Reward handoff.
+RNG quality.
+Build identity.
+Performance.
+10-15 minute fun gate.
+
+======================================================================
+80. QUALITY GATES
+======================================================================
+
+A Combat works.
+
+B Network matters.
+
+C Build choices matter.
+
+D Artifacts change strategy.
+
+E Synergies create emergent builds.
+
+F Boss/Stella creates meaningful pivot.
+
+G 10-15 minute run is fun.
+
+H Multiple builds are viable.
+
+I Performance is stable.
+
+J Content/meta expansion only after gameplay passes.
+
+K Visual polish after systems survive playtesting.
+
+======================================================================
+81. CURRENT-REPOSITORY COMPATIBILITY RULES
+======================================================================
+
+KEEP:
+- movement;
+- Dash;
+- Standard;
+- Sniper;
+- Chain;
+- Shotgun;
+- Aura;
+- projectile system;
+- enemy foundation;
+- XP;
+- Level Up;
+- six core modifiers;
+- Network;
+- Line/Triangle/Cluster;
+- resonance foundation;
+- existing Characters;
+- existing Artifact framework;
+- Pair Synergy;
+- Artifact Sets;
+- Protocol framework;
+- Boss/Stella/Legendary foundation;
+- Shop/meta layer;
+- current 2.5D player presentation.
+
+REWORK:
+- Artifact catalogue depth;
+- ability organization/slot logic;
+- Architect/Square integration;
+- Rune layer;
+- final reward/event structure;
+- balance constants;
+- RNG protection;
+- final content scale.
+
+PARK:
+- mass complex GLB production.
+
+======================================================================
+82. DEFINITION OF DONE
+======================================================================
+
+A feature is complete only when:
+
+SPEC
+-> DATA
+-> LOGIC
+-> UI
+-> VFX
+-> AUDIO
+-> TEST
+-> BUILD
+-> PLAYTEST
+-> BALANCE
+-> DOCUMENTATION
+
+Compiling is not completion.
+
+Working but confusing is not completion.
+
+Beautiful but mechanically irrelevant is not completion.
+
+======================================================================
+83. FINAL DESIGN TEST
+======================================================================
+
+At minute 15 the player should be able to answer:
+
+1. What build did I create?
+2. Why does it work?
+3. Why did I position Spheres this way?
+4. Which Geometry is active?
+5. What Artifact changed my plan?
+6. Which Synergy/Protocol matters?
+7. Which boss mechanic forced adaptation?
+8. What will I change next run?
+
+If the answer is only:
+"I got more damage,"
+the design failed its depth target.
+
+If the answer is:
+"I built a Chain Triangle network, used Resonance to relay attacks,
+then got a Legendary that made Cluster valuable, so I moved my Spheres
+and changed Protocol,"
+the core identity is working.
+
+======================================================================
+84. DECISION RULE FOR FUTURE DEVELOPMENT
+======================================================================
+
+When implementing any feature:
+
+1. Compare current code to this Blueprint.
+2. Check the Development State & Gap Report.
+3. Preserve compatible existing content.
+4. Fix the earliest important GAP.
+5. Test.
+6. Build.
+7. Playtest.
+8. Update the Gap Report.
+9. Do not start a new content layer to hide a broken old one.
+10. Do not return to mass 3D work during the current gameplay phase.
+
+======================================================================
+APPENDIX A. MAGIC SURVIVAL BENCHMARK FACTS
+======================================================================
+
+The following are reference facts used to validate architecture, not
+instructions to copy the game.
+
+A1. LEVEL UP
+The researched wiki documents a standard 3-choice Level Up flow, with
+previously acquired Magic receiving increased selection weight and some
+systems enabling 4 choices.
+
+A2. MAGIC LAYERS
+The researched Magic page separates combat/active Magic from passive
+enhancement Magic and also documents special enhancement Magic.
+
+A3. CLASS
+Classes modify preferred Magic and possess unique mechanics; the wiki
+also documents persistent class progression whose highest upgrade can
+apply beyond the currently equipped class.
+
+A4. SUBJECT / EXPERIMENT BODY
+The benchmark uses a separate visual/character-like layer that can grant
+a starting Artifact and persistent effects. ECHO SPHERE uses Character +
+Cosmetic Core Skin instead of copying this structure literally.
+
+A5. RESEARCH
+The researched current Research page documents 96 total Research points
+and multiple permanent stats including attack, HP, XP, cooldown, movement,
+pickup range, size, duration, choice count, Rune duration and loot.
+
+A6. ARTIFACTS
+Artifacts can be obtained from treasure, wave-related structures and a
+merchant. Normal Artifact caches present three choices. Legendary
+reward structures are separated from ordinary Artifact acquisition.
+
+A7. SYNERGY
+Artifact Synergy activates automatically when all required Artifacts are
+owned, and one Artifact may participate in multiple synergies.
+
+A8. RUNES
+The researched Basics page documents Runes as temporary field pickups
+that trigger special effects immediately. It documents examples for:
+attack/movement boost, invulnerability, pickup-range boost and field
+enemy clearing.
+
+A9. MERCHANT
+The researched Basics page documents a merchant with multiple Artifact
+offers, a discounted random offer, rising prices over appearances and a
+limited active window.
+
+A10. ECONOMIC LOOP
+The benchmark uses in-run Mana Orbs for XP and merchant purchasing, plus
+persistent currencies including Gold/Gems and persistent Research/Class
+progress.
+
+A11. FORMULAS
+The researched FAQ documents a multiplicative final-damage structure
+involving attack power, attack-power amplification, spell coefficient,
+damage bonuses/reductions, class additions and critical multiplier.
+For ECHO SPHERE this is inspiration for category separation, not an
+instruction to copy exact coefficients.
+
+A12. TIME-VARYING VALUE
+Community build guides explicitly discuss Artifact value changing with
+time, build state and remaining reward opportunities.
+ECHO SPHERE therefore treats build context, run timing and diminishing
+opportunity as first-class balance concerns.
+
+REFERENCE SOURCES:
+https://w.atwiki.jp/magicsurvival/
+https://w.atwiki.jp/magicsurvival/pages/15.html
+https://w.atwiki.jp/magicsurvival/pages/34.html
+https://w.atwiki.jp/magicsurvival/pages/47.html
+https://w.atwiki.jp/magicsurvival/pages/53.html
+https://w.atwiki.jp/magicsurvival/pages/5.html
+https://w.atwiki.jp/magicsurvival/pages/172.html
+
+======================================================================
+APPENDIX B. DESIGN VALIDATION CORRECTIONS FROM v1.0
+======================================================================
+
+1. Sphere progression corrected from 8 levels to 7 to match actual
+repository progression architecture.
+
+2. Rune layer added explicitly.
+
+3. Architect conflict resolved:
+Square becomes a real later Geometry.
+
+4. Difficulty conflict resolved:
+current Easy / Normal / Hard / Nightmare retained; Endless is a mode,
+Void is a mechanic vocabulary.
+
+5. 2.5D policy made explicit:
+complex GLB production is parked.
+
+6. Ability system made explicit:
+Dash remains baseline; non-Dash active abilities are slot-limited.
+
+7. Current repository Artifact catalogue is acknowledged as a seed set,
+not mistaken for the final 90-120 catalogue.
+
+8. Existing 6-character roster is acknowledged as a foundation,
+10-character roster is the final target.
+
+9. Current XP formula is retained as the verified baseline formula,
+with centralized tuning constants instead of invented fixed pacing.
+
+10. Current Network distance is documented as configurable logical field
+distance rather than mixing "units" and "pixels".
+
+11. Current field formation labels are explicitly rejected in favor of
+visual formation cues + dedicated HUD.
+
+12. Existing 3D/GLB assets are preserved, but mass production is parked.
+
+======================================================================
+END OF MASTER FINAL GAMEPLAY BLUEPRINT v1.1
+======================================================================
