@@ -29,7 +29,7 @@ Branch:
 new-desing
 
 Latest implementation commit:
-f0f28dbfd6265b8fd6f6a8d5a01291e901046114
+c0ca58b9e70c242b00a418c69a18148f0068bb7f
 
 This HEAD includes Network Square combat integration and the first functional
 Rune layer.
@@ -101,6 +101,7 @@ SPHERE PROGRESSION
 [DONE] branch selection
 [DONE] final specialization
 [PARTIAL] final content depth for all ten planned Spheres
+[DONE] Standard Swarm branch logic audited and corrected: side shards are no longer hidden permanent Multishot
 
 MODIFIERS
 [DONE] Multishot
