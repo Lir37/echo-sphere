@@ -36,9 +36,9 @@ import {
 
 type Screen = 'menu' | 'game' | 'shop' | 'leaderboard' | 'settings' | 'achievements' | 'characters';
 
-// Authored 3D is the active battlefield renderer by default.
-// Set VITE_ECHO_ENABLE_3D=false only for fallback/debug validation.
-const ENABLE_3D_RENDERER = import.meta.env.VITE_ECHO_ENABLE_3D !== 'false';
+// Canvas/2.5D is the active battlefield renderer.
+// The authored 3D/GLB path is preserved for the later controlled 3D re-evaluation phase.
+const ENABLE_3D_RENDERER = false;
 
 export default function App() {
   const [lang, setLang] = useState<Lang>(() => loadLang());
