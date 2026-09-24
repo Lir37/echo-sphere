@@ -4,8 +4,8 @@ import fs from 'node:fs';
 const renderer = fs.readFileSync(new URL('../src/renderer.ts', import.meta.url), 'utf8');
 const mobileControls = fs.readFileSync(new URL('../src/MobileControls.tsx', import.meta.url), 'utf8');
 
-assert.equal(renderer.includes('function drawBerserkerRange'), false, 'legacy player-centered dashed range renderer must stay removed');
-assert.equal(renderer.includes("if (characterId === 'berserker') drawBerserkerRange"), false, 'Berserker range must not render a player-centered ring');
+assert.equal(renderer.includes('function drawBerserkerRange'), true, 'Berserker range mechanic must remain preserved');
+assert.equal(renderer.includes("if (characterId === 'berserker') drawBerserkerRange"), true, 'Berserker range indicator must remain wired');
 const playerStart = renderer.indexOf('function drawPlayer(');
 const playerEnd = renderer.indexOf('function drawSpikes(', playerStart);
 assert.ok(playerStart >= 0 && playerEnd > playerStart, 'drawPlayer function should exist');
