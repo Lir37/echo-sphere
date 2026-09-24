@@ -236,3 +236,14 @@ LATEST SESSION NOTE (2026-09-24, player overlay cleanup):
 - Added tests/player-visual.test.mjs to guard against reintroducing the removed player-centered ring/ellipse overlays.
 - Remaining after this fix: CI verification, fresh APK playtest, and the still-open human combat/network/geometry/HUD/RNG/Slice 0.1 acceptance gates.
 - Next step: review CI for this fix, then run a fresh APK playtest focused on player presentation.
+
+
+LATEST SESSION CORRECTION (2026-09-24, exact source of player overlay identified):
+- Root cause corrected: the blue sphere/ring marked by the user is the center-fixed CharacterAvatarOverlay from src/MobileControls.tsx, not the Canvas player and not the Berserker world-range indicator.
+- Changed CharacterAvatarOverlay only at its presentation boundary: the overlay is kept mounted for its existing mastery/visual-state logic but its wrapper is explicitly hidden with display:none and a disabled data marker, so it cannot sit over the gameplay Canvas.
+- Restored the Berserker range renderer that was removed in the previous cleanup because it is a separate legitimate character-specific mechanic and was not the user's marked cyan overlay.
+- Added/extended tests/player-visual.test.mjs to guard both conditions: no redundant player status ellipses, and the duplicate center CharacterAvatarOverlay stays disabled.
+- Implementation commit: b65829d45530ece60030f71d2b9784f5364910ee.
+- Preserved old systems/content: Canvas player rendering, character mastery tracking, character visual-state logic, Berserker gameplay and range indicator, all Sphere/network systems, all existing assets.
+- Remaining: CI result for this correction, then human APK playtest of the exact reported visual. Later roadmap acceptance gates remain unchanged.
+- Next step: inspect CI/visual artifact for this correction and have the fresh APK playtested on-device.

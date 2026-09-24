@@ -263,3 +263,12 @@ LATEST SESSION NOTE (2026-09-24, player overlay cleanup):
 - Added tests/player-visual.test.mjs as a source-contract regression check to prevent reintroduction of the removed player-centered ring/ellipse overlays.
 - Implementation commit: 1c9810cdf84a056eb10592791be9c2431c0b04c2.
 - Next step: CI verification and fresh APK playtest focused on confirming the player appears without the blue containment/ring overlay.
+
+
+LATEST SESSION CORRECTION (2026-09-24, exact source of player overlay identified):
+- Fresh CI visual QA from the previous cleanup commit still showed the same blue circular player overlay with a dashed ring.
+- The screenshot matched the DOM component CharacterAvatarOverlay in src/MobileControls.tsx: it is fixed at the viewport center and renders CharacterCore with the blue core/ring graphics. This is the visual user marked in the supplied screenshot.
+- The overlay is now explicitly hidden with display:none while its state/mastery tracking logic is preserved. The actual Canvas player renderer remains active.
+- The Berserker world-range indicator removed in the prior cleanup was unrelated to the blue center overlay and has been restored. No unrelated character mechanic is intentionally removed.
+- Implementation commit: b65829d45530ece60030f71d2b9784f5364910ee.
+- CI run for this correction is triggered by the new commit; fresh APK playtest remains the final human visual check.
