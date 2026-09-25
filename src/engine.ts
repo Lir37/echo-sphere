@@ -1594,7 +1594,17 @@ function activateShield(s: GameState): void {
   const final = getAbilityBranchId(s, 'shield', 7);
   const branchBonus = branch === 'shield_echo_guard' ? Math.min(2, Math.floor(nearby / 2)) : 0;
   const bastionBonus = branch === 'shield_bastion' ? 1 : 0;
-  const networkGuardBonus = final === 'shield_network_guard' ? Math.min(2, Math.floor(nearby / 2)) : 0;
+  const networkState = final === 'shield_network_guard' ? analyzeSphereNetwork(getNetworkNodes(s)) : null;
+  const connectedSphereCount = networkState
+    ? s.spheres.reduce((count, sphere, index) => (
+      sphere.alive && getLinkedNodeIndexes(networkState, index).some((linked) => linked >= 0 && linked < s.spheres.length)
+        ? count + 1
+        : count
+    ), 0)
+    : 0;
+  const networkGuardBonus = final === 'shield_network_guard'
+    ? Math.min(2, Math.floor(connectedSphereCount / 2))
+    : 0;
   const barrierCore = getActiveSphereAbilitySynergies(s).some((link) =>
     link.character === 'berserker' && link.sphere === 'shotgun' && link.ability === 'shield' && link.effect === 'defense'
   );
@@ -2129,7 +2139,14 @@ function activateDarkRitual(s: GameState): void {
     if (ratio < 0.35) s.player.overloadTimer += 2;
   }
   if (branch === 'darkritual_sacrifice' || final === 'darkritual_sacrifice_core') {
-    emitSpherePulse(s, getNearestSphere(s, s.player.pos) || { pos: { ...s.player.pos } } as SphereEntity, 20 + lvl * 5, 130, '#8a5a8a');
+    const sacrificeMultiplier = final === 'darkritual_sacrifice_core' ? 1.35 : 1;
+    emitSpherePulse(
+      s,
+      getNearestSphere(s, s.player.pos) || { pos: { ...s.player.pos } } as SphereEntity,
+      (20 + lvl * 5) * sacrificeMultiplier,
+      final === 'darkritual_sacrifice_core' ? 145 : 130,
+      '#8a5a8a',
+    );
   }
   if (final === 'darkritual_void_engine' && s.player.hp / s.player.maxHp < 0.2) {
     for (const sphere of s.spheres) {
