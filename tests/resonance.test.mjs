@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { addResonanceCharge, clampResonanceCharge, RESONANCE_CHARGE, setResonanceCharge } from '../src/resonance.ts';
+import { addResonanceCharge, addResonanceChargeFromSource, clampResonanceCharge, RESONANCE_CHARGE, setResonanceCharge } from '../src/resonance.ts';
 
 test('Resonance uses a 0..100 base charge and emits an event at 100', () => {
   const state = { resonanceCharge: 96 };
@@ -49,4 +49,22 @@ test('explicit overflow opt-in remains separate from the baseline 0..100 contrac
   assert.equal(state.resonanceCharge, 100);
   setResonanceCharge(state, 150, true);
   assert.equal(state.resonanceCharge, 150);
+});
+
+test('source-routed charge uses the authoritative source amount and multiplier', () => {
+  const state = { resonanceCharge: 94 };
+  assert.equal(addResonanceChargeFromSource(state, 'geometry'), 0);
+  assert.equal(state.resonanceCharge, 99);
+  assert.equal(addResonanceChargeFromSource(state, 'sphereHit'), 1);
+  assert.equal(state.resonanceCharge, 0);
+
+  const scaled = { resonanceCharge: 50 };
+  assert.equal(addResonanceChargeFromSource(scaled, 'rune', 0.5), 0);
+  assert.equal(scaled.resonanceCharge, 80);
+});
+
+test('invalid Resonance state is normalized instead of poisoning the run resource', () => {
+  const state = { resonanceCharge: Number.NaN };
+  assert.equal(addResonanceCharge(state, 5), 0);
+  assert.equal(state.resonanceCharge, 5);
 });
