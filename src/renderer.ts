@@ -2019,7 +2019,7 @@ function drawGhostSnapPreview(ctx: CanvasRenderingContext2D, s: GameState): void
     const isCandidateLink = link.a === preview.candidateIndex || link.b === preview.candidateIndex;
     if (!isCandidateLink) continue;
     const otherIndex = link.a === preview.candidateIndex ? link.b : link.a;
-    const other = preview.network.nodes[otherIndex];
+    const other = preview.nodes[otherIndex];
     if (!other) continue;
     ctx.strokeStyle = preview.formation ? '#ffe08a' : '#7fcfff';
     ctx.globalAlpha = 0.62 * pulse;
