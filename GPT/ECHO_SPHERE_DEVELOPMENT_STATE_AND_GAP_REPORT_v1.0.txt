@@ -595,6 +595,8 @@ Confirmed technical findings accepted into the development process:
 - Semantic review flags were added so code presence is not treated as fully
   faithful gameplay semantics.
 - RNG and Level-Up regression coverage was added.
+- Boss telegraph timing moved into a shared pure runtime contract; brittle
+  literal-timing checks in the boss test were reduced to integration checks.
 
 [REVIEWED — NOT A BLOCKER]
 - Echo Drones are currently appended to the runtime Network graph through
