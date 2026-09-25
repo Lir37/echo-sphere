@@ -3,17 +3,6 @@ import fs from 'node:fs/promises';
 const root = new URL('../', import.meta.url);
 const read = async (file) => fs.readFile(new URL(file, root), 'utf8');
 
-function section(source, startMarker, endMarker) {
-  const start = source.indexOf(startMarker);
-  const end = source.indexOf(endMarker, start + startMarker.length);
-  if (start < 0 || end < 0) throw new Error(`Section not found: ${startMarker}`);
-  return source.slice(start + startMarker.length, end);
-}
-
-function numberedNames(source) {
-  return [...source.matchAll(/^\d{2}\s+([A-Z][A-Z0-9 ]+)$/gm)].map((m) => m[1].trim());
-}
-
 function quotedUnion(source, typeName) {
   const re = new RegExp(`export type ${typeName} = ([^;]+);`);
   const match = source.match(re);
@@ -106,7 +95,7 @@ const FINAL_SPHERES = ['STANDARD','SNIPER','CHAIN','SHOTGUN','AURA','ORBITAL','P
 const FINAL_MODIFIERS = ['MULTISHOT','PIERCE','RICOCHET','FIRE','FREEZE','POISON','BREACH','OVERLOAD','SPLIT','SHATTER','EXECUTE','MARK','ECHO','ANCHOR','PHASE','STATIC','RESONANT','MAGNETIC','VAMPIRIC','CORRUPT','DRAIN','AFTERIMAGE','IMPACT','GRAVITIC'];
 const FINAL_RUNES = ['overdrive','phase','harvest','purge','resonance','fortify','hunt','echo','gravity','runic_cell'];
 
-const [blueprint, gameData, engine, network, progression, runes, artifacts, gap] = await Promise.all([
+const [blueprint, gameData, engine, network, progression, runes, artifacts, mobileControls, gap] = await Promise.all([
   read('GPT/ECHO_SPHERE_MASTER_FINAL_GAMEPLAY_BLUEPRINT_v1.1.txt'),
   read('src/gameData.ts'),
   read('src/engine.ts'),
@@ -114,6 +103,7 @@ const [blueprint, gameData, engine, network, progression, runes, artifacts, gap]
   read('src/sphereProgression.ts'),
   read('src/runes.ts'),
   read('src/artifactSystem.ts'),
+  read('src/MobileControls.tsx'),
   read('GPT/ECHO_SPHERE_DEVELOPMENT_STATE_AND_GAP_REPORT_v1.0.txt'),
 ]);
 
@@ -128,6 +118,7 @@ const sphereBranchIds = [...new Set([...progression.matchAll(/br\('([^']+)'/g)].
 
 const finalAbilityReport = (items) => items.map(([name, id]) => ({
   name,
+  blueprintPresent: blueprint.includes(name),
   codeId: id,
   status: id && currentAbilities.includes(id) ? 'CODE+INTEGRATED' : 'MISSING',
   engineReferenced: Boolean(id && engine.includes(id)),
@@ -146,6 +137,7 @@ const audit = {
     implemented: FINAL_SPHERES.filter((name) => currentSpheres.includes(name.toLowerCase())),
     missing: FINAL_SPHERES.filter((name) => !currentSpheres.includes(name.toLowerCase())),
     levelUpSourceUsesAllImplementedTypes: engine.includes('Object.keys(SPHERE_TYPES) as SphereType[]'),
+    mobileSelectionUsesAllImplementedTypes: mobileControls.includes('Object.keys(SPHERE_TYPES) as SphereType[]'),
   },
   abilities: {
     finalActive: finalAbilityReport(FINAL_ACTIVE_ABILITIES),
