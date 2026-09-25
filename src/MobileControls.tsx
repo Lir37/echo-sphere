@@ -247,7 +247,7 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
         return;
       }
       if (st && pointer.moved) {
-        st.flashText = { text: lang === 'ru' ? 'Недоступная позиция' : 'Недоступная позиция', life: 0.65, color: '#ff4d5d' };
+        st.flashText = { text: lang === 'ru' ? 'Недоступная позиция' : 'Invalid position', life: 0.65, color: '#ff4d5d' };
         setGhostPreview(null);
         haptic(22);
       }
