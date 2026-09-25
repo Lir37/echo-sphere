@@ -8,6 +8,7 @@ test('level-up sphere selection uses deliberate build pressure weighting', () =>
   assert.match(engineSource, /export function getSphereUpgradeChoiceWeight\(s: GameState, type: SphereType\): number/);
   assert.match(engineSource, /const levelPressure = \(7 - level\) \* 0\.25;/);
   assert.match(engineSource, /const activeBuildPressure = activeCopies > 0 \? 1\.5 : 0;/);
+  assert.match(engineSource, /const characterAffinity = CHARACTER_DEFS\[s\.player\.characterId\]\?\.preferredSphereTypes/);
   assert.match(engineSource, /const spherePool = weightedShuffle\(s, sphereChoices/);
 });
 
@@ -15,7 +16,8 @@ test('level-up mixes Sphere, Modifier and Ability sources without dead slots', (
   assert.match(engineSource, /const activePool = \(Object\.keys\(ABILITIES\) as AbilityType\[\]\)/);
   assert.match(engineSource, /const passivePool = \(Object\.keys\(ABILITIES\) as AbilityType\[\]\)/);
   assert.match(engineSource, /const mixedPool: UpgradeChoice\[\] = \[\];/);
-  assert.match(engineSource, /for \(const choice of weightedShuffle\(s, sources, \(\) => 1\)\)/);
+  assert.match(engineSource, /const sourcePools = \[abilityPool, spherePool, modifierPool\];/);
+  assert.match(engineSource, /const candidates = sourcePools\.flatMap\(\(pool\) => pool\.slice\(0, 4\)\);/);
 });
 
 test('active Ability slots stay bounded and progressive', () => {
