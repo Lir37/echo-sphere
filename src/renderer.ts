@@ -7,6 +7,7 @@ import { getCharacterId, getCharacterFormation, getEngineerNetworkRange } from '
 import { analyzeSphereNetwork, type SphereNetworkState } from './network';
 import { buildRuntimeNetworkNodes } from './networkRuntime';
 import { RUNE_DEFS } from './runes';
+import { BOSS_TELEGRAPH_WINDOWS } from './bossBalance';
 
 // ===== Origami / Paper Craft Style =====
 // Warm backgrounds, faceted folded-paper shapes, fold lines, drop shadows.
@@ -2396,7 +2397,7 @@ function drawBossAttackTelegraph(
     }
   }
 
-  if (e.bossType === 'shooter' && e.bossShootTimer <= 0.7) {
+  if (e.bossType === 'shooter' && e.bossShootTimer <= BOSS_TELEGRAPH_WINDOWS.shooter) {
     const dx = playerPos.x - e.pos.x;
     const dy = playerPos.y - e.pos.y;
     const angle = Math.atan2(dy, dx);
@@ -2413,8 +2414,8 @@ function drawBossAttackTelegraph(
     ctx.setLineDash([]);
   }
 
-  if (e.bossType === 'summoner' && e.summonTimer <= 0.9) {
-    const progress = 1 - Math.max(0, e.summonTimer) / 0.9;
+  if (e.bossType === 'summoner' && e.summonTimer <= BOSS_TELEGRAPH_WINDOWS.summoner) {
+    const progress = 1 - Math.max(0, e.summonTimer) / BOSS_TELEGRAPH_WINDOWS.summoner;
     const ringRadius = r * (1.15 + progress * 2.2);
     ctx.strokeStyle = `rgba(162,124,255,${0.34 + pulse * 0.18})`;
     ctx.lineWidth = Math.max(1.5, r * 0.02);
@@ -2434,7 +2435,7 @@ function drawBossAttackTelegraph(
     }
   }
 
-  if (e.bossType === 'aura' && e.bossShootTimer <= 0.8) {
+  if (e.bossType === 'aura' && e.bossShootTimer <= BOSS_TELEGRAPH_WINDOWS.aura) {
     const ringRadius = e.auraRadius + r * (0.12 + (0.10 + pulse * 0.05));
     ctx.strokeStyle = `rgba(255,98,185,${0.42 + pulse * 0.20})`;
     ctx.lineWidth = Math.max(1.5, r * 0.02);
