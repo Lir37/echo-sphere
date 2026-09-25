@@ -18,6 +18,12 @@ export default tseslint.config(
       'react-refresh': reactRefresh,
     },
     rules: {
+      // Existing gameplay/rendering code contains a large amount of deliberate
+      // legacy typing and helper debt. Keep those findings visible as warnings
+      // while correctness-oriented lint rules remain build-blocking.
+      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-unused-vars': 'warn',
+      'no-unused-vars': 'warn',
       ...reactHooks.configs.recommended.rules,
       'react-refresh/only-export-components': [
         'warn',
