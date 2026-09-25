@@ -413,6 +413,98 @@ export class Echo3DRenderer {
       this.drawModelAdditive(this.facetCoreMesh,core,vp,def.color,def.accent,.94);
     }
 
+    // --- TYPE-SPECIFIC BODY / NON-PHYSICAL SECONDARIES -------------------
+    // Orbital satellites are visual combat emitters, not physics bodies. Their
+    // damage is resolved in engine.ts from the same angular positions; they are
+    // deliberately absent from s.spheres/enemies collision systems.
+    const drawTypeSpecificBody = () => {
+      if (s.type === 'orbital') {
+        const satelliteCount = Math.max(
+          1,
+          1 + (s.player.sphereMods?.multishot || 0)
+            + (s.player.artifacts.includes('orbital_crown') ? 1 : 0)
+            + (tier >= 7 && s.player.sphereBranches?.orbital === 'orbital_blade' ? 1 : 0),
+        );
+        const orbitR = base * (1.05 + tier * .035);
+        const satelliteSize = base * (tier >= 7 ? .14 : .115);
+        for (let i = 0; i < satelliteCount; i++) {
+          const a = s.rotation + t * 1.8 + i * Math.PI * 2 / satelliteCount;
+          const n:Vec3 = [
+            origin[0] + Math.cos(a) * orbitR,
+            origin[1] + Math.sin(a * 1.7 + t * 2.2) * base * .10,
+            origin[2] + Math.sin(a) * orbitR,
+          ];
+          this.drawModelAdditive(
+            this.facetCoreMesh,
+            mat4Multiply(mat4Translate(...n), mat4Multiply(mat4RotateY(-a), mat4Scale(satelliteSize, satelliteSize, satelliteSize))),
+            vp, def.color, def.accent, .98,
+          );
+          this.drawRing(n[0], n[2], satelliteSize * 1.55, -a * 1.7, def.accent, t, vp, .62);
+          if (tier >= 5) {
+            const trail:Vec3 = [
+              origin[0] + Math.cos(a - .22) * orbitR,
+              origin[1] + Math.sin((a - .22) * 1.7 + t * 2.2) * base * .10,
+              origin[2] + Math.sin(a - .22) * orbitR,
+            ];
+            this.drawBeamBetween(trail, n, base * .012, def.accent, '#ffffff', .32, vp);
+          }
+        }
+      } else if (s.type === 'gravity') {
+        // Gravity is a physical field, so its center must read as a body, not
+        // merely as an empty aura ring.
+        this.drawModelAdditive(
+          this.reactorShellMesh,
+          mat4Multiply(mat4Translate(...origin), mat4Multiply(mat4RotateY(rot * .35), mat4Scale(base * .72, base * .72, base * .72))),
+          vp, '#07101f', def.color, .92,
+        );
+        this.drawModelAdditive(
+          this.facetCoreMesh,
+          mat4Multiply(mat4Translate(origin[0], origin[1] - base * .03, origin[2]), mat4Scale(base * .42, base * .42, base * .42)),
+          vp, def.color, def.accent, .96,
+        );
+        const fieldR = SPHERE_TYPES.gravity.auraRadius * .34;
+        this.drawRing(origin[0], origin[2], fieldR, -rot * 1.4, def.color, t, vp, .34);
+        this.drawRing(origin[0], origin[2], fieldR * .72, rot * 1.9, def.accent, t, vp, .24);
+      } else if (s.type === 'prism') {
+        const prismScale = base * .52;
+        this.drawModelAdditive(
+          this.facetCoreMesh,
+          mat4Multiply(mat4Translate(...origin), mat4Multiply(mat4RotateY(rot), mat4Scale(prismScale, prismScale * 1.18, prismScale))),
+          vp, def.color, def.accent, 1,
+        );
+        for (let i = 0; i < 3; i++) {
+          const a = rot + i * Math.PI * 2 / 3;
+          const beam:Vec3 = [origin[0] + Math.cos(a) * base * .95, origin[1], origin[2] + Math.sin(a) * base * .95];
+          this.drawBeamBetween(origin, beam, base * .018, def.accent, '#ffffff', .52, vp);
+          this.drawModelAdditive(this.facetCoreMesh, mat4Translate(...beam), vp, def.accent, '#ffffff', .72);
+        }
+      } else if (s.type === 'pulse') {
+        const pulseR = base * (.56 + .05 * Math.sin(t * 4.5));
+        this.drawModelAdditive(
+          this.facetCoreMesh,
+          mat4Multiply(mat4Translate(...origin), mat4Multiply(mat4RotateY(rot), mat4Scale(pulseR, pulseR, pulseR))),
+          vp, def.color, def.accent, 1,
+        );
+        this.drawRing(origin[0], origin[2], base * (1.0 + .12 * Math.sin(t * 5.0)), rot * 1.8, def.accent, t, vp, .72);
+        this.drawRing(origin[0], origin[2], base * (1.35 + .18 * Math.sin(t * 5.0 + 1)), -rot * 1.25, def.color, t, vp, .42);
+      } else if (s.type === 'void') {
+        const voidR = base * (.60 + .08 * Math.sin(t * 2.6));
+        this.drawModel(
+          this.sphereMesh,
+          mat4Multiply(mat4Translate(...origin), mat4Scale(voidR, voidR, voidR)),
+          vp, '#01030a', def.color, .98,
+        );
+        this.drawModelAdditive(
+          this.facetCoreMesh,
+          mat4Multiply(mat4Translate(origin[0], origin[1], origin[2]), mat4Scale(voidR * .56, voidR * .56, voidR * .56)),
+          vp, '#05010b', def.accent, .94,
+        );
+        this.drawRing(origin[0], origin[2], base * 1.05, -rot * 1.4, def.color, t, vp, .72);
+        this.drawRing(origin[0], origin[2], base * 1.38, rot * .72, def.accent, t, vp, .34);
+      }
+    };
+    drawTypeSpecificBody();
+
     // --- REFERENCE-FAITHFUL SPHERICAL FRAME -------------------------------
     // The reference is built around great-circle lines and articulated vertices.
     // We reproduce that as actual 3D struts, not flat decals or sprites.
