@@ -42,6 +42,9 @@ export interface SphereNetworkProfile {
   triangle: boolean;
   square: boolean;
   cluster: boolean;
+  ring: boolean;
+  lattice: boolean;
+  fractal: boolean;
 }
 
 const DEFAULT_LINK_DISTANCE = 220;
@@ -304,5 +307,8 @@ export function getSphereNetworkProfile(
     triangle: Boolean(state.triangle?.nodes.includes(sphereIndex)),
     square: Boolean(state.square?.nodes.includes(sphereIndex)),
     cluster: Boolean(state.cluster?.nodes.includes(sphereIndex)),
+    ring: Boolean(state.ring?.nodes.includes(sphereIndex)),
+    lattice: Boolean(state.lattice?.nodes.includes(sphereIndex)),
+    fractal: Boolean(state.fractal?.nodes.includes(sphereIndex)),
   };
 }
