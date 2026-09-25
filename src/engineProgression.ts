@@ -43,10 +43,6 @@ const SPHERE_MODIFIER_CHOICES: ReadonlyArray<{
   },
 ];
 
-function pickArtifacts(s: GameState): ArtifactId[] {
-  return pickArtifactChoices(s, 3, false, () => nextRandom(s));
-}
-
 
 export function assignHotkey(s: GameState, ability: AbilityType): string {
   // already mapped?
