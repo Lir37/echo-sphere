@@ -23,10 +23,6 @@ export function getMoveSpeed(s: GameState): number {
   return sp;
 }
 
-export function getCooldownMult(s: GameState): number {
-  return getArtifactCooldownMultiplier(s);
-}
-
 export function getXpMult(s: GameState): number {
   let m = 1;
   m *= 1 + (s.shopUpgrades.xp || 0) * 0.05;
