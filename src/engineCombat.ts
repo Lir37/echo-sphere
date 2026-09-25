@@ -7,11 +7,11 @@ import type {
   Vec,
 } from './engineTypes';
 
-function dist(a: Vec, b: Vec): number {
+export function dist(a: Vec, b: Vec): number {
   return Math.hypot(a.x - b.x, a.y - b.y);
 }
 
-function rand(min: number, max: number): number {
+export function rand(min: number, max: number): number {
   return min + Math.random() * (max - min);
 }
 
@@ -37,7 +37,7 @@ export function getDamageTakenMult(s: GameState): number {
   return m;
 }
 
-function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSphere?: SphereEntity): void {
+export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSphere?: SphereEntity): void {
   let actual = dmg;
   let isCrit = false;
   // crit
@@ -75,7 +75,7 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
   }
 }
 
-function onEnemyDeath(s: GameState, enemy: EnemyEntity): void {
+export function onEnemyDeath(s: GameState, enemy: EnemyEntity): void {
   if (!enemy.isBoss) {
     s.player.kills++;
     s.stats.enemiesKilled++;
@@ -149,7 +149,7 @@ function onEnemyDeath(s: GameState, enemy: EnemyEntity): void {
   }
 }
 
-function pickArtifacts(s: GameState): ArtifactId[] {
+export function pickArtifacts(s: GameState): ArtifactId[] {
   const owned = new Set(s.player.artifacts);
   const pool = (Object.keys(ARTIFACT_MAP) as ArtifactId[]).filter(a => !owned.has(a));
   const choices: ArtifactId[] = [];
@@ -160,7 +160,7 @@ function pickArtifacts(s: GameState): ArtifactId[] {
   return choices;
 }
 
-function damagePlayer(s: GameState, amount: number): void {
+export function damagePlayer(s: GameState, amount: number): void {
   if (s.player.invulnerableTimer > 0) return;
   // dodge
   if (Math.random() < getDodgeChance(s)) {
