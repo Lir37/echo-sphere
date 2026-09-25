@@ -1,6 +1,4 @@
 import type { AbilityType, ArtifactId, SphereType, BossType, Difficulty } from './gameData';
-import type { CharacterId } from './characters';
-import type { RuneType } from './runes';
 
 export interface Vec { x: number; y: number; }
 
@@ -13,21 +11,11 @@ export interface PlayerState {
   xp: number;
   xpToNext: number;
   abilities: Partial<Record<AbilityType, number>>; // ability -> level
-  activeAbilitySlots: number; // non-Dash active slots currently unlocked
   evolutions: string[];
   artifacts: ArtifactId[];
   kills: number;
   mutationStage: number; // 0..4
   invulnerableTimer: number;
-  contactDamageCooldown: number;
-  resonanceCharge: number;
-  resonanceEventActive: boolean;
-  resonanceGeometryKey: string;
-  resonanceGeometryNodes: number[];
-  resonanceLineBurst: number;
-  resonanceRingTimer: number;
-  resonanceRingPulseTimer: number;
-  resonanceRingCursor: number;
   invulnUsed: boolean;
   shieldCharges: number;
   shieldTimer: number;
@@ -41,20 +29,16 @@ export interface PlayerState {
   lightningCooldown: number;
   timestopCooldown: number;
   darkritualCooldown: number;
-  overloadTimer: number;
   timestopTimer: number;
   swiftBootsTimer: number;
   chaosOrbTimer: number;
   chaosOrbBuff: 'dmg' | 'radius' | null;
   chaosOrbBuffTimer: number;
   teleportDamageBuffTimer: number;
-  fireCatalystTimer: number;
   blinkHpCost: boolean;
   sphereXpAccumulator: number;
-  sphereUpgradeCount: number;
-  sphereMods: SphereMods;
-  sphereProgression: Partial<Record<SphereType, number>>;
-  sphereBranches: Partial<Record<SphereType, import('./sphereProgression').SphereEvolutionId>>;
+  towerUpgradeCount: number;
+  towerMods: TowerMods;
   dashCooldown: number;
   dashTimer: number; // active dash i-frames
   dashDir: Vec;
@@ -65,17 +49,6 @@ export interface PlayerState {
   buffTimer: number; // temporary damage buff from chest
   eliteKills: number;
   chestOpens: number;
-  characterId: CharacterId;
-  characterMasteryLevel: number;
-  hunterMarkTarget: EnemyEntity | null;
-  hunterMarkTimer: number;
-  hunterHitCount: number;
-  hunterHuntTarget: EnemyEntity | null;
-  hunterHuntTimer: number;
-  hunterTrophyTimer: number;
-  engineerRelaySource: SphereEntity | null;
-  engineerRelayTimer: number;
-  alchemistCatalystTimer: number;
 }
 
 export interface SphereEntity {
@@ -86,10 +59,7 @@ export interface SphereEntity {
   attackTimer: number;
   rotation: number;
   alive: boolean;
-  networkDisabledTimer: number;
   killsContribution: number;
-  formationHitCount: number;
-  resonancePulseTimer: number;
   visualTier: number;
   type: SphereType;
   auraTimer: number;
@@ -107,8 +77,6 @@ export interface SphereProjectile {
   effect: 'none' | 'fire' | 'freeze' | 'poison';
   ricochet: number; // bounces remaining
   life: number;
-  sourceSphere?: SphereEntity;
-  procOnHit?: boolean;
 }
 
 export interface EnemyEntity {
@@ -118,7 +86,7 @@ export interface EnemyEntity {
   speed: number;
   radius: number;
   damage: number;
-  type: 'normal' | 'fast' | 'tank' | 'elite' | 'boss';
+  type: 'normal' | 'fast' | 'tank' | 'boss';
   color: string;
   shape: 'circle' | 'square' | 'triangle' | 'hexagon';
   slowTimer: number;
@@ -137,9 +105,6 @@ export interface EnemyEntity {
   poisonTimer: number;
   poisonDps: number;
   isElite: boolean;
-  elitePulseTimer: number;
-  elitePulseTelegraphTimer?: number;
-  elitePulseTarget?: SphereEntity;
   bossType: BossType;
   chargeTimer: number;
   isCharging: boolean;
@@ -204,17 +169,9 @@ export interface LightningBolt {
 }
 
 export interface UpgradeChoice {
-  type: 'ability' | 'sphere' | 'modifier';
+  type: 'ability' | 'evolve';
   ability?: AbilityType;
-  abilityEvolutionIndex?: number;
-  abilityStage?: 'upgrade' | 'branch' | 'final';
-  sphereType?: SphereType;
-  modifier?: keyof SphereMods;
-  sphereBranch?: import('./sphereProgression').SphereEvolutionId;
-  sphereFinalIndex?: number;
-  sphereStage?: 'upgrade' | 'branch' | 'final';
-  name?: { ru: string; en: string };
-  desc?: { ru: string; en: string };
+  evolution?: string;
   currentLevel: number;
   newLevel: number;
 }
@@ -241,14 +198,6 @@ export interface ChestEntity {
   radius: number;
 }
 
-export interface RuneEntity {
-  pos: Vec;
-  alive: boolean;
-  radius: number;
-  type: RuneType;
-  life: number;
-}
-
 export interface GameState {
   player: PlayerState;
   spheres: SphereEntity[];
@@ -269,18 +218,14 @@ export interface GameState {
   paused: boolean;
   gameOver: boolean;
   pendingUpgrade: UpgradeChoice[] | null;
-  levelUpPity: { ability: number; sphere: number; modifier: number };
   pendingArtifact: ArtifactId[] | null;
-  pendingStella: boolean;
-  stellaClaims: number;
-  stellaLegendaryClaims: number;
+  pendingEvolution: { choices: string[] } | null;
   stats: GameStats;
   screenShake: number;
   bossArrow: Vec | null;
   flashText: { text: string; life: number; color: string } | null;
   keys: Record<string, boolean>;
   mouse: { x: number; y: number; down: boolean };
-  formationMemory: { type: string; nodes: Vec[]; expiresAt: number } | null;
   worldWidth: number;
   worldHeight: number;
   mapTheme: MapTheme;
@@ -288,16 +233,14 @@ export interface GameState {
   activeKeyMap: Record<string, AbilityType>; // hotkey -> ability
   sphereProjectiles: SphereProjectile[];
   artifactPickupPending: boolean;
-  pendingSphereUpgrade: SphereUpgradeChoice[] | null;
+  pendingTowerUpgrade: TowerUpgradeChoice[] | null;
   damageNumbers: DamageNumber[];
   chests: ChestEntity[];
-  runes: RuneEntity[];
+  pendingChest: ChestEntity | null;
   difficulty: Difficulty;
   evolutionsThisRun: number;
   selectedSphereType: SphereType;
   shopUpgrades: Record<string, number>;
-  runSeed: number;
-  rngState: number;
 }
 
 export interface ShopState {
@@ -305,18 +248,27 @@ export interface ShopState {
   upgrades: Record<string, number>; // id -> level
 }
 
-export interface SphereMods {
+export interface TowerMods {
   multishot: number;  // extra projectiles per shot
   pierce: number;    // enemies a projectile passes through
   ricochet: number;  // bounce count
   fire: number;      // fire effect level (DoT)
   freeze: number;    // freeze effect level
-  poison: number;    // poison effect level (DoT)
+  poison: number;    // poison effect level
 }
 
-export interface SphereUpgradeChoice {
-  id: keyof SphereMods;
+export interface TowerUpgradeChoice {
+  id: keyof TowerMods;
   name: { ru: string; en: string };
   desc: { ru: string; en: string };
 }
 
+export interface LeaderEntry {
+  name: string;
+  time: number;
+  wave: number;
+  date: number;
+}
+
+export const DEFAULT_MAX_SPHERES = 5;
+export const MAX_SPHERES_CAP = 8;
