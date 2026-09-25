@@ -1,7 +1,7 @@
 import { BOSS_TYPES, DIFFICULTIES, SPHERE_TYPES } from './gameData';
 import { playSound } from './audio';
 import {
-  dealDamageToEnemy, damagePlayer, getCritChance, onEnemyDeath
+  dealDamageToEnemy, damagePlayer, damagePlayerDoT, getCritChance, onEnemyDeath
 } from './engineCombat';
 import {
   dist, rand, getAbilityBranchId, getNearestSphere, getNetworkNodes, getSphereFinalIndex
@@ -392,7 +392,7 @@ export function updateEnemies(s: GameState, dt: number): void {
       } else if (e.bossType === 'aura') {
         // aura damage to player
         if (dist(e.pos, s.player.pos) < e.auraRadius) {
-          damagePlayer(s, e.auraDps * dt);
+          damagePlayerDoT(s, e.auraDps * dt);
         }
         // also shoot occasionally
         e.bossShootTimer -= dt;
