@@ -20,7 +20,7 @@ export {
 export { getSlowRadius, getSlowFactor } from './engineEnemies';
 
 export {
-  getCritChance, getDodgeChance, getVampirePercent, getCooldownMult, getDamageTakenMult,
+  getCritChance, getDodgeChance, getVampirePercent, getCooldownMult, getDamageTakenMult, damagePlayerDoT,
 } from './engineCombat';
 
 export { activateByKey } from './engineAbilities';
