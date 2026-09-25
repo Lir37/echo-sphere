@@ -12,6 +12,7 @@ const engine = [
   'src/engineSpheres.ts',
   'src/engineAbilities.ts',
   'src/engineEnemies.ts',
+  'src/engineProgression.ts',
 ].map(read).join('\n');
 const characters = read('src/characters.ts');
 const artifacts = read('src/artifactSystem.ts');
