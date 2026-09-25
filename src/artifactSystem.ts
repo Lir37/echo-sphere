@@ -274,6 +274,10 @@ export function hasCompletedArtifactSet(
   return getCompletedArtifactSets(s).some((set) => set.id === setId);
 }
 
+export function getArtifactSetCompletionBonus(s: { player: { artifacts: string[] } }): number {
+  return getCompletedArtifactSets(s).length * 0.04;
+}
+
 export function getArtifactSetBehavior(s: { player: { artifacts: ArtifactId[] } }): {
   resonanceGrid: boolean;
   echoArchitecture: boolean;
