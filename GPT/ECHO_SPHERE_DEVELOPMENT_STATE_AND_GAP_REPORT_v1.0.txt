@@ -1145,3 +1145,32 @@ same-frame analyzeSphereNetwork() recomputation from Sphere/combat readers.
 ======================================================================
 END N3 RESONANCE FARMING FIX
 ======================================================================
+
+======================================================================
+N3 FINAL RECONCILIATION — 2026-09-26
+======================================================================
+
+Authoritative N3 state:
+- Branch: new-desing
+- HEAD: 09448ea71913607ac7b55b7e285f6a2dced73ecb
+- placeSphere/removeSphere no longer grant Resonance directly.
+- Geometry charge is awarded only when a formation key appears that has not
+  previously been the active formation in the current run.
+- Formation loss and same-key recovery do not recharge Resonance.
+- Regression coverage confirms the placement/removal contract and the new
+  formation-gain condition.
+- GitHub Actions #762: SUCCESS.
+- APK artifact built successfully: 4,668,387 bytes.
+- Playwright render metrics: rendererMode=2d, renderActive=true,
+  consoleErrors=0, pageErrors=0.
+- No device/emulator runtime playtest was performed in this environment.
+
+The earlier N3 update in this file was written before the final code commit
+was moved onto the branch. This reconciliation is authoritative for N3.
+
+NEXT:
+N2 — implement frame-level Network cache and remove redundant same-frame
+analyzeSphereNetwork() calls without changing gameplay semantics.
+======================================================================
+END N3 FINAL RECONCILIATION
+======================================================================
