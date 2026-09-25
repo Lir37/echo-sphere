@@ -26,7 +26,7 @@ import {
   dist, rand, getNetworkNodes, getSphereFinalIndex, getAbilityBranchId
 } from './engineRuntime';
 import {
-  dealDamageToEnemy, onEnemyDeath, triggerEngineerRelay
+  dealDamageToEnemy, onEnemyDeath, triggerEngineerRelay, consumeEngineerRelayBonus, emitSpherePulse
 } from './engineCombat';
 import {
   chargeResonance, syncResonanceGeometry, updateResonanceRing
