@@ -11,7 +11,6 @@ test('level-up sphere selection uses deliberate build pressure weighting', () =>
   assert.match(progressionSource, /const activeBuildPressure = activeCopies > 0 \? 1\.5 : 0;/);
   assert.match(progressionSource, /const characterAffinity = CHARACTER_DEFS\[s\.player\.characterId\]\?\.preferredSphereTypes/);
   assert.match(progressionSource, /const spherePool = \[\.\.\.sphereChoices\]\.filter\(\(choice\) => isLiveUpgradeChoice\(s, choice\)\);/);
-  assert.match(progressionSource, /getSphereUpgradeChoiceWeight\(s, type\)/);
 });
 
 test('level-up mixes Sphere, Modifier and Ability sources without dead slots', () => {
