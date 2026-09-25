@@ -1222,3 +1222,55 @@ that evidence is collected.
 ======================================================================
 END N2 NETWORK FRAME CACHE
 ======================================================================
+
+======================================================================
+CURRENT WORK SESSION UPDATE — ECHO ARCHIVE / KNOWLEDGE BASE — 2026-09-26
+======================================================================
+
+COMPLETED:
+- Added a main-menu "Архив Эха" / "Echo Archive" entry.
+- Added a dedicated progressive Knowledge Base screen with sections:
+  Core, Spheres, Monsters, Bosses, Abilities, Artifacts, Evolutions.
+- Core mechanics are always readable.
+- Resonance has a dedicated explanation covering purpose, charge sources,
+  100-charge trigger and formation-dependent events.
+- Spheres, abilities, artifacts, monsters, bosses and evolution entries
+  remain locked until the corresponding gameplay evidence exists.
+- Knowledge unlocks persist between runs through localStorage.
+- Current-run observation records encountered Spheres/enemies/bosses and
+  acquired abilities/artifacts/evolution choices without changing combat
+  logic.
+- Reset Progress also clears the knowledge archive.
+- Added mobile-friendly archive navigation/search while preserving the
+  existing 2.5D/Canvas gameplay path.
+
+VALIDATION:
+- CI #773: SUCCESS.
+- Typecheck: PASS.
+- Unit tests: PASS.
+- Gameplay coverage audit: PASS.
+- Lint: PASS.
+- Web build: PASS.
+- Playwright visual QA: PASS.
+- Capacitor Android sync: PASS.
+- Debug APK build/upload: PASS.
+- Final implementation HEAD before this documentation commit:
+  ce8fa3d9efd6cee1b4fba76e13e99d650ed7653b.
+- Final APK size: 4,676,479 bytes.
+- No emulator/device runtime manual test of the new Archive was performed
+  in this cycle; human PlayerCheck is still required.
+
+DESIGN NOTE:
+The archive is intentionally not a static spoiler encyclopedia. It is a
+persistent discovery system: the player gets the explanation only after
+encountering/obtaining the relevant object or mechanic. Resonance is
+explicitly open from the start because it is a core system the player must
+understand to play the game correctly.
+
+NEXT:
+Human PlayerCheck of the main-menu Archive and a short run to verify that
+unlock progression feels natural. If the archive is readable and useful,
+continue with gameplay feedback rather than expanding the content scope.
+======================================================================
+END ECHO ARCHIVE SESSION
+======================================================================
