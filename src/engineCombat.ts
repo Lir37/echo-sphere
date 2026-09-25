@@ -3,6 +3,7 @@ import { playSound } from './audio';
 import {
   getCharacterId,
   getCharacterDamageMultiplier,
+  getEngineerNetworkRange,
   getCharacterStatusDamageMultiplier,
   getHunterMarkMultiplier,
   shouldMarkHunterTarget,
@@ -21,6 +22,7 @@ import {
 import { sphereLevel, getActiveSphereAbilitySynergies } from './sphereProgression';
 import { analyzeSphereNetwork, getSphereNetworkProfile, getLinkedNodeIndexes } from './network';
 import { nextRandom } from './rng';
+import { RUNE_DEFS, type RuneType } from './runes';
 import { canReceivePlayerDamage, CRIT_BASE, CRIT_MULTIPLIER_BASE, getContextualCritChance } from './combatRules';
 import type { GameState, SphereEntity, EnemyEntity, Vec } from './engineTypes';
 import type { ArtifactId } from './gameData';
@@ -73,7 +75,7 @@ function registerHunterHit(s: GameState, enemy: EnemyEntity, sphere: SphereEntit
 }
 
 
-function consumeEngineerRelayBonus(s: GameState, sphere: SphereEntity): number {
+export function consumeEngineerRelayBonus(s: GameState, sphere: SphereEntity): number {
   if (getCharacterId(s) !== 'engineer') return 1;
   const source = s.player.engineerRelaySource;
   if (!source || s.player.engineerRelayTimer <= 0 || source === sphere) return 1;
@@ -85,7 +87,7 @@ function consumeEngineerRelayBonus(s: GameState, sphere: SphereEntity): number {
 }
 
 
-function triggerEngineerRelay(s: GameState, sphere: SphereEntity): void {
+export function triggerEngineerRelay(s: GameState, sphere: SphereEntity): void {
   if (getCharacterId(s) !== 'engineer') return;
   s.player.engineerRelaySource = sphere;
   s.player.engineerRelayTimer = s.player.characterMasteryLevel >= 4 ? 0.55 : 0.4;
@@ -97,9 +99,38 @@ function triggerEngineerRelay(s: GameState, sphere: SphereEntity): void {
   }
 }
 
+export function getCritChance(s: GameState, sphere?: SphereEntity): number {
+  let c = CRIT_BASE;
+  c += (s.player.abilities.crit || 0) * 0.1;
+  c += (s.shopUpgrades.crit || 0) * 0.05;
+  c += getArtifactCritChanceBonus(s);
+  if (sphere?.type === 'sniper' && sphereLevel(s, 'sniper') >= 3) c += 0.15;
+  return Math.min(0.75, c);
+}
+
+export function getDodgeChance(s: GameState): number {
+  return Math.min(0.75, (s.player.abilities.dodge || 0) * 0.1 + getArtifactDodgeChanceBonus(s));
+}
+
+export function getVampirePercent(s: GameState): number {
+  const lvl = s.player.abilities.vampire || 0;
+  return lvl * 0.03 + getArtifactVampireBonus(s);
+}
+
+export function getCooldownMult(s: GameState): number {
+  return getArtifactCooldownMultiplier(s);
+}
+
+export function getDamageTakenMult(s: GameState): number {
+  let m = 1;
+  m *= getCharacterDamageTakenMultiplier(s);
+  m *= getFormationDamageTakenMultiplier(s);
+  return m;
+}
+
 // ===== Damage application =====
 
-function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSphere?: SphereEntity, allowSphereProc = true): void {
+export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSphere?: SphereEntity, allowSphereProc = true): void {
   if (enemy.hp <= 0) return;
   if (fromSphere) registerHunterHit(s, enemy, fromSphere);
 
@@ -480,7 +511,7 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
 }
 
 
-function onEnemyDeath(s: GameState, enemy: EnemyEntity): void {
+export function onEnemyDeath(s: GameState, enemy: EnemyEntity): void {
   if (!enemy.isBoss) {
     s.player.kills++;
     s.stats.enemiesKilled++;
@@ -587,7 +618,7 @@ function pickArtifacts(s: GameState): ArtifactId[] {
 }
 
 
-function damagePlayer(s: GameState, amount: number): void {
+export function damagePlayer(s: GameState, amount: number): void {
   if (!canReceivePlayerDamage(s.player.invulnerableTimer, s.player.contactDamageCooldown)) return;
   // dodge
   if (nextRandom(s) < getDodgeChance(s)) {
