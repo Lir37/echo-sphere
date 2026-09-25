@@ -1,0 +1,26 @@
+# ECHO SPHERE — SPHERE/TOWER AUDIT v1.0
+Date: 2026-09-25
+Branch: new-desing
+
+## Scope
+Audit based on the two GPT source documents in this branch plus the current src runtime.
+
+## Critical finding
+The GPT gap report describes Orbital, Prism, Gravity, Pulse and Void as missing, but the current branch already contained all ten SphereType definitions and progression entries. The real defect was integration drift: the five new families existed in data while parts of the runtime still treated them as generic projectile/stat objects.
+
+## Fixed in runtime
+- All ten Sphere types are present in level-up progression and character weighting.
+- Orbital now uses a rotating satellite hit model and reacts to Ring/Cluster/network links; Dance, Halo and Blade branches have distinct runtime behavior.
+- Prism now uses dedicated beam targeting and network refraction; Split, Spectrum and Mirror branches are live.
+- Gravity now has a real pull/control field; Well, Tide and Collapse branches are live.
+- Pulse now uses periodic waves, additional wave behavior and Resonator-based Network Resonance; Wave, Resonator and Burst branches are live.
+- Void now has execution logic, weakened-target scaling, Reaper kill rewards/shards and Execution branch behavior.
+- New families interact with Engineer relay, Hunter marks, status modifiers, geometry, Resonance, artifacts and character affinities.
+- Type-specific artifact metadata was corrected so new-family artifacts no longer silently inherit generic Sphere Damage where their stated effect is specialized.
+- DPS estimation now has dedicated paths for the five non-projectile families.
+
+## Verification focus
+Regression coverage now asserts the ten-family inventory, all fifteen new branch ids, dedicated runtime dispatch, character affinity coverage and new-family artifact hooks.
+
+## Remaining
+Numerical balance still requires playtesting. The next pass should measure time-to-kill, control uptime, Resonance generation and boss damage for each sphere at levels I–VII.
