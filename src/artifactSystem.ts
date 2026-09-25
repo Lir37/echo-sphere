@@ -477,6 +477,24 @@ export function getSphereArtifactDamageMultiplier(s: any, sphere: any): number {
     multiplier *= 1 + strongest * 0.03;
   }
   if (hasArtifact(s, 'zero_sphere')) multiplier *= 1.20;
+  const specific: Partial<Record<string, number>> = {
+    sniper_scope: 1.10, chain_battery: 1.10, shotgun_shell: 1.10,
+    orbital_blade: 1.10, prism_shard: 1.10, prism_filter: 1.08,
+    gravity_crown: 1.20, void_ink: 1.10, void_lantern: 1.20,
+    pulse_driver: 1.08, pulse_crown: 1.10, sniper_crown: 1.10,
+    chain_crown: 1.10, orbital_crown: 1.10,
+  };
+  if (specific[sphere?.type + '_scope']) multiplier *= specific[sphere.type + '_scope']!;
+  const directId = sphere?.type === 'sniper' ? 'sniper_scope'
+    : sphere?.type === 'chain' ? 'chain_battery'
+      : sphere?.type === 'shotgun' ? 'shotgun_shell'
+        : sphere?.type === 'orbital' ? 'orbital_blade'
+          : sphere?.type === 'prism' ? 'prism_shard'
+            : sphere?.type === 'gravity' ? 'gravity_crown'
+              : sphere?.type === 'pulse' ? 'pulse_driver'
+                : sphere?.type === 'void' ? 'void_ink'
+                  : null;
+  if (directId && hasArtifact(s, directId as ArtifactId)) multiplier *= specific[directId] || 1;
   return multiplier;
 }
 
