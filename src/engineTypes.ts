@@ -1,4 +1,5 @@
 import type { AbilityType, ArtifactId, SphereType, BossType, Difficulty } from './gameData';
+export type { AbilityType, ArtifactId, SphereType, BossType, Difficulty } from './gameData';
 
 export interface Vec { x: number; y: number; }
 
