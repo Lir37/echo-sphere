@@ -5,6 +5,7 @@ import type { MapTheme, Vec } from './engine';
 import { CHARACTER_DEFS } from './characters';
 import { getCharacterId, getCharacterFormation, getEngineerNetworkRange } from './characterRuntime';
 import { analyzeSphereNetwork, type SphereNetworkState } from './network';
+import { buildRuntimeNetworkNodes } from './networkRuntime';
 import { RUNE_DEFS } from './runes';
 
 // ===== Origami / Paper Craft Style =====
@@ -160,7 +161,7 @@ export function render(ctx: CanvasRenderingContext2D, s: GameState, canvasW: num
 
   // The network is part of the battlefield, not a hidden calculation. Draw it
   // before the Spheres so links stay behind the authored sphere silhouettes.
-  drawSphereNetwork(ctx, s, analyzeSphereNetwork(getNetworkNodes(s)));
+  drawSphereNetwork(ctx, s, analyzeSphereNetwork(buildRuntimeNetworkNodes(s.spheres, s.minions, (s.player.abilities.minion || 0) >= 3)));
 
 function drawRune(ctx: CanvasRenderingContext2D, rune: GameState['runes'][number]): void {
   const def = RUNE_DEFS[rune.type];

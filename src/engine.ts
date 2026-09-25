@@ -30,6 +30,7 @@ import { getArtifactMoveSpeedMultiplier, getArtifactMaxHpBonus, getArtifactXpMul
 import { SPHERE_PROGRESSION, ABILITY_PROGRESSION, spherePriority, sphereLevel, sphereModifiers, SPHERE_ABILITY_SYNERGIES, getActiveSphereAbilitySynergies } from './sphereProgression';
 import { selectSphereTarget } from './targeting';
 import { analyzeSphereNetwork, getSphereNetworkProfile } from './network';
+import { buildRuntimeNetworkNodes } from './networkRuntime';
 import { RUNE_DEFS, type RuneType } from './runes';
 
 export interface Vec { x: number; y: number; }
@@ -742,13 +743,8 @@ function dist(a: Vec, b: Vec): number {
 
 // Real Network view used by gameplay systems. Temporary Echo Drones are
 // appended after stable Sphere indexes, so existing sphere profiles stay valid.
-export function getNetworkNodes(s: GameState): Array<{ pos: Vec; alive: boolean }> {
-  const nodes = s.spheres.map((sphere) => ({ pos: sphere.pos, alive: sphere.alive }));
-  if ((s.player.abilities.minion || 0) < 3) return nodes;
-  for (const minion of s.minions) {
-    nodes.push({ pos: minion.pos, alive: minion.life > 0 });
-  }
-  return nodes;
+function getNetworkNodes(s: GameState): Array<{ pos: Vec; alive: boolean }> {
+  return buildRuntimeNetworkNodes(s.spheres, s.minions, (s.player.abilities.minion || 0) >= 3);
 }
 function rand(min: number, max: number): number {
   return min + Math.random() * (max - min);
