@@ -754,7 +754,7 @@ function dist(a: Vec, b: Vec): number {
 function getNetworkNodes(s: GameState) {
   return buildRuntimeNetworkNodes(s.spheres, s.minions, (s.player.abilities.minion || 0) >= 3);
 }
-function rand(s,s: GameState, min: number, max: number): number {
+function rand(s: GameState, min: number, max: number): number {
   return min + nextRandom(s) * (max - min);
 }
 function clamp(v: number, min: number, max: number): number {
