@@ -216,6 +216,21 @@ export function analyzeSphereNetwork(
   };
 }
 
+export function getLinkedNodeIndexes(state: SphereNetworkState, nodeIndex: number): number[] {
+  const result: number[] = [];
+  for (const link of state.links) {
+    if (link.a === nodeIndex) result.push(link.b);
+    else if (link.b === nodeIndex) result.push(link.a);
+  }
+  return result;
+}
+
+export function areNetworkNodesLinked(state: SphereNetworkState, a: number, b: number): boolean {
+  return state.links.some((link) =>
+    (link.a === a && link.b === b) || (link.a === b && link.b === a)
+  );
+}
+
 export function getSphereNetworkProfile(
   state: SphereNetworkState,
   sphereIndex: number,
