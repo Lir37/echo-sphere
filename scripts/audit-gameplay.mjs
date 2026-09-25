@@ -161,10 +161,10 @@ const audit = {
   },
   semanticReviewFlags: [
     {
-      id: 'shield_echo_guard_per_sphere_claim',
-      severity: 'MEDIUM',
+      id: 'shield_echo_guard_description_alignment',
+      severity: 'INFO',
       status: engine.includes("branch === 'shield_echo_guard'"),
-      note: 'Blueprint progression text says nearby Spheres receive protective charges, but current SphereEntity has no per-Sphere shield state; shieldCharges is player-level.',
+      note: 'Shield evolution descriptions now match the runtime: nearby Spheres contribute to the player network shield rather than storing per-Sphere shield state.',
     },
     {
       id: 'minion_network_is_runtime_nodes',
