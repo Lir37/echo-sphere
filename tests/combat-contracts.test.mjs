@@ -39,7 +39,7 @@ test('Link Breaker has an explicit telegraph, disruption duration and cooldown c
   assert.equal(LINK_BREAKER_COOLDOWN_SECONDS, 6);
   assert.equal(LINK_BREAKER_TARGET_RANGE, 260);
 
-  const engine = fs.readFileSync(new URL('../src/engine.ts', import.meta.url), 'utf8');
+  const engine = fs.readFileSync(new URL('../src/engineEnemies.ts', import.meta.url), 'utf8');
   const renderer = fs.readFileSync(new URL('../src/renderer.ts', import.meta.url), 'utf8');
   assert.match(engine, /elitePulseTelegraphTimer/);
   assert.match(engine, /elitePulseTarget/);
