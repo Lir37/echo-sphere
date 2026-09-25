@@ -4,7 +4,7 @@ const root = new URL('../', import.meta.url);
 const read = async (file) => fs.readFile(new URL(file, root), 'utf8');
 
 function quotedUnion(source, typeName) {
-  const re = new RegExp(`export type ${typeName} = ([^;]+);`);
+  const re = new RegExp(`export type ${typeName} = ([\\s\\S]*?);`);
   const match = source.match(re);
   if (!match) throw new Error(`Union not found: ${typeName}`);
   return [...match[1].matchAll(/'([^']+)'/g)].map((m) => m[1]);
@@ -127,7 +127,7 @@ const finalAbilityReport = (items) => items.map(([name, id]) => ({
 
 const audit = {
   sourceOfTruth: {
-    blueprint: 'GPT/ECHO_SPHERE_MASTER_FINAL_GAMEPLAY_BLUEPRINT_v1.1.txt',
+    blueprint: 'GPT/ECHO_SPHERE_MASTER_FINAL_GAMEPLAY_BLUEPRINT_v1.2.txt',
     gapReport: 'GPT/ECHO_SPHERE_DEVELOPMENT_STATE_AND_GAP_REPORT_v1.0.txt',
     branch: 'new-desing',
   },
