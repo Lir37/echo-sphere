@@ -2061,7 +2061,7 @@ function drawGhostSnapPreview(ctx: CanvasRenderingContext2D, s: GameState): void
   ctx.arc(candidate.x, candidate.y, 12, 0, Math.PI * 2);
   ctx.fill();
   ctx.restore();
-\n}
+}
 
 function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, network: SphereNetworkState): void {
   if (network.nodes.length < 2) return;
