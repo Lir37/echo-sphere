@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 
-const engineSource = await fs.readFile(new URL('../src/engine.ts', import.meta.url), 'utf8');
+const engineLoopSource = await fs.readFile(new URL('../src/engineLoop.ts', import.meta.url), 'utf8');
 const progressionSource = await fs.readFile(new URL('../src/engineProgression.ts', import.meta.url), 'utf8');
 
 test('level-up sphere selection uses deliberate build pressure weighting', () => {
@@ -22,8 +22,8 @@ test('level-up mixes Sphere, Modifier and Ability sources without dead slots', (
 });
 
 test('active Ability slots stay bounded and progressive', () => {
-  assert.match(engineSource, /if \(s\.player\.level >= 5\) s\.player\.activeAbilitySlots/);
-  assert.match(engineSource, /if \(s\.player\.level >= 12\) s\.player\.activeAbilitySlots/);
-  assert.match(engineSource, /if \(s\.player\.level >= 20\) s\.player\.activeAbilitySlots/);
+  assert.match(engineLoopSource, /if \(s\.player\.level >= 5\) s\.player\.activeAbilitySlots/);
+  assert.match(engineLoopSource, /if \(s\.player\.level >= 12\) s\.player\.activeAbilitySlots/);
+  assert.match(engineLoopSource, /if \(s\.player\.level >= 20\) s\.player\.activeAbilitySlots/);
   assert.match(progressionSource, /activeCount < s\.player\.activeAbilitySlots/);
 });
