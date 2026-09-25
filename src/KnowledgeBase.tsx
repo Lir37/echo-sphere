@@ -53,10 +53,15 @@ function text(value: Localized, lang: Lang): string {
   return value[lang];
 }
 
+let knowledgeCache: Set<string> | null = null;
+
 export function recordKnowledge(ids: KnowledgeId[]): void {
-  const current = new Set(loadKnowledge());
-  const next = ids.filter((id) => !current.has(id));
-  if (next.length > 0) unlockKnowledge(next);
+  if (!knowledgeCache) knowledgeCache = new Set(loadKnowledge());
+  const next = ids.filter((id) => !knowledgeCache!.has(id));
+  if (next.length > 0) {
+    unlockKnowledge(next);
+    for (const id of next) knowledgeCache.add(id);
+  }
 }
 
 export function syncKnowledgeFromRun(s: {
