@@ -136,11 +136,13 @@ NETWORK
 [GATE] geometry importance during real play
 
 RESONANCE
-[DONE] foundation
-[DONE] triangle charge/proc
-[DONE] visual feedback
-[PARTIAL] final seven-geometry Resonance system
-[PARTIAL] Square Resonance is wired as a first playable combat effect; final seven-geometry event depth remains
+[DONE] player-level 0..100 charge resource
+[DONE] sphere-hit and Network/Geometry charge routing
+[DONE] 100-charge event trigger with remainder preservation
+[DONE] seven-geometry event selection hook
+[DONE] triangle/square local formation cadence preserved separately
+[PARTIAL] final seven-geometry event depth
+[PARTIAL] overflow rules
 [PARTIAL] overflow rules
 [REWORK] full Resonance event catalogue
 
@@ -809,8 +811,7 @@ COMPLETED IN CODE:
 - gameplay randomness remains on the seeded run RNG path.
 
 IN PROGRESS / NEXT:
-- migrate the final Resonance model from per-Sphere counters to the
-  authoritative 0..100 player-level charge resource;
+- expand final seven-geometry Resonance event depth and explicit overflow effects;
 - Ghost Snap placement preview;
 - Formation Memory/readability;
 - Level-Up RNG protections;
@@ -819,3 +820,34 @@ IN PROGRESS / NEXT:
 IMPORTANT:
 The full Blueprint target remains intact. No five-Sphere launch cap or
 other external scope cut has been adopted.
+
+
+======================================================================
+CURRENT WORK SESSION UPDATE — RESONANCE ALIGNMENT — 2026-09-25
+======================================================================
+
+The player-level Resonance resource is now aligned with the authoritative
+0..100 runtime model on branch new-desing.
+
+COMPLETED:
+- global PlayerState.resonanceCharge remains the authoritative run resource;
+- Sphere hits, Network events, Geometry transitions and Resonance Rune feed
+  the global resource through centralized charge constants;
+- crossing 100 now triggers the Resonance Event while preserving the
+  remaining charge instead of discarding it;
+- advanced Geometry selection (Ring/Lattice/Fractal) participates in the
+  Resonance formation selection path;
+- per-Sphere formationHitCount remains as a separate local cadence counter,
+  preserving Triangle/Square/Echo Architecture formation mechanics without
+  confusing it with player Resonance;
+- Resonance Rune now grants the Blueprint-defined 60 charge.
+
+REMAINING RESONANCE WORK:
+- final seven-Geometry event depth and balancing;
+- explicit overflow-cap mechanics for effects such as the future Zero Point;
+- additional direct Character/Artifact Resonance sources where their final
+  mechanics require them.
+
+======================================================================
+END OF RESONANCE ALIGNMENT UPDATE
+======================================================================

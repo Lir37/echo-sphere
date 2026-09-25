@@ -34,7 +34,7 @@ import { buildRuntimeNetworkNodes } from './networkRuntime';
 import { BOSS_CHARGER_COMMIT_SECONDS, BOSS_CHARGER_TOTAL_TELEGRAPH_SECONDS } from './bossBalance';
 import { RUNE_DEFS, type RuneType } from './runes';
 import { createRunSeed, createRngState, nextRandom } from './rng';
-import { addResonanceCharge } from './resonance';
+import { addResonanceCharge, RESONANCE_CHARGE } from './resonance';
 
 export interface Vec { x: number; y: number; }
 
@@ -118,7 +118,7 @@ export interface SphereEntity {
   alive: boolean;
   networkDisabledTimer: number;
   killsContribution: number;
-  resonanceHits: number;
+  formationHitCount: number;
   resonancePulseTimer: number;
   visualTier: number;
   type: SphereType;
@@ -554,7 +554,7 @@ export function createInitialState(
       alive: true,
       networkDisabledTimer: 0,
       killsContribution: 0,
-      resonanceHits: 0,
+      formationHitCount: 0,
       resonancePulseTimer: 0,
       visualTier: 0,
       type: 'standard',
@@ -770,17 +770,24 @@ function dist(a: Vec, b: Vec): number {
 function getNetworkNodes(s: GameState) {
   return buildRuntimeNetworkNodes(s.spheres, s.minions, (s.player.abilities.minion || 0) >= 3);
 }
-function resonanceFormationCenter(s: GameState, nodes: number[]): Vec {
-  const positions = nodes.map((index) => s.spheres[index]?.pos).filter((pos): pos is Vec => Boolean(pos));
+
+function getResonanceFormation(network: ReturnType<typeof analyzeSphereNetwork>) {
+  // Prefer the most structurally expressive active geometry for the event.
+  return network.fractal ?? network.lattice ?? network.ring ?? network.square ?? network.triangle ?? network.cluster ?? network.line;
+}
+
+function resonanceFormationCenter(s: GameState, nodes: number[], networkNodes = getNetworkNodes(s)): Vec {
+  const positions = nodes.map((index) => networkNodes[index]?.pos).filter((pos): pos is Vec => Boolean(pos));
   if (positions.length === 0) return { ...s.player.pos };
   return positions.reduce((acc, pos) => ({ x: acc.x + pos.x / positions.length, y: acc.y + pos.y / positions.length }), { x: 0, y: 0 });
 }
 
 function triggerResonanceEvent(s: GameState): void {
-  const network = analyzeSphereNetwork(getNetworkNodes(s));
-  const formation = network.fractal ?? network.lattice ?? network.ring ?? network.square ?? network.triangle ?? network.cluster ?? network.line;
+  const networkNodes = getNetworkNodes(s);
+  const network = analyzeSphereNetwork(networkNodes);
+  const formation = getResonanceFormation(network);
   const type = formation?.type ?? 'none';
-  const center = formation ? resonanceFormationCenter(s, formation.nodes) : { ...s.player.pos };
+  const center = formation ? resonanceFormationCenter(s, formation.nodes, networkNodes) : { ...s.player.pos };
   const baseDamage = 16 + s.player.level * 2;
   s.player.resonanceEventActive = true;
   try {
@@ -854,7 +861,7 @@ function chargeResonance(s: GameState, amount: number): void {
 }
 
 function syncResonanceGeometry(s: GameState, network = analyzeSphereNetwork(getNetworkNodes(s))): void {
-  const formation = network.square ?? network.triangle ?? network.cluster ?? network.line;
+  const formation = getResonanceFormation(network);
   const key = formation ? formation.type + ':' + formation.nodes.join(',') : 'none';
   if (key === s.player.resonanceGeometryKey) return;
 
@@ -875,7 +882,7 @@ function syncResonanceGeometry(s: GameState, network = analyzeSphereNetwork(getN
   const hadFormation = s.player.resonanceGeometryKey !== 'none';
   s.player.resonanceGeometryKey = key;
   s.player.resonanceGeometryNodes = formation ? [...formation.nodes] : [];
-  if (formation && (hadFormation || key !== 'none')) chargeResonance(s, 5);
+  if (formation && (hadFormation || key !== 'none')) chargeResonance(s, RESONANCE_CHARGE.geometry);
 }
 
 function rand(s: GameState, min: number, max: number): number {
@@ -1100,8 +1107,9 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
     const squareNetwork = analyzeSphereNetwork(getNetworkNodes(s));
     const squareProfile = getSphereNetworkProfile(squareNetwork, s.spheres.indexOf(fromSphere));
     if (squareProfile.square) {
-      fromSphere.resonanceHits++;
-      if (fromSphere.resonanceHits % 4 === 0) {
+      // Local cadence counter: deliberately separate from player Resonance resource.
+      fromSphere.formationHitCount++;
+      if (fromSphere.formationHitCount % 4 === 0) {
         fromSphere.resonancePulseTimer = 0.55;
         s.player.shieldCharges = Math.min(5, s.player.shieldCharges + 1);
       }
@@ -1322,19 +1330,20 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
   // buff from chest
   if (s.player.buffTimer > 0) actual *= 1.3;
   enemy.hp -= actual;
-  if (fromSphere) chargeResonance(s, 1);
+  if (fromSphere) chargeResonance(s, RESONANCE_CHARGE.sphereHit);
   enemy.hitFlash = 0.15;
 
   // Juicier impact: a short, directional burst makes every sphere hit readable.
+  // formationHitCount remains local to preserve formation cadence mechanics.
   if (fromSphere) {
     const sphereIndex = s.spheres.indexOf(fromSphere);
     const network = analyzeSphereNetwork(getNetworkNodes(s));
     const profile = getSphereNetworkProfile(network, sphereIndex);
     if (profile.triangle) {
-      fromSphere.resonanceHits++;
+      fromSphere.formationHitCount++;
       const setBehavior = getArtifactSetBehavior(s);
       const trianglePulseEvery = setBehavior.resonanceGrid ? 2 : 3;
-      if (fromSphere.resonanceHits % trianglePulseEvery === 0) {
+      if (fromSphere.formationHitCount % trianglePulseEvery === 0) {
         fromSphere.resonancePulseTimer = 0.45;
         const pulseDamage = actual * 0.35;
         const pulseRadius = 88;
@@ -1350,13 +1359,13 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
 
     // Echo Architecture completion creates a real relay event between linked Spheres.
     const setBehavior = getArtifactSetBehavior(s);
-    if (setBehavior.echoArchitecture && fromSphere.resonanceHits > 0 && fromSphere.resonanceHits % 5 === 0) {
+    if (setBehavior.echoArchitecture && fromSphere.formationHitCount > 0 && fromSphere.formationHitCount % 5 === 0) {
       const relayNetwork = analyzeSphereNetwork(getNetworkNodes(s));
       const linked = getLinkedNodeIndexes(relayNetwork, s.spheres.indexOf(fromSphere));
       const targetIndex = linked.find((index) => s.spheres[index]?.alive);
       if (targetIndex !== undefined) {
         const relay = s.spheres[targetIndex];
-        relay.resonanceHits += 2;
+        relay.formationHitCount += 2;
         relay.resonancePulseTimer = Math.max(relay.resonancePulseTimer, 0.35);
         s.lightnings.push({ from: { ...fromSphere.pos }, to: { ...relay.pos }, life: 0.20 });
       }
@@ -3514,9 +3523,9 @@ function activateRune(s: GameState, rune: RuneEntity): void {
       }
       break;
     case 'resonance':
-      chargeResonance(s, 10);
+      chargeResonance(s, RESONANCE_CHARGE.rune);
       for (const sphere of s.spheres) {
-        sphere.resonanceHits += 2;
+        sphere.formationHitCount += 2;
         sphere.resonancePulseTimer = Math.max(sphere.resonancePulseTimer, 0.5);
       }
       break;
@@ -3628,7 +3637,7 @@ export function placeSphere(s: GameState, x: number, y: number): void {
     alive: true,
     networkDisabledTimer: 0,
     killsContribution: 0,
-    resonanceHits: 0,
+    formationHitCount: 0,
     resonancePulseTimer: 0,
     visualTier: sphereLevel(s, s.selectedSphereType),
     type: s.selectedSphereType,
@@ -3639,7 +3648,7 @@ export function placeSphere(s: GameState, x: number, y: number): void {
     const a = nextRandom(s) * Math.PI * 2;
     s.particles.push({ pos: { x, y }, vel: { x: Math.cos(a) * 120, y: Math.sin(a) * 120 }, life: 0.5, maxLife: 0.5, color: stype.color, size: 3 });
   }
-  chargeResonance(s, 5);
+  chargeResonance(s, RESONANCE_CHARGE.network);
   playSound('place');
 }
 
@@ -3654,5 +3663,5 @@ export function removeSphere(s: GameState, sphere: SphereEntity): void {
     const a = nextRandom(s) * Math.PI * 2;
     s.particles.push({ pos: { ...sphere.pos }, vel: { x: Math.cos(a) * 120, y: Math.sin(a) * 120 }, life: 0.5, maxLife: 0.5, color: '#b8475a', size: 3 });
   }
-  chargeResonance(s, 5);
+  chargeResonance(s, RESONANCE_CHARGE.network);
 }

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { addResonanceCharge, clampResonanceCharge, setResonanceCharge } from '../src/resonance.ts';
+import { addResonanceCharge, clampResonanceCharge, RESONANCE_CHARGE, setResonanceCharge } from '../src/resonance.ts';
 
 test('Resonance uses a 0..100 base charge and emits an event at 100', () => {
   const state = { resonanceCharge: 96 };
@@ -10,10 +10,21 @@ test('Resonance uses a 0..100 base charge and emits an event at 100', () => {
   assert.equal(state.resonanceCharge, 0);
 });
 
-test('normal Resonance charge cannot overflow above 100 before event resolution', () => {
+test('crossing 100 preserves the remainder after the Resonance Event', () => {
   const state = { resonanceCharge: 90 };
   assert.equal(addResonanceCharge(state, 40), 1);
-  assert.equal(state.resonanceCharge, 0);
+  assert.equal(state.resonanceCharge, 30);
+
+  state.resonanceCharge = 50;
+  assert.equal(addResonanceCharge(state, RESONANCE_CHARGE.rune), 1);
+  assert.equal(state.resonanceCharge, 10);
+});
+
+test('authoritative source amounts match the current Blueprint-aligned runtime', () => {
+  assert.equal(RESONANCE_CHARGE.sphereHit, 1);
+  assert.equal(RESONANCE_CHARGE.geometry, 5);
+  assert.equal(RESONANCE_CHARGE.network, 5);
+  assert.equal(RESONANCE_CHARGE.rune, 60);
 });
 
 test('overflow is limited to 150 only when explicitly enabled', () => {
