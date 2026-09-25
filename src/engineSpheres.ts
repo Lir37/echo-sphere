@@ -1,4 +1,5 @@
 import { SPHERE_TYPES } from './gameData';
+import type { SphereType } from './gameData';
 import { playSound } from './audio';
 import {
   getCharacterRadiusMultiplier,
@@ -22,7 +23,7 @@ import { buildRuntimeNetworkNodes } from './networkRuntime';
 import { nextRandom } from './rng';
 import type { GameState, SphereEntity, EnemyEntity, Vec } from './engineTypes';
 import {
-  dist, rand, getNetworkNodes, getSphereFinalIndex
+  dist, rand, getNetworkNodes, getSphereFinalIndex, getAbilityBranchId
 } from './engineRuntime';
 import {
   dealDamageToEnemy, onEnemyDeath, triggerEngineerRelay
@@ -33,6 +34,11 @@ import {
 import {
   DEFAULT_MAX_SPHERES, MAX_SPHERES_CAP,
   BASE_SPHERE_RADIUS, BASE_SPHERE_DAMAGE, BASE_SPHERE_DELAY
+} from './engineBalanceConstants';
+
+export {
+  DEFAULT_MAX_SPHERES, MAX_SPHERES_CAP,
+  BASE_SPHERE_RADIUS, BASE_SPHERE_DAMAGE, BASE_SPHERE_DELAY,
 } from './engineBalanceConstants';
 
 export function getMaxSpheres(s: GameState): number {
@@ -375,7 +381,7 @@ function updatePulseSphere(s: GameState, sphere: SphereEntity, damage: number, m
   triggerEngineerRelay(s, sphere);
 }
 
-function updateSpheres(s: GameState, dt: number): void {
+export function updateSpheres(s: GameState, dt: number): void {
   // Network topology is stable for the duration of this Sphere update pass.
   // Analyze it once so Resonance geometry cannot double-charge within a frame
   // and the per-Sphere profiles all observe the same topology snapshot.
