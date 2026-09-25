@@ -2281,6 +2281,77 @@ function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, network:
     ctx.restore();
 
   }
+
+  if (network.ring) {
+    const points = network.ring.nodes.map((index) => s.spheres[index].pos);
+    ctx.save();
+    ctx.strokeStyle = '#55e69a';
+    ctx.globalAlpha = 0.24 + 0.08 * Math.sin(t * 5);
+    ctx.lineWidth = 1.6;
+    ctx.shadowColor = '#55e69a';
+    ctx.shadowBlur = 14;
+    ctx.setLineDash([5, 6]);
+    ctx.beginPath();
+    points.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+    ctx.closePath();
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+  }
+
+  if (network.lattice) {
+    let cx = 0;
+    let cy = 0;
+    for (const index of network.lattice.nodes) {
+      cx += s.spheres[index].pos.x;
+      cy += s.spheres[index].pos.y;
+    }
+    cx /= network.lattice.nodes.length;
+    cy /= network.lattice.nodes.length;
+    ctx.save();
+    ctx.strokeStyle = '#39d8ff';
+    ctx.globalAlpha = 0.20 + 0.06 * Math.sin(t * 6);
+    ctx.lineWidth = 1;
+    for (const index of network.lattice.nodes) {
+      const p = s.spheres[index].pos;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+      ctx.globalAlpha = 0.62;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 2.8 + Math.sin(t * 7 + index) * 0.7, 0, Math.PI * 2);
+      ctx.fillStyle = '#39d8ff';
+      ctx.fill();
+      ctx.globalAlpha = 0.20 + 0.06 * Math.sin(t * 6);
+    }
+    ctx.restore();
+  }
+
+  if (network.fractal) {
+    const points = network.fractal.nodes.map((index) => s.spheres[index].pos);
+    let cx = 0;
+    let cy = 0;
+    for (const p of points) { cx += p.x; cy += p.y; }
+    cx /= points.length;
+    cy /= points.length;
+    let radius = 0;
+    for (const p of points) radius = Math.max(radius, Math.hypot(p.x - cx, p.y - cy));
+    ctx.save();
+    ctx.strokeStyle = '#ff6b9d';
+    ctx.globalAlpha = 0.24 + 0.10 * Math.sin(t * 8);
+    ctx.lineWidth = 1.2;
+    ctx.shadowColor = '#ff6b9d';
+    ctx.shadowBlur = 18;
+    ctx.setLineDash([3, 5]);
+    for (const scale of [1, 0.62, 0.34]) {
+      ctx.beginPath();
+      ctx.arc(cx, cy, Math.max(8, radius * scale), 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    ctx.setLineDash([]);
+    ctx.restore();
+  }
 }
 function drawVoidCore(ctx:CanvasRenderingContext2D,r:number,color:string,pulse=1):void{
   const rgb=hexToRgb(color);
