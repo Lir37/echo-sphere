@@ -265,8 +265,25 @@ export function getArtifactProtocolStates(s: {
   });
 }
 
-export function getArtifactSetCompletionBonus(s: { player: { artifacts: ArtifactId[] } }): number {
-  return getCompletedArtifactSets(s).length * 0.04;
+export type ArtifactSetBehavior = 'resonance_grid' | 'echo_architecture' | 'singularity_path';
+
+export function hasCompletedArtifactSet(
+  s: { player: { artifacts: ArtifactId[] } },
+  setId: ArtifactSetDef['id'],
+): boolean {
+  return getCompletedArtifactSets(s).some((set) => set.id === setId);
+}
+
+export function getArtifactSetBehavior(s: { player: { artifacts: ArtifactId[] } }): {
+  resonanceGrid: boolean;
+  echoArchitecture: boolean;
+  singularityPath: boolean;
+} {
+  return {
+    resonanceGrid: hasCompletedArtifactSet(s, 'resonance_grid'),
+    echoArchitecture: hasCompletedArtifactSet(s, 'echo_architecture'),
+    singularityPath: hasCompletedArtifactSet(s, 'singularity_path'),
+  };
 }
 
 export function getArtifactSetCompletionPulse(s: { player: { artifacts: ArtifactId[] } }): number {
