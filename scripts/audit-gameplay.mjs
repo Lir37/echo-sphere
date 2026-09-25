@@ -96,7 +96,7 @@ const FINAL_MODIFIERS = ['MULTISHOT','PIERCE','RICOCHET','FIRE','FREEZE','POISON
 const FINAL_RUNES = ['overdrive','phase','harvest','purge','resonance','fortify','hunt','echo','gravity','runic_cell'];
 
 const [blueprint, gameData, engine, network, progression, runes, artifacts, mobileControls, gap] = await Promise.all([
-  read('GPT/ECHO_SPHERE_MASTER_FINAL_GAMEPLAY_BLUEPRINT_v1.1.txt'),
+  read('GPT/ECHO_SPHERE_MASTER_FINAL_GAMEPLAY_BLUEPRINT_v1.2.txt'),
   read('src/gameData.ts'),
   read('src/engine.ts'),
   read('src/network.ts'),
