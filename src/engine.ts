@@ -34,7 +34,7 @@ import { buildRuntimeNetworkNodes } from './networkRuntime';
 import { BOSS_CHARGER_COMMIT_SECONDS, BOSS_CHARGER_TOTAL_TELEGRAPH_SECONDS } from './bossBalance';
 import { RUNE_DEFS, type RuneType } from './runes';
 import { createRunSeed, createRngState, nextRandom } from './rng';
-import { addResonanceCharge, RESONANCE_CHARGE } from './resonance';
+import { addResonanceChargeFromSource, type ResonanceSource } from './resonance';
 
 export interface Vec { x: number; y: number; }
 
@@ -929,9 +929,9 @@ function updateResonanceRing(
   }
 }
 
-function chargeResonance(s: GameState, amount: number): void {
-  if (amount <= 0 || s.player.resonanceEventActive) return;
-  const events = addResonanceCharge(s.player, amount, false);
+function chargeResonance(s: GameState, source: ResonanceSource): void {
+  if (s.player.resonanceEventActive) return;
+  const events = addResonanceChargeFromSource(s.player, source);
   for (let i = 0; i < events; i++) triggerResonanceEvent(s);
 }
 
@@ -957,7 +957,7 @@ function syncResonanceGeometry(s: GameState, network = analyzeSphereNetwork(getN
   const hadFormation = s.player.resonanceGeometryKey !== 'none';
   s.player.resonanceGeometryKey = key;
   s.player.resonanceGeometryNodes = formation ? [...formation.nodes] : [];
-  if (formation && (hadFormation || key !== 'none')) chargeResonance(s, RESONANCE_CHARGE.geometry);
+  if (formation && (hadFormation || key !== 'none')) chargeResonance(s, 'geometry');
 }
 
 function rand(s: GameState, min: number, max: number): number {
@@ -1405,7 +1405,7 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
   // buff from chest
   if (s.player.buffTimer > 0) actual *= 1.3;
   enemy.hp -= actual;
-  if (fromSphere) chargeResonance(s, RESONANCE_CHARGE.sphereHit);
+  if (fromSphere) chargeResonance(s, 'sphereHit');
   enemy.hitFlash = 0.15;
 
   // Juicier impact: a short, directional burst makes every sphere hit readable.
@@ -3601,7 +3601,7 @@ function activateRune(s: GameState, rune: RuneEntity): void {
       }
       break;
     case 'resonance':
-      chargeResonance(s, RESONANCE_CHARGE.rune);
+      chargeResonance(s, 'rune');
       for (const sphere of s.spheres) {
         sphere.formationHitCount += 2;
         sphere.resonancePulseTimer = Math.max(sphere.resonancePulseTimer, 0.5);
@@ -3726,7 +3726,7 @@ export function placeSphere(s: GameState, x: number, y: number): void {
     const a = nextRandom(s) * Math.PI * 2;
     s.particles.push({ pos: { x, y }, vel: { x: Math.cos(a) * 120, y: Math.sin(a) * 120 }, life: 0.5, maxLife: 0.5, color: stype.color, size: 3 });
   }
-  chargeResonance(s, RESONANCE_CHARGE.network);
+  chargeResonance(s, 'network');
   playSound('place');
 }
 
@@ -3741,5 +3741,5 @@ export function removeSphere(s: GameState, sphere: SphereEntity): void {
     const a = nextRandom(s) * Math.PI * 2;
     s.particles.push({ pos: { ...sphere.pos }, vel: { x: Math.cos(a) * 120, y: Math.sin(a) * 120 }, life: 0.5, maxLife: 0.5, color: '#b8475a', size: 3 });
   }
-  chargeResonance(s, RESONANCE_CHARGE.network);
+  chargeResonance(s, 'network');
 }
