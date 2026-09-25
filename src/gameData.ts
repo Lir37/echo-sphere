@@ -91,7 +91,7 @@ export const ARTIFACTS: ArtifactDef[] = [
 
   // Legendary
   { id: 'zero_sphere', name: { ru: 'Нулевая сфера', en: 'Zero Sphere' }, desc: { ru: '+35% мощности сфер и +20% урона сфер', en: '+35% sphere power and +20% sphere damage' } },
-  { id: 'unified_mind', name: { ru: 'Единый разум', en: 'Unified Mind' }, desc: { ru: 'самый высокий уровень сферы передаёт 3% за уровень всей сети', en: 'the highest sphere level grants 3% damage per level' },
+  { id: 'unified_mind', name: { ru: 'Единый разум', en: 'Unified Mind' }, desc: { ru: 'самый высокий уровень сферы передаёт 3% за уровень всей сети', en: 'the highest sphere level grants 3% damage per level' } },
   { id: 'network_anchor', name: { ru: 'Якорь сети', en: 'network anchor' }, desc: { ru: '+8% к урону сети', en: 'network anchor effect' } },
   { id: 'pulse_lens', name: { ru: 'Линза импульса', en: 'pulse lens' }, desc: { ru: '+10% к радиусу импульсов', en: 'pulse lens effect' } },
   { id: 'orbit_charm', name: { ru: 'Талисман орбиты', en: 'orbit charm' }, desc: { ru: '+12% к силе орбит', en: 'orbit charm effect' } },
