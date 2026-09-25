@@ -2230,7 +2230,10 @@ export function getSphereUpgradeChoiceWeight(s: GameState, type: SphereType): nu
 }
 
 export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
-  const sphereTypes = VERTICAL_SLICE_SPHERE_TYPES.filter((type) => type in SPHERE_PROGRESSION);
+  // All currently implemented Spheres are valid Level-Up sources. The old
+  // vertical-slice gate hid Shotgun and Aura despite their preserved implementations.
+  const sphereTypes = (Object.keys(SPHERE_TYPES) as SphereType[])
+    .filter((type) => type in SPHERE_PROGRESSION);
   const availableSpheres = sphereTypes.filter((type) => sphereLevel(s, type) < 7);
 
   const sphereChoices: UpgradeChoice[] = availableSpheres.map((type) => {
