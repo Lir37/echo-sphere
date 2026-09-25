@@ -17,9 +17,9 @@ function artifactIds(source) {
 }
 
 function abilityIds(source) {
-  const start = source.indexOf('export const ABILITIES');
-  const end = source.indexOf('export const ARTIFACTS', start);
-  return [...source.slice(start, end).matchAll(/^(?:\s*)([a-z][a-z0-9_]*)\s*:/gm)].map((m) => m[1]);
+  const match = source.match(/export type AbilityType = ([^;]+);/);
+  if (!match) throw new Error('AbilityType union not found');
+  return [...match[1].matchAll(/'([^']+)'/g)].map((m) => m[1]);
 }
 
 function runeIds(source) {
