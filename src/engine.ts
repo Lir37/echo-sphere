@@ -33,6 +33,7 @@ import { analyzeSphereNetwork, getSphereNetworkProfile, getLinkedNodeIndexes } f
 import { buildRuntimeNetworkNodes } from './networkRuntime';
 import { BOSS_CHARGER_COMMIT_SECONDS, BOSS_CHARGER_TOTAL_TELEGRAPH_SECONDS } from './bossBalance';
 import { RUNE_DEFS, type RuneType } from './runes';
+import { createRunSeed, createRngState, nextRandom } from './rng';
 
 export interface Vec { x: number; y: number; }
 
@@ -313,6 +314,8 @@ export interface GameState {
   evolutionsThisRun: number;
   selectedSphereType: SphereType;
   shopUpgrades: Record<string, number>;
+  runSeed: number;
+  rngState: number;
 }
 
 export interface ShopState {
@@ -453,6 +456,8 @@ export function createInitialState(
   difficulty: Difficulty = 'normal',
   mapTheme: MapTheme = 'parchment',
 ): GameState {
+  const runSeed = createRunSeed(playerName, difficulty, mapTheme);
+  const rngState = createRngState(runSeed);
   const characterId = loadCharacterId();
   const profile = loadCharacterProfiles().find((item) => item.id === characterId);
   const characterMasteryLevel = profile?.masteryLevel || 1;
@@ -581,6 +586,8 @@ export function createInitialState(
     evolutionsThisRun: 0,
     selectedSphereType: 'standard',
     shopUpgrades: { ...shop.upgrades },
+    runSeed,
+    rngState,
   };
 }
 
@@ -747,8 +754,8 @@ function dist(a: Vec, b: Vec): number {
 function getNetworkNodes(s: GameState) {
   return buildRuntimeNetworkNodes(s.spheres, s.minions, (s.player.abilities.minion || 0) >= 3);
 }
-function rand(min: number, max: number): number {
-  return min + Math.random() * (max - min);
+function rand(s,s: GameState, min: number, max: number): number {
+  return min + nextRandom(s) * (max - min);
 }
 function clamp(v: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, v));
@@ -771,7 +778,7 @@ export function assignHotkey(s: GameState, ability: AbilityType): string {
 // ===== Wave spawning =====
 function spawnEnemy(s: GameState, isBoss: boolean): EnemyEntity {
   const wave = s.wave;
-  const angle = Math.random() * Math.PI * 2;
+  const angle = nextRandom(s) * Math.PI * 2;
   const spawnDist = 700;
   const px = s.player.pos.x + Math.cos(angle) * spawnDist;
   const py = s.player.pos.y + Math.sin(angle) * spawnDist;
@@ -814,7 +821,7 @@ function spawnEnemy(s: GameState, isBoss: boolean): EnemyEntity {
       auraDps: bt === 'aura' ? 10 + wave * 2 : 0,
     };
   }
-  const r = Math.random();
+  const r = nextRandom(s);
   let type: EnemyEntity['type'] = 'normal';
   let hp = (BALANCE.normalHpBase + wave * BALANCE.normalHpPerWave) * diff.enemyHpMult;
   let speed = (BALANCE.normalSpeedBase + wave * BALANCE.normalSpeedPerWave) * diff.enemySpeedMult;
@@ -826,7 +833,7 @@ function spawnEnemy(s: GameState, isBoss: boolean): EnemyEntity {
   else if (r < 0.35 && wave > 4) { type = 'tank'; hp = (BALANCE.tankHpBase + wave * BALANCE.tankHpPerWave) * diff.enemyHpMult; speed = (BALANCE.tankSpeedBase + wave * BALANCE.tankSpeedPerWave) * diff.enemySpeedMult; radius = 20; dmg = (BALANCE.tankDamageBase + wave * BALANCE.tankDamagePerWave) * diff.enemyDamageMult; color = '#8a5a8a'; shape = 'square'; }
   // elite chance: 5% after wave 5, scales up
   const baseType = type;
-  const isElite = wave > 5 && Math.random() < Math.min(0.12, 0.03 + wave * 0.005);
+  const isElite = wave > 5 && nextRandom(s) < Math.min(0.12, 0.03 + wave * 0.005);
   if (isElite) {
     hp *= 3;
     radius += 4;
@@ -886,8 +893,8 @@ function registerHunterHit(s: GameState, enemy: EnemyEntity, sphere: SphereEntit
     p.hunterMarkTimer = duration;
     p.hunterHitCount = 1;
     for (let i = 0; i < 10; i++) {
-      const a = Math.random() * Math.PI * 2;
-      const speed = 50 + Math.random() * 80;
+      const a = nextRandom(s) * Math.PI * 2;
+      const speed = 50 + nextRandom(s) * 80;
       s.particles.push({
         pos: { ...enemy.pos },
         vel: { x: Math.cos(a) * speed, y: Math.sin(a) * speed },
@@ -904,8 +911,8 @@ function registerHunterHit(s: GameState, enemy: EnemyEntity, sphere: SphereEntit
     p.hunterHuntTimer = 3;
     p.hunterHitCount = 0;
     for (let i = 0; i < 18; i++) {
-      const a = Math.random() * Math.PI * 2;
-      const r = 18 + Math.random() * 24;
+      const a = nextRandom(s) * Math.PI * 2;
+      const r = 18 + nextRandom(s) * 24;
       s.particles.push({
         pos: { x: enemy.pos.x + Math.cos(a) * r, y: enemy.pos.y + Math.sin(a) * r },
         vel: { x: 0, y: -25 },
@@ -962,7 +969,7 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
     critChance += 0.10;
   }
   // crit
-  if (fromSphere && Math.random() < critChance) { actual *= 2; isCrit = true; }
+  if (fromSphere && nextRandom(s) < critChance) { actual *= 2; isCrit = true; }
   if (fromSphere) {
     const squareNetwork = analyzeSphereNetwork(getNetworkNodes(s));
     const squareProfile = getSphereNetworkProfile(squareNetwork, s.spheres.indexOf(fromSphere));
@@ -1045,7 +1052,7 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
       // permanent Multishot, otherwise it double-counts its own mechanic.
       const count = finalIndex === 2 ? 2 : 1;
       const chance = finalIndex === null ? 1 : finalIndex === 0 ? 0.35 : finalIndex === 1 ? 0.55 : 1;
-      if (Math.random() < chance) {
+      if (nextRandom(s) < chance) {
         for (let i = 0; i < count; i++) {
           const a = Math.atan2(enemy.pos.y - fromSphere.pos.y, enemy.pos.x - fromSphere.pos.x) + (i === 0 ? 0.35 : -0.35);
           s.sphereProjectiles.push({
@@ -1086,7 +1093,7 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
       const radius = finalIndex === 0 ? 60 : finalIndex === 1 ? 85 : 55;
       const splash = finalIndex === 0 ? 0.45 : finalIndex === 1 ? 0.65 : 0.35;
       for (let i = 0; i < 14; i++) {
-        const a = Math.random() * Math.PI * 2;
+        const a = nextRandom(s) * Math.PI * 2;
         s.particles.push({ pos: { ...enemy.pos }, vel: { x: Math.cos(a) * 90, y: Math.sin(a) * 90 }, life: 0.35, maxLife: 0.35, color: '#c4453d', size: 3 });
       }
       for (const nearby of s.enemies) {
@@ -1100,11 +1107,11 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
       }
     } else if (branch === 'shotgun_hail') {
       const chance = finalIndex === 0 ? 0.25 : finalIndex === 1 ? 0.4 : 0.32;
-      if (Math.random() < chance) {
+      if (nextRandom(s) < chance) {
         const radius = finalIndex === 1 ? 65 : 45;
         const shardCount = finalIndex === 1 ? 8 : 6;
         for (let i = 0; i < shardCount; i++) {
-          const angle = (i / shardCount) * Math.PI * 2 + Math.random() * 0.18;
+          const angle = (i / shardCount) * Math.PI * 2 + nextRandom(s) * 0.18;
           s.sphereProjectiles.push({
             pos: { ...enemy.pos },
             vel: { x: Math.cos(angle) * 300, y: Math.sin(angle) * 300 },
@@ -1205,15 +1212,15 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
 
   const impactCount = enemy.isBoss ? 10 : isCrit ? 9 : enemy.isElite ? 7 : 4;
   for (let i = 0; i < impactCount; i++) {
-    const angle = Math.random() * Math.PI * 2;
-    const speed = rand(isCrit ? 120 : 80, isCrit ? 260 : 180);
+    const angle = nextRandom(s) * Math.PI * 2;
+    const speed = rand(s,isCrit ? 120 : 80, isCrit ? 260 : 180);
     s.particles.push({
       pos: { x: enemy.pos.x, y: enemy.pos.y },
       vel: { x: Math.cos(angle) * speed, y: Math.sin(angle) * speed },
-      life: rand(0.16, isCrit ? 0.42 : 0.3),
+      life: rand(s,0.16, isCrit ? 0.42 : 0.3),
       maxLife: 0.42,
       color: isCrit ? '#c4453d' : enemy.color,
-      size: rand(isCrit ? 2.5 : 1.5, isCrit ? 4.5 : 3.2),
+      size: rand(s,isCrit ? 2.5 : 1.5, isCrit ? 4.5 : 3.2),
     });
   }
   if (isCrit) {
@@ -1222,9 +1229,9 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
 
   // damage number
   s.damageNumbers.push({
-    pos: { x: enemy.pos.x + rand(-8, 8), y: enemy.pos.y - enemy.radius - 5 },
+    pos: { x: enemy.pos.x + rand(s,-8, 8), y: enemy.pos.y - enemy.radius - 5 },
     value: Math.round(actual), life: 0.8, maxLife: 0.8, crit: isCrit,
-    vel: { x: rand(-30, 30), y: -60 },
+    vel: { x: rand(s,-30, 30), y: -60 },
   });
   if (isCrit) playSound('crit'); else if (fromSphere) playSound('hit');
   // vampire
@@ -1278,33 +1285,33 @@ function onEnemyDeath(s: GameState, enemy: EnemyEntity): void {
   for (let i = 0; i < deathParticles; i++) {
     s.particles.push({
       pos: { x: enemy.pos.x, y: enemy.pos.y },
-      vel: { x: rand(-180, 180), y: rand(-180, 180) },
-      life: rand(0.3, 0.8), maxLife: 0.8,
-      color: enemy.color, size: rand(2, 5),
+      vel: { x: rand(s,-180, 180), y: rand(s,-180, 180) },
+      life: rand(s,0.3, 0.8), maxLife: 0.8,
+      color: enemy.color, size: rand(s,2, 5),
     });
   }
   // XP orb (combo multiplier applies)
   s.xpOrbs.push({
     pos: { x: enemy.pos.x, y: enemy.pos.y },
     value: Math.round(enemy.xpValue * s.player.comboMult), radius: 6, alive: true,
-    vel: { x: rand(-40, 40), y: rand(-40, 40) },
+    vel: { x: rand(s,-40, 40), y: rand(s,-40, 40) },
   });
   // health pack drop chance
   const dropChance = enemy.isBoss ? 1 : (enemy.isElite ? 0.5 : 0.04);
-  if (Math.random() < dropChance) {
+  if (nextRandom(s) < dropChance) {
     s.healthPacks.push({ pos: { x: enemy.pos.x, y: enemy.pos.y }, alive: true, radius: 10 });
   }
   // Runes are temporary tactical field drops. They are deliberately rarer than XP
   // and independent from the persistent Artifact inventory.
   const runeChance = enemy.isBoss ? 1 : (enemy.isElite ? 0.35 : 0);
-  if (Math.random() < runeChance) {
+  if (nextRandom(s) < runeChance) {
     const runeTypes = Object.keys(RUNE_DEFS) as RuneType[];
-    const type = runeTypes[Math.floor(Math.random() * runeTypes.length)];
+    const type = runeTypes[Math.floor(nextRandom(s) * runeTypes.length)];
     s.runes.push({ pos: { ...enemy.pos }, alive: true, radius: 15, type, life: 22 });
   }
   // chest drop: 2% from normal, 20% from elite, 100% from boss
   const chestChance = enemy.isBoss ? 1 : (enemy.isElite ? 0.2 : 0.02);
-  if (Math.random() < chestChance) {
+  if (nextRandom(s) < chestChance) {
     s.chests.push({ pos: { x: enemy.pos.x, y: enemy.pos.y }, alive: true, radius: 14 });
   }
   // swift boots
@@ -1325,8 +1332,8 @@ function onEnemyDeath(s: GameState, enemy: EnemyEntity): void {
     for (let i = 0; i < 15; i++) {
       s.particles.push({
         pos: { x: enemy.pos.x, y: enemy.pos.y },
-        vel: { x: rand(-250, 250), y: rand(-250, 250) },
-        life: 0.5, maxLife: 0.5, color: '#d4943d', size: rand(3, 6),
+        vel: { x: rand(s,-250, 250), y: rand(s,-250, 250) },
+        life: 0.5, maxLife: 0.5, color: '#d4943d', size: rand(s,3, 6),
       });
     }
   }
@@ -1369,12 +1376,12 @@ export function claimStella(s: GameState): void {
 function damagePlayer(s: GameState, amount: number): void {
   if (s.player.invulnerableTimer > 0) return;
   // dodge
-  if (Math.random() < getDodgeChance(s)) {
+  if (nextRandom(s) < getDodgeChance(s)) {
     s.particles.push({ pos: { ...s.player.pos }, vel: { x: 0, y: -60 }, life: 0.5, maxLife: 0.5, color: '#e8dcc0', size: 3 });
     return;
   }
   amount *= getArtifactDamageTakenMultiplier(s);
-  if (Math.random() < getArtifactReflectChance(s)) {
+  if (nextRandom(s) < getArtifactReflectChance(s)) {
     const nearest = s.enemies.reduce((best: EnemyEntity | null, enemy) => {
       if (enemy.hp <= 0) return best;
       const d = Math.hypot(enemy.pos.x - s.player.pos.x, enemy.pos.y - s.player.pos.y);
@@ -1402,13 +1409,13 @@ function damagePlayer(s: GameState, amount: number): void {
       s.player.shieldCharges = Math.min(5, s.player.shieldCharges + 1);
     }
     for (let i = 0; i < 12; i++) {
-      s.particles.push({ pos: { ...s.player.pos }, vel: { x: rand(-150, 150), y: rand(-150, 150) }, life: 0.4, maxLife: 0.4, color: '#4a7a8a', size: 3 });
+      s.particles.push({ pos: { ...s.player.pos }, vel: { x: rand(s,-150, 150), y: rand(s,-150, 150) }, life: 0.4, maxLife: 0.4, color: '#4a7a8a', size: 3 });
     }
     return;
   }
   const dmg = amount * getDamageTakenMult(s);
   // mirror reflect
-  if (s.player.artifacts.includes('mirror') && Math.random() < 0.2) {
+  if (s.player.artifacts.includes('mirror') && nextRandom(s) < 0.2) {
     // reflect: find nearest enemy and damage
     const nearest = s.enemies.reduce((best, e) => {
       if (e.hp <= 0) return best;
@@ -1482,11 +1489,11 @@ function emitSpherePulse(s: GameState, sphere: SphereEntity, damage: number, rad
     }
   }
   for (let i = 0; i < 10; i++) {
-    const a = Math.random() * Math.PI * 2;
+    const a = nextRandom(s) * Math.PI * 2;
     s.particles.push({
       pos: { ...sphere.pos },
-      vel: { x: Math.cos(a) * rand(60, 160), y: Math.sin(a) * rand(60, 160) },
-      life: 0.45, maxLife: 0.45, color, size: rand(2, 5),
+      vel: { x: Math.cos(a) * rand(s,60, 160), y: Math.sin(a) * rand(s,60, 160) },
+      life: 0.45, maxLife: 0.45, color, size: rand(s,2, 5),
     });
   }
 }
@@ -1627,12 +1634,12 @@ function activateShield(s: GameState): void {
 function doTeleportTo(s: GameState, target: Vec): void {
   const from = { ...s.player.pos };
   for (let i = 0; i < 16; i++) {
-    s.particles.push({ pos: { ...from }, vel: { x: rand(-140, 140), y: rand(-140, 140) }, life: 0.45, maxLife: 0.45, color: '#5a8c4a', size: 3 });
+    s.particles.push({ pos: { ...from }, vel: { x: rand(s,-140, 140), y: rand(s,-140, 140) }, life: 0.45, maxLife: 0.45, color: '#5a8c4a', size: 3 });
   }
   s.player.pos.x = clamp(target.x, -s.worldWidth / 2, s.worldWidth / 2);
   s.player.pos.y = clamp(target.y, -s.worldHeight / 2, s.worldHeight / 2);
   for (let i = 0; i < 16; i++) {
-    s.particles.push({ pos: { ...s.player.pos }, vel: { x: rand(-140, 140), y: rand(-140, 140) }, life: 0.45, maxLife: 0.45, color: '#5a8c4a', size: 3 });
+    s.particles.push({ pos: { ...s.player.pos }, vel: { x: rand(s,-140, 140), y: rand(s,-140, 140) }, life: 0.45, maxLife: 0.45, color: '#5a8c4a', size: 3 });
   }
   const branch = getAbilityBranchId(s, 'teleport', 4);
   const final = getAbilityBranchId(s, 'teleport', 7);
@@ -1711,7 +1718,7 @@ function activateTeleport(s: GameState): void {
       for (const enemy of s.enemies) if (enemy.hp > 0 && dist(enemy.pos, target) < 90) dealDamageToEnemy(s, enemy, 22);
     }
   } else {
-    doTeleportTo(s, { x: rand(s.player.pos.x - 300, s.player.pos.x + 300), y: rand(s.player.pos.y - 300, s.player.pos.y + 300) });
+    doTeleportTo(s, { x: rand(s,s.player.pos.x - 300, s.player.pos.x + 300), y: rand(s,s.player.pos.y - 300, s.player.pos.y + 300) });
   }
   s.flashText = { text: 'ECHO JUMP', life: 0.9, color: '#5a8c4a' };
 }
@@ -2194,13 +2201,13 @@ function getAbilityEvolutionChoices(s:GameState, ability:AbilityType, level:4|7)
   }));
 }
 
-function weightedShuffle<T>(items: T[], getWeight: (item: T) => number): T[] {
+function weightedShuffle<T>(s: GameState, items: T[], getWeight: (item: T) => number): T[] {
   const pool = [...items];
   const result: T[] = [];
   while (pool.length > 0) {
     let totalWeight = 0;
     for (const item of pool) totalWeight += Math.max(0.01, getWeight(item));
-    let roll = Math.random() * totalWeight;
+    let roll = nextRandom(s) * totalWeight;
     let selectedIndex = pool.length - 1;
     for (let index = 0; index < pool.length; index++) {
       roll -= Math.max(0.01, getWeight(pool[index]));
@@ -2317,17 +2324,17 @@ export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
       },
     }));
 
-  const abilityPool = weightedShuffle([...activePool, ...passivePool], (choice) => {
+  const abilityPool = weightedShuffle(s, [...activePool, ...passivePool], (choice) => {
     const current = choice.currentLevel;
     const unfinished = current === 0 ? 1.35 : 1.15;
     const categoryBoost = choice.ability && ABILITIES[choice.ability].category === 'active' ? 1.05 : 1;
     return unfinished * categoryBoost;
   });
 
-  const spherePool = weightedShuffle(sphereChoices, (choice) =>
+  const spherePool = weightedShuffle(s, sphereChoices, (choice) =>
     choice.sphereType ? getSphereUpgradeChoiceWeight(s, choice.sphereType) : 1,
   );
-  const modifierPool = weightedShuffle(modifierChoices, () => 1);
+  const modifierPool = weightedShuffle(s, modifierChoices, () => 1);
 
   const mixedPool: UpgradeChoice[] = [];
   const sources = [
@@ -2523,7 +2530,7 @@ export function update(s: GameState, dt: number): void {
     s.player.pos.x = clamp(s.player.pos.x, -s.worldWidth / 2, s.worldWidth / 2);
     s.player.pos.y = clamp(s.player.pos.y, -s.worldHeight / 2, s.worldHeight / 2);
     // dash trail particles
-    if (Math.random() < 0.5) {
+    if (nextRandom(s) < 0.5) {
       s.particles.push({ pos: { ...s.player.pos }, vel: { x: 0, y: 0 }, life: 0.3, maxLife: 0.3, color: '#d4943d', size: 3 });
     }
   }
@@ -2585,7 +2592,7 @@ export function update(s: GameState, dt: number): void {
     s.player.chaosOrbTimer += dt;
     if (s.player.chaosOrbTimer >= 10) {
       s.player.chaosOrbTimer = 0;
-      s.player.chaosOrbBuff = Math.random() < 0.5 ? 'dmg' : 'radius';
+      s.player.chaosOrbBuff = nextRandom(s) < 0.5 ? 'dmg' : 'radius';
       s.player.chaosOrbBuffTimer = 3;
     }
   }
@@ -2712,11 +2719,11 @@ function checkMutation(s: GameState): void {
     s.player.mutationStage = stage;
     s.flashText = { text: 'MUTATION!', life: 2, color: '#b8475a' };
     for (let i = 0; i < 40; i++) {
-      const a = Math.random() * Math.PI * 2;
+      const a = nextRandom(s) * Math.PI * 2;
       s.particles.push({
         pos: { ...s.player.pos },
-        vel: { x: Math.cos(a) * rand(100, 250), y: Math.sin(a) * rand(100, 250) },
-        life: 1, maxLife: 1, color: ['#8a5a8a', '#c4453d', '#d4943d', '#e8dcc0'][stage - 1], size: rand(3, 6),
+        vel: { x: Math.cos(a) * rand(s,100, 250), y: Math.sin(a) * rand(s,100, 250) },
+        life: 1, maxLife: 1, color: ['#8a5a8a', '#c4453d', '#d4943d', '#e8dcc0'][stage - 1], size: rand(s,3, 6),
       });
     }
   }
@@ -2886,7 +2893,7 @@ function updateSpheres(s: GameState, dt: number): void {
         hit = true;
         // impact effect particles
         for (let k = 0; k < 6; k++) {
-          const a = Math.random() * Math.PI * 2;
+          const a = nextRandom(s) * Math.PI * 2;
           s.particles.push({ pos: { ...p.pos }, vel: { x: Math.cos(a) * 80, y: Math.sin(a) * 80 }, life: 0.3, maxLife: 0.3, color: p.color, size: 2 });
         }
         // apply status effects
@@ -2968,13 +2975,13 @@ function updateMinions(s: GameState, dt: number): void {
       const abilityBranch = getAbilityBranchId(s, 'minion', 4);
       const abilityFinal = getAbilityBranchId(s, 'minion', 7);
       const nearby = getNearestSphere(s, m.pos, (sphere) => sphere !== anchor && dist(sphere.pos, m.pos) < 240);
-      if (abilityBranch === 'minion_relay_drone' && nearby && Math.random() < dt * 4) {
+      if (abilityBranch === 'minion_relay_drone' && nearby && nextRandom(s) < dt * 4) {
         s.lightnings.push({ from: { ...anchor.pos }, to: { ...nearby.pos }, life: 0.1 });
         anchor.attackTimer = Math.max(0, anchor.attackTimer - 0.16);
         nearby.attackTimer = Math.max(0, nearby.attackTimer - 0.08);
       } else if (abilityBranch === 'minion_guardian') {
         anchor.attackTimer = Math.max(0, anchor.attackTimer - dt * 0.18);
-      } else if (nearby && Math.random() < dt * 2) {
+      } else if (nearby && nextRandom(s) < dt * 2) {
         s.lightnings.push({ from: { ...anchor.pos }, to: { ...nearby.pos }, life: 0.08 });
       }
       if (abilityFinal === 'minion_sphere_guard') {
@@ -3017,8 +3024,8 @@ function updateEnemies(s: GameState, dt: number): void {
     if (e.fireTimer > 0) {
       e.fireTimer -= dt;
       e.hp -= e.fireDps * dt;
-      if (Math.random() < 0.3) {
-        s.particles.push({ pos: { x: e.pos.x + rand(-e.radius, e.radius), y: e.pos.y + rand(-e.radius, e.radius) }, vel: { x: 0, y: -30 }, life: 0.3, maxLife: 0.3, color: '#c46d3d', size: 2 });
+      if (nextRandom(s) < 0.3) {
+        s.particles.push({ pos: { x: e.pos.x + rand(s,-e.radius, e.radius), y: e.pos.y + rand(s,-e.radius, e.radius) }, vel: { x: 0, y: -30 }, life: 0.3, maxLife: 0.3, color: '#c46d3d', size: 2 });
       }
       if (e.hp <= 0) { onEnemyDeath(s, e); s.enemies.splice(i, 1); continue; }
     }
@@ -3026,8 +3033,8 @@ function updateEnemies(s: GameState, dt: number): void {
     if (e.poisonTimer > 0) {
       e.poisonTimer -= dt;
       e.hp -= e.poisonDps * dt;
-      if (Math.random() < 0.2) {
-        s.particles.push({ pos: { x: e.pos.x + rand(-e.radius, e.radius), y: e.pos.y + rand(-e.radius, e.radius) }, vel: { x: 0, y: -20 }, life: 0.4, maxLife: 0.4, color: '#5a8c4a', size: 2 });
+      if (nextRandom(s) < 0.2) {
+        s.particles.push({ pos: { x: e.pos.x + rand(s,-e.radius, e.radius), y: e.pos.y + rand(s,-e.radius, e.radius) }, vel: { x: 0, y: -20 }, life: 0.4, maxLife: 0.4, color: '#5a8c4a', size: 2 });
       }
       if (e.hp <= 0) { onEnemyDeath(s, e); s.enemies.splice(i, 1); continue; }
     }
@@ -3107,7 +3114,7 @@ function updateEnemies(s: GameState, dt: number): void {
           e.summonTimer = 5;
           // spawn 3 minions
           for (let k = 0; k < 3; k++) {
-            const a = Math.random() * Math.PI * 2;
+            const a = nextRandom(s) * Math.PI * 2;
             const sx = e.pos.x + Math.cos(a) * 60;
             const sy = e.pos.y + Math.sin(a) * 60;
             s.enemies.push({
@@ -3280,7 +3287,7 @@ function activateRune(s: GameState, rune: RuneEntity): void {
   const def = RUNE_DEFS[rune.type];
   s.flashText = { text: def.name.ru.toUpperCase(), life: 1.0, color: def.color };
   for (let i = 0; i < 18; i++) {
-    const a = Math.random() * Math.PI * 2;
+    const a = nextRandom(s) * Math.PI * 2;
     s.particles.push({ pos: { ...rune.pos }, vel: { x: Math.cos(a) * 150, y: Math.sin(a) * 150 }, life: 0.55, maxLife: 0.55, color: def.color, size: 3 });
   }
 }
@@ -3310,7 +3317,7 @@ function updateHealthPacks(s: GameState): void {
       s.healthPacks.splice(i, 1);
       playSound('health');
       for (let k = 0; k < 10; k++) {
-        s.particles.push({ pos: { ...hp.pos }, vel: { x: rand(-100, 100), y: rand(-100, 100) }, life: 0.5, maxLife: 0.5, color: '#5a8c4a', size: 3 });
+        s.particles.push({ pos: { ...hp.pos }, vel: { x: rand(s,-100, 100), y: rand(s,-100, 100) }, life: 0.5, maxLife: 0.5, color: '#5a8c4a', size: 3 });
       }
     }
   }
@@ -3364,7 +3371,7 @@ export function placeSphere(s: GameState, x: number, y: number): void {
   });
   const stype = SPHERE_TYPES[s.selectedSphereType];
   for (let i = 0; i < 15; i++) {
-    const a = Math.random() * Math.PI * 2;
+    const a = nextRandom(s) * Math.PI * 2;
     s.particles.push({ pos: { x, y }, vel: { x: Math.cos(a) * 120, y: Math.sin(a) * 120 }, life: 0.5, maxLife: 0.5, color: stype.color, size: 3 });
   }
   playSound('place');
@@ -3378,7 +3385,7 @@ export function removeSphere(s: GameState, sphere: SphereEntity): void {
     s.player.engineerRelayTimer = 0;
   }
   for (let i = 0; i < 15; i++) {
-    const a = Math.random() * Math.PI * 2;
+    const a = nextRandom(s) * Math.PI * 2;
     s.particles.push({ pos: { ...sphere.pos }, vel: { x: Math.cos(a) * 120, y: Math.sin(a) * 120 }, life: 0.5, maxLife: 0.5, color: '#b8475a', size: 3 });
   }
 }
