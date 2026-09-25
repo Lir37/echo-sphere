@@ -198,6 +198,8 @@ export interface ChestEntity {
   radius: number;
 }
 
+export type MapTheme = 'parchment' | 'bamboo' | 'ocean' | 'sunset';
+
 export interface GameState {
   player: PlayerState;
   spheres: SphereEntity[];
