@@ -2396,7 +2396,7 @@ function getAbilityUpgradeChoiceWeight(s: GameState, choice: UpgradeChoice): num
 }
 
 export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
-  const sphereTypes = VERTICAL_SLICE_SPHERE_TYPES.filter((type) => type in SPHERE_PROGRESSION);
+  const sphereTypes = (Object.keys(SPHERE_PROGRESSION) as SphereType[]).filter((type) => type in SPHERE_TYPES);
   const availableSpheres = sphereTypes.filter((type) => sphereLevel(s, type) < 7);
 
   const sphereChoices: UpgradeChoice[] = availableSpheres.map((type) => {
