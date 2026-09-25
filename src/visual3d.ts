@@ -1,5 +1,5 @@
 import type { GameState, SphereEntity, EnemyEntity, SphereProjectile, Particle } from './engine';
-import type { SphereType } from './gameData';
+import { SPHERE_TYPES, type SphereType } from './gameData';
 
 type Vec3 = [number, number, number];
 
@@ -297,7 +297,7 @@ export class Echo3DRenderer {
     gl.uniform3f(this.lightLoc,-0.35,0.8,0.45);
     gl.uniform3f(this.cameraLoc,eye[0],eye[1],eye[2]);
     gl.uniform1f(this.timeLoc,t);
-    for(const sphere of s.spheres) if(sphere.alive) this.drawSphere(sphere,t,vp,player.x,player.y);
+    for(const sphere of s.spheres) if(sphere.alive) this.drawSphere(sphere,t,vp,player.x,player.y,s.player);
     for(const enemy of s.enemies) if(enemy.hp>0) this.drawEnemy(enemy,t,vp);
     this.drawPlayer(s,t,vp);
     for(const lightning of s.lightnings) if(lightning.life>0) this.drawLightning(lightning,t,vp);
@@ -346,7 +346,7 @@ export class Echo3DRenderer {
     }
   }
 
-  private drawSphere(s:SphereEntity,t:number,vp:Float32Array,cx:number,cy:number){
+  private drawSphere(s:SphereEntity,t:number,vp:Float32Array,cx:number,cy:number,player:GameState['player']){
     const def=sphereTypes[s.type];
     const tier=Math.max(1,Math.min(7,Math.round(s.visualTier||1)));
     const pulse=1+Math.sin(t*2.65+s.rotation*.71)*.035;
@@ -421,9 +421,9 @@ export class Echo3DRenderer {
       if (s.type === 'orbital') {
         const satelliteCount = Math.max(
           1,
-          1 + (s.player.sphereMods?.multishot || 0)
-            + (s.player.artifacts.includes('orbital_crown') ? 1 : 0)
-            + (tier >= 7 && s.player.sphereBranches?.orbital === 'orbital_blade' ? 1 : 0),
+          1 + (player.sphereMods?.multishot || 0)
+            + (player.artifacts.includes('orbital_crown') ? 1 : 0)
+            + (tier >= 7 && player.sphereBranches?.orbital === 'orbital_blade' ? 1 : 0),
         );
         const orbitR = base * (1.05 + tier * .035);
         const satelliteSize = base * (tier >= 7 ? .14 : .115);
