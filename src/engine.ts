@@ -52,6 +52,7 @@ export interface PlayerState {
   kills: number;
   mutationStage: number; // 0..4
   invulnerableTimer: number;
+  contactDamageCooldown: number;
   invulnUsed: boolean;
   shieldCharges: number;
   shieldTimer: number;
@@ -479,6 +480,7 @@ export function createInitialState(
     kills: 0,
     mutationStage: 0,
     invulnerableTimer: 0,
+    contactDamageCooldown: 0,
     invulnUsed: false,
     shieldCharges: 0,
     shieldTimer: 0,
@@ -695,11 +697,13 @@ export function getSphereDelay(s: GameState, sphere?: SphereEntity): number {
 }
 
 export function getCritChance(s: GameState, sphere?: SphereEntity): number {
-  let c = (s.player.abilities.crit || 0) * 0.1;
+  // Blueprint v1.2: 5% baseline, then additive sources, hard-capped at 75%.
+  let c = 0.05;
+  c += (s.player.abilities.crit || 0) * 0.1;
   c += (s.shopUpgrades.crit || 0) * 0.05;
   c += getArtifactCritChanceBonus(s);
   if (sphere?.type === 'sniper' && sphereLevel(s, 'sniper') >= 3) c += 0.15;
-  return c;
+  return Math.min(0.75, c);
 }
 
 export function getDodgeChance(s: GameState): number {
@@ -970,7 +974,7 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
     critChance += 0.10;
   }
   // crit
-  if (fromSphere && nextRandom(s) < critChance) { actual *= 2; isCrit = true; }
+  if (fromSphere && nextRandom(s) < critChance) { actual *= 1.5; isCrit = true; }
   if (fromSphere) {
     const squareNetwork = analyzeSphereNetwork(getNetworkNodes(s));
     const squareProfile = getSphereNetworkProfile(squareNetwork, s.spheres.indexOf(fromSphere));
@@ -1375,7 +1379,7 @@ export function claimStella(s: GameState): void {
 }
 
 function damagePlayer(s: GameState, amount: number): void {
-  if (s.player.invulnerableTimer > 0) return;
+  if (s.player.invulnerableTimer > 0 || s.player.contactDamageCooldown > 0) return;
   // dodge
   if (nextRandom(s) < getDodgeChance(s)) {
     s.particles.push({ pos: { ...s.player.pos }, vel: { x: 0, y: -60 }, life: 0.5, maxLife: 0.5, color: '#e8dcc0', size: 3 });
@@ -1427,6 +1431,9 @@ function damagePlayer(s: GameState, amount: number): void {
     return;
   }
   s.player.hp -= dmg;
+  // Contact and repeated close-range hits get a short post-hit grace period.
+  // This is intentionally separate from Dash invulnerability.
+  s.player.contactDamageCooldown = 0.60;
   if (getAbilityBranchId(s, 'darkritual', 7) === 'darkritual_sacrifice_core') {
     const sacrificeSphere = getNearestSphere(s, s.player.pos);
     if (sacrificeSphere) {
@@ -2634,6 +2641,7 @@ export function update(s: GameState, dt: number): void {
   if (s.player.timestopTimer > 0) s.player.timestopTimer = Math.max(0, s.player.timestopTimer - dt);
   if (s.player.invulnerableTimer > 0) s.player.invulnerableTimer = Math.max(0, s.player.invulnerableTimer - dt);
   if (s.player.dodgeTimer > 0) s.player.dodgeTimer -= dt;
+  if (s.player.contactDamageCooldown > 0) s.player.contactDamageCooldown = Math.max(0, s.player.contactDamageCooldown - dt);
 
   // spheres
   updateSpheres(s, dt);
