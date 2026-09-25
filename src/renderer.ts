@@ -23,6 +23,7 @@ const MUTATION_COLORS = ['#6eeaff', '#9b7cff', '#d86cff', '#55e6c1', '#b9a7ff'];
 type ArtKey =
   | 'player'
   | 'sphere-standard' | 'sphere-sniper' | 'sphere-shotgun' | 'sphere-chain' | 'sphere-aura'
+  | 'sphere-orbital' | 'sphere-prism' | 'sphere-gravity' | 'sphere-pulse' | 'sphere-void'
   | 'enemy-skitter' | 'enemy-fast' | 'enemy-tank' | 'enemy-moth'
   | 'boss';
 
@@ -33,6 +34,11 @@ const ART_PATHS: Record<ArtKey, string> = {
   'sphere-shotgun': '/art/shotgun.svg',
   'sphere-chain': '/art/chain.svg',
   'sphere-aura': '/art/aura.svg',
+  'sphere-orbital': '/art/orbital.svg',
+  'sphere-prism': '/art/prism.svg',
+  'sphere-gravity': '/art/gravity.svg',
+  'sphere-pulse': '/art/pulse.svg',
+  'sphere-void': '/art/void.svg',
   'enemy-skitter': '/art/enemy-skitter.svg',
   'enemy-fast': '/art/enemy-fast.svg',
   'enemy-tank': '/art/enemy-tank.svg',
@@ -1688,6 +1694,40 @@ function drawModernSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: S
 
   const drawn = drawReferenceSprite(ctx, artKey, 0, -r * 0.14, r * 3.15, color, Math.sin(time * 0.7 + sphere.pos.x * 0.01) * 0.025);
   if (drawn) {
+    // Orbital satellites are damage emitters, not physics bodies. They are
+    // rendered from the same angular state used by engine.ts and never enter
+    // player/enemy collision resolution.
+    if (sphere.type === 'orbital') {
+      const satelliteCount = Math.max(
+        1,
+        1 + (s.player.sphereMods?.multishot || 0)
+          + (s.player.artifacts.includes('orbital_crown') ? 1 : 0)
+          + (tier >= 7 && s.player.sphereBranches?.orbital === 'orbital_blade' ? 1 : 0),
+      );
+      const orbitR = r * (2.25 + tier * 0.08);
+      for (let i = 0; i < satelliteCount; i++) {
+        const a = sphere.rotation + i * Math.PI * 2 / satelliteCount;
+        const sx = Math.cos(a) * orbitR;
+        const sy = Math.sin(a) * orbitR * 0.52;
+        ctx.save();
+        ctx.translate(sx, sy);
+        ctx.rotate(a + Math.PI / 2);
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 9;
+        ctx.fillStyle = color;
+        ctx.strokeStyle = '#effcff';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, -r * 0.18);
+        ctx.lineTo(r * 0.14, 0);
+        ctx.lineTo(0, r * 0.18);
+        ctx.lineTo(-r * 0.14, 0);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
     // Tier/evolution information stays in the game renderer, but is deliberately secondary to the art.
     if (tier >= 4) {
       ctx.save();
