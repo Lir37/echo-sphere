@@ -323,7 +323,7 @@ function resonanceFormationCenter(s: GameState, nodes: number[], networkNodes = 
   return positions.reduce((acc, pos) => ({ x: acc.x + pos.x / positions.length, y: acc.y + pos.y / positions.length }), { x: 0, y: 0 });
 }
 
-function triggerResonanceEvent(s: GameState): void {
+export function triggerResonanceEvent(s: GameState): void {
   const networkNodes = getNetworkNodes(s);
   const network = analyzeSphereNetwork(networkNodes);
   const formation = getResonanceFormation(network);
@@ -425,7 +425,7 @@ function triggerResonanceEvent(s: GameState): void {
   }
 }
 
-function updateResonanceRing(
+export function updateResonanceRing(
   s: GameState,
   dt: number,
   network: ReturnType<typeof analyzeSphereNetwork>,
@@ -462,13 +462,13 @@ function updateResonanceRing(
   }
 }
 
-function chargeResonance(s: GameState, source: ResonanceSource): void {
+export function chargeResonance(s: GameState, source: ResonanceSource): void {
   if (s.player.resonanceEventActive) return;
   const events = addResonanceChargeFromSource(s.player, source);
   for (let i = 0; i < events; i++) triggerResonanceEvent(s);
 }
 
-function syncResonanceGeometry(s: GameState, network = analyzeSphereNetwork(getNetworkNodes(s))): void {
+export function syncResonanceGeometry(s: GameState, network = analyzeSphereNetwork(getNetworkNodes(s))): void {
   const formation = getResonanceFormation(network);
   const key = formation ? formation.type + ':' + formation.nodes.join(',') : 'none';
   if (key === s.player.resonanceGeometryKey) return;
