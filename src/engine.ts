@@ -3945,7 +3945,6 @@ function updateEnemies(s: GameState, dt: number): void {
       }
     }
   }
-}
 
   // Apply gravity once after all enemies have completed their normal steering.
   // This bends trajectories smoothly without multiplying the force by enemy count.
