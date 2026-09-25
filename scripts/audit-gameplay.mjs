@@ -157,7 +157,7 @@ const audit = {
   geometry: {
     finalCount: 7,
     current: currentGeometry,
-    implemented: FINAL_SPHERES.length && currentGeometry,
+    implemented: ['line','triangle','cluster','square','ring','lattice','fractal'].filter((id) => currentGeometry.includes(id)),
     missing: ['line','triangle','cluster','square','ring','lattice','fractal'].filter((id) => !currentGeometry.includes(id)),
   },
   runes: compare(FINAL_RUNES, currentRunes),
