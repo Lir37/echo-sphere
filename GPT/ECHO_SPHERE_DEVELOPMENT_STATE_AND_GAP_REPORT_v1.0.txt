@@ -566,6 +566,63 @@ current gameplay/system phase.
 18. Formal balance-data pass.
 
 ======================================================================
+8A. TECHNICAL AUDIT DELTA — 2026-09-25
+======================================================================
+
+The Kimi AI repository audit was reconciled against the actual current
+branch before applying changes. Several findings were historical and are
+NOT present on the current branch:
+- @supabase/supabase-js is not present in package.json;
+- scripts/patch-levelup.mjs is absent;
+- scripts/apply-levelup-final.mjs is absent;
+- scripts/fix-levelup-white-screen.mjs is absent;
+- scripts/trigger-apk-build.txt is absent;
+- artifact-migration.trigger-4 is absent.
+
+Confirmed technical findings accepted into the development process:
+
+[ACTIONED]
+- Deterministic seeded gameplay RNG added in src/rng.ts.
+- GameState now stores runSeed and rngState.
+- Gameplay randomness in engine.ts no longer calls Math.random directly.
+- Level Up weighted choice generation now consumes the GameState RNG.
+- All five currently implemented Spheres are valid Level-Up sources; the
+  previous vertical-slice source gate no longer hides Shotgun/Aura.
+- scripts/audit-gameplay.mjs upgraded to coverage-v2 with explicit
+  Blueprint -> Code+Integrated coverage for the final Ability vocabulary,
+  Ability evolution references, Sphere branch references, Modifiers,
+  Geometry, Runes and Artifact target coverage.
+- Semantic review flags were added so code presence is not treated as fully
+  faithful gameplay semantics.
+- RNG and Level-Up regression coverage was added.
+
+[REVIEWED — NOT A BLOCKER]
+- Echo Drones are currently appended to the runtime Network graph through
+  buildRuntimeNetworkNodes(); the earlier claim that Drones could never be
+  true Network nodes is stale for the current branch.
+- Renderer-only Math.random usage may remain for visual jitter; this is not
+  part of gameplay determinism.
+
+[SEMANTIC GAP]
+- shield_echo_guard still describes per-Sphere protective charges while the
+  current runtime stores shieldCharges at PlayerState level. This remains a
+  manual-review item and must be resolved before calling the branch fully
+  Blueprint-faithful.
+
+[NOT YET ACTIONED]
+- Replace remaining source-regex gameplay tests with behavioral contracts.
+- Add lint to CI and verify main-branch workflow coverage.
+- Identify the authoritative workflow file before changing CI; do not create
+  a duplicate workflow blindly.
+- Controlled decomposition of engine.ts / renderer.ts / App.tsx remains
+  postponed until the gameplay audit and behavioral baseline are stable.
+
+Quality rule:
+CODE PRESENT != INTEGRATED != PLAYABLE.
+A system may be called [DONE] only after its runtime path is covered and its
+semantics match the Blueprint closely enough for human playtest acceptance.
+
+======================================================================
 8. CURRENT BLOCKING GATES
 ======================================================================
 
