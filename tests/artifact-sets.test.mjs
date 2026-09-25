@@ -49,7 +49,7 @@ test('three Artifact Sets expose protocol discovery and completion bonus', async
   assert.equal(states.length, 3);
   assert.ok(states.every((x) => x.discovered));
   assert.ok(states.every((x) => x.active));
-  assert.equal(mod.getArtifactSetCompletionBonus({ player: { artifacts: all } }), 0.12);
+  assert.equal(mod.getArtifactSetCompletionPulse({ player: { artifacts: all } }), 1);
 });
 
 test('Artifact Set completion is wired into behavioral combat effects', async () => {
