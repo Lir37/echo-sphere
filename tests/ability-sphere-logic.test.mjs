@@ -24,6 +24,16 @@ test('all Sphere branch ids are referenced by engine combat logic', () => {
   for (const id of ids) assert.ok(engine.includes(id), 'unwired sphere branch ' + id);
 });
 
+test('all currently implemented Spheres remain reachable from Level Up', () => {
+  const implemented = ['standard', 'sniper', 'shotgun', 'chain', 'aura'];
+  assert.match(engine, /Object\.keys\(SPHERE_TYPES\) as SphereType\[\]/);
+  for (const id of implemented) assert.match(engine, new RegExp(`type === ['\\\"]${id}['\\\"]`), `engine no longer knows sphere ${id}`);
+});
+
+test('gameplay engine has no unseeded Math.random calls', () => {
+  assert.doesNotMatch(engine, /Math\.random\(\)/);
+});
+
 test('Standard Swarm is not implemented as hidden permanent Multishot', () => {
   assert.match(engine, /branch === 'standard_swarm'/);
   assert.match(progression, /Standard Swarm is implemented as side shards/);
