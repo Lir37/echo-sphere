@@ -164,7 +164,6 @@ export function render(ctx: CanvasRenderingContext2D, s: GameState, canvasW: num
   // The network is part of the battlefield, not a hidden calculation. Draw it
   // before the Spheres so links stay behind the authored sphere silhouettes.
   drawFormationMemory(ctx, s);
-  drawGhostSnapPreview(ctx, s);
   drawSphereNetwork(ctx, s, analyzeSphereNetwork(buildRuntimeNetworkNodes(s.spheres, s.minions, (s.player.abilities.minion || 0) >= 3)));
 
 function drawRune(ctx: CanvasRenderingContext2D, rune: GameState['runes'][number]): void {
@@ -1998,68 +1997,6 @@ function drawFormationMemory(ctx: CanvasRenderingContext2D, s: GameState): void 
   }
 
   ctx.setLineDash([]);
-  ctx.restore();
-}
-
-function drawGhostSnapPreview(ctx: CanvasRenderingContext2D, s: GameState): void {
-  if (s.paused || s.gameOver || s.pendingUpgrade || s.pendingArtifact || s.pendingStella) return;
-  if (s.spheres.length >= getMaxSpheres(s)) return;
-
-  const candidate = { x: s.mouse.x, y: s.mouse.y };
-  if (!Number.isFinite(candidate.x) || !Number.isFinite(candidate.y)) return;
-  if (s.spheres.some((sphere) => sphere.alive && Math.hypot(sphere.pos.x - candidate.x, sphere.pos.y - candidate.y) < 26)) return;
-
-  const preview = buildGhostSnapPreview(s.spheres, candidate);
-  if (!preview) return;
-
-  const t = s.time;
-  const pulse = 0.55 + Math.sin(t * 5) * 0.12;
-  ctx.save();
-  for (const link of preview.network.links) {
-    const isCandidateLink = link.a === preview.candidateIndex || link.b === preview.candidateIndex;
-    if (!isCandidateLink) continue;
-    const otherIndex = link.a === preview.candidateIndex ? link.b : link.a;
-    const other = preview.nodes[otherIndex];
-    if (!other) continue;
-    ctx.strokeStyle = preview.formation ? '#ffe08a' : '#7fcfff';
-    ctx.globalAlpha = 0.62 * pulse;
-    ctx.lineWidth = 1.5;
-    ctx.setLineDash([7, 6]);
-    ctx.shadowColor = ctx.strokeStyle;
-    ctx.shadowBlur = 10;
-    ctx.beginPath();
-    ctx.moveTo(candidate.x, candidate.y);
-    ctx.lineTo(other.pos.x, other.pos.y);
-    ctx.stroke();
-  }
-
-  const formation = preview.formation;
-  if (formation) {
-    ctx.strokeStyle = '#ffe08a';
-    ctx.globalAlpha = 0.24 * pulse;
-    ctx.lineWidth = 1.2;
-    ctx.setLineDash([3, 7]);
-    ctx.shadowColor = '#ffe08a';
-    ctx.shadowBlur = 12;
-    ctx.beginPath();
-    ctx.arc(candidate.x, candidate.y, 27, 0, Math.PI * 2);
-    ctx.stroke();
-  }
-
-  ctx.setLineDash([]);
-  ctx.globalAlpha = 0.55 + 0.12 * pulse;
-  ctx.strokeStyle = formation ? '#ffe08a' : '#7fcfff';
-  ctx.lineWidth = 1.6;
-  ctx.shadowColor = ctx.strokeStyle;
-  ctx.shadowBlur = 14;
-  ctx.beginPath();
-  ctx.arc(candidate.x, candidate.y, 16 + Math.sin(t * 7) * 1.5, 0, Math.PI * 2);
-  ctx.stroke();
-  ctx.globalAlpha = 0.18;
-  ctx.fillStyle = ctx.strokeStyle;
-  ctx.beginPath();
-  ctx.arc(candidate.x, candidate.y, 12, 0, Math.PI * 2);
-  ctx.fill();
   ctx.restore();
 }
 
