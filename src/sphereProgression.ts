@@ -32,8 +32,26 @@ const BRANCH_LEVEL_DETAILS:Partial<Record<SphereEvolutionId,{level5:string;level
   aura_overgrowth:{level5:'Сферы рядом с Аурой получают ускорение атак и чаще выпускают свои снаряды.',level6:'Зона усиления расширяется, позволяя большему числу сфер одновременно пользоваться ускорением.'
   },
 };
+const NEW_BRANCH_LEVEL_DETAILS:Partial<Record<SphereEvolutionId,{level5:string;level6:string}>>={
+  orbital_dance:{level5:'Орбиты ускоряются и чаще пересекают врагов.',level6:'Ускорение орбит усиливается, а окно между боевыми проходами сокращается.'},
+  orbital_halo:{level5:'Орбита создаёт защитный резонанс для ближайших сфер.',level6:'Защитный резонанс распространяется на большее число связанных сфер.'},
+  orbital_blade:{level5:'Орбитальные лезвия наносят повышенный урон по врагам на траектории.',level6:'Урон лезвий растёт, а эффективная зона прохода становится шире.'},
+  prism_split:{level5:'Луч делится на дополнительную цель после основного попадания.',level6:'Разделённый луч поражает дополнительную цель с меньшей потерей мощности.'},
+  prism_spectrum:{level5:'Луч переносит активный статусный эффект на поражённую цель.',level6:'Статусная передача становится стабильнее и сильнее взаимодействует с реакциями.'},
+  prism_mirror:{level5:'Связанные сферы создают вторичные отражённые лучи.',level6:'Отражённые лучи получают дополнительную дальность и стабильность.'},
+  gravity_well:{level5:'Зона притяжения становится плотнее и сильнее замедляет врагов.',level6:'Стягивание усиливается к центру и лучше удерживает плотные группы.'},
+  gravity_tide:{level5:'Гравитация чередует фазы стягивания и обратного толчка.',level6:'Фазы становятся мощнее и расширяют контроль пространства.'},
+  gravity_collapse:{level5:'Плотно собранные враги получают дополнительный импульсный урон.',level6:'Коллапс сильнее наказывает большие скопления и ослабленные цели.'},
+  pulse_wave:{level5:'Каждая волна получает увеличенный радиус и отбрасывает врагов от узла.',level6:'Волна распространяется дальше и дольше сохраняет контроль.'},
+  pulse_resonator:{level5:'Импульс дополнительно подпитывает Resonance при работающей сети.',level6:'Связанный импульс чаще создаёт резонансный всплеск.'},
+  pulse_burst:{level5:'После основной волны возникает короткий второй разряд по центру.',level6:'Второй разряд становится сильнее и лучше работает против плотных групп.'},
+  void_hunger:{level5:'Урон растёт пропорционально потерянному здоровью цели.',level6:'Ослабленные цели получают ещё более высокий множитель добивания.'},
+  void_reaper:{level5:'Убийство Void возвращает немного HP и создаёт осколки пустоты.',level6:'Осколки получают повышенный урон и чаще поддерживают цепь убийств.'},
+  void_execution:{level5:'Порог исполнения повышается, превращая слабые цели в приоритет.',level6:'Порог исполнения растёт ещё сильнее, а добивание наносит больше урона боссам.'},
+};
+
 const br=(id:SphereEvolutionId,ru:string,desc:string,fin:[SphereEvolutionDef,SphereEvolutionDef,SphereEvolutionDef]):SphereEvolutionBranch=>{
-  const details=BRANCH_LEVEL_DETAILS[id] ?? { level5: 'Усиление выбранной ветки.', level6: 'Дополнительное усиление уникальной механики.' };
+  const details=BRANCH_LEVEL_DETAILS[id] ?? NEW_BRANCH_LEVEL_DETAILS[id] ?? { level5: 'Усиление выбранной ветки.', level6: 'Дополнительное усиление уникальной механики.' };
   return {
     ...e(id,ru,desc),
     final:fin,
@@ -41,6 +59,24 @@ const br=(id:SphereEvolutionId,ru:string,desc:string,fin:[SphereEvolutionDef,Sph
     level6:{ru:details.level6,en:details.level6},
   };
 };
+const SPHERE_FINAL_DESCRIPTIONS:Partial<Record<SphereEvolutionId,[string,string,string]>>={
+  orbital_dance:['Орбиты вращаются быстрее и делают дополнительные боевые проходы','Скорость вращения ещё выше, а каждый проход даёт усиленный удар','Дополнительный спутник повторяет траекторию основного кольца'],
+  orbital_halo:['Орбита формирует защитный ореол вокруг связанных сфер','Ореол расширяется и ускоряет ближайшие сферы после прохода','Ореол периодически добавляет заряд защитного щита'],
+  orbital_blade:['Лезвия орбиты наносят высокий урон по траектории','Лезвия получают дополнительный импульс при каждом полном обороте','Каждый полный оборот заканчивается усиленным режущим всплеском'],
+  prism_split:['Луч раздваивается на дополнительные цели','Разделение поражает больше целей с меньшей потерей мощности','Разделённые лучи повторно сходятся в усиленный центральный удар'],
+  prism_spectrum:['Луч усиливает активный статусный эффект цели','Статусный луч создаёт дополнительные реакции при смешении эффектов','Каждый успешный статусный контакт усиливает следующий луч'],
+  prism_mirror:['Связанные узлы отражают дополнительный луч в ту же цель','Отражения получают большую дальность и силу','Вся сеть создаёт короткую зеркальную цепь лучей'],
+  gravity_well:['Зона создаёт сильный постоянный колодец притяжения','Колодец сжимает врагов плотнее и снижает их скорость','Центр колодца периодически наносит дополнительный импульсный удар'],
+  gravity_tide:['Поле чередует мощное стягивание и обратную волну','Фазы становятся шире и сильнее контролируют окружение','Смена фазы наносит дополнительный урон собранным целям'],
+  gravity_collapse:['Ослабленные и собранные враги получают усиленный урон коллапса','Коллапс получает повышенный множитель по плотным группам','Предельная плотность создаёт дополнительный удар по центру'],
+  pulse_wave:['Волна становится шире и отбрасывает врагов от узла','Волна проходит дальше и получает усиленный контроль','После каждой третьей волны происходит расширенный резонансный разряд'],
+  pulse_resonator:['Каждая волна дополнительно подпитывает Resonance','Сильная сеть даёт больше заряда от каждого импульса','Полный резонансный цикл кратко ускоряет все связанные сферы'],
+  pulse_burst:['Основная волна получает второй короткий разряд','Второй разряд становится сильнее и шире','Плотная группа вызывает дополнительную третью микроволну'],
+  void_hunger:['Чем меньше HP у цели, тем сильнее удар Void','Ослабленные цели получают ещё более высокий множитель','Критически раненная цель запускает усиленный разрыв пустоты'],
+  void_reaper:['Убийство создаёт осколки и возвращает немного HP','Осколки становятся быстрее и мощнее','Серия добиваний создаёт дополнительный импульс пустоты'],
+  void_execution:['Порог исполнения повышается, а слабые цели становятся уязвимее','Исполнение становится надёжнее против элитных целей','Босс ниже порога получает усиленный удар вместо мгновенного убийства'],
+};
+
 const finals=(base:string,prefix:string,ids:[SphereEvolutionId,SphereEvolutionId,SphereEvolutionId]):[SphereEvolutionDef,SphereEvolutionDef,SphereEvolutionDef]=>{
   const descriptions:Partial<Record<SphereEvolutionId,[string,string,string]>>={
     standard_resonator:['Каждое третье попадание создаёт мощный импульс по группе врагов','Импульс становится шире и отбрасывает врагов','Импульс накладывает замедление на поражённых врагов'],
@@ -59,7 +95,7 @@ const finals=(base:string,prefix:string,ids:[SphereEvolutionId,SphereEvolutionId
     aura_gravity:['Импульс создаёт мощный гравитационный толчок к центру','Гравитация действует на большую область и сильнее стягивает врагов','Сфера получает дополнительный урон вместо притяжения'],
     aura_overgrowth:['Ближайшие сферы получают заметное ускорение атак','Сферы в большем радиусе получают ещё большее ускорение','Ускорение атак сопровождается бонусом собственного урона'],
   };
-  return ids.map((id,i)=>e(id,prefix+' '+['I','II','III'][i],(descriptions[id]||['Финально усиливает ветку «'+base+'»','Расширяет механику ветки «'+base+'»','Даёт альтернативную специализацию ветки «'+base+'»'])[i])) as [SphereEvolutionDef,SphereEvolutionDef,SphereEvolutionDef];
+  return ids.map((id,i)=>e(id,prefix+' '+['I','II','III'][i],(descriptions[id]||SPHERE_FINAL_DESCRIPTIONS[id]||['Финально усиливает ветку «'+base+'»','Расширяет механику ветки «'+base+'»','Даёт альтернативную специализацию ветки «'+base+'»'])[i])) as [SphereEvolutionDef,SphereEvolutionDef,SphereEvolutionDef];
 };
 const sphere=(type:SphereType,name:string,priority:Partial<Record<CharacterId,number>>,l:[string,string,string],branches:[SphereEvolutionBranch,SphereEvolutionBranch,SphereEvolutionBranch]):SphereDef=>({type,name:{ru:name,en:name},priority,levels:lv(...l),evolution4:branches[0],evolution7:branches[0].final[0],evolution4Choices:branches});
 const genericSphereBranches = (type: SphereType, names: [string,string,string], ids: [SphereEvolutionId,SphereEvolutionId,SphereEvolutionId]): [SphereEvolutionBranch,SphereEvolutionBranch,SphereEvolutionBranch] =>
@@ -326,6 +362,18 @@ export type SphereAbilitySynergy = {
 };
 
 export const SPHERE_ABILITY_SYNERGIES: SphereAbilitySynergy[] = [
+  {character:'spherist',sphere:'pulse',ability:'blast',name:{ru:'Резонансная волна',en:'Resonance Wave'},desc:{ru:'Blast усиливает следующую Pulse-волну.',en:'Blast empowers the next Pulse wave.'},effect:'damage'},
+  {character:'spherist',sphere:'orbital',ability:'shield',name:{ru:'Орбитальный купол',en:'Orbital Dome'},desc:{ru:'Shield усиливает орбитальный проход.',en:'Shield empowers an orbital pass.'},effect:'defense'},
+  {character:'hunter',sphere:'void',ability:'crit',name:{ru:'Палач пустоты',en:'Void Executioner'},desc:{ru:'Void сильнее добивает отмеченные цели.',en:'Void executes marked targets harder.'},effect:'damage'},
+  {character:'hunter',sphere:'prism',ability:'crit',name:{ru:'Призматический прицел',en:'Prism Scope'},desc:{ru:'Критический Prism-луч усиливается по приоритетной цели.',en:'Critical Prism beams hit priority targets harder.'},effect:'damage'},
+  {character:'engineer',sphere:'orbital',ability:'minion',name:{ru:'Орбитальное реле',en:'Orbital Relay'},desc:{ru:'Дроны ускоряют следующий орбитальный проход.',en:'Drones accelerate the next orbital pass.'},effect:'attackSpeed'},
+  {character:'engineer',sphere:'pulse',ability:'lightning',name:{ru:'Импульсный проводник',en:'Pulse Conductor'},desc:{ru:'Разряд усиливает следующую Pulse-волну.',en:'Lightning empowers the next Pulse wave.'},effect:'damage'},
+  {character:'alchemist',sphere:'gravity',ability:'firetrail',name:{ru:'Алхимический колодец',en:'Alchemy Well'},desc:{ru:'Gravity удерживает врагов внутри статусной зоны.',en:'Gravity keeps enemies inside the status field.'},effect:'radius'},
+  {character:'alchemist',sphere:'prism',ability:'firetrail',name:{ru:'Призматический катализатор',en:'Prism Catalyst'},desc:{ru:'Статусы Prism сильнее запускают реакции.',en:'Prism statuses trigger stronger reactions.'},effect:'damage'},
+  {character:'architect',sphere:'prism',ability:'timestop',name:{ru:'Геометрический луч',en:'Geometric Ray'},desc:{ru:'Time Stop усиливает отражения Prism.',en:'Time Stop empowers Prism reflections.'},effect:'radius'},
+  {character:'architect',sphere:'gravity',ability:'timestop',name:{ru:'Матрица притяжения',en:'Gravity Matrix'},desc:{ru:'Time Stop расширяет контроль Gravity.',en:'Time Stop expands Gravity control.'},effect:'radius'},
+  {character:'berserker',sphere:'orbital',ability:'shield',name:{ru:'Боевой ореол',en:'Battle Halo'},desc:{ru:'Shield превращает Orbital в более устойчивый источник урона.',en:'Shield makes Orbital a sturdier damage source.'},effect:'defense'},
+  {character:'berserker',sphere:'void',ability:'darkritual',name:{ru:'Пустой ритуал',en:'Void Ritual'},desc:{ru:'Dark Ritual усиливает Void по ослабленным целям.',en:'Dark Ritual empowers Void against weakened targets.'},effect:'damage'},
   {character:'spherist',sphere:'standard',ability:'blast',name:{ru:'Резонансное ядро',en:'Resonant Core'},desc:{ru:'Blast проходит через Standard и передаёт импульс ближайшей сфере.',en:'Blast travels through Standard and relays to the nearest sphere.'},effect:'damage'},
   {character:'spherist',sphere:'chain',ability:'lightning',name:{ru:'Грозовая сеть',en:'Thunder Network'},desc:{ru:'Lightning проходит по Chain-сферам и усиливается на каждом узле.',en:'Lightning travels through Chain spheres and grows at each node.'},effect:'chain'},
   {character:'hunter',sphere:'sniper',ability:'crit',name:{ru:'Executioner',en:'Executioner'},desc:{ru:'Sniper-криты по отмеченным целям наносят дополнительный урон.',en:'Sniper criticals against marked targets deal extra damage.'},effect:'damage'},
@@ -340,9 +388,19 @@ export const SPHERE_ABILITY_SYNERGIES: SphereAbilitySynergy[] = [
   {character:'berserker',sphere:'standard',ability:'darkritual',name:{ru:'Blood Resonance',en:'Blood Resonance'},desc:{ru:'Dark Ritual усиливает Standard в ближнем бою.',en:'Dark Ritual empowers Standard at close range.'},effect:'damage'},
 ];
 
-export const CHARACTER_SPHERE_PRIORITY:Record<CharacterId,SphereType[]>={spherist:['standard','chain'],hunter:['sniper','chain'],engineer:['aura','standard','chain'],berserker:['shotgun','standard'],alchemist:['aura','chain'],architect:['sniper','aura','standard']};
+export const CHARACTER_SPHERE_PRIORITY:Record<CharacterId,SphereType[]>={
+  spherist:['standard','chain','orbital','pulse'],
+  hunter:['sniper','chain','void','prism'],
+  engineer:['aura','orbital','pulse','gravity'],
+  berserker:['shotgun','standard','orbital','void'],
+  alchemist:['aura','chain','gravity','pulse'],
+  architect:['prism','sniper','gravity','orbital'],
+};
 
-export function spherePriority(character:CharacterId,type:SphereType){const list=CHARACTER_SPHERE_PRIORITY[character]||[];const i=list.indexOf(type);return i<0?.25:1-i*.18;}
+export function spherePriority(character:CharacterId,type:SphereType){
+  const def=SPHERE_PROGRESSION[type];
+  return def?.priority?.[character] ?? 0.25;
+}
 export function sphereLevel(s:any,type:SphereType){return s.player.sphereProgression?.[type]||0;}
 function sphereFinalIndex(s:any,type:SphereType):number|null{
   const id=(s.player.evolutions||[]).find((x:string)=>x.startsWith('sphere:'+type+':7:'));
@@ -410,6 +468,47 @@ export function sphereModifiers(s:any,type:SphereType,sphere?:any){
   if(type==='aura'&&branch==='aura_sanctum'){auraRadius*=1.15;if(final===0)auraPulse*=0.8;}
   if(type==='aura'&&branch==='aura_gravity'){auraRadius*=1.10;if(final===0)auraRadius*=1.18;}
   if(type==='aura'&&branch==='aura_overgrowth'){damage*=1.06;auraRadius*=1.08;if(final===0)damage*=1.15;}
+
+  // NEW FIVE: their level 1-3 upgrades must modify real combat parameters.
+  if(type==='orbital'){
+    if(l>=1) damage*=1.15;
+    if(l>=2) radius*=1.15;
+    if(l>=3) delay*=0.88;
+    if(branch==='orbital_dance'){ delay*=final===0?0.80:0.90; }
+    if(branch==='orbital_halo'){ damage*=0.92; }
+    if(branch==='orbital_blade'){ damage*=final===0?1.15:1.05; }
+  }
+  if(type==='prism'){
+    if(l>=1) damage*=1.20;
+    if(l>=2) radius*=1.15;
+    if(l>=3) multishot+=1;
+    if(branch==='prism_split'){ multishot+=final===1?1:0; }
+    if(branch==='prism_spectrum'){ damage*=0.98; }
+    if(branch==='prism_mirror'){ radius*=1.08; }
+  }
+  if(type==='gravity'){
+    if(l>=1) damage*=1.20;
+    if(l>=2) radius*=1.15;
+    if(l>=3) auraPulse*=0.85;
+    if(branch==='gravity_well'){ auraRadius*=final===1?1.20:1.08; }
+    if(branch==='gravity_tide'){ auraPulse*=0.90; }
+    if(branch==='gravity_collapse'){ damage*=final===2?1.18:1.08; }
+  }
+  if(type==='pulse'){
+    if(l>=1) damage*=1.20;
+    if(l>=2) radius*=1.15;
+    if(l>=3) auraPulse*=0.88;
+    if(branch==='pulse_wave'){ radius*=final===1?1.22:1.10; }
+    if(branch==='pulse_resonator'){ damage*=1.05; }
+    if(branch==='pulse_burst'){ damage*=final===2?1.12:1.04; }
+  }
+  if(type==='void'){
+    if(l>=1) damage*=1.20;
+    if(l>=3) radius*=1.15;
+    if(branch==='void_hunger'){ damage*=1.05; }
+    if(branch==='void_reaper'){ damage*=1.03; }
+    if(branch==='void_execution'){ damage*=final===2?1.10:1.04; }
+  }
 
   for (const link of getActiveSphereAbilitySynergies(s)) {
     if (link.sphere !== type) continue;
