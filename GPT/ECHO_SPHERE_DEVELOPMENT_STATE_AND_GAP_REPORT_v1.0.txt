@@ -1,7 +1,7 @@
 ECHO SPHERE
 DEVELOPMENT STATE & GAP REPORT
 Version 1.0
-Date: 2026-09-24
+Date: 2026-09-25
 Branch: new-desing
 
 ======================================================================
@@ -29,7 +29,7 @@ Branch:
 new-desing
 
 Latest implementation commit:
-bd8d2f751030c98522154be6d8de9bb418add789
+b6c20f120c3c335d41ad1f8dbc43adefa44b5318
 
 This HEAD includes Network Square combat integration and the first functional
 Rune layer.
@@ -123,7 +123,7 @@ MODIFIERS
 [MISSING] final expanded Modifier catalogue
 
 ABILITIES
-[PARTIAL] current repository contains 21 Ability definitions
+[DONE] current repository contains 20 Ability definitions
 [PARTIAL] active and passive categories exist
 [DONE] 7-level ability progression framework
 [DONE] branch/final evolution framework
@@ -174,7 +174,7 @@ ARTIFACTS
 [PARTIAL] final catalogue scale
 
 Current Artifact definition count:
-36.
+91.
 
 Final target:
 90-120.
@@ -188,7 +188,7 @@ SYNERGY
 [PARTIAL] catalogue depth
 
 Current Artifact Sets:
-3 initial Sets.
+6 current Sets.
 
 Current Protocols:
 3 initial Protocols.
@@ -743,7 +743,7 @@ DO NOT:
 11. SOURCE OF TRUTH RULE
 ======================================================================
 
-For new chats, use ONLY these two operational documents:
+For new chats, use the three current GPT operational documents:
 
 1. GPT/ECHO_SPHERE_MASTER_FINAL_GAMEPLAY_BLUEPRINT_v1.1.txt
 2. GPT/ECHO_SPHERE_DEVELOPMENT_STATE_AND_GAP_REPORT_v1.0.txt
@@ -880,4 +880,117 @@ REMAINING:
 
 ======================================================================
 END OF RESONANCE ALIGNMENT UPDATE
+======================================================================
+
+
+======================================================================
+LIVE RECONCILIATION — 2026-09-25
+======================================================================
+
+Authoritative current-state correction for this report. Where earlier
+historical entries conflict with this section, use this section together
+with the Blueprint v1.2 and Sphere Audit v1.0.
+
+REPOSITORY
+Branch: new-desing
+HEAD: b6c20f120c3c335d41ad1f8dbc43adefa44b5318
+HEAD commit: test: follow ability slot contract into engine loop
+
+Repository inventory at audit:
+- src: 46 tracked source files
+- tests: 19 tracked test/spec files
+- public/art: 16 authored 2D SVG assets
+- public/art3d: 15 preserved GLB assets
+- docs: 2 tracked design/balance files
+- GPT: 3 current operational/audit documents
+- Android/Capacitor project present
+- one authoritative Android workflow: .github/workflows/android-apk.yml
+
+CI / BUILD
+Actions #736 for this HEAD: SUCCESS.
+Verified stages:
+Typecheck -> Unit tests -> Gameplay audit -> Lint -> Web build ->
+Playwright visual render -> Capacitor sync -> Debug APK build -> APK upload.
+
+HUMAN STATUS
+[GATE PASSED] User manually checked the current APK/gameplay and reports
+that the game works. This is a smoke-test acceptance, not the formal
+10-15 minute fun/build/network acceptance gate.
+
+GPT FOLDER
+Current files:
+- ECHO_SPHERE_DEVELOPMENT_STATE_AND_GAP_REPORT_v1.0.txt
+- ECHO_SPHERE_MASTER_FINAL_GAMEPLAY_BLUEPRINT_v1.2.txt
+- ECHO_SPHERE_SPHERE_AUDIT_v1.0.txt
+The Blueprint was not modified by this reconciliation.
+
+ENGINE REFACTOR
+[DONE] src/engine.ts is a thin public facade.
+[DONE] Runtime responsibilities are split into dedicated modules including
+engineState.ts, engineStats.ts, engineLoop.ts, engineResonance.ts,
+engineCombat.ts, engineSpheres.ts and engineAbilities.ts.
+[DONE] Facade contract test exists at tests/engine-facade.test.mjs.
+
+SPHERES
+[DONE] All ten current Sphere families have runtime/progression integration:
+Standard, Sniper, Shotgun, Chain, Aura, Orbital, Prism, Gravity, Pulse, Void.
+[PARTIAL] final balance and content depth remain open.
+Focused evidence: GPT/ECHO_SPHERE_SPHERE_AUDIT_v1.0.txt.
+
+NETWORK / GEOMETRY
+[DONE] Seven Geometry states exist in the runtime:
+Line, Triangle, Cluster, Square, Ring, Lattice, Fractal.
+[DONE] Ghost Snap is integrated in mobile placement/reposition flow.
+[PARTIAL] final readability, gameplay value, balance and build interaction.
+
+RESONANCE
+[DONE] player-level 0..100 authoritative resource.
+[DONE] source-routed charge and remainder-preserving event trigger.
+[DONE] runtime behaviors for all seven Geometry Resonance Events.
+[PARTIAL] final balance/depth and explicit overflow / Zero Point behavior.
+
+ABILITIES
+Current: 20 definitions.
+[DONE] active/passive categories.
+[DONE] 7-level progression and branch/final evolution framework.
+[DONE] progressive non-Dash active slots: level 5 -> 1, level 12 -> 2,
+level 20 -> 3.
+[PARTIAL] final 30-item catalogue, acquisition distribution and mobile UX.
+
+ARTIFACTS / SYNERGY
+Current Artifact catalogue: 91 definitions.
+Current Artifact Sets: 6.
+Current Protocols: 3.
+The numerical Artifact target range 90-120 is already reached. Remaining gap
+is behavioral depth, strategic impact and playtest validation.
+
+RUNES
+Current core Rune definitions: 9.
+[PARTIAL/MISSING] RUNIC CELL expansion entry and final balancing/archive pass.
+
+CHARACTERS / ENEMIES / BOSSES
+Characters: 6 current / 10 final target.
+Core enemy roles: 4 current / 15+ final target.
+Boss families: 4 current / 8 final target.
+
+3D POLICY
+[ACTIVE] Canvas / authored 2.5D gameplay presentation.
+[PARKED] Mass complex GLB production.
+Existing public/art3d assets and visual3d.ts remain preserved for a future
+controlled re-evaluation; App.tsx currently sets ENABLE_3D_RENDERER = false.
+
+TECHNICAL DEBT
+[OPEN] migrate remaining source-regex tests toward behavioral contracts.
+[OPEN] renderer.ts remains large.
+[OPEN] App.tsx remains large.
+These are follow-up tasks, not blockers to the current working build.
+
+NEXT CHAT
+Start from b6c20f120c3c335d41ad1f8dbc43adefa44b5318 on new-desing.
+Read Blueprint v1.2, this report and Sphere Audit v1.0.
+Do not delete or rebuild working systems because of stale historical
+entries above. Use the user's actual APK observations as the next product
+input.
+======================================================================
+END LIVE RECONCILIATION
 ======================================================================
