@@ -585,6 +585,8 @@ Confirmed technical findings accepted into the development process:
 - Deterministic seeded gameplay RNG added in src/rng.ts.
 - GameState now stores runSeed and rngState.
 - Gameplay randomness in engine.ts no longer calls Math.random directly.
+- createInitialState accepts an optional runSeedOverride, allowing a known
+  seed to reproduce a run during debugging without changing normal starts.
 - Level Up weighted choice generation now consumes the GameState RNG.
 - All five currently implemented Spheres are valid Level-Up sources; the
   previous vertical-slice source gate no longer hides Shotgun/Aura.
