@@ -42,3 +42,11 @@ test('Resonance charge can be set explicitly for deterministic tests and tools',
   setResonanceCharge(state, -10);
   assert.equal(state.resonanceCharge, 0);
 });
+
+test('explicit overflow opt-in remains separate from the baseline 0..100 contract', () => {
+  const state = { resonanceCharge: 0 };
+  setResonanceCharge(state, 150, false);
+  assert.equal(state.resonanceCharge, 100);
+  setResonanceCharge(state, 150, true);
+  assert.equal(state.resonanceCharge, 150);
+});

@@ -843,10 +843,30 @@ COMPLETED:
 - Resonance Rune now grants the Blueprint-defined 60 charge.
 
 REMAINING RESONANCE WORK:
-- final seven-Geometry event depth and balancing;
+- playtest and balance the seven Geometry Event behaviors;
 - explicit overflow-cap mechanics for effects such as the future Zero Point;
 - additional direct Character/Artifact Resonance sources where their final
   mechanics require them.
+
+CURRENT WORK SESSION UPDATE — RESONANCE EVENT DEPTH — 2026-09-25
+======================================================================
+
+COMPLETED:
+- LINE Resonance arms a one-shot burst on the next actual Sphere attack;
+- TRIANGLE Resonance relays damage through active linked formation nodes;
+- CLUSTER Resonance remains an immediate formation AoE discharge;
+- SQUARE Resonance uses the existing shield-charge system for its temporary defensive field;
+- RING Resonance persists as a short cyclic network attack;
+- LATTICE Resonance synchronizes firing across active nodes;
+- FRACTAL Resonance performs lower-geometry replay plus a secondary echo;
+- player-level 0..100 Resonance remains authoritative;
+- local formationHitCount remains separate for local formation cadence.
+
+REMAINING:
+- playtest and balance the seven event behaviors;
+- explicit Zero Point overflow behavior;
+- direct Character/Artifact Resonance sources where final mechanics require them.
+
 
 ======================================================================
 END OF RESONANCE ALIGNMENT UPDATE
