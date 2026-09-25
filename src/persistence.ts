@@ -9,6 +9,7 @@ const NAME_KEY = 'echosphere_name';
 const HANDEDNESS_KEY = 'echosphere_handedness';
 const CHARACTER_KEY = 'echosphere_character';
 const CHARACTER_PROFILES_KEY = 'echosphere_character_profiles';
+const KNOWLEDGE_KEY = 'echosphere_knowledge_v1';
 
 export type Handedness = 'right' | 'left';
 
@@ -26,6 +27,39 @@ export function getCharacterMasteryLevelForXp(xp: number): number {
 
 export function getCharacterMasteryNextThreshold(level: number): number | null {
   return level >= 5 ? null : CHARACTER_MASTERY_THRESHOLDS[level];
+}
+
+
+
+export type KnowledgeId = string;
+
+export function loadKnowledge(): KnowledgeId[] {
+  const raw = localStorage.getItem(KNOWLEDGE_KEY);
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw) as unknown;
+    return Array.isArray(parsed) ? parsed.filter((id): id is string => typeof id === 'string') : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveKnowledge(ids: KnowledgeId[]): void {
+  localStorage.setItem(KNOWLEDGE_KEY, JSON.stringify(Array.from(new Set(ids))));
+}
+
+export function unlockKnowledge(ids: KnowledgeId[]): boolean {
+  if (ids.length === 0) return false;
+  const current = new Set(loadKnowledge());
+  let changed = false;
+  for (const id of ids) {
+    if (!current.has(id)) {
+      current.add(id);
+      changed = true;
+    }
+  }
+  if (changed) saveKnowledge([...current]);
+  return changed;
 }
 
 export function loadGold(): number {
@@ -243,4 +277,5 @@ export function resetAll(): void {
   localStorage.removeItem(HANDEDNESS_KEY);
   localStorage.removeItem(LANG_KEY);
   localStorage.removeItem(NAME_KEY);
+  localStorage.removeItem(KNOWLEDGE_KEY);
 }
