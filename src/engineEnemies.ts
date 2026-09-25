@@ -26,7 +26,7 @@ export function getSlowFactor(s: GameState): number {
   return lvl > 0 ? 1 - (0.1 + (lvl - 1) * 0.05) : 1;
 }
 
-function spawnEnemy(s: GameState, isBoss: boolean): EnemyEntity {
+export function spawnEnemy(s: GameState, isBoss: boolean): EnemyEntity {
   const wave = s.wave;
   const angle = nextRandom(s) * Math.PI * 2;
   const spawnDist = 700;
@@ -113,7 +113,7 @@ function spawnEnemy(s: GameState, isBoss: boolean): EnemyEntity {
   };
 }
 
-function startWave(s: GameState): void {
+export function startWave(s: GameState): void {
   s.wave++;
   s.stats.wave = s.wave;
   const isBossWave = s.wave % 10 === 0;
@@ -130,7 +130,7 @@ function startWave(s: GameState): void {
   s.waveSpawnTimer = 0.5;
 }
 
-function updateMinions(s: GameState, dt: number): void {
+export function updateMinions(s: GameState, dt: number): void {
   for (let i = s.minions.length - 1; i >= 0; i--) {
     const m = s.minions[i];
     m.life -= dt;
@@ -225,7 +225,7 @@ function applyGravityFields(s: GameState, dt: number): void {
   }
 }
 
-function updateEnemies(s: GameState, dt: number): void {
+export function updateEnemies(s: GameState, dt: number): void {
   const slowLvl = s.player.abilities.slow || 0;
   for (let i = s.enemies.length - 1; i >= 0; i--) {
     const e = s.enemies[i];
