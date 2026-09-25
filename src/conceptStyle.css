@@ -2158,3 +2158,40 @@ html, body, #root {
     min-height: 300px;
   }
 }
+
+
+/* ===== Echo Archive / Knowledge Base ===== */
+.es-main-nav {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 6px;
+  width: 100%;
+}
+.es-main-nav button {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 8px 5px;
+  border: 1px solid rgba(90,182,237,0.14);
+  border-radius: 7px;
+  background: rgba(5,13,23,0.58);
+  color: #7795aa;
+  font-size: 8px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+.es-main-nav button:hover {
+  border-color: rgba(105,232,255,0.34);
+  background: rgba(15,40,59,0.42);
+  color: #e8fbff;
+}
+.es-knowledge-nav {
+  border-color: rgba(162,124,255,0.26) !important;
+}
+@media (max-width: 760px) {
+  .es-main-nav {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
