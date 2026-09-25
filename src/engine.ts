@@ -9,6 +9,35 @@ import type {
   TowerMods, TowerUpgradeChoice, LeaderEntry, MapTheme,
 } from './engineTypes';
 import { playSound } from './audio';
+export type {
+  AbilityType,
+  ArtifactId,
+  BossType,
+  Difficulty,
+  Vec,
+  PlayerState,
+  SphereEntity,
+  SphereProjectile,
+  EnemyEntity,
+  BossProjectile,
+  XPOrb,
+  HealthPack,
+  Particle,
+  FireTrailSegment,
+  MinionEntity,
+  LightningBolt,
+  UpgradeChoice,
+  GameStats,
+  DamageNumber,
+  ChestEntity,
+  GameState,
+  ShopState,
+  TowerMods,
+  TowerUpgradeChoice,
+  LeaderEntry,
+  MapTheme,
+} from './engineTypes';
+
 import {
   DEFAULT_MAX_SPHERES,
   MAX_SPHERES_CAP,
@@ -41,7 +70,7 @@ export {
   removeSphere,
 };
 
-import { activateByKey } from './engineAbilities';
+export { activateByKey } from './engineAbilities';
 import {
   PLAYER_RADIUS,
   updateEnemies,
@@ -51,6 +80,20 @@ import {
 
 export { PLAYER_RADIUS };
 import {
+  dealDamageToEnemy,
+  onEnemyDeath,
+  pickArtifacts,
+  damagePlayer,
+  dist,
+  rand,
+  getCritChance,
+  getDodgeChance,
+  getVampirePercent,
+  getDamageTakenMult,
+  getCooldownMult,
+} from './engineCombat';
+
+export {
   dealDamageToEnemy,
   onEnemyDeath,
   pickArtifacts,
@@ -376,6 +419,14 @@ export function applyArtifact(s: GameState, id: ArtifactId): void {
   if (id === 'amulet_hp') { s.player.maxHp += 30; s.player.hp += 30; }
   if (id === 'dragon_heart') { s.player.maxHp += 50; s.player.hp += 50; }
   playSound('chest');
+}
+
+export function openChest(s: GameState, _reward: 'artifact'): void {
+  const choices = pickArtifacts(s);
+  if (choices.length > 0) {
+    s.pendingArtifact = choices;
+  }
+  s.pendingChest = null;
 }
 
 // ===== Main update =====
