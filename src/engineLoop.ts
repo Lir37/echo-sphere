@@ -15,12 +15,18 @@ import { updateSpheres } from './engineSpheres';
 import { spawnEnemy, startWave, updateMinions, updateEnemies } from './engineEnemies';
 import { dealDamageToEnemy } from './engineCombat';
 import { generateUpgradeChoices } from './engineProgression';
+import { chargeResonance as chargeResonanceRuntime } from './engineResonance';
 import { dist, rand, clamp } from './engineRuntime';
 import type { GameState, RuneEntity } from './engineTypes';
 
 function pickArtifacts(s: GameState): ArtifactId[] {
   return pickArtifactChoices(s, 3, false, () => nextRandom(s));
 }
+
+function chargeResonance(s: GameState, source: 'enemy' | 'sphere' | 'rune' | 'geometry'): void {
+  chargeResonanceRuntime(s, source, dealDamageToEnemy);
+}
+
 
 export function claimStella(s: GameState): void {
   if (!s.pendingStella) return;
