@@ -637,7 +637,7 @@ function drawEnergyBolt(ctx: CanvasRenderingContext2D, from: Vec, to: Vec, alpha
 }
 
 // ===== Paper texture (world space) =====
-let _textureCanvases: Partial<Record<MapTheme, HTMLCanvasElement>> = {};
+const _textureCanvases: Partial<Record<MapTheme, HTMLCanvasElement>> = {};
 function drawPaperTexture(ctx: CanvasRenderingContext2D, w: number, h: number, theme: Theme, offsetX = 0, offsetY = 0): void {
   if (!_textureCanvases[theme.bg as MapTheme]) {
     const tc = document.createElement('canvas');

@@ -588,7 +588,7 @@ function getCharacterMaxHpMultiplierForId(id: CharacterId): number {
 
 // ===== Derived stats =====
 export function getMaxSpheres(s: GameState): number {
-  let m = DEFAULT_MAX_SPHERES + (s.player.abilities.maxspheres || 0) + (s.shopUpgrades.spheres || 0);
+  const m = DEFAULT_MAX_SPHERES + (s.player.abilities.maxspheres || 0) + (s.shopUpgrades.spheres || 0);
   return Math.min(m, MAX_SPHERES_CAP);
 }
 
@@ -1409,7 +1409,7 @@ function damagePlayer(s: GameState, amount: number): void {
     }
     return;
   }
-  let dmg = amount * getDamageTakenMult(s);
+  const dmg = amount * getDamageTakenMult(s);
   // mirror reflect
   if (s.player.artifacts.includes('mirror') && Math.random() < 0.2) {
     // reflect: find nearest enemy and damage
@@ -3082,7 +3082,7 @@ function updateXpOrbs(s: GameState, dt: number): void {
 
 function gainXp(s: GameState, amount: number): void {
   const mult = getXpMult(s);
-  let gained = amount * mult;
+  const gained = amount * mult;
   // echo accumulator: spheres absorb xp
   if (s.player.evolutions.includes('echoaccumulator')) {
     s.player.sphereXpAccumulator += gained * 0.3;

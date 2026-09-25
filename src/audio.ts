@@ -114,7 +114,7 @@ export function playSound(name: SoundName): void {
       chime.start(now + 0.015); chime.stop(now + 0.18);
       break;
     }
-    case 'levelup':
+    case 'levelup': {
       osc.type = 'sine';
       osc.frequency.setValueAtTime(440, now);
       osc.frequency.linearRampToValueAtTime(880, now + 0.15);
@@ -132,6 +132,7 @@ export function playSound(name: SoundName): void {
       g2.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
       osc2.start(now + 0.1); osc2.stop(now + 0.4);
       break;
+    }
     case 'boss':
       osc.type = 'sawtooth';
       osc.frequency.setValueAtTime(80, now);
@@ -240,7 +241,7 @@ export function playSound(name: SoundName): void {
       gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
       osc.start(now); osc.stop(now + 0.25);
       break;
-    case 'explosion':
+    case 'explosion': {
       // noise burst
       const bufferSize = c.sampleRate * 0.3;
       const buffer = c.createBuffer(1, bufferSize, c.sampleRate);
@@ -261,5 +262,6 @@ export function playSound(name: SoundName): void {
       gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
       osc.start(now); osc.stop(now + 0.3);
       break;
+    }
   }
 }

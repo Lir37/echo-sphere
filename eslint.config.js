@@ -23,7 +23,7 @@ export default tseslint.config(
       // while correctness-oriented lint rules remain build-blocking.
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-unused-vars': 'warn',
-      'no-unused-vars': 'warn',
+      'no-unused-vars': 'off',
       ...reactHooks.configs.recommended.rules,
       'react-refresh/only-export-components': [
         'warn',
