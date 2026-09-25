@@ -3332,12 +3332,6 @@ function updateGravitySphere(s: GameState, sphere: SphereEntity, damage: number,
 
   for (const enemy of s.enemies) {
     if (enemy.hp <= 0 || dist(enemy.pos, sphere.pos) > pullRadius) continue;
-    const dx = sphere.pos.x - enemy.pos.x;
-    const dy = sphere.pos.y - enemy.pos.y;
-    const d = Math.hypot(dx, dy) || 1;
-    const direction = phase >= 0 ? 1 : -0.45;
-    enemy.pos.x += dx / d * pullStrength * direction;
-    enemy.pos.y += dy / d * pullStrength * direction;
     enemy.slowTimer = Math.max(enemy.slowTimer, branch === 'gravity_well' ? 0.75 : 0.45);
     enemy.slowFactor = Math.min(enemy.slowFactor, branch === 'gravity_well' ? 0.56 : 0.72);
 
@@ -3709,6 +3703,44 @@ function updateMinions(s: GameState, dt: number): void {
   }
 }
 
+function applyGravityFields(s: GameState, dt: number): void {
+  for (const sphere of s.spheres) {
+    if (!sphere.alive || sphere.type !== 'gravity') continue;
+    const mods = sphereModifiers(s, 'gravity', sphere);
+    const branch = s.player.sphereBranches?.gravity;
+    const finalIndex = getSphereFinalIndex(s, 'gravity');
+    const radius = SPHERE_TYPES.gravity.auraRadius * mods.radius * mods.auraRadius;
+
+    let strength = 34 * Math.min(1.6, sphereLevel(s, 'gravity') * 0.18 + 0.5);
+    if (s.player.artifacts.includes('gravity_bead')) strength *= 1.12;
+    if (s.player.artifacts.includes('gravity_hook')) strength *= 1.10;
+    if (getSphereNetworkProfile(s, sphere).cluster) strength *= 1.20;
+    if (branch === 'gravity_well') strength *= finalIndex === 1 ? 1.35 : 1.15;
+    if (branch === 'gravity_tide') strength *= 1.05;
+    if (branch === 'gravity_collapse') strength *= 0.90;
+
+    for (const enemy of s.enemies) {
+      if (enemy.hp <= 0) continue;
+      const dx = sphere.pos.x - enemy.pos.x;
+      const dy = sphere.pos.y - enemy.pos.y;
+      const d = Math.hypot(dx, dy);
+      if (d <= 1 || d >= radius) continue;
+
+      // Continuous inverse-distance-style falloff: far enemies are only nudged
+      // off course, while the force rises sharply as they approach the core.
+      const proximity = 1 - d / radius;
+      let pullSpeed = 8 + strength * proximity * proximity * 3.4;
+      if (branch === 'gravity_tide') {
+        const phase = Math.sin(sphere.rotation);
+        if (phase < -0.25) pullSpeed *= -0.28;
+      }
+      pullSpeed = Math.max(-80, Math.min(220, pullSpeed));
+      enemy.pos.x += (dx / d) * pullSpeed * dt;
+      enemy.pos.y += (dy / d) * pullSpeed * dt;
+    }
+  }
+}
+
 function updateEnemies(s: GameState, dt: number): void {
   const slowLvl = s.player.abilities.slow || 0;
   for (let i = s.enemies.length - 1; i >= 0; i--) {
@@ -3762,6 +3794,10 @@ function updateEnemies(s: GameState, dt: number): void {
     const d = Math.hypot(dx, dy) || 1;
     e.pos.x += (dx / d) * e.speed * speedMult * aggro * dt;
     e.pos.y += (dy / d) * e.speed * speedMult * aggro * dt;
+
+    // Gravity is a continuous field, not a periodic teleport. Apply it after
+    // normal enemy steering so the pull bends the trajectory smoothly.
+    applyGravityFields(s, dt);
 
     // Elite Link Breaker uses a readable telegraph before removing a Sphere from Network participation.
     if (e.isElite) {
