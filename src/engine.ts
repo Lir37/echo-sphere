@@ -1511,7 +1511,7 @@ function activateBlast(s: GameState): void {
       const networkState = analyzeSphereNetwork(getNetworkNodes(s));
       const orderedNetwork: SphereEntity[] = [];
       const remaining = new Set(ordered);
-      let current = ordered[0] ?? null;
+      let current: SphereEntity | null = ordered[0] ?? null;
 
       while (current) {
         orderedNetwork.push(current);
@@ -1523,7 +1523,7 @@ function activateBlast(s: GameState): void {
             .filter((index) => remaining.has(s.spheres[index]))
             .sort((a, b) => dist(s.spheres[a].pos, current!.pos) - dist(s.spheres[b].pos, current!.pos))[0]
           : undefined;
-        current = nextIndex === undefined ? null : s.spheres[nextIndex];
+        current = nextIndex === undefined ? null : (s.spheres[nextIndex] ?? null);
       }
 
       ordered = orderedNetwork.length > 0 ? orderedNetwork : ordered;
