@@ -19,8 +19,6 @@ export const BASE_SPHERE_DAMAGE = 12;
 export const BASE_SPHERE_DELAY = 1.2;
 export const PLAYER_RADIUS = 16;
 
-export type MapTheme = 'parchment' | 'bamboo' | 'ocean' | 'sunset';
-
 export const MAP_THEMES: { id: MapTheme; name: { ru: string; en: string } }[] = [
   { id: 'parchment', name: { ru: 'Свиток', en: 'Scroll' } },
   { id: 'bamboo', name: { ru: 'Бамбук', en: 'Bamboo' } },
