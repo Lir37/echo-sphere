@@ -61,11 +61,10 @@ function compare(finalItems, currentItems) {
   };
 }
 
-const [blueprint, gameData, engine, progression, network, gap] = await Promise.all([
+const [blueprint, gameData, engine, network, gap] = await Promise.all([
   read('GPT/ECHO_SPHERE_MASTER_FINAL_GAMEPLAY_BLUEPRINT_v1.1.txt'),
   read('src/gameData.ts'),
   read('src/engine.ts'),
-  read('src/sphereProgression.ts'),
   read('src/network.ts'),
   read('GPT/ECHO_SPHERE_DEVELOPMENT_STATE_AND_GAP_REPORT_v1.0.txt'),
 ]);
