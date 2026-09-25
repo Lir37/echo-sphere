@@ -72,6 +72,11 @@ const sphereTypes: Record<SphereType, {color:string; accent:string}> = {
   shotgun:{color:'#ff8638',accent:'#ffe0b0'},
   chain:{color:'#ffe14e',accent:'#fff8ba'},
   aura:{color:'#48e4b2',accent:'#c9ffec'},
+  orbital:{color:'#8ef0ff',accent:'#e0fbff'},
+  prism:{color:'#ff8de1',accent:'#ffe0f5'},
+  gravity:{color:'#a58cff',accent:'#e2d9ff'},
+  pulse:{color:'#ffd35a',accent:'#fff0ae'},
+  void:{color:'#c28cff',accent:'#ead8ff'},
 };
 
 const enemyColors: Record<string,string> = {
