@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Pause, Zap } from 'lucide-react';
 import { ABILITIES, SPHERE_TYPES, type AbilityType, type SphereType } from './gameData';
-import { activateByKey, activateDash, getMaxSpheres, placeSphere, setSphereType, VERTICAL_SLICE_SPHERE_TYPES, type GameState, type SphereEntity, type Vec } from './engine';
+import { activateByKey, activateDash, getMaxSpheres, placeSphere, setSphereType, type GameState, type SphereEntity, type Vec } from './engine';
+import { SPHERE_TYPES } from './gameData';
 import { CHARACTER_DEFS } from './characters';
 import { getAbilityDisplayName } from './sphereProgression';
 import { getCharacterFormation, getEngineerNetworkSpheres } from './characterRuntime';
@@ -224,7 +225,7 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
   }, [formationMemory?.id]);
 
   const activeAbilities = Object.entries(stateRef.current?.activeKeyMap || {}) as [string, AbilityType][];
-  const types: SphereType[] = [...VERTICAL_SLICE_SPHERE_TYPES];
+  const types: SphereType[] = Object.keys(SPHERE_TYPES) as SphereType[];
   const selectedType = stateRef.current?.selectedSphereType || 'standard';
   const selectedDef = SPHERE_TYPES[selectedType];
   const preferredSphereTypes = stateRef.current
