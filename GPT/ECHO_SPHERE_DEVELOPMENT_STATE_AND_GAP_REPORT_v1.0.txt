@@ -994,3 +994,30 @@ input.
 ======================================================================
 END LIVE RECONCILIATION
 ======================================================================
+
+
+--- LIVE RECONCILIATION 2026-09-25 / LEVEL-UP RNG ---
+
+Current HEAD: 61a418d409efb615cdcc869bcce69ac5ec6d2ad8
+CI #745: SUCCESS.
+
+Implemented without changing existing Sphere/Network/Combat behavior:
+- Level-Up final selection no longer forces one Ability + one Sphere + one Modifier.
+- Per-choice weighting now directly controls the three offered cards, including build pressure, character affinity, unfinished-system pressure and pity.
+- Added a short two-card recent-choice cooldown to reduce immediate logical repeats.
+- Dead-choice suppression remains the final eligibility gate.
+- Source diversity is now a soft multiplier, not a hard composition rule.
+- Seeded run RNG remains authoritative for selection order.
+
+Validation:
+- Typecheck: PASS.
+- Unit tests: PASS (69/69).
+- Gameplay coverage audit: PASS.
+- Lint: PASS.
+- Web build + Playwright visual QA: PASS.
+- Capacitor sync + debug APK build/upload: PASS.
+
+Still intentionally open:
+- Limited Reroll / Lock / later Meta Ban.
+- Numerical playtest tuning of Level-Up weights and long-run choice distribution.
+- Formal 10-15 minute human gameplay acceptance remains outside automated CI.
