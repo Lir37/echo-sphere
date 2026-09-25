@@ -5,7 +5,13 @@ import {
   dist,
   rand,
   getCooldownMult,
+  getVampirePercent,
 } from './engineCombat';
+
+function clamp(v: number, min: number, max: number): number {
+  return Math.max(min, Math.min(max, v));
+}
+
 
 function activateBlast(s: GameState): void {
   const lvl = s.player.abilities.blast || 0;
