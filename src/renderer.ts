@@ -1683,6 +1683,7 @@ function drawModernSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: S
   ctx.save();
   ctx.translate(sphere.pos.x, sphere.pos.y + bob);
   drawGroundShadow(ctx, r * 0.90, r * 0.24, 6);
+  drawNetworkDisabledIndicator(ctx, sphere, time);
 
   const drawn = drawReferenceSprite(ctx, artKey, 0, -r * 0.14, r * 3.15, color, Math.sin(time * 0.7 + sphere.pos.x * 0.01) * 0.025);
   if (drawn) {
@@ -2586,6 +2587,7 @@ function drawModernEnemy(ctx: CanvasRenderingContext2D, e: EnemyEntity, playerPo
   glowCircle(ctx, e.radius * (e.isBoss ? 1.55 : 1.10), color, e.isBoss ? 0.16 : 0.065);
   // Boss telegraphs are presentation-only cues; attack rules remain in engine.ts.
   drawBossAttackTelegraph(ctx, e, playerPos, t);
+  drawLinkBreakerTelegraph(ctx, e, t);
 
   const spriteSize = e.isBoss ? e.radius * 3.45 : e.radius * 2.85;
   const spriteDrawn = drawReferenceSprite(ctx, artKey, 0, e.isBoss ? -e.radius * 0.06 : 0, spriteSize, color, 0, 1);
@@ -2666,6 +2668,85 @@ function drawModernEnemy(ctx: CanvasRenderingContext2D, e: EnemyEntity, playerPo
     ctx.shadowBlur=0;ctx.fillStyle='rgba(220,248,255,.75)';ctx.font='bold 8px system-ui,sans-serif';ctx.textAlign='center';
     ctx.fillText('VOID ENTITY',e.pos.x,by-4);ctx.restore();
   }
+}
+
+function drawLinkBreakerTelegraph(ctx: CanvasRenderingContext2D, e: EnemyEntity, t: number): void {
+  if (!e.isElite || !e.elitePulseTarget || (e.elitePulseTelegraphTimer || 0) <= 0) return;
+
+  const target = e.elitePulseTarget;
+  const dx = target.pos.x - e.pos.x;
+  const dy = target.pos.y - e.pos.y;
+  const remaining = Math.max(0, Math.min(1, (e.elitePulseTelegraphTimer || 0) / LINK_BREAKER_TELEGRAPH_SECONDS));
+  const pulse = 0.60 + Math.sin(t * 18) * 0.22;
+
+  ctx.save();
+  ctx.strokeStyle = '#ff4d70';
+  ctx.shadowColor = '#ff4d70';
+  ctx.shadowBlur = 14;
+  ctx.globalAlpha = pulse * (0.55 + (1 - remaining) * 0.45);
+  ctx.lineWidth = 2.4;
+  ctx.setLineDash([9, 6]);
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.lineTo(dx, dy);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.translate(dx, dy);
+  ctx.globalAlpha = 0.78 + (1 - remaining) * 0.18;
+  ctx.lineWidth = 2.2;
+  ctx.beginPath();
+  ctx.arc(0, 0, 16 + Math.sin(t * 20) * 2, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(-22, 0); ctx.lineTo(22, 0);
+  ctx.moveTo(0, -22); ctx.lineTo(0, 22);
+  ctx.stroke();
+
+  ctx.globalAlpha = 0.35;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.arc(0, 0, 28, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawNetworkDisabledIndicator(ctx: CanvasRenderingContext2D, sphere: SphereEntity, t: number): void {
+  if ((sphere.networkDisabledTimer || 0) <= 0) return;
+
+  const remaining = Math.max(0, Math.min(1, (sphere.networkDisabledTimer || 0) / LINK_BREAKER_DISABLED_SECONDS));
+  const pulse = 0.72 + Math.sin(t * 16) * 0.22;
+
+  ctx.save();
+  ctx.shadowColor = '#ff4d70';
+  ctx.shadowBlur = 15;
+  ctx.strokeStyle = '#ff4d70';
+  ctx.globalAlpha = pulse;
+  ctx.lineWidth = 2.2;
+  ctx.setLineDash([7, 5]);
+
+  ctx.beginPath();
+  ctx.arc(0, 0, 24 + Math.sin(t * 13) * 1.5, 0, Math.PI * 2);
+  ctx.stroke();
+
+  ctx.globalAlpha = 0.88;
+  ctx.setLineDash([3, 7]);
+  ctx.beginPath();
+  ctx.arc(0, 0, 31, -Math.PI / 3, Math.PI / 3);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(-14, -14); ctx.lineTo(14, 14);
+  ctx.moveTo(14, -14); ctx.lineTo(-14, 14);
+  ctx.stroke();
+
+  ctx.globalAlpha = 0.50;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.arc(0, 0, 36 - remaining * 8, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * remaining);
+  ctx.stroke();
+
+  ctx.setLineDash([]);
+  ctx.restore();
 }
 
 function drawModernBossBody(ctx:CanvasRenderingContext2D,e:EnemyEntity,color:string,t:number):void{
