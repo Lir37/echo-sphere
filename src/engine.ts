@@ -38,7 +38,7 @@ import { addResonanceChargeFromSource, type ResonanceSource } from './resonance'
 import { canReceivePlayerDamage, CRIT_BASE, CRIT_MULTIPLIER_BASE, getContextualCritChance } from './combatRules';
 import { LINK_BREAKER_COOLDOWN_SECONDS, LINK_BREAKER_DISABLED_SECONDS, LINK_BREAKER_TARGET_RANGE, LINK_BREAKER_TELEGRAPH_SECONDS } from './eliteBalance';
 
-import type { GameState, ShopState, PlayerState, SphereEntity, EnemyEntity, SphereProjectile, SphereMods, SphereUpgradeChoice, UpgradeChoice, DamageNumber, ChestEntity, RuneEntity, MinionEntity, LightningBolt, BossProjectile, XPOrb, HealthPack, Particle, FireTrailSegment } from './engineTypes';
+import type { GameState, ShopState, PlayerState, SphereEntity, EnemyEntity, SphereProjectile, SphereMods, SphereUpgradeChoice, UpgradeChoice, DamageNumber, ChestEntity, RuneEntity, MinionEntity, LightningBolt, BossProjectile, XPOrb, HealthPack, Particle, FireTrailSegment, Vec } from './engineTypes';
 export type { GameState, ShopState, PlayerState, SphereEntity, EnemyEntity, SphereProjectile, SphereMods, SphereUpgradeChoice, UpgradeChoice, DamageNumber, ChestEntity, RuneEntity, MinionEntity, LightningBolt, BossProjectile, XPOrb, HealthPack, Particle, FireTrailSegment, Vec } from './engineTypes';
 
 const SPHERE_MODIFIER_CHOICES: ReadonlyArray<{
@@ -3389,6 +3389,7 @@ function updateMinions(s: GameState, dt: number): void {
 }
 
 function applyGravityFields(s: GameState, dt: number): void {
+  const networkState = analyzeSphereNetwork(getNetworkNodes(s));
   for (const sphere of s.spheres) {
     if (!sphere.alive || sphere.type !== 'gravity') continue;
     const mods = sphereModifiers(s, 'gravity', sphere);
@@ -3399,7 +3400,7 @@ function applyGravityFields(s: GameState, dt: number): void {
     let strength = 34 * Math.min(1.6, sphereLevel(s, 'gravity') * 0.18 + 0.5);
     if (s.player.artifacts.includes('gravity_bead')) strength *= 1.12;
     if (s.player.artifacts.includes('gravity_hook')) strength *= 1.10;
-    if (getSphereNetworkProfile(s, sphere).cluster) strength *= 1.20;
+    if (getSphereNetworkProfile(networkState, s.spheres.indexOf(sphere)).cluster) strength *= 1.20;
     if (branch === 'gravity_well') strength *= finalIndex === 1 ? 1.35 : 1.15;
     if (branch === 'gravity_tide') strength *= 1.05;
     if (branch === 'gravity_collapse') strength *= 0.90;
