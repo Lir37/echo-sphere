@@ -3271,7 +3271,7 @@ function updateEnemies(s: GameState, dt: number): void {
               color: '#8a5a8a', shape: 'circle',
               slowTimer: 0, slowFactor: 1, freezeTimer: 0, hitFlash: 0,
               isBoss: false, bossShootTimer: 0, bossProjectiles: [],
-              xpValue: 2, rotation: 0, tier: 0, trailTimer: 0,
+              xpValue: 2, rotation: 0, tier: 0, trailTimer: 0, elitePulseTimer: 0,
               fireTimer: 0, fireDps: 0, poisonTimer: 0, poisonDps: 0,
               isElite: false, bossType: 'shooter',
               chargeTimer: 0, isCharging: false, chargeDir: { x: 0, y: 0 },
