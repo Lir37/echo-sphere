@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Settings, Store, Trophy, Play, Globe, ArrowLeft, RotateCcw, Award, Volume2, VolumeX, UserRound, BarChart3, Sparkles, Package, Network, X } from 'lucide-react';
+import { Settings, Store, Trophy, Play, Globe, ArrowLeft, RotateCcw, Award, Volume2, VolumeX, UserRound, BarChart3, Sparkles, Package, Network, X, BookOpen } from 'lucide-react';
 import { translations, type Lang, type TranslationKey } from './i18n';
 import {
   ABILITIES, ARTIFACTS, ARTIFACT_MAP, SHOP_UPGRADES, shopCost,
@@ -29,12 +29,13 @@ import { playSound, setAudioEnabled } from './audio';
 import MobileControls from './MobileControls';
 import CharacterSelect from './CharacterSelect';
 import { CHARACTER_DEFS } from './characters';
+import KnowledgeBase, { syncKnowledgeFromRun } from './KnowledgeBase';
 import {
   ABILITY_PROGRESSION, SPHERE_PROGRESSION, getAbilityDisplayName, getAbilityDisplayDesc,
   getAbilityEvolutionChoice, sphereLevel, sphereModifiers, getActiveSphereAbilitySynergies, SPHERE_ABILITY_SYNERGIES,
 } from './sphereProgression';
 
-type Screen = 'menu' | 'game' | 'shop' | 'leaderboard' | 'settings' | 'achievements' | 'characters';
+type Screen = 'menu' | 'game' | 'shop' | 'leaderboard' | 'settings' | 'achievements' | 'characters' | 'knowledge';
 
 // Canvas/2.5D is the active battlefield renderer.
 // The authored 3D/GLB path is preserved for the later controlled 3D re-evaluation phase.
@@ -62,24 +63,25 @@ export default function App() {
 
   return (
     <div className="es-app min-h-screen w-full text-[#dcecff] overflow-hidden flex items-center justify-center">
-      {screen === 'menu' && <Menu lang={lang} setLang={setLang} t={t} difficulty={difficulty} setDifficulty={setDifficulty} soundOn={soundOn} setSoundOn={setSoundOn} mapTheme={mapTheme} setMapTheme={setMapTheme} onPlay={(mt) => { setMapTheme(mt); setScreen('game'); }} onShop={() => { setShop(loadShop()); setGold(loadGold()); setScreen('shop'); }} onCharacters={() => { setGold(loadGold()); setScreen('characters'); }} onLeader={() => setScreen('leaderboard')} onSettings={() => setScreen('settings')} onAchievements={() => setScreen('achievements')} />}
+      {screen === 'menu' && <Menu lang={lang} setLang={setLang} t={t} difficulty={difficulty} setDifficulty={setDifficulty} soundOn={soundOn} setSoundOn={setSoundOn} mapTheme={mapTheme} setMapTheme={setMapTheme} onPlay={(mt) => { setMapTheme(mt); setScreen('game'); }} onShop={() => { setShop(loadShop()); setGold(loadGold()); setScreen('shop'); }} onCharacters={() => { setGold(loadGold()); setScreen('characters'); }} onLeader={() => setScreen('leaderboard')} onSettings={() => setScreen('settings')} onAchievements={() => setScreen('achievements')} onKnowledge={() => setScreen('knowledge')} />}
       {screen === 'game' && <GameScreen lang={lang} t={t} shop={shop} difficulty={difficulty} mapTheme={mapTheme} handedness={handedness} onExit={() => { setShop(loadShop()); setGold(loadGold()); setScreen('menu'); }} />}
       {screen === 'shop' && <ShopScreen lang={lang} t={t} shop={shop} setShop={setShop} onBack={() => { setGold(loadGold()); setScreen('menu'); }} />}
       {screen === 'characters' && <CharacterSelect lang={lang} gold={gold} onGoldChange={(nextGold) => { setGold(nextGold); setShop(loadShop()); }} onBack={() => { setGold(loadGold()); setShop(loadShop()); setScreen('menu'); }} />}
       {screen === 'leaderboard' && <LeaderboardScreen lang={lang} t={t} onBack={() => setScreen('menu')} />}
       {screen === 'settings' && <SettingsScreen lang={lang} setLang={setLang} t={t} soundOn={soundOn} setSoundOn={setSoundOn} handedness={handedness} setHandedness={setHandedness} onBack={() => setScreen('menu')} />}
       {screen === 'achievements' && <AchievementsScreen lang={lang} t={t} onBack={() => setScreen('menu')} />}
+      {screen === 'knowledge' && <KnowledgeBase lang={lang} onBack={() => setScreen('menu')} />}
     </div>
   );
 }
 
 // ===== Menu =====
-function Menu({ lang, setLang, t, difficulty, setDifficulty, soundOn, setSoundOn, mapTheme, setMapTheme, onPlay, onShop, onCharacters, onLeader, onSettings, onAchievements }: {
+function Menu({ lang, setLang, t, difficulty, setDifficulty, soundOn, setSoundOn, mapTheme, setMapTheme, onPlay, onShop, onCharacters, onLeader, onSettings, onAchievements, onKnowledge }: {
   lang: Lang; setLang: (l: Lang) => void; t: (k: TranslationKey) => string;
   difficulty: Difficulty; setDifficulty: (d: Difficulty) => void;
   soundOn: boolean; setSoundOn: (v: boolean) => void;
   mapTheme: MapTheme; setMapTheme: (m: MapTheme) => void;
-  onPlay: (mapTheme: MapTheme) => void; onShop: () => void; onCharacters: () => void; onLeader: () => void; onSettings: () => void; onAchievements: () => void;
+  onPlay: (mapTheme: MapTheme) => void; onShop: () => void; onCharacters: () => void; onLeader: () => void; onSettings: () => void; onAchievements: () => void; onKnowledge: () => void;
 }) {
   const [name, setName] = useState(() => loadName());
   const selectedCharacter = CHARACTER_DEFS[loadCharacterId()];
@@ -170,6 +172,7 @@ function Menu({ lang, setLang, t, difficulty, setDifficulty, soundOn, setSoundOn
         <button onClick={onShop}><Store size={16} /><span>{t('shop')}</span></button>
         <button onClick={onLeader}><Trophy size={16} /><span>{t('leaderboard')}</span></button>
         <button onClick={onAchievements}><Award size={16} /><span>{t('achievements')}</span></button>
+        <button onClick={onKnowledge} className="es-knowledge-nav"><BookOpen size={16} /><span>{lang === 'ru' ? 'Архив Эха' : 'Echo Archive'}</span></button>
         <button onClick={onSettings}><Settings size={16} /><span>{t('settings')}</span></button>
       </nav>
     </div>
@@ -184,6 +187,7 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
   const renderer3dRef = useRef<Echo3DRenderer | null>(null);
   const stateRef = useRef<GameState | null>(null);
   const rafRef = useRef<number>(0);
+  const knowledgeTickRef = useRef(0);
   const lastTimeRef = useRef<number>(0);
   const [, forceRender] = useState(0);
   const [gameOverData, setGameOverData] = useState<{ time: number; wave: number; gold: number; rank: number; isNewRecord: boolean } | null>(null);
@@ -207,6 +211,11 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
       if (st) {
         update(st, dt);
         resolveSpaceCollisions(st, dt);
+        knowledgeTickRef.current += dt;
+        if (knowledgeTickRef.current >= 0.35) {
+          knowledgeTickRef.current = 0;
+          syncKnowledgeFromRun(st);
+        }
 
         if (st.gameOver && !gameOverData) {
           const time = Math.floor(st.time);
