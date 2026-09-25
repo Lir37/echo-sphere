@@ -1,4 +1,5 @@
-import type { AbilityType, GameState, SphereEntity, Vec } from './engineTypes';
+import type { AbilityType, SphereType } from './gameData';
+import type { GameState, SphereEntity, Vec } from './engineTypes';
 import { buildRuntimeNetworkNodes } from './networkRuntime';
 import { nextRandom } from './rng';
 
