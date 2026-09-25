@@ -7,6 +7,7 @@ import {
   CRIT_HARD_CAP,
   CRIT_MULTIPLIER_BASE,
   canReceivePlayerDamage,
+  canReceivePlayerDoTDamage,
   clampCritChance,
   getContextualCritChance,
 } from '../src/combatRules.ts';
@@ -47,4 +48,16 @@ test('Link Breaker has an explicit telegraph, disruption duration and cooldown c
   assert.match(renderer, /elitePulseTelegraphTimer/);
   assert.match(renderer, /drawLinkBreakerTelegraph/);
   assert.match(renderer, /networkDisabledTimer/);
+});
+
+
+test('player DoT ignores contact grace but respects Dash invulnerability', () => {
+  assert.equal(canReceivePlayerDoTDamage(0), true);
+  assert.equal(canReceivePlayerDoTDamage(0.01), false);
+  assert.equal(canReceivePlayerDoTDamage(3), false);
+  assert.equal(canReceivePlayerDoTDamage(Number.NaN), true);
+
+  const engineEnemies = fs.readFileSync(new URL('../src/engineEnemies.ts', import.meta.url), 'utf8');
+  assert.match(engineEnemies, /damagePlayerDoT\(s, e\.auraDps \* dt\)/);
+  assert.doesNotMatch(engineEnemies, /damagePlayer\(s, e\.auraDps \* dt\)/);
 });
