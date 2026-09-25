@@ -12,7 +12,7 @@ export function buildRuntimeNetworkNodes(
 ): NetworkNode[] {
   const nodes = spheres.map((sphere) => ({
     pos: sphere.pos,
-    alive: sphere.alive !== false,
+    alive: sphere.alive !== false && (sphere.networkDisabledTimer || 0) <= 0,
   }));
 
   if (!includeMinions) return nodes;
