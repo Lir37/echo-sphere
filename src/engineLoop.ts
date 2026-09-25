@@ -9,7 +9,7 @@ import {
 import { RUNE_DEFS } from './runes';
 import { nextRandom } from './rng';
 import { BALANCE } from './engineBalance';
-import { PLAYER_RADIUS, STELLA_LEGENDARY_CUTOFF_SECONDS } from './engineState';
+import { PLAYER_RADIUS, STELLA_LEGENDARY_CUTOFF_SECONDS, getXpToNextLevel } from './engineState';
 import { getMoveSpeed, getXpMult, getMagnetRadius } from './engineStats';
 import { updateSpheres } from './engineSpheres';
 import { spawnEnemy, startWave, updateMinions, updateEnemies } from './engineEnemies';
@@ -38,67 +38,6 @@ export function claimStella(s: GameState): void {
   }
   playSound('chest');
 }
-
-
-
-export function updateResonanceRing(
-  s: GameState,
-  dt: number,
-  network: Parameters<typeof updateResonanceRingRuntime>[2],
-): void {
-  updateResonanceRingRuntime(s, dt, network, dealDamageToEnemy);
-}
-
-export function chargeResonance(s: GameState, source: Parameters<typeof chargeResonanceRuntime>[1]): void {
-  chargeResonanceRuntime(s, source, dealDamageToEnemy);
-}
-
-export function syncResonanceGeometry(
-  s: GameState,
-  network?: Parameters<typeof syncResonanceGeometryRuntime>[1],
-): void {
-  syncResonanceGeometryRuntime(s, network, dealDamageToEnemy);
-}
-
-// ===== Wave spawning =====
-
-// ===== Wave spawning =====
-export function claimStella(s: GameState): void {
-  if (!s.pendingStella) return;
-
-  s.pendingStella = false;
-  const legendary = s.time < STELLA_LEGENDARY_CUTOFF_SECONDS
-    ? pickStellaArtifactChoice(s, () => nextRandom(s))
-    : null;
-
-  if (legendary) {
-    s.stellaLegendaryClaims++;
-    s.pendingArtifact = [legendary];
-  } else {
-    s.pendingArtifact = pickArtifacts(s);
-  }
-  playSound('chest');
-}
-
-function emitSpherePulse(s: GameState, sphere: SphereEntity, damage: number, radius: number, color: string, slow = false, sourceSphere?: SphereEntity): void {
-  for (const e of s.enemies) {
-    if (e.hp <= 0 || dist(e.pos, sphere.pos) > radius) continue;
-    dealDamageToEnemy(s, e, damage, sourceSphere);
-    if (slow) {
-      e.slowTimer = Math.max(e.slowTimer, 1.2);
-      e.slowFactor = Math.min(e.slowFactor, 0.6);
-    }
-  }
-  for (let i = 0; i < 10; i++) {
-    const a = nextRandom(s) * Math.PI * 2;
-    s.particles.push({
-      pos: { ...sphere.pos },
-      vel: { x: Math.cos(a) * rand(s,60, 160), y: Math.sin(a) * rand(s,60, 160) },
-      life: 0.45, maxLife: 0.45, color, size: rand(s,2, 5),
-    });
-  }
-}
-
 
 
 export function applyArtifact(s: GameState, id: ArtifactId): void {
