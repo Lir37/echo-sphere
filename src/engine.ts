@@ -1219,6 +1219,20 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
         s.screenShake = Math.min(0.16, s.screenShake + 0.025);
       }
     }
+
+    // Echo Architecture completion creates a real relay event between linked Spheres.
+    const setBehavior = getArtifactSetBehavior(s);
+    if (setBehavior.echoArchitecture && fromSphere.resonanceHits > 0 && fromSphere.resonanceHits % 5 === 0) {
+      const relayNetwork = analyzeSphereNetwork(getNetworkNodes(s));
+      const linked = getLinkedNodeIndexes(relayNetwork, s.spheres.indexOf(fromSphere));
+      const targetIndex = linked.find((index) => s.spheres[index]?.alive);
+      if (targetIndex !== undefined) {
+        const relay = s.spheres[targetIndex];
+        relay.resonanceHits += 2;
+        relay.resonancePulseTimer = Math.max(relay.resonancePulseTimer, 0.35);
+        s.lightnings.push({ from: { ...fromSphere.pos }, to: { ...relay.pos }, life: 0.20 });
+      }
+    }
   }
 
   const impactCount = enemy.isBoss ? 10 : isCrit ? 9 : enemy.isElite ? 7 : 4;
