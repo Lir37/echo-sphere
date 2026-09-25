@@ -30,3 +30,7 @@ export function canReceivePlayerDamage(
   const grace = Number.isFinite(contactDamageCooldown) && contactDamageCooldown > 0;
   return !invulnerable && !grace;
 }
+
+export function canReceivePlayerDoTDamage(invulnerableTimer: number): boolean {
+  return !(Number.isFinite(invulnerableTimer) && invulnerableTimer > 0);
+}
