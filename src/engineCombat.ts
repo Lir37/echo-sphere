@@ -3,6 +3,7 @@ import { playSound } from './audio';
 import {
   getCharacterId,
   getCharacterDamageMultiplier,
+  getCharacterDamageTakenMultiplier,
   getEngineerNetworkRange,
   getCharacterStatusDamageMultiplier,
   getHunterMarkMultiplier,
@@ -12,6 +13,7 @@ import {
 } from './characterRuntime';
 import {
   getArtifactDamageTakenMultiplier,
+  getArtifactCooldownMultiplier,
   getArtifactCritChanceBonus,
   getArtifactDodgeChanceBonus,
   getArtifactVampireBonus,
