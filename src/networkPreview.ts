@@ -15,6 +15,19 @@ export interface GhostSnapPreview {
   formation: NetworkShape | null;
 }
 
+export function getGhostSnapFormation(network: SphereNetworkState): NetworkShape | null {
+  return (
+    network.fractal ??
+    network.lattice ??
+    network.ring ??
+    network.square ??
+    network.triangle ??
+    network.cluster ??
+    network.line ??
+    null
+  );
+}
+
 /**
  * Project a new Sphere placement or an existing Sphere reposition without
  * mutating live state. Node indexes deliberately stay aligned with the
@@ -60,15 +73,7 @@ export function buildGhostSnapPreview(
     .filter((link) => link.a === candidateIndex || link.b === candidateIndex)
     .map((link) => link.a === candidateIndex ? link.b : link.a);
 
-  const formation =
-    network.fractal ??
-    network.lattice ??
-    network.ring ??
-    network.square ??
-    network.triangle ??
-    network.cluster ??
-    network.line ??
-    null;
+  const formation = getGhostSnapFormation(network);
 
   return {
     candidate: { ...candidate },
