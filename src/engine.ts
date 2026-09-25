@@ -1,6 +1,6 @@
 import {
   ABILITIES, ACTIVE_KEYS, ARTIFACT_MAP,
-  SPHERE_TYPES, BOSS_TYPES, DIFFICULTIES, VERTICAL_SLICE_SPHERE_TYPES,
+  SPHERE_TYPES, BOSS_TYPES, DIFFICULTIES,
   type AbilityType, type ArtifactId, type SphereType, type BossType, type Difficulty,
 } from './gameData';
 import { playSound } from './audio';
