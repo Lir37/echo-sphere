@@ -2,7 +2,14 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 
-const engine = await fs.readFile(new URL('../src/engine.ts', import.meta.url), 'utf8');
+const sources = await Promise.all([
+  '../src/engine.ts',
+  '../src/engineCombat.ts',
+  '../src/engineSpheres.ts',
+  '../src/engineAbilities.ts',
+  '../src/engineEnemies.ts',
+].map((p) => fs.readFile(new URL(p, import.meta.url), 'utf8')));
+const engine = sources.join('\n');
 const progression = await fs.readFile(new URL('../src/sphereProgression.ts', import.meta.url), 'utf8');
 
 const activeIds = ['blast','shield','teleport','firetrail','minion','lightning','timestop','darkritual'];
