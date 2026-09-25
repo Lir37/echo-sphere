@@ -2,14 +2,15 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 
-const engineSource = await fs.readFile(new URL('../src/engine.ts', import.meta.url), 'utf8');
+const engineStateSource = await fs.readFile(new URL('../src/engineState.ts', import.meta.url), 'utf8');
+const engineLoopSource = await fs.readFile(new URL('../src/engineLoop.ts', import.meta.url), 'utf8');
 const progressionSource = await fs.readFile(new URL('../src/engineProgression.ts', import.meta.url), 'utf8');
 const engineTypesSource = await fs.readFile(new URL('../src/engineTypes.ts', import.meta.url), 'utf8');
-const sourceWithTypes = `${engineTypesSource}\n${engineSource}`;
+const sourceWithTypes = `${engineTypesSource}\n${engineStateSource}`;
 
 test('Level-Up has a seeded-source pity state in GameState', () => {
   assert.match(sourceWithTypes, /levelUpPity: \{ ability: number; sphere: number; modifier: number \};/);
-  assert.match(engineSource, /levelUpPity: \{ ability: 0, sphere: 0, modifier: 0 \}/);
+  assert.match(engineStateSource, /levelUpPity: \{ ability: 0, sphere: 0, modifier: 0 \}/);
   assert.match(progressionSource, /function recordLevelUpSourcePick\(s: GameState, choice: UpgradeChoice\)/);
   assert.match(progressionSource, /Math\.min\(4, \(s\.levelUpPity\[source\] \|\| 0\) \+ 1\)/);
 });
@@ -38,7 +39,7 @@ test('Level-Up retains source diversity and seeded weighted ordering', () => {
 });
 
 test('active Ability slots stay bounded and progressive', () => {
-  assert.match(engineSource, /if \(s\.player\.level >= 5\) s\.player\.activeAbilitySlots/);
-  assert.match(engineSource, /if \(s\.player\.level >= 12\) s\.player\.activeAbilitySlots/);
-  assert.match(engineSource, /if \(s\.player\.level >= 20\) s\.player\.activeAbilitySlots/);
+  assert.match(engineLoopSource, /if \(s\.player\.level >= 5\) s\.player\.activeAbilitySlots/);
+  assert.match(engineLoopSource, /if \(s\.player\.level >= 12\) s\.player\.activeAbilitySlots/);
+  assert.match(engineLoopSource, /if \(s\.player\.level >= 20\) s\.player\.activeAbilitySlots/);
 });
