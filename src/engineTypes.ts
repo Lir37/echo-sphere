@@ -279,6 +279,7 @@ export interface GameState {
   gameOver: boolean;
   pendingUpgrade: UpgradeChoice[] | null;
   levelUpPity: { ability: number; sphere: number; modifier: number };
+  recentUpgradeKeys: string[];
   pendingArtifact: ArtifactId[] | null;
   pendingStella: boolean;
   stellaClaims: number;

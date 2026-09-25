@@ -1,3 +1,4 @@
+import { generateUpgradeChoices, getUpgradeChoiceKey } from '../src/engineProgression.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
@@ -42,4 +43,47 @@ test('active Ability slots stay bounded and progressive', () => {
   assert.match(engineLoopSource, /if \(s\.player\.level >= 5\) s\.player\.activeAbilitySlots/);
   assert.match(engineLoopSource, /if \(s\.player\.level >= 12\) s\.player\.activeAbilitySlots/);
   assert.match(engineLoopSource, /if \(s\.player\.level >= 20\) s\.player\.activeAbilitySlots/);
+});
+
+
+function makeLevelUpFixture() {
+  return {
+    spheres: [{ alive: true, type: 'standard' }],
+    levelUpPity: { ability: 0, sphere: 0, modifier: 0 },
+    recentUpgradeKeys: [],
+    player: {
+      abilities: {},
+      sphereProgression: {
+        standard: 1, sniper: 1, shotgun: 1, chain: 1, aura: 1,
+        orbital: 1, prism: 1, gravity: 1, pulse: 1, void: 1,
+      },
+      sphereBranches: {},
+      sphereMods: { multishot: 0, pierce: 0, ricochet: 0, fire: 0, freeze: 0, poison: 0 },
+      activeAbilitySlots: 0,
+      activeKeyMap: {},
+      characterId: 'spherist',
+    },
+  };
+}
+
+test('Level-Up suppresses a recently selected logical card when alternatives exist', () => {
+  const state = makeLevelUpFixture();
+  const first = generateUpgradeChoices(state);
+  assert.equal(first.length, 3);
+
+  const blockedKey = getUpgradeChoiceKey(first[0]);
+  state.recentUpgradeKeys = [blockedKey];
+
+  const second = generateUpgradeChoices(state);
+  assert.equal(second.length, 3);
+  assert.ok(!second.some((choice) => getUpgradeChoiceKey(choice) === blockedKey));
+});
+
+test('Level-Up keeps three cards when the recent suppression pool becomes too small', () => {
+  const state = makeLevelUpFixture();
+  const first = generateUpgradeChoices(state);
+  state.recentUpgradeKeys = first.map(getUpgradeChoiceKey);
+
+  const second = generateUpgradeChoices(state);
+  assert.equal(second.length, 3);
 });

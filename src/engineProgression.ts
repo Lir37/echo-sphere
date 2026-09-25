@@ -103,27 +103,54 @@ function getAbilityEvolutionChoices(s:GameState, ability:AbilityType, level:4|7)
   }));
 }
 
-function weightedShuffle<T>(s: GameState, items: T[], getWeight: (item: T) => number): T[] {
-  const pool = [...items];
-  const result: T[] = [];
-  while (pool.length > 0) {
-    let totalWeight = 0;
-    for (const item of pool) totalWeight += Math.max(0.01, getWeight(item));
-    let roll = nextRandom(s) * totalWeight;
-    let selectedIndex = pool.length - 1;
-    for (let index = 0; index < pool.length; index++) {
-      roll -= Math.max(0.01, getWeight(pool[index]));
-      if (roll <= 0) {
-        selectedIndex = index;
-        break;
-      }
-    }
-    result.push(pool.splice(selectedIndex, 1)[0]);
+type UpgradeSource = 'ability' | 'sphere' | 'modifier';
+
+export function getUpgradeChoiceKey(choice: UpgradeChoice): string {
+  if (choice.type === 'modifier') {
+    return `modifier:${choice.modifier ?? 'unknown'}`;
   }
-  return result;
+  if (choice.type === 'sphere') {
+    return [
+      'sphere',
+      choice.sphereType ?? 'unknown',
+      choice.sphereStage ?? 'upgrade',
+      choice.currentLevel,
+      choice.newLevel,
+      choice.sphereBranch ?? '',
+      choice.sphereFinalIndex ?? '',
+    ].join(':');
+  }
+  return [
+    'ability',
+    choice.ability ?? 'unknown',
+    choice.abilityStage ?? 'upgrade',
+    choice.currentLevel,
+    choice.newLevel,
+    choice.abilityEvolutionIndex ?? '',
+  ].join(':');
 }
 
-type UpgradeSource = 'ability' | 'sphere' | 'modifier';
+function pickWeightedOne<T>(s: GameState, items: T[], getWeight: (item: T) => number): T | undefined {
+  if (items.length === 0) return undefined;
+
+  let totalWeight = 0;
+  for (const item of items) totalWeight += Math.max(0.01, getWeight(item));
+
+  let roll = nextRandom(s) * totalWeight;
+  for (const item of items) {
+    roll -= Math.max(0.01, getWeight(item));
+    if (roll <= 0) return item;
+  }
+  return items[items.length - 1];
+}
+
+function recordRecentUpgradeChoice(s: GameState, choice: UpgradeChoice): void {
+  const key = getUpgradeChoiceKey(choice);
+  s.recentUpgradeKeys = [
+    key,
+    ...(s.recentUpgradeKeys || []).filter((item) => item !== key),
+  ].slice(0, 2);
+}
 
 function getUpgradeChoiceSource(choice: UpgradeChoice): UpgradeSource {
   return choice.type;
@@ -305,43 +332,52 @@ export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
       },
     }));
 
-  const abilityPool = weightedShuffle(s, [...activePool, ...passivePool].filter((choice) => isLiveUpgradeChoice(s, choice)), (choice) => getAbilityUpgradeChoiceWeight(s, choice));
-  const spherePool = weightedShuffle(s, sphereChoices, (choice) => choice.sphereType ? getSphereUpgradeChoiceWeight(s, choice.sphereType) : 1);
-  const modifierPool = weightedShuffle(s, modifierChoices, (choice) => choice.modifier ? getModifierUpgradeChoiceWeight(s, choice.modifier) : 1);
+  const abilityPool = [...activePool].filter((choice) => isLiveUpgradeChoice(s, choice));
+  const spherePool = [...sphereChoices].filter((choice) => isLiveUpgradeChoice(s, choice));
+  const modifierPool = [...modifierChoices].filter((choice) => isLiveUpgradeChoice(s, choice));
 
-  // Preserve source diversity first, then use the seeded weighted pool to fill
-  // the remaining slots. This keeps Level-Up choices useful without forcing a
-  // specific build.
   const sourcePools = [abilityPool, spherePool, modifierPool];
-  const mixedPool: UpgradeChoice[] = [];
-  for (const pool of sourcePools) {
-    if (pool[0] && mixedPool.length < 3) mixedPool.push(pool[0]);
-  }
+  const allChoices = sourcePools.flatMap((pool) => pool);
+  const recentKeys = new Set(s.recentUpgradeKeys || []);
 
-  const seen = new Set(mixedPool.map((choice) => {
-    if (choice.type === 'ability') return 'ability:' + choice.ability;
-    if (choice.type === 'sphere') return 'sphere:' + choice.sphereType;
-    return 'modifier:' + choice.modifier;
-  }));
-  const candidates = sourcePools.flatMap((pool) => pool.slice(0, 4));
-  for (const choice of weightedShuffle(s, candidates, () => 1)) {
-    const key = choice.type === 'ability'
-      ? 'ability:' + choice.ability
-      : choice.type === 'sphere'
-        ? 'sphere:' + choice.sphereType
-        : 'modifier:' + choice.modifier;
-    if (seen.has(key)) continue;
-    seen.add(key);
-    mixedPool.push(choice);
-    if (mixedPool.length >= 3) break;
+  // Avoid immediately repeating the same logical card after a pick. If the
+  // remaining pool is too small, fall back to the full live pool rather than
+  // reducing the choice count or creating artificial dead screens.
+  const cooledChoices = allChoices.filter((choice) => !recentKeys.has(getUpgradeChoiceKey(choice)));
+  const candidates = cooledChoices.length >= 3 ? cooledChoices : allChoices;
+
+  const mixedPool: UpgradeChoice[] = [];
+  const remaining = [...candidates];
+
+  while (mixedPool.length < 3 && remaining.length > 0) {
+    const usedSources = new Set(mixedPool.map((choice) => choice.type));
+    const chosen = pickWeightedOne(s, remaining, (choice) => {
+      const baseWeight = choice.type === 'ability'
+        ? getAbilityUpgradeChoiceWeight(s, choice)
+        : choice.type === 'sphere'
+          ? (choice.sphereType ? getSphereUpgradeChoiceWeight(s, choice.sphereType) : 1)
+          : (choice.modifier ? getModifierUpgradeChoiceWeight(s, choice.modifier) : 1);
+
+      // Encourage source variety, but never force one card from each source.
+      const diversityMultiplier = mixedPool.length === 0
+        ? 1
+        : usedSources.has(choice.type) ? 0.88 : 1.16;
+
+      return baseWeight * diversityMultiplier;
+    });
+
+    if (!chosen) break;
+    mixedPool.push(chosen);
+    const index = remaining.indexOf(chosen);
+    if (index >= 0) remaining.splice(index, 1);
   }
-  return mixedPool;
 }
 
 export function applyUpgrade(s: GameState, choice: UpgradeChoice): void {
   const hadPendingChoice = Boolean(s.pendingUpgrade);
   s.pendingUpgrade=null;
   if (hadPendingChoice) recordLevelUpSourcePick(s, choice);
+  if (hadPendingChoice) recordRecentUpgradeChoice(s, choice);
 
   if (choice.type === 'modifier' && choice.modifier) {
     if ((s.player.sphereMods[choice.modifier] || 0) > 0) return;
