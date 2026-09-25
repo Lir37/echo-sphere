@@ -38,3 +38,14 @@ test('sniper targeting recognises the explicit elite enemy role', () => {
   const result = selectSphereTarget(sphere, 100, [closeNormal, elite], 'high_value_far');
   assert.equal(result?.id, 'elite');
 });
+
+
+test('targeting supports highest and lowest HP priorities', () => {
+  const enemies = [
+    { pos: { x: 20, y: 0 }, hp: 10, type: 'normal' },
+    { pos: { x: 30, y: 0 }, hp: 90, type: 'normal' },
+    { pos: { x: 40, y: 0 }, hp: 40, type: 'normal' },
+  ];
+  assert.equal(selectSphereTarget({x:0,y:0}, 100, enemies, 'highest_hp'), enemies[1]);
+  assert.equal(selectSphereTarget({x:0,y:0}, 100, enemies, 'lowest_hp'), enemies[0]);
+});
