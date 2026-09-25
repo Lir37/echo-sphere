@@ -1652,16 +1652,6 @@ function doTeleportTo(s: GameState, target: Vec): void {
       }
     }
   }
-  if (final === 'teleport_spatial_network') {
-    const destination = getNearestSphere(s, s.player.pos);
-    if (destination) {
-      for (const sphere of s.spheres) {
-        if (sphere !== destination && sphere.alive && dist(sphere.pos, destination.pos) <= 220) {
-          s.lightnings.push({ from: { ...destination.pos }, to: { ...sphere.pos }, life: 0.18 });
-        }
-      }
-    }
-  }
 }
 
 function activateTeleport(s: GameState): void {
@@ -1892,7 +1882,30 @@ function activateLightning(s: GameState): void {
   const branch = getAbilityBranchId(s, 'lightning', 4);
   const final = getAbilityBranchId(s, 'lightning', 7);
   const chainSpheres = s.spheres.filter((sphere) => sphere.alive && sphere.type === 'chain');
-  const ordered = [...chainSpheres].sort((a, b) => dist(a.pos, s.player.pos) - dist(b.pos, s.player.pos));
+  let ordered = [...chainSpheres].sort((a, b) => dist(a.pos, s.player.pos) - dist(b.pos, s.player.pos));
+  const networkState = analyzeSphereNetwork(getNetworkNodes(s));
+
+  if ((branch === 'lightning_relay' || final === 'lightning_storm_network') && ordered.length > 0) {
+    const remaining = new Set(ordered);
+    const networkOrder: SphereEntity[] = [];
+    let current: SphereEntity | null = ordered[0] ?? null;
+
+    while (current) {
+      networkOrder.push(current);
+      remaining.delete(current);
+      const currentIndex = s.spheres.indexOf(current);
+      const nextIndex = currentIndex >= 0
+        ? getLinkedNodeIndexes(networkState, currentIndex)
+          .filter((index) => index >= 0 && index < s.spheres.length)
+          .filter((index) => s.spheres[index].type === 'chain')
+          .filter((index) => remaining.has(s.spheres[index]))
+          .sort((a, b) => dist(s.spheres[a].pos, current!.pos) - dist(s.spheres[b].pos, current!.pos))[0]
+        : undefined;
+      current = nextIndex === undefined ? null : (s.spheres[nextIndex] ?? null);
+    }
+
+    ordered = [...networkOrder, ...ordered.filter((sphere) => remaining.has(sphere))];
+  }
   const targets = s.enemies.filter((e) => e.hp > 0).sort((a, b) => dist(a.pos, s.player.pos) - dist(b.pos, s.player.pos));
   const toxicNetwork = getActiveSphereAbilitySynergies(s).some((link) =>
     link.character === 'alchemist' && link.sphere === 'chain' && link.ability === 'lightning'
@@ -1934,9 +1947,18 @@ function activateLightning(s: GameState): void {
     }
     previous = { ...target.pos };
     jump++;
-    if (branch === 'lightning_relay') {
-      const nextSphere = ordered[(i + 1) % Math.max(1, ordered.length)];
-      if (nextSphere) s.lightnings.push({ from: { ...target.pos }, to: { ...nextSphere.pos }, life: 0.22 });
+    if (branch === 'lightning_relay' && ordered.length > 0) {
+      const sourceSphere = ordered[i % ordered.length];
+      const sourceIndex = s.spheres.indexOf(sourceSphere);
+      const nextIndex = sourceIndex >= 0
+        ? getLinkedNodeIndexes(networkState, sourceIndex)
+          .filter((index) => index >= 0 && index < s.spheres.length)
+          .filter((index) => s.spheres[index].type === 'chain' && s.spheres[index].alive)
+          .sort((a, b) => dist(s.spheres[a].pos, sourceSphere.pos) - dist(s.spheres[b].pos, sourceSphere.pos))[0]
+        : undefined;
+      if (nextIndex !== undefined) {
+        s.lightnings.push({ from: { ...target.pos }, to: { ...s.spheres[nextIndex].pos }, life: 0.22 });
+      }
     }
     if (final === 'lightning_thunder_chain') {
       const next = targets[(i + 1) % targets.length];
@@ -1951,12 +1973,37 @@ function activateLightning(s: GameState): void {
     if (last) dealDamageToEnemy(s, last, 30 + lvl * 10);
   }
   if (final === 'lightning_storm_network' && ordered.length > 0) {
-    for (let i = ordered.length - 1; i >= 0; i--) {
-      const from = i > 0 ? ordered[i - 1].pos : s.player.pos;
-      const to = ordered[i].pos;
-      s.lightnings.push({ from: { ...from }, to: { ...to }, life: 0.18 });
-      for (const enemy of s.enemies) {
-        if (enemy.hp > 0 && dist(enemy.pos, to) < 85) dealDamageToEnemy(s, enemy, (35 + lvl * 8) * 0.35);
+    const chainIndexes = new Set(ordered.map((sphere) => s.spheres.indexOf(sphere)));
+    const processedPairs = new Set<string>();
+    let edgeCount = 0;
+
+    for (const sourceIndex of chainIndexes) {
+      if (sourceIndex < 0) continue;
+      for (const targetIndex of getLinkedNodeIndexes(networkState, sourceIndex)) {
+        if (targetIndex < 0 || targetIndex >= s.spheres.length || !chainIndexes.has(targetIndex)) continue;
+        const key = sourceIndex < targetIndex ? `${sourceIndex}:${targetIndex}` : `${targetIndex}:${sourceIndex}`;
+        if (processedPairs.has(key)) continue;
+        processedPairs.add(key);
+        edgeCount++;
+        const from = s.spheres[sourceIndex].pos;
+        const to = s.spheres[targetIndex].pos;
+        s.lightnings.push({ from: { ...from }, to: { ...to }, life: 0.18 });
+        for (const enemy of s.enemies) {
+          if (enemy.hp > 0 && dist(enemy.pos, to) < 85) {
+            dealDamageToEnemy(s, enemy, (35 + lvl * 8) * 0.35);
+          }
+        }
+      }
+    }
+
+    if (edgeCount === 0) {
+      for (let i = ordered.length - 1; i >= 0; i--) {
+        const from = i > 0 ? ordered[i - 1].pos : s.player.pos;
+        const to = ordered[i].pos;
+        s.lightnings.push({ from: { ...from }, to: { ...to }, life: 0.18 });
+        for (const enemy of s.enemies) {
+          if (enemy.hp > 0 && dist(enemy.pos, to) < 85) dealDamageToEnemy(s, enemy, (35 + lvl * 8) * 0.35);
+        }
       }
     }
   }
@@ -1975,7 +2022,7 @@ function activateTimeStop(s: GameState): void {
     link.character === 'architect' && link.sphere === 'aura' && link.ability === 'timestop'
   );
   const radius = nearest
-    ? (branch === 'timestop_closed_time' || final === 'timestop_closed_network' ? 760 : 520) * (fieldMatrix ? 1.25 : 1)
+    ? 520 * (fieldMatrix ? 1.25 : 1)
     : Infinity;
   for (const e of s.enemies) {
     if (e.hp <= 0) continue;
@@ -1983,14 +2030,28 @@ function activateTimeStop(s: GameState): void {
       e.freezeTimer = s.player.timestopTimer + (branch === 'timestop_time_anchor' ? 1 : 0);
     }
   }
-  if (final === 'timestop_closed_network') {
+  if (branch === 'timestop_closed_time' || final === 'timestop_closed_network') {
     const networkState = analyzeSphereNetwork(getNetworkNodes(s));
-    for (let sphereIndex = 0; sphereIndex < s.spheres.length; sphereIndex++) {
+    const startIndex = nearest ? s.spheres.indexOf(nearest) : -1;
+    const visited = new Set<number>();
+    const queue = startIndex >= 0 ? [startIndex] : [];
+
+    while (queue.length > 0) {
+      const sphereIndex = queue.shift()!;
+      if (visited.has(sphereIndex) || sphereIndex < 0 || sphereIndex >= s.spheres.length) continue;
       const sphere = s.spheres[sphereIndex];
-      if (!sphere.alive || getLinkedNodeIndexes(networkState, sphereIndex).length === 0) continue;
+      if (!sphere.alive) continue;
+      visited.add(sphereIndex);
+
       for (const e of s.enemies) {
         if (e.hp > 0 && dist(e.pos, sphere.pos) < 260) {
           e.freezeTimer = Math.max(e.freezeTimer, s.player.timestopTimer);
+        }
+      }
+
+      for (const linkedIndex of getLinkedNodeIndexes(networkState, sphereIndex)) {
+        if (linkedIndex >= 0 && linkedIndex < s.spheres.length && !visited.has(linkedIndex)) {
+          queue.push(linkedIndex);
         }
       }
     }
