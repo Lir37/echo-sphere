@@ -62,6 +62,9 @@ const finals=(base:string,prefix:string,ids:[SphereEvolutionId,SphereEvolutionId
   return ids.map((id,i)=>e(id,prefix+' '+['I','II','III'][i],(descriptions[id]||['Финально усиливает ветку «'+base+'»','Расширяет механику ветки «'+base+'»','Даёт альтернативную специализацию ветки «'+base+'»'])[i])) as [SphereEvolutionDef,SphereEvolutionDef,SphereEvolutionDef];
 };
 const sphere=(type:SphereType,name:string,priority:Partial<Record<CharacterId,number>>,l:[string,string,string],branches:[SphereEvolutionBranch,SphereEvolutionBranch,SphereEvolutionBranch]):SphereDef=>({type,name:{ru:name,en:name},priority,levels:lv(...l),evolution4:branches[0],evolution7:branches[0].final[0],evolution4Choices:branches});
+const genericSphereBranches = (type: SphereType, names: [string,string,string], ids: [SphereEvolutionId,SphereEvolutionId,SphereEvolutionId]): [SphereEvolutionBranch,SphereEvolutionBranch,SphereEvolutionBranch] =>
+  ids.map((id, i) => br(id, names[i], 'Развивает уникальную механику сферы '+type+'.', finals(names[i], names[i], ids))) as [SphereEvolutionBranch,SphereEvolutionBranch,SphereEvolutionBranch];
+
 export const SPHERE_PROGRESSION:Record<SphereType,SphereDef>={
  standard:sphere('standard','Стандартная',{spherist:1,engineer:.9,berserker:.8,architect:.7,hunter:.4,alchemist:.4},['+15% урона','+1 пробитие','-10% задержки'],[br('standard_resonator','Резонатор','Каждое третье попадание выпускает импульс',finals('Резонатор','Гиперрезонатор',['standard_resonator','standard_singularity','standard_swarm'])),br('standard_singularity','Сингулярность','Попадания притягивают врагов',finals('Сингулярность','Коллапс',['standard_singularity','standard_resonator','standard_swarm'])),br('standard_swarm','Рой','Попадания выпускают осколки',finals('Рой','Каскад',['standard_swarm','standard_singularity','standard_resonator']))]),
  sniper:sphere('sniper','Снайперская',{hunter:1,architect:.9,spherist:.4,engineer:.4,berserker:.3,alchemist:.3},['+25% урона','+15% дальности','+15% крита'],[br('sniper_oracle','Оракул','Усиливает критический урон по отмеченным целям',finals('Оракул','Провидец',['sniper_oracle','sniper_assassin','sniper_beacon'])),br('sniper_assassin','Убийца','Усиливает урон по слабым целям',finals('Убийца','Казнь',['sniper_assassin','sniper_oracle','sniper_beacon'])),br('sniper_beacon','Маяк','Помечает цель для всей сети',finals('Маяк','Всевидящее око',['sniper_beacon','sniper_assassin','sniper_oracle']))]),
@@ -74,9 +77,6 @@ export const SPHERE_PROGRESSION:Record<SphereType,SphereDef>={
  pulse:sphere('pulse','Импульсная',{engineer:1,spherist:.9,architect:.8},['+20% импульсного урона','+15% радиуса','-12% интервала'],genericSphereBranches('pulse',['Волна','Резонатор','Вспышка'],['pulse_wave','pulse_resonator','pulse_burst'])),
  void:sphere('void','Пустотная',{hunter:1,alchemist:.8,architect:.7},['+20% урона по ослабленным','+10% шанс критического добивания','+15% дальности'],genericSphereBranches('void',['Голод','Жнец','Экзекуция'],['void_hunger','void_reaper','void_execution']))
 };
-const genericSphereBranches = (type: SphereType, names: [string,string,string], ids: [SphereEvolutionId,SphereEvolutionId,SphereEvolutionId]): [SphereEvolutionBranch,SphereEvolutionBranch,SphereEvolutionBranch] =>
-  ids.map((id, i) => br(id, names[i], 'Развивает уникальную механику сферы '+type+'.', finals(names[i], names[i], ids))) as [SphereEvolutionBranch,SphereEvolutionBranch,SphereEvolutionBranch];
-
 const abilityLevels=(a:string,b:string,c:string,d:string,e:string,f:string):SphereUpgradeDef[] => [
   {level:1,name:{ru:'Пробуждение',en:'Awakening'},desc:{ru:a,en:a}},
   {level:2,name:{ru:'Настройка',en:'Tuning'},desc:{ru:b,en:b}},
