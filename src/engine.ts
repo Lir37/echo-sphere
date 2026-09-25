@@ -23,6 +23,8 @@ import { addResonanceChargeFromSource, type ResonanceSource } from './resonance'
 import { canReceivePlayerDamage, CRIT_BASE, CRIT_MULTIPLIER_BASE, getContextualCritChance } from './combatRules';
 import type { GameState, ShopState, PlayerState, SphereEntity, EnemyEntity, SphereProjectile, SphereMods, SphereUpgradeChoice, UpgradeChoice, DamageNumber, ChestEntity, RuneEntity, MinionEntity, LightningBolt, BossProjectile, XPOrb, HealthPack, Particle, FireTrailSegment, Vec } from './engineTypes';
 
+// Facade: preserves the public engine API while gameplay systems live in dedicated subsystems.
+
 import { BALANCE } from './engineBalance';
 import {
   BASE_SPHERE_RADIUS, BASE_SPHERE_DAMAGE, BASE_SPHERE_DELAY,
