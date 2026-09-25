@@ -2345,7 +2345,20 @@ export function getSphereUpgradeChoiceWeight(s: GameState, type: SphereType): nu
   const activeCopies = s.spheres.filter((sphere) => sphere.alive && sphere.type === type).length;
   const levelPressure = (7 - level) * 0.25;
   const activeBuildPressure = activeCopies > 0 ? 1.5 : 0;
-  return 1 + levelPressure + activeBuildPressure;
+  const characterAffinity = CHARACTER_DEFS[s.player.characterId]?.preferredSphereTypes.includes(type) ? 0.65 : 0;
+  return 1 + levelPressure + activeBuildPressure + characterAffinity;
+}
+
+function getModifierUpgradeChoiceWeight(s: GameState, modifier: keyof SphereMods): number {
+  return 1 + (CHARACTER_DEFS[s.player.characterId]?.preferredSphereMods.includes(modifier) ? 0.55 : 0);
+}
+
+function getAbilityUpgradeChoiceWeight(s: GameState, choice: UpgradeChoice): number {
+  if (!choice.ability) return 1;
+  const unfinishedPressure = choice.currentLevel === 0 ? 1.35 : 1.15;
+  const characterAffinity = CHARACTER_DEFS[s.player.characterId]?.preferredAbilities.includes(choice.ability) ? 0.75 : 0;
+  const activeAffinity = ABILITIES[choice.ability].category === 'active' ? 0.08 : 0;
+  return unfinishedPressure + characterAffinity + activeAffinity;
 }
 
 export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
@@ -2443,32 +2456,35 @@ export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
       },
     }));
 
-  const abilityPool = weightedShuffle(s, [...activePool, ...passivePool], (choice) => {
-    const current = choice.currentLevel;
-    const unfinished = current === 0 ? 1.35 : 1.15;
-    const categoryBoost = choice.ability && ABILITIES[choice.ability].category === 'active' ? 1.05 : 1;
-    return unfinished * categoryBoost;
-  });
+  const abilityPool = weightedShuffle(s, [...activePool, ...passivePool], (choice) => getAbilityUpgradeChoiceWeight(s, choice));
+  const spherePool = weightedShuffle(s, sphereChoices, (choice) => choice.sphereType ? getSphereUpgradeChoiceWeight(s, choice.sphereType) : 1);
+  const modifierPool = weightedShuffle(s, modifierChoices, (choice) => choice.modifier ? getModifierUpgradeChoiceWeight(s, choice.modifier) : 1);
 
-  const spherePool = weightedShuffle(s, sphereChoices, (choice) =>
-    choice.sphereType ? getSphereUpgradeChoiceWeight(s, choice.sphereType) : 1,
-  );
-  const modifierPool = weightedShuffle(s, modifierChoices, () => 1);
-
+  // Preserve source diversity first, then use the seeded weighted pool to fill
+  // the remaining slots. This keeps Level-Up choices useful without forcing a
+  // specific build.
+  const sourcePools = [abilityPool, spherePool, modifierPool];
   const mixedPool: UpgradeChoice[] = [];
-  const sources = [
-    abilityPool[0],
-    spherePool[0],
-    modifierPool[0],
-    abilityPool[1],
-    spherePool[1],
-    modifierPool[1],
-    abilityPool[2],
-  ].filter(Boolean) as UpgradeChoice[];
+  for (const pool of sourcePools) {
+    if (pool[0] && mixedPool.length < 3) mixedPool.push(pool[0]);
+  }
 
-  for (const choice of weightedShuffle(s, sources, () => 1)) {
-    if (mixedPool.length >= 3) break;
+  const seen = new Set(mixedPool.map((choice) => {
+    if (choice.type === 'ability') return 'ability:' + choice.ability;
+    if (choice.type === 'sphere') return 'sphere:' + choice.sphereType;
+    return 'modifier:' + choice.modifier;
+  }));
+  const candidates = sourcePools.flatMap((pool) => pool.slice(0, 4));
+  for (const choice of weightedShuffle(s, candidates, () => 1)) {
+    const key = choice.type === 'ability'
+      ? 'ability:' + choice.ability
+      : choice.type === 'sphere'
+        ? 'sphere:' + choice.sphereType
+        : 'modifier:' + choice.modifier;
+    if (seen.has(key)) continue;
+    seen.add(key);
     mixedPool.push(choice);
+    if (mixedPool.length >= 3) break;
   }
   return mixedPool;
 }
