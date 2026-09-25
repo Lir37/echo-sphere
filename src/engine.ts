@@ -1229,6 +1229,7 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
     const profile = getSphereNetworkProfile(network, s.spheres.indexOf(fromSphere));
     if (hpRatio <= 0.20) actual *= 2.25;
     if (hpRatio <= 0.35 && s.player.artifacts.includes('void_mark')) actual *= 1.10;
+    if (hpRatio <= 0.35 && s.player.artifacts.includes('void_lantern')) actual *= 1.20;
     if (voidBranch === 'void_hunger') {
       actual *= 1 + Math.min(0.55, (1 - hpRatio) * (voidFinal === 2 ? 0.72 : 0.42));
     }
@@ -1771,10 +1772,10 @@ function getNearestSphere(s: GameState, origin: Vec, predicate?: (sphere: Sphere
   return nearest;
 }
 
-function emitSpherePulse(s: GameState, sphere: SphereEntity, damage: number, radius: number, color: string, slow = false): void {
+function emitSpherePulse(s: GameState, sphere: SphereEntity, damage: number, radius: number, color: string, slow = false, sourceSphere?: SphereEntity): void {
   for (const e of s.enemies) {
     if (e.hp <= 0 || dist(e.pos, sphere.pos) > radius) continue;
-    dealDamageToEnemy(s, e, damage);
+    dealDamageToEnemy(s, e, damage, sourceSphere);
     if (slow) {
       e.slowTimer = Math.max(e.slowTimer, 1.2);
       e.slowFactor = Math.min(e.slowFactor, 0.6);
@@ -3360,7 +3361,14 @@ function updatePulseSphere(s: GameState, sphere: SphereEntity, damage: number, m
 
   for (let wave = 0; wave < waveCount; wave++) {
     const waveDamage = damage * (wave === 0 ? 1 : 0.46 + (branch === 'pulse_burst' ? 0.14 : 0));
-    emitSpherePulse(s, sphere, waveDamage, radius * (wave === 0 ? 1 : 0.68), SPHERE_TYPES.pulse.color, branch === 'pulse_wave');
+    const pulseRadius = radius * (wave === 0 ? 1 : 0.68);
+    emitSpherePulse(s, sphere, waveDamage, pulseRadius, SPHERE_TYPES.pulse.color, branch === 'pulse_wave', sphere);
+    const pulseStatus = getActiveStatusEffect(s);
+    if (pulseStatus !== 'none') {
+      for (const enemy of s.enemies) {
+        if (enemy.hp > 0 && dist(enemy.pos, sphere.pos) <= pulseRadius) applyDirectSphereStatus(s, enemy, pulseStatus);
+      }
+    }
     if (branch === 'pulse_wave') {
       for (const enemy of s.enemies) {
         if (enemy.hp <= 0 || dist(enemy.pos, sphere.pos) > radius) continue;
