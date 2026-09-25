@@ -59,6 +59,10 @@ export { getCritChance, getDodgeChance, getVampirePercent, getDamageTakenMult } 
 export { activateByKey } from './engineAbilities';
 export { assignHotkey, getUpgradeSourceWeight, getSphereUpgradeChoiceWeight, generateUpgradeChoices, applyUpgrade, applySphereUpgrade } from './engineProgression';
 
+function pickArtifacts(s: GameState): ArtifactId[] {
+  return pickArtifactChoices(s, 3, false, () => nextRandom(s));
+}
+
 export interface LeaderEntry {
   name: string;
   time: number;
