@@ -11,7 +11,7 @@ Branch: new-desing
 This is the second operational document for ECHO SPHERE.
 
 Together with:
-GPT/ECHO_SPHERE_MASTER_FINAL_GAMEPLAY_BLUEPRINT_v1.1.txt
+GPT/ECHO_SPHERE_MASTER_FINAL_GAMEPLAY_BLUEPRINT_v1.2.txt
 
 it is sufficient for a new working session.
 
@@ -782,3 +782,40 @@ Rune/Artifact/Geometry expansion.
 ======================================================================
 END OF DEVELOPMENT STATE & GAP REPORT v1.0
 ======================================================================
+
+
+======================================================================
+CURRENT WORK SESSION UPDATE — 2026-09-25
+======================================================================
+
+Following the quality audit, the implementation has moved forward on the
+first alignment batch.
+
+COMPLETED IN CODE:
+- player contact damage now has a 0.60 sec post-hit grace window;
+- critical chance now starts at 5%, uses a 1.50x base multiplier and is
+  capped at 75%;
+- Artifact Set completion no longer grants the former flat universal
+  damage multiplier;
+- Resonance Grid completion accelerates Triangle formation pulses;
+- Echo Architecture completion creates relay events between linked
+  Spheres;
+- Singularity Path completion adds a conditional concentrated-build
+  execution echo;
+- Elite enemies now have a first Network-interaction mechanic:
+  Link Breaker temporarily disables one nearby Sphere's Network
+  participation and telegraphs the disruption;
+- Network runtime respects the temporary Sphere disruption state;
+- gameplay randomness remains on the seeded run RNG path.
+
+IN PROGRESS / NEXT:
+- migrate the final Resonance model from per-Sphere counters to the
+  authoritative 0..100 player-level charge resource;
+- Ghost Snap placement preview;
+- Formation Memory/readability;
+- Level-Up RNG protections;
+- Network profiling and frame-level cache only if profiling justifies it.
+
+IMPORTANT:
+The full Blueprint target remains intact. No five-Sphere launch cap or
+other external scope cut has been adopted.
