@@ -6,7 +6,7 @@ import {
   BOSS_CHARGER_TOTAL_TELEGRAPH_SECONDS,
   BOSS_CHARGER_WINDUP_SECONDS,
   getBossChargerPhase,
-} from '../src/engine.ts';
+} from '../src/bossBalance.ts';
 
 import fs from 'node:fs';
 

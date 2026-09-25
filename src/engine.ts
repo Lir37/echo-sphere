@@ -31,6 +31,7 @@ import { SPHERE_PROGRESSION, ABILITY_PROGRESSION, spherePriority, sphereLevel, s
 import { selectSphereTarget } from './targeting';
 import { analyzeSphereNetwork, getSphereNetworkProfile, getLinkedNodeIndexes } from './network';
 import { buildRuntimeNetworkNodes } from './networkRuntime';
+import { BOSS_CHARGER_COMMIT_SECONDS, BOSS_CHARGER_TOTAL_TELEGRAPH_SECONDS } from './bossBalance';
 import { RUNE_DEFS, type RuneType } from './runes';
 
 export interface Vec { x: number; y: number; }
@@ -165,18 +166,6 @@ export interface EnemyEntity {
   summonTimer: number;
   auraRadius: number;
   auraDps: number;
-}
-
-export const BOSS_CHARGER_WINDUP_SECONDS = 0.45;
-export const BOSS_CHARGER_COMMIT_SECONDS = 0.35;
-export const BOSS_CHARGER_TOTAL_TELEGRAPH_SECONDS =
-  BOSS_CHARGER_WINDUP_SECONDS + BOSS_CHARGER_COMMIT_SECONDS;
-
-export type BossChargerPhase = 'windup' | 'committed-dash' | 'ready';
-
-export function getBossChargerPhase(chargeTimer: number): BossChargerPhase {
-  if (chargeTimer <= 0) return 'ready';
-  return chargeTimer <= BOSS_CHARGER_COMMIT_SECONDS ? 'committed-dash' : 'windup';
 }
 
 export interface BossProjectile {
