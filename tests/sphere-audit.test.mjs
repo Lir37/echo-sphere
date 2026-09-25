@@ -9,6 +9,10 @@ const progression = read('src/sphereProgression.ts');
 const engine = read('src/engine.ts');
 const characters = read('src/characters.ts');
 const artifacts = read('src/artifactSystem.ts');
+const renderer = read('src/renderer.ts');
+const mobileControls = read('src/MobileControls.tsx');
+const collision = read('src/spaceCollision.ts');
+
 
 const allTypes = ['standard','sniper','shotgun','chain','aura','orbital','prism','gravity','pulse','void'];
 for (const type of allTypes) {
@@ -57,5 +61,17 @@ for (const token of ['orbital_crown','prism_filter','prism_crown','gravity_bead'
 for (const token of ['orbital_crown','prism_filter','prism_crown','gravity_bead','gravity_hook','pulse_driver','pulse_crown','void_mark','void_lantern','void_star']) {
   if (!['prism_filter','prism_crown'].includes(token)) assert.match(engine, new RegExp(token), 'Runtime artifact hook missing: ' + token);
 }
+
+
+for (const type of ['orbital','prism','gravity','pulse','void']) {
+  assert.match(renderer, new RegExp("sphere-" + type), 'Renderer art key missing: ' + type);
+  assert.match(renderer, new RegExp("/art/" + type + "\\.svg"), 'Artwork path missing: ' + type);
+}
+assert.match(renderer, /sphere\.type === 'orbital'[\s\S]*satelliteCount/, 'Orbital satellite visuals missing');
+assert.match(engine, /satelliteCount[\s\S]*bestAngularDistance/, 'Orbital satellite damage targeting missing');
+assert.match(collision, /resolvePlayerTowerCollisions/, 'Sphere physical collision layer missing');
+assert.match(collision, /TOWER_BODY_RADIUS/, 'Sphere body radius contract missing');
+assert.match(mobileControls, /canvas\.width \/ rect\.width/, 'Pointer/CSS coordinate mapping missing');
+assert.match(engine, /placeSphere\(s: GameState, x: number, y: number\)/, 'Sphere placement entry point missing');
 
 console.log('sphere-audit: OK');
