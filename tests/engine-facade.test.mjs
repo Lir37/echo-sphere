@@ -13,6 +13,7 @@ test('engine facade stays thin and runtime modules do not depend on the facade',
   assert.match(engine, /export \{\s*claimStella, applyArtifact, update, activateDash,\s*\} from '\.\/engineLoop';/s);
   assert.match(engine, /export \{\s*getMoveSpeed, getXpMult, getMagnetRadius\s*\} from '\.\/engineStats';/s);
   assert.match(engine, /createInitialState/);
+  assert.match(engine, /getCooldownMult/);
   assert.doesNotMatch(loop, /from '\.\/engine';/);
   assert.doesNotMatch(state, /from '\.\/engine';/);
   assert.doesNotMatch(stats, /from '\.\/engine';/);
