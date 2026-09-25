@@ -77,7 +77,7 @@ export const CHARACTER_DEFS: Record<CharacterId, CharacterDef> = {
     },
     color: '#55dfff',
     baseModifiers: { ...ZERO_MODIFIERS, sphereDamage: 0.05, sphereRadius: 0.05 },
-    preferredSphereTypes: ['standard', 'chain'],
+    preferredSphereTypes: ['standard', 'chain', 'orbital', 'pulse'],
     preferredSphereMods: ['multishot', 'ricochet'],
     preferredAbilities: ['blast', 'lightning', 'shield'],
     mechanic: {
@@ -103,7 +103,7 @@ export const CHARACTER_DEFS: Record<CharacterId, CharacterDef> = {
     },
     color: '#e86cff',
     baseModifiers: { ...ZERO_MODIFIERS, sphereDamage: 0.08, sphereRadius: 0.10, sphereAttackSpeed: -0.05 },
-    preferredSphereTypes: ['sniper', 'chain'],
+    preferredSphereTypes: ['sniper', 'chain', 'void', 'prism'],
     preferredSphereMods: ['pierce', 'ricochet'],
     preferredAbilities: ['teleport', 'lightning', 'blast'],
     mechanic: {
@@ -129,7 +129,7 @@ export const CHARACTER_DEFS: Record<CharacterId, CharacterDef> = {
     },
     color: '#57d5ff',
     baseModifiers: { ...ZERO_MODIFIERS, maxHp: 0.10, sphereRadius: 0.05, moveSpeed: -0.05 },
-    preferredSphereTypes: ['standard', 'aura'],
+    preferredSphereTypes: ['aura', 'orbital', 'pulse', 'gravity'],
     preferredSphereMods: ['freeze', 'multishot'],
     preferredAbilities: ['shield', 'minion', 'lightning'],
     mechanic: {
@@ -155,7 +155,7 @@ export const CHARACTER_DEFS: Record<CharacterId, CharacterDef> = {
     },
     color: '#ff625d',
     baseModifiers: { ...ZERO_MODIFIERS, maxHp: -0.10, moveSpeed: 0.08, sphereDamage: 0.08, sphereRadius: -0.05 },
-    preferredSphereTypes: ['shotgun', 'standard'],
+    preferredSphereTypes: ['shotgun', 'standard', 'orbital', 'void'],
     preferredSphereMods: ['multishot', 'fire'],
     preferredAbilities: ['shield', 'darkritual', 'firetrail'],
     mechanic: {
@@ -181,7 +181,7 @@ export const CHARACTER_DEFS: Record<CharacterId, CharacterDef> = {
     },
     color: '#57e6b4',
     baseModifiers: { ...ZERO_MODIFIERS, sphereDamage: -0.05, statusDuration: 0.30, statusDamage: 0.15 },
-    preferredSphereTypes: ['aura', 'chain'],
+    preferredSphereTypes: ['aura', 'chain', 'gravity', 'pulse'],
     preferredSphereMods: ['fire', 'freeze', 'poison'],
     preferredAbilities: ['firetrail', 'lightning', 'timestop'],
     mechanic: {
@@ -207,7 +207,7 @@ export const CHARACTER_DEFS: Record<CharacterId, CharacterDef> = {
     },
     color: '#ffc56a',
     baseModifiers: { ...ZERO_MODIFIERS, sphereRadius: 0.05, moveSpeed: -0.05 },
-    preferredSphereTypes: ['standard', 'aura', 'sniper'],
+    preferredSphereTypes: ['prism', 'sniper', 'gravity', 'orbital'],
     preferredSphereMods: ['pierce', 'freeze'],
     preferredAbilities: ['teleport', 'timestop', 'shield'],
     mechanic: {
