@@ -1174,3 +1174,51 @@ analyzeSphereNetwork() calls without changing gameplay semantics.
 ======================================================================
 END N3 FINAL RECONCILIATION
 ======================================================================
+
+======================================================================
+CURRENT WORK SESSION UPDATE — N2 NETWORK FRAME CACHE — 2026-09-26
+======================================================================
+
+COMPLETED:
+- Added GameState.networkFrame with { frameId, network } plus a monotonic
+  networkFrameId.
+- Main update() advances the frame id and invalidates the cache at frame
+  start/end.
+- Added getNetworkFrame() as the single runtime entry point that performs
+  analyzeSphereNetwork() only when the current frame has no cached snapshot.
+- Sphere damage/delay readers can consume the current Network snapshot;
+  updateSpheres() passes its canonical frame snapshot through the hot path.
+- Combat and Resonance readers now consume the cached snapshot instead of
+  rebuilding Network topology internally.
+- Orbital/Prism linked-node queries reuse the same frame snapshot.
+- Added regression coverage that locks the frame-cache boundary and rejects
+  direct analyzeSphereNetwork() calls in Sphere/Combat/Resonance modules.
+
+VALIDATION:
+- Implementation HEAD before documentation: ba656a9a71057f378946cee4b55759245babf5eb.
+- GitHub Actions #765: SUCCESS.
+- Typecheck: PASS.
+- Unit tests: PASS.
+- Gameplay coverage audit: PASS.
+- Lint: PASS.
+- Web build + Playwright visual QA: PASS.
+- Capacitor sync + debug APK build/upload: PASS.
+- Debug APK artifact: 4,668,491 bytes.
+- Render metrics: rendererMode=2d, renderActive=true, consoleErrors=0,
+  pageErrors=0.
+- Static APK/artifact inspection completed. No emulator/device runtime
+  performance benchmark was performed, so FPS improvement is not claimed
+  quantitatively yet.
+
+RESULT:
+N2 removes the repeated same-frame Network analysis from the targeted
+Sphere/Combat/Resonance hot paths while keeping the existing topology and
+gameplay rules intact.
+
+NEXT:
+Human PlayerCheck / 10-15 minute vertical-slice validation remains the next
+product truth point. Do not broaden content or perform balance tuning before
+that evidence is collected.
+======================================================================
+END N2 NETWORK FRAME CACHE
+======================================================================
