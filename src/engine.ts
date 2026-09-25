@@ -35,6 +35,8 @@ import { BOSS_CHARGER_COMMIT_SECONDS, BOSS_CHARGER_TOTAL_TELEGRAPH_SECONDS } fro
 import { RUNE_DEFS, type RuneType } from './runes';
 import { createRunSeed, createRngState, nextRandom } from './rng';
 import { addResonanceChargeFromSource, type ResonanceSource } from './resonance';
+import { canReceivePlayerDamage, CRIT_BASE, CRIT_MULTIPLIER_BASE, getContextualCritChance } from './combatRules';
+import { LINK_BREAKER_COOLDOWN_SECONDS, LINK_BREAKER_DISABLED_SECONDS, LINK_BREAKER_TARGET_RANGE, LINK_BREAKER_TELEGRAPH_SECONDS } from './eliteBalance';
 
 export interface Vec { x: number; y: number; }
 
@@ -172,6 +174,8 @@ export interface EnemyEntity {
   poisonDps: number;
   isElite: boolean;
   elitePulseTimer: number;
+  elitePulseTelegraphTimer?: number;
+  elitePulseTarget?: SphereEntity;
   bossType: BossType;
   chargeTimer: number;
   isCharging: boolean;
@@ -730,7 +734,7 @@ export function getSphereDelay(s: GameState, sphere?: SphereEntity): number {
 
 export function getCritChance(s: GameState, sphere?: SphereEntity): number {
   // Blueprint v1.2: 5% baseline, then additive sources, hard-capped at 75%.
-  let c = 0.05;
+  let c = CRIT_BASE;
   c += (s.player.abilities.crit || 0) * 0.1;
   c += (s.shopUpgrades.crit || 0) * 0.05;
   c += getArtifactCritChanceBonus(s);
@@ -1181,16 +1185,23 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
     actual *= getCharacterDamageMultiplier(s, fromSphere);
     actual *= getHunterMarkMultiplier(s, enemy);
   }
+  const contextualCritChance = getContextualCritChance(getCritChance(s, fromSphere), {
+    hunterMarked: Boolean(
+      fromSphere
+      && getCharacterId(s) === 'hunter'
+      && s.player.hunterMarkTarget === enemy
+      && s.player.hunterMarkTimer > 0
+      && s.player.characterMasteryLevel >= 3
+    ),
+    architectTriangle: Boolean(
+      fromSphere
+      && getCharacterId(s) === 'architect'
+      && getCharacterFormation(s).type === 'triangle'
+    ),
+  });
   let isCrit = false;
-  let critChance = getCritChance(s, fromSphere);
-  if (fromSphere && getCharacterId(s) === 'hunter' && s.player.hunterMarkTarget === enemy && s.player.hunterMarkTimer > 0 && s.player.characterMasteryLevel >= 3) {
-    critChance += 0.02;
-  }
-  if (fromSphere && getCharacterId(s) === 'architect' && getCharacterFormation(s).type === 'triangle') {
-    critChance += 0.10;
-  }
   // crit
-  if (fromSphere && nextRandom(s) < critChance) { actual *= 1.5; isCrit = true; }
+  if (fromSphere && nextRandom(s) < contextualCritChance) { actual *= CRIT_MULTIPLIER_BASE; isCrit = true; }
   if (fromSphere) {
     const squareNetwork = analyzeSphereNetwork(getNetworkNodes(s));
     const squareProfile = getSphereNetworkProfile(squareNetwork, s.spheres.indexOf(fromSphere));
@@ -1664,7 +1675,7 @@ export function claimStella(s: GameState): void {
 }
 
 function damagePlayer(s: GameState, amount: number): void {
-  if (s.player.invulnerableTimer > 0 || s.player.contactDamageCooldown > 0) return;
+  if (!canReceivePlayerDamage(s.player.invulnerableTimer, s.player.contactDamageCooldown)) return;
   // dodge
   if (nextRandom(s) < getDodgeChance(s)) {
     s.particles.push({ pos: { ...s.player.pos }, vel: { x: 0, y: -60 }, life: 0.5, maxLife: 0.5, color: '#e8dcc0', size: 3 });
@@ -3752,25 +3763,38 @@ function updateEnemies(s: GameState, dt: number): void {
     e.pos.x += (dx / d) * e.speed * speedMult * aggro * dt;
     e.pos.y += (dy / d) * e.speed * speedMult * aggro * dt;
 
-    // Elite Link Breaker: elite enemies periodically disrupt one nearby Sphere's Network participation.
+    // Elite Link Breaker uses a readable telegraph before removing a Sphere from Network participation.
     if (e.isElite) {
-      e.elitePulseTimer -= dt;
-      if (e.elitePulseTimer <= 0) {
-        e.elitePulseTimer = 6;
-        let target: SphereEntity | null = null;
-        let best = 260;
-        for (const sphere of s.spheres) {
-          if (!sphere.alive) continue;
-          const sd = dist(sphere.pos, e.pos);
-          if (sd < best) {
-            best = sd;
-            target = sphere;
+      const telegraphTimer = e.elitePulseTelegraphTimer || 0;
+      if (telegraphTimer > 0) {
+        e.elitePulseTelegraphTimer = Math.max(0, telegraphTimer - dt);
+        if (e.elitePulseTelegraphTimer <= 0) {
+          const target = e.elitePulseTarget;
+          e.elitePulseTarget = undefined;
+          if (target?.alive && dist(target.pos, e.pos) <= LINK_BREAKER_TARGET_RANGE + 60) {
+            target.networkDisabledTimer = LINK_BREAKER_DISABLED_SECONDS;
+            s.flashText = { text: 'NETWORK BREAK', life: 0.8, color: '#b8475a' };
+            s.lightnings.push({ from: { ...e.pos }, to: { ...target.pos }, life: 0.30 });
           }
         }
-        if (target) {
-          target.networkDisabledTimer = 2;
-          s.flashText = { text: 'NETWORK BREAK', life: 0.8, color: '#b8475a' };
-          s.lightnings.push({ from: { ...e.pos }, to: { ...target.pos }, life: 0.30 });
+      } else {
+        e.elitePulseTimer -= dt;
+        if (e.elitePulseTimer <= 0) {
+          e.elitePulseTimer = LINK_BREAKER_COOLDOWN_SECONDS;
+          let target: SphereEntity | null = null;
+          let best = LINK_BREAKER_TARGET_RANGE;
+          for (const sphere of s.spheres) {
+            if (!sphere.alive || (sphere.networkDisabledTimer || 0) > 0) continue;
+            const sd = dist(sphere.pos, e.pos);
+            if (sd < best) {
+              best = sd;
+              target = sphere;
+            }
+          }
+          if (target) {
+            e.elitePulseTarget = target;
+            e.elitePulseTelegraphTimer = LINK_BREAKER_TELEGRAPH_SECONDS;
+          }
         }
       }
     }
