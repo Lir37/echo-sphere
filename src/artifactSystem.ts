@@ -28,6 +28,14 @@ export interface ArtifactEffects {
   shotgunRadius?: number;
   chainRadius?: number;
   auraRadius?: number;
+  orbitalDamage?: number;
+  prismDamage?: number;
+  gravityDamage?: number;
+  gravityRadius?: number;
+  pulseDamage?: number;
+  pulseRadius?: number;
+  voidDamage?: number;
+  voidWeakened?: number;
 }
 
 export interface ArtifactMeta {
@@ -94,11 +102,11 @@ export const ARTIFACT_METADATA: ArtifactMeta[] = [
 // Individual mechanic handlers can specialize these entries without changing the catalog contract.
 ARTIFACT_METADATA.push(
   meta('network_anchor', 'common', {"sphereDamage":0.04}),
-  meta('pulse_lens', 'common', {"sphereDamage":0.04}),
-  meta('orbit_charm', 'common', {"sphereDamage":0.04}),
-  meta('prism_shard', 'common', {"sphereDamage":0.04}),
-  meta('gravity_bead', 'common', {"sphereDamage":0.04}),
-  meta('void_ink', 'common', {"sphereDamage":0.04}),
+  meta('pulse_lens', 'common', {"pulseRadius":0.10}),
+  meta('orbit_charm', 'common', {"orbitalDamage":0.12}),
+  meta('prism_shard', 'common', {"prismDamage":0.10}),
+  meta('gravity_bead', 'common', {}),
+  meta('void_ink', 'common', {"voidDamage":0.10}),
   meta('echo_thread', 'common', {"sphereDamage":0.04}),
   meta('folded_core', 'common', {"sphereDamage":0.04}),
   meta('paper_ward', 'common', {"sphereDamage":0.04}),
@@ -112,11 +120,11 @@ ARTIFACT_METADATA.push(
   meta('chain_battery', 'rare', {"sphereDamage":0.06}),
   meta('shotgun_shell', 'rare', {"sphereDamage":0.06}),
   meta('aura_mist', 'rare', {"sphereDamage":0.06}),
-  meta('orbital_blade', 'rare', {"sphereDamage":0.06}),
-  meta('prism_filter', 'rare', {"sphereDamage":0.06}),
-  meta('gravity_hook', 'rare', {"sphereDamage":0.06}),
-  meta('pulse_driver', 'rare', {"sphereDamage":0.06}),
-  meta('void_mark', 'rare', {"sphereDamage":0.06}),
+  meta('orbital_blade', 'rare', {"orbitalDamage":0.10}),
+  meta('prism_filter', 'rare', {}),
+  meta('gravity_hook', 'rare', {}),
+  meta('pulse_driver', 'rare', {}),
+  meta('void_mark', 'rare', {"voidWeakened":0.10}),
   meta('formation_compass', 'rare', {"sphereDamage":0.06}),
   meta('geometry_die', 'rare', {"sphereDamage":0.06}),
   meta('network_coil', 'rare', {"sphereDamage":0.06}),
@@ -131,11 +139,11 @@ ARTIFACT_METADATA.push(
   meta('sphere_forge', 'epic', {"sphereDamage":0.08,"cooldown":-0.03}),
   meta('echo_weaver', 'epic', {"sphereDamage":0.08,"cooldown":-0.03}),
   meta('overdrive_matrix', 'epic', {"sphereDamage":0.08,"cooldown":-0.03}),
-  meta('gravity_crown', 'epic', {"sphereDamage":0.08,"cooldown":-0.03}),
-  meta('void_lantern', 'epic', {"sphereDamage":0.08,"cooldown":-0.03}),
-  meta('prism_crown', 'epic', {"sphereDamage":0.08,"cooldown":-0.03}),
-  meta('orbital_crown', 'epic', {"sphereDamage":0.08,"cooldown":-0.03}),
-  meta('pulse_crown', 'epic', {"sphereDamage":0.08,"cooldown":-0.03}),
+  meta('gravity_crown', 'epic', {"gravityRadius":0.20}),
+  meta('void_lantern', 'epic', {"voidDamage":0.20}),
+  meta('prism_crown', 'epic', {}),
+  meta('orbital_crown', 'epic', {}),
+  meta('pulse_crown', 'epic', {}),
   meta('chain_crown', 'epic', {"sphereDamage":0.08,"cooldown":-0.03}),
   meta('sniper_crown', 'epic', {"sphereDamage":0.08,"cooldown":-0.03}),
   meta('singularity_seed', 'special', {"sphereDamage":0.12,"critChance":0.03}),
@@ -144,7 +152,7 @@ ARTIFACT_METADATA.push(
   meta('echo_archive', 'special', {"sphereDamage":0.12,"critChance":0.03}),
   meta('quantum_fold', 'special', {"sphereDamage":0.12,"critChance":0.03}),
   meta('zero_point_relay', 'special', {"sphereDamage":0.12,"critChance":0.03}),
-  meta('void_star', 'special', {"sphereDamage":0.12,"critChance":0.03}),
+  meta('void_star', 'special', {"critChance":0.03}),
   meta('axiom_core', 'legendary', {"sphereDamage":0.15,"cooldown":-0.08}),
   meta('infinite_loop', 'legendary', {"sphereDamage":0.15,"cooldown":-0.08}),
   meta('universal_fold', 'legendary', {"sphereDamage":0.15,"cooldown":-0.08})
@@ -477,24 +485,16 @@ export function getSphereArtifactDamageMultiplier(s: any, sphere: any): number {
     multiplier *= 1 + strongest * 0.03;
   }
   if (hasArtifact(s, 'zero_sphere')) multiplier *= 1.20;
-  const specific: Partial<Record<string, number>> = {
-    sniper_scope: 1.10, chain_battery: 1.10, shotgun_shell: 1.10,
-    orbital_blade: 1.10, prism_shard: 1.10, prism_filter: 1.08,
-    gravity_crown: 1.20, void_ink: 1.10, void_lantern: 1.20,
-    pulse_driver: 1.08, pulse_crown: 1.10, sniper_crown: 1.10,
-    chain_crown: 1.10, orbital_crown: 1.10,
-  };
-  if (specific[sphere?.type + '_scope']) multiplier *= specific[sphere.type + '_scope']!;
-  const directId = sphere?.type === 'sniper' ? 'sniper_scope'
-    : sphere?.type === 'chain' ? 'chain_battery'
-      : sphere?.type === 'shotgun' ? 'shotgun_shell'
-        : sphere?.type === 'orbital' ? 'orbital_blade'
-          : sphere?.type === 'prism' ? 'prism_shard'
-            : sphere?.type === 'gravity' ? 'gravity_crown'
-              : sphere?.type === 'pulse' ? 'pulse_driver'
-                : sphere?.type === 'void' ? 'void_ink'
-                  : null;
-  if (directId && hasArtifact(s, directId as ArtifactId)) multiplier *= specific[directId] || 1;
+
+  const synergies = getActiveArtifactSynergies(s);
+  if (synergies.some((x) => x.id === 'void_horizon') && sphere?.type === 'void') {
+    if (sphere && (s.enemies || []).some((enemy: any) => enemy.isElite && enemy.hp > 0)) multiplier *= 1.15;
+  }
+  if (synergies.some((x) => x.id === 'orbital_prism') && sphere?.type === 'orbital') multiplier *= 1.15;
+  if (synergies.some((x) => x.id === 'gravity_pulse') && sphere?.type === 'pulse') {
+    const grouped = (s.enemies || []).filter((enemy: any) => enemy.hp > 0 && (s.spheres || []).some((other: any) => other.alive !== false && Math.hypot(enemy.pos.x - other.pos.x, enemy.pos.y - other.pos.y) < 140));
+    if (grouped.length >= 3) multiplier *= 1.15;
+  }
   return multiplier;
 }
 
