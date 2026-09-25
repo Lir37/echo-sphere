@@ -2853,6 +2853,12 @@ function checkMutation(s: GameState): void {
 }
 
 function updateSpheres(s: GameState, dt: number): void {
+  // Network topology is stable for the duration of this Sphere update pass.
+  // Analyze it once so Resonance geometry cannot double-charge within a frame
+  // and the per-Sphere profiles all observe the same topology snapshot.
+  const networkState = analyzeSphereNetwork(getNetworkNodes(s));
+  syncResonanceGeometry(s, networkState);
+
   for (const sphere of s.spheres) {
     if (!sphere.alive) continue;
     sphere.resonancePulseTimer = Math.max(0, sphere.resonancePulseTimer - dt);
@@ -2861,8 +2867,6 @@ function updateSpheres(s: GameState, dt: number): void {
     const damage = getSphereDamage(s, sphere) * stype.damageMult;
     const delay = getSphereDelay(s, sphere) * stype.delayMult * sphereModifiers(s, sphere.type).delay;
     const branch = s.player.sphereBranches?.[sphere.type];
-    const networkState = analyzeSphereNetwork(getNetworkNodes(s));
-    syncResonanceGeometry(s, networkState);
     const networkProfile = getSphereNetworkProfile(networkState, s.spheres.indexOf(sphere));
     // aura type: continuous AoE damage — no barrel rotation
     if (stype.aura) {
