@@ -35,7 +35,15 @@ test('boss renderer has pre-attack telegraphs for all four boss types', () => {
 });
 
 test('boss defeat hands control to Stella without an ordinary artifact roll first', () => {
-  assert.match(renderer, /drawBossAttackTelegraph\(ctx, e, playerPos/);
+  const engine = fs.readFileSync(new URL('../src/engine.ts', import.meta.url), 'utf8');
+  assert.match(engine, /if \(enemy\.isBoss\) \{[\s\S]*?s\.pendingStella = true;[\s\S]*?s\.pendingArtifact = null;/);
+});
+
+test('Stella selection keeps Legendary access behind the configured cutoff', () => {
+  const engine = fs.readFileSync(new URL('../src/engine.ts', import.meta.url), 'utf8');
+  assert.match(engine, /s\.time < STELLA_LEGENDARY_CUTOFF_SECONDS/);
+  assert.match(engine, /\? pickStellaArtifactChoice\(s\)/);
+  assert.match(engine, /pickArtifacts\(s\)/);
   assert.ok(artifacts.includes("rarity === 'legendary'"));
   assert.ok(artifacts.includes('!owned.has(item.id)'));
   assert.ok(artifacts.includes("rarity !== 'legendary'"));
