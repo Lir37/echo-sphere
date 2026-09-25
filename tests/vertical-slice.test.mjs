@@ -5,20 +5,19 @@ import fs from 'node:fs/promises';
 const engineSource = await fs.readFile(new URL('../src/engine.ts', import.meta.url), 'utf8');
 const mobileControlsSource = await fs.readFile(new URL('../src/MobileControls.tsx', import.meta.url), 'utf8');
 
-test('first vertical slice is pinned to Standard, Sniper and Chain', () => {
+test('expanded Sphere roster is the gameplay source of truth', () => {
+  for (const type of ['standard', 'sniper', 'shotgun', 'chain', 'aura', 'orbital', 'prism', 'gravity', 'pulse', 'void']) {
+    assert.match(engineSource, new RegExp(`['"]${type}['"]`));
+  }
   assert.match(
     engineSource,
-    /VERTICAL_SLICE_SPHERE_TYPES: readonly SphereType\[\] = \['standard', 'sniper', 'chain'\]/,
-  );
-  assert.match(
-    engineSource,
-    /const sphereTypes = VERTICAL_SLICE_SPHERE_TYPES\.filter\(\(type\) => type in SPHERE_PROGRESSION\);/,
+    /const sphereTypes = \(Object\.keys\(SPHERE_PROGRESSION\) as SphereType\[\]\)\.filter\(\(type\) => type in SPHERE_TYPES\);/,
   );
 });
 
-test('mobile sphere selector uses the same first-slice source of truth', () => {
+test('mobile sphere selector uses the complete Sphere roster', () => {
   assert.match(
     mobileControlsSource,
-    /const types: SphereType\[\] = \[\.\.\.VERTICAL_SLICE_SPHERE_TYPES\];/,
+    /Object\.keys\(SPHERE_TYPES\) as SphereType\[\]/,
   );
 });
