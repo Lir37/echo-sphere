@@ -620,20 +620,19 @@ function getXpPlannerMult(st: GameState): number {
 function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st: GameState }) {
   const xpPct = Math.max(0, Math.min(100, (st.player.xp / st.player.xpToNext) * 100));
   const hpPct = Math.max(0, Math.min(100, (st.player.hp / st.player.maxHp) * 100));
+  const resonancePct = Math.max(0, Math.min(100, st.player.resonanceCharge));
+  const resonanceEventReady = st.player.resonanceCharge >= 100;
   const mins = Math.floor(st.time / 60);
   const secs = Math.floor(st.time % 60);
   const timer = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   const activeBoss = st.bossActive;
   const network = analyzeSphereNetwork(st.spheres);
-  const triangleCharge = network.triangle
-    ? Math.round(
-        network.triangle.nodes.reduce((sum, index) => sum + (st.spheres[index]?.resonanceHits || 0) % 3, 0)
-        / network.triangle.nodes.length,
-      )
-    : null;
   const networkBadges = [
     network.line ? { label: lang === 'ru' ? 'ЛИНИЯ' : 'LINE', className: 'border-[#63e6ff]/45 text-[#9fefff]' } : null,
-    network.triangle ? { label: triangleCharge !== null ? `${lang === 'ru' ? 'ТРЕУГОЛЬНИК' : 'TRIANGLE'} ${triangleCharge}/3` : (lang === 'ru' ? 'ТРЕУГОЛЬНИК' : 'TRIANGLE'), className: 'border-[#ffb84d]/45 text-[#ffd48f]' } : null,
+    network.triangle ? { label: lang === 'ru' ? 'ТРЕУГОЛЬНИК' : 'TRIANGLE', className: 'border-[#ffb84d]/45 text-[#ffd48f]' } : null,
+    network.ring ? { label: lang === 'ru' ? 'КОЛЬЦО' : 'RING', className: 'border-[#55e69a]/45 text-[#9affc8]' } : null,
+    network.lattice ? { label: lang === 'ru' ? 'РЕШЁТКА' : 'LATTICE', className: 'border-[#39d8ff]/45 text-[#8eeeff]' } : null,
+    network.fractal ? { label: lang === 'ru' ? 'ФРАКТАЛ' : 'FRACTAL', className: 'border-[#ff6b9d]/45 text-[#ffb3ca]' } : null,
     network.cluster ? { label: lang === 'ru' ? 'КЛАСТЕР' : 'CLUSTER', className: 'border-[#b38cff]/45 text-[#d4c0ff]' } : null,
     network.square ? { label: lang === 'ru' ? 'КВАДРАТ' : 'SQUARE', className: 'border-[#69b7ff]/45 text-[#9bcfff]' } : null,
   ].filter((badge): badge is { label: string; className: string } => badge !== null);
@@ -650,6 +649,10 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
             </div>
             <div className="es-progress mt-1.5"><span style={{ width: `${xpPct}%` }} /></div>
             <div className="es-hp-progress mt-1"><span style={{ width: `${hpPct}%` }} /></div>
+            <div className="mt-1.5">
+              <div className="flex items-center justify-between text-[7px] uppercase tracking-[0.12em] text-[#7f9bb8]"><span>{lang === "ru" ? "РЕЗОНАНС" : "RESONANCE"}</span><b className={resonanceEventReady ? "text-[#ffb84d]" : "text-[#dcecff]"}>{Math.floor(st.player.resonanceCharge)}/100</b></div>
+              <div className="h-1.5 mt-0.5 rounded-full bg-[#13243a] overflow-hidden border border-[#243b55]"><span className="block h-full" style={{ width: resonancePct + "%", background: resonanceEventReady ? "#ffb84d" : "#39d8ff" }} /></div>
+            </div>
           </div>
         </div>
         <div className="es-hud-meta-grid mt-2">
