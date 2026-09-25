@@ -1,5 +1,6 @@
 import { playSound } from './audio';
-import type { AbilityType, GameState } from './engineTypes';
+import type { AbilityType } from './gameData';
+import type { GameState, SphereEntity } from './engineTypes';
 import {
   dist, rand, clamp, getNetworkNodes, getAbilityBranchId, getNearestSphere
 } from './engineRuntime';

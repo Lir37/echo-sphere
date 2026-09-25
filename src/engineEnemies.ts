@@ -12,7 +12,8 @@ import { nextRandom } from './rng';
 import { BALANCE } from './engineBalance';
 import { BOSS_CHARGER_COMMIT_SECONDS, BOSS_CHARGER_TOTAL_TELEGRAPH_SECONDS } from './bossBalance';
 import { LINK_BREAKER_COOLDOWN_SECONDS, LINK_BREAKER_DISABLED_SECONDS, LINK_BREAKER_TARGET_RANGE, LINK_BREAKER_TELEGRAPH_SECONDS } from './eliteBalance';
-import type { GameState, EnemyEntity, SphereEntity, BossType, Vec } from './engineTypes';
+import type { GameState, EnemyEntity, SphereEntity, Vec } from './engineTypes';
+import type { BossType } from './gameData';
 
 export const PLAYER_RADIUS = 16;
 

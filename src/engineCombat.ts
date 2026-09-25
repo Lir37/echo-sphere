@@ -22,7 +22,8 @@ import { sphereLevel, getActiveSphereAbilitySynergies } from './sphereProgressio
 import { analyzeSphereNetwork, getSphereNetworkProfile, getLinkedNodeIndexes } from './network';
 import { nextRandom } from './rng';
 import { canReceivePlayerDamage, CRIT_BASE, CRIT_MULTIPLIER_BASE, getContextualCritChance } from './combatRules';
-import type { GameState, SphereEntity, EnemyEntity, ArtifactId, Vec } from './engineTypes';
+import type { GameState, SphereEntity, EnemyEntity, Vec } from './engineTypes';
+import type { ArtifactId } from './gameData';
 import { dist, rand, getNetworkNodes, getAbilityBranchId, getNearestSphere, getSphereFinalIndex } from './engineRuntime';
 import { chargeResonance } from './engine';
 

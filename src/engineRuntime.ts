@@ -18,14 +18,14 @@ export function getNetworkNodes(s: GameState) {
   return buildRuntimeNetworkNodes(s.spheres, s.minions, (s.player.abilities.minion || 0) >= 3);
 }
 
-function getAbilityBranchId(s: GameState, ability: AbilityType, stage: 4 | 7): string | null {
+export function getAbilityBranchId(s: GameState, ability: AbilityType, stage: 4 | 7): string | null {
   const prefix = 'ability:' + ability + ':' + stage + ':';
   const marker = (s.player.evolutions || []).find((x: string) => x.startsWith(prefix));
   return marker ? marker.slice(prefix.length) : null;
 }
 
 
-function getNearestSphere(s: GameState, origin: Vec, predicate?: (sphere: SphereEntity) => boolean): SphereEntity | null {
+export function getNearestSphere(s: GameState, origin: Vec, predicate?: (sphere: SphereEntity) => boolean): SphereEntity | null {
   let nearest: SphereEntity | null = null;
   let best = Infinity;
   for (const sphere of s.spheres) {
@@ -40,7 +40,7 @@ function getNearestSphere(s: GameState, origin: Vec, predicate?: (sphere: Sphere
 }
 
 
-function getSphereFinalIndex(s: GameState, type: SphereType): number | null {
+export function getSphereFinalIndex(s: GameState, type: SphereType): number | null {
   const marker = (s.player.evolutions || []).find((x: string) => x.startsWith('sphere:' + type + ':7:'));
   if (!marker) return null;
   const value = Number(marker.slice(marker.lastIndexOf(':') + 1));
