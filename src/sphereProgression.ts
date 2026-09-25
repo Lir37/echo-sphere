@@ -132,7 +132,7 @@ export const ABILITY_PROGRESSION:Partial<Record<AbilityType,AbilityProgressionDe
       ae('shield_bastion','Бастион','Сферы вокруг игрока образуют единый защитный контур.')
     ],
     evolution7:[
-      ae('shield_network_guard','Network Bastion','Щит соединяет сферы в единую защитную сеть.'),
+      ae('shield_network_guard','Network Bastion','Связанные сферы увеличивают запас зарядов защитного щита.'),
       ae('shield_iron_dome','Iron Dome','Количество ближайших сфер увеличивает дополнительный запас зарядов щита.'),
       ae('shield_resonant_guard','Resonant Guard','Поглощённый удар восстанавливает один заряд щита, удерживая защиту в резонансе.')
     ]
@@ -259,7 +259,7 @@ export const ABILITY_PROGRESSION:Partial<Record<AbilityType,AbilityProgressionDe
     ],
     evolution7:[
       ae('darkritual_blood_network','Blood Network','Перегрузка передаёт заряд между связанными Standard-сферами.'),
-      ae('darkritual_sacrifice_core','Sacrifice Core','Каждая потеря HP создаёт усиленный импульс вокруг ближайшей сферы.'),
+      ae('darkritual_sacrifice_core','Sacrifice Core','Жертва HP создаёт усиленный импульс вокруг ближайшей сферы.'),
       ae('darkritual_void_engine','Void Engine','При низком HP перегрузка продлевается и усиливает урон всей сети.')
     ]
   },
