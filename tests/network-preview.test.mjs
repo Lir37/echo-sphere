@@ -13,7 +13,7 @@ test('Ghost Snap predicts candidate links without mutating live spheres', () => 
   const spheres = [sphere(-80, 0), sphere(80, 0), sphere(0, 120)];
   const before = JSON.stringify(spheres);
 
-  const preview = buildGhostSnapPreview(spheres, { x: 0, y: -80 });
+  const preview = buildGhostSnapPreview(spheres, { x: 0, y: -120 });
 
   assert.ok(preview);
   assert.equal(preview.candidateIndex, 3);
@@ -30,7 +30,7 @@ test('Ghost Snap preserves source indexes when disabled/dead spheres are present
     sphere(0, 120),
   ];
 
-  const preview = buildGhostSnapPreview(spheres, { x: 0, y: -120 });
+  const preview = buildGhostSnapPreview(spheres, { x: 0, y: -80 });
 
   assert.ok(preview);
   assert.equal(preview.candidateIndex, 4);
