@@ -650,7 +650,7 @@ export function getSphereDamage(s: GameState, sphere: SphereEntity): number {
   d *= 1 + getArtifactSetCompletionBonus(s);
   d *= sphereModifiers(s, sphere.type, sphere).damage;
   if (sphere) {
-    const network = analyzeSphereNetwork(s.spheres);
+    const network = analyzeSphereNetwork(getNetworkNodes(s));
     const profile = getSphereNetworkProfile(network, s.spheres.indexOf(sphere));
     if (profile.square) d *= 1.08;
   }
@@ -676,7 +676,7 @@ export function getSphereDelay(s: GameState, sphere?: SphereEntity): number {
   if (s.player.overloadTimer > 0) d *= 0.72;
   if (s.player.fireTrailTimer > 0 && sphere && s.player.sphereMods.fire > 0) d *= 0.78;
   if (sphere) {
-    const network = analyzeSphereNetwork(s.spheres);
+    const network = analyzeSphereNetwork(getNetworkNodes(s));
     const profile = getSphereNetworkProfile(network, s.spheres.indexOf(sphere));
     if (profile.cluster) d *= 0.90;
     if (profile.square) d *= 0.94;
@@ -738,6 +738,17 @@ export function getMagnetRadius(s: GameState): number {
 // ===== Helpers =====
 function dist(a: Vec, b: Vec): number {
   return Math.hypot(a.x - b.x, a.y - b.y);
+}
+
+// Real Network view used by gameplay systems. Temporary Echo Drones are
+// appended after stable Sphere indexes, so existing sphere profiles stay valid.
+function getNetworkNodes(s: GameState): Array<{ pos: Vec; alive: boolean }> {
+  const nodes = s.spheres.map((sphere) => ({ pos: sphere.pos, alive: sphere.alive }));
+  if ((s.player.abilities.minion || 0) < 3) return nodes;
+  for (const minion of s.minions) {
+    nodes.push({ pos: minion.pos, alive: minion.life > 0 });
+  }
+  return nodes;
 }
 function rand(min: number, max: number): number {
   return min + Math.random() * (max - min);
@@ -956,7 +967,7 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
   // crit
   if (fromSphere && Math.random() < critChance) { actual *= 2; isCrit = true; }
   if (fromSphere) {
-    const squareNetwork = analyzeSphereNetwork(s.spheres);
+    const squareNetwork = analyzeSphereNetwork(getNetworkNodes(s));
     const squareProfile = getSphereNetworkProfile(squareNetwork, s.spheres.indexOf(fromSphere));
     if (squareProfile.square) {
       fromSphere.resonanceHits++;
@@ -1176,7 +1187,7 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
   // Juicier impact: a short, directional burst makes every sphere hit readable.
   if (fromSphere) {
     const sphereIndex = s.spheres.indexOf(fromSphere);
-    const network = analyzeSphereNetwork(s.spheres);
+    const network = analyzeSphereNetwork(getNetworkNodes(s));
     const profile = getSphereNetworkProfile(network, sphereIndex);
     if (profile.triangle) {
       fromSphere.resonanceHits++;
@@ -1751,11 +1762,42 @@ function activateMinion(s: GameState): void {
   const count = 1 + Math.floor((lvl - 1) / 2);
   const branch = getAbilityBranchId(s, 'minion', 4);
   const final = getAbilityBranchId(s, 'minion', 7);
+  const relayMode = branch === 'minion_relay_drone' || final === 'minion_network_nodes';
+  const liveSpheres = s.spheres.filter((sphere) => sphere.alive);
+
   for (let i = 0; i < count; i++) {
     const anchor = getNearestSphere(s, s.player.pos);
     const angle = (i / Math.max(1, count)) * Math.PI * 2;
+    let spawnPos = anchor
+      ? { x: anchor.pos.x + Math.cos(angle) * 42, y: anchor.pos.y + Math.sin(angle) * 42 }
+      : { ...s.player.pos };
+
+    // Relay/Network Nodes are positioned between two nearby Spheres so the
+    // solver can produce actual Sphere -> Drone -> Sphere links.
+    if (relayMode && liveSpheres.length >= 2) {
+      let bestA: SphereEntity | null = null;
+      let bestB: SphereEntity | null = null;
+      let bestDistance = Infinity;
+      for (let a = 0; a < liveSpheres.length - 1; a++) {
+        for (let b = a + 1; b < liveSpheres.length; b++) {
+          const d = dist(liveSpheres[a].pos, liveSpheres[b].pos);
+          if (d < bestDistance) {
+            bestDistance = d;
+            bestA = liveSpheres[a];
+            bestB = liveSpheres[b];
+          }
+        }
+      }
+      if (bestA && bestB && bestDistance <= 400) {
+        spawnPos = {
+          x: (bestA.pos.x + bestB.pos.x) / 2,
+          y: (bestA.pos.y + bestB.pos.y) / 2,
+        };
+      }
+    }
+
     s.minions.push({
-      pos: anchor ? { x: anchor.pos.x + Math.cos(angle) * 42, y: anchor.pos.y + Math.sin(angle) * 42 } : { ...s.player.pos },
+      pos: spawnPos,
       hp: 1, attackTimer: 0, life: 10 + (lvl >= 5 ? 2 : 0), radius: 12, damage: 6 + Math.max(0, lvl - 1) * 2, rotation: 0,
     });
     if (anchor) {
@@ -1771,14 +1813,24 @@ function activateMinion(s: GameState): void {
       }
     }
   }
-  if (branch === 'minion_relay_drone' || final === 'minion_network_nodes') {
-    const alive = s.spheres.filter((sphere) => sphere.alive);
+  if (relayMode) {
+    const network = analyzeSphereNetwork(getNetworkNodes(s));
     for (let i = 0; i < count; i++) {
-      const drone = s.minions[s.minions.length - 1 - i];
+      const minionIndex = s.minions.length - 1 - i;
+      const drone = s.minions[minionIndex];
       if (!drone) continue;
-      const anchor = getNearestSphere(s, drone.pos);
-      const second = anchor ? getNearestSphere(s, anchor.pos, (candidate) => candidate !== anchor && dist(candidate.pos, anchor.pos) <= 240) : null;
-      if (anchor && second) s.lightnings.push({ from: { ...anchor.pos }, to: { ...second.pos }, life: 0.18 });
+      const nodeIndex = s.spheres.length + minionIndex;
+      const linkedSpheres = network.links
+        .filter((link) => link.a === nodeIndex || link.b === nodeIndex)
+        .map((link) => (link.a === nodeIndex ? link.b : link.a))
+        .filter((index) => index >= 0 && index < s.spheres.length)
+        .filter((index, listIndex, list) => list.indexOf(index) === listIndex);
+      if (linkedSpheres.length >= 2) {
+        const first = s.spheres[linkedSpheres[0]];
+        const second = s.spheres[linkedSpheres[1]];
+        s.lightnings.push({ from: { ...first.pos }, to: { ...drone.pos }, life: 0.16 });
+        s.lightnings.push({ from: { ...drone.pos }, to: { ...second.pos }, life: 0.16 });
+      }
     }
   }
   if (final === 'minion_echo_swarm') {
@@ -2561,7 +2613,7 @@ function updateSpheres(s: GameState, dt: number): void {
     const damage = getSphereDamage(s, sphere) * stype.damageMult;
     const delay = getSphereDelay(s, sphere) * stype.delayMult * sphereModifiers(s, sphere.type).delay;
     const branch = s.player.sphereBranches?.[sphere.type];
-    const networkState = analyzeSphereNetwork(s.spheres);
+    const networkState = analyzeSphereNetwork(getNetworkNodes(s));
     const networkProfile = getSphereNetworkProfile(networkState, s.spheres.indexOf(sphere));
     // aura type: continuous AoE damage — no barrel rotation
     if (stype.aura) {
