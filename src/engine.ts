@@ -48,6 +48,8 @@ import {
   updateMinions,
   updateWaves,
 } from './engineEnemies';
+
+export { PLAYER_RADIUS };
 import {
   dealDamageToEnemy,
   onEnemyDeath,
