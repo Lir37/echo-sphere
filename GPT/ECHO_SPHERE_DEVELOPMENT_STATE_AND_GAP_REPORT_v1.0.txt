@@ -29,7 +29,7 @@ Branch:
 new-desing
 
 Latest implementation commit:
-974106489cac8ddc0a80a75360559ed54c601f55
+bd8d2f751030c98522154be6d8de9bb418add789
 
 This HEAD includes Network Square combat integration and the first functional
 Rune layer.
@@ -42,6 +42,16 @@ Important:
 the repository contains subsequent presentation/documentation corrections
 recorded in the implementation history. The assistant must inspect actual
 HEAD before modifying code.
+
+2026-09-25 verified delta from the original snapshot:
+[DONE] Ghost Snap integration is present in the active mobile repositioning path.
+[DONE] player-level Resonance is centralized at 0..100 with explicit source routing.
+[DONE] legacy `resonanceHits` is absent from engine implementation.
+[PRESERVED] `formationHitCount` remains only as local formation cadence state.
+[DONE] Resonance regression coverage includes threshold/remainder, source routing,
+NaN normalization, overflow opt-in, and separation from local formation counters.
+[PARTIAL] final Resonance event depth and explicit overflow gameplay effects remain
+future-content work; no baseline gameplay overflow was introduced.
 
 Primary gameplay direction:
 Canvas / authored 2.5D.
