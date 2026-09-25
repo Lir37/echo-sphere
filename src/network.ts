@@ -177,7 +177,7 @@ function ringShape(nodes: NetworkNode[], indexes: number[], linkDistance: number
   return strength >= 0.68 ? { type: 'ring', strength, nodes: ordered } : null;
 }
 
-function latticeShape(nodes: NetworkNode[], indexes: number[], links: NetworkLink[]): NetworkShape | null {
+function latticeShape(nodes: NetworkNode[], indexes: number[], links: NetworkLink[], linkDistance: number): NetworkShape | null {
   if (indexes.length < 4) return null;
   const triangles: number[][] = [];
   const linked = (a: number, b: number) => links.some((link) => (link.a === a && link.b === b) || (link.a === b && link.b === a));
@@ -247,7 +247,7 @@ export function analyzeSphereNetwork(
   })();
 
   const ring = ringShape(nodes, indexes, linkDistance);
-  const lattice = latticeShape(nodes, indexes, links);
+  const lattice = latticeShape(nodes, indexes, links, linkDistance);
   const fractalBase = [ring, lattice, square, triangle].filter(Boolean) as NetworkShape[];
   const fractal = fractalBase.length >= 2
     ? {
