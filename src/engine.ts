@@ -57,6 +57,7 @@ export interface PlayerState {
   resonanceCharge: number;
   resonanceEventActive: boolean;
   resonanceGeometryKey: string;
+  resonanceGeometryNodes: number[];
   invulnUsed: boolean;
   shieldCharges: number;
   shieldTimer: number;
@@ -306,6 +307,7 @@ export interface GameState {
   flashText: { text: string; life: number; color: string } | null;
   keys: Record<string, boolean>;
   mouse: { x: number; y: number; down: boolean };
+  formationMemory: { type: string; nodes: Vec[]; expiresAt: number } | null;
   worldWidth: number;
   worldHeight: number;
   mapTheme: MapTheme;
@@ -490,6 +492,7 @@ export function createInitialState(
     resonanceCharge: 0,
     resonanceEventActive: false,
     resonanceGeometryKey: 'none',
+    resonanceGeometryNodes: [],
     invulnUsed: false,
     shieldCharges: 0,
     shieldTimer: 0,
@@ -584,6 +587,7 @@ export function createInitialState(
     flashText: null,
     keys: {},
     mouse: { x: 0, y: 0, down: false },
+    formationMemory: null,
     worldWidth: 2400,
     worldHeight: 2400,
     mapTheme,
@@ -853,8 +857,24 @@ function syncResonanceGeometry(s: GameState, network = analyzeSphereNetwork(getN
   const formation = network.square ?? network.triangle ?? network.cluster ?? network.line;
   const key = formation ? formation.type + ':' + formation.nodes.join(',') : 'none';
   if (key === s.player.resonanceGeometryKey) return;
+
+  if (s.player.resonanceGeometryKey !== 'none' && s.player.resonanceGeometryNodes.length > 0) {
+    const previousNodes = s.player.resonanceGeometryNodes
+      .map((index) => s.spheres[index]?.pos)
+      .filter((pos): pos is Vec => Boolean(pos))
+      .map((pos) => ({ ...pos }));
+    if (previousNodes.length >= 2) {
+      s.formationMemory = {
+        type: s.player.resonanceGeometryKey.split(':', 1)[0],
+        nodes: previousNodes,
+        expiresAt: s.time + 0.9,
+      };
+    }
+  }
+
   const hadFormation = s.player.resonanceGeometryKey !== 'none';
   s.player.resonanceGeometryKey = key;
+  s.player.resonanceGeometryNodes = formation ? [...formation.nodes] : [];
   if (formation && (hadFormation || key !== 'none')) chargeResonance(s, 5);
 }
 
