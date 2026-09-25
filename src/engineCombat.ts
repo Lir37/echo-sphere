@@ -28,7 +28,7 @@ import { RUNE_DEFS, type RuneType } from './runes';
 import { canReceivePlayerDamage, canReceivePlayerDoTDamage, CRIT_BASE, CRIT_MULTIPLIER_BASE, getContextualCritChance } from './combatRules';
 import type { GameState, SphereEntity, EnemyEntity, Vec } from './engineTypes';
 import type { ArtifactId } from './gameData';
-import { dist, rand, getNetworkNodes, getNetworkFrame, getAbilityBranchId, getNearestSphere, getSphereFinalIndex } from './engineRuntime';
+import { dist, rand, getNetworkFrame, getAbilityBranchId, getNearestSphere, getSphereFinalIndex } from './engineRuntime';
 import { chargeResonance } from './engineResonance';
 
 function registerHunterHit(s: GameState, enemy: EnemyEntity, sphere: SphereEntity): void {

@@ -35,7 +35,7 @@ export function triggerResonanceEvent(s: GameState, dealDamage: ResonanceDamageH
     if (type === 'fractal') {
       // Fractal Echo replays the strongest lower-order geometry and then
       // emits a secondary echo around the whole fractal.
-      const replay = network.lattice ?? network.ring ?? network.square ?? network.triangle;
+      const replay = networkState.lattice ?? networkState.ring ?? networkState.square ?? networkState.triangle;
       const replayNodes = (replay?.nodes || []).filter((index) => index < s.spheres.length);
       for (const index of replayNodes) {
         const sphere = s.spheres[index];
@@ -128,7 +128,7 @@ export function triggerResonanceEvent(s: GameState, dealDamage: ResonanceDamageH
 export function updateResonanceRing(
   s: GameState,
   dt: number,
-  network: ReturnType<typeof analyzeSphereNetwork>,
+  network: SphereNetworkState,
   dealDamage: ResonanceDamageHandler,
 ): void {
   if (s.player.resonanceRingTimer <= 0) return;

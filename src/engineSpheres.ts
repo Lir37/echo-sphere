@@ -20,11 +20,10 @@ import { sphereModifiers, sphereLevel, getActiveSphereAbilitySynergies } from '.
 import { selectSphereTarget } from './targeting';
 import type { SphereNetworkState } from './network';
 import { getSphereNetworkProfile, getLinkedNodeIndexes } from './network';
-import { buildRuntimeNetworkNodes } from './networkRuntime';
 import { nextRandom } from './rng';
 import type { GameState, SphereEntity, EnemyEntity, Vec } from './engineTypes';
 import {
-  dist, rand, getNetworkNodes, getSphereFinalIndex, getAbilityBranchId, getNetworkFrame
+  dist, rand, getSphereFinalIndex, getAbilityBranchId, getNetworkFrame
 } from './engineRuntime';
 import {
   dealDamageToEnemy, onEnemyDeath, triggerEngineerRelay, consumeEngineerRelayBonus, emitSpherePulse
