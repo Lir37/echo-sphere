@@ -6,6 +6,7 @@ export interface NetworkPosition {
 export interface NetworkNode {
   pos: NetworkPosition;
   alive?: boolean;
+  networkDisabledTimer?: number;
 }
 
 export type NetworkFormation = 'none' | 'line' | 'triangle' | 'square' | 'cluster';
