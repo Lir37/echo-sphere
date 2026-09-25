@@ -1105,3 +1105,43 @@ Then N2 — complete networkFrame cache and remove same-frame internal analyzeSp
 ======================================================================
 END N1 AURA BOSS DoT UPDATE
 ======================================================================
+
+======================================================================
+CURRENT WORK SESSION UPDATE — N3 RESONANCE FARMING FIX — 2026-09-26
+======================================================================
+
+COMPLETED:
+- placeSphere() no longer directly grants Resonance charge.
+- removeSphere() no longer directly grants Resonance charge.
+- Resonance geometry synchronization now grants the geometry source amount
+  only when a genuinely new active formation key appears.
+- Formation disappearance does not grant charge.
+- Recovery of the same formation after a temporary disruption (for example
+  Link Breaker) does not grant charge.
+- Added regression coverage for formation gain/loss/recovery and for the
+  absence of placement/removal Resonance charge paths.
+
+VALIDATION:
+- Implementation/test HEAD: 3ee763b9cd3082abb70dc759e8fa0e5b01db77e2.
+- GitHub Actions #755: SUCCESS.
+- Typecheck: PASS.
+- Unit tests: PASS.
+- Gameplay coverage audit: PASS.
+- Lint: PASS.
+- Web build + Playwright visual QA: PASS.
+- Capacitor sync + debug APK build/upload: PASS.
+- Debug APK artifact from #755: 4,668,375 bytes.
+- Rendered gameplay screenshot artifact from #755: produced successfully.
+- APK/static artifact inspection completed. No emulator/device runtime
+  playtest was performed in this environment.
+
+RESULT:
+N3 Resonance tap-farming path is closed without changing the broader
+Resonance event architecture.
+
+NEXT:
+N2 — finish frame-level Network cache (networkFrame) and remove redundant
+same-frame analyzeSphereNetwork() recomputation from Sphere/combat readers.
+======================================================================
+END N3 RESONANCE FARMING FIX
+======================================================================
