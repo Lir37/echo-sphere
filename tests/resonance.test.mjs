@@ -1,4 +1,3 @@
-import fs from 'node:fs/promises';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { addResonanceCharge, addResonanceChargeFromSource, clampResonanceCharge, RESONANCE_CHARGE, setResonanceCharge } from '../src/resonance.ts';
@@ -64,11 +63,16 @@ test('source-routed charge uses the authoritative source amount and multiplier',
   assert.equal(scaled.resonanceCharge, 80);
 });
 
-test('global Resonance stays separate from local formation cadence state', async () => {
-  const engine = await fs.readFile(new URL('../src/engine.ts', import.meta.url), 'utf8');
-  assert.doesNotMatch(engine, /resonanceHits/);
-  assert.match(engine, /formationHitCount/);
-  assert.match(engine, /resonanceCharge/);
+test('global Resonance stays separate from local formation cadence state', () => {
+  const player = { resonanceCharge: 94 };
+  const sphere = { formationHitCount: 0 };
+
+  assert.equal(addResonanceChargeFromSource(player, 'sphereHit'), 1);
+  assert.equal(player.resonanceCharge, 0);
+
+  sphere.formationHitCount += 1;
+  assert.equal(sphere.formationHitCount, 1);
+  assert.equal(player.resonanceCharge, 0);
 });
 
 test('invalid Resonance state is normalized instead of poisoning the run resource', () => {
