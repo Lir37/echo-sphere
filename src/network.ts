@@ -9,7 +9,7 @@ export interface NetworkNode {
   networkDisabledTimer?: number;
 }
 
-export type NetworkFormation = 'none' | 'line' | 'triangle' | 'square' | 'cluster';
+export type NetworkFormation = 'none' | 'line' | 'triangle' | 'cluster' | 'square' | 'ring' | 'lattice' | 'fractal';
 
 export interface NetworkLink {
   a: number;
@@ -31,6 +31,9 @@ export interface SphereNetworkState {
   triangle: NetworkShape | null;
   square: NetworkShape | null;
   cluster: NetworkShape | null;
+  ring: NetworkShape | null;
+  lattice: NetworkShape | null;
+  fractal: NetworkShape | null;
 }
 
 export interface SphereNetworkProfile {
@@ -149,6 +152,48 @@ function clusterStrength(nodes: NetworkNode[], indexes: number[], linkDistance: 
   return compactness * 0.65 + connectivity * 0.35;
 }
 
+
+function ringShape(nodes: NetworkNode[], indexes: number[], linkDistance: number): NetworkShape | null {
+  if (indexes.length < 4) return null;
+  const center = indexes.reduce((acc, index) => ({ x: acc.x + nodes[index].pos.x, y: acc.y + nodes[index].pos.y }), { x: 0, y: 0 });
+  center.x /= indexes.length;
+  center.y /= indexes.length;
+  const ordered = [...indexes].sort((a, b) => Math.atan2(nodes[a].pos.y - center.y, nodes[a].pos.x - center.x) - Math.atan2(nodes[b].pos.y - center.y, nodes[b].pos.x - center.x));
+  const distances: number[] = [];
+  for (let i = 0; i < ordered.length; i++) {
+    const a = ordered[i];
+    const b = ordered[(i + 1) % ordered.length];
+    const d = distance(nodes[a].pos, nodes[b].pos);
+    if (d > linkDistance) return null;
+    distances.push(d);
+  }
+  const mean = distances.reduce((a, b) => a + b, 0) / distances.length;
+  if (mean < 55) return null;
+  const variance = distances.reduce((sum, d) => sum + Math.abs(d - mean), 0) / (distances.length * mean);
+  const strength = 1 - Math.min(1, variance * 2);
+  return strength >= 0.68 ? { type: 'ring', strength, nodes: ordered } : null;
+}
+
+function latticeShape(nodes: NetworkNode[], indexes: number[], links: NetworkLink[]): NetworkShape | null {
+  if (indexes.length < 4) return null;
+  const triangles: number[][] = [];
+  const linked = (a: number, b: number) => links.some((link) => (link.a === a && link.b === b) || (link.a === b && link.b === a));
+  for (let i = 0; i < indexes.length - 2; i++) for (let j = i + 1; j < indexes.length - 1; j++) for (let k = j + 1; k < indexes.length; k++) {
+    const combo = [indexes[i], indexes[j], indexes[k]];
+    if (linked(combo[0], combo[1]) && linked(combo[1], combo[2]) && linked(combo[0], combo[2])) triangles.push(combo);
+  }
+  if (triangles.length < 2) return null;
+  let shared = false;
+  outer: for (let i = 0; i < triangles.length; i++) for (let j = i + 1; j < triangles.length; j++) {
+    const common = triangles[i].filter((value) => triangles[j].includes(value));
+    if (common.length >= 2) { shared = true; break outer; }
+  }
+  if (!shared) return null;
+  const strength = Math.min(1, 0.55 + Math.min(0.45, triangles.length * 0.08));
+  const used = [...new Set(triangles.flat())];
+  return { type: 'lattice', strength, nodes: used };
+}
+
 export function analyzeSphereNetwork(
   nodes: NetworkNode[],
   linkDistance = DEFAULT_LINK_DISTANCE,
@@ -198,22 +243,34 @@ export function analyzeSphereNetwork(
     return strength >= 0.78 ? { type: 'cluster' as const, strength, nodes: [...indexes] } : null;
   })();
 
-  // Square is an explicit higher-order formation. Triangle + Cluster retain their
-  // previous coexistence contract, while Line is suppressed by higher-order shapes.
-  // Higher-order shapes do not erase other valid formations. A square is also
-  // a compact cluster by definition, so keep both signals available to gameplay.
+  const ring = ringShape(nodes, indexes, linkDistance);
+  const lattice = latticeShape(nodes, indexes, links);
+  const fractalBase = [ring, lattice, square, triangle].filter(Boolean) as NetworkShape[];
+  const fractal = fractalBase.length >= 2
+    ? {
+        type: 'fractal' as const,
+        strength: Math.min(1, fractalBase.reduce((sum, shape) => sum + shape.strength, 0) / fractalBase.length),
+        nodes: [...new Set(fractalBase.flatMap((shape) => shape.nodes))],
+      }
+    : null;
+
+  // Higher-order shapes remain additive. Visual suppression of Line does not
+  // remove its underlying links, while advanced Geometry exposes its own signal.
   const resolvedTriangle = triangle;
   const resolvedCluster = cluster;
-  const resolvedLine = square || (triangle && cluster) ? null : line;
+  const resolvedLine = square || ring || lattice || fractal || (triangle && cluster) ? null : line;
 
   return {
-    linkDistance: linkDistance,
+    linkDistance,
     nodes: indexes,
     links,
     line: resolvedLine,
     triangle: resolvedTriangle,
     square,
     cluster: resolvedCluster,
+    ring,
+    lattice,
+    fractal,
   };
 }
 
