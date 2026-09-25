@@ -695,6 +695,18 @@ export function getSphereDpsEstimate(s: GameState, sphere: SphereEntity): number
   const mods = sphereModifiers(s, sphere.type, sphere);
   const damage = getSphereDamage(s, sphere);
   const delay = Math.max(0.05, getSphereDelay(s, sphere) * def.delayMult * mods.delay);
+  if (sphere.type === 'orbital') {
+    const satellites = 1 + mods.multishot + (s.player.artifacts.includes('orbital_crown') ? 1 : 0);
+    return (damage * satellites * 2.2) / Math.max(0.12, 0.42 * mods.auraPulse);
+  }
+  if (sphere.type === 'prism') return (damage * Math.max(1, 1 + mods.multishot)) / delay;
+  if (sphere.type === 'pulse') {
+    const waves = 1 + (s.player.artifacts.includes('pulse_crown') ? 1 : 0);
+    const interval = Math.max(0.25, 1.15 * mods.auraPulse * (s.player.artifacts.includes('pulse_driver') ? 0.90 : 1));
+    return (damage * waves * 4) / interval;
+  }
+  if (sphere.type === 'gravity') return (damage * 4) / Math.max(0.25, 0.80 * mods.auraPulse);
+  if (sphere.type === 'void') return (damage * (sphereLevel(s, 'void') >= 2 ? 1.30 : 1.15)) / delay;
   if (def.aura) return damage / delay;
   const shots = (1 + mods.multishot) * def.pellets;
   return (damage * shots) / delay;
@@ -1090,7 +1102,7 @@ function startWave(s: GameState): void {
 
 function registerHunterHit(s: GameState, enemy: EnemyEntity, sphere: SphereEntity): void {
   if (getCharacterId(s) !== 'hunter') return;
-  if (!['sniper', 'chain'].includes(sphere.type)) return;
+  if (!['sniper', 'chain', 'prism', 'void'].includes(sphere.type)) return;
   if (!shouldMarkHunterTarget(enemy)) return;
 
   const p = s.player;
@@ -1209,8 +1221,31 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
   if (fromSphere?.type === 'shotgun' && sphereLevel(s, 'shotgun') >= 2 && dist(enemy.pos, fromSphere.pos) < 110) {
     actual *= 1.20;
   }
-  if (fromSphere?.type === 'void' && enemy.hp / enemy.maxHp <= 0.20) {
-    actual *= 2.25;
+  if (fromSphere?.type === 'void') {
+    const voidLevel = sphereLevel(s, 'void');
+    const voidBranch = s.player.sphereBranches?.void;
+    const voidFinal = getSphereFinalIndex(s, 'void');
+    const hpRatio = enemy.hp / Math.max(1, enemy.maxHp);
+    const network = analyzeSphereNetwork(getNetworkNodes(s));
+    const profile = getSphereNetworkProfile(network, s.spheres.indexOf(fromSphere));
+    if (hpRatio <= 0.20) actual *= 2.25;
+    if (hpRatio <= 0.35 && s.player.artifacts.includes('void_mark')) actual *= 1.10;
+    if (voidBranch === 'void_hunger') {
+      actual *= 1 + Math.min(0.55, (1 - hpRatio) * (voidFinal === 2 ? 0.72 : 0.42));
+    }
+    if (voidBranch === 'void_reaper' && hpRatio <= 0.25) actual *= voidFinal === 1 ? 1.25 : 1.12;
+    if (voidBranch === 'void_execution') {
+      const threshold = voidFinal === 2 ? 0.30 : voidLevel >= 3 ? 0.25 : 0.20;
+      let executeChance = voidLevel >= 2 ? 0.10 : 0;
+      executeChance += voidFinal === 2 ? 0.08 : voidFinal === 1 ? 0.04 : 0;
+      if (s.player.artifacts.includes('void_star')) executeChance += 0.08;
+      if (hpRatio <= threshold && nextRandom(s) < Math.min(0.45, executeChance)) {
+        if (!enemy.isBoss) actual = Math.max(actual, enemy.hp + 1);
+        else actual *= 2.5;
+      }
+    }
+    if (profile.line) actual *= 1.10;
+    if (profile.fractal) actual *= 1.15;
   }
 
   // Sphere evolution mechanics: evolutions alter the combat loop, not just stats.
@@ -1485,6 +1520,22 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
   if (enemy.hp <= 0) {
     if (s.player.artifacts.includes('vampire_ring')) {
       s.player.hp = Math.min(s.player.maxHp, s.player.hp + 5);
+    }
+    if (fromSphere?.type === 'void' && s.player.sphereBranches?.void === 'void_reaper') {
+      const finalIndex = getSphereFinalIndex(s, 'void');
+      s.player.hp = Math.min(s.player.maxHp, s.player.hp + (finalIndex === 2 ? 6 : 3));
+      const shardCount = finalIndex === 2 ? 3 : 2;
+      for (let shard = 0; shard < shardCount; shard++) {
+        const angle = shard * (Math.PI * 2 / shardCount);
+        s.sphereProjectiles.push({
+          pos: { ...enemy.pos },
+          vel: { x: Math.cos(angle) * 320, y: Math.sin(angle) * 320 },
+          damage: Math.max(4, actual * (finalIndex === 1 ? 0.24 : 0.18)),
+          radius: 4, alive: true, color: '#8f63ff', pierce: 0,
+          hitEnemies: new Set(), effect: 'none', ricochet: 0, life: 0.65,
+          sourceSphere: fromSphere, procOnHit: false,
+        });
+      }
     }
     onEnemyDeath(s, enemy);
   }
@@ -3349,43 +3400,19 @@ function updateSpheres(s: GameState, dt: number): void {
     const networkProfile = getSphereNetworkProfile(networkState, s.spheres.indexOf(sphere));
     // Area-control Sphere archetypes use distinct loops rather than pretending to be generic turrets.
     if (sphere.type === 'orbital') {
-      sphere.auraTimer -= dt;
-      sphere.rotation += dt * 1.8;
-      if (sphere.auraTimer <= 0) {
-        sphere.auraTimer = Math.max(0.18, 0.42 * sphereModifiers(s, sphere.type).auraPulse);
-        const orbitRadius = 78 + 12 * Math.min(3, sphereLevel(s, 'orbital'));
-        for (const e of s.enemies) {
-          if (e.hp > 0 && dist(e.pos, sphere.pos) <= orbitRadius) dealDamageToEnemy(s, e, damage * 0.9, sphere);
-        }
-        s.particles.push({ pos: { ...sphere.pos }, vel: { x: 0, y: 0 }, life: 0.25, maxLife: 0.25, color: stype.color, size: 7 });
-      }
+      updateOrbitalSphere(s, sphere, damage, sphereModifiers(s, sphere.type, sphere), networkProfile, dt);
+      continue;
+    }
+    if (sphere.type === 'prism') {
+      updatePrismSphere(s, sphere, damage, radius, sphereModifiers(s, sphere.type, sphere), networkProfile, dt);
+      continue;
+    }
+    if (sphere.type === 'gravity') {
+      updateGravitySphere(s, sphere, damage, sphereModifiers(s, sphere.type, sphere), networkProfile, dt);
       continue;
     }
     if (sphere.type === 'pulse') {
-      sphere.auraTimer -= dt;
-      if (sphere.auraTimer <= 0) {
-        sphere.auraTimer = Math.max(0.3, 1.15 * sphereModifiers(s, sphere.type).auraPulse);
-        emitSpherePulse(s, sphere, damage, stype.auraRadius, stype.color, false);
-      }
-      continue;
-    }
-    // Gravity is a control field first, damage source second.
-    if (sphere.type === 'gravity') {
-      sphere.auraTimer -= dt;
-      if (sphere.auraTimer <= 0) {
-        sphere.auraTimer = Math.max(0.3, 0.8 * sphereModifiers(s, sphere.type).auraPulse);
-        for (const e of s.enemies) {
-          if (e.hp <= 0 || dist(e.pos, sphere.pos) > stype.auraRadius) continue;
-          const dx = sphere.pos.x - e.pos.x, dy = sphere.pos.y - e.pos.y;
-          const d = Math.hypot(dx, dy) || 1;
-          const pull = 34 * Math.min(1.5, sphereLevel(s, 'gravity') * 0.18 + 0.5);
-          e.pos.x += dx / d * pull;
-          e.pos.y += dy / d * pull;
-          e.slowTimer = Math.max(e.slowTimer, 0.45);
-          e.slowFactor = Math.min(e.slowFactor, 0.72);
-          dealDamageToEnemy(s, e, damage, sphere);
-        }
-      }
+      updatePulseSphere(s, sphere, damage, sphereModifiers(s, sphere.type, sphere), networkProfile, dt);
       continue;
     }
     // Void has a normal projectile loop, but its identity is an execution threshold.
