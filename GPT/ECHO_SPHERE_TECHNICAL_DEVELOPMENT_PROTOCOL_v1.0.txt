@@ -1,0 +1,254 @@
+ECHO SPHERE
+TECHNICAL DEVELOPMENT PROTOCOL v1.0
+===================================
+
+PURPOSE
+-------
+This document defines the engineering rules for AI-assisted development of
+ECHO SPHERE. It complements the Gameplay Blueprint and Gap Report.
+
+SOURCE OF TRUTH
+---------------
+Gameplay design:
+  GPT/ECHO_SPHERE_MASTER_FINAL_GAMEPLAY_BLUEPRINT_v1.1.txt
+
+Implementation state:
+  GPT/ECHO_SPHERE_DEVELOPMENT_STATE_AND_GAP_REPORT_v1.0.txt
+
+Code is not allowed to silently replace the Blueprint. When code and Blueprint
+disagree, record the discrepancy and resolve it explicitly.
+
+IMPLEMENTATION LEVELS
+---------------------
+A feature is tracked using four distinct levels:
+
+CODE
+  The identifier/data/function exists.
+
+INTEGRATED
+  The feature has a reachable runtime path from the actual game flow.
+
+PLAYABLE
+  A player can acquire/trigger the feature in the current project phase.
+
+ACCEPTED
+  Human playtest confirms the implemented behavior is understandable,
+  responsive, balanced enough for the current gate, and visually readable.
+
+Therefore:
+  CODE != INTEGRATED != PLAYABLE != ACCEPTED
+
+A feature must not be marked [DONE] only because CODE is present.
+
+CHANGE ORDER
+------------
+When extending gameplay, use this order:
+
+1. Read Blueprint and current Gap Report.
+2. Audit existing implementation before editing.
+3. Identify the smallest runtime ownership boundary.
+4. Implement the mechanic.
+5. Add or update behavioral tests.
+6. Run typecheck.
+7. Run unit tests.
+8. Run gameplay coverage audit.
+9. Run lint.
+10. Run web build.
+11. Run Playwright visual smoke test.
+12. Run Capacitor sync and APK build.
+13. Update Gap Report only after code and tests are coherent.
+14. Perform human playtest for gates that require feel/balance/UX.
+
+BEHAVIORAL TESTING
+------------------
+Prefer behavior-oriented tests over raw source-code matching.
+
+Acceptable structural checks:
+- a temporary migration guard;
+- a source-of-truth consistency check;
+- a compile-time contract where no runtime seam exists yet.
+
+Do not use regex checks for literal gameplay numbers when a pure function,
+exported constant, or behavioral seam can test the same contract.
+
+Every new pure gameplay rule should expose a small testable seam where
+practical.
+
+RNG / REPRODUCIBILITY
+---------------------
+Gameplay randomness must use the run RNG stored in GameState.
+
+Rules:
+- Do not add Math.random() to gameplay code.
+- Renderer-only visual jitter may remain non-deterministic.
+- GameState stores runSeed and rngState.
+- createInitialState accepts an optional explicit runSeedOverride for
+  reproducible debugging.
+- New random gameplay systems must consume nextRandom(state).
+
+VERTICAL SLICE DISCIPLINE
+-------------------------
+The current Vertical Slice is intentionally limited to the configured
+first-slice roster. Do not broaden the player-facing roster merely because
+additional content already exists in code.
+
+Before changing a phase gate:
+- locate the corresponding Vertical Slice test;
+- update the source-of-truth phase definition;
+- update both runtime and UI acquisition paths;
+- preserve the gate until the project phase explicitly moves forward.
+
+AI REFACTORING RULE
+-------------------
+Large files are not a reason to perform uncontrolled rewrites.
+
+When decomposing engine.ts, renderer.ts or App.tsx:
+- preserve external behavior;
+- move one responsibility group at a time;
+- keep existing public interfaces stable where practical;
+- run the full CI chain after each meaningful slice;
+- do not combine gameplay redesign with large structural refactors.
+
+REFACTOR TARGETS
+----------------
+Planned engine boundaries:
+  state
+  combat
+  projectiles
+  waves
+  bosses
+  xp
+  upgrades
+  abilities
+  spheres
+  resonance
+  runes
+
+Planned renderer boundaries:
+  arena
+  player
+  enemies
+  spheres
+  projectiles
+  network
+  effects
+  HUD
+
+These are target boundaries, not permission for a bulk rewrite.
+
+AUDIT REQUIREMENT
+-----------------
+The gameplay audit script must answer:
+
+- What final content does the Blueprint require?
+- What current content exists in code?
+- Which IDs are integrated?
+- Which IDs are still missing?
+- Which semantic items need manual review?
+
+The audit must distinguish:
+- final target;
+- current implementation;
+- current phase gate.
+
+It must never turn a phase restriction into a false implementation gap.
+
+CONTENT SEMANTICS
+-----------------
+When a description promises a mechanic, the runtime must implement that
+mechanic literally enough to be meaningful.
+
+Examples:
+- "per-Sphere shield charge" requires per-Sphere state; if the game only has
+  player-level shield charges, the description must reflect the actual rule.
+- "central shotgun pellets deal more damage" requires a distinction based on
+  pellet/spread identity; a generic proximity bonus is a different mechanic.
+- "Network node" effects must use the runtime Network graph, not only a nearby
+  distance check, unless the Blueprint explicitly defines proximity.
+
+If a simpler approximation is intentional, record it as PARTIAL or revise the
+description rather than disguising the approximation.
+
+SESSION HYGIENE
+---------------
+Temporary AI patch scripts and one-off trigger files should not remain in the
+repository after their work is complete.
+
+Before deleting a script, verify:
+- no workflow references it;
+- package.json does not invoke it;
+- documentation does not require it;
+- no other script imports it.
+
+Do not create repository files whose only purpose is to force CI to run.
+
+CI REQUIREMENTS
+---------------
+The authoritative Android workflow should keep this order:
+
+typecheck
+-> unit tests
+-> gameplay audit
+-> lint
+-> web build
+-> Playwright smoke/visual capture
+-> Capacitor sync
+-> debug APK
+
+The workflow should run on:
+- new-desing
+- cleanup-android
+- main
+
+Use one current upload-artifact major version consistently.
+
+Do not create a duplicate workflow just to satisfy an audit finding.
+
+DOCUMENTATION HYGIENE
+---------------------
+Do not record commit SHA values in status documents unless there is a concrete
+operational reason.
+
+Prefer:
+- current branch name;
+- feature name;
+- date;
+- test result;
+- concise status.
+
+If a handoff SHA is required for a release checkpoint, label it explicitly as
+a snapshot, not as the permanent state of the project.
+
+QUALITY GATE
+------------
+Before moving to a new gameplay phase:
+
+[ ] Blueprint checked
+[ ] Gap Report checked
+[ ] All affected runtime paths audited
+[ ] Behavioral tests added/updated
+[ ] Typecheck green
+[ ] Unit tests green
+[ ] Gameplay audit green
+[ ] Lint green
+[ ] Web build green
+[ ] Playwright smoke/visual green
+[ ] APK build green
+[ ] Human playtest gate completed where required
+
+CURRENT PRIORITY
+----------------
+The current project priority is not 3D/GLB production.
+
+The current priority is:
+  gameplay correctness
+  -> semantic fidelity
+  -> behavioral test coverage
+  -> technical cleanup
+  -> controlled decomposition
+  -> vertical slice
+  -> human playtest
+  -> balance/content expansion
+  -> visual polish
+
+END
