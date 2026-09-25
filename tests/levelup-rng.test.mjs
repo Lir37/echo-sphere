@@ -3,9 +3,11 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 
 const engineSource = await fs.readFile(new URL('../src/engine.ts', import.meta.url), 'utf8');
+const engineTypesSource = await fs.readFile(new URL('../src/engineTypes.ts', import.meta.url), 'utf8');
+const sourceWithTypes = `${engineTypesSource}\n${engineSource}`;
 
 test('Level-Up has a seeded-source pity state in GameState', () => {
-  assert.match(engineSource, /levelUpPity: \{ ability: number; sphere: number; modifier: number \};/);
+  assert.match(sourceWithTypes, /levelUpPity: \{ ability: number; sphere: number; modifier: number \};/);
   assert.match(engineSource, /levelUpPity: \{ ability: 0, sphere: 0, modifier: 0 \}/);
   assert.match(engineSource, /function recordLevelUpSourcePick\(s: GameState, choice: UpgradeChoice\)/);
   assert.match(engineSource, /Math\.min\(4, \(s\.levelUpPity\[source\] \|\| 0\) \+ 1\)/);
