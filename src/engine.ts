@@ -11,6 +11,7 @@ import {
 import {
   getCharacterId,
   getCharacterMaxHpMultiplier,
+  getCharacterMoveSpeedMultiplier,
 } from './characterRuntime';
 import { loadCharacterId, loadCharacterProfiles } from './persistence';
 import { getArtifactMoveSpeedMultiplier, getArtifactMaxHpBonus, getArtifactXpMultiplier, getArtifactRegenPerSecond, getArtifactCooldownMultiplier, pickArtifactChoices, pickStellaArtifactChoice } from './artifactSystem';
@@ -34,9 +35,9 @@ import { BALANCE } from './engineBalance';
 import {
   BASE_SPHERE_RADIUS, BASE_SPHERE_DAMAGE, BASE_SPHERE_DELAY,
   getMaxSpheres, getSphereRadius, getSphereDamage, getSphereDpsEstimate, getSphereDelay,
-  setSphereType, placeSphere, removeSphere,
+  setSphereType, placeSphere, removeSphere, updateSpheres,
 } from './engineSpheres';
-import { getSlowRadius, getSlowFactor, updateSpheres, spawnEnemy, startWave, updateMinions, updateEnemies } from './engineEnemies';
+import { getSlowRadius, getSlowFactor, spawnEnemy, startWave, updateMinions, updateEnemies } from './engineEnemies';
 import {
   getCritChance, getDodgeChance, getVampirePercent, getDamageTakenMult,
   dealDamageToEnemy, damagePlayer,
@@ -92,6 +93,10 @@ const SPHERE_MODIFIER_CHOICES: ReadonlyArray<{
     desc: { ru: 'Попадания отравляют врагов и наносят урон со временем.', en: 'Hits poison enemies and deal damage over time.' },
   },
 ];
+
+function pickArtifacts(s: GameState): ArtifactId[] {
+  return pickArtifactChoices(s, 3, false, () => nextRandom(s));
+}
 
 export interface LeaderEntry {
   name: string;
