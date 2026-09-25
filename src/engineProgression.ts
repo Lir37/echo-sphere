@@ -371,6 +371,8 @@ export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
     const index = remaining.indexOf(chosen);
     if (index >= 0) remaining.splice(index, 1);
   }
+
+  return mixedPool;
 }
 
 export function applyUpgrade(s: GameState, choice: UpgradeChoice): void {
