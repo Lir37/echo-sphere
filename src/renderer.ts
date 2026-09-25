@@ -2014,8 +2014,6 @@ function drawGhostSnapPreview(ctx: CanvasRenderingContext2D, s: GameState): void
 
   const t = s.time;
   const pulse = 0.55 + Math.sin(t * 5) * 0.12;
-  const candidateLinks = new Set(preview.linkedNodeIndexes);
-
   ctx.save();
   for (const link of preview.network.links) {
     const isCandidateLink = link.a === preview.candidateIndex || link.b === preview.candidateIndex;
@@ -2063,9 +2061,7 @@ function drawGhostSnapPreview(ctx: CanvasRenderingContext2D, s: GameState): void
   ctx.arc(candidate.x, candidate.y, 12, 0, Math.PI * 2);
   ctx.fill();
   ctx.restore();
-
-  void candidateLinks;
-}
+\n}
 
 function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, network: SphereNetworkState): void {
   if (network.nodes.length < 2) return;
