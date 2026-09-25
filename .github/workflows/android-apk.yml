@@ -39,6 +39,9 @@ jobs:
       - name: Unit tests
         run: npm test
 
+      - name: Gameplay coverage audit
+        run: npm run audit:gameplay
+
       - name: Lint
         run: npm run lint
 
