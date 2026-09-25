@@ -29,7 +29,7 @@ import { canReceivePlayerDamage, CRIT_BASE, CRIT_MULTIPLIER_BASE, getContextualC
 import type { GameState, SphereEntity, EnemyEntity, Vec } from './engineTypes';
 import type { ArtifactId } from './gameData';
 import { dist, rand, getNetworkNodes, getAbilityBranchId, getNearestSphere, getSphereFinalIndex } from './engineRuntime';
-import { chargeResonance } from './engine';
+import { chargeResonance } from './engineResonance';
 
 function registerHunterHit(s: GameState, enemy: EnemyEntity, sphere: SphereEntity): void {
   if (getCharacterId(s) !== 'hunter') return;
@@ -413,7 +413,7 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
   // buff from chest
   if (s.player.buffTimer > 0) actual *= 1.3;
   enemy.hp -= actual;
-  if (fromSphere) chargeResonance(s, 'sphereHit');
+  if (fromSphere) chargeResonance(s, 'sphereHit', dealDamageToEnemy);
   enemy.hitFlash = 0.15;
 
   // Juicier impact: a short, directional burst makes every sphere hit readable.
