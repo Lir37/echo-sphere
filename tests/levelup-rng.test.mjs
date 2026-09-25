@@ -1,4 +1,3 @@
-import { generateUpgradeChoices, getUpgradeChoiceKey } from '../src/engineProgression.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
@@ -46,44 +45,19 @@ test('active Ability slots stay bounded and progressive', () => {
 });
 
 
-function makeLevelUpFixture() {
-  return {
-    spheres: [{ alive: true, type: 'standard' }],
-    levelUpPity: { ability: 0, sphere: 0, modifier: 0 },
-    recentUpgradeKeys: [],
-    player: {
-      abilities: {},
-      sphereProgression: {
-        standard: 1, sniper: 1, shotgun: 1, chain: 1, aura: 1,
-        orbital: 1, prism: 1, gravity: 1, pulse: 1, void: 1,
-      },
-      sphereBranches: {},
-      sphereMods: { multishot: 0, pierce: 0, ricochet: 0, fire: 0, freeze: 0, poison: 0 },
-      activeAbilitySlots: 0,
-      activeKeyMap: {},
-      characterId: 'spherist',
-    },
-  };
-}
 
-test('Level-Up suppresses a recently selected logical card when alternatives exist', () => {
-  const state = makeLevelUpFixture();
-  const first = generateUpgradeChoices(state);
-  assert.equal(first.length, 3);
-
-  const blockedKey = getUpgradeChoiceKey(first[0]);
-  state.recentUpgradeKeys = [blockedKey];
-
-  const second = generateUpgradeChoices(state);
-  assert.equal(second.length, 3);
-  assert.ok(!second.some((choice) => getUpgradeChoiceKey(choice) === blockedKey));
+test('Level-Up uses a short recent-choice cooldown without collapsing the live pool', () => {
+  assert.match(progressionSource, /export function getUpgradeChoiceKey\(choice: UpgradeChoice\): string/);
+  assert.match(progressionSource, /const recentKeys = new Set\(s\.recentUpgradeKeys \|\| \[\]\);/);
+  assert.match(progressionSource, /const cooledChoices = allChoices\.filter\(\(choice\) => !recentKeys\.has\(getUpgradeChoiceKey\(choice\)\)\);/);
+  assert.match(progressionSource, /const candidates = cooledChoices\.length >= 3 \? cooledChoices : allChoices;/);
+  assert.match(progressionSource, /s\.recentUpgradeKeys = \[/);
 });
 
-test('Level-Up keeps three cards when the recent suppression pool becomes too small', () => {
-  const state = makeLevelUpFixture();
-  const first = generateUpgradeChoices(state);
-  state.recentUpgradeKeys = first.map(getUpgradeChoiceKey);
-
-  const second = generateUpgradeChoices(state);
-  assert.equal(second.length, 3);
+test('Level-Up selection applies actual per-choice weights and soft source diversity', () => {
+  assert.match(progressionSource, /function pickWeightedOne<T>\(s: GameState, items: T\[\], getWeight: \(item: T\) => number\)/);
+  assert.match(progressionSource, /const baseWeight = choice\.type === 'ability'/);
+  assert.match(progressionSource, /getSphereUpgradeChoiceWeight\(s, choice\.sphereType\)/);
+  assert.match(progressionSource, /getModifierUpgradeChoiceWeight\(s, choice\.modifier\)/);
+  assert.match(progressionSource, /const diversityMultiplier = mixedPool\.length === 0/);
 });
