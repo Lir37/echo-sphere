@@ -119,9 +119,11 @@ export function shopCost(def: ShopUpgradeDef, currentLevel: number): number {
 }
 
 // ===== Sphere Types =====
-export type SphereType = 'standard' | 'sniper' | 'shotgun' | 'chain' | 'aura';
+export type SphereType =
+  | 'standard' | 'sniper' | 'shotgun' | 'chain' | 'aura'
+  | 'orbital' | 'prism' | 'gravity' | 'pulse' | 'void';
 
-export type SphereTargetingRule = 'nearest' | 'high_value_far';
+export type SphereTargetingRule = 'nearest' | 'high_value_far' | 'area_control' | 'highest_hp' | 'lowest_hp';
 
 export interface SphereTypeDef {
   id: SphereType;
@@ -175,6 +177,36 @@ export const SPHERE_TYPES: Record<SphereType, SphereTypeDef> = {
     targetingRule: 'nearest',
     color: '#57e6b4', damageMult: 0.4, rangeMult: 0.5, delayMult: 0.2, projectileSpeedMult: 1,
     pellets: 0, spread: 0, chain: false, aura: true, auraRadius: 80,
+  },
+  orbital: {
+    id: 'orbital', name: { ru: 'Орбитальная', en: 'Orbital' },
+    desc: { ru: 'Спутники вращаются вокруг ядра и режут врагов', en: 'Orbiting satellites cut through enemies' },
+    targetingRule: 'area_control', color: '#8ef0ff', damageMult: 0.8, rangeMult: 1, delayMult: 0.35, projectileSpeedMult: 1,
+    pellets: 0, spread: 0, chain: false, aura: false, auraRadius: 105,
+  },
+  prism: {
+    id: 'prism', name: { ru: 'Призма', en: 'Prism' },
+    desc: { ru: 'Луч разделяется на дополнительные направления', en: 'A beam splits into additional directions' },
+    targetingRule: 'highest_hp', color: '#ff8de1', damageMult: 1.25, rangeMult: 1.35, delayMult: 1.35, projectileSpeedMult: 2,
+    pellets: 3, spread: 0.16, chain: false, aura: false, auraRadius: 0,
+  },
+  gravity: {
+    id: 'gravity', name: { ru: 'Гравитационная', en: 'Gravity' },
+    desc: { ru: 'Стягивает врагов к центру и наносит импульсный урон', en: 'Pulls enemies inward and pulses damage' },
+    targetingRule: 'area_control', color: '#a58cff', damageMult: 0.7, rangeMult: 1.1, delayMult: 0.9, projectileSpeedMult: 1,
+    pellets: 0, spread: 0, chain: false, aura: true, auraRadius: 125,
+  },
+  pulse: {
+    id: 'pulse', name: { ru: 'Импульсная', en: 'Pulse' },
+    desc: { ru: 'Периодические волны урона вокруг узла', en: 'Periodic damage waves around the node' },
+    targetingRule: 'area_control', color: '#ffd35a', damageMult: 1, rangeMult: 1.15, delayMult: 1, projectileSpeedMult: 1,
+    pellets: 0, spread: 0, chain: false, aura: false, auraRadius: 115,
+  },
+  void: {
+    id: 'void', name: { ru: 'Пустотная', en: 'Void' },
+    desc: { ru: 'Добивает ослабленных врагов и разрывает плотные группы', en: 'Executes weakened enemies and ruptures dense groups' },
+    targetingRule: 'lowest_hp', color: '#c28cff', damageMult: 1.15, rangeMult: 1.05, delayMult: 1.2, projectileSpeedMult: 1.3,
+    pellets: 1, spread: 0, chain: false, aura: false, auraRadius: 0,
   },
 };
 
