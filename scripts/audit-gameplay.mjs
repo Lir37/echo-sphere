@@ -90,13 +90,36 @@ const modifierFinal = numberedNames(
 const currentSphere = quotedUnion(gameData, 'SphereType');
 const currentAbility = abilityIds(gameData);
 const currentModifier = modifiers(gameData);
+
+const abilityNameById = {
+  blast: 'ECHO PULSE',
+  shield: 'SPHERE BARRIER',
+  teleport: 'ECHO JUMP',
+  firetrail: 'OVERHEAT',
+  minion: 'ECHO DRONE',
+  lightning: 'CHAIN LIGHTNING',
+  timestop: 'ECHO FREEZE',
+  darkritual: 'OVERLOAD',
+  radius: 'SPHERE RADIUS',
+  damage: 'SPHERE DAMAGE',
+  attackspeed: 'ATTACK SPEED',
+  maxspheres: 'MAX SPHERES',
+  movespeed: 'MOVE SPEED',
+  slow: 'ENEMY SLOW',
+  vitality: 'VITALITY',
+  vampire: 'VAMPIRISM',
+  dodge: 'DODGE',
+  crit: 'CRITICAL',
+  magnet: 'XP MAGNET',
+  sphereboost: 'SPHERE BOOST',
+};
 const currentArtifacts = artifactIds(gameData);
 const currentRunes = runeIds(await read('src/runes.ts'));
 const currentGeometry = networkFormations(network);
 
 const summary = {
   spheres: compare(sphereFinal, currentSphere.map((x) => x.toUpperCase())),
-  abilities: compare(abilityFinal, currentAbility.map((x) => x.toUpperCase().replace(/_/g, ' '))),
+  abilities: compare(abilityFinal, currentAbility.map((x) => abilityNameById[x] || x.toUpperCase().replace(/_/g, ' '))),
   modifiers: compare(modifierFinal, currentModifier.map((x) => x.toUpperCase())),
   geometry: {
     finalCount: 7,
