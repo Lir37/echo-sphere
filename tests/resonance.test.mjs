@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import { addResonanceCharge, addResonanceChargeFromSource, clampResonanceCharge, RESONANCE_CHARGE, setResonanceCharge } from '../src/resonance.ts';
 
 test('Resonance uses a 0..100 base charge and emits an event at 100', () => {
@@ -79,4 +80,21 @@ test('invalid Resonance state is normalized instead of poisoning the run resourc
   const state = { resonanceCharge: Number.NaN };
   assert.equal(addResonanceCharge(state, 5), 0);
   assert.equal(state.resonanceCharge, 5);
+});
+
+
+test('Resonance event runtime is extracted from the engine facade', () => {
+  const engine = fs.readFileSync(new URL('../src/engine.ts', import.meta.url), 'utf8');
+  const runtime = fs.readFileSync(new URL('../src/engineResonance.ts', import.meta.url), 'utf8');
+  const spheres = fs.readFileSync(new URL('../src/engineSpheres.ts', import.meta.url), 'utf8');
+  const combat = fs.readFileSync(new URL('../src/engineCombat.ts', import.meta.url), 'utf8');
+
+  assert.match(runtime, /export function triggerResonanceEvent/);
+  assert.match(runtime, /export function updateResonanceRing/);
+  assert.match(runtime, /export function syncResonanceGeometry/);
+  assert.match(engine, /triggerResonanceEvent as triggerResonanceEventRuntime/);
+  assert.doesNotMatch(engine, /function getResonanceFormation/);
+  assert.doesNotMatch(engine, /s\.player\.resonanceEventActive = true/);
+  assert.doesNotMatch(spheres, /from '\.\/engine';/);
+  assert.doesNotMatch(combat, /from '\.\/engine';/);
 });
