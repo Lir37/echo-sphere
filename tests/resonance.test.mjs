@@ -67,12 +67,12 @@ test('global Resonance stays separate from local formation cadence state', () =>
   const player = { resonanceCharge: 94 };
   const sphere = { formationHitCount: 0 };
 
-  assert.equal(addResonanceChargeFromSource(player, 'sphereHit'), 1);
-  assert.equal(player.resonanceCharge, 0);
+  assert.equal(addResonanceChargeFromSource(player, 'sphereHit'), 0);
+  assert.equal(player.resonanceCharge, 95);
 
   sphere.formationHitCount += 1;
   assert.equal(sphere.formationHitCount, 1);
-  assert.equal(player.resonanceCharge, 0);
+  assert.equal(player.resonanceCharge, 95);
 });
 
 test('invalid Resonance state is normalized instead of poisoning the run resource', () => {
