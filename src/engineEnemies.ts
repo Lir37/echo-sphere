@@ -151,7 +151,7 @@ export function updateWaves(s: GameState, dt: number): void {
   }
 }
 
-function updateMinions(s: GameState, dt: number): void {
+export function updateMinions(s: GameState, dt: number): void {
   for (let i = s.minions.length - 1; i >= 0; i--) {
     const m = s.minions[i];
     m.life -= dt;
@@ -202,7 +202,7 @@ function updateMinions(s: GameState, dt: number): void {
   }
 }
 
-function updateEnemies(s: GameState, dt: number): void {
+export function updateEnemies(s: GameState, dt: number): void {
   const slowLvl = s.player.abilities.slow || 0;
   for (let i = s.enemies.length - 1; i >= 0; i--) {
     const e = s.enemies[i];
