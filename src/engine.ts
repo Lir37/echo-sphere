@@ -111,6 +111,7 @@ export interface SphereEntity {
   attackTimer: number;
   rotation: number;
   alive: boolean;
+  networkDisabledTimer: number;
   killsContribution: number;
   resonanceHits: number;
   resonancePulseTimer: number;
@@ -161,6 +162,7 @@ export interface EnemyEntity {
   poisonTimer: number;
   poisonDps: number;
   isElite: boolean;
+  elitePulseTimer: number;
   bossType: BossType;
   chargeTimer: number;
   isCharging: boolean;
@@ -540,6 +542,7 @@ export function createInitialState(
       attackTimer: 0,
       rotation: 0,
       alive: true,
+      networkDisabledTimer: 0,
       killsContribution: 0,
       resonanceHits: 0,
       resonancePulseTimer: 0,
@@ -814,6 +817,7 @@ function spawnEnemy(s: GameState, isBoss: boolean): EnemyEntity {
       fireTimer: 0, fireDps: 0,
       poisonTimer: 0, poisonDps: 0,
       isElite: false,
+      elitePulseTimer: 0,
       bossType: bt,
       chargeTimer: 3,
       isCharging: false,
@@ -857,6 +861,7 @@ function spawnEnemy(s: GameState, isBoss: boolean): EnemyEntity {
     fireTimer: 0, fireDps: 0,
     poisonTimer: 0, poisonDps: 0,
     isElite,
+    elitePulseTimer: isElite ? 5 : 0,
     bossType: 'shooter',
     chargeTimer: 0, isCharging: false, chargeDir: { x: 0, y: 0 },
     summonTimer: 0, auraRadius: 0, auraDps: 0,
@@ -2661,6 +2666,9 @@ export function update(s: GameState, dt: number): void {
   if (s.player.timestopTimer > 0) s.player.timestopTimer = Math.max(0, s.player.timestopTimer - dt);
   if (s.player.invulnerableTimer > 0) s.player.invulnerableTimer = Math.max(0, s.player.invulnerableTimer - dt);
   if (s.player.dodgeTimer > 0) s.player.dodgeTimer -= dt;
+  for (const sphere of s.spheres) {
+    if (sphere.networkDisabledTimer > 0) sphere.networkDisabledTimer = Math.max(0, sphere.networkDisabledTimer - dt);
+  }
   if (s.player.contactDamageCooldown > 0) s.player.contactDamageCooldown = Math.max(0, s.player.contactDamageCooldown - dt);
 
   // spheres
@@ -3113,6 +3121,29 @@ function updateEnemies(s: GameState, dt: number): void {
     e.pos.x += (dx / d) * e.speed * speedMult * aggro * dt;
     e.pos.y += (dy / d) * e.speed * speedMult * aggro * dt;
 
+    // Elite Link Breaker: elite enemies periodically disrupt one nearby Sphere's Network participation.
+    if (e.isElite) {
+      e.elitePulseTimer -= dt;
+      if (e.elitePulseTimer <= 0) {
+        e.elitePulseTimer = 6;
+        let target: SphereEntity | null = null;
+        let best = 260;
+        for (const sphere of s.spheres) {
+          if (!sphere.alive) continue;
+          const sd = dist(sphere.pos, e.pos);
+          if (sd < best) {
+            best = sd;
+            target = sphere;
+          }
+        }
+        if (target) {
+          target.networkDisabledTimer = 2;
+          s.flashText = { text: 'NETWORK BREAK', life: 0.8, color: '#b8475a' };
+          s.lightnings.push({ from: { ...e.pos }, to: { ...target.pos }, life: 0.30 });
+        }
+      }
+    }
+
     // collision with player
     if (d < e.radius + PLAYER_RADIUS) {
       damagePlayer(s, e.damage);
@@ -3408,6 +3439,7 @@ export function placeSphere(s: GameState, x: number, y: number): void {
     attackTimer: 0,
     rotation: 0,
     alive: true,
+    networkDisabledTimer: 0,
     killsContribution: 0,
     resonanceHits: 0,
     resonancePulseTimer: 0,
