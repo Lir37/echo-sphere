@@ -774,13 +774,44 @@ function resonanceFormationCenter(s: GameState, nodes: number[]): Vec {
 
 function triggerResonanceEvent(s: GameState): void {
   const network = analyzeSphereNetwork(getNetworkNodes(s));
-  const formation = network.square ?? network.triangle ?? network.cluster ?? network.line;
+  const formation = network.fractal ?? network.lattice ?? network.ring ?? network.square ?? network.triangle ?? network.cluster ?? network.line;
   const type = formation?.type ?? 'none';
   const center = formation ? resonanceFormationCenter(s, formation.nodes) : { ...s.player.pos };
   const baseDamage = 16 + s.player.level * 2;
   s.player.resonanceEventActive = true;
   try {
-    if (type === 'square') {
+    if (type === 'fractal') {
+      const replay = network.lattice ?? network.ring ?? network.square ?? network.triangle;
+      const replayNodes = replay?.nodes || formation?.nodes || [];
+      for (const enemy of s.enemies) if (enemy.hp > 0 && dist(enemy.pos, center) <= 155) dealDamageToEnemy(s, enemy, baseDamage * 1.15, undefined, false);
+      for (const index of replayNodes) {
+        const sphere = s.spheres[index];
+        if (!sphere?.alive) continue;
+        sphere.attackTimer = Math.max(0, sphere.attackTimer - 0.35);
+        s.particles.push({ pos: { ...sphere.pos }, vel: { x: 0, y: 0 }, life: 0.45, maxLife: 0.45, color: '#ffb84d', size: 4 });
+      }
+      s.flashText = { text: 'FRACTAL ECHO', life: 0.9, color: '#ffb84d' };
+    } else if (type === 'lattice') {
+      for (const index of formation?.nodes || []) {
+        const sphere = s.spheres[index];
+        if (sphere?.alive) {
+          sphere.attackTimer = Math.max(0, sphere.attackTimer - 0.55);
+          s.particles.push({ pos: { ...sphere.pos }, vel: { x: 0, y: 0 }, life: 0.35, maxLife: 0.35, color: '#39d8ff', size: 4 });
+        }
+      }
+      for (const enemy of s.enemies) if (enemy.hp > 0 && dist(enemy.pos, center) <= 145) dealDamageToEnemy(s, enemy, baseDamage * 0.95, undefined, false);
+      s.flashText = { text: 'LATTICE CASCADE', life: 0.9, color: '#39d8ff' };
+    } else if (type === 'ring') {
+      const ringNodes = formation?.nodes || [];
+      for (let i = 0; i < ringNodes.length; i++) {
+        const a = s.spheres[ringNodes[i]];
+        const b = s.spheres[ringNodes[(i + 1) % ringNodes.length]];
+        if (!a?.alive || !b?.alive) continue;
+        s.lightnings.push({ from: { ...a.pos }, to: { ...b.pos }, life: 0.3 });
+      }
+      for (const enemy of s.enemies) if (enemy.hp > 0 && dist(enemy.pos, center) <= 140) dealDamageToEnemy(s, enemy, baseDamage, undefined, false);
+      s.flashText = { text: 'RING LOOP', life: 0.9, color: '#55e69a' };
+    } else if (type === 'square') {
       s.player.shieldCharges = Math.min(5, s.player.shieldCharges + 2);
       for (const enemy of s.enemies) if (enemy.hp > 0 && dist(enemy.pos, center) <= 150) dealDamageToEnemy(s, enemy, baseDamage * 1.2, undefined, false);
       s.flashText = { text: 'SQUARE RESONANCE', life: 0.9, color: '#d4943d' };
