@@ -3,21 +3,22 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 
 const engineSource = await fs.readFile(new URL('../src/engine.ts', import.meta.url), 'utf8');
+const progressionSource = await fs.readFile(new URL('../src/engineProgression.ts', import.meta.url), 'utf8');
 
 test('level-up sphere selection uses deliberate build pressure weighting', () => {
-  assert.match(engineSource, /export function getSphereUpgradeChoiceWeight\(s: GameState, type: SphereType\): number/);
-  assert.match(engineSource, /const levelPressure = \(7 - level\) \* 0\.25;/);
-  assert.match(engineSource, /const activeBuildPressure = activeCopies > 0 \? 1\.5 : 0;/);
-  assert.match(engineSource, /const characterAffinity = CHARACTER_DEFS\[s\.player\.characterId\]\?\.preferredSphereTypes/);
-  assert.match(engineSource, /const spherePool = weightedShuffle\(s, sphereChoices/);
+  assert.match(progressionSource, /export function getSphereUpgradeChoiceWeight\(s: GameState, type: SphereType\): number/);
+  assert.match(progressionSource, /const levelPressure = \(7 - level\) \* 0\.25;/);
+  assert.match(progressionSource, /const activeBuildPressure = activeCopies > 0 \? 1\.5 : 0;/);
+  assert.match(progressionSource, /const characterAffinity = CHARACTER_DEFS\[s\.player\.characterId\]\?\.preferredSphereTypes/);
+  assert.match(progressionSource, /const spherePool = weightedShuffle\(s, sphereChoices/);
 });
 
 test('level-up mixes Sphere, Modifier and Ability sources without dead slots', () => {
-  assert.match(engineSource, /const activePool = \(Object\.keys\(ABILITIES\) as AbilityType\[\]\)/);
-  assert.match(engineSource, /const passivePool = \(Object\.keys\(ABILITIES\) as AbilityType\[\]\)/);
-  assert.match(engineSource, /const mixedPool: UpgradeChoice\[\] = \[\];/);
-  assert.match(engineSource, /const sourcePools = \[abilityPool, spherePool, modifierPool\];/);
-  assert.match(engineSource, /const candidates = sourcePools\.flatMap\(\(pool\) => pool\.slice\(0, 4\)\);/);
+  assert.match(progressionSource, /const activePool = \(Object\.keys\(ABILITIES\) as AbilityType\[\]\)/);
+  assert.match(progressionSource, /const passivePool = \(Object\.keys\(ABILITIES\) as AbilityType\[\]\)/);
+  assert.match(progressionSource, /const mixedPool: UpgradeChoice\[\] = \[\];/);
+  assert.match(progressionSource, /const sourcePools = \[abilityPool, spherePool, modifierPool\];/);
+  assert.match(progressionSource, /const candidates = sourcePools\.flatMap\(\(pool\) => pool\.slice\(0, 4\)\);/);
 });
 
 test('active Ability slots stay bounded and progressive', () => {
