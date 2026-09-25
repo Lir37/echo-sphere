@@ -237,7 +237,7 @@ export const ABILITY_PROGRESSION:Partial<Record<AbilityType,AbilityProgressionDe
       ae('timestop_time_anchor','Якорь времени','Остановка фиксирует врагов вокруг ближайшей сферы.')
     ],
     evolution7:[
-      ae('timestop_outside_time','Вне времени','Сферы продлевают остановку при каждом взаимодействии.'),
+      ae('timestop_outside_time','Вне времени','Попадания сфер обновляют заморозку врагов во время остановки.'),
       ae('timestop_closed_network','Closed Time Network','Сеть сохраняет эффект остановки между узлами.'),
       ae('timestop_temporal_core','Temporal Core','Последняя секунда остановки удваивает силу активной сети.')
     ]
@@ -259,8 +259,8 @@ export const ABILITY_PROGRESSION:Partial<Record<AbilityType,AbilityProgressionDe
     ],
     evolution7:[
       ae('darkritual_blood_network','Blood Network','Перегрузка передаёт заряд между связанными Standard-сферами.'),
-      ae('darkritual_sacrifice_core','Sacrifice Core','Каждая потеря HP усиливает следующий импульс сети.'),
-      ae('darkritual_void_engine','Void Engine','Критически низкое HP превращает перегрузку в усиленный сетевой взрыв.')
+      ae('darkritual_sacrifice_core','Sacrifice Core','Каждая потеря HP создаёт усиленный импульс вокруг ближайшей сферы.'),
+      ae('darkritual_void_engine','Void Engine','При низком HP перегрузка продлевается и усиливает урон всей сети.')
     ]
   },
 
