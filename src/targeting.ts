@@ -1,4 +1,4 @@
-export type SphereTargetingRule = 'nearest' | 'high_value_far';
+export type SphereTargetingRule = 'nearest' | 'high_value_far' | 'area_control' | 'highest_hp' | 'lowest_hp';
 
 export interface TargetPosition {
   x: number;
@@ -39,6 +39,20 @@ export function selectSphereTarget<T extends TargetableEnemy>(
   );
 
   if (candidates.length === 0) return null;
+
+  if (rule === 'highest_hp') {
+    return [...candidates].sort((a, b) => b.hp - a.hp)[0] ?? null;
+  }
+  if (rule === 'lowest_hp') {
+    return [...candidates].sort((a, b) => a.hp - b.hp)[0] ?? null;
+  }
+  if (rule === 'area_control') {
+    return [...candidates].sort((a, b) => {
+      const da = distanceSquared(a.pos, spherePos);
+      const db = distanceSquared(b.pos, spherePos);
+      return da - db;
+    })[0] ?? null;
+  }
 
   if (rule === 'high_value_far') {
     let best = candidates[0];
