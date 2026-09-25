@@ -1,6 +1,6 @@
 import { SPHERE_TYPES } from './gameData';
 import { playSound } from './audio';
-import { dealDamageToEnemy } from './engineCombat';
+import { dealDamageToEnemy, dist } from './engineCombat';
 import type { GameState, SphereEntity, EnemyEntity, Vec } from './engineTypes';
 
 // Sphere lifecycle, derived stats, targeting, firing and projectile behaviour.
@@ -68,7 +68,7 @@ export function getSphereDelay(s: GameState): number {
   return d;
 }
 
-function updateSpheres(s: GameState, dt: number): void {
+export function updateSpheres(s: GameState, dt: number): void {
   for (const sphere of s.spheres) {
     if (!sphere.alive) continue;
     const stype = SPHERE_TYPES[sphere.type];
