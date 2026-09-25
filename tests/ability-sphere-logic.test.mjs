@@ -4,6 +4,7 @@ import fs from 'node:fs/promises';
 
 const engine = await fs.readFile(new URL('../src/engine.ts', import.meta.url), 'utf8');
 const progression = await fs.readFile(new URL('../src/sphereProgression.ts', import.meta.url), 'utf8');
+const mobileControls = await fs.readFile(new URL('../src/MobileControls.tsx', import.meta.url), 'utf8');
 
 const activeIds = ['blast','shield','teleport','firetrail','minion','lightning','timestop','darkritual'];
 
@@ -27,6 +28,7 @@ test('all Sphere branch ids are referenced by engine combat logic', () => {
 test('all currently implemented Spheres remain reachable from Level Up', () => {
   const implemented = ['standard', 'sniper', 'shotgun', 'chain', 'aura'];
   assert.match(engine, /Object\.keys\(SPHERE_TYPES\) as SphereType\[\]/);
+  assert.match(mobileControls, /Object\.keys\(SPHERE_TYPES\) as SphereType\[\]/);
   for (const id of implemented) assert.match(engine, new RegExp(`type === ['\\\"]${id}['\\\"]`), `engine no longer knows sphere ${id}`);
 });
 
