@@ -43,7 +43,7 @@ test('boss defeat hands control to Stella without an ordinary artifact roll firs
 test('Stella selection keeps Legendary access behind the configured cutoff', () => {
   const engine = fs.readFileSync(new URL('../src/engine.ts', import.meta.url), 'utf8');
   assert.match(engine, /s\.time < STELLA_LEGENDARY_CUTOFF_SECONDS/);
-  assert.match(engine, /\? pickStellaArtifactChoice\(s\)/);
+  assert.match(engine, /pickStellaArtifactChoice\(s, \(\) => nextRandom\(s\)\)/);
   assert.match(engine, /pickArtifacts\(s\)/);
   assert.ok(artifacts.includes("rarity === 'legendary'"));
   assert.ok(artifacts.includes('!owned.has(item.id)'));
