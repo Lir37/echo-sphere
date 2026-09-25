@@ -8,6 +8,7 @@ const sources = await Promise.all([
   '../src/engineSpheres.ts',
   '../src/engineAbilities.ts',
   '../src/engineEnemies.ts',
+  '../src/engineProgression.ts',
 ].map((p) => fs.readFile(new URL(p, import.meta.url), 'utf8')));
 const engine = sources.join('\n');
 const progression = await fs.readFile(new URL('../src/sphereProgression.ts', import.meta.url), 'utf8');
