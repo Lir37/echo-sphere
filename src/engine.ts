@@ -3795,10 +3795,6 @@ function updateEnemies(s: GameState, dt: number): void {
     e.pos.x += (dx / d) * e.speed * speedMult * aggro * dt;
     e.pos.y += (dy / d) * e.speed * speedMult * aggro * dt;
 
-    // Gravity is a continuous field, not a periodic teleport. Apply it after
-    // normal enemy steering so the pull bends the trajectory smoothly.
-    applyGravityFields(s, dt);
-
     // Elite Link Breaker uses a readable telegraph before removing a Sphere from Network participation.
     if (e.isElite) {
       const telegraphTimer = e.elitePulseTelegraphTimer || 0;
@@ -3949,6 +3945,11 @@ function updateEnemies(s: GameState, dt: number): void {
       }
     }
   }
+}
+
+  // Apply gravity once after all enemies have completed their normal steering.
+  // This bends trajectories smoothly without multiplying the force by enemy count.
+  applyGravityFields(s, dt);
 }
 
 function updateXpOrbs(s: GameState, dt: number): void {
