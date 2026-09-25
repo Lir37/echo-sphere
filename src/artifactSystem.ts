@@ -274,7 +274,7 @@ export function hasCompletedArtifactSet(
   return getCompletedArtifactSets(s).some((set) => set.id === setId);
 }
 
-export function getArtifactSetCompletionBonus(s: { player: { artifacts: string[] } }): number {
+export function getArtifactSetCompletionBonus(s: { player: { artifacts: ArtifactId[] } }): number {
   return getCompletedArtifactSets(s).length * 0.04;
 }
 
