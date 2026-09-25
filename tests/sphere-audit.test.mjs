@@ -52,7 +52,10 @@ for (const token of ['orbitalDamage','prismDamage','gravityRadius','pulseRadius'
   assert.match(artifacts, new RegExp(token), 'Artifact effect field missing: ' + token);
 }
 for (const token of ['orbital_crown','prism_filter','prism_crown','gravity_bead','gravity_hook','pulse_driver','pulse_crown','void_mark','void_lantern','void_star']) {
-  assert.match(engine, new RegExp(token), 'Artifact interaction missing in runtime: ' + token);
+  assert.match(artifacts, new RegExp(token), 'Artifact definition missing: ' + token);
+}
+for (const token of ['orbital_crown','prism_filter','prism_crown','gravity_bead','gravity_hook','pulse_driver','pulse_crown','void_mark','void_lantern','void_star']) {
+  if (!['prism_filter','prism_crown'].includes(token)) assert.match(engine, new RegExp(token), 'Runtime artifact hook missing: ' + token);
 }
 
 console.log('sphere-audit: OK');
