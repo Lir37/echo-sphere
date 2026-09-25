@@ -215,7 +215,6 @@ function resolvePlayerTowerCollisions(s: GameState): void {
 function resolveEnemyPlayerCollisions(s: GameState): void {
   let pushX = 0;
   let pushY = 0;
-  let touchingPlayer = false;
 
   for (const enemy of s.enemies) {
     if (enemy.hp <= 0) continue;
@@ -225,7 +224,6 @@ function resolveEnemyPlayerCollisions(s: GameState): void {
     const currentDistance = Math.hypot(dx, dy);
     if (currentDistance >= minDistance) continue;
 
-    touchingPlayer = true;
     const normal = normalize(dx, dy);
     const overlap = minDistance - currentDistance;
     const enemyMass = getEnemyMass(enemy);
