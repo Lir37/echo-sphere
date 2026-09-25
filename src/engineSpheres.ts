@@ -30,7 +30,7 @@ import {
 } from './engineCombat';
 import {
   chargeResonance, syncResonanceGeometry, updateResonanceRing
-} from './engine';
+} from './engineResonance';
 import {
   DEFAULT_MAX_SPHERES, MAX_SPHERES_CAP,
   BASE_SPHERE_RADIUS, BASE_SPHERE_DAMAGE, BASE_SPHERE_DELAY
@@ -293,7 +293,7 @@ function updatePrismSphere(s: GameState, sphere: SphereEntity, damage: number, r
     }
   }
 
-  if (networkProfile.triangle && branch === 'prism_spectrum') chargeResonance(s, 'network');
+  if (networkProfile.triangle && branch === 'prism_spectrum') chargeResonance(s, 'network', dealDamageToEnemy);
   triggerEngineerRelay(s, sphere);
 }
 
@@ -375,9 +375,9 @@ function updatePulseSphere(s: GameState, sphere: SphereEntity, damage: number, m
   }
 
   if (branch === 'pulse_resonator' && (networkProfile.triangle || networkProfile.lattice || networkProfile.ring)) {
-    chargeResonance(s, 'network');
+    chargeResonance(s, 'network', dealDamageToEnemy);
   }
-  if (branch === 'pulse_burst' && networkProfile.cluster) chargeResonance(s, 'geometry');
+  if (branch === 'pulse_burst' && networkProfile.cluster) chargeResonance(s, 'geometry', dealDamageToEnemy);
   triggerEngineerRelay(s, sphere);
 }
 
@@ -386,8 +386,8 @@ export function updateSpheres(s: GameState, dt: number): void {
   // Analyze it once so Resonance geometry cannot double-charge within a frame
   // and the per-Sphere profiles all observe the same topology snapshot.
   const networkState = analyzeSphereNetwork(getNetworkNodes(s));
-  syncResonanceGeometry(s, networkState);
-  updateResonanceRing(s, dt, networkState);
+  syncResonanceGeometry(s, networkState, dealDamageToEnemy);
+  updateResonanceRing(s, dt, networkState, dealDamageToEnemy);
 
   for (const sphere of s.spheres) {
     if (!sphere.alive) continue;
@@ -670,7 +670,7 @@ export function placeSphere(s: GameState, x: number, y: number): void {
     const a = nextRandom(s) * Math.PI * 2;
     s.particles.push({ pos: { x, y }, vel: { x: Math.cos(a) * 120, y: Math.sin(a) * 120 }, life: 0.5, maxLife: 0.5, color: stype.color, size: 3 });
   }
-  chargeResonance(s, 'network');
+  chargeResonance(s, 'network', dealDamageToEnemy);
   playSound('place');
 }
 
@@ -685,5 +685,5 @@ export function removeSphere(s: GameState, sphere: SphereEntity): void {
     const a = nextRandom(s) * Math.PI * 2;
     s.particles.push({ pos: { ...sphere.pos }, vel: { x: Math.cos(a) * 120, y: Math.sin(a) * 120 }, life: 0.5, maxLife: 0.5, color: '#b8475a', size: 3 });
   }
-  chargeResonance(s, 'network');
+  chargeResonance(s, 'network', dealDamageToEnemy);
 }
