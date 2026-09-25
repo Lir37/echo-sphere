@@ -395,7 +395,7 @@ function PausePlanner({ lang, t, st, tab, setTab, onResume, onExit }: {
               <section>
                 <SectionTitle>{lang === 'ru' ? 'Сферы' : 'Spheres'}</SectionTitle>
                 <div className="space-y-2">
-                  {(['standard','sniper','shotgun','chain','aura'] as const).map((type) => {
+                  {(Object.keys(SPHERE_TYPES) as Array<keyof typeof SPHERE_TYPES>).map((type) => {
                     const def = SPHERE_TYPES[type];
                     const lvl = sphereLevel(st, type);
                     const placed = st.spheres.filter((sphere) => sphere.type === type && sphere.alive);
