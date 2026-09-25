@@ -183,7 +183,7 @@ function latticeShape(nodes: NetworkNode[], indexes: number[], links: NetworkLin
   const linked = (a: number, b: number) => links.some((link) => (link.a === a && link.b === b) || (link.a === b && link.b === a));
   for (let i = 0; i < indexes.length - 2; i++) for (let j = i + 1; j < indexes.length - 1; j++) for (let k = j + 1; k < indexes.length; k++) {
     const combo = [indexes[i], indexes[j], indexes[k]];
-    if (linked(combo[0], combo[1]) && linked(combo[1], combo[2]) && linked(combo[0], combo[2])) triangles.push(combo);
+    if (linked(combo[0], combo[1]) && linked(combo[1], combo[2]) && linked(combo[0], combo[2]) && triangleStrength(nodes, combo, linkDistance) >= 0.82) triangles.push(combo);
   }
   if (triangles.length < 2) return null;
   let shared = false;
