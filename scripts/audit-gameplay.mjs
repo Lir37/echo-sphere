@@ -4,7 +4,7 @@ const root = new URL('../', import.meta.url);
 const read = async (file) => fs.readFile(new URL(file, root), 'utf8');
 
 function quotedUnion(source, typeName) {
-  const re = new RegExp(`export type ${typeName} = ([\\s\\S]*?);`);
+  const re = new RegExp(`export type ${typeName} =\\s*([\\s\\S]*?);`);
   const match = source.match(re);
   if (!match) throw new Error(`Union not found: ${typeName}`);
   return [...match[1].matchAll(/'([^']+)'/g)].map((m) => m[1]);
