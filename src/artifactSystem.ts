@@ -333,7 +333,7 @@ export function getSphereArtifactModifiers(s: any, type: string, sphere?: any): 
   // Global sphere stats are applied once in engine.ts. This helper contains
   // only type-specific artifact modifiers and interaction/synergy effects.
   let damage = 1;
-  let delay = 1;
+  const delay = 1;
   let radius = 1;
   const effects: keyof ArtifactEffects = `${type}Damage` as keyof ArtifactEffects;
   const radiusEffect: keyof ArtifactEffects = `${type}Radius` as keyof ArtifactEffects;
