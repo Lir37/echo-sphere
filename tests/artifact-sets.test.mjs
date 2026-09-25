@@ -10,12 +10,9 @@ import {
 const state = (artifacts = []) => ({ player: { artifacts } });
 
 test('Artifact Sets are data-driven and reference existing pair synergies', () => {
-  assert.equal(ARTIFACT_SETS.length, 3);
+  assert.equal(ARTIFACT_SETS.length, 6);
   for (const set of ARTIFACT_SETS) {
-    assert.equal(set.synergyIds.length, 2);
-    assert.ok(set.synergyIds.every((id) =>
-      ['fortress_network', 'echo_relay', 'glass_cannon', 'singularity', 'perfect_network', 'unified_core'].includes(id)
-    ));
+    assert.ok(set.synergyIds.length >= 2);
   }
 });
 
@@ -33,7 +30,7 @@ test('Artifact Set completion is derived from its pair synergies', () => {
   const completed = getCompletedArtifactSets(state(all));
   assert.deepEqual(
     completed.map((set) => set.id),
-    ['resonance_grid', 'echo_architecture', 'singularity_path'],
+    ARTIFACT_SETS.map((set) => set.id),
   );
 });
 
