@@ -67,13 +67,11 @@ export function recordKnowledge(ids: KnowledgeId[]): void {
 export function syncKnowledgeFromRun(s: {
   spheres: Array<{ type: SphereType; alive: boolean }>;
   enemies: Array<{ type: string; isBoss: boolean; bossType: BossType }>;
-  bossDefeated: number;
   player: {
     abilities: Partial<Record<AbilityType, number>>;
     artifacts: ArtifactId[];
     sphereProgression: Partial<Record<SphereType, number>>;
     sphereBranches: Partial<Record<SphereType, string>>;
-    sphereMods: Record<string, number>;
     evolutions: string[];
   };
 }): void {
