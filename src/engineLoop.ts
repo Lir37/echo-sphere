@@ -8,6 +8,7 @@ import {
 } from './artifactSystem';
 import { RUNE_DEFS } from './runes';
 import { nextRandom } from './rng';
+import type { ResonanceSource } from './resonance';
 import { BALANCE } from './engineBalance';
 import { PLAYER_RADIUS, STELLA_LEGENDARY_CUTOFF_SECONDS, getXpToNextLevel } from './engineState';
 import { getMoveSpeed, getXpMult, getMagnetRadius } from './engineStats';
@@ -23,7 +24,7 @@ function pickArtifacts(s: GameState): ArtifactId[] {
   return pickArtifactChoices(s, 3, false, () => nextRandom(s));
 }
 
-function chargeResonance(s: GameState, source: 'enemy' | 'sphere' | 'rune' | 'geometry'): void {
+function chargeResonance(s: GameState, source: ResonanceSource): void {
   chargeResonanceRuntime(s, source, dealDamageToEnemy);
 }
 
