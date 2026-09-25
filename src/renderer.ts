@@ -2210,7 +2210,7 @@ function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, network:
       const sphere = s.spheres[index];
       cx += sphere.pos.x;
       cy += sphere.pos.y;
-      totalCharge += sphere.resonanceHits % 3;
+      totalCharge += sphere.formationHitCount % 3;
       activePulse ||= sphere.resonancePulseTimer > 0;
     }
     cx /= network.triangle.nodes.length;
@@ -2219,7 +2219,7 @@ function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, network:
 
     for (const index of network.triangle.nodes) {
       const sphere = s.spheres[index];
-      const charge = sphere.resonanceHits % 3;
+      const charge = sphere.formationHitCount % 3;
       const progress = charge / 3;
       const radius = 25 + Math.sin(t * 5 + index) * 1.5;
 
