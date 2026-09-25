@@ -25,7 +25,7 @@ import { sphereLevel, getActiveSphereAbilitySynergies } from './sphereProgressio
 import { analyzeSphereNetwork, getSphereNetworkProfile, getLinkedNodeIndexes } from './network';
 import { nextRandom } from './rng';
 import { RUNE_DEFS, type RuneType } from './runes';
-import { canReceivePlayerDamage, CRIT_BASE, CRIT_MULTIPLIER_BASE, getContextualCritChance } from './combatRules';
+import { canReceivePlayerDamage, canReceivePlayerDoTDamage, CRIT_BASE, CRIT_MULTIPLIER_BASE, getContextualCritChance } from './combatRules';
 import type { GameState, SphereEntity, EnemyEntity, Vec } from './engineTypes';
 import type { ArtifactId } from './gameData';
 import { dist, rand, getNetworkNodes, getAbilityBranchId, getNearestSphere, getSphereFinalIndex } from './engineRuntime';
@@ -700,6 +700,25 @@ export function damagePlayer(s: GameState, amount: number): void {
     s.player.invulnUsed = true;
     s.flashText = { text: 'INVULNERABLE!', life: 2, color: '#d4943d' };
   }
+  if (s.player.hp <= 0) {
+    s.player.hp = 0;
+    s.gameOver = true;
+    s.stats.time = s.time;
+    playSound('gameover');
+  }
+}
+
+
+export function damagePlayerDoT(s: GameState, amount: number): void {
+  if (!canReceivePlayerDoTDamage(s.player.invulnerableTimer)) return;
+  if (!Number.isFinite(amount) || amount <= 0) return;
+
+  const mitigated = amount * getArtifactDamageTakenMultiplier(s) * getDamageTakenMult(s);
+  if (mitigated <= 0) return;
+
+  s.player.hp -= mitigated;
+  s.screenShake = Math.min(0.25, s.screenShake + 0.04);
+
   if (s.player.hp <= 0) {
     s.player.hp = 0;
     s.gameOver = true;
