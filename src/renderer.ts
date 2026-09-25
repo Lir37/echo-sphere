@@ -163,6 +163,7 @@ export function render(ctx: CanvasRenderingContext2D, s: GameState, canvasW: num
 
   // The network is part of the battlefield, not a hidden calculation. Draw it
   // before the Spheres so links stay behind the authored sphere silhouettes.
+  drawFormationMemory(ctx, s);
   drawGhostSnapPreview(ctx, s);
   drawSphereNetwork(ctx, s, analyzeSphereNetwork(buildRuntimeNetworkNodes(s.spheres, s.minions, (s.player.abilities.minion || 0) >= 3)));
 
@@ -1961,6 +1962,44 @@ function drawModernSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: S
   ctx.restore();
 }
 
+
+function drawFormationMemory(ctx: CanvasRenderingContext2D, s: GameState): void {
+  const memory = s.formationMemory;
+  if (!memory || memory.expiresAt <= s.time || memory.nodes.length < 2) return;
+
+  const alpha = Math.max(0, Math.min(1, (memory.expiresAt - s.time) / 0.9));
+  const color =
+    memory.type === 'triangle' ? '#ffb84d' :
+    memory.type === 'square' ? '#69b7ff' :
+    memory.type === 'cluster' ? '#b38cff' :
+    '#63e6ff';
+
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.globalAlpha = 0.34 * alpha;
+  ctx.lineWidth = 1.4;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 10;
+  ctx.setLineDash([5, 7]);
+
+  ctx.beginPath();
+  memory.nodes.forEach((node, index) => {
+    if (index === 0) ctx.moveTo(node.x, node.y);
+    else ctx.lineTo(node.x, node.y);
+  });
+  if (memory.type === 'triangle' || memory.type === 'square') ctx.closePath();
+  ctx.stroke();
+
+  for (const node of memory.nodes) {
+    ctx.globalAlpha = 0.22 * alpha;
+    ctx.beginPath();
+    ctx.arc(node.x, node.y, 10 + Math.sin(s.time * 7) * 1.5, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  ctx.setLineDash([]);
+  ctx.restore();
+}
 
 function drawGhostSnapPreview(ctx: CanvasRenderingContext2D, s: GameState): void {
   if (s.paused || s.gameOver || s.pendingUpgrade || s.pendingArtifact || s.pendingStella) return;
