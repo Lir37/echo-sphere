@@ -1,4 +1,4 @@
-import { analyzeSphereNetwork, type NetworkNode, type SphereNetworkState } from './network';
+import { analyzeSphereNetwork, type NetworkNode, type SphereNetworkState } from './network.ts';
 
 export interface PreviewSphere extends NetworkNode {
   pos: { x: number; y: number };
