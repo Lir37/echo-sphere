@@ -33,7 +33,7 @@ const BRANCH_LEVEL_DETAILS:Partial<Record<SphereEvolutionId,{level5:string;level
   },
 };
 const br=(id:SphereEvolutionId,ru:string,desc:string,fin:[SphereEvolutionDef,SphereEvolutionDef,SphereEvolutionDef]):SphereEvolutionBranch=>{
-  const details=BRANCH_LEVEL_DETAILS[id];
+  const details=BRANCH_LEVEL_DETAILS[id] ?? { level5: 'Усиление выбранной ветки.', level6: 'Дополнительное усиление уникальной механики.' };
   return {
     ...e(id,ru,desc),
     final:fin,
