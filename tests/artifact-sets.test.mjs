@@ -52,8 +52,28 @@ test('three Artifact Sets expose protocol discovery and completion bonus', async
   assert.equal(mod.getArtifactSetCompletionBonus({ player: { artifacts: all } }), 0.12);
 });
 
-test('Artifact Set completion is wired into combat damage', async () => {
-  const fs = await import('node:fs/promises');
-  const engineSource = await fs.readFile(new URL('../src/engine.ts', import.meta.url), 'utf8');
-  assert.match(engineSource, /getArtifactSetCompletionBonus/);
+test('Artifact Set completion is wired into behavioral combat effects', async () => {
+  const mod = await import('../src/artifactSystem.ts');
+  const all = Object.values(mod.ARTIFACT_META).map((item) => item.id);
+  const baseState = {
+    player: { artifacts: all, combo: 10 },
+    spheres: [
+      { type: 'standard', alive: true, pos: { x: 0, y: 0 } },
+      { type: 'sniper', alive: true, pos: { x: 100, y: 0 } },
+      { type: 'chain', alive: true, pos: { x: 0, y: 100 } },
+    ],
+  };
+
+  const behaviors = mod.getArtifactSetBehavior(baseState);
+  assert.deepEqual(behaviors, {
+    resonanceGrid: true,
+    echoArchitecture: true,
+    singularityPath: true,
+  });
+
+  const modifiers = mod.getSphereArtifactModifiers(baseState, 'standard', baseState.spheres[0]);
+  assert.ok(modifiers.damage > 1, 'completed Sets must affect behavioral Sphere modifiers');
+
+  const completionPulse = mod.getArtifactSetCompletionPulse(baseState);
+  assert.equal(completionPulse, 1);
 });
