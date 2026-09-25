@@ -11,6 +11,7 @@ import { createMasteryRunTracker, getMasteryRunXp, tickCharacterMastery } from '
 import { addCharacterMasteryXp } from './persistence';
 import { canPlaceSphere, canRepositionSphere, repositionSphere } from './spaceCollision';
 import { analyzeSphereNetwork, type NetworkFormation, type SphereNetworkState } from './network';
+import { buildGhostSnapPreview, getGhostSnapFormation } from './networkPreview';
 
 type PointerState = { startX: number; startY: number; moved: boolean; joystickCandidate: boolean; draggingSphere: SphereEntity | null; repositioned: boolean };
 type JoystickVisual = { pointerId: number; x: number; y: number; dx: number; dy: number; active: boolean };
@@ -95,16 +96,30 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
     return { x: canvasX - canvas.width / 2 + st.camera.x, y: canvasY - canvas.height / 2 + st.camera.y };
   };
 
-  const getFormation = (network: SphereNetworkState): GhostPreview['formation'] => network.square || network.triangle || network.cluster || network.line;
-
   const buildGhostPreview = (st: GameState, sphere: SphereEntity, sphereIndex: number, x: number, y: number): GhostPreview => {
-    const nodes = st.spheres.map((current) => ({ pos: current === sphere ? { x, y } : current.pos, alive: current.alive, networkDisabledTimer: current.networkDisabledTimer }));
-    const network = analyzeSphereNetwork(nodes);
-    return { pointerId: -1, sphereIndex, x, y, valid: canRepositionSphere(st, sphere, x, y), network, formation: getFormation(network) };
+    const preview = buildGhostSnapPreview(st.spheres, { x, y }, undefined, sphereIndex);
+    const network = preview?.network || analyzeSphereNetwork(st.spheres.map((current) => ({
+      pos: current.pos,
+      alive: current.alive,
+      networkDisabledTimer: current.networkDisabledTimer,
+    })));
+    return {
+      pointerId: -1,
+      sphereIndex,
+      x,
+      y,
+      valid: canRepositionSphere(st, sphere, x, y),
+      network,
+      formation: preview?.formation ? getGhostSnapFormation(network) ? {
+        type: preview.formation.type,
+        nodes: preview.formation.nodes,
+        strength: preview.formation.strength,
+      } : null : null,
+    };
   };
 
   const captureFormationMemory = (st: GameState, network: SphereNetworkState) => {
-    const formation = getFormation(network);
+    const formation = getGhostSnapFormation(network);
     if (!formation) return;
     const points = formation.nodes.map((index) => ({ ...st.spheres[index].pos }));
     setFormationMemory({ type: formation.type, points, life: 0.9, id: Date.now() });
@@ -173,8 +188,8 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
         if (world && canRepositionSphere(st, pointer.draggingSphere, world.x, world.y)) {
           repositionSphere(st, pointer.draggingSphere, world.x, world.y);
           const newNetwork = analyzeSphereNetwork(st.spheres.map((sphere) => ({ pos: sphere.pos, alive: sphere.alive, networkDisabledTimer: sphere.networkDisabledTimer })));
-          const oldFormation = getFormation(oldNetwork);
-          const newFormation = getFormation(newNetwork);
+          const oldFormation = getGhostSnapFormation(oldNetwork);
+          const newFormation = getGhostSnapFormation(newNetwork);
           if (oldFormation && (!newFormation || oldFormation.type !== newFormation.type || oldFormation.nodes.join(',') !== newFormation.nodes.join(','))) captureFormationMemory(st, oldNetwork);
           st.flashText = { text: lang === 'ru' ? 'Сфера перемещена' : 'Sphere moved', life: 0.8, color: SPHERE_TYPES[pointer.draggingSphere.type].color };
         }
