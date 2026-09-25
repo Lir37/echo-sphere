@@ -13,7 +13,7 @@ import { canPlaceSphere, canRepositionSphere, repositionSphere } from './spaceCo
 import { analyzeSphereNetwork, type NetworkFormation, type SphereNetworkState } from './network';
 import { buildGhostSnapPreview, getGhostSnapFormation } from './networkPreview';
 
-type PointerState = { startX: number; startY: number; moved: boolean; joystickCandidate: boolean; draggingSphere: SphereEntity | null; repositioned: boolean };
+type PointerState = { startX: number; startY: number; moved: boolean; joystickCandidate: boolean; draggingSphere: SphereEntity | null; placingSphere: boolean; repositioned: boolean };
 type JoystickVisual = { pointerId: number; x: number; y: number; dx: number; dy: number; active: boolean };
 type PlacementVisual = { x: number; y: number; color: string; id: number };
 type GhostPreview = { pointerId: number; sphereIndex: number; x: number; y: number; valid: boolean; network: SphereNetworkState; formation: { type: Exclude<NetworkFormation, 'none'>; nodes: number[]; strength: number } | null };
@@ -118,6 +118,26 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
     };
   };
 
+  const buildNewSphereGhostPreview = (st: GameState, x: number, y: number): GhostPreview | null => {
+    const preview = buildGhostSnapPreview(st.spheres, { x, y });
+    if (!preview) return null;
+    return {
+      pointerId: -1,
+      sphereIndex: preview.candidateIndex,
+      x,
+      y,
+      valid: canPlaceSphere(st, x, y),
+      network: preview.network,
+      formation: preview.formation
+        ? {
+            type: preview.formation.type,
+            nodes: preview.formation.nodes,
+            strength: preview.formation.strength,
+          }
+        : null,
+    };
+  };
+
   const captureFormationMemory = (st: GameState, network: SphereNetworkState) => {
     const formation = getGhostSnapFormation(network);
     if (!formation) return;
@@ -202,6 +222,37 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
       }
       return;
     }
+    if (pointer?.placingSphere) {
+      const st = stateRef.current;
+      if (st && !pointer.moved) {
+        handlesphereTap(clientX, clientY);
+        setGhostPreview(null);
+        return;
+      }
+      if (st && pointer.repositioned) {
+        const world = touchToWorld(clientX, clientY);
+        if (world && canPlaceSphere(st, world.x, world.y)) {
+          const oldNetwork = analyzeSphereNetwork(st.spheres.map((sphere) => ({ pos: sphere.pos, alive: sphere.alive, networkDisabledTimer: sphere.networkDisabledTimer })));
+          const beforeCount = st.spheres.length;
+          placeSphere(st, world.x, world.y);
+          if (st.spheres.length > beforeCount) {
+            const newNetwork = analyzeSphereNetwork(st.spheres.map((sphere) => ({ pos: sphere.pos, alive: sphere.alive, networkDisabledTimer: sphere.networkDisabledTimer })));
+            const oldFormation = getGhostSnapFormation(oldNetwork);
+            const newFormation = getGhostSnapFormation(newNetwork);
+            if (oldFormation && (!newFormation || oldFormation.type !== newFormation.type || oldFormation.nodes.join(',') !== newFormation.nodes.join(','))) captureFormationMemory(st, oldNetwork);
+            haptic(8);
+          }
+        }
+        setGhostPreview(null);
+        return;
+      }
+      if (st && pointer.moved) {
+        st.flashText = { text: lang === 'ru' ? 'Недоступная позиция' : 'Недоступная позиция', life: 0.65, color: '#ff4d5d' };
+        setGhostPreview(null);
+        haptic(22);
+      }
+      return;
+    }
     if (joystickIdRef.current === pointerId) {
       joystickIdRef.current = null;
       clearMovementKeys();
@@ -259,6 +310,7 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
           moved: false,
           joystickCandidate: false,
           draggingSphere: null,
+          placingSphere: false,
           repositioned: false,
         };
         const world = touchToWorld(e.clientX, e.clientY);
@@ -268,6 +320,7 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
             pointer.draggingSphere = draggable;
           } else {
             pointer.joystickCandidate = joystickIdRef.current === null && e.clientX >= joystickZoneStart && e.clientX < joystickZoneEnd;
+            pointer.placingSphere = !pointer.joystickCandidate && st.spheres.length < getMaxSpheres(st);
           }
         }
         pointersRef.current.set(e.pointerId, pointer);
@@ -288,6 +341,22 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
               preview.pointerId = e.pointerId;
               pointer.repositioned = preview.valid;
               setGhostPreview(preview);
+            }
+          }
+          return;
+        }
+        if (pointer.placingSphere) {
+          if (distance > JOYSTICK_DEADZONE) pointer.moved = true;
+          if (distance > JOYSTICK_DEADZONE) {
+            const world = touchToWorld(e.clientX, e.clientY);
+            const st = stateRef.current;
+            if (world && st) {
+              const preview = buildNewSphereGhostPreview(st, world.x, world.y);
+              if (preview) {
+                preview.pointerId = e.pointerId;
+                pointer.repositioned = preview.valid;
+                setGhostPreview(preview);
+              }
             }
           }
           return;
