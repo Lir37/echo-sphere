@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { analyzeSphereNetwork, getSphereNetworkProfile } from '../src/network.ts';
+import { analyzeSphereNetwork, getSphereNetworkProfile, getLinkedNodeIndexes, areNetworkNodesLinked } from '../src/network.ts';
 
 const node = (x, y) => ({ pos: { x, y }, alive: true });
 
@@ -66,4 +66,15 @@ test('triangle and cluster can coexist while line is suppressed', () => {
   assert.ok(state.triangle);
   assert.ok(state.cluster);
   assert.equal(state.line, null);
+});
+
+
+test('Network link queries expose the same canonical links used by geometry', () => {
+  const state = analyzeSphereNetwork([
+    node(0, 0), node(100, 0), node(200, 0),
+  ]);
+
+  assert.deepEqual(getLinkedNodeIndexes(state, 1), [0, 2]);
+  assert.equal(areNetworkNodesLinked(state, 0, 1), true);
+  assert.equal(areNetworkNodesLinked(state, 0, 2), true);
 });
