@@ -127,14 +127,14 @@ export const ABILITY_PROGRESSION:Partial<Record<AbilityType,AbilityProgressionDe
       'Финальная форма превращает защиту в часть сетевого построения.'
     ),
     evolution4:[
-      ae('shield_echo_guard','Эхо-барьер','Каждая ближайшая сфера получает защитный заряд сети.'),
+      ae('shield_echo_guard','Эхо-барьер','Каждые две ближайшие сферы добавляют один заряд защитному щиту сети.'),
       ae('shield_reflector','Отражающий контур','Поглощённый удар частично отражается через ближайшую сферу.'),
       ae('shield_bastion','Бастион','Сферы вокруг игрока образуют единый защитный контур.')
     ],
     evolution7:[
       ae('shield_network_guard','Network Bastion','Щит соединяет сферы в единую защитную сеть.'),
-      ae('shield_iron_dome','Iron Dome','Сферы внутри сети получают защитный заряд при полном цикле.'),
-      ae('shield_resonant_guard','Resonant Guard','Каждая защищённая сфера усиливает следующий заряд щита.')
+      ae('shield_iron_dome','Iron Dome','Количество ближайших сфер увеличивает дополнительный запас зарядов щита.'),
+      ae('shield_resonant_guard','Resonant Guard','Поглощённый удар восстанавливает один заряд щита, удерживая защиту в резонансе.')
     ]
   },
   teleport:{
