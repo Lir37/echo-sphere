@@ -181,6 +181,15 @@ export const ARTIFACT_SYNERGIES: ArtifactSynergy[] = [
   { id: 'singularity', requires: ['lone_bastion', 'singularity_engine'], name: { ru: 'Сингулярность', en: 'Singularity' }, desc: { ru: 'При 1 типе сферы её урон увеличивается ещё на 20%.', en: 'With one sphere type, its damage is increased by another 20%.' } },
   { id: 'perfect_network', requires: ['fivefold_resonance', 'triangle_circuit'], name: { ru: 'Идеальная сеть', en: 'Perfect Network' }, desc: { ru: 'При 3+ типах сфер геометрические связи дают +10% урона.', en: 'With 3+ sphere types, geometric links grant +10% damage.' } },
   { id: 'unified_core', requires: ['unified_mind', 'zero_sphere'], name: { ru: 'Единое ядро', en: 'Unified Core' }, desc: { ru: 'Максимально прокачанная сфера усиливает остальные на 5% за уровень.', en: 'The strongest sphere boosts the others by 5% per level.' } },
+,
+  { id: 'geometry_loop', requires: ['triangle_engine', 'ring_engine'], name: { ru: 'Контур петли', en: 'Geometry Loop' }, desc: { ru: 'смена Geometry быстрее заряжает Resonance.', en: 'Geometry changes charge Resonance faster.' } },
+  { id: 'lattice_memory', requires: ['lattice_engine', 'fractal_seed'], name: { ru: 'Память решётки', en: 'Lattice Memory' }, desc: { ru: 'Lattice и Fractal сохраняют часть силы после перестройки.', en: 'Lattice and Fractal retain part of their strength after rewiring.' } },
+  { id: 'void_horizon', requires: ['void_ink', 'void_mark'], name: { ru: 'Горизонт пустоты', en: 'Void Horizon' }, desc: { ru: 'Void сильнее работает по элитным и ослабленным целям.', en: 'Void is stronger against elites and weakened targets.' } },
+  { id: 'orbital_prism', requires: ['orbital_blade', 'prism_filter'], name: { ru: 'Орбитальная призма', en: 'Orbital Prism' }, desc: { ru: 'Orbital создаёт дополнительные отражённые лучи.', en: 'Orbital creates additional reflected beams.' } },
+  { id: 'gravity_pulse', requires: ['gravity_hook', 'pulse_driver'], name: { ru: 'Гравитационный импульс', en: 'Gravity Pulse' }, desc: { ru: 'Pulse наносит больше урона собранным врагам.', en: 'Pulse deals more damage to grouped enemies.' } },
+  { id: 'network_memory', requires: ['network_anchor', 'echo_weaver'], name: { ru: 'Память сети', en: 'Network Memory' }, desc: { ru: 'первая перестройка сети после Geometry Event сохраняет бонус.', en: 'The first network rebuild after a Geometry Event preserves its bonus.' } },
+  { id: 'temporal_echo', requires: ['time_splitter', 'stasis_mandala'], name: { ru: 'Временное эхо', en: 'Temporal Echo' }, desc: { ru: 'после контроля времени следующий Resonance Event усиливается.', en: 'The next Resonance Event after time control is empowered.' } },
+  { id: 'axiom_fold', requires: ['axiom_core', 'universal_fold'], name: { ru: 'Аксиоматический сгиб', en: 'Axiom Fold' }, desc: { ru: 'разные системы билда усиливают друг друга.', en: 'Different build systems reinforce one another.' } },
 ];
 
 export function getActiveArtifactSynergies(s: { player: { artifacts: ArtifactId[] } }): ArtifactSynergy[] {
@@ -197,7 +206,7 @@ export function getArtifactSynergiesAfterPick(s: { player: { artifacts: Artifact
 
 
 export interface ArtifactSetDef {
-  id: 'resonance_grid' | 'echo_architecture' | 'singularity_path';
+  id: 'resonance_grid' | 'echo_architecture' | 'singularity_path' | 'geometry_craft' | 'void_horizon' | 'temporal_fold';
   name: { ru: string; en: string };
   desc: { ru: string; en: string };
   synergyIds: string[];
@@ -233,6 +242,24 @@ export const ARTIFACT_SETS: ArtifactSetDef[] = [
     name: { ru: 'Путь сингулярности', en: 'Singularity Path' },
     desc: { ru: 'Специализированный билд, усиливающий концентрацию силы и риск.', en: 'A specialised build that concentrates power and risk.' },
     synergyIds: ['glass_cannon', 'singularity'],
+  },
+  {
+    id: 'geometry_craft',
+    name: { ru: 'Мастерская геометрии', en: 'Geometry Craft' },
+    desc: { ru: 'Сет вокруг Ring, Lattice и Fractal.', en: 'A set built around Ring, Lattice and Fractal.' },
+    synergyIds: ['geometry_loop', 'lattice_memory', 'network_memory'],
+  },
+  {
+    id: 'void_horizon',
+    name: { ru: 'Горизонт пустоты', en: 'Void Horizon' },
+    desc: { ru: 'Агрессивный билд добивания и контроля плотности.', en: 'An aggressive execution and density-control build.' },
+    synergyIds: ['void_horizon', 'orbital_prism', 'gravity_pulse'],
+  },
+  {
+    id: 'temporal_fold',
+    name: { ru: 'Временной сгиб', en: 'Temporal Fold' },
+    desc: { ru: 'Рискованный билд вокруг времени и универсальных синергий.', en: 'A risky build around time and universal synergies.' },
+    synergyIds: ['temporal_echo', 'axiom_fold'],
   },
 ];
 
