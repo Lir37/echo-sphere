@@ -13,7 +13,7 @@ import {
   getCharacterMaxHpMultiplier,
 } from './characterRuntime';
 import { loadCharacterId, loadCharacterProfiles } from './persistence';
-import { pickArtifactChoices, pickStellaArtifactChoice } from './artifactSystem';
+import { getArtifactMoveSpeedMultiplier, getArtifactMaxHpBonus, getArtifactXpMultiplier, getArtifactRegenPerSecond, getArtifactCooldownMultiplier, pickArtifactChoices, pickStellaArtifactChoice } from './artifactSystem';
 import { SPHERE_PROGRESSION, ABILITY_PROGRESSION, spherePriority, sphereLevel, sphereModifiers, SPHERE_ABILITY_SYNERGIES, getActiveSphereAbilitySynergies } from './sphereProgression';
 import { selectSphereTarget } from './targeting';
 import { analyzeSphereNetwork, getSphereNetworkProfile, getLinkedNodeIndexes } from './network';
@@ -36,10 +36,10 @@ import {
   getMaxSpheres, getSphereRadius, getSphereDamage, getSphereDpsEstimate, getSphereDelay,
   setSphereType, placeSphere, removeSphere,
 } from './engineSpheres';
-import { PLAYER_RADIUS, getSlowRadius, getSlowFactor, updateWaves, updateMinions, updateEnemies } from './engineEnemies';
+import { getSlowRadius, getSlowFactor, updateSpheres, spawnEnemy, startWave, updateMinions, updateEnemies } from './engineEnemies';
 import {
   getCritChance, getDodgeChance, getVampirePercent, getDamageTakenMult,
-  getCooldownMult, dealDamageToEnemy, damagePlayer,
+  dealDamageToEnemy, damagePlayer,
 } from './engineCombat';
 import { activateByKey } from './engineAbilities';
 import {
@@ -52,7 +52,7 @@ export {
   getMaxSpheres, getSphereRadius, getSphereDamage, getSphereDpsEstimate, getSphereDelay,
   setSphereType, placeSphere, removeSphere,
 } from './engineSpheres';
-export { PLAYER_RADIUS, getSlowRadius, getSlowFactor } from './engineEnemies';
+export { getSlowRadius, getSlowFactor } from './engineEnemies';
 export { getCritChance, getDodgeChance, getVampirePercent, getDamageTakenMult } from './engineCombat';
 export { activateByKey } from './engineAbilities';
 
