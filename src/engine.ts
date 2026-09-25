@@ -2350,7 +2350,7 @@ export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
     abilityPool[2],
   ].filter(Boolean) as UpgradeChoice[];
 
-  for (const choice of weightedShuffle(sources, () => 1)) {
+  for (const choice of weightedShuffle(s, sources, () => 1)) {
     if (mixedPool.length >= 3) break;
     mixedPool.push(choice);
   }
