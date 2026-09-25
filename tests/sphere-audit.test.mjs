@@ -6,7 +6,13 @@ const root = process.cwd();
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 const gameData = read('src/gameData.ts');
 const progression = read('src/sphereProgression.ts');
-const engine = read('src/engine.ts');
+const engine = [
+  'src/engine.ts',
+  'src/engineCombat.ts',
+  'src/engineSpheres.ts',
+  'src/engineAbilities.ts',
+  'src/engineEnemies.ts',
+].map(read).join('\n');
 const characters = read('src/characters.ts');
 const artifacts = read('src/artifactSystem.ts');
 const renderer = read('src/renderer.ts');
