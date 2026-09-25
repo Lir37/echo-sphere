@@ -136,6 +136,11 @@ test('formation Resonance charges only for a genuinely new formation', () => {
 
 test('placing or removing a sphere no longer directly charges Resonance', () => {
   const source = fs.readFileSync(new URL('../src/engineSpheres.ts', import.meta.url), 'utf8');
-  assert.doesNotMatch(source, /export function placeSphere[\\s\\S]*chargeResonance\\(s, 'network'/);
-  assert.doesNotMatch(source, /export function removeSphere[\\s\\S]*chargeResonance\\(s, 'network'/);
+  const placeStart = source.indexOf('export function placeSphere');
+  const removeStart = source.indexOf('export function removeSphere');
+  assert.ok(placeStart >= 0 && removeStart > placeStart);
+  const placeBody = source.slice(placeStart, removeStart);
+  const removeBody = source.slice(removeStart);
+  assert.doesNotMatch(placeBody, /chargeResonance/);
+  assert.doesNotMatch(removeBody, /chargeResonance/);
 });
