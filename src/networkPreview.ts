@@ -10,6 +10,7 @@ export interface GhostSnapPreview {
   candidate: { x: number; y: number };
   candidateIndex: number;
   network: SphereNetworkState;
+  nodes: NetworkNode[];
   linkedNodeIndexes: number[];
   formation: string | null;
 }
@@ -45,5 +46,5 @@ export function buildGhostSnapPreview(
     network.line?.type ??
     null;
 
-  return { candidate: { ...candidate }, candidateIndex, network, linkedNodeIndexes, formation };
+  return { candidate: { ...candidate }, candidateIndex, network, nodes, linkedNodeIndexes, formation };
 }
