@@ -74,3 +74,11 @@ test('Artifact Set completion is wired into behavioral combat effects', async ()
   const completionPulse = mod.getArtifactSetCompletionPulse(baseState);
   assert.equal(completionPulse, 1);
 });
+
+
+test('expanded Artifact catalog has long-run buildcraft scale and complete metadata', async () => {
+  const mod = await import('../src/artifactSystem.ts');
+  assert.ok(Object.keys(mod.ARTIFACT_META).length >= 90);
+  assert.ok(Object.values(mod.ARTIFACT_META).some((x) => x.rarity === 'legendary'));
+  assert.ok(Object.values(mod.ARTIFACT_META).some((x) => x.id === 'geometry_loop'));
+});
