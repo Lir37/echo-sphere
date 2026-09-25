@@ -1,5 +1,5 @@
 import type { GameState, PlayerState, SphereEntity, EnemyEntity, DamageNumber, ChestEntity } from './engine';
-import { PLAYER_RADIUS, getNetworkNodes } from './engine';
+import { PLAYER_RADIUS } from './engine';
 import { SPHERE_TYPES, BOSS_TYPES } from './gameData';
 import type { MapTheme, Vec } from './engine';
 import { CHARACTER_DEFS } from './characters';

@@ -743,7 +743,7 @@ function dist(a: Vec, b: Vec): number {
 
 // Real Network view used by gameplay systems. Temporary Echo Drones are
 // appended after stable Sphere indexes, so existing sphere profiles stay valid.
-function getNetworkNodes(s: GameState): Array<{ pos: Vec; alive: boolean }> {
+function getNetworkNodes(s: GameState) {
   return buildRuntimeNetworkNodes(s.spheres, s.minions, (s.player.abilities.minion || 0) >= 3);
 }
 function rand(min: number, max: number): number {
