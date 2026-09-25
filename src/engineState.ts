@@ -194,5 +194,7 @@ export function createInitialState(
     shopUpgrades: { ...shop.upgrades },
     runSeed,
     rngState,
+    networkFrame: null,
+    networkFrameId: 0,
   };
 }

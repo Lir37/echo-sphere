@@ -1,6 +1,7 @@
 import { addResonanceChargeFromSource, type ResonanceSource } from './resonance';
-import { analyzeSphereNetwork, getLinkedNodeIndexes } from './network';
-import { dist, getNetworkNodes } from './engineRuntime';
+import type { SphereNetworkState } from './network';
+import { getLinkedNodeIndexes } from './network';
+import { dist, getNetworkNodes, getNetworkFrame } from './engineRuntime';
 import type { GameState, EnemyEntity, SphereEntity, Vec } from './engineTypes';
 
 export type ResonanceDamageHandler = (
@@ -11,7 +12,7 @@ export type ResonanceDamageHandler = (
   allowSphereProc?: boolean,
 ) => void;
 
-function getResonanceFormation(network: ReturnType<typeof analyzeSphereNetwork>) {
+function getResonanceFormation(network: SphereNetworkState) {
   // Prefer the most structurally expressive active geometry for the event.
   return network.fractal ?? network.lattice ?? network.ring ?? network.square ?? network.triangle ?? network.cluster ?? network.line;
 }
@@ -22,10 +23,10 @@ function resonanceFormationCenter(s: GameState, nodes: number[], networkNodes = 
   return positions.reduce((acc, pos) => ({ x: acc.x + pos.x / positions.length, y: acc.y + pos.y / positions.length }), { x: 0, y: 0 });
 }
 
-export function triggerResonanceEvent(s: GameState, dealDamage: ResonanceDamageHandler): void {
+export function triggerResonanceEvent(s: GameState, dealDamage: ResonanceDamageHandler, network?: SphereNetworkState): void {
+  const networkState = network ?? getNetworkFrame(s);
   const networkNodes = getNetworkNodes(s);
-  const network = analyzeSphereNetwork(networkNodes);
-  const formation = getResonanceFormation(network);
+  const formation = getResonanceFormation(networkState);
   const type = formation?.type ?? 'none';
   const center = formation ? resonanceFormationCenter(s, formation.nodes, networkNodes) : { ...s.player.pos };
   const baseDamage = 16 + s.player.level * 2;
@@ -89,7 +90,7 @@ export function triggerResonanceEvent(s: GameState, dealDamage: ResonanceDamageH
         const nodeIndex = triangleNodes[i];
         const sphere = s.spheres[nodeIndex];
         if (!sphere) continue;
-        const linked = getLinkedNodeIndexes(network, nodeIndex).find((index) => triangleNodes.includes(index));
+        const linked = getLinkedNodeIndexes(networkState, nodeIndex).find((index) => triangleNodes.includes(index));
         const nextIndex = linked ?? triangleNodes[(i + 1) % triangleNodes.length];
         const nextSphere = s.spheres[nextIndex];
         if (nextSphere) s.lightnings.push({ from: { ...sphere.pos }, to: { ...nextSphere.pos }, life: 0.22 });
@@ -165,11 +166,13 @@ export function updateResonanceRing(
 export function chargeResonance(s: GameState, source: ResonanceSource, dealDamage: ResonanceDamageHandler): void {
   if (s.player.resonanceEventActive) return;
   const events = addResonanceChargeFromSource(s.player, source);
-  for (let i = 0; i < events; i++) triggerResonanceEvent(s, dealDamage);
+  const network = getNetworkFrame(s);
+  for (let i = 0; i < events; i++) triggerResonanceEvent(s, dealDamage, network);
 }
 
-export function syncResonanceGeometry(s: GameState, network = analyzeSphereNetwork(getNetworkNodes(s)), dealDamage: ResonanceDamageHandler): void {
-  const formation = getResonanceFormation(network);
+export function syncResonanceGeometry(s: GameState, network: SphereNetworkState | undefined, dealDamage: ResonanceDamageHandler): void {
+  const resolvedNetwork = network ?? getNetworkFrame(s);
+  const formation = getResonanceFormation(resolvedNetwork);
   const key = formation ? formation.type + ':' + formation.nodes.join(',') : 'none';
   if (key === s.player.resonanceGeometryKey) return;
 

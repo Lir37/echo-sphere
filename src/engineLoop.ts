@@ -62,6 +62,8 @@ export function update(s: GameState, dt: number): void {
 
   s.time += dt;
   s.stats.time = s.time;
+  s.networkFrameId += 1;
+  s.networkFrame = null;
   // Progressive active slots: Dash is always free, then three non-Dash slots
   // open during the run. This keeps the active layer tactical rather than
   // turning the HUD into a keyboard.
@@ -295,6 +297,8 @@ export function update(s: GameState, dt: number): void {
       if (d > 0) s.bossArrow = { x: dx / d, y: dy / d };
     }
   }
+  // Network cache is valid only for this gameplay update.
+  s.networkFrame = null;
 }
 
 function checkMutation(s: GameState): void {

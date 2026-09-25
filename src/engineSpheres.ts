@@ -18,12 +18,13 @@ import {
 } from './artifactSystem';
 import { sphereModifiers, sphereLevel, getActiveSphereAbilitySynergies } from './sphereProgression';
 import { selectSphereTarget } from './targeting';
-import { analyzeSphereNetwork, getSphereNetworkProfile, getLinkedNodeIndexes } from './network';
+import type { SphereNetworkState } from './network';
+import { getSphereNetworkProfile, getLinkedNodeIndexes } from './network';
 import { buildRuntimeNetworkNodes } from './networkRuntime';
 import { nextRandom } from './rng';
 import type { GameState, SphereEntity, EnemyEntity, Vec } from './engineTypes';
 import {
-  dist, rand, getNetworkNodes, getSphereFinalIndex, getAbilityBranchId
+  dist, rand, getNetworkNodes, getSphereFinalIndex, getAbilityBranchId, getNetworkFrame
 } from './engineRuntime';
 import {
   dealDamageToEnemy, onEnemyDeath, triggerEngineerRelay, consumeEngineerRelayBonus, emitSpherePulse
@@ -60,7 +61,7 @@ export function getSphereRadius(s: GameState, sphere: SphereEntity): number {
   return r;
 }
 
-export function getSphereDamage(s: GameState, sphere: SphereEntity): number {
+export function getSphereDamage(s: GameState, sphere: SphereEntity, network?: SphereNetworkState): number {
   let d = BASE_SPHERE_DAMAGE;
   const lvl = s.player.abilities.damage || 0;
   d *= 1 + lvl * 0.15;
@@ -87,8 +88,8 @@ export function getSphereDamage(s: GameState, sphere: SphereEntity): number {
   d *= getSphereArtifactDamageMultiplier(s, sphere);
   d *= sphereModifiers(s, sphere.type, sphere).damage;
   if (sphere) {
-    const network = analyzeSphereNetwork(getNetworkNodes(s));
-    const profile = getSphereNetworkProfile(network, s.spheres.indexOf(sphere));
+    const networkState = network ?? getNetworkFrame(s);
+    const profile = getSphereNetworkProfile(networkState, s.spheres.indexOf(sphere));
     if (profile.square) d *= 1.08;
   }
   return d;
@@ -97,8 +98,9 @@ export function getSphereDamage(s: GameState, sphere: SphereEntity): number {
 export function getSphereDpsEstimate(s: GameState, sphere: SphereEntity): number {
   const def = SPHERE_TYPES[sphere.type];
   const mods = sphereModifiers(s, sphere.type, sphere);
-  const damage = getSphereDamage(s, sphere);
-  const delay = Math.max(0.05, getSphereDelay(s, sphere) * def.delayMult * mods.delay);
+  const network = getNetworkFrame(s);
+  const damage = getSphereDamage(s, sphere, network);
+  const delay = Math.max(0.05, getSphereDelay(s, sphere, network) * def.delayMult * mods.delay);
   if (sphere.type === 'orbital') {
     const satellites = 1 + mods.multishot + (s.player.artifacts.includes('orbital_crown') ? 1 : 0);
     return (damage * satellites * 2.2) / Math.max(0.12, 0.42 * mods.auraPulse);
@@ -116,7 +118,7 @@ export function getSphereDpsEstimate(s: GameState, sphere: SphereEntity): number
   return (damage * shots) / delay;
 }
 
-export function getSphereDelay(s: GameState, sphere?: SphereEntity): number {
+export function getSphereDelay(s: GameState, sphere?: SphereEntity, network?: SphereNetworkState): number {
   let d = BASE_SPHERE_DELAY;
   const lvl = s.player.abilities.attackspeed || 0;
   d *= Math.pow(0.93, lvl);
@@ -125,8 +127,8 @@ export function getSphereDelay(s: GameState, sphere?: SphereEntity): number {
   if (s.player.overloadTimer > 0) d *= 0.72;
   if (s.player.fireTrailTimer > 0 && sphere && s.player.sphereMods.fire > 0) d *= 0.78;
   if (sphere) {
-    const network = analyzeSphereNetwork(getNetworkNodes(s));
-    const profile = getSphereNetworkProfile(network, s.spheres.indexOf(sphere));
+    const networkState = network ?? getNetworkFrame(s);
+    const profile = getSphereNetworkProfile(networkState, s.spheres.indexOf(sphere));
     if (profile.cluster) d *= 0.90;
     if (profile.square) d *= 0.94;
   }
@@ -173,7 +175,7 @@ function getActiveStatusEffect(s: GameState): 'none' | 'fire' | 'freeze' | 'pois
   return 'none';
 }
 
-function updateOrbitalSphere(s: GameState, sphere: SphereEntity, damage: number, mods: ReturnType<typeof sphereModifiers>, networkProfile: ReturnType<typeof getSphereNetworkProfile>, dt: number): void {
+function updateOrbitalSphere(s: GameState, sphere: SphereEntity, damage: number, mods: ReturnType<typeof sphereModifiers>, networkProfile: ReturnType<typeof getSphereNetworkProfile>, network: SphereNetworkState, dt: number): void {
   const branch = s.player.sphereBranches?.orbital;
   const finalIndex = getSphereFinalIndex(s, 'orbital');
   const satelliteCount = Math.max(1, 1 + mods.multishot + (s.player.artifacts.includes('orbital_crown') ? 1 : 0) + (finalIndex === 2 ? 1 : 0));
@@ -226,7 +228,7 @@ function updateOrbitalSphere(s: GameState, sphere: SphereEntity, damage: number,
   }
 
   if (networkProfile.ring && s.player.artifacts.includes('orbital_blade') && s.player.artifacts.includes('prism_filter')) {
-    const linked = getLinkedNodeIndexes(analyzeSphereNetwork(getNetworkNodes(s)), s.spheres.indexOf(sphere))
+    const linked = getLinkedNodeIndexes(network, s.spheres.indexOf(sphere))
       .filter((index) => index < s.spheres.length && s.spheres[index]?.alive);
     if (linked.length > 0) {
       const relay = s.spheres[linked[0]];
@@ -238,7 +240,7 @@ function updateOrbitalSphere(s: GameState, sphere: SphereEntity, damage: number,
   s.particles.push({ pos: { ...sphere.pos }, vel: { x: 0, y: 0 }, life: 0.22, maxLife: 0.22, color: SPHERE_TYPES.orbital.color, size: finalIndex === 2 ? 9 : 7 });
 }
 
-function updatePrismSphere(s: GameState, sphere: SphereEntity, damage: number, radius: number, mods: ReturnType<typeof sphereModifiers>, networkProfile: ReturnType<typeof getSphereNetworkProfile>, dt: number): void {
+function updatePrismSphere(s: GameState, sphere: SphereEntity, damage: number, radius: number, mods: ReturnType<typeof sphereModifiers>, networkProfile: ReturnType<typeof getSphereNetworkProfile>, network: SphereNetworkState, dt: number): void {
   const branch = s.player.sphereBranches?.prism;
   const finalIndex = getSphereFinalIndex(s, 'prism');
   sphere.attackTimer -= dt;
@@ -279,7 +281,6 @@ function updatePrismSphere(s: GameState, sphere: SphereEntity, damage: number, r
       + (s.player.artifacts.includes('prism_crown') ? 1 : 0)
       + (networkProfile.ring ? 1 : 0);
     if (reflectionCount > 0) {
-      const network = analyzeSphereNetwork(getNetworkNodes(s));
       const linked = getLinkedNodeIndexes(network, s.spheres.indexOf(sphere))
         .filter((index) => index < s.spheres.length && s.spheres[index]?.alive)
         .slice(0, reflectionCount);
@@ -385,7 +386,7 @@ export function updateSpheres(s: GameState, dt: number): void {
   // Network topology is stable for the duration of this Sphere update pass.
   // Analyze it once so Resonance geometry cannot double-charge within a frame
   // and the per-Sphere profiles all observe the same topology snapshot.
-  const networkState = analyzeSphereNetwork(getNetworkNodes(s));
+  const networkState = getNetworkFrame(s);
   syncResonanceGeometry(s, networkState, dealDamageToEnemy);
   updateResonanceRing(s, dt, networkState, dealDamageToEnemy);
 
@@ -394,17 +395,17 @@ export function updateSpheres(s: GameState, dt: number): void {
     sphere.resonancePulseTimer = Math.max(0, sphere.resonancePulseTimer - dt);
     const stype = SPHERE_TYPES[sphere.type];
     const radius = getSphereRadius(s, sphere) * stype.rangeMult;
-    const damage = getSphereDamage(s, sphere) * stype.damageMult;
-    const delay = getSphereDelay(s, sphere) * stype.delayMult * sphereModifiers(s, sphere.type).delay;
+    const damage = getSphereDamage(s, sphere, networkState) * stype.damageMult;
+    const delay = getSphereDelay(s, sphere, networkState) * stype.delayMult * sphereModifiers(s, sphere.type).delay;
     const branch = s.player.sphereBranches?.[sphere.type];
     const networkProfile = getSphereNetworkProfile(networkState, s.spheres.indexOf(sphere));
     // Area-control Sphere archetypes use distinct loops rather than pretending to be generic turrets.
     if (sphere.type === 'orbital') {
-      updateOrbitalSphere(s, sphere, damage, sphereModifiers(s, sphere.type, sphere), networkProfile, dt);
+      updateOrbitalSphere(s, sphere, damage, sphereModifiers(s, sphere.type, sphere), networkProfile, networkState, dt);
       continue;
     }
     if (sphere.type === 'prism') {
-      updatePrismSphere(s, sphere, damage, radius, sphereModifiers(s, sphere.type, sphere), networkProfile, dt);
+      updatePrismSphere(s, sphere, damage, radius, sphereModifiers(s, sphere.type, sphere), networkProfile, networkState, dt);
       continue;
     }
     if (sphere.type === 'gravity') {

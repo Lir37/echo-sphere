@@ -1,6 +1,7 @@
 import type { AbilityType, ArtifactId, SphereType, BossType, Difficulty } from './gameData';
 import type { CharacterId } from './characters';
 import type { RuneType } from './runes';
+import type { SphereNetworkState } from './network';
 
 export interface Vec { x: number; y: number; }
 
@@ -309,6 +310,8 @@ export interface GameState {
   shopUpgrades: Record<string, number>;
   runSeed: number;
   rngState: number;
+  networkFrame: { frameId: number; network: SphereNetworkState } | null;
+  networkFrameId: number;
 }
 
 export interface ShopState {

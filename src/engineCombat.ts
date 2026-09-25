@@ -22,13 +22,13 @@ import {
   pickArtifactChoices,
 } from './artifactSystem';
 import { sphereLevel, getActiveSphereAbilitySynergies } from './sphereProgression';
-import { analyzeSphereNetwork, getSphereNetworkProfile, getLinkedNodeIndexes } from './network';
+import { getSphereNetworkProfile, getLinkedNodeIndexes } from './network';
 import { nextRandom } from './rng';
 import { RUNE_DEFS, type RuneType } from './runes';
 import { canReceivePlayerDamage, canReceivePlayerDoTDamage, CRIT_BASE, CRIT_MULTIPLIER_BASE, getContextualCritChance } from './combatRules';
 import type { GameState, SphereEntity, EnemyEntity, Vec } from './engineTypes';
 import type { ArtifactId } from './gameData';
-import { dist, rand, getNetworkNodes, getAbilityBranchId, getNearestSphere, getSphereFinalIndex } from './engineRuntime';
+import { dist, rand, getNetworkNodes, getNetworkFrame, getAbilityBranchId, getNearestSphere, getSphereFinalIndex } from './engineRuntime';
 import { chargeResonance } from './engineResonance';
 
 function registerHunterHit(s: GameState, enemy: EnemyEntity, sphere: SphereEntity): void {
@@ -163,7 +163,7 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
   // crit
   if (fromSphere && nextRandom(s) < contextualCritChance) { actual *= CRIT_MULTIPLIER_BASE; isCrit = true; }
   if (fromSphere) {
-    const squareNetwork = analyzeSphereNetwork(getNetworkNodes(s));
+    const squareNetwork = getNetworkFrame(s);
     const squareProfile = getSphereNetworkProfile(squareNetwork, s.spheres.indexOf(fromSphere));
     if (squareProfile.square) {
       // Local cadence counter: deliberately separate from player Resonance resource.
@@ -196,7 +196,7 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
     const voidBranch = s.player.sphereBranches?.void;
     const voidFinal = getSphereFinalIndex(s, 'void');
     const hpRatio = enemy.hp / Math.max(1, enemy.maxHp);
-    const network = analyzeSphereNetwork(getNetworkNodes(s));
+    const network = getNetworkFrame(s);
     const profile = getSphereNetworkProfile(network, s.spheres.indexOf(fromSphere));
     if (hpRatio <= 0.20) actual *= 2.25;
     if (hpRatio <= 0.35 && s.player.artifacts.includes('void_mark')) actual *= 1.10;
@@ -420,7 +420,7 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
   // formationHitCount remains local to preserve formation cadence mechanics.
   if (fromSphere) {
     const sphereIndex = s.spheres.indexOf(fromSphere);
-    const network = analyzeSphereNetwork(getNetworkNodes(s));
+    const network = getNetworkFrame(s);
     const profile = getSphereNetworkProfile(network, sphereIndex);
     if (profile.triangle) {
       fromSphere.formationHitCount++;
@@ -443,7 +443,7 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
     // Echo Architecture completion creates a real relay event between linked Spheres.
     const setBehavior = getArtifactSetBehavior(s);
     if (setBehavior.echoArchitecture && fromSphere.formationHitCount > 0 && fromSphere.formationHitCount % 5 === 0) {
-      const relayNetwork = analyzeSphereNetwork(getNetworkNodes(s));
+      const relayNetwork = getNetworkFrame(s);
       const linked = getLinkedNodeIndexes(relayNetwork, s.spheres.indexOf(fromSphere));
       const targetIndex = linked.find((index) => s.spheres[index]?.alive);
       if (targetIndex !== undefined) {

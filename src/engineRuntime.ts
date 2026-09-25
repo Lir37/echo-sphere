@@ -1,6 +1,7 @@
 import type { AbilityType, SphereType } from './gameData';
 import type { GameState, SphereEntity, Vec } from './engineTypes';
 import { buildRuntimeNetworkNodes } from './networkRuntime';
+import { analyzeSphereNetwork, type SphereNetworkState } from './network';
 import { nextRandom } from './rng';
 
 export function dist(a: Vec, b: Vec): number {
@@ -48,3 +49,11 @@ export function getSphereFinalIndex(s: GameState, type: SphereType): number | nu
   return Number.isFinite(value) ? value : null;
 }
 
+
+
+export function getNetworkFrame(s: GameState): SphereNetworkState {
+  if (s.networkFrame?.frameId === s.networkFrameId) return s.networkFrame.network;
+  const network = analyzeSphereNetwork(getNetworkNodes(s));
+  s.networkFrame = { frameId: s.networkFrameId, network };
+  return network;
+}
