@@ -34,6 +34,7 @@ import { buildRuntimeNetworkNodes } from './networkRuntime';
 import { BOSS_CHARGER_COMMIT_SECONDS, BOSS_CHARGER_TOTAL_TELEGRAPH_SECONDS } from './bossBalance';
 import { RUNE_DEFS, type RuneType } from './runes';
 import { createRunSeed, createRngState, nextRandom } from './rng';
+import { addResonanceCharge } from './resonance';
 
 export interface Vec { x: number; y: number; }
 
@@ -53,6 +54,9 @@ export interface PlayerState {
   mutationStage: number; // 0..4
   invulnerableTimer: number;
   contactDamageCooldown: number;
+  resonanceCharge: number;
+  resonanceEventActive: boolean;
+  resonanceGeometryKey: string;
   invulnUsed: boolean;
   shieldCharges: number;
   shieldTimer: number;
@@ -483,6 +487,9 @@ export function createInitialState(
     mutationStage: 0,
     invulnerableTimer: 0,
     contactDamageCooldown: 0,
+    resonanceCharge: 0,
+    resonanceEventActive: false,
+    resonanceGeometryKey: 'none',
     invulnUsed: false,
     shieldCharges: 0,
     shieldTimer: 0,
@@ -759,6 +766,67 @@ function dist(a: Vec, b: Vec): number {
 function getNetworkNodes(s: GameState) {
   return buildRuntimeNetworkNodes(s.spheres, s.minions, (s.player.abilities.minion || 0) >= 3);
 }
+function resonanceFormationCenter(s: GameState, nodes: number[]): Vec {
+  const positions = nodes.map((index) => s.spheres[index]?.pos).filter((pos): pos is Vec => Boolean(pos));
+  if (positions.length === 0) return { ...s.player.pos };
+  return positions.reduce((acc, pos) => ({ x: acc.x + pos.x / positions.length, y: acc.y + pos.y / positions.length }), { x: 0, y: 0 });
+}
+
+function triggerResonanceEvent(s: GameState): void {
+  const network = analyzeSphereNetwork(getNetworkNodes(s));
+  const formation = network.square ?? network.triangle ?? network.cluster ?? network.line;
+  const type = formation?.type ?? 'none';
+  const center = formation ? resonanceFormationCenter(s, formation.nodes) : { ...s.player.pos };
+  const baseDamage = 16 + s.player.level * 2;
+  s.player.resonanceEventActive = true;
+  try {
+    if (type === 'square') {
+      s.player.shieldCharges = Math.min(5, s.player.shieldCharges + 2);
+      for (const enemy of s.enemies) if (enemy.hp > 0 && dist(enemy.pos, center) <= 150) dealDamageToEnemy(s, enemy, baseDamage * 1.2, undefined, false);
+      s.flashText = { text: 'SQUARE RESONANCE', life: 0.9, color: '#d4943d' };
+    } else if (type === 'triangle') {
+      for (const enemy of s.enemies) if (enemy.hp > 0 && dist(enemy.pos, center) <= 125) dealDamageToEnemy(s, enemy, baseDamage, undefined, false);
+      s.flashText = { text: 'TRIANGLE RESONANCE', life: 0.9, color: '#8a5a8a' };
+    } else if (type === 'cluster') {
+      for (const enemy of s.enemies) {
+        if (enemy.hp <= 0 || dist(enemy.pos, center) > 135) continue;
+        const dx = enemy.pos.x - center.x, dy = enemy.pos.y - center.y, d = Math.hypot(dx, dy) || 1;
+        enemy.pos.x += dx / d * 36; enemy.pos.y += dy / d * 36;
+        dealDamageToEnemy(s, enemy, baseDamage * 0.9, undefined, false);
+      }
+      s.flashText = { text: 'CLUSTER RESONANCE', life: 0.9, color: '#c4453d' };
+    } else if (type === 'line') {
+      for (const enemy of s.enemies) {
+        if (enemy.hp <= 0) continue;
+        const nearest = formation!.nodes.reduce((best, index) => { const sphere = s.spheres[index]; return sphere ? Math.min(best, dist(enemy.pos, sphere.pos)) : best; }, Infinity);
+        if (nearest <= 72) dealDamageToEnemy(s, enemy, baseDamage * 0.8, undefined, false);
+      }
+      s.flashText = { text: 'LINE RESONANCE', life: 0.9, color: '#4a7a8a' };
+    } else {
+      for (const enemy of s.enemies) if (enemy.hp > 0 && dist(enemy.pos, s.player.pos) <= 90) dealDamageToEnemy(s, enemy, baseDamage * 0.6, undefined, false);
+      s.flashText = { text: 'RESONANCE', life: 0.9, color: '#d4943d' };
+    }
+    s.screenShake = Math.min(0.18, s.screenShake + 0.06);
+  } finally {
+    s.player.resonanceEventActive = false;
+  }
+}
+
+function chargeResonance(s: GameState, amount: number): void {
+  if (amount <= 0 || s.player.resonanceEventActive) return;
+  const events = addResonanceCharge(s.player, amount, false);
+  for (let i = 0; i < events; i++) triggerResonanceEvent(s);
+}
+
+function syncResonanceGeometry(s: GameState, network = analyzeSphereNetwork(getNetworkNodes(s))): void {
+  const formation = network.square ?? network.triangle ?? network.cluster ?? network.line;
+  const key = formation ? formation.type + ':' + formation.nodes.join(',') : 'none';
+  if (key === s.player.resonanceGeometryKey) return;
+  const hadFormation = s.player.resonanceGeometryKey !== 'none';
+  s.player.resonanceGeometryKey = key;
+  if (formation && (hadFormation || key !== 'none')) chargeResonance(s, 5);
+}
+
 function rand(s: GameState, min: number, max: number): number {
   return min + nextRandom(s) * (max - min);
 }
@@ -1200,6 +1268,7 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
   // buff from chest
   if (s.player.buffTimer > 0) actual *= 1.3;
   enemy.hp -= actual;
+  if (fromSphere) chargeResonance(s, 1);
   enemy.hitFlash = 0.15;
 
   // Juicier impact: a short, directional burst makes every sphere hit readable.
@@ -2793,6 +2862,7 @@ function updateSpheres(s: GameState, dt: number): void {
     const delay = getSphereDelay(s, sphere) * stype.delayMult * sphereModifiers(s, sphere.type).delay;
     const branch = s.player.sphereBranches?.[sphere.type];
     const networkState = analyzeSphereNetwork(getNetworkNodes(s));
+    syncResonanceGeometry(s, networkState);
     const networkProfile = getSphereNetworkProfile(networkState, s.spheres.indexOf(sphere));
     // aura type: continuous AoE damage — no barrel rotation
     if (stype.aura) {
@@ -3328,6 +3398,7 @@ function activateRune(s: GameState, rune: RuneEntity): void {
       }
       break;
     case 'resonance':
+      chargeResonance(s, 10);
       for (const sphere of s.spheres) {
         sphere.resonanceHits += 2;
         sphere.resonancePulseTimer = Math.max(sphere.resonancePulseTimer, 0.5);
@@ -3452,6 +3523,7 @@ export function placeSphere(s: GameState, x: number, y: number): void {
     const a = nextRandom(s) * Math.PI * 2;
     s.particles.push({ pos: { x, y }, vel: { x: Math.cos(a) * 120, y: Math.sin(a) * 120 }, life: 0.5, maxLife: 0.5, color: stype.color, size: 3 });
   }
+  chargeResonance(s, 5);
   playSound('place');
 }
 
@@ -3466,4 +3538,5 @@ export function removeSphere(s: GameState, sphere: SphereEntity): void {
     const a = nextRandom(s) * Math.PI * 2;
     s.particles.push({ pos: { ...sphere.pos }, vel: { x: Math.cos(a) * 120, y: Math.sin(a) * 120 }, life: 0.5, maxLife: 0.5, color: '#b8475a', size: 3 });
   }
+  chargeResonance(s, 5);
 }
