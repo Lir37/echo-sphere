@@ -1,5 +1,5 @@
 import type { GameState, PlayerState, SphereEntity, EnemyEntity, DamageNumber, ChestEntity } from './engine';
-import { PLAYER_RADIUS } from './engine';
+import { PLAYER_RADIUS, getNetworkNodes } from './engine';
 import { SPHERE_TYPES, BOSS_TYPES } from './gameData';
 import type { MapTheme, Vec } from './engine';
 import { CHARACTER_DEFS } from './characters';
@@ -160,7 +160,7 @@ export function render(ctx: CanvasRenderingContext2D, s: GameState, canvasW: num
 
   // The network is part of the battlefield, not a hidden calculation. Draw it
   // before the Spheres so links stay behind the authored sphere silhouettes.
-  drawSphereNetwork(ctx, s, analyzeSphereNetwork(s.spheres));
+  drawSphereNetwork(ctx, s, analyzeSphereNetwork(getNetworkNodes(s)));
 
 function drawRune(ctx: CanvasRenderingContext2D, rune: GameState['runes'][number]): void {
   const def = RUNE_DEFS[rune.type];
