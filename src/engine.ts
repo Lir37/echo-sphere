@@ -301,6 +301,7 @@ export interface GameState {
   paused: boolean;
   gameOver: boolean;
   pendingUpgrade: UpgradeChoice[] | null;
+  levelUpPity: { ability: number; sphere: number; modifier: number };
   pendingArtifact: ArtifactId[] | null;
   pendingStella: boolean;
   stellaClaims: number;
@@ -585,6 +586,7 @@ export function createInitialState(
     paused: false,
     gameOver: false,
     pendingUpgrade: null,
+    levelUpPity: { ability: 0, sphere: 0, modifier: 0 },
     pendingArtifact: null,
     pendingStella: false,
     stellaClaims: 0,
@@ -2478,25 +2480,91 @@ function weightedShuffle<T>(s: GameState, items: T[], getWeight: (item: T) => nu
   return result;
 }
 
+type UpgradeSource = 'ability' | 'sphere' | 'modifier';
+
+function getUpgradeChoiceSource(choice: UpgradeChoice): UpgradeSource {
+  return choice.type;
+}
+
+/**
+ * Level-Up protection layer:
+ * - pity increases when a source is repeatedly not selected;
+ * - underrepresented build systems receive a small pressure bonus;
+ * - item-level affinity remains authoritative on top of the source pressure.
+ *
+ * Reroll/Lock/Ban stay separate progression features and are not silently
+ * invented here.
+ */
+export function getUpgradeSourceWeight(s: GameState, source: UpgradeSource): number {
+  const pity = Math.min(4, Math.max(0, s.levelUpPity?.[source] || 0));
+  const pityWeight = 1 + pity * 0.20;
+
+  const sphereScore =
+    s.spheres.filter((sphere) => sphere.alive).length +
+    Object.values(s.player.sphereProgression || {}).reduce((sum, level) => sum + (level || 0) * 0.15, 0);
+  const abilityScore = Object.values(s.player.abilities || {}).filter((level) => (level || 0) > 0).length;
+  const modifierScore = Object.values(s.player.sphereMods || {}).filter((level) => (level || 0) > 0).length;
+
+  const scores: Record<UpgradeSource, number> = { sphere: sphereScore, ability: abilityScore, modifier: modifierScore };
+  const minimum = Math.min(scores.sphere, scores.ability, scores.modifier);
+  const underrepresentedWeight = scores[source] <= minimum + 0.001 ? 1.15 : 1;
+
+  return pityWeight * underrepresentedWeight;
+}
+
+function isLiveUpgradeChoice(s: GameState, choice: UpgradeChoice): boolean {
+  if (choice.type === 'sphere' && choice.sphereType) {
+    return sphereLevel(s, choice.sphereType) < 7;
+  }
+
+  if (choice.type === 'modifier' && choice.modifier) {
+    return (s.player.sphereMods[choice.modifier] || 0) <= 0;
+  }
+
+  if (choice.type === 'ability' && choice.ability) {
+    const current = s.player.abilities[choice.ability] || 0;
+    const def = ABILITIES[choice.ability];
+    if (!def || current >= def.maxLevel) return false;
+    if (def.category === 'active' && current === 0) {
+      const activeCount = Object.keys(s.activeKeyMap || {}).length;
+      if (activeCount >= s.player.activeAbilitySlots) return false;
+    }
+    return true;
+  }
+
+  return false;
+}
+
+function recordLevelUpSourcePick(s: GameState, choice: UpgradeChoice): void {
+  const selected = getUpgradeChoiceSource(choice);
+  for (const source of ['ability', 'sphere', 'modifier'] as UpgradeSource[]) {
+    s.levelUpPity[source] = source === selected
+      ? 0
+      : Math.min(4, (s.levelUpPity[source] || 0) + 1);
+  }
+}
+
 export function getSphereUpgradeChoiceWeight(s: GameState, type: SphereType): number {
   const level = sphereLevel(s, type);
   const activeCopies = s.spheres.filter((sphere) => sphere.alive && sphere.type === type).length;
   const levelPressure = (7 - level) * 0.25;
   const activeBuildPressure = activeCopies > 0 ? 1.5 : 0;
   const characterAffinity = CHARACTER_DEFS[s.player.characterId]?.preferredSphereTypes.includes(type) ? 0.65 : 0;
-  return 1 + levelPressure + activeBuildPressure + characterAffinity;
+  return getUpgradeSourceWeight(s, 'sphere') * (1 + levelPressure + activeBuildPressure + characterAffinity);
 }
 
 function getModifierUpgradeChoiceWeight(s: GameState, modifier: keyof SphereMods): number {
-  return 1 + (CHARACTER_DEFS[s.player.characterId]?.preferredSphereMods.includes(modifier) ? 0.55 : 0);
+  return getUpgradeSourceWeight(s, 'modifier') * (
+    1 + (CHARACTER_DEFS[s.player.characterId]?.preferredSphereMods.includes(modifier) ? 0.55 : 0)
+  );
 }
 
 function getAbilityUpgradeChoiceWeight(s: GameState, choice: UpgradeChoice): number {
-  if (!choice.ability) return 1;
+  if (!choice.ability) return getUpgradeSourceWeight(s, 'ability');
   const unfinishedPressure = choice.currentLevel === 0 ? 1.35 : 1.15;
   const characterAffinity = CHARACTER_DEFS[s.player.characterId]?.preferredAbilities.includes(choice.ability) ? 0.75 : 0;
   const activeAffinity = ABILITIES[choice.ability].category === 'active' ? 0.08 : 0;
-  return unfinishedPressure + characterAffinity + activeAffinity;
+  return getUpgradeSourceWeight(s, 'ability') * (unfinishedPressure + characterAffinity + activeAffinity);
 }
 
 export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
@@ -2549,7 +2617,6 @@ export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
   });
 
   const modifierChoices: UpgradeChoice[] = SPHERE_MODIFIER_CHOICES
-    .filter((modifier) => (s.player.sphereMods[modifier.id] || 0) === 0)
     .map((modifier) => ({
       type: 'modifier' as const,
       modifier: modifier.id,
@@ -2557,7 +2624,8 @@ export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
       newLevel: 1,
       name: modifier.name,
       desc: modifier.desc,
-    }));
+    }))
+    .filter((choice) => isLiveUpgradeChoice(s, choice));
 
   // Abilities are real Level-Up choices. The old first-slice gate left the
   // 21-definition Ability system effectively unreachable during a normal run.
@@ -2594,7 +2662,7 @@ export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
       },
     }));
 
-  const abilityPool = weightedShuffle(s, [...activePool, ...passivePool], (choice) => getAbilityUpgradeChoiceWeight(s, choice));
+  const abilityPool = weightedShuffle(s, [...activePool, ...passivePool].filter((choice) => isLiveUpgradeChoice(s, choice)), (choice) => getAbilityUpgradeChoiceWeight(s, choice));
   const spherePool = weightedShuffle(s, sphereChoices, (choice) => choice.sphereType ? getSphereUpgradeChoiceWeight(s, choice.sphereType) : 1);
   const modifierPool = weightedShuffle(s, modifierChoices, (choice) => choice.modifier ? getModifierUpgradeChoiceWeight(s, choice.modifier) : 1);
 
@@ -2628,7 +2696,9 @@ export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
 }
 
 export function applyUpgrade(s: GameState, choice: UpgradeChoice): void {
+  const hadPendingChoice = Boolean(s.pendingUpgrade);
   s.pendingUpgrade=null;
+  if (hadPendingChoice) recordLevelUpSourcePick(s, choice);
 
   if (choice.type === 'modifier' && choice.modifier) {
     if ((s.player.sphereMods[choice.modifier] || 0) > 0) return;
