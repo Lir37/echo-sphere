@@ -140,7 +140,7 @@ ARTIFACT_METADATA.push(
   meta('echo_weaver', 'epic', {"sphereDamage":0.08,"cooldown":-0.03}),
   meta('overdrive_matrix', 'epic', {"sphereDamage":0.08,"cooldown":-0.03}),
   meta('gravity_crown', 'epic', {"gravityRadius":0.20}),
-  meta('void_lantern', 'epic', {"voidDamage":0.20}),
+  meta('void_lantern', 'epic', {}),
   meta('prism_crown', 'epic', {}),
   meta('orbital_crown', 'epic', {}),
   meta('pulse_crown', 'epic', {}),
