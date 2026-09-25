@@ -33,6 +33,7 @@ export interface PlayerState {
   resonanceEventActive: boolean;
   resonanceGeometryKey: string;
   resonanceGeometryNodes: number[];
+  resonanceLastActiveFormationKey: string;
   resonanceLineBurst: number;
   resonanceRingTimer: number;
   resonanceRingPulseTimer: number;

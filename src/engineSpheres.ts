@@ -670,7 +670,6 @@ export function placeSphere(s: GameState, x: number, y: number): void {
     const a = nextRandom(s) * Math.PI * 2;
     s.particles.push({ pos: { x, y }, vel: { x: Math.cos(a) * 120, y: Math.sin(a) * 120 }, life: 0.5, maxLife: 0.5, color: stype.color, size: 3 });
   }
-  chargeResonance(s, 'network', dealDamageToEnemy);
   playSound('place');
 }
 
@@ -685,5 +684,4 @@ export function removeSphere(s: GameState, sphere: SphereEntity): void {
     const a = nextRandom(s) * Math.PI * 2;
     s.particles.push({ pos: { ...sphere.pos }, vel: { x: Math.cos(a) * 120, y: Math.sin(a) * 120 }, life: 0.5, maxLife: 0.5, color: '#b8475a', size: 3 });
   }
-  chargeResonance(s, 'network', dealDamageToEnemy);
 }

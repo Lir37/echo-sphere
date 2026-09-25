@@ -1,7 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import fs from 'node:fs';
 import { addResonanceCharge, addResonanceChargeFromSource, clampResonanceCharge, RESONANCE_CHARGE, setResonanceCharge } from '../src/resonance.ts';
+import { syncResonanceGeometry } from '../src/engineResonance.ts';
 
 test('Resonance uses a 0..100 base charge and emits an event at 100', () => {
   const state = { resonanceCharge: 96 };
@@ -97,4 +99,44 @@ test('Resonance event runtime is extracted from the engine facade', () => {
   assert.doesNotMatch(engine, /s\.player\.resonanceEventActive = true/);
   assert.doesNotMatch(spheres, /from '\.\/engine';/);
   assert.doesNotMatch(combat, /from '\.\/engine';/);
+});
+
+
+const emptyGeometry = { line: null, triangle: null, square: null, cluster: null, ring: null, lattice: null, fractal: null };
+const triangleGeometry = { ...emptyGeometry, triangle: { type: 'triangle', strength: 1, nodes: [0, 1, 2] } };
+const makeGeometryState = () => ({
+  time: 0,
+  player: {
+    resonanceCharge: 0,
+    resonanceEventActive: false,
+    resonanceGeometryKey: 'none',
+    resonanceGeometryNodes: [],
+    resonanceLastActiveFormationKey: 'none',
+  },
+  spheres: [
+    { pos: { x: -30, y: 0 } },
+    { pos: { x: 0, y: 30 } },
+    { pos: { x: 30, y: 0 } },
+  ],
+});
+
+test('formation Resonance charges only for a genuinely new formation', () => {
+  const state = makeGeometryState();
+  syncResonanceGeometry(state, triangleGeometry, () => {});
+  assert.equal(state.player.resonanceCharge, 5);
+
+  const recoveryState = makeGeometryState();
+  recoveryState.player.resonanceGeometryKey = 'triangle:0,1,2';
+  recoveryState.player.resonanceGeometryNodes = [0, 1, 2];
+  recoveryState.player.resonanceLastActiveFormationKey = 'triangle:0,1,2';
+  syncResonanceGeometry(recoveryState, emptyGeometry, () => {});
+  assert.equal(recoveryState.player.resonanceCharge, 0);
+  syncResonanceGeometry(recoveryState, triangleGeometry, () => {});
+  assert.equal(recoveryState.player.resonanceCharge, 0);
+});
+
+test('placing or removing a sphere no longer directly charges Resonance', () => {
+  const source = fs.readFileSync(new URL('../src/engineSpheres.ts', import.meta.url), 'utf8');
+  assert.doesNotMatch(source, /export function placeSphere[\\s\\S]*chargeResonance\\(s, 'network'/);
+  assert.doesNotMatch(source, /export function removeSphere[\\s\\S]*chargeResonance\\(s, 'network'/);
 });

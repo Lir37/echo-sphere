@@ -187,10 +187,14 @@ export function syncResonanceGeometry(s: GameState, network = analyzeSphereNetwo
     }
   }
 
-  const hadFormation = s.player.resonanceGeometryKey !== 'none';
+  // Geometry charge is earned only when a genuinely new formation appears.
+  // Losing a formation and recovering the same key (e.g. Link Breaker) does
+  // not recharge the resource.
+  const gainedFormation = Boolean(formation) && key !== s.player.resonanceLastActiveFormationKey;
   s.player.resonanceGeometryKey = key;
   s.player.resonanceGeometryNodes = formation ? [...formation.nodes] : [];
-  if (formation && (hadFormation || key !== 'none')) chargeResonance(s, 'geometry', dealDamage);
+  if (formation) s.player.resonanceLastActiveFormationKey = key;
+  if (gainedFormation) chargeResonance(s, 'geometry', dealDamage);
 }
 
 

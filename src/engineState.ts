@@ -75,6 +75,7 @@ export function createInitialState(
     resonanceEventActive: false,
     resonanceGeometryKey: 'none',
     resonanceGeometryNodes: [],
+    resonanceLastActiveFormationKey: 'none',
     resonanceLineBurst: 0,
     resonanceRingTimer: 0,
     resonanceRingPulseTimer: 0,
