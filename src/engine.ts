@@ -455,8 +455,9 @@ export function createInitialState(
   playerName: string,
   difficulty: Difficulty = 'normal',
   mapTheme: MapTheme = 'parchment',
+  runSeedOverride?: number,
 ): GameState {
-  const runSeed = createRunSeed(playerName, difficulty, mapTheme);
+  const runSeed = runSeedOverride === undefined ? createRunSeed(playerName, difficulty, mapTheme) : (runSeedOverride >>> 0) || 1;
   const rngState = createRngState(runSeed);
   const characterId = loadCharacterId();
   const profile = loadCharacterProfiles().find((item) => item.id === characterId);
