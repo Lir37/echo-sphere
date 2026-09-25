@@ -37,6 +37,10 @@ export const MAP_THEMES: { id: MapTheme; name: { ru: string; en: string } }[] = 
   { id: 'sunset', name: { ru: 'Закат', en: 'Sunset' } },
 ];
 
+function getCharacterMaxHpMultiplierForId(id: CharacterId): number {
+  return 1 + CHARACTER_DEFS[id].baseModifiers.maxHp;
+}
+
 export function createInitialState(
   shop: ShopState,
   playerName: string,
