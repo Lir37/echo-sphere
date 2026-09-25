@@ -1486,7 +1486,7 @@ function onEnemyDeath(s: GameState, enemy: EnemyEntity): void {
 }
 
 function pickArtifacts(s: GameState): ArtifactId[] {
-  return pickArtifactChoices(s, 3, false);
+  return pickArtifactChoices(s, 3, false, () => nextRandom(s));
 }
 
 export function claimStella(s: GameState): void {
@@ -1494,7 +1494,7 @@ export function claimStella(s: GameState): void {
 
   s.pendingStella = false;
   const legendary = s.time < STELLA_LEGENDARY_CUTOFF_SECONDS
-    ? pickStellaArtifactChoice(s)
+    ? pickStellaArtifactChoice(s, () => nextRandom(s))
     : null;
 
   if (legendary) {
