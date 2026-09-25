@@ -25,5 +25,5 @@ test('active Ability slots stay bounded and progressive', () => {
   assert.match(engineSource, /if \(s\.player\.level >= 5\) s\.player\.activeAbilitySlots/);
   assert.match(engineSource, /if \(s\.player\.level >= 12\) s\.player\.activeAbilitySlots/);
   assert.match(engineSource, /if \(s\.player\.level >= 20\) s\.player\.activeAbilitySlots/);
-  assert.match(engineSource, /activeCount < s\.player\.activeAbilitySlots/);
+  assert.match(progressionSource, /activeCount < s\.player\.activeAbilitySlots/);
 });
