@@ -482,10 +482,10 @@ export function getSphereArtifactDamageMultiplier(s: any, sphere: any): number {
 
 const rarityWeight = (rarity: ArtifactRarity): number => ({ common: 62, rare: 24, epic: 9, special: 4, legendary: 1 }[rarity]);
 
-function randomWeighted<T>(items: T[], weight: (item: T) => number): T {
+function randomWeighted<T>(items: T[], weight: (item: T) => number, random: () => number = Math.random): T {
   const total = items.reduce((sum, item) => sum + Math.max(0, weight(item)), 0);
-  if (total <= 0) return items[Math.floor(Math.random() * items.length)];
-  let roll = Math.random() * total;
+  if (total <= 0) return items[Math.floor(random() * items.length)];
+  let roll = random() * total;
   for (const item of items) {
     roll -= Math.max(0, weight(item));
     if (roll <= 0) return item;
@@ -497,13 +497,14 @@ export function pickArtifactChoices(
   s: { player: { artifacts: ArtifactId[] } },
   count = 3,
   includeLegendary = false,
+  random: () => number = Math.random,
 ): ArtifactId[] {
   const owned = new Set(s.player.artifacts);
   const available = ARTIFACT_METADATA.filter((item) => !owned.has(item.id) && (includeLegendary || item.rarity !== 'legendary'));
   const result: ArtifactId[] = [];
   const pool = [...available];
   while (result.length < count && pool.length > 0) {
-    const chosen = randomWeighted(pool, (item) => rarityWeight(item.rarity));
+    const chosen = randomWeighted(pool, (item) => rarityWeight(item.rarity), random);
     result.push(chosen.id);
     pool.splice(pool.indexOf(chosen), 1);
   }
@@ -512,9 +513,10 @@ export function pickArtifactChoices(
 
 export function pickStellaArtifactChoice(
   s: { player: { artifacts: ArtifactId[] } },
+  random: () => number = Math.random,
 ): ArtifactId | null {
   const owned = new Set(s.player.artifacts);
   const available = ARTIFACT_METADATA.filter((item) => item.rarity === 'legendary' && !owned.has(item.id));
   if (available.length === 0) return null;
-  return randomWeighted(available, () => 1).id;
+  return randomWeighted(available, () => 1, random).id;
 }
