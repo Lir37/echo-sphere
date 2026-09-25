@@ -78,3 +78,22 @@ test('Network link queries expose the same canonical links used by geometry', ()
   assert.equal(areNetworkNodesLinked(state, 0, 1), true);
   assert.equal(areNetworkNodesLinked(state, 0, 2), true);
 });
+
+
+test('four-node closed loop activates Ring without requiring diagonals', () => {
+  const state = analyzeSphereNetwork([
+    node(-90, -90), node(90, -90), node(90, 90), node(-90, 90),
+  ]);
+  assert.ok(state.ring);
+  assert.equal(state.ring.nodes.length, 4);
+});
+
+test('two connected triangle cells activate Lattice and Fractal geometry', () => {
+  const h = Math.sqrt(3) * 100 / 2;
+  const state = analyzeSphereNetwork([
+    node(0, 0), node(100, 0), node(50, h), node(50, -h),
+  ]);
+  assert.ok(state.lattice);
+  assert.ok(state.fractal);
+  assert.ok(state.lattice.nodes.length >= 4);
+});
