@@ -98,7 +98,7 @@ export function syncKnowledgeFromRun(s: {
   for (const marker of s.player.evolutions) {
     if (marker.startsWith('sphere:')) {
       const parts = marker.split(':');
-      if (parts[3]) ids.push(`sphere-final:${parts[3]}`);
+      if (parts[1] && parts[3] && parts[4]) ids.push(`sphere-final:${parts[1]}:${parts[3]}:${parts[4]}`);
     }
     if (marker.startsWith('ability:')) {
       const parts = marker.split(':');
@@ -274,7 +274,8 @@ export default function KnowledgeBase({ lang, onBack }: { lang: Lang; onBack: ()
           <div className="mb-2 text-xs font-bold uppercase tracking-wider text-fuchsia-200">{isRu ? 'Финальные формы сфер' : 'Final Sphere forms'}</div>
           <div className="grid gap-3 sm:grid-cols-2">
             {sphereEntries.flatMap((def) => def.evolution4Choices.flatMap((branch: any) => branch.final.map((final: any) => {
-              const open = unlocked.has(`sphere-final:${final.id}`);
+              const finalIndex = branch.final.findIndex((item: any) => item.id === final.id);
+              const open = unlocked.has(`sphere-final:${def.type}:${branch.id}:${finalIndex}`);
               return <KnowledgeCard key={final.id} unlocked={open} title={`${def.name[lang]} · ${final.name[lang]}`} desc={final.desc[lang]} lang={lang} />;
             })))}
           </div>
