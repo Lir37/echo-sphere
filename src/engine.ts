@@ -514,7 +514,7 @@ export function createInitialState(
     blinkHpCost: false,
     sphereXpAccumulator: 0,
     sphereUpgradeCount: 0,
-    sphereProgression: { standard: 0, sniper: 0, shotgun: 0, chain: 0, aura: 0 },
+    sphereProgression: { standard: 0, sniper: 0, shotgun: 0, chain: 0, aura: 0, orbital: 0, prism: 0, gravity: 0, pulse: 0, void: 0 },
     sphereBranches: {},
     sphereMods: { multishot: 0, pierce: 0, ricochet: 0, fire: 0, freeze: 0, poison: 0 },
     dashCooldown: 0,
@@ -1103,6 +1103,9 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
   // Basic Shotgun II: +20% damage at close range.
   if (fromSphere?.type === 'shotgun' && sphereLevel(s, 'shotgun') >= 2 && dist(enemy.pos, fromSphere.pos) < 110) {
     actual *= 1.20;
+  }
+  if (fromSphere?.type === 'void' && enemy.hp / enemy.maxHp <= 0.20) {
+    actual *= 2.25;
   }
 
   // Sphere evolution mechanics: evolutions alter the combat loop, not just stats.
@@ -2915,6 +2918,48 @@ function updateSpheres(s: GameState, dt: number): void {
     const delay = getSphereDelay(s, sphere) * stype.delayMult * sphereModifiers(s, sphere.type).delay;
     const branch = s.player.sphereBranches?.[sphere.type];
     const networkProfile = getSphereNetworkProfile(networkState, s.spheres.indexOf(sphere));
+    // Area-control Sphere archetypes use distinct loops rather than pretending to be generic turrets.
+    if (sphere.type === 'orbital') {
+      sphere.auraTimer -= dt;
+      sphere.rotation += dt * 1.8;
+      if (sphere.auraTimer <= 0) {
+        sphere.auraTimer = Math.max(0.18, 0.42 * sphereModifiers(s, sphere.type).auraPulse);
+        const orbitRadius = 78 + 12 * Math.min(3, sphereLevel(s, 'orbital'));
+        for (const e of s.enemies) {
+          if (e.hp > 0 && dist(e.pos, sphere.pos) <= orbitRadius) dealDamageToEnemy(s, e, damage * 0.9, sphere);
+        }
+        s.particles.push({ pos: { ...sphere.pos }, vel: { x: 0, y: 0 }, life: 0.25, maxLife: 0.25, color: stype.color, size: 7 });
+      }
+      continue;
+    }
+    if (sphere.type === 'pulse') {
+      sphere.auraTimer -= dt;
+      if (sphere.auraTimer <= 0) {
+        sphere.auraTimer = Math.max(0.3, 1.15 * sphereModifiers(s, sphere.type).auraPulse);
+        emitSpherePulse(s, sphere, damage, stype.auraRadius, stype.color, false);
+      }
+      continue;
+    }
+    // Gravity is a control field first, damage source second.
+    if (sphere.type === 'gravity') {
+      sphere.auraTimer -= dt;
+      if (sphere.auraTimer <= 0) {
+        sphere.auraTimer = Math.max(0.3, 0.8 * sphereModifiers(s, sphere.type).auraPulse);
+        for (const e of s.enemies) {
+          if (e.hp <= 0 || dist(e.pos, sphere.pos) > stype.auraRadius) continue;
+          const dx = sphere.pos.x - e.pos.x, dy = sphere.pos.y - e.pos.y;
+          const d = Math.hypot(dx, dy) || 1;
+          const pull = 34 * Math.min(1.5, sphereLevel(s, 'gravity') * 0.18 + 0.5);
+          e.pos.x += dx / d * pull;
+          e.pos.y += dy / d * pull;
+          e.slowTimer = Math.max(e.slowTimer, 0.45);
+          e.slowFactor = Math.min(e.slowFactor, 0.72);
+          dealDamageToEnemy(s, e, damage, sphere);
+        }
+      }
+      continue;
+    }
+    // Void has a normal projectile loop, but its identity is an execution threshold.
     // aura type: continuous AoE damage — no barrel rotation
     if (stype.aura) {
       sphere.auraTimer -= dt;
