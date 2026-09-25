@@ -11,7 +11,7 @@ function section(source, startMarker, endMarker) {
 }
 
 function numberedNames(source) {
-  return [...source.matchAll(/^\d{2}\s+([A-Z][A-Z ]+)$/gm)].map((m) => m[1].trim());
+  return [...source.matchAll(/^\d{2}\s+([A-Z][A-Z0-9 ]+)$/gm)].map((m) => m[1].trim());
 }
 
 function quotedUnion(source, typeName) {
@@ -30,7 +30,7 @@ function artifactIds(source) {
 function abilityIds(source) {
   const start = source.indexOf('export const ABILITIES');
   const end = source.indexOf('export const ARTIFACTS', start);
-  return [...source.slice(start, end).matchAll(/id:\s*'([^']+)'/g)].map((m) => m[1]);
+  return [...source.slice(start, end).matchAll(/^(?:\s*)([a-z][a-z0-9_]*)\s*:/gm)].map((m) => m[1]);
 }
 
 function runeIds(source) {
@@ -38,126 +38,193 @@ function runeIds(source) {
   return [...source.slice(start).matchAll(/^\s{2}([a-z][a-z0-9_]*)\s*:/gm)].map((m) => m[1]);
 }
 
-function modifiers(source) {
+function modifierIds(source) {
   const start = source.indexOf('export interface SphereMods');
   const end = source.indexOf('export interface SphereUpgradeChoice', start);
   return [...source.slice(start, end).matchAll(/^\s{2}([a-z][a-z0-9_]*)\s*:/gm)].map((m) => m[1]);
 }
 
-function networkFormations(source) {
-  const match = source.match(/export type NetworkFormation = ([^;]+);/);
-  if (!match) throw new Error('NetworkFormation union not found');
-  return [...match[1].matchAll(/'([^']+)'/g)].map((m) => m[1]).filter((x) => x !== 'none');
-}
-
 function compare(finalItems, currentItems) {
   const current = new Set(currentItems);
+  const implemented = finalItems.filter((id) => current.has(id));
   return {
     finalCount: finalItems.length,
     currentCount: currentItems.length,
-    implemented: finalItems.filter((id) => current.has(id)),
+    implemented,
     missing: finalItems.filter((id) => !current.has(id)),
-    coverage: finalItems.length ? Number((finalItems.filter((id) => current.has(id)).length / finalItems.length).toFixed(3)) : 1,
+    coverage: finalItems.length ? Number((implemented.length / finalItems.length).toFixed(3)) : 1,
   };
 }
 
-const [blueprint, gameData, engine, network, gap] = await Promise.all([
+function integration(itemIds, source) {
+  const integrated = itemIds.filter((id) => source.includes(id));
+  return {
+    count: itemIds.length,
+    integrated,
+    missing: itemIds.filter((id) => !source.includes(id)),
+    coverage: itemIds.length ? Number((integrated.length / itemIds.length).toFixed(3)) : 1,
+  };
+}
+
+const FINAL_ACTIVE_ABILITIES = [
+  ['ECHO PULSE', 'blast'],
+  ['SPHERE BARRIER', 'shield'],
+  ['ECHO JUMP', 'teleport'],
+  ['OVERHEAT', 'firetrail'],
+  ['ECHO DRONE', 'minion'],
+  ['CHAIN LIGHTNING', 'lightning'],
+  ['ECHO FREEZE', 'timestop'],
+  ['OVERLOAD', 'darkritual'],
+  ['NOVA', null],
+  ['GRAVITY WELL', null],
+  ['RESONANCE PULSE', null],
+  ['NODE SWAP', null],
+  ['PHASE SHELL', null],
+  ['VOID LANCE', null],
+  ['TIME FRACTURE', null],
+];
+
+const FINAL_PASSIVE_ABILITIES = [
+  ['SPHERE RADIUS', 'radius'],
+  ['SPHERE DAMAGE', 'damage'],
+  ['ATTACK SPEED', 'attackspeed'],
+  ['MAX SPHERES', 'maxspheres'],
+  ['MOVE SPEED', 'movespeed'],
+  ['ENEMY SLOW', 'slow'],
+  ['VITALITY', 'vitality'],
+  ['VAMPIRISM', 'vampire'],
+  ['DODGE', 'dodge'],
+  ['CRITICAL', 'crit'],
+  ['XP MAGNET', 'magnet'],
+  ['SPHERE BOOST', 'sphereboost'],
+  ['NETWORK CAPACITY', null],
+  ['LINK STABILITY', null],
+  ['RESONANCE CHARGE', null],
+];
+
+const FINAL_SPHERES = ['STANDARD','SNIPER','CHAIN','SHOTGUN','AURA','ORBITAL','PRISM','GRAVITY','PULSE','VOID'];
+const FINAL_MODIFIERS = ['MULTISHOT','PIERCE','RICOCHET','FIRE','FREEZE','POISON','BREACH','OVERLOAD','SPLIT','SHATTER','EXECUTE','MARK','ECHO','ANCHOR','PHASE','STATIC','RESONANT','MAGNETIC','VAMPIRIC','CORRUPT','DRAIN','AFTERIMAGE','IMPACT','GRAVITIC'];
+const FINAL_RUNES = ['overdrive','phase','harvest','purge','resonance','fortify','hunt','echo','gravity','runic_cell'];
+
+const [blueprint, gameData, engine, network, progression, runes, artifacts, gap] = await Promise.all([
   read('GPT/ECHO_SPHERE_MASTER_FINAL_GAMEPLAY_BLUEPRINT_v1.1.txt'),
   read('src/gameData.ts'),
   read('src/engine.ts'),
   read('src/network.ts'),
+  read('src/sphereProgression.ts'),
+  read('src/runes.ts'),
+  read('src/artifactSystem.ts'),
   read('GPT/ECHO_SPHERE_DEVELOPMENT_STATE_AND_GAP_REPORT_v1.0.txt'),
 ]);
 
-const sphereFinal = numberedNames(
-  section(blueprint, 'FINAL CORE SPHERE ROSTER:', 'Sphere architecture is data-driven.'),
-);
-const activeSection = section(
-  blueprint,
-  'FINAL ACTIVE ABILITIES:',
-  'FINAL PASSIVE ABILITIES:',
-);
-const passiveSection = section(
-  blueprint,
-  'FINAL PASSIVE ABILITIES:',
-  'ACTIVE-SLOT RULE:',
-);
-const abilityFinal = [...numberedNames(activeSection), ...numberedNames(passiveSection)];
-
-const modifierFinal = numberedNames(
-  section(blueprint, 'FINAL MODIFIER ROSTER:', 'Design rule:'),
-);
-const currentSphere = quotedUnion(gameData, 'SphereType');
-const currentAbility = abilityIds(gameData);
-const currentModifier = modifiers(engine);
-
-const abilityNameById = {
-  blast: 'ECHO PULSE',
-  shield: 'SPHERE BARRIER',
-  teleport: 'ECHO JUMP',
-  firetrail: 'OVERHEAT',
-  minion: 'ECHO DRONE',
-  lightning: 'CHAIN LIGHTNING',
-  timestop: 'ECHO FREEZE',
-  darkritual: 'OVERLOAD',
-  radius: 'SPHERE RADIUS',
-  damage: 'SPHERE DAMAGE',
-  attackspeed: 'ATTACK SPEED',
-  maxspheres: 'MAX SPHERES',
-  movespeed: 'MOVE SPEED',
-  slow: 'ENEMY SLOW',
-  vitality: 'VITALITY',
-  vampire: 'VAMPIRISM',
-  dodge: 'DODGE',
-  crit: 'CRITICAL',
-  magnet: 'XP MAGNET',
-  sphereboost: 'SPHERE BOOST',
-};
+const currentSpheres = quotedUnion(gameData, 'SphereType');
+const currentAbilities = abilityIds(gameData);
+const currentModifiers = modifierIds(engine);
 const currentArtifacts = artifactIds(gameData);
-const currentRunes = runeIds(await read('src/runes.ts'));
-const currentGeometry = networkFormations(network);
+const currentRunes = runeIds(runes);
+const currentGeometry = quotedUnion(network, 'NetworkFormation').filter((id) => id !== 'none');
+const abilityEvolutionIds = [...new Set([...progression.matchAll(/ae\('([^']+)'/g)].map((m) => m[1]))];
+const sphereBranchIds = [...new Set([...progression.matchAll(/br\('([^']+)'/g)].map((m) => m[1]))];
 
-const summary = {
-  spheres: compare(sphereFinal, currentSphere.map((x) => x.toUpperCase())),
-  abilities: compare(abilityFinal, currentAbility.map((x) => abilityNameById[x] || x.toUpperCase().replace(/_/g, ' '))),
-  modifiers: compare(modifierFinal, currentModifier.map((x) => x.toUpperCase())),
+const finalAbilityReport = (items) => items.map(([name, id]) => ({
+  name,
+  codeId: id,
+  status: id && currentAbilities.includes(id) ? 'CODE+INTEGRATED' : 'MISSING',
+  engineReferenced: Boolean(id && engine.includes(id)),
+  progressionPresent: Boolean(id && progression.includes("ability:'" + id + "'")),
+}));
+
+const audit = {
+  sourceOfTruth: {
+    blueprint: 'GPT/ECHO_SPHERE_MASTER_FINAL_GAMEPLAY_BLUEPRINT_v1.1.txt',
+    gapReport: 'GPT/ECHO_SPHERE_DEVELOPMENT_STATE_AND_GAP_REPORT_v1.0.txt',
+    branch: 'new-desing',
+  },
+  spheres: {
+    finalCount: FINAL_SPHERES.length,
+    current: currentSpheres,
+    implemented: FINAL_SPHERES.filter((name) => currentSpheres.includes(name.toLowerCase())),
+    missing: FINAL_SPHERES.filter((name) => !currentSpheres.includes(name.toLowerCase())),
+    levelUpSourceUsesAllImplementedTypes: engine.includes('Object.keys(SPHERE_TYPES) as SphereType[]'),
+  },
+  abilities: {
+    finalActive: finalAbilityReport(FINAL_ACTIVE_ABILITIES),
+    finalPassive: finalAbilityReport(FINAL_PASSIVE_ABILITIES),
+    evolutionIds: integration(abilityEvolutionIds, engine),
+    sphereBranchIds: integration(sphereBranchIds, engine),
+  },
+  modifiers: compare(FINAL_MODIFIERS, currentModifiers),
   geometry: {
     finalCount: 7,
-    currentCount: currentGeometry.length,
     current: currentGeometry,
-    missingFinal: ['line','triangle','cluster','square','ring','lattice','fractal']
-      .filter((id) => !new Set(currentGeometry).has(id)),
+    implemented: FINAL_SPHERES.length && currentGeometry,
+    missing: ['line','triangle','cluster','square','ring','lattice','fractal'].filter((id) => !currentGeometry.includes(id)),
   },
+  runes: compare(FINAL_RUNES, currentRunes),
   artifacts: {
     currentCount: currentArtifacts.length,
-    gapReportCount: Number(gap.match(/Current Artifact definition count:\n(\d+)/)?.[1] || 0),
-    target: gap.match(/Final target:\n90-120/) ? '90-120' : 'unknown',
+    finalTargetMin: 90,
+    finalTargetMax: 120,
+    gapReportMentionsTarget: /90-120/.test(gap),
   },
-  runes: {
-    currentCount: currentRunes.length,
-    ids: currentRunes,
+  semanticReviewFlags: [
+    {
+      id: 'shield_echo_guard_per_sphere_claim',
+      severity: 'MEDIUM',
+      status: engine.includes("branch === 'shield_echo_guard'"),
+      note: 'Blueprint progression text says nearby Spheres receive protective charges, but current SphereEntity has no per-Sphere shield state; shieldCharges is player-level.',
+    },
+    {
+      id: 'minion_network_is_runtime_nodes',
+      severity: 'INFO',
+      status: engine.includes('buildRuntimeNetworkNodes(s.spheres, s.minions'),
+      note: 'Current implementation does add Echo Drones to the runtime Network graph, so the earlier criticism that Drones were never true nodes is stale.',
+    },
+    {
+      id: 'visual_randomness_not_seeded',
+      severity: 'LOW',
+      status: !engine.includes('Math.random()'),
+      note: 'Engine gameplay RNG is seeded; renderer-only lightning jitter may remain intentionally non-deterministic.',
+    },
+  ],
+  tooling: {
+    auditScriptVersion: 'coverage-v2',
+    strictMode: process.argv.includes('--strict'),
   },
 };
 
 if (process.argv.includes('--json')) {
-  console.log(JSON.stringify(summary, null, 2));
+  console.log(JSON.stringify(audit, null, 2));
 } else {
-  console.log('ECHO SPHERE gameplay coverage audit');
-  console.log('==================================');
-  for (const [name, value] of Object.entries(summary)) {
-    if (name === 'geometry') {
-      console.log(`Geometry: ${value.currentCount}/${value.finalCount} implemented -> ${value.current.join(', ')}`);
-      continue;
-    }
-    if (name === 'artifacts') {
-      console.log(`Artifacts: ${value.currentCount} current, Gap Report says ${value.gapReportCount}, final target ${value.target}`);
-      continue;
-    }
-    if (name === 'runes') {
-      console.log(`Runes: ${value.currentCount} current -> ${value.ids.join(', ')}`);
-      continue;
-    }
-    console.log(`${name[0].toUpperCase() + name.slice(1)}: ${value.currentCount}/${value.finalCount} covered (${Math.round(value.coverage * 100)}%)`);
-    if (value.missing.length) console.log(`  Missing from final vocabulary: ${value.missing.join(', ')}`);
+  console.log('ECHO SPHERE gameplay coverage audit v2');
+  console.log('=====================================');
+  console.log(`Spheres: ${audit.spheres.implemented.length}/${audit.spheres.finalCount} implemented; missing: ${audit.spheres.missing.join(', ') || 'none'}`);
+  const allAbilities = [...audit.abilities.finalActive, ...audit.abilities.finalPassive];
+  const abilityCode = allAbilities.filter((x) => x.status !== 'MISSING').length;
+  const abilityIntegrated = allAbilities.filter((x) => x.status === 'CODE+INTEGRATED' && x.engineReferenced).length;
+  console.log(`Abilities: ${abilityCode}/30 vocabulary mapped to code; ${abilityIntegrated}/30 engine-referenced; missing: ${allAbilities.filter((x) => x.status === 'MISSING').map((x) => x.name).join(', ') || 'none'}`);
+  console.log(`Ability evolution references: ${audit.abilities.evolutionIds.integrated.length}/${audit.abilities.evolutionIds.count}`);
+  console.log(`Sphere branch references: ${audit.abilities.sphereBranchIds.integrated.length}/${audit.abilities.sphereBranchIds.count}`);
+  console.log(`Modifiers: ${audit.modifiers.implemented.length}/${audit.modifiers.finalCount}; missing: ${audit.modifiers.missing.join(', ') || 'none'}`);
+  console.log(`Geometry: ${audit.geometry.current.length}/7; missing: ${audit.geometry.missing.join(', ') || 'none'}`);
+  console.log(`Runes: ${audit.runes.implemented.length}/${audit.runes.finalCount}; missing: ${audit.runes.missing.join(', ') || 'none'}`);
+  console.log(`Artifacts: ${audit.artifacts.currentCount} current; final target ${audit.artifacts.finalTargetMin}-${audit.artifacts.finalTargetMax}`);
+  console.log('Semantic review flags:');
+  for (const flag of audit.semanticReviewFlags.filter((item) => item.severity !== 'INFO')) {
+    console.log(`  [${flag.severity}] ${flag.id}: ${flag.note}`);
   }
+}
+
+if (process.argv.includes('--strict')) {
+  const allAbilities = [...audit.abilities.finalActive, ...audit.abilities.finalPassive];
+  const problems = [
+    ...audit.spheres.missing,
+    ...allAbilities.filter((x) => x.status === 'MISSING').map((x) => x.name),
+    ...audit.modifiers.missing,
+    ...audit.geometry.missing,
+    ...audit.runes.missing,
+    ...audit.abilities.evolutionIds.missing,
+    ...audit.abilities.sphereBranchIds.missing,
+  ];
+  if (problems.length) process.exitCode = 1;
 }
