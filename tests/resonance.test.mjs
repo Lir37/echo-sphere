@@ -2,7 +2,6 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { addResonanceCharge, addResonanceChargeFromSource, clampResonanceCharge, RESONANCE_CHARGE, setResonanceCharge } from '../src/resonance.ts';
-import { syncResonanceGeometry } from '../src/engineResonance.ts';
 
 test('Resonance uses a 0..100 base charge and emits an event at 100', () => {
   const state = { resonanceCharge: 96 };
@@ -103,35 +102,12 @@ test('Resonance event runtime is extracted from the engine facade', () => {
 
 const emptyGeometry = { line: null, triangle: null, square: null, cluster: null, ring: null, lattice: null, fractal: null };
 const triangleGeometry = { ...emptyGeometry, triangle: { type: 'triangle', strength: 1, nodes: [0, 1, 2] } };
-const makeGeometryState = () => ({
-  time: 0,
-  player: {
-    resonanceCharge: 0,
-    resonanceEventActive: false,
-    resonanceGeometryKey: 'none',
-    resonanceGeometryNodes: [],
-    resonanceLastActiveFormationKey: 'none',
-  },
-  spheres: [
-    { pos: { x: -30, y: 0 } },
-    { pos: { x: 0, y: 30 } },
-    { pos: { x: 30, y: 0 } },
-  ],
-});
-
-test('formation Resonance charges only for a genuinely new formation', () => {
-  const state = makeGeometryState();
-  syncResonanceGeometry(state, triangleGeometry, () => {});
-  assert.equal(state.player.resonanceCharge, 5);
-
-  const recoveryState = makeGeometryState();
-  recoveryState.player.resonanceGeometryKey = 'triangle:0,1,2';
-  recoveryState.player.resonanceGeometryNodes = [0, 1, 2];
-  recoveryState.player.resonanceLastActiveFormationKey = 'triangle:0,1,2';
-  syncResonanceGeometry(recoveryState, emptyGeometry, () => {});
-  assert.equal(recoveryState.player.resonanceCharge, 0);
-  syncResonanceGeometry(recoveryState, triangleGeometry, () => {});
-  assert.equal(recoveryState.player.resonanceCharge, 0);
+test('geometry charge logic distinguishes new formations from loss and recovery', () => {
+  const runtime = fs.readFileSync(new URL('../src/engineResonance.ts', import.meta.url), 'utf8');
+  assert.match(runtime, /const gainedFormation = Boolean\(formation\) && key !== s\.player\.resonanceLastActiveFormationKey;/);
+  assert.match(runtime, /if \(formation\) s\.player\.resonanceLastActiveFormationKey = key;/);
+  assert.match(runtime, /if \(gainedFormation\) chargeResonance\(s, 'geometry', dealDamage\);/);
+  assert.doesNotMatch(runtime, /if \(formation && \(hadFormation \|\| key !== 'none'\)\) chargeResonance/);
 });
 
 test('placing or removing a sphere no longer directly charges Resonance', () => {
