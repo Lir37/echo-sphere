@@ -1,6 +1,6 @@
 ECHO SPHERE
 MASTER FINAL GAMEPLAY BLUEPRINT
-Version 1.1 — VALIDATED
+Version 1.2 — VALIDATED
 Date: 2026-09-24
 Branch: new-desing
 
@@ -65,6 +65,188 @@ CRITICAL:
 
 Compatible existing systems are preserved unless explicitly marked
 CONFLICT / REWORK in the Development State & Gap Report.
+
+
+======================================================================
+0A. REVISION 1.2 — QUALITY / SYSTEMIC ALIGNMENT AMENDMENT
+======================================================================
+
+This amendment is part of the authoritative Blueprint and takes
+precedence over older wording inside this document when a conflict exists.
+
+PURPOSE:
+The September 25 quality audit identified several places where the
+implemented game systems were mechanically simpler than the intended
+product identity. The target is NOT to reduce the final design scope.
+The target is to make the existing core systems more readable,
+meaningful and internally consistent.
+
+1. CONTACT DAMAGE
+
+Contact damage must not behave as frame-by-frame HP shredding.
+
+RULE:
+- after successful player damage, apply 0.60 sec post-hit grace;
+- this grace is separate from Dash invulnerability;
+- repeated contact during grace does not deal additional damage;
+- visual feedback must communicate the hit and short protection window.
+
+This rule applies to enemy contact and repeated close-range collision
+sources routed through the same player-damage function. It does not
+remove projectile danger or boss telegraphed attacks.
+
+2. CRITICAL HITS
+
+Final baseline:
+CRIT_BASE = 5%
+CRIT_MULTIPLIER_BASE = 1.50x
+CRIT_HARD_CAP = 75%
+
+All ordinary crit sources are additive before the hard cap.
+Sphere-specific bonuses may add to the same pool.
+A system that intentionally bypasses the cap must be an explicit
+exception in its own specification.
+
+3. RESONANCE MODEL
+
+Resonance is a real run resource, not merely per-Sphere hit counters.
+
+AUTHORITATIVE TARGET:
+- 0..100 baseline charge;
+- charge comes from Sphere hits, completed Geometry, network events,
+  character effects, Artifacts and selected Runes;
+- reaching 100 triggers a formation-specific Resonance Event;
+- temporary overflow to 150 is allowed only through explicit effects.
+
+Per-Sphere counters may remain as implementation details for local
+formation triggers, but they must not replace the player-level Resonance
+resource in the final architecture.
+
+4. ARTIFACT SET COMPLETION
+
+Completing an Artifact Set must change gameplay behavior.
+A flat universal damage multiplier is NOT a valid Set-completion effect.
+
+Current intended behavioral direction:
+
+RESONANCE GRID:
+completed Set accelerates formation-driven Resonance events.
+
+ECHO ARCHITECTURE:
+completed Set creates real relay events between linked Spheres.
+
+SINGULARITY PATH:
+completed Set creates a conditional high-risk execution/echo behavior
+when the build is intentionally concentrated.
+
+Set completion must remain visible in the UI and readable as a build
+milestone.
+
+5. ELITE ENEMIES
+
+An Elite is not only a larger HP/damage unit.
+
+At least one Elite family must interact with the game's core system.
+The first implementation target is LINK BREAKER:
+- periodically targets a nearby Sphere;
+- temporarily removes that Sphere from active Network participation;
+- clearly telegraphs the disruption;
+- creates a meaningful reason to reposition or protect the Network.
+
+Future Elite families may target Resonance, Geometry or resource flow.
+Do not create many Elite mechanics before the first one is playtested.
+
+6. LEVEL-UP RNG QUALITY
+
+Level-Up choice generation remains the core build-construction engine.
+The final model explicitly requires:
+- build affinity;
+- character affinity;
+- unfinished-system pressure;
+- duplicate suppression;
+- dead-option suppression;
+- pity weighting;
+- rarity/reward-source rules;
+- limited reroll;
+- Lock;
+- later-meta Ban.
+
+The player must never be guaranteed a specific build item, but should
+also not be trapped by repeated functionally dead choices.
+
+7. SEEDED RUN RNG
+
+Gameplay randomness must use the run RNG state.
+Renderer-only cosmetic jitter may remain non-deterministic.
+A run should be reproducible when the same seed and equivalent inputs are
+used, which is important for balance debugging and future telemetry.
+
+8. NETWORK READABILITY
+
+Network topology is the game's defining mechanic.
+Any feature that changes Network structure must have:
+- immediate visual feedback;
+- readable active/inactive state;
+- clear indication when a Sphere loses Network participation;
+- enough persistence that the player can understand what happened.
+
+Ghost Snap is now an approved UX direction for Sphere repositioning:
+while moving a Sphere, show a preview of the resulting links and likely
+Geometry before the player commits the placement.
+
+9. FORMATION MEMORY
+
+When a Sphere is removed, disrupted or repositioned, the player should
+be able to understand which formation was broken and which formation can
+be rebuilt. This may be implemented as a short-lived ghost outline,
+link fade or Geometry echo.
+
+10. PERFORMANCE GUARDRAIL
+
+analyzeSphereNetwork() is gameplay-critical and may be called by many
+systems. The implementation must be profiled before optimization.
+If profiling confirms redundant same-frame recomputation, use a
+frame/run cache rather than rewriting the Network algorithm blindly.
+
+11. SCOPE DECISION
+
+This amendment does NOT cut the final target roster.
+
+Preserve:
+- 10 Sphere types;
+- 7 Geometry states;
+- 90-120 Artifact target;
+- 15+ enemy roles;
+- 8 boss families;
+- full Character target;
+- long-term meta systems.
+
+Development is phased, but the Blueprint remains the full target.
+Scope reductions may be made only from actual playtest evidence,
+production constraints or a deliberate product decision, not from an
+external reviewer's arbitrary launch-scope recommendation.
+
+12. DEVELOPMENT ORDER AFTER THIS AMENDMENT
+
+P0:
+- contact damage cadence;
+- crit normalization;
+- Resonance architecture alignment;
+- Network disruption readability.
+
+P1:
+- Ghost Snap placement preview;
+- Formation Memory;
+- Artifact Set behavioral polish;
+- first Link Breaker Elite playtest.
+
+P2:
+- Level-Up RNG protections;
+- Network performance profiling/cache if justified;
+- deeper Elite/Network interactions;
+- broader Artifact and Geometry content.
+
+======================================================================
 
 ======================================================================
 1. DESIGN REFERENCE: MAGIC SURVIVAL
