@@ -6,6 +6,8 @@ import {
   BOSS_CHARGER_TOTAL_TELEGRAPH_SECONDS,
   BOSS_CHARGER_WINDUP_SECONDS,
   getBossChargerPhase,
+  BOSS_TELEGRAPH_WINDOWS,
+  shouldShowBossTelegraph,
 } from '../src/bossBalance.ts';
 
 import fs from 'node:fs';
@@ -22,16 +24,15 @@ test('charger telegraph contract has separate wind-up and committed dash phases'
   assert.equal(getBossChargerPhase(0), 'ready');
 });
 
-test('boss renderer has pre-attack telegraphs for all four boss types', () => {
-  assert.match(renderer, /function drawBossAttackTelegraph\(/);
-  assert.match(renderer, /e\.bossType === 'charger'/);
-  assert.match(renderer, /e\.bossType === 'shooter'/);
-  assert.match(renderer, /e\.bossType === 'summoner'/);
-  assert.match(renderer, /e\.bossType === 'aura'/);
-  assert.match(renderer, /e\.bossShootTimer <= 0\.7/);
-  assert.match(renderer, /e\.summonTimer <= 0\.9/);
-  assert.match(renderer, /e\.bossShootTimer <= 0\.8/);
-  assert.match(renderer, /drawBossAttackTelegraph\(ctx, e, playerPos/);
+test('boss telegraph timing is a shared runtime contract', () => {
+  assert.deepEqual(BOSS_TELEGRAPH_WINDOWS, { shooter: 0.7, summoner: 0.9, aura: 0.8 });
+  assert.equal(shouldShowBossTelegraph('shooter', 0.7), true);
+  assert.equal(shouldShowBossTelegraph('shooter', 0.71), false);
+  assert.equal(shouldShowBossTelegraph('summoner', 0.9), true);
+  assert.equal(shouldShowBossTelegraph('aura', 0.81), false);
+  assert.ok(renderer.includes('BOSS_TELEGRAPH_WINDOWS.shooter'));
+  assert.ok(renderer.includes('BOSS_TELEGRAPH_WINDOWS.summoner'));
+  assert.ok(renderer.includes('BOSS_TELEGRAPH_WINDOWS.aura'));
 });
 
 test('boss defeat hands control to Stella without an ordinary artifact roll first', () => {
