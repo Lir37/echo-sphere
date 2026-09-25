@@ -3076,6 +3076,260 @@ function checkMutation(s: GameState): void {
   }
 }
 
+function getSphereFinalIndex(s: GameState, type: SphereType): number | null {
+  const marker = (s.player.evolutions || []).find((x: string) => x.startsWith('sphere:' + type + ':7:'));
+  if (!marker) return null;
+  const value = Number(marker.slice(marker.lastIndexOf(':') + 1));
+  return Number.isFinite(value) ? value : null;
+}
+
+function applyDirectSphereStatus(s: GameState, enemy: EnemyEntity, effect: 'fire' | 'freeze' | 'poison'): void {
+  if (enemy.hp <= 0) return;
+  if (effect === 'fire') {
+    let duration = 3 * getCharacterStatusDurationMultiplier(s);
+    let dps = (5 + s.player.sphereMods.fire * 3) * getCharacterStatusDamageMultiplier(s);
+    if (getCharacterId(s) === 'alchemist' && s.player.characterMasteryLevel >= 3) dps *= 1.05;
+    if (getCharacterId(s) === 'alchemist' && s.player.alchemistCatalystTimer > 0) {
+      duration *= 1.5;
+      s.player.alchemistCatalystTimer = 0;
+    }
+    enemy.fireTimer = Math.max(enemy.fireTimer || 0, duration);
+    enemy.fireDps = dps;
+  } else if (effect === 'freeze') {
+    let duration = (0.5 + s.player.sphereMods.freeze * 0.3) * getCharacterStatusDurationMultiplier(s);
+    if (getCharacterId(s) === 'alchemist' && s.player.alchemistCatalystTimer > 0) {
+      duration *= 1.5;
+      s.player.alchemistCatalystTimer = 0;
+    }
+    enemy.freezeTimer = Math.max(enemy.freezeTimer || 0, duration);
+  } else {
+    let duration = 4 * getCharacterStatusDurationMultiplier(s);
+    let dps = (3 + s.player.sphereMods.poison * 2) * getCharacterStatusDamageMultiplier(s);
+    if (getCharacterId(s) === 'alchemist' && s.player.characterMasteryLevel >= 3) dps *= 1.05;
+    if (getCharacterId(s) === 'alchemist' && s.player.alchemistCatalystTimer > 0) {
+      duration *= 1.5;
+      s.player.alchemistCatalystTimer = 0;
+    }
+    enemy.poisonTimer = Math.max(enemy.poisonTimer || 0, duration);
+    enemy.poisonDps = dps;
+  }
+  if (applyAlchemistReaction(s, enemy) && enemy.hp <= 0) onEnemyDeath(s, enemy);
+}
+
+function getActiveStatusEffect(s: GameState): 'none' | 'fire' | 'freeze' | 'poison' {
+  if (s.player.sphereMods.fire > 0) return 'fire';
+  if (s.player.sphereMods.freeze > 0) return 'freeze';
+  if (s.player.sphereMods.poison > 0) return 'poison';
+  return 'none';
+}
+
+function updateOrbitalSphere(s: GameState, sphere: SphereEntity, damage: number, mods: ReturnType<typeof sphereModifiers>, networkProfile: ReturnType<typeof getSphereNetworkProfile>, dt: number): void {
+  const branch = s.player.sphereBranches?.orbital;
+  const finalIndex = getSphereFinalIndex(s, 'orbital');
+  const satelliteCount = Math.max(1, 1 + mods.multishot + (s.player.artifacts.includes('orbital_crown') ? 1 : 0) + (finalIndex === 2 ? 1 : 0));
+  let angularSpeed = 1.8;
+  if (branch === 'orbital_dance') angularSpeed *= finalIndex === 1 ? 1.55 : 1.28;
+  if (branch === 'orbital_halo') angularSpeed *= 1.08;
+  if (branch === 'orbital_blade') angularSpeed *= 1.12;
+  sphere.rotation += angularSpeed * dt;
+
+  sphere.auraTimer -= dt;
+  if (sphere.auraTimer > 0) return;
+  sphere.auraTimer = Math.max(0.12, 0.42 * mods.auraPulse);
+
+  let orbitRadius = (78 + 12 * Math.min(7, sphereLevel(s, 'orbital'))) * mods.radius;
+  if (networkProfile.cluster) orbitRadius *= 1.08;
+  if (networkProfile.ring) orbitRadius *= 1.12;
+  orbitRadius *= 1 + Math.min(0.20, networkProfile.linkedNeighbours * 0.03);
+
+  const status = getActiveStatusEffect(s);
+  const band = finalIndex === 1 ? 26 : 19;
+  let hitSomething = false;
+  for (const enemy of s.enemies) {
+    if (enemy.hp <= 0) continue;
+    const dx = enemy.pos.x - sphere.pos.x;
+    const dy = enemy.pos.y - sphere.pos.y;
+    const d = Math.hypot(dx, dy) || 1;
+    if (Math.abs(d - orbitRadius) > band) continue;
+    const angle = Math.atan2(dy, dx);
+    let bestAngularDistance = Math.PI;
+    for (let satellite = 0; satellite < satelliteCount; satellite++) {
+      const satelliteAngle = sphere.rotation + satellite * (Math.PI * 2 / satelliteCount);
+      const diff = Math.atan2(Math.sin(angle - satelliteAngle), Math.cos(angle - satelliteAngle));
+      bestAngularDistance = Math.min(bestAngularDistance, Math.abs(diff));
+    }
+    if (bestAngularDistance > (finalIndex === 1 ? 0.30 : 0.22)) continue;
+
+    let hitDamage = damage * 0.95;
+    if (branch === 'orbital_dance') hitDamage *= 0.96;
+    if (branch === 'orbital_halo') hitDamage *= 0.92;
+    if (branch === 'orbital_blade') hitDamage *= finalIndex === 2 ? 1.30 : 1.15;
+    if (networkProfile.cluster) hitDamage *= 1.08;
+
+    dealDamageToEnemy(s, enemy, hitDamage, sphere);
+    if (status !== 'none') applyDirectSphereStatus(s, enemy, status);
+    hitSomething = true;
+
+    if (branch === 'orbital_halo' && finalIndex === 2) {
+      s.player.shieldCharges = Math.min(5, s.player.shieldCharges + 1);
+    }
+  }
+
+  if (networkProfile.ring && s.player.artifacts.includes('orbital_blade') && s.player.artifacts.includes('prism_filter')) {
+    const linked = getLinkedNodeIndexes(analyzeSphereNetwork(getNetworkNodes(s)), s.spheres.indexOf(sphere))
+      .filter((index) => index < s.spheres.length && s.spheres[index]?.alive);
+    if (linked.length > 0) {
+      const relay = s.spheres[linked[0]];
+      s.lightnings.push({ from: { ...sphere.pos }, to: { ...relay.pos }, life: 0.16 });
+    }
+  }
+
+  if (hitSomething) triggerEngineerRelay(s, sphere);
+  s.particles.push({ pos: { ...sphere.pos }, vel: { x: 0, y: 0 }, life: 0.22, maxLife: 0.22, color: SPHERE_TYPES.orbital.color, size: finalIndex === 2 ? 9 : 7 });
+}
+
+function updatePrismSphere(s: GameState, sphere: SphereEntity, damage: number, radius: number, mods: ReturnType<typeof sphereModifiers>, networkProfile: ReturnType<typeof getSphereNetworkProfile>, dt: number): void {
+  const branch = s.player.sphereBranches?.prism;
+  const finalIndex = getSphereFinalIndex(s, 'prism');
+  sphere.attackTimer -= dt;
+  if (sphere.attackTimer > 0) return;
+
+  const delay = Math.max(0.14, getSphereDelay(s, sphere) * SPHERE_TYPES.prism.delayMult * mods.delay);
+  sphere.attackTimer = delay;
+
+  const candidates = s.enemies
+    .filter((enemy) => enemy.hp > 0 && dist(enemy.pos, sphere.pos) <= radius)
+    .sort((a, b) => b.hp - a.hp);
+  if (candidates.length === 0) return;
+
+  let beamCount = Math.max(1, 1 + mods.multishot);
+  if (branch === 'prism_split' && finalIndex === 2) beamCount += 1;
+  const status = getActiveStatusEffect(s);
+  const used = new Set<EnemyEntity>();
+
+  for (let beam = 0; beam < beamCount; beam++) {
+    const target = candidates.find((enemy) => !used.has(enemy)) || candidates[beam % candidates.length];
+    if (!target) continue;
+    used.add(target);
+
+    let beamDamage = damage;
+    if (branch === 'prism_split') beamDamage *= beam === 0 ? 1.0 : (finalIndex === 1 ? 0.72 : 0.62);
+    if (branch === 'prism_spectrum' && status !== 'none') beamDamage *= 1.08;
+    if (networkProfile.line) beamDamage *= 1.12;
+    if (networkProfile.lattice) beamDamage *= 1.08;
+
+    dealDamageToEnemy(s, target, beamDamage, sphere);
+    if (status !== 'none') applyDirectSphereStatus(s, target, status);
+    s.lightnings.push({ from: { ...sphere.pos }, to: { ...target.pos }, life: 0.10 });
+  }
+
+  if (branch === 'prism_mirror' || s.player.artifacts.includes('prism_filter')) {
+    const reflectionCount = (branch === 'prism_mirror' ? (finalIndex === 2 ? 2 : 1) : 0)
+      + (s.player.artifacts.includes('prism_filter') ? 1 : 0)
+      + (s.player.artifacts.includes('prism_crown') ? 1 : 0)
+      + (networkProfile.ring ? 1 : 0);
+    if (reflectionCount > 0) {
+      const network = analyzeSphereNetwork(getNetworkNodes(s));
+      const linked = getLinkedNodeIndexes(network, s.spheres.indexOf(sphere))
+        .filter((index) => index < s.spheres.length && s.spheres[index]?.alive)
+        .slice(0, reflectionCount);
+      const target = candidates[0];
+      for (const index of linked) {
+        const relay = s.spheres[index];
+        dealDamageToEnemy(s, target, damage * 0.42, relay, false);
+        if (status !== 'none') applyDirectSphereStatus(s, target, status);
+        s.lightnings.push({ from: { ...relay.pos }, to: { ...target.pos }, life: 0.12 });
+      }
+    }
+  }
+
+  if (networkProfile.triangle && branch === 'prism_spectrum') chargeResonance(s, 'network');
+  triggerEngineerRelay(s, sphere);
+}
+
+function updateGravitySphere(s: GameState, sphere: SphereEntity, damage: number, mods: ReturnType<typeof sphereModifiers>, networkProfile: ReturnType<typeof getSphereNetworkProfile>, dt: number): void {
+  const branch = s.player.sphereBranches?.gravity;
+  const finalIndex = getSphereFinalIndex(s, 'gravity');
+  sphere.auraTimer -= dt;
+  sphere.rotation += dt * (branch === 'gravity_tide' ? 1.9 : 0.9);
+  if (sphere.auraTimer > 0) return;
+  sphere.auraTimer = Math.max(0.22, 0.80 * mods.auraPulse * (s.player.artifacts.includes('gravity_hook') ? 0.92 : 1));
+
+  const pullRadius = SPHERE_TYPES.gravity.auraRadius * mods.radius * mods.auraRadius;
+  let pullStrength = 34 * Math.min(1.6, sphereLevel(s, 'gravity') * 0.18 + 0.5);
+  pullStrength *= 1 + (s.player.artifacts.includes('gravity_bead') ? 0.12 : 0);
+  pullStrength *= 1 + (s.player.artifacts.includes('gravity_hook') ? 0.10 : 0);
+  if (networkProfile.cluster) pullStrength *= 1.20;
+  if (branch === 'gravity_well') pullStrength *= finalIndex === 1 ? 1.35 : 1.15;
+  if (branch === 'gravity_tide') pullStrength *= 1.05;
+  if (branch === 'gravity_collapse') pullStrength *= 0.90;
+
+  const phase = branch === 'gravity_tide' ? Math.sin(sphere.rotation) : 1;
+  const status = getActiveStatusEffect(s);
+  const grouped = s.enemies.filter((enemy) => enemy.hp > 0 && dist(enemy.pos, sphere.pos) <= pullRadius).length;
+
+  for (const enemy of s.enemies) {
+    if (enemy.hp <= 0 || dist(enemy.pos, sphere.pos) > pullRadius) continue;
+    const dx = sphere.pos.x - enemy.pos.x;
+    const dy = sphere.pos.y - enemy.pos.y;
+    const d = Math.hypot(dx, dy) || 1;
+    const direction = phase >= 0 ? 1 : -0.45;
+    enemy.pos.x += dx / d * pullStrength * direction;
+    enemy.pos.y += dy / d * pullStrength * direction;
+    enemy.slowTimer = Math.max(enemy.slowTimer, branch === 'gravity_well' ? 0.75 : 0.45);
+    enemy.slowFactor = Math.min(enemy.slowFactor, branch === 'gravity_well' ? 0.56 : 0.72);
+
+    let hitDamage = damage;
+    if (branch === 'gravity_collapse') {
+      if (grouped >= 4) hitDamage *= 1.20;
+      if (enemy.hp < enemy.maxHp * 0.45) hitDamage *= finalIndex === 2 ? 1.30 : 1.12;
+    }
+    if (networkProfile.cluster) hitDamage *= 1.08;
+    dealDamageToEnemy(s, enemy, hitDamage, sphere);
+    if (status !== 'none') applyDirectSphereStatus(s, enemy, status);
+  }
+
+  if (grouped >= 4 && branch === 'gravity_collapse' && finalIndex === 2) {
+    emitSpherePulse(s, sphere, damage * 0.65, pullRadius * 0.45, SPHERE_TYPES.gravity.color, true);
+  }
+  triggerEngineerRelay(s, sphere);
+}
+
+function updatePulseSphere(s: GameState, sphere: SphereEntity, damage: number, mods: ReturnType<typeof sphereModifiers>, networkProfile: ReturnType<typeof getSphereNetworkProfile>, dt: number): void {
+  const branch = s.player.sphereBranches?.pulse;
+  const finalIndex = getSphereFinalIndex(s, 'pulse');
+  sphere.auraTimer -= dt;
+  if (sphere.auraTimer > 0) return;
+
+  const waveCount = 1 + (s.player.artifacts.includes('pulse_crown') ? 1 : 0) + (branch === 'pulse_burst' && finalIndex === 2 ? 1 : 0);
+  const intervalMultiplier = s.player.artifacts.includes('pulse_driver') ? 0.90 : 1;
+  sphere.auraTimer = Math.max(0.25, 1.15 * mods.auraPulse * intervalMultiplier);
+  let radius = SPHERE_TYPES.pulse.auraRadius * mods.radius;
+  if (branch === 'pulse_wave') radius *= finalIndex === 1 ? 1.24 : 1.10;
+  if (networkProfile.cluster) radius *= 1.06;
+
+  for (let wave = 0; wave < waveCount; wave++) {
+    const waveDamage = damage * (wave === 0 ? 1 : 0.46 + (branch === 'pulse_burst' ? 0.14 : 0));
+    emitSpherePulse(s, sphere, waveDamage, radius * (wave === 0 ? 1 : 0.68), SPHERE_TYPES.pulse.color, branch === 'pulse_wave');
+    if (branch === 'pulse_wave') {
+      for (const enemy of s.enemies) {
+        if (enemy.hp <= 0 || dist(enemy.pos, sphere.pos) > radius) continue;
+        const dx = enemy.pos.x - sphere.pos.x;
+        const dy = enemy.pos.y - sphere.pos.y;
+        const d = Math.hypot(dx, dy) || 1;
+        enemy.pos.x += dx / d * 18;
+        enemy.pos.y += dy / d * 18;
+      }
+    }
+  }
+
+  if (branch === 'pulse_resonator' && (networkProfile.triangle || networkProfile.lattice || networkProfile.ring)) {
+    chargeResonance(s, 'network');
+  }
+  if (branch === 'pulse_burst' && networkProfile.cluster) chargeResonance(s, 'geometry');
+  triggerEngineerRelay(s, sphere);
+}
+
 function updateSpheres(s: GameState, dt: number): void {
   // Network topology is stable for the duration of this Sphere update pass.
   // Analyze it once so Resonance geometry cannot double-charge within a frame
