@@ -38,7 +38,8 @@ import { addResonanceChargeFromSource, type ResonanceSource } from './resonance'
 import { canReceivePlayerDamage, CRIT_BASE, CRIT_MULTIPLIER_BASE, getContextualCritChance } from './combatRules';
 import { LINK_BREAKER_COOLDOWN_SECONDS, LINK_BREAKER_DISABLED_SECONDS, LINK_BREAKER_TARGET_RANGE, LINK_BREAKER_TELEGRAPH_SECONDS } from './eliteBalance';
 
-import type { GameState, ShopState, SphereEntity, EnemyEntity, SphereProjectile, SphereMods, SphereUpgradeChoice, UpgradeChoice, DamageNumber, ChestEntity, RuneEntity, MinionEntity, LightningBolt, BossProjectile, XPOrb, HealthPack, Particle, FireTrailSegment, LeaderEntry, MapTheme } from './engineTypes';
+import type { GameState, ShopState, PlayerState, SphereEntity, EnemyEntity, SphereProjectile, SphereMods, SphereUpgradeChoice, UpgradeChoice, DamageNumber, ChestEntity, RuneEntity, MinionEntity, LightningBolt, BossProjectile, XPOrb, HealthPack, Particle, FireTrailSegment } from './engineTypes';
+export type { GameState, ShopState, PlayerState, SphereEntity, EnemyEntity, SphereProjectile, SphereMods, SphereUpgradeChoice, UpgradeChoice, DamageNumber, ChestEntity, RuneEntity, MinionEntity, LightningBolt, BossProjectile, XPOrb, HealthPack, Particle, FireTrailSegment, Vec } from './engineTypes';
 
 const SPHERE_MODIFIER_CHOICES: ReadonlyArray<{
   id: keyof SphereMods;
