@@ -38,7 +38,7 @@ export const ABILITIES: Record<AbilityType, AbilityDef> = {
 // Active ability hotkey assignment (order of acquisition). Keys: e, q, r, f, g
 export const ACTIVE_KEYS = ['e', 'q', 'r', 'f', 'g'] as const;
 
-export type ArtifactId = 'crystal_speed' | 'amulet_hp' | 'ring_xp' | 'regen_stone' | 'radius_shard' | 'vampire_ring' | 'swift_boots' | 'luck_talisman' | 'veil_cloak' | 'mage_pendant' | 'long_lens' | 'stasis_core' | 'dragon_heart' | 'mirror' | 'predator_claw' | 'foresight_eye' | 'echo_conductor' | 'heavy_core' | 'scattering_matrix' | 'aura_lens' | 'network_relay' | 'chaos_orb' | 'resonance_core' | 'lone_bastion' | 'fivefold_resonance' | 'relay_matrix' | 'triangle_circuit' | 'overclock' | 'soul_engine' | 'time_anchor' | 'void_contract' | 'mirror_network' | 'singularity_engine' | 'quantum_core' | 'zero_sphere' | 'unified_mind';
+export type ArtifactId = 'crystal_speed' | 'amulet_hp' | 'ring_xp' | 'regen_stone' | 'radius_shard' | 'vampire_ring' | 'swift_boots' | 'luck_talisman' | 'veil_cloak' | 'mage_pendant' | 'long_lens' | 'stasis_core' | 'dragon_heart' | 'mirror' | 'predator_claw' | 'foresight_eye' | 'echo_conductor' | 'heavy_core' | 'scattering_matrix' | 'aura_lens' | 'network_relay' | 'chaos_orb' | 'resonance_core' | 'lone_bastion' | 'fivefold_resonance' | 'relay_matrix' | 'triangle_circuit' | 'overclock' | 'soul_engine' | 'time_anchor' | 'void_contract' | 'mirror_network' | 'singularity_engine' | 'quantum_core' | 'zero_sphere' | 'unified_mind' | 'network_anchor' | 'pulse_lens' | 'orbit_charm' | 'prism_shard' | 'gravity_bead' | 'void_ink' | 'echo_thread' | 'folded_core' | 'paper_ward' | 'mirror_dust' | 'resonant_leaf' | 'signal_knot' | 'lattice_chip' | 'fractal_seed' | 'dash_relay' | 'sniper_scope' | 'chain_battery' | 'shotgun_shell' | 'aura_mist' | 'orbital_blade' | 'prism_filter' | 'gravity_hook' | 'pulse_driver' | 'void_mark' | 'formation_compass' | 'geometry_die' | 'network_coil' | 'crit_sigil' | 'tempo_ring' | 'stella_map' | 'triangle_engine' | 'ring_engine' | 'lattice_engine' | 'fractal_engine' | 'resonance_lattice' | 'sphere_forge' | 'echo_weaver' | 'overdrive_matrix' | 'gravity_crown' | 'void_lantern' | 'prism_crown' | 'orbital_crown' | 'pulse_crown' | 'chain_crown' | 'sniper_crown' | 'singularity_seed' | 'time_splitter' | 'stasis_mandala' | 'echo_archive' | 'quantum_fold' | 'zero_point_relay' | 'void_star' | 'axiom_core' | 'infinite_loop' | 'universal_fold';
 
 export interface ArtifactDef {
   id: ArtifactId;
@@ -91,7 +91,62 @@ export const ARTIFACTS: ArtifactDef[] = [
 
   // Legendary
   { id: 'zero_sphere', name: { ru: 'Нулевая сфера', en: 'Zero Sphere' }, desc: { ru: '+35% мощности сфер и +20% урона сфер', en: '+35% sphere power and +20% sphere damage' } },
-  { id: 'unified_mind', name: { ru: 'Единый разум', en: 'Unified Mind' }, desc: { ru: 'самый высокий уровень сферы передаёт 3% за уровень всей сети', en: 'the highest sphere level grants 3% damage per level' } },
+  { id: 'unified_mind', name: { ru: 'Единый разум', en: 'Unified Mind' }, desc: { ru: 'самый высокий уровень сферы передаёт 3% за уровень всей сети', en: 'the highest sphere level grants 3% damage per level' } },,
+  { id: 'network_anchor', name: { ru: 'Якорь сети', en: 'network anchor' }, desc: { ru: '+8% к урону сети', en: 'network anchor effect' } },
+  { id: 'pulse_lens', name: { ru: 'Линза импульса', en: 'pulse lens' }, desc: { ru: '+10% к радиусу импульсов', en: 'pulse lens effect' } },
+  { id: 'orbit_charm', name: { ru: 'Талисман орбиты', en: 'orbit charm' }, desc: { ru: '+12% к силе орбит', en: 'orbit charm effect' } },
+  { id: 'prism_shard', name: { ru: 'Осколок призмы', en: 'prism shard' }, desc: { ru: '+10% к урону призмы', en: 'prism shard effect' } },
+  { id: 'gravity_bead', name: { ru: 'Гравитационная бусина', en: 'gravity bead' }, desc: { ru: '+12% к силе притяжения', en: 'gravity bead effect' } },
+  { id: 'void_ink', name: { ru: 'Чернила пустоты', en: 'void ink' }, desc: { ru: '+10% к урону пустоты', en: 'void ink effect' } },
+  { id: 'echo_thread', name: { ru: 'Нить Эха', en: 'echo thread' }, desc: { ru: '+5% к силе связанных сфер', en: 'echo thread effect' } },
+  { id: 'folded_core', name: { ru: 'Складное ядро', en: 'folded core' }, desc: { ru: '+8% к урону всех сфер', en: 'folded core effect' } },
+  { id: 'paper_ward', name: { ru: 'Бумажный щит', en: 'paper ward' }, desc: { ru: '+20 макс. HP', en: 'paper ward effect' } },
+  { id: 'mirror_dust', name: { ru: 'Зеркальная пыль', en: 'mirror dust' }, desc: { ru: '+8% шанс отражения', en: 'mirror dust effect' } },
+  { id: 'resonant_leaf', name: { ru: 'Резонансный лист', en: 'resonant leaf' }, desc: { ru: '+10% к Resonance', en: 'resonant leaf effect' } },
+  { id: 'signal_knot', name: { ru: 'Сигнальный узел', en: 'signal knot' }, desc: { ru: '+5% скорости восстановления сети', en: 'signal knot effect' } },
+  { id: 'lattice_chip', name: { ru: 'Чип решётки', en: 'lattice chip' }, desc: { ru: '+10% силы Lattice', en: 'lattice chip effect' } },
+  { id: 'fractal_seed', name: { ru: 'Фрактальное семя', en: 'fractal seed' }, desc: { ru: '+10% силы Fractal', en: 'fractal seed effect' } },
+  { id: 'dash_relay', name: { ru: 'Релейный рывок', en: 'dash relay' }, desc: { ru: 'после Dash ускоряет ближайшую сферу', en: 'dash relay effect' } },
+  { id: 'sniper_scope', name: { ru: 'Прицел охотника', en: 'sniper scope' }, desc: { ru: '+10% урона Sniper', en: 'sniper scope effect' } },
+  { id: 'chain_battery', name: { ru: 'Цепной аккумулятор', en: 'chain battery' }, desc: { ru: '+10% урона Chain', en: 'chain battery effect' } },
+  { id: 'shotgun_shell', name: { ru: 'Дробь усиления', en: 'shotgun shell' }, desc: { ru: '+10% урона Shotgun', en: 'shotgun shell effect' } },
+  { id: 'aura_mist', name: { ru: 'Туман ауры', en: 'aura mist' }, desc: { ru: '+10% радиуса Aura', en: 'aura mist effect' } },
+  { id: 'orbital_blade', name: { ru: 'Орбитальный клинок', en: 'orbital blade' }, desc: { ru: '+10% урона Orbital', en: 'orbital blade effect' } },
+  { id: 'prism_filter', name: { ru: 'Призматический фильтр', en: 'prism filter' }, desc: { ru: '+10% пробития Prism', en: 'prism filter effect' } },
+  { id: 'gravity_hook', name: { ru: 'Гравитационный крюк', en: 'gravity hook' }, desc: { ru: '+10% контроля Gravity', en: 'gravity hook effect' } },
+  { id: 'pulse_driver', name: { ru: 'Импульсный драйвер', en: 'pulse driver' }, desc: { ru: '+10% частоты Pulse', en: 'pulse driver effect' } },
+  { id: 'void_mark', name: { ru: 'Метка пустоты', en: 'void mark' }, desc: { ru: '+10% урона по ослабленным', en: 'void mark effect' } },
+  { id: 'formation_compass', name: { ru: 'Компас формации', en: 'formation compass' }, desc: { ru: 'повышает стабильность формаций', en: 'formation compass effect' } },
+  { id: 'geometry_die', name: { ru: 'Куб геометрии', en: 'geometry die' }, desc: { ru: '+8% к геометрическим эффектам', en: 'geometry die effect' } },
+  { id: 'network_coil', name: { ru: 'Сетевая катушка', en: 'network coil' }, desc: { ru: '+8% урона при 2+ типах сфер', en: 'network coil effect' } },
+  { id: 'crit_sigil', name: { ru: 'Критическая печать', en: 'crit sigil' }, desc: { ru: '+5% критического урона', en: 'crit sigil effect' } },
+  { id: 'tempo_ring', name: { ru: 'Кольцо темпа', en: 'tempo ring' }, desc: { ru: '-8% задержки сфер', en: 'tempo ring effect' } },
+  { id: 'stella_map', name: { ru: 'Карта Стеллы', en: 'stella map' }, desc: { ru: 'после Boss показывает направление Stella', en: 'stella map effect' } },
+  { id: 'triangle_engine', name: { ru: 'Двигатель треугольника', en: 'triangle engine' }, desc: { ru: '+12% силы Triangle', en: 'triangle engine effect' } },
+  { id: 'ring_engine', name: { ru: 'Двигатель кольца', en: 'ring engine' }, desc: { ru: '+12% силы Ring', en: 'ring engine effect' } },
+  { id: 'lattice_engine', name: { ru: 'Двигатель решётки', en: 'lattice engine' }, desc: { ru: '+12% силы Lattice', en: 'lattice engine effect' } },
+  { id: 'fractal_engine', name: { ru: 'Двигатель фрактала', en: 'fractal engine' }, desc: { ru: '+12% силы Fractal', en: 'fractal engine effect' } },
+  { id: 'resonance_lattice', name: { ru: 'Резонансная решётка', en: 'resonance lattice' }, desc: { ru: '+15% Resonance-эффектов', en: 'resonance lattice effect' } },
+  { id: 'sphere_forge', name: { ru: 'Кузница сфер', en: 'sphere forge' }, desc: { ru: '+1 к уровню выбранной Sphere в начале следующего забега', en: 'sphere forge effect' } },
+  { id: 'echo_weaver', name: { ru: 'Ткач Эха', en: 'echo weaver' }, desc: { ru: 'каждая связь даёт небольшой бонус', en: 'echo weaver effect' } },
+  { id: 'overdrive_matrix', name: { ru: 'Матрица перегрузки', en: 'overdrive matrix' }, desc: { ru: 'при низком HP сеть атакует чаще', en: 'overdrive matrix effect' } },
+  { id: 'gravity_crown', name: { ru: 'Корона гравитации', en: 'gravity crown' }, desc: { ru: 'Gravity получает +20% радиуса', en: 'gravity crown effect' } },
+  { id: 'void_lantern', name: { ru: 'Фонарь пустоты', en: 'void lantern' }, desc: { ru: 'Void получает +20% добивающего урона', en: 'void lantern effect' } },
+  { id: 'prism_crown', name: { ru: 'Корона призмы', en: 'prism crown' }, desc: { ru: 'Prism получает +1 отражение', en: 'prism crown effect' } },
+  { id: 'orbital_crown', name: { ru: 'Корона орбиты', en: 'orbital crown' }, desc: { ru: 'Orbital получает +1 спутник', en: 'orbital crown effect' } },
+  { id: 'pulse_crown', name: { ru: 'Корона импульса', en: 'pulse crown' }, desc: { ru: 'Pulse получает +1 волну', en: 'pulse crown effect' } },
+  { id: 'chain_crown', name: { ru: 'Корона цепи', en: 'chain crown' }, desc: { ru: 'Chain получает +1 перескок', en: 'chain crown effect' } },
+  { id: 'sniper_crown', name: { ru: 'Корона снайпера', en: 'sniper crown' }, desc: { ru: 'Sniper получает +10% дальности', en: 'sniper crown effect' } },
+  { id: 'singularity_seed', name: { ru: 'Семя сингулярности', en: 'singularity seed' }, desc: { ru: 'при высокой плотности врагов +15% урона', en: 'singularity seed effect' } },
+  { id: 'time_splitter', name: { ru: 'Разделитель времени', en: 'time splitter' }, desc: { ru: 'после временной остановки +15% урона', en: 'time splitter effect' } },
+  { id: 'stasis_mandala', name: { ru: 'Мандала стазиса', en: 'stasis mandala' }, desc: { ru: 'полученный урон частично превращается в щит', en: 'stasis mandala effect' } },
+  { id: 'echo_archive', name: { ru: 'Архив Эха', en: 'echo archive' }, desc: { ru: 'Artifact Synergy активируется на 1 условие раньше', en: 'echo archive effect' } },
+  { id: 'quantum_fold', name: { ru: 'Квантовый сгиб', en: 'quantum fold' }, desc: { ru: 'Stella появляется с дополнительным выбором', en: 'quantum fold effect' } },
+  { id: 'zero_point_relay', name: { ru: 'Релей нулевой точки', en: 'zero point relay' }, desc: { ru: 'нулевой Relay усиливает ближайшую сферу', en: 'zero point relay effect' } },
+  { id: 'void_star', name: { ru: 'Звезда пустоты', en: 'void star' }, desc: { ru: 'Void получает дополнительный шанс добивания', en: 'void star effect' } },
+  { id: 'axiom_core', name: { ru: 'Аксиома ядра', en: 'axiom core' }, desc: { ru: '+5% ко всем ключевым эффектам', en: 'axiom core effect' } },
+  { id: 'infinite_loop', name: { ru: 'Бесконечная петля', en: 'infinite loop' }, desc: { ru: 'каждые 12с повторяет последнюю Geometry-способность', en: 'infinite loop effect' } },
+  { id: 'universal_fold', name: { ru: 'Универсальный сгиб', en: 'universal fold' }, desc: { ru: 'все собранные системы получают небольшой синергетический бонус', en: 'universal fold effect' } }
 ];
 
 export const ARTIFACT_MAP: Record<ArtifactId, ArtifactDef> = Object.fromEntries(ARTIFACTS.map(a => [a.id, a])) as Record<ArtifactId, ArtifactDef>;
