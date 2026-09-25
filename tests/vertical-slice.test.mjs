@@ -1,8 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import fs from 'node:fs/promises';
-
-const engineSource = await fs.readFile(new URL('../src/engine.ts', import.meta.url), 'utf8');
+import { createInitialState, placeSphere } from '../src/engine.ts';
 const mobileControlsSource = await fs.readFile(new URL('../src/MobileControls.tsx', import.meta.url), 'utf8');
 
 test('expanded Sphere roster is the gameplay data source of truth', async () => {
@@ -21,8 +19,21 @@ test('mobile sphere selector uses the complete Sphere roster', () => {
   );
 });
 
-test('global Resonance is not backed by per-Sphere hit counters', () => {
-  assert.doesNotMatch(engineSource, /resonanceHits/);
-  assert.match(engineSource, /player\.resonanceCharge/);
-  assert.match(engineSource, /formationHitCount/);
+test('global Resonance is stored on PlayerState while local formation cadence stays on Spheres', () => {
+  const state = createInitialState(
+    { gold: 0, upgrades: {} },
+    'Test',
+    'normal',
+    'parchment',
+    12345,
+  );
+
+  assert.equal(state.player.resonanceCharge, 0);
+  assert.equal(state.spheres[0].formationHitCount, 0);
+
+  placeSphere(state, 300, 0);
+
+  assert.equal(state.player.resonanceCharge, 5);
+  assert.equal(state.spheres[0].formationHitCount, 0);
+  assert.equal(state.spheres[1].formationHitCount, 0);
 });
