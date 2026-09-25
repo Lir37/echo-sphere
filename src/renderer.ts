@@ -6,7 +6,6 @@ import { CHARACTER_DEFS } from './characters';
 import { getCharacterId, getCharacterFormation, getEngineerNetworkRange } from './characterRuntime';
 import { analyzeSphereNetwork, type SphereNetworkState } from './network';
 import { buildRuntimeNetworkNodes } from './networkRuntime';
-import { buildGhostSnapPreview } from './networkPreview';
 import { RUNE_DEFS } from './runes';
 import { BOSS_TELEGRAPH_WINDOWS } from './bossBalance';
 
