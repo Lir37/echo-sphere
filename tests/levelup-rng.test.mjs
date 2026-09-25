@@ -10,7 +10,7 @@ const sourceWithTypes = `${engineTypesSource}\n${engineSource}`;
 test('Level-Up has a seeded-source pity state in GameState', () => {
   assert.match(sourceWithTypes, /levelUpPity: \{ ability: number; sphere: number; modifier: number \};/);
   assert.match(engineSource, /levelUpPity: \{ ability: 0, sphere: 0, modifier: 0 \}/);
-  assert.match(progressionSource, /function recordLevelUpSourcePick\\(s: GameState, choice: UpgradeChoice\\)/);
+  assert.match(progressionSource, /function recordLevelUpSourcePick\(s: GameState, choice: UpgradeChoice\)/);
   assert.match(progressionSource, /Math\.min\(4, \(s\.levelUpPity\[source\] \|\| 0\) \+ 1\)/);
 });
 
