@@ -1078,3 +1078,30 @@ Playtest record should note:
 - screenshots/video for any failure case.
 
 Human playtest is required for acceptance. Passing automated CI does not by itself mark these criteria as passed.
+
+
+======================================================================
+CURRENT WORK SESSION UPDATE — N1 AURA BOSS DoT — 2026-09-26
+======================================================================
+
+COMPLETED:
+- Aura Boss no longer routes its continuous aura damage through the contact-hit damage gate.
+- Added a dedicated damagePlayerDoT() runtime path in engineCombat.ts.
+- DoT path respects Player invulnerability, but intentionally bypasses contact grace, dodge and shield logic used by contact damage.
+- DoT applies the normal Artifact damage-taken multiplier and final character/formation damage-taken multiplier.
+- DoT does not refresh contactDamageCooldown and does not break combo by itself.
+- Aura Boss now calls damagePlayerDoT(s, e.auraDps * dt).
+- Added regression coverage for the DoT contract and Aura Boss routing.
+
+VALIDATION:
+- Code changes committed on branch new-desing.
+- Latest commit: 0b3c51f338dacbc9974193bd4f5d05c989975c46.
+- GitHub Actions status for this exact commit is not yet exposed by the connected GitHub workflow lookup (the available commit-run endpoint currently returns only PR-triggered runs); therefore CI is NOT marked passed in this report.
+- APK validation is also pending for this cycle.
+
+NEXT:
+N3 — remove Resonance charge from placeSphere/removeSphere and keep charge on real formation gains only.
+Then N2 — complete networkFrame cache and remove same-frame internal analyzeSphereNetwork recomputation.
+======================================================================
+END N1 AURA BOSS DoT UPDATE
+======================================================================
