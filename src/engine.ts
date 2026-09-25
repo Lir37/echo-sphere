@@ -167,6 +167,18 @@ export interface EnemyEntity {
   auraDps: number;
 }
 
+export const BOSS_CHARGER_WINDUP_SECONDS = 0.45;
+export const BOSS_CHARGER_COMMIT_SECONDS = 0.35;
+export const BOSS_CHARGER_TOTAL_TELEGRAPH_SECONDS =
+  BOSS_CHARGER_WINDUP_SECONDS + BOSS_CHARGER_COMMIT_SECONDS;
+
+export type BossChargerPhase = 'windup' | 'committed-dash' | 'ready';
+
+export function getBossChargerPhase(chargeTimer: number): BossChargerPhase {
+  if (chargeTimer <= 0) return 'ready';
+  return chargeTimer <= BOSS_CHARGER_COMMIT_SECONDS ? 'committed-dash' : 'windup';
+}
+
 export interface BossProjectile {
   pos: Vec;
   vel: Vec;
@@ -3015,7 +3027,7 @@ function updateEnemies(s: GameState, dt: number): void {
         e.chargeTimer -= dt;
         if (e.isCharging) {
           // Keep a readable wind-up window, then convert it into a short committed dash.
-          if (e.chargeTimer <= 0.35) {
+          if (e.chargeTimer <= BOSS_CHARGER_COMMIT_SECONDS) {
             e.pos.x += e.chargeDir.x * e.speed * 3 * dt;
             e.pos.y += e.chargeDir.y * e.speed * 3 * dt;
             // damage on contact during the committed dash
@@ -3036,7 +3048,7 @@ function updateEnemies(s: GameState, dt: number): void {
           const cd = Math.hypot(cdx, cdy) || 1;
           e.chargeDir = { x: cdx / cd, y: cdy / cd };
           e.isCharging = true;
-          e.chargeTimer = 0.8; // 0.45s wind-up + 0.35s committed dash
+          e.chargeTimer = BOSS_CHARGER_TOTAL_TELEGRAPH_SECONDS;
           playSound('bosshit');
         }
       } else if (e.bossType === 'summoner') {

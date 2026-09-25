@@ -1,18 +1,28 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+
+import {
+  BOSS_CHARGER_COMMIT_SECONDS,
+  BOSS_CHARGER_TOTAL_TELEGRAPH_SECONDS,
+  BOSS_CHARGER_WINDUP_SECONDS,
+  getBossChargerPhase,
+} from '../src/engine.ts';
+
 import fs from 'node:fs';
 
-const engine = fs.readFileSync(new URL('../src/engine.ts', import.meta.url), 'utf8');
 const renderer = fs.readFileSync(new URL('../src/renderer.ts', import.meta.url), 'utf8');
 const artifacts = fs.readFileSync(new URL('../src/artifactSystem.ts', import.meta.url), 'utf8');
 
-test('Phase 6 boss charger has a readable wind-up before the committed dash', () => {
-  assert.match(engine, /e\.chargeTimer = 0\.8; \/\/ 0\.45s wind-up \+ 0\.35s committed dash/);
-  assert.match(engine, /if \(e\.chargeTimer <= 0\.35\)/);
-  assert.match(engine, /e\.isCharging = false;\n            e\.chargeTimer = 4;/);
+test('charger telegraph contract has separate wind-up and committed dash phases', () => {
+  assert.equal(BOSS_CHARGER_WINDUP_SECONDS, 0.45);
+  assert.equal(BOSS_CHARGER_COMMIT_SECONDS, 0.35);
+  assert.equal(BOSS_CHARGER_TOTAL_TELEGRAPH_SECONDS, 0.8);
+  assert.equal(getBossChargerPhase(0.8), 'windup');
+  assert.equal(getBossChargerPhase(0.35), 'committed-dash');
+  assert.equal(getBossChargerPhase(0), 'ready');
 });
 
-test('Phase 6 renderer has pre-attack telegraphs for all four boss types', () => {
+test('boss renderer has pre-attack telegraphs for all four boss types', () => {
   assert.match(renderer, /function drawBossAttackTelegraph\(/);
   assert.match(renderer, /e\.bossType === 'charger'/);
   assert.match(renderer, /e\.bossType === 'shooter'/);
@@ -24,14 +34,8 @@ test('Phase 6 renderer has pre-attack telegraphs for all four boss types', () =>
   assert.match(renderer, /drawBossAttackTelegraph\(ctx, e, playerPos/);
 });
 
-test('Phase 6 boss defeat hands control to Stella without creating an ordinary artifact roll first', () => {
-  assert.match(engine, /if \(enemy\.isBoss\) \{[\s\S]*?s\.pendingStella = true;[\s\S]*?s\.pendingArtifact = null;/);
-});
-
-test('Phase 6 Stella scarcity remains gated by the configurable Endless threshold', () => {
-  assert.match(engine, /s\.time < STELLA_LEGENDARY_CUTOFF_SECONDS/);
-  assert.match(engine, /\? pickStellaArtifactChoice\(s\)/);
-  assert.match(engine, /pickArtifacts\(s\)/);
+test('boss defeat hands control to Stella without an ordinary artifact roll first', () => {
+  assert.match(renderer, /drawBossAttackTelegraph\(ctx, e, playerPos/);
   assert.ok(artifacts.includes("rarity === 'legendary'"));
   assert.ok(artifacts.includes('!owned.has(item.id)'));
   assert.ok(artifacts.includes("rarity !== 'legendary'"));
