@@ -8,6 +8,7 @@ import { analyzeSphereNetwork, type SphereNetworkState } from './network';
 import { buildRuntimeNetworkNodes } from './networkRuntime';
 import { RUNE_DEFS } from './runes';
 import { BOSS_TELEGRAPH_WINDOWS } from './bossBalance';
+import { LINK_BREAKER_TELEGRAPH_SECONDS, LINK_BREAKER_DISABLED_SECONDS } from './eliteBalance';
 
 // ===== Origami / Paper Craft Style =====
 // Warm backgrounds, faceted folded-paper shapes, fold lines, drop shadows.
