@@ -136,8 +136,8 @@ const audit = {
     current: currentSpheres,
     implemented: FINAL_SPHERES.filter((name) => currentSpheres.includes(name.toLowerCase())),
     missing: FINAL_SPHERES.filter((name) => !currentSpheres.includes(name.toLowerCase())),
-    levelUpSourceUsesAllImplementedTypes: engine.includes('Object.keys(SPHERE_TYPES) as SphereType[]'),
-    mobileSelectionUsesAllImplementedTypes: mobileControls.includes('Object.keys(SPHERE_TYPES) as SphereType[]'),
+    levelUpSourceUsesVerticalSliceTypes: engine.includes('VERTICAL_SLICE_SPHERE_TYPES.filter'),
+    mobileSelectionUsesVerticalSliceTypes: mobileControls.includes('VERTICAL_SLICE_SPHERE_TYPES'),
   },
   abilities: {
     finalActive: finalAbilityReport(FINAL_ACTIVE_ABILITIES),
