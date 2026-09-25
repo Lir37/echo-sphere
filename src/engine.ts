@@ -29,7 +29,7 @@ import { loadCharacterId, loadCharacterProfiles } from './persistence';
 import { getArtifactMoveSpeedMultiplier, getArtifactMaxHpBonus, getArtifactXpMultiplier, getArtifactRegenPerSecond, getArtifactSphereRadiusMultiplier, getArtifactSphereDamageMultiplier, getArtifactCooldownMultiplier, getArtifactSphereDelayMultiplier, getArtifactDamageTakenMultiplier, getArtifactCritChanceBonus, getArtifactDodgeChanceBonus, getArtifactVampireBonus, getArtifactReflectChance, getSphereArtifactDamageMultiplier, getArtifactSetCompletionBonus, pickArtifactChoices, pickStellaArtifactChoice } from './artifactSystem';
 import { SPHERE_PROGRESSION, ABILITY_PROGRESSION, spherePriority, sphereLevel, sphereModifiers, SPHERE_ABILITY_SYNERGIES, getActiveSphereAbilitySynergies } from './sphereProgression';
 import { selectSphereTarget } from './targeting';
-import { analyzeSphereNetwork, getSphereNetworkProfile } from './network';
+import { analyzeSphereNetwork, getSphereNetworkProfile, getLinkedNodeIndexes } from './network';
 import { buildRuntimeNetworkNodes } from './networkRuntime';
 import { RUNE_DEFS, type RuneType } from './runes';
 
@@ -1508,18 +1508,25 @@ function activateBlast(s: GameState): void {
   } else {
     let ordered = [...spheres].sort((a, b) => dist(a.pos, s.player.pos) - dist(b.pos, s.player.pos));
     if (branch === 'blast_network' || final === 'blast_echo_network' || final === 'blast_infinite_pulse') {
-      const network: SphereEntity[] = [];
+      const networkState = analyzeSphereNetwork(getNetworkNodes(s));
+      const orderedNetwork: SphereEntity[] = [];
       const remaining = new Set(ordered);
-      let current: SphereEntity | null = ordered[0] ?? null;
+      let current = ordered[0] ?? null;
+
       while (current) {
-        network.push(current);
+        orderedNetwork.push(current);
         remaining.delete(current);
-        const next = [...remaining]
-          .filter((candidate) => dist(candidate.pos, current!.pos) <= 240)
-          .sort((a, b) => dist(a.pos, current!.pos) - dist(b.pos, current!.pos))[0];
-        current = next ?? null;
+        const currentIndex = s.spheres.indexOf(current);
+        const nextIndex = currentIndex >= 0
+          ? getLinkedNodeIndexes(networkState, currentIndex)
+            .filter((index) => index >= 0 && index < s.spheres.length)
+            .filter((index) => remaining.has(s.spheres[index]))
+            .sort((a, b) => dist(s.spheres[a].pos, current!.pos) - dist(s.spheres[b].pos, current!.pos))[0]
+          : undefined;
+        current = nextIndex === undefined ? null : s.spheres[nextIndex];
       }
-      ordered = network.length > 0 ? network : ordered;
+
+      ordered = orderedNetwork.length > 0 ? orderedNetwork : ordered;
     }
     const networkCore = getActiveSphereAbilitySynergies(s).some((link) =>
       link.character === 'engineer' && link.sphere === 'standard' && link.ability === 'blast'
@@ -1604,10 +1611,13 @@ function activateShield(s: GameState): void {
     }
   }
   if (final === 'shield_network_guard') {
-    for (const sphere of s.spheres) {
-      if (sphere.alive && dist(sphere.pos, s.player.pos) <= 300) {
-        s.lightnings.push({ from: { ...s.player.pos }, to: { ...sphere.pos }, life: 0.22 });
-      }
+    const networkState = analyzeSphereNetwork(getNetworkNodes(s));
+    for (const link of networkState.links) {
+      if (link.a >= s.spheres.length || link.b >= s.spheres.length) continue;
+      const first = s.spheres[link.a];
+      const second = s.spheres[link.b];
+      if (!first.alive || !second.alive) continue;
+      s.lightnings.push({ from: { ...first.pos }, to: { ...second.pos }, life: 0.22 });
     }
   }
   s.flashText = { text: 'SPHERE BARRIER', life: 0.9, color: '#4a7a8a' };
@@ -1694,6 +1704,19 @@ function activateTeleport(s: GameState): void {
     }
     if (final === 'teleport_spatial_network') {
       s.lightnings.push({ from: origin, to: target, life: 0.5 });
+      const networkState = analyzeSphereNetwork(getNetworkNodes(s));
+      const destinationIndex = s.spheres.indexOf(targetSphere);
+      if (destinationIndex >= 0) {
+        for (const linkedIndex of getLinkedNodeIndexes(networkState, destinationIndex)) {
+          if (linkedIndex < 0 || linkedIndex >= s.spheres.length) continue;
+          const linkedSphere = s.spheres[linkedIndex];
+          if (!linkedSphere.alive) continue;
+          s.lightnings.push({ from: { ...targetSphere.pos }, to: { ...linkedSphere.pos }, life: 0.24 });
+          for (const enemy of s.enemies) {
+            if (enemy.hp > 0 && dist(enemy.pos, linkedSphere.pos) < 70) dealDamageToEnemy(s, enemy, 12);
+          }
+        }
+      }
       for (const enemy of s.enemies) if (enemy.hp > 0 && dist(enemy.pos, target) < 90) dealDamageToEnemy(s, enemy, 22);
     }
   } else {
@@ -1739,12 +1762,23 @@ function activateFireTrail(s: GameState): void {
   }
   if (final === 'firetrail_catalyst') s.player.fireCatalystTimer = 4;
   if (final === 'firetrail_network' || final === 'firetrail_inferno') {
-    const chain = [...fireAligned];
-    for (let i = 1; i < chain.length; i++) {
-      if (dist(chain[i - 1].pos, chain[i].pos) <= 240) {
-        s.lightnings.push({ from: { ...chain[i - 1].pos }, to: { ...chain[i].pos }, life: 0.18 });
-        chain[i - 1].attackTimer = Math.max(0, chain[i - 1].attackTimer - (final === 'firetrail_inferno' ? 0.35 * i : 0.2));
-        chain[i].attackTimer = Math.max(0, chain[i].attackTimer - 0.2);
+    const networkState = analyzeSphereNetwork(getNetworkNodes(s));
+    const fireIndexes = new Set(fireAligned.map((sphere) => s.spheres.indexOf(sphere)));
+    const processedPairs = new Set<string>();
+
+    for (const sourceIndex of fireIndexes) {
+      if (sourceIndex < 0) continue;
+      for (const targetIndex of getLinkedNodeIndexes(networkState, sourceIndex)) {
+        if (targetIndex < 0 || targetIndex >= s.spheres.length || !fireIndexes.has(targetIndex)) continue;
+        const key = sourceIndex < targetIndex ? `${sourceIndex}:${targetIndex}` : `${targetIndex}:${sourceIndex}`;
+        if (processedPairs.has(key)) continue;
+        processedPairs.add(key);
+        const source = s.spheres[sourceIndex];
+        const target = s.spheres[targetIndex];
+        const boost = final === 'firetrail_inferno' ? 0.32 : 0.2;
+        s.lightnings.push({ from: { ...source.pos }, to: { ...target.pos }, life: 0.18 });
+        source.attackTimer = Math.max(0, source.attackTimer - boost);
+        target.attackTimer = Math.max(0, target.attackTimer - boost);
       }
     }
   }
@@ -1830,8 +1864,16 @@ function activateMinion(s: GameState): void {
     }
   }
   if (final === 'minion_echo_swarm') {
+    const networkState = analyzeSphereNetwork(getNetworkNodes(s));
     for (const drone of s.minions.slice(-count)) {
       s.particles.push({ pos: { ...drone.pos }, vel: { x: 0, y: 0 }, life: 0.8, maxLife: 0.8, color: '#d4943d', size: 6 });
+      const droneIndex = s.spheres.length + s.minions.indexOf(drone);
+      const linkedSphereIndexes = getLinkedNodeIndexes(networkState, droneIndex)
+        .filter((index) => index >= 0 && index < s.spheres.length);
+      for (const linkedIndex of linkedSphereIndexes) {
+        const sphere = s.spheres[linkedIndex];
+        if (sphere.alive) sphere.attackTimer = Math.max(0, sphere.attackTimer - 0.22);
+      }
     }
   }
   if (final === 'minion_sphere_guard') {
@@ -1941,10 +1983,14 @@ function activateTimeStop(s: GameState): void {
     }
   }
   if (final === 'timestop_closed_network') {
-    for (const sphere of s.spheres) {
-      if (!sphere.alive) continue;
+    const networkState = analyzeSphereNetwork(getNetworkNodes(s));
+    for (let sphereIndex = 0; sphereIndex < s.spheres.length; sphereIndex++) {
+      const sphere = s.spheres[sphereIndex];
+      if (!sphere.alive || getLinkedNodeIndexes(networkState, sphereIndex).length === 0) continue;
       for (const e of s.enemies) {
-        if (e.hp > 0 && dist(e.pos, sphere.pos) < 260) e.freezeTimer = Math.max(e.freezeTimer, s.player.timestopTimer);
+        if (e.hp > 0 && dist(e.pos, sphere.pos) < 260) {
+          e.freezeTimer = Math.max(e.freezeTimer, s.player.timestopTimer);
+        }
       }
     }
   }
@@ -1987,11 +2033,25 @@ function activateDarkRitual(s: GameState): void {
     }
   }
   if (branch === 'darkritual_blood_link' || final === 'darkritual_blood_network') {
-    const standard = s.spheres.filter((sphere) => sphere.alive && sphere.type === 'standard');
+    const networkState = analyzeSphereNetwork(getNetworkNodes(s));
+    const standardIndexes = s.spheres
+      .map((sphere, index) => ({ sphere, index }))
+      .filter(({ sphere }) => sphere.alive && sphere.type === 'standard')
+      .map(({ index }) => index);
+
     const target = getNearestSphere(s, s.player.pos, (sphere) => sphere.type === 'standard');
-    if (branch === 'darkritual_blood_link' && target) target.attackTimer = Math.max(0, target.attackTimer - 1.4);
-    for (const sphere of standard) {
-      if (final === 'darkritual_blood_network' || branch === 'darkritual_blood_link') sphere.attackTimer = Math.max(0, sphere.attackTimer - 0.8);
+    if (branch === 'darkritual_blood_link' && target) {
+      target.attackTimer = Math.max(0, target.attackTimer - 1.4);
+    }
+
+    if (final === 'darkritual_blood_network') {
+      const linkedStandardIndexes = standardIndexes.filter((index) =>
+        getLinkedNodeIndexes(networkState, index).some((neighbor) => standardIndexes.includes(neighbor))
+      );
+      for (const index of linkedStandardIndexes) {
+        const sphere = s.spheres[index];
+        sphere.attackTimer = Math.max(0, sphere.attackTimer - 0.8);
+      }
     }
   }
   if (branch === 'darkritual_void_pact' || final === 'darkritual_void_engine') {
