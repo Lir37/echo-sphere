@@ -31,11 +31,14 @@ test('Level-Up suppresses dead choices at the final eligibility gate', () => {
   assert.match(progressionSource, /\.filter\(\(choice\) => isLiveUpgradeChoice\(s, choice\)\)/);
 });
 
-test('Level-Up retains source diversity and seeded weighted ordering', () => {
+test('Level-Up uses weighted choice selection without forcing one card per source', () => {
   assert.match(progressionSource, /const sourcePools = \[abilityPool, spherePool, modifierPool\];/);
-  assert.match(progressionSource, /if \(pool\[0\] && mixedPool\.length < 3\) mixedPool\.push\(pool\[0\]\);/);
-  assert.match(progressionSource, /for \(const choice of weightedShuffle\(s, candidates, \(\) => 1\)\)/);
-  assert.match(progressionSource, /const seen = new Set\(mixedPool\.map/);
+  assert.match(progressionSource, /const allChoices = sourcePools\.flatMap\(\(pool\) => pool\);/);
+  assert.match(progressionSource, /const cooledChoices = allChoices\.filter/);
+  assert.match(progressionSource, /const candidates = cooledChoices\.length >= 3 \? cooledChoices : allChoices;/);
+  assert.doesNotMatch(progressionSource, /for \(const pool of sourcePools\) \{[\s\S]*mixedPool\.push\(pool\[0\]\)/);
+  assert.match(progressionSource, /pickWeightedOne\(s, remaining/);
+  assert.match(progressionSource, /const diversityMultiplier = mixedPool\.length === 0/);
 });
 
 test('active Ability slots stay bounded and progressive', () => {
