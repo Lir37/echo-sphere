@@ -546,7 +546,7 @@ current gameplay/system phase.
 7. WHAT IS COMPLETELY MISSING
 ======================================================================
 
-1. Dedicated Rune system.
+1. Final Rune catalogue and full Rune balance: current system exists, but the final RUNIC CELL entry and final content pass remain.
 2. Six additional final Spheres.
 3. Expanded Modifier catalogue.
 4. Expanded Ability/Passive catalogue.
