@@ -1,5 +1,4 @@
-import { ARTIFACT_MAP, DIFFICULTIES } from './gameData';
-import { playSound } from './audio';
+import { ARTIFACT_MAP, DIFFICULTIES } from './gameData';import { playSound } from './audio';
 import type {
   ArtifactId,
   GameState,
@@ -213,4 +212,11 @@ function damagePlayer(s: GameState, amount: number): void {
     s.stats.time = s.time;
     playSound('gameover');
   }
+}
+
+
+export function getCooldownMult(s: GameState): number {
+  let m = 1;
+  if (s.player.artifacts.includes('mage_pendant')) m *= 0.9;
+  return m;
 }
