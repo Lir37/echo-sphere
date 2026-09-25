@@ -9,11 +9,14 @@ import type { Lang, TranslationKey } from './i18n';
 import { loadInterfaceScale } from './interfaceScale';
 import { createMasteryRunTracker, getMasteryRunXp, tickCharacterMastery } from './characterMastery';
 import { addCharacterMasteryXp } from './persistence';
-import { canPlaceSphere, repositionSphere } from './spaceCollision';
+import { canPlaceSphere, canRepositionSphere, repositionSphere } from './spaceCollision';
+import { analyzeSphereNetwork, type NetworkFormation, type SphereNetworkState } from './network';
 
 type PointerState = { startX: number; startY: number; moved: boolean; joystickCandidate: boolean; draggingSphere: SphereEntity | null; repositioned: boolean };
 type JoystickVisual = { pointerId: number; x: number; y: number; dx: number; dy: number; active: boolean };
 type PlacementVisual = { x: number; y: number; color: string; id: number };
+type GhostPreview = { pointerId: number; sphereIndex: number; x: number; y: number; valid: boolean; network: SphereNetworkState; formation: { type: Exclude<NetworkFormation, 'none'>; nodes: number[]; strength: number } | null };
+type FormationMemoryVisual = { type: Exclude<NetworkFormation, 'none'>; points: Array<{ x: number; y: number }>; life: number; id: number };
 type CharacterVisualState = {
   linkedCount: number;
   furySteps: number;
@@ -54,6 +57,8 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
   const lastDirectionRef = useRef({ x: 0, y: -1 });
   const [joystick, setJoystick] = useState<JoystickVisual | null>(null);
   const [placementFx, setPlacementFx] = useState<PlacementVisual | null>(null);
+  const [ghostPreview, setGhostPreview] = useState<GhostPreview | null>(null);
+  const [formationMemory, setFormationMemory] = useState<FormationMemoryVisual | null>(null);
   const interfaceScale = loadInterfaceScale();
 
   const joystickOnRight = handedness === 'right';
@@ -90,6 +95,21 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
     return { x: canvasX - canvas.width / 2 + st.camera.x, y: canvasY - canvas.height / 2 + st.camera.y };
   };
 
+  const getFormation = (network: SphereNetworkState): GhostPreview['formation'] => network.square || network.triangle || network.cluster || network.line;
+
+  const buildGhostPreview = (st: GameState, sphere: SphereEntity, sphereIndex: number, x: number, y: number): GhostPreview => {
+    const nodes = st.spheres.map((current) => ({ pos: current === sphere ? { x, y } : current.pos, alive: current.alive, networkDisabledTimer: current.networkDisabledTimer }));
+    const network = analyzeSphereNetwork(nodes);
+    return { pointerId: -1, sphereIndex, x, y, valid: canRepositionSphere(st, sphere, x, y), network, formation: getFormation(network) };
+  };
+
+  const captureFormationMemory = (st: GameState, network: SphereNetworkState) => {
+    const formation = getFormation(network);
+    if (!formation) return;
+    const points = formation.nodes.map((index) => ({ ...st.spheres[index].pos }));
+    setFormationMemory({ type: formation.type, points, life: 0.9, id: Date.now() });
+  };
+
   const handlesphereTap = (clientX: number, clientY: number) => {
     const st = stateRef.current;
     if (!st || st.gameOver || st.paused) return;
@@ -102,6 +122,8 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
 
     // Tapping an existing sphere keeps the old toggle/remove behavior.
     if (nearExistingsphere) {
+      const existing = st.spheres.find((sphere) => sphere.alive && Math.hypot(sphere.pos.x - world.x, sphere.pos.y - world.y) < sphere_TOUCH_TOLERANCE);
+      if (existing) captureFormationMemory(st, analyzeSphereNetwork(st.spheres.map((sphere) => ({ pos: sphere.pos, alive: sphere.alive, networkDisabledTimer: sphere.networkDisabledTimer }))));
       const beforeCount = st.spheres.length;
       placeSphere(st, world.x, world.y);
       if (st.spheres.length < beforeCount) haptic(10);
@@ -143,12 +165,24 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
       const st = stateRef.current;
       if (st && !pointer.moved) {
         placeSphere(st, pointer.draggingSphere.pos.x, pointer.draggingSphere.pos.y);
+        setGhostPreview(null);
         haptic(10);
       } else if (st && pointer.repositioned) {
-        st.flashText = { text: lang === 'ru' ? 'Сфера перемещена' : 'Sphere moved', life: 0.8, color: SPHERE_TYPES[pointer.draggingSphere.type].color };
+        const oldNetwork = analyzeSphereNetwork(st.spheres.map((sphere) => ({ pos: sphere.pos, alive: sphere.alive, networkDisabledTimer: sphere.networkDisabledTimer })));
+        const world = touchToWorld(clientX, clientY);
+        if (world && canRepositionSphere(st, pointer.draggingSphere, world.x, world.y)) {
+          repositionSphere(st, pointer.draggingSphere, world.x, world.y);
+          const newNetwork = analyzeSphereNetwork(st.spheres.map((sphere) => ({ pos: sphere.pos, alive: sphere.alive, networkDisabledTimer: sphere.networkDisabledTimer })));
+          const oldFormation = getFormation(oldNetwork);
+          const newFormation = getFormation(newNetwork);
+          if (oldFormation && (!newFormation || oldFormation.type !== newFormation.type || oldFormation.nodes.join(',') !== newFormation.nodes.join(','))) captureFormationMemory(st, oldNetwork);
+          st.flashText = { text: lang === 'ru' ? 'Сфера перемещена' : 'Sphere moved', life: 0.8, color: SPHERE_TYPES[pointer.draggingSphere.type].color };
+        }
+        setGhostPreview(null);
         haptic(12);
       } else if (st && pointer.moved) {
         st.flashText = { text: lang === 'ru' ? 'Недоступная позиция' : 'Invalid position', life: 0.65, color: '#ff4d5d' };
+        setGhostPreview(null);
         haptic(22);
       }
       return;
@@ -175,6 +209,19 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
     const timer = window.setTimeout(() => setPlacementFx(null), 450);
     return () => window.clearTimeout(timer);
   }, [placementFx]);
+
+  useEffect(() => {
+    if (!formationMemory) return;
+    const started = performance.now();
+    let frame = 0;
+    const tick = () => {
+      const elapsed = (performance.now() - started) / 1000;
+      setFormationMemory((current) => current ? { ...current, life: Math.max(0, 0.9 - elapsed) } : null);
+      if (elapsed < 0.9) frame = requestAnimationFrame(tick); else setFormationMemory(null);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [formationMemory?.id]);
 
   const activeAbilities = Object.entries(stateRef.current?.activeKeyMap || {}) as [string, AbilityType][];
   const types: SphereType[] = [...VERTICAL_SLICE_SPHERE_TYPES];
@@ -221,8 +268,11 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
           if (distance > JOYSTICK_DEADZONE) {
             const world = touchToWorld(e.clientX, e.clientY);
             const st = stateRef.current;
-            if (world && st && repositionSphere(st, pointer.draggingSphere, world.x, world.y)) {
-              pointer.repositioned = true;
+            if (world && st) {
+              const preview = buildGhostPreview(st, pointer.draggingSphere, st.spheres.indexOf(pointer.draggingSphere), world.x, world.y);
+              preview.pointerId = e.pointerId;
+              pointer.repositioned = preview.valid;
+              setGhostPreview(preview);
             }
           }
           return;
@@ -243,6 +293,8 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
       onPointerUp={(e) => endPointer(e.pointerId, e.clientX, e.clientY)}
       onPointerCancel={(e) => endPointer(e.pointerId, e.clientX, e.clientY)}
     >
+      {ghostPreview && <GhostSnapOverlay canvasRef={canvasRef} stateRef={stateRef} preview={ghostPreview} lang={lang} sphereColor={selectedDef.color} />}
+      {formationMemory && <FormationMemoryOverlay canvasRef={canvasRef} stateRef={stateRef} memory={formationMemory} />}
       <CharacterAvatarOverlay stateRef={stateRef} />
 
       {placementFx && (
@@ -319,6 +371,41 @@ function SphereTypeGlyph({ type, color }: { type: SphereType; color: string }) {
     return <span className="w-5 h-5 rounded-full border-2" style={{ borderColor: color, boxShadow: `0 0 0 3px ${color}22` }} />;
   }
   return <span className="w-4 h-4 rounded-full border-2" style={{ borderColor: color, backgroundColor: `${color}44` }} />;
+}
+
+function worldToScreen(canvas: HTMLCanvasElement, camera: Vec, point: { x: number; y: number }): { x: number; y: number } {
+  const rect = canvas.getBoundingClientRect();
+  return { x: rect.left + (point.x - camera.x + canvas.width / 2) * (rect.width / canvas.width), y: rect.top + (point.y - camera.y + canvas.height / 2) * (rect.height / canvas.height) };
+}
+
+function GhostSnapOverlay({ canvasRef, stateRef, preview, lang, sphereColor }: { canvasRef: React.RefObject<HTMLCanvasElement | null>; stateRef: React.MutableRefObject<GameState | null>; preview: GhostPreview; lang: Lang; sphereColor: string }) {
+  const canvas = canvasRef.current;
+  const st = stateRef.current;
+  if (!canvas || !st) return null;
+  const ghost = worldToScreen(canvas, st.camera, { x: preview.x, y: preview.y });
+  const scale = canvas.getBoundingClientRect().width / canvas.width;
+  const links = preview.network.links.filter((link) => link.a === preview.sphereIndex || link.b === preview.sphereIndex);
+  const points = preview.formation?.nodes.map((index) => { const node = index === preview.sphereIndex ? { x: preview.x, y: preview.y } : st.spheres[index]?.pos; return node ? worldToScreen(canvas, st.camera, node) : null; }).filter((x): x is { x: number; y: number } => Boolean(x)) || [];
+  return <svg className="absolute inset-0 pointer-events-none z-10 overflow-visible">
+    {links.map((link) => { const otherIndex = link.a === preview.sphereIndex ? link.b : link.a; const other = st.spheres[otherIndex]; if (!other) return null; const p = worldToScreen(canvas, st.camera, other.pos); return <line key={'ghost-link-' + otherIndex} x1={ghost.x} y1={ghost.y} x2={p.x} y2={p.y} stroke={preview.valid ? sphereColor : '#ff4d5d'} strokeWidth={2.2 * scale} strokeDasharray="7 5" opacity=".9" />; })}
+    {points.length >= 2 && <polyline points={points.map((p) => p.x + ',' + p.y).join(' ')} fill="none" stroke={preview.valid ? '#ffb84d' : '#ff4d5d'} strokeWidth={2 * scale} strokeDasharray="6 5" opacity=".82" />}
+    <circle cx={ghost.x} cy={ghost.y} r={25 * scale} fill={preview.valid ? sphereColor + '18' : 'rgba(255,77,93,.12)'} stroke={preview.valid ? sphereColor : '#ff4d5d'} strokeWidth={2 * scale} strokeDasharray="5 4" />
+    <text x={ghost.x} y={ghost.y - 31 * scale} textAnchor="middle" fill={preview.valid ? '#dcecff' : '#ff7a86'} fontSize={11 * scale} fontWeight="700">{preview.valid ? (preview.formation ? preview.formation.type.toUpperCase() : (lang === 'ru' ? 'СЕТЬ' : 'NETWORK')) : (lang === 'ru' ? 'НЕДОСТУПНО' : 'INVALID')}</text>
+  </svg>;
+}
+
+function FormationMemoryOverlay({ canvasRef, stateRef, memory }: { canvasRef: React.RefObject<HTMLCanvasElement | null>; stateRef: React.MutableRefObject<GameState | null>; memory: FormationMemoryVisual }) {
+  const canvas = canvasRef.current;
+  const st = stateRef.current;
+  if (!canvas || !st) return null;
+  const alpha = Math.min(0.55, memory.life / 0.9);
+  const points = memory.points.map((point) => worldToScreen(canvas, st.camera, point));
+  const closed = memory.type !== 'line';
+  return <svg className="absolute inset-0 pointer-events-none z-9 overflow-visible">
+    <polyline points={points.map((p) => p.x + ',' + p.y).join(' ')} fill="none" stroke="#b6c9de" strokeWidth="2" strokeDasharray="4 6" opacity={alpha} />
+    {closed && points.length > 2 && <line x1={points[points.length - 1].x} y1={points[points.length - 1].y} x2={points[0].x} y2={points[0].y} stroke="#b6c9de" strokeWidth="1.5" strokeDasharray="4 6" opacity={alpha * .75} />}
+    {points.map((p, index) => <circle key={index} cx={p.x} cy={p.y} r="9" fill="none" stroke="#b6c9de" strokeWidth="1.5" opacity={alpha} />)}
+  </svg>;
 }
 
 function getEmptyCharacterVisualState(): CharacterVisualState {
