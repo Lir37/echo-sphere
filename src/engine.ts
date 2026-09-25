@@ -26,7 +26,7 @@ import {
   getFormationDamageTakenMultiplier,
 } from './characterRuntime';
 import { loadCharacterId, loadCharacterProfiles } from './persistence';
-import { getArtifactMoveSpeedMultiplier, getArtifactMaxHpBonus, getArtifactXpMultiplier, getArtifactRegenPerSecond, getArtifactSphereRadiusMultiplier, getArtifactSphereDamageMultiplier, getArtifactCooldownMultiplier, getArtifactSphereDelayMultiplier, getArtifactDamageTakenMultiplier, getArtifactCritChanceBonus, getArtifactDodgeChanceBonus, getArtifactVampireBonus, getArtifactReflectChance, getSphereArtifactDamageMultiplier, getArtifactSetCompletionBonus, pickArtifactChoices, pickStellaArtifactChoice } from './artifactSystem';
+import { getArtifactMoveSpeedMultiplier, getArtifactMaxHpBonus, getArtifactXpMultiplier, getArtifactRegenPerSecond, getArtifactSphereRadiusMultiplier, getArtifactSphereDamageMultiplier, getArtifactCooldownMultiplier, getArtifactSphereDelayMultiplier, getArtifactDamageTakenMultiplier, getArtifactCritChanceBonus, getArtifactDodgeChanceBonus, getArtifactVampireBonus, getArtifactReflectChance, getSphereArtifactDamageMultiplier, getArtifactSetBehavior, pickArtifactChoices, pickStellaArtifactChoice } from './artifactSystem';
 import { SPHERE_PROGRESSION, ABILITY_PROGRESSION, spherePriority, sphereLevel, sphereModifiers, SPHERE_ABILITY_SYNERGIES, getActiveSphereAbilitySynergies } from './sphereProgression';
 import { selectSphereTarget } from './targeting';
 import { analyzeSphereNetwork, getSphereNetworkProfile, getLinkedNodeIndexes } from './network';
@@ -657,9 +657,6 @@ export function getSphereDamage(s: GameState, sphere: SphereEntity): number {
   }
   d *= getArtifactSphereDamageMultiplier(s);
   d *= getSphereArtifactDamageMultiplier(s, sphere);
-  // Phase 5: completing an Artifact Set is a real build milestone, not UI-only state.
-  // The bonus is data-driven and stacks only for fully completed Sets.
-  d *= 1 + getArtifactSetCompletionBonus(s);
   d *= sphereModifiers(s, sphere.type, sphere).damage;
   if (sphere) {
     const network = analyzeSphereNetwork(getNetworkNodes(s));
@@ -988,6 +985,13 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
   }
 
   // predator claw: every 5th hit
+  if (fromSphere && getArtifactSetBehavior(s).singularityPath && s.spheres.filter((x) => x.alive).every((x) => x.type === fromSphere.type)) {
+    if (isCrit && enemy.hp > 0) {
+      const nearby = s.enemies.filter((other) => other !== enemy && other.hp > 0 && dist(other.pos, enemy.pos) <= 72);
+      for (const other of nearby.slice(0, 3)) dealDamageToEnemy(s, other, actual * 0.20, fromSphere, false);
+    }
+  }
+
   if (fromSphere && s.player.artifacts.includes('predator_claw')) {
     fromSphere.killsContribution++;
     if (fromSphere.killsContribution % 5 === 0) { actual *= 2; isCrit = true; }
@@ -1200,7 +1204,9 @@ function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number, fromSp
     const profile = getSphereNetworkProfile(network, sphereIndex);
     if (profile.triangle) {
       fromSphere.resonanceHits++;
-      if (fromSphere.resonanceHits % 3 === 0) {
+      const setBehavior = getArtifactSetBehavior(s);
+      const trianglePulseEvery = setBehavior.resonanceGrid ? 2 : 3;
+      if (fromSphere.resonanceHits % trianglePulseEvery === 0) {
         fromSphere.resonancePulseTimer = 0.45;
         const pulseDamage = actual * 0.35;
         const pulseRadius = 88;
