@@ -1021,3 +1021,60 @@ Still intentionally open:
 - Limited Reroll / Lock / later Meta Ban.
 - Numerical playtest tuning of Level-Up weights and long-run choice distribution.
 - Formal 10-15 minute human gameplay acceptance remains outside automated CI.
+
+
+--- PLAYTEST ACCEPTANCE CRITERIA / LEVEL-UP ---
+
+Purpose:
+Validate the new Level-Up choice flow in a real APK run before numerical tuning or further structural changes.
+
+A playtest is considered SUCCESSFUL when, during a normal 10-15 minute run:
+
+1. Choice quality
+- Every Level-Up presents exactly 3 usable choices.
+- No obviously dead or already-invalid choice is offered.
+- No immediate duplicate of the same logical card appears across consecutive Level-Ups when enough alternatives exist.
+- Choices remain understandable from the current build context.
+
+2. Build coherence
+- The player can recognize a developing build direction rather than receiving three unrelated upgrades repeatedly.
+- Character/sphere/build affinity is noticeable but does not make the screen feel predetermined.
+- It remains possible to pivot the build when a useful alternative appears.
+
+3. RNG feel
+- The same card does not appear so frequently that Level-Up feels scripted.
+- The player does not experience long stretches where one source dominates without meaningful alternatives.
+- Pity behavior is not visually obvious or exploitable.
+- Different runs with different seeded/random outcomes can develop meaningfully different builds.
+
+4. Progression pressure
+- Early Level-Ups offer understandable foundational growth.
+- Mid-run Level-Ups increasingly present meaningful choices between strengthening the current build and opening a new direction.
+- The player should not feel forced into a weak option merely because of source composition.
+
+5. UX / pacing
+- Level-Up interaction is immediate and readable.
+- No visible frame hitch, state reset, stuck selection, or duplicated UI.
+- Selecting a card clearly resumes the run with the intended upgrade applied.
+
+6. Failure conditions
+Any of the following fails the playtest:
+- fewer than 3 choices;
+- dead/invalid choices visible;
+- repeated identical logical card across consecutive screens despite sufficient alternatives;
+- obvious forced Ability/Sphere/Modifier pattern;
+- build becomes effectively predetermined by RNG protection;
+- upgrade selection causes combat/progression state corruption;
+- noticeable Level-Up UI/performance regression.
+
+Playtest record should note:
+- run duration;
+- approximate Level-Up count;
+- notable repeated choices;
+- source distribution observed qualitatively;
+- whether build direction felt coherent;
+- any dead/invalid choice;
+- any UX/performance issue;
+- screenshots/video for any failure case.
+
+Human playtest is required for acceptance. Passing automated CI does not by itself mark these criteria as passed.
