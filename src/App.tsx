@@ -189,6 +189,7 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
   const rafRef = useRef<number>(0);
   const knowledgeTickRef = useRef(0);
   const lastTimeRef = useRef<number>(0);
+  const uiAccumulatorRef = useRef(0);
   const [, forceRender] = useState(0);
   const [gameOverData, setGameOverData] = useState<{ time: number; wave: number; gold: number; rank: number; isNewRecord: boolean } | null>(null);
   const [paused, setPaused] = useState(false);
@@ -200,6 +201,7 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
     stateRef.current = s;
 
     const canvas = canvasRef.current;
+    const ctx = canvas?.getContext('2d') ?? null;
     if (canvas && ENABLE_3D_RENDERER) renderer3dRef.current = createEcho3DRenderer(canvas);
 
     lastTimeRef.current = performance.now();
@@ -243,12 +245,17 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
 
         if (ENABLE_3D_RENDERER && renderer3dRef.current) {
           renderer3dRef.current.render(st);
-        } else if (canvas) {
-          const ctx = canvas.getContext('2d');
-          if (ctx) render(ctx, st, canvas.width, canvas.height);
+        } else if (canvas && ctx) {
+          render(ctx, st, canvas.width, canvas.height);
         }
 
-        forceRender(v => v + 1);
+        // Simulation/rendering stays frame-rate independent from React UI.
+        // The HUD needs only a few refreshes per second, not 60 React commits.
+        uiAccumulatorRef.current += dt;
+        if (uiAccumulatorRef.current >= 0.10) {
+          uiAccumulatorRef.current = 0;
+          forceRender(v => v + 1);
+        }
       }
       rafRef.current = requestAnimationFrame(loop);
     };
