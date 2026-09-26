@@ -134,10 +134,11 @@ export function updateMinions(s: GameState, dt: number): void {
   for (let i = s.minions.length - 1; i >= 0; i--) {
     const m = s.minions[i];
     m.life -= dt;
-    m.rotation += dt * 3;
+    const anchorSpeed = m.anchorType === 'orbital' ? 5.5 : m.anchorType === 'sniper' ? 2.2 : 3;
+    m.rotation += dt * anchorSpeed;
     if (m.life <= 0) { s.minions.splice(i, 1); continue; }
 
-    const anchor = getNearestSphere(s, m.pos);
+    const anchor = getNearestSphere(s, m.pos, (sphere) => sphere.type === m.anchorType) || getNearestSphere(s, m.pos);
     if (anchor) {
       const angle = m.rotation * 0.7 + i * 2.1;
       const targetX = anchor.pos.x + Math.cos(angle) * 48;
@@ -172,15 +173,37 @@ export function updateMinions(s: GameState, dt: number): void {
     if (m.attackTimer <= 0) {
       let nearest: EnemyEntity | null = null;
       let nd = Infinity;
+      const range = m.anchorType === 'sniper' ? 260 : m.anchorType === 'shotgun' ? 135 : 180;
       for (const e of s.enemies) {
         if (e.hp <= 0) continue;
         const d = dist(e.pos, m.pos);
-        if (d < 180 && d < nd) { nd = d; nearest = e; }
+        if (d < range && d < nd) { nd = d; nearest = e; }
       }
       if (nearest) {
-        const dmg = (5 + (s.player.abilities.minion || 0) * 2) * (s.player.overloadTimer > 0 ? 1.25 : 1);
-        dealDamageToEnemy(s, nearest, dmg);
-        m.attackTimer = 0.8;
+        const baseDamage = (5 + (s.player.abilities.minion || 0) * 2) * (s.player.overloadTimer > 0 ? 1.25 : 1);
+        const damageMult = m.anchorType === 'sniper' ? 1.55 : m.anchorType === 'orbital' ? 0.9 : m.anchorType === 'void' ? 1.2 : 1;
+        const interval = m.anchorType === 'sniper' ? 1.0 : m.anchorType === 'orbital' ? 0.62 : 0.8;
+        if (m.anchorType === 'shotgun') {
+          for (let pellet = 0; pellet < 3; pellet++) dealDamageToEnemy(s, nearest, baseDamage * 0.42);
+        } else if (m.anchorType === 'aura' || m.anchorType === 'pulse') {
+          const pulseRadius = m.anchorType === 'aura' ? 52 : 68;
+          for (const enemy of s.enemies) {
+            if (enemy.hp > 0 && dist(enemy.pos, m.pos) <= pulseRadius) dealDamageToEnemy(s, enemy, baseDamage * (m.anchorType === 'pulse' ? 0.62 : 0.52));
+          }
+        } else if (m.anchorType === 'chain') {
+          dealDamageToEnemy(s, nearest, baseDamage);
+          const secondary = s.enemies.filter((enemy) => enemy !== nearest && enemy.hp > 0 && dist(enemy.pos, nearest!.pos) <= 85).sort((x,y)=>dist(x.pos,nearest!.pos)-dist(y.pos,nearest!.pos))[0];
+          if (secondary) dealDamageToEnemy(s, secondary, baseDamage * 0.45);
+        } else {
+          dealDamageToEnemy(s, nearest, baseDamage * damageMult);
+        }
+        if (m.anchorType === 'gravity' && anchor) {
+          const dx = anchor.pos.x - nearest.pos.x, dy = anchor.pos.y - nearest.pos.y;
+          const d = Math.hypot(dx, dy) || 1;
+          nearest.pos.x += dx / d * 16;
+          nearest.pos.y += dy / d * 16;
+        }
+        m.attackTimer = interval;
       }
     }
   }
