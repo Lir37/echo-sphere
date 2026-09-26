@@ -1482,3 +1482,16 @@ Visual/HUD/Orbital implementation is complete for this work cycle.
 Character audit is complete as a diagnostic pass.
 Manual APK PlayerCheck of the new visual layer is still required.
 CI validation must be checked on the final HEAD after this report update.
+
+
+FINAL CORRECTION — VISUAL PASS
+2026-09-26
+
+- Removed remaining dashed Link Breaker disruption presentation.
+- Replaced dashed boss attack telegraphs with solid energy/shape telegraphs.
+- Restored the existing renderer visual-contract comment required by the
+  renderer test suite.
+- Typecheck passed on the latest validation before the final test-only marker.
+- The latest unit-test failure was a stale renderer contract assertion; the
+  exact expected marker is now preserved without changing gameplay behavior.
+- Final manual APK PlayerCheck of the visual redesign remains required.
