@@ -4,7 +4,7 @@ import {
   getArtifactMaxHpBonus,
   getArtifactRegenPerSecond,
   pickArtifactChoices,
-  pickStellaArtifactChoice,
+  pickStellaArtifactChoice, pickStellaArtifactChoices,
 } from './artifactSystem';
 import { RUNE_DEFS } from './runes';
 import { nextRandom } from './rng';
@@ -33,13 +33,12 @@ export function claimStella(s: GameState): void {
   if (!s.pendingStella) return;
 
   s.pendingStella = false;
-  const legendary = s.time < STELLA_LEGENDARY_CUTOFF_SECONDS
-    ? pickStellaArtifactChoice(s, () => nextRandom(s))
-    : null;
-
-  if (legendary) {
+  const choices = s.time < STELLA_LEGENDARY_CUTOFF_SECONDS
+    ? pickStellaArtifactChoices(s, s.player.artifacts.includes('quantum_fold') ? 4 : 3, () => nextRandom(s))
+    : [];
+  if (choices.length > 0) {
     s.stellaLegendaryClaims++;
-    s.pendingArtifact = [legendary];
+    s.pendingArtifact = choices;
   } else {
     s.pendingArtifact = pickArtifacts(s);
   }
@@ -132,7 +131,23 @@ export function update(s: GameState, dt: number): void {
     if (dn.life <= 0) s.damageNumbers.splice(i, 1);
   }
 
-  // chests pickup
+  // Stella is a physical world chest. Picking it up opens the Legendary choice.
+  for (let i = s.stellaChests.length - 1; i >= 0; i--) {
+    const chest = s.stellaChests[i];
+    if (!chest.alive) { s.stellaChests.splice(i, 1); continue; }
+    if (dist(chest.pos, s.player.pos) < PLAYER_RADIUS + chest.radius) {
+      chest.alive = false;
+      s.stellaChests.splice(i, 1);
+      const choiceCount = s.player.artifacts.includes('quantum_fold') ? 4 : 3;
+      const choices = pickStellaArtifactChoices(s, choiceCount, () => nextRandom(s));
+      s.stellaLegendaryClaims++;
+      s.pendingArtifact = choices.length > 0 ? choices : pickArtifacts(s);
+      s.flashText = { text: 'STELLA', life: 1.2, color: '#ffb84d' };
+      playSound('chest');
+    }
+  }
+
+  // ordinary artifact chests pickup
   for (let i = s.chests.length - 1; i >= 0; i--) {
     const chest = s.chests[i];
     if (!chest.alive) { s.chests.splice(i, 1); continue; }
