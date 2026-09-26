@@ -1274,3 +1274,79 @@ continue with gameplay feedback rather than expanding the content scope.
 ======================================================================
 END ECHO ARCHIVE SESSION
 ======================================================================
+
+
+======================================================================
+CURRENT WORK SESSION UPDATE — PLAYERCHECK SPHERE/BATTLEFIELD AUDIT
+2026-09-26
+======================================================================
+
+PLAYER CHECK FINDINGS RECEIVED FROM MANUAL APK PLAY:
+1. Gravity Sphere visibly outperformed Aura while also providing pull, making Aura feel redundant.
+2. Orbital Sphere felt weak: one satellite was not visually/mechanically convincing; its upgrade text/behavior used interval reduction where rotation speed was the clearer identity.
+3. Echo Drone/Minion should inherit visual/mechanical identity from the Sphere it orbits.
+4. Lightning ability visually travelled directly from the player to the enemy instead of reading as a network traversal.
+5. Shield had no sufficiently clear world-space visual feedback.
+6. Sphere repositioning needs an explicit lock/unlock control to prevent accidental dragging.
+7. Spherist M1 character HUD/nameplate was judged unnecessary.
+8. A second empty HUD panel was visible under the network HUD.
+9. Combat HUD layers must remain separated on mobile.
+10. Stella was implemented as a notification followed by one random Legendary. Desired behavior is a physical Stella chest spawned after boss defeat, followed by a choice of 3 Legendary artifacts (4 when the Quantum Fold exception is active).
+11. All Sphere types require a systematic balance audit before further content expansion.
+
+IMPLEMENTED IN THIS SESSION:
+- Aura base damage multiplier: 0.40 -> 0.60.
+- Gravity base damage multiplier: 0.70 -> 0.42.
+  This intentionally moves Aura ahead of Gravity on sustained base AoE damage while Gravity retains its control/pull identity.
+- Orbital base damage multiplier: 0.80 -> 0.50.
+- Orbital upgrades now add +1 rotating satellite per Sphere level.
+- Orbital rotation speed now increases with Sphere level; the previous level-3 delay reduction was removed from the Orbital progression path.
+- Boss defeat now spawns a physical Stella chest at the boss position.
+- Stella pickup opens a Legendary choice of 3 before the Endless cutoff, or the normal high-tier Artifact pool after the cutoff. Quantum Fold may increase the pre-cutoff choice count to 4.
+- Expanded the Legendary pool with three additional build-defining entries so repeated Stella choices have sufficient breadth.
+- Lightning traversal now uses the Sphere Network rather than requiring Chain-only nodes and no longer begins with a player-to-first-Sphere visual jump.
+- Shield charges now have an explicit world-space shield ring/charge display.
+- Added a mobile MOVE/LOCK control for Sphere repositioning. A locked Sphere cannot be dragged or accidentally removed by the same touch.
+- Removed the redundant Canvas character HUD/nameplate and its empty panel.
+- Echo Drone now stores its anchor Sphere type, follows a Sphere of that type when available, uses the anchor Sphere color, and applies an initial type-specific combat behavior.
+- Updated the Stella unit contract test to the physical-chest + multi-choice implementation.
+
+INITIAL SPHERE BALANCE AUDIT — BASE LEVEL, NO ARTIFACTS/CHARACTER SYNERGY:
+Approximate theoretical sustained damage, assuming all applicable hits connect:
+
+STANDARD  ~10.0 DPS
+SNIPER    ~12.5 DPS
+SHOTGUN   ~15.0 DPS
+CHAIN     ~15.4 DPS when two chain targets are available
+AURA      ~14.4 DPS per target in its field after this session's rebalance
+GRAVITY   ~12.6 DPS per target after this session's rebalance
+ORBITAL   ~27.1 DPS under ideal orbital alignment; practical DPS is lower because contact is geometry-dependent
+PRISM     ~27.8 DPS when three beams all resolve, including the single-target fallback behavior
+PULSE     ~10.4 DPS
+VOID      ~9.6 DPS before its execution multipliers
+
+This table is diagnostic, not a final power ranking. Area/control Spheres must be evaluated on target coverage, uptime, control value, positioning requirements, evolution behavior, and network affinity rather than raw single-target DPS alone.
+
+NEXT BALANCE PASS:
+- Complete a dedicated audit of all ten Sphere types across:
+  base role;
+  base DPS;
+  target count / area coverage;
+  uptime/contact reliability;
+  range and positioning requirement;
+  level 1-3 growth;
+  branch/final evolution value;
+  Network/Geometry affinity;
+  Artifact synergy;
+  character affinity;
+  perceived readability.
+- Verify Orbital and Prism in actual gameplay before further numerical changes.
+- Reassess Aura vs Gravity after device play.
+- Do not add more Sphere types until this audit and a short balance playtest are complete.
+
+IMPLEMENTATION NOTE:
+No manual device verification of this session's new changes has been performed yet. CI visual/test coverage is not a substitute for the user's APK PlayerCheck.
+
+CURRENT IMPLEMENTATION HEAD AT REPORT UPDATE:
+823e794271dfbb1974ef41e9972974c92b184f92
+
