@@ -64,6 +64,7 @@ export interface PlayerState {
   sphereXpAccumulator: number;
   sphereUpgradeCount: number;
   sphereMods: SphereMods;
+  sphereMovementLocked: boolean;
   sphereProgression: Partial<Record<SphereType, number>>;
   sphereBranches: Partial<Record<SphereType, import('./sphereProgression').SphereEvolutionId>>;
   dashCooldown: number;
@@ -206,6 +207,7 @@ export interface MinionEntity {
   radius: number;
   damage: number;
   rotation: number;
+  anchorType: SphereType;
 }
 
 export interface LightningBolt {
@@ -250,6 +252,7 @@ export interface ChestEntity {
   pos: Vec;
   alive: boolean;
   radius: number;
+  kind?: 'artifact' | 'stella';
 }
 
 export interface RuneEntity {
@@ -286,6 +289,7 @@ export interface GameState {
   pendingStella: boolean;
   stellaClaims: number;
   stellaLegendaryClaims: number;
+  stellaChests: ChestEntity[];
   stats: GameStats;
   screenShake: number;
   bossArrow: Vec | null;
