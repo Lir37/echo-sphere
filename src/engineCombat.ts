@@ -608,9 +608,11 @@ export function onEnemyDeath(s: GameState, enemy: EnemyEntity): void {
     s.flashText = { text: 'BOSS DEFEATED!', life: 2, color: '#d4943d' };
     playSound('boss');
     // Bosses create a distinct Stella event. Stella is the only gateway to Legendary rewards.
-    s.pendingStella = true;
+    s.pendingStella = false;
     s.stellaClaims++;
     s.pendingArtifact = null;
+    s.stellaChests.push({ pos: { ...enemy.pos }, alive: true, radius: 28, kind: 'stella' });
+    s.particles.push({ pos: { ...enemy.pos }, vel: { x: 0, y: 0 }, life: 1.2, maxLife: 1.2, color: '#ffb84d', size: 9 });
   }
 }
 
