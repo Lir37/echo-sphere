@@ -65,6 +65,7 @@ export interface PlayerState {
   sphereUpgradeCount: number;
   sphereMods: SphereMods;
   sphereMovementLocked: boolean;
+  knownSphereTypes: SphereType[];
   sphereProgression: Partial<Record<SphereType, number>>;
   sphereBranches: Partial<Record<SphereType, import('./sphereProgression').SphereEvolutionId>>;
   dashCooldown: number;
