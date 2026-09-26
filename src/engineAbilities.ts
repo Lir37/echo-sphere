@@ -354,6 +354,7 @@ function activateMinion(s: GameState): void {
     s.minions.push({
       pos: spawnPos,
       hp: 1, attackTimer: 0, life: 10 + (lvl >= 5 ? 2 : 0), radius: 12, damage: 6 + Math.max(0, lvl - 1) * 2, rotation: 0,
+      anchorType: anchor?.type || 'standard',
     });
     if (anchor) {
       s.particles.push({ pos: { ...anchor.pos }, vel: { x: 0, y: 0 }, life: 0.7, maxLife: 0.7, color: '#4a7a8a', size: 5 });
