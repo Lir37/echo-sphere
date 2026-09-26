@@ -2695,13 +2695,10 @@ function drawBossAttackTelegraph(
       ? `rgba(255,184,77,${0.58 + pulse * 0.25})`
       : `rgba(255,98,87,${0.70 + pulse * 0.20})`;
     ctx.lineWidth = windup ? Math.max(2, r * 0.025) : Math.max(3, r * 0.04);
-    ctx.setLineDash(windup ? [r * 0.22, r * 0.16] : []);
     ctx.beginPath();
     ctx.moveTo(0, 0);
     ctx.lineTo(e.chargeDir.x * reach, e.chargeDir.y * reach);
     ctx.stroke();
-    ctx.setLineDash([]);
-
     if (windup) {
       const nx = -e.chargeDir.y;
       const ny = e.chargeDir.x;
@@ -2723,7 +2720,6 @@ function drawBossAttackTelegraph(
     const angle = Math.atan2(dy, dx);
     ctx.strokeStyle = `rgba(255,106,95,${0.46 + pulse * 0.22})`;
     ctx.lineWidth = Math.max(1.5, r * 0.018);
-    ctx.setLineDash([r * 0.18, r * 0.13]);
     for (let k = -1; k <= 1; k++) {
       const a = angle + k * 0.11;
       ctx.beginPath();
@@ -2731,19 +2727,16 @@ function drawBossAttackTelegraph(
       ctx.lineTo(Math.cos(a) * r * 4.8, Math.sin(a) * r * 4.8);
       ctx.stroke();
     }
-    ctx.setLineDash([]);
-  }
+    }
 
   if (e.bossType === 'summoner' && e.summonTimer <= BOSS_TELEGRAPH_WINDOWS.summoner) {
     const progress = 1 - Math.max(0, e.summonTimer) / BOSS_TELEGRAPH_WINDOWS.summoner;
     const ringRadius = r * (1.15 + progress * 2.2);
     ctx.strokeStyle = `rgba(162,124,255,${0.34 + pulse * 0.18})`;
     ctx.lineWidth = Math.max(1.5, r * 0.02);
-    ctx.setLineDash([r * 0.2, r * 0.14]);
     ctx.beginPath();
     ctx.arc(0, 0, ringRadius, 0, Math.PI * 2);
     ctx.stroke();
-    ctx.setLineDash([]);
     for (let i = 0; i < 3; i++) {
       const a = t * 2.2 + (i / 3) * Math.PI * 2;
       const nx = Math.cos(a) * (r * (0.95 + progress * 0.8));
@@ -2759,12 +2752,10 @@ function drawBossAttackTelegraph(
     const ringRadius = e.auraRadius + r * (0.12 + (0.10 + pulse * 0.05));
     ctx.strokeStyle = `rgba(255,98,185,${0.42 + pulse * 0.20})`;
     ctx.lineWidth = Math.max(1.5, r * 0.02);
-    ctx.setLineDash([r * 0.2, r * 0.14]);
     ctx.beginPath();
     ctx.arc(0, 0, ringRadius, 0, Math.PI * 2);
     ctx.stroke();
-    ctx.setLineDash([]);
-  }
+    }
 
   ctx.restore();
 }
