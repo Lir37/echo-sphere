@@ -641,6 +641,9 @@ export function setSphereType(s: GameState, type: SphereType): void {
 }
 
 export function placeSphere(s: GameState, x: number, y: number): void {
+  const selectedType = s.selectedSphereType;
+  const sameTypeCount = s.spheres.filter((sphere) => sphere.alive && sphere.type === selectedType).length;
+  const MAX_SAME_SPHERE_COPIES = 2;
   // toggle: if clicking near an existing sphere, remove it instead
   const existing = s.spheres.find(sp => sp.alive && Math.hypot(sp.pos.x - x, sp.pos.y - y) < 26);
   if (existing) {
@@ -649,6 +652,10 @@ export function placeSphere(s: GameState, x: number, y: number): void {
   }
   const max = getMaxSpheres(s);
   if (s.spheres.length >= max) return;
+  if (sameTypeCount >= MAX_SAME_SPHERE_COPIES) {
+    s.flashText = { text: 'MAX 2', life: 0.8, color: SPHERE_TYPES[selectedType].color };
+    return;
+  }
   s.spheres.push({
     pos: { x, y },
     radius: BASE_SPHERE_RADIUS,
