@@ -3089,3 +3089,118 @@ visual formation cues + dedicated HUD.
 ======================================================================
 END OF MASTER FINAL GAMEPLAY BLUEPRINT v1.1
 ======================================================================
+
+
+======================================================================
+APPENDIX C. CURRENT NETWORK / DUPLICATE-SPHERE / PERFORMANCE AMENDMENT
+2026-09-27
+======================================================================
+
+This addendum supersedes the earlier overlapping-Geometry rule where it
+conflicts with the following current gameplay contract.
+
+C1. ACTIVE GEOMETRY OWNERSHIP
+
+Physical Links remain canonical Network infrastructure.
+
+Active Geometry is a higher-level formation state.
+
+A Sphere may belong to only ONE active Geometry at a time.
+
+Up to TWO active Geometry formations may exist simultaneously.
+
+Multiple formations are allowed only when their Sphere-node sets are
+disjoint.
+
+The renderer may show physical Links between all linked nodes, but a
+Sphere must never receive multiple simultaneous Geometry bonuses through
+overlapping formations.
+
+Formation resolution is deterministic and centralized in network.ts.
+
+Priority favors exact/specific formations over broad compactness when they
+compete for the same nodes.
+
+C2. DUPLICATE SPHERE LIMIT
+
+Default run rule:
+MAX_SAME_SPHERE_COPIES = 2.
+
+This applies per Sphere type.
+
+Purpose:
+- prevents degenerate stacking such as five Gravity Spheres;
+- preserves meaningful choice between Sphere families;
+- creates a natural reason to expand total Sphere capacity;
+- keeps late-run builds broad rather than collapsing into one repeated
+  control effect.
+
+The limit is a centralized balance constant and may be changed by a future
+explicit system, Artifact or challenge mode. It must not be silently
+overridden by individual placement code.
+
+C3. GRAVITY CONTROL
+
+Gravity remains a control Sphere, not a permanent enemy lock.
+
+The duplicate cap is the first anti-lock gate.
+
+Future balance work must additionally test:
+- 2 Gravity + Freeze;
+- 2 Gravity + Cluster;
+- 2 Gravity + slow;
+- enhanced Gravity final branches;
+- long-run control uptime.
+
+Control builds must create windows of safety without deleting meaningful
+enemy pressure.
+
+C4. NETWORK HUD TOOLTIP
+
+Holding an active Geometry badge for ~0.5 sec reveals a compact tactical
+tooltip describing its current gameplay role.
+
+Tooltip is informational only and does not alter state.
+
+C5. PERFORMANCE
+
+APK size is NOT treated as the primary explanation for mobile frame-rate
+degradation.
+
+The current runtime risk profile is:
+- repeated Canvas path/gradient/shadow work;
+- transient VFX allocation;
+- per-frame Network analysis;
+- repeated distance/target scans;
+- increasing enemy density;
+- render workload growth over time.
+
+Current mitigations:
+- Network frame cache reused across update and render;
+- ability/gravity/render Network reads routed through the cache;
+- transient VFX budgets are capped;
+- renderer uses adaptive stride for high transient load;
+- heavy runtime content remains 2.5D/Canvas and asset-light.
+
+The next performance gate must measure:
+- frame time;
+- enemy count;
+- particle count;
+- projectile count;
+- Network links;
+- mobile stability through at least a 10-15 minute run.
+
+Do not blame small APK size without runtime profiling evidence.
+
+C6. ARCHIVE DISCOVERY
+
+Sphere discovery now has an explicit PlayerState record:
+knownSphereTypes.
+
+Placement records the first encounter immediately, and Archive sync also
+reads that state. This exists to make Sphere discovery durable even when
+the active Sphere is removed before the run ends.
+
+======================================================================
+END APPENDIX C
+======================================================================
