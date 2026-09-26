@@ -129,6 +129,11 @@ export function render(ctx: CanvasRenderingContext2D, s: GameState, canvasW: num
   drawVoidAmbient(ctx, canvasW, canvasH, s.time);
 
   // ===== World space =====
+  // Adaptive presentation budget. Gameplay simulation remains unchanged.
+  const renderLoad = s.enemies.length + s.sphereProjectiles.length * 0.55 + s.particles.length * 0.28 + s.damageNumbers.length * 0.42 + s.lightnings.length * 0.75;
+  const fxStride = renderLoad > 220 ? 3 : renderLoad > 150 ? 2 : 1;
+  const damageStride = s.damageNumbers.length > 36 ? 2 : 1;
+  const lightningStride = s.lightnings.length > 18 ? 2 : 1;
   ctx.save();
 
   let shakeX = 0, shakeY = 0;
@@ -217,7 +222,8 @@ function drawRune(ctx: CanvasRenderingContext2D, rune: GameState['runes'][number
 
 
   // particles
-  for (const p of s.particles) {
+  for (let particleIndex=0; particleIndex<s.particles.length; particleIndex+=fxStride) {
+    const p=s.particles[particleIndex];
     const alpha = p.life / p.maxLife;
     const rgb = hexToRgb(p.color);
     ctx.fillStyle = `rgba(${rgb},${alpha * 0.82})`;
@@ -240,7 +246,8 @@ function drawRune(ctx: CanvasRenderingContext2D, rune: GameState['runes'][number
   ctx.globalAlpha = 1;
 
   // damage numbers
-  for (const dn of s.damageNumbers) {
+  for (let damageIndex=0; damageIndex<s.damageNumbers.length; damageIndex+=damageStride) {
+    const dn=s.damageNumbers[damageIndex];
     const alpha = Math.min(1, dn.life / dn.maxLife * 1.5);
     ctx.globalAlpha = alpha;
     ctx.fillStyle = dn.crit ? '#ffd166' : '#e8f6ff';
@@ -254,7 +261,8 @@ function drawRune(ctx: CanvasRenderingContext2D, rune: GameState['runes'][number
   ctx.globalAlpha = 1;
 
   // lightnings
-  for (const l of s.lightnings) {
+  for (let lightningIndex=0; lightningIndex<s.lightnings.length; lightningIndex+=lightningStride) {
+    const l=s.lightnings[lightningIndex];
     const a = Math.max(0, Math.min(1, l.life / 0.3));
     drawEnergyBolt(ctx, l.from, l.to, a);
     ctx.globalAlpha = 1;
@@ -2400,7 +2408,8 @@ function drawWavyNetworkLink(
   if(active){
     const packetCount=2;
     for(let packet=0;packet<packetCount;packet++){
-      const phaseP=((time*(.48+packet*.08))+seed*.031+packet*.47)%1;
+      const rawPhase=((time*(.48+packet*.08))+seed*.031+packet*.47)%1;
+      const phaseP=packet===0 ? rawPhase : 1-rawPhase;
       const seg=Math.max(1,Math.min(steps-1,Math.floor(phaseP*steps)));
       const p0=(seg-1)/steps,p1=(seg+.55)/steps;
       const x0=from.x+dx*p0+nx*Math.sin(phase+seg*1.85)*amp;
