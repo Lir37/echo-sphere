@@ -310,7 +310,11 @@ function drawRune(ctx: CanvasRenderingContext2D, rune: GameState['runes'][number
   }
 }
 
-function drawCharacterHud(_ctx: CanvasRenderingContext2D, _s: GameState, _canvasW: number, _canvasH: number): void {\n  // Character state is communicated by world indicators and the main HUD.\n}\n\nfunction drawPlayerShield(ctx: CanvasRenderingContext2D, s: GameState): void {
+function drawCharacterHud(_ctx: CanvasRenderingContext2D, _s: GameState, _canvasW: number, _canvasH: number): void {
+  // Character state is communicated by world indicators and the main HUD.
+}
+
+function drawPlayerShield(ctx: CanvasRenderingContext2D, s: GameState): void {
   const charges = s.player.shieldCharges || 0;
   if (charges <= 0 || s.player.shieldTimer <= 0) return;
   const pulse = 1 + Math.sin(Date.now() * 0.008) * 0.035;
