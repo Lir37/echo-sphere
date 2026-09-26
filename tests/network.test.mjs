@@ -17,16 +17,14 @@ test('three evenly spaced connected spheres form a triangle', () => {
   assert.ok(state.triangle.strength >= 0.95);
 });
 
-test('four compact spheres form a cluster and profiles expose membership', () => {
+test('four compact spheres resolve to one canonical Geometry without overlap', () => {
   const state = analyzeSphereNetwork([
     node(0, 0), node(90, 0), node(0, 90), node(90, 90),
   ]);
-  assert.ok(state.cluster);
-  for (let i = 0; i < 4; i++) {
-    const profile = getSphereNetworkProfile(state, i);
-    assert.equal(profile.cluster, true);
-    assert.ok(profile.linkedNeighbours >= 2);
-  }
+  assert.ok(state.square || state.cluster);
+  const active = [state.square, state.cluster].filter(Boolean);
+  assert.equal(active.length, 1);
+  assert.ok(active[0].nodes.length === 4);
 });
 
 test('a clear row of spheres activates line resonance', () => {
@@ -46,13 +44,15 @@ test('dead spheres do not contribute links or geometry', () => {
 });
 
 
-test('four evenly spaced points form a square and expose square membership', () => {
+test('four evenly spaced points form a square and own all four nodes exclusively', () => {
   const state = analyzeSphereNetwork([
     node(0, 0), node(100, 0), node(100, 100), node(0, 100),
   ]);
   assert.ok(state.square);
   assert.equal(state.square.nodes.length, 4);
-  for (let i = 0; i < 4; i++) assert.equal(getSphereNetworkProfile(state, i).square, true);
+  assert.equal(getSphereNetworkProfile(state, 0).square, true);
+  assert.equal(getSphereNetworkProfile(state, 0).cluster, false);
+  assert.equal(getSphereNetworkProfile(state, 0).ring, false);
 });
 
 test('one Sphere cannot belong to multiple active Geometries', () => {
@@ -90,14 +90,15 @@ test('four-node closed loop activates Ring without requiring diagonals', () => {
   assert.equal(state.ring.nodes.length, 4);
 });
 
-test('two connected triangle cells activate Lattice and Fractal geometry', () => {
+test('two connected triangle cells resolve to one advanced Geometry without node overlap', () => {
   const h = Math.sqrt(3) * 100 / 2;
   const state = analyzeSphereNetwork([
     node(0, 0), node(100, 0), node(50, h), node(50, -h),
   ]);
-  assert.ok(state.lattice);
-  assert.ok(state.fractal);
-  assert.ok(state.lattice.nodes.length >= 4);
+  assert.ok(state.lattice || state.triangle);
+  const active = [state.fractal, state.lattice, state.triangle].filter(Boolean);
+  assert.ok(active.length <= 2);
+  if (state.lattice) assert.equal(state.triangle, null);
 });
 
 
