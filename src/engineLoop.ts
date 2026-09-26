@@ -318,8 +318,8 @@ export function update(s: GameState, dt: number): void {
       if (d > 0) s.bossArrow = { x: dx / d, y: dy / d };
     }
   }
-  // Network cache is valid only for this gameplay update.
-  s.networkFrame = null;
+  // Keep the current Network snapshot valid for the immediately following render.
+  // The next update() advances networkFrameId and invalidates it before gameplay work.
 }
 
 function checkMutation(s: GameState): void {
