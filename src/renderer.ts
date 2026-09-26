@@ -2760,22 +2760,53 @@ function drawBossAttackTelegraph(
   ctx.restore();
 }
 
-function drawModernEnemy(ctx: CanvasRenderingContext2D, e: EnemyEntity, playerPos: { x: number; y: number function drawLinkBreakerTelegraph(ctx: CanvasRenderingContext2D, e: EnemyEntity, t: number): void {
-  if (!e.isElite || !e.elitePulseTarget || (e.elitePulseTelegraphTimer || 0) <= 0) return;
-  const target=e.elitePulseTarget, dx=target.pos.x-e.pos.x, dy=target.pos.y-e.pos.y;
+function drawModernEnemy(ctx: CanvasRenderingContext2D, e: EnemyEntity, playerPos: { x: number; y: number }): void {
+  const t=Date.now()/1000;
+  const facing=e.isBoss?0:getEnemyFacingAngle(e);
+  const color=e.freezeTimer>0?'#69d6ff':e.color;
+  const hit=Math.max(0,Math.min(1,e.hitFlash/0.15));
+  ctx.save();ctx.translate(e.pos.x,e.pos.y);ctx.rotate(facing);
+  const pulse=1+Math.sin(t*5+e.pos.x*.01)*.025;
+  ctx.scale(pulse+hit*.05,pulse+hit*.05);
+  glowCircle(ctx,e.radius*(e.isBoss?1.65:1.15),color,e.isBoss?.18:.07);
+  if(e.isBoss){
+    drawBossAttackTelegraph(ctx,e,playerPos,t);
+    drawModernBossBody(ctx,e,color,t);
+  } else {
+    drawEnemySilhouette(ctx,e,color,t);
+    if(e.isElite) drawEliteCrest(ctx,e,t);
+    if(e.tier>0){
+      ctx.save();ctx.translate(0,-e.radius*1.55);ctx.rotate(t*.35);
+      ctx.strokeStyle=`rgba(${hexToRgb(color)},.46)`;ctx.lineWidth=1.2;
+      const n=Math.min(3,e.tier);
+      for(let i=0;i<n;i++){const a=i*Math.PI*2/n;ctx.beginPath();ctx.moveTo(Math.cos(a)*e.radius*.10,Math.sin(a)*e.radius*.10);ctx.lineTo(Math.cos(a)*e.radius*.38,Math.sin(a)*e.radius*.38);ctx.stroke();}
+      ctx.restore();
+    }
+    drawLinkBreakerTelegraph(ctx,e,t);
+    drawEnemyStatusVfx(ctx,e,t);
+    if(hit>0){ctx.strokeStyle=`rgba(255,255,255,${hit*.75})`;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-e.radius*.8,-e.radius*.8);ctx.lineTo(e.radius*.8,e.radius*.8);ctx.moveTo(e.radius*.8,-e.radius*.8);ctx.lineTo(-e.radius*.8,e.radius*.8);ctx.stroke();}
+  }
+  ctx.restore();
+  if(e.isBoss){
+    const barW=Math.max(110,e.radius*1.55),barH=6,ratio=Math.max(0,Math.min(1,e.hp/Math.max(1,e.maxHp)));
+    const bx=e.pos.x-barW/2,by=e.pos.y-e.radius-30;
+    ctx.save();ctx.shadowColor=color;ctx.shadowBlur=14;ctx.fillStyle='rgba(2,7,18,.88)';ctx.fillRect(bx,by,barW,barH);
+    ctx.fillStyle=color;ctx.fillRect(bx,by,barW*ratio);ctx.strokeStyle='rgba(220,250,255,.68)';ctx.lineWidth=1;ctx.strokeRect(bx,by,barW,barH);
+    ctx.shadowBlur=0;ctx.fillStyle='rgba(230,250,255,.78)';ctx.font='bold 8px system-ui,sans-serif';ctx.textAlign='center';
+    ctx.fillText(e.bossType==='charger'?'BREACHER':e.bossType==='shooter'?'VOID LANCER':e.bossType==='summoner'?'BROOD MIND':'AURA TITAN',e.pos.x,by-4);ctx.restore();
+  }
+}
+
+function drawLinkBreakerTelegraph(ctx: CanvasRenderingContext2D, e: EnemyEntity, t: number): void {
+  if(!e.isElite||!e.elitePulseTarget||(e.elitePulseTelegraphTimer||0)<=0)return;
+  const target=e.elitePulseTarget,dx=target.pos.x-e.pos.x,dy=target.pos.y-e.pos.y;
   const remaining=Math.max(0,Math.min(1,(e.elitePulseTelegraphTimer||0)/LINK_BREAKER_TELEGRAPH_SECONDS));
   const pulse=.65+.35*Math.sin(t*16);
   ctx.save();ctx.globalCompositeOperation='lighter';ctx.strokeStyle='#ff4d70';ctx.shadowColor='#ff4d70';ctx.shadowBlur=16;
-  ctx.globalAlpha=.30+(1-remaining)*.55;ctx.lineWidth=2.5;
-  ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(dx,dy);ctx.stroke();
-  const ux=dx/(Math.hypot(dx,dy)||1),uy=dy/(Math.hypot(dx,dy)||1);
-  const nx=-uy,ny=ux;
-  ctx.translate(dx,dy);ctx.rotate(Math.atan2(dy,dx));
-  ctx.globalAlpha=.55+.35*pulse;ctx.lineWidth=2;
+  ctx.globalAlpha=.30+(1-remaining)*.55;ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(dx,dy);ctx.stroke();
+  ctx.translate(dx,dy);ctx.rotate(Math.atan2(dy,dx));ctx.globalAlpha=.55+.35*pulse;ctx.lineWidth=2;
   ctx.beginPath();ctx.moveTo(-16,-10);ctx.lineTo(-5,0);ctx.lineTo(-16,10);ctx.moveTo(16,-10);ctx.lineTo(5,0);ctx.lineTo(16,10);ctx.stroke();
-  ctx.globalAlpha=.32;ctx.lineWidth=1;
-  ctx.beginPath();ctx.moveTo(-9,-15);ctx.lineTo(9,-15);ctx.moveTo(-9,15);ctx.lineTo(9,15);ctx.stroke();
-  ctx.restore();
+  ctx.globalAlpha=.32;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(-9,-15);ctx.lineTo(9,-15);ctx.moveTo(-9,15);ctx.lineTo(9,15);ctx.stroke();ctx.restore();
 }
 
 function drawNetworkDisabledIndicator(ctx: CanvasRenderingContext2D, sphere: SphereEntity, t: number): void {
