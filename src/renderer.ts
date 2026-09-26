@@ -178,13 +178,38 @@ export function render(ctx: CanvasRenderingContext2D, s: GameState, canvasW: num
   drawSphereNetwork(ctx, s, getNetworkFrame(s));
 
 function drawRune(ctx: CanvasRenderingContext2D, rune: GameState['runes'][number]): void {
-  const def=RUNE_DEFS[rune.type], t=Date.now()/1000, pulse=1+Math.sin(t*4+rune.pos.x*.01)*.08;
-  ctx.save();ctx.translate(rune.pos.x,rune.pos.y);ctx.scale(pulse,pulse);ctx.globalCompositeOperation='lighter';
-  ctx.shadowColor=def.color;ctx.shadowBlur=18;
-  ctx.fillStyle='rgba(5,12,22,.92)';ctx.strokeStyle=def.color;ctx.lineWidth=1.6;
-  ctx.beginPath();ctx.moveTo(0,-15);ctx.lineTo(11,-7);ctx.lineTo(13,7);ctx.lineTo(0,15);ctx.lineTo(-13,7);ctx.lineTo(-11,-7);ctx.closePath();ctx.fill();ctx.stroke();
-  for(let i=0;i<3;i++){const a=t*.9+i*Math.PI*2/3;ctx.strokeStyle=`rgba(255,255,255,${.28+.12*Math.sin(t*3+i)})`;ctx.beginPath();ctx.moveTo(Math.cos(a)*3,Math.sin(a)*3);ctx.lineTo(Math.cos(a)*10,Math.sin(a)*7);ctx.stroke();}
-  ctx.fillStyle=def.color;ctx.beginPath();ctx.arc(0,0,3.2,0,Math.PI*2);ctx.fill();ctx.restore();
+  const def=RUNE_DEFS[rune.type], t=Date.now()/1000, p=1+Math.sin(t*4)*.06;
+  ctx.save();ctx.translate(rune.pos.x,rune.pos.y);ctx.scale(p,p);ctx.globalCompositeOperation='lighter';
+  ctx.shadowColor=def.color;ctx.shadowBlur=15;ctx.fillStyle='rgba(5,12,22,.96)';ctx.strokeStyle=def.color;ctx.lineWidth=1.5;
+  if(rune.type==='phase'){
+    ctx.beginPath();ctx.moveTo(0,-16);ctx.lineTo(8,-8);ctx.lineTo(16,0);ctx.lineTo(8,8);ctx.lineTo(0,16);ctx.lineTo(-8,8);ctx.lineTo(-16,0);ctx.lineTo(-8,-8);ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.strokeStyle='#eaffff';ctx.beginPath();ctx.moveTo(-7,-7);ctx.lineTo(7,7);ctx.moveTo(7,-7);ctx.lineTo(-7,7);ctx.stroke();
+  } else if(rune.type==='harvest'){
+    ctx.beginPath();ctx.moveTo(0,-16);ctx.quadraticCurveTo(15,-8,10,9);ctx.quadraticCurveTo(0,18,-10,9);ctx.quadraticCurveTo(-15,-8,0,-16);ctx.fill();ctx.stroke();
+    for(let i=0;i<3;i++){const a=t*1.3+i*Math.PI*2/3;ctx.strokeStyle='rgba(255,255,255,.55)';ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(Math.cos(a)*9,Math.sin(a)*7);ctx.stroke();}
+  } else if(rune.type==='purge'){
+    ctx.beginPath();for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,rr=i%2===0?17:8;const x=Math.cos(a)*rr,y=Math.sin(a)*rr;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.fillStyle='rgba(255,255,255,.55)';ctx.beginPath();ctx.arc(0,0,4,0,Math.PI*2);ctx.fill();
+  } else if(rune.type==='resonance'){
+    ctx.beginPath();ctx.arc(0,0,15,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.arc(0,0,7,0,Math.PI*2);ctx.stroke();
+    const a=t*2;ctx.strokeStyle='#fff';ctx.beginPath();ctx.moveTo(Math.cos(a)*4,Math.sin(a)*4);ctx.lineTo(Math.cos(a)*13,Math.sin(a)*13);ctx.stroke();
+  } else if(rune.type==='fortify'){
+    ctx.beginPath();ctx.moveTo(0,-17);ctx.lineTo(13,-10);ctx.lineTo(10,9);ctx.lineTo(0,17);ctx.lineTo(-10,9);ctx.lineTo(-13,-10);ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.strokeStyle='rgba(230,250,255,.7)';ctx.beginPath();ctx.moveTo(-7,-3);ctx.lineTo(0,6);ctx.lineTo(8,-7);ctx.stroke();
+  } else if(rune.type==='hunt'){
+    ctx.beginPath();ctx.moveTo(-15,-9);ctx.lineTo(0,0);ctx.lineTo(-15,9);ctx.moveTo(15,-9);ctx.lineTo(0,0);ctx.lineTo(15,9);ctx.stroke();
+    ctx.beginPath();ctx.arc(0,0,6+Math.sin(t*7)*1.2,0,Math.PI*2);ctx.fill();ctx.stroke();
+  } else if(rune.type==='echo'){
+    for(let i=0;i<3;i++){const rr=5+i*5+Math.sin(t*3+i)*1.2;ctx.strokeStyle=`rgba(220,248,255,${.3+i*.2})`;ctx.beginPath();ctx.arc(0,0,rr,0,Math.PI*2);ctx.stroke();}
+    ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(0,0,3,0,Math.PI*2);ctx.fill();
+  } else if(rune.type==='gravity'){
+    for(let i=0;i<4;i++){const a=t*.7+i*Math.PI/2;ctx.strokeStyle=`rgba(190,150,255,${.75-i*.12})`;ctx.beginPath();ctx.arc(0,0,6+i*3,a,a+1.9);ctx.stroke();}
+    ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(0,0,2.8,0,Math.PI*2);ctx.fill();
+  } else {
+    ctx.beginPath();ctx.moveTo(0,-15);ctx.lineTo(13,0);ctx.lineTo(0,15);ctx.lineTo(-13,0);ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(0,0,3.5,0,Math.PI*2);ctx.fill();
+  }
+  ctx.shadowBlur=0;ctx.restore();
 }
 
   // pickups
