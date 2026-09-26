@@ -4,10 +4,10 @@ import {
   dealDamageToEnemy, damagePlayer, damagePlayerDoT, getCritChance, onEnemyDeath
 } from './engineCombat';
 import {
-  dist, rand, getAbilityBranchId, getNearestSphere, getNetworkNodes, getSphereFinalIndex
+  dist, rand, getAbilityBranchId, getNearestSphere, getNetworkFrame, getSphereFinalIndex
 } from './engineRuntime';
 import { sphereModifiers, sphereLevel } from './sphereProgression';
-import { analyzeSphereNetwork, getSphereNetworkProfile } from './network';
+import { getSphereNetworkProfile } from './network';
 import { nextRandom } from './rng';
 import { BALANCE } from './engineBalance';
 import { BOSS_CHARGER_COMMIT_SECONDS, BOSS_CHARGER_TOTAL_TELEGRAPH_SECONDS } from './bossBalance';
