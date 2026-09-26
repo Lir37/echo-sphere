@@ -26,7 +26,7 @@ export const ABILITIES: Record<AbilityType, AbilityDef> = {
   firetrail: { id: 'firetrail', category: 'active', maxLevel: 7, key: 'f', name: { ru: 'Перегрев', en: 'Overheat' }, desc: { ru: (l) => `Перегружает сеть на ${5 + Math.min(3, l - 1)}с, КД 25с`, en: (l) => `Overheats the network for ${5 + Math.min(3, l - 1)}s, CD 25s` } },
   minion: { id: 'minion', category: 'active', maxLevel: 7, key: 'g', name: { ru: 'Эхо-дрон', en: 'Echo Drone' }, desc: { ru: (l) => `${1 + Math.floor((l - 1) / 2)} временных узлов, 10с, КД 30с`, en: (l) => `${1 + Math.floor((l - 1) / 2)} temporary nodes, 10s, CD 30s` } },
   vampire: { id: 'vampire', category: 'passive', maxLevel: 7, name: { ru: 'Вампиризм', en: 'Vampirism' }, desc: { ru: (l) => `${l * 3}% урона -> HP`, en: (l) => `${l * 3}% damage -> HP` } },
-  lightning: { id: 'lightning', category: 'active', maxLevel: 7, key: 'e', name: { ru: 'Цепной разряд', en: 'Chain Lightning' }, desc: { ru: (l) => `Разряд проходит через Chain-сферы, КД 20с`, en: (l) => `Lightning travels through Chain spheres, CD 20s` } },
+  lightning: { id: 'lightning', category: 'active', maxLevel: 7, key: 'e', name: { ru: 'Цепной разряд', en: 'Chain Lightning' }, desc: { ru: (l) => `Разряд проходит по сети сфер к цели, КД 20с`, en: (l) => `Lightning travels through the Sphere Network to its target, CD 20s` } },
   dodge: { id: 'dodge', category: 'passive', maxLevel: 7, name: { ru: 'Уклонение', en: 'Dodge' }, desc: { ru: (l) => `${10 + (l - 1) * 5}% шанс`, en: (l) => `${10 + (l - 1) * 5}% chance` } },
   crit: { id: 'crit', category: 'passive', maxLevel: 7, name: { ru: 'Критический урон', en: 'Critical Hit' }, desc: { ru: (l) => `${10 + (l - 1) * 5}% шанс x2`, en: (l) => `${10 + (l - 1) * 5}% chance x2` } },
   timestop: { id: 'timestop', category: 'active', maxLevel: 7, key: 'q', name: { ru: 'Эхо-заморозка', en: 'Echo Freeze' }, desc: { ru: (l) => `Сеть останавливает врагов на ${3 + Math.min(2, l - 1)}с, КД 40с`, en: (l) => `Network freezes enemies for ${3 + Math.min(2, l - 1)}s, CD 40s` } },
@@ -230,13 +230,13 @@ export const SPHERE_TYPES: Record<SphereType, SphereTypeDef> = {
     id: 'aura', name: { ru: 'Аура', en: 'Aura' },
     desc: { ru: 'Непрерывный урон по площади', en: 'Continuous AoE damage' },
     targetingRule: 'nearest',
-    color: '#57e6b4', damageMult: 0.4, rangeMult: 0.5, delayMult: 0.2, projectileSpeedMult: 1,
+    color: '#57e6b4', damageMult: 0.60, rangeMult: 0.5, delayMult: 0.2, projectileSpeedMult: 1,
     pellets: 0, spread: 0, chain: false, aura: true, auraRadius: 80,
   },
   orbital: {
     id: 'orbital', name: { ru: 'Орбитальная', en: 'Orbital' },
     desc: { ru: 'Спутники вращаются вокруг ядра и режут врагов', en: 'Orbiting satellites cut through enemies' },
-    targetingRule: 'area_control', color: '#8ef0ff', damageMult: 0.8, rangeMult: 1, delayMult: 0.35, projectileSpeedMult: 1,
+    targetingRule: 'area_control', color: '#8ef0ff', damageMult: 0.50, rangeMult: 1, delayMult: 0.35, projectileSpeedMult: 1,
     pellets: 0, spread: 0, chain: false, aura: false, auraRadius: 105,
   },
   prism: {
@@ -248,7 +248,7 @@ export const SPHERE_TYPES: Record<SphereType, SphereTypeDef> = {
   gravity: {
     id: 'gravity', name: { ru: 'Гравитационная', en: 'Gravity' },
     desc: { ru: 'Стягивает врагов к центру и наносит импульсный урон', en: 'Pulls enemies inward and pulses damage' },
-    targetingRule: 'area_control', color: '#a58cff', damageMult: 0.7, rangeMult: 1.1, delayMult: 0.9, projectileSpeedMult: 1,
+    targetingRule: 'area_control', color: '#a58cff', damageMult: 0.42, rangeMult: 1.1, delayMult: 0.9, projectileSpeedMult: 1,
     pellets: 0, spread: 0, chain: false, aura: true, auraRadius: 125,
   },
   pulse: {
