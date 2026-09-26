@@ -70,6 +70,7 @@ export function spawnEnemy(s: GameState, isBoss: boolean): EnemyEntity {
       summonTimer: 4,
       auraRadius: bt === 'aura' ? 120 : 0,
       auraDps: bt === 'aura' ? 10 + wave * 2 : 0,
+      visualVariant: bt === 'charger' ? 'brute' : bt === 'summoner' ? 'prism' : bt === 'aura' ? 'wisp' : 'beetle',
     };
   }
   const r = nextRandom(s);
@@ -80,6 +81,7 @@ export function spawnEnemy(s: GameState, isBoss: boolean): EnemyEntity {
   let dmg = (BALANCE.normalDamageBase + wave * BALANCE.normalDamagePerWave) * diff.enemyDamageMult;
   let color = '#4a7a8a';
   let shape: EnemyEntity['shape'] = 'circle';
+  let visualVariant: EnemyEntity['visualVariant'] = 'wisp';
   if (r < 0.2 && wave > 2) { type = 'fast'; hp = (BALANCE.fastHpBase + wave * BALANCE.fastHpPerWave) * diff.enemyHpMult; speed = (BALANCE.fastSpeedBase + wave * BALANCE.fastSpeedPerWave) * diff.enemySpeedMult; radius = 10; dmg = (BALANCE.fastDamageBase + wave * BALANCE.fastDamagePerWave) * diff.enemyDamageMult; color = '#d4a830'; shape = 'triangle'; }
   else if (r < 0.35 && wave > 4) { type = 'tank'; hp = (BALANCE.tankHpBase + wave * BALANCE.tankHpPerWave) * diff.enemyHpMult; speed = (BALANCE.tankSpeedBase + wave * BALANCE.tankSpeedPerWave) * diff.enemySpeedMult; radius = 20; dmg = (BALANCE.tankDamageBase + wave * BALANCE.tankDamagePerWave) * diff.enemyDamageMult; color = '#8a5a8a'; shape = 'square'; }
   // elite chance: 5% after wave 5, scales up
@@ -91,6 +93,7 @@ export function spawnEnemy(s: GameState, isBoss: boolean): EnemyEntity {
     dmg *= 1.5;
     color = '#b8475a';
     type = 'elite';
+    visualVariant = 'linkbreaker';
   }
   return {
     pos: { x: px, y: py },
@@ -110,6 +113,7 @@ export function spawnEnemy(s: GameState, isBoss: boolean): EnemyEntity {
     bossType: 'shooter',
     chargeTimer: 0, isCharging: false, chargeDir: { x: 0, y: 0 },
     summonTimer: 0, auraRadius: 0, auraDps: 0,
+    visualVariant,
   };
 }
 
