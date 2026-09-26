@@ -146,9 +146,9 @@ ARTIFACT_METADATA.push(
   meta('pulse_crown', 'epic', {}),
   meta('chain_crown', 'epic', {"sphereDamage":0.08,"cooldown":-0.03}),
   meta('sniper_crown', 'epic', {"sphereDamage":0.08,"cooldown":-0.03}),
-  meta('singularity_seed', 'special', {"sphereDamage":0.12,"critChance":0.03}),
-  meta('time_splitter', 'special', {"sphereDamage":0.12,"critChance":0.03}),
-  meta('stasis_mandala', 'special', {"sphereDamage":0.12,"critChance":0.03}),
+  meta('singularity_seed', 'legendary', {"sphereDamage":0.12,"critChance":0.03}),
+  meta('time_splitter', 'legendary', {"sphereDamage":0.12,"critChance":0.03}),
+  meta('stasis_mandala', 'legendary', {"sphereDamage":0.12,"critChance":0.03}),
   meta('echo_archive', 'special', {"sphereDamage":0.12,"critChance":0.03}),
   meta('quantum_fold', 'special', {"sphereDamage":0.12,"critChance":0.03}),
   meta('zero_point_relay', 'special', {"sphereDamage":0.12,"critChance":0.03}),
@@ -529,12 +529,25 @@ export function pickArtifactChoices(
   return result;
 }
 
+export function pickStellaArtifactChoices(
+  s: { player: { artifacts: ArtifactId[] } },
+  count = 3,
+  random: () => number = Math.random,
+): ArtifactId[] {
+  const owned = new Set(s.player.artifacts);
+  const pool = ARTIFACT_METADATA.filter((item) => item.rarity === 'legendary' && !owned.has(item.id));
+  const result: ArtifactId[] = [];
+  while (result.length < count && pool.length > 0) {
+    const chosen = randomWeighted(pool, () => 1, random);
+    result.push(chosen.id);
+    pool.splice(pool.indexOf(chosen), 1);
+  }
+  return result;
+}
+
 export function pickStellaArtifactChoice(
   s: { player: { artifacts: ArtifactId[] } },
   random: () => number = Math.random,
 ): ArtifactId | null {
-  const owned = new Set(s.player.artifacts);
-  const available = ARTIFACT_METADATA.filter((item) => item.rarity === 'legendary' && !owned.has(item.id));
-  if (available.length === 0) return null;
-  return randomWeighted(available, () => 1, random).id;
+  return pickStellaArtifactChoices(s, 1, random)[0] || null;
 }
