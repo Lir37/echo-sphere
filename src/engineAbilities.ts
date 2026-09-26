@@ -7,7 +7,7 @@ import {
 import {
   dealDamageToEnemy, getCooldownMult, getVampirePercent, emitSpherePulse, triggerEngineerRelay
 } from './engineCombat';
-import { analyzeSphereNetwork, getLinkedNodeIndexes } from './network';
+import { getLinkedNodeIndexes } from './network';
 import { getActiveSphereAbilitySynergies } from './sphereProgression';
 
 function activateBlast(s: GameState): void {
@@ -28,7 +28,7 @@ function activateBlast(s: GameState): void {
   } else {
     let ordered = [...spheres].sort((a, b) => dist(a.pos, s.player.pos) - dist(b.pos, s.player.pos));
     if (branch === 'blast_network' || final === 'blast_echo_network' || final === 'blast_infinite_pulse') {
-      const networkState = analyzeSphereNetwork(getNetworkNodes(s));
+      const networkState = getNetworkFrame(s);
       const orderedNetwork: SphereEntity[] = [];
       const remaining = new Set(ordered);
       let current: SphereEntity | null = ordered[0] ?? null;
