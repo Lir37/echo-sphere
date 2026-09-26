@@ -188,7 +188,7 @@ function drawRune(ctx: CanvasRenderingContext2D, rune: GameState['runes'][number
     ctx.beginPath();ctx.moveTo(0,-16);ctx.quadraticCurveTo(15,-8,10,9);ctx.quadraticCurveTo(0,18,-10,9);ctx.quadraticCurveTo(-15,-8,0,-16);ctx.fill();ctx.stroke();
     for(let i=0;i<3;i++){const a=t*1.3+i*Math.PI*2/3;ctx.strokeStyle='rgba(255,255,255,.55)';ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(Math.cos(a)*9,Math.sin(a)*7);ctx.stroke();}
   } else if(rune.type==='purge'){
-    ctx.beginPath();for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,rr=i%2===0?17:8;const x=Math.cos(a)*rr,y=Math.sin(a)*rr;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.beginPath();for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,rr=i%2===0?17:8;const x=Math.cos(a)*rr,y=Math.sin(a)*rr;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}ctx.closePath();ctx.fill();ctx.stroke();
     ctx.fillStyle='rgba(255,255,255,.55)';ctx.beginPath();ctx.arc(0,0,4,0,Math.PI*2);ctx.fill();
   } else if(rune.type==='resonance'){
     ctx.beginPath();ctx.arc(0,0,15,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.arc(0,0,7,0,Math.PI*2);ctx.stroke();
@@ -1981,7 +1981,7 @@ function drawSphereCoreArt(
 
   if(tier>=2){
     ctx.strokeStyle=`rgba(${rgb},.48)`;ctx.lineWidth=1;
-    for(let side of [-1,1]){ctx.beginPath();ctx.moveTo(side*r*.60,r*.46);ctx.lineTo(side*r*.88,r*.64);ctx.stroke();}
+    for(const side of [-1,1]){ctx.beginPath();ctx.moveTo(side*r*.60,r*.46);ctx.lineTo(side*r*.88,r*.64);ctx.stroke();}
   }
   if(tier>=4){
     ctx.save();ctx.rotate(time*.45);ctx.strokeStyle=`rgba(${rgb},.38)`;ctx.lineWidth=1;
