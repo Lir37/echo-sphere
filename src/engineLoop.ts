@@ -4,7 +4,7 @@ import {
   getArtifactMaxHpBonus,
   getArtifactRegenPerSecond,
   pickArtifactChoices,
-  pickStellaArtifactChoice, pickStellaArtifactChoices,
+  pickStellaArtifactChoices,
 } from './artifactSystem';
 import { RUNE_DEFS } from './runes';
 import { nextRandom } from './rng';
@@ -139,9 +139,15 @@ export function update(s: GameState, dt: number): void {
       chest.alive = false;
       s.stellaChests.splice(i, 1);
       const choiceCount = s.player.artifacts.includes('quantum_fold') ? 4 : 3;
-      const choices = pickStellaArtifactChoices(s, choiceCount, () => nextRandom(s));
-      s.stellaLegendaryClaims++;
-      s.pendingArtifact = choices.length > 0 ? choices : pickArtifacts(s);
+      const legendaryChoices = s.time < STELLA_LEGENDARY_CUTOFF_SECONDS
+        ? pickStellaArtifactChoices(s, choiceCount, () => nextRandom(s))
+        : [];
+      if (legendaryChoices.length > 0) {
+        s.stellaLegendaryClaims++;
+        s.pendingArtifact = legendaryChoices;
+      } else {
+        s.pendingArtifact = pickArtifacts(s);
+      }
       s.flashText = { text: 'STELLA', life: 1.2, color: '#ffb84d' };
       playSound('chest');
     }
