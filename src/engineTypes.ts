@@ -131,6 +131,8 @@ export interface EnemyEntity {
   radius: number;
   damage: number;
   type: 'normal' | 'fast' | 'tank' | 'elite' | 'boss';
+  /** Presentation-only silhouette variant. Does not affect combat rules. */
+  visualVariant?: 'wisp' | 'skitter' | 'moth' | 'beetle' | 'brute' | 'prism' | 'linkbreaker';
   color: string;
   shape: 'circle' | 'square' | 'triangle' | 'hexagon';
   slowTimer: number;
