@@ -471,9 +471,10 @@ export function sphereModifiers(s:any,type:SphereType,sphere?:any){
 
   // NEW FIVE: their level 1-3 upgrades must modify real combat parameters.
   if(type==='orbital'){
+    // Every level visibly adds one rotating satellite. Cadence is controlled by angular speed.
     if(l>=1) damage*=1.15;
     if(l>=2) radius*=1.15;
-    if(l>=3) delay*=0.88;
+    if(l>=1) multishot += l;
     if(branch==='orbital_dance'){ delay*=final===0?0.80:0.90; }
     if(branch==='orbital_halo'){ damage*=0.92; }
     if(branch==='orbital_blade'){ damage*=final===0?1.15:1.05; }
