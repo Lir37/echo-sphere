@@ -2210,6 +2210,64 @@ function drawFormationMemory(ctx: CanvasRenderingContext2D, s: GameState): void 
   ctx.restore();
 }
 
+
+function drawWavyNetworkLink(
+  ctx: CanvasRenderingContext2D,
+  from: Vec,
+  to: Vec,
+  color: string,
+  alpha: number,
+  time: number,
+  seed: number,
+  active: boolean,
+): void {
+  const dx=to.x-from.x,dy=to.y-from.y,len=Math.hypot(dx,dy)||1;
+  const nx=-dy/len,ny=dx/len;
+  const amp=Math.min(5.5,1.6+len*.012);
+  const steps=9;
+  const phase=time*(active?3.0:1.7)+seed;
+  const path=(extra=0)=>{
+    ctx.beginPath();
+    ctx.moveTo(from.x,from.y);
+    for(let i=1;i<steps;i++){
+      const p=i/steps;
+      const wave=Math.sin(phase+i*1.85)*amp*(0.5+Math.sin(Math.PI*p)*0.5);
+      const x=from.x+dx*p+nx*(wave+extra*Math.sin(i*2.1+phase));
+      const y=from.y+dy*p+ny*(wave+extra*Math.sin(i*2.1+phase));
+      ctx.lineTo(x,y);
+    }
+    ctx.lineTo(to.x,to.y);
+  };
+
+  ctx.save();
+  ctx.lineJoin='round';ctx.lineCap='round';ctx.globalAlpha=alpha;
+  ctx.strokeStyle=color;ctx.shadowColor=color;
+  ctx.shadowBlur=active?12:5;ctx.lineWidth=active?5.2:3.2;
+  path();ctx.stroke();
+  ctx.shadowBlur=0;ctx.globalAlpha=alpha*(active?0.95:0.78);
+  ctx.lineWidth=active?1.35:1;
+  path();ctx.stroke();
+
+  if(active){
+    const packetCount=2;
+    for(let packet=0;packet<packetCount;packet++){
+      const phaseP=((time*(.48+packet*.08))+seed*.031+packet*.47)%1;
+      const seg=Math.max(1,Math.min(steps-1,Math.floor(phaseP*steps)));
+      const p0=(seg-1)/steps,p1=(seg+.55)/steps;
+      const x0=from.x+dx*p0+nx*Math.sin(phase+seg*1.85)*amp;
+      const y0=from.y+dy*p0+ny*Math.sin(phase+seg*1.85)*amp;
+      const x1=from.x+dx*p1+nx*Math.sin(phase+(seg+1)*1.85)*amp;
+      const y1=from.y+dy*p1+ny*Math.sin(phase+(seg+1)*1.85)*amp;
+      const mx=(x0+x1)*.5+nx*Math.sin(phase*1.7+packet)*2.8;
+      const my=(y0+y1)*.5+ny*Math.sin(phase*1.7+packet)*2.8;
+      ctx.strokeStyle='#effcff';ctx.shadowColor=color;ctx.shadowBlur=10;
+      ctx.globalAlpha=.78*alpha;ctx.lineWidth=2.2;
+      ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(mx,my);ctx.lineTo(x1,y1);ctx.stroke();
+    }
+  }
+  ctx.restore();
+}
+
 function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, network: SphereNetworkState): void {
   if (network.nodes.length < 2) return;
 
@@ -2276,34 +2334,8 @@ function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, network:
 
     const a = s.spheres[link.a].pos;
     const b = s.spheres[link.b].pos;
-    ctx.save();
-    ctx.strokeStyle = color;
-    ctx.globalAlpha = alpha * pulse;
-    ctx.lineWidth = active ? 1.6 : 1;
-    ctx.shadowColor = color;
-    ctx.shadowBlur = active ? 11 : 5;
-    ctx.setLineDash(lineNode ? [8, 6] : squareNode ? [6, 5] : clusterNode ? [3, 7] : [4, 8]);
-    ctx.beginPath();
-    ctx.moveTo(a.x, a.y);
-    ctx.lineTo(b.x, b.y);
-    ctx.stroke();
-
-    if (active) {
-      const speed = lineNode ? 0.42 : triangleNode ? 0.50 : 0.34;
-      const phase = ((t * speed) + link.a * 0.17 + link.b * 0.11) % 1;
-      const px = a.x + (b.x - a.x) * phase;
-      const py = a.y + (b.y - a.y) * phase;
-      ctx.fillStyle = color;
-      ctx.globalAlpha = 0.85;
-      ctx.shadowColor = color;
-      ctx.shadowBlur = 9;
-      ctx.beginPath();
-      ctx.arc(px, py, 2.2, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    ctx.setLineDash([]);
-    ctx.restore();
+    const seed = link.a * 17.13 + link.b * 29.71;
+    drawWavyNetworkLink(ctx, a, b, color, alpha * pulse, t, seed, active);
   }
 
   if (network.line) {
@@ -2321,7 +2353,6 @@ function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, network:
     ctx.strokeStyle = '#63e6ff';
     ctx.globalAlpha = 0.20 + 0.05 * Math.sin(t * 5);
     ctx.lineWidth = 1;
-    ctx.setLineDash([2, 8]);
     const spread = 34 + network.line.nodes.length * 5;
     ctx.beginPath();
     ctx.moveTo(-spread, 0);
@@ -2457,12 +2488,9 @@ function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, network:
 
     const radius = Math.max(...points.map((p) => Math.hypot(p.x - cx, p.y - cy))) + 22;
     ctx.globalAlpha = 0.16 + 0.05 * Math.sin(t * 6);
-    ctx.setLineDash([5, 7]);
     ctx.beginPath();
     ctx.arc(0, 0, radius, 0, Math.PI * 2);
     ctx.stroke();
-    ctx.setLineDash([]);
-
     ctx.fillStyle = '#69b7ff';
     ctx.globalAlpha = 0.30 + 0.10 * Math.sin(t * 8);
     ctx.shadowBlur = 20;
@@ -2504,12 +2532,9 @@ function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, network:
     ctx.lineWidth = 1.4;
     ctx.shadowColor = '#b38cff';
     ctx.shadowBlur = 15;
-    ctx.setLineDash([3, 7]);
     ctx.beginPath();
     ctx.arc(cx, cy, radius + 18 + Math.sin(t * 3) * 3, 0, Math.PI * 2);
     ctx.stroke();
-    ctx.setLineDash([]);
-
     ctx.strokeStyle = 'rgba(206,178,255,0.42)';
     ctx.globalAlpha = 0.55;
     ctx.lineWidth = 0.8;
@@ -2540,12 +2565,10 @@ function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, network:
     ctx.lineWidth = 1.6;
     ctx.shadowColor = '#55e69a';
     ctx.shadowBlur = 14;
-    ctx.setLineDash([5, 6]);
     ctx.beginPath();
     points.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
     ctx.closePath();
     ctx.stroke();
-    ctx.setLineDash([]);
     ctx.restore();
   }
 
@@ -2593,13 +2616,11 @@ function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, network:
     ctx.lineWidth = 1.2;
     ctx.shadowColor = '#ff6b9d';
     ctx.shadowBlur = 18;
-    ctx.setLineDash([3, 5]);
     for (const scale of [1, 0.62, 0.34]) {
       ctx.beginPath();
       ctx.arc(cx, cy, Math.max(8, radius * scale), 0, Math.PI * 2);
       ctx.stroke();
     }
-    ctx.setLineDash([]);
     ctx.restore();
   }
 }
