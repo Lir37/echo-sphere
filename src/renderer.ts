@@ -4,8 +4,8 @@ import { SPHERE_TYPES, BOSS_TYPES } from './gameData';
 import type { MapTheme, Vec } from './engine';
 import { CHARACTER_DEFS } from './characters';
 import { getCharacterId, getCharacterFormation, getEngineerNetworkRange } from './characterRuntime';
-import { analyzeSphereNetwork, type SphereNetworkState } from './network';
-import { buildRuntimeNetworkNodes } from './networkRuntime';
+import type { SphereNetworkState } from './network';
+import { getNetworkFrame } from './engineRuntime';
 import { RUNE_DEFS } from './runes';
 import { BOSS_TELEGRAPH_WINDOWS } from './bossBalance';
 import { LINK_BREAKER_TELEGRAPH_SECONDS, LINK_BREAKER_DISABLED_SECONDS } from './eliteBalance';
@@ -170,7 +170,7 @@ export function render(ctx: CanvasRenderingContext2D, s: GameState, canvasW: num
   // The network is part of the battlefield, not a hidden calculation. Draw it
   // before the Spheres so links stay behind the authored sphere silhouettes.
   drawFormationMemory(ctx, s);
-  drawSphereNetwork(ctx, s, analyzeSphereNetwork(buildRuntimeNetworkNodes(s.spheres, s.minions, (s.player.abilities.minion || 0) >= 3)));
+  drawSphereNetwork(ctx, s, getNetworkFrame(s));
 
 function drawRune(ctx: CanvasRenderingContext2D, rune: GameState['runes'][number]): void {
   const def=RUNE_DEFS[rune.type], t=Date.now()/1000, pulse=1+Math.sin(t*4+rune.pos.x*.01)*.08;
