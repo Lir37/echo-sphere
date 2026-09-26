@@ -296,6 +296,13 @@ export function update(s: GameState, dt: number): void {
     if (s.lightnings[i].life <= 0) s.lightnings.splice(i, 1);
   }
 
+  // Transient VFX are intentionally capped on mobile. This prevents a
+  // high-kill minute from turning the Canvas into a particle backlog.
+  if (s.particles.length > 220) s.particles.splice(0, s.particles.length - 220);
+  if (s.damageNumbers.length > 80) s.damageNumbers.splice(0, s.damageNumbers.length - 80);
+  if (s.lightnings.length > 36) s.lightnings.splice(0, s.lightnings.length - 36);
+  if (s.fireTrails.length > 120) s.fireTrails.splice(0, s.fireTrails.length - 120);
+
   // screen shake
   if (s.screenShake > 0) s.screenShake = Math.max(0, s.screenShake - dt);
   if (s.flashText) {
