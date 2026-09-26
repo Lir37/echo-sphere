@@ -55,7 +55,7 @@ test('four evenly spaced points form a square and expose square membership', () 
   for (let i = 0; i < 4; i++) assert.equal(getSphereNetworkProfile(state, i).square, true);
 });
 
-test('triangle and cluster can coexist while line is suppressed', () => {
+test('one Sphere cannot belong to multiple active Geometries', () => {
   const h = Math.sqrt(3) * 100 / 2;
   const state = analyzeSphereNetwork([
     node(0, 0),
@@ -64,8 +64,10 @@ test('triangle and cluster can coexist while line is suppressed', () => {
     node(50, h / 2),
   ]);
   assert.ok(state.triangle);
-  assert.ok(state.cluster);
+  assert.equal(state.cluster, null);
   assert.equal(state.line, null);
+  const triangleNodes = new Set(state.triangle.nodes);
+  for (const index of state.cluster?.nodes || []) assert.equal(triangleNodes.has(index), false);
 });
 
 
@@ -96,4 +98,30 @@ test('two connected triangle cells activate Lattice and Fractal geometry', () =>
   assert.ok(state.lattice);
   assert.ok(state.fractal);
   assert.ok(state.lattice.nodes.length >= 4);
+});
+
+
+test('disjoint active Geometries can coexist without sharing Spheres', () => {
+  const h = Math.sqrt(3) * 100 / 2;
+  const state = analyzeSphereNetwork([
+    node(0, 0), node(100, 0), node(100, 100), node(0, 100),
+    node(450, 0), node(550, 0), node(500, h),
+  ]);
+  assert.ok(state.square);
+  assert.ok(state.triangle);
+  const squareNodes = new Set(state.square.nodes);
+  for (const index of state.triangle.nodes) assert.equal(squareNodes.has(index), false);
+});
+
+test('active Geometry is capped at two simultaneous formations', () => {
+  const state = analyzeSphereNetwork([
+    node(0, 0), node(100, 0), node(100, 100), node(0, 100),
+    node(450, 0), node(550, 0), node(500, 86),
+    node(850, 0), node(950, 0), node(900, 86),
+  ]);
+  const active = [
+    state.line, state.triangle, state.cluster, state.square,
+    state.ring, state.lattice, state.fractal,
+  ].filter(Boolean);
+  assert.ok(active.length <= 2);
 });
