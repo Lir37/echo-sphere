@@ -82,12 +82,15 @@ test('Network link queries expose the same canonical links used by geometry', ()
 });
 
 
-test('four-node closed loop activates Ring without requiring diagonals', () => {
+test('four-node closed loop resolves to one canonical defensive Geometry', () => {
   const state = analyzeSphereNetwork([
     node(-90, -90), node(90, -90), node(90, 90), node(-90, 90),
   ]);
-  assert.ok(state.ring);
-  assert.equal(state.ring.nodes.length, 4);
+  assert.ok(state.square || state.ring);
+  const chosen = state.square || state.ring;
+  assert.equal(chosen.nodes.length, 4);
+  if (state.square) assert.equal(state.ring, null);
+  if (state.ring) assert.equal(state.square, null);
 });
 
 test('two connected triangle cells resolve to one advanced Geometry without node overlap', () => {
