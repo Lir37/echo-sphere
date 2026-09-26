@@ -47,6 +47,42 @@ export interface SphereNetworkProfile {
   fractal: boolean;
 }
 
+const ACTIVE_GEOMETRY_LIMIT = 2;
+const GEOMETRY_PRIORITY: Record<Exclude<NetworkFormation, 'none'>, number> = {
+  fractal: 70,
+  lattice: 60,
+  ring: 50,
+  square: 40,
+  triangle: 30,
+  cluster: 20,
+  line: 10,
+};
+
+function resolveNonOverlappingGeometry(
+  candidates: Partial<Record<Exclude<NetworkFormation, 'none'>, NetworkShape | null>>,
+): Partial<Record<Exclude<NetworkFormation, 'none'>, NetworkShape | null>> {
+  const ordered = (Object.entries(candidates) as Array<[Exclude<NetworkFormation, 'none'>, NetworkShape | null]>)
+    .filter((entry): entry is [Exclude<NetworkFormation, 'none'>, NetworkShape] => Boolean(entry[1]))
+    .sort((a, b) => {
+      const pa = GEOMETRY_PRIORITY[a[0]], pb = GEOMETRY_PRIORITY[b[0]];
+      return pb - pa || b[1].strength - a[1].strength;
+    });
+
+  const claimed = new Set<number>();
+  const resolved: Partial<Record<Exclude<NetworkFormation, 'none'>, NetworkShape | null>> = {};
+  let activeCount = 0;
+
+  for (const [type, shape] of ordered) {
+    if (activeCount >= ACTIVE_GEOMETRY_LIMIT) break;
+    if (shape.nodes.some((node) => claimed.has(node))) continue;
+    resolved[type] = shape;
+    shape.nodes.forEach((node) => claimed.add(node));
+    activeCount++;
+  }
+
+  return resolved;
+}
+
 const DEFAULT_LINK_DISTANCE = 220;
 
 function distance(a: NetworkPosition, b: NetworkPosition): number {
@@ -257,23 +293,31 @@ export function analyzeSphereNetwork(
       }
     : null;
 
-  // Higher-order shapes remain additive. Visual suppression of Line does not
-  // remove its underlying links, while advanced Geometry exposes its own signal.
-  const resolvedTriangle = triangle;
-  const resolvedCluster = cluster;
-  const resolvedLine = square || ring || lattice || fractal || (triangle && cluster) ? null : line;
+  // Physical Links remain canonical. Active Geometry is resolved separately:
+  // one Sphere may belong to only one active Geometry, and at most two
+  // Geometry formations can be active simultaneously. Disjoint formations
+  // can therefore coexist without stacking multiple bonuses on the same node.
+  const resolved = resolveNonOverlappingGeometry({
+    fractal,
+    lattice,
+    ring,
+    square,
+    triangle,
+    cluster,
+    line,
+  });
 
   return {
     linkDistance,
     nodes: indexes,
     links,
-    line: resolvedLine,
-    triangle: resolvedTriangle,
-    square,
-    cluster: resolvedCluster,
-    ring,
-    lattice,
-    fractal,
+    line: resolved.line || null,
+    triangle: resolved.triangle || null,
+    square: resolved.square || null,
+    cluster: resolved.cluster || null,
+    ring: resolved.ring || null,
+    lattice: resolved.lattice || null,
+    fractal: resolved.fractal || null,
   };
 }
 
