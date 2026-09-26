@@ -1869,6 +1869,7 @@ function drawOrbitalSatelliteArt(
 
 function drawSphereCoreArt(
   ctx: CanvasRenderingContext2D,
+  game: GameState,
   sphere: SphereEntity,
   color: string,
   r: number,
@@ -1876,7 +1877,7 @@ function drawSphereCoreArt(
 ): void {
   const rgb=hexToRgb(color);
   const tier=sphere.visualTier||0;
-  const branch=sphere.type==='orbital' ? (s.player.sphereBranches?.orbital || null) : null;
+  const branch=sphere.type==='orbital' ? (game.player.sphereBranches?.orbital || null) : null;
   const pulse=1+Math.sin(time*3.4+sphere.pos.x*.01)*.035;
 
   ctx.save();ctx.translate(sphere.pos.x,sphere.pos.y);
@@ -1955,8 +1956,8 @@ function drawSphereCoreArt(
     ctx.restore();
   }
   if(sphere.type==='orbital'){
-    const satelliteCount=Math.max(1,1+(spheresVisualMultishot(sphere,s))+((s.player.artifacts||[]).includes('orbital_crown')?1:0)+(tier>=7&&s.player.sphereBranches?.orbital==='orbital_blade'?1:0));
-    const blade=s.player.sphereBranches?.orbital==='orbital_blade';
+    const satelliteCount=Math.max(1,1+(spheresVisualMultishot(sphere,game))+((game.player.artifacts||[]).includes('orbital_crown')?1:0)+(tier>=7&&game.player.sphereBranches?.orbital==='orbital_blade'?1:0));
+    const blade=game.player.sphereBranches?.orbital==='orbital_blade';
     const orbitR=r*(1.75+tier*.08);
     for(let i=0;i<satelliteCount;i++){
       const a=sphere.rotation+i*Math.PI*2/satelliteCount;
@@ -1969,6 +1970,14 @@ function drawSphereCoreArt(
     }
   }
   ctx.restore();
+}
+
+function drawModernSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: SphereEntity): void {
+  const def=SPHERE_TYPES[sphere.type];
+  const r=Math.max(15,Math.min(25,sphere.radius*0.19+(sphere.visualTier||0)*0.8));
+  drawSphereCoreArt(ctx,s,sphere,def.color,r,Date.now()/1000);
+  drawNetworkDisabledIndicator(ctx,sphere,Date.now()/1000);
+  drawSphereVfx(ctx,sphere,def.color,r,Date.now()/1000);
 }
 
 function spheresVisualMultishot(sphere: SphereEntity, s: GameState): number {
