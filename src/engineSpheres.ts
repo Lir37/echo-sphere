@@ -671,6 +671,8 @@ export function placeSphere(s: GameState, x: number, y: number): void {
     type: s.selectedSphereType,
     auraTimer: 0,
   });
+  if (!s.player.knownSphereTypes.includes(selectedType)) s.player.knownSphereTypes.push(selectedType);
+
   const stype = SPHERE_TYPES[s.selectedSphereType];
   for (let i = 0; i < 15; i++) {
     const a = nextRandom(s) * Math.PI * 2;
