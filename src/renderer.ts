@@ -2771,80 +2771,32 @@ function drawBossAttackTelegraph(
 
 function drawModernEnemy(ctx: CanvasRenderingContext2D, e: EnemyEntity, playerPos: { x: number; y: number function drawLinkBreakerTelegraph(ctx: CanvasRenderingContext2D, e: EnemyEntity, t: number): void {
   if (!e.isElite || !e.elitePulseTarget || (e.elitePulseTelegraphTimer || 0) <= 0) return;
-
-  const target = e.elitePulseTarget;
-  const dx = target.pos.x - e.pos.x;
-  const dy = target.pos.y - e.pos.y;
-  const remaining = Math.max(0, Math.min(1, (e.elitePulseTelegraphTimer || 0) / LINK_BREAKER_TELEGRAPH_SECONDS));
-  const pulse = 0.60 + Math.sin(t * 18) * 0.22;
-
-  ctx.save();
-  ctx.strokeStyle = '#ff4d70';
-  ctx.shadowColor = '#ff4d70';
-  ctx.shadowBlur = 14;
-  ctx.globalAlpha = pulse * (0.55 + (1 - remaining) * 0.45);
-  ctx.lineWidth = 2.4;
-  ctx.setLineDash([9, 6]);
-  ctx.beginPath();
-  ctx.moveTo(0, 0);
-  ctx.lineTo(dx, dy);
-  ctx.stroke();
-  ctx.setLineDash([]);
-
-  ctx.translate(dx, dy);
-  ctx.globalAlpha = 0.78 + (1 - remaining) * 0.18;
-  ctx.lineWidth = 2.2;
-  ctx.beginPath();
-  ctx.arc(0, 0, 16 + Math.sin(t * 20) * 2, 0, Math.PI * 2);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(-22, 0); ctx.lineTo(22, 0);
-  ctx.moveTo(0, -22); ctx.lineTo(0, 22);
-  ctx.stroke();
-
-  ctx.globalAlpha = 0.35;
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.arc(0, 0, 28, 0, Math.PI * 2);
-  ctx.stroke();
+  const target=e.elitePulseTarget, dx=target.pos.x-e.pos.x, dy=target.pos.y-e.pos.y;
+  const remaining=Math.max(0,Math.min(1,(e.elitePulseTelegraphTimer||0)/LINK_BREAKER_TELEGRAPH_SECONDS));
+  const pulse=.65+.35*Math.sin(t*16);
+  ctx.save();ctx.globalCompositeOperation='lighter';ctx.strokeStyle='#ff4d70';ctx.shadowColor='#ff4d70';ctx.shadowBlur=16;
+  ctx.globalAlpha=.30+(1-remaining)*.55;ctx.lineWidth=2.5;
+  ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(dx,dy);ctx.stroke();
+  const ux=dx/(Math.hypot(dx,dy)||1),uy=dy/(Math.hypot(dx,dy)||1);
+  const nx=-uy,ny=ux;
+  ctx.translate(dx,dy);ctx.rotate(Math.atan2(dy,dx));
+  ctx.globalAlpha=.55+.35*pulse;ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(-16,-10);ctx.lineTo(-5,0);ctx.lineTo(-16,10);ctx.moveTo(16,-10);ctx.lineTo(5,0);ctx.lineTo(16,10);ctx.stroke();
+  ctx.globalAlpha=.32;ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(-9,-15);ctx.lineTo(9,-15);ctx.moveTo(-9,15);ctx.lineTo(9,15);ctx.stroke();
   ctx.restore();
 }
 
 function drawNetworkDisabledIndicator(ctx: CanvasRenderingContext2D, sphere: SphereEntity, t: number): void {
   if ((sphere.networkDisabledTimer || 0) <= 0) return;
-
-  const remaining = Math.max(0, Math.min(1, (sphere.networkDisabledTimer || 0) / LINK_BREAKER_DISABLED_SECONDS));
-  const pulse = 0.72 + Math.sin(t * 16) * 0.22;
-
-  ctx.save();
-  ctx.shadowColor = '#ff4d70';
-  ctx.shadowBlur = 15;
-  ctx.strokeStyle = '#ff4d70';
-  ctx.globalAlpha = pulse;
-  ctx.lineWidth = 2.2;
-  ctx.setLineDash([7, 5]);
-
-  ctx.beginPath();
-  ctx.arc(0, 0, 24 + Math.sin(t * 13) * 1.5, 0, Math.PI * 2);
-  ctx.stroke();
-
-  ctx.globalAlpha = 0.88;
-  ctx.setLineDash([3, 7]);
-  ctx.beginPath();
-  ctx.arc(0, 0, 31, -Math.PI / 3, Math.PI / 3);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(-14, -14); ctx.lineTo(14, 14);
-  ctx.moveTo(14, -14); ctx.lineTo(-14, 14);
-  ctx.stroke();
-
-  ctx.globalAlpha = 0.50;
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.arc(0, 0, 36 - remaining * 8, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * remaining);
-  ctx.stroke();
-
-  ctx.setLineDash([]);
+  const remaining=Math.max(0,Math.min(1,(sphere.networkDisabledTimer||0)/LINK_BREAKER_DISABLED_SECONDS));
+  const pulse=.6+.4*Math.sin(t*13);
+  ctx.save();ctx.globalCompositeOperation='lighter';ctx.translate(0,0);
+  ctx.strokeStyle='#ff4d70';ctx.shadowColor='#ff4d70';ctx.shadowBlur=14;ctx.globalAlpha=.55+.35*pulse;ctx.lineWidth=2.2;
+  ctx.beginPath();ctx.moveTo(-17,-10);ctx.lineTo(-4,0);ctx.lineTo(-17,10);ctx.moveTo(17,-10);ctx.lineTo(4,0);ctx.lineTo(17,10);ctx.stroke();
+  ctx.globalAlpha=.28;ctx.lineWidth=1.2;
+  const sweep=(1-remaining)*Math.PI*2;
+  ctx.beginPath();ctx.arc(0,0,27,-Math.PI/2,-Math.PI/2+sweep);ctx.stroke();
   ctx.restore();
 }
 
