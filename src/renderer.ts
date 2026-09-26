@@ -1093,6 +1093,7 @@ function drawOrigamiOctopus(ctx: CanvasRenderingContext2D, r: number, fill: stri
 
 // ===== Player — authored 2.5D core, no containment sphere =====
 function drawPlayer(ctx: CanvasRenderingContext2D, p: PlayerState): void {
+  // Do not draw containment spheres, orbit rings, selection rings or status ellipses around it.
   const r = PLAYER_RADIUS;
   const id = getCharacterId({ player: p } as GameState);
   const color = CHARACTER_DEFS[id].color;
