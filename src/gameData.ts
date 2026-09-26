@@ -235,7 +235,7 @@ export const SPHERE_TYPES: Record<SphereType, SphereTypeDef> = {
   },
   orbital: {
     id: 'orbital', name: { ru: 'Орбитальная', en: 'Orbital' },
-    desc: { ru: 'Спутники вращаются вокруг ядра и режут врагов', en: 'Orbiting satellites cut through enemies' },
+    desc: { ru: 'Спутники вращаются вокруг ядра и режут врагов. Каждый уровень добавляет +1 спутник.', en: 'Orbiting satellites cut through enemies. Each level adds +1 satellite.' },
     targetingRule: 'area_control', color: '#8ef0ff', damageMult: 0.50, rangeMult: 1, delayMult: 0.35, projectileSpeedMult: 1,
     pellets: 0, spread: 0, chain: false, aura: false, auraRadius: 105,
   },
