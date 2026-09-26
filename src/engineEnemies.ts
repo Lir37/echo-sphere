@@ -214,7 +214,7 @@ export function updateMinions(s: GameState, dt: number): void {
 }
 
 function applyGravityFields(s: GameState, dt: number): void {
-  const networkState = analyzeSphereNetwork(getNetworkNodes(s));
+  const networkState = getNetworkFrame(s);
   for (const sphere of s.spheres) {
     if (!sphere.alive || sphere.type !== 'gravity') continue;
     const mods = sphereModifiers(s, 'gravity', sphere);
