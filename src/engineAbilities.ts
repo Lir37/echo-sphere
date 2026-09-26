@@ -447,10 +447,13 @@ function activateLightning(s: GameState): void {
   );
   if (targets.length === 0) return;
   const maxTargets = 1 + Math.floor((lvl - 1) / 2);
-  let previous: Vec = { ...s.player.pos };
+  let previous: Vec = ordered.length > 0 ? { ...ordered[0].pos } : { ...s.player.pos };
   let jump = 0;
-  for (const sphere of ordered) {
-    s.lightnings.push({ from: { ...previous }, to: { ...sphere.pos }, life: 0.24 });
+  for (let networkIndex = 0; networkIndex < ordered.length; networkIndex++) {
+    const sphere = ordered[networkIndex];
+    if (networkIndex > 0) {
+      s.lightnings.push({ from: { ...previous }, to: { ...sphere.pos }, life: 0.24 });
+    }
     if (branch === 'lightning_echo_storm') {
       for (const enemy of s.enemies) {
         if (enemy.hp > 0 && dist(enemy.pos, sphere.pos) < 55) {
