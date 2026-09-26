@@ -32,12 +32,12 @@ import {
   chargeResonance, syncResonanceGeometry, updateResonanceRing
 } from './engineResonance';
 import {
-  DEFAULT_MAX_SPHERES, MAX_SPHERES_CAP,
+  DEFAULT_MAX_SPHERES, MAX_SPHERES_CAP, MAX_SAME_SPHERE_COPIES,
   BASE_SPHERE_RADIUS, BASE_SPHERE_DAMAGE, BASE_SPHERE_DELAY
 } from './engineBalanceConstants';
 
 export {
-  DEFAULT_MAX_SPHERES, MAX_SPHERES_CAP,
+  DEFAULT_MAX_SPHERES, MAX_SPHERES_CAP, MAX_SAME_SPHERE_COPIES,
   BASE_SPHERE_RADIUS, BASE_SPHERE_DAMAGE, BASE_SPHERE_DELAY,
 } from './engineBalanceConstants';
 
