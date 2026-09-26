@@ -202,6 +202,7 @@ function drawRune(ctx: CanvasRenderingContext2D, rune: GameState['runes'][number
 
   // chests
   for (const chest of s.chests) if (chest.alive) drawChest(ctx, chest);
+  for (const chest of s.stellaChests) if (chest.alive) drawStellaChest(ctx, chest);
 
   // spheres
   for (const sphere of s.spheres) drawModernSphere(ctx, s, sphere);
@@ -209,11 +210,13 @@ function drawRune(ctx: CanvasRenderingContext2D, rune: GameState['runes'][number
   // sphere projectiles
   for (const p of s.sphereProjectiles) drawModernProjectile(ctx, p.pos.x, p.pos.y, p.vel.x, p.vel.y, p.radius, p.color);
 
-  // minions
-  for (const m of s.minions) drawModernMinion(ctx, m.pos.x, m.pos.y, m.radius, m.rotation, '#ffb84d');
+  // Minion identity follows its anchor Sphere.
+  for (const m of s.minions) drawModernMinion(ctx, m.pos.x, m.pos.y, m.radius, m.rotation, SPHERE_TYPES[m.anchorType]?.color || '#ffb84d');
 
   // enemies
   for (const e of s.enemies) drawModernEnemy(ctx, e, s.player.pos);
+
+  drawPlayerShield(ctx, s);
 
   // Player is part of the same Canvas/2.5D visual family as the Spheres.
   // It is deliberately rendered after enemies so the hero remains readable.
@@ -307,55 +310,27 @@ function drawRune(ctx: CanvasRenderingContext2D, rune: GameState['runes'][number
   }
 }
 
-function drawCharacterHud(ctx: CanvasRenderingContext2D, s: GameState, _canvasW: number, _canvasH: number): void {
-  const characterId = getCharacterId(s);
-  const def = CHARACTER_DEFS[characterId];
-  const mastery = s.player.characterMasteryLevel || 1;
-  const x = 12;
-  const y = 74;
-  const width = 178;
-  const lines: string[] = [];
+function drawCharacterHud(_ctx: CanvasRenderingContext2D, _s: GameState, _canvasW: number, _canvasH: number): void {\n  // Character state is communicated by world indicators and the main HUD.\n}\n\nfunction drawPlayerShield(ctx: CanvasRenderingContext2D, s: GameState): void {
+  const charges = s.player.shieldCharges || 0;
+  if (charges <= 0 || s.player.shieldTimer <= 0) return;
+  const pulse = 1 + Math.sin(Date.now() * 0.008) * 0.035;
+  ctx.save(); ctx.translate(s.player.pos.x, s.player.pos.y); ctx.scale(pulse, pulse);
+  ctx.shadowColor = '#63e6ff'; ctx.shadowBlur = 18; ctx.strokeStyle = 'rgba(99,230,255,0.72)';
+  ctx.lineWidth = 2.2; ctx.setLineDash([10,7]); ctx.beginPath(); ctx.arc(0,0,34,0,Math.PI*2); ctx.stroke(); ctx.setLineDash([]);
+  ctx.strokeStyle = 'rgba(225,251,255,0.82)'; ctx.lineWidth = 1;
+  for(let i=0;i<charges;i++){const a=-Math.PI/2+i*Math.PI*2/Math.max(1,charges);ctx.beginPath();ctx.moveTo(Math.cos(a)*29,Math.sin(a)*29);ctx.lineTo(Math.cos(a)*38,Math.sin(a)*38);ctx.stroke();}
+  ctx.shadowBlur=0; ctx.fillStyle='#dffaff'; ctx.font='bold 9px system-ui,sans-serif'; ctx.textAlign='center'; ctx.fillText(String(charges),0,3); ctx.restore();
+}
 
-  switch (characterId) {
-    case 'spherist':
-      break;
-    case 'hunter':
-      lines.push(s.player.hunterHuntTimer > 0 ? `HUNT  ${Math.ceil(s.player.hunterHuntTimer)}s` : s.player.hunterMarkTimer > 0 ? `MARK  ${Math.ceil(s.player.hunterMarkTimer)}s` : 'MARK  —');
-      break;
-    case 'engineer':
-      lines.push(`LINKS  ${Math.min(s.spheres.length, 8)}/${s.spheres.length}`);
-      break;
-    case 'berserker': {
-      const steps = Math.min(4, Math.floor(Math.max(0, 1 - s.player.hp / Math.max(1, s.player.maxHp)) / 0.2));
-      lines.push(`FURY  ${steps}/4`);
-      break;
-    }
-    case 'alchemist':
-      lines.push(s.enemies.some((enemy) => enemy.hp > 0 && countStatusEffects(enemy) >= 2) ? 'REACTION  READY' : 'REACTION  —');
-      break;
-    case 'architect':
-      lines.push(`FORM  ${getCharacterFormation(s).type.toUpperCase()}`);
-      break;
-  }
-
-  ctx.save();
-  ctx.fillStyle = 'rgba(4,10,20,0.80)';
-  ctx.strokeStyle = 'rgba(91,199,255,0.18)';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.roundRect(x, y, width, 28 + lines.length * 14, 7);
-  ctx.fill();
-  ctx.stroke();
-
-  ctx.fillStyle = def.color;
-  ctx.font = 'bold 9px system-ui, sans-serif';
-  ctx.textAlign = 'left';
-  ctx.fillText(`${def.name.en.toUpperCase()}  •  M${mastery}`, x + 9, y + 13);
-
-  ctx.fillStyle = '#89a8bf';
-  ctx.font = '8px system-ui, sans-serif';
-  lines.forEach((line, index) => ctx.fillText(line, x + 9, y + 27 + index * 14));
-  ctx.restore();
+function drawStellaChest(ctx: CanvasRenderingContext2D, chest: ChestEntity): void {
+  ctx.save(); ctx.translate(chest.pos.x,chest.pos.y);
+  const pulse=1+Math.sin(Date.now()*0.005)*0.08; ctx.scale(pulse,pulse);
+  ctx.shadowColor='#ffb84d'; ctx.shadowBlur=24; ctx.fillStyle='rgba(20,10,2,0.96)'; ctx.strokeStyle='#ffb84d'; ctx.lineWidth=2;
+  ctx.beginPath();ctx.roundRect(-22,-14,44,28,6);ctx.fill();ctx.stroke();
+  ctx.fillStyle='rgba(255,184,77,0.18)';ctx.beginPath();ctx.moveTo(-20,-12);ctx.lineTo(-13,-22);ctx.lineTo(13,-22);ctx.lineTo(20,-12);ctx.closePath();ctx.fill();
+  ctx.strokeStyle='#fff0c2';ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(-12,-14);ctx.lineTo(-8,-23);ctx.lineTo(8,-23);ctx.lineTo(12,-14);ctx.stroke();
+  ctx.fillStyle='#fff6d6';ctx.beginPath();ctx.arc(0,-1,4,0,Math.PI*2);ctx.fill();
+  ctx.font='bold 8px system-ui,sans-serif';ctx.textAlign='center';ctx.fillStyle='#ffcf82';ctx.fillText('STELLA',0,37);ctx.restore();
 }
 
 function drawCharacterWorldIndicators(ctx: CanvasRenderingContext2D, s: GameState): void {
