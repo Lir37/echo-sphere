@@ -660,14 +660,14 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
   };
 
   const networkBadges = [
-    network.line ? { label: lang === 'ru' ? 'ЛИНИЯ' : 'LINE', className: 'border-[#63e6ff]/45 text-[#9fefff]' } : null,
-    network.triangle ? { label: lang === 'ru' ? 'ТРЕУГОЛЬНИК' : 'TRIANGLE', className: 'border-[#ffb84d]/45 text-[#ffd48f]' } : null,
-    network.ring ? { label: lang === 'ru' ? 'КОЛЬЦО' : 'RING', className: 'border-[#55e69a]/45 text-[#9affc8]' } : null,
-    network.lattice ? { label: lang === 'ru' ? 'РЕШЁТКА' : 'LATTICE', className: 'border-[#39d8ff]/45 text-[#8eeeff]' } : null,
-    network.fractal ? { label: lang === 'ru' ? 'ФРАКТАЛ' : 'FRACTAL', className: 'border-[#ff6b9d]/45 text-[#ffb3ca]' } : null,
-    network.cluster ? { label: lang === 'ru' ? 'КЛАСТЕР' : 'CLUSTER', className: 'border-[#b38cff]/45 text-[#d4c0ff]' } : null,
-    network.square ? { label: lang === 'ru' ? 'КВАДРАТ' : 'SQUARE', className: 'border-[#69b7ff]/45 text-[#9bcfff]' } : null,
-  ].filter((badge): badge is { label: string; className: string } => badge !== null);
+    network.line ? { id: 'LINE', label: lang === 'ru' ? 'ЛИНИЯ' : 'LINE', className: 'border-[#63e6ff]/45 text-[#9fefff]' } : null,
+    network.triangle ? { id: 'TRIANGLE', label: lang === 'ru' ? 'ТРЕУГОЛЬНИК' : 'TRIANGLE', className: 'border-[#ffb84d]/45 text-[#ffd48f]' } : null,
+    network.ring ? { id: 'RING', label: lang === 'ru' ? 'КОЛЬЦО' : 'RING', className: 'border-[#55e69a]/45 text-[#9affc8]' } : null,
+    network.lattice ? { id: 'LATTICE', label: lang === 'ru' ? 'РЕШЁТКА' : 'LATTICE', className: 'border-[#39d8ff]/45 text-[#8eeeff]' } : null,
+    network.fractal ? { id: 'FRACTAL', label: lang === 'ru' ? 'ФРАКТАЛ' : 'FRACTAL', className: 'border-[#ff6b9d]/45 text-[#ffb3ca]' } : null,
+    network.cluster ? { id: 'CLUSTER', label: lang === 'ru' ? 'КЛАСТЕР' : 'CLUSTER', className: 'border-[#b38cff]/45 text-[#d4c0ff]' } : null,
+    network.square ? { id: 'SQUARE', label: lang === 'ru' ? 'КВАДРАТ' : 'SQUARE', className: 'border-[#69b7ff]/45 text-[#9bcfff]' } : null,
+  ].filter((badge): badge is { id: string; label: string; className: string } => badge !== null);
 
   return (
     <>
@@ -699,7 +699,7 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
         <div className="relative mt-1 flex flex-wrap gap-1">
           {networkBadges.length > 0 ? networkBadges.map((badge) => (
             <span key={badge.label}
-              onPointerDown={() => startNetworkHold(badge.label)}
+              onPointerDown={() => startNetworkHold(badge.id)}
               onPointerUp={cancelNetworkHold}
               onPointerCancel={cancelNetworkHold}
               onPointerLeave={cancelNetworkHold}
