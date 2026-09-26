@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Pause, Zap } from 'lucide-react';
+import { Pause, Zap, Lock, Unlock } from 'lucide-react';
 import { ABILITIES, SPHERE_TYPES, type AbilityType, type SphereType } from './gameData';
 import { activateByKey, activateDash, getMaxSpheres, placeSphere, setSphereType, type GameState, type SphereEntity, type Vec } from './engine';
 import { CHARACTER_DEFS } from './characters';
@@ -13,7 +13,7 @@ import { canPlaceSphere, canRepositionSphere, repositionSphere } from './spaceCo
 import { analyzeSphereNetwork, type NetworkFormation, type SphereNetworkState } from './network';
 import { buildGhostSnapPreview, getGhostSnapFormation } from './networkPreview';
 
-type PointerState = { startX: number; startY: number; moved: boolean; joystickCandidate: boolean; draggingSphere: SphereEntity | null; placingSphere: boolean; repositioned: boolean };
+type PointerState = { startX: number; startY: number; moved: boolean; joystickCandidate: boolean; draggingSphere: SphereEntity | null; placingSphere: boolean; repositioned: boolean; lockedSphereTouch: boolean };
 type JoystickVisual = { pointerId: number; x: number; y: number; dx: number; dy: number; active: boolean };
 type PlacementVisual = { x: number; y: number; color: string; id: number };
 type GhostPreview = { pointerId: number; sphereIndex: number; x: number; y: number; valid: boolean; network: SphereNetworkState; formation: { type: Exclude<NetworkFormation, 'none'>; nodes: number[]; strength: number } | null };
@@ -312,12 +312,14 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
           draggingSphere: null,
           placingSphere: false,
           repositioned: false,
+          lockedSphereTouch: false,
         };
         const world = touchToWorld(e.clientX, e.clientY);
         if (world) {
           const draggable = st.spheres.find((sphere) => sphere.alive && Math.hypot(sphere.pos.x - world.x, sphere.pos.y - world.y) < 34) || null;
           if (draggable) {
-            pointer.draggingSphere = draggable;
+            if (st.player.sphereMovementLocked) pointer.lockedSphereTouch = true;
+            else pointer.draggingSphere = draggable;
           } else {
             pointer.joystickCandidate = joystickIdRef.current === null && e.clientX >= joystickZoneStart && e.clientX < joystickZoneEnd;
             pointer.placingSphere = !pointer.joystickCandidate && st.spheres.length < getMaxSpheres(st);
@@ -331,6 +333,7 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
         if (!pointer) return;
         const dx = e.clientX - pointer.startX, dy = e.clientY - pointer.startY;
         const distance = Math.hypot(dx, dy);
+        if (pointer.lockedSphereTouch) return;
         if (pointer.draggingSphere) {
           if (distance > JOYSTICK_DEADZONE) pointer.moved = true;
           if (distance > JOYSTICK_DEADZONE) {
@@ -397,6 +400,12 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
 
       <div className={`absolute bottom-4 ${controlsSide} flex flex-col ${controlsAlign} gap-2 pointer-events-none`} style={{ transform: `scale(${interfaceScale})`, transformOrigin: controlsOnRight ? 'right bottom' : 'left bottom' }}>
         <button data-mobile-control="true" className="pointer-events-auto w-12 h-12 rounded-full bg-[#0d1726]/90 border border-[#243b55] shadow-lg flex items-center justify-center text-[#b6c9de] active:scale-95" onPointerDown={(e) => { e.stopPropagation(); haptic(6); onPause(); }} aria-label={t('pause')}><Pause size={18} /></button>
+        <button data-mobile-control="true" className="pointer-events-auto w-12 h-10 rounded-lg bg-[#0d1726]/90 border border-[#243b55] shadow-lg flex items-center justify-center gap-1 text-[9px] font-bold text-[#b6c9de] active:scale-95"
+          onPointerDown={(e) => { e.stopPropagation(); const st = stateRef.current; if (!st) return; st.player.sphereMovementLocked = !st.player.sphereMovementLocked; haptic(6); }}
+          aria-label={lang === 'ru' ? 'Блокировка перемещения сфер' : 'Lock sphere movement'}>
+          {stateRef.current?.player.sphereMovementLocked ? <Lock size={14} /> : <Unlock size={14} />}
+          <span>{stateRef.current?.player.sphereMovementLocked ? 'LOCK' : 'MOVE'}</span>
+        </button>
 
         <div className="grid grid-cols-2 gap-1.5 pointer-events-auto">
           {activeAbilities.map(([key, ability]) => {
