@@ -178,7 +178,7 @@ function updateOrbitalSphere(s: GameState, sphere: SphereEntity, damage: number,
   const branch = s.player.sphereBranches?.orbital;
   const finalIndex = getSphereFinalIndex(s, 'orbital');
   const satelliteCount = Math.max(1, 1 + mods.multishot + (s.player.artifacts.includes('orbital_crown') ? 1 : 0) + (finalIndex === 2 ? 1 : 0));
-  let angularSpeed = 1.8;
+  let angularSpeed = 1.8 + Math.min(2.4, sphereLevel(s, 'orbital') * 0.28);
   if (branch === 'orbital_dance') angularSpeed *= finalIndex === 1 ? 1.55 : 1.28;
   if (branch === 'orbital_halo') angularSpeed *= 1.08;
   if (branch === 'orbital_blade') angularSpeed *= 1.12;
