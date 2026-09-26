@@ -71,6 +71,7 @@ export function syncKnowledgeFromRun(s: {
     abilities: Partial<Record<AbilityType, number>>;
     artifacts: ArtifactId[];
     sphereProgression: Partial<Record<SphereType, number>>;
+    knownSphereTypes: SphereType[];
     sphereBranches: Partial<Record<SphereType, string>>;
     evolutions: string[];
   };
@@ -78,6 +79,7 @@ export function syncKnowledgeFromRun(s: {
   const ids: KnowledgeId[] = [];
 
   for (const sphere of s.spheres) ids.push(`sphere:${sphere.type}`);
+  for (const sphereType of s.player.knownSphereTypes || []) ids.push(`sphere:${sphereType}`);
   for (const enemy of s.enemies) {
     if (enemy.isBoss) ids.push(`boss:${enemy.bossType}`);
     else ids.push(`monster:${enemy.type}`);
