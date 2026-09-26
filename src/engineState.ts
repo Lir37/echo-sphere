@@ -108,6 +108,7 @@ export function createInitialState(
     sphereBranches: {},
     sphereMods: { multishot: 0, pierce: 0, ricochet: 0, fire: 0, freeze: 0, poison: 0 },
     sphereMovementLocked: false,
+    knownSphereTypes: ['standard'],
     dashCooldown: 0,
     dashTimer: 0,
     dashDir: { x: 0, y: 0 },
