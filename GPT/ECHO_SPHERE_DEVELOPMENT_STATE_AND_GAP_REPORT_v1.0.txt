@@ -1495,3 +1495,120 @@ FINAL CORRECTION — VISUAL PASS
 - The latest unit-test failure was a stale renderer contract assertion; the
   exact expected marker is now preserved without changing gameplay behavior.
 - Final manual APK PlayerCheck of the visual redesign remains required.
+
+
+======================================================================
+CURRENT WORK SESSION UPDATE — PLAYERHECK NETWORK / VISUAL / PERFORMANCE
+2026-09-27
+HEAD: c7e9e7a90621bb48ffa6dca538afbc8ae32da6af
+CI: #840 SUCCESS
+======================================================================
+
+PLAYER FEEDBACK INCORPORATED:
+
+1. NETWORK LINKS
+- Physical Links are now rendered as continuous glowing energy paths.
+- Link path has a restrained wave motion.
+- Active links carry bright electrical packets moving in opposite
+  directions, replacing the former single glowing dot.
+- Dashed Network presentation has been removed from the active combat
+  Network layer.
+
+2. ORBITAL
+- Orbital satellites are rendered as complete small Sphere-like modules,
+  not points.
+- Orbital Blade branch changes satellite silhouette to blade geometry and
+  adds a dedicated blade-state visual.
+- Existing +1 satellite-per-level gameplay rule is unchanged.
+
+3. SPHERE VISUAL REDESIGN
+- Sphere renderer now uses dedicated procedural silhouettes per Sphere
+  family: Standard, Sniper, Shotgun, Chain, Aura, Orbital, Prism,
+  Gravity, Pulse, Void.
+- Visual changes are authored as object construction, not only external
+  glow/VFX.
+- Visual tier adds additional structural elements.
+- No Sphere combat formula was changed by the visual redesign itself.
+
+4. CHARACTER / BOSS / PICKUP VISUAL DIRECTION
+- Character silhouettes remain character-specific and animated.
+- Four existing Boss families retain separate silhouettes and telegraph
+  language.
+- Rune visuals are now type-specific rather than one shared shape.
+- Existing Chest and Stella presentation remain distinct; Stella keeps a
+  dedicated Legendary silhouette.
+- Further device PlayerCheck is required to judge whether the authored
+  2.5D silhouettes meet the final visual-quality gate.
+
+5. HUD
+- Timer is embedded in the right HUD instead of sitting between the top
+  panels.
+- Combo overlay z-index is above the HUD layer.
+- "ECHO FIELD // ACTIVE" phase text remains removed.
+- Network badges support press-and-hold tactical tooltip.
+
+6. GRAVITY / DUPLICATES
+- MAX_SAME_SPHERE_COPIES = 2 is centralized.
+- A placement attempt above the limit is rejected.
+- This is the first direct anti-lock gate for Gravity/Freeze stacking.
+- Dedicated long-run control balance tests remain required for:
+  2 Gravity + Freeze, 2 Gravity + Cluster and final Gravity branches.
+
+7. NETWORK OWNERSHIP
+- A Sphere can belong to only one active Geometry.
+- Maximum two active Geometries can exist simultaneously.
+- Disjoint Geometry node sets may coexist.
+- Physical Links remain available independently of Geometry ownership.
+- Blueprint Appendix C records this as the current contract.
+
+8. ARCHIVE
+- PlayerState now records knownSphereTypes.
+- Sphere placement records first discovery immediately.
+- Archive sync reads the explicit discovery list plus active state.
+- This specifically hardens Gravity and other Sphere unlock persistence.
+
+9. PERFORMANCE ROOT CAUSE / MITIGATION
+- APK size is not the primary runtime FPS cause.
+- Critical architectural finding: GameScreen previously called React
+  forceRender on every animation frame, causing the whole React HUD/control
+  tree to re-render at the game frame rate.
+- React UI refresh is now throttled to 10 Hz while simulation and Canvas
+  rendering continue independently.
+- Canvas 2D context is cached instead of re-requested every frame.
+- Network analysis is cached per gameplay update and reused by renderer,
+  Gravity and ability readers.
+- Transient particles/damage numbers/lightnings/fire trails have capped
+  budgets.
+- Renderer uses adaptive stride to reduce transient draw pressure when
+  the frame becomes busy.
+- These changes target CPU/GC/render pressure without shrinking gameplay
+  content or changing the APK asset strategy.
+- Real-device 10-15 minute profiling on Xiaomi 11T is still the decisive
+  performance gate.
+
+AUTOMATED VALIDATION:
+- Typecheck: PASS
+- Unit tests: PASS
+- Gameplay coverage audit: PASS
+- Lint: PASS
+- Web build: PASS
+- Playwright visual QA: PASS
+- Android APK build: PASS
+- CI #840: SUCCESS
+
+ARTIFACT:
+- debug APK from current HEAD:
+  4,680,427 bytes (~4.68 MB)
+
+REMAINING:
+- Manual PlayerCheck of the current visual redesign.
+- Long-run performance PlayerCheck on Xiaomi 11T.
+- If performance still degrades, add device-level telemetry and continue
+  optimizing Canvas draw cost before adding major new content.
+- Character rework, especially Architect, remains a separate gameplay
+  balance task after visual acceptance.
+- Full Sphere Balance Gate remains separate from visual work.
+
+======================================================================
+END CURRENT WORK SESSION UPDATE
+======================================================================
