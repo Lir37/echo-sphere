@@ -2791,7 +2791,7 @@ function drawModernEnemy(ctx: CanvasRenderingContext2D, e: EnemyEntity, playerPo
     const barW=Math.max(110,e.radius*1.55),barH=6,ratio=Math.max(0,Math.min(1,e.hp/Math.max(1,e.maxHp)));
     const bx=e.pos.x-barW/2,by=e.pos.y-e.radius-30;
     ctx.save();ctx.shadowColor=color;ctx.shadowBlur=14;ctx.fillStyle='rgba(2,7,18,.88)';ctx.fillRect(bx,by,barW,barH);
-    ctx.fillStyle=color;ctx.fillRect(bx,by,barW*ratio);ctx.strokeStyle='rgba(220,250,255,.68)';ctx.lineWidth=1;ctx.strokeRect(bx,by,barW,barH);
+    ctx.fillStyle=color;ctx.fillRect(bx,by,barW*ratio,barH);ctx.strokeStyle='rgba(220,250,255,.68)';ctx.lineWidth=1;ctx.strokeRect(bx,by,barW,barH);
     ctx.shadowBlur=0;ctx.fillStyle='rgba(230,250,255,.78)';ctx.font='bold 8px system-ui,sans-serif';ctx.textAlign='center';
     ctx.fillText(e.bossType==='charger'?'BREACHER':e.bossType==='shooter'?'VOID LANCER':e.bossType==='summoner'?'BROOD MIND':'AURA TITAN',e.pos.x,by-4);ctx.restore();
   }
