@@ -49,19 +49,21 @@ export interface SphereNetworkProfile {
 
 const ACTIVE_GEOMETRY_LIMIT = 2;
 const GEOMETRY_PRIORITY: Record<Exclude<NetworkFormation, 'none'>, number> = {
-  fractal: 70,
+  square: 70,
   lattice: 60,
-  ring: 50,
-  square: 40,
-  triangle: 30,
-  cluster: 20,
-  line: 10,
+  ring: 55,
+  fractal: 50,
+  triangle: 40,
+  cluster: 30,
+  line: 20,
 };
 
 function resolveNonOverlappingGeometry(
   candidates: Partial<Record<Exclude<NetworkFormation, 'none'>, NetworkShape | null>>,
 ): Partial<Record<Exclude<NetworkFormation, 'none'>, NetworkShape | null>> {
-  const ordered = (Object.entries(candidates) as Array<[Exclude<NetworkFormation, 'none'>, NetworkShape | null]>)
+  const filteredCandidates = { ...candidates };
+  if ((filteredCandidates.fractal?.nodes.length || 0) < 6) filteredCandidates.fractal = null;
+  const ordered = (Object.entries(filteredCandidates) as Array<[Exclude<NetworkFormation, 'none'>, NetworkShape | null]>)
     .filter((entry): entry is [Exclude<NetworkFormation, 'none'>, NetworkShape] => Boolean(entry[1]))
     .sort((a, b) => {
       const pa = GEOMETRY_PRIORITY[a[0]], pb = GEOMETRY_PRIORITY[b[0]];
