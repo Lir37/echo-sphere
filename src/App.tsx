@@ -217,6 +217,8 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
           syncKnowledgeFromRun(st);
         }
 
+        if (st.gameOver) syncKnowledgeFromRun(st);
+
         if (st.gameOver && !gameOverData) {
           const time = Math.floor(st.time);
           const diff = DIFFICULTIES.find(d => d.id === st.difficulty)!;
@@ -289,7 +291,7 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
             }}
           />
           {st.player.combo >= 5 && (
-            <div className="absolute top-16 left-1/2 -translate-x-1/2 pointer-events-none text-center z-10">
+            <div className="absolute top-16 left-1/2 -translate-x-1/2 pointer-events-none text-center z-40">
               <div className="text-2xl font-bold" style={{ color: st.player.combo >= 50 ? '#ffb84d' : st.player.combo >= 25 ? '#ff6b6b' : '#ff4d5d' }}>
                 {t('combo')} x{st.player.combo}
               </div>
@@ -635,6 +637,28 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
   const timer = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   const activeBoss = st.bossActive;
   const network = analyzeSphereNetwork(st.spheres);
+  const [networkTooltip, setNetworkTooltip] = useState<string | null>(null);
+  const networkHoldRef = useRef<number | null>(null);
+  const startNetworkHold = (label: string): void => {
+    if (networkHoldRef.current !== null) window.clearTimeout(networkHoldRef.current);
+    networkHoldRef.current = window.setTimeout(() => {
+      const effects: Record<string, string> = {
+        LINE: lang === 'ru' ? 'Усиляет дальнюю/линейную сеть: дальность, скорость снарядов и точечный урон.' : 'Boosts spread-line combat: range, projectile speed and focused damage.',
+        TRIANGLE: lang === 'ru' ? 'Даёт бонус к Resonance и усиливает relay/chain-поведение.' : 'Boosts Resonance generation and relay/chain behavior.',
+        CLUSTER: lang === 'ru' ? 'Усиливает площадь, синхронизацию и контроль компактной сети.' : 'Boosts area, synchronization and control for compact networks.',
+        SQUARE: lang === 'ru' ? 'Даёт защитную стабильность и усиливает защитные взаимодействия.' : 'Provides defensive stability and shield interactions.',
+        RING: lang === 'ru' ? 'Создаёт циркуляцию Resonance через замкнутую сеть.' : 'Creates Resonance circulation through a closed network.',
+        LATTICE: lang === 'ru' ? 'Синхронизирует несколько связанных ячеек сети.' : 'Synchronizes multiple connected network cells.',
+        FRACTAL: lang === 'ru' ? 'Позволяет рекурсивно связывать эффекты более сложной Geometry.' : 'Enables recursive interactions between advanced Geometry layers.',
+      };
+      setNetworkTooltip(effects[label] || null);
+    }, 520);
+  };
+  const cancelNetworkHold = (): void => {
+    if (networkHoldRef.current !== null) window.clearTimeout(networkHoldRef.current);
+    networkHoldRef.current = null;
+  };
+
   const networkBadges = [
     network.line ? { label: lang === 'ru' ? 'ЛИНИЯ' : 'LINE', className: 'border-[#63e6ff]/45 text-[#9fefff]' } : null,
     network.triangle ? { label: lang === 'ru' ? 'ТРЕУГОЛЬНИК' : 'TRIANGLE', className: 'border-[#ffb84d]/45 text-[#ffd48f]' } : null,
@@ -672,25 +696,34 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
           <span>{lang === 'ru' ? 'СЕТЬ' : 'NETWORK'}</span>
           <b className="text-[#dcecff]">{network.links.length}</b>
         </div>
-        <div className="mt-1 flex flex-wrap gap-1">
+        <div className="relative mt-1 flex flex-wrap gap-1">
           {networkBadges.length > 0 ? networkBadges.map((badge) => (
-            <span key={badge.label} className={`rounded border px-1 py-0.5 text-[7px] font-bold tracking-wide ${badge.className}`}>
+            <span key={badge.label}
+              onPointerDown={() => startNetworkHold(badge.label)}
+              onPointerUp={cancelNetworkHold}
+              onPointerCancel={cancelNetworkHold}
+              onPointerLeave={cancelNetworkHold}
+              className={`rounded border px-1 py-0.5 text-[7px] font-bold tracking-wide ${badge.className} pointer-events-auto`}>
               {badge.label}
             </span>
           )) : <span className="text-[7px] text-[#7f9bb8]">{lang === 'ru' ? 'ФОРМАЦИЯ НЕ АКТИВНА' : 'NO FORMATION'}</span>}
-        </div>
-      </div>
-
-      <div className="es-time-hud absolute top-3 left-1/2 -translate-x-1/2 z-30 pointer-events-none">
-        <div className="es-time-hud-line">
-          <span className="es-time-hud-dot" />
-          <span className="es-time-hud-value">{timer}</span>
-          <span className="es-time-hud-dot" />
+          {networkTooltip && (
+            <div className="pointer-events-none absolute left-0 top-full z-50 mt-1 w-[220px] rounded-lg border border-cyan-300/20 bg-[#050c16]/95 px-2.5 py-2 text-[8px] leading-4 text-[#cfe7f5] shadow-xl">
+              {networkTooltip}
+            </div>
+          )}
         </div>
       </div>
 
       <div className="es-hud-panel es-top-right absolute top-3 right-3 z-30 pointer-events-none">
-        <div className="flex items-start gap-3">
+        <div className="flex flex-wrap items-start justify-end gap-2">
+          <div className="min-w-[60px] pt-1 text-center">
+            <div className="es-time-hud-line">
+              <span className="es-time-hud-dot" />
+              <span className="es-time-hud-value">{timer}</span>
+              <span className="es-time-hud-dot" />
+            </div>
+          </div>
           <RadarHud st={st} />
           <div className="min-w-[64px] pt-1 text-right">
             <div className="es-hud-stat"><span className="es-stat-gem">◆</span>{Math.floor(st.xpOrbs.reduce((sum, orb) => sum + orb.radius, 0))}</div>
