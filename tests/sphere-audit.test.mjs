@@ -80,5 +80,8 @@ assert.match(collision, /resolvePlayerTowerCollisions/, 'Sphere physical collisi
 assert.match(collision, /TOWER_BODY_RADIUS/, 'Sphere body radius contract missing');
 assert.match(mobileControls, /canvas\.width \/ rect\.width/, 'Pointer/CSS coordinate mapping missing');
 assert.match(engine, /placeSphere\(s: GameState, x: number, y: number\)/, 'Sphere placement entry point missing');
+assert.match(read('src/engineBalanceConstants.ts'), /MAX_SAME_SPHERE_COPIES\s*=\s*2/, 'Duplicate Sphere cap must be centralized at 2 copies.');
+assert.match(engine, /sameTypeCount\s*=\s*s\.spheres\.filter/, 'Sphere placement must count existing copies.');
+
 
 console.log('sphere-audit: OK');
