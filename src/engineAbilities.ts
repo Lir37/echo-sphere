@@ -416,8 +416,8 @@ function activateLightning(s: GameState): void {
   s.player.lightningCooldown = 20 * getCooldownMult(s);
   const branch = getAbilityBranchId(s, 'lightning', 4);
   const final = getAbilityBranchId(s, 'lightning', 7);
-  const chainSpheres = s.spheres.filter((sphere) => sphere.alive && sphere.type === 'chain');
-  let ordered = [...chainSpheres].sort((a, b) => dist(a.pos, s.player.pos) - dist(b.pos, s.player.pos));
+  const networkSpheres = s.spheres.filter((sphere) => sphere.alive);
+  let ordered = [...networkSpheres].sort((a, b) => dist(a.pos, s.player.pos) - dist(b.pos, s.player.pos));
   const networkState = analyzeSphereNetwork(getNetworkNodes(s));
 
   if ((branch === 'lightning_relay' || final === 'lightning_storm_network') && ordered.length > 0) {
@@ -432,7 +432,6 @@ function activateLightning(s: GameState): void {
       const nextIndex = currentIndex >= 0
         ? getLinkedNodeIndexes(networkState, currentIndex)
           .filter((index) => index >= 0 && index < s.spheres.length)
-          .filter((index) => s.spheres[index].type === 'chain')
           .filter((index) => remaining.has(s.spheres[index]))
           .sort((a, b) => dist(s.spheres[a].pos, current!.pos) - dist(s.spheres[b].pos, current!.pos))[0]
         : undefined;
@@ -488,7 +487,7 @@ function activateLightning(s: GameState): void {
       const nextIndex = sourceIndex >= 0
         ? getLinkedNodeIndexes(networkState, sourceIndex)
           .filter((index) => index >= 0 && index < s.spheres.length)
-          .filter((index) => s.spheres[index].type === 'chain' && s.spheres[index].alive)
+          .filter((index) => s.spheres[index].alive)
           .sort((a, b) => dist(s.spheres[a].pos, sourceSphere.pos) - dist(s.spheres[b].pos, sourceSphere.pos))[0]
         : undefined;
       if (nextIndex !== undefined) {
