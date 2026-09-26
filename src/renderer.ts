@@ -1876,7 +1876,7 @@ function drawSphereCoreArt(
 ): void {
   const rgb=hexToRgb(color);
   const tier=sphere.visualTier||0;
-  const branch=sphere.type==='orbital' ? sphereTypeBranch(ctx,sphere) : null;
+  const branch=sphere.type==='orbital' ? (s.player.sphereBranches?.orbital || null) : null;
   const pulse=1+Math.sin(time*3.4+sphere.pos.x*.01)*.035;
 
   ctx.save();ctx.translate(sphere.pos.x,sphere.pos.y);
@@ -1978,11 +1978,6 @@ function spheresVisualMultishot(sphere: SphereEntity, s: GameState): number {
   return base+level;
 }
 
-function sphereTypeBranch(ctx: CanvasRenderingContext2D, sphere: SphereEntity): string | null {
-  // Canvas helper intentionally reads only the Sphere's branch value through its
-  // caller-created closure in render; this fallback keeps the function deterministic.
-  return null;
-}
 
 function drawModernSphere_DEPRECATED(ctx: CanvasRenderingContext2D, s: GameState, sphere: SphereEntity): void {
   const def = SPHERE_TYPES[sphere.type];
