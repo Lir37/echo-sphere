@@ -35,9 +35,10 @@ test('boss telegraph timing is a shared runtime contract', () => {
   assert.ok(renderer.includes('BOSS_TELEGRAPH_WINDOWS.aura'));
 });
 
-test('boss defeat hands control to Stella without an ordinary artifact roll first', () => {
+test('boss defeat spawns a physical Stella chest without an ordinary artifact roll first', () => {
   const combat = fs.readFileSync(new URL('../src/engineCombat.ts', import.meta.url), 'utf8');
-  assert.match(combat, /if \(enemy\.isBoss\) \{[\s\S]*?s\.pendingStella = true;[\s\S]*?s\.pendingArtifact = null;/);
+  assert.match(combat, /if \(enemy\.isBoss\) \{[\s\S]*?s\.pendingStella = false;[\s\S]*?s\.stellaChests\.push\([\s\S]*?kind: 'stella'/);
+  assert.match(combat, /s\.pendingArtifact = null;/);
 });
 
 test('Stella selection keeps Legendary access behind the configured cutoff', () => {
@@ -45,7 +46,7 @@ test('Stella selection keeps Legendary access behind the configured cutoff', () 
   const combat = fs.readFileSync(new URL('../src/engineCombat.ts', import.meta.url), 'utf8');
   const runtime = loop + '\n' + combat;
   assert.match(loop, /s\.time < STELLA_LEGENDARY_CUTOFF_SECONDS/);
-  assert.match(loop, /pickStellaArtifactChoice\(s, \(\) => nextRandom\(s\)\)/);
+  assert.match(loop, /pickStellaArtifactChoices\(s, [^\n]*3/);
   assert.match(runtime, /pickArtifacts\(s\)/);
   assert.ok(artifacts.includes("rarity === 'legendary'"));
   assert.ok(artifacts.includes('!owned.has(item.id)'));
