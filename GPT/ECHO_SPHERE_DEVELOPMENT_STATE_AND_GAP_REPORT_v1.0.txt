@@ -1352,3 +1352,133 @@ a04b4fe266a7ab9cb325918d4b21de37bf376e31
 
 CI validation: workflow #793 SUCCESS on this HEAD.
 
+
+
+======================================================================
+CURRENT WORK SESSION UPDATE — VISUAL QUALITY / HUD / CHARACTER AUDIT
+2026-09-26
+======================================================================
+
+TASK SCOPE:
+Five requested goals:
+1. Redesign combat visuals: Spheres, player characters, enemies, elites,
+   bosses, status effects, abilities/pickups/projectiles/runes/chests/Stella.
+2. Remove HUD overlap.
+3. Remove "ECHO FIELD // ACTIVE" run-phase label; timer remains.
+4. Make Orbital upgrade description explicitly state +1 satellite per level.
+5. Audit all playable Characters for identity, overlap and incentive.
+
+IMPLEMENTED IN THIS CYCLE:
+
+VISUAL LAYER:
+- Kept authored 2.5D / Canvas architecture. No GLB/3D production reintroduced.
+- Player now uses six character-specific procedural silhouettes:
+  Spherist, Hunter, Engineer, Berserker, Alchemist, Architect.
+- Added animated character-specific VFX.
+- Added animated identity VFX for all 10 Sphere types without changing combat
+  calculations.
+- Enemy presentation now supports visual variants: wisp, skitter, moth,
+  beetle, brute, prism, linkbreaker.
+- Elite enemies no longer use dashed circular status markers. They use an
+  animated crest/sigil presentation.
+- Enemy Fire / Poison / Freeze states now use animated particles and distinct
+  status motifs instead of dashed circles.
+- Bosses no longer rely on the single shared boss SVG during gameplay. Each
+  boss family uses a distinct procedural silhouette with animated identity:
+  Shooter / Charger / Summoner / Aura.
+- Boss attack presentation remains telegraph-only and does not alter combat
+  rules.
+- Projectiles, boss projectiles, XP crystals, health pickups, Runes,
+  normal chests and Stella chests received animated/faceted presentation
+  passes.
+- Minion presentation remains tied to its anchor Sphere color and now has a
+  more animated energy-core treatment.
+- Visual enemy variants are presentation-only. Combat balance and enemy
+  damage/HP rules were not intentionally changed.
+
+HUD:
+- Network HUD was moved into the main top-left HUD instead of occupying a
+  separate fixed block below it. This removes the known top-left overlap
+  condition on compact/mobile layouts.
+- Removed the "ECHO FIELD // ACTIVE" phase line. Timer remains centered.
+- Boss telemetry remains in the top-right HUD only while a boss is active.
+
+ORBITAL:
+- Base Orbital description now explicitly states:
+  "Каждый уровень добавляет +1 спутник."
+- English description carries the same rule.
+- Existing implemented progression remains unchanged.
+
+CHARACTER AUDIT:
+Current roster:
+Spherist, Hunter, Engineer, Berserker, Alchemist, Architect.
+
+Spherist:
+- Identity: universal high-sphere-count character.
+- Unique mechanic: attack speed scales with sphere count; additional damage
+  threshold at high sphere count.
+- Incentive: encourages broad Network/loadout.
+- Risk: partially generic because the player already wants multiple spheres.
+
+Hunter:
+- Identity: elite/boss single-target specialist.
+- Unique mechanic: Prey Mark + consecutive-hit Hunt window.
+- Incentive: clear boss/elite hunting build with Sniper/Chain/Void.
+- Current identity is mechanically readable.
+
+Engineer:
+- Identity: compact Network / adjacency.
+- Unique mechanic: neighbour-based Sphere damage plus relay window.
+- Incentive: rewards deliberate local Network construction.
+- Risk: some overlap with the game's universal Network fantasy.
+
+Berserker:
+- Identity: high-risk close-range scaling.
+- Unique mechanic: missing-HP Fury plus close-range bonus.
+- Incentive: intentionally dangerous positioning and Shotgun/Orbital/Standard.
+- Current identity is readable and distinct.
+
+Alchemist:
+- Identity: status reaction specialist.
+- Unique mechanic: Fire+Poison, Freeze+Poison and Fire+Freeze reactions.
+- Incentive: actively seeks status modifiers and status-heavy Spheres.
+- Current identity is the clearest example of a character changing how the
+  build is played rather than only changing numbers.
+
+Architect:
+- Identity currently: automatic local Formation recognition.
+- Current effects:
+  Line = damage;
+  Triangle = crit;
+  Square = damage reduction;
+  Cluster = attack speed.
+- Only one formation is active at a time, selected automatically from local
+  sphere placement.
+- Problem confirmed by audit: the unique part is mostly "recognise a shape",
+  while the resulting rewards are generic stat bonuses that already exist
+  elsewhere in the game. The player therefore has limited agency over the
+  character identity and little reason to choose Architect beyond wanting
+  whichever automatic formation happens to win.
+- REWORK CANDIDATE, not implemented in this cycle:
+  Architect should make formation construction itself a gameplay decision,
+  with explicit formation states/benefits that materially change Network
+  behaviour rather than primarily granting generic damage/crit/defense/
+  attack-speed bonuses.
+
+CHARACTER BALANCE GATE:
+No global character numeric rebalance was silently applied in this cycle.
+The next character pass should use device PlayerCheck plus build simulations
+to determine:
+- early-run attraction;
+- mid-run build direction;
+- late-run identity;
+- dependency on particular Sphere types;
+- dependency on particular Modifiers/Abilities;
+- payoff for mastery;
+- whether the character changes decisions rather than only final DPS.
+
+STATUS:
+Visual/HUD/Orbital implementation is complete for this work cycle.
+Character audit is complete as a diagnostic pass.
+Manual APK PlayerCheck of the new visual layer is still required.
+CI validation must be checked on the final HEAD after this report update.
