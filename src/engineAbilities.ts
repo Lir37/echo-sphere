@@ -2,7 +2,7 @@ import { playSound } from './audio';
 import type { AbilityType } from './gameData';
 import type { GameState, SphereEntity, Vec } from './engineTypes';
 import {
-  dist, rand, clamp, getNetworkNodes, getAbilityBranchId, getNearestSphere
+  dist, rand, clamp, getNetworkFrame, getAbilityBranchId, getNearestSphere
 } from './engineRuntime';
 import {
   dealDamageToEnemy, getCooldownMult, getVampirePercent, emitSpherePulse, triggerEngineerRelay
@@ -106,7 +106,7 @@ function activateShield(s: GameState): void {
   const final = getAbilityBranchId(s, 'shield', 7);
   const branchBonus = branch === 'shield_echo_guard' ? Math.min(2, Math.floor(nearby / 2)) : 0;
   const bastionBonus = branch === 'shield_bastion' ? 1 : 0;
-  const networkState = final === 'shield_network_guard' ? analyzeSphereNetwork(getNetworkNodes(s)) : null;
+  const networkState = final === 'shield_network_guard' ? getNetworkFrame(s) : null;
   const connectedSphereCount = networkState
     ? s.spheres.reduce((count, sphere, index) => (
       sphere.alive && getLinkedNodeIndexes(networkState, index).some((linked) => linked >= 0 && linked < s.spheres.length)
@@ -142,7 +142,7 @@ function activateShield(s: GameState): void {
     }
   }
   if (final === 'shield_network_guard') {
-    const networkState = analyzeSphereNetwork(getNetworkNodes(s));
+    const networkState = getNetworkFrame(s);
     for (const link of networkState.links) {
       if (link.a >= s.spheres.length || link.b >= s.spheres.length) continue;
       const first = s.spheres[link.a];
@@ -227,7 +227,7 @@ function activateTeleport(s: GameState): void {
     }
     if (final === 'teleport_spatial_network') {
       s.lightnings.push({ from: origin, to: target, life: 0.5 });
-      const networkState = analyzeSphereNetwork(getNetworkNodes(s));
+      const networkState = getNetworkFrame(s);
       const destinationIndex = s.spheres.indexOf(targetSphere);
       if (destinationIndex >= 0) {
         for (const linkedIndex of getLinkedNodeIndexes(networkState, destinationIndex)) {
@@ -286,7 +286,7 @@ function activateFireTrail(s: GameState): void {
   }
   if (final === 'firetrail_catalyst') s.player.fireCatalystTimer = 4;
   if (final === 'firetrail_network' || final === 'firetrail_inferno') {
-    const networkState = analyzeSphereNetwork(getNetworkNodes(s));
+    const networkState = getNetworkFrame(s);
     const fireIndexes = new Set(fireAligned.map((sphere) => s.spheres.indexOf(sphere)));
     const processedPairs = new Set<string>();
 
@@ -370,7 +370,7 @@ function activateMinion(s: GameState): void {
     }
   }
   if (relayMode) {
-    const network = analyzeSphereNetwork(getNetworkNodes(s));
+    const network = getNetworkFrame(s);
     for (let i = 0; i < count; i++) {
       const minionIndex = s.minions.length - 1 - i;
       const drone = s.minions[minionIndex];
@@ -390,7 +390,7 @@ function activateMinion(s: GameState): void {
     }
   }
   if (final === 'minion_echo_swarm') {
-    const networkState = analyzeSphereNetwork(getNetworkNodes(s));
+    const networkState = getNetworkFrame(s);
     for (const drone of s.minions.slice(-count)) {
       s.particles.push({ pos: { ...drone.pos }, vel: { x: 0, y: 0 }, life: 0.8, maxLife: 0.8, color: '#d4943d', size: 6 });
       const droneIndex = s.spheres.length + s.minions.indexOf(drone);
@@ -419,7 +419,7 @@ function activateLightning(s: GameState): void {
   const final = getAbilityBranchId(s, 'lightning', 7);
   const networkSpheres = s.spheres.filter((sphere) => sphere.alive);
   let ordered = [...networkSpheres].sort((a, b) => dist(a.pos, s.player.pos) - dist(b.pos, s.player.pos));
-  const networkState = analyzeSphereNetwork(getNetworkNodes(s));
+  const networkState = getNetworkFrame(s);
 
   if ((branch === 'lightning_relay' || final === 'lightning_storm_network') && ordered.length > 0) {
     const remaining = new Set(ordered);
@@ -570,7 +570,7 @@ function activateTimeStop(s: GameState): void {
     }
   }
   if (branch === 'timestop_closed_time' || final === 'timestop_closed_network') {
-    const networkState = analyzeSphereNetwork(getNetworkNodes(s));
+    const networkState = getNetworkFrame(s);
     const startIndex = nearest ? s.spheres.indexOf(nearest) : -1;
     const visited = new Set<number>();
     const queue = startIndex >= 0 ? [startIndex] : [];
@@ -635,7 +635,7 @@ function activateDarkRitual(s: GameState): void {
     }
   }
   if (branch === 'darkritual_blood_link' || final === 'darkritual_blood_network') {
-    const networkState = analyzeSphereNetwork(getNetworkNodes(s));
+    const networkState = getNetworkFrame(s);
     const standardIndexes = s.spheres
       .map((sphere, index) => ({ sphere, index }))
       .filter(({ sphere }) => sphere.alive && sphere.type === 'standard')
