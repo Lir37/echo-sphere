@@ -667,26 +667,17 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
           <span>{t('spheres').toUpperCase()} <b>{st.spheres.length}/{getMaxSpheres(st)}</b></span>
           <span>{t('wave').toUpperCase()} <b>{st.wave}</b></span>
         </div>
-      </div>
-
-      <div className="absolute top-[94px] left-3 z-30 pointer-events-none max-w-[calc(100vw-24px)]">
-        <div className="rounded-xl border border-[#243b55] bg-[#07111f]/90 px-2.5 py-2 shadow-lg backdrop-blur-sm">
-          <div className="flex items-center gap-1.5 text-[8px] uppercase tracking-[0.14em] text-[#7f9bb8]">
-            <Network size={11} />
-            <span>{lang === 'ru' ? 'СЕТЬ' : 'NETWORK'}</span>
-            <span className="text-[#dcecff]">{network.links.length}</span>
-          </div>
-          <div className="mt-1.5 flex flex-wrap gap-1">
-            {networkBadges.length > 0 ? networkBadges.map((badge) => (
-              <span key={badge.label} className={`rounded-md border px-1.5 py-0.5 text-[8px] font-bold tracking-wide ${badge.className}`}>
-                {badge.label}
-              </span>
-            )) : (
-              <span className="rounded-md border border-[#243b55] px-1.5 py-0.5 text-[8px] font-bold text-[#7f9bb8]">
-                {lang === 'ru' ? 'ОЖИДАНИЕ ФОРМАЦИИ' : 'AWAITING FORMATION'}
-              </span>
-            )}
-          </div>
+        <div className="mt-1.5 flex items-center gap-1.5 text-[7px] uppercase tracking-[0.12em] text-[#7f9bb8]">
+          <Network size={10} />
+          <span>{lang === 'ru' ? 'СЕТЬ' : 'NETWORK'}</span>
+          <b className="text-[#dcecff]">{network.links.length}</b>
+        </div>
+        <div className="mt-1 flex flex-wrap gap-1">
+          {networkBadges.length > 0 ? networkBadges.map((badge) => (
+            <span key={badge.label} className={`rounded border px-1 py-0.5 text-[7px] font-bold tracking-wide ${badge.className}`}>
+              {badge.label}
+            </span>
+          )) : <span className="text-[7px] text-[#7f9bb8]">{lang === 'ru' ? 'ФОРМАЦИЯ НЕ АКТИВНА' : 'NO FORMATION'}</span>}
         </div>
       </div>
 
@@ -696,7 +687,6 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
           <span className="es-time-hud-value">{timer}</span>
           <span className="es-time-hud-dot" />
         </div>
-        <div className="es-time-hud-phase">{activeBoss ? 'VOID BREACH // BOSS' : 'ECHO FIELD // ACTIVE'}</div>
       </div>
 
       <div className="es-hud-panel es-top-right absolute top-3 right-3 z-30 pointer-events-none">
