@@ -1773,3 +1773,54 @@ END CURRENT WORK SESSION UPDATE
 - Energy comets увеличены: 2 -> 3 на связь, увеличены голова/хвост и добавлено более заметное искрение (8 spark elements).
 - Механика Network не менялась.
 - Следующий обязательный шаг: CI и затем PlayerCheck APK. Если FPS остаётся стабильным, оставить этот уровень VFX как новый визуальный baseline.
+
+======================================================================
+CURRENT WORK SESSION UPDATE — NETWORK VFX TUNING #2
+2026-09-27
+HEAD: bb9e3e498b6e85c6bf03fbe482900f96c5b8eb07
+CI: #852 SUCCESS
+======================================================================
+
+PLAYER FEEDBACK:
+- Latest performance PlayerCheck reported no noticeable lag.
+- Glow was still too suppressed and needed a small controlled return.
+- Wave/comet energy was visually apparent mainly on Triangle; other Network
+  connections needed stronger, more consistent treatment.
+- Comets needed to be larger and visibly spark.
+
+IMPLEMENTED:
+- Network waveform amplitude was increased slightly while keeping the path
+  as a continuous sine-wave energy line.
+- Every visible Network connection retains moving energy packets; active
+  formation links remain brighter/faster while quieter links stay readable.
+- Energy packet count increased from 3 to 4 per visible connection.
+- Comet head and tapered tail were enlarged.
+- Spark wake increased to 10 small spark elements per comet, with brighter
+  cross-shaped micro-streaks.
+- Network optical halo was strengthened through layered source-over strokes,
+  with shadowBlur still disabled.
+- Sphere core outer gradient opacity was raised from 0.32 to 0.40, restoring
+  a restrained amount of emissive presence without returning to the old
+  washed-out bloom.
+- No gameplay mechanics, Network calculations, Sphere combat behavior or
+  performance architecture were changed.
+
+PERFORMANCE SAFETY:
+- Runtime renderer still has zero non-zero shadowBlur assignments.
+- No DPR change was introduced.
+- New VFX use existing Canvas stroke/fill paths only; no new blur pipeline.
+
+VALIDATION:
+- Implementation commit: bb9e3e498b6e85c6bf03fbe482900f96c5b8eb07
+- CI #852: SUCCESS
+- Manual Xiaomi 11T PlayerCheck of this exact APK is still required.
+
+NEXT:
+- Install/test CI #852 APK.
+- Verify: (A) glow restores detail without washout, (B) wave/comets/sparks are
+  visible on all Network links, not only Triangle, (C) 10-15 minute performance
+  remains stable.
+- Do not expand renderer effects further until this PlayerCheck is accepted.
+======================================================================
+END CURRENT WORK SESSION UPDATE
+======================================================================
