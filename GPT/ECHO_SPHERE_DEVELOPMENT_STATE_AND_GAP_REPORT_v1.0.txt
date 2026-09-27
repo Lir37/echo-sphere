@@ -1824,3 +1824,66 @@ NEXT:
 ======================================================================
 END CURRENT WORK SESSION UPDATE
 ======================================================================
+
+
+======================================================================
+CURRENT WORK SESSION UPDATE — VISUAL QUALITY / PERFORMANCE HYBRID PASS
+2026-09-27
+HEAD: cb4a4393a38a664a8aa81538fb2041cd277bb2c2
+======================================================================
+
+PLAYER FEEDBACK:
+- The previous performance pass removed too much visual energy.
+- The desired target is the original expressive look with only a modest
+  reduction in bloom, while retaining the now-acceptable Xiaomi 11T
+  performance behavior.
+
+IMPLEMENTED:
+- Kept the performance architecture from the previous renderer pass:
+  no runtime shadowBlur on high-count particle/network paths.
+- Restored controlled focal bloom on low-count/high-value elements:
+  Player core, Sphere core, boss body, Rune and chest rewards.
+- Sphere core emissive opacity increased from 0.40 to 0.52 and core radius
+  slightly enlarged; focal core now uses a small blur only on the Sphere
+  itself, not on repeated projectile/particle paths.
+- Player core glow restored with a small focal blur.
+- Sphere and Character VFX returned to an additive/luminous composition
+  without changing gameplay behavior.
+- Sphere VFX intensity was raised moderately instead of reverting to the
+  pre-optimization heavy renderer.
+- Projectile trail gained an extra cheap luminous pass without shadowBlur.
+- Energy bolt outer pass was strengthened through line width/alpha, still
+  without blur.
+- Enemy aura readability was raised modestly; boss body keeps only a small
+  focal blur.
+- Rune, chest, Stella and pickup glow received restrained blur because these
+  are low-frequency objects.
+- Existing Network VFX tuning remains intact: continuous wave, 4 energy
+  packets per visible link, enlarged comet heads/tails and 10 spark elements.
+- No Network mechanics, combat logic, Sphere calculations or performance
+  architecture were rewritten.
+
+PERFORMANCE INTENT:
+This is explicitly a hybrid pass: expensive bloom remains removed from
+high-count systems, while a small number of important focal objects regain
+real glow. The goal is to recover the visual character of the earlier build
+without returning to the broad shadowBlur/lighter usage that caused the
+performance regression.
+
+VALIDATION:
+- Code commit: cb4a4393a38a664a8aa81538fb2041cd277bb2c2
+- CI is required for this HEAD.
+- Manual Xiaomi 11T PlayerCheck is required after CI.
+- Visual acceptance gate:
+  (A) Spheres/Player visibly glow again,
+  (B) projectile/lightning/VFX read as energy instead of flat strokes,
+  (C) Network wave/comets remain visible on ordinary and active links,
+  (D) 10-15 minute performance remains stable.
+
+NEXT:
+Run CI for cb4a4393a38a664a8aa81538fb2041cd277bb2c2 and, if green, perform
+manual APK PlayerCheck. Do not add another broad renderer optimization
+before comparing this hybrid build against the user's visual target.
+======================================================================
+END CURRENT WORK SESSION UPDATE
+======================================================================
