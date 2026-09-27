@@ -1609,6 +1609,59 @@ REMAINING:
   balance task after visual acceptance.
 - Full Sphere Balance Gate remains separate from visual work.
 
+
+======================================================================
+CURRENT WORK SESSION UPDATE — VISUAL QUALITY PASS #2
+2026-09-27
+CODE HEAD: 961f7d3e6847776cbbc78266f25ff4c039b9ca8b
+======================================================================
+
+PLAYER FEEDBACK:
+- The hybrid pass restored some glow, but the overall scene still read too
+  flat compared with the original pre-optimization visual target.
+- The target remains: original expressive 2.5D look, with only a modest
+  reduction in glow, while preserving the performance architecture.
+
+IMPLEMENTED:
+- Restored a small blur on Sphere shells so the complete Sphere silhouette
+  reads as an emissive object again; Sphere core focal glow remains.
+- Restored stronger shield glow.
+- Strengthened projectile energy trails without adding blur to the repeated
+  projectile path.
+- Restored restrained glow on active Geometry and Resonance visuals.
+- Restored low-frequency glow on Formation Memory, Link Breaker disruption,
+  Network-disabled indicators, Elite crest and Boss projectiles.
+- Kept the existing hybrid rules: high-count particle paths, regular enemy
+  silhouettes and Network wave/comet paths do not receive broad shadowBlur.
+- No gameplay mechanics, Network calculations, Sphere combat formulas or
+  React/performance architecture were changed.
+
+PERFORMANCE SAFETY:
+- This is still a bounded hybrid renderer.
+- The change targets low-count/high-information visuals instead of restoring
+  the old broad blur treatment.
+- Existing React throttling, Network caching, transient budgets, adaptive
+  render stride and render-cost telemetry remain intact.
+
+VALIDATION:
+- Code commit 961f7d3e6847776cbbc78266f25ff4c039b9ca8b: CI #856 SUCCESS.
+- Typecheck, Unit tests, Gameplay coverage audit, Lint, Web build, Playwright
+  visual QA and Android APK build completed successfully in CI #856.
+- Manual Xiaomi 11T PlayerCheck remains the human visual/performance gate.
+
+NEXT:
+Install the APK from CI #856 and compare directly against the user's
+pre-optimization target. Check:
+(A) Sphere/Player glow and silhouette depth,
+(B) projectile/formation/Resonance VFX,
+(C) Network wave/comets,
+(D) 10-15 minute performance.
+Do not perform another broad optimization pass before this PlayerCheck.
+
+======================================================================
+END CURRENT WORK SESSION UPDATE
+======================================================================
+
 ======================================================================
 END CURRENT WORK SESSION UPDATE
 ======================================================================
