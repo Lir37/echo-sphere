@@ -1643,7 +1643,7 @@ function drawBossLegacy(ctx: CanvasRenderingContext2D, e: EnemyEntity): void {
 
 const MODERN_INK = '#dcecff';
 
-function glowCircle(ctx: CanvasRenderingContext2D, radius: number, color: string, alpha = 0.18): void {
+function glowCircle(ctx: CanvasRenderingContext2D, radius: number, color: string, alpha = 0.26): void {
   const rgb = hexToRgb(color);
   const g = ctx.createRadialGradient(0, 0, 0, 0, 0, radius);
   g.addColorStop(0, `rgba(${rgb},${alpha})`);
@@ -2470,7 +2470,7 @@ function drawWavyNetworkLink(
 
   // Every visible Network connection carries energy. Active formations get
   // faster/brighter packets, while ordinary links keep a quieter version.
-  const packetCount=2;
+  const packetCount=3;
   for(let packet=0;packet<packetCount;packet++){
     const rawPhase=((time*(active?.48:.34+packet*.025))+seed*.031+packet*.47)%1;
     const phaseP=packet===0 ? rawPhase : 1-rawPhase;
@@ -2489,28 +2489,28 @@ function drawWavyNetworkLink(
     ctx.globalAlpha=(active?.96:.70)*alpha;
     ctx.fillStyle='#f5ffff';
     ctx.beginPath();
-    ctx.moveTo(7.4,0);ctx.lineTo(-2.8,-3.6);ctx.lineTo(-6.8,0);ctx.lineTo(-2.8,3.6);ctx.closePath();
+    ctx.moveTo(9.2,0);ctx.lineTo(-3.4,-4.2);ctx.lineTo(-8.0,0);ctx.lineTo(-3.4,4.2);ctx.closePath();
     ctx.fill();
     ctx.fillStyle=color;
     ctx.globalAlpha=(active?.92:.62)*alpha;
     ctx.beginPath();
-    ctx.moveTo(5.2,0);ctx.lineTo(-8.8,-1.6);ctx.lineTo(-12.5,0);ctx.lineTo(-8.8,1.6);ctx.closePath();
+    ctx.moveTo(6.2,0);ctx.lineTo(-10.5,-1.9);ctx.lineTo(-15.0,0);ctx.lineTo(-10.5,1.9);ctx.closePath();
     ctx.fill();
 
     // Sparkling wake: short points and micro-streaks orbiting the comet.
-    const sparkCount=5;
+    const sparkCount=8;
     for(let spark=0;spark<sparkCount;spark++){
       const sa=(spark-2)*.58+Math.sin(time*10.5+seed+spark*1.7)*.20;
-      const sd=6.5+spark*1.9;
+      const sd=7.5+spark*2.0;
       const sx=-Math.cos(sa)*sd;
       const sy=-Math.sin(sa)*sd*.72;
-      const sr=.75+(spark===2?.55:0)+(active?.20:0);
+      const sr=.82+(spark===3?.70:0)+(active?.24:0);
       ctx.globalAlpha=(active?.72:.48)*alpha;
       ctx.fillStyle=spark===2?'#ffffff':'#dffcff';
       ctx.beginPath();ctx.arc(sx,sy,sr,0,Math.PI*2);ctx.fill();
       if(spark%2===0){
         ctx.globalAlpha=(active?.46:.28)*alpha;
-        ctx.lineWidth=.75;
+        ctx.lineWidth=.9;
         ctx.beginPath();ctx.moveTo(sx-2.2,sy);ctx.lineTo(sx+2.2,sy);ctx.moveTo(sx,sy-2.2);ctx.lineTo(sx,sy+2.2);ctx.strokeStyle='#dffcff';ctx.stroke();
       }
     }
@@ -2523,7 +2523,7 @@ function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, network:
   if (network.nodes.length < 2) return;
 
   const t = s.time;
-  const pulse = 0.55 + Math.sin(t * 4.2) * 0.12;
+  const pulse = 0.82 + Math.sin(t * 4.2) * 0.10;
 
   const hasNode = (shape: { nodes: number[] } | null, index: number): boolean =>
     Boolean(shape?.nodes.includes(index));
@@ -2562,23 +2562,23 @@ function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, network:
     const clusterNode = hasNode(network.cluster, link.a) && hasNode(network.cluster, link.b);
     const squareNode = hasNode(network.square, link.a) && hasNode(network.square, link.b);
 
-    let alpha = 0.18;
+    let alpha = 0.27;
     let color = '#63b9ff';
     let active = false;
     if (lineNode) {
-      alpha = 0.58;
+      alpha = 0.64;
       color = '#63e6ff';
       active = true;
     } else if (squareNode) {
-      alpha = 0.58;
+      alpha = 0.64;
       color = '#69b7ff';
       active = true;
     } else if (triangleNode) {
-      alpha = 0.62;
+      alpha = 0.68;
       color = '#ffb84d';
       active = true;
     } else if (clusterNode) {
-      alpha = 0.46;
+      alpha = 0.56;
       color = '#b38cff';
       active = true;
     }
