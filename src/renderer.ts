@@ -2003,7 +2003,7 @@ function drawSphereCoreArt(
   // Recessed energy core makes every Sphere look manufactured, but each silhouette stays unique.
   const coreR=r*.27*(1+.025*Math.sin(time*6));
   const core=ctx.createRadialGradient(-coreR*.30,-coreR*.30,.4,0,0,coreR*1.55);
-  core.addColorStop(0,'#fff');core.addColorStop(.22,color);core.addColorStop(.70,`rgba(${rgb},.32)`);core.addColorStop(1,'rgba(0,0,0,0)');
+  core.addColorStop(0,'#fff');core.addColorStop(.22,color);core.addColorStop(.70,`rgba(${rgb},.40)`);core.addColorStop(1,'rgba(0,0,0,0)');
   ctx.fillStyle=core;ctx.shadowColor=color;ctx.shadowBlur=0;ctx.beginPath();ctx.arc(0,0,coreR*1.38,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
   ctx.fillStyle='rgba(0,5,12,.64)';ctx.beginPath();ctx.arc(0,0,coreR*.78,0,Math.PI*2);ctx.fill();
   ctx.strokeStyle='rgba(236,252,255,.90)';ctx.lineWidth=.9;ctx.beginPath();ctx.arc(0,0,coreR,0,Math.PI*2);ctx.stroke();
@@ -2434,7 +2434,7 @@ function drawWavyNetworkLink(
 ): void {
   const dx=to.x-from.x,dy=to.y-from.y,len=Math.hypot(dx,dy)||1;
   const nx=-dy/len,ny=dx/len;
-  const amp=Math.min(7.2,2.6+len*.010);
+  const amp=Math.min(8.5,2.9+len*.011);
   const steps=16;
   const phase=time*(active?2.7:1.75)+seed;
   const path=(extra=0)=>{
@@ -2453,31 +2453,33 @@ function drawWavyNetworkLink(
   ctx.save();
   ctx.lineJoin='round';ctx.lineCap='round';
 
-  // Soft optical halo without shadowBlur. This restores some of the lost
-  // glow while keeping the render path cheap enough for the Xiaomi 11T.
-  ctx.globalAlpha=alpha*(active?.24:.15);
+  // Restrained layered glow: brighter than the performance pass, but still
+  // free of shadowBlur and without introducing a new expensive effect path.
+  ctx.globalAlpha=alpha*(active?.30:.18);
   ctx.strokeStyle=color;
-  ctx.lineWidth=active?7.0:4.6;
+  ctx.lineWidth=active?8.0:5.2;
   path();ctx.stroke();
 
   ctx.globalAlpha=alpha;
-  ctx.lineWidth=active?3.2:2.2;
+  ctx.lineWidth=active?3.4:2.4;
   path();ctx.stroke();
 
-  ctx.globalAlpha=alpha*(active?.92:.72);
-  ctx.lineWidth=active?1.05:.8;
+  ctx.globalAlpha=alpha*(active?.95:.78);
+  ctx.lineWidth=active?1.15:.85;
   path();ctx.stroke();
 
-  // Every visible Network connection carries energy. Active formations get
-  // faster/brighter packets, while ordinary links keep a quieter version.
-  const packetCount=3;
+  // Every visible connection carries energy. Formation links are brighter,
+  // but quiet links still receive the same readable comet language.
+  const packetCount=4;
   for(let packet=0;packet<packetCount;packet++){
-    const rawPhase=((time*(active?.48:.34+packet*.025))+seed*.031+packet*.47)%1;
-    const phaseP=packet===0 ? rawPhase : 1-rawPhase;
+    const rawPhase=((time*(active?.48:.365)+seed*.031+packet*.47)%1+1)%1;
+    const phaseP=packet%2===0 ? rawPhase : 1-rawPhase;
     const seg=Math.max(1,Math.min(steps-1,Math.floor(phaseP*steps)));
-    const p0=(seg-1.15)/steps,p1=(seg+.72)/steps;
-    const w0=Math.sin(phase+p0*Math.PI*4.6)*amp*Math.sin(Math.PI*Math.max(0,Math.min(1,p0)));
-    const w1=Math.sin(phase+p1*Math.PI*4.6)*amp*Math.sin(Math.PI*Math.max(0,Math.min(1,p1)));
+    const p0=(seg-1.25)/steps,p1=(seg+.78)/steps;
+    const clamp=(v:number)=>Math.max(0,Math.min(1,v));
+    const cp0=clamp(p0),cp1=clamp(p1);
+    const w0=Math.sin(phase+cp0*Math.PI*4.6)*amp*Math.sin(Math.PI*cp0);
+    const w1=Math.sin(phase+cp1*Math.PI*4.6)*amp*Math.sin(Math.PI*cp1);
     const x0=from.x+dx*p0+nx*w0, y0=from.y+dy*p0+ny*w0;
     const x1=from.x+dx*p1+nx*w1, y1=from.y+dy*p1+ny*w1;
     const mx=(x0+x1)*.5,my=(y0+y1)*.5;
@@ -2485,33 +2487,37 @@ function drawWavyNetworkLink(
     ctx.translate(mx,my);
     ctx.rotate(Math.atan2(y1-y0,x1-x0));
 
-    // Larger comet head + bright tail.
-    ctx.globalAlpha=(active?.96:.70)*alpha;
-    ctx.fillStyle='#f5ffff';
+    // Larger comet head with a longer luminous tail.
+    ctx.globalAlpha=(active?.98:.78)*alpha;
+    ctx.fillStyle='#f8ffff';
     ctx.beginPath();
-    ctx.moveTo(9.2,0);ctx.lineTo(-3.4,-4.2);ctx.lineTo(-8.0,0);ctx.lineTo(-3.4,4.2);ctx.closePath();
+    ctx.moveTo(11.5,0);ctx.lineTo(-3.8,-5.0);ctx.lineTo(-9.5,0);ctx.lineTo(-3.8,5.0);ctx.closePath();
     ctx.fill();
     ctx.fillStyle=color;
-    ctx.globalAlpha=(active?.92:.62)*alpha;
+    ctx.globalAlpha=(active?.94:.70)*alpha;
     ctx.beginPath();
-    ctx.moveTo(6.2,0);ctx.lineTo(-10.5,-1.9);ctx.lineTo(-15.0,0);ctx.lineTo(-10.5,1.9);ctx.closePath();
+    ctx.moveTo(7.5,0);ctx.lineTo(-12.5,-2.2);ctx.lineTo(-19.0,0);ctx.lineTo(-12.5,2.2);ctx.closePath();
     ctx.fill();
 
-    // Sparkling wake: short points and micro-streaks orbiting the comet.
-    const sparkCount=8;
+    // Sparkling wake around each comet.
+    const sparkCount=10;
     for(let spark=0;spark<sparkCount;spark++){
-      const sa=(spark-2)*.58+Math.sin(time*10.5+seed+spark*1.7)*.20;
-      const sd=7.5+spark*2.0;
+      const sa=(spark-2.5)*.48+Math.sin(time*10.5+seed+spark*1.7)*.24;
+      const sd=8.5+spark*1.9;
       const sx=-Math.cos(sa)*sd;
-      const sy=-Math.sin(sa)*sd*.72;
-      const sr=.82+(spark===3?.70:0)+(active?.24:0);
-      ctx.globalAlpha=(active?.72:.48)*alpha;
-      ctx.fillStyle=spark===2?'#ffffff':'#dffcff';
+      const sy=-Math.sin(sa)*sd*.74;
+      const sr=.9+(spark===3?.85:0)+(active?.28:0);
+      ctx.globalAlpha=(active?.78:.56)*alpha;
+      ctx.fillStyle=spark===2||spark===7?'#ffffff':'#dffcff';
       ctx.beginPath();ctx.arc(sx,sy,sr,0,Math.PI*2);ctx.fill();
       if(spark%2===0){
-        ctx.globalAlpha=(active?.46:.28)*alpha;
-        ctx.lineWidth=.9;
-        ctx.beginPath();ctx.moveTo(sx-2.2,sy);ctx.lineTo(sx+2.2,sy);ctx.moveTo(sx,sy-2.2);ctx.lineTo(sx,sy+2.2);ctx.strokeStyle='#dffcff';ctx.stroke();
+        ctx.globalAlpha=(active?.52:.34)*alpha;
+        ctx.lineWidth=.95;
+        ctx.strokeStyle='#dffcff';
+        ctx.beginPath();
+        ctx.moveTo(sx-2.8,sy);ctx.lineTo(sx+2.8,sy);
+        ctx.moveTo(sx,sy-2.8);ctx.lineTo(sx,sy+2.8);
+        ctx.stroke();
       }
     }
     ctx.restore();
