@@ -1887,3 +1887,38 @@ before comparing this hybrid build against the user's visual target.
 ======================================================================
 END CURRENT WORK SESSION UPDATE
 ======================================================================
+
+
+======================================================================
+VALIDATION UPDATE — VISUAL QUALITY / PERFORMANCE HYBRID PASS
+2026-09-27
+======================================================================
+
+CI:
+- Android APK workflow #854 for code commit
+  cb4a4393a38a664a8aa81538fb2041cd277bb2c2: SUCCESS.
+- Documentation follow-up workflow #855 for HEAD
+  c5c466d098a42563484cdf6ca9bd0b18785c8d78: SUCCESS.
+- Verified pipeline stages include Typecheck, Unit tests, Gameplay coverage
+  audit, Lint, Web build, Playwright visual QA, Capacitor sync, Debug APK
+  build and APK upload.
+- Render screenshot and APK artifacts were produced successfully.
+- Playwright render reported zero console errors and zero page errors.
+
+CURRENT STATUS:
+- Performance architecture remains intact.
+- Focal glow/effects have been restored in a bounded hybrid form.
+- Formal visual acceptance on Xiaomi 11T is still the remaining human gate.
+
+NEXT CHAT HANDOFF:
+Current HEAD: c5c466d098a42563484cdf6ca9bd0b18785c8d78
+Branch: new-desing
+Done: hybrid performance + VFX pass, CI #854/#855 green, APK artifact available.
+Next: install the latest APK and compare directly against the user's
+pre-optimization visual target. Check Sphere/Player glow, projectile and
+character VFX, Network wave/comets on all links, then 10-15 minute Xiaomi 11T
+performance. Continue from the observed result, not from a blind renderer
+rewrite.
+======================================================================
+END VALIDATION UPDATE
+======================================================================
