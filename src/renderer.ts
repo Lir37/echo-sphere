@@ -334,6 +334,20 @@ function drawRune(ctx: CanvasRenderingContext2D, rune: GameState['runes'][number
     ctx.fillText(s.flashText.text, canvasW / 2, canvasH / 2 - 60);
     ctx.restore();
   }
+
+  RENDER_COST_MS = performance.now() - renderStarted;
+  if (RENDER_COST_MS > 10 && RENDER_TIME - RENDER_LAST_LOG >= 3) {
+    RENDER_LAST_LOG = RENDER_TIME;
+    console.info('[ECHO_RENDER_PERF]', {
+      ms: Number(RENDER_COST_MS.toFixed(2)),
+      enemies: s.enemies.length,
+      spheres: s.spheres.length,
+      projectiles: s.sphereProjectiles.length,
+      particles: s.particles.length,
+      damageNumbers: s.damageNumbers.length,
+      lightnings: s.lightnings.length,
+    });
+  }
 }
 
 function drawCharacterHud(_ctx: CanvasRenderingContext2D, _s: GameState, _canvasW: number, _canvasH: number): void {
@@ -3089,19 +3103,6 @@ function drawModernBossBody(ctx:CanvasRenderingContext2D,e:EnemyEntity,color:str
   ctx.strokeStyle='rgba(230,251,255,.78)';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(0,0,coreR,0,Math.PI*2);ctx.stroke();
   ctx.restore();
 
-  RENDER_COST_MS = performance.now() - renderStarted;
-  if (RENDER_COST_MS > 10 && RENDER_TIME - RENDER_LAST_LOG >= 3) {
-    RENDER_LAST_LOG = RENDER_TIME;
-    console.info('[ECHO_RENDER_PERF]', {
-      ms: Number(RENDER_COST_MS.toFixed(2)),
-      enemies: s.enemies.length,
-      spheres: s.spheres.length,
-      projectiles: s.sphereProjectiles.length,
-      particles: s.particles.length,
-      damageNumbers: s.damageNumbers.length,
-      lightnings: s.lightnings.length,
-    });
-  }
 }
 
 function drawBossProjectile(ctx:CanvasRenderingContext2D,x:number,y:number,r:number,color:string):void{
