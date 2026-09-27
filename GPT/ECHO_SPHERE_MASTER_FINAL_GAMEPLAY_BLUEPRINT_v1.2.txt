@@ -3204,3 +3204,205 @@ the active Sphere is removed before the run ends.
 ======================================================================
 END APPENDIX C
 ======================================================================
+
+
+======================================================================
+APPENDIX D. 2D/2.5D PRODUCTION ART PIPELINE
+2026-09-27
+======================================================================
+
+D1. PRODUCTION DIRECTION
+
+ECHO SPHERE's production visual direction is 2D/2.5D-first.
+
+The game must NOT return to mass 3D/GLB production at the current stage.
+
+Existing GLB/3D work is historical/parked unless a future product decision
+explicitly reopens it.
+
+The production path for Characters, Spheres, Enemies and Bosses is:
+
+CONCEPT ART
+-> PRODUCTION ASSET SHEET
+-> SPRITE / LAYERED RASTER ASSETS
+-> CANVAS 2.5D RENDERING
+-> PROCEDURAL VFX / ANIMATION
+-> IN-GAME ASSET
+
+The purpose is to preserve the visual quality of the concept direction
+without introducing a heavy 3D asset pipeline.
+
+D2. NO PRIMITIVE SUBSTITUTION
+
+Production Characters, Spheres, Enemies and Bosses must not be represented
+by generic Canvas primitives when an approved production asset exists.
+
+Canvas primitives remain valid for:
+- VFX;
+- particles;
+- trails;
+- rings;
+- telegraphs;
+- debug visualization;
+- simple auxiliary geometry.
+
+They are not a substitute for the approved character/enemy/Sphere artwork.
+
+D3. CONCEPT ART IS NOT THE FINAL GAME ASSET
+
+A generated concept collage is a visual master/reference.
+
+It must be converted into production-ready assets before gameplay
+integration.
+
+Production asset requirements may include:
+- transparent background;
+- fixed orthographic camera;
+- consistent object scale;
+- consistent visual orientation;
+- frame-safe margins;
+- separate animation frames or sprite sheets;
+- optional separated layers for Core, shell, rings, petals and energy;
+- deterministic naming;
+- manifest describing frame dimensions, FPS and animation loops.
+
+D4. ANIMATION MODEL
+
+The preferred animation model is sprite/layer animation rendered by Canvas.
+
+Characters, Spheres and enemies should support, where appropriate:
+- idle;
+- movement;
+- attack;
+- hit;
+- shield/defense;
+- death;
+- special/ability;
+- boss phase.
+
+Animation should be achieved through:
+- sprite frame changes;
+- layer transforms;
+- rotation;
+- scale;
+- squash/stretch;
+- parallax;
+- procedural VFX.
+
+Do not create a 3D model merely to obtain basic animation.
+
+D5. LAYERED 2.5D
+
+Important assets may be split into inexpensive layers.
+
+Example:
+
+ASSET
+- base/silhouette
+- core
+- shell/facets
+- rings
+- energy
+- glow
+
+The renderer may animate these independently.
+
+This is preferred when it creates more visual depth for materially lower
+runtime and production complexity than a full 3D model.
+
+D6. VFX SEPARATION
+
+Art assets and procedural VFX are separate systems.
+
+High-quality authored artwork provides:
+- silhouette;
+- shape language;
+- material appearance;
+- character identity.
+
+Canvas VFX provides:
+- glow;
+- particles;
+- trails;
+- impact flashes;
+- status effects;
+- telegraphs;
+- resonance pulses.
+
+Performance-sensitive high-count VFX must continue to use the established
+bounded/hybrid approach. Do not globally restore expensive blur operations
+just because authored assets have been introduced.
+
+D7. ASSET PRODUCTION WORKFLOW
+
+For a new production asset:
+
+1. Generate or approve the concept.
+2. Produce a dedicated asset sheet, not merely a gameplay screenshot.
+3. Extract/prepare individual frames or layers.
+4. Validate transparency, scale, orientation and readability.
+5. Add assets to the repository under the designated 2D/2.5D asset tree.
+6. Add or update the asset manifest.
+7. Connect the asset through the existing renderer/animation abstraction.
+8. Verify the asset in the actual game.
+9. Run CI and inspect the resulting APK/web visual artifact.
+10. Only after successful PlayerCheck is the asset considered production-ready.
+
+The model/tooling may prepare the artwork and repository files directly when
+the required binary-file handoff is available. If a generation interface
+cannot expose binary bytes directly, the fallback is a generated asset
+followed by an explicit repository upload step. In both cases the target
+state is the same: the approved asset must exist in the repository and be
+referenced by the game, not remain only as a chat image.
+
+D8. FIRST PRODUCTION TARGET
+
+The first production asset should be SPHERIST.
+
+Target initial package:
+- front/side/3-4 visual reference;
+- idle animation;
+- movement animation;
+- attack animation;
+- shield animation;
+- hit animation;
+- death animation;
+- Core/ring/glow layers where useful;
+- asset manifest.
+
+This package becomes the reference implementation for the rest of the
+asset pipeline.
+
+D9. VISUAL QUALITY RULE
+
+The visual target is the expressive pre-optimization ECHO SPHERE look,
+with only the minimum glow reduction required for mobile performance.
+
+Optimization must remove waste, not visual identity.
+
+If performance becomes a problem, profile and optimize:
+- repeated draw work;
+- excessive transient allocations;
+- high-count VFX;
+- unnecessary blur;
+- redundant geometry;
+- texture sizes;
+- draw-call density.
+
+Do NOT solve performance by replacing authored artwork with primitive
+placeholders.
+
+D10. 3D / GLB GATE
+
+3D/GLB production remains PARKED.
+
+Reopening mass 3D production requires an explicit product decision after:
+- the 2D/2.5D game is visually and mechanically validated;
+- retention/gameplay quality justify additional production cost;
+- device performance is understood;
+- the production pipeline can be maintained reliably.
+
+======================================================================
+END APPENDIX D
+======================================================================
+
