@@ -359,7 +359,7 @@ function drawPlayerShield(ctx: CanvasRenderingContext2D, s: GameState): void {
   if (charges <= 0 || s.player.shieldTimer <= 0) return;
   const pulse = 1 + Math.sin(RENDER_TIME * 125) * 0.035;
   ctx.save(); ctx.translate(s.player.pos.x, s.player.pos.y); ctx.scale(pulse, pulse);
-  ctx.shadowColor = '#63e6ff'; ctx.shadowBlur=0; ctx.strokeStyle = 'rgba(99,230,255,0.72)';
+  ctx.shadowColor = '#63e6ff'; ctx.shadowBlur=10; ctx.strokeStyle = 'rgba(99,230,255,0.72)';
   ctx.lineWidth = 2.2; ctx.setLineDash([10,7]); ctx.beginPath(); ctx.arc(0,0,34,0,Math.PI*2); ctx.stroke(); ctx.setLineDash([]);
   ctx.strokeStyle = 'rgba(225,251,255,0.82)'; ctx.lineWidth = 1;
   for(let i=0;i<charges;i++){const a=-Math.PI/2+i*Math.PI*2/Math.max(1,charges);ctx.beginPath();ctx.moveTo(Math.cos(a)*29,Math.sin(a)*29);ctx.lineTo(Math.cos(a)*38,Math.sin(a)*38);ctx.stroke();}
@@ -623,7 +623,7 @@ function drawModernHealth(ctx: CanvasRenderingContext2D,x:number,y:number,color:
 function drawModernProjectile(ctx: CanvasRenderingContext2D,x:number,y:number,vx:number,vy:number,r:number,color:string):void{
   const a=Math.atan2(vy,vx),speed=Math.hypot(vx,vy)||1,t=RENDER_TIME,trail=Math.min(52,15+speed*.05),rgb=hexToRgb(color);
   ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.globalCompositeOperation='source-over';
-  ctx.strokeStyle=`rgba(${rgb},.18)`;ctx.lineWidth=Math.max(4,r*1.8);ctx.shadowColor=color;ctx.shadowBlur=0;ctx.beginPath();ctx.moveTo(-trail,0);ctx.lineTo(0,0);ctx.stroke();ctx.shadowBlur=0;
+  ctx.strokeStyle=`rgba(${rgb},.28)`;ctx.lineWidth=Math.max(6,r*2.15);ctx.shadowColor=color;ctx.shadowBlur=0;ctx.beginPath();ctx.moveTo(-trail,0);ctx.lineTo(0,0);ctx.stroke();ctx.shadowBlur=0;
   ctx.fillStyle='#06111e';ctx.strokeStyle=`rgba(${rgb},.95)`;ctx.lineWidth=1;
   const pulse=1+Math.sin(t*12)*.08;
   ctx.beginPath();ctx.moveTo(r*2.2,0);ctx.lineTo(-r*.55,-r*.72*pulse);ctx.lineTo(-r*.85,0);ctx.lineTo(-r*.55,r*.72*pulse);ctx.closePath();ctx.fill();ctx.stroke();
@@ -1878,7 +1878,7 @@ function drawEliteCrest(ctx: CanvasRenderingContext2D, e: EnemyEntity, t: number
     const x=Math.cos(a)*r*.55, y=Math.sin(a)*r*.55;
     ctx.beginPath();ctx.moveTo(Math.cos(a)*r*.18,Math.sin(a)*r*.18);ctx.lineTo(x,y);ctx.stroke();
   }
-  ctx.fillStyle='#f0c9ff'; ctx.shadowColor='#d879ff';ctx.shadowBlur=0;
+  ctx.fillStyle='#f0c9ff'; ctx.shadowColor='#d879ff';ctx.shadowBlur=5;
   ctx.beginPath();ctx.moveTo(0,-r*.48);ctx.lineTo(r*.20,-r*.08);ctx.lineTo(0,r*.26);ctx.lineTo(-r*.20,-r*.08);ctx.closePath();ctx.fill();
   ctx.restore();
 }
@@ -1952,7 +1952,9 @@ function drawSphereCoreArt(
   ctx.fillStyle='rgba(4,10,18,.98)';
   ctx.strokeStyle=`rgba(${rgb},.88)`;
   ctx.lineWidth=1.2;
-  ctx.shadowColor=color;ctx.shadowBlur=0;
+  // Low-count Sphere shells can afford a small focal blur. Repeated VFX paths
+  // below remain blur-free.
+  ctx.shadowColor=color;ctx.shadowBlur=tier>0?4.5:3.5;
 
   if(sphere.type==='standard'){
     ctx.beginPath();ctx.moveTo(0,-r*.92);ctx.lineTo(r*.60,-r*.68);ctx.lineTo(r*.84,-r*.08);ctx.lineTo(r*.55,r*.70);ctx.lineTo(0,r*.88);ctx.lineTo(-r*.55,r*.70);ctx.lineTo(-r*.84,-r*.08);ctx.lineTo(-r*.60,-r*.68);ctx.closePath();ctx.fill();ctx.stroke();
@@ -2402,7 +2404,7 @@ function drawFormationMemory(ctx: CanvasRenderingContext2D, s: GameState): void 
   ctx.globalAlpha = 0.34 * alpha;
   ctx.lineWidth = 1.4;
   ctx.shadowColor = color;
-  ctx.shadowBlur=0;
+  ctx.shadowBlur=5;
   ctx.setLineDash([5, 7]);
 
   ctx.beginPath();
@@ -2613,6 +2615,8 @@ function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, network:
     ctx.strokeStyle = '#63e6ff';
     ctx.globalAlpha = 0.20 + 0.05 * Math.sin(t * 5);
     ctx.lineWidth = 1;
+    ctx.shadowColor = '#63e6ff';
+    ctx.shadowBlur = 4;
     const spread = 34 + network.line.nodes.length * 5;
     ctx.beginPath();
     ctx.moveTo(-spread, 0);
@@ -2636,7 +2640,7 @@ function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, network:
     ctx.globalAlpha = 0.24 + 0.08 * Math.sin(t * 4);
     ctx.lineWidth = 1;
     ctx.shadowColor = '#ffb84d';
-    ctx.shadowBlur=0;
+    ctx.shadowBlur=4;
     ctx.stroke();
     ctx.restore();
 
@@ -2673,7 +2677,7 @@ function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, network:
       if (charge > 0) {
         ctx.globalAlpha = 0.86;
         ctx.shadowColor = '#ffb84d';
-        ctx.shadowBlur=0;
+        ctx.shadowBlur=4;
         ctx.beginPath();
         ctx.arc(0, 0, radius, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * progress);
         ctx.stroke();
@@ -2683,7 +2687,7 @@ function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, network:
         const flash = sphere.resonancePulseTimer / 0.45;
         ctx.globalAlpha = 0.45 + 0.4 * flash;
         ctx.shadowColor = '#fff0c2';
-        ctx.shadowBlur=0;
+        ctx.shadowBlur=6;
         ctx.lineWidth = 2.6;
         ctx.beginPath();
         ctx.arc(0, 0, radius + 5 + (1 - flash) * 10, -Math.PI / 2, Math.PI * 1.5);
@@ -2710,7 +2714,7 @@ function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, network:
     ctx.fillStyle = '#ffb84d';
     ctx.globalAlpha = activePulse ? 0.9 : 0.26;
     ctx.shadowColor = activePulse ? '#fff0c2' : '#ffb84d';
-    ctx.shadowBlur=0;
+    ctx.shadowBlur=7;
     ctx.beginPath();
     ctx.arc(0, 0, activePulse ? 4.5 : 2.5, 0, Math.PI * 2);
     ctx.fill();
@@ -2736,7 +2740,7 @@ function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, network:
     ctx.globalAlpha = 0.28 + 0.08 * Math.sin(t * 4);
     ctx.lineWidth = 1.8;
     ctx.shadowColor = '#69b7ff';
-    ctx.shadowBlur=0;
+    ctx.shadowBlur=4;
     ctx.beginPath();
     points.forEach((p, i) => {
       const x = p.x - cx;
@@ -2748,12 +2752,15 @@ function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, network:
 
     const radius = Math.max(...points.map((p) => Math.hypot(p.x - cx, p.y - cy))) + 22;
     ctx.globalAlpha = 0.16 + 0.05 * Math.sin(t * 6);
+    ctx.shadowColor = '#69b7ff';
+    ctx.shadowBlur=6;
     ctx.beginPath();
     ctx.arc(0, 0, radius, 0, Math.PI * 2);
     ctx.stroke();
     ctx.fillStyle = '#69b7ff';
     ctx.globalAlpha = 0.30 + 0.10 * Math.sin(t * 8);
-    ctx.shadowBlur=0;
+    ctx.shadowColor = '#69b7ff';
+    ctx.shadowBlur=6;
     ctx.beginPath();
     ctx.arc(0, 0, 4.5, 0, Math.PI * 2);
     ctx.fill();
@@ -2791,7 +2798,7 @@ function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, network:
     ctx.globalAlpha = 0.20 + 0.07 * Math.sin(t * 3.2);
     ctx.lineWidth = 1.4;
     ctx.shadowColor = '#b38cff';
-    ctx.shadowBlur=0;
+    ctx.shadowBlur=5;
     ctx.beginPath();
     ctx.arc(cx, cy, radius + 18 + Math.sin(t * 3) * 3, 0, Math.PI * 2);
     ctx.stroke();
@@ -2809,7 +2816,7 @@ function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, network:
     ctx.fillStyle = '#b38cff';
     ctx.globalAlpha = 0.42 + 0.1 * Math.sin(t * 7);
     ctx.shadowColor = '#b38cff';
-    ctx.shadowBlur=0;
+    ctx.shadowBlur=6;
     ctx.beginPath();
     ctx.arc(cx, cy, 4.2 * clusterPulse, 0, Math.PI * 2);
     ctx.fill();
@@ -3084,7 +3091,7 @@ function drawLinkBreakerTelegraph(ctx: CanvasRenderingContext2D, e: EnemyEntity,
   const target=e.elitePulseTarget,dx=target.pos.x-e.pos.x,dy=target.pos.y-e.pos.y;
   const remaining=Math.max(0,Math.min(1,(e.elitePulseTelegraphTimer||0)/LINK_BREAKER_TELEGRAPH_SECONDS));
   const pulse=.65+.35*Math.sin(t*16);
-  ctx.save();ctx.globalCompositeOperation='source-over';ctx.strokeStyle='#ff4d70';ctx.shadowColor='#ff4d70';ctx.shadowBlur=0;
+  ctx.save();ctx.globalCompositeOperation='source-over';ctx.strokeStyle='#ff4d70';ctx.shadowColor='#ff4d70';ctx.shadowBlur=4;
   ctx.globalAlpha=.30+(1-remaining)*.55;ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(dx,dy);ctx.stroke();
   ctx.translate(dx,dy);ctx.rotate(Math.atan2(dy,dx));ctx.globalAlpha=.55+.35*pulse;ctx.lineWidth=2;
   ctx.beginPath();ctx.moveTo(-16,-10);ctx.lineTo(-5,0);ctx.lineTo(-16,10);ctx.moveTo(16,-10);ctx.lineTo(5,0);ctx.lineTo(16,10);ctx.stroke();
@@ -3096,7 +3103,7 @@ function drawNetworkDisabledIndicator(ctx: CanvasRenderingContext2D, sphere: Sph
   const remaining=Math.max(0,Math.min(1,(sphere.networkDisabledTimer||0)/LINK_BREAKER_DISABLED_SECONDS));
   const pulse=.6+.4*Math.sin(t*13);
   ctx.save();ctx.globalCompositeOperation='source-over';ctx.translate(0,0);
-  ctx.strokeStyle='#ff4d70';ctx.shadowColor='#ff4d70';ctx.shadowBlur=0;ctx.globalAlpha=.55+.35*pulse;ctx.lineWidth=2.2;
+  ctx.strokeStyle='#ff4d70';ctx.shadowColor='#ff4d70';ctx.shadowBlur=4;ctx.globalAlpha=.55+.35*pulse;ctx.lineWidth=2.2;
   ctx.beginPath();ctx.moveTo(-17,-10);ctx.lineTo(-4,0);ctx.lineTo(-17,10);ctx.moveTo(17,-10);ctx.lineTo(4,0);ctx.lineTo(17,10);ctx.stroke();
   ctx.globalAlpha=.28;ctx.lineWidth=1.2;
   const sweep=(1-remaining)*Math.PI*2;
@@ -3141,7 +3148,7 @@ function drawModernBossBody(ctx:CanvasRenderingContext2D,e:EnemyEntity,color:str
 
 function drawBossProjectile(ctx:CanvasRenderingContext2D,x:number,y:number,r:number,color:string):void{
   const t=RENDER_TIME,rgb=hexToRgb(color);
-  ctx.save();ctx.translate(x,y);ctx.rotate(t*1.8);ctx.globalCompositeOperation='source-over';ctx.shadowColor=color;ctx.shadowBlur=0;
+  ctx.save();ctx.translate(x,y);ctx.rotate(t*1.8);ctx.globalCompositeOperation='source-over';ctx.shadowColor=color;ctx.shadowBlur=3;
   ctx.fillStyle='#06101c';ctx.strokeStyle=`rgba(${rgb},.92)`;ctx.lineWidth=Math.max(1,r*.11);
   ctx.beginPath();for(let i=0;i<8;i++){const a=i*Math.PI/4,rr=i%2===0?r*1.45:r*.82;const px=Math.cos(a)*rr,py=Math.sin(a)*rr;if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);}ctx.closePath();ctx.fill();ctx.stroke();
   ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(0,0,r*.38,0,Math.PI*2);ctx.fill();ctx.fillStyle=color;ctx.beginPath();ctx.arc(0,0,r*.26,0,Math.PI*2);ctx.fill();ctx.restore();
