@@ -174,7 +174,7 @@ export function render(ctx: CanvasRenderingContext2D, s: GameState, canvasW: num
     ctx.beginPath(); ctx.arc(0, 0, 22, 0, Math.PI * 2); ctx.fill();
     ctx.strokeStyle = `rgba(255,180,70,${alpha * 0.75})`;
     ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.arc(0, 0, 15 + Math.sin(Date.now() * 0.02 + ft.pos.x) * 2, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.arc(0, 0, 15 + Math.sin(RENDER_TIME * 50 + ft.pos.x) * 2, 0, Math.PI * 2); ctx.stroke();
     ctx.restore();
   }
 
@@ -343,7 +343,7 @@ function drawCharacterHud(_ctx: CanvasRenderingContext2D, _s: GameState, _canvas
 function drawPlayerShield(ctx: CanvasRenderingContext2D, s: GameState): void {
   const charges = s.player.shieldCharges || 0;
   if (charges <= 0 || s.player.shieldTimer <= 0) return;
-  const pulse = 1 + Math.sin(Date.now() * 0.008) * 0.035;
+  const pulse = 1 + Math.sin(RENDER_TIME * 125) * 0.035;
   ctx.save(); ctx.translate(s.player.pos.x, s.player.pos.y); ctx.scale(pulse, pulse);
   ctx.shadowColor = '#63e6ff'; ctx.shadowBlur=0; ctx.strokeStyle = 'rgba(99,230,255,0.72)';
   ctx.lineWidth = 2.2; ctx.setLineDash([10,7]); ctx.beginPath(); ctx.arc(0,0,34,0,Math.PI*2); ctx.stroke(); ctx.setLineDash([]);
@@ -641,7 +641,7 @@ function drawEnergyBolt(ctx: CanvasRenderingContext2D, from: Vec, to: Vec, alpha
   ctx.beginPath(); ctx.moveTo(from.x, from.y);
   for (let i = 1; i < points; i++) {
     const p = i / points;
-    const wave = Math.sin(i * 3.7 + Date.now() * 0.03) * wobble * 0.35;
+    const wave = Math.sin(i * 3.7 + RENDER_TIME * 33.3333333) * wobble * 0.35;
     ctx.lineTo(from.x + dx * p + nx * wave, from.y + dy * p + ny * wave);
   }
   ctx.lineTo(to.x, to.y); ctx.stroke();
@@ -651,7 +651,7 @@ function drawEnergyBolt(ctx: CanvasRenderingContext2D, from: Vec, to: Vec, alpha
   ctx.beginPath(); ctx.moveTo(from.x, from.y);
   for (let i = 1; i < points; i++) {
     const p = i / points;
-    const wave = Math.sin(i * 3.7 + Date.now() * 0.03) * wobble * 0.35;
+    const wave = Math.sin(i * 3.7 + RENDER_TIME * 33.3333333) * wobble * 0.35;
     ctx.lineTo(from.x + dx * p + nx * wave, from.y + dy * p + ny * wave);
   }
   ctx.lineTo(to.x, to.y); ctx.stroke();
@@ -1198,18 +1198,18 @@ function drawSpikes(ctx: CanvasRenderingContext2D, color: string): void {
 }
 function drawWings(ctx: CanvasRenderingContext2D, color: string): void {
   ctx.strokeStyle = shade(color, 10); ctx.lineWidth = 2.5;
-  const flap = Math.sin(Date.now() / 200) * 0.3;
+  const flap = Math.sin(RENDER_TIME * 5) * 0.3;
   ctx.beginPath(); ctx.arc(-PLAYER_RADIUS - 4, 0, PLAYER_RADIUS - 2, -0.8 - flap, 0.8 + flap); ctx.stroke();
   ctx.beginPath(); ctx.arc(PLAYER_RADIUS + 4, 0, PLAYER_RADIUS - 2, Math.PI - 0.8 - flap, Math.PI + 0.8 + flap); ctx.stroke();
 }
 function drawHalo(ctx: CanvasRenderingContext2D): void {
-  const pulse = 1 + Math.sin(Date.now() / 300) * 0.12;
+  const pulse = 1 + Math.sin(RENDER_TIME * 3.3333333) * 0.12;
   ctx.strokeStyle = '#d4943d'; ctx.lineWidth = 2.5;
   ctx.beginPath(); ctx.ellipse(0, -PLAYER_RADIUS - 12, (PLAYER_RADIUS + 6) * pulse, 5, 0, 0, Math.PI * 2); ctx.stroke();
 }
 function drawTentacles(ctx: CanvasRenderingContext2D): void {
   ctx.strokeStyle = INK; ctx.lineWidth = 1.5;
-  const t = Date.now() / 400;
+  const t = RENDER_TIME * 2.5;
   for (let i = 0; i < 6; i++) {
     const a = (i / 6) * Math.PI * 2 + t * 0.5;
     ctx.beginPath();
