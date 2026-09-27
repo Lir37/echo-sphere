@@ -1703,3 +1703,64 @@ then evaluate sprite baking for the most expensive repeated silhouettes.
 ======================================================================
 END CURRENT WORK SESSION UPDATE
 ======================================================================
+
+
+
+======================================================================
+CURRENT WORK SESSION UPDATE — NETWORK ENERGY / RESTRAINED GLOW PASS
+2026-09-27
+======================================================================
+
+PLAYER FEEDBACK:
+- Current performance is acceptable: no noticeable lag in the latest PlayerCheck.
+- Visual effects became too weak after the performance pass. The intended
+  result is reduced intensity, not near-total removal of glow.
+- The continuous waveform/comet treatment was visible reliably only on the
+  Triangle formation in the current APK. Other Network connections read too
+  much like plain lines.
+- Comets should be larger and visibly spark.
+
+IMPLEMENTED:
+- Network links now keep the continuous wavy waveform treatment on every
+  visible connection, not only formation-active links.
+- Every visible connection now carries two moving energy comets.
+- Active formation links use faster/brighter packets; ordinary links use a
+  quieter version, preserving hierarchy without losing the effect entirely.
+- Comet heads were enlarged and given a longer tapered tail.
+- Each comet now emits five small spark particles plus occasional
+  cross-shaped micro-streaks.
+- Added a restrained optical halo to Network strokes using extra translucent
+  line layers instead of shadowBlur.
+- Slightly restored Sphere core emissive presence by increasing the outer
+  core gradient opacity from 0.24 to 0.32.
+- No gameplay logic, Network mechanics, Sphere behavior or performance
+  architecture was changed.
+
+PERFORMANCE SAFETY:
+- shadowBlur remains disabled in runtime renderer.
+- The new glow is implemented with cheap source-over strokes, not blurred
+  Canvas layers.
+- The comet/spark additions are bounded to two packets per visible Network
+  link.
+
+VALIDATION:
+- Implementation commit: a0b12c830462e30439458de2bf624ce182761131
+- CI #848: SUCCESS
+- Typecheck: PASS
+- Unit tests: PASS
+- Gameplay coverage audit: PASS
+- Lint: PASS
+- Web build: PASS
+- Playwright visual QA: PASS
+- Android APK build: PASS
+
+NEXT:
+- Manual PlayerCheck of CI #848 APK on Xiaomi 11T.
+- Check three visual points: (A) glow is present but not washed out,
+  (B) every Network link has a readable wave and larger sparkling comet,
+  (C) performance remains stable for 10-15 minutes.
+- Do not add more renderer effects until this PlayerCheck confirms the
+  balance between readability and performance.
+======================================================================
+END CURRENT WORK SESSION UPDATE
+======================================================================
