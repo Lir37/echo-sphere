@@ -1612,3 +1612,35 @@ REMAINING:
 ======================================================================
 END CURRENT WORK SESSION UPDATE
 ======================================================================
+
+
+======================================================================
+CURRENT WORK SESSION UPDATE — PLAYER FEEDBACK: READABILITY / NETWORK ENERGY / PERFORMANCE
+2026-09-27
+======================================================================
+
+PLAYER FEEDBACK:
+1. Overall 2.5D visual redesign is acceptable, but emissive effects are too bright and internal structural details read as translucent/washed out.
+2. Network links should behave visually like an audio waveform: a continuous line that oscillates along its length. Energy travelling through the link should read as a small comet/drop with sparks, not a worm or simple dot.
+3. Frame stepping/stutter became more pronounced after the visual pass and requires another performance pass.
+
+IMPLEMENTED:
+- Reduced Canvas bloom/shadow intensity across the visual layer, especially Sphere/core, player, boss, pickup and transient effect presentation.
+- Replaced several additive lighter compositing layers with normal source-over compositing to reduce washout and GPU/Canvas blend cost.
+- Increased contrast of Sphere structural outlines/core rings while reducing translucent emissive fill strength.
+- Network links now use a continuous multi-cycle sine-wave path with endpoint taper, visually closer to an audio-spectrum waveform.
+- Network energy packets are now tapered comet/drop shapes with small spark particles around the head.
+- Cached the simulation time already present in GameState for Sphere rendering instead of calling Date.now() repeatedly for each Sphere's three visual passes.
+
+PERFORMANCE NOTE:
+This pass intentionally targets both reported symptoms at once: excessive bloom and frame stepping. The previous performance mitigations remain active: React UI at 10 Hz, cached Network frame, transient VFX caps and adaptive render stride.
+
+VALIDATION STATUS:
+- Implementation commit: a446092596f4ac3a96aab81fe9954f00dd627aa7
+- Manual Xiaomi 11T PlayerCheck is still required. If stepping remains, the next investigation should focus on Canvas draw-call count and per-frame allocations rather than APK size.
+
+NEXT:
+Run a fresh APK PlayerCheck. Verify three things separately: (A) object details are now readable through the reduced glow, (B) Network wave/comet behavior matches the intended visual, (C) 10–15 minute performance on Xiaomi 11T. Do not expand visual content until these gates pass.
+======================================================================
+END CURRENT WORK SESSION UPDATE
+======================================================================
