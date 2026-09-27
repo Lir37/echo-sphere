@@ -1644,3 +1644,62 @@ Run a fresh APK PlayerCheck. Verify three things separately: (A) object details 
 ======================================================================
 END CURRENT WORK SESSION UPDATE
 ======================================================================
+
+
+======================================================================
+CURRENT WORK SESSION UPDATE — CANVAS PERFORMANCE PASS #1
+2026-09-27
+======================================================================
+
+SOURCE REVIEW:
+Kimi's renderer audit was compared against the actual current renderer.ts.
+The audit correctly identified hot-path Canvas costs, but its DPR claim does
+not apply to the current implementation: the game canvas is currently sized
+in CSS-pixel dimensions without multiplying the backing buffer by
+devicePixelRatio, so the cited ~7 MP DPR backbuffer is not present.
+
+IMPLEMENTED:
+- Removed all non-zero shadowBlur assignments from renderer runtime code.
+- Replaced blurred per-entity ground shadows with two cheap translucent
+  ellipses.
+- Simplified XP orb material so it no longer creates a per-orb linear
+  gradient or shadow.
+- Simplified decorative nebulae so they no longer create three radial
+  gradients every frame.
+- Unified renderer animation time through RENDER_TIME = s.time.
+- Removed per-frame Date.now() calls from renderer animation paths.
+- Added lightweight render-cost logging when a frame exceeds 10 ms, sampled
+  no more than once every 3 seconds. The sample includes entity/VFX counts.
+- Preserved gameplay, Network mechanics, Sphere logic and adaptive stride.
+
+CURRENT RENDERER COUNTS:
+- Non-zero shadowBlur assignments in runtime: 0
+- Date.now() calls in renderer: 0
+- createRadialGradient calls remaining: 11
+- createLinearGradient calls remaining: 6
+
+VALIDATION:
+- CI #846: SUCCESS
+- Typecheck: PASS
+- Unit tests: PASS
+- Gameplay coverage: PASS
+- Lint: PASS
+- Web build: PASS
+- Playwright visual QA: PASS
+- Android APK: PASS
+
+IMPORTANT:
+This is performance pass #1, not the final optimization. Per-entity gradients,
+string color construction and static background caching remain candidates for
+a measured second pass. Do not blindly bake every procedural shape yet:
+first use the new render-cost telemetry and Xiaomi 11T PlayerCheck to identify
+the dominant remaining cost.
+
+NEXT:
+PlayerCheck the new APK on Xiaomi 11T, preferably for 10-15 minutes.
+Record whether frame stepping changed and approximately when it starts.
+If stepping remains, continue with measured gradient/allocation reduction,
+then evaluate sprite baking for the most expensive repeated silhouettes.
+======================================================================
+END CURRENT WORK SESSION UPDATE
+======================================================================
