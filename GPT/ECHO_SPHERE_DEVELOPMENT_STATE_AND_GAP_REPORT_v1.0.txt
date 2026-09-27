@@ -1964,9 +1964,9 @@ CURRENT STATUS:
 - Formal visual acceptance on Xiaomi 11T is still the remaining human gate.
 
 NEXT CHAT HANDOFF:
-Current HEAD: c5c466d098a42563484cdf6ca9bd0b18785c8d78
+Current HEAD: 99dd9de025e255ddcf3c6e880c8f13b78430ac8e
 Branch: new-desing
-Done: hybrid performance + VFX pass, CI #854/#855 green, APK artifact available.
+Done: hybrid performance + VFX pass, CI #854/#855/#857 green, APK artifact available.
 Next: install the latest APK and compare directly against the user's
 pre-optimization visual target. Check Sphere/Player glow, projectile and
 character VFX, Network wave/comets on all links, then 10-15 minute Xiaomi 11T
