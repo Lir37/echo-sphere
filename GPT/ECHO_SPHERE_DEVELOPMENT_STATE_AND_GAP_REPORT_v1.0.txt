@@ -2036,3 +2036,5 @@ IMPLEMENTED:
 NEXT:
 - Build/install the new APK and re-test Spherist: left/right frame integrity, MOVE, DEATH, and Shield.
 - If the sprite is now stable, accept Spherist as the first production character reference and move to the next authored asset only after PlayerCheck.
+
+[2026-09-28] PASS #4 MICRO-CORRECTION — preserved measured Spherist velocity in renderer state so MOVE lean/squash uses the actual movement vector after animation-state detection.
