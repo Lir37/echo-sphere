@@ -2100,3 +2100,30 @@ NEXT:
 - Re-check that MOVE still reads as side/profile motion and DEATH still reads
   as fold/disassembly.
 - Only after this PlayerCheck continue to Shield / next production asset.
+
+
+[2026-09-28] 2D/2.5D PRODUCTION ASSET PASS #6 — SPHERIST TURNAROUND REFERENCE CORRECTION
+
+PLAYER FEEDBACK:
+- Technical split/half-rendering is fixed and the overall character is acceptable.
+- The previous MOVE implementation was rejected visually: it behaved as a 2D figure with lean, squash/stretch and transform-based pseudo-profile.
+- The desired movement is the authored turnaround behavior shown in the production reference: front view at rest and a distinct side/profile character view while moving.
+- The character itself should also visually match the approved turnaround reference more closely.
+
+IMPLEMENTED:
+- Added authored public/art/spherist-side.svg as a dedicated side-view production asset.
+- Refined public/art/spherist.svg toward the reference turnaround: faceted shell, blue folded crystal petals, gold accents, luminous core and orbit ring.
+- Runtime MOVE now switches from the front asset to the authored side asset.
+- Side view is mirrored when moving left, so movement direction and profile orientation remain coherent.
+- Removed the previous movement shear/horizontal-compression approach. Only restrained bob/pulse remains.
+- Updated Spherist manifest to describe the authored turnaround runtime.
+- Death remains a separate 2.5D fold/disassembly presentation and does not use the side view.
+
+NEXT:
+- Build/install APK and verify front/side view quality against the reference:
+  1. idle = front;
+  2. move right = right-facing side;
+  3. move left = mirrored left-facing side;
+  4. no artificial lean in the wrong direction;
+  5. character proportions/facets/gold/core/ring visually match the reference better.
+- Shield remains untested by the user and is not part of this correction pass.
