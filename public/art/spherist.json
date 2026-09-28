@@ -1,6 +1,6 @@
 {
   "id": "spherist",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "type": "character",
   "renderMode": "canvas-2.5d",
   "sourceAsset": "public/art/spherist.svg",
@@ -157,11 +157,12 @@
       "loop": false
     }
   },
-  "status": "runtime-2.5d-transform-v3",
-  "notes": "Android PlayerCheck exposed a wide-SVG sprite-sheet crop artifact that split and displaced the Spherist. Runtime now uses the intact spherist.svg production asset and Canvas 2.5D transforms for movement/death, eliminating wide-sheet cropping. MOVE adds directional side-profile turn, lean, squash/stretch and motion bob. DEATH is an origami fold/disassembly with fade and outward fragments. Shield remains a separate solid Canvas energy shell. Legacy three-rod character VFX was removed because the authored Spherist already contains its own orbit ring.",
+  "status": "reference-turnaround-runtime-v4",
+  "notes": "Player movement now uses an authored side-view asset matching the approved turnaround reference. Idle uses the front view; movement switches to the side view and mirrors it by direction. No runtime shear or horizontal squash is used to fake the profile. Front asset was refined toward the reference turnaround: layered faceted shell, blue crystal petals, gold folded accents, luminous core and orbit ring. Death remains a Canvas 2.5D fold/disassembly effect over the intact front asset.",
   "spriteSheet": "public/art/spherist-sheet.svg",
   "sheetFrames": 12,
   "runtimeAsset": "spherist.svg",
-  "animationRuntime": "canvas-2.5d-transform",
-  "spriteSheetStatus": "deprecated-for-runtime-android"
+  "animationRuntime": "canvas-2.5d-authored-view-switch",
+  "spriteSheetStatus": "deprecated-for-runtime",
+  "sideViewAsset": "spherist-side.svg"
 }
