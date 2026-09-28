@@ -21,7 +21,7 @@ const VOID_PANEL = '#080d1b';
 const MUTATION_COLORS = ['#6eeaff', '#9b7cff', '#d86cff', '#55e6c1', '#b9a7ff'];
 
 type ArtKey =
-  | 'player'
+  | 'player' | 'player-spherist'
   | 'sphere-standard' | 'sphere-sniper' | 'sphere-shotgun' | 'sphere-chain' | 'sphere-aura'
   | 'sphere-orbital' | 'sphere-prism' | 'sphere-gravity' | 'sphere-pulse' | 'sphere-void'
   | 'enemy-skitter' | 'enemy-fast' | 'enemy-tank' | 'enemy-moth'
@@ -29,6 +29,7 @@ type ArtKey =
 
 const ART_PATHS: Record<ArtKey, string> = {
   player: '/art/player.svg',
+  'player-spherist': '/art/spherist.svg',
   'sphere-standard': '/art/standard.svg',
   'sphere-sniper': '/art/sniper.svg',
   'sphere-shotgun': '/art/shotgun.svg',
@@ -1161,6 +1162,17 @@ function drawPlayer(ctx: CanvasRenderingContext2D, p: PlayerState): void {
   ctx.scale(pulse, pulse);
   drawGroundShadow(ctx, r * .95, r * .25, 8);
   ctx.globalCompositeOperation = 'source-over';
+
+  // Spherist production asset: authored vector silhouette, layered for Canvas 2.5D.
+  // Other characters keep their existing render path until their own production assets are approved.
+  if (id === 'spherist') {
+    const drawn = drawReferenceSprite(ctx, 'player-spherist', 0, 0, r * 2.9, color, Math.sin(t * 0.7) * 0.018);
+    if (drawn) {
+      ctx.restore();
+      drawCharacterVfx(ctx, p);
+      return;
+    }
+  }
 
   // Each character has a distinct folded silhouette while sharing the same 2.5D material language.
   ctx.shadowColor = color;

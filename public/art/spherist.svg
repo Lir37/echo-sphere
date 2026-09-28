@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+<defs>
+  <radialGradient id="core" cx="42%" cy="38%">
+    <stop offset="0" stop-color="#fff"/>
+    <stop offset=".18" stop-color="#d9fbff"/>
+    <stop offset=".48" stop-color="#55dfff"/>
+    <stop offset=".78" stop-color="#2f6fff"/>
+    <stop offset="1" stop-color="#07162c" stop-opacity="0"/>
+  </radialGradient>
+  <linearGradient id="facet" x1="0" y1="0" x2="1" y2="1">
+    <stop stop-color="#e8fbff"/><stop offset=".22" stop-color="#8ccfff"/>
+    <stop offset=".55" stop-color="#284e88"/><stop offset="1" stop-color="#071321"/>
+  </linearGradient>
+  <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+    <stop stop-color="#fff0b0"/><stop offset=".35" stop-color="#ffbd4a"/>
+    <stop offset=".7" stop-color="#b96819"/><stop offset="1" stop-color="#38200b"/>
+  </linearGradient>
+  <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1">
+    <stop stop-color="#e7ffff"/><stop offset=".35" stop-color="#45dfff"/>
+    <stop offset=".72" stop-color="#4774ff"/><stop offset="1" stop-color="#5d3bff"/>
+  </linearGradient>
+</defs>
+<g>
+  <ellipse cx="128" cy="222" rx="54" ry="9" fill="#0b86b8" opacity=".18"/>
+  <ellipse cx="128" cy="221" rx="39" ry="5" fill="#64eaff" opacity=".22"/>
+  <ellipse cx="128" cy="126" rx="104" ry="38" fill="none" stroke="url(#ring)" stroke-width="5" opacity=".82" transform="rotate(-13 128 126)"/>
+  <ellipse cx="128" cy="126" rx="105" ry="39" fill="none" stroke="#9df5ff" stroke-width="1" opacity=".45" transform="rotate(-13 128 126)"/>
+  <path d="M128 24 164 48 190 86 183 139 154 184 128 202 102 184 73 139 66 86 92 48Z" fill="#061321" stroke="#54ddff" stroke-width="3"/>
+  <path d="M128 24 164 48 151 83 128 94 105 83 92 48Z" fill="url(#facet)" stroke="#b9ecff" stroke-opacity=".55" stroke-width="2"/>
+  <path d="M92 48 105 83 73 103 66 86Z" fill="#163354" stroke="#62dfff" stroke-width="1.8"/>
+  <path d="M164 48 151 83 183 103 190 86Z" fill="#153354" stroke="#62dfff" stroke-width="1.8"/>
+  <path d="M73 139 105 129 101 184 73 139Z" fill="#102743" stroke="#4ebfe7" stroke-opacity=".7" stroke-width="1.6"/>
+  <path d="M183 139 151 129 155 184 183 139Z" fill="#102743" stroke="#4ebfe7" stroke-opacity=".7" stroke-width="1.6"/>
+  <path d="M128 94 151 112 145 155 128 173 111 155 105 112Z" fill="#020b17" stroke="#8beeff" stroke-width="2"/>
+  <path d="M128 103 142 116 138 146 128 156 118 146 114 116Z" fill="url(#core)" stroke="#efffff" stroke-width="1.4"/>
+  <circle cx="128" cy="130" r="30" fill="url(#core)" opacity=".58"/>
+  <path d="M55 93 30 78 39 111 68 123Z" fill="url(#gold)" stroke="#ffd46d" stroke-width="2"/>
+  <path d="M201 93 226 78 217 111 188 123Z" fill="url(#gold)" stroke="#ffd46d" stroke-width="2"/>
+  <path d="M77 157 49 178 82 174 106 154Z" fill="url(#gold)" stroke="#ffd46d" stroke-width="1.8"/>
+  <path d="M179 157 207 178 174 174 150 154Z" fill="url(#gold)" stroke="#ffd46d" stroke-width="1.8"/>
+  <path d="M128 26 140 42 128 55 116 42Z" fill="#dffaff" opacity=".9"/>
+  <circle cx="128" cy="130" r="5.5" fill="#fff"/>
+  <circle cx="128" cy="130" r="14" fill="none" stroke="#bdf8ff" stroke-opacity=".7" stroke-width="1.5"/>
+  <path d="M82 72 102 91M174 72 154 91M82 183 103 166M174 183 153 166" stroke="#b7f7ff" stroke-opacity=".55" stroke-width="2"/>
+</g>
+</svg>
