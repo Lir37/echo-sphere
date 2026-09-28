@@ -1,6 +1,6 @@
 {
   "id": "spherist",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "type": "character",
   "renderMode": "canvas-2.5d",
   "sourceAsset": "public/art/spherist.svg",
@@ -165,8 +165,8 @@
   "animationRuntime": "canvas-2.5d-authored-view-switch",
   "spriteSheetStatus": "deprecated-for-runtime",
   "sideViewAsset": "spherist-reference-side.webp",
-  "shieldAsset": "spherist-shield-reference.png",
-  "moveViewAsset": "spherist-turnaround-3q.png",
+  "shieldAsset": "spherist-shield-reference-96.png",
+  "moveViewAsset": "spherist-turnaround-3q-96.png",
   "referenceSource": "a_detailed_high_resolution_game_art_asset_sheet.png",
   "referenceExtraction": "turnaround-block: front + 3/4 cropped to transparent PNG; runtime uses exact authored reference views, not redrawn geometry; Shield uses the exact cropped Shield VFX image from the same production sheet"
 }

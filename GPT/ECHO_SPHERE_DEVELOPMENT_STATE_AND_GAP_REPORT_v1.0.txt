@@ -2176,18 +2176,29 @@ NEXT:
 - CI and APK PlayerCheck: visible idle/front, visible 3/4 move in both directions, authored Shield reference visible during Shield state.
 
 
-[2026-09-28] 2D/2.5D PRODUCTION ASSET PASS #9 — BYTE-EXACT REFERENCE ASSETS + SHIELD
+[2026-09-28] 2D/2.5D PRODUCTION ASSET PASS #9 — REFERENCE ASSET VISIBILITY CORRECTION + SHIELD
 
 PLAYER FEEDBACK:
-- Latest APK showed only the ground shadow after reference WebP assets were introduced.
+- APK PlayerCheck showed only the ground shadow after reference image assets were introduced.
 - User requested the Shield be taken directly from the approved production reference and integrated now.
 
 IMPLEMENTED:
 - Restored the known-working `spherist.svg` for idle/front.
-- Runtime MOVE uses a transparent PNG crop of the exact 3/4 turnaround reference.
-- Spherist SHIELD uses a transparent PNG crop of the exact labeled Shield VFX artwork from the same production sheet, with the existing Canvas shell retained only as fallback.
+- Runtime MOVE uses a transparent 96x96 PNG derivative directly generated from the exact 3/4 turnaround crop from the approved production sheet.
+- Spherist SHIELD uses a transparent 96x96 PNG derivative directly generated from the exact labeled Shield VFX crop from the same production sheet, with the existing Canvas shell retained only as fallback.
 - No fake perspective, shear, squash or runtime redraw is used for these reference views.
-- The reference PNG blobs were re-uploaded from the exact extracted local files and verified against their source Git blob hashes.
+- Previous report wording that claimed a byte-for-byte GitHub verification was incorrect and is superseded by this entry.
 
 NEXT:
-- CI and APK PlayerCheck: Spherist visible at idle; 3/4 view visible while moving; authored reference shield visible during Shield; no shadow-only result.
+- CI and APK PlayerCheck: visible idle/front, visible 3/4 move in both directions, authored Shield reference visible during Shield; no shadow-only result.
+
+
+
+[2026-09-28] 2D/2.5D PRODUCTION ASSET PASS #10 — 96PX REFERENCE DERIVATIVES
+
+- Replaced the previous problematic reference PNG payloads with compact 96x96 PNG derivatives generated directly from the approved turnaround and Shield crops.
+- Runtime paths now use `spherist-turnaround-3q-96.png` and `spherist-shield-reference-96.png`.
+- Idle remains on the proven `spherist.svg` front asset.
+- MOVE remains authored 3/4 reference view with no fake transform.
+- Shield remains authored reference artwork with Canvas fallback.
+- No gameplay logic changed.

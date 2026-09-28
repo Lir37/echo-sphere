@@ -29,9 +29,9 @@ type ArtKey =
 
 const ART_PATHS: Record<ArtKey, string> = {
   player: '/art/player.svg',
-  'player-spherist-shield': '/art/spherist-shield-reference.png',
+  'player-spherist-shield': '/art/spherist-shield-reference-96.png',
   'player-spherist': '/art/spherist.svg',
-  'player-spherist-side': '/art/spherist-turnaround-3q.png',
+  'player-spherist-side': '/art/spherist-turnaround-3q-96.png',
   'sphere-standard': '/art/standard.svg',
   'sphere-sniper': '/art/sniper.svg',
   'sphere-shotgun': '/art/shotgun.svg',
