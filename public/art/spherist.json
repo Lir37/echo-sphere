@@ -1,6 +1,6 @@
 {
   "id": "spherist",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "type": "character",
   "renderMode": "canvas-2.5d",
   "sourceAsset": "public/art/spherist.svg",
@@ -121,7 +121,8 @@
       "attack_trail",
       "hit",
       "death",
-      "particles"
+      "particles",
+      "move_trail"
     ]
   },
   "animationPlan": {
@@ -156,8 +157,8 @@
       "loop": false
     }
   },
-  "status": "animation-runtime-v1",
-  "notes": "Production reference remains available as spherist.svg. Runtime uses the 12-frame authored sheet. State detection is limited to fields actually present in PlayerState: movement, dash, shield, contact-hit and death. Attack sequence is defined in the manifest but awaits an explicit gameplay attack-state signal.",
+  "status": "animation-runtime-v2",
+  "notes": "Reworked toward the approved Spherist production reference: faceted origami shell, luminous core, gold folded accents and orbit rings. MOVE uses visibly changing ring/body/core/trail frames. DEATH is held in gameplay for 0.90 sec before Game Over. ATTACK remains defined but awaits an explicit gameplay attack-state signal.",
   "spriteSheet": "public/art/spherist-sheet.svg",
   "sheetFrames": 12
 }

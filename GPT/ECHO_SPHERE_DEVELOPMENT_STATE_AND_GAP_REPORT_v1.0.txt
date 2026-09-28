@@ -2006,3 +2006,12 @@ END VALIDATION UPDATE
 
 - Corrected Spherist one-shot animation timing to use state-entry time rather than absolute run time.
 - Animation state transitions now reset the sequence clock; looping states continue from their own frame rate and non-looping states clamp at the final frame.
+
+
+[2026-09-28] 2D/2.5D PRODUCTION ASSET PASS #3 — SPHERIST PLAYER CHECK CORRECTION
+
+- Manual APK PlayerCheck showed the previous Spherist remained too close to the old sphere silhouette and MOVE was not visually obvious.
+- Reworked `public/art/spherist.svg` toward the approved production-sheet language: faceted origami shell, luminous central core, gold folded accents and orbit rings.
+- Rebuilt `public/art/spherist-sheet.svg` with visibly changing authored frames: ring sweep, facet tilt, core breathing and restrained movement trails.
+- Added `PlayerState.deathTimer` with a 0.90 sec defeat presentation window before the Game Over modal.
+- Shield was not changed because it was not reached in the manual test.
