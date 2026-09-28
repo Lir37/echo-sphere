@@ -21,7 +21,7 @@ const VOID_PANEL = '#080d1b';
 const MUTATION_COLORS = ['#6eeaff', '#9b7cff', '#d86cff', '#55e6c1', '#b9a7ff'];
 
 type ArtKey =
-  | 'player' | 'player-spherist' | 'player-spherist-sheet'
+  | 'player' | 'player-spherist'
   | 'sphere-standard' | 'sphere-sniper' | 'sphere-shotgun' | 'sphere-chain' | 'sphere-aura'
   | 'sphere-orbital' | 'sphere-prism' | 'sphere-gravity' | 'sphere-pulse' | 'sphere-void'
   | 'enemy-skitter' | 'enemy-fast' | 'enemy-tank' | 'enemy-moth'
@@ -115,22 +115,12 @@ function drawReferenceSprite(
 
 type SpheristAnimState = 'idle' | 'move' | 'attack' | 'shield' | 'hit' | 'death';
 
-const SPHERIST_ANIMATION: Record<SpheristAnimState, { frames: number[]; fps: number; loop: boolean }> = {
-  idle:   { frames: [0,1,2,3,4,5,6,7], fps: 10, loop: true },
-  move:   { frames: [0,1,2,3,4,5,6,7,8,9,10,11], fps: 12, loop: true },
-  attack: { frames: [3,4,5,6,7,6,5,4], fps: 16, loop: false },
-  shield: { frames: [8,9,10,11,10,9], fps: 12, loop: false },
-  hit:    { frames: [7,8,7,8], fps: 12, loop: false },
-  death:  { frames: [6,7,8,9,10,11,11,11], fps: 10, loop: false },
-};
-
 let SPHERIST_LAST_X = 0;
 let SPHERIST_LAST_Y = 0;
 let SPHERIST_LAST_TIME = -1;
 let SPHERIST_VX = 0;
 let SPHERIST_VY = 0;
 let SPHERIST_ANIMATION_STATE: SpheristAnimState = 'idle';
-let SPHERIST_ANIMATION_START = 0;
 
 function getSpheristAnimationState(p: PlayerState): SpheristAnimState {
   const dt = SPHERIST_LAST_TIME >= 0 ? Math.max(0.001, RENDER_TIME - SPHERIST_LAST_TIME) : 0.016;
@@ -149,10 +139,7 @@ function getSpheristAnimationState(p: PlayerState): SpheristAnimState {
   else if (p.dashTimer > 0 || Math.hypot(vx, vy) > 0.06) next = 'move';
   else next = 'idle';
 
-  if (next !== SPHERIST_ANIMATION_STATE) {
-    SPHERIST_ANIMATION_STATE = next;
-    SPHERIST_ANIMATION_START = RENDER_TIME;
-  }
+  SPHERIST_ANIMATION_STATE = next;
   return SPHERIST_ANIMATION_STATE;
 }
 
