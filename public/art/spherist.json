@@ -1,6 +1,6 @@
 {
   "id": "spherist",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "type": "character",
   "renderMode": "canvas-2.5d",
   "sourceAsset": "public/art/spherist.svg",

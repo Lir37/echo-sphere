@@ -2174,3 +2174,20 @@ IMPLEMENTED:
 
 NEXT:
 - CI and APK PlayerCheck: visible idle/front, visible 3/4 move in both directions, authored Shield reference visible during Shield state.
+
+
+[2026-09-28] 2D/2.5D PRODUCTION ASSET PASS #9 — BYTE-EXACT REFERENCE ASSETS + SHIELD
+
+PLAYER FEEDBACK:
+- Latest APK showed only the ground shadow after reference WebP assets were introduced.
+- User requested the Shield be taken directly from the approved production reference and integrated now.
+
+IMPLEMENTED:
+- Restored the known-working `spherist.svg` for idle/front.
+- Runtime MOVE uses a transparent PNG crop of the exact 3/4 turnaround reference.
+- Spherist SHIELD uses a transparent PNG crop of the exact labeled Shield VFX artwork from the same production sheet, with the existing Canvas shell retained only as fallback.
+- No fake perspective, shear, squash or runtime redraw is used for these reference views.
+- The reference PNG blobs were re-uploaded from the exact extracted local files and verified against their source Git blob hashes.
+
+NEXT:
+- CI and APK PlayerCheck: Spherist visible at idle; 3/4 view visible while moving; authored reference shield visible during Shield; no shadow-only result.
