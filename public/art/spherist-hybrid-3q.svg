@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+<defs>
+<radialGradient id="c" cx=".38" cy=".34"><stop stop-color="#fff"/><stop offset=".2" stop-color="#e8ffff"/><stop offset=".52" stop-color="#46dcff"/><stop offset=".82" stop-color="#286eff"/><stop offset="1" stop-color="#06152d"/></radialGradient>
+<linearGradient id="i" x1=".1" y1="0" x2=".9" y2="1"><stop stop-color="#f7ffff"/><stop offset=".25" stop-color="#a9e8ff"/><stop offset=".58" stop-color="#3c82b9"/><stop offset="1" stop-color="#07172d"/></linearGradient>
+<linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff7bb"/><stop offset=".36" stop-color="#ffc94f"/><stop offset=".76" stop-color="#bd7218"/><stop offset="1" stop-color="#512507"/></linearGradient>
+<linearGradient id="r" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff"/><stop offset=".3" stop-color="#5deeff"/><stop offset=".72" stop-color="#397cff"/><stop offset="1" stop-color="#874cff"/></linearGradient>
+</defs>
+<!-- authored 3/4 view: left-facing. Runtime mirrors it for movement to the right. -->
+<ellipse cx="128" cy="224" rx="42" ry="6" fill="#20dfff" opacity=".12"/>
+<ellipse cx="124" cy="128" rx="91" ry="24" fill="none" stroke="url(#r)" stroke-width="4.5" opacity=".9" transform="rotate(-8 124 128)"/>
+<!-- rear/right petals recede -->
+<path d="M147 34 166 60 156 84 145 96 136 80 139 56Z" fill="url(#i)" stroke="#b9f1ff" stroke-width="2"/>
+<path d="M146 222 127 197 137 174 148 160 157 178 155 201Z" fill="#173d64" stroke="#62dfff" stroke-width="2"/>
+<path d="M205 106 225 128 205 151 179 143 169 128 179 113Z" fill="#1c4e7a" stroke="#5fe1ff" stroke-width="2"/>
+<!-- nearer/front petals -->
+<path d="M112 28 137 57 127 83 114 95 99 77 98 54Z" fill="url(#i)" stroke="#d2f7ff" stroke-width="2.2"/>
+<path d="M111 228 98 200 100 179 114 161 127 174 137 200Z" fill="#24557f" stroke="#69e5ff" stroke-width="2"/>
+<path d="M27 128 55 103 83 114 94 128 82 143 55 153Z" fill="url(#i)" stroke="#69e5ff" stroke-width="2.2"/>
+
+<!-- gold braces become visibly layered in 3/4 -->
+<path d="M51 62 77 70 96 97 78 91 61 78Z" fill="url(#g)" stroke="#ffe17a" stroke-width="1.7"/>
+<path d="M183 65 202 73 213 98 194 91 176 78Z" fill="url(#g)" stroke="#ffd76b" stroke-width="1.5" opacity=".88"/>
+<path d="M52 195 78 186 97 160 78 166 61 180Z" fill="url(#g)" stroke="#ffd66b" stroke-width="1.6"/>
+
+<!-- asymmetric shell, explicit authored 3/4 geometry -->
+<path d="M119 58 155 82 170 124 160 166 128 197 92 173 79 128 91 86Z" fill="#071628" stroke="#68e6ff" stroke-width="2.5"/>
+<path d="M119 58 155 82 127 110 91 86Z" fill="url(#i)"/>
+<path d="M91 86 111 126 92 173 79 128Z" fill="#17466f"/>
+<path d="M155 82 170 124 160 166 139 127Z" fill="#2b638d"/>
+<path d="M92 173 128 143 160 166 128 197Z" fill="#0d2b4b"/>
+<path d="M119 58 127 110 91 86Z" fill="#f1ffff" opacity=".28"/>
+<path d="M127 110 155 82 139 127 111 126Z" fill="#4b8fb8" opacity=".48"/>
+<path d="M111 126 139 127 128 143 92 173Z" fill="#153b60" opacity=".72"/>
+
+<!-- visible near-side gold blade -->
+<path d="M72 95 103 106 116 128 102 151 72 161 88 128Z" fill="url(#g)" opacity=".92" stroke="#ffe17b" stroke-width="1.8"/>
+<path d="M72 95 88 128 72 161 93 149 103 128 93 107Z" fill="#ffdb63" opacity=".55"/>
+
+<!-- recessed core, shifted to expose side depth -->
+<ellipse cx="116" cy="128" rx="45" ry="48" fill="url(#c)" opacity=".5"/>
+<ellipse cx="116" cy="128" rx="34" ry="37" fill="url(#c)" stroke="#ecffff" stroke-width="1.8"/>
+<path d="M116 96 139 112 136 144 116 162 99 145 96 112Z" fill="#061526" stroke="#a5efff" stroke-width="1.6"/>
+<path d="M116 102 131 113 128 139 116 151 105 139 102 113Z" fill="url(#i)" opacity=".9"/>
+<circle cx="116" cy="128" r="15" fill="url(#c)"/>
+<circle cx="116" cy="128" r="5.4" fill="#fff"/>
+
+<!-- directional front point, makes the view read left -->
+<path d="M29 128 57 116 72 128 57 140Z" fill="#d9fbff" stroke="#72eaff" stroke-width="1.6"/>
+<path d="M29 128 54 122 63 128 54 134Z" fill="#63cfff"/>
+
+<!-- small authored highlights -->
+<path d="M112 28 123 45 112 58 101 45Z" fill="#efffff"/>
+<path d="M146 222 136 207 147 197 157 210Z" fill="#bcefff"/>
+</svg>

@@ -2211,3 +2211,19 @@ NEXT:
 - This removes the last custom-drawn Spherist front asset from the live runtime path.
 - No fake perspective or manually redrawn character geometry is used.
 - CI is required before APK PlayerCheck.
+
+[2026-09-28] 2D/2.5D PRODUCTION ASSET PASS #12 — HYBRID SPHERIST, NOT REFERENCE STICKER
+
+PlayerCheck feedback:
+- MOVE direction was visually reversed.
+- 3/4 reference PNG looked clipped by its tight raster frame.
+- Exact reference crop was technically correct but visually read as a pasted sticker and was rejected as production quality.
+
+Implementation:
+- Replaced live FRONT reference PNG with authored `spherist-hybrid-front.svg`.
+- Replaced live MOVE reference PNG with authored `spherist-hybrid-3q.svg`.
+- Hybrid assets retain the reference's recognizable shell construction: four outer folded petals, gold braces, ring, faceted shell, recessed luminous core and directional 3/4 silhouette.
+- Geometry is independently authored in SVG with generous transparent margins, so the character cannot touch an artificial raster crop boundary.
+- The 3/4 asset is authored left-facing and runtime mapping is intentionally swapped: moving left uses the authored view, moving right mirrors it.
+- Shield remains the exact reference VFX crop because the user explicitly requested that asset to be embedded.
+- No runtime shear/squash/perspective transform is used.

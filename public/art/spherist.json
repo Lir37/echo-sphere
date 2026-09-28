@@ -1,9 +1,9 @@
 {
   "id": "spherist",
-  "version": "1.9.0",
+  "version": "2.0.0",
   "type": "character",
   "renderMode": "canvas-2.5d",
-  "sourceAsset": "public/art/spherist-reference-front-96.png",
+  "sourceAsset": "public/art/spherist-hybrid-front.svg",
   "frameWidth": 256,
   "frameHeight": 256,
   "transparent": true,
@@ -157,16 +157,16 @@
       "loop": false
     }
   },
-  "status": "reference-turnaround-runtime-v6",
+  "status": "hybrid-authored-turnaround-runtime-v10",
   "notes": "Runtime now uses cropped production-reference views from the approved Spherist turnaround block. Idle uses the exact front view; MOVE uses the exact 3/4 view and mirrors it by direction. No runtime shear, squash or fake profile transform is used. The cropped reference images preserve the authored shell, facets, gold accents, core and proportions. Death remains a Canvas 2.5D fold/disassembly effect over the intact front asset.",
   "spriteSheet": "public/art/spherist-sheet.svg",
   "sheetFrames": 12,
-  "runtimeAsset": "spherist-reference-front-96.png",
+  "runtimeAsset": "spherist-hybrid-front.svg",
   "animationRuntime": "canvas-2.5d-authored-view-switch",
   "spriteSheetStatus": "deprecated-for-runtime",
   "sideViewAsset": "spherist-reference-side.webp",
   "shieldAsset": "spherist-shield-reference-96.png",
-  "moveViewAsset": "spherist-turnaround-3q-96.png",
+  "moveViewAsset": "spherist-hybrid-3q.svg",
   "referenceSource": "a_detailed_high_resolution_game_art_asset_sheet.png",
-  "referenceExtraction": "turnaround-block: front + 3/4 cropped to transparent PNG; runtime uses exact authored reference views, not redrawn geometry; Shield uses the exact cropped Shield VFX image from the same production sheet"
+  "referenceExtraction": "turnaround block is used as a structural art direction sheet; runtime Spherist is authored as hybrid SVG geometry combining the reference proportions, layered petals, gold braces, ring and core with the existing vector construction language; only Shield keeps the exact cropped reference VFX asset by explicit request"
 }

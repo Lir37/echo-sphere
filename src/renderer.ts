@@ -30,8 +30,8 @@ type ArtKey =
 const ART_PATHS: Record<ArtKey, string> = {
   player: '/art/player.svg',
   'player-spherist-shield': '/art/spherist-shield-reference-96.png',
-  'player-spherist': '/art/spherist-reference-front-96.png',
-  'player-spherist-side': '/art/spherist-turnaround-3q-96.png',
+  'player-spherist': '/art/spherist-hybrid-front.svg',
+  'player-spherist-side': '/art/spherist-hybrid-3q.svg',
   'sphere-standard': '/art/standard.svg',
   'sphere-sniper': '/art/sniper.svg',
   'sphere-shotgun': '/art/shotgun.svg',
@@ -420,7 +420,7 @@ function drawPlayerShield(ctx: CanvasRenderingContext2D, s: GameState): void {
   ctx.globalCompositeOperation = 'source-over';
 
   if (getCharacterId(s) === 'spherist') {
-    const drawn = drawReferenceSprite(ctx, 'player-spherist-shield', 0, 0, radius * 2.45, '#63e6ff', 0, 0.92);
+    const drawn = drawReferenceSprite(ctx, 'player-spherist-shield', 0, 0, radius * 2.20, '#63e6ff', 0, 0.92);
     if (drawn) {
       ctx.restore();
       return;
@@ -1320,7 +1320,7 @@ function drawPlayer(ctx: CanvasRenderingContext2D, p: PlayerState): void {
     } else {
       ctx.translate(0, viewBob);
       ctx.scale(pulse * viewScale, pulse * viewScale);
-      if (moving && !movingRight) ctx.scale(-1, 1);
+      if (moving && movingRight) ctx.scale(-1, 1);
       const drawn = drawReferenceSprite(ctx, viewKey, 0, 0, r * 2.9, color, viewRotation, 1);
       if (drawn) {
         ctx.restore();
