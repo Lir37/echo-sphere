@@ -2227,3 +2227,33 @@ Implementation:
 - The 3/4 asset is authored left-facing and runtime mapping is intentionally swapped: moving left uses the authored view, moving right mirrors it.
 - Shield remains the exact reference VFX crop because the user explicitly requested that asset to be embedded.
 - No runtime shear/squash/perspective transform is used.
+
+
+[2026-09-28] 2D/2.5D PRODUCTION ASSET PASS #13 — STANDARD SPHERE + VISUAL SHARPNESS
+
+Player direction:
+- Spherist is accepted for now and was not structurally redesigned.
+- This pass adds only restrained detail/VFX to the accepted Spherist and improves Canvas presentation sharpness.
+- Standard Sphere is now the next authored production asset and follows the same hybrid principle: reference structure is treated as art direction, while the live asset is independently authored vector geometry.
+
+IMPLEMENTED:
+- Spherist FRONT and 3/4 hybrid SVGs received a small fine-facet/highlight pass without changing silhouette or runtime mapping.
+- Spherist runtime receives a restrained additive arc and four micro-sparks when the authored asset is visible. No gameplay state or combat behavior changed.
+- Canvas now uses a capped 2x device-pixel backing store while `render()` continues to operate in logical CSS-pixel coordinates. This is presentation-only and intended to reduce mobile softness.
+- `public/art/standard.svg` was rebuilt as a 256x256 authored faceted Standard Sphere with large primary planes, secondary facet cuts, recessed core, braces, emitters, seams and subtle energy halo.
+- Standard runtime now uses the authored vector asset. Existing procedural Standard art remains as a fallback only.
+- Standard visual mutation layer is driven by actual game state:
+  - Mutation I branches: Resonator, Singularity, Swarm.
+  - Mutation II final selections: three distinct visual signatures.
+  - Real modifiers Multishot, Pierce, Ricochet, Fire, Freeze and Poison receive restrained visual accents.
+  - Sphere visual level is shown by up to seven small peripheral nodes.
+- No Sphere mechanics, damage formulas, mutation choices or balance values were changed.
+
+VALIDATION:
+- CI must be checked for the final commit.
+- APK PlayerCheck should compare Standard at baseline and across all three Mutation I branches, then at least one Mutation II choice and a modifier combination.
+- Also verify Spherist remains readable and no FPS regression is visible on the target phone.
+
+NEXT:
+- Do not redesign Spherist again without a concrete PlayerCheck defect.
+- If Standard is accepted, continue the same authored production method through the remaining Sphere families, preserving each family's mechanical identity and mutation diversity.
