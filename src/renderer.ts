@@ -128,6 +128,8 @@ const SPHERIST_ANIMATION: Record<SpheristAnimState, { frames: number[]; fps: num
 let SPHERIST_LAST_X = 0;
 let SPHERIST_LAST_Y = 0;
 let SPHERIST_LAST_TIME = -1;
+let SPHERIST_VX = 0;
+let SPHERIST_VY = 0;
 let SPHERIST_ANIMATION_STATE: SpheristAnimState = 'idle';
 let SPHERIST_ANIMATION_START = 0;
 
@@ -135,6 +137,8 @@ function getSpheristAnimationState(p: PlayerState): SpheristAnimState {
   const dt = SPHERIST_LAST_TIME >= 0 ? Math.max(0.001, RENDER_TIME - SPHERIST_LAST_TIME) : 0.016;
   const vx = (p.pos.x - SPHERIST_LAST_X) / dt;
   const vy = (p.pos.y - SPHERIST_LAST_Y) / dt;
+  SPHERIST_VX = vx;
+  SPHERIST_VY = vy;
   SPHERIST_LAST_X = p.pos.x;
   SPHERIST_LAST_Y = p.pos.y;
   SPHERIST_LAST_TIME = RENDER_TIME;
@@ -1285,10 +1289,8 @@ function drawPlayer(ctx: CanvasRenderingContext2D, p: PlayerState): void {
     if (animState === 'move') {
       // Make movement readable even on small phone screens:
       // directional lean + squash/stretch + vertical bob.
-      const dt = SPHERIST_LAST_TIME >= 0 ? Math.max(0.001, RENDER_TIME - SPHERIST_LAST_TIME) : 0.016;
-      const vx = (p.pos.x - SPHERIST_LAST_X) / dt;
-      const intensity = Math.min(1, Math.hypot(vx, (p.pos.y - SPHERIST_LAST_Y) / dt) / 0.35);
-      spriteRotation += Math.max(-0.12, Math.min(0.12, vx * 0.035));
+      const intensity = Math.min(1, Math.hypot(SPHERIST_VX, SPHERIST_VY) / 0.35);
+      spriteRotation += Math.max(-0.12, Math.min(0.12, SPHERIST_VX * 0.035));
       spriteScale *= 1 + Math.sin(t * 18) * 0.035 * intensity;
       ctx.translate(0, Math.sin(t * 14) * 1.8 * intensity);
     }
