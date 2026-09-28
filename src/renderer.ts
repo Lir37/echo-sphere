@@ -2399,7 +2399,6 @@ function drawStandardMutationVfx(ctx: CanvasRenderingContext2D, game: GameState,
 
 
 function drawSniperMutationVfx(ctx: CanvasRenderingContext2D, game: GameState, sphere: SphereEntity, r: number, time: number): void {
-  const rgb = hexToRgb(SPHERE_TYPES.sniper.color);
   const mods = game.player.sphereMods;
   const branch = game.player.sphereBranches?.sniper;
   const tier = Math.max(0, sphere.visualTier || 0);
