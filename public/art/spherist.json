@@ -1,6 +1,6 @@
 {
   "id": "spherist",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "type": "character",
   "renderMode": "canvas-2.5d",
   "sourceAsset": "public/art/spherist.svg",
@@ -157,8 +157,11 @@
       "loop": false
     }
   },
-  "status": "animation-runtime-v2",
-  "notes": "Reworked toward the approved Spherist production reference: faceted origami shell, luminous core, gold folded accents and orbit rings. MOVE uses visibly changing ring/body/core/trail frames. DEATH is held in gameplay for 0.90 sec before Game Over. ATTACK remains defined but awaits an explicit gameplay attack-state signal.",
+  "status": "runtime-2.5d-transform-v3",
+  "notes": "Android PlayerCheck exposed a wide-SVG sprite-sheet crop artifact that split and displaced the Spherist. Runtime now uses the intact spherist.svg production asset and Canvas 2.5D transforms for movement/death, eliminating wide-sheet cropping. MOVE adds directional side-profile turn, lean, squash/stretch and motion bob. DEATH is an origami fold/disassembly with fade and outward fragments. Shield remains a separate solid Canvas energy shell. Legacy three-rod character VFX was removed because the authored Spherist already contains its own orbit ring.",
   "spriteSheet": "public/art/spherist-sheet.svg",
-  "sheetFrames": 12
+  "sheetFrames": 12,
+  "runtimeAsset": "spherist.svg",
+  "animationRuntime": "canvas-2.5d-transform",
+  "spriteSheetStatus": "deprecated-for-runtime-android"
 }
