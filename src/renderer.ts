@@ -30,7 +30,6 @@ type ArtKey =
 const ART_PATHS: Record<ArtKey, string> = {
   player: '/art/player.svg',
   'player-spherist': '/art/spherist.svg',
-  'player-spherist-sheet': '/art/spherist-sheet.svg',
   'sphere-standard': '/art/standard.svg',
   'sphere-sniper': '/art/sniper.svg',
   'sphere-shotgun': '/art/shotgun.svg',
@@ -155,15 +154,6 @@ function getSpheristAnimationState(p: PlayerState): SpheristAnimState {
     SPHERIST_ANIMATION_START = RENDER_TIME;
   }
   return SPHERIST_ANIMATION_STATE;
-}
-
-function getSpheristAnimationFrame(state: SpheristAnimState): number {
-  const sequence = SPHERIST_ANIMATION[state];
-  const elapsed = Math.max(0, RENDER_TIME - SPHERIST_ANIMATION_START);
-  const index = sequence.loop
-    ? Math.floor(elapsed * sequence.fps) % sequence.frames.length
-    : Math.min(sequence.frames.length - 1, Math.floor(elapsed * sequence.fps));
-  return sequence.frames[index];
 }
 
 interface Theme {
@@ -1277,65 +1267,90 @@ function drawPlayer(ctx: CanvasRenderingContext2D, p: PlayerState): void {
   // Other characters keep their existing render path until their own production assets are approved.
   if (id === 'spherist') {
     const animState = getSpheristAnimationState(p);
-    const animFrame = getSpheristAnimationFrame(animState);
-    const deathProgress = animState === 'death'
-      ? Math.min(1, Math.max(0, 1 - p.deathTimer / 0.90))
-      : 0;
-
-    let spriteScale = pulse;
+    const moveIntensity = Math.min(1, Math.hypot(SPHERIST_VX, SPHERIST_VY) / 0.35);
     let spriteRotation = Math.sin(t * 0.7) * 0.018;
+    let spriteScale = pulse;
     let spriteOpacity = 1;
 
     if (animState === 'move') {
-      // Make movement readable even on small phone screens:
-      // directional lean + squash/stretch + vertical bob.
-      const intensity = Math.min(1, Math.hypot(SPHERIST_VX, SPHERIST_VY) / 0.35);
-      spriteRotation += Math.max(-0.12, Math.min(0.12, SPHERIST_VX * 0.035));
-      spriteScale *= 1 + Math.sin(t * 18) * 0.035 * intensity;
-      ctx.translate(0, Math.sin(t * 14) * 1.8 * intensity);
+      // 2.5D movement presentation: the authored silhouette remains whole,
+      // while Canvas reveals a slight side-facing profile based on direction.
+      const side = Math.max(-1, Math.min(1, SPHERIST_VX / 0.20));
+      const sideTurn = side * (0.12 + moveIntensity * 0.06);
+      const profile = Math.abs(side) * (0.10 + moveIntensity * 0.08);
+      spriteRotation += sideTurn + Math.sin(t * 10) * 0.025 * moveIntensity;
+      spriteScale *= 1 + Math.sin(t * 16) * 0.025 * moveIntensity;
+      ctx.transform(
+        1 - profile,
+        0,
+        side * 0.12 * moveIntensity,
+        1 + profile * 0.18,
+        side * r * 0.06,
+        Math.sin(t * 14) * 1.6 * moveIntensity,
+      );
     }
 
     if (animState === 'death') {
-      // Death must read during the 0.90 sec presentation window.
-      spriteRotation += deathProgress * Math.PI * 1.15;
-      spriteScale *= 1 - deathProgress * 0.42;
-      spriteOpacity = 1 - deathProgress * 0.78;
-      ctx.translate(0, -deathProgress * r * 0.16);
+      // Death is an origami fold/disassembly, not an inward spiral.
+      const deathProgress = Math.min(1, Math.max(0, 1 - p.deathTimer / 0.90));
+      const fold = deathProgress * deathProgress;
+      spriteRotation += Math.sin(deathProgress * Math.PI) * 0.35;
+      spriteScale *= 1 - fold * 0.24;
+      spriteOpacity = 1 - deathProgress * 0.92;
+      ctx.transform(
+        1 - fold * 0.55,
+        0,
+        -0.18 * fold,
+        1 + fold * 0.08,
+        0,
+        -deathProgress * r * 0.10,
+      );
     }
 
     ctx.scale(spriteScale, spriteScale);
     const drawn = drawReferenceSprite(
       ctx,
-      'player-spherist-sheet',
+      'player-spherist',
       0,
       0,
       r * 2.9,
       color,
       spriteRotation,
       spriteOpacity,
-      animFrame,
-      12,
     );
-    if (drawn) {
-      if (animState === 'death') {
-        const fade = 1 - deathProgress;
+
+    if (drawn && animState === 'death') {
+      const deathProgress = Math.min(1, Math.max(0, 1 - p.deathTimer / 0.90));
+      const fragmentProgress = Math.max(0, (deathProgress - 0.22) / 0.78);
+      const fragmentFade = 1 - fragmentProgress;
+      ctx.save();
+      ctx.globalAlpha = fragmentFade * 0.78;
+      ctx.fillStyle = '#dffaff';
+      for (let i = 0; i < 8; i++) {
+        const a = i * Math.PI / 4 + 0.18;
+        const travel = r * (0.12 + fragmentProgress * 0.72);
+        const x = Math.cos(a) * travel;
+        const y = Math.sin(a) * travel;
+        const size = 2.2 + fragmentProgress * 2.0;
         ctx.save();
-        ctx.globalAlpha = fade * 0.75;
-        ctx.strokeStyle = 'rgba(' + rgb + ',.9)';
-        ctx.lineWidth = 1.6;
-        for (let i = 0; i < 8; i++) {
-          const a = i * Math.PI / 4 + deathProgress * 0.8;
-          const inner = r * (0.35 + deathProgress * 0.25);
-          const outer = r * (0.9 + deathProgress * 0.65);
-          ctx.beginPath();
-          ctx.moveTo(Math.cos(a) * inner, Math.sin(a) * inner);
-          ctx.lineTo(Math.cos(a) * outer, Math.sin(a) * outer);
-          ctx.stroke();
-        }
+        ctx.translate(x, y);
+        ctx.rotate(a + fragmentProgress * 1.4);
+        ctx.beginPath();
+        ctx.moveTo(0, -size);
+        ctx.lineTo(size * 0.75, 0);
+        ctx.lineTo(0, size);
+        ctx.lineTo(-size * 0.75, 0);
+        ctx.closePath();
+        ctx.fill();
         ctx.restore();
       }
       ctx.restore();
-      drawCharacterVfx(ctx, p);
+    }
+
+    if (drawn) {
+      ctx.restore();
+      // Spherist already contains its own orbit ring and authored energy.
+      // No legacy character VFX is added on top.
       return;
     }
   }
@@ -1952,11 +1967,10 @@ function drawCharacterVfx(ctx: CanvasRenderingContext2D, p: PlayerState): void {
   ctx.translate(p.pos.x, p.pos.y - r * 0.1);
   ctx.globalCompositeOperation = 'source-over';
   if (id === 'spherist') {
-    for (let i = 0; i < 3; i++) {
-      const a = t * 1.4 + i * Math.PI * 2 / 3;
-      ctx.strokeStyle = `rgba(${rgb},.42)`; ctx.lineWidth = 1.3;
-      ctx.beginPath(); ctx.moveTo(Math.cos(a) * r * .45, Math.sin(a) * r * .35); ctx.lineTo(Math.cos(a) * r * 1.15, Math.sin(a) * r * .72); ctx.stroke();
-    }
+    // Spherist carries its authored orbit ring and energy accents itself.
+    // Do not stack the legacy three-rod character VFX over it.
+    ctx.restore();
+    return;
   } else if (id === 'hunter') {
     const scan = Math.sin(t * 3.5) * .5 + .5;
     ctx.strokeStyle = `rgba(${rgb},${.25 + scan * .3})`; ctx.lineWidth = 1.2;
