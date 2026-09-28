@@ -2202,3 +2202,12 @@ NEXT:
 - MOVE remains authored 3/4 reference view with no fake transform.
 - Shield remains authored reference artwork with Canvas fallback.
 - No gameplay logic changed.
+
+[2026-09-28] 2D/2.5D PRODUCTION ASSET PASS #11 — EXACT FRONT + 3/4 + SHIELD REFERENCE CROPS
+
+- Idle/front now uses a compact 96x96 PNG derivative directly generated from the exact FRONT crop of the approved turnaround block.
+- MOVE uses the exact 3/4 crop derivative.
+- SHIELD uses the exact Shield VFX crop derivative.
+- This removes the last custom-drawn Spherist front asset from the live runtime path.
+- No fake perspective or manually redrawn character geometry is used.
+- CI is required before APK PlayerCheck.
