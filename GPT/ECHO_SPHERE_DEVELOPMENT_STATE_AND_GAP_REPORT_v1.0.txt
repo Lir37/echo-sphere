@@ -2015,3 +2015,24 @@ END VALIDATION UPDATE
 - Rebuilt `public/art/spherist-sheet.svg` with visibly changing authored frames: ring sweep, facet tilt, core breathing and restrained movement trails.
 - Added `PlayerState.deathTimer` with a 0.90 sec defeat presentation window before the Game Over modal.
 - Shield was not changed because it was not reached in the manual test.
+
+
+[2026-09-28] 2D/2.5D PRODUCTION ASSET PASS #4 — SPHERIST PLAYER CHECK CORRECTION
+
+PLAYER CHECK:
+- Spherist silhouette/material is now acceptable to the user when rendered correctly.
+- Current APK exposed a frame-rendering defect: the character appeared vertically split inside an invisible frame, with left/right halves displaced; one side also intermittently flickered.
+- MOVE animation was not visually readable despite the sprite-state wiring.
+- DEATH animation was not visually readable during the defeat window.
+- SHIELD still rendered as the legacy dashed ring.
+
+IMPLEMENTED:
+- Reworked sprite-sheet frame extraction to destination clipping + full-sheet draw instead of SVG source-rectangle cropping. This avoids Android WebView wide-SVG crop artifacts and keeps each 256px frame isolated.
+- Added explicit MOVE presentation: directional lean, squash/stretch and stronger movement bob based on actual player velocity.
+- Added explicit DEATH presentation during the existing 0.90 sec death window: rotation, shrink/fade and radial energy breakup.
+- Replaced the legacy dashed Shield ring with a solid faceted energy shell, inner energy ring and charge nodes.
+- No gameplay mechanics, Sphere logic or other character render paths were changed.
+
+NEXT:
+- Build/install the new APK and re-test Spherist: left/right frame integrity, MOVE, DEATH, and Shield.
+- If the sprite is now stable, accept Spherist as the first production character reference and move to the next authored asset only after PlayerCheck.
