@@ -1975,3 +1975,16 @@ rewrite.
 ======================================================================
 END VALIDATION UPDATE
 ======================================================================
+
+
+[2026-09-28] 2D/2.5D PRODUCTION ASSET PASS #1 — SPHERIST
+
+- CI #861 for implementation commit 73953d516906a3df924058a0d042b2a7a161a2d0: SUCCESS.
+- Added first authored production asset: public/art/spherist.svg.
+- Added asset manifest: public/art/spherist.json.
+- Integrated the asset only for CharacterId "spherist" in src/renderer.ts.
+- Existing render paths for hunter/engineer/berserker/alchemist/architect were intentionally left unchanged.
+- Asset is transparent, vector/raster-friendly, Canvas 2.5D compatible, and carries the Spherist silhouette/material identity while runtime Canvas remains responsible for gameplay VFX.
+- Initial animation manifest is defined, but only the static production reference frame is currently integrated. Idle/move/attack/shield/hit/death sprite sheets are the next art-production step.
+- Generated Spherist production-sheet concept was used as visual direction; mass GLB/3D production remains PARKED.
+- Manual APK PlayerCheck is still required before calling the visual asset production-ready in gameplay.
