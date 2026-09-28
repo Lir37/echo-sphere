@@ -21,7 +21,7 @@ const VOID_PANEL = '#080d1b';
 const MUTATION_COLORS = ['#6eeaff', '#9b7cff', '#d86cff', '#55e6c1', '#b9a7ff'];
 
 type ArtKey =
-  | 'player' | 'player-spherist'
+  | 'player' | 'player-spherist' | 'player-spherist-sheet'
   | 'sphere-standard' | 'sphere-sniper' | 'sphere-shotgun' | 'sphere-chain' | 'sphere-aura'
   | 'sphere-orbital' | 'sphere-prism' | 'sphere-gravity' | 'sphere-pulse' | 'sphere-void'
   | 'enemy-skitter' | 'enemy-fast' | 'enemy-tank' | 'enemy-moth'
@@ -30,6 +30,7 @@ type ArtKey =
 const ART_PATHS: Record<ArtKey, string> = {
   player: '/art/player.svg',
   'player-spherist': '/art/spherist.svg',
+  'player-spherist-sheet': '/art/spherist-sheet.svg',
   'sphere-standard': '/art/standard.svg',
   'sphere-sniper': '/art/sniper.svg',
   'sphere-shotgun': '/art/shotgun.svg',
@@ -73,6 +74,8 @@ function drawReferenceSprite(
   color: string,
   rotation = 0,
   opacity = 1,
+  frame = 0,
+  frameCount = 1,
 ): boolean {
   const image = getReferenceArt(key);
   if (!image) return false;
@@ -82,14 +85,60 @@ function drawReferenceSprite(
   ctx.rotate(rotation);
   ctx.globalAlpha = opacity;
 
-  // The artwork carries the silhouette. Canvas only supplies a restrained light halo.
+  // The artwork carries the silhouette. Canvas supplies only restrained runtime VFX.
   ctx.shadowColor = color;
   ctx.shadowBlur=0;
-  ctx.drawImage(image, -size / 2, -size / 2, size, size);
+  if (frameCount > 1) {
+    const fw = 256;
+    const fh = 256;
+    const safeFrame = Math.max(0, Math.min(frameCount - 1, Math.floor(frame)));
+    ctx.drawImage(image, safeFrame * fw, 0, fw, fh, -size / 2, -size / 2, size, size);
+  } else {
+    ctx.drawImage(image, -size / 2, -size / 2, size, size);
+  }
   ctx.shadowBlur=0;
 
   ctx.restore();
   return true;
+}
+
+type SpheristAnimState = 'idle' | 'move' | 'attack' | 'shield' | 'hit' | 'death';
+
+const SPHERIST_ANIMATION: Record<SpheristAnimState, { frames: number[]; fps: number; loop: boolean }> = {
+  idle:   { frames: [0,1,2,3,4,5,6,7], fps: 10, loop: true },
+  move:   { frames: [0,1,2,3,4,5,6,7,8,9,10,11], fps: 12, loop: true },
+  attack: { frames: [3,4,5,6,7,6,5,4], fps: 16, loop: false },
+  shield: { frames: [8,9,10,11,10,9], fps: 12, loop: false },
+  hit:    { frames: [7,8,7,8], fps: 12, loop: false },
+  death:  { frames: [6,7,8,9,10,11,11,11], fps: 10, loop: false },
+};
+
+let SPHERIST_LAST_X = 0;
+let SPHERIST_LAST_Y = 0;
+let SPHERIST_LAST_TIME = -1;
+
+function getSpheristAnimationState(p: PlayerState): SpheristAnimState {
+  if (p.hp <= 0) return 'death';
+  if (p.contactDamageCooldown > 0) return 'hit';
+  if (p.shieldTimer > 0 || p.shieldCharges > 0) return 'shield';
+  if (p.dashTimer > 0) return 'move';
+
+  const dt = SPHERIST_LAST_TIME >= 0 ? Math.max(0.001, RENDER_TIME - SPHERIST_LAST_TIME) : 0.016;
+  const vx = (p.pos.x - SPHERIST_LAST_X) / dt;
+  const vy = (p.pos.y - SPHERIST_LAST_Y) / dt;
+  SPHERIST_LAST_X = p.pos.x;
+  SPHERIST_LAST_Y = p.pos.y;
+  SPHERIST_LAST_TIME = RENDER_TIME;
+  return Math.hypot(vx, vy) > 0.06 ? 'move' : 'idle';
+}
+
+function getSpheristAnimationFrame(p: PlayerState, state: SpheristAnimState): number {
+  const sequence = SPHERIST_ANIMATION[state];
+  const elapsed = Math.max(0, RENDER_TIME * sequence.fps);
+  const index = sequence.loop
+    ? Math.floor(elapsed) % sequence.frames.length
+    : Math.min(sequence.frames.length - 1, Math.floor(elapsed));
+  return sequence.frames[index];
 }
 
 interface Theme {
@@ -1166,7 +1215,21 @@ function drawPlayer(ctx: CanvasRenderingContext2D, p: PlayerState): void {
   // Spherist production asset: authored vector silhouette, layered for Canvas 2.5D.
   // Other characters keep their existing render path until their own production assets are approved.
   if (id === 'spherist') {
-    const drawn = drawReferenceSprite(ctx, 'player-spherist', 0, 0, r * 2.9, color, Math.sin(t * 0.7) * 0.018);
+    const animState = getSpheristAnimationState(p);
+    const anim = SPHERIST_ANIMATION[animState];
+    const animFrame = getSpheristAnimationFrame(p, animState);
+    const drawn = drawReferenceSprite(
+      ctx,
+      'player-spherist-sheet',
+      0,
+      0,
+      r * 2.9,
+      color,
+      Math.sin(t * 0.7) * 0.018,
+      1,
+      animFrame,
+      12,
+    );
     if (drawn) {
       ctx.restore();
       drawCharacterVfx(ctx, p);

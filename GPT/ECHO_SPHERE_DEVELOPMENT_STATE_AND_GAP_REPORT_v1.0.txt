@@ -1988,3 +1988,15 @@ END VALIDATION UPDATE
 - Initial animation manifest is defined, but only the static production reference frame is currently integrated. Idle/move/attack/shield/hit/death sprite sheets are the next art-production step.
 - Generated Spherist production-sheet concept was used as visual direction; mass GLB/3D production remains PARKED.
 - Manual APK PlayerCheck is still required before calling the visual asset production-ready in gameplay.
+
+
+[2026-09-28] 2D/2.5D PRODUCTION ASSET PASS #2 — SPHERIST ANIMATION RUNTIME
+
+- Built and integrated `public/art/spherist-sheet.svg` as a 12-frame authored SVG sprite sheet derived from the approved Spherist production reference.
+- Updated `public/art/spherist.json` to manifest runtime frame sequences for IDLE / MOVE / ATTACK / SHIELD / HIT / DEATH.
+- Updated `src/renderer.ts` with frame-clipped Canvas sprite rendering and real-state animation selection.
+- Current PlayerState exposes movement/dash, shield, contact-hit and death signals; these are the states wired into runtime.
+- ATTACK sequence is present in the production manifest but is not falsely triggered from unrelated gameplay fields. It remains ready for connection when an explicit attack-state signal exists.
+- Other characters remain unchanged.
+- GLB/3D production remains PARKED.
+- Manual APK PlayerCheck remains required after CI.

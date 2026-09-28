@@ -1,6 +1,6 @@
 {
   "id": "spherist",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "character",
   "renderMode": "canvas-2.5d",
   "sourceAsset": "public/art/spherist.svg",
@@ -8,21 +8,156 @@
   "frameHeight": 256,
   "transparent": true,
   "states": {
-    "idle": { "frames": 1, "fps": 1, "loop": true, "asset": "spherist.svg" }
+    "idle": {
+      "frames": 8,
+      "fps": 10,
+      "loop": true,
+      "asset": "spherist-sheet.svg",
+      "sequence": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ]
+    },
+    "move": {
+      "frames": 12,
+      "fps": 12,
+      "loop": true,
+      "asset": "spherist-sheet.svg",
+      "sequence": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ]
+    },
+    "attack": {
+      "frames": 8,
+      "fps": 16,
+      "loop": false,
+      "asset": "spherist-sheet.svg",
+      "sequence": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        6,
+        5,
+        4
+      ]
+    },
+    "shield": {
+      "frames": 6,
+      "fps": 12,
+      "loop": false,
+      "asset": "spherist-sheet.svg",
+      "sequence": [
+        8,
+        9,
+        10,
+        11,
+        10,
+        9
+      ]
+    },
+    "hit": {
+      "frames": 4,
+      "fps": 12,
+      "loop": false,
+      "asset": "spherist-sheet.svg",
+      "sequence": [
+        7,
+        8,
+        7,
+        8
+      ]
+    },
+    "death": {
+      "frames": 8,
+      "fps": 10,
+      "loop": false,
+      "asset": "spherist-sheet.svg",
+      "sequence": [
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        11,
+        11
+      ]
+    }
   },
-  "layers": ["silhouette", "facets", "core", "gold_accents", "orbit_ring", "ground_shadow"],
+  "layers": [
+    "silhouette",
+    "facets",
+    "core",
+    "gold_accents",
+    "orbit_ring",
+    "ground_shadow"
+  ],
   "vfx": {
-    "authored": ["core_light", "ring_light"],
-    "runtime": ["shield", "attack_trail", "hit", "death", "particles"]
+    "authored": [
+      "core_light",
+      "ring_light"
+    ],
+    "runtime": [
+      "shield",
+      "attack_trail",
+      "hit",
+      "death",
+      "particles"
+    ]
   },
   "animationPlan": {
-    "idle": { "frames": 8, "fps": 10, "loop": true },
-    "move": { "frames": 12, "fps": 12, "loop": true },
-    "attack": { "frames": 8, "fps": 16, "loop": false },
-    "shield": { "frames": 6, "fps": 12, "loop": false },
-    "hit": { "frames": 4, "fps": 12, "loop": false },
-    "death": { "frames": 8, "fps": 10, "loop": false }
+    "idle": {
+      "frames": 8,
+      "fps": 10,
+      "loop": true
+    },
+    "move": {
+      "frames": 12,
+      "fps": 12,
+      "loop": true
+    },
+    "attack": {
+      "frames": 8,
+      "fps": 16,
+      "loop": false
+    },
+    "shield": {
+      "frames": 6,
+      "fps": 12,
+      "loop": false
+    },
+    "hit": {
+      "frames": 4,
+      "fps": 12,
+      "loop": false
+    },
+    "death": {
+      "frames": 8,
+      "fps": 10,
+      "loop": false
+    }
   },
-  "status": "production-reference-v1-static-integrated",
-  "notes": "Animation sprite sheets remain the next asset step. GLB/3D production stays PARKED."
+  "status": "animation-runtime-v1",
+  "notes": "Production reference remains available as spherist.svg. Runtime uses the 12-frame authored sheet. State detection is limited to fields actually present in PlayerState: movement, dash, shield, contact-hit and death. Attack sequence is defined in the manifest but awaits an explicit gameplay attack-state signal.",
+  "spriteSheet": "public/art/spherist-sheet.svg",
+  "sheetFrames": 12
 }
