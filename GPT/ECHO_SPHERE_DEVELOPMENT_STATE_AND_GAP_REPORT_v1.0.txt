@@ -2127,3 +2127,32 @@ NEXT:
   4. no artificial lean in the wrong direction;
   5. character proportions/facets/gold/core/ring visually match the reference better.
 - Shield remains untested by the user and is not part of this correction pass.
+
+
+[2026-09-28] 2D/2.5D PRODUCTION ASSET PASS #7 — USE THE ACTUAL TURNAROUND CROPS
+
+PLAYER FEEDBACK:
+- The previous custom-drawn side asset was rejected because it read as a true side/profile view instead of the small authored turn visible in the reference.
+- The approved production sheet already contains the required visual source: TURNAROUND / ВИДЫ ПЕРСОНАЖА with Front, Side, Back and 3/4 views, plus a separate Structure / Layers block.
+- User's requested correction is to stop redrawing the character and use the actual turnaround artwork as the runtime character source.
+
+IMPLEMENTED:
+- Cropped the exact FRONT and 3/4 character views from the approved production asset sheet.
+- Removed the surrounding panel/background through transparent extraction while preserving the authored silhouette, facets, core, gold accents and proportions.
+- Stored the cropped views as compact WebP assets for Canvas 2.5D runtime.
+- Runtime idle now uses the cropped FRONT reference.
+- Runtime MOVE now uses the cropped 3/4 reference, not the more extreme side/profile view.
+- Left movement still mirrors the authored 3/4 view; no shear, squash, horizontal compression or pseudo-rotation is used.
+- The existing renderer architecture and gameplay systems are unchanged.
+
+REFERENCE DECISION:
+- FRONT = exact turnaround front.
+- MOVE = exact turnaround 3/4 because it is the visually smaller turn the user requested.
+- SIDE = retained as a future authored view, not used for normal movement in this pass.
+- BACK = retained for a later authored view/state if required.
+- The Structure / Layers block remains the source of truth for future authored reconstruction only if a state cannot be represented by a supplied reference view.
+
+NEXT:
+- CI and APK PlayerCheck.
+- Verify idle/front and move/3/4 directly against the production sheet.
+- If accepted, do not redraw the Spherist again. Continue from the same reference source for BACK, SHIELD, ATTACK, HIT and DEATH only where the sheet provides the corresponding authored frames/layers.
