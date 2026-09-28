@@ -1,21 +1,50 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><defs>
-<radialGradient id="c" cx=".4" cy=".35"><stop stop-color="#fff"/><stop offset=".2" stop-color="#dffcff"/><stop offset=".52" stop-color="#42dcff"/><stop offset=".82" stop-color="#2871ff"/><stop offset="1" stop-color="#08172f" stop-opacity="0"/></radialGradient>
-<radialGradient id="ci"><stop stop-color="#fff"/><stop offset=".28" stop-color="#bdf7ff"/><stop offset=".72" stop-color="#2b8dff"/><stop offset="1" stop-color="#09204d"/></radialGradient>
-<linearGradient id="f" x2="1" y2="1"><stop stop-color="#f2fcff"/><stop offset=".24" stop-color="#9dd9ff"/><stop offset=".58" stop-color="#376ca8"/><stop offset="1" stop-color="#09182e"/></linearGradient>
-<linearGradient id="g" x2="1" y2="1"><stop stop-color="#fff5bd"/><stop offset=".35" stop-color="#ffc24d"/><stop offset=".75" stop-color="#c87518"/><stop offset="1" stop-color="#4a2508"/></linearGradient>
-<linearGradient id="r" x2="1" y2="1"><stop stop-color="#fff"/><stop offset=".22" stop-color="#57eaff"/><stop offset=".62" stop-color="#3377ff"/><stop offset="1" stop-color="#7b45ff"/></linearGradient></defs>
-<ellipse cx="128" cy="226" rx="46" ry="7" fill="#27dfff" opacity=".12"/>
-<g transform="rotate(0 128 128)"><ellipse cx="128" cy="126" rx="98" ry="31" fill="none" stroke="url(#r)" stroke-width="5" opacity=".92"/><ellipse cx="128" cy="126" rx="101" ry="33" fill="none" stroke="#aaf6ff" opacity=".55"/></g>
-<g transform="rotate(0 128 128)">
-<path d="M128 22 153 51 139 78 128 89 117 78 103 51Z" fill="url(#f)" stroke="#9eeaff" stroke-width="2.1"/>
-<path d="M128 234 103 205 117 178 128 167 139 178 153 205Z" fill="url(#f)" stroke="#6fdfff" stroke-width="2.1"/>
-<path d="M22 128 51 103 79 117 90 128 79 139 51 153Z" fill="url(#f)" stroke="#5fe3ff" stroke-width="2.1"/>
-<path d="M234 128 205 103 177 117 166 128 177 139 205 153Z" fill="url(#f)" stroke="#5fe3ff" stroke-width="2.1"/>
-<path d="M56 62 79 72 91 96 69 88Z M200 62 177 72 165 96 187 88Z M56 194 79 184 91 160 69 168Z M200 194 177 184 165 160 187 168Z" fill="url(#g)" stroke="#ffd76c" stroke-width="1.7"/>
-<path d="M128 62 164 93 171 128 164 163 128 194 92 163 85 128 92 93Z" fill="#061426" stroke="#53dfff" stroke-width="2.6"/>
-<path d="M128 62 164 93 128 112 92 93Z" fill="url(#f)"/><path d="M92 93 112 128 92 163 85 128Z" fill="#15375f"/><path d="M164 93 171 128 164 163 144 128Z" fill="#1d4a7b"/><path d="M92 163 128 144 164 163 128 194Z" fill="#0d2848"/>
-</g>
-<g transform="scale(1)" transform-origin="128px 128px"><circle cx="128" cy="128" r="48" fill="url(#c)" opacity=".74"/><circle cx="128" cy="128" r="35" fill="url(#ci)" stroke="#e9ffff" stroke-width="2"/><path d="M128 96 151 113 145 145 128 160 111 145 105 113Z" fill="#061326" opacity=".76" stroke="#8defff" stroke-width="1.8"/><circle cx="128" cy="128" r="16" fill="url(#c)"/><circle cx="128" cy="128" r="5.5" fill="#fff"/></g>
-<g opacity=".9"><path d="M128 27 137 40 128 51 119 40Z" fill="#eaffff"/><path d="M229 128 216 137 205 128 216 119Z" fill="#bdf8ff"/><path d="M128 229 119 216 128 205 137 216Z" fill="#bdf8ff"/><path d="M27 128 40 119 51 128 40 137Z" fill="#bdf8ff"/></g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+<defs>
+  <radialGradient id="core" cx=".42" cy=".34"><stop stop-color="#fff"/><stop offset=".18" stop-color="#dffcff"/><stop offset=".48" stop-color="#45dcff"/><stop offset=".78" stop-color="#2874ff"/><stop offset="1" stop-color="#08162f"/></radialGradient>
+  <linearGradient id="ice" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f4fdff"/><stop offset=".22" stop-color="#9fe2ff"/><stop offset=".52" stop-color="#356ea8"/><stop offset="1" stop-color="#07172d"/></linearGradient>
+  <linearGradient id="ice2" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#bdeeff"/><stop offset=".45" stop-color="#2874c8"/><stop offset="1" stop-color="#0b2240"/></linearGradient>
+  <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff4b0"/><stop offset=".34" stop-color="#ffc54e"/><stop offset=".72" stop-color="#c77617"/><stop offset="1" stop-color="#4a2508"/></linearGradient>
+  <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffffff"/><stop offset=".25" stop-color="#56ecff"/><stop offset=".68" stop-color="#3478ff"/><stop offset="1" stop-color="#7a45ff"/></linearGradient>
+</defs>
 
+<ellipse cx="128" cy="226" rx="48" ry="7" fill="#28dfff" opacity=".10"/>
+
+<!-- authored orbit ring -->
+<ellipse cx="128" cy="128" rx="101" ry="31" fill="none" stroke="url(#ring)" stroke-width="5" opacity=".96"/>
+<ellipse cx="128" cy="128" rx="101" ry="31" fill="none" stroke="#c6faff" stroke-width="1.4" opacity=".62"/>
+
+<!-- outer folded crystal petals -->
+<path d="M128 18 158 52 142 84 128 94 114 84 98 52Z" fill="url(#ice)" stroke="#a9edff" stroke-width="2.2"/>
+<path d="M128 238 98 204 114 172 128 162 142 172 158 204Z" fill="url(#ice2)" stroke="#6edfff" stroke-width="2.2"/>
+<path d="M18 128 52 98 84 114 94 128 84 142 52 158Z" fill="url(#ice2)" stroke="#62e5ff" stroke-width="2.2"/>
+<path d="M238 128 204 98 172 114 162 128 172 142 204 158Z" fill="url(#ice2)" stroke="#62e5ff" stroke-width="2.2"/>
+
+<!-- gold folded side accents -->
+<path d="M53 57 80 69 96 99 76 91 61 75Z" fill="url(#gold)" stroke="#ffe078" stroke-width="1.7"/>
+<path d="M203 57 176 69 160 99 180 91 195 75Z" fill="url(#gold)" stroke="#ffe078" stroke-width="1.7"/>
+<path d="M53 199 80 187 96 157 76 165 61 181Z" fill="url(#gold)" stroke="#ffd76b" stroke-width="1.7"/>
+<path d="M203 199 176 187 160 157 180 165 195 181Z" fill="url(#gold)" stroke="#ffd76b" stroke-width="1.7"/>
+
+<!-- central faceted shell -->
+<path d="M128 55 166 86 174 128 166 170 128 201 90 170 82 128 90 86Z" fill="#071526" stroke="#5ce4ff" stroke-width="2.6"/>
+<path d="M128 55 166 86 128 112 90 86Z" fill="url(#ice)"/>
+<path d="M90 86 113 128 90 170 82 128Z" fill="#163b65"/>
+<path d="M166 86 174 128 166 170 143 128Z" fill="#1e4d7d"/>
+<path d="M90 170 128 145 166 170 128 201Z" fill="#0e2949"/>
+<path d="M128 55 128 112 90 86Z" fill="#c3efff" opacity=".28"/>
+<path d="M128 201 128 145 166 170Z" fill="#0a2039" opacity=".72"/>
+
+<!-- core -->
+<circle cx="128" cy="128" r="51" fill="url(#core)" opacity=".56"/>
+<circle cx="128" cy="128" r="37" fill="url(#core)" stroke="#e9ffff" stroke-width="2"/>
+<path d="M128 91 154 111 148 147 128 166 108 147 102 111Z" fill="#061426" stroke="#9befff" stroke-width="1.8"/>
+<path d="M128 99 145 113 141 140 128 152 115 140 111 113Z" fill="url(#ice2)" opacity=".82"/>
+<circle cx="128" cy="128" r="16" fill="url(#core)"/>
+<circle cx="128" cy="128" r="5.8" fill="#fff"/>
+
+<!-- small crown facets -->
+<path d="M128 18 139 35 128 50 117 35Z" fill="#ecffff"/>
+<path d="M238 128 221 139 206 128 221 117Z" fill="#c7f8ff"/>
+<path d="M128 238 117 221 128 206 139 221Z" fill="#bdf7ff"/>
+<path d="M18 128 35 117 50 128 35 139Z" fill="#c7f8ff"/>
 </svg>
