@@ -30,6 +30,7 @@ export interface PlayerState {
   mutationStage: number;
   invulnerableTimer: number;
   contactDamageCooldown: number;
+  deathTimer: number;
   resonanceCharge: number;
   resonanceEventActive: boolean;
   resonanceGeometryKey: string;

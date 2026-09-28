@@ -71,6 +71,7 @@ export function createInitialState(
     mutationStage: 0,
     invulnerableTimer: 0,
     contactDamageCooldown: 0,
+    deathTimer: 0,
     resonanceCharge: 0,
     resonanceEventActive: false,
     resonanceGeometryKey: 'none',

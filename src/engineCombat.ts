@@ -704,9 +704,8 @@ export function damagePlayer(s: GameState, amount: number): void {
   }
   if (s.player.hp <= 0) {
     s.player.hp = 0;
-    s.gameOver = true;
+    s.player.deathTimer = 0.90;
     s.stats.time = s.time;
-    playSound('gameover');
   }
 }
 
@@ -723,9 +722,8 @@ export function damagePlayerDoT(s: GameState, amount: number): void {
 
   if (s.player.hp <= 0) {
     s.player.hp = 0;
-    s.gameOver = true;
+    s.player.deathTimer = 0.90;
     s.stats.time = s.time;
-    playSound('gameover');
   }
 }
 

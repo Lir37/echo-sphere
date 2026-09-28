@@ -1225,7 +1225,6 @@ function drawPlayer(ctx: CanvasRenderingContext2D, p: PlayerState): void {
   // Other characters keep their existing render path until their own production assets are approved.
   if (id === 'spherist') {
     const animState = getSpheristAnimationState(p);
-    const anim = SPHERIST_ANIMATION[animState];
     const animFrame = getSpheristAnimationFrame(animState);
     const drawn = drawReferenceSprite(
       ctx,

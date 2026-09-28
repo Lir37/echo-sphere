@@ -56,7 +56,17 @@ export function applyArtifact(s: GameState, id: ArtifactId): void {
 
 // ===== Main update =====
 export function update(s: GameState, dt: number): void {
-  if (s.paused || s.gameOver) return;
+  if (s.gameOver) return;
+  if (s.player.deathTimer > 0) {
+    s.player.deathTimer = Math.max(0, s.player.deathTimer - dt);
+    if (s.player.deathTimer <= 0) {
+      s.gameOver = true;
+      s.stats.time = s.time;
+      playSound('gameover');
+    }
+    return;
+  }
+  if (s.paused) return;
   if (s.pendingUpgrade || s.pendingArtifact || s.pendingStella) return;
 
   s.time += dt;
