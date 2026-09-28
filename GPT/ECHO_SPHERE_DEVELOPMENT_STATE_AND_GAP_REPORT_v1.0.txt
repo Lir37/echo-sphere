@@ -2000,3 +2000,9 @@ END VALIDATION UPDATE
 - Other characters remain unchanged.
 - GLB/3D production remains PARKED.
 - Manual APK PlayerCheck remains required after CI.
+
+
+[2026-09-28] 2D/2.5D PRODUCTION ASSET PASS #2 CORRECTION
+
+- Corrected Spherist one-shot animation timing to use state-entry time rather than absolute run time.
+- Animation state transitions now reset the sequence clock; looping states continue from their own frame rate and non-looping states clamp at the final frame.

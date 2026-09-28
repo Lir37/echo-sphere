@@ -116,28 +116,37 @@ const SPHERIST_ANIMATION: Record<SpheristAnimState, { frames: number[]; fps: num
 let SPHERIST_LAST_X = 0;
 let SPHERIST_LAST_Y = 0;
 let SPHERIST_LAST_TIME = -1;
+let SPHERIST_ANIMATION_STATE: SpheristAnimState = 'idle';
+let SPHERIST_ANIMATION_START = 0;
 
 function getSpheristAnimationState(p: PlayerState): SpheristAnimState {
-  if (p.hp <= 0) return 'death';
-  if (p.contactDamageCooldown > 0) return 'hit';
-  if (p.shieldTimer > 0 || p.shieldCharges > 0) return 'shield';
-  if (p.dashTimer > 0) return 'move';
-
   const dt = SPHERIST_LAST_TIME >= 0 ? Math.max(0.001, RENDER_TIME - SPHERIST_LAST_TIME) : 0.016;
   const vx = (p.pos.x - SPHERIST_LAST_X) / dt;
   const vy = (p.pos.y - SPHERIST_LAST_Y) / dt;
   SPHERIST_LAST_X = p.pos.x;
   SPHERIST_LAST_Y = p.pos.y;
   SPHERIST_LAST_TIME = RENDER_TIME;
-  return Math.hypot(vx, vy) > 0.06 ? 'move' : 'idle';
+
+  let next: SpheristAnimState;
+  if (p.hp <= 0) next = 'death';
+  else if (p.contactDamageCooldown > 0) next = 'hit';
+  else if (p.shieldTimer > 0 || p.shieldCharges > 0) next = 'shield';
+  else if (p.dashTimer > 0 || Math.hypot(vx, vy) > 0.06) next = 'move';
+  else next = 'idle';
+
+  if (next !== SPHERIST_ANIMATION_STATE) {
+    SPHERIST_ANIMATION_STATE = next;
+    SPHERIST_ANIMATION_START = RENDER_TIME;
+  }
+  return SPHERIST_ANIMATION_STATE;
 }
 
-function getSpheristAnimationFrame(p: PlayerState, state: SpheristAnimState): number {
+function getSpheristAnimationFrame(state: SpheristAnimState): number {
   const sequence = SPHERIST_ANIMATION[state];
-  const elapsed = Math.max(0, RENDER_TIME * sequence.fps);
+  const elapsed = Math.max(0, RENDER_TIME - SPHERIST_ANIMATION_START);
   const index = sequence.loop
-    ? Math.floor(elapsed) % sequence.frames.length
-    : Math.min(sequence.frames.length - 1, Math.floor(elapsed));
+    ? Math.floor(elapsed * sequence.fps) % sequence.frames.length
+    : Math.min(sequence.frames.length - 1, Math.floor(elapsed * sequence.fps));
   return sequence.frames[index];
 }
 
@@ -1217,7 +1226,7 @@ function drawPlayer(ctx: CanvasRenderingContext2D, p: PlayerState): void {
   if (id === 'spherist') {
     const animState = getSpheristAnimationState(p);
     const anim = SPHERIST_ANIMATION[animState];
-    const animFrame = getSpheristAnimationFrame(p, animState);
+    const animFrame = getSpheristAnimationFrame(animState);
     const drawn = drawReferenceSprite(
       ctx,
       'player-spherist-sheet',
