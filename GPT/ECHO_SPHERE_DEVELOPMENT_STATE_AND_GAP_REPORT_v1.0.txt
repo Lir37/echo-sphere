@@ -2038,3 +2038,30 @@ NEXT:
 - If the sprite is now stable, accept Spherist as the first production character reference and move to the next authored asset only after PlayerCheck.
 
 [2026-09-28] PASS #4 MICRO-CORRECTION — preserved measured Spherist velocity in renderer state so MOVE lean/squash uses the actual movement vector after animation-state detection.
+
+
+[2026-09-28] 2D/2.5D PRODUCTION ASSET PASS #5 — SPHERIST RUNTIME ARCHITECTURE CORRECTION
+
+PLAYER CHECK / SCREENSHOT:
+- New APK screenshot confirmed the Spherist was still displayed as two horizontally displaced halves inside an invisible frame.
+- Three rotating rod-like elements were visibly drawn between the halves.
+- MOVE showed some lean, but the intended slight side/profile presentation was not yet present.
+- DEATH read as a rotating/inward disappearance rather than the intended authored 2.5D/origami disassembly.
+- Shield was not re-tested in this cycle.
+
+ROOT CAUSE / FACTUAL CODE FINDING:
+- The three rods came from the legacy Spherist branch inside drawCharacterVfx().
+- The Spherist runtime was still dependent on a wide SVG sprite sheet, which had already demonstrated unreliable frame rendering in the Android/WebView PlayerCheck.
+
+IMPLEMENTED:
+- Removed the Spherist-specific legacy three-rod runtime VFX completely.
+- Runtime Spherist rendering now uses the intact single-frame production asset public/art/spherist.svg.
+- Removed dependence on sprite-sheet frame cropping for the live Spherist renderer.
+- MOVE now uses actual measured player velocity to drive a stronger 2.5D presentation: directional turn, horizontal compression, shear/profile offset, lean and motion bob.
+- DEATH was changed from inward spiral behavior to origami fold/disassembly: controlled transform, fade and outward geometric fragments.
+- Updated public/art/spherist.json to document the single-asset runtime approach and deprecated wide-sheet runtime status.
+- No gameplay mechanics or other character render paths were changed.
+
+NEXT:
+- Build/install APK and verify: (1) Spherist is a single intact object, (2) no three rods appear, (3) MOVE visibly turns the character slightly toward a side/profile view, (4) DEATH reads as fold/disassembly rather than inward spiral.
+- Only after this PlayerCheck, continue with Shield or the next production asset.
