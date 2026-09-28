@@ -2065,3 +2065,38 @@ IMPLEMENTED:
 NEXT:
 - Build/install APK and verify: (1) Spherist is a single intact object, (2) no three rods appear, (3) MOVE visibly turns the character slightly toward a side/profile view, (4) DEATH reads as fold/disassembly rather than inward spiral.
 - Only after this PlayerCheck, continue with Shield or the next production asset.
+
+[2026-09-28] 2D/2.5D PRODUCTION ASSET PASS #6 — SPHERIST SVG VIEWBOX CORRECTION
+
+PLAYER CHECK:
+- Latest APK showed no legacy rods and the MOVE/DEATH presentation was accepted,
+  but the Spherist itself was still not a single intact silhouette.
+- The remaining visible defect was the asset content being displaced/cropped,
+  leaving only part of the authored figure visible.
+
+ROOT CAUSE / FACTUAL CODE FINDING:
+- `public/art/spherist.svg` had an erroneous root-group transform
+  `translate(128 0)` while the artwork itself was already authored in the
+  256x256 viewBox coordinates.
+- This shifted the complete artwork by one half of the viewport and caused
+  Canvas to display only the remaining portion.
+
+IMPLEMENTED:
+- Removed only the erroneous root `translate(128 0)` wrapper from
+  `public/art/spherist.svg`.
+- Kept the authored Spherist artwork, gradients, proportions and visual design
+  unchanged.
+- Kept the single-asset Canvas runtime, MOVE, DEATH and legacy-VFX removal
+  unchanged.
+- No gameplay mechanics or other character render paths were changed.
+
+VALIDATION STATUS:
+- Fix commit: d888d4978cf387bee7d713f89748e856b8a947ce
+- CI for this new commit is not yet reported by the repository connector.
+- Manual APK PlayerCheck is required after the new CI APK is produced.
+
+NEXT:
+- Verify the Spherist is now one centered, intact authored object.
+- Re-check that MOVE still reads as side/profile motion and DEATH still reads
+  as fold/disassembly.
+- Only after this PlayerCheck continue to Shield / next production asset.
