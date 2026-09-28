@@ -2257,3 +2257,27 @@ VALIDATION:
 NEXT:
 - Do not redesign Spherist again without a concrete PlayerCheck defect.
 - If Standard is accepted, continue the same authored production method through the remaining Sphere families, preserving each family's mechanical identity and mutation diversity.
+
+
+[2026-09-28] 2D/2.5D PRODUCTION ASSET PASS #14 — AUTHORED SNIPER SPHERE
+
+IMPLEMENTED:
+- Sniper is the next Sphere after Standard. It does NOT reuse Standard's geometry as a template.
+- `public/art/sniper.svg` was rebuilt as an independently authored 256x256 vector asset around Sniper's actual mechanical identity: long precision rail, asymmetric folded stabilizers, targeting apertures, recessed lens/core and precision crosshair construction.
+- The asset follows the same production method as Standard: reference-derived construction principles, independently authored geometry, restrained Canvas runtime VFX.
+- Sniper runtime now uses the authored vector asset first; the existing procedural sphere renderer remains only as fallback.
+- Added state-driven Sniper visual language for the real progression branches:
+  - Mutation I: Oracle, Assassin, Beacon.
+  - Mutation II: three distinct final signatures.
+  - Real modifiers: Pierce, Ricochet, Fire, Freeze, Poison, Multishot and Crit receive restrained precision-oriented accents.
+  - Sphere visual level is represented by peripheral progression ticks.
+- No gameplay, damage, targeting, mutation-choice or balance logic was changed.
+
+VALIDATION:
+- CI and APK PlayerCheck are required before accepting Sniper visually.
+- Check Sniper baseline, at least one Mutation I branch, one Mutation II final state and a modifier combination on the phone.
+- Confirm that the authored silhouette remains readable at normal gameplay scale and that the precision rail does not become visual noise.
+
+NEXT:
+- Do not redesign Standard or Spherist while this pass is being validated.
+- If Sniper passes PlayerCheck, continue to the next Sphere using the same authored-hybrid production method, but derive each asset from its own gameplay identity rather than copying Sniper or Standard geometry.
