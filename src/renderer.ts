@@ -21,7 +21,7 @@ const VOID_PANEL = '#080d1b';
 const MUTATION_COLORS = ['#6eeaff', '#9b7cff', '#d86cff', '#55e6c1', '#b9a7ff'];
 
 type ArtKey =
-  | 'player' | 'player-spherist'
+  | 'player' | 'player-spherist' | 'player-spherist-side'
   | 'sphere-standard' | 'sphere-sniper' | 'sphere-shotgun' | 'sphere-chain' | 'sphere-aura'
   | 'sphere-orbital' | 'sphere-prism' | 'sphere-gravity' | 'sphere-pulse' | 'sphere-void'
   | 'enemy-skitter' | 'enemy-fast' | 'enemy-tank' | 'enemy-moth'
@@ -30,6 +30,7 @@ type ArtKey =
 const ART_PATHS: Record<ArtKey, string> = {
   player: '/art/player.svg',
   'player-spherist': '/art/spherist.svg',
+  'player-spherist-side': '/art/spherist-side.svg',
   'sphere-standard': '/art/standard.svg',
   'sphere-sniper': '/art/sniper.svg',
   'sphere-shotgun': '/art/shotgun.svg',
@@ -1254,91 +1255,67 @@ function drawPlayer(ctx: CanvasRenderingContext2D, p: PlayerState): void {
   // Other characters keep their existing render path until their own production assets are approved.
   if (id === 'spherist') {
     const animState = getSpheristAnimationState(p);
-    const moveIntensity = Math.min(1, Math.hypot(SPHERIST_VX, SPHERIST_VY) / 0.35);
-    let spriteRotation = Math.sin(t * 0.7) * 0.018;
-    let spriteScale = pulse;
-    let spriteOpacity = 1;
+    const moving = animState === 'move';
+    const speed = Math.hypot(SPHERIST_VX, SPHERIST_VY);
+    const movingIntensity = Math.min(1, speed / 0.35);
+    const movingRight = SPHERIST_VX >= 0;
 
-    if (animState === 'move') {
-      // 2.5D movement presentation: the authored silhouette remains whole,
-      // while Canvas reveals a slight side-facing profile based on direction.
-      const side = Math.max(-1, Math.min(1, SPHERIST_VX / 0.20));
-      const sideTurn = side * (0.12 + moveIntensity * 0.06);
-      const profile = Math.abs(side) * (0.10 + moveIntensity * 0.08);
-      spriteRotation += sideTurn + Math.sin(t * 10) * 0.025 * moveIntensity;
-      spriteScale *= 1 + Math.sin(t * 16) * 0.025 * moveIntensity;
-      ctx.transform(
-        1 - profile,
-        0,
-        side * 0.12 * moveIntensity,
-        1 + profile * 0.18,
-        side * r * 0.06,
-        Math.sin(t * 14) * 1.6 * moveIntensity,
-      );
-    }
+    // Production reference animation: idle/front -> movement/side view.
+    // Do not fake the side view with 2D shear/scale. The side silhouette is
+    // an authored production asset, matching the turnaround reference.
+    const viewKey: ArtKey = moving ? 'player-spherist-side' : 'player-spherist';
+    const viewScale = moving ? 1.02 + Math.sin(t * 12) * 0.012 * movingIntensity : 1;
+    const viewBob = moving ? Math.sin(t * 13) * 1.2 * movingIntensity : 0;
+    const viewRotation = moving ? Math.sin(t * 9) * 0.018 * movingIntensity : Math.sin(t * 0.7) * 0.012;
 
     if (animState === 'death') {
-      // Death is an origami fold/disassembly, not an inward spiral.
       const deathProgress = Math.min(1, Math.max(0, 1 - p.deathTimer / 0.90));
       const fold = deathProgress * deathProgress;
-      spriteRotation += Math.sin(deathProgress * Math.PI) * 0.35;
-      spriteScale *= 1 - fold * 0.24;
-      spriteOpacity = 1 - deathProgress * 0.92;
+      ctx.translate(0, -deathProgress * r * 0.10);
       ctx.transform(
-        1 - fold * 0.55,
+        1 - fold * 0.45,
         0,
-        -0.18 * fold,
-        1 + fold * 0.08,
+        -0.10 * fold,
+        1 + fold * 0.06,
         0,
-        -deathProgress * r * 0.10,
+        0,
       );
-    }
-
-    ctx.scale(spriteScale, spriteScale);
-    const drawn = drawReferenceSprite(
-      ctx,
-      'player-spherist',
-      0,
-      0,
-      r * 2.9,
-      color,
-      spriteRotation,
-      spriteOpacity,
-    );
-
-    if (drawn && animState === 'death') {
-      const deathProgress = Math.min(1, Math.max(0, 1 - p.deathTimer / 0.90));
-      const fragmentProgress = Math.max(0, (deathProgress - 0.22) / 0.78);
-      const fragmentFade = 1 - fragmentProgress;
-      ctx.save();
-      ctx.globalAlpha = fragmentFade * 0.78;
-      ctx.fillStyle = '#dffaff';
-      for (let i = 0; i < 8; i++) {
-        const a = i * Math.PI / 4 + 0.18;
-        const travel = r * (0.12 + fragmentProgress * 0.72);
-        const x = Math.cos(a) * travel;
-        const y = Math.sin(a) * travel;
-        const size = 2.2 + fragmentProgress * 2.0;
+      ctx.scale(pulse * (1 - fold * 0.18), pulse * (1 - fold * 0.18));
+      const drawn = drawReferenceSprite(ctx, 'player-spherist', 0, 0, r * 2.9, color, viewRotation + fold * 0.25, 1 - deathProgress * 0.92);
+      if (drawn) {
+        const fragmentProgress = Math.max(0, (deathProgress - 0.22) / 0.78);
         ctx.save();
-        ctx.translate(x, y);
-        ctx.rotate(a + fragmentProgress * 1.4);
-        ctx.beginPath();
-        ctx.moveTo(0, -size);
-        ctx.lineTo(size * 0.75, 0);
-        ctx.lineTo(0, size);
-        ctx.lineTo(-size * 0.75, 0);
-        ctx.closePath();
-        ctx.fill();
+        ctx.globalAlpha = (1 - fragmentProgress) * 0.72;
+        ctx.fillStyle = '#dffaff';
+        for (let i = 0; i < 8; i++) {
+          const a = i * Math.PI / 4 + 0.18;
+          const travel = r * (0.10 + fragmentProgress * 0.72);
+          const size = 2 + fragmentProgress * 2;
+          ctx.save();
+          ctx.translate(Math.cos(a) * travel, Math.sin(a) * travel);
+          ctx.rotate(a + fragmentProgress * 1.3);
+          ctx.beginPath();
+          ctx.moveTo(0, -size);
+          ctx.lineTo(size * .75, 0);
+          ctx.lineTo(0, size);
+          ctx.lineTo(-size * .75, 0);
+          ctx.closePath();
+          ctx.fill();
+          ctx.restore();
+        }
         ctx.restore();
+        ctx.restore();
+        return;
       }
-      ctx.restore();
-    }
-
-    if (drawn) {
-      ctx.restore();
-      // Spherist already contains its own orbit ring and authored energy.
-      // No legacy character VFX is added on top.
-      return;
+    } else {
+      ctx.translate(0, viewBob);
+      ctx.scale(pulse * viewScale, pulse * viewScale);
+      if (moving && !movingRight) ctx.scale(-1, 1);
+      const drawn = drawReferenceSprite(ctx, viewKey, 0, 0, r * 2.9, color, viewRotation, 1);
+      if (drawn) {
+        ctx.restore();
+        return;
+      }
     }
   }
 
