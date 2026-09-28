@@ -287,7 +287,7 @@ function drawRune(ctx: CanvasRenderingContext2D, rune: GameState['runes'][number
   for (const sphere of s.spheres) drawModernSphere(ctx, s, sphere, s.time);
 
   // sphere projectiles
-  for (const p of s.sphereProjectiles) drawModernProjectile(ctx, p.pos.x, p.pos.y, p.vel.x, p.vel.y, p.radius, p.color);
+  for (const p of s.sphereProjectiles) drawModernProjectile(ctx, p.pos.x, p.pos.y, p.vel.x, p.vel.y, p.radius, p.color, p.sourceSphere?.type);
 
   // Minion identity follows its anchor Sphere.
   for (const m of s.minions) drawModernMinion(ctx, m.pos.x, m.pos.y, m.radius, m.rotation, SPHERE_TYPES[m.anchorType]?.color || '#ffb84d');
@@ -721,15 +721,43 @@ function drawModernHealth(ctx: CanvasRenderingContext2D,x:number,y:number,color:
   ctx.fillStyle='#fff';ctx.fillRect(-2,-7,4,14);ctx.fillRect(-7,-2,14,4);ctx.restore();
 }
 
-function drawModernProjectile(ctx: CanvasRenderingContext2D,x:number,y:number,vx:number,vy:number,r:number,color:string):void{
+function drawModernProjectile(ctx: CanvasRenderingContext2D,x:number,y:number,vx:number,vy:number,r:number,color:string,sphereType?: SphereEntity['type']):void{
   const a=Math.atan2(vy,vx),speed=Math.hypot(vx,vy)||1,t=RENDER_TIME,trail=Math.min(52,15+speed*.05),rgb=hexToRgb(color);
   ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.globalCompositeOperation='source-over';
   ctx.strokeStyle=`rgba(${rgb},.28)`;ctx.lineWidth=Math.max(6,r*2.15);ctx.shadowColor=color;ctx.shadowBlur=0;ctx.beginPath();ctx.moveTo(-trail,0);ctx.lineTo(0,0);ctx.stroke();ctx.shadowBlur=0;
   ctx.fillStyle='#06111e';ctx.strokeStyle=`rgba(${rgb},.95)`;ctx.lineWidth=1;
   const pulse=1+Math.sin(t*12)*.08;
-  ctx.beginPath();ctx.moveTo(r*2.2,0);ctx.lineTo(-r*.55,-r*.72*pulse);ctx.lineTo(-r*.85,0);ctx.lineTo(-r*.55,r*.72*pulse);ctx.closePath();ctx.fill();ctx.stroke();
-  ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(0,0,r*.46,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle=color;ctx.beginPath();ctx.arc(0,0,r*.34,0,Math.PI*2);ctx.fill();ctx.restore();
+  if (sphereType === 'standard') {
+    ctx.beginPath();
+    ctx.moveTo(r*2.35,0);
+    ctx.lineTo(r*0.05,-r*0.34);
+    ctx.lineTo(-r*0.88,-r*0.62*pulse);
+    ctx.lineTo(-r*0.58,0);
+    ctx.lineTo(-r*0.88,r*0.62*pulse);
+    ctx.lineTo(r*0.05,r*0.34);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.strokeStyle='rgba(234,253,255,.76)';
+    ctx.lineWidth=.8;
+    ctx.beginPath();
+    ctx.moveTo(-r*.48,-r*.20);ctx.lineTo(r*1.38,0);ctx.lineTo(-r*.48,r*.20);
+    ctx.stroke();
+    ctx.fillStyle='#fff';
+    ctx.beginPath();ctx.arc(r*.25,0,r*.38,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle=color;
+    ctx.beginPath();ctx.arc(r*.25,0,r*.25,0,Math.PI*2);ctx.fill();
+  } else {
+    ctx.beginPath();ctx.moveTo(r*2.2,0);ctx.lineTo(-r*.55,-r*.72*pulse);ctx.lineTo(-r*.85,0);ctx.lineTo(-r*.55,r*.72*pulse);ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(0,0,r*.46,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle=color;ctx.beginPath();ctx.arc(0,0,r*.34,0,Math.PI*2);ctx.fill();
+  }
+  if (sphereType === 'standard') {
+    ctx.strokeStyle='rgba(110,236,255,.28)';
+    ctx.lineWidth=.8;
+    ctx.beginPath();ctx.moveTo(-trail*.78,0);ctx.lineTo(-trail*.20,0);ctx.stroke();
+  }
+  ctx.restore();
 }
 
 function drawModernMinion(ctx: CanvasRenderingContext2D,x:number,y:number,r:number,rotation:number,color:string):void{
@@ -2238,11 +2266,24 @@ function drawModernSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: S
   if (sphere.type === 'standard') {
     const bob = Math.sin(time * 2.1 + sphere.pos.x * 0.01) * 0.55;
     drawGroundShadow(ctx, r * 1.05, r * 0.24, 6);
-    const drawn = drawReferenceSprite(ctx, 'sphere-standard', sphere.pos.x, sphere.pos.y + bob, r * 3.35, def.color, Math.sin(time * 0.65 + sphere.pos.y * 0.01) * 0.018);
+    const drawn = drawReferenceSprite(ctx, 'sphere-standard', sphere.pos.x, sphere.pos.y + bob, r * 3.35, def.color, 0);
     if (!drawn) {
       drawSphereCoreArt(ctx, s, sphere, def.color, r, time);
     }
     drawStandardMutationVfx(ctx, s, sphere, r, time);
+    drawStandardAttackVfx(ctx, sphere, r, time);
+    drawNetworkDisabledIndicator(ctx, sphere, time);
+    return;
+  }
+
+  if (sphere.type === 'orbital') {
+    const bob = Math.sin(time * 1.7 + sphere.pos.x * 0.008) * 0.45;
+    drawGroundShadow(ctx, r * 1.08, r * 0.25, 6);
+    const drawn = drawReferenceSprite(ctx, 'sphere-orbital', sphere.pos.x, sphere.pos.y + bob, r * 3.20, def.color, 0);
+    if (!drawn) {
+      drawSphereCoreArt(ctx, s, sphere, def.color, r, time);
+    }
+    drawOrbitalRuntimeVfx(ctx, s, sphere, r, time);
     drawNetworkDisabledIndicator(ctx, sphere, time);
     return;
   }
@@ -2397,6 +2438,162 @@ function drawStandardMutationVfx(ctx: CanvasRenderingContext2D, game: GameState,
   ctx.restore();
 }
 
+
+
+function drawStandardAttackVfx(
+  ctx: CanvasRenderingContext2D,
+  sphere: SphereEntity,
+  r: number,
+  time: number,
+): void {
+  const charge = Math.max(0, Math.min(1, 1 - sphere.attackTimer / 1.2));
+  if (charge < 0.04) return;
+  const color = '#63e6ff';
+  const rgb = hexToRgb(color);
+  const dir = sphere.rotation || 0;
+  const reach = r * (1.05 + charge * 0.85);
+  ctx.save();
+  ctx.translate(sphere.pos.x, sphere.pos.y);
+  ctx.rotate(dir);
+  ctx.globalCompositeOperation = 'lighter';
+
+  ctx.strokeStyle = `rgba(${rgb},${0.14 + charge * 0.30})`;
+  ctx.lineWidth = 1.2 + charge * 0.7;
+  ctx.beginPath();
+  ctx.moveTo(r * 0.42, 0);
+  ctx.lineTo(reach, 0);
+  ctx.stroke();
+
+  const gate = 1.0 - charge;
+  ctx.strokeStyle = `rgba(232,253,255,${0.18 + gate * 0.48})`;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.arc(reach, 0, r * (0.16 + charge * 0.18), -Math.PI * 0.72, Math.PI * 0.72);
+  ctx.stroke();
+
+  for (let i = -1; i <= 1; i++) {
+    const y = i * r * 0.16 * charge;
+    ctx.fillStyle = `rgba(${rgb},${0.15 + charge * 0.32})`;
+    ctx.beginPath();
+    ctx.moveTo(reach * 0.72, y - r * 0.055);
+    ctx.lineTo(reach * 1.03, y);
+    ctx.lineTo(reach * 0.72, y + r * 0.055);
+    ctx.closePath();
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawOrbitalRuntimeVfx(
+  ctx: CanvasRenderingContext2D,
+  game: GameState,
+  sphere: SphereEntity,
+  r: number,
+  time: number,
+): void {
+  const branch = game.player.sphereBranches?.orbital;
+  const finalId = (game.player.evolutions || []).find((id: string) => id.startsWith('sphere:orbital:7:'));
+  const finalIndex = finalId ? Number(finalId.split(':').pop()) : -1;
+  const rgb = hexToRgb(SPHERE_TYPES.orbital.color);
+  const interval = 0.42 * Math.max(0.65, game.player.sphereMods.auraPulse || 1);
+  const charge = Math.max(0, Math.min(1, 1 - sphere.auraTimer / interval));
+  const flash = Math.max(0.08, 1 - charge);
+  const orbitR = r * (1.78 + Math.min(0.32, (sphere.visualTier || 0) * 0.045));
+
+  ctx.save();
+  ctx.translate(sphere.pos.x, sphere.pos.y);
+  ctx.globalCompositeOperation = 'lighter';
+
+  // The orbital strike is telegraphed as a short luminous pass on the same
+  // trajectory used by the gameplay collision test.
+  const sweepA = sphere.rotation;
+  ctx.strokeStyle = `rgba(${rgb},${0.08 + 0.28 * flash})`;
+  ctx.lineWidth = 1.1 + flash * 1.2;
+  ctx.beginPath();
+  ctx.ellipse(0, 0, orbitR, orbitR * 0.56, 0, sweepA - 0.42 - charge * 0.20, sweepA + 0.42 + charge * 0.20);
+  ctx.stroke();
+
+  if (branch === 'orbital_dance') {
+    ctx.strokeStyle = `rgba(179,143,255,${0.20 + 0.26 * flash})`;
+    ctx.lineWidth = 1.1;
+    for (let i = 0; i < 2; i++) {
+      const a = time * (1.4 + i * 0.15) + i * Math.PI;
+      ctx.beginPath();
+      ctx.arc(0, 0, orbitR * (0.92 + i * 0.10), a, a + 1.25);
+      ctx.stroke();
+    }
+  } else if (branch === 'orbital_halo') {
+    ctx.strokeStyle = `rgba(226,249,255,${0.18 + 0.30 * flash})`;
+    ctx.lineWidth = 1.0;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, orbitR * 0.86, orbitR * 0.46, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    for (let i = 0; i < 4; i++) {
+      const a = i * Math.PI / 2 + time * 0.18;
+      const x = Math.cos(a) * orbitR * 0.88;
+      const y = Math.sin(a) * orbitR * 0.46;
+      ctx.fillStyle = `rgba(244,255,255,${0.30 + 0.18 * flash})`;
+      ctx.beginPath();
+      ctx.arc(x, y, 1.7, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  } else if (branch === 'orbital_blade') {
+    ctx.strokeStyle = `rgba(255,213,104,${0.28 + 0.34 * flash})`;
+    ctx.lineWidth = finalIndex === 2 ? 1.9 : 1.4;
+    for (let i = 0; i < (finalIndex === 2 ? 2 : 1); i++) {
+      const a = sphere.rotation + i * Math.PI;
+      ctx.save();
+      ctx.rotate(a);
+      ctx.beginPath();
+      ctx.moveTo(-orbitR * 1.05, 0);
+      ctx.lineTo(-orbitR * 0.26, -r * 0.09);
+      ctx.lineTo(orbitR * 1.05, 0);
+      ctx.lineTo(orbitR * 0.26, r * 0.09);
+      ctx.closePath();
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
+
+  if (finalIndex === 0) {
+    ctx.strokeStyle = `rgba(122,236,255,${0.16 + 0.25 * flash})`;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, orbitR * 1.12, orbitR * 0.62, 0, 0, Math.PI * 2);
+    ctx.stroke();
+  } else if (finalIndex === 1) {
+    ctx.strokeStyle = `rgba(194,154,255,${0.18 + 0.28 * flash})`;
+    ctx.lineWidth = 1;
+    for (let i = 0; i < 3; i++) {
+      const a = time * 0.42 + i * Math.PI * 2 / 3;
+      ctx.beginPath();
+      ctx.arc(0, 0, orbitR * (0.72 + i * 0.12), a, a + 0.8);
+      ctx.stroke();
+    }
+  } else if (finalIndex === 2) {
+    ctx.strokeStyle = `rgba(255,231,154,${0.22 + 0.30 * flash})`;
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, orbitR * 1.22, orbitR * 0.70, 0, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  if ((game.player.sphereMods.fire || 0) > 0) {
+    ctx.strokeStyle = `rgba(255,116,61,${0.18 + 0.16 * flash})`;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(0, 0, orbitR * 1.06, sweepA - 0.34, sweepA + 0.34);
+    ctx.stroke();
+  }
+  if ((game.player.sphereMods.freeze || 0) > 0) {
+    ctx.strokeStyle = `rgba(196,248,255,${0.18 + 0.16 * flash})`;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(0, 0, orbitR * 1.02, sweepA + Math.PI - 0.26, sweepA + Math.PI + 0.26);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
 
 function drawSniperMutationVfx(ctx: CanvasRenderingContext2D, game: GameState, sphere: SphereEntity, r: number, time: number): void {
   const mods = game.player.sphereMods;

@@ -2281,3 +2281,30 @@ VALIDATION:
 NEXT:
 - Do not redesign Standard or Spherist while this pass is being validated.
 - If Sniper passes PlayerCheck, continue to the next Sphere using the same authored-hybrid production method, but derive each asset from its own gameplay identity rather than copying Sniper or Standard geometry.
+
+
+[2026-09-28] 2D/2.5D PRODUCTION ASSET PASS #15 — STANDARD + ORBITAL VISUAL FAMILY
+
+USER-DIRECTION:
+- Standard Sphere direction approved from the authored reference sheet.
+- Turnaround views are not needed for production use. Runtime silhouettes remain stable without sprite rotation.
+- Orbital Sphere receives its own independent reference/design language and is not derived from Spherist.
+
+IMPLEMENTED:
+- Replaced `public/art/standard.svg` with a new authored tower-like faceted sphere: architectural shell, recessed energy core, gold braces, top/bottom crystal emitters and restrained cyan halo. No Spherist geometry is reused as a template.
+- Replaced `public/art/orbital.svg` with a separately authored ring-centric Orbital Sphere built around the same ECHO SPHERE visual language while preserving its own silhouette.
+- Standard runtime sprite no longer rotates. Rotation remains reserved for actual targeting/attack direction and does not turn the authored silhouette.
+- Orbital runtime now uses the authored Orbital SVG as the stable core and keeps rotation only for the gameplay orbit of attack satellites.
+- Added state-driven Standard attack-charge VFX and a dedicated crystalline Standard projectile visual.
+- Added Orbital attack-pass VFX keyed to the real `auraTimer` attack cycle, with distinct Resonator-style/Dance, Halo and Blade branch accents plus final-form signatures.
+- Existing Sphere mechanics, damage, progression choices and balance values were not changed.
+- Existing procedural sphere renderers remain as fallbacks.
+
+VALIDATION:
+- CI must pass on this commit.
+- APK PlayerCheck: Standard baseline and each Mutation I branch; Orbital baseline and each Orbital branch.
+- Confirm silhouettes remain readable at normal gameplay scale and attack VFX do not obscure Network links.
+
+NEXT:
+- Use phone PlayerCheck to decide whether Standard/Orbital need only tuning or any concrete visual defect fix.
+- Do not redesign Spherist as part of this pass.
