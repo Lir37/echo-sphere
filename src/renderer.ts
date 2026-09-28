@@ -89,10 +89,22 @@ function drawReferenceSprite(
   ctx.shadowColor = color;
   ctx.shadowBlur=0;
   if (frameCount > 1) {
-    const fw = 256;
-    const fh = 256;
+    // Android WebView can crop wide SVG sprite sheets inconsistently when
+    // drawImage(sourceRect) is used directly. Clip the destination frame
+    // and draw the full sheet instead, keeping frame boundaries exact.
     const safeFrame = Math.max(0, Math.min(frameCount - 1, Math.floor(frame)));
-    ctx.drawImage(image, safeFrame * fw, 0, fw, fh, -size / 2, -size / 2, size, size);
+    const frameSize = size;
+    const sheetWidth = frameSize * frameCount;
+    ctx.beginPath();
+    ctx.rect(-frameSize / 2, -frameSize / 2, frameSize, frameSize);
+    ctx.clip();
+    ctx.drawImage(
+      image,
+      -frameSize / 2 - safeFrame * frameSize,
+      -frameSize / 2,
+      sheetWidth,
+      frameSize,
+    );
   } else {
     ctx.drawImage(image, -size / 2, -size / 2, size, size);
   }
@@ -416,13 +428,49 @@ function drawCharacterHud(_ctx: CanvasRenderingContext2D, _s: GameState, _canvas
 function drawPlayerShield(ctx: CanvasRenderingContext2D, s: GameState): void {
   const charges = s.player.shieldCharges || 0;
   if (charges <= 0 || s.player.shieldTimer <= 0) return;
-  const pulse = 1 + Math.sin(RENDER_TIME * 125) * 0.035;
-  ctx.save(); ctx.translate(s.player.pos.x, s.player.pos.y); ctx.scale(pulse, pulse);
-  ctx.shadowColor = '#63e6ff'; ctx.shadowBlur=10; ctx.strokeStyle = 'rgba(99,230,255,0.72)';
-  ctx.lineWidth = 2.2; ctx.setLineDash([10,7]); ctx.beginPath(); ctx.arc(0,0,34,0,Math.PI*2); ctx.stroke(); ctx.setLineDash([]);
-  ctx.strokeStyle = 'rgba(225,251,255,0.82)'; ctx.lineWidth = 1;
-  for(let i=0;i<charges;i++){const a=-Math.PI/2+i*Math.PI*2/Math.max(1,charges);ctx.beginPath();ctx.moveTo(Math.cos(a)*29,Math.sin(a)*29);ctx.lineTo(Math.cos(a)*38,Math.sin(a)*38);ctx.stroke();}
-  ctx.shadowBlur=0; ctx.fillStyle='#dffaff'; ctx.font='bold 9px system-ui,sans-serif'; ctx.textAlign='center'; ctx.fillText(String(charges),0,3); ctx.restore();
+
+  const pulse = 1 + Math.sin(RENDER_TIME * 8) * 0.035;
+  const radius = PLAYER_RADIUS * 1.38;
+  ctx.save();
+  ctx.translate(s.player.pos.x, s.player.pos.y);
+  ctx.scale(pulse, pulse);
+  ctx.globalCompositeOperation = 'source-over';
+
+  // Production shield: solid energy shell, not the old dashed status ring.
+  ctx.fillStyle = 'rgba(64,214,255,0.10)';
+  ctx.strokeStyle = 'rgba(99,230,255,0.92)';
+  ctx.lineWidth = 2.4;
+  ctx.beginPath();
+  for (let i = 0; i < 8; i++) {
+    const a = -Math.PI / 8 + i * Math.PI / 4 + Math.sin(RENDER_TIME * 1.8) * 0.03;
+    const rr = radius * (1 + Math.sin(RENDER_TIME * 4 + i) * 0.012);
+    const x = Math.cos(a) * rr;
+    const y = Math.sin(a) * rr * 0.88;
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.strokeStyle = 'rgba(225,251,255,0.72)';
+  ctx.lineWidth = 1.1;
+  ctx.beginPath();
+  ctx.arc(0, 0, radius * 0.86, 0, Math.PI * 2);
+  ctx.stroke();
+
+  for (let i = 0; i < charges; i++) {
+    const a = -Math.PI / 2 + i * Math.PI * 2 / Math.max(1, charges) + RENDER_TIME * 0.45;
+    ctx.fillStyle = '#dffaff';
+    ctx.beginPath();
+    ctx.arc(Math.cos(a) * radius, Math.sin(a) * radius * 0.88, 3.2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.fillStyle = '#dffaff';
+  ctx.font = 'bold 9px system-ui,sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(String(charges), 0, 3);
+  ctx.restore();
 }
 
 function drawStellaChest(ctx: CanvasRenderingContext2D, chest: ChestEntity): void {
@@ -1226,6 +1274,34 @@ function drawPlayer(ctx: CanvasRenderingContext2D, p: PlayerState): void {
   if (id === 'spherist') {
     const animState = getSpheristAnimationState(p);
     const animFrame = getSpheristAnimationFrame(animState);
+    const deathProgress = animState === 'death'
+      ? Math.min(1, Math.max(0, 1 - p.deathTimer / 0.90))
+      : 0;
+
+    let spriteScale = pulse;
+    let spriteRotation = Math.sin(t * 0.7) * 0.018;
+    let spriteOpacity = 1;
+
+    if (animState === 'move') {
+      // Make movement readable even on small phone screens:
+      // directional lean + squash/stretch + vertical bob.
+      const dt = SPHERIST_LAST_TIME >= 0 ? Math.max(0.001, RENDER_TIME - SPHERIST_LAST_TIME) : 0.016;
+      const vx = (p.pos.x - SPHERIST_LAST_X) / dt;
+      const intensity = Math.min(1, Math.hypot(vx, (p.pos.y - SPHERIST_LAST_Y) / dt) / 0.35);
+      spriteRotation += Math.max(-0.12, Math.min(0.12, vx * 0.035));
+      spriteScale *= 1 + Math.sin(t * 18) * 0.035 * intensity;
+      ctx.translate(0, Math.sin(t * 14) * 1.8 * intensity);
+    }
+
+    if (animState === 'death') {
+      // Death must read during the 0.90 sec presentation window.
+      spriteRotation += deathProgress * Math.PI * 1.15;
+      spriteScale *= 1 - deathProgress * 0.42;
+      spriteOpacity = 1 - deathProgress * 0.78;
+      ctx.translate(0, -deathProgress * r * 0.16);
+    }
+
+    ctx.scale(spriteScale, spriteScale);
     const drawn = drawReferenceSprite(
       ctx,
       'player-spherist-sheet',
@@ -1233,12 +1309,29 @@ function drawPlayer(ctx: CanvasRenderingContext2D, p: PlayerState): void {
       0,
       r * 2.9,
       color,
-      Math.sin(t * 0.7) * 0.018,
-      1,
+      spriteRotation,
+      spriteOpacity,
       animFrame,
       12,
     );
     if (drawn) {
+      if (animState === 'death') {
+        const fade = 1 - deathProgress;
+        ctx.save();
+        ctx.globalAlpha = fade * 0.75;
+        ctx.strokeStyle = 'rgba(' + rgb + ',.9)';
+        ctx.lineWidth = 1.6;
+        for (let i = 0; i < 8; i++) {
+          const a = i * Math.PI / 4 + deathProgress * 0.8;
+          const inner = r * (0.35 + deathProgress * 0.25);
+          const outer = r * (0.9 + deathProgress * 0.65);
+          ctx.beginPath();
+          ctx.moveTo(Math.cos(a) * inner, Math.sin(a) * inner);
+          ctx.lineTo(Math.cos(a) * outer, Math.sin(a) * outer);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
       ctx.restore();
       drawCharacterVfx(ctx, p);
       return;
