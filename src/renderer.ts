@@ -2515,7 +2515,7 @@ function drawSniperMutationVfx(ctx: CanvasRenderingContext2D, game: GameState, s
       ctx.beginPath(); ctx.moveTo(r * 0.38, y); ctx.lineTo(r * 1.46, y); ctx.stroke();
     }
   }
-  if ((mods.crit || 0) > 0) {
+  if (tier >= 3) {
     ctx.strokeStyle = `rgba(255,238,255,${0.28 + pulse * 0.26})`;
     ctx.lineWidth = 1;
     ctx.beginPath(); ctx.arc(0, 0, r * 1.72, -0.24, 0.24); ctx.stroke();
