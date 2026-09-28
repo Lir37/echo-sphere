@@ -51,4 +51,16 @@
 <!-- small authored highlights -->
 <path d="M112 28 123 45 112 58 101 45Z" fill="#efffff"/>
 <path d="M146 222 136 207 147 197 157 210Z" fill="#bcefff"/>
+<!-- fine authored 3/4 facet pass -->
+<g fill="none" stroke="#d7faff" stroke-opacity=".20" stroke-width="1">
+  <path d="M98 78 L123 92 L145 82"/>
+  <path d="M78 113 L105 127 L92 146"/>
+  <path d="M156 113 L137 128 L153 144"/>
+  <path d="M100 178 L123 164 L145 177"/>
+</g>
+<g fill="#efffff" opacity=".58">
+  <path d="M88 84 l5 -4 5 4 -5 4z"/>
+  <path d="M154 87 l4 -3 5 3 -5 4z"/>
+  <path d="M91 171 l4 -3 4 3 -4 4z"/>
+</g>
 </svg>
