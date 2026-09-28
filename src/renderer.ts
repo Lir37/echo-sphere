@@ -2398,6 +2398,132 @@ function drawStandardMutationVfx(ctx: CanvasRenderingContext2D, game: GameState,
 }
 
 
+function drawSniperMutationVfx(ctx: CanvasRenderingContext2D, game: GameState, sphere: SphereEntity, r: number, time: number): void {
+  const rgb = hexToRgb(SPHERE_TYPES.sniper.color);
+  const mods = game.player.sphereMods;
+  const branch = game.player.sphereBranches?.sniper;
+  const tier = Math.max(0, sphere.visualTier || 0);
+  const finalId = (game.player.evolutions || []).find((id: string) => id.startsWith('sphere:sniper:7:'));
+  const finalIndex = finalId ? Number(finalId.split(':').pop()) : -1;
+  const pulse = 0.72 + Math.sin(time * 3.8 + sphere.pos.y * 0.01) * 0.28;
+
+  ctx.save();
+  ctx.translate(sphere.pos.x, sphere.pos.y);
+  ctx.globalCompositeOperation = 'lighter';
+
+  if (tier > 0) {
+    const ticks = Math.min(7, tier);
+    for (let i = 0; i < ticks; i++) {
+      const a = -Math.PI * 0.82 + i * (Math.PI * 1.64 / Math.max(1, ticks - 1));
+      const px = Math.cos(a) * r * 1.48;
+      const py = Math.sin(a) * r * 1.05;
+      ctx.fillStyle = 'rgba(248,224,255,0.72)';
+      ctx.beginPath();
+      ctx.moveTo(px, py - 2.2); ctx.lineTo(px + 2.2, py); ctx.lineTo(px, py + 2.2); ctx.lineTo(px - 2.2, py);
+      ctx.closePath(); ctx.fill();
+    }
+  }
+
+  if (branch === 'sniper_oracle') {
+    for (let i = 0; i < 2; i++) {
+      const q = (time * 0.48 + i * 0.5) % 1;
+      ctx.strokeStyle = `rgba(246,210,255,${0.34 + 0.18 * (1 - q)})`;
+      ctx.lineWidth = 1.05;
+      ctx.beginPath();
+      ctx.arc(0, 0, r * (1.12 + q * 0.70), -0.42, 0.42);
+      ctx.stroke();
+    }
+  } else if (branch === 'sniper_assassin') {
+    ctx.strokeStyle = `rgba(214,108,255,${0.55 + Math.sin(time * 2.4) * 0.08})`;
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.arc(0, 0, r * 1.38, time * 0.42, time * 0.42 + 1.7);
+    ctx.stroke();
+    ctx.fillStyle = `rgba(255,154,232,${0.32 + pulse * 0.3})`;
+    for (let i = 0; i < 3; i++) {
+      const a = time * 0.8 + i * Math.PI * 2 / 3;
+      ctx.beginPath();
+      ctx.arc(Math.cos(a) * r * 1.32, Math.sin(a) * r * 0.92, 1.7, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  } else if (branch === 'sniper_beacon') {
+    for (let i = 0; i < 3; i++) {
+      const q = (time * 0.42 + i / 3) % 1;
+      ctx.strokeStyle = `rgba(185,236,255,${0.24 * (1 - q)})`;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(0, 0, r * (1.18 + q * 0.92), 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    ctx.fillStyle = `rgba(210,250,255,${0.42 + pulse * 0.26})`;
+    ctx.beginPath(); ctx.arc(r * 1.45, 0, 2.2, 0, Math.PI * 2); ctx.fill();
+  }
+
+  if (finalIndex === 0) {
+    ctx.strokeStyle = 'rgba(255,232,255,0.62)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(0, 0, r * 1.34, -0.7, 0.7); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(r * 1.18, -r * 0.16); ctx.lineTo(r * 1.62, -r * 0.16); ctx.stroke();
+  } else if (finalIndex === 1) {
+    ctx.strokeStyle = 'rgba(255,145,226,0.56)';
+    ctx.lineWidth = 1.2;
+    for (let i = 0; i < 3; i++) {
+      const a = time * 0.36 + i * Math.PI * 2 / 3;
+      ctx.beginPath();
+      ctx.moveTo(Math.cos(a) * r * 1.06, Math.sin(a) * r * 0.76);
+      ctx.lineTo(Math.cos(a) * r * 1.56, Math.sin(a) * r * 1.04);
+      ctx.stroke();
+    }
+  } else if (finalIndex === 2) {
+    ctx.strokeStyle = 'rgba(194,246,255,0.60)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i < 4; i++) {
+      const a = i * Math.PI / 2 + time * 0.24;
+      const x = Math.cos(a) * r * 1.52, y = Math.sin(a) * r;
+      ctx.beginPath(); ctx.moveTo(x, y - 3.4); ctx.lineTo(x + 3.4, y); ctx.lineTo(x, y + 3.4); ctx.lineTo(x - 3.4, y); ctx.closePath(); ctx.stroke();
+    }
+  }
+
+  if ((mods.pierce || 0) > 0) {
+    ctx.strokeStyle = 'rgba(241,222,255,0.58)';
+    ctx.lineWidth = 0.9;
+    ctx.beginPath(); ctx.moveTo(-r * 1.58, 0); ctx.lineTo(r * 1.62, 0); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(r * 1.62, 0); ctx.lineTo(r * 1.42, -r * 0.12); ctx.moveTo(r * 1.62, 0); ctx.lineTo(r * 1.42, r * 0.12); ctx.stroke();
+  }
+  if ((mods.ricochet || 0) > 0) {
+    ctx.strokeStyle = 'rgba(183,142,255,0.58)';
+    ctx.lineWidth = 0.9;
+    ctx.beginPath(); ctx.arc(0, 0, r * 1.58, -0.75, 0.62); ctx.stroke();
+  }
+  const status = [
+    { on: mods.fire, color: '255,116,61', angle: -0.95 },
+    { on: mods.freeze, color: '191,244,255', angle: 2.75 },
+    { on: mods.poison, color: '109,240,169', angle: 1.02 },
+  ];
+  for (const fx of status) {
+    if (!fx.on) continue;
+    const a = fx.angle + time * 0.36;
+    const x = Math.cos(a) * r * 1.52, y = Math.sin(a) * r * 1.02;
+    ctx.fillStyle = `rgba(${fx.color},0.72)`;
+    ctx.beginPath(); ctx.moveTo(x, y - 3.2); ctx.lineTo(x + 3.0, y); ctx.lineTo(x, y + 3.2); ctx.lineTo(x - 3.0, y); ctx.closePath(); ctx.fill();
+  }
+  const extraShots = Math.min(3, Math.max(0, mods.multishot || 0));
+  if (extraShots > 0) {
+    ctx.strokeStyle = 'rgba(244,220,255,0.30)';
+    ctx.lineWidth = 0.8;
+    for (let i = 0; i < extraShots; i++) {
+      const y = (i - (extraShots - 1) / 2) * r * 0.28;
+      ctx.beginPath(); ctx.moveTo(r * 0.38, y); ctx.lineTo(r * 1.46, y); ctx.stroke();
+    }
+  }
+  if ((mods.crit || 0) > 0) {
+    ctx.strokeStyle = `rgba(255,238,255,${0.28 + pulse * 0.26})`;
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(0, 0, r * 1.72, -0.24, 0.24); ctx.stroke();
+  }
+  ctx.restore();
+}
+
 function spheresVisualMultishot(sphere: SphereEntity, s: GameState): number {
   const level=sphere.visualTier||0;
   const base=s.player.sphereMods?.multishot||0;
