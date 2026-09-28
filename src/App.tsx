@@ -246,7 +246,7 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
         if (ENABLE_3D_RENDERER && renderer3dRef.current) {
           renderer3dRef.current.render(st);
         } else if (canvas && ctx) {
-          render(ctx, st, canvas.width, canvas.height);
+          render(ctx, st, Math.min(window.innerWidth, 1280), Math.min(window.innerHeight, 800));
         }
 
         // Simulation/rendering stays frame-rate independent from React UI.
@@ -275,10 +275,16 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
     <div className="es-game-screen relative w-full h-screen flex items-center justify-center" style={{ touchAction: 'none' }}>
       <canvas
         ref={canvasRef}
-        width={Math.min(window.innerWidth, 1280)}
-        height={Math.min(window.innerHeight, 800)}
+        width={Math.round(Math.min(window.innerWidth, 1280) * Math.min(2, Math.max(1, window.devicePixelRatio || 1)))}
+        height={Math.round(Math.min(window.innerHeight, 800) * Math.min(2, Math.max(1, window.devicePixelRatio || 1)))}
         className="max-w-full max-h-full select-none"
-        style={{ touchAction: 'none', userSelect: 'none', WebkitUserSelect: 'none' }}
+        style={{
+          width: Math.min(window.innerWidth, 1280),
+          height: Math.min(window.innerHeight, 800),
+          touchAction: 'none',
+          userSelect: 'none',
+          WebkitUserSelect: 'none',
+        }}
       />
 
       {st && !gameOverData && (
