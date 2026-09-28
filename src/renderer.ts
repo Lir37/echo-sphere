@@ -21,7 +21,7 @@ const VOID_PANEL = '#080d1b';
 const MUTATION_COLORS = ['#6eeaff', '#9b7cff', '#d86cff', '#55e6c1', '#b9a7ff'];
 
 type ArtKey =
-  | 'player' | 'player-spherist' | 'player-spherist-side'
+  | 'player' | 'player-spherist' | 'player-spherist-side' | 'player-spherist-shield'
   | 'sphere-standard' | 'sphere-sniper' | 'sphere-shotgun' | 'sphere-chain' | 'sphere-aura'
   | 'sphere-orbital' | 'sphere-prism' | 'sphere-gravity' | 'sphere-pulse' | 'sphere-void'
   | 'enemy-skitter' | 'enemy-fast' | 'enemy-tank' | 'enemy-moth'
@@ -29,8 +29,9 @@ type ArtKey =
 
 const ART_PATHS: Record<ArtKey, string> = {
   player: '/art/player.svg',
-  'player-spherist': '/art/spherist-reference-front.webp',
-  'player-spherist-side': '/art/spherist-reference-3q.webp',
+  'player-spherist-shield': '/art/spherist-shield-reference.png',
+  'player-spherist': '/art/spherist.svg',
+  'player-spherist-side': '/art/spherist-turnaround-3q.png',
   'sphere-standard': '/art/standard.svg',
   'sphere-sniper': '/art/sniper.svg',
   'sphere-shotgun': '/art/shotgun.svg',
@@ -418,6 +419,15 @@ function drawPlayerShield(ctx: CanvasRenderingContext2D, s: GameState): void {
   ctx.scale(pulse, pulse);
   ctx.globalCompositeOperation = 'source-over';
 
+  if (getCharacterId(s) === 'spherist') {
+    const drawn = drawReferenceSprite(ctx, 'player-spherist-shield', 0, 0, radius * 2.45, '#63e6ff', 0, 0.92);
+    if (drawn) {
+      ctx.restore();
+      return;
+    }
+  }
+
+  // Authored reference shield is the Spherist source; Canvas shell remains the fallback.
   // Production shield: solid energy shell, not the old dashed status ring.
   ctx.fillStyle = 'rgba(64,214,255,0.10)';
   ctx.strokeStyle = 'rgba(99,230,255,0.92)';
@@ -1264,9 +1274,9 @@ function drawPlayer(ctx: CanvasRenderingContext2D, p: PlayerState): void {
     // Do not fake the side view with 2D shear/scale. The side silhouette is
     // an authored production asset, matching the turnaround reference.
     const viewKey: ArtKey = moving ? 'player-spherist-side' : 'player-spherist';
-    const viewScale = moving ? 1.02 + Math.sin(t * 12) * 0.012 * movingIntensity : 1;
-    const viewBob = moving ? Math.sin(t * 13) * 1.2 * movingIntensity : 0;
-    const viewRotation = moving ? Math.sin(t * 9) * 0.018 * movingIntensity : Math.sin(t * 0.7) * 0.012;
+    const viewScale = 1;
+    const viewBob = 0;
+    const viewRotation = 0;
 
     if (animState === 'death') {
       const deathProgress = Math.min(1, Math.max(0, 1 - p.deathTimer / 0.90));

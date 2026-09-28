@@ -2156,3 +2156,21 @@ NEXT:
 - CI and APK PlayerCheck.
 - Verify idle/front and move/3/4 directly against the production sheet.
 - If accepted, do not redraw the Spherist again. Continue from the same reference source for BACK, SHIELD, ATTACK, HIT and DEATH only where the sheet provides the corresponding authored frames/layers.
+
+
+[2026-09-28] 2D/2.5D PRODUCTION ASSET PASS #8 — SPHERIST VISIBILITY FIX + AUTHORED SHIELD
+
+PLAYER FEEDBACK:
+- APK PlayerCheck showed the Spherist was invisible except for the ground shadow after the WebP reference assets were introduced.
+- User requested the Shield be taken directly from the approved production reference instead of continuing with a separately redrawn shield.
+
+IMPLEMENTED:
+- Restored the already working `public/art/spherist.svg` as the idle/front runtime asset.
+- Replaced the failing WebP MOVE asset with a transparent PNG crop of the exact 3/4 turnaround view from the approved production sheet.
+- Removed remaining fake MOVE transforms so the 3/4 crop is displayed as authored.
+- Added a transparent PNG crop of the exact labeled Shield VFX image from the approved production sheet.
+- Spherist SHIELD now prioritizes that authored reference image; the existing Canvas shell remains only as a fallback while the image is unavailable.
+- No gameplay, Network or Sphere mechanics changed.
+
+NEXT:
+- CI and APK PlayerCheck: visible idle/front, visible 3/4 move in both directions, authored Shield reference visible during Shield state.
