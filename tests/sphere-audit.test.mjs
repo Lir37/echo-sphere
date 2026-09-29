@@ -77,7 +77,8 @@ for (const type of ['prism','gravity','pulse','void']) {
 assert.match(renderer, /renderOrbitalSphereRuntimeVfx/, 'Orbital dedicated visual module is not integrated');
 assert.match(read('src/spheres/orbitalVisual.ts'), /createRadialGradient/, 'Orbital vector glow missing');
 assert.match(renderer, /drawStandardSphereAssembly/, 'Standard layered visual assembly is missing');
-assert.match(renderer, /sphere-standard-(upper-crystal|panels|core|ring|lower-crystal)/, 'Standard production layers are not integrated');
+assert.match(renderer, /sphere-standard-(upper-crystal|core|ring|lower-crystal)/, 'Standard production layers are not integrated');
+assert.doesNotMatch(renderer, /sphere-standard-panels|external-panels\.png/, 'Obsolete Standard reference-panel image remains wired into runtime');
 assert.doesNotMatch(renderer, /['\"]sphere-standard['\"]\s*:\s*['\"]\/art\/standard\.svg/, 'Full Standard reference sticker is still wired into the renderer');
 assert.doesNotMatch(renderer, /drawOrbitalSatelliteArt|drawSphereCoreArt/, 'Legacy procedural Orbital visual remains in renderer');
 assert.match(renderer, /sphere\.type === 'orbital'[\s\S]*satelliteCount/, 'Orbital satellite visuals missing');
