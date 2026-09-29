@@ -15,6 +15,7 @@ import {
   MAP_THEMES, type MapTheme,
 } from './engine';
 import { render } from './renderer';
+import { installCanvasResolutionPolicy } from './renderScale';
 import { createEcho3DRenderer, type Echo3DRenderer } from './visual3d';
 import { analyzeSphereNetwork } from './network';
 import { ARTIFACT_META, RARITY_LABELS, artifactRarity, getActiveArtifactSynergies, getArtifactSynergiesAfterPick, ARTIFACT_SYNERGIES, getArtifactSetProgress, getArtifactProtocolStates } from './artifactSystem';
@@ -201,7 +202,9 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
     stateRef.current = s;
 
     const canvas = canvasRef.current;
-    const ctx = canvas?.getContext('2d') ?? null;
+    if (!canvas) return;
+    const stopCanvasResolutionPolicy = installCanvasResolutionPolicy(canvas);
+    const ctx = canvas.getContext('2d') ?? null;
     if (canvas && ENABLE_3D_RENDERER) renderer3dRef.current = createEcho3DRenderer(canvas);
 
     lastTimeRef.current = performance.now();
@@ -246,7 +249,7 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
         if (ENABLE_3D_RENDERER && renderer3dRef.current) {
           renderer3dRef.current.render(st);
         } else if (canvas && ctx) {
-          render(ctx, st, Math.min(window.innerWidth, 1280), Math.min(window.innerHeight, 800));
+          render(ctx, st, canvas.width, canvas.height);
         }
 
         // Simulation/rendering stays frame-rate independent from React UI.
@@ -265,6 +268,7 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
       cancelAnimationFrame(rafRef.current);
       renderer3dRef.current?.dispose();
       renderer3dRef.current = null;
+      stopCanvasResolutionPolicy();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -275,12 +279,8 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
     <div className="es-game-screen relative w-full h-screen flex items-center justify-center" style={{ touchAction: 'none' }}>
       <canvas
         ref={canvasRef}
-        width={Math.round(Math.min(window.innerWidth, 1280) * Math.min(2, Math.max(1, window.devicePixelRatio || 1)))}
-        height={Math.round(Math.min(window.innerHeight, 800) * Math.min(2, Math.max(1, window.devicePixelRatio || 1)))}
-        className="max-w-full max-h-full select-none"
+        className="w-full h-full max-w-[1280px] max-h-[800px] select-none"
         style={{
-          width: Math.min(window.innerWidth, 1280),
-          height: Math.min(window.innerHeight, 800),
           touchAction: 'none',
           userSelect: 'none',
           WebkitUserSelect: 'none',

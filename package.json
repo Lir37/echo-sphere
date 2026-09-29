@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
     "test": "node --experimental-strip-types --test tests/*.test.mjs",
-    "audit:gameplay": "node scripts/audit-gameplay.mjs"
+    "audit:gameplay": "node scripts/audit-gameplay.mjs",
+    "check-assets": "node scripts/check-assets.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.2",

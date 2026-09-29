@@ -9,7 +9,8 @@ import { getNetworkFrame } from './engineRuntime';
 import { RUNE_DEFS } from './runes';
 import { BOSS_TELEGRAPH_WINDOWS } from './bossBalance';
 import { LINK_BREAKER_TELEGRAPH_SECONDS, LINK_BREAKER_DISABLED_SECONDS } from './eliteBalance';
-import { renderOrbitalSphereRuntimeVfx } from './orbitalSphereCanvas';
+import { renderOrbitalSphereRuntimeVfx } from './spheres/orbitalVisual';
+import { getRenderViewport } from './renderScale';
 
 // ===== Origami / Paper Craft Style =====
 // Warm backgrounds, faceted folded-paper shapes, fold lines, drop shadows.
@@ -23,19 +24,18 @@ const MUTATION_COLORS = ['#6eeaff', '#9b7cff', '#d86cff', '#55e6c1', '#b9a7ff'];
 
 type ArtKey =
   | 'player' | 'player-spherist' | 'player-spherist-side' | 'player-spherist-shield'
-  | 'sphere-standard' | 'sphere-standard-upper-crystal' | 'sphere-standard-panels' | 'sphere-standard-core' | 'sphere-standard-ring' | 'sphere-standard-lower-crystal'
+  | 'sphere-standard-upper-crystal' | 'sphere-standard-panels' | 'sphere-standard-core' | 'sphere-standard-ring' | 'sphere-standard-lower-crystal'
   | 'sphere-sniper' | 'sphere-shotgun' | 'sphere-chain' | 'sphere-aura'
-  | 'sphere-orbital' | 'sphere-orbital-idle' | 'sphere-prism' | 'sphere-gravity' | 'sphere-pulse' | 'sphere-void'
+  | 'sphere-orbital' | 'sphere-prism' | 'sphere-gravity' | 'sphere-pulse' | 'sphere-void'
   | 'enemy-skitter' | 'enemy-fast' | 'enemy-tank' | 'enemy-moth'
   | 'boss';
 
 const ART_PATHS: Record<ArtKey, string> = {
   player: '/art/player.svg',
-  'player-spherist-shield': '/art/spherist-shield-reference-96.png',
+  'player-spherist-shield': '/art/spherist-shield-96.png',
   'player-spherist': '/art/spherist-hybrid-front.svg',
   'player-spherist-side': '/art/spherist-hybrid-3q.svg',
   // Standard Sphere is assembled from transparent production parts, never from a full-sheet sprite.
-  'sphere-standard': '/art/standard.svg',
   'sphere-standard-upper-crystal': '/art/standard-sphere/upper-crystal.png',
   'sphere-standard-panels': '/art/standard-sphere/external-panels.png',
   'sphere-standard-core': '/art/standard-sphere/energy-core.png',
@@ -46,7 +46,6 @@ const ART_PATHS: Record<ArtKey, string> = {
   'sphere-chain': '/art/chain.svg',
   'sphere-aura': '/art/aura.svg',
   'sphere-orbital': '/art/orbital.svg',
-  'sphere-orbital-idle': '/art/orbital-idle-sheet-10x256.png',
   'sphere-prism': '/art/prism.svg',
   'sphere-gravity': '/art/gravity.svg',
   'sphere-pulse': '/art/pulse.svg',
@@ -59,88 +58,45 @@ const ART_PATHS: Record<ArtKey, string> = {
 };
 
 const ART_CACHE = new Map<ArtKey, HTMLImageElement>();
-const ART_B64_LOADING = new Set<ArtKey>();
-const ART_REFERENCE_B64_PATHS: Partial<Record<ArtKey, string>> = {};
 
 let RENDER_TIME = 0;
 let RENDER_COST_MS = 0;
 let RENDER_LAST_LOG = -10;
 
-function getReferenceArt(key: ArtKey): HTMLImageElement | null {
+function getArtImage(key: ArtKey): HTMLImageElement | null {
   const cached = ART_CACHE.get(key);
   if (cached) return cached.complete && cached.naturalWidth > 0 ? cached : null;
-
   const image = new Image();
   image.decoding = 'async';
   ART_CACHE.set(key, image);
-
-  const path = ART_REFERENCE_B64_PATHS[key] || ART_PATHS[key];
-  if (path.endsWith('.b64.txt')) {
-    ART_B64_LOADING.add(key);
-    fetch(path)
-      .then((response) => response.text())
-      .then((base64) => { image.src = `data:image/png;base64,${base64.trim()}`; })
-      .catch(() => { ART_B64_LOADING.delete(key); });
-  } else {
-    image.src = path;
-  }
+  image.src = ART_PATHS[key];
   return null;
 }
 
-function drawReferenceSprite(
+function drawArtSprite(
   ctx: CanvasRenderingContext2D,
   key: ArtKey,
   x: number,
   y: number,
   size: number,
-  color: string,
   rotation = 0,
   opacity = 1,
-  frame = 0,
-  frameCount = 1,
 ): boolean {
-  const image = getReferenceArt(key);
+  const image = getArtImage(key);
   if (!image) return false;
-
   ctx.save();
   ctx.translate(x, y);
   ctx.rotate(rotation);
   ctx.globalAlpha = opacity;
-
-  // The artwork carries the silhouette. Canvas supplies only restrained runtime VFX.
-  ctx.shadowColor = color;
-  ctx.shadowBlur=0;
-  if (frameCount > 1) {
-    // Android WebView can crop wide SVG sprite sheets inconsistently when
-    // drawImage(sourceRect) is used directly. Clip the destination frame
-    // and draw the full sheet instead, keeping frame boundaries exact.
-    const safeFrame = Math.max(0, Math.min(frameCount - 1, Math.floor(frame)));
-    const frameSize = size;
-    const sheetWidth = frameSize * frameCount;
-    ctx.beginPath();
-    ctx.rect(-frameSize / 2, -frameSize / 2, frameSize, frameSize);
-    ctx.clip();
-    ctx.drawImage(
-      image,
-      -frameSize / 2 - safeFrame * frameSize,
-      -frameSize / 2,
-      sheetWidth,
-      frameSize,
-    );
-  } else {
-    const iw = Math.max(1, image.naturalWidth);
-    const ih = Math.max(1, image.naturalHeight);
-    const scale = Math.min(size / iw, size / ih);
-    const dw = iw * scale;
-    const dh = ih * scale;
-    ctx.drawImage(image, -dw / 2, -dh / 2, dw, dh);
-  }
-  ctx.shadowBlur=0;
-
+  const iw = Math.max(1, image.naturalWidth);
+  const ih = Math.max(1, image.naturalHeight);
+  const imageScale = Math.min(size / iw, size / ih);
+  const dw = iw * imageScale;
+  const dh = ih * imageScale;
+  ctx.drawImage(image, -dw / 2, -dh / 2, dw, dh);
   ctx.restore();
   return true;
 }
-
 
 type StandardSpherePartKey =
   | 'sphere-standard-upper-crystal'
@@ -160,7 +116,7 @@ function drawStandardSpherePart(
   mirrorX = false,
   mirrorY = false,
 ): boolean {
-  const image = getReferenceArt(key);
+  const image = getArtImage(key);
   if (!image) return false;
   const iw = Math.max(1, image.naturalWidth);
   const ih = Math.max(1, image.naturalHeight);
@@ -374,15 +330,17 @@ const THEMES: Record<MapTheme, Theme> = {
   },
 };
 
-export function render(ctx: CanvasRenderingContext2D, s: GameState, canvasW: number, canvasH: number): void {
+export function render(ctx: CanvasRenderingContext2D, s: GameState, backingWidth: number, backingHeight: number): void {
+  const viewport = getRenderViewport(ctx.canvas, backingWidth, backingHeight);
+  const canvasW = viewport.cssWidth;
+  const canvasH = viewport.cssHeight;
   const renderStarted = performance.now();
   RENDER_TIME = s.time;
   const theme = THEMES[s.mapTheme] || THEMES.parchment;
 
   // ===== Base background =====
-  // Use logical CSS coordinates on a capped high-density backing store for sharper mobile rendering.
-  const pixelRatio = Math.max(1, Math.min(2, ctx.canvas.width / Math.max(1, canvasW)));
-  ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+  // renderScale.ts owns the CSS/backing-store conversion. Renderer only consumes its result.
+  ctx.setTransform(viewport.dpr, 0, 0, viewport.dpr, 0, 0);
   const bg = ctx.createRadialGradient(canvasW * 0.5, canvasH * 0.46, 0, canvasW * 0.5, canvasH * 0.46, Math.max(canvasW, canvasH) * 0.72);
   bg.addColorStop(0, theme.bg);
   bg.addColorStop(0.68, theme.bgDark);
@@ -623,7 +581,7 @@ function drawPlayerShield(ctx: CanvasRenderingContext2D, s: GameState): void {
   ctx.globalCompositeOperation = 'source-over';
 
   if (getCharacterId(s) === 'spherist') {
-    const drawn = drawReferenceSprite(ctx, 'player-spherist-shield', 0, 0, radius * 2.20, '#63e6ff', 0, 0.92);
+    const drawn = drawArtSprite(ctx, 'player-spherist-shield', 0, 0, radius * 2.20, '#63e6ff', 0, 0.92);
     if (drawn) {
       ctx.restore();
       return;
@@ -1522,7 +1480,7 @@ function drawPlayer(ctx: CanvasRenderingContext2D, p: PlayerState): void {
         0,
       );
       ctx.scale(pulse * (1 - fold * 0.18), pulse * (1 - fold * 0.18));
-      const drawn = drawReferenceSprite(ctx, 'player-spherist', 0, 0, r * 2.9, color, viewRotation + fold * 0.25, 1 - deathProgress * 0.92);
+      const drawn = drawArtSprite(ctx, 'player-spherist', 0, 0, r * 2.9, color, viewRotation + fold * 0.25, 1 - deathProgress * 0.92);
       if (drawn) {
         const fragmentProgress = Math.max(0, (deathProgress - 0.22) / 0.78);
         ctx.save();
@@ -1552,7 +1510,7 @@ function drawPlayer(ctx: CanvasRenderingContext2D, p: PlayerState): void {
       ctx.translate(0, viewBob);
       ctx.scale(pulse * viewScale, pulse * viewScale);
       if (moving && movingRight) ctx.scale(-1, 1);
-      const drawn = drawReferenceSprite(ctx, viewKey, 0, 0, r * 2.9, color, viewRotation, 1);
+      const drawn = drawArtSprite(ctx, viewKey, 0, 0, r * 2.9, color, viewRotation, 1);
       if (drawn) {
         // Small authored VFX accents. The character asset remains untouched and readable.
         ctx.save();
@@ -2145,13 +2103,6 @@ function drawSphereVfx(ctx: CanvasRenderingContext2D, sphere: SphereEntity, colo
       ctx.fillStyle = `rgba(87,230,180,${0.24 + 0.12 * pulse})`;
       ctx.beginPath(); ctx.arc(Math.cos(a) * rr, Math.sin(a) * rr * 0.45, 2.2, 0, Math.PI * 2); ctx.fill();
     }
-  } else if (sphere.type === 'orbital') {
-    const n = Math.max(1, 1 + (sphere.visualTier || 0));
-    for (let i = 0; i < Math.min(n, 7); i++) {
-      const a = sphere.rotation + time * 0.5 + i * Math.PI * 2 / Math.min(n, 7);
-      ctx.fillStyle = `rgba(142,240,255,${0.24 + 0.10 * pulse})`;
-      ctx.beginPath(); ctx.arc(Math.cos(a) * r * 2.1, Math.sin(a) * r * 1.05, 1.8, 0, Math.PI * 2); ctx.fill();
-    }
   } else if (sphere.type === 'prism') {
     for (let i = 0; i < 3; i++) {
       const a = time * 1.5 + i * Math.PI * 2 / 3;
@@ -2485,41 +2436,17 @@ function drawModernSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: S
   }
 
   if (sphere.type === 'orbital') {
-    // Orbital's authored sheet is larger than the 24px gameplay core:
-    // the orbit is a weapon silhouette, not a decorative halo.
+    // Orbital is assembled from the authored shell + runtime satellites.
+    // The old idle sheet was removed because it was not a production-quality asset.
     const orbitalCoreScale = r / 24;
     const spriteSize = r * 10.24;
-    const frame = Math.floor((time * 10.0) % 10);
     const bob = Math.sin(time * 1.4 + sphere.pos.x * 0.008) * 0.45;
-    const drawn = drawReferenceSprite(
-      ctx,
-      'sphere-orbital-idle',
-      sphere.pos.x,
-      sphere.pos.y + bob,
-      spriteSize,
-      def.color,
-      0,
-      1,
-      frame,
-      10,
-    );
-    if (!drawn) {
-      const fallback = drawReferenceSprite(
-        ctx,
-        'sphere-orbital',
-        sphere.pos.x,
-        sphere.pos.y + bob,
-        spriteSize,
-        def.color,
-      );
-      if (!fallback) drawSphereCoreArt(ctx, s, sphere, def.color, r, time);
-    }
+    drawArtSprite(ctx, 'sphere-orbital', sphere.pos.x, sphere.pos.y + bob, spriteSize);
     renderOrbitalSphereRuntimeVfx(ctx, sphere, s.player, time, orbitalCoreScale, s.enemies);
     drawNetworkDisabledIndicator(ctx, sphere, time);
     return;
   }
 
-  drawSphereCoreArt(ctx,s,sphere,def.color,r,time);
   drawNetworkDisabledIndicator(ctx,sphere,time);
   drawSphereVfx(ctx,sphere,def.color,r,time);
 }
@@ -2903,7 +2830,7 @@ function drawModernSphere_DEPRECATED(ctx: CanvasRenderingContext2D, s: GameState
   drawGroundShadow(ctx, r * 0.90, r * 0.24, 6);
   drawNetworkDisabledIndicator(ctx, sphere, time);
 
-  const drawn = drawReferenceSprite(ctx, artKey, 0, -r * 0.14, r * 3.15, color, Math.sin(time * 0.7 + sphere.pos.x * 0.01) * 0.025);
+  const drawn = drawArtSprite(ctx, artKey, 0, -r * 0.14, r * 3.15, color, Math.sin(time * 0.7 + sphere.pos.x * 0.01) * 0.025);
   if (drawn) {
     // Orbital satellites are damage emitters, not physics bodies. They are
     // rendered from the same angular state used by engine.ts and never enter

@@ -1,29 +1,4 @@
-/**
- * ECHO SPHERE - Orbital Sphere runtime visual layer.
- *
- * 2.5D Canvas-only presentation rig for the Orbital Sphere.
- * Static silhouette / idle animation lives in /public/art/orbital.svg and
- * /public/art/orbital-idle-sheet-10x256.png. This module adds state FX.
- *
- * Performance rules:
- * - NEVER use Canvas shadow filters.
- * - Runtime radial gradients are lazily created once per context/key and reused.
- * - No per-frame random jitter or particle allocation.
- * - Geometry uses a small fixed number of paths.
- *
- * VISUAL CONTRACT:
- * IDLE -> orbit, core pulse, body bob, 1..7 satellites.
- * ATTACK -> striker accelerates, trail, impact flash.
- * RESONANCE -> gold core/charge ring, orbit expands.
- * TIER-UP -> pulse, +1 visible satellite, brighter contour.
- * DISABLED -> orbit freezes, red break-glitch, core fades.
- *
- * INFERRED / AUTHORED DETAILS:
- * - attack impact defaults to the forward tangent point, then snaps to the nearest
- *   enemy when available;
- * - disabled break segments are authored for network readability;
- * - the exact two-track tilt is inferred from the reference and kept editable.
- */
+import type { EnemyEntity, PlayerState, SphereEntity } from '../engine';
 
 const TAU = Math.PI * 2;
 const EPS = 0.0001;
@@ -405,7 +380,14 @@ function updateVisualState(sphere, player, time) {
   return record;
 }
 
-export function renderOrbitalSphereRuntimeVfx(ctx, sphere, player, time, scale = 1, enemies = []) {
+export function renderOrbitalSphereRuntimeVfx(
+  ctx: CanvasRenderingContext2D,
+  sphere: SphereEntity,
+  player: PlayerState,
+  time: number,
+  scale = 1,
+  enemies: EnemyEntity[] = [],
+): void {
   if (!ctx || !sphere) return;
 
   const record = updateVisualState(sphere, player, time);
