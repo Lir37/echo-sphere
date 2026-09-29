@@ -45,7 +45,7 @@ const ART_PATHS: Record<ArtKey, string> = {
   'sphere-shotgun': '/art/shotgun.svg',
   'sphere-chain': '/art/chain.svg',
   'sphere-aura': '/art/aura.svg',
-  'sphere-orbital': '/art/orbital.svg',
+  'sphere-orbital': '/art/orbital-shell.svg',
   'sphere-prism': '/art/prism.svg',
   'sphere-gravity': '/art/gravity.svg',
   'sphere-pulse': '/art/pulse.svg',
@@ -2436,13 +2436,8 @@ function drawModernSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: S
   }
 
   if (sphere.type === 'orbital') {
-    // Orbital is assembled from the authored shell + runtime satellites.
-    // The old idle sheet was removed because it was not a production-quality asset.
-    const orbitalCoreScale = r / 24;
-    const spriteSize = r * 10.24;
-    const bob = Math.sin(time * 1.4 + sphere.pos.x * 0.008) * 0.45;
-    drawArtSprite(ctx, 'sphere-orbital', sphere.pos.x, sphere.pos.y + bob, spriteSize);
-    renderOrbitalSphereRuntimeVfx(ctx, sphere, s.player, time, orbitalCoreScale, s.enemies);
+    // Orbital visual composition is owned exclusively by src/spheres/orbitalVisual.ts.
+    renderOrbitalSphereRuntimeVfx(ctx, sphere, s.player, time, r / 24, s.enemies);
     drawNetworkDisabledIndicator(ctx, sphere, time);
     return;
   }
