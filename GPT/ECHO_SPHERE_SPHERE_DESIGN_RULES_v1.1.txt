@@ -142,3 +142,23 @@ Canvas 2D geometry.
   outline + simple geometric silhouette + white center.
 - Any legacy image asset that is no longer requested by runtime code must be
   removed rather than left as an alternate visual path.
+
+
+======================================================================
+[2026-09-29] STANDARD VISUAL EXCEPTION — RESTORE WORKING LAYERED DESIGN
+======================================================================
+The strict vector-neon family rule applies to the current Orbital vector
+renderer, but Standard is intentionally restored to the previously accepted
+layered 2.5D production assembly at the user's request.
+
+Standard runtime may use its individual production PNG layers:
+- external-panels.png
+- energy-core.png
+- stabilization-ring.png
+- upper-crystal.png
+- lower-crystal.png
+
+A full reference sheet/crop/sticker remains forbidden as a runtime asset.
+This is a targeted restoration of a working visual, not a return to the old
+full-reference composition. Do not replace it again without a concrete defect
+or explicit user request.
