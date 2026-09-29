@@ -2371,3 +2371,34 @@ NEXT:
 - Standard assembly was changed to one structural panel layer, a dedicated core layer, a dedicated rotating stabilization-ring effect, and independent crystal layers.
 - The obsolete lower-crystal crop is no longer used at runtime; the approved upper-crystal detail is mirrored vertically for the lower position.
 - Player/Spherist rendering was not changed.
+
+
+[2026-09-29] ORBITAL SPHERE CANVAS MODULE — 2.5D REUSABLE RENDERER
+
+IMPLEMENTED:
+- Added `src/orbitalSphereCanvas.js` as a standalone Canvas 2D renderer for the Orbital Sphere.
+- Renderer is transparent-background and split into explicit BACK / MIDDLE / CORE / DEATH layers.
+- Core: emissive radial-gradient sphere with restrained internal energy arcs.
+- Orbits: two independently rotating ellipses with different angular speeds.
+- Crystals: four independent axial diamond modules.
+- Satellites: separate modules positioned by orbital math, with front/back depth alpha.
+- Idle: restrained bob + continuous orbit motion.
+- Hit: short emissive flash + positional shake.
+- Death: self-contained particle burst/disassembly.
+- Mutation API:
+  - Dance: faster orbital behavior;
+  - Eagle: defensive/cooler orbit language and slower outer orbit;
+  - Blade: warm/red cutting orbit language and sharper satellites.
+- No existing gameplay mechanics, Sphere formulas, collision, targeting or progression logic were changed.
+- Existing `renderer.ts` was intentionally not rewritten in this pass. The module is reusable and ready for controlled integration after PlayerCheck.
+
+VALIDATION:
+- Commit: e99838eb11fbc108ac4795f8b48ff761dec9d22a
+- Android APK CI run #913 is running for this HEAD at the time of this report update.
+- Previous HEAD CI #912 was SUCCESS.
+- Human APK PlayerCheck of the new module/integration is still pending because this pass does not yet wire the module into the live Orbital runtime.
+
+NEXT:
+- Wait for CI #913.
+- If CI passes, integrate the module into the live Orbital rendering path without disturbing the existing gameplay/runtime systems.
+- Then perform APK PlayerCheck against the Orbital reference: core + satellites, readable front/back depth, Dance/Eagle/Blade identity, Hit and Death.
