@@ -156,6 +156,7 @@ function drawStandardSpherePart(
   rotation: number,
   opacity = 1,
   mirrorX = false,
+  mirrorY = false,
 ): boolean {
   const image = getReferenceArt(key);
   if (!image) return false;
@@ -167,7 +168,7 @@ function drawStandardSpherePart(
   ctx.save();
   ctx.translate(x, y);
   ctx.rotate(rotation);
-  ctx.scale(mirrorX ? -1 : 1, 1);
+  ctx.scale(mirrorX ? -1 : 1, mirrorY ? -1 : 1);
   ctx.globalAlpha = opacity;
   ctx.globalCompositeOperation = 'screen';
   ctx.drawImage(image, -dw / 2, -dh / 2, dw, dh);
@@ -264,11 +265,10 @@ function drawStandardSphereAssembly(
   const ringRadius = r * 1.18;
   const crystalSize = r * 1.34;
 
-  // Structural panels are individual authored detail assets. Two mirrored
-  // panels form the front shell instead of duplicating an exploded screenshot.
-  const panelY = -r * 0.08 + Math.sin(time * 2.8 + 0.8) * r * 0.012;
-  drawStandardSpherePart(ctx, 'sphere-standard-panels', -r * 0.40, panelY, panelSize, -0.055, 0.92, false);
-  drawStandardSpherePart(ctx, 'sphere-standard-panels', r * 0.40, panelY, panelSize, 0.055, 0.92, true);
+  // The approved exploded panel group is one structural layer. Draw it once.
+  // Duplicating this crop was the source of the "two screenshots" look.
+  const panelY = -r * 0.06 + Math.sin(time * 2.8 + 0.8) * r * 0.012;
+  drawStandardSpherePart(ctx, 'sphere-standard-panels', 0, panelY, panelSize, -0.012, 0.92);
 
   drawStandardSphereCore(ctx, coreRadius, energyPulse);
   drawStandardSphereRing(ctx, ringRadius, ringRotation, 0.72 + targetPulse * 0.20);
@@ -282,14 +282,19 @@ function drawStandardSphereAssembly(
     0,
     1,
   );
+  // The same approved crystal detail is mirrored vertically for the lower
+  // crystal. This avoids the old lower-crystal crop that contained a second
+  // piece of the reference sheet.
   drawStandardSpherePart(
     ctx,
-    'sphere-standard-lower-crystal',
+    'sphere-standard-upper-crystal',
     0,
     r * 0.66 + energyPulse * r * 0.010,
     crystalSize * crystalPulse,
     0,
     1,
+    false,
+    true,
   );
 
   if (targetPulse > 0.55) {
