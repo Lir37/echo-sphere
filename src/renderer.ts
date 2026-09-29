@@ -10,6 +10,7 @@ import { RUNE_DEFS } from './runes';
 import { BOSS_TELEGRAPH_WINDOWS } from './bossBalance';
 import { LINK_BREAKER_TELEGRAPH_SECONDS, LINK_BREAKER_DISABLED_SECONDS } from './eliteBalance';
 import { renderOrbitalSphereRuntimeVfx } from './spheres/orbitalVisual';
+import { renderStandardSphereRuntimeVfx } from './spheres/standardVisual';
 import { getRenderViewport } from './renderScale';
 
 // ===== Origami / Paper Craft Style =====
@@ -24,9 +25,9 @@ const MUTATION_COLORS = ['#6eeaff', '#9b7cff', '#d86cff', '#55e6c1', '#b9a7ff'];
 
 type ArtKey =
   | 'player' | 'player-spherist' | 'player-spherist-side' | 'player-spherist-shield'
-  | 'sphere-standard-upper-crystal' | 'sphere-standard-panels' | 'sphere-standard-core' | 'sphere-standard-ring' | 'sphere-standard-lower-crystal'
+
   | 'sphere-sniper' | 'sphere-shotgun' | 'sphere-chain' | 'sphere-aura'
-  | 'sphere-orbital' | 'sphere-prism' | 'sphere-gravity' | 'sphere-pulse' | 'sphere-void'
+  | 'sphere-prism' | 'sphere-gravity' | 'sphere-pulse' | 'sphere-void'
   | 'enemy-skitter' | 'enemy-fast' | 'enemy-tank' | 'enemy-moth'
   | 'boss';
 
@@ -36,16 +37,12 @@ const ART_PATHS: Record<ArtKey, string> = {
   'player-spherist': '/art/spherist-hybrid-front.svg',
   'player-spherist-side': '/art/spherist-hybrid-3q.svg',
   // Standard Sphere is assembled from transparent production parts, never from a full-sheet sprite.
-  'sphere-standard-upper-crystal': '/art/standard-sphere/upper-crystal.png',
-  'sphere-standard-panels': '/art/standard-sphere/external-panels.png',
-  'sphere-standard-core': '/art/standard-sphere/energy-core.png',
-  'sphere-standard-ring': '/art/standard-sphere/stabilization-ring.png',
-  'sphere-standard-lower-crystal': '/art/standard-sphere/lower-crystal.png',
+
   'sphere-sniper': '/art/sniper.svg',
   'sphere-shotgun': '/art/shotgun.svg',
   'sphere-chain': '/art/chain.svg',
   'sphere-aura': '/art/aura.svg',
-  'sphere-orbital': '/art/orbital-shell.svg',
+
   'sphere-prism': '/art/prism.svg',
   'sphere-gravity': '/art/gravity.svg',
   'sphere-pulse': '/art/pulse.svg',
@@ -94,180 +91,6 @@ function drawArtSprite(
   const dw = iw * imageScale;
   const dh = ih * imageScale;
   ctx.drawImage(image, -dw / 2, -dh / 2, dw, dh);
-  ctx.restore();
-  return true;
-}
-
-type StandardSpherePartKey =
-  | 'sphere-standard-upper-crystal'
-  | 'sphere-standard-panels'
-  | 'sphere-standard-core'
-  | 'sphere-standard-ring'
-  | 'sphere-standard-lower-crystal';
-
-function drawStandardSpherePart(
-  ctx: CanvasRenderingContext2D,
-  key: StandardSpherePartKey,
-  x: number,
-  y: number,
-  size: number,
-  rotation: number,
-  opacity = 1,
-  mirrorX = false,
-  mirrorY = false,
-): boolean {
-  const image = getArtImage(key);
-  if (!image) return false;
-  const iw = Math.max(1, image.naturalWidth);
-  const ih = Math.max(1, image.naturalHeight);
-  const scale = Math.min(size / iw, size / ih);
-  const dw = iw * scale;
-  const dh = ih * scale;
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.rotate(rotation);
-  ctx.scale(mirrorX ? -1 : 1, mirrorY ? -1 : 1);
-  ctx.globalAlpha = opacity;
-  ctx.globalCompositeOperation = 'screen';
-  ctx.drawImage(image, -dw / 2, -dh / 2, dw, dh);
-  ctx.restore();
-  return true;
-}
-
-function drawStandardSphereCore(
-  ctx: CanvasRenderingContext2D,
-  r: number,
-  pulse: number,
-): void {
-  const glow = ctx.createRadialGradient(-r * 0.08, -r * 0.10, 1, 0, 0, r * 0.62);
-  glow.addColorStop(0, 'rgba(255,255,255,0.98)');
-  glow.addColorStop(0.20, 'rgba(176,244,255,0.96)');
-  glow.addColorStop(0.48, 'rgba(38,170,255,0.78)');
-  glow.addColorStop(0.82, 'rgba(20,92,220,0.34)');
-  glow.addColorStop(1, 'rgba(0,30,90,0)');
-  ctx.save();
-  ctx.globalCompositeOperation = 'lighter';
-  ctx.globalAlpha = 0.82 + pulse * 0.14;
-  ctx.fillStyle = glow;
-  ctx.beginPath();
-  ctx.arc(0, 0, r * 0.58 * (1 + pulse * 0.035), 0, Math.PI * 2);
-  ctx.fill();
-  ctx.globalCompositeOperation = 'source-over';
-  ctx.fillStyle = 'rgba(30,135,232,0.72)';
-  ctx.strokeStyle = 'rgba(182,247,255,0.90)';
-  ctx.lineWidth = Math.max(0.8, r * 0.035);
-  ctx.beginPath();
-  ctx.arc(0, 0, r * 0.42, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.stroke();
-  ctx.restore();
-}
-
-function drawStandardSphereRing(
-  ctx: CanvasRenderingContext2D,
-  r: number,
-  rotation: number,
-  opacity: number,
-): void {
-  ctx.save();
-  ctx.rotate(rotation);
-  ctx.globalAlpha = opacity;
-  ctx.globalCompositeOperation = 'lighter';
-  ctx.strokeStyle = 'rgba(48,214,255,0.82)';
-  ctx.shadowColor = '#36dfff';
-  ctx.shadowBlur = 3;
-  ctx.lineWidth = Math.max(0.9, r * 0.045);
-  ctx.beginPath();
-  ctx.ellipse(0, 0, r * 0.98, r * 0.34, 0, 0, Math.PI * 2);
-  ctx.stroke();
-  ctx.globalAlpha = opacity * 0.55;
-  ctx.lineWidth = Math.max(0.55, r * 0.022);
-  ctx.beginPath();
-  ctx.ellipse(0, 0, r * 0.88, r * 0.27, 0, Math.PI * 0.10, Math.PI * 1.92);
-  ctx.stroke();
-  ctx.restore();
-}
-
-/**
- * Standard Sphere construction rig.
- * The approved reference sheet is a construction/layout source.
- * Runtime assembles the parts and does not draw a full reference crop.
- */
-function drawStandardSphereAssembly(
-  ctx: CanvasRenderingContext2D,
-  s: GameState,
-  sphere: SphereEntity,
-  r: number,
-  time: number,
-): boolean {
-  const tier = sphere.visualTier || 0;
-  const target = s.enemies.some((enemy) => (
-    enemy.hp > 0 &&
-    Math.hypot(enemy.pos.x - sphere.pos.x, enemy.pos.y - sphere.pos.y) <
-      sphere.radius * SPHERE_TYPES[sphere.type].rangeMult
-  ));
-  const breathe = Math.sin(time * 2.2 + sphere.pos.x * 0.013) * 0.028;
-  const energyPulse = 0.5 + 0.5 * Math.sin(time * 4.6 + sphere.pos.y * 0.009);
-  const targetPulse = target ? 0.5 + 0.5 * Math.sin(time * 11.0) : 0;
-  const attackScale = 1 + targetPulse * 0.025;
-  const ringRotation = time * (0.22 + tier * 0.018);
-  const crystalPulse = 1 + energyPulse * 0.022;
-
-  ctx.save();
-  ctx.translate(sphere.pos.x, sphere.pos.y);
-  ctx.scale(attackScale + breathe * 0.18, attackScale - breathe * 0.12);
-  drawGroundShadow(ctx, r * 1.12, r * 0.25, 5);
-
-  const panelSize = r * 1.92;
-  const coreRadius = r;
-  const ringRadius = r * 1.18;
-  const crystalSize = r * 1.34;
-
-  // The approved exploded panel group is one structural layer. Draw it once.
-  // Duplicating this crop was the source of the "two screenshots" look.
-  const panelY = -r * 0.06 + Math.sin(time * 2.8 + 0.8) * r * 0.012;
-  drawStandardSpherePart(ctx, 'sphere-standard-panels', 0, panelY, panelSize, -0.012, 0.92);
-
-  drawStandardSphereCore(ctx, coreRadius, energyPulse);
-  drawStandardSphereRing(ctx, ringRadius, ringRotation, 0.72 + targetPulse * 0.20);
-
-  drawStandardSpherePart(
-    ctx,
-    'sphere-standard-upper-crystal',
-    0,
-    -r * 0.62 - energyPulse * r * 0.010,
-    crystalSize * crystalPulse,
-    0,
-    1,
-  );
-  // The same approved crystal detail is mirrored vertically for the lower
-  // crystal. This avoids the old lower-crystal crop that contained a second
-  // piece of the reference sheet.
-  drawStandardSpherePart(
-    ctx,
-    'sphere-standard-upper-crystal',
-    0,
-    r * 0.66 + energyPulse * r * 0.010,
-    crystalSize * crystalPulse,
-    0,
-    1,
-    false,
-    true,
-  );
-
-  if (targetPulse > 0.55) {
-    ctx.save();
-    ctx.globalCompositeOperation = 'lighter';
-    ctx.globalAlpha = 0.14 + targetPulse * 0.12;
-    ctx.strokeStyle = '#d9fbff';
-    ctx.lineWidth = Math.max(0.7, r * 0.030);
-    ctx.beginPath();
-    ctx.moveTo(-r * 0.44, -r * 0.22);
-    ctx.lineTo(-r * 0.08, -r * 0.48);
-    ctx.lineTo(r * 0.36, -r * 0.18);
-    ctx.stroke();
-    ctx.restore();
-  }
   ctx.restore();
   return true;
 }
@@ -2277,400 +2100,25 @@ function drawEnemyStatusVfx(ctx: CanvasRenderingContext2D, e: EnemyEntity, t: nu
 }
 
 
-function drawOrbitalSatelliteArt(
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  r: number,
-  color: string,
-  time: number,
-  angle: number,
-  blade: boolean,
-): void {
-  const rgb=hexToRgb(color),spin=time*1.8+angle;
-  ctx.save();ctx.translate(x,y);ctx.rotate(angle+Math.PI/2);
-  ctx.globalCompositeOperation='source-over';ctx.shadowColor=color;ctx.shadowBlur=0;
-  ctx.fillStyle='#06111d';ctx.strokeStyle=`rgba(${rgb},.90)`;ctx.lineWidth=1;
-  if(blade){
-    ctx.beginPath();ctx.moveTo(0,-r*1.18);ctx.lineTo(r*.46,-r*.18);ctx.lineTo(r*.30,r*1.0);ctx.lineTo(0,r*.70);ctx.lineTo(-r*.30,r*1.0);ctx.lineTo(-r*.46,-r*.18);ctx.closePath();ctx.fill();ctx.stroke();
-    ctx.strokeStyle=`rgba(255,255,255,.72)`;ctx.beginPath();ctx.moveTo(0,-r*.92);ctx.lineTo(0,r*.52);ctx.stroke();
-    ctx.strokeStyle=`rgba(${rgb},.55)`;ctx.beginPath();ctx.moveTo(-r*.38,r*.58);ctx.lineTo(0,r*.98);ctx.lineTo(r*.38,r*.58);ctx.stroke();
-  } else {
-    ctx.beginPath();ctx.moveTo(0,-r);ctx.lineTo(r*.76,-r*.38);ctx.lineTo(r*.58,r*.62);ctx.lineTo(0,r*.86);ctx.lineTo(-r*.58,r*.62);ctx.lineTo(-r*.76,-r*.38);ctx.closePath();ctx.fill();ctx.stroke();
-    ctx.strokeStyle=`rgba(${rgb},.45)`;ctx.beginPath();ctx.moveTo(-r*.48,-r*.22);ctx.lineTo(r*.48,r*.22);ctx.moveTo(r*.48,-r*.22);ctx.lineTo(-r*.48,r*.22);ctx.stroke();
-    ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(0,0,r*.30+Math.sin(spin)*.03*r,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle=color;ctx.beginPath();ctx.arc(0,0,r*.18,0,Math.PI*2);ctx.fill();
-  }
-  ctx.shadowBlur=0;ctx.restore();
-}
-
-function drawSphereCoreArt(
-  ctx: CanvasRenderingContext2D,
-  game: GameState,
-  sphere: SphereEntity,
-  color: string,
-  r: number,
-  time: number,
-): void {
-  const rgb=hexToRgb(color);
-  const tier=sphere.visualTier||0;
-  const branch=sphere.type==='orbital' ? (game.player.sphereBranches?.orbital || null) : null;
-  const pulse=1+Math.sin(time*3.4+sphere.pos.x*.01)*.035;
-
-  ctx.save();ctx.translate(sphere.pos.x,sphere.pos.y);
-  drawGroundShadow(ctx,r*.92,r*.22,5);
-  ctx.globalCompositeOperation='source-over';
-
-  ctx.fillStyle='rgba(4,10,18,.98)';
-  ctx.strokeStyle=`rgba(${rgb},.88)`;
-  ctx.lineWidth=1.2;
-  // Low-count Sphere shells can afford a small focal blur. Repeated VFX paths
-  // below remain blur-free.
-  ctx.shadowColor=color;ctx.shadowBlur=tier>0?4.5:3.5;
-
-  if(sphere.type==='standard'){
-    ctx.beginPath();ctx.moveTo(0,-r*.92);ctx.lineTo(r*.60,-r*.68);ctx.lineTo(r*.84,-r*.08);ctx.lineTo(r*.55,r*.70);ctx.lineTo(0,r*.88);ctx.lineTo(-r*.55,r*.70);ctx.lineTo(-r*.84,-r*.08);ctx.lineTo(-r*.60,-r*.68);ctx.closePath();ctx.fill();ctx.stroke();
-    ctx.strokeStyle=`rgba(${rgb},.42)`;ctx.lineWidth=1;
-    for(let i=0;i<4;i++){const yy=(-.42+i*.28)*r;ctx.beginPath();ctx.moveTo(-r*.44,yy);ctx.lineTo(r*.44,yy);ctx.stroke();}
-    for(const side of [-1,1]){ctx.beginPath();ctx.moveTo(side*r*.62,r*.18);ctx.lineTo(side*r*1.02,r*.50);ctx.lineTo(side*r*.76,r*.72);ctx.stroke();}
-  } else if(sphere.type==='sniper'){
-    ctx.beginPath();ctx.moveTo(-r*.88,r*.18);ctx.lineTo(-r*.42,-r*.68);ctx.lineTo(r*.18,-r*.82);ctx.lineTo(r*.66,-r*.38);ctx.lineTo(r*.44,r*.54);ctx.lineTo(-r*.28,r*.78);ctx.closePath();ctx.fill();ctx.stroke();
-    ctx.fillStyle='#12263a';ctx.strokeStyle=`rgba(${rgb},.65)`;ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(r*.22,-r*.18,r*1.28,r*.20,r*.06);ctx.fill();ctx.stroke();
-    ctx.fillStyle=color;ctx.shadowColor=color;ctx.shadowBlur=0;ctx.beginPath();ctx.arc(r*.70,-r*.08,r*.07,0,Math.PI*2);ctx.fill();
-    ctx.strokeStyle=`rgba(240,250,255,.35)`;ctx.beginPath();ctx.moveTo(-r*.45,-r*.46);ctx.lineTo(r*.32,-r*.46);ctx.stroke();
-  } else if(sphere.type==='shotgun'){
-    ctx.beginPath();ctx.moveTo(-r*.70,-r*.24);ctx.lineTo(-r*.34,-r*.70);ctx.lineTo(r*.34,-r*.70);ctx.lineTo(r*.72,-r*.22);ctx.lineTo(r*.52,r*.60);ctx.lineTo(0,r*.82);ctx.lineTo(-r*.52,r*.60);ctx.closePath();ctx.fill();ctx.stroke();
-    ctx.fillStyle='#13283b';ctx.strokeStyle=`rgba(${rgb},.54)`;ctx.lineWidth=1;
-    for(const yy of [-.28,0,.28]){ctx.beginPath();ctx.roundRect(r*.16,yy*r-r*.08,r*.86,r*.16,r*.04);ctx.fill();ctx.stroke();}
-    ctx.strokeStyle='rgba(255,240,210,.32)';ctx.beginPath();ctx.moveTo(-r*.26,-r*.54);ctx.lineTo(r*.26,-r*.54);ctx.stroke();
-  } else if(sphere.type==='chain'){
-    ctx.beginPath();ctx.moveTo(0,-r*.88);ctx.lineTo(r*.64,-r*.48);ctx.lineTo(r*.72,r*.28);ctx.lineTo(r*.18,r*.76);ctx.lineTo(-r*.60,r*.52);ctx.lineTo(-r*.68,-r*.28);ctx.closePath();ctx.fill();ctx.stroke();
-    ctx.strokeStyle=`rgba(${rgb},.62)`;ctx.lineWidth=Math.max(1,r*.09);ctx.lineCap='round';
-    for(const side of [-1,1]){ctx.beginPath();ctx.moveTo(side*r*.32,-r*.06);ctx.lineTo(side*r*1.02,-r*.44);ctx.lineTo(side*r*1.12,-r*.12);ctx.stroke();}
-    ctx.lineCap='butt';
-    ctx.fillStyle='#fff5a7';for(const side of [-1,1]){ctx.beginPath();ctx.arc(side*r*1.10,-r*.12,r*.09,0,Math.PI*2);ctx.fill();}
-  } else if(sphere.type==='aura'){
-    ctx.beginPath();ctx.moveTo(0,-r*.76);ctx.lineTo(r*.56,-r*.46);ctx.lineTo(r*.72,r*.18);ctx.lineTo(r*.42,r*.66);ctx.lineTo(-r*.42,r*.66);ctx.lineTo(-r*.72,r*.18);ctx.lineTo(-r*.56,-r*.46);ctx.closePath();ctx.fill();ctx.stroke();
-    ctx.strokeStyle=`rgba(${rgb},.46)`;ctx.lineWidth=2;
-    for(let i=0;i<6;i++){const a=time*.34+i*Math.PI/3;ctx.save();ctx.rotate(a);ctx.beginPath();ctx.ellipse(r*.72,0,r*.38,r*.12,0,0,Math.PI*2);ctx.stroke();ctx.restore();}
-  } else if(sphere.type==='orbital'){
-    ctx.beginPath();ctx.moveTo(0,-r*.82);ctx.lineTo(r*.62,-r*.40);ctx.lineTo(r*.58,r*.44);ctx.lineTo(0,r*.80);ctx.lineTo(-r*.58,r*.44);ctx.lineTo(-r*.62,-r*.40);ctx.closePath();ctx.fill();ctx.stroke();
-    ctx.strokeStyle=`rgba(${rgb},.48)`;ctx.lineWidth=1.2;
-    for(const rot of [0,.72,-.72]){ctx.save();ctx.rotate(rot);ctx.beginPath();ctx.ellipse(0,0,r*.92,r*.26,0,0,Math.PI*2);ctx.stroke();ctx.restore();}
-    if(branch==='orbital_blade'){ctx.strokeStyle='#d8f7ff';ctx.lineWidth=1.8;ctx.beginPath();ctx.moveTo(-r*.74,0);ctx.lineTo(r*.74,0);ctx.stroke();}
-  } else if(sphere.type==='prism'){
-    ctx.beginPath();ctx.moveTo(0,-r*.94);ctx.lineTo(r*.76,-r*.18);ctx.lineTo(r*.44,r*.74);ctx.lineTo(-r*.44,r*.74);ctx.lineTo(-r*.76,-r*.18);ctx.closePath();ctx.fill();ctx.stroke();
-    ctx.strokeStyle=`rgba(${rgb},.48)`;ctx.lineWidth=1;
-    ctx.beginPath();ctx.moveTo(0,-r*.94);ctx.lineTo(0,r*.74);ctx.moveTo(-r*.76,-r*.18);ctx.lineTo(r*.44,r*.74);ctx.moveTo(r*.76,-r*.18);ctx.lineTo(-r*.44,r*.74);ctx.stroke();
-  } else if(sphere.type==='gravity'){
-    ctx.fillStyle='#03050b';ctx.beginPath();ctx.arc(0,0,r*.78,0,Math.PI*2);ctx.fill();ctx.stroke();
-    for(let i=0;i<4;i++){const rr=r*(.48+i*.15);ctx.strokeStyle=`rgba(${rgb},${.70-i*.12})`;ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(0,0,rr,pulse+i*.72,pulse+Math.PI*1.35+i*.72);ctx.stroke();}
-    ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(0,0,r*.14*(1+.10*Math.sin(time*5)),0,Math.PI*2);ctx.fill();
-  } else if(sphere.type==='pulse'){
-    ctx.beginPath();ctx.moveTo(0,-r*.82);ctx.lineTo(r*.60,-r*.46);ctx.lineTo(r*.74,r*.20);ctx.lineTo(r*.30,r*.70);ctx.lineTo(-r*.30,r*.70);ctx.lineTo(-r*.74,r*.20);ctx.lineTo(-r*.60,-r*.46);ctx.closePath();ctx.fill();ctx.stroke();
-    for(let i=0;i<3;i++){const rr=r*(.35+i*.24)+Math.sin(time*3+i)*1.2;ctx.strokeStyle=`rgba(${rgb},${.35-i*.06})`;ctx.lineWidth=1.2;ctx.beginPath();ctx.ellipse(0,0,rr,rr*.56,0,0,Math.PI*2);ctx.stroke();}
-  } else {
-    ctx.beginPath();ctx.moveTo(-r*.66,-r*.26);ctx.lineTo(-r*.20,-r*.82);ctx.lineTo(r*.58,-r*.60);ctx.lineTo(r*.78,r*.12);ctx.lineTo(r*.26,r*.78);ctx.lineTo(-r*.48,r*.64);ctx.closePath();ctx.fill();ctx.stroke();
-    ctx.strokeStyle=`rgba(${rgb},.58)`;ctx.lineWidth=1;
-    for(let i=0;i<5;i++){const a=time*.52+i*1.14;const x=Math.cos(a)*r*.66,y=Math.sin(a)*r*.58;ctx.beginPath();ctx.moveTo(x-r*.12,y);ctx.lineTo(x+r*.12,y);ctx.stroke();}
-    ctx.globalAlpha=.45;ctx.beginPath();ctx.moveTo(-r*.48,-r*.45);ctx.lineTo(r*.48,r*.45);ctx.stroke();ctx.globalAlpha=1;
-  }
-
-  ctx.shadowBlur=0;
-  // Recessed energy core makes every Sphere look manufactured, but each silhouette stays unique.
-  const coreR=r*.27*(1+.025*Math.sin(time*6));
-  const core=ctx.createRadialGradient(-coreR*.30,-coreR*.30,.4,0,0,coreR*1.55);
-  core.addColorStop(0,'#fff');core.addColorStop(.22,color);core.addColorStop(.70,`rgba(${rgb},.52)`);core.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle=core;ctx.shadowColor=color;ctx.shadowBlur=6;ctx.beginPath();ctx.arc(0,0,coreR*1.45,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
-  ctx.fillStyle='rgba(0,5,12,.64)';ctx.beginPath();ctx.arc(0,0,coreR*.78,0,Math.PI*2);ctx.fill();
-  ctx.strokeStyle='rgba(236,252,255,.90)';ctx.lineWidth=.9;ctx.beginPath();ctx.arc(0,0,coreR,0,Math.PI*2);ctx.stroke();
-
-  if(tier>=2){
-    ctx.strokeStyle=`rgba(${rgb},.48)`;ctx.lineWidth=1;
-    for(const side of [-1,1]){ctx.beginPath();ctx.moveTo(side*r*.60,r*.46);ctx.lineTo(side*r*.88,r*.64);ctx.stroke();}
-  }
-  if(tier>=4){
-    ctx.save();ctx.rotate(time*.45);ctx.strokeStyle=`rgba(${rgb},.38)`;ctx.lineWidth=1;
-    ctx.beginPath();ctx.ellipse(0,0,r*1.05,r*.32,0,0,Math.PI*2);ctx.stroke();
-    ctx.restore();
-  }
-  if(sphere.type==='orbital'){
-    const satelliteCount=Math.max(1,1+(spheresVisualMultishot(sphere,game))+((game.player.artifacts||[]).includes('orbital_crown')?1:0)+(tier>=7&&game.player.sphereBranches?.orbital==='orbital_blade'?1:0));
-    const blade=game.player.sphereBranches?.orbital==='orbital_blade';
-    const orbitR=r*(1.75+tier*.08);
-    for(let i=0;i<satelliteCount;i++){
-      const a=sphere.rotation+i*Math.PI*2/satelliteCount;
-      const sx=Math.cos(a)*orbitR,sy=Math.sin(a)*orbitR*.56;
-      drawOrbitalSatelliteArt(ctx,sx,sy,r*.30,color,time,a,blade);
-    }
-    if(blade){
-      ctx.strokeStyle=`rgba(255,235,170,${.36+.10*Math.sin(time*5)})`;ctx.lineWidth=1.4;
-      ctx.beginPath();ctx.ellipse(0,0,orbitR*1.08,orbitR*.56,0,0,Math.PI*2);ctx.stroke();
-    }
-  }
-  ctx.restore();
-}
-
 function drawModernSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: SphereEntity, time: number): void {
-  const def=SPHERE_TYPES[sphere.type];
-  const r=Math.max(15,Math.min(25,sphere.radius*0.19+(sphere.visualTier||0)*0.8));
+  const def = SPHERE_TYPES[sphere.type];
+  const radius = Math.max(15, Math.min(25, sphere.radius * 0.19 + (sphere.visualTier || 0) * 0.8));
 
   if (sphere.type === 'standard') {
-    const drawn = drawStandardSphereAssembly(ctx, s, sphere, r, time);
-    if (!drawn) {
-      // Loading state only. Never fall back to the old procedural silhouette.
-      drawGroundShadow(ctx, r * 1.05, r * 0.24, 4);
-      ctx.save();
-      ctx.translate(sphere.pos.x, sphere.pos.y);
-      ctx.strokeStyle = 'rgba(90,220,255,0.28)';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.arc(0, 0, r * 0.62, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.restore();
-    }
-    drawStandardMutationVfx(ctx, s, sphere, r, time);
-    drawStandardAttackVfx(ctx, sphere, r, time);
+    renderStandardSphereRuntimeVfx(ctx, sphere, s.player, time, radius / 24);
     drawNetworkDisabledIndicator(ctx, sphere, time);
     return;
   }
 
   if (sphere.type === 'orbital') {
-    // Orbital visual composition is owned exclusively by src/spheres/orbitalVisual.ts.
-    renderOrbitalSphereRuntimeVfx(ctx, sphere, s.player, time, r / 24, s.enemies);
+    renderOrbitalSphereRuntimeVfx(ctx, sphere, s.player, time, radius / 24, s.enemies);
     drawNetworkDisabledIndicator(ctx, sphere, time);
     return;
   }
 
-  drawNetworkDisabledIndicator(ctx,sphere,time);
-  drawSphereVfx(ctx,sphere,def.color,r,time);
+  drawNetworkDisabledIndicator(ctx, sphere, time);
+  drawSphereVfx(ctx, sphere, def.color, radius, time);
 }
-
-function drawStandardMutationVfx(ctx: CanvasRenderingContext2D, game: GameState, sphere: SphereEntity, r: number, time: number): void {
-  const color = SPHERE_TYPES.standard.color;
-  const rgb = hexToRgb(color);
-  const mods = game.player.sphereMods;
-  const branch = game.player.sphereBranches?.standard;
-  const tier = Math.max(0, sphere.visualTier || 0);
-  const finalId = (game.player.evolutions || []).find((id: string) => id.startsWith('sphere:standard:7:'));
-  const finalIndex = finalId ? Number(finalId.split(':').pop()) : -1;
-  const pulse = 0.74 + Math.sin(time * 4.2 + sphere.pos.x * 0.01) * 0.26;
-
-  ctx.save();
-  ctx.translate(sphere.pos.x, sphere.pos.y);
-  ctx.globalCompositeOperation = 'lighter';
-
-  if (tier > 0) {
-    const pips = Math.min(7, tier);
-    for (let i = 0; i < pips; i++) {
-      const a = -Math.PI / 2 + (i / Math.max(1, pips)) * Math.PI * 2 + time * 0.16;
-      const px = Math.cos(a) * r * 1.50;
-      const py = Math.sin(a) * r * 1.18;
-      ctx.fillStyle = 'rgba(229,252,255,0.68)';
-      ctx.beginPath(); ctx.arc(px, py, 1.1, 0, Math.PI * 2); ctx.fill();
-    }
-  }
-
-  if (branch === 'standard_resonator') {
-    for (let i = 0; i < 2; i++) {
-      const wave = (time * 0.72 + i * 0.38) % 1;
-      ctx.strokeStyle = `rgba(${rgb},${0.28 + 0.18 * (1 - wave)})`;
-      ctx.lineWidth = 1.1;
-      ctx.beginPath();
-      ctx.ellipse(0, 0, r * (1.16 + wave * 0.88), r * (0.46 + wave * 0.35), 0, 0, Math.PI * 2);
-      ctx.stroke();
-    }
-    ctx.fillStyle = '#f5ffff';
-    const a = time * 2.3;
-    ctx.beginPath();
-    ctx.arc(Math.cos(a) * r * 1.30, Math.sin(a) * r * 0.56, 1.9, 0, Math.PI * 2);
-    ctx.fill();
-  } else if (branch === 'standard_singularity') {
-    ctx.strokeStyle = 'rgba(182,144,255,0.50)';
-    ctx.lineWidth = 1.2;
-    for (let i = 0; i < 3; i++) {
-      const start = -time * 0.5 + i * Math.PI * 2 / 3;
-      ctx.beginPath();
-      for (let k = 0; k <= 10; k++) {
-        const q = k / 10;
-        const rr = r * (1.42 - q * 0.82);
-        const a = start + q * 1.48;
-        const x = Math.cos(a) * rr;
-        const y = Math.sin(a) * rr * 0.58;
-        if (k === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-      }
-      ctx.stroke();
-    }
-  } else if (branch === 'standard_swarm') {
-    const count = Math.min(6, 3 + Math.max(0, mods.multishot || 0));
-    for (let i = 0; i < count; i++) {
-      const a = time * 0.62 + i * Math.PI * 2 / count;
-      const x = Math.cos(a) * r * 1.36;
-      const y = Math.sin(a) * r * 0.76;
-      ctx.fillStyle = `rgba(${rgb},${0.42 + 0.18 * pulse})`;
-      ctx.beginPath();
-      ctx.moveTo(x + Math.cos(a) * 4, y + Math.sin(a) * 4);
-      ctx.lineTo(x + Math.cos(a + 1.9) * 3, y + Math.sin(a + 1.9) * 3);
-      ctx.lineTo(x + Math.cos(a - 1.9) * 3, y + Math.sin(a - 1.9) * 3);
-      ctx.closePath(); ctx.fill();
-    }
-  }
-
-  if (finalIndex === 0) {
-    ctx.strokeStyle = 'rgba(217,251,255,0.44)';
-    ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.arc(0, 0, r * 1.26, 0, Math.PI * 2); ctx.stroke();
-    ctx.beginPath(); ctx.arc(0, 0, r * 1.43, time * 0.82, time * 0.82 + 1.40); ctx.stroke();
-  } else if (finalIndex === 1) {
-    ctx.strokeStyle = 'rgba(184,151,255,0.52)';
-    ctx.lineWidth = 1.15;
-    for (let i = 0; i < 4; i++) {
-      const a = time * 0.48 + i * Math.PI / 2;
-      ctx.beginPath();
-      ctx.moveTo(Math.cos(a) * r * 1.10, Math.sin(a) * r * 0.78);
-      ctx.lineTo(Math.cos(a) * r * 1.58, Math.sin(a) * r * 1.10);
-      ctx.stroke();
-    }
-    ctx.fillStyle = 'rgba(242,234,255,0.84)';
-    ctx.beginPath(); ctx.arc(0, 0, r * 0.11, 0, Math.PI * 2); ctx.fill();
-  } else if (finalIndex === 2) {
-    for (let i = 0; i < 6; i++) {
-      const a = -time * 0.72 + i * Math.PI / 3;
-      const x = Math.cos(a) * r * 1.52;
-      const y = Math.sin(a) * r * 0.92;
-      ctx.fillStyle = 'rgba(113,236,255,0.44)';
-      ctx.beginPath();
-      ctx.moveTo(x, y - 3.4); ctx.lineTo(x + 3.4, y); ctx.lineTo(x, y + 3.4); ctx.lineTo(x - 3.4, y);
-      ctx.closePath(); ctx.fill();
-    }
-  }
-
-  if ((mods.pierce || 0) > 0) {
-    ctx.strokeStyle = 'rgba(233,252,255,0.52)';
-    ctx.lineWidth = 0.95;
-    ctx.beginPath(); ctx.moveTo(-r * 1.55, 0); ctx.lineTo(r * 1.55, 0); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(-r * 1.10, -r * 0.14); ctx.lineTo(-r * 1.55, 0); ctx.lineTo(-r * 1.10, r * 0.14); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(r * 1.10, -r * 0.14); ctx.lineTo(r * 1.55, 0); ctx.lineTo(r * 1.10, r * 0.14); ctx.stroke();
-  }
-
-  if ((mods.ricochet || 0) > 0) {
-    ctx.strokeStyle = 'rgba(184,151,255,0.54)';
-    ctx.lineWidth = 0.95;
-    ctx.beginPath(); ctx.arc(0, 0, r * 1.58, time * 1.14, time * 1.14 + Math.PI * 1.10); ctx.stroke();
-  }
-
-  const status = [
-    { on: mods.fire, color: '255,116,61', angle: -0.86 },
-    { on: mods.freeze, color: '191,244,255', angle: 2.96 },
-    { on: mods.poison, color: '109,240,169', angle: 1.10 },
-  ];
-  for (const fx of status) {
-    if (!fx.on) continue;
-    const a = fx.angle + time * 0.42;
-    const x = Math.cos(a) * r * 1.53;
-    const y = Math.sin(a) * r * 1.02;
-    ctx.fillStyle = `rgba(${fx.color},0.70)`;
-    ctx.beginPath();
-    ctx.moveTo(x, y - 3.4); ctx.lineTo(x + 3.1, y); ctx.lineTo(x, y + 3.4); ctx.lineTo(x - 3.1, y);
-    ctx.closePath(); ctx.fill();
-  }
-
-  const extraShots = Math.min(4, Math.max(0, mods.multishot || 0));
-  if (extraShots > 0) {
-    ctx.strokeStyle = 'rgba(219,251,255,0.30)';
-    ctx.lineWidth = 0.8;
-    for (let i = 0; i < extraShots; i++) {
-      const spread = (i - (extraShots - 1) / 2) * 0.16;
-      ctx.beginPath();
-      ctx.moveTo(Math.cos(spread) * r * 0.56, Math.sin(spread) * r * 0.56);
-      ctx.lineTo(Math.cos(spread) * r * 1.45, Math.sin(spread) * r * 1.45);
-      ctx.stroke();
-    }
-  }
-
-  ctx.restore();
-}
-
-
-
-function drawStandardAttackVfx(
-  ctx: CanvasRenderingContext2D,
-  sphere: SphereEntity,
-  r: number,
-  time: number,
-): void {
-  const charge = Math.max(0, Math.min(1, 1 - sphere.attackTimer / 1.2));
-  if (charge < 0.04) return;
-  const color = '#63e6ff';
-  const rgb = hexToRgb(color);
-  const dir = sphere.rotation || 0;
-  const reach = r * (1.05 + charge * 0.85);
-  ctx.save();
-  ctx.translate(sphere.pos.x, sphere.pos.y);
-  ctx.rotate(dir);
-  ctx.globalCompositeOperation = 'lighter';
-
-  ctx.strokeStyle = `rgba(${rgb},${0.14 + charge * 0.30})`;
-  ctx.lineWidth = 1.2 + charge * 0.7;
-  ctx.beginPath();
-  ctx.moveTo(r * 0.42, 0);
-  ctx.lineTo(reach, 0);
-  ctx.stroke();
-
-  const gate = 1.0 - charge;
-  ctx.strokeStyle = `rgba(232,253,255,${0.18 + gate * 0.48})`;
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.arc(reach, 0, r * (0.16 + charge * 0.18), -Math.PI * 0.72, Math.PI * 0.72);
-  ctx.stroke();
-
-  for (let i = -1; i <= 1; i++) {
-    const y = i * r * 0.16 * charge;
-    ctx.fillStyle = `rgba(${rgb},${0.15 + charge * 0.32})`;
-    ctx.beginPath();
-    ctx.moveTo(reach * 0.72, y - r * 0.055);
-    ctx.lineTo(reach * 1.03, y);
-    ctx.lineTo(reach * 0.72, y + r * 0.055);
-    ctx.closePath();
-    ctx.fill();
-  }
-  ctx.restore();
-}
-
-function drawOrbitalRuntimeVfx(ctx: CanvasRenderingContext2D, game: GameState, sphere: SphereEntity, r: number, time: number): void {
-  const branch = game.player.sphereBranches?.orbital;
-  const finalId = (game.player.evolutions || []).find((id: string) => id.startsWith('sphere:orbital:7:'));
-  const finalIndex = finalId ? Number(finalId.split(':').pop()) : -1;
-  const charge = Math.max(0, Math.min(1, 1 - sphere.auraTimer / 0.42));
-  const rgb = hexToRgb(SPHERE_TYPES.orbital.color);
-  const phase = sphere.rotation + time * (branch === 'orbital_dance' ? 1.35 : 0.72);
-  const orbitR = r * 1.72;
-  ctx.save();
-  ctx.translate(sphere.pos.x, sphere.pos.y);
-  ctx.globalCompositeOperation = 'lighter';
-  ctx.strokeStyle = `rgba(${rgb},${0.10 + charge * 0.34})`;
-  ctx.lineWidth = 0.8 + charge * 1.1;
-  ctx.beginPath();
-  ctx.ellipse(0, 0, orbitR, orbitR * 0.56, 0, phase - 0.32, phase + 0.32);
-  ctx.stroke();
-  if (branch === 'orbital_dance') {
-    ctx.strokeStyle = `rgba(178,140,255,${0.16 + charge * 0.28})`;
-    for (let i=0;i<2;i++){ const aa=phase+i*Math.PI; ctx.beginPath(); ctx.arc(0,0,orbitR*(0.88+i*0.08),aa-0.28,aa+0.52); ctx.stroke(); }
-  } else if (branch === 'orbital_halo') {
-    ctx.strokeStyle = `rgba(214,248,255,${0.16 + charge * 0.26})`;
-    ctx.lineWidth=1; ctx.beginPath(); ctx.ellipse(0,0,orbitR*.90,orbitR*.54,0,0,Math.PI*2); ctx.stroke();
-  } else if (branch === 'orbital_blade') {
-    ctx.strokeStyle = `rgba(255,171,102,${0.20 + charge * 0.34})`;
-    ctx.lineWidth = finalIndex === 2 ? 1.8 : 1.1;
-    ctx.beginPath(); ctx.ellipse(0,0,orbitR*1.05,orbitR*.56,0,phase-.20,phase+.20); ctx.stroke();
-  }
-  if (charge > .86) {
-    ctx.fillStyle=`rgba(238,253,255,${0.28 + charge*.45})`;
-    ctx.beginPath(); ctx.arc(Math.cos(phase)*orbitR,Math.sin(phase)*orbitR*.56,2.2+charge*1.5,0,Math.PI*2); ctx.fill();
-  }
-  ctx.restore();
-}
-
 function drawSniperMutationVfx(ctx: CanvasRenderingContext2D, game: GameState, sphere: SphereEntity, r: number, time: number): void {
   const mods = game.player.sphereMods;
   const branch = game.player.sphereBranches?.sniper;

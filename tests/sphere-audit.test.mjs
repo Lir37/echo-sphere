@@ -75,7 +75,11 @@ for (const type of ['prism','gravity','pulse','void']) {
   assert.match(renderer, new RegExp("/art/" + type + "\\.svg"), 'Artwork path missing: ' + type);
 }
 assert.match(renderer, /renderOrbitalSphereRuntimeVfx/, 'Orbital dedicated visual module is not integrated');
-assert.match(read('src/spheres/orbitalVisual.ts'), /orbital-shell\.svg/, 'Orbital shell production asset missing');
+assert.match(read('src/spheres/orbitalVisual.ts'), /createRadialGradient/, 'Orbital vector glow missing');
+assert.match(read('src/spheres/standardVisual.ts'), /createRadialGradient/, 'Standard vector glow missing');
+assert.match(renderer, /renderStandardSphereRuntimeVfx/, 'Standard dedicated visual module is not integrated');
+assert.doesNotMatch(renderer, /sphere-standard-(upper-crystal|panels|core|ring|lower-crystal)/, 'Legacy Standard image assembly remains in renderer');
+assert.doesNotMatch(renderer, /drawOrbitalSatelliteArt|drawSphereCoreArt/, 'Legacy procedural Orbital visual remains in renderer');
 assert.match(renderer, /sphere\.type === 'orbital'[\s\S]*satelliteCount/, 'Orbital satellite visuals missing');
 assert.match(engine, /satelliteCount[\s\S]*bestAngularDistance/, 'Orbital satellite damage targeting missing');
 assert.match(collision, /resolvePlayerTowerCollisions/, 'Sphere physical collision layer missing');
