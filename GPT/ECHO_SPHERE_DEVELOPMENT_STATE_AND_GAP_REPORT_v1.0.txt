@@ -2667,3 +2667,11 @@ CURRENT HEAD (code/doc cycle in progress): 3616185e1240328592938ac90fd6e3e3efc36
 [GATE] CI and APK PlayerCheck remain required.
 [NEXT] Verify Standard at gameplay scale: silhouette, layered parts, ring,
        crystal placement and the remembered multi-line cannon/attack effect.
+
+
+[2026-09-29] FINAL VALIDATION UPDATE
+CURRENT HEAD: fcf668541a2daf22383bb4d8d62b05607edcb273
+CI #972: SUCCESS.
+Standard layered visual rollback is typechecked, asset-checked, tested, linted,
+web-built, Playwright-captured and packaged into the Android debug APK.
+Human APK PlayerCheck remains the visual acceptance gate.
