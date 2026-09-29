@@ -1,8 +1,6 @@
 import type { EnemyEntity, PlayerState, SphereEntity } from '../engine';
 
 const TAU = Math.PI * 2;
-const EPS = 0.0001;
-
 export const ORBITAL_VISUAL = Object.freeze({
   BASE_RADIUS_PX: 24,
   BODY_COLOR: '#06111d',
@@ -35,19 +33,32 @@ export const ORBITAL_VISUAL = Object.freeze({
   DISABLED_CORE_ALPHA: 0.34,
 });
 
-const GRADIENT_CACHE = new WeakMap();
-const VISUAL_STATES = new WeakMap();
+type OrbitalPoint = { x: number; y: number };
+type GradientStops = ReadonlyArray<readonly [number, string]>;
+type OrbitalStateRecord = {
+  lastTime: number;
+  lastAuraTimer: number;
+  lastTier: number;
+  attackTimer: number;
+  tierUpTimer: number;
+  resonanceTimer: number;
+  impactTimer: number;
+  phaseOffset: number;
+};
 
-function getContextGradientCache(ctx) {
+const GRADIENT_CACHE = new WeakMap<CanvasRenderingContext2D, Map<string, CanvasGradient>>();
+const VISUAL_STATES = new WeakMap<SphereEntity, OrbitalStateRecord>();
+
+function getContextGradientCache(ctx: CanvasRenderingContext2D): Map<string, CanvasGradient> {
   let cache = GRADIENT_CACHE.get(ctx);
   if (!cache) {
-    cache = new Map();
+    cache = new Map<string, CanvasGradient>();
     GRADIENT_CACHE.set(ctx, cache);
   }
   return cache;
 }
 
-function getCachedRadialGradient(ctx, key, radius, stops) {
+function getCachedRadialGradient(ctx: CanvasRenderingContext2D, key: string, radius: number, stops: GradientStops): CanvasGradient {
   const cache = getContextGradientCache(ctx);
   const cached = cache.get(key);
   if (cached) return cached;
@@ -60,21 +71,21 @@ function getCachedRadialGradient(ctx, key, radius, stops) {
   return gradient;
 }
 
-function clamp01(v) {
+function clamp01(v: number): number {
   return Math.max(0, Math.min(1, v));
 }
 
-function easeOutCubic(t) {
+function easeOutCubic(t: number): number {
   const x = clamp01(t);
   return 1 - Math.pow(1 - x, 3);
 }
 
-function easeInOutQuad(t) {
+function easeInOutQuad(t: number): number {
   const x = clamp01(t);
   return x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
 }
 
-function rgba(hex, alpha) {
+function rgba(hex: string, alpha: number): string {
   const value = hex.replace('#', '');
   const normalized = value.length === 3
     ? value.split('').map((c) => c + c).join('')
@@ -83,7 +94,7 @@ function rgba(hex, alpha) {
   return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${clamp01(alpha)})`;
 }
 
-function orbitalPoint(cx, cy, rx, ry, angle, rotation) {
+function orbitalPoint(cx: number, cy: number, rx: number, ry: number, angle: number, rotation: number): OrbitalPoint {
   const px = Math.cos(angle) * rx;
   const py = Math.sin(angle) * ry;
   const c = Math.cos(rotation);
@@ -94,7 +105,7 @@ function orbitalPoint(cx, cy, rx, ry, angle, rotation) {
   };
 }
 
-function drawOrbitArc(ctx, cx, cy, rx, ry, rotation, start, end, color, alpha, width) {
+function drawOrbitArc(ctx: CanvasRenderingContext2D, cx: number, cy: number, rx: number, ry: number, rotation: number, start: number, end: number, color: string, alpha: number, width: number): void {
   ctx.save();
   ctx.translate(cx, cy);
   ctx.rotate(rotation);
@@ -107,7 +118,7 @@ function drawOrbitArc(ctx, cx, cy, rx, ry, rotation, start, end, color, alpha, w
   ctx.restore();
 }
 
-function drawCachedCoreGlow(ctx, x, y, radius, color, alpha) {
+function drawCachedCoreGlow(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, color: string, alpha: number): void {
   const r = Math.max(8, radius);
   const key = `coreGlow:${color}:${Math.round(r)}`;
   const gradient = getCachedRadialGradient(ctx, key, r, [
@@ -127,7 +138,7 @@ function drawCachedCoreGlow(ctx, x, y, radius, color, alpha) {
   ctx.restore();
 }
 
-function drawTierSatellites(ctx, cx, cy, count, orbitScale, phase, alpha, color, attackPulse) {
+function drawTierSatellites(ctx: CanvasRenderingContext2D, cx: number, cy: number, count: number, orbitScale: number, phase: number, alpha: number, color: string, attackPulse: number): void {
   const safeCount = Math.max(0, Math.min(7, Math.round(count)));
   if (safeCount <= 0) return;
 
@@ -175,7 +186,7 @@ function drawTierSatellites(ctx, cx, cy, count, orbitScale, phase, alpha, color,
   }
 }
 
-function drawImpactFlash(ctx, x, y, radius, alpha) {
+function drawImpactFlash(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, alpha: number): void {
   if (alpha <= 0) return;
 
   drawCachedCoreGlow(ctx, x, y, radius * 1.9, ORBITAL_VISUAL.EDGE_COLOR, alpha * 0.70);
@@ -192,7 +203,7 @@ function drawImpactFlash(ctx, x, y, radius, alpha) {
   ctx.restore();
 }
 
-function drawBreakGlitch(ctx, cx, cy, orbitScale, phase, intensity) {
+function drawBreakGlitch(ctx: CanvasRenderingContext2D, cx: number, cy: number, orbitScale: number, phase: number, intensity: number): void {
   if (intensity <= EPS) return;
   const color = ORBITAL_VISUAL.DISABLED_COLOR;
   const wave = 0.5 + 0.5 * Math.sin(phase * ORBITAL_VISUAL.DISABLED_GLITCH_FREQUENCY);
@@ -231,7 +242,7 @@ function drawBreakGlitch(ctx, cx, cy, orbitScale, phase, intensity) {
   ctx.restore();
 }
 
-function drawChargeRing(ctx, cx, cy, radius, color, progress) {
+function drawChargeRing(ctx: CanvasRenderingContext2D, cx: number, cy: number, radius: number, color: string, progress: number): void {
   const p = clamp01(progress);
   if (p <= EPS) return;
   const arc = 0.30 + 0.70 * easeInOutQuad(p);
@@ -253,7 +264,7 @@ function drawChargeRing(ctx, cx, cy, radius, color, progress) {
   ctx.restore();
 }
 
-function drawTierPulse(ctx, cx, cy, radius, progress) {
+function drawTierPulse(ctx: CanvasRenderingContext2D, cx: number, cy: number, radius: number, progress: number): void {
   const q = clamp01(progress);
   if (q <= EPS) return;
   const fade = 1 - easeOutCubic(q);
@@ -271,7 +282,7 @@ function drawTierPulse(ctx, cx, cy, radius, progress) {
   ctx.restore();
 }
 
-function drawTierContour(ctx, cx, cy, radius, progress) {
+function drawTierContour(ctx: CanvasRenderingContext2D, cx: number, cy: number, radius: number, progress: number): void {
   const q = clamp01(progress);
   if (q <= 0.32) return;
   const alpha = 0.24 + 0.32 * clamp01((q - 0.32) / 0.68);
@@ -284,8 +295,8 @@ function drawTierContour(ctx, cx, cy, radius, progress) {
   ctx.restore();
 }
 
-function drawCoreOverlay(ctx, cx, cy, radius, pulse, state) {
-  let color = ORBITAL_VISUAL.CORE_COLOR;
+function drawCoreOverlay(ctx: CanvasRenderingContext2D, cx: number, cy: number, radius: number, pulse: number, state: 'idle' | 'resonance' | 'disabled'): void {
+  let color: string = ORBITAL_VISUAL.CORE_COLOR;
   let alpha = 0.92;
   if (state === 'resonance') {
     color = ORBITAL_VISUAL.RESONANCE_COLOR;
@@ -332,7 +343,7 @@ function drawCoreOverlay(ctx, cx, cy, radius, pulse, state) {
   ctx.restore();
 }
 
-function getStateRecord(sphere) {
+function getStateRecord(sphere: SphereEntity): OrbitalStateRecord {
   let record = VISUAL_STATES.get(sphere);
   if (!record) {
     record = {
@@ -350,7 +361,7 @@ function getStateRecord(sphere) {
   return record;
 }
 
-function updateVisualState(sphere, player, time) {
+function updateVisualState(sphere: SphereEntity, player: PlayerState, time: number): OrbitalStateRecord {
   const record = getStateRecord(sphere);
   const dt = record.lastTime > 0 ? Math.max(0, Math.min(0.05, time - record.lastTime)) : 0;
   record.lastTime = time;
@@ -417,7 +428,7 @@ export function renderOrbitalSphereRuntimeVfx(
   ctx.save();
   ctx.globalCompositeOperation = 'lighter';
 
-  const mainColor = resonance
+  const mainColor: string = resonance
     ? ORBITAL_VISUAL.RESONANCE_COLOR
     : ORBITAL_VISUAL.EDGE_COLOR;
   const orbitAlpha = disabled ? 0.16 : (resonance ? 0.72 : 0.34 + tier * 0.015);
