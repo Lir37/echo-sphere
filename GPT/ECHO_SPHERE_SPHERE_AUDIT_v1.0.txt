@@ -90,3 +90,9 @@ REJECTED PATTERNS FROM THE PREVIOUS PASS:
 NEXT VISUAL WORK:
 APK PlayerCheck of the cleaned Orbital build. Validate actual in-game scale,
 1..7 readability, Attack, Resonance, Tier-Up, Disabled and Network links.
+
+
+[2026-09-29] FINAL PIPELINE ENFORCEMENT UPDATE
+CURRENT HEAD: 9135e7963b5f84bb8e5f0ee1d4e36540a4434e14
+[DONE] Asset/reference cleanup; tier-neutral Orbital shell; runtime 1..7 satellites; duplicate Orbital path removed; Orbital TypeScript module; renderScale.ts with DPR 1.75; CSS touch mapping tests DPR 1/2/3; check-assets enforced in CI; unused public/art3d/boss.glb found and removed; CI #930 SUCCESS including asset check, typecheck, tests, gameplay audit, lint, web build, Playwright QA and Android APK.
+[NOTE] Existing authored PNGs that the lightweight decoder cannot safely inspect are reported as unsupported rather than failing. Reference/intermediate and unreferenced-asset gates remain enforced.

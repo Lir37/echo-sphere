@@ -2519,3 +2519,26 @@ NEXT:
 2. Validate Orbital in a real run.
 3. Fix only concrete visual defects from PlayerCheck.
 4. Then continue the next Sphere using the v1.1 production rules.
+
+
+======================================================================
+[2026-09-29] FINAL CURRENT STATE
+======================================================================
+CURRENT HEAD:
+9135e7963b5f84bb8e5f0ee1d4e36540a4434e14
+
+[DONE] Orbital production cleanup and TypeScript module migration.
+[DONE] renderScale.ts owns canvas resolution; DPR_CAP=1.75.
+[DONE] Touch mapping uses CSS pixels and has DPR 1/2/3 regression coverage.
+[DONE] Reviewed reference/b64/intermediate assets removed from public/.
+[DONE] Asset check enforced in GitHub Actions.
+[DONE] check-assets found and removed unused public/art3d/boss.glb.
+[DONE] CI #930 SUCCESS.
+
+[GATE] Human APK PlayerCheck of the cleaned Orbital build is still required.
+CI/Playwright prove integration/build health, not final human visual quality.
+
+NEXT:
+1. APK PlayerCheck Orbital.
+2. Record only concrete visual defects.
+3. Continue next Sphere only after Orbital acceptance.
