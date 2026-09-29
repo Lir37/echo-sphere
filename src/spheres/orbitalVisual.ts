@@ -8,12 +8,12 @@ export const ORBITAL_VISUAL = Object.freeze({
   BODY_COLOR: '#06111d', EDGE_COLOR: '#8ef0ff', EDGE_HOT: '#e9fcff',
   CORE_HOT: '#ffffff', CORE_COLOR: '#63d9ff', CORE_DEEP: '#063b8e',
   RESONANCE_COLOR: '#ffd166', DISABLED_COLOR: '#ff4d70',
-  ORBIT_RX: 47, ORBIT_RY: 25.85, ORBIT_ROT: -0.04,
+  ORBIT_RX: 62, ORBIT_RY: 34.1, ORBIT_ROT: -0.04,
   IDLE_ORBIT_SPEED: 0.42, CORE_PULSE_SPEED: 3.2, BOB_SPEED: 1.4, BOB_AMPLITUDE: 0.9,
   ATTACK_DURATION: 0.19, IMPACT_FLASH_DURATION: 0.10, RESONANCE_DURATION: 0.76,
   RESONANCE_EXPANSION: 0.12, TIER_UP_DURATION: 0.52, DISABLED_GLITCH_FREQUENCY: 12,
   DISABLED_CORE_ALPHA: 0.34,
-  SHELL_SPRITE_SIZE: 104, CORE_SPRITE_SIZE: 58, CRYSTAL_SPRITE_SIZE: 67, SATELLITE_SPRITE_SIZE: 47,
+  SHELL_SPRITE_SIZE: 60, CORE_SPRITE_SIZE: 54, CRYSTAL_SPRITE_SIZE: 46, SATELLITE_SPRITE_SIZE: 48,
 });
 
 type SpriteKey = 'shell' | 'core' | 'crystal' | 'satellite';
@@ -83,7 +83,7 @@ function core(ctx: CanvasRenderingContext2D, cx: number, cy: number, scale: numb
   }
 }
 function crystals(ctx: CanvasRenderingContext2D, cx: number, cy: number, scale: number, pulse: number): void {
-  const size = ORBITAL_VISUAL.CRYSTAL_SPRITE_SIZE * scale * (.99 + pulse * .018), offset = 43 * scale;
+  const size = ORBITAL_VISUAL.CRYSTAL_SPRITE_SIZE * scale * (.99 + pulse * .018), offset = 40 * scale;
   drawSprite(ctx, 'crystal', cx, cy - offset, size); drawSprite(ctx, 'crystal', cx, cy + offset, size, Math.PI);
 }
 function satellites(ctx: CanvasRenderingContext2D, cx: number, cy: number, count: number, scale: number, phase: number, attack: number): void {
