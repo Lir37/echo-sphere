@@ -120,3 +120,25 @@ Before committing, verify four boundaries independently:
 4) source asset inventory → packaged public assets.
 A task is not complete while any boundary is ambiguous or has a fallback that
 can silently reintroduce the old implementation.
+
+======================================================================
+[2026-09-29] VECTOR NEON FAMILY RULE
+======================================================================
+
+For Standard and Orbital Sphere production, runtime visuals are now strictly
+Canvas 2D geometry.
+
+- No reference images, reference crops, PNG/SVG detail sprites or image
+  overlays may be used for Sphere runtime visuals.
+- Main body/detail colors stay within the Sphere's single type color plus
+  white hot centers. Resonance and disabled colors are the documented
+  temporary state exceptions.
+- Glow is radialGradient only. ctx.shadowBlur is forbidden.
+- Standard and Orbital visuals are owned by dedicated modules under
+  src/spheres/.
+- Mutation identity must come from geometry, timing, count or motion, not
+  introducing unrelated colors or decorative artwork.
+- Satellites, when present, use the same material language as the core:
+  outline + simple geometric silhouette + white center.
+- Any legacy image asset that is no longer requested by runtime code must be
+  removed rather than left as an alternate visual path.
