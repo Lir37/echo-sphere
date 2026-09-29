@@ -19,6 +19,7 @@ import { renderPrismSphereRuntimeVfx } from './spheres/prismVisual';
 import { renderGravitySphereRuntimeVfx } from './spheres/gravityVisual';
 import { renderPulseSphereRuntimeVfx } from './spheres/pulseVisual';
 import { renderVoidSphereRuntimeVfx } from './spheres/voidVisual';
+import { renderSphereModifierVfx } from './spheres/modifierVisual';
 
 // ===== Origami / Paper Craft Style =====
 // Warm backgrounds, faceted folded-paper shapes, fold lines, drop shadows.
@@ -2546,46 +2547,55 @@ function drawModernSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: S
   }
   if (sphere.type === 'orbital') {
     renderOrbitalSphereRuntimeVfx(ctx, sphere, s.player, time, scale, s.enemies);
+    renderSphereModifierVfx(ctx, sphere, s.player, time, scale);
     drawNetworkDisabledIndicator(ctx, sphere, time);
     return;
   }
   if (sphere.type === 'sniper') {
     renderSniperSphereRuntimeVfx(ctx, sphere, s.player, time, scale);
+    renderSphereModifierVfx(ctx, sphere, s.player, time, scale);
     drawNetworkDisabledIndicator(ctx, sphere, time);
     return;
   }
   if (sphere.type === 'shotgun') {
     renderShotgunSphereRuntimeVfx(ctx, sphere, s.player, time, scale);
+    renderSphereModifierVfx(ctx, sphere, s.player, time, scale);
     drawNetworkDisabledIndicator(ctx, sphere, time);
     return;
   }
   if (sphere.type === 'chain') {
     renderChainSphereRuntimeVfx(ctx, sphere, s.player, time, scale);
+    renderSphereModifierVfx(ctx, sphere, s.player, time, scale);
     drawNetworkDisabledIndicator(ctx, sphere, time);
     return;
   }
   if (sphere.type === 'aura') {
     renderAuraSphereRuntimeVfx(ctx, sphere, s.player, time, scale);
+    renderSphereModifierVfx(ctx, sphere, s.player, time, scale);
     drawNetworkDisabledIndicator(ctx, sphere, time);
     return;
   }
   if (sphere.type === 'prism') {
     renderPrismSphereRuntimeVfx(ctx, sphere, s.player, time, scale);
+    renderSphereModifierVfx(ctx, sphere, s.player, time, scale);
     drawNetworkDisabledIndicator(ctx, sphere, time);
     return;
   }
   if (sphere.type === 'gravity') {
     renderGravitySphereRuntimeVfx(ctx, sphere, s.player, time, scale);
+    renderSphereModifierVfx(ctx, sphere, s.player, time, scale);
     drawNetworkDisabledIndicator(ctx, sphere, time);
     return;
   }
   if (sphere.type === 'pulse') {
     renderPulseSphereRuntimeVfx(ctx, sphere, s.player, time, scale);
+    renderSphereModifierVfx(ctx, sphere, s.player, time, scale);
     drawNetworkDisabledIndicator(ctx, sphere, time);
     return;
   }
   if (sphere.type === 'void') {
     renderVoidSphereRuntimeVfx(ctx, sphere, s.player, time, scale);
+    renderSphereModifierVfx(ctx, sphere, s.player, time, scale);
     drawNetworkDisabledIndicator(ctx, sphere, time);
     return;
   }
