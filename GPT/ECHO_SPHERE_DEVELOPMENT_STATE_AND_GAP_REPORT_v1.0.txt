@@ -2703,3 +2703,41 @@ CURRENT HEAD BEFORE DOC UPDATE: 980e65d13744978d9c47e2550c4e1e5725ec3eb5
 [GATE] Human APK PlayerCheck remains required for final visual acceptance.
 [NEXT] Check the new APK once on device. If clean, freeze this Standard visual
        and move on without further cosmetic rewrites.
+
+
+======================================================================
+[2026-09-30] SPHERE VISUAL FAMILY — ETALON STANDARD LOCKED
+======================================================================
+CODE BASELINE: f35964c7f318087dabbc566f5e88dcead4d9151b
+
+Пользователь утвердил текущую архитектуру/концепцию Standard Sphere как
+визуальный эталон семейства.
+
+ЭТАЛОН НЕ МЕНЯТЬ БЕЗ ЯВНОЙ ПРИЧИНЫ:
+- authored layered 2.5D Standard body;
+- luminous core + stabilization orbit ring;
+- distinct multi-line attack/muzzle;
+- no reference-sheet/sticker layer;
+- visual identity is produced by layered authored artwork + restrained Canvas FX.
+
+[DONE] Standard muzzle refined: smooth shaped tip, no rigid connecting rod.
+[DONE] Standard projectile tail changed to tapered curved comet tail and made
+      approximately 25% less bright; projectile head preserved.
+[DONE] Standard modifier visuals now use distinct glyph geometry, not color alone.
+[DONE] Standard final mutation with former straight arrow-rods replaced by
+      curved resonator petals, without changing progression/logic.
+[DONE] Added dedicated Canvas 2.5D production visuals for Sniper, Shotgun,
+      Chain, Aura, Prism, Gravity, Pulse and Void, using their existing palette
+      colors and gameplay identity.
+[DONE] Orbital unchanged and remains on its dedicated renderer.
+[DONE] CI #985 SUCCESS, CI #986 SUCCESS.
+
+[GATE] Human APK PlayerCheck is still required for the final visual acceptance
+of the complete Sphere family.
+
+[NEXT]
+1. Install the newest APK.
+2. Check Standard first and treat it as the immutable visual benchmark.
+3. Then inspect Sniper/Shotgun/Chain/Aura/Prism/Gravity/Pulse/Void for immediate
+   recognizability at gameplay scale.
+4. Fix only concrete PlayerCheck defects.

@@ -192,3 +192,50 @@ Current accepted Standard runtime layers:
 
 Full reference sheets, crops, stickers and their embedded fragments remain
 forbidden as runtime visuals.
+
+
+======================================================================
+[2026-09-30] STANDARD-AS-ETALON + FAMILY VISUAL RULE
+======================================================================
+STANDARD SPHERE IS THE VISUAL BENCHMARK
+---------------------------------------
+The approved Standard Sphere is now the reference implementation for the
+Sphere family's 2.5D design language.
+
+Do not flatten it into generic primitives and do not replace its layered authored
+construction merely to normalize architecture.
+
+The benchmark characteristics are:
+- readable luminous spherical core;
+- layered authored detail;
+- orbital stabilization ring;
+- recognizable shaped attack muzzle;
+- projectile with a tapered comet-like tail;
+- modifier identity communicated by both silhouette and color;
+- mutation identity through richer geometry rather than bare rods/arrowheads;
+- no reference crop, transparent sticker or reference fragment.
+
+OTHER SPHERES
+-------------
+All other Sphere families should use the same visual hierarchy:
+1. recognizable core/silhouette;
+2. one dominant Sphere color from SPHERE_TYPES;
+3. white/hot center for energy focus;
+4. one or more authored-looking layered/faceted contour forms;
+5. restrained Canvas glow and animation;
+6. a shape signature tied to the gameplay behavior.
+
+Current dedicated visual modules:
+- src/spheres/sniperVisual.ts
+- src/spheres/shotgunVisual.ts
+- src/spheres/chainVisual.ts
+- src/spheres/auraVisual.ts
+- src/spheres/orbitalVisual.ts
+- src/spheres/prismVisual.ts
+- src/spheres/gravityVisual.ts
+- src/spheres/pulseVisual.ts
+- src/spheres/voidVisual.ts
+
+The module must remain the visual owner; renderer.ts is only the compositor.
+The existing Standard layered renderer is intentionally exempt from the
+vector-only family rule because it is the user-approved benchmark asset assembly.

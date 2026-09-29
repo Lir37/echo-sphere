@@ -236,3 +236,32 @@ CURRENT HEAD: 980e65d13744978d9c47e2550c4e1e5725ec3eb5
 [DONE] Standard core, orbit ring, crystal layers and multi-line attack remain.
 [CI] #980 SUCCESS.
 [GATE] APK PlayerCheck remains the final human visual check.
+
+
+======================================================================
+[2026-09-30] SPHERE FAMILY VISUAL AUDIT BASELINE
+======================================================================
+CURRENT CODE BASELINE: f35964c7f318087dabbc566f5e88dcead4d9151b
+
+ETALON:
+Standard Sphere's current layered 2.5D design is now the family benchmark.
+Do not redesign its construction concept without a concrete defect or explicit
+user decision.
+
+STANDARD REFINEMENTS:
+[DONE] Smooth muzzle tip, shaft removed.
+[DONE] Curved tapered comet projectile tail, ~25% reduced tail intensity.
+[DONE] Modifier orbit glyphs gain shape identity in addition to color.
+[DONE] Final mutation no longer uses the old straight rods/arrowheads.
+
+FAMILY:
+[DONE] Dedicated TypeScript Canvas renderers added for:
+      sniper, shotgun, chain, aura, prism, gravity, pulse, void.
+[DONE] Renderer dispatches each type to its dedicated visual module.
+[DONE] Existing gameplay/runtime mechanics remain untouched by this visual pass.
+[DONE] Existing Sphere color definitions in gameData.ts are used as the primary
+      family palette.
+[DONE] CI #986 SUCCESS.
+
+[GATE] APK PlayerCheck remains mandatory. Automated CI confirms integration,
+not subjective visual quality.
