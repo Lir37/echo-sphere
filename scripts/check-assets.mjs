@@ -44,7 +44,19 @@ function pngStats(file) {
   if (interlace !== 0 || bitDepth !== 8) return { unsupported: true };
   const channels = ({0:1,2:3,3:1,4:2,6:4})[colorType];
   if (!channels) return { unsupported: true };
-  const raw = zlib.inflateSync(Buffer.concat(idat));
+  const compressed = Buffer.concat(idat);
+  let raw;
+  try {
+    raw = zlib.inflateSync(compressed);
+  } catch {
+    try {
+      // Some existing authored PNGs were exported with a raw-deflate stream.
+      // Accept that legacy encoding while still validating pixel variation.
+      raw = zlib.inflateRawSync(compressed);
+    } catch {
+      return { unsupported: true };
+    }
+  }
   const stride = width * channels;
   let prev = Buffer.alloc(stride), cursor = 0;
   const colors = new Set();
