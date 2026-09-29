@@ -203,3 +203,15 @@ a2dbed64ebfb2291fe1e92ea8d28e9dd6821ef51
 [GATE] APK PlayerCheck remains the visual acceptance gate on a real device.
       The CI screenshot is automated coverage, not a substitute for human
       gameplay-scale visual inspection.
+
+
+[2026-09-29] STANDARD VISUAL ROLLBACK
+CURRENT CODE HEAD: 3616185e1240328592938ac90fd6e3e3efc3628d
+[DONE] Restored the pre-vector layered Standard Sphere visual from the last
+      known good Standard implementation.
+[DONE] Removed the full Standard reference/sticker asset path from runtime.
+[DONE] Restored the individual production PNG layers used by that assembly.
+[DONE] Standard attack/mutation VFX path is restored, including the multi-line
+      forward attack/cannon presentation remembered from the previous build.
+[UNCHANGED] Orbital remains on its current vector-neon production module.
+[GATE] CI + APK PlayerCheck.
