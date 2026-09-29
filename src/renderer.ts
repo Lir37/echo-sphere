@@ -10,7 +10,6 @@ import { RUNE_DEFS } from './runes';
 import { BOSS_TELEGRAPH_WINDOWS } from './bossBalance';
 import { LINK_BREAKER_TELEGRAPH_SECONDS, LINK_BREAKER_DISABLED_SECONDS } from './eliteBalance';
 import { renderOrbitalSphereRuntimeVfx } from './spheres/orbitalVisual';
-import { renderStandardSphereRuntimeVfx } from './spheres/standardVisual';
 import { getRenderViewport } from './renderScale';
 
 // ===== Origami / Paper Craft Style =====
@@ -26,6 +25,7 @@ const MUTATION_COLORS = ['#6eeaff', '#9b7cff', '#d86cff', '#55e6c1', '#b9a7ff'];
 type ArtKey =
   | 'player' | 'player-spherist' | 'player-spherist-side' | 'player-spherist-shield'
 
+  | 'sphere-standard-upper-crystal' | 'sphere-standard-panels' | 'sphere-standard-core' | 'sphere-standard-ring' | 'sphere-standard-lower-crystal'
   | 'sphere-sniper' | 'sphere-shotgun' | 'sphere-chain' | 'sphere-aura'
   | 'sphere-prism' | 'sphere-gravity' | 'sphere-pulse' | 'sphere-void'
   | 'enemy-skitter' | 'enemy-fast' | 'enemy-tank' | 'enemy-moth'
@@ -37,6 +37,11 @@ const ART_PATHS: Record<ArtKey, string> = {
   'player-spherist': '/art/spherist-hybrid-front.svg',
   'player-spherist-side': '/art/spherist-hybrid-3q.svg',
   // Standard Sphere is assembled from transparent production parts, never from a full-sheet sprite.
+  'sphere-standard-upper-crystal': '/art/standard-sphere/upper-crystal.png',
+  'sphere-standard-panels': '/art/standard-sphere/external-panels.png',
+  'sphere-standard-core': '/art/standard-sphere/energy-core.png',
+  'sphere-standard-ring': '/art/standard-sphere/stabilization-ring.png',
+  'sphere-standard-lower-crystal': '/art/standard-sphere/lower-crystal.png',
 
   'sphere-sniper': '/art/sniper.svg',
   'sphere-shotgun': '/art/shotgun.svg',
@@ -91,6 +96,180 @@ function drawArtSprite(
   const dw = iw * imageScale;
   const dh = ih * imageScale;
   ctx.drawImage(image, -dw / 2, -dh / 2, dw, dh);
+  ctx.restore();
+  return true;
+}
+
+type StandardSpherePartKey =
+  | 'sphere-standard-upper-crystal'
+  | 'sphere-standard-panels'
+  | 'sphere-standard-core'
+  | 'sphere-standard-ring'
+  | 'sphere-standard-lower-crystal';
+
+function drawStandardSpherePart(
+  ctx: CanvasRenderingContext2D,
+  key: StandardSpherePartKey,
+  x: number,
+  y: number,
+  size: number,
+  rotation: number,
+  opacity = 1,
+  mirrorX = false,
+  mirrorY = false,
+): boolean {
+  const image = getReferenceArt(key);
+  if (!image) return false;
+  const iw = Math.max(1, image.naturalWidth);
+  const ih = Math.max(1, image.naturalHeight);
+  const scale = Math.min(size / iw, size / ih);
+  const dw = iw * scale;
+  const dh = ih * scale;
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(rotation);
+  ctx.scale(mirrorX ? -1 : 1, mirrorY ? -1 : 1);
+  ctx.globalAlpha = opacity;
+  ctx.globalCompositeOperation = 'screen';
+  ctx.drawImage(image, -dw / 2, -dh / 2, dw, dh);
+  ctx.restore();
+  return true;
+}
+
+function drawStandardSphereCore(
+  ctx: CanvasRenderingContext2D,
+  r: number,
+  pulse: number,
+): void {
+  const glow = ctx.createRadialGradient(-r * 0.08, -r * 0.10, 1, 0, 0, r * 0.62);
+  glow.addColorStop(0, 'rgba(255,255,255,0.98)');
+  glow.addColorStop(0.20, 'rgba(176,244,255,0.96)');
+  glow.addColorStop(0.48, 'rgba(38,170,255,0.78)');
+  glow.addColorStop(0.82, 'rgba(20,92,220,0.34)');
+  glow.addColorStop(1, 'rgba(0,30,90,0)');
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.globalAlpha = 0.82 + pulse * 0.14;
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(0, 0, r * 0.58 * (1 + pulse * 0.035), 0, Math.PI * 2);
+  ctx.fill();
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.fillStyle = 'rgba(30,135,232,0.72)';
+  ctx.strokeStyle = 'rgba(182,247,255,0.90)';
+  ctx.lineWidth = Math.max(0.8, r * 0.035);
+  ctx.beginPath();
+  ctx.arc(0, 0, r * 0.42, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawStandardSphereRing(
+  ctx: CanvasRenderingContext2D,
+  r: number,
+  rotation: number,
+  opacity: number,
+): void {
+  ctx.save();
+  ctx.rotate(rotation);
+  ctx.globalAlpha = opacity;
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.strokeStyle = 'rgba(48,214,255,0.82)';
+  ctx.shadowColor = '#36dfff';
+  ctx.shadowBlur = 3;
+  ctx.lineWidth = Math.max(0.9, r * 0.045);
+  ctx.beginPath();
+  ctx.ellipse(0, 0, r * 0.98, r * 0.34, 0, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.globalAlpha = opacity * 0.55;
+  ctx.lineWidth = Math.max(0.55, r * 0.022);
+  ctx.beginPath();
+  ctx.ellipse(0, 0, r * 0.88, r * 0.27, 0, Math.PI * 0.10, Math.PI * 1.92);
+  ctx.stroke();
+  ctx.restore();
+}
+
+/**
+ * Standard Sphere construction rig.
+ * The approved reference sheet is a construction/layout source.
+ * Runtime assembles the parts and does not draw a full reference crop.
+ */
+function drawStandardSphereAssembly(
+  ctx: CanvasRenderingContext2D,
+  s: GameState,
+  sphere: SphereEntity,
+  r: number,
+  time: number,
+): boolean {
+  const tier = sphere.visualTier || 0;
+  const target = s.enemies.some((enemy) => (
+    enemy.hp > 0 &&
+    Math.hypot(enemy.pos.x - sphere.pos.x, enemy.pos.y - sphere.pos.y) <
+      sphere.radius * SPHERE_TYPES[sphere.type].rangeMult
+  ));
+  const breathe = Math.sin(time * 2.2 + sphere.pos.x * 0.013) * 0.028;
+  const energyPulse = 0.5 + 0.5 * Math.sin(time * 4.6 + sphere.pos.y * 0.009);
+  const targetPulse = target ? 0.5 + 0.5 * Math.sin(time * 11.0) : 0;
+  const attackScale = 1 + targetPulse * 0.025;
+  const ringRotation = time * (0.22 + tier * 0.018);
+  const crystalPulse = 1 + energyPulse * 0.022;
+
+  ctx.save();
+  ctx.translate(sphere.pos.x, sphere.pos.y);
+  ctx.scale(attackScale + breathe * 0.18, attackScale - breathe * 0.12);
+  drawGroundShadow(ctx, r * 1.12, r * 0.25, 5);
+
+  const panelSize = r * 1.92;
+  const coreRadius = r;
+  const ringRadius = r * 1.18;
+  const crystalSize = r * 1.34;
+
+  // The approved exploded panel group is one structural layer. Draw it once.
+  // Duplicating this crop was the source of the "two screenshots" look.
+  const panelY = -r * 0.06 + Math.sin(time * 2.8 + 0.8) * r * 0.012;
+  drawStandardSpherePart(ctx, 'sphere-standard-panels', 0, panelY, panelSize, -0.012, 0.92);
+
+  drawStandardSphereCore(ctx, coreRadius, energyPulse);
+  drawStandardSphereRing(ctx, ringRadius, ringRotation, 0.72 + targetPulse * 0.20);
+
+  drawStandardSpherePart(
+    ctx,
+    'sphere-standard-upper-crystal',
+    0,
+    -r * 0.62 - energyPulse * r * 0.010,
+    crystalSize * crystalPulse,
+    0,
+    1,
+  );
+  // The same approved crystal detail is mirrored vertically for the lower
+  // crystal. This avoids the old lower-crystal crop that contained a second
+  // piece of the reference sheet.
+  drawStandardSpherePart(
+    ctx,
+    'sphere-standard-upper-crystal',
+    0,
+    r * 0.66 + energyPulse * r * 0.010,
+    crystalSize * crystalPulse,
+    0,
+    1,
+    false,
+    true,
+  );
+
+  if (targetPulse > 0.55) {
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.globalAlpha = 0.14 + targetPulse * 0.12;
+    ctx.strokeStyle = '#d9fbff';
+    ctx.lineWidth = Math.max(0.7, r * 0.030);
+    ctx.beginPath();
+    ctx.moveTo(-r * 0.44, -r * 0.22);
+    ctx.lineTo(-r * 0.08, -r * 0.48);
+    ctx.lineTo(r * 0.36, -r * 0.18);
+    ctx.stroke();
+    ctx.restore();
+  }
   ctx.restore();
   return true;
 }
@@ -2102,23 +2281,37 @@ function drawEnemyStatusVfx(ctx: CanvasRenderingContext2D, e: EnemyEntity, t: nu
 
 function drawModernSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: SphereEntity, time: number): void {
   const def = SPHERE_TYPES[sphere.type];
-  const radius = Math.max(15, Math.min(25, sphere.radius * 0.19 + (sphere.visualTier || 0) * 0.8));
+  const r = Math.max(15, Math.min(25, sphere.radius * 0.19 + (sphere.visualTier || 0) * 0.8));
 
   if (sphere.type === 'standard') {
-    renderStandardSphereRuntimeVfx(ctx, sphere, s.player, time, radius / 24);
+    const drawn = drawStandardSphereAssembly(ctx, s, sphere, r, time);
+    if (!drawn) {
+      drawGroundShadow(ctx, r * 1.05, r * 0.24, 4);
+      ctx.save();
+      ctx.translate(sphere.pos.x, sphere.pos.y);
+      ctx.strokeStyle = 'rgba(90,220,255,0.28)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(0, 0, r * 0.62, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    }
+    drawStandardMutationVfx(ctx, s, sphere, r, time);
+    drawStandardAttackVfx(ctx, sphere, r, time);
     drawNetworkDisabledIndicator(ctx, sphere, time);
     return;
   }
 
   if (sphere.type === 'orbital') {
-    renderOrbitalSphereRuntimeVfx(ctx, sphere, s.player, time, radius / 24, s.enemies);
+    renderOrbitalSphereRuntimeVfx(ctx, sphere, s.player, time, r / 24, s.enemies);
     drawNetworkDisabledIndicator(ctx, sphere, time);
     return;
   }
 
   drawNetworkDisabledIndicator(ctx, sphere, time);
-  drawSphereVfx(ctx, sphere, def.color, radius, time);
+  drawSphereVfx(ctx, sphere, def.color, r, time);
 }
+
 function drawSniperMutationVfx(ctx: CanvasRenderingContext2D, game: GameState, sphere: SphereEntity, r: number, time: number): void {
   const mods = game.player.sphereMods;
   const branch = game.player.sphereBranches?.sniper;
