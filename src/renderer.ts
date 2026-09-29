@@ -25,7 +25,7 @@ const MUTATION_COLORS = ['#6eeaff', '#9b7cff', '#d86cff', '#55e6c1', '#b9a7ff'];
 type ArtKey =
   | 'player' | 'player-spherist' | 'player-spherist-side' | 'player-spherist-shield'
 
-  | 'sphere-standard-upper-crystal' | 'sphere-standard-panels' | 'sphere-standard-core' | 'sphere-standard-ring' | 'sphere-standard-lower-crystal'
+  | 'sphere-standard-upper-crystal' | 'sphere-standard-core' | 'sphere-standard-ring' | 'sphere-standard-lower-crystal'
   | 'sphere-sniper' | 'sphere-shotgun' | 'sphere-chain' | 'sphere-aura'
   | 'sphere-prism' | 'sphere-gravity' | 'sphere-pulse' | 'sphere-void'
   | 'enemy-skitter' | 'enemy-fast' | 'enemy-tank' | 'enemy-moth'
@@ -38,7 +38,6 @@ const ART_PATHS: Record<ArtKey, string> = {
   'player-spherist-side': '/art/spherist-hybrid-3q.svg',
   // Standard Sphere is assembled from transparent production parts, never from a full-sheet sprite.
   'sphere-standard-upper-crystal': '/art/standard-sphere/upper-crystal.png',
-  'sphere-standard-panels': '/art/standard-sphere/external-panels.png',
   'sphere-standard-core': '/art/standard-sphere/energy-core.png',
   'sphere-standard-ring': '/art/standard-sphere/stabilization-ring.png',
   'sphere-standard-lower-crystal': '/art/standard-sphere/lower-crystal.png',
@@ -220,15 +219,9 @@ function drawStandardSphereAssembly(
   ctx.scale(attackScale + breathe * 0.18, attackScale - breathe * 0.12);
   drawGroundShadow(ctx, r * 1.12, r * 0.25, 5);
 
-  const panelSize = r * 1.92;
   const coreRadius = r;
   const ringRadius = r * 1.18;
   const crystalSize = r * 1.34;
-
-  // The approved exploded panel group is one structural layer. Draw it once.
-  // Duplicating this crop was the source of the "two screenshots" look.
-  const panelY = -r * 0.06 + Math.sin(time * 2.8 + 0.8) * r * 0.012;
-  drawStandardSpherePart(ctx, 'sphere-standard-panels', 0, panelY, panelSize, -0.012, 0.92);
 
   drawStandardSphereCore(ctx, coreRadius, energyPulse);
   drawStandardSphereRing(ctx, ringRadius, ringRotation, 0.72 + targetPulse * 0.20);
