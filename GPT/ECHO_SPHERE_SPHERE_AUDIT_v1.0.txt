@@ -215,3 +215,14 @@ CURRENT CODE HEAD: 3616185e1240328592938ac90fd6e3e3efc3628d
       forward attack/cannon presentation remembered from the previous build.
 [UNCHANGED] Orbital remains on its current vector-neon production module.
 [GATE] CI + APK PlayerCheck.
+
+
+[2026-09-29] STANDARD REFERENCE FRAGMENT REMOVAL
+CURRENT CODE HEAD: 659c0c32e08f93cda3ee9f3a0ca0cc7ad3338f70
+[DONE] Standard no longer draws sphere-standard-panels / external-panels.png.
+[DONE] The unwanted translucent rectangular overlay and the old reference
+      fragment carried by that raster layer are removed from the runtime path.
+[UNCHANGED] Standard core, stabilization ring, upper/lower crystal assembly and
+            restored multi-line attack presentation remain active.
+[UNCHANGED] Orbital vector-neon renderer remains untouched.
+[GATE] CI + APK PlayerCheck.
