@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<defs>
+<linearGradient id="satMain" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".2" stop-color="#d2f7ff"/><stop offset=".5" stop-color="#4baaff"/><stop offset=".82" stop-color="#1a42bb"/><stop offset="1" stop-color="#07133e"/></linearGradient>
+<linearGradient id="satGold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff1c7"/><stop offset=".45" stop-color="#f2c27b"/><stop offset="1" stop-color="#9a5b30"/></linearGradient>
+</defs>
+<g transform="translate(64 64)">
+<path d="M0-52 20-18 15 5 0 31-15 5-20-18Z" fill="url(#satMain)" stroke="#e9fbff" stroke-width="2"/>
+<path d="M0-52 20-18 0 2-7-23Z" fill="#dffaff" opacity=".70"/>
+<path d="M-20-18 0 2-15 5Z" fill="#214cc4"/><path d="M20-18 0 2 15 5Z" fill="#173ca9"/>
+<path d="M-15 5 0 2 15 5 0 31Z" fill="#123486"/>
+<path d="M-11-2 0-13 11-2 0 13Z" fill="url(#satGold)" stroke="#fff0bd" stroke-width="1.2"/>
+<path d="M0-13 11-2 0 13-11-2Z" fill="none" stroke="#f5c77c" stroke-width="1"/>
+<path d="M-20-18 0 2 20-18M-15 5 0 2 15 5" fill="none" stroke="#8feaff" stroke-opacity=".72" stroke-width="1.2"/>
+</g></svg>
