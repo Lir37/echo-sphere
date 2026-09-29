@@ -738,12 +738,19 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
               onPointerUp={cancelNetworkHold}
               onPointerCancel={cancelNetworkHold}
               onPointerLeave={cancelNetworkHold}
-              className={`rounded border px-1 py-0.5 text-[7px] font-bold tracking-wide ${badge.className} pointer-events-auto`}>
+              className={`select-none rounded border px-1 py-0.5 text-[7px] font-bold tracking-wide ${badge.className} pointer-events-auto`} style={{ userSelect: 'none', WebkitUserSelect: 'none' }} onContextMenu={(event) => event.preventDefault()}>
               {badge.label}
             </span>
           )) : <span className="text-[7px] text-[#7f9bb8]">{lang === 'ru' ? 'ФОРМАЦИЯ НЕ АКТИВНА' : 'NO FORMATION'}</span>}
           {networkTooltip && (
-            <div className="pointer-events-none absolute left-0 top-full z-50 mt-1 w-[220px] rounded-lg border border-cyan-300/20 bg-[#050c16]/95 px-2.5 py-2 text-[8px] leading-4 text-[#cfe7f5] shadow-xl">
+            <div
+              role="button"
+              tabIndex={0}
+              onPointerDown={hideNetworkTooltip}
+              onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') hideNetworkTooltip(); }}
+              className="absolute left-0 top-full z-50 mt-1 w-[220px] select-none rounded-lg border border-cyan-300/20 bg-[#050c16]/95 px-2.5 py-2 text-[8px] leading-4 text-[#cfe7f5] shadow-xl"
+              style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
+            >
               {networkTooltip}
             </div>
           )}
