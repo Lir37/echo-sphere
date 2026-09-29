@@ -24,3 +24,29 @@ Regression coverage now asserts the ten-family inventory, all fifteen new branch
 
 ## Remaining
 Numerical balance still requires playtesting. The next pass should measure time-to-kill, control uptime, Resonance generation and boss damage for each sphere at levels I–VII.
+
+[2026-09-29] ORBITAL SPHERE 2.5D VISUAL PASS #17 — COMPLETE RUNTIME INTEGRATION
+
+IMPLEMENTED:
+- src/orbitalSphereCanvas.js is now the active dedicated Orbital visual layer.
+- public/art/orbital.svg is the authored scalable silhouette: dark faceted body, icy-blue contour, recessed white-to-cyan core, axial crystal terminals and two crossing orbital rails.
+- public/art/orbital-idle-sheet-10x256.png is a transparent 10-frame 256x256-per-frame idle sheet with baked glow. The sheet carries the Tier-1 authored striker; runtime adds one visible satellite per tier step up to seven.
+- Renderer integration uses the idle sheet with drawImage frame selection and overlays the dedicated runtime state machine.
+- IDLE: deterministic core pulse, body bob, front/back orbit halves and continuous satellite motion.
+- ATTACK: auraTimer rising-edge detection drives a short acceleration, orbital trail and impact flash; nearest live enemy to the striker is used as the visual impact point when available.
+- RESONANCE / OVERCHARGE: gold core + charge ring + 18% orbit expansion. Near-full Resonance charge is intentionally readable before the event fires.
+- TIER-UP: short white/cyan pulse and brighter contour; visual satellite count advances 1→7.
+- HIT / DISABLED: orbit freezes visually, core drops in intensity and a deterministic red break-glitch separates the orbital network.
+- Runtime radial gradients are cached per Canvas context/key and translated in local space. No per-frame gradient creation.
+- Orbital runtime module contains no Canvas shadow filter usage and no random jitter.
+- Gameplay mechanics, damage formulas, collision, targeting and progression were not changed.
+
+TECHNICAL VERIFICATION:
+- local Node syntax check of the new Orbital module: PASS.
+- local asset verification: idle sheet 2560x256, transparent, 10 frames; SVG valid UTF-8.
+- Android APK CI #918 failed only at TypeScript declaration resolution for the new JS module.
+- Added src/orbitalSphereCanvas.d.ts.
+- Android APK CI #919 on HEAD d352d4fc2ceba9e21cd9aa045b6a2ce391b1e69b: SUCCESS.
+
+PLAYER CHECK:
+- Human phone validation of the final integrated animation remains a visual acceptance gate.

@@ -2433,3 +2433,39 @@ NEXT:
 - Verify CI #916.
 - Then integrate the Orbital Sphere renderer into the actual Orbital runtime only.
 - Build APK and compare the live in-game result against the reference sheet, especially silhouette, orbital depth, satellite readability and mutation identity.
+
+
+======================================================================
+[2026-09-29] OPERATIONAL UPDATE — ORBITAL VISUAL INTEGRATION
+======================================================================
+
+CURRENT HEAD:
+d352d4fc2ceba9e21cd9aa045b6a2ce391b1e69b
+
+The repository has moved beyond the older historical snapshot at the top of
+this document. Current branch state must be read from HEAD first.
+
+SPHERE STATUS SUPERSEDING THE EARLIER INVENTORY:
+[DONE] Orbital gameplay runtime exists.
+[DONE] Orbital now has a dedicated active 2.5D Canvas visual renderer.
+[DONE] Orbital authored SVG silhouette.
+[DONE] Orbital 10-frame 256x256 idle sprite sheet with baked glow.
+[DONE] IDLE / ATTACK / RESONANCE / TIER-UP / HIT-DISABLED visual states.
+[DONE] 1..7 visual satellite progression tied to Sphere visual tier.
+[PRESERVED] Existing Orbital combat logic and progression were not rewritten.
+
+TECHNICAL:
+[DONE] Orbital runtime radial gradients are cached and reused.
+[DONE] Orbital visual module contains no Canvas shadow-filter calls and no frame-random jitter.
+[DONE] src/orbitalSphereCanvas.d.ts keeps the JS renderer compatible with TypeScript typecheck.
+[DONE] Android APK CI #919 passed on the current HEAD.
+
+ACCEPTANCE GATE:
+[GATE] Human APK PlayerCheck is still required for silhouette readability at
+normal gameplay scale, branch/state readability, Network-link readability and
+perceived 60fps on the target weak Android device.
+
+NEXT:
+1. Human PlayerCheck of Orbital in a real run.
+2. Fix only concrete visual defects exposed by that check.
+3. Do not redesign Standard/Spherist as part of Orbital validation.
