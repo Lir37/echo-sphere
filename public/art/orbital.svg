@@ -23,16 +23,7 @@
   <g transform="translate(128 128)">
     <ellipse rx="84" ry="31" fill="none" stroke="#8ef0ff" stroke-opacity=".30" stroke-width="3"/>
     <ellipse rx="70" ry="28" transform="rotate(58)" fill="none" stroke="#8ef0ff" stroke-opacity=".20" stroke-width="2.5"/>
-    <g fill="url(#blade)" stroke="#8ef0ff" stroke-width="2">
-      <path d="M-83 0 l13-6 16 4-11 8-16 4z" transform="rotate(-13)"/>
-      <path d="M-83 0 l13-6 16 4-11 8-16 4z" transform="rotate(77)"/>
-      <path d="M-83 0 l13-6 16 4-11 8-16 4z" transform="rotate(167)"/>
-      <path d="M-83 0 l13-6 16 4-11 8-16 4z" transform="rotate(257)"/>
-      <path d="M-69 0 l11-5 14 4-10 7-14 3z" transform="rotate(58)"/>
-      <path d="M-69 0 l11-5 14 4-10 7-14 3z" transform="rotate(148)"/>
-      <path d="M-69 0 l11-5 14 4-10 7-14 3z" transform="rotate(238)"/>
-      <path d="M-69 0 l11-5 14 4-10 7-14 3z" transform="rotate(328)"/>
-    </g>
+
     <path d="M0-46 30-32 43-8 31 28 0 45-32 28-43-8-30-32Z" fill="#06111d" stroke="#8ef0ff" stroke-width="3"/>
     <path d="M-30-32 0-10 30-32M-43-8 0-10 43-8M-32 28 0-10 31 28"
           fill="none" stroke="#8ef0ff" stroke-opacity=".30" stroke-width="1.5"/>
