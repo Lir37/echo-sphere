@@ -226,3 +226,13 @@ CURRENT CODE HEAD: 659c0c32e08f93cda3ee9f3a0ca0cc7ad3338f70
             restored multi-line attack presentation remain active.
 [UNCHANGED] Orbital vector-neon renderer remains untouched.
 [GATE] CI + APK PlayerCheck.
+
+
+[2026-09-29] STANDARD OVERLAY CLEANUP VALIDATED
+CURRENT HEAD: 980e65d13744978d9c47e2550c4e1e5725ec3eb5
+[DONE] Removed sphere-standard-panels from renderer.ts and removed the backing
+      external-panels.png asset.
+[DONE] The known rectangular overlay / old-reference fragment path is gone.
+[DONE] Standard core, orbit ring, crystal layers and multi-line attack remain.
+[CI] #980 SUCCESS.
+[GATE] APK PlayerCheck remains the final human visual check.
