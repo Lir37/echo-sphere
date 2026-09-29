@@ -176,3 +176,19 @@ external-panels.png was removed because APK inspection showed that the raster
 contained an unwanted translucent rectangular background and a leftover
 fragment from the previous reference image. A reference fragment must never
 be retained merely because it is bundled inside an otherwise useful crop.
+
+
+[2026-09-29] STANDARD OVERLAY CLEANUP LOCK
+Standard layered production rendering must not retain a crop merely because
+it contains useful-looking fragments. The former external-panels.png crop was
+removed after it was confirmed to carry an unwanted translucent rectangle and
+an old reference fragment.
+
+Current accepted Standard runtime layers:
+- energy-core.png
+- stabilization-ring.png
+- upper-crystal.png
+- lower-crystal.png
+
+Full reference sheets, crops, stickers and their embedded fragments remain
+forbidden as runtime visuals.
