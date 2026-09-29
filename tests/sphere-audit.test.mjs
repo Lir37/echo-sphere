@@ -70,10 +70,12 @@ for (const token of ['orbital_crown','prism_filter','prism_crown','gravity_bead'
 }
 
 
-for (const type of ['orbital','prism','gravity','pulse','void']) {
+for (const type of ['prism','gravity','pulse','void']) {
   assert.match(renderer, new RegExp("sphere-" + type), 'Renderer art key missing: ' + type);
   assert.match(renderer, new RegExp("/art/" + type + "\\.svg"), 'Artwork path missing: ' + type);
 }
+assert.match(renderer, /renderOrbitalSphereRuntimeVfx/, 'Orbital dedicated visual module is not integrated');
+assert.match(read('src/spheres/orbitalVisual.ts'), /orbital-shell\\.svg/, 'Orbital shell production asset missing');
 assert.match(renderer, /sphere\.type === 'orbital'[\s\S]*satelliteCount/, 'Orbital satellite visuals missing');
 assert.match(engine, /satelliteCount[\s\S]*bestAngularDistance/, 'Orbital satellite damage targeting missing');
 assert.match(collision, /resolvePlayerTowerCollisions/, 'Sphere physical collision layer missing');
