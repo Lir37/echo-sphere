@@ -581,7 +581,7 @@ function drawPlayerShield(ctx: CanvasRenderingContext2D, s: GameState): void {
   ctx.globalCompositeOperation = 'source-over';
 
   if (getCharacterId(s) === 'spherist') {
-    const drawn = drawArtSprite(ctx, 'player-spherist-shield', 0, 0, radius * 2.20, '#63e6ff', 0, 0.92);
+    const drawn = drawArtSprite(ctx, 'player-spherist-shield', 0, 0, radius * 2.20, 0, 0.92);
     if (drawn) {
       ctx.restore();
       return;
@@ -1480,7 +1480,7 @@ function drawPlayer(ctx: CanvasRenderingContext2D, p: PlayerState): void {
         0,
       );
       ctx.scale(pulse * (1 - fold * 0.18), pulse * (1 - fold * 0.18));
-      const drawn = drawArtSprite(ctx, 'player-spherist', 0, 0, r * 2.9, color, viewRotation + fold * 0.25, 1 - deathProgress * 0.92);
+      const drawn = drawArtSprite(ctx, 'player-spherist', 0, 0, r * 2.9, viewRotation + fold * 0.25, 1 - deathProgress * 0.92);
       if (drawn) {
         const fragmentProgress = Math.max(0, (deathProgress - 0.22) / 0.78);
         ctx.save();
@@ -1510,7 +1510,7 @@ function drawPlayer(ctx: CanvasRenderingContext2D, p: PlayerState): void {
       ctx.translate(0, viewBob);
       ctx.scale(pulse * viewScale, pulse * viewScale);
       if (moving && movingRight) ctx.scale(-1, 1);
-      const drawn = drawArtSprite(ctx, viewKey, 0, 0, r * 2.9, color, viewRotation, 1);
+      const drawn = drawArtSprite(ctx, viewKey, 0, 0, r * 2.9, viewRotation, 1);
       if (drawn) {
         // Small authored VFX accents. The character asset remains untouched and readable.
         ctx.save();
@@ -2830,7 +2830,7 @@ function drawModernSphere_DEPRECATED(ctx: CanvasRenderingContext2D, s: GameState
   drawGroundShadow(ctx, r * 0.90, r * 0.24, 6);
   drawNetworkDisabledIndicator(ctx, sphere, time);
 
-  const drawn = drawArtSprite(ctx, artKey, 0, -r * 0.14, r * 3.15, color, Math.sin(time * 0.7 + sphere.pos.x * 0.01) * 0.025);
+  const drawn = drawArtSprite(ctx, artKey, 0, -r * 0.14, r * 3.15, Math.sin(time * 0.7 + sphere.pos.x * 0.01) * 0.025);
   if (drawn) {
     // Orbital satellites are damage emitters, not physics bodies. They are
     // rendered from the same angular state used by engine.ts and never enter

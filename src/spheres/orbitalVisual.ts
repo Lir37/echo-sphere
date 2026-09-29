@@ -1,6 +1,7 @@
 import type { EnemyEntity, PlayerState, SphereEntity } from '../engine';
 
 const TAU = Math.PI * 2;
+const EPS = 0.0001;
 export const ORBITAL_VISUAL = Object.freeze({
   BASE_RADIUS_PX: 24,
   BODY_COLOR: '#06111d',
