@@ -2364,3 +2364,10 @@ NEXT:
 - Old procedural Standard silhouette is no longer a runtime fallback.
 - This is the first implementation of the new sphere-design rule. Orbital and mutation-specific component extraction remain pending.
 
+
+[2026-09-29] STANDARD SPHERE VISUAL OVERLAP FIX
+- APK PlayerCheck showed the first 2.5D assembly looked like two overlapping reference crops, with one rotating as a whole.
+- Root cause in the assembly: the external-panel crop was drawn twice, while the ring/core/lower-crystal crops themselves contained neighboring reference elements from the exploded sheet.
+- Standard assembly was changed to one structural panel layer, a dedicated core layer, a dedicated rotating stabilization-ring effect, and independent crystal layers.
+- The obsolete lower-crystal crop is no longer used at runtime; the approved upper-crystal detail is mirrored vertically for the lower position.
+- Player/Spherist rendering was not changed.
