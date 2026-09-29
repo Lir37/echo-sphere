@@ -1,3 +1,4 @@
+import { cssPointToWorld } from './renderScale';
 import { useEffect, useRef, useState } from 'react';
 import { Pause, Zap, Lock, Unlock } from 'lucide-react';
 import { ABILITIES, SPHERE_TYPES, type AbilityType, type SphereType } from './gameData';
@@ -95,7 +96,7 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
     // Do NOT convert with canvas.width / rect.width here: that mixes backing-store pixels with world pixels.
     const logicalX = clientX - rect.left;
     const logicalY = clientY - rect.top;
-    return { x: logicalX - rect.width / 2 + st.camera.x, y: logicalY - rect.height / 2 + st.camera.y };
+    return cssPointToWorld(clientX, clientY, rect, st.camera.x, st.camera.y);
   };
 
   const buildGhostPreview = (st: GameState, sphere: SphereEntity, sphereIndex: number, x: number, y: number): GhostPreview => {

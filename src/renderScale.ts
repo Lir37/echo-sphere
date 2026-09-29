@@ -48,6 +48,19 @@ export function installCanvasResolutionPolicy(canvas: HTMLCanvasElement): () => 
   };
 }
 
+export function cssPointToWorld(
+  clientX: number,
+  clientY: number,
+  rect: Pick<DOMRectReadOnly, 'left' | 'top' | 'width' | 'height'>,
+  cameraX: number,
+  cameraY: number,
+): { x: number; y: number } {
+  return {
+    x: clientX - rect.left - rect.width / 2 + cameraX,
+    y: clientY - rect.top - rect.height / 2 + cameraY,
+  };
+}
+
 export function getRenderViewport(canvas: HTMLCanvasElement, backingWidth: number, backingHeight: number): CanvasRenderViewport {
   const cssWidth = Math.max(1, canvas.clientWidth || backingWidth);
   const cssHeight = Math.max(1, canvas.clientHeight || backingHeight);
