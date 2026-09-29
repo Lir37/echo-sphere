@@ -9,7 +9,7 @@ import { getNetworkFrame } from './engineRuntime';
 import { RUNE_DEFS } from './runes';
 import { BOSS_TELEGRAPH_WINDOWS } from './bossBalance';
 import { LINK_BREAKER_TELEGRAPH_SECONDS, LINK_BREAKER_DISABLED_SECONDS } from './eliteBalance';
-import { renderOrbitalSphereRuntimeVfx } from './spheres/orbitalVisual';
+import { renderOrbitalSphereRuntimeVfx, renderOrbitalSphereAttackersVfx } from './spheres/orbitalVisual';
 import { getRenderViewport } from './renderScale';
 import { renderSniperSphereRuntimeVfx } from './spheres/sniperVisual';
 import { renderShotgunSphereRuntimeVfx } from './spheres/shotgunVisual';
@@ -225,7 +225,6 @@ function drawStandardSphereAssembly(
   ctx.save();
   ctx.translate(sphere.pos.x, sphere.pos.y);
   ctx.scale(attackScale + breathe * 0.18, attackScale - breathe * 0.12);
-  drawGroundShadow(ctx, r * 1.12, r * 0.25, 5);
 
   const coreRadius = r;
   const ringRadius = r * 1.18;
@@ -456,6 +455,14 @@ function drawRune(ctx: CanvasRenderingContext2D, rune: GameState['runes'][number
 
   // enemies
   for (const e of s.enemies) drawModernEnemy(ctx, e, s.player.pos);
+
+  // Orbital attackers are the only Sphere attack layer intentionally composited above enemies.
+  for (const sphere of s.spheres) {
+    if (sphere.alive && sphere.type === 'orbital') {
+      const orbitScale = Math.max(15, Math.min(25, sphere.radius * 0.19 + (sphere.visualTier || 0) * 0.8)) / 24;
+      renderOrbitalSphereAttackersVfx(ctx, sphere, s.player, s.time, orbitScale, s.enemies);
+    }
+  }
 
   drawPlayerShield(ctx, s);
 
@@ -3120,97 +3127,75 @@ function drawWavyNetworkLink(
 ): void {
   const dx=to.x-from.x,dy=to.y-from.y,len=Math.hypot(dx,dy)||1;
   const nx=-dy/len,ny=dx/len;
-  const amp=Math.min(8.5,2.9+len*.011);
-  const steps=16;
-  const phase=time*(active?2.7:1.75)+seed;
-  const path=(extra=0)=>{
+  const amp=Math.min(6.2,2.2+len*.008);
+  const steps=24;
+  const phase=time*(active?1.9:1.35)+seed;
+
+  const pointAt=(p:number):{x:number;y:number}=>{
+    const q=Math.max(0,Math.min(1,p));
+    const wave=Math.sin(phase+q*Math.PI*4.2)*amp*Math.sin(Math.PI*q);
+    return {
+      x:from.x+dx*q+nx*wave,
+      y:from.y+dy*q+ny*wave,
+    };
+  };
+
+  const path=()=>{
     ctx.beginPath();
-    ctx.moveTo(from.x,from.y);
-    for(let i=1;i<steps;i++){
-      const p=i/steps;
-      const wave=Math.sin(phase+p*Math.PI*4.6)*amp*Math.sin(Math.PI*p);
-      const x=from.x+dx*p+nx*(wave+extra*Math.sin(i*1.7+phase));
-      const y=from.y+dy*p+ny*(wave+extra*Math.sin(i*1.7+phase));
-      ctx.lineTo(x,y);
+    const first=pointAt(0);
+    ctx.moveTo(first.x,first.y);
+    for(let i=1;i<=steps;i++){
+      const p=pointAt(i/steps);
+      ctx.lineTo(p.x,p.y);
     }
-    ctx.lineTo(to.x,to.y);
   };
 
   ctx.save();
-  ctx.lineJoin='round';ctx.lineCap='round';
+  ctx.lineJoin='round';
+  ctx.lineCap='round';
 
-  // Restrained layered glow: brighter than the performance pass, but still
-  // free of shadowBlur and without introducing a new expensive effect path.
-  ctx.globalAlpha=alpha*(active?.30:.18);
+  ctx.globalAlpha=alpha*(active?.22:.12);
   ctx.strokeStyle=color;
-  ctx.lineWidth=active?8.0:5.2;
-  path();ctx.stroke();
+  ctx.lineWidth=active?5.8:3.6;
+  path();
+  ctx.stroke();
 
-  ctx.globalAlpha=alpha;
-  ctx.lineWidth=active?3.4:2.4;
-  path();ctx.stroke();
+  ctx.globalAlpha=alpha*(active?.82:.64);
+  ctx.lineWidth=active?2.55:1.95;
+  path();
+  ctx.stroke();
 
-  ctx.globalAlpha=alpha*(active?.95:.78);
-  ctx.lineWidth=active?1.15:.85;
-  path();ctx.stroke();
+  ctx.globalAlpha=alpha*(active?.72:.58);
+  ctx.lineWidth=active?.92:.70;
+  path();
+  ctx.stroke();
 
-  // Every visible connection carries energy. Formation links are brighter,
-  // but quiet links still receive the same readable comet language.
-  const packetCount=4;
+  // Continuous normalized motion fixes the old segment-to-segment stepping.
+  const packetCount=3;
   for(let packet=0;packet<packetCount;packet++){
-    const rawPhase=((time*(active?.48:.365)+seed*.031+packet*.47)%1+1)%1;
-    const phaseP=packet%2===0 ? rawPhase : 1-rawPhase;
-    const seg=Math.max(1,Math.min(steps-1,Math.floor(phaseP*steps)));
-    const p0=(seg-1.25)/steps,p1=(seg+.78)/steps;
-    const clamp=(v:number)=>Math.max(0,Math.min(1,v));
-    const cp0=clamp(p0),cp1=clamp(p1);
-    const w0=Math.sin(phase+cp0*Math.PI*4.6)*amp*Math.sin(Math.PI*cp0);
-    const w1=Math.sin(phase+cp1*Math.PI*4.6)*amp*Math.sin(Math.PI*cp1);
-    const x0=from.x+dx*p0+nx*w0, y0=from.y+dy*p0+ny*w0;
-    const x1=from.x+dx*p1+nx*w1, y1=from.y+dy*p1+ny*w1;
-    const mx=(x0+x1)*.5,my=(y0+y1)*.5;
-    ctx.save();
-    ctx.translate(mx,my);
-    ctx.rotate(Math.atan2(y1-y0,x1-x0));
+    const raw=((time*(active?.34:.27)+seed*.027+packet/packetCount)%1+1)%1;
+    const p=packet%2===0?raw:1-raw;
+    const tailP=Math.max(0,p-(active?.075:.06));
+    const head=pointAt(p);
+    const tail=pointAt(tailP);
+    const angle=Math.atan2(head.y-tail.y,head.x-tail.x);
 
-    // Larger comet head with a longer luminous tail.
-    ctx.globalAlpha=(active?.98:.78)*alpha;
+    ctx.save();
+    ctx.translate(head.x,head.y);
+    ctx.rotate(angle);
+    ctx.globalAlpha=(active?.86:.62)*alpha;
     ctx.fillStyle='#f8ffff';
     ctx.beginPath();
-    ctx.moveTo(11.5,0);ctx.lineTo(-3.8,-5.0);ctx.lineTo(-9.5,0);ctx.lineTo(-3.8,5.0);ctx.closePath();
-    ctx.fill();
-    ctx.fillStyle=color;
-    ctx.globalAlpha=(active?.94:.70)*alpha;
-    ctx.beginPath();
-    ctx.moveTo(7.5,0);ctx.lineTo(-12.5,-2.2);ctx.lineTo(-19.0,0);ctx.lineTo(-12.5,2.2);ctx.closePath();
-    ctx.fill();
+    ctx.moveTo(7.5,0);ctx.lineTo(-2,-3);ctx.lineTo(-5.2,0);ctx.lineTo(-2,3);ctx.closePath();ctx.fill();
 
-    // Sparkling wake around each comet.
-    const sparkCount=10;
-    for(let spark=0;spark<sparkCount;spark++){
-      const sa=(spark-2.5)*.48+Math.sin(time*10.5+seed+spark*1.7)*.24;
-      const sd=8.5+spark*1.9;
-      const sx=-Math.cos(sa)*sd;
-      const sy=-Math.sin(sa)*sd*.74;
-      const sr=.9+(spark===3?.85:0)+(active?.28:0);
-      ctx.globalAlpha=(active?.78:.56)*alpha;
-      ctx.fillStyle=spark===2||spark===7?'#ffffff':'#dffcff';
-      ctx.beginPath();ctx.arc(sx,sy,sr,0,Math.PI*2);ctx.fill();
-      if(spark%2===0){
-        ctx.globalAlpha=(active?.52:.34)*alpha;
-        ctx.lineWidth=.95;
-        ctx.strokeStyle='#dffcff';
-        ctx.beginPath();
-        ctx.moveTo(sx-2.8,sy);ctx.lineTo(sx+2.8,sy);
-        ctx.moveTo(sx,sy-2.8);ctx.lineTo(sx,sy+2.8);
-        ctx.stroke();
-      }
-    }
+    ctx.globalAlpha=(active?.48:.34)*alpha;
+    ctx.fillStyle=color;
+    ctx.beginPath();
+    ctx.moveTo(-1.5,0);ctx.lineTo(-10.5,-1.7);ctx.lineTo(-15,0);ctx.lineTo(-10.5,1.7);ctx.closePath();ctx.fill();
     ctx.restore();
   }
   ctx.restore();
 }
-
 function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, network: SphereNetworkState): void {
   if (network.nodes.length < 2) return;
 
@@ -3258,19 +3243,19 @@ function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, network:
     let color = '#63b9ff';
     let active = false;
     if (lineNode) {
-      alpha = 0.64;
+      alpha = 0.50;
       color = '#63e6ff';
       active = true;
     } else if (squareNode) {
-      alpha = 0.64;
+      alpha = 0.48;
       color = '#69b7ff';
       active = true;
     } else if (triangleNode) {
-      alpha = 0.68;
+      alpha = 0.54;
       color = '#ffb84d';
       active = true;
     } else if (clusterNode) {
-      alpha = 0.56;
+      alpha = 0.44;
       color = '#b38cff';
       active = true;
     }

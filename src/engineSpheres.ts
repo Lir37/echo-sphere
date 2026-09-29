@@ -253,7 +253,10 @@ function updatePrismSphere(s: GameState, sphere: SphereEntity, damage: number, r
     .sort((a, b) => b.hp - a.hp);
   if (candidates.length === 0) return;
 
-  let beamCount = Math.max(1, 1 + mods.multishot);
+    // Prism is a directed beam emitter and its visual weapon follows the selected target.
+  sphere.rotation = Math.atan2(candidates[0].pos.y - sphere.pos.y, candidates[0].pos.x - sphere.pos.x);
+
+let beamCount = Math.max(1, 1 + mods.multishot);
   if (branch === 'prism_split' && finalIndex === 2) beamCount += 1;
   const status = getActiveStatusEffect(s);
   const used = new Set<EnemyEntity>();
@@ -489,7 +492,8 @@ export function updateSpheres(s: GameState, dt: number): void {
         const formationPierce = getCharacterId(s) === 'architect' && formation.type === 'line' ? 1 : 0;
         for (let i = 0; i < shots; i++) {
           const spread = shots > 1 ? (i - (shots - 1) / 2) * ((stype.spread * (sphereModifiers(s, sphere.type).spreadMult || 1)) / Math.max(1, shots - 1) || 0.15) : 0;
-          const a = Math.atan2(dirY, dirX) + spread;
+          const angle = Math.atan2(dirY, dirX) + spread;
+          const isChainAttack = stype.chain;
           let effect: 'none' | 'fire' | 'freeze' | 'poison' = 'none';
           if (mods.fire > 0) effect = 'fire';
           else if (mods.freeze > 0) effect = 'freeze';
@@ -499,55 +503,64 @@ export function updateSpheres(s: GameState, dt: number): void {
           else if (effect === 'freeze') color = '#4a7a8a';
           else if (effect === 'poison') color = '#5a8c4a';
           const speed = 350 * stype.projectileSpeedMult;
-          s.sphereProjectiles.push({
-            pos: { ...sphere.pos },
-            vel: { x: Math.cos(a) * speed, y: Math.sin(a) * speed },
-            damage: damage * relayMultiplier * (resonanceLineBurst ? 1.60 : 1),
-            radius: 5,
-            alive: true,
-            color,
-            pierce: mods.pierce + formationPierce + (networkProfile.line ? 1 : 0) + (networkProfile.square ? 1 : 0) + (stype.chain ? Math.max(1, sphereModifiers(s, 'chain').chainTargets) : sphereModifiers(s, sphere.type).pierce),
-            hitEnemies: new Set(),
-            effect,
-            ricochet: mods.ricochet,
-            life: 2,
-            sourceSphere: sphere,
-          });
-          // chain lightning: instantly hit nearby enemies
-          if (stype.chain) {
+
+          if (!isChainAttack) {
+            s.sphereProjectiles.push({
+              pos: { ...sphere.pos },
+              vel: { x: Math.cos(angle) * speed, y: Math.sin(angle) * speed },
+              damage: damage * relayMultiplier * (resonanceLineBurst ? 1.60 : 1),
+              radius: 5,
+              alive: true,
+              color,
+              pierce: mods.pierce + formationPierce + (networkProfile.line ? 1 : 0) + (networkProfile.square ? 1 : 0) + sphereModifiers(s, sphere.type).pierce,
+              hitEnemies: new Set(),
+              effect,
+              ricochet: mods.ricochet,
+              life: 2,
+              sourceSphere: sphere,
+            });
+          } else {
+            // Chain attack is electrical and instant: no projectile object is spawned.
             const chainTargets: EnemyEntity[] = [];
             let current = nearest;
             const hitSet = new Set<EnemyEntity>([current]);
+
             for (let c = 0; c < Math.max(0, sphereModifiers(s, sphere.type).chainTargets); c++) {
               let next: EnemyEntity | null = null;
-              let cd2 = Infinity;
-              for (const e2 of s.enemies) {
-                if (e2.hp <= 0 || hitSet.has(e2)) continue;
-                const dd = dist(e2.pos, current.pos);
-                if (dd < 150 && dd < cd2) { cd2 = dd; next = e2; }
+              let closestDistance = Infinity;
+              for (const candidate of s.enemies) {
+                if (candidate.hp <= 0 || hitSet.has(candidate)) continue;
+                const distance = dist(candidate.pos, current.pos);
+                if (distance < 150 && distance < closestDistance) {
+                  closestDistance = distance;
+                  next = candidate;
+                }
               }
               if (!next) break;
               chainTargets.push(next);
               hitSet.add(next);
               current = next;
             }
-            // apply damage to chain targets
+
             const chainBranch = s.player.sphereBranches?.[sphere.type];
-            const chainFinalId = (s.player.evolutions || []).find((x: string) => x.startsWith('sphere:' + sphere.type + ':7:'));
+            const chainFinalId = (s.player.evolutions || []).find((id: string) => id.startsWith('sphere:' + sphere.type + ':7:'));
             const chainFinalIndex = chainFinalId ? Number(chainFinalId.split(':').pop()) : null;
             const toxicNetwork = getActiveSphereAbilitySynergies(s).some((link) =>
               link.character === 'alchemist' && link.sphere === 'chain' && link.ability === 'lightning'
             );
+
+            s.lightnings.push({ from: { ...sphere.pos }, to: { ...nearest.pos }, life: 0.30 });
+
             for (let chainIndex = 0; chainIndex < chainTargets.length; chainIndex++) {
-              const ct = chainTargets[chainIndex];
+              const target = chainTargets[chainIndex];
               const stormMultiplier = chainBranch === 'chain_storm' ? 1 + chainIndex * 0.15 : 1;
               const finalMultiplier = chainFinalIndex === 0 ? 1.15 : 1;
-              dealDamageToEnemy(s, ct, damage * 0.7 * relayMultiplier * stormMultiplier * finalMultiplier, sphere);
+              dealDamageToEnemy(s, target, damage * 0.7 * relayMultiplier * stormMultiplier * finalMultiplier, sphere);
               if (toxicNetwork) {
-                ct.fireTimer = Math.max(ct.fireTimer || 0, 1.5);
-                ct.poisonTimer = Math.max(ct.poisonTimer || 0, 1.5);
+                target.fireTimer = Math.max(target.fireTimer || 0, 1.5);
+                target.poisonTimer = Math.max(target.poisonTimer || 0, 1.5);
               }
-              s.lightnings.push({ from: { ...nearest.pos }, to: { ...ct.pos }, life: 0.3 });
+              s.lightnings.push({ from: { ...nearest.pos }, to: { ...target.pos }, life: 0.30 });
             }
           }
         }

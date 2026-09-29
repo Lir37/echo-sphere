@@ -1,46 +1,20 @@
 import type { PlayerState, SphereEntity } from '../engine';
 import { core, finishDisabled, stateColor, glow } from './visualHelpers';
 
-export function renderPrismSphereRuntimeVfx(ctx: CanvasRenderingContext2D, sphere: SphereEntity, player: PlayerState, time: number, scale = 1): void {
-  const st = stateColor(sphere, player, '#ff8de1', time);
-  const r = 24 * scale, rot = st.animationTime * .16;
-  ctx.save();
-  ctx.translate(sphere.pos.x, sphere.pos.y);
-  ctx.globalCompositeOperation = 'lighter';
-  glow(ctx, r * 2.25, st.color, st.disabled ? .05 : .14);
-  ctx.restore();
-
-  ctx.save();
-  ctx.translate(sphere.pos.x, sphere.pos.y);
-  ctx.rotate(rot);
-  ctx.globalAlpha = st.disabled ? .18 : .90;
-  ctx.strokeStyle = st.color;
-  ctx.lineWidth = 1.7;
-  ctx.beginPath();
-  ctx.moveTo(0, -r);
-  ctx.quadraticCurveTo(r * .82, -r * .52, r * .72, r * .30);
-  ctx.quadraticCurveTo(r * .48, r * .92, 0, r * .72);
-  ctx.quadraticCurveTo(-r * .48, r * .92, -r * .72, r * .30);
-  ctx.quadraticCurveTo(-r * .82, -r * .52, 0, -r);
-  ctx.closePath();
-  ctx.stroke();
-  ctx.globalAlpha = st.disabled ? .12 : .58;
-  ctx.beginPath();
-  ctx.moveTo(-r * .52, 0);
-  ctx.quadraticCurveTo(-r * .14, -r * .22, 0, -r * .58);
-  ctx.quadraticCurveTo(r * .14, -r * .22, r * .52, 0);
-  ctx.quadraticCurveTo(r * .14, r * .22, 0, r * .58);
-  ctx.quadraticCurveTo(-r * .14, r * .22, -r * .52, 0);
-  ctx.stroke();
-  for (let i = 0; i < 3; i++) {
-    const a = st.animationTime * .34 + i * Math.PI * 2 / 3;
-    ctx.beginPath();
-    ctx.moveTo(Math.cos(a) * r * .44, Math.sin(a) * r * .44);
-    ctx.quadraticCurveTo(Math.cos(a + .45) * r * .96, Math.sin(a + .45) * r * .72, Math.cos(a) * r * 1.18, Math.sin(a) * r * .50);
-    ctx.stroke();
-  }
-  core(ctx, r * .50, st.color, st.pulse);
-  finishDisabled(ctx, r, st.color, st.disabled);
-  ctx.restore();
+function prismWeapon(ctx:CanvasRenderingContext2D,r:number,color:string,disabled:boolean):void{
+  ctx.globalAlpha=disabled?.13:.92;ctx.fillStyle='#07111d';ctx.strokeStyle=color;ctx.lineWidth=1.25;
+  ctx.beginPath();ctx.moveTo(r*.38,-r*.21);ctx.lineTo(r*1.02,-r*.17);ctx.lineTo(r*1.32,0);ctx.lineTo(r*1.02,r*.17);ctx.lineTo(r*.38,r*.21);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.globalAlpha=disabled?.08:.76;ctx.strokeStyle='#ffffff';ctx.beginPath();ctx.moveTo(r*1.13,-r*.10);ctx.lineTo(r*1.13,r*.10);ctx.arc(r*1.32,0,r*.08,-Math.PI*.7,Math.PI*.7);ctx.stroke();
+}
+export function renderPrismSphereRuntimeVfx(ctx:CanvasRenderingContext2D,sphere:SphereEntity,player:PlayerState,time:number,scale=1):void{
+  const st=stateColor(sphere,player,'#ff8de1',time),r=24*scale;
+  ctx.save();ctx.translate(sphere.pos.x,sphere.pos.y);ctx.globalCompositeOperation='lighter';glow(ctx,r*2.30,st.color,st.disabled?.05:.13);ctx.restore();
+  ctx.save();ctx.translate(sphere.pos.x,sphere.pos.y);ctx.rotate(sphere.rotation||0);ctx.globalCompositeOperation='source-over';
+  ctx.globalAlpha=st.disabled?.16:.92;ctx.fillStyle='#07111d';ctx.strokeStyle=st.color;ctx.lineWidth=1.65;
+  ctx.beginPath();ctx.moveTo(0,-r*.96);ctx.lineTo(r*.70,-r*.36);ctx.lineTo(r*.80,r*.22);ctx.lineTo(r*.36,r*.76);ctx.lineTo(0,r*.90);ctx.lineTo(-r*.42,r*.67);ctx.lineTo(-r*.76,r*.22);ctx.lineTo(-r*.68,-r*.42);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.globalAlpha=st.disabled?.08:.50;ctx.strokeStyle='#ffffff';ctx.lineWidth=.85;ctx.beginPath();ctx.moveTo(-r*.46,0);ctx.lineTo(0,-r*.52);ctx.lineTo(r*.50,0);ctx.lineTo(0,r*.52);ctx.closePath();ctx.stroke();
+  prismWeapon(ctx,r,st.color,st.disabled);
+  for(let i=0;i<2;i++){ctx.globalAlpha=st.disabled?.07:.30;ctx.strokeStyle=st.color;ctx.lineWidth=.8;ctx.beginPath();ctx.moveTo(r*.58,-r*(.42+i*.10));ctx.lineTo(r*(1.06+i*.08),-r*(.16-i*.04));ctx.stroke();}
+  core(ctx,r*.44,st.color,st.pulse);finishDisabled(ctx,r,st.color,st.disabled);ctx.restore();
 }
 export default renderPrismSphereRuntimeVfx;

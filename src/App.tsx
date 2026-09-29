@@ -652,6 +652,14 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
   const network = analyzeSphereNetwork(st.spheres);
   const [networkTooltip, setNetworkTooltip] = useState<string | null>(null);
   const networkHoldRef = useRef<number | null>(null);
+  const networkTooltipAutoHideRef = useRef<number | null>(null);
+
+  const hideNetworkTooltip = (): void => {
+    setNetworkTooltip(null);
+    if (networkTooltipAutoHideRef.current !== null) window.clearTimeout(networkTooltipAutoHideRef.current);
+    networkTooltipAutoHideRef.current = null;
+  };
+
   const startNetworkHold = (label: string): void => {
     if (networkHoldRef.current !== null) window.clearTimeout(networkHoldRef.current);
     networkHoldRef.current = window.setTimeout(() => {
@@ -665,12 +673,26 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
         FRACTAL: lang === 'ru' ? 'Позволяет рекурсивно связывать эффекты более сложной Geometry.' : 'Enables recursive interactions between advanced Geometry layers.',
       };
       setNetworkTooltip(effects[label] || null);
+      if (networkTooltipAutoHideRef.current !== null) window.clearTimeout(networkTooltipAutoHideRef.current);
+      networkTooltipAutoHideRef.current = window.setTimeout(() => {
+        setNetworkTooltip(null);
+        networkTooltipAutoHideRef.current = null;
+      }, 5000);
+      networkHoldRef.current = null;
     }, 520);
   };
+
   const cancelNetworkHold = (): void => {
-    if (networkHoldRef.current !== null) window.clearTimeout(networkHoldRef.current);
-    networkHoldRef.current = null;
+    if (networkHoldRef.current !== null) {
+      window.clearTimeout(networkHoldRef.current);
+      networkHoldRef.current = null;
+    }
   };
+
+  useEffect(() => () => {
+    if (networkHoldRef.current !== null) window.clearTimeout(networkHoldRef.current);
+    if (networkTooltipAutoHideRef.current !== null) window.clearTimeout(networkTooltipAutoHideRef.current);
+  }, []);
 
   const networkBadges = [
     network.line ? { id: 'LINE', label: lang === 'ru' ? 'ЛИНИЯ' : 'LINE', className: 'border-[#63e6ff]/45 text-[#9fefff]' } : null,
