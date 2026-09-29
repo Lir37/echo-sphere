@@ -1,245 +1,134 @@
 /**
- * ECHO SPHERE - Orbital Sphere Canvas renderer
- * 2.5D / Canvas API / transparent background.
+ * ECHO SPHERE - Orbital Sphere
+ * 2.5D Canvas renderer based on the project reference sheet.
  *
- * The renderer is intentionally self-contained: no DOM, no assets, no WebGL.
- * It can be plugged into the existing renderer without changing gameplay logic.
+ * Visual structure:
+ *   BACK    -> rear halves of orbital tracks + rear satellites
+ *   MIDDLE  -> orbit tracks + satellite modules
+ *   FRONT   -> front satellites + top/bottom crystals
+ *   CORE    -> emissive nucleus
+ *   FX      -> Hit / Death
+ *
+ * No WebGL, GLB or external assets are required.
  */
 
 const TAU = Math.PI * 2;
 
 export const ORBITAL_SPHERE_DEFAULTS = {
-  size: 180,
   coreRadius: 34,
-  orbitX: 68,
-  orbitY: 24,
-  crystalSize: 18,
-  satelliteSize: 10,
-  colors: {
-    core: '#8ed8ff',
-    coreHot: '#ffffff',
-    orbit: '#39a9ff',
-    orbitAlt: '#7b5cff',
-    crystal: '#73c8ff',
-    crystalEdge: '#dff6ff',
-    satellite: '#9ad8ff',
-    satelliteEdge: '#ffffff',
-    hit: '#ffffff',
-    death: '#6fb8ff',
+
+  // Two crossing orbital tracks. Values are intentionally editable.
+  orbitA: { rx: 76, ry: 25, rotation: -0.10 },
+  orbitB: { rx: 64, ry: 21, rotation: Math.PI * 0.47 },
+
+  crystal: {
+    width: 10,
+    height: 31,
+    offsetY: 69,
   },
+
+  satellite: {
+    size: 9,
+    orbitA: 4,
+    orbitB: 4,
+  },
+
+  colors: {
+    core: '#65cfff',
+    coreHot: '#ffffff',
+    coreDeep: '#0d4fd1',
+
+    orbitA: '#20a8ff',
+    orbitB: '#635cff',
+    orbitGlow: '#55c7ff',
+
+    satellite: '#b7e7ff',
+    satelliteHot: '#ffffff',
+    satelliteEdge: '#79caff',
+
+    crystal: '#67bfff',
+    crystalHot: '#ffffff',
+    crystalDeep: '#3157e6',
+    crystalEdge: '#e4f8ff',
+
+    hit: '#ffffff',
+    death: '#59baff',
+  },
+
   speeds: {
-    orbitA: 0.65,
-    orbitB: -0.42,
-    bob: 0.8,
+    orbitA: 0.62,
+    orbitB: -0.44,
+    satelliteA: 0.90,
+    satelliteB: -0.72,
+    bob: 0.75,
   },
 };
 
-const clamp01 = (v) => Math.max(0, Math.min(1, v));
-const lerp = (a, b, t) => a + (b - a) * t;
+const MUTATIONS = {
+  base: {
+    orbitSpeed: 1,
+    satelliteSpeed: 1,
+    satelliteCountMultiplier: 1,
+    satelliteColor: null,
+    trail: 0.18,
+    bladeShape: false,
+    protectiveContour: false,
+  },
+  dance: {
+    orbitSpeed: 1.15,
+    satelliteSpeed: 1.72,
+    satelliteCountMultiplier: 1.25,
+    satelliteColor: '#b76cff',
+    trail: 0.34,
+    bladeShape: false,
+    protectiveContour: false,
+  },
+  eagle: {
+    orbitSpeed: 0.82,
+    satelliteSpeed: 0.78,
+    satelliteCountMultiplier: 1,
+    satelliteColor: '#a8edff',
+    trail: 0.24,
+    bladeShape: false,
+    protectiveContour: true,
+  },
+  blade: {
+    orbitSpeed: 1.18,
+    satelliteSpeed: 1.25,
+    satelliteCountMultiplier: 1,
+    satelliteColor: '#ff4b73',
+    trail: 0.48,
+    bladeShape: true,
+    protectiveContour: false,
+  },
+};
+
+const clamp01 = (value) => Math.max(0, Math.min(1, value));
 
 function rgba(hex, alpha) {
   const value = hex.replace('#', '');
-  const n = parseInt(value.length === 3
+  const normalized = value.length === 3
     ? value.split('').map((c) => c + c).join('')
-    : value, 16);
+    : value;
+  const n = Number.parseInt(normalized, 16);
 
   return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${clamp01(alpha)})`;
 }
 
-function diamondPath(ctx, x, y, w, h, rotation = 0) {
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.rotate(rotation);
-  ctx.beginPath();
-  ctx.moveTo(0, -h);
-  ctx.lineTo(w, 0);
-  ctx.lineTo(0, h);
-  ctx.lineTo(-w, 0);
-  ctx.closePath();
-  ctx.restore();
-}
+function drawGlow(ctx, x, y, radius, color, alpha = 1) {
+  const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
+  gradient.addColorStop(0, rgba('#ffffff', alpha * 0.95));
+  gradient.addColorStop(0.16, rgba(color, alpha * 0.72));
+  gradient.addColorStop(0.52, rgba(color, alpha * 0.20));
+  gradient.addColorStop(1, rgba(color, 0));
 
-function drawGlowDot(ctx, x, y, radius, color, alpha = 1) {
-  const g = ctx.createRadialGradient(x, y, 0, x, y, radius);
-  g.addColorStop(0, rgba('#ffffff', alpha * 0.95));
-  g.addColorStop(0.18, rgba(color, alpha * 0.8));
-  g.addColorStop(0.55, rgba(color, alpha * 0.25));
-  g.addColorStop(1, rgba(color, 0));
-
-  ctx.fillStyle = g;
+  ctx.fillStyle = gradient;
   ctx.beginPath();
   ctx.arc(x, y, radius, 0, TAU);
   ctx.fill();
 }
 
-/**
- * Draw the emissive core.
- * The hard silhouette and the soft halo are separate so the glow never
- * destroys the readable spherical form.
- */
-export function drawOrbitalCore(ctx, x, y, radius, colors) {
-  drawGlowDot(ctx, x, y, radius * 1.85, colors.core, 0.9);
-
-  const g = ctx.createRadialGradient(
-    x - radius * 0.3,
-    y - radius * 0.35,
-    radius * 0.08,
-    x,
-    y,
-    radius,
-  );
-  g.addColorStop(0, colors.coreHot);
-  g.addColorStop(0.22, colors.core);
-  g.addColorStop(0.58, '#2677ff');
-  g.addColorStop(0.86, '#1036a4');
-  g.addColorStop(1, '#071337');
-
-  ctx.fillStyle = g;
-  ctx.beginPath();
-  ctx.arc(x, y, radius, 0, TAU);
-  ctx.fill();
-
-  ctx.strokeStyle = rgba(colors.crystalEdge, 0.8);
-  ctx.lineWidth = Math.max(1, radius * 0.045);
-  ctx.beginPath();
-  ctx.arc(x, y, radius * 0.92, 0, TAU);
-  ctx.stroke();
-
-  // Small inner energy arcs create the authored 2.5D feel.
-  ctx.strokeStyle = rgba(colors.orbit, 0.45);
-  ctx.lineWidth = Math.max(1, radius * 0.025);
-  ctx.beginPath();
-  ctx.arc(x, y, radius * 0.68, -1.15, 0.55);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.arc(x, y, radius * 0.72, 1.85, 3.8);
-  ctx.stroke();
-
-  drawGlowDot(ctx, x - radius * 0.28, y - radius * 0.32, radius * 0.25, '#ffffff', 0.65);
-}
-
-/**
- * Elliptical orbital path. perspective is faked by squash + alpha:
- * back half is weaker, front half is stronger.
- */
-export function drawOrbitRing(ctx, x, y, rx, ry, rotation, color, alpha = 1, width = 2) {
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.rotate(rotation);
-
-  ctx.shadowColor = color;
-  ctx.shadowBlur = 8;
-  ctx.strokeStyle = rgba(color, alpha * 0.25);
-  ctx.lineWidth = width * 3;
-  ctx.beginPath();
-  ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI);
-  ctx.stroke();
-
-  ctx.shadowBlur = 0;
-  ctx.strokeStyle = rgba(color, alpha);
-  ctx.lineWidth = width;
-  ctx.beginPath();
-  ctx.ellipse(0, 0, rx, ry, 0, Math.PI, TAU);
-  ctx.stroke();
-
-  ctx.strokeStyle = rgba(color, alpha * 0.34);
-  ctx.beginPath();
-  ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI);
-  ctx.stroke();
-
-  ctx.restore();
-}
-
-/**
- * Four axial crystals: top, right, bottom, left.
- * They are separate objects, not a single sprite.
- */
-export function drawCrystals(ctx, x, y, orbitX, orbitY, size, colors, time = 0) {
-  const points = [
-    { x, y: y - orbitY - size * 0.8, rot: 0 },
-    { x: x + orbitX + size * 0.8, y, rot: Math.PI / 2 },
-    { x, y: y + orbitY + size * 0.8, rot: Math.PI },
-    { x: x - orbitX - size * 0.8, y, rot: -Math.PI / 2 },
-  ];
-
-  points.forEach((p, i) => {
-    const pulse = 1 + Math.sin(time * 2.2 + i * 1.7) * 0.045;
-    const w = size * 0.55 * pulse;
-    const h = size * 1.25 * pulse;
-
-    drawGlowDot(ctx, p.x, p.y, size * 1.15, colors.crystal, 0.28);
-
-    ctx.save();
-    ctx.translate(p.x, p.y);
-    ctx.rotate(p.rot);
-    ctx.beginPath();
-    ctx.moveTo(0, -h);
-    ctx.lineTo(w, 0);
-    ctx.lineTo(0, h);
-    ctx.lineTo(-w, 0);
-    ctx.closePath();
-
-    const g = ctx.createLinearGradient(-w, -h, w, h);
-    g.addColorStop(0, '#ffffff');
-    g.addColorStop(0.25, colors.crystal);
-    g.addColorStop(0.65, '#2d65db');
-    g.addColorStop(1, '#101d6d');
-
-    ctx.fillStyle = g;
-    ctx.fill();
-    ctx.strokeStyle = colors.crystalEdge;
-    ctx.lineWidth = Math.max(1, size * 0.08);
-    ctx.stroke();
-
-    // Facet line.
-    ctx.strokeStyle = rgba('#ffffff', 0.38);
-    ctx.lineWidth = Math.max(1, size * 0.035);
-    ctx.beginPath();
-    ctx.moveTo(0, -h * 0.78);
-    ctx.lineTo(0, h * 0.72);
-    ctx.stroke();
-    ctx.restore();
-  });
-}
-
-function drawSatellite(ctx, x, y, angle, size, colors, alpha = 1, behavior = 'idle') {
-  const scale = behavior === 'blade' ? 1.18 : behavior === 'eagle' ? 1.08 : 1;
-  const w = size * 1.5 * scale;
-  const h = size * 0.58 * scale;
-
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.rotate(angle + (behavior === 'blade' ? Math.PI / 4 : 0));
-  ctx.globalAlpha = alpha;
-
-  if (behavior === 'blade') {
-    ctx.shadowColor = '#ff4d7d';
-    ctx.shadowBlur = 12;
-  } else {
-    ctx.shadowColor = colors.satellite;
-    ctx.shadowBlur = 8;
-  }
-
-  ctx.fillStyle = behavior === 'blade' ? '#ff527f' : colors.satellite;
-  ctx.strokeStyle = colors.satelliteEdge;
-  ctx.lineWidth = Math.max(1, size * 0.12);
-
-  ctx.beginPath();
-  ctx.moveTo(-w, 0);
-  ctx.lineTo(-w * 0.25, -h);
-  ctx.lineTo(w, 0);
-  ctx.lineTo(-w * 0.25, h);
-  ctx.closePath();
-  ctx.fill();
-  ctx.stroke();
-
-  ctx.shadowBlur = 0;
-  ctx.fillStyle = behavior === 'eagle' ? '#ffffff' : rgba('#ffffff', 0.8);
-  ctx.fillRect(-size * 0.18, -size * 0.13, size * 0.36, size * 0.26);
-  ctx.restore();
-}
-
-function orbitPoint(cx, cy, rx, ry, angle, rotation = 0) {
+function orbitPoint(cx, cy, rx, ry, angle, rotation) {
   const px = Math.cos(angle) * rx;
   const py = Math.sin(angle) * ry;
 
@@ -250,43 +139,269 @@ function orbitPoint(cx, cy, rx, ry, angle, rotation = 0) {
 }
 
 /**
- * Satellites share the orbital math but are rendered in the correct depth
- * order. The front half gets full alpha, the rear half is subdued.
+ * One half of an orbital track. Drawing halves separately is what gives
+ * the sphere a real front/back ordering instead of a flat ellipse.
  */
-export function drawSatellites(ctx, x, y, rx, ry, rotation, count, time, colors, mutation) {
-  for (let i = 0; i < count; i += 1) {
-    const angle = time * 0.95 + (TAU * i) / count;
-    const p = orbitPoint(x, y, rx, ry, angle, rotation);
-    const front = Math.sin(angle) > 0;
-    const alpha = front ? 1 : 0.38;
+function drawOrbitHalf(ctx, cx, cy, rx, ry, rotation, color, alpha, front, width) {
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(rotation);
 
-    drawSatellite(
-      ctx,
-      p.x,
-      p.y,
-      angle + rotation,
-      9,
-      colors,
-      alpha,
-      mutation,
-    );
-  }
+  const start = front ? 0 : Math.PI;
+  const end = front ? Math.PI : TAU;
+
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 10;
+
+  ctx.strokeStyle = rgba(color, alpha * 0.24);
+  ctx.lineWidth = width * 3.2;
+  ctx.beginPath();
+  ctx.ellipse(0, 0, rx, ry, 0, start, end);
+  ctx.stroke();
+
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = rgba(color, alpha);
+  ctx.lineWidth = width;
+  ctx.beginPath();
+  ctx.ellipse(0, 0, rx, ry, 0, start, end);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+function drawOrbitalTrack(ctx, cx, cy, orbit, color, alpha, width) {
+  drawOrbitHalf(ctx, cx, cy, orbit.rx, orbit.ry, orbit.rotation, color, alpha * 0.42, false, width);
+  drawOrbitHalf(ctx, cx, cy, orbit.rx, orbit.ry, orbit.rotation, color, alpha, true, width);
 }
 
 /**
- * Particle state used only by Death. No external particle system required.
+ * The nucleus is a luminous sphere, not a flat blue circle.
+ * Small latitude arcs reinforce the 2.5D construction visible in the sheet.
  */
-function createDeathParticles(x, y, count, color) {
+export function drawOrbitalCore(ctx, x, y, radius, colors, pulse = 0) {
+  drawGlow(ctx, x, y, radius * 2.05, colors.core, 0.88 + pulse * 0.2);
+
+  const gradient = ctx.createRadialGradient(
+    x - radius * 0.28,
+    y - radius * 0.34,
+    radius * 0.04,
+    x,
+    y,
+    radius,
+  );
+
+  gradient.addColorStop(0, colors.coreHot);
+  gradient.addColorStop(0.20, '#c9f5ff');
+  gradient.addColorStop(0.48, colors.core);
+  gradient.addColorStop(0.76, colors.coreDeep);
+  gradient.addColorStop(1, '#06143e');
+
+  ctx.fillStyle = gradient;
+  ctx.beginPath();
+  ctx.arc(x, y, radius, 0, TAU);
+  ctx.fill();
+
+  ctx.strokeStyle = rgba(colors.coreHot, 0.74);
+  ctx.lineWidth = Math.max(1, radius * 0.045);
+  ctx.beginPath();
+  ctx.arc(x, y, radius * 0.90, 0, TAU);
+  ctx.stroke();
+
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(-0.20);
+
+  ctx.strokeStyle = rgba('#ffffff', 0.42);
+  ctx.lineWidth = Math.max(1, radius * 0.035);
+
+  ctx.beginPath();
+  ctx.ellipse(0, 0, radius * 0.82, radius * 0.36, 0, Math.PI * 0.12, Math.PI * 0.92);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.ellipse(0, 0, radius * 0.72, radius * 0.30, 0, Math.PI * 1.12, Math.PI * 1.92);
+  ctx.stroke();
+
+  ctx.restore();
+
+  drawGlow(ctx, x - radius * 0.30, y - radius * 0.34, radius * 0.28, '#ffffff', 0.68);
+}
+
+/**
+ * Top and bottom crystals are the only axial crystals in the reference.
+ * The left/right silhouettes are satellite modules, not extra crystals.
+ */
+export function drawAxialCrystals(ctx, x, y, config, colors, time, alpha = 1) {
+  const pulse = 1 + Math.sin(time * 2.4) * 0.035;
+
+  [-1, 1].forEach((direction) => {
+    const px = x;
+    const py = y + direction * config.offsetY;
+    const w = config.width * pulse;
+    const h = config.height * pulse;
+
+    drawGlow(ctx, px, py, h * 0.95, colors.crystal, 0.22 * alpha);
+
+    ctx.save();
+    ctx.translate(px, py);
+    if (direction > 0) ctx.rotate(Math.PI);
+
+    ctx.beginPath();
+    ctx.moveTo(0, -h);
+    ctx.lineTo(w, -h * 0.18);
+    ctx.lineTo(w * 0.68, h * 0.64);
+    ctx.lineTo(0, h);
+    ctx.lineTo(-w * 0.68, h * 0.64);
+    ctx.lineTo(-w, -h * 0.18);
+    ctx.closePath();
+
+    const gradient = ctx.createLinearGradient(-w, -h, w, h);
+    gradient.addColorStop(0, colors.crystalHot);
+    gradient.addColorStop(0.22, colors.crystal);
+    gradient.addColorStop(0.58, '#4179f4');
+    gradient.addColorStop(1, colors.crystalDeep);
+
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = gradient;
+    ctx.fill();
+    ctx.strokeStyle = colors.crystalEdge;
+    ctx.lineWidth = Math.max(1, w * 0.17);
+    ctx.stroke();
+
+    // Facet split gives the crystal the machined sci-fi appearance.
+    ctx.strokeStyle = rgba('#ffffff', 0.40);
+    ctx.lineWidth = Math.max(1, w * 0.07);
+    ctx.beginPath();
+    ctx.moveTo(0, -h * 0.76);
+    ctx.lineTo(0, h * 0.72);
+    ctx.stroke();
+
+    ctx.restore();
+  });
+}
+
+function drawSatellite(ctx, x, y, angle, size, colors, mutation, alpha) {
+  const profile = MUTATIONS[mutation] || MUTATIONS.base;
+  const moduleColor = profile.satelliteColor || colors.satellite;
+
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(angle + (profile.bladeShape ? Math.PI * 0.25 : 0));
+  ctx.globalAlpha = alpha;
+
+  drawGlow(ctx, 0, 0, size * 1.65, moduleColor, 0.20);
+
+  const w = size * (profile.bladeShape ? 1.65 : 1.48);
+  const h = size * (profile.bladeShape ? 0.44 : 0.68);
+
+  ctx.shadowColor = moduleColor;
+  ctx.shadowBlur = profile.bladeShape ? 13 : 8;
+
+  ctx.beginPath();
+  if (profile.bladeShape) {
+    ctx.moveTo(-w, 0);
+    ctx.lineTo(-w * 0.15, -h);
+    ctx.lineTo(w, 0);
+    ctx.lineTo(-w * 0.15, h);
+  } else {
+    ctx.moveTo(-w, 0);
+    ctx.lineTo(-w * 0.35, -h);
+    ctx.lineTo(w * 0.62, -h * 0.56);
+    ctx.lineTo(w, 0);
+    ctx.lineTo(w * 0.62, h * 0.56);
+    ctx.lineTo(-w * 0.35, h);
+  }
+  ctx.closePath();
+
+  const gradient = ctx.createLinearGradient(-w, -h, w, h);
+  gradient.addColorStop(0, colors.satelliteHot);
+  gradient.addColorStop(0.30, moduleColor);
+  gradient.addColorStop(0.72, colors.satelliteEdge);
+  gradient.addColorStop(1, '#1740a9');
+
+  ctx.fillStyle = gradient;
+  ctx.fill();
+  ctx.strokeStyle = colors.satelliteHot;
+  ctx.lineWidth = Math.max(1, size * 0.12);
+  ctx.stroke();
+
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = rgba('#ffffff', 0.85);
+  ctx.fillRect(-size * 0.16, -size * 0.12, size * 0.32, size * 0.24);
+
+  // Energy tail is stronger for Dance and Blade.
+  if (profile.trail > 0) {
+    ctx.strokeStyle = rgba(moduleColor, profile.trail);
+    ctx.lineWidth = Math.max(1, size * 0.18);
+    ctx.beginPath();
+    ctx.moveTo(-w * 0.75, 0);
+    ctx.lineTo(-w * 1.8, 0);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+function drawProtectiveContour(ctx, cx, cy, radius, color, time) {
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(time * 0.15);
+  ctx.strokeStyle = rgba(color, 0.72);
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 12;
+  ctx.lineWidth = 2;
+
+  ctx.beginPath();
+  ctx.ellipse(0, 0, radius * 1.38, radius * 0.64, -0.16, 0, TAU);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.ellipse(0, 0, radius * 1.12, radius * 0.88, 0.74, 0, TAU);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+function drawSatellites(ctx, cx, cy, orbit, count, phase, speed, time, colors, mutation) {
+  const profile = MUTATIONS[mutation] || MUTATIONS.base;
+  const actualCount = Math.max(3, Math.round(count * profile.satelliteCountMultiplier));
+  const angleStep = TAU / actualCount;
+
+  for (let i = 0; i < actualCount; i += 1) {
+    const angle = phase + i * angleStep;
+    const point = orbitPoint(cx, cy, orbit.rx, orbit.ry, angle, orbit.rotation);
+    const front = Math.sin(angle) > 0;
+
+    drawSatellite(
+      ctx,
+      point.x,
+      point.y,
+      angle + orbit.rotation,
+      8.5,
+      colors,
+      mutation,
+      front ? 1 : 0.40,
+    );
+  }
+
+  // Eagle's identity is a defensive orbital contour, not just a palette swap.
+  if (mutation === 'eagle') {
+    drawProtectiveContour(ctx, cx, cy, 48, profile.satelliteColor, time);
+  }
+}
+
+function createDeathParticles(count, color) {
   return Array.from({ length: count }, (_, i) => {
-    const a = (TAU * i) / count + Math.random() * 0.35;
-    const speed = 45 + Math.random() * 100;
+    const angle = (TAU * i) / count + Math.random() * 0.30;
+    const speed = 55 + Math.random() * 125;
+
     return {
-      x,
-      y,
-      vx: Math.cos(a) * speed,
-      vy: Math.sin(a) * speed,
-      life: 0.65 + Math.random() * 0.45,
-      size: 2 + Math.random() * 4,
+      x: 0,
+      y: 0,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      size: 1.5 + Math.random() * 3.5,
+      life: 0.55 + Math.random() * 0.55,
       color,
     };
   });
@@ -296,9 +411,15 @@ export function createOrbitalSphere(config = {}) {
   const cfg = {
     ...ORBITAL_SPHERE_DEFAULTS,
     ...config,
+    orbitA: { ...ORBITAL_SPHERE_DEFAULTS.orbitA, ...(config.orbitA || {}) },
+    orbitB: { ...ORBITAL_SPHERE_DEFAULTS.orbitB, ...(config.orbitB || {}) },
+    crystal: { ...ORBITAL_SPHERE_DEFAULTS.crystal, ...(config.crystal || {}) },
+    satellite: { ...ORBITAL_SPHERE_DEFAULTS.satellite, ...(config.satellite || {}) },
     colors: { ...ORBITAL_SPHERE_DEFAULTS.colors, ...(config.colors || {}) },
     speeds: { ...ORBITAL_SPHERE_DEFAULTS.speeds, ...(config.speeds || {}) },
   };
+
+  const baseSpeeds = { ...cfg.speeds };
 
   const state = {
     time: 0,
@@ -307,104 +428,157 @@ export function createOrbitalSphere(config = {}) {
     deathDuration: 0.95,
     particles: [],
     mutation: 'base',
-    orbitPhaseA: 0,
-    orbitPhaseB: Math.PI * 0.5,
+    phaseA: 0,
+    phaseB: Math.PI * 0.35,
   };
 
-  function setMutation(mutation) {
-    state.mutation = mutation;
+  function setMutation(name) {
+    state.mutation = MUTATIONS[name] ? name : 'base';
   }
 
   function hit(power = 1) {
-    state.hitTimer = Math.max(state.hitTimer, 0.18 * Math.max(0.5, power));
+    state.hitTimer = Math.max(state.hitTimer, 0.20 * Math.max(0.5, power));
   }
 
   function death() {
     if (state.deathTimer > 0) return;
     state.deathTimer = state.deathDuration;
-    state.particles = createDeathParticles(0, 0, 28, cfg.colors.death);
+    state.particles = createDeathParticles(34, cfg.colors.death);
   }
 
   function update(dt) {
     const step = Math.max(0, Math.min(dt, 0.05));
+    const profile = MUTATIONS[state.mutation];
+
     state.time += step;
-    state.orbitPhaseA += step * cfg.speeds.orbitA;
-    state.orbitPhaseB += step * cfg.speeds.orbitB;
+    state.phaseA += step * baseSpeeds.orbitA * profile.orbitSpeed;
+    state.phaseB += step * baseSpeeds.orbitB * profile.orbitSpeed;
     state.hitTimer = Math.max(0, state.hitTimer - step);
 
     if (state.deathTimer > 0) {
       state.deathTimer = Math.max(0, state.deathTimer - step);
-      state.particles.forEach((p) => {
-        p.x += p.vx * step;
-        p.y += p.vy * step;
-        p.vx *= Math.pow(0.05, step);
-        p.vy *= Math.pow(0.05, step);
-        p.life -= step;
+      state.particles.forEach((particle) => {
+        particle.x += particle.vx * step;
+        particle.y += particle.vy * step;
+        particle.vx *= Math.pow(0.12, step);
+        particle.vy *= Math.pow(0.12, step);
+        particle.life -= step;
       });
     }
   }
 
   function draw(ctx, x, y, scale = 1) {
-    const bob = Math.sin(state.time * cfg.speeds.bob) * 3 * scale;
-    const hit = clamp01(state.hitTimer / 0.18);
+    const profile = MUTATIONS[state.mutation];
+    const hit = clamp01(state.hitTimer / 0.20);
     const dead = state.deathTimer > 0;
     const deathProgress = 1 - clamp01(state.deathTimer / state.deathDuration);
 
-    const shakeX = hit > 0 ? (Math.random() - 0.5) * 7 * hit : 0;
-    const shakeY = hit > 0 ? (Math.random() - 0.5) * 7 * hit : 0;
+    const bob = Math.sin(state.time * baseSpeeds.bob) * 2.4 * scale;
+    const shake = hit * 5.5 * scale;
 
-    const cx = x + shakeX;
-    const cy = y + bob + shakeY;
+    const cx = x + (Math.random() - 0.5) * shake;
+    const cy = y + bob + (Math.random() - 0.5) * shake;
 
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
 
-    if (!dead || deathProgress < 0.55) {
-      const fade = dead ? 1 - deathProgress / 0.55 : 1;
-      const rx = cfg.orbitX * scale;
-      const ry = cfg.orbitY * scale;
+    if (!dead || deathProgress < 0.52) {
+      const fade = dead ? 1 - deathProgress / 0.52 : 1;
 
-      // BACK layer.
-      drawOrbitRing(ctx, cx, cy, rx, ry, state.orbitPhaseA, cfg.colors.orbit, 0.36 * fade, 1.5 * scale);
-      drawSatellites(ctx, cx, cy, rx, ry, state.orbitPhaseA, 4, state.time, cfg.colors, state.mutation);
+      // BACK: both tracks begin behind the core.
+      drawOrbitHalf(ctx, cx, cy, cfg.orbitA.rx * scale, cfg.orbitA.ry * scale,
+        cfg.orbitA.rotation, cfg.colors.orbitA, 0.40 * fade, false, 1.6 * scale);
+      drawOrbitHalf(ctx, cx, cy, cfg.orbitB.rx * scale, cfg.orbitB.ry * scale,
+        cfg.orbitB.rotation, cfg.colors.orbitB, 0.34 * fade, false, 1.35 * scale);
 
-      // MIDDLE layer.
-      drawOrbitRing(ctx, cx, cy, rx * 0.78, ry * 1.35, state.orbitPhaseB, cfg.colors.orbitAlt, 0.55 * fade, 1.2 * scale);
+      // MIDDLE: complete track glow and rear/front satellite distribution.
+      drawOrbitalTrack(ctx, cx, cy, {
+        rx: cfg.orbitA.rx * scale,
+        ry: cfg.orbitA.ry * scale,
+        rotation: cfg.orbitA.rotation,
+      }, cfg.colors.orbitA, 0.66 * fade, 1.45 * scale);
 
-      drawCrystals(
-        ctx,
-        cx,
-        cy,
-        rx * 0.62,
-        ry * 1.15,
-        cfg.crystalSize * scale,
-        cfg.colors,
+      drawOrbitalTrack(ctx, cx, cy, {
+        rx: cfg.orbitB.rx * scale,
+        ry: cfg.orbitB.ry * scale,
+        rotation: cfg.orbitB.rotation,
+      }, cfg.colors.orbitB, 0.52 * fade, 1.25 * scale);
+
+      drawSatellites(
+        ctx, cx, cy,
+        { rx: cfg.orbitA.rx * scale, ry: cfg.orbitA.ry * scale, rotation: cfg.orbitA.rotation },
+        cfg.satellite.orbitA,
+        state.phaseA,
+        baseSpeeds.satelliteA * profile.satelliteSpeed,
         state.time,
+        cfg.colors,
+        state.mutation,
       );
 
-      // CORE layer.
+      drawSatellites(
+        ctx, cx, cy,
+        { rx: cfg.orbitB.rx * scale, ry: cfg.orbitB.ry * scale, rotation: cfg.orbitB.rotation },
+        cfg.satellite.orbitB,
+        state.phaseB,
+        baseSpeeds.satelliteB * profile.satelliteSpeed,
+        state.time,
+        cfg.colors,
+        state.mutation,
+      );
+
+      // FRONT: axial crystals sit outside the core and stay visually readable.
+      drawAxialCrystals(ctx, cx, cy, {
+        ...cfg.crystal,
+        width: cfg.crystal.width * scale,
+        height: cfg.crystal.height * scale,
+        offsetY: cfg.crystal.offsetY * scale,
+      }, cfg.colors, state.time, fade);
+
+      // CORE is intentionally rendered after rear orbital geometry.
       drawOrbitalCore(
         ctx,
         cx,
         cy,
-        cfg.coreRadius * scale * (1 + hit * 0.1),
+        cfg.coreRadius * scale * (1 + hit * 0.10),
         cfg.colors,
+        hit,
       );
 
       if (hit > 0) {
-        drawGlowDot(ctx, cx, cy, cfg.coreRadius * (1.8 + hit * 1.4) * scale, cfg.colors.hit, hit * 0.85);
+        drawGlow(
+          ctx,
+          cx,
+          cy,
+          cfg.coreRadius * (1.7 + hit * 1.5) * scale,
+          cfg.colors.hit,
+          hit * 0.90,
+        );
       }
     }
 
-    // DEATH layer: particles stay above the fading sphere.
     if (dead) {
-      state.particles.forEach((p) => {
-        if (p.life <= 0) return;
-        const alpha = clamp01(p.life / 0.55);
-        drawGlowDot(ctx, cx + p.x * scale, cy + p.y * scale, p.size * scale * 2, p.color, alpha * 0.65);
-        ctx.fillStyle = rgba(p.color, alpha);
+      state.particles.forEach((particle) => {
+        if (particle.life <= 0) return;
+
+        const alpha = clamp01(particle.life / 0.55);
+        drawGlow(
+          ctx,
+          cx + particle.x * scale,
+          cy + particle.y * scale,
+          particle.size * 2.4 * scale,
+          particle.color,
+          alpha * 0.60,
+        );
+
+        ctx.fillStyle = rgba(particle.color, alpha);
         ctx.beginPath();
-        ctx.arc(cx + p.x * scale, cy + p.y * scale, p.size * scale, 0, TAU);
+        ctx.arc(
+          cx + particle.x * scale,
+          cy + particle.y * scale,
+          particle.size * scale,
+          0,
+          TAU,
+        );
         ctx.fill();
       });
     }
@@ -424,9 +598,9 @@ export function createOrbitalSphere(config = {}) {
 }
 
 /**
- * Mutations are deliberately behavior-oriented, not only palette swaps.
- * These functions can be called by gameplay code without knowing renderer
- * internals.
+ * Public mutation functions.
+ * They reset to a stable profile, so repeatedly switching mutations never
+ * compounds speed/color changes.
  */
 export function mutateBase(sphere) {
   sphere.setMutation('base');
@@ -435,37 +609,29 @@ export function mutateBase(sphere) {
 
 export function mutateDance(sphere) {
   sphere.setMutation('dance');
-  sphere.config.speeds.orbitA *= 1.45;
-  sphere.config.speeds.orbitB *= 1.30;
   return sphere;
 }
 
 export function mutateEagle(sphere) {
   sphere.setMutation('eagle');
-  sphere.config.colors.orbit = '#67c7ff';
-  sphere.config.colors.orbitAlt = '#9be7ff';
-  sphere.config.speeds.orbitA *= 0.72;
   return sphere;
 }
 
 export function mutateBlade(sphere) {
   sphere.setMutation('blade');
-  sphere.config.colors.orbit = '#ff426f';
-  sphere.config.colors.orbitAlt = '#ff8a45';
-  sphere.config.colors.crystal = '#ff477f';
-  sphere.config.speeds.orbitA *= 1.18;
   return sphere;
 }
 
 /**
- * Convenience demo loop. The production game should own requestAnimationFrame
- * and call update/draw from its existing loop instead.
+ * Optional isolated preview loop.
+ * The game runtime can instead call sphere.update() / sphere.draw() itself.
  */
 export function mountOrbitalSphereCanvas(canvas, options = {}) {
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('Canvas 2D context is unavailable.');
 
   canvas.style.background = 'transparent';
+
   const sphere = createOrbitalSphere(options);
   let last = performance.now();
   let raf = 0;
