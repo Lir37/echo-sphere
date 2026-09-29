@@ -2402,3 +2402,34 @@ NEXT:
 - Wait for CI #913.
 - If CI passes, integrate the module into the live Orbital rendering path without disturbing the existing gameplay/runtime systems.
 - Then perform APK PlayerCheck against the Orbital reference: core + satellites, readable front/back depth, Dance/Eagle/Blade identity, Hit and Death.
+
+
+[2026-09-29] ORBITAL SPHERE DESIGN PASS — REFERENCE-ALIGNED
+
+REFERENCE-BASED CHANGES:
+- Reworked src/orbitalSphereCanvas.js specifically for the Orbital Sphere reference sheet.
+- The object now uses two crossing elliptical orbital tracks with explicit rear/front halves.
+- The reference's axial crystals are represented as TOP + BOTTOM crystals; left/right forms are treated as satellite modules rather than additional crystals.
+- Satellite modules are placed on both orbital tracks and use depth alpha to establish 2.5D front/back ordering.
+- Core remains an emissive radial-gradient nucleus with internal latitude/energy arcs.
+- Idle keeps restrained bobbing and independent orbital/satellite motion.
+- Hit adds a short displacement + emissive flash.
+- Death uses a disassembly/particle burst above the fading sphere.
+- Dance: faster satellite movement, more visible trails and violet identity.
+- Eagle: slower protected contour and cyan identity.
+- Blade: sharper satellite silhouette, stronger trails and red/pink identity.
+- Mutation switching no longer compounds speed changes.
+- Satellite animation now has independent phases from the orbital track animation.
+- Transparent Canvas background remains the default.
+- No gameplay, combat, progression or other sphere implementations were rewritten.
+
+CURRENT STATUS:
+- Design renderer commit: 396187674bec488609a41540e5661373a30e5fc5
+- Android APK CI #916 is currently in progress.
+- Previous documentation CI #914: SUCCESS.
+- Human APK PlayerCheck of this design pass is still required.
+
+NEXT:
+- Verify CI #916.
+- Then integrate the Orbital Sphere renderer into the actual Orbital runtime only.
+- Build APK and compare the live in-game result against the reference sheet, especially silhouette, orbital depth, satellite readability and mutation identity.
