@@ -2575,3 +2575,19 @@ NEXT:
 1. APK PlayerCheck of the current cleaned Orbital build.
 2. Record concrete visual defects only.
 3. Continue with the next Sphere only after Orbital acceptance.
+
+
+======================================================================
+[2026-09-29] ORBITAL REPRODUCTION IMPLEMENTATION
+======================================================================
+
+Implementation commit:
+6d6e6ae012c4dd4b2b130311b09e6518bda8db41
+
+[DONE] Orbital authored detail assets moved into dedicated production files.
+[DONE] Dedicated TypeScript visual module owns Orbital composition.
+[DONE] Renderer no longer draws a second Orbital shell.
+[DONE] Orbit ratio locked to Y = 0.55 X.
+[DONE] Reference reproduction verification completed through three static
+      side-by-side iterations at equal 256 px height.
+[GATE] Final visual acceptance remains APK PlayerCheck.
