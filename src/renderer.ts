@@ -155,6 +155,7 @@ function drawStandardSpherePart(
   size: number,
   rotation: number,
   opacity = 1,
+  mirrorX = false,
 ): boolean {
   const image = getReferenceArt(key);
   if (!image) return false;
@@ -166,16 +167,72 @@ function drawStandardSpherePart(
   ctx.save();
   ctx.translate(x, y);
   ctx.rotate(rotation);
+  ctx.scale(mirrorX ? -1 : 1, 1);
   ctx.globalAlpha = opacity;
+  ctx.globalCompositeOperation = 'screen';
   ctx.drawImage(image, -dw / 2, -dh / 2, dw, dh);
   ctx.restore();
   return true;
 }
 
+function drawStandardSphereCore(
+  ctx: CanvasRenderingContext2D,
+  r: number,
+  pulse: number,
+): void {
+  const glow = ctx.createRadialGradient(-r * 0.08, -r * 0.10, 1, 0, 0, r * 0.62);
+  glow.addColorStop(0, 'rgba(255,255,255,0.98)');
+  glow.addColorStop(0.20, 'rgba(176,244,255,0.96)');
+  glow.addColorStop(0.48, 'rgba(38,170,255,0.78)');
+  glow.addColorStop(0.82, 'rgba(20,92,220,0.34)');
+  glow.addColorStop(1, 'rgba(0,30,90,0)');
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.globalAlpha = 0.82 + pulse * 0.14;
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(0, 0, r * 0.58 * (1 + pulse * 0.035), 0, Math.PI * 2);
+  ctx.fill();
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.fillStyle = 'rgba(30,135,232,0.72)';
+  ctx.strokeStyle = 'rgba(182,247,255,0.90)';
+  ctx.lineWidth = Math.max(0.8, r * 0.035);
+  ctx.beginPath();
+  ctx.arc(0, 0, r * 0.42, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawStandardSphereRing(
+  ctx: CanvasRenderingContext2D,
+  r: number,
+  rotation: number,
+  opacity: number,
+): void {
+  ctx.save();
+  ctx.rotate(rotation);
+  ctx.globalAlpha = opacity;
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.strokeStyle = 'rgba(48,214,255,0.82)';
+  ctx.shadowColor = '#36dfff';
+  ctx.shadowBlur = 3;
+  ctx.lineWidth = Math.max(0.9, r * 0.045);
+  ctx.beginPath();
+  ctx.ellipse(0, 0, r * 0.98, r * 0.34, 0, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.globalAlpha = opacity * 0.55;
+  ctx.lineWidth = Math.max(0.55, r * 0.022);
+  ctx.beginPath();
+  ctx.ellipse(0, 0, r * 0.88, r * 0.27, 0, Math.PI * 0.10, Math.PI * 1.92);
+  ctx.stroke();
+  ctx.restore();
+}
+
 /**
  * Standard Sphere construction rig.
  * The approved reference sheet is a construction/layout source.
- * The runtime never draws the sheet itself.
+ * Runtime assembles the parts and does not draw a full reference crop.
  */
 function drawStandardSphereAssembly(
   ctx: CanvasRenderingContext2D,
@@ -190,63 +247,37 @@ function drawStandardSphereAssembly(
     Math.hypot(enemy.pos.x - sphere.pos.x, enemy.pos.y - sphere.pos.y) <
       sphere.radius * SPHERE_TYPES[sphere.type].rangeMult
   ));
-  const breathe = Math.sin(time * 2.2 + sphere.pos.x * 0.013) * 0.035;
+  const breathe = Math.sin(time * 2.2 + sphere.pos.x * 0.013) * 0.028;
   const energyPulse = 0.5 + 0.5 * Math.sin(time * 4.6 + sphere.pos.y * 0.009);
   const targetPulse = target ? 0.5 + 0.5 * Math.sin(time * 11.0) : 0;
-  const attackScale = 1 + targetPulse * 0.035;
-  const ringRotation = time * (0.34 + tier * 0.025);
-  const crystalPulse = 1 + energyPulse * 0.028;
+  const attackScale = 1 + targetPulse * 0.025;
+  const ringRotation = time * (0.22 + tier * 0.018);
+  const crystalPulse = 1 + energyPulse * 0.022;
 
   ctx.save();
   ctx.translate(sphere.pos.x, sphere.pos.y);
-  ctx.scale(attackScale + breathe * 0.25, attackScale - breathe * 0.18);
+  ctx.scale(attackScale + breathe * 0.18, attackScale - breathe * 0.12);
   drawGroundShadow(ctx, r * 1.12, r * 0.25, 5);
 
-  const baseSize = r * 2.55;
-  const panelSize = r * 2.25;
-  const coreSize = r * 1.42;
-  const ringSize = r * 2.75;
-  const crystalSize = r * 1.62;
+  const panelSize = r * 1.92;
+  const coreRadius = r;
+  const ringRadius = r * 1.18;
+  const crystalSize = r * 1.34;
 
-  // Back structural layer.
-  drawStandardSpherePart(ctx, 'sphere-standard-panels', 0, r * 0.06, panelSize, 0, 0.94);
+  // Structural panels are individual authored detail assets. Two mirrored
+  // panels form the front shell instead of duplicating an exploded screenshot.
+  const panelY = -r * 0.08 + Math.sin(time * 2.8 + 0.8) * r * 0.012;
+  drawStandardSpherePart(ctx, 'sphere-standard-panels', -r * 0.40, panelY, panelSize, -0.055, 0.92, false);
+  drawStandardSpherePart(ctx, 'sphere-standard-panels', r * 0.40, panelY, panelSize, 0.055, 0.92, true);
 
-  // The core is an authored transparent component. Canvas only adds restrained bloom.
-  if (target || energyPulse > 0.72) {
-    ctx.save();
-    ctx.globalCompositeOperation = 'lighter';
-    ctx.globalAlpha = 0.10 + energyPulse * 0.10 + targetPulse * 0.12;
-    ctx.shadowColor = '#55dfff';
-    ctx.shadowBlur = 8 + targetPulse * 7;
-    ctx.fillStyle = 'rgba(55,215,255,0.30)';
-    ctx.beginPath();
-    ctx.arc(0, 0, r * 0.48, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-  }
-  drawStandardSpherePart(ctx, 'sphere-standard-core', 0, 0, coreSize * crystalPulse, 0, 1);
+  drawStandardSphereCore(ctx, coreRadius, energyPulse);
+  drawStandardSphereRing(ctx, ringRadius, ringRotation, 0.72 + targetPulse * 0.20);
 
-  // The stabilization ring is a separate moving component.
-  drawStandardSpherePart(
-    ctx,
-    'sphere-standard-ring',
-    0,
-    r * 0.02,
-    ringSize,
-    ringRotation,
-    0.94 + targetPulse * 0.06,
-  );
-
-  // Structural panels get a tiny breathing/parallax motion.
-  const panelLift = Math.sin(time * 2.8 + 0.8) * r * 0.012;
-  drawStandardSpherePart(ctx, 'sphere-standard-panels', -r * 0.015, panelLift - r * 0.015, baseSize, -0.012, 0.98);
-
-  // Crystals are independent transparent components.
   drawStandardSpherePart(
     ctx,
     'sphere-standard-upper-crystal',
     0,
-    -r * 0.73 - energyPulse * r * 0.012,
+    -r * 0.62 - energyPulse * r * 0.010,
     crystalSize * crystalPulse,
     0,
     1,
@@ -255,23 +286,22 @@ function drawStandardSphereAssembly(
     ctx,
     'sphere-standard-lower-crystal',
     0,
-    r * 0.76 + energyPulse * r * 0.012,
+    r * 0.66 + energyPulse * r * 0.010,
     crystalSize * crystalPulse,
     0,
     1,
   );
 
-  // Lighting pass only. It does not define the silhouette.
   if (targetPulse > 0.55) {
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
-    ctx.globalAlpha = 0.16 + targetPulse * 0.14;
+    ctx.globalAlpha = 0.14 + targetPulse * 0.12;
     ctx.strokeStyle = '#d9fbff';
-    ctx.lineWidth = Math.max(0.7, r * 0.035);
+    ctx.lineWidth = Math.max(0.7, r * 0.030);
     ctx.beginPath();
-    ctx.moveTo(-r * 0.54, -r * 0.22);
-    ctx.lineTo(-r * 0.10, -r * 0.58);
-    ctx.lineTo(r * 0.42, -r * 0.20);
+    ctx.moveTo(-r * 0.44, -r * 0.22);
+    ctx.lineTo(-r * 0.08, -r * 0.48);
+    ctx.lineTo(r * 0.36, -r * 0.18);
     ctx.stroke();
     ctx.restore();
   }
