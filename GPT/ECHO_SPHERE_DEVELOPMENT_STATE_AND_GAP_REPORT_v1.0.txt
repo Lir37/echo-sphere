@@ -2308,3 +2308,36 @@ VALIDATION:
 NEXT:
 - Use phone PlayerCheck to decide whether Standard/Orbital need only tuning or any concrete visual defect fix.
 - Do not redesign Spherist as part of this pass.
+
+[2026-09-29] 2D/2.5D PRODUCTION ASSET PASS #16 — ORBITAL MECHANICS-FIRST REFERENCE INTEGRATION
+
+PLAYER / DESIGN DECISION:
+- The previous Orbital visual was rejected as too close to a generic energy sphere with rings.
+- The approved Orbital reference establishes the identity: crystalline anchor core + visible autonomous satellites + orbital trajectories.
+- Turnaround views are not required. The runtime silhouette remains stable; only the attack satellites move.
+
+IMPLEMENTED:
+- Replaced `public/art/orbital.svg` with the approved mechanics-first visual language: folded crystalline anchor, recessed luminous core, upper/lower crystals and restrained orbital rails.
+- Attack satellites are now rendered from the real gameplay satellite count instead of being baked into the static SVG.
+- Existing Orbital level growth remains unchanged and is now visually readable through the number of orbiting satellites.
+- Mutation I visual identities:
+  - Dance = lightweight satellites and speed trails;
+  - Halo = linked satellite contour and defensive halo;
+  - Blade = larger sharp satellite modules and warm cutting passes.
+- Mutation II keeps each branch identity and adds a distinct final-form signature without changing mechanics.
+- Existing Fire/Freeze modifier accents remain subordinate to the Orbital silhouette.
+- No Orbital damage, targeting, collision, progression or balance logic was changed.
+
+VALIDATION:
+- CI required after commit.
+- APK PlayerCheck must verify:
+  1. base Orbital clearly reads as core + autonomous satellites;
+  2. satellite count visibly grows with Orbital levels;
+  3. Dance reads as speed;
+  4. Halo reads as protective contour;
+  5. Blade reads as cutting orbit;
+  6. attack pass follows the same orbit as the satellites;
+  7. Network links remain readable.
+
+NEXT:
+- If Orbital passes PlayerCheck, continue to the next Sphere family without redesigning Standard or Spherist.
