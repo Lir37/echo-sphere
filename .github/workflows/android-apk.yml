@@ -36,6 +36,9 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
+      - name: Asset usage and PNG sanity check
+        run: npm run check-assets
+
       - name: Unit tests
         run: npm test
 
