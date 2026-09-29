@@ -2688,3 +2688,18 @@ CURRENT CODE HEAD BEFORE DOC UPDATE: 659c0c32e08f93cda3ee9f3a0ca0cc7ad3338f70
 [GATE] CI + APK PlayerCheck.
 [NEXT] Inspect the new APK at gameplay scale. Do not change the working sphere,
        ring or cannon unless PlayerCheck exposes a concrete defect.
+
+
+[2026-09-29] STANDARD OVERLAY FIX VERIFIED
+CURRENT HEAD BEFORE DOC UPDATE: 980e65d13744978d9c47e2550c4e1e5725ec3eb5
+[DONE] Removed the runtime Standard panel crop responsible for the visible
+      semi-transparent rectangular sticker and the leftover fragment from the
+      previous reference image.
+[DONE] Removed public/art/standard-sphere/external-panels.png from the runtime
+      asset set.
+[DONE] Preserved the accepted Standard core, orbit ring, crystals and restored
+      multi-line cannon/attack presentation.
+[DONE] CI #980 SUCCESS after the cleanup.
+[GATE] Human APK PlayerCheck remains required for final visual acceptance.
+[NEXT] Check the new APK once on device. If clean, freeze this Standard visual
+       and move on without further cosmetic rewrites.
