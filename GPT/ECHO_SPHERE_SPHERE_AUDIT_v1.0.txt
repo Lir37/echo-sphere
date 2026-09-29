@@ -166,3 +166,40 @@ e0d925a86a0f7e5299f3b2827ac1364c188688a1
       web visual capture and debug APK build all passed.
 
 [GATE] Human APK PlayerCheck remains the final visual acceptance gate.
+
+======================================================================
+[2026-09-29] STANDARD + ORBITAL — VECTOR NEON MIGRATION
+======================================================================
+
+CURRENT HEAD:
+a2dbed64ebfb2291fe1e92ea8d28e9dd6821ef51
+
+[DONE] Standard Sphere no longer uses the old reference-sheet PNG assembly.
+      The visible Sphere is now owned by src/spheres/standardVisual.ts and
+      is built only from Canvas 2D geometry, radialGradient glow, outlines
+      and a white core point.
+
+[DONE] Orbital Sphere no longer uses the old SVG production/reference
+      layers. Its runtime is owned by src/spheres/orbitalVisual.ts and uses
+      only geometric Canvas primitives: circle core, one ellipse orbit,
+      diamond satellites and white satellite centers.
+
+[DONE] Removed the old Standard image stack and Orbital SVG assets from
+      public/. No reference crop can be rendered as a transparent overlay.
+
+[DONE] Orbital mutations remain distinct through motion/timing geometry,
+      not extra colors or blade/crystal artwork.
+[DONE] Standard mutations remain distinct through geometric VFX only.
+[DONE] Disabled state freezes animation and uses #ff4d70.
+[DONE] Resonance uses #ffd166 temporarily.
+[DONE] No ctx.shadowBlur in the dedicated Sphere modules.
+[DONE] Cached radial gradients are used for Sphere glow.
+[DONE] Attack core flash/trail behavior remains short and lightweight.
+
+[CI] #961 SUCCESS:
+     typecheck, asset check, unit tests (87/87), gameplay audit, lint,
+     web build, Playwright visual capture and debug APK build all passed.
+
+[GATE] APK PlayerCheck remains the visual acceptance gate on a real device.
+      The CI screenshot is automated coverage, not a substitute for human
+      gameplay-scale visual inspection.
