@@ -9,6 +9,7 @@ import { getNetworkFrame } from './engineRuntime';
 import { RUNE_DEFS } from './runes';
 import { BOSS_TELEGRAPH_WINDOWS } from './bossBalance';
 import { LINK_BREAKER_TELEGRAPH_SECONDS, LINK_BREAKER_DISABLED_SECONDS } from './eliteBalance';
+import { renderOrbitalSphereRuntimeVfx } from './orbitalSphereCanvas';
 
 // ===== Origami / Paper Craft Style =====
 // Warm backgrounds, faceted folded-paper shapes, fold lines, drop shadows.
@@ -24,7 +25,7 @@ type ArtKey =
   | 'player' | 'player-spherist' | 'player-spherist-side' | 'player-spherist-shield'
   | 'sphere-standard' | 'sphere-standard-upper-crystal' | 'sphere-standard-panels' | 'sphere-standard-core' | 'sphere-standard-ring' | 'sphere-standard-lower-crystal'
   | 'sphere-sniper' | 'sphere-shotgun' | 'sphere-chain' | 'sphere-aura'
-  | 'sphere-orbital' | 'sphere-prism' | 'sphere-gravity' | 'sphere-pulse' | 'sphere-void'
+  | 'sphere-orbital' | 'sphere-orbital-idle' | 'sphere-prism' | 'sphere-gravity' | 'sphere-pulse' | 'sphere-void'
   | 'enemy-skitter' | 'enemy-fast' | 'enemy-tank' | 'enemy-moth'
   | 'boss';
 
@@ -45,6 +46,7 @@ const ART_PATHS: Record<ArtKey, string> = {
   'sphere-chain': '/art/chain.svg',
   'sphere-aura': '/art/aura.svg',
   'sphere-orbital': '/art/orbital.svg',
+  'sphere-orbital-idle': '/art/orbital-idle-sheet-10x256.png',
   'sphere-prism': '/art/prism.svg',
   'sphere-gravity': '/art/gravity.svg',
   'sphere-pulse': '/art/pulse.svg',
@@ -2483,13 +2485,36 @@ function drawModernSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: S
   }
 
   if (sphere.type === 'orbital') {
-    const bob = Math.sin(time * 1.7 + sphere.pos.x * 0.008) * 0.45;
-    drawGroundShadow(ctx, r * 1.08, r * 0.25, 6);
-    const drawn = drawReferenceSprite(ctx, 'sphere-orbital', sphere.pos.x, sphere.pos.y + bob, r * 3.20, def.color, 0);
+    // Orbital's authored sheet is larger than the 24px gameplay core:
+    // the orbit is a weapon silhouette, not a decorative halo.
+    const orbitalCoreScale = r / 24;
+    const spriteSize = r * 10.24;
+    const frame = Math.floor((time * 10.0) % 10);
+    const bob = Math.sin(time * 1.4 + sphere.pos.x * 0.008) * 0.45;
+    const drawn = drawReferenceSprite(
+      ctx,
+      'sphere-orbital-idle',
+      sphere.pos.x,
+      sphere.pos.y + bob,
+      spriteSize,
+      def.color,
+      0,
+      1,
+      frame,
+      10,
+    );
     if (!drawn) {
-      drawSphereCoreArt(ctx, s, sphere, def.color, r, time);
+      const fallback = drawReferenceSprite(
+        ctx,
+        'sphere-orbital',
+        sphere.pos.x,
+        sphere.pos.y + bob,
+        spriteSize,
+        def.color,
+      );
+      if (!fallback) drawSphereCoreArt(ctx, s, sphere, def.color, r, time);
     }
-    drawOrbitalRuntimeVfx(ctx, s, sphere, r, time);
+    renderOrbitalSphereRuntimeVfx(ctx, sphere, s.player, time, orbitalCoreScale, s.enemies);
     drawNetworkDisabledIndicator(ctx, sphere, time);
     return;
   }
