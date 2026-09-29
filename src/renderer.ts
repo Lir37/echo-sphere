@@ -2496,7 +2496,7 @@ function drawOrbitalRuntimeVfx(
   const finalIndex = finalId ? Number(finalId.split(':').pop()) : -1;
   const baseColor = SPHERE_TYPES.orbital.color;
   const rgb = hexToRgb(baseColor);
-  const interval = 0.42 * Math.max(0.65, game.player.sphereMods.auraPulse || 1);
+  const interval = 0.42;
   const charge = Math.max(0, Math.min(1, 1 - sphere.auraTimer / interval));
   const flash = Math.max(0.08, 1 - charge);
   const satelliteCount = Math.max(1, 1 + spheresVisualMultishot(sphere, game) + ((game.player.artifacts || []).includes('orbital_crown') ? 1 : 0));

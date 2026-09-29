@@ -2341,3 +2341,8 @@ VALIDATION:
 
 NEXT:
 - If Orbital passes PlayerCheck, continue to the next Sphere family without redesigning Standard or Spherist.
+
+[2026-09-29] ORBITAL PASS #16 CI MICRO-FIX
+- CI #900 reached TypeScript typecheck and correctly rejected a renderer reference to the non-existent `SphereMods.auraPulse` field.
+- Removed that invalid dependency. Orbital VFX keeps the existing 0.42 sec attack-cycle interval and no gameplay data model was changed.
+- A fresh CI run is required on the corrected HEAD.
