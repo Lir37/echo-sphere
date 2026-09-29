@@ -430,6 +430,8 @@ export function createOrbitalSphere(config = {}) {
     mutation: 'base',
     phaseA: 0,
     phaseB: Math.PI * 0.35,
+    satellitePhaseA: 0,
+    satellitePhaseB: Math.PI * 0.35,
   };
 
   function setMutation(name) {
@@ -453,6 +455,8 @@ export function createOrbitalSphere(config = {}) {
     state.time += step;
     state.phaseA += step * baseSpeeds.orbitA * profile.orbitSpeed;
     state.phaseB += step * baseSpeeds.orbitB * profile.orbitSpeed;
+    state.satellitePhaseA += step * baseSpeeds.satelliteA * profile.satelliteSpeed;
+    state.satellitePhaseB += step * baseSpeeds.satelliteB * profile.satelliteSpeed;
     state.hitTimer = Math.max(0, state.hitTimer - step);
 
     if (state.deathTimer > 0) {
@@ -508,7 +512,7 @@ export function createOrbitalSphere(config = {}) {
         ctx, cx, cy,
         { rx: cfg.orbitA.rx * scale, ry: cfg.orbitA.ry * scale, rotation: cfg.orbitA.rotation },
         cfg.satellite.orbitA,
-        state.phaseA,
+        state.satellitePhaseA,
         baseSpeeds.satelliteA * profile.satelliteSpeed,
         state.time,
         cfg.colors,
@@ -519,7 +523,7 @@ export function createOrbitalSphere(config = {}) {
         ctx, cx, cy,
         { rx: cfg.orbitB.rx * scale, ry: cfg.orbitB.ry * scale, rotation: cfg.orbitB.rotation },
         cfg.satellite.orbitB,
-        state.phaseB,
+        state.satellitePhaseB,
         baseSpeeds.satelliteB * profile.satelliteSpeed,
         state.time,
         cfg.colors,
