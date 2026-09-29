@@ -92,6 +92,7 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
     const rect = canvas.getBoundingClientRect();
     if (rect.width <= 0 || rect.height <= 0) return null;
     // Gameplay coordinates are logical CSS pixels. The canvas backing store may be 2x for Retina rendering.
+    // Do NOT convert with canvas.width / rect.width here: that mixes backing-store pixels with world pixels.
     const logicalX = clientX - rect.left;
     const logicalY = clientY - rect.top;
     return { x: logicalX - rect.width / 2 + st.camera.x, y: logicalY - rect.height / 2 + st.camera.y };
