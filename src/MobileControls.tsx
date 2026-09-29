@@ -91,9 +91,10 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
     if (!st || !canvas) return null;
     const rect = canvas.getBoundingClientRect();
     if (rect.width <= 0 || rect.height <= 0) return null;
-    const canvasX = (clientX - rect.left) * (canvas.width / rect.width);
-    const canvasY = (clientY - rect.top) * (canvas.height / rect.height);
-    return { x: canvasX - canvas.width / 2 + st.camera.x, y: canvasY - canvas.height / 2 + st.camera.y };
+    // Gameplay coordinates are logical CSS pixels. The canvas backing store may be 2x for Retina rendering.
+    const logicalX = clientX - rect.left;
+    const logicalY = clientY - rect.top;
+    return { x: logicalX - rect.width / 2 + st.camera.x, y: logicalY - rect.height / 2 + st.camera.y };
   };
 
   const buildGhostPreview = (st: GameState, sphere: SphereEntity, sphereIndex: number, x: number, y: number): GhostPreview => {
