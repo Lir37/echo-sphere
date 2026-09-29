@@ -50,3 +50,43 @@ TECHNICAL VERIFICATION:
 
 PLAYER CHECK:
 - Human phone validation of the final integrated animation remains a visual acceptance gate.
+
+
+======================================================================
+[2026-09-29] PRODUCTION PIPELINE CORRECTION AUDIT — POST-ORBITAL REVIEW
+======================================================================
+
+CURRENT HEAD:
+ebaf9a02f5594c65ba068f96fd0da47fb6c442f5
+
+CONFIRMED CORRECTIONS:
+[DONE] Removed runtime reference/base64 crop assets from public/.
+[DONE] Removed unused Spherist reference/turnaround intermediates from public/.
+[DONE] Removed obsolete Standard full-sprite fallback asset.
+[DONE] Orbital idle sprite-sheet removed from runtime after review because it
+was not required for the production-quality shell/satellite architecture.
+[DONE] Orbital SVG is now tier-neutral: shell/core/orbits/crystals only.
+[DONE] Runtime Orbital satellites are the single tier-driven source, 1..7.
+[DONE] Removed duplicate legacy Orbital VFX branch from renderer composition.
+[DONE] Orbital visual moved from .js + .d.ts to src/spheres/orbitalVisual.ts.
+[DONE] renderer.ts calls the dedicated Orbital module as compositor.
+[DONE] Canvas resolution policy centralized in src/renderScale.ts.
+[DONE] DPR cap fixed at 1.75.
+[DONE] render() receives canvas.width/canvas.height.
+[DONE] Touch placement remains CSS-pixel based and now has explicit DPR 1/2/3
+unit coverage.
+[DONE] Asset usage and PNG sanity checks added as npm run check-assets.
+[DONE] CI #925 SUCCESS.
+[DONE] CI #926 SUCCESS.
+
+REJECTED PATTERNS FROM THE PREVIOUS PASS:
+- reference crop as final runtime sprite;
+- b64 image dumps in public/;
+- duplicate Orbital visual layers;
+- JS visual module plus declaration-file workaround;
+- resolution math spread across App/renderer;
+- treating CI alone as visual acceptance.
+
+NEXT VISUAL WORK:
+APK PlayerCheck of the cleaned Orbital build. Validate actual in-game scale,
+1..7 readability, Attack, Resonance, Tier-Up, Disabled and Network links.

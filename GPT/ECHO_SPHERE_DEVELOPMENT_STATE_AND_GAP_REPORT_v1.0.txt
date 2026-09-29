@@ -2469,3 +2469,53 @@ NEXT:
 1. Human PlayerCheck of Orbital in a real run.
 2. Fix only concrete visual defects exposed by that check.
 3. Do not redesign Standard/Spherist as part of Orbital validation.
+
+
+======================================================================
+[2026-09-29] OPERATIONAL UPDATE — PRODUCTION PIPELINE RESET
+======================================================================
+
+CURRENT HEAD:
+ebaf9a02f5594c65ba068f96fd0da47fb6c442f5
+
+The previous Orbital integration pass has been corrected after a production
+pipeline review.
+
+CURRENT STATUS:
+[DONE] Orbital dedicated 2.5D renderer is active.
+[DONE] Orbital authored shell is tier-neutral.
+[DONE] Orbital satellites are runtime-generated and tier-driven 1→7.
+[DONE] Duplicate legacy Orbital visual path removed.
+[DONE] Orbital module is TypeScript at src/spheres/orbitalVisual.ts.
+[DONE] No .js + .d.ts Orbital pair remains.
+[DONE] Canvas resolution is owned by src/renderScale.ts.
+[DONE] DPR_CAP = 1.75.
+[DONE] CSS touch/world mapping is centralized and tested for DPR 1/2/3.
+[DONE] Public reference/intermediate asset cleanup completed.
+[DONE] Asset usage + PNG sanity script added.
+[DONE] CI #925 SUCCESS.
+[DONE] CI #926 SUCCESS.
+
+ARCHITECTURE RULE:
+New Sphere visual work must use:
+src/spheres/<type>Visual.ts
+and renderer.ts must remain the compositor.
+
+ASSET RULE:
+Reference sheets are construction sources, never runtime sprites.
+Only production assets requested by runtime may live in public/.
+
+RESOLUTION RULE:
+App.tsx does not calculate canvas backing resolution.
+renderer.ts does not calculate DPR.
+renderScale.ts is the only resolution policy owner.
+
+ACCEPTANCE GATE:
+Human APK PlayerCheck is still required for Orbital before moving to the next
+Sphere family. CI success is necessary but not sufficient for visual approval.
+
+NEXT:
+1. Install/check the APK from the successful CI.
+2. Validate Orbital in a real run.
+3. Fix only concrete visual defects from PlayerCheck.
+4. Then continue the next Sphere using the v1.1 production rules.
