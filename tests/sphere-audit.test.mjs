@@ -76,11 +76,25 @@ for (const type of ['prism','gravity','pulse','void']) {
 }
 assert.match(renderer, /renderOrbitalSphereRuntimeVfx/, 'Orbital dedicated visual module is not integrated');
 assert.match(read('src/spheres/orbitalVisual.ts'), /createRadialGradient/, 'Orbital vector glow missing');
+for (const [type, token] of [
+  ['sniper','renderSniperSphereRuntimeVfx'],
+  ['shotgun','renderShotgunSphereRuntimeVfx'],
+  ['chain','renderChainSphereRuntimeVfx'],
+  ['aura','renderAuraSphereRuntimeVfx'],
+  ['prism','renderPrismSphereRuntimeVfx'],
+  ['gravity','renderGravitySphereRuntimeVfx'],
+  ['pulse','renderPulseSphereRuntimeVfx'],
+  ['void','renderVoidSphereRuntimeVfx'],
+]) {
+  assert.match(renderer, new RegExp(token), 'Dedicated visual integration missing: ' + type);
+  assert.match(read('src/spheres/' + type + 'Visual.ts'), /createRadialGradient|glow\(/, 'Sphere glow missing: ' + type);
+}
 assert.match(renderer, /drawStandardSphereAssembly/, 'Standard layered visual assembly is missing');
 assert.match(renderer, /sphere-standard-(upper-crystal|core|ring|lower-crystal)/, 'Standard production layers are not integrated');
 assert.doesNotMatch(renderer, /sphere-standard-panels|external-panels\.png/, 'Obsolete Standard reference-panel image remains wired into runtime');
 assert.doesNotMatch(renderer, /['\"]sphere-standard['\"]\s*:\s*['\"]\/art\/standard\.svg/, 'Full Standard reference sticker is still wired into the renderer');
 assert.doesNotMatch(renderer, /drawOrbitalSatelliteArt|drawSphereCoreArt/, 'Legacy procedural Orbital visual remains in renderer');
+assert.doesNotMatch(renderer, /sphere-standard-panels|external-panels\\.png/, 'Removed Standard reference panel returned');
 assert.match(renderer, /sphere\.type === 'orbital'[\s\S]*satelliteCount/, 'Orbital satellite visuals missing');
 assert.match(engine, /satelliteCount[\s\S]*bestAngularDistance/, 'Orbital satellite damage targeting missing');
 assert.match(collision, /resolvePlayerTowerCollisions/, 'Sphere physical collision layer missing');
