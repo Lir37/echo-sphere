@@ -2591,3 +2591,25 @@ Implementation commit:
 [DONE] Reference reproduction verification completed through three static
       side-by-side iterations at equal 256 px height.
 [GATE] Final visual acceptance remains APK PlayerCheck.
+
+
+======================================================================
+[2026-09-29] ORBITAL REPRODUCTION — GAMEPLAY SCALE CORRECTION
+======================================================================
+
+CURRENT HEAD:
+e0d925a86a0f7e5299f3b2827ac1364c188688a1
+
+[DONE] Increased Orbital render scale from r/24 to r/19.5.
+[DONE] Replaced the previous crystal-like satellite asset with an authored
+      blade-module asset matching the reference silhouette more closely.
+[DONE] Added a 256px Canvas reference demo for repeatable visual checking.
+[DONE] Fixed the stale sphere audit assertion that still required removed
+      /art/orbital.svg.
+[DONE] CI #946 SUCCESS.
+
+[NEXT]
+1. Install/check the APK from CI #946.
+2. Compare Orbital at actual gameplay scale against the supplied reference.
+3. Record only concrete remaining differences in position, scale, shape or
+   color of core/crystals/satellite.

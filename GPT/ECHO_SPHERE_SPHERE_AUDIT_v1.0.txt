@@ -142,3 +142,27 @@ VISUAL VERIFICATION:
 - Iteration 2 corrected satellite/crystal scale and orbit proportions.
 - Iteration 3 corrected crystal placement to the reference silhouette.
 - Remaining visual acceptance gate is APK PlayerCheck at gameplay scale.
+
+
+======================================================================
+[2026-09-29] ORBITAL REPRODUCTION PASS — SCALE / SATELLITE CORRECTION
+======================================================================
+
+CURRENT HEAD:
+e0d925a86a0f7e5299f3b2827ac1364c188688a1
+
+[DONE] Orbital runtime scale was increased from r/24 to r/19.5 so the
+      silhouette is readable at normal gameplay scale and closer to the
+      reference's body/orbit proportion.
+[DONE] Satellite production SVG was replaced with a dedicated authored
+      blade-module silhouette derived from the reference, instead of the
+      previous crystal-like placeholder shape.
+[DONE] Added tools/orbital-reference-demo.html for a single-file Canvas 2D
+      reference reproduction check at 256px.
+[DONE] Legacy sphere-audit test was corrected to the current Orbital
+      production-module architecture instead of requiring removed
+      /art/orbital.svg.
+[DONE] CI #946 SUCCESS: typecheck, assets, unit tests, gameplay audit, lint,
+      web visual capture and debug APK build all passed.
+
+[GATE] Human APK PlayerCheck remains the final visual acceptance gate.
