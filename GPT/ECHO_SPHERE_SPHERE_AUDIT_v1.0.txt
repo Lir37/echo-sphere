@@ -114,3 +114,31 @@ important boundaries from silent reintroduction.
 
 Remaining acceptance is visual/human: APK PlayerCheck, not another structural
 rewrite.
+
+
+======================================================================
+[2026-09-29] ORBITAL REPRODUCTION PASS — REFERENCE-LOCKED
+======================================================================
+
+IMPLEMENTATION COMMIT:
+6d6e6ae012c4dd4b2b130311b09e6518bda8db41
+
+[DONE] Orbital runtime no longer draws the authored satellite/crystal/core
+      details as Canvas polygon substitutes.
+[DONE] Orbital detail assets are dedicated production SVGs:
+      orbital-shell.svg, orbital-core.svg, orbital-crystal.svg,
+      orbital-satellite.svg.
+[DONE] Runtime orbit is one smooth ellipse with Y = 0.55 X.
+[DONE] Core pulse is 0.95..1.05 scale; glow uses cached radial gradients.
+[DONE] Attack trail reuses the authored satellite asset.
+[DONE] Disabled state remains red glitch; Resonance remains gold.
+[DONE] Renderer no longer composes a duplicate Orbital shell path.
+[DONE] No ctx.shadowBlur.
+[DONE] Gameplay damage/targeting/progression logic unchanged.
+
+VISUAL VERIFICATION:
+- Iteration 1 identified excessive satellite/crystal scale and excessive
+  geometric simplification.
+- Iteration 2 corrected satellite/crystal scale and orbit proportions.
+- Iteration 3 corrected crystal placement to the reference silhouette.
+- Remaining visual acceptance gate is APK PlayerCheck at gameplay scale.
