@@ -32,12 +32,12 @@ const ART_PATHS: Record<ArtKey, string> = {
   'player-spherist-shield': '/art/spherist-shield-reference-96.png',
   'player-spherist': '/art/spherist-hybrid-front.svg',
   'player-spherist-side': '/art/spherist-hybrid-3q.svg',
-  'sphere-standard': '/art/standard.svg',
+  'sphere-standard': '/art/standard-reference-48.b64.txt',
   'sphere-sniper': '/art/sniper.svg',
   'sphere-shotgun': '/art/shotgun.svg',
   'sphere-chain': '/art/chain.svg',
   'sphere-aura': '/art/aura.svg',
-  'sphere-orbital': '/art/orbital.svg',
+  'sphere-orbital': '/art/orbital-reference-48.b64.txt',
   'sphere-prism': '/art/prism.svg',
   'sphere-gravity': '/art/gravity.svg',
   'sphere-pulse': '/art/pulse.svg',
@@ -50,6 +50,7 @@ const ART_PATHS: Record<ArtKey, string> = {
 };
 
 const ART_CACHE = new Map<ArtKey, HTMLImageElement>();
+const ART_B64_LOADING = new Set<ArtKey>();
 
 let RENDER_TIME = 0;
 let RENDER_COST_MS = 0;
@@ -61,8 +62,18 @@ function getReferenceArt(key: ArtKey): HTMLImageElement | null {
 
   const image = new Image();
   image.decoding = 'async';
-  image.src = ART_PATHS[key];
   ART_CACHE.set(key, image);
+
+  const path = ART_PATHS[key];
+  if (path.endsWith('.b64.txt')) {
+    ART_B64_LOADING.add(key);
+    fetch(path)
+      .then((response) => response.text())
+      .then((base64) => { image.src = `data:image/png;base64,${base64.trim()}`; })
+      .catch(() => { ART_B64_LOADING.delete(key); });
+  } else {
+    image.src = path;
+  }
   return null;
 }
 
@@ -107,7 +118,12 @@ function drawReferenceSprite(
       frameSize,
     );
   } else {
-    ctx.drawImage(image, -size / 2, -size / 2, size, size);
+    const iw = Math.max(1, image.naturalWidth);
+    const ih = Math.max(1, image.naturalHeight);
+    const scale = Math.min(size / iw, size / ih);
+    const dw = iw * scale;
+    const dh = ih * scale;
+    ctx.drawImage(image, -dw / 2, -dh / 2, dw, dh);
   }
   ctx.shadowBlur=0;
 
@@ -2484,117 +2500,36 @@ function drawStandardAttackVfx(
   ctx.restore();
 }
 
-function drawOrbitalRuntimeVfx(
-  ctx: CanvasRenderingContext2D,
-  game: GameState,
-  sphere: SphereEntity,
-  r: number,
-  time: number,
-): void {
+function drawOrbitalRuntimeVfx(ctx: CanvasRenderingContext2D, game: GameState, sphere: SphereEntity, r: number, time: number): void {
   const branch = game.player.sphereBranches?.orbital;
   const finalId = (game.player.evolutions || []).find((id: string) => id.startsWith('sphere:orbital:7:'));
   const finalIndex = finalId ? Number(finalId.split(':').pop()) : -1;
-  const baseColor = SPHERE_TYPES.orbital.color;
-  const rgb = hexToRgb(baseColor);
-  const interval = 0.42;
-  const charge = Math.max(0, Math.min(1, 1 - sphere.auraTimer / interval));
-  const flash = Math.max(0.08, 1 - charge);
-  const satelliteCount = Math.max(1, 1 + spheresVisualMultishot(sphere, game) + ((game.player.artifacts || []).includes('orbital_crown') ? 1 : 0));
-  const orbitR = r * (1.78 + Math.min(0.34, (sphere.visualTier || 0) * 0.05));
-  const orbitY = branch === 'orbital_halo' ? 0.62 : 0.56;
-  const satelliteColor = branch === 'orbital_blade' ? '#ff6b5e' : branch === 'orbital_dance' ? '#a98cff' : '#63e6ff';
-
+  const charge = Math.max(0, Math.min(1, 1 - sphere.auraTimer / 0.42));
+  const rgb = hexToRgb(SPHERE_TYPES.orbital.color);
+  const phase = sphere.rotation + time * (branch === 'orbital_dance' ? 1.35 : 0.72);
+  const orbitR = r * 1.72;
   ctx.save();
   ctx.translate(sphere.pos.x, sphere.pos.y);
   ctx.globalCompositeOperation = 'lighter';
-
-  ctx.strokeStyle = `rgba(${rgb},${0.20 + 0.16 * flash})`;
-  ctx.lineWidth = 0.9;
+  ctx.strokeStyle = `rgba(${rgb},${0.10 + charge * 0.34})`;
+  ctx.lineWidth = 0.8 + charge * 1.1;
   ctx.beginPath();
-  ctx.ellipse(0, 0, orbitR, orbitR * orbitY, 0, 0, Math.PI * 2);
+  ctx.ellipse(0, 0, orbitR, orbitR * 0.56, 0, phase - 0.32, phase + 0.32);
   ctx.stroke();
-  ctx.strokeStyle = `rgba(218,249,255,${0.10 + 0.10 * flash})`;
-  ctx.beginPath();
-  ctx.ellipse(0, 0, orbitR * 0.88, orbitR * (orbitY * 0.72), 0, 0, Math.PI * 2);
-  ctx.stroke();
-
-  for (let i = 0; i < satelliteCount; i++) {
-    let angle = sphere.rotation + i * Math.PI * 2 / satelliteCount;
-    if (branch === 'orbital_dance') angle += time * 0.42;
-    else if (branch === 'orbital_halo') angle += time * 0.18;
-    else angle += time * 0.26;
-
-    const sx = Math.cos(angle) * orbitR;
-    const sy = Math.sin(angle) * orbitR * orbitY;
-    const satR = branch === 'orbital_blade' ? r * 0.38 : branch === 'orbital_dance' ? r * 0.26 : r * 0.30;
-    drawOrbitalSatelliteArt(ctx, sx, sy, satR, satelliteColor, time, angle, branch === 'orbital_blade');
-
-    if (branch === 'orbital_halo') {
-      const nextAngle = angle + Math.PI * 2 / satelliteCount;
-      const nx = Math.cos(nextAngle) * orbitR;
-      const ny = Math.sin(nextAngle) * orbitR * orbitY;
-      ctx.strokeStyle = `rgba(184,244,255,${0.24 + flash * 0.20})`;
-      ctx.lineWidth = 0.8;
-      ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(nx, ny); ctx.stroke();
-    }
-  }
-
-  const sweepA = sphere.rotation + (branch === 'orbital_dance' ? time * 0.42 : 0);
-  ctx.strokeStyle = `rgba(${rgb},${0.10 + 0.34 * flash})`;
-  ctx.lineWidth = 1.1 + flash;
-  ctx.beginPath();
-  ctx.ellipse(0, 0, orbitR, orbitR * orbitY, 0, sweepA - 0.34 - charge * 0.24, sweepA + 0.34 + charge * 0.24);
-  ctx.stroke();
-
   if (branch === 'orbital_dance') {
-    ctx.strokeStyle = `rgba(180,151,255,${0.20 + 0.28 * flash})`;
-    ctx.lineWidth = 1;
-    for (let i = 0; i < 2; i++) {
-      const angle = time * (1.7 + i * 0.18) + i * Math.PI;
-      ctx.beginPath(); ctx.arc(0, 0, orbitR * (0.84 + i * 0.11), angle, angle + 1.0); ctx.stroke();
-    }
+    ctx.strokeStyle = `rgba(178,140,255,${0.16 + charge * 0.28})`;
+    for (let i=0;i<2;i++){ const aa=phase+i*Math.PI; ctx.beginPath(); ctx.arc(0,0,orbitR*(0.88+i*0.08),aa-0.28,aa+0.52); ctx.stroke(); }
   } else if (branch === 'orbital_halo') {
-    ctx.strokeStyle = `rgba(221,250,255,${0.22 + 0.30 * flash})`;
-    ctx.lineWidth = 1.2;
-    ctx.beginPath(); ctx.ellipse(0, 0, orbitR * 0.90, orbitR * 0.54, 0, 0, Math.PI * 2); ctx.stroke();
-    ctx.fillStyle = `rgba(235,255,255,${0.30 + 0.22 * flash})`;
-    for (let i = 0; i < 4; i++) {
-      const angle = time * 0.22 + i * Math.PI / 2;
-      ctx.beginPath(); ctx.arc(Math.cos(angle) * orbitR * 0.82, Math.sin(angle) * orbitR * 0.49, 1.5, 0, Math.PI * 2); ctx.fill();
-    }
+    ctx.strokeStyle = `rgba(214,248,255,${0.16 + charge * 0.26})`;
+    ctx.lineWidth=1; ctx.beginPath(); ctx.ellipse(0,0,orbitR*.90,orbitR*.54,0,0,Math.PI*2); ctx.stroke();
   } else if (branch === 'orbital_blade') {
-    ctx.strokeStyle = `rgba(255,174,105,${0.28 + 0.34 * flash})`;
-    ctx.lineWidth = finalIndex === 2 ? 2 : 1.4;
-    for (let i = 0; i < (finalIndex === 2 ? 2 : 1); i++) {
-      const angle = sphere.rotation + i * Math.PI;
-      ctx.save(); ctx.rotate(angle);
-      ctx.beginPath(); ctx.moveTo(-orbitR * 1.04, 0); ctx.lineTo(-orbitR * 0.18, -r * 0.10); ctx.lineTo(orbitR * 1.04, 0); ctx.lineTo(orbitR * 0.18, r * 0.10); ctx.closePath(); ctx.stroke();
-      ctx.restore();
-    }
+    ctx.strokeStyle = `rgba(255,171,102,${0.20 + charge * 0.34})`;
+    ctx.lineWidth = finalIndex === 2 ? 1.8 : 1.1;
+    ctx.beginPath(); ctx.ellipse(0,0,orbitR*1.05,orbitR*.56,0,phase-.20,phase+.20); ctx.stroke();
   }
-
-  if (finalIndex === 0) {
-    ctx.strokeStyle = `rgba(126,239,255,${0.18 + 0.24 * flash})`;
-    ctx.lineWidth = 1; ctx.beginPath(); ctx.ellipse(0, 0, orbitR * 1.12, orbitR * 0.62, 0, 0, Math.PI * 2); ctx.stroke();
-  } else if (finalIndex === 1) {
-    ctx.strokeStyle = `rgba(194,157,255,${0.18 + 0.26 * flash})`;
-    ctx.lineWidth = 1;
-    for (let i = 0; i < 3; i++) {
-      const angle = time * 0.45 + i * Math.PI * 2 / 3;
-      ctx.beginPath(); ctx.arc(0, 0, orbitR * (0.70 + i * 0.13), angle, angle + 0.76); ctx.stroke();
-    }
-  } else if (finalIndex === 2) {
-    ctx.strokeStyle = `rgba(255,220,139,${0.22 + 0.30 * flash})`;
-    ctx.lineWidth = 1.3; ctx.beginPath(); ctx.ellipse(0, 0, orbitR * 1.22, orbitR * 0.70, 0, 0, Math.PI * 2); ctx.stroke();
-  }
-
-  if ((game.player.sphereMods.fire || 0) > 0) {
-    ctx.strokeStyle = `rgba(255,116,61,${0.18 + 0.16 * flash})`;
-    ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(0, 0, orbitR * 1.04, sweepA - 0.30, sweepA + 0.30); ctx.stroke();
-  }
-  if ((game.player.sphereMods.freeze || 0) > 0) {
-    ctx.strokeStyle = `rgba(196,248,255,${0.18 + 0.16 * flash})`;
-    ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(0, 0, orbitR * 1.02, sweepA + Math.PI - 0.24, sweepA + Math.PI + 0.24); ctx.stroke();
+  if (charge > .86) {
+    ctx.fillStyle=`rgba(238,253,255,${0.28 + charge*.45})`;
+    ctx.beginPath(); ctx.arc(Math.cos(phase)*orbitR,Math.sin(phase)*orbitR*.56,2.2+charge*1.5,0,Math.PI*2); ctx.fill();
   }
   ctx.restore();
 }
