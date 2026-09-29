@@ -76,9 +76,9 @@ for (const type of ['prism','gravity','pulse','void']) {
 }
 assert.match(renderer, /renderOrbitalSphereRuntimeVfx/, 'Orbital dedicated visual module is not integrated');
 assert.match(read('src/spheres/orbitalVisual.ts'), /createRadialGradient/, 'Orbital vector glow missing');
-assert.match(read('src/spheres/standardVisual.ts'), /createRadialGradient/, 'Standard vector glow missing');
-assert.match(renderer, /renderStandardSphereRuntimeVfx/, 'Standard dedicated visual module is not integrated');
-assert.doesNotMatch(renderer, /sphere-standard-(upper-crystal|panels|core|ring|lower-crystal)/, 'Legacy Standard image assembly remains in renderer');
+assert.match(renderer, /drawStandardSphereAssembly/, 'Standard layered visual assembly is missing');
+assert.match(renderer, /sphere-standard-(upper-crystal|panels|core|ring|lower-crystal)/, 'Standard production layers are not integrated');
+assert.doesNotMatch(renderer, /['\"]sphere-standard['\"]\s*:\s*['\"]\/art\/standard\.svg/, 'Full Standard reference sticker is still wired into the renderer');
 assert.doesNotMatch(renderer, /drawOrbitalSatelliteArt|drawSphereCoreArt/, 'Legacy procedural Orbital visual remains in renderer');
 assert.match(renderer, /sphere\.type === 'orbital'[\s\S]*satelliteCount/, 'Orbital satellite visuals missing');
 assert.match(engine, /satelliteCount[\s\S]*bestAngularDistance/, 'Orbital satellite damage targeting missing');
