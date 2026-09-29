@@ -265,3 +265,28 @@ FAMILY:
 
 [GATE] APK PlayerCheck remains mandatory. Automated CI confirms integration,
 not subjective visual quality.
+
+======================================================================
+[2026-09-30] MODIFIER VISUAL PARITY PASS
+======================================================================
+CURRENT CODE HEAD:
+6c0d88bdc9d1054d686b8a2fae9d01cd8f168822
+
+ETALON:
+Standard Sphere remains locked and was not visually refactored.
+
+[DONE]
+- Added shared modifier VFX compositor: src/spheres/modifierVisual.ts.
+- Multishot, Pierce, Ricochet, Fire, Freeze and Poison now have dedicated
+  geometric glyphs instead of relying on Sphere color alone.
+- Overlay is dispatched after each dedicated Sphere renderer:
+  Orbital, Sniper, Shotgun, Chain, Aura, Prism, Gravity, Pulse, Void.
+- Standard keeps its existing approved modifier VFX implementation.
+- Orbital base visual module remains unchanged; only the common modifier
+  overlay was added.
+- No gameplay/render architecture rewrite and no modifier mechanics changed.
+- CI #988 SUCCESS.
+
+[GATE]
+Human APK PlayerCheck remains required to verify readability at actual
+gameplay scale and to catch any overlap/clutter.

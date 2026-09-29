@@ -2741,3 +2741,36 @@ of the complete Sphere family.
 3. Then inspect Sniper/Shotgun/Chain/Aura/Prism/Gravity/Pulse/Void for immediate
    recognizability at gameplay scale.
 4. Fix only concrete PlayerCheck defects.
+
+======================================================================
+[2026-09-30] SPHERE MODIFIER VISUAL PARITY
+======================================================================
+CURRENT CODE HEAD:
+6c0d88bdc9d1054d686b8a2fae9d01cd8f168822
+
+[REQUEST]
+Пользователь уточнил: визуальные эффекты Core Six Modifiers должны быть
+видимы не только на Standard Sphere, но и на остальных Sphere families.
+
+[DONE]
+- Добавлен общий Canvas compositor: src/spheres/modifierVisual.ts.
+- Визуальные сигнатуры применяются для Multishot, Pierce, Ricochet, Fire,
+  Freeze и Poison.
+- Общий слой подключён к Orbital, Sniper, Shotgun, Chain, Aura, Prism,
+  Gravity, Pulse и Void.
+- Standard existing modifier layer сохранён без замены, чтобы не менять
+  утверждённый визуальный эталон.
+- Базовый Orbital renderer не изменён; к нему добавлен только общий
+  modifier overlay.
+- Gameplay logic, damage, targeting, progression и modifier rules не менялись.
+
+[CI]
+#988 SUCCESS.
+
+[GATE]
+APK PlayerCheck обязателен: проверить на реальном gameplay scale, что
+модификаторы различимы и не перегружают силуэт.
+
+[NEXT]
+Проверить свежий APK по всем 10 Sphere, отдельно Standard как эталон и
+Orbital с его неизменённой базовой архитектурой.
