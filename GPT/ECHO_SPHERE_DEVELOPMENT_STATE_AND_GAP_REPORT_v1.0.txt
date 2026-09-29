@@ -2649,3 +2649,21 @@ a2dbed64ebfb2291fe1e92ea8d28e9dd6821ef51
 2. Check 32px readability, orbit thickness, satellite visibility and glow
    intensity on a real device.
 3. Fix only concrete visual defects found in PlayerCheck.
+
+
+======================================================================
+[2026-09-29] STANDARD VISUAL ROLLBACK — LAYERED VERSION WITHOUT REFERENCE STICKER
+======================================================================
+CURRENT HEAD (code/doc cycle in progress): 3616185e1240328592938ac90fd6e3e3efc3628d
+
+[DONE] Standard Sphere restored to the previously accepted layered visual:
+      production PNG parts for external panels, energy core, stabilization
+      ring and upper/lower crystal are assembled at runtime.
+[DONE] The full Standard reference/sticker path is not wired into runtime.
+[DONE] Standard dedicated vector module was removed because it replaced a
+      user-preferred working Standard visual rather than fixing a defect.
+[DONE] Orbital remains on the current dedicated vector-neon renderer.
+[DONE] Gameplay mechanics and Standard combat logic were not changed.
+[GATE] CI and APK PlayerCheck remain required.
+[NEXT] Verify Standard at gameplay scale: silhouette, layered parts, ring,
+       crystal placement and the remembered multi-line cannon/attack effect.
