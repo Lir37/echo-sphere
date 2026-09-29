@@ -2675,3 +2675,16 @@ CI #972: SUCCESS.
 Standard layered visual rollback is typechecked, asset-checked, tested, linted,
 web-built, Playwright-captured and packaged into the Android debug APK.
 Human APK PlayerCheck remains the visual acceptance gate.
+
+
+[2026-09-29] STANDARD OVERLAY CLEANUP
+CURRENT CODE HEAD BEFORE DOC UPDATE: 659c0c32e08f93cda3ee9f3a0ca0cc7ad3338f70
+[DONE] Removed the Standard "external-panels" raster layer after APK visual
+      inspection showed that it contained the unwanted semi-transparent
+      rectangle and a leftover fragment from the previous reference image.
+[DONE] Standard core, orbit ring, crystals and multi-line forward attack remain
+      untouched.
+[DONE] Removed the obsolete external-panels.png runtime asset.
+[GATE] CI + APK PlayerCheck.
+[NEXT] Inspect the new APK at gameplay scale. Do not change the working sphere,
+       ring or cannon unless PlayerCheck exposes a concrete defect.
