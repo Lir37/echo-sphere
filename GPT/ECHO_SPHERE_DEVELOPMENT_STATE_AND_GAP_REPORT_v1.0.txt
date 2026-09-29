@@ -2613,3 +2613,39 @@ e0d925a86a0f7e5299f3b2827ac1364c188688a1
 2. Compare Orbital at actual gameplay scale against the supplied reference.
 3. Record only concrete remaining differences in position, scale, shape or
    color of core/crystals/satellite.
+
+======================================================================
+[2026-09-29] SPHERE VISUAL ARCHITECTURE — VECTOR NEON BASELINE
+======================================================================
+
+CURRENT HEAD:
+a2dbed64ebfb2291fe1e92ea8d28e9dd6821ef51
+
+[DONE] Standard Sphere migrated from reference-sheet PNG composition to a
+      dedicated Canvas 2D vector module: src/spheres/standardVisual.ts.
+
+[DONE] Orbital Sphere migrated from SVG detail assets to a dedicated
+      Canvas 2D vector module: src/spheres/orbitalVisual.ts.
+
+[DONE] Both Sphere families now share the same production language:
+      one main type color, white hot center, 1.7px outline, cached
+      radialGradient glow, simple geometric primitives and no shadowBlur.
+
+[DONE] Standard mutation differences are geometric/animation-based:
+      resonator wave, singularity arcs, swarm diamonds and final-form
+      geometric signatures.
+
+[DONE] Orbital mutation differences are motion-based:
+      dance/halo/blade change orbital timing and attack behavior while
+      keeping the satellite itself a simple diamond.
+
+[DONE] Removed legacy Standard image assets and Orbital SVG assets from
+      public/. Renderer no longer composes Sphere visuals from image parts.
+
+[CI] #961 SUCCESS.
+
+[NEXT]
+1. Install the #961 APK and inspect Standard + Orbital at gameplay scale.
+2. Check 32px readability, orbit thickness, satellite visibility and glow
+   intensity on a real device.
+3. Fix only concrete visual defects found in PlayerCheck.
