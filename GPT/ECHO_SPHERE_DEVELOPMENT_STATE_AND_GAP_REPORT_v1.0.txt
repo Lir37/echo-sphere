@@ -2542,3 +2542,36 @@ NEXT:
 1. APK PlayerCheck Orbital.
 2. Record only concrete visual defects.
 3. Continue next Sphere only after Orbital acceptance.
+
+
+======================================================================
+[2026-09-29] PRODUCTION RULES LOCK — POST-REVIEW
+======================================================================
+
+CURRENT HEAD:
+e4e9516d7b49d96e4cc525f21c5c670ffef48f0c
+
+CI:
+#931 SUCCESS.
+
+The production-pipeline corrections identified in the Orbital review are now
+the locked working standard for subsequent Sphere development.
+
+[DONE] Reference/crop/b64 runtime assets removed from public/.
+[DONE] Orbital idle placeholder sheet removed because runtime Orbital uses
+      an authored tier-neutral shell plus runtime-generated 1→7 satellites.
+[DONE] Orbital visual is TypeScript under src/spheres/orbitalVisual.ts.
+[DONE] renderScale.ts is the single backing-resolution owner with DPR_CAP 1.75.
+[DONE] CSS touch mapping is covered for DPR 1/2/3.
+[DONE] Asset usage and PNG sanity checks are enforced by npm run check-assets.
+[DONE] Production-boundary regression test added.
+[DONE] No gameplay mechanics were changed as part of this cleanup.
+
+MANDATORY NEXT-CYCLE RULE:
+Do not repeat these fixes manually. Start from HEAD, verify the production
+contract, then work only on the next concrete gameplay/visual defect.
+
+NEXT:
+1. APK PlayerCheck of the current cleaned Orbital build.
+2. Record concrete visual defects only.
+3. Continue with the next Sphere only after Orbital acceptance.

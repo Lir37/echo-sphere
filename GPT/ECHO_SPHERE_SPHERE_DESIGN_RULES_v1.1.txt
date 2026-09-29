@@ -85,3 +85,38 @@ Before declaring a Sphere production-ready:
 - tier progression is truthful;
 - no reference crop is visible as a sprite;
 - weak Android performance remains acceptable by APK PlayerCheck.
+
+
+10. WORKING PROTOCOL — LESSONS LOCKED AFTER ORBITAL REVIEW
+The following is mandatory for every future Sphere task.
+
+DO:
+- inspect the current HEAD and the three authoritative GPT documents before editing;
+- use the approved reference only as a construction source;
+- extract/author individual production details, then assemble them in the Sphere module;
+- keep runtime assets limited to files actually requested by code;
+- centralize resolution/DPR and keep touch coordinates in the documented CSS-pixel contract;
+- implement a new Sphere visual as TypeScript under src/spheres/<type>Visual.ts;
+- run the complete local validation set before declaring the task complete;
+- use APK PlayerCheck as the final visual gate;
+- update the operational report when implementation/status changes.
+
+DO NOT:
+- put reference sheets, crops, b64 dumps or turnaround material into public/;
+- draw a reference crop as a runtime sprite;
+- create a sprite-sheet merely to satisfy a requirement if authored/procedural runtime rendering is the actual production path;
+- scatter DPR/backing-store math across App.tsx, renderer.ts or individual Sphere modules;
+- mix CSS coordinates with backing-store coordinates;
+- introduce a .js + .d.ts workaround for a TypeScript Sphere module;
+- duplicate a Sphere visual path in renderer.ts and the dedicated Sphere module;
+- use CI success as evidence of visual quality;
+- make cosmetic refactors to working systems without a concrete architectural or defect-driven reason.
+
+INTERSECTION GATE:
+Before committing, verify four boundaries independently:
+1) reference/art source → production asset;
+2) CSS/input coordinates → backing/render coordinates;
+3) gameplay engine → Sphere visual module;
+4) source asset inventory → packaged public assets.
+A task is not complete while any boundary is ambiguous or has a fallback that
+can silently reintroduce the old implementation.

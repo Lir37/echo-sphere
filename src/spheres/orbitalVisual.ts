@@ -461,8 +461,8 @@ export function renderOrbitalSphereRuntimeVfx(
   );
 
   if (!disabled) {
-    // The idle sheet contains Tier-1's single authored striker.
-    // Runtime adds exactly one satellite per tier step, up to seven total.
+    // The shell is tier-neutral. Runtime generates the complete visible
+    // satellite set so the 1→7 progression has one authoritative source.
     drawTierSatellites(
       ctx, cx, cy,
       Math.max(0, tier - 1),
