@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<defs>
+<linearGradient id="crystalMain" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".18" stop-color="#bfefff"/><stop offset=".48" stop-color="#3d9cff"/><stop offset=".78" stop-color="#2349c8"/><stop offset="1" stop-color="#07184c"/></linearGradient>
+<linearGradient id="crystalSide" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#0c2d86"/><stop offset=".5" stop-color="#6bdfff"/><stop offset="1" stop-color="#17379f"/></linearGradient>
+<linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff1bf"/><stop offset=".45" stop-color="#f0bd70"/><stop offset="1" stop-color="#9a5a2d"/></linearGradient>
+</defs>
+<g transform="translate(64 64)">
+<path d="M0-54 25-19 18 18 0 55-18 18-25-19Z" fill="url(#crystalMain)" stroke="#e8fbff" stroke-width="2"/>
+<path d="M0-54 25-19 0 2-7-25Z" fill="#d9f9ff" opacity=".72"/>
+<path d="M0-54-25-19-7-25 0-39Z" fill="#fff" opacity=".48"/>
+<path d="M-25-19 0 2-18 18Z" fill="#1e55ca"/><path d="M25-19 0 2 18 18Z" fill="#1a3da8"/>
+<path d="M-18 18 0 2 18 18 0 55Z" fill="url(#crystalSide)"/>
+<path d="M-12-6 0-17 12-6 0 18Z" fill="url(#gold)" stroke="#fff1c8" stroke-width="1.2"/>
+<path d="M0-17 12-6 0 18-12-6Z" fill="none" stroke="#f7c87b" stroke-width="1"/>
+<path d="M-25-19 0 2 25-19M-18 18 0 2 18 18" fill="none" stroke="#8feaff" stroke-opacity=".72" stroke-width="1.2"/>
+</g></svg>
