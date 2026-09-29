@@ -32,12 +32,12 @@ const ART_PATHS: Record<ArtKey, string> = {
   'player-spherist-shield': '/art/spherist-shield-reference-96.png',
   'player-spherist': '/art/spherist-hybrid-front.svg',
   'player-spherist-side': '/art/spherist-hybrid-3q.svg',
-  'sphere-standard': '/art/standard-reference-48.b64.txt',
+  'sphere-standard': '/art/standard.svg',
   'sphere-sniper': '/art/sniper.svg',
   'sphere-shotgun': '/art/shotgun.svg',
   'sphere-chain': '/art/chain.svg',
   'sphere-aura': '/art/aura.svg',
-  'sphere-orbital': '/art/orbital-reference-48.b64.txt',
+  'sphere-orbital': '/art/orbital.svg',
   'sphere-prism': '/art/prism.svg',
   'sphere-gravity': '/art/gravity.svg',
   'sphere-pulse': '/art/pulse.svg',
@@ -51,6 +51,10 @@ const ART_PATHS: Record<ArtKey, string> = {
 
 const ART_CACHE = new Map<ArtKey, HTMLImageElement>();
 const ART_B64_LOADING = new Set<ArtKey>();
+const ART_REFERENCE_B64_PATHS: Partial<Record<ArtKey, string>> = {
+  'sphere-standard': '/art/standard-reference-48.b64.txt',
+  'sphere-orbital': '/art/orbital-reference-48.b64.txt',
+};
 
 let RENDER_TIME = 0;
 let RENDER_COST_MS = 0;
@@ -64,7 +68,7 @@ function getReferenceArt(key: ArtKey): HTMLImageElement | null {
   image.decoding = 'async';
   ART_CACHE.set(key, image);
 
-  const path = ART_PATHS[key];
+  const path = ART_REFERENCE_B64_PATHS[key] || ART_PATHS[key];
   if (path.endsWith('.b64.txt')) {
     ART_B64_LOADING.add(key);
     fetch(path)
