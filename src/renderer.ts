@@ -101,7 +101,6 @@ function drawArtSprite(
 
 type StandardSpherePartKey =
   | 'sphere-standard-upper-crystal'
-  | 'sphere-standard-panels'
   | 'sphere-standard-core'
   | 'sphere-standard-ring'
   | 'sphere-standard-lower-crystal';
