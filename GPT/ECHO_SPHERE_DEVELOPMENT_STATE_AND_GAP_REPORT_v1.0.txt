@@ -2355,3 +2355,12 @@ NEXT:
 - Renderer preserves the crop aspect ratio and no longer stretches the reference art.
 - Orbital's previous invented satellite overlay was removed; runtime adds only restrained attack-state animation around the reference artwork.
 - Mutation-state reference crops are still the next visual task. Do not return to independently redrawing the Sphere silhouettes.
+[2026-09-29] SPHERE DESIGN PIPELINE RESET — STANDARD 2.5D ASSEMBLY
+- Previous full-reference sprite approach is retired for Sphere production.
+- Standard now uses separate transparent authored components extracted from the approved Standard Sphere construction sheet.
+- Current components: upper crystal, external panels, energy core, stabilization ring, lower crystal.
+- Renderer assembles components in 2.5D layers and animates their transform/energy states independently.
+- The full Standard reference crop is no longer used by runtime.
+- Old procedural Standard silhouette is no longer a runtime fallback.
+- This is the first implementation of the new sphere-design rule. Orbital and mutation-specific component extraction remain pending.
+

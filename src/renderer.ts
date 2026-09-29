@@ -22,7 +22,8 @@ const MUTATION_COLORS = ['#6eeaff', '#9b7cff', '#d86cff', '#55e6c1', '#b9a7ff'];
 
 type ArtKey =
   | 'player' | 'player-spherist' | 'player-spherist-side' | 'player-spherist-shield'
-  | 'sphere-standard' | 'sphere-sniper' | 'sphere-shotgun' | 'sphere-chain' | 'sphere-aura'
+  | 'sphere-standard' | 'sphere-standard-upper-crystal' | 'sphere-standard-panels' | 'sphere-standard-core' | 'sphere-standard-ring' | 'sphere-standard-lower-crystal'
+  | 'sphere-sniper' | 'sphere-shotgun' | 'sphere-chain' | 'sphere-aura'
   | 'sphere-orbital' | 'sphere-prism' | 'sphere-gravity' | 'sphere-pulse' | 'sphere-void'
   | 'enemy-skitter' | 'enemy-fast' | 'enemy-tank' | 'enemy-moth'
   | 'boss';
@@ -32,7 +33,13 @@ const ART_PATHS: Record<ArtKey, string> = {
   'player-spherist-shield': '/art/spherist-shield-reference-96.png',
   'player-spherist': '/art/spherist-hybrid-front.svg',
   'player-spherist-side': '/art/spherist-hybrid-3q.svg',
+  // Standard Sphere is assembled from transparent production parts, never from a full-sheet sprite.
   'sphere-standard': '/art/standard.svg',
+  'sphere-standard-upper-crystal': '/art/standard-sphere/upper-crystal.png',
+  'sphere-standard-panels': '/art/standard-sphere/external-panels.png',
+  'sphere-standard-core': '/art/standard-sphere/energy-core.png',
+  'sphere-standard-ring': '/art/standard-sphere/stabilization-ring.png',
+  'sphere-standard-lower-crystal': '/art/standard-sphere/lower-crystal.png',
   'sphere-sniper': '/art/sniper.svg',
   'sphere-shotgun': '/art/shotgun.svg',
   'sphere-chain': '/art/chain.svg',
@@ -51,10 +58,7 @@ const ART_PATHS: Record<ArtKey, string> = {
 
 const ART_CACHE = new Map<ArtKey, HTMLImageElement>();
 const ART_B64_LOADING = new Set<ArtKey>();
-const ART_REFERENCE_B64_PATHS: Partial<Record<ArtKey, string>> = {
-  'sphere-standard': '/art/standard-reference-48.b64.txt',
-  'sphere-orbital': '/art/orbital-reference-48.b64.txt',
-};
+const ART_REFERENCE_B64_PATHS: Partial<Record<ArtKey, string>> = {};
 
 let RENDER_TIME = 0;
 let RENDER_COST_MS = 0;
@@ -131,6 +135,146 @@ function drawReferenceSprite(
   }
   ctx.shadowBlur=0;
 
+  ctx.restore();
+  return true;
+}
+
+
+type StandardSpherePartKey =
+  | 'sphere-standard-upper-crystal'
+  | 'sphere-standard-panels'
+  | 'sphere-standard-core'
+  | 'sphere-standard-ring'
+  | 'sphere-standard-lower-crystal';
+
+function drawStandardSpherePart(
+  ctx: CanvasRenderingContext2D,
+  key: StandardSpherePartKey,
+  x: number,
+  y: number,
+  size: number,
+  rotation: number,
+  opacity = 1,
+): boolean {
+  const image = getReferenceArt(key);
+  if (!image) return false;
+  const iw = Math.max(1, image.naturalWidth);
+  const ih = Math.max(1, image.naturalHeight);
+  const scale = Math.min(size / iw, size / ih);
+  const dw = iw * scale;
+  const dh = ih * scale;
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(rotation);
+  ctx.globalAlpha = opacity;
+  ctx.drawImage(image, -dw / 2, -dh / 2, dw, dh);
+  ctx.restore();
+  return true;
+}
+
+/**
+ * Standard Sphere construction rig.
+ * The approved reference sheet is a construction/layout source.
+ * The runtime never draws the sheet itself.
+ */
+function drawStandardSphereAssembly(
+  ctx: CanvasRenderingContext2D,
+  s: GameState,
+  sphere: SphereEntity,
+  r: number,
+  time: number,
+): boolean {
+  const tier = sphere.visualTier || 0;
+  const target = s.enemies.some((enemy) => (
+    enemy.hp > 0 &&
+    Math.hypot(enemy.pos.x - sphere.pos.x, enemy.pos.y - sphere.pos.y) <
+      sphere.radius * SPHERE_TYPES[sphere.type].rangeMult
+  ));
+  const breathe = Math.sin(time * 2.2 + sphere.pos.x * 0.013) * 0.035;
+  const energyPulse = 0.5 + 0.5 * Math.sin(time * 4.6 + sphere.pos.y * 0.009);
+  const targetPulse = target ? 0.5 + 0.5 * Math.sin(time * 11.0) : 0;
+  const attackScale = 1 + targetPulse * 0.035;
+  const ringRotation = time * (0.34 + tier * 0.025);
+  const crystalPulse = 1 + energyPulse * 0.028;
+
+  ctx.save();
+  ctx.translate(sphere.pos.x, sphere.pos.y);
+  ctx.scale(attackScale + breathe * 0.25, attackScale - breathe * 0.18);
+  drawGroundShadow(ctx, r * 1.12, r * 0.25, 5);
+
+  const baseSize = r * 2.55;
+  const panelSize = r * 2.25;
+  const coreSize = r * 1.42;
+  const ringSize = r * 2.75;
+  const crystalSize = r * 1.62;
+
+  // Back structural layer.
+  drawStandardSpherePart(ctx, 'sphere-standard-panels', 0, r * 0.06, panelSize, 0, 0.94);
+
+  // The core is an authored transparent component. Canvas only adds restrained bloom.
+  if (target || energyPulse > 0.72) {
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.globalAlpha = 0.10 + energyPulse * 0.10 + targetPulse * 0.12;
+    ctx.shadowColor = '#55dfff';
+    ctx.shadowBlur = 8 + targetPulse * 7;
+    ctx.fillStyle = 'rgba(55,215,255,0.30)';
+    ctx.beginPath();
+    ctx.arc(0, 0, r * 0.48, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+  drawStandardSpherePart(ctx, 'sphere-standard-core', 0, 0, coreSize * crystalPulse, 0, 1);
+
+  // The stabilization ring is a separate moving component.
+  drawStandardSpherePart(
+    ctx,
+    'sphere-standard-ring',
+    0,
+    r * 0.02,
+    ringSize,
+    ringRotation,
+    0.94 + targetPulse * 0.06,
+  );
+
+  // Structural panels get a tiny breathing/parallax motion.
+  const panelLift = Math.sin(time * 2.8 + 0.8) * r * 0.012;
+  drawStandardSpherePart(ctx, 'sphere-standard-panels', -r * 0.015, panelLift - r * 0.015, baseSize, -0.012, 0.98);
+
+  // Crystals are independent transparent components.
+  drawStandardSpherePart(
+    ctx,
+    'sphere-standard-upper-crystal',
+    0,
+    -r * 0.73 - energyPulse * r * 0.012,
+    crystalSize * crystalPulse,
+    0,
+    1,
+  );
+  drawStandardSpherePart(
+    ctx,
+    'sphere-standard-lower-crystal',
+    0,
+    r * 0.76 + energyPulse * r * 0.012,
+    crystalSize * crystalPulse,
+    0,
+    1,
+  );
+
+  // Lighting pass only. It does not define the silhouette.
+  if (targetPulse > 0.55) {
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.globalAlpha = 0.16 + targetPulse * 0.14;
+    ctx.strokeStyle = '#d9fbff';
+    ctx.lineWidth = Math.max(0.7, r * 0.035);
+    ctx.beginPath();
+    ctx.moveTo(-r * 0.54, -r * 0.22);
+    ctx.lineTo(-r * 0.10, -r * 0.58);
+    ctx.lineTo(r * 0.42, -r * 0.20);
+    ctx.stroke();
+    ctx.restore();
+  }
   ctx.restore();
   return true;
 }
@@ -2284,11 +2428,18 @@ function drawModernSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: S
   const r=Math.max(15,Math.min(25,sphere.radius*0.19+(sphere.visualTier||0)*0.8));
 
   if (sphere.type === 'standard') {
-    const bob = Math.sin(time * 2.1 + sphere.pos.x * 0.01) * 0.55;
-    drawGroundShadow(ctx, r * 1.05, r * 0.24, 6);
-    const drawn = drawReferenceSprite(ctx, 'sphere-standard', sphere.pos.x, sphere.pos.y + bob, r * 3.35, def.color, 0);
+    const drawn = drawStandardSphereAssembly(ctx, s, sphere, r, time);
     if (!drawn) {
-      drawSphereCoreArt(ctx, s, sphere, def.color, r, time);
+      // Loading state only. Never fall back to the old procedural silhouette.
+      drawGroundShadow(ctx, r * 1.05, r * 0.24, 4);
+      ctx.save();
+      ctx.translate(sphere.pos.x, sphere.pos.y);
+      ctx.strokeStyle = 'rgba(90,220,255,0.28)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(0, 0, r * 0.62, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
     }
     drawStandardMutationVfx(ctx, s, sphere, r, time);
     drawStandardAttackVfx(ctx, sphere, r, time);
