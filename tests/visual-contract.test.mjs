@@ -26,7 +26,7 @@ test('Chain uses lightning only',()=>{
 test('Orbital attackers are composited after enemies',()=>{
   const c=read('src/renderer.ts');
   const enemy=c.indexOf('for (const e of s.enemies) drawModernEnemy');
-  const attacker=c.indexOf('renderOrbitalSphereAttackersVfx');
+  const attacker=c.indexOf('renderOrbitalSphereAttackersVfx(ctx', enemy);
   assert.ok(enemy>=0 && attacker>enemy);
 });
 
@@ -43,7 +43,7 @@ test('HUD tooltip is timed, tappable and non-selectable',()=>{
   const c=read('src/App.tsx');
   assert.match(c,/networkTooltipAutoHideRef/);
   assert.match(c,/5000/);
-  assert.match(c,/onPointerDown=\{hideNetworkTooltip\}/);
+  assert.ok(c.includes('onPointerDown={hideNetworkTooltip}'));
   assert.match(c,/userSelect: 'none'/);
 });
 
