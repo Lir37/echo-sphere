@@ -162,3 +162,17 @@ A full reference sheet/crop/sticker remains forbidden as a runtime asset.
 This is a targeted restoration of a working visual, not a return to the old
 full-reference composition. Do not replace it again without a concrete defect
 or explicit user request.
+
+
+[2026-09-29] STANDARD LAYER CLEANUP CLARIFICATION
+Standard's restored layered visual currently uses only the remaining runtime
+parts required for the accepted look:
+- energy-core.png
+- stabilization-ring.png
+- upper-crystal.png
+- lower-crystal.png
+
+external-panels.png was removed because APK inspection showed that the raster
+contained an unwanted translucent rectangular background and a leftover
+fragment from the previous reference image. A reference fragment must never
+be retained merely because it is bundled inside an otherwise useful crop.
