@@ -2346,3 +2346,12 @@ NEXT:
 - CI #900 reached TypeScript typecheck and correctly rejected a renderer reference to the non-existent `SphereMods.auraPulse` field.
 - Removed that invalid dependency. Orbital VFX keeps the existing 0.42 sec attack-cycle interval and no gameplay data model was changed.
 - A fresh CI run is required on the corrected HEAD.
+
+[2026-09-29] PLAYER FEEDBACK CORRECTION — TAP + EXACT REFERENCE CROPS
+- Sphere placement drift fixed: MobileControls now maps touch directly in logical CSS pixels instead of Retina backing-store pixels.
+- The approved Standard and Orbital base references are now stored in the repository as exact transparent reference crops encoded in text assets and decoded at runtime:
+  - public/art/standard-reference-48.b64.txt
+  - public/art/orbital-reference-48.b64.txt
+- Renderer preserves the crop aspect ratio and no longer stretches the reference art.
+- Orbital's previous invented satellite overlay was removed; runtime adds only restrained attack-state animation around the reference artwork.
+- Mutation-state reference crops are still the next visual task. Do not return to independently redrawing the Sphere silhouettes.
