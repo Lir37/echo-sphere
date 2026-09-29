@@ -75,12 +75,16 @@ function glow(ctx: CanvasRenderingContext2D, x: number, y: number, radius: numbe
 function core(ctx: CanvasRenderingContext2D, cx: number, cy: number, scale: number, pulse: number, resonance: boolean, disabled: boolean): void {
   const color = disabled ? ORBITAL_VISUAL.DISABLED_COLOR : resonance ? ORBITAL_VISUAL.RESONANCE_COLOR : ORBITAL_VISUAL.CORE_COLOR;
   const size = ORBITAL_VISUAL.CORE_SPRITE_SIZE * scale * (.95 + pulse * .10);
+  ctx.save(); ctx.globalCompositeOperation = 'lighter';
   glow(ctx, cx, cy, size * .62, color, disabled ? .18 : resonance ? .54 : .44);
+  ctx.globalCompositeOperation = 'source-over';
   drawSprite(ctx, 'core', cx, cy, size, 0, disabled ? ORBITAL_VISUAL.DISABLED_CORE_ALPHA : 1);
+  ctx.globalCompositeOperation = 'lighter';
   if (resonance || disabled) {
     const g = gradient(ctx, `state:${color}:${Math.round(size)}`, size * .52, [[0, rgba('#ffffff', .48)], [.34, rgba(color, .38)], [.78, rgba(color, .16)], [1, rgba(color, 0)]]);
-    ctx.save(); ctx.translate(cx, cy); ctx.globalAlpha = disabled ? .44 : .64; ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, size * .52, 0, TAU); ctx.fill(); ctx.restore();
+    ctx.translate(cx, cy); ctx.globalAlpha = disabled ? .44 : .64; ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, size * .52, 0, TAU); ctx.fill();
   }
+  ctx.restore();
 }
 function crystals(ctx: CanvasRenderingContext2D, cx: number, cy: number, scale: number, pulse: number): void {
   const size = ORBITAL_VISUAL.CRYSTAL_SPRITE_SIZE * scale * (.99 + pulse * .018), offset = 40 * scale;
@@ -89,15 +93,17 @@ function crystals(ctx: CanvasRenderingContext2D, cx: number, cy: number, scale: 
 function satellites(ctx: CanvasRenderingContext2D, cx: number, cy: number, count: number, scale: number, phase: number, attack: number): void {
   const n = Math.max(0, Math.min(7, Math.round(count))); if (!n) return;
   const size = ORBITAL_VISUAL.SATELLITE_SPRITE_SIZE * scale;
+  ctx.save(); ctx.globalCompositeOperation = 'source-over';
   for (let i = 0; i < n; i++) {
     const base = phase + i * TAU / n, a = base + (i === 0 ? ease(attack) * .82 : 0);
     const p = orbitPoint(cx, cy, ORBITAL_VISUAL.ORBIT_RX * scale, ORBITAL_VISUAL.ORBIT_RY * scale, a);
     drawSprite(ctx, 'satellite', p.x, p.y, size, a + ORBITAL_VISUAL.ORBIT_ROT + Math.PI / 2, Math.sin(a) > 0 ? 1 : .42);
   }
+  ctx.restore();
 }
 function impact(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, alpha: number): void {
-  if (alpha <= 0) return; glow(ctx, x, y, r * 1.9, ORBITAL_VISUAL.EDGE_COLOR, alpha * .7);
-  ctx.save(); ctx.globalAlpha = alpha; ctx.strokeStyle = ORBITAL_VISUAL.EDGE_HOT; ctx.lineWidth = 1.05;
+  if (alpha <= 0) return; ctx.save(); ctx.globalCompositeOperation = 'lighter'; glow(ctx, x, y, r * 1.9, ORBITAL_VISUAL.EDGE_COLOR, alpha * .7);
+  ctx.globalAlpha = alpha; ctx.strokeStyle = ORBITAL_VISUAL.EDGE_HOT; ctx.lineWidth = 1.05;
   ctx.beginPath(); ctx.arc(x, y, r * (.55 + alpha * .65), -.7, 1.8); ctx.stroke();
   ctx.beginPath(); ctx.arc(x, y, r * (.45 + alpha * .45), 2.1, 4.2); ctx.stroke(); ctx.restore();
 }
@@ -111,11 +117,11 @@ function glitch(ctx: CanvasRenderingContext2D, cx: number, cy: number, scale: nu
 }
 function chargeRing(ctx: CanvasRenderingContext2D, cx: number, cy: number, scale: number, color: string, progress: number): void {
   const p = clamp(progress); if (!p) return; const a0 = -Math.PI / 2 + .32, a1 = a0 + TAU * (.30 + .70 * ease2(p));
-  ctx.save(); ctx.strokeStyle = rgba(color, .72); ctx.lineWidth = 1.25 + p * .8; ctx.beginPath();
+  ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.strokeStyle = rgba(color, .72); ctx.lineWidth = 1.25 + p * .8; ctx.beginPath();
   ctx.ellipse(cx, cy, ORBITAL_VISUAL.ORBIT_RX * scale * 1.08, ORBITAL_VISUAL.ORBIT_RY * scale * 1.08, ORBITAL_VISUAL.ORBIT_ROT, a0, a1); ctx.stroke(); ctx.restore();
 }
 function tierPulse(ctx: CanvasRenderingContext2D, cx: number, cy: number, scale: number, progress: number): void {
-  const q = clamp(progress); if (!q) return; ctx.save(); ctx.globalAlpha = (1 - ease(q)) * .68; ctx.strokeStyle = ORBITAL_VISUAL.EDGE_HOT; ctx.lineWidth = 1.1;
+  const q = clamp(progress); if (!q) return; ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = (1 - ease(q)) * .68; ctx.strokeStyle = ORBITAL_VISUAL.EDGE_HOT; ctx.lineWidth = 1.1;
   ctx.beginPath(); ctx.ellipse(cx, cy, ORBITAL_VISUAL.ORBIT_RX * scale * (1 + q * .4), ORBITAL_VISUAL.ORBIT_RY * scale * (1 + q * .4), ORBITAL_VISUAL.ORBIT_ROT, 0, TAU); ctx.stroke(); ctx.restore();
 }
 function state(sphere: SphereEntity): OrbitalStateRecord {
@@ -159,8 +165,10 @@ export function renderOrbitalSphereRuntimeVfx(ctx: CanvasRenderingContext2D, sph
     impact(ctx, ix, iy, 4.2 * scale, r.impactTimer > 0 ? r.impactTimer / ORBITAL_VISUAL.IMPACT_FLASH_DURATION : (1 - p) * .35);
   }
 
+  ctx.globalCompositeOperation = 'source-over';
   drawSprite(ctx, 'shell', cx, cy, ORBITAL_VISUAL.SHELL_SPRITE_SIZE * scale, 0, disabled ? .72 : 1);
   crystals(ctx, cx, cy, scale, pulse);
+  ctx.globalCompositeOperation = 'lighter';
   if (resonance) chargeRing(ctx, cx, cy, scale, color, resonanceProgress);
   if (r.tierUpTimer > 0) tierPulse(ctx, cx, cy, scale, 1 - r.tierUpTimer / ORBITAL_VISUAL.TIER_UP_DURATION);
   core(ctx, cx, cy, scale, pulse, resonance, disabled);
