@@ -2774,3 +2774,51 @@ APK PlayerCheck обязателен: проверить на реальном g
 [NEXT]
 Проверить свежий APK по всем 10 Sphere, отдельно Standard как эталон и
 Orbital с его неизменённой базовой архитектурой.
+
+======================================================================
+[2026-09-30] SPHERE VISUAL / COMBAT FEEDBACK PASS
+======================================================================
+IMPLEMENTATION HEAD:
+1d841dd130155b8635c2749d1c12bc240cd88cb2
+
+USER PLAYER-CHECK CORRECTIONS IMPLEMENTED:
+[DONE] Standard ground shadow removed from the active Standard assembly.
+[DONE] Directed weapon geometry added to the Sphere families whose attack
+      principle is a directed projectile/beam:
+      Standard (existing), Sniper, Shotgun, Prism, Void.
+[DONE] Chain no longer spawns a traveling Sphere projectile for its primary
+      attack. Its attack is represented as direct lightning from Sphere to
+      the first target and between chained targets.
+[DONE] Non-Standard Sphere silhouettes were refined with small mechanical/
+      authored elements instead of relying on loose wavy-line motifs:
+      Sniper weapon, Shotgun barrels, Chain conductors, Aura field blades,
+      Prism emitter, Gravity anchors, Pulse capacitors, Void emitter.
+[DONE] Orbital base visual was rebuilt around a faceted core, crossed rails
+      and crystal terminals. The old crooked presentation is no longer the
+      active base visual.
+[DONE] Orbital attacking satellites are composited after enemy silhouettes,
+      so the attack modules remain visually on top at contact.
+[DONE] Active Network link lines were dimmed.
+[DONE] Network comets now move by continuous normalized path position rather
+      than segment-index stepping, removing the visible micro-jump behavior.
+[DONE] Network formation badge text is non-selectable.
+[DONE] Network effect tooltip auto-hides after 5 seconds and can be dismissed
+      by tapping/clicking it.
+[DONE] Gameplay balance outside the requested Chain presentation and its
+      visual representation was not intentionally changed; Sphere attack
+      rules remain data-driven.
+
+[VERIFICATION]
+[PASS] CI #992 SUCCESS: typecheck, asset check, unit tests, gameplay audit,
+      lint, web build, Playwright capture and Android debug APK.
+[PASS] CI #989 SUCCESS for the previous documentation baseline.
+
+[GATE]
+Human APK PlayerCheck remains mandatory for visual acceptance:
+- compare all 10 Spheres at gameplay scale;
+- verify directed weapon readability;
+- verify Chain lightning looks like lightning, not projectile;
+- verify Orbital satellites remain above enemies;
+- verify Network links are calmer and comets appear smooth;
+- verify HUD tooltip timing/tap dismissal;
+- verify no excessive visual clutter from modifier overlays.

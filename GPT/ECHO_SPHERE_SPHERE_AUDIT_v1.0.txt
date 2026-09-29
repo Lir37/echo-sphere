@@ -290,3 +290,55 @@ Standard Sphere remains locked and was not visually refactored.
 [GATE]
 Human APK PlayerCheck remains required to verify readability at actual
 gameplay scale and to catch any overlap/clutter.
+
+======================================================================
+[2026-09-30] SPHERE FAMILY VISUAL CORRECTION PASS
+======================================================================
+IMPLEMENTATION HEAD:
+1d841dd130155b8635c2749d1c12bc240cd88cb2
+
+STANDARD
+[DONE] Ground shadow removed from the active Standard Sphere assembly.
+[DONE] Existing approved Standard silhouette/core/ring/cannon construction
+      remains otherwise untouched.
+
+DIRECTED ATTACK SPHERES
+[DONE] Sniper: dedicated directional weapon body added.
+[DONE] Shotgun: three-barrel directional weapon body added.
+[DONE] Prism: directional beam-emitter body added and follows its target.
+[DONE] Void: directional weapon body added.
+[RULE] Conventional weapon geometry is intentionally not added to Aura,
+      Gravity, Pulse, or Orbital, because their field/rotational attack
+      mechanism is itself the readable weapon signature.
+[DONE] Chain uses no traveling projectile for its primary attack; direct
+      lightning is rendered from the Sphere to targets.
+
+ORBITAL
+[DONE] Base visual rebuilt rather than preserving the old crooked composition.
+[DONE] Faceted core, crossed orbital rails and terminal crystals form the
+      authored base hierarchy.
+[DONE] Satellite attack layer is composited after enemies so attackers sit
+      visually above enemy bodies.
+[DONE] Base Orbital combat mechanics remain unchanged.
+
+FAMILY SILHOUETTES
+[DONE] Added compact mechanical elements to non-Standard Sphere modules to
+      replace childish-looking loose wave motifs and better communicate each
+      attack principle:
+      conductors, barrels, emitters, anchors, capacitors and field blades.
+
+NETWORK / HUD
+[DONE] Active formation links are visually less bright.
+[DONE] Network comet motion uses continuous path interpolation rather than
+      discrete segment snapping.
+[DONE] Formation badge text is non-selectable.
+[DONE] Formation tooltip can be dismissed by tap and auto-hides after 5 sec.
+
+TEST/CI
+[DONE] Added visual contract coverage for shadow, Chain projectile absence,
+      Orbital z-order, smooth Network comet motion, HUD tooltip behavior and
+      directed weapon presence.
+[DONE] CI #992 SUCCESS.
+
+[GATE]
+APK PlayerCheck is the remaining subjective acceptance step.
