@@ -886,7 +886,7 @@ function drawModernProjectile(ctx: CanvasRenderingContext2D,x:number,y:number,vx
   const a=Math.atan2(vy,vx),speed=Math.hypot(vx,vy)||1,t=RENDER_TIME,trail=Math.min(52,15+speed*.05),rgb=hexToRgb(color);
   ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.globalCompositeOperation='source-over';
 
-  // Tapered curved comet tail, deliberately 25% softer than the old beam.
+  // Only the projectile tail is changed: tapered, curved and ~25% softer.
   ctx.globalAlpha=.21;
   ctx.fillStyle=color;
   ctx.beginPath();
@@ -897,38 +897,31 @@ function drawModernProjectile(ctx: CanvasRenderingContext2D,x:number,y:number,vx
   ctx.closePath();
   ctx.fill();
   ctx.globalAlpha=.11;
-  ctx.strokeStyle=color;
-  ctx.lineWidth=Math.max(1.5,r*.70);
-  ctx.beginPath();
-  ctx.moveTo(-trail*.82,0);
-  ctx.quadraticCurveTo(-trail*.40,-r*.24,-r*.18,0);
-  ctx.stroke();
+  ctx.strokeStyle=color;ctx.lineWidth=Math.max(1.5,r*.70);
+  ctx.beginPath();ctx.moveTo(-trail*.82,0);ctx.quadraticCurveTo(-trail*.40,-r*.24,-r*.18,0);ctx.stroke();
 
   ctx.fillStyle='#06111e';ctx.strokeStyle=`rgba(${rgb},.95)`;ctx.lineWidth=1;
   const pulse=1+Math.sin(t*12)*.08;
   if (sphereType === 'standard') {
     ctx.beginPath();
     ctx.moveTo(r*2.35,0);
-    ctx.quadraticCurveTo(r*1.28,-r*.26,r*.25,-r*.38);
-    ctx.quadraticCurveTo(-r*.56,-r*.34,-r*.82,0);
-    ctx.quadraticCurveTo(-r*.56,r*.34,r*.25,r*.38);
-    ctx.quadraticCurveTo(r*1.28,r*.26,r*2.35,0);
+    ctx.lineTo(r*0.05,-r*0.34);
+    ctx.lineTo(-r*0.88,-r*0.62*pulse);
+    ctx.lineTo(-r*0.58,0);
+    ctx.lineTo(-r*0.88,r*0.62*pulse);
+    ctx.lineTo(r*0.05,r*0.34);
     ctx.closePath();
     ctx.fill();ctx.stroke();
-    ctx.strokeStyle='rgba(234,253,255,.76)';ctx.lineWidth=.8;
+    ctx.strokeStyle='rgba(234,253,255,.76)';
+    ctx.lineWidth=.8;
     ctx.beginPath();
-    ctx.moveTo(-r*.42,-r*.18);
-    ctx.quadraticCurveTo(r*.78,0,r*1.38,0);
-    ctx.quadraticCurveTo(r*.78,r*.18,-r*.42,r*.18);
+    ctx.moveTo(-r*.48,-r*.20);ctx.lineTo(r*1.38,0);ctx.lineTo(-r*.48,r*.20);
     ctx.stroke();
     ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(r*.25,0,r*.38,0,Math.PI*2);ctx.fill();
     ctx.fillStyle=color;ctx.beginPath();ctx.arc(r*.25,0,r*.25,0,Math.PI*2);ctx.fill();
   } else {
     ctx.beginPath();
-    ctx.moveTo(r*2.2,0);
-    ctx.quadraticCurveTo(r*1.05,-r*.28,-r*.55,-r*.72*pulse);
-    ctx.quadraticCurveTo(-r*.86,0,-r*.55,r*.72*pulse);
-    ctx.quadraticCurveTo(r*1.05,r*.28,r*2.2,0);
+    ctx.moveTo(r*2.2,0);ctx.lineTo(-r*.55,-r*.72*pulse);ctx.lineTo(-r*.85,0);ctx.lineTo(-r*.55,r*.72*pulse);
     ctx.closePath();ctx.fill();ctx.stroke();
     ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(0,0,r*.46,0,Math.PI*2);ctx.fill();
     ctx.fillStyle=color;ctx.beginPath();ctx.arc(0,0,r*.34,0,Math.PI*2);ctx.fill();
