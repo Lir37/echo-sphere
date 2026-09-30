@@ -116,7 +116,7 @@ export function renderSphereProjectileVfx(ctx:CanvasRenderingContext2D,p:SphereP
   const a=Math.atan2(p.vel.y,p.vel.x),speed=Math.hypot(p.vel.x,p.vel.y)||1;
   ctx.save();ctx.translate(p.pos.x,p.pos.y);ctx.rotate(a);projectileTail(ctx,p.radius,p.color,speed,time);glow(ctx,p.radius*4,p.color,.045);projectileCore(ctx,p,player);ctx.restore();
 }
-export function renderChainLightningVfx(ctx:CanvasRenderingContext2D,bolt:LightningBolt,player:PlayerState,alpha:number):boolean{
+export function renderChainLightningVfx(ctx:CanvasRenderingContext2D,bolt:LightningBolt,player:PlayerState,alpha:number,time:number):boolean{
   const sphere=bolt.sourceSphere;if(!sphere||sphere.type!=='chain')return false;
   const b=branchOf(player,'chain'),f=finalOf(player,'chain');if(!b)return false;
   const c=SPHERE_TYPES.chain.color,rgb=rgbOf(c),dx=bolt.to.x-bolt.from.x,dy=bolt.to.y-bolt.from.y,len=Math.hypot(dx,dy)||1,nx=-dy/len,ny=dx/len;
@@ -128,7 +128,7 @@ export function renderChainLightningVfx(ctx:CanvasRenderingContext2D,bolt:Lightn
     for(let i=1;i<pieces;i++){const q=i/pieces,amp=len*(b==='chain_storm'?.12:b==='chain_leech'?.06:.09),zig=(i%2?-1:1)*amp*(.7+.3*Math.sin(time*22+i));ctx.lineTo(bolt.from.x+dx*q+nx*zig,bolt.from.y+dy*q+ny*zig);}
     ctx.lineTo(bolt.to.x,bolt.to.y);ctx.stroke();
   }
-  if(b==='chain_web'){ctx.strokeStyle='rgba(255,244,150,'+(.68*alpha)+')';ctx.lineWidth=1;for(let i=0;i<4;i++){const a=RENDER_TIME*2+i*TAU/4;ctx.beginPath();ctx.moveTo(bolt.to.x,bolt.to.y);ctx.lineTo(bolt.to.x+Math.cos(a)*(8+f*2),bolt.to.y+Math.sin(a)*(6+f));ctx.stroke();}}
+  if(b==='chain_web'){ctx.strokeStyle='rgba(255,244,150,'+(.68*alpha)+')';ctx.lineWidth=1;for(let i=0;i<4;i++){const a=time*2+i*TAU/4;ctx.beginPath();ctx.moveTo(bolt.to.x,bolt.to.y);ctx.lineTo(bolt.to.x+Math.cos(a)*(8+f*2),bolt.to.y+Math.sin(a)*(6+f));ctx.stroke();}}
   else if(b==='chain_storm'){ctx.fillStyle='rgba(255,249,190,'+(.9*alpha)+')';ctx.beginPath();ctx.arc(bolt.to.x,bolt.to.y,3+f*.8,0,TAU);ctx.fill();}
   else {ctx.strokeStyle='rgba(255,255,255,'+(.7*alpha)+')';ctx.lineWidth=1;ctx.beginPath();ctx.arc(bolt.to.x,bolt.to.y,3.0+Math.sin(time*16)*.8,0,TAU);ctx.stroke();}
   ctx.restore();return true;

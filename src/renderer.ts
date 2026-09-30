@@ -517,7 +517,7 @@ function drawRune(ctx: CanvasRenderingContext2D, rune: GameState['runes'][number
   for (let lightningIndex=0; lightningIndex<s.lightnings.length; lightningIndex+=lightningStride) {
     const l=s.lightnings[lightningIndex];
     const a = Math.max(0, Math.min(1, l.life / 0.3));
-    if (!renderChainLightningVfx(ctx, l, s.player, a)) drawEnergyBolt(ctx, l.from, l.to, a);
+    if (!renderChainLightningVfx(ctx, l, s.player, a, s.time)) drawEnergyBolt(ctx, l.from, l.to, a);
     ctx.globalAlpha = 1;
   }
 

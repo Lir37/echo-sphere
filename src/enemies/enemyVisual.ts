@@ -1,35 +1,3 @@
-import type { PlayerState, SphereEntity } from '../engine';
-
-type MutationBranch =
-  | 'standard_resonator' | 'standard_singularity' | 'standard_swarm'
-  | 'sniper_oracle' | 'sniper_assassin' | 'sniper_beacon'
-  | 'shotgun_burst' | 'shotgun_cataclysm' | 'shotgun_hail'
-  | 'chain_web' | 'chain_storm' | 'chain_leech'
-  | 'aura_sanctum' | 'aura_gravity' | 'aura_overgrowth'
-  | 'orbital_dance' | 'orbital_halo' | 'orbital_blade'
-  | 'prism_split' | 'prism_spectrum' | 'prism_mirror'
-  | 'gravity_well' | 'gravity_tide' | 'gravity_collapse'
-  | 'pulse_wave' | 'pulse_resonator' | 'pulse_burst'
-  | 'void_hunger' | 'void_reaper' | 'void_execution';
-
-const TAU = Math.PI * 2;
-
-function rgbOf(hex:string):string {
-  const n=Number.parseInt(hex.slice(1),16);
-  return ((n>>16)&255)+','+((n>>8)&255)+','+(n&255);
-}
-
-function branchOf(player:PlayerState,type:SphereType):MutationBranch|null {
-  return (player.sphereBranches?.[type] as MutationBranch|undefined) ?? null;
-}
-
-function finalIndexOf(player:PlayerState,type:SphereType):number {
-  const id=(player.evolutions||[]).find((x:string)=>x.startsWith('sphere:'+type+':7:'));
-  if(!id) return -1;
-  const n=Number(id.split(':').pop());
-  return Number.isFinite(n)?n:-1;
-}
-
 function glow(ctx:CanvasRenderingContext2D,r:number,color:string,alpha=.10):void {
   const rgb=rgbOf(color);
   const g=ctx.createRadialGradient(0,0,0,0,0,r);
