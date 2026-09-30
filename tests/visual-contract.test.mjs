@@ -101,8 +101,8 @@ test('Shared Sphere core mirrors Standard glow/body proportions without a dark i
   const c=read('src/spheres/visualHelpers.ts');
   assert.match(c,/const glowRadius = radius \\* \\.58/);
   assert.match(c,/const solidRadius = radius \\* \\.42/);
-  assert.match(c,/ctx\\.arc\\(0, 0, glowRadius/);
-  assert.match(c,/ctx\\.arc\\(0, 0, solidRadius/);
+  assert.match(c,/ctx\.arc\(0, 0, glowRadius/);
+  assert.match(c,/ctx\.arc\(0, 0, solidRadius/);
   assert.equal(c.includes("rgba(15,43,70,.90)"),false);
   assert.equal(c.includes("rgba(5,17,31,.98)"),false);
   assert.equal(c.includes("rgba(1,7,15,1)"),false);
