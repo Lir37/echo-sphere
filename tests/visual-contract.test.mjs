@@ -6,6 +6,12 @@ import path from 'node:path';
 const root=process.cwd();
 const read=(rel)=>fs.readFileSync(path.join(root,rel),'utf8');
 
+test('Standard keeps the approved multi-line attack muzzle',()=>{
+  const c=read('src/renderer.ts');
+  assert.match(c,/function drawStandardAttackVfx/);
+  assert.match(c,/drawStandardAttackVfx\(ctx, sphere, r, time\)/);
+});
+
 test('Standard has no active ground shadow',()=>{
   const c=read('src/renderer.ts');
   const a=c.indexOf('function drawStandardSphereAssembly(');
