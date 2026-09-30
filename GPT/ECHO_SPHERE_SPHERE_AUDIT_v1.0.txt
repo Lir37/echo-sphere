@@ -448,3 +448,28 @@ IMPLEMENTATION HEAD: 3f22d0235b13f0c8dab19bccf0cc7b3b5107d2e0
 
 [GATE] APK PlayerCheck should inspect enemy readability at actual gameplay
 scale, silhouette diversity, motion quality and boss visual weight.
+
+
+======================================================================
+[2026-09-30] CREATURE / MUTATION VISUAL QUALITY CORRECTION
+======================================================================
+
+[DONE] Previous enemy/boss creature silhouettes were replaced with richer
+2.5D organic constructions instead of simple circle/line/primitive drawings.
+[DONE] Normal/elite families now expose anatomy as the main readability layer:
+plates, membranes, jaws, eyes, fins, claws and segmented bodies.
+[DONE] Four bosses use large articulated monster silhouettes with internal
+layering and separate animated details.
+[DONE] Added a dedicated Sphere mutation compositor covering all 30 branch IDs.
+[DONE] Directed Sphere mutations now alter muzzle/emitter identity and projectile
+appearance. Chain lightning is branch-aware through sourceSphere metadata.
+[DONE] Aura/Gravity/Pulse/Orbital/Chain mutations receive individual attack
+animation signatures rather than relying on plain expanding rings.
+[DONE] Multishot/Pierce/Ricochet now share one applicability rule and are hidden
+from non-projectile Spheres in the common modifier overlay.
+[DONE] Standard now uses the same common modifier compositor as the other Spheres.
+[UNCHANGED] Standard base/core remains the visual etalon; combat damage and
+progression logic are not intentionally altered except the explicit correction
+that projectile-only modifiers no longer affect non-projectile Spheres.
+[GATE] CI + APK PlayerCheck, especially gameplay-scale enemy anatomy, mutation
+differences and modifier icon applicability.

@@ -1,4 +1,4 @@
-import { SPHERE_TYPES } from './gameData';
+import { SPHERE_TYPES, sphereUsesProjectileModifiers } from './gameData';
 import type { SphereType } from './gameData';
 import { playSound } from './audio';
 import {
@@ -177,7 +177,7 @@ function getActiveStatusEffect(s: GameState): 'none' | 'fire' | 'freeze' | 'pois
 function updateOrbitalSphere(s: GameState, sphere: SphereEntity, damage: number, mods: ReturnType<typeof sphereModifiers>, networkProfile: ReturnType<typeof getSphereNetworkProfile>, network: SphereNetworkState, dt: number): void {
   const branch = s.player.sphereBranches?.orbital;
   const finalIndex = getSphereFinalIndex(s, 'orbital');
-  const satelliteCount = Math.max(1, 1 + mods.multishot + (s.player.artifacts.includes('orbital_crown') ? 1 : 0) + (finalIndex === 2 ? 1 : 0));
+  const satelliteCount = Math.max(1, sphereLevel(s, 'orbital') + 1 + (s.player.artifacts.includes('orbital_crown') ? 1 : 0) + (finalIndex === 2 ? 1 : 0));
   let angularSpeed = 1.8 + Math.min(2.4, sphereLevel(s, 'orbital') * 0.28);
   if (branch === 'orbital_dance') angularSpeed *= finalIndex === 1 ? 1.55 : 1.28;
   if (branch === 'orbital_halo') angularSpeed *= 1.08;
@@ -483,7 +483,7 @@ export function updateSpheres(s: GameState, dt: number): void {
         const d = Math.hypot(dx, dy) || 1;
         const dirX = dx / d;
         const dirY = dy / d;
-        const mods = s.player.sphereMods;
+        const mods = sphereModifiers(s, sphere.type, sphere);
         const shots = sphere.type === 'shotgun' ? stype.pellets + mods.multishot : 1 + mods.multishot;
         const relayMultiplier = consumeEngineerRelayBonus(s, sphere);
         const formation = getCharacterFormation(s);
@@ -515,7 +515,7 @@ export function updateSpheres(s: GameState, dt: number): void {
               pierce: mods.pierce + formationPierce + (networkProfile.line ? 1 : 0) + (networkProfile.square ? 1 : 0) + sphereModifiers(s, sphere.type).pierce,
               hitEnemies: new Set(),
               effect,
-              ricochet: mods.ricochet,
+              ricochet: sphereUsesProjectileModifiers(sphere.type) ? s.player.sphereMods.ricochet : 0,
               life: 2,
               sourceSphere: sphere,
             });
@@ -549,7 +549,7 @@ export function updateSpheres(s: GameState, dt: number): void {
               link.character === 'alchemist' && link.sphere === 'chain' && link.ability === 'lightning'
             );
 
-            s.lightnings.push({ from: { ...sphere.pos }, to: { ...nearest.pos }, life: 0.30 });
+            s.lightnings.push({ from: { ...sphere.pos }, to: { ...nearest.pos }, life: 0.30, sourceSphere: sphere });
 
             for (let chainIndex = 0; chainIndex < chainTargets.length; chainIndex++) {
               const target = chainTargets[chainIndex];
@@ -560,7 +560,7 @@ export function updateSpheres(s: GameState, dt: number): void {
                 target.fireTimer = Math.max(target.fireTimer || 0, 1.5);
                 target.poisonTimer = Math.max(target.poisonTimer || 0, 1.5);
               }
-              s.lightnings.push({ from: { ...nearest.pos }, to: { ...target.pos }, life: 0.30 });
+              s.lightnings.push({ from: { ...nearest.pos }, to: { ...target.pos }, life: 0.30, sourceSphere: sphere });
             }
           }
         }

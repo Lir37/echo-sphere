@@ -1,4 +1,5 @@
 import type { PlayerState, SphereEntity, SphereMods } from '../engine';
+import { sphereUsesProjectileModifiers } from '../gameData';
 
 const TAU = Math.PI * 2;
 
@@ -14,6 +15,7 @@ const MODIFIER_COLOR: Record<ModifierKind, string> = {
 };
 
 const MODIFIER_ORDER: ModifierKind[] = ['multishot', 'pierce', 'ricochet', 'fire', 'freeze', 'poison'];
+const PROJECTILE_ONLY: ModifierKind[] = ['multishot', 'pierce', 'ricochet'];
 
 function modifierValue(mods: SphereMods, kind: ModifierKind): number {
   const value = Number(mods?.[kind] ?? 0);
@@ -165,6 +167,7 @@ export function renderSphereModifierVfx(
 
   for (let i = 0; i < MODIFIER_ORDER.length; i++) {
     const kind = MODIFIER_ORDER[i];
+    if (PROJECTILE_ONLY.includes(kind) && !sphereUsesProjectileModifiers(sphere.type)) continue;
     const value = modifierValue(player.sphereMods, kind);
     const angle = -Math.PI / 2 + i * TAU / MODIFIER_ORDER.length + activeTime * .11;
     if (disabled) ctx.globalAlpha = .38;

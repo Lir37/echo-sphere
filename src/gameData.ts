@@ -180,6 +180,12 @@ export type SphereType =
 
 export type SphereTargetingRule = 'nearest' | 'high_value_far' | 'area_control' | 'highest_hp' | 'lowest_hp';
 
+export const PROJECTILE_SPHERE_TYPES: readonly SphereType[] = ['standard', 'sniper', 'shotgun', 'prism', 'void'];
+
+export function sphereUsesProjectileModifiers(type: SphereType): boolean {
+  return PROJECTILE_SPHERE_TYPES.includes(type);
+}
+
 export interface SphereTypeDef {
   id: SphereType;
   name: { ru: string; en: string };

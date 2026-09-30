@@ -21,6 +21,7 @@ import { renderPulseSphereRuntimeVfx } from './spheres/pulseVisual';
 import { renderVoidSphereRuntimeVfx } from './spheres/voidVisual';
 import { renderSphereModifierVfx } from './spheres/modifierVisual';
 import { drawEnemyCreature, drawBossCreature } from './enemies/enemyVisual';
+import { renderSphereMutationVfx, renderSphereProjectileVfx, renderChainLightningVfx } from './spheres/mutationVisual';
 
 // ===== Origami / Paper Craft Style =====
 // Warm backgrounds, faceted folded-paper shapes, fold lines, drop shadows.
@@ -444,7 +445,7 @@ function drawRune(ctx: CanvasRenderingContext2D, rune: GameState['runes'][number
   for (const sphere of s.spheres) drawModernSphere(ctx, s, sphere, s.time);
 
   // sphere projectiles
-  for (const p of s.sphereProjectiles) drawModernProjectile(ctx, p.pos.x, p.pos.y, p.vel.x, p.vel.y, p.radius, p.color, p.sourceSphere?.type);
+  for (const p of s.sphereProjectiles) renderSphereProjectileVfx(ctx, p, s.player, s.time);
 
   // Minion identity follows its anchor Sphere.
   for (const m of s.minions) drawModernMinion(ctx, m.pos.x, m.pos.y, m.radius, m.rotation, SPHERE_TYPES[m.anchorType]?.color || '#ffb84d');
@@ -516,7 +517,7 @@ function drawRune(ctx: CanvasRenderingContext2D, rune: GameState['runes'][number
   for (let lightningIndex=0; lightningIndex<s.lightnings.length; lightningIndex+=lightningStride) {
     const l=s.lightnings[lightningIndex];
     const a = Math.max(0, Math.min(1, l.life / 0.3));
-    drawEnergyBolt(ctx, l.from, l.to, a);
+    if (!renderChainLightningVfx(ctx, l, s.player, a)) drawEnergyBolt(ctx, l.from, l.to, a);
     ctx.globalAlpha = 1;
   }
 
@@ -884,53 +885,6 @@ function drawModernHealth(ctx: CanvasRenderingContext2D,x:number,y:number,color:
   ctx.fillStyle='rgba(7,13,22,.94)';ctx.strokeStyle='rgba(255,125,150,.90)';ctx.lineWidth=1.4;
   ctx.beginPath();ctx.moveTo(-4,-12);ctx.lineTo(4,-12);ctx.lineTo(4,-4);ctx.lineTo(12,-4);ctx.lineTo(12,4);ctx.lineTo(4,4);ctx.lineTo(4,12);ctx.lineTo(-4,12);ctx.lineTo(-4,4);ctx.lineTo(-12,4);ctx.lineTo(-12,-4);ctx.lineTo(-4,-4);ctx.closePath();ctx.fill();ctx.stroke();
   ctx.fillStyle='#fff';ctx.fillRect(-2,-7,4,14);ctx.fillRect(-7,-2,14,4);ctx.restore();
-}
-
-function drawModernProjectile(ctx: CanvasRenderingContext2D,x:number,y:number,vx:number,vy:number,r:number,color:string,sphereType?: SphereEntity['type']):void{
-  const a=Math.atan2(vy,vx),speed=Math.hypot(vx,vy)||1,t=RENDER_TIME,trail=Math.min(52,15+speed*.05),rgb=hexToRgb(color);
-  ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.globalCompositeOperation='source-over';
-
-  // Only the projectile tail is changed: tapered, curved and ~25% softer.
-  ctx.globalAlpha=.21;
-  ctx.fillStyle=color;
-  ctx.beginPath();
-  ctx.moveTo(0,0);
-  ctx.quadraticCurveTo(-trail*.34,-r*.75,-trail*.72,-r*.22);
-  ctx.quadraticCurveTo(-trail*.92,0,-trail*.72,r*.22);
-  ctx.quadraticCurveTo(-trail*.34,r*.75,0,0);
-  ctx.closePath();
-  ctx.fill();
-  ctx.globalAlpha=.11;
-  ctx.strokeStyle=color;ctx.lineWidth=Math.max(1.5,r*.70);
-  ctx.beginPath();ctx.moveTo(-trail*.82,0);ctx.quadraticCurveTo(-trail*.40,-r*.24,-r*.18,0);ctx.stroke();
-
-  ctx.fillStyle='#06111e';ctx.strokeStyle=`rgba(${rgb},.95)`;ctx.lineWidth=1;
-  const pulse=1+Math.sin(t*12)*.08;
-  if (sphereType === 'standard') {
-    ctx.beginPath();
-    ctx.moveTo(r*2.35,0);
-    ctx.lineTo(r*0.05,-r*0.34);
-    ctx.lineTo(-r*0.88,-r*0.62*pulse);
-    ctx.lineTo(-r*0.58,0);
-    ctx.lineTo(-r*0.88,r*0.62*pulse);
-    ctx.lineTo(r*0.05,r*0.34);
-    ctx.closePath();
-    ctx.fill();ctx.stroke();
-    ctx.strokeStyle='rgba(234,253,255,.76)';
-    ctx.lineWidth=.8;
-    ctx.beginPath();
-    ctx.moveTo(-r*.48,-r*.20);ctx.lineTo(r*1.38,0);ctx.lineTo(-r*.48,r*.20);
-    ctx.stroke();
-    ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(r*.25,0,r*.38,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle=color;ctx.beginPath();ctx.arc(r*.25,0,r*.25,0,Math.PI*2);ctx.fill();
-  } else {
-    ctx.beginPath();
-    ctx.moveTo(r*2.2,0);ctx.lineTo(-r*.55,-r*.72*pulse);ctx.lineTo(-r*.85,0);ctx.lineTo(-r*.55,r*.72*pulse);
-    ctx.closePath();ctx.fill();ctx.stroke();
-    ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(0,0,r*.46,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle=color;ctx.beginPath();ctx.arc(0,0,r*.34,0,Math.PI*2);ctx.fill();
-  }
-  ctx.restore();
 }
 
 function drawModernMinion(ctx: CanvasRenderingContext2D,x:number,y:number,r:number,rotation:number,color:string):void{
@@ -2291,240 +2245,6 @@ function drawEnemyStatusVfx(ctx: CanvasRenderingContext2D, e: EnemyEntity, t: nu
 }
 
 
-function drawStandardMutationVfx(ctx: CanvasRenderingContext2D, game: GameState, sphere: SphereEntity, r: number, time: number): void {
-  const color = SPHERE_TYPES.standard.color;
-  const rgb = hexToRgb(color);
-  const mods = game.player.sphereMods;
-  const branch = game.player.sphereBranches?.standard;
-  const tier = Math.max(0, sphere.visualTier || 0);
-  const finalId = (game.player.evolutions || []).find((id: string) => id.startsWith('sphere:standard:7:'));
-  const finalIndex = finalId ? Number(finalId.split(':').pop()) : -1;
-  const pulse = 0.74 + Math.sin(time * 4.2 + sphere.pos.x * 0.01) * 0.26;
-
-  ctx.save();
-  ctx.translate(sphere.pos.x, sphere.pos.y);
-  ctx.globalCompositeOperation = 'lighter';
-
-  if (tier > 0) {
-    const pips = Math.min(7, tier);
-    for (let i = 0; i < pips; i++) {
-      const a = -Math.PI / 2 + (i / Math.max(1, pips)) * Math.PI * 2 + time * 0.16;
-      const px = Math.cos(a) * r * 1.50;
-      const py = Math.sin(a) * r * 1.18;
-      ctx.fillStyle = 'rgba(229,252,255,0.68)';
-      ctx.beginPath(); ctx.arc(px, py, 1.1, 0, Math.PI * 2); ctx.fill();
-    }
-  }
-
-  if (branch === 'standard_resonator') {
-    for (let i = 0; i < 2; i++) {
-      const wave = (time * 0.72 + i * 0.38) % 1;
-      ctx.strokeStyle = `rgba(${rgb},${0.28 + 0.18 * (1 - wave)})`;
-      ctx.lineWidth = 1.1;
-      ctx.beginPath();
-      ctx.ellipse(0, 0, r * (1.16 + wave * 0.88), r * (0.46 + wave * 0.35), 0, 0, Math.PI * 2);
-      ctx.stroke();
-    }
-    ctx.fillStyle = '#f5ffff';
-    const a = time * 2.3;
-    ctx.beginPath();
-    ctx.arc(Math.cos(a) * r * 1.30, Math.sin(a) * r * 0.56, 1.9, 0, Math.PI * 2);
-    ctx.fill();
-  } else if (branch === 'standard_singularity') {
-    ctx.strokeStyle = 'rgba(182,144,255,0.50)';
-    ctx.lineWidth = 1.2;
-    for (let i = 0; i < 3; i++) {
-      const start = -time * 0.5 + i * Math.PI * 2 / 3;
-      ctx.beginPath();
-      for (let k = 0; k <= 10; k++) {
-        const q = k / 10;
-        const rr = r * (1.42 - q * 0.82);
-        const a = start + q * 1.48;
-        const x = Math.cos(a) * rr, y = Math.sin(a) * rr * 0.58;
-        if (k === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-      }
-      ctx.stroke();
-    }
-  } else if (branch === 'standard_swarm') {
-    const count = Math.min(6, 3 + Math.max(0, mods.multishot || 0));
-    for (let i = 0; i < count; i++) {
-      const a = time * 0.62 + i * Math.PI * 2 / count;
-      const x = Math.cos(a) * r * 1.36, y = Math.sin(a) * r * 0.76;
-      ctx.fillStyle = `rgba(${rgb},${0.42 + 0.18 * pulse})`;
-      ctx.beginPath();
-      ctx.moveTo(x + Math.cos(a) * 4, y + Math.sin(a) * 4);
-      ctx.lineTo(x + Math.cos(a + 1.9) * 3, y + Math.sin(a + 1.9) * 3);
-      ctx.lineTo(x + Math.cos(a - 1.9) * 3, y + Math.sin(a - 1.9) * 3);
-      ctx.closePath(); ctx.fill();
-    }
-  }
-
-  if (finalIndex === 0) {
-    ctx.strokeStyle = 'rgba(217,251,255,0.44)';
-    ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.arc(0, 0, r * 1.26, 0, Math.PI * 2); ctx.stroke();
-    ctx.beginPath(); ctx.arc(0, 0, r * 1.43, time * 0.82, time * 0.82 + 1.40); ctx.stroke();
-  } else if (finalIndex === 1) {
-    // Replace the old straight rods/arrowheads with four compact curved
-    // resonator petals around the sphere.
-    ctx.strokeStyle = 'rgba(184,151,255,0.58)';
-    ctx.lineWidth = 1.15;
-    for (let i = 0; i < 4; i++) {
-      const a = time * 0.30 + i * Math.PI / 2;
-      const x = Math.cos(a) * r * 1.14;
-      const y = Math.sin(a) * r * .74;
-      ctx.save();
-      ctx.translate(x, y);
-      ctx.rotate(a);
-      ctx.beginPath();
-      ctx.moveTo(-r*.16,0);
-      ctx.quadraticCurveTo(0,-r*.22,r*.26,0);
-      ctx.quadraticCurveTo(0,r*.22,-r*.16,0);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(-r*.08,0);
-      ctx.quadraticCurveTo(r*.05,-r*.10,r*.18,0);
-      ctx.stroke();
-      ctx.restore();
-    }
-    ctx.strokeStyle = 'rgba(242,234,255,0.52)';
-    ctx.beginPath();
-    ctx.arc(0, 0, r * 1.28, time * .30, time * .30 + Math.PI * 1.45);
-    ctx.stroke();
-  } else if (finalIndex === 2) {
-    for (let i = 0; i < 6; i++) {
-      const a = -time * 0.72 + i * Math.PI / 3;
-      const x = Math.cos(a) * r * 1.52;
-      const y = Math.sin(a) * r * 0.92;
-      ctx.fillStyle = 'rgba(113,236,255,0.44)';
-      ctx.beginPath();
-      ctx.moveTo(x, y - 3.4); ctx.lineTo(x + 3.4, y); ctx.lineTo(x, y + 3.4); ctx.lineTo(x - 3.4, y);
-      ctx.closePath(); ctx.fill();
-    }
-  }
-
-  if ((mods.pierce || 0) > 0) {
-    ctx.strokeStyle = 'rgba(233,252,255,0.52)';
-    ctx.lineWidth = 0.95;
-    ctx.beginPath(); ctx.moveTo(-r * 1.55, 0); ctx.lineTo(r * 1.55, 0); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(-r * 1.10, -r * 0.14); ctx.lineTo(-r * 1.55, 0); ctx.lineTo(-r * 1.10, r * 0.14); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(r * 1.10, -r * 0.14); ctx.lineTo(r * 1.55, 0); ctx.lineTo(r * 1.10, r * 0.14); ctx.stroke();
-  }
-
-  if ((mods.ricochet || 0) > 0) {
-    ctx.strokeStyle = 'rgba(184,151,255,0.54)';
-    ctx.lineWidth = 0.95;
-    ctx.beginPath(); ctx.arc(0, 0, r * 1.58, time * 1.14, time * 1.14 + Math.PI * 1.10); ctx.stroke();
-  }
-
-  const modifierSpin = time * 0.42;
-  const drawGlyph = (kind: 'fire' | 'freeze' | 'poison', angle: number): void => {
-    const a = angle + modifierSpin;
-    const x = Math.cos(a) * r * 1.53;
-    const y = Math.sin(a) * r * 1.02;
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.rotate(a + Math.PI / 2);
-    ctx.globalAlpha = .74;
-    ctx.strokeStyle = kind === 'fire' ? '#ff743d' : kind === 'freeze' ? '#bff4ff' : '#6df0a9';
-    ctx.lineWidth = 1.05;
-    if (kind === 'fire') {
-      ctx.beginPath();
-      ctx.moveTo(0,-4);
-      ctx.quadraticCurveTo(4,-1.2,2.5,2.8);
-      ctx.quadraticCurveTo(0,5,-2.5,2.8);
-      ctx.quadraticCurveTo(-4,-1.2,0,-4);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(0,-1.5);
-      ctx.quadraticCurveTo(1.7,0,0,2);
-      ctx.quadraticCurveTo(-1.7,0,0,-1.5);
-      ctx.stroke();
-    } else if (kind === 'freeze') {
-      ctx.beginPath();
-      for (let i = 0; i < 4; i++) {
-        const q = i * Math.PI / 2;
-        ctx.moveTo(Math.cos(q)*4,Math.sin(q)*4);
-        ctx.quadraticCurveTo(Math.cos(q+.28)*2.2,Math.sin(q+.28)*2.2,Math.cos(q+.52)*4,Math.sin(q+.52)*4);
-      }
-      ctx.stroke();
-      ctx.beginPath();ctx.arc(0,0,1.8,0,Math.PI*2);ctx.stroke();
-    } else {
-      ctx.beginPath();
-      ctx.moveTo(0,-4.2);
-      ctx.quadraticCurveTo(3.8,-1,2.1,2.4);
-      ctx.quadraticCurveTo(0,5.1,-2.1,2.4);
-      ctx.quadraticCurveTo(-3.8,-1,0,-4.2);
-      ctx.stroke();
-      ctx.beginPath();ctx.moveTo(0,-2.2);ctx.quadraticCurveTo(0,0,0,2.2);ctx.stroke();
-    }
-    ctx.restore();
-  };
-  if (mods.fire) drawGlyph('fire', -0.86);
-  if (mods.freeze) drawGlyph('freeze', 2.96);
-  if (mods.poison) drawGlyph('poison', 1.10);
-
-  const extraShots = Math.min(4, Math.max(0, mods.multishot || 0));
-  if (extraShots > 0) {
-    ctx.strokeStyle = 'rgba(219,251,255,0.30)';
-    ctx.lineWidth = 0.8;
-    for (let i = 0; i < extraShots; i++) {
-      const a = (i - (extraShots - 1) / 2) * 0.16 + modifierSpin;
-      const x = Math.cos(a) * r * 1.35, y = Math.sin(a) * r * .90;
-      ctx.beginPath();
-      ctx.moveTo(x-r*.10,y-r*.14);
-      ctx.quadraticCurveTo(x+r*.10,y,x+r*.20,y+r*.14);
-      ctx.stroke();
-    }
-  }
-  ctx.restore();
-}
-
-
-
-function drawStandardAttackVfx(ctx: CanvasRenderingContext2D, sphere: SphereEntity, r: number, time: number): void {
-  const charge = Math.max(0, Math.min(1, 1 - sphere.attackTimer / 1.2));
-  if (charge < 0.04) return;
-  const dir = sphere.rotation || 0;
-  const reach = r * (1.02 + charge * 0.84);
-  const color = '#63e6ff';
-
-  ctx.save();
-  ctx.translate(sphere.pos.x, sphere.pos.y);
-  ctx.rotate(dir);
-  ctx.globalCompositeOperation = 'lighter';
-  ctx.globalAlpha = .20 + charge * .24;
-  ctx.strokeStyle = color;
-  ctx.lineWidth = 1.35 + charge * .45;
-  ctx.beginPath();
-  ctx.moveTo(reach * .68, -r * .18);
-  ctx.quadraticCurveTo(reach * .90, -r * .32, reach, -r * .08);
-  ctx.quadraticCurveTo(reach * 1.08, 0, reach, r * .08);
-  ctx.quadraticCurveTo(reach * .90, r * .32, reach * .68, r * .18);
-  ctx.stroke();
-
-  ctx.globalAlpha = .34 + charge * .32;
-  ctx.beginPath();
-  ctx.moveTo(reach * .74, -r * .13);
-  ctx.quadraticCurveTo(reach * .94, 0, reach * 1.02, -r * .03);
-  ctx.quadraticCurveTo(reach * 1.10, 0, reach * 1.02, r * .03);
-  ctx.quadraticCurveTo(reach * .94, 0, reach * .74, r * .13);
-  ctx.stroke();
-
-  ctx.globalAlpha = .24 + charge * .28;
-  ctx.beginPath();
-  ctx.arc(reach, 0, r * (.15 + charge * .08), -Math.PI * .72, Math.PI * .72);
-  ctx.stroke();
-
-  ctx.globalAlpha = .72 + charge * .18;
-  ctx.fillStyle = '#ffffff';
-  ctx.beginPath();
-  ctx.arc(reach * .98, 0, r * (.065 + charge * .035), 0, Math.PI * 2);
-  ctx.fill();
-  ctx.restore();
-}
-
-
 function drawModernSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: SphereEntity, time: number): void {
   const def = SPHERE_TYPES[sphere.type];
   const r = Math.max(15, Math.min(25, sphere.radius * 0.19 + (sphere.visualTier || 0) * 0.8));
@@ -2543,8 +2263,8 @@ function drawModernSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: S
       ctx.stroke();
       ctx.restore();
     }
-    drawStandardMutationVfx(ctx, s, sphere, r, time);
-    drawStandardAttackVfx(ctx, sphere, r, time);
+    renderSphereMutationVfx(ctx, sphere, s.player, time, scale);
+    renderSphereModifierVfx(ctx, sphere, s.player, time, scale);
     drawNetworkDisabledIndicator(ctx, sphere, time);
     return;
   }
@@ -2556,179 +2276,62 @@ function drawModernSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: S
   }
   if (sphere.type === 'sniper') {
     renderSniperSphereRuntimeVfx(ctx, sphere, s.player, time, scale);
+    renderSphereMutationVfx(ctx, sphere, s.player, time, scale);
     renderSphereModifierVfx(ctx, sphere, s.player, time, scale);
     drawNetworkDisabledIndicator(ctx, sphere, time);
     return;
   }
   if (sphere.type === 'shotgun') {
     renderShotgunSphereRuntimeVfx(ctx, sphere, s.player, time, scale);
+    renderSphereMutationVfx(ctx, sphere, s.player, time, scale);
     renderSphereModifierVfx(ctx, sphere, s.player, time, scale);
     drawNetworkDisabledIndicator(ctx, sphere, time);
     return;
   }
   if (sphere.type === 'chain') {
     renderChainSphereRuntimeVfx(ctx, sphere, s.player, time, scale);
+    renderSphereMutationVfx(ctx, sphere, s.player, time, scale);
     renderSphereModifierVfx(ctx, sphere, s.player, time, scale);
     drawNetworkDisabledIndicator(ctx, sphere, time);
     return;
   }
   if (sphere.type === 'aura') {
     renderAuraSphereRuntimeVfx(ctx, sphere, s.player, time, scale);
+    renderSphereMutationVfx(ctx, sphere, s.player, time, scale);
     renderSphereModifierVfx(ctx, sphere, s.player, time, scale);
     drawNetworkDisabledIndicator(ctx, sphere, time);
     return;
   }
   if (sphere.type === 'prism') {
     renderPrismSphereRuntimeVfx(ctx, sphere, s.player, time, scale);
+    renderSphereMutationVfx(ctx, sphere, s.player, time, scale);
     renderSphereModifierVfx(ctx, sphere, s.player, time, scale);
     drawNetworkDisabledIndicator(ctx, sphere, time);
     return;
   }
   if (sphere.type === 'gravity') {
     renderGravitySphereRuntimeVfx(ctx, sphere, s.player, time, scale);
+    renderSphereMutationVfx(ctx, sphere, s.player, time, scale);
     renderSphereModifierVfx(ctx, sphere, s.player, time, scale);
     drawNetworkDisabledIndicator(ctx, sphere, time);
     return;
   }
   if (sphere.type === 'pulse') {
     renderPulseSphereRuntimeVfx(ctx, sphere, s.player, time, scale);
+    renderSphereMutationVfx(ctx, sphere, s.player, time, scale);
     renderSphereModifierVfx(ctx, sphere, s.player, time, scale);
     drawNetworkDisabledIndicator(ctx, sphere, time);
     return;
   }
   if (sphere.type === 'void') {
     renderVoidSphereRuntimeVfx(ctx, sphere, s.player, time, scale);
+    renderSphereMutationVfx(ctx, sphere, s.player, time, scale);
     renderSphereModifierVfx(ctx, sphere, s.player, time, scale);
     drawNetworkDisabledIndicator(ctx, sphere, time);
     return;
   }
   drawNetworkDisabledIndicator(ctx, sphere, time);
   drawSphereVfx(ctx, sphere, def.color, r, time);
-}
-
-function drawSniperMutationVfx(ctx: CanvasRenderingContext2D, game: GameState, sphere: SphereEntity, r: number, time: number): void {
-  const mods = game.player.sphereMods;
-  const branch = game.player.sphereBranches?.sniper;
-  const tier = Math.max(0, sphere.visualTier || 0);
-  const finalId = (game.player.evolutions || []).find((id: string) => id.startsWith('sphere:sniper:7:'));
-  const finalIndex = finalId ? Number(finalId.split(':').pop()) : -1;
-  const pulse = 0.72 + Math.sin(time * 3.8 + sphere.pos.y * 0.01) * 0.28;
-
-  ctx.save();
-  ctx.translate(sphere.pos.x, sphere.pos.y);
-  ctx.globalCompositeOperation = 'lighter';
-
-  if (tier > 0) {
-    const ticks = Math.min(7, tier);
-    for (let i = 0; i < ticks; i++) {
-      const a = -Math.PI * 0.82 + i * (Math.PI * 1.64 / Math.max(1, ticks - 1));
-      const px = Math.cos(a) * r * 1.48;
-      const py = Math.sin(a) * r * 1.05;
-      ctx.fillStyle = 'rgba(248,224,255,0.72)';
-      ctx.beginPath();
-      ctx.moveTo(px, py - 2.2); ctx.lineTo(px + 2.2, py); ctx.lineTo(px, py + 2.2); ctx.lineTo(px - 2.2, py);
-      ctx.closePath(); ctx.fill();
-    }
-  }
-
-  if (branch === 'sniper_oracle') {
-    for (let i = 0; i < 2; i++) {
-      const q = (time * 0.48 + i * 0.5) % 1;
-      ctx.strokeStyle = `rgba(246,210,255,${0.34 + 0.18 * (1 - q)})`;
-      ctx.lineWidth = 1.05;
-      ctx.beginPath();
-      ctx.arc(0, 0, r * (1.12 + q * 0.70), -0.42, 0.42);
-      ctx.stroke();
-    }
-  } else if (branch === 'sniper_assassin') {
-    ctx.strokeStyle = `rgba(214,108,255,${0.55 + Math.sin(time * 2.4) * 0.08})`;
-    ctx.lineWidth = 1.2;
-    ctx.beginPath();
-    ctx.arc(0, 0, r * 1.38, time * 0.42, time * 0.42 + 1.7);
-    ctx.stroke();
-    ctx.fillStyle = `rgba(255,154,232,${0.32 + pulse * 0.3})`;
-    for (let i = 0; i < 3; i++) {
-      const a = time * 0.8 + i * Math.PI * 2 / 3;
-      ctx.beginPath();
-      ctx.arc(Math.cos(a) * r * 1.32, Math.sin(a) * r * 0.92, 1.7, 0, Math.PI * 2);
-      ctx.fill();
-    }
-  } else if (branch === 'sniper_beacon') {
-    for (let i = 0; i < 3; i++) {
-      const q = (time * 0.42 + i / 3) % 1;
-      ctx.strokeStyle = `rgba(185,236,255,${0.24 * (1 - q)})`;
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.arc(0, 0, r * (1.18 + q * 0.92), 0, Math.PI * 2);
-      ctx.stroke();
-    }
-    ctx.fillStyle = `rgba(210,250,255,${0.42 + pulse * 0.26})`;
-    ctx.beginPath(); ctx.arc(r * 1.45, 0, 2.2, 0, Math.PI * 2); ctx.fill();
-  }
-
-  if (finalIndex === 0) {
-    ctx.strokeStyle = 'rgba(255,232,255,0.62)';
-    ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.arc(0, 0, r * 1.34, -0.7, 0.7); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(r * 1.18, -r * 0.16); ctx.lineTo(r * 1.62, -r * 0.16); ctx.stroke();
-  } else if (finalIndex === 1) {
-    ctx.strokeStyle = 'rgba(255,145,226,0.56)';
-    ctx.lineWidth = 1.2;
-    for (let i = 0; i < 3; i++) {
-      const a = time * 0.36 + i * Math.PI * 2 / 3;
-      ctx.beginPath();
-      ctx.moveTo(Math.cos(a) * r * 1.06, Math.sin(a) * r * 0.76);
-      ctx.lineTo(Math.cos(a) * r * 1.56, Math.sin(a) * r * 1.04);
-      ctx.stroke();
-    }
-  } else if (finalIndex === 2) {
-    ctx.strokeStyle = 'rgba(194,246,255,0.60)';
-    ctx.lineWidth = 1;
-    for (let i = 0; i < 4; i++) {
-      const a = i * Math.PI / 2 + time * 0.24;
-      const x = Math.cos(a) * r * 1.52, y = Math.sin(a) * r;
-      ctx.beginPath(); ctx.moveTo(x, y - 3.4); ctx.lineTo(x + 3.4, y); ctx.lineTo(x, y + 3.4); ctx.lineTo(x - 3.4, y); ctx.closePath(); ctx.stroke();
-    }
-  }
-
-  if ((mods.pierce || 0) > 0) {
-    ctx.strokeStyle = 'rgba(241,222,255,0.58)';
-    ctx.lineWidth = 0.9;
-    ctx.beginPath(); ctx.moveTo(-r * 1.58, 0); ctx.lineTo(r * 1.62, 0); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(r * 1.62, 0); ctx.lineTo(r * 1.42, -r * 0.12); ctx.moveTo(r * 1.62, 0); ctx.lineTo(r * 1.42, r * 0.12); ctx.stroke();
-  }
-  if ((mods.ricochet || 0) > 0) {
-    ctx.strokeStyle = 'rgba(183,142,255,0.58)';
-    ctx.lineWidth = 0.9;
-    ctx.beginPath(); ctx.arc(0, 0, r * 1.58, -0.75, 0.62); ctx.stroke();
-  }
-  const status = [
-    { on: mods.fire, color: '255,116,61', angle: -0.95 },
-    { on: mods.freeze, color: '191,244,255', angle: 2.75 },
-    { on: mods.poison, color: '109,240,169', angle: 1.02 },
-  ];
-  for (const fx of status) {
-    if (!fx.on) continue;
-    const a = fx.angle + time * 0.36;
-    const x = Math.cos(a) * r * 1.52, y = Math.sin(a) * r * 1.02;
-    ctx.fillStyle = `rgba(${fx.color},0.72)`;
-    ctx.beginPath(); ctx.moveTo(x, y - 3.2); ctx.lineTo(x + 3.0, y); ctx.lineTo(x, y + 3.2); ctx.lineTo(x - 3.0, y); ctx.closePath(); ctx.fill();
-  }
-  const extraShots = Math.min(3, Math.max(0, mods.multishot || 0));
-  if (extraShots > 0) {
-    ctx.strokeStyle = 'rgba(244,220,255,0.30)';
-    ctx.lineWidth = 0.8;
-    for (let i = 0; i < extraShots; i++) {
-      const y = (i - (extraShots - 1) / 2) * r * 0.28;
-      ctx.beginPath(); ctx.moveTo(r * 0.38, y); ctx.lineTo(r * 1.46, y); ctx.stroke();
-    }
-  }
-  if (tier >= 3) {
-    ctx.strokeStyle = `rgba(255,238,255,${0.28 + pulse * 0.26})`;
-    ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.arc(0, 0, r * 1.72, -0.24, 0.24); ctx.stroke();
-  }
-  ctx.restore();
 }
 
 function spheresVisualMultishot(sphere: SphereEntity, s: GameState): number {

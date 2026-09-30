@@ -123,10 +123,10 @@ test('Orbital combat speed and Blade mutation are explicit',()=>{
   assert.match(c,/ctx\.lineTo\(size \* \.78, 0\)/);
 });
 
-test('Enemy production renderer uses creature families and boss-specific bodies',()=>{
+test('Enemy production renderer uses authored creature families and boss-specific bodies',()=>{
   const c=read('src/enemies/enemyVisual.ts');
-  for(const token of ['drawVeilJelly','drawLeech','drawSerpent','drawSkitter','drawMoth','drawBeetle','drawBrute','drawPrismHound','drawStalker']) assert.ok(c.includes(token),token);
-  for(const token of ['drawVoidLancer','drawDreadCharger','drawBroodMatriarch','drawAbyssalLeviathan']) assert.ok(c.includes(token),token);
+  for(const token of ['drawVeilRipper','drawGraveLeech','drawFangedCoil','drawCarrionSkitter','drawUmbralMoth','drawRiftScarab','drawBonebackBrute','drawGlassHound','drawHollowStalker','drawCableWidow']) assert.ok(c.includes(token),token);
+  for(const token of ['drawVoidLancerBoss','drawDreadChargerBoss','drawBroodMatriarchBoss','drawAbyssalLeviathanBoss']) assert.ok(c.includes(token),token);
 });
 
 test('Modern renderer delegates enemy bodies to the dedicated production layer',()=>{
@@ -141,4 +141,33 @@ test('Modern renderer delegates enemy bodies to the dedicated production layer',
 test('Enemy visual variants are seeded and creature-diverse by role',()=>{
   const c=read('src/engineEnemies.ts');
   for(const token of ['moth','skitter','stalker','beetle','brute','prism','wisp','leech','serpent']) assert.ok(c.includes("'"+token+"'"),token);
+});
+
+
+test('Sphere mutations use a dedicated per-branch visual layer',()=>{
+  const m=read('src/spheres/mutationVisual.ts');
+  const ids=['standard_resonator','standard_singularity','standard_swarm','sniper_oracle','sniper_assassin','sniper_beacon','shotgun_burst','shotgun_cataclysm','shotgun_hail','chain_web','chain_storm','chain_leech','aura_sanctum','aura_gravity','aura_overgrowth','orbital_dance','orbital_halo','orbital_blade','prism_split','prism_spectrum','prism_mirror','gravity_well','gravity_tide','gravity_collapse','pulse_wave','pulse_resonator','pulse_burst','void_hunger','void_reaper','void_execution'];
+  for(const id of ids) assert.ok(m.includes(id),id);
+  assert.ok(m.includes('renderSphereProjectileVfx'));
+  assert.ok(m.includes('renderChainLightningVfx'));
+});
+
+test('Projectile-only modifiers are filtered by Sphere type',()=>{
+  const h=read('src/gameData.ts'),m=read('src/spheres/modifierVisual.ts'),e=read('src/engineSpheres.ts'),p=read('src/sphereProgression.ts');
+  assert.ok(h.includes('sphereUsesProjectileModifiers'));
+  assert.match(m,/PROJECTILE_ONLY/);
+  assert.match(m,/sphereUsesProjectileModifiers\\(sphere\\.type\\)/);
+  assert.match(e,/sphereUsesProjectileModifiers\\(sphere\\.type\\)/);
+  assert.ok(p.includes('const projectileMods = sphereUsesProjectileModifiers(type)'));
+  assert.match(e,/sphereLevel\\(s, 'orbital'\\) \\+ 1/);
+});
+
+test('Renderer composes mutation and projectile-specific attack visuals',()=>{
+  const c=read('src/renderer.ts');
+  assert.ok(c.includes("./spheres/mutationVisual"));
+  assert.ok(c.includes('renderSphereMutationVfx(ctx, sphere, s.player, time, scale);'));
+  assert.ok(c.includes('renderSphereProjectileVfx(ctx, p, s.player, s.time);'));
+  assert.ok(c.includes('renderChainLightningVfx(ctx, l, s.player, a)'));
+  assert.equal(c.includes('drawModernProjectile(ctx'),false);
+  assert.equal(c.includes('drawStandardMutationVfx(ctx'),false);
 });

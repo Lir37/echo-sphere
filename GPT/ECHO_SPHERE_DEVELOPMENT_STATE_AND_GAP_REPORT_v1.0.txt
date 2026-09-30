@@ -2984,3 +2984,57 @@ CLEANUP
 [GATE]
 CI + APK PlayerCheck. Automated tests verify renderer/module integration and
 variant coverage; APK PlayerCheck remains the visual acceptance gate.
+
+
+======================================================================
+[2026-09-30] VISUAL QUALITY CORRECTION — CREATURES / SPHERE MUTATIONS / MODIFIERS
+======================================================================
+
+IMPLEMENTATION PASS:
+This pass responds to the explicit visual-quality correction: the prior enemy
+creatures were still too schematic/childlike at gameplay scale, and Sphere
+mutations were too dependent on simple geometric additions.
+
+ENEMIES / BOSSES
+[DONE] Replaced the previous simple creature drawings in
+      src/enemies/enemyVisual.ts with richer layered 2.5D creature anatomy:
+      body volume, overlapping plates/membranes, jaws, eyes, fins, claws,
+      segmented structures and asymmetric silhouettes.
+[DONE] Ten normal/elite visual families now have independent silhouettes and
+      anatomy-driven motion: veil ripper, grave leech, fanged coil, carrion
+      skitter, umbral moth, rift scarab, boneback brute, glass hound, hollow
+      stalker and cable widow.
+[DONE] Four existing boss families now have larger articulated monster forms:
+      Void Lancer, Dread Charger, Brood Matriarch and Abyssal Leviathan.
+[UNCHANGED] Enemy/boss gameplay statistics, targeting and behavior logic.
+
+SPHERE MUTATIONS
+[DONE] Added src/spheres/mutationVisual.ts as the central mutation compositor.
+[DONE] All 30 Sphere mutation branches have explicit branch-specific visual
+      motifs, with final-form variation retained per branch.
+[DONE] Directed Sphere mutations modify the visible emitter/muzzle treatment
+      and the projectile body itself rather than only adding orbit ornaments.
+[DONE] Non-projectile mutations use attack-specific animated signatures:
+      electrical filaments, field tethers, orbital blade passes, gravity
+      spirals, pulse contours and void appendages.
+[DONE] Chain lightning now carries its source Sphere into the renderer and has
+      branch-specific lightning shape/end impact treatment.
+[DONE] Mutation visuals remain presentation-only.
+
+MODIFIER APPLICATION / UI
+[DONE] Added sphereUsesProjectileModifiers() as the single applicability gate
+      for Multishot, Pierce and Ricochet.
+[DONE] Orbital native satellites no longer consume the global Multishot
+      modifier. Their count remains driven by Orbital progression/artifacts.
+[DONE] Projectile generation reads per-Sphere modifier values for shots/pierce
+      and gates Ricochet to projectile Sphere types.
+[DONE] Shared modifier compositor now hides Multishot/Pierce/Ricochet glyphs
+      on non-projectile Spheres. Standard uses the same shared overlay as the
+      rest of the family, removing the old visual mismatch.
+[UNCHANGED] Fire/Freeze/Poison applicability and status logic.
+
+VERIFICATION / GATE
+[ADDED] Static visual-contract coverage for the mutation layer, all mutation
+       IDs, source-aware Chain lightning and projectile-only modifier gating.
+[GATE] CI plus APK PlayerCheck. Real-device inspection remains mandatory for
+      gameplay-scale readability and visual quality.

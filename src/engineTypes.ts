@@ -218,6 +218,7 @@ export interface LightningBolt {
   from: Vec;
   to: Vec;
   life: number;
+  sourceSphere?: SphereEntity;
 }
 
 export interface UpgradeChoice {
