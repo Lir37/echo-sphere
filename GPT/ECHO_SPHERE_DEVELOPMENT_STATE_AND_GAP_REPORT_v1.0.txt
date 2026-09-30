@@ -2865,3 +2865,30 @@ convincing as Standard on a real device.
 [NEXT]
 Do not redesign Standard. Compare all ten Sphere types side-by-side in APK and
 make only concrete visual corrections from that comparison.
+
+
+======================================================================
+[2026-09-30] SPHERE FINAL VISUAL TUNING PASS
+======================================================================
+IMPLEMENTATION HEAD: faf02bf7c634b91f19ec154e305844939037e085
+
+USER PLAYER-CHECK CORRECTIONS:
+[DONE] Shared Sphere core now keeps the broad glow radius while the visible
+      framed energy disc is scaled to Standard-equivalent size.
+[DONE] Orbital combat units now rotate substantially faster, making them a
+      credible continuous combat layer.
+[DONE] Orbital normal attackers are compact faceted energy spheres.
+[DONE] Orbital Blade mutation uses a dedicated directional blade silhouette:
+      the blade tip faces radially outward and its compact root faces the
+      Orbital core.
+[DONE] Void orbit received a denser fractured containment treatment with
+      unequal plates and moving fragments.
+[DONE] Pulse orbit received a richer signal-carrier treatment with a solid
+      carrier, segmented return trace and staggered resonator nodes.
+[UNCHANGED] Gameplay targeting, damage, progression and Orbital tier counts
+            remain unchanged. This pass is presentation-only.
+
+[VERIFICATION]
+[ADDED] Visual-contract coverage for Standard-scale core sizing, Orbital speed
+       tiers and Blade mutation geometry.
+[GATE] APK PlayerCheck remains the final visual acceptance gate.

@@ -368,3 +368,24 @@ IMPLEMENTATION HEAD: 50fe19a560f3c2f25f4d1d5cf240b27cfe872eeb
 
 [GATE]
 APK PlayerCheck remains the final acceptance gate for visual quality.
+
+
+======================================================================
+[2026-09-30] SPHERE FINAL VISUAL TUNING AUDIT
+======================================================================
+IMPLEMENTATION HEAD: faf02bf7c634b91f19ec154e305844939037e085
+
+[DONE] Non-Standard visible core size aligned with Standard while retaining
+      existing broad glow.
+[DONE] Orbital default/dance/halo/blade motion speeds increased for combat
+      readability.
+[DONE] Orbital default attackers are compact faceted spheres.
+[DONE] Orbital Blade mutation is a directional blade with outward-facing tip
+      and core-facing root.
+[DONE] Void and Pulse orbital treatments increased in structural richness
+      without introducing large or heavy secondary bodies.
+[DONE] No gameplay mechanics were altered by this visual pass.
+
+[GATE]
+APK PlayerCheck should specifically confirm core diameter, Orbital attack
+tempo, Blade readability, and Void/Pulse orbit richness at gameplay scale.

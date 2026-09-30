@@ -95,3 +95,21 @@ test('Directed weapons are compact tips without a shaft back to the core',()=>{
     assert.equal(/lineTo\(r\*1\./.test(c) && c.includes('drawWeapon'),false,file);
   }
 });
+
+
+test('Shared Sphere core keeps Standard-scale visible disc inside the broad glow',()=>{
+  const c=read('src/spheres/visualHelpers.ts');
+  assert.match(c,/const visibleRadius = radius * \.62/);
+  assert.match(c,/glow\(ctx, radius \* 1\.85/);
+  assert.match(c,/ctx\.arc\(0, 0, visibleRadius/);
+});
+
+test('Orbital combat speed and Blade mutation are explicit',()=>{
+  const c=read('src/spheres/orbitalVisual.ts');
+  assert.match(c,/orbital_dance'\n\s*\? 3\.15/);
+  assert.match(c,/orbital_halo'\n\s*\? 1\.55/);
+  assert.match(c,/orbital_blade'\n\s*\? 2\.75/);
+  assert.match(c,/const bladeMutation = branch === 'orbital_blade'/);
+  assert.match(c,/drawSatellite\(ctx, x, y, r \* \.20, color, depth, a, bladeMutation\)/);
+  assert.match(c,/ctx\.lineTo\(size \* \.78, 0\)/);
+});
