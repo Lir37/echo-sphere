@@ -290,7 +290,7 @@ function drawHollowStalker(ctx:CanvasRenderingContext2D,r:number,color:string,t:
   for(const side of [-1,1]){
     const s=side;
     claw(ctx,s*r*.11,r*.02,r*.68,color,s>0?.45:Math.PI-.45,.86);
-    claw(ctx,s*r*.16,r*.18,r*.56,color,s>0:.7:Math.PI-.7,.72);
+    claw(ctx,s*r*.16,r*.18,r*.56,color,s>0?.7:Math.PI-.7,.72);
   }
   fin(ctx,-r*.12,-r*.58,r*.28,r*.08,color,-1.8,.68);fin(ctx,r*.12,-r*.58,r*.28,r*.08,color,-1.35,.68);
   ctx.restore();

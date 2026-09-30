@@ -101,7 +101,7 @@ export function getSphereDpsEstimate(s: GameState, sphere: SphereEntity): number
   const damage = getSphereDamage(s, sphere, network);
   const delay = Math.max(0.05, getSphereDelay(s, sphere, network) * def.delayMult * mods.delay);
   if (sphere.type === 'orbital') {
-    const satellites = 1 + mods.multishot + (s.player.artifacts.includes('orbital_crown') ? 1 : 0);
+    const satellites = sphereLevel(s, 'orbital') + 1 + (s.player.artifacts.includes('orbital_crown') ? 1 : 0);
     return (damage * satellites * 2.2) / Math.max(0.12, 0.42 * mods.auraPulse);
   }
   if (sphere.type === 'prism') return (damage * Math.max(1, 1 + mods.multishot)) / delay;
