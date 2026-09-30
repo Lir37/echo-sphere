@@ -414,3 +414,19 @@ IMPLEMENTATION HEAD: c22c74bd97a5002b0e1ace54df6ac6abdfbc28bc
 
 [GATE] APK PlayerCheck should confirm full luminous fill with no dark internal
 region on every non-Standard Sphere.
+======================================================================
+[2026-09-30] EXACT STANDARD CORE CLONE FOR SPHERE FAMILY
+======================================================================
+IMPLEMENTATION HEAD BEFORE DOC UPDATE: 104631c5d60b8d66f9e5aaf66156b65b7fe6d130
+
+[DONE] Shared non-Standard core now reuses the Standard core geometry itself.
+[DONE] Radial gradient coordinates, glow diameter, dense-body diameter,
+      breathing behavior, compositing order and outline geometry match the
+      Standard implementation; only the color is parameterized.
+[DONE] All eight non-Standard Sphere modules pass coreR = r, eliminating the
+      previous visual-size mismatch caused by coreR = r * 0.68.
+[UNCHANGED] Standard renderer remains the approved visual etalon.
+[UNCHANGED] Gameplay mechanics and Orbital combat behavior are untouched.
+
+[GATE]
+APK PlayerCheck should verify literal core-size parity against Standard.
