@@ -45,7 +45,7 @@ export function renderSniperSphereRuntimeVfx(
 ): void {
   const st = stateColor(sphere, player, '#e86cff', time);
   const r = 24 * scale;
-  const coreR = r * .68;
+  const coreR = r;
   ctx.save();
   ctx.translate(sphere.pos.x, sphere.pos.y);
   ctx.globalCompositeOperation = 'lighter';
