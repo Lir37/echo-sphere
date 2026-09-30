@@ -484,6 +484,7 @@ export function updateSpheres(s: GameState, dt: number): void {
         const dirX = dx / d;
         const dirY = dy / d;
         const mods = sphereModifiers(s, sphere.type, sphere);
+        const sphereMods = s.player.sphereMods;
         const shots = sphere.type === 'shotgun' ? stype.pellets + mods.multishot : 1 + mods.multishot;
         const relayMultiplier = consumeEngineerRelayBonus(s, sphere);
         const formation = getCharacterFormation(s);
@@ -495,9 +496,9 @@ export function updateSpheres(s: GameState, dt: number): void {
           const angle = Math.atan2(dirY, dirX) + spread;
           const isChainAttack = stype.chain;
           let effect: 'none' | 'fire' | 'freeze' | 'poison' = 'none';
-          if (mods.fire > 0) effect = 'fire';
-          else if (mods.freeze > 0) effect = 'freeze';
-          else if (mods.poison > 0) effect = 'poison';
+          if (sphereMods.fire > 0) effect = 'fire';
+          else if (sphereMods.freeze > 0) effect = 'freeze';
+          else if (sphereMods.poison > 0) effect = 'poison';
           let color = stype.color;
           if (effect === 'fire') color = '#c46d3d';
           else if (effect === 'freeze') color = '#4a7a8a';

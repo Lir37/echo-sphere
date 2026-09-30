@@ -1,4 +1,5 @@
-import type { LightningBolt, PlayerState, SphereEntity, SphereProjectile, SphereType } from '../engine';
+import type { LightningBolt, PlayerState, SphereEntity, SphereProjectile } from '../engine';
+import type { SphereType } from '../gameData';
 import { SPHERE_TYPES, sphereUsesProjectileModifiers } from '../gameData';
 
 type MutationBranch = string;
@@ -54,8 +55,8 @@ function attackPeak(s:SphereEntity):number{
   const d=Math.max(.15,s.attackDelay||1),p=Math.max(0,Math.min(1,1-s.attackTimer/d));
   return Math.exp(-Math.pow((p-.95)/.07,2));
 }
-function emit(ctx:CanvasRenderingContext2D,r:number,c:string,t:number,branch:string,final:number):void{
-  const rgb=rgbOf(c),p=attackPeak((ctx as unknown as {__sphere?:SphereEntity}).__sphere as SphereEntity);
+function emit(ctx:CanvasRenderingContext2D,r:number,c:string,t:number,branch:string,final:number,sphere:SphereEntity):void{
+  const p=attackPeak(sphere);
   if(!Number.isFinite(p)||p<.03)return;
   ctx.save();ctx.globalCompositeOperation='lighter';
   const strength=.28+.72*p;
@@ -107,9 +108,8 @@ function projectileTail(ctx:CanvasRenderingContext2D,r:number,c:string,speed:num
 export function renderSphereMutationVfx(ctx:CanvasRenderingContext2D,sphere:SphereEntity,player:PlayerState,time:number,scale=1):void{
   const branch=branchOf(player,sphere.type);if(!branch)return;
   const final=finalOf(player,sphere.type),r=24*scale,c=SPHERE_TYPES[sphere.type].color;
-  const holder=ctx as unknown as {__sphere?:SphereEntity};holder.__sphere=sphere;
   ctx.save();ctx.translate(sphere.pos.x,sphere.pos.y);glow(ctx,r*1.75,c,.055);
-  emitter(ctx,r,c,time,branch,final);emit(ctx,r,c,time,branch,final);
+  emitter(ctx,r,c,time,branch,final);emit(ctx,r,c,time,branch,final,sphere);
   ctx.restore();
 }
 export function renderSphereProjectileVfx(ctx:CanvasRenderingContext2D,p:SphereProjectile,player:PlayerState,time:number):void{
@@ -125,11 +125,11 @@ export function renderChainLightningVfx(ctx:CanvasRenderingContext2D,bolt:Lightn
   for(let pass=0;pass<2;pass++){
     ctx.strokeStyle=pass===0?'rgba('+rgb+','+(.18*alpha)+')':'rgba(245,255,255,'+(.88*alpha)+')';
     ctx.lineWidth=pass===0?Math.max(4,len*.015):Math.max(1.2,len*.0045);ctx.beginPath();ctx.moveTo(bolt.from.x,bolt.from.y);
-    for(let i=1;i<pieces;i++){const q=i/pieces,amp=len*(b==='chain_storm'?.12:b==='chain_leech'?.06:.09),zig=(i%2?-1:1)*amp*(.7+.3*Math.sin(RENDER_TIME*22+i));ctx.lineTo(bolt.from.x+dx*q+nx*zig,bolt.from.y+dy*q+ny*zig);}
+    for(let i=1;i<pieces;i++){const q=i/pieces,amp=len*(b==='chain_storm'?.12:b==='chain_leech'?.06:.09),zig=(i%2?-1:1)*amp*(.7+.3*Math.sin(time*22+i));ctx.lineTo(bolt.from.x+dx*q+nx*zig,bolt.from.y+dy*q+ny*zig);}
     ctx.lineTo(bolt.to.x,bolt.to.y);ctx.stroke();
   }
   if(b==='chain_web'){ctx.strokeStyle='rgba(255,244,150,'+(.68*alpha)+')';ctx.lineWidth=1;for(let i=0;i<4;i++){const a=RENDER_TIME*2+i*TAU/4;ctx.beginPath();ctx.moveTo(bolt.to.x,bolt.to.y);ctx.lineTo(bolt.to.x+Math.cos(a)*(8+f*2),bolt.to.y+Math.sin(a)*(6+f));ctx.stroke();}}
   else if(b==='chain_storm'){ctx.fillStyle='rgba(255,249,190,'+(.9*alpha)+')';ctx.beginPath();ctx.arc(bolt.to.x,bolt.to.y,3+f*.8,0,TAU);ctx.fill();}
-  else {ctx.strokeStyle='rgba(255,255,255,'+(.7*alpha)+')';ctx.lineWidth=1;ctx.beginPath();ctx.arc(bolt.to.x,bolt.to.y,3.0+Math.sin(RENDER_TIME*16)*.8,0,TAU);ctx.stroke();}
+  else {ctx.strokeStyle='rgba(255,255,255,'+(.7*alpha)+')';ctx.lineWidth=1;ctx.beginPath();ctx.arc(bolt.to.x,bolt.to.y,3.0+Math.sin(time*16)*.8,0,TAU);ctx.stroke();}
   ctx.restore();return true;
 }

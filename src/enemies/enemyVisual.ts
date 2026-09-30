@@ -1,5 +1,4 @@
-import type { LightningBolt, PlayerState, SphereEntity, SphereProjectile, SphereType } from '../engine';
-import { SPHERE_TYPES, sphereUsesProjectileModifiers } from '../gameData';
+import type { PlayerState, SphereEntity } from '../engine';
 
 type MutationBranch =
   | 'standard_resonator' | 'standard_singularity' | 'standard_swarm'
