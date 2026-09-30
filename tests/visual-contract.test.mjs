@@ -97,15 +97,20 @@ test('Directed weapons are compact tips without a shaft back to the core',()=>{
 });
 
 
-test('Shared Sphere core mirrors Standard glow/body proportions without a dark inner band',()=>{
-  const c=read('src/spheres/visualHelpers.ts');
-  assert.match(c,/const glowRadius = radius \* \.58/);
-  assert.match(c,/const solidRadius = radius \* \.42/);
-  assert.match(c,/ctx\.arc\(0, 0, glowRadius/);
-  assert.match(c,/ctx\.arc\(0, 0, solidRadius/);
-  assert.equal(c.includes("rgba(15,43,70,.90)"),false);
-  assert.equal(c.includes("rgba(5,17,31,.98)"),false);
-  assert.equal(c.includes("rgba(1,7,15,1)"),false);
+test('All Sphere cores reuse the exact Standard core geometry',()=>{
+  const h=read('src/spheres/visualHelpers.ts');
+  assert.ok(h.includes('const glow = ctx.createRadialGradient(-radius * 0.08, -radius * 0.10, 1, 0, 0, radius * 0.62);'));
+  assert.ok(h.includes("ctx.arc(0, 0, radius * 0.58 * (1 + pulse * 0.035)"));
+  assert.ok(h.includes('ctx.arc(0, 0, radius * 0.42, 0, Math.PI * 2)'));
+  for(const file of [
+    'src/spheres/sniperVisual.ts','src/spheres/shotgunVisual.ts',
+    'src/spheres/chainVisual.ts','src/spheres/auraVisual.ts',
+    'src/spheres/prismVisual.ts','src/spheres/gravityVisual.ts',
+    'src/spheres/pulseVisual.ts','src/spheres/voidVisual.ts'
+  ]){
+    const c=read(file);
+    assert.ok(c.includes('const coreR = r;'),file);
+  }
 });
 
 test('Orbital combat speed and Blade mutation are explicit',()=>{
