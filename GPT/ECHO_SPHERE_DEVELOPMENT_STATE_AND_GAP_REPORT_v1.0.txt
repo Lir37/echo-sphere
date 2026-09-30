@@ -3038,3 +3038,30 @@ VERIFICATION / GATE
        IDs, source-aware Chain lightning and projectile-only modifier gating.
 [GATE] CI plus APK PlayerCheck. Real-device inspection remains mandatory for
       gameplay-scale readability and visual quality.
+
+
+======================================================================
+[2026-09-30] VISUAL QUALITY PASS VERIFIED — ENEMIES / MUTATIONS / MODIFIERS
+======================================================================
+
+FINAL CODE HEAD: 0026178eeefbc970dfd744317ab9e080e1c56f35
+CI #1034: SUCCESS
+
+[VERIFIED]
+- Rich creature-based enemy and boss visual layer is integrated in the modern renderer.
+- Sphere mutation compositor covers all 30 mutation branch IDs.
+- Directed Sphere mutations have branch-specific emitter and projectile visuals.
+- Chain lightning rendering is source-Sphere aware and mutation-aware.
+- Non-projectile Spheres use dedicated attack signatures rather than projectile modifiers.
+- Multishot, Pierce and Ricochet are gated to projectile Sphere types only.
+- Orbital native satellite count is no longer derived from global Multishot.
+- Shared modifier overlay hides projectile-only glyphs from non-projectile Spheres.
+- Standard now follows the same modifier-overlay path as the rest of the family.
+- Static visual contracts: 104/104 passing.
+- Typecheck, asset check, gameplay audit, lint, web build, Playwright capture,
+  Capacitor sync, debug APK build and APK upload all passed in CI #1034.
+
+[ACCEPTANCE GATE]
+APK PlayerCheck remains mandatory. Inspect enemy/boss visual quality, mutation
+readability and distinctiveness, per-Sphere attack animation, projectile changes,
+push-button/emitter changes, and modifier icon applicability at real gameplay scale.

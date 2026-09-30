@@ -473,3 +473,27 @@ progression logic are not intentionally altered except the explicit correction
 that projectile-only modifiers no longer affect non-projectile Spheres.
 [GATE] CI + APK PlayerCheck, especially gameplay-scale enemy anatomy, mutation
 differences and modifier icon applicability.
+
+
+======================================================================
+[2026-09-30] VISUAL QUALITY PASS VERIFIED — CREATURES / MUTATIONS / MODIFIERS
+======================================================================
+
+FINAL CODE HEAD: 0026178eeefbc970dfd744317ab9e080e1c56f35
+CI #1034: SUCCESS
+
+[VERIFIED]
+- Enemy/boss production visuals use richer layered creature silhouettes,
+  articulated anatomy and dedicated boss bodies.
+- All 30 Sphere mutation branches have explicit mutation visual coverage.
+- Projectile Sphere mutations alter emitter/muzzle and projectile body presentation.
+- Chain lightning has mutation-specific visual treatment via sourceSphere.
+- Aura, Gravity, Pulse, Orbital and other non-projectile families receive
+  dedicated animated attack signatures.
+- Multishot/Pierce/Ricochet are restricted to projectile-firing Spheres in both
+  gameplay parameters and the shared modifier UI overlay.
+- Standard and non-Standard Sphere modifier presentation now uses one compositor.
+- CI #1034 passed all automated quality gates, including APK build/upload.
+
+[GATE]
+Human APK PlayerCheck remains the final visual-quality acceptance step.
