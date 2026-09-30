@@ -179,8 +179,6 @@ test('Boss projectile renderer has boss-specific visual families and trails',()=
 test('Temporary QA level-up control is wired through the engine facade',()=>{const app=read('src/App.tsx'),eng=read('src/engine.ts'),loop=read('src/engineLoop.ts');assert.ok(app.includes('debugLevelUp(st)'));assert.ok(app.includes('LVL +'));assert.ok(eng.includes('debugLevelUp'));assert.ok(loop.includes('export function debugLevelUp'));assert.ok(loop.includes('s.player.level += 1'));});
 
 
-test('Standard Sphere keeps its physical cannon inside the authored assembly',()=>{const c=read('src/renderer.ts');assert.ok(c.includes("Standard's physical weapon socket"));assert.ok(c.includes('cannonAngle'));assert.ok(c.includes('cannonX'));assert.ok(c.includes('roundRect(-r * 0.12'));});
-
 test('Enemy anatomy keeps tails rear, limbs paired on body sides, and boss facing follows travel',()=>{
   const c=read('src/enemies/enemyVisual.ts'),r=read('src/renderer.ts');
   assert.match(c,/Tail is anchored to the rear/);
@@ -197,3 +195,6 @@ test('Level 7 mutation visuals stay persistent between attacks and differ by bra
   for(const token of ['sniper_oracle','sniper_assassin','sniper_beacon','shotgun_burst','shotgun_cataclysm','shotgun_hail']) assert.ok(c.includes(token),token);
   assert.ok(c.includes('Mutation silhouette is persistent'));
 });
+
+
+test('Standard Sphere has no separate cannon in authored assembly',()=>{const c=read('src/renderer.ts');const a=c.indexOf('function drawStandardSphereAssembly(');const b=c.indexOf('function getSpheristAnimationState',a);const block=c.slice(a,b>0?b:a+5000);assert.equal(block.includes('cannonAngle'),false);assert.ok(block.includes('drawStandardSphereCore'));assert.ok(block.includes('drawStandardSphereRing'));});

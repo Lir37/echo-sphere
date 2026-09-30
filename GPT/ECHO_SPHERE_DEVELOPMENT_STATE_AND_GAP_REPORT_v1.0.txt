@@ -3099,3 +3099,13 @@ push-button/emitter changes, and modifier icon applicability at real gameplay sc
 [DONE] Added distinct persistent visual identities for Sniper branches (scope/blades/beacon) and Shotgun branches (burst emitters/cataclysm braces/hail rack).
 [UNCHANGED] Sphere combat mechanics, damage, attack cadence, branch/final gameplay effects, enemy AI and boss attack logic.
 [GATE] CI + APK PlayerCheck for creature orientation/anatomy and Level 7 mutation readability.
+
+
+======================================================================
+[2026-09-30] STANDARD CANNON REGRESSION REVERT
+======================================================================
+[DONE] Removed the incorrect separately rendered cannon from Standard Sphere.
+[CONFIRMED] The approved Standard state after the old barrel removal has no separate cannon in drawStandardSphereAssembly.
+[UNCHANGED] Standard combat, projectile logic, core and ring.
+[TEST] Regression coverage now forbids a separate Standard cannon.
+[GATE] CI + APK PlayerCheck.
