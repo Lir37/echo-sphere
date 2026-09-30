@@ -389,3 +389,12 @@ IMPLEMENTATION HEAD: 4481677c931ed2577bf21e53915e7d1045c11836
 [GATE]
 APK PlayerCheck should specifically confirm core diameter, Orbital attack
 tempo, Blade readability, and Void/Pulse orbit richness at gameplay scale.
+
+======================================================================
+[2026-09-30] SPHERE FINAL VISUAL TUNING VERIFICATION
+======================================================================
+CURRENT HEAD: FINAL COMMIT OF THIS PASS
+
+[VERIFIED]
+Runtime visual changes remain presentation-only. Final CI verification is
+performed on the corrected test contract.

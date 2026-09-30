@@ -99,7 +99,7 @@ test('Directed weapons are compact tips without a shaft back to the core',()=>{
 
 test('Shared Sphere core keeps Standard-scale visible disc inside the broad glow',()=>{
   const c=read('src/spheres/visualHelpers.ts');
-  assert.match(c,/const visibleRadius = radius * \.62/);
+  assert.match(c,/const visibleRadius = radius \\* \.62/);
   assert.match(c,/glow\(ctx, radius \* 1\.85/);
   assert.match(c,/ctx\.arc\(0, 0, visibleRadius/);
 });

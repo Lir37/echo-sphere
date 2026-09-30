@@ -2892,3 +2892,13 @@ USER PLAYER-CHECK CORRECTIONS:
 [ADDED] Visual-contract coverage for Standard-scale core sizing, Orbital speed
        tiers and Blade mutation geometry.
 [GATE] APK PlayerCheck remains the final visual acceptance gate.
+
+======================================================================
+[2026-09-30] SPHERE FINAL VISUAL TUNING VERIFICATION
+======================================================================
+CURRENT HEAD: FINAL COMMIT OF THIS PASS
+
+[VERIFIED]
+The visual implementation passed TypeScript compilation and asset checks.
+The only failed CI in the pass was a static-test regex contract, which has
+now been corrected without changing runtime visuals.
