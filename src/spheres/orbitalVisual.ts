@@ -183,7 +183,7 @@ export function renderOrbitalSphereRuntimeVfx(
   const resonance = !disabled && v.resonance > 0;
   const color = disabled ? DISABLED : resonance ? RESONANCE : BASE;
   const r = 24 * scale;
-  const coreR = r * .42;
+  const coreR = r * .70;
 
   ctx.save();
   ctx.translate(sphere.pos.x, sphere.pos.y);
