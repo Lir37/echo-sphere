@@ -88,71 +88,77 @@ export function core(
   ctx.save();
   ctx.scale(scale, scale);
 
-  // Keep the broad aura radius, but match Standard's compact visible core.
+  // Keep the external aura independent from the compact Standard-sized core.
   glow(ctx, radius * 1.85, color, .14 + pulse * .08);
-  const visibleRadius = radius * .62;
+
+  // Match the approved Standard core proportions:
+  // soft inner glow reaches .58R, dense visible body is .42R.
+  const glowRadius = radius * .58;
+  const solidRadius = radius * .42;
 
   const map = coreGradientsOf(ctx);
-  const key = `${color}:${Math.round(visibleRadius * 10)}`;
+  const key = color + ':' + Math.round(glowRadius * 10);
   let body = map.get(key);
   if (!body) {
     body = ctx.createRadialGradient(
-      -visibleRadius * .20,
-      -visibleRadius * .22,
-      visibleRadius * .04,
-      visibleRadius * .06,
-      visibleRadius * .10,
-      visibleRadius * 1.05,
+      -radius * .08,
+      -radius * .10,
+      1,
+      0,
+      0,
+      glowRadius * 1.07,
     );
     body.addColorStop(0, 'rgba(255,255,255,.98)');
-    body.addColorStop(.14, rgbaFromHex(color, .97));
-    body.addColorStop(.38, rgbaFromHex(color, .80));
-    body.addColorStop(.68, 'rgba(15,43,70,.90)');
-    body.addColorStop(.88, 'rgba(5,17,31,.98)');
-    body.addColorStop(1, 'rgba(1,7,15,1)');
+    body.addColorStop(.20, rgbaFromHex(color, .96));
+    body.addColorStop(.48, rgbaFromHex(color, .78));
+    body.addColorStop(.82, rgbaFromHex(color, .34));
+    body.addColorStop(1, rgbaFromHex(color, 0));
     map.set(key, body);
   }
 
-  const breathing = 1 + pulse * .028;
+  const breathing = 1 + pulse * .035;
   ctx.save();
   ctx.scale(breathing, breathing);
-  ctx.globalCompositeOperation = 'source-over';
-  ctx.globalAlpha = .96;
+
+  // Standard-style luminous fill. The glow is drawn underneath the solid
+  // core so there is no dark inner band between the two layers.
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.globalAlpha = .82 + pulse * .14;
   ctx.fillStyle = body;
-  ctx.strokeStyle = rgbaFromHex(color, .88);
-  ctx.lineWidth = Math.max(.9, visibleRadius * .035);
   ctx.beginPath();
-  ctx.arc(0, 0, visibleRadius, 0, Math.PI * 2);
+  ctx.arc(0, 0, glowRadius, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.globalAlpha = .72;
+  ctx.fillStyle = rgbaFromHex(color, .72);
+  ctx.strokeStyle = 'rgba(182,247,255,.90)';
+  ctx.lineWidth = Math.max(.8, radius * .035);
+  ctx.beginPath();
+  ctx.arc(0, 0, solidRadius, 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
 
-  // Soft 2.5D specular patch. It has no discrete point, so the center reads
-  // as a volume instead of a blinking LED.
+  // Soft asymmetric highlight keeps the 2.5D volume without introducing
+  // a separate point or a dark lower rim.
   const hi = ctx.createRadialGradient(
-    -visibleRadius * .34,
-    -visibleRadius * .38,
+    -radius * .14,
+    -radius * .16,
     0,
-    -visibleRadius * .34,
-    -visibleRadius * .38,
-    visibleRadius * .52,
+    -radius * .14,
+    -radius * .16,
+    radius * .26,
   );
-  hi.addColorStop(0, 'rgba(255,255,255,.32)');
-  hi.addColorStop(.45, 'rgba(220,250,255,.10)');
+  hi.addColorStop(0, 'rgba(255,255,255,.30)');
+  hi.addColorStop(.48, 'rgba(220,250,255,.10)');
   hi.addColorStop(1, 'rgba(220,250,255,0)');
   ctx.globalAlpha = .95;
   ctx.fillStyle = hi;
   ctx.beginPath();
-  ctx.arc(0, 0, visibleRadius * .92, 0, Math.PI * 2);
+  ctx.arc(0, 0, solidRadius * .95, 0, Math.PI * 2);
   ctx.fill();
 
-  ctx.globalAlpha = .42;
-  ctx.strokeStyle = 'rgba(2,8,16,.92)';
-  ctx.lineWidth = Math.max(.8, visibleRadius * .032);
-  ctx.beginPath();
-  ctx.arc(0, visibleRadius * .08, visibleRadius * .90, Math.PI * .08, Math.PI * .92);
-  ctx.stroke();
   ctx.restore();
-
   ctx.restore();
 }
 
