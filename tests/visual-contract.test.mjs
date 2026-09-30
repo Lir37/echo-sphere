@@ -156,10 +156,10 @@ test('Projectile-only modifiers are filtered by Sphere type',()=>{
   const h=read('src/gameData.ts'),m=read('src/spheres/modifierVisual.ts'),e=read('src/engineSpheres.ts'),p=read('src/sphereProgression.ts');
   assert.ok(h.includes('sphereUsesProjectileModifiers'));
   assert.match(m,/PROJECTILE_ONLY/);
-  assert.match(m,/sphereUsesProjectileModifiers\\(sphere\\.type\\)/);
-  assert.match(e,/sphereUsesProjectileModifiers\\(sphere\\.type\\)/);
+  assert.ok(m.includes('sphereUsesProjectileModifiers(sphere.type)'));
+  assert.ok(e.includes('sphereUsesProjectileModifiers(sphere.type)'));
   assert.ok(p.includes('const projectileMods = sphereUsesProjectileModifiers(type)'));
-  assert.match(e,/sphereLevel\\(s, 'orbital'\\) \\+ 1/);
+  assert.ok(e.includes("sphereLevel(s, 'orbital') + 1"));
 });
 
 test('Renderer composes mutation and projectile-specific attack visuals',()=>{
@@ -167,7 +167,7 @@ test('Renderer composes mutation and projectile-specific attack visuals',()=>{
   assert.ok(c.includes("./spheres/mutationVisual"));
   assert.ok(c.includes('renderSphereMutationVfx(ctx, sphere, s.player, time, scale);'));
   assert.ok(c.includes('renderSphereProjectileVfx(ctx, p, s.player, s.time);'));
-  assert.ok(c.includes('renderChainLightningVfx(ctx, l, s.player, a)'));
+  assert.ok(c.includes('renderChainLightningVfx(ctx, l, s.player, a, s.time)'));
   assert.equal(c.includes('drawModernProjectile(ctx'),false);
   assert.equal(c.includes('drawStandardMutationVfx(ctx'),false);
 });
