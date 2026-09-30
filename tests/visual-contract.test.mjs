@@ -80,3 +80,18 @@ test('Orbital combat satellites use a true screen-space circular orbit',()=>{
   assert.match(c,/const y = Math\.sin\(a\) \* orbitRadius/);
   assert.equal(c.includes('Math.cos(a)*r*1.24'),false);
 });
+
+
+test('Directed weapons are compact tips without a shaft back to the core',()=>{
+  const cases=[
+    ['src/spheres/sniperVisual.ts','r * 1.22'],
+    ['src/spheres/shotgunVisual.ts','r * 1.18'],
+    ['src/spheres/prismVisual.ts','r * 1.18'],
+    ['src/spheres/voidVisual.ts','r * 1.20'],
+  ];
+  for(const [file,anchor] of cases){
+    const c=read(file);
+    assert.ok(c.includes(anchor),file);
+    assert.equal(/lineTo\(r\*1\./.test(c) && c.includes('drawWeapon'),false,file);
+  }
+});
