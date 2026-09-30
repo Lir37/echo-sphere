@@ -2921,3 +2921,25 @@ IMPLEMENTATION HEAD: c22c74bd97a5002b0e1ace54df6ac6abdfbc28bc
 [GATE]
 Human APK PlayerCheck must verify that every non-Standard Sphere has a fully
 filled luminous core at gameplay scale, with no dark hole/band inside it.
+======================================================================
+[2026-09-30] EXACT STANDARD CORE REUSE
+======================================================================
+IMPLEMENTATION HEAD BEFORE DOC UPDATE: 59d0ac56b966595ed096e5194607e52989e3438e
+
+[DONE]
+- The shared Sphere core renderer now uses the exact Standard core geometry:
+  identical radial-gradient coordinates, 0.58R glow disk, 0.42R dense body,
+  breathing scale, compositing order and outline geometry.
+- Only the material color is parameterized for non-Standard Spheres.
+- All eight non-Standard Sphere modules now pass the same base radius r into
+  the shared core. The previous r * 0.68 core-size reduction is removed.
+- Standard's approved renderer remains unchanged.
+- No gameplay, targeting, progression or balance logic changed.
+
+[TEST]
+[DONE] Visual contract now verifies the Standard core geometry and the
+      coreR = r radius contract across all eight non-Standard modules.
+
+[GATE]
+APK PlayerCheck should now show literally the same core silhouette/size as
+Standard, with only the Sphere-specific color differing.
