@@ -373,7 +373,7 @@ APK PlayerCheck remains the final acceptance gate for visual quality.
 ======================================================================
 [2026-09-30] SPHERE FINAL VISUAL TUNING AUDIT
 ======================================================================
-IMPLEMENTATION HEAD: faf02bf7c634b91f19ec154e305844939037e085
+IMPLEMENTATION HEAD: 4481677c931ed2577bf21e53915e7d1045c11836
 
 [DONE] Non-Standard visible core size aligned with Standard while retaining
       existing broad glow.

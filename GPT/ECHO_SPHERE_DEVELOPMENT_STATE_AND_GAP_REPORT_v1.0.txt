@@ -2870,7 +2870,7 @@ make only concrete visual corrections from that comparison.
 ======================================================================
 [2026-09-30] SPHERE FINAL VISUAL TUNING PASS
 ======================================================================
-IMPLEMENTATION HEAD: faf02bf7c634b91f19ec154e305844939037e085
+IMPLEMENTATION HEAD: 4481677c931ed2577bf21e53915e7d1045c11836
 
 USER PLAYER-CHECK CORRECTIONS:
 [DONE] Shared Sphere core now keeps the broad glow radius while the visible
