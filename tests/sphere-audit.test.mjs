@@ -75,7 +75,7 @@ for (const type of ['prism','gravity','pulse','void']) {
   assert.match(renderer, new RegExp("/art/" + type + "\\.svg"), 'Artwork path missing: ' + type);
 }
 assert.match(renderer, /renderOrbitalSphereRuntimeVfx/, 'Orbital dedicated visual module is not integrated');
-assert.match(read('src/spheres/orbitalVisual.ts'), /from '\\.\/visualHelpers'/, 'Orbital shared visual helper import missing');
+assert.ok(read('src/spheres/orbitalVisual.ts').includes('./visualHelpers'), 'Orbital shared visual helper import missing');
 assert.match(read('src/spheres/orbitalVisual.ts'), /core\(ctx/, 'Orbital shared 2.5D core missing');
 assert.match(read('src/spheres/orbitalVisual.ts'), /drawSphereOrbit\(ctx/, 'Orbital shared orbit compositor missing');
 for (const [type, token] of [
