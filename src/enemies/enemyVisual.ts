@@ -1,378 +1,160 @@
-const TAU = Math.PI * 2;
+const TAU=Math.PI*2;
 
-function rgbOf(hex:string):string {
+function rgbOf(hex:string):string{
   const n=Number.parseInt(hex.slice(1),16);
   return ((n>>16)&255)+','+((n>>8)&255)+','+(n&255);
 }
-
-function glow(ctx:CanvasRenderingContext2D,r:number,color:string,alpha=.10):void {
-  const rgb=rgbOf(color);
+function glow(ctx:CanvasRenderingContext2D,r:number,color:string,a=.08):void{
   const g=ctx.createRadialGradient(0,0,0,0,0,r);
-  g.addColorStop(0,'rgba('+rgb+','+(alpha*3.0).toFixed(3)+')');
-  g.addColorStop(.32,'rgba('+rgb+','+(alpha*1.1).toFixed(3)+')');
-  g.addColorStop(.72,'rgba('+rgb+','+(alpha*.28).toFixed(3)+')');
-  g.addColorStop(1,'rgba('+rgb+',0)');
-  ctx.save();ctx.globalCompositeOperation='lighter';ctx.fillStyle=g;
-  ctx.beginPath();ctx.arc(0,0,r,0,TAU);ctx.fill();ctx.restore();
+  const c=rgbOf(color);
+  g.addColorStop(0,'rgba('+c+','+(a*2.8)+')');g.addColorStop(.35,'rgba('+c+','+(a*.9)+')');g.addColorStop(1,'rgba('+c+',0)');
+  ctx.save();ctx.globalCompositeOperation='lighter';ctx.fillStyle=g;ctx.beginPath();ctx.arc(0,0,r,0,TAU);ctx.fill();ctx.restore();
 }
-
-function plate(ctx:CanvasRenderingContext2D,x:number,y:number,w:number,h:number,color:string,angle:number,alpha=.86):void {
-  ctx.save();ctx.translate(x,y);ctx.rotate(angle);
-  ctx.globalAlpha=alpha;
-  ctx.fillStyle='rgba(5,9,16,.95)';
-  ctx.strokeStyle=color;ctx.lineWidth=Math.max(.7,w*.07);
-  ctx.beginPath();
-  ctx.moveTo(-w*.46,-h*.28);
-  ctx.quadraticCurveTo(0,-h*.58,w*.46,-h*.20);
-  ctx.lineTo(w*.33,h*.30);
-  ctx.quadraticCurveTo(0,h*.50,-w*.38,h*.22);
-  ctx.closePath();ctx.fill();ctx.stroke();
-  ctx.strokeStyle='rgba(236,249,255,.27)';ctx.lineWidth=Math.max(.45,w*.025);
-  ctx.beginPath();ctx.moveTo(-w*.24,-h*.12);ctx.quadraticCurveTo(0,-h*.30,w*.23,-h*.06);ctx.stroke();
+function joint(ctx:CanvasRenderingContext2D,x:number,y:number,r:number,color:string):void{
+  ctx.save();ctx.fillStyle='rgba(4,8,14,.98)';ctx.strokeStyle=color;ctx.lineWidth=Math.max(.7,r*.18);ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fill();ctx.stroke();ctx.restore();
+}
+function seg(ctx:CanvasRenderingContext2D,x:number,y:number,len:number,w:number,ang:number,color:string,alpha=.9):void{
+  ctx.save();ctx.translate(x,y);ctx.rotate(ang);ctx.globalAlpha=alpha;ctx.fillStyle='rgba(4,8,15,.98)';ctx.strokeStyle=color;ctx.lineWidth=Math.max(.7,w*.09);
+  ctx.beginPath();ctx.moveTo(0,-w*.34);ctx.quadraticCurveTo(len*.48,-w*.48,len,-w*.10);ctx.quadraticCurveTo(len*.62,w*.42,0,w*.30);ctx.closePath();ctx.fill();ctx.stroke();
   ctx.restore();
 }
-
-function fin(ctx:CanvasRenderingContext2D,x:number,y:number,len:number,w:number,color:string,angle:number,alpha=.8):void {
-  ctx.save();ctx.translate(x,y);ctx.rotate(angle);
-  ctx.globalAlpha=alpha;ctx.fillStyle='rgba(4,9,17,.92)';ctx.strokeStyle=color;
-  ctx.lineWidth=Math.max(.65,w*.07);
-  ctx.beginPath();
-  ctx.moveTo(0,-w*.18);
-  ctx.quadraticCurveTo(len*.40,-w*.82,len,-w*.08);
-  ctx.quadraticCurveTo(len*.48,w*.32,0,w*.24);
-  ctx.closePath();ctx.fill();ctx.stroke();
-  ctx.restore();
+function limb(ctx:CanvasRenderingContext2D,sx:number,sy:number,len:number,a:number,color:string,phase:number,thick=1):void{
+  const k1=len*.46,k2=len*.42;
+  const a1=a+Math.sin(phase)*.16,a2=a+Math.sin(phase+1.1)*.22;
+  seg(ctx,sx,sy,k1,thick*7,a1,color,.88);
+  const jx=sx+Math.cos(a1)*k1,jy=sy+Math.sin(a1)*k1;
+  joint(ctx,jx,jy,thick*4.1,color);
+  seg(ctx,jx,jy,k2,thick*5.2,a2,color,.82);
+  const ex=jx+Math.cos(a2)*k2,ey=jy+Math.sin(a2)*k2;
+  joint(ctx,ex,ey,thick*2.3,color);
 }
-
-function claw(ctx:CanvasRenderingContext2D,x:number,y:number,len:number,color:string,angle:number,alpha=.8):void {
-  ctx.save();ctx.translate(x,y);ctx.rotate(angle);
-  ctx.strokeStyle=color;ctx.lineWidth=Math.max(.8,len*.10);ctx.lineCap='round';ctx.globalAlpha=alpha;
-  ctx.beginPath();ctx.moveTo(0,0);ctx.quadraticCurveTo(len*.55,-len*.30,len*.92,-len*.08);ctx.quadraticCurveTo(len*.58,len*.32,len*.18,len*.22);ctx.stroke();
-  ctx.restore();
-}
-
-function eye(ctx:CanvasRenderingContext2D,x:number,y:number,size:number,color:string,angle:number):void {
-  ctx.save();ctx.translate(x,y);ctx.rotate(angle);
-  ctx.globalCompositeOperation='lighter';ctx.strokeStyle=color;ctx.lineWidth=Math.max(.65,size*.13);ctx.globalAlpha=.92;
-  ctx.beginPath();ctx.moveTo(-size,0);ctx.quadraticCurveTo(0,-size*.55,size,0);ctx.quadraticCurveTo(0,size*.55,-size,0);ctx.stroke();
-  ctx.fillStyle='#f9feff';ctx.globalAlpha=.86;ctx.beginPath();ctx.ellipse(0,0,size*.28,size*.50,0,0,TAU);ctx.fill();
-  ctx.fillStyle=color;ctx.globalAlpha=1;ctx.beginPath();ctx.ellipse(0,0,size*.12,size*.36,0,0,TAU);ctx.fill();
-  ctx.restore();
-}
-
-function teeth(ctx:CanvasRenderingContext2D,x:number,y:number,w:number,count:number,color:string,alpha=.82):void {
-  ctx.save();ctx.translate(x,y);ctx.globalAlpha=alpha;ctx.strokeStyle=color;ctx.lineWidth=Math.max(.65,w*.045);
-  for(let i=0;i<count;i++){
-    const p=i/Math.max(1,count-1);
-    ctx.beginPath();ctx.moveTo(-w*.5+p*w,0);ctx.lineTo(-w*.45+p*w,-w*.18-(i%2)*w*.04);ctx.stroke();
-  }
-  ctx.restore();
-}
-
-function tendril(ctx:CanvasRenderingContext2D,sx:number,sy:number,ex:number,ey:number,bend:number,color:string,width:number,alpha:number,phase:number):void {
-  const dx=ex-sx,dy=ey-sy,len=Math.hypot(dx,dy)||1,nx=-dy/len,ny=dx/len;
-  ctx.save();ctx.strokeStyle=color;ctx.lineWidth=width;ctx.lineCap='round';ctx.globalAlpha=alpha;
-  ctx.beginPath();ctx.moveTo(sx,sy);
-  ctx.quadraticCurveTo((sx+ex)/2+nx*(bend+Math.sin(phase)*width*2.5),(sy+ey)/2+ny*(bend+Math.sin(phase)*width*2.5),ex,ey);
-  ctx.stroke();ctx.restore();
-}
-
-function ribs(ctx:CanvasRenderingContext2D,x:number,y:number,r:number,color:string,angle:number,count=4):void {
-  ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.strokeStyle='rgba(235,249,255,.30)';ctx.lineWidth=Math.max(.5,r*.025);
-  for(let i=0;i<count;i++){
-    const q=i/(count-1||1)-.5;
-    ctx.beginPath();
-    ctx.moveTo(-r*.22,q*r*.65);
-    ctx.quadraticCurveTo(0,q*r*.88,r*.24,q*r*.62);
-    ctx.stroke();
-  }
-  ctx.restore();
-}
-
-function mouth(ctx:CanvasRenderingContext2D,x:number,y:number,w:number,h:number,color:string,angle:number):void {
-  ctx.save();ctx.translate(x,y);ctx.rotate(angle);
-  ctx.fillStyle='rgba(2,4,7,.98)';ctx.strokeStyle=color;ctx.lineWidth=Math.max(.7,w*.06);
-  ctx.beginPath();ctx.ellipse(0,0,w,h,0,0,TAU);ctx.fill();ctx.stroke();
-  teeth(ctx,0,-h*.22,w*.82,6,'rgba(240,248,255,.75)',.75);
-  ctx.restore();
-}
-
-function segmentedTail(ctx:CanvasRenderingContext2D,x:number,y:number,len:number,color:string,time:number,segments=6):void {
+function tail(ctx:CanvasRenderingContext2D,sx:number,sy:number,len:number,color:string,t:number,segments=7,amp=.28):void{
+  let x=sx,y=sy;
   for(let i=0;i<segments;i++){
-    const q=i/segments;
-    const a=time*.9+q*1.9;
-    const px=x+Math.cos(a)*len*(q-.25);
-    const py=y+Math.sin(a)*len*(q-.25)*.55;
-    plate(ctx,px,py,len*(.20-.07*q),len*(.16-.05*q),color,a,.78);
+    const q=i/segments,w=len*(.16-.008*i),a=Math.sin(t*3.0+i*.9)*amp+(i%2?.10:-.04);
+    const l=len/segments*(1-.035*i),ang=a+(i>0?Math.atan2(y-(sy),x-(sx)):0);
+    seg(ctx,x,y,l,w,ang,color,.78);
+    x+=Math.cos(ang)*l;y+=Math.sin(ang)*l;
   }
 }
-
-function drawVeilRipper(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void {
-  const breathe=1+Math.sin(t*2.7)*.035;
-  ctx.save();ctx.scale(breathe,breathe);
-  const rgb=rgbOf(color);
-  ctx.fillStyle='rgba(4,9,17,.96)';ctx.strokeStyle=color;ctx.lineWidth=Math.max(.9,r*.055);
-  ctx.beginPath();
-  ctx.moveTo(-r*.68,-r*.15);ctx.quadraticCurveTo(-r*.42,-r*.72,r*.08,-r*.58);
-  ctx.quadraticCurveTo(r*.62,-r*.50,r*.78,-r*.06);
-  ctx.quadraticCurveTo(r*.42,r*.28,r*.02,r*.52);
-  ctx.quadraticCurveTo(-r*.50,r*.46,-r*.72,r*.08);ctx.closePath();ctx.fill();ctx.stroke();
-  fin(ctx,-r*.08,-r*.42,r*.52,r*.22,color,-.62,.62);fin(ctx,r*.25,-r*.18,r*.46,r*.18,color,.48,.72);
-  ribs(ctx,r*.02,r*.03,r*.43,color,-.18,5);
-  eye(ctx,r*.26,-r*.10,r*.16,color,-.1);
-  for(let i=0;i<4;i++){
-    const a=-1.1+i*.72;
-    tendril(ctx,-r*.34+i*r*.18,r*.24,Math.cos(a)*r*.84,Math.sin(a)*r*.62,r*.22,color,Math.max(.8,r*.035),.68,t*1.2+i);
-  }
-  ctx.strokeStyle='rgba('+rgb+',.32)';ctx.lineWidth=Math.max(.55,r*.025);
-  ctx.beginPath();ctx.arc(0,0,r*.86,-1.0,.62);ctx.stroke();
+function eye(ctx:CanvasRenderingContext2D,x:number,y:number,r:number,color:string,look=0):void{
+  ctx.save();ctx.translate(x,y);ctx.rotate(look);ctx.strokeStyle=color;ctx.lineWidth=Math.max(.7,r*.16);ctx.fillStyle='rgba(245,252,255,.94)';
+  ctx.beginPath();ctx.ellipse(0,0,r,r*.62,0,0,TAU);ctx.fill();ctx.stroke();ctx.fillStyle=color;ctx.beginPath();ctx.ellipse(r*.18,0,r*.20,r*.42,0,0,TAU);ctx.fill();ctx.restore();
+}
+function core(ctx:CanvasRenderingContext2D,x:number,y:number,r:number,color:string):void{
+  ctx.save();ctx.globalCompositeOperation='lighter';const g=ctx.createRadialGradient(x,y,0,x,y,r*2.2),c=rgbOf(color);g.addColorStop(0,'rgba(255,255,255,.95)');g.addColorStop(.24,'rgba('+c+',.95)');g.addColorStop(1,'rgba('+c+',0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r*2.2,0,TAU);ctx.fill();ctx.restore();
+  ctx.save();ctx.fillStyle='#07111b';ctx.strokeStyle=color;ctx.lineWidth=Math.max(.7,r*.15);ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fill();ctx.stroke();ctx.restore();
+}
+function body(ctx:CanvasRenderingContext2D,r:number,color:string,rot=0,scaleY=1):void{
+  ctx.save();ctx.rotate(rot);ctx.scale(1,scaleY);ctx.fillStyle='rgba(3,7,13,.98)';ctx.strokeStyle=color;ctx.lineWidth=Math.max(1,r*.055);
+  ctx.beginPath();ctx.moveTo(-r*.72,0);ctx.quadraticCurveTo(-r*.52,-r*.62,0,-r*.58);ctx.quadraticCurveTo(r*.58,-r*.52,r*.70,0);ctx.quadraticCurveTo(r*.52,r*.56,0,r*.62);ctx.quadraticCurveTo(-r*.56,r*.55,-r*.72,0);ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();
+}
+function wing(ctx:CanvasRenderingContext2D,x:number,y:number,len:number,w:number,a:number,color:string,flap:number):void{
+  ctx.save();ctx.translate(x,y);ctx.rotate(a+Math.sin(flap)*.14);ctx.fillStyle='rgba(4,9,17,.96)';ctx.strokeStyle=color;ctx.lineWidth=Math.max(.8,w*.07);
+  ctx.beginPath();ctx.moveTo(0,0);ctx.quadraticCurveTo(len*.35,-w*.85,len,-w*.18);ctx.quadraticCurveTo(len*.68,w*.55,len*.12,w*.36);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.strokeStyle='rgba(235,249,255,.25)';ctx.lineWidth=Math.max(.5,w*.025);for(let i=1;i<4;i++){ctx.beginPath();ctx.moveTo(len*.08,0);ctx.lineTo(len*(.24+i*.18),-w*(.42-i*.08));ctx.stroke();}
   ctx.restore();
 }
 
-function drawGraveLeech(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void {
-  ctx.save();ctx.rotate(Math.sin(t*1.4)*.08);
-  const n=7;
-  for(let i=0;i<n;i++){
-    const q=i/(n-1),x=r*(.60-q*1.18),y=Math.sin(t*2.1+q*4.2)*r*.13;
-    plate(ctx,x,y,r*(.32-.05*q),r*(.24-.025*q),color,q*.8+t*.3,.88);
-  }
-  mouth(ctx,r*.64,0,r*.25,r*.17,color,0);
-  eye(ctx,r*.43,-r*.10,r*.095,color,-.25);
-  eye(ctx,r*.43,r*.10,r*.095,color,.25);
-  for(let i=0;i<3;i++){
-    const x=-r*.12-i*r*.20;
-    fin(ctx,x,-r*.19,r*.18,r*.09,color,-.8,.62);
-    fin(ctx,x,r*.19,r*.18,r*.09,color,.8,.62);
-  }
-  segmentedTail(ctx,-r*.58,0,r*.48,color,t,5);
-  ctx.restore();
+function drawVeilRipper(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
+  body(ctx,r,color,Math.sin(t*2.4)*.04,.82);
+  wing(ctx,-r*.18,-r*.16,r*.72,r*.45,-2.55,color,t*5);wing(ctx,r*.12,-r*.14,r*.76,r*.42,-.55,color,t*5+.6);
+  for(let i=0;i<4;i++) limb(ctx,-r*.38+i*r*.24,r*.30,r*.62,-1.25+i*.85,color,t*3+i,.75);
+  eye(ctx,r*.30,-r*.12,r*.13,color,-.08);core(ctx,-r*.16,r*.10,r*.09,color);
 }
-
-function drawFangedCoil(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void {
-  ctx.save();
-  for(let i=0;i<8;i++){
-    const q=i/7,a=t*.92+q*5.3,x=Math.cos(a)*r*(.22+.10*q),y=Math.sin(a)*r*(.48+.05*q);
-    plate(ctx,x,y,r*(.28-.018*i),r*(.18-.01*i),color,a+.5,.86);
-  }
-  ctx.save();ctx.translate(r*.30,-r*.26);ctx.rotate(-.34);
-  ctx.fillStyle='rgba(4,8,15,.97)';ctx.strokeStyle=color;ctx.lineWidth=Math.max(.9,r*.055);
-  ctx.beginPath();ctx.moveTo(-r*.30,0);ctx.quadraticCurveTo(0,-r*.25,r*.42,-r*.02);ctx.quadraticCurveTo(r*.18,r*.22,-r*.30,r*.16);ctx.closePath();ctx.fill();ctx.stroke();
-  mouth(ctx,r*.14,r*.02,r*.21,r*.09,color,0);eye(ctx,r*.22,-r*.10,r*.10,color,-.15);
-  ctx.restore();
-  for(let i=0;i<4;i++) fin(ctx,-r*.18+i*r*.10,r*(i%2?-.34:.34),r*.20,r*.08,color,(i%2?-.8:.8),.62);
-  ctx.restore();
-}
-
-function drawCarrionSkitter(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void {
-  ctx.save();
-  plate(ctx,-r*.05,0,r*1.05,r*.56,color,Math.sin(t*2)*.04,.96);
-  plate(ctx,r*.26,-r*.05,r*.55,r*.36,color,.10,.82);
-  plate(ctx,-r*.25,-r*.03,r*.48,r*.30,color,-.12,.82);
-  eye(ctx,r*.33,-r*.12,r*.085,color,-.2);eye(ctx,r*.33,r*.12,r*.085,color,.2);
-  for(let i=0;i<3;i++){
-    const y=(i-1)*r*.28;
-    claw(ctx,-r*.30,y,r*.46,color,Math.PI-.45,.88);
-    claw(ctx,r*.05,y,r*.44,color,.45,.78);
-  }
-  for(let i=0;i<4;i++){
-    const a=t*.35+i*TAU/4;
-    fin(ctx,Math.cos(a)*r*.30,Math.sin(a)*r*.18,r*.30,r*.08,color,a,.55);
-  }
-  ctx.restore();
-}
-
-function drawUmbralMoth(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void {
-  ctx.save();
-  const wingPulse=.92+.08*Math.sin(t*5.0);
-  for(const side of [-1,1]){
-    const s=side;
-    ctx.fillStyle='rgba(4,10,18,.94)';ctx.strokeStyle=color;ctx.globalAlpha=.92;ctx.lineWidth=Math.max(.8,r*.045);
-    ctx.beginPath();
-    ctx.moveTo(0,-r*.06);
-    ctx.quadraticCurveTo(s*r*.50,-r*.72*wingPulse,s*r*.82,-r*.12);
-    ctx.quadraticCurveTo(s*r*.68,r*.18,s*r*.34,r*.38);
-    ctx.quadraticCurveTo(s*r*.18,r*.24,0,r*.08);ctx.closePath();ctx.fill();ctx.stroke();
-    ctx.strokeStyle='rgba(236,249,255,.30)';ctx.lineWidth=Math.max(.55,r*.025);
-    for(let i=0;i<3;i++){
-      const q=(i+1)/4;
-      ctx.beginPath();ctx.moveTo(0,0);ctx.quadraticCurveTo(s*r*(.28+.12*q),-r*(.42-.08*q),s*r*(.64-.10*q),-r*(.04-.08*q));ctx.stroke();
-    }
-  }
-  ctx.fillStyle='rgba(3,7,13,.98)';ctx.strokeStyle=color;ctx.lineWidth=Math.max(.9,r*.055);
-  ctx.beginPath();ctx.ellipse(0,r*.05,r*.18,r*.52,0,0,TAU);ctx.fill();ctx.stroke();
-  eye(ctx,-r*.06,-r*.09,r*.10,color,0);eye(ctx,r*.06,-r*.09,r*.10,color,0);
-  fin(ctx,-r*.11,-r*.56,r*.38,r*.07,color,-2.0,.64);fin(ctx,r*.11,-r*.56,r*.38,r*.07,color,-1.15,.64);
-  ctx.restore();
-}
-
-function drawRiftScarab(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void {
-  ctx.save();ctx.rotate(Math.sin(t*1.7)*.03);
-  plate(ctx,-r*.06,0,r*1.08,r*.62,color,0,.98);
-  plate(ctx,r*.32,0,r*.46,r*.40,color,.02,.80);
-  ctx.strokeStyle='rgba(238,251,255,.34)';ctx.lineWidth=Math.max(.6,r*.028);
-  ctx.beginPath();ctx.moveTo(-r*.48,0);ctx.quadraticCurveTo(0,r*.10,r*.50,0);ctx.stroke();
-  mouth(ctx,r*.60,-r*.02,r*.22,r*.11,color,0);
-  for(const y of [-.22,0,.22]){
-    claw(ctx,-r*.34,y*r,r*.42,color,Math.PI-.55,.85);
-    claw(ctx,r*.02,y*r,r*.38,color,.50,.72);
-  }
-  eye(ctx,r*.34,-r*.12,r*.075,color,-.15);eye(ctx,r*.34,r*.12,r*.075,color,.15);
-  ctx.restore();
-}
-
-function drawBonebackBrute(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void {
-  ctx.save();
-  ctx.translate(-r*.04,0);
-  plate(ctx,0,0,r*1.24,r*.82,color,Math.sin(t*1.2)*.03,.98);
-  plate(ctx,-r*.34,-r*.30,r*.48,r*.32,color,-.35,.80);
-  plate(ctx,r*.30,-r*.28,r*.46,r*.34,color,.32,.80);
-  fin(ctx,-r*.32,r*.28,r*.42,r*.14,color,-2.6,.82);
-  fin(ctx,r*.34,r*.28,r*.42,r*.14,color,-.55,.82);
-  mouth(ctx,r*.54,0,r*.26,r*.20,color,0);
-  eye(ctx,r*.28,-r*.20,r*.12,color,-.16);eye(ctx,r*.28,r*.20,r*.12,color,.16);
-  for(const x of [-.42,-.10,.22,.48]) fin(ctx,r*x,r*.34,r*.34,r*.11,color,(x>0?-.95:-2.2),.70);
-  ctx.restore();
-}
-
-function drawGlassHound(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void {
-  ctx.save();
-  ctx.rotate(Math.sin(t*1.8)*.025);
-  ctx.fillStyle='rgba(4,8,15,.96)';ctx.strokeStyle=color;ctx.lineWidth=Math.max(.9,r*.05);
-  ctx.beginPath();
-  ctx.moveTo(-r*.62,r*.12);ctx.quadraticCurveTo(-r*.30,-r*.40,r*.18,-r*.30);
-  ctx.quadraticCurveTo(r*.56,-r*.24,r*.72,r*.02);
-  ctx.quadraticCurveTo(r*.42,r*.36,-r*.02,r*.35);
-  ctx.quadraticCurveTo(-r*.40,r*.33,-r*.62,r*.12);ctx.closePath();ctx.fill();ctx.stroke();
-  fin(ctx,-r*.34,-r*.18,r*.35,r*.12,color,-1.15,.76);fin(ctx,r*.02,-r*.28,r*.42,r*.13,color,-.38,.78);
-  mouth(ctx,r*.56,r*.03,r*.22,r*.13,color,-.05);
-  eye(ctx,r*.31,-r*.12,r*.12,color,-.1);
-  claw(ctx,-r*.18,r*.28,r*.48,color,1.95,.74);claw(ctx,r*.28,r*.27,r*.50,color,1.15,.74);
-  ctx.strokeStyle='rgba(255,255,255,.30)';ctx.lineWidth=Math.max(.45,r*.025);
-  ctx.beginPath();ctx.moveTo(-r*.12,-r*.14);ctx.lineTo(r*.18,r*.12);ctx.lineTo(r*.40,-r*.04);ctx.stroke();
-  ctx.restore();
-}
-
-function drawHollowStalker(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void {
-  ctx.save();ctx.translate(0,Math.sin(t*3)*r*.045);
-  ctx.fillStyle='rgba(3,7,13,.97)';ctx.strokeStyle=color;ctx.lineWidth=Math.max(.8,r*.045);
-  ctx.beginPath();ctx.moveTo(-r*.18,-r*.58);ctx.quadraticCurveTo(r*.10,-r*.72,r*.27,-r*.46);ctx.lineTo(r*.18,r*.22);ctx.quadraticCurveTo(r*.48,r*.54,r*.33,r*.70);ctx.lineTo(r*.02,r*.36);ctx.lineTo(-r*.30,r*.72);ctx.quadraticCurveTo(-r*.44,r*.52,-r*.18,r*.20);ctx.closePath();ctx.fill();ctx.stroke();
-  ribs(ctx,0,-r*.06,r*.30,color,0,4);
-  eye(ctx,r*.08,-r*.34,r*.13,color,0);
-  for(const side of [-1,1]){
-    const s=side;
-    claw(ctx,s*r*.11,r*.02,r*.68,color,s>0?.45:Math.PI-.45,.86);
-    claw(ctx,s*r*.16,r*.18,r*.56,color,s>0?.7:Math.PI-.7,.72);
-  }
-  fin(ctx,-r*.12,-r*.58,r*.28,r*.08,color,-1.8,.68);fin(ctx,r*.12,-r*.58,r*.28,r*.08,color,-1.35,.68);
-  ctx.restore();
-}
-
-function drawCableWidow(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void {
-  ctx.save();
-  plate(ctx,0,0,r*1.00,r*.62,color,0,.98);
-  plate(ctx,-r*.20,0,r*.48,r*.34,color,-.12,.80);
-  ctx.strokeStyle='rgba(255,87,116,.70)';ctx.lineWidth=Math.max(.9,r*.045);
-  for(let i=0;i<4;i++){const a=-.9+i*.60;ctx.beginPath();ctx.moveTo(Math.cos(a)*r*.28,Math.sin(a)*r*.18);ctx.lineTo(Math.cos(a)*r*.68,Math.sin(a)*r*.54);ctx.stroke();}
-  eye(ctx,r*.26,-r*.10,r*.09,'#ff6480',-.15);eye(ctx,r*.26,r*.10,r*.09,'#ff6480',.15);
-  for(let i=0;i<6;i++){
-    const a=t*.30+i*TAU/6;
-    claw(ctx,Math.cos(a)*r*.26,Math.sin(a)*r*.18,r*.52,color,a+.35,.82);
-  }
-  ctx.restore();
-}
-
-function bossFrame(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void {
-  const rgb=rgbOf(color);
-  ctx.save();
-  ctx.globalAlpha=.18+.08*Math.sin(t*2.2);
-  ctx.strokeStyle='rgba('+rgb+',1)';ctx.lineWidth=Math.max(.8,r*.03);
-  ctx.beginPath();ctx.arc(0,0,r*1.14,t*.15,t*.15+4.7);ctx.stroke();
-  ctx.restore();
-}
-
-function drawVoidLancerBoss(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void {
-  bossFrame(ctx,r,color,t);ctx.save();
-  ctx.translate(r*.04,0);
-  plate(ctx,0,0,r*1.48,r*.82,color,.02,.99);
-  plate(ctx,r*.28,-r*.16,r*.62,r*.44,color,-.10,.86);
-  fin(ctx,-r*.38,-r*.18,r*.80,r*.20,color,-2.35,.82);
-  fin(ctx,-r*.20,r*.24,r*.74,r*.18,color,2.45,.80);
-  mouth(ctx,r*.62,0,r*.38,r*.23,color,-.02);
-  eye(ctx,r*.28,-r*.18,r*.16,color,-.12);eye(ctx,r*.28,r*.18,r*.16,color,.12);
-  ribs(ctx,-r*.15,0,r*.52,color,0,6);
-  for(let i=0;i<4;i++){
-    const a=t*.70+i*TAU/4;
-    fin(ctx,Math.cos(a)*r*.62,Math.sin(a)*r*.34,r*.46,r*.13,color,a,.58);
-  }
-  ctx.restore();
-}
-
-function drawDreadChargerBoss(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void {
-  bossFrame(ctx,r,color,t);ctx.save();
-  const bob=Math.sin(t*2.1)*r*.025;ctx.translate(0,bob);
-  plate(ctx,-r*.02,0,r*1.55,r*1.02,color,0,.99);
-  plate(ctx,-r*.34,-r*.36,r*.62,r*.44,color,-.18,.84);
-  plate(ctx,-r*.34,r*.34,r*.62,r*.44,color,.18,.84);
-  fin(ctx,-r*.68,-r*.25,r*.62,r*.20,color,-2.5,.88);fin(ctx,-r*.68,r*.25,r*.62,r*.20,color,2.5,.88);
-  mouth(ctx,r*.70,0,r*.36,r*.25,color,0);
-  eye(ctx,r*.38,-r*.22,r*.15,color,-.08);eye(ctx,r*.38,r*.22,r*.15,color,.08);
-  for(const x of [-.50,-.10,.30]){
-    claw(ctx,r*x,-r*.44,r*.54,color,-1.3,.78);
-    claw(ctx,r*x,r*.44,r*.54,color,1.3,.78);
-  }
-  ctx.strokeStyle='rgba(255,237,198,.26)';ctx.lineWidth=Math.max(.6,r*.025);
-  ctx.beginPath();ctx.moveTo(-r*.38,0);ctx.quadraticCurveTo(0,-r*.10,r*.38,0);ctx.stroke();
-  ctx.restore();
-}
-
-function drawBroodMatriarchBoss(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void {
-  bossFrame(ctx,r,color,t);ctx.save();
-  plate(ctx,-r*.05,r*.04,r*1.36,r*1.08,color,0,.99);
-  plate(ctx,r*.20,-r*.26,r*.72,r*.54,color,-.05,.84);
-  mouth(ctx,r*.46,r*.04,r*.30,r*.20,color,0);
-  for(let i=0;i<4;i++){
-    const a=t*.42+i*Math.PI/2;
-    const sx=Math.cos(a)*r*.38,sy=Math.sin(a)*r*.28;
-    claw(ctx,sx,sy,r*.86,color,a+.55,.88);
-  }
-  for(let i=0;i<6;i++){
-    const a=-1.1+i*.44;
-    const x=Math.cos(a)*r*.92,y=Math.sin(a)*r*.72;
-    plate(ctx,x,y,r*.30,r*.25,color,a,.70);
-    eye(ctx,x,y-r*.01,r*.07,color,a);
-  }
-  for(let i=0;i<5;i++){
-    const a=t*.55+i*TAU/5;
-    const x=Math.cos(a)*r*1.12,y=Math.sin(a)*r*.86;
-    ctx.fillStyle='rgba(6,12,18,.95)';ctx.strokeStyle=color;ctx.lineWidth=1;
-    ctx.beginPath();ctx.ellipse(x,y,r*.12,r*.15,0,0,TAU);ctx.fill();ctx.stroke();
-    eye(ctx,x,y,r*.045,color,0);
-  }
-  ctx.restore();
-}
-
-function drawAbyssalLeviathanBoss(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void {
-  bossFrame(ctx,r,color,t);ctx.save();
+function drawGraveLeech(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
   for(let i=0;i<7;i++){
-    const q=i/6,x=-r*.70+i*r*.23,y=Math.sin(t*1.2+i*.9)*r*.13;
-    plate(ctx,x,y,r*(.48-.03*i),r*(.34-.015*i),color,Math.sin(t+i)*.14,.92);
+    const q=i/6,x=-r*.62+q*r*1.22,y=Math.sin(t*3.2+q*4.8)*r*.14;
+    ctx.save();ctx.translate(x,y);ctx.rotate(Math.sin(t*3.0+q*3.2)*.14);
+    body(ctx,r*(.34-.025*q),color,0,.72);ctx.restore();
+    if(i<6) joint(ctx,x+r*.14,y,r*.07,color);
   }
-  plate(ctx,r*.54,-r*.04,r*.66,r*.55,color,-.12,.98);
-  mouth(ctx,r*.76,-r*.02,r*.30,r*.20,color,0);
-  eye(ctx,r*.61,-r*.20,r*.13,color,-.16);eye(ctx,r*.61,r*.20,r*.13,color,.16);
-  for(let i=0;i<5;i++){
-    const a=t*.48+i*TAU/5;
-    const x=-r*.15+Math.cos(a)*r*.62,y=Math.sin(a)*r*.40;
-    fin(ctx,x,y,r*.42,r*.13,color,a+.6,.66);
+  ctx.save();ctx.translate(r*.55,Math.sin(t*3.2+5)*r*.10);
+  body(ctx,r*.34,color,.05,.66);eye(ctx,r*.14,-r*.10,r*.09,color);eye(ctx,r*.14,r*.10,r*.09,color);ctx.restore();
+  for(let i=0;i<3;i++){
+    const x=-r*.20-i*r*.18;
+    limb(ctx,x,-r*.22,r*.30,-1.1,color,t*4+i,.34);limb(ctx,x,r*.22,r*.30,1.1,color,t*4+i+1,.34);
   }
-  for(let i=0;i<4;i++){
-    const a=-.75+i*.5;
-    tendril(ctx,-r*.36,r*.22,Math.cos(a)*r*.98,Math.sin(a)*r*.72,r*.26,color,Math.max(1,r*.045),.62,t+i);
-  }
+}
+function drawFangedCoil(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
+  ctx.save();
+  for(let i=0;i<8;i++){const q=i/7,a=t*2.0+q*5.6,x=Math.cos(a)*r*(.16+.075*q),y=Math.sin(a)*r*(.30+.065*q);ctx.save();ctx.translate(x,y);body(ctx,r*(.28-.018*i),color,a+.7,.65);ctx.restore();}
   ctx.restore();
+  ctx.save();ctx.translate(r*.48,-r*.08);body(ctx,r*.34,color,-.08,.62);eye(ctx,r*.14,-r*.10,r*.09,color);ctx.fillStyle='#02050a';ctx.strokeStyle=color;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(r*.12,0);ctx.lineTo(r*.32,r*.05);ctx.lineTo(r*.12,r*.10);ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();
+  tail(ctx,-r*.52,r*.12,r*.75,color,t,6,.34);
+}
+function drawCarrionSkitter(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
+  body(ctx,r,color,Math.sin(t*4)*.05,.58);
+  for(let i=0;i<3;i++){const y=(i-1)*r*.27;limb(ctx,-r*.38,y,r*.62,Math.PI-.48,color,t*7+i,.62);limb(ctx,r*.18,y,r*.58,.52,color,t*7+i+1,.58);}
+  const headX=r*.45+Math.sin(t*4)*r*.03;body(ctx,r*.34,color,-.05,.70);ctx.save();ctx.translate(headX,0);eye(ctx,0,-r*.10,r*.075,color);eye(ctx,0,r*.10,r*.075,color);ctx.restore();
+}
+function drawUmbralMoth(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
+  wing(ctx,-r*.08,0,r*.92,r*.70,-2.72,color,t*8);wing(ctx,r*.08,0,r*.92,r*.70,-.42,color,t*8+.7);
+  ctx.save();ctx.scale(.45,1.25);body(ctx,r*.72,color,0,.9);ctx.restore();
+  limb(ctx,-r*.10,r*.38,r*.52,1.75,color,t*8,.38);limb(ctx,r*.10,r*.38,r*.52,1.4,color,t*8+1,.38);
+  eye(ctx,-r*.07,-r*.26,r*.09,color);eye(ctx,r*.07,-r*.26,r*.09,color);
+}
+function drawRiftScarab(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
+  body(ctx,r,color,Math.sin(t*1.6)*.03,.68);
+  ctx.save();ctx.strokeStyle='rgba(235,249,255,.28)';ctx.lineWidth=Math.max(.6,r*.025);for(let i=-1;i<=1;i++){ctx.beginPath();ctx.moveTo(-r*.52,i*r*.12);ctx.quadraticCurveTo(0,i*r*.22,r*.50,i*r*.08);ctx.stroke();}ctx.restore();
+  for(let i=0;i<3;i++){const y=(i-1)*r*.25;limb(ctx,-r*.34,y,r*.55,Math.PI-.55,color,t*3+i,.55);limb(ctx,r*.12,y,r*.48,.50,color,t*3+i+1,.52);}
+  eye(ctx,r*.48,-r*.10,r*.07,color);eye(ctx,r*.48,r*.10,r*.07,color);core(ctx,-r*.22,0,r*.08,color);
+}
+function drawBonebackBrute(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
+  body(ctx,r*1.05,color,Math.sin(t*1.7)*.025,.88);
+  for(const x of [-.45,-.12,.20,.48]){const bob=Math.sin(t*6+x*4)*.05;limb(ctx,r*x,r*.38+bob,r*.72,x>0?.8:2.35,color,t*6+x,.78);}
+  for(let i=0;i<3;i++){ctx.save();ctx.translate(-r*.25+i*r*.22,-r*.40);ctx.rotate(-.1+i*.1);ctx.fillStyle='rgba(6,10,16,.98)';ctx.strokeStyle='rgba(230,240,250,.46)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(r*.10,-r*.30);ctx.lineTo(r*.20,0);ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();}
+  eye(ctx,r*.36,-r*.17,r*.11,color);eye(ctx,r*.36,r*.17,r*.11,color);
+}
+function drawGlassHound(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
+  body(ctx,r*.92,color,Math.sin(t*2.5)*.04,.62);
+  for(const x of [-.42,-.12,.22,.48]) limb(ctx,r*x,r*.28,r*.62,x>0?1.0:2.15,color,t*5+x,.52);
+  ctx.save();ctx.translate(r*.48,-r*.10);body(ctx,r*.42,color,-.12,.62);eye(ctx,r*.13,-r*.10,r*.09,color);ctx.restore();
+  tail(ctx,-r*.56,r*.08,r*.70,color,t,6,.24);
+}
+function drawHollowStalker(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
+  ctx.save();ctx.translate(0,Math.sin(t*4)*r*.06);body(ctx,r*.72,color,0,1.25);ctx.restore();
+  for(const side of [-1,1]){limb(ctx,side*r*.18,-r*.20,r*.95,side>0?.25:Math.PI-.25,color,t*5+side,.52);limb(ctx,side*r*.16,r*.20,r*.90,side>0?-.55:Math.PI+.55,color,t*5+side+1,.52);}
+  eye(ctx,r*.10,-r*.24,r*.12,color);core(ctx,-r*.12,r*.20,r*.075,color);
+}
+function drawCableWidow(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
+  body(ctx,r*.92,color,0,.72);
+  for(let i=0;i<8;i++){const a=i*TAU/8;limb(ctx,Math.cos(a)*r*.28,Math.sin(a)*r*.18,r*.66,a+(i%2?.25:-.25),color,t*4+i,.42);}
+  eye(ctx,r*.26,-r*.10,r*.085,'#ff6480');eye(ctx,r*.26,r*.10,r*.085,'#ff6480');core(ctx,-r*.20,0,r*.08,'#ff6480');
+}
+function bossFrame(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
+  ctx.save();ctx.strokeStyle='rgba('+rgbOf(color)+',.30)';ctx.lineWidth=Math.max(.8,r*.025);ctx.beginPath();ctx.arc(0,0,r*1.16,t*.2,t*.2+4.9);ctx.stroke();ctx.restore();
+}
+function drawVoidLancerBoss(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
+  bossFrame(ctx,r,color,t);body(ctx,r*1.12,color,Math.sin(t*1.7)*.025,.62);
+  wing(ctx,-r*.30,-r*.05,r*1.15,r*.44,-2.72,color,t*4);wing(ctx,-r*.22,r*.18,r*.98,r*.34,2.55,color,t*4+.8);
+  limb(ctx,r*.22,-r*.18,r*.62,-.2,color,t*3,.95);limb(ctx,r*.22,r*.18,r*.62,.2,color,t*3+1,.95);
+  ctx.save();ctx.translate(r*.58,0);body(ctx,r*.48,color,0,.58);eye(ctx,r*.18,-r*.12,r*.14,color);eye(ctx,r*.18,r*.12,r*.14,color);ctx.restore();
+  tail(ctx,-r*.72,0,r*1.0,color,t,7,.22);core(ctx,-r*.12,0,r*.12,color);
+}
+function drawDreadChargerBoss(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
+  bossFrame(ctx,r,color,t);body(ctx,r*1.14,color,Math.sin(t*2)*.025,.84);
+  for(const x of [-.52,-.18,.22,.55]){const bob=Math.sin(t*7+x)*.05;limb(ctx,r*x,r*.38+bob,r*.82,x>0?.85:2.30,color,t*7+x,1.0);}
+  ctx.save();ctx.translate(r*.48,0);body(ctx,r*.50,color,0,.72);eye(ctx,r*.20,-r*.14,r*.15,color);eye(ctx,r*.20,r*.14,r*.15,color);ctx.restore();
+  for(const side of [-1,1]){wing(ctx,side*r*.10,-r*.48,r*.64,r*.24,side>0?-.75:-2.40,color,t*3);wing(ctx,side*r*.10,r*.48,r*.64,r*.24,side>0?.75:2.40,color,t*3+.7);}
+  core(ctx,-r*.28,0,r*.14,color);
+}
+function drawBroodMatriarchBoss(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
+  bossFrame(ctx,r,color,t);body(ctx,r*1.0,color,Math.sin(t)*.02,.96);
+  for(let i=0;i<6;i++){const a=-1.25+i*.50;limb(ctx,Math.cos(a)*r*.42,Math.sin(a)*r*.34,r*1.12,a+Math.sin(t*3+i)*.14,color,t*3+i,1.0);}
+  ctx.save();ctx.translate(r*.34,-r*.05);body(ctx,r*.52,color,-.05,.76);eye(ctx,r*.20,-r*.12,r*.14,color);eye(ctx,r*.20,r*.12,r*.14,color);ctx.restore();
+  for(let i=0;i<5;i++){const a=t*.8+i*TAU/5,x=Math.cos(a)*r*1.10,y=Math.sin(a)*r*.72;ctx.save();ctx.translate(x,y);ctx.scale(.8+.15*Math.sin(t*3+i),1);body(ctx,r*.24,color,a,.9);eye(ctx,0,-r*.03,r*.055,color);ctx.restore();}
+  core(ctx,-r*.20,r*.06,r*.13,color);
+}
+function drawAbyssalLeviathanBoss(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
+  bossFrame(ctx,r,color,t);
+  for(let i=0;i<8;i++){const q=i/7,x=-r*.76+i*r*.22,y=Math.sin(t*2.0+i*.72)*r*.16;ctx.save();ctx.translate(x,y);body(ctx,r*(.50-.035*i),color,Math.sin(t+i)*.12,.70);ctx.restore();}
+  ctx.save();ctx.translate(r*.54,0);body(ctx,r*.58,color,-.08,.68);eye(ctx,r*.22,-r*.16,r*.15,color);eye(ctx,r*.22,r*.16,r*.15,color);ctx.restore();
+  for(let i=0;i<5;i++){const a=t*.65+i*TAU/5;limb(ctx,-r*.10+Math.cos(a)*r*.35,Math.sin(a)*r*.25,r*.88,a+.75,color,t*2+i,.72);}
+  tail(ctx,-r*.75,0,r*1.0,color,t,8,.30);core(ctx,-r*.08,0,r*.12,color);
 }
 
-function creature(ctx:CanvasRenderingContext2D,r:number,color:string,t:number,variant:string):void {
+function creature(ctx:CanvasRenderingContext2D,r:number,color:string,t:number,variant:string):void{
   if(variant==='wisp')drawVeilRipper(ctx,r,color,t);
   else if(variant==='leech')drawGraveLeech(ctx,r,color,t);
   else if(variant==='serpent')drawFangedCoil(ctx,r,color,t);
@@ -384,28 +166,15 @@ function creature(ctx:CanvasRenderingContext2D,r:number,color:string,t:number,va
   else if(variant==='stalker')drawHollowStalker(ctx,r,color,t);
   else drawCableWidow(ctx,r,color,t);
 }
-
-function boss(ctx:CanvasRenderingContext2D,r:number,color:string,t:number,type:string):void {
+function boss(ctx:CanvasRenderingContext2D,r:number,color:string,t:number,type:string):void{
   if(type==='shooter')drawVoidLancerBoss(ctx,r,color,t);
   else if(type==='charger')drawDreadChargerBoss(ctx,r,color,t);
   else if(type==='summoner')drawBroodMatriarchBoss(ctx,r,color,t);
   else drawAbyssalLeviathanBoss(ctx,r,color,t);
 }
-
-export function drawEnemyCreature(ctx:CanvasRenderingContext2D,e:{radius:number;color:string;visualVariant?:string},t:number):void {
-  const r=e.radius,color=e.color,variant=e.visualVariant||'wisp';
-  ctx.save();
-  ctx.globalCompositeOperation='source-over';
-  glow(ctx,r*2.2,color,.055);
-  creature(ctx,r,color,t,variant);
-  ctx.restore();
+export function drawEnemyCreature(ctx:CanvasRenderingContext2D,e:{radius:number;color:string;visualVariant?:string},t:number):void{
+  const r=e.radius,color=e.color;ctx.save();glow(ctx,r*2.15,color,.065);creature(ctx,r,color,t,e.visualVariant||'wisp');ctx.restore();
 }
-
-export function drawBossCreature(ctx:CanvasRenderingContext2D,e:{radius:number;color:string;bossType:string},t:number):void {
-  const r=e.radius,color=e.color;
-  ctx.save();
-  ctx.globalCompositeOperation='source-over';
-  glow(ctx,r*2.7,color,.08);
-  boss(ctx,r,color,t,e.bossType);
-  ctx.restore();
+export function drawBossCreature(ctx:CanvasRenderingContext2D,e:{radius:number;color:string;bossType:string},t:number):void{
+  const r=e.radius,color=e.color;ctx.save();glow(ctx,r*2.55,color,.085);boss(ctx,r,color,t,e.bossType);ctx.restore();
 }
