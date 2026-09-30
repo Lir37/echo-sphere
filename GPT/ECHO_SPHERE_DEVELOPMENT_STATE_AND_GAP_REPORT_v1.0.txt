@@ -3109,3 +3109,32 @@ push-button/emitter changes, and modifier icon applicability at real gameplay sc
 [UNCHANGED] Standard combat, projectile logic, core and ring.
 [TEST] Regression coverage now forbids a separate Standard cannon.
 [GATE] CI + APK PlayerCheck.
+
+======================================================================
+[2026-09-30] STANDARD APPROVED ATTACK MUZZLE RESTORATION
+======================================================================
+IMPLEMENTATION HEAD:
+26ee5d8093070cbd074bf2b4bb5414a2384e11be
+
+[DONE]
+- Restored the previously approved Standard multi-line attack/muzzle visual
+  from the validated Standard baseline.
+- The restored effect is the existing charge-driven attack VFX
+  (drawStandardAttackVfx), not the later experimental separately rendered
+  physical cannon.
+- Standard ground shadow remains removed.
+- Standard core, ring, crystals, mutation visuals, modifier visuals and
+  gameplay attack logic remain unchanged.
+- Added a visual-contract regression test so the approved Standard attack
+  muzzle cannot disappear silently again.
+
+[CI CHECK]
+The GitHub commit-status endpoint currently reports no status entries for
+this push yet; no CI success is claimed until the new workflow result is
+observable.
+
+[GATE]
+After CI becomes observable, APK PlayerCheck should confirm the exact old
+multi-line muzzle at gameplay scale. Do not introduce a new physical barrel
+unless a separate PlayerCheck request explicitly requires it.
+
