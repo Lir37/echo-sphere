@@ -93,7 +93,7 @@ export function core(
   const visibleRadius = radius * .62;
 
   const map = coreGradientsOf(ctx);
-  const key = `${color}:${Math.round(radius * 10)}`;
+  const key = `${color}:${Math.round(visibleRadius * 10)}`;
   let body = map.get(key);
   if (!body) {
     body = ctx.createRadialGradient(
