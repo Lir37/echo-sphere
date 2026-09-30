@@ -1,5 +1,5 @@
 import type { EnemyEntity, PlayerState, SphereEntity } from '../engine';
-import { core, drawSphereOrbit, finishDisabled, stateColor, glow } from './visualHelpers';
+import { WHITE, core, drawSphereOrbit, finishDisabled, stateColor, glow } from './visualHelpers';
 
 const TAU = Math.PI * 2;
 const BASE = '#8ef0ff';
@@ -76,6 +76,11 @@ function drawOrbitalTerminal(
   ctx.restore();
 }
 
+function rgbaColor(hex: string, alpha: number): string {
+  const n = Number.parseInt(hex.slice(1), 16);
+  return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${alpha})`;
+}
+
 function drawSatellite(
   ctx: CanvasRenderingContext2D,
   x: number,
@@ -84,30 +89,84 @@ function drawSatellite(
   color: string,
   alpha: number,
   angle: number,
+  blade: boolean,
 ): void {
   ctx.save();
   ctx.translate(x, y);
-  ctx.rotate(angle + Math.PI / 2);
+  ctx.rotate(blade ? angle : angle + Math.PI / 4);
   ctx.globalAlpha = alpha;
-  ctx.fillStyle = '#07111d';
-  ctx.strokeStyle = color;
-  ctx.lineWidth = 1.05;
-  ctx.beginPath();
-  ctx.moveTo(-size * .16, -size * .62);
-  ctx.lineTo(size * .62, 0);
-  ctx.lineTo(-size * .16, size * .62);
-  ctx.lineTo(size * .02, 0);
-  ctx.closePath();
-  ctx.fill();
-  ctx.stroke();
-  ctx.globalAlpha = alpha * .84;
-  ctx.strokeStyle = '#ffffff';
-  ctx.lineWidth = .72;
-  ctx.beginPath();
-  ctx.moveTo(-size * .10, -size * .30);
-  ctx.lineTo(size * .22, 0);
-  ctx.lineTo(-size * .10, size * .30);
-  ctx.stroke();
+
+  if (blade) {
+    ctx.fillStyle = '#07111d';
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1.05;
+    ctx.beginPath();
+    ctx.moveTo(-size * .56, -size * .14);
+    ctx.lineTo(size * .78, 0);
+    ctx.lineTo(-size * .34, size * .15);
+    ctx.lineTo(-size * .02, 0);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.globalAlpha = alpha * .72;
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = .72;
+    ctx.beginPath();
+    ctx.moveTo(-size * .30, 0);
+    ctx.lineTo(size * .54, 0);
+    ctx.stroke();
+
+    ctx.globalAlpha = alpha * .50;
+    ctx.beginPath();
+    ctx.moveTo(-size * .42, -size * .10);
+    ctx.lineTo(-size * .62, 0);
+    ctx.lineTo(-size * .42, size * .10);
+    ctx.stroke();
+  } else {
+    const g = ctx.createRadialGradient(
+      -size * .20,
+      -size * .22,
+      size * .04,
+      0,
+      0,
+      size * .72,
+    );
+    g.addColorStop(0, 'rgba(255,255,255,.96)');
+    g.addColorStop(.22, rgbaColor(color, .92));
+    g.addColorStop(.64, rgbaColor(color, .34));
+    g.addColorStop(1, rgbaColor(color, 0));
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(0, 0, size * .72, 0, TAU);
+    ctx.fill();
+
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.globalAlpha = alpha * .92;
+    ctx.fillStyle = '#07111d';
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1.0;
+    ctx.beginPath();
+    for (let i = 0; i < 8; i++) {
+      const a = -Math.PI / 8 + i * TAU / 8;
+      const rr = i % 2 === 0 ? size * .56 : size * .44;
+      const px = Math.cos(a) * rr;
+      const py = Math.sin(a) * rr;
+      if (i === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.globalAlpha = alpha * .90;
+    ctx.fillStyle = WHITE;
+    ctx.beginPath();
+    ctx.arc(-size * .10, -size * .12, size * .16, 0, TAU);
+    ctx.fill();
+  }
+
   ctx.restore();
 }
 
@@ -124,7 +183,7 @@ export function renderOrbitalSphereRuntimeVfx(
   const resonance = !disabled && v.resonance > 0;
   const color = disabled ? DISABLED : resonance ? RESONANCE : BASE;
   const r = 24 * scale;
-  const coreR = r * .70;
+  const coreR = r * .42;
 
   ctx.save();
   ctx.translate(sphere.pos.x, sphere.pos.y);
@@ -175,14 +234,15 @@ export function renderOrbitalSphereAttackersVfx(
   const tier = Math.max(1, Math.min(7, sphere.visualTier || 1));
   const resonance = v.resonance > 0;
   const color = resonance ? RESONANCE : BASE;
+  const bladeMutation = branch === 'orbital_blade';
   const branch = player?.sphereBranches?.orbital;
   const speed = branch === 'orbital_dance'
-    ? .72
+    ? 3.15
     : branch === 'orbital_halo'
-      ? .30
+      ? 1.55
       : branch === 'orbital_blade'
-        ? .50
-        : .42;
+        ? 2.75
+        : 2.35;
 
   // In this 2D presentation the combat satellites orbit on a true screen-space
   // circle. They no longer use the flattened ellipse reserved for depth cues.
@@ -198,7 +258,7 @@ export function renderOrbitalSphereAttackersVfx(
     const x = Math.cos(a) * orbitRadius;
     const y = Math.sin(a) * orbitRadius;
     const depth = .76 + .24 * ((Math.sin(a) + 1) * .5);
-    drawSatellite(ctx, x, y, r * .20, color, depth, a);
+    drawSatellite(ctx, x, y, r * .20, color, depth, a, bladeMutation);
 
     if (i === 0 && v.attack > 0) {
       const q = 1 - v.attack / .28;
