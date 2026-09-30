@@ -230,6 +230,47 @@ function drawStandardSphereAssembly(
   drawStandardSphereCore(ctx, coreRadius, energyPulse);
   drawStandardSphereRing(ctx, ringRadius, ringRotation, 0.72 + targetPulse * 0.20);
 
+  // Standard's physical weapon socket. Keep the cannon attached to the
+  // construction rig so it cannot disappear when the generic sphere renderer
+  // is bypassed by the authored Standard assembly.
+  const cannonAngle = -0.58 + Math.sin(time * 0.9) * 0.025;
+  ctx.save();
+  ctx.rotate(cannonAngle);
+  const cannonX = r * 0.48;
+  const cannonY = -r * 0.10;
+  ctx.translate(cannonX, cannonY);
+  ctx.rotate(Math.PI * 0.02);
+  const cannon = ctx.createLinearGradient(-r * 0.10, 0, r * 0.92, 0);
+  cannon.addColorStop(0, '#5f7488');
+  cannon.addColorStop(0.28, '#263c50');
+  cannon.addColorStop(0.72, '#0a1725');
+  cannon.addColorStop(1, '#02070d');
+  ctx.fillStyle = cannon;
+  ctx.strokeStyle = 'rgba(211,239,250,0.38)';
+  ctx.lineWidth = Math.max(0.8, r * 0.035);
+  ctx.beginPath();
+  ctx.roundRect(-r * 0.12, -r * 0.105, r * 0.92, r * 0.21, r * 0.055);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(31,169,255,0.34)';
+  ctx.beginPath();
+  ctx.roundRect(r * 0.40, -r * 0.055, r * 0.28, r * 0.11, r * 0.03);
+  ctx.fill();
+  ctx.fillStyle = '#050b13';
+  ctx.strokeStyle = 'rgba(120,220,255,0.72)';
+  ctx.beginPath();
+  ctx.arc(r * 0.83, 0, r * 0.12, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  if (targetPulse > 0.18) {
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.fillStyle = `rgba(178,245,255,${0.28 + targetPulse * 0.32})`;
+    ctx.beginPath();
+    ctx.arc(r * 0.84, 0, r * (0.045 + targetPulse * 0.025), 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+
   drawStandardSpherePart(
     ctx,
     'sphere-standard-upper-crystal',

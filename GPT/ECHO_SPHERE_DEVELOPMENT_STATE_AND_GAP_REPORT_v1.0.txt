@@ -3076,3 +3076,12 @@ push-button/emitter changes, and modifier icon applicability at real gameplay sc
 [DONE] Added temporary LVL + QA control beneath the top-right HUD, using the normal level-up choice flow.
 [UNCHANGED] Combat behavior, boss attack timing and Sphere mechanics.
 [GATE] CI + APK PlayerCheck, with special attention to anatomy, locomotion, boss detail and projectile readability.
+
+
+======================================================================
+[2026-09-30] STANDARD CANNON REGRESSION FIX
+======================================================================
+[DONE] Restored the Standard Sphere's physical cannon inside the active Standard authored assembly.
+[REASON] The Standard assembly path bypassed the older generic renderer where the cannon geometry had lived, causing the weapon to disappear.
+[UNCHANGED] Standard core geometry and gameplay attack logic.
+[GATE] CI + APK PlayerCheck.
