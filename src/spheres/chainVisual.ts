@@ -28,7 +28,7 @@ export function renderChainSphereRuntimeVfx(
 ): void {
   const st = stateColor(sphere, player, '#ffe25b', time);
   const r = 24 * scale;
-  const coreR = r * .68;
+  const coreR = r;
   ctx.save();
   ctx.translate(sphere.pos.x, sphere.pos.y);
   ctx.globalCompositeOperation = 'lighter';
