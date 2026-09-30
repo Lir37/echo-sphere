@@ -3426,14 +3426,14 @@ function drawBossProjectile(ctx:CanvasRenderingContext2D,x:number,y:number,r:num
     for(const sy of [-1,1]){ctx.strokeStyle='rgba(255,232,190,.72)';ctx.beginPath();ctx.moveTo(-r*.1,sy*r*.25);ctx.lineTo(r*.9,sy*r*.55);ctx.stroke();}
   }else if(bossType==='summoner'){
     ctx.fillStyle='#0c0717';ctx.strokeStyle=`rgba(${rgb},.95)`;ctx.lineWidth=Math.max(1,r*.10);
-    ctx.beginPath();ctx.arc(0,0,r*.65,0,TAU);ctx.fill();ctx.stroke();
-    for(let i=0;i<5;i++){const q=t*2.6+i*TAU/5;const px=Math.cos(q)*r*1.15,py=Math.sin(q)*r*1.15;ctx.fillStyle='#d9c7ff';ctx.beginPath();ctx.arc(px,py,r*.12,0,TAU);ctx.fill();ctx.strokeStyle=`rgba(${rgb},.6)`;ctx.stroke();}
+    ctx.beginPath();ctx.arc(0,0,r*.65,0,Math.PI*2);ctx.fill();ctx.stroke();
+    for(let i=0;i<5;i++){const q=t*2.6+i*Math.PI*2/5;const px=Math.cos(q)*r*1.15,py=Math.sin(q)*r*1.15;ctx.fillStyle='#d9c7ff';ctx.beginPath();ctx.arc(px,py,r*.12,0,Math.PI*2);ctx.fill();ctx.strokeStyle=`rgba(${rgb},.6)`;ctx.stroke();}
   }else{
     ctx.fillStyle='#120511';ctx.strokeStyle=`rgba(${rgb},.95)`;ctx.lineWidth=Math.max(1,r*.10);
-    ctx.beginPath();ctx.arc(0,0,r*.72,0,TAU);ctx.fill();ctx.stroke();
-    for(let i=0;i<4;i++){const q=t*3+i*TAU/4;ctx.strokeStyle=`rgba(${rgb},.68)`;ctx.beginPath();ctx.arc(0,0,r*(.95+i*.22),q,q+1.0);ctx.stroke();}
+    ctx.beginPath();ctx.arc(0,0,r*.72,0,Math.PI*2);ctx.fill();ctx.stroke();
+    for(let i=0;i<4;i++){const q=t*3+i*Math.PI*2/4;ctx.strokeStyle=`rgba(${rgb},.68)`;ctx.beginPath();ctx.arc(0,0,r*(.95+i*.22),q,q+1.0);ctx.stroke();}
   }
-  ctx.globalCompositeOperation='lighter';ctx.fillStyle=`rgba(${rgb},.65)`;ctx.beginPath();ctx.arc(r*.35,0,r*.22*(1+.12*Math.sin(t*10)),0,TAU);ctx.fill();
+  ctx.globalCompositeOperation='lighter';ctx.fillStyle=`rgba(${rgb},.65)`;ctx.beginPath();ctx.arc(r*.35,0,r*.22*(1+.12*Math.sin(t*10)),0,Math.PI*2);ctx.fill();
   ctx.restore();
 }
 
