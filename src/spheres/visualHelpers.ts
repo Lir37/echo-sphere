@@ -250,26 +250,30 @@ export function drawSphereOrbit(
   ctx.lineCap = 'round';
 
   if (mode === 'void') {
-    ctx.globalAlpha = opacity * .52;
-    ctx.lineWidth = Math.max(.7, radius * .032);
-    for (let i = 0; i < 6; i++) {
-      const a = i * Math.PI / 3 + .18;
-      const span = .32 + (i % 2) * .10;
-      drawEllipseTrace(ctx, rx, ry, a, a + span, .7);
+    // Fractured containment orbit: unequal plates and tiny phase fragments.
+    for (let i = 0; i < 7; i++) {
+      const angle = i * Math.PI * 2 / 7 + .08;
+      const span = i % 2 === 0 ? .58 : .34;
+      ctx.globalAlpha = opacity * (i % 3 === 0 ? .94 : .72);
+      ctx.lineWidth = Math.max(.8, radius * .030);
+      drawEllipseTrace(ctx, rx, ry, angle, angle + span, .70);
     }
-    ctx.restore();
-    return;
-  }
-
-  if (mode === 'pulse') {
-    ctx.globalAlpha = opacity * .76;
-    ctx.lineWidth = Math.max(.9, radius * .035);
-    ctx.setLineDash([radius * .12, radius * .10]);
-    drawEllipseTrace(ctx, rx, ry, 0, Math.PI * 2);
-    ctx.setLineDash([]);
-    ctx.globalAlpha = opacity * .34;
-    ctx.lineWidth = Math.max(.65, radius * .024);
-    drawEllipseTrace(ctx, radius * .96, radius * .27, Math.PI * .16, Math.PI * 1.86);
+    ctx.globalAlpha = opacity * .42;
+    ctx.lineWidth = Math.max(.55, radius * .018);
+    drawEllipseTrace(ctx, radius * 1.03, radius * .295, Math.PI * .16, Math.PI * 1.84, .35);
+    ctx.globalAlpha = opacity * .72;
+    ctx.fillStyle = color;
+    for (let i = 0; i < 3; i++) {
+      const angle = -rotation * .72 + i * Math.PI * 2 / 3;
+      const p = ellipsePoint(rx * .99, ry * .99, angle);
+      ctx.beginPath();
+      ctx.moveTo(p.x + radius * .10, p.y);
+      ctx.lineTo(p.x, p.y + radius * .055);
+      ctx.lineTo(p.x - radius * .10, p.y);
+      ctx.lineTo(p.x, p.y - radius * .055);
+      ctx.closePath();
+      ctx.fill();
+    }
     ctx.restore();
     return;
   }
