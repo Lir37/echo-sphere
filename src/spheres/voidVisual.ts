@@ -1,22 +1,65 @@
 import type { PlayerState, SphereEntity } from '../engine';
-import { core, finishDisabled, stateColor, glow } from './visualHelpers';
+import { core, drawSphereOrbit, finishDisabled, orbitPoint, stateColor, glow } from './visualHelpers';
 
-const TAU=Math.PI*2;
-function voidWeapon(ctx:CanvasRenderingContext2D,r:number,color:string,disabled:boolean):void{
-  ctx.globalAlpha=disabled?.13:.92;ctx.fillStyle='#040710';ctx.strokeStyle=color;ctx.lineWidth=1.3;
-  ctx.beginPath();ctx.moveTo(r*.30,-r*.20);ctx.lineTo(r*1.00,-r*.16);ctx.lineTo(r*1.34,-r*.06);ctx.lineTo(r*1.34,r*.06);ctx.lineTo(r*1.00,r*.16);ctx.lineTo(r*.30,r*.20);ctx.closePath();ctx.fill();ctx.stroke();
-  ctx.globalAlpha=disabled?.08:.72;ctx.strokeStyle='#e8d8ff';ctx.beginPath();ctx.arc(r*1.32,0,r*.08,0,TAU);ctx.stroke();
+function drawVoidEmitter(ctx: CanvasRenderingContext2D, r: number, color: string, disabled: boolean): void {
+  ctx.save();
+  ctx.translate(r * 1.20, 0);
+  ctx.globalAlpha = disabled ? .12 : .94;
+  ctx.fillStyle = '#03070e';
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1.1;
+  ctx.beginPath();
+  ctx.moveTo(-r * .01, -r * .19);
+  ctx.quadraticCurveTo(r * .21, -r * .08, r * .27, 0);
+  ctx.quadraticCurveTo(r * .21, r * .08, -r * .01, r * .19);
+  ctx.quadraticCurveTo(r * .07, 0, -r * .01, -r * .19);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.globalAlpha = disabled ? .06 : .65;
+  ctx.strokeStyle = '#eadfff';
+  ctx.beginPath();
+  ctx.arc(r * .18, 0, r * .07, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.restore();
 }
-export function renderVoidSphereRuntimeVfx(ctx:CanvasRenderingContext2D,sphere:SphereEntity,player:PlayerState,time:number,scale=1):void{
-  const st=stateColor(sphere,player,'#c28cff',time),r=24*scale;
-  ctx.save();ctx.translate(sphere.pos.x,sphere.pos.y);ctx.globalCompositeOperation='lighter';glow(ctx,r*2.30,st.color,st.disabled?.04:.10);ctx.restore();
-  ctx.save();ctx.translate(sphere.pos.x,sphere.pos.y);ctx.rotate(sphere.rotation||0);ctx.globalCompositeOperation='source-over';
-  ctx.globalAlpha=st.disabled?.16:.92;ctx.fillStyle='#040710';ctx.strokeStyle=st.color;ctx.lineWidth=1.65;
-  ctx.beginPath();ctx.moveTo(0,-r*.98);ctx.lineTo(r*.54,-r*.60);ctx.lineTo(r*.86,-r*.12);ctx.lineTo(r*.66,r*.54);ctx.lineTo(0,r*.82);ctx.lineTo(-r*.66,r*.52);ctx.lineTo(-r*.88,-r*.08);ctx.lineTo(-r*.48,-r*.62);ctx.closePath();ctx.fill();ctx.stroke();
-  ctx.globalAlpha=st.disabled?.08:.38;ctx.strokeStyle='#ffffff';ctx.lineWidth=.85;ctx.beginPath();ctx.moveTo(-r*.43,-r*.08);ctx.lineTo(0,-r*.46);ctx.lineTo(r*.48,-r*.08);ctx.lineTo(0,r*.44);ctx.closePath();ctx.stroke();
-  voidWeapon(ctx,r,st.color,st.disabled);
-  core(ctx,r*.45,st.color,st.pulse*.92);
-  if((sphere.visualTier||0)>=4){ctx.globalAlpha=st.disabled?.06:.30;ctx.strokeStyle=st.color;ctx.lineWidth=.9;ctx.beginPath();ctx.arc(0,0,r*1.14,-.62,.62);ctx.stroke();}
-  finishDisabled(ctx,r,st.color,st.disabled);ctx.restore();
+
+export function renderVoidSphereRuntimeVfx(
+  ctx: CanvasRenderingContext2D,
+  sphere: SphereEntity,
+  player: PlayerState,
+  time: number,
+  scale = 1,
+): void {
+  const st = stateColor(sphere, player, '#c28cff', time);
+  const r = 24 * scale;
+  const coreR = r * .68;
+  ctx.save();
+  ctx.translate(sphere.pos.x, sphere.pos.y);
+  ctx.globalCompositeOperation = 'lighter';
+  glow(ctx, r * 2.35, st.color, st.disabled ? .04 : .10);
+  drawSphereOrbit(ctx, r * 1.03, st.color, time * .11, st.disabled ? .10 : .58, 'void', st.pulse);
+  ctx.globalCompositeOperation = 'source-over';
+  core(ctx, coreR, st.color, st.pulse * .92);
+
+  ctx.rotate(sphere.rotation || 0);
+  drawVoidEmitter(ctx, r, st.color, st.disabled);
+
+  for (let i = 0; i < 4; i++) {
+    const a = -time * (.22 + i * .025) + i * Math.PI / 2;
+    const p = orbitPoint(r, a, .34, 1.11);
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.globalAlpha = st.disabled ? .05 : .32 * p.depth;
+    ctx.strokeStyle = st.color;
+    ctx.lineWidth = .9;
+    ctx.beginPath();
+    ctx.arc(0, 0, r * (.07 + i * .012), Math.PI * .2, Math.PI * 1.8);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  finishDisabled(ctx, r, st.color, st.disabled);
+  ctx.restore();
 }
 export default renderVoidSphereRuntimeVfx;
