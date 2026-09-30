@@ -430,3 +430,21 @@ IMPLEMENTATION HEAD BEFORE DOC UPDATE: 104631c5d60b8d66f9e5aaf66156b65b7fe6d130
 
 [GATE]
 APK PlayerCheck should verify literal core-size parity against Standard.
+======================================================================
+[2026-09-30] ENEMY CREATURE PRODUCTION PASS
+======================================================================
+IMPLEMENTATION HEAD: 3f22d0235b13f0c8dab19bccf0cc7b3b5107d2e0
+
+[DONE] Enemy rendering moved to a dedicated 2.5D creature module.
+[DONE] Enemy silhouettes are now biological/creature-based rather than
+      abstract stones, shards or geometric emblems.
+[DONE] Nine visual families cover the current normal/fast/tank/elite pool.
+[DONE] Four current boss types received distinct articulated monster bodies.
+[DONE] Idle/movement animation is tied to creature anatomy: wings, legs,
+      tendrils, undulation, bob and body breathing.
+[DONE] Luminous eyes / focal details and radial glows follow the visual
+      construction principle established for the approved Sphere family.
+[UNCHANGED] Enemy and boss mechanics remain intact.
+
+[GATE] APK PlayerCheck should inspect enemy readability at actual gameplay
+scale, silhouette diversity, motion quality and boss visual weight.

@@ -2943,3 +2943,44 @@ IMPLEMENTATION HEAD BEFORE DOC UPDATE: 59d0ac56b966595ed096e5194607e52989e3438e
 [GATE]
 APK PlayerCheck should now show literally the same core silhouette/size as
 Standard, with only the Sphere-specific color differing.
+======================================================================
+[2026-09-30] ENEMY / BOSS CREATURE VISUAL PASS
+======================================================================
+IMPLEMENTATION HEAD: 3f22d0235b13f0c8dab19bccf0cc7b3b5107d2e0
+
+ARCHITECTURE
+[DONE] Added dedicated enemy visual production layer:
+      src/enemies/enemyVisual.ts
+[DONE] Modern renderer delegates normal enemies and bosses to that module.
+[DONE] Old enemy SVG runtime paths are no longer referenced.
+
+ENEMY FAMILY
+[DONE] Normal/fast/tank visuals now resolve to actual creature silhouettes:
+      floating veil creature, leech, serpent, stalker, skitter/crawler,
+      moth, armored beetle, brute quadruped and prism hound.
+[DONE] Variants are selected through the seeded run RNG, while combat stats
+      and enemy role logic remain unchanged.
+[DONE] Creature construction uses the same production principle as Spheres:
+      dominant silhouette, layered/faceted body, focused luminous detail,
+      restrained radial glow, movement-specific animation and status VFX.
+
+BOSSES
+[DONE] Shooter now uses a large predatory Void Lancer silhouette.
+[DONE] Charger now uses a horned Dread Charger quadruped.
+[DONE] Summoner now uses a Brood Matriarch with tentacles and orbiting brood.
+[DONE] Aura now uses an Abyssal Leviathan with articulated tendrils and
+      layered radial structure.
+[DONE] Boss visuals include animated body motion and late-run damage-phase
+      fracture accents without changing boss combat behavior.
+
+MECHANICS
+[UNCHANGED] Enemy movement, HP, damage, targeting, boss attacks, telegraphs,
+            rewards and progression mechanics were not intentionally changed.
+
+CLEANUP
+[DONE] Removed obsolete enemy-fast.svg, enemy-moth.svg, enemy-skitter.svg and
+      enemy-tank.svg because they are no longer a runtime asset path.
+
+[GATE]
+CI + APK PlayerCheck. Automated tests verify renderer/module integration and
+variant coverage; APK PlayerCheck remains the visual acceptance gate.
