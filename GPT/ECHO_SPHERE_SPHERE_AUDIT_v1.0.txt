@@ -398,3 +398,19 @@ CURRENT HEAD: FINAL COMMIT OF THIS PASS
 [VERIFIED]
 Runtime visual changes remain presentation-only. Final CI verification is
 performed on the corrected test contract.
+
+======================================================================
+[2026-09-30] CORE GLOW PARITY CORRECTION
+======================================================================
+IMPLEMENTATION HEAD: c22c74bd97a5002b0e1ace54df6ac6abdfbc28bc
+
+[DONE] Non-Standard shared core now matches the Standard core proportion model:
+      glow layer to 0.58R + solid body to 0.42R.
+[DONE] Removed the dark internal gradient band that made the reduced core look
+      hollow.
+[UNCHANGED] Standard implementation remains locked.
+[UNCHANGED] Broad external aura remains separate from the compact inner core.
+[UNCHANGED] Gameplay mechanics are untouched.
+
+[GATE] APK PlayerCheck should confirm full luminous fill with no dark internal
+region on every non-Standard Sphere.

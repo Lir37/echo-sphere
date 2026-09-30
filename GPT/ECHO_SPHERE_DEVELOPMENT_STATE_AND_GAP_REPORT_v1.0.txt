@@ -2902,3 +2902,22 @@ CURRENT HEAD: FINAL COMMIT OF THIS PASS
 The visual implementation passed TypeScript compilation and asset checks.
 The only failed CI in the pass was a static-test regex contract, which has
 now been corrected without changing runtime visuals.
+
+======================================================================
+[2026-09-30] SPHERE CORE GLOW FILL CORRECTION
+======================================================================
+IMPLEMENTATION HEAD: c22c74bd97a5002b0e1ace54df6ac6abdfbc28bc
+
+[DONE]
+- Shared non-Standard Sphere core now follows the approved Standard proportion
+  split: inner luminous glow reaches 0.58R and dense visible body is 0.42R.
+- The inner core no longer contains the previous dark lower-band / near-black
+  gradient region.
+- The external broad aura remains independent, so the compact core reduction
+  does not shrink the surrounding halo.
+- Standard itself was not modified.
+- Gameplay, targeting, progression and Sphere mechanics remain unchanged.
+
+[GATE]
+Human APK PlayerCheck must verify that every non-Standard Sphere has a fully
+filled luminous core at gameplay scale, with no dark hole/band inside it.
