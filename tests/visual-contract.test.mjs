@@ -55,3 +55,28 @@ test('Directed Sphere families contain weapon geometry',()=>{
     ['src/spheres/voidVisual.ts','voidWeapon'],
   ]) assert.ok(read(file).includes(token),file);
 });
+
+
+test('Sphere family shares Standard-derived 2.5D core and orbit grammar',()=>{
+  const h=read('src/spheres/visualHelpers.ts');
+  assert.match(h,/Family 2\.5D core based on the approved Standard Sphere core/);
+  assert.equal(h.includes("ctx.fillStyle = WHITE;"),false);
+  for(const file of [
+    'src/spheres/sniperVisual.ts','src/spheres/shotgunVisual.ts',
+    'src/spheres/chainVisual.ts','src/spheres/auraVisual.ts',
+    'src/spheres/prismVisual.ts','src/spheres/gravityVisual.ts',
+    'src/spheres/pulseVisual.ts','src/spheres/voidVisual.ts'
+  ]){
+    const c=read(file);
+    assert.ok(c.includes('drawSphereOrbit'),file);
+    assert.ok(c.includes('core(ctx'),file);
+  }
+});
+
+test('Orbital combat satellites use a true screen-space circular orbit',()=>{
+  const c=read('src/spheres/orbitalVisual.ts');
+  assert.match(c,/const orbitRadius = r \* 1\.68/);
+  assert.match(c,/const x = Math\.cos\(a\) \* orbitRadius/);
+  assert.match(c,/const y = Math\.sin\(a\) \* orbitRadius/);
+  assert.equal(c.includes('Math.cos(a)*r*1.24'),false);
+});

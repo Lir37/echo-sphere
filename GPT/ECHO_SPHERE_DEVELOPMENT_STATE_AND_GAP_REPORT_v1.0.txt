@@ -2822,3 +2822,46 @@ Human APK PlayerCheck remains mandatory for visual acceptance:
 - verify Network links are calmer and comets appear smooth;
 - verify HUD tooltip timing/tap dismissal;
 - verify no excessive visual clutter from modifier overlays.
+
+
+======================================================================
+[2026-09-30] SPHERE FAMILY 2.5D UNIFICATION PASS
+======================================================================
+IMPLEMENTATION HEAD: 50fe19a560f3c2f25f4d1d5cf240b27cfe872eeb
+
+USER PLAYER-CHECK DIRECTION:
+[DONE] Standard remains the visual etalon; its approved renderer path was not
+      rewritten.
+[DONE] The non-Standard Sphere family now uses a shared Standard-derived 2.5D
+      luminous core in src/spheres/visualHelpers.ts: asymmetric radial fill,
+      bright upper-left volume highlight and dark lower rim.
+[DONE] The small discrete white center point used by the former generic core
+      helper was removed. The core itself remains luminous and volumetric.
+[DONE] All eight non-Standard Sphere modules now use the Standard-derived
+      double-orbit language. Orbit material is specialized per concept:
+      lightning, calibration, shotgun markers, field arcs, prism segmentation,
+      gravity arcs, pulse dashes, void fragments and Orbital dual rails.
+[DONE] Directed Sphere weapons now use only compact floating emitter/tip forms.
+      The visible shaft/barrel body connecting the Sphere to the muzzle was
+      removed. Each tip shape remains specific to Sniper, Shotgun, Prism and
+      Void.
+[DONE] Small characteristic modules were moved onto restrained orbiting paths
+      so they add identity without becoming a second bulky silhouette.
+[DONE] Orbital combat satellites now move on a true screen-space circle with a
+      larger 1.68R orbit radius. Their silhouette is a compact blade/emitter,
+      aligned with the refined directed-weapon language.
+[DONE] Orbital's base remains visually related to the Sphere family through the
+      same 2.5D core/orbit grammar while preserving its dual-rail identity.
+
+[VERIFICATION]
+[ADDED] Visual-contract tests cover family core/orbit parity and Orbital circular
+       attacker motion in addition to the previous contracts.
+
+[GATE]
+Human APK PlayerCheck is required to validate actual gameplay-scale volume,
+weapon spacing, orbit readability and whether the new shared core feels as
+convincing as Standard on a real device.
+
+[NEXT]
+Do not redesign Standard. Compare all ten Sphere types side-by-side in APK and
+make only concrete visual corrections from that comparison.

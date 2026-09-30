@@ -342,3 +342,29 @@ TEST/CI
 
 [GATE]
 APK PlayerCheck is the remaining subjective acceptance step.
+
+
+======================================================================
+[2026-09-30] SPHERE FAMILY 2.5D UNIFICATION AUDIT
+======================================================================
+IMPLEMENTATION HEAD: 50fe19a560f3c2f25f4d1d5cf240b27cfe872eeb
+
+[DONE] Non-Standard Spheres now share the approved Standard-derived 2.5D core
+      construction instead of independent flat polygon bodies.
+[DONE] The generic core's discrete white center point was removed.
+[DONE] All eight non-Standard visual modules now consume the shared orbital
+      compositor with per-Sphere material rules.
+[DONE] Sniper / Shotgun / Prism / Void weapon visuals no longer use a shaft
+      from the Sphere to the weapon tip.
+[DONE] Chain's orbit is electrically segmented rather than a continuous ring.
+[DONE] Orbital combat satellites use circular screen-space motion at 1.68R and
+      were redesigned as compact blade/emitter modules.
+[DONE] Orbital remains gameplay-mechanics neutral in this pass: targeting,
+      damage, progression and satellite count rules are unchanged.
+
+[TEST COVERAGE]
+[DONE] visual-contract.test.mjs now protects shared core/orbit usage and
+      circular Orbital attacker motion.
+
+[GATE]
+APK PlayerCheck remains the final acceptance gate for visual quality.
