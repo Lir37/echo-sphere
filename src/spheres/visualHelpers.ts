@@ -85,79 +85,32 @@ export function core(
   pulse: number,
   scale = 1,
 ): void {
+  // Exact Standard Sphere core geometry shared by the whole family.
+  // Only the color is parameterized for non-Standard Spheres.
   ctx.save();
   ctx.scale(scale, scale);
 
-  // Keep the external aura independent from the compact Standard-sized core.
-  glow(ctx, radius * 1.85, color, .14 + pulse * .08);
-
-  // Match the approved Standard core proportions:
-  // soft inner glow reaches .58R, dense visible body is .42R.
-  const glowRadius = radius * .58;
-  const solidRadius = radius * .42;
-
-  const map = coreGradientsOf(ctx);
-  const key = color + ':' + Math.round(glowRadius * 10);
-  let body = map.get(key);
-  if (!body) {
-    body = ctx.createRadialGradient(
-      -radius * .08,
-      -radius * .10,
-      1,
-      0,
-      0,
-      glowRadius * 1.07,
-    );
-    body.addColorStop(0, 'rgba(255,255,255,.98)');
-    body.addColorStop(.20, rgbaFromHex(color, .96));
-    body.addColorStop(.48, rgbaFromHex(color, .78));
-    body.addColorStop(.82, rgbaFromHex(color, .34));
-    body.addColorStop(1, rgbaFromHex(color, 0));
-    map.set(key, body);
-  }
-
-  const breathing = 1 + pulse * .035;
+  const glow = ctx.createRadialGradient(-radius * 0.08, -radius * 0.10, 1, 0, 0, radius * 0.62);
+  glow.addColorStop(0, 'rgba(255,255,255,0.98)');
+  glow.addColorStop(0.20, rgbaFromHex(color, .96));
+  glow.addColorStop(0.48, rgbaFromHex(color, .78));
+  glow.addColorStop(0.82, rgbaFromHex(color, .34));
+  glow.addColorStop(1, rgbaFromHex(color, 0));
   ctx.save();
-  ctx.scale(breathing, breathing);
-
-  // Standard-style luminous fill. The glow is drawn underneath the solid
-  // core so there is no dark inner band between the two layers.
   ctx.globalCompositeOperation = 'lighter';
-  ctx.globalAlpha = .82 + pulse * .14;
-  ctx.fillStyle = body;
+  ctx.globalAlpha = 0.82 + pulse * 0.14;
+  ctx.fillStyle = glow;
   ctx.beginPath();
-  ctx.arc(0, 0, glowRadius, 0, Math.PI * 2);
+  ctx.arc(0, 0, radius * 0.58 * (1 + pulse * 0.035), 0, Math.PI * 2);
   ctx.fill();
-
   ctx.globalCompositeOperation = 'source-over';
-  ctx.globalAlpha = .72;
   ctx.fillStyle = rgbaFromHex(color, .72);
-  ctx.strokeStyle = 'rgba(182,247,255,.90)';
-  ctx.lineWidth = Math.max(.8, radius * .035);
+  ctx.strokeStyle = 'rgba(182,247,255,0.90)';
+  ctx.lineWidth = Math.max(0.8, radius * 0.035);
   ctx.beginPath();
-  ctx.arc(0, 0, solidRadius, 0, Math.PI * 2);
+  ctx.arc(0, 0, radius * 0.42, 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
-
-  // Soft asymmetric highlight keeps the 2.5D volume without introducing
-  // a separate point or a dark lower rim.
-  const hi = ctx.createRadialGradient(
-    -radius * .14,
-    -radius * .16,
-    0,
-    -radius * .14,
-    -radius * .16,
-    radius * .26,
-  );
-  hi.addColorStop(0, 'rgba(255,255,255,.30)');
-  hi.addColorStop(.48, 'rgba(220,250,255,.10)');
-  hi.addColorStop(1, 'rgba(220,250,255,0)');
-  ctx.globalAlpha = .95;
-  ctx.fillStyle = hi;
-  ctx.beginPath();
-  ctx.arc(0, 0, solidRadius * .95, 0, Math.PI * 2);
-  ctx.fill();
-
   ctx.restore();
   ctx.restore();
 }
