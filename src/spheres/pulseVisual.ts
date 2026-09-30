@@ -10,7 +10,7 @@ export function renderPulseSphereRuntimeVfx(
 ): void {
   const st = stateColor(sphere, player, '#ffd35a', time);
   const r = 24 * scale;
-  const coreR = r * .68;
+  const coreR = r;
   const phase = st.animationTime * 1.10;
   ctx.save();
   ctx.translate(sphere.pos.x, sphere.pos.y);
