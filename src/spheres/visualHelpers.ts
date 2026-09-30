@@ -88,19 +88,21 @@ export function core(
   ctx.save();
   ctx.scale(scale, scale);
 
+  // Keep the broad aura radius, but match Standard's compact visible core.
   glow(ctx, radius * 1.85, color, .14 + pulse * .08);
+  const visibleRadius = radius * .62;
 
   const map = coreGradientsOf(ctx);
   const key = `${color}:${Math.round(radius * 10)}`;
   let body = map.get(key);
   if (!body) {
     body = ctx.createRadialGradient(
-      -radius * .20,
-      -radius * .22,
-      radius * .04,
-      radius * .06,
-      radius * .10,
-      radius * 1.05,
+      -visibleRadius * .20,
+      -visibleRadius * .22,
+      visibleRadius * .04,
+      visibleRadius * .06,
+      visibleRadius * .10,
+      visibleRadius * 1.05,
     );
     body.addColorStop(0, 'rgba(255,255,255,.98)');
     body.addColorStop(.14, rgbaFromHex(color, .97));
@@ -118,21 +120,21 @@ export function core(
   ctx.globalAlpha = .96;
   ctx.fillStyle = body;
   ctx.strokeStyle = rgbaFromHex(color, .88);
-  ctx.lineWidth = Math.max(.9, radius * .035);
+  ctx.lineWidth = Math.max(.9, visibleRadius * .035);
   ctx.beginPath();
-  ctx.arc(0, 0, radius, 0, Math.PI * 2);
+  ctx.arc(0, 0, visibleRadius, 0, Math.PI * 2);
   ctx.fill();
   ctx.stroke();
 
   // Soft 2.5D specular patch. It has no discrete point, so the center reads
   // as a volume instead of a blinking LED.
   const hi = ctx.createRadialGradient(
-    -radius * .34,
-    -radius * .38,
+    -visibleRadius * .34,
+    -visibleRadius * .38,
     0,
-    -radius * .34,
-    -radius * .38,
-    radius * .52,
+    -visibleRadius * .34,
+    -visibleRadius * .38,
+    visibleRadius * .52,
   );
   hi.addColorStop(0, 'rgba(255,255,255,.32)');
   hi.addColorStop(.45, 'rgba(220,250,255,.10)');
@@ -140,14 +142,14 @@ export function core(
   ctx.globalAlpha = .95;
   ctx.fillStyle = hi;
   ctx.beginPath();
-  ctx.arc(0, 0, radius * .92, 0, Math.PI * 2);
+  ctx.arc(0, 0, visibleRadius * .92, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.globalAlpha = .42;
   ctx.strokeStyle = 'rgba(2,8,16,.92)';
-  ctx.lineWidth = Math.max(.8, radius * .032);
+  ctx.lineWidth = Math.max(.8, visibleRadius * .032);
   ctx.beginPath();
-  ctx.arc(0, radius * .08, radius * .90, Math.PI * .08, Math.PI * .92);
+  ctx.arc(0, visibleRadius * .08, visibleRadius * .90, Math.PI * .08, Math.PI * .92);
   ctx.stroke();
   ctx.restore();
 
