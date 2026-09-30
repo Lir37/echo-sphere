@@ -16,20 +16,6 @@ function glow(ctx:CanvasRenderingContext2D,r:number,color:string,alpha=.10):void
   ctx.beginPath();ctx.arc(0,0,r,0,TAU);ctx.fill();ctx.restore();
 }
 
-function glow(ctx:CanvasRenderingContext2D,r:number,color:string,alpha=.10):void {
-  const rgb=rgbOf(color);
-  const g=ctx.createRadialGradient(0,0,0,0,0,r);
-  g.addColorStop(0,'rgba('+rgb+','+(alpha*3).toFixed(3)+')');
-  g.addColorStop(.32,'rgba('+rgb+','+(alpha*1.1).toFixed(3)+')');
-  g.addColorStop(.72,'rgba('+rgb+','+(alpha*.28).toFixed(3)+')');
-  g.addColorStop(1,'rgba('+rgb+',0)');
-  ctx.save();
-  ctx.globalCompositeOperation='lighter';
-  ctx.fillStyle=g;
-  ctx.beginPath();ctx.arc(0,0,r,0,TAU);ctx.fill();
-  ctx.restore();
-}
-
 function plate(ctx:CanvasRenderingContext2D,x:number,y:number,w:number,h:number,color:string,angle:number,alpha=.86):void {
   ctx.save();ctx.translate(x,y);ctx.rotate(angle);
   ctx.globalAlpha=alpha;
