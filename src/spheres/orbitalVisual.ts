@@ -234,8 +234,8 @@ export function renderOrbitalSphereAttackersVfx(
   const tier = Math.max(1, Math.min(7, sphere.visualTier || 1));
   const resonance = v.resonance > 0;
   const color = resonance ? RESONANCE : BASE;
-  const bladeMutation = branch === 'orbital_blade';
   const branch = player?.sphereBranches?.orbital;
+  const bladeMutation = branch === 'orbital_blade';
   const speed = branch === 'orbital_dance'
     ? 3.15
     : branch === 'orbital_halo'
