@@ -49,10 +49,10 @@ test('HUD tooltip is timed, tappable and non-selectable',()=>{
 
 test('Directed Sphere families contain weapon geometry',()=>{
   for(const [file,token] of [
-    ['src/spheres/sniperVisual.ts','drawWeapon'],
-    ['src/spheres/shotgunVisual.ts','barrel'],
-    ['src/spheres/prismVisual.ts','prismWeapon'],
-    ['src/spheres/voidVisual.ts','voidWeapon'],
+    ['src/spheres/sniperVisual.ts','drawSniperTip'],
+    ['src/spheres/shotgunVisual.ts','drawShotgunTip'],
+    ['src/spheres/prismVisual.ts','drawPrismEmitter'],
+    ['src/spheres/voidVisual.ts','drawVoidEmitter'],
   ]) assert.ok(read(file).includes(token),file);
 });
 
