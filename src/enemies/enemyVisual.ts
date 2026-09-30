@@ -19,14 +19,25 @@ function seg(ctx:CanvasRenderingContext2D,x:number,y:number,len:number,w:number,
   ctx.restore();
 }
 function limb(ctx:CanvasRenderingContext2D,sx:number,sy:number,len:number,a:number,color:string,phase:number,thick=1):void{
-  const k1=len*.46,k2=len*.42;
-  const a1=a+Math.sin(phase)*.16,a2=a+Math.sin(phase+1.1)*.22;
-  seg(ctx,sx,sy,k1,thick*7,a1,color,.88);
+  // Controlled two-joint limb. The upper segment carries the gait, the knee
+  // remains readable, and the short distal segment prevents the old "rubber
+  // sausage" look caused by independent free-form wobble.
+  const gait=Math.sin(phase)*.10;
+  const knee=Math.sin(phase+0.65)*.07;
+  const k1=len*.48,k2=len*.40;
+  const a1=a+gait;
+  const a2=a+knee+(a>Math.PI*.5?-.04:.04);
+  seg(ctx,sx,sy,k1,thick*5.8,a1,color,.92);
   const jx=sx+Math.cos(a1)*k1,jy=sy+Math.sin(a1)*k1;
-  joint(ctx,jx,jy,thick*4.1,color);
-  seg(ctx,jx,jy,k2,thick*5.2,a2,color,.82);
+  joint(ctx,jx,jy,thick*3.5,color);
+  seg(ctx,jx,jy,k2,thick*4.0,a2,color,.88);
   const ex=jx+Math.cos(a2)*k2,ey=jy+Math.sin(a2)*k2;
-  joint(ctx,ex,ey,thick*2.3,color);
+  joint(ctx,ex,ey,thick*1.9,color);
+  ctx.save();
+  ctx.translate(ex,ey);ctx.rotate(a2);
+  ctx.strokeStyle=color;ctx.lineWidth=Math.max(.65,thick*1.5);ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(thick*3.2,thick*.55);ctx.stroke();
+  ctx.restore();
 }
 function tail(ctx:CanvasRenderingContext2D,sx:number,sy:number,len:number,color:string,t:number,segments=7,amp=.28):void{
   let x=sx,y=sy;
@@ -59,7 +70,10 @@ function wing(ctx:CanvasRenderingContext2D,x:number,y:number,len:number,w:number
 function drawVeilRipper(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
   body(ctx,r,color,Math.sin(t*2.4)*.04,.82);
   wing(ctx,-r*.18,-r*.16,r*.72,r*.45,-2.55,color,t*5);wing(ctx,r*.12,-r*.14,r*.76,r*.42,-.55,color,t*5+.6);
-  for(let i=0;i<4;i++) limb(ctx,-r*.38+i*r*.24,r*.30,r*.62,-1.25+i*.85,color,t*3+i,.75);
+  for(const x of [-r*.28,r*.20]){
+    limb(ctx,x,-r*.34,r*.60,-.82,color,t*3+(x<0?0:1),.62);
+    limb(ctx,x, r*.34,r*.60, .82,color,t*3+(x<0?1:2),.62);
+  }
   eye(ctx,r*.30,-r*.12,r*.13,color,-.08);core(ctx,-r*.16,r*.10,r*.09,color);
 }
 function drawGraveLeech(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
@@ -77,11 +91,22 @@ function drawGraveLeech(ctx:CanvasRenderingContext2D,r:number,color:string,t:num
   }
 }
 function drawFangedCoil(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
-  ctx.save();
-  for(let i=0;i<8;i++){const q=i/7,a=t*2.0+q*5.6,x=Math.cos(a)*r*(.16+.075*q),y=Math.sin(a)*r*(.30+.065*q);ctx.save();ctx.translate(x,y);body(ctx,r*(.28-.018*i),color,a+.7,.65);ctx.restore();}
+  // Head leads at +X; the body follows behind in a controlled sine wave.
+  for(let i=0;i<8;i++){
+    const q=i/7;
+    const x=r*.46-q*r*1.10;
+    const y=Math.sin(t*3.1+q*4.8)*r*(.08+.06*q);
+    const dx=-r*1.10/7;
+    const dy=Math.cos(t*3.1+q*4.8)*r*(.08+.06*q)*4.8/7;
+    const a=Math.atan2(dy,dx);
+    ctx.save();ctx.translate(x,y);body(ctx,r*(.29-.018*i),color,a,.64);ctx.restore();
+    if(i<7) joint(ctx,x+dx*.5,y+dy*.5,r*.055,color);
+  }
+  ctx.save();ctx.translate(r*.50,-r*.06);body(ctx,r*.36,color,-.06,.62);
+  eye(ctx,r*.14,-r*.10,r*.09,color);eye(ctx,r*.14,r*.10,r*.09,color);
+  ctx.fillStyle='#02050a';ctx.strokeStyle=color;ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(r*.12,0);ctx.lineTo(r*.34,r*.05);ctx.lineTo(r*.12,r*.10);ctx.closePath();ctx.fill();ctx.stroke();
   ctx.restore();
-  ctx.save();ctx.translate(r*.48,-r*.08);body(ctx,r*.34,color,-.08,.62);eye(ctx,r*.14,-r*.10,r*.09,color);ctx.fillStyle='#02050a';ctx.strokeStyle=color;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(r*.12,0);ctx.lineTo(r*.32,r*.05);ctx.lineTo(r*.12,r*.10);ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();
-  tail(ctx,-r*.52,r*.12,r*.75,color,t,6,.34);
 }
 function drawCarrionSkitter(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
   body(ctx,r,color,Math.sin(t*4)*.05,.58);
@@ -91,7 +116,8 @@ function drawCarrionSkitter(ctx:CanvasRenderingContext2D,r:number,color:string,t
 function drawUmbralMoth(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
   wing(ctx,-r*.08,0,r*.92,r*.70,-2.72,color,t*8);wing(ctx,r*.08,0,r*.92,r*.70,-.42,color,t*8+.7);
   ctx.save();ctx.scale(.45,1.25);body(ctx,r*.72,color,0,.9);ctx.restore();
-  limb(ctx,-r*.10,r*.38,r*.52,1.75,color,t*8,.38);limb(ctx,r*.10,r*.38,r*.52,1.4,color,t*8+1,.38);
+  limb(ctx,-r*.14,-r*.34,r*.48,-1.05,color,t*8,.36);limb(ctx,r*.10,-r*.34,r*.48,-1.05,color,t*8+1,.36);
+  limb(ctx,-r*.14, r*.34,r*.48, 1.05,color,t*8+2,.36);limb(ctx,r*.10, r*.34,r*.48, 1.05,color,t*8+3,.36);
   eye(ctx,-r*.07,-r*.26,r*.09,color);eye(ctx,r*.07,-r*.26,r*.09,color);
 }
 function drawRiftScarab(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
@@ -108,7 +134,10 @@ function drawBonebackBrute(ctx:CanvasRenderingContext2D,r:number,color:string,t:
 }
 function drawGlassHound(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
   body(ctx,r*.92,color,Math.sin(t*2.5)*.04,.62);
-  for(const x of [-.42,-.12,.22,.48]) limb(ctx,r*x,r*.28,r*.62,x>0?1.0:2.15,color,t*5+x,.52);
+  for(const x of [-r*.34,r*.00]){
+    limb(ctx,x,-r*.34,r*.60,-.82,color,t*5+x,.48);
+    limb(ctx,x, r*.34,r*.60, .82,color,t*5+x+1,.48);
+  }
   ctx.save();ctx.translate(r*.48,-r*.10);body(ctx,r*.42,color,-.12,.62);eye(ctx,r*.13,-r*.10,r*.09,color);ctx.restore();
   tail(ctx,-r*.56,r*.08,r*.70,color,t,6,.24);
 }
@@ -126,22 +155,43 @@ function bossFrame(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):
   ctx.save();ctx.strokeStyle='rgba('+rgbOf(color)+',.30)';ctx.lineWidth=Math.max(.8,r*.025);ctx.beginPath();ctx.arc(0,0,r*1.16,t*.2,t*.2+4.9);ctx.stroke();ctx.restore();
 }
 function drawVoidLancerBoss(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
-  bossFrame(ctx,r,color,t);body(ctx,r*1.12,color,Math.sin(t*1.7)*.025,.62);
-  wing(ctx,-r*.30,-r*.05,r*1.15,r*.44,-2.72,color,t*4);wing(ctx,-r*.22,r*.18,r*.98,r*.34,2.55,color,t*4+.8);
-  limb(ctx,r*.22,-r*.18,r*.62,-.2,color,t*3,.95);limb(ctx,r*.22,r*.18,r*.62,.2,color,t*3+1,.95);
-  ctx.save();ctx.translate(r*.58,0);body(ctx,r*.48,color,0,.58);eye(ctx,r*.18,-r*.12,r*.14,color);eye(ctx,r*.18,r*.12,r*.14,color);ctx.restore();
-  tail(ctx,-r*.72,0,r*1.0,color,t,7,.22);core(ctx,-r*.12,0,r*.12,color);
+  bossFrame(ctx,r,color,t);
+  body(ctx,r*1.12,color,Math.sin(t*1.7)*.025,.62);
+  // Head/front is +X. Wings and legs are paired from the body sides.
+  wing(ctx,-r*.18,-r*.48,r*1.00,r*.36,-1.15,color,t*4);
+  wing(ctx,-r*.18, r*.48,r*1.00,r*.36, 1.15,color,t*4+.35);
+  for(const x of [-r*.30,r*.18]){
+    limb(ctx,x,-r*.42,r*.62,-.78,color,t*3+(x<0?0:1),.82);
+    limb(ctx,x, r*.42,r*.62, .78,color,t*3+(x<0?1:2),.82);
+  }
+  ctx.save();ctx.translate(r*.62,0);body(ctx,r*.48,color,0,.58);
+  eye(ctx,r*.18,-r*.12,r*.14,color);eye(ctx,r*.18,r*.12,r*.14,color);
+  ctx.restore();
+  // Tail is anchored to the rear of the body, never to the middle/front.
+  tail(ctx,-r*.76,0,r*1.05,color,t,8,.18);
+  core(ctx,-r*.12,0,r*.12,color);
 }
 function drawDreadChargerBoss(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
   bossFrame(ctx,r,color,t);body(ctx,r*1.14,color,Math.sin(t*2)*.025,.84);
-  for(const x of [-.52,-.18,.22,.55]){const bob=Math.sin(t*7+x)*.05;limb(ctx,r*x,r*.38+bob,r*.82,x>0?.85:2.30,color,t*7+x,1.0);}
-  ctx.save();ctx.translate(r*.48,0);body(ctx,r*.50,color,0,.72);eye(ctx,r*.20,-r*.14,r*.15,color);eye(ctx,r*.20,r*.14,r*.15,color);ctx.restore();
-  for(const side of [-1,1]){wing(ctx,side*r*.10,-r*.48,r*.64,r*.24,side>0?-.75:-2.40,color,t*3);wing(ctx,side*r*.10,r*.48,r*.64,r*.24,side>0?.75:2.40,color,t*3+.7);}
-  core(ctx,-r*.28,0,r*.14,color);
+  for(const x of [-r*.34,r*.20]){
+    limb(ctx,x,-r*.43,r*.82,-.82,color,t*6+(x<0?0:1),.90);
+    limb(ctx,x, r*.43,r*.82, .82,color,t*6+(x<0?1:2),.90);
+  }
+  ctx.save();ctx.translate(r*.50,0);body(ctx,r*.50,color,0,.72);
+  eye(ctx,r*.20,-r*.14,r*.15,color);eye(ctx,r*.20,r*.14,r*.15,color);ctx.restore();
+  for(const side of [-1,1]){
+    wing(ctx,-r*.05,side*r*.50,r*.72,r*.25,side>0?.72:-.72,color,t*3+(side>0?0:.35));
+  }
+  core(ctx,-r*.30,0,r*.14,color);
 }
 function drawBroodMatriarchBoss(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
   bossFrame(ctx,r,color,t);body(ctx,r*1.0,color,Math.sin(t)*.02,.96);
-  for(let i=0;i<6;i++){const a=-1.25+i*.50;limb(ctx,Math.cos(a)*r*.42,Math.sin(a)*r*.34,r*1.12,a+Math.sin(t*3+i)*.14,color,t*3+i,1.0);}
+  for(const x of [-r*.34,r*.18]){
+    limb(ctx,x,-r*.42,r*1.00,-.82,color,t*3,.95);
+    limb(ctx,x, r*.42,r*1.00, .82,color,t*3+1,.95);
+  }
+  limb(ctx,-r*.18,-r*.46,r*.82,-1.05,color,t*3+2,.78);
+  limb(ctx,-r*.18, r*.46,r*.82, 1.05,color,t*3+3,.78);
   ctx.save();ctx.translate(r*.34,-r*.05);body(ctx,r*.52,color,-.05,.76);eye(ctx,r*.20,-r*.12,r*.14,color);eye(ctx,r*.20,r*.12,r*.14,color);ctx.restore();
   for(let i=0;i<5;i++){const a=t*.8+i*TAU/5,x=Math.cos(a)*r*1.10,y=Math.sin(a)*r*.72;ctx.save();ctx.translate(x,y);ctx.scale(.8+.15*Math.sin(t*3+i),1);body(ctx,r*.24,color,a,.9);eye(ctx,0,-r*.03,r*.055,color);ctx.restore();}
   core(ctx,-r*.20,r*.06,r*.13,color);
@@ -150,8 +200,12 @@ function drawAbyssalLeviathanBoss(ctx:CanvasRenderingContext2D,r:number,color:st
   bossFrame(ctx,r,color,t);
   for(let i=0;i<8;i++){const q=i/7,x=-r*.76+i*r*.22,y=Math.sin(t*2.0+i*.72)*r*.16;ctx.save();ctx.translate(x,y);body(ctx,r*(.50-.035*i),color,Math.sin(t+i)*.12,.70);ctx.restore();}
   ctx.save();ctx.translate(r*.54,0);body(ctx,r*.58,color,-.08,.68);eye(ctx,r*.22,-r*.16,r*.15,color);eye(ctx,r*.22,r*.16,r*.15,color);ctx.restore();
-  for(let i=0;i<5;i++){const a=t*.65+i*TAU/5;limb(ctx,-r*.10+Math.cos(a)*r*.35,Math.sin(a)*r*.25,r*.88,a+.75,color,t*2+i,.72);}
-  tail(ctx,-r*.75,0,r*1.0,color,t,8,.30);core(ctx,-r*.08,0,r*.12,color);
+  for(const x of [-r*.28,r*.10]){
+    limb(ctx,x,-r*.38,r*.82,-.92,color,t*2+(x<0?0:1),.70);
+    limb(ctx,x, r*.38,r*.82, .92,color,t*2+(x<0?1:2),.70);
+  }
+  tail(ctx,-r*.78,0,r*1.12,color,t,9,.16);
+  core(ctx,-r*.08,0,r*.12,color);
 }
 
 function creature(ctx:CanvasRenderingContext2D,r:number,color:string,t:number,variant:string):void{

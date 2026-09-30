@@ -3357,7 +3357,7 @@ function drawBossAttackTelegraph(
 
 function drawModernEnemy(ctx: CanvasRenderingContext2D, e: EnemyEntity, playerPos: { x: number; y: number }): void {
   const t=RENDER_TIME;
-  const facing=e.isBoss?0:getEnemyFacingAngle(e);
+  const facing=getEnemyFacingAngle(e);
   const color=e.freezeTimer>0?'#69d6ff':e.color;
   const hit=Math.max(0,Math.min(1,e.hitFlash/0.15));
   ctx.save();ctx.translate(e.pos.x,e.pos.y);ctx.rotate(facing);

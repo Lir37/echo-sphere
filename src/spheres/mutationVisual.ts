@@ -78,6 +78,31 @@ function emit(ctx:CanvasRenderingContext2D,r:number,c:string,t:number,branch:str
   else if(branch==='void_hunger'||branch==='void_reaper'||branch==='void_execution'){for(let i=0;i<4;i++){const a=t*.24+i*TAU/4;tether(ctx,Math.cos(a)*r*.3,Math.sin(a)*r*.2,Math.cos(a+.55)*r*(1.1+strength*.55),Math.sin(a+.55)*r*.65,r*.18,c,1.25,.30+.46*p,a);}if(branch==='void_reaper')fin(ctx,r*1.02,0,r*(.62+.18*p),r*.18,c,0,.8);else if(branch==='void_execution'){ctx.strokeStyle=c;ctx.lineWidth=1.25;ctx.globalAlpha=.4+.4*p;ctx.beginPath();ctx.moveTo(r*.8,-r*.28);ctx.lineTo(r*(1.55+.25*p),0);ctx.lineTo(r*.8,r*.28);ctx.stroke();}}
   ctx.restore();
 }
+function mutationSilhouette(ctx:CanvasRenderingContext2D,r:number,c:string,t:number,branch:string,final:number):void{
+  ctx.save();ctx.globalCompositeOperation='source-over';ctx.lineJoin='round';ctx.lineCap='round';
+  const pulse=.92+.08*Math.sin(t*2.4);
+  if(branch==='standard_resonator'){for(const y of [-1,1])fin(ctx,-r*.10,y*r*.62,r*.72,r*.16,c,y>0?.55:-.55,.70);arc(ctx,r*1.22,c,1.1,-.9,.9,.60);}
+  else if(branch==='standard_singularity'){arc(ctx,r*(1.16+final*.08),'#d8b9ff',1.4,.2,5.9,.72);for(const a of [-.55,.55])tether(ctx,Math.cos(a)*r*.92,Math.sin(a)*r*.52,0,0,r*.18,c,1.2,.55,a);}
+  else if(branch==='standard_swarm'){for(const y of [-1,1]){shard(ctx,r*1.02,y*r*.56,r*.18,c,y>0?.35:-.35,.78);shard(ctx,r*.72,y*r*.76,r*.13,c,y>0?.8:-.8,.64);}}
+  else if(branch==='sniper_oracle'){arc(ctx,r*1.18,'#f5ddff',1.5,-.95,.95,.82);for(const y of [-1,1])fin(ctx,r*.42,y*r*.30,r*.72,r*.13,c,y>0?.12:-.12,.88);ctx.strokeStyle='#f5ddff';ctx.lineWidth=1;ctx.globalAlpha=.78;ctx.beginPath();ctx.moveTo(r*.78,-r*.08);ctx.lineTo(r*1.72,0);ctx.lineTo(r*.78,r*.08);ctx.stroke();}
+  else if(branch==='sniper_assassin'){for(const y of [-1,1])fin(ctx,r*.40,y*r*.28,r*.82,r*.16,c,y>0?.34:-.34,.92);arc(ctx,r*1.42,c,1.1,-.42,.42,.70);}
+  else if(branch==='sniper_beacon'){for(const y of [-1,1])fin(ctx,-r*.18,y*r*.48,r*.58,r*.15,c,y>0?-.95:.95,.82);arc(ctx,r*1.34,c,1.3,-.65,.65,.72);arc(ctx,r*1.56,c,.8,-.28,.28,.55);}
+  else if(branch==='shotgun_burst'){for(const y of [-1,0,1]){const yy=y*r*.22;ctx.strokeStyle=c;ctx.lineWidth=2;ctx.globalAlpha=.78;ctx.beginPath();ctx.moveTo(r*.34,yy);ctx.lineTo(r*1.16,yy*(1+.08*final));ctx.stroke();}arc(ctx,r*1.26,c,1.2,-.42,.42,.55);}
+  else if(branch==='shotgun_cataclysm'){arc(ctx,r*1.30,'#ffd29c',2,-.34,.34,.86);for(const y of [-1,1])fin(ctx,r*.30,y*r*.32,r*.72,r*.18,c,y>0?.18:-.18,.90);ctx.fillStyle='rgba(255,169,77,.28)';ctx.beginPath();ctx.arc(r*1.30,0,r*(.18+.04*final),0,TAU);ctx.fill();}
+  else if(branch==='shotgun_hail'){for(let i=0;i<5;i++){const y=(i-2)*r*.24;shard(ctx,r*(.78+.06*(i%2)),y,r*.12,c,0,.72);}arc(ctx,r*1.12,c,1,-.72,.72,.56);}
+  else if(branch==='chain_web'){for(const y of [-1,1])tether(ctx,-r*.25,y*r*.20,r*1.10,y*r*.72,r*.18,c,1.1,.62,y*.8);arc(ctx,r*1.15,c,1,-.9,.9,.58);}
+  else if(branch==='chain_storm'){for(let i=0;i<5;i++){const a=-.8+i*.4;shard(ctx,r*(.86+.12*(i%2)),Math.sin(a)*r*.55,r*.12,c,a,.72);}}
+  else if(branch==='chain_leech'){for(const y of [-1,1])fin(ctx,r*.15,y*r*.45,r*.62,r*.16,c,y>0?.7:-.7,.76);arc(ctx,r*1.12,c,1,-1,1,.58);}
+  else if(branch.startsWith('aura_')){arc(ctx,r*(1.18+final*.08),c,1.5,-Math.PI*.82,Math.PI*.82,.70);for(const y of [-1,1])tether(ctx,0,y*r*.20,r*.96,y*r*.66,r*.16,c,1,.48,y*.7);}
+  else if(branch.startsWith('orbital_')){const n=final===2?5:4;for(let i=0;i<n;i++){const a=t*(branch==='orbital_dance'?1.4:.55)+i*TAU/n;shard(ctx,Math.cos(a)*r*1.18,Math.sin(a)*r*.72,r*.13,c,a,.74);}}
+  else if(branch.startsWith('prism_')){const n=branch==='prism_spectrum'?5:branch==='prism_split'?3:2;for(let i=0;i<n;i++)shard(ctx,r*1.12,(i-(n-1)/2)*r*.28,r*.12,c,0,.74);}
+  else if(branch.startsWith('gravity_')){arc(ctx,r*(1.12+final*.10),c,1.25,0,TAU,.64);for(let i=0;i<3;i++)tether(ctx,r*.18,0,r*(.72+i*.18),0,r*.10,c,1,.46,t+i);}
+  else if(branch.startsWith('pulse_')){const lobes=branch==='pulse_resonator'?8:branch==='pulse_wave'?6:5;ctx.strokeStyle=c;ctx.lineWidth=1.25;ctx.globalAlpha=.62;ctx.beginPath();for(let i=0;i<=36;i++){const a=i/36*TAU,rr=r*(1.02+.12*Math.sin(a*lobes+t*2.4)),x=Math.cos(a)*rr,y=Math.sin(a)*rr*.54;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}ctx.stroke();}
+  else if(branch.startsWith('void_')){for(const y of [-1,1])fin(ctx,r*.36,y*r*.24,r*.72,r*.18,c,y>0?.22:-.22,.78);arc(ctx,r*(1.15+final*.08),c,1.2,.15,TAU-.15,.64);}
+  if(final>=0){const fs=1+final*.08;ctx.globalAlpha=.42;ctx.strokeStyle=c;ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(r*.92,0,r*.30*fs,r*.62*fs,0,0,TAU);ctx.stroke();ctx.globalAlpha=.9;const a=t*(.35+final*.08);shard(ctx,r*1.20*Math.cos(a),r*.72*Math.sin(a),r*.11,c,a,.76);}
+  ctx.globalAlpha=pulse;ctx.restore();
+}
+
 function emitter(ctx:CanvasRenderingContext2D,r:number,c:string,t:number,branch:string,final:number):void{
   if(!sphereUsesProjectileModifiers(branch.split('_')[0] as SphereType))return;
   ctx.save();ctx.translate(r*1.03,0);ctx.globalAlpha=.86;ctx.strokeStyle=c;ctx.fillStyle='rgba(5,11,19,.96)';ctx.lineWidth=1.05;
@@ -109,7 +134,10 @@ export function renderSphereMutationVfx(ctx:CanvasRenderingContext2D,sphere:Sphe
   const branch=branchOf(player,sphere.type);if(!branch)return;
   const final=finalOf(player,sphere.type),r=24*scale,c=SPHERE_TYPES[sphere.type].color;
   ctx.save();ctx.translate(sphere.pos.x,sphere.pos.y);glow(ctx,r*1.75,c,.055);
-  emitter(ctx,r,c,time,branch,final);emit(ctx,r,c,time,branch,final,sphere);
+  // Mutation silhouette is persistent. Attack emitters are transient accents only.
+  mutationSilhouette(ctx,r,c,time,branch,final);
+  emitter(ctx,r,c,time,branch,final);
+  emit(ctx,r,c,time,branch,final,sphere);
   ctx.restore();
 }
 export function renderSphereProjectileVfx(ctx:CanvasRenderingContext2D,p:SphereProjectile,player:PlayerState,time:number):void{

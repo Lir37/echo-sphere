@@ -180,3 +180,20 @@ test('Temporary QA level-up control is wired through the engine facade',()=>{con
 
 
 test('Standard Sphere keeps its physical cannon inside the authored assembly',()=>{const c=read('src/renderer.ts');assert.ok(c.includes("Standard's physical weapon socket"));assert.ok(c.includes('cannonAngle'));assert.ok(c.includes('cannonX'));assert.ok(c.includes('roundRect(-r * 0.12'));});
+
+test('Enemy anatomy keeps tails rear, limbs paired on body sides, and boss facing follows travel',()=>{
+  const c=read('src/enemies/enemyVisual.ts'),r=read('src/renderer.ts');
+  assert.match(c,/Tail is anchored to the rear/);
+  assert.match(c,/for\(const x of \[-r\*\.30,r\*\.18\]\)/);
+  assert.match(c,/for\(const x of \[-r\*\.34,r\*\.20\]\)/);
+  assert.match(c,/Controlled two-joint limb/);
+  assert.equal(r.includes('const facing=e.isBoss?0:getEnemyFacingAngle(e);'),false);
+  assert.ok(r.includes('const facing=getEnemyFacingAngle(e);'));
+});
+test('Level 7 mutation visuals stay persistent between attacks and differ by branch',()=>{
+  const c=read('src/spheres/mutationVisual.ts');
+  assert.ok(c.includes('function mutationSilhouette'));
+  assert.ok(c.includes('mutationSilhouette(ctx,r,c,time,branch,final);'));
+  for(const token of ['sniper_oracle','sniper_assassin','sniper_beacon','shotgun_burst','shotgun_cataclysm','shotgun_hail']) assert.ok(c.includes(token),token);
+  assert.ok(c.includes('Mutation silhouette is persistent'));
+});
