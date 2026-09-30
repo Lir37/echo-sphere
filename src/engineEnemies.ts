@@ -46,7 +46,7 @@ export function spawnEnemy(s: GameState, isBoss: boolean): EnemyEntity {
       pos: { x: px, y: py },
       hp, maxHp: hp,
       speed: baseSpeed * diff.enemySpeedMult,
-      radius: 42,
+      radius: 34,
       damage: (BALANCE.bossDamageBase + wave * BALANCE.bossDamagePerWave) * diff.enemyDamageMult,
       type: 'boss',
       color: bdef.color,
@@ -77,13 +77,13 @@ export function spawnEnemy(s: GameState, isBoss: boolean): EnemyEntity {
   let type: EnemyEntity['type'] = 'normal';
   let hp = (BALANCE.normalHpBase + wave * BALANCE.normalHpPerWave) * diff.enemyHpMult;
   let speed = (BALANCE.normalSpeedBase + wave * BALANCE.normalSpeedPerWave) * diff.enemySpeedMult;
-  let radius = 14;
+  let radius = 19;
   let dmg = (BALANCE.normalDamageBase + wave * BALANCE.normalDamagePerWave) * diff.enemyDamageMult;
   let color = '#4a7a8a';
   let shape: EnemyEntity['shape'] = 'circle';
   let visualVariant: EnemyEntity['visualVariant'] = 'wisp';
-  if (r < 0.2 && wave > 2) { type = 'fast'; hp = (BALANCE.fastHpBase + wave * BALANCE.fastHpPerWave) * diff.enemyHpMult; speed = (BALANCE.fastSpeedBase + wave * BALANCE.fastSpeedPerWave) * diff.enemySpeedMult; radius = 10; dmg = (BALANCE.fastDamageBase + wave * BALANCE.fastDamagePerWave) * diff.enemyDamageMult; color = '#d4a830'; shape = 'triangle'; const variants: EnemyEntity['visualVariant'][] = ['moth','skitter','stalker']; visualVariant = variants[Math.floor(nextRandom(s) * variants.length)]; }
-  else if (r < 0.35 && wave > 4) { type = 'tank'; hp = (BALANCE.tankHpBase + wave * BALANCE.tankHpPerWave) * diff.enemyHpMult; speed = (BALANCE.tankSpeedBase + wave * BALANCE.tankSpeedPerWave) * diff.enemySpeedMult; radius = 20; dmg = (BALANCE.tankDamageBase + wave * BALANCE.tankDamagePerWave) * diff.enemyDamageMult; color = '#8a5a8a'; shape = 'square'; const variants: EnemyEntity['visualVariant'][] = ['beetle','brute','prism']; visualVariant = variants[Math.floor(nextRandom(s) * variants.length)]; }
+  if (r < 0.2 && wave > 2) { type = 'fast'; hp = (BALANCE.fastHpBase + wave * BALANCE.fastHpPerWave) * diff.enemyHpMult; speed = (BALANCE.fastSpeedBase + wave * BALANCE.fastSpeedPerWave) * diff.enemySpeedMult; radius = 15; dmg = (BALANCE.fastDamageBase + wave * BALANCE.fastDamagePerWave) * diff.enemyDamageMult; color = '#d4a830'; shape = 'triangle'; const variants: EnemyEntity['visualVariant'][] = ['moth','skitter','stalker']; visualVariant = variants[Math.floor(nextRandom(s) * variants.length)]; }
+  else if (r < 0.35 && wave > 4) { type = 'tank'; hp = (BALANCE.tankHpBase + wave * BALANCE.tankHpPerWave) * diff.enemyHpMult; speed = (BALANCE.tankSpeedBase + wave * BALANCE.tankSpeedPerWave) * diff.enemySpeedMult; radius = 26; dmg = (BALANCE.tankDamageBase + wave * BALANCE.tankDamagePerWave) * diff.enemyDamageMult; color = '#8a5a8a'; shape = 'square'; const variants: EnemyEntity['visualVariant'][] = ['beetle','brute','prism']; visualVariant = variants[Math.floor(nextRandom(s) * variants.length)]; }
   else { const variants: EnemyEntity['visualVariant'][] = ['wisp','leech','serpent','stalker','prism']; visualVariant = variants[Math.floor(nextRandom(s) * variants.length)]; }
   // elite chance: 5% after wave 5, scales up
   const baseType = type;

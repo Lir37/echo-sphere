@@ -3065,3 +3065,14 @@ CI #1034: SUCCESS
 APK PlayerCheck remains mandatory. Inspect enemy/boss visual quality, mutation
 readability and distinctiveness, per-Sphere attack animation, projectile changes,
 push-button/emitter changes, and modifier icon applicability at real gameplay scale.
+
+
+======================================================================
+[2026-09-30] ENEMY ARTICULATION / BOSS PROJECTILE / QA LEVEL PASS
+======================================================================
+[DONE] Enemy and boss renderer now uses separated articulated elements with independently animated limbs, wings, tails and tendrils.
+[DONE] Normal/fast/tank visual radii increased to 19 / 15 / 26; boss radius reduced to 34.
+[DONE] Boss projectiles now use boss-family-specific bodies, internal effects and directional trails.
+[DONE] Added temporary LVL + QA control beneath the top-right HUD, using the normal level-up choice flow.
+[UNCHANGED] Combat behavior, boss attack timing and Sphere mechanics.
+[GATE] CI + APK PlayerCheck, with special attention to anatomy, locomotion, boss detail and projectile readability.

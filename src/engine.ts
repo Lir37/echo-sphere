@@ -39,7 +39,7 @@ export {
 export { getMoveSpeed, getXpMult, getMagnetRadius } from './engineStats';
 
 export {
-  claimStella, applyArtifact, update, activateDash,
+  claimStella, applyArtifact, update, activateDash, debugLevelUp,
 } from './engineLoop';
 
 import {

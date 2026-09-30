@@ -46,6 +46,17 @@ export function claimStella(s: GameState): void {
 }
 
 
+export function debugLevelUp(s: GameState): void {
+  if (s.gameOver || s.paused || s.pendingUpgrade || s.pendingArtifact || s.pendingStella) return;
+  s.player.level += 1;
+  s.player.maxHp += BALANCE.hpPerLevel;
+  s.player.hp = Math.min(s.player.maxHp, s.player.hp + BALANCE.hpPerLevel);
+  s.player.xp = 0;
+  s.player.xpToNext = getXpToNextLevel(s.player.level);
+  s.pendingUpgrade = generateUpgradeChoices(s);
+  playSound('levelup');
+}
+
 export function applyArtifact(s: GameState, id: ArtifactId): void {
   if (s.player.artifacts.includes(id)) return;
   s.player.artifacts.push(id);

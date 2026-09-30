@@ -497,3 +497,13 @@ CI #1034: SUCCESS
 
 [GATE]
 Human APK PlayerCheck remains the final visual-quality acceptance step.
+
+
+======================================================================
+[2026-09-30] ENEMY ARTICULATION / QA TOOLING PASS
+======================================================================
+[DONE] Enemy and boss bodies use separated articulated render elements with independent motion phases.
+[DONE] Normal enemies enlarged for readability; bosses slightly reduced.
+[DONE] Boss projectiles have family-specific visual treatments and trails.
+[DONE] Temporary LVL + QA control added under the top-right HUD.
+[GATE] APK PlayerCheck remains mandatory.

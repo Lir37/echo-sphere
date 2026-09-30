@@ -10,7 +10,7 @@ import {
   createInitialState, update,
   generateUpgradeChoices, applyUpgrade, applyArtifact,
   getMaxSpheres, getMoveSpeed, getSphereRadius, getSphereDamage, getSphereDelay, getSphereDpsEstimate,
-  getCritChance, getDodgeChance, getVampirePercent,
+  getCritChance, getDodgeChance, getVampirePercent, debugLevelUp,
   type GameState, type ShopState, type LeaderEntry, type UpgradeChoice,
   MAP_THEMES, type MapTheme,
 } from './engine';
@@ -290,6 +290,9 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
       {st && !gameOverData && (
         <>
           <Hud lang={lang} t={t} st={st} />
+          <button type="button" onClick={() => debugLevelUp(st)} disabled={Boolean(st.pendingUpgrade || st.pendingArtifact || st.pendingStella || st.paused || st.gameOver)}
+            className="absolute top-[88px] right-3 z-40 pointer-events-auto rounded-md border border-[#ffb84d]/50 bg-[#0b1422]/90 px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-[#ffcf7a] shadow-lg disabled:opacity-30"
+            title="Temporary QA level-up">LVL +</button>
           <MobileControls
             lang={lang}
             t={t}

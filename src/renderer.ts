@@ -471,7 +471,7 @@ function drawRune(ctx: CanvasRenderingContext2D, rune: GameState['runes'][number
   drawCharacterTargetIndicators(ctx, s);
 
   // boss projectiles
-  for (const e of s.enemies) for (const bp of e.bossProjectiles) drawBossProjectile(ctx, bp.pos.x, bp.pos.y, bp.radius, e.color);
+  for (const e of s.enemies) for (const bp of e.bossProjectiles) drawBossProjectile(ctx, bp.pos.x, bp.pos.y, bp.radius, e.color, e.bossType, bp.vel);
 
 
   // particles
@@ -3411,12 +3411,30 @@ function drawModernBossBody(ctx:CanvasRenderingContext2D,e:EnemyEntity,color:str
 
 }
 
-function drawBossProjectile(ctx:CanvasRenderingContext2D,x:number,y:number,r:number,color:string):void{
-  const t=RENDER_TIME,rgb=hexToRgb(color);
-  ctx.save();ctx.translate(x,y);ctx.rotate(t*1.8);ctx.globalCompositeOperation='source-over';ctx.shadowColor=color;ctx.shadowBlur=3;
-  ctx.fillStyle='#06101c';ctx.strokeStyle=`rgba(${rgb},.92)`;ctx.lineWidth=Math.max(1,r*.11);
-  ctx.beginPath();for(let i=0;i<8;i++){const a=i*Math.PI/4,rr=i%2===0?r*1.45:r*.82;const px=Math.cos(a)*rr,py=Math.sin(a)*rr;if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);}ctx.closePath();ctx.fill();ctx.stroke();
-  ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(0,0,r*.38,0,Math.PI*2);ctx.fill();ctx.fillStyle=color;ctx.beginPath();ctx.arc(0,0,r*.26,0,Math.PI*2);ctx.fill();ctx.restore();
+function drawBossProjectile(ctx:CanvasRenderingContext2D,x:number,y:number,r:number,color:string,bossType:string,vel:{x:number;y:number}):void{
+  const t=RENDER_TIME,a=Math.atan2(vel.y,vel.x),rgb=hexToRgb(color);
+  ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.globalCompositeOperation='source-over';
+  ctx.strokeStyle=`rgba(${rgb},.20)`;ctx.lineWidth=Math.max(2,r*.45);ctx.beginPath();ctx.moveTo(-r*3.8,0);ctx.lineTo(-r*.35,0);ctx.stroke();
+  ctx.strokeStyle='rgba(245,252,255,.65)';ctx.lineWidth=Math.max(.6,r*.08);ctx.beginPath();ctx.moveTo(-r*3.2,0);ctx.lineTo(-r*.4,0);ctx.stroke();
+  if(bossType==='shooter'){
+    ctx.fillStyle='#06101c';ctx.strokeStyle=`rgba(${rgb},.95)`;ctx.lineWidth=Math.max(1,r*.10);
+    ctx.beginPath();ctx.moveTo(r*1.35,0);ctx.lineTo(r*.25,-r*.75);ctx.lineTo(-r*.8,-r*.42);ctx.lineTo(-r*.45,r*.42);ctx.lineTo(r*.25,r*.75);ctx.closePath();ctx.fill();ctx.stroke();
+    for(let i=0;i<3;i++){const q=t*4+i*2.1;ctx.strokeStyle=`rgba(${rgb},.55)`;ctx.beginPath();ctx.arc(0,0,r*(1.05+i*.18),q,q+1.1);ctx.stroke();}
+  }else if(bossType==='charger'){
+    ctx.fillStyle='#130b06';ctx.strokeStyle=`rgba(${rgb},.95)`;ctx.lineWidth=Math.max(1,r*.11);
+    ctx.beginPath();ctx.moveTo(r*1.5,0);ctx.lineTo(-r*.45,-r*.62);ctx.lineTo(-r*.95,0);ctx.lineTo(-r*.45,r*.62);ctx.closePath();ctx.fill();ctx.stroke();
+    for(const sy of [-1,1]){ctx.strokeStyle='rgba(255,232,190,.72)';ctx.beginPath();ctx.moveTo(-r*.1,sy*r*.25);ctx.lineTo(r*.9,sy*r*.55);ctx.stroke();}
+  }else if(bossType==='summoner'){
+    ctx.fillStyle='#0c0717';ctx.strokeStyle=`rgba(${rgb},.95)`;ctx.lineWidth=Math.max(1,r*.10);
+    ctx.beginPath();ctx.arc(0,0,r*.65,0,TAU);ctx.fill();ctx.stroke();
+    for(let i=0;i<5;i++){const q=t*2.6+i*TAU/5;const px=Math.cos(q)*r*1.15,py=Math.sin(q)*r*1.15;ctx.fillStyle='#d9c7ff';ctx.beginPath();ctx.arc(px,py,r*.12,0,TAU);ctx.fill();ctx.strokeStyle=`rgba(${rgb},.6)`;ctx.stroke();}
+  }else{
+    ctx.fillStyle='#120511';ctx.strokeStyle=`rgba(${rgb},.95)`;ctx.lineWidth=Math.max(1,r*.10);
+    ctx.beginPath();ctx.arc(0,0,r*.72,0,TAU);ctx.fill();ctx.stroke();
+    for(let i=0;i<4;i++){const q=t*3+i*TAU/4;ctx.strokeStyle=`rgba(${rgb},.68)`;ctx.beginPath();ctx.arc(0,0,r*(.95+i*.22),q,q+1.0);ctx.stroke();}
+  }
+  ctx.globalCompositeOperation='lighter';ctx.fillStyle=`rgba(${rgb},.65)`;ctx.beginPath();ctx.arc(r*.35,0,r*.22*(1+.12*Math.sin(t*10)),0,TAU);ctx.fill();
+  ctx.restore();
 }
 
 function drawLightning(ctx: CanvasRenderingContext2D, from: { x: number; y: number }, to: { x: number; y: number }): void {
