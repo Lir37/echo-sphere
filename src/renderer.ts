@@ -20,6 +20,7 @@ import { renderGravitySphereRuntimeVfx } from './spheres/gravityVisual';
 import { renderPulseSphereRuntimeVfx } from './spheres/pulseVisual';
 import { renderVoidSphereRuntimeVfx } from './spheres/voidVisual';
 import { renderSphereModifierVfx } from './spheres/modifierVisual';
+import { drawEnemyCreature, drawBossCreature } from './enemies/enemyVisual';
 
 // ===== Origami / Paper Craft Style =====
 // Warm backgrounds, faceted folded-paper shapes, fold lines, drop shadows.
@@ -37,7 +38,6 @@ type ArtKey =
   | 'sphere-standard-upper-crystal' | 'sphere-standard-core' | 'sphere-standard-ring' | 'sphere-standard-lower-crystal'
   | 'sphere-sniper' | 'sphere-shotgun' | 'sphere-chain' | 'sphere-aura'
   | 'sphere-prism' | 'sphere-gravity' | 'sphere-pulse' | 'sphere-void'
-  | 'enemy-skitter' | 'enemy-fast' | 'enemy-tank' | 'enemy-moth'
   | 'boss';
 
 const ART_PATHS: Record<ArtKey, string> = {
@@ -60,10 +60,6 @@ const ART_PATHS: Record<ArtKey, string> = {
   'sphere-gravity': '/art/gravity.svg',
   'sphere-pulse': '/art/pulse.svg',
   'sphere-void': '/art/void.svg',
-  'enemy-skitter': '/art/enemy-skitter.svg',
-  'enemy-fast': '/art/enemy-fast.svg',
-  'enemy-tank': '/art/enemy-tank.svg',
-  'enemy-moth': '/art/enemy-moth.svg',
   boss: '/art/boss.svg',
 };
 
@@ -3726,9 +3722,9 @@ function drawModernEnemy(ctx: CanvasRenderingContext2D, e: EnemyEntity, playerPo
   glowCircle(ctx,e.radius*(e.isBoss?1.65:1.15),color,e.isBoss?.21:.10);
   if(e.isBoss){
     drawBossAttackTelegraph(ctx,e,playerPos,t);
-    drawModernBossBody(ctx,e,color,t);
+    drawBossCreature(ctx,e,t);
   } else {
-    drawEnemySilhouette(ctx,e,color,t);
+    drawEnemyCreature(ctx,e,t);
     if(e.isElite) drawEliteCrest(ctx,e,t);
     if(e.tier>0){
       ctx.save();ctx.translate(0,-e.radius*1.55);ctx.rotate(t*.35);

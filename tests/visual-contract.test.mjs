@@ -122,3 +122,23 @@ test('Orbital combat speed and Blade mutation are explicit',()=>{
   assert.match(c,/drawSatellite\(ctx, x, y, r \* \.20, color, depth, a, bladeMutation\)/);
   assert.match(c,/ctx\.lineTo\(size \* \.78, 0\)/);
 });
+
+test('Enemy production renderer uses creature families and boss-specific bodies',()=>{
+  const c=read('src/enemies/enemyVisual.ts');
+  for(const token of ['drawVeilJelly','drawLeech','drawSerpent','drawSkitter','drawMoth','drawBeetle','drawBrute','drawPrismHound','drawStalker']) assert.ok(c.includes(token),token);
+  for(const token of ['drawVoidLancer','drawDreadCharger','drawBroodMatriarch','drawAbyssalLeviathan']) assert.ok(c.includes(token),token);
+});
+
+test('Modern renderer delegates enemy bodies to the dedicated production layer',()=>{
+  const c=read('src/renderer.ts');
+  assert.ok(c.includes("from './enemies/enemyVisual'"));
+  assert.ok(c.includes('drawEnemyCreature(ctx,e,t);'));
+  assert.ok(c.includes('drawBossCreature(ctx,e,t);'));
+  assert.equal(c.includes('drawEnemySilhouette(ctx,e,color,t);'),false);
+  assert.equal(c.includes('drawModernBossBody(ctx,e,color,t);'),false);
+});
+
+test('Enemy visual variants are seeded and creature-diverse by role',()=>{
+  const c=read('src/engineEnemies.ts');
+  for(const token of ['moth','skitter','stalker','beetle','brute','prism','wisp','leech','serpent']) assert.ok(c.includes("'"+token+"'"),token);
+});

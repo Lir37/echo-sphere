@@ -134,7 +134,7 @@ export interface EnemyEntity {
   damage: number;
   type: 'normal' | 'fast' | 'tank' | 'elite' | 'boss';
   /** Presentation-only silhouette variant. Does not affect combat rules. */
-  visualVariant?: 'wisp' | 'skitter' | 'moth' | 'beetle' | 'brute' | 'prism' | 'linkbreaker';
+  visualVariant?: 'wisp' | 'skitter' | 'moth' | 'beetle' | 'brute' | 'prism' | 'linkbreaker' | 'serpent' | 'leech' | 'stalker';
   color: string;
   shape: 'circle' | 'square' | 'triangle' | 'hexagon';
   slowTimer: number;
