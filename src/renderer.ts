@@ -2245,6 +2245,48 @@ function drawEnemyStatusVfx(ctx: CanvasRenderingContext2D, e: EnemyEntity, t: nu
 }
 
 
+function drawStandardAttackVfx(ctx: CanvasRenderingContext2D, sphere: SphereEntity, r: number, time: number): void {
+  const charge = Math.max(0, Math.min(1, 1 - sphere.attackTimer / 1.2));
+  if (charge < 0.04) return;
+  const dir = sphere.rotation || 0;
+  const reach = r * (1.02 + charge * 0.84);
+  const color = '#63e6ff';
+
+  ctx.save();
+  ctx.translate(sphere.pos.x, sphere.pos.y);
+  ctx.rotate(dir);
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.globalAlpha = .20 + charge * .24;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1.35 + charge * .45;
+  ctx.beginPath();
+  ctx.moveTo(reach * .68, -r * .18);
+  ctx.quadraticCurveTo(reach * .90, -r * .32, reach, -r * .08);
+  ctx.quadraticCurveTo(reach * 1.08, 0, reach, r * .08);
+  ctx.quadraticCurveTo(reach * .90, r * .32, reach * .68, r * .18);
+  ctx.stroke();
+
+  ctx.globalAlpha = .34 + charge * .32;
+  ctx.beginPath();
+  ctx.moveTo(reach * .74, -r * .13);
+  ctx.quadraticCurveTo(reach * .94, 0, reach * 1.02, -r * .03);
+  ctx.quadraticCurveTo(reach * 1.10, 0, reach * 1.02, r * .03);
+  ctx.quadraticCurveTo(reach * .94, 0, reach * .74, r * .13);
+  ctx.stroke();
+
+  ctx.globalAlpha = .24 + charge * .28;
+  ctx.beginPath();
+  ctx.arc(reach, 0, r * (.15 + charge * .08), -Math.PI * .72, Math.PI * .72);
+  ctx.stroke();
+
+  ctx.globalAlpha = .72 + charge * .18;
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.arc(reach * .98, 0, r * (.065 + charge * .035), 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
 function drawModernSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: SphereEntity, time: number): void {
   const def = SPHERE_TYPES[sphere.type];
   const r = Math.max(15, Math.min(25, sphere.radius * 0.19 + (sphere.visualTier || 0) * 0.8));
@@ -2264,6 +2306,7 @@ function drawModernSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: S
       ctx.restore();
     }
     renderSphereMutationVfx(ctx, sphere, s.player, time, scale);
+    drawStandardAttackVfx(ctx, sphere, r, time);
     renderSphereModifierVfx(ctx, sphere, s.player, time, scale);
     drawNetworkDisabledIndicator(ctx, sphere, time);
     return;
