@@ -30,7 +30,7 @@ export function renderAuraSphereRuntimeVfx(
 ): void {
   const st = stateColor(sphere, player, '#57e6b4', time);
   const r = 24 * scale;
-  const coreR = r * .68;
+  const coreR = r;
   ctx.save();
   ctx.translate(sphere.pos.x, sphere.pos.y);
   ctx.globalCompositeOperation = 'lighter';
