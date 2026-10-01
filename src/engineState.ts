@@ -173,6 +173,7 @@ export function createInitialState(
     gameOver: false,
     pendingUpgrade: null,
     levelUpPity: { ability: 0, sphere: 0 },
+    levelUpRerollsRemaining: 1,
     recentUpgradeKeys: [],
     pendingArtifact: null,
     pendingStella: false,
