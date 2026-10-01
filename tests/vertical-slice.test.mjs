@@ -72,3 +72,10 @@ test('Boss roster contains the eight Blueprint families and preserves the four l
     assert.match(source, new RegExp(`['"]${id}['"]`));
   }
 });
+
+
+test('Enemy roster contains fifteen authored roles', async () => {
+  const source = await fs.readFile(new URL('../src/engineTypes.ts', import.meta.url), 'utf8');
+  const roles = ['grunt', 'swarmer', 'charger', 'tank_guard', 'ranged', 'splitter', 'healer', 'bomber', 'leech', 'sniper', 'disruptor', 'anchor', 'phase', 'scavenger', 'corruptor'];
+  for (const role of roles) assert.match(source, new RegExp(`['"]${role}['"]`));
+});
