@@ -179,7 +179,7 @@ test('Renderer composes mutation and projectile-specific attack visuals',()=>{
 });
 
 
-test('Enemy creatures are composed from articulated moving sub-elements',()=>{const c=read('src/enemies/enemyVisual.ts');for(const token of ['function joint','function seg','function limb','function tail','function wing'])assert.ok(c.includes(token),token);assert.match(c,/Math\.sin\(phase\)/);assert.match(c,/Math\.sin\(t\*3\.0/);});
+test('Enemy creatures are composed from articulated moving sub-elements',()=>{const c=read('src/enemies/enemyVisual.ts');for(const token of ['function joint','function seg','function articulatedLeg','function pairedLegs','function tail','function wing'])assert.ok(c.includes(token),token);assert.match(c,/Math\.sin\(phase\)/);assert.match(c,/Math\.sin\(t\*3\.0/);});
 test('Enemy and boss gameplay-scale sizes follow the visual readability pass',()=>{const c=read('src/engineEnemies.ts');assert.ok(c.includes('let radius = 19;'));assert.ok(c.includes('radius = 15;'));assert.ok(c.includes('radius = 26;'));assert.ok(c.includes('radius: 34,'));});
 test('Boss projectile renderer has boss-specific visual families and trails',()=>{const c=read('src/renderer.ts');assert.ok(c.includes('function drawBossProjectile('));for(const token of ["bossType==='shooter'","bossType==='charger'","bossType==='summoner'"])assert.ok(c.includes(token),token);assert.ok(c.includes('bp.vel'));assert.ok(c.includes('r*3.8'));});
 test('Temporary QA level-up control is wired through the engine facade',()=>{const app=read('src/App.tsx'),eng=read('src/engine.ts'),loop=read('src/engineLoop.ts');assert.ok(app.includes('debugLevelUp(st)'));assert.ok(app.includes('LVL +'));assert.ok(eng.includes('debugLevelUp'));assert.ok(loop.includes('export function debugLevelUp'));assert.ok(loop.includes('s.player.level += 1'));});
@@ -187,10 +187,10 @@ test('Temporary QA level-up control is wired through the engine facade',()=>{con
 
 test('Enemy anatomy keeps tails rear, limbs paired on body sides, and boss facing follows travel',()=>{
   const c=read('src/enemies/enemyVisual.ts'),r=read('src/renderer.ts');
-  assert.match(c,/Tail is anchored to the rear/);
-  assert.match(c,/for\(const x of \[-r\*\.30,r\*\.18\]\)/);
-  assert.match(c,/for\(const x of \[-r\*\.34,r\*\.20\]\)/);
-  assert.match(c,/Controlled two-joint limb/);
+  assert.match(c,/Tail origin is explicitly at the rear/);
+  assert.ok(c.includes('pairedLegs(ctx,r,[-.30,.18],.34,.62'));
+  assert.ok(c.includes('pairedLegs(ctx,r,[-.34,.20],.35,.82'));
+  assert.match(c,/hip\/knee\/ankle\/foot kinematics|hip\/knee\/ankle/);
   assert.equal(r.includes('const facing=e.isBoss?0:getEnemyFacingAngle(e);'),false);
   assert.ok(r.includes('const facing=getEnemyFacingAngle(e);'));
 });
