@@ -62,7 +62,7 @@ export function spawnEnemy(s: GameState, isBoss: boolean): EnemyEntity {
   if (isBoss) {
     const hp = (BALANCE.bossHpBase + wave * BALANCE.bossHpPerWave) * diff.enemyHpMult;
     // pick boss type based on boss count
-    const bossTypes: BossType[] = ['shooter', 'charger', 'summoner', 'aura'];
+    const bossTypes: BossType[] = ['shooter', 'charger', 'summoner', 'aura', 'conductor', 'architect', 'null', 'stella_warden'];
     const bt = bossTypes[s.bossDefeated % bossTypes.length];
     const bdef = BOSS_TYPES[bt];
     const baseSpeed = bt === 'charger'
@@ -96,7 +96,15 @@ export function spawnEnemy(s: GameState, isBoss: boolean): EnemyEntity {
       summonTimer: 4,
       auraRadius: bt === 'aura' ? 120 : 0,
       auraDps: bt === 'aura' ? 10 + wave * 2 : 0,
-      visualVariant: bt === 'charger' ? 'brute' : bt === 'summoner' ? 'prism' : bt === 'aura' ? 'wisp' : 'beetle',
+      visualVariant:
+        bt === 'charger' ? 'brute'
+          : bt === 'summoner' ? 'prism'
+            : bt === 'aura' ? 'wisp'
+              : bt === 'conductor' ? 'serpent'
+                : bt === 'architect' ? 'prism'
+                  : bt === 'null' ? 'leech'
+                    : bt === 'stella_warden' ? 'moth'
+                      : 'beetle',
     };
   }
   const r = nextRandom(s);
