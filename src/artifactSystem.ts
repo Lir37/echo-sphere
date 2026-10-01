@@ -330,6 +330,30 @@ export const ARTIFACT_PROTOCOLS: ArtifactProtocol[] = [
     desc: { ru: 'Даёт дополнительный импульс урона во время активной серии убийств.', en: 'Adds a damage pulse during an active kill streak.' },
     requires: ['singularity_path'],
   },
+  {
+    id: 'geometry_circuit',
+    kind: 'event',
+    setId: 'geometry_craft',
+    name: { ru: 'Контур геометрии', en: 'Geometry Circuit' },
+    desc: { ru: 'Усиливает билд при активной Ring, Lattice или Fractal геометрии.', en: 'Empowers the build while Ring, Lattice or Fractal geometry is active.' },
+    requires: ['geometry_craft'],
+  },
+  {
+    id: 'void_horizon_protocol',
+    kind: 'event',
+    setId: 'void_horizon',
+    name: { ru: 'Протокол Пустоты', en: 'Void Horizon Protocol' },
+    desc: { ru: 'Активируется, когда Void-билд встречает элиту или босса.', en: 'Activates when a Void build has an Elite or Boss target.' },
+    requires: ['void_horizon'],
+  },
+  {
+    id: 'temporal_fold_protocol',
+    kind: 'event',
+    setId: 'temporal_fold',
+    name: { ru: 'Временной сгиб', en: 'Temporal Fold Protocol' },
+    desc: { ru: 'Активируется во время локального эффекта контроля времени.', en: 'Activates during a local time-control effect.' },
+    requires: ['temporal_fold'],
+  },
 ];
 
 export interface ArtifactProtocolState extends ArtifactProtocol {
@@ -342,11 +366,23 @@ function protocolSetComplete(s: { player: { artifacts: ArtifactId[] } }, setId: 
 }
 
 export function getArtifactProtocolStates(s: {
-  player: { artifacts: ArtifactId[]; combo: number };
+  player: {
+    artifacts: ArtifactId[];
+    combo: number;
+    resonanceGeometryKey?: string;
+    timestopTimer?: number;
+    teleportDamageBuffTimer?: number;
+  };
   spheres?: Array<{ type: string; alive?: boolean; pos: { x: number; y: number } }>;
+  enemies?: Array<{ isElite?: boolean; isBoss?: boolean; hp: number }>;
 }): ArtifactProtocolState[] {
   const sphereTypes = new Set((s.spheres || []).filter((x) => x.alive !== false).map((x) => x.type));
-  const triangle = (s.spheres || []).filter((x) => x.alive !== false).length >= 3;
+  const livingSpheres = (s.spheres || []).filter((x) => x.alive !== false);
+  const triangle = livingSpheres.length >= 3;
+  const geometry = String(s.player.resonanceGeometryKey || 'none');
+  const timeControl = (s.player.timestopTimer || 0) > 0 || (s.player.teleportDamageBuffTimer || 0) > 0;
+  const voidPressure = sphereTypes.has('void')
+    && (s.enemies || []).some((enemy) => enemy.hp > 0 && (enemy.isElite || enemy.isBoss));
   return ARTIFACT_PROTOCOLS.map((protocol) => {
     const discovered = protocolSetComplete(s, protocol.setId);
     const active =
@@ -354,7 +390,13 @@ export function getArtifactProtocolStates(s: {
         ? discovered && triangle
         : protocol.id === 'sphere_relay'
           ? discovered && sphereTypes.size >= 2
-          : discovered && s.player.combo >= 5;
+          : protocol.id === 'critical_echo'
+            ? discovered && s.player.combo >= 5
+            : protocol.id === 'geometry_circuit'
+              ? discovered && ['ring', 'lattice', 'fractal'].includes(geometry)
+              : protocol.id === 'void_horizon_protocol'
+                ? discovered && voidPressure
+                : discovered && timeControl;
     return { ...protocol, discovered, active };
   });
 }
@@ -372,11 +414,17 @@ export function getArtifactSetBehavior(s: { player: { artifacts: ArtifactId[] } 
   resonanceGrid: boolean;
   echoArchitecture: boolean;
   singularityPath: boolean;
+  geometryCraft: boolean;
+  voidHorizon: boolean;
+  temporalFold: boolean;
 } {
   return {
     resonanceGrid: hasCompletedArtifactSet(s, 'resonance_grid'),
     echoArchitecture: hasCompletedArtifactSet(s, 'echo_architecture'),
     singularityPath: hasCompletedArtifactSet(s, 'singularity_path'),
+    geometryCraft: hasCompletedArtifactSet(s, 'geometry_craft'),
+    voidHorizon: hasCompletedArtifactSet(s, 'void_horizon'),
+    temporalFold: hasCompletedArtifactSet(s, 'temporal_fold'),
   };
 }
 
@@ -466,6 +514,10 @@ export function getSphereArtifactModifiers(s: any, type: string, sphere?: any): 
   if (hasArtifact(s, 'mirror_network') && unique >= 2) damage *= 1.12;
 
 
+  const setBehavior = getArtifactSetBehavior(s);
+  if (setBehavior.geometryCraft && ['ring', 'lattice', 'fractal'].includes(String(s.player.resonanceGeometryKey || 'none'))) damage *= 1.10;
+  if (setBehavior.voidHorizon && type === 'void') damage *= 1.10;
+  if (setBehavior.temporalFold && (((s.player.timestopTimer || 0) > 0) || ((s.player.teleportDamageBuffTimer || 0) > 0))) damage *= 1.12;
   if (synergies.some((x) => x.id === 'unified_core') && sphere) {
     const levels = Object.values(s.player.sphereProgression || {}) as number[];
     const strongest = Math.max(0, ...levels);
@@ -487,6 +539,9 @@ export function getSphereArtifactDamageMultiplier(s: any, sphere: any): number {
   if (hasArtifact(s, 'zero_sphere')) multiplier *= 1.20;
 
   const synergies = getActiveArtifactSynergies(s);
+  const setBehavior = getArtifactSetBehavior(s);
+  if (setBehavior.voidHorizon && sphere?.type === 'void') multiplier *= 1.08;
+  if (setBehavior.temporalFold && (((s.player.timestopTimer || 0) > 0) || ((s.player.teleportDamageBuffTimer || 0) > 0))) multiplier *= 1.08;
   if (synergies.some((x) => x.id === 'void_horizon') && sphere?.type === 'void') {
     if (sphere && (s.enemies || []).some((enemy: any) => enemy.isElite && enemy.hp > 0)) multiplier *= 1.15;
   }
