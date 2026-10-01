@@ -227,8 +227,9 @@ function isLiveUpgradeChoice(s: GameState, choice: UpgradeChoice): boolean {
 
 function recordLevelUpSourcePick(s: GameState, choice: UpgradeChoice): void {
   const selected = getUpgradeChoiceSource(choice);
-  for (const source of ['ability', 'sphere'] as UpgradeSource[]) {
-    s.levelUpPity[source] = source === selected
+  const routineSelected = selected === 'modifier' ? null : selected;
+  for (const source of ['ability', 'sphere'] as const) {
+    s.levelUpPity[source] = source === routineSelected
       ? 0
       : Math.min(4, (s.levelUpPity[source] || 0) + 1);
   }
