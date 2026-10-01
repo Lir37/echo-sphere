@@ -82,6 +82,9 @@ export function update(s: GameState, dt: number): void {
 
   s.time += dt;
   s.stats.time = s.time;
+  if (s.player.abilities.regen) {
+    s.player.hp = Math.min(s.player.maxHp, s.player.hp + s.player.abilities.regen * 0.6 * dt);
+  }
   s.networkFrameId += 1;
   s.networkFrame = null;
   // Progressive active slots: Dash is always free, then three non-Dash slots
