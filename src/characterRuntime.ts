@@ -37,15 +37,17 @@ export function getCharacterDamageMultiplier(s: GameState, sphere: SphereEntity)
   let multiplier = 1 + CHARACTER_DEFS[character].baseModifiers.sphereDamage;
 
   if (character === 'spherist') {
-    const fullResonanceThreshold = mastery >= 2 ? 4 : 5;
+    const fullResonanceThreshold = mastery >= 8 ? 3 : mastery >= 2 ? 4 : 5;
     if (s.spheres.filter((item) => item.alive).length >= fullResonanceThreshold) multiplier += 0.05;
     if (mastery >= 3) multiplier += 0.02;
+    if (mastery >= 6 && s.spheres.filter((item) => item.alive).length >= 6) multiplier += 0.02;
+    if (mastery >= 10 && s.spheres.filter((item) => item.alive).length >= 8) multiplier += 0.03;
   }
 
   if (character === 'berserker') {
     multiplier += getBerserkerFuryBonus(character, s.player.hp / Math.max(1, s.player.maxHp)).damage;
     const closeEnemy = s.enemies.some((enemy) => enemy.hp > 0 && distance(enemy.pos, s.player.pos) <= 110);
-    if (closeEnemy) multiplier += mastery >= 2 ? 0.15 : 0.12;
+    if (closeEnemy) multiplier += mastery >= 10 ? 0.20 : mastery >= 2 ? 0.15 : 0.12;
   }
 
   if (character === 'engineer') {
@@ -55,11 +57,12 @@ export function getCharacterDamageMultiplier(s: GameState, sphere: SphereEntity)
 
     if (mastery >= 5) {
       const connectedToMasterNode = neighbours.some((neighbour) => getSphereNeighbours(s, neighbour, range).length >= 2);
-      if (connectedToMasterNode) multiplier += 0.02;
+      if (connectedToMasterNode) multiplier += mastery >= 10 ? 0.04 : 0.02;
     }
 
     const networkSize = getConnectedNetworkSize(s, sphere, range);
     if (networkSize >= 4) multiplier += 0.03;
+    if (mastery >= 7 && networkSize >= 4) multiplier += 0.03;
   }
 
   return multiplier;
@@ -75,6 +78,8 @@ export function getCharacterAttackSpeedMultiplier(s: GameState): number {
     multiplier += getSphereCountResonanceBonus(character, sphereCount);
     if (mastery >= 4) multiplier += Math.max(0, sphereCount - 1) * 0.005;
     if (sphereCount >= 8 && mastery >= 5) multiplier += 0.05;
+    if (sphereCount >= 7 && mastery >= 7) multiplier += 0.02;
+    if (sphereCount >= 8 && mastery >= 10) multiplier += 0.03;
   }
 
   if (character === 'berserker') {
@@ -203,6 +208,8 @@ function getArchitectFormationBonusScale(s: GameState, type: CharacterFormation)
   }
 
   if (mastery >= 5 && getLocalCharacterSpheres(s).length >= 5) scale *= 1.05;
+  if (mastery >= 7) scale *= 1.05;
+  if (mastery >= 10 && nextType !== 'none') scale *= 1.10;
   return scale;
 }
 
@@ -238,7 +245,9 @@ export function getHunterMarkMultiplier(s: GameState, enemy: EnemyEntity): numbe
   const markedUntil = p.hunterMarkTarget === enemy ? (p.hunterMarkTimer || 0) : 0;
   if (markedUntil <= 0) return 1;
   const huntActive = (p.hunterHuntTimer || 0) > 0;
-  return 1.20 * (huntActive && p.hunterHuntTarget === enemy ? 1.30 : 1);
+  const markMultiplier = (p.characterMasteryLevel || 1) >= 6 ? 1.25 : 1.20;
+  const huntMultiplier = (p.characterMasteryLevel || 1) >= 8 ? 1.35 : 1.30;
+  return markMultiplier * (huntActive && p.hunterHuntTarget === enemy ? huntMultiplier : 1);
 }
 
 export function shouldMarkHunterTarget(enemy: EnemyEntity): boolean {
@@ -253,7 +262,8 @@ export function applyAlchemistReaction(s: GameState, enemy: EnemyEntity): boolea
   if (!((fire && poison) || (freeze && poison) || (fire && freeze))) return false;
 
   const p = runtimePlayer(s);
-  const reactionRadius = (p.characterMasteryLevel || 1) >= 2 ? 60 : 55;
+  const mastery = p.characterMasteryLevel || 1;
+  const reactionRadius = mastery >= 6 ? 70 : mastery >= 2 ? 60 : 55;
   const baseDamage = 20 + s.player.level * 2;
   let burstMultiplier = 1;
   if (fire && poison) burstMultiplier = 2;
@@ -276,10 +286,12 @@ export function applyAlchemistReaction(s: GameState, enemy: EnemyEntity): boolea
     enemy.slowFactor = 0.4;
   }
 
-  if ((p.characterMasteryLevel || 1) >= 4) {
-    const target = s.enemies.find((other) => other !== enemy && other.hp > 0 && distance(other.pos, enemy.pos) <= reactionRadius);
-    if (target) target.hp -= baseDamage * burstMultiplier * 0.5;
+  if (mastery >= 4) {
+    const targets = s.enemies.filter((other) => other !== enemy && other.hp > 0 && distance(other.pos, enemy.pos) <= reactionRadius).slice(0, mastery >= 10 ? 2 : 1);
+    for (const target of targets) target.hp -= baseDamage * burstMultiplier * 0.5;
   }
+  if (mastery >= 7) burstMultiplier *= 1.05;
+
 
   const burstCount = (p.characterMasteryLevel || 1) >= 4 ? 26 : 18;
   for (let i = 0; i < burstCount; i++) {
@@ -297,7 +309,8 @@ export function applyAlchemistReaction(s: GameState, enemy: EnemyEntity): boolea
 }
 
 export function getEngineerNetworkRange(s: GameState): number {
-  return (runtimePlayer(s).characterMasteryLevel || 1) >= 2 ? 240 : 220;
+  const mastery = runtimePlayer(s).characterMasteryLevel || 1;
+  return mastery >= 6 ? 260 : mastery >= 2 ? 240 : 220;
 }
 
 export function getEngineerNetworkSize(s: GameState, sphere: SphereEntity): number {
