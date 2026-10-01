@@ -1,6 +1,7 @@
 import type { CharacterId } from './characters';
 import { getSphereArtifactModifiers } from './artifactSystem';
 import { ABILITIES, type SphereType, type AbilityType, sphereUsesProjectileModifiers } from './gameData';
+import type { SphereMods } from './engineTypes';
 
 export type SphereEvolutionId = 'standard_resonator' | 'standard_singularity' | 'standard_swarm' | 'sniper_oracle' | 'sniper_assassin' | 'sniper_beacon' | 'shotgun_burst' | 'shotgun_cataclysm' | 'shotgun_hail' | 'chain_web' | 'chain_storm' | 'chain_leech' | 'aura_sanctum' | 'aura_gravity' | 'aura_overgrowth' | 'orbital_dance' | 'orbital_halo' | 'orbital_blade' | 'prism_split' | 'prism_spectrum' | 'prism_mirror' | 'gravity_well' | 'gravity_tide' | 'gravity_collapse' | 'pulse_wave' | 'pulse_resonator' | 'pulse_burst' | 'void_hunger' | 'void_reaper' | 'void_execution';
 export type AbilityEvolutionId = string;
