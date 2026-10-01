@@ -1,5 +1,6 @@
 import type { PlayerState, SphereEntity, SphereMods } from '../engine';
 import { sphereUsesProjectileModifiers } from '../gameData';
+import { getAuthoredSphereModifierLevels } from '../sphereProgression';
 
 const TAU = Math.PI * 2;
 
@@ -159,6 +160,7 @@ export function renderSphereModifierVfx(
   if (!ctx || !sphere || !player?.sphereMods) return;
 
   const disabled = sphere.networkDisabledTimer > 0 || !sphere.alive;
+  const authored = getAuthoredSphereModifierLevels(player, sphere.type);
   const radius = 24 * scale * 1.38;
   const activeTime = disabled ? 0 : time;
 
@@ -169,7 +171,7 @@ export function renderSphereModifierVfx(
   for (let i = 0; i < MODIFIER_ORDER.length; i++) {
     const kind = MODIFIER_ORDER[i];
     if (PROJECTILE_ONLY.includes(kind) && !sphereUsesProjectileModifiers(sphere.type)) continue;
-    const value = modifierValue(player.sphereMods, kind);
+    const value = Math.max(modifierValue(player.sphereMods, kind), Number(authored[kind] ?? 0));
     const angle = -Math.PI / 2 + i * TAU / MODIFIER_ORDER.length + activeTime * .11;
     if (disabled) ctx.globalAlpha = .38;
     drawModifierGlyph(ctx, kind, angle, radius, value, activeTime, scale);
