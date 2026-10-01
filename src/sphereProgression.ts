@@ -548,5 +548,12 @@ export function sphereModifiers(s:any,type:SphereType,sphere?:any){
     chainTargets,auraRadius,auraPulse,spreadMult,
     splitChance,echoChance,staticChance,resonantCharge,healOnHit,healOnKill,
     knockback,gravitic,magnetic,
+    execute: s.player.sphereMods.execute,
+    mark: s.player.sphereMods.mark,
+    corrupt: s.player.sphereMods.corrupt,
+    shatter: s.player.sphereMods.shatter,
+    impact: s.player.sphereMods.impact,
+    anchor: s.player.sphereMods.anchor,
+    vampiric: s.player.sphereMods.vampiric,
   };
 }
