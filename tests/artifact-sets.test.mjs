@@ -43,7 +43,7 @@ test('all current Artifact Sets expose protocol discovery and completion bonus',
     { type: 'sniper', alive: true, pos: { x: 10, y: 0 } },
     { type: 'chain', alive: true, pos: { x: 0, y: 10 } },
   ]});
-  assert.equal(states.length, 6);
+  assert.equal(states.length, 10);
   assert.ok(states.every((x) => x.discovered));
   assert.ok(states.every((x) => x.active));
   assert.equal(mod.getArtifactSetCompletionPulse({ player: { artifacts: all } }), 1);
@@ -69,6 +69,10 @@ test('Artifact Set completion is wired into behavioral combat effects', async ()
     geometryCraft: true,
     voidHorizon: true,
     temporalFold: true,
+    statusCircuit: true,
+    hunterDoctrine: true,
+    pulseEngineering: true,
+    coreForge: true,
   });
 
   const modifiers = mod.getSphereArtifactModifiers(baseState, 'standard', baseState.spheres[0]);
