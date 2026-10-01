@@ -56,3 +56,11 @@ test('Character Mastery exposes the ten-level progression defined by the Bluepri
   assert.match(persistenceSource, /return level >= 10 \? null : CHARACTER_MASTERY_THRESHOLDS\[level\]/);
   assert.match(validationSource, /expected exactly 10 mastery levels/);
 });
+
+
+test('Elite roster contains ten distinct authored variants beyond the base Elite shell', async () => {
+  const source = await fs.readFile(new URL('../src/engineEnemies.ts', import.meta.url), 'utf8');
+  assert.match(source, /export const ELITE_VARIANTS/);
+  const expected = ['linkbreaker', 'resonance_leech', 'phantom_hunter', 'geometry_shifter', 'splitter_prime', 'mirror_warden', 'stasis_warden', 'nullifier', 'pyroclast', 'scavenger_prime'];
+  for (const variant of expected) assert.match(source, new RegExp(`['"]${variant}['"]`));
+});
