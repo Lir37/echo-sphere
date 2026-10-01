@@ -333,8 +333,41 @@ export function updateEnemies(s: GameState, dt: number): void {
     const dx = s.player.pos.x - e.pos.x;
     const dy = s.player.pos.y - e.pos.y;
     const d = Math.hypot(dx, dy) || 1;
+    if (e.eliteVariant === 'phantom_hunter' && d > 180) speedMult *= 1.35;
+    if (e.eliteVariant === 'scavenger_prime' && e.hp / Math.max(1, e.maxHp) < 0.5) speedMult *= 1.30;
     e.pos.x += (dx / d) * e.speed * speedMult * aggro * dt;
     e.pos.y += (dy / d) * e.speed * speedMult * aggro * dt;
+
+    if (e.isElite && e.eliteVariant !== 'linkbreaker') {
+      e.elitePulseTimer -= dt;
+      if (e.eliteVariant === 'resonance_leech' && d < 220) {
+        s.player.resonanceCharge = Math.max(0, s.player.resonanceCharge - 5 * dt);
+      }
+      if (e.eliteVariant === 'pyroclast' && d < 95) {
+        damagePlayerDoT(s, 8 * dt);
+      }
+      if (e.eliteVariant === 'stasis_warden' && d < 170) {
+        damagePlayerDoT(s, 6 * dt);
+      }
+      if (e.elitePulseTimer <= 0) {
+        e.elitePulseTimer = e.eliteVariant === 'geometry_shifter' || e.eliteVariant === 'nullifier' ? 6 : 4;
+        if (e.eliteVariant === 'geometry_shifter') {
+          s.player.resonanceCharge = Math.max(0, s.player.resonanceCharge - 18);
+          s.flashText = { text: 'GEOMETRY SHIFT', life: 0.8, color: '#c46d3d' };
+        } else if (e.eliteVariant === 'nullifier') {
+          const target = s.spheres
+            .filter((sphere) => sphere.alive && sphere.networkDisabledTimer <= 0)
+            .sort((a, b) => dist(a.pos, e.pos) - dist(b.pos, e.pos))[0];
+          if (target && dist(target.pos, e.pos) <= 300) {
+            target.networkDisabledTimer = 2;
+            s.flashText = { text: 'SPHERE NULLIFIED', life: 0.8, color: '#b8475a' };
+            s.lightnings.push({ from: { ...e.pos }, to: { ...target.pos }, life: 0.25 });
+          }
+        } else if (e.eliteVariant === 'stasis_warden' && d < 170) {
+          s.flashText = { text: 'STASIS FIELD', life: 0.5, color: '#69b7ff' };
+        }
+      }
+    }
 
     // Elite Link Breaker uses a readable telegraph before removing a Sphere from Network participation.
     if (e.isElite) {
