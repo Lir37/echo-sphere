@@ -408,6 +408,89 @@ function sphereFinalIndex(s:any,type:SphereType):number|null{
   const n=Number(id.split(':').pop());
   return Number.isFinite(n)?n:null;
 }
+type AuthoredModifierLevels = Partial<Record<keyof import('./engineTypes').SphereMods, number>>;
+
+const AUTHORED_BASE_MODIFIERS: Partial<Record<SphereEvolutionId, AuthoredModifierLevels>> = {
+  standard_resonator:{resonant:1},
+  standard_singularity:{anchor:1,gravitic:1},
+  standard_swarm:{split:1},
+  sniper_oracle:{mark:1},
+  sniper_assassin:{execute:1,breach:1},
+  sniper_beacon:{anchor:1,mark:1},
+  shotgun_burst:{multishot:1,impact:1},
+  shotgun_cataclysm:{shatter:1,impact:1},
+  shotgun_hail:{split:1,multishot:1},
+  chain_web:{anchor:1},
+  chain_storm:{static:1,resonant:1},
+  chain_leech:{vampiric:1},
+  aura_sanctum:{freeze:1,anchor:1},
+  aura_gravity:{gravitic:1,anchor:1},
+  aura_overgrowth:{resonant:1},
+  orbital_dance:{afterimage:1},
+  orbital_halo:{resonant:1},
+  orbital_blade:{impact:1,afterimage:1},
+  prism_split:{multishot:1},
+  prism_spectrum:{resonant:1},
+  prism_mirror:{ricochet:1},
+  gravity_well:{anchor:1,gravitic:1},
+  gravity_tide:{impact:1,gravitic:1},
+  gravity_collapse:{execute:1,gravitic:1},
+  pulse_wave:{impact:1},
+  pulse_resonator:{resonant:1},
+  pulse_burst:{shatter:1,impact:1},
+  void_hunger:{corrupt:1},
+  void_reaper:{vampiric:1},
+  void_execution:{execute:1,phase:1},
+};
+
+const AUTHORED_FINAL_MODIFIERS: Partial<Record<SphereEvolutionId, Partial<Record<0|1|2, AuthoredModifierLevels>>>> = {
+  standard_resonator:{0:{shatter:1},1:{impact:1},2:{anchor:1}},
+  standard_singularity:{0:{gravitic:2},1:{impact:1},2:{gravitic:2}},
+  standard_swarm:{0:{split:2},1:{split:2},2:{split:2}},
+  sniper_oracle:{0:{mark:2},1:{mark:2,resonant:1},2:{mark:2,execute:1}},
+  sniper_assassin:{0:{execute:2},1:{execute:2},2:{execute:2}},
+  sniper_beacon:{0:{anchor:2},1:{mark:2},2:{anchor:2,mark:2}},
+  shotgun_burst:{0:{multishot:2},1:{impact:2},2:{multishot:2,impact:2}},
+  shotgun_cataclysm:{0:{shatter:2},1:{impact:2},2:{shatter:2,impact:2}},
+  shotgun_hail:{0:{split:2},1:{multishot:2},2:{split:2,multishot:2}},
+  chain_web:{0:{anchor:2},1:{static:1},2:{anchor:2,static:1}},
+  chain_storm:{0:{static:2},1:{resonant:2},2:{static:2,resonant:2}},
+  chain_leech:{0:{vampiric:2},1:{drain:1},2:{vampiric:2,drain:1}},
+  aura_sanctum:{0:{freeze:2},1:{anchor:2},2:{freeze:2,anchor:2}},
+  aura_gravity:{0:{gravitic:2},1:{anchor:2},2:{gravitic:2,anchor:2}},
+  aura_overgrowth:{0:{resonant:2},1:{resonant:2},2:{resonant:2}},
+  orbital_dance:{0:{afterimage:2},1:{afterimage:2},2:{afterimage:2}},
+  orbital_halo:{0:{resonant:1},1:{resonant:1},2:{resonant:2}},
+  orbital_blade:{0:{impact:2},1:{afterimage:2},2:{impact:2,afterimage:2}},
+  prism_split:{0:{multishot:2},1:{multishot:2},2:{multishot:2}},
+  prism_spectrum:{0:{fire:1},1:{freeze:1},2:{poison:1}},
+  prism_mirror:{0:{ricochet:2},1:{ricochet:2},2:{ricochet:2}},
+  gravity_well:{0:{anchor:2},1:{gravitic:2},2:{anchor:2,gravitic:2}},
+  gravity_tide:{0:{impact:2},1:{gravitic:2},2:{impact:2,gravitic:2}},
+  gravity_collapse:{0:{execute:2},1:{gravitic:2},2:{execute:2,gravitic:2}},
+  pulse_wave:{0:{impact:2},1:{freeze:1},2:{impact:2,freeze:1}},
+  pulse_resonator:{0:{resonant:2},1:{resonant:2},2:{resonant:2,shatter:1}},
+  pulse_burst:{0:{shatter:2},1:{impact:2},2:{shatter:2,impact:2}},
+  void_hunger:{0:{corrupt:2},1:{corrupt:2},2:{corrupt:2,drain:1}},
+  void_reaper:{0:{vampiric:2},1:{drain:2},2:{vampiric:2,drain:2}},
+  void_execution:{0:{execute:2},1:{phase:1},2:{execute:2,phase:2}},
+};
+
+export function getAuthoredSphereModifierLevels(source:any, type:SphereType): AuthoredModifierLevels {
+  const branch = source?.sphereBranches?.[type] as SphereEvolutionId | undefined;
+  const levels: AuthoredModifierLevels = { ...(branch ? (AUTHORED_BASE_MODIFIERS[branch] ?? {}) : {}) };
+  if (!branch) return levels;
+  const finalId = (source?.evolutions || []).find((id:string)=>id.startsWith('sphere:'+type+':7:'));
+  if (!finalId) return levels;
+  const finalIndex = Number(finalId.split(':').pop());
+  if (finalIndex !== 0 && finalIndex !== 1 && finalIndex !== 2) return levels;
+  const final = AUTHORED_FINAL_MODIFIERS[branch]?.[finalIndex as 0|1|2] ?? {};
+  for (const [kind, value] of Object.entries(final) as [keyof AuthoredModifierLevels, number][]) {
+    levels[kind] = Math.max(levels[kind] ?? 0, value);
+  }
+  return levels;
+}
+
 export function getActiveSphereAbilitySynergies(s:any): SphereAbilitySynergy[] {
   const character = s.player.characterId as CharacterId;
   return SPHERE_ABILITY_SYNERGIES.filter(link =>
@@ -419,6 +502,8 @@ export function getActiveSphereAbilitySynergies(s:any): SphereAbilitySynergy[] {
 
 export function sphereModifiers(s:any,type:SphereType,sphere?:any){
   const l=sphereLevel(s,type), branch=s.player.sphereBranches?.[type], final=sphereFinalIndex(s,type), artifact=getSphereArtifactModifiers(s,type,sphere);
+  const authored=getAuthoredSphereModifierLevels(s.player,type);
+  const modifierLevel=(kind:keyof SphereMods):number=>Math.max(Number(s.player.sphereMods?.[kind] ?? 0),Number(authored[kind] ?? 0));
   let damage=1, radius=1, delay=1, pierce=0, multishot=0, chainTargets=1, auraRadius=1, auraPulse=.5;
   let spreadMult=1;
   let splitChance=0, echoChance=0, staticChance=0, resonantCharge=0;
@@ -450,23 +535,22 @@ export function sphereModifiers(s:any,type:SphereType,sphere?:any){
   }
 
   // Final modifier catalogue: every entry has a concrete combat parameter.
-  if(s.player.sphereMods.breach > 0) pierce += s.player.sphereMods.breach;
-  if(s.player.sphereMods.overload > 0) damage *= 1 + 0.08 * s.player.sphereMods.overload;
-  if(s.player.sphereMods.split > 0) splitChance = Math.min(0.45, 0.18 * s.player.sphereMods.split);
-  if(s.player.sphereMods.shatter > 0) damage *= 1 + 0.04 * s.player.sphereMods.shatter;
-  if(s.player.sphereMods.execute > 0) damage *= 1 + 0.18 * s.player.sphereMods.execute;
-  if(s.player.sphereMods.mark > 0) damage *= 1 + 0.04 * s.player.sphereMods.mark;
-  if(s.player.sphereMods.echo > 0) echoChance = Math.min(0.35, 0.12 * s.player.sphereMods.echo);
-  if(s.player.sphereMods.anchor > 0) auraRadius *= 1 + 0.05 * s.player.sphereMods.anchor;
-  if(s.player.sphereMods.phase > 0) pierce += s.player.sphereMods.phase;
-  if(s.player.sphereMods.static > 0) staticChance = Math.min(0.35, 0.12 * s.player.sphereMods.static);
-  if(s.player.sphereMods.resonant > 0) resonantCharge = 2 * s.player.sphereMods.resonant;
-  if(s.player.sphereMods.magnetic > 0) magnetic = s.player.sphereMods.magnetic;
-  if(s.player.sphereMods.vampiric > 0) healOnHit = 0.006 * s.player.sphereMods.vampiric;
-  if(s.player.sphereMods.drain > 0) healOnKill = 0.03 * s.player.sphereMods.drain;
-  if(s.player.sphereMods.afterimage > 0) echoChance = Math.max(echoChance, Math.min(0.30, 0.10 * s.player.sphereMods.afterimage));
-  if(s.player.sphereMods.impact > 0) knockback = s.player.sphereMods.impact;
-  if(s.player.sphereMods.gravitic > 0) gravitic = s.player.sphereMods.gravitic;
+  if(modifierLevel('breach') > 0) pierce += modifierLevel('breach');
+  if(modifierLevel('overload') > 0) damage *= 1 + 0.08 * modifierLevel('overload');
+  if(modifierLevel('split') > 0) splitChance = Math.min(0.45, 0.18 * modifierLevel('split'));
+  if(modifierLevel('shatter') > 0) damage *= 1 + 0.04 * modifierLevel('shatter');
+  if(modifierLevel('execute') > 0) damage *= 1 + 0.18 * modifierLevel('execute');
+  if(modifierLevel('mark') > 0) damage *= 1 + 0.04 * modifierLevel('mark');
+  if(modifierLevel('echo') > 0) echoChance = Math.min(0.35, 0.12 * modifierLevel('echo'));
+  if(modifierLevel('anchor') > 0) auraRadius *= 1 + 0.05 * modifierLevel('anchor');
+  if(modifierLevel('phase') > 0) pierce += modifierLevel('phase');
+  if(modifierLevel('static') > 0) staticChance = Math.min(0.35, 0.12 * modifierLevel('static'));
+  if(modifierLevel('resonant') > 0) resonantCharge = 2 * modifierLevel('resonant');
+  if(modifierLevel('magnetic') > 0) magnetic = modifierLevel('magnetic');
+  if(modifierLevel('vampiric') > 0) healOnHit = 0.006 * modifierLevel('vampiric');
+  if(modifierLevel('drain') > 0) healOnKill = 0.03 * modifierLevel('drain');
+  if(modifierLevel('impact') > 0) knockback = modifierLevel('impact');
+  if(modifierLevel('gravitic') > 0) gravitic = modifierLevel('gravitic');
 
   // Shared post-evolution scaling.
   if(l>=4) damage*=1.12;
@@ -548,12 +632,28 @@ export function sphereModifiers(s:any,type:SphereType,sphere?:any){
     chainTargets,auraRadius,auraPulse,spreadMult,
     splitChance,echoChance,staticChance,resonantCharge,healOnHit,healOnKill,
     knockback,gravitic,magnetic,
-    execute: s.player.sphereMods.execute,
-    mark: s.player.sphereMods.mark,
-    corrupt: s.player.sphereMods.corrupt,
-    shatter: s.player.sphereMods.shatter,
-    impact: s.player.sphereMods.impact,
-    anchor: s.player.sphereMods.anchor,
-    vampiric: s.player.sphereMods.vampiric,
+    multishot: projectileMods ? modifierLevel('multishot') : 0,
+    pierce: projectileMods ? pierce : 0,
+    fire: modifierLevel('fire'),
+    freeze: modifierLevel('freeze'),
+    poison: modifierLevel('poison'),
+    breach: modifierLevel('breach'),
+    overload: modifierLevel('overload'),
+    split: modifierLevel('split'),
+    shatter: modifierLevel('shatter'),
+    execute: modifierLevel('execute'),
+    mark: modifierLevel('mark'),
+    echo: modifierLevel('echo'),
+    anchor: modifierLevel('anchor'),
+    phase: modifierLevel('phase'),
+    static: modifierLevel('static'),
+    resonant: modifierLevel('resonant'),
+    magnetic: modifierLevel('magnetic'),
+    vampiric: modifierLevel('vampiric'),
+    corrupt: modifierLevel('corrupt'),
+    drain: modifierLevel('drain'),
+    afterimage: modifierLevel('afterimage'),
+    impact: modifierLevel('impact'),
+    gravitic: modifierLevel('gravitic'),
   };
 }
