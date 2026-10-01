@@ -421,6 +421,8 @@ export function sphereModifiers(s:any,type:SphereType,sphere?:any){
   const l=sphereLevel(s,type), branch=s.player.sphereBranches?.[type], final=sphereFinalIndex(s,type), artifact=getSphereArtifactModifiers(s,type,sphere);
   let damage=1, radius=1, delay=1, pierce=0, multishot=0, chainTargets=1, auraRadius=1, auraPulse=.5;
   let spreadMult=1;
+  let splitChance=0, echoChance=0, staticChance=0, resonantCharge=0;
+  let healOnHit=0, healOnKill=0, knockback=0, gravitic=0, magnetic=0;
 
   // Levels I-III mirror their written upgrades instead of silently stacking generic bonuses.
   if(type==='standard'){
@@ -446,6 +448,25 @@ export function sphereModifiers(s:any,type:SphereType,sphere?:any){
     if(l>=2) auraPulse*=.9;
     if(l>=3) damage*=1.10;
   }
+
+  // Final modifier catalogue: every entry has a concrete combat parameter.
+  if(s.player.sphereMods.breach > 0) pierce += s.player.sphereMods.breach;
+  if(s.player.sphereMods.overload > 0) damage *= 1 + 0.08 * s.player.sphereMods.overload;
+  if(s.player.sphereMods.split > 0) splitChance = Math.min(0.45, 0.18 * s.player.sphereMods.split);
+  if(s.player.sphereMods.shatter > 0) damage *= 1 + 0.04 * s.player.sphereMods.shatter;
+  if(s.player.sphereMods.execute > 0) damage *= 1 + 0.18 * s.player.sphereMods.execute;
+  if(s.player.sphereMods.mark > 0) damage *= 1 + 0.04 * s.player.sphereMods.mark;
+  if(s.player.sphereMods.echo > 0) echoChance = Math.min(0.35, 0.12 * s.player.sphereMods.echo);
+  if(s.player.sphereMods.anchor > 0) auraRadius *= 1 + 0.05 * s.player.sphereMods.anchor;
+  if(s.player.sphereMods.phase > 0) pierce += s.player.sphereMods.phase;
+  if(s.player.sphereMods.static > 0) staticChance = Math.min(0.35, 0.12 * s.player.sphereMods.static);
+  if(s.player.sphereMods.resonant > 0) resonantCharge = 2 * s.player.sphereMods.resonant;
+  if(s.player.sphereMods.magnetic > 0) magnetic = s.player.sphereMods.magnetic;
+  if(s.player.sphereMods.vampiric > 0) healOnHit = 0.006 * s.player.sphereMods.vampiric;
+  if(s.player.sphereMods.drain > 0) healOnKill = 0.03 * s.player.sphereMods.drain;
+  if(s.player.sphereMods.afterimage > 0) echoChance = Math.max(echoChance, Math.min(0.30, 0.10 * s.player.sphereMods.afterimage));
+  if(s.player.sphereMods.impact > 0) knockback = s.player.sphereMods.impact;
+  if(s.player.sphereMods.gravitic > 0) gravitic = s.player.sphereMods.gravitic;
 
   // Shared post-evolution scaling.
   if(l>=4) damage*=1.12;
@@ -520,8 +541,12 @@ export function sphereModifiers(s:any,type:SphereType,sphere?:any){
   }
 
   const projectileMods = sphereUsesProjectileModifiers(type);
-  return {damage:damage*artifact.damage,radius:radius*artifact.radius,delay:delay*artifact.delay,
+  return {
+    damage:damage*artifact.damage,radius:radius*artifact.radius,delay:delay*artifact.delay,
     pierce: projectileMods ? pierce : 0,
     multishot: projectileMods ? multishot : 0,
-    chainTargets,auraRadius,auraPulse,spreadMult};
+    chainTargets,auraRadius,auraPulse,spreadMult,
+    splitChance,echoChance,staticChance,resonantCharge,healOnHit,healOnKill,
+    knockback,gravitic,magnetic,
+  };
 }
