@@ -3185,3 +3185,198 @@ CI must pass. APK PlayerCheck should confirm that Standard has no permanent
 barrel/shaft between the Sphere and the attack tip while the normal attack
 effect remains intact.
 
+
+
+
+======================================================================
+[2026-10-01] GAMEPLAY BLUEPRINT ↔ CURRENT HEAD RECONCILIATION
+======================================================================
+
+AUTHORITATIVE BASELINE
+HEAD: 660b781797db7126a1b3d9041cc275889f75c56a
+BRANCH: new-desing
+
+This section supersedes older status lines where they conflict with the
+actual repository at the HEAD above. The Blueprint is the final target;
+this section records the verified current implementation state.
+
+IMPORTANT:
+CODE PRESENT, RUNTIME INTEGRATED and HUMAN PLAYTEST ACCEPTED are separate
+states. A system must not be called MISSING when its implementation is
+already present. A system is not fully DONE merely because definitions
+exist.
+
+----------------------------------------------------------------------
+A. SYSTEMS CONFIRMED IMPLEMENTED
+----------------------------------------------------------------------
+
+SPHERES
+[DONE] All 10 final Sphere types exist: Standard, Sniper, Chain, Shotgun,
+      Aura, Orbital, Prism, Gravity, Pulse, Void.
+[DONE] Orbital, Prism, Gravity, Pulse and Void have dedicated runtime
+      behavior, not data-only definitions.
+[DONE] Sphere progression uses the 7-level architecture with branches and
+      final specialization.
+
+NETWORK / GEOMETRY
+[DONE] Placement, removal, repositioning, link detection and formation
+      analysis exist.
+[DONE] Seven Geometry states are represented: Line, Triangle, Cluster,
+      Square, Ring, Lattice, Fractal.
+[DONE] Ghost Snap preview exists as a non-mutating placement/reposition
+      preview returning links and resulting formation.
+[DONE] Active Geometry ownership and duplicate-Sphere limits are
+      centralized in Network/gameplay logic.
+[DONE] Link Breaker Elite is implemented with telegraph, temporary Network
+      disruption and recovery.
+
+RESONANCE
+[DONE] Authoritative player-level Resonance resource with 0..100 baseline
+      and explicit 150 overflow support exists.
+[DONE] Source routing, threshold events and remainder preservation exist.
+[DONE] Geometry changes can feed Resonance and trigger formation events.
+[PARTIAL] Final event catalogue and balance depth remain incomplete.
+
+LEVEL-UP / RNG
+[DONE] Seeded gameplay RNG exists in GameState.
+[DONE] Level-Up generation uses build pressure, character affinity,
+      unfinished-system pressure, duplicate/dead-option protection and
+      pity weighting.
+[DONE] Recent-upgrade tracking exists.
+[PARTIAL] Final Reroll, Lock and later-meta Ban layers are incomplete.
+
+ABILITIES
+[DONE] 20 current Ability definitions exist with active/passive categories
+      and 7-level progression.
+[DONE] Current active abilities have level-4 and level-7 evolution data.
+[PARTIAL] Blueprint final vocabulary is 30 total entries. Current IDs cover
+         only part of that final vocabulary.
+[PARTIAL] Final Dash + up-to-3 non-Dash active-slot progression is not
+         complete.
+
+RUNES
+[DONE] Rune definitions and temporary field-pickup runtime exist.
+[DONE] 9 core Rune types exist.
+[PARTIAL] Final Rune balancing, rarity/source rules and content depth remain.
+
+ARTIFACTS / SYNERGY
+[DONE] 91 Artifact definitions exist.
+[DONE] Artifact rarity and reward generation exist.
+[DONE] 6 Artifact Sets exist.
+[DONE] 3 Protocols exist.
+[DONE] Set completion has current behavioral runtime integration.
+[PARTIAL] Final targets are 90-120 Artifacts, 20 Sets and 12+ Protocols.
+[PARTIAL] Human playtest must verify that Set/Protocol effects materially
+         change decisions rather than merely existing in code.
+
+BOSSES / STELLA
+[DONE] 4 Boss families have runtime attack/telegraph behavior.
+[DONE] Boss -> Stella -> Legendary reward path exists.
+[DONE] Current Endless Legendary scarcity cutoff is represented by the
+      25-minute Stella cutoff contract.
+[PARTIAL] Final Boss target is 8 families.
+
+CHARACTERS
+[DONE] Current six-character framework/roster exists.
+[PARTIAL] Final target is 10 Characters.
+[PARTIAL] Final 10-level Character Mastery target is not complete.
+
+ENEMIES
+[DONE] Core Normal/Fast/Tank/Elite runtime exists.
+[DONE] Link Breaker is a real core-system Elite interaction.
+[PARTIAL] Final target is 15+ enemy roles and 10+ Elite variants.
+
+PLAYER / COMBAT
+[DONE] Movement, HP/damage intake, Dash, contact-damage grace and crit
+      normalization are implemented.
+[DONE] XP/drop/Level-Up loop exists.
+[DONE] Current Boss telegraphs and attack patterns exist.
+[PARTIAL] Final tuning and multi-build viability require human playtest.
+
+META / SHOP
+[DONE] Persistent Gold and Shop infrastructure exists.
+[DONE] Current permanent Shop upgrade layer exists.
+[PARTIAL] Final four-currency economy, Merchant, deeper meta progression
+         and final collection loop remain incomplete.
+
+----------------------------------------------------------------------
+B. GENUINE FINAL-TARGET GAPS
+----------------------------------------------------------------------
+
+1. Final Modifier catalogue: current six core modifiers are implemented;
+   final 24-entry catalogue is not complete.
+
+2. Final Ability/Passive vocabulary: current 20 definitions exist; final
+   30-entry vocabulary is not complete.
+
+3. Active-slot/meta progression: final three non-Dash active slots and
+   their unlock progression are not complete.
+
+4. Artifact Sets: current 6 vs final target 20.
+
+5. Protocols: current 3 vs final target 12+.
+
+6. Characters: current 6 vs final target 10.
+
+7. Character Mastery: current foundation vs final 10-level target.
+
+8. Enemy roster: current core roles plus Link Breaker vs final 15+ roles
+   and 10+ Elite variants.
+
+9. Boss roster: current 4 vs final target 8.
+
+10. Meta economy: Echo / Credits / Resonance Shards / Archive Data,
+    Merchant and deeper persistent progression are not complete.
+
+11. Final Event catalogue: final 10+ target is not complete.
+
+12. Final Difficulty productization/balance remains incomplete even though
+    Easy, Normal, Hard, Nightmare and Endless infrastructure exist.
+
+----------------------------------------------------------------------
+C. PLAYTEST GATES, NOT MISSING SYSTEMS
+----------------------------------------------------------------------
+
+[GATE] 5-minute combat: pressure, Dash, damage cadence, XP pacing.
+[GATE] Network: repositioning and links must be understandable and useful.
+[GATE] Geometry: player should intentionally build formations.
+[GATE] Resonance: formation-driven Events must be noticeable and useful.
+[GATE] Level-Up: current protection logic must produce useful choices
+       without making builds feel scripted.
+[GATE] Artifact/Set/Protocol: rewards must alter subsequent decisions.
+[GATE] Boss/Stella: telegraphs and Legendary reward must create adaptation.
+[GATE] 10-15 minute run: recognizable build identity and replay motivation.
+[GATE] Multiple viable builds: materially different builds must survive.
+[GATE] Performance: measure actual mobile frame time and runtime load.
+
+----------------------------------------------------------------------
+D. DEVELOPMENT ORDER FROM THIS RECONCILIATION
+----------------------------------------------------------------------
+
+Do not fill every final content target before validating the current core.
+
+1. Run the existing build through the Blueprint playtest matrix.
+2. Record concrete APK gameplay failures.
+3. Fix the earliest failed gate.
+4. Re-run CI and APK.
+5. Expand the next genuinely missing final-content layer only after the
+   relevant gameplay gate passes.
+
+Priority:
+GAMEPLAY ACCEPTANCE -> TARGETED CORRECTIONS -> BALANCE -> CONTENT EXPANSION.
+
+Visual expansion and mass 3D/GLB production remain outside the current
+gameplay priority.
+
+----------------------------------------------------------------------
+E. DOCUMENTATION RULE
+----------------------------------------------------------------------
+
+Older entries remain historical implementation notes. If an older entry
+marks something MISSING but the current HEAD contains an integrated
+implementation, this reconciliation section is authoritative for current
+status. Do not delete history just to make the report look cleaner.
+
+======================================================================
+END CURRENT HEAD RECONCILIATION
+======================================================================
