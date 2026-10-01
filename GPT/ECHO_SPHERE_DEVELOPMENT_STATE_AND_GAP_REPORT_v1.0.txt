@@ -3467,3 +3467,28 @@ Migration plan:
 CI for the documentation commit and subsequent code migration must be
 checked before the work cycle is closed. APK human acceptance remains a
 [GATE].
+
+
+======================================================================
+2026-10-01 MODIFIER LEVEL-UP MIGRATION IMPLEMENTED
+======================================================================
+
+Current HEAD: 2bb3fb8490a2789d0734fd009e996ff12e231f97
+
+[DONE] Routine Level-Up now draws only from Sphere and Ability pools.
+[DONE] Modifier choices are no longer constructed into modifierPool.
+[DONE] Modifier is removed from routine source diversity/weighting.
+[DONE] Modifier is removed from Level-Up pity state; pity now tracks only
+       ability and sphere.
+[DONE] Existing Modifier runtime state and legacy applyUpgrade branch are
+       intentionally retained during migration so already implemented
+       effects are not deleted prematurely.
+[DONE] Level-Up contract test updated to require the two-source model.
+
+[PENDING] Existing 24 Modifier effects still need authored destinations:
+Sphere-specific progression, rare/special rewards, Artifact/Set/Protocol,
+or retirement. No effect is considered final merely because it remains in
+runtime code.
+
+[PENDING] APK/human gameplay validation of the changed Level-Up UX.
+[PENDING] CI verification for the current HEAD.
