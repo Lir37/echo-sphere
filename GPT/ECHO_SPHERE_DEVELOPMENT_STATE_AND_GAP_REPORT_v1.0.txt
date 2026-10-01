@@ -3492,3 +3492,41 @@ runtime code.
 
 [PENDING] APK/human gameplay validation of the changed Level-Up UX.
 [PENDING] CI verification for the current HEAD.
+
+
+======================================================================
+SESSION DELTA — 2026-10-01 — LEVEL-UP / MODIFIER MIGRATION
+======================================================================
+
+DECISION
+Routine player-facing Level-Up remains two-source:
+- Sphere;
+- Ability.
+Modifier is not a third routine card category.
+
+IMPLEMENTED
+- Existing Modifier runtime state remains for compatibility, but new routine
+  Level-Up no longer constructs or weights Modifier cards.
+- Authored Modifier effects are now derived from the selected Sphere branch
+  and final specialization instead of requiring a separate Modifier pick.
+- All ten Sphere families now have authored Modifier destinations in the
+  runtime mapping layer.
+- Phase, Corrupt, Drain and Afterimage now have concrete authored runtime
+  behavior; Echo remains intentionally unmapped as a generic Modifier.
+- Overload and Magnetic remain reserved for rare/external systems.
+- One limited Reroll is now available for a normal three-card Level-Up roll.
+  It does not reroll the deliberate branch/final evolution windows.
+
+CURRENT STATUS
+[IN PROGRESS] CI verification for the latest HEAD.
+[PENDING] Human APK validation of the migrated Sphere behaviors.
+[PENDING] Formal Lock and Ban unlock rules. The Blueprint defines their role
+but does not define exact meta unlock thresholds, so no permanent threshold
+has been invented yet.
+
+NEXT IMPLEMENTATION TARGET
+After CI is green: inspect the next unresolved gameplay gap in order, starting
+with the remaining progression/long-term build systems, without reopening
+working Network, Resonance or Canvas foundations.
+
+======================================================================
