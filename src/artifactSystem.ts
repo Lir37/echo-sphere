@@ -197,6 +197,10 @@ export const ARTIFACT_SYNERGIES: ArtifactSynergy[] = [
   { id: 'network_memory', requires: ['network_anchor', 'echo_weaver'], name: { ru: 'Память сети', en: 'Network Memory' }, desc: { ru: 'первая перестройка сети после Geometry Event сохраняет бонус.', en: 'The first network rebuild after a Geometry Event preserves its bonus.' } },
   { id: 'temporal_echo', requires: ['time_splitter', 'stasis_mandala'], name: { ru: 'Временное эхо', en: 'Temporal Echo' }, desc: { ru: 'после контроля времени следующий Resonance Event усиливается.', en: 'The next Resonance Event after time control is empowered.' } },
   { id: 'axiom_fold', requires: ['axiom_core', 'universal_fold'], name: { ru: 'Аксиоматический сгиб', en: 'Axiom Fold' }, desc: { ru: 'разные системы билда усиливают друг друга.', en: 'Different build systems reinforce one another.' } },
+  { id: 'status_circuit', requires: ['prism_filter', 'stasis_mandala'], name: { ru: 'Контур статусов', en: 'Status Circuit' }, desc: { ru: 'Prism получает усиление, когда сборка концентрируется на статусах.', en: 'Prism gains power when the build concentrates on statuses.' } },
+  { id: 'hunter_doctrine', requires: ['hunter_optic', 'sniper_scope'], name: { ru: 'Доктрина охотника', en: 'Hunter Doctrine' }, desc: { ru: 'Sniper получает дополнительное давление на приоритетные цели.', en: 'Sniper gains additional pressure against priority targets.' } },
+  { id: 'pulse_engineering', requires: ['pulse_driver', 'pulse_lens'], name: { ru: 'Импульсная инженерия', en: 'Pulse Engineering' }, desc: { ru: 'Pulse усиливается против плотных групп врагов.', en: 'Pulse is stronger against dense enemy groups.' } },
+  { id: 'core_forge', requires: ['sphere_forge', 'folded_core'], name: { ru: 'Кузница ядра', en: 'Core Forge' }, desc: { ru: 'Разнотипная сеть получает компактный глобальный бонус.', en: 'A mixed-type network gains a compact global bonus.' } },
 ];
 
 export function getActiveArtifactSynergies(s: { player: { artifacts: ArtifactId[] } }): ArtifactSynergy[] {
@@ -213,7 +217,7 @@ export function getArtifactSynergiesAfterPick(s: { player: { artifacts: Artifact
 
 
 export interface ArtifactSetDef {
-  id: 'resonance_grid' | 'echo_architecture' | 'singularity_path' | 'geometry_craft' | 'void_horizon' | 'temporal_fold';
+  id: 'resonance_grid' | 'echo_architecture' | 'singularity_path' | 'geometry_craft' | 'void_horizon' | 'temporal_fold' | 'status_circuit' | 'hunter_doctrine' | 'pulse_engineering' | 'core_forge';
   name: { ru: string; en: string };
   desc: { ru: string; en: string };
   synergyIds: string[];
@@ -267,6 +271,30 @@ export const ARTIFACT_SETS: ArtifactSetDef[] = [
     name: { ru: 'Временной сгиб', en: 'Temporal Fold' },
     desc: { ru: 'Рискованный билд вокруг времени и универсальных синергий.', en: 'A risky build around time and universal synergies.' },
     synergyIds: ['temporal_echo', 'axiom_fold'],
+  },
+  {
+    id: 'status_circuit',
+    name: { ru: 'Контур статусов', en: 'Status Circuit' },
+    desc: { ru: 'Сборка вокруг Prism и цепочек Fire, Freeze и Poison.', en: 'A build around Prism and Fire, Freeze and Poison chains.' },
+    synergyIds: ['status_circuit'],
+  },
+  {
+    id: 'hunter_doctrine',
+    name: { ru: 'Доктрина охотника', en: 'Hunter Doctrine' },
+    desc: { ru: 'Прицельный билд для элитных и приоритетных целей.', en: 'A precision build for Elite and priority targets.' },
+    synergyIds: ['hunter_doctrine'],
+  },
+  {
+    id: 'pulse_engineering',
+    name: { ru: 'Импульсная инженерия', en: 'Pulse Engineering' },
+    desc: { ru: 'Сборка вокруг плотности врагов и Pulse.', en: 'A build around enemy density and Pulse.' },
+    synergyIds: ['pulse_engineering'],
+  },
+  {
+    id: 'core_forge',
+    name: { ru: 'Кузница ядра', en: 'Core Forge' },
+    desc: { ru: 'Универсальная сеть из нескольких типов сфер.', en: 'A universal mixed-Sphere network.' },
+    synergyIds: ['core_forge'],
   },
 ];
 
@@ -354,6 +382,38 @@ export const ARTIFACT_PROTOCOLS: ArtifactProtocol[] = [
     desc: { ru: 'Активируется во время локального эффекта контроля времени.', en: 'Activates during a local time-control effect.' },
     requires: ['temporal_fold'],
   },
+  {
+    id: 'status_circuit_protocol',
+    kind: 'event',
+    setId: 'status_circuit',
+    name: { ru: 'Протокол статусов', en: 'Status Circuit Protocol' },
+    desc: { ru: 'Активируется при наличии Prism в статусной сборке.', en: 'Activates when Prism is present in the status build.' },
+    requires: ['status_circuit'],
+  },
+  {
+    id: 'hunter_doctrine_protocol',
+    kind: 'event',
+    setId: 'hunter_doctrine',
+    name: { ru: 'Протокол охоты', en: 'Hunter Doctrine Protocol' },
+    desc: { ru: 'Активируется при наличии Sniper и приоритетной цели.', en: 'Activates with Sniper and a priority target.' },
+    requires: ['hunter_doctrine'],
+  },
+  {
+    id: 'pulse_engineering_protocol',
+    kind: 'event',
+    setId: 'pulse_engineering',
+    name: { ru: 'Импульсный протокол', en: 'Pulse Engineering Protocol' },
+    desc: { ru: 'Активируется при наличии Pulse и плотной группы врагов.', en: 'Activates with Pulse and a dense enemy group.' },
+    requires: ['pulse_engineering'],
+  },
+  {
+    id: 'core_forge_protocol',
+    kind: 'event',
+    setId: 'core_forge',
+    name: { ru: 'Протокол кузницы', en: 'Core Forge Protocol' },
+    desc: { ru: 'Активируется, когда сеть использует три и более типов сфер.', en: 'Activates when the network uses three or more Sphere types.' },
+    requires: ['core_forge'],
+  },
 ];
 
 export interface ArtifactProtocolState extends ArtifactProtocol {
@@ -383,6 +443,9 @@ export function getArtifactProtocolStates(s: {
   const timeControl = (s.player.timestopTimer || 0) > 0 || (s.player.teleportDamageBuffTimer || 0) > 0;
   const voidPressure = sphereTypes.has('void')
     && (s.enemies || []).some((enemy) => enemy.hp > 0 && (enemy.isElite || enemy.isBoss));
+  const priorityPressure = sphereTypes.has('sniper') && (s.enemies || []).some((enemy) => enemy.hp > 0 && (enemy.isElite || enemy.isBoss));
+  const densePressure = sphereTypes.has('pulse') && (s.enemies || []).filter((enemy) => enemy.hp > 0).length >= 4;
+  const statusBuild = sphereTypes.has('prism') && Object.values((s.player as any).sphereMods || {}).some((level) => Number(level) > 0);
   return ARTIFACT_PROTOCOLS.map((protocol) => {
     const discovered = protocolSetComplete(s, protocol.setId);
     const active =
@@ -396,7 +459,13 @@ export function getArtifactProtocolStates(s: {
               ? discovered && ['ring', 'lattice', 'fractal'].includes(geometry)
               : protocol.id === 'void_horizon_protocol'
                 ? discovered && voidPressure
-                : discovered && timeControl;
+                : protocol.id === 'status_circuit_protocol'
+                  ? discovered && statusBuild
+                  : protocol.id === 'hunter_doctrine_protocol'
+                    ? discovered && priorityPressure
+                    : protocol.id === 'pulse_engineering_protocol'
+                      ? discovered && densePressure
+                      : discovered && sphereTypes.size >= 3;
     return { ...protocol, discovered, active };
   });
 }
@@ -425,6 +494,10 @@ export function getArtifactSetBehavior(s: { player: { artifacts: ArtifactId[] } 
     geometryCraft: hasCompletedArtifactSet(s, 'geometry_craft'),
     voidHorizon: hasCompletedArtifactSet(s, 'void_horizon'),
     temporalFold: hasCompletedArtifactSet(s, 'temporal_fold'),
+    statusCircuit: hasCompletedArtifactSet(s, 'status_circuit'),
+    hunterDoctrine: hasCompletedArtifactSet(s, 'hunter_doctrine'),
+    pulseEngineering: hasCompletedArtifactSet(s, 'pulse_engineering'),
+    coreForge: hasCompletedArtifactSet(s, 'core_forge'),
   };
 }
 
@@ -518,6 +591,10 @@ export function getSphereArtifactModifiers(s: any, type: string, sphere?: any): 
   if (setBehavior.geometryCraft && ['ring', 'lattice', 'fractal'].includes(String(s.player.resonanceGeometryKey || 'none'))) damage *= 1.10;
   if (setBehavior.voidHorizon && type === 'void') damage *= 1.10;
   if (setBehavior.temporalFold && (((s.player.timestopTimer || 0) > 0) || ((s.player.teleportDamageBuffTimer || 0) > 0))) damage *= 1.12;
+  if (setBehavior.statusCircuit && type === 'prism' && Object.values(s.player.sphereMods || {}).some((level: any) => Number(level) > 0)) damage *= 1.10;
+  if (setBehavior.hunterDoctrine && type === 'sniper') damage *= 1.10;
+  if (setBehavior.pulseEngineering && type === 'pulse') damage *= 1.10;
+  if (setBehavior.coreForge && uniquesphereCount(s) >= 3) damage *= 1.06;
   if (synergies.some((x) => x.id === 'unified_core') && sphere) {
     const levels = Object.values(s.player.sphereProgression || {}) as number[];
     const strongest = Math.max(0, ...levels);
