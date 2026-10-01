@@ -154,7 +154,10 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
       actual *= 1 + 0.15 * mods.mark;
       s.player.hunterMarkTimer = 0;
     }
-    if (mods.corrupt > 0 && hpRatio <= 0.60) actual *= 1 + 0.08 * mods.corrupt;
+    if (mods.corrupt > 0) {
+      enemy.corruptStacks = Math.min(5, (enemy.corruptStacks ?? 0) + 1);
+      actual *= 1 + 0.04 * enemy.corruptStacks;
+    }
   }
   const contextualCritChance = getContextualCritChance(getCritChance(s, fromSphere), {
     hunterMarked: Boolean(
@@ -242,6 +245,24 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
     }
     if (allowSphereProc && mods.echoChance > 0 && nextRandom(s) < mods.echoChance) {
       dealDamageToEnemy(s, enemy, actual * 0.22, fromSphere, false);
+    }
+    if (allowSphereProc && mods.afterimage > 0 && nextRandom(s) < Math.min(0.40, 0.16 * mods.afterimage)) {
+      const angle = Math.atan2(enemy.pos.y - fromSphere.pos.y, enemy.pos.x - fromSphere.pos.x);
+      s.sphereProjectiles.push({
+        pos: { ...enemy.pos },
+        vel: { x: Math.cos(angle) * 250, y: Math.sin(angle) * 250 },
+        damage: actual * Math.min(0.32, 0.16 + 0.04 * mods.afterimage),
+        radius: 4,
+        alive: true,
+        color: '#d8c5ff',
+        pierce: 0,
+        hitEnemies: new Set([enemy]),
+        effect: 'none',
+        ricochet: 0,
+        life: 0.42,
+        sourceSphere: fromSphere,
+        procOnHit: false,
+      });
     }
     if (allowSphereProc && mods.staticChance > 0 && nextRandom(s) < mods.staticChance) {
       const next = s.enemies
