@@ -204,3 +204,19 @@ test('Level 7 mutation visuals stay persistent between attacks and differ by bra
 
 
 test('Standard Sphere has no separate cannon in authored assembly',()=>{const c=read('src/renderer.ts');const a=c.indexOf('function drawStandardSphereAssembly(');const b=c.indexOf('function getSpheristAnimationState',a);const block=c.slice(a,b>0?b:a+5000);assert.equal(block.includes('cannonAngle'),false);assert.ok(block.includes('drawStandardSphereCore'));assert.ok(block.includes('drawStandardSphereRing'));});
+
+test('Standard Sphere keeps persistent thin-line weapon through mutations',()=>{
+  const c=read('src/renderer.ts');
+  assert.ok(c.includes('function drawStandardPersistentWeapon('));
+  assert.ok(c.includes('Persistent weapon stays visible through Lv4/Lv7 mutation silhouettes.'));
+  assert.equal(c.includes('cannonAngle'),false);
+  assert.equal(c.includes("roundRect(-r * 0.12"),false);
+});
+test('Enemy anatomy uses mirrored side legs and rearward tails',()=>{
+  const c=read('src/enemies/enemyVisual.ts');
+  assert.ok(c.includes('function articulatedLeg('));
+  assert.ok(c.includes('function pairedLegs('));
+  assert.ok(c.includes('for(const side of [-1,1])'));
+  assert.ok(c.includes('Tail origin is explicitly at the rear'));
+  assert.ok(c.includes('sx-len*q1'));
+});
