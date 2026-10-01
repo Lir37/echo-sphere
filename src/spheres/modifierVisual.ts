@@ -121,7 +121,7 @@ function drawModifierGlyph(
   const size = Math.max(2.8, 3.8 * scale + strength * 1.25 * scale);
   const x = Math.cos(angle) * radius;
   const y = Math.sin(angle) * radius * .86;
-  const color = MODIFIER_COLOR[kind];
+  const color = MODIFIER_COLOR[kind as CoreModifierKind] ?? '#dff8ff';
 
   ctx.save();
   ctx.translate(x, y);
