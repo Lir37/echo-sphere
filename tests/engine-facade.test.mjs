@@ -11,7 +11,7 @@ test('engine facade stays thin and runtime modules do not depend on the facade',
   assert.ok(engine.split(/\r?\n/).length < 180, 'engine.ts should remain a small public facade');
   assert.doesNotMatch(engine, /export function update\(/);
   assert.match(engine, /export \{\s*claimStella, applyArtifact, update, activateDash, debugLevelUp,\s*\} from '\.\/engineLoop';/s);
-  assert.match(engine, /export \{\s*getMoveSpeed, getXpMult, getMagnetRadius\s*\} from '\.\/engineStats';/s);
+  assert.match(engine, /export \{ getMoveSpeed, getXpMult, getMagnetRadius, getBuildDiagnostics, type BuildDiagnosticRow \} from '\.\/engineStats';/s);
   assert.match(engine, /createInitialState/);
   assert.match(engine, /getCooldownMult/);
   assert.doesNotMatch(loop, /from '\.\/engine';/);
