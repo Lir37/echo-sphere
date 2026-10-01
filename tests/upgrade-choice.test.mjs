@@ -29,3 +29,12 @@ test('active Ability slots stay bounded and progressive', () => {
   assert.match(engineLoopSource, /if \(s\.player\.level >= 20\) s\.player\.activeAbilitySlots/);
   assert.match(progressionSource, /activeCount < s\.player\.activeAbilitySlots/);
 });
+
+
+test('routine Level-Up exposes one limited reroll without mutation rerolling', () => {
+  assert.match(progressionSource, /export function rerollUpgradeChoices\(s: GameState\): boolean/);
+  assert.match(progressionSource, /s\.levelUpRerollsRemaining <= 0/);
+  assert.match(progressionSource, /s\.levelUpRerollsRemaining--/);
+  assert.match(progressionSource, /choice\.sphereStage === 'upgrade'/);
+  assert.match(progressionSource, /choice\.abilityStage\)/);
+});
