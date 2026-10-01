@@ -64,3 +64,11 @@ test('Elite roster contains ten distinct authored variants beyond the base Elite
   const expected = ['linkbreaker', 'resonance_leech', 'phantom_hunter', 'geometry_shifter', 'splitter_prime', 'mirror_warden', 'stasis_warden', 'nullifier', 'pyroclast', 'scavenger_prime'];
   for (const variant of expected) assert.match(source, new RegExp(`['"]${variant}['"]`));
 });
+
+
+test('Boss roster contains the eight Blueprint families and preserves the four legacy families', async () => {
+  const source = await fs.readFile(new URL('../src/gameData.ts', import.meta.url), 'utf8');
+  for (const id of ['shooter', 'charger', 'summoner', 'aura', 'conductor', 'architect', 'null', 'stella_warden']) {
+    assert.match(source, new RegExp(`['"]${id}['"]`));
+  }
+});
