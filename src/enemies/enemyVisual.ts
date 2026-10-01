@@ -87,7 +87,8 @@ function drawVeilRipper(ctx:CanvasRenderingContext2D,r:number,color:string,t:num
   wing(ctx,-r*.18, r*.38,r*.82,r*.34, 1.15,color,t*5);
   pairedLegs(ctx,r,[-.28,.20],.30,.58,t*3,color,.60);
   eye(ctx,r*.30,-r*.12,r*.13,color,-.08);core(ctx,-r*.16,r*.10,r*.09,color);
-}\nfunction drawGraveLeech(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
+}
+function drawGraveLeech(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
   for(let i=0;i<7;i++){
     const q=i/6,x=-r*.62+q*r*1.22,y=Math.sin(t*3.2+q*4.8)*r*.14;
     ctx.save();ctx.translate(x,y);ctx.rotate(Math.sin(t*3.0+q*3.2)*.14);
@@ -97,7 +98,8 @@ function drawVeilRipper(ctx:CanvasRenderingContext2D,r:number,color:string,t:num
   ctx.save();ctx.translate(r*.55,Math.sin(t*3.2+5)*r*.10);
   body(ctx,r*.34,color,.05,.66);eye(ctx,r*.14,-r*.10,r*.09,color);eye(ctx,r*.14,r*.10,r*.09,color);ctx.restore();
   pairedLegs(ctx,r,[-.36,-.02],.20,.30,t*4,color,.34);
-}\nfunction drawFangedCoil(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
+}
+function drawFangedCoil(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
   // Head leads at +X; the body follows behind in a controlled sine wave.
   for(let i=0;i<8;i++){
     const q=i/7;
@@ -119,43 +121,44 @@ function drawCarrionSkitter(ctx:CanvasRenderingContext2D,r:number,color:string,t
   body(ctx,r,color,Math.sin(t*4)*.05,.58);
   pairedLegs(ctx,r,[-.40,-.04,.32],.22,.58,t*7,color,.62);
   ctx.save();ctx.translate(r*.45,0);body(ctx,r*.34,color,-.05,.70);eye(ctx,0,-r*.10,r*.075,color);eye(ctx,0,r*.10,r*.075,color);ctx.restore();
-}\nfunction drawUmbralMoth(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
+}
+function drawUmbralMoth(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
   wing(ctx,-r*.08,-r*.40,r*.92,r*.62,-2.72,color,t*8);
   wing(ctx,-r*.08, r*.40,r*.92,r*.62, 2.72,color,t*8);
   ctx.save();ctx.scale(.45,1.25);body(ctx,r*.72,color,0,.9);ctx.restore();
   pairedLegs(ctx,r,[-.16,.10],.28,.48,t*8,color,.36);
   eye(ctx,-r*.07,-r*.26,r*.09,color);eye(ctx,r*.07,-r*.26,r*.09,color);
-}\nfunction drawRiftScarab(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
+}
+function drawRiftScarab(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
   body(ctx,r,color,Math.sin(t*1.6)*.03,.68);
   ctx.save();ctx.strokeStyle='rgba(235,249,255,.28)';ctx.lineWidth=Math.max(.6,r*.025);for(let i=-1;i<=1;i++){ctx.beginPath();ctx.moveTo(-r*.52,i*r*.12);ctx.quadraticCurveTo(0,i*r*.22,r*.50,i*r*.08);ctx.stroke();}ctx.restore();
   pairedLegs(ctx,r,[-.34,.12],.24,.55,t*3,color,.55);
   eye(ctx,r*.48,-r*.10,r*.07,color);eye(ctx,r*.48,r*.10,r*.07,color);core(ctx,-r*.22,0,r*.08,color);
-}\nfunction drawBonebackBrute(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
+}
+function drawBonebackBrute(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
   body(ctx,r*1.05,color,Math.sin(t*1.7)*.025,.88);
   pairedLegs(ctx,r,[-.45,-.12,.20,.48],.30,.72,t*6,color,.78);
   for(let i=0;i<3;i++){ctx.save();ctx.translate(-r*.25+i*r*.22,-r*.40);ctx.rotate(-.1+i*.1);ctx.fillStyle='rgba(6,10,16,.98)';ctx.strokeStyle='rgba(230,240,250,.46)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(r*.10,-r*.30);ctx.lineTo(r*.20,0);ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();}
   eye(ctx,r*.36,-r*.17,r*.11,color);eye(ctx,r*.36,r*.17,r*.11,color);
-}\nfunction drawGlassHound(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
+}
+function drawGlassHound(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
   body(ctx,r*.92,color,Math.sin(t*2.5)*.04,.62);
   pairedLegs(ctx,r,[-.34,.10],.30,.60,t*5,color,.48);
   ctx.save();ctx.translate(r*.48,-r*.10);body(ctx,r*.42,color,-.12,.62);eye(ctx,r*.13,-r*.10,r*.09,color);ctx.restore();
-  tail(ctx,-r*.76,0,r*.78,color,t,6,.20);
-}\nfunction drawHollowStalker(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
+  tail(ctx,-r*.96,0,r*.82,color,t,6,.20);
+}
+function drawHollowStalker(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
   ctx.save();ctx.translate(0,Math.sin(t*4)*r*.06);body(ctx,r*.72,color,0,1.25);ctx.restore();
   pairedLegs(ctx,r,[-.22,.16],.24,.90,t*5,color,.52);
   eye(ctx,r*.10,-r*.24,r*.12,color);core(ctx,-r*.12,r*.20,r*.075,color);
-}\nfunction drawCableWidow(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
+}
+function drawCableWidow(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
   body(ctx,r*.92,color,0,.72);
-  for(let i=0;i<4;i++){
-    const a=-.72+i*.48;
-    const x=(-.30+i*.20)*r;
-    const side=i%2===0?-1:1;
-    articulatedLeg(ctx,x,side*r*.18,r*.66,side,t*4+i,color,.42);
-  }
-  // Explicitly mirrored outer pair keeps the silhouette readable.
-  pairedLegs(ctx,r,[-.18,.20],.18,.58,t*4,color,.40);
+  // Eight legs, four mirrored pairs, all attached to the lateral body sides.
+  pairedLegs(ctx,r,[-.36,-.12,.12,.36],.18,.58,t*4,color,.40);
   eye(ctx,r*.26,-r*.10,r*.085,'#ff6480');eye(ctx,r*.26,r*.10,r*.085,'#ff6480');core(ctx,-r*.20,0,r*.08,'#ff6480');
-}\nfunction bossFrame(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
+}
+function bossFrame(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
   ctx.save();ctx.strokeStyle='rgba('+rgbOf(color)+',.30)';ctx.lineWidth=Math.max(.8,r*.025);ctx.beginPath();ctx.arc(0,0,r*1.16,t*.2,t*.2+4.9);ctx.stroke();ctx.restore();
 }
 function drawVoidLancerBoss(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
@@ -169,7 +172,8 @@ function drawVoidLancerBoss(ctx:CanvasRenderingContext2D,r:number,color:string,t
   eye(ctx,r*.18,-r*.12,r*.14,color);eye(ctx,r*.18,r*.12,r*.14,color);ctx.restore();
   tail(ctx,-r*.90,0,r*1.10,color,t,8,.16);
   core(ctx,-r*.12,0,r*.12,color);
-}\nfunction drawDreadChargerBoss(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
+}
+function drawDreadChargerBoss(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
   bossFrame(ctx,r,color,t);body(ctx,r*1.14,color,Math.sin(t*2)*.025,.84);
   pairedLegs(ctx,r,[-.34,.20],.35,.82,t*6,color,.90);
   ctx.save();ctx.translate(r*.50,0);body(ctx,r*.50,color,0,.72);
@@ -178,20 +182,23 @@ function drawVoidLancerBoss(ctx:CanvasRenderingContext2D,r:number,color:string,t
     wing(ctx,-r*.05,side*r*.50,r*.72,r*.25,side>0?.72:-.72,color,t*3+(side>0?0:.35));
   }
   core(ctx,-r*.30,0,r*.14,color);
-}\nfunction drawBroodMatriarchBoss(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
+}
+function drawBroodMatriarchBoss(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
   bossFrame(ctx,r,color,t);body(ctx,r*1.0,color,Math.sin(t)*.02,.96);
   pairedLegs(ctx,r,[-.34,.18],.38,1.00,t*3,color,.95);
   ctx.save();ctx.translate(r*.34,-r*.05);body(ctx,r*.52,color,-.05,.76);eye(ctx,r*.20,-r*.12,r*.14,color);eye(ctx,r*.20,r*.12,r*.14,color);ctx.restore();
   for(let i=0;i<5;i++){const a=t*.8+i*TAU/5,x=Math.cos(a)*r*1.10,y=Math.sin(a)*r*.72;ctx.save();ctx.translate(x,y);ctx.scale(.8+.15*Math.sin(t*3+i),1);body(ctx,r*.24,color,a,.9);eye(ctx,0,-r*.03,r*.055,color);ctx.restore();}
   core(ctx,-r*.20,r*.06,r*.13,color);
-}\nfunction drawAbyssalLeviathanBoss(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
+}
+function drawAbyssalLeviathanBoss(ctx:CanvasRenderingContext2D,r:number,color:string,t:number):void{
   bossFrame(ctx,r,color,t);
   for(let i=0;i<8;i++){const q=i/7,x=-r*.76+i*r*.22,y=Math.sin(t*2.0+i*.72)*r*.16;ctx.save();ctx.translate(x,y);body(ctx,r*(.50-.035*i),color,Math.sin(t+i)*.12,.70);ctx.restore();}
   ctx.save();ctx.translate(r*.54,0);body(ctx,r*.58,color,-.08,.68);eye(ctx,r*.22,-r*.16,r*.15,color);eye(ctx,r*.22,r*.16,r*.15,color);ctx.restore();
   pairedLegs(ctx,r,[-.28,.10],.32,.82,t*2,color,.70);
   tail(ctx,-r*.90,0,r*1.16,color,t,9,.14);
   core(ctx,-r*.08,0,r*.12,color);
-}\nfunction creature(ctx:CanvasRenderingContext2D,r:number,color:string,t:number,variant:string):void{
+}
+function creature(ctx:CanvasRenderingContext2D,r:number,color:string,t:number,variant:string):void{
   if(variant==='wisp')drawVeilRipper(ctx,r,color,t);
   else if(variant==='leech')drawGraveLeech(ctx,r,color,t);
   else if(variant==='serpent')drawFangedCoil(ctx,r,color,t);
