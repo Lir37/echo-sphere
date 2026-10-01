@@ -12,10 +12,16 @@ import { nextRandom } from './rng';
 import { BALANCE } from './engineBalance';
 import { BOSS_CHARGER_COMMIT_SECONDS, BOSS_CHARGER_TOTAL_TELEGRAPH_SECONDS } from './bossBalance';
 import { LINK_BREAKER_COOLDOWN_SECONDS, LINK_BREAKER_DISABLED_SECONDS, LINK_BREAKER_TARGET_RANGE, LINK_BREAKER_TELEGRAPH_SECONDS } from './eliteBalance';
-import type { GameState, EnemyEntity, SphereEntity, Vec, EliteVariant } from './engineTypes';
+import type { GameState, EnemyEntity, SphereEntity, Vec, EliteVariant, EnemyRole } from './engineTypes';
 import type { BossType } from './gameData';
 
 export const PLAYER_RADIUS = 16;
+
+export const ENEMY_ROLES: EnemyRole[] = [
+  'grunt', 'swarmer', 'charger', 'tank_guard', 'ranged',
+  'splitter', 'healer', 'bomber', 'leech', 'sniper',
+  'disruptor', 'anchor', 'phase', 'scavenger', 'corruptor',
+];
 
 export const ELITE_VARIANTS: EliteVariant[] = [
   'linkbreaker',
@@ -121,6 +127,23 @@ export function spawnEnemy(s: GameState, isBoss: boolean): EnemyEntity {
   else { const variants: EnemyEntity['visualVariant'][] = ['wisp','leech','serpent','stalker','prism']; visualVariant = variants[Math.floor(nextRandom(s) * variants.length)]; }
   // elite chance: 5% after wave 5, scales up
   const baseType = type;
+  const role = ENEMY_ROLES[Math.floor(nextRandom(s) * ENEMY_ROLES.length)];
+  switch (role) {
+    case 'swarmer': hp *= 0.65; speed *= 1.35; radius *= 0.85; break;
+    case 'charger': speed *= 1.25; damage *= 1.10; break;
+    case 'tank_guard': hp *= 1.55; speed *= 0.72; radius *= 1.15; break;
+    case 'ranged': speed *= 0.82; damage *= 1.18; break;
+    case 'splitter': hp *= 0.85; break;
+    case 'healer': speed *= 0.90; damage *= 0.80; break;
+    case 'bomber': damage *= 1.45; speed *= 0.90; break;
+    case 'leech': speed *= 0.95; damage *= 1.05; break;
+    case 'sniper': speed *= 0.72; damage *= 1.65; break;
+    case 'disruptor': speed *= 0.92; break;
+    case 'anchor': hp *= 1.30; speed *= 0.65; radius *= 1.10; break;
+    case 'phase': speed *= 1.18; radius *= 0.90; break;
+    case 'scavenger': speed *= 1.10; break;
+    case 'corruptor': damage *= 1.20; break;
+  }
   const isElite = wave > 5 && nextRandom(s) < Math.min(0.12, 0.03 + wave * 0.005);
   let eliteVariant: EliteVariant | undefined;
   if (isElite) {
@@ -136,6 +159,7 @@ export function spawnEnemy(s: GameState, isBoss: boolean): EnemyEntity {
     pos: { x: px, y: py },
     hp, maxHp: hp,
     speed, radius, damage: dmg, type,
+    role,
     color, shape,
     slowTimer: 0, slowFactor: 1, freezeTimer: 0, hitFlash: 0,
     isBoss: false, bossShootTimer: 0, bossProjectiles: [],
