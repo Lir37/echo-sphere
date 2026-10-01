@@ -12,6 +12,24 @@ export interface SphereMods {
   fire: number;
   freeze: number;
   poison: number;
+  breach: number;
+  overload: number;
+  split: number;
+  shatter: number;
+  execute: number;
+  mark: number;
+  echo: number;
+  anchor: number;
+  phase: number;
+  static: number;
+  resonant: number;
+  magnetic: number;
+  vampiric: number;
+  corrupt: number;
+  drain: number;
+  afterimage: number;
+  impact: number;
+  gravitic: number;
 }
 
 export interface PlayerState {
