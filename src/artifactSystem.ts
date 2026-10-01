@@ -198,7 +198,7 @@ export const ARTIFACT_SYNERGIES: ArtifactSynergy[] = [
   { id: 'temporal_echo', requires: ['time_splitter', 'stasis_mandala'], name: { ru: 'Временное эхо', en: 'Temporal Echo' }, desc: { ru: 'после контроля времени следующий Resonance Event усиливается.', en: 'The next Resonance Event after time control is empowered.' } },
   { id: 'axiom_fold', requires: ['axiom_core', 'universal_fold'], name: { ru: 'Аксиоматический сгиб', en: 'Axiom Fold' }, desc: { ru: 'разные системы билда усиливают друг друга.', en: 'Different build systems reinforce one another.' } },
   { id: 'status_circuit', requires: ['prism_filter', 'stasis_mandala'], name: { ru: 'Контур статусов', en: 'Status Circuit' }, desc: { ru: 'Prism получает усиление, когда сборка концентрируется на статусах.', en: 'Prism gains power when the build concentrates on statuses.' } },
-  { id: 'hunter_doctrine', requires: ['hunter_optic', 'sniper_scope'], name: { ru: 'Доктрина охотника', en: 'Hunter Doctrine' }, desc: { ru: 'Sniper получает дополнительное давление на приоритетные цели.', en: 'Sniper gains additional pressure against priority targets.' } },
+  { id: 'hunter_doctrine', requires: ['foresight_eye', 'sniper_scope'], name: { ru: 'Доктрина охотника', en: 'Hunter Doctrine' }, desc: { ru: 'Sniper получает дополнительное давление на приоритетные цели.', en: 'Sniper gains additional pressure against priority targets.' } },
   { id: 'pulse_engineering', requires: ['pulse_driver', 'pulse_lens'], name: { ru: 'Импульсная инженерия', en: 'Pulse Engineering' }, desc: { ru: 'Pulse усиливается против плотных групп врагов.', en: 'Pulse is stronger against dense enemy groups.' } },
   { id: 'core_forge', requires: ['sphere_forge', 'folded_core'], name: { ru: 'Кузница ядра', en: 'Core Forge' }, desc: { ru: 'Разнотипная сеть получает компактный глобальный бонус.', en: 'A mixed-type network gains a compact global bonus.' } },
 ];
@@ -470,7 +470,10 @@ export function getArtifactProtocolStates(s: {
   });
 }
 
-export type ArtifactSetBehavior = 'resonance_grid' | 'echo_architecture' | 'singularity_path';
+export type ArtifactSetBehavior =
+  | 'resonance_grid' | 'echo_architecture' | 'singularity_path'
+  | 'geometry_craft' | 'void_horizon' | 'temporal_fold'
+  | 'status_circuit' | 'hunter_doctrine' | 'pulse_engineering' | 'core_forge';
 
 export function hasCompletedArtifactSet(
   s: { player: { artifacts: ArtifactId[] } },
@@ -486,6 +489,10 @@ export function getArtifactSetBehavior(s: { player: { artifacts: ArtifactId[] } 
   geometryCraft: boolean;
   voidHorizon: boolean;
   temporalFold: boolean;
+  statusCircuit: boolean;
+  hunterDoctrine: boolean;
+  pulseEngineering: boolean;
+  coreForge: boolean;
 } {
   return {
     resonanceGrid: hasCompletedArtifactSet(s, 'resonance_grid'),
