@@ -155,6 +155,23 @@ export type EliteVariant =
   | 'pyroclast'
   | 'scavenger_prime';
 
+export type EnemyRole =
+  | 'grunt'
+  | 'swarmer'
+  | 'charger'
+  | 'tank_guard'
+  | 'ranged'
+  | 'splitter'
+  | 'healer'
+  | 'bomber'
+  | 'leech'
+  | 'sniper'
+  | 'disruptor'
+  | 'anchor'
+  | 'phase'
+  | 'scavenger'
+  | 'corruptor';
+
 export interface EnemyEntity {
   pos: Vec;
   hp: number;
@@ -163,6 +180,7 @@ export interface EnemyEntity {
   radius: number;
   damage: number;
   type: 'normal' | 'fast' | 'tank' | 'elite' | 'boss';
+  role?: EnemyRole;
   /** Presentation-only silhouette variant. Does not affect combat rules. */
   visualVariant?: 'wisp' | 'skitter' | 'moth' | 'beetle' | 'brute' | 'prism' | 'linkbreaker' | 'serpent' | 'leech' | 'stalker';
   color: string;
