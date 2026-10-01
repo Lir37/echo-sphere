@@ -3530,3 +3530,41 @@ with the remaining progression/long-term build systems, without reopening
 working Network, Resonance or Canvas foundations.
 
 ======================================================================
+
+
+======================================================================
+SESSION DELTA — 2026-10-01 — PROGRESSION / BUILD DEPTH / ELITES
+======================================================================
+
+IMPLEMENTED SINCE PREVIOUS DELTA
+- Routine Level-Up remains two-source: Sphere + Ability. Modifier is not a
+  third player-facing card category.
+- One run-scoped Reroll is available for ordinary three-card Level-Up rolls.
+- Authored Modifier effects are bound to Sphere branches/final specializations;
+  legacy runtime state remains only for compatibility.
+- Artifact Sets / Protocols expanded to 12 / 12. New completions have real
+  behavioral activation conditions and combat effects.
+- Build Diagnostics added to the pause Synergies view with factual
+  OFFENSE / CONTROL / SURVIVAL / NETWORK / RESONANCE / SYNERGY signals and
+  no score/ranking.
+- Character Mastery expanded from 5 to 10 levels with persistent XP thresholds
+  through 15000 XP and runtime effects for the extended tiers.
+- Elite content expanded to 10 authored variants. Link Breaker is preserved;
+  additional variants include Resonance Leech, Phantom Hunter, Geometry
+  Shifter, Splitter Prime, Mirror Warden, Stasis Warden, Nullifier, Pyroclast
+  and Scavenger Prime, each with a distinct lightweight combat rule.
+
+VALIDATION STATUS
+- Artifact 12/12 contract on Actions #1130: SUCCESS.
+- Latest HEAD CI is still running for the Character Mastery + Elite changes.
+- Human APK gameplay validation is still pending.
+- Runic Cell, exact Lock/Ban meta unlock thresholds, and full Event reward
+  economy remain intentionally pending because the Blueprint does not provide
+  enough exact runtime/economy values to implement them safely yet.
+
+NEXT
+After the current CI reaches a final result, continue with the next explicit
+Blueprint gap, prioritising already-defined systems over speculative new
+architecture. Keep 2.5D/Canvas as the active visual path.
+
+======================================================================
