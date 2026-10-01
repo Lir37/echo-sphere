@@ -520,6 +520,25 @@ export function updateSpheres(s: GameState, dt: number): void {
               life: 2,
               sourceSphere: sphere,
             });
+            const modifierRuntime = sphereModifiers(s, sphere.type, sphere);
+            if (modifierRuntime.echoChance > 0 && nextRandom(s) < modifierRuntime.echoChance) {
+              const echoAngle = angle + (nextRandom(s) - 0.5) * 0.18;
+              s.sphereProjectiles.push({
+                pos: { ...sphere.pos },
+                vel: { x: Math.cos(echoAngle) * speed, y: Math.sin(echoAngle) * speed },
+                damage: damage * relayMultiplier * 0.28,
+                radius: 4,
+                alive: true,
+                color,
+                pierce: 0,
+                hitEnemies: new Set(),
+                effect: 'none',
+                ricochet: 0,
+                life: 1.1,
+                procOnHit: false,
+                sourceSphere: sphere,
+              });
+            }
           } else {
             // Chain attack is electrical and instant: no projectile object is spawned.
             const chainTargets: EnemyEntity[] = [];
@@ -619,6 +638,28 @@ export function updateSpheres(s: GameState, dt: number): void {
         }
         if (p.effect !== 'none' && applyAlchemistReaction(s, e) && e.hp <= 0) {
           onEnemyDeath(s, e);
+        }
+        const hitMods = p.sourceSphere ? sphereModifiers(s, p.sourceSphere.type, p.sourceSphere) : null;
+        if (hitMods && hitMods.splitChance > 0 && p.procOnHit !== false && nextRandom(s) < hitMods.splitChance) {
+          const baseAngle = Math.atan2(p.vel.y, p.vel.x);
+          for (const offset of [-0.34, 0.34]) {
+            const shardAngle = baseAngle + offset;
+            s.sphereProjectiles.push({
+              pos: { ...p.pos },
+              vel: { x: Math.cos(shardAngle) * 290, y: Math.sin(shardAngle) * 290 },
+              damage: p.damage * 0.30,
+              radius: 3.5,
+              alive: true,
+              color: p.color,
+              pierce: 0,
+              hitEnemies: new Set(p.hitEnemies),
+              effect: 'none',
+              ricochet: 0,
+              life: 0.9,
+              procOnHit: false,
+              sourceSphere: p.sourceSphere,
+            });
+          }
         }
         if (p.pierce > 0) {
           p.pierce--;
