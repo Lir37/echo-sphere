@@ -142,7 +142,7 @@ function applyDirectSphereStatus(s: GameState, enemy: EnemyEntity, effect: 'fire
   const poisonLevel = mods?.poison ?? s.player.sphereMods.poison;
   if (effect === 'fire') {
     let duration = 3 * getCharacterStatusDurationMultiplier(s);
-    let dps = (5 + sphereModifiers(s, sphere.type, sphere).fire * 3) * getCharacterStatusDamageMultiplier(s);
+    let dps = (5 + fireLevel * 3) * getCharacterStatusDamageMultiplier(s);
     if (getCharacterId(s) === 'alchemist' && s.player.characterMasteryLevel >= 3) dps *= 1.05;
     if (getCharacterId(s) === 'alchemist' && s.player.alchemistCatalystTimer > 0) {
       duration *= 1.5;
@@ -151,7 +151,7 @@ function applyDirectSphereStatus(s: GameState, enemy: EnemyEntity, effect: 'fire
     enemy.fireTimer = Math.max(enemy.fireTimer || 0, duration);
     enemy.fireDps = dps;
   } else if (effect === 'freeze') {
-    let duration = (0.5 + sphereModifiers(s, sphere.type, sphere).freeze * 0.3) * getCharacterStatusDurationMultiplier(s);
+    let duration = (0.5 + freezeLevel * 0.3) * getCharacterStatusDurationMultiplier(s);
     if (getCharacterId(s) === 'alchemist' && s.player.alchemistCatalystTimer > 0) {
       duration *= 1.5;
       s.player.alchemistCatalystTimer = 0;
@@ -159,7 +159,7 @@ function applyDirectSphereStatus(s: GameState, enemy: EnemyEntity, effect: 'fire
     enemy.freezeTimer = Math.max(enemy.freezeTimer || 0, duration);
   } else {
     let duration = 4 * getCharacterStatusDurationMultiplier(s);
-    let dps = (3 + sphereModifiers(s, sphere.type, sphere).poison * 2) * getCharacterStatusDamageMultiplier(s);
+    let dps = (3 + poisonLevel * 2) * getCharacterStatusDamageMultiplier(s);
     if (getCharacterId(s) === 'alchemist' && s.player.characterMasteryLevel >= 3) dps *= 1.05;
     if (getCharacterId(s) === 'alchemist' && s.player.alchemistCatalystTimer > 0) {
       duration *= 1.5;
@@ -168,13 +168,14 @@ function applyDirectSphereStatus(s: GameState, enemy: EnemyEntity, effect: 'fire
     enemy.poisonTimer = Math.max(enemy.poisonTimer || 0, duration);
     enemy.poisonDps = dps;
   }
-  if (applyAlchemistReaction(s, enemy) && enemy.hp <= 0) onEnemyDeath(s, enemy);
+  if (applyAlchemistReaction(s, enemy) && enemy.hp <= 0) onEnemyDeath(s, enemy, sourceSphere);
 }
 
-function getActiveStatusEffect(s: GameState): 'none' | 'fire' | 'freeze' | 'poison' {
-  if (sphereModifiers(s, sphere.type, sphere).fire > 0) return 'fire';
-  if (sphereModifiers(s, sphere.type, sphere).freeze > 0) return 'freeze';
-  if (sphereModifiers(s, sphere.type, sphere).poison > 0) return 'poison';
+function getActiveStatusEffect(s: GameState, sphere?: SphereEntity): 'none' | 'fire' | 'freeze' | 'poison' {
+  const mods = sphere ? sphereModifiers(s, sphere.type, sphere) : null;
+  if ((mods?.fire ?? s.player.sphereMods.fire) > 0) return 'fire';
+  if ((mods?.freeze ?? s.player.sphereMods.freeze) > 0) return 'freeze';
+  if ((mods?.poison ?? s.player.sphereMods.poison) > 0) return 'poison';
   return 'none';
 }
 
@@ -614,7 +615,7 @@ export function updateSpheres(s: GameState, dt: number): void {
         // apply status effects
         if (p.effect === 'fire') {
           let duration = 3 * getCharacterStatusDurationMultiplier(s);
-          let dps = (5 + sphereModifiers(s, sphere.type, sphere).fire * 3) * getCharacterStatusDamageMultiplier(s);
+          let dps = (5 + sphereModifiers(s, p.sourceSphere?.type ?? sphere.type, p.sourceSphere ?? sphere).fire * 3) * getCharacterStatusDamageMultiplier(s);
           if (getCharacterId(s) === 'alchemist' && s.player.characterMasteryLevel >= 3) dps *= 1.05;
           if (getCharacterId(s) === 'alchemist' && s.player.alchemistCatalystTimer > 0) {
             duration *= 1.5;
@@ -623,7 +624,7 @@ export function updateSpheres(s: GameState, dt: number): void {
           e.fireTimer = (e.fireTimer || 0) + duration;
           e.fireDps = dps;
         } else if (p.effect === 'freeze') {
-          let duration = (0.5 + sphereModifiers(s, sphere.type, sphere).freeze * 0.3) * getCharacterStatusDurationMultiplier(s);
+          let duration = (0.5 + sphereModifiers(s, p.sourceSphere?.type ?? sphere.type, p.sourceSphere ?? sphere).freeze * 0.3) * getCharacterStatusDurationMultiplier(s);
           if (getCharacterId(s) === 'alchemist' && s.player.alchemistCatalystTimer > 0) {
             duration *= 1.5;
             s.player.alchemistCatalystTimer = 0;
@@ -631,7 +632,7 @@ export function updateSpheres(s: GameState, dt: number): void {
           e.freezeTimer = Math.max(e.freezeTimer || 0, duration);
         } else if (p.effect === 'poison') {
           let duration = 4 * getCharacterStatusDurationMultiplier(s);
-          let dps = (3 + sphereModifiers(s, sphere.type, sphere).poison * 2) * getCharacterStatusDamageMultiplier(s);
+          let dps = (3 + sphereModifiers(s, p.sourceSphere?.type ?? sphere.type, p.sourceSphere ?? sphere).poison * 2) * getCharacterStatusDamageMultiplier(s);
           if (getCharacterId(s) === 'alchemist' && s.player.characterMasteryLevel >= 3) dps *= 1.05;
           if (getCharacterId(s) === 'alchemist' && s.player.alchemistCatalystTimer > 0) {
             duration *= 1.5;
