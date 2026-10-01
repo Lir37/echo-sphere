@@ -176,7 +176,7 @@ export default function CharacterSelect({ lang, gold, onGoldChange, onBack, onSe
                     <div className="mt-3">
                       <div className="flex items-center justify-between gap-2 text-[10px]">
                         <span className="text-[#8a7a5a]">
-                          {lang === 'ru' ? `Мастерство ${profile.masteryLevel}/5` : `Mastery ${profile.masteryLevel}/5`}
+                          {lang === 'ru' ? `Мастерство ${profile.masteryLevel}/10` : `Mastery ${profile.masteryLevel}/10`}
                           {currentMastery ? ` · ${currentMastery.title[lang]}` : ''}
                         </span>
                         <span className="font-mono text-[#6b5b42]">
