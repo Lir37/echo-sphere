@@ -141,6 +141,7 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
   }
 
   let actual = dmg;
+  if (enemy.isElite && enemy.eliteVariant === 'mirror_warden' && fromSphere) actual *= 0.88;
   if (fromSphere) {
     actual *= getCharacterDamageMultiplier(s, fromSphere);
     actual *= getHunterMarkMultiplier(s, enemy);
@@ -504,6 +505,7 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
   // buff from chest
   if (s.player.buffTimer > 0) actual *= 1.3;
   enemy.hp -= actual;
+  if (enemy.isElite && enemy.eliteVariant === 'mirror_warden' && fromSphere && actual > 0) damagePlayer(s, actual * 0.12);
   if (fromSphere) chargeResonance(s, 'sphereHit', dealDamageToEnemy);
   enemy.hitFlash = 0.15;
 
@@ -637,6 +639,49 @@ export function onEnemyDeath(s: GameState, enemy: EnemyEntity, fromSphere?: Sphe
   if (getCharacterId(s) === 'hunter' && s.player.hunterHuntTarget === enemy) {
     s.player.hunterHuntTarget = null;
     s.player.hunterHuntTimer = 0;
+  }
+  if (enemy.isElite && enemy.eliteVariant === 'splitter_prime') {
+    for (let k = 0; k < 2; k++) {
+      const angle = nextRandom(s) * Math.PI * 2;
+      const childHp = Math.max(8, enemy.maxHp * 0.18);
+      s.enemies.push({
+        pos: { x: enemy.pos.x + Math.cos(angle) * 18, y: enemy.pos.y + Math.sin(angle) * 18 },
+        hp: childHp,
+        maxHp: childHp,
+        speed: enemy.speed * 1.15,
+        radius: 10,
+        damage: enemy.damage * 0.45,
+        type: 'fast',
+        color: '#8a5a8a',
+        shape: 'triangle',
+        slowTimer: 0,
+        slowFactor: 1,
+        freezeTimer: 0,
+        hitFlash: 0,
+        isBoss: false,
+        bossShootTimer: 0,
+        bossProjectiles: [],
+        xpValue: 2,
+        rotation: 0,
+        tier: enemy.tier,
+        trailTimer: 0,
+        fireTimer: 0,
+        fireDps: 0,
+        poisonTimer: 0,
+        poisonDps: 0,
+        isElite: false,
+        elitePulseTimer: 0,
+        bossType: 'shooter',
+        chargeTimer: 0,
+        isCharging: false,
+        chargeDir: { x: 0, y: 0 },
+        summonTimer: 0,
+        auraRadius: 0,
+        auraDps: 0,
+        visualVariant: 'skitter',
+      });
+    }
+    s.flashText = { text: 'SPLITTER', life: 0.6, color: '#b8475a' };
   }
   playSound(enemy.isBoss ? 'explosion' : 'kill');
   // Stronger death burst, scaled by enemy importance.
