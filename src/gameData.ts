@@ -272,7 +272,7 @@ export const SPHERE_TYPES: Record<SphereType, SphereTypeDef> = {
 };
 
 // ===== Boss Types =====
-export type BossType = 'shooter' | 'charger' | 'summoner' | 'aura';
+export type BossType = 'shooter' | 'charger' | 'summoner' | 'aura' | 'conductor' | 'architect' | 'null' | 'stella_warden';
 
 export interface BossTypeDef {
   id: BossType;
@@ -285,6 +285,10 @@ export const BOSS_TYPES: Record<BossType, BossTypeDef> = {
   charger: { id: 'charger', name: { ru: 'Зарядник', en: 'Charger' }, color: '#ff9c3d' },
   summoner: { id: 'summoner', name: { ru: 'Призыватель', en: 'Summoner' }, color: '#a27cff' },
   aura: { id: 'aura', name: { ru: 'Аура', en: 'Aura' }, color: '#ff62b9' },
+  conductor: { id: 'conductor', name: { ru: 'Кондуктор', en: 'Conductor' }, color: '#4fd8ff' },
+  architect: { id: 'architect', name: { ru: 'Архитектор', en: 'Architect' }, color: '#ffc56a' },
+  null: { id: 'null', name: { ru: 'Нуль', en: 'Null' }, color: '#9b7cff' },
+  stella_warden: { id: 'stella_warden', name: { ru: 'Страж Стеллы', en: 'Stella Warden' }, color: '#ffd15a' },
 };
 
 // ===== Difficulty =====
