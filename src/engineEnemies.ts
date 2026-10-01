@@ -501,6 +501,116 @@ export function updateEnemies(s: GameState, dt: number): void {
             e.bossProjectiles.push({ pos: { ...e.pos }, vel: { x: Math.cos(angle) * 180, y: Math.sin(angle) * 180 }, damage: 20, radius: 8, alive: true });
           }
         }
+      } else if (e.bossType === 'conductor') {
+        e.bossShootTimer -= dt;
+        e.summonTimer -= dt;
+        e.chargeTimer -= dt;
+        if (e.bossShootTimer <= 0) {
+          e.bossShootTimer = 4;
+          for (let k = -2; k <= 2; k++) {
+            const angle = Math.atan2(dy, dx) + k * 0.18;
+            e.bossProjectiles.push({ pos: { ...e.pos }, vel: { x: Math.cos(angle) * 205, y: Math.sin(angle) * 205 }, damage: 22, radius: 7, alive: true });
+          }
+        }
+        if (e.summonTimer <= 0) {
+          e.summonTimer = 7;
+          const targets = s.spheres
+            .filter((sphere) => sphere.alive && sphere.networkDisabledTimer <= 0)
+            .sort((a, b) => dist(a.pos, e.pos) - dist(b.pos, e.pos))
+            .slice(0, 2);
+          for (const target of targets) target.networkDisabledTimer = 1.6;
+          s.flashText = { text: 'CONDUCTOR BREAK', life: 0.8, color: '#4fd8ff' };
+        }
+        if (e.chargeTimer <= 0) {
+          e.chargeTimer = 6;
+          s.flashText = { text: 'CONDUCTOR SURGE', life: 0.7, color: '#4fd8ff' };
+          if (d < 260) damagePlayer(s, e.damage * 1.35);
+        }
+      } else if (e.bossType === 'architect') {
+        e.bossShootTimer -= dt;
+        e.summonTimer -= dt;
+        e.chargeTimer -= dt;
+        if (e.bossShootTimer <= 0) {
+          e.bossShootTimer = 4.5;
+          for (let k = 0; k < 6; k++) {
+            const angle = k * (Math.PI * 2 / 6) + e.rotation * 0.25;
+            e.bossProjectiles.push({ pos: { ...e.pos }, vel: { x: Math.cos(angle) * 165, y: Math.sin(angle) * 165 }, damage: 18, radius: 7, alive: true });
+          }
+        }
+        if (e.summonTimer <= 0) {
+          e.summonTimer = 7;
+          const angle = nextRandom(s) * Math.PI * 2;
+          e.pos.x = s.player.pos.x + Math.cos(angle) * 360;
+          e.pos.y = s.player.pos.y + Math.sin(angle) * 360;
+          s.player.resonanceCharge = Math.max(0, s.player.resonanceCharge - 12);
+          s.flashText = { text: 'GEOMETRY SHIFT', life: 0.8, color: '#ffc56a' };
+        }
+        if (e.chargeTimer <= 0) {
+          e.chargeTimer = 6;
+          const target = s.spheres
+            .filter((sphere) => sphere.alive)
+            .sort((a, b) => dist(a.pos, e.pos) - dist(b.pos, e.pos))[0];
+          if (target) target.networkDisabledTimer = 1.2;
+          s.flashText = { text: 'ARCHITECT SEAL', life: 0.7, color: '#ffc56a' };
+        }
+      } else if (e.bossType === 'null') {
+        e.bossShootTimer -= dt;
+        e.summonTimer -= dt;
+        e.chargeTimer -= dt;
+        if (e.bossShootTimer <= 0) {
+          e.bossShootTimer = 3.5;
+          const angle = Math.atan2(dy, dx);
+          for (let k = -2; k <= 2; k++) {
+            const a = angle + k * 0.24;
+            e.bossProjectiles.push({ pos: { ...e.pos }, vel: { x: Math.cos(a) * 140, y: Math.sin(a) * 140 }, damage: 28, radius: 8, alive: true });
+          }
+        }
+        if (e.summonTimer <= 0) {
+          e.summonTimer = 6;
+          s.player.resonanceCharge = Math.max(0, s.player.resonanceCharge - 25);
+          for (const sphere of s.spheres) sphere.attackTimer += 0.45;
+          s.flashText = { text: 'NULL FIELD', life: 0.8, color: '#9b7cff' };
+        }
+        if (e.chargeTimer <= 0) {
+          e.chargeTimer = 5;
+          if (d < 180) damagePlayerDoT(s, 18 * dt);
+          s.flashText = { text: 'NULL SHOCK', life: 0.5, color: '#9b7cff' };
+        }
+      } else if (e.bossType === 'stella_warden') {
+        e.bossShootTimer -= dt;
+        e.summonTimer -= dt;
+        e.chargeTimer -= dt;
+        if (e.bossShootTimer <= 0) {
+          e.bossShootTimer = 3.5;
+          for (let k = -2; k <= 2; k++) {
+            const angle = Math.atan2(dy, dx) + k * 0.16;
+            e.bossProjectiles.push({ pos: { ...e.pos }, vel: { x: Math.cos(angle) * 190, y: Math.sin(angle) * 190 }, damage: 24, radius: 8, alive: true });
+          }
+        }
+        if (e.summonTimer <= 0) {
+          e.summonTimer = 8;
+          for (let k = 0; k < 2; k++) {
+            const a = nextRandom(s) * Math.PI * 2;
+            const hp = 18 + s.wave * 3;
+            s.enemies.push({
+              pos: { x: e.pos.x + Math.cos(a) * 55, y: e.pos.y + Math.sin(a) * 55 },
+              hp, maxHp: hp, speed: 85, radius: 10, damage: 8, type: 'normal',
+              color: '#d4943d', shape: 'triangle',
+              slowTimer: 0, slowFactor: 1, freezeTimer: 0, hitFlash: 0,
+              isBoss: false, bossShootTimer: 0, bossProjectiles: [], xpValue: 3, rotation: 0, tier: 0,
+              trailTimer: 0, fireTimer: 0, fireDps: 0, poisonTimer: 0, poisonDps: 0,
+              isElite: false, elitePulseTimer: 0, bossType: 'shooter',
+              chargeTimer: 0, isCharging: false, chargeDir: { x: 0, y: 0 }, summonTimer: 0,
+              auraRadius: 0, auraDps: 0, visualVariant: 'moth',
+            });
+          }
+          s.flashText = { text: 'STELLA GUARD', life: 0.8, color: '#ffd15a' };
+        }
+        if (e.chargeTimer <= 0) {
+          e.chargeTimer = 6;
+          if (d < 240) damagePlayer(s, e.damage * 1.20);
+          s.flashText = { text: 'STELLA JUDGEMENT', life: 0.7, color: '#ffd15a' };
+        }
       } else {
         // shooter (default)
         e.bossShootTimer -= dt;
