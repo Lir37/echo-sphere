@@ -69,11 +69,11 @@ export function getSphereDamage(s: GameState, sphere: SphereEntity, network?: Sp
   if (s.player.chaosOrbBuff === 'dmg' && s.player.chaosOrbBuffTimer > 0) d *= 1.2;
   if (s.player.teleportDamageBuffTimer > 0) d *= 2;
   if (s.player.overloadTimer > 0) d *= 1.25 + (s.player.abilities.darkritual || 0) * 0.04;
-  if (s.player.fireTrailTimer > 0 && sphere && s.player.sphereMods.fire > 0) {
+  if (s.player.fireTrailTimer > 0 && sphere && sphereModifiers(s, sphere.type, sphere).fire > 0) {
     d *= 1.2 + (s.player.abilities.firetrail || 0) * 0.025;
   }
-  if (s.player.fireCatalystTimer > 0 && sphere && s.player.sphereMods.fire > 0) d *= 1.35;
-  if (sphere && s.player.sphereMods.fire > 0 && getAbilityBranchId(s, 'firetrail', 4) === 'firetrail_overdrive') d *= 1.15;
+  if (s.player.fireCatalystTimer > 0 && sphere && sphereModifiers(s, sphere.type, sphere).fire > 0) d *= 1.35;
+  if (sphere && sphereModifiers(s, sphere.type, sphere).fire > 0 && getAbilityBranchId(s, 'firetrail', 4) === 'firetrail_overdrive') d *= 1.15;
   if (s.player.timestopTimer > 0 && s.player.timestopTimer <= 1 && getAbilityBranchId(s, 'timestop', 7) === 'timestop_temporal_core') d *= 2;
   const sbLvl = s.player.abilities.sphereboost || 0;
   if (sbLvl > 0) {
@@ -124,7 +124,7 @@ export function getSphereDelay(s: GameState, sphere?: SphereEntity, network?: Sp
   d /= Math.max(0.01, getCharacterAttackSpeedMultiplier(s));
   d *= getArtifactSphereDelayMultiplier(s);
   if (s.player.overloadTimer > 0) d *= 0.72;
-  if (s.player.fireTrailTimer > 0 && sphere && s.player.sphereMods.fire > 0) d *= 0.78;
+  if (s.player.fireTrailTimer > 0 && sphere && sphereModifiers(s, sphere.type, sphere).fire > 0) d *= 0.78;
   if (sphere) {
     const networkState = network ?? getNetworkFrame(s);
     const profile = getSphereNetworkProfile(networkState, s.spheres.indexOf(sphere));
@@ -134,11 +134,15 @@ export function getSphereDelay(s: GameState, sphere?: SphereEntity, network?: Sp
   return d;
 }
 
-function applyDirectSphereStatus(s: GameState, enemy: EnemyEntity, effect: 'fire' | 'freeze' | 'poison'): void {
+function applyDirectSphereStatus(s: GameState, enemy: EnemyEntity, effect: 'fire' | 'freeze' | 'poison', sourceSphere?: SphereEntity): void {
   if (enemy.hp <= 0) return;
+  const mods = sourceSphere ? sphereModifiers(s, sourceSphere.type, sourceSphere) : null;
+  const fireLevel = mods?.fire ?? s.player.sphereMods.fire;
+  const freezeLevel = mods?.freeze ?? s.player.sphereMods.freeze;
+  const poisonLevel = mods?.poison ?? s.player.sphereMods.poison;
   if (effect === 'fire') {
     let duration = 3 * getCharacterStatusDurationMultiplier(s);
-    let dps = (5 + s.player.sphereMods.fire * 3) * getCharacterStatusDamageMultiplier(s);
+    let dps = (5 + sphereModifiers(s, sphere.type, sphere).fire * 3) * getCharacterStatusDamageMultiplier(s);
     if (getCharacterId(s) === 'alchemist' && s.player.characterMasteryLevel >= 3) dps *= 1.05;
     if (getCharacterId(s) === 'alchemist' && s.player.alchemistCatalystTimer > 0) {
       duration *= 1.5;
@@ -147,7 +151,7 @@ function applyDirectSphereStatus(s: GameState, enemy: EnemyEntity, effect: 'fire
     enemy.fireTimer = Math.max(enemy.fireTimer || 0, duration);
     enemy.fireDps = dps;
   } else if (effect === 'freeze') {
-    let duration = (0.5 + s.player.sphereMods.freeze * 0.3) * getCharacterStatusDurationMultiplier(s);
+    let duration = (0.5 + sphereModifiers(s, sphere.type, sphere).freeze * 0.3) * getCharacterStatusDurationMultiplier(s);
     if (getCharacterId(s) === 'alchemist' && s.player.alchemistCatalystTimer > 0) {
       duration *= 1.5;
       s.player.alchemistCatalystTimer = 0;
@@ -155,7 +159,7 @@ function applyDirectSphereStatus(s: GameState, enemy: EnemyEntity, effect: 'fire
     enemy.freezeTimer = Math.max(enemy.freezeTimer || 0, duration);
   } else {
     let duration = 4 * getCharacterStatusDurationMultiplier(s);
-    let dps = (3 + s.player.sphereMods.poison * 2) * getCharacterStatusDamageMultiplier(s);
+    let dps = (3 + sphereModifiers(s, sphere.type, sphere).poison * 2) * getCharacterStatusDamageMultiplier(s);
     if (getCharacterId(s) === 'alchemist' && s.player.characterMasteryLevel >= 3) dps *= 1.05;
     if (getCharacterId(s) === 'alchemist' && s.player.alchemistCatalystTimer > 0) {
       duration *= 1.5;
@@ -168,9 +172,9 @@ function applyDirectSphereStatus(s: GameState, enemy: EnemyEntity, effect: 'fire
 }
 
 function getActiveStatusEffect(s: GameState): 'none' | 'fire' | 'freeze' | 'poison' {
-  if (s.player.sphereMods.fire > 0) return 'fire';
-  if (s.player.sphereMods.freeze > 0) return 'freeze';
-  if (s.player.sphereMods.poison > 0) return 'poison';
+  if (sphereModifiers(s, sphere.type, sphere).fire > 0) return 'fire';
+  if (sphereModifiers(s, sphere.type, sphere).freeze > 0) return 'freeze';
+  if (sphereModifiers(s, sphere.type, sphere).poison > 0) return 'poison';
   return 'none';
 }
 
@@ -193,7 +197,7 @@ function updateOrbitalSphere(s: GameState, sphere: SphereEntity, damage: number,
   if (networkProfile.ring) orbitRadius *= 1.12;
   orbitRadius *= 1 + Math.min(0.20, networkProfile.linkedNeighbours * 0.03);
 
-  const status = getActiveStatusEffect(s);
+  const status = getActiveStatusEffect(s, sphere);
   const band = finalIndex === 1 ? 26 : 19;
   let hitSomething = false;
   for (const enemy of s.enemies) {
@@ -218,7 +222,7 @@ function updateOrbitalSphere(s: GameState, sphere: SphereEntity, damage: number,
     if (networkProfile.cluster) hitDamage *= 1.08;
 
     dealDamageToEnemy(s, enemy, hitDamage, sphere);
-    if (status !== 'none') applyDirectSphereStatus(s, enemy, status);
+    if (status !== 'none') applyDirectSphereStatus(s, enemy, status, sphere);
     hitSomething = true;
 
     if (branch === 'orbital_halo' && finalIndex === 2) {
@@ -258,7 +262,7 @@ function updatePrismSphere(s: GameState, sphere: SphereEntity, damage: number, r
 
 let beamCount = Math.max(1, 1 + mods.multishot);
   if (branch === 'prism_split' && finalIndex === 2) beamCount += 1;
-  const status = getActiveStatusEffect(s);
+  const status = getActiveStatusEffect(s, sphere);
   const used = new Set<EnemyEntity>();
 
   for (let beam = 0; beam < beamCount; beam++) {
@@ -273,7 +277,7 @@ let beamCount = Math.max(1, 1 + mods.multishot);
     if (networkProfile.lattice) beamDamage *= 1.08;
 
     dealDamageToEnemy(s, target, beamDamage, sphere);
-    if (status !== 'none') applyDirectSphereStatus(s, target, status);
+    if (status !== 'none') applyDirectSphereStatus(s, target, status, sphere);
     s.lightnings.push({ from: { ...sphere.pos }, to: { ...target.pos }, life: 0.10 });
   }
 
@@ -290,7 +294,7 @@ let beamCount = Math.max(1, 1 + mods.multishot);
       for (const index of linked) {
         const relay = s.spheres[index];
         dealDamageToEnemy(s, target, damage * 0.42, relay, false);
-        if (status !== 'none') applyDirectSphereStatus(s, target, status);
+        if (status !== 'none') applyDirectSphereStatus(s, target, status, sphere);
         s.lightnings.push({ from: { ...relay.pos }, to: { ...target.pos }, life: 0.12 });
       }
     }
@@ -318,7 +322,7 @@ function updateGravitySphere(s: GameState, sphere: SphereEntity, damage: number,
   if (branch === 'gravity_collapse') pullStrength *= 0.90;
 
   const phase = branch === 'gravity_tide' ? Math.sin(sphere.rotation) : 1;
-  const status = getActiveStatusEffect(s);
+  const status = getActiveStatusEffect(s, sphere);
   const grouped = s.enemies.filter((enemy) => enemy.hp > 0 && dist(enemy.pos, sphere.pos) <= pullRadius).length;
 
   for (const enemy of s.enemies) {
@@ -333,7 +337,7 @@ function updateGravitySphere(s: GameState, sphere: SphereEntity, damage: number,
     }
     if (networkProfile.cluster) hitDamage *= 1.08;
     dealDamageToEnemy(s, enemy, hitDamage, sphere);
-    if (status !== 'none') applyDirectSphereStatus(s, enemy, status);
+    if (status !== 'none') applyDirectSphereStatus(s, enemy, status, sphere);
   }
 
   if (grouped >= 4 && branch === 'gravity_collapse' && finalIndex === 2) {
@@ -359,7 +363,7 @@ function updatePulseSphere(s: GameState, sphere: SphereEntity, damage: number, m
     const waveDamage = damage * (wave === 0 ? 1 : 0.46 + (branch === 'pulse_burst' ? 0.14 : 0));
     const pulseRadius = radius * (wave === 0 ? 1 : 0.68);
     emitSpherePulse(s, sphere, waveDamage, pulseRadius, SPHERE_TYPES.pulse.color, branch === 'pulse_wave', sphere);
-    const pulseStatus = getActiveStatusEffect(s);
+    const pulseStatus = getActiveStatusEffect(s, sphere);
     if (pulseStatus !== 'none') {
       for (const enemy of s.enemies) {
         if (enemy.hp > 0 && dist(enemy.pos, sphere.pos) <= pulseRadius) applyDirectSphereStatus(s, enemy, pulseStatus);
@@ -484,7 +488,7 @@ export function updateSpheres(s: GameState, dt: number): void {
         const dirX = dx / d;
         const dirY = dy / d;
         const mods = sphereModifiers(s, sphere.type, sphere);
-        const sphereMods = s.player.sphereMods;
+        const sphereMods = mods;
         const shots = sphere.type === 'shotgun' ? stype.pellets + mods.multishot : 1 + mods.multishot;
         const relayMultiplier = consumeEngineerRelayBonus(s, sphere);
         const formation = getCharacterFormation(s);
@@ -516,7 +520,7 @@ export function updateSpheres(s: GameState, dt: number): void {
               pierce: mods.pierce + formationPierce + (networkProfile.line ? 1 : 0) + (networkProfile.square ? 1 : 0) + sphereModifiers(s, sphere.type).pierce,
               hitEnemies: new Set(),
               effect,
-              ricochet: sphereUsesProjectileModifiers(sphere.type) ? s.player.sphereMods.ricochet : 0,
+              ricochet: sphereUsesProjectileModifiers(sphere.type) ? sphereMods.ricochet : 0,
               life: 2,
               sourceSphere: sphere,
             });
@@ -610,7 +614,7 @@ export function updateSpheres(s: GameState, dt: number): void {
         // apply status effects
         if (p.effect === 'fire') {
           let duration = 3 * getCharacterStatusDurationMultiplier(s);
-          let dps = (5 + s.player.sphereMods.fire * 3) * getCharacterStatusDamageMultiplier(s);
+          let dps = (5 + sphereModifiers(s, sphere.type, sphere).fire * 3) * getCharacterStatusDamageMultiplier(s);
           if (getCharacterId(s) === 'alchemist' && s.player.characterMasteryLevel >= 3) dps *= 1.05;
           if (getCharacterId(s) === 'alchemist' && s.player.alchemistCatalystTimer > 0) {
             duration *= 1.5;
@@ -619,7 +623,7 @@ export function updateSpheres(s: GameState, dt: number): void {
           e.fireTimer = (e.fireTimer || 0) + duration;
           e.fireDps = dps;
         } else if (p.effect === 'freeze') {
-          let duration = (0.5 + s.player.sphereMods.freeze * 0.3) * getCharacterStatusDurationMultiplier(s);
+          let duration = (0.5 + sphereModifiers(s, sphere.type, sphere).freeze * 0.3) * getCharacterStatusDurationMultiplier(s);
           if (getCharacterId(s) === 'alchemist' && s.player.alchemistCatalystTimer > 0) {
             duration *= 1.5;
             s.player.alchemistCatalystTimer = 0;
@@ -627,7 +631,7 @@ export function updateSpheres(s: GameState, dt: number): void {
           e.freezeTimer = Math.max(e.freezeTimer || 0, duration);
         } else if (p.effect === 'poison') {
           let duration = 4 * getCharacterStatusDurationMultiplier(s);
-          let dps = (3 + s.player.sphereMods.poison * 2) * getCharacterStatusDamageMultiplier(s);
+          let dps = (3 + sphereModifiers(s, sphere.type, sphere).poison * 2) * getCharacterStatusDamageMultiplier(s);
           if (getCharacterId(s) === 'alchemist' && s.player.characterMasteryLevel >= 3) dps *= 1.05;
           if (getCharacterId(s) === 'alchemist' && s.player.alchemistCatalystTimer > 0) {
             duration *= 1.5;
@@ -637,7 +641,7 @@ export function updateSpheres(s: GameState, dt: number): void {
           e.poisonDps = dps;
         }
         if (p.effect !== 'none' && applyAlchemistReaction(s, e) && e.hp <= 0) {
-          onEnemyDeath(s, e);
+          onEnemyDeath(s, e, p.sourceSphere);
         }
         const hitMods = p.sourceSphere ? sphereModifiers(s, p.sourceSphere.type, p.sourceSphere) : null;
         if (hitMods && hitMods.splitChance > 0 && p.procOnHit !== false && nextRandom(s) < hitMods.splitChance) {
