@@ -367,7 +367,7 @@ function updatePulseSphere(s: GameState, sphere: SphereEntity, damage: number, m
     const pulseStatus = getActiveStatusEffect(s, sphere);
     if (pulseStatus !== 'none') {
       for (const enemy of s.enemies) {
-        if (enemy.hp > 0 && dist(enemy.pos, sphere.pos) <= pulseRadius) applyDirectSphereStatus(s, enemy, pulseStatus);
+        if (enemy.hp > 0 && dist(enemy.pos, sphere.pos) <= pulseRadius) applyDirectSphereStatus(s, enemy, pulseStatus, sphere);
       }
     }
     if (branch === 'pulse_wave') {
