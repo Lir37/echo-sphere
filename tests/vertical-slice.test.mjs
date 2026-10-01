@@ -31,3 +31,17 @@ test('global Resonance uses a player-level resource separate from local formatio
   assert.equal(player.resonanceCharge, 5);
   assert.equal(sphere.formationHitCount, 1);
 });
+
+test('Build Diagnostics is descriptive and does not expose a ranking score', async () => {
+  const statsSource = await fs.readFile(new URL('../src/engineStats.ts', import.meta.url), 'utf8');
+  const appSource = await fs.readFile(new URL('../src/App.tsx', import.meta.url), 'utf8');
+  assert.match(statsSource, /export function getBuildDiagnostics\(s: GameState\): BuildDiagnosticRow\[\]/);
+  assert.match(statsSource, /id: 'offense'/);
+  assert.match(statsSource, /id: 'control'/);
+  assert.match(statsSource, /id: 'survival'/);
+  assert.match(statsSource, /id: 'network'/);
+  assert.match(statsSource, /id: 'resonance'/);
+  assert.match(statsSource, /id: 'synergy'/);
+  assert.doesNotMatch(statsSource, /score|rank|rating/i);
+  assert.match(appSource, /getBuildDiagnostics\(st\)/);
+});
