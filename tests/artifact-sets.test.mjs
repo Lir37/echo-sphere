@@ -38,11 +38,22 @@ test('Artifact Set completion is derived from its pair synergies', () => {
 test('all current Artifact Sets expose protocol discovery and completion bonus', async () => {
   const mod = await import('../src/artifactSystem.ts');
   const all = Object.values(mod.ARTIFACT_META).map((item) => item.id);
-  const states = mod.getArtifactProtocolStates({ player: { artifacts: all, combo: 10 }, spheres: [
-    { type: 'standard', alive: true, pos: { x: 0, y: 0 } },
-    { type: 'sniper', alive: true, pos: { x: 10, y: 0 } },
-    { type: 'chain', alive: true, pos: { x: 0, y: 10 } },
-  ]});
+  const states = mod.getArtifactProtocolStates({
+    player: { artifacts: all, combo: 10, resonanceGeometryKey: 'ring', timestopTimer: 1, teleportDamageBuffTimer: 1, sphereMods: { fire: 1 } },
+    enemies: [
+      { type: 'x', hp: 100, isElite: true, isBoss: false },
+      { type: 'x', hp: 100, isElite: false, isBoss: false },
+      { type: 'x', hp: 100, isElite: false, isBoss: false },
+      { type: 'x', hp: 100, isElite: false, isBoss: false },
+    ],
+    spheres: [
+      { type: 'standard', alive: true, pos: { x: 0, y: 0 } },
+      { type: 'sniper', alive: true, pos: { x: 10, y: 0 } },
+      { type: 'prism', alive: true, pos: { x: 0, y: 10 } },
+      { type: 'pulse', alive: true, pos: { x: 20, y: 20 } },
+      { type: 'void', alive: true, pos: { x: -20, y: -20 } },
+    ]
+  });
   assert.equal(states.length, 10);
   assert.ok(states.every((x) => x.discovered));
   assert.ok(states.every((x) => x.active));
