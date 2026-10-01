@@ -3138,3 +3138,24 @@ After CI becomes observable, APK PlayerCheck should confirm the exact old
 multi-line muzzle at gameplay scale. Do not introduce a new physical barrel
 unless a separate PlayerCheck request explicitly requires it.
 
+
+
+======================================================================
+[2026-10-01] STANDARD WEAPON PERSISTENCE + CREATURE ANATOMY REWORK
+======================================================================
+[FIX] Standard's accepted thin multi-line weapon/emitter is now rendered as
+a persistent visual layer after mutation VFX, so Level 4/7 mutation
+silhouettes cannot remove it between attacks.
+[CONSTRAINT] This is NOT the rejected solid cannon/barrel. The authored
+assembly remains free of cannonAngle / roundRect cannon geometry.
+[FIX] Enemy limbs now use explicit hip -> knee -> ankle -> foot kinematics.
+Paired legs are generated from mirrored ±Y body sides with stride phase,
+knee lift and readable joints.
+[FIX] Tail generation now starts at the rear (-X) and every segment advances
+further rearward. Tails no longer originate in the torso and sweep sideways.
+[FIX] Updated normal enemy families and bosses to use symmetric side anatomy;
+Void Lancer, Dread Charger, Brood Matriarch, Abyssal Leviathan and
+tail-bearing normal creatures now follow the same anatomical convention.
+[UNCHANGED] Combat simulation, enemy AI, Sphere damage and mutation gameplay.
+[GATE] CI + APK PlayerCheck. Verify Standard at Lv1-3 and after Lv4 mutation,
+then inspect creature movement from multiple travel directions.
