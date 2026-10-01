@@ -194,9 +194,10 @@ export function getUpgradeSourceWeight(s: GameState, source: UpgradeSource): num
     s.spheres.filter((sphere) => sphere.alive).length +
     Object.values(s.player.sphereProgression || {}).reduce((sum, level) => sum + (level || 0) * 0.15, 0);
   const abilityScore = Object.values(s.player.abilities || {}).filter((level) => (level || 0) > 0).length;
-  const scores: Record<UpgradeSource, number> = { sphere: sphereScore, ability: abilityScore };
+  const routineSource = source as Exclude<UpgradeSource, 'modifier'>;
+  const scores: Record<Exclude<UpgradeSource, 'modifier'>, number> = { sphere: sphereScore, ability: abilityScore };
   const minimum = Math.min(scores.sphere, scores.ability);
-  const underrepresentedWeight = scores[source] <= minimum + 0.001 ? 1.15 : 1;
+  const underrepresentedWeight = scores[routineSource] <= minimum + 0.001 ? 1.15 : 1;
 
   return pityWeight * underrepresentedWeight;
 }
