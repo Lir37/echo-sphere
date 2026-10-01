@@ -25,6 +25,7 @@ export function getMoveSpeed(s: GameState): number {
   sp *= getCharacterMoveSpeedMultiplier(s);
   if (s.player.hunterTrophyTimer > 0 && getCharacterId(s) === 'hunter') sp *= 1.1;
   if (getCharacterId(s) === 'berserker' && s.player.characterMasteryLevel >= 5 && s.player.buffTimer > 0) sp *= 1.05;
+  if (s.player.abilities.momentum && s.player.dashTimer > 0) sp *= 1 + (s.player.abilities.momentum * 0.05);
   return sp;
 }
 
