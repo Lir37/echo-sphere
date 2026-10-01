@@ -578,13 +578,16 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
         });
       }
     }
-    onEnemyDeath(s, enemy);
+    onEnemyDeath(s, enemy, fromSphere);
   }
 }
 
 
-export function onEnemyDeath(s: GameState, enemy: EnemyEntity): void {
-  if (s.player.sphereMods.drain > 0) {
+export function onEnemyDeath(s: GameState, enemy: EnemyEntity, fromSphere?: SphereEntity): void {
+  if (fromSphere) {
+    const healOnKill = sphereModifiers(s, fromSphere.type, fromSphere).healOnKill;
+    if (healOnKill > 0) s.player.hp = Math.min(s.player.maxHp, s.player.hp + s.player.maxHp * healOnKill);
+  } else if (s.player.sphereMods.drain > 0) {
     s.player.hp = Math.min(s.player.maxHp, s.player.hp + s.player.maxHp * 0.03 * s.player.sphereMods.drain);
   }
   if (!enemy.isBoss) {
