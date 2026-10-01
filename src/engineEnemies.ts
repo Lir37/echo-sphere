@@ -301,6 +301,7 @@ function applyGravityFields(s: GameState, dt: number): void {
 
       // Continuous inverse-distance-style falloff: far enemies are only nudged
       // off course, while the force rises sharply as they approach the core.
+      if (enemy.role === 'phase') continue;
       const proximity = 1 - d / radius;
       let pullSpeed = 8 + strength * proximity * proximity * 3.4;
       if (branch === 'gravity_tide') {
@@ -356,6 +357,8 @@ export function updateEnemies(s: GameState, dt: number): void {
     if (slowLvl > 0 && dist(e.pos, s.player.pos) < getSlowRadius()) {
       speedMult = Math.min(speedMult, getSlowFactor(s));
     }
+    if (e.role === 'phase') speedMult *= 1.12;
+    if (e.role === 'scavenger' && e.hp / Math.max(1, e.maxHp) < 0.5) speedMult *= 1.30;
     // invisibility cloak: lower aggression
     let aggro = 1;
     if (s.player.artifacts.includes('veil_cloak') && s.player.hp / s.player.maxHp < 0.3) {
@@ -369,6 +372,38 @@ export function updateEnemies(s: GameState, dt: number): void {
     if (e.eliteVariant === 'scavenger_prime' && e.hp / Math.max(1, e.maxHp) < 0.5) speedMult *= 1.30;
     e.pos.x += (dx / d) * e.speed * speedMult * aggro * dt;
     e.pos.y += (dy / d) * e.speed * speedMult * aggro * dt;
+
+    if (!e.isBoss && e.role === 'leech' && d < 160) {
+      e.hp = Math.min(e.maxHp, e.hp + 3 * dt);
+    }
+    if (!e.isBoss && (e.role === 'ranged' || e.role === 'sniper')) {
+      e.bossShootTimer -= dt;
+      if (e.bossShootTimer <= 0 && d > 240 && d < 620) {
+        e.bossShootTimer = e.role === 'sniper' ? 2.2 : 3.2;
+        damagePlayerDoT(s, (e.role === 'sniper' ? 10 : 6) * dt);
+      }
+    }
+    if (!e.isBoss && e.role === 'healer') {
+      e.summonTimer -= dt;
+      if (e.summonTimer <= 0) {
+        e.summonTimer = 4.5;
+        const allies = s.enemies.filter((ally) => ally !== e && ally.hp > 0 && dist(ally.pos, e.pos) <= 120);
+        for (const ally of allies.slice(0, 3)) ally.hp = Math.min(ally.maxHp, ally.hp + ally.maxHp * 0.08);
+      }
+    }
+    if (!e.isBoss && e.role === 'disruptor') {
+      e.summonTimer -= dt;
+      if (e.summonTimer <= 0) {
+        e.summonTimer = 6;
+        const target = s.spheres
+          .filter((sphere) => sphere.alive && sphere.networkDisabledTimer <= 0)
+          .sort((a, b) => dist(a.pos, e.pos) - dist(b.pos, e.pos))[0];
+        if (target && dist(target.pos, e.pos) <= 280) {
+          target.networkDisabledTimer = 1;
+          s.flashText = { text: 'DISRUPTOR', life: 0.5, color: '#b8475a' };
+        }
+      }
+    }
 
     if (e.isElite && e.eliteVariant !== 'linkbreaker') {
       e.elitePulseTimer -= dt;
@@ -439,7 +474,8 @@ export function updateEnemies(s: GameState, dt: number): void {
 
     // collision with player
     if (d < e.radius + PLAYER_RADIUS) {
-      damagePlayer(s, e.damage);
+      damagePlayer(s, e.damage * (e.role === 'charger' ? 1.20 : 1));
+      if (e.role === 'corruptor') s.player.resonanceCharge = Math.max(0, s.player.resonanceCharge - 4);
       // boss projectile enemies don't self-damage on contact; normal enemies bounce
       if (!e.isBoss) {
         // knockback
