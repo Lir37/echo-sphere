@@ -130,19 +130,19 @@ export function spawnEnemy(s: GameState, isBoss: boolean): EnemyEntity {
   const role = ENEMY_ROLES[Math.floor(nextRandom(s) * ENEMY_ROLES.length)];
   switch (role) {
     case 'swarmer': hp *= 0.65; speed *= 1.35; radius *= 0.85; break;
-    case 'charger': speed *= 1.25; damage *= 1.10; break;
+    case 'charger': speed *= 1.25; dmg *= 1.10; break;
     case 'tank_guard': hp *= 1.55; speed *= 0.72; radius *= 1.15; break;
-    case 'ranged': speed *= 0.82; damage *= 1.18; break;
+    case 'ranged': speed *= 0.82; dmg *= 1.18; break;
     case 'splitter': hp *= 0.85; break;
-    case 'healer': speed *= 0.90; damage *= 0.80; break;
-    case 'bomber': damage *= 1.45; speed *= 0.90; break;
-    case 'leech': speed *= 0.95; damage *= 1.05; break;
-    case 'sniper': speed *= 0.72; damage *= 1.65; break;
+    case 'healer': speed *= 0.90; dmg *= 0.80; break;
+    case 'bomber': dmg *= 1.45; speed *= 0.90; break;
+    case 'leech': speed *= 0.95; dmg *= 1.05; break;
+    case 'sniper': speed *= 0.72; dmg *= 1.65; break;
     case 'disruptor': speed *= 0.92; break;
     case 'anchor': hp *= 1.30; speed *= 0.65; radius *= 1.10; break;
     case 'phase': speed *= 1.18; radius *= 0.90; break;
     case 'scavenger': speed *= 1.10; break;
-    case 'corruptor': damage *= 1.20; break;
+    case 'corruptor': dmg *= 1.20; break;
   }
   const isElite = wave > 5 && nextRandom(s) < Math.min(0.12, 0.03 + wave * 0.005);
   let eliteVariant: EliteVariant | undefined;
