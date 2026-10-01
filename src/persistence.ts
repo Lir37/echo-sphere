@@ -26,7 +26,7 @@ export function getCharacterMasteryLevelForXp(xp: number): number {
 }
 
 export function getCharacterMasteryNextThreshold(level: number): number | null {
-  return level >= 5 ? null : CHARACTER_MASTERY_THRESHOLDS[level];
+  return level >= 10 ? null : CHARACTER_MASTERY_THRESHOLDS[level];
 }
 
 
