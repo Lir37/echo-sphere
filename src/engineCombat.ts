@@ -21,7 +21,7 @@ import {
   getArtifactSetBehavior,
   pickArtifactChoices,
 } from './artifactSystem';
-import { sphereLevel, getActiveSphereAbilitySynergies } from './sphereProgression';
+import { sphereLevel, sphereModifiers, getActiveSphereAbilitySynergies } from './sphereProgression';
 import { getSphereNetworkProfile, getLinkedNodeIndexes } from './network';
 import { nextRandom } from './rng';
 import { RUNE_DEFS, type RuneType } from './runes';
@@ -144,6 +144,17 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
   if (fromSphere) {
     actual *= getCharacterDamageMultiplier(s, fromSphere);
     actual *= getHunterMarkMultiplier(s, enemy);
+    const mods = sphereModifiers(s, fromSphere.type, fromSphere);
+    const hpRatio = enemy.hp / Math.max(1, enemy.maxHp);
+
+    // Final modifier behaviors are intentionally local to the authoritative
+    // damage path so projectile, Aura and Chain hits share the same rules.
+    if (mods.execute > 0 && hpRatio <= 0.30) actual *= 1 + 0.18 * mods.execute;
+    if (mods.mark > 0 && getCharacterId(s) !== 'hunter' && s.player.hunterMarkTarget === enemy && s.player.hunterMarkTimer > 0) {
+      actual *= 1 + 0.15 * mods.mark;
+      s.player.hunterMarkTimer = 0;
+    }
+    if (mods.corrupt > 0 && hpRatio <= 0.60) actual *= 1 + 0.08 * mods.corrupt;
   }
   const contextualCritChance = getContextualCritChance(getCritChance(s, fromSphere), {
     hunterMarked: Boolean(
@@ -186,6 +197,65 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
   if (fromSphere && s.player.artifacts.includes('predator_claw')) {
     fromSphere.killsContribution++;
     if (fromSphere.killsContribution % 5 === 0) { actual *= 2; isCrit = true; }
+  }
+
+  if (fromSphere) {
+    const mods = sphereModifiers(s, fromSphere.type, fromSphere);
+    if (mods.shatter > 0 && enemy.freezeTimer > 0) {
+      const burst = actual * (0.20 + 0.08 * mods.shatter);
+      for (const nearby of s.enemies) {
+        if (nearby !== enemy && nearby.hp > 0 && dist(nearby.pos, enemy.pos) <= 48) {
+          dealDamageToEnemy(s, nearby, burst, fromSphere, false);
+        }
+      }
+    }
+    if (mods.impact > 0) {
+      const dx = enemy.pos.x - fromSphere.pos.x;
+      const dy = enemy.pos.y - fromSphere.pos.y;
+      const d = Math.hypot(dx, dy) || 1;
+      const push = 18 * mods.impact;
+      enemy.pos.x += dx / d * push;
+      enemy.pos.y += dy / d * push;
+    }
+    if (mods.gravitic > 0) {
+      for (const other of s.enemies) {
+        if (other === enemy || other.hp <= 0) continue;
+        const dx = enemy.pos.x - other.pos.x;
+        const dy = enemy.pos.y - other.pos.y;
+        const d = Math.hypot(dx, dy) || 1;
+        if (d <= 72) {
+          const pull = Math.min(10, 4 * mods.gravitic);
+          other.pos.x += dx / d * pull;
+          other.pos.y += dy / d * pull;
+        }
+      }
+    }
+    if (mods.anchor > 0) {
+      enemy.slowTimer = Math.max(enemy.slowTimer, 0.8 + 0.25 * mods.anchor);
+      enemy.slowFactor = Math.min(enemy.slowFactor, Math.max(0.35, 0.65 - 0.05 * mods.anchor));
+    }
+    if (mods.vampiric > 0) {
+      s.player.hp = Math.min(s.player.maxHp, s.player.hp + actual * mods.healOnHit);
+    }
+    if (mods.resonantCharge > 0) {
+      chargeResonance(s, 'sphereHit');
+    }
+    if (allowSphereProc && mods.echoChance > 0 && nextRandom(s) < mods.echoChance) {
+      dealDamageToEnemy(s, enemy, actual * 0.22, fromSphere, false);
+    }
+    if (allowSphereProc && mods.staticChance > 0 && nextRandom(s) < mods.staticChance) {
+      const next = s.enemies
+        .filter((candidate) => candidate !== enemy && candidate.hp > 0 && dist(candidate.pos, enemy.pos) <= 110)
+        .sort((a, b) => dist(a.pos, enemy.pos) - dist(b.pos, enemy.pos))[0];
+      if (next) {
+        s.lightnings.push({ from: { ...enemy.pos }, to: { ...next.pos }, life: 0.22, sourceSphere: fromSphere });
+        dealDamageToEnemy(s, next, actual * 0.35, fromSphere, false);
+      }
+    }
+    if (mods.mark > 0 && getCharacterId(s) !== 'hunter') {
+      s.player.hunterMarkTarget = enemy;
+      s.player.hunterMarkTimer = Math.max(s.player.hunterMarkTimer, 2.5);
+    }
   }
   // Basic Shotgun II: +20% damage at close range.
   if (fromSphere?.type === 'shotgun' && sphereLevel(s, 'shotgun') >= 2 && dist(enemy.pos, fromSphere.pos) < 110) {
@@ -514,6 +584,9 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
 
 
 export function onEnemyDeath(s: GameState, enemy: EnemyEntity): void {
+  if (s.player.sphereMods.drain > 0) {
+    s.player.hp = Math.min(s.player.maxHp, s.player.hp + s.player.maxHp * 0.03 * s.player.sphereMods.drain);
+  }
   if (!enemy.isBoss) {
     s.player.kills++;
     s.stats.enemiesKilled++;
