@@ -3406,3 +3406,53 @@ Reopening mass 3D production requires an explicit product decision after:
 END APPENDIX D
 ======================================================================
 
+
+
+======================================================================
+REVISION 1.3 — MODIFIER ROLE SIMPLIFICATION (2026-10-01)
+======================================================================
+
+This amendment supersedes conflicting Modifier and Level-Up wording in
+older sections above. It is a design decision and migration contract.
+
+PLAYER-FACING LEVEL-UP CATEGORIES:
+- Sphere (new Sphere, level, branch, final specialization)
+- Ability (active and passive)
+
+There is no third standalone Modifier category in ordinary Level-Up.
+The default remains three understandable cards, drawn from these two
+primary build systems. Network/Resonance and special milestone choices
+may appear only when explicitly designed as a special event, not as a
+third routine progression stream.
+
+MODIFIER ROLE:
+Modifiers are effect primitives attached to a specific Sphere build,
+not independent global upgrades. They may be surfaced through Sphere
+level progression, branch/final evolution, explicitly authored rare
+rewards, Artifacts, Sets, or Protocols.
+
+A Sphere may carry approximately 2-4 meaningful modifier effects in a
+completed build. This is a readability target, not a hard code limit
+until balance/playtest validates it. Modifier compatibility is authored
+per Sphere; effects are not universally available to all Sphere types.
+
+The existing 24-effect catalogue is provisional internal vocabulary,
+not a requirement to expose 24 cards to the player. Keep existing
+runtime behavior until each effect has a documented destination and
+regression coverage. Do not bulk-delete effect implementations.
+
+Migration order:
+1. Remove Modifier as a routine Level-Up source without breaking Sphere
+   or Ability choices.
+2. Classify existing effects as Sphere-core, status, rare/special,
+   merge/redundant, or retire.
+3. Define compatible effects per Sphere and place them into existing
+   7-level progression/branch/final design where appropriate.
+4. Route selected rare effects through Artifact/Stella/event sources.
+5. Audit Artifact/Set/Protocol overlap and active effect caps.
+6. Remove obsolete global modifier state only after call sites and tests
+   prove it is unused.
+7. Verify build, CI, APK, and human playtest before accepting the UX.
+
+This revision does not change the ten-Sphere target or the 7-level
+Sphere progression structure.
