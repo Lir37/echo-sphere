@@ -9,8 +9,8 @@ const engineTypesSource = await fs.readFile(new URL('../src/engineTypes.ts', imp
 const sourceWithTypes = `${engineTypesSource}\n${engineStateSource}`;
 
 test('Level-Up has a seeded-source pity state in GameState', () => {
-  assert.match(sourceWithTypes, /levelUpPity: \{ ability: number; sphere: number; modifier: number \};/);
-  assert.match(engineStateSource, /levelUpPity: \{ ability: 0, sphere: 0, modifier: 0 \}/);
+  assert.match(sourceWithTypes, /levelUpPity: \{ ability: number; sphere: number \};/);
+  assert.match(engineStateSource, /levelUpPity: \{ ability: 0, sphere: 0 \}/);
   assert.match(progressionSource, /function recordLevelUpSourcePick\(s: GameState, choice: UpgradeChoice\)/);
   assert.match(progressionSource, /Math\.min\(4, \(s\.levelUpPity\[source\] \|\| 0\) \+ 1\)/);
 });
@@ -18,7 +18,8 @@ test('Level-Up has a seeded-source pity state in GameState', () => {
 test('Level-Up source weight combines pity and underrepresented-system pressure', () => {
   assert.match(progressionSource, /export function getUpgradeSourceWeight\(s: GameState, source: UpgradeSource\): number/);
   assert.match(progressionSource, /const pityWeight = 1 \+ pity \* 0\.20;/);
-  assert.match(progressionSource, /const underrepresentedWeight = scores\[source\] <= minimum \+ 0\.001 \? 1\.15 : 1;/);
+  assert.match(progressionSource, /const routineSource = source as Exclude<UpgradeSource, 'modifier'>;/);
+  assert.match(progressionSource, /const underrepresentedWeight = scores\[routineSource\] <= minimum \+ 0\.001 \? 1\.15 : 1;/);
   assert.match(progressionSource, /return pityWeight \* underrepresentedWeight;/);
 });
 
@@ -32,7 +33,7 @@ test('Level-Up suppresses dead choices at the final eligibility gate', () => {
 });
 
 test('Level-Up uses weighted choice selection without forcing one card per source', () => {
-  assert.match(progressionSource, /const sourcePools = \[abilityPool, spherePool, modifierPool\];/);
+  assert.match(progressionSource, /const sourcePools = \[abilityPool, spherePool\];/);
   assert.match(progressionSource, /const allChoices = sourcePools\.flatMap\(\(pool\) => pool\);/);
   assert.match(progressionSource, /const cooledChoices = allChoices\.filter/);
   assert.match(progressionSource, /const candidates = cooledChoices\.length >= 3 \? cooledChoices : allChoices;/);
@@ -61,6 +62,6 @@ test('Level-Up selection applies actual per-choice weights and soft source diver
   assert.match(progressionSource, /function pickWeightedOne<T>\(s: GameState, items: T\[\], getWeight: \(item: T\) => number\)/);
   assert.match(progressionSource, /const baseWeight = choice\.type === 'ability'/);
   assert.match(progressionSource, /getSphereUpgradeChoiceWeight\(s, choice\.sphereType\)/);
-  assert.match(progressionSource, /getModifierUpgradeChoiceWeight\(s, choice\.modifier\)/);
+  assert.doesNotMatch(progressionSource, /getModifierUpgradeChoiceWeight\(s, choice\.modifier\)/);
   assert.match(progressionSource, /const diversityMultiplier = mixedPool\.length === 0/);
 });
