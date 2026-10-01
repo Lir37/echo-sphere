@@ -21,7 +21,7 @@ export function validateCharacterData(): void {
     if (character.preferredSphereTypes.length === 0) report(`${id}: no preferred sphere types configured`);
     if (character.preferredSphereMods.length === 0) report(`${id}: no preferred sphere mods configured`);
     if (character.preferredAbilities.length === 0) report(`${id}: no preferred abilities configured`);
-    if (character.mastery.length !== 5) report(`${id}: expected exactly 5 mastery levels, got ${character.mastery.length}`);
+    if (character.mastery.length !== 10) report(`${id}: expected exactly 10 mastery levels, got ${character.mastery.length}`);
 
     validateUnique(character.preferredSphereTypes, 'sphere types', id);
     validateUnique(character.preferredSphereMods, 'sphere mods', id);
