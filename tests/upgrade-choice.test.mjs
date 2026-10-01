@@ -13,7 +13,7 @@ test('level-up sphere selection uses deliberate build pressure weighting', () =>
   assert.match(progressionSource, /const spherePool = \[\.\.\.sphereChoices\]\.filter\(\(choice\) => isLiveUpgradeChoice\(s, choice\)\);/);
 });
 
-test('level-up mixes Sphere, Modifier and Ability sources without dead slots', () => {
+test('level-up mixes only Sphere and Ability sources without dead slots', () => {
   assert.match(progressionSource, /const activePool = \(Object\.keys\(ABILITIES\) as AbilityType\[\]\)/);
   assert.match(progressionSource, /const passivePool = \(Object\.keys\(ABILITIES\) as AbilityType\[\]\)/);
   assert.match(progressionSource, /const mixedPool: UpgradeChoice\[\] = \[\];/);
