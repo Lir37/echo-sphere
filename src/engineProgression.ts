@@ -121,7 +121,7 @@ function getAbilityEvolutionChoices(s:GameState, ability:AbilityType, level:4|7)
   }));
 }
 
-type UpgradeSource = 'ability' | 'sphere' | 'modifier';
+type UpgradeSource = 'ability' | 'sphere';
 
 export function getUpgradeChoiceKey(choice: UpgradeChoice): string {
   if (choice.type === 'modifier') {
@@ -191,10 +191,8 @@ export function getUpgradeSourceWeight(s: GameState, source: UpgradeSource): num
     s.spheres.filter((sphere) => sphere.alive).length +
     Object.values(s.player.sphereProgression || {}).reduce((sum, level) => sum + (level || 0) * 0.15, 0);
   const abilityScore = Object.values(s.player.abilities || {}).filter((level) => (level || 0) > 0).length;
-  const modifierScore = Object.values(s.player.sphereMods || {}).filter((level) => (level || 0) > 0).length;
-
-  const scores: Record<UpgradeSource, number> = { sphere: sphereScore, ability: abilityScore, modifier: modifierScore };
-  const minimum = Math.min(scores.sphere, scores.ability, scores.modifier);
+  const scores: Record<UpgradeSource, number> = { sphere: sphereScore, ability: abilityScore };
+  const minimum = Math.min(scores.sphere, scores.ability);
   const underrepresentedWeight = scores[source] <= minimum + 0.001 ? 1.15 : 1;
 
   return pityWeight * underrepresentedWeight;
@@ -225,7 +223,7 @@ function isLiveUpgradeChoice(s: GameState, choice: UpgradeChoice): boolean {
 
 function recordLevelUpSourcePick(s: GameState, choice: UpgradeChoice): void {
   const selected = getUpgradeChoiceSource(choice);
-  for (const source of ['ability', 'sphere', 'modifier'] as UpgradeSource[]) {
+  for (const source of ['ability', 'sphere'] as UpgradeSource[]) {
     s.levelUpPity[source] = source === selected
       ? 0
       : Math.min(4, (s.levelUpPity[source] || 0) + 1);
@@ -304,17 +302,6 @@ export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
     };
   });
 
-  const modifierChoices: UpgradeChoice[] = SPHERE_MODIFIER_CHOICES
-    .map((modifier) => ({
-      type: 'modifier' as const,
-      modifier: modifier.id,
-      currentLevel: 0,
-      newLevel: 1,
-      name: modifier.name,
-      desc: modifier.desc,
-    }))
-    .filter((choice) => isLiveUpgradeChoice(s, choice));
-
   // Abilities are real Level-Up choices. The old first-slice gate left the
   // 21-definition Ability system effectively unreachable during a normal run.
   // Dash remains free and does not consume these slots.
@@ -352,9 +339,9 @@ export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
 
   const abilityPool = [...activePool].filter((choice) => isLiveUpgradeChoice(s, choice));
   const spherePool = [...sphereChoices].filter((choice) => isLiveUpgradeChoice(s, choice));
-  const modifierPool = [...modifierChoices].filter((choice) => isLiveUpgradeChoice(s, choice));
-
-  const sourcePools = [abilityPool, spherePool, modifierPool];
+  // Modifier effects remain runtime/internal capabilities during migration.
+  // They are no longer a routine player-facing Level-Up source.
+  const sourcePools = [abilityPool, spherePool];
   const allChoices = sourcePools.flatMap((pool) => pool);
   const recentKeys = new Set(s.recentUpgradeKeys || []);
 
@@ -372,9 +359,7 @@ export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
     const chosen = pickWeightedOne(s, remaining, (choice) => {
       const baseWeight = choice.type === 'ability'
         ? getAbilityUpgradeChoiceWeight(s, choice)
-        : choice.type === 'sphere'
-          ? (choice.sphereType ? getSphereUpgradeChoiceWeight(s, choice.sphereType) : 1)
-          : (choice.modifier ? getModifierUpgradeChoiceWeight(s, choice.modifier) : 1);
+        : (choice.sphereType ? getSphereUpgradeChoiceWeight(s, choice.sphereType) : 1);
 
       // Encourage source variety, but never force one card from each source.
       const diversityMultiplier = mixedPool.length === 0
