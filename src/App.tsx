@@ -11,6 +11,7 @@ import {
   generateUpgradeChoices, applyUpgrade, applyArtifact,
   getMaxSpheres, getMoveSpeed, getSphereRadius, getSphereDamage, getSphereDelay, getSphereDpsEstimate,
   getCritChance, getDodgeChance, getVampirePercent, debugLevelUp, rerollUpgradeChoices,
+  getBuildDiagnostics,
   type GameState, type ShopState, type LeaderEntry, type UpgradeChoice,
   MAP_THEMES, type MapTheme,
 } from './engine';
@@ -549,6 +550,30 @@ function PausePlanner({ lang, t, st, tab, setTab, onResume, onExit }: {
                       </div>
                     );
                   })}
+                </div>
+              </section>
+              <section>
+                <SectionTitle>{lang === 'ru' ? 'Диагностика билда' : 'Build Diagnostics'}</SectionTitle>
+                <div className="space-y-2">
+                  {getBuildDiagnostics(st).map((row) => (
+                    <div key={row.id} className="rounded-xl bg-[#0d1726] border border-[#243b55] p-3">
+                      <div className="text-[9px] uppercase tracking-[0.12em] text-[#7f9bb8] font-bold">
+                        {row.id === 'offense' ? (lang === 'ru' ? 'Атака' : 'Offense')
+                          : row.id === 'control' ? (lang === 'ru' ? 'Контроль' : 'Control')
+                          : row.id === 'survival' ? (lang === 'ru' ? 'Выживание' : 'Survival')
+                          : row.id === 'network' ? (lang === 'ru' ? 'Сеть' : 'Network')
+                          : row.id === 'resonance' ? (lang === 'ru' ? 'Резонанс' : 'Resonance')
+                          : (lang === 'ru' ? 'Синергия' : 'Synergy')}
+                      </div>
+                      <div className="mt-1 flex flex-wrap gap-1">
+                        {(lang === 'ru' ? row.ru : row.en).length > 0 ? (lang === 'ru' ? row.ru : row.en).map((signal) => (
+                          <span key={signal} className="rounded-md border border-[#243b55] bg-black/5 px-1.5 py-1 text-[9px] text-[#b6c9de]">{signal}</span>
+                        )) : (
+                          <span className="text-[9px] text-[#7f9bb8]/60">{lang === 'ru' ? 'Признаки пока не сформированы' : 'No active signals yet'}</span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </section>
               <section>
