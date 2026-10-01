@@ -12,10 +12,36 @@ import { nextRandom } from './rng';
 import { BALANCE } from './engineBalance';
 import { BOSS_CHARGER_COMMIT_SECONDS, BOSS_CHARGER_TOTAL_TELEGRAPH_SECONDS } from './bossBalance';
 import { LINK_BREAKER_COOLDOWN_SECONDS, LINK_BREAKER_DISABLED_SECONDS, LINK_BREAKER_TARGET_RANGE, LINK_BREAKER_TELEGRAPH_SECONDS } from './eliteBalance';
-import type { GameState, EnemyEntity, SphereEntity, Vec } from './engineTypes';
+import type { GameState, EnemyEntity, SphereEntity, Vec, EliteVariant } from './engineTypes';
 import type { BossType } from './gameData';
 
 export const PLAYER_RADIUS = 16;
+
+export const ELITE_VARIANTS: EliteVariant[] = [
+  'linkbreaker',
+  'resonance_leech',
+  'phantom_hunter',
+  'geometry_shifter',
+  'splitter_prime',
+  'mirror_warden',
+  'stasis_warden',
+  'nullifier',
+  'pyroclast',
+  'scavenger_prime',
+];
+
+const ELITE_VISUALS: Record<EliteVariant, EnemyEntity['visualVariant']> = {
+  linkbreaker: 'linkbreaker',
+  resonance_leech: 'leech',
+  phantom_hunter: 'stalker',
+  geometry_shifter: 'prism',
+  splitter_prime: 'serpent',
+  mirror_warden: 'beetle',
+  stasis_warden: 'wisp',
+  nullifier: 'prism',
+  pyroclast: 'brute',
+  scavenger_prime: 'skitter',
+};
 
 export function getSlowRadius(): number {
   return 300;
@@ -88,13 +114,15 @@ export function spawnEnemy(s: GameState, isBoss: boolean): EnemyEntity {
   // elite chance: 5% after wave 5, scales up
   const baseType = type;
   const isElite = wave > 5 && nextRandom(s) < Math.min(0.12, 0.03 + wave * 0.005);
+  let eliteVariant: EliteVariant | undefined;
   if (isElite) {
     hp *= 3;
     radius += 4;
     dmg *= 1.5;
     color = '#b8475a';
     type = 'elite';
-    visualVariant = 'linkbreaker';
+    eliteVariant = ELITE_VARIANTS[Math.floor(nextRandom(s) * ELITE_VARIANTS.length)];
+    visualVariant = ELITE_VISUALS[eliteVariant];
   }
   return {
     pos: { x: px, y: py },
@@ -110,6 +138,7 @@ export function spawnEnemy(s: GameState, isBoss: boolean): EnemyEntity {
     fireTimer: 0, fireDps: 0,
     poisonTimer: 0, poisonDps: 0,
     isElite,
+    eliteVariant,
     elitePulseTimer: isElite ? 5 : 0,
     bossType: 'shooter',
     chargeTimer: 0, isCharging: false, chargeDir: { x: 0, y: 0 },
