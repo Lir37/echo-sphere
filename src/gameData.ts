@@ -1,6 +1,6 @@
 import type { Lang } from './i18n';
 
-export type AbilityType = 'radius' | 'damage' | 'attackspeed' | 'maxspheres' | 'blast' | 'shield' | 'teleport' | 'movespeed' | 'slow' | 'vitality' | 'firetrail' | 'minion' | 'vampire' | 'lightning' | 'dodge' | 'crit' | 'timestop' | 'magnet' | 'sphereboost' | 'darkritual';
+export type AbilityType = 'radius' | 'damage' | 'attackspeed' | 'maxspheres' | 'blast' | 'shield' | 'teleport' | 'movespeed' | 'slow' | 'vitality' | 'firetrail' | 'minion' | 'vampire' | 'lightning' | 'dodge' | 'crit' | 'timestop' | 'magnet' | 'sphereboost' | 'darkritual' | 'armor' | 'regen' | 'resonance' | 'cooldown' | 'critpower' | 'range' | 'proj_speed' | 'momentum' | 'fortune' | 'stability';
 export type AbilityCategory = 'active' | 'passive';
 
 export interface AbilityDef {
@@ -33,6 +33,16 @@ export const ABILITIES: Record<AbilityType, AbilityDef> = {
   magnet: { id: 'magnet', category: 'passive', maxLevel: 7, name: { ru: 'Магнит опыта', en: 'XP Magnet' }, desc: { ru: () => '+20% радиус подбора', en: () => '+20% pickup radius' } },
   sphereboost: { id: 'sphereboost', category: 'passive', maxLevel: 7, name: { ru: 'Усиление сфер', en: 'Sphere Boost' }, desc: { ru: (l) => `+1 урон за ${Math.max(50, 100 - (l - 1) * 10)} убийств`, en: (l) => `+1 dmg per ${Math.max(50, 100 - (l - 1) * 10)} kills` } },
   darkritual: { id: 'darkritual', category: 'active', maxLevel: 7, key: 'r', name: { ru: 'Перегрузка', en: 'Overload' }, desc: { ru: (l) => `-20% HP, перегружает всю сеть, КД 30с`, en: (l) => `-20% HP, overloads the network, CD 30s` } },
+  armor: { id: 'armor', category: 'passive', maxLevel: 7, name: { ru: 'Стабильный корпус', en: 'Stable Hull' }, desc: { ru: (l) => `-${l * 4}% получаемого урона`, en: (l) => `-${l * 4}% damage taken` } },
+  regen: { id: 'regen', category: 'passive', maxLevel: 7, name: { ru: 'Регенерация', en: 'Regeneration' }, desc: { ru: (l) => `+${l * 0.6} HP/с`, en: (l) => `+${l * 0.6} HP/sec` } },
+  resonance: { id: 'resonance', category: 'passive', maxLevel: 7, name: { ru: 'Резонатор', en: 'Resonator' }, desc: { ru: (l) => `+${l * 8}% к получению Resonance`, en: (l) => `+${l * 8}% Resonance gain` } },
+  cooldown: { id: 'cooldown', category: 'passive', maxLevel: 7, name: { ru: 'Хроно-ядро', en: 'Chrono Core' }, desc: { ru: (l) => `-${l * 4}% перезарядки`, en: (l) => `-${l * 4}% cooldowns` } },
+  critpower: { id: 'critpower', category: 'passive', maxLevel: 7, name: { ru: 'Критический резонанс', en: 'Critical Resonance' }, desc: { ru: (l) => `+${l * 8}% критического множителя`, en: (l) => `+${l * 8}% critical multiplier` } },
+  range: { id: 'range', category: 'passive', maxLevel: 7, name: { ru: 'Фокус поля', en: 'Field Focus' }, desc: { ru: (l) => `+${l * 5}% радиуса/дальности сфер`, en: (l) => `+${l * 5}% Sphere range` } },
+  proj_speed: { id: 'proj_speed', category: 'passive', maxLevel: 7, name: { ru: 'Импульсный вектор', en: 'Vector Drive' }, desc: { ru: (l) => `+${l * 8}% скорости снарядов`, en: (l) => `+${l * 8}% projectile speed` } },
+  momentum: { id: 'momentum', category: 'passive', maxLevel: 7, name: { ru: 'Импульс', en: 'Momentum' }, desc: { ru: (l) => `+${l * 5}% скорости после Dash`, en: (l) => `+${l * 5}% speed after Dash` } },
+  fortune: { id: 'fortune', category: 'passive', maxLevel: 7, name: { ru: 'Удача', en: 'Fortune' }, desc: { ru: (l) => `+${l * 2}% к шансам редких выпадений`, en: (l) => `+${l * 2}% rare drop chance` } },
+  stability: { id: 'stability', category: 'passive', maxLevel: 7, name: { ru: 'Стабильная сеть', en: 'Network Stability' }, desc: { ru: (l) => `-${l * 12}% времени сетевого отключения`, en: (l) => `-${l * 12}% network-disable duration` } },
 };
 
 // Active ability hotkey assignment (order of acquisition). Keys: e, q, r, f, g
