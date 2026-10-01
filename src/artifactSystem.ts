@@ -201,6 +201,10 @@ export const ARTIFACT_SYNERGIES: ArtifactSynergy[] = [
   { id: 'hunter_doctrine', requires: ['foresight_eye', 'sniper_scope'], name: { ru: 'Доктрина охотника', en: 'Hunter Doctrine' }, desc: { ru: 'Sniper получает дополнительное давление на приоритетные цели.', en: 'Sniper gains additional pressure against priority targets.' } },
   { id: 'pulse_engineering', requires: ['pulse_driver', 'pulse_lens'], name: { ru: 'Импульсная инженерия', en: 'Pulse Engineering' }, desc: { ru: 'Pulse усиливается против плотных групп врагов.', en: 'Pulse is stronger against dense enemy groups.' } },
   { id: 'core_forge', requires: ['sphere_forge', 'folded_core'], name: { ru: 'Кузница ядра', en: 'Core Forge' }, desc: { ru: 'Разнотипная сеть получает компактный глобальный бонус.', en: 'A mixed-type network gains a compact global bonus.' } },
+  { id: 'status_loop', requires: ['prism_crown', 'stasis_mandala'], name: { ru: 'Петля статусов', en: 'Status Loop' }, desc: { ru: 'Дополняет Prism-статусы дополнительным циклом.', en: 'Adds a secondary cycle to Prism status builds.' } },
+  { id: 'hunter_focus', requires: ['sniper_crown', 'long_lens'], name: { ru: 'Фокус охотника', en: 'Hunter Focus' }, desc: { ru: 'Усиливает дальнюю Sniper-связку.', en: 'Strengthens the long-range Sniper link.' } },
+  { id: 'pulse_overload', requires: ['pulse_crown', 'tempo_ring'], name: { ru: 'Импульсная перегрузка', en: 'Pulse Overload' }, desc: { ru: 'Добавляет темп и дополнительную волну Pulse.', en: 'Adds tempo and an extra Pulse wave.' } },
+  { id: 'core_relay', requires: ['unified_mind', 'echo_thread'], name: { ru: 'Релейная кузница', en: 'Core Relay' }, desc: { ru: 'Передаёт часть силы между разнотипными сферами.', en: 'Relays part of the power between mixed Sphere types.' } },
 ];
 
 export function getActiveArtifactSynergies(s: { player: { artifacts: ArtifactId[] } }): ArtifactSynergy[] {
@@ -276,25 +280,25 @@ export const ARTIFACT_SETS: ArtifactSetDef[] = [
     id: 'status_circuit',
     name: { ru: 'Контур статусов', en: 'Status Circuit' },
     desc: { ru: 'Сборка вокруг Prism и цепочек Fire, Freeze и Poison.', en: 'A build around Prism and Fire, Freeze and Poison chains.' },
-    synergyIds: ['status_circuit'],
+    synergyIds: ['status_circuit', 'status_loop'],
   },
   {
     id: 'hunter_doctrine',
     name: { ru: 'Доктрина охотника', en: 'Hunter Doctrine' },
     desc: { ru: 'Прицельный билд для элитных и приоритетных целей.', en: 'A precision build for Elite and priority targets.' },
-    synergyIds: ['hunter_doctrine'],
+    synergyIds: ['hunter_doctrine', 'hunter_focus'],
   },
   {
     id: 'pulse_engineering',
     name: { ru: 'Импульсная инженерия', en: 'Pulse Engineering' },
     desc: { ru: 'Сборка вокруг плотности врагов и Pulse.', en: 'A build around enemy density and Pulse.' },
-    synergyIds: ['pulse_engineering'],
+    synergyIds: ['pulse_engineering', 'pulse_overload'],
   },
   {
     id: 'core_forge',
     name: { ru: 'Кузница ядра', en: 'Core Forge' },
     desc: { ru: 'Универсальная сеть из нескольких типов сфер.', en: 'A universal mixed-Sphere network.' },
-    synergyIds: ['core_forge'],
+    synergyIds: ['core_forge', 'core_relay'],
   },
 ];
 
