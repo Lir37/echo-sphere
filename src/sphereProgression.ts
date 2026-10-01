@@ -537,9 +537,10 @@ export function sphereModifiers(s:any,type:SphereType,sphere?:any){
   // Final modifier catalogue: every entry has a concrete combat parameter.
   if(modifierLevel('breach') > 0) pierce += modifierLevel('breach');
   if(modifierLevel('overload') > 0) damage *= 1 + 0.08 * modifierLevel('overload');
+  if(modifierLevel('pierce') > 0 && sphereUsesProjectileModifiers(type)) pierce += modifierLevel('pierce');
   if(modifierLevel('split') > 0) splitChance = Math.min(0.45, 0.18 * modifierLevel('split'));
   if(modifierLevel('shatter') > 0) damage *= 1 + 0.04 * modifierLevel('shatter');
-  if(modifierLevel('execute') > 0) damage *= 1 + 0.18 * modifierLevel('execute');
+  // Execute is applied conditionally in the authoritative damage path, not as a global damage multiplier.
   if(modifierLevel('mark') > 0) damage *= 1 + 0.04 * modifierLevel('mark');
   if(modifierLevel('echo') > 0) echoChance = Math.min(0.35, 0.12 * modifierLevel('echo'));
   if(modifierLevel('anchor') > 0) auraRadius *= 1 + 0.05 * modifierLevel('anchor');
@@ -625,6 +626,7 @@ export function sphereModifiers(s:any,type:SphereType,sphere?:any){
   }
 
   const projectileMods = sphereUsesProjectileModifiers(type);
+  if (projectileMods) multishot += modifierLevel('multishot');
   return {
     damage:damage*artifact.damage,radius:radius*artifact.radius,delay:delay*artifact.delay,
     pierce: projectileMods ? pierce : 0,
@@ -632,8 +634,6 @@ export function sphereModifiers(s:any,type:SphereType,sphere?:any){
     chainTargets,auraRadius,auraPulse,spreadMult,
     splitChance,echoChance,staticChance,resonantCharge,healOnHit,healOnKill,
     knockback,gravitic,magnetic,
-    multishot: projectileMods ? modifierLevel('multishot') : 0,
-    pierce: projectileMods ? pierce : 0,
     fire: modifierLevel('fire'),
     freeze: modifierLevel('freeze'),
     poison: modifierLevel('poison'),
@@ -642,6 +642,7 @@ export function sphereModifiers(s:any,type:SphereType,sphere?:any){
     split: modifierLevel('split'),
     shatter: modifierLevel('shatter'),
     execute: modifierLevel('execute'),
+    ricochet: projectileMods ? modifierLevel('ricochet') : 0,
     mark: modifierLevel('mark'),
     echo: modifierLevel('echo'),
     anchor: modifierLevel('anchor'),
