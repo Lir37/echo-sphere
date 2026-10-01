@@ -45,3 +45,14 @@ test('Build Diagnostics is descriptive and does not expose a ranking score', asy
   assert.doesNotMatch(statsSource, /score|rank|rating/i);
   assert.match(appSource, /getBuildDiagnostics\(st\)/);
 });
+
+
+test('Character Mastery exposes the ten-level progression defined by the Blueprint', async () => {
+  const charactersSource = await fs.readFile(new URL('../src/characters.ts', import.meta.url), 'utf8');
+  const persistenceSource = await fs.readFile(new URL('../src/persistence.ts', import.meta.url), 'utf8');
+  const validationSource = await fs.readFile(new URL('../src/characterDataValidation.ts', import.meta.url), 'utf8');
+  assert.match(charactersSource, /level: 1 \| 2 \| 3 \| 4 \| 5 \| 6 \| 7 \| 8 \| 9 \| 10/);
+  assert.match(persistenceSource, /CHARACTER_MASTERY_THRESHOLDS = \[0, 250, 750, 1500, 2500, 4000, 6000, 8500, 11500, 15000\]/);
+  assert.match(persistenceSource, /return level >= 10 \? null : CHARACTER_MASTERY_THRESHOLDS\[level\]/);
+  assert.match(validationSource, /expected exactly 10 mastery levels/);
+});
