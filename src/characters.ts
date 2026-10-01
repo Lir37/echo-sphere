@@ -90,6 +90,12 @@ export const CHARACTER_DEFS: Record<CharacterId, CharacterDef> = {
       { level: 3, title: { ru: 'Стабильность', en: 'Stability' }, description: { ru: '+2% урона сфер.', en: '+2% sphere damage.' } },
       { level: 4, title: { ru: 'Резонанс+', en: 'Resonance+' }, description: { ru: 'Каждая сфера после первой даёт ещё +0.5% скорости атаки.', en: 'Each sphere after the first grants another +0.5% attack speed.' } },
       { level: 5, title: { ru: 'Хор сфер', en: 'Sphere Chorus' }, description: { ru: 'При 8 сферах: ещё +5% радиуса и +5% скорости атаки.', en: 'At 8 spheres: gain another +5% radius and +5% attack speed.' } },
+      { level: 6, title: { ru: 'Созвучие', en: 'Accord' }, description: { ru: 'При 6+ сферах: ещё +2% урона.', en: 'At 6+ spheres: another +2% sphere damage.' } },
+      { level: 7, title: { ru: 'Резонансный контур', en: 'Resonant Circuit' }, description: { ru: 'При 7+ сферах: ещё +2% скорости атаки.', en: 'At 7+ spheres: another +2% attack speed.' } },
+      { level: 8, title: { ru: 'Глубокий резонанс', en: 'Deep Resonance' }, description: { ru: 'Полный бонус Резонанса начинается с 3 сфер.', en: 'Full Resonance bonus begins at 3 spheres.' } },
+      { level: 9, title: { ru: 'Эхо-корона', en: 'Echo Crown' }, description: { ru: 'При 8+ сферах: ещё +3% радиуса.', en: 'At 8+ spheres: another +3% radius.' } },
+      { level: 10, title: { ru: 'Хоровая синхронизация', en: 'Chorus Sync' }, description: { ru: 'При 8+ сферах все бонусы Сфериста получают финальное усиление.', en: 'At 8+ spheres, the Spherist signature bonuses gain a final amplification.' } },
+
     ],
   },
 
@@ -116,6 +122,12 @@ export const CHARACTER_DEFS: Record<CharacterId, CharacterDef> = {
       { level: 3, title: { ru: 'Точный выстрел', en: 'True Shot' }, description: { ru: '+2% шанс крита против отмеченных целей.', en: '+2% crit chance against marked targets.' } },
       { level: 4, title: { ru: 'Натиск', en: 'Onslaught' }, description: { ru: 'Для запуска Охоты требуется 4 попадания вместо 5.', en: 'Hunt requires 4 consecutive hits instead of 5.' } },
       { level: 5, title: { ru: 'Трофей', en: 'Trophy' }, description: { ru: 'Убийство отмеченной элитной цели временно даёт +10% скорости движения на 4 секунды.', en: 'Killing a marked elite grants +10% move speed for 4 seconds.' } },
+      { level: 6, title: { ru: 'Слабое место', en: 'Weak Point' }, description: { ru: 'Отмеченные цели получают ещё +5% урона.', en: 'Marked targets take another +5% damage.' } },
+      { level: 7, title: { ru: 'Дальний след', en: 'Long Trail' }, description: { ru: 'Метка сохраняется дольше после повторного попадания.', en: 'Repeated hits extend the active Mark window.' } },
+      { level: 8, title: { ru: 'Без пощады', en: 'No Mercy' }, description: { ru: 'Hunt дополнительно усиливает Sniper/Chain.', en: 'Hunt further amplifies Sniper/Chain damage.' } },
+      { level: 9, title: { ru: 'Приоритет', en: 'Priority' }, description: { ru: 'Элитные и босс-цели получают дополнительный шанс критического удара.', en: 'Elite and Boss targets grant an additional critical-hit chance.' } },
+      { level: 10, title: { ru: 'Мастер охоты', en: 'Master Hunter' }, description: { ru: 'Финальный Signature: Метка добычи и Охота получают максимальное усиление.', en: 'Final Signature: Prey Mark and Hunt reach their maximum enhancement.' } },
+
     ],
   },
 
@@ -142,6 +154,12 @@ export const CHARACTER_DEFS: Record<CharacterId, CharacterDef> = {
       { level: 3, title: { ru: 'Узел', en: 'Node' }, description: { ru: '+3% урона сети, если в ней 4+ сферы.', en: '+3% network damage when the network contains 4+ spheres.' } },
       { level: 4, title: { ru: 'Быстрая передача', en: 'Fast Relay' }, description: { ru: 'Окно ретрансляции увеличивается до 0.55 секунды.', en: 'Relay window increases to 0.55 seconds.' } },
       { level: 5, title: { ru: 'Главный узел', en: 'Master Node' }, description: { ru: 'Сфера с 2 соседями даёт им ещё +2% урона.', en: 'A sphere with 2 neighbours grants them another +2% damage.' } },
+      { level: 6, title: { ru: 'Широкая сеть', en: 'Wide Network' }, description: { ru: 'Радиус инженерной связи увеличивается ещё на 20 px.', en: 'Engineer link radius increases by another 20 px.' } },
+      { level: 7, title: { ru: 'Точка опоры', en: 'Anchor Point' }, description: { ru: 'Сеть из 4+ сфер получает ещё +3% урона.', en: 'A 4+ sphere network gains another +3% damage.' } },
+      { level: 8, title: { ru: 'Ретранслятор', en: 'Repeater' }, description: { ru: 'Окно ретрансляции становится ещё стабильнее.', en: 'The relay window becomes more consistent.' } },
+      { level: 9, title: { ru: 'Магистраль', en: 'Mainline' }, description: { ru: 'Сфера с двумя соседями усиливает их дополнительным бонусом.', en: 'A two-neighbour Sphere grants an additional relay bonus.' } },
+      { level: 10, title: { ru: 'Главный конструктор', en: 'Master Engineer' }, description: { ru: 'Финальный Signature: сильный связанный узел передаёт усиление соседям.', en: 'Final Signature: a strongly connected master node transfers amplified power.' } },
+
     ],
   },
 
@@ -168,6 +186,12 @@ export const CHARACTER_DEFS: Record<CharacterId, CharacterDef> = {
       { level: 3, title: { ru: 'Бешенство', en: 'Frenzy' }, description: { ru: '+2% базовой скорости атаки сфер.', en: '+2% base sphere attack speed.' } },
       { level: 4, title: { ru: 'На грани', en: 'On the Edge' }, description: { ru: 'Максимальный бонус Ярости активируется уже при 80% потерянного HP.', en: 'Maximum Fury activates at 80% missing HP instead of 100%.' } },
       { level: 5, title: { ru: 'Кровавый след', en: 'Blood Trail' }, description: { ru: 'После убийства врага в ближнем радиусе игрок получает +5% скорости на 2 секунды.', en: 'Killing an enemy in close range grants +5% move speed for 2 seconds.' } },
+      { level: 6, title: { ru: 'Железная воля', en: 'Iron Will' }, description: { ru: 'При низком HP бонус ближнего боя усиливается.', en: 'At low HP, the close-range bonus is stronger.' } },
+      { level: 7, title: { ru: 'Красная зона', en: 'Red Zone' }, description: { ru: 'Максимальный бонус Ярости держится дольше в опасной зоне.', en: 'Maximum Fury remains stronger in the danger zone.' } },
+      { level: 8, title: { ru: 'Без тормозов', en: 'No Brakes' }, description: { ru: 'Ярость влияет на скорость атаки ещё сильнее.', en: 'Fury affects attack speed even more strongly.' } },
+      { level: 9, title: { ru: 'Кровь за кровь', en: 'Blood for Blood' }, description: { ru: 'Убийства рядом с игроком дают более сильный временный импульс скорости.', en: 'Close-range kills grant a stronger temporary speed burst.' } },
+      { level: 10, title: { ru: 'Воплощение ярости', en: 'Avatar of Fury' }, description: { ru: 'Финальный Signature: критически низкое HP открывает максимальную боевую ярость.', en: 'Final Signature: critically low HP unlocks the full Fury signature.' } },
+
     ],
   },
 
@@ -194,6 +218,12 @@ export const CHARACTER_DEFS: Record<CharacterId, CharacterDef> = {
       { level: 3, title: { ru: 'Концентрация', en: 'Concentration' }, description: { ru: '+5% урона DoT.', en: '+5% DoT damage.' } },
       { level: 4, title: { ru: 'Цепная реакция', en: 'Chain Reaction' }, description: { ru: 'Реакция может передать 50% своего burst-урона ещё одной цели рядом.', en: 'A reaction can transfer 50% of its burst damage to one nearby target.' } },
       { level: 5, title: { ru: 'Философский камень', en: 'Philosopher Stone' }, description: { ru: 'После реакции следующий наложенный статус длится на 50% дольше.', en: 'After a reaction, the next applied status lasts 50% longer.' } },
+      { level: 6, title: { ru: 'Катализ', en: 'Catalysis' }, description: { ru: 'Радиус реакций увеличивается ещё на 10%.', en: 'Reaction radius increases by another 10%.' } },
+      { level: 7, title: { ru: 'Чистая формула', en: 'Pure Formula' }, description: { ru: '+5% урона реакций.', en: '+5% reaction damage.' } },
+      { level: 8, title: { ru: 'Цепь катализаторов', en: 'Catalyst Chain' }, description: { ru: 'Передача burst-урона реакции становится сильнее.', en: 'Reaction burst transfer becomes stronger.' } },
+      { level: 9, title: { ru: 'Тройная смесь', en: 'Triple Mixture' }, description: { ru: 'Третья последовательная реакция получает дополнительный импульс.', en: 'Every third sequential reaction gains an additional pulse.' } },
+      { level: 10, title: { ru: 'Алхимический круг', en: 'Alchemical Circle' }, description: { ru: 'Финальный Signature: реакционные цепочки получают максимальное усиление.', en: 'Final Signature: reaction chains reach their maximum enhancement.' } },
+
     ],
   },
 
@@ -220,6 +250,12 @@ export const CHARACTER_DEFS: Record<CharacterId, CharacterDef> = {
       { level: 3, title: { ru: 'Модульность', en: 'Modularity' }, description: { ru: '+2% радиуса сфер.', en: '+2% sphere radius.' } },
       { level: 4, title: { ru: 'Перестройка', en: 'Rebuild' }, description: { ru: 'После изменения формации новый бонус активируется на 2 секунды с +25% эффективности.', en: 'After changing formation, the new bonus is 25% stronger for 2 seconds.' } },
       { level: 5, title: { ru: 'Архитектурный шедевр', en: 'Masterwork' }, description: { ru: 'При 5+ сферах активная форма получает ещё +5% к своему ключевому бонусу.', en: 'At 5+ spheres, the active formation gains another +5% to its key bonus.' } },
+      { level: 6, title: { ru: 'Точная разметка', en: 'Precise Layout' }, description: { ru: 'Допуск распознавания формации увеличивается ещё на 10%.', en: 'Formation recognition tolerance increases by another 10%.' } },
+      { level: 7, title: { ru: 'Ритм конструкции', en: 'Construction Rhythm' }, description: { ru: 'Ключевой бонус формации усиливается на 5%.', en: 'Formation key bonuses gain another 5% effectiveness.' } },
+      { level: 8, title: { ru: 'Перекройка', en: 'Redesign' }, description: { ru: 'Смена формации даёт более сильный краткий импульс.', en: 'Changing formation grants a stronger brief power spike.' } },
+      { level: 9, title: { ru: 'Многослойность', en: 'Layering' }, description: { ru: 'При 5+ локальных сферах геометрический бонус усиливается.', en: 'With 5+ local spheres, geometry bonuses are amplified.' } },
+      { level: 10, title: { ru: 'Великий архитектор', en: 'Grand Architect' }, description: { ru: 'Финальный Signature: смена формы превращается в мощный тактический импульс.', en: 'Final Signature: formation changes become a powerful tactical surge.' } },
+
     ],
   },
 };
