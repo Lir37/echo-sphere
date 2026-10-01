@@ -209,7 +209,7 @@ function getArchitectFormationBonusScale(s: GameState, type: CharacterFormation)
 
   if (mastery >= 5 && getLocalCharacterSpheres(s).length >= 5) scale *= 1.05;
   if (mastery >= 7) scale *= 1.05;
-  if (mastery >= 10 && nextType !== 'none') scale *= 1.10;
+  if (mastery >= 10 && type !== 'none') scale *= 1.10;
   return scale;
 }
 
