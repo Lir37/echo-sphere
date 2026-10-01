@@ -33,7 +33,7 @@ export interface CharacterBaseModifiers {
 export type CharacterFavoriteTowerMod = keyof SphereMods;
 
 export interface CharacterMasteryLevel {
-  level: 1 | 2 | 3 | 4 | 5;
+  level: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
   title: { ru: string; en: string };
   description: { ru: string; en: string };
 }
