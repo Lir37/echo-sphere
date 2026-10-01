@@ -3425,3 +3425,45 @@ Human PlayerCheck remains separate and is intentionally deferred by the
 current work-cycle instruction.
 
 ======================================================================
+
+
+======================================================================
+2026-10-01 MODIFIER ARCHITECTURE REVIEW / MIGRATION STATUS
+======================================================================
+
+Design decision:
+[DONE] Modifier is no longer intended as a third routine Level-Up
+category. Player-facing Level-Up is centered on Sphere and Ability.
+[DONE] Existing 24-effect implementation is treated as provisional
+internal capability, not accepted final player-facing content scope.
+[PENDING] Source migration is not yet implemented or validated at this
+snapshot. The existing generator/runtime still contains the 24-entry
+Modifier path and must not be described as removed.
+
+Current inspected implementation HEAD before this documentation update:
+979fd10728c39b17462d7e16131d4577c812a516
+
+Verified in source at that HEAD:
+- `engineProgression.ts` defines 24 Modifier choice records;
+- generator mixes Ability, Sphere, and Modifier pools;
+- Modifier source participates in source weighting/pity;
+- `applyUpgrade` writes selected Modifier into player sphereMods;
+- runtime hooks for the expanded effects were added in the preceding
+  implementation series.
+
+Migration plan:
+1. Change routine Level-Up generation to Sphere + Ability only.
+2. Remove Modifier from source weighting/pity bookkeeping without
+   breaking seeded RNG, choice count, duplicate/dead-choice protection.
+3. Preserve old effect data/runtime during transition; do not expose
+   effects without an authored acquisition path.
+4. Classify the 24 effects and map compatible effects to individual
+   Sphere progression, rare rewards, Artifact/Set/Protocol.
+5. Update automated tests for two-source generation and all existing
+   Sphere/Ability progression paths.
+6. Build APK, inspect CI, and request user APK playtest before final
+   deletion or balance acceptance.
+
+CI for the documentation commit and subsequent code migration must be
+checked before the work cycle is closed. APK human acceptance remains a
+[GATE].
