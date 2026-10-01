@@ -258,6 +258,37 @@ function getAbilityUpgradeChoiceWeight(s: GameState, choice: UpgradeChoice): num
   return getUpgradeSourceWeight(s, 'ability') * (unfinishedPressure + characterAffinity + activeAffinity);
 }
 
+export function rerollUpgradeChoices(s: GameState): boolean {
+  const current = s.pendingUpgrade;
+  if (!current || current.length !== 3 || s.levelUpRerollsRemaining <= 0) return false;
+
+  // Reroll is a routine Level-Up tool. Mutation branch/final windows remain
+  // deliberate second-stage decisions and are not rerolled here.
+  const routine = current.every((choice) => (
+    (choice.type === 'sphere' && choice.sphereStage === 'upgrade')
+    || (choice.type === 'ability' && !choice.abilityStage)
+  ));
+  if (!routine) return false;
+
+  const currentKeys = new Set(current.map(getUpgradeChoiceKey));
+  let next = current;
+  for (let attempt = 0; attempt < 4; attempt++) {
+    const candidate = generateUpgradeChoices(s);
+    if (candidate.length !== 3) continue;
+    if (candidate.some((choice) => !currentKeys.has(getUpgradeChoiceKey(choice)))) {
+      next = candidate;
+      break;
+    }
+    next = candidate;
+  }
+
+  s.pendingUpgrade = next;
+  s.levelUpRerollsRemaining--;
+  s.flashText = { text: 'REROLL', life: 0.8, color: '#39d8ff' };
+  playSound('place');
+  return true;
+}
+
 export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
   const sphereTypes = (Object.keys(SPHERE_PROGRESSION) as SphereType[]).filter((type) => type in SPHERE_TYPES);
   const availableSpheres = sphereTypes.filter((type) => sphereLevel(s, type) < 7);
