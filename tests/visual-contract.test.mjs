@@ -205,10 +205,10 @@ test('Level 7 mutation visuals stay persistent between attacks and differ by bra
 
 test('Standard Sphere has no separate cannon in authored assembly',()=>{const c=read('src/renderer.ts');const a=c.indexOf('function drawStandardSphereAssembly(');const b=c.indexOf('function getSpheristAnimationState',a);const block=c.slice(a,b>0?b:a+5000);assert.equal(block.includes('cannonAngle'),false);assert.ok(block.includes('drawStandardSphereCore'));assert.ok(block.includes('drawStandardSphereRing'));});
 
-test('Standard Sphere keeps persistent thin-line weapon through mutations',()=>{
+test('Standard Sphere has no persistent barrel between the core and attack tip',()=>{
   const c=read('src/renderer.ts');
-  assert.ok(c.includes('function drawStandardPersistentWeapon('));
-  assert.ok(c.includes('Persistent weapon stays visible through Lv4/Lv7 mutation silhouettes.'));
+  assert.equal(c.includes('function drawStandardPersistentWeapon('),false);
+  assert.equal(c.includes('Persistent weapon stays visible through Lv4/Lv7 mutation silhouettes.'),false);
   assert.equal(c.includes('cannonAngle'),false);
   assert.equal(c.includes("roundRect(-r * 0.12"),false);
 });
