@@ -221,7 +221,7 @@ export function getArtifactSynergiesAfterPick(s: { player: { artifacts: Artifact
 
 
 export interface ArtifactSetDef {
-  id: 'resonance_grid' | 'echo_architecture' | 'singularity_path' | 'geometry_craft' | 'void_horizon' | 'temporal_fold' | 'status_circuit' | 'hunter_doctrine' | 'pulse_engineering' | 'core_forge';
+  id: 'resonance_grid' | 'echo_architecture' | 'singularity_path' | 'geometry_craft' | 'void_horizon' | 'temporal_fold' | 'status_circuit' | 'hunter_doctrine' | 'pulse_engineering' | 'core_forge' | 'prism_dominion' | 'network_legacy';
   name: { ru: string; en: string };
   desc: { ru: string; en: string };
   synergyIds: string[];
@@ -299,6 +299,18 @@ export const ARTIFACT_SETS: ArtifactSetDef[] = [
     name: { ru: 'Кузница ядра', en: 'Core Forge' },
     desc: { ru: 'Универсальная сеть из нескольких типов сфер.', en: 'A universal mixed-Sphere network.' },
     synergyIds: ['core_forge', 'core_relay'],
+  },
+  {
+    id: 'prism_dominion',
+    name: { ru: 'Власть призмы', en: 'Prism Dominion' },
+    desc: { ru: 'Сборка преломления, статусов и орбитальных связок.', en: 'A build of refraction, status effects and orbital links.' },
+    synergyIds: ['orbital_prism', 'status_circuit'],
+  },
+  {
+    id: 'network_legacy',
+    name: { ru: 'Наследие сети', en: 'Network Legacy' },
+    desc: { ru: 'Долгоживущая геометрическая сеть, сохраняющая силу при перестройке.', en: 'A persistent geometry network that retains strength through rewiring.' },
+    synergyIds: ['network_memory', 'perfect_network'],
   },
 ];
 
@@ -418,6 +430,22 @@ export const ARTIFACT_PROTOCOLS: ArtifactProtocol[] = [
     desc: { ru: 'Активируется, когда сеть использует три и более типов сфер.', en: 'Activates when the network uses three or more Sphere types.' },
     requires: ['core_forge'],
   },
+  {
+    id: 'prism_dominion_protocol',
+    kind: 'event',
+    setId: 'prism_dominion',
+    name: { ru: 'Протокол преломления', en: 'Refraction Protocol' },
+    desc: { ru: 'Активируется при связке Prism с другой специализированной сферой.', en: 'Activates when Prism is paired with another specialized Sphere.' },
+    requires: ['prism_dominion'],
+  },
+  {
+    id: 'network_legacy_protocol',
+    kind: 'event',
+    setId: 'network_legacy',
+    name: { ru: 'Протокол наследия', en: 'Legacy Protocol' },
+    desc: { ru: 'Активируется в сложной геометрии многотипной сети.', en: 'Activates in advanced geometry with a multi-type network.' },
+    requires: ['network_legacy'],
+  },
 ];
 
 export interface ArtifactProtocolState extends ArtifactProtocol {
@@ -449,6 +477,8 @@ export function getArtifactProtocolStates(s: {
     && (s.enemies || []).some((enemy) => enemy.hp > 0 && (enemy.isElite || enemy.isBoss));
   const priorityPressure = sphereTypes.has('sniper') && (s.enemies || []).some((enemy) => enemy.hp > 0 && (enemy.isElite || enemy.isBoss));
   const densePressure = sphereTypes.has('pulse') && (s.enemies || []).filter((enemy) => enemy.hp > 0).length >= 4;
+  const refractionPressure = sphereTypes.has('prism') && (sphereTypes.has('orbital') || sphereTypes.has('void'));
+  const networkLegacyPressure = sphereTypes.size >= 3 && ['ring', 'lattice', 'fractal'].includes(geometry);
   const statusBuild = sphereTypes.has('prism') && Object.values((s.player as any).sphereMods || {}).some((level) => Number(level) > 0);
   return ARTIFACT_PROTOCOLS.map((protocol) => {
     const discovered = protocolSetComplete(s, protocol.setId);
@@ -497,6 +527,8 @@ export function getArtifactSetBehavior(s: { player: { artifacts: ArtifactId[] } 
   hunterDoctrine: boolean;
   pulseEngineering: boolean;
   coreForge: boolean;
+  prismDominion: boolean;
+  networkLegacy: boolean;
 } {
   return {
     resonanceGrid: hasCompletedArtifactSet(s, 'resonance_grid'),
@@ -509,6 +541,8 @@ export function getArtifactSetBehavior(s: { player: { artifacts: ArtifactId[] } 
     hunterDoctrine: hasCompletedArtifactSet(s, 'hunter_doctrine'),
     pulseEngineering: hasCompletedArtifactSet(s, 'pulse_engineering'),
     coreForge: hasCompletedArtifactSet(s, 'core_forge'),
+    prismDominion: hasCompletedArtifactSet(s, 'prism_dominion'),
+    networkLegacy: hasCompletedArtifactSet(s, 'network_legacy'),
   };
 }
 
@@ -606,6 +640,8 @@ export function getSphereArtifactModifiers(s: any, type: string, sphere?: any): 
   if (setBehavior.hunterDoctrine && type === 'sniper') damage *= 1.10;
   if (setBehavior.pulseEngineering && type === 'pulse') damage *= 1.10;
   if (setBehavior.coreForge && uniquesphereCount(s) >= 3) damage *= 1.06;
+  if (setBehavior.prismDominion && ['prism', 'orbital'].includes(type)) damage *= 1.08;
+  if (setBehavior.networkLegacy && ['ring', 'lattice', 'fractal'].includes(String(s.player.resonanceGeometryKey || 'none'))) damage *= 1.06;
   if (synergies.some((x) => x.id === 'unified_core') && sphere) {
     const levels = Object.values(s.player.sphereProgression || {}) as number[];
     const strongest = Math.max(0, ...levels);
