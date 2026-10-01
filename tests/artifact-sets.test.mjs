@@ -10,7 +10,7 @@ import {
 const state = (artifacts = []) => ({ player: { artifacts } });
 
 test('Artifact Sets are data-driven and reference existing pair synergies', () => {
-  assert.equal(ARTIFACT_SETS.length, 10);
+  assert.equal(ARTIFACT_SETS.length, 12);
   for (const set of ARTIFACT_SETS) {
     assert.ok(set.synergyIds.length >= 2);
   }
@@ -52,9 +52,10 @@ test('all current Artifact Sets expose protocol discovery and completion bonus',
       { type: 'prism', alive: true, pos: { x: 0, y: 10 } },
       { type: 'pulse', alive: true, pos: { x: 20, y: 20 } },
       { type: 'void', alive: true, pos: { x: -20, y: -20 } },
+      { type: 'orbital', alive: true, pos: { x: 40, y: -20 } },
     ]
   });
-  assert.equal(states.length, 10);
+  assert.equal(states.length, 12);
   assert.ok(states.every((x) => x.discovered));
   assert.ok(states.every((x) => x.active));
   assert.equal(mod.getArtifactSetCompletionPulse({ player: { artifacts: all } }), 1);
@@ -90,6 +91,8 @@ test('Artifact Set completion is wired into behavioral combat effects', async ()
     hunterDoctrine: true,
     pulseEngineering: true,
     coreForge: true,
+    prismDominion: true,
+    networkLegacy: true,
   });
 
   const modifiers = mod.getSphereArtifactModifiers(baseState, 'standard', baseState.spheres[0]);
