@@ -3159,3 +3159,29 @@ tail-bearing normal creatures now follow the same anatomical convention.
 [UNCHANGED] Combat simulation, enemy AI, Sphere damage and mutation gameplay.
 [GATE] CI + APK PlayerCheck. Verify Standard at Lv1-3 and after Lv4 mutation,
 then inspect creature movement from multiple travel directions.
+
+======================================================================
+[2026-10-01] STANDARD BARREL REMOVAL — USER-DIRECTED
+======================================================================
+IMPLEMENTATION HEAD:
+1b5fe573764c0897edd59afb1a7cb8f0e3cf554d
+
+[DONE]
+- Removed only the persistent Standard multi-line weapon layer that formed
+  the visible barrel/shaft between the Sphere body and the attack tip.
+- The rejected solid cannon/barrel remains absent from the authored assembly.
+- Standard core, ring, crystals, mutation visuals, attack VFX, modifier VFX,
+  network indicator and gameplay combat logic were left unchanged.
+- Updated the visual regression contract to forbid reintroduction of the
+  removed persistent barrel layer.
+
+[UNCHANGED]
+- Standard attack timing and projectile logic.
+- Standard Lv4/Lv7 mutation logic and visuals.
+- Enemy anatomy changes from the preceding pass.
+
+[GATE]
+CI must pass. APK PlayerCheck should confirm that Standard has no permanent
+barrel/shaft between the Sphere and the attack tip while the normal attack
+effect remains intact.
+
