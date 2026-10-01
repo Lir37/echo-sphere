@@ -306,7 +306,7 @@ export interface GameState {
   paused: boolean;
   gameOver: boolean;
   pendingUpgrade: UpgradeChoice[] | null;
-  levelUpPity: { ability: number; sphere: number; modifier: number };
+  levelUpPity: { ability: number; sphere: number };
   recentUpgradeKeys: string[];
   pendingArtifact: ArtifactId[] | null;
   pendingStella: boolean;
