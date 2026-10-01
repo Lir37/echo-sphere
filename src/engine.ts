@@ -36,7 +36,7 @@ export {
   getXpToNextLevel, MAP_THEMES, createInitialState,
 } from './engineState';
 
-export { getMoveSpeed, getXpMult, getMagnetRadius } from './engineStats';
+export { getMoveSpeed, getXpMult, getMagnetRadius, getBuildDiagnostics, type BuildDiagnosticRow } from './engineStats';
 
 export {
   claimStella, applyArtifact, update, activateDash, debugLevelUp,
