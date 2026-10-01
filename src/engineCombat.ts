@@ -120,12 +120,13 @@ export function getVampirePercent(s: GameState): number {
 }
 
 export function getCooldownMult(s: GameState): number {
-  return getArtifactCooldownMultiplier(s);
+  return getArtifactCooldownMultiplier(s) * Math.max(0.55, 1 - (s.player.abilities.cooldown || 0) * 0.04);
 }
 
 export function getDamageTakenMult(s: GameState): number {
   let m = 1;
   m *= getCharacterDamageTakenMultiplier(s);
+  m *= Math.max(0.45, 1 - (s.player.abilities.armor || 0) * 0.04);
   m *= getFormationDamageTakenMultiplier(s);
   return m;
 }
