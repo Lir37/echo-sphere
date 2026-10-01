@@ -634,7 +634,7 @@ export function sphereModifiers(s:any,type:SphereType,sphere?:any){
     multishot: projectileMods ? multishot : 0,
     chainTargets,auraRadius,auraPulse,spreadMult,
     splitChance,echoChance,staticChance,resonantCharge,healOnHit,healOnKill,
-    knockback,gravitic,magnetic,
+    knockback,
     fire: modifierLevel('fire'),
     freeze: modifierLevel('freeze'),
     poison: modifierLevel('poison'),
