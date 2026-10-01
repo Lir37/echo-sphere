@@ -507,6 +507,11 @@ export function sphereModifiers(s:any,type:SphereType,sphere?:any){
   const modifierLevel=(kind:keyof SphereMods):number=>Math.max(Number(s.player.sphereMods?.[kind] ?? 0),Number(authored[kind] ?? 0));
   let damage=1, radius=1, delay=1, pierce=0, multishot=0, chainTargets=1, auraRadius=1, auraPulse=.5;
   let spreadMult=1;
+  const abilityRange = Number(s.player.abilities.range || 0);
+  if (abilityRange > 0) {
+    radius *= 1 + 0.05 * abilityRange;
+    auraRadius *= 1 + 0.05 * abilityRange;
+  }
   let splitChance=0, echoChance=0, staticChance=0, resonantCharge=0;
   let healOnHit=0, healOnKill=0, knockback=0, gravitic=0, magnetic=0;
 
