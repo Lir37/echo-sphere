@@ -238,7 +238,7 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
       s.player.hp = Math.min(s.player.maxHp, s.player.hp + actual * mods.healOnHit);
     }
     if (mods.resonantCharge > 0) {
-      chargeResonance(s, 'sphereHit');
+      chargeResonance(s, 'sphereHit', dealDamageToEnemy);
     }
     if (allowSphereProc && mods.echoChance > 0 && nextRandom(s) < mods.echoChance) {
       dealDamageToEnemy(s, enemy, actual * 0.22, fromSphere, false);
