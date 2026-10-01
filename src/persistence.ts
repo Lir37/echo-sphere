@@ -13,7 +13,7 @@ const KNOWLEDGE_KEY = 'echosphere_knowledge_v1';
 
 export type Handedness = 'right' | 'left';
 
-export const CHARACTER_MASTERY_THRESHOLDS = [0, 250, 750, 1500, 2500] as const;
+export const CHARACTER_MASTERY_THRESHOLDS = [0, 250, 750, 1500, 2500, 4000, 6000, 8500, 11500, 15000] as const;
 
 type PersistedCharacterProfile = CharacterProfile & { masteryXp: number };
 
@@ -159,7 +159,7 @@ export function loadCharacterProfiles(): PersistedCharacterProfile[] {
       if (!base) continue;
       base.unlocked = candidate.id === DEFAULT_CHARACTER_ID || candidate.unlocked === true;
 
-      const legacyLevel = Math.max(1, Math.min(5, Number(candidate.masteryLevel) || 1));
+      const legacyLevel = Math.max(1, Math.min(10, Number(candidate.masteryLevel) || 1));
       const legacyXp = CHARACTER_MASTERY_THRESHOLDS[legacyLevel - 1];
       const storedXp = Number(candidate.masteryXp);
       base.masteryXp = Math.min(
@@ -195,7 +195,7 @@ export function setCharacterMasteryLevel(id: CharacterId, level: number): void {
   const profiles = loadCharacterProfiles();
   const profile = profiles.find((item) => item.id === id);
   if (!profile) return;
-  const clamped = Math.max(1, Math.min(5, Math.floor(level)));
+  const clamped = Math.max(1, Math.min(10, Math.floor(level)));
   profile.masteryLevel = clamped;
   profile.masteryXp = Math.max(profile.masteryXp, CHARACTER_MASTERY_THRESHOLDS[clamped - 1]);
   saveCharacterProfiles(profiles);
