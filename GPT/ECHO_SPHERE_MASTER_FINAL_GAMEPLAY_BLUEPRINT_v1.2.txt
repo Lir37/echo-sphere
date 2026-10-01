@@ -3456,3 +3456,62 @@ Migration order:
 
 This revision does not change the ten-Sphere target or the 7-level
 Sphere progression structure.
+
+
+======================================================================
+MODIFIER DESTINATION MAP — 2026-10-01
+======================================================================
+
+The existing Sphere progression was inspected before assigning Modifier
+responsibilities. Several Modifier effects already exist as authored
+Sphere branch/final behavior. They should be consolidated rather than
+implemented twice.
+
+SPHERE-BOUND / FOLD INTO EXISTING SPHERE EVOLUTION:
+- MULTISHOT -> Shotgun branches / authored projectile expansion.
+- PIERCE -> Sniper / Shotgun anti-crowd branches where authored.
+- RICOCHET -> Prism reflection / authored projectile behavior.
+- FIRE -> Prism Spectrum / Alchemist status routes.
+- FREEZE -> control/status routes, especially Prism/Gravity/Aura.
+- POISON -> Prism Spectrum / Alchemist status routes.
+- BREACH -> Sniper anti-target / penetration specialization.
+- SPLIT -> Standard Swarm / Shotgun Hail / Prism Split.
+- SHATTER -> Freeze/status follow-up, only where an authored branch
+  actually needs the extra burst.
+- EXECUTE -> Sniper Assassin / Void Execution.
+- MARK -> Sniper Oracle / Sniper Beacon.
+- ECHO -> authored repeated-hit/follow-up behavior where a Sphere has
+  an explicit echo identity; otherwise retire as redundant.
+- ANCHOR -> Aura/Gravity control branches.
+- PHASE -> retain only if a specific Sphere has a meaningful authored
+  resistance/penetration interaction; otherwise retire.
+- STATIC -> Chain Storm / electrical network behavior.
+- RESONANT -> Standard Resonator / Pulse Resonator / Network interaction.
+- VAMPIRIC -> Chain Leech / Void Reaper sustain behavior.
+- CORRUPT -> Prism/status reaction route if a concrete escalating-status
+  mechanic is retained; otherwise retire.
+- DRAIN -> Chain Leech / Void Reaper sustain behavior, likely merge with
+  VAMPIRIC rather than expose as a second sustain mechanic.
+- AFTERIMAGE -> Orbital/Prism follow-up visual or attack route only if
+  it produces a distinct gameplay decision; otherwise retire.
+- IMPACT -> Shotgun/Pulse knockback branches.
+- GRAVITIC -> Gravity Well / Gravity Tide / Aura Gravity.
+
+RARE / EXTERNAL CANDIDATES:
+- OVERLOAD -> candidate for rare Artifact/Protocol or a Sphere-specific
+  final specialization. Do not create a generic +damage Modifier card.
+- MAGNETIC -> candidate for Passive/Artifact economy layer, not Sphere
+  Level-Up.
+
+DESIGN RULE:
+If a Modifier effect is already clearly expressed by an existing Sphere
+branch/final specialization, the Modifier name is an internal concept,
+not another progression node. One gameplay effect must have one clear
+player-facing home.
+
+PROVISIONAL RETIRE/REVIEW LIST:
+PHASE, CORRUPT, AFTERIMAGE, DRAIN, ECHO are not automatically deleted.
+They require a concrete gameplay purpose before receiving a new source.
+
+This map is an authored design target. It is not a claim that all listed
+merges have already been implemented in runtime code.
