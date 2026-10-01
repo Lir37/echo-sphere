@@ -34,5 +34,6 @@ export function getMagnetRadius(s: GameState): number {
   let r = 60;
   const lvl = s.player.abilities.magnet || 0;
   r *= 1 + lvl * 0.2;
+  if (s.player.sphereMods.magnetic > 0) r *= 1 + 0.15 * s.player.sphereMods.magnetic;
   return r;
 }
