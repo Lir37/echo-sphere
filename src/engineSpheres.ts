@@ -518,7 +518,7 @@ export function updateSpheres(s: GameState, dt: number): void {
               radius: 5,
               alive: true,
               color,
-              pierce: mods.pierce + formationPierce + (networkProfile.line ? 1 : 0) + (networkProfile.square ? 1 : 0) + sphereModifiers(s, sphere.type).pierce,
+              pierce: mods.pierce + formationPierce + (networkProfile.line ? 1 : 0) + (networkProfile.square ? 1 : 0),
               hitEnemies: new Set(),
               effect,
               ricochet: sphereUsesProjectileModifiers(sphere.type) ? sphereMods.ricochet : 0,
