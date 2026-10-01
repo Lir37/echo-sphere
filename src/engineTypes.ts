@@ -170,6 +170,8 @@ export interface EnemyEntity {
   fireDps: number;
   poisonTimer: number;
   poisonDps: number;
+  /** Temporary stacking state for the authored Void/Corrupt mechanic. */
+  corruptStacks?: number;
   isElite: boolean;
   elitePulseTimer: number;
   elitePulseTelegraphTimer?: number;
