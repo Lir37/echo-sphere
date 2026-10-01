@@ -10,7 +10,7 @@ import {
 const state = (artifacts = []) => ({ player: { artifacts } });
 
 test('Artifact Sets are data-driven and reference existing pair synergies', () => {
-  assert.equal(ARTIFACT_SETS.length, 6);
+  assert.equal(ARTIFACT_SETS.length, 10);
   for (const set of ARTIFACT_SETS) {
     assert.ok(set.synergyIds.length >= 2);
   }
@@ -53,7 +53,13 @@ test('Artifact Set completion is wired into behavioral combat effects', async ()
   const mod = await import('../src/artifactSystem.ts');
   const all = Object.values(mod.ARTIFACT_META).map((item) => item.id);
   const baseState = {
-    player: { artifacts: all, combo: 10 },
+    player: { artifacts: all, combo: 10, resonanceGeometryKey: 'ring', timestopTimer: 1, teleportDamageBuffTimer: 1, sphereMods: { fire: 1 } },
+    enemies: [
+      { hp: 100, isElite: true, isBoss: false },
+      { hp: 100, isElite: false, isBoss: false },
+      { hp: 100, isElite: false, isBoss: false },
+      { hp: 100, isElite: false, isBoss: false },
+    ],
     spheres: [
       { type: 'standard', alive: true, pos: { x: 0, y: 0 } },
       { type: 'sniper', alive: true, pos: { x: 100, y: 0 } },
