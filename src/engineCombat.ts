@@ -683,6 +683,58 @@ export function onEnemyDeath(s: GameState, enemy: EnemyEntity, fromSphere?: Sphe
     }
     s.flashText = { text: 'SPLITTER', life: 0.6, color: '#b8475a' };
   }
+  if (enemy.role === 'bomber' && !enemy.isBoss) {
+    const blastRadius = 95;
+    for (const target of s.enemies) {
+      if (target !== enemy && target.hp > 0 && dist(target.pos, enemy.pos) <= blastRadius) {
+        dealDamageToEnemy(s, target, 12 + s.player.level, undefined, false);
+      }
+    }
+    if (dist(enemy.pos, s.player.pos) <= blastRadius) damagePlayer(s, 18 + s.player.level * 0.5);
+    s.screenShake = Math.min(0.16, s.screenShake + 0.035);
+  }
+  if (enemy.role === 'splitter' && !enemy.isBoss) {
+    for (let k = 0; k < 2; k++) {
+      const angle = nextRandom(s) * Math.PI * 2;
+      const hp = Math.max(5, enemy.maxHp * 0.16);
+      s.enemies.push({
+        pos: { x: enemy.pos.x + Math.cos(angle) * 14, y: enemy.pos.y + Math.sin(angle) * 14 },
+        hp, maxHp: hp,
+        speed: enemy.speed * 1.15,
+        radius: 9,
+        damage: enemy.damage * 0.45,
+        type: 'fast',
+        role: 'swarmer',
+        color: '#8a5a8a',
+        shape: 'triangle',
+        slowTimer: 0,
+        slowFactor: 1,
+        freezeTimer: 0,
+        hitFlash: 0,
+        isBoss: false,
+        bossShootTimer: 0,
+        bossProjectiles: [],
+        xpValue: 1,
+        rotation: 0,
+        tier: enemy.tier,
+        trailTimer: 0,
+        fireTimer: 0,
+        fireDps: 0,
+        poisonTimer: 0,
+        poisonDps: 0,
+        isElite: false,
+        elitePulseTimer: 0,
+        bossType: 'shooter',
+        chargeTimer: 0,
+        isCharging: false,
+        chargeDir: { x: 0, y: 0 },
+        summonTimer: 0,
+        auraRadius: 0,
+        auraDps: 0,
+        visualVariant: 'skitter',
+      });
+    }
+  }
   playSound(enemy.isBoss ? 'explosion' : 'kill');
   // Stronger death burst, scaled by enemy importance.
   const deathParticles = enemy.isBoss ? 56 : enemy.isElite ? 18 : 10;
