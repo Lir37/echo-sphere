@@ -4,8 +4,9 @@ import { sphereUsesProjectileModifiers } from '../gameData';
 const TAU = Math.PI * 2;
 
 type ModifierKind = keyof SphereMods;
+type CoreModifierKind = 'multishot' | 'pierce' | 'ricochet' | 'fire' | 'freeze' | 'poison';
 
-const MODIFIER_COLOR: Record<ModifierKind, string> = {
+const MODIFIER_COLOR: Record<CoreModifierKind, string> = {
   multishot: '#dff8ff',
   pierce: '#e9ffff',
   ricochet: '#b897ff',
@@ -14,7 +15,7 @@ const MODIFIER_COLOR: Record<ModifierKind, string> = {
   poison: '#6df0a9',
 };
 
-const MODIFIER_ORDER: ModifierKind[] = ['multishot', 'pierce', 'ricochet', 'fire', 'freeze', 'poison'];
+const MODIFIER_ORDER: CoreModifierKind[] = ['multishot', 'pierce', 'ricochet', 'fire', 'freeze', 'poison'];
 const PROJECTILE_ONLY: ModifierKind[] = ['multishot', 'pierce', 'ricochet'];
 
 function modifierValue(mods: SphereMods, kind: ModifierKind): number {
