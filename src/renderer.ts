@@ -2287,6 +2287,41 @@ function drawStandardAttackVfx(ctx: CanvasRenderingContext2D, sphere: SphereEnti
   ctx.restore();
 }
 
+function drawStandardPersistentWeapon(ctx: CanvasRenderingContext2D, sphere: SphereEntity, r: number, time: number): void {
+  const dir = typeof sphere.rotation === 'number' ? sphere.rotation : 0;
+  const pulse = 0.78 + 0.22 * Math.sin(time * 6.0 + sphere.pos.x * 0.01);
+  const color = '#63e6ff';
+  ctx.save();
+  ctx.translate(sphere.pos.x, sphere.pos.y);
+  ctx.rotate(dir);
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.lineCap = 'round';
+
+  // Integrated emitter: three thin rails, no solid barrel/cannon body.
+  ctx.strokeStyle = 'rgba(96,125,145,0.90)';
+  ctx.lineWidth = Math.max(0.75, r * 0.055);
+  for (const y of [-0.13, 0, 0.13]) {
+    ctx.beginPath();
+    ctx.moveTo(r * 0.48, y * r);
+    ctx.lineTo(r * 1.08, y * r * 1.08);
+    ctx.stroke();
+  }
+
+  ctx.strokeStyle = 'rgba(218,249,255,' + (0.48 + pulse * 0.24).toFixed(3) + ')';
+  ctx.lineWidth = Math.max(0.45, r * 0.026);
+  ctx.beginPath();
+  ctx.moveTo(r * 0.52, 0);
+  ctx.lineTo(r * 1.16, 0);
+  ctx.stroke();
+
+  ctx.strokeStyle = 'rgba(99,230,255,' + (0.36 + pulse * 0.30).toFixed(3) + ')';
+  ctx.lineWidth = Math.max(0.7, r * 0.035);
+  ctx.beginPath();
+  ctx.arc(r * 1.16, 0, r * (0.075 + pulse * 0.018), -Math.PI * 0.72, Math.PI * 0.72);
+  ctx.stroke();
+  ctx.restore();
+}
+
 function drawModernSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: SphereEntity, time: number): void {
   const def = SPHERE_TYPES[sphere.type];
   const r = Math.max(15, Math.min(25, sphere.radius * 0.19 + (sphere.visualTier || 0) * 0.8));
@@ -2306,6 +2341,8 @@ function drawModernSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: S
       ctx.restore();
     }
     renderSphereMutationVfx(ctx, sphere, s.player, time, scale);
+    // Persistent weapon stays visible through Lv4/Lv7 mutation silhouettes.
+    drawStandardPersistentWeapon(ctx, sphere, r, time);
     drawStandardAttackVfx(ctx, sphere, r, time);
     renderSphereModifierVfx(ctx, sphere, s.player, time, scale);
     drawNetworkDisabledIndicator(ctx, sphere, time);
