@@ -121,7 +121,7 @@ function getAbilityEvolutionChoices(s:GameState, ability:AbilityType, level:4|7)
   }));
 }
 
-type UpgradeSource = 'ability' | 'sphere';
+type UpgradeSource = 'ability' | 'sphere' | 'modifier';
 
 export function getUpgradeChoiceKey(choice: UpgradeChoice): string {
   if (choice.type === 'modifier') {
@@ -184,6 +184,9 @@ function getUpgradeChoiceSource(choice: UpgradeChoice): UpgradeSource {
  * invented here.
  */
 export function getUpgradeSourceWeight(s: GameState, source: UpgradeSource): number {
+  // Modifier remains a legacy/runtime source during migration, but it no longer
+  // participates in routine Level-Up weighting or pity.
+  if (source === 'modifier') return 1;
   const pity = Math.min(4, Math.max(0, s.levelUpPity?.[source] || 0));
   const pityWeight = 1 + pity * 0.20;
 
