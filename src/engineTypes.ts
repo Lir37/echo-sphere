@@ -143,6 +143,18 @@ export interface SphereProjectile {
   procOnHit?: boolean;
 }
 
+export type EliteVariant =
+  | 'linkbreaker'
+  | 'resonance_leech'
+  | 'phantom_hunter'
+  | 'geometry_shifter'
+  | 'splitter_prime'
+  | 'mirror_warden'
+  | 'stasis_warden'
+  | 'nullifier'
+  | 'pyroclast'
+  | 'scavenger_prime';
+
 export interface EnemyEntity {
   pos: Vec;
   hp: number;
@@ -173,6 +185,7 @@ export interface EnemyEntity {
   /** Temporary stacking state for the authored Void/Corrupt mechanic. */
   corruptStacks?: number;
   isElite: boolean;
+  eliteVariant?: EliteVariant;
   elitePulseTimer: number;
   elitePulseTelegraphTimer?: number;
   elitePulseTarget?: SphereEntity;
