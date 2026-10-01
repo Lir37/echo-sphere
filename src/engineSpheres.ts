@@ -615,7 +615,7 @@ export function updateSpheres(s: GameState, dt: number): void {
         // apply status effects
         if (p.effect === 'fire') {
           let duration = 3 * getCharacterStatusDurationMultiplier(s);
-          let dps = (5 + sphereModifiers(s, p.sourceSphere?.type ?? sphere.type, p.sourceSphere ?? sphere).fire * 3) * getCharacterStatusDamageMultiplier(s);
+          let dps = (5 + p.sourceSphere ? sphereModifiers(s, p.sourceSphere.type, p.sourceSphere).fire : s.player.sphereMods.fire * 3) * getCharacterStatusDamageMultiplier(s);
           if (getCharacterId(s) === 'alchemist' && s.player.characterMasteryLevel >= 3) dps *= 1.05;
           if (getCharacterId(s) === 'alchemist' && s.player.alchemistCatalystTimer > 0) {
             duration *= 1.5;
@@ -624,7 +624,7 @@ export function updateSpheres(s: GameState, dt: number): void {
           e.fireTimer = (e.fireTimer || 0) + duration;
           e.fireDps = dps;
         } else if (p.effect === 'freeze') {
-          let duration = (0.5 + sphereModifiers(s, p.sourceSphere?.type ?? sphere.type, p.sourceSphere ?? sphere).freeze * 0.3) * getCharacterStatusDurationMultiplier(s);
+          let duration = (0.5 + p.sourceSphere ? sphereModifiers(s, p.sourceSphere.type, p.sourceSphere).freeze : s.player.sphereMods.freeze * 0.3) * getCharacterStatusDurationMultiplier(s);
           if (getCharacterId(s) === 'alchemist' && s.player.alchemistCatalystTimer > 0) {
             duration *= 1.5;
             s.player.alchemistCatalystTimer = 0;
@@ -632,7 +632,7 @@ export function updateSpheres(s: GameState, dt: number): void {
           e.freezeTimer = Math.max(e.freezeTimer || 0, duration);
         } else if (p.effect === 'poison') {
           let duration = 4 * getCharacterStatusDurationMultiplier(s);
-          let dps = (3 + sphereModifiers(s, p.sourceSphere?.type ?? sphere.type, p.sourceSphere ?? sphere).poison * 2) * getCharacterStatusDamageMultiplier(s);
+          let dps = (3 + p.sourceSphere ? sphereModifiers(s, p.sourceSphere.type, p.sourceSphere).poison : s.player.sphereMods.poison * 2) * getCharacterStatusDamageMultiplier(s);
           if (getCharacterId(s) === 'alchemist' && s.player.characterMasteryLevel >= 3) dps *= 1.05;
           if (getCharacterId(s) === 'alchemist' && s.player.alchemistCatalystTimer > 0) {
             duration *= 1.5;
