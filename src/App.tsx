@@ -10,7 +10,7 @@ import {
   createInitialState, update,
   generateUpgradeChoices, applyUpgrade, applyArtifact,
   getMaxSpheres, getMoveSpeed, getSphereRadius, getSphereDamage, getSphereDelay, getSphereDpsEstimate,
-  getCritChance, getDodgeChance, getVampirePercent, debugLevelUp,
+  getCritChance, getDodgeChance, getVampirePercent, debugLevelUp, rerollUpgradeChoices,
   type GameState, type ShopState, type LeaderEntry, type UpgradeChoice,
   MAP_THEMES, type MapTheme,
 } from './engine';
@@ -319,7 +319,7 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
               </div>
             </div>
           )}
-          {st.pendingUpgrade && <UpgradeModal lang={lang} t={t} st={st} onPick={(c) => { applyUpgrade(st, c); }} />}
+          {st.pendingUpgrade && <UpgradeModal lang={lang} t={t} st={st} onPick={(c) => { applyUpgrade(st, c); }} onReroll={() => { rerollUpgradeChoices(st); }} />}
           {st.pendingArtifact && <ArtifactModal lang={lang} t={t} st={st} choices={st.pendingArtifact} onPick={(id) => { applyArtifact(st, id); st.pendingArtifact = null; }} />}
           {paused && !st.pendingUpgrade && !st.pendingArtifact && !st.pendingStella && (
             <PausePlanner
@@ -889,8 +889,12 @@ function ArtifactModal({ lang, t, st, choices, onPick }: {
 }
 
 // ===== Upgrade Modal =====
-function UpgradeModal({ lang, t, st, onPick }: {
-  lang: Lang; t: (k: TranslationKey) => string; st: GameState; onPick: (c: UpgradeChoice) => void;
+function UpgradeModal({ lang, t, st, onPick, onReroll }: {
+  lang: Lang;
+  t: (k: TranslationKey) => string;
+  st: GameState;
+  onPick: (c: UpgradeChoice) => void;
+  onReroll: () => void;
 }) {
   const choices = st.pendingUpgrade || [];
   const first = choices[0];
@@ -935,6 +939,21 @@ function UpgradeModal({ lang, t, st, onPick }: {
             </button>
           ))}
         </div>
+        {choices.length === 3 && choices.every((choice) =>
+          (choice.type === 'sphere' && choice.sphereStage === 'upgrade')
+          || (choice.type === 'ability' && !choice.abilityStage)
+        ) && (
+          <div className="mt-4 flex items-center justify-center">
+            <button
+              type="button"
+              onClick={onReroll}
+              disabled={st.levelUpRerollsRemaining <= 0}
+              className="rounded-lg border border-[#39d8ff]/40 bg-[#39d8ff]/10 px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-[#9fefff] disabled:opacity-30"
+            >
+              {lang === 'ru' ? 'Перебросить' : 'Reroll'} · {st.levelUpRerollsRemaining}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
