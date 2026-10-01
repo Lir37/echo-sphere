@@ -35,7 +35,7 @@ test('Artifact Set completion is derived from its pair synergies', () => {
 });
 
 
-test('three Artifact Sets expose protocol discovery and completion bonus', async () => {
+test('all current Artifact Sets expose protocol discovery and completion bonus', async () => {
   const mod = await import('../src/artifactSystem.ts');
   const all = Object.values(mod.ARTIFACT_META).map((item) => item.id);
   const states = mod.getArtifactProtocolStates({ player: { artifacts: all, combo: 10 }, spheres: [
@@ -43,7 +43,7 @@ test('three Artifact Sets expose protocol discovery and completion bonus', async
     { type: 'sniper', alive: true, pos: { x: 10, y: 0 } },
     { type: 'chain', alive: true, pos: { x: 0, y: 10 } },
   ]});
-  assert.equal(states.length, 3);
+  assert.equal(states.length, 6);
   assert.ok(states.every((x) => x.discovered));
   assert.ok(states.every((x) => x.active));
   assert.equal(mod.getArtifactSetCompletionPulse({ player: { artifacts: all } }), 1);
@@ -66,6 +66,9 @@ test('Artifact Set completion is wired into behavioral combat effects', async ()
     resonanceGrid: true,
     echoArchitecture: true,
     singularityPath: true,
+    geometryCraft: true,
+    voidHorizon: true,
+    temporalFold: true,
   });
 
   const modifiers = mod.getSphereArtifactModifiers(baseState, 'standard', baseState.spheres[0]);
