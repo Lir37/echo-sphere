@@ -160,6 +160,13 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
       enemy.corruptStacks = Math.min(5, (enemy.corruptStacks ?? 0) + 1);
       actual *= 1 + 0.04 * enemy.corruptStacks;
     }
+    if (
+      enemy.freezeVulnerabilityTimer && enemy.freezeVulnerabilityTimer > 0 &&
+      enemy.freezeTimer > 0 &&
+      fromSphere?.type === enemy.freezeVulnerabilitySource
+    ) {
+      actual *= 1.22;
+    }
   }
   const contextualCritChance = getContextualCritChance(getCritChance(s, fromSphere), {
     hunterMarked: Boolean(
