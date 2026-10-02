@@ -16,7 +16,10 @@ import {
   getArtifactSphereDelayMultiplier,
   getSphereArtifactDamageMultiplier,
 } from './artifactSystem';
-import { sphereModifiers, sphereLevel, getActiveSphereAbilitySynergies } from './sphereProgression';
+import {
+  sphereModifiers, sphereLevel, getActiveSphereAbilitySynergies,
+  getSphereElementForBranch, getSphereElementMasteryForBranch,
+} from './sphereProgression';
 import { selectSphereTarget } from './targeting';
 import type { SphereNetworkState } from './network';
 import { getSphereNetworkProfile, getLinkedNodeIndexes } from './network';
@@ -137,12 +140,30 @@ export function getSphereDelay(s: GameState, sphere?: SphereEntity, network?: Sp
 function applyDirectSphereStatus(s: GameState, enemy: EnemyEntity, effect: 'fire' | 'freeze' | 'poison', sourceSphere?: SphereEntity): void {
   if (enemy.hp <= 0) return;
   const mods = sourceSphere ? sphereModifiers(s, sourceSphere.type, sourceSphere) : null;
-  const fireLevel = mods?.fire ?? s.player.sphereMods.fire;
-  const freezeLevel = mods?.freeze ?? s.player.sphereMods.freeze;
-  const poisonLevel = mods?.poison ?? s.player.sphereMods.poison;
+  const branch = sourceSphere ? s.player.sphereBranches?.[sourceSphere.type] : undefined;
+  const element = getSphereElementForBranch(branch);
+  const finalId = sourceSphere
+    ? (s.player.evolutions || []).find((x: string) => x.startsWith('sphere:' + sourceSphere.type + ':7:'))
+    : undefined;
+  const finalIndex = finalId ? Number(finalId.split(':').pop()) : null;
+  const mastery = getSphereElementMasteryForBranch(branch, finalIndex);
+
+  const fireLevel = Math.max(Number(mods?.fire ?? s.player.sphereMods.fire ?? 0), element === 'fire' ? 1 : 0);
+  const freezeLevel = Math.max(Number(mods?.freeze ?? s.player.sphereMods.freeze ?? 0), element === 'freeze' ? 1 : 0);
+  const poisonLevel = Math.max(Number(mods?.poison ?? s.player.sphereMods.poison ?? 0), element === 'poison' ? 1 : 0);
+
   if (effect === 'fire') {
     let duration = 3 * getCharacterStatusDurationMultiplier(s);
     let dps = (5 + fireLevel * 3) * getCharacterStatusDamageMultiplier(s);
+    if (element === 'fire' && mastery?.id === 'fire_power') dps *= 1.35;
+    if (element === 'fire' && mastery?.id === 'fire_duration') duration *= 1.45;
+    if (element === 'fire' && mastery?.id === 'fire_tempo') {
+      enemy.fireTickInterval = 0.12;
+      enemy.fireTickTimer = 0;
+    } else {
+      enemy.fireTickInterval = undefined;
+      enemy.fireTickTimer = 0;
+    }
     if (getCharacterId(s) === 'alchemist' && s.player.characterMasteryLevel >= 3) dps *= 1.05;
     if (getCharacterId(s) === 'alchemist' && s.player.alchemistCatalystTimer > 0) {
       duration *= 1.5;
@@ -152,14 +173,32 @@ function applyDirectSphereStatus(s: GameState, enemy: EnemyEntity, effect: 'fire
     enemy.fireDps = dps;
   } else if (effect === 'freeze') {
     let duration = (0.5 + freezeLevel * 0.3) * getCharacterStatusDurationMultiplier(s);
-    if (getCharacterId(s) === 'alchemist' && s.player.alchemistCatalystTimer > 0) {
+    if (element === 'freeze' && mastery?.id === 'freeze_duration') duration *= 1.40;
+    if (getCharacterId(s) === 'alchemist' && s.player.characterMasteryLevel >= 3) {
       duration *= 1.5;
       s.player.alchemistCatalystTimer = 0;
     }
     enemy.freezeTimer = Math.max(enemy.freezeTimer || 0, duration);
+    if (element === 'freeze' && mastery?.id === 'freeze_impact') {
+      enemy.freezeVulnerabilityTimer = Math.max(enemy.freezeVulnerabilityTimer || 0, duration);
+      enemy.freezeVulnerabilitySource = sourceSphere?.type;
+    }
+    if (element === 'freeze' && mastery?.id === 'freeze_permafrost') {
+      enemy.slowTimer = Math.max(enemy.slowTimer, 1.0);
+      enemy.slowFactor = Math.min(enemy.slowFactor, 0.72);
+    }
   } else {
     let duration = 4 * getCharacterStatusDurationMultiplier(s);
     let dps = (3 + poisonLevel * 2) * getCharacterStatusDamageMultiplier(s);
+    if (element === 'poison' && mastery?.id === 'poison_power') dps *= 1.35;
+    if (element === 'poison' && mastery?.id === 'poison_duration') duration *= 1.45;
+    if (element === 'poison' && mastery?.id === 'poison_tempo') {
+      enemy.poisonTickInterval = 0.12;
+      enemy.poisonTickTimer = 0;
+    } else {
+      enemy.poisonTickInterval = undefined;
+      enemy.poisonTickTimer = 0;
+    }
     if (getCharacterId(s) === 'alchemist' && s.player.characterMasteryLevel >= 3) dps *= 1.05;
     if (getCharacterId(s) === 'alchemist' && s.player.alchemistCatalystTimer > 0) {
       duration *= 1.5;
@@ -172,6 +211,9 @@ function applyDirectSphereStatus(s: GameState, enemy: EnemyEntity, effect: 'fire
 }
 
 function getActiveStatusEffect(s: GameState, sphere?: SphereEntity): 'none' | 'fire' | 'freeze' | 'poison' {
+  const branch = sphere ? s.player.sphereBranches?.[sphere.type] : undefined;
+  const element = getSphereElementForBranch(branch);
+  if (element) return element;
   const mods = sphere ? sphereModifiers(s, sphere.type, sphere) : null;
   if ((mods?.fire ?? s.player.sphereMods.fire) > 0) return 'fire';
   if ((mods?.freeze ?? s.player.sphereMods.freeze) > 0) return 'freeze';
@@ -500,14 +542,17 @@ export function updateSpheres(s: GameState, dt: number): void {
           const spread = shots > 1 ? (i - (shots - 1) / 2) * ((stype.spread * (sphereModifiers(s, sphere.type).spreadMult || 1)) / Math.max(1, shots - 1) || 0.15) : 0;
           const angle = Math.atan2(dirY, dirX) + spread;
           const isChainAttack = stype.chain;
-          let effect: 'none' | 'fire' | 'freeze' | 'poison' = 'none';
-          if (sphereMods.fire > 0) effect = 'fire';
-          else if (sphereMods.freeze > 0) effect = 'freeze';
-          else if (sphereMods.poison > 0) effect = 'poison';
+          const branchElement = getSphereElementForBranch(s.player.sphereBranches?.[sphere.type]);
+          let effect: 'none' | 'fire' | 'freeze' | 'poison' = branchElement ?? 'none';
+          if (effect === 'none') {
+            if (sphereMods.fire > 0) effect = 'fire';
+            else if (sphereMods.freeze > 0) effect = 'freeze';
+            else if (sphereMods.poison > 0) effect = 'poison';
+          }
           let color = stype.color;
-          if (effect === 'fire') color = '#c46d3d';
-          else if (effect === 'freeze') color = '#4a7a8a';
-          else if (effect === 'poison') color = '#5a8c4a';
+          if (effect === 'fire') color = '#ff743d';
+          else if (effect === 'freeze') color = '#d9f6ff';
+          else if (effect === 'poison') color = '#72f08e';
           const speed = 350 * stype.projectileSpeedMult;
 
           if (!isChainAttack) {
@@ -612,38 +657,8 @@ export function updateSpheres(s: GameState, dt: number): void {
           const a = nextRandom(s) * Math.PI * 2;
           s.particles.push({ pos: { ...p.pos }, vel: { x: Math.cos(a) * 80, y: Math.sin(a) * 80 }, life: 0.3, maxLife: 0.3, color: p.color, size: 2 });
         }
-        // apply status effects
-        if (p.effect === 'fire') {
-          let duration = 3 * getCharacterStatusDurationMultiplier(s);
-          let dps = (5 + (p.sourceSphere ? sphereModifiers(s, p.sourceSphere.type, p.sourceSphere).fire : s.player.sphereMods.fire) * 3) * getCharacterStatusDamageMultiplier(s);
-          if (getCharacterId(s) === 'alchemist' && s.player.characterMasteryLevel >= 3) dps *= 1.05;
-          if (getCharacterId(s) === 'alchemist' && s.player.alchemistCatalystTimer > 0) {
-            duration *= 1.5;
-            s.player.alchemistCatalystTimer = 0;
-          }
-          e.fireTimer = (e.fireTimer || 0) + duration;
-          e.fireDps = dps;
-        } else if (p.effect === 'freeze') {
-          let duration = (0.5 + (p.sourceSphere ? sphereModifiers(s, p.sourceSphere.type, p.sourceSphere).freeze : s.player.sphereMods.freeze) * 0.3) * getCharacterStatusDurationMultiplier(s);
-          if (getCharacterId(s) === 'alchemist' && s.player.alchemistCatalystTimer > 0) {
-            duration *= 1.5;
-            s.player.alchemistCatalystTimer = 0;
-          }
-          e.freezeTimer = Math.max(e.freezeTimer || 0, duration);
-        } else if (p.effect === 'poison') {
-          let duration = 4 * getCharacterStatusDurationMultiplier(s);
-          let dps = (3 + (p.sourceSphere ? sphereModifiers(s, p.sourceSphere.type, p.sourceSphere).poison : s.player.sphereMods.poison) * 2) * getCharacterStatusDamageMultiplier(s);
-          if (getCharacterId(s) === 'alchemist' && s.player.characterMasteryLevel >= 3) dps *= 1.05;
-          if (getCharacterId(s) === 'alchemist' && s.player.alchemistCatalystTimer > 0) {
-            duration *= 1.5;
-            s.player.alchemistCatalystTimer = 0;
-          }
-          e.poisonTimer = (e.poisonTimer || 0) + duration;
-          e.poisonDps = dps;
-        }
-        if (p.effect !== 'none' && applyAlchemistReaction(s, e) && e.hp <= 0) {
-          onEnemyDeath(s, e, p.sourceSphere);
-        }
+        // Elemental status is routed through the same authoritative path as direct hits.
+        if (p.effect !== 'none') applyDirectSphereStatus(s, e, p.effect, p.sourceSphere);
         const hitMods = p.sourceSphere ? sphereModifiers(s, p.sourceSphere.type, p.sourceSphere) : null;
         if (hitMods && hitMods.splitChance > 0 && p.procOnHit !== false && nextRandom(s) < hitMods.splitChance) {
           const baseAngle = Math.atan2(p.vel.y, p.vel.x);
