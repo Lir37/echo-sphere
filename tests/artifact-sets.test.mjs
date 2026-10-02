@@ -200,14 +200,14 @@ test('each Artifact Protocol changes a measurable combat modifier when its condi
     ] }, 'standard'],
     ['critical_echo', { player: { ...base.player, combo: 5 } }, 'standard'],
     ['geometry_circuit', { player: { ...base.player, resonanceGeometryKey: 'ring' } }, 'standard'],
-    ['void_horizon_protocol', { player: { ...base.player }, enemies: [{ hp: 100, isElite: true, isBoss: false }] }, 'void'],
+    ['void_horizon_protocol', { player: { ...base.player }, spheres: [{ type: 'void', alive: true, pos: { x: 0, y: 0 } }], enemies: [{ hp: 100, isElite: true, isBoss: false }] }, 'void'],
     ['temporal_fold_protocol', { player: { ...base.player, timestopTimer: 1 } }, 'standard'],
-    ['status_circuit_protocol', { player: { ...base.player, sphereMods: { fire: 1 } } }, 'prism'],
-    ['hunter_doctrine_protocol', { player: { ...base.player }, enemies: [{ hp: 100, isElite: true, isBoss: false }] }, 'sniper'],
+    ['status_circuit_protocol', { player: { ...base.player, sphereMods: { fire: 1 } }, spheres: [{ type: 'prism', alive: true, pos: { x: 0, y: 0 } }] }, 'prism'],
+    ['hunter_doctrine_protocol', { player: { ...base.player }, spheres: [{ type: 'sniper', alive: true, pos: { x: 0, y: 0 } }], enemies: [{ hp: 100, isElite: true, isBoss: false }] }, 'sniper'],
     ['pulse_engineering_protocol', { player: { ...base.player }, enemies: [
       { hp: 100, isElite: false, isBoss: false }, { hp: 100, isElite: false, isBoss: false },
       { hp: 100, isElite: false, isBoss: false }, { hp: 100, isElite: false, isBoss: false },
-    ] }, 'pulse'],
+    ], spheres: [{ type: 'pulse', alive: true, pos: { x: 0, y: 0 } }] }, 'pulse'],
     ['core_forge_protocol', { player: { ...base.player }, spheres: [
       { type: 'standard', alive: true, pos: { x: 0, y: 0 } },
       { type: 'sniper', alive: true, pos: { x: 100, y: 0 } },
