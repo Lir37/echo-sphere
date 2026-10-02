@@ -180,22 +180,22 @@ export const ARTIFACT_SYNERGIES: ArtifactSynergy[] = [
   { id: 'singularity', requires: ['lone_bastion', 'singularity_engine'], name: { ru: 'Сингулярность', en: 'Singularity' }, desc: { ru: 'При 1 типе сферы её урон увеличивается ещё на 20%.', en: 'With one sphere type, its damage is increased by another 20%.' } },
   { id: 'perfect_network', requires: ['fivefold_resonance', 'triangle_circuit'], name: { ru: 'Идеальная сеть', en: 'Perfect Network' }, desc: { ru: 'При 3+ типах сфер геометрические связи дают +10% урона.', en: 'With 3+ sphere types, geometric links grant +10% damage.' } },
   { id: 'unified_core', requires: ['unified_mind', 'zero_sphere'], name: { ru: 'Единое ядро', en: 'Unified Core' }, desc: { ru: 'Максимально прокачанная сфера усиливает остальные на 5% за уровень.', en: 'The strongest sphere boosts the others by 5% per level.' } },
-  { id: 'geometry_loop', requires: ['triangle_engine', 'ring_engine'], name: { ru: 'Контур петли', en: 'Geometry Loop' }, desc: { ru: 'смена Geometry быстрее заряжает Resonance.', en: 'Geometry changes charge Resonance faster.' } },
-  { id: 'lattice_memory', requires: ['lattice_engine', 'fractal_seed'], name: { ru: 'Память решётки', en: 'Lattice Memory' }, desc: { ru: 'Lattice и Fractal сохраняют часть силы после перестройки.', en: 'Lattice and Fractal retain part of their strength after rewiring.' } },
+  { id: 'geometry_loop', requires: ['triangle_engine', 'ring_engine'], name: { ru: 'Контур петли', en: 'Geometry Loop' }, desc: { ru: 'активная Ring/Lattice/Fractal Geometry усиливает урон сфер.', en: 'Active Ring/Lattice/Fractal Geometry increases Sphere damage.' } },
+  { id: 'lattice_memory', requires: ['lattice_engine', 'fractal_seed'], name: { ru: 'Память решётки', en: 'Lattice Memory' }, desc: { ru: 'после перестройки Lattice/Fractal кратко сохраняют усиление.', en: 'Lattice/Fractal retain a short-lived damage bonus after rewiring.' } },
   { id: 'void_horizon', requires: ['void_ink', 'void_mark'], name: { ru: 'Горизонт пустоты', en: 'Void Horizon' }, desc: { ru: 'Void сильнее работает по элитным и ослабленным целям.', en: 'Void is stronger against elites and weakened targets.' } },
-  { id: 'orbital_prism', requires: ['orbital_blade', 'prism_filter'], name: { ru: 'Орбитальная призма', en: 'Orbital Prism' }, desc: { ru: 'Orbital создаёт дополнительные отражённые лучи.', en: 'Orbital creates additional reflected beams.' } },
+  { id: 'orbital_prism', requires: ['orbital_blade', 'prism_filter'], name: { ru: 'Орбитальная призма', en: 'Orbital Prism' }, desc: { ru: 'Orbital получает +15% урона.', en: 'Orbital gains +15% damage.' } },
   { id: 'gravity_pulse', requires: ['gravity_hook', 'pulse_driver'], name: { ru: 'Гравитационный импульс', en: 'Gravity Pulse' }, desc: { ru: 'Pulse наносит больше урона собранным врагам.', en: 'Pulse deals more damage to grouped enemies.' } },
-  { id: 'network_memory', requires: ['network_anchor', 'echo_weaver'], name: { ru: 'Память сети', en: 'Network Memory' }, desc: { ru: 'первая перестройка сети после Geometry Event сохраняет бонус.', en: 'The first network rebuild after a Geometry Event preserves its bonus.' } },
-  { id: 'temporal_echo', requires: ['time_splitter', 'stasis_mandala'], name: { ru: 'Временное эхо', en: 'Temporal Echo' }, desc: { ru: 'после контроля времени следующий Resonance Event усиливается.', en: 'The next Resonance Event after time control is empowered.' } },
-  { id: 'axiom_fold', requires: ['axiom_core', 'universal_fold'], name: { ru: 'Аксиоматический сгиб', en: 'Axiom Fold' }, desc: { ru: 'разные системы билда усиливают друг друга.', en: 'Different build systems reinforce one another.' } },
+  { id: 'network_memory', requires: ['network_anchor', 'echo_weaver'], name: { ru: 'Память сети', en: 'Network Memory' }, desc: { ru: 'после перестройки при сохранённой Formation Memory сеть получает краткий бонус.', en: 'After rewiring, Formation Memory grants a short-lived damage bonus.' } },
+  { id: 'temporal_echo', requires: ['time_splitter', 'stasis_mandala'], name: { ru: 'Временное эхо', en: 'Temporal Echo' }, desc: { ru: 'во время активного контроля времени сферы получают +12% урона.', en: 'During active time control, Spheres gain +12% damage.' } },
+  { id: 'axiom_fold', requires: ['axiom_core', 'universal_fold'], name: { ru: 'Аксиоматический сгиб', en: 'Axiom Fold' }, desc: { ru: 'при 3+ типах сфер разные системы билда дают дополнительный урон.', en: 'With 3+ Sphere types, cross-system buildcraft grants additional damage.' } },
   { id: 'status_circuit', requires: ['prism_filter', 'stasis_mandala'], name: { ru: 'Контур статусов', en: 'Status Circuit' }, desc: { ru: 'Prism получает усиление, когда сборка концентрируется на статусах.', en: 'Prism gains power when the build concentrates on statuses.' } },
-  { id: 'hunter_doctrine', requires: ['foresight_eye', 'sniper_scope'], name: { ru: 'Доктрина охотника', en: 'Hunter Doctrine' }, desc: { ru: 'Sniper получает дополнительное давление на приоритетные цели.', en: 'Sniper gains additional pressure against priority targets.' } },
-  { id: 'pulse_engineering', requires: ['pulse_driver', 'pulse_lens'], name: { ru: 'Импульсная инженерия', en: 'Pulse Engineering' }, desc: { ru: 'Pulse усиливается против плотных групп врагов.', en: 'Pulse is stronger against dense enemy groups.' } },
-  { id: 'core_forge', requires: ['echo_weaver', 'folded_core'], name: { ru: 'Кузница ядра', en: 'Core Forge' }, desc: { ru: 'Разнотипная сеть получает компактный глобальный бонус.', en: 'A mixed-type network gains a compact global bonus.' } },
-  { id: 'status_loop', requires: ['prism_crown', 'stasis_mandala'], name: { ru: 'Петля статусов', en: 'Status Loop' }, desc: { ru: 'Дополняет Prism-статусы дополнительным циклом.', en: 'Adds a secondary cycle to Prism status builds.' } },
-  { id: 'hunter_focus', requires: ['sniper_crown', 'long_lens'], name: { ru: 'Фокус охотника', en: 'Hunter Focus' }, desc: { ru: 'Усиливает дальнюю Sniper-связку.', en: 'Strengthens the long-range Sniper link.' } },
-  { id: 'pulse_overload', requires: ['pulse_crown', 'tempo_ring'], name: { ru: 'Импульсная перегрузка', en: 'Pulse Overload' }, desc: { ru: 'Добавляет темп и дополнительную волну Pulse.', en: 'Adds tempo and an extra Pulse wave.' } },
-  { id: 'core_relay', requires: ['unified_mind', 'echo_thread'], name: { ru: 'Релейная кузница', en: 'Core Relay' }, desc: { ru: 'Передаёт часть силы между разнотипными сферами.', en: 'Relays part of the power between mixed Sphere types.' } },
+  { id: 'hunter_doctrine', requires: ['foresight_eye', 'sniper_scope'], name: { ru: 'Доктрина охотника', en: 'Hunter Doctrine' }, desc: { ru: 'Sniper получает +12% урона против Elite/Boss целей.', en: 'Sniper gains +12% damage against Elite/Boss targets.' } },
+  { id: 'pulse_engineering', requires: ['pulse_driver', 'pulse_lens'], name: { ru: 'Импульсная инженерия', en: 'Pulse Engineering' }, desc: { ru: 'Pulse получает +12% урона по плотной группе из 4+ врагов.', en: 'Pulse gains +12% damage against dense groups of 4+ enemies.' } },
+  { id: 'core_forge', requires: ['echo_weaver', 'folded_core'], name: { ru: 'Кузница ядра', en: 'Core Forge' }, desc: { ru: 'сеть из 3+ типов сфер получает +6% урона.', en: 'A network with 3+ Sphere types gains +6% damage.' } },
+  { id: 'status_loop', requires: ['prism_crown', 'stasis_mandala'], name: { ru: 'Петля статусов', en: 'Status Loop' }, desc: { ru: 'Prism получает +10% урона в статусной сборке.', en: 'Prism gains +10% damage in a status-focused build.' } },
+  { id: 'hunter_focus', requires: ['sniper_crown', 'long_lens'], name: { ru: 'Фокус охотника', en: 'Hunter Focus' }, desc: { ru: 'Sniper получает +10% урона при наличии дальнобойного билда.', en: 'Sniper gains +10% damage with the long-range build.' } },
+  { id: 'pulse_overload', requires: ['pulse_crown', 'tempo_ring'], name: { ru: 'Импульсная перегрузка', en: 'Pulse Overload' }, desc: { ru: 'Pulse получает +10% урона при собранной связке Pulse.', en: 'Pulse gains +10% damage when the Pulse package is assembled.' } },
+  { id: 'core_relay', requires: ['unified_mind', 'echo_thread'], name: { ru: 'Релейная кузница', en: 'Core Relay' }, desc: { ru: 'при 2+ типах сфер даёт +8% урона разнотипной сети.', en: 'With 2+ Sphere types, the mixed network gains +8% damage.' } },
 ];
 
 export function getActiveArtifactSynergies(s: { player: { artifacts: ArtifactId[] } }): ArtifactSynergy[] {
@@ -498,7 +498,8 @@ export function getArtifactProtocolStates(s: {
 export type ArtifactSetBehavior =
   | 'resonance_grid' | 'echo_architecture' | 'singularity_path'
   | 'geometry_craft' | 'void_horizon' | 'temporal_fold'
-  | 'status_circuit' | 'hunter_doctrine' | 'pulse_engineering' | 'core_forge';
+  | 'status_circuit' | 'hunter_doctrine' | 'pulse_engineering' | 'core_forge'
+  | 'prism_dominion' | 'network_legacy';
 
 export function hasCompletedArtifactSet(
   s: { player: { artifacts: ArtifactId[] } },
@@ -627,7 +628,10 @@ export function getSphereArtifactModifiers(s: any, type: string, sphere?: any): 
 
 
   const setBehavior = getArtifactSetBehavior(s);
-  if (setBehavior.geometryCraft && ['ring', 'lattice', 'fractal'].includes(String(s.player.resonanceGeometryKey || 'none'))) damage *= 1.10;
+  const geometryKey = String(s.player.resonanceGeometryKey || 'none');
+  if (setBehavior.resonanceGrid && sphere && hasNearbysphere(s, sphere, 190) && geometryKey !== 'none') damage *= 1.06;
+  if (setBehavior.echoArchitecture && unique >= 2 && sphere && hasNearbysphere(s, sphere, 220)) damage *= 1.06;
+  if (setBehavior.geometryCraft && ['ring', 'lattice', 'fractal'].includes(geometryKey)) damage *= 1.10;
   if (setBehavior.voidHorizon && type === 'void') damage *= 1.10;
   if (setBehavior.temporalFold && (((s.player.timestopTimer || 0) > 0) || ((s.player.teleportDamageBuffTimer || 0) > 0))) damage *= 1.12;
   if (setBehavior.statusCircuit && type === 'prism' && Object.values(s.player.sphereMods || {}).some((level: any) => Number(level) > 0)) damage *= 1.10;
@@ -635,7 +639,19 @@ export function getSphereArtifactModifiers(s: any, type: string, sphere?: any): 
   if (setBehavior.pulseEngineering && type === 'pulse') damage *= 1.10;
   if (setBehavior.coreForge && uniquesphereCount(s) >= 3) damage *= 1.06;
   if (setBehavior.prismDominion && ['prism', 'orbital'].includes(type)) damage *= 1.08;
-  if (setBehavior.networkLegacy && ['ring', 'lattice', 'fractal'].includes(String(s.player.resonanceGeometryKey || 'none'))) damage *= 1.06;
+  if (setBehavior.networkLegacy && unique >= 3 && ['ring', 'lattice', 'fractal'].includes(String(s.player.resonanceGeometryKey || 'none'))) damage *= 1.06;
+  if (synergies.some((x) => x.id === 'geometry_loop') && ['ring', 'lattice', 'fractal'].includes(geometryKey)) damage *= 1.08;
+  if (synergies.some((x) => x.id === 'lattice_memory') && s.formationMemory && ['lattice', 'fractal'].includes(String(s.formationMemory.type || ''))) damage *= 1.08;
+  if (synergies.some((x) => x.id === 'network_memory') && s.formationMemory) damage *= 1.08;
+  if (synergies.some((x) => x.id === 'temporal_echo') && (((s.player.timestopTimer || 0) > 0) || ((s.player.teleportDamageBuffTimer || 0) > 0))) damage *= 1.12;
+  if (synergies.some((x) => x.id === 'axiom_fold') && unique >= 3) damage *= 1.06;
+  if (synergies.some((x) => x.id === 'hunter_doctrine') && type === 'sniper' && (s.enemies || []).some((enemy: any) => enemy.hp > 0 && (enemy.isElite || enemy.isBoss))) damage *= 1.12;
+  if (synergies.some((x) => x.id === 'pulse_engineering') && type === 'pulse' && (s.enemies || []).filter((enemy: any) => enemy.hp > 0).length >= 4) damage *= 1.12;
+  if (synergies.some((x) => x.id === 'core_forge') && unique >= 3) damage *= 1.06;
+  if (synergies.some((x) => x.id === 'status_loop') && type === 'prism' && Object.values(s.player.sphereMods || {}).some((level: any) => Number(level) > 0)) damage *= 1.10;
+  if (synergies.some((x) => x.id === 'hunter_focus') && type === 'sniper' && hasArtifact(s, 'long_lens')) damage *= 1.10;
+  if (synergies.some((x) => x.id === 'pulse_overload') && type === 'pulse' && hasArtifact(s, 'pulse_driver')) damage *= 1.10;
+  if (synergies.some((x) => x.id === 'core_relay') && unique >= 2) damage *= 1.08;
   if (synergies.some((x) => x.id === 'unified_core') && sphere) {
     const levels = Object.values(s.player.sphereProgression || {}) as number[];
     const strongest = Math.max(0, ...levels);
