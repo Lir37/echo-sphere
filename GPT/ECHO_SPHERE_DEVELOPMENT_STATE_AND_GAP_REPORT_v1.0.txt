@@ -4029,3 +4029,51 @@ NEXT:
 - Continue with the next confirmed gameplay gap; do not churn stable
   Sphere/Ability systems.
 - Canvas 2.5D remains primary; mass 3D/GLB production PARKED.
+
+
+======================================================================
+[2026-10-02] ARTIFACT PROTOCOL RUNTIME AUDIT — COMPLETED
+======================================================================
+
+CURRENT IMPLEMENTATION HEAD:
+832426b2350061f0f3d3cd9d442fcd4d1f7024fa
+
+SCOPE:
+- all 12 Artifact Protocol definitions;
+- discovery conditions;
+- active conditions;
+- descriptions vs actual runtime;
+- measurable combat effect;
+- regression coverage.
+
+[DONE]
+- All 12 Protocols have explicit discovery through completed Artifact Sets.
+- All 12 Protocols have explicit active conditions based on real run state:
+  geometry, topology, Sphere types, combo, time-control state, status build
+  and enemy pressure.
+- Protocols are not UI-only flags: every Protocol is consumed by
+  getSphereArtifactModifiers() through protocolActive(...).
+- Runtime effects are measurable conditional combat modifiers.
+- Protocol descriptions were aligned with their actual effects:
+  critical echo, relay, geometry, temporal, status, hunter, pulse, core,
+  prism and network protocols now state the implemented conditional bonus.
+- Triangle Resonance is tied to an actual geometric triangle, not merely
+  the presence of three Spheres.
+- Regression tests now exercise each of the 12 Protocol activation paths
+  and verify that activation changes a measurable combat modifier.
+- Existing Set/Synergy tests remain green.
+- No Sphere or Ability implementation was changed in this pass.
+
+VALIDATION:
+- CI #1222 SUCCESS.
+- Typecheck, unit tests, gameplay coverage, lint, web build, Playwright
+  render capture, Capacitor sync and debug APK build passed.
+- Earlier CI failures #1219-#1221 came from the newly added protocol test
+  harness and were corrected; final implementation is green.
+
+NEXT:
+- Continue the remaining advanced Artifact audit only where a concrete
+  runtime/description mismatch exists.
+- Then move to the next confirmed gameplay gap from the Blueprint P0/P1
+  order. In particular, compare current Resonance implementation against
+  the authoritative player-level 0..100 model before touching content.
