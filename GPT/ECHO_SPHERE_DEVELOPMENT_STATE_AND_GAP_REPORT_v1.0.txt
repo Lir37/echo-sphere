@@ -3654,3 +3654,65 @@ Continue from this green baseline. Do not expand content counters blindly.
 Prefer the next explicitly defined gameplay/meta gap with enough specification
 to implement without inventing missing economy values.
 ======================================================================
+
+
+======================================================================
+CURRENT WORK SESSION UPDATE — 2026-10-02 — LEVEL VII / XP VISUAL PASS
+======================================================================
+
+[DONE] Standard Swarm correction from the preceding implementation remains
+green on the current branch:
+- impact shards spawn at the actual primary-projectile hit point;
+- shard directions are independently randomized;
+- shard damage is 50% of the actual primary hit damage;
+- generated shards cannot start another split wave, preventing recursive
+  shard multiplication.
+
+[DONE] All 30 Sphere mutation branches now have an additive Level VII
+visual expansion for all three final choices:
+- the Level IV branch silhouette is rendered first and remains persistent;
+- VII/Core adds a three-point crown / pulse motif;
+- VII/Cascade adds a sequential outer cascade;
+- VII/Apex adds a directed apex element with a short activation burst;
+- the final expansion is family-aware for Orbital, Chain/Aura/Gravity,
+  Pulse, Prism and directed projectile Sphere families, so it extends the
+  existing branch language rather than replacing it.
+
+[DONE] All 90 Level VII final entries in src/sphereProgression.ts now have
+non-generic concrete player-facing descriptions for the 30 branch × 3 final
+matrix. The descriptions explicitly identify the preserved branch mechanic
+and the authored visual role of Core/Cascade/Apex.
+
+[DONE] XP crystal orientation is now per-instance:
+- XPOrb stores an individual rotation value;
+- each spawned crystal receives an independent deterministic RNG phase;
+- the runtime advances that individual rotation;
+- renderer uses orb.rotation instead of deriving one orientation from the
+  shared render clock plus world position.
+
+[UNCHANGED] Sphere combat formulas and the corrected Standard Swarm damage /
+recursion rules were not reworked by the Level VII visual pass.
+[UNCHANGED] Mass 3D/GLB production remains PARKED. Canvas 2.5D remains the
+active visual path.
+
+VALIDATION:
+- Implementation HEAD: 619ef345766752178b29a930638729949c00d4e7.
+- CI #1173: SUCCESS.
+- Typecheck: PASS.
+- Unit tests: PASS, including the new 90-final and XP-rotation contracts.
+- Gameplay coverage audit: PASS.
+- Lint: PASS.
+- Web build: PASS.
+- Playwright rendered gameplay QA: PASS.
+- Capacitor Android sync: PASS.
+- Debug APK build/upload: PASS.
+
+[GATE] Manual APK PlayerCheck remains required for visual acceptance:
+sample Level VII Core/Cascade/Apex states across representative Sphere
+families and confirm that XP crystals visibly start at varied orientations.
+This is a human visual gate, not a CI substitute.
+
+NEXT:
+After manual PlayerCheck, proceed to the next explicit gameplay/content gap.
+Do not expand Sphere visual scope again until this pass is accepted.
+======================================================================
