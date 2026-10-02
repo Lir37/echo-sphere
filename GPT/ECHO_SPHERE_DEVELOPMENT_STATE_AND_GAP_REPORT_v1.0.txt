@@ -3925,3 +3925,60 @@ NEXT:
 3. Only then decide whether any remaining artifact components need redesign.
 4. Keep Sphere/Ability systems unchanged unless a confirmed defect appears.
 ======================================================================
+
+
+======================================================================
+[2026-10-02] ARTIFACT SET / SYNERGY PARITY AUDIT — COMPLETED
+======================================================================
+
+CURRENT IMPLEMENTATION HEAD:
+5053d8c871baacb70e8af11df806b9f2188c6c9e
+
+AUDIT SCOPE:
+- all 12 Artifact Sets;
+- Set descriptions and composition;
+- pair-synergy descriptions vs live runtime;
+- Set completion state vs actual combat behavior;
+- synergy-only artifacts that must remain in the catalog.
+
+[DONE]
+- All 12 Sets are confirmed data-driven and derive completion from their
+  authored pair-synergies.
+- Set completion is now explicitly treated as live runtime behavior rather
+  than a UI-only milestone.
+- Resonance Grid completion now has a conditional network/Geometry combat
+  effect when a Sphere has a nearby linked formation.
+- Echo Architecture completion now has a conditional mixed-network effect
+  when 2+ Sphere types are linked.
+- Existing Geometry/Void/Temporal/Status/Hunter/Pulse/Core/Prism/Network
+  completion behaviors remain intact and are covered by the Set behavior API.
+- Missing synergy runtime branches were added for Geometry Loop, Lattice
+  Memory, Network Memory, Temporal Echo, Axiom Fold, Hunter Doctrine,
+  Pulse Engineering, Core Forge, Status Loop, Hunter Focus, Pulse Overload
+  and Core Relay.
+- Descriptions were corrected where they claimed behavior that the current
+  implementation did not actually perform. Orbital Prism now describes its
+  live Orbital damage effect, and other audited synergies now describe the
+  implemented conditional behavior.
+- Synergy-only artifacts were preserved. No additional artifact concept was
+  removed during this pass.
+- Regression tests now verify all 12 Set completion behavior branches and
+  require every live synergy to have concrete runtime coverage.
+
+[IMPORTANT]
+- This pass intentionally does not implement new large subsystems such as
+  reflected Orbital beams, extra Pulse waves, or persistent shield mechanics
+  merely because older descriptions mentioned them. The audit aligns the
+  catalog with the actual runtime instead of inventing unverified behavior.
+- Canvas 2.5D remains the active visual path. Mass 3D/GLB production remains
+  PARKED.
+
+[VALIDATION]
+- GitHub Actions were triggered for the implementation, documentation and
+  regression-test commits. Final green run is still pending at the time of
+  this report update.
+
+[NEXT]
+- After CI is green, continue with the remaining advanced-synergy audit and
+  then move to the next confirmed gameplay gap. Human APK PlayerCheck remains
+  required for visible gameplay validation where applicable.
