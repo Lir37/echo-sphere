@@ -185,15 +185,8 @@ test('each Artifact Protocol changes a measurable combat modifier when its condi
   const all = Object.values(mod.ARTIFACT_META).map((item) => item.id);
   const base = {
     player: { artifacts: all, combo: 0, resonanceGeometryKey: 'none', timestopTimer: 0, teleportDamageBuffTimer: 0, sphereMods: {} },
-    spheres: [
-      { type: 'standard', alive: true, pos: { x: 0, y: 0 } },
-      { type: 'sniper', alive: true, pos: { x: 100, y: 0 } },
-      { type: 'prism', alive: true, pos: { x: 0, y: 100 } },
-      { type: 'pulse', alive: true, pos: { x: 100, y: 100 } },
-      { type: 'void', alive: true, pos: { x: 200, y: 200 } },
-      { type: 'orbital', alive: true, pos: { x: 300, y: 300 } },
-    ],
-    enemies: [{ hp: 100, isElite: true, isBoss: false }],
+    spheres: [{ type: 'standard', alive: true, pos: { x: 0, y: 0 } }],
+    enemies: [],
   };
   const cases = [
     ['triangle_resonance', { player: { ...base.player, resonanceGeometryKey: 'ring' }, spheres: [
