@@ -54,7 +54,7 @@ test('Elemental VFX is a persistent secondary layer', () => {
   assert.match(orbital, /elementColor/);
 });
 
-test('Elemental orbit matches the flattened Sphere orbit grammar and counters it', () => {
+test('Elemental orbit matches the flattened Sphere orbit grammar and counters it', async () => {
   assert.match(renderer, /renderSphereElementalVfx\(ctx, sphere, s\.player, time, scale\)/);
   const elemental = await read('src/spheres/elementalVisual.ts');
   assert.match(elemental, /const ringRx = radius \* 1\.16/);
