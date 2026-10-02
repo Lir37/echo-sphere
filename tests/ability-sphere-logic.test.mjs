@@ -54,3 +54,18 @@ test('Standard Swarm shards spawn from the impact and cannot recursively proc', 
   assert.match(engine, /hitEnemies: new Set\(\[enemy\]\)[\s\S]*procOnHit: false/);
   assert.doesNotMatch(engine, /damage: actual \* \(finalIndex === 0 \? 0\.30 : finalIndex === 1 \? 0\.26 : 0\.22\)/);
 });
+
+
+test('Ability Mutation II choices depend on the selected Mutation I branch', () => {
+  assert.match(progression, /evolution7ByBranch|ABILITY_FINAL_POOLS/);
+  assert.match(engine, /getAbilityEvolutionPool\(s,ability,7\)/);
+  for (const id of activeIds) {
+    assert.match(progression, new RegExp("ability:'" + id + "[\\s\\S]*?evolution4:[\\s\\S]*?evolution7:[\\s\\S]*?"));
+  }
+});
+
+test('Ability mutation VFX is emitted after active Ability activation', () => {
+  assert.match(engine, /function emitAbilityMutationVfx/);
+  assert.match(engine, /emitAbilityMutationVfx\(s, ability\)/);
+  assert.match(engine, /final \? 18 : 10/);
+});
