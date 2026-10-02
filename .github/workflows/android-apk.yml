@@ -1,0 +1,96 @@
+name: Android APK
+
+on:
+  push:
+    branches:
+      - cleanup-android
+      - new-desing
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Asset usage and PNG sanity check
+        run: npm run check-assets
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Gameplay coverage audit
+        run: npm run audit:gameplay
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build web app
+        run: npm run build
+
+      - name: Install Playwright test runner
+        run: npm install --no-save @playwright/test@1.55.0
+
+      - name: Install Chromium for headless visual QA
+        run: npx playwright install --with-deps chromium
+
+      - name: Launch web build and capture rendered gameplay
+        run: npx playwright test tests/render-screenshot.spec.mjs
+
+      - name: Upload web build
+        uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: echo-sphere-web
+          path: dist/
+          retention-days: 14
+
+      - name: Upload rendered gameplay screenshot
+        uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: echo-sphere-render-screenshot
+          path: |
+            test-results/echo-sphere-render.png
+            test-results/render-metrics.json
+          retention-days: 30
+
+      - name: Sync Capacitor Android
+        run: npx cap sync android
+
+      - name: Build debug APK
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --stacktrace
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v5
+        with:
+          name: echo-sphere-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14

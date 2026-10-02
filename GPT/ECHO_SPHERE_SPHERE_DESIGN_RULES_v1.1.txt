@@ -1,0 +1,241 @@
+ECHO SPHERE — RULES FOR SPHERE DESIGN AND VISUAL PRODUCTION v1.1
+Дата: 2026-09-29
+Статус: ОБЯЗАТЕЛЬНОЕ ДОПОЛНЕНИЕ; supersedes conflicting v1.0 wording.
+
+1. REFERENCE ≠ PRODUCTION ASSET
+Reference sheet is a construction/layout source.
+Full sheets, crops, base64 dumps and reference screenshots MUST NOT be runtime
+sprites and MUST NOT live in public/ unless they are explicitly a production
+asset requested by runtime.
+Pipeline:
+approved reference → extracted details → cleaned alpha → production assets
+→ 2.5D assembly → animation/FX → APK PlayerCheck.
+
+2. PUBLIC ASSET DISCIPLINE
+public/ contains only runtime-requested production assets.
+References, turnarounds, sheets, b64 dumps and intermediate art belong outside
+public/ (art-src/ or docs/).
+Every public asset must be referenced by src/ or be explicitly documented as
+a runtime-generated/packaged resource.
+npm run check-assets is mandatory before commit.
+PNG assets above the sanity threshold are checked for suspicious monochrome
+content. A sprite-sheet is accepted only when its frame count and non-empty
+frame content are verified. A placeholder sheet is a build failure, not a
+production asset.
+
+3. ORBITAL / SPHERE ASSEMBLY
+The authored Orbital shell is tier-neutral.
+Tier-dependent satellites are runtime components and must be the only source
+of the visible 1→7 satellite progression.
+Do not bake tier-specific satellites into the base shell.
+Do not render a second legacy/procedural Orbital layer underneath a dedicated
+Orbital visual module.
+
+4. RESOLUTION / COORDINATES
+Resolution policy has exactly one owner: src/renderScale.ts.
+DPR_CAP = 1.75.
+App.tsx must not calculate backing-store dimensions.
+renderer.ts must not read window.devicePixelRatio or invent viewport caps.
+render() receives canvas.width/canvas.height.
+Drawing coordinates remain in CSS/logical pixels after the single renderScale
+conversion.
+Touch input remains in CSS pixels and uses the same coordinate contract.
+Tests must cover DPR 1, 2 and 3 so backing resolution is capped while touch
+placement remains invariant.
+
+5. SPHERE MODULE ARCHITECTURE
+New Sphere visuals are TypeScript modules under src/spheres/.
+renderer.ts is a compositor, not the home of a Sphere's complete visual rig.
+Do not introduce .js + .d.ts pairs for Sphere visuals.
+Extract reusable visual state and FX into the Sphere module itself.
+Existing working systems are not moved merely for cosmetic cleanup; move them
+when the move removes a concrete duplication, fallback, or architectural
+violation.
+
+6. CANVAS PERFORMANCE
+New Sphere modules must not use ctx.shadowBlur.
+Glow uses cached radial gradients or authored glow assets.
+Do not create gradients every frame.
+Do not use per-frame random jitter for deterministic Sphere presentation.
+Avoid allocations in hot animation paths.
+
+7. VALIDATION
+Local before commit:
+- npm run typecheck
+- npm test
+- npm run lint
+- npm run build
+- npm run check-assets
+CI after the completed code cycle is mandatory.
+CI proves build/test integration, not visual quality.
+APK PlayerCheck remains the visual acceptance gate.
+
+8. COMMIT DISCIPLINE
+One coherent visual/system task should normally be 1–2 meaningful commits.
+Do not normalize "feat → fix → fix" chains.
+If CI exposes an implementation error, fix the root cause before calling the
+cycle complete.
+
+9. SELF-CHECK
+Before declaring a Sphere production-ready:
+- silhouette readable at gameplay scale;
+- distinguishable from other Sphere families;
+- states are functionally readable;
+- Network links remain visible;
+- tier progression is truthful;
+- no reference crop is visible as a sprite;
+- weak Android performance remains acceptable by APK PlayerCheck.
+
+
+10. WORKING PROTOCOL — LESSONS LOCKED AFTER ORBITAL REVIEW
+The following is mandatory for every future Sphere task.
+
+DO:
+- inspect the current HEAD and the three authoritative GPT documents before editing;
+- use the approved reference only as a construction source;
+- extract/author individual production details, then assemble them in the Sphere module;
+- keep runtime assets limited to files actually requested by code;
+- centralize resolution/DPR and keep touch coordinates in the documented CSS-pixel contract;
+- implement a new Sphere visual as TypeScript under src/spheres/<type>Visual.ts;
+- run the complete local validation set before declaring the task complete;
+- use APK PlayerCheck as the final visual gate;
+- update the operational report when implementation/status changes.
+
+DO NOT:
+- put reference sheets, crops, b64 dumps or turnaround material into public/;
+- draw a reference crop as a runtime sprite;
+- create a sprite-sheet merely to satisfy a requirement if authored/procedural runtime rendering is the actual production path;
+- scatter DPR/backing-store math across App.tsx, renderer.ts or individual Sphere modules;
+- mix CSS coordinates with backing-store coordinates;
+- introduce a .js + .d.ts workaround for a TypeScript Sphere module;
+- duplicate a Sphere visual path in renderer.ts and the dedicated Sphere module;
+- use CI success as evidence of visual quality;
+- make cosmetic refactors to working systems without a concrete architectural or defect-driven reason.
+
+INTERSECTION GATE:
+Before committing, verify four boundaries independently:
+1) reference/art source → production asset;
+2) CSS/input coordinates → backing/render coordinates;
+3) gameplay engine → Sphere visual module;
+4) source asset inventory → packaged public assets.
+A task is not complete while any boundary is ambiguous or has a fallback that
+can silently reintroduce the old implementation.
+
+======================================================================
+[2026-09-29] VECTOR NEON FAMILY RULE
+======================================================================
+
+For Standard and Orbital Sphere production, runtime visuals are now strictly
+Canvas 2D geometry.
+
+- No reference images, reference crops, PNG/SVG detail sprites or image
+  overlays may be used for Sphere runtime visuals.
+- Main body/detail colors stay within the Sphere's single type color plus
+  white hot centers. Resonance and disabled colors are the documented
+  temporary state exceptions.
+- Glow is radialGradient only. ctx.shadowBlur is forbidden.
+- Standard and Orbital visuals are owned by dedicated modules under
+  src/spheres/.
+- Mutation identity must come from geometry, timing, count or motion, not
+  introducing unrelated colors or decorative artwork.
+- Satellites, when present, use the same material language as the core:
+  outline + simple geometric silhouette + white center.
+- Any legacy image asset that is no longer requested by runtime code must be
+  removed rather than left as an alternate visual path.
+
+
+======================================================================
+[2026-09-29] STANDARD VISUAL EXCEPTION — RESTORE WORKING LAYERED DESIGN
+======================================================================
+The strict vector-neon family rule applies to the current Orbital vector
+renderer, but Standard is intentionally restored to the previously accepted
+layered 2.5D production assembly at the user's request.
+
+Standard runtime may use its individual production PNG layers:
+- external-panels.png
+- energy-core.png
+- stabilization-ring.png
+- upper-crystal.png
+- lower-crystal.png
+
+A full reference sheet/crop/sticker remains forbidden as a runtime asset.
+This is a targeted restoration of a working visual, not a return to the old
+full-reference composition. Do not replace it again without a concrete defect
+or explicit user request.
+
+
+[2026-09-29] STANDARD LAYER CLEANUP CLARIFICATION
+Standard's restored layered visual currently uses only the remaining runtime
+parts required for the accepted look:
+- energy-core.png
+- stabilization-ring.png
+- upper-crystal.png
+- lower-crystal.png
+
+external-panels.png was removed because APK inspection showed that the raster
+contained an unwanted translucent rectangular background and a leftover
+fragment from the previous reference image. A reference fragment must never
+be retained merely because it is bundled inside an otherwise useful crop.
+
+
+[2026-09-29] STANDARD OVERLAY CLEANUP LOCK
+Standard layered production rendering must not retain a crop merely because
+it contains useful-looking fragments. The former external-panels.png crop was
+removed after it was confirmed to carry an unwanted translucent rectangle and
+an old reference fragment.
+
+Current accepted Standard runtime layers:
+- energy-core.png
+- stabilization-ring.png
+- upper-crystal.png
+- lower-crystal.png
+
+Full reference sheets, crops, stickers and their embedded fragments remain
+forbidden as runtime visuals.
+
+
+======================================================================
+[2026-09-30] STANDARD-AS-ETALON + FAMILY VISUAL RULE
+======================================================================
+STANDARD SPHERE IS THE VISUAL BENCHMARK
+---------------------------------------
+The approved Standard Sphere is now the reference implementation for the
+Sphere family's 2.5D design language.
+
+Do not flatten it into generic primitives and do not replace its layered authored
+construction merely to normalize architecture.
+
+The benchmark characteristics are:
+- readable luminous spherical core;
+- layered authored detail;
+- orbital stabilization ring;
+- recognizable shaped attack muzzle;
+- projectile with a tapered comet-like tail;
+- modifier identity communicated by both silhouette and color;
+- mutation identity through richer geometry rather than bare rods/arrowheads;
+- no reference crop, transparent sticker or reference fragment.
+
+OTHER SPHERES
+-------------
+All other Sphere families should use the same visual hierarchy:
+1. recognizable core/silhouette;
+2. one dominant Sphere color from SPHERE_TYPES;
+3. white/hot center for energy focus;
+4. one or more authored-looking layered/faceted contour forms;
+5. restrained Canvas glow and animation;
+6. a shape signature tied to the gameplay behavior.
+
+Current dedicated visual modules:
+- src/spheres/sniperVisual.ts
+- src/spheres/shotgunVisual.ts
+- src/spheres/chainVisual.ts
+- src/spheres/auraVisual.ts
+- src/spheres/orbitalVisual.ts
+- src/spheres/prismVisual.ts
+- src/spheres/gravityVisual.ts
+- src/spheres/pulseVisual.ts
+- src/spheres/voidVisual.ts
+
+The module must remain the visual owner; renderer.ts is only the compositor.
+The existing Standard layered renderer is intentionally exempt from the
+vector-only family rule because it is the user-approved benchmark asset assembly.

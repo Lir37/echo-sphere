@@ -1,0 +1,724 @@
+import { BOSS_TYPES, DIFFICULTIES, SPHERE_TYPES } from './gameData';
+import { playSound } from './audio';
+import {
+  dealDamageToEnemy, damagePlayer, damagePlayerDoT, getCritChance, onEnemyDeath
+} from './engineCombat';
+import {
+  dist, rand, getAbilityBranchId, getNearestSphere, getNetworkFrame, getSphereFinalIndex
+} from './engineRuntime';
+import { sphereModifiers, sphereLevel } from './sphereProgression';
+import { getSphereNetworkProfile } from './network';
+import { nextRandom } from './rng';
+import { BALANCE } from './engineBalance';
+import { BOSS_CHARGER_COMMIT_SECONDS, BOSS_CHARGER_TOTAL_TELEGRAPH_SECONDS } from './bossBalance';
+import { LINK_BREAKER_COOLDOWN_SECONDS, LINK_BREAKER_DISABLED_SECONDS, LINK_BREAKER_TARGET_RANGE, LINK_BREAKER_TELEGRAPH_SECONDS } from './eliteBalance';
+import type { GameState, EnemyEntity, SphereEntity, Vec, EliteVariant, EnemyRole } from './engineTypes';
+import type { BossType } from './gameData';
+
+export const PLAYER_RADIUS = 16;
+
+export const ENEMY_ROLES: EnemyRole[] = [
+  'grunt', 'swarmer', 'charger', 'tank_guard', 'ranged',
+  'splitter', 'healer', 'bomber', 'leech', 'sniper',
+  'disruptor', 'anchor', 'phase', 'scavenger', 'corruptor',
+];
+
+export const ELITE_VARIANTS: EliteVariant[] = [
+  'linkbreaker',
+  'resonance_leech',
+  'phantom_hunter',
+  'geometry_shifter',
+  'splitter_prime',
+  'mirror_warden',
+  'stasis_warden',
+  'nullifier',
+  'pyroclast',
+  'scavenger_prime',
+];
+
+const ELITE_VISUALS: Record<EliteVariant, EnemyEntity['visualVariant']> = {
+  linkbreaker: 'linkbreaker',
+  resonance_leech: 'leech',
+  phantom_hunter: 'stalker',
+  geometry_shifter: 'prism',
+  splitter_prime: 'serpent',
+  mirror_warden: 'beetle',
+  stasis_warden: 'wisp',
+  nullifier: 'prism',
+  pyroclast: 'brute',
+  scavenger_prime: 'skitter',
+};
+
+export function getSlowRadius(): number {
+  return 300;
+}
+
+export function getSlowFactor(s: GameState): number {
+  const lvl = s.player.abilities.slow || 0;
+  return lvl > 0 ? 1 - (0.1 + (lvl - 1) * 0.05) : 1;
+}
+
+export function spawnEnemy(s: GameState, isBoss: boolean): EnemyEntity {
+  const wave = s.wave;
+  const angle = nextRandom(s) * Math.PI * 2;
+  const spawnDist = 700;
+  const px = s.player.pos.x + Math.cos(angle) * spawnDist;
+  const py = s.player.pos.y + Math.sin(angle) * spawnDist;
+  const diff = DIFFICULTIES.find(d => d.id === s.difficulty)!;
+  if (isBoss) {
+    const hp = (BALANCE.bossHpBase + wave * BALANCE.bossHpPerWave) * diff.enemyHpMult;
+    // pick boss type based on boss count
+    const bossTypes: BossType[] = ['shooter', 'charger', 'summoner', 'aura', 'conductor', 'architect', 'null', 'stella_warden'];
+    const bt = bossTypes[s.bossDefeated % bossTypes.length];
+    const bdef = BOSS_TYPES[bt];
+    const baseSpeed = bt === 'charger'
+      ? BALANCE.bossChargerSpeedBase + wave * BALANCE.bossChargerSpeedPerWave
+      : BALANCE.bossSpeedBase + wave * BALANCE.bossSpeedPerWave;
+    return {
+      pos: { x: px, y: py },
+      hp, maxHp: hp,
+      speed: baseSpeed * diff.enemySpeedMult,
+      radius: 34,
+      damage: (BALANCE.bossDamageBase + wave * BALANCE.bossDamagePerWave) * diff.enemyDamageMult,
+      type: 'boss',
+      color: bdef.color,
+      shape: 'hexagon',
+      slowTimer: 0, slowFactor: 1, freezeTimer: 0, hitFlash: 0,
+      isBoss: true,
+      bossShootTimer: 5,
+      bossProjectiles: [],
+      xpValue: 50 + wave * 5,
+      rotation: 0,
+      tier: Math.floor(wave / 10),
+      trailTimer: 0,
+      fireTimer: 0, fireDps: 0,
+      poisonTimer: 0, poisonDps: 0,
+      isElite: false,
+      elitePulseTimer: 0,
+      bossType: bt,
+      chargeTimer: 3,
+      isCharging: false,
+      chargeDir: { x: 0, y: 0 },
+      summonTimer: 4,
+      auraRadius: bt === 'aura' ? 120 : 0,
+      auraDps: bt === 'aura' ? 10 + wave * 2 : 0,
+      visualVariant:
+        bt === 'charger' ? 'brute'
+          : bt === 'summoner' ? 'prism'
+            : bt === 'aura' ? 'wisp'
+              : bt === 'conductor' ? 'serpent'
+                : bt === 'architect' ? 'prism'
+                  : bt === 'null' ? 'leech'
+                    : bt === 'stella_warden' ? 'moth'
+                      : 'beetle',
+    };
+  }
+  const r = nextRandom(s);
+  let type: EnemyEntity['type'] = 'normal';
+  let hp = (BALANCE.normalHpBase + wave * BALANCE.normalHpPerWave) * diff.enemyHpMult;
+  let speed = (BALANCE.normalSpeedBase + wave * BALANCE.normalSpeedPerWave) * diff.enemySpeedMult;
+  let radius = 19;
+  let dmg = (BALANCE.normalDamageBase + wave * BALANCE.normalDamagePerWave) * diff.enemyDamageMult;
+  let color = '#4a7a8a';
+  let shape: EnemyEntity['shape'] = 'circle';
+  let visualVariant: EnemyEntity['visualVariant'] = 'wisp';
+  if (r < 0.2 && wave > 2) { type = 'fast'; hp = (BALANCE.fastHpBase + wave * BALANCE.fastHpPerWave) * diff.enemyHpMult; speed = (BALANCE.fastSpeedBase + wave * BALANCE.fastSpeedPerWave) * diff.enemySpeedMult; radius = 15; dmg = (BALANCE.fastDamageBase + wave * BALANCE.fastDamagePerWave) * diff.enemyDamageMult; color = '#d4a830'; shape = 'triangle'; const variants: EnemyEntity['visualVariant'][] = ['moth','skitter','stalker']; visualVariant = variants[Math.floor(nextRandom(s) * variants.length)]; }
+  else if (r < 0.35 && wave > 4) { type = 'tank'; hp = (BALANCE.tankHpBase + wave * BALANCE.tankHpPerWave) * diff.enemyHpMult; speed = (BALANCE.tankSpeedBase + wave * BALANCE.tankSpeedPerWave) * diff.enemySpeedMult; radius = 26; dmg = (BALANCE.tankDamageBase + wave * BALANCE.tankDamagePerWave) * diff.enemyDamageMult; color = '#8a5a8a'; shape = 'square'; const variants: EnemyEntity['visualVariant'][] = ['beetle','brute','prism']; visualVariant = variants[Math.floor(nextRandom(s) * variants.length)]; }
+  else { const variants: EnemyEntity['visualVariant'][] = ['wisp','leech','serpent','stalker','prism']; visualVariant = variants[Math.floor(nextRandom(s) * variants.length)]; }
+  // elite chance: 5% after wave 5, scales up
+  const baseType = type;
+  const role = ENEMY_ROLES[Math.floor(nextRandom(s) * ENEMY_ROLES.length)];
+  switch (role) {
+    case 'swarmer': hp *= 0.65; speed *= 1.35; radius *= 0.85; break;
+    case 'charger': speed *= 1.25; dmg *= 1.10; break;
+    case 'tank_guard': hp *= 1.55; speed *= 0.72; radius *= 1.15; break;
+    case 'ranged': speed *= 0.82; dmg *= 1.18; break;
+    case 'splitter': hp *= 0.85; break;
+    case 'healer': speed *= 0.90; dmg *= 0.80; break;
+    case 'bomber': dmg *= 1.45; speed *= 0.90; break;
+    case 'leech': speed *= 0.95; dmg *= 1.05; break;
+    case 'sniper': speed *= 0.72; dmg *= 1.65; break;
+    case 'disruptor': speed *= 0.92; break;
+    case 'anchor': hp *= 1.30; speed *= 0.65; radius *= 1.10; break;
+    case 'phase': speed *= 1.18; radius *= 0.90; break;
+    case 'scavenger': speed *= 1.10; break;
+    case 'corruptor': dmg *= 1.20; break;
+  }
+  const isElite = wave > 5 && nextRandom(s) < Math.min(0.12, 0.03 + wave * 0.005);
+  let eliteVariant: EliteVariant | undefined;
+  if (isElite) {
+    hp *= 3;
+    radius += 4;
+    dmg *= 1.5;
+    color = '#b8475a';
+    type = 'elite';
+    eliteVariant = ELITE_VARIANTS[Math.floor(nextRandom(s) * ELITE_VARIANTS.length)];
+    visualVariant = ELITE_VISUALS[eliteVariant];
+  }
+  return {
+    pos: { x: px, y: py },
+    hp, maxHp: hp,
+    speed, radius, damage: dmg, type,
+    role,
+    color, shape,
+    slowTimer: 0, slowFactor: 1, freezeTimer: 0, hitFlash: 0,
+    isBoss: false, bossShootTimer: 0, bossProjectiles: [],
+    xpValue: (baseType === 'tank' ? 4 : baseType === 'fast' ? 2 : 1) * (isElite ? 5 : 1),
+    rotation: 0,
+    tier: s.bossDefeated,
+    trailTimer: 0,
+    fireTimer: 0, fireDps: 0,
+    poisonTimer: 0, poisonDps: 0,
+    isElite,
+    eliteVariant,
+    elitePulseTimer: isElite ? 5 : 0,
+    bossType: 'shooter',
+    chargeTimer: 0, isCharging: false, chargeDir: { x: 0, y: 0 },
+    summonTimer: 0, auraRadius: 0, auraDps: 0,
+    visualVariant,
+  };
+}
+
+export function startWave(s: GameState): void {
+  s.wave++;
+  s.stats.wave = s.wave;
+  const isBossWave = s.wave % 10 === 0;
+  if (isBossWave) {
+    s.bossActive = true;
+    s.enemies.push(spawnEnemy(s, true));
+    // also spawn some minions
+    s.waveEnemiesToSpawn = 3 + Math.floor(s.wave / 10);
+    playSound('boss');
+  } else {
+    s.waveEnemiesToSpawn = BALANCE.enemiesPerWaveBase + Math.floor(s.wave * BALANCE.enemiesPerWaveGrowth);
+    playSound('wave');
+  }
+  s.waveSpawnTimer = 0.5;
+}
+
+export function updateMinions(s: GameState, dt: number): void {
+  for (let i = s.minions.length - 1; i >= 0; i--) {
+    const m = s.minions[i];
+    m.life -= dt;
+    const anchorSpeed = m.anchorType === 'orbital' ? 5.5 : m.anchorType === 'sniper' ? 2.2 : 3;
+    m.rotation += dt * anchorSpeed;
+    if (m.life <= 0) { s.minions.splice(i, 1); continue; }
+
+    const anchor = getNearestSphere(s, m.pos, (sphere) => sphere.type === m.anchorType) || getNearestSphere(s, m.pos);
+    if (anchor) {
+      const angle = m.rotation * 0.7 + i * 2.1;
+      const targetX = anchor.pos.x + Math.cos(angle) * 48;
+      const targetY = anchor.pos.y + Math.sin(angle) * 48;
+      m.pos.x += (targetX - m.pos.x) * Math.min(1, dt * 4);
+      m.pos.y += (targetY - m.pos.y) * Math.min(1, dt * 4);
+
+      const abilityBranch = getAbilityBranchId(s, 'minion', 4);
+      const abilityFinal = getAbilityBranchId(s, 'minion', 7);
+      const nearby = getNearestSphere(s, m.pos, (sphere) => sphere !== anchor && dist(sphere.pos, m.pos) < 240);
+      if (abilityBranch === 'minion_relay_drone' && nearby && nextRandom(s) < dt * 4) {
+        s.lightnings.push({ from: { ...anchor.pos }, to: { ...nearby.pos }, life: 0.1 });
+        anchor.attackTimer = Math.max(0, anchor.attackTimer - 0.16);
+        nearby.attackTimer = Math.max(0, nearby.attackTimer - 0.08);
+      } else if (abilityBranch === 'minion_guardian') {
+        anchor.attackTimer = Math.max(0, anchor.attackTimer - dt * 0.18);
+      } else if (nearby && nextRandom(s) < dt * 2) {
+        s.lightnings.push({ from: { ...anchor.pos }, to: { ...nearby.pos }, life: 0.08 });
+      }
+      if (abilityFinal === 'minion_sphere_guard') {
+        anchor.attackTimer = Math.max(0, anchor.attackTimer - dt * 0.12);
+      }
+    } else {
+      const dx = s.player.pos.x - m.pos.x;
+      const dy = s.player.pos.y - m.pos.y;
+      const d = Math.hypot(dx, dy) || 1;
+      m.pos.x += dx / d * 90 * dt;
+      m.pos.y += dy / d * 90 * dt;
+    }
+
+    m.attackTimer -= dt;
+    if (m.attackTimer <= 0) {
+      let nearest: EnemyEntity | null = null;
+      let nd = Infinity;
+      const range = m.anchorType === 'sniper' ? 260 : m.anchorType === 'shotgun' ? 135 : 180;
+      for (const e of s.enemies) {
+        if (e.hp <= 0) continue;
+        const d = dist(e.pos, m.pos);
+        if (d < range && d < nd) { nd = d; nearest = e; }
+      }
+      if (nearest) {
+        const baseDamage = (5 + (s.player.abilities.minion || 0) * 2) * (s.player.overloadTimer > 0 ? 1.25 : 1);
+        const damageMult = m.anchorType === 'sniper' ? 1.55 : m.anchorType === 'orbital' ? 0.9 : m.anchorType === 'void' ? 1.2 : 1;
+        const interval = m.anchorType === 'sniper' ? 1.0 : m.anchorType === 'orbital' ? 0.62 : 0.8;
+        if (m.anchorType === 'shotgun') {
+          for (let pellet = 0; pellet < 3; pellet++) dealDamageToEnemy(s, nearest, baseDamage * 0.42);
+        } else if (m.anchorType === 'aura' || m.anchorType === 'pulse') {
+          const pulseRadius = m.anchorType === 'aura' ? 52 : 68;
+          for (const enemy of s.enemies) {
+            if (enemy.hp > 0 && dist(enemy.pos, m.pos) <= pulseRadius) dealDamageToEnemy(s, enemy, baseDamage * (m.anchorType === 'pulse' ? 0.62 : 0.52));
+          }
+        } else if (m.anchorType === 'chain') {
+          dealDamageToEnemy(s, nearest, baseDamage);
+          const secondary = s.enemies.filter((enemy) => enemy !== nearest && enemy.hp > 0 && dist(enemy.pos, nearest!.pos) <= 85).sort((x,y)=>dist(x.pos,nearest!.pos)-dist(y.pos,nearest!.pos))[0];
+          if (secondary) dealDamageToEnemy(s, secondary, baseDamage * 0.45);
+        } else {
+          dealDamageToEnemy(s, nearest, baseDamage * damageMult);
+        }
+        if (m.anchorType === 'gravity' && anchor) {
+          const dx = anchor.pos.x - nearest.pos.x, dy = anchor.pos.y - nearest.pos.y;
+          const d = Math.hypot(dx, dy) || 1;
+          nearest.pos.x += dx / d * 16;
+          nearest.pos.y += dy / d * 16;
+        }
+        m.attackTimer = interval;
+      }
+    }
+  }
+}
+
+function applyGravityFields(s: GameState, dt: number): void {
+  const networkState = getNetworkFrame(s);
+  for (const sphere of s.spheres) {
+    if (!sphere.alive || sphere.type !== 'gravity') continue;
+    const mods = sphereModifiers(s, 'gravity', sphere);
+    const branch = s.player.sphereBranches?.gravity;
+    const finalIndex = getSphereFinalIndex(s, 'gravity');
+    const radius = SPHERE_TYPES.gravity.auraRadius * mods.radius * mods.auraRadius;
+
+    let strength = 34 * Math.min(1.6, sphereLevel(s, 'gravity') * 0.18 + 0.5);
+    if (s.player.artifacts.includes('gravity_bead')) strength *= 1.12;
+    if (s.player.artifacts.includes('gravity_hook')) strength *= 1.10;
+    if (getSphereNetworkProfile(networkState, s.spheres.indexOf(sphere)).cluster) strength *= 1.20;
+    if (branch === 'gravity_well') strength *= finalIndex === 1 ? 1.35 : 1.15;
+    if (branch === 'gravity_tide') strength *= 1.05;
+    if (branch === 'gravity_collapse') strength *= 0.90;
+
+    for (const enemy of s.enemies) {
+      if (enemy.hp <= 0) continue;
+      const dx = sphere.pos.x - enemy.pos.x;
+      const dy = sphere.pos.y - enemy.pos.y;
+      const d = Math.hypot(dx, dy);
+      if (d <= 1 || d >= radius) continue;
+
+      // Continuous inverse-distance-style falloff: far enemies are only nudged
+      // off course, while the force rises sharply as they approach the core.
+      if (enemy.role === 'phase') continue;
+      const proximity = 1 - d / radius;
+      let pullSpeed = 8 + strength * proximity * proximity * 3.4;
+      if (branch === 'gravity_tide') {
+        const phase = Math.sin(sphere.rotation);
+        if (phase < -0.25) pullSpeed *= -0.28;
+      }
+      pullSpeed = Math.max(-80, Math.min(220, pullSpeed));
+      enemy.pos.x += (dx / d) * pullSpeed * dt;
+      enemy.pos.y += (dy / d) * pullSpeed * dt;
+    }
+  }
+}
+
+export function updateEnemies(s: GameState, dt: number): void {
+  const slowLvl = s.player.abilities.slow || 0;
+  for (let i = s.enemies.length - 1; i >= 0; i--) {
+    const e = s.enemies[i];
+    if (e.hp <= 0) { s.enemies.splice(i, 1); continue; }
+    e.rotation += dt;
+    if (e.hitFlash > 0) e.hitFlash -= dt;
+    if (e.freezeVulnerabilityTimer && e.freezeVulnerabilityTimer > 0) {
+      e.freezeVulnerabilityTimer = Math.max(0, e.freezeVulnerabilityTimer - dt);
+      if (e.freezeVulnerabilityTimer <= 0) e.freezeVulnerabilitySource = undefined;
+    }
+
+    // Element Tempo changes status presentation cadence, not authored DPS/sec.
+    if (e.fireTimer > 0) {
+      e.fireTimer -= dt;
+      const tickInterval = Number(e.fireTickInterval || 0);
+      if (tickInterval > 0) {
+        e.fireTickTimer = (e.fireTickTimer ?? 0) - dt;
+        if ((e.fireTickTimer ?? 0) <= 0) {
+          e.fireTickTimer = tickInterval;
+          e.hp -= e.fireDps * tickInterval;
+        }
+      } else {
+        e.hp -= e.fireDps * dt;
+      }
+      if (nextRandom(s) < (tickInterval > 0 ? 0.55 : 0.3)) {
+        s.particles.push({ pos: { x: e.pos.x + rand(s,-e.radius, e.radius), y: e.pos.y + rand(s,-e.radius, e.radius) }, vel: { x: 0, y: -30 }, life: 0.3, maxLife: 0.3, color: '#ff743d', size: 2 });
+      }
+      if (e.hp <= 0) { onEnemyDeath(s, e); s.enemies.splice(i, 1); continue; }
+    }
+    // DoT: poison
+    if (e.poisonTimer > 0) {
+      e.poisonTimer -= dt;
+      const tickInterval = Number(e.poisonTickInterval || 0);
+      if (tickInterval > 0) {
+        e.poisonTickTimer = (e.poisonTickTimer ?? 0) - dt;
+        if ((e.poisonTickTimer ?? 0) <= 0) {
+          e.poisonTickTimer = tickInterval;
+          e.hp -= e.poisonDps * tickInterval;
+        }
+      } else {
+        e.hp -= e.poisonDps * dt;
+      }
+      if (nextRandom(s) < (tickInterval > 0 ? 0.48 : 0.2)) {
+        s.particles.push({ pos: { x: e.pos.x + rand(s,-e.radius, e.radius), y: e.pos.y + rand(s,-e.radius, e.radius) }, vel: { x: 0, y: -20 }, life: 0.4, maxLife: 0.4, color: '#72f08e', size: 2 });
+      }
+      if (e.hp <= 0) { onEnemyDeath(s, e); s.enemies.splice(i, 1); continue; }
+    }
+    // tier-based trailing particles for tougher enemies
+    if (e.tier > 0 && !e.isBoss) {
+      e.trailTimer -= dt;
+      if (e.trailTimer <= 0) {
+        e.trailTimer = 0.15;
+        s.particles.push({ pos: { ...e.pos }, vel: { x: 0, y: 0 }, life: 0.4, maxLife: 0.4, color: e.color, size: 2 });
+      }
+    }
+    if (e.freezeTimer > 0) { e.freezeTimer -= dt; continue; }
+    if (e.slowTimer > 0) e.slowTimer -= dt;
+    else e.slowFactor = 1;
+
+    // slow aura
+    let speedMult = e.slowFactor;
+    if (slowLvl > 0 && dist(e.pos, s.player.pos) < getSlowRadius()) {
+      speedMult = Math.min(speedMult, getSlowFactor(s));
+    }
+    if (e.role === 'phase') speedMult *= 1.12;
+    if (e.role === 'scavenger' && e.hp / Math.max(1, e.maxHp) < 0.5) speedMult *= 1.30;
+    const aggro = 1;
+
+    const dx = s.player.pos.x - e.pos.x;
+    const dy = s.player.pos.y - e.pos.y;
+    const d = Math.hypot(dx, dy) || 1;
+    if (e.eliteVariant === 'phantom_hunter' && d > 180) speedMult *= 1.35;
+    if (e.eliteVariant === 'scavenger_prime' && e.hp / Math.max(1, e.maxHp) < 0.5) speedMult *= 1.30;
+    e.pos.x += (dx / d) * e.speed * speedMult * aggro * dt;
+    e.pos.y += (dy / d) * e.speed * speedMult * aggro * dt;
+
+    if (!e.isBoss && e.role === 'leech' && d < 160) {
+      e.hp = Math.min(e.maxHp, e.hp + 3 * dt);
+    }
+    if (!e.isBoss && (e.role === 'ranged' || e.role === 'sniper')) {
+      e.bossShootTimer -= dt;
+      if (e.bossShootTimer <= 0 && d > 240 && d < 620) {
+        e.bossShootTimer = e.role === 'sniper' ? 2.2 : 3.2;
+        damagePlayerDoT(s, (e.role === 'sniper' ? 10 : 6) * dt);
+      }
+    }
+    if (!e.isBoss && e.role === 'healer') {
+      e.summonTimer -= dt;
+      if (e.summonTimer <= 0) {
+        e.summonTimer = 4.5;
+        const allies = s.enemies.filter((ally) => ally !== e && ally.hp > 0 && dist(ally.pos, e.pos) <= 120);
+        for (const ally of allies.slice(0, 3)) ally.hp = Math.min(ally.maxHp, ally.hp + ally.maxHp * 0.08);
+      }
+    }
+    if (!e.isBoss && e.role === 'disruptor') {
+      e.summonTimer -= dt;
+      if (e.summonTimer <= 0) {
+        e.summonTimer = 6;
+        const target = s.spheres
+          .filter((sphere) => sphere.alive && sphere.networkDisabledTimer <= 0)
+          .sort((a, b) => dist(a.pos, e.pos) - dist(b.pos, e.pos))[0];
+        if (target && dist(target.pos, e.pos) <= 280) {
+          target.networkDisabledTimer = 1;
+          s.flashText = { text: 'DISRUPTOR', life: 0.5, color: '#b8475a' };
+        }
+      }
+    }
+
+    if (e.isElite && e.eliteVariant !== 'linkbreaker') {
+      e.elitePulseTimer -= dt;
+      if (e.eliteVariant === 'resonance_leech' && d < 220) {
+        s.player.resonanceCharge = Math.max(0, s.player.resonanceCharge - 5 * dt);
+      }
+      if (e.eliteVariant === 'pyroclast' && d < 95) {
+        damagePlayerDoT(s, 8 * dt);
+      }
+      if (e.eliteVariant === 'stasis_warden' && d < 170) {
+        damagePlayerDoT(s, 6 * dt);
+      }
+      if (e.elitePulseTimer <= 0) {
+        e.elitePulseTimer = e.eliteVariant === 'geometry_shifter' || e.eliteVariant === 'nullifier' ? 6 : 4;
+        if (e.eliteVariant === 'geometry_shifter') {
+          s.player.resonanceCharge = Math.max(0, s.player.resonanceCharge - 18);
+          s.flashText = { text: 'GEOMETRY SHIFT', life: 0.8, color: '#c46d3d' };
+        } else if (e.eliteVariant === 'nullifier') {
+          const target = s.spheres
+            .filter((sphere) => sphere.alive && sphere.networkDisabledTimer <= 0)
+            .sort((a, b) => dist(a.pos, e.pos) - dist(b.pos, e.pos))[0];
+          if (target && dist(target.pos, e.pos) <= 300) {
+            target.networkDisabledTimer = 2;
+            s.flashText = { text: 'SPHERE NULLIFIED', life: 0.8, color: '#b8475a' };
+            s.lightnings.push({ from: { ...e.pos }, to: { ...target.pos }, life: 0.25 });
+          }
+        } else if (e.eliteVariant === 'stasis_warden' && d < 170) {
+          s.flashText = { text: 'STASIS FIELD', life: 0.5, color: '#69b7ff' };
+        }
+      }
+    }
+
+    // Elite Link Breaker uses a readable telegraph before removing a Sphere from Network participation.
+    if (e.isElite) {
+      const telegraphTimer = e.elitePulseTelegraphTimer || 0;
+      if (telegraphTimer > 0) {
+        e.elitePulseTelegraphTimer = Math.max(0, telegraphTimer - dt);
+        if (e.elitePulseTelegraphTimer <= 0) {
+          const target = e.elitePulseTarget;
+          e.elitePulseTarget = undefined;
+          if (target?.alive && dist(target.pos, e.pos) <= LINK_BREAKER_TARGET_RANGE + 60) {
+            target.networkDisabledTimer = LINK_BREAKER_DISABLED_SECONDS;
+            s.flashText = { text: 'NETWORK BREAK', life: 0.8, color: '#b8475a' };
+            s.lightnings.push({ from: { ...e.pos }, to: { ...target.pos }, life: 0.30 });
+          }
+        }
+      } else {
+        e.elitePulseTimer -= dt;
+        if (e.elitePulseTimer <= 0) {
+          e.elitePulseTimer = LINK_BREAKER_COOLDOWN_SECONDS;
+          let target: SphereEntity | null = null;
+          let best = LINK_BREAKER_TARGET_RANGE;
+          for (const sphere of s.spheres) {
+            if (!sphere.alive || (sphere.networkDisabledTimer || 0) > 0) continue;
+            const sd = dist(sphere.pos, e.pos);
+            if (sd < best) {
+              best = sd;
+              target = sphere;
+            }
+          }
+          if (target) {
+            e.elitePulseTarget = target;
+            e.elitePulseTelegraphTimer = LINK_BREAKER_TELEGRAPH_SECONDS;
+          }
+        }
+      }
+    }
+
+    // collision with player
+    if (d < e.radius + PLAYER_RADIUS) {
+      damagePlayer(s, e.damage * (e.role === 'charger' ? 1.20 : 1));
+      if (e.role === 'corruptor') s.player.resonanceCharge = Math.max(0, s.player.resonanceCharge - 4);
+      // boss projectile enemies don't self-damage on contact; normal enemies bounce
+      if (!e.isBoss) {
+        // knockback
+        e.pos.x -= (dx / d) * 10;
+        e.pos.y -= (dy / d) * 10;
+      }
+    }
+
+    // boss attacks
+    if (e.isBoss) {
+      if (e.bossType === 'charger') {
+        e.chargeTimer -= dt;
+        if (e.isCharging) {
+          // Keep a readable wind-up window, then convert it into a short committed dash.
+          if (e.chargeTimer <= BOSS_CHARGER_COMMIT_SECONDS) {
+            e.pos.x += e.chargeDir.x * e.speed * 3 * dt;
+            e.pos.y += e.chargeDir.y * e.speed * 3 * dt;
+            // damage on contact during the committed dash
+            if (dist(e.pos, s.player.pos) < e.radius + PLAYER_RADIUS) {
+              damagePlayer(s, e.damage * 1.5);
+              e.isCharging = false;
+              e.chargeTimer = 4;
+            }
+          }
+          if (e.isCharging && e.chargeTimer <= 0) {
+            e.isCharging = false;
+            e.chargeTimer = 4;
+          }
+        } else if (e.chargeTimer <= 0) {
+          // start charge with an explicit telegraph before the dash begins
+          const cdx = s.player.pos.x - e.pos.x;
+          const cdy = s.player.pos.y - e.pos.y;
+          const cd = Math.hypot(cdx, cdy) || 1;
+          e.chargeDir = { x: cdx / cd, y: cdy / cd };
+          e.isCharging = true;
+          e.chargeTimer = BOSS_CHARGER_TOTAL_TELEGRAPH_SECONDS;
+          playSound('bosshit');
+        }
+      } else if (e.bossType === 'summoner') {
+        e.summonTimer -= dt;
+        if (e.summonTimer <= 0) {
+          e.summonTimer = 5;
+          // spawn 3 minions
+          for (let k = 0; k < 3; k++) {
+            const a = nextRandom(s) * Math.PI * 2;
+            const sx = e.pos.x + Math.cos(a) * 60;
+            const sy = e.pos.y + Math.sin(a) * 60;
+            s.enemies.push({
+              pos: { x: sx, y: sy },
+              hp: 20 + s.wave * 4, maxHp: 20 + s.wave * 4,
+              speed: 100, radius: 10, damage: 8, type: 'normal',
+              color: '#8a5a8a', shape: 'circle',
+              slowTimer: 0, slowFactor: 1, freezeTimer: 0, hitFlash: 0,
+              isBoss: false, bossShootTimer: 0, bossProjectiles: [],
+              xpValue: 2, rotation: 0, tier: 0, trailTimer: 0, elitePulseTimer: 0,
+              fireTimer: 0, fireDps: 0, poisonTimer: 0, poisonDps: 0,
+              isElite: false, bossType: 'shooter',
+              chargeTimer: 0, isCharging: false, chargeDir: { x: 0, y: 0 },
+              summonTimer: 0, auraRadius: 0, auraDps: 0,
+            });
+          }
+        }
+        // also shoot
+        e.bossShootTimer -= dt;
+        if (e.bossShootTimer <= 0) {
+          e.bossShootTimer = 7;
+          for (let k = -1; k <= 1; k++) {
+            const angle = Math.atan2(dy, dx) + k * 0.3;
+            e.bossProjectiles.push({ pos: { ...e.pos }, vel: { x: Math.cos(angle) * 180, y: Math.sin(angle) * 180 }, damage: 20, radius: 8, alive: true });
+          }
+        }
+      } else if (e.bossType === 'aura') {
+        // aura damage to player
+        if (dist(e.pos, s.player.pos) < e.auraRadius) {
+          damagePlayerDoT(s, e.auraDps * dt);
+        }
+        // also shoot occasionally
+        e.bossShootTimer -= dt;
+        if (e.bossShootTimer <= 0) {
+          e.bossShootTimer = 6;
+          for (let k = -1; k <= 1; k++) {
+            const angle = Math.atan2(dy, dx) + k * 0.3;
+            e.bossProjectiles.push({ pos: { ...e.pos }, vel: { x: Math.cos(angle) * 180, y: Math.sin(angle) * 180 }, damage: 20, radius: 8, alive: true });
+          }
+        }
+      } else if (e.bossType === 'conductor') {
+        e.bossShootTimer -= dt;
+        e.summonTimer -= dt;
+        e.chargeTimer -= dt;
+        if (e.bossShootTimer <= 0) {
+          e.bossShootTimer = 4;
+          for (let k = -2; k <= 2; k++) {
+            const angle = Math.atan2(dy, dx) + k * 0.18;
+            e.bossProjectiles.push({ pos: { ...e.pos }, vel: { x: Math.cos(angle) * 205, y: Math.sin(angle) * 205 }, damage: 22, radius: 7, alive: true });
+          }
+        }
+        if (e.summonTimer <= 0) {
+          e.summonTimer = 7;
+          const targets = s.spheres
+            .filter((sphere) => sphere.alive && sphere.networkDisabledTimer <= 0)
+            .sort((a, b) => dist(a.pos, e.pos) - dist(b.pos, e.pos))
+            .slice(0, 2);
+          for (const target of targets) target.networkDisabledTimer = 1.6;
+          s.flashText = { text: 'CONDUCTOR BREAK', life: 0.8, color: '#4fd8ff' };
+        }
+        if (e.chargeTimer <= 0) {
+          e.chargeTimer = 6;
+          s.flashText = { text: 'CONDUCTOR SURGE', life: 0.7, color: '#4fd8ff' };
+          if (d < 260) damagePlayer(s, e.damage * 1.35);
+        }
+      } else if (e.bossType === 'architect') {
+        e.bossShootTimer -= dt;
+        e.summonTimer -= dt;
+        e.chargeTimer -= dt;
+        if (e.bossShootTimer <= 0) {
+          e.bossShootTimer = 4.5;
+          for (let k = 0; k < 6; k++) {
+            const angle = k * (Math.PI * 2 / 6) + e.rotation * 0.25;
+            e.bossProjectiles.push({ pos: { ...e.pos }, vel: { x: Math.cos(angle) * 165, y: Math.sin(angle) * 165 }, damage: 18, radius: 7, alive: true });
+          }
+        }
+        if (e.summonTimer <= 0) {
+          e.summonTimer = 7;
+          const angle = nextRandom(s) * Math.PI * 2;
+          e.pos.x = s.player.pos.x + Math.cos(angle) * 360;
+          e.pos.y = s.player.pos.y + Math.sin(angle) * 360;
+          s.player.resonanceCharge = Math.max(0, s.player.resonanceCharge - 12);
+          s.flashText = { text: 'GEOMETRY SHIFT', life: 0.8, color: '#ffc56a' };
+        }
+        if (e.chargeTimer <= 0) {
+          e.chargeTimer = 6;
+          const target = s.spheres
+            .filter((sphere) => sphere.alive)
+            .sort((a, b) => dist(a.pos, e.pos) - dist(b.pos, e.pos))[0];
+          if (target) target.networkDisabledTimer = 1.2;
+          s.flashText = { text: 'ARCHITECT SEAL', life: 0.7, color: '#ffc56a' };
+        }
+      } else if (e.bossType === 'null') {
+        e.bossShootTimer -= dt;
+        e.summonTimer -= dt;
+        e.chargeTimer -= dt;
+        if (e.bossShootTimer <= 0) {
+          e.bossShootTimer = 3.5;
+          const angle = Math.atan2(dy, dx);
+          for (let k = -2; k <= 2; k++) {
+            const a = angle + k * 0.24;
+            e.bossProjectiles.push({ pos: { ...e.pos }, vel: { x: Math.cos(a) * 140, y: Math.sin(a) * 140 }, damage: 28, radius: 8, alive: true });
+          }
+        }
+        if (e.summonTimer <= 0) {
+          e.summonTimer = 6;
+          s.player.resonanceCharge = Math.max(0, s.player.resonanceCharge - 25);
+          for (const sphere of s.spheres) sphere.attackTimer += 0.45;
+          s.flashText = { text: 'NULL FIELD', life: 0.8, color: '#9b7cff' };
+        }
+        if (e.chargeTimer <= 0) {
+          e.chargeTimer = 5;
+          if (d < 180) damagePlayerDoT(s, 18 * dt);
+          s.flashText = { text: 'NULL SHOCK', life: 0.5, color: '#9b7cff' };
+        }
+      } else if (e.bossType === 'stella_warden') {
+        e.bossShootTimer -= dt;
+        e.summonTimer -= dt;
+        e.chargeTimer -= dt;
+        if (e.bossShootTimer <= 0) {
+          e.bossShootTimer = 3.5;
+          for (let k = -2; k <= 2; k++) {
+            const angle = Math.atan2(dy, dx) + k * 0.16;
+            e.bossProjectiles.push({ pos: { ...e.pos }, vel: { x: Math.cos(angle) * 190, y: Math.sin(angle) * 190 }, damage: 24, radius: 8, alive: true });
+          }
+        }
+        if (e.summonTimer <= 0) {
+          e.summonTimer = 8;
+          for (let k = 0; k < 2; k++) {
+            const a = nextRandom(s) * Math.PI * 2;
+            const hp = 18 + s.wave * 3;
+            s.enemies.push({
+              pos: { x: e.pos.x + Math.cos(a) * 55, y: e.pos.y + Math.sin(a) * 55 },
+              hp, maxHp: hp, speed: 85, radius: 10, damage: 8, type: 'normal',
+              color: '#d4943d', shape: 'triangle',
+              slowTimer: 0, slowFactor: 1, freezeTimer: 0, hitFlash: 0,
+              isBoss: false, bossShootTimer: 0, bossProjectiles: [], xpValue: 3, rotation: 0, tier: 0,
+              trailTimer: 0, fireTimer: 0, fireDps: 0, poisonTimer: 0, poisonDps: 0,
+              isElite: false, elitePulseTimer: 0, bossType: 'shooter',
+              chargeTimer: 0, isCharging: false, chargeDir: { x: 0, y: 0 }, summonTimer: 0,
+              auraRadius: 0, auraDps: 0, visualVariant: 'moth',
+            });
+          }
+          s.flashText = { text: 'STELLA GUARD', life: 0.8, color: '#ffd15a' };
+        }
+        if (e.chargeTimer <= 0) {
+          e.chargeTimer = 6;
+          if (d < 240) damagePlayer(s, e.damage * 1.20);
+          s.flashText = { text: 'STELLA JUDGEMENT', life: 0.7, color: '#ffd15a' };
+        }
+      } else {
+        // shooter (default)
+        e.bossShootTimer -= dt;
+        if (e.bossShootTimer <= 0) {
+          e.bossShootTimer = 5;
+          for (let k = -1; k <= 1; k++) {
+            const angle = Math.atan2(dy, dx) + k * 0.3;
+            e.bossProjectiles.push({ pos: { ...e.pos }, vel: { x: Math.cos(angle) * 180, y: Math.sin(angle) * 180 }, damage: 25, radius: 8, alive: true });
+          }
+        }
+      }
+      // update boss projectiles
+      for (let j = e.bossProjectiles.length - 1; j >= 0; j--) {
+        const bp = e.bossProjectiles[j];
+        bp.pos.x += bp.vel.x * dt;
+        bp.pos.y += bp.vel.y * dt;
+        const pd = dist(bp.pos, s.player.pos);
+        if (pd < bp.radius + PLAYER_RADIUS) {
+          damagePlayer(s, bp.damage);
+          bp.alive = false;
+        }
+        if (Math.abs(bp.pos.x - s.player.pos.x) > 1000 || Math.abs(bp.pos.y - s.player.pos.y) > 1000) bp.alive = false;
+        if (!bp.alive) e.bossProjectiles.splice(j, 1);
+      }
+    }
+  }
+
+  // Apply gravity once after all enemies have completed their normal steering.
+  // This bends trajectories smoothly without multiplying the force by enemy count.
+  applyGravityFields(s, dt);
+}
+
