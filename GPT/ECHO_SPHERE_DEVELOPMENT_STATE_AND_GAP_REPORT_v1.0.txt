@@ -3716,3 +3716,70 @@ NEXT:
 After manual PlayerCheck, proceed to the next explicit gameplay/content gap.
 Do not expand Sphere visual scope again until this pass is accepted.
 ======================================================================
+
+
+======================================================================
+CURRENT WORK SESSION UPDATE — 2026-10-02 — ABILITIES / ARTIFACT AUDIT
+======================================================================
+
+[DONE] Ability Mutation II progression is now branch-aware.
+- Mutation I at level IV still offers exactly 3 authored branch choices.
+- At level VII the 3 final cards are now generated in the context of the
+  selected Mutation I branch instead of using one global pool blindly.
+- The final card explicitly names the preserved branch and the selected
+  final specialization, so the player can see the continuation chain.
+- Runtime keeps the existing three final archetypes and combines them with
+  the already-selected branch mechanics. Working Ability combat logic was
+  not replaced wholesale.
+
+[DONE] Active Ability mutation visuals now receive an additive VFX layer.
+- Every active Ability activation checks its selected Mutation I branch.
+- Mutation II adds a stronger particle signature and short network/lightning
+  connections to nearby Spheres.
+- The VFX is additive and does not replace the existing Ability effects.
+- This establishes the same design rule used by the recent Sphere VII pass:
+  mutation choices must be visible in gameplay, not only in card text.
+
+[DONE] Dead Artifact concepts were removed from the live design/runtime path.
+Removed:
+- sphere_forge: the previous-run +1 Sphere-level concept was dead runtime
+  logic and created an undesirable snowballing meta-progression path.
+- stella_map: its claimed direction helper had no runtime implementation
+  and had little gameplay value because Stella is spawned from the Boss
+  reward flow.
+- veil_cloak: its claimed aggression reduction had no valid live catalog
+  implementation.
+
+[DONE] Artifact cleanup also removed the three dead ids from ArtifactId
+and the remaining Veil Cloak runtime branch. The live artifact catalog test
+floor was adjusted from 90 to 88 to reflect these intentional removals,
+rather than preserving a content counter for its own sake.
+
+VALIDATION:
+- Current implementation HEAD: ea8b3417273a1870fc23902e12c5e9572f90ef07.
+- CI #1191: SUCCESS.
+- Typecheck: PASS.
+- Unit tests: PASS.
+- Gameplay coverage audit: PASS.
+- Lint: PASS.
+- Earlier failed CI runs during this cycle were caused by intermediate
+  repair commits; the current HEAD is green after the final fixes.
+
+[GATE] Human APK PlayerCheck is still required for the new Ability mutation
+visuals. Verify at least one representative level-IV branch and level-VII
+final for several active Abilities, confirming that the mutation VFX is
+noticeable and additive rather than replacing the existing ability effect.
+
+[PARTIAL] Artifact audit is not finished. Remaining work is to separate
+intentional synergy-only components from genuinely weak/dead artifacts,
+then fix description/runtime mismatches and any claimed advanced effects
+that are still not implemented. Do not delete those remaining artifacts
+blindly.
+
+NEXT:
+1. Human APK check of Ability IV -> VII branch continuity and VFX.
+2. Continue the second Artifact audit pass: runtime/description parity,
+   synergy-only semantics, and behavioral Set completion.
+3. Keep Sphere systems unchanged unless a confirmed defect appears.
+4. Keep Canvas 2.5D active; mass 3D/GLB production remains PARKED.
+======================================================================
