@@ -133,7 +133,12 @@ function projectileTail(ctx:CanvasRenderingContext2D,r:number,c:string,speed:num
 export function renderSphereMutationVfx(ctx:CanvasRenderingContext2D,sphere:SphereEntity,player:PlayerState,time:number,scale=1):void{
   const branch=branchOf(player,sphere.type);if(!branch)return;
   const final=finalOf(player,sphere.type),r=24*scale,c=SPHERE_TYPES[sphere.type].color;
-  ctx.save();ctx.translate(sphere.pos.x,sphere.pos.y);glow(ctx,r*1.75,c,.055);
+  const directedWeapon=sphereUsesProjectileModifiers(sphere.type);
+  ctx.save();
+  ctx.translate(sphere.pos.x,sphere.pos.y);
+  // Directed mutation weapon parts belong to the base weapon axis.
+  if(directedWeapon) ctx.rotate(sphere.rotation||0);
+  glow(ctx,r*1.75,c,.055);
   // Mutation silhouette is persistent. Attack emitters are transient accents only.
   mutationSilhouette(ctx,r,c,time,branch,final);
   emitter(ctx,r,c,time,branch,final);

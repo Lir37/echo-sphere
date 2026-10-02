@@ -220,3 +220,15 @@ test('Enemy anatomy uses mirrored side legs and rearward tails',()=>{
   assert.ok(c.includes('Tail origin is explicitly at the rear'));
   assert.ok(c.includes('sx-len*q1'));
 });
+
+test('Directed mutation weapon attachments share the live firing axis and render under the main weapon',()=>{
+  const m=read('src/spheres/mutationVisual.ts');
+  const r=read('src/renderer.ts');
+  assert.match(m,/sphereUsesProjectileModifiers\(sphere\.type\)/);
+  assert.match(m,/if\(directedWeapon\) ctx\.rotate\(sphere\.rotation\|\|0\)/);
+  for(const visual of ['renderSniperSphereRuntimeVfx','renderShotgunSphereRuntimeVfx','renderPrismSphereRuntimeVfx','renderVoidSphereRuntimeVfx']){
+    const mi=r.indexOf('renderSphereMutationVfx(ctx, sphere, s.player, time, scale);');
+    const vi=r.indexOf(visual,mi);
+    assert.ok(mi>=0 && vi>mi,visual+' must be composed after the mutation attachment layer');
+  }
+});

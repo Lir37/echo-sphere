@@ -2318,15 +2318,15 @@ function drawModernSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: S
     return;
   }
   if (sphere.type === 'sniper') {
-    renderSniperSphereRuntimeVfx(ctx, sphere, s.player, time, scale);
     renderSphereMutationVfx(ctx, sphere, s.player, time, scale);
+    renderSniperSphereRuntimeVfx(ctx, sphere, s.player, time, scale);
     renderSphereModifierVfx(ctx, sphere, s.player, time, scale);
     drawNetworkDisabledIndicator(ctx, sphere, time);
     return;
   }
   if (sphere.type === 'shotgun') {
-    renderShotgunSphereRuntimeVfx(ctx, sphere, s.player, time, scale);
     renderSphereMutationVfx(ctx, sphere, s.player, time, scale);
+    renderShotgunSphereRuntimeVfx(ctx, sphere, s.player, time, scale);
     renderSphereModifierVfx(ctx, sphere, s.player, time, scale);
     drawNetworkDisabledIndicator(ctx, sphere, time);
     return;
@@ -2346,8 +2346,8 @@ function drawModernSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: S
     return;
   }
   if (sphere.type === 'prism') {
-    renderPrismSphereRuntimeVfx(ctx, sphere, s.player, time, scale);
     renderSphereMutationVfx(ctx, sphere, s.player, time, scale);
+    renderPrismSphereRuntimeVfx(ctx, sphere, s.player, time, scale);
     renderSphereModifierVfx(ctx, sphere, s.player, time, scale);
     drawNetworkDisabledIndicator(ctx, sphere, time);
     return;
@@ -2367,8 +2367,8 @@ function drawModernSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: S
     return;
   }
   if (sphere.type === 'void') {
-    renderVoidSphereRuntimeVfx(ctx, sphere, s.player, time, scale);
     renderSphereMutationVfx(ctx, sphere, s.player, time, scale);
+    renderVoidSphereRuntimeVfx(ctx, sphere, s.player, time, scale);
     renderSphereModifierVfx(ctx, sphere, s.player, time, scale);
     drawNetworkDisabledIndicator(ctx, sphere, time);
     return;
