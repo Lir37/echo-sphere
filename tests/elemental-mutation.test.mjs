@@ -50,7 +50,7 @@ test('Elemental VFX is a persistent secondary layer', () => {
   assert.ok(renderer.includes('renderSphereElementalVfx(ctx, sphere, s.player, time, scale)'));
   assert.match(app, /SPHERE_ELEMENT_META/);
   assert.match(app, /borderColor: elementMeta.color/);
-  assert.match(orbital, /getSphereElementForBranch(branch)/);
+  assert.ok(orbital.includes('getSphereElementForBranch(branch)'));
   assert.match(orbital, /elementColor/);
 });
 
