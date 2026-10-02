@@ -3568,3 +3568,55 @@ Blueprint gap, prioritising already-defined systems over speculative new
 architecture. Keep 2.5D/Canvas as the active visual path.
 
 ======================================================================
+
+
+======================================================================
+CURRENT HEAD RECONCILIATION — 2026-10-02 — 56243f6
+======================================================================
+
+VERIFIED AGAINST CURRENT SOURCE + ACTIONS #1154
+
+[DONE] CI #1154 on 56243f685c5588c85af35cc6ec2b6f95384b223e is SUCCESS.
+All automated workflow stages completed successfully, including:
+Typecheck, unit tests, gameplay coverage audit, lint, web build, rendered
+gameplay capture, Android sync and debug APK build/upload.
+
+[DONE] Ability vocabulary is now 30 entries in src/gameData.ts.
+This matches the Blueprint target of 15 active + 15 passive entries.
+
+[DONE] Enemy roster now contains 15 authored EnemyRole entries in
+src/engineTypes.ts / src/engineEnemies.ts.
+
+[DONE] Elite roster contains 10 authored EliteVariant entries.
+
+[DONE] Boss roster contains 8 BossType families, including localized
+KnowledgeBase descriptions and runtime spawn rotation.
+
+[DONE] Artifact Sets currently contain 12 authored sets in artifactSystem.ts.
+
+[DONE] Artifact Protocols currently contain 12 authored protocols.
+
+[PARTIAL] Blueprint final target remains 20 Artifact Sets, so 8 additional
+sets are still a content gap. Do not add them blindly: existing 12 should
+first pass human gameplay validation for readability and meaningful build
+impact.
+
+[PARTIAL] Character roster remains 6; Blueprint final target is 10.
+
+[PARTIAL] Event catalogue, final four-currency meta economy, Merchant,
+Lock/Ban unlock thresholds and Runic Cell remain unresolved where exact
+Blueprint runtime/economy values are not defined.
+
+[GATE] Human APK PlayerCheck remains required for gameplay acceptance of the
+new Ability / Enemy / Elite / Boss content before further large content
+expansion.
+
+NEXT
+1. Keep 56243f6 as the verified green baseline.
+2. Perform the next single defined gameplay/content task only after this
+documentation sync is green.
+3. Prefer validation and missing high-value systems over filling counters
+for their own sake.
+4. Keep Canvas 2.5D active; mass 3D/GLB production remains PARKED.
+
+======================================================================
