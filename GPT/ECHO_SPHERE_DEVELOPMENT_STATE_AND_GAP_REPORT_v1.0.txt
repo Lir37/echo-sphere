@@ -4077,3 +4077,73 @@ NEXT:
 - Then move to the next confirmed gameplay gap from the Blueprint P0/P1
   order. In particular, compare current Resonance implementation against
   the authoritative player-level 0..100 model before touching content.
+
+
+
+======================================================================
+[2026-10-02] RESONANCE ARCHITECTURE AUDIT — CURRENT HEAD REVIEW
+======================================================================
+
+AUDITED HEAD:
+3d1c0760ec18aab00ebd78f6151a9b15020cc1d7
+
+REFERENCE:
+MASTER FINAL GAMEPLAY BLUEPRINT v1.2, Amendment 0A / Resonance Model.
+
+CONFIRMED PRESENT:
+- Player-level resonanceCharge is the authoritative run resource.
+- Baseline charge is clamped to 0..100.
+- The source router currently defines SphereHit=1, Geometry=5,
+  Network=5 and Rune=60.
+- Crossing 100 emits an event and preserves the remainder.
+- Seven Geometry types are considered by the Resonance event selector:
+  Line, Triangle, Cluster, Square, Ring, Lattice and Fractal.
+- Formation-specific event branches exist for all seven geometries.
+- Geometry charge is awarded on a newly acquired active formation key;
+  losing and restoring the same formation does not farm charge.
+- Sphere-local formationHitCount remains separate and continues to serve
+  local cadence/relay mechanics.
+- The nine current Rune definitions include Resonance Rune, described as
+  granting 60 charge.
+- Overflow cap 150 exists as an explicit API opt-in; ordinary baseline
+  charging does not enable it.
+
+CONFIRMED GAPS / FOLLOW-UP:
+- Blueprint names Character effects and Artifacts as possible Resonance
+  sources. The inspected authoritative source router has no distinct
+  Character or Artifact source IDs. Any such contribution must be verified
+  through explicit modifiers or added as a deliberate source, not assumed.
+- The inspected source router exposes a generic Network source, but the
+  audit did not establish a complete, documented event taxonomy for every
+  Network event. Avoid treating every topology recomputation as charge.
+- Overflow support is an API capability, not evidence of a live gameplay
+  effect. No baseline overflow behavior should be introduced without an
+  explicit Artifact/Character/Rune rule.
+- Seven geometry event branches exist, but their tactical value, frequency,
+  readability and balance remain human APK/playtest gates.
+- Current Resonance source amounts are implementation values; the Blueprint
+  defines the resource contract but does not establish these amounts as
+  final balance values.
+
+DECISION:
+- The core player-level architecture is aligned with the Blueprint.
+- Do not rewrite the resource or local formation counters.
+- Next implementation should be a narrow source-routing pass: inventory
+  actual Character/Artifact/Rune effects that should add charge, define
+  only missing explicit source hooks, and add behavioral tests proving each
+  source changes the run-level resource exactly once.
+- Then validate all seven event outcomes and UI readability in APK.
+- No Sphere/Ability systems were changed by this audit.
+- Canvas/2.5D remains primary; mass 3D/GLB production remains PARKED.
+
+VALIDATION BASELINE BEFORE THIS DOCUMENTATION UPDATE:
+- Implementation HEAD: 832426b2350061f0f3d3cd9d442fcd4d1f7024fa.
+- CI #1222: SUCCESS.
+- Documentation HEAD reviewed: 3d1c0760ec18aab00ebd78f6151a9b15020cc1d7.
+- CI #1223: SUCCESS.
+
+NEXT:
+1. Implement only confirmed missing Resonance source hooks and tests.
+2. Run CI and update this report with the resulting HEAD.
+3. Request APK PlayerCheck for event clarity and practical charge cadence.
+4. Keep the next-chat handoff concise.
