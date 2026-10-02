@@ -178,3 +178,44 @@ test('live synergy catalog has concrete runtime coverage for every synergy', asy
     assert.ok(runtimeMentions >= 2, synergy.id + ' must appear in catalog and runtime handling');
   }
 });
+
+
+test('Artifact Protocols require their real conditions and have combat runtime branches', async () => {
+  const mod = await import('../src/artifactSystem.ts');
+  const source = await fs.readFile(new URL('../src/artifactSystem.ts', import.meta.url), 'utf8');
+  const all = Object.values(mod.ARTIFACT_META).map((item) => item.id);
+  const incomplete = mod.getArtifactProtocolStates({
+    player: { artifacts: [], combo: 8, resonanceGeometryKey: 'ring' },
+    spheres: [
+      { type: 'standard', alive: true, pos: { x: 0, y: 0 } },
+      { type: 'sniper', alive: true, pos: { x: 1000, y: 0 } },
+      { type: 'chain', alive: true, pos: { x: 0, y: 1000 } },
+    ],
+  });
+  assert.ok(incomplete.every((protocol) => !protocol.discovered && !protocol.active));
+
+  const active = mod.getArtifactProtocolStates({
+    player: { artifacts: all, combo: 8, resonanceGeometryKey: 'ring', timestopTimer: 1, sphereMods: { fire: 1 } },
+    spheres: [
+      { type: 'standard', alive: true, pos: { x: 0, y: 0 } },
+      { type: 'sniper', alive: true, pos: { x: 100, y: 0 } },
+      { type: 'chain', alive: true, pos: { x: 0, y: 100 } },
+      { type: 'prism', alive: true, pos: { x: 100, y: 100 } },
+      { type: 'pulse', alive: true, pos: { x: 150, y: 150 } },
+      { type: 'void', alive: true, pos: { x: 200, y: 200 } },
+      { type: 'orbital', alive: true, pos: { x: 250, y: 250 } },
+    ],
+    enemies: [
+      { hp: 100, isElite: true, isBoss: false },
+      { hp: 100, isElite: false, isBoss: false },
+      { hp: 100, isElite: false, isBoss: false },
+      { hp: 100, isElite: false, isBoss: false },
+    ],
+  });
+  assert.equal(active.length, 12);
+  assert.ok(active.every((protocol) => protocol.discovered && protocol.active));
+  for (const protocol of mod.ARTIFACT_PROTOCOLS) {
+    assert.ok(source.includes("protocolActive('" + protocol.id + "')"), protocol.id + ' must affect combat runtime');
+  }
+  assert.match(source, /formsTriangle\(s, sphere\)/, 'Triangle Protocol must require a real geometric triangle');
+});
