@@ -119,6 +119,7 @@ test('removed artifact concepts are absent from the live catalog', () => {
 
 test('artifact descriptions match concrete runtime effects', () => {
   assert.equal(ARTIFACT_META.formation_compass.effects.sphereRadius, 0.08);
+  assert.equal(ARTIFACT_META.network_coil.effects.sphereDamage, 0.06);
   assert.equal(ARTIFACT_META.crit_sigil.effects.critChance, 0.05);
   assert.equal(ARTIFACT_META.tempo_ring.effects.sphereDelay, -0.08);
 });
