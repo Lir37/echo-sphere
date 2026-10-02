@@ -676,7 +676,9 @@ function getNetworkTooltipLines(label: string, st: GameState, lang: Lang): strin
   const ru = lang === 'ru';
   const lines: string[] = [];
 
-  const add = (ruText: string, enText: string): void => lines.push(ru ? ruText : enText);
+  const add = (ruText: string, enText: string): void => {
+    lines.push(ru ? ruText : enText);
+  };
 
   switch (label) {
     case 'LINE':
@@ -750,7 +752,7 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
     if (networkHoldRef.current !== null) window.clearTimeout(networkHoldRef.current);
     networkHoldRef.current = window.setTimeout(() => {
       const lines = getNetworkTooltipLines(label, st, lang);
-      setNetworkTooltip(lines.length > 0 ? lines : null);
+      setNetworkTooltip(lines.length > 0 ? lines.join('\n') : null);
       if (networkTooltipAutoHideRef.current !== null) window.clearTimeout(networkTooltipAutoHideRef.current);
       networkTooltipAutoHideRef.current = window.setTimeout(() => {
         setNetworkTooltip(null);
