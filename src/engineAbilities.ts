@@ -725,7 +725,7 @@ export function activateByKey(s: GameState, key: string): void {
     case 'timestop': activateTimeStop(s); break;
     case 'darkritual': activateDarkRitual(s); break;
   }
-}
   emitAbilityMutationVfx(s, ability);
+}
 
 // ===== Upgrade generation =====
