@@ -528,7 +528,6 @@ export function applyUpgrade(s: GameState, choice: UpgradeChoice): void {
 
     if(choice.abilityStage==='final'){
       if(current!==7) return;
-      const progression=ABILITY_PROGRESSION[ability];
       const pool=getAbilityEvolutionPool(s,ability,7);
       const evolution=pool[Math.max(0,Math.min((pool.length||1)-1,choice.abilityEvolutionIndex??0))];
       if(evolution){
