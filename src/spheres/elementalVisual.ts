@@ -8,83 +8,173 @@ function rgba(hex: string, alpha: number): string {
   return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${alpha})`;
 }
 
-function drawFlame(ctx: CanvasRenderingContext2D, size: number): void {
+function drawFlame(ctx: CanvasRenderingContext2D, size: number, variant = 0): void {
+  const lean = (variant - 1) * size * .12;
   ctx.beginPath();
-  ctx.moveTo(0, -size);
-  ctx.quadraticCurveTo(size * .9, -size * .20, size * .42, size * .58);
-  ctx.quadraticCurveTo(0, size, -size * .42, size * .58);
-  ctx.quadraticCurveTo(-size * .9, -size * .20, 0, -size);
+  ctx.moveTo(lean, -size);
+  ctx.quadraticCurveTo(size * (.92 + variant * .06), -size * .20, size * (.44 - variant * .05), size * .55);
+  ctx.quadraticCurveTo(lean, size * .92, -size * (.46 + variant * .03), size * .58);
+  ctx.quadraticCurveTo(-size * (.90 - variant * .04), -size * .18, lean, -size);
+  ctx.closePath();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(lean, -size * .34);
+  ctx.quadraticCurveTo(size * .40, -size * .02, lean + size * .04, size * .46);
+  ctx.quadraticCurveTo(-size * .30, size * .18, lean, -size * .34);
   ctx.stroke();
 }
 
-function drawSnowflake(ctx: CanvasRenderingContext2D, size: number): void {
-  for (let i = 0; i < 3; i++) {
-    const a = i * Math.PI / 3;
+function drawSnowflake(ctx: CanvasRenderingContext2D, size: number, variant = 0): void {
+  const arms = variant === 1 ? 4 : 6;
+  for (let i = 0; i < arms; i++) {
+    const a = i * TAU / arms;
     ctx.beginPath();
-    ctx.moveTo(Math.cos(a) * size * .15, Math.sin(a) * size * .15);
+    ctx.moveTo(Math.cos(a) * size * .14, Math.sin(a) * size * .14);
     ctx.lineTo(Math.cos(a) * size, Math.sin(a) * size);
-    ctx.moveTo(Math.cos(a) * size * .62, Math.sin(a) * size * .62);
-    ctx.lineTo(Math.cos(a + .34) * size * .84, Math.sin(a + .34) * size * .84);
-    ctx.moveTo(Math.cos(a) * size * .62, Math.sin(a) * size * .62);
-    ctx.lineTo(Math.cos(a - .34) * size * .84, Math.sin(a - .34) * size * .84);
     ctx.stroke();
+    if (variant !== 2) {
+      const tip = variant === 1 ? .68 : .62;
+      const branch = variant === 1 ? .42 : .34;
+      ctx.beginPath();
+      ctx.moveTo(Math.cos(a) * size * tip, Math.sin(a) * size * tip);
+      ctx.lineTo(Math.cos(a + branch) * size * .88, Math.sin(a + branch) * size * .88);
+      ctx.moveTo(Math.cos(a) * size * tip, Math.sin(a) * size * tip);
+      ctx.lineTo(Math.cos(a - branch) * size * .88, Math.sin(a - branch) * size * .88);
+      ctx.stroke();
+    }
   }
-}
-
-function drawPoisonCloud(ctx: CanvasRenderingContext2D, size: number): void {
   ctx.beginPath();
-  ctx.arc(-size * .30, size * .08, size * .34, 0, TAU);
-  ctx.arc(0, -size * .10, size * .42, 0, TAU);
-  ctx.arc(size * .34, size * .08, size * .30, 0, TAU);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.arc(size * .10, -size * .48, size * .11, 0, TAU);
+  ctx.arc(0, 0, size * (variant === 2 ? .28 : .20), 0, TAU);
   ctx.stroke();
 }
 
-function drawElementParticle(ctx: CanvasRenderingContext2D, element: SphereElement, x: number, y: number, size: number, angle: number, alpha: number): void {
+function drawPoisonCloud(ctx: CanvasRenderingContext2D, size: number, variant = 0): void {
+  const drift = (variant - 1) * size * .08;
+  ctx.beginPath();
+  ctx.arc(-size * .34 + drift, size * .10, size * .34, 0, TAU);
+  ctx.arc(0, -size * (.12 + variant * .04), size * (.42 - variant * .03), 0, TAU);
+  ctx.arc(size * .34 + drift, size * .08, size * (.29 + variant * .02), 0, TAU);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(size * (.10 - variant * .04), -size * (.50 + variant * .04), size * (.11 + variant * .02), 0, TAU);
+  ctx.arc(-size * .22, -size * .42, size * .07, 0, TAU);
+  ctx.stroke();
+}
+
+function drawElementParticle(
+  ctx: CanvasRenderingContext2D,
+  element: SphereElement,
+  x: number,
+  y: number,
+  size: number,
+  angle: number,
+  alpha: number,
+  variant = 0,
+): void {
   ctx.save();
   ctx.translate(x, y);
   ctx.rotate(angle + Math.PI / 2);
   ctx.globalAlpha = alpha;
-  if (element === 'fire') drawFlame(ctx, size);
-  else if (element === 'freeze') drawSnowflake(ctx, size);
-  else drawPoisonCloud(ctx, size);
+  if (element === 'fire') drawFlame(ctx, size, variant);
+  else if (element === 'freeze') drawSnowflake(ctx, size, variant);
+  else drawPoisonCloud(ctx, size, variant);
   ctx.restore();
 }
 
-function drawElementRing(ctx: CanvasRenderingContext2D, element: SphereElement, radius: number, time: number, active: boolean, scale: number): void {
+function ellipsePoint(radiusX: number, radiusY: number, angle: number): { x: number; y: number } {
+  return { x: Math.cos(angle) * radiusX, y: Math.sin(angle) * radiusY };
+}
+
+function drawElementRing(
+  ctx: CanvasRenderingContext2D,
+  element: SphereElement,
+  radius: number,
+  time: number,
+  active: boolean,
+  scale: number,
+): void {
   const color = SPHERE_ELEMENT_META[element].color;
-  const spin = time * (element === 'fire' ? .82 : element === 'freeze' ? -.68 : .72);
-  const ringAlpha = active ? .62 : .18;
+  const ringRx = radius * 1.16;
+  const ringRy = radius * .34;
+
+  // Standard Sphere's primary orbit advances clockwise. The elemental
+  // orbit intentionally counters it and keeps the same flattened 2.5D
+  // proportions and line-weight grammar.
+  const ringSpin = -time * .18;
+  const particleSpin = -time * .34;
+  const ringAlpha = active ? .78 : .20;
+  const mainWidth = Math.max(1.0, radius * .040);
 
   ctx.save();
   ctx.globalCompositeOperation = 'lighter';
-  ctx.strokeStyle = rgba(color, ringAlpha * .36);
-  ctx.lineWidth = Math.max(.7, 1.0 * scale);
+
+  // Soft luminous bed keeps the ring substantial at gameplay scale.
+  ctx.strokeStyle = rgba(color, ringAlpha * .18);
+  ctx.lineWidth = Math.max(2.0, mainWidth * 3.0);
   ctx.beginPath();
-  ctx.ellipse(0, 0, radius, radius * .66, 0, 0, TAU);
+  ctx.ellipse(0, 0, ringRx, ringRy, ringSpin, 0, TAU);
+  ctx.stroke();
+
+  // Back half first, then the brighter front half. The ring stays continuous,
+  // avoiding the thin/dashed look of the previous implementation.
+  ctx.strokeStyle = rgba(color, ringAlpha * .58);
+  ctx.lineWidth = mainWidth;
+  ctx.beginPath();
+  ctx.ellipse(0, 0, ringRx, ringRy, ringSpin, Math.PI, TAU);
   ctx.stroke();
 
   ctx.strokeStyle = rgba(color, ringAlpha);
-  ctx.lineWidth = Math.max(.9, 1.35 * scale);
+  ctx.lineWidth = mainWidth;
   ctx.beginPath();
-  ctx.ellipse(0, 0, radius, radius * .66, 0, spin + .32, spin + 1.92);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.ellipse(0, 0, radius, radius * .66, 0, spin + Math.PI + .32, spin + Math.PI + 1.92);
+  ctx.ellipse(0, 0, ringRx, ringRy, ringSpin, 0, Math.PI);
   ctx.stroke();
 
-  for (let i = 0; i < 6; i++) {
-    const a = spin + i * TAU / 6;
-    const x = Math.cos(a) * radius;
-    const y = Math.sin(a) * radius * .66;
-    const depth = .34 + .66 * ((Math.sin(a) + 1) * .5);
-    drawElementParticle(ctx, element, x, y, Math.max(1.8, radius * .055), a, ringAlpha * depth);
+  // Restrained moving highlight gives the orbit a live energy flow without
+  // converting the main ring into a segmented line.
+  ctx.strokeStyle = rgba(color, ringAlpha * .72);
+  ctx.lineWidth = Math.max(.75, mainWidth * .55);
+  ctx.beginPath();
+  ctx.ellipse(0, 0, ringRx * .995, ringRy * .995, ringSpin, particleSpin % TAU, particleSpin % TAU + .72);
+  ctx.stroke();
+
+  // Elemental motes travel along the same flattened orbit, opposite to the
+  // standard Sphere orbit. Each type has authored glyph variants.
+  const particleCount = 6;
+  for (let i = 0; i < particleCount; i++) {
+    const a = particleSpin + i * TAU / particleCount;
+    const p = ellipsePoint(ringRx, ringRy, a);
+    const depth = .38 + .62 * ((Math.sin(a) + 1) * .5);
+    const bob = Math.sin(time * 2.8 + i * 1.73) * radius * .018;
+    const size = Math.max(2.2, radius * (.055 + (i % 3) * .008));
+
+    drawElementParticle(
+      ctx,
+      element,
+      p.x,
+      p.y + bob,
+      size,
+      a,
+      ringAlpha * (.72 + depth * .28),
+      i % 3,
+    );
+
+    // Small secondary motes make the elemental layer feel alive without
+    // making the ring visually noisy.
+    if (i % 2 === 0) {
+      const side = i % 4 === 0 ? 1 : -1;
+      const moteA = a + side * .16;
+      const mote = ellipsePoint(ringRx * 1.035, ringRy * 1.18, moteA);
+      ctx.save();
+      ctx.globalAlpha = ringAlpha * (.28 + depth * .24);
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(mote.x, mote.y, Math.max(.65, radius * .018), 0, TAU);
+      ctx.fill();
+      ctx.restore();
+    }
   }
   ctx.restore();
 }
-
 function drawElementWeaponAccent(ctx: CanvasRenderingContext2D, element: SphereElement, sphere: SphereEntity, radius: number, active: boolean, scale: number, time: number): void {
   if (sphere.type === 'orbital') return;
   const color = SPHERE_ELEMENT_META[element].color;
