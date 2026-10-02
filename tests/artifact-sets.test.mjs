@@ -150,7 +150,21 @@ test('all 12 Artifact Sets are wired to live completion behavior', async () => {
 
   for (const [id, active] of expected) {
     assert.equal(active, true, id + ' must become active when its Set is complete');
-    assert.match(source, new RegExp("setBehavior\\." + id.replace(/_/g, '[A-Za-z_]*'), 'm'), id + ' must have a runtime completion branch');
+    const behaviorKey = {
+      resonance_grid: 'resonanceGrid',
+      echo_architecture: 'echoArchitecture',
+      singularity_path: 'singularityPath',
+      geometry_craft: 'geometryCraft',
+      void_horizon: 'voidHorizon',
+      temporal_fold: 'temporalFold',
+      status_circuit: 'statusCircuit',
+      hunter_doctrine: 'hunterDoctrine',
+      pulse_engineering: 'pulseEngineering',
+      core_forge: 'coreForge',
+      prism_dominion: 'prismDominion',
+      network_legacy: 'networkLegacy',
+    }[id];
+    assert.match(source, new RegExp("setBehavior\\." + behaviorKey + "\\b"), id + ' must have a runtime completion branch');
   }
 });
 
