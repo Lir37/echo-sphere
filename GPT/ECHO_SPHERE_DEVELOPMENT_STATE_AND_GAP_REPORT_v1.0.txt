@@ -3783,3 +3783,85 @@ NEXT:
 3. Keep Sphere systems unchanged unless a confirmed defect appears.
 4. Keep Canvas 2.5D active; mass 3D/GLB production remains PARKED.
 ======================================================================
+
+
+======================================================================
+ARTIFACT AUDIT PASS 2 — 2026-10-02
+Verified implementation HEAD: 8ef9bbcd8258d463854ebea77b2b00f6b4bc16
+
+This pass is an audit and prioritization record. It does not claim that
+the artifact catalog has been repaired or that every advertised effect
+works. Do not treat catalog presence or a generic modifier test as proof
+of runtime correctness.
+
+CONFIRMED FINDINGS
+
+1. Artifact metadata is frequently placeholder-like.
+Many expanded entries use repeated generic stat payloads such as
+sphereDamage +4%/+6%, sphereDamage +8% plus cooldown -3%, or
+sphereDamage +12% plus crit +3%, while their player-facing descriptions
+promise specific behavior. This is a correctness defect, not merely a
+balance concern.
+
+2. Confirmed description/runtime mismatch examples:
+- formation_compass promises formation stability; metadata is global
+  sphereDamage +6%.
+- geometry_die promises +8% Geometry effects; metadata is global
+  sphereDamage +6%.
+- network_coil promises +8% damage with 2+ Sphere types; metadata is
+  global sphereDamage +6%, with no corresponding item-specific condition.
+- crit_sigil promises +5% critical damage; metadata is global
+  sphereDamage +6%.
+- tempo_ring promises -8% Sphere delay; metadata is global sphereDamage
+  +6%.
+- gravity_bead promises stronger Gravity pull; metadata has no effect.
+- prism_filter promises Prism penetration; metadata has no effect.
+- gravity_hook promises Gravity control; metadata has no effect.
+- pulse_driver promises Pulse frequency; metadata has no effect.
+- prism_crown, orbital_crown, pulse_crown promise +1 behavior each, but
+  metadata has no item-specific effect.
+- dash_relay promises a post-Dash Sphere acceleration, but metadata is
+  only generic sphereDamage +4%.
+
+3. The Artifact Set implementation is not aligned with the authoritative
+Blueprint's behavioral-completion rule.
+The current set-completion path adds conditional Sphere damage
+multipliers, commonly +6% to +10% and similar stat changes. Existing
+tests verify that modifiers become greater than 1, but that does not
+prove a Set changes combat behavior. Blueprint 1.2 explicitly requires
+behavioral completion effects, not a flat universal damage multiplier.
+This remains REWORK, not DONE.
+
+4. Synergy-only items must not be removed solely because their standalone
+metadata is empty. Some are keys to pair synergies. They still need an
+explicit role, discoverable description, and a meaningful combined
+effect. Empty metadata plus a vague description is not sufficient proof
+that the item is intentionally synergy-only.
+
+5. Runtime architecture has mixed support: a few items have explicit
+specialized checks, while a substantial portion of the expanded catalog
+is represented only by passive metadata. Each item needs a three-way
+audit: catalog description, metadata/effect, and actual runtime consumer.
+
+AUDIT DECISION
+Do not bulk-delete the remaining catalog. First make the effect contract
+explicit and test each item against it. Where an effect cannot be
+implemented without broad, risky changes, either revise the artifact
+design/description to a real supported effect or remove it from the live
+pool. Do not preserve an item merely to keep the 90-120 count.
+
+NEXT IMPLEMENTATION ORDER
+P0: Add catalog-to-runtime contract coverage and repair the confirmed
+metadata/description mismatches above, including genuinely implemented
+Gravity/Prism/Pulse/Sphere stat fields where the engine supports them.
+P1: Replace flat Set completion stat bonuses with distinct behavioral
+effects, in alignment with Blueprint 1.2.
+P2: Audit advanced conditional artifacts and Stella-only behavior,
+including ownership/availability rules and effect caps.
+P3: Rebalance rarity weights and the ordinary-vs-Stella reward pools
+after dead or redesigned items are removed.
+
+Human APK acceptance remains required for combat readability and
+perceived artifact value. CI alone cannot establish that an artifact
+feels useful or legible in a real run.
+======================================================================
