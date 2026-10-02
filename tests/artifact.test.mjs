@@ -1,3 +1,4 @@
+import fs from 'node:fs/promises';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { pickArtifactChoices, pickStellaArtifactChoice, ARTIFACT_META } from '../src/artifactSystem.ts';
@@ -22,4 +23,11 @@ test('Stella has no Legendary reward after all current Legendary artifacts are o
     .filter((item) => item.rarity === 'legendary')
     .map((item) => item.id);
   assert.equal(pickStellaArtifactChoice(state(legendaryIds)), null);
+});
+
+test('dead artifact concepts removed from the live catalog', async () => {
+  const gameData = await fs.readFile(new URL('../src/gameData.ts', import.meta.url), 'utf8');
+  assert.doesNotMatch(gameData, /sphere_forge/);
+  assert.doesNotMatch(gameData, /stella_map/);
+  assert.doesNotMatch(gameData, /veil_cloak/);
 });
