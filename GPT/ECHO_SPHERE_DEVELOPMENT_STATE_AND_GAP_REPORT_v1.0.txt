@@ -4394,3 +4394,56 @@ NEXT:
 3. Only after PlayerCheck, proceed to elemental balance tuning.
 
 ======================================================================
+
+
+======================================================================
+[2026-10-02] ELEMENTAL ORBITAL RING VISUAL REFINEMENT
+======================================================================
+
+IMPLEMENTATION HEAD BEFORE DOCUMENTATION SYNC:
+cd09e44ca0ac6ac1504c4c5c0b57501effd508b7
+
+BRANCH:
+new-desing
+
+[DONE]
+- Reworked the persistent secondary elemental ring for all eligible
+  mutated Spheres.
+- Ring now follows the approved Sphere orbit grammar:
+  flattened ellipse with radiusX = 1.16R and radiusY = 0.34R.
+- Elemental ring line weight is aligned with the primary Sphere orbit
+  instead of the previous thin/fragmented treatment.
+- Ring is continuous, with a restrained glow bed and a small moving
+  highlight instead of a dashed/fractured presentation.
+- Elemental ring counter-rotates against the primary standard orbit.
+- Added six moving elemental motes travelling along the same flattened
+  orbit:
+  Fire = authored flame-tongue glyph variants.
+  Freeze = three snowflake glyph variants.
+  Poison = authored toxic-cloud glyph variants.
+- Added a few secondary motes for motion/life without adding heavy visual
+  clutter.
+- Existing base Sphere color, mutation mechanics, weapon VFX and Orbital
+  combat behavior are unchanged.
+
+TESTS
+- Extended tests/elemental-mutation.test.mjs with regression coverage for
+  orbit flattening, line weight, counter-rotation, elemental variants and
+  continuous-ring behavior.
+
+VALIDATION
+- GitHub combined status for code/test HEAD returned an empty status set.
+- GitHub workflow runs for that commit also returned an empty set.
+- Therefore SUCCESS is not claimed for the new HEAD.
+- Last confirmed CI remains the previously documented successful run.
+- Human APK PlayerCheck is still required to judge gameplay-scale ring
+  thickness, counter-rotation and particle readability.
+
+NEXT
+1. Obtain a real CI result for the current HEAD.
+2. Build/check APK and inspect mutated Standard/Sniper/Shotgun/Orbital/
+   Prism/Void Spheres at gameplay scale.
+3. Tune particle count/brightness only from APK observation.
+4. Keep Fire/Freeze/Poison balance unchanged until visual validation is done.
+
+======================================================================
