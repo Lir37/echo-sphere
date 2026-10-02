@@ -1,569 +1,14 @@
-import { ABILITIES, ACTIVE_KEYS, SPHERE_TYPES } from './gameData';
-import type { AbilityType, SphereType, ArtifactId } from './gameData';
 import { playSound } from './audio';
-import { CHARACTER_DEFS } from './characters';
-import { SPHERE_PROGRESSION, ABILITY_PROGRESSION, sphereLevel } from './sphereProgression';
-import { nextRandom } from './rng';
-import type { GameState, SphereMods, SphereUpgradeChoice, UpgradeChoice } from './engineTypes';
-
-const SPHERE_MODIFIER_CHOICES: ReadonlyArray<{
-  id: keyof SphereMods;
-  name: { ru: string; en: string };
-  desc: { ru: string; en: string };
-}> = [
-  {
-    id: 'multishot',
-    name: { ru: 'Мультивыстрел', en: 'Multishot' },
-    desc: { ru: 'Каждый выстрел выпускает ещё один снаряд.', en: 'Each shot fires one additional projectile.' },
-  },
-  {
-    id: 'pierce',
-    name: { ru: 'Пробитие', en: 'Pierce' },
-    desc: { ru: 'Снаряд проходит ещё через одного врага.', en: 'Projectiles pass through one additional enemy.' },
-  },
-  {
-    id: 'ricochet',
-    name: { ru: 'Рикошет', en: 'Ricochet' },
-    desc: { ru: 'После попадания снаряд может перейти к новой цели.', en: 'After a hit, the projectile can redirect to a new target.' },
-  },
-  {
-    id: 'fire',
-    name: { ru: 'Огонь', en: 'Fire' },
-    desc: { ru: 'Попадания поджигают врагов и наносят урон со временем.', en: 'Hits ignite enemies and deal damage over time.' },
-  },
-  {
-    id: 'freeze',
-    name: { ru: 'Заморозка', en: 'Freeze' },
-    desc: { ru: 'Попадания замедляют врага полной остановкой на короткое время.', en: 'Hits briefly freeze the enemy.' },
-  },
-  {
-    id: 'poison',
-    name: { ru: 'Яд', en: 'Poison' },
-    desc: { ru: 'Попадания отравляют врагов и наносят урон со временем.', en: 'Hits poison enemies and deal damage over time.' },
-  },
-  { id: 'breach', name: { ru: 'Пробой', en: 'Breach' }, desc: { ru: 'Снаряды пробивают дополнительную цель.', en: 'Projectiles pierce one additional target.' } },
-  { id: 'overload', name: { ru: 'Перегрузка', en: 'Overload' }, desc: { ru: 'Сфера получает дополнительный урон.', en: 'Sphere attacks deal additional damage.' } },
-  { id: 'split', name: { ru: 'Расщепление', en: 'Split' }, desc: { ru: 'Попадание создаёт слабые боковые осколки.', en: 'Hits create weaker side shards.' } },
-  { id: 'shatter', name: { ru: 'Раскол', en: 'Shatter' }, desc: { ru: 'Замороженные цели получают дополнительный импульсный урон.', en: 'Frozen targets take an additional impact burst.' } },
-  { id: 'execute', name: { ru: 'Добивание', en: 'Execute' }, desc: { ru: 'Ослабленные враги получают повышенный урон.', en: 'Weakened enemies take increased damage.' } },
-  { id: 'mark', name: { ru: 'Метка', en: 'Mark' }, desc: { ru: 'Попадания помечают приоритетную цель для усиленного следующего удара.', en: 'Hits mark a priority target for a stronger follow-up.' } },
-  { id: 'echo', name: { ru: 'Эхо', en: 'Echo' }, desc: { ru: 'Попадание может повториться слабым эхом.', en: 'Hits can repeat as a weaker echo.' } },
-  { id: 'anchor', name: { ru: 'Якорь', en: 'Anchor' }, desc: { ru: 'Попадания заметно замедляют цель.', en: 'Hits strongly slow the target.' } },
-  { id: 'phase', name: { ru: 'Фаза', en: 'Phase' }, desc: { ru: 'Снаряд частично игнорирует сопротивление толпы.', en: 'Projectiles partially ignore crowd resistance.' } },
-  { id: 'static', name: { ru: 'Статика', en: 'Static' }, desc: { ru: 'Удар может передать разряд ближайшему врагу.', en: 'Hits can arc to a nearby enemy.' } },
-  { id: 'resonant', name: { ru: 'Резонансный', en: 'Resonant' }, desc: { ru: 'Попадания дополнительно заряжают Resonance.', en: 'Hits additionally charge Resonance.' } },
-  { id: 'magnetic', name: { ru: 'Магнитный', en: 'Magnetic' }, desc: { ru: 'Увеличивает притяжение XP и наград.', en: 'Increases XP and reward attraction.' } },
-  { id: 'vampiric', name: { ru: 'Вампирический', en: 'Vampiric' }, desc: { ru: 'Часть урона возвращается игроку как HP.', en: 'A portion of damage heals the player.' } },
-  { id: 'corrupt', name: { ru: 'Искажение', en: 'Corrupt' }, desc: { ru: 'Повторные попадания усиливают получаемый целью урон.', en: 'Repeated hits increase damage taken by the target.' } },
-  { id: 'drain', name: { ru: 'Истощение', en: 'Drain' }, desc: { ru: 'Добивание цели восстанавливает HP.', en: 'Finishing a target restores HP.' } },
-  { id: 'afterimage', name: { ru: 'След', en: 'Afterimage' }, desc: { ru: 'Атака оставляет слабый повторный след.', en: 'Attacks leave a weaker follow-up trace.' } },
-  { id: 'impact', name: { ru: 'Удар', en: 'Impact' }, desc: { ru: 'Попадания отбрасывают врагов.', en: 'Hits knock enemies back.' } },
-  { id: 'gravitic', name: { ru: 'Гравитический', en: 'Gravitic' }, desc: { ru: 'Попадания стягивают врагов к точке удара.', en: 'Hits pull enemies toward the impact point.' } },
-];
-
-
-export function assignHotkey(s: GameState, ability: AbilityType): string {
-  // already mapped?
-  for (const k of Object.keys(s.activeKeyMap)) {
-    if (s.activeKeyMap[k] === ability) return k;
-  }
-  for (const k of ACTIVE_KEYS) {
-    if (!(k in s.activeKeyMap)) {
-      s.activeKeyMap[k] = ability;
-      return k;
-    }
-  }
-  return '';
-}
-function getSphereEvolutionChoices(s:GameState, type:SphereType, level:4|7):UpgradeChoice[] {
-  const def=SPHERE_PROGRESSION[type];
-  if(level===4){
-    return def.evolution4Choices.slice(0,3).map((branch)=>({
-      type:'sphere' as const,
-      sphereType:type,
-      sphereBranch:branch.id,
-      sphereStage:'branch' as const,
-      name:{ru:branch.name.ru,en:branch.name.en},
-      desc:branch.desc,
-      currentLevel:4,
-      newLevel:4,
-    }));
-  }
-  const branchId=s.player.sphereBranches[type];
-  const branch=def.evolution4Choices.find((x)=>x.id===branchId);
-  if(!branch) return [];
-  return branch.final.slice(0,3).map((finalChoice,index)=>({
-    type:'sphere' as const,
-    sphereType:type,
-    sphereBranch:branch.id,
-    sphereFinalIndex:index,
-    sphereStage:'final' as const,
-    name:finalChoice.name,
-    desc:finalChoice.desc,
-    currentLevel:7,
-    newLevel:7,
-  }));
-}
-
-function getAbilityEvolutionChoices(s:GameState, ability:AbilityType, level:4|7):UpgradeChoice[] {
-  const progression=ABILITY_PROGRESSION[ability];
-  if(!progression) return [];
-  const pool=level===4?progression.evolution4:progression.evolution7;
-  return pool.slice(0,3).map((evolution,index)=>({
-    type:'ability' as const,
-    ability,
-    abilityEvolutionIndex:index,
-    abilityStage:level===4?'branch' as const:'final' as const,
-    name:evolution.name,
-    desc:evolution.desc,
-    currentLevel:level,
-    newLevel:level,
-  }));
-}
-
-type UpgradeSource = 'ability' | 'sphere' | 'modifier';
-
-export function getUpgradeChoiceKey(choice: UpgradeChoice): string {
-  if (choice.type === 'modifier') {
-    return `modifier:${choice.modifier ?? 'unknown'}`;
-  }
-  if (choice.type === 'sphere') {
-    return [
-      'sphere',
-      choice.sphereType ?? 'unknown',
-      choice.sphereStage ?? 'upgrade',
-      choice.currentLevel,
-      choice.newLevel,
-      choice.sphereBranch ?? '',
-      choice.sphereFinalIndex ?? '',
-    ].join(':');
-  }
-  return [
-    'ability',
-    choice.ability ?? 'unknown',
-    choice.abilityStage ?? 'upgrade',
-    choice.currentLevel,
-    choice.newLevel,
-    choice.abilityEvolutionIndex ?? '',
-  ].join(':');
-}
-
-function pickWeightedOne<T>(s: GameState, items: T[], getWeight: (item: T) => number): T | undefined {
-  if (items.length === 0) return undefined;
-
-  let totalWeight = 0;
-  for (const item of items) totalWeight += Math.max(0.01, getWeight(item));
-
-  let roll = nextRandom(s) * totalWeight;
-  for (const item of items) {
-    roll -= Math.max(0.01, getWeight(item));
-    if (roll <= 0) return item;
-  }
-  return items[items.length - 1];
-}
-
-function recordRecentUpgradeChoice(s: GameState, choice: UpgradeChoice): void {
-  const key = getUpgradeChoiceKey(choice);
-  s.recentUpgradeKeys = [
-    key,
-    ...(s.recentUpgradeKeys || []).filter((item) => item !== key),
-  ].slice(0, 2);
-}
-
-function getUpgradeChoiceSource(choice: UpgradeChoice): UpgradeSource {
-  return choice.type;
-}
-
-/**
- * Level-Up protection layer:
- * - pity increases when a source is repeatedly not selected;
- * - underrepresented build systems receive a small pressure bonus;
- * - item-level affinity remains authoritative on top of the source pressure.
- *
- * Reroll/Lock/Ban stay separate progression features and are not silently
- * invented here.
- */
-export function getUpgradeSourceWeight(s: GameState, source: UpgradeSource): number {
-  // Modifier remains a legacy/runtime source during migration, but it no longer
-  // participates in routine Level-Up weighting or pity.
-  if (source === 'modifier') return 1;
-  const pity = Math.min(4, Math.max(0, s.levelUpPity?.[source] || 0));
-  const pityWeight = 1 + pity * 0.20;
-
-  const sphereScore =
-    s.spheres.filter((sphere) => sphere.alive).length +
-    Object.values(s.player.sphereProgression || {}).reduce((sum, level) => sum + (level || 0) * 0.15, 0);
-  const abilityScore = Object.values(s.player.abilities || {}).filter((level) => (level || 0) > 0).length;
-  const routineSource = source as Exclude<UpgradeSource, 'modifier'>;
-  const scores: Record<Exclude<UpgradeSource, 'modifier'>, number> = { sphere: sphereScore, ability: abilityScore };
-  const minimum = Math.min(scores.sphere, scores.ability);
-  const underrepresentedWeight = scores[routineSource] <= minimum + 0.001 ? 1.15 : 1;
-
-  return pityWeight * underrepresentedWeight;
-}
-
-function isLiveUpgradeChoice(s: GameState, choice: UpgradeChoice): boolean {
-  if (choice.type === 'sphere' && choice.sphereType) {
-    return sphereLevel(s, choice.sphereType) < 7;
-  }
-
-  if (choice.type === 'modifier' && choice.modifier) {
-    return (s.player.sphereMods[choice.modifier] || 0) <= 0;
-  }
-
-  if (choice.type === 'ability' && choice.ability) {
-    const current = s.player.abilities[choice.ability] || 0;
-    const def = ABILITIES[choice.ability];
-    if (!def || current >= def.maxLevel) return false;
-    if (def.category === 'active' && current === 0) {
-      const activeCount = Object.keys(s.activeKeyMap || {}).length;
-      if (activeCount >= s.player.activeAbilitySlots) return false;
-    }
-    return true;
-  }
-
-  return false;
-}
-
-function recordLevelUpSourcePick(s: GameState, choice: UpgradeChoice): void {
-  const selected = getUpgradeChoiceSource(choice);
-  const routineSelected = selected === 'modifier' ? null : selected;
-  for (const source of ['ability', 'sphere'] as const) {
-    s.levelUpPity[source] = source === routineSelected
-      ? 0
-      : Math.min(4, (s.levelUpPity[source] || 0) + 1);
-  }
-}
-
-export function getSphereUpgradeChoiceWeight(s: GameState, type: SphereType): number {
-  const level = sphereLevel(s, type);
-  const activeCopies = s.spheres.filter((sphere) => sphere.alive && sphere.type === type).length;
-  const levelPressure = (7 - level) * 0.25;
-  const activeBuildPressure = activeCopies > 0 ? 1.5 : 0;
-  const characterAffinity = CHARACTER_DEFS[s.player.characterId]?.preferredSphereTypes.includes(type) ? 0.65 : 0;
-  return getUpgradeSourceWeight(s, 'sphere') * (1 + levelPressure + activeBuildPressure + characterAffinity);
-}
-
-function getModifierUpgradeChoiceWeight(s: GameState, modifier: keyof SphereMods): number {
-  return getUpgradeSourceWeight(s, 'modifier') * (
-    1 + (CHARACTER_DEFS[s.player.characterId]?.preferredSphereMods.includes(modifier) ? 0.55 : 0)
-  );
-}
-
-function getAbilityUpgradeChoiceWeight(s: GameState, choice: UpgradeChoice): number {
-  if (!choice.ability) return getUpgradeSourceWeight(s, 'ability');
-  const unfinishedPressure = choice.currentLevel === 0 ? 1.35 : 1.15;
-  const characterAffinity = CHARACTER_DEFS[s.player.characterId]?.preferredAbilities.includes(choice.ability) ? 0.75 : 0;
-  const activeAffinity = ABILITIES[choice.ability].category === 'active' ? 0.08 : 0;
-  return getUpgradeSourceWeight(s, 'ability') * (unfinishedPressure + characterAffinity + activeAffinity);
-}
-
-export function lockUpgradeChoice(s: GameState, choice: UpgradeChoice): boolean {
-  const current = s.pendingUpgrade;
-  if (!current || current.length !== 3 || s.levelUpLocksRemaining <= 0) return false;
-
-  const routine = current.every((item) => (
-    (item.type === 'sphere' && item.sphereStage === 'upgrade')
-    || (item.type === 'ability' && !item.abilityStage)
-  ));
-  if (!routine) return false;
-
-  const key = getUpgradeChoiceKey(choice);
-  if (!current.some((item) => getUpgradeChoiceKey(item) === key)) return false;
-
-  s.levelUpLockChoiceKey = key;
-  s.levelUpLocksRemaining--;
-  s.flashText = { text: 'LOCK', life: 0.8, color: '#d4943d' };
-  playSound('place');
-  return true;
-}
-
-export function rerollUpgradeChoices(s: GameState): boolean {
-  const current = s.pendingUpgrade;
-  if (!current || current.length !== 3 || s.levelUpRerollsRemaining <= 0) return false;
-
-  const routine = current.every((choice) => (
-    (choice.type === 'sphere' && choice.sphereStage === 'upgrade')
-    || (choice.type === 'ability' && !choice.abilityStage)
-  ));
-  if (!routine) return false;
-
-  const lockedKey = s.levelUpLockChoiceKey;
-  const lockedChoice = lockedKey
-    ? current.find((choice) => getUpgradeChoiceKey(choice) === lockedKey)
-    : undefined;
-  const currentKeys = new Set(current.map(getUpgradeChoiceKey));
-  let next = current;
-
-  if (lockedChoice) {
-    const replacements = new Map<string, UpgradeChoice>();
-    for (let attempt = 0; attempt < 8 && replacements.size < 2; attempt++) {
-      const candidate = generateUpgradeChoices(s);
-      for (const choice of candidate) {
-        const key = getUpgradeChoiceKey(choice);
-        if (key === lockedKey || currentKeys.has(key) || replacements.has(key)) continue;
-        replacements.set(key, choice);
-        if (replacements.size >= 2) break;
-      }
-    }
-    if (replacements.size >= 2) {
-      next = [lockedChoice, ...replacements.values()].slice(0, 3);
-    }
-  } else {
-    for (let attempt = 0; attempt < 4; attempt++) {
-      const candidate = generateUpgradeChoices(s);
-      if (candidate.length !== 3) continue;
-      if (candidate.some((choice) => !currentKeys.has(getUpgradeChoiceKey(choice)))) {
-        next = candidate;
-        break;
-      }
-      next = candidate;
-    }
-  }
-
-  s.pendingUpgrade = next;
-  s.levelUpLockChoiceKey = null;
-  s.levelUpRerollsRemaining--;
-  s.flashText = { text: lockedChoice ? 'LOCK + REROLL' : 'REROLL', life: 0.8, color: '#39d8ff' };
-  playSound('place');
-  return true;
-}
-
-export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
-  const sphereTypes = (Object.keys(SPHERE_PROGRESSION) as SphereType[]).filter((type) => type in SPHERE_TYPES);
-  const availableSpheres = sphereTypes.filter((type) => sphereLevel(s, type) < 7);
-
-  const sphereChoices: UpgradeChoice[] = availableSpheres.map((type) => {
-    const currentLevel = sphereLevel(s, type);
-    const nextLevel = currentLevel + 1;
-    const def = SPHERE_PROGRESSION[type];
-    const levelDef = def.levels[nextLevel - 1];
-    const branchId = s.player.sphereBranches[type];
-    const branch = branchId ? def.evolution4Choices.find((x) => x.id === branchId) : null;
-    const branchProgress = (nextLevel === 5 || nextLevel === 6) && !!branch;
-    const isFirstMutation = nextLevel === 4;
-    const isFinalMutation = nextLevel === 7;
-
-    let nameRu = def.name.ru + ' — уровень ' + nextLevel;
-    let nameEn = def.name.en + ' — level ' + nextLevel;
-    let descRu = levelDef.desc.ru;
-    let descEn = levelDef.desc.en;
-
-    if (isFirstMutation) {
-      nameRu += ': Мутация I';
-      nameEn += ': Mutation I';
-      descRu = 'Повышает сферу до IV уровня. После выбора откроется отдельное окно с 3 мутациями, из которых можно выбрать одну.';
-      descEn = 'Raises the sphere to level IV. After this choice, a separate window opens with 3 mutations and you choose one.';
-    } else if (isFinalMutation) {
-      nameRu += ': Мутация II';
-      nameEn += ': Mutation II';
-      descRu = 'Повышает сферу до VII уровня. После этого откроется отдельное окно с 3 финальными специализациями.';
-      descEn = 'Raises the sphere to level VII. After this choice, a separate window opens with 3 final specializations.';
-    } else if (branchProgress) {
-      descRu = nextLevel === 5 ? branch!.level5.ru : branch!.level6.ru;
-      descEn = nextLevel === 5 ? branch!.level5.en : branch!.level6.en;
-      nameRu += ': ветка «' + branch!.name.ru + '»';
-      nameEn += ': branch “' + branch!.name.en + '”';
-    }
-
-    return {
-      type: 'sphere' as const,
-      sphereType: type,
-      sphereBranch: branchId,
-      sphereStage: 'upgrade' as const,
-      currentLevel,
-      newLevel: nextLevel,
-      name: { ru: nameRu, en: nameEn },
-      desc: { ru: descRu, en: descEn },
-    };
-  });
-
-  // Abilities are real Level-Up choices. The old first-slice gate left the
-  // 21-definition Ability system effectively unreachable during a normal run.
-  // Dash remains free and does not consume these slots.
-  const activeCount = Object.keys(s.activeKeyMap || {}).length;
-  const activePool = (Object.keys(ABILITIES) as AbilityType[])
-    .filter((id) => ABILITIES[id].category === 'active')
-    .filter((id) => (s.player.abilities[id] || 0) < ABILITIES[id].maxLevel)
-    .filter((id) => (s.player.abilities[id] || 0) > 0 || activeCount < s.player.activeAbilitySlots)
-    .map((id) => ({
-      type: 'ability' as const,
-      ability: id,
-      currentLevel: s.player.abilities[id] || 0,
-      newLevel: Math.min(ABILITIES[id].maxLevel, (s.player.abilities[id] || 0) + 1),
-      name: ABILITIES[id].name,
-      desc: {
-        ru: ABILITY_PROGRESSION[id]?.levels[(s.player.abilities[id] || 0)]?.desc.ru || ABILITIES[id].desc.ru((s.player.abilities[id] || 0) + 1),
-        en: ABILITY_PROGRESSION[id]?.levels[(s.player.abilities[id] || 0)]?.desc.en || ABILITIES[id].desc.en((s.player.abilities[id] || 0) + 1),
-      },
-    }));
-
-  const passivePool = (Object.keys(ABILITIES) as AbilityType[])
-    .filter((id) => ABILITIES[id].category === 'passive')
-    .filter((id) => (s.player.abilities[id] || 0) < ABILITIES[id].maxLevel)
-    .map((id) => ({
-      type: 'ability' as const,
-      ability: id,
-      currentLevel: s.player.abilities[id] || 0,
-      newLevel: Math.min(ABILITIES[id].maxLevel, (s.player.abilities[id] || 0) + 1),
-      name: ABILITIES[id].name,
-      desc: {
-        ru: ABILITY_PROGRESSION[id]?.levels[(s.player.abilities[id] || 0)]?.desc.ru || ABILITIES[id].desc.ru((s.player.abilities[id] || 0) + 1),
-        en: ABILITY_PROGRESSION[id]?.levels[(s.player.abilities[id] || 0)]?.desc.en || ABILITIES[id].desc.en((s.player.abilities[id] || 0) + 1),
-      },
-    }));
-
-  const abilityPool = [...activePool].filter((choice) => isLiveUpgradeChoice(s, choice));
-  const spherePool = [...sphereChoices].filter((choice) => isLiveUpgradeChoice(s, choice));
-  // Modifier effects remain runtime/internal capabilities during migration.
-  // They are no longer a routine player-facing Level-Up source.
-  const sourcePools = [abilityPool, spherePool];
-  const allChoices = sourcePools.flatMap((pool) => pool);
-  const recentKeys = new Set(s.recentUpgradeKeys || []);
-
-  // Avoid immediately repeating the same logical card after a pick. If the
-  // remaining pool is too small, fall back to the full live pool rather than
-  // reducing the choice count or creating artificial dead screens.
-  const cooledChoices = allChoices.filter((choice) => !recentKeys.has(getUpgradeChoiceKey(choice)));
-  const candidates = cooledChoices.length >= 3 ? cooledChoices : allChoices;
-
-  const mixedPool: UpgradeChoice[] = [];
-  const remaining = [...candidates];
-
-  while (mixedPool.length < 3 && remaining.length > 0) {
-    const usedSources = new Set(mixedPool.map((choice) => choice.type));
-    const chosen = pickWeightedOne(s, remaining, (choice) => {
-      const baseWeight = choice.type === 'ability'
-        ? getAbilityUpgradeChoiceWeight(s, choice)
-        : (choice.sphereType ? getSphereUpgradeChoiceWeight(s, choice.sphereType) : 1);
-
-      // Encourage source variety, but never force one card from each source.
-      const diversityMultiplier = mixedPool.length === 0
-        ? 1
-        : usedSources.has(choice.type) ? 0.88 : 1.16;
-
-      return baseWeight * diversityMultiplier;
-    });
-
-    if (!chosen) break;
-    mixedPool.push(chosen);
-    const index = remaining.indexOf(chosen);
-    if (index >= 0) remaining.splice(index, 1);
-  }
-
-  return mixedPool;
-}
-
-export function applyUpgrade(s: GameState, choice: UpgradeChoice): void {
-  const hadPendingChoice = Boolean(s.pendingUpgrade);
-  s.pendingUpgrade=null;
-  s.levelUpLockChoiceKey = null;
-  if (hadPendingChoice) recordLevelUpSourcePick(s, choice);
-  if (hadPendingChoice) recordRecentUpgradeChoice(s, choice);
-
-  if (choice.type === 'modifier' && choice.modifier) {
-    if ((s.player.sphereMods[choice.modifier] || 0) > 0) return;
-    s.player.sphereMods[choice.modifier] = 1;
-    const modifier = SPHERE_MODIFIER_CHOICES.find((item) => item.id === choice.modifier);
-    s.flashText = { text: modifier?.name.ru ?? 'Модификатор', life: 1.2, color: '#39d8ff' };
-    playSound('place');
-    return;
-  }
-
-  if(choice.type==='sphere'&&choice.sphereType){
-    const type=choice.sphereType;
-    const current=sphereLevel(s,type);
-
-    // Mutation choices are a second, separate decision. They do not advance
-    // the level again because the normal upgrade already moved the sphere to IV/VII.
-    if(choice.sphereStage==='branch'&&choice.sphereBranch){
-      if(current!==4) return;
-      s.player.sphereBranches[type]=choice.sphereBranch;
-      s.player.evolutions.push('sphere:'+type+':4:'+choice.sphereBranch);
-      s.evolutionsThisRun++;
-      s.flashText={text:choice.name?.ru??'Мутация сферы I',life:2.2,color:'#d4943d'};
-      playSound('evolve');
-      return;
-    }
-
-    if(choice.sphereStage==='final'){
-      if(current!==7) return;
-      s.player.evolutions.push('sphere:'+type+':7:'+(choice.sphereBranch??'unknown')+':'+(choice.sphereFinalIndex??0));
-      s.evolutionsThisRun++;
-      s.flashText={text:choice.name?.ru??'Мутация сферы II',life:2.2,color:'#c4453d'};
-      playSound('evolve');
-      return;
-    }
-
-    if(current>=7) return;
-    const next=current+1;
-    s.player.sphereProgression[type]=next;
-    for(const sphere of s.spheres) if(sphere.type===type) sphere.visualTier=next;
-
-    if(next===4){
-      s.pendingUpgrade=getSphereEvolutionChoices(s,type,4);
-    } else if(next===7){
-      s.pendingUpgrade=getSphereEvolutionChoices(s,type,7);
-    }
-    return;
-  }
-
-  if(choice.type==='ability'&&choice.ability){
-    const ability=choice.ability;
-    const current=s.player.abilities[ability]||0;
-
-    if(choice.abilityStage==='branch'){
-      if(current!==4) return;
-      const progression=ABILITY_PROGRESSION[ability];
-      const evolution=progression?.evolution4[Math.max(0,Math.min((progression?.evolution4.length||1)-1,choice.abilityEvolutionIndex??0))];
-      if(evolution){
-        const marker='ability:'+ability+':4:'+evolution.id;
-        s.player.evolutions.push(marker);
-        s.evolutionsThisRun++;
-        s.flashText={text:evolution.name.ru,life:2.2,color:'#d4943d'};
-        playSound('evolve');
-      }
-      return;
-    }
-
-    if(choice.abilityStage==='final'){
-      if(current!==7) return;
-      const progression=ABILITY_PROGRESSION[ability];
-      const evolution=progression?.evolution7[Math.max(0,Math.min((progression?.evolution7.length||1)-1,choice.abilityEvolutionIndex??0))];
-      if(evolution){
-        const marker='ability:'+ability+':7:'+evolution.id;
-        s.player.evolutions.push(marker);
-        s.evolutionsThisRun++;
-        s.flashText={text:evolution.name.ru,life:2.2,color:'#c4453d'};
-        playSound('evolve');
-      }
-      return;
-    }
-
-    if(current>=7) return;
-    const next=Math.min(7,current+1);
-    s.player.abilities[ability]=next;
-    const def=ABILITIES[ability];
-    if (def.category === 'active' && current === 0) assignHotkey(s, ability);
-    if (ability === 'vitality') {
-      const hpGain = 20;
-      s.player.maxHp += hpGain;
-      s.player.hp = Math.min(s.player.maxHp, s.player.hp + hpGain);
-    }
-
-    if(next===4){
-      s.pendingUpgrade=getAbilityEvolutionChoices(s,ability,4);
-    } else if(next===7){
-      s.pendingUpgrade=getAbilityEvolutionChoices(s,ability,7);
-    }
-    return;
-  }
-}
-
-export function applySphereUpgrade(s: GameState, choice: SphereUpgradeChoice): void {
-  const type = (choice as SphereUpgradeChoice & { sphereType?: SphereType }).sphereType;
-  if (!type) return;
-  applyUpgrade(s, { type: 'sphere', sphereType: type, sphereStage: 'upgrade', sphereBranch: s.player.sphereBranches[type], currentLevel: sphereLevel(s, type), newLevel: sphereLevel(s, type) + 1 });
+import type { AbilityType } from './gameData';
+import type { GameState, SphereEntity, Vec } from './engineTypes';
+import {
+  dist, rand, clamp, getNetworkFrame, getAbilityBranchId, getNearestSphere
+} from './engineRuntime';
+import {
+  dealDamageToEnemy, getCooldownMult, getVampirePercent, emitSpherePulse, triggerEngineerRelay
+} from './engineCombat';
+import { getLinkedNodeIndexes } from './network';
+import { getActiveSphereAbilitySynergies, getAbilityEvolutionChoice } from './sphereProgression';
 
 function emitAbilityMutationVfx(s: GameState, ability: AbilityType): void {
   const branch = getAbilityEvolutionChoice(s, ability, 4);
@@ -591,13 +36,696 @@ function emitAbilityMutationVfx(s: GameState, ability: AbilityType): void {
     const nearby = s.spheres.filter((sphere)=>sphere.alive).slice(0, Math.min(3, s.spheres.length));
     for (let i=0;i<nearby.length;i++) {
       const target=nearby[i];
-      s.lightnings.push({
-        from:{...s.player.pos},
-        to:{...target.pos},
-        life:0.18 + finalPhase * 0.02,
-      });
+      s.lightnings.push({ from:{...s.player.pos}, to:{...target.pos}, life:0.18 + finalPhase * 0.02 });
     }
   }
 }
 
+function activateBlast(s: GameState): void {
+  const lvl = s.player.abilities.blast || 0;
+  if (lvl === 0 || s.player.blastCooldown > 0) return;
+  s.player.blastCooldown = Math.max(8, (30 - (lvl - 1) * 2) * getCooldownMult(s));
+
+  const spheres = s.spheres.filter((sphere) => sphere.alive);
+  const baseDamage = 30 + (lvl - 1) * 10;
+  const radius = 125 + lvl * 12;
+  const branch = getAbilityBranchId(s, 'blast', 4);
+  const final = getAbilityBranchId(s, 'blast', 7);
+
+  if (spheres.length === 0) {
+    for (const e of s.enemies) {
+      if (e.hp > 0 && dist(e.pos, s.player.pos) <= 180) dealDamageToEnemy(s, e, baseDamage);
+    }
+  } else {
+    let ordered = [...spheres].sort((a, b) => dist(a.pos, s.player.pos) - dist(b.pos, s.player.pos));
+    if (branch === 'blast_network' || final === 'blast_echo_network' || final === 'blast_infinite_pulse') {
+      const networkState = getNetworkFrame(s);
+      const orderedNetwork: SphereEntity[] = [];
+      const remaining = new Set(ordered);
+      let current: SphereEntity | null = ordered[0] ?? null;
+
+      while (current) {
+        orderedNetwork.push(current);
+        remaining.delete(current);
+        const currentIndex = s.spheres.indexOf(current);
+        const nextIndex = currentIndex >= 0
+          ? getLinkedNodeIndexes(networkState, currentIndex)
+            .filter((index) => index >= 0 && index < s.spheres.length)
+            .filter((index) => remaining.has(s.spheres[index]))
+            .sort((a, b) => dist(s.spheres[a].pos, current!.pos) - dist(s.spheres[b].pos, current!.pos))[0]
+          : undefined;
+        current = nextIndex === undefined ? null : (s.spheres[nextIndex] ?? null);
+      }
+
+      ordered = orderedNetwork.length > 0 ? orderedNetwork : ordered;
+    }
+    const networkCore = getActiveSphereAbilitySynergies(s).some((link) =>
+      link.character === 'engineer' && link.sphere === 'standard' && link.ability === 'blast'
+    );
+    let strength = 1;
+    for (const sphere of ordered) {
+      emitSpherePulse(s, sphere, baseDamage * strength, radius, '#c46d3d', final === 'blast_resonant_core');
+      if (branch === 'blast_resonance' && sphere.type === 'standard') {
+        emitSpherePulse(s, sphere, baseDamage * 0.4, radius * 0.72, '#d4943d');
+      }
+      if (networkCore && sphere.type === 'standard') triggerEngineerRelay(s, sphere);
+      if (branch === 'blast_core') strength *= 1.12;
+      if (branch === 'blast_network') strength *= 1.08;
+      if (final === 'blast_echo_network') strength *= 1.15;
+      if (final === 'blast_resonant_core' && sphere.type === 'standard') {
+        emitSpherePulse(s, sphere, baseDamage * 0.45, radius * 0.75, '#d4943d');
+      }
+    }
+    if (final === 'blast_infinite_pulse') {
+      for (const sphere of [...ordered].reverse()) {
+        emitSpherePulse(s, sphere, baseDamage * 0.35, radius * 0.75, '#d4943d');
+      }
+    }
+  }
+
+  const geometricCore = getActiveSphereAbilitySynergies(s).some((link) =>
+    link.character === 'architect' && link.sphere === 'standard' && link.ability === 'blast'
+  );
+  if (geometricCore) {
+    const standards = s.spheres.filter((sphere) => sphere.alive && sphere.type === 'standard');
+    for (let i = 1; i < standards.length; i++) {
+      s.lightnings.push({ from: { ...standards[i - 1].pos }, to: { ...standards[i].pos }, life: 0.3 });
+    }
+  }
+  if (branch === 'blast_core') {
+    for (const e of s.enemies) {
+      if (e.hp > 0 && dist(e.pos, s.player.pos) <= 100) dealDamageToEnemy(s, e, baseDamage * 0.5);
+    }
+  }
+  if (branch === 'blast_resonance') {
+    const standard = s.spheres.filter((sphere) => sphere.alive && sphere.type === 'standard');
+    for (const sphere of standard) emitSpherePulse(s, sphere, baseDamage * 0.25, 90, '#d4943d');
+  }
+
+  s.screenShake = 0.18;
+  s.flashText = { text: 'ECHO PULSE', life: 0.9, color: '#c46d3d' };
 }
+
+
+function activateShield(s: GameState): void {
+  const lvl = s.player.abilities.shield || 0;
+  if (lvl === 0 || s.player.shieldCooldown > 0) return;
+  s.player.shieldCooldown = 20 * getCooldownMult(s);
+  const nearby = s.spheres.filter((sphere) => sphere.alive && dist(sphere.pos, s.player.pos) <= 260).length;
+  const networkBonus = lvl >= 3 ? Math.min(2, Math.floor(nearby / 2)) : lvl >= 2 ? Math.min(1, Math.floor(nearby / 2)) : 0;
+  const branch = getAbilityBranchId(s, 'shield', 4);
+  const final = getAbilityBranchId(s, 'shield', 7);
+  const branchBonus = branch === 'shield_echo_guard' ? Math.min(2, Math.floor(nearby / 2)) : 0;
+  const bastionBonus = branch === 'shield_bastion' ? 1 : 0;
+  const networkState = final === 'shield_network_guard' ? getNetworkFrame(s) : null;
+  const connectedSphereCount = networkState
+    ? s.spheres.reduce((count, sphere, index) => (
+      sphere.alive && getLinkedNodeIndexes(networkState, index).some((linked) => linked >= 0 && linked < s.spheres.length)
+        ? count + 1
+        : count
+    ), 0)
+    : 0;
+  const networkGuardBonus = final === 'shield_network_guard'
+    ? Math.min(2, Math.floor(connectedSphereCount / 2))
+    : 0;
+  const barrierCore = getActiveSphereAbilitySynergies(s).some((link) =>
+    link.character === 'berserker' && link.sphere === 'shotgun' && link.ability === 'shield' && link.effect === 'defense'
+  );
+  s.player.shieldCharges = Math.min(5, 1 + Math.floor((lvl - 1) / 2) + networkBonus + branchBonus + bastionBonus + networkGuardBonus + (barrierCore ? 1 : 0));
+  s.player.shieldTimer = 10 + (lvl >= 5 ? 2 : 0);
+  s.player.shieldVisualPulse = 0.85;
+  if (branch === 'shield_echo_guard' || final === 'shield_network_guard') {
+    for (const sphere of s.spheres) {
+      if (sphere.alive && dist(sphere.pos, s.player.pos) <= 260) {
+        sphere.attackTimer = Math.max(0, sphere.attackTimer - 0.35);
+      }
+    }
+  }
+  if (branch === 'shield_bastion' || final === 'shield_iron_dome' || final === 'shield_resonant_guard') {
+    if (branch === 'shield_bastion') s.player.shieldCharges = Math.min(5, s.player.shieldCharges + 1);
+    if (final === 'shield_iron_dome') {
+      const protectedCount = s.spheres.filter((sphere) => sphere.alive && dist(sphere.pos, s.player.pos) <= 300).length;
+      s.player.shieldCharges = Math.min(5, s.player.shieldCharges + Math.min(2, protectedCount));
+    }
+    for (const sphere of s.spheres) {
+      if (sphere.alive && dist(sphere.pos, s.player.pos) <= 260) {
+        s.particles.push({ pos: { ...sphere.pos }, vel: { x: 0, y: 0 }, life: 0.8, maxLife: 0.8, color: '#4a7a8a', size: 5 });
+      }
+    }
+  }
+  if (final === 'shield_network_guard') {
+    const networkState = getNetworkFrame(s);
+    for (const link of networkState.links) {
+      if (link.a >= s.spheres.length || link.b >= s.spheres.length) continue;
+      const first = s.spheres[link.a];
+      const second = s.spheres[link.b];
+      if (!first.alive || !second.alive) continue;
+      s.lightnings.push({ from: { ...first.pos }, to: { ...second.pos }, life: 0.22 });
+    }
+  }
+  s.flashText = { text: 'SPHERE BARRIER', life: 0.9, color: '#4a7a8a' };
+}
+
+
+function doTeleportTo(s: GameState, target: Vec): void {
+  const from = { ...s.player.pos };
+  for (let i = 0; i < 16; i++) {
+    s.particles.push({ pos: { ...from }, vel: { x: rand(s,-140, 140), y: rand(s,-140, 140) }, life: 0.45, maxLife: 0.45, color: '#5a8c4a', size: 3 });
+  }
+  s.player.pos.x = clamp(target.x, -s.worldWidth / 2, s.worldWidth / 2);
+  s.player.pos.y = clamp(target.y, -s.worldHeight / 2, s.worldHeight / 2);
+  for (let i = 0; i < 16; i++) {
+    s.particles.push({ pos: { ...s.player.pos }, vel: { x: rand(s,-140, 140), y: rand(s,-140, 140) }, life: 0.45, maxLife: 0.45, color: '#5a8c4a', size: 3 });
+  }
+  const branch = getAbilityBranchId(s, 'teleport', 4);
+  const final = getAbilityBranchId(s, 'teleport', 7);
+  if (branch === 'teleport_phase' || final === 'teleport_phase_break') {
+    s.player.invulnerableTimer = Math.max(s.player.invulnerableTimer, 0.8);
+  }
+  if (final === 'teleport_phase_break') {
+    const origin = from;
+    const dx = s.player.pos.x - origin.x, dy = s.player.pos.y - origin.y;
+    const distanceTravelled = Math.hypot(dx, dy);
+    if (distanceTravelled > 140) {
+      const steps = Math.max(1, Math.floor(distanceTravelled / 140));
+      for (let i = 1; i < steps; i++) {
+        const point = { x: origin.x + dx * (i / steps), y: origin.y + dy * (i / steps) };
+        for (const enemy of s.enemies) if (enemy.hp > 0 && dist(enemy.pos, point) < 70) dealDamageToEnemy(s, enemy, 14, undefined);
+        s.particles.push({ pos: point, vel: { x: 0, y: 0 }, life: 0.35, maxLife: 0.35, color: '#5a8c4a', size: 5 });
+      }
+    }
+  }
+}
+
+
+function activateTeleport(s: GameState): void {
+  const lvl = s.player.abilities.teleport || 0;
+  if (lvl === 0 || s.player.teleportCooldown > 0) return;
+  const cd = (15 - Math.min(4, (lvl - 1) * 2)) * getCooldownMult(s);
+  s.player.teleportCooldown = Math.max(5, cd);
+
+  const branch = getAbilityBranchId(s, 'teleport', 4);
+  const final = getAbilityBranchId(s, 'teleport', 7);
+  const targetSphere = final === 'teleport_hunter_beacon' || branch === 'teleport_echo_jump'
+    ? getNearestSphere(s, s.player.pos)
+    : getNearestSphere(s, s.player.pos, (sphere) => dist(sphere.pos, s.player.pos) <= 700);
+
+  if (targetSphere) {
+    const target = { ...targetSphere.pos };
+    const origin = { ...s.player.pos };
+    doTeleportTo(s, target);
+    if (branch === 'teleport_beacon') s.player.teleportDamageBuffTimer = 4;
+    if (branch === 'teleport_phase') s.player.invulnerableTimer = Math.max(s.player.invulnerableTimer, 1.25);
+    if (final === 'teleport_hunter_beacon' && targetSphere.type === 'sniper') s.player.teleportDamageBuffTimer = 5;
+    const predatorChain = getActiveSphereAbilitySynergies(s).some((link) =>
+      link.character === 'hunter' && link.sphere === 'chain' && link.ability === 'teleport'
+    );
+    if (predatorChain && targetSphere.type === 'chain') {
+      const chainSpheres = s.spheres.filter((sphere) => sphere.alive && sphere.type === 'chain');
+      const prey = s.enemies
+        .filter((enemy) => enemy.hp > 0)
+        .sort((a, b) => {
+          const da = chainSpheres.length ? Math.min(...chainSpheres.map((sphere) => dist(a.pos, sphere.pos))) : dist(a.pos, s.player.pos);
+          const db = chainSpheres.length ? Math.min(...chainSpheres.map((sphere) => dist(b.pos, sphere.pos))) : dist(b.pos, s.player.pos);
+          return da - db;
+        })[0];
+      if (prey) {
+        s.player.hunterMarkTarget = prey;
+        s.player.hunterMarkTimer = 4;
+        for (const sphere of chainSpheres) {
+          s.particles.push({ pos: { ...sphere.pos }, vel: { x: 0, y: 0 }, life: 0.5, maxLife: 0.5, color: '#c4453d', size: 4 });
+        }
+      }
+    }
+    if (final === 'teleport_spatial_network') {
+      s.lightnings.push({ from: origin, to: target, life: 0.5 });
+      const networkState = getNetworkFrame(s);
+      const destinationIndex = s.spheres.indexOf(targetSphere);
+      if (destinationIndex >= 0) {
+        for (const linkedIndex of getLinkedNodeIndexes(networkState, destinationIndex)) {
+          if (linkedIndex < 0 || linkedIndex >= s.spheres.length) continue;
+          const linkedSphere = s.spheres[linkedIndex];
+          if (!linkedSphere.alive) continue;
+          s.lightnings.push({ from: { ...targetSphere.pos }, to: { ...linkedSphere.pos }, life: 0.24 });
+          for (const enemy of s.enemies) {
+            if (enemy.hp > 0 && dist(enemy.pos, linkedSphere.pos) < 70) dealDamageToEnemy(s, enemy, 12);
+          }
+        }
+      }
+      for (const enemy of s.enemies) if (enemy.hp > 0 && dist(enemy.pos, target) < 90) dealDamageToEnemy(s, enemy, 22);
+    }
+  } else {
+    doTeleportTo(s, { x: rand(s,s.player.pos.x - 300, s.player.pos.x + 300), y: rand(s,s.player.pos.y - 300, s.player.pos.y + 300) });
+  }
+  s.flashText = { text: 'ECHO JUMP', life: 0.9, color: '#5a8c4a' };
+}
+
+
+function activateFireTrail(s: GameState): void {
+  const lvl = s.player.abilities.firetrail || 0;
+  if (lvl === 0 || s.player.fireTrailCooldown > 0) return;
+  s.player.fireTrailCooldown = 25 * getCooldownMult(s);
+  s.player.fireTrailTimer = 5 + Math.min(3, lvl - 1);
+  const branch = getAbilityBranchId(s, 'firetrail', 4);
+  const final = getAbilityBranchId(s, 'firetrail', 7);
+  const fireAligned = s.spheres.filter((sphere) => sphere.alive && s.player.sphereMods.fire > 0);
+  for (const sphere of fireAligned) {
+    sphere.attackTimer = Math.max(0, sphere.attackTimer - 0.5);
+    s.particles.push({ pos: { ...sphere.pos }, vel: { x: 0, y: 0 }, life: 0.9, maxLife: 0.9, color: '#c46d3d', size: 6 });
+  }
+  if (branch === 'firetrail_overdrive') {
+    for (const sphere of fireAligned) {
+      sphere.attackTimer = Math.max(0, sphere.attackTimer - 0.7);
+      s.particles.push({ pos: { ...sphere.pos }, vel: { x: 0, y: 0 }, life: 0.45, maxLife: 0.45, color: '#f0b35a', size: 5 });
+    }
+  }
+  if (branch === 'firetrail_sanctum') {
+    for (const sphere of s.spheres) {
+      if (sphere.alive && sphere.type === 'aura') sphere.attackTimer = 0;
+    }
+  }
+  const catalystField = getActiveSphereAbilitySynergies(s).some((link) =>
+    link.character === 'alchemist' && link.sphere === 'aura' && link.ability === 'firetrail'
+  );
+  if (catalystField) s.player.alchemistCatalystTimer = 4;
+  if (branch === 'firetrail_ignition' || final === 'firetrail_catalyst') {
+    for (const e of s.enemies) {
+      if (e.hp > 0 && (e.fireTimer > 0 || e.poisonTimer > 0 || e.freezeTimer > 0)) {
+        e.fireTimer = Math.max(e.fireTimer, 2);
+        e.fireDps = Math.max(e.fireDps, 5 + lvl * 2);
+      }
+    }
+  }
+  if (final === 'firetrail_catalyst') s.player.fireCatalystTimer = 4;
+  if (final === 'firetrail_network' || final === 'firetrail_inferno') {
+    const networkState = getNetworkFrame(s);
+    const fireIndexes = new Set(fireAligned.map((sphere) => s.spheres.indexOf(sphere)));
+    const processedPairs = new Set<string>();
+
+    for (const sourceIndex of fireIndexes) {
+      if (sourceIndex < 0) continue;
+      for (const targetIndex of getLinkedNodeIndexes(networkState, sourceIndex)) {
+        if (targetIndex < 0 || targetIndex >= s.spheres.length || !fireIndexes.has(targetIndex)) continue;
+        const key = sourceIndex < targetIndex ? `${sourceIndex}:${targetIndex}` : `${targetIndex}:${sourceIndex}`;
+        if (processedPairs.has(key)) continue;
+        processedPairs.add(key);
+        const source = s.spheres[sourceIndex];
+        const target = s.spheres[targetIndex];
+        const boost = final === 'firetrail_inferno' ? 0.32 : 0.2;
+        s.lightnings.push({ from: { ...source.pos }, to: { ...target.pos }, life: 0.18 });
+        source.attackTimer = Math.max(0, source.attackTimer - boost);
+        target.attackTimer = Math.max(0, target.attackTimer - boost);
+      }
+    }
+  }
+  s.flashText = { text: 'OVERHEAT', life: 0.9, color: '#c46d3d' };
+}
+
+
+function activateMinion(s: GameState): void {
+  const lvl = s.player.abilities.minion || 0;
+  if (lvl === 0 || s.player.minionCooldown > 0) return;
+  s.player.minionCooldown = 30 * getCooldownMult(s);
+  const count = 1 + Math.floor((lvl - 1) / 2);
+  const branch = getAbilityBranchId(s, 'minion', 4);
+  const final = getAbilityBranchId(s, 'minion', 7);
+  const relayMode = branch === 'minion_relay_drone' || final === 'minion_network_nodes';
+  const liveSpheres = s.spheres.filter((sphere) => sphere.alive);
+
+  for (let i = 0; i < count; i++) {
+    const anchor = getNearestSphere(s, s.player.pos);
+    const angle = (i / Math.max(1, count)) * Math.PI * 2;
+    let spawnPos = anchor
+      ? { x: anchor.pos.x + Math.cos(angle) * 42, y: anchor.pos.y + Math.sin(angle) * 42 }
+      : { ...s.player.pos };
+
+    // Relay/Network Nodes are positioned between two nearby Spheres so the
+    // solver can produce actual Sphere -> Drone -> Sphere links.
+    if (relayMode && liveSpheres.length >= 2) {
+      let bestA: SphereEntity | null = null;
+      let bestB: SphereEntity | null = null;
+      let bestDistance = Infinity;
+      for (let a = 0; a < liveSpheres.length - 1; a++) {
+        for (let b = a + 1; b < liveSpheres.length; b++) {
+          const d = dist(liveSpheres[a].pos, liveSpheres[b].pos);
+          if (d < bestDistance) {
+            bestDistance = d;
+            bestA = liveSpheres[a];
+            bestB = liveSpheres[b];
+          }
+        }
+      }
+      if (bestA && bestB && bestDistance <= 400) {
+        spawnPos = {
+          x: (bestA.pos.x + bestB.pos.x) / 2,
+          y: (bestA.pos.y + bestB.pos.y) / 2,
+        };
+      }
+    }
+
+    s.minions.push({
+      pos: spawnPos,
+      hp: 1, attackTimer: 0, life: 10 + (lvl >= 5 ? 2 : 0), radius: 12, damage: 6 + Math.max(0, lvl - 1) * 2, rotation: 0,
+      anchorType: anchor?.type || 'standard',
+    });
+    if (anchor) {
+      s.particles.push({ pos: { ...anchor.pos }, vel: { x: 0, y: 0 }, life: 0.7, maxLife: 0.7, color: '#4a7a8a', size: 5 });
+    }
+  }
+  if (branch === 'minion_echo_drone') {
+    for (const drone of s.minions.slice(-count)) {
+      const anchor = getNearestSphere(s, drone.pos);
+      if (anchor) {
+        anchor.attackTimer = Math.max(0, anchor.attackTimer - 0.45);
+        s.particles.push({ pos: { ...anchor.pos }, vel: { x: 0, y: 0 }, life: 0.45, maxLife: 0.45, color: '#4a7a8a', size: 5 });
+      }
+    }
+  }
+  if (relayMode) {
+    const network = getNetworkFrame(s);
+    for (let i = 0; i < count; i++) {
+      const minionIndex = s.minions.length - 1 - i;
+      const drone = s.minions[minionIndex];
+      if (!drone) continue;
+      const nodeIndex = s.spheres.length + minionIndex;
+      const linkedSpheres = network.links
+        .filter((link) => link.a === nodeIndex || link.b === nodeIndex)
+        .map((link) => (link.a === nodeIndex ? link.b : link.a))
+        .filter((index) => index >= 0 && index < s.spheres.length)
+        .filter((index, listIndex, list) => list.indexOf(index) === listIndex);
+      if (linkedSpheres.length >= 2) {
+        const first = s.spheres[linkedSpheres[0]];
+        const second = s.spheres[linkedSpheres[1]];
+        s.lightnings.push({ from: { ...first.pos }, to: { ...drone.pos }, life: 0.16 });
+        s.lightnings.push({ from: { ...drone.pos }, to: { ...second.pos }, life: 0.16 });
+      }
+    }
+  }
+  if (final === 'minion_echo_swarm') {
+    const networkState = getNetworkFrame(s);
+    for (const drone of s.minions.slice(-count)) {
+      s.particles.push({ pos: { ...drone.pos }, vel: { x: 0, y: 0 }, life: 0.8, maxLife: 0.8, color: '#d4943d', size: 6 });
+      const droneIndex = s.spheres.length + s.minions.indexOf(drone);
+      const linkedSphereIndexes = getLinkedNodeIndexes(networkState, droneIndex)
+        .filter((index) => index >= 0 && index < s.spheres.length);
+      for (const linkedIndex of linkedSphereIndexes) {
+        const sphere = s.spheres[linkedIndex];
+        if (sphere.alive) sphere.attackTimer = Math.max(0, sphere.attackTimer - 0.22);
+      }
+    }
+  }
+  if (final === 'minion_sphere_guard') {
+    for (const sphere of s.spheres) {
+      if (sphere.alive && dist(sphere.pos, s.player.pos) < 300) sphere.attackTimer = Math.max(0, sphere.attackTimer - 0.35);
+    }
+  }
+  s.flashText = { text: 'ECHO DRONE', life: 0.9, color: '#4a7a8a' };
+}
+
+
+function activateLightning(s: GameState): void {
+  const lvl = s.player.abilities.lightning || 0;
+  if (lvl === 0 || s.player.lightningCooldown > 0) return;
+  s.player.lightningCooldown = 20 * getCooldownMult(s);
+  const branch = getAbilityBranchId(s, 'lightning', 4);
+  const final = getAbilityBranchId(s, 'lightning', 7);
+  const networkSpheres = s.spheres.filter((sphere) => sphere.alive);
+  let ordered = [...networkSpheres].sort((a, b) => dist(a.pos, s.player.pos) - dist(b.pos, s.player.pos));
+  const networkState = getNetworkFrame(s);
+
+  if ((branch === 'lightning_relay' || final === 'lightning_storm_network') && ordered.length > 0) {
+    const remaining = new Set(ordered);
+    const networkOrder: SphereEntity[] = [];
+    let current: SphereEntity | null = ordered[0] ?? null;
+
+    while (current) {
+      networkOrder.push(current);
+      remaining.delete(current);
+      const currentIndex = s.spheres.indexOf(current);
+      const nextIndex = currentIndex >= 0
+        ? getLinkedNodeIndexes(networkState, currentIndex)
+          .filter((index) => index >= 0 && index < s.spheres.length)
+          .filter((index) => remaining.has(s.spheres[index]))
+          .sort((a, b) => dist(s.spheres[a].pos, current!.pos) - dist(s.spheres[b].pos, current!.pos))[0]
+        : undefined;
+      current = nextIndex === undefined ? null : (s.spheres[nextIndex] ?? null);
+    }
+
+    ordered = [...networkOrder, ...ordered.filter((sphere) => remaining.has(sphere))];
+  }
+  const targets = s.enemies.filter((e) => e.hp > 0).sort((a, b) => dist(a.pos, s.player.pos) - dist(b.pos, s.player.pos));
+  const toxicNetwork = getActiveSphereAbilitySynergies(s).some((link) =>
+    link.character === 'alchemist' && link.sphere === 'chain' && link.ability === 'lightning'
+  );
+  if (targets.length === 0) return;
+  const maxTargets = 1 + Math.floor((lvl - 1) / 2);
+  let previous: Vec = ordered.length > 0 ? { ...ordered[0].pos } : { ...s.player.pos };
+  let jump = 0;
+  for (let networkIndex = 0; networkIndex < ordered.length; networkIndex++) {
+    const sphere = ordered[networkIndex];
+    if (networkIndex > 0) {
+      s.lightnings.push({ from: { ...previous }, to: { ...sphere.pos }, life: 0.24 });
+    }
+    if (branch === 'lightning_echo_storm') {
+      for (const enemy of s.enemies) {
+        if (enemy.hp > 0 && dist(enemy.pos, sphere.pos) < 55) {
+          dealDamageToEnemy(s, enemy, 10 + lvl * 3);
+        }
+      }
+    }
+    previous = { ...sphere.pos };
+    jump++;
+  }
+  const relayStorm = getActiveSphereAbilitySynergies(s).some((link) =>
+    link.character === 'engineer' && link.sphere === 'chain' && link.ability === 'lightning'
+  );
+  if (relayStorm) {
+    for (const sphere of ordered) {
+      triggerEngineerRelay(s, sphere);
+    }
+  }
+  const finalBonusTargets = final === 'lightning_thunder_chain' ? ordered.length : 0;
+  const targetCount = Math.min(targets.length, maxTargets + finalBonusTargets);
+  for (let i = 0; i < targetCount; i++) {
+    const target = targets[i];
+    s.lightnings.push({ from: { ...previous }, to: { ...target.pos }, life: 0.3 });
+    const damage = (40 + lvl * 15) * (1 + jump * 0.12);
+    dealDamageToEnemy(s, target, damage);
+    if (toxicNetwork) {
+      target.fireTimer = Math.max(target.fireTimer || 0, 1.5);
+      target.poisonTimer = Math.max(target.poisonTimer || 0, 1.5);
+    }
+    previous = { ...target.pos };
+    jump++;
+    if (branch === 'lightning_relay' && ordered.length > 0) {
+      const sourceSphere = ordered[i % ordered.length];
+      const sourceIndex = s.spheres.indexOf(sourceSphere);
+      const nextIndex = sourceIndex >= 0
+        ? getLinkedNodeIndexes(networkState, sourceIndex)
+          .filter((index) => index >= 0 && index < s.spheres.length)
+          .filter((index) => s.spheres[index].alive)
+          .sort((a, b) => dist(s.spheres[a].pos, sourceSphere.pos) - dist(s.spheres[b].pos, sourceSphere.pos))[0]
+        : undefined;
+      if (nextIndex !== undefined) {
+        s.lightnings.push({ from: { ...target.pos }, to: { ...s.spheres[nextIndex].pos }, life: 0.22 });
+      }
+    }
+    if (final === 'lightning_thunder_chain') {
+      const next = targets[(i + 1) % targets.length];
+      if (next && next !== target) {
+        s.lightnings.push({ from: { ...target.pos }, to: { ...next.pos }, life: 0.22 });
+        dealDamageToEnemy(s, next, damage * 0.25);
+      }
+    }
+  }
+  if (branch === 'lightning_overload' || final === 'lightning_overload_core') {
+    const last = targets[Math.min(maxTargets, targets.length) - 1];
+    if (last) dealDamageToEnemy(s, last, 30 + lvl * 10);
+  }
+  if (final === 'lightning_storm_network' && ordered.length > 0) {
+    const chainIndexes = new Set(ordered.map((sphere) => s.spheres.indexOf(sphere)));
+    const processedPairs = new Set<string>();
+    let edgeCount = 0;
+
+    for (const sourceIndex of chainIndexes) {
+      if (sourceIndex < 0) continue;
+      for (const targetIndex of getLinkedNodeIndexes(networkState, sourceIndex)) {
+        if (targetIndex < 0 || targetIndex >= s.spheres.length || !chainIndexes.has(targetIndex)) continue;
+        const key = sourceIndex < targetIndex ? `${sourceIndex}:${targetIndex}` : `${targetIndex}:${sourceIndex}`;
+        if (processedPairs.has(key)) continue;
+        processedPairs.add(key);
+        edgeCount++;
+        const from = s.spheres[sourceIndex].pos;
+        const to = s.spheres[targetIndex].pos;
+        s.lightnings.push({ from: { ...from }, to: { ...to }, life: 0.18 });
+        for (const enemy of s.enemies) {
+          if (enemy.hp > 0 && dist(enemy.pos, to) < 85) {
+            dealDamageToEnemy(s, enemy, (35 + lvl * 8) * 0.35);
+          }
+        }
+      }
+    }
+
+    if (edgeCount === 0) {
+      for (let i = ordered.length - 1; i >= 0; i--) {
+        const from = i > 0 ? ordered[i - 1].pos : s.player.pos;
+        const to = ordered[i].pos;
+        s.lightnings.push({ from: { ...from }, to: { ...to }, life: 0.18 });
+        for (const enemy of s.enemies) {
+          if (enemy.hp > 0 && dist(enemy.pos, to) < 85) dealDamageToEnemy(s, enemy, (35 + lvl * 8) * 0.35);
+        }
+      }
+    }
+  }
+  s.flashText = { text: 'CHAIN LIGHTNING', life: 0.9, color: '#4a7a8a' };
+}
+
+
+function activateTimeStop(s: GameState): void {
+  const lvl = s.player.abilities.timestop || 0;
+  if (lvl === 0 || s.player.timestopCooldown > 0) return;
+  s.player.timestopCooldown = 40 * getCooldownMult(s);
+  s.player.timestopTimer = 3 + Math.min(2, lvl - 1);
+  const nearest = getNearestSphere(s, s.player.pos);
+  const branch = getAbilityBranchId(s, 'timestop', 4);
+  const final = getAbilityBranchId(s, 'timestop', 7);
+  const fieldMatrix = getActiveSphereAbilitySynergies(s).some((link) =>
+    link.character === 'architect' && link.sphere === 'aura' && link.ability === 'timestop'
+  );
+  const radius = nearest
+    ? 520 * (fieldMatrix ? 1.25 : 1)
+    : Infinity;
+  for (const e of s.enemies) {
+    if (e.hp <= 0) continue;
+    if (!nearest || dist(e.pos, nearest.pos) <= radius) {
+      e.freezeTimer = s.player.timestopTimer + (branch === 'timestop_time_anchor' ? 1 : 0);
+    }
+  }
+  if (branch === 'timestop_closed_time' || final === 'timestop_closed_network') {
+    const networkState = getNetworkFrame(s);
+    const startIndex = nearest ? s.spheres.indexOf(nearest) : -1;
+    const visited = new Set<number>();
+    const queue = startIndex >= 0 ? [startIndex] : [];
+
+    while (queue.length > 0) {
+      const sphereIndex = queue.shift()!;
+      if (visited.has(sphereIndex) || sphereIndex < 0 || sphereIndex >= s.spheres.length) continue;
+      const sphere = s.spheres[sphereIndex];
+      if (!sphere.alive) continue;
+      visited.add(sphereIndex);
+
+      for (const e of s.enemies) {
+        if (e.hp > 0 && dist(e.pos, sphere.pos) < 260) {
+          e.freezeTimer = Math.max(e.freezeTimer, s.player.timestopTimer);
+        }
+      }
+
+      for (const linkedIndex of getLinkedNodeIndexes(networkState, sphereIndex)) {
+        if (linkedIndex >= 0 && linkedIndex < s.spheres.length && !visited.has(linkedIndex)) {
+          queue.push(linkedIndex);
+        }
+      }
+    }
+  }
+  if (branch === 'timestop_echo_phase') {
+    for (const sphere of s.spheres) {
+      if (sphere.alive) sphere.attackTimer = Math.max(0, sphere.attackTimer - 0.65);
+    }
+  }
+  if (nearest) {
+    const pulseDamage = final === 'timestop_temporal_core' ? 10 + lvl * 8 : 10 + lvl * 4;
+    emitSpherePulse(s, nearest, pulseDamage, 150, '#4a7a8a');
+  }
+  s.flashText = { text: 'ECHO FREEZE', life: 1.2, color: '#4a7a8a' };
+}
+
+
+function activateDarkRitual(s: GameState): void {
+  const lvl = s.player.abilities.darkritual || 0;
+  if (lvl === 0 || s.player.darkritualCooldown > 0) return;
+  const hpCost = s.player.maxHp * 0.2;
+  if (s.player.hp <= hpCost) return;
+  s.player.darkritualCooldown = 30 * getCooldownMult(s);
+  s.player.hp -= hpCost;
+  s.player.overloadTimer = 5 + Math.min(3, lvl - 1);
+  const branch = getAbilityBranchId(s, 'darkritual', 4);
+  const final = getAbilityBranchId(s, 'darkritual', 7);
+  for (const sphere of s.spheres) {
+    if (!sphere.alive) continue;
+    sphere.attackTimer = Math.max(0, sphere.attackTimer - 0.8);
+    s.particles.push({ pos: { ...sphere.pos }, vel: { x: 0, y: 0 }, life: 1, maxLife: 1, color: '#8a5a8a', size: 7 });
+  }
+  const bloodResonance = getActiveSphereAbilitySynergies(s).some((link) =>
+    link.character === 'berserker' && link.sphere === 'standard' && link.ability === 'darkritual'
+  );
+  if (bloodResonance) {
+    for (const sphere of s.spheres) {
+      if (sphere.alive && sphere.type === 'standard') {
+        sphere.attackTimer = Math.max(0, sphere.attackTimer - 0.8);
+        emitSpherePulse(s, sphere, 10 + lvl * 3, 75, '#c4453d');
+      }
+    }
+  }
+  if (branch === 'darkritual_blood_link' || final === 'darkritual_blood_network') {
+    const networkState = getNetworkFrame(s);
+    const standardIndexes = s.spheres
+      .map((sphere, index) => ({ sphere, index }))
+      .filter(({ sphere }) => sphere.alive && sphere.type === 'standard')
+      .map(({ index }) => index);
+
+    const target = getNearestSphere(s, s.player.pos, (sphere) => sphere.type === 'standard');
+    if (branch === 'darkritual_blood_link' && target) {
+      target.attackTimer = Math.max(0, target.attackTimer - 1.4);
+    }
+
+    if (final === 'darkritual_blood_network') {
+      const linkedStandardIndexes = standardIndexes.filter((index) =>
+        getLinkedNodeIndexes(networkState, index).some((neighbor) => standardIndexes.includes(neighbor))
+      );
+      for (const index of linkedStandardIndexes) {
+        const sphere = s.spheres[index];
+        sphere.attackTimer = Math.max(0, sphere.attackTimer - 0.8);
+      }
+    }
+  }
+  if (branch === 'darkritual_void_pact' || final === 'darkritual_void_engine') {
+    const ratio = s.player.hp / s.player.maxHp;
+    if (ratio < 0.35) s.player.overloadTimer += 2;
+  }
+  if (branch === 'darkritual_sacrifice' || final === 'darkritual_sacrifice_core') {
+    const sacrificeMultiplier = final === 'darkritual_sacrifice_core' ? 1.35 : 1;
+    emitSpherePulse(
+      s,
+      getNearestSphere(s, s.player.pos) || { pos: { ...s.player.pos } } as SphereEntity,
+      (20 + lvl * 5) * sacrificeMultiplier,
+      final === 'darkritual_sacrifice_core' ? 145 : 130,
+      '#8a5a8a',
+    );
+  }
+  if (final === 'darkritual_void_engine' && s.player.hp / s.player.maxHp < 0.2) {
+    for (const sphere of s.spheres) {
+      if (sphere.alive) emitSpherePulse(s, sphere, 18 + lvl * 6, 110, '#8a5a8a');
+    }
+  }
+  s.screenShake = 0.22;
+  s.flashText = { text: 'OVERLOAD', life: 1.2, color: '#8a5a8a' };
+}
+
+
+export function activateByKey(s: GameState, key: string): void {
+  const ability = s.activeKeyMap[key];
+  if (!ability) return;
+  switch (ability) {
+    case 'blast': activateBlast(s); break;
+    case 'shield': activateShield(s); break;
+    case 'teleport': activateTeleport(s); break;
+    case 'firetrail': activateFireTrail(s); break;
+    case 'minion': activateMinion(s); break;
+    case 'lightning': activateLightning(s); break;
+    case 'timestop': activateTimeStop(s); break;
+    case 'darkritual': activateDarkRitual(s); break;
+  }
+}
+  emitAbilityMutationVfx(s, ability);
+
+// ===== Upgrade generation =====
