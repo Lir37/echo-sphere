@@ -631,6 +631,7 @@ export function getSphereArtifactModifiers(s: any, type: string, sphere?: any): 
   const geometryKey = String(s.player.resonanceGeometryKey || 'none');
   if (setBehavior.resonanceGrid && sphere && hasNearbysphere(s, sphere, 190) && geometryKey !== 'none') damage *= 1.06;
   if (setBehavior.echoArchitecture && unique >= 2 && sphere && hasNearbysphere(s, sphere, 220)) damage *= 1.06;
+  if (setBehavior.singularityPath && unique <= 1) damage *= 1.08;
   if (setBehavior.geometryCraft && ['ring', 'lattice', 'fractal'].includes(geometryKey)) damage *= 1.10;
   if (setBehavior.voidHorizon && type === 'void') damage *= 1.10;
   if (setBehavior.temporalFold && (((s.player.timestopTimer || 0) > 0) || ((s.player.teleportDamageBuffTimer || 0) > 0))) damage *= 1.12;
