@@ -399,6 +399,8 @@ export interface AbilityProgressionDef {
   levels:SphereUpgradeDef[];
   evolution4:AbilityEvolutionChoice[];
   evolution7:AbilityEvolutionChoice[];
+  /** Final choices are contextualized by the Mutation I branch. The three runtime final archetypes remain stable, while card names/descriptions explicitly continue the chosen branch. */
+  evolution7ByBranch?:Record<string, AbilityEvolutionChoice[]>;
 }
 
 const ABILITY_EVOLUTION_EN:Record<string,{name:string;desc:string}>={
@@ -626,6 +628,39 @@ export const ABILITY_PROGRESSION:Partial<Record<AbilityType,AbilityProgressionDe
 
 };
 
+
+function buildAbilityFinalPools():Record<string, Record<string, AbilityEvolutionChoice[]>> {
+  const result:Record<string, Record<string, AbilityEvolutionChoice[]>> = {};
+  for (const [ability, progression] of Object.entries(ABILITY_PROGRESSION) as [AbilityType, AbilityProgressionDef][]) {
+    result[ability] = {};
+    for (const branch of progression.evolution4) {
+      result[ability][branch.id] = progression.evolution7.map((finalChoice) => ({
+        ...finalChoice,
+        name: {
+          ru: `${branch.name.ru} · ${finalChoice.name.ru}`,
+          en: `${branch.name.en} · ${finalChoice.name.en}`,
+        },
+        desc: {
+          ru: `Продолжение ветки «${branch.name.ru}»: ${finalChoice.desc.ru}`,
+          en: `Continuation of “${branch.name.en}”: ${finalChoice.desc.en}`,
+        },
+      }));
+    }
+  }
+  return result;
+}
+
+const ABILITY_FINAL_POOLS = buildAbilityFinalPools();
+
+export function getAbilityEvolutionPool(s:any, ability:AbilityType, stage:4|7):AbilityEvolutionChoice[] {
+  const progression=ABILITY_PROGRESSION[ability];
+  if(!progression) return [];
+  if(stage===4) return progression.evolution4;
+  const branch=getAbilityEvolutionChoice(s,ability,4);
+  return branch ? (ABILITY_FINAL_POOLS[ability]?.[branch.id] ?? progression.evolution7) : [];
+}
+
+
 export function getAbilityEvolutionChoice(s:any, ability:AbilityType, stage:4|7):AbilityEvolutionChoice|null {
   const prefix='ability:'+ability+':'+stage+':';
   const marker=(s.player.evolutions||[]).find((x:string)=>x.startsWith(prefix));
@@ -633,7 +668,7 @@ export function getAbilityEvolutionChoice(s:any, ability:AbilityType, stage:4|7)
   const id=marker.slice(prefix.length);
   const progression=ABILITY_PROGRESSION[ability];
   if(!progression) return null;
-  const pool=stage===4?progression.evolution4:progression.evolution7;
+  const pool=stage===4?progression.evolution4:getAbilityEvolutionPool(s,ability,7);
   return pool.find((choice)=>choice.id===id)||null;
 }
 
