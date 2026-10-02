@@ -108,7 +108,7 @@ function getSphereEvolutionChoices(s:GameState, type:SphereType, level:4|7):Upgr
 function getAbilityEvolutionChoices(s:GameState, ability:AbilityType, level:4|7):UpgradeChoice[] {
   const progression=ABILITY_PROGRESSION[ability];
   if(!progression) return [];
-  const pool=level===4?progression.evolution4:progression.evolution7;
+  const pool=level===4?progression.evolution4:getAbilityEvolutionPool(s,ability,7);
   return pool.slice(0,3).map((evolution,index)=>({
     type:'ability' as const,
     ability,
@@ -529,7 +529,8 @@ export function applyUpgrade(s: GameState, choice: UpgradeChoice): void {
     if(choice.abilityStage==='final'){
       if(current!==7) return;
       const progression=ABILITY_PROGRESSION[ability];
-      const evolution=progression?.evolution7[Math.max(0,Math.min((progression?.evolution7.length||1)-1,choice.abilityEvolutionIndex??0))];
+      const pool=getAbilityEvolutionPool(s,ability,7);
+      const evolution=pool[Math.max(0,Math.min((pool.length||1)-1,choice.abilityEvolutionIndex??0))];
       if(evolution){
         const marker='ability:'+ability+':7:'+evolution.id;
         s.player.evolutions.push(marker);
