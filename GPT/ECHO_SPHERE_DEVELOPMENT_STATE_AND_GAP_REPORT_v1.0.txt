@@ -4147,3 +4147,91 @@ NEXT:
 2. Run CI and update this report with the resulting HEAD.
 3. Request APK PlayerCheck for event clarity and practical charge cadence.
 4. Keep the next-chat handoff concise.
+
+
+======================================================================
+[2026-10-02] RESONANCE SOURCE INVENTORY / NARROW FOLLOW-UP
+======================================================================
+
+AUDITED HEAD:
+607b569fae0a3444a4d90566cfa44d8781bdb86a
+
+PURPOSE:
+Follow-up to the Resonance Architecture Audit. Inventory the actual live
+Character / Artifact / Network / Rune hooks before adding gameplay effects.
+
+CONFIRMED LIVE SOURCES:
+- SphereHit:
+  every successful damage path with fromSphere routes one player-level
+  Resonance charge through engineResonance.
+- Resonant modifier:
+  authored Sphere evolution/modifier states can add an additional
+  sphereHit-routed charge. This is an explicit combat modifier, not a
+  replacement for the base SphereHit source.
+- Geometry:
+  syncResonanceGeometry grants the Geometry source only when a genuinely
+  new active formation key is acquired. Loss/recovery of the same key does
+  not farm charge.
+- Network:
+  current runtime already exposes a Network source and uses it from
+  authored Network-dependent Sphere behaviors (Prism/Pulse paths). These
+  are explicit gameplay events, not generic topology recomputation.
+- Rune:
+  Resonance Rune grants the Blueprint-defined 60 charge.
+
+CHARACTER INVENTORY:
+- Current repository has six playable Characters.
+- Spherist has mechanics named Resonance, but its current implementation
+  uses Resonance as a Sphere-count combat/stat identity. It does NOT
+  explicitly grant player-level Resonance charge.
+- Engineer has actual relay/network mechanics, but the current Character
+  specification does not explicitly state that relay success grants
+  player-level Resonance.
+- Architect has Geometry mechanics, but no explicit Character-level
+  Resonance-charge rule.
+- Hunter, Berserker and Alchemist have no explicit player-level Resonance
+  charge rule in their current authored mechanics.
+- Therefore no Character source hook is added in this pass. Adding one
+  would invent a balance/mechanics rule not currently specified.
+
+ARTIFACT INVENTORY:
+- Current live Artifact catalog contains Resonance-themed artifacts such as
+  resonance_core, fivefold_resonance and resonance_lattice, but their
+  current effects are combat/stat interactions, not explicit Resonance
+  charge generation.
+- Blueprint examples such as Resonance Heart / Living Circuit / Zero Point
+  are not present in the current live catalog after previous Artifact
+  audits.
+- Therefore no Artifact source hook is added in this pass. Reintroducing
+  one of those effects merely to satisfy the source category would undo
+  earlier confirmed cleanup.
+
+NETWORK TAXONOMY:
+- A generic Network source exists and is already used by explicit
+  Network-dependent combat branches.
+- The code does NOT treat every analyze/recompute/topology snapshot as a
+  Resonance event.
+- No blanket topology-charge hook is permitted.
+- A future dedicated Network event may add charge only when an authored
+  event is defined and can be tested as a single gameplay occurrence.
+
+OVERFLOW:
+- 150 remains an API capability only.
+- No current live Character / Artifact / Rune effect opts into overflow.
+- No overflow gameplay is introduced by this pass.
+
+DECISION:
+- The previous audit's core architecture remains valid.
+- No speculative Character or Artifact Resonance mechanics are introduced.
+- No Sphere/Ability rework is required.
+- The remaining Resonance gap is now specifically CONTENT / BALANCE:
+  define authored Character or Artifact charge effects only when their
+  gameplay rule is deliberately added to the current design.
+- The next safe implementation target is a behavioral source test matrix
+  covering the currently live source paths and guarding against duplicate
+  charge from local formation counters or topology recomputation.
+
+VALIDATION:
+- Current implementation HEAD: 607b569fae0a3444a4d90566cfa44d8781bdb86a
+- CI #1224: SUCCESS
+- APK visual validation of Resonance event readability remains pending.
