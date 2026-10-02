@@ -194,7 +194,10 @@ test('each Artifact Protocol changes a measurable combat modifier when its condi
       { type: 'sniper', alive: true, pos: { x: 100, y: 0 } },
       { type: 'prism', alive: true, pos: { x: 200, y: 0 } },
     ] }, 'standard'],
-    ['sphere_relay', { player: { ...base.player }, spheres: [{ type: 'standard', alive: true, pos: { x: 0, y: 0 } }] }, 'standard'],
+    ['sphere_relay', { player: { ...base.player }, spheres: [
+      { type: 'standard', alive: true, pos: { x: 0, y: 0 } },
+      { type: 'sniper', alive: true, pos: { x: 100, y: 0 } },
+    ] }, 'standard'],
     ['critical_echo', { player: { ...base.player, combo: 5 } }, 'standard'],
     ['geometry_circuit', { player: { ...base.player, resonanceGeometryKey: 'ring' } }, 'standard'],
     ['void_horizon_protocol', { player: { ...base.player }, enemies: [{ hp: 100, isElite: false, isBoss: false }] }, 'void'],
@@ -205,12 +208,20 @@ test('each Artifact Protocol changes a measurable combat modifier when its condi
       { hp: 100, isElite: false, isBoss: false }, { hp: 100, isElite: false, isBoss: false },
       { hp: 100, isElite: false, isBoss: false }, { hp: 100, isElite: false, isBoss: false },
     ] }, 'pulse'],
-    ['core_forge_protocol', { player: { ...base.player } }, 'standard'],
+    ['core_forge_protocol', { player: { ...base.player }, spheres: [
+      { type: 'standard', alive: true, pos: { x: 0, y: 0 } },
+      { type: 'sniper', alive: true, pos: { x: 100, y: 0 } },
+      { type: 'prism', alive: true, pos: { x: 0, y: 100 } },
+    ] }, 'standard'],
     ['prism_dominion_protocol', { player: { ...base.player }, spheres: [
       { type: 'prism', alive: true, pos: { x: 0, y: 0 } },
       { type: 'standard', alive: true, pos: { x: 100, y: 0 } },
     ] }, 'prism'],
-    ['network_legacy_protocol', { player: { ...base.player, resonanceGeometryKey: 'ring' } }, 'standard'],
+    ['network_legacy_protocol', { player: { ...base.player, resonanceGeometryKey: 'ring' }, spheres: [
+      { type: 'standard', alive: true, pos: { x: 0, y: 0 } },
+      { type: 'sniper', alive: true, pos: { x: 100, y: 0 } },
+      { type: 'prism', alive: true, pos: { x: 0, y: 100 } },
+    ] }, 'standard'],
   ];
   for (const [id, overrides, sphereType] of cases) {
     const state = { ...base, ...overrides, player: { ...base.player, ...overrides.player } };
