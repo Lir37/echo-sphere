@@ -4354,3 +4354,43 @@ NEXT:
    until their dedicated mechanics are specified.
 
 ======================================================================
+
+
+======================================================================
+[2026-10-02] ELEMENTAL CI REGRESSION FIX / APK GATE
+======================================================================
+
+IMPLEMENTATION STATUS:
+- No gameplay implementation was changed in this repair cycle.
+- The failing CI gate was caused by brittle regression-test contracts:
+  literal JavaScript punctuation was treated as regular-expression syntax,
+  and one Level VII visual-contract assertion still expected legacy generic
+  Core/Cascade/Apex wording instead of authored gameplay descriptions.
+- The projectile test was aligned with the actual architecture: the selected
+  Sphere branch writes its elemental effect into the projectile state rather
+  than calling the status handler inline at projectile creation.
+- The final repository tree at HEAD includes the complete workflow and source
+  tree; the branch is no longer in the transient incomplete-tree state that
+  occurred during the repair.
+
+VALIDATION:
+- Corrected tests/elemental-mutation.test.mjs.
+- Corrected the stale Level VII assertions in tests/visual-contract.test.mjs.
+- CI run #1246 on HEAD eebb049cece8625d0b27d8ac8c1c70be8e679cac completed SUCCESS.
+- Unit tests: SUCCESS.
+- Gameplay coverage audit: SUCCESS.
+- Lint: SUCCESS.
+- Web build and Playwright visual QA: SUCCESS.
+- Capacitor Android sync: SUCCESS.
+- Debug APK build and upload: SUCCESS.
+- Human APK PlayerCheck of elemental Level IV/VII presentation remains the
+  next acceptance step, with Orbital readability and the three elemental
+  signatures still requiring manual observation.
+
+NEXT:
+1. Install/use the APK from the successful run and perform the planned
+   Level IV and Level VII PlayerCheck.
+2. Verify Fire / Freeze / Poison readability in combat, especially Orbital.
+3. Only after PlayerCheck, proceed to elemental balance tuning.
+
+======================================================================
