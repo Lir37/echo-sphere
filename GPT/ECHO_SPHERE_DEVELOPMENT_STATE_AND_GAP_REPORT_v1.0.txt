@@ -4290,3 +4290,67 @@ VALIDATION:
   was #1224 on HEAD 607b569fae0a3444a4d90566cfa44d8781bdb86a.
 - APK PlayerCheck of the actual Level VII choice cards and post-selection
   combat behavior remains the next human validation step.
+
+
+======================================================================
+[2026-10-02] ELEMENTAL SPHERE MUTATION LAYER
+======================================================================
+
+IMPLEMENTATION BASELINE:
+- CODE HEAD BEFORE DOCUMENTATION SYNC: d9d69f3f66992736d54e496b619bd0482d6ceeef
+- Branch: new-desing
+
+DESIGN / RUNTIME:
+- Level IV Sphere Mutation I now assigns one authored element to each
+  eligible direct-weapon branch:
+    Standard: Resonator=Fire, Singularity=Freeze, Swarm=Poison.
+    Sniper: Oracle=Poison, Assassin=Fire, Beacon=Freeze.
+    Shotgun: Burst=Fire, Cataclysm=Poison, Hail=Freeze.
+    Orbital: Dance=Poison, Halo=Freeze, Blade=Fire.
+    Prism: Split=Poison, Spectrum=Fire, Mirror=Freeze.
+    Void: Hunger=Poison, Reaper=Fire, Execution=Freeze.
+- Chain is deliberately excluded because one attack already propagates
+  across multiple targets.
+- Aura, Gravity and Pulse are deliberately excluded because their base
+  combat identity is already area/zonal.
+- Routine Level-Up still has no player-facing global Modifier source.
+  Elements are owned by Sphere branches, not restored as global modifiers.
+- Level VII keeps the authored final mutation mechanics and adds one
+  deterministic Element Mastery according to the existing final index:
+    Fire: burn power / faster burn ticks / longer burn.
+    Freeze: longer freeze / same-Sphere damage while frozen / post-thaw slow.
+    Poison: poison power / faster poison ticks / longer poison.
+- Fire/Poison Tempo changes tick cadence while preserving authored DPS/sec.
+- Freeze Impact vulnerability is scoped to the same Sphere family.
+
+VISUAL:
+- Added a persistent secondary elemental ring around eligible mutated
+  Spheres. The base Sphere color remains the primary identity.
+- Fire uses warm orange/red accents and flame glyphs.
+- Freeze uses blue-white accents and snowflake glyphs.
+- Poison uses toxic green accents and cloud/bubble glyphs.
+- Level IV and Level VII mutation cards are lightly tinted and carry the
+  elemental badge.
+- Orbital satellites/blades receive a secondary elemental accent without
+  replacing their base Orbital color.
+
+VALIDATION:
+- Added tests/elemental-mutation.test.mjs covering the branch mapping,
+  mastery choices, status cadence, freeze mastery hook, projectile routing
+  and visual integration.
+- Static source verification confirms the new layer is present across
+  progression, combat, enemy status ticking, renderer, UI and Orbital VFX.
+- GitHub connector returned no status entries and no PR workflow run for
+  the code commit when queried. Last documented successful CI remains
+  #1224 on 607b569fae0a3444a4d90566cfa44d8781bdb86a.
+- Human APK PlayerCheck of Level IV element cards, elemental rings,
+  weapon VFX and Level VII mastery remains required.
+
+NEXT:
+1. Run/observe the new APK on a real device and verify elemental readability,
+   especially Orbital.
+2. Validate balance of Fire/Freeze/Poison before adding artifact reactions.
+3. Keep Chain/Aura/Gravity/Pulse outside the generic elemental mutation layer
+   until their dedicated mechanics are specified.
+
+======================================================================
