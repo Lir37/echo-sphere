@@ -142,10 +142,7 @@ function applyDirectSphereStatus(s: GameState, enemy: EnemyEntity, effect: 'fire
   const mods = sourceSphere ? sphereModifiers(s, sourceSphere.type, sourceSphere) : null;
   const branch = sourceSphere ? s.player.sphereBranches?.[sourceSphere.type] : undefined;
   const element = getSphereElementForBranch(branch);
-  const finalId = sourceSphere
-    ? (s.player.evolutions || []).find((x: string) => x.startsWith('sphere:' + sourceSphere.type + ':7:'))
-    : undefined;
-  const finalIndex = finalId ? Number(finalId.split(':').pop()) : null;
+  const finalIndex = sourceSphere ? getSphereFinalIndex(s, sourceSphere.type) : null;
   const mastery = getSphereElementMasteryForBranch(branch, finalIndex);
 
   const fireLevel = Math.max(Number(mods?.fire ?? s.player.sphereMods.fire ?? 0), element === 'fire' ? 1 : 0);
@@ -182,6 +179,9 @@ function applyDirectSphereStatus(s: GameState, enemy: EnemyEntity, effect: 'fire
     if (element === 'freeze' && mastery?.id === 'freeze_impact') {
       enemy.freezeVulnerabilityTimer = Math.max(enemy.freezeVulnerabilityTimer || 0, duration);
       enemy.freezeVulnerabilitySource = sourceSphere?.type;
+    } else {
+      enemy.freezeVulnerabilityTimer = 0;
+      enemy.freezeVulnerabilitySource = undefined;
     }
     if (element === 'freeze' && mastery?.id === 'freeze_permafrost') {
       enemy.slowTimer = Math.max(enemy.slowTimer, 1.0);
