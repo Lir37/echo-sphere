@@ -8,6 +8,7 @@ export type AbilityEvolutionId = string;
 export interface SphereUpgradeDef { level:number; name:{ru:string;en:string}; desc:{ru:string;en:string}; }
 export interface SphereEvolutionDef { id:string; name:{ru:string;en:string}; desc:{ru:string;en:string}; }
 export interface SphereEvolutionBranch extends SphereEvolutionDef {
+  id:SphereEvolutionId;
   final:[SphereEvolutionDef,SphereEvolutionDef,SphereEvolutionDef];
   level5:{ru:string;en:string};
   level6:{ru:string;en:string};
