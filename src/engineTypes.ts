@@ -199,8 +199,17 @@ export interface EnemyEntity {
   trailTimer: number;
   fireTimer: number;
   fireDps: number;
+  /** Optional elemental mastery tick cadence. Omitted = legacy continuous DoT. */
+  fireTickTimer?: number;
+  fireTickInterval?: number;
   poisonTimer: number;
   poisonDps: number;
+  /** Optional elemental mastery tick cadence. Omitted = legacy continuous DoT. */
+  poisonTickTimer?: number;
+  poisonTickInterval?: number;
+  /** Freeze mastery vulnerability window for the source Sphere family. */
+  freezeVulnerabilityTimer?: number;
+  freezeVulnerabilitySource?: SphereType;
   /** Temporary stacking state for the authored Void/Corrupt mechanic. */
   corruptStacks?: number;
   isElite: boolean;
