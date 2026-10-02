@@ -78,6 +78,53 @@ function emit(ctx:CanvasRenderingContext2D,r:number,c:string,t:number,branch:str
   else if(branch==='void_hunger'||branch==='void_reaper'||branch==='void_execution'){for(let i=0;i<4;i++){const a=t*.24+i*TAU/4;tether(ctx,Math.cos(a)*r*.3,Math.sin(a)*r*.2,Math.cos(a+.55)*r*(1.1+strength*.55),Math.sin(a+.55)*r*.65,r*.18,c,1.25,.30+.46*p,a);}if(branch==='void_reaper')fin(ctx,r*1.02,0,r*(.62+.18*p),r*.18,c,0,.8);else if(branch==='void_execution'){ctx.strokeStyle=c;ctx.lineWidth=1.25;ctx.globalAlpha=.4+.4*p;ctx.beginPath();ctx.moveTo(r*.8,-r*.28);ctx.lineTo(r*(1.55+.25*p),0);ctx.lineTo(r*.8,r*.28);ctx.stroke();}}
   ctx.restore();
 }
+type FinalExpansionMode = 'core' | 'cascade' | 'apex';
+
+// Level VII is additive: the branch silhouette stays visible and the final form
+// contributes one persistent animated motif of its own.
+function drawFinalExpansion(ctx:CanvasRenderingContext2D,r:number,c:string,t:number,branch:string,final:number,sphere:SphereEntity):void{
+  if(final<0)return;
+  const mode:FinalExpansionMode=final===0?'core':final===1?'cascade':'apex';
+  const family=branch.split('_')[0];
+  const dir=Number.isFinite(sphere.rotation)?sphere.rotation:0;
+  const phase=t*(mode==='core'?.72:mode==='cascade'?1.05:1.35);
+  const rgb=rgbOf(c);
+  ctx.save();ctx.globalCompositeOperation='lighter';ctx.lineCap='round';ctx.lineJoin='round';
+  if(family==='orbital'){
+    const count=mode==='core'?3:mode==='cascade'?4:5;
+    const orbitR=r*(1.36+(mode==='apex'?.10:0));
+    for(let i=0;i<count;i++){const a=phase+i*TAU/count;shard(ctx,Math.cos(a)*orbitR,Math.sin(a)*orbitR*.66,r*(mode==='apex'?.16:.12),c,a,.72);}
+    if(mode==='cascade')pulseRing(ctx,r*1.18,c,t,.8);
+    if(mode==='apex')arc(ctx,r*1.52,c,1.4,-.52,.52,.72);
+  }else if(family==='chain'||family==='aura'||family==='gravity'){
+    if(mode==='core'){
+      for(let i=0;i<3;i++){const a=phase+i*TAU/3;tether(ctx,Math.cos(a)*r*.34,Math.sin(a)*r*.22,Math.cos(a)*r*1.25,Math.sin(a)*r*.70,r*.08,c,1.1,.62,a);}
+      pulseRing(ctx,r*1.18,c,t,.72);
+    }else if(mode==='cascade'){
+      for(let i=0;i<4;i++){const a=-.92+i*.62,q=.55+.22*Math.sin(phase+i);tether(ctx,r*.10,0,Math.cos(a)*r*(.92+q),Math.sin(a)*r*(.52+q*.35),r*.10,c,1.05,.42+.08*i,phase+i);}
+      arc(ctx,r*1.42,c,1.25,-1.05,1.05,.70);
+    }else{
+      ctx.save();ctx.rotate(dir);fin(ctx,r*.62,0,r*.72,r*.18,c,0,.90);fin(ctx,r*.96,0,r*.48,r*.13,c,0,.62);ctx.restore();pulseRing(ctx,r*1.32,c,t,1);
+    }
+  }else if(family==='pulse'){
+    const lobes=mode==='core'?6:mode==='cascade'?8:10,rr=r*(1.24+(mode==='apex'?.12:0));
+    ctx.strokeStyle=c;ctx.globalAlpha=.62;ctx.lineWidth=mode==='apex'?1.55:1.15;ctx.beginPath();
+    for(let i=0;i<=60;i++){const a=i/60*TAU,q=1+.12*Math.sin(a*lobes+phase)+.05*Math.sin(a*(lobes+2)-phase*1.4),x=Math.cos(a)*rr*q,y=Math.sin(a)*rr*.56*q;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}
+    ctx.stroke();if(mode==='cascade')pulseRing(ctx,r*1.48,c,t,.75);if(mode==='apex')arc(ctx,r*1.58,'rgba('+rgb+',.95)',1.6,-.28,.28,.85);
+  }else if(family==='prism'){
+    const count=mode==='core'?3:mode==='cascade'?4:5;
+    for(let i=0;i<count;i++){const a=(i-(count-1)/2)*.22+Math.sin(phase+i)*.03,rr=r*(1.10+(mode==='apex'?.18:0));shard(ctx,Math.cos(a)*rr,Math.sin(a)*rr*.38,r*(mode==='apex'?.15:.11),c,a,.78);}
+    if(mode==='cascade')tether(ctx,r*.62,0,r*1.58,0,r*.08,'#ffffff',.8,.52,phase);
+    if(mode==='apex'){ctx.save();ctx.rotate(dir);fin(ctx,r*.72,0,r*.88,r*.17,c,0,.92);ctx.restore();}
+  }else{
+    ctx.save();if(family==='sniper'||family==='shotgun'||family==='standard'||family==='void')ctx.rotate(dir);
+    if(mode==='core'){for(const y of [-1,1])fin(ctx,r*.62,y*r*.28,r*.56,r*.14,c,y>0?.18:-.18,.72);pulseRing(ctx,r*1.22,c,t,.72);}
+    else if(mode==='cascade'){for(let i=0;i<4;i++){const q=i/3;fin(ctx,r*(.52+q*.58),Math.sin(phase+i)*r*.34,r*(.34+.10*q),r*(.11+.02*q),c,phase+i,.72-.08*q);}arc(ctx,r*1.46,c,1.15,-.70,.70,.70);}
+    else{fin(ctx,r*.54,0,r*1.02,r*.22,c,0,.94);ctx.strokeStyle=c;ctx.lineWidth=1.35;ctx.globalAlpha=.82;ctx.beginPath();ctx.moveTo(r*.82,-r*.30);ctx.lineTo(r*1.62,0);ctx.lineTo(r*.82,r*.30);ctx.stroke();pulseRing(ctx,r*1.52,c,t,.82);}
+    ctx.restore();
+  }
+  ctx.restore();
+}
 function mutationSilhouette(ctx:CanvasRenderingContext2D,r:number,c:string,t:number,branch:string,final:number):void{
   ctx.save();ctx.globalCompositeOperation='source-over';ctx.lineJoin='round';ctx.lineCap='round';
   const pulse=.92+.08*Math.sin(t*2.4);
@@ -141,6 +188,7 @@ export function renderSphereMutationVfx(ctx:CanvasRenderingContext2D,sphere:Sphe
   glow(ctx,r*1.75,c,.055);
   // Mutation silhouette is persistent. Attack emitters are transient accents only.
   mutationSilhouette(ctx,r,c,time,branch,final);
+  drawFinalExpansion(ctx,r,c,time,branch,final,sphere);
   emitter(ctx,r,c,time,branch,final);
   emit(ctx,r,c,time,branch,final,sphere);
   ctx.restore();

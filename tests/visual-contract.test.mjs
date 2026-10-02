@@ -258,3 +258,36 @@ test('Network HUD exposes factual numeric effects for active Geometry',()=>{
   assert.match(c,/profile\.fractal\) actual \*= 1\.15/);
   assert.match(s,/networkProfile\.cluster\) pullStrength \*= 1\.20/);
 });
+
+test('Level 7 has concrete descriptions for all 90 branch/final variants',()=>{
+  const p=read('src/sphereProgression.ts');
+  const entries=[...p.matchAll(/f\('([a-z0-9_]+_final_[123])'/g)].map(m=>m[1]);
+  assert.equal(entries.length,90,'expected 30 branches × 3 finals');
+  assert.equal(new Set(entries).size,90,'final IDs must be unique');
+  assert.equal((p.match(/Final form of the [A-Za-z ]+ branch: (Core|Cascade|Apex)\./g)||[]).length,0);
+  assert.match(p,/трёхточечный контур вокруг ядра/);
+  assert.match(p,/последовательно движущихся сегментов/);
+  assert.match(p,/направленный апексный элемент/);
+});
+
+test('Level 7 mutation adds an explicit additive expansion for Core/Cascade/Apex',()=>{
+  const m=read('src/spheres/mutationVisual.ts');
+  assert.match(m,/function drawFinalExpansion/);
+  assert.match(m,/type FinalExpansionMode = 'core' \| 'cascade' \| 'apex'/);
+  assert.match(m,/Level VII is additive/);
+  assert.match(m,/drawFinalExpansion\(ctx,r,c,time,branch,final,sphere\)/);
+  const silhouette=m.indexOf('mutationSilhouette(ctx,r,c,time,branch,final);');
+  const expansion=m.indexOf('drawFinalExpansion(ctx,r,c,time,branch,final,sphere);');
+  assert.ok(silhouette>=0 && expansion>silhouette);
+  for(const token of ['standard_resonator','standard_singularity','standard_swarm','sniper_oracle','sniper_assassin','sniper_beacon','shotgun_burst','shotgun_cataclysm','shotgun_hail','chain_web','chain_storm','chain_leech','aura_sanctum','aura_gravity','aura_overgrowth','orbital_dance','orbital_halo','orbital_blade','prism_split','prism_spectrum','prism_mirror','gravity_well','gravity_tide','gravity_collapse','pulse_wave','pulse_resonator','pulse_burst','void_hunger','void_reaper','void_execution']) assert.ok(m.includes(token),token);
+});
+
+test('XP crystals keep independent initial rotation and individual animation phase',()=>{
+  const t=read('src/engineTypes.ts'),c=read('src/engineCombat.ts'),l=read('src/engineLoop.ts'),r=read('src/renderer.ts');
+  assert.match(t,/export interface XPOrb \{[\s\S]*rotation: number;/);
+  assert.match(c,/rotation: nextRandom\(s\) \* Math\.PI \* 2/);
+  assert.match(l,/orb\.rotation \+= dt \* 1\.4/);
+  assert.match(r,/drawModernXp\(ctx, orb\.pos\.x, orb\.pos\.y, orb\.radius, '#63e6ff', orb\.rotation\)/);
+  assert.match(r,/function drawModernXp\([^)]*rotation:number/);
+  assert.match(r,/const rot=rotation;/);
+});

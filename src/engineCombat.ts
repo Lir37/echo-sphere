@@ -756,6 +756,7 @@ export function onEnemyDeath(s: GameState, enemy: EnemyEntity, fromSphere?: Sphe
     pos: { x: enemy.pos.x, y: enemy.pos.y },
     value: Math.round(enemy.xpValue * s.player.comboMult), radius: 6, alive: true,
     vel: { x: rand(s,-40, 40), y: rand(s,-40, 40) },
+    rotation: nextRandom(s) * Math.PI * 2,
   });
   // health pack drop chance
   const dropChance = enemy.isBoss ? 1 : (enemy.isElite ? 0.5 : 0.04);

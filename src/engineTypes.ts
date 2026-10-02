@@ -231,6 +231,7 @@ export interface XPOrb {
   radius: number;
   alive: boolean;
   vel: Vec;
+  rotation: number;
 }
 
 export interface HealthPack {

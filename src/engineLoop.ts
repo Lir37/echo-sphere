@@ -379,6 +379,7 @@ function updateXpOrbs(s: GameState, dt: number): void {
   const magnetR = getMagnetRadius(s);
   for (let i = s.xpOrbs.length - 1; i >= 0; i--) {
     const orb = s.xpOrbs[i];
+    orb.rotation += dt * 1.4;
     orb.pos.x += orb.vel.x * dt; orb.pos.y += orb.vel.y * dt;
     orb.vel.x *= 0.9; orb.vel.y *= 0.9;
     const d = dist(orb.pos, s.player.pos);

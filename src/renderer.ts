@@ -433,7 +433,7 @@ function drawRune(ctx: CanvasRenderingContext2D, rune: GameState['runes'][number
 }
 
   // pickups
-  for (const orb of s.xpOrbs) drawModernXp(ctx, orb.pos.x, orb.pos.y, orb.radius, '#63e6ff');
+  for (const orb of s.xpOrbs) drawModernXp(ctx, orb.pos.x, orb.pos.y, orb.radius, '#63e6ff', orb.rotation);
   for (const hp of s.healthPacks) drawModernHealth(ctx, hp.pos.x, hp.pos.y, '#ff5c72');
   for (const rune of s.runes) if (rune.alive) drawRune(ctx, rune);
 
@@ -883,8 +883,8 @@ function drawVoidField(ctx: CanvasRenderingContext2D, w: number, h: number, them
   ctx.restore();
 }
 
-function drawModernXp(ctx:CanvasRenderingContext2D,x:number,y:number,r:number,color:string):void{
-  const rot=RENDER_TIME*1.4+(x+y)*.002;
+function drawModernXp(ctx:CanvasRenderingContext2D,x:number,y:number,r:number,color:string,rotation:number):void{
+  const rot=rotation;
   ctx.save();ctx.translate(x,y);ctx.rotate(rot);
   ctx.fillStyle=color;
   ctx.beginPath();ctx.moveTo(0,-r*1.1);ctx.lineTo(r*.62,-r*.35);ctx.lineTo(r*.52,r*.68);ctx.lineTo(0,r*1.05);ctx.lineTo(-r*.52,r*.68);ctx.lineTo(-r*.62,-r*.35);ctx.closePath();ctx.fill();
