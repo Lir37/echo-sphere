@@ -59,7 +59,7 @@ test('Elemental orbit matches the flattened Sphere orbit grammar and counters it
   const elemental = await read('src/spheres/elementalVisual.ts');
   assert.match(elemental, /const ringRx = radius \* 1\.16/);
   assert.match(elemental, /const ringRy = radius \* \.34/);
-  assert.match(elemental, /const ringSpin = -time \.18/);
+  assert.match(elemental, /const ringSpin = -time \* \.18/);
   assert.match(elemental, /const mainWidth = Math\.max\(1\.0, radius \* \.040\)/);
   assert.match(elemental, /const particleCount = 6/);
   assert.match(elemental, /i % 3/);
