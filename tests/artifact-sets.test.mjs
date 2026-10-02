@@ -123,3 +123,43 @@ test('artifact descriptions match concrete runtime effects', () => {
   assert.equal(ARTIFACT_META.crit_sigil.effects.critChance, 0.05);
   assert.equal(ARTIFACT_META.tempo_ring.effects.sphereDelay, -0.08);
 });
+
+
+test('all 12 Artifact Sets are wired to live completion behavior', async () => {
+  const mod = await import('../src/artifactSystem.ts');
+  const source = await fs.readFile(new URL('../src/artifactSystem.ts', import.meta.url), 'utf8');
+  const all = Object.values(mod.ARTIFACT_META).map((item) => item.id);
+  const completed = mod.getArtifactSetBehavior({
+    player: { artifacts: all },
+  });
+
+  const expected = [
+    ['resonance_grid', completed.resonanceGrid],
+    ['echo_architecture', completed.echoArchitecture],
+    ['singularity_path', completed.singularityPath],
+    ['geometry_craft', completed.geometryCraft],
+    ['void_horizon', completed.voidHorizon],
+    ['temporal_fold', completed.temporalFold],
+    ['status_circuit', completed.statusCircuit],
+    ['hunter_doctrine', completed.hunterDoctrine],
+    ['pulse_engineering', completed.pulseEngineering],
+    ['core_forge', completed.coreForge],
+    ['prism_dominion', completed.prismDominion],
+    ['network_legacy', completed.networkLegacy],
+  ];
+
+  for (const [id, active] of expected) {
+    assert.equal(active, true, id + ' must become active when its Set is complete');
+    assert.match(source, new RegExp("setBehavior\\." + id.replace(/_/g, '[A-Za-z_]*'), 'm'), id + ' must have a runtime completion branch');
+  }
+});
+
+test('live synergy catalog has concrete runtime coverage for every synergy', async () => {
+  const mod = await import('../src/artifactSystem.ts');
+  const source = await fs.readFile(new URL('../src/artifactSystem.ts', import.meta.url), 'utf8');
+  for (const synergy of mod.ARTIFACT_SYNERGIES) {
+    assert.ok(synergy.requires.every((id) => mod.ARTIFACT_META[id]), synergy.id + ' references unknown artifact');
+    const runtimeMentions = (source.match(new RegExp("['"]" + synergy.id + "['"]", 'g')) || []).length;
+    assert.ok(runtimeMentions >= 2, synergy.id + ' must appear in catalog and runtime handling');
+  }
+});
