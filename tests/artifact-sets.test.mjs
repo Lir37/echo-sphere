@@ -173,7 +173,7 @@ test('live synergy catalog has concrete runtime coverage for every synergy', asy
   const source = await fs.readFile(new URL('../src/artifactSystem.ts', import.meta.url), 'utf8');
   for (const synergy of mod.ARTIFACT_SYNERGIES) {
     assert.ok(synergy.requires.every((id) => mod.ARTIFACT_META[id]), synergy.id + ' references unknown artifact');
-    const runtimeMentions = (source.match(new RegExp("['"]" + synergy.id + "['"]", 'g')) || []).length;
+    const runtimeMentions = source.split("'" + synergy.id + "'").length - 1;
     assert.ok(runtimeMentions >= 2, synergy.id + ' must appear in catalog and runtime handling');
   }
 });
