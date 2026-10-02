@@ -669,6 +669,63 @@ function getXpPlannerMult(st: GameState): number {
 }
 
 // ===== HUD =====
+
+function getNetworkTooltipLines(label: string, st: GameState, lang: Lang): string[] {
+  const activeTypes = new Set(st.spheres.filter((sphere) => sphere.alive).map((sphere) => sphere.type));
+  const linkedCount = Math.max(0, st.spheres.reduce((count, sphere) => count + (sphere.alive ? 1 : 0), 0));
+  const ru = lang === 'ru';
+  const lines: string[] = [];
+
+  const add = (ruText: string, enText: string): void => lines.push(ru ? ruText : enText);
+
+  switch (label) {
+    case 'LINE':
+      add('• +10% урона попаданий через активную сеть.', '• +10% hit damage through the active network.');
+      add('• +1 пробитие для снарядов.', '• +1 projectile pierce.');
+      if (activeTypes.has('prism')) add('• Prism: +12% урона луча.', '• Prism: +12% beam damage.');
+      break;
+    case 'TRIANGLE': {
+      const cadence = 3;
+      add(`• Каждый ${cadence}-й удар сферы создаёт сетевой импульс: 35% фактического урона, радиус 88.`,
+        `• Every ${cadence}rd Sphere hit creates a network pulse: 35% actual damage, radius 88.`);
+      add('• При активном Resonance Grid импульс срабатывает каждый 2-й удар.',
+        '• With Resonance Grid active, the pulse triggers every 2nd hit.');
+      if (activeTypes.has('pulse') || activeTypes.has('prism')) {
+        add('• Pulse Resonator/Prism Spectrum могут дополнительно подпитывать Resonance через Triangle.',
+          '• Pulse Resonator/Prism Spectrum can also feed Resonance through Triangle.');
+      }
+      break;
+    }
+    case 'CLUSTER':
+      add('• -10% к интервалу атак сфер.', '• -10% Sphere attack interval.');
+      if (activeTypes.has('orbital')) add('• Orbital: +8% урона спутников, +8% радиуса орбиты.', '• Orbital: +8% satellite damage, +8% orbit radius.');
+      if (activeTypes.has('gravity')) add('• Gravity: +20% силы притяжения и +8% урона.', '• Gravity: +20% pull strength and +8% damage.');
+      if (activeTypes.has('pulse')) add('• Pulse: +6% радиуса импульса.', '• Pulse: +6% pulse radius.');
+      break;
+    case 'SQUARE':
+      add('• +8% урона сфер.', '• +8% Sphere damage.');
+      add('• -6% к интервалу атак сфер.', '• -6% Sphere attack interval.');
+      add('• +1 пробитие для снарядов.', '• +1 projectile pierce.');
+      break;
+    case 'RING':
+      if (activeTypes.has('orbital')) add('• Orbital: +12% радиуса орбиты.', '• Orbital: +12% orbit radius.');
+      add('• Prism Mirror/Filter: +1 отражённый луч при активном Ring.', '• Prism Mirror/Filter: +1 reflected beam while Ring is active.');
+      add('• Pulse Resonator получает сетевой источник Resonance.', '• Pulse Resonator gains a network Resonance source.');
+      break;
+    case 'LATTICE':
+      if (activeTypes.has('prism')) add('• Prism: +8% урона луча.', '• Prism: +8% beam damage.');
+      add('• Pulse Resonator получает сетевой источник Resonance.', '• Pulse Resonator gains a network Resonance source.');
+      break;
+    case 'FRACTAL':
+      add('• +15% урона попаданий сфер.', '• +15% Sphere hit damage.');
+      break;
+    default:
+      break;
+  }
+
+  return lines;
+}
+
 function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st: GameState }) {
   const xpPct = Math.max(0, Math.min(100, (st.player.xp / st.player.xpToNext) * 100));
   const hpPct = Math.max(0, Math.min(100, (st.player.hp / st.player.maxHp) * 100));
@@ -692,16 +749,8 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
   const startNetworkHold = (label: string): void => {
     if (networkHoldRef.current !== null) window.clearTimeout(networkHoldRef.current);
     networkHoldRef.current = window.setTimeout(() => {
-      const effects: Record<string, string> = {
-        LINE: lang === 'ru' ? 'Усиляет дальнюю/линейную сеть: дальность, скорость снарядов и точечный урон.' : 'Boosts spread-line combat: range, projectile speed and focused damage.',
-        TRIANGLE: lang === 'ru' ? 'Даёт бонус к Resonance и усиливает relay/chain-поведение.' : 'Boosts Resonance generation and relay/chain behavior.',
-        CLUSTER: lang === 'ru' ? 'Усиливает площадь, синхронизацию и контроль компактной сети.' : 'Boosts area, synchronization and control for compact networks.',
-        SQUARE: lang === 'ru' ? 'Даёт защитную стабильность и усиливает защитные взаимодействия.' : 'Provides defensive stability and shield interactions.',
-        RING: lang === 'ru' ? 'Создаёт циркуляцию Resonance через замкнутую сеть.' : 'Creates Resonance circulation through a closed network.',
-        LATTICE: lang === 'ru' ? 'Синхронизирует несколько связанных ячеек сети.' : 'Synchronizes multiple connected network cells.',
-        FRACTAL: lang === 'ru' ? 'Позволяет рекурсивно связывать эффекты более сложной Geometry.' : 'Enables recursive interactions between advanced Geometry layers.',
-      };
-      setNetworkTooltip(effects[label] || null);
+      const lines = getNetworkTooltipLines(label, st, lang);
+      setNetworkTooltip(lines.length > 0 ? lines : null);
       if (networkTooltipAutoHideRef.current !== null) window.clearTimeout(networkTooltipAutoHideRef.current);
       networkTooltipAutoHideRef.current = window.setTimeout(() => {
         setNetworkTooltip(null);
