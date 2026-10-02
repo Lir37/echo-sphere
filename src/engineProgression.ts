@@ -258,33 +258,73 @@ function getAbilityUpgradeChoiceWeight(s: GameState, choice: UpgradeChoice): num
   return getUpgradeSourceWeight(s, 'ability') * (unfinishedPressure + characterAffinity + activeAffinity);
 }
 
+export function lockUpgradeChoice(s: GameState, choice: UpgradeChoice): boolean {
+  const current = s.pendingUpgrade;
+  if (!current || current.length !== 3 || s.levelUpLocksRemaining <= 0) return false;
+
+  const routine = current.every((item) => (
+    (item.type === 'sphere' && item.sphereStage === 'upgrade')
+    || (item.type === 'ability' && !item.abilityStage)
+  ));
+  if (!routine) return false;
+
+  const key = getUpgradeChoiceKey(choice);
+  if (!current.some((item) => getUpgradeChoiceKey(item) === key)) return false;
+
+  s.levelUpLockChoiceKey = key;
+  s.levelUpLocksRemaining--;
+  s.flashText = { text: 'LOCK', life: 0.8, color: '#d4943d' };
+  playSound('place');
+  return true;
+}
+
 export function rerollUpgradeChoices(s: GameState): boolean {
   const current = s.pendingUpgrade;
   if (!current || current.length !== 3 || s.levelUpRerollsRemaining <= 0) return false;
 
-  // Reroll is a routine Level-Up tool. Mutation branch/final windows remain
-  // deliberate second-stage decisions and are not rerolled here.
   const routine = current.every((choice) => (
     (choice.type === 'sphere' && choice.sphereStage === 'upgrade')
     || (choice.type === 'ability' && !choice.abilityStage)
   ));
   if (!routine) return false;
 
+  const lockedKey = s.levelUpLockChoiceKey;
+  const lockedChoice = lockedKey
+    ? current.find((choice) => getUpgradeChoiceKey(choice) === lockedKey)
+    : undefined;
   const currentKeys = new Set(current.map(getUpgradeChoiceKey));
   let next = current;
-  for (let attempt = 0; attempt < 4; attempt++) {
-    const candidate = generateUpgradeChoices(s);
-    if (candidate.length !== 3) continue;
-    if (candidate.some((choice) => !currentKeys.has(getUpgradeChoiceKey(choice)))) {
-      next = candidate;
-      break;
+
+  if (lockedChoice) {
+    const replacements = new Map<string, UpgradeChoice>();
+    for (let attempt = 0; attempt < 8 && replacements.size < 2; attempt++) {
+      const candidate = generateUpgradeChoices(s);
+      for (const choice of candidate) {
+        const key = getUpgradeChoiceKey(choice);
+        if (key === lockedKey || currentKeys.has(key) || replacements.has(key)) continue;
+        replacements.set(key, choice);
+        if (replacements.size >= 2) break;
+      }
     }
-    next = candidate;
+    if (replacements.size >= 2) {
+      next = [lockedChoice, ...replacements.values()].slice(0, 3);
+    }
+  } else {
+    for (let attempt = 0; attempt < 4; attempt++) {
+      const candidate = generateUpgradeChoices(s);
+      if (candidate.length !== 3) continue;
+      if (candidate.some((choice) => !currentKeys.has(getUpgradeChoiceKey(choice)))) {
+        next = candidate;
+        break;
+      }
+      next = candidate;
+    }
   }
 
   s.pendingUpgrade = next;
+  s.levelUpLockChoiceKey = null;
   s.levelUpRerollsRemaining--;
-  s.flashText = { text: 'REROLL', life: 0.8, color: '#39d8ff' };
+  s.flashText = { text: lockedChoice ? 'LOCK + REROLL' : 'REROLL', life: 0.8, color: '#39d8ff' };
   playSound('place');
   return true;
 }
@@ -417,6 +457,7 @@ export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
 export function applyUpgrade(s: GameState, choice: UpgradeChoice): void {
   const hadPendingChoice = Boolean(s.pendingUpgrade);
   s.pendingUpgrade=null;
+  s.levelUpLockChoiceKey = null;
   if (hadPendingChoice) recordLevelUpSourcePick(s, choice);
   if (hadPendingChoice) recordRecentUpgradeChoice(s, choice);
 

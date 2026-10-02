@@ -341,6 +341,8 @@ export interface GameState {
   pendingUpgrade: UpgradeChoice[] | null;
   levelUpPity: { ability: number; sphere: number };
   levelUpRerollsRemaining: number;
+  levelUpLockChoiceKey: string | null;
+  levelUpLocksRemaining: number;
   recentUpgradeKeys: string[];
   pendingArtifact: ArtifactId[] | null;
   pendingStella: boolean;

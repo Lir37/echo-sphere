@@ -12,6 +12,7 @@ import {
   getMaxSpheres, getMoveSpeed, getSphereRadius, getSphereDamage, getSphereDelay, getSphereDpsEstimate,
   getCritChance, getDodgeChance, getVampirePercent, debugLevelUp, rerollUpgradeChoices,
   getBuildDiagnostics,
+  lockUpgradeChoice,
   type GameState, type ShopState, type LeaderEntry, type UpgradeChoice,
   MAP_THEMES, type MapTheme,
 } from './engine';
@@ -320,7 +321,7 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
               </div>
             </div>
           )}
-          {st.pendingUpgrade && <UpgradeModal lang={lang} t={t} st={st} onPick={(c) => { applyUpgrade(st, c); }} onReroll={() => { rerollUpgradeChoices(st); }} />}
+          {st.pendingUpgrade && <UpgradeModal lang={lang} t={t} st={st} onPick={(c) => { applyUpgrade(st, c); }} onLock={(c) => { lockUpgradeChoice(st, c); }} onReroll={() => { rerollUpgradeChoices(st); }} />}
           {st.pendingArtifact && <ArtifactModal lang={lang} t={t} st={st} choices={st.pendingArtifact} onPick={(id) => { applyArtifact(st, id); st.pendingArtifact = null; }} />}
           {paused && !st.pendingUpgrade && !st.pendingArtifact && !st.pendingStella && (
             <PausePlanner
@@ -914,11 +915,12 @@ function ArtifactModal({ lang, t, st, choices, onPick }: {
 }
 
 // ===== Upgrade Modal =====
-function UpgradeModal({ lang, t, st, onPick, onReroll }: {
+function UpgradeModal({ lang, t, st, onPick, onLock, onReroll }: {
   lang: Lang;
   t: (k: TranslationKey) => string;
   st: GameState;
   onPick: (c: UpgradeChoice) => void;
+  onLock: (c: UpgradeChoice) => void;
   onReroll: () => void;
 }) {
   const choices = st.pendingUpgrade || [];
@@ -939,8 +941,16 @@ function UpgradeModal({ lang, t, st, onPick, onReroll }: {
       <div className="max-w-2xl w-full px-6">
         <h2 className="text-2xl font-bold text-center mb-6 text-[#39d8ff]">{title}</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {choices.map((choice, i) => (
-            <button key={i} onClick={() => onPick(choice)} className="p-5 rounded-xl bg-[#0d1726] border border-[#5a8c4a]/30 hover:border-[#5a8c4a]/60 hover:scale-105 transition-all text-left">
+          {choices.map((choice, i) => {
+            const choiceKey = choice.type === 'modifier'
+              ? `modifier:${choice.modifier ?? 'unknown'}`
+              : choice.type === 'sphere'
+                ? ['sphere', choice.sphereType ?? 'unknown', choice.sphereStage ?? 'upgrade', choice.currentLevel, choice.newLevel, choice.sphereBranch ?? '', choice.sphereFinalIndex ?? ''].join(':')
+                : ['ability', choice.ability ?? 'unknown', choice.abilityStage ?? 'upgrade', choice.currentLevel, choice.newLevel, choice.abilityEvolutionIndex ?? ''].join(':');
+            const isLocked = st.levelUpLockChoiceKey === choiceKey;
+            return (
+            <div key={i} className="relative p-2 rounded-xl bg-[#0d1726] border border-[#5a8c4a]/30 hover:border-[#5a8c4a]/60 transition-all">
+              <button onClick={() => onPick(choice)} className="w-full p-3 text-left">
               <div className="text-[#5a8c4a] text-[10px] uppercase tracking-wider mb-1">
                 {choice.type === 'modifier' ? (lang === 'ru' ? 'МОДИФИКАТОР' : 'MODIFIER')
                   : choice.abilityStage === 'branch' ? (lang === 'ru' ? 'ВЕТКА СПОСОБНОСТИ' : 'ABILITY BRANCH')
@@ -961,8 +971,25 @@ function UpgradeModal({ lang, t, st, onPick, onReroll }: {
                       ? (lang === 'ru' ? 'Уровень VII • выбор финальной формы' : 'Level VII • choose final form')
                       : <>{t('level')} {choice.currentLevel} → {choice.newLevel}</>}
               </div>
-            </button>
-          ))}
+              </button>
+              <button
+                type="button"
+                onClick={() => onLock(choice)}
+                disabled={st.levelUpLocksRemaining <= 0 || Boolean(st.levelUpLockChoiceKey) || !(
+                  (choice.type === 'sphere' && choice.sphereStage === 'upgrade')
+                  || (choice.type === 'ability' && !choice.abilityStage)
+                )}
+                className={`absolute top-2 right-2 rounded-md border px-2 py-1 text-[9px] font-bold uppercase tracking-wider transition ${
+                  isLocked
+                    ? 'border-[#d4943d]/70 bg-[#d4943d]/20 text-[#ffd18a]'
+                    : 'border-[#d4943d]/30 bg-[#d4943d]/5 text-[#d4943d] disabled:opacity-20'
+                }`}
+              >
+                {isLocked ? (lang === 'ru' ? 'ЗАКРЕПЛЕНО' : 'LOCKED') : (lang === 'ru' ? 'ЗАКРЕПИТЬ' : 'LOCK')}
+              </button>
+            </div>
+            );
+          })}
         </div>
         {choices.length === 3 && choices.every((choice) =>
           (choice.type === 'sphere' && choice.sphereStage === 'upgrade')

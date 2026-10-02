@@ -65,3 +65,16 @@ test('Level-Up selection applies actual per-choice weights and soft source diver
   assert.doesNotMatch(progressionSource, /getModifierUpgradeChoiceWeight\(s, choice\.modifier\)/);
   assert.match(progressionSource, /const diversityMultiplier = mixedPool\.length === 0/);
 });
+
+
+test('Level-Up Lock preserves one routine choice through a Reroll', () => {
+  assert.match(sourceWithTypes, /levelUpLockChoiceKey: string \| null;/);
+  assert.match(sourceWithTypes, /levelUpLocksRemaining: number;/);
+  assert.match(engineStateSource, /levelUpLockChoiceKey: null/);
+  assert.match(engineStateSource, /levelUpLocksRemaining: 1/);
+  assert.match(progressionSource, /export function lockUpgradeChoice\(s: GameState, choice: UpgradeChoice\): boolean/);
+  assert.match(progressionSource, /const lockedKey = s\.levelUpLockChoiceKey;/);
+  assert.match(progressionSource, /const lockedChoice = lockedKey/);
+  assert.match(progressionSource, /next = \[lockedChoice, \.\.\.replacements\.values\(\)\]\.slice\(0, 3\);/);
+  assert.match(progressionSource, /s\.levelUpLockChoiceKey = null;/);
+});
