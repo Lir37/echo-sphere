@@ -2,7 +2,7 @@ import { ABILITIES, ACTIVE_KEYS, SPHERE_TYPES } from './gameData';
 import type { AbilityType, SphereType, ArtifactId } from './gameData';
 import { playSound } from './audio';
 import { CHARACTER_DEFS } from './characters';
-import { SPHERE_PROGRESSION, ABILITY_PROGRESSION, sphereLevel } from './sphereProgression';
+import { SPHERE_PROGRESSION, ABILITY_PROGRESSION, sphereLevel, getAbilityEvolutionPool } from './sphereProgression';
 import { nextRandom } from './rng';
 import type { GameState, SphereMods, SphereUpgradeChoice, UpgradeChoice } from './engineTypes';
 
