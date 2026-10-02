@@ -36,6 +36,7 @@ import KnowledgeBase, { syncKnowledgeFromRun } from './KnowledgeBase';
 import {
   ABILITY_PROGRESSION, SPHERE_PROGRESSION, getAbilityDisplayName, getAbilityDisplayDesc,
   getAbilityEvolutionChoice, sphereLevel, sphereModifiers, getActiveSphereAbilitySynergies, SPHERE_ABILITY_SYNERGIES,
+  getSphereElementForBranch, SPHERE_ELEMENT_META,
 } from './sphereProgression';
 
 type Screen = 'menu' | 'game' | 'shop' | 'leaderboard' | 'settings' | 'achievements' | 'characters' | 'knowledge';
@@ -999,8 +1000,19 @@ function UpgradeModal({ lang, t, st, onPick, onLock, onReroll }: {
                 ? ['sphere', choice.sphereType ?? 'unknown', choice.sphereStage ?? 'upgrade', choice.currentLevel, choice.newLevel, choice.sphereBranch ?? '', choice.sphereFinalIndex ?? ''].join(':')
                 : ['ability', choice.ability ?? 'unknown', choice.abilityStage ?? 'upgrade', choice.currentLevel, choice.newLevel, choice.abilityEvolutionIndex ?? ''].join(':');
             const isLocked = st.levelUpLockChoiceKey === choiceKey;
+            const element = choice.type === 'sphere' ? getSphereElementForBranch(choice.sphereBranch) : null;
+            const elementMeta = element ? SPHERE_ELEMENT_META[element] : null;
+            const elementCard = Boolean(elementMeta && (choice.sphereStage === 'branch' || choice.sphereStage === 'final'));
             return (
-            <div key={i} className="relative p-2 rounded-xl bg-[#0d1726] border border-[#5a8c4a]/30 hover:border-[#5a8c4a]/60 transition-all">
+            <div
+              key={i}
+              className="relative p-2 rounded-xl bg-[#0d1726] border hover:border-opacity-80 transition-all"
+              style={elementCard && elementMeta ? {
+                borderColor: elementMeta.color + '88',
+                backgroundColor: elementMeta.color + '0d',
+                boxShadow: 'inset 0 0 24px ' + elementMeta.color + '0b',
+              } : { borderColor: '#5a8c4a4d' }}
+            >
               <button onClick={() => onPick(choice)} className="w-full p-3 text-left">
               <div className="text-[#5a8c4a] text-[10px] uppercase tracking-wider mb-1">
                 {choice.type === 'modifier' ? (lang === 'ru' ? 'МОДИФИКАТОР' : 'MODIFIER')
@@ -1011,7 +1023,17 @@ function UpgradeModal({ lang, t, st, onPick, onLock, onReroll }: {
                   : choice.type === 'ability' ? (lang === 'ru' ? 'АКТИВНАЯ СПОСОБНОСТЬ' : 'ACTIVE ABILITY')
                   : (lang === 'ru' ? 'УЛУЧШЕНИЕ СФЕРЫ' : 'SPHERE UPGRADE')}
               </div>
-              <div className="font-bold text-lg mb-2">{choice.name?.[lang] || 'Sphere'}</div>
+              <div className="flex items-center gap-2 mb-2">
+                <div className="font-bold text-lg">{choice.name?.[lang] || 'Sphere'}</div>
+                {elementCard && elementMeta && (
+                  <span
+                    className="shrink-0 rounded-md border px-1.5 py-0.5 text-[10px] font-bold"
+                    style={{ color: elementMeta.color, borderColor: elementMeta.color + '66', backgroundColor: elementMeta.color + '12' }}
+                  >
+                    {elementMeta.icon} {elementMeta.name[lang]}
+                  </span>
+                )}
+              </div>
               <div className="text-sm text-[#b6c9de] mb-2">{choice.desc?.[lang] || ''}</div>
               <div className="text-xs text-[#7f9bb8]/70">
                 {choice.type === 'modifier'
