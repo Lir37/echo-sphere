@@ -507,3 +507,55 @@ Human APK PlayerCheck remains the final visual-quality acceptance step.
 [DONE] Boss projectiles have family-specific visual treatments and trails.
 [DONE] Temporary LVL + QA control added under the top-right HUD.
 [GATE] APK PlayerCheck remains mandatory.
+
+
+
+======================================================================
+[2026-10-02] LEVEL VII SPHERE MUTATION CONTENT CORRECTION
+======================================================================
+
+IMPLEMENTATION HEAD:
+c859b5577321e72fb93c5b2dcdf1f0a920d74d4d
+
+[CORRECTION]
+The previous authored Level VII Sphere choices were generic visual
+variants named Core / Cascade / Apex. This did not match the gameplay
+contract: Level VII must offer three gameplay mutations extending the
+branch selected at Level IV.
+
+[VERIFIED]
+- Runtime already opened a separate Level VII mutation decision when a
+  Sphere reached level 7.
+- The decision already used the selected Level IV branch.
+- The chosen final index already reached combat runtime.
+- The gameplay runtime already had distinct finalIndex behavior for the
+  current Sphere branches.
+- The player-facing descriptions were the main source of the mismatch.
+
+[DONE]
+- Reauthored all 90 Sphere final choices as gameplay-driven mutations:
+  30 branch identities x 3 final choices.
+- Removed the old generic visual Core / Cascade / Apex descriptions from
+  the authored Level VII choice catalog.
+- Preserved separate dedicated Sphere visual mutation coverage. Visual
+  mutation VFX remains a presentation layer and is no longer used as the
+  Level VII gameplay-choice description.
+- Corrected selected final modifier mappings for Prism Mirror, Pulse
+  Resonator and Void Hunger so their three final options are not identical
+  in the authored modifier layer.
+- Added regression coverage for the Level VII gameplay-choice contract.
+
+[ABILITY CHECK]
+Ability Mutation II was audited with the same question.
+Unlike Spheres, the Ability system already uses branch-dependent final
+pools through ABILITY_FINAL_POOLS. Its Level VII cards are gameplay
+descriptions and its chosen final id is consumed by engineAbilities.ts.
+No Ability rework was needed.
+
+[GATE]
+CI status for the new commits was queried but no status entries were
+returned yet. Existing successful CI remains the last confirmed automated
+gate. Human APK PlayerCheck must verify:
+1) Level VII Sphere cards show gameplay effects;
+2) each of the three choices changes combat as described;
+3) the selected Level IV branch is visibly and mechanically preserved.
