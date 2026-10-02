@@ -322,21 +322,44 @@ export function updateEnemies(s: GameState, dt: number): void {
     if (e.hp <= 0) { s.enemies.splice(i, 1); continue; }
     e.rotation += dt;
     if (e.hitFlash > 0) e.hitFlash -= dt;
-    // DoT: fire
+    if (e.freezeVulnerabilityTimer && e.freezeVulnerabilityTimer > 0) {
+      e.freezeVulnerabilityTimer = Math.max(0, e.freezeVulnerabilityTimer - dt);
+      if (e.freezeVulnerabilityTimer <= 0) e.freezeVulnerabilitySource = undefined;
+    }
+
+    // Element Tempo changes status presentation cadence, not authored DPS/sec.
     if (e.fireTimer > 0) {
       e.fireTimer -= dt;
-      e.hp -= e.fireDps * dt;
-      if (nextRandom(s) < 0.3) {
-        s.particles.push({ pos: { x: e.pos.x + rand(s,-e.radius, e.radius), y: e.pos.y + rand(s,-e.radius, e.radius) }, vel: { x: 0, y: -30 }, life: 0.3, maxLife: 0.3, color: '#c46d3d', size: 2 });
+      const tickInterval = Number(e.fireTickInterval || 0);
+      if (tickInterval > 0) {
+        e.fireTickTimer = (e.fireTickTimer ?? 0) - dt;
+        if ((e.fireTickTimer ?? 0) <= 0) {
+          e.fireTickTimer = tickInterval;
+          e.hp -= e.fireDps * tickInterval;
+        }
+      } else {
+        e.hp -= e.fireDps * dt;
+      }
+      if (nextRandom(s) < (tickInterval > 0 ? 0.55 : 0.3)) {
+        s.particles.push({ pos: { x: e.pos.x + rand(s,-e.radius, e.radius), y: e.pos.y + rand(s,-e.radius, e.radius) }, vel: { x: 0, y: -30 }, life: 0.3, maxLife: 0.3, color: '#ff743d', size: 2 });
       }
       if (e.hp <= 0) { onEnemyDeath(s, e); s.enemies.splice(i, 1); continue; }
     }
     // DoT: poison
     if (e.poisonTimer > 0) {
       e.poisonTimer -= dt;
-      e.hp -= e.poisonDps * dt;
-      if (nextRandom(s) < 0.2) {
-        s.particles.push({ pos: { x: e.pos.x + rand(s,-e.radius, e.radius), y: e.pos.y + rand(s,-e.radius, e.radius) }, vel: { x: 0, y: -20 }, life: 0.4, maxLife: 0.4, color: '#5a8c4a', size: 2 });
+      const tickInterval = Number(e.poisonTickInterval || 0);
+      if (tickInterval > 0) {
+        e.poisonTickTimer = (e.poisonTickTimer ?? 0) - dt;
+        if ((e.poisonTickTimer ?? 0) <= 0) {
+          e.poisonTickTimer = tickInterval;
+          e.hp -= e.poisonDps * tickInterval;
+        }
+      } else {
+        e.hp -= e.poisonDps * dt;
+      }
+      if (nextRandom(s) < (tickInterval > 0 ? 0.48 : 0.2)) {
+        s.particles.push({ pos: { x: e.pos.x + rand(s,-e.radius, e.radius), y: e.pos.y + rand(s,-e.radius, e.radius) }, vel: { x: 0, y: -20 }, life: 0.4, maxLife: 0.4, color: '#72f08e', size: 2 });
       }
       if (e.hp <= 0) { onEnemyDeath(s, e); s.enemies.splice(i, 1); continue; }
     }
