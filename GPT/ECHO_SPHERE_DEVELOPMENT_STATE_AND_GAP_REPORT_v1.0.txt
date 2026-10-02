@@ -4235,3 +4235,58 @@ VALIDATION:
 - Current implementation HEAD: 607b569fae0a3444a4d90566cfa44d8781bdb86a
 - CI #1224: SUCCESS
 - APK visual validation of Resonance event readability remains pending.
+
+
+
+======================================================================
+[2026-10-02] SPHERE MUTATION II GAMEPLAY CORRECTION
+======================================================================
+
+CURRENT CODE HEAD:
+c859b5577321e72fb93c5b2dcdf1f0a920d74d4d
+
+PLAYER CHECK OBSERVATION:
+The Level VII Sphere mutation cards were describing generic visual variants
+(Core / Cascade / Apex) instead of three gameplay choices that extend the
+branch selected at Level IV.
+
+AUDIT RESULT:
+- Level VII was already a real gameplay state in runtime.
+- The selected final choice was stored as
+  sphere:<type>:7:<branch>:<finalIndex>.
+- Sphere combat runtime already consumed finalIndex for branch-specific
+  behavior, damage, control, projectile and network effects.
+- The defect was primarily the player-facing authored content and the
+  exposed distinction between the three final choices.
+- Therefore this was not a removal/rebuild of Sphere evolution architecture.
+
+IMPLEMENTED:
+- Replaced all 30 Sphere branches x 3 Level VII choices with gameplay-driven
+  final mutation names and descriptions.
+- Descriptions now explain the actual tactical effect of each final choice.
+- Preserved the existing branch -> final selection flow.
+- Corrected three authored final modifier mappings whose three variants
+  were previously too similar:
+    prism_mirror;
+    pulse_resonator;
+    void_hunger.
+- Added regression tests guarding against the former visual-only Level VII
+  vocabulary and checking the corrected modifier mappings.
+
+ABILITIES:
+- Level VII Ability mutation flow was audited in parallel.
+- Ability final choices already depend on the Level IV branch through
+  ABILITY_FINAL_POOLS.
+- Runtime uses the selected Level VII Ability id in engineAbilities.ts.
+- No Ability progression rework was required.
+
+VALIDATION:
+- Static repository verification confirms 90 Sphere final choices
+  (30 branches x 3 choices) remain present.
+- Static repository verification confirms the legacy visual-only Level VII
+  wording is absent from the authored final-choice block.
+- CI status was queried for the new commits, but the connector returned no
+  status entries yet. The last documented successful CI before this change
+  was #1224 on HEAD 607b569fae0a3444a4d90566cfa44d8781bdb86a.
+- APK PlayerCheck of the actual Level VII choice cards and post-selection
+  combat behavior remains the next human validation step.
