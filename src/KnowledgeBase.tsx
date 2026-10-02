@@ -37,6 +37,10 @@ const BOSS_INFO: Record<BossType, Localized> = {
   charger: { ru: 'Зарядник: телеграфирует рывок, затем совершает опасный прорыв.', en: 'Charger: telegraphs a charge, then commits to a dangerous dash.' },
   summoner: { ru: 'Призыватель: создаёт миньонов и одновременно атакует снарядами.', en: 'Summoner: creates minions while also attacking with projectiles.' },
   aura: { ru: 'Аура: создаёт опасную зону вокруг себя и дополнительно стреляет.', en: 'Aura: creates a dangerous zone around itself and also fires projectiles.' },
+  conductor: { ru: 'Кондуктор: перегружает сеть и создаёт направленный залп.', en: 'Conductor: overloads the Network and creates a directed barrage.' },
+  architect: { ru: 'Архитектор: меняет позицию и временно нарушает структуру сети.', en: 'Architect: relocates and temporarily disrupts the Network structure.' },
+  null: { ru: 'Нуль: подавляет Resonance и создаёт поле обнуления.', en: 'Null: suppresses Resonance and creates a nullification field.' },
+  stella_warden: { ru: 'Страж Стеллы: вызывает подкрепления и усиливает ближнюю угрозу.', en: 'Stella Warden: summons reinforcements and amplifies close-range pressure.' },
 };
 
 const SECTION_DEFS: Array<{ id: KnowledgeSection; label: Localized; sub: Localized; icon: React.ReactNode }> = [
