@@ -8,7 +8,6 @@ export type AbilityEvolutionId = string;
 export interface SphereUpgradeDef { level:number; name:{ru:string;en:string}; desc:{ru:string;en:string}; }
 export interface SphereEvolutionDef { id:string; name:{ru:string;en:string}; desc:{ru:string;en:string}; }
 export interface SphereEvolutionBranch extends SphereEvolutionDef {
-  id:SphereEvolutionId;
   final:[SphereEvolutionDef,SphereEvolutionDef,SphereEvolutionDef];
   level5:{ru:string;en:string};
   level6:{ru:string;en:string};
@@ -52,15 +51,6 @@ const NEW_BRANCH_LEVEL_DETAILS:Partial<Record<SphereEvolutionId,{level5:string;l
   void_execution:{level5:'Порог исполнения повышается, превращая слабые цели в приоритет.',level6:'Порог исполнения растёт ещё сильнее, а добивание наносит больше урона боссам.'},
 };
 
-const br=(id:SphereEvolutionId,ru:string,desc:string,fin:[SphereEvolutionDef,SphereEvolutionDef,SphereEvolutionDef]):SphereEvolutionBranch=>{
-  const details=BRANCH_LEVEL_DETAILS[id] ?? NEW_BRANCH_LEVEL_DETAILS[id] ?? { level5: 'Усиление выбранной ветки.', level6: 'Дополнительное усиление уникальной механики.' };
-  return {
-    ...e(id,ru,desc),
-    final:fin,
-    level5:{ru:details.level5,en:details.level5},
-    level6:{ru:details.level6,en:details.level6},
-  };
-};
 const BRANCH_EN:Partial<Record<SphereEvolutionId,[string,string]>>={
   standard_resonator:['Standard Resonator','Develops the Standard Resonator branch and its signature behavior.'],
   standard_singularity:['Standard Singularity','Develops the Standard Singularity branch and its signature behavior.'],
@@ -93,6 +83,8 @@ const BRANCH_EN:Partial<Record<SphereEvolutionId,[string,string]>>={
   void_reaper:['Void Reaper','Develops the Void Reaper branch and its signature behavior.'],
   void_execution:['Void Execution','Develops the Void Execution branch and its signature behavior.'],
 };
+
+const f=(id:string,ru:string,en:string,descRu:string,descEn:string):SphereEvolutionDef=>e(id,ru,en,descRu,descEn);
 
 const SPHERE_FINAL_VARIANTS:Record<SphereEvolutionId,[SphereEvolutionDef,SphereEvolutionDef,SphereEvolutionDef]>={
   standard_resonator:[
@@ -247,11 +239,7 @@ const SPHERE_FINAL_VARIANTS:Record<SphereEvolutionId,[SphereEvolutionDef,SphereE
   ],
 };
 
-const finalsFor=(id:SphereEvolutionId):[SphereEvolutionDef,SphereEvolutionDef,SphereEvolutionDef]=>{
-  const finals=SPHERE_FINAL_VARIANTS[id];
-  if(!finals||finals.length!==3) throw new Error('Sphere branch must expose exactly three final forms: '+id);
-  return finals;
-};
+const finalsFor=(id:SphereEvolutionId):[SphereEvolutionDef,SphereEvolutionDef,SphereEvolutionDef]=>SPHERE_FINAL_VARIANTS[id];
 
 const br=(id:SphereEvolutionId,ru:string,desc:string,fin:[SphereEvolutionDef,SphereEvolutionDef,SphereEvolutionDef]):SphereEvolutionBranch=>{
   const details=BRANCH_LEVEL_DETAILS[id] ?? NEW_BRANCH_LEVEL_DETAILS[id] ?? { level5: 'Усиление выбранной ветки.', level6: 'Дополнительное усиление уникальной механики.' };
@@ -260,7 +248,7 @@ const br=(id:SphereEvolutionId,ru:string,desc:string,fin:[SphereEvolutionDef,Sph
 };
 const sphere=(type:SphereType,name:string,priority:Partial<Record<CharacterId,number>>,l:[string,string,string],branches:[SphereEvolutionBranch,SphereEvolutionBranch,SphereEvolutionBranch]):SphereDef=>({type,name:SPHERE_TYPES[type]?.name ?? {ru:name,en:name},priority,levels:lv(...l),evolution4:branches[0],evolution7:branches[0].final[0],evolution4Choices:branches});
 const genericSphereBranches = (type: SphereType, names: [string,string,string], ids: [SphereEvolutionId,SphereEvolutionId,SphereEvolutionId]): [SphereEvolutionBranch,SphereEvolutionBranch,SphereEvolutionBranch] =>
-  ids.map((id, i) => br(id, names[i], 'Развивает уникальную механику сферы '+type+'.', finals(names[i], names[i], ids))) as [SphereEvolutionBranch,SphereEvolutionBranch,SphereEvolutionBranch];
+  ids.map((id, i) => br(id, names[i], 'Развивает уникальную механику сферы '+type+'.', finalsFor(id))) as [SphereEvolutionBranch,SphereEvolutionBranch,SphereEvolutionBranch];
 
 export const SPHERE_PROGRESSION:Record<SphereType,SphereDef>={
  standard:sphere('standard','Стандартная',{spherist:1,engineer:.9,berserker:.8,architect:.7,hunter:.4,alchemist:.4},['+15% урона','+1 пробитие','-10% задержки'],[br('standard_resonator','Резонатор','Каждое третье попадание выпускает импульс',finalsFor('standard_resonator')),br('standard_singularity','Сингулярность','Попадания притягивают врагов',finalsFor('standard_singularity')),br('standard_swarm','Рой','Попадания выпускают осколки',finalsFor('standard_swarm'))]),
@@ -271,7 +259,7 @@ export const SPHERE_PROGRESSION:Record<SphereType,SphereDef>={
  orbital:sphere('orbital','Орбитальная',{spherist:1,engineer:.8,architect:.8},['+15% орбитального урона','+15% радиуса орбиты','-12% интервала'],[br('orbital_dance','Танец','Спутники вращаются быстрее и наносят урон при каждом пересечении траектории с врагом.',finalsFor('orbital_dance')),br('orbital_halo','Ореол','Спутники создают защитный ореол: ближайшие сферы получают усиление после прохода орбиты.',finalsFor('orbital_halo')),br('orbital_blade','Клинок','Спутники превращаются в боевые лезвия и наносят повышенный урон по траектории.',finalsFor('orbital_blade'))]),
  prism:sphere('prism','Призма',{hunter:1,architect:.9,spherist:.7},['+20% урона луча','+15% дальности','+1 направление'],[br('prism_split','Расщепление','Луч после попадания делится на дополнительные лучи по другим целям.',finalsFor('prism_split')),br('prism_spectrum','Спектр','Луч передаёт активный статусный эффект и усиливает реакцию на цели.',finalsFor('prism_spectrum')),br('prism_mirror','Зеркало','Связанные сферы создают отражённые лучи, повторяющие основной удар.',finalsFor('prism_mirror'))]),
  gravity:sphere('gravity','Гравитационная',{alchemist:1,architect:1,engineer:.8},['+20% силы притяжения','+15% радиуса','-15% интервала импульса'],[br('gravity_well','Колодец','Притяжение становится постоянным: чем ближе враг к центру, тем сильнее его тянет.',finalsFor('gravity_well')),br('gravity_tide','Прилив','Поле плавно меняет силу притяжения и периодически создаёт обратную волну.',finalsFor('gravity_tide')),br('gravity_collapse','Коллапс','Собранные в плотную группу враги получают дополнительный урон от сжатия.',finalsFor('gravity_collapse'))]),
- pulse:sphere('pulse','Импульсная',{engineer:1,spherist:.9,architect:.8},['+20% импульсного урона','+15% радиуса','-12% интервала'],[br('pulse_wave','Волна','Каждый импульс становится шире и отбрасывает врагов от сферы.',finalsFor('pulse_wave')),br('pulse_resonator','Резонатор','Импульсы подпитывают Resonance и усиливают сеть при активной геометрии.',finalsFor('standard_resonator')),br('pulse_burst','Вспышка','После основной волны возникает дополнительный разряд по центру.',finalsFor('pulse_burst'))]),
+ pulse:sphere('pulse','Импульсная',{engineer:1,spherist:.9,architect:.8},['+20% импульсного урона','+15% радиуса','-12% интервала'],[br('pulse_wave','Волна','Каждый импульс становится шире и отбрасывает врагов от сферы.',finalsFor('pulse_wave')),br('pulse_resonator','Резонатор','Импульсы подпитывают Resonance и усиливают сеть при активной геометрии.',finalsFor('pulse_resonator')),br('pulse_burst','Вспышка','После основной волны возникает дополнительный разряд по центру.',finalsFor('pulse_burst'))]),
  void:sphere('void','Пустотная',{hunter:1,alchemist:.8,architect:.7},['+20% урона по ослабленным','+10% шанс критического добивания','+15% дальности'],[br('void_hunger','Голод','Урон растёт по мере потери здоровья целью, превращая Void в добивающую сферу.',finalsFor('void_hunger')),br('void_reaper','Жнец','Убийства Void возвращают HP и создают осколки пустоты для продолжения атаки.',finalsFor('void_reaper')),br('void_execution','Экзекуция','Слабые цели получают шанс на мгновенное добивание, а финальная форма повышает порог исполнения.',finalsFor('void_execution'))])
 };
 const abilityLevels=(a:string,b:string,c:string,d:string,e:string,f:string):SphereUpgradeDef[] => [
