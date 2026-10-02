@@ -54,6 +54,21 @@ test('Elemental VFX is a persistent secondary layer', () => {
   assert.match(orbital, /elementColor/);
 });
 
+test('Elemental orbit matches the flattened Sphere orbit grammar and counters it', () => {
+  assert.match(renderer, /renderSphereElementalVfx\(ctx, sphere, s\.player, time, scale\)/);
+  const elemental = await read('src/spheres/elementalVisual.ts');
+  assert.match(elemental, /const ringRx = radius \* 1\.16/);
+  assert.match(elemental, /const ringRy = radius \.34/);
+  assert.match(elemental, /const ringSpin = -time \.18/);
+  assert.match(elemental, /const mainWidth = Math\.max\(1\.0, radius \* \.040\)/);
+  assert.match(elemental, /const particleCount = 6/);
+  assert.match(elemental, /i % 3/);
+  assert.match(elemental, /drawFlame\(ctx, size, variant\)/);
+  assert.match(elemental, /drawSnowflake\(ctx, size, variant\)/);
+  assert.match(elemental, /drawPoisonCloud\(ctx, size, variant\)/);
+  assert.doesNotMatch(elemental, /setLineDash/);
+});
+
 test('Projectile effect follows selected branch element', () => {
   assert.match(engineSpheres, /const branchElement = getSphereElementForBranch/);
   assert.match(engineSpheres, /let effect: 'none' | 'fire' | 'freeze' | 'poison' = branchElement ?? 'none'/);
