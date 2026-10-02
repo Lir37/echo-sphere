@@ -69,3 +69,20 @@ test('Ability mutation VFX is emitted after active Ability activation', () => {
   assert.match(engine, /emitAbilityMutationVfx\(s, ability\)/);
   assert.match(engine, /final \? 18 : 10/);
 });
+
+test('Sphere Mutation II choices are gameplay mutations, not visual variants', () => {
+  const block = progression.slice(
+    progression.indexOf('const SPHERE_FINAL_VARIANTS:'),
+    progression.indexOf('const finalsFor=', progression.indexOf('const SPHERE_FINAL_VARIANTS:')),
+  );
+  assert.doesNotMatch(block, /постоянный трёхточечный контур|внешний каскад|апексный элемент/);
+  assert.doesNotMatch(block, /persistent three-point crown|outer cascade|directed apex element/);
+  const finalEntries = [...block.matchAll(/f\('([^']+)_final_[123]'/g)].map((m) => m[1]);
+  assert.equal(finalEntries.length, 30);
+});
+
+test('Sphere Mutation II final choices keep distinct authored modifier mappings where required', () => {
+  assert.match(progression, /prism_mirror:\{0:\{ricochet:1\},1:\{ricochet:2\},2:\{ricochet:2,echo:1\}\}/);
+  assert.match(progression, /pulse_resonator:\{0:\{resonant:2\},1:\{resonant:2,impact:1\},2:\{resonant:2,shatter:1\}\}/);
+  assert.match(progression, /void_hunger:\{0:\{corrupt:2\},1:\{corrupt:2,resonant:1\},2:\{corrupt:2,drain:1\}\}/);
+});
