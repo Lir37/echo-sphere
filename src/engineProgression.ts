@@ -2,7 +2,10 @@ import { ABILITIES, ACTIVE_KEYS, SPHERE_TYPES } from './gameData';
 import type { AbilityType, SphereType, ArtifactId } from './gameData';
 import { playSound } from './audio';
 import { CHARACTER_DEFS } from './characters';
-import { SPHERE_PROGRESSION, ABILITY_PROGRESSION, sphereLevel, getAbilityEvolutionPool } from './sphereProgression';
+import {
+  SPHERE_PROGRESSION, ABILITY_PROGRESSION, sphereLevel, getAbilityEvolutionPool,
+  getSphereElementForBranch, getSphereElementMasteryForBranch,
+} from './sphereProgression';
 import { nextRandom } from './rng';
 import type { GameState, SphereMods, SphereUpgradeChoice, UpgradeChoice } from './engineTypes';
 
@@ -84,7 +87,14 @@ function getSphereEvolutionChoices(s:GameState, type:SphereType, level:4|7):Upgr
       sphereBranch:branch.id,
       sphereStage:'branch' as const,
       name:{ru:branch.name.ru,en:branch.name.en},
-      desc:branch.desc,
+      desc:{
+        ru:getSphereElementForBranch(branch.id)
+          ? `${branch.desc.ru} ${getSphereElementForBranch(branch.id) === 'fire' ? '🔥' : getSphereElementForBranch(branch.id) === 'freeze' ? '❄️' : '☠️'} Стихия: ${getSphereElementForBranch(branch.id)==='fire'?'Огонь':getSphereElementForBranch(branch.id)==='freeze'?'Заморозка':'Яд'}.`
+          : branch.desc.ru,
+        en:getSphereElementForBranch(branch.id)
+          ? `${branch.desc.en} ${getSphereElementForBranch(branch.id) === 'fire' ? '🔥' : getSphereElementForBranch(branch.id) === 'freeze' ? '❄️' : '☠️'} Element: ${getSphereElementForBranch(branch.id)==='fire'?'Fire':getSphereElementForBranch(branch.id)==='freeze'?'Freeze':'Poison'}.`
+          : branch.desc.en,
+      },
       currentLevel:4,
       newLevel:4,
     }));
@@ -98,8 +108,22 @@ function getSphereEvolutionChoices(s:GameState, type:SphereType, level:4|7):Upgr
     sphereBranch:branch.id,
     sphereFinalIndex:index,
     sphereStage:'final' as const,
-    name:finalChoice.name,
-    desc:finalChoice.desc,
+    name:{
+      ru:getSphereElementMasteryForBranch(branch.id,index)
+        ? `${finalChoice.name.ru} • ${getSphereElementMasteryForBranch(branch.id,index)!.name.ru}`
+        : finalChoice.name.ru,
+      en:getSphereElementMasteryForBranch(branch.id,index)
+        ? `${finalChoice.name.en} • ${getSphereElementMasteryForBranch(branch.id,index)!.name.en}`
+        : finalChoice.name.en,
+    },
+    desc:{
+      ru:getSphereElementMasteryForBranch(branch.id,index)
+        ? `${finalChoice.desc.ru} ${getSphereElementMasteryForBranch(branch.id,index)!.desc.ru}`
+        : finalChoice.desc.ru,
+      en:getSphereElementMasteryForBranch(branch.id,index)
+        ? `${finalChoice.desc.en} ${getSphereElementMasteryForBranch(branch.id,index)!.desc.en}`
+        : finalChoice.desc.en,
+    },
     currentLevel:7,
     newLevel:7,
   }));
