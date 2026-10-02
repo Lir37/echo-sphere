@@ -373,12 +373,16 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
       const count = finalIndex === 2 ? 2 : 1;
       const chance = finalIndex === null ? 1 : finalIndex === 0 ? 0.35 : finalIndex === 1 ? 0.55 : 1;
       if (nextRandom(s) < chance) {
+        // Swarm shards are fragments of the projectile at the moment of impact.
+        // They must spawn on the struck enemy, fly in random directions, deal
+        // a meaningful fraction of the parent hit, and never recursively proc Swarm.
         for (let i = 0; i < count; i++) {
-          const a = Math.atan2(enemy.pos.y - fromSphere.pos.y, enemy.pos.x - fromSphere.pos.x) + (i === 0 ? 0.35 : -0.35);
+          const a = nextRandom(s) * Math.PI * 2;
           s.sphereProjectiles.push({
-            pos: { ...fromSphere.pos }, vel: { x: Math.cos(a) * 430, y: Math.sin(a) * 430 },
-            damage: actual * (finalIndex === 0 ? 0.30 : finalIndex === 1 ? 0.26 : 0.22), radius: 4, alive: true, color: '#d4943d', pierce: 0,
-            hitEnemies: new Set(), effect: 'none', ricochet: 0, life: 1.2, sourceSphere: fromSphere,
+            pos: { ...enemy.pos }, vel: { x: Math.cos(a) * 320, y: Math.sin(a) * 320 },
+            damage: actual * 0.50, radius: 4, alive: true, color: '#d4943d', pierce: 0,
+            hitEnemies: new Set([enemy]), effect: 'none', ricochet: 0, life: 0.55,
+            sourceSphere: fromSphere, procOnHit: false,
           });
         }
       }

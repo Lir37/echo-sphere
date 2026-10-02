@@ -46,3 +46,11 @@ test('Vitality has a real max-HP effect when acquired', () => {
   assert.match(engine, /if \(ability === 'vitality'\)/);
   assert.match(engine, /s\.player\.maxHp \+= hpGain/);
 });
+
+
+test('Standard Swarm shards spawn from the impact and cannot recursively proc', () => {
+  assert.match(engine, /pos: \{ \.\.\.enemy\.pos \}, vel: \{ x: Math\.cos\(a\) \* 320, y: Math\.sin\(a\) \* 320 \}/);
+  assert.match(engine, /damage: actual \* 0\.50/);
+  assert.match(engine, /hitEnemies: new Set\(\[enemy\]\).*procOnHit: false/);
+  assert.doesNotMatch(engine, /damage: actual \* \(finalIndex === 0 \? 0\.30 : finalIndex === 1 \? 0\.26 : 0\.22\)/);
+});
