@@ -180,6 +180,50 @@ test('live synergy catalog has concrete runtime coverage for every synergy', asy
 });
 
 
+test('each Artifact Protocol changes a measurable combat modifier when its condition is met', async () => {
+  const mod = await import('../src/artifactSystem.ts');
+  const all = Object.values(mod.ARTIFACT_META).map((item) => item.id);
+  const base = {
+    player: { artifacts: all, combo: 0, resonanceGeometryKey: 'none', timestopTimer: 0, teleportDamageBuffTimer: 0, sphereMods: {} },
+    spheres: [
+      { type: 'standard', alive: true, pos: { x: 0, y: 0 } },
+      { type: 'sniper', alive: true, pos: { x: 100, y: 0 } },
+      { type: 'prism', alive: true, pos: { x: 0, y: 100 } },
+      { type: 'pulse', alive: true, pos: { x: 100, y: 100 } },
+      { type: 'void', alive: true, pos: { x: 200, y: 200 } },
+      { type: 'orbital', alive: true, pos: { x: 300, y: 300 } },
+    ],
+    enemies: [{ hp: 100, isElite: true, isBoss: false }],
+  };
+  const cases = [
+    ['triangle_resonance', { player: { ...base.player, resonanceGeometryKey: 'ring' } }, 'standard'],
+    ['sphere_relay', { player: { ...base.player } }, 'standard'],
+    ['critical_echo', { player: { ...base.player, combo: 5 } }, 'standard'],
+    ['geometry_circuit', { player: { ...base.player, resonanceGeometryKey: 'ring' } }, 'standard'],
+    ['void_horizon_protocol', { player: { ...base.player } }, 'void'],
+    ['temporal_fold_protocol', { player: { ...base.player, timestopTimer: 1 } }, 'standard'],
+    ['status_circuit_protocol', { player: { ...base.player, sphereMods: { fire: 1 } } }, 'prism'],
+    ['hunter_doctrine_protocol', { player: { ...base.player } }, 'sniper'],
+    ['pulse_engineering_protocol', { player: { ...base.player } }, 'pulse'],
+    ['core_forge_protocol', { player: { ...base.player } }, 'standard'],
+    ['prism_dominion_protocol', { player: { ...base.player } }, 'prism'],
+    ['network_legacy_protocol', { player: { ...base.player, resonanceGeometryKey: 'ring' } }, 'standard'],
+  ];
+  for (const [id, overrides, sphereType] of cases) {
+    const state = { ...base, ...overrides, player: { ...base.player, ...overrides.player } };
+    if (id === 'triangle_resonance') {
+      state.spheres = [
+        { type: 'standard', alive: true, pos: { x: 0, y: 0 } },
+        { type: 'sniper', alive: true, pos: { x: 100, y: 0 } },
+        { type: 'prism', alive: true, pos: { x: 0, y: 100 } },
+      ];
+    }
+    const before = mod.getSphereArtifactModifiers(base, sphereType, state.spheres[0]).damage;
+    const after = mod.getSphereArtifactModifiers(state, sphereType, state.spheres[0]).damage;
+    assert.ok(after > before, id + ' must change combat damage when active');
+  }
+});
+
 test('Artifact Protocols require their real conditions and have combat runtime branches', async () => {
   const mod = await import('../src/artifactSystem.ts');
   const source = await fs.readFile(new URL('../src/artifactSystem.ts', import.meta.url), 'utf8');
