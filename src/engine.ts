@@ -27,7 +27,7 @@ export { activateByKey } from './engineAbilities';
 
 export {
   assignHotkey, getUpgradeSourceWeight, getSphereUpgradeChoiceWeight,
-  generateUpgradeChoices, rerollUpgradeChoices, applyUpgrade, applySphereUpgrade,
+  generateUpgradeChoices, lockUpgradeChoice, rerollUpgradeChoices, applyUpgrade, applySphereUpgrade,
 } from './engineProgression';
 
 export type { LeaderEntry, MapTheme } from './engineState';
