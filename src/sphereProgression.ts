@@ -4,6 +4,82 @@ import { ABILITIES, SPHERE_TYPES, type SphereType, type AbilityType, sphereUsesP
 import type { SphereMods } from './engineTypes';
 
 export type SphereEvolutionId = 'standard_resonator' | 'standard_singularity' | 'standard_swarm' | 'sniper_oracle' | 'sniper_assassin' | 'sniper_beacon' | 'shotgun_burst' | 'shotgun_cataclysm' | 'shotgun_hail' | 'chain_web' | 'chain_storm' | 'chain_leech' | 'aura_sanctum' | 'aura_gravity' | 'aura_overgrowth' | 'orbital_dance' | 'orbital_halo' | 'orbital_blade' | 'prism_split' | 'prism_spectrum' | 'prism_mirror' | 'gravity_well' | 'gravity_tide' | 'gravity_collapse' | 'pulse_wave' | 'pulse_resonator' | 'pulse_burst' | 'void_hunger' | 'void_reaper' | 'void_execution';
+
+export type SphereElement = 'fire' | 'freeze' | 'poison';
+
+export const ELEMENTAL_SPHERE_TYPES: readonly SphereType[] = [
+  'standard', 'sniper', 'shotgun', 'orbital', 'prism', 'void',
+];
+
+export interface SphereElementMeta {
+  color: string;
+  icon: string;
+  name: { ru: string; en: string };
+}
+
+export const SPHERE_ELEMENT_META: Record<SphereElement, SphereElementMeta> = {
+  fire: { color: '#ff743d', icon: '🔥', name: { ru: 'Огонь', en: 'Fire' } },
+  freeze: { color: '#d9f6ff', icon: '❄️', name: { ru: 'Заморозка', en: 'Freeze' } },
+  poison: { color: '#72f08e', icon: '☠️', name: { ru: 'Яд', en: 'Poison' } },
+};
+
+export const SPHERE_BRANCH_ELEMENTS: Partial<Record<SphereEvolutionId, SphereElement>> = {
+  standard_resonator: 'fire',
+  standard_singularity: 'freeze',
+  standard_swarm: 'poison',
+  sniper_oracle: 'poison',
+  sniper_assassin: 'fire',
+  sniper_beacon: 'freeze',
+  shotgun_burst: 'fire',
+  shotgun_cataclysm: 'poison',
+  shotgun_hail: 'freeze',
+  orbital_dance: 'poison',
+  orbital_halo: 'freeze',
+  orbital_blade: 'fire',
+  prism_split: 'poison',
+  prism_spectrum: 'fire',
+  prism_mirror: 'freeze',
+  void_hunger: 'poison',
+  void_reaper: 'fire',
+  void_execution: 'freeze',
+};
+
+export interface SphereElementMasteryDef {
+  id: string;
+  name: { ru: string; en: string };
+  desc: { ru: string; en: string };
+}
+
+export const SPHERE_ELEMENT_MASTERY: Record<SphereElement, readonly SphereElementMasteryDef[]> = {
+  fire: [
+    { id: 'fire_power', name: { ru: 'Раскалённое пламя', en: 'Incineration' }, desc: { ru: '+35% урона горения.', en: '+35% burn damage.' } },
+    { id: 'fire_tempo', name: { ru: 'Быстрое горение', en: 'Rapid Combustion' }, desc: { ru: 'Горение наносит свой урон более частыми тиками.', en: 'Burn deals its damage in more frequent ticks.' } },
+    { id: 'fire_duration', name: { ru: 'Неугасаемый огонь', en: 'Endless Flame' }, desc: { ru: '+45% длительности горения.', en: '+45% burn duration.' } },
+  ],
+  freeze: [
+    { id: 'freeze_duration', name: { ru: 'Глубокий холод', en: 'Deep Frost' }, desc: { ru: '+40% длительности заморозки.', en: '+40% freeze duration.' } },
+    { id: 'freeze_impact', name: { ru: 'Холодный удар', en: 'Cryo Impact' }, desc: { ru: 'Замороженные цели получают +22% урона от той же сферы.', en: 'Frozen targets take +22% damage from the same Sphere.' } },
+    { id: 'freeze_permafrost', name: { ru: 'Вечная мерзлота', en: 'Permafrost' }, desc: { ru: 'После разморозки цель остаётся замедленной ещё 1 с.', en: 'After thawing, the target remains slowed for 1s.' } },
+  ],
+  poison: [
+    { id: 'poison_power', name: { ru: 'Токсичность', en: 'Toxicity' }, desc: { ru: '+35% урона яда.', en: '+35% poison damage.' } },
+    { id: 'poison_tempo', name: { ru: 'Быстрый токсин', en: 'Rapid Toxin' }, desc: { ru: 'Яд наносит свой урон более частыми тиками.', en: 'Poison deals its damage in more frequent ticks.' } },
+    { id: 'poison_duration', name: { ru: 'Долгий токсин', en: 'Lingering Venom' }, desc: { ru: '+45% длительности яда.', en: '+45% poison duration.' } },
+  ],
+};
+
+export function getSphereElementForBranch(branch?: SphereEvolutionId | null): SphereElement | null {
+  return branch ? (SPHERE_BRANCH_ELEMENTS[branch] ?? null) : null;
+}
+
+export function getSphereElementMasteryForBranch(
+  branch?: SphereEvolutionId | null,
+  finalIndex?: number | null,
+): SphereElementMasteryDef | null {
+  const element = getSphereElementForBranch(branch);
+  if (!element || finalIndex === null || finalIndex === undefined) return null;
+  return SPHERE_ELEMENT_MASTERY[element][finalIndex] ?? null;
+}
 export type AbilityEvolutionId = string;
 export interface SphereUpgradeDef { level:number; name:{ru:string;en:string}; desc:{ru:string;en:string}; }
 export interface SphereEvolutionDef { id:string; name:{ru:string;en:string}; desc:{ru:string;en:string}; }
