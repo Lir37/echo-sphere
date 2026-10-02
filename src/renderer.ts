@@ -20,6 +20,7 @@ import { renderGravitySphereRuntimeVfx } from './spheres/gravityVisual';
 import { renderPulseSphereRuntimeVfx } from './spheres/pulseVisual';
 import { renderVoidSphereRuntimeVfx } from './spheres/voidVisual';
 import { renderSphereModifierVfx } from './spheres/modifierVisual';
+import { renderSphereElementalVfx } from './spheres/elementalVisual';
 import { drawEnemyCreature, drawBossCreature } from './enemies/enemyVisual';
 import { renderSphereMutationVfx, renderSphereProjectileVfx, renderChainLightningVfx } from './spheres/mutationVisual';
 
@@ -2321,12 +2322,14 @@ function drawModernSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: S
     }
     renderSphereMutationVfx(ctx, sphere, s.player, time, scale);
     drawStandardAttackVfx(ctx, sphere, r, time);
+    renderSphereElementalVfx(ctx, sphere, s.player, time, scale);
     renderSphereModifierVfx(ctx, sphere, s.player, time, scale);
     drawNetworkDisabledIndicator(ctx, sphere, time);
     return;
   }
   if (sphere.type === 'orbital') {
     renderOrbitalSphereRuntimeVfx(ctx, sphere, s.player, time, scale, s.enemies);
+    renderSphereElementalVfx(ctx, sphere, s.player, time, scale);
     renderSphereModifierVfx(ctx, sphere, s.player, time, scale);
     drawNetworkDisabledIndicator(ctx, sphere, time);
     return;
@@ -2334,6 +2337,7 @@ function drawModernSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: S
   if (sphere.type === 'sniper') {
     renderSphereMutationVfx(ctx, sphere, s.player, time, scale);
     renderSniperSphereRuntimeVfx(ctx, sphere, s.player, time, scale);
+    renderSphereElementalVfx(ctx, sphere, s.player, time, scale);
     renderSphereModifierVfx(ctx, sphere, s.player, time, scale);
     drawNetworkDisabledIndicator(ctx, sphere, time);
     return;
@@ -2341,6 +2345,7 @@ function drawModernSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: S
   if (sphere.type === 'shotgun') {
     renderSphereMutationVfx(ctx, sphere, s.player, time, scale);
     renderShotgunSphereRuntimeVfx(ctx, sphere, s.player, time, scale);
+    renderSphereElementalVfx(ctx, sphere, s.player, time, scale);
     renderSphereModifierVfx(ctx, sphere, s.player, time, scale);
     drawNetworkDisabledIndicator(ctx, sphere, time);
     return;
@@ -2348,6 +2353,7 @@ function drawModernSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: S
   if (sphere.type === 'chain') {
     renderChainSphereRuntimeVfx(ctx, sphere, s.player, time, scale);
     renderSphereMutationVfx(ctx, sphere, s.player, time, scale);
+    renderSphereElementalVfx(ctx, sphere, s.player, time, scale);
     renderSphereModifierVfx(ctx, sphere, s.player, time, scale);
     drawNetworkDisabledIndicator(ctx, sphere, time);
     return;
@@ -2355,6 +2361,7 @@ function drawModernSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: S
   if (sphere.type === 'aura') {
     renderAuraSphereRuntimeVfx(ctx, sphere, s.player, time, scale);
     renderSphereMutationVfx(ctx, sphere, s.player, time, scale);
+    renderSphereElementalVfx(ctx, sphere, s.player, time, scale);
     renderSphereModifierVfx(ctx, sphere, s.player, time, scale);
     drawNetworkDisabledIndicator(ctx, sphere, time);
     return;
@@ -2362,6 +2369,7 @@ function drawModernSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: S
   if (sphere.type === 'prism') {
     renderSphereMutationVfx(ctx, sphere, s.player, time, scale);
     renderPrismSphereRuntimeVfx(ctx, sphere, s.player, time, scale);
+    renderSphereElementalVfx(ctx, sphere, s.player, time, scale);
     renderSphereModifierVfx(ctx, sphere, s.player, time, scale);
     drawNetworkDisabledIndicator(ctx, sphere, time);
     return;
@@ -2369,6 +2377,7 @@ function drawModernSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: S
   if (sphere.type === 'gravity') {
     renderGravitySphereRuntimeVfx(ctx, sphere, s.player, time, scale);
     renderSphereMutationVfx(ctx, sphere, s.player, time, scale);
+    renderSphereElementalVfx(ctx, sphere, s.player, time, scale);
     renderSphereModifierVfx(ctx, sphere, s.player, time, scale);
     drawNetworkDisabledIndicator(ctx, sphere, time);
     return;
@@ -2376,6 +2385,7 @@ function drawModernSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: S
   if (sphere.type === 'pulse') {
     renderPulseSphereRuntimeVfx(ctx, sphere, s.player, time, scale);
     renderSphereMutationVfx(ctx, sphere, s.player, time, scale);
+    renderSphereElementalVfx(ctx, sphere, s.player, time, scale);
     renderSphereModifierVfx(ctx, sphere, s.player, time, scale);
     drawNetworkDisabledIndicator(ctx, sphere, time);
     return;
@@ -2383,6 +2393,7 @@ function drawModernSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: S
   if (sphere.type === 'void') {
     renderSphereMutationVfx(ctx, sphere, s.player, time, scale);
     renderVoidSphereRuntimeVfx(ctx, sphere, s.player, time, scale);
+    renderSphereElementalVfx(ctx, sphere, s.player, time, scale);
     renderSphereModifierVfx(ctx, sphere, s.player, time, scale);
     drawNetworkDisabledIndicator(ctx, sphere, time);
     return;
