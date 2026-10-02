@@ -3865,3 +3865,63 @@ Human APK acceptance remains required for combat readability and
 perceived artifact value. CI alone cannot establish that an artifact
 feels useful or legible in a real run.
 ======================================================================
+
+
+======================================================================
+CURRENT WORK SESSION UPDATE — 2026-10-02 — ARTIFACT AUDIT PASS 2
+======================================================================
+
+[DONE] Removed six additional artifact concepts that had no live gameplay
+handler and were not required as active synergy components:
+- dash_relay
+- overdrive_matrix
+- singularity_seed
+- echo_archive
+- zero_point_relay
+- infinite_loop
+
+These were not kept merely to inflate the artifact count. The live catalog
+is now 82 artifacts. Existing synergy-required artifacts were not deleted
+blindly.
+
+[DONE] Fixed concrete description/runtime mismatches for the audited group:
+- formation_compass now grants +8% Sphere radius.
+- geometry_die now grants +8% Sphere damage while a Geometry is active.
+- network_coil now grants +8% Sphere damage when the run has 2+ active Sphere
+  types.
+- crit_sigil now grants +5% critical-hit chance.
+- tempo_ring now grants -8% Sphere delay.
+
+The corresponding runtime conditions/effects are implemented in
+artifactSystem.ts and covered by tests.
+
+[UNCHANGED] quantum_fold remains live because its Stella-choice effect is
+implemented. universal_fold remains live because it is a required component
+of the authored axiom_fold synergy. Other synergy components were not removed
+just because their individual baseline effect is small.
+
+VALIDATION:
+- Current implementation HEAD: d544e0a14cf0025cf37779e6c8e5e4edd4ed8c15.
+- CI #1199: SUCCESS.
+- Typecheck: PASS.
+- Unit tests: PASS.
+- Gameplay coverage audit: PASS.
+- Lint: PASS.
+- Web build: PASS.
+- Playwright rendered gameplay QA: PASS.
+- Capacitor Android sync: PASS.
+- Debug APK build/upload: PASS.
+
+[PARTIAL] Artifact audit still has a second layer remaining:
+- review synergy-only artifacts whose standalone effect is intentionally small;
+- verify each Artifact Set completion has a meaningful behavioral payoff;
+- inspect remaining advanced claims in synergy descriptions against runtime;
+- avoid deleting components that are structurally required until their role is
+  either implemented or explicitly redesigned.
+
+NEXT:
+1. Audit Artifact Set completion behavior against every set description.
+2. Audit synergy description -> runtime parity.
+3. Only then decide whether any remaining artifact components need redesign.
+4. Keep Sphere/Ability systems unchanged unless a confirmed defect appears.
+======================================================================
