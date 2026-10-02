@@ -461,7 +461,7 @@ export function getArtifactProtocolStates(s: {
 }): ArtifactProtocolState[] {
   const sphereTypes = new Set((s.spheres || []).filter((x) => x.alive !== false).map((x) => x.type));
   const livingSpheres = (s.spheres || []).filter((x) => x.alive !== false);
-  const triangle = livingSpheres.length >= 3;
+  const triangle = livingSpheres.some((sphere) => formsTriangle(s, sphere));
   const geometry = String(s.player.resonanceGeometryKey || 'none');
   const timeControl = (s.player.timestopTimer || 0) > 0 || (s.player.teleportDamageBuffTimer || 0) > 0;
   const voidPressure = sphereTypes.has('void')
