@@ -455,6 +455,7 @@ export function getArtifactProtocolStates(s: {
     resonanceGeometryKey?: string;
     timestopTimer?: number;
     teleportDamageBuffTimer?: number;
+    sphereMods?: Record<string, number>;
   };
   spheres?: Array<{ type: string; alive?: boolean; pos: { x: number; y: number } }>;
   enemies?: Array<{ isElite?: boolean; isBoss?: boolean; hp: number }>;
