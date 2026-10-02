@@ -3985,3 +3985,47 @@ AUDIT SCOPE:
 - After CI is green, continue with the remaining advanced-synergy audit and
   then move to the next confirmed gameplay gap. Human APK PlayerCheck remains
   required for visible gameplay validation where applicable.
+
+
+======================================================================
+[2026-10-02] ARTIFACT PROTOCOL RUNTIME AUDIT — PASS 1
+======================================================================
+
+HEAD:
+35bc8699505bb8b4c912a11b995382cfcf92c937
+
+CI:
+Actions #1214 SUCCESS.
+
+DONE:
+- Audited all 12 Artifact Protocol definitions, their Set prerequisites,
+  discovery state and activation predicates.
+- Confirmed Protocols were previously computed as discovered/active state,
+  but had no direct combat-runtime application.
+- Connected all 12 active Protocol conditions to narrow, conditional
+  Sphere damage modifiers, scoped by their authored build condition.
+- Triangle Resonance now requires an actual geometric triangle using the
+  existing formation geometry check, not merely three living Spheres.
+- Added tests for undiscovered/inactive state, all-12 active-state
+  coverage, and combat runtime branch coverage.
+- Updated the TypeScript Protocol state contract to accept SphereMods.
+
+SCOPE / QUALITY NOTE:
+This closes the concrete “active flag without gameplay effect” gap.
+The first runtime pass uses small conditional damage modifiers to avoid
+inventing untested new attack/event systems. These are functional, but
+not yet the final depth target for distinctive Protocol behaviors.
+Manual APK playtest is still needed to validate readability and balance.
+
+VALIDATION:
+CI #1214 SUCCESS:
+Typecheck, unit tests, gameplay audit, lint, web build, Playwright,
+Capacitor sync and debug APK build passed.
+
+NEXT:
+- Inspect Protocol UI presentation and combat feedback in APK.
+- Then deepen only Protocols whose effects feel indistinct or unreadable,
+  using observed playtest evidence and Blueprint requirements.
+- Continue with the next confirmed gameplay gap; do not churn stable
+  Sphere/Ability systems.
+- Canvas 2.5D remains primary; mass 3D/GLB production PARKED.
