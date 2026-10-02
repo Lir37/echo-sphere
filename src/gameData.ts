@@ -135,7 +135,7 @@ export const ARTIFACTS: ArtifactDef[] = [
   { id: 'lattice_engine', name: { ru: 'Двигатель решётки', en: 'lattice engine' }, desc: { ru: '+12% силы Lattice', en: 'lattice engine effect' } },
   { id: 'fractal_engine', name: { ru: 'Двигатель фрактала', en: 'fractal engine' }, desc: { ru: '+12% силы Fractal', en: 'fractal engine effect' } },
   { id: 'resonance_lattice', name: { ru: 'Резонансная решётка', en: 'resonance lattice' }, desc: { ru: '+15% Resonance-эффектов', en: 'resonance lattice effect' } },
-  { id: 'sphere_forge', name: { ru: 'Кузница сфер', en: 'sphere forge' }, desc: { ru: '+1 к уровню выбранной Sphere в начале следующего забега', en: 'sphere forge effect' } },
+  { id: name: { ru: 'Кузница сфер', en: 'sphere forge' }, desc: { ru: '+1 к уровню выбранной Sphere в начале следующего забега', en: 'sphere forge effect' } },
   { id: 'echo_weaver', name: { ru: 'Ткач Эха', en: 'echo weaver' }, desc: { ru: 'каждая связь даёт небольшой бонус', en: 'echo weaver effect' } },
   { id: 'overdrive_matrix', name: { ru: 'Матрица перегрузки', en: 'overdrive matrix' }, desc: { ru: 'при низком HP сеть атакует чаще', en: 'overdrive matrix effect' } },
   { id: 'gravity_crown', name: { ru: 'Корона гравитации', en: 'gravity crown' }, desc: { ru: 'Gravity получает +20% радиуса', en: 'gravity crown effect' } },
