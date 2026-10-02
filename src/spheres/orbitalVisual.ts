@@ -1,5 +1,6 @@
 import type { EnemyEntity, PlayerState, SphereEntity } from '../engine';
 import { WHITE, core, drawSphereOrbit, finishDisabled, stateColor, glow } from './visualHelpers';
+import { getSphereElementForBranch, SPHERE_ELEMENT_META } from '../sphereProgression';
 
 const TAU = Math.PI * 2;
 const BASE = '#8ef0ff';
@@ -259,6 +260,39 @@ export function renderOrbitalSphereAttackersVfx(
     const y = Math.sin(a) * orbitRadius;
     const depth = .76 + .24 * ((Math.sin(a) + 1) * .5);
     drawSatellite(ctx, x, y, r * .20, color, depth, a, bladeMutation);
+
+    const element = getSphereElementForBranch(branch);
+    const elementColor = element ? SPHERE_ELEMENT_META[element].color : null;
+    if (elementColor) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(a + Math.PI / 2);
+      ctx.globalAlpha = depth * .72;
+      ctx.strokeStyle = elementColor;
+      ctx.lineWidth = 1.0;
+      if (element === 'fire') {
+        ctx.beginPath();
+        ctx.moveTo(-r * .10, 0);
+        ctx.quadraticCurveTo(0, -r * .16, r * .04, 0);
+        ctx.quadraticCurveTo(0, r * .12, -r * .08, 0);
+        ctx.stroke();
+      } else if (element === 'freeze') {
+        ctx.beginPath();
+        ctx.moveTo(-r * .09, 0);
+        ctx.lineTo(r * .09, 0);
+        ctx.moveTo(0, -r * .09);
+        ctx.lineTo(0, r * .09);
+        ctx.stroke();
+      } else {
+        ctx.beginPath();
+        ctx.arc(0, 0, r * .09, 0, TAU);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(r * .10, -r * .04, r * .035, 0, TAU);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
 
     if (i === 0 && v.attack > 0) {
       const q = 1 - v.attack / .28;
