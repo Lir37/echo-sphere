@@ -227,9 +227,9 @@ export interface ArtifactSetProgress {
   complete: boolean;
 }
 
-// Phase 5.2 framework: existing pair synergies are grouped into three
-// data-driven Sets. No additional completion gameplay is granted yet.
-// Set UI and completion effects are separate roadmap tasks.
+// Artifact Sets are data-driven collections of pair synergies.
+// Completion is a live gameplay state: each completed Set exposes a
+// conditional behavioral modifier in the Sphere/runtime layer.
 export const ARTIFACT_SETS: ArtifactSetDef[] = [
   {
     id: 'resonance_grid',
