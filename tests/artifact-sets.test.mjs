@@ -105,7 +105,20 @@ test('Artifact Set completion is wired into behavioral combat effects', async ()
 
 test('expanded Artifact catalog has long-run buildcraft scale and complete metadata', async () => {
   const mod = await import('../src/artifactSystem.ts');
-  assert.ok(Object.keys(mod.ARTIFACT_META).length >= 88);
+  assert.ok(Object.keys(mod.ARTIFACT_META).length >= 82);
   assert.ok(Object.values(mod.ARTIFACT_META).some((x) => x.rarity === 'legendary'));
   assert.ok(mod.ARTIFACT_SYNERGIES.some((x) => x.id === 'geometry_loop'));
+});
+
+
+test('removed artifact concepts are absent from the live catalog', () => {
+  for (const id of ['dash_relay','overdrive_matrix','singularity_seed','echo_archive','zero_point_relay','infinite_loop']) {
+    assert.equal(mod.ARTIFACT_META[id], undefined);
+  }
+});
+
+test('artifact descriptions match concrete runtime effects', () => {
+  assert.equal(mod.ARTIFACT_META.formation_compass.effects.sphereRadius, 0.08);
+  assert.equal(mod.ARTIFACT_META.crit_sigil.effects.critChance, 0.05);
+  assert.equal(mod.ARTIFACT_META.tempo_ring.effects.sphereDelay, -0.08);
 });
