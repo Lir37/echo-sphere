@@ -359,11 +359,7 @@ export function updateEnemies(s: GameState, dt: number): void {
     }
     if (e.role === 'phase') speedMult *= 1.12;
     if (e.role === 'scavenger' && e.hp / Math.max(1, e.maxHp) < 0.5) speedMult *= 1.30;
-    // invisibility cloak: lower aggression
     let aggro = 1;
-    if (s.player.artifacts.includes('veil_cloak') && s.player.hp / s.player.maxHp < 0.3) {
-      aggro = 0.5;
-    }
 
     const dx = s.player.pos.x - e.pos.x;
     const dy = s.player.pos.y - e.pos.y;
