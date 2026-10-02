@@ -196,17 +196,27 @@ test('each Artifact Protocol changes a measurable combat modifier when its condi
     enemies: [{ hp: 100, isElite: true, isBoss: false }],
   };
   const cases = [
-    ['triangle_resonance', { player: { ...base.player, resonanceGeometryKey: 'ring' } }, 'standard'],
-    ['sphere_relay', { player: { ...base.player } }, 'standard'],
+    ['triangle_resonance', { player: { ...base.player, resonanceGeometryKey: 'ring' }, spheres: [
+      { type: 'standard', alive: true, pos: { x: 0, y: 0 } },
+      { type: 'sniper', alive: true, pos: { x: 100, y: 0 } },
+      { type: 'prism', alive: true, pos: { x: 200, y: 0 } },
+    ] }, 'standard'],
+    ['sphere_relay', { player: { ...base.player }, spheres: [{ type: 'standard', alive: true, pos: { x: 0, y: 0 } }] }, 'standard'],
     ['critical_echo', { player: { ...base.player, combo: 5 } }, 'standard'],
     ['geometry_circuit', { player: { ...base.player, resonanceGeometryKey: 'ring' } }, 'standard'],
-    ['void_horizon_protocol', { player: { ...base.player } }, 'void'],
+    ['void_horizon_protocol', { player: { ...base.player }, enemies: [{ hp: 100, isElite: false, isBoss: false }] }, 'void'],
     ['temporal_fold_protocol', { player: { ...base.player, timestopTimer: 1 } }, 'standard'],
     ['status_circuit_protocol', { player: { ...base.player, sphereMods: { fire: 1 } } }, 'prism'],
-    ['hunter_doctrine_protocol', { player: { ...base.player } }, 'sniper'],
-    ['pulse_engineering_protocol', { player: { ...base.player } }, 'pulse'],
+    ['hunter_doctrine_protocol', { player: { ...base.player }, enemies: [{ hp: 100, isElite: true, isBoss: false }] }, 'sniper'],
+    ['pulse_engineering_protocol', { player: { ...base.player }, enemies: [
+      { hp: 100, isElite: false, isBoss: false }, { hp: 100, isElite: false, isBoss: false },
+      { hp: 100, isElite: false, isBoss: false }, { hp: 100, isElite: false, isBoss: false },
+    ] }, 'pulse'],
     ['core_forge_protocol', { player: { ...base.player } }, 'standard'],
-    ['prism_dominion_protocol', { player: { ...base.player } }, 'prism'],
+    ['prism_dominion_protocol', { player: { ...base.player }, spheres: [
+      { type: 'prism', alive: true, pos: { x: 0, y: 0 } },
+      { type: 'standard', alive: true, pos: { x: 100, y: 0 } },
+    ] }, 'prism'],
     ['network_legacy_protocol', { player: { ...base.player, resonanceGeometryKey: 'ring' } }, 'standard'],
   ];
   for (const [id, overrides, sphereType] of cases) {
@@ -218,7 +228,7 @@ test('each Artifact Protocol changes a measurable combat modifier when its condi
         { type: 'prism', alive: true, pos: { x: 0, y: 100 } },
       ];
     }
-    const before = mod.getSphereArtifactModifiers(base, sphereType, state.spheres[0]).damage;
+    const before = mod.getSphereArtifactModifiers(base, sphereType, base.spheres[0]).damage;
     const after = mod.getSphereArtifactModifiers(state, sphereType, state.spheres[0]).damage;
     assert.ok(after > before, id + ' must change combat damage when active');
   }
