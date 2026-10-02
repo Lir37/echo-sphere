@@ -14,7 +14,37 @@ export interface SphereEvolutionBranch extends SphereEvolutionDef {
   level6:{ru:string;en:string};
 }
 export interface SphereDef { type:SphereType; name:{ru:string;en:string}; priority:Partial<Record<CharacterId,number>>; levels:SphereUpgradeDef[]; evolution4:SphereEvolutionDef; evolution7:SphereEvolutionDef; evolution4Choices:SphereEvolutionBranch[]; }
-const lv=(a:string,b:string,c:string):SphereUpgradeDef[]=>[{level:1,name:{ru:'Ядро',en:'Core'},desc:{ru:a,en:a}},{level:2,name:{ru:'Механизм',en:'Mechanism'},desc:{ru:b,en:b}},{level:3,name:{ru:'Настройка',en:'Tuning'},desc:{ru:c,en:c}},{level:4,name:{ru:'Эволюция I',en:'Evolution I'},desc:{ru:'Выбор одной из трёх веток',en:'Choose one of three branches'}},{level:5,name:{ru:'Контур',en:'Circuit'},desc:{ru:'Усиление выбранной ветки',en:'Strengthens the selected branch'}},{level:6,name:{ru:'Стабилизатор',en:'Stabilizer'},desc:{ru:'Усиление специальной механики',en:'Strengthens the special mechanic'}},{level:7,name:{ru:'Эволюция II',en:'Evolution II'},desc:{ru:'Финальная специализация',en:'Final specialization'}}];
+const SPHERE_LEVEL_EN:Record<string,string>={
+  "+15% урона": "+15% damage",
+  "+1 пробитие": "+1 pierce",
+  "-10% задержки": "-10% attack delay",
+  "+25% урона": "+25% damage",
+  "+15% дальности": "+15% range",
+  "+15% крита": "+15% crit chance",
+  "+1 дробь": "+1 pellet",
+  "+20% урона вблизи": "+20% close-range damage",
+  "-12% разброса": "-12% spread",
+  "+1 цель цепи": "+1 chain target",
+  "+10% урона цепи": "+10% chain damage",
+  "+15% скорости перехода": "+15% chain jump speed",
+  "+20% радиуса ауры": "+20% Aura radius",
+  "-10% интервала импульса": "-10% pulse interval",
+  "+10% урона ауры": "+10% Aura damage",
+  "+15% орбитального урона": "+15% orbital damage",
+  "+15% радиуса орбиты": "+15% orbit radius",
+  "-12% интервала": "-12% attack interval",
+  "+20% урона луча": "+20% beam damage",
+  "+1 направление": "+1 beam direction",
+  "+20% силы притяжения": "+20% pull strength",
+  "+15% радиуса": "+15% radius",
+  "-15% интервала импульса": "-15% pulse interval",
+  "+20% импульсного урона": "+20% pulse damage",
+  "+20% урона по ослабленным": "+20% damage to weakened targets",
+  "+10% шанс критического добивания": "+10% execution crit chance"
+};
+const sphereLevelEn=(text:string):string=>SPHERE_LEVEL_EN[text] ?? text;
+
+const lv=(a:string,b:string,c:string)=>[{level:1,name:{ru:'Ядро',en:'Core'},desc:{ru:a,en:sphereLevelEn(a)}},{level:2,name:{ru:'Механизм',en:'Mechanism'},desc:{ru:b,en:sphereLevelEn(b)}},{level:3,name:{ru:'Настройка',en:'Tuning'},desc:{ru:c,en:sphereLevelEn(c)}},{level:4,name:{ru:'Эволюция I',en:'Evolution I'},desc:{ru:'Выбор одной из трёх веток',en:'Choose one of three branches'}},{level:5,name:{ru:'Контур',en:'Circuit'},desc:{ru:'Усиление выбранной ветки',en:'Strengthens the selected branch'}},{level:6,name:{ru:'Стабилизатор',en:'Stabilizer'},desc:{ru:'Усиление специальной механики',en:'Strengthens the special mechanic'}},{level:7,name:{ru:'Эволюция II',en:'Evolution II'},desc:{ru:'Финальная специализация',en:'Final specialization'}}];
 const e=(id:string,ru:string,en:string,descRu:string,descEn:string):SphereEvolutionDef=>({id,name:{ru,en},desc:{ru:descRu,en:descEn}});
 const BRANCH_LEVEL_DETAILS:Partial<Record<SphereEvolutionId,{level5:string;level6:string}>>={
   standard_resonator:{level5:'Каждое 3-е попадание создаёт импульс вокруг цели. На V уровне импульс становится частью основного цикла атак.',level6:'Импульс срабатывает стабильнее: после каждого третьего попадания сфера усиливает массовое поражение перед финальной формой.'},
@@ -33,6 +63,38 @@ const BRANCH_LEVEL_DETAILS:Partial<Record<SphereEvolutionId,{level5:string;level
   aura_gravity:{level5:'Аура периодически притягивает врагов к центру, собирая толпу для массового урона.',level6:'Гравитация действует сильнее и на большей зоне, плотнее стягивая врагов к центру.'},
   aura_overgrowth:{level5:'Сферы рядом с Аурой получают ускорение атак и чаще выпускают свои снаряды.',level6:'Зона усиления расширяется, позволяя большему числу сфер одновременно пользоваться ускорением.'
   },
+};
+const BRANCH_LEVEL_DETAILS_EN:Partial<Record<SphereEvolutionId,{level5:string;level6:string}>>={
+  standard_resonator:{level5:"Every 3rd hit creates a pulse around the target. At level V the pulse becomes part of the main attack cycle.",level6:"The pulse triggers more consistently: every third hit strengthens area damage before the final form."},
+  standard_singularity:{level5:"Each hit slows the enemy and begins pulling nearby enemies toward the impact point.",level6:"The pull becomes stronger, grouping enemies more effectively for follow-up hits."},
+  standard_swarm:{level5:"Hits release an additional side shard, widening area coverage.",level6:"Side shards become part of the permanent attack pattern and cover more directions around the Sphere."},
+  sniper_oracle:{level5:"Marked targets trigger an empowered shot, making the Mark the main damage source.",level6:"The empowered Mark shot gains another power step and becomes more reliable against the priority target."},
+  sniper_assassin:{level5:"Enemies below 35% HP take sharply increased damage, allowing the Sniper Sphere to finish weakened targets.",level6:"Execution damage punishes low-health targets even harder, preparing the final form."},
+  sniper_beacon:{level5:"A hit creates a Mark zone around the target and slows nearby enemies.",level6:"The Mark zone becomes more pronounced and covers more targets, strengthening area control."},
+  shotgun_burst:{level5:"The closer the enemy is to the Sphere, the higher the central pellet damage.",level6:"Close-range combat becomes even more dangerous: the damage bonus works at a wider distance and rewards closing in more strongly."},
+  shotgun_cataclysm:{level5:"A hit causes an explosion against nearby enemies and partially pierces the crowd.",level6:"The explosion gains additional power and works better against dense enemy groups."},
+  shotgun_hail:{level5:"Hits have a chance to call down an additional shard hailstorm around the target.",level6:"Hail triggers more often and covers a larger area, adding sustained group pressure."},
+  chain_web:{level5:"The Chain slows affected enemies, turning repeated jumps into a control zone.",level6:"The slow becomes stronger, so one Chain attack holds enemies in the network longer."},
+  chain_storm:{level5:"Every Chain jump creates an additional electrical surge against nearby enemies.",level6:"The surge becomes stronger and adds more damage to the whole Chain sequence."},
+  chain_leech:{level5:"Each Chain hit returns part of its dealt damage as player HP.",level6:"Chain healing increases, turning long hit sequences into a sustained recovery source."},
+  aura_sanctum:{level5:"The Aura pulse heavily slows enemies inside the area and keeps them near the Sphere.",level6:"Control becomes more reliable: enemies remain inside the Aura longer under the slow."},
+  aura_gravity:{level5:"The Aura periodically pulls enemies toward its center, gathering the crowd for area damage.",level6:"Gravity acts more strongly and over a larger area, compressing enemies toward the center."},
+  aura_overgrowth:{level5:"Spheres near the Aura gain attack acceleration and fire their attacks more often.",level6:"The empowerment zone expands, allowing more Spheres to use the acceleration at once."},
+  orbital_dance:{level5:"Orbits accelerate and cross enemies more often.",level6:"Orbit acceleration increases and the gap between combat passes becomes shorter."},
+  orbital_halo:{level5:"The orbit creates protective resonance for nearby Spheres.",level6:"Protective resonance reaches more connected Spheres."},
+  orbital_blade:{level5:"Orbital blades deal increased damage to enemies along their path.",level6:"Blade damage rises and the effective pass zone becomes wider."},
+  prism_split:{level5:"The beam splits toward an additional target after the main hit.",level6:"The split beam hits an additional target with less power loss."},
+  prism_spectrum:{level5:"The beam transfers an active status effect to the hit target.",level6:"Status transfer becomes more consistent and interacts with reactions more strongly."},
+  prism_mirror:{level5:"Linked Spheres create secondary reflected beams.",level6:"Reflected beams gain additional range and stability."},
+  gravity_well:{level5:"The pull zone becomes denser and slows enemies more strongly.",level6:"Pull strengthens toward the center and holds dense groups more effectively."},
+  gravity_tide:{level5:"Gravity alternates between pull and a counter-push phase.",level6:"The phases become stronger and expand spatial control."},
+  gravity_collapse:{level5:"Tightly grouped enemies take additional pulse damage.",level6:"Collapse punishes large clusters and weakened targets more strongly."},
+  pulse_wave:{level5:"Each wave gains increased radius and pushes enemies away from the node.",level6:"The wave travels farther and keeps control active for longer."},
+  pulse_resonator:{level5:"The pulse additionally feeds Resonance while the network is active.",level6:"The linked pulse creates resonance surges more often."},
+  pulse_burst:{level5:"A short second discharge appears at the center after the main wave.",level6:"The second discharge becomes stronger and works better against dense groups."},
+  void_hunger:{level5:"Damage increases in proportion to the target's lost health.",level6:"Weakened targets receive an even higher finishing multiplier."},
+  void_reaper:{level5:"A Void kill restores a small amount of HP and creates Void shards.",level6:"Shards gain increased damage and more often sustain the kill chain."},
+  void_execution:{level5:"The execution threshold rises, making weak targets the priority.",level6:"The execution threshold rises further, and finishing damage against bosses increases."},
 };
 const NEW_BRANCH_LEVEL_DETAILS:Partial<Record<SphereEvolutionId,{level5:string;level6:string}>>={
   orbital_dance:{level5:'Орбиты ускоряются и чаще пересекают врагов.',level6:'Ускорение орбит усиливается, а окно между боевыми проходами сокращается.'},
@@ -244,6 +306,7 @@ const finalsFor=(id:SphereEvolutionId):[SphereEvolutionDef,SphereEvolutionDef,Sp
 
 const br=(id:SphereEvolutionId,ru:string,desc:string,fin:[SphereEvolutionDef,SphereEvolutionDef,SphereEvolutionDef]):SphereEvolutionBranch=>{
   const details=BRANCH_LEVEL_DETAILS[id] ?? NEW_BRANCH_LEVEL_DETAILS[id] ?? { level5: 'Усиление выбранной ветки.', level6: 'Дополнительное усиление уникальной механики.' };
+  const detailsEn=BRANCH_LEVEL_DETAILS_EN[id];
   const [nameEn,descEn]=BRANCH_EN[id] ?? [ru,desc];
   return { ...e(id,ru,nameEn,desc,descEn), id, final:fin, level5:{ru:details.level5,en:details.level5}, level6:{ru:details.level6,en:details.level6} };
 };
@@ -263,13 +326,65 @@ export const SPHERE_PROGRESSION:Record<SphereType,SphereDef>={
  pulse:sphere('pulse','Импульсная',{engineer:1,spherist:.9,architect:.8},['+20% импульсного урона','+15% радиуса','-12% интервала'],[br('pulse_wave','Волна','Каждый импульс становится шире и отбрасывает врагов от сферы.',finalsFor('pulse_wave')),br('pulse_resonator','Резонатор','Импульсы подпитывают Resonance и усиливают сеть при активной геометрии.',finalsFor('pulse_resonator')),br('pulse_burst','Вспышка','После основной волны возникает дополнительный разряд по центру.',finalsFor('pulse_burst'))]),
  void:sphere('void','Пустотная',{hunter:1,alchemist:.8,architect:.7},['+20% урона по ослабленным','+10% шанс критического добивания','+15% дальности'],[br('void_hunger','Голод','Урон растёт по мере потери здоровья целью, превращая Void в добивающую сферу.',finalsFor('void_hunger')),br('void_reaper','Жнец','Убийства Void возвращают HP и создают осколки пустоты для продолжения атаки.',finalsFor('void_reaper')),br('void_execution','Экзекуция','Слабые цели получают шанс на мгновенное добивание, а финальная форма повышает порог исполнения.',finalsFor('void_execution'))])
 };
+const ABILITY_LEVEL_EN:Record<string,string>={
+  "Импульс проходит через все активные сферы и наносит 30 урона вокруг каждой. Перезарядка: 30 с.": "Pulse travels through all active Spheres and deals 30 damage around each. Cooldown: 30s.",
+  "Импульс наносит 40 урона вокруг каждой сферы. Перезарядка: 28 с.": "Pulse deals 40 damage around each Sphere. Cooldown: 28s.",
+  "Импульс наносит 50 урона вокруг каждой сферы. Перезарядка: 26 с.": "Pulse deals 50 damage around each Sphere. Cooldown: 26s.",
+  "Импульс начинает усиливать выбранную ветку сети.": "Pulse begins empowering the selected network branch.",
+  "Передача импульса между сферами становится стабильнее и мощнее.": "Pulse transfer between Spheres becomes more stable and powerful.",
+  "Финальная форма превращает импульс в полноценную сетевую атаку.": "The final form turns the pulse into a full network attack.",
+  "Сферы создают защитный контур вокруг игрока и поглощают 1 удар. Длительность: 10 с. Перезарядка: 20 с.": "Spheres create a defensive circuit around the player and absorb 1 hit. Duration: 10s. Cooldown: 20s.",
+  "Ближайшие сферы добавляют защитные заряды. Перезарядка: 20 с.": "Nearby Spheres add shield charges. Cooldown: 20s.",
+  "Сеть создаёт до 2 защитных зарядов. Длительность: 10 с. Перезарядка: 20 с.": "The network creates up to 2 shield charges. Duration: 10s. Cooldown: 20s.",
+  "Защита распространяется на ближайшие сферы и выбранную ветку.": "Defense spreads to nearby Spheres and the selected branch.",
+  "Защитный контур получает дополнительные заряды и усиливает сеть.": "The defensive circuit gains additional charges and strengthens the network.",
+  "Финальная форма превращает защиту в часть сетевого построения.": "The final form turns defense into part of the network formation.",
+  "Телепорт перемещает игрока к ближайшей активной сфере. Перезарядка: 15 с.": "Teleport moves the player to the nearest active Sphere. Cooldown: 15s.",
+  "Прыжок к сфере происходит чаще. Перезарядка: 13 с.": "Jumping to a Sphere happens more often. Cooldown: 13s.",
+  "Прыжок работает на более дальнюю сферу сети. Перезарядка: 11 с.": "The jump can target a farther Sphere in the network. Cooldown: 11s.",
+  "Телепорт начинает использовать сферу как точку назначения выбранной ветки.": "Teleport begins using the Sphere as the selected branch's destination point.",
+  "Переход между узлами создаёт дополнительный сетевой эффект.": "Moving between nodes creates an additional network effect.",
+  "Финальная форма превращает перемещение между сферами в часть боевой системы.": "The final form turns movement between Spheres into part of the combat system.",
+  "Перегружает сферы с огненным эффектом на 5 с: +20% урона. Перезарядка: 25 с.": "Overheats fire-aligned Spheres for 5s: +20% damage. Cooldown: 25s.",
+  "Перегрев даёт +25% урона и ускоряет атаки огненных сфер. Перезарядка: 25 с.": "Overheat grants +25% damage and speeds up fire-aligned attacks. Cooldown: 25s.",
+  "Перегрев даёт +30% урона и ещё сильнее ускоряет огненные сферы. Перезарядка: 25 с.": "Overheat grants +30% damage and speeds up fire-aligned Spheres even more. Cooldown: 25s.",
+  "Перегрев начинает взаимодействовать со статусами и выбранной веткой.": "Overheat begins interacting with statuses and the selected branch.",
+  "Перегрев передаётся через сеть и усиливает реакции.": "Overheat is transmitted through the network and strengthens reactions.",
+  "Финальная форма превращает перегрев в сетевую механику.": "The final form turns Overheat into a network mechanic.",
+  "Создаёт 1 Echo Drone на 10 с, который подключается к ближайшей сфере. Перезарядка: 30 с.": "Creates 1 Echo Drone for 10s that connects to the nearest Sphere. Cooldown: 30s.",
+  "Дрон связывает соседние сферы и наносит 8 урона врагам. Перезарядка: 30 с.": "The drone links neighboring Spheres and deals 8 damage to enemies. Cooldown: 30s.",
+  "Создаёт 2 Echo Drone на 10 с. Дроны становятся дополнительными узлами сети. Перезарядка: 30 с.": "Creates 2 Echo Drones for 10s. Drones become additional network nodes. Cooldown: 30s.",
+  "Дроны начинают передавать импульсы между ближайшими сферами.": "Drones begin transferring pulses between nearby Spheres.",
+  "Дроны чаще соединяют узлы и ускоряют их следующий выстрел.": "Drones connect nodes more often and accelerate their next shot.",
+  "Финальная форма превращает дроны в полноценные временные узлы сети.": "The final form turns drones into full temporary network nodes.",
+  "Разряд проходит от игрока через Chain-сферы к 1 цели и наносит 55 урона. Перезарядка: 20 с.": "The discharge travels from the player through Chain Spheres to 1 target and deals 55 damage. Cooldown: 20s.",
+  "Разряд наносит 70 урона и усиливается на каждом узле Chain. Перезарядка: 20 с.": "The discharge deals 70 damage and grows stronger at each Chain node. Cooldown: 20s.",
+  "Разряд поражает до 2 целей, проходя через сеть Chain. Урон: 85 каждой. Перезарядка: 20 с.": "The discharge hits up to 2 targets through the Chain network. Damage: 85 each. Cooldown: 20s.",
+  "Каждая Chain-сфера становится проводником разряда.": "Each Chain Sphere becomes a conductor for the discharge.",
+  "Переходы между узлами усиливают следующий разряд.": "Transitions between nodes strengthen the next discharge.",
+  "Финальная форма превращает всю Chain-сеть в последовательный разряд.": "The final form turns the entire Chain network into a sequential discharge.",
+  "Сеть останавливает врагов вокруг ближайшей сферы на 3 с. Перезарядка: 40 с.": "The network stops enemies around the nearest Sphere for 3s. Cooldown: 40s.",
+  "Сеть удерживает остановку 4 с. Перезарядка: 40 с.": "The network holds the stop for 4s. Cooldown: 40s.",
+  "Сеть удерживает остановку 5 с и продолжает атаковать через сферы. Перезарядка: 40 с.": "The network holds the stop for 5s and continues attacking through Spheres. Cooldown: 40s.",
+  "Во время остановки сферы продолжают атаковать.": "Spheres continue attacking during the stop.",
+  "Остановка распространяется между узлами сети и усиливает контроль.": "The stop spreads between network nodes and strengthens control.",
+  "Финальная форма связывает длительность остановки с активной сетью.": "The final form links stop duration to the active network.",
+  "Жертвуете 20% максимального HP и перегружаете всю сеть на 5 с. Сферы получают +29% урона. Перезарядка: 30 с.": "You sacrifice 20% max HP and overload the entire network for 5s. Spheres gain +29% damage. Cooldown: 30s.",
+  "Жертвуете 20% максимального HP. Перегрузка даёт +33% урона и ускоряет сферы. Перезарядка: 30 с.": "You sacrifice 20% max HP. Overload grants +33% damage and speeds up Spheres. Cooldown: 30s.",
+  "Жертвуете 20% максимального HP. Перегрузка даёт +37% урона и ускоряет сеть сильнее. Перезарядка: 30 с.": "You sacrifice 20% max HP. Overload grants +37% damage and speeds up the network further. Cooldown: 30s.",
+  "Потеря HP становится топливом для выбранной ветки и ближайших сфер.": "Lost HP becomes fuel for the selected branch and nearby Spheres.",
+  "Перегрузка глубже взаимодействует с сетью и усиливает риск/награду.": "Overload interacts more deeply with the network and strengthens risk/reward.",
+  "Финальная форма превращает HP в ресурс управления мощностью сети.": "The final form turns HP into a resource for controlling network power."
+};
+const abilityLevelEn=(text:string):string=>ABILITY_LEVEL_EN[text] ?? text;
+
 const abilityLevels=(a:string,b:string,c:string,d:string,e:string,f:string):SphereUpgradeDef[] => [
-  {level:1,name:{ru:'Пробуждение',en:'Awakening'},desc:{ru:a,en:a}},
-  {level:2,name:{ru:'Настройка',en:'Tuning'},desc:{ru:b,en:b}},
-  {level:3,name:{ru:'Раскрытие',en:'Expansion'},desc:{ru:c,en:c}},
+  {level:1,name:{ru:'Пробуждение',en:'Awakening'},desc:{ru:a,en:abilityLevelEn(a)}},
+  {level:2,name:{ru:'Настройка',en:'Tuning'},desc:{ru:b,en:abilityLevelEn(b)}},
+  {level:3,name:{ru:'Раскрытие',en:'Expansion'},desc:{ru:c,en:abilityLevelEn(c)}},
   {level:4,name:{ru:'Мутация I',en:'Mutation I'},desc:{ru:'Следующий выбор откроет одну из трёх веток способности',en:'The next choice opens one of three ability branches'}},
-  {level:5,name:{ru:'Развитие ветки',en:'Branch Development'},desc:{ru:d,en:d}},
-  {level:6,name:{ru:'Синхронизация ветки',en:'Branch Synchronization'},desc:{ru:e,en:e}},
+  {level:5,name:{ru:'Развитие ветки',en:'Branch Development'},desc:{ru:d,en:abilityLevelEn(d)}},
+  {level:6,name:{ru:'Синхронизация ветки',en:'Branch Synchronization'},desc:{ru:e,en:abilityLevelEn(e)}},
   {level:7,name:{ru:'Мутация II',en:'Mutation II'},desc:{ru:'Следующий выбор откроет одну из трёх финальных форм',en:'The next choice opens one of three final forms'}},
 ];
 
@@ -286,7 +401,58 @@ export interface AbilityProgressionDef {
   evolution7:AbilityEvolutionChoice[];
 }
 
-const ae=(id:string,ru:string,desc:string):AbilityEvolutionChoice=>({id,name:{ru,en:ru},desc:{ru:desc,en:desc}});
+const ABILITY_EVOLUTION_EN:Record<string,{name:string;desc:string}>={
+  blast_resonance:{name:"Resonance Pulse",desc:"After passing through a Standard Sphere, it releases an additional pulse."},
+  blast_network:{name:"Network Pulse",desc:"The pulse travels sequentially through the nearest linked Spheres."},
+  blast_core:{name:"Explosion Core",desc:"The network center gets an empowered pulse and extra damage to nearby enemies."},
+  blast_echo_network:{name:"Echo Network",desc:"The wave travels along the Sphere chain and grows stronger at each visited node."},
+  blast_resonant_core:{name:"Resonant Core",desc:"Each Standard Sphere adds an additional resonance pulse to the wave."},
+  blast_infinite_pulse:{name:"Infinite Pulse",desc:"The last node creates a reverse pulse that sends the wave back through the network."},
+  shield_echo_guard:{name:"Echo Barrier",desc:"Every two nearby Spheres add one charge to the network shield."},
+  shield_reflector:{name:"Reflective Circuit",desc:"A blocked hit is partially reflected through the nearest Sphere."},
+  shield_bastion:{name:"Bastion",desc:"Spheres around the player form a unified defensive circuit."},
+  shield_network_guard:{name:"Network Bastion",desc:"Linked Spheres increase the shield charge capacity."},
+  shield_iron_dome:{name:"Iron Dome",desc:"The number of nearby Spheres increases the shield's additional charge capacity."},
+  shield_resonant_guard:{name:"Resonant Guard",desc:"A blocked hit restores one shield charge, keeping the defense in resonance."},
+  teleport_echo_jump:{name:"Echo Jump",desc:"The jump uses the nearest Sphere as the destination."},
+  teleport_beacon:{name:"Beacon Jump",desc:"Jumping to a Sphere empowers the next attack."},
+  teleport_phase:{name:"Phase Jump",desc:"After the jump, the player gains a brief invulnerability window."},
+  teleport_spatial_network:{name:"Spatial Network",desc:"Teleport connects the origin and destination nodes with a visual network relay."},
+  teleport_hunter_beacon:{name:"Hunter Beacon",desc:"Jumping to a Sniper Sphere empowers the next attack."},
+  teleport_phase_break:{name:"Phase Break",desc:"Spheres between the jump points create additional pulses."},
+  firetrail_overdrive:{name:"Overheat",desc:"Fire-aligned Spheres gain additional attack speed and damage."},
+  firetrail_ignition:{name:"Igniter",desc:"Overheat instantly ignites enemies that already have another status."},
+  firetrail_sanctum:{name:"Burning Sanctuary",desc:"Overheat instantly empowers an Aura Sphere and its next pulse."},
+  firetrail_network:{name:"Thermal Network",desc:"Overheat is transmitted between linked nodes."},
+  firetrail_catalyst:{name:"Catalyst Flame",desc:"A status reaction empowers the next fire pulse."},
+  firetrail_inferno:{name:"Network Inferno",desc:"Each newly overheated node strengthens the previous ones."},
+  minion_echo_drone:{name:"Echo Drone",desc:"A temporary additional Sphere connects to the nearest network node."},
+  minion_relay_drone:{name:"Relay Drone",desc:"The drone regularly transfers a pulse from one Sphere to another."},
+  minion_guardian:{name:"Guardian Drone",desc:"The drone stays near the nearest Sphere and accelerates its next cycle."},
+  minion_echo_swarm:{name:"Echo Swarm",desc:"Drones form additional network nodes."},
+  minion_network_nodes:{name:"Network Nodes",desc:"Each drone links the two nearest Spheres."},
+  minion_sphere_guard:{name:"Sphere Guardians",desc:"Drones empower the Spheres they protect."},
+  lightning_echo_storm:{name:"Echo Storm",desc:"The discharge travels through every Chain Sphere before striking the target."},
+  lightning_relay:{name:"Relay Discharge",desc:"The discharge jumps between linked Spheres."},
+  lightning_overload:{name:"Overload",desc:"The last discharge in the sequence deals additional damage."},
+  lightning_storm_network:{name:"Storm Network",desc:"The network creates sequential discharges between nodes."},
+  lightning_thunder_chain:{name:"Thunder Network",desc:"Each Chain Sphere adds an additional jump."},
+  lightning_overload_core:{name:"Overload Core",desc:"A complete network cycle ends with a powerful discharge."},
+  timestop_echo_phase:{name:"Phase Break",desc:"Spheres continue attacking during the time stop."},
+  timestop_closed_time:{name:"Closed Time",desc:"The stop zone expands through the network."},
+  timestop_time_anchor:{name:"Time Anchor",desc:"The stop anchors enemies around the nearest Sphere."},
+  timestop_outside_time:{name:"Outside Time",desc:"Sphere hits refresh enemy freeze during the stop."},
+  timestop_closed_network:{name:"Closed Time Network",desc:"The network preserves the time-stop effect between nodes."},
+  timestop_temporal_core:{name:"Temporal Core",desc:"The final second of the stop doubles the active network's strength."},
+  darkritual_blood_link:{name:"Blood Link",desc:"Part of the overload is transferred to the nearest Standard Sphere."},
+  darkritual_sacrifice:{name:"Sacrificial Circle",desc:"Lost HP creates an additional pulse around the nearest Sphere."},
+  darkritual_void_pact:{name:"Void Pact",desc:"The lower the HP, the longer the network overload lasts."},
+  darkritual_blood_network:{name:"Blood Network",desc:"The overload transfers charge between linked Standard Spheres."},
+  darkritual_sacrifice_core:{name:"Sacrifice Core",desc:"HP sacrifice creates an empowered pulse around the nearest Sphere."},
+  darkritual_void_engine:{name:"Void Engine",desc:"At low HP, the overload lasts longer and increases the damage of the entire network."},
+};
+
+const ae=(id:string,ru:string,desc:string):AbilityEvolutionChoice=>{ const en=ABILITY_EVOLUTION_EN[id]; return {id,name:{ru,en:en?.name ?? ru},desc:{ru:desc,en:en?.desc ?? desc}}; };
 
 export const ABILITY_PROGRESSION:Partial<Record<AbilityType,AbilityProgressionDef>>={
   blast:{
