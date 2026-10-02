@@ -354,7 +354,7 @@ export const ARTIFACT_PROTOCOLS: ArtifactProtocol[] = [
     kind: 'sphere',
     setId: 'echo_architecture',
     name: { ru: 'Релейный контур', en: 'Sphere Relay' },
-    desc: { ru: 'Усиливает сеть при наличии двух и более типов сфер.', en: 'Strengthens the network when two or more Sphere types are present.' },
+    desc: { ru: '+5% урона связанных сфер при наличии 2+ типов сфер.', en: '+5% damage for linked Spheres when 2+ Sphere types are present.' },
     requires: ['echo_architecture'],
   },
   {
@@ -362,7 +362,7 @@ export const ARTIFACT_PROTOCOLS: ArtifactProtocol[] = [
     kind: 'event',
     setId: 'singularity_path',
     name: { ru: 'Критическое Эхо', en: 'Critical Echo' },
-    desc: { ru: 'Даёт дополнительный импульс урона во время активной серии убийств.', en: 'Adds a damage pulse during an active kill streak.' },
+    desc: { ru: '+6% урона при комбо x5 и выше.', en: '+6% damage at combo x5 or higher.' },
     requires: ['singularity_path'],
   },
   {
@@ -370,7 +370,7 @@ export const ARTIFACT_PROTOCOLS: ArtifactProtocol[] = [
     kind: 'event',
     setId: 'geometry_craft',
     name: { ru: 'Контур геометрии', en: 'Geometry Circuit' },
-    desc: { ru: 'Усиливает билд при активной Ring, Lattice или Fractal геометрии.', en: 'Empowers the build while Ring, Lattice or Fractal geometry is active.' },
+    desc: { ru: '+5% урона при активной Ring, Lattice или Fractal геометрии.', en: '+5% damage while Ring, Lattice or Fractal geometry is active.' },
     requires: ['geometry_craft'],
   },
   {
@@ -386,7 +386,7 @@ export const ARTIFACT_PROTOCOLS: ArtifactProtocol[] = [
     kind: 'event',
     setId: 'temporal_fold',
     name: { ru: 'Временной сгиб', en: 'Temporal Fold Protocol' },
-    desc: { ru: 'Активируется во время локального эффекта контроля времени.', en: 'Activates during a local time-control effect.' },
+    desc: { ru: '+6% урона сфер во время локального контроля времени.', en: '+6% Sphere damage during local time control.' },
     requires: ['temporal_fold'],
   },
   {
@@ -394,7 +394,7 @@ export const ARTIFACT_PROTOCOLS: ArtifactProtocol[] = [
     kind: 'event',
     setId: 'status_circuit',
     name: { ru: 'Протокол статусов', en: 'Status Circuit Protocol' },
-    desc: { ru: 'Активируется при наличии Prism в статусной сборке.', en: 'Activates when Prism is present in the status build.' },
+    desc: { ru: '+6% урона Prism в статусной сборке.', en: '+6% Prism damage in a status build.' },
     requires: ['status_circuit'],
   },
   {
@@ -402,7 +402,7 @@ export const ARTIFACT_PROTOCOLS: ArtifactProtocol[] = [
     kind: 'event',
     setId: 'hunter_doctrine',
     name: { ru: 'Протокол охоты', en: 'Hunter Doctrine Protocol' },
-    desc: { ru: 'Активируется при наличии Sniper и приоритетной цели.', en: 'Activates with Sniper and a priority target.' },
+    desc: { ru: '+8% урона Sniper при наличии Elite/Boss цели.', en: '+8% Sniper damage when an Elite/Boss target is present.' },
     requires: ['hunter_doctrine'],
   },
   {
@@ -410,7 +410,7 @@ export const ARTIFACT_PROTOCOLS: ArtifactProtocol[] = [
     kind: 'event',
     setId: 'pulse_engineering',
     name: { ru: 'Импульсный протокол', en: 'Pulse Engineering Protocol' },
-    desc: { ru: 'Активируется при наличии Pulse и плотной группы врагов.', en: 'Activates with Pulse and a dense enemy group.' },
+    desc: { ru: '+8% урона Pulse против группы из 4+ живых врагов.', en: '+8% Pulse damage against a group of 4+ living enemies.' },
     requires: ['pulse_engineering'],
   },
   {
@@ -418,7 +418,7 @@ export const ARTIFACT_PROTOCOLS: ArtifactProtocol[] = [
     kind: 'event',
     setId: 'core_forge',
     name: { ru: 'Протокол кузницы', en: 'Core Forge Protocol' },
-    desc: { ru: 'Активируется, когда сеть использует три и более типов сфер.', en: 'Activates when the network uses three or more Sphere types.' },
+    desc: { ru: '+5% урона при 3+ активных типах сфер.', en: '+5% damage with 3+ active Sphere types.' },
     requires: ['core_forge'],
   },
   {
@@ -426,7 +426,7 @@ export const ARTIFACT_PROTOCOLS: ArtifactProtocol[] = [
     kind: 'event',
     setId: 'prism_dominion',
     name: { ru: 'Протокол преломления', en: 'Refraction Protocol' },
-    desc: { ru: 'Активируется при связке Prism с другой специализированной сферой.', en: 'Activates when Prism is paired with another specialized Sphere.' },
+    desc: { ru: '+6% урона Prism/Orbital/Void при наличии Prism и другой специализированной сферы.', en: '+6% Prism/Orbital/Void damage when Prism is paired with another specialized Sphere.' },
     requires: ['prism_dominion'],
   },
   {
@@ -434,7 +434,7 @@ export const ARTIFACT_PROTOCOLS: ArtifactProtocol[] = [
     kind: 'event',
     setId: 'network_legacy',
     name: { ru: 'Протокол наследия', en: 'Legacy Protocol' },
-    desc: { ru: 'Активируется в сложной геометрии многотипной сети.', en: 'Activates in advanced geometry with a multi-type network.' },
+    desc: { ru: '+6% урона при 3+ типах сфер и Ring/Lattice/Fractal.', en: '+6% damage with 3+ Sphere types and Ring/Lattice/Fractal.' },
     requires: ['network_legacy'],
   },
 ];
