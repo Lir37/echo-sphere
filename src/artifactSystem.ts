@@ -628,6 +628,19 @@ export function getSphereArtifactModifiers(s: any, type: string, sphere?: any): 
 
 
   const setBehavior = getArtifactSetBehavior(s);
+  const protocolStates = getArtifactProtocolStates({
+    player: {
+      artifacts: s.player.artifacts || [],
+      combo: Number(s.player.combo || 0),
+      resonanceGeometryKey: s.player.resonanceGeometryKey,
+      timestopTimer: s.player.timestopTimer,
+      teleportDamageBuffTimer: s.player.teleportDamageBuffTimer,
+      sphereMods: s.player.sphereMods,
+    },
+    spheres: s.spheres || [],
+    enemies: s.enemies || [],
+  });
+  const protocolActive = (id: string) => protocolStates.some((protocol) => protocol.id === id && protocol.active);
   const geometryKey = String(s.player.resonanceGeometryKey || 'none');
   if (setBehavior.resonanceGrid && sphere && hasNearbysphere(s, sphere, 190) && geometryKey !== 'none') damage *= 1.06;
   if (setBehavior.echoArchitecture && unique >= 2 && sphere && hasNearbysphere(s, sphere, 220)) damage *= 1.06;
@@ -641,6 +654,21 @@ export function getSphereArtifactModifiers(s: any, type: string, sphere?: any): 
   if (setBehavior.coreForge && uniquesphereCount(s) >= 3) damage *= 1.06;
   if (setBehavior.prismDominion && ['prism', 'orbital'].includes(type)) damage *= 1.08;
   if (setBehavior.networkLegacy && unique >= 3 && ['ring', 'lattice', 'fractal'].includes(String(s.player.resonanceGeometryKey || 'none'))) damage *= 1.06;
+
+  // Protocols are not just discovery badges: each active condition feeds a
+  // narrow, build-specific combat modifier. These bonuses remain conditional.
+  if (protocolActive('triangle_resonance') && sphere && formsTriangle(s, sphere)) damage *= 1.05;
+  if (protocolActive('sphere_relay') && sphere && hasNearbysphere(s, sphere, 220)) damage *= 1.05;
+  if (protocolActive('critical_echo') && Number(s.player.combo || 0) >= 5) damage *= 1.06;
+  if (protocolActive('geometry_circuit') && ['ring', 'lattice', 'fractal'].includes(geometryKey)) damage *= 1.05;
+  if (protocolActive('void_horizon_protocol') && type === 'void') damage *= 1.08;
+  if (protocolActive('temporal_fold_protocol') && (((s.player.timestopTimer || 0) > 0) || ((s.player.teleportDamageBuffTimer || 0) > 0))) damage *= 1.06;
+  if (protocolActive('status_circuit_protocol') && type === 'prism') damage *= 1.06;
+  if (protocolActive('hunter_doctrine_protocol') && type === 'sniper') damage *= 1.08;
+  if (protocolActive('pulse_engineering_protocol') && type === 'pulse') damage *= 1.08;
+  if (protocolActive('core_forge_protocol') && unique >= 3) damage *= 1.05;
+  if (protocolActive('prism_dominion_protocol') && ['prism', 'orbital', 'void'].includes(type)) damage *= 1.06;
+  if (protocolActive('network_legacy_protocol') && unique >= 3 && ['ring', 'lattice', 'fractal'].includes(geometryKey)) damage *= 1.06;
   if (synergies.some((x) => x.id === 'geometry_loop') && ['ring', 'lattice', 'fractal'].includes(geometryKey)) damage *= 1.08;
   if (synergies.some((x) => x.id === 'lattice_memory') && s.formationMemory && ['lattice', 'fractal'].includes(String(s.formationMemory.type || ''))) damage *= 1.08;
   if (synergies.some((x) => x.id === 'network_memory') && s.formationMemory) damage *= 1.08;
