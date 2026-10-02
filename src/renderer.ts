@@ -578,34 +578,33 @@ function drawCharacterHud(_ctx: CanvasRenderingContext2D, _s: GameState, _canvas
 
 function drawPlayerShield(ctx: CanvasRenderingContext2D, s: GameState): void {
   const charges = s.player.shieldCharges || 0;
-  if (charges <= 0 || s.player.shieldTimer <= 0) return;
+  const timer = Math.max(0, s.player.shieldTimer || 0);
+  if (charges <= 0 || timer <= 0) return;
 
   const pulse = 1 + Math.sin(RENDER_TIME * 8) * 0.035;
   const radius = PLAYER_RADIUS * 1.38;
+  const recast = Math.max(0, Math.min(1, (s.player.shieldVisualPulse || 0) / 0.85));
+  const recastWave = 1 + (1 - recast) * 0.55;
+  const recastAlpha = 0.20 + recast * 0.65;
+
   ctx.save();
   ctx.translate(s.player.pos.x, s.player.pos.y);
   ctx.scale(pulse, pulse);
-  ctx.globalCompositeOperation = 'source-over';
+  ctx.globalCompositeOperation = 'lighter';
 
   if (getCharacterId(s) === 'spherist') {
-    const drawn = drawArtSprite(ctx, 'player-spherist-shield', 0, 0, radius * 2.20, 0, 0.92);
-    if (drawn) {
-      ctx.restore();
-      return;
-    }
+    drawArtSprite(ctx, 'player-spherist-shield', 0, 0, radius * 2.20, 0, 0.78);
   }
 
-  // Authored reference shield is the Spherist source; Canvas shell remains the fallback.
-  // Production shield: solid energy shell, not the old dashed status ring.
-  ctx.fillStyle = 'rgba(64,214,255,0.10)';
-  ctx.strokeStyle = 'rgba(99,230,255,0.92)';
-  ctx.lineWidth = 2.4;
+  ctx.fillStyle = 'rgba(64,214,255,0.08)';
+  ctx.strokeStyle = 'rgba(99,230,255,0.88)';
+  ctx.lineWidth = 2.2;
   ctx.beginPath();
   for (let i = 0; i < 8; i++) {
-    const a = -Math.PI / 8 + i * Math.PI / 4 + Math.sin(RENDER_TIME * 1.8) * 0.03;
+    const ang = -Math.PI / 8 + i * Math.PI / 4 + Math.sin(RENDER_TIME * 1.8) * 0.03;
     const rr = radius * (1 + Math.sin(RENDER_TIME * 4 + i) * 0.012);
-    const x = Math.cos(a) * rr;
-    const y = Math.sin(a) * rr * 0.88;
+    const x = Math.cos(ang) * rr;
+    const y = Math.sin(ang) * rr * 0.88;
     if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
   }
   ctx.closePath();
@@ -613,16 +612,31 @@ function drawPlayerShield(ctx: CanvasRenderingContext2D, s: GameState): void {
   ctx.stroke();
 
   ctx.strokeStyle = 'rgba(225,251,255,0.72)';
-  ctx.lineWidth = 1.1;
+  ctx.lineWidth = 1.0;
   ctx.beginPath();
   ctx.arc(0, 0, radius * 0.86, 0, Math.PI * 2);
   ctx.stroke();
 
+  if (recast > 0.02) {
+    ctx.globalAlpha = recastAlpha;
+    ctx.strokeStyle = '#dffaff';
+    ctx.lineWidth = 2.2 + recast * 1.8;
+    ctx.beginPath();
+    ctx.arc(0, 0, radius * recastWave, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.globalAlpha = recastAlpha * 0.42;
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.arc(0, 0, radius * (recastWave + 0.08), 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  ctx.globalAlpha = 1;
   for (let i = 0; i < charges; i++) {
-    const a = -Math.PI / 2 + i * Math.PI * 2 / Math.max(1, charges) + RENDER_TIME * 0.45;
+    const ang = -Math.PI / 2 + i * Math.PI * 2 / Math.max(1, charges) + RENDER_TIME * 0.45;
     ctx.fillStyle = '#dffaff';
     ctx.beginPath();
-    ctx.arc(Math.cos(a) * radius, Math.sin(a) * radius * 0.88, 3.2, 0, Math.PI * 2);
+    ctx.arc(Math.cos(ang) * radius, Math.sin(ang) * radius * 0.88, 3.2, 0, Math.PI * 2);
     ctx.fill();
   }
 

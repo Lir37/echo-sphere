@@ -122,6 +122,7 @@ function activateShield(s: GameState): void {
   );
   s.player.shieldCharges = Math.min(5, 1 + Math.floor((lvl - 1) / 2) + networkBonus + branchBonus + bastionBonus + networkGuardBonus + (barrierCore ? 1 : 0));
   s.player.shieldTimer = 10 + (lvl >= 5 ? 2 : 0);
+  s.player.shieldVisualPulse = 0.85;
   if (branch === 'shield_echo_guard' || final === 'shield_network_guard') {
     for (const sphere of s.spheres) {
       if (sphere.alive && dist(sphere.pos, s.player.pos) <= 260) {

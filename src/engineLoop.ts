@@ -241,7 +241,8 @@ export function update(s: GameState, dt: number): void {
   if (p.darkritualCooldown > 0) p.darkritualCooldown = Math.max(0, p.darkritualCooldown - dt);
   if (p.overloadTimer > 0) p.overloadTimer = Math.max(0, p.overloadTimer - dt);
   if (p.fireTrailCooldown > 0) p.fireTrailCooldown = Math.max(0, p.fireTrailCooldown - dt);
-  if (s.player.shieldTimer > 0) s.player.shieldTimer -= dt;
+  if (s.player.shieldTimer > 0) s.player.shieldTimer = Math.max(0, s.player.shieldTimer - dt);
+  if (s.player.shieldVisualPulse > 0) s.player.shieldVisualPulse = Math.max(0, s.player.shieldVisualPulse - dt);
   if (s.player.swiftBootsTimer > 0) s.player.swiftBootsTimer -= dt;
   if (s.player.teleportDamageBuffTimer > 0) s.player.teleportDamageBuffTimer = Math.max(0, s.player.teleportDamageBuffTimer - dt);
   if (s.player.fireCatalystTimer > 0) s.player.fireCatalystTimer = Math.max(0, s.player.fireCatalystTimer - dt);

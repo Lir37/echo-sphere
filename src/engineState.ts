@@ -84,6 +84,7 @@ export function createInitialState(
     invulnUsed: false,
     shieldCharges: 0,
     shieldTimer: 0,
+    shieldVisualPulse: 0,
     dodgeTimer: 0,
     fireTrailTimer: 0,
     fireTrailCooldown: 0,

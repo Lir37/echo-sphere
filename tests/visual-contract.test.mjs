@@ -232,3 +232,14 @@ test('Directed mutation weapon attachments share the live firing axis and render
     assert.ok(mi>=0 && vi>mi,visual+' must be composed after the mutation attachment layer');
   }
 });
+
+test('Shield VFX persists and replays a visible pulse on every application',()=>{
+  const types=read('src/engineTypes.ts'),state=read('src/engineState.ts'),loop=read('src/engineLoop.ts'),abilities=read('src/engineAbilities.ts'),renderer=read('src/renderer.ts');
+  assert.match(types,/shieldVisualPulse: number/);
+  assert.match(state,/shieldVisualPulse: 0/);
+  assert.match(abilities,/shieldVisualPulse = 0\.85/);
+  assert.match(loop,/shieldVisualPulse > 0/);
+  assert.match(renderer,/player-spherist-shield/);
+  assert.match(renderer,/if \(recast > 0\.02\)/);
+  assert.match(renderer,/recastWave/);
+});

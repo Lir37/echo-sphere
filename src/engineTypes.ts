@@ -61,6 +61,7 @@ export interface PlayerState {
   invulnUsed: boolean;
   shieldCharges: number;
   shieldTimer: number;
+  shieldVisualPulse: number;
   dodgeTimer: number;
   fireTrailTimer: number;
   fireTrailCooldown: number;
