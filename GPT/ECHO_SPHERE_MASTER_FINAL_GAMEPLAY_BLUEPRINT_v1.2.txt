@@ -3643,3 +3643,37 @@ for their own sake.
 4. Keep Canvas 2.5D active; mass 3D/GLB production remains PARKED.
 
 ======================================================================
+
+
+======================================================================
+CURRENT WORK SESSION UPDATE — 2026-10-02 — LEVEL-UP LOCK
+======================================================================
+
+[DONE] CI #1158 SUCCESS on c62fa317358cf7865a4e1ac3f8f737bd57e8bf00.
+
+[DONE] Level-Up Lock runtime is now implemented as a run-scoped tool.
+- Routine Level-Up choices only.
+- One Lock charge is available per run in the current implementation.
+- Lock stores one selected choice key.
+- Reroll preserves the locked choice and replaces the other two when valid
+  alternatives exist.
+- Lock state is cleared after Reroll or after the player accepts a choice.
+- Mutation branch/final windows are intentionally not affected.
+
+[PARTIAL] The Blueprint also requires a later Meta Ban layer.
+Exact Meta unlock thresholds for Lock/Ban are not defined in the Blueprint,
+so no persistent/meta unlock economy was invented here.
+
+VALIDATION:
+- Typecheck PASS
+- Unit tests PASS
+- Gameplay coverage PASS
+- Lint PASS
+- Web build + rendered gameplay QA PASS
+- Android sync + debug APK build PASS
+
+NEXT:
+Continue from this green baseline. Do not expand content counters blindly.
+Prefer the next explicitly defined gameplay/meta gap with enough specification
+to implement without inventing missing economy values.
+======================================================================
