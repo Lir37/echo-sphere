@@ -114,7 +114,6 @@ ARTIFACT_METADATA.push(
   meta('signal_knot', 'common', {"sphereDamage":0.04}),
   meta('lattice_chip', 'common', {"sphereDamage":0.04}),
   meta('fractal_seed', 'common', {"sphereDamage":0.04}),
-  meta('dash_relay', 'common', {"sphereDamage":0.04}),
   meta('sniper_scope', 'rare', {"sphereDamage":0.06}),
   meta('chain_battery', 'rare', {"sphereDamage":0.06}),
   meta('shotgun_shell', 'rare', {"sphereDamage":0.06}),
@@ -135,7 +134,6 @@ ARTIFACT_METADATA.push(
   meta('fractal_engine', 'epic', {"sphereDamage":0.08,"cooldown":-0.03}),
   meta('resonance_lattice', 'epic', {"sphereDamage":0.08,"cooldown":-0.03}),
   meta('echo_weaver', 'epic', {"sphereDamage":0.08,"cooldown":-0.03}),
-  meta('overdrive_matrix', 'epic', {"sphereDamage":0.08,"cooldown":-0.03}),
   meta('gravity_crown', 'epic', {"gravityRadius":0.20}),
   meta('void_lantern', 'epic', {}),
   meta('prism_crown', 'epic', {}),
@@ -143,15 +141,11 @@ ARTIFACT_METADATA.push(
   meta('pulse_crown', 'epic', {}),
   meta('chain_crown', 'epic', {"sphereDamage":0.08,"cooldown":-0.03}),
   meta('sniper_crown', 'epic', {"sphereDamage":0.08,"cooldown":-0.03}),
-  meta('singularity_seed', 'legendary', {"sphereDamage":0.12,"critChance":0.03}),
   meta('time_splitter', 'legendary', {"sphereDamage":0.12,"critChance":0.03}),
   meta('stasis_mandala', 'legendary', {"sphereDamage":0.12,"critChance":0.03}),
-  meta('echo_archive', 'special', {"sphereDamage":0.12,"critChance":0.03}),
   meta('quantum_fold', 'special', {"sphereDamage":0.12,"critChance":0.03}),
-  meta('zero_point_relay', 'special', {"sphereDamage":0.12,"critChance":0.03}),
   meta('void_star', 'special', {"critChance":0.03}),
   meta('axiom_core', 'legendary', {"sphereDamage":0.15,"cooldown":-0.08}),
-  meta('infinite_loop', 'legendary', {"sphereDamage":0.15,"cooldown":-0.08}),
   meta('universal_fold', 'legendary', {"sphereDamage":0.15,"cooldown":-0.08})
 );
 
@@ -624,6 +618,9 @@ export function getSphereArtifactModifiers(s: any, type: string, sphere?: any): 
   if (hasArtifact(s, 'lone_bastion') && unique <= 1) damage *= 1.30;
   if (hasArtifact(s, 'fivefold_resonance') && unique > 1) damage *= 1 + Math.min(5, unique) * 0.04;
   if (hasArtifact(s, 'network_relay') && unique >= 2) damage *= 1.05;
+  if (hasArtifact(s, 'network_coil') && unique >= 2) damage *= 1.08;
+  if (hasArtifact(s, 'geometry_die') && s.player.resonanceGeometryKey !== 'none') damage *= 1.08;
+  if (hasArtifact(s, 'formation_compass') && sphere) radius *= 1.08;
   if (hasArtifact(s, 'relay_matrix') && Object.values(s.player.sphereProgression || {}).some((level: any) => level >= 7)) damage *= 1.10;
   if (hasArtifact(s, 'singularity_engine') && unique <= 2) damage *= 1.18;
   if (hasArtifact(s, 'mirror_network') && unique >= 2) damage *= 1.12;
