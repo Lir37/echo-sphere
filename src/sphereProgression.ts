@@ -6,8 +6,9 @@ import type { SphereMods } from './engineTypes';
 export type SphereEvolutionId = 'standard_resonator' | 'standard_singularity' | 'standard_swarm' | 'sniper_oracle' | 'sniper_assassin' | 'sniper_beacon' | 'shotgun_burst' | 'shotgun_cataclysm' | 'shotgun_hail' | 'chain_web' | 'chain_storm' | 'chain_leech' | 'aura_sanctum' | 'aura_gravity' | 'aura_overgrowth' | 'orbital_dance' | 'orbital_halo' | 'orbital_blade' | 'prism_split' | 'prism_spectrum' | 'prism_mirror' | 'gravity_well' | 'gravity_tide' | 'gravity_collapse' | 'pulse_wave' | 'pulse_resonator' | 'pulse_burst' | 'void_hunger' | 'void_reaper' | 'void_execution';
 export type AbilityEvolutionId = string;
 export interface SphereUpgradeDef { level:number; name:{ru:string;en:string}; desc:{ru:string;en:string}; }
-export interface SphereEvolutionDef { id:SphereEvolutionId; name:{ru:string;en:string}; desc:{ru:string;en:string}; }
+export interface SphereEvolutionDef { id:string; name:{ru:string;en:string}; desc:{ru:string;en:string}; }
 export interface SphereEvolutionBranch extends SphereEvolutionDef {
+  id:SphereEvolutionId;
   final:[SphereEvolutionDef,SphereEvolutionDef,SphereEvolutionDef];
   level5:{ru:string;en:string};
   level6:{ru:string;en:string};
@@ -61,195 +62,188 @@ const br=(id:SphereEvolutionId,ru:string,desc:string,fin:[SphereEvolutionDef,Sph
   };
 };
 const BRANCH_EN:Partial<Record<SphereEvolutionId,[string,string]>>={
-  standard_resonator:['Resonator','Every third hit releases a pulse around the target.'],
-  standard_singularity:['Singularity','Hits slow enemies and pull nearby targets toward the impact point.'],
-  standard_swarm:['Swarm','Hits release side shards that widen battlefield coverage.'],
-  sniper_oracle:['Oracle','Marked targets receive amplified sniper hits.'],
-  sniper_assassin:['Assassin','The branch specializes in finishing weakened targets.'],
-  sniper_beacon:['Beacon','Hits mark targets and extend the effect through the network.'],
-  shotgun_burst:['Burst','Close-range hits gain stronger impact.'],
-  shotgun_cataclysm:['Cataclysm','Heavy shots emphasize penetration and explosive impact.'],
-  shotgun_hail:['Hail','Additional projectiles create persistent area pressure.'],
-  chain_web:['Web','Chain hits build a control web around affected targets.'],
-  chain_storm:['Storm','Chain jumps create electrical surges between targets.'],
-  chain_leech:['Leech','Chain hits return part of their damage to the player.'],
-  aura_sanctum:['Sanctum','The Aura focuses on slowing and controlling enemies.'],
-  aura_gravity:['Gravity','The Aura pulls enemies toward its center.'],
-  aura_overgrowth:['Overgrowth','The Aura empowers nearby Spheres inside its field.'],
-  orbital_dance:['Dance','Orbiting satellites accelerate and pressure enemies on each pass.'],
-  orbital_halo:['Halo','The orbit creates a protective resonance for nearby Spheres.'],
-  orbital_blade:['Blade','Orbiting satellites become dedicated cutting weapons.'],
-  prism_split:['Split','The beam divides across additional targets.'],
-  prism_spectrum:['Spectrum','The beam interacts with active status effects.'],
-  prism_mirror:['Mirror','Linked Spheres reflect additional beam damage.'],
-  gravity_well:['Well','The field creates sustained pull toward its center.'],
-  gravity_tide:['Tide','The field alternates between pull and release waves.'],
-  gravity_collapse:['Collapse','Dense enemy groups take amplified compression damage.'],
-  pulse_wave:['Wave','The pulse grows wider and pushes enemies away.'],
-  pulse_resonator:['Resonator','Pulse attacks feed Resonance and network pressure.'],
-  pulse_burst:['Burst','A secondary discharge follows the main pulse.'],
-  void_hunger:['Hunger','Damage rises as the target loses health.'],
-  void_reaper:['Reaper','Void kills restore health and create follow-up shards.'],
-  void_execution:['Execution','Weakened targets become vulnerable to lethal finishing hits.'],
+  standard_resonator:['Standard Resonator','Develops the Standard Resonator branch and its signature behavior.'],
+  standard_singularity:['Standard Singularity','Develops the Standard Singularity branch and its signature behavior.'],
+  standard_swarm:['Standard Swarm','Develops the Standard Swarm branch and its signature behavior.'],
+  sniper_oracle:['Sniper Oracle','Develops the Sniper Oracle branch and its signature behavior.'],
+  sniper_assassin:['Sniper Assassin','Develops the Sniper Assassin branch and its signature behavior.'],
+  sniper_beacon:['Sniper Beacon','Develops the Sniper Beacon branch and its signature behavior.'],
+  shotgun_burst:['Shotgun Burst','Develops the Shotgun Burst branch and its signature behavior.'],
+  shotgun_cataclysm:['Shotgun Cataclysm','Develops the Shotgun Cataclysm branch and its signature behavior.'],
+  shotgun_hail:['Shotgun Hail','Develops the Shotgun Hail branch and its signature behavior.'],
+  chain_web:['Chain Web','Develops the Chain Web branch and its signature behavior.'],
+  chain_storm:['Chain Storm','Develops the Chain Storm branch and its signature behavior.'],
+  chain_leech:['Chain Leech','Develops the Chain Leech branch and its signature behavior.'],
+  aura_sanctum:['Aura Sanctum','Develops the Aura Sanctum branch and its signature behavior.'],
+  aura_gravity:['Aura Gravity','Develops the Aura Gravity branch and its signature behavior.'],
+  aura_overgrowth:['Aura Overgrowth','Develops the Aura Overgrowth branch and its signature behavior.'],
+  orbital_dance:['Orbital Dance','Develops the Orbital Dance branch and its signature behavior.'],
+  orbital_halo:['Orbital Halo','Develops the Orbital Halo branch and its signature behavior.'],
+  orbital_blade:['Orbital Blade','Develops the Orbital Blade branch and its signature behavior.'],
+  prism_split:['Prism Split','Develops the Prism Split branch and its signature behavior.'],
+  prism_spectrum:['Prism Spectrum','Develops the Prism Spectrum branch and its signature behavior.'],
+  prism_mirror:['Prism Mirror','Develops the Prism Mirror branch and its signature behavior.'],
+  gravity_well:['Gravity Well','Develops the Gravity Well branch and its signature behavior.'],
+  gravity_tide:['Gravity Tide','Develops the Gravity Tide branch and its signature behavior.'],
+  gravity_collapse:['Gravity Collapse','Develops the Gravity Collapse branch and its signature behavior.'],
+  pulse_wave:['Pulse Wave','Develops the Pulse Wave branch and its signature behavior.'],
+  pulse_resonator:['Pulse Resonator','Develops the Pulse Resonator branch and its signature behavior.'],
+  pulse_burst:['Pulse Burst','Develops the Pulse Burst branch and its signature behavior.'],
+  void_hunger:['Void Hunger','Develops the Void Hunger branch and its signature behavior.'],
+  void_reaper:['Void Reaper','Develops the Void Reaper branch and its signature behavior.'],
+  void_execution:['Void Execution','Develops the Void Execution branch and its signature behavior.'],
 };
-
-const br=(id:SphereEvolutionId,ru:string,desc:string,fin:[SphereEvolutionDef,SphereEvolutionDef,SphereEvolutionDef]):SphereEvolutionBranch=>{
-  const details=BRANCH_LEVEL_DETAILS[id] ?? NEW_BRANCH_LEVEL_DETAILS[id] ?? { level5: 'Усиление выбранной ветки.', level6: 'Дополнительное усиление уникальной механики.' };
-  const [nameEn,descEn]=BRANCH_EN[id] ?? [ru,desc];
-  return { ...e(id,ru,nameEn,desc,descEn), final:fin, level5:{ru:details.level5,en:details.level5}, level6:{ru:details.level6,en:details.level6} };
-};
-const f=(id:string,nameRu:string,nameEn:string,descRu:string,descEn:string):SphereEvolutionDef=>e(id,nameRu,nameEn,descRu,descEn);
 
 const SPHERE_FINAL_VARIANTS:Record<SphereEvolutionId,[SphereEvolutionDef,SphereEvolutionDef,SphereEvolutionDef]>={
   standard_resonator:[
-    f('standard_resonator_final_1','Ядро Resonator','Core Resonator','Every third hit releases a pulse around the target. Финальная форма закрепляет главный акцент ветки.','Every third hit releases a pulse around the target. The final form reinforces the branch's primary combat identity.'),
-    f('standard_resonator_final_2','Каскад Resonator','Cascade Resonator','Every third hit releases a pulse around the target. Финальная форма расширяет основной боевой паттерн ветки.','Every third hit releases a pulse around the target. The final form extends the branch's core combat pattern.'),
-    f('standard_resonator_final_3','Апекс Resonator','Apex Resonator','Every third hit releases a pulse around the target. Финальная форма усиливает сигнатурный финальный паттерн ветки.','Every third hit releases a pulse around the target. The final form strengthens the branch's signature final pattern.'),
+    f('standard_resonator_final_1','Резонатор • Ядро','Standard Resonator • Core','Финальная форма ветки «Резонатор»: Ядро.','Final form of the Standard Resonator branch: Core.'),
+    f('standard_resonator_final_2','Резонатор • Каскад','Standard Resonator • Cascade','Финальная форма ветки «Резонатор»: Каскад.','Final form of the Standard Resonator branch: Cascade.'),
+    f('standard_resonator_final_3','Резонатор • Апекс','Standard Resonator • Apex','Финальная форма ветки «Резонатор»: Апекс.','Final form of the Standard Resonator branch: Apex.'),
   ],
   standard_singularity:[
-    f('standard_singularity_final_1','Ядро Singularity','Core Singularity','Hits slow enemies and pull nearby targets toward the impact point. Финальная форма закрепляет главный акцент ветки.','Hits slow enemies and pull nearby targets toward the impact point. The final form reinforces the branch's primary combat identity.'),
-    f('standard_singularity_final_2','Каскад Singularity','Cascade Singularity','Hits slow enemies and pull nearby targets toward the impact point. Финальная форма расширяет основной боевой паттерн ветки.','Hits slow enemies and pull nearby targets toward the impact point. The final form extends the branch's core combat pattern.'),
-    f('standard_singularity_final_3','Апекс Singularity','Apex Singularity','Hits slow enemies and pull nearby targets toward the impact point. Финальная форма усиливает сигнатурный финальный паттерн ветки.','Hits slow enemies and pull nearby targets toward the impact point. The final form strengthens the branch's signature final pattern.'),
+    f('standard_singularity_final_1','Сингулярность • Ядро','Standard Singularity • Core','Финальная форма ветки «Сингулярность»: Ядро.','Final form of the Standard Singularity branch: Core.'),
+    f('standard_singularity_final_2','Сингулярность • Каскад','Standard Singularity • Cascade','Финальная форма ветки «Сингулярность»: Каскад.','Final form of the Standard Singularity branch: Cascade.'),
+    f('standard_singularity_final_3','Сингулярность • Апекс','Standard Singularity • Apex','Финальная форма ветки «Сингулярность»: Апекс.','Final form of the Standard Singularity branch: Apex.'),
   ],
   standard_swarm:[
-    f('standard_swarm_final_1','Ядро Swarm','Core Swarm','Hits release side shards that widen battlefield coverage. Финальная форма закрепляет главный акцент ветки.','Hits release side shards that widen battlefield coverage. The final form reinforces the branch's primary combat identity.'),
-    f('standard_swarm_final_2','Каскад Swarm','Cascade Swarm','Hits release side shards that widen battlefield coverage. Финальная форма расширяет основной боевой паттерн ветки.','Hits release side shards that widen battlefield coverage. The final form extends the branch's core combat pattern.'),
-    f('standard_swarm_final_3','Апекс Swarm','Apex Swarm','Hits release side shards that widen battlefield coverage. Финальная форма усиливает сигнатурный финальный паттерн ветки.','Hits release side shards that widen battlefield coverage. The final form strengthens the branch's signature final pattern.'),
+    f('standard_swarm_final_1','Рой • Ядро','Standard Swarm • Core','Финальная форма ветки «Рой»: Ядро.','Final form of the Standard Swarm branch: Core.'),
+    f('standard_swarm_final_2','Рой • Каскад','Standard Swarm • Cascade','Финальная форма ветки «Рой»: Каскад.','Final form of the Standard Swarm branch: Cascade.'),
+    f('standard_swarm_final_3','Рой • Апекс','Standard Swarm • Apex','Финальная форма ветки «Рой»: Апекс.','Final form of the Standard Swarm branch: Apex.'),
   ],
   sniper_oracle:[
-    f('sniper_oracle_final_1','Ядро Oracle','Core Oracle','Marked targets receive amplified sniper hits. Финальная форма закрепляет главный акцент ветки.','Marked targets receive amplified sniper hits. The final form reinforces the branch's primary combat identity.'),
-    f('sniper_oracle_final_2','Каскад Oracle','Cascade Oracle','Marked targets receive amplified sniper hits. Финальная форма расширяет основной боевой паттерн ветки.','Marked targets receive amplified sniper hits. The final form extends the branch's core combat pattern.'),
-    f('sniper_oracle_final_3','Апекс Oracle','Apex Oracle','Marked targets receive amplified sniper hits. Финальная форма усиливает сигнатурный финальный паттерн ветки.','Marked targets receive amplified sniper hits. The final form strengthens the branch's signature final pattern.'),
+    f('sniper_oracle_final_1','Оракул • Ядро','Sniper Oracle • Core','Финальная форма ветки «Оракул»: Ядро.','Final form of the Sniper Oracle branch: Core.'),
+    f('sniper_oracle_final_2','Оракул • Каскад','Sniper Oracle • Cascade','Финальная форма ветки «Оракул»: Каскад.','Final form of the Sniper Oracle branch: Cascade.'),
+    f('sniper_oracle_final_3','Оракул • Апекс','Sniper Oracle • Apex','Финальная форма ветки «Оракул»: Апекс.','Final form of the Sniper Oracle branch: Apex.'),
   ],
   sniper_assassin:[
-    f('sniper_assassin_final_1','Ядро Assassin','Core Assassin','The branch specializes in finishing weakened targets. Финальная форма закрепляет главный акцент ветки.','The branch specializes in finishing weakened targets. The final form reinforces the branch's primary combat identity.'),
-    f('sniper_assassin_final_2','Каскад Assassin','Cascade Assassin','The branch specializes in finishing weakened targets. Финальная форма расширяет основной боевой паттерн ветки.','The branch specializes in finishing weakened targets. The final form extends the branch's core combat pattern.'),
-    f('sniper_assassin_final_3','Апекс Assassin','Apex Assassin','The branch specializes in finishing weakened targets. Финальная форма усиливает сигнатурный финальный паттерн ветки.','The branch specializes in finishing weakened targets. The final form strengthens the branch's signature final pattern.'),
+    f('sniper_assassin_final_1','Убийца • Ядро','Sniper Assassin • Core','Финальная форма ветки «Убийца»: Ядро.','Final form of the Sniper Assassin branch: Core.'),
+    f('sniper_assassin_final_2','Убийца • Каскад','Sniper Assassin • Cascade','Финальная форма ветки «Убийца»: Каскад.','Final form of the Sniper Assassin branch: Cascade.'),
+    f('sniper_assassin_final_3','Убийца • Апекс','Sniper Assassin • Apex','Финальная форма ветки «Убийца»: Апекс.','Final form of the Sniper Assassin branch: Apex.'),
   ],
   sniper_beacon:[
-    f('sniper_beacon_final_1','Ядро Beacon','Core Beacon','Hits mark targets and extend the effect through the network. Финальная форма закрепляет главный акцент ветки.','Hits mark targets and extend the effect through the network. The final form reinforces the branch's primary combat identity.'),
-    f('sniper_beacon_final_2','Каскад Beacon','Cascade Beacon','Hits mark targets and extend the effect through the network. Финальная форма расширяет основной боевой паттерн ветки.','Hits mark targets and extend the effect through the network. The final form extends the branch's core combat pattern.'),
-    f('sniper_beacon_final_3','Апекс Beacon','Apex Beacon','Hits mark targets and extend the effect through the network. Финальная форма усиливает сигнатурный финальный паттерн ветки.','Hits mark targets and extend the effect through the network. The final form strengthens the branch's signature final pattern.'),
+    f('sniper_beacon_final_1','Маяк • Ядро','Sniper Beacon • Core','Финальная форма ветки «Маяк»: Ядро.','Final form of the Sniper Beacon branch: Core.'),
+    f('sniper_beacon_final_2','Маяк • Каскад','Sniper Beacon • Cascade','Финальная форма ветки «Маяк»: Каскад.','Final form of the Sniper Beacon branch: Cascade.'),
+    f('sniper_beacon_final_3','Маяк • Апекс','Sniper Beacon • Apex','Финальная форма ветки «Маяк»: Апекс.','Final form of the Sniper Beacon branch: Apex.'),
   ],
   shotgun_burst:[
-    f('shotgun_burst_final_1','Ядро Burst','Core Burst','Close-range hits gain stronger impact. Финальная форма закрепляет главный акцент ветки.','Close-range hits gain stronger impact. The final form reinforces the branch's primary combat identity.'),
-    f('shotgun_burst_final_2','Каскад Burst','Cascade Burst','Close-range hits gain stronger impact. Финальная форма расширяет основной боевой паттерн ветки.','Close-range hits gain stronger impact. The final form extends the branch's core combat pattern.'),
-    f('shotgun_burst_final_3','Апекс Burst','Apex Burst','Close-range hits gain stronger impact. Финальная форма усиливает сигнатурный финальный паттерн ветки.','Close-range hits gain stronger impact. The final form strengthens the branch's signature final pattern.'),
+    f('shotgun_burst_final_1','Разрыв • Ядро','Shotgun Burst • Core','Финальная форма ветки «Разрыв»: Ядро.','Final form of the Shotgun Burst branch: Core.'),
+    f('shotgun_burst_final_2','Разрыв • Каскад','Shotgun Burst • Cascade','Финальная форма ветки «Разрыв»: Каскад.','Final form of the Shotgun Burst branch: Cascade.'),
+    f('shotgun_burst_final_3','Разрыв • Апекс','Shotgun Burst • Apex','Финальная форма ветки «Разрыв»: Апекс.','Final form of the Shotgun Burst branch: Apex.'),
   ],
   shotgun_cataclysm:[
-    f('shotgun_cataclysm_final_1','Ядро Cataclysm','Core Cataclysm','Heavy shots emphasize penetration and explosive impact. Финальная форма закрепляет главный акцент ветки.','Heavy shots emphasize penetration and explosive impact. The final form reinforces the branch's primary combat identity.'),
-    f('shotgun_cataclysm_final_2','Каскад Cataclysm','Cascade Cataclysm','Heavy shots emphasize penetration and explosive impact. Финальная форма расширяет основной боевой паттерн ветки.','Heavy shots emphasize penetration and explosive impact. The final form extends the branch's core combat pattern.'),
-    f('shotgun_cataclysm_final_3','Апекс Cataclysm','Apex Cataclysm','Heavy shots emphasize penetration and explosive impact. Финальная форма усиливает сигнатурный финальный паттерн ветки.','Heavy shots emphasize penetration and explosive impact. The final form strengthens the branch's signature final pattern.'),
+    f('shotgun_cataclysm_final_1','Осада • Ядро','Shotgun Cataclysm • Core','Финальная форма ветки «Осада»: Ядро.','Final form of the Shotgun Cataclysm branch: Core.'),
+    f('shotgun_cataclysm_final_2','Осада • Каскад','Shotgun Cataclysm • Cascade','Финальная форма ветки «Осада»: Каскад.','Final form of the Shotgun Cataclysm branch: Cascade.'),
+    f('shotgun_cataclysm_final_3','Осада • Апекс','Shotgun Cataclysm • Apex','Финальная форма ветки «Осада»: Апекс.','Final form of the Shotgun Cataclysm branch: Apex.'),
   ],
   shotgun_hail:[
-    f('shotgun_hail_final_1','Ядро Hail','Core Hail','Additional projectiles create persistent area pressure. Финальная форма закрепляет главный акцент ветки.','Additional projectiles create persistent area pressure. The final form reinforces the branch's primary combat identity.'),
-    f('shotgun_hail_final_2','Каскад Hail','Cascade Hail','Additional projectiles create persistent area pressure. Финальная форма расширяет основной боевой паттерн ветки.','Additional projectiles create persistent area pressure. The final form extends the branch's core combat pattern.'),
-    f('shotgun_hail_final_3','Апекс Hail','Apex Hail','Additional projectiles create persistent area pressure. Финальная форма усиливает сигнатурный финальный паттерн ветки.','Additional projectiles create persistent area pressure. The final form strengthens the branch's signature final pattern.'),
+    f('shotgun_hail_final_1','Град • Ядро','Shotgun Hail • Core','Финальная форма ветки «Град»: Ядро.','Final form of the Shotgun Hail branch: Core.'),
+    f('shotgun_hail_final_2','Град • Каскад','Shotgun Hail • Cascade','Финальная форма ветки «Град»: Каскад.','Final form of the Shotgun Hail branch: Cascade.'),
+    f('shotgun_hail_final_3','Град • Апекс','Shotgun Hail • Apex','Финальная форма ветки «Град»: Апекс.','Final form of the Shotgun Hail branch: Apex.'),
   ],
   chain_web:[
-    f('chain_web_final_1','Ядро Web','Core Web','Chain hits build a control web around affected targets. Финальная форма закрепляет главный акцент ветки.','Chain hits build a control web around affected targets. The final form reinforces the branch's primary combat identity.'),
-    f('chain_web_final_2','Каскад Web','Cascade Web','Chain hits build a control web around affected targets. Финальная форма расширяет основной боевой паттерн ветки.','Chain hits build a control web around affected targets. The final form extends the branch's core combat pattern.'),
-    f('chain_web_final_3','Апекс Web','Apex Web','Chain hits build a control web around affected targets. Финальная форма усиливает сигнатурный финальный паттерн ветки.','Chain hits build a control web around affected targets. The final form strengthens the branch's signature final pattern.'),
+    f('chain_web_final_1','Паутина • Ядро','Chain Web • Core','Финальная форма ветки «Паутина»: Ядро.','Final form of the Chain Web branch: Core.'),
+    f('chain_web_final_2','Паутина • Каскад','Chain Web • Cascade','Финальная форма ветки «Паутина»: Каскад.','Final form of the Chain Web branch: Cascade.'),
+    f('chain_web_final_3','Паутина • Апекс','Chain Web • Apex','Финальная форма ветки «Паутина»: Апекс.','Final form of the Chain Web branch: Apex.'),
   ],
   chain_storm:[
-    f('chain_storm_final_1','Ядро Storm','Core Storm','Chain jumps create electrical surges between targets. Финальная форма закрепляет главный акцент ветки.','Chain jumps create electrical surges between targets. The final form reinforces the branch's primary combat identity.'),
-    f('chain_storm_final_2','Каскад Storm','Cascade Storm','Chain jumps create electrical surges between targets. Финальная форма расширяет основной боевой паттерн ветки.','Chain jumps create electrical surges between targets. The final form extends the branch's core combat pattern.'),
-    f('chain_storm_final_3','Апекс Storm','Apex Storm','Chain jumps create electrical surges between targets. Финальная форма усиливает сигнатурный финальный паттерн ветки.','Chain jumps create electrical surges between targets. The final form strengthens the branch's signature final pattern.'),
+    f('chain_storm_final_1','Шторм • Ядро','Chain Storm • Core','Финальная форма ветки «Шторм»: Ядро.','Final form of the Chain Storm branch: Core.'),
+    f('chain_storm_final_2','Шторм • Каскад','Chain Storm • Cascade','Финальная форма ветки «Шторм»: Каскад.','Final form of the Chain Storm branch: Cascade.'),
+    f('chain_storm_final_3','Шторм • Апекс','Chain Storm • Apex','Финальная форма ветки «Шторм»: Апекс.','Final form of the Chain Storm branch: Apex.'),
   ],
   chain_leech:[
-    f('chain_leech_final_1','Ядро Leech','Core Leech','Chain hits return part of their damage to the player. Финальная форма закрепляет главный акцент ветки.','Chain hits return part of their damage to the player. The final form reinforces the branch's primary combat identity.'),
-    f('chain_leech_final_2','Каскад Leech','Cascade Leech','Chain hits return part of their damage to the player. Финальная форма расширяет основной боевой паттерн ветки.','Chain hits return part of their damage to the player. The final form extends the branch's core combat pattern.'),
-    f('chain_leech_final_3','Апекс Leech','Apex Leech','Chain hits return part of their damage to the player. Финальная форма усиливает сигнатурный финальный паттерн ветки.','Chain hits return part of their damage to the player. The final form strengthens the branch's signature final pattern.'),
+    f('chain_leech_final_1','Паразит • Ядро','Chain Leech • Core','Финальная форма ветки «Паразит»: Ядро.','Final form of the Chain Leech branch: Core.'),
+    f('chain_leech_final_2','Паразит • Каскад','Chain Leech • Cascade','Финальная форма ветки «Паразит»: Каскад.','Final form of the Chain Leech branch: Cascade.'),
+    f('chain_leech_final_3','Паразит • Апекс','Chain Leech • Apex','Финальная форма ветки «Паразит»: Апекс.','Final form of the Chain Leech branch: Apex.'),
   ],
   aura_sanctum:[
-    f('aura_sanctum_final_1','Ядро Sanctum','Core Sanctum','The Aura focuses on slowing and controlling enemies. Финальная форма закрепляет главный акцент ветки.','The Aura focuses on slowing and controlling enemies. The final form reinforces the branch's primary combat identity.'),
-    f('aura_sanctum_final_2','Каскад Sanctum','Cascade Sanctum','The Aura focuses on slowing and controlling enemies. Финальная форма расширяет основной боевой паттерн ветки.','The Aura focuses on slowing and controlling enemies. The final form extends the branch's core combat pattern.'),
-    f('aura_sanctum_final_3','Апекс Sanctum','Apex Sanctum','The Aura focuses on slowing and controlling enemies. Финальная форма усиливает сигнатурный финальный паттерн ветки.','The Aura focuses on slowing and controlling enemies. The final form strengthens the branch's signature final pattern.'),
+    f('aura_sanctum_final_1','Святилище • Ядро','Aura Sanctum • Core','Финальная форма ветки «Святилище»: Ядро.','Final form of the Aura Sanctum branch: Core.'),
+    f('aura_sanctum_final_2','Святилище • Каскад','Aura Sanctum • Cascade','Финальная форма ветки «Святилище»: Каскад.','Final form of the Aura Sanctum branch: Cascade.'),
+    f('aura_sanctum_final_3','Святилище • Апекс','Aura Sanctum • Apex','Финальная форма ветки «Святилище»: Апекс.','Final form of the Aura Sanctum branch: Apex.'),
   ],
   aura_gravity:[
-    f('aura_gravity_final_1','Ядро Gravity','Core Gravity','The Aura pulls enemies toward its center. Финальная форма закрепляет главный акцент ветки.','The Aura pulls enemies toward its center. The final form reinforces the branch's primary combat identity.'),
-    f('aura_gravity_final_2','Каскад Gravity','Cascade Gravity','The Aura pulls enemies toward its center. Финальная форма расширяет основной боевой паттерн ветки.','The Aura pulls enemies toward its center. The final form extends the branch's core combat pattern.'),
-    f('aura_gravity_final_3','Апекс Gravity','Apex Gravity','The Aura pulls enemies toward its center. Финальная форма усиливает сигнатурный финальный паттерн ветки.','The Aura pulls enemies toward its center. The final form strengthens the branch's signature final pattern.'),
+    f('aura_gravity_final_1','Гравитация • Ядро','Aura Gravity • Core','Финальная форма ветки «Гравитация»: Ядро.','Final form of the Aura Gravity branch: Core.'),
+    f('aura_gravity_final_2','Гравитация • Каскад','Aura Gravity • Cascade','Финальная форма ветки «Гравитация»: Каскад.','Final form of the Aura Gravity branch: Cascade.'),
+    f('aura_gravity_final_3','Гравитация • Апекс','Aura Gravity • Apex','Финальная форма ветки «Гравитация»: Апекс.','Final form of the Aura Gravity branch: Apex.'),
   ],
   aura_overgrowth:[
-    f('aura_overgrowth_final_1','Ядро Overgrowth','Core Overgrowth','The Aura empowers nearby Spheres inside its field. Финальная форма закрепляет главный акцент ветки.','The Aura empowers nearby Spheres inside its field. The final form reinforces the branch's primary combat identity.'),
-    f('aura_overgrowth_final_2','Каскад Overgrowth','Cascade Overgrowth','The Aura empowers nearby Spheres inside its field. Финальная форма расширяет основной боевой паттерн ветки.','The Aura empowers nearby Spheres inside its field. The final form extends the branch's core combat pattern.'),
-    f('aura_overgrowth_final_3','Апекс Overgrowth','Apex Overgrowth','The Aura empowers nearby Spheres inside its field. Финальная форма усиливает сигнатурный финальный паттерн ветки.','The Aura empowers nearby Spheres inside its field. The final form strengthens the branch's signature final pattern.'),
+    f('aura_overgrowth_final_1','Живая сеть • Ядро','Aura Overgrowth • Core','Финальная форма ветки «Живая сеть»: Ядро.','Final form of the Aura Overgrowth branch: Core.'),
+    f('aura_overgrowth_final_2','Живая сеть • Каскад','Aura Overgrowth • Cascade','Финальная форма ветки «Живая сеть»: Каскад.','Final form of the Aura Overgrowth branch: Cascade.'),
+    f('aura_overgrowth_final_3','Живая сеть • Апекс','Aura Overgrowth • Apex','Финальная форма ветки «Живая сеть»: Апекс.','Final form of the Aura Overgrowth branch: Apex.'),
   ],
   orbital_dance:[
-    f('orbital_dance_final_1','Ядро Dance','Core Dance','Orbiting satellites accelerate and pressure enemies on each pass. Финальная форма закрепляет главный акцент ветки.','Orbiting satellites accelerate and pressure enemies on each pass. The final form reinforces the branch's primary combat identity.'),
-    f('orbital_dance_final_2','Каскад Dance','Cascade Dance','Orbiting satellites accelerate and pressure enemies on each pass. Финальная форма расширяет основной боевой паттерн ветки.','Orbiting satellites accelerate and pressure enemies on each pass. The final form extends the branch's core combat pattern.'),
-    f('orbital_dance_final_3','Апекс Dance','Apex Dance','Orbiting satellites accelerate and pressure enemies on each pass. Финальная форма усиливает сигнатурный финальный паттерн ветки.','Orbiting satellites accelerate and pressure enemies on each pass. The final form strengthens the branch's signature final pattern.'),
+    f('orbital_dance_final_1','Танец • Ядро','Orbital Dance • Core','Финальная форма ветки «Танец»: Ядро.','Final form of the Orbital Dance branch: Core.'),
+    f('orbital_dance_final_2','Танец • Каскад','Orbital Dance • Cascade','Финальная форма ветки «Танец»: Каскад.','Final form of the Orbital Dance branch: Cascade.'),
+    f('orbital_dance_final_3','Танец • Апекс','Orbital Dance • Apex','Финальная форма ветки «Танец»: Апекс.','Final form of the Orbital Dance branch: Apex.'),
   ],
   orbital_halo:[
-    f('orbital_halo_final_1','Ядро Halo','Core Halo','The orbit creates a protective resonance for nearby Spheres. Финальная форма закрепляет главный акцент ветки.','The orbit creates a protective resonance for nearby Spheres. The final form reinforces the branch's primary combat identity.'),
-    f('orbital_halo_final_2','Каскад Halo','Cascade Halo','The orbit creates a protective resonance for nearby Spheres. Финальная форма расширяет основной боевой паттерн ветки.','The orbit creates a protective resonance for nearby Spheres. The final form extends the branch's core combat pattern.'),
-    f('orbital_halo_final_3','Апекс Halo','Apex Halo','The orbit creates a protective resonance for nearby Spheres. Финальная форма усиливает сигнатурный финальный паттерн ветки.','The orbit creates a protective resonance for nearby Spheres. The final form strengthens the branch's signature final pattern.'),
+    f('orbital_halo_final_1','Ореол • Ядро','Orbital Halo • Core','Финальная форма ветки «Ореол»: Ядро.','Final form of the Orbital Halo branch: Core.'),
+    f('orbital_halo_final_2','Ореол • Каскад','Orbital Halo • Cascade','Финальная форма ветки «Ореол»: Каскад.','Final form of the Orbital Halo branch: Cascade.'),
+    f('orbital_halo_final_3','Ореол • Апекс','Orbital Halo • Apex','Финальная форма ветки «Ореол»: Апекс.','Final form of the Orbital Halo branch: Apex.'),
   ],
   orbital_blade:[
-    f('orbital_blade_final_1','Ядро Blade','Core Blade','Orbiting satellites become dedicated cutting weapons. Финальная форма закрепляет главный акцент ветки.','Orbiting satellites become dedicated cutting weapons. The final form reinforces the branch's primary combat identity.'),
-    f('orbital_blade_final_2','Каскад Blade','Cascade Blade','Orbiting satellites become dedicated cutting weapons. Финальная форма расширяет основной боевой паттерн ветки.','Orbiting satellites become dedicated cutting weapons. The final form extends the branch's core combat pattern.'),
-    f('orbital_blade_final_3','Апекс Blade','Apex Blade','Orbiting satellites become dedicated cutting weapons. Финальная форма усиливает сигнатурный финальный паттерн ветки.','Orbiting satellites become dedicated cutting weapons. The final form strengthens the branch's signature final pattern.'),
+    f('orbital_blade_final_1','Клинок • Ядро','Orbital Blade • Core','Финальная форма ветки «Клинок»: Ядро.','Final form of the Orbital Blade branch: Core.'),
+    f('orbital_blade_final_2','Клинок • Каскад','Orbital Blade • Cascade','Финальная форма ветки «Клинок»: Каскад.','Final form of the Orbital Blade branch: Cascade.'),
+    f('orbital_blade_final_3','Клинок • Апекс','Orbital Blade • Apex','Финальная форма ветки «Клинок»: Апекс.','Final form of the Orbital Blade branch: Apex.'),
   ],
   prism_split:[
-    f('prism_split_final_1','Ядро Split','Core Split','The beam divides across additional targets. Финальная форма закрепляет главный акцент ветки.','The beam divides across additional targets. The final form reinforces the branch's primary combat identity.'),
-    f('prism_split_final_2','Каскад Split','Cascade Split','The beam divides across additional targets. Финальная форма расширяет основной боевой паттерн ветки.','The beam divides across additional targets. The final form extends the branch's core combat pattern.'),
-    f('prism_split_final_3','Апекс Split','Apex Split','The beam divides across additional targets. Финальная форма усиливает сигнатурный финальный паттерн ветки.','The beam divides across additional targets. The final form strengthens the branch's signature final pattern.'),
+    f('prism_split_final_1','Расщепление • Ядро','Prism Split • Core','Финальная форма ветки «Расщепление»: Ядро.','Final form of the Prism Split branch: Core.'),
+    f('prism_split_final_2','Расщепление • Каскад','Prism Split • Cascade','Финальная форма ветки «Расщепление»: Каскад.','Final form of the Prism Split branch: Cascade.'),
+    f('prism_split_final_3','Расщепление • Апекс','Prism Split • Apex','Финальная форма ветки «Расщепление»: Апекс.','Final form of the Prism Split branch: Apex.'),
   ],
   prism_spectrum:[
-    f('prism_spectrum_final_1','Ядро Spectrum','Core Spectrum','The beam interacts with active status effects. Финальная форма закрепляет главный акцент ветки.','The beam interacts with active status effects. The final form reinforces the branch's primary combat identity.'),
-    f('prism_spectrum_final_2','Каскад Spectrum','Cascade Spectrum','The beam interacts with active status effects. Финальная форма расширяет основной боевой паттерн ветки.','The beam interacts with active status effects. The final form extends the branch's core combat pattern.'),
-    f('prism_spectrum_final_3','Апекс Spectrum','Apex Spectrum','The beam interacts with active status effects. Финальная форма усиливает сигнатурный финальный паттерн ветки.','The beam interacts with active status effects. The final form strengthens the branch's signature final pattern.'),
+    f('prism_spectrum_final_1','Спектр • Ядро','Prism Spectrum • Core','Финальная форма ветки «Спектр»: Ядро.','Final form of the Prism Spectrum branch: Core.'),
+    f('prism_spectrum_final_2','Спектр • Каскад','Prism Spectrum • Cascade','Финальная форма ветки «Спектр»: Каскад.','Final form of the Prism Spectrum branch: Cascade.'),
+    f('prism_spectrum_final_3','Спектр • Апекс','Prism Spectrum • Apex','Финальная форма ветки «Спектр»: Апекс.','Final form of the Prism Spectrum branch: Apex.'),
   ],
   prism_mirror:[
-    f('prism_mirror_final_1','Ядро Mirror','Core Mirror','Linked Spheres reflect additional beam damage. Финальная форма закрепляет главный акцент ветки.','Linked Spheres reflect additional beam damage. The final form reinforces the branch's primary combat identity.'),
-    f('prism_mirror_final_2','Каскад Mirror','Cascade Mirror','Linked Spheres reflect additional beam damage. Финальная форма расширяет основной боевой паттерн ветки.','Linked Spheres reflect additional beam damage. The final form extends the branch's core combat pattern.'),
-    f('prism_mirror_final_3','Апекс Mirror','Apex Mirror','Linked Spheres reflect additional beam damage. Финальная форма усиливает сигнатурный финальный паттерн ветки.','Linked Spheres reflect additional beam damage. The final form strengthens the branch's signature final pattern.'),
+    f('prism_mirror_final_1','Зеркало • Ядро','Prism Mirror • Core','Финальная форма ветки «Зеркало»: Ядро.','Final form of the Prism Mirror branch: Core.'),
+    f('prism_mirror_final_2','Зеркало • Каскад','Prism Mirror • Cascade','Финальная форма ветки «Зеркало»: Каскад.','Final form of the Prism Mirror branch: Cascade.'),
+    f('prism_mirror_final_3','Зеркало • Апекс','Prism Mirror • Apex','Финальная форма ветки «Зеркало»: Апекс.','Final form of the Prism Mirror branch: Apex.'),
   ],
   gravity_well:[
-    f('gravity_well_final_1','Ядро Well','Core Well','The field creates sustained pull toward its center. Финальная форма закрепляет главный акцент ветки.','The field creates sustained pull toward its center. The final form reinforces the branch's primary combat identity.'),
-    f('gravity_well_final_2','Каскад Well','Cascade Well','The field creates sustained pull toward its center. Финальная форма расширяет основной боевой паттерн ветки.','The field creates sustained pull toward its center. The final form extends the branch's core combat pattern.'),
-    f('gravity_well_final_3','Апекс Well','Apex Well','The field creates sustained pull toward its center. Финальная форма усиливает сигнатурный финальный паттерн ветки.','The field creates sustained pull toward its center. The final form strengthens the branch's signature final pattern.'),
+    f('gravity_well_final_1','Колодец • Ядро','Gravity Well • Core','Финальная форма ветки «Колодец»: Ядро.','Final form of the Gravity Well branch: Core.'),
+    f('gravity_well_final_2','Колодец • Каскад','Gravity Well • Cascade','Финальная форма ветки «Колодец»: Каскад.','Final form of the Gravity Well branch: Cascade.'),
+    f('gravity_well_final_3','Колодец • Апекс','Gravity Well • Apex','Финальная форма ветки «Колодец»: Апекс.','Final form of the Gravity Well branch: Apex.'),
   ],
   gravity_tide:[
-    f('gravity_tide_final_1','Ядро Tide','Core Tide','The field alternates between pull and release waves. Финальная форма закрепляет главный акцент ветки.','The field alternates between pull and release waves. The final form reinforces the branch's primary combat identity.'),
-    f('gravity_tide_final_2','Каскад Tide','Cascade Tide','The field alternates between pull and release waves. Финальная форма расширяет основной боевой паттерн ветки.','The field alternates between pull and release waves. The final form extends the branch's core combat pattern.'),
-    f('gravity_tide_final_3','Апекс Tide','Apex Tide','The field alternates between pull and release waves. Финальная форма усиливает сигнатурный финальный паттерн ветки.','The field alternates between pull and release waves. The final form strengthens the branch's signature final pattern.'),
+    f('gravity_tide_final_1','Прилив • Ядро','Gravity Tide • Core','Финальная форма ветки «Прилив»: Ядро.','Final form of the Gravity Tide branch: Core.'),
+    f('gravity_tide_final_2','Прилив • Каскад','Gravity Tide • Cascade','Финальная форма ветки «Прилив»: Каскад.','Final form of the Gravity Tide branch: Cascade.'),
+    f('gravity_tide_final_3','Прилив • Апекс','Gravity Tide • Apex','Финальная форма ветки «Прилив»: Апекс.','Final form of the Gravity Tide branch: Apex.'),
   ],
   gravity_collapse:[
-    f('gravity_collapse_final_1','Ядро Collapse','Core Collapse','Dense enemy groups take amplified compression damage. Финальная форма закрепляет главный акцент ветки.','Dense enemy groups take amplified compression damage. The final form reinforces the branch's primary combat identity.'),
-    f('gravity_collapse_final_2','Каскад Collapse','Cascade Collapse','Dense enemy groups take amplified compression damage. Финальная форма расширяет основной боевой паттерн ветки.','Dense enemy groups take amplified compression damage. The final form extends the branch's core combat pattern.'),
-    f('gravity_collapse_final_3','Апекс Collapse','Apex Collapse','Dense enemy groups take amplified compression damage. Финальная форма усиливает сигнатурный финальный паттерн ветки.','Dense enemy groups take amplified compression damage. The final form strengthens the branch's signature final pattern.'),
+    f('gravity_collapse_final_1','Коллапс • Ядро','Gravity Collapse • Core','Финальная форма ветки «Коллапс»: Ядро.','Final form of the Gravity Collapse branch: Core.'),
+    f('gravity_collapse_final_2','Коллапс • Каскад','Gravity Collapse • Cascade','Финальная форма ветки «Коллапс»: Каскад.','Final form of the Gravity Collapse branch: Cascade.'),
+    f('gravity_collapse_final_3','Коллапс • Апекс','Gravity Collapse • Apex','Финальная форма ветки «Коллапс»: Апекс.','Final form of the Gravity Collapse branch: Apex.'),
   ],
   pulse_wave:[
-    f('pulse_wave_final_1','Ядро Wave','Core Wave','The pulse grows wider and pushes enemies away. Финальная форма закрепляет главный акцент ветки.','The pulse grows wider and pushes enemies away. The final form reinforces the branch's primary combat identity.'),
-    f('pulse_wave_final_2','Каскад Wave','Cascade Wave','The pulse grows wider and pushes enemies away. Финальная форма расширяет основной боевой паттерн ветки.','The pulse grows wider and pushes enemies away. The final form extends the branch's core combat pattern.'),
-    f('pulse_wave_final_3','Апекс Wave','Apex Wave','The pulse grows wider and pushes enemies away. Финальная форма усиливает сигнатурный финальный паттерн ветки.','The pulse grows wider and pushes enemies away. The final form strengthens the branch's signature final pattern.'),
+    f('pulse_wave_final_1','Волна • Ядро','Pulse Wave • Core','Финальная форма ветки «Волна»: Ядро.','Final form of the Pulse Wave branch: Core.'),
+    f('pulse_wave_final_2','Волна • Каскад','Pulse Wave • Cascade','Финальная форма ветки «Волна»: Каскад.','Final form of the Pulse Wave branch: Cascade.'),
+    f('pulse_wave_final_3','Волна • Апекс','Pulse Wave • Apex','Финальная форма ветки «Волна»: Апекс.','Final form of the Pulse Wave branch: Apex.'),
   ],
   pulse_resonator:[
-    f('pulse_resonator_final_1','Ядро Resonator','Core Resonator','Pulse attacks feed Resonance and network pressure. Финальная форма закрепляет главный акцент ветки.','Pulse attacks feed Resonance and network pressure. The final form reinforces the branch's primary combat identity.'),
-    f('pulse_resonator_final_2','Каскад Resonator','Cascade Resonator','Pulse attacks feed Resonance and network pressure. Финальная форма расширяет основной боевой паттерн ветки.','Pulse attacks feed Resonance and network pressure. The final form extends the branch's core combat pattern.'),
-    f('pulse_resonator_final_3','Апекс Resonator','Apex Resonator','Pulse attacks feed Resonance and network pressure. Финальная форма усиливает сигнатурный финальный паттерн ветки.','Pulse attacks feed Resonance and network pressure. The final form strengthens the branch's signature final pattern.'),
+    f('pulse_resonator_final_1','Резонатор • Ядро','Pulse Resonator • Core','Финальная форма ветки «Резонатор»: Ядро.','Final form of the Pulse Resonator branch: Core.'),
+    f('pulse_resonator_final_2','Резонатор • Каскад','Pulse Resonator • Cascade','Финальная форма ветки «Резонатор»: Каскад.','Final form of the Pulse Resonator branch: Cascade.'),
+    f('pulse_resonator_final_3','Резонатор • Апекс','Pulse Resonator • Apex','Финальная форма ветки «Резонатор»: Апекс.','Final form of the Pulse Resonator branch: Apex.'),
   ],
   pulse_burst:[
-    f('pulse_burst_final_1','Ядро Burst','Core Burst','A secondary discharge follows the main pulse. Финальная форма закрепляет главный акцент ветки.','A secondary discharge follows the main pulse. The final form reinforces the branch's primary combat identity.'),
-    f('pulse_burst_final_2','Каскад Burst','Cascade Burst','A secondary discharge follows the main pulse. Финальная форма расширяет основной боевой паттерн ветки.','A secondary discharge follows the main pulse. The final form extends the branch's core combat pattern.'),
-    f('pulse_burst_final_3','Апекс Burst','Apex Burst','A secondary discharge follows the main pulse. Финальная форма усиливает сигнатурный финальный паттерн ветки.','A secondary discharge follows the main pulse. The final form strengthens the branch's signature final pattern.'),
+    f('pulse_burst_final_1','Вспышка • Ядро','Pulse Burst • Core','Финальная форма ветки «Вспышка»: Ядро.','Final form of the Pulse Burst branch: Core.'),
+    f('pulse_burst_final_2','Вспышка • Каскад','Pulse Burst • Cascade','Финальная форма ветки «Вспышка»: Каскад.','Final form of the Pulse Burst branch: Cascade.'),
+    f('pulse_burst_final_3','Вспышка • Апекс','Pulse Burst • Apex','Финальная форма ветки «Вспышка»: Апекс.','Final form of the Pulse Burst branch: Apex.'),
   ],
   void_hunger:[
-    f('void_hunger_final_1','Ядро Hunger','Core Hunger','Damage rises as the target loses health. Финальная форма закрепляет главный акцент ветки.','Damage rises as the target loses health. The final form reinforces the branch's primary combat identity.'),
-    f('void_hunger_final_2','Каскад Hunger','Cascade Hunger','Damage rises as the target loses health. Финальная форма расширяет основной боевой паттерн ветки.','Damage rises as the target loses health. The final form extends the branch's core combat pattern.'),
-    f('void_hunger_final_3','Апекс Hunger','Apex Hunger','Damage rises as the target loses health. Финальная форма усиливает сигнатурный финальный паттерн ветки.','Damage rises as the target loses health. The final form strengthens the branch's signature final pattern.'),
+    f('void_hunger_final_1','Голод • Ядро','Void Hunger • Core','Финальная форма ветки «Голод»: Ядро.','Final form of the Void Hunger branch: Core.'),
+    f('void_hunger_final_2','Голод • Каскад','Void Hunger • Cascade','Финальная форма ветки «Голод»: Каскад.','Final form of the Void Hunger branch: Cascade.'),
+    f('void_hunger_final_3','Голод • Апекс','Void Hunger • Apex','Финальная форма ветки «Голод»: Апекс.','Final form of the Void Hunger branch: Apex.'),
   ],
   void_reaper:[
-    f('void_reaper_final_1','Ядро Reaper','Core Reaper','Void kills restore health and create follow-up shards. Финальная форма закрепляет главный акцент ветки.','Void kills restore health and create follow-up shards. The final form reinforces the branch's primary combat identity.'),
-    f('void_reaper_final_2','Каскад Reaper','Cascade Reaper','Void kills restore health and create follow-up shards. Финальная форма расширяет основной боевой паттерн ветки.','Void kills restore health and create follow-up shards. The final form extends the branch's core combat pattern.'),
-    f('void_reaper_final_3','Апекс Reaper','Apex Reaper','Void kills restore health and create follow-up shards. Финальная форма усиливает сигнатурный финальный паттерн ветки.','Void kills restore health and create follow-up shards. The final form strengthens the branch's signature final pattern.'),
+    f('void_reaper_final_1','Жнец • Ядро','Void Reaper • Core','Финальная форма ветки «Жнец»: Ядро.','Final form of the Void Reaper branch: Core.'),
+    f('void_reaper_final_2','Жнец • Каскад','Void Reaper • Cascade','Финальная форма ветки «Жнец»: Каскад.','Final form of the Void Reaper branch: Cascade.'),
+    f('void_reaper_final_3','Жнец • Апекс','Void Reaper • Apex','Финальная форма ветки «Жнец»: Апекс.','Final form of the Void Reaper branch: Apex.'),
   ],
   void_execution:[
-    f('void_execution_final_1','Ядро Execution','Core Execution','Weakened targets become vulnerable to lethal finishing hits. Финальная форма закрепляет главный акцент ветки.','Weakened targets become vulnerable to lethal finishing hits. The final form reinforces the branch's primary combat identity.'),
-    f('void_execution_final_2','Каскад Execution','Cascade Execution','Weakened targets become vulnerable to lethal finishing hits. Финальная форма расширяет основной боевой паттерн ветки.','Weakened targets become vulnerable to lethal finishing hits. The final form extends the branch's core combat pattern.'),
-    f('void_execution_final_3','Апекс Execution','Apex Execution','Weakened targets become vulnerable to lethal finishing hits. Финальная форма усиливает сигнатурный финальный паттерн ветки.','Weakened targets become vulnerable to lethal finishing hits. The final form strengthens the branch's signature final pattern.'),
+    f('void_execution_final_1','Экзекуция • Ядро','Void Execution • Core','Финальная форма ветки «Экзекуция»: Ядро.','Final form of the Void Execution branch: Core.'),
+    f('void_execution_final_2','Экзекуция • Каскад','Void Execution • Cascade','Финальная форма ветки «Экзекуция»: Каскад.','Final form of the Void Execution branch: Cascade.'),
+    f('void_execution_final_3','Экзекуция • Апекс','Void Execution • Apex','Финальная форма ветки «Экзекуция»: Апекс.','Final form of the Void Execution branch: Apex.'),
   ],
 };
 
@@ -259,7 +253,53 @@ const finalsFor=(id:SphereEvolutionId):[SphereEvolutionDef,SphereEvolutionDef,Sp
   return finals;
 };
 
-const ABILITY_PROGRESSION:Partial<Record<AbilityType,AbilityProgressionDef>>={
+const br=(id:SphereEvolutionId,ru:string,desc:string,fin:[SphereEvolutionDef,SphereEvolutionDef,SphereEvolutionDef]):SphereEvolutionBranch=>{
+  const details=BRANCH_LEVEL_DETAILS[id] ?? NEW_BRANCH_LEVEL_DETAILS[id] ?? { level5: 'Усиление выбранной ветки.', level6: 'Дополнительное усиление уникальной механики.' };
+  const [nameEn,descEn]=BRANCH_EN[id] ?? [ru,desc];
+  return { ...e(id,ru,nameEn,desc,descEn), id, final:fin, level5:{ru:details.level5,en:details.level5}, level6:{ru:details.level6,en:details.level6} };
+};
+const sphere=(type:SphereType,name:string,priority:Partial<Record<CharacterId,number>>,l:[string,string,string],branches:[SphereEvolutionBranch,SphereEvolutionBranch,SphereEvolutionBranch]):SphereDef=>({type,name:SPHERE_TYPES[type]?.name ?? {ru:name,en:name},priority,levels:lv(...l),evolution4:branches[0],evolution7:branches[0].final[0],evolution4Choices:branches});
+const genericSphereBranches = (type: SphereType, names: [string,string,string], ids: [SphereEvolutionId,SphereEvolutionId,SphereEvolutionId]): [SphereEvolutionBranch,SphereEvolutionBranch,SphereEvolutionBranch] =>
+  ids.map((id, i) => br(id, names[i], 'Развивает уникальную механику сферы '+type+'.', finals(names[i], names[i], ids))) as [SphereEvolutionBranch,SphereEvolutionBranch,SphereEvolutionBranch];
+
+export const SPHERE_PROGRESSION:Record<SphereType,SphereDef>={
+ standard:sphere('standard','Стандартная',{spherist:1,engineer:.9,berserker:.8,architect:.7,hunter:.4,alchemist:.4},['+15% урона','+1 пробитие','-10% задержки'],[br('standard_resonator','Резонатор','Каждое третье попадание выпускает импульс',finalsFor('Резонатор')),br('standard_singularity','Сингулярность','Попадания притягивают врагов',finalsFor('Сингулярность')),br('standard_swarm','Рой','Попадания выпускают осколки',finalsFor('Рой'))]),
+ sniper:sphere('sniper','Снайперская',{hunter:1,architect:.9,spherist:.4,engineer:.4,berserker:.3,alchemist:.3},['+25% урона','+15% дальности','+15% крита'],[br('sniper_oracle','Оракул','Усиливает критический урон по отмеченным целям',finalsFor('Оракул')),br('sniper_assassin','Убийца','Усиливает урон по слабым целям',finalsFor('Убийца')),br('sniper_beacon','Маяк','Помечает цель для всей сети',finalsFor('Маяк'))]),
+ shotgun:sphere('shotgun','Дробовик',{berserker:1,alchemist:.8,spherist:.6,engineer:.4,hunter:.3,architect:.3},['+1 дробь','+20% урона вблизи','-12% разброса'],[br('shotgun_burst','Разрыв','Ближние попадания наносят повышенный урон',finalsFor('Разрыв')),br('shotgun_cataclysm','Осада','Тяжёлые пробивные снаряды',finalsFor('Осада')),br('shotgun_hail','Град','Много дополнительных снарядов',finalsFor('Град'))]),
+ chain:sphere('chain','Цепная',{spherist:1,hunter:.95,engineer:.9,alchemist:.8,architect:.5,berserker:.4},['+1 цель цепи','+10% урона цепи','+15% скорости перехода'],[br('chain_web','Паутина','Поражённые цели получают усиленное замедление',finalsFor('Паутина')),br('chain_storm','Шторм','Каждый переход усиливает следующий',finalsFor('Шторм')),br('chain_leech','Паразит','Цепь возвращает часть урона',finalsFor('Паразит'))]),
+ aura:sphere('aura','Аура',{engineer:1,alchemist:1,architect:.9,spherist:.7,hunter:.4,berserker:.4},['+20% радиуса ауры','-10% интервала импульса','+10% урона ауры'],[br('aura_sanctum','Святилище','Замедляет врагов и усиливает сферы',finalsFor('Святилище')),br('aura_gravity','Гравитация','Стягивает врагов к центру',finalsFor('Гравитация')),br('aura_overgrowth','Живая сеть','Усиливает сферы внутри ауры',finalsFor('Живая сеть'))]),
+ orbital:sphere('orbital','Орбитальная',{spherist:1,engineer:.8,architect:.8},['+15% орбитального урона','+15% радиуса орбиты','-12% интервала'],[br('orbital_dance','Танец','Спутники вращаются быстрее и наносят урон при каждом пересечении траектории с врагом.',finalsFor('Танец')),br('orbital_halo','Ореол','Спутники создают защитный ореол: ближайшие сферы получают усиление после прохода орбиты.',finalsFor('Ореол')),br('orbital_blade','Клинок','Спутники превращаются в боевые лезвия и наносят повышенный урон по траектории.',finalsFor('Клинок'))]),
+ prism:sphere('prism','Призма',{hunter:1,architect:.9,spherist:.7},['+20% урона луча','+15% дальности','+1 направление'],[br('prism_split','Расщепление','Луч после попадания делится на дополнительные лучи по другим целям.',finalsFor('Расщепление')),br('prism_spectrum','Спектр','Луч передаёт активный статусный эффект и усиливает реакцию на цели.',finalsFor('Спектр')),br('prism_mirror','Зеркало','Связанные сферы создают отражённые лучи, повторяющие основной удар.',finalsFor('Зеркало'))]),
+ gravity:sphere('gravity','Гравитационная',{alchemist:1,architect:1,engineer:.8},['+20% силы притяжения','+15% радиуса','-15% интервала импульса'],[br('gravity_well','Колодец','Притяжение становится постоянным: чем ближе враг к центру, тем сильнее его тянет.',finalsFor('Колодец')),br('gravity_tide','Прилив','Поле плавно меняет силу притяжения и периодически создаёт обратную волну.',finalsFor('Прилив')),br('gravity_collapse','Коллапс','Собранные в плотную группу враги получают дополнительный урон от сжатия.',finalsFor('Коллапс'))]),
+ pulse:sphere('pulse','Импульсная',{engineer:1,spherist:.9,architect:.8},['+20% импульсного урона','+15% радиуса','-12% интервала'],[br('pulse_wave','Волна','Каждый импульс становится шире и отбрасывает врагов от сферы.',finalsFor('Волна')),br('pulse_resonator','Резонатор','Импульсы подпитывают Resonance и усиливают сеть при активной геометрии.',finalsFor('Резонатор')),br('pulse_burst','Вспышка','После основной волны возникает дополнительный разряд по центру.',finalsFor('Вспышка'))]),
+ void:sphere('void','Пустотная',{hunter:1,alchemist:.8,architect:.7},['+20% урона по ослабленным','+10% шанс критического добивания','+15% дальности'],[br('void_hunger','Голод','Урон растёт по мере потери здоровья целью, превращая Void в добивающую сферу.',finalsFor('Голод')),br('void_reaper','Жнец','Убийства Void возвращают HP и создают осколки пустоты для продолжения атаки.',finalsFor('Жнец')),br('void_execution','Экзекуция','Слабые цели получают шанс на мгновенное добивание, а финальная форма повышает порог исполнения.',finalsFor('Экзекуция'))])
+};
+const abilityLevels=(a:string,b:string,c:string,d:string,e:string,f:string):SphereUpgradeDef[] => [
+  {level:1,name:{ru:'Пробуждение',en:'Awakening'},desc:{ru:a,en:a}},
+  {level:2,name:{ru:'Настройка',en:'Tuning'},desc:{ru:b,en:b}},
+  {level:3,name:{ru:'Раскрытие',en:'Expansion'},desc:{ru:c,en:c}},
+  {level:4,name:{ru:'Мутация I',en:'Mutation I'},desc:{ru:'Следующий выбор откроет одну из трёх веток способности',en:'The next choice opens one of three ability branches'}},
+  {level:5,name:{ru:'Развитие ветки',en:'Branch Development'},desc:{ru:d,en:d}},
+  {level:6,name:{ru:'Синхронизация ветки',en:'Branch Synchronization'},desc:{ru:e,en:e}},
+  {level:7,name:{ru:'Мутация II',en:'Mutation II'},desc:{ru:'Следующий выбор откроет одну из трёх финальных форм',en:'The next choice opens one of three final forms'}},
+];
+
+export interface AbilityEvolutionChoice {
+  id:string;
+  name:{ru:string;en:string};
+  desc:{ru:string;en:string};
+}
+
+export interface AbilityProgressionDef {
+  ability:AbilityType;
+  levels:SphereUpgradeDef[];
+  evolution4:AbilityEvolutionChoice[];
+  evolution7:AbilityEvolutionChoice[];
+}
+
+const ae=(id:string,ru:string,desc:string):AbilityEvolutionChoice=>({id,name:{ru,en:ru},desc:{ru:desc,en:desc}});
+
+export const ABILITY_PROGRESSION:Partial<Record<AbilityType,AbilityProgressionDef>>={
   blast:{
     ability:'blast',
     levels:abilityLevels(
