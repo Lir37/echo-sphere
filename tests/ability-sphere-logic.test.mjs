@@ -78,7 +78,8 @@ test('Sphere Mutation II choices are gameplay mutations, not visual variants', (
   assert.doesNotMatch(block, /постоянный трёхточечный контур|внешний каскад|апексный элемент/);
   assert.doesNotMatch(block, /persistent three-point crown|outer cascade|directed apex element/);
   const finalEntries = [...block.matchAll(/f\('([^']+)_final_[123]'/g)].map((m) => m[1]);
-  assert.equal(finalEntries.length, 30);
+  assert.equal(finalEntries.length, 90);
+  assert.equal(new Set(finalEntries).size, 30);
 });
 
 test('Sphere Mutation II final choices keep distinct authored modifier mappings where required', () => {
