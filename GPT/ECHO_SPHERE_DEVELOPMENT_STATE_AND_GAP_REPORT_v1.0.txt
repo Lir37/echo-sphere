@@ -4447,3 +4447,48 @@ NEXT
 4. Keep Fire/Freeze/Poison balance unchanged until visual validation is done.
 
 ======================================================================
+
+======================================================================
+[2026-10-02] ELEMENTAL ORBITAL RING CI REPAIR — VERIFIED
+======================================================================
+
+CODE/TEST HEAD:
+4370da1a07b0bebb8eda8b80153ed6d119757343
+
+REPAIR:
+[DONE] Fixed brittle elemental orbit regression assertions in
+tests/elemental-mutation.test.mjs.
+[DONE] Assertions now match the actual implemented expressions:
+      ringRy = radius * .34
+      ringSpin = -time * .18
+[UNCHANGED] No gameplay or elemental visual implementation changed by
+this repair.
+
+VALIDATION:
+[VERIFIED] GitHub Actions run #1253: SUCCESS.
+[VERIFIED] Typecheck: SUCCESS.
+[VERIFIED] Asset usage and PNG sanity check: SUCCESS.
+[VERIFIED] Unit tests: SUCCESS.
+[VERIFIED] Gameplay coverage audit: SUCCESS.
+[VERIFIED] Lint: SUCCESS.
+[VERIFIED] Web build: SUCCESS.
+[VERIFIED] Playwright rendered gameplay QA: SUCCESS.
+[VERIFIED] Capacitor Android sync: SUCCESS.
+[VERIFIED] Debug APK build: SUCCESS.
+[VERIFIED] APK artifact upload: SUCCESS.
+
+APK:
+- Artifact: echo-sphere-debug-apk
+- Artifact ID: 11251183406
+- Built APK inside artifact: app-debug.apk
+- Human APK PlayerCheck remains the visual acceptance gate for elemental
+  ring thickness, flattening, reverse rotation, and Fire / Freeze / Poison
+  readability at gameplay scale.
+
+NEXT:
+1. Perform PlayerCheck on the successful APK.
+2. Only adjust ring particle count, brightness or speed from observed APK
+   evidence.
+3. Keep elemental gameplay balance unchanged until PlayerCheck.
+
+======================================================================
