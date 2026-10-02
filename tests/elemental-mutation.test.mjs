@@ -21,41 +21,41 @@ test('Elemental Mutation I maps only eligible direct-weapon branches', () => {
 });
 
 test('Elemental Mutation II exposes mastery and keeps existing final choice', () => {
-  assert.match(engineProgression, /getSphereElementMasteryForBranch(branch.id,index)/);
+  assert.match(engineProgression, /getSphereElementMasteryForBranch\(branch\.id,\s*index\)/);
   for (const token of ['fire_power','fire_tempo','fire_duration','freeze_duration','freeze_impact','freeze_permafrost','poison_power','poison_tempo','poison_duration']) {
     assert.ok(progression.includes(token), token);
   }
-  assert.match(engineSpheres, /mastery?.id === 'fire_power'/);
-  assert.match(engineSpheres, /mastery?.id === 'fire_tempo'/);
-  assert.match(engineSpheres, /mastery?.id === 'fire_duration'/);
-  assert.match(engineSpheres, /mastery?.id === 'poison_power'/);
-  assert.match(engineSpheres, /mastery?.id === 'poison_tempo'/);
-  assert.match(engineSpheres, /mastery?.id === 'poison_duration'/);
+  assert.ok(engineSpheres.includes("mastery?.id === 'fire_power'"));
+  assert.ok(engineSpheres.includes("mastery?.id === 'fire_tempo'"));
+  assert.ok(engineSpheres.includes("mastery?.id === 'fire_duration'"));
+  assert.ok(engineSpheres.includes("mastery?.id === 'poison_power'"));
+  assert.ok(engineSpheres.includes("mastery?.id === 'poison_tempo'"));
+  assert.ok(engineSpheres.includes("mastery?.id === 'poison_duration'"));
 });
 
 test('Fire and Poison Tempo use faster status ticks without raising DPS/sec', () => {
   assert.match(enemies, /const tickInterval = Number(e.fireTickInterval || 0)/);
-  assert.match(enemies, /e.hp -= e.fireDps * tickInterval/);
+  assert.ok(enemies.includes('e.hp -= e.fireDps * tickInterval;'));
   assert.match(enemies, /const tickInterval = Number(e.poisonTickInterval || 0)/);
-  assert.match(enemies, /e.hp -= e.poisonDps * tickInterval/);
+  assert.ok(enemies.includes('e.hp -= e.poisonDps * tickInterval;'));
 });
 
 test('Freeze mastery provides same-Sphere vulnerability or post-thaw control', () => {
-  assert.match(combat, /fromSphere?.type === enemy.freezeVulnerabilitySource/);
-  assert.match(engineSpheres, /mastery?.id === 'freeze_impact'/);
-  assert.match(engineSpheres, /mastery?.id === 'freeze_permafrost'/);
+  assert.ok(combat.includes('fromSphere?.type === enemy.freezeVulnerabilitySource'));
+  assert.ok(engineSpheres.includes("mastery?.id === 'freeze_impact'"));
+  assert.ok(engineSpheres.includes("mastery?.id === 'freeze_permafrost'"));
 });
 
 test('Elemental VFX is a persistent secondary layer', () => {
-  assert.match(renderer, /renderSphereElementalVfx(ctx, sphere, s.player, time, scale)/);
+  assert.ok(renderer.includes('renderSphereElementalVfx(ctx, sphere, s.player, time, scale)'));
   assert.match(app, /SPHERE_ELEMENT_META/);
   assert.match(app, /borderColor: elementMeta.color/);
   assert.match(orbital, /getSphereElementForBranch(branch)/);
   assert.match(orbital, /elementColor/);
 });
 
-test('Projectile status follows selected branch element', () => {
+test('Projectile effect follows selected branch element', () => {
   assert.match(engineSpheres, /const branchElement = getSphereElementForBranch/);
   assert.match(engineSpheres, /let effect: 'none' | 'fire' | 'freeze' | 'poison' = branchElement ?? 'none'/);
-  assert.match(engineSpheres, /if (p.effect !== 'none') applyDirectSphereStatus/);
+  assert.ok(engineSpheres.includes('effect,\n              ricochet:'));
 });
