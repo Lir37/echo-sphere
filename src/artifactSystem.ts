@@ -305,6 +305,53 @@ export const ARTIFACT_SETS: ArtifactSetDef[] = [
   },
 ];
 
+export interface ArtifactSetArtifactProgress {
+  setId: ArtifactSetDef['id'];
+  name: ArtifactSetDef['name'];
+  desc: ArtifactSetDef['desc'];
+  artifactIds: ArtifactId[];
+  ownedArtifactIds: ArtifactId[];
+  owned: number;
+  total: number;
+  complete: boolean;
+}
+
+/**
+ * Returns the concrete Artifact members of each Set. Set membership is
+ * derived from the Set's synergy requirements, so the UI does not maintain
+ * a second, drifting list of components.
+ */
+export function getArtifactSetArtifactProgress(
+  s: { player: { artifacts: ArtifactId[] } },
+): ArtifactSetArtifactProgress[] {
+  const owned = new Set(s.player.artifacts);
+  return ARTIFACT_SETS.map((set) => {
+    const artifactIds = [...new Set(
+      set.synergyIds.flatMap((synergyId) =>
+        ARTIFACT_SYNERGIES.find((synergy) => synergy.id === synergyId)?.requires || [],
+      ),
+    )];
+    const ownedArtifactIds = artifactIds.filter((id) => owned.has(id));
+    return {
+      setId: set.id,
+      name: set.name,
+      desc: set.desc,
+      artifactIds,
+      ownedArtifactIds,
+      owned: ownedArtifactIds.length,
+      total: artifactIds.length,
+      complete: ownedArtifactIds.length === artifactIds.length,
+    };
+  });
+}
+
+export function getArtifactSetsForArtifact(
+  s: { player: { artifacts: ArtifactId[] } },
+  artifactId: ArtifactId,
+): ArtifactSetArtifactProgress[] {
+  return getArtifactSetArtifactProgress(s).filter((set) => set.artifactIds.includes(artifactId));
+}
+
 export function getArtifactSetProgress(
   s: { player: { artifacts: ArtifactId[] } },
 ): ArtifactSetProgress[] {
