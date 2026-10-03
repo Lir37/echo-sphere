@@ -60,13 +60,14 @@ export interface SphereNetworkProfile {
 }
 
 const SECONDARY_SCORE_GAP = 14;
+const SECONDARY_DISJOINT_SCORE_GAP = 18;
 const DOMINANCE_SWITCH_MARGIN = 10;
 
 const GEOMETRY_SPECIFICITY: Record<Exclude<NetworkFormation, 'none'>, number> = {
   line: 0,
   triangle: 1,
   cluster: 2,
-  square: 3,
+  square: 5,
   ring: 3,
   lattice: 5,
   fractal: 7,
@@ -114,10 +115,25 @@ function selectActiveGeometry(
   const dominant = ranked[0] || null;
   if (!dominant) return { dominant: null, secondary: null };
 
-  const secondaryCandidate = ranked.find((shape) =>
+  const dominantNodes = new Set(dominant.nodes);
+  const scoreGap = (shape: NetworkShape): number =>
+    (dominant.dominanceScore || 0) - (shape.dominanceScore || 0);
+
+  // Prefer a genuinely separate formation when it is still reasonably
+  // strong. This lets two distant builds coexist instead of a broad Cluster
+  // swallowing an unrelated second formation elsewhere on the Network.
+  const disjointCandidate = ranked.find((shape) =>
     shape.type !== dominant.type &&
-    (dominant.dominanceScore || 0) - (shape.dominanceScore || 0) <= SECONDARY_SCORE_GAP,
-  ) || null;
+    scoreGap(shape) <= SECONDARY_DISJOINT_SCORE_GAP &&
+    shape.nodes.every((node) => !dominantNodes.has(node)),
+  );
+
+  const overlappingCandidate = ranked.find((shape) =>
+    shape.type !== dominant.type &&
+    scoreGap(shape) <= SECONDARY_SCORE_GAP,
+  );
+
+  const secondaryCandidate = disjointCandidate || overlappingCandidate || null;
 
   return {
     dominant,
