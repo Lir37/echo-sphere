@@ -4731,3 +4731,33 @@ FOLLOW-UP HEAD:
   in the Lock implementation.
 - A fresh CI run is required on this corrected HEAD.
 ----------------------------------------------------------------------
+
+----------------------------------------------------------------------
+[2026-10-03] LEVEL-UP LOCK FIX VERIFIED
+----------------------------------------------------------------------
+
+VERIFIED CODE HEAD:
+e22c9d4fb521e9d89971abf27e4e9feaa1af1187
+
+[VERIFIED]
+- Lock reservation survives choosing a different Level-Up card.
+- Locked choice is restored into the following Level-Up choice set.
+- Lock + Reroll preserves the reserved card.
+- Reservation is consumed only when the locked card is selected.
+- Stale reservations are cleared only when their logical choice becomes
+  unavailable.
+- Direct Sphere synergy regression tests now run under the repository test
+  runner.
+
+CI:
+- #1303 SUCCESS on e22c9d4fb521e9d89971abf27e4e9feaa1af1187.
+- Typecheck: SUCCESS.
+- Unit tests: SUCCESS.
+- Gameplay coverage, lint, web build, Playwright QA and Android APK build:
+  SUCCESS.
+- APK artifact upload: SUCCESS.
+
+PLAYER CHECK:
+- Next APK observation must explicitly test Lock across two Level-Ups and
+  Lock + Reroll. Automated CI cannot prove the human interaction sequence.
+----------------------------------------------------------------------
