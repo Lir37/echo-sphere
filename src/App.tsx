@@ -812,6 +812,12 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
           <span>{lang === 'ru' ? 'СЕТЬ' : 'NETWORK'}</span>
           <b className="text-[#dcecff]">{network.links.length}</b>
         </div>
+        {network.dominantFormation && (
+          <div className="mt-1.5 flex items-center gap-1.5 rounded border border-[#ffcf7a]/35 bg-[#ffcf7a]/[0.08] px-1.5 py-1 text-[7px] font-black uppercase tracking-[0.12em] text-[#ffcf7a]">
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#ffcf7a] shadow-[0_0_7px_#ffcf7a]" />
+            {lang === 'ru' ? 'ДОМИНАНТА' : 'DOMINANT'} · {network.dominantFormation.type.toUpperCase()}
+          </div>
+        )}
         <div className="relative mt-1 flex flex-wrap gap-1">
           {networkBadges.length > 0 ? networkBadges.map((badge) => (
             <span key={badge.label}
