@@ -18,7 +18,7 @@ import {
 } from './artifactSystem';
 import {
   sphereModifiers, sphereLevel, getActiveSphereAbilitySynergies,
-  getSphereElementForBranch, getSphereElementMasteryForBranch,
+  getSphereElementForBranch, getSphereElementMasteryForBranch, SPHERE_ELEMENT_META,
 } from './sphereProgression';
 import { selectSphereTarget } from './targeting';
 import type { SphereNetworkState } from './network';
