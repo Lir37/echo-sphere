@@ -86,7 +86,7 @@ export function update(s: GameState, dt: number): void {
     s.player.hp = Math.min(s.player.maxHp, s.player.hp + s.player.abilities.regen * 0.6 * dt);
   }
   s.networkFrameId += 1;
-  s.networkFrame = null;
+  // frameId invalidates the cache; keep the previous snapshot for Geometry inertia.
   // Progressive active slots: Dash is always free, then three non-Dash slots
   // open during the run. This keeps the active layer tactical rather than
   // turning the HUD into a keyboard.
