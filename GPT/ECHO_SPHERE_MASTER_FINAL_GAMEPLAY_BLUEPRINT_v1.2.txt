@@ -3762,3 +3762,105 @@ CI #1259 SUCCESS:
 
 Human APK PlayerCheck remains the final subjective gate for actual gameplay
 readability and balance.
+
+
+======================================================================
+GEOMETRY 2.0 — DOMINANCE MODEL
+======================================================================
+
+DATE: 2026-10-03
+STATUS: IMPLEMENTED IN new-desing
+
+The Network now separates three layers:
+
+1. PHYSICAL LINKS
+   Canonical infrastructure. Links exist whenever two live Network Nodes
+   are within LINK_DISTANCE.
+
+2. FORMATION CANDIDATES
+   Every valid Geometry is evaluated independently. A Sphere may therefore
+   participate in more than one valid formation.
+
+3. ACTIVE GEOMETRY LAYERS
+   At most two formations are combat-active:
+   - DOMINANT FORMATION: primary Network identity and owner of the next
+     player-level Resonance Event.
+   - SECONDARY FORMATION: retains its own local Geometry mechanics, but
+     does not override the dominant Resonance event.
+
+DOMINANCE SCORE:
+
+score =
+  strength * 100
+  + specificity bonus
+  + size bonus
+
+Specificity:
+LINE 0
+TRIANGLE 1
+CLUSTER 2
+SQUARE 3
+RING 3
+LATTICE 5
+FRACTAL 7
+
+Size bonus:
++1.5 per node above 3, capped at +6.
+
+This means geometric precision is the main factor. A weak higher-order
+shape does not automatically beat a strong lower-order shape.
+
+FORMATION INERTIA:
+
+When a dominant formation already exists, another formation must exceed
+its dominance score by 10 points to take over.
+
+The old dominant formation is immediately lost if it is no longer valid.
+
+This prevents visual jitter and accidental Network identity changes while
+moving a Sphere a few pixels.
+
+HOW THE PLAYER CHANGES DOMINANCE:
+
+The player does NOT press a hidden "choose formation" switch.
+
+Dominance is changed through placement:
+- move an existing Sphere;
+- move a fourth/fifth Sphere into a position that completes a stronger form;
+- pull a Sphere away so the current form weakens or breaks;
+- use Ghost Snap to preview the resulting dominant Geometry before commit.
+
+Example:
+A 3-Sphere Triangle can remain dominant after a fourth Sphere is added.
+The fourth Sphere does not evict the Triangle merely because it is nearby.
+If the four Spheres are arranged into a sufficiently strong Square, Square
+can become dominant. To return to Triangle, the player weakens/breaks the
+Square arrangement or rebuilds the Triangle.
+
+OVERLAP RULE:
+
+The previous "one Sphere belongs to only one Geometry" rule is replaced.
+Overlapping Geometry is allowed, but only the two highest-quality
+formations become active. This preserves build interaction without
+allowing uncontrolled multi-formation stacking.
+
+RESONANCE:
+
+The dominant Geometry determines which formation-specific Resonance Event
+fires at 100 Resonance charge. Static type priority is no longer used.
+
+GHOST SNAP:
+
+Ghost Snap reports the prospective dominant Geometry, so the placement
+preview directly answers "what will my Network become if I put the Sphere
+here?"
+
+SQUARE ROLE CLEANUP:
+
+Square no longer receives generic +8% damage, -6% attack delay or +1
+projectile pierce. Its identity remains defensive/stability-oriented:
+formation hits build shield charges, and Square Resonance provides a
+defensive burst. This keeps Square from becoming a universal combat
+multiplier.
+
+======================================================================
