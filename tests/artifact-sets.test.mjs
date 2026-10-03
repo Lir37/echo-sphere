@@ -296,3 +296,27 @@ test('Artifact Set UI model reaches complete state from all required concrete ar
   const progress = getArtifactSetArtifactProgress(state(all));
   assert.ok(progress.every((set) => set.complete));
 });
+
+
+test('Sphere mutation synergy hints expose the future Ability path from Level IV', async () => {
+  const mod = await import('../src/sphereProgression.ts');
+  const state = { player: { characterId: 'spherist', sphereProgression: {}, sphereBranches: {}, abilities: {} } };
+  const hints = mod.getSphereMutationSynergyHints(state, 'pulse', 'pulse_wave');
+  assert.equal(hints.length, 1);
+  assert.equal(hints[0].ability, 'blast');
+});
+
+test('Sphere mutation synergy activates only for the selected branch at Sphere VII + Ability VII', async () => {
+  const mod = await import('../src/sphereProgression.ts');
+  const state = {
+    player: {
+      characterId: 'spherist',
+      sphereProgression: { pulse: 7 },
+      sphereBranches: { pulse: 'pulse_wave' },
+      abilities: { blast: 7 },
+    },
+  };
+  assert.equal(mod.getActiveSphereAbilitySynergies(state).some((x) => x.name.ru === 'Резонансная волна'), true);
+  state.player.sphereBranches.pulse = 'pulse_burst';
+  assert.equal(mod.getActiveSphereAbilitySynergies(state).some((x) => x.name.ru === 'Резонансная волна'), false);
+});
