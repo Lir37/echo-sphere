@@ -598,3 +598,31 @@ REGRESSION / CI:
 
 [GATE]
 Human APK PlayerCheck is required before numeric balance tuning.
+
+
+======================================================================
+GEOMETRY AUDIT UPDATE — 2026-10-03
+======================================================================
+
+The former Network resolver used fixed Geometry priority plus node
+exclusivity. This made a newly detected formation capable of replacing an
+existing formation without giving the player a clear spatial reason.
+
+Current implementation uses:
+- physical Link layer;
+- independent Geometry candidate detection;
+- dominance score based primarily on geometric strength;
+- 10-point dominance switch margin;
+- one dominant + one secondary active Geometry;
+- overlapping formation membership;
+- dominant Geometry as the Resonance Event owner;
+- Ghost Snap preview of the prospective dominant Geometry.
+
+The key gameplay contract is now:
+PLACEMENT -> LINKS -> FORMATION CANDIDATES -> DOMINANCE -> RESONANCE.
+
+This makes the dominant form something the player can deliberately change
+by rearranging already established Spheres rather than an opaque priority
+decision in the engine.
+
+======================================================================
