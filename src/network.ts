@@ -21,12 +21,24 @@ export interface NetworkShape {
   type: Exclude<NetworkFormation, 'none'>;
   strength: number;
   nodes: number[];
+  /**
+   * Deterministic geometry score used to decide which valid formation is
+   * dominant. It is intentionally only a small refinement over raw shape
+   * strength so a precise lower-order form can beat a sloppy higher-order one.
+   */
+  dominanceScore?: number;
 }
 
 export interface SphereNetworkState {
   linkDistance: number;
   nodes: number[];
   links: NetworkLink[];
+  /** All currently valid formations, before the two active combat layers are selected. */
+  formationCandidates: NetworkShape[];
+  /** Primary formation. Its Resonance event is the dominant Network event. */
+  dominantFormation: NetworkShape | null;
+  /** Optional secondary formation. Its local mechanics remain active, but it does not own Resonance. */
+  secondaryFormation: NetworkShape | null;
   line: NetworkShape | null;
   triangle: NetworkShape | null;
   square: NetworkShape | null;
@@ -48,41 +60,70 @@ export interface SphereNetworkProfile {
 }
 
 const ACTIVE_GEOMETRY_LIMIT = 2;
-const GEOMETRY_PRIORITY: Record<Exclude<NetworkFormation, 'none'>, number> = {
-  square: 70,
-  lattice: 60,
-  ring: 55,
-  fractal: 50,
-  triangle: 40,
-  cluster: 30,
-  line: 20,
+const SECONDARY_SCORE_GAP = 14;
+const DOMINANCE_SWITCH_MARGIN = 10;
+
+const GEOMETRY_SPECIFICITY: Record<Exclude<NetworkFormation, 'none'>, number> = {
+  line: 0,
+  triangle: 1,
+  cluster: 2,
+  square: 3,
+  ring: 3,
+  lattice: 5,
+  fractal: 7,
 };
 
-function resolveNonOverlappingGeometry(
+function getGeometryDominanceScore(shape: NetworkShape): number {
+  const sizeBonus = Math.min(6, Math.max(0, shape.nodes.length - 3) * 1.5);
+  return shape.strength * 100 + GEOMETRY_SPECIFICITY[shape.type] + sizeBonus;
+}
+
+function rankGeometryCandidates(
   candidates: Partial<Record<Exclude<NetworkFormation, 'none'>, NetworkShape | null>>,
-): Partial<Record<Exclude<NetworkFormation, 'none'>, NetworkShape | null>> {
-  const filteredCandidates = { ...candidates };
-  if ((filteredCandidates.fractal?.nodes.length || 0) < 6) filteredCandidates.fractal = null;
-  const ordered = (Object.entries(filteredCandidates) as Array<[Exclude<NetworkFormation, 'none'>, NetworkShape | null]>)
-    .filter((entry): entry is [Exclude<NetworkFormation, 'none'>, NetworkShape] => Boolean(entry[1]))
-    .sort((a, b) => {
-      const pa = GEOMETRY_PRIORITY[a[0]], pb = GEOMETRY_PRIORITY[b[0]];
-      return pb - pa || b[1].strength - a[1].strength;
-    });
+  previousDominant: NetworkFormation = 'none',
+): NetworkShape[] {
+  const filtered = (Object.values(candidates) as Array<NetworkShape | null>)
+    .filter((shape): shape is NetworkShape => Boolean(shape))
+    .filter((shape) => shape.type !== 'fractal' || shape.nodes.length >= 6)
+    .map((shape) => ({ ...shape, dominanceScore: getGeometryDominanceScore(shape) }))
+    .sort((a, b) =>
+      (b.dominanceScore || 0) - (a.dominanceScore || 0) ||
+      b.strength - a.strength ||
+      b.nodes.length - a.nodes.length ||
+      a.type.localeCompare(b.type),
+    );
 
-  const claimed = new Set<number>();
-  const resolved: Partial<Record<Exclude<NetworkFormation, 'none'>, NetworkShape | null>> = {};
-  let activeCount = 0;
+  if (previousDominant === 'none') return filtered;
 
-  for (const [type, shape] of ordered) {
-    if (activeCount >= ACTIVE_GEOMETRY_LIMIT) break;
-    if (shape.nodes.some((node) => claimed.has(node))) continue;
-    resolved[type] = shape;
-    shape.nodes.forEach((node) => claimed.add(node));
-    activeCount++;
+  const previous = filtered.find((shape) => shape.type === previousDominant);
+  const top = filtered[0];
+  if (!previous || !top || previous.type === top.type) return filtered;
+
+  // Formation inertia: a small geometric fluctuation must not steal the
+  // Network's identity. The player changes dominance by creating a real
+  // structural advantage, or by breaking the current formation entirely.
+  if ((top.dominanceScore || 0) < (previous.dominanceScore || 0) + DOMINANCE_SWITCH_MARGIN) {
+    return [previous, ...filtered.filter((shape) => shape.type !== previous.type)];
   }
 
-  return resolved;
+  return filtered;
+}
+
+function selectActiveGeometry(
+  ranked: NetworkShape[],
+): { dominant: NetworkShape | null; secondary: NetworkShape | null } {
+  const dominant = ranked[0] || null;
+  if (!dominant) return { dominant: null, secondary: null };
+
+  const secondaryCandidate = ranked.find((shape) =>
+    shape.type !== dominant.type &&
+    (dominant.dominanceScore || 0) - (shape.dominanceScore || 0) <= SECONDARY_SCORE_GAP,
+  ) || null;
+
+  return {
+    dominant,
+    secondary: secondaryCandidate,
+  };
 }
 
 const DEFAULT_LINK_DISTANCE = 220;
@@ -238,6 +279,7 @@ function latticeShape(nodes: NetworkNode[], indexes: number[], links: NetworkLin
 export function analyzeSphereNetwork(
   nodes: NetworkNode[],
   linkDistance = DEFAULT_LINK_DISTANCE,
+  previousDominant: NetworkFormation = 'none',
 ): SphereNetworkState {
   const indexes = aliveIndexes(nodes);
   const links: NetworkLink[] = [];
@@ -295,11 +337,11 @@ export function analyzeSphereNetwork(
       }
     : null;
 
-  // Physical Links remain canonical. Active Geometry is resolved separately:
-  // one Sphere may belong to only one active Geometry, and at most two
-  // Geometry formations can be active simultaneously. Disjoint formations
-  // can therefore coexist without stacking multiple bonuses on the same node.
-  const resolved = resolveNonOverlappingGeometry({
+  // Physical Links are infrastructure. Geometry is a higher-level
+  // interpretation of that infrastructure. Multiple valid formations may
+  // overlap; only the two strongest layers are combat-active. The dominant
+  // layer owns the player-level Resonance event.
+  const candidates = {
     fractal,
     lattice,
     ring,
@@ -307,19 +349,32 @@ export function analyzeSphereNetwork(
     triangle,
     cluster,
     line,
-  });
+  };
+  const ranked = rankGeometryCandidates(candidates, previousDominant);
+  const active = selectActiveGeometry(ranked);
+  const activeTypes = new Set(
+    [active.dominant, active.secondary]
+      .filter((shape): shape is NetworkShape => Boolean(shape))
+      .map((shape) => shape.type),
+  );
+
+  const byType = (type: Exclude<NetworkFormation, 'none'>): NetworkShape | null =>
+    activeTypes.has(type) ? ranked.find((shape) => shape.type === type) || null : null;
 
   return {
     linkDistance,
     nodes: indexes,
     links,
-    line: resolved.line || null,
-    triangle: resolved.triangle || null,
-    square: resolved.square || null,
-    cluster: resolved.cluster || null,
-    ring: resolved.ring || null,
-    lattice: resolved.lattice || null,
-    fractal: resolved.fractal || null,
+    formationCandidates: ranked,
+    dominantFormation: active.dominant,
+    secondaryFormation: active.secondary,
+    line: byType('line'),
+    triangle: byType('triangle'),
+    square: byType('square'),
+    cluster: byType('cluster'),
+    ring: byType('ring'),
+    lattice: byType('lattice'),
+    fractal: byType('fractal'),
   };
 }
 
