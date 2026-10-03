@@ -1136,6 +1136,9 @@ function UpgradeModal({ lang, t, st, onPick, onLock, onReroll }: {
             const element = choice.type === 'sphere' ? getSphereElementForBranch(choice.sphereBranch) : null;
             const elementMeta = element ? SPHERE_ELEMENT_META[element] : null;
             const elementCard = Boolean(elementMeta && (choice.sphereStage === 'branch' || choice.sphereStage === 'final'));
+            const mutationSynergyHints = choice.type === 'sphere' && choice.sphereBranch
+              ? getSphereMutationSynergyHints(st, choice.sphereType || 'standard', choice.sphereBranch)
+              : [];
             return (
             <div
               key={i}
@@ -1168,6 +1171,32 @@ function UpgradeModal({ lang, t, st, onPick, onLock, onReroll }: {
                 )}
               </div>
               <div className="text-sm text-[#b6c9de] mb-2">{choice.desc?.[lang] || ''}</div>
+              {mutationSynergyHints.length > 0 && (
+                <div className="mt-2 rounded-lg border border-[#39d8ff]/25 bg-[#39d8ff]/[.05] px-2.5 py-2">
+                  <div className="flex items-center gap-2">
+                    <span className="es-synergy-orbit">
+                      <span className="es-synergy-orbit-sphere" />
+                      <Sparkles size={10} />
+                    </span>
+                    <div className="min-w-0">
+                      <div className="text-[8px] uppercase tracking-[.12em] font-black text-[#39d8ff]">
+                        {lang === 'ru' ? 'БУДУЩАЯ СИНЕРГИЯ' : 'FUTURE SYNERGY'}
+                      </div>
+                      {mutationSynergyHints.map((hint) => (
+                        <div key={hint.name.ru} className="text-[9px] font-bold text-[#dcecff] truncate">
+                          {hint.name[lang]} · {ABILITIES[hint.ability].name[lang]}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="mt-1 text-[8px] leading-3 text-[#7f9bb8]">
+                    {mutationSynergyHints.map((hint) => hint.desc[lang]).join(' · ')}
+                  </div>
+                  <div className="mt-1 text-[7px] uppercase tracking-wider text-[#7f9bb8]/80">
+                    {lang === 'ru' ? 'Активируется: Сфера VII + Способность VII' : 'Activates: Sphere VII + Ability VII'}
+                  </div>
+                </div>
+              )}
               <div className="text-xs text-[#7f9bb8]/70">
                 {choice.type === 'modifier'
                   ? (lang === 'ru' ? 'Разблокирует эффект' : 'Unlocks the effect')
