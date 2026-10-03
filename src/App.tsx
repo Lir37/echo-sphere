@@ -935,8 +935,12 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
               onPointerUp={cancelNetworkHold}
               onPointerCancel={cancelNetworkHold}
               onPointerLeave={cancelNetworkHold}
-              className={`select-none rounded border px-1 py-0.5 text-[7px] font-bold tracking-wide ${badge.className} pointer-events-auto`} style={{ userSelect: 'none', WebkitUserSelect: 'none' }} onContextMenu={(event) => event.preventDefault()}>
+              className={`select-none rounded border px-1.5 py-0.5 text-[7px] font-bold tracking-wide pointer-events-auto ${badge.className} ${network.dominantFormation?.type.toUpperCase() === badge.id ? 'es-network-badge-dominant' : network.secondaryFormation?.type.toUpperCase() === badge.id ? 'es-network-badge-secondary' : ''}`}
+              style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
+              onContextMenu={(event) => event.preventDefault()}>
+              {network.dominantFormation?.type.toUpperCase() === badge.id && <span className="mr-1">◆</span>}
               {badge.label}
+              {network.secondaryFormation?.type.toUpperCase() === badge.id && <span className="ml-1 opacity-60">II</span>}
             </span>
           )) : <span className="text-[7px] text-[#7f9bb8]">{lang === 'ru' ? 'ФОРМАЦИЯ НЕ АКТИВНА' : 'NO FORMATION'}</span>}
           {networkTooltip && (
