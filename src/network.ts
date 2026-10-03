@@ -271,6 +271,24 @@ function ringShape(nodes: NetworkNode[], indexes: number[], linkDistance: number
   return strength >= 0.68 ? { type: 'ring', strength, nodes: ordered } : null;
 }
 
+function isNodeSetConnected(indexes: number[], links: NetworkLink[]): boolean {
+  if (indexes.length <= 1) return true;
+  const allowed = new Set(indexes);
+  const visited = new Set<number>([indexes[0]]);
+  const queue = [indexes[0]];
+  while (queue.length > 0) {
+    const current = queue.shift()!;
+    for (const link of links) {
+      const next = link.a === current ? link.b : link.b === current ? link.a : -1;
+      if (next >= 0 && allowed.has(next) && !visited.has(next)) {
+        visited.add(next);
+        queue.push(next);
+      }
+    }
+  }
+  return visited.size === allowed.size;
+}
+
 function latticeShape(nodes: NetworkNode[], indexes: number[], links: NetworkLink[], linkDistance: number): NetworkShape | null {
   if (indexes.length < 4) return null;
   const triangles: number[][] = [];
@@ -344,11 +362,12 @@ export function analyzeSphereNetwork(
   const ring = ringShape(nodes, indexes, linkDistance);
   const lattice = latticeShape(nodes, indexes, links, linkDistance);
   const fractalBase = [ring, lattice, square, triangle].filter(Boolean) as NetworkShape[];
-  const fractal = fractalBase.length >= 2
+  const fractalNodes = [...new Set(fractalBase.flatMap((shape) => shape.nodes))];
+  const fractal = fractalBase.length >= 2 && isNodeSetConnected(fractalNodes, links)
     ? {
         type: 'fractal' as const,
         strength: Math.min(1, fractalBase.reduce((sum, shape) => sum + shape.strength, 0) / fractalBase.length),
-        nodes: [...new Set(fractalBase.flatMap((shape) => shape.nodes))],
+        nodes: fractalNodes,
       }
     : null;
 
