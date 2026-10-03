@@ -9,7 +9,7 @@ const [progression, engineProgression, engineSpheres, enemies, combat, renderer,
   read('src/App.tsx'), read('src/spheres/orbitalVisual.ts'),
 ]);
 
-test('Elemental Mutation I maps only eligible direct-weapon branches', () => {
+test('Elemental Mutation I keeps completed direct branches untouched and adds special archetypes', () => {
   for (const token of [
     "standard_resonator: 'fire'","standard_singularity: 'freeze'","standard_swarm: 'poison'",
     "sniper_oracle: 'poison'","sniper_assassin: 'fire'","sniper_beacon: 'freeze'",
@@ -17,6 +17,12 @@ test('Elemental Mutation I maps only eligible direct-weapon branches', () => {
     "orbital_dance: 'poison'","orbital_halo: 'freeze'","orbital_blade: 'fire'",
     "prism_split: 'poison'","prism_spectrum: 'fire'","prism_mirror: 'freeze'",
     "void_hunger: 'poison'","void_reaper: 'fire'","void_execution: 'freeze'",
+  ]) assert.ok(progression.includes(token), token);
+  for (const token of [
+    "chain_web: 'freeze'","chain_storm: 'fire'","chain_leech: 'poison'",
+    "aura_sanctum: 'freeze'","aura_gravity: 'fire'","aura_overgrowth: 'poison'",
+    "gravity_well: 'freeze'","gravity_tide: 'fire'","gravity_collapse: 'poison'",
+    "pulse_wave: 'freeze'","pulse_resonator: 'fire'","pulse_burst: 'poison'",
   ]) assert.ok(progression.includes(token), token);
 });
 
@@ -73,4 +79,34 @@ test('Projectile effect follows selected branch element', () => {
   assert.match(engineSpheres, /const branchElement = getSphereElementForBranch/);
   assert.match(engineSpheres, /let effect: 'none' | 'fire' | 'freeze' | 'poison' = branchElement ?? 'none'/);
   assert.ok(engineSpheres.includes('effect,\n              ricochet:'));
+});
+
+
+test('Chain and Field Level VII use dedicated elemental mastery pools', () => {
+  for (const token of ['conduction_power','conduction_rate','conduction_duration','field_power','field_frequency','field_duration']) {
+    assert.ok(progression.includes(token), token);
+  }
+  assert.match(progression, /specialChain = Boolean/);
+  assert.match(progression, /specialField = Boolean/);
+});
+
+test('Chain elemental identity is conduction, not per-hit direct status spam', () => {
+  assert.match(engineSpheres, /function triggerChainElementalReaction/);
+  assert.match(engineSpheres, /const threshold = mastery?.id === 'conduction_rate' ? 2 : 3/);
+  assert.match(engineSpheres, /enemy.elementalConduction/);
+  assert.match(engineSpheres, /triggerChainElementalReaction(s, target, sphere)/);
+});
+
+test('Aura, Gravity and Pulse use per-target Field reaction cadence', () => {
+  assert.match(engineSpheres, /function applyElementalFieldReaction/);
+  assert.match(engineSpheres, /enemy.elementalReactionTimer/);
+  assert.match(engineSpheres, /if (isSpecialElementalBranch(branch)) applyElementalFieldReaction/);
+  assert.match(enemies, /e.elementalReactionTimer = Math.max(0, e.elementalReactionTimer - dt)/);
+});
+
+test('Special elemental VFX has distinct Chain / Aura / Gravity / Pulse signatures', () => {
+  const elemental = await read('src/spheres/elementalVisual.ts');
+  assert.match(elemental, /function drawSpecialElementalSignature/);
+  for (const token of ["sphere.type === 'chain'","sphere.type === 'aura'","sphere.type === 'gravity'"]) assert.ok(elemental.includes(token), token);
+  assert.match(elemental, /radius * (0.72 + q * 1.15)/);
 });

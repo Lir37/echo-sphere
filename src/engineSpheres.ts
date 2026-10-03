@@ -210,6 +210,118 @@ function applyDirectSphereStatus(s: GameState, enemy: EnemyEntity, effect: 'fire
   if (applyAlchemistReaction(s, enemy) && enemy.hp <= 0) onEnemyDeath(s, enemy, sourceSphere);
 }
 
+
+function isSpecialElementalBranch(branch?: string): boolean {
+  return Boolean(branch && (
+    branch.startsWith('chain_') ||
+    branch.startsWith('aura_') ||
+    branch.startsWith('gravity_') ||
+    branch.startsWith('pulse_')
+  ));
+}
+
+function applySpecialElementalMastery(
+  s: GameState,
+  enemy: EnemyEntity,
+  effect: 'fire' | 'freeze' | 'poison',
+  sphere: SphereEntity,
+  mode: 'conduction' | 'field',
+): void {
+  const branch = s.player.sphereBranches?.[sphere.type];
+  const mastery = getSphereElementMasteryForBranch(branch, getSphereFinalIndex(s, sphere.type));
+  applyDirectSphereStatus(s, enemy, effect, sphere);
+
+  if (mode === 'conduction') {
+    if (mastery?.id === 'conduction_power') {
+      if (effect === 'fire') enemy.fireDps *= 1.35;
+      else if (effect === 'poison') enemy.poisonDps *= 1.35;
+      else enemy.freezeTimer = Math.max(enemy.freezeTimer || 0, 0.5) * 1.35;
+    }
+    if (mastery?.id === 'conduction_duration') {
+      if (effect === 'fire') enemy.fireTimer *= 1.45;
+      else if (effect === 'poison') enemy.poisonTimer *= 1.45;
+      else enemy.freezeTimer = Math.max(enemy.freezeTimer || 0, 0.5) * 1.45;
+    }
+  } else {
+    if (mastery?.id === 'field_power') {
+      if (effect === 'fire') enemy.fireDps *= 1.35;
+      else if (effect === 'poison') enemy.poisonDps *= 1.35;
+      else {
+        enemy.freezeTimer = Math.max(enemy.freezeTimer || 0, 0.5) * 1.35;
+        enemy.slowTimer = Math.max(enemy.slowTimer, 0.8);
+        enemy.slowFactor = Math.min(enemy.slowFactor, 0.62);
+      }
+    }
+    if (mastery?.id === 'field_duration') {
+      if (effect === 'fire') enemy.fireTimer *= 1.45;
+      else if (effect === 'poison') enemy.poisonTimer *= 1.45;
+      else enemy.freezeTimer = Math.max(enemy.freezeTimer || 0, 0.5) * 1.45;
+    }
+  }
+}
+
+function triggerChainElementalReaction(
+  s: GameState,
+  enemy: EnemyEntity,
+  sphere: SphereEntity,
+): void {
+  const branch = s.player.sphereBranches?.chain;
+  const element = getSphereElementForBranch(branch);
+  if (!element || enemy.hp <= 0) return;
+
+  const mastery = getSphereElementMasteryForBranch(branch, getSphereFinalIndex(s, 'chain'));
+  const threshold = mastery?.id === 'conduction_rate' ? 2 : 3;
+  const source = enemy.elementalConductionSource;
+  if (source !== 'chain') {
+    enemy.elementalConductionSource = 'chain';
+    enemy.elementalConduction = 0;
+  }
+  if ((enemy.elementalReactionTimer || 0) > 0) return;
+
+  enemy.elementalConduction = Math.min(threshold, (enemy.elementalConduction || 0) + 1);
+  if ((enemy.elementalConduction || 0) < threshold) return;
+
+  enemy.elementalConduction = 0;
+  enemy.elementalReactionTimer = mastery?.id === 'conduction_rate' ? 1.4 : 2.0;
+  const reactionDamage = sphere.damage * (mastery?.id === 'conduction_power' ? 0.27 : 0.20);
+  dealDamageToEnemy(s, enemy, reactionDamage, sphere, false);
+  if (enemy.hp <= 0) return;
+
+  applySpecialElementalMastery(s, enemy, element, sphere, 'conduction');
+  s.particles.push({
+    pos: { ...enemy.pos },
+    vel: { x: 0, y: -18 },
+    life: 0.38,
+    maxLife: 0.38,
+    color: SPHERE_ELEMENT_META[element].color,
+    size: 5,
+  });
+}
+
+function applyElementalFieldReaction(
+  s: GameState,
+  enemy: EnemyEntity,
+  sphere: SphereEntity,
+): void {
+  const branch = s.player.sphereBranches?.[sphere.type];
+  const element = getSphereElementForBranch(branch);
+  if (!element || !isSpecialElementalBranch(branch) || enemy.hp <= 0) return;
+
+  const mastery = getSphereElementMasteryForBranch(branch, getSphereFinalIndex(s, sphere.type));
+  if ((enemy.elementalReactionTimer || 0) > 0) return;
+  enemy.elementalReactionTimer = mastery?.id === 'field_frequency' ? 1.25 : 1.8;
+
+  applySpecialElementalMastery(s, enemy, element, sphere, 'field');
+  s.particles.push({
+    pos: { ...enemy.pos },
+    vel: { x: 0, y: -14 },
+    life: 0.34,
+    maxLife: 0.34,
+    color: SPHERE_ELEMENT_META[element].color,
+    size: 4,
+  });
+}
+
 function getActiveStatusEffect(s: GameState, sphere?: SphereEntity): 'none' | 'fire' | 'freeze' | 'poison' {
   const branch = sphere ? s.player.sphereBranches?.[sphere.type] : undefined;
   const element = getSphereElementForBranch(branch);
@@ -380,7 +492,10 @@ function updateGravitySphere(s: GameState, sphere: SphereEntity, damage: number,
     }
     if (networkProfile.cluster) hitDamage *= 1.08;
     dealDamageToEnemy(s, enemy, hitDamage, sphere);
-    if (status !== 'none') applyDirectSphereStatus(s, enemy, status, sphere);
+    if (status !== 'none') {
+      if (isSpecialElementalBranch(branch)) applyElementalFieldReaction(s, enemy, sphere);
+      else applyDirectSphereStatus(s, enemy, status, sphere);
+    }
   }
 
   if (grouped >= 4 && branch === 'gravity_collapse' && finalIndex === 2) {
@@ -409,7 +524,9 @@ function updatePulseSphere(s: GameState, sphere: SphereEntity, damage: number, m
     const pulseStatus = getActiveStatusEffect(s, sphere);
     if (pulseStatus !== 'none') {
       for (const enemy of s.enemies) {
-        if (enemy.hp > 0 && dist(enemy.pos, sphere.pos) <= pulseRadius) applyDirectSphereStatus(s, enemy, pulseStatus, sphere);
+        if (enemy.hp <= 0 || dist(enemy.pos, sphere.pos) > pulseRadius) continue;
+        if (isSpecialElementalBranch(branch)) applyElementalFieldReaction(s, enemy, sphere);
+        else applyDirectSphereStatus(s, enemy, pulseStatus, sphere);
       }
     }
     if (branch === 'pulse_wave') {
@@ -493,6 +610,7 @@ export function updateSpheres(s: GameState, dt: number): void {
               }
             }
             dealDamageToEnemy(s, e, damage, sphere);
+            if (branch && isSpecialElementalBranch(branch)) applyElementalFieldReaction(s, e, sphere);
             attacked = true;
           }
         }
@@ -630,6 +748,7 @@ export function updateSpheres(s: GameState, dt: number): void {
                 target.fireTimer = Math.max(target.fireTimer || 0, 1.5);
                 target.poisonTimer = Math.max(target.poisonTimer || 0, 1.5);
               }
+              triggerChainElementalReaction(s, target, sphere);
               s.lightnings.push({ from: { ...nearest.pos }, to: { ...target.pos }, life: 0.30, sourceSphere: sphere });
             }
           }

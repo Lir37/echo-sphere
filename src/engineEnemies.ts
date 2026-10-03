@@ -322,6 +322,9 @@ export function updateEnemies(s: GameState, dt: number): void {
     if (e.hp <= 0) { s.enemies.splice(i, 1); continue; }
     e.rotation += dt;
     if (e.hitFlash > 0) e.hitFlash -= dt;
+    if (e.elementalReactionTimer && e.elementalReactionTimer > 0) {
+      e.elementalReactionTimer = Math.max(0, e.elementalReactionTimer - dt);
+    }
     if (e.freezeVulnerabilityTimer && e.freezeVulnerabilityTimer > 0) {
       e.freezeVulnerabilityTimer = Math.max(0, e.freezeVulnerabilityTimer - dt);
       if (e.freezeVulnerabilityTimer <= 0) e.freezeVulnerabilitySource = undefined;

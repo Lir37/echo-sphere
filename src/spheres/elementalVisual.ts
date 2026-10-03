@@ -202,6 +202,63 @@ function drawElementWeaponAccent(ctx: CanvasRenderingContext2D, element: SphereE
   ctx.restore();
 }
 
+
+function drawSpecialElementalSignature(
+  ctx: CanvasRenderingContext2D,
+  sphere: SphereEntity,
+  element: SphereElement,
+  radius: number,
+  time: number,
+  active: boolean,
+): void {
+  if (!['chain', 'aura', 'gravity', 'pulse'].includes(sphere.type)) return;
+  const color = SPHERE_ELEMENT_META[element].color;
+  const alpha = active ? 0.42 : 0.10;
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.strokeStyle = color;
+  ctx.fillStyle = rgba(color, alpha * 0.18);
+  ctx.lineWidth = Math.max(0.8, radius * 0.024);
+
+  if (sphere.type === 'chain') {
+    for (let i = 0; i < 3; i++) {
+      const a = time * 0.9 + i * TAU / 3;
+      const x = Math.cos(a) * radius * 1.02;
+      const y = Math.sin(a) * radius * 0.30;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + Math.cos(a + 1.2) * radius * 0.18, y + Math.sin(a + 1.2) * radius * 0.12);
+      ctx.stroke();
+    }
+  } else if (sphere.type === 'aura') {
+    ctx.globalAlpha = alpha * 0.72;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, radius * 1.85, radius * 0.58, 0, 0, TAU);
+    ctx.stroke();
+    for (let i = 0; i < 3; i++) {
+      const a = -time * 0.45 + i * TAU / 3;
+      const p = ellipsePoint(radius * 1.55, radius * 0.48, a);
+      drawElementParticle(ctx, element, p.x, p.y, radius * 0.065, a, alpha * 0.65, i);
+    }
+  } else if (sphere.type === 'gravity') {
+    for (let i = 0; i < 3; i++) {
+      const q = ((time * 0.35 + i / 3) % 1 + 1) % 1;
+      const rr = radius * (1.72 - q * 0.72);
+      ctx.globalAlpha = alpha * (1 - q) * 0.8;
+      ctx.beginPath();
+      ctx.arc(0, 0, rr, -0.55 + i * 2.0, 0.55 + i * 2.0);
+      ctx.stroke();
+    }
+  } else {
+    const q = ((time * 0.72) % 1 + 1) % 1;
+    ctx.globalAlpha = alpha * (1 - q);
+    ctx.beginPath();
+    ctx.arc(0, 0, radius * (0.72 + q * 1.15), 0, TAU);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
 export function renderSphereElementalVfx(ctx: CanvasRenderingContext2D, sphere: SphereEntity, player: PlayerState, time: number, scale = 1): void {
   const branch = player?.sphereBranches?.[sphere.type];
   const element = getSphereElementForBranch(branch);
@@ -213,6 +270,7 @@ export function renderSphereElementalVfx(ctx: CanvasRenderingContext2D, sphere: 
   ctx.save();
   ctx.translate(sphere.pos.x, sphere.pos.y);
   drawElementRing(ctx, element, radius, time, active, scale);
+  drawSpecialElementalSignature(ctx, sphere, element, radius, time, active);
   ctx.restore();
 
   drawElementWeaponAccent(ctx, element, sphere, 24 * scale, active, scale, time);

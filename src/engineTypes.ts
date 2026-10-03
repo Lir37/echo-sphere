@@ -210,6 +210,11 @@ export interface EnemyEntity {
   /** Freeze mastery vulnerability window for the source Sphere family. */
   freezeVulnerabilityTimer?: number;
   freezeVulnerabilitySource?: SphereType;
+  /** Per-target cooldown for special Chain/Field elemental reactions. */
+  elementalReactionTimer?: number;
+  /** Chain-only conduction progress and its source family. */
+  elementalConduction?: number;
+  elementalConductionSource?: SphereType;
   /** Temporary stacking state for the authored Void/Corrupt mechanic. */
   corruptStacks?: number;
   isElite: boolean;

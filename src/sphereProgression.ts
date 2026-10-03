@@ -42,6 +42,21 @@ export const SPHERE_BRANCH_ELEMENTS: Partial<Record<SphereEvolutionId, SphereEle
   void_hunger: 'poison',
   void_reaper: 'fire',
   void_execution: 'freeze',
+
+  // Special elemental archetypes use the same Fire / Freeze / Poison
+  // vocabulary, but resolve it through Conduction or Field reactions.
+  chain_web: 'freeze',
+  chain_storm: 'fire',
+  chain_leech: 'poison',
+  aura_sanctum: 'freeze',
+  aura_gravity: 'fire',
+  aura_overgrowth: 'poison',
+  gravity_well: 'freeze',
+  gravity_tide: 'fire',
+  gravity_collapse: 'poison',
+  pulse_wave: 'freeze',
+  pulse_resonator: 'fire',
+  pulse_burst: 'poison',
 };
 
 export interface SphereElementMasteryDef {
@@ -68,6 +83,43 @@ export const SPHERE_ELEMENT_MASTERY: Record<SphereElement, readonly SphereElemen
   ],
 };
 
+
+export const SPHERE_CHAIN_ELEMENT_MASTERY: Record<SphereElement, readonly SphereElementMasteryDef[]> = {
+  fire: [
+    { id: 'conduction_power', name: { ru: 'Проводимость • Сила', en: 'Conduction • Power' }, desc: { ru: '+35% силы огненной реакции цепи.', en: '+35% Fire chain-reaction power.' } },
+    { id: 'conduction_rate', name: { ru: 'Проводимость • Частота', en: 'Conduction • Rate' }, desc: { ru: 'Огненная реакция требует на один переход меньше и восстанавливается быстрее.', en: 'Fire reaction needs one fewer jump and recovers faster.' } },
+    { id: 'conduction_duration', name: { ru: 'Проводимость • Длительность', en: 'Conduction • Duration' }, desc: { ru: '+45% длительности горения от реакции цепи.', en: '+45% burn duration from the Chain reaction.' } },
+  ],
+  freeze: [
+    { id: 'conduction_power', name: { ru: 'Проводимость • Сила', en: 'Conduction • Power' }, desc: { ru: '+35% силы холодовой реакции цепи.', en: '+35% Freeze chain-reaction power.' } },
+    { id: 'conduction_rate', name: { ru: 'Проводимость • Частота', en: 'Conduction • Rate' }, desc: { ru: 'Холодовая реакция требует на один переход меньше и восстанавливается быстрее.', en: 'Freeze reaction needs one fewer jump and recovers faster.' } },
+    { id: 'conduction_duration', name: { ru: 'Проводимость • Длительность', en: 'Conduction • Duration' }, desc: { ru: '+45% длительности заморозки от реакции цепи.', en: '+45% freeze duration from the Chain reaction.' } },
+  ],
+  poison: [
+    { id: 'conduction_power', name: { ru: 'Проводимость • Сила', en: 'Conduction • Power' }, desc: { ru: '+35% силы токсичной реакции цепи.', en: '+35% Poison chain-reaction power.' } },
+    { id: 'conduction_rate', name: { ru: 'Проводимость • Частота', en: 'Conduction • Rate' }, desc: { ru: 'Токсичная реакция требует на один переход меньше и восстанавливается быстрее.', en: 'Poison reaction needs one fewer jump and recovers faster.' } },
+    { id: 'conduction_duration', name: { ru: 'Проводимость • Длительность', en: 'Conduction • Duration' }, desc: { ru: '+45% длительности яда от реакции цепи.', en: '+45% poison duration from the Chain reaction.' } },
+  ],
+};
+
+export const SPHERE_FIELD_ELEMENT_MASTERY: Record<SphereElement, readonly SphereElementMasteryDef[]> = {
+  fire: [
+    { id: 'field_power', name: { ru: 'Поле • Сила', en: 'Field • Power' }, desc: { ru: '+35% урона горения от элементной реакции поля.', en: '+35% burn damage from the Field reaction.' } },
+    { id: 'field_frequency', name: { ru: 'Поле • Частота', en: 'Field • Frequency' }, desc: { ru: 'Элементная реакция поля срабатывает по цели чаще.', en: 'Field elemental reactions recover faster per target.' } },
+    { id: 'field_duration', name: { ru: 'Поле • Длительность', en: 'Field • Duration' }, desc: { ru: '+45% длительности горения от элементной реакции поля.', en: '+45% burn duration from the Field reaction.' } },
+  ],
+  freeze: [
+    { id: 'field_power', name: { ru: 'Поле • Сила', en: 'Field • Power' }, desc: { ru: '+35% длительности холодовой реакции поля.', en: '+35% Freeze reaction duration.' } },
+    { id: 'field_frequency', name: { ru: 'Поле • Частота', en: 'Field • Frequency' }, desc: { ru: 'Холодовая реакция поля срабатывает по цели чаще.', en: 'Field Freeze reactions recover faster per target.' } },
+    { id: 'field_duration', name: { ru: 'Поле • Длительность', en: 'Field • Duration' }, desc: { ru: '+45% длительности холодовой реакции поля.', en: '+45% Freeze reaction duration.' } },
+  ],
+  poison: [
+    { id: 'field_power', name: { ru: 'Поле • Сила', en: 'Field • Power' }, desc: { ru: '+35% урона яда от элементной реакции поля.', en: '+35% poison damage from the Field reaction.' } },
+    { id: 'field_frequency', name: { ru: 'Поле • Частота', en: 'Field • Frequency' }, desc: { ru: 'Токсичная реакция поля срабатывает по цели чаще.', en: 'Field Poison reactions recover faster per target.' } },
+    { id: 'field_duration', name: { ru: 'Поле • Длительность', en: 'Field • Duration' }, desc: { ru: '+45% длительности яда от элементной реакции поля.', en: '+45% poison duration from the Field reaction.' } },
+  ],
+};
+
 export function getSphereElementForBranch(branch?: SphereEvolutionId | null): SphereElement | null {
   return branch ? (SPHERE_BRANCH_ELEMENTS[branch] ?? null) : null;
 }
@@ -78,6 +130,14 @@ export function getSphereElementMasteryForBranch(
 ): SphereElementMasteryDef | null {
   const element = getSphereElementForBranch(branch);
   if (!element || finalIndex === null || finalIndex === undefined) return null;
+  const specialChain = Boolean(branch && branch.startsWith('chain_'));
+  const specialField = Boolean(branch && (
+    branch.startsWith('aura_') ||
+    branch.startsWith('gravity_') ||
+    branch.startsWith('pulse_')
+  ));
+  if (specialChain) return SPHERE_CHAIN_ELEMENT_MASTERY[element][finalIndex] ?? null;
+  if (specialField) return SPHERE_FIELD_ELEMENT_MASTERY[element][finalIndex] ?? null;
   return SPHERE_ELEMENT_MASTERY[element][finalIndex] ?? null;
 }
 export type AbilityEvolutionId = string;
