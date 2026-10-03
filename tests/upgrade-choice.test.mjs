@@ -16,7 +16,7 @@ test('level-up sphere selection uses deliberate build pressure weighting', () =>
 test('level-up mixes only Sphere and Ability sources without dead slots', () => {
   assert.match(progressionSource, /const activePool = \(Object\.keys\(ABILITIES\) as AbilityType\[\]\)/);
   assert.match(progressionSource, /const passivePool = \(Object\.keys\(ABILITIES\) as AbilityType\[\]\)/);
-  assert.match(progressionSource, /const mixedPool: UpgradeChoice\[\] = \[\];/);
+  assert.match(progressionSource, /const mixedPool: UpgradeChoice\\[\\] = lockedChoice \\? \\[lockedChoice\\] : \\[\\];/);
   assert.match(progressionSource, /const sourcePools = \[abilityPool, spherePool\];/);
   assert.match(progressionSource, /const allChoices = sourcePools\.flatMap\(\(pool\) => pool\);/);
   assert.match(progressionSource, /const candidates = cooledChoices\.length >= 3 \? cooledChoices : allChoices;/);
