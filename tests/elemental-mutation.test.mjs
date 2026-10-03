@@ -104,7 +104,7 @@ test('Aura, Gravity and Pulse use per-target Field reaction cadence', () => {
   assert.match(enemies, /e.elementalReactionTimer = Math.max(0, e.elementalReactionTimer - dt)/);
 });
 
-test('Special elemental VFX has distinct Chain / Aura / Gravity / Pulse signatures', () => {
+test('Special elemental VFX has distinct Chain / Aura / Gravity / Pulse signatures', async () => {
   const elemental = await read('src/spheres/elementalVisual.ts');
   assert.match(elemental, /function drawSpecialElementalSignature/);
   for (const token of ["sphere.type === 'chain'","sphere.type === 'aura'","sphere.type === 'gravity'"]) assert.ok(elemental.includes(token), token);
