@@ -2428,3 +2428,37 @@ html, body, #root {
     width: auto;
   }
 }
+
+
+/* HUD placement correction: keep both telemetry modules in independent top corners on phones. */
+.es-game-screen .es-top-left,
+.es-game-screen .es-top-right {
+  top: max(8px, env(safe-area-inset-top)) !important;
+  box-sizing: border-box !important;
+  min-width: 0 !important;
+  max-width: calc(50% - 14px) !important;
+  width: calc(50% - 14px) !important;
+}
+.es-game-screen .es-top-left {
+  left: max(8px, env(safe-area-inset-left)) !important;
+  right: auto !important;
+}
+.es-game-screen .es-top-right {
+  left: auto !important;
+  right: max(8px, env(safe-area-inset-right)) !important;
+}
+.es-game-screen .es-top-right > .flex {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: flex-start;
+  gap: 4px !important;
+}
+@media (max-width: 380px) {
+  .es-game-screen .es-top-left,
+  .es-game-screen .es-top-right {
+    max-width: calc(50% - 12px) !important;
+    width: calc(50% - 12px) !important;
+    padding: 5px !important;
+  }
+}
