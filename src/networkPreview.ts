@@ -16,16 +16,9 @@ export interface GhostSnapPreview {
 }
 
 export function getGhostSnapFormation(network: SphereNetworkState): NetworkShape | null {
-  return (
-    network.fractal ??
-    network.lattice ??
-    network.ring ??
-    network.square ??
-    network.triangle ??
-    network.cluster ??
-    network.line ??
-    null
-  );
+  // Ghost Snap answers the player-facing question: "what will become the
+  // dominant formation if I commit this placement?"
+  return network.dominantFormation ?? null;
 }
 
 /**
