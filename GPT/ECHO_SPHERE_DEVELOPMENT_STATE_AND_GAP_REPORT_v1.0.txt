@@ -4674,3 +4674,34 @@ HUD:
   Geometry; Dominant gets a bright marker/glow.
 
 ======================================================================
+
+======================================================================
+[2026-10-03] LEVEL-UP LOCK PERSISTENCE FIX
+======================================================================
+
+IMPLEMENTATION HEAD:
+aacc24fa073f7a81f600df0f474895d00ef6800a
+
+[DONE]
+- Fixed the Level-Up Lock runtime contract.
+- A locked routine Sphere/Ability choice is now a run-scoped reservation:
+  selecting another card does not clear the lock.
+- The next Level-Up rebuilds the three-card choice set with the locked card
+  restored as one of the choices.
+- Reroll also preserves the locked reservation instead of silently dropping it.
+- The reservation is consumed only when the player actually selects the
+  locked choice.
+- If the reserved logical choice becomes genuinely unavailable, the stale
+  reservation is cleared instead of creating a dead Level-Up slot.
+
+[TEST]
+- Extended tests/upgrade-choice.test.mjs with regression coverage for
+  reservation persistence, next-generation reinsertion and non-clearing
+  behavior after reroll.
+
+[NEXT]
+- Verify the behavior in the next APK: Lock a Sphere/Ability card, choose a
+  different card, trigger the following Level-Up and confirm the locked card
+  is present.
+- Verify Lock + Reroll keeps the same locked card.
+======================================================================
