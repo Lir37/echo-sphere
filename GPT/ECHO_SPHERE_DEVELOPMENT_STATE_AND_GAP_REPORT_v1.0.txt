@@ -4544,3 +4544,41 @@ NEXT:
    pressure before adding Artifact-specific elemental reactions.
 3. Keep the six completed Direct Element families locked unless a concrete
    APK defect is observed.
+
+
+======================================================================
+2026-10-03 — GEOMETRY 2.0 IMPLEMENTATION UPDATE
+======================================================================
+
+Status:
+IMPLEMENTED on branch new-desing.
+
+Resolved design problems:
+- removed hard node exclusivity between Geometry formations;
+- added deterministic dominance scoring;
+- added dominant + secondary active Geometry layers;
+- added 10-point formation inertia so small positional drift does not
+  immediately flip Network identity;
+- player changes dominance through deliberate Sphere repositioning/layout;
+- Ghost Snap now previews the dominant result;
+- Resonance now follows dominant Geometry instead of static form priority;
+- Square's generic offensive bonuses were removed so its defensive identity
+  is clearer.
+
+Player agency model:
+Sphere placement remains the control surface. There is no separate
+manual "pick a formation" button. A new form takes dominance when it
+becomes structurally stronger by the configured switch margin, or when
+the previous dominant form is broken.
+
+Next validation target:
+APK playtest with 3-6 Spheres:
+1. build Triangle;
+2. add a fourth Sphere without completing Square;
+3. confirm Triangle remains dominant;
+4. reposition the fourth Sphere to complete Square;
+5. confirm Square takes over only after a meaningful structural change;
+6. move one Sphere back and confirm Triangle returns;
+7. verify Resonance Event follows the visible dominant Geometry.
+
+======================================================================
