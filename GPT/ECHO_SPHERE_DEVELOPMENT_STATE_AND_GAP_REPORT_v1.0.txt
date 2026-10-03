@@ -4705,3 +4705,29 @@ aacc24fa073f7a81f600df0f474895d00ef6800a
   is present.
 - Verify Lock + Reroll keeps the same locked card.
 ======================================================================
+
+----------------------------------------------------------------------
+[2026-10-03] LOCK REGRESSION TEST / CI REPAIR
+----------------------------------------------------------------------
+
+FOLLOW-UP HEAD:
+1c8aa220a025de304a4691a716d3611a7daf024a
+
+[FIXED]
+- The new Lock persistence implementation is unchanged.
+- Regression tests now run correctly under the repository's
+  `node --experimental-strip-types` test runner.
+- Sphere progression runtime imports used by the direct regression test now
+  include explicit .ts extensions.
+- Updated the existing Level-Up source contract assertion to match the
+  intentional locked-choice reservation path.
+
+[VALIDATION NOTE]
+- CI #1299 and #1300 both reached Unit tests but failed before the gameplay
+  gate: two new Sphere synergy tests could not resolve the extensionless
+  sphereProgression runtime dependency, and one existing source assertion
+  still expected the pre-Lock empty mixedPool declaration.
+- Those failures were test-runner/contract issues, not a gameplay regression
+  in the Lock implementation.
+- A fresh CI run is required on this corrected HEAD.
+----------------------------------------------------------------------
