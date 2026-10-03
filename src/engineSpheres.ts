@@ -92,7 +92,6 @@ export function getSphereDamage(s: GameState, sphere: SphereEntity, network?: Sp
   if (sphere) {
     const networkState = network ?? getNetworkFrame(s);
     const profile = getSphereNetworkProfile(networkState, s.spheres.indexOf(sphere));
-    if (profile.square) d *= 1.08;
   }
   return d;
 }
@@ -132,7 +131,6 @@ export function getSphereDelay(s: GameState, sphere?: SphereEntity, network?: Sp
     const networkState = network ?? getNetworkFrame(s);
     const profile = getSphereNetworkProfile(networkState, s.spheres.indexOf(sphere));
     if (profile.cluster) d *= 0.90;
-    if (profile.square) d *= 0.94;
   }
   return d;
 }
