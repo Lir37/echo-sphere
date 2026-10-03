@@ -4585,3 +4585,50 @@ APK playtest with 3-6 Spheres:
 
 GEOMETRY 2.0 FOLLOW-UP — FRACTAL CONNECTIVITY
 Fractal formation is now valid only when the union of its component Geometry nodes forms one connected Network component. Separate distant formations cannot be merged into a false Fractal merely because each local cluster contains a qualifying shape.
+
+======================================================================
+[2026-10-03] HUD LAYOUT + ARTIFACT / EVOLUTION UX AUDIT
+======================================================================
+
+[DONE]
+- Added responsive HUD layout lanes: left player/network telemetry and a
+  separate right telemetry lane on desktop; stacked right telemetry below
+  the left module on narrow mobile viewports.
+- Added an explicit DOMINANT Geometry label in the active Network HUD.
+  All detected active formations remain listed as secondary badges.
+
+[ARTIFACT UX — TARGET CONTRACT, NOT YET IMPLEMENTED]
+- Artifact choice must show a dedicated authored icon/illustration, rarity,
+  title, effect and the associated Set/Synergy marker.
+- Every Artifact Set gets a unique emblem and segmented circular progress
+  ring. Each segment represents one required artifact; owned components fill
+  their segments.
+- Tapping the emblem opens a detail sheet with final Set effect and a full
+  component list, each marked owned/missing.
+- The same Set progress/detail presentation must be available from pause
+  inventory. A completed Set receives a clear activation state.
+- Keep the game's own dark 2.5D technology/origami art language; do not copy
+  Magic Survival's artwork or panel styling.
+
+[SPHERE + ABILITY SYNERGY — TARGET CONTRACT, NOT YET IMPLEMENTED]
+- At Sphere Level IV branch selection, show a compact synergy emblem when
+  that branch has a compatible Level VII Sphere final + Level VII Ability
+  pairing.
+- Tapping/expanding the emblem reveals the required Ability, its target
+  level, the resulting cross-system effect, and current progress.
+- At Sphere Level VII, the chosen final mutation determines the exact
+  compatible synergy candidate; reaching Ability Level VII activates it.
+- Pause Synergy catalog must show active, eligible/in-progress and locked
+  pairings distinctly.
+- Synergy effects must be behavioral and authored, not only generic +damage.
+- Avoid guaranteeing a synergy from a Level IV branch if the matching
+  Ability can never be offered in that run; show it as a build direction,
+  not a promise.
+
+[VALIDATION]
+- HUD must be checked at narrow phone widths, landscape, and desktop to
+  ensure telemetry panels do not overlap one another or critical controls.
+- Artifact icon/ring interactions and synergy unlocks require unit tests,
+  gameplay coverage, web visual QA and APK build before PlayerCheck.
+
+======================================================================
