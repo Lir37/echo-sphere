@@ -92,21 +92,22 @@ test('Chain and Field Level VII use dedicated elemental mastery pools', () => {
 
 test('Chain elemental identity is conduction, not per-hit direct status spam', () => {
   assert.match(engineSpheres, /function triggerChainElementalReaction/);
-  assert.match(engineSpheres, /const threshold = mastery?.id === 'conduction_rate' ? 2 : 3/);
-  assert.match(engineSpheres, /enemy.elementalConduction/);
-  assert.match(engineSpheres, /triggerChainElementalReaction(s, target, sphere)/);
+  assert.ok(engineSpheres.includes("const threshold = mastery?.id === 'conduction_rate' ? 2 : 3"));
+  assert.ok(engineSpheres.includes('enemy.elementalConduction'));
+  assert.ok(engineSpheres.includes('triggerChainElementalReaction(s, target, sphere)'));
 });
 
 test('Aura, Gravity and Pulse use per-target Field reaction cadence', () => {
-  assert.match(engineSpheres, /function applyElementalFieldReaction/);
-  assert.match(engineSpheres, /enemy.elementalReactionTimer/);
-  assert.match(engineSpheres, /if (isSpecialElementalBranch(branch)) applyElementalFieldReaction/);
-  assert.match(enemies, /e.elementalReactionTimer = Math.max(0, e.elementalReactionTimer - dt)/);
+  assert.ok(engineSpheres.includes('function applyElementalFieldReaction'));
+  assert.ok(engineSpheres.includes('enemy.elementalReactionTimer'));
+  assert.ok(engineSpheres.includes('isSpecialElementalBranch(branch)'));
+  assert.ok(enemies.includes('e.elementalReactionTimer = Math.max(0, e.elementalReactionTimer - dt)'));
 });
 
 test('Special elemental VFX has distinct Chain / Aura / Gravity / Pulse signatures', async () => {
   const elemental = await read('src/spheres/elementalVisual.ts');
   assert.match(elemental, /function drawSpecialElementalSignature/);
   for (const token of ["sphere.type === 'chain'","sphere.type === 'aura'","sphere.type === 'gravity'"]) assert.ok(elemental.includes(token), token);
-  assert.match(elemental, /radius * (0.72 + q * 1.15)/);
+  assert.ok(elemental.includes('radius * (0.72 + q * 1.15)'));
 });
+
