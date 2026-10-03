@@ -4761,3 +4761,24 @@ PLAYER CHECK:
 - Next APK observation must explicitly test Lock across two Level-Ups and
   Lock + Reroll. Automated CI cannot prove the human interaction sequence.
 ----------------------------------------------------------------------
+
+
+======================================================================
+[2026-10-03] MOBILE HUD CORNER ALIGNMENT CORRECTION
+======================================================================
+
+IMPLEMENTATION COMMIT: e6a870a3d7ffb73e1d9b9eabb4f5dffbe058be12
+
+[DONE]
+- Removed the narrow-screen HUD positioning behavior that could place the
+  right telemetry panel across the upper content lane.
+- Both HUD panels now remain independently anchored to their respective
+  upper corners, respecting Android safe-area insets.
+- Responsive widths reserve a central gap so the left and right panels do
+  not overlap; right telemetry content wraps within its own lane.
+
+[VALIDATION GATE]
+- CI must pass on the implementation commit.
+- APK PlayerCheck must verify portrait and landscape layouts, including
+  narrow phone widths, and confirm no panel overlap or clipping.
+======================================================================
