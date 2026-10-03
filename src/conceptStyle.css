@@ -2195,3 +2195,47 @@ html, body, #root {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
+
+
+/* HUD collision guard: reserve separate lanes for telemetry modules. */
+.es-game-screen .es-top-left,
+.es-game-screen .es-top-right {
+  box-sizing: border-box;
+  width: max-content;
+  max-width: min(36vw, 360px);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.es-game-screen .es-top-left { left: max(8px, env(safe-area-inset-left)) !important; }
+.es-game-screen .es-top-right { right: max(8px, env(safe-area-inset-right)) !important; }
+.es-game-screen .es-top-left > *,
+.es-game-screen .es-top-right > * { min-width: 0; }
+
+@media (max-width: 700px) {
+  .es-game-screen .es-top-left {
+    top: max(8px, env(safe-area-inset-top)) !important;
+    left: 8px !important;
+    right: auto !important;
+    width: min(48vw, 220px);
+    max-width: 48vw;
+  }
+  .es-game-screen .es-top-right {
+    top: 132px !important;
+    left: 8px !important;
+    right: 8px !important;
+    width: auto;
+    max-width: none;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .es-game-screen .es-top-right > .flex {
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+}
+@media (max-width: 380px) {
+  .es-game-screen .es-top-left { width: 47vw; max-width: 47vw; padding: 6px !important; }
+  .es-game-screen .es-top-right { top: 140px !important; padding: 6px !important; }
+  .es-game-screen .es-time-hud-value { font-size: 14px; }
+}
