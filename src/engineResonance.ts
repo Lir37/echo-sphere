@@ -13,8 +13,10 @@ export type ResonanceDamageHandler = (
 ) => void;
 
 function getResonanceFormation(network: SphereNetworkState) {
-  // Prefer the most structurally expressive active geometry for the event.
-  return network.fractal ?? network.lattice ?? network.ring ?? network.square ?? network.triangle ?? network.cluster ?? network.line;
+  // Dominance is the single source of truth for the player-level Resonance
+  // event. Secondary Geometry keeps its own local mechanics, but cannot
+  // silently steal the next Resonance trigger by static type priority.
+  return network.dominantFormation;
 }
 
 function resonanceFormationCenter(s: GameState, nodes: number[], networkNodes = getNetworkNodes(s)): Vec {
