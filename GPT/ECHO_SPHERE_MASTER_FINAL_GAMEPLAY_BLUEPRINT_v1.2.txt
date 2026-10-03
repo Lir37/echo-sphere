@@ -3677,3 +3677,88 @@ Continue from this green baseline. Do not expand content counters blindly.
 Prefer the next explicitly defined gameplay/meta gap with enough specification
 to implement without inventing missing economy values.
 ======================================================================
+
+
+======================================================================
+[2026-10-03] ELEMENTAL SPECIAL ARCHETYPES: CHAIN CONDUCTION + FIELD REACTIONS
+======================================================================
+
+IMPLEMENTATION CODE HEAD:
+0cd090b2125ae035eb418acc95dcdf95cfa7dc26
+
+The earlier exclusion of Chain / Aura / Gravity / Pulse from the generic
+Direct Element layer is replaced by a dedicated elemental archetype model.
+The six already-completed Direct Element Sphere families remain unchanged.
+
+DIRECT ELEMENT:
+Standard, Sniper, Shotgun, Orbital, Prism, Void.
+Element applies directly to the Sphere's authored weapon/status behavior.
+
+CONDUCTION ELEMENT:
+Chain branches:
+- Web = Freeze;
+- Storm = Fire;
+- Leech = Poison.
+
+Chain does NOT apply a full elemental status on every jump.
+Each jump builds per-target Conduction. At the authored threshold the target
+receives one elemental reaction and the conduction counter resets.
+Default threshold = 3 jumps.
+Conduction Rate mastery reduces it to 2.
+A per-target reaction cooldown prevents status spam.
+Conduction Power increases reaction magnitude.
+Conduction Duration increases the resulting status duration.
+
+FIELD ELEMENT:
+Aura, Gravity and Pulse branches:
+- Sanctum / Well / Wave = Freeze;
+- Gravity / Tide / Resonator = Fire;
+- Overgrowth / Collapse / Burst = Poison.
+
+Field Spheres do not apply elemental status on every internal damage tick.
+Instead, each target has a separate elemental reaction cadence.
+Default reaction cooldown = 1.8 sec.
+Field Frequency mastery reduces the cadence cooldown.
+Field Power strengthens the reaction.
+Field Duration extends the resulting status.
+
+FIELD INTERPRETATION:
+- Aura: elemental field reaction is attached to the persistent zone event.
+- Gravity: elemental reaction is attached to the field pulse/compression event.
+- Pulse: elemental reaction is attached to the emitted wave.
+The existing authored Aura/Gravity/Pulse mechanical identities remain intact.
+
+LEVEL VII:
+Chain uses:
+- Conduction Power;
+- Conduction Rate;
+- Conduction Duration.
+
+Aura / Gravity / Pulse use:
+- Field Power;
+- Field Frequency;
+- Field Duration.
+
+This is a specialized extension of the existing Sphere -> Branch -> Element
+-> Level VII Mastery chain. It does not restore global elemental Modifiers.
+
+VISUAL:
+The existing persistent elemental orbit remains the shared secondary layer.
+Chain / Aura / Gravity / Pulse additionally receive dedicated elemental field
+signatures so the player can distinguish conduction, persistent field,
+compression and wave behavior without changing their base Sphere palette.
+
+VALIDATION:
+CI #1259 SUCCESS:
+- typecheck;
+- asset usage / PNG sanity;
+- 147 unit tests;
+- gameplay coverage audit;
+- lint;
+- web build;
+- Playwright gameplay capture;
+- Capacitor Android sync;
+- debug APK build/upload.
+
+Human APK PlayerCheck remains the final subjective gate for actual gameplay
+readability and balance.

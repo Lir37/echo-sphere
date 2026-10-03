@@ -559,3 +559,42 @@ gate. Human APK PlayerCheck must verify:
 1) Level VII Sphere cards show gameplay effects;
 2) each of the three choices changes combat as described;
 3) the selected Level IV branch is visibly and mechanically preserved.
+
+
+======================================================================
+[2026-10-03] SPHERE ELEMENTAL ARCHETYPE AUDIT
+======================================================================
+
+IMPLEMENTATION HEAD:
+0cd090b2125ae035eb418acc95dcdf95cfa7dc26
+
+CHAIN:
+[DONE] Elemental identity is now Conduction rather than direct status spam.
+[DONE] Web=Freeze, Storm=Fire, Leech=Poison.
+[DONE] Per-target conduction counter, threshold and reaction cooldown are
+      runtime-backed.
+[DONE] Level VII exposes Conduction Power / Rate / Duration.
+
+AURA / GRAVITY / PULSE:
+[DONE] Elemental identity is now Field-based rather than generic per-tick status.
+[DONE] Sanctum/Well/Wave=Freeze.
+[DONE] Gravity/Tide/Resonator=Fire.
+[DONE] Overgrowth/Collapse/Burst=Poison.
+[DONE] Per-target Field reaction cadence prevents status multiplication from
+      internal area damage frequency.
+[DONE] Level VII exposes Field Power / Frequency / Duration.
+
+VISUAL:
+[DONE] Existing elemental orbit remains the common secondary layer.
+[DONE] Added distinct Chain, Aura, Gravity and Pulse elemental signatures.
+[UNCHANGED] Their approved base 2.5D Sphere construction and existing mutation
+            visuals remain intact.
+
+REGRESSION / CI:
+[DONE] Elemental regression coverage extended for special archetypes.
+[DONE] CI #1259 SUCCESS.
+[DONE] 147/147 unit tests passed.
+[DONE] Gameplay audit, lint, web visual capture and APK build passed.
+
+[GATE]
+Human APK PlayerCheck is required before numeric balance tuning.

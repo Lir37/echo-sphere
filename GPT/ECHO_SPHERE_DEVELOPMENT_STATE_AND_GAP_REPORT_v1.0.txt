@@ -4492,3 +4492,55 @@ NEXT:
 3. Keep elemental gameplay balance unchanged until PlayerCheck.
 
 ======================================================================
+
+
+======================================================================
+[2026-10-03] ELEMENTAL SPECIAL ARCHETYPES IMPLEMENTED
+======================================================================
+
+CODE HEAD:
+0cd090b2125ae035eb418acc95dcdf95cfa7dc26
+BRANCH:
+new-desing
+
+[DONE]
+- The six completed Direct Element Sphere families were left unchanged:
+  Standard, Sniper, Shotgun, Orbital, Prism, Void.
+- Chain now has authored elemental Conduction:
+  Web=Freeze, Storm=Fire, Leech=Poison.
+- Chain builds per-target conduction instead of applying a full status on
+  every jump. Default reaction threshold is 3 jumps; Conduction Rate reduces
+  it to 2. A per-target reaction cooldown prevents repeated reaction spam.
+- Aura / Gravity / Pulse now use a dedicated Field elemental layer:
+  Sanctum/Well/Wave=Freeze, Gravity/Tide/Resonator=Fire,
+  Overgrowth/Collapse/Burst=Poison.
+- Field reactions are rate-limited per target independently of the underlying
+  damage tick/wave cadence.
+- Level VII now exposes dedicated Conduction or Field mastery choices:
+  Power / Rate-or-Frequency / Duration.
+- Persistent elemental orbit remains the shared visual layer.
+- Chain, Aura, Gravity and Pulse additionally receive distinct elemental
+  visual signatures.
+- Enemy runtime gained only optional state for elemental reaction cooldown
+  and Chain conduction progress.
+
+UNCHANGED:
+- Standard, Sniper, Shotgun, Orbital, Prism, Void elemental implementation.
+- Existing Chain/Aura/Gravity/Pulse core attacks, targeting, branch identities,
+  Network behavior and final mutation mechanics.
+- No global elemental Modifier source was restored.
+
+VALIDATION:
+- CI #1259 SUCCESS.
+- Unit tests: 147/147.
+- Gameplay coverage audit: SUCCESS.
+- Lint: SUCCESS.
+- Web visual capture: SUCCESS.
+- Android debug APK build/upload: SUCCESS.
+
+NEXT:
+1. Human APK PlayerCheck of Chain Conduction and Field reactions.
+2. Balance pass using observed reaction frequency, freeze control and DoT
+   pressure before adding Artifact-specific elemental reactions.
+3. Keep the six completed Direct Element families locked unless a concrete
+   APK defect is observed.
