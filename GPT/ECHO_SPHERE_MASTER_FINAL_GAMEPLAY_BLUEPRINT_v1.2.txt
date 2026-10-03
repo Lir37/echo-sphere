@@ -3864,3 +3864,6 @@ defensive burst. This keeps Square from becoming a universal combat
 multiplier.
 
 ======================================================================
+
+GEOMETRY 2.0 FOLLOW-UP — FRACTAL CONNECTIVITY
+Fractal formation is now valid only when the union of its component Geometry nodes forms one connected Network component. Separate distant formations cannot be merged into a false Fractal merely because each local cluster contains a qualifying shape.
