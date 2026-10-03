@@ -1042,6 +1042,7 @@ function ArtifactModal({ lang, t, st, choices, onPick }: {
     zero:{ru:'Архитектура',en:'Architecture'}, unified:{ru:'Единый разум',en:'Unified Mind'},
   };
   const active = getActiveArtifactSynergies(st);
+  const [selectedSetId, setSelectedSetId] = useState<string | null>(null);
   return (
     <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="max-w-5xl w-full px-6">
@@ -1055,13 +1056,26 @@ function ArtifactModal({ lang, t, st, choices, onPick }: {
             const mechanic = meta.mechanic;
             const newSynergies = getArtifactSynergiesAfterPick(st, id).filter((x) => !active.some((y) => y.id === x.id));
             return (
-              <button key={id} onClick={() => onPick(id)} className={`p-5 rounded-xl bg-[#0d1726] border-2 ${rarityClass[rarity] || 'border-[#243b55]'} hover:scale-[1.02] transition-all text-left`}>
-                <div className="flex items-center justify-between mb-3">
-                  <span className={`text-[10px] uppercase tracking-widest font-bold ${rarityText[rarity] || ''}`}>{RARITY_LABELS[rarity][lang]}</span>
-                  <span className="text-[#ffb84d]">✦</span>
+              <button key={id} onClick={() => onPick(id)} className={`p-4 rounded-xl bg-[#0d1726] border-2 ${rarityClass[rarity] || 'border-[#243b55]'} hover:scale-[1.02] transition-all text-left`}>
+                <div className="flex items-start gap-3">
+                  <ArtifactGlyph id={id} rarity={rarity} size={74} />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className={`text-[9px] uppercase tracking-widest font-bold ${rarityText[rarity] || ''}`}>{RARITY_LABELS[rarity][lang]}</span>
+                      <span className="text-[#ffb84d]">✦</span>
+                    </div>
+                    <div className="font-bold text-lg mb-1">{a.name[lang]}</div>
+                    <div className="text-[10px] text-[#b6c9de]">{a.desc[lang]}</div>
+                  </div>
                 </div>
-                <div className="font-bold text-lg mb-2">{a.name[lang]}</div>
-                <div className="text-sm text-[#b6c9de] min-h-[4.5rem]">{a.desc[lang]}</div>
+                <div className="mt-3 border-t border-[#243b55] pt-2">
+                  <div className="text-[8px] uppercase tracking-wider text-[#7f9bb8] mb-1.5">{lang === 'ru' ? 'Связанные сборки' : 'Build paths'}</div>
+                  <div className="flex flex-wrap gap-2">
+                    {getArtifactSetsForArtifact(st, id).map((set) => (
+                      <ArtifactSetBadge key={set.setId} set={set} lang={lang} onClick={() => setSelectedSetId(set.setId)} />
+                    ))}
+                  </div>
+                </div>
                 {newSynergies.map((synergy) => (
                   <div key={synergy.id} className="mt-3 rounded-lg bg-[#8064a8]/10 border border-[#8064a8]/30 px-2 py-1.5">
                     <div className="text-[9px] uppercase tracking-wider font-bold text-[#8064a8]">{lang === 'ru' ? 'Активирует синергию' : 'Activates synergy'}</div>
@@ -1078,6 +1092,9 @@ function ArtifactModal({ lang, t, st, choices, onPick }: {
           })}
         </div>
       </div>
+      {selectedSetId && (
+        <ArtifactSetDetailModal lang={lang} setId={selectedSetId} st={st} onClose={() => setSelectedSetId(null)} />
+      )}
     </div>
   );
 }
