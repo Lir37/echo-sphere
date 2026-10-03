@@ -5,6 +5,8 @@ import {
   ARTIFACT_META,
   ARTIFACT_SETS,
   getArtifactSetProgress,
+  getArtifactSetArtifactProgress,
+  getArtifactSetsForArtifact,
   getCompletedArtifactSets,
 } from '../src/artifactSystem.ts';
 
@@ -276,4 +278,21 @@ test('Artifact Protocols require their real conditions and have combat runtime b
     assert.ok(source.includes("protocolActive('" + protocol.id + "')"), protocol.id + ' must affect combat runtime');
   }
   assert.match(source, /formsTriangle\(s, sphere\)/, 'Triangle Protocol must require a real geometric triangle');
+});
+
+
+test('Artifact Set UI model exposes concrete component progress for each set', () => {
+  const partial = getArtifactSetArtifactProgress(state(['heavy_core', 'resonance_core']));
+  const resonance = partial.find((set) => set.setId === 'resonance_grid');
+  assert.ok(resonance);
+  assert.equal(resonance.owned, 2);
+  assert.equal(resonance.total, 4);
+  assert.equal(resonance.complete, false);
+  assert.ok(getArtifactSetsForArtifact(state(['heavy_core']), 'heavy_core').some((set) => set.setId === 'resonance_grid'));
+});
+
+test('Artifact Set UI model reaches complete state from all required concrete artifacts', () => {
+  const all = Object.values(ARTIFACT_META).map((item) => item.id);
+  const progress = getArtifactSetArtifactProgress(state(all));
+  assert.ok(progress.every((set) => set.complete));
 });
