@@ -346,7 +346,8 @@ export function rerollUpgradeChoices(s: GameState): boolean {
   }
 
   s.pendingUpgrade = next;
-  s.levelUpLockChoiceKey = null;
+  // Keep the reservation after a reroll. The locked card must still survive
+  // until the player finally selects it or it becomes unavailable.
   s.levelUpRerollsRemaining--;
   s.flashText = { text: lockedChoice ? 'LOCK + REROLL' : 'REROLL', life: 0.8, color: '#39d8ff' };
   playSound('place');
@@ -451,8 +452,24 @@ export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
   const cooledChoices = allChoices.filter((choice) => !recentKeys.has(getUpgradeChoiceKey(choice)));
   const candidates = cooledChoices.length >= 3 ? cooledChoices : allChoices;
 
-  const mixedPool: UpgradeChoice[] = [];
-  const remaining = [...candidates];
+  // A locked routine choice must survive the current Level-Up and be offered
+  // again on the next Level-Up until the player actually selects it.
+  // It is resolved from the logical key so no extra serialized choice state is needed.
+  const lockedKey = s.levelUpLockChoiceKey;
+  const lockedChoice = lockedKey
+    ? allChoices.find((choice) => getUpgradeChoiceKey(choice) === lockedKey)
+    : undefined;
+  if (lockedKey && !lockedChoice) {
+    // The reserved choice became genuinely unavailable (for example its max
+    // level was reached by another system). Do not leave a dead reservation.
+    s.levelUpLockChoiceKey = null;
+  }
+
+  const selectionCandidates = lockedChoice
+    ? candidates.filter((choice) => getUpgradeChoiceKey(choice) !== lockedKey)
+    : candidates;
+  const mixedPool: UpgradeChoice[] = lockedChoice ? [lockedChoice] : [];
+  const remaining = [...selectionCandidates];
 
   while (mixedPool.length < 3 && remaining.length > 0) {
     const usedSources = new Set(mixedPool.map((choice) => choice.type));
@@ -480,8 +497,13 @@ export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
 
 export function applyUpgrade(s: GameState, choice: UpgradeChoice): void {
   const hadPendingChoice = Boolean(s.pendingUpgrade);
+  const selectedChoiceKey = getUpgradeChoiceKey(choice);
   s.pendingUpgrade=null;
-  s.levelUpLockChoiceKey = null;
+  // A Lock is a reservation, not a one-level marker. Keep it alive when the
+  // player chooses a different card; consume it only when the locked card is picked.
+  if (s.levelUpLockChoiceKey === selectedChoiceKey) {
+    s.levelUpLockChoiceKey = null;
+  }
   if (hadPendingChoice) recordLevelUpSourcePick(s, choice);
   if (hadPendingChoice) recordRecentUpgradeChoice(s, choice);
 

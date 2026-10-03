@@ -38,3 +38,15 @@ test('routine Level-Up exposes one limited reroll without mutation rerolling', (
   assert.match(progressionSource, /choice\.sphereStage === 'upgrade'/);
   assert.match(progressionSource, /choice\.abilityStage\)/);
 });
+
+
+test('Level-Up Lock persists until the locked choice is selected', () => {
+  assert.match(progressionSource, /const lockedKey = s\.levelUpLockChoiceKey;/);
+  assert.match(progressionSource, /const lockedChoice = lockedKey/);
+  assert.match(progressionSource, /const mixedPool: UpgradeChoice\[\] = lockedChoice \? \[lockedChoice\] : \[\];/);
+  assert.match(progressionSource, /const selectedChoiceKey = getUpgradeChoiceKey\(choice\);/);
+  assert.match(progressionSource, /if \(s\.levelUpLockChoiceKey === selectedChoiceKey\)/);
+  assert.match(progressionSource, /const lockedChoice = lockedKey/);
+  assert.match(progressionSource, /s\.levelUpRerollsRemaining--;/);
+  assert.doesNotMatch(progressionSource, /s\.pendingUpgrade = next;\n  s\.levelUpLockChoiceKey = null;/);
+});
