@@ -53,7 +53,11 @@ export function getSphereFinalIndex(s: GameState, type: SphereType): number | nu
 
 export function getNetworkFrame(s: GameState): SphereNetworkState {
   if (s.networkFrame?.frameId === s.networkFrameId) return s.networkFrame.network;
-  const network = analyzeSphereNetwork(getNetworkNodes(s));
+  // Keep the previous frame's Network object long enough to provide formation
+  // inertia. frameId still invalidates the cache, while the previous dominant
+  // type becomes the reference for the 10-point switch margin.
+  const previousDominant = s.networkFrame?.network.dominantFormation?.type || 'none';
+  const network = analyzeSphereNetwork(getNetworkNodes(s), 220, previousDominant);
   s.networkFrame = { frameId: s.networkFrameId, network };
   return network;
 }
