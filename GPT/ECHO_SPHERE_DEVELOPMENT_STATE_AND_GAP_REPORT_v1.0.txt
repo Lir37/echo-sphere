@@ -4782,3 +4782,41 @@ IMPLEMENTATION COMMIT: e6a870a3d7ffb73e1d9b9eabb4f5dffbe058be12
 - APK PlayerCheck must verify portrait and landscape layouts, including
   narrow phone widths, and confirm no panel overlap or clipping.
 ======================================================================
+
+
+======================================================================
+[2026-10-03] PLAYER-FACING DESCRIPTION AUDIT — SET BONUS PASS
+======================================================================
+
+IMPLEMENTATION:
+- Artifact Set summaries now state the concrete completion bonus, numeric
+  magnitude, and activation condition in Russian and English.
+- Updated 12 set summaries in src/artifactSystem.ts.
+- This pass changes presentation text only; no combat values or mechanics
+  were changed.
+
+AUDIT FINDINGS — BROADER DESCRIPTION PASS STILL REQUIRED:
+- Artifact catalog contains generic English placeholders such as
+  "artifact effect", "universal fold effect", and lower-case untranslated
+  item names.
+- Several artifact descriptions conflict with metadata or duplicate/misstate
+  values (examples include Void Contract and Zero Sphere); these require
+  reconciliation against runtime before wording is accepted.
+- Ability descriptions often omit what the activation actually does, exact
+  target/area, duration, and level scaling. Several active ability cards
+  expose cooldown but not the resulting effect magnitude.
+- Sphere evolution, modifiers, Runes, character traits/mastery, protocols,
+  and shop/meta upgrades remain in the full audit scope.
+- Any mechanic whose implementation has no measurable effect must be marked
+  as a gameplay gap rather than assigned invented description numbers.
+
+ACCEPTANCE RULE:
+Every player-facing effect should identify result, amount, trigger/condition,
+and target. RU and EN must carry equivalent information. Verify text against
+runtime implementation and add regression tests for representative dynamic
+level descriptions and Set completion descriptions.
+
+STATUS:
+[PARTIAL] Set completion summaries clarified.
+[PARTIAL] Full catalog audit and correction remain in progress.
+======================================================================
