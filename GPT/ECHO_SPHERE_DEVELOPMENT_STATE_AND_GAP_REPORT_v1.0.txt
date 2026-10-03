@@ -4820,3 +4820,73 @@ STATUS:
 [PARTIAL] Set completion summaries clarified.
 [PARTIAL] Full catalog audit and correction remain in progress.
 ======================================================================
+
+
+======================================================================
+[2026-10-03] ARTIFACT CATALOG AUDIT — VERIFIED TEXT/METADATA DELTAS
+======================================================================
+
+AUDIT BASE:
+- Branch: new-desing
+- Starting HEAD: a82c0517f4885a60c66fadd80a4656bbd8f09f80
+- Scope inspected: src/gameData.ts artifact catalog and
+  src/artifactSystem.ts artifact metadata/set definitions.
+
+[DONE — SAFE TEXT CORRECTIONS]
+- Void Contract display text now states +22% Sphere damage and +15%
+  incoming damage, matching its metadata values.
+- Capitalized the English display names for the extended artifact entries
+  that were stored in lower case.
+- No combat metadata or runtime effect was changed by these corrections.
+
+[CONFIRMED CONTENT/IMPLEMENTATION GAPS]
+- Zero Sphere display text claims +35% Sphere power and +20% Sphere damage,
+  while its current metadata provides sphereDamage: +35% only. The second
+  +20% claim is unsupported by the inspected metadata and must not be shown
+  as an active bonus until implementation is confirmed or corrected.
+- Several extended Legendary artifact descriptions do not match their
+  current metadata. For example, Paper Ward advertises +20 max HP, while
+  its current metadata is a +4% Sphere damage baseline; Network Anchor
+  advertises +8% network damage, while metadata currently gives +4%
+  Sphere damage. These are gameplay/catalog contract gaps, not translation
+  issues.
+- Multiple extended artifacts have empty metadata or only generic fallback
+  effects despite descriptions promising specialized mechanics. These
+  need individual runtime tracing before text can safely be finalized.
+- Existing artifact catalog therefore cannot yet be certified as fully
+  accurate. Do not infer that a description is implemented merely because
+  it appears in the catalog.
+
+[REMAINING AUDIT MATRIX]
+P0:
+- Reconcile every ARTIFACTS entry against ARTIFACT_METADATA and actual
+  mechanic handlers; classify each as MATCH, TEXT FIX, or IMPLEMENTATION GAP.
+- Verify Set completion descriptions against the actual Set bonus execution
+  path. Blueprint v1.2 calls for behavioral Set bonuses, not only flat
+  damage.
+P1:
+- Trace all 21 current Ability definitions, their activation handlers,
+  cooldowns, target/area, duration, damage/defense values and level scaling.
+- Audit all Sphere level 1-7 descriptions, branch/final evolution offers,
+  and modifier descriptions against combat implementation.
+P2:
+- Audit Rune pickup payloads and their descriptions.
+- Audit character base traits, all mastery levels, synergies, Protocols,
+  shop/meta upgrades and localized UI labels.
+- Add automated catalog contract tests for missing/placeholder text,
+  RU/EN parity, numeric claims and metadata mismatches.
+
+ACCEPTANCE:
+- Every card tells the player what changes, by how much, when it triggers,
+  and what target/system it affects, unless the mechanic is intentionally
+  qualitative and its actual observable result is stated.
+- No numeric claim without matching runtime support.
+- A feature that lacks implementation is tracked as a gameplay gap rather
+  than disguised with better wording.
+
+STATUS:
+[PARTIAL] Set summaries clarified; Void Contract wording and English
+catalog capitalization corrected.
+[OPEN] Full artifact metadata reconciliation and ability/Sphere/Rune/
+character/protocol/meta audit are not complete.
+======================================================================
