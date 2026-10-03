@@ -20,7 +20,7 @@ import { render } from './renderer';
 import { installCanvasResolutionPolicy } from './renderScale';
 import { createEcho3DRenderer, type Echo3DRenderer } from './visual3d';
 import { analyzeSphereNetwork } from './network';
-import { ARTIFACT_META, RARITY_LABELS, artifactRarity, getActiveArtifactSynergies, getArtifactSynergiesAfterPick, ARTIFACT_SYNERGIES, getArtifactSetProgress, getArtifactProtocolStates } from './artifactSystem';
+import { ARTIFACT_META, RARITY_LABELS, artifactRarity, getActiveArtifactSynergies, getArtifactSynergiesAfterPick, ARTIFACT_SYNERGIES, getArtifactSetProgress, getArtifactSetArtifactProgress, getArtifactSetsForArtifact, getArtifactProtocolStates } from './artifactSystem';
 import { resolveSpaceCollisions } from './spaceCollision';
 import {
   loadShop, saveShop, loadLeaderboard, addLeaderEntry, loadLang, saveLang,
@@ -35,7 +35,7 @@ import { CHARACTER_DEFS } from './characters';
 import KnowledgeBase, { syncKnowledgeFromRun } from './KnowledgeBase';
 import {
   ABILITY_PROGRESSION, SPHERE_PROGRESSION, getAbilityDisplayName, getAbilityDisplayDesc,
-  getAbilityEvolutionChoice, sphereLevel, sphereModifiers, getActiveSphereAbilitySynergies, SPHERE_ABILITY_SYNERGIES,
+  getAbilityEvolutionChoice, sphereLevel, sphereModifiers, getActiveSphereAbilitySynergies, getSphereMutationSynergyHints, SPHERE_ABILITY_SYNERGIES,
   getSphereElementForBranch, SPHERE_ELEMENT_META,
 } from './sphereProgression';
 
@@ -198,6 +198,7 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
   const [gameOverData, setGameOverData] = useState<{ time: number; wave: number; gold: number; rank: number; isNewRecord: boolean } | null>(null);
   const [paused, setPaused] = useState(false);
   const [pauseTab, setPauseTab] = useState<PauseTab>('stats');
+  const [selectedArtifactSetId, setSelectedArtifactSetId] = useState<string | null>(null);
 
   useEffect(() => {
     const name = loadName() || translations[lang].namePlaceholder;
@@ -331,8 +332,10 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
               st={st}
               tab={pauseTab}
               setTab={setPauseTab}
-              onResume={() => { setPaused(false); st.paused = false; }}
+              onResume={() => { setPaused(false); st.paused = false; setSelectedArtifactSetId(null); }}
               onExit={onExit}
+              selectedArtifactSetId={selectedArtifactSetId}
+              setSelectedArtifactSetId={setSelectedArtifactSetId}
             />
           )}
         </>
@@ -363,7 +366,7 @@ function Row({ label, value }: { label: string; value: string }) {
 
 type PauseTab = 'stats' | 'skills' | 'artifacts' | 'synergies';
 
-function PausePlanner({ lang, t, st, tab, setTab, onResume, onExit }: {
+function PausePlanner({ lang, t, st, tab, setTab, onResume, onExit, selectedArtifactSetId, setSelectedArtifactSetId }: {
   lang: Lang;
   t: (k: TranslationKey) => string;
   st: GameState;
@@ -371,6 +374,8 @@ function PausePlanner({ lang, t, st, tab, setTab, onResume, onExit }: {
   setTab: (tab: PauseTab) => void;
   onResume: () => void;
   onExit: () => void;
+  selectedArtifactSetId: string | null;
+  setSelectedArtifactSetId: (id: string | null) => void;
 }) {
   const character = CHARACTER_DEFS[st.player.characterId];
   const activeAbilities = (Object.keys(ABILITIES) as AbilityType[]).filter((id) => ABILITIES[id].category === 'active');
@@ -517,13 +522,26 @@ function PausePlanner({ lang, t, st, tab, setTab, onResume, onExit }: {
                 <div className="rounded-xl bg-[#0d1726] border border-[#243b55] p-5 text-center text-sm text-[#7f9bb8]">{lang === 'ru' ? 'Артефактов пока нет.' : 'No artifacts yet.'}</div>
               ) : st.player.artifacts.map((id) => {
                 const rarity = artifactRarity(id);
+                const sets = getArtifactSetsForArtifact(st, id);
                 return (
                   <div key={id} className="rounded-xl bg-[#0d1726] border-2 p-3" style={{ borderColor: rarity === 'legendary' ? '#ffb84d' : rarity === 'special' ? '#ff6b6b' : rarity === 'epic' ? '#8064a8' : rarity === 'rare' ? '#39d8ff' : '#243b55' }}>
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="font-bold text-sm">{ARTIFACT_MAP[id].name[lang]}</span>
-                      <span className="text-[9px] uppercase tracking-wider text-[#7f9bb8]">{RARITY_LABELS[rarity][lang]}</span>
+                    <div className="flex items-center gap-3">
+                      <ArtifactGlyph id={id} rarity={rarity} size={54} />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="font-bold text-sm truncate">{ARTIFACT_MAP[id].name[lang]}</span>
+                          <span className="text-[9px] uppercase tracking-wider text-[#7f9bb8]">{RARITY_LABELS[rarity][lang]}</span>
+                        </div>
+                        <div className="text-[10px] text-[#b6c9de] mt-1">{ARTIFACT_MAP[id].desc[lang]}</div>
+                      </div>
                     </div>
-                    <div className="text-[10px] text-[#b6c9de] mt-1">{ARTIFACT_MAP[id].desc[lang]}</div>
+                    {sets.length > 0 && (
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {sets.map((set) => (
+                          <ArtifactSetBadge key={set.setId} set={set} lang={lang} onClick={() => setSelectedArtifactSetId(set.setId)} />
+                        ))}
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -637,12 +655,104 @@ function PausePlanner({ lang, t, st, tab, setTab, onResume, onExit }: {
           )}
         </div>
 
+        {selectedArtifactSetId && (
+          <ArtifactSetDetailModal lang={lang} setId={selectedArtifactSetId} st={st} onClose={() => setSelectedArtifactSetId(null)} />
+        )}
+
         <div className="shrink-0 px-4 py-3 border-t border-[#243b55] bg-[#06111d]">
           <div className="flex gap-2 justify-center">
             <button onClick={onResume} className="px-5 py-2.5 rounded-xl bg-[#39d8ff] border border-[#3a6a7a] text-white font-bold">{t('resume')}</button>
             <button onClick={onExit} className="px-5 py-2.5 rounded-xl bg-[#0d1726] border border-[#243b55] text-[#b6c9de]">{t('return')}</button>
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function ArtifactGlyph({ id, rarity, size = 72 }: { id: ArtifactId; rarity: string; size?: number }) {
+  const palette: Record<string, string> = {
+    common: '#7f9bb8', rare: '#39d8ff', epic: '#a98cff', special: '#ff6b6b', legendary: '#ffb84d',
+  };
+  const color = palette[rarity] || '#7f9bb8';
+  const key = id.replace(/[^a-z0-9]/gi, '');
+  const glyphs = ['◇','✦','◈','△','⬡','✧','⊙','✺','⌬','✹','◌','⟡'];
+  const glyph = glyphs[[...key].reduce((n, ch) => n + ch.charCodeAt(0), 0) % glyphs.length];
+  return (
+    <div className="es-artifact-glyph shrink-0" style={{ width: size, height: size, borderColor: color + '88', boxShadow: '0 0 24px ' + color + '18' }}>
+      <span className="es-artifact-glyph-orbit" style={{ borderColor: color + '55' }} />
+      <span className="es-artifact-glyph-core" style={{ color, textShadow: '0 0 12px ' + color }}>{glyph}</span>
+      <span className="es-artifact-glyph-cut" style={{ background: color }} />
+    </div>
+  );
+}
+
+function ArtifactSetBadge({ set, lang, onClick }: {
+  set: ReturnType<typeof getArtifactSetArtifactProgress>[number];
+  lang: Lang;
+  onClick: () => void;
+}) {
+  const pct = set.total > 0 ? set.owned / set.total : 0;
+  const conic = `conic-gradient(#ffb84d ${pct * 360}deg, rgba(36,59,85,.65) 0deg)`;
+  return (
+    <button
+      type="button"
+      onClick={(event) => { event.stopPropagation(); onClick(); }}
+      className="es-set-badge group"
+      title={set.name[lang]}
+    >
+      <span className="es-set-ring" style={{ background: conic }}>
+        <span className="es-set-ring-hole"><span>{set.owned}/{set.total}</span></span>
+      </span>
+      <span className="min-w-0">
+        <span className="block text-[8px] font-bold uppercase tracking-wider text-[#dcecff] truncate max-w-[150px]">{set.name[lang]}</span>
+        <span className="block text-[7px] text-[#7f9bb8]">{lang === 'ru' ? 'СЕТ' : 'SET'} · {set.complete ? (lang === 'ru' ? 'СОБРАН' : 'COMPLETE') : (lang === 'ru' ? 'ПРОГРЕСС' : 'PROGRESS')}</span>
+      </span>
+    </button>
+  );
+}
+
+function ArtifactSetDetailModal({ lang, setId, st, onClose }: {
+  lang: Lang;
+  setId: string;
+  st: GameState;
+  onClose: () => void;
+}) {
+  const set = getArtifactSetArtifactProgress(st).find((item) => item.setId === setId);
+  if (!set) return null;
+  return (
+    <div className="absolute inset-0 z-[70] flex items-center justify-center bg-black/75 p-4" onPointerDown={onClose}>
+      <div className="es-modal-shell w-full max-w-md rounded-xl border border-[#ffb84d]/35 bg-[#07111d] p-5" onPointerDown={(event) => event.stopPropagation()}>
+        <div className="flex items-center gap-3">
+          <div className="es-set-detail-icon">
+            <span>{set.owned}/{set.total}</span>
+          </div>
+          <div className="min-w-0">
+            <div className="text-[9px] uppercase tracking-[.18em] text-[#ffb84d]">{lang === 'ru' ? 'СЕТ АРТЕФАКТОВ' : 'ARTIFACT SET'}</div>
+            <h3 className="text-lg font-bold truncate">{set.name[lang]}</h3>
+          </div>
+        </div>
+        <div className="mt-4 rounded-lg border border-[#ffb84d]/20 bg-[#ffb84d]/[.05] p-3">
+          <div className="text-[9px] uppercase tracking-wider text-[#ffb84d] font-bold">{lang === 'ru' ? 'ФИНАЛЬНЫЙ ЭФФЕКТ' : 'COMPLETION EFFECT'}</div>
+          <div className="text-sm text-[#dcecff] mt-1">{set.desc[lang]}</div>
+        </div>
+        <div className="mt-4">
+          <div className="text-[9px] uppercase tracking-wider text-[#7f9bb8] font-bold mb-2">{lang === 'ru' ? 'АРТЕФАКТЫ СЕТА' : 'SET ARTIFACTS'}</div>
+          <div className="space-y-1.5">
+            {set.artifactIds.map((id) => {
+              const owned = set.ownedArtifactIds.includes(id);
+              const rarity = artifactRarity(id);
+              return (
+                <div key={id} className={`flex items-center gap-2 rounded-lg border px-2 py-1.5 ${owned ? 'border-[#ffb84d]/25 bg-[#ffb84d]/[.04]' : 'border-[#243b55] bg-black/10 opacity-60'}`}>
+                  <ArtifactGlyph id={id} rarity={rarity} size={28} />
+                  <span className="text-[10px] font-bold flex-1">{owned ? ARTIFACT_MAP[id].name[lang] : '???'}</span>
+                  <span className="text-[8px] text-[#7f9bb8]">{owned ? (lang === 'ru' ? 'ЕСТЬ' : 'OWNED') : (lang === 'ru' ? 'НЕТ' : 'MISSING')}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+        <button type="button" onClick={onClose} className="mt-4 w-full rounded-lg border border-[#243b55] bg-[#0d1726] py-2 text-[10px] font-bold uppercase tracking-wider text-[#b6c9de]">{lang === 'ru' ? 'Закрыть' : 'Close'}</button>
       </div>
     </div>
   );
