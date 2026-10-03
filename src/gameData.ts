@@ -101,7 +101,7 @@ export const ARTIFACTS: ArtifactDef[] = [
   // Legendary
   { id: 'zero_sphere', name: { ru: 'Нулевая сфера', en: 'Zero Sphere' }, desc: { ru: '+35% урона сфер', en: '+35% Sphere damage' } },
   { id: 'unified_mind', name: { ru: 'Единый разум', en: 'Unified Mind' }, desc: { ru: 'самый высокий уровень сферы передаёт 3% за уровень всей сети', en: 'the highest sphere level grants 3% damage per level' } },
-  { id: 'network_anchor', name: { ru: 'Якорь сети', en: 'Network Anchor' }, desc: { ru: '+8% к урону сети', en: 'network anchor effect' } },
+  { id: 'network_anchor', name: { ru: 'Якорь сети', en: 'Network Anchor' }, desc: { ru: '+4% урона сфер', en: '+4% Sphere damage' } },
   { id: 'pulse_lens', name: { ru: 'Линза импульса', en: 'Pulse Lens' }, desc: { ru: '+10% к радиусу импульсов', en: 'pulse lens effect' } },
   { id: 'orbit_charm', name: { ru: 'Талисман орбиты', en: 'Orbit Charm' }, desc: { ru: '+12% к силе орбит', en: 'orbit charm effect' } },
   { id: 'prism_shard', name: { ru: 'Осколок призмы', en: 'Prism Shard' }, desc: { ru: '+10% к урону призмы', en: 'prism shard effect' } },
@@ -109,7 +109,7 @@ export const ARTIFACTS: ArtifactDef[] = [
   { id: 'void_ink', name: { ru: 'Чернила пустоты', en: 'Void Ink' }, desc: { ru: '+10% к урону пустоты', en: 'void ink effect' } },
   { id: 'echo_thread', name: { ru: 'Нить Эха', en: 'Echo Thread' }, desc: { ru: '+5% к силе связанных сфер', en: 'echo thread effect' } },
   { id: 'folded_core', name: { ru: 'Складное ядро', en: 'Folded Core' }, desc: { ru: '+8% к урону всех сфер', en: 'folded core effect' } },
-  { id: 'paper_ward', name: { ru: 'Бумажный щит', en: 'Paper Ward' }, desc: { ru: '+20 макс. HP', en: 'paper ward effect' } },
+  { id: 'paper_ward', name: { ru: 'Бумажный щит', en: 'Paper Ward' }, desc: { ru: '+4% урона сфер', en: '+4% Sphere damage' } },
   { id: 'mirror_dust', name: { ru: 'Зеркальная пыль', en: 'Mirror Dust' }, desc: { ru: '+8% шанс отражения', en: 'mirror dust effect' } },
   { id: 'resonant_leaf', name: { ru: 'Резонансный лист', en: 'Resonant Leaf' }, desc: { ru: '+10% к Resonance', en: 'resonant leaf effect' } },
   { id: 'signal_knot', name: { ru: 'Сигнальный узел', en: 'Signal Knot' }, desc: { ru: '+5% скорости восстановления сети', en: 'signal knot effect' } },
