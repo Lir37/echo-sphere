@@ -676,3 +676,45 @@ Fractal formation is now valid only when the union of its component Geometry nod
   gameplay coverage, web visual QA and APK build before PlayerCheck.
 
 ======================================================================
+
+======================================================================
+2026-10-03 — ARTIFACT / MUTATION SYNERGY UI PASS
+======================================================================
+
+Reference-driven UI decision:
+Magic Survival's artifact presentation uses a dedicated visual artifact
+image/icon, rarity treatment, and a separate synergy/build layer. Its
+synergy presentation is icon-led and collection-oriented rather than a
+plain text list. ECHO SPHERE adopts the information architecture, not the
+artwork: original artifact glyphs, original Set emblems, and original
+Sphere/Ability synergy emblems are used.
+
+ARTIFACTS:
+- Artifact selection cards now have a dedicated visual Artifact Glyph.
+- Every artifact card shows the Artifact Set(s) it belongs to.
+- Set progress is displayed as a circular segmented progress ring.
+- The ring shows concrete artifact count, e.g. 2/4.
+- Tapping the Set emblem opens a detail view with:
+  - Set name;
+  - final/completion effect;
+  - concrete artifact list;
+  - owned/missing state.
+- The same visual language is available in the pause Artifact tab.
+
+SPHERE MUTATION SYNERGY:
+- Starting at Level IV branch selection, a Sphere mutation card can show
+  the future Ability synergy path.
+- The card identifies the compatible Ability and explains the future effect.
+- The synergy becomes active only when:
+  Sphere reaches VII + selected mutation branch is retained + Ability reaches VII.
+- Branch-aware synergy data prevents a different mutation branch from
+  accidentally activating the wrong synergy.
+- The pause Synergies tab remains the full reference/diagnostic view.
+
+HUD:
+- Top-left and top-right HUD modules now use collision-proof horizontal
+  lanes on desktop and an explicit vertical stack on narrow screens.
+- Network formation badges visually distinguish Dominant and Secondary
+  Geometry; Dominant gets a bright marker/glow.
+
+======================================================================
