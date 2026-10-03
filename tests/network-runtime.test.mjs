@@ -41,8 +41,9 @@ test('frame-level Network analysis is cached for gameplay readers', () => {
 
   assert.match(runtime, /export function getNetworkFrame/);
   assert.match(runtime, /s\.networkFrame = \{ frameId: s\.networkFrameId, network \};/);
+  assert.match(runtime, /previousDominant/);
   assert.match(loop, /s\.networkFrameId \+= 1;/);
-  assert.match(loop, /s\.networkFrame = null;/);
+  assert.doesNotMatch(loop, /s\.networkFrame = null;/);
   assert.doesNotMatch(spheres, /analyzeSphereNetwork\(/);
   assert.doesNotMatch(combat, /analyzeSphereNetwork\(/);
   assert.doesNotMatch(resonance, /analyzeSphereNetwork\(/);
