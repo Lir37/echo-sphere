@@ -59,7 +59,6 @@ export interface SphereNetworkProfile {
   fractal: boolean;
 }
 
-const ACTIVE_GEOMETRY_LIMIT = 2;
 const SECONDARY_SCORE_GAP = 14;
 const DOMINANCE_SWITCH_MARGIN = 10;
 
