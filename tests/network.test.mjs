@@ -17,14 +17,15 @@ test('three evenly spaced connected spheres form a triangle', () => {
   assert.ok(state.triangle.strength >= 0.95);
 });
 
-test('four compact spheres resolve to one canonical Geometry without overlap', () => {
+test('four compact spheres choose Square as dominant Geometry while allowing a secondary layer', () => {
   const state = analyzeSphereNetwork([
     node(0, 0), node(90, 0), node(0, 90), node(90, 90),
   ]);
   assert.ok(state.square || state.cluster);
-  const active = [state.square, state.cluster].filter(Boolean);
-  assert.equal(active.length, 1);
-  assert.ok(active[0].nodes.length === 4);
+  assert.equal(state.dominantFormation?.type, 'square');
+  assert.ok(state.dominantFormation?.dominanceScore);
+  assert.ok(state.secondaryFormation);
+  assert.ok([state.square, state.cluster].filter(Boolean).length >= 1);
 });
 
 test('a clear row of spheres activates line resonance', () => {
@@ -44,18 +45,18 @@ test('dead spheres do not contribute links or geometry', () => {
 });
 
 
-test('four evenly spaced points form a square and own all four nodes exclusively', () => {
+test('four evenly spaced points form Square and can share nodes with a secondary Geometry', () => {
   const state = analyzeSphereNetwork([
     node(0, 0), node(100, 0), node(100, 100), node(0, 100),
   ]);
   assert.ok(state.square);
   assert.equal(state.square.nodes.length, 4);
   assert.equal(getSphereNetworkProfile(state, 0).square, true);
-  assert.equal(getSphereNetworkProfile(state, 0).cluster, false);
-  assert.equal(getSphereNetworkProfile(state, 0).ring, false);
+  assert.equal(getSphereNetworkProfile(state, 0).cluster, Boolean(state.cluster));
+  assert.equal(getSphereNetworkProfile(state, 0).ring, Boolean(state.ring));
 });
 
-test('one Sphere cannot belong to multiple active Geometries', () => {
+test('a Sphere may participate in two active Geometries when their scores are close', () => {
   const h = Math.sqrt(3) * 100 / 2;
   const state = analyzeSphereNetwork([
     node(0, 0),
@@ -64,10 +65,9 @@ test('one Sphere cannot belong to multiple active Geometries', () => {
     node(50, h / 2),
   ]);
   assert.ok(state.triangle);
-  assert.equal(state.cluster, null);
-  assert.equal(state.line, null);
+  assert.ok(state.cluster);
   const triangleNodes = new Set(state.triangle.nodes);
-  for (const index of state.cluster?.nodes || []) assert.equal(triangleNodes.has(index), false);
+  assert.ok((state.cluster?.nodes || []).some((index) => triangleNodes.has(index)));
 });
 
 
@@ -82,18 +82,18 @@ test('Network link queries expose the same canonical links used by geometry', ()
 });
 
 
-test('four-node closed loop resolves to one canonical defensive Geometry', () => {
+test('four-node closed loop keeps Square dominant and Ring available as secondary Geometry', () => {
   const state = analyzeSphereNetwork([
     node(-90, -90), node(90, -90), node(90, 90), node(-90, 90),
   ]);
   assert.ok(state.square || state.ring);
   const chosen = state.square || state.ring;
   assert.equal(chosen.nodes.length, 4);
-  if (state.square) assert.equal(state.ring, null);
-  if (state.ring) assert.equal(state.square, null);
+  assert.equal(state.dominantFormation?.type, 'square');
+  assert.ok(state.ring);
 });
 
-test('two connected triangle cells resolve to one advanced Geometry without node overlap', () => {
+test('two connected triangle cells can resolve to advanced Geometry without requiring exclusive nodes', () => {
   const h = Math.sqrt(3) * 100 / 2;
   const state = analyzeSphereNetwork([
     node(0, 0), node(100, 0), node(50, h), node(50, -h),
@@ -101,7 +101,7 @@ test('two connected triangle cells resolve to one advanced Geometry without node
   assert.ok(state.lattice || state.triangle);
   const active = [state.fractal, state.lattice, state.triangle].filter(Boolean);
   assert.ok(active.length <= 2);
-  if (state.lattice) assert.equal(state.triangle, null);
+  if (state.lattice) assert.equal(state.dominantFormation?.type, 'lattice');
 });
 
 
@@ -128,4 +128,36 @@ test('active Geometry is capped at two simultaneous formations', () => {
     state.ring, state.lattice, state.fractal,
   ].filter(Boolean);
   assert.ok(active.length <= 2);
+});
+
+
+test('adding a fourth Sphere does not evict an established Triangle unless a stronger form is actually built', () => {
+  const h = Math.sqrt(3) * 50;
+  const state = analyzeSphereNetwork([
+    node(0, 0),
+    node(100, 0),
+    node(50, h),
+    node(50, 180),
+  ]);
+  assert.ok(state.triangle);
+  assert.equal(state.dominantFormation?.type, 'triangle');
+});
+
+test('a player can switch dominance by creating a materially stronger Square layout', () => {
+  const state = analyzeSphereNetwork([
+    node(0, 0), node(100, 0), node(100, 100), node(0, 100),
+  ], 220, 'triangle');
+  assert.equal(state.dominantFormation?.type, 'square');
+  assert.ok((state.dominantFormation?.dominanceScore || 0) >= 100);
+});
+
+test('small geometric drift keeps the previous dominant formation when the challenger is inside the switch margin', () => {
+  const h = Math.sqrt(3) * 50;
+  const state = analyzeSphereNetwork([
+    node(0, 0),
+    node(100, 0),
+    node(50, h),
+    node(50, 180),
+  ], 220, 'triangle');
+  assert.equal(state.dominantFormation?.type, 'triangle');
 });
