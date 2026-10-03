@@ -99,7 +99,7 @@ export const ARTIFACTS: ArtifactDef[] = [
   { id: 'quantum_core', name: { ru: 'Квантовое ядро', en: 'Quantum Core' }, desc: { ru: '+8% урона сфер и +8% уклонения', en: '+8% sphere damage and +8% dodge' } },
 
   // Legendary
-  { id: 'zero_sphere', name: { ru: 'Нулевая сфера', en: 'Zero Sphere' }, desc: { ru: '+35% мощности сфер и +20% урона сфер', en: '+35% sphere power and +20% sphere damage' } },
+  { id: 'zero_sphere', name: { ru: 'Нулевая сфера', en: 'Zero Sphere' }, desc: { ru: '+35% урона сфер', en: '+35% Sphere damage' } },
   { id: 'unified_mind', name: { ru: 'Единый разум', en: 'Unified Mind' }, desc: { ru: 'самый высокий уровень сферы передаёт 3% за уровень всей сети', en: 'the highest sphere level grants 3% damage per level' } },
   { id: 'network_anchor', name: { ru: 'Якорь сети', en: 'Network Anchor' }, desc: { ru: '+8% к урону сети', en: 'network anchor effect' } },
   { id: 'pulse_lens', name: { ru: 'Линза импульса', en: 'Pulse Lens' }, desc: { ru: '+10% к радиусу импульсов', en: 'pulse lens effect' } },
