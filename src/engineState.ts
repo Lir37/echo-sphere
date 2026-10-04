@@ -209,5 +209,6 @@ export function createInitialState(
     rngState,
     networkFrame: null,
     networkFrameId: 0,
+    networkFormationSelection: null,
   };
 }
