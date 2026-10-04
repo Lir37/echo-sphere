@@ -151,6 +151,7 @@ export function createInitialState(
       networkDisabledTimer: 0,
       killsContribution: 0,
       formationHitCount: 0,
+      formationHitCounts: {},
       resonancePulseTimer: 0,
       visualTier: 0,
       type: 'standard',
