@@ -29,6 +29,11 @@ export interface NetworkShape {
   dominanceScore?: number;
 }
 
+export interface NetworkFormationSelection {
+  dominant: NetworkFormation;
+  secondary: NetworkFormation;
+}
+
 export interface SphereNetworkState {
   linkDistance: number;
   nodes: number[];
@@ -111,17 +116,28 @@ function rankGeometryCandidates(
 
 function selectActiveGeometry(
   ranked: NetworkShape[],
+  selection?: NetworkFormationSelection | null,
 ): { dominant: NetworkShape | null; secondary: NetworkShape | null } {
-  const dominant = ranked[0] || null;
+  const selectedDominant = selection?.dominant && selection.dominant !== 'none'
+    ? ranked.find((shape) => shape.type === selection.dominant) || null
+    : null;
+  const dominant = selectedDominant || ranked[0] || null;
   if (!dominant) return { dominant: null, secondary: null };
+
+  const selectedSecondary = selection?.secondary && selection.secondary !== 'none' && selection.secondary !== dominant.type
+    ? ranked.find((shape) => shape.type === selection.secondary) || null
+    : null;
+  if (selectedSecondary) {
+    return { dominant, secondary: selectedSecondary };
+  }
 
   const dominantNodes = new Set(dominant.nodes);
   const scoreGap = (shape: NetworkShape): number =>
     (dominant.dominanceScore || 0) - (shape.dominanceScore || 0);
 
-  // Prefer a genuinely separate formation when it is still reasonably
-  // strong. This lets two distant builds coexist instead of a broad Cluster
-  // swallowing an unrelated second formation elsewhere on the Network.
+  // Automatic secondary selection remains score-gated. Explicit HUD swaps,
+  // however, preserve the chosen pair instead of silently rejecting a
+  // secondary because its score is currently below the automatic gap.
   const disjointCandidate = ranked.find((shape) =>
     shape.type !== dominant.type &&
     scoreGap(shape) <= SECONDARY_DISJOINT_SCORE_GAP &&
@@ -133,12 +149,23 @@ function selectActiveGeometry(
     scoreGap(shape) <= SECONDARY_SCORE_GAP,
   );
 
-  const secondaryCandidate = disjointCandidate || overlappingCandidate || null;
-
   return {
     dominant,
-    secondary: secondaryCandidate,
+    secondary: disjointCandidate || overlappingCandidate || null,
   };
+}
+
+export function getFormationBonusMultiplier(
+  network: SphereNetworkState,
+  type: Exclude<NetworkFormation, 'none'>,
+  nodeIndex?: number,
+): 0 | 0.5 | 1 {
+  const includesNode = (shape: NetworkShape | null): boolean =>
+    Boolean(shape && (nodeIndex === undefined || nodeIndex < 0 || shape.nodes.includes(nodeIndex)));
+
+  if (network.dominantFormation?.type === type && includesNode(network.dominantFormation)) return 1;
+  if (network.secondaryFormation?.type === type && includesNode(network.secondaryFormation)) return 0.5;
+  return 0;
 }
 
 const DEFAULT_LINK_DISTANCE = 220;
@@ -313,6 +340,7 @@ export function analyzeSphereNetwork(
   nodes: NetworkNode[],
   linkDistance = DEFAULT_LINK_DISTANCE,
   previousDominant: NetworkFormation = 'none',
+  selection?: NetworkFormationSelection | null,
 ): SphereNetworkState {
   const indexes = aliveIndexes(nodes);
   const links: NetworkLink[] = [];
@@ -385,7 +413,7 @@ export function analyzeSphereNetwork(
     line,
   };
   const ranked = rankGeometryCandidates(candidates, previousDominant);
-  const active = selectActiveGeometry(ranked);
+  const active = selectActiveGeometry(ranked, selection);
   const activeTypes = new Set(
     [active.dominant, active.secondary]
       .filter((shape): shape is NetworkShape => Boolean(shape))
