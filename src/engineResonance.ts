@@ -165,11 +165,20 @@ export function updateResonanceRing(
   }
 }
 
-export function chargeResonance(s: GameState, source: ResonanceSource, dealDamage: ResonanceDamageHandler): void {
-  if (s.player.resonanceEventActive) return;
+export function chargeResonance(
+  s: GameState,
+  source: ResonanceSource,
+  dealDamage: ResonanceDamageHandler,
+  sourceEffectMultiplier = 1,
+): void {
+  if (s.player.resonanceEventActive || sourceEffectMultiplier <= 0) return;
   const resonanceLevel = Number(s.player.abilities.resonance || 0);
   const resonanceGainMultiplier = 1 + resonanceLevel * 0.08;
-  const events = addResonanceChargeFromSource(s.player, source, resonanceGainMultiplier);
+  const events = addResonanceChargeFromSource(
+    s.player,
+    source,
+    resonanceGainMultiplier * sourceEffectMultiplier,
+  );
   const network = getNetworkFrame(s);
   for (let i = 0; i < events; i++) triggerResonanceEvent(s, dealDamage, network);
 }
