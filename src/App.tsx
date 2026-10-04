@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import { Settings, Store, Trophy, Play, Globe, ArrowLeft, RotateCcw, Award, Volume2, VolumeX, UserRound, BarChart3, Sparkles, Package, Network, X, BookOpen } from 'lucide-react';
 import { translations, type Lang, type TranslationKey } from './i18n';
 import {
@@ -919,7 +919,7 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
             <>
               <div className="es-network-formation-row">
                 {formationSlots.map((item, index) => (
-                  <React.Fragment key={item.slot}>
+                  <Fragment key={item.slot}>
                     {index === 1 && <span className="es-network-plus" aria-hidden="true">+</span>}
                     <button
                       type="button"
@@ -933,7 +933,7 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
                       <span className="es-network-formation-role">{item.slot === 'dominant' ? (lang === 'ru' ? 'ДОМИНАНТА' : 'DOMINANT') : (lang === 'ru' ? 'ДОП.' : 'SECONDARY')}</span>
                       <span className="es-network-formation-name">{formationDisplayName(item.type, lang)}</span>
                     </button>
-                  </React.Fragment>
+                  </Fragment>
                 ))}
               </div>
               {network.dominantFormation && network.secondaryFormation && <div className="es-network-formation-hint">{lang === 'ru' ? 'Перетащите одну формацию на другую, чтобы поменять приоритет.' : 'Drag one formation onto the other to swap priority.'}</div>}
