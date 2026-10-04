@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { analyzeSphereNetwork, getSphereNetworkProfile, getLinkedNodeIndexes, areNetworkNodesLinked } from '../src/network.ts';
+import { analyzeSphereNetwork, getSphereNetworkProfile, getLinkedNodeIndexes, areNetworkNodesLinked, getFormationBonusMultiplier } from '../src/network.ts';
 
 const node = (x, y) => ({ pos: { x, y }, alive: true });
 
@@ -160,4 +160,45 @@ test('small geometric drift keeps the previous dominant formation when the chall
     node(50, 180),
   ], 220, 'triangle');
   assert.equal(state.dominantFormation?.type, 'triangle');
+});
+
+
+test('Triangle can remain dominant while an overlapping Square becomes the secondary formation', () => {
+  const state = analyzeSphereNetwork([
+    node(0, 0), node(100, 0), node(50, 86.6025),
+    node(100, 100), node(0, 100),
+  ], 220, 'triangle', { dominant: 'triangle', secondary: 'square' });
+  assert.equal(state.dominantFormation?.type, 'triangle');
+  assert.equal(state.secondaryFormation?.type, 'square');
+  assert.equal(getFormationBonusMultiplier(state, 'triangle'), 1);
+  assert.equal(getFormationBonusMultiplier(state, 'square'), 0.5);
+});
+
+test('HUD-style formation swap selection reverses the two active formation slots', () => {
+  const before = analyzeSphereNetwork([
+    node(0, 0), node(100, 0), node(50, 86.6025),
+    node(100, 100), node(0, 100),
+  ], 220, 'triangle', { dominant: 'triangle', secondary: 'square' });
+  assert.equal(before.dominantFormation?.type, 'triangle');
+  assert.equal(before.secondaryFormation?.type, 'square');
+
+  const swapped = analyzeSphereNetwork(
+    [
+      node(0, 0), node(100, 0), node(50, 86.6025),
+      node(100, 100), node(0, 100),
+    ],
+    220,
+    'triangle',
+    { dominant: 'square', secondary: 'triangle' },
+  );
+  assert.equal(swapped.dominantFormation?.type, 'square');
+  assert.equal(swapped.secondaryFormation?.type, 'triangle');
+});
+
+test('Secondary Geometry keeps exactly half of numeric formation potency', () => {
+  const state = analyzeSphereNetwork([
+    node(-100, 0), node(0, 0), node(100, 0),
+  ], 220, 'line', { dominant: 'line', secondary: 'square' });
+  assert.equal(getFormationBonusMultiplier(state, 'line', 1), 1);
+  assert.equal(getFormationBonusMultiplier(state, 'square', 1), 0);
 });
