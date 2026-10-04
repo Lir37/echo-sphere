@@ -122,6 +122,7 @@ export interface SphereEntity {
   networkDisabledTimer: number;
   killsContribution: number;
   formationHitCount: number;
+  formationHitCounts: Partial<Record<import('./network').NetworkFormation, number>>;
   resonancePulseTimer: number;
   visualTier: number;
   type: SphereType;
