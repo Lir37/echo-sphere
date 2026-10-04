@@ -195,10 +195,12 @@ test('HUD-style formation swap selection reverses the two active formation slots
   assert.equal(swapped.secondaryFormation?.type, 'triangle');
 });
 
-test('Secondary Geometry keeps exactly half of numeric formation potency', () => {
+test('Secondary Geometry exposes half potency for a formation member', () => {
   const state = analyzeSphereNetwork([
-    node(-100, 0), node(0, 0), node(100, 0),
-  ], 220, 'line', { dominant: 'line', secondary: 'square' });
-  assert.equal(getFormationBonusMultiplier(state, 'line', 1), 1);
-  assert.equal(getFormationBonusMultiplier(state, 'square', 1), 0);
+    node(0, 0), node(100, 0), node(50, 86.6025),
+    node(100, 100), node(0, 100),
+  ], 220, 'triangle', { dominant: 'triangle', secondary: 'square' });
+  assert.equal(getFormationBonusMultiplier(state, 'triangle', 0), 1);
+  assert.equal(getFormationBonusMultiplier(state, 'square', 0), 0.5);
+  assert.equal(getFormationBonusMultiplier(state, 'square', 2), 0);
 });
