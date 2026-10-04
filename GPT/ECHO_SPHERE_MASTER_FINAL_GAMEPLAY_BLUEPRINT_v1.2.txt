@@ -3781,6 +3781,30 @@ The Network now separates three layers:
    Every valid Geometry is evaluated independently. A Sphere may therefore
    participate in more than one valid formation.
 
+3.1 TWO-SLOT PLAYER CONTROL
+The Network has exactly two combat-active formation slots:
+- DOMINANT: full formation effectiveness and owner of the next player-level Resonance Event.
+- SECONDARY: active at 50% effectiveness for numeric formation bonuses and reduced/discrete proc value where a direct half is impossible.
+
+A Sphere may participate in both active formations. Adding a new Sphere can therefore
+complete a secondary formation without removing the established dominant formation.
+
+The active pair is still limited to two formations. A third valid Geometry remains
+inactive and grants no formation bonus.
+
+HUD SWAP:
+The player may swap the two active slots directly from the Network HUD by dragging one
+formation onto the other. This is a slot-order change, not creation of a third formation.
+After the swap, the dragged formation becomes DOMINANT and the other becomes SECONDARY.
+The chosen order persists while both formations remain valid. If one disappears, the
+Network normalizes the remaining active slots from the valid candidates.
+
+SECONDARY READABILITY:
+The HUD presents the dominant formation as the visually stronger item, then shows
+"+" and the secondary formation with reduced visual emphasis. Its detail popup must
+highlight the currently active portion of each bonus while dimming the full/reference
+portion so the player can immediately see that the secondary layer is partial.
+
 3. ACTIVE GEOMETRY LAYERS
    At most two formations are combat-active:
    - DOMINANT FORMATION: primary Network identity and owner of the next
@@ -3822,9 +3846,11 @@ moving a Sphere a few pixels.
 
 HOW THE PLAYER CHANGES DOMINANCE:
 
-The player does NOT press a hidden "choose formation" switch.
+Dominance is normally changed through placement and formation quality.
+For an already active pair, the player may also explicitly swap DOMINANT and SECONDARY
+in the Network HUD by dragging one slot onto the other.
 
-Dominance is changed through placement:
+Placement remains responsible for discovering and validating formations:
 - move an existing Sphere;
 - move a fourth/fifth Sphere into a position that completes a stronger form;
 - pull a Sphere away so the current form weakens or breaks;
