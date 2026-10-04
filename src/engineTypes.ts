@@ -391,6 +391,8 @@ export interface GameState {
   rngState: number;
   networkFrame: { frameId: number; network: SphereNetworkState } | null;
   networkFrameId: number;
+  /** Optional player-selected order of the two active Network formations. */
+  networkFormationSelection: import('./network').NetworkFormationSelection | null;
 }
 
 export interface ShopState {
