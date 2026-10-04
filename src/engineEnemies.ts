@@ -1,3 +1,8 @@
+function getNetworkDisableDuration(s: GameState, baseDuration: number): number {
+  const level = Number(s.player.abilities.stability || 0);
+  return baseDuration * Math.max(0.16, 1 - level * 0.12);
+}
+
 import { BOSS_TYPES, DIFFICULTIES, SPHERE_TYPES } from './gameData';
 import { playSound } from './audio';
 import {
@@ -421,7 +426,7 @@ export function updateEnemies(s: GameState, dt: number): void {
           .filter((sphere) => sphere.alive && sphere.networkDisabledTimer <= 0)
           .sort((a, b) => dist(a.pos, e.pos) - dist(b.pos, e.pos))[0];
         if (target && dist(target.pos, e.pos) <= 280) {
-          target.networkDisabledTimer = 1;
+          target.networkDisabledTimer = getNetworkDisableDuration(s, 1);
           s.flashText = { text: 'DISRUPTOR', life: 0.5, color: '#b8475a' };
         }
       }
@@ -448,7 +453,7 @@ export function updateEnemies(s: GameState, dt: number): void {
             .filter((sphere) => sphere.alive && sphere.networkDisabledTimer <= 0)
             .sort((a, b) => dist(a.pos, e.pos) - dist(b.pos, e.pos))[0];
           if (target && dist(target.pos, e.pos) <= 300) {
-            target.networkDisabledTimer = 2;
+            target.networkDisabledTimer = getNetworkDisableDuration(s, 2);
             s.flashText = { text: 'SPHERE NULLIFIED', life: 0.8, color: '#b8475a' };
             s.lightnings.push({ from: { ...e.pos }, to: { ...target.pos }, life: 0.25 });
           }
@@ -467,7 +472,7 @@ export function updateEnemies(s: GameState, dt: number): void {
           const target = e.elitePulseTarget;
           e.elitePulseTarget = undefined;
           if (target?.alive && dist(target.pos, e.pos) <= LINK_BREAKER_TARGET_RANGE + 60) {
-            target.networkDisabledTimer = LINK_BREAKER_DISABLED_SECONDS;
+            target.networkDisabledTimer = getNetworkDisableDuration(s, LINK_BREAKER_DISABLED_SECONDS);
             s.flashText = { text: 'NETWORK BREAK', life: 0.8, color: '#b8475a' };
             s.lightnings.push({ from: { ...e.pos }, to: { ...target.pos }, life: 0.30 });
           }
@@ -600,7 +605,7 @@ export function updateEnemies(s: GameState, dt: number): void {
             .filter((sphere) => sphere.alive && sphere.networkDisabledTimer <= 0)
             .sort((a, b) => dist(a.pos, e.pos) - dist(b.pos, e.pos))
             .slice(0, 2);
-          for (const target of targets) target.networkDisabledTimer = 1.6;
+          for (const target of targets) target.networkDisabledTimer = getNetworkDisableDuration(s, 1.6);
           s.flashText = { text: 'CONDUCTOR BREAK', life: 0.8, color: '#4fd8ff' };
         }
         if (e.chargeTimer <= 0) {
@@ -632,7 +637,7 @@ export function updateEnemies(s: GameState, dt: number): void {
           const target = s.spheres
             .filter((sphere) => sphere.alive)
             .sort((a, b) => dist(a.pos, e.pos) - dist(b.pos, e.pos))[0];
-          if (target) target.networkDisabledTimer = 1.2;
+          if (target) target.networkDisabledTimer = getNetworkDisableDuration(s, 1.2);
           s.flashText = { text: 'ARCHITECT SEAL', life: 0.7, color: '#ffc56a' };
         }
       } else if (e.bossType === 'null') {
