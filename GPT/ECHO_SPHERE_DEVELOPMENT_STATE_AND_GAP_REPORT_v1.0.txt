@@ -5303,3 +5303,23 @@ Not run in this cycle. Required acceptance remains:
 3) drag swap produces "Square + Triangle" immediately;
 4) secondary tooltip highlights actual partial potency;
 5) no third formation bonus appears.
+
+======================================================================
+[2026-10-04] TYPESCRIPT BUILD REPAIR
+======================================================================
+IMPLEMENTATION HEAD:
+27478e8ba72e99a6335b5fff9b02d0e508e710f0
+
+[DONE]
+- Fixed the Network HUD formation-slot type predicate in src/App.tsx.
+- Restored the explicit NetworkFormationSelection type on HUD normalization
+  in src/engineRuntime.ts.
+- Initialized the required formationHitCounts field when creating a Sphere
+  in src/engineSpheres.ts.
+
+PURPOSE:
+These changes restore the TypeScript contracts reported by Android APK CI.
+No gameplay rule or Network behavior was intentionally changed.
+
+CI STATUS:
+Awaiting Android APK workflow verification on the corrected commit.
