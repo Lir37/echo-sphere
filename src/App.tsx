@@ -864,10 +864,23 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
   const network = getNetworkFrame(st);
   const [networkTooltip, setNetworkTooltip] = useState<string | null>(null);
   const networkDragRef = useRef<'dominant' | 'secondary' | null>(null);
+  const networkTooltipAutoHideRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const hideNetworkTooltip = (): void => setNetworkTooltip(null);
+  const hideNetworkTooltip = (): void => {
+    setNetworkTooltip(null);
+    if (networkTooltipAutoHideRef.current !== null) {
+      clearTimeout(networkTooltipAutoHideRef.current);
+      networkTooltipAutoHideRef.current = null;
+    }
+  };
   const startNetworkHold = (label: string): void => {
-    setNetworkTooltip(getNetworkTooltipLines(label, st, lang, network).length > 0 ? label : null);
+    hideNetworkTooltip();
+    if (getNetworkTooltipLines(label, st, lang, network).length === 0) return;
+    setNetworkTooltip(label);
+    networkTooltipAutoHideRef.current = setTimeout(() => {
+      setNetworkTooltip(null);
+      networkTooltipAutoHideRef.current = null;
+    }, 5000);
   };
   const beginFormationDrag = (slot: 'dominant' | 'secondary'): void => { networkDragRef.current = slot; };
   const endFormationDrag = (targetSlot?: 'dominant' | 'secondary'): void => {
@@ -939,7 +952,7 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
               {network.dominantFormation && network.secondaryFormation && <div className="es-network-formation-hint">{lang === 'ru' ? 'Перетащите одну формацию на другую, чтобы поменять приоритет.' : 'Drag one formation onto the other to swap priority.'}</div>}
             </>
           ) : <span className="text-[7px] text-[#7f9bb8]">{lang === 'ru' ? 'ФОРМАЦИЯ НЕ АКТИВНА' : 'NO FORMATION'}</span>}
-          {networkTooltip && <div role="button" tabIndex={0} onPointerDown={hideNetworkTooltip} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') hideNetworkTooltip(); }} className="es-network-tooltip">
+          {networkTooltip && <div role="button" tabIndex={0} onPointerDown={hideNetworkTooltip} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') hideNetworkTooltip(); }} style={{ userSelect: 'none' }} className="es-network-tooltip">
             <div className="es-network-tooltip-title">{formationDisplayName(networkTooltip.toLowerCase(), lang)}</div>
             {getNetworkTooltipLines(networkTooltip, st, lang, network).map((line, index) => <div key={index} className="es-network-tooltip-line"><span className="es-network-tooltip-active">{line.active}</span><span className="es-network-tooltip-rest">{line.rest}</span></div>)}
           </div>}

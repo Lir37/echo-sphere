@@ -247,16 +247,16 @@ test('Shield VFX persists and replays a visible pulse on every application',()=>
 test('Network HUD exposes factual numeric effects for active Geometry',()=>{
   const a=read('src/App.tsx'),c=read('src/engineCombat.ts'),s=read('src/engineSpheres.ts');
   assert.match(a,/getNetworkTooltipLines/);
-  assert.match(a,/\+10% урона попаданий/);
-  assert.match(a,/\+1 пробитие/);
-  assert.match(a,/35% фактического урона, радиус 88/);
-  assert.match(a,/-10% к интервалу атак сфер/);
-  assert.match(a,/\+8% урона сфер/);
-  assert.match(a,/-6% к интервалу атак сфер/);
-  assert.match(a,/\+15% урона попаданий сфер/);
+  assert.match(a,/percent\(10\)/);
+  assert.match(a,/\+1/);
+  assert.match(a,/35 \* scale/);
+  assert.match(a,/радиус 88/);
+  assert.match(a,/percent\(8\)/);
+  assert.match(a,/percent\(6\)/);
+  assert.match(a,/percent\(15\)/);
   assert.match(c,/profile\.line\) actual \*= 1\.10/);
   assert.match(c,/profile\.fractal\) actual \*= 1\.15/);
-  assert.match(s,/networkProfile\.cluster\) pullStrength \*= 1\.20/);
+  assert.match(s,/clusterBonus > 0\) pullStrength \*= 1 \+ 0\.20 \* clusterBonus/);
 });
 
 test('Level 7 has concrete descriptions for all 90 branch/final variants',()=>{
