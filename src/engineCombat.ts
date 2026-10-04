@@ -22,7 +22,7 @@ import {
   pickArtifactChoices,
 } from './artifactSystem';
 import { sphereLevel, sphereModifiers, getActiveSphereAbilitySynergies } from './sphereProgression';
-import { getSphereNetworkProfile, getLinkedNodeIndexes } from './network';
+import { getSphereNetworkProfile, getLinkedNodeIndexes, getFormationBonusMultiplier } from './network';
 import { nextRandom } from './rng';
 import { RUNE_DEFS, type RuneType } from './runes';
 import { canReceivePlayerDamage, canReceivePlayerDoTDamage, CRIT_BASE, CRIT_MULTIPLIER_BASE, getContextualCritChance } from './combatRules';
@@ -187,11 +187,16 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
   if (fromSphere && nextRandom(s) < contextualCritChance) { actual *= CRIT_MULTIPLIER_BASE; isCrit = true; }
   if (fromSphere) {
     const squareNetwork = getNetworkFrame(s);
-    const squareProfile = getSphereNetworkProfile(squareNetwork, s.spheres.indexOf(fromSphere));
-    if (squareProfile.square) {
-      // Local cadence counter: deliberately separate from player Resonance resource.
-      fromSphere.formationHitCount++;
-      if (fromSphere.formationHitCount % 4 === 0) {
+    const sphereIndex = s.spheres.indexOf(fromSphere);
+    const squareProfile = getSphereNetworkProfile(squareNetwork, sphereIndex);
+    const squareBonus = getFormationBonusMultiplier(squareNetwork, 'square', sphereIndex);
+    if (squareProfile.square && squareBonus > 0) {
+      // Each active Geometry keeps an independent cadence so overlapping
+      // Triangle/Square formations cannot consume one another's counters.
+      const counts = fromSphere.formationHitCounts || (fromSphere.formationHitCounts = {});
+      counts.square = (counts.square || 0) + 1;
+      const cadence = squareBonus >= 1 ? 4 : 8;
+      if (counts.square % cadence === 0) {
         fromSphere.resonancePulseTimer = 0.55;
         s.player.shieldCharges = Math.min(5, s.player.shieldCharges + 1);
       }
@@ -527,13 +532,15 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
     const sphereIndex = s.spheres.indexOf(fromSphere);
     const network = getNetworkFrame(s);
     const profile = getSphereNetworkProfile(network, sphereIndex);
-    if (profile.triangle) {
-      fromSphere.formationHitCount++;
+    const triangleBonus = getFormationBonusMultiplier(network, 'triangle', sphereIndex);
+    if (profile.triangle && triangleBonus > 0) {
+      const counts = fromSphere.formationHitCounts || (fromSphere.formationHitCounts = {});
+      counts.triangle = (counts.triangle || 0) + 1;
       const setBehavior = getArtifactSetBehavior(s);
       const trianglePulseEvery = setBehavior.resonanceGrid ? 2 : 3;
-      if (fromSphere.formationHitCount % trianglePulseEvery === 0) {
+      if (counts.triangle % trianglePulseEvery === 0) {
         fromSphere.resonancePulseTimer = 0.45;
-        const pulseDamage = actual * 0.35;
+        const pulseDamage = actual * 0.35 * triangleBonus;
         const pulseRadius = 88;
         for (const nearby of s.enemies) {
           if (nearby !== enemy && nearby.hp > 0 && dist(nearby.pos, enemy.pos) <= pulseRadius) {
