@@ -401,6 +401,15 @@ function activateMinion(s: GameState): void {
       }
     }
   }
+  if (branch === 'minion_guardian') {
+    for (const drone of s.minions.slice(-count)) {
+      const anchor = getNearestSphere(s, drone.pos);
+      if (anchor) {
+        anchor.attackTimer = Math.max(0, anchor.attackTimer - 0.35);
+        s.particles.push({ pos: { ...anchor.pos }, vel: { x: 0, y: 0 }, life: 0.55, maxLife: 0.55, color: '#68d9ff', size: 5 });
+      }
+    }
+  }
   if (relayMode) {
     const network = getNetworkFrame(s);
     for (let i = 0; i < count; i++) {
