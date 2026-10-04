@@ -5082,3 +5082,99 @@ STATUS:
 [DONE] Protocol activation fallback bug corrected and regression-tested.
 [OPEN] D-class implementation/design reconciliation remains the main Artifact gap.
 ======================================================================
+
+======================================================================
+[2026-10-04] ABILITY / SPHERE EVOLUTION / MODIFIER AUDIT
+======================================================================
+
+CURRENT CODE HEAD:
+5229f73953417c0883463936e6efe7b73db6549e
+
+ABILITY INVENTORY
+[CONFIRMED]
+- src/gameData.ts contains 30 Ability definitions.
+- Composition is 8 active + 22 passive.
+- Blueprint target is 15 active + 15 passive.
+
+FINAL VOCABULARY GAP
+[MISSING — 7 FINAL ACTIVE ABILITIES]
+- nova
+- gravity well
+- resonance pulse
+- node swap
+- phase shell
+- void lance
+- time fracture
+
+[LEGACY EXTRA — 7 CURRENT PASSIVES OUTSIDE FINAL VOCABULARY]
+- armor — runtime implemented
+- regen — runtime implemented
+- cooldown — runtime implemented
+- critpower — no runtime consumer found
+- range — no runtime consumer found
+- proj_speed — no runtime consumer found
+- fortune — no runtime consumer found
+
+Do not silently promote these seven legacy entries into the final product.
+The four entries without runtime consumers are confirmed gameplay/content gaps
+or removal/rework candidates.
+
+CURRENT FINAL-PASSIVE COVERAGE
+[IMPLEMENTED]
+The 15 intended final passive roles are represented by current IDs:
+radius, damage, attackspeed, maxspheres, movespeed, slow, vitality,
+vampire, dodge, crit, magnet, sphereboost, stability, resonance.
+maxspheres currently serves the Blueprint's Network Capacity role.
+stability serves Link Stability.
+resonance serves Resonance Charge.
+
+[DONE — RECENT GAP FIXES]
+- Resonance Charge now multiplies authored Resonance gain by +8% per level.
+- Link Stability now shortens every authored network-disable timer by 12% per
+  level, with the Level VII floor matching the 84% maximum reduction.
+- Minion Guardian now has a real Level IV branch effect: the spawned guardian
+  reduces the nearest Sphere's next attack timer and emits dedicated feedback.
+- Regression tests cover all three corrections.
+
+ACTIVE ABILITY EVOLUTION
+[DONE — STRUCTURAL COVERAGE]
+- 8 current active Abilities each have 3 Level-IV branches and 3 Level-VII
+  final choices.
+- 48 Ability evolution IDs are present.
+- After the Minion Guardian correction, all 48 evolution IDs have runtime
+  references.
+
+[OPEN — FINAL CONTENT]
+The remaining seven final Active Abilities have no current activation handlers
+because they are not yet in the implemented active vocabulary. They must be
+added only with their final slot/interaction design, not as duplicate hotkeys.
+
+SPHERE EVOLUTION
+[DONE — STRUCTURAL COVERAGE]
+- 10 current Sphere types.
+- 30 authored Level-IV branches.
+- 90 authored Level-VII final choices.
+- All 30 branch IDs have runtime references.
+- Existing tests assert 90 final choices across 30 branches.
+- Elemental branch and final modifier mappings are present for the authored
+  Sphere evolution system.
+
+[OPEN — SEMANTIC / PLAYERCHECK]
+Structural presence is not the same as player-accepted balance/readability.
+The remaining Sphere task is a branch-by-branch gameplay audit of exact
+trigger, magnitude, target, duration and interaction, followed by APK playtest.
+
+MODIFIERS
+[CONFIRMED]
+- 24 Sphere Modifier choices exist.
+- Every modifier is represented in sphereModifiers() with a concrete combat/
+  control parameter or state output.
+- No modifier was found to be merely a text-only catalog entry.
+- Numeric balance and player-facing wording still require a later dedicated
+  pass; modifier presence is not treated as final balance approval.
+
+STATUS:
+[PARTIAL] Ability/Sphere architecture is broad and structurally wired.
+[OPEN] Final Ability vocabulary completion, four dead legacy passives, and
+branch-by-branch semantic gameplay audit remain.
+======================================================================
