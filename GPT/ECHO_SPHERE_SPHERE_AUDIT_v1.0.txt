@@ -797,3 +797,53 @@ It does NOT close the Artifact gameplay gate, because 29 D-class items and
 behavioral Set completion remain unresolved.
 
 ======================================================================
+
+======================================================================
+[2026-10-04] ABILITY / SPHERE / MODIFIER AUDIT
+======================================================================
+
+CURRENT CODE HEAD:
+5229f73953417c0883463936e6efe7b73db6549e
+
+ABILITY:
+[DONE] 30 current Ability definitions.
+[OPEN] Composition is 8 Active + 22 Passive, while Blueprint final target is
+       15 Active + 15 Passive.
+
+Missing final Active vocabulary:
+nova, gravity_well, resonance_pulse, node_swap, phase_shell, void_lance,
+time_fracture.
+
+Legacy passives outside final vocabulary:
+armor, regen, cooldown, critpower, range, proj_speed, fortune.
+armor/regen/cooldown still work; critpower/range/proj_speed/fortune have no
+confirmed runtime consumer and are removal/rework candidates.
+
+[DONE] The 15 intended final Passive roles are covered by current IDs:
+radius, damage, attackspeed, maxspheres, movespeed, slow, vitality, vampire,
+dodge, crit, magnet, sphereboost, stability, resonance.
+[DONE] Resonance Charge scaling fixed to +8% gain per level.
+[DONE] Link Stability scaling fixed to -12% network-disable duration per level.
+[DONE] Minion Guardian branch now performs its authored attack-cycle effect.
+[DONE] Regression tests added for these corrections.
+
+ABILITY EVOLUTION:
+[DONE] 8 active Abilities have 3 branch + 3 final choices each = 48 evolution IDs.
+[DONE] All 48 evolution IDs now have runtime references after Minion Guardian fix.
+[OPEN] Final 7 Active Abilities have no runtime handlers yet.
+
+SPHERES:
+[DONE] 10 current Sphere types.
+[DONE] 30 Level-IV branches.
+[DONE] 90 Level-VII final choices.
+[DONE] All 30 branch IDs have runtime references.
+[DONE] Existing tests validate 90 final choice records and authored modifier mappings.
+[OPEN] Full branch-by-branch gameplay semantics and human APK acceptance remain.
+
+MODIFIERS:
+[DONE] 24 Modifier choices are represented by concrete parameters in
+       sphereModifiers() and feed shared combat/control paths.
+[OPEN] Exact numerical balance and player-facing contract audit remains a
+       separate pass.
+
+======================================================================
