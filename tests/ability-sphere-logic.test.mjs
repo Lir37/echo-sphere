@@ -87,3 +87,8 @@ test('Sphere Mutation II final choices keep distinct authored modifier mappings 
   assert.match(progression, /pulse_resonator:\{0:\{resonant:2\},1:\{resonant:2,impact:1\},2:\{resonant:2,shatter:1\}\}/);
   assert.match(progression, /void_hunger:\{0:\{corrupt:2\},1:\{corrupt:2,resonant:1\},2:\{corrupt:2,drain:1\}\}/);
 });
+
+test('Minion Guardian branch has an authored combat effect', () => {
+  assert.match(engine, /branch === 'minion_guardian'/);
+  assert.match(engine, /minion_guardian'[\s\S]*?anchor\.attackTimer = Math\.max\(0, anchor\.attackTimer - 0\.35\)/);
+});
