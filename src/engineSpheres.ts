@@ -674,6 +674,7 @@ export function updateSpheres(s: GameState, dt: number): void {
         const resonanceLineBurst = s.player.resonanceLineBurst > 0;
         if (resonanceLineBurst) s.player.resonanceLineBurst = 0;
         const formationPierce = getCharacterId(s) === 'architect' && formation.type === 'line' ? 1 : 0;
+        const networkLineBonus = getFormationBonusMultiplier(networkState, 'line', s.spheres.indexOf(sphere));
         for (let i = 0; i < shots; i++) {
           const spread = shots > 1 ? (i - (shots - 1) / 2) * ((stype.spread * (sphereModifiers(s, sphere.type).spreadMult || 1)) / Math.max(1, shots - 1) || 0.15) : 0;
           const angle = Math.atan2(dirY, dirX) + spread;
@@ -699,7 +700,7 @@ export function updateSpheres(s: GameState, dt: number): void {
               radius: 5,
               alive: true,
               color,
-              pierce: mods.pierce + formationPierce + (networkProfile.line ? 1 : 0),
+              pierce: mods.pierce + formationPierce + (networkLineBonus >= 1 || (networkLineBonus > 0 && nextRandom(s) < networkLineBonus) ? 1 : 0),
               hitEnemies: new Set(),
               effect,
               ricochet: sphereUsesProjectileModifiers(sphere.type) ? sphereMods.ricochet : 0,
