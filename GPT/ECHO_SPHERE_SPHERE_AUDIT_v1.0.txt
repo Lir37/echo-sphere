@@ -718,3 +718,82 @@ HUD:
   Geometry; Dominant gets a bright marker/glow.
 
 ======================================================================
+
+======================================================================
+[2026-10-04] ARTIFACT RUNTIME AUDIT #3
+======================================================================
+
+IMPLEMENTATION HEAD:
+af72401132ce6c5e1f49be6786912342e2948bfa
+
+[DONE] Current Artifact catalog and metadata both contain exactly 82 IDs with
+      no missing or orphan entries.
+
+[DONE] All 82 Artifacts were traced across:
+      CARD -> ARTIFACT_METADATA -> RUNTIME HANDLER/CONSUMER.
+
+AUDIT MATRIX:
+A MATCH / ACCEPTABLE CONTRACT: 28
+B RUNTIME-BACKED SPECIAL HANDLER, SPLIT METADATA: 11
+C PROMISED EFFECT + EXTRA/UNADVERTISED EFFECT: 14
+D MATERIAL GAMEPLAY GAP: 29
+
+A:
+crystal_speed, amulet_hp, ring_xp, regen_stone, radius_shard, luck_talisman,
+mage_pendant, long_lens, dragon_heart, echo_conductor, heavy_core,
+scattering_matrix, aura_lens, soul_engine, time_anchor, void_contract,
+quantum_core, zero_sphere, network_anchor, orbit_charm, prism_shard,
+paper_ward, orbital_blade, void_mark, formation_compass, crit_sigil,
+tempo_ring, void_ink.
+
+B:
+swift_boots, stasis_core, mirror, chaos_orb, gravity_bead, gravity_hook,
+pulse_driver, void_lantern, prism_crown, orbital_crown, pulse_crown.
+
+C:
+vampire_ring, predator_claw, foresight_eye, network_relay, lone_bastion,
+fivefold_resonance, relay_matrix, overclock, mirror_network,
+singularity_engine, geometry_die, network_coil, quantum_fold, void_star.
+
+D:
+resonance_core, triangle_circuit, unified_mind, pulse_lens, echo_thread,
+folded_core, mirror_dust, resonant_leaf, signal_knot, lattice_chip,
+fractal_seed, sniper_scope, chain_battery, shotgun_shell, aura_mist,
+prism_filter, triangle_engine, ring_engine, lattice_engine, fractal_engine,
+resonance_lattice, echo_weaver, gravity_crown, chain_crown, sniper_crown,
+time_splitter, stasis_mandala, axiom_core, universal_fold.
+
+[GAP RULE]
+D-class mechanics must be implemented, deliberately redesigned, or removed.
+Descriptions must not be used to hide missing runtime behavior.
+
+[SET AUDIT]
+[DONE] All 12 current Sets have:
+      concrete component derivation;
+      completion state;
+      runtime branch;
+      regression coverage.
+
+[OPEN] Completion behavior is still primarily conditional Sphere-damage
+      multiplication. This does not yet satisfy Blueprint v1.2 behavioral Set
+      intent.
+
+Priority behavioral rewrites:
+1. Resonance Grid -> accelerate formation Resonance Events.
+2. Echo Architecture -> create linked-Sphere relay events.
+3. Singularity Path -> conditional execution/echo behavior.
+
+[PROTOCOL AUDIT]
+[DONE] Found and fixed a fallback-condition bug:
+      Temporal Fold Protocol and Prism Dominion Protocol could previously
+      activate from the generic >=3 Sphere-type fallback.
+[DONE] Temporal Fold now requires active time control.
+[DONE] Prism Dominion now requires Prism + Orbital/Void refraction pressure.
+[DONE] Regression tests added in tests/artifact-sets.test.mjs.
+
+[GATE]
+This audit closes the current per-ID Artifact tracing pass.
+It does NOT close the Artifact gameplay gate, because 29 D-class items and
+behavioral Set completion remain unresolved.
+
+======================================================================
