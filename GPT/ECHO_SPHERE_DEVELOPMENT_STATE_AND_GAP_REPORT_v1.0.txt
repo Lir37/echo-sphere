@@ -5224,3 +5224,51 @@ CI: Android APK workflow #1325 — SUCCESS.
 Next implementation priority: design and test multi-instance Geometry
 candidate representation, then measure the 8-Sphere Gravity + Aura + Echo
 Pulse interaction with deterministic scenarios before making balance edits.
+
+
+======================================================================
+[2026-10-04] NETWORK MODEL CORRECTION + TWO-SLOT HUD PASS
+======================================================================
+The previous audit proposed supporting multiple independent formations of the same
+Geometry type. That interpretation is NOT the intended gameplay model and is not
+being implemented.
+
+CONFIRMED TARGET MODEL:
+- The Network evaluates valid Geometry normally.
+- At most TWO formations are combat-active at once.
+- They are explicit slots: DOMINANT and SECONDARY.
+- A Sphere may belong to both active formations.
+- A newly completed formation can become SECONDARY without evicting an already
+  established DOMINANT formation.
+- The SECONDARY formation provides a PARTIAL bonus, currently 50% of numeric
+  formation potency.
+- DOMINANT provides full formation potency and remains the owner of the player-level
+  Resonance Event.
+- The player can drag the two active formation entries in HUD to swap their slots.
+- The selected two-slot order persists while both formations remain valid; if one
+  disappears, the Network re-normalizes the active pair.
+- More than two active formation bonuses are never allowed.
+
+IMPLEMENTED:
+- Network supports an explicit two-slot selection state.
+- HUD now renders DOMINANT + SECONDARY with "+" between them.
+- HUD drag swap changes slot priority without inventing another active formation.
+- Numeric Line/Triangle/Cluster/Ring/Lattice/Fractal secondary effects are reduced
+  to 50%; Square defensive cadence is reduced from every 4th to every 8th qualifying hit.
+- Overlapping Triangle/Square formation hit counters are independent.
+- Secondary Prism/Ring reflection uses a 50% proc for the extra discrete reflection.
+- Secondary formation Resonance contributions are scaled to 50% where routed through
+  Pulse/Prism network synergies.
+- Tooltip distinguishes active partial values from full/reference values visually.
+
+TESTS:
+- Added regression coverage for overlapping Triangle + Square two-slot selection.
+- Added regression coverage for explicit slot swapping and secondary potency helper.
+
+NEXT ACCEPTANCE:
+- CI must pass on the implementation commits.
+- Human APK PlayerCheck should verify: Triangle + Square overlap, HUD "Triangle + Square"
+  presentation, drag swap to "Square + Triangle", secondary tooltip readability, and
+  that a third detected Geometry never becomes a third active bonus.
+
+This replaces the earlier "independent same-type formation instances" proposal.
