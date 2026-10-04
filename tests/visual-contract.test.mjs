@@ -255,7 +255,9 @@ test('Network HUD exposes factual numeric effects for active Geometry',()=>{
   assert.match(a,/percent\(6\)/);
   assert.match(a,/percent\(15\)/);
   assert.match(c,/getFormationBonusMultiplier\(getNetworkFrame\(s\), 'line', sphereIndex\)/);
-  assert.match(c,/lineBonus > 0\) actual \*= 1 \+ 0\.10 \* lineBonus/);\n  assert.match(c,/getFormationBonusMultiplier\(getNetworkFrame\(s\), 'fractal', sphereIndex\)/);\n  assert.match(c,/fractalBonus > 0\) actual \*= 1 \+ 0\.15 \* fractalBonus/);
+  assert.match(c,/lineBonus > 0\) actual \*= 1 \+ 0\.10 \* lineBonus/);
+  assert.match(c,/getFormationBonusMultiplier\(getNetworkFrame\(s\), 'fractal', sphereIndex\)/);
+  assert.match(c,/fractalBonus > 0\) actual \*= 1 \+ 0\.15 \* fractalBonus/);
   assert.match(s,/clusterBonus > 0\) pullStrength \*= 1 \+ 0\.20 \* clusterBonus/);
 });
 
