@@ -320,3 +320,44 @@ test('Sphere mutation synergy activates only for the selected branch at Sphere V
   state.player.sphereBranches.pulse = 'pulse_burst';
   assert.equal(mod.getActiveSphereAbilitySynergies(state).some((x) => x.name.ru === 'Резонансная волна'), false);
 });
+
+test('Artifact Protocol activation uses each protocol\'s authored condition', async () => {
+  const mod = await import('../src/artifactSystem.ts');
+  const all = Object.values(mod.ARTIFACT_META).map((item) => item.id);
+  const base = {
+    player: {
+      artifacts: all,
+      combo: 0,
+      resonanceGeometryKey: 'none',
+      timestopTimer: 0,
+      teleportDamageBuffTimer: 0,
+      sphereMods: {},
+    },
+    spheres: [
+      { type: 'prism', alive: true, pos: { x: 0, y: 0 } },
+      { type: 'standard', alive: true, pos: { x: 100, y: 0 } },
+    ],
+    enemies: [],
+  };
+
+  const temporalOff = mod.getArtifactProtocolStates(base).find((x) => x.id === 'temporal_fold_protocol');
+  const prismOff = mod.getArtifactProtocolStates(base).find((x) => x.id === 'prism_dominion_protocol');
+  assert.equal(temporalOff?.active, false, 'Temporal Fold must not activate from sphere count alone');
+  assert.equal(prismOff?.active, false, 'Prism Dominion must require Prism + Orbital/Void');
+
+  const temporalOn = mod.getArtifactProtocolStates({
+    ...base,
+    player: { ...base.player, timestopTimer: 1 },
+  }).find((x) => x.id === 'temporal_fold_protocol');
+  assert.equal(temporalOn?.active, true, 'Temporal Fold must activate during time control');
+
+  const prismOn = mod.getArtifactProtocolStates({
+    ...base,
+    spheres: [
+      ...base.spheres,
+      { type: 'void', alive: true, pos: { x: 0, y: 100 } },
+    ],
+  }).find((x) => x.id === 'prism_dominion_protocol');
+  assert.equal(prismOn?.active, true, 'Prism Dominion must activate with Prism + specialized partner');
+});
+
