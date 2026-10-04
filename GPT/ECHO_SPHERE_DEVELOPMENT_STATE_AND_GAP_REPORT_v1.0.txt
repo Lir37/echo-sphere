@@ -5323,3 +5323,28 @@ No gameplay rule or Network behavior was intentionally changed.
 
 CI STATUS:
 Awaiting Android APK workflow verification on the corrected commit.
+
+======================================================================
+[2026-10-04] BUILD BLOCKER FOLLOW-UP
+======================================================================
+IMPLEMENTATION HEAD:
+c385f75d393bf55f662e8490b3da9dfdf73baedf
+
+[DONE]
+- Restored the Network HUD tooltip auto-hide timer (5 sec), tap-to-dismiss,
+  and non-selectable tooltip presentation.
+- Updated the Resonance Charge regression expectation to match the multiline
+  runtime call and preserve the authored +8% per-level gain plus formation
+  source multiplier.
+- Updated the Network HUD visual-contract test to validate the current
+  two-slot tooltip implementation instead of obsolete pre-refactor literal
+  strings.
+
+CI OBSERVATION:
+- Android workflow #1348 on 87f6645 failed at Typecheck.
+- The TypeScript contract fixes were applied in 27478e8.
+- Workflow #1349 confirmed Typecheck + asset check SUCCESS, then exposed
+  three unit-test failures caused by stale/refactored expectations.
+- Current repair commit c385f75 is under Android workflow verification.
+
+No gameplay rule was intentionally changed in this follow-up.
