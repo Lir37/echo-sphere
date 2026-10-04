@@ -97,7 +97,7 @@ test('Resonance Charge passive scales every authored resonance gain source', asy
   assert.match(await fs.readFile(new URL('../src/engineResonance.ts', import.meta.url), 'utf8'),
     /resonanceGainMultiplier = 1 \+ resonanceLevel \* 0\.08/);
   assert.match(await fs.readFile(new URL('../src/engineResonance.ts', import.meta.url), 'utf8'),
-    /addResonanceChargeFromSource\([\\s\\S]*?resonanceGainMultiplier \\* sourceEffectMultiplier/);
+    /addResonanceChargeFromSource\([\s\S]*?resonanceGainMultiplier \\* sourceEffectMultiplier/);
 });
 
 test('Link Stability passive scales all authored network-disable timers', async () => {
