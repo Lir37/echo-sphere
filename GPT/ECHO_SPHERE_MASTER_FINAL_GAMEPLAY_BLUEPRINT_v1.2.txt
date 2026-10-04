@@ -3902,8 +3902,10 @@ Fractal formation is now valid only when the union of its component Geometry nod
 - Added responsive HUD layout lanes: left player/network telemetry and a
   separate right telemetry lane on desktop; stacked right telemetry below
   the left module on narrow mobile viewports.
-- Added an explicit DOMINANT Geometry label in the active Network HUD.
-  All detected active formations remain listed as secondary badges.
+- Network HUD now presents the two active formations as DOMINANT + SECONDARY,
+  joined by '+'. Dominant is visually stronger and the secondary is intentionally dimmer.
+- The two slots can be swapped by dragging one active formation onto the other.
+- Tooltip text highlights the active secondary portion while dimming the full/reference portion.
 
 [ARTIFACT UX — TARGET CONTRACT, NOT YET IMPLEMENTED]
 - Artifact choice must show a dedicated authored icon/illustration, rarity,
