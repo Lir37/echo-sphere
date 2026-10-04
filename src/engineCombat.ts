@@ -320,8 +320,11 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
         else actual *= 2.5;
       }
     }
-    if (profile.line) actual *= 1.10;
-    if (profile.fractal) actual *= 1.15;
+    const sphereIndex = s.spheres.indexOf(fromSphere);
+    const lineBonus = getFormationBonusMultiplier(getNetworkFrame(s), 'line', sphereIndex);
+    const fractalBonus = getFormationBonusMultiplier(getNetworkFrame(s), 'fractal', sphereIndex);
+    if (lineBonus > 0) actual *= 1 + 0.10 * lineBonus;
+    if (fractalBonus > 0) actual *= 1 + 0.15 * fractalBonus;
   }
 
   // Sphere evolution mechanics: evolutions alter the combat loop, not just stats.
