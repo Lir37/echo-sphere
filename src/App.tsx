@@ -12,6 +12,7 @@ import {
   getMaxSpheres, getMoveSpeed, getSphereRadius, getSphereDamage, getSphereDelay, getSphereDpsEstimate,
   getCritChance, getDodgeChance, getVampirePercent, debugLevelUp, rerollUpgradeChoices,
   getBuildDiagnostics,
+  getNetworkFrame,
   lockUpgradeChoice,
   type GameState, type ShopState, type LeaderEntry, type UpgradeChoice,
   MAP_THEMES, type MapTheme,
@@ -19,7 +20,6 @@ import {
 import { render } from './renderer';
 import { installCanvasResolutionPolicy } from './renderScale';
 import { createEcho3DRenderer, type Echo3DRenderer } from './visual3d';
-import { analyzeSphereNetwork } from './network';
 import { ARTIFACT_META, RARITY_LABELS, artifactRarity, getActiveArtifactSynergies, getArtifactSynergiesAfterPick, ARTIFACT_SYNERGIES, getArtifactSetProgress, getArtifactSetArtifactProgress, getArtifactSetsForArtifact, getArtifactProtocolStates } from './artifactSystem';
 import { resolveSpaceCollisions } from './spaceCollision';
 import {
@@ -781,64 +781,77 @@ function getXpPlannerMult(st: GameState): number {
 
 // ===== HUD =====
 
-function getNetworkTooltipLines(label: string, st: GameState, lang: Lang): string[] {
-  const activeTypes = new Set(st.spheres.filter((sphere) => sphere.alive).map((sphere) => sphere.type));
-  const linkedCount = Math.max(0, st.spheres.reduce((count, sphere) => count + (sphere.alive ? 1 : 0), 0));
-  const ru = lang === 'ru';
-  const lines: string[] = [];
-
-  const add = (ruText: string, enText: string): void => {
-    lines.push(ru ? ruText : enText);
+function formationDisplayName(type: string, lang: Lang): string {
+  const names: Record<string, { ru: string; en: string }> = {
+    line: { ru: 'ЛИНИЯ', en: 'LINE' }, triangle: { ru: 'ТРЕУГОЛЬНИК', en: 'TRIANGLE' },
+    square: { ru: 'КВАДРАТ', en: 'SQUARE' }, cluster: { ru: 'КЛАСТЕР', en: 'CLUSTER' },
+    ring: { ru: 'КОЛЬЦО', en: 'RING' }, lattice: { ru: 'РЕШЁТКА', en: 'LATTICE' },
+    fractal: { ru: 'ФРАКТАЛ', en: 'FRACTAL' },
   };
+  return names[type]?.[lang] || type.toUpperCase();
+}
 
+interface NetworkTooltipLine { active: string; rest: string; }
+
+function getNetworkTooltipLines(label: string, st: GameState, lang: Lang, network: ReturnType<typeof getNetworkFrame>): NetworkTooltipLine[] {
+  const activeTypes = new Set(st.spheres.filter((sphere) => sphere.alive).map((sphere) => sphere.type));
+  const ru = lang === 'ru';
+  const isSecondary = network.secondaryFormation?.type === label.toLowerCase();
+  const scale = isSecondary ? 0.5 : 1;
+  const percent = (value: number): string => { const scaled = value * scale; return Number.isInteger(scaled) ? String(scaled) : scaled.toFixed(1); };
+  const lines: NetworkTooltipLine[] = [];
+  const add = (activeRu: string, restRu: string, activeEn: string, restEn: string): void => {
+    lines.push({ active: ru ? activeRu : activeEn, rest: ru ? restRu : restEn });
+  };
   switch (label) {
     case 'LINE':
-      add('• +10% урона попаданий через активную сеть.', '• +10% hit damage through the active network.');
-      add('• +1 пробитие для снарядов.', '• +1 projectile pierce.');
-      if (activeTypes.has('prism')) add('• Prism: +12% урона луча.', '• Prism: +12% beam damage.');
+      add('+' + percent(10) + '%', isSecondary ? ' из полного +10% урона попаданий через сеть' : ' урона попаданий через активную сеть', '+' + percent(10) + '%', isSecondary ? ' of the full +10% network hit-damage bonus' : ' hit damage through the active network');
+      add('+1', isSecondary ? ' пробитие остаётся дискретным сетевым эффектом' : ' пробитие для снарядов', '+1', isSecondary ? ' pierce remains a discrete network effect' : ' projectile pierce');
+      if (activeTypes.has('prism')) add('+' + percent(12) + '%', isSecondary ? ' из полного +12% урона Prism-луча' : ' урона Prism-луча', '+' + percent(12) + '%', isSecondary ? ' of the full +12% Prism beam damage' : ' Prism beam damage');
       break;
-    case 'TRIANGLE': {
-      const cadence = 3;
-      add(`• Каждый ${cadence}-й удар сферы создаёт сетевой импульс: 35% фактического урона, радиус 88.`,
-        `• Every ${cadence}rd Sphere hit creates a network pulse: 35% actual damage, radius 88.`);
-      add('• При активном Resonance Grid импульс срабатывает каждый 2-й удар.',
-        '• With Resonance Grid active, the pulse triggers every 2nd hit.');
-      if (activeTypes.has('pulse') || activeTypes.has('prism')) {
-        add('• Pulse Resonator/Prism Spectrum могут дополнительно подпитывать Resonance через Triangle.',
-          '• Pulse Resonator/Prism Spectrum can also feed Resonance through Triangle.');
-      }
+    case 'TRIANGLE':
+      add((35 * scale).toFixed(1).replace('.0','') + '%', isSecondary ? ' из полного 35% фактического урона сетевого импульса' : ' фактического урона сетевого импульса', (35 * scale).toFixed(1).replace('.0','') + '%', isSecondary ? ' of the full 35% actual-damage network pulse' : ' actual damage of the network pulse');
+      add('каждый 3-й удар', isSecondary ? ' сферы создаёт импульс' : ' сферы создаёт импульс · радиус 88', 'every 3rd hit', isSecondary ? ' creates the partial pulse' : ' creates the pulse · radius 88');
+      add(isSecondary ? '50%' : '100%', isSecondary ? ' эффективности вторичного слоя' : ' эффективности доминирующего слоя', isSecondary ? '50%' : '100%', isSecondary ? ' secondary-layer effectiveness' : ' dominant-layer effectiveness');
+      if (activeTypes.has('pulse') || activeTypes.has('prism')) add(isSecondary ? '50%' : '100%', ' сетевого вклада в Resonance через Triangle', isSecondary ? '50%' : '100%', ' network Resonance contribution through Triangle');
       break;
-    }
     case 'CLUSTER':
-      add('• -10% к интервалу атак сфер.', '• -10% Sphere attack interval.');
-      if (activeTypes.has('orbital')) add('• Orbital: +8% урона спутников, +8% радиуса орбиты.', '• Orbital: +8% satellite damage, +8% orbit radius.');
-      if (activeTypes.has('gravity')) add('• Gravity: +20% силы притяжения и +8% урона.', '• Gravity: +20% pull strength and +8% damage.');
-      if (activeTypes.has('pulse')) add('• Pulse: +6% радиуса импульса.', '• Pulse: +6% pulse radius.');
+      add('-' + percent(10) + '%', isSecondary ? ' к интервалу атак вместо полного -10%' : ' к интервалу атак сфер', '-' + percent(10) + '%', isSecondary ? ' Sphere attack interval instead of the full -10%' : ' Sphere attack interval');
+      if (activeTypes.has('orbital')) add('+' + percent(8) + '%', isSecondary ? ' к урону спутников вместо полного +8%' : ' к урону спутников', '+' + percent(8) + '%', isSecondary ? ' satellite damage instead of the full +8%' : ' satellite damage');
+      if (activeTypes.has('gravity')) add('+' + percent(20) + '%', isSecondary ? ' к силе притяжения вместо полного +20%' : ' к силе притяжения', '+' + percent(20) + '%', isSecondary ? ' pull strength instead of the full +20%' : ' pull strength');
+      if (activeTypes.has('pulse')) add('+' + percent(6) + '%', isSecondary ? ' к радиусу импульса вместо полного +6%' : ' к радиусу импульса', '+' + percent(6) + '%', isSecondary ? ' pulse radius instead of the full +6%' : ' pulse radius');
       break;
     case 'SQUARE':
-      add('• +8% урона сфер.', '• +8% Sphere damage.');
-      add('• -6% к интервалу атак сфер.', '• -6% Sphere attack interval.');
-      add('• +1 пробитие для снарядов.', '• +1 projectile pierce.');
+      add(isSecondary ? '8-й' : '4-й', ' удар: +1 заряд щита', isSecondary ? '8th' : '4th', ' hit: +1 shield charge');
+      add(isSecondary ? '50%' : '100%', ' эффективности оборонительной формации', isSecondary ? '50%' : '100%', ' defensive formation effectiveness');
       break;
     case 'RING':
-      if (activeTypes.has('orbital')) add('• Orbital: +12% радиуса орбиты.', '• Orbital: +12% orbit radius.');
-      add('• Prism Mirror/Filter: +1 отражённый луч при активном Ring.', '• Prism Mirror/Filter: +1 reflected beam while Ring is active.');
-      add('• Pulse Resonator получает сетевой источник Resonance.', '• Pulse Resonator gains a network Resonance source.');
+      if (activeTypes.has('orbital')) add('+' + percent(12) + '%', isSecondary ? ' к радиусу орбиты вместо полного +12%' : ' к радиусу орбиты', '+' + percent(12) + '%', isSecondary ? ' orbit radius instead of the full +12%' : ' orbit radius');
+      add(isSecondary ? '50%' : '+1', isSecondary ? ' шанс дополнительного отражённого луча' : ' дополнительный отражённый луч', isSecondary ? '50%' : '+1', isSecondary ? ' chance for the extra reflected beam' : ' extra reflected beam');
+      add(isSecondary ? '50%' : '100%', ' сетевого вклада Pulse Resonator в Resonance', isSecondary ? '50%' : '100%', ' Pulse Resonator network contribution to Resonance');
       break;
     case 'LATTICE':
-      if (activeTypes.has('prism')) add('• Prism: +8% урона луча.', '• Prism: +8% beam damage.');
-      add('• Pulse Resonator получает сетевой источник Resonance.', '• Pulse Resonator gains a network Resonance source.');
+      if (activeTypes.has('prism')) add('+' + percent(8) + '%', isSecondary ? ' к урону Prism-луча вместо полного +8%' : ' к урону Prism-луча', '+' + percent(8) + '%', isSecondary ? ' Prism beam damage instead of the full +8%' : ' Prism beam damage');
+      add(isSecondary ? '50%' : '100%', ' сетевого вклада Pulse Resonator в Resonance', isSecondary ? '50%' : '100%', ' Pulse Resonator network contribution to Resonance');
       break;
     case 'FRACTAL':
-      add('• +15% урона попаданий сфер.', '• +15% Sphere hit damage.');
+      add('+' + percent(15) + '%', isSecondary ? ' к урону попаданий сфер вместо полного +15%' : ' к урону попаданий сфер', '+' + percent(15) + '%', isSecondary ? ' Sphere hit damage instead of the full +15%' : ' Sphere hit damage');
       break;
-    default:
-      break;
+    default: break;
   }
-
   return lines;
 }
 
+function swapNetworkFormationSlots(st: GameState): boolean {
+  const network = getNetworkFrame(st);
+  const dominant = network.dominantFormation?.type;
+  const secondary = network.secondaryFormation?.type;
+  if (!dominant || !secondary) return false;
+  st.networkFormationSelection = { dominant: secondary, secondary: dominant };
+  st.networkFrame = null;
+  getNetworkFrame(st);
+  return true;
+}
 function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st: GameState }) {
   const xpPct = Math.max(0, Math.min(100, (st.player.xp / st.player.xpToNext) * 100));
   const hpPct = Math.max(0, Math.min(100, (st.player.hp / st.player.maxHp) * 100));
@@ -848,53 +861,26 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
   const secs = Math.floor(st.time % 60);
   const timer = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   const activeBoss = st.bossActive;
-  const network = analyzeSphereNetwork(st.spheres);
+  const network = getNetworkFrame(st);
   const [networkTooltip, setNetworkTooltip] = useState<string | null>(null);
-  const networkHoldRef = useRef<number | null>(null);
-  const networkTooltipAutoHideRef = useRef<number | null>(null);
+  const networkDragRef = useRef<'dominant' | 'secondary' | null>(null);
 
-  const hideNetworkTooltip = (): void => {
-    setNetworkTooltip(null);
-    if (networkTooltipAutoHideRef.current !== null) window.clearTimeout(networkTooltipAutoHideRef.current);
-    networkTooltipAutoHideRef.current = null;
-  };
-
+  const hideNetworkTooltip = (): void => setNetworkTooltip(null);
   const startNetworkHold = (label: string): void => {
-    if (networkHoldRef.current !== null) window.clearTimeout(networkHoldRef.current);
-    networkHoldRef.current = window.setTimeout(() => {
-      const lines = getNetworkTooltipLines(label, st, lang);
-      setNetworkTooltip(lines.length > 0 ? lines.join('\n') : null);
-      if (networkTooltipAutoHideRef.current !== null) window.clearTimeout(networkTooltipAutoHideRef.current);
-      networkTooltipAutoHideRef.current = window.setTimeout(() => {
-        setNetworkTooltip(null);
-        networkTooltipAutoHideRef.current = null;
-      }, 5000);
-      networkHoldRef.current = null;
-    }, 520);
+    setNetworkTooltip(getNetworkTooltipLines(label, st, lang, network).length > 0 ? label : null);
+  };
+  const beginFormationDrag = (slot: 'dominant' | 'secondary'): void => { networkDragRef.current = slot; };
+  const endFormationDrag = (targetSlot?: 'dominant' | 'secondary'): void => {
+    const source = networkDragRef.current;
+    networkDragRef.current = null;
+    if (!source || !targetSlot || source === targetSlot) return;
+    if (swapNetworkFormationSlots(st)) hideNetworkTooltip();
   };
 
-  const cancelNetworkHold = (): void => {
-    if (networkHoldRef.current !== null) {
-      window.clearTimeout(networkHoldRef.current);
-      networkHoldRef.current = null;
-    }
-  };
-
-  useEffect(() => () => {
-    if (networkHoldRef.current !== null) window.clearTimeout(networkHoldRef.current);
-    if (networkTooltipAutoHideRef.current !== null) window.clearTimeout(networkTooltipAutoHideRef.current);
-  }, []);
-
-  const networkBadges = [
-    network.line ? { id: 'LINE', label: lang === 'ru' ? 'ЛИНИЯ' : 'LINE', className: 'border-[#63e6ff]/45 text-[#9fefff]' } : null,
-    network.triangle ? { id: 'TRIANGLE', label: lang === 'ru' ? 'ТРЕУГОЛЬНИК' : 'TRIANGLE', className: 'border-[#ffb84d]/45 text-[#ffd48f]' } : null,
-    network.ring ? { id: 'RING', label: lang === 'ru' ? 'КОЛЬЦО' : 'RING', className: 'border-[#55e69a]/45 text-[#9affc8]' } : null,
-    network.lattice ? { id: 'LATTICE', label: lang === 'ru' ? 'РЕШЁТКА' : 'LATTICE', className: 'border-[#39d8ff]/45 text-[#8eeeff]' } : null,
-    network.fractal ? { id: 'FRACTAL', label: lang === 'ru' ? 'ФРАКТАЛ' : 'FRACTAL', className: 'border-[#ff6b9d]/45 text-[#ffb3ca]' } : null,
-    network.cluster ? { id: 'CLUSTER', label: lang === 'ru' ? 'КЛАСТЕР' : 'CLUSTER', className: 'border-[#b38cff]/45 text-[#d4c0ff]' } : null,
-    network.square ? { id: 'SQUARE', label: lang === 'ru' ? 'КВАДРАТ' : 'SQUARE', className: 'border-[#69b7ff]/45 text-[#9bcfff]' } : null,
-  ].filter((badge): badge is { id: string; label: string; className: string } => badge !== null);
-
+  const formationSlots = [
+    network.dominantFormation ? { slot: 'dominant' as const, type: network.dominantFormation.type } : null,
+    network.secondaryFormation ? { slot: 'secondary' as const, type: network.secondaryFormation.type } : null,
+  ].filter((slot): slot is { slot: 'dominant' | 'secondary'; type: string } => Boolean(slot));
   return (
     <>
       <div className="es-hud-panel es-top-left absolute top-3 left-3 z-30 pointer-events-none">
@@ -917,46 +903,47 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
           <span>{t('spheres').toUpperCase()} <b>{st.spheres.length}/{getMaxSpheres(st)}</b></span>
           <span>{t('wave').toUpperCase()} <b>{st.wave}</b></span>
         </div>
-        <div className="mt-1.5 flex items-center gap-1.5 text-[7px] uppercase tracking-[0.12em] text-[#7f9bb8]">
-          <Network size={10} />
-          <span>{lang === 'ru' ? 'СЕТЬ' : 'NETWORK'}</span>
+        <div className="mt-1.5 flex items-center justify-between gap-2 text-[7px] uppercase tracking-[0.12em] text-[#7f9bb8]">
+          <div className="flex items-center gap-1.5"><Network size={10} /><span>{lang === 'ru' ? 'СЕТЬ' : 'NETWORK'}</span></div>
           <b className="text-[#dcecff]">{network.links.length}</b>
         </div>
-        {network.dominantFormation && (
-          <div className="mt-1.5 flex items-center gap-1.5 rounded border border-[#ffcf7a]/35 bg-[#ffcf7a]/[0.08] px-1.5 py-1 text-[7px] font-black uppercase tracking-[0.12em] text-[#ffcf7a]">
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#ffcf7a] shadow-[0_0_7px_#ffcf7a]" />
-            {lang === 'ru' ? 'ДОМИНАНТА' : 'DOMINANT'} · {network.dominantFormation.type.toUpperCase()}
-          </div>
-        )}
-        <div className="relative mt-1 flex flex-wrap gap-1">
-          {networkBadges.length > 0 ? networkBadges.map((badge) => (
-            <span key={badge.label}
-              onPointerDown={() => startNetworkHold(badge.id)}
-              onPointerUp={cancelNetworkHold}
-              onPointerCancel={cancelNetworkHold}
-              onPointerLeave={cancelNetworkHold}
-              className={`select-none rounded border px-1.5 py-0.5 text-[7px] font-bold tracking-wide pointer-events-auto ${badge.className} ${network.dominantFormation?.type.toUpperCase() === badge.id ? 'es-network-badge-dominant' : network.secondaryFormation?.type.toUpperCase() === badge.id ? 'es-network-badge-secondary' : ''}`}
-              style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
-              onContextMenu={(event) => event.preventDefault()}>
-              {network.dominantFormation?.type.toUpperCase() === badge.id && <span className="mr-1">◆</span>}
-              {badge.label}
-              {network.secondaryFormation?.type.toUpperCase() === badge.id && <span className="ml-1 opacity-60">II</span>}
-            </span>
-          )) : <span className="text-[7px] text-[#7f9bb8]">{lang === 'ru' ? 'ФОРМАЦИЯ НЕ АКТИВНА' : 'NO FORMATION'}</span>}
-          {networkTooltip && (
-            <div
-              role="button"
-              tabIndex={0}
-              onPointerDown={hideNetworkTooltip}
-              onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') hideNetworkTooltip(); }}
-              className="absolute left-0 top-full z-50 mt-1 w-[220px] select-none rounded-lg border border-cyan-300/20 bg-[#050c16]/95 px-2.5 py-2 text-[8px] leading-4 text-[#cfe7f5] shadow-xl"
-              style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
-            >
-              {networkTooltip}
-            </div>
-          )}
-        </div>
-      </div>
+
+        <div className="es-network-formation-stack mt-1.5 pointer-events-auto"
+          onPointerUp={(event) => {
+            const target = (event.target as HTMLElement).closest<HTMLElement>('[data-formation-slot]')?.dataset.formationSlot as 'dominant' | 'secondary' | undefined;
+            endFormationDrag(target);
+          }}
+          onPointerCancel={() => { networkDragRef.current = null; }}
+        >
+          {formationSlots.length > 0 ? (
+            <>
+              <div className="es-network-formation-row">
+                {formationSlots.map((item, index) => (
+                  <React.Fragment key={item.slot}>
+                    {index === 1 && <span className="es-network-plus" aria-hidden="true">+</span>}
+                    <button
+                      type="button"
+                      data-formation-slot={item.slot}
+                      onPointerDown={(event) => { event.preventDefault(); beginFormationDrag(item.slot); startNetworkHold(item.type.toUpperCase()); }}
+                      onPointerUp={(event) => { event.stopPropagation(); endFormationDrag(item.slot); }}
+                      onPointerCancel={() => { networkDragRef.current = null; }}
+                      onContextMenu={(event) => event.preventDefault()}
+                      className={`es-network-formation-chip pointer-events-auto ${item.slot === 'dominant' ? 'is-dominant' : 'is-secondary'}`}
+                    >
+                      <span className="es-network-formation-role">{item.slot === 'dominant' ? (lang === 'ru' ? 'ДОМИНАНТА' : 'DOMINANT') : (lang === 'ru' ? 'ДОП.' : 'SECONDARY')}</span>
+                      <span className="es-network-formation-name">{formationDisplayName(item.type, lang)}</span>
+                    </button>
+                  </React.Fragment>
+                ))}
+              </div>
+              {network.dominantFormation && network.secondaryFormation && <div className="es-network-formation-hint">{lang === 'ru' ? 'Перетащите одну формацию на другую, чтобы поменять приоритет.' : 'Drag one formation onto the other to swap priority.'}</div>}
+            </>
+          ) : <span className="text-[7px] text-[#7f9bb8]">{lang === 'ru' ? 'ФОРМАЦИЯ НЕ АКТИВНА' : 'NO FORMATION'}</span>}
+          {networkTooltip && <div role="button" tabIndex={0} onPointerDown={hideNetworkTooltip} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') hideNetworkTooltip(); }} className="es-network-tooltip">
+            <div className="es-network-tooltip-title">{formationDisplayName(networkTooltip.toLowerCase(), lang)}</div>
+            {getNetworkTooltipLines(networkTooltip, st, lang, network).map((line, index) => <div key={index} className="es-network-tooltip-line"><span className="es-network-tooltip-active">{line.active}</span><span className="es-network-tooltip-rest">{line.rest}</span></div>)}
+          </div>}
+        </div>      </div>
 
       <div className="es-hud-panel es-top-right absolute top-3 right-3 z-30 pointer-events-none">
         <div className="flex flex-wrap items-start justify-end gap-2">
