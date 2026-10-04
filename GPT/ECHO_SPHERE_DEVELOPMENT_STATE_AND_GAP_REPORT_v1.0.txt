@@ -5178,3 +5178,49 @@ STATUS:
 [OPEN] Final Ability vocabulary completion, four dead legacy passives, and
 branch-by-branch semantic gameplay audit remain.
 ======================================================================
+
+======================================================================
+9. TECHNICAL FOLLOW-UP — 2026-10-04
+======================================================================
+
+Verified HEAD: d0bbb90380deca1f66693799370640a1e5a6dc98
+CI: Android APK workflow #1325 — SUCCESS.
+
+[ACTIONED]
+- Fixed two async test callbacks in tests/ability-sphere-logic.test.mjs;
+  workflow #1325 now passes.
+
+[CONFIRMED NETWORK LIMITATION]
+- src/network.ts currently stores at most one candidate per Geometry type:
+  rankGeometryCandidates() accepts a Partial<Record<Formation, Shape>>.
+- analyzeSphereNetwork() selects a single best Triangle, Square, Line,
+  Cluster, Ring and Lattice from the full alive-node set.
+- selectActiveGeometry() permits only dominant + one secondary layer.
+- Consequently two distinct formations of the same Geometry type cannot
+  both be represented as independent active candidates. This is a confirmed
+  architecture limitation and a plausible contributor to the reported
+  inability to establish a second nearby formation; exact APK reproduction
+  remains a human playtest gate.
+- Do not fix by merely lowering score thresholds. A correct extension needs
+  distinct node-set identities, duplicate/overlap suppression, deterministic
+  ranking and regression tests for adjacent same-type, mixed-type, overlap,
+  dominance hysteresis and Resonance ownership.
+
+[PLAYTEST BALANCE ISSUE — NOT YET CHANGED]
+- User reports Gravity/Attraction + Aura + Echo Pulse becomes overpowered,
+  especially at Sphere cap 8.
+- Treat as a systemic AoE/control stacking issue, not proof that any one
+  Sphere is independently overtuned. Trace enemy pull, Aura tick cadence,
+  Pulse emission count/radius and multi-emitter scaling before tuning.
+- No balance numbers changed in this cycle; preserve the build's identity
+  while testing diminishing returns/caps on repeated area coverage.
+
+[GATE]
+- No APK/manual playtest performed in this cycle.
+- Character roster redesign and 10-level Mastery remain planned, not
+  implemented. Audit current character mechanics before adding roster-wide
+  content.
+
+Next implementation priority: design and test multi-instance Geometry
+candidate representation, then measure the 8-Sphere Gravity + Aura + Echo
+Pulse interaction with deterministic scenarios before making balance edits.
