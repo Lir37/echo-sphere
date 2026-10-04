@@ -1,7 +1,7 @@
 import type { AbilityType, SphereType } from './gameData';
 import type { GameState, SphereEntity, Vec } from './engineTypes';
 import { buildRuntimeNetworkNodes } from './networkRuntime';
-import { analyzeSphereNetwork, type SphereNetworkState } from './network';
+import { analyzeSphereNetwork, type SphereNetworkState, type NetworkFormationSelection } from './network';
 import { nextRandom } from './rng';
 
 export function dist(a: Vec, b: Vec): number {
@@ -68,7 +68,7 @@ export function getNetworkFrame(s: GameState): SphereNetworkState {
   // selected formations still exist; if one disappears, normalize the choice
   // to the formations the Network can actually sustain.
   if (s.networkFormationSelection) {
-    const normalized = {
+    const normalized: NetworkFormationSelection = {
       dominant: network.dominantFormation?.type || 'none',
       secondary: network.secondaryFormation?.type || 'none',
     };

@@ -883,6 +883,7 @@ export function placeSphere(s: GameState, x: number, y: number): void {
     networkDisabledTimer: 0,
     killsContribution: 0,
     formationHitCount: 0,
+    formationHitCounts: {},
     resonancePulseTimer: 0,
     visualTier: sphereLevel(s, s.selectedSphereType),
     type: s.selectedSphereType,

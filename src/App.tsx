@@ -880,7 +880,7 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
   const formationSlots = [
     network.dominantFormation ? { slot: 'dominant' as const, type: network.dominantFormation.type } : null,
     network.secondaryFormation ? { slot: 'secondary' as const, type: network.secondaryFormation.type } : null,
-  ].filter((slot): slot is { slot: 'dominant' | 'secondary'; type: string } => Boolean(slot));
+  ].filter((slot): slot is NonNullable<typeof slot> => Boolean(slot));
   return (
     <>
       <div className="es-hud-panel es-top-left absolute top-3 left-3 z-30 pointer-events-none">
