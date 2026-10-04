@@ -22,7 +22,7 @@ import {
 } from './sphereProgression';
 import { selectSphereTarget } from './targeting';
 import type { SphereNetworkState } from './network';
-import { getSphereNetworkProfile, getLinkedNodeIndexes } from './network';
+import { getSphereNetworkProfile, getLinkedNodeIndexes, getFormationBonusMultiplier } from './network';
 import { nextRandom } from './rng';
 import type { GameState, SphereEntity, EnemyEntity, Vec } from './engineTypes';
 import {
@@ -130,7 +130,8 @@ export function getSphereDelay(s: GameState, sphere?: SphereEntity, network?: Sp
   if (sphere) {
     const networkState = network ?? getNetworkFrame(s);
     const profile = getSphereNetworkProfile(networkState, s.spheres.indexOf(sphere));
-    if (profile.cluster) d *= 0.90;
+    const clusterBonus = getFormationBonusMultiplier(networkState, 'cluster', s.spheres.indexOf(sphere));
+    if (clusterBonus > 0) d *= 1 - 0.10 * clusterBonus;
   }
   return d;
 }
@@ -346,8 +347,11 @@ function updateOrbitalSphere(s: GameState, sphere: SphereEntity, damage: number,
   sphere.auraTimer = Math.max(0.12, 0.42 * mods.auraPulse);
 
   let orbitRadius = (78 + 12 * Math.min(7, sphereLevel(s, 'orbital'))) * mods.radius;
-  if (networkProfile.cluster) orbitRadius *= 1.08;
-  if (networkProfile.ring) orbitRadius *= 1.12;
+  const sphereIndex = s.spheres.indexOf(sphere);
+  const clusterBonus = getFormationBonusMultiplier(network, 'cluster', sphereIndex);
+  const ringBonus = getFormationBonusMultiplier(network, 'ring', sphereIndex);
+  if (clusterBonus > 0) orbitRadius *= 1 + 0.08 * clusterBonus;
+  if (ringBonus > 0) orbitRadius *= 1 + 0.12 * ringBonus;
   orbitRadius *= 1 + Math.min(0.20, networkProfile.linkedNeighbours * 0.03);
 
   const status = getActiveStatusEffect(s, sphere);
@@ -372,7 +376,7 @@ function updateOrbitalSphere(s: GameState, sphere: SphereEntity, damage: number,
     if (branch === 'orbital_dance') hitDamage *= 0.96;
     if (branch === 'orbital_halo') hitDamage *= 0.92;
     if (branch === 'orbital_blade') hitDamage *= finalIndex === 2 ? 1.30 : 1.15;
-    if (networkProfile.cluster) hitDamage *= 1.08;
+    if (clusterBonus > 0) hitDamage *= 1 + 0.08 * clusterBonus;
 
     dealDamageToEnemy(s, enemy, hitDamage, sphere);
     if (status !== 'none') applyDirectSphereStatus(s, enemy, status, sphere);
@@ -426,8 +430,11 @@ let beamCount = Math.max(1, 1 + mods.multishot);
     let beamDamage = damage;
     if (branch === 'prism_split') beamDamage *= beam === 0 ? 1.0 : (finalIndex === 1 ? 0.72 : 0.62);
     if (branch === 'prism_spectrum' && status !== 'none') beamDamage *= 1.08;
-    if (networkProfile.line) beamDamage *= 1.12;
-    if (networkProfile.lattice) beamDamage *= 1.08;
+    const sphereIndex = s.spheres.indexOf(sphere);
+    const lineBonus = getFormationBonusMultiplier(network, 'line', sphereIndex);
+    const latticeBonus = getFormationBonusMultiplier(network, 'lattice', sphereIndex);
+    if (lineBonus > 0) beamDamage *= 1 + 0.12 * lineBonus;
+    if (latticeBonus > 0) beamDamage *= 1 + 0.08 * latticeBonus;
 
     dealDamageToEnemy(s, target, beamDamage, sphere);
     if (status !== 'none') applyDirectSphereStatus(s, target, status, sphere);
@@ -435,10 +442,13 @@ let beamCount = Math.max(1, 1 + mods.multishot);
   }
 
   if (branch === 'prism_mirror' || s.player.artifacts.includes('prism_filter')) {
+    const sphereIndex = s.spheres.indexOf(sphere);
+    const ringBonus = getFormationBonusMultiplier(network, 'ring', sphereIndex);
+    const ringReflection = ringBonus >= 1 || (ringBonus > 0 && nextRandom(s) < ringBonus) ? 1 : 0;
     const reflectionCount = (branch === 'prism_mirror' ? (finalIndex === 2 ? 2 : 1) : 0)
       + (s.player.artifacts.includes('prism_filter') ? 1 : 0)
       + (s.player.artifacts.includes('prism_crown') ? 1 : 0)
-      + (networkProfile.ring ? 1 : 0);
+      + ringReflection;
     if (reflectionCount > 0) {
       const linked = getLinkedNodeIndexes(network, s.spheres.indexOf(sphere))
         .filter((index) => index < s.spheres.length && s.spheres[index]?.alive)
@@ -469,7 +479,9 @@ function updateGravitySphere(s: GameState, sphere: SphereEntity, damage: number,
   let pullStrength = 34 * Math.min(1.6, sphereLevel(s, 'gravity') * 0.18 + 0.5);
   pullStrength *= 1 + (s.player.artifacts.includes('gravity_bead') ? 0.12 : 0);
   pullStrength *= 1 + (s.player.artifacts.includes('gravity_hook') ? 0.10 : 0);
-  if (networkProfile.cluster) pullStrength *= 1.20;
+  const sphereIndex = s.spheres.indexOf(sphere);
+  const clusterBonus = getFormationBonusMultiplier((getNetworkFrame(s)), 'cluster', sphereIndex);
+  if (clusterBonus > 0) pullStrength *= 1 + 0.20 * clusterBonus;
   if (branch === 'gravity_well') pullStrength *= finalIndex === 1 ? 1.35 : 1.15;
   if (branch === 'gravity_tide') pullStrength *= 1.05;
   if (branch === 'gravity_collapse') pullStrength *= 0.90;
@@ -488,7 +500,7 @@ function updateGravitySphere(s: GameState, sphere: SphereEntity, damage: number,
       if (grouped >= 4) hitDamage *= 1.20;
       if (enemy.hp < enemy.maxHp * 0.45) hitDamage *= finalIndex === 2 ? 1.30 : 1.12;
     }
-    if (networkProfile.cluster) hitDamage *= 1.08;
+    if (clusterBonus > 0) hitDamage *= 1 + 0.08 * clusterBonus;
     dealDamageToEnemy(s, enemy, hitDamage, sphere);
     if (status !== 'none') {
       if (isSpecialElementalBranch(branch)) applyElementalFieldReaction(s, enemy, sphere);
@@ -513,7 +525,9 @@ function updatePulseSphere(s: GameState, sphere: SphereEntity, damage: number, m
   sphere.auraTimer = Math.max(0.25, 1.15 * mods.auraPulse * intervalMultiplier);
   let radius = SPHERE_TYPES.pulse.auraRadius * mods.radius;
   if (branch === 'pulse_wave') radius *= finalIndex === 1 ? 1.24 : 1.10;
-  if (networkProfile.cluster) radius *= 1.06;
+  const sphereIndex = s.spheres.indexOf(sphere);
+  const clusterBonus = getFormationBonusMultiplier(getNetworkFrame(s), 'cluster', sphereIndex);
+  if (clusterBonus > 0) radius *= 1 + 0.06 * clusterBonus;
 
   for (let wave = 0; wave < waveCount; wave++) {
     const waveDamage = damage * (wave === 0 ? 1 : 0.46 + (branch === 'pulse_burst' ? 0.14 : 0));
@@ -540,7 +554,13 @@ function updatePulseSphere(s: GameState, sphere: SphereEntity, damage: number, m
   }
 
   if (branch === 'pulse_resonator' && (networkProfile.triangle || networkProfile.lattice || networkProfile.ring)) {
-    chargeResonance(s, 'network', dealDamageToEnemy);
+    const sphereIndex = s.spheres.indexOf(sphere);
+    const formationBonus = Math.max(
+      getFormationBonusMultiplier(getNetworkFrame(s), 'triangle', sphereIndex),
+      getFormationBonusMultiplier(getNetworkFrame(s), 'lattice', sphereIndex),
+      getFormationBonusMultiplier(getNetworkFrame(s), 'ring', sphereIndex),
+    );
+    chargeResonance(s, 'network', dealDamageToEnemy, formationBonus || 1);
   }
   if (branch === 'pulse_burst' && networkProfile.cluster) chargeResonance(s, 'geometry', dealDamageToEnemy);
   triggerEngineerRelay(s, sphere);
