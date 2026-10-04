@@ -463,7 +463,11 @@ let beamCount = Math.max(1, 1 + mods.multishot);
     }
   }
 
-  if (networkProfile.triangle && branch === 'prism_spectrum') chargeResonance(s, 'network', dealDamageToEnemy);
+  const prismIndex = s.spheres.indexOf(sphere);
+  const triangleResonanceBonus = getFormationBonusMultiplier(network, 'triangle', prismIndex);
+  if (networkProfile.triangle && branch === 'prism_spectrum') {
+    chargeResonance(s, 'network', dealDamageToEnemy, triangleResonanceBonus || 1);
+  }
   triggerEngineerRelay(s, sphere);
 }
 
