@@ -57,7 +57,24 @@ export function getNetworkFrame(s: GameState): SphereNetworkState {
   // inertia. frameId still invalidates the cache, while the previous dominant
   // type becomes the reference for the 10-point switch margin.
   const previousDominant = s.networkFrame?.network.dominantFormation?.type || 'none';
-  const network = analyzeSphereNetwork(getNetworkNodes(s), 220, previousDominant);
+  const network = analyzeSphereNetwork(
+    getNetworkNodes(s),
+    220,
+    previousDominant,
+    s.networkFormationSelection,
+  );
+
+  // A HUD swap is an explicit two-slot choice. Keep it as long as the
+  // selected formations still exist; if one disappears, normalize the choice
+  // to the formations the Network can actually sustain.
+  if (s.networkFormationSelection) {
+    const normalized = {
+      dominant: network.dominantFormation?.type || 'none',
+      secondary: network.secondaryFormation?.type || 'none',
+    };
+    s.networkFormationSelection = normalized;
+  }
+
   s.networkFrame = { frameId: s.networkFrameId, network };
   return network;
 }
