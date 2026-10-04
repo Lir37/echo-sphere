@@ -532,13 +532,21 @@ export function getArtifactProtocolStates(s: {
               ? discovered && ['ring', 'lattice', 'fractal'].includes(geometry)
               : protocol.id === 'void_horizon_protocol'
                 ? discovered && voidPressure
-                : protocol.id === 'status_circuit_protocol'
-                  ? discovered && statusBuild
-                  : protocol.id === 'hunter_doctrine_protocol'
-                    ? discovered && priorityPressure
-                    : protocol.id === 'pulse_engineering_protocol'
-                      ? discovered && densePressure
-                      : discovered && sphereTypes.size >= 3;
+                : protocol.id === 'temporal_fold_protocol'
+                  ? discovered && timeControl
+                  : protocol.id === 'status_circuit_protocol'
+                    ? discovered && statusBuild
+                    : protocol.id === 'hunter_doctrine_protocol'
+                      ? discovered && priorityPressure
+                      : protocol.id === 'pulse_engineering_protocol'
+                        ? discovered && densePressure
+                        : protocol.id === 'prism_dominion_protocol'
+                          ? discovered && refractionPressure
+                          : protocol.id === 'core_forge_protocol'
+                            ? discovered && sphereTypes.size >= 3
+                            : protocol.id === 'network_legacy_protocol'
+                              ? discovered && networkLegacyPressure
+                              : false;
     return { ...protocol, discovered, active };
   });
 }
