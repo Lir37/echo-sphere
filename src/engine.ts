@@ -11,6 +11,8 @@ export type {
 
 export { BALANCE } from './engineBalance';
 
+export { getNetworkFrame } from './engineRuntime';
+
 export {
   DEFAULT_MAX_SPHERES, MAX_SPHERES_CAP, BASE_SPHERE_RADIUS, BASE_SPHERE_DAMAGE, BASE_SPHERE_DELAY,
   getMaxSpheres, getSphereRadius, getSphereDamage, getSphereDpsEstimate, getSphereDelay,
