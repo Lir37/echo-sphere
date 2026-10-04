@@ -93,14 +93,14 @@ test('Minion Guardian branch has an authored combat effect', () => {
   assert.match(engine, /minion_guardian'[\s\S]*?anchor\.attackTimer = Math\.max\(0, anchor\.attackTimer - 0\.35\)/);
 });
 
-test('Resonance Charge passive scales every authored resonance gain source', () => {
+test('Resonance Charge passive scales every authored resonance gain source', async () => {
   assert.match(await fs.readFile(new URL('../src/engineResonance.ts', import.meta.url), 'utf8'),
     /resonanceGainMultiplier = 1 \+ resonanceLevel \* 0\.08/);
   assert.match(await fs.readFile(new URL('../src/engineResonance.ts', import.meta.url), 'utf8'),
     /addResonanceChargeFromSource\(s\.player, source, resonanceGainMultiplier\)/);
 });
 
-test('Link Stability passive scales all authored network-disable timers', () => {
+test('Link Stability passive scales all authored network-disable timers', async () => {
   const enemies = await fs.readFile(new URL('../src/engineEnemies.ts', import.meta.url), 'utf8');
   assert.match(enemies, /function getNetworkDisableDuration/);
   assert.doesNotMatch(enemies, /target\.networkDisabledTimer = 1;/);
