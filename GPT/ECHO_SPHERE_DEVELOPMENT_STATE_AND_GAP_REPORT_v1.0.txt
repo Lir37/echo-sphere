@@ -4927,3 +4927,158 @@ STATUS:
 [PARTIAL] Corrected confirmed catalog claims for Zero Sphere, Network
 Anchor and Paper Ward; full implementation audit is not complete.
 ======================================================================
+
+======================================================================
+[2026-10-04] FULL ARTIFACT PER-ID RUNTIME AUDIT + PROTOCOL CORRECTION
+======================================================================
+
+CURRENT IMPLEMENTATION HEAD:
+af72401132ce6c5e1f49be6786912342e2948bfa
+
+CI AT AUDIT START:
+- #1311 SUCCESS
+- #1312 SUCCESS
+- #1313 SUCCESS
+- #1314/#1315 were running when this section was prepared.
+
+ARTIFACT INVENTORY
+[DONE]
+- src/gameData.ts contains 82 Artifact IDs.
+- src/artifactSystem.ts contains 82 Artifact metadata entries.
+- All 82 IDs match exactly; no catalog-only or metadata-only Artifact IDs remain.
+- Earlier report counts of 91 / 36 were stale historical counts and are superseded by
+  the verified current repository count of 82.
+
+PER-ID AUDIT CLASSIFICATION
+The following classification was produced by tracing:
+card description -> ARTIFACT_METADATA -> direct runtime consumer/handler.
+
+A — MATCH / ACCEPTABLE CURRENT CONTRACT (28)
+crystal_speed, amulet_hp, ring_xp, regen_stone, radius_shard, luck_talisman,
+mage_pendant, long_lens, dragon_heart, echo_conductor, heavy_core,
+scattering_matrix, aura_lens, soul_engine, time_anchor, void_contract,
+quantum_core, zero_sphere, network_anchor, orbit_charm, prism_shard,
+paper_ward, orbital_blade, void_mark, formation_compass, crit_sigil,
+tempo_ring, void_ink.
+
+B — RUNTIME MATCH, SPECIAL EFFECT STORED OUTSIDE GENERIC METADATA (11)
+swift_boots, stasis_core, mirror, chaos_orb, gravity_bead, gravity_hook,
+pulse_driver, void_lantern, prism_crown, orbital_crown, pulse_crown.
+
+These effects are runtime-backed, but the current architecture is split between
+generic Artifact metadata and hard-coded/specialized handlers. This is a
+single-source-of-truth quality issue, not proof that the mechanics are absent.
+
+C — PROMISED EFFECT EXISTS, BUT CONTRACT HAS EXTRA / DUPLICATE EFFECTS (14)
+vampire_ring, predator_claw, foresight_eye, network_relay, lone_bastion,
+fivefold_resonance, relay_matrix, overclock, mirror_network, singularity_engine,
+geometry_die, network_coil, quantum_fold, void_star.
+
+Typical examples:
+- vampire_ring: lifesteal works, plus an extra +5 HP on kill;
+- predator_claw: +8% Sphere damage, plus every fifth hit is doubled;
+- foresight_eye: crit/Sniper bonuses, plus a boss-direction arrow;
+- overclock: -12% Sphere delay is real, but metadata also grants +3% damage
+  and the documented efficiency cost is not implemented;
+- quantum_fold: fourth Stella choice is real, but metadata also grants damage/crit;
+- void_star: extra execute chance is real, but metadata also grants crit.
+
+These are not automatically bugs, but the player-facing contract currently does
+not describe the complete behavior.
+
+D — MATERIAL GAMEPLAY GAP / CLAIM NOT BACKED BY CURRENT RUNTIME (29)
+resonance_core, triangle_circuit, unified_mind, pulse_lens, echo_thread,
+folded_core, mirror_dust, resonant_leaf, signal_knot, lattice_chip,
+fractal_seed, sniper_scope, chain_battery, shotgun_shell, aura_mist,
+prism_filter, triangle_engine, ring_engine, lattice_engine, fractal_engine,
+resonance_lattice, echo_weaver, gravity_crown, chain_crown, sniper_crown,
+time_splitter, stasis_mandala, axiom_core, universal_fold.
+
+Key confirmed gaps:
+- resonance_core: card says +12% near another Sphere; current metadata only gives
+  +5% global Sphere damage and no direct +12% proximity effect.
+- triangle_circuit: card says +15% in Triangle; metadata gives +4% global and the
+  promised +15% condition is not directly implemented.
+- unified_mind: card says strongest Sphere grants 3% per level to the network;
+  current metadata gives +16% global and runtime behavior is instead mediated by
+  unified_core synergy with a different weaker-Sphere condition.
+- pulse_lens: pulseRadius exists in metadata but no generic consumer/getter was found.
+- echo_thread: card promises linked-Sphere bonus; metadata is +4% global only.
+- folded_core: card +8% all Sphere damage; metadata +4%.
+- mirror_dust: card +8% reflection chance; metadata +4% Sphere damage and no handler.
+- resonant_leaf: card +10% Resonance; metadata +4% Sphere damage and no handler.
+- signal_knot: card +5% network recovery speed; metadata +4% Sphere damage and no handler.
+- lattice_chip / fractal_seed: cards promise Geometry-specific power; metadata is
+  generic +4% Sphere damage and no direct Geometry-power consumer.
+- sniper_scope / chain_battery / shotgun_shell: cards promise +10% type-specific
+  damage; metadata is generic +6% Sphere damage and no type-specific consumer.
+- aura_mist: card promises +10% Aura radius; metadata is +6% Sphere damage.
+- prism_filter: card promises +10% Prism penetration; runtime instead provides
+  reflection/combination behavior, but no penetration stat/path was found.
+- triangle_engine / ring_engine / lattice_engine / fractal_engine: cards promise
+  Geometry-specific power, while metadata is generic +8% damage + cooldown and no
+  direct Geometry power consumer was found.
+- resonance_lattice: card promises +15% Resonance effects; metadata is generic.
+- echo_weaver: card promises per-connection scaling; no per-link direct consumer.
+- gravity_crown: card promises +20% Gravity radius; metadata has gravityRadius but no
+  direct runtime consumer was found.
+- chain_crown: card promises +1 Chain jump; no direct runtime consumer found.
+- sniper_crown: card promises +10% Sniper range; no direct runtime consumer found.
+- time_splitter: card promises +15% after Time Stop; no direct runtime consumer found.
+- stasis_mandala: card promises damage-to-shield conversion; no direct runtime consumer found.
+- axiom_core / universal_fold: cards promise broad cross-system effects, while current
+  metadata/runtime expose generic damage/cooldown bonuses instead.
+
+IMPORTANT:
+Do not repair D-class items by improving descriptions only. Each item must either:
+1) receive the missing mechanic,
+2) be deliberately redesigned around its actual current payload, or
+3) be removed/replaced.
+
+ARTIFACT SETS
+[DONE]
+- 12/12 current Artifact Sets exist in ARTIFACT_SETS.
+- Their component lists are derived from pair-synergy requirements.
+- getArtifactSetBehavior() exposes all 12 completion states.
+- getSphereArtifactModifiers() contains a live runtime branch for all 12.
+- Existing regression tests prove all 12 Sets can complete and change a measurable
+  combat modifier.
+
+[OPEN — DESIGN CONTRACT]
+The current Set completion implementation still behaves primarily as conditional
+damage multipliers. This is mechanically wired but does not yet satisfy the
+Blueprint v1.2 requirement that Set completion must change gameplay behavior,
+not merely provide flat damage.
+
+The first three high-priority behavioral rewrites remain:
+- Resonance Grid -> accelerate formation-driven Resonance events.
+- Echo Architecture -> create actual relay events between linked Spheres.
+- Singularity Path -> conditional execution/echo behavior for concentrated builds.
+
+Other current Sets should be audited after these three so Set completion remains
+a build event rather than a stack of hidden percentage multipliers.
+
+PROTOCOL CORRECTION
+[DONE]
+- Fixed getArtifactProtocolStates() so temporal_fold_protocol explicitly requires
+  active time control instead of falling through to the generic >=3 Sphere-type rule.
+- Fixed prism_dominion_protocol so it explicitly requires Prism + Orbital/Void
+  refraction pressure instead of the generic >=3 type fallback.
+- Added regression coverage for both conditions.
+- Final fallback now returns false instead of silently activating an unrelated Protocol.
+
+NEXT AUDIT ORDER
+1. Implement/reconcile D-class Artifact mechanics, starting with unambiguous missing
+   runtime paths.
+2. Rework the first three behavioral Artifact Set completions above.
+3. Continue with the Ability audit: card -> metadata -> activation handler -> actual
+   target/area/duration/damage -> level scaling.
+4. Audit Sphere Level VII evolutions and Modifier descriptions against runtime.
+5. Then audit Runes, Characters/Mastery, Protocols and Meta systems.
+
+STATUS:
+[PARTIAL] Full 82-ID Artifact trace complete.
+[PARTIAL] Artifact Sets fully wired but behavioral contract still open.
+[DONE] Protocol activation fallback bug corrected and regression-tested.
+[OPEN] D-class implementation/design reconciliation remains the main Artifact gap.
+======================================================================
