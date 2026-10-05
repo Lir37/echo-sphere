@@ -1,4 +1,6 @@
-import { CHARACTER_DEFS, getBerserkerFuryBonus, getSphereCountResonanceBonus, type CharacterId } from './characters';
+import { CHARACTER_DEFS, getBerserkerFuryBonus, getSphereCountResonanceBonus, getCharacterSphereCopyCap as getSignatureCopyCap, type CharacterId } from './characters';
+import { getNetworkFrame } from './engineRuntime';
+import type { NetworkFormation, SphereNetworkState } from './network';
 import type { EnemyEntity, GameState, SphereEntity, Vec } from './engine';
 
 export type CharacterFormation = 'none' | 'line' | 'triangle' | 'square' | 'cluster';
@@ -18,6 +20,19 @@ interface CharacterRuntimePlayer {
   hunterHuntTarget?: EnemyEntity | null;
   hunterHuntTimer?: number;
   alchemistCatalystTimer?: number;
+  alchemistReactionCount?: number;
+  conductorOverdriveTimer?: number;
+  oracleForecastKeys?: string[];
+  oracleForecastRerollUsed?: boolean;
+  fractalFormationHistory?: Array<{ type: string; key: string; nodes: Vec[] }>;
+  fractalEchoTimer?: number;
+  fractalEchoPulseTimer?: number;
+  fractalEchoCooldown?: number;
+  fractalEchoNodes?: Vec[];
+  fractalEchoStrength?: number;
+  voidPhantomTimer?: number;
+  voidPhantomPulseTimer?: number;
+  voidPhantomPos?: Vec | null;
   architectFormationType?: CharacterFormation;
   architectFormationChangedAt?: number;
 }
@@ -72,6 +87,7 @@ export function getCharacterAttackSpeedMultiplier(s: GameState): number {
   const character = getCharacterId(s);
   const mastery = runtimePlayer(s).characterMasteryLevel || 1;
   let multiplier = 1 + CHARACTER_DEFS[character].baseModifiers.sphereAttackSpeed;
+  if (character === 'conductor' && (runtimePlayer(s).conductorOverdriveTimer || 0) > 0) multiplier += mastery >= 8 ? 0.28 : mastery >= 4 ? 0.23 : 0.18;
 
   if (character === 'spherist') {
     const sphereCount = s.spheres.filter((sphere) => sphere.alive).length;
@@ -147,24 +163,10 @@ export function getLocalCharacterSpheres(s: GameState, radius = CHARACTER_LOCAL_
 
 export function getCharacterFormation(s: GameState): CharacterFormationResult {
   if (getCharacterId(s) !== 'architect') return { type: 'none', strength: 0 };
-
-  const spheres = getLocalCharacterSpheres(s);
-  if (spheres.length < 3) return { type: 'none', strength: 0 };
-
-  const toleranceMultiplier = (runtimePlayer(s).characterMasteryLevel || 1) >= 2 ? 1.15 : 1;
-  const clusterStrength = Math.min(1, getClusterStrength(spheres) * toleranceMultiplier);
-  const lineStrength = Math.min(1, getLineStrength(spheres) * toleranceMultiplier);
-  const squareStrength = Math.min(1, getSquareStrength(spheres) * toleranceMultiplier);
-  const triangleStrength = Math.min(1, getTriangleStrength(spheres) * toleranceMultiplier);
-
-  const candidates: CharacterFormationResult[] = [];
-  if (spheres.length >= 4 && clusterStrength >= 0.78) candidates.push({ type: 'cluster', strength: clusterStrength });
-  if (spheres.length >= 4 && squareStrength >= 0.78) candidates.push({ type: 'square', strength: squareStrength });
-  if (spheres.length >= 3 && triangleStrength >= 0.78) candidates.push({ type: 'triangle', strength: triangleStrength });
-  if (spheres.length >= 3 && lineStrength >= 0.80) candidates.push({ type: 'line', strength: lineStrength });
-
-  candidates.sort((a, b) => b.strength - a.strength);
-  const result = candidates[0] || { type: 'none', strength: 0 };
+  const dominant = getNetworkFrame(s).dominantFormation;
+  if (!dominant) return { type: 'none', strength: 0 };
+  const supported = dominant.type === 'line' || dominant.type === 'triangle' || dominant.type === 'square' || dominant.type === 'cluster';
+  const result = supported ? { type: dominant.type as CharacterFormation, strength: dominant.strength } : { type: 'none' as const, strength: 0 };
   trackArchitectFormationChange(s, result.type);
   return result;
 }
@@ -270,6 +272,9 @@ export function applyAlchemistReaction(s: GameState, enemy: EnemyEntity): boolea
   else if (freeze && poison) burstMultiplier = 1.6;
   else if (fire && freeze) burstMultiplier = 1.8;
 
+  if (mastery >= 7) burstMultiplier *= 1.05;
+  p.alchemistReactionCount = (p.alchemistReactionCount || 0) + 1;
+  if (mastery >= 9 && p.alchemistReactionCount % 3 === 0) burstMultiplier *= 1.25;
   enemy.hp -= baseDamage * burstMultiplier;
   if (fire && poison) {
     enemy.fireTimer = 0;
@@ -290,9 +295,6 @@ export function applyAlchemistReaction(s: GameState, enemy: EnemyEntity): boolea
     const targets = s.enemies.filter((other) => other !== enemy && other.hp > 0 && distance(other.pos, enemy.pos) <= reactionRadius).slice(0, mastery >= 10 ? 2 : 1);
     for (const target of targets) target.hp -= baseDamage * burstMultiplier * 0.5;
   }
-  if (mastery >= 7) burstMultiplier *= 1.05;
-
-
   const burstCount = (p.characterMasteryLevel || 1) >= 4 ? 26 : 18;
   for (let i = 0; i < burstCount; i++) {
     const a = Math.random() * Math.PI * 2;
@@ -328,6 +330,68 @@ export function getEngineerNetworkSpheres(s: GameState): SphereEntity[] {
     if (connected.length > best.length) best = connected;
   }
   return best;
+}
+
+export function getCharacterSphereCopyCap(s: GameState, sphereType: SphereEntity['type']): number {
+  return getSignatureCopyCap(getCharacterId(s), sphereType, runtimePlayer(s).characterMasteryLevel || 1);
+}
+
+export function getSphereCopyOutputMultiplier(s: GameState, sphere: SphereEntity): number {
+  if (getCharacterSphereCopyCap(s, sphere.type) <= 2) return 1;
+  const copies = s.spheres.filter((item) => item.alive && item.type === sphere.type);
+  const index = copies.indexOf(sphere);
+  return index < 2 ? 1 : index === 2 ? 0.85 : 0.70;
+}
+
+export function recordCharacterFormation(s: GameState, formation: { type: NetworkFormation; nodes: number[] } | null): void {
+  if (getCharacterId(s) !== 'fractal' || !formation || formation.type === 'none') return;
+  const p = runtimePlayer(s);
+  const key = formation.type + ':' + [...formation.nodes].sort((a,b) => a-b).join(',');
+  const history = p.fractalFormationHistory || [];
+  if (history[history.length - 1]?.type === formation.type) return;
+  history.push({ type: formation.type, key, nodes: formation.nodes.filter(i => i < s.spheres.length).map(i => s.spheres[i]?.pos).filter((v): v is Vec => Boolean(v)).map(v => ({...v})) });
+  p.fractalFormationHistory = history.slice(-((p.characterMasteryLevel || 1) >= 7 ? 4 : 3));
+  const recent = p.fractalFormationHistory.slice(-3);
+  if (recent.length < 3 || new Set(recent.map(v => v.type)).size < 3 || (p.fractalEchoCooldown || 0) > 0) return;
+  p.fractalEchoNodes = recent[0].nodes.map(v => ({...v}));
+  p.fractalEchoStrength = (p.characterMasteryLevel || 1) >= 10 ? 0.70 : (p.characterMasteryLevel || 1) >= 6 ? 0.60 : 0.50;
+  p.fractalEchoTimer = (p.characterMasteryLevel || 1) >= 4 ? 4 : 3.5;
+  p.fractalEchoPulseTimer = 0;
+  p.fractalEchoCooldown = 6;
+  s.flashText = { text: 'RECURSIVE ECHO', life: 0.9, color: '#ffb84d' };
+}
+
+export function updateCharacterRuntime(s: GameState, dt: number, network: SphereNetworkState, dealDamage: (s: GameState, enemy: EnemyEntity, dmg: number, fromSphere?: SphereEntity, allowSphereProc?: boolean) => void): void {
+  const p = runtimePlayer(s), mastery = p.characterMasteryLevel || 1;
+  p.conductorOverdriveTimer = Math.max(0, (p.conductorOverdriveTimer || 0) - dt);
+  p.fractalEchoCooldown = Math.max(0, (p.fractalEchoCooldown || 0) - dt);
+  if (getCharacterId(s) === 'fractal' && (p.fractalEchoTimer || 0) > 0) {
+    p.fractalEchoTimer = Math.max(0, p.fractalEchoTimer! - dt);
+    p.fractalEchoPulseTimer = (p.fractalEchoPulseTimer || 0) - dt;
+    if (p.fractalEchoPulseTimer! <= 0) {
+      p.fractalEchoPulseTimer = mastery >= 8 ? 0.65 : 0.8;
+      const dmg = (16 + s.player.level * 2) * (p.fractalEchoStrength || 0.5);
+      for (const pos of p.fractalEchoNodes || []) for (const enemy of s.enemies) if (enemy.hp > 0 && distance(enemy.pos,pos) <= 95) dealDamage(s,enemy,dmg,undefined,false);
+    }
+  }
+  if (getCharacterId(s) === 'voidwalker') {
+    const disabled = s.spheres.find(v => v.alive && v.networkDisabledTimer > 0);
+    if ((p.voidPhantomTimer || 0) <= 0 && disabled) {
+      p.voidPhantomTimer = mastery >= 10 ? 3.5 : mastery >= 2 ? 3 : 2.5;
+      p.voidPhantomPulseTimer = 0;
+      p.voidPhantomPos = {...disabled.pos};
+      s.flashText = { text:'PHANTOM NODE', life:0.8, color:'#8a5a8a' };
+    }
+    if ((p.voidPhantomTimer || 0) > 0) {
+      p.voidPhantomTimer = Math.max(0,p.voidPhantomTimer! - dt);
+      p.voidPhantomPulseTimer = (p.voidPhantomPulseTimer || 0) - dt;
+      if (p.voidPhantomPulseTimer <= 0 && p.voidPhantomPos) {
+        p.voidPhantomPulseTimer = 0.6;
+        const dmg=(12+s.player.level)*(mastery>=10?0.70:mastery>=4?0.60:0.50);
+        for(const enemy of s.enemies) if(enemy.hp>0 && distance(enemy.pos,p.voidPhantomPos)<=105){dealDamage(s,enemy,dmg,undefined,false);if(mastery>=3){enemy.slowTimer=Math.max(enemy.slowTimer,0.6);enemy.slowFactor=Math.min(enemy.slowFactor||1,0.82);}}
+      }
+    } else p.voidPhantomPos=null;
+  }
 }
 
 export function getCharacterId(s: GameState): CharacterId {
