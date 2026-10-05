@@ -3,6 +3,7 @@ import type { SphereNetworkState } from './network';
 import { getLinkedNodeIndexes } from './network';
 import { dist, getNetworkNodes, getNetworkFrame } from './engineRuntime';
 import type { GameState, EnemyEntity, SphereEntity, Vec } from './engineTypes';
+import { getCharacterId, recordCharacterFormation } from './characterRuntime';
 
 export type ResonanceDamageHandler = (
   s: GameState,
@@ -33,6 +34,15 @@ export function triggerResonanceEvent(s: GameState, dealDamage: ResonanceDamageH
   const center = formation ? resonanceFormationCenter(s, formation.nodes, networkNodes) : { ...s.player.pos };
   const baseDamage = 16 + s.player.level * 2;
   s.player.resonanceEventActive = true;
+  s.player.resonanceEventsTriggered = (s.player.resonanceEventsTriggered || 0) + 1;
+  if (getCharacterId(s) === 'conductor') {
+    const mastery = s.player.characterMasteryLevel || 1;
+    s.player.conductorOverdriveTimer = Math.max(s.player.conductorOverdriveTimer || 0, mastery >= 2 ? 2.5 : 2);
+    if (mastery >= 6 && s.player.resonanceEventsTriggered % 3 === 0) {
+      const count = mastery >= 9 ? 3 : mastery >= 7 ? 2 : 1;
+      for (const target of s.enemies.filter((e) => e.hp > 0 && dist(e.pos, center) <= 170).slice(0, count)) dealDamage(s, target, baseDamage * 0.55, undefined, false);
+    }
+  }
   try {
     if (type === 'fractal') {
       // Fractal Echo replays the strongest lower-order geometry and then
@@ -186,8 +196,10 @@ export function chargeResonance(
 export function syncResonanceGeometry(s: GameState, network: SphereNetworkState | undefined, dealDamage: ResonanceDamageHandler): void {
   const resolvedNetwork = network ?? getNetworkFrame(s);
   const formation = getResonanceFormation(resolvedNetwork);
-  const key = formation ? formation.type + ':' + formation.nodes.join(',') : 'none';
-  if (key === s.player.resonanceGeometryKey) return;
+  const key = formation ? formation.type + ':' + [...formation.nodes].sort((a,b) => a-b).join(',') : 'none';
+  const candidateKeys = resolvedNetwork.formationCandidates.map((candidate) => candidate.type + ':' + [...candidate.nodes].sort((a,b) => a-b).join(','));
+  const previousCandidateKeys = s.player.resonanceFormationCandidateKeys || [];
+  if (key === s.player.resonanceGeometryKey && candidateKeys.length === previousCandidateKeys.length && candidateKeys.every((candidateKey) => previousCandidateKeys.includes(candidateKey))) return;
 
   if (s.player.resonanceGeometryKey !== 'none' && s.player.resonanceGeometryNodes.length > 0) {
     const previousNodes = s.player.resonanceGeometryNodes
@@ -206,11 +218,15 @@ export function syncResonanceGeometry(s: GameState, network: SphereNetworkState 
   // Geometry charge is earned only when a genuinely new formation appears.
   // Losing a formation and recovering the same key (e.g. Link Breaker) does
   // not recharge the resource.
-  const gainedFormation = Boolean(formation) && key !== s.player.resonanceLastActiveFormationKey;
+  const gainedFormation = Boolean(formation) && !previousCandidateKeys.includes(key);
   s.player.resonanceGeometryKey = key;
   s.player.resonanceGeometryNodes = formation ? [...formation.nodes] : [];
+  s.player.resonanceFormationCandidateKeys = candidateKeys;
   if (formation) s.player.resonanceLastActiveFormationKey = key;
-  if (gainedFormation) chargeResonance(s, 'geometry', dealDamage);
+  if (gainedFormation) {
+    recordCharacterFormation(s, resolvedNetwork, formation);
+    chargeResonance(s, 'geometry', dealDamage);
+  }
 }
 
 
