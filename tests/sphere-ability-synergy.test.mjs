@@ -35,7 +35,7 @@ test('multiple Spheres can converge on the same Ability with different behaviora
 test('all 30 synergies are behavioral and routed through the Ability activation layer', () => {
   assert.equal((matrix.match(/behavior:'/g) || []).length, 30);
   for (const ability of ['blast','shield','teleport','firetrail','minion','lightning','timestop','darkritual']) {
-    assert.match(abilities, new RegExp(`applySphereAbilitySynergyRiders\\(s, '\\${ability}'\\)`));
+    assert.match(abilities, new RegExp("applySphereAbilitySynergyRiders\\\\(s, '\\" + ability + "'\\\\)"));
   }
 });
 
