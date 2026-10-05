@@ -48,3 +48,34 @@ test('frame-level Network analysis is cached for gameplay readers', () => {
   assert.doesNotMatch(combat, /analyzeSphereNetwork\(/);
   assert.doesNotMatch(resonance, /analyzeSphereNetwork\(/);
 });
+
+
+test('render contract separates Echo Drone network links from Sphere-only geometry', async () => {
+  const { getSphereVisualNetwork } = await import('../src/networkRender.ts');
+
+  const sourceNetwork = {
+    linkDistance: 220,
+    nodes: [0, 1, 2],
+    links: [
+      { a: 0, b: 1, distance: 180 },
+      { a: 0, b: 2, distance: 90 },
+    ],
+    formationCandidates: [
+      { type: 'line', strength: 0.9, nodes: [0, 1, 2] },
+    ],
+    dominantFormation: { type: 'line', strength: 0.9, nodes: [0, 1, 2] },
+    secondaryFormation: null,
+    line: { type: 'line', strength: 0.9, nodes: [0, 1, 2] },
+    triangle: null,
+    square: null,
+    cluster: null,
+    ring: null,
+    lattice: null,
+    fractal: null,
+  };
+
+  const rendered = getSphereVisualNetwork(sourceNetwork, 2);
+  assert.deepEqual(rendered.externalLinks, [{ a: 0, b: 2, distance: 90 }]);
+  assert.deepEqual(rendered.network.links, [{ a: 0, b: 1, distance: 180 }]);
+  assert.deepEqual(rendered.network.line?.nodes, [0, 1]);
+});
