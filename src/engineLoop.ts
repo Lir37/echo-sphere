@@ -48,7 +48,7 @@ export function claimStella(s: GameState): void {
 
 
 export function openTutorialUpgrade(s: GameState): void {
-  if (s.gameOver || s.paused || s.pendingUpgrade || s.pendingArtifact || s.pendingStella) return;
+  if (s.gameOver || (s.paused && !s.tutorialMode) || s.pendingUpgrade || s.pendingArtifact || s.pendingStella) return;
   s.player.level += 1;
   s.player.maxHp += BALANCE.hpPerLevel;
   s.player.hp = Math.min(s.player.maxHp, s.player.hp + BALANCE.hpPerLevel);
