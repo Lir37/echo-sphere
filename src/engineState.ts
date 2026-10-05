@@ -207,6 +207,7 @@ export function createInitialState(
     chests: [],
     runes: [],
     difficulty: difficulty,
+    tutorialMode: false,
     evolutionsThisRun: 0,
     selectedSphereType: 'standard',
     shopUpgrades: { ...shop.upgrades },
