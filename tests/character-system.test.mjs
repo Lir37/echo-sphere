@@ -31,7 +31,7 @@ test('Signature Sphere cap is 2, then 3 at mastery 5, then 4 at mastery 10', () 
 test('Oracle uses real Sphere/Ability choices and can preserve one forecast on Reroll', () => {
   assert.match(progression, /oracleForecastKeys/);
   assert.match(progression, /oracleForecastChoice/);
-  assert.match(chars, /Открывается 4-я Signature-сфера/);
+  assert.match(chars, /Открывается 4-я Сигнатурная сфера/);
 });
 
 test('Guardian Drone boosts the next attack cycle instead of applying per-frame haste', () => {
