@@ -36,6 +36,13 @@ const RU_REPLACEMENTS: Array<[RegExp, string]> = [
   [/\bSQUARE\b/g, 'КВАДРАТ'],
   [/\bCLUSTER\b/g, 'КЛАСТЕР'],
   [/\bNONE\b/g, 'НЕТ'],
+  [/\bSTELLA\b/g, 'СТЕЛЛА'],
+  [/\bBREACHER\b/g, 'ПРОРЫВАТЕЛЬ'],
+  [/\bVOID LANCER\b/g, 'ПИКОВИК ПУСТОТЫ'],
+  [/\bBROOD MIND\b/g, 'РОЕВОЙ РАЗУМ'],
+  [/\bAURA TITAN\b/g, 'ТИТАН АУРЫ'],
+  [/\bLATTICE\b/g, 'РЕШЁТКА'],
+  [/\bRING\b/g, 'КОЛЬЦО'],
 ];
 
 function getLocale(): Locale {
