@@ -224,8 +224,6 @@ export function updateMinions(s: GameState, dt: number): void {
         s.lightnings.push({ from: { ...anchor.pos }, to: { ...nearby.pos }, life: 0.1 });
         anchor.attackTimer = Math.max(0, anchor.attackTimer - 0.16);
         nearby.attackTimer = Math.max(0, nearby.attackTimer - 0.08);
-      } else if (abilityBranch === 'minion_guardian') {
-        anchor.attackTimer = Math.max(0, anchor.attackTimer - dt * 0.18);
       } else if (nearby && nextRandom(s) < dt * 2) {
         s.lightnings.push({ from: { ...anchor.pos }, to: { ...nearby.pos }, life: 0.08 });
       }
