@@ -10,7 +10,8 @@ test('canonical systems are structurally represented', () => {
   const abilities = [...data.matchAll(/export type AbilityType =\s*([^;]+);/gs)][0][1].match(/'[^']+'/g) || [];
   assert.equal(spheres.length, 10);
   assert.equal(abilities.length, 30);
-  const bossBlock = data.slice(data.indexOf('export const BOSS_TYPES'));\n  assert.equal((bossBlock.match(/id: '(?:shooter|charger|summoner|aura|conductor|architect|null|stella_warden)'/g) || []).length, 8);
+  const bossBlock = data.slice(data.indexOf('export const BOSS_TYPES'));
+  assert.equal((bossBlock.match(/id: '(?:shooter|charger|summoner|aura|conductor|architect|null|stella_warden)'/g) || []).length, 8);
   assert.doesNotMatch(data, /echosphere_map|MAP_THEMES|MapTheme|parchment|bamboo|sunset|ocean/);
 });
 
