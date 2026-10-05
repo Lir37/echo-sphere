@@ -7,7 +7,11 @@ export type CharacterId =
   | 'engineer'
   | 'berserker'
   | 'alchemist'
-  | 'architect';
+  | 'architect'
+  | 'conductor'
+  | 'oracle'
+  | 'voidwalker'
+  | 'fractal';
 
 export type CharacterStat =
   | 'sphereDamage'
@@ -45,6 +49,8 @@ export interface CharacterDef {
   description: { ru: string; en: string };
   color: string;
   baseModifiers: CharacterBaseModifiers;
+  signatureSphereType: SphereType;
+  partnerSphereType: SphereType;
   preferredSphereTypes: SphereType[];
   preferredSphereMods: CharacterFavoriteTowerMod[];
   preferredAbilities: AbilityType[];
@@ -66,6 +72,9 @@ const ZERO_MODIFIERS: CharacterBaseModifiers = {
   damageTaken: 0,
 };
 
+
+const makeMastery = (rows: Array<[string,string,string,string]>): CharacterMasteryLevel[] => rows.map(([ru,en,rd,ed],i)=>({level:(i+1) as CharacterMasteryLevel['level'],title:{ru,en},description:{ru:rd,en:ed}}));
+
 export const CHARACTER_DEFS: Record<CharacterId, CharacterDef> = {
   spherist: {
     id: 'spherist',
@@ -77,7 +86,9 @@ export const CHARACTER_DEFS: Record<CharacterId, CharacterDef> = {
     },
     color: '#55dfff',
     baseModifiers: { ...ZERO_MODIFIERS, sphereDamage: 0.05, sphereRadius: 0.05 },
-    preferredSphereTypes: ['standard', 'chain', 'orbital', 'pulse'],
+    signatureSphereType: 'standard',
+    partnerSphereType: 'orbital',
+    preferredSphereTypes: ['standard', 'orbital'],
     preferredSphereMods: ['multishot', 'ricochet'],
     preferredAbilities: ['blast', 'lightning', 'shield'],
     mechanic: {
@@ -109,7 +120,9 @@ export const CHARACTER_DEFS: Record<CharacterId, CharacterDef> = {
     },
     color: '#e86cff',
     baseModifiers: { ...ZERO_MODIFIERS, sphereDamage: 0.08, sphereRadius: 0.10, sphereAttackSpeed: -0.05 },
-    preferredSphereTypes: ['sniper', 'chain', 'void', 'prism'],
+    signatureSphereType: 'sniper',
+    partnerSphereType: 'void',
+    preferredSphereTypes: ['sniper', 'void'],
     preferredSphereMods: ['pierce', 'ricochet'],
     preferredAbilities: ['teleport', 'lightning', 'blast'],
     mechanic: {
@@ -141,7 +154,9 @@ export const CHARACTER_DEFS: Record<CharacterId, CharacterDef> = {
     },
     color: '#57d5ff',
     baseModifiers: { ...ZERO_MODIFIERS, maxHp: 0.10, sphereRadius: 0.05, moveSpeed: -0.05 },
-    preferredSphereTypes: ['aura', 'orbital', 'pulse', 'gravity'],
+    signatureSphereType: 'chain',
+    partnerSphereType: 'aura',
+    preferredSphereTypes: ['chain', 'aura'],
     preferredSphereMods: ['freeze', 'multishot'],
     preferredAbilities: ['shield', 'minion', 'lightning'],
     mechanic: {
@@ -173,7 +188,9 @@ export const CHARACTER_DEFS: Record<CharacterId, CharacterDef> = {
     },
     color: '#ff625d',
     baseModifiers: { ...ZERO_MODIFIERS, maxHp: -0.10, moveSpeed: 0.08, sphereDamage: 0.08, sphereRadius: -0.05 },
-    preferredSphereTypes: ['shotgun', 'standard', 'orbital', 'void'],
+    signatureSphereType: 'shotgun',
+    partnerSphereType: 'void',
+    preferredSphereTypes: ['shotgun', 'void'],
     preferredSphereMods: ['multishot', 'fire'],
     preferredAbilities: ['shield', 'darkritual', 'firetrail'],
     mechanic: {
@@ -200,17 +217,19 @@ export const CHARACTER_DEFS: Record<CharacterId, CharacterDef> = {
     name: { ru: 'Алхимик', en: 'Alchemist' },
     role: { ru: 'Статусы', en: 'Status Effects' },
     description: {
-      ru: 'Соединяет Fire, Freeze и Poison в цепочки реакций.',
-      en: 'Combines Fire, Freeze and Poison into reaction chains.',
+      ru: 'Строит сеть из одноэлементных сфер и соединяет Fire, Freeze и Poison в реакции.',
+      en: 'Builds a network of single-element Spheres and combines Fire, Freeze and Poison into reactions.',
     },
     color: '#57e6b4',
     baseModifiers: { ...ZERO_MODIFIERS, sphereDamage: -0.05, statusDuration: 0.30, statusDamage: 0.15 },
-    preferredSphereTypes: ['aura', 'chain', 'gravity', 'pulse'],
+    signatureSphereType: 'aura',
+    partnerSphereType: 'chain',
+    preferredSphereTypes: ['aura', 'chain'],
     preferredSphereMods: ['fire', 'freeze', 'poison'],
     preferredAbilities: ['firetrail', 'lightning', 'timestop'],
     mechanic: {
-      ru: 'Реакции: Fire+Poison = Воспламенение токсинов; Freeze+Poison = Крио-токсин; Fire+Freeze = Термошок. Реакции должны быть мгновенными, но расходуют участвующие статусы.',
-      en: 'Reactions: Fire+Poison = Toxin Ignition; Freeze+Poison = Cryotoxin; Fire+Freeze = Thermal Shock. Reactions are instant and consume the participating statuses.',
+      ru: 'Реакции: Fire+Poison = Воспламенение токсинов; Freeze+Poison = Крио-токсин; Fire+Freeze = Термошок. Одна сфера остаётся одноэлементной, реакция возникает между статусами разных сфер и расходует их.',
+      en: 'Reactions: Fire+Poison = Toxin Ignition; Freeze+Poison = Cryotoxin; Fire+Freeze = Thermal Shock. Each Sphere remains single-element; reactions occur between statuses from different sources and consume them.',
     },
     mastery: [
       { level: 1, title: { ru: 'Реакции', en: 'Reactions' }, description: { ru: 'Основная механика персонажа.', en: 'Core character mechanic.' } },
@@ -237,12 +256,14 @@ export const CHARACTER_DEFS: Record<CharacterId, CharacterDef> = {
     },
     color: '#ffc56a',
     baseModifiers: { ...ZERO_MODIFIERS, sphereRadius: 0.05, moveSpeed: -0.05 },
-    preferredSphereTypes: ['prism', 'sniper', 'gravity', 'orbital'],
+    signatureSphereType: 'gravity',
+    partnerSphereType: 'prism',
+    preferredSphereTypes: ['gravity', 'prism'],
     preferredSphereMods: ['pierce', 'freeze'],
     preferredAbilities: ['teleport', 'timestop', 'shield'],
     mechanic: {
-      ru: 'Форма: игра автоматически распознаёт Линию (3+ сферы), Треугольник (3), Квадрат (4) или Кластер (4+). Одновременно активна только одна форма.',
-      en: 'Formation: the game automatically recognizes Line (3+ spheres), Triangle (3), Square (4), or Cluster (4+). Only one formation is active at a time.',
+      ru: 'Форма: Архитектор использует авторитетную Geometry-сеть. Dominant форма определяет бонус, а Secondary остаётся дополнительным активным слоем.',
+      en: 'Formation: Architect uses the authoritative Geometry network. The Dominant formation determines the character bonus while Secondary remains an active secondary layer.',
     },
     mastery: [
       { level: 1, title: { ru: 'Форма', en: 'Formation' }, description: { ru: 'Основная механика персонажа.', en: 'Core character mechanic.' } },
@@ -258,6 +279,42 @@ export const CHARACTER_DEFS: Record<CharacterId, CharacterDef> = {
 
     ],
   },
+  conductor: {
+    id: 'conductor', name: { ru: 'Проводник', en: 'Conductor' }, role: { ru: 'Разряд Резонанса', en: 'Resonance Discharge' },
+    description: { ru: 'Превращает Resonance Events в короткие Overdrive и Cascade.', en: 'Turns Resonance Events into short Overdrive and Cascade windows.' }, color: '#39d8ff',
+    baseModifiers: { ...ZERO_MODIFIERS, sphereAttackSpeed: 0.03 },
+    signatureSphereType: 'pulse', partnerSphereType: 'chain', preferredSphereTypes: ['pulse', 'chain'],
+    preferredSphereMods: ['resonant', 'echo'], preferredAbilities: ['blast', 'lightning', 'resonance'],
+    mechanic: { ru: 'Каждый Resonance Event открывает короткий Overdrive.', en: 'Each Resonance Event opens a short Overdrive.' }, mastery: makeMastery([["Разряд","Discharge","Resonance Event открывает Overdrive.","A Resonance Event opens Overdrive."],["Синхронизация","Sync","Overdrive длится дольше.","Overdrive lasts longer."],["Резонансный провод","Resonant Wire","Следующий Pulse/Chain получает Echo.","Next Pulse/Chain gains Echo."],["Чистый ток","Pure Current","Overdrive усиливается.","Overdrive is stronger."],["Третий узел","Third Node","Открывается 3-я Signature-сфера.","Unlocks the 3rd Signature Sphere."],["Cascade","Cascade","Каждый третий разряд выпускает вторичный разряд.","Every third discharge emits a secondary discharge."],["Проводимость","Conductivity","Cascade получает дополнительный прыжок.","Cascade gains an extra relay jump."],["Перегрузка","Overdrive","Overdrive усиливается без роста Resonance gain.","Overdrive strengthens without increasing Resonance gain."],["Резонансный хор","Resonant Choir","Cascade получает ещё один безопасный прыжок.","Cascade gains another safe jump."],["Абсолютный разряд","Absolute Discharge","Открывается 4-я Signature-сфера.","Unlocks the 4th Signature Sphere."]]),
+  },
+
+  oracle: {
+    id: 'oracle', name: { ru: 'Оракул', en: 'Oracle' }, role: { ru: 'Предвидение', en: 'Forecast' },
+    description: { ru: 'Читает реальные Level-Up источники и улучшает Lock/Reroll без гарантии RNG.', en: 'Reads real Level-Up sources and improves Lock/Reroll without guaranteeing RNG.' }, color: '#b68cff',
+    baseModifiers: { ...ZERO_MODIFIERS, sphereRadius: 0.04 },
+    signatureSphereType: 'prism', partnerSphereType: 'pulse', preferredSphereTypes: ['prism', 'pulse'],
+    preferredSphereMods: ['ricochet', 'resonant'], preferredAbilities: ['teleport', 'timestop', 'crit'],
+    mechanic: { ru: 'Перед Level-Up отмечает наиболее вероятные живые карты.', en: 'Before Level-Up, marks the most likely live cards.' }, mastery: makeMastery([["Прогноз","Forecast","Отмечает вероятную живую карту.","Marks a likely live card."],["Чтение потока","Flow Reading","Учитывает давление незавершённых систем.","Accounts for unfinished-system pressure."],["Знак ветви","Branch Sign","Учитывает выбранную ветку Sphere.","Accounts for the selected Sphere branch."],["Двойное зрение","Double Sight","Показывает два варианта.","Shows two options."],["Третий осколок","Third Shard","Открывается 3-я Signature-сфера.","Unlocks the 3rd Signature Sphere."],["Предсказанный Lock","Foreseen Lock","Один Reroll может сохранить прогноз.","One Reroll can preserve the forecast."],["Взгляд за грань","Beyond Sight","Прогнозирует источник следующего выбора.","Forecasts the next choice source."],["Точное предвидение","True Foresight","Прогноз стабильнее при Lock/Reroll.","Forecast is more stable around Lock/Reroll."],["Картина билда","Build Pattern","Показывает пару поддерживающих карт.","Shows a supporting pair of cards."],["Абсолютное зрение","Absolute Sight","Открывается 4-я Signature-сфера.","Unlocks the 4th Signature Sphere."]]),
+  },
+
+  voidwalker: {
+    id: 'voidwalker', name: { ru: 'Пустотник', en: 'Voidwalker' }, role: { ru: 'Разрыв сети', en: 'Network Breach' },
+    description: { ru: 'Превращает временные разрывы Network в слабые Phantom Nodes.', en: 'Turns temporary Network breaks into weaker Phantom Nodes.' }, color: '#8a5a8a',
+    baseModifiers: { ...ZERO_MODIFIERS, sphereDamage: 0.04, damageTaken: 0.03 },
+    signatureSphereType: 'void', partnerSphereType: 'gravity', preferredSphereTypes: ['void', 'gravity'],
+    preferredSphereMods: ['corrupt', 'drain'], preferredAbilities: ['teleport', 'darkritual', 'shield'],
+    mechanic: { ru: 'При сетевом разрыве остаётся Phantom Node.', en: 'A Network break leaves a Phantom Node.' }, mastery: makeMastery([["Фантомный узел","Phantom Node","Сетевой разрыв создаёт слабый фантом.","A Network break creates a weak phantom."],["След пустоты","Void Trace","Фантом живёт дольше.","Phantom lasts longer."],["Разрыв","Breach","Фантом замедляет врагов.","Phantom slows enemies."],["Тонкая грань","Thin Edge","Фантом наносит 60% урона.","Phantom deals 60% damage."],["Третий силуэт","Third Silhouette","Открывается 3-я Signature-сфера.","Unlocks the 3rd Signature Sphere."],["Двойной след","Double Trace","Новый разрыв обновляет фантом.","A new break refreshes the phantom."],["Хищная пустота","Predatory Void","Фантом сильнее бьёт ослабленные цели.","Phantom hits weakened targets harder."],["Провал связи","Link Collapse","Void/Gravity лучше синхронизируются.","Void/Gravity synchronize better."],["Отголосок разрыва","Breach Echo","Первый импульс усилен.","First pulse is empowered."],["Аватар пустоты","Void Avatar","Открывается 4-я Signature-сфера.","Unlocks the 4th Signature Sphere."]]),
+  },
+
+  fractal: {
+    id: 'fractal', name: { ru: 'Фрактал', en: 'Fractal' }, role: { ru: 'Последовательность', en: 'Sequence' },
+    description: { ru: 'Запоминает последовательность реальных Geometry и возвращает прошлую форму как Echo.', en: 'Remembers real Geometry sequences and returns a prior form as an Echo.' }, color: '#ffb84d',
+    baseModifiers: { ...ZERO_MODIFIERS, sphereDamage: 0.03 },
+    signatureSphereType: 'orbital', partnerSphereType: 'aura', preferredSphereTypes: ['orbital', 'aura'],
+    preferredSphereMods: ['echo', 'gravitic'], preferredAbilities: ['blast', 'timestop', 'minion'],
+    mechanic: { ru: 'Три разные Dominant-формации подряд запускают Recursive Echo.', en: 'Three different Dominant formations trigger Recursive Echo.' }, mastery: makeMastery([["Память формы","Shape Memory","Запоминает Dominant-формации.","Remembers Dominant formations."],["Глубокая память","Deep Memory","История хранит четыре шага.","History keeps four steps."],["Рекурсия","Recursion","Три разные формации запускают Echo.","Three different formations trigger Echo."],["Устойчивый Echo","Stable Echo","Echo длится 4 секунды.","Echo lasts 4 seconds."],["Третий виток","Third Loop","Открывается 3-я Signature-сфера.","Unlocks the 3rd Signature Sphere."],["Сила Echo","Echo Strength","Echo достигает 60%.","Echo reaches 60%."],["Четвёртый шаг","Fourth Step","История хранит четыре разные формы.","History can hold four different forms."],["Рекурсивная волна","Recursive Wave","Echo получает дополнительный импульс.","Echo gains an extra pulse."],["Самоподобие","Self Similarity","Следующая уникальная форма ускоряет новую цепочку.","Next unique form advances a new chain."],["Рекурсивный мастер","Recursive Master","Открывается 4-я Signature-сфера и 70% Echo.","Unlocks the 4th Signature Sphere and 70% Echo."]]),
+  },
+
 };
 
 export const CHARACTER_LIST = Object.values(CHARACTER_DEFS);
@@ -300,6 +357,19 @@ export function getSpheristFiveSphereBonus(character: CharacterId, sphereCount: 
   return character === 'spherist' && sphereCount >= 5 ? 0.05 : 0;
 }
 
+export function getCharacterSphereCopyCap(character: CharacterId, sphereType: SphereType, masteryLevel: number): number {
+  const def = CHARACTER_DEFS[character];
+  if (sphereType !== def.signatureSphereType) return 2;
+  if (masteryLevel >= 10) return 4;
+  if (masteryLevel >= 5) return 3;
+  return 2;
+}
+export function getSphereAffinityWeight(character: CharacterId, sphereType: SphereType): number {
+  const def = CHARACTER_DEFS[character];
+  if (sphereType === def.signatureSphereType) return 0.70;
+  if (sphereType === def.partnerSphereType) return 0.30;
+  return 0;
+}
 export function getBerserkerFuryBonus(character: CharacterId, hpRatio: number): { damage: number; attackSpeed: number } {
   if (character !== 'berserker') return { damage: 0, attackSpeed: 0 };
   const missingRatio = Math.max(0, Math.min(1, 1 - hpRatio));
