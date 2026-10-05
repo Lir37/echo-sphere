@@ -5,6 +5,7 @@ export interface MasteryRunTracker {
   xp: number;
   lastEliteKills: number;
   lastBosses: number;
+  lastResonanceEvents: number;
   lastGameTime: number | null;
 }
 
@@ -13,6 +14,7 @@ export function createMasteryRunTracker(): MasteryRunTracker {
     xp: 0,
     lastEliteKills: 0,
     lastBosses: 0,
+    lastResonanceEvents: 0,
     lastGameTime: null,
   };
 }
@@ -45,8 +47,10 @@ export function tickCharacterMastery(
   // Discrete achievements inside the run.
   const eliteDelta = Math.max(0, p.eliteKills - tracker.lastEliteKills);
   const bossDelta = Math.max(0, s.bossDefeated - tracker.lastBosses);
+  const resonanceDelta = Math.max(0, (p.resonanceEventsTriggered || 0) - tracker.lastResonanceEvents);
   tracker.lastEliteKills = p.eliteKills;
   tracker.lastBosses = s.bossDefeated;
+  tracker.lastResonanceEvents = p.resonanceEventsTriggered || 0;
 
   if (character === 'hunter') {
     tracker.xp += eliteDelta * 20 + bossDelta * 45;
@@ -101,6 +105,22 @@ export function tickCharacterMastery(
       if (formation.strength >= 0.9) tracker.xp += dt * 0.75;
       break;
     }
+    case 'conductor':
+      tracker.xp += resonanceDelta * 28;
+      if (p.conductorOverdriveTimer > 0) tracker.xp += dt * 1.1;
+      break;
+    case 'oracle':
+      if ((p.oracleForecastKeys || []).length > 0) tracker.xp += dt * 0.9;
+      if ((p.oracleForecastKeys || []).length > 0 && p.pendingUpgrade) tracker.xp += dt * 1.6;
+      break;
+    case 'voidwalker':
+      if (s.spheres.some((sphere) => sphere.alive && sphere.networkDisabledTimer > 0)) tracker.xp += dt * 1.1;
+      if (p.voidPhantomTimer > 0) tracker.xp += dt * 1.5;
+      break;
+    case 'fractal':
+      if ((p.fractalFormationHistory || []).length >= 2) tracker.xp += dt * 1.0;
+      if (p.fractalEchoTimer > 0) tracker.xp += dt * 2.2;
+      break;
   }
 
   tracker.xp = Math.max(0, tracker.xp);
