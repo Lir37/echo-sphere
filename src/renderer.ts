@@ -936,9 +936,9 @@ function drawEnergyBolt(ctx: CanvasRenderingContext2D, from: Vec, to: Vec, alpha
 }
 
 // ===== Paper texture (world space) =====
-const _textureCanvases: { canvas: HTMLCanvasElement } | null = null;
+let _textureCanvas: HTMLCanvasElement | null = null;
 function drawPaperTexture(ctx: CanvasRenderingContext2D, w: number, h: number, theme: Theme, offsetX = 0, offsetY = 0): void {
-  if (!_textureCanvases) {
+  if (!_textureCanvas) {
     const tc = document.createElement('canvas');
     tc.width = 256; tc.height = 256;
     const tctx = tc.getContext('2d')!;
@@ -964,8 +964,9 @@ function drawPaperTexture(ctx: CanvasRenderingContext2D, w: number, h: number, t
       tctx.stroke();
     }
     // Texture is generated once for the canonical battlefield palette.
+    _textureCanvas = tc;
   }
-  const tile = _textureCanvases as unknown as HTMLCanvasElement;
+  const tile = _textureCanvas;
   for (let x = 0; x < w; x += 256) {
     for (let y = 0; y < h; y += 256) {
       ctx.drawImage(tile, x + offsetX, y + offsetY);
