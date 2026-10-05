@@ -65,7 +65,7 @@ export function getBuildDiagnostics(s: GameState): BuildDiagnosticRow[] {
   const network = analyzeSphereNetwork(s.spheres);
   const activeSets = getArtifactSetProgress(s).filter((set) => set.complete);
   const activeProtocols = getArtifactProtocolStates(s).filter((protocol) => protocol.active);
-  const charSynergies = getActiveSphereAbilitySynergies(s).filter((link) => link.character === s.player.characterId);
+  const charSynergies = getActiveSphereAbilitySynergies(s);
 
   const offense = diagnosticSphereNames(s, ['standard', 'sniper', 'shotgun', 'chain', 'pulse', 'void']);
   const control = diagnosticSphereNames(s, ['aura', 'gravity', 'prism']);
@@ -105,12 +105,12 @@ export function getBuildDiagnostics(s: GameState): BuildDiagnosticRow[] {
       ru: [
         ...activeSets.map((set) => set.name.ru),
         ...activeProtocols.map((protocol) => protocol.name.ru),
-        ...(charSynergies.length ? [`Связей персонаж-сфера: ${charSynergies.length}`] : []),
+        ...(charSynergies.length ? [`Активных синергий сфер: ${charSynergies.length}`] : []),
       ],
       en: [
         ...activeSets.map((set) => set.name.en),
         ...activeProtocols.map((protocol) => protocol.name.en),
-        ...(charSynergies.length ? [`Character-Sphere links: ${charSynergies.length}`] : []),
+        ...(charSynergies.length ? [`Active Sphere synergies: ${charSynergies.length}`] : []),
       ],
     },
   ];
