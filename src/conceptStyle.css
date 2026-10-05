@@ -1448,26 +1448,6 @@ html, body, #root {
   letter-spacing: .26em;
 }
 
-.es-main-tools {
-  display: flex;
-  gap: 6px;
-}
-
-.es-tech-button {
-  min-width: 34px;
-  min-height: 34px;
-  padding: 0 9px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  border: 1px solid rgba(88,178,229,.18);
-  border-radius: 6px;
-  background: rgba(5,13,23,.74);
-  color: #86a9bf;
-  font-size: 8px;
-}
-
 .es-main-stage {
   position: relative;
   z-index: 1;
@@ -1949,11 +1929,11 @@ html, body, #root {
 .es-main-topbar { border-bottom: 1px solid rgba(75,180,235,.12); padding-bottom: 9px; }
 .es-main-logo { font-weight: 500 !important; letter-spacing: .34em !important; text-shadow: 0 0 22px rgba(79,211,255,.20) !important; }
 .es-main-sub { color: #4d7690 !important; letter-spacing: .38em !important; }
-.es-tech-button, .es-loadout-character, .es-main-loadout, .es-main-nav {
+.es-loadout-character, .es-main-loadout, .es-main-nav {
   border-color: rgba(77,181,235,.18) !important;
   box-shadow: inset 0 1px 0 rgba(170,235,255,.025), 0 12px 30px rgba(0,0,0,.18) !important;
 }
-.es-tech-button:hover, .es-loadout-character:hover { border-color: rgba(91,220,255,.44) !important; color: #e8fbff !important; }
+.es-loadout-character:hover { border-color: rgba(91,220,255,.44) !important; color: #e8fbff !important; }
 .es-main-core-art { filter: drop-shadow(0 0 22px rgba(55,205,255,.18)) drop-shadow(0 0 65px rgba(116,74,255,.08)); }
 .es-core-body { box-shadow: 0 0 25px rgba(65,218,255,.50), 0 0 90px rgba(88,96,255,.23), inset -12px -14px 18px rgba(0,0,0,.52) !important; }
 .es-main-core-title { font-weight: 600 !important; letter-spacing: .24em !important; text-shadow: 0 0 18px rgba(92,220,255,.12); }
