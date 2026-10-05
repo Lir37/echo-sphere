@@ -8,7 +8,7 @@ import {
 } from './gameData';
 import {
   createInitialState, update,
-  generateUpgradeChoices, applyUpgrade, applyArtifact,
+  generateUpgradeChoices, getUpgradeChoiceKey, applyUpgrade, applyArtifact,
   getMaxSpheres, getMoveSpeed, getSphereRadius, getSphereDamage, getSphereDelay, getSphereDpsEstimate,
   getCritChance, getDodgeChance, getVampirePercent, debugLevelUp, rerollUpgradeChoices,
   getBuildDiagnostics,
@@ -25,12 +25,13 @@ import { resolveSpaceCollisions } from './spaceCollision';
 import {
   loadShop, saveShop, loadLeaderboard, addLeaderEntry, loadLang, saveLang,
   loadName, saveName, resetAll, saveGold, loadGold,
-  loadAchievements, unlockAchievement, loadDifficulty, saveDifficulty,
+  loadAchievements, unlockAchievement, loadDifficulty, saveDifficulty, addCharacterMasteryXp,
   loadSound, saveSound, loadHandedness, saveHandedness, loadCharacterId, type Handedness,
 } from './persistence';
 import { playSound, setAudioEnabled } from './audio';
 import MobileControls from './MobileControls';
 import CharacterSelect from './CharacterSelect';
+import { createMasteryRunTracker, getMasteryRunXp, tickCharacterMastery } from './characterMastery';
 import { CHARACTER_DEFS } from './characters';
 import KnowledgeBase, { syncKnowledgeFromRun } from './KnowledgeBase';
 import {
@@ -192,6 +193,8 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
   const stateRef = useRef<GameState | null>(null);
   const rafRef = useRef<number>(0);
   const knowledgeTickRef = useRef(0);
+  const masteryTrackerRef = useRef(createMasteryRunTracker());
+  const masterySavedRef = useRef(false);
   const lastTimeRef = useRef<number>(0);
   const uiAccumulatorRef = useRef(0);
   const [, forceRender] = useState(0);
@@ -222,6 +225,7 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
         const st = stateRef.current;
         if (st) {
         update(st, dt);
+        tickCharacterMastery(st, dt, masteryTrackerRef.current);
         resolveSpaceCollisions(st, dt);
         knowledgeTickRef.current += dt;
         if (knowledgeTickRef.current >= 0.35) {
@@ -232,6 +236,10 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
         if (st.gameOver) syncKnowledgeFromRun(st);
 
         if (st.gameOver && !gameOverData) {
+          if (!masterySavedRef.current) {
+            addCharacterMasteryXp(st.player.characterId, getMasteryRunXp(masteryTrackerRef.current));
+            masterySavedRef.current = true;
+          }
           const time = Math.floor(st.time);
           const diff = DIFFICULTIES.find(d => d.id === st.difficulty)!;
           const gold = Math.floor((time * 0.15 + st.bossDefeated * 25 + st.stats.enemiesKilled * 0.05) * diff.goldMult);
@@ -1157,6 +1165,7 @@ function UpgradeModal({ lang, t, st, onPick, onLock, onReroll }: {
                 ? ['sphere', choice.sphereType ?? 'unknown', choice.sphereStage ?? 'upgrade', choice.currentLevel, choice.newLevel, choice.sphereBranch ?? '', choice.sphereFinalIndex ?? ''].join(':')
                 : ['ability', choice.ability ?? 'unknown', choice.abilityStage ?? 'upgrade', choice.currentLevel, choice.newLevel, choice.abilityEvolutionIndex ?? ''].join(':');
             const isLocked = st.levelUpLockChoiceKey === choiceKey;
+            const isForecasted = st.player.characterId === 'oracle' && (st.player.oracleForecastKeys || []).includes(getUpgradeChoiceKey(choice));
             const element = choice.type === 'sphere' ? getSphereElementForBranch(choice.sphereBranch) : null;
             const elementMeta = element ? SPHERE_ELEMENT_META[element] : null;
             const elementCard = Boolean(elementMeta && (choice.sphereStage === 'branch' || choice.sphereStage === 'final'));
@@ -1184,6 +1193,7 @@ function UpgradeModal({ lang, t, st, onPick, onLock, onReroll }: {
                   : (lang === 'ru' ? 'УЛУЧШЕНИЕ СФЕРЫ' : 'SPHERE UPGRADE')}
               </div>
               <div className="flex items-center gap-2 mb-2">
+                {isForecasted && <span className="shrink-0 rounded-md border border-[#b68cff]/45 bg-[#b68cff]/10 px-1.5 py-0.5 text-[9px] font-bold text-[#d8c8ff]">{lang === 'ru' ? 'ПРОГНОЗ' : 'FORECAST'}</span>}
                 <div className="font-bold text-lg">{choice.name?.[lang] || 'Sphere'}</div>
                 {elementCard && elementMeta && (
                   <span
