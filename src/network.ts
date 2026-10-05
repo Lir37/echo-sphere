@@ -356,10 +356,14 @@ export function analyzeSphereNetwork(
 
   const line = indexes.length >= 3
     ? (() => {
-        const strength = lineStrength(nodes, indexes);
-        return strength >= 0.8
-          ? { type: 'line' as const, strength, nodes: [...indexes] }
-          : null;
+        let best: NetworkShape | null = null;
+        for (const combo of combinations3(indexes)) {
+          const strength = lineStrength(nodes, combo);
+          if (strength >= 0.8 && (!best || strength > best.strength)) {
+            best = { type: 'line' as const, strength, nodes: [...combo] };
+          }
+        }
+        return best;
       })()
     : null;
 
