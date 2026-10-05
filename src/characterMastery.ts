@@ -111,7 +111,7 @@ export function tickCharacterMastery(
       break;
     case 'oracle':
       if ((p.oracleForecastKeys || []).length > 0) tracker.xp += dt * 0.9;
-      if ((p.oracleForecastKeys || []).length > 0 && p.pendingUpgrade) tracker.xp += dt * 1.6;
+      if ((p.oracleForecastKeys || []).length > 0 && s.pendingUpgrade) tracker.xp += dt * 1.6;
       break;
     case 'voidwalker':
       if (s.spheres.some((sphere) => sphere.alive && sphere.networkDisabledTimer > 0)) tracker.xp += dt * 1.1;
