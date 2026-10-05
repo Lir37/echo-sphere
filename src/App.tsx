@@ -895,10 +895,13 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
     }, 5000);
   };
   const beginFormationDrag = (slot: 'dominant' | 'secondary'): void => { networkDragRef.current = slot; };
-  const endFormationDrag = (targetSlot?: 'dominant' | 'secondary'): void => {
+  const endFormationDrag = (event: PointerEvent): void => {
     const source = networkDragRef.current;
     networkDragRef.current = null;
-    if (!source || !targetSlot || source === targetSlot) return;
+    if (!source) return;
+    const target = document.elementFromPoint(event.clientX, event.clientY)
+      ?.closest<HTMLElement>('[data-formation-slot]')?.dataset.formationSlot as 'dominant' | 'secondary' | undefined;
+    if (!target || source === target) return;
     if (swapNetworkFormationSlots(st)) hideNetworkTooltip();
   };
 
@@ -934,10 +937,7 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
         </div>
 
         <div className="es-network-formation-stack mt-1.5 pointer-events-auto"
-          onPointerUp={(event) => {
-            const target = (event.target as HTMLElement).closest<HTMLElement>('[data-formation-slot]')?.dataset.formationSlot as 'dominant' | 'secondary' | undefined;
-            endFormationDrag(target);
-          }}
+          onPointerUp={(event) => endFormationDrag(event.nativeEvent)}
           onPointerCancel={() => { networkDragRef.current = null; }}
         >
           {formationSlots.length > 0 ? (
@@ -949,24 +949,32 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
                     <button
                       type="button"
                       data-formation-slot={item.slot}
-                      onPointerDown={(event) => { event.preventDefault(); beginFormationDrag(item.slot); startNetworkHold(item.type.toUpperCase()); }}
-                      onPointerUp={(event) => { event.stopPropagation(); endFormationDrag(item.slot); }}
-                      onPointerCancel={() => { networkDragRef.current = null; }}
+                      onPointerDown={(event) => {
+                        event.preventDefault();
+                        event.currentTarget.setPointerCapture(event.pointerId);
+                        beginFormationDrag(item.slot);
+                        startNetworkHold(item.type.toUpperCase());
+                      }}
+                      onPointerCancel={(event) => {
+                        if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+                        networkDragRef.current = null;
+                      }}
                       onContextMenu={(event) => event.preventDefault()}
                       className={`es-network-formation-chip pointer-events-auto ${item.slot === 'dominant' ? 'is-dominant' : 'is-secondary'}`}
                     >
-                      <span className="es-network-formation-role">{item.slot === 'dominant' ? (lang === 'ru' ? 'ДОМИНАНТА' : 'DOMINANT') : (lang === 'ru' ? 'ДОП.' : 'SECONDARY')}</span>
                       <span className="es-network-formation-name">{formationDisplayName(item.type, lang)}</span>
                     </button>
                   </Fragment>
                 ))}
               </div>
-              {network.dominantFormation && network.secondaryFormation && <div className="es-network-formation-hint">{lang === 'ru' ? 'Перетащите одну формацию на другую, чтобы поменять приоритет.' : 'Drag one formation onto the other to swap priority.'}</div>}
             </>
           ) : <span className="text-[7px] text-[#7f9bb8]">{lang === 'ru' ? 'ФОРМАЦИЯ НЕ АКТИВНА' : 'NO FORMATION'}</span>}
           {networkTooltip && <div role="button" tabIndex={0} onPointerDown={hideNetworkTooltip} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') hideNetworkTooltip(); }} style={{ userSelect: 'none' }} className="es-network-tooltip">
-            <div className="es-network-tooltip-title">{formationDisplayName(networkTooltip.toLowerCase(), lang)}</div>
-            {getNetworkTooltipLines(networkTooltip, st, lang, network).map((line, index) => <div key={index} className="es-network-tooltip-line"><span className="es-network-tooltip-active">{line.active}</span><span className="es-network-tooltip-rest">{line.rest}</span></div>)}
+            <div className={`es-network-tooltip-title ${network.secondaryFormation?.type === networkTooltip.toLowerCase() ? 'is-secondary' : 'is-dominant'}`}>
+              <span>{formationDisplayName(networkTooltip.toLowerCase(), lang)}</span>
+              <span className="es-network-tooltip-effectiveness">{network.secondaryFormation?.type === networkTooltip.toLowerCase() ? '50%' : '100%'}</span>
+            </div>
+            {getNetworkTooltipLines(networkTooltip, st, lang, network).map((line, index) => <div key={index} className="es-network-tooltip-line"><span className={`es-network-tooltip-active ${network.secondaryFormation?.type === networkTooltip.toLowerCase() ? 'is-secondary' : 'is-dominant'}`}>{line.active}</span><span className="es-network-tooltip-rest">{line.rest}</span></div>)}
           </div>}
         </div>      </div>
 
