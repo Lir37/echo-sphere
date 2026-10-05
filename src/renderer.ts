@@ -1,7 +1,7 @@
 import type { GameState, PlayerState, SphereEntity, EnemyEntity, DamageNumber, ChestEntity } from './engine';
 import { PLAYER_RADIUS, getMaxSpheres } from './engine';
 import { SPHERE_TYPES, BOSS_TYPES } from './gameData';
-import type { MapTheme, Vec } from './engine';
+import type { Vec } from './engine';
 import { CHARACTER_DEFS } from './characters';
 import { getCharacterId, getCharacterFormation, getEngineerNetworkRange } from './characterRuntime';
 import type { SphereNetworkState } from './network';
@@ -313,23 +313,13 @@ interface Theme {
   textureDots: [string, string];
 }
 
-const THEMES: Record<MapTheme, Theme> = {
-  parchment: {
-    bg: '#07101d', bgDark: '#040912', grid: 'rgba(120,170,220,0.075)', border: 'rgba(100,180,255,0.24)',
-    accent: '#39d8ff', textureDots: ['rgba(80,150,220,0.16)', 'rgba(160,200,255,0.07)'],
-  },
-  bamboo: {
-    bg: '#07140f', bgDark: '#040b08', grid: 'rgba(90,210,150,0.07)', border: 'rgba(90,220,170,0.23)',
-    accent: '#55e69a', textureDots: ['rgba(80,200,140,0.14)', 'rgba(170,255,210,0.06)'],
-  },
-  ocean: {
-    bg: '#06131a', bgDark: '#030a10', grid: 'rgba(70,190,240,0.075)', border: 'rgba(70,210,255,0.24)',
-    accent: '#54dfff', textureDots: ['rgba(60,180,230,0.15)', 'rgba(160,230,255,0.06)'],
-  },
-  sunset: {
-    bg: '#160b12', bgDark: '#0b050a', grid: 'rgba(240,110,170,0.075)', border: 'rgba(240,120,180,0.24)',
-    accent: '#ff6da8', textureDots: ['rgba(230,90,150,0.15)', 'rgba(255,180,210,0.06)'],
-  },
+const CANONICAL_THEME: Theme = {
+  bg: '#07101d',
+  bgDark: '#040912',
+  grid: 'rgba(120,170,220,0.075)',
+  border: 'rgba(100,180,255,0.24)',
+  accent: '#39d8ff',
+  textureDots: ['rgba(80,150,220,0.16)', 'rgba(160,200,255,0.07)'],
 };
 
 export function render(ctx: CanvasRenderingContext2D, s: GameState, backingWidth: number, backingHeight: number): void {
@@ -338,7 +328,7 @@ export function render(ctx: CanvasRenderingContext2D, s: GameState, backingWidth
   const canvasH = viewport.cssHeight;
   const renderStarted = performance.now();
   RENDER_TIME = s.time;
-  const theme = THEMES[s.mapTheme] || THEMES.parchment;
+  const theme = CANONICAL_THEME;
 
   // ===== Base background =====
   // renderScale.ts owns the CSS/backing-store conversion. Renderer only consumes its result.
@@ -946,9 +936,9 @@ function drawEnergyBolt(ctx: CanvasRenderingContext2D, from: Vec, to: Vec, alpha
 }
 
 // ===== Paper texture (world space) =====
-const _textureCanvases: Partial<Record<MapTheme, HTMLCanvasElement>> = {};
+const _textureCanvases: { canvas: HTMLCanvasElement } | null = null;
 function drawPaperTexture(ctx: CanvasRenderingContext2D, w: number, h: number, theme: Theme, offsetX = 0, offsetY = 0): void {
-  if (!_textureCanvases[theme.bg as MapTheme]) {
+  if (!_textureCanvases) {
     const tc = document.createElement('canvas');
     tc.width = 256; tc.height = 256;
     const tctx = tc.getContext('2d')!;
@@ -973,9 +963,9 @@ function drawPaperTexture(ctx: CanvasRenderingContext2D, w: number, h: number, t
       tctx.lineTo(x1 + (Math.random() - 0.5) * 40, y1 + (Math.random() - 0.5) * 40);
       tctx.stroke();
     }
-    _textureCanvases[theme.bg as MapTheme] = tc;
+    // Texture is generated once for the canonical battlefield palette.
   }
-  const tile = _textureCanvases[theme.bg as MapTheme]!;
+  const tile = _textureCanvases as unknown as HTMLCanvasElement;
   for (let x = 0; x < w; x += 256) {
     for (let y = 0; y < h; y += 256) {
       ctx.drawImage(tile, x + offsetX, y + offsetY);
