@@ -917,7 +917,7 @@ function getNetworkTooltipLines(label: string, st: GameState, lang: Lang, networ
       add((35 * scale).toFixed(1).replace('.0','') + '%', isSecondary ? ' из полного 35% фактического урона сетевого импульса' : ' фактического урона сетевого импульса', (35 * scale).toFixed(1).replace('.0','') + '%', isSecondary ? ' of the full 35% actual-damage network pulse' : ' actual damage of the network pulse');
       add('каждый 3-й удар', isSecondary ? ' сферы создаёт импульс' : ' сферы создаёт импульс · радиус 88', 'every 3rd hit', isSecondary ? ' creates the partial pulse' : ' creates the pulse · radius 88');
       add(isSecondary ? '50%' : '100%', isSecondary ? ' эффективности вторичного слоя' : ' эффективности доминирующего слоя', isSecondary ? '50%' : '100%', isSecondary ? ' secondary-layer effectiveness' : ' dominant-layer effectiveness');
-      if (activeTypes.has('pulse') || activeTypes.has('prism')) add(isSecondary ? '50%' : '100%', ' сетевого вклада в Resonance через Triangle', isSecondary ? '50%' : '100%', ' network Resonance contribution through Triangle');
+      if (activeTypes.has('pulse') || activeTypes.has('prism')) add(isSecondary ? '50%' : '100%', ' сетевого вклада в Резонанс через Треугольник', isSecondary ? '50%' : '100%', ' network Resonance contribution through Triangle');
       break;
     case 'CLUSTER':
       add('-' + percent(10) + '%', isSecondary ? ' к интервалу атак вместо полного -10%' : ' к интервалу атак сфер', '-' + percent(10) + '%', isSecondary ? ' Sphere attack interval instead of the full -10%' : ' Sphere attack interval');
@@ -935,7 +935,7 @@ function getNetworkTooltipLines(label: string, st: GameState, lang: Lang, networ
       add(isSecondary ? '50%' : '100%', ' вклада Импульсного Резонатора в Резонанс', isSecondary ? '50%' : '100%', ' Pulse Resonator network contribution to Resonance');
       break;
     case 'LATTICE':
-      if (activeTypes.has('prism')) add('+' + percent(8) + '%', isSecondary ? ' к урону Prism-луча вместо полного +8%' : ' к урону Prism-луча', '+' + percent(8) + '%', isSecondary ? ' Prism beam damage instead of the full +8%' : ' Prism beam damage');
+      if (activeTypes.has('prism')) add('+' + percent(8) + '%', isSecondary ? ' к урону луча Призмы вместо полного +8%' : ' к урону луча Призмы', '+' + percent(8) + '%', isSecondary ? ' Prism beam damage instead of the full +8%' : ' Prism beam damage');
       add(isSecondary ? '50%' : '100%', ' вклада Импульсного Резонатора в Резонанс', isSecondary ? '50%' : '100%', ' Pulse Resonator network contribution to Resonance');
       break;
     case 'FRACTAL':
