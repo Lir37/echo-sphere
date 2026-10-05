@@ -126,7 +126,7 @@ export const CHARACTER_DEFS: Record<CharacterId, CharacterDef> = {
     preferredSphereMods: ['pierce', 'ricochet'],
     preferredAbilities: ['teleport', 'lightning', 'blast'],
     mechanic: {
-      ru: 'Метка добычи: элиты и боссы получают Метку на 5 секунд. Сферы наносят отмеченной цели +20% урона; 5 попаданий подряд запускают Охоту ещё на 3 секунды (+30% урона от Sniper/Chain).',
+      ru: 'Метка добычи: элиты и боссы получают Метку на 5 секунд. Сферы наносят отмеченной цели +20% урона; 5 попаданий подряд запускают Охоту ещё на 3 секунды (+30% урона от Снайперской и Цепной сфер).',
       en: 'Prey Mark: elites and bosses are marked for 5 seconds. Spheres deal +20% damage to the marked target; 5 consecutive hits trigger Hunt for 3 more seconds (+30% Sniper/Chain damage).',
     },
     mastery: [
@@ -137,9 +137,9 @@ export const CHARACTER_DEFS: Record<CharacterId, CharacterDef> = {
       { level: 5, title: { ru: 'Трофей', en: 'Trophy' }, description: { ru: 'Убийство отмеченной элитной цели временно даёт +10% скорости движения на 4 секунды.', en: 'Killing a marked elite grants +10% move speed for 4 seconds.' } },
       { level: 6, title: { ru: 'Слабое место', en: 'Weak Point' }, description: { ru: 'Отмеченные цели получают ещё +5% урона.', en: 'Marked targets take another +5% damage.' } },
       { level: 7, title: { ru: 'Дальний след', en: 'Long Trail' }, description: { ru: 'Метка сохраняется дольше после повторного попадания.', en: 'Repeated hits extend the active Mark window.' } },
-      { level: 8, title: { ru: 'Без пощады', en: 'No Mercy' }, description: { ru: 'Hunt дополнительно усиливает Sniper/Chain.', en: 'Hunt further amplifies Sniper/Chain damage.' } },
+      { level: 8, title: { ru: 'Без пощады', en: 'No Mercy' }, description: { ru: 'Охота дополнительно усиливает Снайперские и Цепные сферы.', en: 'Hunt further amplifies Sniper/Chain damage.' } },
       { level: 9, title: { ru: 'Приоритет', en: 'Priority' }, description: { ru: 'Элитные и босс-цели получают дополнительный шанс критического удара.', en: 'Elite and Boss targets grant an additional critical-hit chance.' } },
-      { level: 10, title: { ru: 'Мастер охоты', en: 'Master Hunter' }, description: { ru: 'Финальный Signature: Метка добычи и Охота получают максимальное усиление.', en: 'Final Signature: Prey Mark and Hunt reach their maximum enhancement.' } },
+      { level: 10, title: { ru: 'Мастер охоты', en: 'Master Hunter' }, description: { ru: 'Финальная Сигнатура: Метка добычи и Охота получают максимальное усиление.', en: 'Final Signature: Prey Mark and Hunt reach their maximum enhancement.' } },
 
     ],
   },
@@ -173,7 +173,7 @@ export const CHARACTER_DEFS: Record<CharacterId, CharacterDef> = {
       { level: 7, title: { ru: 'Точка опоры', en: 'Anchor Point' }, description: { ru: 'Сеть из 4+ сфер получает ещё +3% урона.', en: 'A 4+ sphere network gains another +3% damage.' } },
       { level: 8, title: { ru: 'Ретранслятор', en: 'Repeater' }, description: { ru: 'Окно ретрансляции становится ещё стабильнее.', en: 'The relay window becomes more consistent.' } },
       { level: 9, title: { ru: 'Магистраль', en: 'Mainline' }, description: { ru: 'Сфера с двумя соседями усиливает их дополнительным бонусом.', en: 'A two-neighbour Sphere grants an additional relay bonus.' } },
-      { level: 10, title: { ru: 'Главный конструктор', en: 'Master Engineer' }, description: { ru: 'Финальный Signature: сильный связанный узел передаёт усиление соседям.', en: 'Final Signature: a strongly connected master node transfers amplified power.' } },
+      { level: 10, title: { ru: 'Главный конструктор', en: 'Master Engineer' }, description: { ru: 'Финальная Сигнатура: сильный связанный узел передаёт усиление соседям.', en: 'Final Signature: a strongly connected master node transfers amplified power.' } },
 
     ],
   },
@@ -217,7 +217,7 @@ export const CHARACTER_DEFS: Record<CharacterId, CharacterDef> = {
     name: { ru: 'Алхимик', en: 'Alchemist' },
     role: { ru: 'Статусы', en: 'Status Effects' },
     description: {
-      ru: 'Строит сеть из одноэлементных сфер и соединяет Fire, Freeze и Poison в реакции.',
+      ru: 'Строит сеть из одноэлементных сфер и соединяет Огонь, Заморозку и Яд в реакции.',
       en: 'Builds a network of single-element Spheres and combines Fire, Freeze and Poison into reactions.',
     },
     color: '#57e6b4',
@@ -228,20 +228,20 @@ export const CHARACTER_DEFS: Record<CharacterId, CharacterDef> = {
     preferredSphereMods: ['fire', 'freeze', 'poison'],
     preferredAbilities: ['firetrail', 'lightning', 'timestop'],
     mechanic: {
-      ru: 'Реакции: Fire+Poison = Воспламенение токсинов; Freeze+Poison = Крио-токсин; Fire+Freeze = Термошок. Одна сфера остаётся одноэлементной, реакция возникает между статусами разных сфер и расходует их.',
+      ru: 'Реакции: Огонь+Яд = Воспламенение токсинов; Заморозка+Яд = Крио-токсин; Огонь+Заморозка = Термошок. Одна сфера остаётся одноэлементной, реакция возникает между статусами разных сфер и расходует их.',
       en: 'Reactions: Fire+Poison = Toxin Ignition; Freeze+Poison = Cryotoxin; Fire+Freeze = Thermal Shock. Each Sphere remains single-element; reactions occur between statuses from different sources and consume them.',
     },
     mastery: [
       { level: 1, title: { ru: 'Реакции', en: 'Reactions' }, description: { ru: 'Основная механика персонажа.', en: 'Core character mechanic.' } },
       { level: 2, title: { ru: 'Катализатор', en: 'Catalyst' }, description: { ru: 'Радиус реакций увеличивается на 10%.', en: 'Reaction radius increases by 10%.' } },
       { level: 3, title: { ru: 'Концентрация', en: 'Concentration' }, description: { ru: '+5% урона периодического действия.', en: '+5% DoT damage.' } },
-      { level: 4, title: { ru: 'Цепная реакция', en: 'Chain Reaction' }, description: { ru: 'Реакция может передать 50% своего burst-урона ещё одной цели рядом.', en: 'A reaction can transfer 50% of its burst damage to one nearby target.' } },
+      { level: 4, title: { ru: 'Цепная реакция', en: 'Chain Reaction' }, description: { ru: 'Реакция может передать 50% своего урона-взрыва ещё одной цели рядом.', en: 'A reaction can transfer 50% of its burst damage to one nearby target.' } },
       { level: 5, title: { ru: 'Философский камень', en: 'Philosopher Stone' }, description: { ru: 'После реакции следующий наложенный статус длится на 50% дольше.', en: 'After a reaction, the next applied status lasts 50% longer.' } },
       { level: 6, title: { ru: 'Катализ', en: 'Catalysis' }, description: { ru: 'Радиус реакций увеличивается ещё на 10%.', en: 'Reaction radius increases by another 10%.' } },
       { level: 7, title: { ru: 'Чистая формула', en: 'Pure Formula' }, description: { ru: '+5% урона реакций.', en: '+5% reaction damage.' } },
-      { level: 8, title: { ru: 'Цепь катализаторов', en: 'Catalyst Chain' }, description: { ru: 'Передача burst-урона реакции становится сильнее.', en: 'Reaction burst transfer becomes stronger.' } },
+      { level: 8, title: { ru: 'Цепь катализаторов', en: 'Catalyst Chain' }, description: { ru: 'Передача урона-взрыва реакции становится сильнее.', en: 'Reaction burst transfer becomes stronger.' } },
       { level: 9, title: { ru: 'Тройная смесь', en: 'Triple Mixture' }, description: { ru: 'Третья последовательная реакция получает дополнительный импульс.', en: 'Every third sequential reaction gains an additional pulse.' } },
-      { level: 10, title: { ru: 'Алхимический круг', en: 'Alchemical Circle' }, description: { ru: 'Финальный Signature: реакционные цепочки получают максимальное усиление.', en: 'Final Signature: reaction chains reach their maximum enhancement.' } },
+      { level: 10, title: { ru: 'Алхимический круг', en: 'Alchemical Circle' }, description: { ru: 'Финальная Сигнатура: реакционные цепочки получают максимальное усиление.', en: 'Final Signature: reaction chains reach their maximum enhancement.' } },
 
     ],
   },
@@ -262,7 +262,7 @@ export const CHARACTER_DEFS: Record<CharacterId, CharacterDef> = {
     preferredSphereMods: ['pierce', 'freeze'],
     preferredAbilities: ['teleport', 'timestop', 'shield'],
     mechanic: {
-      ru: 'Форма: Архитектор использует авторитетную Geometry-сеть. Dominant форма определяет бонус, а Secondary остаётся дополнительным активным слоем.',
+      ru: 'Форма: Архитектор использует авторитетную сеть Геометрии. Доминирующая форма определяет бонус, а Вторая остаётся дополнительным активным слоем.',
       en: 'Formation: Architect uses the authoritative Geometry network. The Dominant formation determines the character bonus while Secondary remains an active secondary layer.',
     },
     mastery: [
@@ -275,7 +275,7 @@ export const CHARACTER_DEFS: Record<CharacterId, CharacterDef> = {
       { level: 7, title: { ru: 'Ритм конструкции', en: 'Construction Rhythm' }, description: { ru: 'Ключевой бонус формации усиливается на 5%.', en: 'Formation key bonuses gain another 5% effectiveness.' } },
       { level: 8, title: { ru: 'Перекройка', en: 'Redesign' }, description: { ru: 'Смена формации даёт более сильный краткий импульс.', en: 'Changing formation grants a stronger brief power spike.' } },
       { level: 9, title: { ru: 'Многослойность', en: 'Layering' }, description: { ru: 'При 5+ локальных сферах геометрический бонус усиливается.', en: 'With 5+ local spheres, geometry bonuses are amplified.' } },
-      { level: 10, title: { ru: 'Великий архитектор', en: 'Grand Architect' }, description: { ru: 'Финальный Signature: смена формы превращается в мощный тактический импульс.', en: 'Финальная Сигнатура: смена формации превращается в мощный тактический импульс.' } },
+      { level: 10, title: { ru: 'Великий архитектор', en: 'Grand Architect' }, description: { ru: 'Финальная Сигнатура: смена формы превращается в мощный тактический импульс.', en: 'Финальная Сигнатура: смена формации превращается в мощный тактический импульс.' } },
 
     ],
   },
