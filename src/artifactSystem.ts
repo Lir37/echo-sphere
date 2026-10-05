@@ -180,21 +180,21 @@ export const ARTIFACT_SYNERGIES: ArtifactSynergy[] = [
   { id: 'singularity', requires: ['lone_bastion', 'singularity_engine'], name: { ru: 'Сингулярность', en: 'Singularity' }, desc: { ru: 'При 1 типе сферы её урон увеличивается ещё на 20%.', en: 'With one sphere type, its damage is increased by another 20%.' } },
   { id: 'perfect_network', requires: ['fivefold_resonance', 'triangle_circuit'], name: { ru: 'Идеальная сеть', en: 'Perfect Network' }, desc: { ru: 'При 3+ типах сфер геометрические связи дают +10% урона.', en: 'With 3+ sphere types, geometric links grant +10% damage.' } },
   { id: 'unified_core', requires: ['unified_mind', 'zero_sphere'], name: { ru: 'Единое ядро', en: 'Unified Core' }, desc: { ru: 'Максимально прокачанная сфера усиливает остальные на 5% за уровень.', en: 'The strongest sphere boosts the others by 5% per level.' } },
-  { id: 'geometry_loop', requires: ['triangle_engine', 'ring_engine'], name: { ru: 'Контур петли', en: 'Geometry Loop' }, desc: { ru: 'активная Ring/Lattice/Fractal Geometry усиливает урон сфер.', en: 'Active Ring/Lattice/Fractal Geometry increases Sphere damage.' } },
-  { id: 'lattice_memory', requires: ['lattice_engine', 'fractal_seed'], name: { ru: 'Память решётки', en: 'Lattice Memory' }, desc: { ru: 'после перестройки Lattice/Fractal кратко сохраняют усиление.', en: 'Lattice/Fractal retain a short-lived damage bonus after rewiring.' } },
-  { id: 'void_horizon', requires: ['void_ink', 'void_mark'], name: { ru: 'Горизонт пустоты', en: 'Void Horizon' }, desc: { ru: 'Void сильнее работает по элитным и ослабленным целям.', en: 'Void is stronger against elites and weakened targets.' } },
-  { id: 'orbital_prism', requires: ['orbital_blade', 'prism_filter'], name: { ru: 'Орбитальная призма', en: 'Orbital Prism' }, desc: { ru: 'Orbital получает +15% урона.', en: 'Orbital gains +15% damage.' } },
-  { id: 'gravity_pulse', requires: ['gravity_hook', 'pulse_driver'], name: { ru: 'Гравитационный импульс', en: 'Gravity Pulse' }, desc: { ru: 'Pulse наносит больше урона собранным врагам.', en: 'Pulse deals more damage to grouped enemies.' } },
-  { id: 'network_memory', requires: ['network_anchor', 'echo_weaver'], name: { ru: 'Память сети', en: 'Network Memory' }, desc: { ru: 'после перестройки при сохранённой Formation Memory сеть получает краткий бонус.', en: 'After rewiring, Formation Memory grants a short-lived damage bonus.' } },
+  { id: 'geometry_loop', requires: ['triangle_engine', 'ring_engine'], name: { ru: 'Контур петли', en: 'Geometry Loop' }, desc: { ru: 'активная Геометрия Кольца, Решётки или Фрактала усиливает урон сфер.', en: 'Active Ring/Lattice/Fractal Geometry increases Sphere damage.' } },
+  { id: 'lattice_memory', requires: ['lattice_engine', 'fractal_seed'], name: { ru: 'Память решётки', en: 'Lattice Memory' }, desc: { ru: 'после перестройки Решётка и Фрактал кратко сохраняют усиление.', en: 'Lattice/Fractal retain a short-lived damage bonus after rewiring.' } },
+  { id: 'void_horizon', requires: ['void_ink', 'void_mark'], name: { ru: 'Горизонт пустоты', en: 'Void Horizon' }, desc: { ru: 'Пустотная сильнее работает по элитным и ослабленным целям.', en: 'Void is stronger against elites and weakened targets.' } },
+  { id: 'orbital_prism', requires: ['orbital_blade', 'prism_filter'], name: { ru: 'Орбитальная призма', en: 'Orbital Prism' }, desc: { ru: 'Орбитальная получает +15% урона.', en: 'Orbital gains +15% damage.' } },
+  { id: 'gravity_pulse', requires: ['gravity_hook', 'pulse_driver'], name: { ru: 'Гравитационный импульс', en: 'Gravity Pulse' }, desc: { ru: 'Импульсная наносит больше урона собранным врагам.', en: 'Pulse deals more damage to grouped enemies.' } },
+  { id: 'network_memory', requires: ['network_anchor', 'echo_weaver'], name: { ru: 'Память сети', en: 'Network Memory' }, desc: { ru: 'после перестройки при сохранённой Памяти формы сеть получает краткий бонус.', en: 'After rewiring, Formation Memory grants a short-lived damage bonus.' } },
   { id: 'temporal_echo', requires: ['time_splitter', 'stasis_mandala'], name: { ru: 'Временное эхо', en: 'Temporal Echo' }, desc: { ru: 'во время активного контроля времени сферы получают +12% урона.', en: 'During active time control, Spheres gain +12% damage.' } },
   { id: 'axiom_fold', requires: ['axiom_core', 'universal_fold'], name: { ru: 'Аксиоматический сгиб', en: 'Axiom Fold' }, desc: { ru: 'при 3+ типах сфер разные системы билда дают дополнительный урон.', en: 'With 3+ Sphere types, cross-system buildcraft grants additional damage.' } },
-  { id: 'status_circuit', requires: ['prism_filter', 'stasis_mandala'], name: { ru: 'Контур статусов', en: 'Status Circuit' }, desc: { ru: 'Prism получает усиление, когда сборка концентрируется на статусах.', en: 'Prism gains power when the build concentrates on statuses.' } },
-  { id: 'hunter_doctrine', requires: ['foresight_eye', 'sniper_scope'], name: { ru: 'Доктрина охотника', en: 'Hunter Doctrine' }, desc: { ru: 'Sniper получает +12% урона против Elite/Boss целей.', en: 'Sniper gains +12% damage against Elite/Boss targets.' } },
-  { id: 'pulse_engineering', requires: ['pulse_driver', 'pulse_lens'], name: { ru: 'Импульсная инженерия', en: 'Pulse Engineering' }, desc: { ru: 'Pulse получает +12% урона по плотной группе из 4+ врагов.', en: 'Pulse gains +12% damage against dense groups of 4+ enemies.' } },
+  { id: 'status_circuit', requires: ['prism_filter', 'stasis_mandala'], name: { ru: 'Контур статусов', en: 'Status Circuit' }, desc: { ru: 'Призма получает усиление, когда сборка концентрируется на статусах.', en: 'Prism gains power when the build concentrates on statuses.' } },
+  { id: 'hunter_doctrine', requires: ['foresight_eye', 'sniper_scope'], name: { ru: 'Доктрина охотника', en: 'Hunter Doctrine' }, desc: { ru: 'Снайперская получает +12% урона против элитных целей и боссов.', en: 'Sniper gains +12% damage against Elite/Boss targets.' } },
+  { id: 'pulse_engineering', requires: ['pulse_driver', 'pulse_lens'], name: { ru: 'Импульсная инженерия', en: 'Pulse Engineering' }, desc: { ru: 'Импульсная получает +12% урона по плотной группе из 4+ врагов.', en: 'Pulse gains +12% damage against dense groups of 4+ enemies.' } },
   { id: 'core_forge', requires: ['echo_weaver', 'folded_core'], name: { ru: 'Кузница ядра', en: 'Core Forge' }, desc: { ru: 'сеть из 3+ типов сфер получает +6% урона.', en: 'A network with 3+ Sphere types gains +6% damage.' } },
-  { id: 'status_loop', requires: ['prism_crown', 'stasis_mandala'], name: { ru: 'Петля статусов', en: 'Status Loop' }, desc: { ru: 'Prism получает +10% урона в статусной сборке.', en: 'Prism gains +10% damage in a status-focused build.' } },
-  { id: 'hunter_focus', requires: ['sniper_crown', 'long_lens'], name: { ru: 'Фокус охотника', en: 'Hunter Focus' }, desc: { ru: 'Sniper получает +10% урона при наличии дальнобойного билда.', en: 'Sniper gains +10% damage with the long-range build.' } },
-  { id: 'pulse_overload', requires: ['pulse_crown', 'tempo_ring'], name: { ru: 'Импульсная перегрузка', en: 'Pulse Overload' }, desc: { ru: 'Pulse получает +10% урона при собранной связке Pulse.', en: 'Pulse gains +10% damage when the Pulse package is assembled.' } },
+  { id: 'status_loop', requires: ['prism_crown', 'stasis_mandala'], name: { ru: 'Петля статусов', en: 'Status Loop' }, desc: { ru: 'Призма получает +10% урона в статусной сборке.', en: 'Prism gains +10% damage in a status-focused build.' } },
+  { id: 'hunter_focus', requires: ['sniper_crown', 'long_lens'], name: { ru: 'Фокус охотника', en: 'Hunter Focus' }, desc: { ru: 'Снайперская получает +10% урона при дальнобойной сборке.', en: 'Sniper gains +10% damage with the long-range build.' } },
+  { id: 'pulse_overload', requires: ['pulse_crown', 'tempo_ring'], name: { ru: 'Импульсная перегрузка', en: 'Pulse Overload' }, desc: { ru: 'Импульсная получает +10% урона при собранной связке Импульсной.', en: 'Pulse gains +10% damage when the Pulse package is assembled.' } },
   { id: 'core_relay', requires: ['unified_mind', 'echo_thread'], name: { ru: 'Релейная кузница', en: 'Core Relay' }, desc: { ru: 'при 2+ типах сфер даёт +8% урона разнотипной сети.', en: 'With 2+ Sphere types, the mixed network gains +8% damage.' } },
 ];
 
@@ -252,13 +252,13 @@ export const ARTIFACT_SETS: ArtifactSetDef[] = [
   {
     id: 'geometry_craft',
     name: { ru: 'Мастерская геометрии', en: 'Geometry Craft' },
-    desc: { ru: 'Бонус завершения: +10% урона сфер, пока активна геометрия Ring, Lattice или Fractal.', en: 'Completion bonus: +10% Sphere damage while Ring, Lattice or Fractal Geometry is active.' },
+    desc: { ru: 'Бонус завершения: +10% урона сфер, пока активна геометрия Кольца, Решётки или Фрактала.', en: 'Completion bonus: +10% Sphere damage while Ring, Lattice or Fractal Geometry is active.' },
     synergyIds: ['geometry_loop', 'lattice_memory', 'network_memory'],
   },
   {
     id: 'void_horizon',
     name: { ru: 'Горизонт пустоты', en: 'Void Horizon' },
-    desc: { ru: 'Бонус завершения: Void наносит на 10% больше урона.', en: 'Completion bonus: Void deals 10% more damage.' },
+    desc: { ru: 'Бонус завершения: Пустотная наносит на 10% больше урона.', en: 'Completion bonus: Void deals 10% more damage.' },
     synergyIds: ['void_horizon', 'orbital_prism', 'gravity_pulse'],
   },
   {
@@ -270,19 +270,19 @@ export const ARTIFACT_SETS: ArtifactSetDef[] = [
   {
     id: 'status_circuit',
     name: { ru: 'Контур статусов', en: 'Status Circuit' },
-    desc: { ru: 'Бонус завершения: Prism наносит на 10% больше урона, если изучен хотя бы один модификатор сфер.', en: 'Completion bonus: Prism deals 10% more damage if at least one Sphere modifier is learned.' },
+    desc: { ru: 'Бонус завершения: Призма наносит на 10% больше урона, если изучен хотя бы один модификатор сфер.', en: 'Completion bonus: Prism deals 10% more damage if at least one Sphere modifier is learned.' },
     synergyIds: ['status_circuit', 'status_loop'],
   },
   {
     id: 'hunter_doctrine',
     name: { ru: 'Доктрина охотника', en: 'Hunter Doctrine' },
-    desc: { ru: 'Бонус завершения: Sniper наносит на 10% больше урона.', en: 'Completion bonus: Sniper deals 10% more damage.' },
+    desc: { ru: 'Бонус завершения: Снайперская наносит на 10% больше урона.', en: 'Completion bonus: Sniper deals 10% more damage.' },
     synergyIds: ['hunter_doctrine', 'hunter_focus'],
   },
   {
     id: 'pulse_engineering',
     name: { ru: 'Импульсная инженерия', en: 'Pulse Engineering' },
-    desc: { ru: 'Бонус завершения: Pulse наносит на 10% больше урона.', en: 'Completion bonus: Pulse deals 10% more damage.' },
+    desc: { ru: 'Бонус завершения: Импульсная наносит на 10% больше урона.', en: 'Completion bonus: Pulse deals 10% more damage.' },
     synergyIds: ['pulse_engineering', 'pulse_overload'],
   },
   {
@@ -294,13 +294,13 @@ export const ARTIFACT_SETS: ArtifactSetDef[] = [
   {
     id: 'prism_dominion',
     name: { ru: 'Власть призмы', en: 'Prism Dominion' },
-    desc: { ru: 'Бонус завершения: Prism и Orbital наносят на 8% больше урона.', en: 'Completion bonus: Prism and Orbital deal 8% more damage.' },
+    desc: { ru: 'Бонус завершения: Призма и Орбитальная наносят на 8% больше урона.', en: 'Completion bonus: Prism and Orbital deal 8% more damage.' },
     synergyIds: ['orbital_prism', 'status_circuit'],
   },
   {
     id: 'network_legacy',
     name: { ru: 'Наследие сети', en: 'Network Legacy' },
-    desc: { ru: 'Бонус завершения: при 3+ типах сфер и активной Ring, Lattice или Fractal геометрии урон сфер увеличивается на 6%.', en: 'Completion bonus: with 3+ Sphere types and Ring, Lattice or Fractal Geometry active, Sphere damage increases by 6%.' },
+    desc: { ru: 'Бонус завершения: при 3+ типах сфер и активной геометрии Кольца, Решётки или Фрактала урон сфер увеличивается на 6%.', en: 'Completion bonus: with 3+ Sphere types and Ring, Lattice or Fractal Geometry active, Sphere damage increases by 6%.' },
     synergyIds: ['network_memory', 'perfect_network'],
   },
 ];
@@ -417,7 +417,7 @@ export const ARTIFACT_PROTOCOLS: ArtifactProtocol[] = [
     kind: 'event',
     setId: 'geometry_craft',
     name: { ru: 'Контур геометрии', en: 'Geometry Circuit' },
-    desc: { ru: '+5% урона при активной Ring, Lattice или Fractal геометрии.', en: '+5% damage while Ring, Lattice or Fractal geometry is active.' },
+    desc: { ru: '+5% урона при активной геометрии Кольца, Решётки или Фрактала.', en: '+5% damage while Ring, Lattice or Fractal geometry is active.' },
     requires: ['geometry_craft'],
   },
   {
@@ -425,7 +425,7 @@ export const ARTIFACT_PROTOCOLS: ArtifactProtocol[] = [
     kind: 'event',
     setId: 'void_horizon',
     name: { ru: 'Протокол Пустоты', en: 'Void Horizon Protocol' },
-    desc: { ru: 'Активируется, когда Void-билд встречает элиту или босса.', en: 'Activates when a Void build has an Elite or Boss target.' },
+    desc: { ru: 'Активируется, когда сборка Пустотной сталкивается с элитой или боссом.', en: 'Activates when a Void build has an Elite or Boss target.' },
     requires: ['void_horizon'],
   },
   {
@@ -441,7 +441,7 @@ export const ARTIFACT_PROTOCOLS: ArtifactProtocol[] = [
     kind: 'event',
     setId: 'status_circuit',
     name: { ru: 'Протокол статусов', en: 'Status Circuit Protocol' },
-    desc: { ru: '+6% урона Prism в статусной сборке.', en: '+6% Prism damage in a status build.' },
+    desc: { ru: '+6% урона Призмы в статусной сборке.', en: '+6% Prism damage in a status build.' },
     requires: ['status_circuit'],
   },
   {
@@ -449,7 +449,7 @@ export const ARTIFACT_PROTOCOLS: ArtifactProtocol[] = [
     kind: 'event',
     setId: 'hunter_doctrine',
     name: { ru: 'Протокол охоты', en: 'Hunter Doctrine Protocol' },
-    desc: { ru: '+8% урона Sniper при наличии Elite/Boss цели.', en: '+8% Sniper damage when an Elite/Boss target is present.' },
+    desc: { ru: '+8% урона Снайперской при наличии элитной цели или босса.', en: '+8% Sniper damage when an Elite/Boss target is present.' },
     requires: ['hunter_doctrine'],
   },
   {
@@ -457,7 +457,7 @@ export const ARTIFACT_PROTOCOLS: ArtifactProtocol[] = [
     kind: 'event',
     setId: 'pulse_engineering',
     name: { ru: 'Импульсный протокол', en: 'Pulse Engineering Protocol' },
-    desc: { ru: '+8% урона Pulse против группы из 4+ живых врагов.', en: '+8% Pulse damage against a group of 4+ living enemies.' },
+    desc: { ru: '+8% урона Импульсной против группы из 4+ живых врагов.', en: '+8% Pulse damage against a group of 4+ living enemies.' },
     requires: ['pulse_engineering'],
   },
   {
@@ -473,7 +473,7 @@ export const ARTIFACT_PROTOCOLS: ArtifactProtocol[] = [
     kind: 'event',
     setId: 'prism_dominion',
     name: { ru: 'Протокол преломления', en: 'Refraction Protocol' },
-    desc: { ru: '+6% урона Prism/Orbital/Void при наличии Prism и другой специализированной сферы.', en: '+6% Prism/Orbital/Void damage when Prism is paired with another specialized Sphere.' },
+    desc: { ru: '+6% урона Призмы, Орбитальной и Пустотной при наличии Призмы и другой специализированной сферы.', en: '+6% Prism/Orbital/Void damage when Prism is paired with another specialized Sphere.' },
     requires: ['prism_dominion'],
   },
   {
@@ -481,7 +481,7 @@ export const ARTIFACT_PROTOCOLS: ArtifactProtocol[] = [
     kind: 'event',
     setId: 'network_legacy',
     name: { ru: 'Протокол наследия', en: 'Legacy Protocol' },
-    desc: { ru: '+6% урона при 3+ типах сфер и Ring/Lattice/Fractal.', en: '+6% damage with 3+ Sphere types and Ring/Lattice/Fractal.' },
+    desc: { ru: '+6% урона при 3+ типах сфер и Кольце, Решётке или Фрактале.', en: '+6% damage with 3+ Sphere types and Ring/Lattice/Fractal.' },
     requires: ['network_legacy'],
   },
 ];
