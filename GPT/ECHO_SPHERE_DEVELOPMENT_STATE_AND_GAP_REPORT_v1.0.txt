@@ -5406,3 +5406,84 @@ Validation:
 - This pass did not alter the two-slot formation model or the 50% Secondary combat rule.
 - No new formation beyond the two active slots is enabled.
 \n
+
+================================================================
+CHARACTER SYSTEM IMPLEMENTATION UPDATE
+HEAD: 8213c609fc22fe6c169ef27430ee4b43d025c3f9
+CI: Android APK #1395 SUCCESS
+DATE: 2026-10-05
+================================================================
+
+Completed in this cycle:
+
+1. Character roster is now 10 characters:
+   Spherist, Hunter, Engineer, Berserker, Alchemist, Architect,
+   Conductor, Oracle, Voidwalker, Fractal.
+
+2. Sphere affinity model:
+   each character has exactly one Signature Sphere and one Partner Sphere.
+   Signature Level-Up weight = +0.70 affinity.
+   Partner Level-Up weight = +0.30 affinity.
+   Other Spheres remain neutral and available.
+
+3. Signature Sphere duplicate progression:
+   global ordinary duplicate cap remains 2.
+   Signature cap becomes 3 at Mastery 5 and 4 at Mastery 10.
+   Third Signature copy output is 85% of a normal copy.
+   Fourth Signature copy output is 70%.
+   This prevents linear 4x scaling while keeping deep specialization meaningful.
+
+4. Resonance Geometry semantics:
+   Resonance is charged by creation/appearance of a new Geometry candidate.
+   Changing Dominant/Secondary selection between already-existing candidates
+   does not create Resonance.
+   A genuinely recreated formation can charge again.
+
+5. Alchemist:
+   the design explicitly remains one elemental type per Sphere.
+   Reactions are produced by statuses from different single-element Spheres.
+   Mastery reaction scaling is now applied before burst damage, fixing the
+   previous post-damage multiplier bug. Every third high-mastery reaction
+   can receive an additional burst.
+
+6. Engineer / Architect:
+   character runtime now consumes authoritative Network/Geometry state
+   instead of maintaining a second independent formation model for the
+   character-specific formation logic.
+
+7. Conductor:
+   Resonance Events create a short Overdrive window.
+   At higher mastery every third Resonance Event emits a secondary Cascade.
+
+8. Oracle:
+   forecast is built from the actual live Sphere/Ability Level-Up pool.
+   Forecasted choices are surfaced in the Level-Up UI.
+   From higher mastery one Reroll can preserve the forecasted card.
+   Forecast is informational and does not replace RNG with a guarantee.
+
+9. Voidwalker:
+   temporary Network disruption can create a weaker Phantom Node combat echo
+   at the disabled Sphere position. The echo is temporary and reduced-strength.
+
+10. Fractal:
+    uses temporal Geometry sequence, not three simultaneously active combat
+    formations. Three distinct Dominant formations can trigger Recursive Echo,
+    temporarily replaying an earlier formation snapshot at reduced strength
+    with cooldown.
+
+11. Mastery progression:
+    runtime now tracks mastery XP for the new character identities as well
+    as the existing six, and persists earned run XP at game-over.
+
+12. Support stacking / 4 Signature + 2 Partner:
+    no multiplicative support stacking was introduced. Current Aura is a
+    damage-field Sphere rather than a global buff provider, so 4 Signature +
+    2 Partner is legal without an implicit quadratic support multiplier.
+    Further numeric balance should be tuned from APK telemetry/playtesting.
+
+Verification:
+- Typecheck: passed in CI #1395.
+- Unit tests: passed in CI #1395.
+- Web build + Playwright render: passed in CI #1395.
+- Android APK build: passed in CI #1395.
+
