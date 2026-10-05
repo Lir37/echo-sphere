@@ -9,6 +9,7 @@ import {
 } from './engineCombat';
 import { getLinkedNodeIndexes } from './network';
 import { getActiveSphereAbilitySynergies, getAbilityEvolutionChoice } from './sphereProgression';
+import { chargeResonance } from './engineResonance';
 
 
 function synergyStrength(index:number):number {
