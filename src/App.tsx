@@ -83,13 +83,11 @@ function Menu({ lang, setLang, t, difficulty, setDifficulty, soundOn, setSoundOn
   lang: Lang; setLang: (l: Lang) => void; t: (k: TranslationKey) => string;
   difficulty: Difficulty; setDifficulty: (d: Difficulty) => void;
   soundOn: boolean; setSoundOn: (v: boolean) => void;
-  mapTheme: MapTheme; setMapTheme: (m: MapTheme) => void;
-  onPlay: (mapTheme: MapTheme) => void; onShop: () => void; onCharacters: () => void; onLeader: () => void; onSettings: () => void; onAchievements: () => void; onKnowledge: () => void;
+  onPlay: () => void; onShop: () => void; onCharacters: () => void; onLeader: () => void; onSettings: () => void; onAchievements: () => void; onKnowledge: () => void;
 }) {
   const [name, setName] = useState(() => loadName());
   const selectedCharacter = CHARACTER_DEFS[loadCharacterId()];
   useEffect(() => { saveName(name); }, [name]);
-  useEffect(() => { localStorage.setItem('echosphere_map', mapTheme); }, [mapTheme]);
 
   return (
     <div className="es-main-menu">
@@ -146,14 +144,6 @@ function Menu({ lang, setLang, t, difficulty, setDifficulty, soundOn, setSoundOn
               </div>
             </div>
 
-            <div className="es-loadout-setting">
-              <span>{t('chooseMap')}</span>
-              <div className="es-loadout-options">
-                {MAP_THEMES.map((m) => (
-                  <button key={m.id} onClick={() => setMapTheme(m.id)} className={mapTheme === m.id ? 'is-active' : ''}>{m.name[lang]}</button>
-                ))}
-              </div>
-            </div>
           </div>
 
           <div className="es-main-name">
@@ -161,7 +151,7 @@ function Menu({ lang, setLang, t, difficulty, setDifficulty, soundOn, setSoundOn
             <input value={name} onChange={(e) => setName(e.target.value.slice(0, 16))} placeholder={t('namePlaceholder')} />
           </div>
 
-          <button onClick={() => onPlay(mapTheme)} className="es-main-play">
+          <button onClick={onPlay} className="es-main-play">
             <Play size={18} fill="currentColor" />
             <span>{t('play')}</span>
             <small>START RUN</small>
