@@ -36,6 +36,19 @@ test('a clear row of spheres activates line resonance', () => {
   assert.equal(state.line.nodes.length, 4);
 });
 
+test('line formation is detected from three aligned Spheres inside a larger Triangle network', () => {
+  const state = analyzeSphereNetwork([
+    node(0, 0),
+    node(100, 0),
+    node(50, 86.6025),
+    node(200, 0),
+  ]);
+  assert.ok(state.triangle);
+  assert.ok(state.line);
+  assert.equal(state.line.nodes.length, 3);
+  assert.deepEqual(state.line.nodes, [0, 1, 3]);
+});
+
 test('dead spheres do not contribute links or geometry', () => {
   const state = analyzeSphereNetwork([
     node(0, 0), { pos: { x: 50, y: 0 }, alive: false }, node(100, 0),
