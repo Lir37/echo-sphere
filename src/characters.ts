@@ -328,6 +328,10 @@ export const CHARACTER_UNLOCK_COST: Record<CharacterId, number> = {
   berserker: 2000,
   alchemist: 2500,
   architect: 3000,
+  conductor: 3500,
+  oracle: 4000,
+  voidwalker: 4500,
+  fractal: 5000,
 };
 
 export interface CharacterProfile {
