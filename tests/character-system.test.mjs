@@ -7,6 +7,7 @@ const runtime = fs.readFileSync(new URL('../src/characterRuntime.ts', import.met
 const progression = fs.readFileSync(new URL('../src/engineProgression.ts', import.meta.url), 'utf8');
 const spheres = fs.readFileSync(new URL('../src/engineSpheres.ts', import.meta.url), 'utf8');
 const resonance = fs.readFileSync(new URL('../src/engineResonance.ts', import.meta.url), 'utf8');
+const minionRuntime = fs.readFileSync(new URL('../src/engineEnemies.ts', import.meta.url), 'utf8');
 
 test('roster has ten characters and Signature + Partner affinity', () => {
   for (const id of ['spherist','hunter','engineer','berserker','alchemist','architect','conductor','oracle','voidwalker','fractal']) {
@@ -31,6 +32,11 @@ test('Oracle uses real Sphere/Ability choices and can preserve one forecast on R
   assert.match(progression, /oracleForecastKeys/);
   assert.match(progression, /oracleForecastChoice/);
   assert.match(chars, /Открывается 4-я Signature-сфера/);
+});
+
+test('Guardian Drone boosts the next attack cycle instead of applying per-frame haste', () => {
+  assert.match(minionRuntime, /if \(abilityBranch === 'minion_relay_drone'/);
+  assert.doesNotMatch(minionRuntime, /else if \(abilityBranch === 'minion_guardian'\)\s*\{[\\s\\S]*?anchor\.attackTimer/);
 });
 
 test('Conductor, Voidwalker and Fractal are implemented as runtime overlays', () => {
