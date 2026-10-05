@@ -10,7 +10,7 @@ test('canonical systems are structurally represented', () => {
   const abilities = [...data.matchAll(/export type AbilityType =\s*([^;]+);/gs)][0][1].match(/'[^']+'/g) || [];
   assert.equal(spheres.length, 10);
   assert.equal(abilities.length, 30);
-  const bossBlock = data.slice(data.indexOf('export const BOSS_TYPES'), data.indexOf('// ====='));\n  assert.equal((bossBlock.match(/id: '(?:shooter|charger|summoner|aura|conductor|architect|null|stella_warden)'/g) || []).length, 8);
+  const bossBlock = data.slice(data.indexOf('export const BOSS_TYPES'));\n  assert.equal((bossBlock.match(/id: '(?:shooter|charger|summoner|aura|conductor|architect|null|stella_warden)'/g) || []).length, 8);
   assert.doesNotMatch(data, /echosphere_map|MAP_THEMES|MapTheme|parchment|bamboo|sunset|ocean/);
 });
 
@@ -78,7 +78,7 @@ test('Russian user-facing text does not reintroduce known English system terms',
     read('src/KnowledgeBase.tsx'),
     read('src/App.tsx'),
   ];
-  const forbidden = /\bru:\s*['"`][^\n]*?(?:\bNetwork\b|\bGeometry\b|\bOverdrive\b|\bCascade\b|\bLevel-Up\b|\bLock\b|\bReroll\b|\bPhantom Node\b|\bRecursive Echo\b|\bSniper\/Chain\b|\bFire\+Freeze\b|\bFire\+Poison\b|\bFreeze\+Poison\b|\bRing\/Lattice\/Fractal\b|\bElite\/Boss\b|\bFormation Memory\b)/;
+  const forbidden = /\bru:\s*['"`]([^'"`\n]*(?:\bNetwork\b|\bGeometry\b|\bOverdrive\b|\bCascade\b|\bLevel-Up\b|\bLock\b|\bReroll\b|\bPhantom Node\b|\bRecursive Echo\b|\bSniper\/Chain\b|\bFire\+Freeze\b|\bFire\+Poison\b|\bFreeze\+Poison\b|\bRing\/Lattice\/Fractal\b|\bElite\/Boss\b|\bFormation Memory\b)[^'"`\n]*)['"`]/;
   for (const source of sources) assert.doesNotMatch(source, forbidden);
 });
 
