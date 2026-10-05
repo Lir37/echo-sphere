@@ -35,7 +35,7 @@ export const ABILITIES: Record<AbilityType, AbilityDef> = {
   darkritual: { id: 'darkritual', category: 'active', maxLevel: 7, key: 'r', name: { ru: 'Перегрузка', en: 'Overload' }, desc: { ru: (l) => `-20% HP, перегружает всю сеть, КД 30с`, en: (l) => `-20% HP, overloads the network, CD 30s` } },
   armor: { id: 'armor', category: 'passive', maxLevel: 7, name: { ru: 'Стабильный корпус', en: 'Stable Hull' }, desc: { ru: (l) => `-${l * 4}% получаемого урона`, en: (l) => `-${l * 4}% damage taken` } },
   regen: { id: 'regen', category: 'passive', maxLevel: 7, name: { ru: 'Регенерация', en: 'Regeneration' }, desc: { ru: (l) => `+${l * 0.6} HP/с`, en: (l) => `+${l * 0.6} HP/sec` } },
-  resonance: { id: 'resonance', category: 'passive', maxLevel: 7, name: { ru: 'Резонатор', en: 'Resonator' }, desc: { ru: (l) => `+${l * 8}% к получению Resonance`, en: (l) => `+${l * 8}% Resonance gain` } },
+  resonance: { id: 'resonance', category: 'passive', maxLevel: 7, name: { ru: 'Резонатор', en: 'Resonator' }, desc: { ru: (l) => `+${l * 8}% к получению Резонанса`, en: (l) => `+${l * 8}% Resonance gain` } },
   cooldown: { id: 'cooldown', category: 'passive', maxLevel: 7, name: { ru: 'Хроно-ядро', en: 'Chrono Core' }, desc: { ru: (l) => `-${l * 4}% перезарядки`, en: (l) => `-${l * 4}% cooldowns` } },
   critpower: { id: 'critpower', category: 'passive', maxLevel: 7, name: { ru: 'Критический резонанс', en: 'Critical Resonance' }, desc: { ru: (l) => `+${l * 8}% критического множителя`, en: (l) => `+${l * 8}% critical multiplier` } },
   range: { id: 'range', category: 'passive', maxLevel: 7, name: { ru: 'Фокус поля', en: 'Field Focus' }, desc: { ru: (l) => `+${l * 5}% радиуса/дальности сфер`, en: (l) => `+${l * 5}% Sphere range` } },
