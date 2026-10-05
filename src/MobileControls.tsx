@@ -8,8 +8,6 @@ import { getAbilityDisplayName } from './sphereProgression';
 import { getCharacterFormation, getEngineerNetworkSpheres } from './characterRuntime';
 import type { Lang, TranslationKey } from './i18n';
 import { loadInterfaceScale } from './interfaceScale';
-import { createMasteryRunTracker, getMasteryRunXp, tickCharacterMastery } from './characterMastery';
-import { addCharacterMasteryXp } from './persistence';
 import { canPlaceSphere, canRepositionSphere, repositionSphere } from './spaceCollision';
 import { analyzeSphereNetwork, type NetworkFormation, type SphereNetworkState } from './network';
 import { buildGhostSnapPreview, getGhostSnapFormation } from './networkPreview';
@@ -388,7 +386,6 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
     >
       {ghostPreview && <GhostSnapOverlay canvasRef={canvasRef} stateRef={stateRef} preview={ghostPreview} lang={lang} sphereColor={selectedDef.color} />}
       {formationMemory && <FormationMemoryOverlay canvasRef={canvasRef} stateRef={stateRef} memory={formationMemory} />}
-      <CharacterAvatarOverlay stateRef={stateRef} />
 
       {placementFx && (
         <div key={placementFx.id} className="absolute pointer-events-none" style={{ left: placementFx.x - 26, top: placementFx.y - 26, width: 52, height: 52, transform: `scale(${interfaceScale})`, transformOrigin: 'center' }}>
@@ -552,60 +549,6 @@ function readCharacterVisualState(st: GameState): CharacterVisualState {
   }
 
   return visual;
-}
-
-function CharacterAvatarOverlay({ stateRef }: { stateRef: React.MutableRefObject<GameState | null> }) {
-  const [characterId, setCharacterId] = useState(() => stateRef.current?.player.characterId || 'spherist');
-  const [mutationStage, setMutationStage] = useState(() => stateRef.current?.player.mutationStage || 0);
-  const [visual, setVisual] = useState<CharacterVisualState>(getEmptyCharacterVisualState);
-  const frameRef = useRef<number | null>(null);
-  const masteryRef = useRef(createMasteryRunTracker());
-  const rewardedRef = useRef(false);
-
-  useEffect(() => {
-    let lastVisualUpdate = 0;
-    const tick = (now: number) => {
-      const st = stateRef.current;
-      const nextCharacter = st?.player.characterId || 'spherist';
-      const nextMutation = st?.player.mutationStage || 0;
-      setCharacterId((current) => current === nextCharacter ? current : nextCharacter);
-      setMutationStage((current) => current === nextMutation ? current : nextMutation);
-
-      if (st && !st.gameOver) {
-        tickCharacterMastery(st, 1 / 60, masteryRef.current);
-        if (now - lastVisualUpdate >= 100) {
-          setVisual(readCharacterVisualState(st));
-          lastVisualUpdate = now;
-        }
-      } else if (st?.gameOver && !rewardedRef.current) {
-        const gainedXp = getMasteryRunXp(masteryRef.current);
-        if (gainedXp > 0) addCharacterMasteryXp(st.player.characterId, gainedXp);
-        rewardedRef.current = true;
-      }
-
-      frameRef.current = requestAnimationFrame(tick);
-    };
-    frameRef.current = requestAnimationFrame(tick);
-    return () => {
-      if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
-    };
-  }, [stateRef]);
-
-  const color = CHARACTER_DEFS[characterId]?.color || '#5a8c4a';
-  const pulse = mutationStage >= 3 ? 'animate-pulse' : '';
-
-  return (
-    <div
-      className="absolute left-1/2 top-1/2 pointer-events-none"
-      data-character-avatar-overlay="disabled"
-      aria-hidden="true"
-      style={{ transform: 'translate(-50%, -50%)', width: 74, height: 74, display: 'none' }}
-    >
-      <div className={`absolute inset-0 flex items-center justify-center ${pulse}`}>
-        <CharacterCore characterId={characterId} color={color} mutationStage={mutationStage} visual={visual} />
-      </div>
-    </div>
-  );
 }
 
 function CharacterSvg({ characterId, color, mutationStage, visual }: {
