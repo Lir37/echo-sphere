@@ -5487,3 +5487,29 @@ Verification:
 - Web build + Playwright render: passed in CI #1395.
 - Android APK build: passed in CI #1395.
 
+[2026-10-05] ECHO DRONE GUARDIAN RUNTIME CORRECTION
+
+CURRENT HEAD BEFORE DOC UPDATE:
+b9a6ffeecab6d1c47521c37869e9a0c37beba450
+
+[DONE] 4th-level Echo Drone branch "Дрон-страж" now accelerates only the
+      next attack cycle of its anchored Sphere when the ability is activated.
+
+[FIXED] Removed the previous per-frame attackTimer reduction from
+       engineEnemies.ts. The old behavior applied Guardian haste continuously
+       while the drone lived, causing repeated attack acceleration and severe
+       VFX/combat spam during activation.
+
+[UNCHANGED] Echo Drone, Relay Drone and final Drone branches retain their
+            existing behavior.
+
+[TEST] Added regression coverage ensuring Guardian does not reintroduce
+       per-frame haste.
+
+[CI] #1398 SUCCESS: unit tests, gameplay coverage, lint, web build,
+     Playwright QA and Android APK build passed.
+
+[GATE] Human APK PlayerCheck remains required. The reported device symptom
+       should be rechecked specifically after selecting the third Mutation I
+       branch "Дрон-страж" and activating Echo Drone.
+
