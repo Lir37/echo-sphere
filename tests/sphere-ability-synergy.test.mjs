@@ -13,7 +13,7 @@ const matrix = progression.slice(
 
 test('every one of the 30 Sphere Mutation branches has exactly one Ability Synergy', () => {
   const entries = [...matrix.matchAll(/\{id:'([^']+)',sphere:'([^']+)',sphereBranch:'([^']+)',ability:'([^']+)'/g)]
-    .map((m) => ({ id: m[1], branch: m[2], ability: m[3] }));
+    .map((m) => ({ id: m[1], sphere: m[2], branch: m[3], ability: m[4] }));
   assert.equal(entries.length, 30);
   assert.equal(new Set(entries.map((e) => e.branch)).size, 30);
   assert.equal(new Set(entries.map((e) => e.id)).size, 30);
