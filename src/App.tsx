@@ -10,7 +10,7 @@ import {
   createInitialState, update,
   generateUpgradeChoices, getUpgradeChoiceKey, applyUpgrade, applyArtifact,
   getMaxSpheres, getMoveSpeed, getSphereRadius, getSphereDamage, getSphereDelay, getSphereDpsEstimate,
-  getCritChance, getDodgeChance, getVampirePercent, debugLevelUp, rerollUpgradeChoices,
+  getCritChance, getDodgeChance, getVampirePercent, openTutorialUpgrade, rerollUpgradeChoices,
   getBuildDiagnostics,
   getNetworkFrame,
   lockUpgradeChoice,
@@ -25,7 +25,7 @@ import {
   loadShop, saveShop, loadLeaderboard, addLeaderEntry, loadLang, saveLang,
   loadName, saveName, resetAll, saveGold, loadGold,
   loadAchievements, unlockAchievement, loadDifficulty, saveDifficulty, addCharacterMasteryXp,
-  loadSound, saveSound, loadHandedness, saveHandedness, loadCharacterId, type Handedness,
+  loadSound, saveSound, loadHandedness, saveHandedness, loadCharacterId, loadTutorialCompleted, saveTutorialCompleted, type Handedness,
 } from './persistence';
 import { playSound, setAudioEnabled } from './audio';
 import MobileControls from './MobileControls';
@@ -33,6 +33,7 @@ import CharacterSelect from './CharacterSelect';
 import { createMasteryRunTracker, getMasteryRunXp, tickCharacterMastery } from './characterMastery';
 import { CHARACTER_DEFS } from './characters';
 import KnowledgeBase, { syncKnowledgeFromRun } from './KnowledgeBase';
+import TutorialOverlay, { type TutorialStep } from './TutorialOverlay';
 import {
   ABILITY_PROGRESSION, SPHERE_PROGRESSION, getAbilityDisplayName, getAbilityDisplayDesc,
   getAbilityEvolutionChoice, sphereLevel, sphereModifiers, getActiveSphereAbilitySynergies, getSphereMutationSynergyHints, SPHERE_ABILITY_SYNERGIES,
@@ -71,7 +72,7 @@ export default function App() {
       {screen === 'shop' && <ShopScreen lang={lang} t={t} shop={shop} setShop={setShop} onBack={() => { setGold(loadGold()); setScreen('menu'); }} />}
       {screen === 'characters' && <CharacterSelect lang={lang} gold={gold} onGoldChange={(nextGold) => { setGold(nextGold); setShop(loadShop()); }} onBack={() => { setGold(loadGold()); setShop(loadShop()); setScreen('menu'); }} />}
       {screen === 'leaderboard' && <LeaderboardScreen lang={lang} t={t} onBack={() => setScreen('menu')} />}
-      {screen === 'settings' && <SettingsScreen lang={lang} setLang={setLang} t={t} soundOn={soundOn} setSoundOn={setSoundOn} handedness={handedness} setHandedness={setHandedness} onBack={() => setScreen('menu')} />}
+      {screen === 'settings' && <SettingsScreen lang={lang} setLang={setLang} t={t} soundOn={soundOn} setSoundOn={setSoundOn} handedness={handedness} setHandedness={setHandedness} onReplayTutorial={() => { saveTutorialCompleted(false); setScreen('menu'); }} onBack={() => setScreen('menu')} />}
       {screen === 'achievements' && <AchievementsScreen lang={lang} t={t} onBack={() => setScreen('menu')} />}
       {screen === 'knowledge' && <KnowledgeBase lang={lang} onBack={() => setScreen('menu')} />}
     </div>
@@ -79,10 +80,9 @@ export default function App() {
 }
 
 // ===== Menu =====
-function Menu({ lang, setLang, t, difficulty, setDifficulty, soundOn, setSoundOn, onPlay, onShop, onCharacters, onLeader, onSettings, onAchievements, onKnowledge }: {
-  lang: Lang; setLang: (l: Lang) => void; t: (k: TranslationKey) => string;
+function Menu({ lang, t, difficulty, setDifficulty, onPlay, onShop, onCharacters, onLeader, onSettings, onAchievements, onKnowledge }: {
+  lang: Lang; t: (k: TranslationKey) => string;
   difficulty: Difficulty; setDifficulty: (d: Difficulty) => void;
-  soundOn: boolean; setSoundOn: (v: boolean) => void;
   onPlay: () => void; onShop: () => void; onCharacters: () => void; onLeader: () => void; onSettings: () => void; onAchievements: () => void; onKnowledge: () => void;
 }) {
   const [name, setName] = useState(() => loadName());
@@ -94,17 +94,9 @@ function Menu({ lang, setLang, t, difficulty, setDifficulty, soundOn, setSoundOn
       <header className="es-main-topbar">
         <div>
           <div className="es-main-logo">ECHO SPHERE</div>
-          <div className="es-main-sub">RESONANCE SURVIVAL SYSTEM</div>
+          <div className="es-main-sub">{lang === 'ru' ? 'СИСТЕМА ВЫЖИВАНИЯ РЕЗОНАНСА' : 'RESONANCE SURVIVAL SYSTEM'}</div>
         </div>
-        <div className="es-main-tools">
-          <button onClick={() => setSoundOn(!soundOn)} className="es-tech-button" aria-label={soundOn ? 'Mute' : 'Sound'}>
-            {soundOn ? <Volume2 size={15} /> : <VolumeX size={15} />}
-          </button>
-          <button onClick={() => setLang(lang === 'ru' ? 'en' : 'ru')} className="es-tech-button">
-            <Globe size={14} /> {lang.toUpperCase()}
-          </button>
-        </div>
-      </header>
+     </header>
 
       <main className="es-main-stage">
         <section className="es-main-core">
@@ -118,7 +110,7 @@ function Menu({ lang, setLang, t, difficulty, setDifficulty, soundOn, setSoundOn
             <div className="es-core-body" />
             <div className="es-core-highlight" />
           </div>
-          <div className="es-main-core-title">ENTER THE ECHO</div>
+          <div className="es-main-core-title">{lang === 'ru' ? 'ВОЙТИ В ЭХО' : 'ENTER THE ECHO'}</div>
           <div className="es-main-core-copy">
             {lang === 'ru' ? 'Размещай сферы. Строй резонанс. Переживи волну.' : 'Deploy spheres. Build resonance. Survive the wave.'}
           </div>
@@ -154,7 +146,7 @@ function Menu({ lang, setLang, t, difficulty, setDifficulty, soundOn, setSoundOn
           <button onClick={onPlay} className="es-main-play">
             <Play size={18} fill="currentColor" />
             <span>{t('play')}</span>
-            <small>START RUN</small>
+            <small>{lang === 'ru' ? 'НАЧАТЬ ЗАБЕГ' : 'START RUN'}</small>
           </button>
         </section>
 
@@ -190,11 +182,55 @@ function GameScreen({ lang, t, shop, difficulty, handedness, onExit }: {
   const [paused, setPaused] = useState(false);
   const [pauseTab, setPauseTab] = useState<PauseTab>('stats');
   const [selectedArtifactSetId, setSelectedArtifactSetId] = useState<string | null>(null);
+  const [tutorialStep, setTutorialStep] = useState<TutorialStep | null>(() => loadTutorialCompleted() ? null : 0);
+  const tutorialStepRef = useRef<TutorialStep | null>(tutorialStep);
+  const tutorialStartPosRef = useRef<{ x: number; y: number } | null>(null);
+  const tutorialUpgradeOpenedRef = useRef(false);
+
+  const transitionTutorial = (next: TutorialStep | null): void => {
+    tutorialStepRef.current = next;
+    setTutorialStep(next);
+    const current = stateRef.current;
+    if (!current) return;
+    if (next === null) {
+      current.tutorialMode = false;
+      current.paused = false;
+      current.wave = 0;
+      current.waveTimer = 3;
+      current.waveEnemiesToSpawn = 0;
+      current.time = 0;
+      current.stats.time = 0;
+      saveTutorialCompleted(true);
+      setPaused(false);
+      return;
+    }
+    if (next === 1 || next === 2) {
+      current.tutorialMode = true;
+      current.paused = false;
+      setPaused(false);
+    } else {
+      current.tutorialMode = true;
+      current.paused = true;
+      setPaused(true);
+      if (next === 4 && !tutorialUpgradeOpenedRef.current) {
+        tutorialUpgradeOpenedRef.current = true;
+        openTutorialUpgrade(current);
+      }
+    }
+  };
 
   useEffect(() => {
     const name = loadName() || translations[lang].namePlaceholder;
     const s = createInitialState(shop, name, difficulty);
     stateRef.current = s;
+    const tutorialActive = !loadTutorialCompleted();
+    if (tutorialActive) {
+      s.tutorialMode = true;
+      s.paused = true;
+      s.waveTimer = 999;
+      tutorialStartPosRef.current = { ...s.player.pos };
+      tutorialStepRef.current = tutorialStep ?? 0;
+    }
 
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -213,6 +249,16 @@ function GameScreen({ lang, t, shop, difficulty, handedness, onExit }: {
         const st = stateRef.current;
         if (st) {
         update(st, dt);
+
+        const tutorial = tutorialStepRef.current;
+        if (st.tutorialMode && tutorial === 1 && tutorialStartPosRef.current) {
+          const moved = Math.hypot(st.player.pos.x - tutorialStartPosRef.current.x, st.player.pos.y - tutorialStartPosRef.current.y);
+          if (moved >= 72) transitionTutorial(2);
+        } else if (st.tutorialMode && tutorial === 2 && st.spheres.length >= 2) {
+          transitionTutorial(3);
+        } else if (st.tutorialMode && tutorial === 4 && tutorialUpgradeOpenedRef.current && !st.pendingUpgrade) {
+          transitionTutorial(5);
+        }
         tickCharacterMastery(st, dt, masteryTrackerRef.current);
         resolveSpaceCollisions(st, dt);
         knowledgeTickRef.current += dt;
@@ -302,15 +348,13 @@ function GameScreen({ lang, t, shop, difficulty, handedness, onExit }: {
       {st && !gameOverData && (
         <>
           <Hud lang={lang} t={t} st={st} />
-          <button type="button" onClick={() => debugLevelUp(st)} disabled={Boolean(st.pendingUpgrade || st.pendingArtifact || st.pendingStella || st.paused || st.gameOver)}
-            className="absolute top-[88px] right-3 z-40 pointer-events-auto rounded-md border border-[#ffb84d]/50 bg-[#0b1422]/90 px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-[#ffcf7a] shadow-lg disabled:opacity-30"
-            title="Temporary QA level-up">LVL +</button>
-          <MobileControls
+                    <MobileControls
             lang={lang}
             t={t}
             stateRef={stateRef}
             canvasRef={canvasRef}
             handedness={handedness}
+            tutorialStep={tutorialStep}
             onPause={() => {
               if (st.pendingUpgrade || st.pendingArtifact) return;
               const next = !st.paused;
@@ -331,7 +375,7 @@ function GameScreen({ lang, t, shop, difficulty, handedness, onExit }: {
               </div>
             </div>
           )}
-          {st.pendingUpgrade && <UpgradeModal lang={lang} t={t} st={st} onPick={(c) => { applyUpgrade(st, c); }} onLock={(c) => { lockUpgradeChoice(st, c); }} onReroll={() => { rerollUpgradeChoices(st); }} />}
+          {st.pendingUpgrade && <UpgradeModal dataTutorialTarget={tutorialStep === 4 ? 'upgrade' : undefined} lang={lang} t={t} st={st} onPick={(c) => { applyUpgrade(st, c); }} onLock={(c) => { lockUpgradeChoice(st, c); }} onReroll={() => { rerollUpgradeChoices(st); }} />}
           {st.pendingArtifact && <ArtifactModal lang={lang} t={t} st={st} choices={st.pendingArtifact} onPick={(id) => { applyArtifact(st, id); st.pendingArtifact = null; }} />}
           {paused && !st.pendingUpgrade && !st.pendingArtifact && !st.pendingStella && (
             <PausePlanner
@@ -347,6 +391,46 @@ function GameScreen({ lang, t, shop, difficulty, handedness, onExit }: {
             />
           )}
         </>
+      )}
+
+      {tutorialStep !== null && !gameOverData && (
+        <TutorialOverlay
+          step={tutorialStep}
+          lang={lang}
+          t={t}
+          handedness={handedness}
+          canAdvance={tutorialStep === 0 || tutorialStep === 3 || tutorialStep === 5 || (tutorialStep === 1 && Math.hypot((stateRef.current?.player.pos.x || 0) - (tutorialStartPosRef.current?.x || 0), (stateRef.current?.player.pos.y || 0) - (tutorialStartPosRef.current?.y || 0)) >= 72) || (tutorialStep === 2 && Boolean(stateRef.current && stateRef.current.spheres.length >= 2))}
+          onNext={() => {
+            if (tutorialStep === 0) {
+              transitionTutorial(1);
+            } else if (tutorialStep === 1) {
+              transitionTutorial(2);
+            } else if (tutorialStep === 2) {
+              transitionTutorial(3);
+            } else if (tutorialStep === 3) {
+              transitionTutorial(4);
+            } else if (tutorialStep === 5) {
+              transitionTutorial(null);
+            }
+          }}
+          onSkip={() => {
+            const current = stateRef.current;
+            if (current) {
+              current.pendingUpgrade = null;
+              current.tutorialMode = false;
+              current.paused = false;
+              current.wave = 0;
+              current.waveTimer = 3;
+              current.waveEnemiesToSpawn = 0;
+              current.time = 0;
+              current.stats.time = 0;
+            }
+            tutorialStepRef.current = null;
+            setTutorialStep(null);
+            setPaused(false);
+            saveTutorialCompleted(true);
+          }}
+        />
       )}
 
       {gameOverData && (
