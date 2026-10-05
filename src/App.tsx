@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useRef, useState } from 'react';
-import { Settings, Store, Trophy, Play, Globe, ArrowLeft, RotateCcw, Award, Volume2, VolumeX, UserRound, BarChart3, Sparkles, Package, Network, X, BookOpen } from 'lucide-react';
+import { Settings, Store, Trophy, Play, ArrowLeft, RotateCcw, Award, UserRound, BarChart3, Sparkles, Package, Network, X, BookOpen } from 'lucide-react';
 import { translations, type Lang, type TranslationKey } from './i18n';
 import {
   ABILITIES, ARTIFACTS, ARTIFACT_MAP, SHOP_UPGRADES, shopCost,
@@ -15,7 +15,6 @@ import {
   getNetworkFrame,
   lockUpgradeChoice,
   type GameState, type ShopState, type LeaderEntry, type UpgradeChoice,
-  MAP_THEMES, type MapTheme,
 } from './engine';
 import { render } from './renderer';
 import { installCanvasResolutionPolicy } from './renderScale';
@@ -54,7 +53,6 @@ export default function App() {
   const [difficulty, setDifficulty] = useState<Difficulty>(() => loadDifficulty() as Difficulty);
   const [soundOn, setSoundOn] = useState<boolean>(() => loadSound());
   const [handedness, setHandedness] = useState<Handedness>(() => loadHandedness());
-  const [mapTheme, setMapTheme] = useState<MapTheme>(() => (localStorage.getItem('echosphere_map') || 'parchment') as MapTheme);
 
   const t = (k: TranslationKey) => translations[lang][k];
 
@@ -68,8 +66,8 @@ export default function App() {
 
   return (
     <div className="es-app min-h-screen w-full text-[#dcecff] overflow-hidden flex items-center justify-center">
-      {screen === 'menu' && <Menu lang={lang} setLang={setLang} t={t} difficulty={difficulty} setDifficulty={setDifficulty} soundOn={soundOn} setSoundOn={setSoundOn} mapTheme={mapTheme} setMapTheme={setMapTheme} onPlay={(mt) => { setMapTheme(mt); setScreen('game'); }} onShop={() => { setShop(loadShop()); setGold(loadGold()); setScreen('shop'); }} onCharacters={() => { setGold(loadGold()); setScreen('characters'); }} onLeader={() => setScreen('leaderboard')} onSettings={() => setScreen('settings')} onAchievements={() => setScreen('achievements')} onKnowledge={() => setScreen('knowledge')} />}
-      {screen === 'game' && <GameScreen lang={lang} t={t} shop={shop} difficulty={difficulty} mapTheme={mapTheme} handedness={handedness} onExit={() => { setShop(loadShop()); setGold(loadGold()); setScreen('menu'); }} />}
+      {screen === 'menu' && <Menu lang={lang} t={t} difficulty={difficulty} setDifficulty={setDifficulty} onPlay={() => setScreen('game')} onShop={() => { setShop(loadShop()); setGold(loadGold()); setScreen('shop'); }} onCharacters={() => { setGold(loadGold()); setScreen('characters'); }} onLeader={() => setScreen('leaderboard')} onSettings={() => setScreen('settings')} onAchievements={() => setScreen('achievements')} onKnowledge={() => setScreen('knowledge')} />}
+      {screen === 'game' && <GameScreen lang={lang} t={t} shop={shop} difficulty={difficulty} handedness={handedness} onExit={() => { setShop(loadShop()); setGold(loadGold()); setScreen('menu'); }} />}
       {screen === 'shop' && <ShopScreen lang={lang} t={t} shop={shop} setShop={setShop} onBack={() => { setGold(loadGold()); setScreen('menu'); }} />}
       {screen === 'characters' && <CharacterSelect lang={lang} gold={gold} onGoldChange={(nextGold) => { setGold(nextGold); setShop(loadShop()); }} onBack={() => { setGold(loadGold()); setShop(loadShop()); setScreen('menu'); }} />}
       {screen === 'leaderboard' && <LeaderboardScreen lang={lang} t={t} onBack={() => setScreen('menu')} />}
@@ -81,7 +79,7 @@ export default function App() {
 }
 
 // ===== Menu =====
-function Menu({ lang, setLang, t, difficulty, setDifficulty, soundOn, setSoundOn, mapTheme, setMapTheme, onPlay, onShop, onCharacters, onLeader, onSettings, onAchievements, onKnowledge }: {
+function Menu({ lang, setLang, t, difficulty, setDifficulty, soundOn, setSoundOn, onPlay, onShop, onCharacters, onLeader, onSettings, onAchievements, onKnowledge }: {
   lang: Lang; setLang: (l: Lang) => void; t: (k: TranslationKey) => string;
   difficulty: Difficulty; setDifficulty: (d: Difficulty) => void;
   soundOn: boolean; setSoundOn: (v: boolean) => void;
@@ -185,8 +183,8 @@ function Menu({ lang, setLang, t, difficulty, setDifficulty, soundOn, setSoundOn
 }
 
 
-function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }: {
-  lang: Lang; t: (k: TranslationKey) => string; shop: ShopState; difficulty: Difficulty; mapTheme: MapTheme; handedness: Handedness; onExit: () => void;
+function GameScreen({ lang, t, shop, difficulty, handedness, onExit }: {
+  lang: Lang; t: (k: TranslationKey) => string; shop: ShopState; difficulty: Difficulty; handedness: Handedness; onExit: () => void;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const renderer3dRef = useRef<Echo3DRenderer | null>(null);
@@ -205,7 +203,7 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
 
   useEffect(() => {
     const name = loadName() || translations[lang].namePlaceholder;
-    const s = createInitialState(shop, name, difficulty, mapTheme);
+    const s = createInitialState(shop, name, difficulty);
     stateRef.current = s;
 
     const canvas = canvasRef.current;
