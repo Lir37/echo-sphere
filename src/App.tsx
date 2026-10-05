@@ -488,7 +488,7 @@ function PausePlanner({ lang, t, st, tab, setTab, onResume, onExit, selectedArti
             <div className="min-w-0">
               <div className="text-[10px] uppercase tracking-[0.2em] text-[#7f9bb8]">{lang === 'ru' ? 'Билд забега' : 'Run Build'}</div>
               <div className="text-xl font-bold truncate">{t('pauseTitle')} · {character.name[lang]}</div>
-              <div className="text-xs text-[#7f9bb8] mt-0.5">{character.role[lang]} · {lang === 'ru' ? 'уровень' : 'level'} {st.player.level} · Wave {st.wave}</div>
+              <div className="text-xs text-[#7f9bb8] mt-0.5">{character.role[lang]} · {lang === 'ru' ? 'уровень' : 'level'} {st.player.level} · {t('wave')} {st.wave}</div>
             </div>
             <button onClick={onResume} className="w-9 h-9 rounded-full bg-[#0d1726] border border-[#243b55] flex items-center justify-center" aria-label={t('resume')}><X size={18} /></button>
           </div>
@@ -1002,7 +1002,7 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
   ].filter((slot): slot is NonNullable<typeof slot> => Boolean(slot));
   return (
     <>
-      <div className="es-hud-panel es-top-left absolute top-3 left-3 z-30 pointer-events-none">
+      <div data-tutorial-target="network" className="es-hud-panel es-top-left absolute top-3 left-3 z-30 pointer-events-none">
         <div className="flex items-center gap-2">
           <div className="es-hud-avatar">✦</div>
           <div className="min-w-0 flex-1">
@@ -1215,7 +1215,8 @@ function ArtifactModal({ lang, t, st, choices, onPick }: {
 }
 
 // ===== Upgrade Modal =====
-function UpgradeModal({ lang, t, st, onPick, onLock, onReroll }: {
+function UpgradeModal({ dataTutorialTarget, lang, t, st, onPick, onLock, onReroll }: {
+  dataTutorialTarget?: string;
   lang: Lang;
   t: (k: TranslationKey) => string;
   st: GameState;
@@ -1237,7 +1238,7 @@ function UpgradeModal({ lang, t, st, onPick, onLock, onReroll }: {
             ? (lang === 'ru' ? 'Мутация сферы II' : 'Sphere Mutation II')
             : t('chooseUpgrade');
   return (
-    <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-50">
+    <div data-tutorial-target={dataTutorialTarget} className="absolute inset-0 bg-black/70 flex items-center justify-center z-50">
       <div className="max-w-2xl w-full px-6">
         <h2 className="text-2xl font-bold text-center mb-6 text-[#39d8ff]">{title}</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
