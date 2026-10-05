@@ -390,7 +390,6 @@ export interface GameState {
   formationMemory: { type: string; nodes: Vec[]; expiresAt: number } | null;
   worldWidth: number;
   worldHeight: number;
-  mapTheme: 'parchment' | 'bamboo' | 'ocean' | 'sunset';
   camera: Vec;
   activeKeyMap: Record<string, AbilityType>;
   sphereProjectiles: SphereProjectile[];
