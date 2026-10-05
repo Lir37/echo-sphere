@@ -1,7 +1,7 @@
 import { ABILITIES, ACTIVE_KEYS, SPHERE_TYPES } from './gameData';
 import type { AbilityType, SphereType, ArtifactId } from './gameData';
 import { playSound } from './audio';
-import { CHARACTER_DEFS } from './characters';
+import { CHARACTER_DEFS, getSphereAffinityWeight } from './characters';
 import {
   SPHERE_PROGRESSION, ABILITY_PROGRESSION, sphereLevel, getAbilityEvolutionPool,
   getSphereElementForBranch, getSphereElementMasteryForBranch,
@@ -264,7 +264,7 @@ export function getSphereUpgradeChoiceWeight(s: GameState, type: SphereType): nu
   const activeCopies = s.spheres.filter((sphere) => sphere.alive && sphere.type === type).length;
   const levelPressure = (7 - level) * 0.25;
   const activeBuildPressure = activeCopies > 0 ? 1.5 : 0;
-  const characterAffinity = CHARACTER_DEFS[s.player.characterId]?.preferredSphereTypes.includes(type) ? 0.65 : 0;
+  const characterAffinity = getSphereAffinityWeight(s.player.characterId, type);
   return getUpgradeSourceWeight(s, 'sphere') * (1 + levelPressure + activeBuildPressure + characterAffinity);
 }
 
@@ -312,6 +312,9 @@ export function rerollUpgradeChoices(s: GameState): boolean {
   ));
   if (!routine) return false;
 
+  const oracleForecastKey = s.player.characterId === 'oracle' && (s.player.characterMasteryLevel || 1) >= 6 && !s.player.oracleForecastRerollUsed
+    ? (s.player.oracleForecastKeys || [])[0] : null;
+  const oracleForecastChoice = oracleForecastKey ? current.find((choice) => getUpgradeChoiceKey(choice) === oracleForecastKey) : undefined;
   const lockedKey = s.levelUpLockChoiceKey;
   const lockedChoice = lockedKey
     ? current.find((choice) => getUpgradeChoiceKey(choice) === lockedKey)
@@ -345,6 +348,10 @@ export function rerollUpgradeChoices(s: GameState): boolean {
     }
   }
 
+  if (oracleForecastChoice && !lockedChoice && !next.some((choice) => getUpgradeChoiceKey(choice) === getUpgradeChoiceKey(oracleForecastChoice))) {
+    next = [oracleForecastChoice, ...next].slice(0, 3);
+    s.player.oracleForecastRerollUsed = true;
+  }
   s.pendingUpgrade = next;
   // Keep the reservation after a reroll. The locked card must still survive
   // until the player finally selects it or it becomes unavailable.
@@ -492,6 +499,16 @@ export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
     if (index >= 0) remaining.splice(index, 1);
   }
 
+  if (s.player.characterId === 'oracle') {
+    const weight = (choice: UpgradeChoice) => choice.type === 'ability'
+      ? getAbilityUpgradeChoiceWeight(s, choice)
+      : choice.sphereType ? getSphereUpgradeChoiceWeight(s, choice.sphereType) : 1;
+    s.player.oracleForecastKeys = [...mixedPool].sort((a,b) => weight(b) - weight(a))
+      .slice(0, (s.player.characterMasteryLevel || 1) >= 4 ? 2 : 1)
+      .map(getUpgradeChoiceKey);
+  } else {
+    s.player.oracleForecastKeys = [];
+  }
   return mixedPool;
 }
 
