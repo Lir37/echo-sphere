@@ -111,7 +111,7 @@ export const ARTIFACTS: ArtifactDef[] = [
   { id: 'folded_core', name: { ru: 'Складное ядро', en: 'Folded Core' }, desc: { ru: '+8% к урону всех Сфер', en: '+8% damage for all Spheres' } },
   { id: 'paper_ward', name: { ru: 'Бумажный щит', en: 'Paper Ward' }, desc: { ru: '+4% урона сфер', en: '+4% Sphere damage' } },
   { id: 'mirror_dust', name: { ru: 'Зеркальная пыль', en: 'Mirror Dust' }, desc: { ru: '+8% к шансу отражения', en: '+8% reflection chance' } },
-  { id: 'resonant_leaf', name: { ru: 'Резонансный лист', en: 'Resonant Leaf' }, desc: { ru: +10% к Резонансу, en: '+10% Resonance effects' } },
+  { id: 'resonant_leaf', name: { ru: 'Резонансный лист', en: 'Resonant Leaf' }, desc: { ru: '+10% к Резонансу', en: '+10% Resonance effects' } },
   { id: 'signal_knot', name: { ru: 'Сигнальный узел', en: 'Signal Knot' }, desc: { ru: '+5% скорости восстановления сети', en: '+5% Network recovery speed' } },
   { id: 'lattice_chip', name: { ru: 'Чип решётки', en: 'Lattice Chip' }, desc: { ru: '+10% силы Решётки', en: '+10% Lattice strength' } },
   { id: 'fractal_seed', name: { ru: 'Фрактальное семя', en: 'Fractal Seed' }, desc: { ru: '+10% силы Фрактала', en: '+10% Fractal strength' } },
