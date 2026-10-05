@@ -883,6 +883,10 @@ export const CHARACTER_SPHERE_PRIORITY:Record<CharacterId,SphereType[]>={
   berserker:['shotgun','standard','orbital','void'],
   alchemist:['aura','chain','gravity','pulse'],
   architect:['prism','sniper','gravity','orbital'],
+  conductor:['pulse','chain'],
+  oracle:['prism','pulse'],
+  voidwalker:['void','gravity'],
+  fractal:['orbital','aura'],
 };
 
 export function spherePriority(character:CharacterId,type:SphereType){
