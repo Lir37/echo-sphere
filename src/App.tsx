@@ -337,6 +337,7 @@ function GameScreen({ lang, t, shop, difficulty, handedness, onExit }: {
     <div className="es-game-screen relative w-full h-screen flex items-center justify-center" style={{ touchAction: 'none' }}>
       <canvas
         ref={canvasRef}
+        data-tutorial-target="field"
         className="w-full h-full max-w-[1280px] max-h-[800px] select-none"
         style={{
           touchAction: 'none',
