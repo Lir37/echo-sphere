@@ -9,6 +9,8 @@ import {
   getCharacterId,
   applyAlchemistReaction,
   getCharacterFormation,
+  getCharacterSphereCopyCap,
+  getSphereCopyOutputMultiplier,
 } from './characterRuntime';
 import {
   getArtifactSphereRadiusMultiplier,
@@ -89,6 +91,7 @@ export function getSphereDamage(s: GameState, sphere: SphereEntity, network?: Sp
   d *= getArtifactSphereDamageMultiplier(s);
   d *= getSphereArtifactDamageMultiplier(s, sphere);
   d *= sphereModifiers(s, sphere.type, sphere).damage;
+  d *= getSphereCopyOutputMultiplier(s, sphere);
   if (sphere) {
     const networkState = network ?? getNetworkFrame(s);
     const profile = getSphereNetworkProfile(networkState, s.spheres.indexOf(sphere));
@@ -868,8 +871,9 @@ export function placeSphere(s: GameState, x: number, y: number): void {
   }
   const max = getMaxSpheres(s);
   if (s.spheres.length >= max) return;
-  if (sameTypeCount >= MAX_SAME_SPHERE_COPIES) {
-    s.flashText = { text: 'MAX 2', life: 0.8, color: SPHERE_TYPES[selectedType].color };
+  const sameTypeCap = Math.max(MAX_SAME_SPHERE_COPIES, getCharacterSphereCopyCap(s, selectedType));
+  if (sameTypeCount >= sameTypeCap) {
+    s.flashText = { text: 'MAX ' + sameTypeCap, life: 0.8, color: SPHERE_TYPES[selectedType].color };
     return;
   }
   s.spheres.push({
