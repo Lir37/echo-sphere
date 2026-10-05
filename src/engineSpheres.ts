@@ -19,7 +19,7 @@ import {
   getSphereArtifactDamageMultiplier,
 } from './artifactSystem';
 import {
-  sphereModifiers, sphereLevel, getActiveSphereAbilitySynergies, hasActiveSphereAbilitySynergy,
+  sphereModifiers, sphereLevel, hasActiveSphereAbilitySynergy,
   getSphereElementForBranch, getSphereElementMasteryForBranch, SPHERE_ELEMENT_META,
 } from './sphereProgression';
 import { selectSphereTarget } from './targeting';
