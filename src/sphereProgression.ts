@@ -839,42 +839,93 @@ export function getAbilityDisplayDesc(s:any, ability:AbilityType, lang:'ru'|'en'
   return progression.levels[level-1]?.desc[lang]||'';
 }
 
-export type SphereAbilitySynergy = {
-  character: CharacterId;
-  sphere: SphereType;
-  sphereBranch?: SphereEvolutionId;
-  ability: AbilityType;
+export interface SphereAbilitySynergy {
+  id:string;
+  sphere:SphereType;
+  sphereBranch:SphereEvolutionId;
+  ability:AbilityType;
   name:{ru:string;en:string};
   desc:{ru:string;en:string};
-  effect:'damage'|'attackSpeed'|'radius'|'chain'|'defense';
-};
+  behavior:string;
+}
 
+/**
+ * Every Sphere Mutation I branch has exactly one future Ability synergy.
+ * The pairing is branch-global rather than character-locked. Several
+ * different Spheres may enhance the same Ability, but each rider is unique.
+ * It becomes active only when Sphere VII + the selected branch + Ability VII.
+ */
 export const SPHERE_ABILITY_SYNERGIES: SphereAbilitySynergy[] = [
-  {character:'spherist',sphere:'pulse',sphereBranch:'pulse_wave',ability:'blast',name:{ru:'Резонансная волна',en:'Resonance Wave'},desc:{ru:'Blast усиливает следующую Pulse-волну.',en:'Blast empowers the next Pulse wave.'},effect:'damage'},
-  {character:'spherist',sphere:'orbital',sphereBranch:'orbital_halo',ability:'shield',name:{ru:'Орбитальный купол',en:'Orbital Dome'},desc:{ru:'Shield усиливает орбитальный проход.',en:'Shield empowers an orbital pass.'},effect:'defense'},
-  {character:'hunter',sphere:'void',sphereBranch:'void_execution',ability:'crit',name:{ru:'Палач пустоты',en:'Void Executioner'},desc:{ru:'Void сильнее добивает отмеченные цели.',en:'Void executes marked targets harder.'},effect:'damage'},
-  {character:'hunter',sphere:'prism',sphereBranch:'prism_spectrum',ability:'crit',name:{ru:'Призматический прицел',en:'Prism Scope'},desc:{ru:'Критический Prism-луч усиливается по приоритетной цели.',en:'Critical Prism beams hit priority targets harder.'},effect:'damage'},
-  {character:'engineer',sphere:'orbital',sphereBranch:'orbital_dance',ability:'minion',name:{ru:'Орбитальное реле',en:'Orbital Relay'},desc:{ru:'Дроны ускоряют следующий орбитальный проход.',en:'Drones accelerate the next orbital pass.'},effect:'attackSpeed'},
-  {character:'engineer',sphere:'pulse',sphereBranch:'pulse_resonator',ability:'lightning',name:{ru:'Импульсный проводник',en:'Pulse Conductor'},desc:{ru:'Разряд усиливает следующую Pulse-волну.',en:'Lightning empowers the next Pulse wave.'},effect:'damage'},
-  {character:'alchemist',sphere:'gravity',sphereBranch:'gravity_well',ability:'firetrail',name:{ru:'Алхимический колодец',en:'Alchemy Well'},desc:{ru:'Gravity удерживает врагов внутри статусной зоны.',en:'Gravity keeps enemies inside the status field.'},effect:'radius'},
-  {character:'alchemist',sphere:'prism',sphereBranch:'prism_spectrum',ability:'firetrail',name:{ru:'Призматический катализатор',en:'Prism Catalyst'},desc:{ru:'Статусы Prism сильнее запускают реакции.',en:'Prism statuses trigger stronger reactions.'},effect:'damage'},
-  {character:'architect',sphere:'prism',sphereBranch:'prism_mirror',ability:'timestop',name:{ru:'Геометрический луч',en:'Geometric Ray'},desc:{ru:'Time Stop усиливает отражения Prism.',en:'Time Stop empowers Prism reflections.'},effect:'radius'},
-  {character:'architect',sphere:'gravity',sphereBranch:'gravity_collapse',ability:'timestop',name:{ru:'Матрица притяжения',en:'Gravity Matrix'},desc:{ru:'Time Stop расширяет контроль Gravity.',en:'Time Stop expands Gravity control.'},effect:'radius'},
-  {character:'berserker',sphere:'orbital',sphereBranch:'orbital_blade',ability:'shield',name:{ru:'Боевой ореол',en:'Battle Halo'},desc:{ru:'Shield превращает Orbital в более устойчивый источник урона.',en:'Shield makes Orbital a sturdier damage source.'},effect:'defense'},
-  {character:'berserker',sphere:'void',sphereBranch:'void_reaper',ability:'darkritual',name:{ru:'Пустой ритуал',en:'Void Ritual'},desc:{ru:'Dark Ritual усиливает Void по ослабленным целям.',en:'Dark Ritual empowers Void against weakened targets.'},effect:'damage'},
-  {character:'spherist',sphere:'standard',sphereBranch:'standard_resonator',ability:'blast',name:{ru:'Резонансное ядро',en:'Resonant Core'},desc:{ru:'Blast проходит через Standard и передаёт импульс ближайшей сфере.',en:'Blast travels through Standard and relays to the nearest sphere.'},effect:'damage'},
-  {character:'spherist',sphere:'chain',sphereBranch:'chain_storm',ability:'lightning',name:{ru:'Грозовая сеть',en:'Thunder Network'},desc:{ru:'Lightning проходит по Chain-сферам и усиливается на каждом узле.',en:'Lightning travels through Chain spheres and grows at each node.'},effect:'chain'},
-  {character:'hunter',sphere:'sniper',sphereBranch:'sniper_assassin',ability:'crit',name:{ru:'Executioner',en:'Executioner'},desc:{ru:'Sniper-криты по отмеченным целям наносят дополнительный урон.',en:'Sniper criticals against marked targets deal extra damage.'},effect:'damage'},
-  {character:'hunter',sphere:'chain',sphereBranch:'chain_web',ability:'teleport',name:{ru:'Predator Chain',en:'Predator Chain'},desc:{ru:'Телепорт к Chain переносит Метку добычи на всю цепь.',en:'Teleporting to Chain spreads Prey Mark through the chain.'},effect:'chain'},
-  {character:'engineer',sphere:'standard',sphereBranch:'standard_singularity',ability:'blast',name:{ru:'Network Core',en:'Network Core'},desc:{ru:'Blast становится релейным узлом сети Standard.',en:'Blast becomes a relay node for the Standard network.'},effect:'damage'},
-  {character:'engineer',sphere:'chain',sphereBranch:'chain_web',ability:'lightning',name:{ru:'Relay Storm',en:'Relay Storm'},desc:{ru:'Lightning активирует соседние Chain-узлы.',en:'Lightning activates adjacent Chain nodes.'},effect:'chain'},
-  {character:'alchemist',sphere:'aura',sphereBranch:'aura_overgrowth',ability:'firetrail',name:{ru:'Catalyst Field',en:'Catalyst Field'},desc:{ru:'Firetrail внутри Aura усиливает статусные реакции.',en:'Firetrail inside Aura amplifies status reactions.'},effect:'radius'},
-  {character:'alchemist',sphere:'chain',sphereBranch:'chain_leech',ability:'lightning',name:{ru:'Toxic Network',en:'Toxic Network'},desc:{ru:'Разряды по Chain-целям продлевают их статусы.',en:'Chain strikes extend status effects.'},effect:'chain'},
-  {character:'architect',sphere:'standard',sphereBranch:'standard_swarm',ability:'blast',name:{ru:'Geometric Core',en:'Geometric Core'},desc:{ru:'Blast использует геометрические связи Standard-сфер.',en:'Blast uses geometric links between Standard spheres.'},effect:'damage'},
-  {character:'architect',sphere:'aura',sphereBranch:'aura_sanctum',ability:'timestop',name:{ru:'Field Matrix',en:'Field Matrix'},desc:{ru:'Time Stop расширяет активную геометрическую формацию.',en:'Time Stop expands the active geometric formation.'},effect:'radius'},
-  {character:'berserker',sphere:'shotgun',sphereBranch:'shotgun_cataclysm',ability:'shield',name:{ru:'Barrier Core',en:'Barrier Core'},desc:{ru:'Shield превращает Shotgun-сферы в ударный барьер.',en:'Shield turns Shotgun spheres into an impact barrier.'},effect:'defense'},
-  {character:'berserker',sphere:'standard',sphereBranch:'standard_singularity',ability:'darkritual',name:{ru:'Blood Resonance',en:'Blood Resonance'},desc:{ru:'Dark Ritual усиливает Standard в ближнем бою.',en:'Dark Ritual empowers Standard at close range.'},effect:'damage'},
+  {id:'std_res_blast',sphere:'standard',sphereBranch:'standard_resonator',ability:'blast',name:{ru:'Резонансное ядро',en:'Resonant Core'},desc:{ru:'Blast создаёт дополнительный импульс от Standard и слегка подпитывает Резонанс.',en:'Blast emits an extra pulse from Standard and lightly feeds Resonance.'},behavior:'blast_standard_resonator'},
+  {id:'std_singularity_timestop',sphere:'standard',sphereBranch:'standard_singularity',ability:'timestop',name:{ru:'Сингулярный стазис',en:'Singularity Stasis'},desc:{ru:'Time Stop стягивает врагов к Standard и удерживает их дольше.',en:'Time Stop pulls enemies toward Standard and holds them longer.'},behavior:'timestop_standard_singularity'},
+  {id:'std_swarm_minion',sphere:'standard',sphereBranch:'standard_swarm',ability:'minion',name:{ru:'Роевой запуск',en:'Swarm Launch'},desc:{ru:'Активация Echo Drone выпускает дополнительный осколочный импульс от Standard.',en:'Echo Drone activation releases an extra shard pulse from Standard.'},behavior:'minion_standard_swarm'},
+
+  {id:'sniper_oracle_teleport',sphere:'sniper',sphereBranch:'sniper_oracle',ability:'teleport',name:{ru:'Прицел прыжка',en:'Jumping Scope'},desc:{ru:'Телепорт к Sniper помечает ближайшую цель и усиливает следующий удар.',en:'Teleporting to Sniper marks a nearby target and empowers the next hit.'},behavior:'teleport_sniper_oracle'},
+  {id:'sniper_assassin_darkritual',sphere:'sniper',sphereBranch:'sniper_assassin',ability:'darkritual',name:{ru:'Кровавый приговор',en:'Blood Sentence'},desc:{ru:'Dark Ritual наносит дополнительный удар по самой ослабленной цели.',en:'Dark Ritual adds a finishing strike to the weakest target.'},behavior:'darkritual_sniper_assassin'},
+  {id:'sniper_beacon_firetrail',sphere:'sniper',sphereBranch:'sniper_beacon',ability:'firetrail',name:{ru:'Горящий маяк',en:'Burning Beacon'},desc:{ru:'Firetrail поджигает и замедляет врагов вокруг Sniper.',en:'Firetrail ignites and slows enemies around Sniper.'},behavior:'firetrail_sniper_beacon'},
+
+  {id:'shotgun_burst_shield',sphere:'shotgun',sphereBranch:'shotgun_burst',ability:'shield',name:{ru:'Ударный контур',en:'Impact Circuit'},desc:{ru:'Shield выпускает от Shotgun волну отбрасывания.',en:'Shield releases a knockback wave from Shotgun.'},behavior:'shield_shotgun_burst'},
+  {id:'shotgun_cataclysm_blast',sphere:'shotgun',sphereBranch:'shotgun_cataclysm',ability:'blast',name:{ru:'Катастрофический импульс',en:'Cataclysmic Pulse'},desc:{ru:'Blast детонирует дополнительный взрыв в каждой Shotgun-сфере.',en:'Blast detonates an extra explosion at each Shotgun Sphere.'},behavior:'blast_shotgun_cataclysm'},
+  {id:'shotgun_hail_lightning',sphere:'shotgun',sphereBranch:'shotgun_hail',ability:'lightning',name:{ru:'Электрический град',en:'Electric Hail'},desc:{ru:'Lightning создаёт короткие дополнительные разряды вокруг Shotgun.',en:'Lightning creates short extra strikes around Shotgun.'},behavior:'lightning_shotgun_hail'},
+
+  {id:'chain_web_timestop',sphere:'chain',sphereBranch:'chain_web',ability:'timestop',name:{ru:'Стазисная паутина',en:'Stasis Web'},desc:{ru:'Time Stop распространяется дальше по Chain и длится дольше на узлах.',en:'Time Stop spreads farther through Chain and lasts longer on nodes.'},behavior:'timestop_chain_web'},
+  {id:'chain_storm_lightning',sphere:'chain',sphereBranch:'chain_storm',ability:'lightning',name:{ru:'Грозовой резонанс',en:'Storm Resonance'},desc:{ru:'Каждый Chain-узел усиливает Lightning и создаёт искровой всплеск.',en:'Each Chain node empowers Lightning and creates a spark burst.'},behavior:'lightning_chain_storm'},
+  {id:'chain_leech_darkritual',sphere:'chain',sphereBranch:'chain_leech',ability:'darkritual',name:{ru:'Паразитический обмен',en:'Parasitic Exchange'},desc:{ru:'Dark Ritual возвращает часть потраченного HP через Chain.',en:'Dark Ritual refunds part of its HP cost through Chain.'},behavior:'darkritual_chain_leech'},
+
+  {id:'aura_sanctum_shield',sphere:'aura',sphereBranch:'aura_sanctum',ability:'shield',name:{ru:'Щит святилища',en:'Sanctum Shield'},desc:{ru:'Shield создаёт защитный импульс внутри каждой Aura.',en:'Shield creates a protective pulse inside each Aura.'},behavior:'shield_aura_sanctum'},
+  {id:'aura_gravity_teleport',sphere:'aura',sphereBranch:'aura_gravity',ability:'teleport',name:{ru:'Прыжок в гравитацию',en:'Gravity Jump'},desc:{ru:'Телепорт к Aura притягивает ближайших врагов к центру.',en:'Teleporting to Aura pulls nearby enemies toward its center.'},behavior:'teleport_aura_gravity'},
+  {id:'aura_overgrowth_firetrail',sphere:'aura',sphereBranch:'aura_overgrowth',ability:'firetrail',name:{ru:'Перегрев сети',en:'Network Overgrowth'},desc:{ru:'Firetrail ускоряет следующий цикл сфер внутри Aura.',en:'Firetrail accelerates the next cycle of Spheres inside Aura.'},behavior:'firetrail_aura_overgrowth'},
+
+  {id:'orbital_dance_minion',sphere:'orbital',sphereBranch:'orbital_dance',ability:'minion',name:{ru:'Орбитальное реле',en:'Orbital Relay'},desc:{ru:'Echo Drone ускоряет ближайшую Orbital и запускает дополнительный проход.',en:'Echo Drone accelerates the nearest Orbital and triggers an extra pass.'},behavior:'minion_orbital_dance'},
+  {id:'orbital_halo_shield',sphere:'orbital',sphereBranch:'orbital_halo',ability:'shield',name:{ru:'Защитный ореол',en:'Guardian Halo'},desc:{ru:'Shield добавляет заряд и выпускает защитный импульс от Orbital.',en:'Shield adds a charge and emits a defensive Orbital pulse.'},behavior:'shield_orbital_halo'},
+  {id:'orbital_blade_darkritual',sphere:'orbital',sphereBranch:'orbital_blade',ability:'darkritual',name:{ru:'Клинок жертвы',en:'Sacrificial Blades'},desc:{ru:'Dark Ritual выпускает режущую волну из каждой Orbital.',en:'Dark Ritual releases a cutting wave from each Orbital.'},behavior:'darkritual_orbital_blade'},
+
+  {id:'prism_split_blast',sphere:'prism',sphereBranch:'prism_split',ability:'blast',name:{ru:'Призматический раскол',en:'Prismatic Split'},desc:{ru:'Blast превращается в серию отражённых лучей от Prism.',en:'Blast becomes a series of reflected Prism beams.'},behavior:'blast_prism_split'},
+  {id:'prism_spectrum_firetrail',sphere:'prism',sphereBranch:'prism_spectrum',ability:'firetrail',name:{ru:'Спектральный катализ',en:'Spectrum Catalyst'},desc:{ru:'Firetrail запускает усиленный статусный импульс вокруг Prism.',en:'Firetrail triggers an empowered status pulse around Prism.'},behavior:'firetrail_prism_spectrum'},
+  {id:'prism_mirror_teleport',sphere:'prism',sphereBranch:'prism_mirror',ability:'teleport',name:{ru:'Зеркальный прыжок',en:'Mirror Jump'},desc:{ru:'Телепорт к Prism запускает отражённый луч по нескольким целям.',en:'Teleporting to Prism fires a reflected beam at several targets.'},behavior:'teleport_prism_mirror'},
+
+  {id:'gravity_well_firetrail',sphere:'gravity',sphereBranch:'gravity_well',ability:'firetrail',name:{ru:'Огненный колодец',en:'Flame Well'},desc:{ru:'Firetrail дольше держит врагов в гравитационном поле и продлевает горение.',en:'Firetrail keeps enemies in the gravity field longer and extends burn.'},behavior:'firetrail_gravity_well'},
+  {id:'gravity_tide_timestop',sphere:'gravity',sphereBranch:'gravity_tide',ability:'timestop',name:{ru:'Обратная волна',en:'Reverse Tide'},desc:{ru:'Time Stop запускает обратную волну от Gravity, отбрасывающую врагов.',en:'Time Stop triggers a reverse Gravity wave that pushes enemies away.'},behavior:'timestop_gravity_tide'},
+  {id:'gravity_collapse_blast',sphere:'gravity',sphereBranch:'gravity_collapse',ability:'blast',name:{ru:'Имплозия',en:'Implosion'},desc:{ru:'Blast сжимает группу врагов к Gravity и добивает её дополнительным импульсом.',en:'Blast compresses enemies toward Gravity and adds an extra implosion pulse.'},behavior:'blast_gravity_collapse'},
+
+  {id:'pulse_wave_blast',sphere:'pulse',sphereBranch:'pulse_wave',ability:'blast',name:{ru:'Ударная волна',en:'Shockwave'},desc:{ru:'Blast запускает дополнительную волну от каждой Pulse.',en:'Blast launches an extra wave from each Pulse.'},behavior:'blast_pulse_wave'},
+  {id:'pulse_resonator_lightning',sphere:'pulse',sphereBranch:'pulse_resonator',ability:'lightning',name:{ru:'Заряженный резонатор',en:'Charged Resonator'},desc:{ru:'Lightning подпитывает Resonance и ускоряет следующий Pulse-цикл.',en:'Lightning feeds Resonance and accelerates the next Pulse cycle.'},behavior:'lightning_pulse_resonator'},
+  {id:'pulse_burst_shield',sphere:'pulse',sphereBranch:'pulse_burst',ability:'shield',name:{ru:'Щитовой импульс',en:'Shield Pulse'},desc:{ru:'Shield выпускает дополнительную ударную волну от каждой Pulse.',en:'Shield releases an extra shock pulse from each Pulse.'},behavior:'shield_pulse_burst'},
+
+  {id:'void_hunger_darkritual',sphere:'void',sphereBranch:'void_hunger',ability:'darkritual',name:{ru:'Голод ритуала',en:'Ritual Hunger'},desc:{ru:'Dark Ritual превращает потерянное HP игрока в дополнительный Void-удар.',en:'Dark Ritual converts lost player HP into an extra Void strike.'},behavior:'darkritual_void_hunger'},
+  {id:'void_reaper_minion',sphere:'void',sphereBranch:'void_reaper',ability:'minion',name:{ru:'Жнец душ',en:'Soul Reaper'},desc:{ru:'Активация Echo Drone запускает жатву вокруг Void и возвращает HP за добивания.',en:'Echo Drone activation starts a harvest around Void and restores HP from kills.'},behavior:'minion_void_reaper'},
+  {id:'void_execution_teleport',sphere:'void',sphereBranch:'void_execution',ability:'teleport',name:{ru:'Разрыв казни',en:'Execution Rift'},desc:{ru:'Телепорт к Void прорезает ослабленных врагов и добивает самых уязвимых.',en:'Teleporting to Void cuts through weakened enemies and executes the most vulnerable.'},behavior:'teleport_void_execution'},
 ];
+
+export function getActiveSphereAbilitySynergies(s:any): SphereAbilitySynergy[] {
+  return SPHERE_ABILITY_SYNERGIES.filter(link =>
+    sphereLevel(s, link.sphere) >= 7 &&
+    s.player.sphereBranches?.[link.sphere] === link.sphereBranch &&
+    (s.player.abilities?.[link.ability] || 0) >= 7
+  );
+}
+
+export function hasActiveSphereAbilitySynergy(
+  s:any,
+  sphere:SphereType,
+  branch:SphereEvolutionId,
+  ability:AbilityType,
+):boolean {
+  return getActiveSphereAbilitySynergies(s).some(link =>
+    link.sphere === sphere && link.sphereBranch === branch && link.ability === ability
+  );
+}
+
+export function getSphereMutationSynergyHints(
+  s:any,
+  sphere:SphereType,
+  branch:SphereEvolutionId,
+): SphereAbilitySynergy[] {
+  return SPHERE_ABILITY_SYNERGIES.filter(link =>
+    link.sphere === sphere &&
+    link.sphereBranch === branch
+  );
+}
 
 export const CHARACTER_SPHERE_PRIORITY:Record<CharacterId,SphereType[]>={
   spherist:['standard','chain','orbital','pulse'],
