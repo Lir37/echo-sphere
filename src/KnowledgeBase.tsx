@@ -154,7 +154,7 @@ export default function KnowledgeBase({ lang, onBack }: { lang: Lang; onBack: ()
         <div className="space-y-4">
           <KnowledgeCard unlocked title={isRu ? 'Что такое Echo Sphere?' : 'What is Echo Sphere?'}
             desc={isRu
-              ? 'Ты строишь боевую сеть вокруг Core. Сферы автоматически атакуют, а их расположение создаёт Geometry и меняет поведение сети.'
+              ? 'Ты строишь боевую сеть вокруг Ядра. Сферы автоматически атакуют, а их расположение создаёт Геометрию и меняет поведение сети.'
               : 'You build a combat Network around the Core. Spheres attack automatically, while their arrangement creates Geometry and changes how the Network behaves.'} lang={lang}>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               {[
@@ -185,7 +185,7 @@ export default function KnowledgeBase({ lang, onBack }: { lang: Lang; onBack: ()
 
           <KnowledgeCard unlocked title={isRu ? 'Как читать сеть' : 'How to read the Network'}
             desc={isRu
-              ? 'Близость сфер создаёт связи. Ghost Snap показывает будущие связи до подтверждения перестановки. Если Link Breaker отключил узел, часть Geometry и сетевых эффектов может измениться.'
+              ? 'Близость сфер создаёт связи. Призрачная привязка показывает будущие связи до подтверждения перестановки. Если Разрыватель связей отключил узел, часть Геометрии и сетевых эффектов может измениться.'
               : 'Nearby Spheres create links. Ghost Snap previews future links before you commit a move. If a Link Breaker disables a node, Geometry and network effects can change.'} lang={lang} />
         </div>
       );
