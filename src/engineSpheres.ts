@@ -759,9 +759,7 @@ export function updateSpheres(s: GameState, dt: number): void {
             const chainBranch = s.player.sphereBranches?.[sphere.type];
             const chainFinalId = (s.player.evolutions || []).find((id: string) => id.startsWith('sphere:' + sphere.type + ':7:'));
             const chainFinalIndex = chainFinalId ? Number(chainFinalId.split(':').pop()) : null;
-            const toxicNetwork = getActiveSphereAbilitySynergies(s).some((link) =>
-              link.character === 'alchemist' && link.sphere === 'chain' && link.ability === 'lightning'
-            );
+            const toxicNetwork = hasActiveSphereAbilitySynergy(s, 'chain', 'chain_storm', 'lightning');
 
             s.lightnings.push({ from: { ...sphere.pos }, to: { ...nearest.pos }, life: 0.30, sourceSphere: sphere });
 
