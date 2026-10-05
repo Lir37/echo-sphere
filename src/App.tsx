@@ -1484,7 +1484,7 @@ function AchievementsScreen({ lang, t, onBack }: { lang: Lang; t: (k: Translatio
 }
 
 // ===== Settings =====
-function SettingsScreen({ lang, setLang, t, soundOn, setSoundOn, handedness, setHandedness, onBack }: {
+function SettingsScreen({ lang, setLang, t, soundOn, setSoundOn, handedness, setHandedness, onReplayTutorial, onBack }: {
   lang: Lang;
   setLang: (l: Lang) => void;
   t: (k: TranslationKey) => string;
@@ -1492,6 +1492,7 @@ function SettingsScreen({ lang, setLang, t, soundOn, setSoundOn, handedness, set
   setSoundOn: (v: boolean) => void;
   handedness: Handedness;
   setHandedness: (value: Handedness) => void;
+  onReplayTutorial: () => void;
   onBack: () => void;
 }) {
   return (
@@ -1532,6 +1533,12 @@ function SettingsScreen({ lang, setLang, t, soundOn, setSoundOn, handedness, set
           </div>
         </div>
         <button
+          onClick={onReplayTutorial}
+          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-[#39d8ff]/30 bg-[#39d8ff]/5 text-[#9fefff] hover:bg-[#39d8ff]/10 transition"
+        >
+          <Play size={16} /> {t('replayTutorial')}
+        </button>
+                <button
           onClick={() => { if (confirm(t('resetConfirm'))) { resetAll(); location.reload(); } }}
           className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-[#ff4d5d]/10 border border-[#ff4d5d]/30 text-[#ff4d5d] hover:bg-[#ff4d5d]/20 transition"
         >
