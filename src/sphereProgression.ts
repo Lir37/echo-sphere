@@ -1179,14 +1179,6 @@ export function sphereModifiers(s:any,type:SphereType,sphere?:any){
     if(branch==='void_execution'){ damage*=final===2?1.10:1.04; }
   }
 
-  for (const link of getActiveSphereAbilitySynergies(s)) {
-    if (link.sphere !== type) continue;
-    if (link.effect === 'damage') damage *= 1.12;
-    if (link.effect === 'attackSpeed') delay *= 0.88;
-    if (link.effect === 'radius') radius *= 1.12;
-    if (link.effect === 'chain') chainTargets += 1;
-  }
-
   const projectileMods = sphereUsesProjectileModifiers(type);
   if (projectileMods) multishot += modifierLevel('multishot');
   return {
