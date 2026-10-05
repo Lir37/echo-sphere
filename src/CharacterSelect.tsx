@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { ArrowLeft, Check, Lock } from 'lucide-react';
+import { SPHERE_TYPES, type SphereType } from './gameData';
 import {
   CHARACTER_LIST,
   CHARACTER_UNLOCK_COST,
@@ -161,10 +162,19 @@ export default function CharacterSelect({ lang, gold, onGoldChange, onBack, onSe
                       {character.description[lang]}
                     </p>
 
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {character.preferredSphereTypes.map((type) => (
-                        <span key={type} className="text-[9px] px-2 py-1 rounded-full bg-[#f4ecd8] border border-[#c4b890] text-[#6b5b42]">
-                          {type}
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {character.preferredSphereTypes.slice(0, 2).map((type, index) => (
+                        <span
+                          key={type}
+                          className="text-[9px] px-2 py-1 rounded-full border text-[#bfeeff]"
+                          style={{
+                            borderColor: SPHERE_TYPES[type as SphereType].color + '66',
+                            backgroundColor: SPHERE_TYPES[type as SphereType].color + '12',
+                          }}
+                        >
+                          {index === 0 ? (lang === 'ru' ? 'СИГНАТУРНАЯ' : 'SIGNATURE') : (lang === 'ru' ? 'ПАРТНЁР' : 'PARTNER')}
+                          {' · '}
+                          {SPHERE_TYPES[type as SphereType].name[lang]}
                         </span>
                       ))}
                     </div>
