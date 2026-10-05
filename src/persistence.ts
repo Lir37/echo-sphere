@@ -1,5 +1,6 @@
 import type { ShopState, LeaderEntry } from './engine';
 import { CHARACTER_DEFS, CHARACTER_LIST, DEFAULT_CHARACTER_ID, type CharacterId, type CharacterProfile } from './characters';
+import type { Difficulty } from './gameData';
 
 const GOLD_KEY = 'echosphere_gold';
 const SHOP_KEY = 'echosphere_shop';
@@ -260,10 +261,11 @@ export function unlockAchievement(id: string): boolean {
   return true;
 }
 
-export function loadDifficulty(): string {
-  return localStorage.getItem(DIFF_KEY) || 'normal';
+export function loadDifficulty(): Difficulty {
+  const raw = localStorage.getItem(DIFF_KEY);
+  return raw === 'easy' || raw === 'normal' || raw === 'hard' || raw === 'nightmare' ? raw : 'normal';
 }
-export function saveDifficulty(d: string): void {
+export function saveDifficulty(d: Difficulty): void {
   localStorage.setItem(DIFF_KEY, d);
 }
 
