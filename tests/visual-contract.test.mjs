@@ -249,8 +249,7 @@ test('Network HUD exposes factual numeric effects for active Geometry',()=>{
   assert.match(a,/getNetworkTooltipLines/);
   assert.match(a,/percent\(10\)/);
   assert.match(a,/\+1/);
-  assert.match(a,/35 \* scale/);
-  assert.match(a,/радиус 88/);
+  assert.match(a,/percent\(35\)/);
   assert.match(a,/percent\(8\)/);
   assert.match(a,/percent\(6\)/);
   assert.match(a,/percent\(15\)/);
@@ -294,4 +293,17 @@ test('XP crystals keep independent initial rotation and individual animation pha
   assert.match(r,/drawModernXp\(ctx, orb\.pos\.x, orb\.pos\.y, orb\.radius, '#63e6ff', orb\.rotation\)/);
   assert.match(r,/function drawModernXp\([^)]*rotation:number/);
   assert.match(r,/const rot=rotation;/);
+});
+
+test('Network HUD uses direct visual hierarchy and pointer drag swapping',()=>{
+  const a=read('src/App.tsx'),css=read('src/conceptStyle.css');
+  assert.equal(a.includes('ДОМИНАНТА'),false);
+  assert.equal(a.includes('ДОП.'),false);
+  assert.equal(a.includes('Перетащите одну формацию'),false);
+  assert.match(a,/setPointerCapture\(event\.pointerId\)/);
+  assert.match(a,/document\.elementFromPoint\(event\.clientX, event\.clientY\)/);
+  assert.match(a,/networkFormationSelection = \{ dominant: secondary, secondary: dominant \}/);
+  assert.match(css,/\.es-network-formation-chip\.is-dominant \.es-network-formation-name/);
+  assert.match(css,/\.es-network-formation-chip\.is-secondary \.es-network-formation-name/);
+  assert.match(css,/\.es-network-tooltip-active\.is-secondary/);
 });
