@@ -51,7 +51,7 @@ export default function App() {
   const [screen, setScreen] = useState<Screen>('menu');
   const [shop, setShop] = useState<ShopState>(() => loadShop());
   const [gold, setGold] = useState<number>(() => loadGold());
-  const [difficulty, setDifficulty] = useState<Difficulty>(() => loadDifficulty() as Difficulty);
+  const [difficulty, setDifficulty] = useState<Difficulty>(() => loadDifficulty());
   const [soundOn, setSoundOn] = useState<boolean>(() => loadSound());
   const [handedness, setHandedness] = useState<Handedness>(() => loadHandedness());
 
