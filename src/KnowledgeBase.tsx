@@ -198,7 +198,7 @@ export default function KnowledgeBase({ lang, onBack }: { lang: Lang; onBack: ()
             const def = SPHERE_TYPES[id];
             const open = unlocked.has(`sphere:${id}`);
             return <KnowledgeCard key={id} unlocked={open} title={def.name[lang]}
-              desc={isRu ? `Роль: ${id === 'standard' ? 'универсальный урон' : id === 'sniper' ? 'дальняя одиночная цель' : id === 'chain' ? 'перенос урона между целями' : id === 'shotgun' ? 'ближний burst' : id === 'aura' ? 'локальное поле' : 'специализированный сетевой узел'}.` : `Role: ${id} Sphere combat behavior.`} lang={lang}>
+              desc={isRu ? `Роль: ${id === 'standard' ? 'универсальный урон' : id === 'sniper' ? 'дальняя одиночная цель' : id === 'chain' ? 'перенос урона между целями' : id === 'shotgun' ? 'ближний мощный залп' : id === 'aura' ? 'локальное поле' : 'специализированный сетевой узел'}.` : `Role: ${id} Sphere combat behavior.`} lang={lang}>
               <div className="mt-3 text-xs leading-5 text-slate-400">{isRu ? 'Эта запись открывается, когда сфера впервые появляется в твоём забеге.' : 'This entry unlocks when the Sphere first appears in your run.'}</div>
             </KnowledgeCard>;
           })}
