@@ -1034,29 +1034,6 @@ export function getAuthoredSphereModifierLevels(source:any, type:SphereType): Au
   return levels;
 }
 
-export function getActiveSphereAbilitySynergies(s:any): SphereAbilitySynergy[] {
-  const character = s.player.characterId as CharacterId;
-  return SPHERE_ABILITY_SYNERGIES.filter(link =>
-    link.character === character &&
-    sphereLevel(s, link.sphere) >= 7 &&
-    (!link.sphereBranch || s.player.sphereBranches?.[link.sphere] === link.sphereBranch) &&
-    (s.player.abilities?.[link.ability] || 0) >= 7
-  );
-}
-
-export function getSphereMutationSynergyHints(
-  s: any,
-  sphere: SphereType,
-  branch: SphereEvolutionId,
-): SphereAbilitySynergy[] {
-  const character = s.player.characterId as CharacterId;
-  return SPHERE_ABILITY_SYNERGIES.filter(link =>
-    link.character === character &&
-    link.sphere === sphere &&
-    link.sphereBranch === branch
-  );
-}
-
 export function sphereModifiers(s:any,type:SphereType,sphere?:any){
   const l=sphereLevel(s,type), branch=s.player.sphereBranches?.[type], final=sphereFinalIndex(s,type), artifact=getSphereArtifactModifiers(s,type,sphere);
   const authored=getAuthoredSphereModifierLevels(s.player,type);
