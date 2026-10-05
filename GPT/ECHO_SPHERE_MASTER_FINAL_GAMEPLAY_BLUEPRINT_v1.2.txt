@@ -3984,3 +3984,39 @@ HUD:
   Geometry; Dominant gets a bright marker/glow.
 
 ======================================================================
+
+======================================================================
+2026-10-05 — SPHERE MUTATION SYNERGY MATRIX EXPANSION
+======================================================================
+
+The earlier target contract described branch-aware Sphere + Ability
+synergy, but the implementation exposed synergy on only selected branches.
+This amendment supersedes that limitation.
+
+FINAL RULE:
+
+- All 10 Sphere types have 3 Mutation I branches.
+- Every one of the 30 Mutation I branches has exactly one authored future
+  Ability Synergy.
+- A branch always points to one Ability. The same Ability may be targeted
+  by multiple different Spheres.
+- Reusing the same Ability is intentional: every Sphere/branch pair must
+  produce a different behavioral rider, so the player is choosing a
+  different interaction, not another copy of the same bonus.
+- Synergy activation requires:
+  Sphere VII + the selected Mutation I branch + Ability VII.
+- Mutation I UI exposes that branch's future Ability direction.
+- Pause Synergy catalog exposes the full 30-entry matrix with locked,
+  available/in-progress and active states.
+- Synergy effects are behavioral. Generic flat +damage Synergy modifiers are
+  not used as the primary implementation.
+- When several Spheres feed the same Ability during one activation, their
+  riders stack with deterministic diminishing strength. Additional sources
+  remain useful, but a single Ability cannot scale linearly with every
+  compatible Sphere.
+
+The purpose is buildcraft, not branch homogenization:
+each Mutation I branch remains mechanically distinct on its own, while every
+branch also opens a meaningful cross-system path for a later run.
+
+======================================================================
