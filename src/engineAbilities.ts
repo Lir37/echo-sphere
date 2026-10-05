@@ -709,10 +709,6 @@ function activateLightning(s: GameState): void {
     s.lightnings.push({ from: { ...previous }, to: { ...target.pos }, life: 0.3 });
     const damage = (40 + lvl * 15) * (1 + jump * 0.12);
     dealDamageToEnemy(s, target, damage);
-    if (toxicNetwork) {
-      target.fireTimer = Math.max(target.fireTimer || 0, 1.5);
-      target.poisonTimer = Math.max(target.poisonTimer || 0, 1.5);
-    }
     previous = { ...target.pos };
     jump++;
     if (branch === 'lightning_relay' && ordered.length > 0) {
