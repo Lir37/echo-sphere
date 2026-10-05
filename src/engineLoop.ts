@@ -16,8 +16,9 @@ import { updateSpheres } from './engineSpheres';
 import { spawnEnemy, startWave, updateMinions, updateEnemies } from './engineEnemies';
 import { dealDamageToEnemy } from './engineCombat';
 import { generateUpgradeChoices } from './engineProgression';
+import { updateCharacterRuntime } from './characterRuntime';
 import { chargeResonance as chargeResonanceRuntime } from './engineResonance';
-import { dist, rand, clamp } from './engineRuntime';
+import { dist, rand, clamp, getNetworkFrame } from './engineRuntime';
 import type { GameState, RuneEntity } from './engineTypes';
 
 function pickArtifacts(s: GameState): ArtifactId[] {
@@ -256,6 +257,8 @@ export function update(s: GameState, dt: number): void {
 
   // spheres
   updateSpheres(s, dt);
+
+  updateCharacterRuntime(s, dt, getNetworkFrame(s), dealDamageToEnemy);
 
   // minions
   updateMinions(s, dt);
