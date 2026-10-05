@@ -6,8 +6,8 @@ const read = (path) => fs.readFileSync(new URL('../' + path, import.meta.url), '
 
 test('canonical systems are structurally represented', () => {
   const data = read('src/gameData.ts');
-  const spheres = [...data.matchAll(/export type SphereType =\s*([^;]+);/s)][0][1].match(/'[^']+'/g) || [];
-  const abilities = [...data.matchAll(/export type AbilityType =\s*([^;]+);/s)][0][1].match(/'[^']+'/g) || [];
+  const spheres = [...data.matchAll(/export type SphereType =\s*([^;]+);/gs)][0][1].match(/'[^']+'/g) || [];
+  const abilities = [...data.matchAll(/export type AbilityType =\s*([^;]+);/gs)][0][1].match(/'[^']+'/g) || [];
   assert.equal(spheres.length, 10);
   assert.equal(abilities.length, 30);
   assert.equal((data.match(/id: '(?:shooter|charger|summoner|aura|conductor|architect|null|stella_warden)'/g) || []).length, 8);
