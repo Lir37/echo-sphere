@@ -68,9 +68,18 @@ test('first-battle tutorial is wired, persistent, and replayable', () => {
   assert.match(mobile, /tutorialStep !== 1 && tutorialStep !== 2/);
 });
 
-test('Russian user-facing character text is localized', () => {
-  const chars = read('src/characters.ts');
-  assert.doesNotMatch(chars, /ru:\s*'[^']*(?:\bNetwork\b|\bGeometry\b|\bOverdrive\b|\bCascade\b|\bLevel-Up\b|\bLock\b|\bReroll\b|\bPhantom Node\b|\bRecursive Echo\b|\bSniper\/Chain\b|\bFire\+Freeze\b|\bFire\+Poison\b|\bFreeze\+Poison\b)/);
+test('Russian user-facing text does not reintroduce known English system terms', () => {
+  const sources = [
+    read('src/characters.ts'),
+    read('src/gameData.ts'),
+    read('src/sphereProgression.ts'),
+    read('src/runes.ts'),
+    read('src/artifactSystem.ts'),
+    read('src/KnowledgeBase.tsx'),
+    read('src/App.tsx'),
+  ];
+  const forbidden = /\bru:\s*['"`][^\n]*?(?:\bNetwork\b|\bGeometry\b|\bOverdrive\b|\bCascade\b|\bLevel-Up\b|\bLock\b|\bReroll\b|\bPhantom Node\b|\bRecursive Echo\b|\bSniper\/Chain\b|\bFire\+Freeze\b|\bFire\+Poison\b|\bFreeze\+Poison\b|\bRing\/Lattice\/Fractal\b|\bElite\/Boss\b|\bFormation Memory\b)/;
+  for (const source of sources) assert.doesNotMatch(source, forbidden);
 });
 
 test('main menu exposes Settings as the single home for language and sound', () => {
