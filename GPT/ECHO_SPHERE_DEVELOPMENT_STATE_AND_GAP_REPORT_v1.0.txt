@@ -5348,3 +5348,38 @@ CI OBSERVATION:
 - Current repair commit c385f75 is under Android workflow verification.
 
 No gameplay rule was intentionally changed in this follow-up.
+
+======================================================================
+[2026-10-05] CRITICAL RUNTIME NETWORK/RENDER AUDIT
+
+CONFIRMED ROOT CAUSE:
+- Echo Drone Relay/Network modes append Drone runtime nodes after the Sphere
+  node indexes.
+- renderer.ts previously treated every Network link endpoint as an index into
+  s.spheres.
+- A valid Sphere -> Drone link therefore reached s.spheres[droneIndex].pos and
+  threw TypeError.
+- The exception happened inside the requestAnimationFrame callback before the
+  next frame was scheduled.
+- This exactly matches the reported first failure: world rendering stops while
+  React/menu controls remain responsive.
+- The mutation itself is not the root cause; it is only a trigger when the
+  selected Drone path creates a runtime Network link.
+
+IMPLEMENTED:
+[DONE] Added renderer-facing Sphere-only Network projection.
+[DONE] External Drone links are rendered from runtime-node positions.
+[DONE] Added regression coverage for a Sphere -> Drone Network link.
+[DONE] Added RAF frame-error containment and one-time diagnostic logging.
+
+ANDROID CRASH STATUS:
+[OPEN] The independent self-closing Android episode has no repository-level
+root cause established yet. No Android crash/ANR/OOM evidence is available.
+Do not attribute it to Echo Drone or the renderer without device evidence.
+
+ACCEPTANCE:
+- CI must pass on the fix HEAD.
+- APK PlayerCheck must explicitly exercise Echo Drone Relay/Network paths.
+- If the second crash recurs, collect Android crash/ANR evidence before further
+  code changes.
+
