@@ -410,7 +410,7 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
           onPointerDown={(e) => { e.stopPropagation(); const st = stateRef.current; if (!st) return; st.player.sphereMovementLocked = !st.player.sphereMovementLocked; haptic(6); }}
           aria-label={lang === 'ru' ? 'Блокировка перемещения сфер' : 'Lock sphere movement'}>
           {stateRef.current?.player.sphereMovementLocked ? <Lock size={14} /> : <Unlock size={14} />}
-          <span>{stateRef.current?.player.sphereMovementLocked ? 'LOCK' : 'MOVE'}</span>
+          <span>{stateRef.current?.player.sphereMovementLocked ? (lang === 'ru' ? 'ЗАБЛОКИРОВАНО' : 'LOCKED') : (lang === 'ru' ? 'ПЕРЕМЕЩЕНИЕ' : 'MOVE')}</span>
         </button>
 
         <div className="grid grid-cols-2 gap-1.5 pointer-events-auto">
@@ -489,7 +489,7 @@ function GhostSnapOverlay({ canvasRef, stateRef, preview, lang, sphereColor }: {
     {links.map((link) => { const otherIndex = link.a === preview.sphereIndex ? link.b : link.a; const other = st.spheres[otherIndex]; if (!other) return null; const p = worldToScreen(canvas, st.camera, other.pos); return <line key={'ghost-link-' + otherIndex} x1={ghost.x} y1={ghost.y} x2={p.x} y2={p.y} stroke={preview.valid ? sphereColor : '#ff4d5d'} strokeWidth={2.2 * scale} strokeDasharray="7 5" opacity=".9" />; })}
     {points.length >= 2 && <polyline points={points.map((p) => p.x + ',' + p.y).join(' ')} fill="none" stroke={preview.valid ? '#ffb84d' : '#ff4d5d'} strokeWidth={2 * scale} strokeDasharray="6 5" opacity=".82" />}
     <circle cx={ghost.x} cy={ghost.y} r={25 * scale} fill={preview.valid ? sphereColor + '18' : 'rgba(255,77,93,.12)'} stroke={preview.valid ? sphereColor : '#ff4d5d'} strokeWidth={2 * scale} strokeDasharray="5 4" />
-    <text x={ghost.x} y={ghost.y - 31 * scale} textAnchor="middle" fill={preview.valid ? '#dcecff' : '#ff7a86'} fontSize={11 * scale} fontWeight="700">{preview.valid ? (preview.formation ? preview.formation.type.toUpperCase() : (lang === 'ru' ? 'СЕТЬ' : 'NETWORK')) : (lang === 'ru' ? 'НЕДОСТУПНО' : 'INVALID')}</text>
+    <text x={ghost.x} y={ghost.y - 31 * scale} textAnchor="middle" fill={preview.valid ? '#dcecff' : '#ff7a86'} fontSize={11 * scale} fontWeight="700">{preview.valid ? (preview.formation ? preview.formation.type === 'line' ? (lang === 'ru' ? 'ЛИНИЯ' : 'LINE') : preview.formation.type === 'triangle' ? (lang === 'ru' ? 'ТРЕУГОЛЬНИК' : 'TRIANGLE') : preview.formation.type === 'square' ? (lang === 'ru' ? 'КВАДРАТ' : 'SQUARE') : preview.formation.type === 'cluster' ? (lang === 'ru' ? 'КЛАСТЕР' : 'CLUSTER') : preview.formation.type === 'ring' ? (lang === 'ru' ? 'КОЛЬЦО' : 'RING') : preview.formation.type === 'lattice' ? (lang === 'ru' ? 'РЕШЁТКА' : 'LATTICE') : (lang === 'ru' ? 'ФРАКТАЛ' : 'FRACTAL') : (lang === 'ru' ? 'СЕТЬ' : 'NETWORK')) : (lang === 'ru' ? 'НЕДОСТУПНО' : 'INVALID')}</text>
   </svg>;
 }
 
