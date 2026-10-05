@@ -5386,3 +5386,23 @@ ACCEPTANCE:
 - If the second crash recurs, collect Android crash/ANR evidence before further
   code changes.
 
+[2026-10-05] NETWORK HUD / FORMATION UX CORRECTION — IMPLEMENTED
+
+IMPLEMENTATION HEAD BEFORE DOCUMENT UPDATE:
+150721e2d4ab985f439f6affaf7d23639ad9ab83
+
+User-observed issues corrected:
+- Removed the explicit "DOMINANT / SECONDARY" role labels from the Network HUD formation chips. Dominant/secondary state is now communicated by visual hierarchy only.
+- Removed the instructional "drag one formation..." HUD text. Formation chips are directly draggable.
+- Fixed formation slot drag interaction for touch/pointer input using pointer capture plus elementFromPoint hit testing. Dropping one active formation onto the other swaps their slots.
+- Simplified formation tooltip copy so the active value is the visually emphasized part instead of mixing white and muted text inside the same effect.
+- Tooltip now uses distinct accent treatment for the full-power slot (100%) and partial slot (50%).
+- Corrected Line detection: a Line can now be formed by any qualifying aligned 3-Sphere subset inside a larger Network. A fully aligned larger network still keeps the full node set as its Line.
+- Added regression coverage for mixed Triangle + Line topology and the HUD visual/drag contract.
+
+Validation:
+- CI #1371 SUCCESS.
+- Unit tests, gameplay coverage, lint, Playwright visual QA and Android debug APK all passed.
+- This pass did not alter the two-slot formation model or the 50% Secondary combat rule.
+- No new formation beyond the two active slots is enabled.
+\n
