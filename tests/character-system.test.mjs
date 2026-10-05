@@ -13,7 +13,8 @@ test('roster has ten characters and Signature + Partner affinity', () => {
     assert.match(chars, new RegExp('\\n  ' + id + ': \\{'));
   }
   assert.equal((chars.match(/\n  (?:spherist|hunter|engineer|berserker|alchemist|architect|conductor|oracle|voidwalker|fractal): \{/g) || []).length, 10);
-  assert.equal((chars.match(/partnerSphereType:/g) || []).length, 10);
+  assert.equal((chars.match(/\n    signatureSphereType:/g) || []).length, 10);
+  assert.equal((chars.match(/\n    partnerSphereType:/g) || []).length, 10);
   assert.match(chars, /if \(sphereType === def\.signatureSphereType\) return 0\.70/);
   assert.match(chars, /if \(sphereType === def\.partnerSphereType\) return 0\.30/);
 });
