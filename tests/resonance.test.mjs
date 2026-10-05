@@ -102,12 +102,13 @@ test('Resonance event runtime is extracted from the engine facade', () => {
 
 const emptyGeometry = { line: null, triangle: null, square: null, cluster: null, ring: null, lattice: null, fractal: null };
 const triangleGeometry = { ...emptyGeometry, triangle: { type: 'triangle', strength: 1, nodes: [0, 1, 2] } };
-test('geometry charge logic distinguishes new formations from loss and recovery', () => {
+test('geometry charge logic uses formation candidates, so Dominant/Secondary swaps do not charge', () => {
   const runtime = fs.readFileSync(new URL('../src/engineResonance.ts', import.meta.url), 'utf8');
-  assert.match(runtime, /const gainedFormation = Boolean\(formation\) && key !== s\.player\.resonanceLastActiveFormationKey;/);
-  assert.match(runtime, /if \(formation\) s\.player\.resonanceLastActiveFormationKey = key;/);
-  assert.match(runtime, /if \(gainedFormation\) chargeResonance\(s, 'geometry', dealDamage\);/);
-  assert.doesNotMatch(runtime, /if \(formation && \(hadFormation \|\| key !== 'none'\)\) chargeResonance/);
+  assert.match(runtime, /const candidateKeys = resolvedNetwork\.formationCandidates\.map/);
+  assert.match(runtime, /!previousCandidateKeys\.includes\(key\)/);
+  assert.match(runtime, /s\.player\.resonanceFormationCandidateKeys = candidateKeys/);
+  assert.match(runtime, /recordCharacterFormation\(s, formation\)/);
+  assert.doesNotMatch(runtime, /key !== s\.player\.resonanceLastActiveFormationKey;/);
 });
 
 test('placing or removing a sphere no longer directly charges Resonance', () => {
