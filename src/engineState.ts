@@ -28,15 +28,6 @@ export function getXpToNextLevel(level: number): number {
   );
 }
 
-export type MapTheme = 'parchment' | 'bamboo' | 'ocean' | 'sunset';
-
-export const MAP_THEMES: { id: MapTheme; name: { ru: string; en: string } }[] = [
-  { id: 'parchment', name: { ru: 'Свиток', en: 'Scroll' } },
-  { id: 'bamboo', name: { ru: 'Бамбук', en: 'Bamboo' } },
-  { id: 'ocean', name: { ru: 'Океан', en: 'Ocean' } },
-  { id: 'sunset', name: { ru: 'Закат', en: 'Sunset' } },
-];
-
 function getCharacterMaxHpMultiplierForId(id: CharacterId): number {
   return 1 + CHARACTER_DEFS[id].baseModifiers.maxHp;
 }
@@ -45,10 +36,9 @@ export function createInitialState(
   shop: ShopState,
   playerName: string,
   difficulty: Difficulty = 'normal',
-  mapTheme: MapTheme = 'parchment',
   runSeedOverride?: number,
 ): GameState {
-  const runSeed = runSeedOverride === undefined ? createRunSeed(playerName, difficulty, mapTheme) : (runSeedOverride >>> 0) || 1;
+  const runSeed = runSeedOverride === undefined ? createRunSeed(playerName, difficulty) : (runSeedOverride >>> 0) || 1;
   const rngState = createRngState(runSeed);
   const characterId = loadCharacterId();
   const profile = loadCharacterProfiles().find((item) => item.id === characterId);
@@ -207,8 +197,7 @@ export function createInitialState(
     mouse: { x: 0, y: 0, down: false },
     formationMemory: null,
     worldWidth: 2400,
-    worldHeight: 2400,
-    mapTheme,
+    worldHeight: 2400, 
     camera: { x: 0, y: 0 },
     activeKeyMap: {},
     sphereProjectiles: [],
