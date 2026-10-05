@@ -224,7 +224,7 @@ export function syncResonanceGeometry(s: GameState, network: SphereNetworkState 
   s.player.resonanceFormationCandidateKeys = candidateKeys;
   if (formation) s.player.resonanceLastActiveFormationKey = key;
   if (gainedFormation) {
-    recordCharacterFormation(s, resolvedNetwork, formation);
+    recordCharacterFormation(s, formation);
     chargeResonance(s, 'geometry', dealDamage);
   }
 }
