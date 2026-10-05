@@ -357,7 +357,7 @@ function GameScreen({ lang, t, shop, difficulty, handedness, onExit }: {
             handedness={handedness}
             tutorialStep={tutorialStep}
             onPause={() => {
-              if (st.pendingUpgrade || st.pendingArtifact) return;
+              if (tutorialStep !== null || st.pendingUpgrade || st.pendingArtifact) return;
               const next = !st.paused;
               st.paused = next;
               setPaused(next);
