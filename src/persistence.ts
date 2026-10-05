@@ -74,7 +74,8 @@ export function unlockKnowledge(ids: KnowledgeId[]): boolean {
 }
 
 export function loadGold(): number {
-  return Number(localStorage.getItem(GOLD_KEY) || 0);
+  const value = Number(localStorage.getItem(GOLD_KEY) || 0);
+  return Number.isFinite(value) && value >= 0 ? Math.floor(value) : 0;
 }
 export function saveGold(g: number): void {
   localStorage.setItem(GOLD_KEY, String(Math.floor(g)));
@@ -96,10 +97,22 @@ export function saveShop(shop: ShopState): void {
 
 export function loadLeaderboard(): LeaderEntry[] {
   const raw = localStorage.getItem(LEADER_KEY);
-  if (raw) {
-    try { return JSON.parse(raw); } catch { /* ignore */ }
-  }
-  return [];
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw) as unknown;
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === 'object')
+      .map((item) => ({
+        name: typeof item.name === 'string' ? item.name.slice(0, 40) : '',
+        time: Number(item.time),
+        wave: Number(item.wave),
+        date: Number(item.date),
+      }))
+      .filter((item) => item.name.length > 0 && Number.isFinite(item.time) && item.time >= 0 && Number.isFinite(item.wave) && item.wave >= 0 && Number.isFinite(item.date) && item.date >= 0)
+      .sort((a, b) => b.time - a.time)
+      .slice(0, 10);
+  } catch { return []; }
 }
 export function saveLeaderboard(entries: LeaderEntry[]): void {
   localStorage.setItem(LEADER_KEY, JSON.stringify(entries));
