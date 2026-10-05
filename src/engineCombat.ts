@@ -21,7 +21,7 @@ import {
   getArtifactSetBehavior,
   pickArtifactChoices,
 } from './artifactSystem';
-import { sphereLevel, sphereModifiers, getActiveSphereAbilitySynergies } from './sphereProgression';
+import { sphereLevel, sphereModifiers } from './sphereProgression';
 import { getSphereNetworkProfile, getLinkedNodeIndexes, getFormationBonusMultiplier } from './network';
 import { nextRandom } from './rng';
 import { RUNE_DEFS, type RuneType } from './runes';
@@ -325,14 +325,6 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
     const fractalBonus = getFormationBonusMultiplier(getNetworkFrame(s), 'fractal', sphereIndex);
     if (lineBonus > 0) actual *= 1 + 0.10 * lineBonus;
     if (fractalBonus > 0) actual *= 1 + 0.15 * fractalBonus;
-  }
-
-  // Sphere evolution mechanics: evolutions alter the combat loop, not just stats.
-  const executioner = getActiveSphereAbilitySynergies(s).some((link) =>
-    link.character === 'hunter' && link.sphere === 'sniper' && link.ability === 'crit'
-  );
-  if (executioner && fromSphere?.type === 'sniper' && s.player.hunterMarkTarget === enemy && isCrit) {
-    actual *= 1.18;
   }
 
   if (fromSphere && allowSphereProc) {
