@@ -9,7 +9,7 @@ test('level-up sphere selection uses deliberate build pressure weighting', () =>
   assert.match(progressionSource, /export function getSphereUpgradeChoiceWeight\(s: GameState, type: SphereType\): number/);
   assert.match(progressionSource, /const levelPressure = \(7 - level\) \* 0\.25;/);
   assert.match(progressionSource, /const activeBuildPressure = activeCopies > 0 \? 1\.5 : 0;/);
-  assert.match(progressionSource, /const characterAffinity = CHARACTER_DEFS\[s\.player\.characterId\]\?\.preferredSphereTypes/);
+  assert.match(progressionSource, /const characterAffinity = getSphereAffinityWeight\(s\.player\.characterId, type\)/);
   assert.match(progressionSource, /const spherePool = \[\.\.\.sphereChoices\]\.filter\(\(choice\) => isLiveUpgradeChoice\(s, choice\)\);/);
 });
 
