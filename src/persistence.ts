@@ -10,8 +10,18 @@ const HANDEDNESS_KEY = 'echosphere_handedness';
 const CHARACTER_KEY = 'echosphere_character';
 const CHARACTER_PROFILES_KEY = 'echosphere_character_profiles';
 const KNOWLEDGE_KEY = 'echosphere_knowledge_v1';
+const TUTORIAL_KEY = 'echosphere_tutorial_completed_v1';
 
 export type Handedness = 'right' | 'left';
+
+export function loadTutorialCompleted(): boolean {
+  return localStorage.getItem(TUTORIAL_KEY) === '1';
+}
+
+export function saveTutorialCompleted(completed: boolean): void {
+  localStorage.setItem(TUTORIAL_KEY, completed ? '1' : '0');
+}
+
 
 export const CHARACTER_MASTERY_THRESHOLDS = [0, 250, 750, 1500, 2500, 4000, 6000, 8500, 11500, 15000] as const;
 
@@ -278,4 +288,5 @@ export function resetAll(): void {
   localStorage.removeItem(LANG_KEY);
   localStorage.removeItem(NAME_KEY);
   localStorage.removeItem(KNOWLEDGE_KEY);
+  localStorage.removeItem(TUTORIAL_KEY);
 }
