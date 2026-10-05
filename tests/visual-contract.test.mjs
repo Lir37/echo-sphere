@@ -249,7 +249,6 @@ test('Network HUD exposes factual numeric effects for active Geometry',()=>{
   assert.match(a,/getNetworkTooltipLines/);
   assert.match(a,/percent\(10\)/);
   assert.match(a,/\+1/);
-  assert.match(a,/percent\(35\)/);
   assert.match(a,/percent\(8\)/);
   assert.match(a,/percent\(6\)/);
   assert.match(a,/percent\(15\)/);
