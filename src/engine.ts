@@ -41,7 +41,7 @@ export {
 export { getMoveSpeed, getXpMult, getMagnetRadius, getBuildDiagnostics, type BuildDiagnosticRow } from './engineStats';
 
 export {
-  claimStella, applyArtifact, update, activateDash, debugLevelUp,
+  claimStella, applyArtifact, update, activateDash, openTutorialUpgrade,
 } from './engineLoop';
 
 import {
