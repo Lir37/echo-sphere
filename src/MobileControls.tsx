@@ -53,6 +53,7 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
   handedness: Handedness;
   onPause: () => void;
+  tutorialStep?: number | null;
 }) {
   const pointersRef = useRef<Map<number, PointerState>>(new Map());
   const joystickIdRef = useRef<number | null>(null);
@@ -150,7 +151,7 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
 
   const handlesphereTap = (clientX: number, clientY: number) => {
     const st = stateRef.current;
-    if (!st || st.gameOver || st.paused) return;
+    if (!st || st.gameOver || (st.paused && tutorialStep !== 1 && tutorialStep !== 2)) return;
     if (st.pendingUpgrade || st.pendingArtifact) return;
     const world = touchToWorld(clientX, clientY);
     if (!world) return;
@@ -324,8 +325,10 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
             if (st.player.sphereMovementLocked) pointer.lockedSphereTouch = true;
             else pointer.draggingSphere = draggable;
           } else {
-            pointer.joystickCandidate = joystickIdRef.current === null && e.clientX >= joystickZoneStart && e.clientX < joystickZoneEnd;
-            pointer.placingSphere = !pointer.joystickCandidate && st.spheres.length < getMaxSpheres(st);
+            const tutorialMovement = tutorialStep === 1;
+            const tutorialPlacement = tutorialStep === 2;
+            pointer.joystickCandidate = !tutorialPlacement && joystickIdRef.current === null && e.clientX >= joystickZoneStart && e.clientX < joystickZoneEnd;
+            pointer.placingSphere = (tutorialPlacement || (!tutorialMovement && !pointer.joystickCandidate)) && st.spheres.length < getMaxSpheres(st);
           }
         }
         pointersRef.current.set(e.pointerId, pointer);
