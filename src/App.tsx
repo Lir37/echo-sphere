@@ -701,7 +701,7 @@ function PausePlanner({ lang, t, st, tab, setTab, onResume, onExit, selectedArti
                 </div>
               </section>
               <section>
-                <SectionTitle>{lang === 'ru' ? 'Сеты артефактов' : 'Artifact Sets'}</SectionTitle>
+                <SectionTitle>{lang === 'ru' ? 'Наборы артефактов' : 'Artifact Sets'}</SectionTitle>
                 <div className="space-y-2">
                   {getArtifactSetProgress(st).map((set) => (
                     <div key={set.id} className={`rounded-xl border p-3 transition-all ${set.complete ? 'bg-[#ffb84d]/10 border-[#ffb84d]/40 animate-pulse' : 'bg-[#0d1726] border-[#243b55]'}`}>
@@ -832,7 +832,7 @@ function ArtifactSetDetailModal({ lang, setId, st, onClose }: {
             <span>{set.owned}/{set.total}</span>
           </div>
           <div className="min-w-0">
-            <div className="text-[9px] uppercase tracking-[.18em] text-[#ffb84d]">{lang === 'ru' ? 'СЕТ АРТЕФАКТОВ' : 'ARTIFACT SET'}</div>
+            <div className="text-[9px] uppercase tracking-[.18em] text-[#ffb84d]">{lang === 'ru' ? 'НАБОР АРТЕФАКТОВ' : 'ARTIFACT SET'}</div>
             <h3 className="text-lg font-bold truncate">{set.name[lang]}</h3>
           </div>
         </div>
@@ -841,7 +841,7 @@ function ArtifactSetDetailModal({ lang, setId, st, onClose }: {
           <div className="text-sm text-[#dcecff] mt-1">{set.desc[lang]}</div>
         </div>
         <div className="mt-4">
-          <div className="text-[9px] uppercase tracking-wider text-[#7f9bb8] font-bold mb-2">{lang === 'ru' ? 'АРТЕФАКТЫ СЕТА' : 'SET ARTIFACTS'}</div>
+          <div className="text-[9px] uppercase tracking-wider text-[#7f9bb8] font-bold mb-2">{lang === 'ru' ? 'АРТЕФАКТЫ НАБОРА' : 'SET ARTIFACTS'}</div>
           <div className="space-y-1.5">
             {set.artifactIds.map((id) => {
               const owned = set.ownedArtifactIds.includes(id);
