@@ -5557,3 +5557,189 @@ CURRENT IMPLEMENTATION HEAD:
 [GATE] Human APK PlayerCheck remains recommended for the first full
        playthrough using different Mutation I branches. The main remaining
        task is balance/feel validation rather than missing synergy coverage.
+================================================================
+[2026-10-05] FULL PRODUCT / TECHNICAL / UX AUDIT — CONSOLIDATED STATE
+================================================================
+
+FINAL AUDIT HEAD BEFORE THIS REPORT UPDATE:
+d9adc9b911f9474374f6e1405ded535f18d3e519
+
+This section supersedes older inventory paragraphs where they describe a
+previous repository state. Historical entries are intentionally preserved.
+
+1. FINAL CONTENT STATUS
+
+[DONE]
+- Canvas / authored 2.5D remains the active production visual path.
+- 10 Sphere families.
+- 30 Sphere Mutation I branches (10 × 3).
+- 90 Sphere final specializations (30 × 3).
+- 30 Sphere Ability Synergies, exactly one per Mutation I branch.
+- 30 Ability vocabulary entries: active + passive.
+- 10 Characters.
+- 10 Character Mastery levels.
+- Signature Sphere copy progression: normal cap 2, Signature cap 3 at
+  Mastery 5 and 4 at Mastery 10, with 85% / 70% incremental output.
+- Network placement/removal/repositioning and Ghost Snap.
+- 7 Geometry states: Line, Triangle, Square, Cluster, Ring, Lattice, Fractal.
+- Player-level Resonance resource 0..100 with formation event routing.
+- Artifact rarity/reward framework, 82 authored Artifact entries.
+- 12 Artifact Sets and 12 Artifact Protocols.
+- Rune system with 13 authored Rune definitions.
+- 15 authored EnemyRole entries.
+- 10 Elite variants.
+- 8 Boss families.
+- 4 named difficulty levels.
+- Shop, achievements, collection/archive, records and Settings.
+- Seeded gameplay RNG in gameplay/runtime modules.
+- Level-Up Lock/Reroll framework and Oracle forecast.
+- Interactive first-battle tutorial with contextual spotlighting, action gates,
+  Skip, and replay from Settings.
+
+[PARTIAL]
+- Artifact catalogue: 82 current vs Blueprint target 90–120.
+- Artifact Sets: 12 current vs Blueprint target 20.
+- Final numeric balance and run pacing: requires human APK playtesting and
+  telemetry; code coverage alone cannot certify "months without boredom".
+- Resonance event depth across all seven Geometry states remains broader
+  content/balance work.
+- Final visual acceptance remains a human APK gate.
+- Long-term meta economy remains incomplete where the Blueprint intentionally
+  leaves exact runtime/economy values undefined: full four-currency model,
+  Merchant depth, exact permanent Ban rules and some final reward-economy
+  details.
+- Human acceptance of the full Enemy / Elite / Boss catalogue remains pending.
+
+[MISSING / INTENTIONALLY PARKED]
+- Mass GLB/3D production remains PARKED by project decision.
+- Exact final economy values not defined by the Blueprint are not invented.
+
+2. TECHNICAL AUDIT — FIXES COMPLETED
+
+[DONE]
+- Removed gameplay-time Math.random usage from characterRuntime; gameplay
+  randomness uses seeded nextRandom(s).
+- Removed hidden CharacterAvatarOverlay RAF from MobileControls, eliminating
+  duplicate Character Mastery XP and unnecessary background animation work.
+- Removed obsolete MapTheme state, renderer theme switching, map localStorage,
+  theme controls and theme translation keys.
+- Removed old main-menu sound/language toggle duplicates. Language and sound
+  now belong to Settings only.
+- Removed obsolete menu theme CSS and duplicate five-column navigation rule.
+- Replaced misleading local Leaderboard label with Records / Run Records.
+- Sanitized persisted Difficulty, Gold and local run records against malformed
+  localStorage values.
+- Removed obsolete character-locked Sphere Synergy runtime hooks.
+- Added runtime coverage requiring every one of 30 new synergy behavior IDs.
+- Execution Rift now uses authoritative damage/death handling instead of direct
+  HP assignment.
+- Guardian Drone no longer applies per-frame attack haste.
+- Tutorial pause/control path is guarded so Pause cannot break the tutorial.
+- Tutorial touch flow now prevents accidental starter-Sphere drag/removal during
+  the guided Movement/Placement steps.
+- Added full-audit regression contracts for menu/theme/tutorial/RNG/synergy
+  boundaries.
+
+TECHNICAL STRUCTURE:
+- engine.ts remains a small public facade.
+- Gameplay is split into dedicated engine/runtime modules.
+- App.tsx and renderer.ts are large maintainability hotspots, but the audit
+  found no confirmed reason to destabilize them with a broad refactor.
+- Remaining generic typing debt is known technical debt, not a newly introduced
+  runtime fault.
+
+3. PLAYER / GAMEPLAY AUDIT
+
+Core loop is now structurally strong:
+movement -> Sphere placement -> Network -> Geometry -> Resonance -> Level-Up /
+Ability choices -> Mutation -> Ability Synergy -> Artifacts / Runes -> mastery.
+
+Strengths:
+- Sphere placement is an actual player decision, not decoration.
+- Different Mutation I branches remain mechanically distinct even before synergy.
+- Every branch now has a future cross-system goal, so no branch is structurally
+  "the dead choice".
+- Same-Ability cross-Sphere synergies create build identity through different
+  behaviors rather than duplicate flat bonuses.
+- Characters alter weighting and mechanics; Signature copy progression gives
+  long-term character-specific specialization.
+- Network and Geometry provide a second spatial layer on top of the normal
+  survival loop.
+
+Remaining player-facing risk:
+- Build depth is high enough now; the larger remaining risk is readability and
+  balance, not shortage of systems.
+- VFX/damage-number density must be watched in late runs, especially when several
+  behavioral synergies feed the same Ability.
+- "Months of retention" cannot honestly be declared until repeated human runs
+  validate build variety, failure pacing, reward cadence and late-run saturation.
+
+4. LOCALIZATION / TERMINOLOGY AUDIT
+
+[DONE]
+- Removed confirmed mixed-language Russian strings in Characters, Spheres,
+  Abilities, Runes, Artifact Sets/Synergies, KnowledgeBase, HUD and touch UI.
+- Russian user-facing text now uses Russian system terminology while retaining
+  explicit product/brand names and standard abbreviations where appropriate.
+- English user-facing text remains the English counterpart in the same
+  translation records.
+- Character Sphere labels are localized and presented as Signature / Partner.
+- Old raw IDs are no longer intended as player-facing labels.
+
+5. MENU / UI AUDIT
+
+[DONE]
+Main menu:
+- one canonical visual scheme;
+- no language button;
+- no sound button;
+- no theme selector;
+- Characters / Shop / Records / Achievements / Echo Archive / Settings.
+
+Settings:
+- Language;
+- Sound;
+- Handedness;
+- Controls reference;
+- Replay Tutorial;
+- Reset Progress.
+
+The removed map/theme selector was obsolete for the current ECHO SPHERE concept.
+No second language/sound control remains on the main screen.
+
+[GATE]
+- Final mobile visual spacing, text fit and touch acceptance still require APK
+  PlayerCheck, especially narrow phones.
+
+6. FIRST-BATTLE TUTORIAL
+
+[DONE]
+Tutorial is a first-run contextual layer, not a separate difficulty.
+
+Flow:
+0. Welcome.
+1. Control the Core: player moves; tutorial waits for actual movement.
+2. Place a Sphere: player places the second Sphere; accidental starter-Sphere
+   manipulation is blocked.
+3. Read the Network: game is frozen and the Network HUD is highlighted.
+4. Make the first Level-Up choice: a real Level-Up modal is opened and the
+   tutorial waits for the player to choose.
+5. Continue into the normal run.
+
+Properties:
+- game freezes whenever explanation should be read;
+- only the required interaction is enabled on action steps;
+- contextual spotlight targets the relevant UI/field region;
+- Skip exits cleanly into a normal run;
+- completion is persisted;
+- tutorial can be replayed from Settings;
+- the tutorial does not spawn enemies while it is active.
+
+The tutorial follows the validated contextual onboarding direction already
+captured in the Blueprint research notes.
+
+VERIFICATION:
+- Automated tutorial contract tests are part of the unit test suite.
+- Android APK visual/human acceptance remains the final gate.
+
+================================================================
