@@ -44,7 +44,7 @@ function isBlockedByControl(target: EventTarget | null): boolean {
   return target instanceof Element && Boolean(target.closest('[data-mobile-control="true"]'));
 }
 
-export default function MobileControls({ lang, t, stateRef, canvasRef, handedness, onPause }: {
+export default function MobileControls({ lang, t, stateRef, canvasRef, handedness, onPause, tutorialStep = null }: {
   lang: Lang;
   t: (key: TranslationKey) => string;
   stateRef: React.MutableRefObject<GameState | null>;
@@ -304,7 +304,7 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
       onPointerDown={(e) => {
         if (isBlockedByControl(e.target)) return;
         const st = stateRef.current;
-        if (!st || st.gameOver || st.paused) return;
+        if (!st || st.gameOver || (st.paused && tutorialStep !== 1 && tutorialStep !== 2)) return;
         e.currentTarget.setPointerCapture(e.pointerId);
         const pointer: PointerState = {
           startX: e.clientX,
@@ -384,6 +384,18 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
       onPointerUp={(e) => endPointer(e.pointerId, e.clientX, e.clientY)}
       onPointerCancel={(e) => endPointer(e.pointerId, e.clientX, e.clientY)}
     >
+      {tutorialStep === 1 && (
+        <div
+          data-tutorial-target="movement"
+          className="absolute pointer-events-none z-30 rounded-full border border-[#63e6ff]/20"
+          style={{
+            width: 116,
+            height: 116,
+            left: joystickOnRight ? 'calc(75% - 58px)' : 'calc(25% - 58px)',
+            bottom: 44,
+          }}
+        />
+      )}
       {ghostPreview && <GhostSnapOverlay canvasRef={canvasRef} stateRef={stateRef} preview={ghostPreview} lang={lang} sphereColor={selectedDef.color} />}
       {formationMemory && <FormationMemoryOverlay canvasRef={canvasRef} stateRef={stateRef} memory={formationMemory} />}
 
