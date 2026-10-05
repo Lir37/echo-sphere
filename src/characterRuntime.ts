@@ -298,7 +298,7 @@ export function applyAlchemistReaction(s: GameState, enemy: EnemyEntity): boolea
   }
   const burstCount = (p.characterMasteryLevel || 1) >= 4 ? 26 : 18;
   for (let i = 0; i < burstCount; i++) {
-    const a = Math.random() * Math.PI * 2;
+    const a = nextRandom(s) * Math.PI * 2;
     const speed = 70 + nextRandom(s) * 150;
     s.particles.push({
       pos: { ...enemy.pos },
