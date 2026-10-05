@@ -316,9 +316,9 @@ test('Sphere mutation synergy activates only for the selected branch at Sphere V
       abilities: { blast: 7 },
     },
   };
-  assert.equal(mod.getActiveSphereAbilitySynergies(state).some((x) => x.name.ru === 'Резонансная волна'), true);
+  assert.equal(mod.getActiveSphereAbilitySynergies(state).some((x) => x.sphere === 'pulse' && x.sphereBranch === 'pulse_wave' && x.ability === 'blast'), true);
   state.player.sphereBranches.pulse = 'pulse_burst';
-  assert.equal(mod.getActiveSphereAbilitySynergies(state).some((x) => x.name.ru === 'Резонансная волна'), false);
+  assert.equal(mod.getActiveSphereAbilitySynergies(state).some((x) => x.sphere === 'pulse' && x.sphereBranch === 'pulse_wave'), false);
 });
 
 test('Artifact Protocol activation uses each protocol\'s authored condition', async () => {
