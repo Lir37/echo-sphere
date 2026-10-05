@@ -399,6 +399,7 @@ export interface GameState {
   chests: ChestEntity[];
   runes: RuneEntity[];
   difficulty: Difficulty;
+  tutorialMode: boolean;
   evolutionsThisRun: number;
   selectedSphereType: SphereType;
   shopUpgrades: Record<string, number>;
