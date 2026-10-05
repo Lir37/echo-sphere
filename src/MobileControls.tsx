@@ -158,6 +158,7 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
     );
 
     // Tapping an existing sphere keeps the old toggle/remove behavior.
+    if (tutorialStep === 2 && nearExistingsphere) return;
     if (nearExistingsphere) {
       const existing = st.spheres.find((sphere) => sphere.alive && Math.hypot(sphere.pos.x - world.x, sphere.pos.y - world.y) < sphere_TOUCH_TOLERANCE);
       if (existing) captureFormationMemory(st, analyzeSphereNetwork(st.spheres.map((sphere) => ({ pos: sphere.pos, alive: sphere.alive, networkDisabledTimer: sphere.networkDisabledTimer }))));
@@ -319,7 +320,7 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
         const world = touchToWorld(e.clientX, e.clientY);
         if (world) {
           const draggable = st.spheres.find((sphere) => sphere.alive && Math.hypot(sphere.pos.x - world.x, sphere.pos.y - world.y) < 34) || null;
-          if (draggable) {
+          if (draggable && tutorialStep !== 1 && tutorialStep !== 2) {
             if (st.player.sphereMovementLocked) pointer.lockedSphereTouch = true;
             else pointer.draggingSphere = draggable;
           } else {
