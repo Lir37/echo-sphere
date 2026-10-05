@@ -32,10 +32,10 @@ export {
   generateUpgradeChoices, lockUpgradeChoice, rerollUpgradeChoices, applyUpgrade, applySphereUpgrade,
 } from './engineProgression';
 
-export type { LeaderEntry, MapTheme } from './engineState';
+export type { LeaderEntry } from './engineState';
 export {
   BASE_PLAYER_SPEED, PLAYER_RADIUS, STELLA_LEGENDARY_CUTOFF_SECONDS,
-  getXpToNextLevel, MAP_THEMES, createInitialState,
+  getXpToNextLevel, createInitialState,
 } from './engineState';
 
 export { getMoveSpeed, getXpMult, getMagnetRadius, getBuildDiagnostics, type BuildDiagnosticRow } from './engineStats';
