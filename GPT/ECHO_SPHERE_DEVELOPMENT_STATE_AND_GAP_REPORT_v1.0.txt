@@ -5352,6 +5352,9 @@ No gameplay rule was intentionally changed in this follow-up.
 ======================================================================
 [2026-10-05] CRITICAL RUNTIME NETWORK/RENDER AUDIT
 
+CURRENT FIX HEAD:
+18ed0fb00e14813286cef87323fcd3456b27ce06
+
 CONFIRMED ROOT CAUSE:
 - Echo Drone Relay/Network modes append Drone runtime nodes after the Sphere
   node indexes.
