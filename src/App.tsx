@@ -278,7 +278,7 @@ function GameScreen({ lang, t, shop, difficulty, handedness, onExit }: {
           const diff = DIFFICULTIES.find(d => d.id === st.difficulty)!;
           const gold = Math.floor((time * 0.15 + st.bossDefeated * 25 + st.stats.enemiesKilled * 0.05) * diff.goldMult);
           saveGold(loadGold() + gold);
-          const entry: LeaderEntry = { name: name || 'Player', time, wave: st.wave, date: Date.now() };
+          const entry: LeaderEntry = { name: name || translations[lang].namePlaceholder, time, wave: st.wave, date: Date.now() };
           const { rank, isNewRecord } = addLeaderEntry(entry);
           if (st.stats.enemiesKilled >= 500) unlockAchievement('kills_500');
           if (st.stats.enemiesKilled >= 1000) unlockAchievement('kills_1000');
@@ -475,8 +475,8 @@ function PausePlanner({ lang, t, st, tab, setTab, onResume, onExit, selectedArti
   const acquiredAbilities = (Object.keys(ABILITIES) as AbilityType[]).filter((id) => (st.player.abilities[id] || 0) > 0);
 
   const tabDefs: Array<{ id: PauseTab; label: string; icon: React.ReactNode }> = [
-    { id: 'stats', label: lang === 'ru' ? 'Статы' : 'Stats', icon: <BarChart3 size={15} /> },
-    { id: 'skills', label: lang === 'ru' ? 'Скиллы' : 'Skills', icon: <Sparkles size={15} /> },
+    { id: 'stats', label: lang === 'ru' ? 'Показатели' : 'Stats', icon: <BarChart3 size={15} /> },
+    { id: 'skills', label: lang === 'ru' ? 'Способности' : 'Abilities', icon: <Sparkles size={15} /> },
     { id: 'artifacts', label: lang === 'ru' ? 'Артефакты' : 'Artifacts', icon: <Package size={15} /> },
     { id: 'synergies', label: lang === 'ru' ? 'Синергии' : 'Synergies', icon: <Network size={15} /> },
   ];
@@ -669,7 +669,7 @@ function PausePlanner({ lang, t, st, tab, setTab, onResume, onExit, selectedArti
                         </div>
                         <div className="text-[10px] text-[#b6c9de] mt-1">{link.desc[lang]}</div>
                         <div className="text-[10px] text-[#7f9bb8] mt-1">
-                          {SPHERE_TYPES[link.sphere].name[lang]} · {link.sphereBranch} · VII {sphereOk ? '✓' : '•'} · {ABILITIES[link.ability].name[lang]} VII {abilityOk ? '✓' : '•'}
+                          {SPHERE_TYPES[link.sphere].name[lang]} · {SPHERE_PROGRESSION[link.sphere].evolution4Choices.find((branch) => branch.id === link.sphereBranch)?.name[lang] || link.sphereBranch} · VII {sphereOk ? '✓' : '•'} · {ABILITIES[link.ability].name[lang]} VII {abilityOk ? '✓' : '•'}
                         </div>
                       </div>
                     );
@@ -911,7 +911,7 @@ function getNetworkTooltipLines(label: string, st: GameState, lang: Lang, networ
     case 'LINE':
       add('+' + percent(10) + '%', isSecondary ? ' из полного +10% урона попаданий через сеть' : ' урона попаданий через активную сеть', '+' + percent(10) + '%', isSecondary ? ' of the full +10% network hit-damage bonus' : ' hit damage through the active network');
       add('+1', isSecondary ? ' пробитие остаётся дискретным сетевым эффектом' : ' пробитие для снарядов', '+1', isSecondary ? ' pierce remains a discrete network effect' : ' projectile pierce');
-      if (activeTypes.has('prism')) add('+' + percent(12) + '%', isSecondary ? ' из полного +12% урона Prism-луча' : ' урона Prism-луча', '+' + percent(12) + '%', isSecondary ? ' of the full +12% Prism beam damage' : ' Prism beam damage');
+      if (activeTypes.has('prism')) add('+' + percent(12) + '%', isSecondary ? ' из полного +12% урона луча Призмы' : ' урона луча Призмы', '+' + percent(12) + '%', isSecondary ? ' of the full +12% Prism beam damage' : ' Prism beam damage');
       break;
     case 'TRIANGLE':
       add((35 * scale).toFixed(1).replace('.0','') + '%', isSecondary ? ' из полного 35% фактического урона сетевого импульса' : ' фактического урона сетевого импульса', (35 * scale).toFixed(1).replace('.0','') + '%', isSecondary ? ' of the full 35% actual-damage network pulse' : ' actual damage of the network pulse');
@@ -932,11 +932,11 @@ function getNetworkTooltipLines(label: string, st: GameState, lang: Lang, networ
     case 'RING':
       if (activeTypes.has('orbital')) add('+' + percent(12) + '%', isSecondary ? ' к радиусу орбиты вместо полного +12%' : ' к радиусу орбиты', '+' + percent(12) + '%', isSecondary ? ' orbit radius instead of the full +12%' : ' orbit radius');
       add(isSecondary ? '50%' : '+1', isSecondary ? ' шанс дополнительного отражённого луча' : ' дополнительный отражённый луч', isSecondary ? '50%' : '+1', isSecondary ? ' chance for the extra reflected beam' : ' extra reflected beam');
-      add(isSecondary ? '50%' : '100%', ' сетевого вклада Pulse Resonator в Resonance', isSecondary ? '50%' : '100%', ' Pulse Resonator network contribution to Resonance');
+      add(isSecondary ? '50%' : '100%', ' вклада Импульсного Резонатора в Резонанс', isSecondary ? '50%' : '100%', ' Pulse Resonator network contribution to Resonance');
       break;
     case 'LATTICE':
       if (activeTypes.has('prism')) add('+' + percent(8) + '%', isSecondary ? ' к урону Prism-луча вместо полного +8%' : ' к урону Prism-луча', '+' + percent(8) + '%', isSecondary ? ' Prism beam damage instead of the full +8%' : ' Prism beam damage');
-      add(isSecondary ? '50%' : '100%', ' сетевого вклада Pulse Resonator в Resonance', isSecondary ? '50%' : '100%', ' Pulse Resonator network contribution to Resonance');
+      add(isSecondary ? '50%' : '100%', ' вклада Импульсного Резонатора в Резонанс', isSecondary ? '50%' : '100%', ' Pulse Resonator network contribution to Resonance');
       break;
     case 'FRACTAL':
       add('+' + percent(15) + '%', isSecondary ? ' к урону попаданий сфер вместо полного +15%' : ' к урону попаданий сфер', '+' + percent(15) + '%', isSecondary ? ' Sphere hit damage instead of the full +15%' : ' Sphere hit damage');
