@@ -213,11 +213,14 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
 
     lastTimeRef.current = performance.now();
 
+    let frameFaultLogged = false;
+
     const loop = (now: number) => {
-      const dt = Math.min(0.05, (now - lastTimeRef.current) / 1000);
-      lastTimeRef.current = now;
-      const st = stateRef.current;
-      if (st) {
+      try {
+        const dt = Math.min(0.05, (now - lastTimeRef.current) / 1000);
+        lastTimeRef.current = now;
+        const st = stateRef.current;
+        if (st) {
         update(st, dt);
         resolveSpaceCollisions(st, dt);
         knowledgeTickRef.current += dt;
@@ -263,8 +266,17 @@ function GameScreen({ lang, t, shop, difficulty, mapTheme, handedness, onExit }:
           uiAccumulatorRef.current = 0;
           forceRender(v => v + 1);
         }
+        }
+      } catch (error) {
+        // A single bad frame must not permanently terminate the animation loop.
+        // The underlying defect should still be fixed and logged once.
+        if (!frameFaultLogged) {
+          frameFaultLogged = true;
+          console.error('[ECHO_GAME_LOOP_FRAME_ERROR]', error);
+        }
+      } finally {
+        rafRef.current = requestAnimationFrame(loop);
       }
-      rafRef.current = requestAnimationFrame(loop);
     };
 
     rafRef.current = requestAnimationFrame(loop);
