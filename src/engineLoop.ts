@@ -47,7 +47,7 @@ export function claimStella(s: GameState): void {
 }
 
 
-export function debugLevelUp(s: GameState): void {
+export function openTutorialUpgrade(s: GameState): void {
   if (s.gameOver || s.paused || s.pendingUpgrade || s.pendingArtifact || s.pendingStella) return;
   s.player.level += 1;
   s.player.maxHp += BALANCE.hpPerLevel;
@@ -263,24 +263,28 @@ export function update(s: GameState, dt: number): void {
   // minions
   updateMinions(s, dt);
 
-  // waves
-  s.waveTimer -= dt;
-  if (s.waveTimer <= 0 && s.waveEnemiesToSpawn > 0) {
-    s.enemies.push(spawnEnemy(s, false));
-    s.waveEnemiesToSpawn--;
-    s.waveTimer = Math.max(0.3, (1.2 - s.wave * 0.02) / (DIFFICULTIES.find(d => d.id === s.difficulty)?.spawnRateMult || 1));
+  if (!s.tutorialMode) {
+    // waves
+    s.waveTimer -= dt;
+    if (s.waveTimer <= 0 && s.waveEnemiesToSpawn > 0) {
+      s.enemies.push(spawnEnemy(s, false));
+      s.waveEnemiesToSpawn--;
+      s.waveTimer = Math.max(0.3, (1.2 - s.wave * 0.02) / (DIFFICULTIES.find(d => d.id === s.difficulty)?.spawnRateMult || 1));
+    }
+    if (s.waveEnemiesToSpawn <= 0 && s.enemies.filter(e => !e.isBoss).length === 0 && !s.bossActive) {
+      s.waveTimer = 3;
+      startWave(s);
+    }
+    // initial wave
+    if (s.wave === 0) {
+      startWave(s);
+    }
+  
+    // enemies
+    updateEnemies(s, dt);
+  
+  
   }
-  if (s.waveEnemiesToSpawn <= 0 && s.enemies.filter(e => !e.isBoss).length === 0 && !s.bossActive) {
-    s.waveTimer = 3;
-    startWave(s);
-  }
-  // initial wave
-  if (s.wave === 0) {
-    startWave(s);
-  }
-
-  // enemies
-  updateEnemies(s, dt);
 
   // xp orbs
   updateXpOrbs(s, dt);
