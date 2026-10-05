@@ -6,9 +6,9 @@ export function createRngState(seed: number): number {
   return (seed >>> 0) || 1;
 }
 
-export function createRunSeed(playerName: string, difficulty: string, mapTheme: string): number {
+export function createRunSeed(playerName: string, difficulty: string): number {
   const entropy = Date.now();
-  const input = playerName + '|' + difficulty + '|' + mapTheme + '|' + entropy;
+  const input = playerName + '|' + difficulty + '|' + entropy;
   let hash = 2166136261;
   for (let i = 0; i < input.length; i++) {
     hash ^= input.charCodeAt(i);
