@@ -6,6 +6,8 @@ import { CHARACTER_DEFS } from './characters';
 import { getCharacterId, getCharacterFormation, getEngineerNetworkRange } from './characterRuntime';
 import type { SphereNetworkState } from './network';
 import { getNetworkFrame } from './engineRuntime';
+import { buildRuntimeNetworkNodes } from './networkRuntime';
+import { getSphereVisualNetwork } from './networkRender';
 import { RUNE_DEFS } from './runes';
 import { BOSS_TELEGRAPH_WINDOWS } from './bossBalance';
 import { LINK_BREAKER_TELEGRAPH_SECONDS, LINK_BREAKER_DISABLED_SECONDS } from './eliteBalance';
@@ -2863,8 +2865,19 @@ function drawWavyNetworkLink(
   }
   ctx.restore();
 }
-function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, network: SphereNetworkState): void {
-  if (network.nodes.length < 2) return;
+function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, sourceNetwork: SphereNetworkState): void {
+  const runtimeNodes = buildRuntimeNetworkNodes(s.spheres, s.minions, (s.player.abilities.minion || 0) >= 3);
+  const { network, externalLinks } = getSphereVisualNetwork(sourceNetwork, s.spheres.length);
+  if (network.nodes.length < 2 && externalLinks.length === 0) return;
+
+  // Echo Drones are valid runtime Network nodes but are not entries in s.spheres.
+  // Their links must be rendered from runtime-node positions, not Sphere indexes.
+  for (const link of externalLinks) {
+    const a = runtimeNodes[link.a]?.pos;
+    const b = runtimeNodes[link.b]?.pos;
+    if (!a || !b) continue;
+    drawWavyNetworkLink(ctx, a, b, '#63b9ff', 0.24, s.time, link.a * 17.13 + link.b * 29.71, false);
+  }
 
   const t = s.time;
   const pulse = 0.82 + Math.sin(t * 4.2) * 0.10;
