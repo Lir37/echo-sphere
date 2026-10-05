@@ -571,21 +571,32 @@ function PausePlanner({ lang, t, st, tab, setTab, onResume, onExit, selectedArti
           {tab === 'synergies' && (
             <div className="space-y-4">
               <section>
-                <SectionTitle>{lang === 'ru' ? 'Персонаж + сфера + способность' : 'Character + sphere + ability'}</SectionTitle>
+                <SectionTitle>{lang === 'ru' ? 'Сфера + ветка + способность' : 'Sphere + branch + ability'}</SectionTitle>
                 <div className="space-y-2">
-                  {SPHERE_ABILITY_SYNERGIES.filter((link) => link.character === st.player.characterId).map((link) => {
+                  {SPHERE_ABILITY_SYNERGIES.map((link) => {
                     const sphereOk = sphereLevel(st, link.sphere) >= 7;
                     const abilityOk = (st.player.abilities[link.ability] || 0) >= 7;
-                    const active = sphereOk && abilityOk;
+                    const branchSelected = st.player.sphereBranches?.[link.sphere] === link.sphereBranch;
+                    const active = sphereOk && abilityOk && branchSelected;
+                    const inProgress = branchSelected && !active;
+                    const eligible = !branchSelected && sphereOk;
+                    const status = active
+                      ? (lang === 'ru' ? 'АКТИВНА' : 'ACTIVE')
+                      : inProgress
+                        ? (lang === 'ru' ? 'В ПРОЦЕССЕ' : 'IN PROGRESS')
+                        : eligible
+                          ? (lang === 'ru' ? 'ДОСТУПНА' : 'ELIGIBLE')
+                          : (lang === 'ru' ? 'ЗАКРЫТА' : 'LOCKED');
+                    const statusClass = active ? 'text-[#8064a8]' : inProgress ? 'text-[#39d8ff]' : 'text-[#7f9bb8]';
                     return (
-                      <div key={link.name.ru} className={`rounded-xl border p-3 ${active ? 'bg-[#8064a8]/10 border-[#8064a8]/40' : 'bg-[#0d1726] border-[#243b55]'}`}>
+                      <div key={link.id} className={`rounded-xl border p-3 ${active ? 'bg-[#8064a8]/10 border-[#8064a8]/40' : branchSelected ? 'bg-[#39d8ff]/[.05] border-[#39d8ff]/25' : 'bg-[#0d1726] border-[#243b55]'}`}>
                         <div className="flex items-center justify-between gap-2">
                           <span className="font-bold text-sm">{link.name[lang]}</span>
-                          <span className={`text-[9px] uppercase font-bold ${active ? 'text-[#8064a8]' : 'text-[#7f9bb8]'}`}>{active ? (lang === 'ru' ? 'АКТИВНА' : 'ACTIVE') : (lang === 'ru' ? 'ЦЕЛЬ' : 'TARGET')}</span>
+                          <span className={`text-[9px] uppercase font-bold ${statusClass}`}>{status}</span>
                         </div>
                         <div className="text-[10px] text-[#b6c9de] mt-1">{link.desc[lang]}</div>
                         <div className="text-[10px] text-[#7f9bb8] mt-1">
-                          {SPHERE_TYPES[link.sphere].name[lang]} VII {sphereOk ? '✓' : '•'} · {ABILITIES[link.ability].name[lang]} VII {abilityOk ? '✓' : '•'}
+                          {SPHERE_TYPES[link.sphere].name[lang]} · {link.sphereBranch} · VII {sphereOk ? '✓' : '•'} · {ABILITIES[link.ability].name[lang]} VII {abilityOk ? '✓' : '•'}
                         </div>
                       </div>
                     );
