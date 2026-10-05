@@ -18,12 +18,14 @@ export function validateCharacterData(): void {
     const character = CHARACTER_DEFS[id];
 
     if (character.id !== id) report(`${id}: id does not match CHARACTER_DEFS key`);
-    if (character.preferredSphereTypes.length === 0) report(`${id}: no preferred sphere types configured`);
+    if (character.preferredSphereTypes.length !== 2) report(`${id}: expected exactly Signature + Partner Sphere`);
     if (character.preferredSphereMods.length === 0) report(`${id}: no preferred sphere mods configured`);
     if (character.preferredAbilities.length === 0) report(`${id}: no preferred abilities configured`);
     if (character.mastery.length !== 10) report(`${id}: expected exactly 10 mastery levels, got ${character.mastery.length}`);
 
     validateUnique(character.preferredSphereTypes, 'sphere types', id);
+    if (character.signatureSphereType === character.partnerSphereType) report(`${id}: Signature and Partner Sphere must differ`);
+    if (character.preferredSphereTypes[0] !== character.signatureSphereType || character.preferredSphereTypes[1] !== character.partnerSphereType) report(`${id}: preferredSphereTypes must equal [Signature, Partner]`);
     validateUnique(character.preferredSphereMods, 'sphere mods', id);
     validateUnique(character.preferredAbilities, 'abilities', id);
 
