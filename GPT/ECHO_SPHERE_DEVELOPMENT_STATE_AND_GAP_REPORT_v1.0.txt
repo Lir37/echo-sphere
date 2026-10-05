@@ -5513,3 +5513,47 @@ b9a6ffeecab6d1c47521c37869e9a0c37beba450
        should be rechecked specifically after selecting the third Mutation I
        branch "Дрон-страж" and activating Echo Drone.
 
+[2026-10-05] SPHERE MUTATION SYNERGY MATRIX — IMPLEMENTED
+
+CURRENT IMPLEMENTATION HEAD:
+19bcb368dc141e927cf423310fa77d84f911e580
+
+[DONE] Sphere Mutation I now has a complete 30-entry Ability Synergy matrix:
+      10 Spheres × 3 branches each = 30 authored branch synergies.
+
+[DONE] Every branch has exactly one future Ability target.
+
+[DONE] The same Ability may be shared by multiple Spheres, but each
+      Sphere/branch pair has a distinct behavioral rider.
+
+[DONE] Synergy activation remains gated by:
+      Sphere VII + selected Mutation I branch + Ability VII.
+
+[DONE] Generic flat synergy stat multipliers were removed. Synergies are
+      applied as behavioral riders during the corresponding Ability
+      activation.
+
+[DONE] Multiple active synergies on the same Ability use deterministic
+      diminishing rider strength, preventing linear runaway stacking.
+
+[DONE] Mutation Level-Up cards now surface the universal branch-specific
+      synergy path, and the pause Synergy catalog exposes the full matrix.
+
+[DONE] Old character-locked Sphere Synergy runtime hooks were removed or
+      migrated to the universal branch matrix.
+
+[TEST] Added regression coverage for:
+      - exact 30 branch coverage;
+      - unique branch and synergy IDs;
+      - multiple Sphere sources sharing an Ability with different behaviors;
+      - runtime case coverage for every behavior;
+      - Mutation UI/pause catalog contract;
+      - diminishing returns.
+
+[CI] #1419 SUCCESS:
+     typecheck, unit tests, gameplay coverage, lint, web build,
+     Playwright visual QA and Android debug APK build passed.
+
+[GATE] Human APK PlayerCheck remains recommended for the first full
+       playthrough using different Mutation I branches. The main remaining
+       task is balance/feel validation rather than missing synergy coverage.
