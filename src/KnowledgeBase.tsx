@@ -29,7 +29,7 @@ const ENEMY_DEFS: Array<{ id: string; name: Localized; desc: Localized; rule: Lo
   { id: 'normal', name: { ru: 'Обычный', en: 'Normal' }, desc: { ru: 'Базовый противник. Опасен числом и постоянным давлением.', en: 'The basic enemy. Dangerous through numbers and constant pressure.' }, rule: { ru: 'Держит курс на игрока и наносит контактный урон.', en: 'Moves toward the player and deals contact damage.' } },
   { id: 'fast', name: { ru: 'Стремительный', en: 'Fast' }, desc: { ru: 'Быстрый противник, который сокращает дистанцию быстрее остальных.', en: 'A fast enemy that closes distance quicker than the rest.' }, rule: { ru: 'Маленький и быстрый. Особенно опасен, когда отвлекает от сети.', en: 'Small and fast. Especially dangerous when it pulls attention away from the Network.' } },
   { id: 'tank', name: { ru: 'Танк', en: 'Tank' }, desc: { ru: 'Медленный тяжёлый противник с повышенной живучестью.', en: 'A slow heavy enemy with increased durability.' }, rule: { ru: 'Идёт медленно, но требует заметно больше урона.', en: 'Moves slowly but takes substantially more damage to bring down.' } },
-  { id: 'elite', name: { ru: 'Link Breaker', en: 'Link Breaker' }, desc: { ru: 'Элитный враг, который атакует не только игрока, но и саму боевую сеть.', en: 'An elite enemy that attacks the combat Network itself.' }, rule: { ru: 'Телеграфирует цель, затем временно отключает сферу от Network.', en: 'Telegraphs a target, then temporarily removes a Sphere from the Network.' } },
+  { id: 'elite', name: { ru: 'Разрыватель связей', en: 'Link Breaker' }, desc: { ru: 'Элитный враг, который атакует не только игрока, но и саму боевую сеть.', en: 'An elite enemy that attacks the combat Network itself.' }, rule: { ru: 'Телеграфирует цель, затем временно отключает сферу от сети.', en: 'Telegraphs a target, then temporarily removes a Sphere from the Network.' } },
 ];
 
 const BOSS_INFO: Record<BossType, Localized> = {
@@ -39,7 +39,7 @@ const BOSS_INFO: Record<BossType, Localized> = {
   aura: { ru: 'Аура: создаёт опасную зону вокруг себя и дополнительно стреляет.', en: 'Aura: creates a dangerous zone around itself and also fires projectiles.' },
   conductor: { ru: 'Кондуктор: перегружает сеть и создаёт направленный залп.', en: 'Conductor: overloads the Network and creates a directed barrage.' },
   architect: { ru: 'Архитектор: меняет позицию и временно нарушает структуру сети.', en: 'Architect: relocates and temporarily disrupts the Network structure.' },
-  null: { ru: 'Нуль: подавляет Resonance и создаёт поле обнуления.', en: 'Null: suppresses Resonance and creates a nullification field.' },
+  null: { ru: 'Нуль: подавляет Резонанс и создаёт поле обнуления.', en: 'Null: suppresses Resonance and creates a nullification field.' },
   stella_warden: { ru: 'Страж Стеллы: вызывает подкрепления и усиливает ближнюю угрозу.', en: 'Stella Warden: summons reinforcements and amplifies close-range pressure.' },
 };
 
@@ -159,9 +159,9 @@ export default function KnowledgeBase({ lang, onBack }: { lang: Lang; onBack: ()
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               {[
                 [isRu ? 'Сферы' : 'Spheres', isRu ? 'Ставь и развивай узлы сети.' : 'Place and evolve Network nodes.'],
-                [isRu ? 'Network' : 'Network', isRu ? 'Связывает близкие сферы и открывает сетевые эффекты.' : 'Connects nearby Spheres and unlocks network effects.'],
-                [isRu ? 'Geometry' : 'Geometry', isRu ? 'Форма расположения превращается в отдельный боевой эффект.' : 'The shape of your arrangement becomes a combat effect.'],
-                [isRu ? 'Resonance' : 'Resonance', isRu ? 'Общий заряд сети. Доведи его до 100, чтобы запустить событие формации.' : 'The Network charge. Reach 100 to trigger a formation event.'],
+                [isRu ? 'Сеть' : 'Network', isRu ? 'Связывает близкие сферы и открывает сетевые эффекты.' : 'Connects nearby Spheres and unlocks network effects.'],
+                [isRu ? 'Геометрия' : 'Geometry', isRu ? 'Форма расположения превращается в отдельный боевой эффект.' : 'The shape of your arrangement becomes a combat effect.'],
+                [isRu ? 'Резонанс' : 'Resonance', isRu ? 'Общий заряд сети. Доведи его до 100, чтобы запустить событие формации.' : 'The Network charge. Reach 100 to trigger a formation event.'],
               ].map(([title, desc]) => (
                 <div key={title} className="rounded-lg border border-cyan-300/10 bg-cyan-300/[0.025] p-3">
                   <div className="text-xs font-bold uppercase tracking-wider text-cyan-200">{title}</div>
@@ -171,12 +171,12 @@ export default function KnowledgeBase({ lang, onBack }: { lang: Lang; onBack: ()
             </div>
           </KnowledgeCard>
 
-          <KnowledgeCard unlocked title={isRu ? '⚡ Resonance: зачем его копить' : '⚡ Resonance: why charge it'}
+          <KnowledgeCard unlocked title={isRu ? '⚡ Резонанс: зачем его копить' : '⚡ Resonance: why charge it'}
             desc={isRu
-              ? 'Resonance — это не второй XP и не просто счётчик попаданий. Это общий ресурс забега, который награждает активную игру сети.'
+              ? 'Резонанс — это не второй опыт и не просто счётчик попаданий. Это общий ресурс забега, который награждает активную игру сети.'
               : 'Resonance is not XP and not merely a hit counter. It is a shared run resource that rewards active Network play.'} lang={lang}>
             <div className="mt-4 space-y-3 text-sm leading-6 text-slate-300">
-              <p>{isRu ? 'Как копится: попадания сфер дают +1; появление новой формации Geometry даёт +5; отдельные руны и эффекты могут дать крупный заряд.' : 'How it charges: Sphere hits give +1; gaining a new Geometry formation gives +5; selected Runes and effects can provide larger bursts.'}</p>
+              <p>{isRu ? 'Как копится: попадания сфер дают +1; появление новой формации Геометрии даёт +5; отдельные руны и эффекты могут дать крупный заряд.' : 'How it charges: Sphere hits give +1; gaining a new Geometry formation gives +5; selected Runes and effects can provide larger bursts.'}</p>
               <p>{isRu ? 'Что делать: не нужно нажимать отдельную кнопку. Просто продолжай атаковать и поддерживай работающую сеть.' : 'What to do: there is no separate button to press. Keep attacking and maintain a functioning Network.'}</p>
               <p>{isRu ? 'Что происходит на 100: срабатывает Resonance Event, зависящий от текущей формации. Это временный боевой эффект, а не трата ресурса в пустоту.' : 'At 100: a Resonance Event fires based on the current formation. It is a temporary combat effect, not a resource spent for nothing.'}</p>
               <p className="text-cyan-200">{isRu ? 'Пример: Triangle может дать дугу по реальным связям, Cluster — отброс, Line — усилить следующий выстрел.' : 'Example: Triangle can fire along real links, Cluster can knock enemies back, and Line can empower the next shot.'}</p>
@@ -306,7 +306,7 @@ export default function KnowledgeBase({ lang, onBack }: { lang: Lang; onBack: ()
             <ArrowLeft size={17} />
           </button>
           <div className="min-w-0 flex-1">
-            <div className="text-[9px] font-bold uppercase tracking-[0.28em] text-cyan-300/70">{isRu ? 'ECHO SPHERE // ARCHIVE' : 'ECHO SPHERE // ARCHIVE'}</div>
+            <div className="text-[9px] font-bold uppercase tracking-[0.28em] text-cyan-300/70">{isRu ? 'ЭХО СФЕРА // АРХИВ' : 'ECHO SPHERE // ARCHIVE'}</div>
             <h1 className="mt-1 text-xl font-semibold tracking-wide text-slate-100 sm:text-2xl">{isRu ? 'Архив Эха' : 'Echo Archive'}</h1>
             <p className="text-xs text-slate-500">{isRu ? 'База знаний, которая открывается вместе с твоим прогрессом.' : 'A knowledge base that grows with your progress.'}</p>
           </div>
