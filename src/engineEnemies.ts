@@ -3,6 +3,25 @@ function getNetworkDisableDuration(s: GameState, baseDuration: number): number {
   return baseDuration * Math.max(0.16, 1 - level * 0.12);
 }
 
+function pushStatusDamageNumber(
+  s: GameState,
+  enemy: EnemyEntity,
+  value: number,
+  element: 'fire' | 'freeze' | 'poison',
+): void {
+  if (!Number.isFinite(value) || value <= 0) return;
+  if (s.damageNumbers.length >= 72) s.damageNumbers.splice(0, s.damageNumbers.length - 71);
+  s.damageNumbers.push({
+    pos: { x: enemy.pos.x + rand(s, -6, 6), y: enemy.pos.y - enemy.radius - 4 },
+    value: Math.round(value),
+    life: 0.65,
+    maxLife: 0.65,
+    crit: false,
+    vel: { x: rand(s, -18, 18), y: -42 },
+    element,
+  });
+}
+
 import { BOSS_TYPES, DIFFICULTIES, SPHERE_TYPES } from './gameData';
 import { playSound } from './audio';
 import {
@@ -338,16 +357,29 @@ export function updateEnemies(s: GameState, dt: number): void {
 
     // Element Tempo changes status presentation cadence, not authored DPS/sec.
     if (e.fireTimer > 0) {
+      e.fireDamageNumberTimer = Math.max(0, (e.fireDamageNumberTimer ?? 0.25) - dt);
       e.fireTimer -= dt;
       const tickInterval = Number(e.fireTickInterval || 0);
+      let appliedDamage = 0;
       if (tickInterval > 0) {
         e.fireTickTimer = (e.fireTickTimer ?? 0) - dt;
         if ((e.fireTickTimer ?? 0) <= 0) {
           e.fireTickTimer = tickInterval;
-          e.hp -= e.fireDps * tickInterval;
+          appliedDamage = e.fireDps * tickInterval;
         }
       } else {
-        e.hp -= e.fireDps * dt;
+        appliedDamage = e.fireDps * dt;
+      }
+      e.hp -= appliedDamage;
+      e.fireDamageNumberAccumulator = (e.fireDamageNumberAccumulator ?? 0) + appliedDamage;
+      if (e.fireDamageNumberTimer <= 0 && (e.fireDamageNumberAccumulator ?? 0) > 0) {
+        pushStatusDamageNumber(s, e, e.fireDamageNumberAccumulator, 'fire');
+        e.fireDamageNumberAccumulator = 0;
+        e.fireDamageNumberTimer = 0.28;
+      }
+      if (e.fireTimer <= 0 && (e.fireDamageNumberAccumulator ?? 0) > 0) {
+        pushStatusDamageNumber(s, e, e.fireDamageNumberAccumulator, 'fire');
+        e.fireDamageNumberAccumulator = 0;
       }
       if (nextRandom(s) < (tickInterval > 0 ? 0.55 : 0.3)) {
         s.particles.push({ pos: { x: e.pos.x + rand(s,-e.radius, e.radius), y: e.pos.y + rand(s,-e.radius, e.radius) }, vel: { x: 0, y: -30 }, life: 0.3, maxLife: 0.3, color: '#ff743d', size: 2 });
@@ -356,16 +388,29 @@ export function updateEnemies(s: GameState, dt: number): void {
     }
     // DoT: poison
     if (e.poisonTimer > 0) {
+      e.poisonDamageNumberTimer = Math.max(0, (e.poisonDamageNumberTimer ?? 0.25) - dt);
       e.poisonTimer -= dt;
       const tickInterval = Number(e.poisonTickInterval || 0);
+      let appliedDamage = 0;
       if (tickInterval > 0) {
         e.poisonTickTimer = (e.poisonTickTimer ?? 0) - dt;
         if ((e.poisonTickTimer ?? 0) <= 0) {
           e.poisonTickTimer = tickInterval;
-          e.hp -= e.poisonDps * tickInterval;
+          appliedDamage = e.poisonDps * tickInterval;
         }
       } else {
-        e.hp -= e.poisonDps * dt;
+        appliedDamage = e.poisonDps * dt;
+      }
+      e.hp -= appliedDamage;
+      e.poisonDamageNumberAccumulator = (e.poisonDamageNumberAccumulator ?? 0) + appliedDamage;
+      if (e.poisonDamageNumberTimer <= 0 && (e.poisonDamageNumberAccumulator ?? 0) > 0) {
+        pushStatusDamageNumber(s, e, e.poisonDamageNumberAccumulator, 'poison');
+        e.poisonDamageNumberAccumulator = 0;
+        e.poisonDamageNumberTimer = 0.28;
+      }
+      if (e.poisonTimer <= 0 && (e.poisonDamageNumberAccumulator ?? 0) > 0) {
+        pushStatusDamageNumber(s, e, e.poisonDamageNumberAccumulator, 'poison');
+        e.poisonDamageNumberAccumulator = 0;
       }
       if (nextRandom(s) < (tickInterval > 0 ? 0.48 : 0.2)) {
         s.particles.push({ pos: { x: e.pos.x + rand(s,-e.radius, e.radius), y: e.pos.y + rand(s,-e.radius, e.radius) }, vel: { x: 0, y: -20 }, life: 0.4, maxLife: 0.4, color: '#72f08e', size: 2 });
@@ -407,8 +452,33 @@ export function updateEnemies(s: GameState, dt: number): void {
     if (!e.isBoss && (e.role === 'ranged' || e.role === 'sniper')) {
       e.bossShootTimer -= dt;
       if (e.bossShootTimer <= 0 && d > 240 && d < 620) {
-        e.bossShootTimer = e.role === 'sniper' ? 2.2 : 3.2;
-        damagePlayerDoT(s, (e.role === 'sniper' ? 10 : 6) * dt);
+        const sniper = e.role === 'sniper';
+        e.bossShootTimer = sniper ? 2.2 : 3.2;
+        const projectileAngle = Math.atan2(dy, dx);
+        const projectileSpeed = sniper ? 320 : 245;
+        e.bossProjectiles.push({
+          pos: { ...e.pos },
+          vel: { x: Math.cos(projectileAngle) * projectileSpeed, y: Math.sin(projectileAngle) * projectileSpeed },
+          damage: sniper ? 10 : 6,
+          radius: sniper ? 5 : 6,
+          alive: true,
+          visualType: sniper ? 'enemy_sniper' : 'enemy_ranged',
+        });
+        playSound('shoot');
+      }
+    }
+
+    if (!e.isBoss && e.bossProjectiles.length > 0) {
+      for (let j = e.bossProjectiles.length - 1; j >= 0; j--) {
+        const bp = e.bossProjectiles[j];
+        bp.pos.x += bp.vel.x * dt;
+        bp.pos.y += bp.vel.y * dt;
+        if (dist(bp.pos, s.player.pos) < bp.radius + PLAYER_RADIUS) {
+          damagePlayer(s, bp.damage);
+          bp.alive = false;
+        }
+        if (Math.abs(bp.pos.x - s.player.pos.x) > 1000 || Math.abs(bp.pos.y - s.player.pos.y) > 1000) bp.alive = false;
+        if (!bp.alive) e.bossProjectiles.splice(j, 1);
       }
     }
     if (!e.isBoss && e.role === 'healer') {
