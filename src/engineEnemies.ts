@@ -25,7 +25,7 @@ function pushStatusDamageNumber(
 import { BOSS_TYPES, DIFFICULTIES, SPHERE_TYPES } from './gameData';
 import { playSound } from './audio';
 import {
-  dealDamageToEnemy, damagePlayer, damagePlayerDoT, getCritChance, onEnemyDeath
+  dealDamageToEnemy, damagePlayer, getCritChance, onEnemyDeath
 } from './engineCombat';
 import {
   dist, rand, getAbilityBranchId, getNearestSphere, getNetworkFrame, getSphereFinalIndex
