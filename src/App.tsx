@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useRef, useState } from 'react';
-import { loadRegionEndlessUnlock, REGION_CHALLENGES, type RegionChallengeId, type RegionMode } from './region';
+import { loadRegionEndlessUnlock, REGION_CHALLENGES, REGION_POCKETS, type RegionChallengeId, type RegionMode } from './region';
 import { Settings, Store, Trophy, Play, ArrowLeft, RotateCcw, Award, UserRound, BarChart3, Sparkles, Package, Network, X, BookOpen } from 'lucide-react';
 import { translations, type Lang, type TranslationKey } from './i18n';
 import {
@@ -147,11 +147,25 @@ function Menu({ lang, t, difficulty, setDifficulty, regionMode, setRegionMode, r
             <div className="text-[9px] uppercase tracking-[.18em] text-[#7f9bb8] mb-2">{lang === 'ru' ? 'РЕЖИМ РЕГИОНА' : 'REGION MODE'}</div>
             <div className="flex gap-2">
               <button onClick={() => setRegionMode('stabilization')} className={`flex-1 rounded-lg border px-2 py-2 text-[9px] font-bold ${regionMode==='stabilization'?'border-[#39d8ff]/60 bg-[#39d8ff]/10 text-[#dcecff]':'border-[#243b55] text-[#7f9bb8]'}`}>{lang === 'ru' ? 'СТАБИЛИЗАЦИЯ · 30:00' : 'STABILIZATION · 30:00'}</button>
-              <button disabled={!loadRegionEndlessUnlock()} onClick={() => setRegionMode('endless')} className={`flex-1 rounded-lg border px-2 py-2 text-[9px] font-bold ${regionMode==='endless'?'border-[#ffb84d]/60 bg-[#ffb84d]/10 text-[#ffb84d]':'border-[#243b55] text-[#7f9bb8]'} ${!loadRegionEndlessUnlock()?'opacity-40':''}`}>ENDLESS {!loadRegionEndlessUnlock() && '· LOCKED'}</button>
+              <button disabled={!loadRegionEndlessUnlock()} onClick={() => setRegionMode('endless')} className={`flex-1 rounded-lg border px-2 py-2 text-[9px] font-bold ${regionMode==='endless'?'border-[#ffb84d]/60 bg-[#ffb84d]/10 text-[#ffb84d]':'border-[#243b55] text-[#7f9bb8]'} ${!loadRegionEndlessUnlock()?'opacity-40':''}`}>{lang === 'ru' ? 'БЕСКОНЕЧНЫЙ' : 'ENDLESS'} {!loadRegionEndlessUnlock() && (lang === 'ru' ? '· ЗАКРЫТ' : '· LOCKED')}</button>
             </div>
-            <div className="text-[9px] uppercase tracking-[.18em] text-[#7f9bb8] mt-3 mb-2">{lang === 'ru' ? 'КОНТРАКТ' : 'CONTRACT'}</div>
+            <div className="text-[9px] uppercase tracking-[.18em] text-[#7f9bb8] mt-3 mb-2">{lang === 'ru' ? 'ИСПЫТАНИЕ РЕГИОНА' : 'REGION CHALLENGE'}</div>
             <div className="grid grid-cols-3 gap-1.5">
               {REGION_CHALLENGES.map(c => <button key={c.id} onClick={() => setRegionChallenge(c.id)} title={c.desc[lang]} className={`rounded-lg border px-2 py-2 text-[8px] font-bold ${regionChallenge===c.id?'border-[#55e6c1]/60 bg-[#55e6c1]/10 text-[#55e6c1]':'border-[#243b55] text-[#7f9bb8]'}`}>{c.name[lang]}</button>)}
+            </div>
+            <div className="mt-2 rounded-lg border border-[#1e334c] bg-[#050d17]/80 px-2.5 py-2 text-[8px] leading-relaxed text-[#9ab2cb]">
+              {lang === 'ru'
+                ? 'Испытание меняет правила этого забега. Пять областей меняют состав и поведение врагов. Светящиеся метки дают ресурсы или запускают локальные события.'
+                : 'The challenge changes this run. Five pockets change enemy ecology and behavior. Glowing markers grant resources or trigger local events.'}
+            </div>
+            {(() => {
+              const selected = REGION_CHALLENGES.find(c => c.id === regionChallenge);
+              return <div className="mt-1 text-[8px] leading-relaxed text-[#7f9bb8]">{selected ? selected.desc[lang] : (lang === 'ru' ? 'Без дополнительного испытания.' : 'No additional challenge.')}</div>;
+            })()}
+            <div className="mt-2 text-[8px] leading-relaxed text-[#7f9bb8]">
+              {lang === 'ru'
+                ? 'Цель «Стабилизация»: уничтожь стражей в 08:00, 16:00 и 27:00 и доживи до 30:00. После первой победы откроется бесконечный режим.'
+                : 'Stabilization: defeat the wardens at 08:00, 16:00 and 27:00 and reach 30:00. The first clear unlocks Endless.'}
             </div>
           </div>
 
@@ -460,7 +474,7 @@ function GameScreen({ lang, t, shop, difficulty, handedness, regionMode, regionC
               <Row label={t('survived')} value={`${gameOverData.time} ${t('seconds')}`} />
               <Row label={t('wave')} value={`${gameOverData.wave}`} />
               <Row label={t('goldEarned')} value={`${gameOverData.gold}`} />
-              {gameOverData.regionClear && <><Row label={lang === 'ru' ? 'ENDLESS' : 'ENDLESS'} value={lang === 'ru' ? 'РАЗБЛОКИРОВАН' : 'UNLOCKED'} /><Row label={lang === 'ru' ? 'MASTERY' : 'MASTERY'} value={`${gameOverData.masteryChallengesCompleted}/3`} /></>}
+              {gameOverData.regionClear && <><Row label={lang === 'ru' ? 'БЕСКОНЕЧНЫЙ' : 'ENDLESS'} value={lang === 'ru' ? 'РАЗБЛОКИРОВАН' : 'UNLOCKED'} /><Row label={lang === 'ru' ? 'МАСТЕРСТВО' : 'MASTERY'} value={`${gameOverData.masteryChallengesCompleted}/3`} /></>}
               {gameOverData.rank > 0 && gameOverData.rank <= 10 && <Row label={t('rank')} value={`#${gameOverData.rank}`} />}
             </div>
             <button onClick={onExit} className="px-8 py-3 rounded-xl bg-[#39d8ff]/20 border border-[#39d8ff]/40 text-[#dcecff] hover:bg-[#39d8ff]/30 transition w-full">{t('return')}</button>
@@ -1099,7 +1113,16 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
             </div>
           </div>
           <RadarHud st={st} />
-          {st.region && <div className="min-w-[120px] pt-1"><div className="text-[8px] uppercase tracking-[.12em] text-[#55e6c1] font-bold">RESONANCE BASIN</div><div className="text-[9px] font-bold text-[#dcecff]">{st.region.phaseName[lang]}</div><div className="text-[8px] text-[#7f9bb8]">{st.region.pocketId.toUpperCase()} · {st.region.mode.toUpperCase()}</div></div>}
+          {st.region && (() => {
+            const pocket = REGION_POCKETS.find(item => item.id === st.region!.pocketId) || REGION_POCKETS[0];
+            const modeLabel = st.region!.mode === 'stabilization' ? (lang === 'ru' ? 'СТАБИЛИЗАЦИЯ' : 'STABILIZATION') : (lang === 'ru' ? 'БЕСКОНЕЧНЫЙ' : 'ENDLESS');
+            return <div className="min-w-[160px] max-w-[190px] pt-1">
+              <div className="text-[8px] uppercase tracking-[.12em] text-[#55e6c1] font-bold">{lang === 'ru' ? 'РЕЗОНАНСНЫЙ БАССЕЙН' : 'RESONANCE BASIN'}</div>
+              <div className="text-[9px] font-bold text-[#dcecff]">{st.region!.phaseName[lang]}</div>
+              <div className="text-[8px] text-[#7f9bb8]">{pocket.name[lang]} · {modeLabel}</div>
+              <div className="mt-0.5 text-[7px] leading-tight text-[#91adc8]">{st.region!.mode === 'stabilization' ? (lang === 'ru' ? 'ЦЕЛЬ: 30:00 + 3 стража' : 'GOAL: 30:00 + 3 wardens') : (lang === 'ru' ? 'ЦЕЛЬ: пережить нарастающее давление' : 'GOAL: survive escalating pressure')}</div>
+            </div>;
+          })()}
           <div className="min-w-[64px] pt-1 text-right">
             <div className="es-hud-stat"><span className="es-stat-gem">◆</span>{Math.floor(st.xpOrbs.reduce((sum, orb) => sum + orb.radius, 0))}</div>
             <div className="es-hud-stat text-[#c8b7ff]"><span className="es-stat-gem">◇</span>{st.player.kills}</div>
@@ -1130,6 +1153,16 @@ function RadarHud({ st }: { st: GameState }) {
     };
   });
 
+  const poiDots = (st.region?.pois || []).filter((poi) => poi.alive).slice(0, 12).map((poi) => {
+    const dx = poi.pos.x - st.player.pos.x;
+    const dy = poi.pos.y - st.player.pos.y;
+    const distance = Math.hypot(dx, dy);
+    const angle = Math.atan2(dy, dx);
+    const rr = Math.min(25, (distance / radius) * 25);
+    const color = poi.type === 'boss_trace' ? '#ffb84d' : poi.type === 'elite_nest' || poi.type === 'rupture' ? '#ff6b6b' : '#55e6c1';
+    return { key: `poi-${poi.id}`, x: 50 + Math.cos(angle) * rr, y: 50 + Math.sin(angle) * rr, color };
+  });
+
   return (
     <div className="es-radar" aria-hidden="true">
       <span className="es-radar-ring es-radar-ring-1" />
@@ -1142,6 +1175,9 @@ function RadarHud({ st }: { st: GameState }) {
           className={dot.boss ? 'es-radar-dot boss' : dot.elite ? 'es-radar-dot elite' : 'es-radar-dot'}
           style={{ left: `${dot.x}%`, top: `${dot.y}%` }}
         />
+      ))}
+      {poiDots.map((dot) => (
+        <span key={dot.key} aria-hidden="true" style={{ position:'absolute', left:`${dot.x}%`, top:`${dot.y}%`, width:6, height:6, transform:'translate(-50%,-50%) rotate(45deg)', background:dot.color, boxShadow:`0 0 7px ${dot.color}` }} />
       ))}
       <span className="es-radar-player" />
     </div>
