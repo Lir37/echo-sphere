@@ -319,12 +319,19 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
     if (hpRatio <= 0.35 && s.player.artifacts.includes('void_mark')) actual *= 1.10;
     if (hpRatio <= 0.35 && s.player.artifacts.includes('void_lantern')) actual *= 1.20;
     if (voidBranch === 'void_hunger') {
-      actual *= 1 + Math.min(0.55, (1 - hpRatio) * (voidFinal === 2 ? 0.72 : 0.42));
+      const branchPower = voidFinal === null ? preFinalBranchPower(s, 'void') : 1;
+      actual *= 1 + Math.min(0.55, (1 - hpRatio) * (voidFinal === 2 ? 0.72 : 0.42) * branchPower);
     }
     if (voidBranch === 'void_reaper' && hpRatio <= 0.25) actual *= voidFinal === 1 ? 1.25 : 1.12;
     const baseExecuteChance = voidLevel >= 2 ? 0.10 : 0;
     if (voidBranch === 'void_execution') {
-      const threshold = voidFinal === 2 ? 0.30 : voidLevel >= 3 ? 0.25 : 0.20;
+      const threshold = voidFinal === 2
+        ? 0.30
+        : voidFinal === null && voidLevel >= 6
+          ? 0.28
+          : voidLevel >= 3
+            ? 0.25
+            : 0.20;
       let executeChance = baseExecuteChance;
       executeChance += voidFinal === 2 ? 0.08 : voidFinal === 1 ? 0.04 : 0;
       if (s.player.artifacts.includes('void_star')) executeChance += 0.08;
