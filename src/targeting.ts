@@ -40,18 +40,33 @@ export function selectSphereTarget<T extends TargetableEnemy>(
 
   if (candidates.length === 0) return null;
 
+  // Do not sort or allocate a second candidate array on every fire cycle.
+  // All three rules only need a single best candidate.
   if (rule === 'highest_hp') {
-    return [...candidates].sort((a, b) => b.hp - a.hp)[0] ?? null;
+    let best = candidates[0];
+    for (let i = 1; i < candidates.length; i += 1) {
+      if (candidates[i].hp > best.hp) best = candidates[i];
+    }
+    return best ?? null;
   }
   if (rule === 'lowest_hp') {
-    return [...candidates].sort((a, b) => a.hp - b.hp)[0] ?? null;
+    let best = candidates[0];
+    for (let i = 1; i < candidates.length; i += 1) {
+      if (candidates[i].hp < best.hp) best = candidates[i];
+    }
+    return best ?? null;
   }
   if (rule === 'area_control') {
-    return [...candidates].sort((a, b) => {
-      const da = distanceSquared(a.pos, spherePos);
-      const db = distanceSquared(b.pos, spherePos);
-      return da - db;
-    })[0] ?? null;
+    let best = candidates[0];
+    let bestDistance = distanceSquared(best.pos, spherePos);
+    for (let i = 1; i < candidates.length; i += 1) {
+      const distance = distanceSquared(candidates[i].pos, spherePos);
+      if (distance < bestDistance) {
+        best = candidates[i];
+        bestDistance = distance;
+      }
+    }
+    return best ?? null;
   }
 
   if (rule === 'high_value_far') {
