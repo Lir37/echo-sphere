@@ -79,12 +79,16 @@ test('Sphere family shares Standard-derived 2.5D core and orbit grammar',()=>{
   }
 });
 
-test('Orbital combat satellites use a true screen-space circular orbit',()=>{
+test('Orbital combat satellites use dual true screen-space circular orbits',()=>{
   const c=read('src/spheres/orbitalVisual.ts');
-  assert.match(c,/const orbitRadius = r \* 1\.68/);
-  assert.match(c,/const x = Math\.cos\(a\) \* orbitRadius/);
-  assert.match(c,/const y = Math\.sin\(a\) \* orbitRadius/);
-  assert.equal(c.includes('Math.cos(a)*r*1.24'),false);
+  assert.match(c,/const innerOrbitRadius = r \* 1\.68/);
+  assert.match(c,/const outerOrbitRadius = r \* 2\.02/);
+  assert.match(c,/const localX = Math\.cos\(a\) \* radius/);
+  assert.match(c,/const localY = Math\.sin\(a\) \* radius/);
+  const g=read('src/spheres/orbitalGeometry.ts');
+  assert.match(g,/ring === 'inner' \? 1 : -1/);
+  assert.match(g,/let inner = 1/);
+  assert.match(g,/let outer = 1/);
 });
 
 
@@ -119,14 +123,16 @@ test('All Sphere cores reuse the exact Standard core geometry',()=>{
   }
 });
 
-test('Orbital combat speed and Blade mutation are explicit',()=>{
+test('Orbital combat motion and Blade mutation are explicit',()=>{
   const c=read('src/spheres/orbitalVisual.ts');
-  assert.match(c,/orbital_dance'\n\s*\? 3\.15/);
-  assert.match(c,/orbital_halo'\n\s*\? 1\.55/);
-  assert.match(c,/orbital_blade'\n\s*\? 2\.75/);
   assert.match(c,/const bladeMutation = branch === 'orbital_blade'/);
-  assert.match(c,/drawSatellite\(ctx, x, y, r \* \.20, color, depth, a, bladeMutation\)/);
+  assert.match(c,/drawSatellite\(ctx, localX, localY, r \* \.20, color, depth, a, bladeMutation\)/);
   assert.match(c,/ctx\.lineTo\(size \* \.78, 0\)/);
+  const e=read('src/engineSpheres.ts');
+  assert.match(e,/let angularSpeed = 1\.8/);
+  assert.match(e,/branch === 'orbital_dance'/);
+  assert.match(e,/branch === 'orbital_halo'/);
+  assert.match(e,/branch === 'orbital_blade'/);
 });
 
 test('Enemy production renderer uses authored creature families and boss-specific bodies',()=>{
