@@ -1812,3 +1812,74 @@ still requires the user's real-device recheck for visual/gamefeel confirmation:
 
 Region 2 remains blocked until this real-device acceptance recheck is passed.
 ======================================================================
+
+======================================================================
+2026-10-07 — REGION UX PASS / GLOBAL ECHO MAP
+
+PLAYER APK FEEDBACK:
+[FIXED] Region POI pickup feedback was too large and could leave the mobile viewport.
+[FIXED] POIs outside the local Radar had no directional guidance.
+[FIXED] Upper HUD modules had inconsistent vertical alignment.
+[FIXED] Two upper-right numeric counters did not explain their meaning.
+[FIXED] Pocket boundary crossing did not explain the local ecology.
+[FIXED] Generic dashed Pocket borders were visually weak.
+[FIXED] Main menu still entered gameplay through a generic PLAY button instead of
+a world/Region selection layer.
+[FIXED] Region Challenge Contracts needed to become persistent map progression
+rather than an opaque per-run selector.
+
+IMPLEMENTED:
+[DONE] POI pickup feedback is now a compact in-viewport banner with the POI's
+actual tactical/resource effect.
+[DONE] Field Radar shows matching-color directional arrows at the perimeter for
+POIs outside the visible radar range.
+[DONE] Upper HUD was restructured into aligned timer, radar, Region and counter lanes.
+[DONE] Upper-right counters are now explicitly labelled "XP ON FIELD" and "KILLS".
+[DONE] Crossing into a new Spatial Pocket produces a short contextual hint describing
+its enemy ecology, plus a localized boundary-crossing visual pulse around the Core.
+[DONE] Pocket boundaries were replaced by subtle continuous fold seams and sparse
+moving fold nodes instead of dashed circles.
+[DONE] Main-menu PLAY button is removed. The central animated Sphere is now the
+entry point to the new Global Echo Map.
+[DONE] Added EchoMapScreen as the global Region-selection layer.
+[DONE] Global map visual language: central Resonance Basin node, five Pocket
+fragments, three Challenge satellites, orbit tracks, subtle star/grid field,
+and a future-facing Endless Core.
+[DONE] Challenge satellites persist completion across runs. Endless Core now opens
+after all three Region Challenge Contracts are completed, matching the new
+user-approved map progression concept.
+[DONE] Exiting a run returns to the Echo Map rather than the old generic menu.
+[DONE] Reset Progress clears Region stabilization/challenge/endless progression.
+[DONE] Region map labels and status are localized for Russian; current Region
+pickup/transition feedback is localized as well.
+[DONE] Echo Map is covered by Playwright navigation from main menu into an actual
+game run.
+
+DESIGN CONTRACT FOR FUTURE REGIONS:
+- Global navigation is now "Menu -> Echo Map -> Region -> Run".
+- A Region is represented as a central authored world node.
+- Region-specific Challenge Contracts are represented as orbiting satellites.
+- Persistent Challenge completion becomes visible map progression.
+- Endless is represented as a central unlocked Core after the Region's required
+Challenge satellites are cleared.
+- Pocket identity remains an authored gameplay layer inside the Region, not a
+separate map screen.
+- The map is intentionally a light 2.5D/Canvas-style game-space presentation,
+not a conventional list of levels.
+
+VALIDATION:
+[DONE] Actions #1729 SUCCESS on code HEAD:
+130bde9cc7859cc23eee09d1b619fd03ab415119
+- 215 tests passed.
+- Gameplay coverage passed.
+- Web/Playwright passed.
+- Capacitor sync passed.
+- Debug APK built and uploaded.
+[OPEN] Final human APK recheck of this UX pass remains the practical acceptance
+gate for visual hierarchy and game feel.
+
+NEXT:
+After the next green documentation CI, start Region 2 production from the Global
+Echo Map structure. Do not rebuild Region 1 architecture unless the human APK
+check reproduces a concrete defect.
+======================================================================
