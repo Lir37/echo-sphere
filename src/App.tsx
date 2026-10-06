@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useRef, useState } from 'react';
-import { loadRegionEndlessUnlock, REGION_CHALLENGES, REGION_POCKETS, type RegionChallengeId, type RegionMode } from './region';
+import { REGION_POCKETS, type RegionChallengeId, type RegionMode, getRegionChallengeProgress, loadRegionEndlessUnlock, loadRegionStabilized } from './region';
 import { Settings, Store, Trophy, Play, ArrowLeft, RotateCcw, Award, UserRound, BarChart3, Sparkles, Package, Network, X, BookOpen } from 'lucide-react';
 import { translations, type Lang, type TranslationKey } from './i18n';
 import {
@@ -1080,8 +1080,8 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
         </div>      </div>
 
       <div className="es-hud-panel es-top-right absolute top-3 right-3 z-30 pointer-events-none">
-        <div className="flex flex-wrap items-start justify-end gap-2">
-          <div className="min-w-[60px] pt-1 text-center">
+        <div className="es-hud-topline">
+          <div className="es-hud-timer">
             <div className="es-time-hud-line">
               <span className="es-time-hud-dot" />
               <span className="es-time-hud-value">{timer}</span>
@@ -1096,12 +1096,12 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
               <div className="text-[8px] uppercase tracking-[.12em] text-[#55e6c1] font-bold">{lang === 'ru' ? 'РЕЗОНАНСНЫЙ БАССЕЙН' : 'RESONANCE BASIN'}</div>
               <div className="text-[9px] font-bold text-[#dcecff]">{st.region!.phaseName[lang]}</div>
               <div className="text-[8px] text-[#7f9bb8]">{pocket.name[lang]} · {modeLabel}</div>
-              <div className="mt-0.5 text-[7px] leading-tight text-[#91adc8]">{st.region!.mode === 'stabilization' ? (lang === 'ru' ? 'ЦЕЛЬ: 30:00 + 3 стража' : 'GOAL: 30:00 + 3 wardens') : (lang === 'ru' ? 'ЦЕЛЬ: пережить нарастающее давление' : 'GOAL: survive escalating pressure')}</div>
+              <div className="mt-0.5 text-[7px] leading-tight text-[#91adc8]">{st.region!.mode === 'stabilization' ? (lang === 'ru' ? `ЦЕЛЬ: 30:00 + 3 стража · ИСПЫТАНИЯ ${getRegionChallengeProgress()}/3` : `GOAL: 30:00 + 3 wardens · CHALLENGES ${getRegionChallengeProgress()}/3`) : (lang === 'ru' ? 'ЦЕЛЬ: пережить нарастающее давление' : 'GOAL: survive escalating pressure')}</div>
             </div>;
           })()}
-          <div className="min-w-[64px] pt-1 text-right">
-            <div className="es-hud-stat"><span className="es-stat-gem">◆</span>{Math.floor(st.xpOrbs.reduce((sum, orb) => sum + orb.radius, 0))}</div>
-            <div className="es-hud-stat text-[#c8b7ff]"><span className="es-stat-gem">◇</span>{st.player.kills}</div>
+          <div className="es-hud-counters">
+            <div className="es-hud-counter"><span>{lang === 'ru' ? 'ОПЫТ НА ПОЛЕ' : 'XP ON FIELD'}</span><b>◆ {Math.floor(st.xpOrbs.reduce((sum, orb) => sum + orb.value, 0))}</b></div>
+            <div className="es-hud-counter"><span>{lang === 'ru' ? 'УБИЙСТВА' : 'KILLS'}</span><b>◇ {st.player.kills}</b></div>
             {st.player.buffTimer > 0 && <div className="es-hud-buff">{Math.ceil(st.player.buffTimer)}s</div>}
           </div>
         </div>
