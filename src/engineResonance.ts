@@ -14,9 +14,9 @@ export type ResonanceDamageHandler = (
 ) => void;
 
 function getResonanceFormation(network: SphereNetworkState) {
-  // Dominance is the single source of truth for the player-level Resonance
-  // event. Secondary Geometry keeps its own local mechanics, but cannot
-  // silently steal the next Resonance trigger by static type priority.
+  // Temporary disruption preserves Dominant identity, but the inactive
+  // formation cannot generate a player-level Resonance Event.
+  if (network.dominantFormation?.active === false) return null;
   return network.dominantFormation;
 }
 
