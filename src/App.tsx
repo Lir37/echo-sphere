@@ -185,7 +185,7 @@ function GameScreen({ lang, t, shop, difficulty, handedness, regionMode, regionC
   const lastTimeRef = useRef<number>(0);
   const uiAccumulatorRef = useRef(0);
   const [, forceRender] = useState(0);
-  const [gameOverData, setGameOverData] = useState<{ time: number; wave: number; gold: number; rank: number; isNewRecord: boolean; regionClear: boolean; masteryChallengesCompleted: number } | null>(null);
+  const [gameOverData, setGameOverData] = useState<{ time: number; wave: number; gold: number; rank: number; isNewRecord: boolean; regionClear: boolean; masteryChallengesCompleted: number; challengeProgress: number; endlessUnlocked: boolean } | null>(null);
   const [paused, setPaused] = useState(false);
   const [pauseTab, setPauseTab] = useState<PauseTab>('stats');
   const [selectedArtifactSetId, setSelectedArtifactSetId] = useState<string | null>(null);
@@ -299,7 +299,7 @@ function GameScreen({ lang, t, shop, difficulty, handedness, regionMode, regionC
           if (st.player.combo >= 50) unlockAchievement('combo_50');
           if (st.player.chestOpens >= 5) unlockAchievement('chest_5');
           if (st.player.dashCount >= 50) unlockAchievement('dash_50');
-          setGameOverData({ time, wave: st.wave, gold, rank, isNewRecord, regionClear: Boolean(st.region?.cleared), masteryChallengesCompleted: st.region?.masteryChallengesCompleted || 0 });
+          setGameOverData({ time, wave: st.wave, gold, rank, isNewRecord, regionClear: Boolean(st.region?.cleared), masteryChallengesCompleted: st.region?.masteryChallengesCompleted || 0, challengeProgress: getRegionChallengeProgress(), endlessUnlocked: loadRegionEndlessUnlock() });
         }
 
         if (ENABLE_3D_RENDERER && renderer3dRef.current) {
@@ -450,7 +450,7 @@ function GameScreen({ lang, t, shop, difficulty, handedness, regionMode, regionC
               <Row label={t('survived')} value={`${gameOverData.time} ${t('seconds')}`} />
               <Row label={t('wave')} value={`${gameOverData.wave}`} />
               <Row label={t('goldEarned')} value={`${gameOverData.gold}`} />
-              {gameOverData.regionClear && <><Row label={lang === 'ru' ? 'БЕСКОНЕЧНЫЙ' : 'ENDLESS'} value={lang === 'ru' ? 'РАЗБЛОКИРОВАН' : 'UNLOCKED'} /><Row label={lang === 'ru' ? 'МАСТЕРСТВО' : 'MASTERY'} value={`${gameOverData.masteryChallengesCompleted}/3`} /></>}
+              {gameOverData.regionClear && <><Row label={lang === 'ru' ? 'ИСПЫТАНИЯ' : 'CHALLENGES'} value={`${gameOverData.challengeProgress}/3`} /><Row label={lang === 'ru' ? 'БЕСКОНЕЧНЫЙ' : 'ENDLESS'} value={gameOverData.endlessUnlocked ? (lang === 'ru' ? 'ОТКРЫТ' : 'UNLOCKED') : (lang === 'ru' ? 'ЗАКРЫТ' : 'LOCKED')} /><Row label={lang === 'ru' ? 'МАСТЕРСТВО' : 'MASTERY'} value={`${gameOverData.masteryChallengesCompleted}/3`} /></>}
               {gameOverData.rank > 0 && gameOverData.rank <= 10 && <Row label={t('rank')} value={`#${gameOverData.rank}`} />}
             </div>
             <button onClick={onExit} className="px-8 py-3 rounded-xl bg-[#39d8ff]/20 border border-[#39d8ff]/40 text-[#dcecff] hover:bg-[#39d8ff]/30 transition w-full">{t('return')}</button>
