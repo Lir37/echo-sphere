@@ -1,7 +1,7 @@
 import type { EnemyEntity, PlayerState, SphereEntity } from '../engine';
 import { WHITE, core, drawSphereOrbit, finishDisabled, stateColor, glow } from './visualHelpers';
-import { getSphereElementForBranch, SPHERE_ELEMENT_META, sphereLevel } from '../sphereProgression';
-import { getOrbitalRingCounts, orbitalElementAngle, orbitalElementPosition } from './orbitalGeometry';
+import { getSphereElementForBranch, SPHERE_ELEMENT_META } from '../sphereProgression';
+import { getOrbitalRingCounts, orbitalElementAngle } from './orbitalGeometry';
 
 const TAU = Math.PI * 2;
 const BASE = '#8ef0ff';
@@ -226,7 +226,7 @@ export function renderOrbitalSphereAttackersVfx(
   const level = Math.max(1, Math.min(7, sphere.visualTier || 1));
   const extraElements =
     (player?.artifacts?.includes('orbital_crown') ? 1 : 0)
-    + ((player?.evolutions || []).some((id: string) => id === 'sphere:orbital:7:orbital_blade:2') ? 1 : 0);
+    + ((player?.evolutions || []).some((id: string) => id.startsWith('sphere:orbital:7:') && id.endsWith(':2')) ? 1 : 0);
   const counts = getOrbitalRingCounts(level, extraElements);
   const resonance = v.resonance > 0;
   const color = resonance ? RESONANCE : BASE;
@@ -250,15 +250,16 @@ export function renderOrbitalSphereAttackersVfx(
   const drawRing = (ring: 'inner' | 'outer', count: number, radius: number): void => {
     for (let i = 0; i < count; i += 1) {
       const a = orbitalElementAngle(sphere.rotation, ring, i, count);
-      const local = orbitalElementPosition(0, 0, radius, sphere.rotation, ring, i, count);
+      const localX = Math.cos(a) * radius;
+      const localY = Math.sin(a) * radius;
       const depth = .74 + .26 * ((Math.sin(a) + 1) * .5);
-      drawSatellite(ctx, local.x, local.y, r * .20, color, depth, a, bladeMutation);
+      drawSatellite(ctx, localX, localY, r * .20, color, depth, a, bladeMutation);
 
       const element = getSphereElementForBranch(branch);
       const elementColor = element ? SPHERE_ELEMENT_META[element].color : null;
       if (elementColor) {
         ctx.save();
-        ctx.translate(local.x, local.y);
+        ctx.translate(localX, localY);
         ctx.rotate(a + Math.PI / 2);
         ctx.globalAlpha = depth * .72;
         ctx.strokeStyle = elementColor;
