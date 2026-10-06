@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import { addResonanceCharge } from '../src/resonance.ts';
+import { createRegionState, getRegionPhase, REGION_POCKETS, REGION_CHALLENGES } from '../src/region.ts';
 
 const mobileControlsSource = await fs.readFile(new URL('../src/MobileControls.tsx', import.meta.url), 'utf8');
 
