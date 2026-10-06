@@ -170,7 +170,6 @@ export function renderOrbitalSphereRuntimeVfx(
   time: number,
   scale = 1,
   _enemies: EnemyEntity[] = [],
-  orbitalRadiusScale = 1,
 ): void {
   const v = update(sphere, player, time);
   const disabled = sphere.networkDisabledTimer > 0 || !sphere.alive;
