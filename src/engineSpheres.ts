@@ -414,6 +414,7 @@ function updateOrbitalSphere(
   mods: ReturnType<typeof sphereModifiers>,
   networkProfile: ReturnType<typeof getSphereNetworkProfile>,
   network: ReturnType<typeof getNetworkFrame>,
+  liveSphereRadius: number,
   dt: number,
 ): void {
   const branch = s.player.sphereBranches?.orbital;
@@ -436,8 +437,9 @@ function updateOrbitalSphere(
 
   const sphereIndex = s.spheres.indexOf(sphere);
   const bodyRadius = Math.max(15, Math.min(25, sphere.radius * 0.19 + level * 0.8));
-  let orbitRadius = bodyRadius * 1.68 * mods.radius;
-  let outerOrbitRadius = bodyRadius * 2.02 * mods.radius;
+  const radiusMultiplier = liveSphereRadius / Math.max(1, sphere.radius);
+  let orbitRadius = bodyRadius * 1.68 * radiusMultiplier;
+  let outerOrbitRadius = bodyRadius * 2.02 * radiusMultiplier;
   const clusterBonus = getFormationBonusMultiplier(network, 'cluster', sphereIndex);
   const ringBonus = getFormationBonusMultiplier(network, 'ring', sphereIndex);
   const networkRadiusMultiplier = 1
@@ -787,7 +789,16 @@ export function updateSpheres(s: GameState, dt: number): void {
     const networkProfile = getSphereNetworkProfile(networkState, s.spheres.indexOf(sphere));
     // Area-control Sphere archetypes use distinct loops rather than pretending to be generic turrets.
     if (sphere.type === 'orbital') {
-      updateOrbitalSphere(s, sphere, damage, sphereModifiers(s, sphere.type, sphere), networkProfile, networkState, dt);
+      updateOrbitalSphere(
+        s,
+        sphere,
+        damage,
+        sphereModifiers(s, sphere.type, sphere),
+        networkProfile,
+        networkState,
+        getSphereRadius(s, sphere),
+        dt,
+      );
       continue;
     }
     if (sphere.type === 'prism') {
