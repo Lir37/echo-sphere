@@ -304,4 +304,7 @@ export function resetAll(): void {
   localStorage.removeItem(NAME_KEY);
   localStorage.removeItem(KNOWLEDGE_KEY);
   localStorage.removeItem(TUTORIAL_KEY);
+  localStorage.removeItem('echo-sphere:region:resonance_basin:stabilized');
+  localStorage.removeItem('echo-sphere:region:resonance_basin:challenges');
+  localStorage.removeItem('echo-sphere:region:resonance_basin:endless');
 }
