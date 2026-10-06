@@ -95,7 +95,7 @@ assert.match(read('src/spheres/orbitalGeometry.ts'), /export function isAngleOnO
 assert.ok(engine.includes('finalIndex === 1 ? 1.35 : finalIndex === 2 ? 1.50 : 1.15'),
   'Gravity Well final pull scaling must preserve three authored strengths.');
 assert.ok(engine.includes('finalIndex === 2 ? 1.50'),
-  'Gravity Well final III pull scaling must be stronger than the base branch.'););
+  'Gravity Well final III pull scaling must be stronger than the base branch.');
 assert.match(engine, /finalIndex === null || finalIndex === 0 || finalIndex === 2/,
   'Standard Singularity base branch must pull enemies before Level VII selection.');
 assert.match(engine, /const baseExecuteChance = voidLevel >= 2 ? 0\.10 : 0/,
@@ -124,13 +124,13 @@ const baseLevelContracts = [
   [/if\\(type==='prism'\\)[\\s\\S]*if\\(l>=1\\) damage\\*=1\\.20/, 'Prism L1 damage'],
   [/if\\(type==='prism'\\)[\\s\\S]*if\\(l>=2\\) radius\\*=1\\.15/, 'Prism L2 range'],
   [/if\\(type==='prism'\\)[\\s\\S]*if\\(l>=3\\) multishot\\+=1/, 'Prism L3 direction'],
-  [/if\\(type==='gravity'\\)[\\s\\S]*if\\(l>=1\\) damage\\*=1\\.20/, 'Gravity L1 damage'],
+  [/const gravityLevel = sphereLevel\(s, 'gravity'\);[\\s\\S]*if \\(gravityLevel >= 1\\) pullStrength \\*= 1\\.20/, 'Gravity L1 pull strength'],
   [/if\\(type==='gravity'\\)[\\s\\S]*if\\(l>=2\\) radius\\*=1\\.15/, 'Gravity L2 radius'],
   [/if\\(type==='gravity'\\)[\\s\\S]*if\\(l>=3\\) auraPulse\\*=\\.85/, 'Gravity L3 interval'],
   [/if\\(type==='pulse'\\)[\\s\\S]*if\\(l>=1\\) damage\\*=1\\.20/, 'Pulse L1 damage'],
   [/if\\(type==='pulse'\\)[\\s\\S]*if\\(l>=2\\) radius\\*=1\\.15/, 'Pulse L2 radius'],
   [/if\\(type==='pulse'\\)[\\s\\S]*if\\(l>=3\\) auraPulse\\*=\\.88/, 'Pulse L3 interval'],
-  [/if\\(type==='void'\\)[\\s\\S]*if\\(l>=1\\) damage\\*=1\\.20/, 'Void L1 damage'],
+  [/voidLevel >= 1 && hpRatio <= 0\\.50\\) actual \\*= 1\\.20/, 'Void L1 weakened-target damage'],
   [/if\\(type==='void'\\)[\\s\\S]*if\\(l>=3\\) radius\\*=1\\.15/, 'Void L3 range'],
 ];
 for (const [pattern, label] of baseLevelContracts) {
