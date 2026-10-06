@@ -147,6 +147,7 @@ export interface SphereEntity {
   visualTier: number;
   type: SphereType;
   auraTimer: number;
+  orbitalLastSweepRotation?: number;
 }
 
 export interface SphereProjectile {
