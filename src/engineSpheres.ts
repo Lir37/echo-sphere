@@ -116,8 +116,11 @@ export function getSphereDpsEstimate(s: GameState, sphere: SphereEntity): number
         + (branch === 'orbital_dance' && final === 2 ? 1 : 0),
     );
     const satellites = satelliteCounts.inner + satelliteCounts.outer;
-    const interval = getSpecialSphereCadence(s, sphere, 0.42 * mods.auraPulse, network);
-    return (damage * satellites * 2.2 * mods.rotationSpeed) / interval;
+    // Orbital DPS is pass-rate based, not cadence based: damage can occur only
+    // when a combat element completes a real orbital pass through the target.
+    const angularSpeed = (1.8 + Math.min(2.4, Math.max(1, level) * 0.28)) * mods.rotationSpeed;
+    const passRate = satellites * angularSpeed / (Math.PI * 2);
+    return damage * 0.95 * passRate;
   }
   if (sphere.type === 'prism') return (damage * Math.max(1, 1 + mods.multishot)) / delay;
   if (sphere.type === 'pulse') {
