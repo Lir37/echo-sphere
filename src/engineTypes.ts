@@ -403,7 +403,7 @@ export interface GameState {
   stats: GameStats;
   screenShake: number;
   bossArrow: Vec | null;
-  flashText: { text: string; life: number; color: string } | null;
+  flashText: { text: string; life: number; color: string; kind?: 'boundary' | 'generic' } | null;
   keys: Record<string, boolean>;
   mouse: { x: number; y: number; down: boolean };
   formationMemory: { type: string; nodes: Vec[]; expiresAt: number } | null;
