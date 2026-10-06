@@ -4020,3 +4020,44 @@ each Mutation I branch remains mechanically distinct on its own, while every
 branch also opens a meaningful cross-system path for a later run.
 
 ======================================================================
+
+
+======================================================================
+2026-10-06 — ORBITAL DUAL-RING / PERFORMANCE AMENDMENT
+======================================================================
+
+This amendment supersedes the earlier implementation note that described
+Orbital visual satellite progression as a single 1..7 layer.
+
+ORBITAL CORE PROGRESSION:
+- Level 1 starts with two combat elements: one on the original inner orbit
+  and one on a slightly larger outer orbit.
+- Inner orbit rotates clockwise.
+- Outer orbit rotates counter-clockwise.
+- Level 2 adds one outer-orbit element.
+- Level 3 adds one inner-orbit element.
+- Levels 4-7 continue alternating outer / inner additions.
+- The canonical 7-level result is 4 combat elements on the inner orbit and
+  4 on the outer orbit.
+- Artifact/final-form bonuses may add additional elements beyond this
+  canonical 4+4 core.
+
+COMBAT CONTACT:
+- Orbital contact uses a swept angular interval, not only a final-position
+  sample. This prevents a fast-moving combat element from visually crossing
+  an enemy while missing the damage check between discrete simulation ticks.
+- Orbital damage uses the shared authoritative damage path and therefore
+  produces standard floating damage telemetry.
+
+PERFORMANCE GATE:
+- Dense combat must avoid avoidable per-shot array sorting and per-projectile
+  gradient creation.
+- Dense hit/shoot audio is throttled at the audio layer to avoid uncontrolled
+  Web Audio node churn.
+- Orbital satellite rendering avoids per-satellite radial-gradient creation.
+- Enemy glow rendering uses lightweight additive discs rather than a new
+  radial gradient per enemy/frame.
+- These are implementation guardrails; human APK PlayerCheck remains the
+  acceptance authority for actual device FPS/stability.
+
+======================================================================
