@@ -30,6 +30,7 @@ export interface SphereMods {
   afterimage: number;
   impact: number;
   gravitic: number;
+  rotationSpeed: number;
 }
 
 export interface PlayerState {
