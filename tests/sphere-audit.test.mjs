@@ -231,8 +231,10 @@ assert.match(progression, /orbital_blade:\{0:\{impact:2\},1:\{afterimage:2\},2:\
   'Orbital Blade finals must preserve Impact and strengthen Afterimage.');
 assert.match(engine, /mods\.resonantCharge \/ 2/,
   'Resonant modifier magnitude must affect actual Resonance charge.');
-assert.match(engine, /s\.player\.sphereBranches\?\.[[]fromSphere\.type[]] !== 'pulse_resonator'/,
-  'Pulse Resonator must use its dedicated formation-aware Resonance path without double charging.');
+assert.ok(
+  engine.includes("s.player.sphereBranches?.[fromSphere.type] !== 'pulse_resonator'"),
+  'Pulse Resonator must use its dedicated formation-aware Resonance path without double charging.',
+);
 assert.match(engine, /const pulseLevel = sphereLevel\(s, 'pulse'\)/,
   'Pulse Burst Level V/VI secondary discharge scaling must be explicit.');
 assert.match(progression, /standard_swarm:\{level5:'Боковой осколок получает повышенный урон/,
