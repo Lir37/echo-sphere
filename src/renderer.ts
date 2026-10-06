@@ -6,6 +6,7 @@ import { CHARACTER_DEFS } from './characters';
 import { getCharacterId, getCharacterFormation, getEngineerNetworkRange } from './characterRuntime';
 import type { SphereNetworkState } from './network';
 import { getNetworkFrame } from './engineRuntime';
+import { getSphereRadius } from './engineSpheres';
 import { getSphereNetworkProfile, getFormationBonusMultiplier } from './network';
 import { buildRuntimeNetworkNodes } from './networkRuntime';
 import { getSphereVisualNetwork } from './networkRender';
