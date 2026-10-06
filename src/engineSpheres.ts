@@ -342,6 +342,11 @@ function applyElementalFieldReaction(
   });
 }
 
+function preFinalBranchPower(s: GameState, type: SphereEntity['type']): number {
+  const level = sphereLevel(s, type);
+  return level >= 6 ? 1.30 : level >= 5 ? 1.15 : 1;
+}
+
 function getActiveStatusEffect(s: GameState, sphere?: SphereEntity): 'none' | 'fire' | 'freeze' | 'poison' {
   const branch = sphere ? s.player.sphereBranches?.[sphere.type] : undefined;
   if (sphere?.type === 'prism' && branch === 'prism_spectrum') {
@@ -450,7 +455,9 @@ function updateOrbitalSphere(
   outerOrbitRadius *= networkRadiusMultiplier;
 
   const status = getActiveStatusEffect(s, sphere);
-  const band = finalIndex === 1 ? 26 : 19;
+  const preFinalPower = finalIndex === null ? preFinalBranchPower(s, 'orbital') : 1;
+  const band = finalIndex === 1 ? 26 : finalIndex === 0 ? 22 : 19;
+
   let hitSomething = false;
 
   // Save the end of this checked interval only after collision processing.
@@ -509,7 +516,7 @@ function updateOrbitalSphere(
     let hitDamage = damage * 0.95;
     if (branch === 'orbital_dance') hitDamage *= 0.96;
     if (branch === 'orbital_halo') hitDamage *= 0.92;
-    if (branch === 'orbital_blade') hitDamage *= finalIndex === 2 ? 1.30 : 1.15;
+    if (branch === 'orbital_blade') hitDamage *= (finalIndex === 2 ? 1.30 : 1.15) * (finalIndex === null ? preFinalPower : 1);
     if (clusterBonus > 0) hitDamage *= 1 + 0.08 * clusterBonus;
 
     dealDamageToEnemy(s, enemy, hitDamage, sphere);
@@ -681,9 +688,10 @@ function updateGravitySphere(s: GameState, sphere: SphereEntity, damage: number,
   const sphereIndex = s.spheres.indexOf(sphere);
   const clusterBonus = getFormationBonusMultiplier((getNetworkFrame(s)), 'cluster', sphereIndex);
   if (clusterBonus > 0) pullStrength *= 1 + 0.20 * clusterBonus;
-  if (branch === 'gravity_well') pullStrength *= finalIndex === 1 ? 1.35 : finalIndex === 2 ? 1.50 : 1.15;
-  if (branch === 'gravity_tide') pullStrength *= 1.05;
-  if (branch === 'gravity_collapse') pullStrength *= 0.90;
+  const branchPower = finalIndex === null ? preFinalBranchPower(s, 'gravity') : 1;
+  if (branch === 'gravity_well') pullStrength *= (finalIndex === 1 ? 1.35 : finalIndex === 2 ? 1.50 : 1.15) * branchPower;
+  if (branch === 'gravity_tide') pullStrength *= 1.05 * branchPower;
+  if (branch === 'gravity_collapse') pullStrength *= 0.90 * branchPower;
 
   const phase = branch === 'gravity_tide' ? Math.sin(sphere.rotation) : 1;
   const status = getActiveStatusEffect(s, sphere);
@@ -719,7 +727,9 @@ function updatePulseSphere(s: GameState, sphere: SphereEntity, damage: number, m
   sphere.auraTimer -= dt;
   if (sphere.auraTimer > 0) return;
 
-  const waveCount = 1 + (s.player.artifacts.includes('pulse_crown') ? 1 : 0) + (branch === 'pulse_burst' && finalIndex === 2 ? 1 : 0);
+  const waveCount = 1
+    + (s.player.artifacts.includes('pulse_crown') ? 1 : 0)
+    + (branch === 'pulse_burst' && (finalIndex === 2 || (finalIndex === null && sphereLevel(s, 'pulse') >= 5)) ? 1 : 0);
   const intervalMultiplier = s.player.artifacts.includes('pulse_driver') ? 0.90 : 1;
   sphere.auraTimer = getSpecialSphereCadence(
     s,
@@ -728,7 +738,7 @@ function updatePulseSphere(s: GameState, sphere: SphereEntity, damage: number, m
     getNetworkFrame(s),
   );
   let radius = SPHERE_TYPES.pulse.auraRadius * mods.radius;
-  if (branch === 'pulse_wave') radius *= finalIndex === 1 ? 1.24 : 1.10;
+  if (branch === 'pulse_wave') radius *= (finalIndex === 1 ? 1.24 : 1.10) * (finalIndex === null ? preFinalBranchPower(s, 'pulse') : 1);
   const sphereIndex = s.spheres.indexOf(sphere);
   const clusterBonus = getFormationBonusMultiplier(getNetworkFrame(s), 'cluster', sphereIndex);
   if (clusterBonus > 0) radius *= 1 + 0.06 * clusterBonus;
@@ -751,8 +761,9 @@ function updatePulseSphere(s: GameState, sphere: SphereEntity, damage: number, m
         const dx = enemy.pos.x - sphere.pos.x;
         const dy = enemy.pos.y - sphere.pos.y;
         const d = Math.hypot(dx, dy) || 1;
-        enemy.pos.x += dx / d * 18;
-        enemy.pos.y += dy / d * 18;
+        const branchPower = finalIndex === null ? preFinalBranchPower(s, 'pulse') : 1;
+        enemy.pos.x += dx / d * 18 * branchPower;
+        enemy.pos.y += dy / d * 18 * branchPower;
       }
     }
   }
@@ -764,7 +775,8 @@ function updatePulseSphere(s: GameState, sphere: SphereEntity, damage: number, m
       getFormationBonusMultiplier(getNetworkFrame(s), 'lattice', sphereIndex),
       getFormationBonusMultiplier(getNetworkFrame(s), 'ring', sphereIndex),
     );
-    chargeResonance(s, 'network', dealDamageToEnemy, formationBonus || 1);
+    const branchPower = finalIndex === null ? preFinalBranchPower(s, 'pulse') : 1;
+    chargeResonance(s, 'network', dealDamageToEnemy, (formationBonus || 1) * branchPower);
   }
   if (branch === 'pulse_burst' && networkProfile.cluster) chargeResonance(s, 'geometry', dealDamageToEnemy);
   triggerEngineerRelay(s, sphere);
@@ -825,18 +837,19 @@ export function updateSpheres(s: GameState, dt: number): void {
           const sphereStats = sphereModifiers(s, sphere.type);
           if (dist(e.pos, sphere.pos) < stype.auraRadius * sphereStats.auraRadius) {
             const branch = s.player.sphereBranches?.[sphere.type];
+            const branchPower = branch && getSphereFinalIndex(s, sphere.type) === null ? preFinalBranchPower(s, sphere.type) : 1;
             if (branch === 'aura_sanctum') {
-              e.slowTimer = Math.max(e.slowTimer, 0.8);
-              e.slowFactor = Math.min(e.slowFactor, 0.65);
+              e.slowTimer = Math.max(e.slowTimer, 0.8 * branchPower);
+              e.slowFactor = Math.min(e.slowFactor, Math.max(0.42, 0.65 - (branchPower - 1) * 0.08));
             } else if (branch === 'aura_gravity') {
               const dx = sphere.pos.x - e.pos.x, dy = sphere.pos.y - e.pos.y;
               const d = Math.hypot(dx, dy) || 1;
-              e.pos.x += dx / d * 28 * dt;
-              e.pos.y += dy / d * 28 * dt;
+              e.pos.x += dx / d * 28 * branchPower * dt;
+              e.pos.y += dy / d * 28 * branchPower * dt;
             } else if (branch === 'aura_overgrowth') {
               for (const ally of s.spheres) {
-                if (ally !== sphere && ally.alive && dist(ally.pos, sphere.pos) < 110) {
-                  ally.attackTimer = Math.max(0, ally.attackTimer - dt * 0.08);
+                if (ally !== sphere && ally.alive && dist(ally.pos, sphere.pos) < 110 * branchPower) {
+                  ally.attackTimer = Math.max(0, ally.attackTimer - dt * 0.08 * branchPower);
                 }
               }
             }
