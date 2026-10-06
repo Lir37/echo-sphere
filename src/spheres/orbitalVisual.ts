@@ -223,7 +223,7 @@ export function renderOrbitalSphereAttackersVfx(
   if (!sphere.alive || sphere.networkDisabledTimer > 0) return;
   const v = update(sphere, player, time);
   const r = 24 * scale;
-  const level = Math.max(1, Math.min(7, sphereLevel({ player } as PlayerState & { player?: PlayerState }) || sphere.visualTier || 1));
+  const level = Math.max(1, Math.min(7, sphere.visualTier || 1));
   const extraElements =
     (player?.artifacts?.includes('orbital_crown') ? 1 : 0)
     + ((player?.evolutions || []).some((id: string) => id === 'sphere:orbital:7:orbital_blade:2') ? 1 : 0);
