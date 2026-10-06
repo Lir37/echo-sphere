@@ -284,14 +284,23 @@ export function update(s: GameState, dt: number): void {
     updateEnemies(s, dt);
     const poi=collectRegionPoi(s);
     if(poi){
-      const labels:Record<RegionPoiType,string>={
+      const ru = typeof localStorage !== 'undefined' && localStorage.getItem('echosphere_lang') !== 'en';
+      const labels:Record<RegionPoiType,string>=ru?{
+        resonance_cache:'ТАЙНИК РЕЗОНАНСА · +28 РЕЗОНАНСА',
+        breach_node:'УЗЕЛ ПРОБОЯ · ВРАГИ -28% HP',
+        echo_relay:'РЕЛЕ ЭХА · +45 РЕЗОНАНСА',
+        lost_signal:'ПОТЕРЯННЫЙ СИГНАЛ · +12 XP РЕГИОНА',
+        elite_nest:'ГНЕЗДО ЭЛИТЫ · 2 ЭЛИТНЫХ ВРАГА',
+        rupture:'РАЗРЫВ · ВРАГИ -38% HP',
+        boss_trace:'СЛЕД БОССА · БЛИЗКИЙ СТРАЖ',
+      }:{
         resonance_cache:'RESONANCE CACHE · +28 RESONANCE',
         breach_node:'BREACH NODE · ENEMIES -28% HP',
         echo_relay:'ECHO RELAY · +45 RESONANCE',
         lost_signal:'LOST SIGNAL · +12 REGION XP',
-        elite_nest:'ELITE NEST · 2 HOSTILES',
+        elite_nest:'ELITE NEST · 2 ELITE HOSTILES',
         rupture:'RUPTURE · ENEMIES -38% HP',
-        boss_trace:'BOSS TRACE · NEXT WARDEN',
+        boss_trace:'BOSS TRACE · NEAR WARDEN',
       };
       s.flashText={text:labels[poi],life:1.35,color:poi==='elite_nest'||poi==='rupture'?'#ff6b6b':'#55e6c1'};
       if(poi==='resonance_cache')s.player.resonanceCharge=Math.min(100,s.player.resonanceCharge+28);
