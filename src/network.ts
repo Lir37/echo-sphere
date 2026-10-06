@@ -149,6 +149,7 @@ function selectActiveGeometry(
   ranked: NetworkShape[],
   selection?: NetworkFormationSelection | null,
   preservedDominant?: NetworkShape | null,
+  preserveSuppressedWhenUnavailable = false,
 ): { dominant: NetworkShape | null; secondary: NetworkShape | null } {
   const selectedDominant = selection?.dominant && selection.dominant !== 'none'
     ? ranked.find((shape) => shape.type === selection.dominant) || null
@@ -168,6 +169,15 @@ function selectActiveGeometry(
         secondary: chooseSecondaryFormation(ranked, restored, selection),
       };
     }
+
+    // Do not keep stale Dominance memory after a structural loss that is no
+    // longer backed by an active temporary Network disable.
+    if (!preserveSuppressedWhenUnavailable) return {
+      dominant: selectedDominant || ranked[0] || null,
+      secondary: selectedDominant
+        ? chooseSecondaryFormation(ranked, selectedDominant, selection)
+        : (ranked[1] || null),
+    };
 
     const inactiveDominant: NetworkShape = {
       ...rememberedSuppressed,
@@ -376,6 +386,7 @@ export function analyzeSphereNetwork(
   previousDominant: NetworkFormation = 'none',
   selection?: NetworkFormationSelection | null,
   preservedDominant?: NetworkShape | null,
+  preserveSuppressedWhenUnavailable = false,
 ): SphereNetworkState {
   const indexes = aliveIndexes(nodes);
   const links: NetworkLink[] = [];
@@ -456,7 +467,7 @@ export function analyzeSphereNetwork(
     line,
   };
   const ranked = rankGeometryCandidates(candidates, previousDominant);
-  const active = selectActiveGeometry(ranked, selection, preservedDominant);
+  const active = selectActiveGeometry(ranked, selection, preservedDominant, preserveSuppressedWhenUnavailable);
   const activeTypes = new Set(
     [active.dominant, active.secondary]
       .filter((shape): shape is NetworkShape => Boolean(shape))
