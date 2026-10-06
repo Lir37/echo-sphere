@@ -1778,3 +1778,37 @@ NEXT:
 2) Install exact APK and repeat all seven scenarios.
 3) Fix only reproduced defects before expanding Region depth.
 ======================================================================
+
+======================================================================
+2026-10-06 — PLAYER-CHECK DEFECT PASS CI VALIDATION
+
+FINAL CODE HEAD:
+31c113592b144b8b2d4ce88cb6aeae527e9e1430
+
+CI:
+# latest green run for final code commit: SUCCESS.
+Validated:
+- Typecheck: PASS.
+- Asset usage / PNG sanity: PASS.
+- Unit tests: PASS (215 tests, 0 failures).
+- Gameplay coverage audit: PASS.
+- Lint: PASS.
+- Web build: PASS.
+- Playwright rendered gameplay QA: PASS.
+- Capacitor Android sync: PASS.
+- Debug APK build: PASS.
+- APK upload: PASS.
+
+OPEN PLAYER GATE:
+The seven fixes are code-complete and CI-validated, but the exact resulting APK
+still requires the user's real-device recheck for visual/gamefeel confirmation:
+1) Region onboarding, challenge meaning, Pocket/POI usefulness.
+2) Ranged/Sniper projectile readability.
+3) Elite marker appearance.
+4) Dense combat freeze / repeated-hit feedback.
+5) Echo Freeze Mutation I distinct behavior.
+6) Fire/Freeze/Poison damage numbers and Crit-vs-Fire readability.
+7) Russian-only player-facing Region/system text.
+
+Region 2 remains blocked until this real-device acceptance recheck is passed.
+======================================================================
