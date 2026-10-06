@@ -887,3 +887,69 @@ PERFORMANCE:
       sustained frame rate.
 
 ======================================================================
+
+======================================================================
+2026-10-06 — FULL SPHERE CONTRACT AUDIT / ORBITAL RECONCILIATION
+======================================================================
+
+IMPLEMENTATION HEAD:
+9e8ee00e39c8335b83c3b33cb1b59a8146ec1efc
+
+AUDIT SCOPE:
+- all 10 Sphere families;
+- Levels I-III core progression;
+- all 30 Level-IV branches;
+- Level V-VI branch behavior;
+- all 90 Level-VII final variants;
+- runtime combat consumers;
+- mutation visual coverage;
+- Orbital visual/combat geometry synchronization;
+- Orbital damage-number path;
+- previously reported dense-combat performance hot paths.
+
+FINDINGS / FIXES:
+[DONE] Orbital Level III wording now explicitly means combat-element rotation speed.
+[DONE] Orbital canonical progression remains L1=1 inner CW + 1 outer CCW,
+      alternating additions through L7=4+4.
+[DONE] Orbital swept collision is shared by combat and visual geometry, and
+      Orbital hits use the authoritative dealDamageToEnemy() path with dedicated
+      floating-damage rendering priority.
+[DONE] Orbital Halo final II no longer grants an undeclared Resonance modifier;
+      its contract is only the widened hit window.
+[DONE] Prism Mirror final I wording now matches runtime: the reflected beam
+      jumps to a new nearby target.
+[DONE] Void Hunger final III wording now matches runtime: hits against targets
+      below 30% HP receive the +12% multiplier, not only the literal killing hit.
+[DONE] Standard Swarm Level V audit contract was reconciled with its actual
+      authored text/runtime behavior.
+[DONE] Regression audit now requires all 30 canonical branches to have both
+      runtime and mutation-visual coverage.
+
+PERFORMANCE STATUS:
+[DONE] Existing dense-combat stabilization remains intact: targeting sorts,
+      dense audio churn, projectile/satellite gradients and common enemy glow
+      were reduced/capped.
+[OPEN] Human APK PlayerCheck is still the authority for the original 6-Sphere /
+      5+ enemy 0-2 FPS multi-second freeze on a real device. CI cannot prove
+      sustained FPS on the user's phone.
+
+VALIDATION:
+- GitHub Actions #1623: SUCCESS.
+- Typecheck: PASS.
+- Unit tests: PASS.
+- Gameplay coverage audit: PASS.
+- Lint: PASS.
+- Web build + Playwright rendered gameplay QA: PASS.
+- Capacitor sync: PASS.
+- Debug APK build/upload: PASS.
+
+NEXT:
+1) Human APK PlayerCheck on the exact green #1623 build.
+2) Specifically test 6 Spheres + 5+ enemies, especially Chain + Aura + Orbital.
+3) Verify Orbital boss contact visibly reduces HP and produces floating numbers.
+4) Verify Orbital L1-L7 element count/direction progression.
+5) Only after reproduction, make a targeted performance pass. Do not reopen the
+   whole Sphere architecture without a reproduced defect.
+======================================================================
+END FULL SPHERE CONTRACT AUDIT / ORBITAL RECONCILIATION
+======================================================================
