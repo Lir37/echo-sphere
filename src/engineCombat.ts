@@ -313,6 +313,7 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
     const voidBranch = s.player.sphereBranches?.void;
     const voidFinal = getSphereFinalIndex(s, 'void');
     const hpRatio = enemy.hp / Math.max(1, enemy.maxHp);
+    if (voidLevel >= 1 && hpRatio <= 0.50) actual *= 1.20;
     const network = getNetworkFrame(s);
     const profile = getSphereNetworkProfile(network, s.spheres.indexOf(fromSphere));
     if (hpRatio <= 0.20) actual *= 2.25;
@@ -327,11 +328,13 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
     if (voidBranch === 'void_execution') {
       const threshold = voidFinal === 2
         ? 0.30
-        : voidFinal === null && voidLevel >= 6
+        : voidFinal === 0 || (voidFinal === null && voidLevel >= 6)
           ? 0.28
-          : voidLevel >= 3
-            ? 0.25
-            : 0.20;
+          : voidFinal === null && voidLevel >= 5
+            ? 0.27
+            : voidLevel >= 3
+              ? 0.25
+              : 0.20;
       let executeChance = baseExecuteChance;
       executeChance += voidFinal === 2 ? 0.08 : voidFinal === 1 ? 0.04 : 0;
       if (s.player.artifacts.includes('void_star')) executeChance += 0.08;
