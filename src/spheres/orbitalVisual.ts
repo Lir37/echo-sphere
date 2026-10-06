@@ -304,10 +304,10 @@ export function renderOrbitalSphereAttackersVfx(
   const r = 24 * scale;
   const level = Math.max(1, Math.min(7, sphere.visualTier || 1));
   const resonance = v.resonance > 0;
+  const branch = player?.sphereBranches?.orbital;
   const branchElement = getSphereElementForBranch(branch);
   const color = resonance ? RESONANCE : BASE;
   const satelliteBaseColor = branchElement ? SPHERE_ELEMENT_META[branchElement].color : color;
-  const branch = player?.sphereBranches?.orbital;
   const extraElements =
     (player?.artifacts?.includes('orbital_crown') ? 1 : 0)
     + (branch === 'orbital_dance' && (player?.evolutions || []).some((id: string) => id === 'sphere:orbital:7:orbital_dance:2') ? 1 : 0);
