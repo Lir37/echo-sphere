@@ -456,7 +456,7 @@ function updateOrbitalSphere(
 
   const status = getActiveStatusEffect(s, sphere);
   const preFinalPower = finalIndex === null ? preFinalBranchPower(s, 'orbital') : 1;
-  const band = finalIndex === 1 ? 26 : finalIndex === 0 ? 22 : 19;
+  const band = finalIndex === 1 ? 26 : finalIndex === 0 ? 22 : finalIndex === null ? 19 * preFinalPower : 19;
 
   let hitSomething = false;
 
@@ -708,8 +708,9 @@ function updateGravitySphere(s: GameState, sphere: SphereEntity, damage: number,
 
     let hitDamage = damage;
     if (branch === 'gravity_collapse') {
-      if (grouped >= 4) hitDamage *= 1.20;
-      if (enemy.hp < enemy.maxHp * 0.45) hitDamage *= finalIndex === 2 ? 1.30 : 1.12;
+      const branchPower = finalIndex === null ? preFinalBranchPower(s, 'gravity') : 1;
+      if (grouped >= 4) hitDamage *= 1.20 * branchPower;
+      if (enemy.hp < enemy.maxHp * 0.45) hitDamage *= (finalIndex === 2 ? 1.30 : 1.12) * branchPower;
     }
     if (clusterBonus > 0) hitDamage *= 1 + 0.08 * clusterBonus;
     dealDamageToEnemy(s, enemy, hitDamage, sphere);
@@ -748,7 +749,11 @@ function updatePulseSphere(s: GameState, sphere: SphereEntity, damage: number, m
   if (clusterBonus > 0) radius *= 1 + 0.06 * clusterBonus;
 
   for (let wave = 0; wave < waveCount; wave++) {
-    const waveDamage = damage * (wave === 0 ? 1 : 0.46 + (branch === 'pulse_burst' ? 0.14 : 0));
+    const branchPower = finalIndex === null ? preFinalBranchPower(s, 'pulse') : 1;
+    const secondaryPower = branch === 'pulse_burst' && finalIndex === null
+      ? 1 + (sphereLevel(s, 'pulse') >= 6 ? 0.25 : 0)
+      : 1;
+    const waveDamage = damage * (wave === 0 ? 1 : 0.46 + (branch === 'pulse_burst' ? 0.14 : 0) * secondaryPower * branchPower);
     const pulseRadius = radius * (wave === 0 ? 1 : 0.68);
     emitSpherePulse(s, sphere, waveDamage, pulseRadius, SPHERE_TYPES.pulse.color, branch === 'pulse_wave', sphere);
     const pulseStatus = getActiveStatusEffect(s, sphere);
