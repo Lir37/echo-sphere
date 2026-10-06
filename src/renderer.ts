@@ -6,7 +6,7 @@ import { CHARACTER_DEFS } from './characters';
 import { getCharacterId, getCharacterFormation, getEngineerNetworkRange } from './characterRuntime';
 import type { SphereNetworkState } from './network';
 import { getNetworkFrame } from './engineRuntime';
-import { getSphereNetworkProfile } from './network';
+import { getSphereNetworkProfile, getFormationBonusMultiplier } from './network';
 import { buildRuntimeNetworkNodes } from './networkRuntime';
 import { getSphereVisualNetwork } from './networkRender';
 import { RUNE_DEFS } from './runes';
@@ -452,11 +452,14 @@ function drawRune(ctx: CanvasRenderingContext2D, rune: GameState['runes'][number
     if (sphere.alive && sphere.type === 'orbital') {
       const orbitScale = Math.max(15, Math.min(25, sphere.radius * 0.19 + (sphere.visualTier || 0) * 0.8)) / 24;
       const network = getNetworkFrame(s);
-      const networkProfile = getSphereNetworkProfile(network, s.spheres.indexOf(sphere));
+      const sphereIndex = s.spheres.indexOf(sphere);
+      const networkProfile = getSphereNetworkProfile(network, sphereIndex);
+      const clusterBonus = getFormationBonusMultiplier(network, 'cluster', sphereIndex);
+      const ringBonus = getFormationBonusMultiplier(network, 'ring', sphereIndex);
       const networkRadiusMultiplier =
         1
-        + (networkProfile.cluster ? 0.08 * Math.max(0, networkProfile.linkedNeighbours > 0 ? 1 : 0) : 0)
-        + (networkProfile.ring ? 0.12 * Math.max(0, networkProfile.linkedNeighbours > 0 ? 1 : 0) : 0)
+        + (clusterBonus > 0 ? 0.08 * clusterBonus : 0)
+        + (ringBonus > 0 ? 0.12 * ringBonus : 0)
         + Math.min(0.20, networkProfile.linkedNeighbours * 0.03);
       const orbitalRadiusScale = (getSphereRadius(s, sphere) / Math.max(1, sphere.radius)) * networkRadiusMultiplier;
       renderOrbitalSphereAttackersVfx(ctx, sphere, s.player, s.time, orbitScale, s.enemies, orbitalRadiusScale);
