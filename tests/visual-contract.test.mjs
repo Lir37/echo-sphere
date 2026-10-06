@@ -171,7 +171,7 @@ test('Projectile-only modifiers are filtered by Sphere type',()=>{
   assert.ok(m.includes('sphereUsesProjectileModifiers(sphere.type)'));
   assert.ok(e.includes('sphereUsesProjectileModifiers(sphere.type)'));
   assert.ok(p.includes('const projectileMods = sphereUsesProjectileModifiers(type)'));
-  assert.ok(e.includes("sphereLevel(s, 'orbital') + 1"));
+  assert.ok(e.includes("getOrbitalRingCounts"));
 });
 
 test('Renderer composes mutation and projectile-specific attack visuals',()=>{
