@@ -2,7 +2,7 @@ import { playSound } from './audio';
 import type { AbilityType } from './gameData';
 import type { GameState, SphereEntity, Vec } from './engineTypes';
 import {
-  dist, rand, clamp, getNetworkFrame, getAbilityBranchId, getNearestSphere
+  dist, rand, getNetworkFrame, getAbilityBranchId, getNearestSphere
 } from './engineRuntime';
 import {
   dealDamageToEnemy, getCooldownMult, getVampirePercent, emitSpherePulse

@@ -34,6 +34,7 @@ function state(overrides = {}) {
     ],
     worldWidth: 2400,
     worldHeight: 2400,
+    enemies: [],
     ...overrides,
   };
 }
