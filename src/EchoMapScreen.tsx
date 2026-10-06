@@ -1,7 +1,8 @@
 import { REGION_CHALLENGES, REGION_POCKETS, getRegionChallengeProgress, loadRegionChallengeCompletions, loadRegionEndlessUnlock, loadRegionStabilized, type RegionChallengeId, type RegionMode } from './region';
 import { CHARACTER_DEFS } from './characters';
 import { loadCharacterId } from './persistence';
-import { DIFFICULTIES, type Difficulty, type Lang } from './gameData';
+import { DIFFICULTIES, type Difficulty } from './gameData';
+import type { Lang } from './i18n';
 
 type StartRun = (mode: RegionMode, challenge: RegionChallengeId) => void;
 
