@@ -2961,6 +2961,9 @@ html, body, #root {
   text-align:left;
   z-index:4;
 }
+.es-map-endless-core.is-locked { pointer-events:none; }
+.es-map-satellite-orbit { animation:es-map-satellite-ring 5.5s linear infinite; }
+@keyframes es-map-satellite-ring { to { transform:rotate(360deg); } }
 .es-map-endless-core.is-unlocked {
   border-color:rgba(255,194,103,.58);
   box-shadow:0 0 26px rgba(255,184,77,.12),inset 0 0 18px rgba(255,184,77,.06);
