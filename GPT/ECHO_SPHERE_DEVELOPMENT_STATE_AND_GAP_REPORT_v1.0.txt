@@ -1729,3 +1729,52 @@ OPEN:
       required before calling the slice production-validated in gameplay.
 [OPEN] Balance tuning only after real-play evidence.
 ======================================================================
+
+======================================================================
+2026-10-06 — REGION PLAYER-CHECK DEFECT PASS / READABILITY + COMBAT FEEDBACK
+
+PLAYER APK OBSERVATIONS:
+[FIXED] Region 1 appeared as a new map, but its purpose beyond survival was
+not explained clearly enough. Challenge variants, Spatial Pockets and POI
+pickups were visible but their rules/rewards were not self-evident.
+[FIXED] Normal Ranged/Sniper enemies applied invisible continuous DoT instead
+of presenting readable projectile threats.
+[FIXED] Elite enemies had a pink/purple floating crest that read as unwanted
+growths rather than a clean gameplay marker.
+[FIXED] One dense combat interaction produced a rapid stack of hit sounds,
+a short frame stall and a burst of apparent XP fragments. Secondary recursive
+proc feedback had no sufficient audiovisual gating.
+[FIXED] Echo Freeze Mutation I repeated the already-existing Level III rule that
+Spheres continue attacking during the stop.
+[FIXED] Elemental status damage was not explicit enough in combat readability.
+[FIXED] Russian Region HUD/feedback exposed English labels.
+
+IMPLEMENTED:
+[DONE] Region menu explains Challenge purpose, Stabilization objective,
+Pocket/enemy ecology meaning and POI gameplay role.
+[DONE] Region HUD localizes region, mode and Pocket names and shows the current
+objective. Radar includes live POI markers.
+[DONE] Ranged/Sniper now launch visible targeted projectiles using existing
+projectile storage; invisible ranged DoT firing was removed.
+[DONE] Elite marker is now a restrained enemy-colored ring with rank nodes.
+[DONE] Secondary recursive combat damage remains authoritative but no longer
+creates a full sound/particle/damage-number feedback stack. Shatter and Artifact
+Singularity recursion are gated by allowSphereProc.
+[DONE] Damage-number pool is bounded. Fire/Freeze/Poison hits are color coded;
+Critical remains gold and therefore distinct from Fire. Fire/Poison DoT numbers
+are batched at low cadence without changing underlying DPS.
+[DONE] Echo Freeze Mutation I is now "Фазовый залп": immediate Sphere volley
+on activation plus 18% Sphere damage while the stop is active.
+[DONE] Canvas localization expanded for Region/encounter/system labels used by
+the current gameplay path.
+
+VALIDATION:
+[OPEN] CI for this defect pass.
+[OPEN] Real APK recheck of all seven reported observations.
+Region 2 remains blocked until this Region 1 acceptance recheck is complete.
+
+NEXT:
+1) Get CI green.
+2) Install exact APK and repeat all seven scenarios.
+3) Fix only reproduced defects before expanding Region depth.
+======================================================================
