@@ -362,9 +362,9 @@ const SPHERE_FINAL_VARIANTS:Record<SphereEvolutionId,[SphereEvolutionDef,SphereE
     f('aura_overgrowth_final_3','Живая сеть • Давление','Aura Overgrowth • Pressure','Сферы ускоряются в радиусе 140, а сама Aura получает +12% урона.','Nearby Spheres speed up within radius 140, and the Aura gains 12% damage.'),
   ],
   orbital_dance:[
-    f('orbital_dance_final_1','Танец • Ритм','Orbital Dance • Rhythm','Орбитальные спутники вращаются заметно быстрее и получают дополнительное осколочное усиление.','Orbital satellites rotate faster and gain an additional shard-style combat effect.'),
+    f('orbital_dance_final_1','Танец • Ритм','Orbital Dance • Rhythm','Орбитальные спутники вращаются заметно быстрее и получают усиление Afterimage, создающее повторный след-удар.','Orbital satellites rotate faster and gain an Afterimage effect that creates a repeating trail strike.'),
     f('orbital_dance_final_2','Танец • Гиперцикл','Orbital Dance • Hypercycle','Спутники вращаются в 1.55 раза быстрее базового темпа ветки и шире ловят врагов на траектории.','Satellites rotate at 1.55x the branch base tempo and have a wider hit window along the path.'),
-    f('orbital_dance_final_3','Танец • Рой','Orbital Dance • Swarm','К орбитальной атаке добавляется ещё один спутник, а траектория получает сетевой якорь.','The orbital attack gains one more satellite, while the trajectory gains a network anchor effect.'),
+    f('orbital_dance_final_3','Танец • Рой','Orbital Dance • Swarm','К орбитальной атаке добавляется ещё один спутник, а следы получают усиление Afterimage.','The orbital attack gains one more satellite, while its trails gain an Afterimage effect.'),
   ],
   orbital_halo:[
     f('orbital_halo_final_1','Ореол • Резонанс','Orbital Halo • Resonance','Проход спутника дополнительно заряжает Resonance.','Passing satellites grant additional Resonance charge.'),
@@ -1114,6 +1114,7 @@ export function sphereModifiers(s:any,type:SphereType,sphere?:any){
   if(type==='aura'&&branch==='aura_gravity'){
     auraRadius*=1.10;
     if(final===0) auraRadius*=1.18;
+    if(final===1) auraRadius*=1.28;
     if(final===null && l>=5) auraRadius*=l>=6?1.15:1.08;
   }
   if(type==='aura'&&branch==='aura_overgrowth'){damage*=1.06;auraRadius*=1.08;if(final===0)damage*=1.15;}
