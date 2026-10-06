@@ -83,7 +83,7 @@ export default function App() {
 }
 
 // ===== Menu =====
-function Menu({ lang, t, difficulty, setDifficulty, onPlay, onShop, onCharacters, onLeader, onSettings, onAchievements, onKnowledge }: {
+function Menu({ lang, t, difficulty, setDifficulty, regionMode, setRegionMode, regionChallenge, setRegionChallenge, onPlay, onShop, onCharacters, onLeader, onSettings, onAchievements, onKnowledge }: {
   lang: Lang; t: (k: TranslationKey) => string;
   difficulty: Difficulty; setDifficulty: (d: Difficulty) => void;
   regionMode: RegionMode; setRegionMode: (m: RegionMode) => void;
