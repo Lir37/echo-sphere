@@ -590,14 +590,49 @@ function drawRune(ctx: CanvasRenderingContext2D, rune: GameState['runes'][number
   // character HUD (screen space)
   drawCharacterHud(ctx, s, canvasW, canvasH);
 
-  // flash text
+  // Compact world feedback banner. Keep it inside the viewport on mobile.
   if (s.flashText) {
+    const isBoundary = s.flashText.text.startsWith('POCKET:');
+    const maxWidth = Math.min(canvasW - 28, 520);
+    const alpha = Math.min(1, Math.max(0, s.flashText.life / 0.65));
+    if (isBoundary) {
+      const progress = 1 - Math.min(1, s.flashText.life / 1.35);
+      ctx.save();
+      ctx.translate(s.player.pos.x, s.player.pos.y);
+      ctx.globalAlpha = 0.35 * (1 - progress);
+      ctx.strokeStyle = s.flashText.color;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(0, 0, PLAYER_RADIUS + 8 + progress * 46, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.globalAlpha = 0.18 * (1 - progress);
+      ctx.beginPath();
+      ctx.arc(0, 0, PLAYER_RADIUS + 14 + progress * 64, 0, Math.PI * 2);
+      ctx.stroke();
+      for (let i = 0; i < 8; i++) {
+        const a = i * Math.PI / 4 + progress * 0.7;
+        const rr = PLAYER_RADIUS + 10 + progress * 40;
+        ctx.fillStyle = s.flashText.color;
+        ctx.beginPath();
+        ctx.arc(Math.cos(a) * rr, Math.sin(a) * rr, 1.7, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
     ctx.save();
-    ctx.globalAlpha = Math.min(1, s.flashText.life);
-    ctx.fillStyle = s.flashText.color;
-    ctx.font = 'bold 42px Georgia, serif';
+    const bannerY = Math.max(64, Math.min(canvasH * 0.18, 150));
+    const fontSize = Math.max(13, Math.min(18, canvasW * 0.045));
+    ctx.font = `bold ${fontSize}px system-ui, sans-serif`;
     ctx.textAlign = 'center';
-    ctx.fillText(s.flashText.text, canvasW / 2, canvasH / 2 - 60);
+    const measured = Math.min(maxWidth, Math.max(160, ctx.measureText(s.flashText.text).width + 28));
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = 'rgba(2,7,13,.88)';
+    ctx.fillRect(canvasW / 2 - measured / 2, bannerY - fontSize - 9, measured, fontSize + 18);
+    ctx.strokeStyle = s.flashText.color;
+    ctx.lineWidth = 1;
+    ctx.strokeRect(canvasW / 2 - measured / 2, bannerY - fontSize - 9, measured, fontSize + 18);
+    ctx.fillStyle = s.flashText.color;
+    ctx.fillText(s.flashText.text, canvasW / 2, bannerY);
     ctx.restore();
   }
 
@@ -619,16 +654,38 @@ function drawRune(ctx: CanvasRenderingContext2D, rune: GameState['runes'][number
 function drawRegionLayer(ctx:CanvasRenderingContext2D,s:GameState):void{
   if(!s.region)return;
   ctx.save();
+  const seamTime=s.time*0.65;
   for(const p of REGION_POCKETS){
     const active=p.id===s.region.pocketId;
-    ctx.globalAlpha=active?.18:.055;
+    ctx.globalAlpha=active?.13:.035;
     ctx.strokeStyle=p.accent;
-    ctx.lineWidth=active?2:1;
-    ctx.setLineDash(active?[12,8]:[5,12]);
+    ctx.lineWidth=active?1.8:1;
     ctx.beginPath();ctx.arc(p.center.x,p.center.y,p.radius,0,Math.PI*2);ctx.stroke();
-    ctx.setLineDash([]);
+
+    // A quiet "fold seam" instead of a generic dashed circle.
+    for(let i=0;i<6;i++){
+      const a=i*Math.PI/3 + seamTime*(i%2===0?0.08:-0.06) + p.center.x*0.0001;
+      const span=0.10 + (active?0.045:0.02);
+      ctx.globalAlpha=active?.16:.045;
+      ctx.beginPath();
+      ctx.arc(p.center.x,p.center.y,p.radius-4+(i%2)*2,a,a+span);
+      ctx.stroke();
+    }
+    ctx.globalAlpha=active?.24:.055;
+    for(let i=0;i<8;i++){
+      const a=i*Math.PI/4 + seamTime*0.08;
+      const x=p.center.x+Math.cos(a)*p.radius;
+      const y=p.center.y+Math.sin(a)*p.radius;
+      ctx.fillStyle=p.accent;
+      ctx.beginPath();
+      ctx.moveTo(x,y);
+      ctx.lineTo(x-Math.cos(a-0.16)*7,y-Math.sin(a-0.16)*7);
+      ctx.lineTo(x-Math.cos(a+0.16)*7,y-Math.sin(a+0.16)*7);
+      ctx.closePath();
+      ctx.fill();
+    }
     if(active){
-      ctx.globalAlpha=.78;
+      ctx.globalAlpha=.72;
       ctx.fillStyle=p.accent;
       ctx.font='bold 11px system-ui,sans-serif';
       ctx.textAlign='center';
@@ -647,9 +704,9 @@ function drawRegionLayer(ctx:CanvasRenderingContext2D,s:GameState):void{
   for(const p of s.region.pois){
     if(!p.alive)continue;
     const color=p.type==='elite_nest'||p.type==='rupture'?'#ff6b6b':p.type==='boss_trace'?'#ffb84d':'#55e6c1';
-    const pulse=40+Math.sin(s.time*4+p.id)*4;
-    ctx.globalAlpha=.22;ctx.fillStyle=color;ctx.beginPath();ctx.arc(p.pos.x,p.pos.y,pulse,0,Math.PI*2);ctx.fill();
-    ctx.globalAlpha=.92;ctx.strokeStyle=color;ctx.lineWidth=2;
+    const pulse=38+Math.sin(s.time*4+p.id)*4;
+    ctx.globalAlpha=.18;ctx.fillStyle=color;ctx.beginPath();ctx.arc(p.pos.x,p.pos.y,pulse,0,Math.PI*2);ctx.fill();
+    ctx.globalAlpha=.9;ctx.strokeStyle=color;ctx.lineWidth=2;
     ctx.beginPath();ctx.moveTo(p.pos.x,p.pos.y-11);ctx.lineTo(p.pos.x+11,p.pos.y);ctx.lineTo(p.pos.x,p.pos.y+11);ctx.lineTo(p.pos.x-11,p.pos.y);ctx.closePath();ctx.stroke();
     ctx.globalAlpha=.86;ctx.fillStyle=color;ctx.font='bold 8px system-ui,sans-serif';ctx.textAlign='center';
     ctx.fillText(poiLabels[p.type],p.pos.x,p.pos.y-16);
