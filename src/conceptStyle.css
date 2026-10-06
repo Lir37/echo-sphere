@@ -3107,3 +3107,13 @@ html, body, #root {
     align-items:center;
   }
 }
+
+.es-hud-top-panel {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-height:46px;
+}
+@media (max-width:700px) {
+  .es-hud-top-panel { gap:6px; min-height:42px; }
+}
