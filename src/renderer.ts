@@ -2015,15 +2015,20 @@ function drawBossLegacy(ctx: CanvasRenderingContext2D, e: EnemyEntity): void {
 const MODERN_INK = '#dcecff';
 
 function glowCircle(ctx: CanvasRenderingContext2D, radius: number, color: string, alpha = 0.26): void {
-  const rgb = hexToRgb(color);
-  const g = ctx.createRadialGradient(0, 0, 0, 0, 0, radius);
-  g.addColorStop(0, `rgba(${rgb},${alpha})`);
-  g.addColorStop(0.45, `rgba(${rgb},${alpha * 0.32})`);
-  g.addColorStop(1, `rgba(${rgb},0)`);
-  ctx.fillStyle = g;
+  // Canvas radial gradients are expensive when applied to every enemy every
+  // frame. Use two additive discs instead, preserving the luminous silhouette.
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.globalAlpha = alpha * 0.16;
+  ctx.fillStyle = color;
   ctx.beginPath();
   ctx.arc(0, 0, radius, 0, Math.PI * 2);
   ctx.fill();
+  ctx.globalAlpha = alpha * 0.55;
+  ctx.beginPath();
+  ctx.arc(0, 0, radius * 0.52, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
 }
 
 function drawGroundShadow(ctx:CanvasRenderingContext2D,rx:number,ry:number,_blur:number):void{
