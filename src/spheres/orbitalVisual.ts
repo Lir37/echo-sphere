@@ -225,16 +225,18 @@ export function renderOrbitalSphereAttackersVfx(
   const v = update(sphere, player, time);
   const r = 24 * scale;
   const level = Math.max(1, Math.min(7, sphere.visualTier || 1));
-  const extraElements =
-    (player?.artifacts?.includes('orbital_crown') ? 1 : 0)
-    + ((player?.evolutions || []).some((id: string) => id.startsWith('sphere:orbital:7:') && id.endsWith(':2')) ? 1 : 0);
-  const counts = getOrbitalRingCounts(level, extraElements);
   const resonance = v.resonance > 0;
   const color = resonance ? RESONANCE : BASE;
   const branch = player?.sphereBranches?.orbital;
+  const extraElements =
+    (player?.artifacts?.includes('orbital_crown') ? 1 : 0)
+    + (branch === 'orbital_dance' && (player?.evolutions || []).some((id: string) => id === 'sphere:orbital:7:orbital_dance:2') ? 1 : 0);
+  const counts = getOrbitalRingCounts(level, extraElements);
   const bladeMutation = branch === 'orbital_blade';
-  const innerOrbitRadius = r * 1.68;
-  const outerOrbitRadius = r * 2.02;
+  const radiusScale = Number((sphere as SphereEntity & { orbitalRadiusScale?: number }).orbitalRadiusScale);
+  const orbitMultiplier = Number.isFinite(radiusScale) && radiusScale > 0 ? radiusScale : 1;
+  const innerOrbitRadius = r * 1.68 * orbitMultiplier;
+  const outerOrbitRadius = r * 2.02 * orbitMultiplier;
 
   ctx.save();
   ctx.translate(sphere.pos.x, sphere.pos.y);
