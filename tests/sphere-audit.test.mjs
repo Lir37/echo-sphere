@@ -70,8 +70,10 @@ for (const id of canonicalBranchIds) {
   }
 }
 
-assert.match(progression, /\['\+15% орбитального урона','\+15% радиуса орбиты','\+15% скорости вращения'\]/,
-  'Orbital Level III must describe rotation speed, not an undefined interval.');
+assert.match(progression, /\['\+15% орбитального урона','\+15% радиуса орбиты','\+15% скорости вращения боевых элементов'\]/,
+  'Orbital Level III must describe combat-element rotation speed, not an undefined interval.');
+assert.match(gameData, /id: 'orbital',[\s\S]*delayMult: 1, projectileSpeedMult: 1/,
+  'Orbital must not expose a misleading attack-delay multiplier.');
 assert.match(progression, /rotationSpeed\*=1\.15/,
   'Orbital Level III rotation speed modifier is missing.');
 assert.match(engine, /const bodyRadius = Math\.max\(15, Math\.min\(25, sphere\.radius \* 0\.19 \+ level \* 0\.8\)\)/,
@@ -88,9 +90,12 @@ assert.match(progression, /prism_spectrum:\{0:\{fire:1\},1:\{freeze:1\},2:\{pois
   'Prism Spectrum finals must map to Fire/Freeze/Poison.');
 assert.match(engine, /const bounceCount = Math\.min\(2, mods\.ricochet\)/,
   'Prism Mirror finals must consume authored Ricochet levels.');
+assert.match(read('src/spheres/orbitalGeometry.ts'), /export function isAngleOnOrbitalSweep/,
+  'Orbital swept collision contract must live in the shared geometry module.');
 assert.ok(engine.includes('finalIndex === 1 ? 1.35 : finalIndex === 2 ? 1.50 : 1.15'),
   'Gravity Well final pull scaling must preserve three authored strengths.');
-  'Gravity Well final III pull scaling must be stronger than the base branch.');
+assert.ok(engine.includes('finalIndex === 2 ? 1.50'),
+  'Gravity Well final III pull scaling must be stronger than the base branch.'););
 assert.match(engine, /finalIndex === null || finalIndex === 0 || finalIndex === 2/,
   'Standard Singularity base branch must pull enemies before Level VII selection.');
 assert.match(engine, /const baseExecuteChance = voidLevel >= 2 ? 0\.10 : 0/,
