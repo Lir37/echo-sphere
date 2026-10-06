@@ -38,6 +38,22 @@ export function triggerResonanceEvent(s: GameState, dealDamage: ResonanceDamageH
   if (getCharacterId(s) === 'conductor') {
     const mastery = s.player.characterMasteryLevel || 1;
     s.player.conductorOverdriveTimer = Math.max(s.player.conductorOverdriveTimer || 0, mastery >= 2 ? 2.5 : 2);
+    s.player.conductorDischargeFormation = type;
+    if (mastery >= 3) {
+      const nodes = (formation?.nodes || []).filter((index) => index < s.spheres.length && s.spheres[index]?.alive);
+      if (type === 'line') {
+        s.player.resonanceLineBurst = Math.max(s.player.resonanceLineBurst, mastery >= 7 ? 2 : 1);
+      } else if (type === 'triangle') {
+        const target = s.enemies.filter((enemy) => enemy.hp > 0).sort((a, b) => dist(a.pos, center) - dist(b.pos, center))[0];
+        if (target) dealDamage(s, target, baseDamage * (mastery >= 8 ? 0.55 : 0.40), undefined, false);
+        if (nodes.length >= 2) s.lightnings.push({ from: { ...s.spheres[nodes[0]].pos }, to: { ...s.spheres[nodes[1]].pos }, life: 0.28 });
+      } else if (type === 'cluster') {
+        for (const index of nodes) { const sphere = s.spheres[index]; sphere.attackTimer = Math.max(0, sphere.attackTimer - (mastery >= 8 ? 0.48 : 0.32)); sphere.resonancePulseTimer = Math.max(sphere.resonancePulseTimer, 0.42); }
+      } else if (type === 'square') {
+        s.player.shieldCharges = Math.min(5, s.player.shieldCharges + (mastery >= 8 ? 2 : 1));
+      }
+      s.flashText = { text: 'CONDUCTOR: ' + type.toUpperCase(), life: 0.75, color: '#39d8ff' };
+    }
     if (mastery >= 6 && s.player.resonanceEventsTriggered % 3 === 0) {
       const count = mastery >= 9 ? 3 : mastery >= 7 ? 2 : 1;
       for (const target of s.enemies.filter((e) => e.hp > 0 && dist(e.pos, center) <= 170).slice(0, count)) dealDamage(s, target, baseDamage * 0.55, undefined, false);
@@ -228,5 +244,4 @@ export function syncResonanceGeometry(s: GameState, network: SphereNetworkState 
     chargeResonance(s, 'geometry', dealDamage);
   }
 }
-
 
