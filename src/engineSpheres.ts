@@ -791,8 +791,13 @@ function updatePulseSphere(s: GameState, sphere: SphereEntity, damage: number, m
       getFormationBonusMultiplier(getNetworkFrame(s), 'lattice', sphereIndex),
       getFormationBonusMultiplier(getNetworkFrame(s), 'ring', sphereIndex),
     );
-    const branchPower = finalIndex === null ? preFinalBranchPower(s, 'pulse') : 1;
-    chargeResonance(s, 'network', dealDamageToEnemy, (formationBonus || 1) * branchPower);
+    const resonantMultiplier = Math.max(1, mods.resonantCharge / 2);
+    chargeResonance(
+      s,
+      'network',
+      dealDamageToEnemy,
+      (formationBonus || 1) * resonantMultiplier,
+    );
   }
   if (branch === 'pulse_burst' && networkProfile.cluster) chargeResonance(s, 'geometry', dealDamageToEnemy);
   triggerEngineerRelay(s, sphere);
