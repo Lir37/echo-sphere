@@ -303,8 +303,8 @@ const SPHERE_FINAL_VARIANTS:Record<SphereEvolutionId,[SphereEvolutionDef,SphereE
   ],
   sniper_oracle:[
     f('sniper_oracle_final_1','Оракул • Критический фокус','Sniper Oracle • Critical Focus','Крит по отмеченной цели наносит +50% урона.','Critical hits against marked targets deal 50% more damage.'),
-    f('sniper_oracle_final_2','Оракул • Резонансный прицел','Sniper Oracle • Resonant Sight','Крит по отмеченной цели наносит +30% урона, а попадания по отмеченной цели дополнительно заряжают Resonance.','Critical hits against marked targets deal 30% more damage and grant additional Resonance.'),
-    f('sniper_oracle_final_3','Оракул • Взрывной крит','Sniper Oracle • Explosive Crit','Крит по отмеченной цели наносит +22% урона, дополнительно задевает врагов рядом с целью и усиливает добивание целей ниже 30% HP.','Critical hits against marked targets deal 22% more damage and also damage nearby enemies.'),
+    f('sniper_oracle_final_2','Оракул • Резонансный прицел','Sniper Oracle • Resonant Sight','Крит по отмеченной цели наносит +30% урона, а каждое попадание по отмеченной цели дополнительно заряжает Resonance.','Critical hits against marked targets deal 30% more damage and grant additional Resonance.'),
+    f('sniper_oracle_final_3','Оракул • Взрывной крит','Sniper Oracle • Explosive Crit','Крит по отмеченной цели наносит +22% урона, дополнительно задевает врагов рядом с целью и получает усиление Execute по целям ниже 30% HP.','Critical hits against marked targets deal 22% more damage and also damage nearby enemies.'),
   ],
   sniper_assassin:[
     f('sniper_assassin_final_1','Убийца • Добивание','Sniper Assassin • Execution','По цели ниже 35% HP урон увеличен примерно в 1.7 раза.','Targets below 35% HP take roughly 1.7x damage.'),
@@ -317,19 +317,19 @@ const SPHERE_FINAL_VARIANTS:Record<SphereEvolutionId,[SphereEvolutionDef,SphereE
     f('sniper_beacon_final_3','Маяк • Сетевой','Sniper Beacon • Network Beacon','Метка и Anchor работают вместе, распространяя замедление на область вокруг цели.','The mark and network anchor work together, spreading slow across the area around the target.'),
   ],
   shotgun_burst:[
-    f('shotgun_burst_final_1','Разрыв • Ближний','Shotgun Burst • Close Burst','При дистанции до 150 наносится +30% урона.','At up to 150 range, the hit deals 30% more damage.'),
+    f('shotgun_burst_final_1','Разрыв • Ближний','Shotgun Burst • Close Burst','При дистанции до 150 наносится +30% урона и атака получает ещё 2 дополнительных снаряда.','At up to 150 range, the hit deals 30% more damage.'),
     f('shotgun_burst_final_2','Разрыв • Осадный','Shotgun Burst • Siege Burst','При дистанции до 180 наносится +50% урона.','At up to 180 range, the hit deals 50% more damage.'),
-    f('shotgun_burst_final_3','Разрыв • Ударный','Shotgun Burst • Impact Burst','При дистанции до 150 наносится +22% урона, а цели ближе 90 дополнительно замедляются.','At up to 150 range, the hit deals 22% more damage, and targets within 90 range are also slowed.'),
+    f('shotgun_burst_final_3','Разрыв • Ударный','Shotgun Burst • Impact Burst','При дистанции до 150 наносится +22% урона, атака получает ещё 2 дополнительных снаряда, а цели ближе 90 дополнительно замедляются.','At up to 150 range, the hit deals 22% more damage, and targets within 90 range are also slowed.'),
   ],
   shotgun_cataclysm:[
-    f('shotgun_cataclysm_final_1','Осада • Осколочный взрыв','Shotgun Cataclysm • Fragment Blast','Попадание создаёт взрыв радиусом 60, наносящий соседним врагам 45% урона.','Hits create a blast with radius 60, dealing 45% of the hit damage to nearby enemies.'),
-    f('shotgun_cataclysm_final_2','Осада • Тяжёлый взрыв','Shotgun Cataclysm • Heavy Blast','Попадание создаёт большой взрыв радиусом 85, наносящий соседним врагам 65% урона.','Hits create a large blast with radius 85, dealing 65% of the hit damage to nearby enemies.'),
-    f('shotgun_cataclysm_final_3','Осада • Удерживающий взрыв','Shotgun Cataclysm • Lockdown Blast','Попадание создаёт взрыв радиусом 55 с 35% вторичного урона и замедляет поражённых врагов.','Hits create a blast with radius 55, dealing 35% secondary damage and slowing affected enemies.'),
+    f('shotgun_cataclysm_final_1','Осада • Осколочный взрыв','Shotgun Cataclysm • Fragment Blast','Попадание создаёт взрыв радиусом 60, наносящий соседним врагам 45% урона; взрыв получает Shatter.','Hits create a blast with radius 60, dealing 45% of the hit damage to nearby enemies.'),
+    f('shotgun_cataclysm_final_2','Осада • Тяжёлый взрыв','Shotgun Cataclysm • Heavy Blast','Попадание создаёт большой взрыв радиусом 85, наносящий соседним врагам 65% урона и получает Impact.','Hits create a large blast with radius 85, dealing 65% of the hit damage to nearby enemies.'),
+    f('shotgun_cataclysm_final_3','Осада • Удерживающий взрыв','Shotgun Cataclysm • Lockdown Blast','Попадание создаёт взрыв радиусом 55 с 35% вторичного урона, Shatter/Impact и замедляет поражённых врагов.','Hits create a blast with radius 55, dealing 35% secondary damage and slowing affected enemies.'),
   ],
   shotgun_hail:[
     f('shotgun_hail_final_1','Град • Осколочный','Shotgun Hail • Fragment Hail','С вероятностью 25% попадание выпускает 6 осколков вокруг цели.','On hit, there is a 25% chance to launch 6 shards around the target.'),
-    f('shotgun_hail_final_2','Град • Плотный','Shotgun Hail • Dense Hail','С вероятностью 40% попадание выпускает 8 осколков и сильнее насыщает область.','On hit, there is a 40% chance to launch 8 shards and saturate the area more heavily.'),
-    f('shotgun_hail_final_3','Град • Комбинированный','Shotgun Hail • Combined Hail','С вероятностью 32% выпускает 6 осколков и усиливает основное попадание на 8%.','On hit, there is a 32% chance to launch 6 shards and increase the main hit damage by 8%.'),
+    f('shotgun_hail_final_2','Град • Плотный','Shotgun Hail • Dense Hail','С вероятностью 40% попадание выпускает 8 осколков, а атака получает ещё 2 дополнительных снаряда и сильнее насыщает область.','On hit, there is a 40% chance to launch 8 shards and saturate the area more heavily.'),
+    f('shotgun_hail_final_3','Град • Комбинированный','Shotgun Hail • Combined Hail','С вероятностью 32% выпускает 6 осколков, атака получает ещё 2 дополнительных снаряда, а основное попадание усиливается на 8%.','On hit, there is a 32% chance to launch 6 shards and increase the main hit damage by 8%.'),
   ],
   chain_web:[
     f('chain_web_final_1','Паутина • Якорная','Chain Web • Anchor Web','Цепь усиливает замедление цели, а Anchor дополнительно удерживает её в зоне контроля.','Chain hits apply stronger slow, while the network anchor stabilizes the control zone.'),
