@@ -437,7 +437,9 @@ function updateOrbitalSphere(
 
   const status = getActiveStatusEffect(s, sphere);
   const preFinalPower = finalIndex === null ? preFinalBranchPower(s, 'orbital') : 1;
-  const band = finalIndex === 1 ? 26 : finalIndex === 0 ? 22 : finalIndex === null ? 19 * preFinalPower : 19;
+  // Early Orbital should feel reliable before Level VII: the dual-ring path
+  // gets a slightly wider contact envelope, while final forms keep their authored windows.
+  const band = finalIndex === 1 ? 26 : finalIndex === 0 ? 24 : finalIndex === null ? 23 * preFinalPower : 19;
 
   let hitSomething = false;
 
