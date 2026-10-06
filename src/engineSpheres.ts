@@ -335,11 +335,24 @@ function getActiveStatusEffect(s: GameState, sphere?: SphereEntity): 'none' | 'f
   return 'none';
 }
 
-function updateOrbitalSphere(s: GameState, sphere: SphereEntity, damage: number, mods: ReturnType<typeof sphereModifiers>, networkProfile: ReturnType<typeof getSphereNetworkProfile>, network: SphereNetworkState, dt: number): void {
+function updateOrbitalSphere(
+  s: GameState,
+  sphere: SphereEntity,
+  damage: number,
+  mods: ReturnType<typeof sphereModifiers>,
+  networkProfile: ReturnType<typeof getSphereNetworkProfile>,
+  network: ReturnType<typeof getNetworkFrame>,
+  dt: number,
+): void {
   const branch = s.player.sphereBranches?.orbital;
   const finalIndex = getSphereFinalIndex(s, 'orbital');
-  const satelliteCount = Math.max(1, sphereLevel(s, 'orbital') + 1 + (s.player.artifacts.includes('orbital_crown') ? 1 : 0) + (finalIndex === 2 ? 1 : 0));
-  let angularSpeed = 1.8 + Math.min(2.4, sphereLevel(s, 'orbital') * 0.28);
+  const level = sphereLevel(s, 'orbital');
+  const extraElements =
+    (s.player.artifacts.includes('orbital_crown') ? 1 : 0)
+    + (finalIndex === 2 ? 1 : 0);
+  const counts = getOrbitalRingCounts(level, extraElements);
+
+  let angularSpeed = 1.8 + Math.min(2.4, Math.max(1, level) * 0.28);
   if (branch === 'orbital_dance') angularSpeed *= finalIndex === 1 ? 1.55 : 1.28;
   if (branch === 'orbital_halo') angularSpeed *= 1.08;
   if (branch === 'orbital_blade') angularSpeed *= 1.12;
@@ -349,31 +362,57 @@ function updateOrbitalSphere(s: GameState, sphere: SphereEntity, damage: number,
   if (sphere.auraTimer > 0) return;
   sphere.auraTimer = Math.max(0.12, 0.42 * mods.auraPulse);
 
-  let orbitRadius = (78 + 12 * Math.min(7, sphereLevel(s, 'orbital'))) * mods.radius;
   const sphereIndex = s.spheres.indexOf(sphere);
+  let orbitRadius = (78 + 12 * Math.min(7, Math.max(1, level))) * mods.radius;
   const clusterBonus = getFormationBonusMultiplier(network, 'cluster', sphereIndex);
   const ringBonus = getFormationBonusMultiplier(network, 'ring', sphereIndex);
   if (clusterBonus > 0) orbitRadius *= 1 + 0.08 * clusterBonus;
   if (ringBonus > 0) orbitRadius *= 1 + 0.12 * ringBonus;
   orbitRadius *= 1 + Math.min(0.20, networkProfile.linkedNeighbours * 0.03);
+  const outerOrbitRadius = orbitRadius + 18 * mods.radius;
 
   const status = getActiveStatusEffect(s, sphere);
   const band = finalIndex === 1 ? 26 : 19;
   let hitSomething = false;
+
   for (const enemy of s.enemies) {
     if (enemy.hp <= 0) continue;
     const dx = enemy.pos.x - sphere.pos.x;
     const dy = enemy.pos.y - sphere.pos.y;
-    const d = Math.hypot(dx, dy) || 1;
-    if (Math.abs(d - orbitRadius) > band) continue;
-    const angle = Math.atan2(dy, dx);
-    let bestAngularDistance = Math.PI;
-    for (let satellite = 0; satellite < satelliteCount; satellite++) {
-      const satelliteAngle = sphere.rotation + satellite * (Math.PI * 2 / satelliteCount);
-      const diff = Math.atan2(Math.sin(angle - satelliteAngle), Math.cos(angle - satelliteAngle));
-      bestAngularDistance = Math.min(bestAngularDistance, Math.abs(diff));
+    const distance = Math.hypot(dx, dy) || 1;
+
+    let hit = false;
+    const enemyAngle = Math.atan2(dy, dx);
+
+    if (Math.abs(distance - orbitRadius) <= band) {
+      for (let satellite = 0; satellite < counts.inner; satellite += 1) {
+        const satelliteAngle = orbitalElementAngle(sphere.rotation, 'inner', satellite, counts.inner);
+        const diff = Math.atan2(
+          Math.sin(enemyAngle - satelliteAngle),
+          Math.cos(enemyAngle - satelliteAngle),
+        );
+        if (Math.abs(diff) <= (finalIndex === 1 ? 0.30 : 0.22)) {
+          hit = true;
+          break;
+        }
+      }
     }
-    if (bestAngularDistance > (finalIndex === 1 ? 0.30 : 0.22)) continue;
+
+    if (!hit && Math.abs(distance - outerOrbitRadius) <= band) {
+      for (let satellite = 0; satellite < counts.outer; satellite += 1) {
+        const satelliteAngle = orbitalElementAngle(sphere.rotation, 'outer', satellite, counts.outer);
+        const diff = Math.atan2(
+          Math.sin(enemyAngle - satelliteAngle),
+          Math.cos(enemyAngle - satelliteAngle),
+        );
+        if (Math.abs(diff) <= (finalIndex === 1 ? 0.30 : 0.22)) {
+          hit = true;
+          break;
+        }
+      }
+    }
+
+    if (!hit) continue;
 
     let hitDamage = damage * 0.95;
     if (branch === 'orbital_dance') hitDamage *= 0.96;
@@ -384,23 +423,28 @@ function updateOrbitalSphere(s: GameState, sphere: SphereEntity, damage: number,
     dealDamageToEnemy(s, enemy, hitDamage, sphere);
     if (status !== 'none') applyDirectSphereStatus(s, enemy, status, sphere);
     hitSomething = true;
-
     if (branch === 'orbital_halo' && finalIndex === 2) {
       s.player.shieldCharges = Math.min(5, s.player.shieldCharges + 1);
     }
   }
 
   if (networkProfile.ring && s.player.artifacts.includes('orbital_blade') && s.player.artifacts.includes('prism_filter')) {
-    const linked = getLinkedNodeIndexes(network, s.spheres.indexOf(sphere))
-      .filter((index) => index < s.spheres.length && s.spheres[index]?.alive);
-    if (linked.length > 0) {
-      const relay = s.spheres[linked[0]];
-      s.lightnings.push({ from: { ...sphere.pos }, to: { ...relay.pos }, life: 0.16 });
+    const linked = getLinkedNodeIndexes(network, sphereIndex).find((index) => s.spheres[index]?.alive);
+    if (linked !== undefined) {
+      const target = s.spheres[linked];
+      s.lightnings.push({ from: { ...sphere.pos }, to: { ...target.pos }, life: 0.18, sourceSphere: sphere });
     }
   }
 
   if (hitSomething) triggerEngineerRelay(s, sphere);
-  s.particles.push({ pos: { ...sphere.pos }, vel: { x: 0, y: 0 }, life: 0.22, maxLife: 0.22, color: SPHERE_TYPES.orbital.color, size: finalIndex === 2 ? 9 : 7 });
+  s.particles.push({
+    pos: { ...sphere.pos },
+    vel: { x: 0, y: 0 },
+    life: 0.22,
+    maxLife: 0.22,
+    color: SPHERE_TYPES.orbital.color,
+    size: finalIndex === 2 ? 9 : 7,
+  });
 }
 
 function updatePrismSphere(s: GameState, sphere: SphereEntity, damage: number, radius: number, mods: ReturnType<typeof sphereModifiers>, networkProfile: ReturnType<typeof getSphereNetworkProfile>, network: SphereNetworkState, dt: number): void {
