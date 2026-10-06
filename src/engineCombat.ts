@@ -688,14 +688,15 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
     }
     if (fromSphere?.type === 'void' && s.player.sphereBranches?.void === 'void_reaper') {
       const finalIndex = getSphereFinalIndex(s, 'void');
-      s.player.hp = Math.min(s.player.maxHp, s.player.hp + (finalIndex === 2 ? 6 : 3));
-      const shardCount = finalIndex === 2 ? 3 : 2;
+      const branchPower = finalIndex === null ? preFinalBranchPower(s, 'void') : 1;
+      s.player.hp = Math.min(s.player.maxHp, s.player.hp + (finalIndex === 2 ? 6 : 3) * branchPower);
+      const shardCount = finalIndex === 2 ? 3 : finalIndex === null && sphereLevel(s, 'void') >= 6 ? 3 : 2;
       for (let shard = 0; shard < shardCount; shard++) {
         const angle = shard * (Math.PI * 2 / shardCount);
         s.sphereProjectiles.push({
           pos: { ...enemy.pos },
           vel: { x: Math.cos(angle) * 320, y: Math.sin(angle) * 320 },
-          damage: Math.max(4, actual * (finalIndex === 1 ? 0.24 : 0.18)),
+          damage: Math.max(4, actual * (finalIndex === 1 ? 0.24 : 0.18) * branchPower),
           radius: 4, alive: true, color: '#8f63ff', pierce: 0,
           hitEnemies: new Set(), effect: 'none', ricochet: 0, life: 0.65,
           sourceSphere: fromSphere, procOnHit: false,
