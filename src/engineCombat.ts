@@ -259,8 +259,13 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
     if (mods.vampiric > 0) {
       s.player.hp = Math.min(s.player.maxHp, s.player.hp + actual * mods.healOnHit);
     }
-    if (mods.resonantCharge > 0) {
-      chargeResonance(s, 'sphereHit', dealDamageToEnemy);
+    if (mods.resonantCharge > 0 && s.player.sphereBranches?.[fromSphere.type] !== 'pulse_resonator') {
+      chargeResonance(
+        s,
+        'sphereHit',
+        dealDamageToEnemy,
+        Math.max(1, mods.resonantCharge / 2),
+      );
     }
     if (allowSphereProc && mods.echoChance > 0 && nextRandom(s) < mods.echoChance) {
       dealDamageToEnemy(s, enemy, actual * 0.22, fromSphere, false);
@@ -322,6 +327,7 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
     if (voidBranch === 'void_hunger') {
       const branchPower = voidFinal === null ? preFinalBranchPower(s, 'void') : 1;
       actual *= 1 + Math.min(0.55, (1 - hpRatio) * (voidFinal === 2 ? 0.72 : 0.42) * branchPower);
+      if (voidFinal === 2 && hpRatio <= 0.30) actual *= 1.12;
     }
     if (voidBranch === 'void_reaper' && hpRatio <= 0.25) actual *= voidFinal === 1 ? 1.25 : 1.12;
     const baseExecuteChance = voidLevel >= 2 ? 0.10 : 0;
@@ -417,11 +423,14 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
         // Swarm shards are fragments of the projectile at the moment of impact.
         // They must spawn on the struck enemy, fly in random directions, deal
         // a meaningful fraction of the parent hit, and never recursively proc Swarm.
+        const shardDamageMultiplier = finalIndex === null
+          ? preFinalLevel >= 6 ? 0.65 : preFinalLevel >= 5 ? 0.58 : 0.50
+          : 0.50;
         for (let i = 0; i < count; i++) {
           const a = nextRandom(s) * Math.PI * 2;
           s.sphereProjectiles.push({
             pos: { ...enemy.pos }, vel: { x: Math.cos(a) * 320, y: Math.sin(a) * 320 },
-            damage: actual * 0.50, radius: 4, alive: true, color: '#d4943d', pierce: 0,
+            damage: actual * shardDamageMultiplier, radius: 4, alive: true, color: '#d4943d', pierce: 0,
             hitEnemies: new Set([enemy]), effect: 'none', ricochet: 0, life: 0.55,
             sourceSphere: fromSphere, procOnHit: false,
           });
@@ -456,10 +465,14 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
         }
       }
     } else if (branch === 'shotgun_burst') {
-      if (finalIndex === null && dist(enemy.pos, fromSphere.pos) < 120) {
-        actual *= preFinalBranchPower(s, 'shotgun');
-      } else if (dist(enemy.pos, fromSphere.pos) < (finalIndex === 1 ? 180 : 150)) {
-        actual *= finalIndex === 0 ? 1.3 : finalIndex === 1 ? 1.5 : 1.22;
+      const shotgunBranchLevel = sphereLevel(s, 'shotgun');
+      const closeRange = finalIndex === null
+        ? shotgunBranchLevel >= 6 ? 150 : shotgunBranchLevel >= 5 ? 135 : 120
+        : finalIndex === 1 ? 180 : 150;
+      if (dist(enemy.pos, fromSphere.pos) < closeRange) {
+        actual *= finalIndex === null
+          ? preFinalBranchPower(s, 'shotgun')
+          : finalIndex === 0 ? 1.3 : finalIndex === 1 ? 1.5 : 1.22;
       }
       if (finalIndex === 2 && dist(enemy.pos, fromSphere.pos) < 90) enemy.slowTimer = Math.max(enemy.slowTimer, 0.4);
     } else if (branch === 'shotgun_cataclysm') {
@@ -484,9 +497,13 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
       const chance = finalIndex === null
         ? (branchLevel >= 6 ? 0.60 : branchLevel >= 5 ? 0.45 : 0.32)
         : finalIndex === 0 ? 0.25 : finalIndex === 1 ? 0.4 : 0.32;
+      if (finalIndex === 2) actual *= 1.08;
       if (nextRandom(s) < chance) {
-        if (finalIndex === 2) actual *= 1.08;
-        const radius = finalIndex === 1 ? 65 : 45;
+        const radius = finalIndex === 1
+          ? 65
+          : finalIndex === null
+            ? branchLevel >= 6 ? 60 : branchLevel >= 5 ? 52 : 45
+            : 45;
         const shardCount = finalIndex === 1 ? 8 : finalIndex === null && branchLevel >= 6 ? 7 : 6;
         for (let i = 0; i < shardCount; i++) {
           const angle = (i / shardCount) * Math.PI * 2 + nextRandom(s) * 0.18;
@@ -539,19 +556,19 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
       enemy.slowFactor = Math.min(enemy.slowFactor, finalIndex === 0 ? 0.5 : finalIndex === 1 ? 0.42 : 0.62);
       if (finalIndex === 2) actual *= 1.12;
     } else if (branch === 'aura_gravity') {
-      if (finalIndex === 0 || finalIndex === 1) {
+      if (finalIndex === 0 || finalIndex === 1 || finalIndex === 2) {
         const pull = finalIndex === 0 ? 55 : 80;
+        const pullRadius = finalIndex === 0 ? 150 : 190;
         for (const nearby of s.enemies) {
-          if (nearby.hp > 0 && dist(nearby.pos, fromSphere.pos) < (finalIndex === 0 ? 150 : 190)) {
+          if (nearby.hp > 0 && dist(nearby.pos, fromSphere.pos) < pullRadius) {
             const dx = fromSphere.pos.x - nearby.pos.x, dy = fromSphere.pos.y - nearby.pos.y;
             const d = Math.hypot(dx, dy) || 1;
             nearby.pos.x += dx / d * pull;
             nearby.pos.y += dy / d * pull;
           }
         }
-      } else {
-        actual *= 1.18;
       }
+      if (finalIndex === 2) actual *= 1.18;
     } else if (branch === 'aura_overgrowth') {
       const bonus = finalIndex === 0 ? 0.18 : finalIndex === 1 ? 0.3 : 0.1;
       for (const ally of s.spheres) {
