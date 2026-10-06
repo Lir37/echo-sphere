@@ -1510,3 +1510,41 @@ NEXT PLAYER CHECK:
 Validate the final green APK for Orbital L1/L2 feel, obvious elemental trails,
 correct Chain primary damage and the existing dense-combat performance gate.
 ======================================================================
+
+
+======================================================================
+2026-10-06 — FULL SPHERE BALANCE AUDIT FINAL
+======================================================================
+
+FINAL CODE HEAD:
+37a7e79f6010d7538e8e6892f3049790f263497a
+FINAL CI:
+#1659 SUCCESS
+
+DONE:
+- Full audit of all 10 Sphere families and their L1-III / Mutation I / V-VI /
+  Level VII behavior.
+- Orbital early-game balance corrected: damage multiplier 0.50 -> 0.72.
+- Orbital early contact reliability improved.
+- Orbital HUD DPS estimate corrected to real orbital pass rate.
+- Chain primary visual target now receives the actual first damage hit.
+- Orbital Mutation I combat elements are now directly element-colored with clear
+  Fire / Freeze / Poison trail signatures.
+- Added regression coverage for balance, Chain primary hit, Orbital DPS estimate
+  and Orbital elemental VFX.
+- CI #1659 green: Typecheck, Unit Tests, Gameplay Audit, Lint, Web/Playwright,
+  Capacitor sync, Debug APK build/upload all SUCCESS.
+
+BALANCE CONCLUSION:
+The 10 Spheres remain role-balanced rather than raw-DPS-equalized.
+The major early Orbital underperformance and Chain primary-hit defect were the
+only concrete outliers requiring immediate gameplay correction in this pass.
+No broad performance rewrite was justified.
+
+NEXT:
+Human APK PlayerCheck of the exact 37a7e79f6010d7538e8e6892f3049790f263497a APK:
+1) Orbital L1/L2 against normal packs and boss.
+2) Orbital Fire/Freeze/Poison readability at normal mobile scale.
+3) Chain primary target HP reduction.
+4) Existing 6-Sphere + 5+ enemy Chain/Aura/Orbital FPS gate.
+======================================================================
