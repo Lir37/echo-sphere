@@ -1,7 +1,7 @@
-import { REGION_CHALLENGES, REGION_POCKETS, getRegionChallengeProgress, loadRegionChallengeCompletions, loadRegionEndlessUnlock, type RegionChallengeId, type RegionMode } from './region';
+import { REGION_CHALLENGES, REGION_POCKETS, getRegionChallengeProgress, loadRegionChallengeCompletions, loadRegionEndlessUnlock, loadRegionStabilized, type RegionChallengeId, type RegionMode } from './region';
 import { CHARACTER_DEFS } from './characters';
 import { loadCharacterId } from './persistence';
-import type { Difficulty, Lang } from './gameData';
+import { DIFFICULTIES, type Difficulty, type Lang } from './gameData';
 
 type StartRun = (mode: RegionMode, challenge: RegionChallengeId) => void;
 
@@ -21,7 +21,7 @@ export default function EchoMapScreen({
   const completed = loadRegionChallengeCompletions();
   const progress = getRegionChallengeProgress();
   const endlessUnlocked = loadRegionEndlessUnlock();
-  const stabilized = typeof localStorage !== 'undefined' && localStorage.getItem('echo-sphere:region:resonance_basin:stabilized') === '1';
+  const stabilized = loadRegionStabilized();
   const character = CHARACTER_DEFS[loadCharacterId()];
   const challengePositions = ['es-map-satellite-a', 'es-map-satellite-b', 'es-map-satellite-c'];
 
@@ -47,7 +47,7 @@ export default function EchoMapScreen({
           <span className="es-map-character-orb" style={{ ['--map-char' as string]: character.color }}>✦</span>
           <span>
             <b>{character.name[lang]}</b>
-            <small>{difficulty === 'normal' ? (lang === 'ru' ? 'Обычная' : 'Normal') : difficulty}</small>
+            <small>{DIFFICULTIES.find(item => item.id === difficulty)?.name[lang] || difficulty}</small>
           </span>
         </button>
       </header>
