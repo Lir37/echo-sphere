@@ -61,3 +61,18 @@ test('player DoT ignores contact grace but respects Dash invulnerability', () =>
   assert.match(engineEnemies, /damagePlayerDoT\(s, e\.auraDps \* dt\)/);
   assert.doesNotMatch(engineEnemies, /damagePlayer\(s, e\.auraDps \* dt\)/);
 });
+
+
+test('recursive combat proc feedback is bounded',()=>{
+  const combat=fs.readFileSync(new URL('../src/engineCombat.ts',import.meta.url),'utf8');
+  assert.match(combat,/allowSphereProc && getArtifactSetBehavior\\(s\\)\\.singularityPath/);
+  assert.match(combat,/allowSphereProc && mods\\.shatter/);
+  assert.match(combat,/if \\(fromSphere && allowSphereProc\\)/);
+});
+test('normal ranged and sniper enemies use visible projectiles',()=>{
+  const enemies=fs.readFileSync(new URL('../src/engineEnemies.ts',import.meta.url),'utf8');
+  const renderer=fs.readFileSync(new URL('../src/renderer.ts',import.meta.url),'utf8');
+  assert.match(enemies,/visualType: sniper \\? 'enemy_sniper' : 'enemy_ranged'/);
+  assert.match(enemies,/damagePlayer\\(s, bp\\.damage\\)/);
+  assert.match(renderer,/drawEnemyProjectile\\(/);
+});
