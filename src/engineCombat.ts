@@ -317,15 +317,19 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
       actual *= 1 + Math.min(0.55, (1 - hpRatio) * (voidFinal === 2 ? 0.72 : 0.42));
     }
     if (voidBranch === 'void_reaper' && hpRatio <= 0.25) actual *= voidFinal === 1 ? 1.25 : 1.12;
+    const baseExecuteChance = voidLevel >= 2 ? 0.10 : 0;
     if (voidBranch === 'void_execution') {
       const threshold = voidFinal === 2 ? 0.30 : voidLevel >= 3 ? 0.25 : 0.20;
-      let executeChance = voidLevel >= 2 ? 0.10 : 0;
+      let executeChance = baseExecuteChance;
       executeChance += voidFinal === 2 ? 0.08 : voidFinal === 1 ? 0.04 : 0;
       if (s.player.artifacts.includes('void_star')) executeChance += 0.08;
       if (hpRatio <= threshold && nextRandom(s) < Math.min(0.45, executeChance)) {
         if (!enemy.isBoss) actual = Math.max(actual, enemy.hp + 1);
         else actual *= 2.5;
       }
+    } else if (baseExecuteChance > 0 && hpRatio <= 0.20 && nextRandom(s) < baseExecuteChance) {
+      if (!enemy.isBoss) actual = Math.max(actual, enemy.hp + 1);
+      else actual *= 1.35;
     }
     const sphereIndex = s.spheres.indexOf(fromSphere);
     const lineBonus = getFormationBonusMultiplier(getNetworkFrame(s), 'line', sphereIndex);
@@ -369,10 +373,11 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
     } else if (branch === 'standard_singularity') {
       enemy.slowTimer = Math.max(enemy.slowTimer, finalIndex === 0 ? 1.2 : finalIndex === 1 ? 1.8 : 0.9);
       enemy.slowFactor = Math.min(enemy.slowFactor, finalIndex === 0 ? 0.5 : finalIndex === 1 ? 0.58 : 0.68);
-      if (finalIndex === 0 || finalIndex === 2) {
-        const pull = finalIndex === 0 ? 24 : 40;
+      if (finalIndex === null || finalIndex === 0 || finalIndex === 2) {
+        const pull = finalIndex === 0 ? 24 : finalIndex === 2 ? 40 : 20;
+        const pullRadius = finalIndex === 0 ? 75 : finalIndex === 2 ? 100 : 65;
         for (const nearby of s.enemies) {
-          if (nearby !== enemy && nearby.hp > 0 && dist(nearby.pos, enemy.pos) < (finalIndex === 0 ? 75 : 100)) {
+          if (nearby !== enemy && nearby.hp > 0 && dist(nearby.pos, enemy.pos) < pullRadius) {
             const dx = enemy.pos.x - nearby.pos.x, dy = enemy.pos.y - nearby.pos.y;
             const d = Math.hypot(dx, dy) || 1;
             nearby.pos.x += dx / d * pull;
