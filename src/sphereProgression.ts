@@ -222,7 +222,7 @@ const BRANCH_LEVEL_DETAILS_EN:Partial<Record<SphereEvolutionId,{level5:string;le
   aura_overgrowth:{level5:"Spheres near the Aura gain attack acceleration and fire their attacks more often.",level6:"The empowerment zone expands, allowing more Spheres to use the acceleration at once."},
   orbital_dance:{level5:"Orbits accelerate and cross enemies more often.",level6:"Rotation speed increases again, so the orbital elements complete more combat passes per second."},
   orbital_halo:{level5:"Each successful orbital pass grants additional Resonance.",level6:"Successful orbital passes grant stronger Resonance charge."},
-  orbital_blade:{level5:"Orbital blades deal increased damage to enemies along their path.",level6:"Blade damage rises and the effective pass zone becomes wider."},
+  orbital_blade:{level5:"Orbital blades deal increased damage to enemies along their path and their Impact pushes struck enemies away.",level6:"Blade damage rises, Afterimage trails become stronger, and the effective pass zone becomes wider."},
   prism_split:{level5:"The beam splits toward an additional target after the main hit.",level6:"The split beam hits an additional target with less power loss."},
   prism_spectrum:{level5:"The beam transfers an active status effect to the hit target.",level6:"Status transfer becomes more consistent and interacts with reactions more strongly."},
   prism_mirror:{level5:"Linked Spheres create secondary reflected beams.",level6:"Reflected beams gain additional range and stability."},
@@ -239,7 +239,7 @@ const BRANCH_LEVEL_DETAILS_EN:Partial<Record<SphereEvolutionId,{level5:string;le
 const NEW_BRANCH_LEVEL_DETAILS:Partial<Record<SphereEvolutionId,{level5:string;level6:string}>>={
   orbital_dance:{level5:'Орбиты ускоряются и чаще пересекают врагов.',level6:'Скорость вращения снова увеличивается, поэтому боевые элементы совершают больше проходов по траектории за секунду.'},
   orbital_halo:{level5:'Каждый успешный проход орбиты дополнительно подпитывает Resonance.',level6:'Резонансный заряд от успешных проходов становится сильнее.'},
-  orbital_blade:{level5:'Орбитальные лезвия наносят повышенный урон по врагам на траектории.',level6:'Урон лезвий растёт, а эффективная зона прохода становится шире.'},
+  orbital_blade:{level5:'Орбитальные лезвия наносят повышенный урон по врагам на траектории и отбрасывают поражённых.',level6:'Урон лезвий растёт, усиливаются Afterimage-следы, а эффективная зона прохода становится шире.'},
   prism_split:{level5:'Луч делится на дополнительную цель после основного попадания.',level6:'Разделённый луч поражает дополнительную цель с меньшей потерей мощности.'},
   prism_spectrum:{level5:'Луч переносит активный статусный эффект на поражённую цель.',level6:'Статусная передача становится стабильнее и сильнее взаимодействует с реакциями.'},
   prism_mirror:{level5:'Связанные сферы создают вторичные отражённые лучи.',level6:'Отражённые лучи получают дополнительную дальность и стабильность.'},
@@ -461,11 +461,11 @@ const genericSphereBranches = (type: SphereType, names: [string,string,string], 
   ids.map((id, i) => br(id, names[i], 'Развивает уникальную механику сферы '+type+'.', finalsFor(id))) as [SphereEvolutionBranch,SphereEvolutionBranch,SphereEvolutionBranch];
 
 export const SPHERE_PROGRESSION:Record<SphereType,SphereDef>={
- standard:sphere('standard','Стандартная',{spherist:1,engineer:.9,berserker:.8,architect:.7,hunter:.4,alchemist:.4},['+15% урона','+1 пробитие','-10% задержки'],[br('standard_resonator','Резонатор','Каждое третье попадание выпускает импульс',finalsFor('standard_resonator')),br('standard_singularity','Сингулярность','Попадания притягивают врагов',finalsFor('standard_singularity')),br('standard_swarm','Рой','Попадания выпускают осколки',finalsFor('standard_swarm'))]),
+ standard:sphere('standard','Стандартная',{spherist:1,engineer:.9,berserker:.8,architect:.7,hunter:.4,alchemist:.4},['+15% урона','+1 пробитие','-10% задержки'],[br('standard_resonator','Резонатор','Каждое третье попадание выпускает импульс; попадания также подпитывают Resonance',finalsFor('standard_resonator')),br('standard_singularity','Сингулярность','Попадания притягивают врагов',finalsFor('standard_singularity')),br('standard_swarm','Рой','Попадания выпускают осколки',finalsFor('standard_swarm'))]),
  sniper:sphere('sniper','Снайперская',{hunter:1,architect:.9,spherist:.4,engineer:.4,berserker:.3,alchemist:.3},['+25% урона','+15% дальности','+15% крита'],[br('sniper_oracle','Оракул','Усиливает критический урон по отмеченным целям',finalsFor('sniper_oracle')),br('sniper_assassin','Убийца','Усиливает урон по слабым целям',finalsFor('sniper_assassin')),br('sniper_beacon','Маяк','Помечает цель для всей сети',finalsFor('sniper_beacon'))]),
  shotgun:sphere('shotgun','Дробовик',{berserker:1,alchemist:.8,spherist:.6,engineer:.4,hunter:.3,architect:.3},['+1 дробь','+20% урона вблизи','-12% разброса'],[br('shotgun_burst','Разрыв','Ближние попадания наносят повышенный урон',finalsFor('shotgun_burst')),br('shotgun_cataclysm','Осада','Тяжёлые пробивные снаряды',finalsFor('shotgun_cataclysm')),br('shotgun_hail','Град','Много дополнительных снарядов',finalsFor('shotgun_hail'))]),
- chain:sphere('chain','Цепная',{spherist:1,hunter:.95,engineer:.9,alchemist:.8,architect:.5,berserker:.4},['+1 цель цепи','+10% урона цепи','-15% интервала атаки'],[br('chain_web','Паутина','Поражённые цели получают усиленное замедление',finalsFor('chain_web')),br('chain_storm','Шторм','Каждый переход усиливает следующий',finalsFor('chain_storm')),br('chain_leech','Паразит','Цепь возвращает часть урона',finalsFor('chain_leech'))]),
- aura:sphere('aura','Аура',{engineer:1,alchemist:1,architect:.9,spherist:.7,hunter:.4,berserker:.4},['+20% радиуса ауры','-10% интервала импульса','+10% урона ауры'],[br('aura_sanctum','Святилище','Замедляет врагов и усиливает сферы',finalsFor('aura_sanctum')),br('aura_gravity','Гравитация','Стягивает врагов к центру',finalsFor('aura_gravity')),br('aura_overgrowth','Живая сеть','Усиливает сферы внутри ауры',finalsFor('aura_overgrowth'))]),
+ chain:sphere('chain','Цепная',{spherist:1,hunter:.95,engineer:.9,alchemist:.8,architect:.5,berserker:.4},['+1 цель цепи','+10% урона цепи','-15% интервала атаки'],[br('chain_web','Паутина','Поражённые цели получают усиленное замедление',finalsFor('chain_web')),br('chain_storm','Шторм','Каждый переход создаёт электрический всплеск и дополнительно заряжает Resonance',finalsFor('chain_storm')),br('chain_leech','Паразит','Цепь возвращает часть урона',finalsFor('chain_leech'))]),
+ aura:sphere('aura','Аура',{engineer:1,alchemist:1,architect:.9,spherist:.7,hunter:.4,berserker:.4},['+20% радиуса ауры','-10% интервала импульса','+10% урона ауры'],[br('aura_sanctum','Святилище','Замедляет врагов и удерживает их, усиливая ближайшие сферы',finalsFor('aura_sanctum')),br('aura_gravity','Гравитация','Стягивает врагов к центру',finalsFor('aura_gravity')),br('aura_overgrowth','Живая сеть','Усиливает сферы внутри ауры',finalsFor('aura_overgrowth'))]),
  orbital:sphere('orbital','Орбитальная',{spherist:1,engineer:.8,architect:.8},['+15% орбитального урона','+15% радиуса орбиты','+15% скорости вращения боевых элементов'],[br('orbital_dance','Танец','Спутники вращаются быстрее и наносят урон при каждом пересечении траектории с врагом.',finalsFor('orbital_dance')),br('orbital_halo','Ореол','Каждый успешный проход орбиты дополнительно заряжает Resonance.',finalsFor('orbital_halo')),br('orbital_blade','Клинок','Спутники превращаются в боевые лезвия и наносят повышенный урон по траектории.',finalsFor('orbital_blade'))]),
  prism:sphere('prism','Призма',{hunter:1,architect:.9,spherist:.7},['+20% урона луча','+15% дальности','+1 направление'],[br('prism_split','Расщепление','Луч после попадания делится на дополнительные лучи по другим целям.',finalsFor('prism_split')),br('prism_spectrum','Спектр','Луч передаёт активный статусный эффект и усиливает реакцию на цели.',finalsFor('prism_spectrum')),br('prism_mirror','Зеркало','Связанные сферы создают отражённые лучи, повторяющие основной удар.',finalsFor('prism_mirror'))]),
  gravity:sphere('gravity','Гравитационная',{alchemist:1,architect:1,engineer:.8},['+20% силы притяжения','+15% радиуса','-15% интервала импульса'],[br('gravity_well','Колодец','Притяжение становится постоянным: чем ближе враг к центру, тем сильнее его тянет.',finalsFor('gravity_well')),br('gravity_tide','Прилив','Поле плавно меняет силу притяжения и периодически создаёт обратную волну.',finalsFor('gravity_tide')),br('gravity_collapse','Коллапс','Собранные в плотную группу враги получают дополнительный урон от сжатия.',finalsFor('gravity_collapse'))]),
@@ -1141,7 +1141,6 @@ export function sphereModifiers(s:any,type:SphereType,sphere?:any){
       if(final===null && l>=5) rotationSpeed*=l>=6?1.20:1.10;
     }
     if(branch==='orbital_halo'){
-      damage*=0.92;
       rotationSpeed*=1.08;
       if(final===null && l>=5) resonantCharge*=l>=6?1.25:1.12;
     }
@@ -1154,11 +1153,11 @@ export function sphereModifiers(s:any,type:SphereType,sphere?:any){
     if(l>=2) radius*=1.15;
     if(l>=3) multishot+=1;
     if(branch==='prism_split'){ multishot+=final===1?1:0; }
-    if(branch==='prism_spectrum'){ damage*=0.98; }
+    if(branch==='prism_spectrum'){ /* Elemental status and Resonance define this branch. */ }
     if(branch==='prism_mirror'){ radius*=1.08; }
   }
   if(type==='gravity'){
-    if(l>=1) damage*=1.20;
+    // Level I is a control-strength upgrade; the runtime consumes it as pull strength.
     if(l>=2) radius*=1.15;
     if(l>=3) auraPulse*=0.85;
     if(branch==='gravity_well'){ auraRadius*=final===1?1.20:1.08; }
@@ -1177,7 +1176,7 @@ export function sphereModifiers(s:any,type:SphereType,sphere?:any){
     if(branch==='pulse_burst'){ damage*=final===2?1.12:1.04; }
   }
   if(type==='void'){
-    if(l>=1) damage*=1.20;
+    // Level I's +20% applies conditionally to weakened targets in engineCombat.
     if(l>=3) radius*=1.15;
     if(branch==='void_hunger'){ damage*=1.05; }
     if(branch==='void_reaper'){ damage*=1.03; }
