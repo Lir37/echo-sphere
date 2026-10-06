@@ -120,7 +120,7 @@ const baseLevelContracts = [
   [/if\(type==='sniper'\)[\s\S]*if\(l>=2\) radius\*=1\.15/, 'Sniper L2 range'],
 
   [/if\(type==='shotgun'\)[\s\S]*if\(l>=1\) multishot\+=1/, 'Shotgun L1 pellet'],
-  [/fromSphere\?\.type === 'shotgun' && sphereLevel\(s, 'shotgun'\) >= 2/, 'Shotgun L2 close damage'],
+
   [/if\(l>=3\) spreadMult\*=\.88/, 'Shotgun L3 spread'],
   [/if\(type==='chain'\)[\s\S]*if\(l>=1\) chainTargets\+=1/, 'Chain L1 target'],
   [/if\(type==='chain'\)[\s\S]*if\(l>=2\) damage\*=1\.10/, 'Chain L2 damage'],
@@ -149,6 +149,7 @@ const engineLevelContracts = [
   [/const gravityLevel = sphereLevel\(s, 'gravity'\);[\s\S]*if \(gravityLevel >= 1\) pullStrength \*= 1\.20/, 'Gravity L1 pull strength'],
   [/voidLevel >= 1 && hpRatio <= 0\.50\) actual \*= 1\.20/, 'Void L1 weakened-target damage'],
   [/sphere\?\.type === 'sniper' && sphereLevel\(s, 'sniper'\) >= 3/, 'Sniper L3 crit selector'],
+  [/fromSphere\?\.type === 'shotgun' && sphereLevel\(s, 'shotgun'\) >= 2/, 'Shotgun L2 close damage'],
 ];
 for (const [pattern, label] of engineLevelContracts) {
   assert.match(engine, pattern, label + ' runtime contract missing.');
