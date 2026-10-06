@@ -283,7 +283,24 @@ export function update(s: GameState, dt: number): void {
     // enemies
     updateEnemies(s, dt);
     const poi=collectRegionPoi(s);
-    if(poi){const labels:Record<RegionPoiType,string>={resonance_cache:'RESONANCE CACHE',breach_node:'BREACH NODE',echo_relay:'ECHO RELAY',lost_signal:'LOST SIGNAL',elite_nest:'ELITE NEST',rupture:'RUPTURE',boss_trace:'BOSS TRACE'};s.flashText={text:labels[poi],life:1,color:poi==='elite_nest'||poi==='rupture'?'#ff6b6b':'#55e6c1'};if(poi==='resonance_cache')s.player.resonanceCharge=Math.min(100,s.player.resonanceCharge+28);if(poi==='echo_relay')s.player.resonanceCharge=Math.min(100,s.player.resonanceCharge+45);if(poi==='breach_node')for(const e of s.enemies)if(e.hp>0&&dist(e.pos,s.player.pos)<260)e.hp*=.72;if(poi==='rupture')for(const e of s.enemies)if(e.hp>0&&dist(e.pos,s.player.pos)<220)e.hp*=.62;if(poi==='lost_signal')s.region!.regionXpReward+=12;if(poi==='elite_nest')for(let i=0;i<2;i++)s.enemies.push(spawnEnemy(s,false));}
+    if(poi){
+      const labels:Record<RegionPoiType,string>={
+        resonance_cache:'RESONANCE CACHE · +28 RESONANCE',
+        breach_node:'BREACH NODE · ENEMIES -28% HP',
+        echo_relay:'ECHO RELAY · +45 RESONANCE',
+        lost_signal:'LOST SIGNAL · +12 REGION XP',
+        elite_nest:'ELITE NEST · 2 HOSTILES',
+        rupture:'RUPTURE · ENEMIES -38% HP',
+        boss_trace:'BOSS TRACE · NEXT WARDEN',
+      };
+      s.flashText={text:labels[poi],life:1.35,color:poi==='elite_nest'||poi==='rupture'?'#ff6b6b':'#55e6c1'};
+      if(poi==='resonance_cache')s.player.resonanceCharge=Math.min(100,s.player.resonanceCharge+28);
+      if(poi==='echo_relay')s.player.resonanceCharge=Math.min(100,s.player.resonanceCharge+45);
+      if(poi==='breach_node')for(const e of s.enemies)if(e.hp>0&&dist(e.pos,s.player.pos)<260)e.hp*=.72;
+      if(poi==='rupture')for(const e of s.enemies)if(e.hp>0&&dist(e.pos,s.player.pos)<220)e.hp*=.62;
+      if(poi==='lost_signal')s.region!.regionXpReward+=12;
+      if(poi==='elite_nest')for(let i=0;i<2;i++)s.enemies.push(spawnEnemy(s,false));
+    }
   
   
   }
