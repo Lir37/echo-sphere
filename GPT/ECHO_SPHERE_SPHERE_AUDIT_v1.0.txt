@@ -953,3 +953,24 @@ NEXT:
 ======================================================================
 END FULL SPHERE CONTRACT AUDIT / ORBITAL RECONCILIATION
 ======================================================================
+
+
+======================================================================
+2026-10-06 — ORBITAL CONTACT / DOMINANCE IDENTITY AUDIT
+======================================================================
+
+CODE BASELINE:
+b55823a6761e011ccbbd4d70d6ffd6d412cbc962
+
+[DONE] Orbital contact is now one-hit-per-element-per-contact-episode.
+[DONE] Swept collision remains intact, so fast visual passes still register.
+[DONE] Temporary Network disable preserves the previous Dominant identity as
+      inactive rather than swapping hierarchy.
+[DONE] Inactive Dominant contributes no formation bonus and no Resonance.
+[DONE] Recovery restores the same Dominant slot automatically.
+[DONE] Added regression coverage for both mechanics.
+
+ACCEPTANCE GATE:
+- Final automated CI: PENDING.
+- APK PlayerCheck remains the authority for real-device gameplay behavior.
+======================================================================
