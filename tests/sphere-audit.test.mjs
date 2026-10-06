@@ -84,6 +84,12 @@ assert.match(engine, /bodyRadius \* 1\.68 \* radiusMultiplier/,
   'Orbital inner combat ring is not aligned with the authored visual orbit.');
 assert.match(engine, /bodyRadius \* 2\.02 \* radiusMultiplier/,
   'Orbital outer combat ring is not aligned with the authored visual orbit.');
+assert.match(renderer, /renderOrbitalSphereRuntimeVfx\(ctx, sphere, s\.player, time, scale, s\.enemies, orbitalRadiusScale\)/,
+  'Orbital main visual must consume the same live radius scale as combat/attackers.');
+assert.match(read('src/spheres/orbitalVisual.ts'), /r \* 1\.05 \* orbitMultiplier/,
+  'Orbital visual inner rail must scale with the live combat radius.');
+assert.match(read('src/spheres/orbitalVisual.ts'), /r \* \.88 \* orbitMultiplier/,
+  'Orbital visual outer rail must scale with the live combat radius.');
 assert.match(engine, /branch === 'orbital_dance' && finalIndex === 2/,
   'Only Orbital Dance final III should add the extra core satellite.');
 assert.match(progression, /orbital_dance:\{0:\{afterimage:2\},1:\{afterimage:3\},2:\{afterimage:3\}\}/,
