@@ -65,6 +65,18 @@ for (const id of canonicalBranchIds) {
   assert.match(progression, new RegExp(id + ':\\{level5:[\\s\\S]*level6:'), 'Branch Level VI description missing: ' + id);
 }
 
+const visualMutation = read('src/spheres/mutationVisual.ts');
+for (const id of canonicalBranchIds) {
+  assert.match(engine, new RegExp(id), 'Runtime behavior missing from canonical branch: ' + id);
+  assert.ok(
+    visualMutation.includes("branch==='" + id + "'") || visualMutation.includes("branch === '" + id + "'"),
+    'Visual mutation behavior missing from canonical branch: ' + id,
+  );
+}
+assert.match(progression, /orbital_halo:\{0:\{resonant:1\},1:\{\},2:\{resonant:2\}\}/,
+  'Orbital Halo final II must not silently grant Resonance when its description only widens the hit window.');
+
+
 assert.equal(canonicalBranchIds.length * 3, 90, 'Canonical Sphere roster must expose exactly 90 Level-VII finals.');
 for (const id of canonicalBranchIds) {
   for (const index of [0, 1, 2]) {
@@ -237,7 +249,7 @@ assert.ok(
 );
 assert.match(engine, /const pulseLevel = sphereLevel\(s, 'pulse'\)/,
   'Pulse Burst Level V/VI secondary discharge scaling must be explicit.');
-assert.match(progression, /standard_swarm:\{level5:'Боковой осколок получает повышенный урон/,
+assert.match(progression, /standard_swarm:\{level5:'Осколок получает повышенный урон, усиливая каждое срабатывание Роя\./,
   'Standard Swarm Level V must have a real enhancement beyond Level IV.');
 assert.match(progression, /pulse_burst:\{level5:'Второй разряд становится мощнее/,
   'Pulse Burst Level V must strengthen the branch behavior rather than introduce it late.');

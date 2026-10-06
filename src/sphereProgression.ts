@@ -391,7 +391,7 @@ const SPHERE_FINAL_VARIANTS:Record<SphereEvolutionId,[SphereEvolutionDef,SphereE
     f('prism_spectrum_final_3','Спектр • Токсин','Prism Spectrum • Toxin','Призма получает токсический статус для боевых реакций.','Prism gains a Poison status for combat reactions.'),
   ],
   prism_mirror:[
-    f('prism_mirror_final_1','Зеркало • Отражение','Prism Mirror • Reflection','Отражённый луч получает первый уровень Ricochet и продолжает атаковать цель.','The reflected beam gains level 1 Ricochet and continues attacking the target.'),
+    f('prism_mirror_final_1','Зеркало • Отражение','Prism Mirror • Reflection','Отражённый луч получает первый уровень Ricochet и переходит на новую ближайшую цель.','The reflected beam gains level 1 Ricochet and jumps to a new nearby target.'),
     f('prism_mirror_final_2','Зеркало • Двойной отскок','Prism Mirror • Double Ricochet','Зеркало получает усиленный Ricochet для повторных ударов по связанной сети.','The mirror gains stronger Ricochet for repeated hits through the linked network.'),
     f('prism_mirror_final_3','Зеркало • Зеркальная сеть','Prism Mirror • Mirror Network','Усиленный Ricochet, дополнительный Echo-эффект и до двух отражений по связанной сети.','Stronger Ricochet combines with an additional Echo effect and up to two linked reflections.'),
   ],
@@ -428,7 +428,7 @@ const SPHERE_FINAL_VARIANTS:Record<SphereEvolutionId,[SphereEvolutionDef,SphereE
   void_hunger:[
     f('void_hunger_final_1','Голод • Порча','Void Hunger • Corruption','Пустота получает усиление Corrupt для работы по ослабленным целям.','Void gains a Corrupt effect for working against weakened targets.'),
     f('void_hunger_final_2','Голод • Резонанс','Void Hunger • Resonance','Порча сохраняется, а попадания дополнительно заряжают Resonance.','Corruption remains active, and hits also grant additional Resonance.'),
-    f('void_hunger_final_3','Голод • Поглощение','Void Hunger • Devour','Порча сочетается с восстановлением HP от успешных убийств, а по целям ниже 30% HP добивание дополнительно усиливается на 12%.','Corruption combines with HP restoration on kills, and finishing hits against targets below 30% HP gain an additional 12% multiplier.'),
+    f('void_hunger_final_3','Голод • Поглощение','Void Hunger • Devour','Порча сочетается с восстановлением HP от успешных убийств, а попадания по целям ниже 30% HP дополнительно усиливаются на 12%.','Corruption combines with HP restoration on kills, and hits against targets below 30% HP gain an additional 12% multiplier.'),
   ],
   void_reaper:[
     f('void_reaper_final_1','Жнец • Кровь','Void Reaper • Blood','Попадания и убийства сильнее поддерживают восстановление HP.','Hits and kills provide stronger HP sustain.'),
@@ -1013,7 +1013,7 @@ const AUTHORED_FINAL_MODIFIERS: Partial<Record<SphereEvolutionId, Partial<Record
   aura_gravity:{0:{gravitic:2},1:{anchor:2},2:{gravitic:2,anchor:2}},
   aura_overgrowth:{0:{},1:{},2:{}},
   orbital_dance:{0:{afterimage:2},1:{afterimage:3},2:{afterimage:3}},
-  orbital_halo:{0:{resonant:1},1:{resonant:1},2:{resonant:2}},
+  orbital_halo:{0:{resonant:1},1:{},2:{resonant:2}},
   orbital_blade:{0:{impact:2},1:{afterimage:2},2:{impact:2,afterimage:3}},
   prism_split:{0:{multishot:2},1:{multishot:2},2:{multishot:2}},
   prism_spectrum:{0:{fire:1},1:{freeze:1},2:{poison:1}},
