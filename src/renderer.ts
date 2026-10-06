@@ -2938,8 +2938,8 @@ function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, sourceNe
   };
 
   for (const link of network.links) {
-    const lineNode = hasNode(network.line, link.a) && hasNode(network.line, link.b);
-    const triangleNode = hasNode(network.triangle, link.a) && hasNode(network.triangle, link.b);
+    const lineNode = network.line?.active !== false && hasNode(network.line, link.a) && hasNode(network.line, link.b);
+    const triangleNode = network.triangle?.active !== false && hasNode(network.triangle, link.a) && hasNode(network.triangle, link.b);
     const clusterNode = hasNode(network.cluster, link.a) && hasNode(network.cluster, link.b);
     const squareNode = hasNode(network.square, link.a) && hasNode(network.square, link.b);
 
@@ -2997,9 +2997,10 @@ function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, sourceNe
 
   if (network.triangle) {
     const points = network.triangle.nodes.map((index) => s.spheres[index].pos);
+    const triangleAlpha = network.triangle.active === false ? 0.30 : 1;
     ctx.save();
     ctx.fillStyle = '#ffb84d';
-    ctx.globalAlpha = 0.028 + 0.018 * Math.sin(t * 3);
+    ctx.globalAlpha = (0.028 + 0.018 * Math.sin(t * 3)) * triangleAlpha;
     ctx.beginPath();
     ctx.moveTo(points[0].x, points[0].y);
     ctx.lineTo(points[1].x, points[1].y);
@@ -3007,7 +3008,7 @@ function drawSphereNetwork(ctx: CanvasRenderingContext2D, s: GameState, sourceNe
     ctx.closePath();
     ctx.fill();
     ctx.strokeStyle = '#ffcf73';
-    ctx.globalAlpha = 0.24 + 0.08 * Math.sin(t * 4);
+    ctx.globalAlpha = (0.24 + 0.08 * Math.sin(t * 4)) * triangleAlpha;
     ctx.lineWidth = 1;
     ctx.shadowColor = '#ffb84d';
     ctx.shadowBlur=4;
