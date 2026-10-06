@@ -335,6 +335,42 @@ function getActiveStatusEffect(s: GameState, sphere?: SphereEntity): 'none' | 'f
   return 'none';
 }
 
+function normalizeAnglePositive(angle: number): number {
+  const tau = Math.PI * 2;
+  return ((angle % tau) + tau) % tau;
+}
+
+function circularAngleDistance(a: number, b: number): number {
+  const tau = Math.PI * 2;
+  const delta = Math.abs(normalizeAnglePositive(a) - normalizeAnglePositive(b));
+  return Math.min(delta, tau - delta);
+}
+
+function isAngleOnOrbitalSweep(
+  targetAngle: number,
+  startAngle: number,
+  endAngle: number,
+  direction: 1 | -1,
+  tolerance: number,
+): boolean {
+  const tau = Math.PI * 2;
+  const travelled = direction === 1
+    ? normalizeAnglePositive(endAngle - startAngle)
+    : normalizeAnglePositive(startAngle - endAngle);
+  const targetTravel = direction === 1
+    ? normalizeAnglePositive(targetAngle - startAngle)
+    : normalizeAnglePositive(startAngle - targetAngle);
+
+  if (targetTravel <= travelled) {
+    return Math.min(targetTravel, travelled - targetTravel) <= tolerance;
+  }
+
+  return Math.min(
+    circularAngleDistance(targetAngle, startAngle),
+    circularAngleDistance(targetAngle, endAngle),
+  ) <= tolerance;
+}
+
 function updateOrbitalSphere(
   s: GameState,
   sphere: SphereEntity,
@@ -356,7 +392,9 @@ function updateOrbitalSphere(
   if (branch === 'orbital_dance') angularSpeed *= finalIndex === 1 ? 1.55 : 1.28;
   if (branch === 'orbital_halo') angularSpeed *= 1.08;
   if (branch === 'orbital_blade') angularSpeed *= 1.12;
-  sphere.rotation += angularSpeed * dt;
+  const currentRotation = sphere.rotation + angularSpeed * dt;
+  const previousSweepRotation = sphere.orbitalLastSweepRotation ?? sphere.rotation;
+  sphere.rotation = currentRotation;
 
   sphere.auraTimer -= dt;
   if (sphere.auraTimer > 0) return;
@@ -375,6 +413,24 @@ function updateOrbitalSphere(
   const band = finalIndex === 1 ? 26 : 19;
   let hitSomething = false;
 
+  // Save the end of this checked interval only after collision processing.
+  // Between checks the visual element may travel a large fraction of a turn;
+  // the swept test below therefore catches a real pass instead of sampling
+  // only the final position.
+  const innerSweepStart = previousSweepRotation;
+  const innerSweepEnd = currentRotation;
+  const outerSweepStart = previousSweepRotation;
+  const outerSweepEnd = currentRotation;
+
+  const innerAngles = new Array<number>(counts.inner);
+  const outerAngles = new Array<number>(counts.outer);
+  for (let i = 0; i < counts.inner; i += 1) {
+    innerAngles[i] = orbitalElementAngle(currentRotation, 'inner', i, counts.inner);
+  }
+  for (let i = 0; i < counts.outer; i += 1) {
+    outerAngles[i] = orbitalElementAngle(currentRotation, 'outer', i, counts.outer);
+  }
+
   for (const enemy of s.enemies) {
     if (enemy.hp <= 0) continue;
     const dx = enemy.pos.x - sphere.pos.x;
@@ -384,14 +440,13 @@ function updateOrbitalSphere(
     let hit = false;
     const enemyAngle = Math.atan2(dy, dx);
 
+    const angularTolerance = finalIndex === 1 ? 0.30 : 0.22;
+
     if (Math.abs(distance - orbitRadius) <= band) {
       for (let satellite = 0; satellite < counts.inner; satellite += 1) {
-        const satelliteAngle = orbitalElementAngle(sphere.rotation, 'inner', satellite, counts.inner);
-        const diff = Math.atan2(
-          Math.sin(enemyAngle - satelliteAngle),
-          Math.cos(enemyAngle - satelliteAngle),
-        );
-        if (Math.abs(diff) <= (finalIndex === 1 ? 0.30 : 0.22)) {
+        const startAngle = orbitalElementAngle(innerSweepStart, 'inner', satellite, counts.inner);
+        const endAngle = innerAngles[satellite];
+        if (isAngleOnOrbitalSweep(enemyAngle, startAngle, endAngle, 1, angularTolerance)) {
           hit = true;
           break;
         }
@@ -400,12 +455,9 @@ function updateOrbitalSphere(
 
     if (!hit && Math.abs(distance - outerOrbitRadius) <= band) {
       for (let satellite = 0; satellite < counts.outer; satellite += 1) {
-        const satelliteAngle = orbitalElementAngle(sphere.rotation, 'outer', satellite, counts.outer);
-        const diff = Math.atan2(
-          Math.sin(enemyAngle - satelliteAngle),
-          Math.cos(enemyAngle - satelliteAngle),
-        );
-        if (Math.abs(diff) <= (finalIndex === 1 ? 0.30 : 0.22)) {
+        const startAngle = orbitalElementAngle(outerSweepStart, 'outer', satellite, counts.outer);
+        const endAngle = outerAngles[satellite];
+        if (isAngleOnOrbitalSweep(enemyAngle, startAngle, endAngle, -1, angularTolerance)) {
           hit = true;
           break;
         }
@@ -427,6 +479,8 @@ function updateOrbitalSphere(
       s.player.shieldCharges = Math.min(5, s.player.shieldCharges + 1);
     }
   }
+
+  sphere.orbitalLastSweepRotation = currentRotation;
 
   if (networkProfile.ring && s.player.artifacts.includes('orbital_blade') && s.player.artifacts.includes('prism_filter')) {
     const linked = getLinkedNodeIndexes(network, sphereIndex).find((index) => s.spheres[index]?.alive);
