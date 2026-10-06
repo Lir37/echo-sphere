@@ -128,8 +128,12 @@ export function getSphereElementMasteryForBranch(
   branch?: SphereEvolutionId | null,
   finalIndex?: number | null,
 ): SphereElementMasteryDef | null {
-  const element = getSphereElementForBranch(branch);
-  if (!element || finalIndex === null || finalIndex === undefined) return null;
+  if (finalIndex === null || finalIndex === undefined) return null;
+  let element = getSphereElementForBranch(branch);
+  if (branch === 'prism_spectrum') {
+    element = finalIndex === 1 ? 'freeze' : finalIndex === 2 ? 'poison' : 'fire';
+  }
+  if (!element) return null;
   const specialChain = Boolean(branch && branch.startsWith('chain_'));
   const specialField = Boolean(branch && (
     branch.startsWith('aura_') ||
@@ -204,7 +208,7 @@ const BRANCH_LEVEL_DETAILS_EN:Partial<Record<SphereEvolutionId,{level5:string;le
   standard_resonator:{level5:"Every 3rd hit creates a pulse around the target. At level V the pulse becomes part of the main attack cycle.",level6:"The pulse triggers more consistently: every third hit strengthens area damage before the final form."},
   standard_singularity:{level5:"Each hit slows the enemy and begins pulling nearby enemies toward the impact point.",level6:"The pull becomes stronger, grouping enemies more effectively for follow-up hits."},
   standard_swarm:{level5:"Hits release an additional side shard, widening area coverage.",level6:"Side shards become part of the permanent attack pattern and cover more directions around the Sphere."},
-  sniper_oracle:{level5:"Marked targets trigger an empowered shot, making the Mark the main damage source.",level6:"The empowered Mark shot gains another power step and becomes more reliable against the priority target."},
+  sniper_oracle:{level5:"Marked targets trigger an empowered shot, increasing damage against the priority target.",level6:"The empowered Mark shot gains another power step and deals more damage to the priority target."},
   sniper_assassin:{level5:"Enemies below 35% HP take sharply increased damage, allowing the Sniper Sphere to finish weakened targets.",level6:"Execution damage punishes low-health targets even harder, preparing the final form."},
   sniper_beacon:{level5:"A hit creates a Mark zone around the target and slows nearby enemies.",level6:"The Mark zone becomes more pronounced and covers more targets, strengthening area control."},
   shotgun_burst:{level5:"The closer the enemy is to the Sphere, the higher the central pellet damage.",level6:"Close-range combat becomes even more dangerous: the damage bonus works at a wider distance and rewards closing in more strongly."},
@@ -217,14 +221,14 @@ const BRANCH_LEVEL_DETAILS_EN:Partial<Record<SphereEvolutionId,{level5:string;le
   aura_gravity:{level5:"The Aura periodically pulls enemies toward its center, gathering the crowd for area damage.",level6:"Gravity acts more strongly and over a larger area, compressing enemies toward the center."},
   aura_overgrowth:{level5:"Spheres near the Aura gain attack acceleration and fire their attacks more often.",level6:"The empowerment zone expands, allowing more Spheres to use the acceleration at once."},
   orbital_dance:{level5:"Orbits accelerate and cross enemies more often.",level6:"Orbit acceleration increases and the gap between combat passes becomes shorter."},
-  orbital_halo:{level5:"The orbit creates protective resonance for nearby Spheres.",level6:"Protective resonance reaches more connected Spheres."},
+  orbital_halo:{level5:"Each successful orbital pass grants additional Resonance.",level6:"Successful orbital passes grant stronger Resonance charge."},
   orbital_blade:{level5:"Orbital blades deal increased damage to enemies along their path.",level6:"Blade damage rises and the effective pass zone becomes wider."},
   prism_split:{level5:"The beam splits toward an additional target after the main hit.",level6:"The split beam hits an additional target with less power loss."},
   prism_spectrum:{level5:"The beam transfers an active status effect to the hit target.",level6:"Status transfer becomes more consistent and interacts with reactions more strongly."},
   prism_mirror:{level5:"Linked Spheres create secondary reflected beams.",level6:"Reflected beams gain additional range and stability."},
   gravity_well:{level5:"The pull zone becomes denser and slows enemies more strongly.",level6:"Pull strengthens toward the center and holds dense groups more effectively."},
   gravity_tide:{level5:"Gravity alternates between pull and a counter-push phase.",level6:"The phases become stronger and expand spatial control."},
-  gravity_collapse:{level5:"Tightly grouped enemies take additional pulse damage.",level6:"Collapse punishes large clusters and weakened targets more strongly."},
+  gravity_collapse:{level5:"Tightly grouped enemies take additional collapse damage.",level6:"Collapse punishes large clusters and weakened targets more strongly."},
   pulse_wave:{level5:"Each wave gains increased radius and pushes enemies away from the node.",level6:"The wave gains a wider control radius and stronger knockback."},
   pulse_resonator:{level5:"The pulse additionally feeds Resonance while the network is active.",level6:"The linked pulse creates resonance surges more often."},
   pulse_burst:{level5:"A short second discharge appears at the center after the main wave.",level6:"The second discharge becomes stronger and works better against dense groups."},
@@ -303,8 +307,8 @@ const SPHERE_FINAL_VARIANTS:Record<SphereEvolutionId,[SphereEvolutionDef,SphereE
   ],
   sniper_oracle:[
     f('sniper_oracle_final_1','Оракул • Критический фокус','Sniper Oracle • Critical Focus','Крит по отмеченной цели наносит +50% урона.','Critical hits against marked targets deal 50% more damage.'),
-    f('sniper_oracle_final_2','Оракул • Резонансный прицел','Sniper Oracle • Resonant Sight','Крит по отмеченной цели наносит +30% урона, а каждое попадание по отмеченной цели дополнительно заряжает Resonance.','Critical hits against marked targets deal 30% more damage and grant additional Resonance.'),
-    f('sniper_oracle_final_3','Оракул • Взрывной крит','Sniper Oracle • Explosive Crit','Крит по отмеченной цели наносит +22% урона, дополнительно задевает врагов рядом с целью и получает усиление Execute по целям ниже 30% HP.','Critical hits against marked targets deal 22% more damage and also damage nearby enemies.'),
+    f('sniper_oracle_final_2','Оракул • Резонансный прицел','Sniper Oracle • Resonant Sight','Крит по отмеченной цели наносит +30% урона, а каждое попадание по отмеченной цели дополнительно заряжает Resonance.','Critical hits against marked targets deal 30% more damage, and every hit against the marked target grants additional Resonance.'),
+    f('sniper_oracle_final_3','Оракул • Взрывной крит','Sniper Oracle • Explosive Crit','Крит по отмеченной цели наносит +22% урона, дополнительно задевает врагов рядом с целью и получает усиление Execute по целям ниже 30% HP.','Critical hits against marked targets deal 22% more damage, also damage nearby enemies, and gain stronger Execute pressure below 30% HP.'),
   ],
   sniper_assassin:[
     f('sniper_assassin_final_1','Убийца • Добивание','Sniper Assassin • Execution','По цели ниже 35% HP урон увеличен примерно в 1.7 раза.','Targets below 35% HP take roughly 1.7x damage.'),
@@ -317,14 +321,14 @@ const SPHERE_FINAL_VARIANTS:Record<SphereEvolutionId,[SphereEvolutionDef,SphereE
     f('sniper_beacon_final_3','Маяк • Сетевой','Sniper Beacon • Network Beacon','Метка и Anchor работают вместе, распространяя замедление на область вокруг цели.','The mark and network anchor work together, spreading slow across the area around the target.'),
   ],
   shotgun_burst:[
-    f('shotgun_burst_final_1','Разрыв • Ближний','Shotgun Burst • Close Burst','При дистанции до 150 наносится +30% урона и атака получает ещё 2 дополнительных снаряда.','At up to 150 range, the hit deals 30% more damage.'),
+    f('shotgun_burst_final_1','Разрыв • Ближний','Shotgun Burst • Close Burst','При дистанции до 150 наносится +30% урона и атака получает ещё 2 дополнительных снаряда.','At up to 150 range, the hit deals 30% more damage and gains 2 additional projectiles.'),
     f('shotgun_burst_final_2','Разрыв • Осадный','Shotgun Burst • Siege Burst','При дистанции до 180 наносится +50% урона.','At up to 180 range, the hit deals 50% more damage.'),
-    f('shotgun_burst_final_3','Разрыв • Ударный','Shotgun Burst • Impact Burst','При дистанции до 150 наносится +22% урона, атака получает ещё 2 дополнительных снаряда, а цели ближе 90 дополнительно замедляются.','At up to 150 range, the hit deals 22% more damage, and targets within 90 range are also slowed.'),
+    f('shotgun_burst_final_3','Разрыв • Ударный','Shotgun Burst • Impact Burst','При дистанции до 150 наносится +22% урона, атака получает ещё 2 дополнительных снаряда, а цели ближе 90 дополнительно замедляются.','At up to 150 range, the hit deals 22% more damage, gains 2 additional projectiles, and slows targets within 90 range.'),
   ],
   shotgun_cataclysm:[
-    f('shotgun_cataclysm_final_1','Осада • Осколочный взрыв','Shotgun Cataclysm • Fragment Blast','Попадание создаёт взрыв радиусом 60, наносящий соседним врагам 45% урона; взрыв получает Shatter.','Hits create a blast with radius 60, dealing 45% of the hit damage to nearby enemies.'),
-    f('shotgun_cataclysm_final_2','Осада • Тяжёлый взрыв','Shotgun Cataclysm • Heavy Blast','Попадание создаёт большой взрыв радиусом 85, наносящий соседним врагам 65% урона и получает Impact.','Hits create a large blast with radius 85, dealing 65% of the hit damage to nearby enemies.'),
-    f('shotgun_cataclysm_final_3','Осада • Удерживающий взрыв','Shotgun Cataclysm • Lockdown Blast','Попадание создаёт взрыв радиусом 55 с 35% вторичного урона, Shatter/Impact и замедляет поражённых врагов.','Hits create a blast with radius 55, dealing 35% secondary damage and slowing affected enemies.'),
+    f('shotgun_cataclysm_final_1','Осада • Осколочный взрыв','Shotgun Cataclysm • Fragment Blast','Попадание создаёт взрыв радиусом 60, наносящий соседним врагам 45% урона; взрыв получает Shatter.','Hits create a blast with radius 60, dealing 45% of the hit damage to nearby enemies; the blast gains Shatter.'),
+    f('shotgun_cataclysm_final_2','Осада • Тяжёлый взрыв','Shotgun Cataclysm • Heavy Blast','Попадание создаёт большой взрыв радиусом 85, наносящий соседним врагам 65% урона и получает Impact.','Hits create a large blast with radius 85, dealing 65% of the hit damage to nearby enemies and gains Impact.'),
+    f('shotgun_cataclysm_final_3','Осада • Удерживающий взрыв','Shotgun Cataclysm • Lockdown Blast','Попадание создаёт взрыв радиусом 55 с 35% вторичного урона, Shatter/Impact и замедляет поражённых врагов.','Hits create a blast with radius 55, dealing 35% secondary damage, Shatter/Impact, and slowing affected enemies.'),
   ],
   shotgun_hail:[
     f('shotgun_hail_final_1','Град • Осколочный','Shotgun Hail • Fragment Hail','С вероятностью 25% попадание выпускает 6 осколков вокруг цели.','On hit, there is a 25% chance to launch 6 shards around the target.'),
@@ -433,8 +437,8 @@ const SPHERE_FINAL_VARIANTS:Record<SphereEvolutionId,[SphereEvolutionDef,SphereE
   ],
   void_execution:[
     f('void_execution_final_1','Экзекуция • Порог','Void Execution • Threshold','Шанс исполнения и усиление урона по ослабленным целям повышаются.','Execute chance and damage against weakened targets are increased.'),
-    f('void_execution_final_2','Экзекуция • Фаза','Void Execution • Phase','Сфера получает Phase, добавляющий пробитие атакам.','The Sphere gains Phase, improving penetration and the chance to carry attacks through a target.'),
-    f('void_execution_final_3','Экзекуция • Абсолют','Void Execution • Absolute','Execute и Phase объединяются; Phase добавляет пробитие, а порог исполнения повышается до 30% HP.','Execute and Phase combine, and the execution threshold rises to 30% HP.'),
+    f('void_execution_final_2','Экзекуция • Фаза','Void Execution • Phase','Сфера получает Phase, добавляющий пробитие атакам.','The Sphere gains Phase, adding penetration to its attacks.'),
+    f('void_execution_final_3','Экзекуция • Абсолют','Void Execution • Absolute','Execute и Phase объединяются; Phase добавляет пробитие, а порог исполнения повышается до 30% HP.','Execute and Phase combine; Phase adds penetration, and the execution threshold rises to 30% HP.'),
   ],
 };
 
@@ -444,7 +448,13 @@ const br=(id:SphereEvolutionId,ru:string,desc:string,fin:[SphereEvolutionDef,Sph
   const details=BRANCH_LEVEL_DETAILS[id] ?? NEW_BRANCH_LEVEL_DETAILS[id] ?? { level5: 'Усиление выбранной ветки.', level6: 'Дополнительное усиление уникальной механики.' };
   const detailsEn=BRANCH_LEVEL_DETAILS_EN[id];
   const [nameEn,descEn]=BRANCH_EN[id] ?? [ru,desc];
-  return { ...e(id,ru,nameEn,desc,descEn), id, final:fin, level5:{ru:details.level5,en:details.level5}, level6:{ru:details.level6,en:details.level6} };
+  return {
+    ...e(id,ru,nameEn,desc,descEn),
+    id,
+    final:fin,
+    level5:{ru:details.level5,en:detailsEn?.level5 ?? details.level5},
+    level6:{ru:details.level6,en:detailsEn?.level6 ?? details.level6},
+  };
 };
 const sphere=(type:SphereType,name:string,priority:Partial<Record<CharacterId,number>>,l:[string,string,string],branches:[SphereEvolutionBranch,SphereEvolutionBranch,SphereEvolutionBranch]):SphereDef=>({type,name:SPHERE_TYPES[type]?.name ?? {ru:name,en:name},priority,levels:lv(...l),evolution4:branches[0],evolution7:branches[0].final[0],evolution4Choices:branches});
 const genericSphereBranches = (type: SphereType, names: [string,string,string], ids: [SphereEvolutionId,SphereEvolutionId,SphereEvolutionId]): [SphereEvolutionBranch,SphereEvolutionBranch,SphereEvolutionBranch] =>
