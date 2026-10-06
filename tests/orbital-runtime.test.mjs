@@ -18,6 +18,14 @@ test('Orbital Blade boss contact routes damage and telemetry through the shared 
   assert.match(visual, /getOrbitalRingCounts/);
 });
 
+test('Orbital contact is latched per element so repeated cadence checks cannot re-damage the same contact episode', () => {
+  const engine = read('src/engineSpheres.ts');
+  assert.match(engine, /const ORBITAL_CONTACT_LATCHES = new WeakMap<SphereEntity, OrbitalContactLatch>/);
+  assert.match(engine, /const key = ring \+ ':' \+ satellite/);
+  assert.match(engine, /if \(contactLatch\.has\(key\)\) return/);
+  assert.match(engine, /contactLatch\.add\(key\)/);
+  assert.match(engine, /for \(const key of Array\.from\(contactLatch\)/);
+});
 test('Orbital Level IV can register a large boss whose body overlaps the visible path', () => {
   const bodyRadius = Math.min(25, 25 * 0.19 + 4 * 0.8);
   const innerRadius = bodyRadius * 1.68;
