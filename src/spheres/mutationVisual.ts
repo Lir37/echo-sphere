@@ -195,7 +195,21 @@ export function renderSphereMutationVfx(ctx:CanvasRenderingContext2D,sphere:Sphe
 }
 export function renderSphereProjectileVfx(ctx:CanvasRenderingContext2D,p:SphereProjectile,player:PlayerState,time:number):void{
   const a=Math.atan2(p.vel.y,p.vel.x),speed=Math.hypot(p.vel.x,p.vel.y)||1;
-  ctx.save();ctx.translate(p.pos.x,p.pos.y);ctx.rotate(a);projectileTail(ctx,p.radius,p.color,speed,time);glow(ctx,p.radius*4,p.color,.045);projectileCore(ctx,p,player);ctx.restore();
+  const r=Math.max(2,p.radius);
+  const rgb=rgbOf(p.color);
+  ctx.save();
+  ctx.translate(p.pos.x,p.pos.y);
+  ctx.rotate(a);
+  projectileTail(ctx,r,p.color,speed,time);
+  // Projectile glows are numerous in high-density builds. Avoid creating a
+  // radial gradient for every projectile while keeping a readable energy core.
+  ctx.globalCompositeOperation='lighter';
+  ctx.globalAlpha=.18;
+  ctx.fillStyle='rgba('+rgb+',1)';
+  ctx.beginPath();ctx.arc(0,0,r*1.65,0,TAU);ctx.fill();
+  ctx.globalAlpha=1;
+  projectileCore(ctx,p,player);
+  ctx.restore();
 }
 export function renderChainLightningVfx(ctx:CanvasRenderingContext2D,bolt:LightningBolt,player:PlayerState,alpha:number,time:number):boolean{
   const sphere=bolt.sourceSphere;if(!sphere||sphere.type!=='chain')return false;
