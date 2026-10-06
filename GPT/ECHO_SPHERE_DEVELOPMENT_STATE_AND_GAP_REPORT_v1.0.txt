@@ -1402,3 +1402,39 @@ NEXT:
 ======================================================================
 END FULL SPHERE CONTRACT AUDIT / ORBITAL RECONCILIATION
 ======================================================================
+
+
+======================================================================
+2026-10-06 — ORBITAL CONTACT / TEMPORARY DOMINANCE IMPLEMENTATION
+======================================================================
+
+CODE BASELINE:
+b55823a6761e011ccbbd4d70d6ffd6d412cbc962
+
+[DONE] Orbital damage is now latched per individual combat element and enemy.
+      A repeated cadence check cannot shred the same enemy from the same element
+      while that contact episode is continuous.
+[DONE] Orbital contact re-arms after the element leaves the enemy contact band,
+      preserving later real orbital passes.
+[DONE] Temporary Network disruption preserves the current Dominant formation
+      slot and does not promote the Secondary formation.
+[DONE] The temporarily disabled Dominant is represented as inactive, grants no
+      formation bonus and is excluded from player-level Resonance ownership.
+[DONE] The same Dominant formation automatically resumes after recovery.
+[DONE] HUD communicates the temporary inactive state; Triangle rendering is
+      visually dimmed rather than being silently replaced.
+[DONE] Regression tests cover the Orbital contact latch contract and the
+      temporary Dominant Triangle suppression/recovery contract.
+
+VALIDATION:
+- Automated CI for the final documentation commit: PENDING.
+- Human APK PlayerCheck remains required for device-level confirmation.
+
+NEXT:
+1) Install the exact green APK on device.
+2) Test Orbital boss HP reduction + floating damage numbers.
+3) Test temporary Dominant disruption: Triangle remains first, becomes OFF,
+   Line stays secondary, then Triangle returns automatically.
+4) Recheck 6 Spheres + 5+ enemies (Chain + Aura + Orbital) for the original
+   0-2 FPS / multi-second freeze.
+======================================================================
