@@ -1438,3 +1438,32 @@ NEXT:
 4) Recheck 6 Spheres + 5+ enemies (Chain + Aura + Orbital) for the original
    0-2 FPS / multi-second freeze.
 ======================================================================
+
+
+======================================================================
+2026-10-06 — FINAL VALIDATION OF ORBITAL / TEMPORARY DOMINANCE FIX
+======================================================================
+
+FINAL CODE HEAD:
+cf11787382918776b9641e851a0c21d06a645931
+
+AUTOMATED VALIDATION:
+- GitHub Actions #1643: SUCCESS.
+- Typecheck: PASS.
+- Asset usage / PNG sanity: PASS.
+- Unit tests: PASS.
+- Gameplay coverage audit: PASS.
+- Lint: PASS.
+- Web build: PASS.
+- Playwright rendered gameplay QA: PASS.
+- Capacitor Android sync: PASS.
+- Debug APK build: PASS.
+- APK upload: PASS.
+
+IMPLEMENTED CONTRACT:
+- Orbital: one damage event per individual element per continuous enemy contact
+  episode; repeated cadence checks do not re-damage; leaving contact re-arms.
+- Network: temporary disruption preserves Dominant slot identity, suppresses
+  its effect while inactive, and restores the same Dominant automatically.
+- Genuine structural removal still releases the old Dominant normally.
+======================================================================
