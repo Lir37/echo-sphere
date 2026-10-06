@@ -30,7 +30,6 @@ import type { GameState, SphereEntity, EnemyEntity, Vec } from './engineTypes';
 import {
   dist, rand, getSphereFinalIndex, getAbilityBranchId, getNetworkFrame
 } from './engineRuntime';
-import { updateSphereFollowOffset } from './formationFollow';
 import { getOrbitalRingCounts, orbitalElementAngle, isAngleOnOrbitalSweep } from './spheres/orbitalGeometry';
 import {
   dealDamageToEnemy, onEnemyDeath, triggerEngineerRelay, consumeEngineerRelayBonus, emitSpherePulse
