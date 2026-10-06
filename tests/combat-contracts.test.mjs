@@ -65,14 +65,14 @@ test('player DoT ignores contact grace but respects Dash invulnerability', () =>
 
 test('recursive combat proc feedback is bounded',()=>{
   const combat=fs.readFileSync(new URL('../src/engineCombat.ts',import.meta.url),'utf8');
-  assert.match(combat,/allowSphereProc && getArtifactSetBehavior\\(s\\)\\.singularityPath/);
-  assert.match(combat,/allowSphereProc && mods\\.shatter/);
-  assert.match(combat,/if \\(fromSphere && allowSphereProc\\)/);
+  assert.ok(combat.includes("allowSphereProc && getArtifactSetBehavior(s).singularityPath"));
+  assert.ok(combat.includes("allowSphereProc && mods.shatter"));
+  assert.ok(combat.includes("if (fromSphere && allowSphereProc)"));
 });
 test('normal ranged and sniper enemies use visible projectiles',()=>{
   const enemies=fs.readFileSync(new URL('../src/engineEnemies.ts',import.meta.url),'utf8');
   const renderer=fs.readFileSync(new URL('../src/renderer.ts',import.meta.url),'utf8');
-  assert.match(enemies,/visualType: sniper \\? 'enemy_sniper' : 'enemy_ranged'/);
-  assert.match(enemies,/damagePlayer\\(s, bp\\.damage\\)/);
-  assert.match(renderer,/drawEnemyProjectile\\(/);
+  assert.ok(enemies.includes("visualType: sniper ? 'enemy_sniper' : 'enemy_ranged'"));
+  assert.ok(enemies.includes("damagePlayer(s, bp.damage)"));
+  assert.ok(renderer.includes("drawEnemyProjectile("));
 });
