@@ -1245,3 +1245,54 @@ VALIDATION:
 - Implementation HEAD before documentation: ba656a9a71057f378946cee4b55759245babf5eb.
 - GitHub Actions #765: SUCCESS.
 - Typecheck: PASS.
+
+======================================================================
+CURRENT WORK SESSION UPDATE — ORBITAL / PERFORMANCE STABILIZATION — 2026-10-06
+======================================================================
+
+COMPLETED:
+- Verified current branch baseline from new-desing before implementation.
+- Reworked Orbital from a single visible attack ring to a canonical dual-ring
+  combat model.
+- Level 1 now starts with 2 combat elements: 1 inner clockwise + 1 outer
+  counter-clockwise.
+- Levels 2-7 add one element at a time while alternating outer/inner,
+  reaching 4+4 at Level 7 before optional artifact/final-form extras.
+- Combat and visual orbital angles now use one shared geometry contract.
+- Orbital hit detection now evaluates the angular path travelled between
+  damage checks, preventing fast passes through an enemy from being sampled
+  incorrectly.
+- Orbital hits remain on the authoritative dealDamageToEnemy() path and
+  receive dedicated floating-damage rendering priority.
+- High-frequency targeting sorts were removed from the generic Sphere path,
+  Prism, and Static modifier chain.
+- Dense combat audio was throttled to prevent Web Audio oscillator/node
+  churn.
+- Per-satellite orbital gradient work was removed.
+- Per-projectile gradient work was removed.
+- Common enemy glow rendering was simplified to reduce frame-time pressure.
+
+FILES:
+- src/spheres/orbitalGeometry.ts
+- src/spheres/orbitalVisual.ts
+- src/engineSpheres.ts
+- src/engineTypes.ts
+- src/engineCombat.ts
+- src/renderer.ts
+- src/targeting.ts
+- src/audio.ts
+
+ACCEPTANCE STATUS:
+- Automated validation remains required on the resulting HEAD.
+- Human APK PlayerCheck is explicitly OPEN for:
+  1) 6-Sphere / 5+ enemy frame stability;
+  2) sustained dense-combat freeze reproduction;
+  3) visible Orbital floating damage numbers;
+  4) Orbital 4+4 progression and orbit directions at Level 7.
+- Do not mark device FPS as solved from CI alone.
+
+NEXT:
+After CI is green, perform the APK PlayerCheck on the exact build and record
+actual FPS/freeze behavior. Only then decide whether another targeted
+performance pass is necessary.
+======================================================================
