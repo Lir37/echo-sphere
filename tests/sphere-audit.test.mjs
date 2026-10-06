@@ -98,7 +98,7 @@ assert.doesNotMatch(renderer, /['\"]sphere-standard['\"]\s*:\s*['\"]\/art\/stand
 assert.doesNotMatch(renderer, /drawOrbitalSatelliteArt|drawSphereCoreArt/, 'Legacy procedural Orbital visual remains in renderer');
 assert.doesNotMatch(renderer, /sphere-standard-panels|external-panels\\.png/, 'Removed Standard reference panel returned');
 assert.match(renderer, /renderOrbitalSphereAttackersVfx/, 'Orbital attacker visual layer missing');
-assert.match(renderer, /getOrbitalRingCounts/, 'Orbital visual ring progression missing');
+assert.match(read('src/spheres/orbitalVisual.ts'), /getOrbitalRingCounts/, 'Orbital visual ring progression missing');
 assert.match(engine, /getOrbitalRingCounts/, 'Orbital dual-ring progression missing');
 assert.match(engine, /orbitalElementAngle/, 'Orbital angular geometry missing');
 assert.match(engine, /isAngleOnOrbitalSweep/, 'Orbital swept collision targeting missing');
