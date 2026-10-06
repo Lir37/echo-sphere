@@ -126,7 +126,7 @@ test('All Sphere cores reuse the exact Standard core geometry',()=>{
 test('Orbital combat motion and all three mutation visuals are explicit',()=>{
   const c=read('src/spheres/orbitalVisual.ts');
   assert.match(c,/const bladeMutation = branch === 'orbital_blade'/);
-  assert.match(c,/drawSatellite\(ctx, localX, localY, r \* \.20, color, depth, a, bladeMutation\)/);
+  assert.match(c,/drawSatellite\(ctx, localX, localY, r \* \.20, satelliteBaseColor, depth, a, bladeMutation\)/);
   assert.match(c,/const innerOrbitRadius = r \* 1\.68/);
   assert.match(c,/const outerOrbitRadius = r \* 2\.02/);
   assert.match(c,/getOrbitalRingCounts/);
@@ -136,7 +136,7 @@ test('Orbital combat motion and all three mutation visuals are explicit',()=>{
   assert.match(m,/branch==='orbital_halo'/);
   assert.match(m,/branch==='orbital_blade'/);
   const e=read('src/engineSpheres.ts');
-  assert.match(e,/let angularSpeed = 1\.8/);
+  assert.match(e,/const angularSpeed = \(1\.8 \+ Math\.min\(2\.4/);
   assert.match(e,/angularSpeed \*= mods\.rotationSpeed/);
 });
 
