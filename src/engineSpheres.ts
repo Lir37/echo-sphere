@@ -510,13 +510,23 @@ function updatePrismSphere(s: GameState, sphere: SphereEntity, damage: number, r
   const delay = Math.max(0.14, getSphereDelay(s, sphere) * SPHERE_TYPES.prism.delayMult * mods.delay);
   sphere.attackTimer = delay;
 
-  const candidates = s.enemies
-    .filter((enemy) => enemy.hp > 0 && dist(enemy.pos, sphere.pos) <= radius)
-    .sort((a, b) => b.hp - a.hp);
-  if (candidates.length === 0) return;
+  let target: EnemyEntity | null = null;
+  let highestHp = -Infinity;
+  const rangeSquared = radius * radius;
+  for (const enemy of s.enemies) {
+    if (enemy.hp <= 0) continue;
+    const dx = enemy.pos.x - sphere.pos.x;
+    const dy = enemy.pos.y - sphere.pos.y;
+    if (dx * dx + dy * dy > rangeSquared) continue;
+    if (enemy.hp > highestHp) {
+      target = enemy;
+      highestHp = enemy.hp;
+    }
+  }
+  if (!target) return;
 
-    // Prism is a directed beam emitter and its visual weapon follows the selected target.
-  sphere.rotation = Math.atan2(candidates[0].pos.y - sphere.pos.y, candidates[0].pos.x - sphere.pos.x);
+  // Prism is a directed beam emitter and its visual weapon follows the selected target.
+  sphere.rotation = Math.atan2(target.pos.y - sphere.pos.y, target.pos.x - sphere.pos.x);
 
 let beamCount = Math.max(1, 1 + mods.multishot);
   if (branch === 'prism_split' && finalIndex === 2) beamCount += 1;
@@ -554,7 +564,7 @@ let beamCount = Math.max(1, 1 + mods.multishot);
       const linked = getLinkedNodeIndexes(network, s.spheres.indexOf(sphere))
         .filter((index) => index < s.spheres.length && s.spheres[index]?.alive)
         .slice(0, reflectionCount);
-      const target = candidates[0];
+      const target = target;
       for (const index of linked) {
         const relay = s.spheres[index];
         dealDamageToEnemy(s, target, damage * 0.42, relay, false);
