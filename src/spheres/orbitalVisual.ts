@@ -170,6 +170,7 @@ export function renderOrbitalSphereRuntimeVfx(
   time: number,
   scale = 1,
   _enemies: EnemyEntity[] = [],
+  orbitalRadiusScale = 1,
 ): void {
   const v = update(sphere, player, time);
   const disabled = sphere.networkDisabledTimer > 0 || !sphere.alive;
@@ -177,6 +178,7 @@ export function renderOrbitalSphereRuntimeVfx(
   const color = disabled ? DISABLED : resonance ? RESONANCE : BASE;
   const r = 24 * scale;
   const coreR = r * .70;
+  const orbitMultiplier = Number.isFinite(orbitalRadiusScale) && orbitalRadiusScale > 0 ? orbitalRadiusScale : 1;
 
   ctx.save();
   ctx.translate(sphere.pos.x, sphere.pos.y);
@@ -220,6 +222,7 @@ export function renderOrbitalSphereAttackersVfx(
   time: number,
   scale = 1,
   enemies: EnemyEntity[] = [],
+  orbitalRadiusScale = 1,
 ): void {
   if (!sphere.alive || sphere.networkDisabledTimer > 0) return;
   const v = update(sphere, player, time);
@@ -233,8 +236,7 @@ export function renderOrbitalSphereAttackersVfx(
     + (branch === 'orbital_dance' && (player?.evolutions || []).some((id: string) => id === 'sphere:orbital:7:orbital_dance:2') ? 1 : 0);
   const counts = getOrbitalRingCounts(level, extraElements);
   const bladeMutation = branch === 'orbital_blade';
-  const radiusScale = Number((sphere as SphereEntity & { orbitalRadiusScale?: number }).orbitalRadiusScale);
-  const orbitMultiplier = Number.isFinite(radiusScale) && radiusScale > 0 ? radiusScale : 1;
+  const orbitMultiplier = Number.isFinite(orbitalRadiusScale) && orbitalRadiusScale > 0 ? orbitalRadiusScale : 1;
   const innerOrbitRadius = r * 1.68 * orbitMultiplier;
   const outerOrbitRadius = r * 2.02 * orbitMultiplier;
 
