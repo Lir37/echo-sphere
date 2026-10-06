@@ -120,7 +120,7 @@ test('movement, Dash, Teleport, collision sync and UI all route through the FOLL
   const controls = fs.readFileSync(new URL('../src/MobileControls.tsx', import.meta.url), 'utf8');
 
   assert.match(loop, /applyCoreDisplacement\(s, s\.player\.dashDir\.x \* 600 \* dt, s\.player\.dashDir\.y \* 600 \* dt\)/);
-  assert.match(loop, /applyCoreDisplacement\(s, mx \* sp \* dt, my \* sp \* dt\)/);
+  assert.match(loop, /applyCoreDisplacement\(s, mx \* sp \* dt \* followMovementMultiplier, my \* sp \* dt \* followMovementMultiplier\)/);
   assert.match(abilities, /applyCoreDisplacement\(s, target\.x - s\.player\.pos\.x, target\.y - s\.player\.pos\.y\)/);
   assert.match(collisions, /syncFormationFollow\(s\)/);
   assert.match(controls, /data-game-control="formation-follow"/);

@@ -204,10 +204,11 @@ export function chargeResonance(
   const formationEfficiency = source === 'geometry' || source === 'network'
     ? getFormationFollowResonanceEfficiency(s)
     : 1;
+  sourceEffectMultiplier *= formationEfficiency;
   const events = addResonanceChargeFromSource(
     s.player,
     source,
-    resonanceGainMultiplier * sourceEffectMultiplier * formationEfficiency,
+    resonanceGainMultiplier * sourceEffectMultiplier,
   );
   const network = getNetworkFrame(s);
   for (let i = 0; i < events; i++) triggerResonanceEvent(s, dealDamage, network);
