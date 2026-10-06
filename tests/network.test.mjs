@@ -156,6 +156,45 @@ test('adding a fourth Sphere does not evict an established Triangle unless a str
   assert.equal(state.dominantFormation?.type, 'triangle');
 });
 
+test('temporarily disabled Dominant Triangle keeps its slot identity and returns after recovery', () => {
+  const h = Math.sqrt(3) * 50;
+  const activeNodes = [
+    node(0, 0),
+    node(100, 0),
+    node(50, h),
+    node(200, 0),
+  ];
+  const base = analyzeSphereNetwork(activeNodes);
+  assert.equal(base.dominantFormation?.type, 'triangle');
+
+  const disabledNodes = activeNodes.map((value, index) =>
+    index === 2 ? { ...value, alive: false } : value
+  );
+  const suppressed = analyzeSphereNetwork(
+    disabledNodes,
+    220,
+    'triangle',
+    { dominant: 'triangle', secondary: 'line' },
+    { ...base.dominantFormation, active: false, inactiveReason: 'network-disabled' },
+  );
+  assert.equal(suppressed.dominantFormation?.type, 'triangle');
+  assert.equal(suppressed.dominantFormation?.active, false);
+  assert.equal(suppressed.secondaryFormation?.type, 'line');
+  assert.equal(getFormationBonusMultiplier(suppressed, 'triangle'), 0);
+  assert.equal(getFormationBonusMultiplier(suppressed, 'line'), 0.5);
+
+  const restored = analyzeSphereNetwork(
+    activeNodes,
+    220,
+    'triangle',
+    { dominant: 'triangle', secondary: 'line' },
+    suppressed.dominantFormation,
+  );
+  assert.equal(restored.dominantFormation?.type, 'triangle');
+  assert.notEqual(restored.dominantFormation?.active, false);
+  assert.equal(restored.secondaryFormation?.type, 'line');
+  assert.equal(getFormationBonusMultiplier(restored, 'triangle'), 1);
+});
 test('a player can switch dominance by creating a materially stronger Square layout', () => {
   const state = analyzeSphereNetwork([
     node(0, 0), node(100, 0), node(100, 100), node(0, 100),
