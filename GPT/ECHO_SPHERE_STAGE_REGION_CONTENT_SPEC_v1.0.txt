@@ -1,0 +1,345 @@
+ECHO SPHERE
+REGION / STAGE / EXPLORATION CONTENT SPECIFICATION
+Version 1.0
+Date: 2026-10-06
+
+PURPOSE
+This document defines the first stage/content architecture for ECHO SPHERE.
+It complements the Master Final Gameplay Blueprint.
+
+CORE DECISION
+The finished game is not a list of endless runs.
+It is a collection of named Regions, each with a finite Stabilization run,
+an unlocked Region Endless, challenges, and lore.
+
+============================================================
+1. REGION MODEL
+============================================================
+
+A Region owns:
+- visual identity;
+- enemy ecology;
+- wave schedule;
+- Elite schedule;
+- boss schedule;
+- regional rule(s);
+- Spatial Pockets;
+- POI rules;
+- clear objective;
+- rewards;
+- Endless rules;
+- Challenge Contracts;
+- Mastery Challenges;
+- lore records;
+- optional Character reactions.
+
+A Region must change gameplay context, not just art.
+
+At least three Region layers should be materially distinct:
+- enemy behaviour;
+- wave rhythm;
+- spatial conditions;
+- movement/exploration opportunities;
+- Network/Geometry pressure;
+- boss behaviour;
+- POI/event rules.
+
+============================================================
+2. STABILIZATION RUN
+============================================================
+
+Target:
+25-35 minutes.
+Default:
+30 minutes.
+
+This is the finished-game Region target.
+
+Important distinction:
+10-15 minutes remains a development fun-gate only.
+It is not the target duration of a finished Region.
+
+Default 30-minute rhythm:
+
+0-5   Orientation / build
+5-10  Region identity
+7-8   First boss
+10-15 Build specialization
+15-18 Second boss
+18-25 Regional escalation
+25-27 Final preparation
+27-30 Final boss / Stabilization
+
+Exact timing is data-driven per Region.
+
+============================================================
+3. MOBILE WORLD STRUCTURE
+============================================================
+
+The logical Region can be larger than the visible screen.
+
+The camera remains local and Core-centered.
+
+Each Region is assembled from:
+- 4-8 Spatial Pockets;
+- lightweight transitions;
+- local POIs;
+- compact Field Radar support.
+
+Do not use PC-style corridor navigation.
+
+Do not require long empty travel.
+
+A Spatial Pocket is a gameplay area with a distinct local condition,
+enemy mix, geometry pressure or visual identity.
+
+============================================================
+4. POINTS OF INTEREST
+============================================================
+
+Core POIs:
+- Resonance Cache;
+- Breach Node;
+- Echo Relay;
+- Lost Signal;
+- Elite Nest;
+- Rupture;
+- Boss Trace.
+
+POI travel guideline:
+- common POI: about 5-15 seconds from current position;
+- major POI: up to about 10-25 seconds with clear radar guidance.
+
+Never build a POI objective around a 60+ second empty traversal.
+
+============================================================
+5. FIELD RADAR
+============================================================
+
+Radar shows:
+- Core;
+- Network envelope;
+- nearby POIs;
+- important nearby Elite/Boss signals;
+- directional hints to major farther events.
+
+Radar does not expose the whole Region as a detailed tactical map.
+
+============================================================
+6. MOVEMENT MODES
+============================================================
+
+FREE NETWORK MODE
+- default;
+- Core moves independently;
+- Spheres keep their world positions;
+- player may move between/away from Spheres;
+- Dash/teleport behave as normal existing Core movement.
+
+FORMATION FOLLOW MODE
+- optional toggle;
+- separate from LOCK;
+- enabled only near Formation Centroid.
+
+Formation Centroid:
+average world position of eligible active Spheres.
+
+Activation:
+distance(Core, FormationCentroid) <= configurable FOLLOW_ACTIVATE_RADIUS
+
+While active:
+SphereWorldPosition = CoreWorldPosition + SphereLocalOffset
+
+Therefore:
+- all active Spheres receive the same Core displacement;
+- local offsets are preserved;
+- Links/Geometry/Resonance topology remains stable;
+- no hidden re-centering;
+- no automatic scaling.
+
+Manual Sphere reposition:
+- still allowed;
+- edits local offset;
+- normal Network/Geometry resolution follows.
+
+LOCK:
+- independent;
+- only prevents Sphere repositioning.
+
+FOLLOW:
+- only controls Core-to-Network movement coupling.
+
+FOLLOW remains active after the Core leaves the original center.
+The player must explicitly toggle it off.
+
+Dash/teleport:
+- follow the same atomic Core-displacement rule unless an authored
+  ability explicitly declares Network displacement immunity.
+
+Temporary Network disruption:
+- does not cancel FOLLOW;
+- disrupted Sphere remains spatially attached.
+
+============================================================
+7. EXPLORATION LOOP
+============================================================
+
+The game should alternate between:
+
+BUILD
+-> SURVIVE
+-> IDENTIFY OPPORTUNITY
+-> DECIDE TO MOVE OR HOLD
+-> RESOLVE POI/EVENT
+-> BUILD PIVOT
+-> NEXT THREAT
+
+Exploration is optional advantage, not mandatory transport.
+
+The player must never be forced to abandon the Network to collect a reward.
+
+============================================================
+8. REGION ENDLESS
+============================================================
+
+After first Region clear:
+
+Region
+-> Stabilization CLEAR
+-> Region Endless unlocked
+
+Region Endless:
+- same visual identity;
+- same core enemy ecology;
+- mutated combinations;
+- harder event composition;
+- richer POI combinations;
+- pressure rises through systems, not only HP.
+
+============================================================
+9. THE CONVERGENCE
+============================================================
+
+After all main Regions are cleared:
+
+THE CONVERGENCE unlocks.
+
+It is a dedicated cross-Region Endless mode.
+
+Default structure:
+0-25   region ecology rotations
+25:00  major convergence boss event
+25-40  mixed ecology
+40:00  final convergence boss event
+40+    escalating combinations
+
+Boss and ecology rotations are data-driven.
+
+The intended feeling:
+"everything learned so far is now being tested together."
+
+============================================================
+10. CHALLENGES
+============================================================
+
+CHALLENGE CONTRACTS
+Player-selected before run.
+
+Initial examples:
+- FRACTURED NETWORK;
+- OVERLOAD;
+- LOW GRAVITY;
+- SILENT CORE;
+- LIMITED CAPACITY.
+
+MASTERY CHALLENGES
+Accomplished during normal play.
+
+Initial examples:
+- activate three Geometry states;
+- finish without losing Dominant Geometry;
+- clear with <=4 Spheres;
+- finish below a damage-taken threshold;
+- reach Level VII on multiple Spheres;
+- complete a specified Network condition.
+
+Challenges must change how the player plays.
+Do not make the entire system into stat-check achievements.
+
+============================================================
+11. LORE
+============================================================
+
+Region Archive eventually contains:
+- Region record;
+- 2-5 incident/environment logs;
+- major enemy records;
+- boss record;
+- optional Character reactions.
+
+Lore should be delivered through:
+- short Archive text;
+- signal fragments;
+- POI discoveries;
+- boss records;
+- Character remarks.
+
+Do not block normal gameplay with long mandatory cinematics.
+
+============================================================
+12. CHARACTER LORE
+============================================================
+
+Each of the 10 Characters receives:
+- Origin;
+- defining Incident;
+- personal Motivation;
+- Network/Core connection;
+- Signature mechanic explanation.
+
+Relevant Regions may trigger short contextual remarks.
+
+These remarks are non-blocking and optional.
+
+============================================================
+13. FIRST REGION CONTENT TARGET
+============================================================
+
+Build ONE complete Region first.
+
+Minimum:
+- 4-6 Spatial Pockets;
+- 5-7 POI types;
+- 3-5 regional enemy behaviour variants;
+- 2 major boss events + final boss;
+- 1 regional rule;
+- 30-minute Stabilization;
+- Region Endless;
+- 3 Challenge Contracts;
+- 3 Mastery Challenges;
+- 3-5 lore records;
+- FOLLOW mode.
+
+Acceptance test:
+After a full clear, the tester should want to replay the Region with
+a different build.
+
+Do not scale to multiple Regions before this passes.
+
+============================================================
+14. ANTI-GOALS
+============================================================
+
+Do not:
+- create huge combat UI maps;
+- create long empty travel;
+- force Sphere dragging across the world;
+- make POIs mandatory errands;
+- make FOLLOW replace FREE movement;
+- couple LOCK to FOLLOW;
+- auto-disable FOLLOW when the Core leaves the original centroid;
+- use HP multipliers as the primary source of Region variety;
+- build all Regions before the first Region is fun.
+
+============================================================
+END
