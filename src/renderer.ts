@@ -27,7 +27,7 @@ import { renderSphereModifierVfx } from './spheres/modifierVisual';
 import { renderSphereElementalVfx } from './spheres/elementalVisual';
 import { drawEnemyCreature, drawBossCreature } from './enemies/enemyVisual';
 import { renderSphereMutationVfx, renderSphereProjectileVfx, renderChainLightningVfx } from './spheres/mutationVisual';
-import { REGION_POCKETS } from './region';
+import { REGION_POCKETS, type RegionPoiType } from './region';
 
 // ===== Origami / Paper Craft Style =====
 // Warm backgrounds, faceted folded-paper shapes, fold lines, drop shadows.
