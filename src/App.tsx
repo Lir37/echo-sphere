@@ -1013,7 +1013,7 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
   return (
     <>
       <div data-tutorial-target="network" className="es-hud-panel es-top-left absolute top-3 left-3 z-30 pointer-events-none">
-        <div className="flex items-center gap-2">
+        <div className="es-hud-top-panel">
           <div className="es-hud-avatar">✦</div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center justify-between gap-2">
@@ -1027,6 +1027,7 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
               <div className="h-1.5 mt-0.5 rounded-full bg-[#13243a] overflow-hidden border border-[#243b55]"><span className="block h-full" style={{ width: resonancePct + "%", background: resonanceEventReady ? "#ffb84d" : "#39d8ff" }} /></div>
             </div>
           </div>
+        </div>
         </div>
         <div className="es-hud-meta-grid mt-2">
           <span>{t('spheres').toUpperCase()} <b>{st.spheres.length}/{getMaxSpheres(st)}</b></span>
