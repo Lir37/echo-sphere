@@ -372,6 +372,18 @@ function isAngleOnOrbitalSweep(
   ) <= tolerance;
 }
 
+function getSpecialSphereCadence(
+  s: GameState,
+  sphere: SphereEntity,
+  baseInterval: number,
+  network: SphereNetworkState,
+): number {
+  // Special non-projectile Spheres still obey the global attack-speed path.
+  // Their authored level-3 timing mechanics remain separate from this cadence.
+  const delayRatio = getSphereDelay(s, sphere, network) / BASE_SPHERE_DELAY;
+  return Math.max(0.08, baseInterval * delayRatio);
+}
+
 function updateOrbitalSphere(
   s: GameState,
   sphere: SphereEntity,
@@ -397,7 +409,7 @@ function updateOrbitalSphere(
 
   sphere.auraTimer -= dt;
   if (sphere.auraTimer > 0) return;
-  sphere.auraTimer = Math.max(0.12, 0.42 * mods.auraPulse);
+  sphere.auraTimer = getSpecialSphereCadence(s, sphere, 0.42 * mods.auraPulse, network);
 
   const sphereIndex = s.spheres.indexOf(sphere);
   const bodyRadius = Math.max(15, Math.min(25, sphere.radius * 0.19 + level * 0.8));
@@ -630,7 +642,12 @@ function updateGravitySphere(s: GameState, sphere: SphereEntity, damage: number,
   sphere.auraTimer -= dt;
   sphere.rotation += dt * (branch === 'gravity_tide' ? 1.9 : 0.9);
   if (sphere.auraTimer > 0) return;
-  sphere.auraTimer = Math.max(0.22, 0.80 * mods.auraPulse * (s.player.artifacts.includes('gravity_hook') ? 0.92 : 1));
+  sphere.auraTimer = getSpecialSphereCadence(
+    s,
+    sphere,
+    0.80 * mods.auraPulse * (s.player.artifacts.includes('gravity_hook') ? 0.92 : 1),
+    getNetworkFrame(s),
+  );
 
   const pullRadius = SPHERE_TYPES.gravity.auraRadius * mods.radius * mods.auraRadius;
   let pullStrength = 34 * Math.min(1.6, sphereLevel(s, 'gravity') * 0.18 + 0.5);
@@ -679,7 +696,12 @@ function updatePulseSphere(s: GameState, sphere: SphereEntity, damage: number, m
 
   const waveCount = 1 + (s.player.artifacts.includes('pulse_crown') ? 1 : 0) + (branch === 'pulse_burst' && finalIndex === 2 ? 1 : 0);
   const intervalMultiplier = s.player.artifacts.includes('pulse_driver') ? 0.90 : 1;
-  sphere.auraTimer = Math.max(0.25, 1.15 * mods.auraPulse * intervalMultiplier);
+  sphere.auraTimer = getSpecialSphereCadence(
+    s,
+    sphere,
+    1.15 * mods.auraPulse * intervalMultiplier,
+    getNetworkFrame(s),
+  );
   let radius = SPHERE_TYPES.pulse.auraRadius * mods.radius;
   if (branch === 'pulse_wave') radius *= finalIndex === 1 ? 1.24 : 1.10;
   const sphereIndex = s.spheres.indexOf(sphere);
