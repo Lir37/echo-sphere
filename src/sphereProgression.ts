@@ -168,7 +168,7 @@ const SPHERE_LEVEL_EN:Record<string,string>={
   "+10% урона ауры": "+10% Aura damage",
   "+15% орбитального урона": "+15% orbital damage",
   "+15% радиуса орбиты": "+15% orbit radius",
-  "-12% интервала": "-12% attack interval",
+  "+15% скорости вращения": "+15% rotation speed",
   "+20% урона луча": "+20% beam damage",
   "+1 направление": "+1 beam direction",
   "+20% силы притяжения": "+20% pull strength",
@@ -456,7 +456,7 @@ export const SPHERE_PROGRESSION:Record<SphereType,SphereDef>={
  shotgun:sphere('shotgun','Дробовик',{berserker:1,alchemist:.8,spherist:.6,engineer:.4,hunter:.3,architect:.3},['+1 дробь','+20% урона вблизи','-12% разброса'],[br('shotgun_burst','Разрыв','Ближние попадания наносят повышенный урон',finalsFor('shotgun_burst')),br('shotgun_cataclysm','Осада','Тяжёлые пробивные снаряды',finalsFor('shotgun_cataclysm')),br('shotgun_hail','Град','Много дополнительных снарядов',finalsFor('shotgun_hail'))]),
  chain:sphere('chain','Цепная',{spherist:1,hunter:.95,engineer:.9,alchemist:.8,architect:.5,berserker:.4},['+1 цель цепи','+10% урона цепи','+15% скорости перехода'],[br('chain_web','Паутина','Поражённые цели получают усиленное замедление',finalsFor('chain_web')),br('chain_storm','Шторм','Каждый переход усиливает следующий',finalsFor('chain_storm')),br('chain_leech','Паразит','Цепь возвращает часть урона',finalsFor('chain_leech'))]),
  aura:sphere('aura','Аура',{engineer:1,alchemist:1,architect:.9,spherist:.7,hunter:.4,berserker:.4},['+20% радиуса ауры','-10% интервала импульса','+10% урона ауры'],[br('aura_sanctum','Святилище','Замедляет врагов и усиливает сферы',finalsFor('aura_sanctum')),br('aura_gravity','Гравитация','Стягивает врагов к центру',finalsFor('aura_gravity')),br('aura_overgrowth','Живая сеть','Усиливает сферы внутри ауры',finalsFor('aura_overgrowth'))]),
- orbital:sphere('orbital','Орбитальная',{spherist:1,engineer:.8,architect:.8},['+15% орбитального урона','+15% радиуса орбиты','-12% интервала'],[br('orbital_dance','Танец','Спутники вращаются быстрее и наносят урон при каждом пересечении траектории с врагом.',finalsFor('orbital_dance')),br('orbital_halo','Ореол','Спутники создают защитный ореол: ближайшие сферы получают усиление после прохода орбиты.',finalsFor('orbital_halo')),br('orbital_blade','Клинок','Спутники превращаются в боевые лезвия и наносят повышенный урон по траектории.',finalsFor('orbital_blade'))]),
+ orbital:sphere('orbital','Орбитальная',{spherist:1,engineer:.8,architect:.8},['+15% орбитального урона','+15% радиуса орбиты','+15% скорости вращения'],[br('orbital_dance','Танец','Спутники вращаются быстрее и наносят урон при каждом пересечении траектории с врагом.',finalsFor('orbital_dance')),br('orbital_halo','Ореол','Спутники создают защитный ореол: ближайшие сферы получают усиление после прохода орбиты.',finalsFor('orbital_halo')),br('orbital_blade','Клинок','Спутники превращаются в боевые лезвия и наносят повышенный урон по траектории.',finalsFor('orbital_blade'))]),
  prism:sphere('prism','Призма',{hunter:1,architect:.9,spherist:.7},['+20% урона луча','+15% дальности','+1 направление'],[br('prism_split','Расщепление','Луч после попадания делится на дополнительные лучи по другим целям.',finalsFor('prism_split')),br('prism_spectrum','Спектр','Луч передаёт активный статусный эффект и усиливает реакцию на цели.',finalsFor('prism_spectrum')),br('prism_mirror','Зеркало','Связанные сферы создают отражённые лучи, повторяющие основной удар.',finalsFor('prism_mirror'))]),
  gravity:sphere('gravity','Гравитационная',{alchemist:1,architect:1,engineer:.8},['+20% силы притяжения','+15% радиуса','-15% интервала импульса'],[br('gravity_well','Колодец','Притяжение становится постоянным: чем ближе враг к центру, тем сильнее его тянет.',finalsFor('gravity_well')),br('gravity_tide','Прилив','Поле плавно меняет силу притяжения и периодически создаёт обратную волну.',finalsFor('gravity_tide')),br('gravity_collapse','Коллапс','Собранные в плотную группу враги получают дополнительный урон от сжатия.',finalsFor('gravity_collapse'))]),
  pulse:sphere('pulse','Импульсная',{engineer:1,spherist:.9,architect:.8},['+20% импульсного урона','+15% радиуса','-12% интервала'],[br('pulse_wave','Волна','Каждый импульс становится шире и отбрасывает врагов от сферы.',finalsFor('pulse_wave')),br('pulse_resonator','Резонатор','Импульсы подпитывают Resonance и усиливают сеть при активной геометрии.',finalsFor('pulse_resonator')),br('pulse_burst','Вспышка','После основной волны возникает дополнительный разряд по центру.',finalsFor('pulse_burst'))]),
@@ -1038,7 +1038,7 @@ export function sphereModifiers(s:any,type:SphereType,sphere?:any){
   const l=sphereLevel(s,type), branch=s.player.sphereBranches?.[type], final=sphereFinalIndex(s,type), artifact=getSphereArtifactModifiers(s,type,sphere);
   const authored=getAuthoredSphereModifierLevels(s.player,type);
   const modifierLevel=(kind:keyof SphereMods):number=>Math.max(Number(s.player.sphereMods?.[kind] ?? 0),Number(authored[kind] ?? 0));
-  let damage=1, radius=1, delay=1, pierce=0, multishot=0, chainTargets=1, auraRadius=1, auraPulse=.5;
+  let damage=1, radius=1, delay=1, pierce=0, multishot=0, chainTargets=1, auraRadius=1, auraPulse=.5, rotationSpeed=1;
   let spreadMult=1;
   const abilityRange = Number(s.player.abilities.range || 0);
   if (abilityRange > 0) {
@@ -1116,13 +1116,14 @@ export function sphereModifiers(s:any,type:SphereType,sphere?:any){
 
   // NEW FIVE: their level 1-3 upgrades must modify real combat parameters.
   if(type==='orbital'){
-    // Every level visibly adds one rotating satellite. Cadence is controlled by angular speed.
+    // Orbital's third core upgrade is rotation speed, not a hidden attack-delay stat.
     if(l>=1) damage*=1.15;
     if(l>=2) radius*=1.15;
-    // Orbital satellites are native to the Sphere, not the projectile MULTISHOT modifier.
-    if(branch==='orbital_dance'){ delay*=final===0?0.80:0.90; }
-    if(branch==='orbital_halo'){ damage*=0.92; }
-    if(branch==='orbital_blade'){ damage*=final===0?1.15:1.05; }
+    if(l>=3) rotationSpeed*=1.15;
+    // Orbital satellites are native to the Sphere, not projectile MULTISHOT.
+    if(branch==='orbital_dance'){ rotationSpeed*=final===0?1.28:final===1?1.55:1.28; }
+    if(branch==='orbital_halo'){ damage*=0.92; rotationSpeed*=1.08; }
+    if(branch==='orbital_blade'){ damage*=final===0?1.15:1.05; rotationSpeed*=1.12; }
   }
   if(type==='prism'){
     if(l>=1) damage*=1.20;
@@ -1165,6 +1166,7 @@ export function sphereModifiers(s:any,type:SphereType,sphere?:any){
     chainTargets,auraRadius,auraPulse,spreadMult,
     splitChance,echoChance,staticChance,resonantCharge,healOnHit,healOnKill,
     knockback,
+    rotationSpeed,
     fire: modifierLevel('fire'),
     freeze: modifierLevel('freeze'),
     poison: modifierLevel('poison'),
