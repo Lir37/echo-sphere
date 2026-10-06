@@ -124,17 +124,23 @@ const baseLevelContracts = [
   [/if\\(type==='prism'\\)[\\s\\S]*if\\(l>=1\\) damage\\*=1\\.20/, 'Prism L1 damage'],
   [/if\\(type==='prism'\\)[\\s\\S]*if\\(l>=2\\) radius\\*=1\\.15/, 'Prism L2 range'],
   [/if\\(type==='prism'\\)[\\s\\S]*if\\(l>=3\\) multishot\\+=1/, 'Prism L3 direction'],
-  [/const gravityLevel = sphereLevel\(s, 'gravity'\);[\\s\\S]*if \\(gravityLevel >= 1\\) pullStrength \\*= 1\\.20/, 'Gravity L1 pull strength'],
   [/if\\(type==='gravity'\\)[\\s\\S]*if\\(l>=2\\) radius\\*=1\\.15/, 'Gravity L2 radius'],
   [/if\\(type==='gravity'\\)[\\s\\S]*if\\(l>=3\\) auraPulse\\*=\\.85/, 'Gravity L3 interval'],
   [/if\\(type==='pulse'\\)[\\s\\S]*if\\(l>=1\\) damage\\*=1\\.20/, 'Pulse L1 damage'],
   [/if\\(type==='pulse'\\)[\\s\\S]*if\\(l>=2\\) radius\\*=1\\.15/, 'Pulse L2 radius'],
   [/if\\(type==='pulse'\\)[\\s\\S]*if\\(l>=3\\) auraPulse\\*=\\.88/, 'Pulse L3 interval'],
-  [/voidLevel >= 1 && hpRatio <= 0\\.50\\) actual \\*= 1\\.20/, 'Void L1 weakened-target damage'],
   [/if\\(type==='void'\\)[\\s\\S]*if\\(l>=3\\) radius\\*=1\\.15/, 'Void L3 range'],
 ];
 for (const [pattern, label] of baseLevelContracts) {
   assert.match(progression, pattern, label + ' contract missing.');
+}
+
+const engineLevelContracts = [
+  [/const gravityLevel = sphereLevel\(s, 'gravity'\);[\s\S]*if \(gravityLevel >= 1\) pullStrength \*= 1\.20/, 'Gravity L1 pull strength'],
+  [/voidLevel >= 1 && hpRatio <= 0\.50\) actual \*= 1\.20/, 'Void L1 weakened-target damage'],
+];
+for (const [pattern, label] of engineLevelContracts) {
+  assert.match(engine, pattern, label + ' runtime contract missing.');
 }
 
 for (const fn of ['updateOrbitalSphere','updatePrismSphere','updateGravitySphere','updatePulseSphere']) {
