@@ -4091,3 +4091,29 @@ TEMPORARY NETWORK DISRUPTION:
   slot automatically unless the player explicitly changed the slot order.
 - Genuine structural breakage remains governed by normal Geometry dominance rules.
 ======================================================================
+
+
+======================================================================
+2026-10-06 — SPHERE BALANCE / ORBITAL ELEMENTAL READABILITY AMENDMENT
+======================================================================
+
+Sphere balancing is role-based, not raw-DPS-equalized. Expected power combines
+direct damage, coverage, crowd control, execution, Resonance/network interaction
+and support value.
+
+Orbital after audit:
+- base damage multiplier = 0.72;
+- wider early contact envelope;
+- L1/L2 remain below dedicated pure turret DPS on a single target, compensated
+  by two moving attack paths and multi-enemy coverage;
+- Mutation I keeps Fire / Freeze / Poison identity.
+
+Chain:
+- primary selected target now receives the first full damage hit;
+- subsequent jumps keep their authored reduced multiplier.
+
+Orbital elemental presentation:
+- moving combat elements inherit the active branch element color;
+- Fire / Freeze / Poison use distinct visible trails on the combat elements;
+- main orbital rails remain in the existing 2.5D visual language.
+======================================================================
