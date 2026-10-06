@@ -376,6 +376,23 @@ function getSpecialSphereCadence(
   return Math.max(0.08, baseInterval * delayRatio);
 }
 
+type OrbitalContactLatch = WeakMap<EnemyEntity, Set<string>>;
+const ORBITAL_CONTACT_LATCHES = new WeakMap<SphereEntity, OrbitalContactLatch>();
+
+function getOrbitalContactLatch(sphere: SphereEntity, enemy: EnemyEntity): Set<string> {
+  let enemyLatches = ORBITAL_CONTACT_LATCHES.get(sphere);
+  if (!enemyLatches) {
+    enemyLatches = new WeakMap<EnemyEntity, Set<string>>();
+    ORBITAL_CONTACT_LATCHES.set(sphere, enemyLatches);
+  }
+  let latch = enemyLatches.get(enemy);
+  if (!latch) {
+    latch = new Set<string>();
+    enemyLatches.set(enemy, latch);
+  }
+  return latch;
+}
+
 function updateOrbitalSphere(
   s: GameState,
   sphere: SphereEntity,
@@ -448,53 +465,75 @@ function updateOrbitalSphere(
     const dy = enemy.pos.y - sphere.pos.y;
     const distance = Math.hypot(dx, dy) || 1;
 
-    let hit = false;
     const enemyAngle = Math.atan2(dy, dx);
-
     const angularTolerance = finalIndex === 1 ? 0.30 : 0.22;
     const contactBand = Math.max(
       band,
       enemy.radius + Math.max(6, bodyRadius * 0.24),
     );
+    const contactLatch = getOrbitalContactLatch(sphere, enemy);
+    const touchedElements = new Set<string>();
+    let newContactHit = false;
+
+    const registerElementContact = (
+      ring: 'inner' | 'outer',
+      satellite: number,
+      direction: 1 | -1,
+    ): void => {
+      const key = ring + ':' + satellite;
+      const count = ring === 'inner' ? counts.inner : counts.outer;
+      const startAngle = orbitalElementAngle(
+        ring === 'inner' ? innerSweepStart : outerSweepStart,
+        ring,
+        satellite,
+        count,
+      );
+      const endAngle = orbitalElementAngle(
+        ring === 'inner' ? innerAngles[satellite] : outerAngles[satellite],
+        ring,
+        satellite,
+        count,
+      );
+
+      if (!isAngleOnOrbitalSweep(enemyAngle, startAngle, endAngle, direction, angularTolerance)) return;
+
+      touchedElements.add(key);
+      // One damage event per individual element per continuous contact episode.
+      if (contactLatch.has(key)) return;
+      contactLatch.add(key);
+      newContactHit = true;
+
+      let hitDamage = damage * 0.95;
+      if (branch === 'orbital_dance') hitDamage *= 0.96;
+      if (branch === 'orbital_halo') hitDamage *= 0.92;
+      if (branch === 'orbital_blade') hitDamage *= (finalIndex === 2 ? 1.30 : 1.15) * (finalIndex === null ? preFinalPower : 1);
+      if (clusterBonus > 0) hitDamage *= 1 + 0.08 * clusterBonus;
+
+      dealDamageToEnemy(s, enemy, hitDamage, sphere);
+      if (status !== 'none') applyDirectSphereStatus(s, enemy, status, sphere);
+      if (branch === 'orbital_halo' && finalIndex === 2) {
+        s.player.shieldCharges = Math.min(5, s.player.shieldCharges + 1);
+      }
+    };
 
     if (Math.abs(distance - orbitRadius) <= contactBand) {
       for (let satellite = 0; satellite < counts.inner; satellite += 1) {
-        const startAngle = orbitalElementAngle(innerSweepStart, 'inner', satellite, counts.inner);
-        const endAngle = innerAngles[satellite];
-        if (isAngleOnOrbitalSweep(enemyAngle, startAngle, endAngle, 1, angularTolerance)) {
-          hit = true;
-          break;
-        }
+        registerElementContact('inner', satellite, 1);
       }
     }
 
-    if (!hit && Math.abs(distance - outerOrbitRadius) <= contactBand) {
+    if (Math.abs(distance - outerOrbitRadius) <= contactBand) {
       for (let satellite = 0; satellite < counts.outer; satellite += 1) {
-        const startAngle = orbitalElementAngle(outerSweepStart, 'outer', satellite, counts.outer);
-        const endAngle = outerAngles[satellite];
-        if (isAngleOnOrbitalSweep(enemyAngle, startAngle, endAngle, -1, angularTolerance)) {
-          hit = true;
-          break;
-        }
+        registerElementContact('outer', satellite, -1);
       }
     }
 
-    if (!hit) continue;
-
-    let hitDamage = damage * 0.95;
-    if (branch === 'orbital_dance') hitDamage *= 0.96;
-    if (branch === 'orbital_halo') hitDamage *= 0.92;
-    if (branch === 'orbital_blade') hitDamage *= (finalIndex === 2 ? 1.30 : 1.15) * (finalIndex === null ? preFinalPower : 1);
-    if (clusterBonus > 0) hitDamage *= 1 + 0.08 * clusterBonus;
-
-    dealDamageToEnemy(s, enemy, hitDamage, sphere);
-    if (status !== 'none') applyDirectSphereStatus(s, enemy, status, sphere);
-    hitSomething = true;
-    if (branch === 'orbital_halo' && finalIndex === 2) {
-      s.player.shieldCharges = Math.min(5, s.player.shieldCharges + 1);
+    // Leaving the swept contact interval re-arms that individual element.
+    for (const key of Array.from(contactLatch)) {
+      if (!touchedElements.has(key)) contactLatch.delete(key);
     }
-  }
 
+    if (!newContactHit) continue;
   sphere.orbitalLastSweepRotation = currentRotation;
 
   if (networkProfile.ring && s.player.artifacts.includes('orbital_blade') && s.player.artifacts.includes('prism_filter')) {
