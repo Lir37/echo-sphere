@@ -88,7 +88,7 @@ assert.match(progression, /prism_spectrum:\{0:\{fire:1\},1:\{freeze:1\},2:\{pois
   'Prism Spectrum finals must map to Fire/Freeze/Poison.');
 assert.match(engine, /const bounceCount = Math\.min\(2, mods\.ricochet\)/,
   'Prism Mirror finals must consume authored Ricochet levels.');
-assert.match(engine, /finalIndex === 2 ? 1\.50 : 1\.15/,
+assert.match(engine, /finalIndex === 1 ? 1\.35 : finalIndex === 2 ? 1\.50 : 1\.15/,
   'Gravity Well final III pull scaling must be stronger than the base branch.');
 assert.match(engine, /finalIndex === null || finalIndex === 0 || finalIndex === 2/,
   'Standard Singularity base branch must pull enemies before Level VII selection.');
