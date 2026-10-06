@@ -551,6 +551,7 @@ function updateOrbitalSphere(
 function updatePrismSphere(s: GameState, sphere: SphereEntity, damage: number, radius: number, mods: ReturnType<typeof sphereModifiers>, networkProfile: ReturnType<typeof getSphereNetworkProfile>, network: SphereNetworkState, dt: number): void {
   const branch = s.player.sphereBranches?.prism;
   const finalIndex = getSphereFinalIndex(s, 'prism');
+  const branchPower = finalIndex === null ? preFinalBranchPower(s, 'prism') : 1;
   sphere.attackTimer -= dt;
   if (sphere.attackTimer > 0) return;
 
@@ -597,8 +598,11 @@ let beamCount = Math.max(1, 1 + mods.multishot);
     used.add(beamTarget);
 
     let beamDamage = damage;
-    if (branch === 'prism_split') beamDamage *= beam === 0 ? 1.0 : (finalIndex === 1 ? 0.72 : 0.62);
-    if (branch === 'prism_spectrum' && status !== 'none') beamDamage *= 1.08;
+    if (branch === 'prism_split') {
+      beamDamage *= beam === 0 ? 1.0 : (finalIndex === 1 ? 0.72 : 0.62);
+      if (finalIndex === null && beam > 0) beamDamage *= branchPower;
+    }
+    if (branch === 'prism_spectrum' && status !== 'none') beamDamage *= 1.08 * (finalIndex === null ? branchPower : 1);
     const sphereIndex = s.spheres.indexOf(sphere);
     const lineBonus = getFormationBonusMultiplier(network, 'line', sphereIndex);
     const latticeBonus = getFormationBonusMultiplier(network, 'lattice', sphereIndex);
@@ -639,14 +643,14 @@ let beamCount = Math.max(1, 1 + mods.multishot);
           for (const candidate of s.enemies) {
             if (candidate.hp <= 0 || visited.has(candidate)) continue;
             const d = dist(candidate.pos, bounceTarget.pos);
-            if (d < 115 && d < nextDistance) {
+            if (d < 115 * branchPower && d < nextDistance) {
               next = candidate;
               nextDistance = d;
             }
           }
           if (!next) break;
           visited.add(next);
-          dealDamageToEnemy(s, next, damage * (bounce === 0 ? 0.30 : 0.24), relay, false);
+          dealDamageToEnemy(s, next, damage * (bounce === 0 ? 0.30 : 0.24) * branchPower, relay, false);
           if (status !== 'none') applyDirectSphereStatus(s, next, status, relay);
           s.lightnings.push({ from: { ...bounceTarget.pos }, to: { ...next.pos }, life: 0.12 });
           bounceTarget = next;
