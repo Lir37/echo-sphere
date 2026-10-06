@@ -117,7 +117,7 @@ export function getSphereDpsEstimate(s: GameState, sphere: SphereEntity): number
     );
     const satellites = satelliteCounts.inner + satelliteCounts.outer;
     const interval = getSpecialSphereCadence(s, sphere, 0.42 * mods.auraPulse, network);
-    return (damage * satellites * 2.2) / interval;
+    return (damage * satellites * 2.2 * mods.rotationSpeed) / interval;
   }
   if (sphere.type === 'prism') return (damage * Math.max(1, 1 + mods.multishot)) / delay;
   if (sphere.type === 'pulse') {
