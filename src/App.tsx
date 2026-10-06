@@ -34,6 +34,7 @@ import CharacterSelect from './CharacterSelect';
 import { createMasteryRunTracker, getMasteryRunXp, tickCharacterMastery } from './characterMastery';
 import { CHARACTER_DEFS } from './characters';
 import KnowledgeBase, { syncKnowledgeFromRun } from './KnowledgeBase';
+import EchoMapScreen from './EchoMapScreen';
 import TutorialOverlay, { type TutorialStep } from './TutorialOverlay';
 import {
   ABILITY_PROGRESSION, SPHERE_PROGRESSION, getAbilityDisplayName, getAbilityDisplayDesc,
@@ -70,8 +71,9 @@ export default function App() {
 
   return (
     <div className="es-app min-h-screen w-full text-[#dcecff] overflow-hidden flex items-center justify-center">
-      {screen === 'menu' && <Menu lang={lang} t={t} difficulty={difficulty} setDifficulty={setDifficulty} regionMode={regionMode} setRegionMode={setRegionMode} regionChallenge={regionChallenge} setRegionChallenge={setRegionChallenge} onPlay={() => setScreen('game')} onShop={() => { setShop(loadShop()); setGold(loadGold()); setScreen('shop'); }} onCharacters={() => { setGold(loadGold()); setScreen('characters'); }} onLeader={() => setScreen('leaderboard')} onSettings={() => setScreen('settings')} onAchievements={() => setScreen('achievements')} onKnowledge={() => setScreen('knowledge')} />}
-      {screen === 'game' && <GameScreen lang={lang} t={t} shop={shop} difficulty={difficulty} handedness={handedness} regionMode={regionMode} regionChallenge={regionChallenge} onExit={() => { setShop(loadShop()); setGold(loadGold()); setScreen('menu'); }} />}
+      {screen === 'menu' && <Menu lang={lang} t={t} difficulty={difficulty} setDifficulty={setDifficulty} onOpenMap={() => setScreen('map')} onShop={() => { setShop(loadShop()); setGold(loadGold()); setScreen('shop'); }} onCharacters={() => { setGold(loadGold()); setScreen('characters'); }} onLeader={() => setScreen('leaderboard')} onSettings={() => setScreen('settings')} onAchievements={() => setScreen('achievements')} onKnowledge={() => setScreen('knowledge')} />}
+      {screen === 'map' && <EchoMapScreen lang={lang} difficulty={difficulty} onStartRun={(mode, challenge) => { setRegionMode(mode); setRegionChallenge(challenge); setScreen('game'); }} onCharacters={() => { setGold(loadGold()); setScreen('characters'); }} onBack={() => setScreen('menu')} />}
+      {screen === 'game' && <GameScreen lang={lang} t={t} shop={shop} difficulty={difficulty} handedness={handedness} regionMode={regionMode} regionChallenge={regionChallenge} onExit={() => { setShop(loadShop()); setGold(loadGold()); setScreen('map'); }} />}
       {screen === 'shop' && <ShopScreen lang={lang} t={t} shop={shop} setShop={setShop} onBack={() => { setGold(loadGold()); setScreen('menu'); }} />}
       {screen === 'characters' && <CharacterSelect lang={lang} gold={gold} onGoldChange={(nextGold) => { setGold(nextGold); setShop(loadShop()); }} onBack={() => { setGold(loadGold()); setShop(loadShop()); setScreen('menu'); }} />}
       {screen === 'leaderboard' && <LeaderboardScreen lang={lang} t={t} onBack={() => setScreen('menu')} />}
@@ -83,12 +85,10 @@ export default function App() {
 }
 
 // ===== Menu =====
-function Menu({ lang, t, difficulty, setDifficulty, regionMode, setRegionMode, regionChallenge, setRegionChallenge, onPlay, onShop, onCharacters, onLeader, onSettings, onAchievements, onKnowledge }: {
+function Menu({ lang, t, difficulty, setDifficulty, onOpenMap, onShop, onCharacters, onLeader, onSettings, onAchievements, onKnowledge }: {
   lang: Lang; t: (k: TranslationKey) => string;
   difficulty: Difficulty; setDifficulty: (d: Difficulty) => void;
-  regionMode: RegionMode; setRegionMode: (m: RegionMode) => void;
-  regionChallenge: RegionChallengeId; setRegionChallenge: (c: RegionChallengeId) => void;
-  onPlay: () => void; onShop: () => void; onCharacters: () => void; onLeader: () => void; onSettings: () => void; onAchievements: () => void; onKnowledge: () => void;
+  onOpenMap: () => void; onShop: () => void; onCharacters: () => void; onLeader: () => void; onSettings: () => void; onAchievements: () => void; onKnowledge: () => void;
 }) {
   const [name, setName] = useState(() => loadName());
   const selectedCharacter = CHARACTER_DEFS[loadCharacterId()];
@@ -106,18 +106,24 @@ function Menu({ lang, t, difficulty, setDifficulty, regionMode, setRegionMode, r
       <main className="es-main-stage">
         <section className="es-main-core">
           <div className="es-core-caption">ECHO CORE // {lang === 'ru' ? 'ГОТОВ' : 'READY'}</div>
-          <div className="es-main-core-art" aria-hidden="true">
-            <div className="es-core-orbit orbit-a" />
-            <div className="es-core-orbit orbit-b" />
-            <div className="es-core-orbit orbit-c" />
-            <div className="es-core-ring ring-a" />
-            <div className="es-core-ring ring-b" />
-            <div className="es-core-body" />
-            <div className="es-core-highlight" />
-          </div>
-          <div className="es-main-core-title">{lang === 'ru' ? 'ВОЙТИ В ЭХО' : 'ENTER THE ECHO'}</div>
+          <button type="button" className="es-main-map-entry" onClick={onOpenMap} aria-label={lang === 'ru' ? 'Открыть карту Эха' : 'Open Echo Map'}>
+            <div className="es-main-core-art" aria-hidden="true">
+              <div className="es-core-orbit orbit-a" />
+              <div className="es-core-orbit orbit-b" />
+              <div className="es-core-orbit orbit-c" />
+              <div className="es-core-ring ring-a" />
+              <div className="es-core-ring ring-b" />
+              <div className="es-core-body" />
+              <div className="es-core-highlight" />
+              <div className="es-map-entry-shard shard-a" />
+              <div className="es-map-entry-shard shard-b" />
+              <div className="es-map-entry-shard shard-c" />
+            </div>
+            <span className="es-main-core-title">{lang === 'ru' ? 'КАРТА ЭХА' : 'ECHO MAP'}</span>
+            <span className="es-map-entry-label">{lang === 'ru' ? 'ОТКРЫТЬ КАРТУ' : 'OPEN MAP'}</span>
+          </button>
           <div className="es-main-core-copy">
-            {lang === 'ru' ? 'Размещай сферы. Строй резонанс. Переживи волну.' : 'Deploy spheres. Build resonance. Survive the wave.'}
+            {lang === 'ru' ? 'Нажми на сферу и выбери путь. Регионы, испытания и Бесконечность теперь живут на одной карте.' : 'Tap the sphere to choose your path. Regions, challenges and Infinity now live on one map.'}
           </div>
 
           <div className="es-main-loadout">
@@ -143,42 +149,12 @@ function Menu({ lang, t, difficulty, setDifficulty, regionMode, setRegionMode, r
 
           </div>
 
-          <div className="mt-4 rounded-xl border border-[#243b55] bg-[#07111d]/80 p-3">
-            <div className="text-[9px] uppercase tracking-[.18em] text-[#7f9bb8] mb-2">{lang === 'ru' ? 'РЕЖИМ РЕГИОНА' : 'REGION MODE'}</div>
-            <div className="flex gap-2">
-              <button onClick={() => setRegionMode('stabilization')} className={`flex-1 rounded-lg border px-2 py-2 text-[9px] font-bold ${regionMode==='stabilization'?'border-[#39d8ff]/60 bg-[#39d8ff]/10 text-[#dcecff]':'border-[#243b55] text-[#7f9bb8]'}`}>{lang === 'ru' ? 'СТАБИЛИЗАЦИЯ · 30:00' : 'STABILIZATION · 30:00'}</button>
-              <button disabled={!loadRegionEndlessUnlock()} onClick={() => setRegionMode('endless')} className={`flex-1 rounded-lg border px-2 py-2 text-[9px] font-bold ${regionMode==='endless'?'border-[#ffb84d]/60 bg-[#ffb84d]/10 text-[#ffb84d]':'border-[#243b55] text-[#7f9bb8]'} ${!loadRegionEndlessUnlock()?'opacity-40':''}`}>{lang === 'ru' ? 'БЕСКОНЕЧНЫЙ' : 'ENDLESS'} {!loadRegionEndlessUnlock() && (lang === 'ru' ? '· ЗАКРЫТ' : '· LOCKED')}</button>
-            </div>
-            <div className="text-[9px] uppercase tracking-[.18em] text-[#7f9bb8] mt-3 mb-2">{lang === 'ru' ? 'ИСПЫТАНИЕ РЕГИОНА' : 'REGION CHALLENGE'}</div>
-            <div className="grid grid-cols-3 gap-1.5">
-              {REGION_CHALLENGES.map(c => <button key={c.id} onClick={() => setRegionChallenge(c.id)} title={c.desc[lang]} className={`rounded-lg border px-2 py-2 text-[8px] font-bold ${regionChallenge===c.id?'border-[#55e6c1]/60 bg-[#55e6c1]/10 text-[#55e6c1]':'border-[#243b55] text-[#7f9bb8]'}`}>{c.name[lang]}</button>)}
-            </div>
-            <div className="mt-2 rounded-lg border border-[#1e334c] bg-[#050d17]/80 px-2.5 py-2 text-[8px] leading-relaxed text-[#9ab2cb]">
-              {lang === 'ru'
-                ? 'Испытание меняет правила этого забега. Пять областей меняют состав и поведение врагов. Светящиеся метки дают ресурсы или запускают локальные события.'
-                : 'The challenge changes this run. Five pockets change enemy ecology and behavior. Glowing markers grant resources or trigger local events.'}
-            </div>
-            {(() => {
-              const selected = REGION_CHALLENGES.find(c => c.id === regionChallenge);
-              return <div className="mt-1 text-[8px] leading-relaxed text-[#7f9bb8]">{selected ? selected.desc[lang] : (lang === 'ru' ? 'Без дополнительного испытания.' : 'No additional challenge.')}</div>;
-            })()}
-            <div className="mt-2 text-[8px] leading-relaxed text-[#7f9bb8]">
-              {lang === 'ru'
-                ? 'Цель «Стабилизация»: уничтожь стражей в 08:00, 16:00 и 27:00 и доживи до 30:00. После первой победы откроется бесконечный режим.'
-                : 'Stabilization: defeat the wardens at 08:00, 16:00 and 27:00 and reach 30:00. The first clear unlocks Endless.'}
-            </div>
-          </div>
-
           <div className="es-main-name">
             <span>ID</span>
             <input value={name} onChange={(e) => setName(e.target.value.slice(0, 16))} placeholder={t('namePlaceholder')} />
           </div>
 
-          <button onClick={onPlay} className="es-main-play">
-            <Play size={18} fill="currentColor" />
-            <span>{t('play')}</span>
-            <small>{lang === 'ru' ? 'НАЧАТЬ ЗАБЕГ' : 'START RUN'}</small>
-          </button>
+          <div className="es-main-map-hint">{lang === 'ru' ? 'Выбор региона и режима производится на карте Эха' : 'Region and mode selection happens on the Echo Map'}</div>
         </section>
 
       </main>
