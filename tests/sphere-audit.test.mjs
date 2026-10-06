@@ -76,9 +76,9 @@ assert.match(progression, /rotationSpeed\*=1\.15/,
   'Orbital Level III rotation speed modifier is missing.');
 assert.match(engine, /const bodyRadius = Math\.max\(15, Math\.min\(25, sphere\.radius \* 0\.19 \+ level \* 0\.8\)\)/,
   'Orbital combat radius must use the same body-radius basis as the renderer.');
-assert.match(engine, /bodyRadius \* 1\.68 \* mods\.radius/,
+assert.match(engine, /bodyRadius \* 1\.68 \* radiusMultiplier/,
   'Orbital inner combat ring is not aligned with the authored visual orbit.');
-assert.match(engine, /bodyRadius \* 2\.02 \* mods\.radius/,
+assert.match(engine, /bodyRadius \* 2\.02 \* radiusMultiplier/,
   'Orbital outer combat ring is not aligned with the authored visual orbit.');
 assert.match(engine, /branch === 'orbital_dance' && finalIndex === 2/,
   'Only Orbital Dance final III should add the extra core satellite.');
