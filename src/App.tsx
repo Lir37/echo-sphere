@@ -42,7 +42,7 @@ import {
   getSphereElementForBranch, SPHERE_ELEMENT_META,
 } from './sphereProgression';
 
-type Screen = 'menu' | 'game' | 'shop' | 'leaderboard' | 'settings' | 'achievements' | 'characters' | 'knowledge';
+type Screen = 'menu' | 'map' | 'game' | 'shop' | 'leaderboard' | 'settings' | 'achievements' | 'characters' | 'knowledge';
 
 // Canvas/2.5D is the active battlefield renderer.
 // The authored 3D/GLB path is preserved for the later controlled 3D re-evaluation phase.
