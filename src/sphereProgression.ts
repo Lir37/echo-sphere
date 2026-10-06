@@ -225,7 +225,7 @@ const BRANCH_LEVEL_DETAILS_EN:Partial<Record<SphereEvolutionId,{level5:string;le
   gravity_well:{level5:"The pull zone becomes denser and slows enemies more strongly.",level6:"Pull strengthens toward the center and holds dense groups more effectively."},
   gravity_tide:{level5:"Gravity alternates between pull and a counter-push phase.",level6:"The phases become stronger and expand spatial control."},
   gravity_collapse:{level5:"Tightly grouped enemies take additional pulse damage.",level6:"Collapse punishes large clusters and weakened targets more strongly."},
-  pulse_wave:{level5:"Each wave gains increased radius and pushes enemies away from the node.",level6:"The wave travels farther and keeps control active for longer."},
+  pulse_wave:{level5:"Each wave gains increased radius and pushes enemies away from the node.",level6:"The wave gains a wider control radius and stronger knockback."},
   pulse_resonator:{level5:"The pulse additionally feeds Resonance while the network is active.",level6:"The linked pulse creates resonance surges more often."},
   pulse_burst:{level5:"A short second discharge appears at the center after the main wave.",level6:"The second discharge becomes stronger and works better against dense groups."},
   void_hunger:{level5:"Damage increases in proportion to the target's lost health.",level6:"Weakened targets receive an even higher finishing multiplier."},
@@ -241,8 +241,8 @@ const NEW_BRANCH_LEVEL_DETAILS:Partial<Record<SphereEvolutionId,{level5:string;l
   prism_mirror:{level5:'Связанные сферы создают вторичные отражённые лучи.',level6:'Отражённые лучи получают дополнительную дальность и стабильность.'},
   gravity_well:{level5:'Зона притяжения становится плотнее и сильнее замедляет врагов.',level6:'Стягивание усиливается к центру и лучше удерживает плотные группы.'},
   gravity_tide:{level5:'Гравитация чередует фазы стягивания и обратного толчка.',level6:'Фазы становятся мощнее и расширяют контроль пространства.'},
-  gravity_collapse:{level5:'Плотно собранные враги получают дополнительный импульсный урон.',level6:'Коллапс сильнее наказывает большие скопления и ослабленные цели.'},
-  pulse_wave:{level5:'Каждая волна получает увеличенный радиус и отбрасывает врагов от узла.',level6:'Волна распространяется дальше и дольше сохраняет контроль.'},
+  gravity_collapse:{level5:'Плотно собранные враги получают дополнительный урон от коллапса.',level6:'Коллапс сильнее наказывает большие скопления и ослабленные цели.'},
+  pulse_wave:{level5:'Каждая волна получает увеличенный радиус и отбрасывает врагов от узла.',level6:'Волна получает больший радиус контроля и более сильное отбрасывание.'},
   pulse_resonator:{level5:'Импульс дополнительно подпитывает Resonance при работающей сети.',level6:'Связанный импульс чаще создаёт резонансный всплеск.'},
   pulse_burst:{level5:'После основной волны возникает короткий второй разряд по центру.',level6:'Второй разряд становится сильнее и лучше работает против плотных групп.'},
   void_hunger:{level5:'Урон растёт пропорционально потерянному здоровью цели.',level6:'Ослабленные цели получают ещё более высокий множитель добивания.'},
@@ -303,8 +303,8 @@ const SPHERE_FINAL_VARIANTS:Record<SphereEvolutionId,[SphereEvolutionDef,SphereE
   ],
   sniper_oracle:[
     f('sniper_oracle_final_1','Оракул • Критический фокус','Sniper Oracle • Critical Focus','Крит по отмеченной цели наносит +50% урона.','Critical hits against marked targets deal 50% more damage.'),
-    f('sniper_oracle_final_2','Оракул • Резонансный прицел','Sniper Oracle • Resonant Sight','Крит по отмеченной цели наносит +30% урона и дополнительно заряжает Resonance.','Critical hits against marked targets deal 30% more damage and grant additional Resonance.'),
-    f('sniper_oracle_final_3','Оракул • Взрывной крит','Sniper Oracle • Explosive Crit','Крит по отмеченной цели наносит +22% урона и дополнительно задевает врагов рядом с целью.','Critical hits against marked targets deal 22% more damage and also damage nearby enemies.'),
+    f('sniper_oracle_final_2','Оракул • Резонансный прицел','Sniper Oracle • Resonant Sight','Крит по отмеченной цели наносит +30% урона, а попадания по отмеченной цели дополнительно заряжают Resonance.','Critical hits against marked targets deal 30% more damage and grant additional Resonance.'),
+    f('sniper_oracle_final_3','Оракул • Взрывной крит','Sniper Oracle • Explosive Crit','Крит по отмеченной цели наносит +22% урона, дополнительно задевает врагов рядом с целью и усиливает добивание целей ниже 30% HP.','Critical hits against marked targets deal 22% more damage and also damage nearby enemies.'),
   ],
   sniper_assassin:[
     f('sniper_assassin_final_1','Убийца • Добивание','Sniper Assassin • Execution','По цели ниже 35% HP урон увеличен примерно в 1.7 раза.','Targets below 35% HP take roughly 1.7x damage.'),
@@ -312,9 +312,9 @@ const SPHERE_FINAL_VARIANTS:Record<SphereEvolutionId,[SphereEvolutionDef,SphereE
     f('sniper_assassin_final_3','Убийца • Кровавое добивание','Sniper Assassin • Blood Execution','По цели ниже 35% HP урон увеличен примерно в 1.45 раза; попадание восстанавливает небольшое количество HP.','Targets below 35% HP take roughly 1.45x damage, and the hit restores a small amount of HP.'),
   ],
   sniper_beacon:[
-    f('sniper_beacon_final_1','Маяк • Якорный','Sniper Beacon • Anchor','Помеченная цель замедляется, а зона воздействия вокруг неё получает стабильный сетевой якорь.','Marked targets are slowed, and the area around them gains a stable network anchor.'),
+    f('sniper_beacon_final_1','Маяк • Якорный','Sniper Beacon • Anchor','Помеченная цель замедляется сильнее, а зона контроля вокруг неё получает усиливающийся эффект Anchor.','Marked targets are slowed, and the area around them gains a stable network anchor.'),
     f('sniper_beacon_final_2','Маяк • Прожектор','Sniper Beacon • Spotlight','Метка держится дольше, распространяет контроль на более широкую область и усиливает урон маркировки.','The mark lasts longer, affects a wider area, and strengthens the marking damage effect.'),
-    f('sniper_beacon_final_3','Маяк • Сетевой','Sniper Beacon • Network Beacon','Метка и сетевой якорь работают вместе, распространяя замедление на область вокруг цели.','The mark and network anchor work together, spreading slow across the area around the target.'),
+    f('sniper_beacon_final_3','Маяк • Сетевой','Sniper Beacon • Network Beacon','Метка и Anchor работают вместе, распространяя замедление на область вокруг цели.','The mark and network anchor work together, spreading slow across the area around the target.'),
   ],
   shotgun_burst:[
     f('shotgun_burst_final_1','Разрыв • Ближний','Shotgun Burst • Close Burst','При дистанции до 150 наносится +30% урона.','At up to 150 range, the hit deals 30% more damage.'),
@@ -332,9 +332,9 @@ const SPHERE_FINAL_VARIANTS:Record<SphereEvolutionId,[SphereEvolutionDef,SphereE
     f('shotgun_hail_final_3','Град • Комбинированный','Shotgun Hail • Combined Hail','С вероятностью 32% выпускает 6 осколков и усиливает основное попадание на 8%.','On hit, there is a 32% chance to launch 6 shards and increase the main hit damage by 8%.'),
   ],
   chain_web:[
-    f('chain_web_final_1','Паутина • Якорная','Chain Web • Anchor Web','Цепь усиливает замедление цели, а сетевой якорь стабилизирует зону контроля.','Chain hits apply stronger slow, while the network anchor stabilizes the control zone.'),
+    f('chain_web_final_1','Паутина • Якорная','Chain Web • Anchor Web','Цепь усиливает замедление цели, а Anchor дополнительно удерживает её в зоне контроля.','Chain hits apply stronger slow, while the network anchor stabilizes the control zone.'),
     f('chain_web_final_2','Паутина • Статическая','Chain Web • Static Web','Цепь дольше удерживает замедление и получает шанс дополнительно перекинуть статический разряд на соседнюю цель.','Chain hits keep slow active longer and can also relay a static strike to a nearby target.'),
-    f('chain_web_final_3','Паутина • Парализующая','Chain Web • Paralysis Web','Якорь и статический разряд работают вместе, превращая цепь в плотную зону контроля.','The anchor and static strike work together, turning the chain into a dense control zone.'),
+    f('chain_web_final_3','Паутина • Парализующая','Chain Web • Paralysis Web','Anchor и статический разряд работают вместе, превращая цепь в плотную зону контроля.','The anchor and static strike work together, turning the chain into a dense control zone.'),
   ],
   chain_storm:[
     f('chain_storm_final_1','Шторм • Дуговой','Chain Storm • Arc Storm','Каждый переход может дать дополнительный удар по области радиусом 70.','Each chain transition can add an extra area hit with radius 70.'),
@@ -348,13 +348,13 @@ const SPHERE_FINAL_VARIANTS:Record<SphereEvolutionId,[SphereEvolutionDef,SphereE
   ],
   aura_sanctum:[
     f('aura_sanctum_final_1','Святилище • Холод','Aura Sanctum • Cold Sanctum','Аура дольше и сильнее замедляет врагов в зоне.','The Aura slows enemies in its zone for longer and with greater strength.'),
-    f('aura_sanctum_final_2','Святилище • Удержание','Aura Sanctum • Locking Sanctum','Аура получает более сильный сетевой якорь и удерживает врагов до 2 с.','The Aura gains a stronger network anchor and can hold enemies for up to 2s.'),
-    f('aura_sanctum_final_3','Святилище • Контроль','Aura Sanctum • Control Sanctum','Замедление и якорь работают вместе, а сама аура получает +12% урона.','Slow and anchor work together, and the Aura gains 12% damage.'),
+    f('aura_sanctum_final_2','Святилище • Удержание','Aura Sanctum • Locking Sanctum','Аура получает более сильный Anchor и удерживает врагов до 2 с.','The Aura gains a stronger network anchor and can hold enemies for up to 2s.'),
+    f('aura_sanctum_final_3','Святилище • Контроль','Aura Sanctum • Control Sanctum','Freeze и Anchor работают вместе, а сама аура получает +12% урона.','Slow and anchor work together, and the Aura gains 12% damage.'),
   ],
   aura_gravity:[
     f('aura_gravity_final_1','Гравитация • Тяга','Aura Gravity • Pull','Аура стягивает врагов к центру с усиленной силой притяжения.','The Aura pulls enemies toward its center with increased force.'),
     f('aura_gravity_final_2','Гравитация • Колодец','Aura Gravity • Well','Аура получает ещё более сильную тягу и расширяет область удержания.','The Aura gains even stronger pull and expands its control area.'),
-    f('aura_gravity_final_3','Гравитация • Удар','Aura Gravity • Impact','Сильная тяга и сетевой якорь объединяются; аура получает +18% урона.','Strong pull and network anchor combine, and the Aura gains 18% damage.'),
+    f('aura_gravity_final_3','Гравитация • Удар','Aura Gravity • Impact','Сильная тяга и Anchor объединяются; аура получает +18% урона.','Strong pull and network anchor combine, and the Aura gains 18% damage.'),
   ],
   aura_overgrowth:[
     f('aura_overgrowth_final_1','Живая сеть • Ускорение','Aura Overgrowth • Acceleration','Ближайшие сферы внутри радиуса 140 ускоряют следующий выстрел.','Nearby Spheres within radius 140 speed up their next attack cycle.'),
@@ -362,9 +362,9 @@ const SPHERE_FINAL_VARIANTS:Record<SphereEvolutionId,[SphereEvolutionDef,SphereE
     f('aura_overgrowth_final_3','Живая сеть • Давление','Aura Overgrowth • Pressure','Сферы ускоряются в радиусе 140, а сама Aura получает +12% урона.','Nearby Spheres speed up within radius 140, and the Aura gains 12% damage.'),
   ],
   orbital_dance:[
-    f('orbital_dance_final_1','Танец • Ритм','Orbital Dance • Rhythm','Орбитальные спутники вращаются заметно быстрее и получают усиление Afterimage, создающее повторный след-удар.','Orbital satellites rotate faster and gain an Afterimage effect that creates a repeating trail strike.'),
+    f('orbital_dance_final_1','Танец • Ритм','Orbital Dance • Rhythm','Орбитальные спутники вращаются заметно быстрее и Afterimage создаёт повторный след-удар.','Orbital satellites rotate faster and gain an Afterimage effect that creates a repeating trail strike.'),
     f('orbital_dance_final_2','Танец • Гиперцикл','Orbital Dance • Hypercycle','Спутники вращаются в 1.55 раза быстрее базового темпа ветки и шире ловят врагов на траектории.','Satellites rotate at 1.55x the branch base tempo and have a wider hit window along the path.'),
-    f('orbital_dance_final_3','Танец • Рой','Orbital Dance • Swarm','К орбитальной атаке добавляется ещё один спутник, а следы получают усиление Afterimage.','The orbital attack gains one more satellite, while its trails gain an Afterimage effect.'),
+    f('orbital_dance_final_3','Танец • Рой','Orbital Dance • Swarm','К орбитальной атаке добавляется ещё один спутник, а успешные попадания получают усиление Afterimage.','The orbital attack gains one more satellite, while its trails gain an Afterimage effect.'),
   ],
   orbital_halo:[
     f('orbital_halo_final_1','Ореол • Резонанс','Orbital Halo • Resonance','Проход спутника дополнительно заряжает Resonance.','Passing satellites grant additional Resonance charge.'),
@@ -433,8 +433,8 @@ const SPHERE_FINAL_VARIANTS:Record<SphereEvolutionId,[SphereEvolutionDef,SphereE
   ],
   void_execution:[
     f('void_execution_final_1','Экзекуция • Порог','Void Execution • Threshold','Шанс исполнения и усиление урона по ослабленным целям повышаются.','Execute chance and damage against weakened targets are increased.'),
-    f('void_execution_final_2','Экзекуция • Фаза','Void Execution • Phase','Сфера получает Phase, усиливая пробитие и шанс повторно проводить атаку сквозь цель.','The Sphere gains Phase, improving penetration and the chance to carry attacks through a target.'),
-    f('void_execution_final_3','Экзекуция • Абсолют','Void Execution • Absolute','Execute и Phase объединяются; порог исполнения повышается до 30% HP.','Execute and Phase combine, and the execution threshold rises to 30% HP.'),
+    f('void_execution_final_2','Экзекуция • Фаза','Void Execution • Phase','Сфера получает Phase, добавляющий пробитие атакам.','The Sphere gains Phase, improving penetration and the chance to carry attacks through a target.'),
+    f('void_execution_final_3','Экзекуция • Абсолют','Void Execution • Absolute','Execute и Phase объединяются; Phase добавляет пробитие, а порог исполнения повышается до 30% HP.','Execute and Phase combine, and the execution threshold rises to 30% HP.'),
   ],
 };
 
@@ -1009,7 +1009,7 @@ const AUTHORED_FINAL_MODIFIERS: Partial<Record<SphereEvolutionId, Partial<Record
   prism_spectrum:{0:{fire:1},1:{freeze:1},2:{poison:1}},
   prism_mirror:{0:{ricochet:1},1:{ricochet:2},2:{ricochet:2,echo:1}},
   gravity_well:{0:{anchor:2},1:{gravitic:2},2:{anchor:2,gravitic:2}},
-  gravity_tide:{0:{impact:2},1:{gravitic:2},2:{impact:2,gravitic:2}},
+  gravity_tide:{0:{},1:{},2:{}},
   gravity_collapse:{0:{execute:2},1:{gravitic:2},2:{execute:2,gravitic:2}},
   pulse_wave:{0:{impact:2},1:{freeze:1},2:{impact:2,freeze:1}},
   pulse_resonator:{0:{resonant:2},1:{resonant:2,impact:1},2:{resonant:2,shatter:1}},
