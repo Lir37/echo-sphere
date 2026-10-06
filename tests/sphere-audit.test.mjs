@@ -86,7 +86,7 @@ assert.match(progression, /orbital_dance:\{0:\{afterimage:2\},1:\{afterimage:2\}
   'Orbital Dance finals must retain their authored Afterimage behavior.');
 assert.match(progression, /prism_spectrum:\{0:\{fire:1\},1:\{freeze:1\},2:\{poison:1\}\}/,
   'Prism Spectrum finals must map to Fire/Freeze/Poison.');
-assert.match(engine, /const bounceCount = finalIndex === null ? 0 : Math\.min\(2, mods\.ricochet\)/,
+assert.match(engine, /const bounceCount = Math\.min\(2, mods\.ricochet\)/,
   'Prism Mirror finals must consume authored Ricochet levels.');
 assert.match(engine, /finalIndex === 2 ? 1\.50 : 1\.15/,
   'Gravity Well final III pull scaling must be stronger than the base branch.');
