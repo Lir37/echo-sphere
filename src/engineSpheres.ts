@@ -344,6 +344,12 @@ function applyElementalFieldReaction(
 
 function getActiveStatusEffect(s: GameState, sphere?: SphereEntity): 'none' | 'fire' | 'freeze' | 'poison' {
   const branch = sphere ? s.player.sphereBranches?.[sphere.type] : undefined;
+  if (sphere?.type === 'prism' && branch === 'prism_spectrum') {
+    const final = getSphereFinalIndex(s, 'prism');
+    if (final === 0) return 'fire';
+    if (final === 1) return 'freeze';
+    if (final === 2) return 'poison';
+  }
   const element = getSphereElementForBranch(branch);
   if (element) return element;
   const mods = sphere ? sphereModifiers(s, sphere.type, sphere) : null;
