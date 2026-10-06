@@ -518,7 +518,47 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
   if (s.player.buffTimer > 0) actual *= 1.3;
   enemy.hp -= actual;
   if (enemy.isElite && enemy.eliteVariant === 'mirror_warden' && fromSphere && actual > 0) damagePlayer(s, actual * 0.12);
-  if (fromSphere) chargeResonance(s, 'sphereHit', dealDamageToEnemy);
+  if (fromSphere) {
+    chargeResonance(s, 'sphereHit', dealDamageToEnemy);
+    if (allowSphereProc && actual > 0) {
+      const character = getCharacterId(s);
+      const mastery = s.player.characterMasteryLevel || 1;
+      if (character === 'spherist') {
+        const sphereCount = s.spheres.filter((item) => item.alive).length;
+        if (mastery >= 9 && sphereCount >= 8) {
+          s.player.spheristChorusHits++;
+          const threshold = mastery >= 10 ? 8 : 10;
+          if (s.player.spheristChorusHits >= threshold) {
+            s.player.spheristChorusHits = 0;
+            const companions = s.spheres.filter((item) => item.alive && item !== fromSphere).sort((a, b) => b.attackTimer - a.attackTimer).slice(0, mastery >= 10 ? 2 : 1);
+            for (const companion of companions) {
+              companion.attackTimer = 0;
+              companion.resonancePulseTimer = Math.max(companion.resonancePulseTimer, 0.45);
+            }
+            s.screenShake = Math.min(0.16, s.screenShake + 0.025);
+            s.flashText = { text: mastery >= 10 ? 'CHORUS SYNC' : 'CHORUS PULSE', life: 0.7, color: '#55dfff' };
+          }
+        } else {
+          s.player.spheristChorusHits = 0;
+        }
+      }
+      if (character === 'berserker' && mastery >= 7) {
+        const hpRatio = s.player.hp / Math.max(1, s.player.maxHp);
+        if (hpRatio <= 0.30) {
+          s.player.berserkerRedlineHits++;
+          const threshold = mastery >= 10 ? 4 : 5;
+          if (s.player.berserkerRedlineHits >= threshold) {
+            s.player.berserkerRedlineHits = 0;
+            const pulseDamage = actual * (mastery >= 10 ? 0.40 : mastery >= 8 ? 0.35 : 0.30);
+            for (const target of s.enemies) if (target.hp > 0 && dist(target.pos, s.player.pos) <= 105) dealDamageToEnemy(s, target, pulseDamage, undefined, false);
+            for (let i = 0; i < 16; i++) { const a = nextRandom(s) * Math.PI * 2; s.particles.push({ pos: { ...s.player.pos }, vel: { x: Math.cos(a) * 120, y: Math.sin(a) * 120 }, life: 0.35, maxLife: 0.35, color: '#ff625d', size: 3 }); }
+            s.screenShake = Math.min(0.20, s.screenShake + 0.035);
+            s.flashText = { text: 'REDLINE', life: 0.65, color: '#ff625d' };
+          }
+        } else s.player.berserkerRedlineHits = 0;
+      }
+    }
+  }
   enemy.hitFlash = 0.15;
 
   // Juicier impact: a short, directional burst makes every sphere hit readable.
