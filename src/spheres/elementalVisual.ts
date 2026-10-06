@@ -261,7 +261,12 @@ function drawSpecialElementalSignature(
 
 export function renderSphereElementalVfx(ctx: CanvasRenderingContext2D, sphere: SphereEntity, player: PlayerState, time: number, scale = 1): void {
   const branch = player?.sphereBranches?.[sphere.type];
-  const element = getSphereElementForBranch(branch);
+  let element = getSphereElementForBranch(branch);
+  if (sphere.type === 'prism' && branch === 'prism_spectrum') {
+    const finalId = (player?.evolutions || []).find((id: string) => id.startsWith('sphere:prism:7:'));
+    const finalIndex = finalId ? Number(finalId.split(':').pop()) : null;
+    element = finalIndex === 1 ? 'freeze' : finalIndex === 2 ? 'poison' : 'fire';
+  }
   if (!element) return;
 
   const active = sphere.alive && sphere.networkDisabledTimer <= 0;
