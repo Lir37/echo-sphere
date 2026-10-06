@@ -177,7 +177,6 @@ export function renderOrbitalSphereRuntimeVfx(
   const color = disabled ? DISABLED : resonance ? RESONANCE : BASE;
   const r = 24 * scale;
   const coreR = r * .70;
-  const orbitMultiplier = Number.isFinite(orbitalRadiusScale) && orbitalRadiusScale > 0 ? orbitalRadiusScale : 1;
 
   ctx.save();
   ctx.translate(sphere.pos.x, sphere.pos.y);
