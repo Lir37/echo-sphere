@@ -293,7 +293,7 @@ function GameScreen({ lang, t, shop, difficulty, handedness, regionMode, regionC
           }
           const time = Math.floor(st.time);
           const diff = DIFFICULTIES.find(d => d.id === st.difficulty)!;
-          const gold = Math.floor((time * 0.15 + st.bossDefeated * 25 + st.stats.enemiesKilled * 0.05) * diff.goldMult);
+          const gold = Math.floor((time * 0.15 + st.bossDefeated * 25 + st.stats.enemiesKilled * 0.05) * diff.goldMult) + (st.region?.cleared ? st.region.regionGoldReward : 0);
           saveGold(loadGold() + gold);
           const entry: LeaderEntry = { name: name || translations[lang].namePlaceholder, time, wave: st.wave, date: Date.now() };
           const { rank, isNewRecord } = addLeaderEntry(entry);
@@ -460,7 +460,7 @@ function GameScreen({ lang, t, shop, difficulty, handedness, regionMode, regionC
               <Row label={t('survived')} value={`${gameOverData.time} ${t('seconds')}`} />
               <Row label={t('wave')} value={`${gameOverData.wave}`} />
               <Row label={t('goldEarned')} value={`${gameOverData.gold}`} />
-              {gameOverData.regionClear && <Row label={lang === 'ru' ? 'ENDLESS' : 'ENDLESS'} value={lang === 'ru' ? 'РАЗБЛОКИРОВАН' : 'UNLOCKED'} />}
+              {gameOverData.regionClear && <><Row label={lang === 'ru' ? 'ENDLESS' : 'ENDLESS'} value={lang === 'ru' ? 'РАЗБЛОКИРОВАН' : 'UNLOCKED'} /><Row label={lang === 'ru' ? 'MASTERY' : 'MASTERY'} value={`${st.region?.masteryChallengesCompleted || 0}/3`} /></>}
               {gameOverData.rank > 0 && gameOverData.rank <= 10 && <Row label={t('rank')} value={`#${gameOverData.rank}`} />}
             </div>
             <button onClick={onExit} className="px-8 py-3 rounded-xl bg-[#39d8ff]/20 border border-[#39d8ff]/40 text-[#dcecff] hover:bg-[#39d8ff]/30 transition w-full">{t('return')}</button>
