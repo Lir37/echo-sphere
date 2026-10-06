@@ -610,7 +610,7 @@ function updateGravitySphere(s: GameState, sphere: SphereEntity, damage: number,
   const sphereIndex = s.spheres.indexOf(sphere);
   const clusterBonus = getFormationBonusMultiplier((getNetworkFrame(s)), 'cluster', sphereIndex);
   if (clusterBonus > 0) pullStrength *= 1 + 0.20 * clusterBonus;
-  if (branch === 'gravity_well') pullStrength *= finalIndex === 1 ? 1.35 : 1.15;
+  if (branch === 'gravity_well') pullStrength *= finalIndex === 1 ? 1.35 : finalIndex === 2 ? 1.50 : 1.15;
   if (branch === 'gravity_tide') pullStrength *= 1.05;
   if (branch === 'gravity_collapse') pullStrength *= 0.90;
 
