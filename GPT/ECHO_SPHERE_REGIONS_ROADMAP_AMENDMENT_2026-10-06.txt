@@ -1,0 +1,106 @@
+ECHO SPHERE
+ROADMAP AMENDMENT — REGIONS / STAGES / EXPLORATION
+Date: 2026-10-06
+
+This amendment adds the next gameplay-content layer without replacing the
+existing combat, Sphere, Network, Geometry, Resonance, Artifact, Character
+or Endless foundations.
+
+============================================================
+1. DEVELOPMENT ORDER UPDATE
+============================================================
+
+After the current Sphere PlayerCheck / immediate concrete-fix gate:
+
+A. CLOSE CURRENT PLAYER GATE
+- verify Orbital/Chain fixes on the exact green APK;
+- reproduce any concrete device defects;
+- do not reopen Sphere architecture without evidence.
+
+B. BUILD THE FIRST REGION SLICE
+- Stage/Region data model;
+- 30-minute Stabilization schedule;
+- 4-6 Spatial Pockets;
+- local POIs;
+- Field Radar support;
+- one regional rule;
+- regional enemy ecology;
+- boss schedule;
+- clear/reward flow;
+- Region Endless;
+- 3 Challenge Contracts;
+- 3 Mastery Challenges;
+- first lore records.
+
+C. IMPLEMENT FORMATION FOLLOW
+- new toggle beside LOCK;
+- eligibility near Formation Centroid;
+- preserve local Sphere offsets;
+- translate full Network by Core displacement;
+- keep FREE mode as default;
+- keep LOCK independent;
+- test Dash/teleport/disruption interactions.
+
+D. PLAYTEST THE REGION
+Primary questions:
+1. Does 30 minutes feel like a real expedition rather than an overlong wave?
+2. Do POIs create meaningful movement decisions?
+3. Is FOLLOW useful without becoming mandatory?
+4. Is FREE mode still fun and strategically valid?
+5. Does the regional rule materially change how the build is used?
+6. Does the boss/event rhythm create build pivots?
+7. Does the player want to replay the Region with another build?
+
+E. ONLY THEN SCALE CONTENT
+- additional Regions;
+- more enemy ecology variants;
+- more bosses;
+- expanded lore;
+- cross-Region Convergence.
+
+============================================================
+2. FIRST REGION EXIT GATE
+============================================================
+
+A first Region is NOT complete because its timer reaches 30:00.
+
+It is complete when:
+- the Region has distinct identity;
+- movement has purpose;
+- Network remains central;
+- FOLLOW feels natural;
+- POIs are readable on mobile;
+- bosses create meaningful pivots;
+- clear reward is satisfying;
+- Endless works;
+- at least one challenge materially changes play;
+- first lore entries are discoverable;
+- replay with another build remains attractive.
+
+============================================================
+3. CI / BUILD REQUIREMENTS
+============================================================
+
+For each implemented slice:
+- unit/integration tests;
+- gameplay coverage;
+- lint/typecheck;
+- web build;
+- Playwright smoke/render;
+- Capacitor sync;
+- Debug APK.
+
+Final acceptance:
+green CI + human APK PlayerCheck.
+
+============================================================
+4. SCOPE RULE
+============================================================
+
+Do not build eight Regions at once.
+
+One Region is the vertical slice for the new content architecture.
+
+The first Region should prove the model before content volume expands.
+
+END ROADMAP AMENDMENT
