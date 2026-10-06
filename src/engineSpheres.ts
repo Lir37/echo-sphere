@@ -386,13 +386,11 @@ function updateOrbitalSphere(
   const level = sphereLevel(s, 'orbital');
   const extraElements =
     (s.player.artifacts.includes('orbital_crown') ? 1 : 0)
-    + (finalIndex === 2 ? 1 : 0);
+    + (branch === 'orbital_dance' && finalIndex === 2 ? 1 : 0);
   const counts = getOrbitalRingCounts(level, extraElements);
 
   let angularSpeed = 1.8 + Math.min(2.4, Math.max(1, level) * 0.28);
-  if (branch === 'orbital_dance') angularSpeed *= finalIndex === 1 ? 1.55 : 1.28;
-  if (branch === 'orbital_halo') angularSpeed *= 1.08;
-  if (branch === 'orbital_blade') angularSpeed *= 1.12;
+  angularSpeed *= mods.rotationSpeed;
   const currentRotation = sphere.rotation + angularSpeed * dt;
   const previousSweepRotation = sphere.orbitalLastSweepRotation ?? sphere.rotation;
   sphere.rotation = currentRotation;
@@ -402,13 +400,17 @@ function updateOrbitalSphere(
   sphere.auraTimer = Math.max(0.12, 0.42 * mods.auraPulse);
 
   const sphereIndex = s.spheres.indexOf(sphere);
-  let orbitRadius = (78 + 12 * Math.min(7, Math.max(1, level))) * mods.radius;
+  const bodyRadius = Math.max(15, Math.min(25, sphere.radius * 0.19 + level * 0.8));
+  let orbitRadius = bodyRadius * 1.68 * mods.radius;
+  let outerOrbitRadius = bodyRadius * 2.02 * mods.radius;
   const clusterBonus = getFormationBonusMultiplier(network, 'cluster', sphereIndex);
   const ringBonus = getFormationBonusMultiplier(network, 'ring', sphereIndex);
-  if (clusterBonus > 0) orbitRadius *= 1 + 0.08 * clusterBonus;
-  if (ringBonus > 0) orbitRadius *= 1 + 0.12 * ringBonus;
-  orbitRadius *= 1 + Math.min(0.20, networkProfile.linkedNeighbours * 0.03);
-  const outerOrbitRadius = orbitRadius + 18 * mods.radius;
+  const networkRadiusMultiplier = 1
+    + (clusterBonus > 0 ? 0.08 * clusterBonus : 0)
+    + (ringBonus > 0 ? 0.12 * ringBonus : 0)
+    + Math.min(0.20, networkProfile.linkedNeighbours * 0.03);
+  orbitRadius *= networkRadiusMultiplier;
+  outerOrbitRadius *= networkRadiusMultiplier;
 
   const status = getActiveStatusEffect(s, sphere);
   const band = finalIndex === 1 ? 26 : 19;
