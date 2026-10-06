@@ -230,11 +230,15 @@ export interface EnemyEntity {
   /** Optional elemental mastery tick cadence. Omitted = legacy continuous DoT. */
   fireTickTimer?: number;
   fireTickInterval?: number;
+  fireDamageNumberTimer?: number;
+  fireDamageNumberAccumulator?: number;
   poisonTimer: number;
   poisonDps: number;
   /** Optional elemental mastery tick cadence. Omitted = legacy continuous DoT. */
   poisonTickTimer?: number;
   poisonTickInterval?: number;
+  poisonDamageNumberTimer?: number;
+  poisonDamageNumberAccumulator?: number;
   /** Freeze mastery vulnerability window for the source Sphere family. */
   freezeVulnerabilityTimer?: number;
   freezeVulnerabilitySource?: SphereType;
@@ -265,6 +269,7 @@ export interface BossProjectile {
   damage: number;
   radius: number;
   alive: boolean;
+  visualType?: 'enemy_ranged' | 'enemy_sniper';
 }
 
 export interface XPOrb {
@@ -347,6 +352,7 @@ export interface DamageNumber {
   crit: boolean;
   vel: Vec;
   sourceSphereType?: SphereType;
+  element?: 'fire' | 'freeze' | 'poison';
 }
 
 export interface ChestEntity {
