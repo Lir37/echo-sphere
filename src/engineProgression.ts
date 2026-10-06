@@ -312,9 +312,10 @@ export function rerollUpgradeChoices(s: GameState): boolean {
   ));
   if (!routine) return false;
 
-  const oracleForecastKey = s.player.characterId === 'oracle' && (s.player.characterMasteryLevel || 1) >= 6 && !s.player.oracleForecastRerollUsed
-    ? (s.player.oracleForecastKeys || [])[0] : null;
-  const oracleForecastChoice = oracleForecastKey ? current.find((choice) => getUpgradeChoiceKey(choice) === oracleForecastKey) : undefined;
+  const oracleForecastKeys = s.player.characterId === 'oracle' && (s.player.characterMasteryLevel || 1) >= 6 && !s.player.oracleForecastRerollUsed
+    ? (s.player.oracleForecastKeys || []).slice(0, (s.player.characterMasteryLevel || 1) >= 9 ? 2 : 1)
+    : [];
+  const oracleForecastChoices = oracleForecastKeys.map((key) => current.find((choice) => getUpgradeChoiceKey(choice) === key)).filter((choice): choice is UpgradeChoice => Boolean(choice));
   const lockedKey = s.levelUpLockChoiceKey;
   const lockedChoice = lockedKey
     ? current.find((choice) => getUpgradeChoiceKey(choice) === lockedKey)
@@ -348,8 +349,9 @@ export function rerollUpgradeChoices(s: GameState): boolean {
     }
   }
 
-  if (oracleForecastChoice && !lockedChoice && !next.some((choice) => getUpgradeChoiceKey(choice) === getUpgradeChoiceKey(oracleForecastChoice))) {
-    next = [oracleForecastChoice, ...next].slice(0, 3);
+  if (oracleForecastChoices.length > 0 && !lockedChoice) {
+    const forecastKeys = new Set(oracleForecastChoices.map(getUpgradeChoiceKey));
+    next = [...oracleForecastChoices, ...next.filter((choice) => !forecastKeys.has(getUpgradeChoiceKey(choice)))].slice(0, 3);
     s.player.oracleForecastRerollUsed = true;
   }
   s.pendingUpgrade = next;
@@ -503,9 +505,12 @@ export function generateUpgradeChoices(s: GameState): UpgradeChoice[] {
     const weight = (choice: UpgradeChoice) => choice.type === 'ability'
       ? getAbilityUpgradeChoiceWeight(s, choice)
       : choice.sphereType ? getSphereUpgradeChoiceWeight(s, choice.sphereType) : 1;
-    s.player.oracleForecastKeys = [...mixedPool].sort((a,b) => weight(b) - weight(a))
-      .slice(0, (s.player.characterMasteryLevel || 1) >= 4 ? 2 : 1)
-      .map(getUpgradeChoiceKey);
+    const forecastCount = (s.player.characterMasteryLevel || 1) >= 4 ? 2 : 1;
+    s.player.oracleForecastKeys = [...mixedPool].sort((a,b) => weight(b) - weight(a)).slice(0, forecastCount).map(getUpgradeChoiceKey);
+    if ((s.player.characterMasteryLevel || 1) >= 7 && mixedPool[0]) {
+      const topSource = mixedPool[0].type === 'sphere' ? 'SPHERE' : 'ABILITY';
+      s.flashText = { text: 'ORACLE: ' + topSource, life: 0.65, color: '#b68cff' };
+    }
   } else {
     s.player.oracleForecastKeys = [];
   }
