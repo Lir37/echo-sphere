@@ -1883,3 +1883,45 @@ After the next green documentation CI, start Region 2 production from the Global
 Echo Map structure. Do not rebuild Region 1 architecture unless the human APK
 check reproduces a concrete defect.
 ======================================================================
+
+======================================================================
+2026-10-07 — ECHO MAP / MAIN MENU / HUD CORRECTION PASS
+======================================================================
+
+CODELINE BASE:
+32bd897f90330809470148432656be4767f203cf
+
+[DONE]
+- Pocket transition feedback is now compact, bounded and contains only the
+  tactical ecology hint, without repeating the new Pocket name.
+- Boundary transition FX is rendered in world-space around the Core before
+  screen-space restoration, correcting the previous off-screen/invisible effect.
+- Redundant Pocket name text was removed from the world boundary layer.
+- Right gameplay HUD field-XP and KILLS counters were removed.
+- End-of-run statistics now explicitly expose KILLS.
+- Main menu is reduced to a centered animated Core with a soft halo and custom
+  concept glyph objects on multiple orbital tracks. Textual bottom navigation
+  is hidden from the main presentation.
+- Echo Map is presented as a star-space overview with background celestial bodies.
+  Clicking the Resonance Basin first opens a zoom/detail state; the second click
+  starts Standard Stabilization.
+- Region detail shows three Challenge satellites and Endless Core.
+- Challenge satellites are locked until Standard Stabilization is completed.
+- Intended progression is now explicitly:
+  STANDARD STABILIZATION -> 3 CHALLENGES -> ENDLESS CORE.
+
+[UNCHANGED]
+- Region 1 combat/runtime architecture.
+- 2.5D/Canvas battlefield.
+- Existing challenge persistence and Endless unlock checks.
+
+[VALIDATION ADDED]
+- Playwright now follows the two-step Region body zoom before entering gameplay.
+- Vertical-slice tests cover challenge gating and end-of-run KILLS.
+
+[OPEN]
+- Final human APK recheck of menu composition, star-map zoom, compact feedback
+  and visible Pocket transition FX remains the practical visual/gamefeel gate.
+======================================================================
+END ECHO MAP / MAIN MENU / HUD CORRECTION PASS
+======================================================================
