@@ -30,6 +30,7 @@ import type { GameState, SphereEntity, EnemyEntity, Vec } from './engineTypes';
 import {
   dist, rand, getSphereFinalIndex, getAbilityBranchId, getNetworkFrame
 } from './engineRuntime';
+import { updateSphereFollowOffset } from './formationFollow';
 import { getOrbitalRingCounts, orbitalElementAngle, isAngleOnOrbitalSweep } from './spheres/orbitalGeometry';
 import {
   dealDamageToEnemy, onEnemyDeath, triggerEngineerRelay, consumeEngineerRelayBonus, emitSpherePulse
@@ -1176,6 +1177,9 @@ export function placeSphere(s: GameState, x: number, y: number): void {
     visualTier: sphereLevel(s, s.selectedSphereType),
     type: s.selectedSphereType,
     auraTimer: 0,
+    formationFollowOffset: s.player.formationFollowActive
+      ? { x: x - s.player.pos.x, y: y - s.player.pos.y }
+      : undefined,
   });
   if (!s.player.knownSphereTypes.includes(selectedType)) s.player.knownSphereTypes.push(selectedType);
 

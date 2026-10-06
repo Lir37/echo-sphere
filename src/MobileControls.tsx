@@ -1,8 +1,12 @@
 import { cssPointToWorld } from './renderScale';
 import { useEffect, useRef, useState } from 'react';
-import { Pause, Zap, Lock, Unlock } from 'lucide-react';
+import { Pause, Zap, Lock, Unlock, Move } from 'lucide-react';
 import { ABILITIES, SPHERE_TYPES, type AbilityType, type SphereType } from './gameData';
-import { activateByKey, activateDash, getMaxSpheres, placeSphere, setSphereType, type GameState, type SphereEntity, type Vec } from './engine';
+import {
+  activateByKey, activateDash, getMaxSpheres, placeSphere, setSphereType,
+  canActivateFormationFollow, setFormationFollow,
+  type GameState, type SphereEntity, type Vec,
+} from './engine';
 import { CHARACTER_DEFS } from './characters';
 import { getAbilityDisplayName } from './sphereProgression';
 import { getCharacterFormation, getEngineerNetworkSpheres } from './characterRuntime';
@@ -416,12 +420,42 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
 
       <div className={`absolute bottom-4 ${controlsSide} flex flex-col ${controlsAlign} gap-2 pointer-events-none`} style={{ transform: `scale(${interfaceScale})`, transformOrigin: controlsOnRight ? 'right bottom' : 'left bottom' }}>
         <button data-mobile-control="true" className="pointer-events-auto w-12 h-12 rounded-full bg-[#0d1726]/90 border border-[#243b55] shadow-lg flex items-center justify-center text-[#b6c9de] active:scale-95" onPointerDown={(e) => { e.stopPropagation(); haptic(6); onPause(); }} aria-label={t('pause')}><Pause size={18} /></button>
-        <button data-mobile-control="true" className="pointer-events-auto w-12 h-10 rounded-lg bg-[#0d1726]/90 border border-[#243b55] shadow-lg flex items-center justify-center gap-1 text-[9px] font-bold text-[#b6c9de] active:scale-95"
-          onPointerDown={(e) => { e.stopPropagation(); const st = stateRef.current; if (!st) return; st.player.sphereMovementLocked = !st.player.sphereMovementLocked; haptic(6); }}
-          aria-label={lang === 'ru' ? 'Блокировка перемещения сфер' : 'Lock sphere movement'}>
-          {stateRef.current?.player.sphereMovementLocked ? <Lock size={14} /> : <Unlock size={14} />}
-          <span>{stateRef.current?.player.sphereMovementLocked ? (lang === 'ru' ? 'ЗАБЛОКИРОВАНО' : 'LOCKED') : (lang === 'ru' ? 'ПЕРЕМЕЩЕНИЕ' : 'MOVE')}</span>
-        </button>
+        <div className="grid grid-cols-2 gap-1.5 pointer-events-auto">
+          <button data-mobile-control="true" className="pointer-events-auto w-12 h-10 rounded-lg bg-[#0d1726]/90 border border-[#243b55] shadow-lg flex items-center justify-center gap-1 text-[9px] font-bold text-[#b6c9de] active:scale-95"
+            onPointerDown={(e) => { e.stopPropagation(); const st = stateRef.current; if (!st) return; st.player.sphereMovementLocked = !st.player.sphereMovementLocked; haptic(6); }}
+            aria-label={lang === 'ru' ? 'Блокировка перемещения сфер' : 'Lock sphere movement'}>
+            {stateRef.current?.player.sphereMovementLocked ? <Lock size={14} /> : <Unlock size={14} />}
+            <span>{stateRef.current?.player.sphereMovementLocked ? (lang === 'ru' ? 'ЗАБЛОКИРОВАНО' : 'LOCKED') : (lang === 'ru' ? 'ПЕРЕМЕЩЕНИЕ' : 'MOVE')}</span>
+          </button>
+          <button
+            data-mobile-control="true"
+            data-game-control="formation-follow"
+            aria-pressed={Boolean(stateRef.current?.player.formationFollowActive)}
+            disabled={Boolean(stateRef.current && !stateRef.current.player.formationFollowActive && !canActivateFormationFollow(stateRef.current))}
+            className="pointer-events-auto w-12 h-10 rounded-lg bg-[#0d1726]/90 border border-[#243b55] shadow-lg flex items-center justify-center gap-1 text-[9px] font-bold text-[#b6c9de] active:scale-95 disabled:opacity-40"
+            onPointerDown={(e) => {
+              e.stopPropagation();
+              const st = stateRef.current;
+              if (!st || st.gameOver) return;
+              if (st.player.formationFollowActive) {
+                setFormationFollow(st, false);
+                st.flashText = { text: lang === 'ru' ? 'FOLLOW отключён' : 'FOLLOW OFF', life: 0.7, color: '#7f9bb8' };
+                haptic(6);
+                return;
+              }
+              if (!canActivateFormationFollow(st) || !setFormationFollow(st, true)) {
+                st.flashText = { text: lang === 'ru' ? 'Подойдите к центру формации' : 'Move closer to Formation Centroid', life: 1.0, color: '#ffb84d' };
+                haptic(22);
+                return;
+              }
+              st.flashText = { text: 'FORMATION FOLLOW', life: 0.8, color: '#63e6ff' };
+              haptic(12);
+            }}
+            aria-label={lang === 'ru' ? 'Следование формации' : 'Formation Follow'}>
+            <Move size={14} />
+            <span>{stateRef.current?.player.formationFollowActive ? (lang === 'ru' ? 'СЛЕД' : 'FOLLOWING') : 'FOLLOW'}</span>
+          </button>
+        </div>
 
         <div className="grid grid-cols-2 gap-1.5 pointer-events-auto">
           {activeAbilities.map(([key, ability]) => {

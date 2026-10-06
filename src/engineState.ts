@@ -109,6 +109,7 @@ export function createInitialState(
       vampiric: 0, corrupt: 0, drain: 0, afterimage: 0, impact: 0, gravitic: 0, rotationSpeed: 1,
     },
     sphereMovementLocked: false,
+    formationFollowActive: false,
     knownSphereTypes: ['standard'],
     dashCooldown: 0,
     dashTimer: 0,

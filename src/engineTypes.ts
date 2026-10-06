@@ -90,6 +90,7 @@ export interface PlayerState {
   sphereUpgradeCount: number;
   sphereMods: SphereMods;
   sphereMovementLocked: boolean;
+  formationFollowActive: boolean;
   knownSphereTypes: SphereType[];
   sphereProgression: Partial<Record<SphereType, number>>;
   sphereBranches: Partial<Record<SphereType, import('./sphereProgression').SphereEvolutionId>>;
@@ -149,6 +150,7 @@ export interface SphereEntity {
   type: SphereType;
   auraTimer: number;
   orbitalLastSweepRotation?: number;
+  formationFollowOffset?: Vec;
 }
 
 export interface SphereProjectile {

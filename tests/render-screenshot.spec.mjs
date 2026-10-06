@@ -21,6 +21,12 @@ test('capture the actual rendered game after pressing Play', async ({ page }, te
   const canvas = page.locator('canvas').first();
   await expect(canvas).toBeVisible();
 
+  const followButton = page.locator('[data-game-control="formation-follow"]').first();
+  await expect(followButton).toBeVisible();
+  await expect(followButton).toHaveAttribute('aria-pressed', 'false');
+  await followButton.dispatchEvent('pointerdown');
+  await expect(followButton).toHaveAttribute('aria-pressed', 'true');
+
   // Give the game loop five seconds to spawn/render actual gameplay.
   await page.waitForTimeout(5_000);
 

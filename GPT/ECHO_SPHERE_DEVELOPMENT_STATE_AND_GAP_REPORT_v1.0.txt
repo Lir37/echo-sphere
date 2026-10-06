@@ -1400,6 +1400,41 @@ NEXT:
 5) Only after reproduction, make a targeted performance pass. Do not reopen the
    whole Sphere architecture without a reproduced defect.
 ======================================================================
+2026-10-06 — FORMATION FOLLOW PRODUCTION SLICE
+
+CODE BASELINE:
+7d6a6d77d2f88a53979601175cb49aecd8d44548
+
+[DONE] Added independent FORMATION FOLLOW runtime state; FREE mode remains
+      the default and unchanged when FOLLOW is inactive.
+[DONE] FOLLOW activation uses Formation Centroid proximity with a configurable
+      160 world-unit activation radius. This is a slice tuning value, not a
+      final balance lock.
+[DONE] FOLLOW stores per-Sphere local offsets and applies the same realized
+      Core displacement to the attached formation.
+[DONE] Normal movement, Dash and Teleport use the same atomic Core movement path.
+[DONE] Post-update space-collision resolution re-syncs the attached formation,
+      preserving FOLLOW when collision logic moves the Core.
+[DONE] Manual Sphere reposition remains independently controlled by LOCK and,
+      while FOLLOW is active, updates that Sphere's local follow offset.
+[DONE] Network solver and Geometry code remain unchanged; rigid translation
+      preserves topology and formation identity.
+[DONE] Regression coverage added for centroid eligibility, FREE/FOLLOW
+      separation, offset persistence, rigid Network translation and movement
+      integration paths.
+[DONE] Playwright coverage now verifies the FOLLOW control is present and can
+      activate from the live web game after Play.
+[GATE] Human APK PlayerCheck for FOLLOW, especially joystick movement, Dash,
+      Teleport, boundary/collision push and temporary Network disruption.
+
+NEXT
+After the FOLLOW PlayerCheck, implement the first complete Region Slice.
+Do not scale to multiple Regions or add Region map complexity before the first
+Region passes the specified gameplay acceptance gate.
+
+======================================================================
+
+======================================================================
 END FULL SPHERE CONTRACT AUDIT / ORBITAL RECONCILIATION
 ======================================================================
 

@@ -14,6 +14,16 @@ export { BALANCE } from './engineBalance';
 export { getNetworkFrame } from './engineRuntime';
 
 export {
+  FOLLOW_ACTIVATE_RADIUS,
+  getFormationCentroid,
+  canActivateFormationFollow,
+  setFormationFollow,
+  syncFormationFollow,
+  applyCoreDisplacement,
+  updateSphereFollowOffset,
+} from './formationFollow';
+
+export {
   DEFAULT_MAX_SPHERES, MAX_SPHERES_CAP, BASE_SPHERE_RADIUS, BASE_SPHERE_DAMAGE, BASE_SPHERE_DELAY,
   getMaxSpheres, getSphereRadius, getSphereDamage, getSphereDpsEstimate, getSphereDelay,
   setSphereType, placeSphere, removeSphere,

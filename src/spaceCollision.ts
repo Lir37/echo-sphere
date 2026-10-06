@@ -1,4 +1,5 @@
 import type { EnemyEntity, GameState, SphereEntity, Vec } from './engine';
+import { syncFormationFollow, updateSphereFollowOffset } from './formationFollow';
 
 // Physical size of a tower is intentionally much smaller than its attack radius.
 // It closely follows the visible tower base instead of its much larger firing range.
@@ -74,6 +75,7 @@ export function repositionSphere(s: GameState, sphere: SphereEntity, x: number, 
   if (!sphere.alive || !canRepositionSphere(s, sphere, x, y)) return false;
   sphere.pos.x = clampScalar(x, -s.worldWidth / 2, s.worldWidth / 2);
   sphere.pos.y = clampScalar(y, -s.worldHeight / 2, s.worldHeight / 2);
+  updateSphereFollowOffset(s, sphere);
   return true;
 }
 
@@ -88,6 +90,7 @@ export function resolveSpaceCollisions(s: GameState, dt: number): void {
 
   clampPosition(s.player.pos, s);
   for (const enemy of s.enemies) clampEnemy(enemy, s);
+  syncFormationFollow(s);
 }
 
 function resolveEnemyTowerCollisions(s: GameState, dt: number): void {

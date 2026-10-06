@@ -10,6 +10,7 @@ import {
 import { getLinkedNodeIndexes } from './network';
 import { getActiveSphereAbilitySynergies, getAbilityEvolutionChoice } from './sphereProgression';
 import { chargeResonance } from './engineResonance';
+import { applyCoreDisplacement } from './formationFollow';
 
 
 function synergyStrength(index:number):number {
@@ -413,8 +414,7 @@ function doTeleportTo(s: GameState, target: Vec): void {
   for (let i = 0; i < 16; i++) {
     s.particles.push({ pos: { ...from }, vel: { x: rand(s,-140, 140), y: rand(s,-140, 140) }, life: 0.45, maxLife: 0.45, color: '#5a8c4a', size: 3 });
   }
-  s.player.pos.x = clamp(target.x, -s.worldWidth / 2, s.worldWidth / 2);
-  s.player.pos.y = clamp(target.y, -s.worldHeight / 2, s.worldHeight / 2);
+  applyCoreDisplacement(s, target.x - s.player.pos.x, target.y - s.player.pos.y);
   for (let i = 0; i < 16; i++) {
     s.particles.push({ pos: { ...s.player.pos }, vel: { x: rand(s,-140, 140), y: rand(s,-140, 140) }, life: 0.45, maxLife: 0.45, color: '#5a8c4a', size: 3 });
   }

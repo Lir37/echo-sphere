@@ -18,7 +18,8 @@ import { dealDamageToEnemy } from './engineCombat';
 import { generateUpgradeChoices } from './engineProgression';
 import { updateCharacterRuntime } from './characterRuntime';
 import { chargeResonance as chargeResonanceRuntime } from './engineResonance';
-import { dist, rand, clamp, getNetworkFrame } from './engineRuntime';
+import { dist, rand, getNetworkFrame } from './engineRuntime';
+import { applyCoreDisplacement } from './formationFollow';
 import type { GameState, RuneEntity } from './engineTypes';
 
 function pickArtifacts(s: GameState): ArtifactId[] {
@@ -136,10 +137,7 @@ export function update(s: GameState, dt: number): void {
   // dash active
   if (s.player.dashTimer > 0) {
     s.player.dashTimer -= dt;
-    s.player.pos.x += s.player.dashDir.x * 600 * dt;
-    s.player.pos.y += s.player.dashDir.y * 600 * dt;
-    s.player.pos.x = clamp(s.player.pos.x, -s.worldWidth / 2, s.worldWidth / 2);
-    s.player.pos.y = clamp(s.player.pos.y, -s.worldHeight / 2, s.worldHeight / 2);
+    applyCoreDisplacement(s, s.player.dashDir.x * 600 * dt, s.player.dashDir.y * 600 * dt);
     // dash trail particles
     if (nextRandom(s) < 0.5) {
       s.particles.push({ pos: { ...s.player.pos }, vel: { x: 0, y: 0 }, life: 0.3, maxLife: 0.3, color: '#d4943d', size: 3 });
@@ -203,10 +201,7 @@ export function update(s: GameState, dt: number): void {
   const len = Math.hypot(mx, my);
   if (len > 0) { mx /= len; my /= len; }
   const sp = getMoveSpeed(s);
-  s.player.pos.x += mx * sp * dt;
-  s.player.pos.y += my * sp * dt;
-  s.player.pos.x = clamp(s.player.pos.x, -s.worldWidth / 2, s.worldWidth / 2);
-  s.player.pos.y = clamp(s.player.pos.y, -s.worldHeight / 2, s.worldHeight / 2);
+  applyCoreDisplacement(s, mx * sp * dt, my * sp * dt);
 
   // fire trail
   if (s.player.fireTrailTimer > 0) s.player.fireTrailTimer = Math.max(0, s.player.fireTrailTimer - dt);
