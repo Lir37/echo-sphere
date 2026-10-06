@@ -1038,6 +1038,10 @@ export function updateSpheres(s: GameState, dt: number): void {
             const chainFinalIndex = chainFinalId ? Number(chainFinalId.split(':').pop()) : null;
             const toxicNetwork = hasActiveSphereAbilitySynergy(s, 'chain', 'chain_storm', 'lightning');
 
+            // The first target is the primary Chain hit. Additional entries
+            // represent actual jumps away from that target.
+            dealDamageToEnemy(s, nearest, damage * relayMultiplier, sphere);
+            triggerChainElementalReaction(s, nearest, sphere);
             s.lightnings.push({ from: { ...sphere.pos }, to: { ...nearest.pos }, life: 0.30, sourceSphere: sphere });
 
             for (let chainIndex = 0; chainIndex < chainTargets.length; chainIndex++) {
