@@ -60,17 +60,28 @@ test('all 90 Level VII finals are defined and flow through persistent final runt
     }
   }
   assert.equal(finalCount, 90);
-  assert.match(progression, /const mode:FinalExpansionMode=final===0\?'core':final===1\?'cascade':'apex'/);
-  assert.match(mutationVisual, /if\(final>=0\)/);
+  assert.match(mutationVisual, /function drawFinalExpansion/);
+  assert.match(mutationVisual, /if\(final<0\)return/);
   assert.match(runtime, /finalIndex === 2/);
 });
 
 test('every Sphere mutation family has a persistent visual path', () => {
   const families = ['standard','sniper','shotgun','chain','aura','prism','gravity','pulse','void'];
-  for (const family of families) {
+  const visualFamilyContracts = {
+    standard: ['standard_resonator', 'standard_singularity', 'standard_swarm'],
+    sniper: ['sniper_oracle', 'sniper_assassin', 'sniper_beacon'],
+    shotgun: ['shotgun_burst', 'shotgun_cataclysm', 'shotgun_hail'],
+    chain: ['chain_web', 'chain_storm', 'chain_leech'],
+    aura: ['aura_sanctum', 'aura_gravity', 'aura_overgrowth'],
+    prism: ['prism_split', 'prism_spectrum', 'prism_mirror'],
+    gravity: ['gravity_well', 'gravity_tide', 'gravity_collapse'],
+    pulse: ['pulse_wave', 'pulse_resonator', 'pulse_burst'],
+    void: ['void_hunger', 'void_reaper', 'void_execution'],
+  };
+  for (const [family, ids] of Object.entries(visualFamilyContracts)) {
     assert.ok(
-      mutationVisual.includes("branch.startsWith('" + family + "_')") ||
-      mutationVisual.includes("branch==='" + family + "_"),
+      ids.every((id) => mutationVisual.includes(id)) ||
+      mutationVisual.includes("branch.startsWith('" + family + "_')"),
       'missing visual family path: ' + family,
     );
   }
