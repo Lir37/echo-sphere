@@ -57,6 +57,8 @@ export interface PlayerState {
   resonanceFormationCandidateKeys: string[];
   resonanceEventsTriggered: number;
   resonanceLineBurst: number;
+  spheristChorusHits: number;
+  berserkerRedlineHits: number;
   resonanceRingTimer: number;
   resonanceRingPulseTimer: number;
   resonanceRingCursor: number;
@@ -113,6 +115,7 @@ export interface PlayerState {
   alchemistCatalystTimer: number;
   alchemistReactionCount: number;
   conductorOverdriveTimer: number;
+  conductorDischargeFormation: string;
   oracleForecastKeys: string[];
   oracleForecastRerollUsed: boolean;
   fractalFormationHistory: Array<{ type: string; key: string; nodes: Vec[] }>;
@@ -123,6 +126,8 @@ export interface PlayerState {
   fractalEchoStrength: number;
   voidPhantomTimer: number;
   voidPhantomPulseTimer: number;
+  voidPhantomPulseCount: number;
+  voidPhantomSource: SphereEntity | null;
   voidPhantomPos: Vec | null;
 }
 
