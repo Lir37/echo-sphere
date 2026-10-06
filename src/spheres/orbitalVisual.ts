@@ -284,7 +284,7 @@ export function renderOrbitalSphereAttackersVfx(
       if (ring === 'inner' && i === 0 && v.attack > 0) {
         const q = 1 - v.attack / .28;
         ctx.save();
-        ctx.translate(local.x, local.y);
+        ctx.translate(localX, localY);
         ctx.rotate(a + Math.PI / 2);
         ctx.globalAlpha = (1 - q) * .32;
         ctx.strokeStyle = color;
