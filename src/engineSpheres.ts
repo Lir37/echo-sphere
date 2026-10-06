@@ -534,9 +534,20 @@ let beamCount = Math.max(1, 1 + mods.multishot);
   const used = new Set<EnemyEntity>();
 
   for (let beam = 0; beam < beamCount; beam++) {
-    const target = candidates.find((enemy) => !used.has(enemy)) || candidates[beam % candidates.length];
-    if (!target) continue;
-    used.add(target);
+    let beamTarget: EnemyEntity | null = null;
+    let beamHighestHp = -Infinity;
+    for (const enemy of s.enemies) {
+      if (enemy.hp <= 0 || used.has(enemy)) continue;
+      const dx = enemy.pos.x - sphere.pos.x;
+      const dy = enemy.pos.y - sphere.pos.y;
+      if (dx * dx + dy * dy > rangeSquared) continue;
+      if (enemy.hp > beamHighestHp) {
+        beamTarget = enemy;
+        beamHighestHp = enemy.hp;
+      }
+    }
+    if (!beamTarget) continue;
+    used.add(beamTarget);
 
     let beamDamage = damage;
     if (branch === 'prism_split') beamDamage *= beam === 0 ? 1.0 : (finalIndex === 1 ? 0.72 : 0.62);
@@ -547,7 +558,7 @@ let beamCount = Math.max(1, 1 + mods.multishot);
     if (lineBonus > 0) beamDamage *= 1 + 0.12 * lineBonus;
     if (latticeBonus > 0) beamDamage *= 1 + 0.08 * latticeBonus;
 
-    dealDamageToEnemy(s, target, beamDamage, sphere);
+    dealDamageToEnemy(s, beamTarget, beamDamage, sphere);
     if (status !== 'none') applyDirectSphereStatus(s, target, status, sphere);
     s.lightnings.push({ from: { ...sphere.pos }, to: { ...target.pos }, life: 0.10 });
   }
@@ -569,7 +580,7 @@ let beamCount = Math.max(1, 1 + mods.multishot);
         const relay = s.spheres[index];
         dealDamageToEnemy(s, target, damage * 0.42, relay, false);
         if (status !== 'none') applyDirectSphereStatus(s, target, status, sphere);
-        s.lightnings.push({ from: { ...relay.pos }, to: { ...target.pos }, life: 0.12 });
+        s.lightnings.push({ from: { ...relay.pos }, to: { ...beamTarget.pos }, life: 0.12 });
       }
     }
   }
