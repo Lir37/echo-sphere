@@ -446,9 +446,7 @@ function updateOrbitalSphere(
   // the swept test below therefore catches a real pass instead of sampling
   // only the final position.
   const innerSweepStart = previousSweepRotation;
-  const innerSweepEnd = currentRotation;
   const outerSweepStart = previousSweepRotation;
-  const outerSweepEnd = currentRotation;
 
   const innerAngles = new Array<number>(counts.inner);
   const outerAngles = new Array<number>(counts.outer);
@@ -531,6 +529,8 @@ function updateOrbitalSphere(
     }
 
     if (!newContactHit) continue;
+  }
+
   sphere.orbitalLastSweepRotation = currentRotation;
 
   if (networkProfile.ring && s.player.artifacts.includes('orbital_blade') && s.player.artifacts.includes('prism_filter')) {
