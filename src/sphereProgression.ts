@@ -1121,9 +1121,18 @@ export function sphereModifiers(s:any,type:SphereType,sphere?:any){
     if(l>=2) radius*=1.15;
     if(l>=3) rotationSpeed*=1.15;
     // Orbital satellites are native to the Sphere, not projectile MULTISHOT.
-    if(branch==='orbital_dance'){ rotationSpeed*=final===0?1.28:final===1?1.55:1.28; }
-    if(branch==='orbital_halo'){ damage*=0.92; rotationSpeed*=1.08; }
-    if(branch==='orbital_blade'){ damage*=final===0?1.15:1.05; rotationSpeed*=1.12; }
+    if(branch==='orbital_dance'){
+      rotationSpeed*=final===0?1.28:final===1?1.55:1.28;
+      if(final===null && l>=5) rotationSpeed*=l>=6?1.20:1.10;
+    }
+    if(branch==='orbital_halo'){
+      damage*=0.92;
+      rotationSpeed*=1.08;
+      if(final===null && l>=5) resonantCharge*=l>=6?1.25:1.12;
+    }
+    if(branch==='orbital_blade'){
+      damage*=final===0?1.15:1.05;
+    }
   }
   if(type==='prism'){
     if(l>=1) damage*=1.20;
