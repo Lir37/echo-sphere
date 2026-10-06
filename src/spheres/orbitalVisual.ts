@@ -1,6 +1,7 @@
 import type { EnemyEntity, PlayerState, SphereEntity } from '../engine';
 import { WHITE, core, drawSphereOrbit, finishDisabled, stateColor, glow } from './visualHelpers';
-import { getSphereElementForBranch, SPHERE_ELEMENT_META } from '../sphereProgression';
+import { getSphereElementForBranch, SPHERE_ELEMENT_META, sphereLevel } from '../sphereProgression';
+import { getOrbitalRingCounts, orbitalElementAngle, orbitalElementPosition } from './orbitalGeometry';
 
 const TAU = Math.PI * 2;
 const BASE = '#8ef0ff';
@@ -125,22 +126,12 @@ function drawSatellite(
     ctx.lineTo(-size * .42, size * .10);
     ctx.stroke();
   } else {
-    const g = ctx.createRadialGradient(
-      -size * .20,
-      -size * .22,
-      size * .04,
-      0,
-      0,
-      size * .72,
-    );
-    g.addColorStop(0, 'rgba(255,255,255,.96)');
-    g.addColorStop(.22, rgbaColor(color, .92));
-    g.addColorStop(.64, rgbaColor(color, .34));
-    g.addColorStop(1, rgbaColor(color, 0));
+    // Keep the mobile hot path free of per-satellite radial-gradient creation.
+    // The authored diamond and a compact additive disc retain the luminous read.
     ctx.globalCompositeOperation = 'lighter';
-    ctx.fillStyle = g;
+    ctx.fillStyle = rgbaColor(color, alpha * .30);
     ctx.beginPath();
-    ctx.arc(0, 0, size * .72, 0, TAU);
+    ctx.arc(0, 0, size * .62, 0, TAU);
     ctx.fill();
 
     ctx.globalCompositeOperation = 'source-over';
@@ -232,7 +223,11 @@ export function renderOrbitalSphereAttackersVfx(
   if (!sphere.alive || sphere.networkDisabledTimer > 0) return;
   const v = update(sphere, player, time);
   const r = 24 * scale;
-  const tier = Math.max(1, Math.min(7, sphere.visualTier || 1));
+  const level = Math.max(1, Math.min(7, sphereLevel({ player } as PlayerState & { player?: PlayerState }) || sphere.visualTier || 1));
+  const extraElements =
+    (player?.artifacts?.includes('orbital_crown') ? 1 : 0)
+    + ((player?.evolutions || []).some((id: string) => id === 'sphere:orbital:7:orbital_blade:2') ? 1 : 0);
+  const counts = getOrbitalRingCounts(level, extraElements);
   const resonance = v.resonance > 0;
   const color = resonance ? RESONANCE : BASE;
   const branch = player?.sphereBranches?.orbital;
@@ -245,76 +240,78 @@ export function renderOrbitalSphereAttackersVfx(
         ? 2.75
         : 2.35;
 
-  // In this 2D presentation the combat satellites orbit on a true screen-space
-  // circle. They no longer use the flattened ellipse reserved for depth cues.
-  const orbitRadius = r * 1.68;
-  const phase = time * speed + v.phase;
+  const innerOrbitRadius = r * 1.68;
+  const outerOrbitRadius = r * 2.02;
 
   ctx.save();
   ctx.translate(sphere.pos.x, sphere.pos.y);
   ctx.globalCompositeOperation = 'lighter';
 
-  for (let i = 0; i < tier; i++) {
-    const a = phase + i * TAU / tier;
-    const x = Math.cos(a) * orbitRadius;
-    const y = Math.sin(a) * orbitRadius;
-    const depth = .76 + .24 * ((Math.sin(a) + 1) * .5);
-    drawSatellite(ctx, x, y, r * .20, color, depth, a, bladeMutation);
+  const drawRing = (ring: 'inner' | 'outer', count: number, radius: number): void => {
+    for (let i = 0; i < count; i += 1) {
+      const a = orbitalElementAngle(sphere.rotation, ring, i, count);
+      const local = orbitalElementPosition(0, 0, radius, sphere.rotation, ring, i, count);
+      const depth = .74 + .26 * ((Math.sin(a) + 1) * .5);
+      drawSatellite(ctx, local.x, local.y, r * .20, color, depth, a, bladeMutation);
 
-    const element = getSphereElementForBranch(branch);
-    const elementColor = element ? SPHERE_ELEMENT_META[element].color : null;
-    if (elementColor) {
-      ctx.save();
-      ctx.translate(x, y);
-      ctx.rotate(a + Math.PI / 2);
-      ctx.globalAlpha = depth * .72;
-      ctx.strokeStyle = elementColor;
-      ctx.lineWidth = 1.0;
-      if (element === 'fire') {
-        ctx.beginPath();
-        ctx.moveTo(-r * .10, 0);
-        ctx.quadraticCurveTo(0, -r * .16, r * .04, 0);
-        ctx.quadraticCurveTo(0, r * .12, -r * .08, 0);
-        ctx.stroke();
-      } else if (element === 'freeze') {
-        ctx.beginPath();
-        ctx.moveTo(-r * .09, 0);
-        ctx.lineTo(r * .09, 0);
-        ctx.moveTo(0, -r * .09);
-        ctx.lineTo(0, r * .09);
-        ctx.stroke();
-      } else {
-        ctx.beginPath();
-        ctx.arc(0, 0, r * .09, 0, TAU);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.arc(r * .10, -r * .04, r * .035, 0, TAU);
-        ctx.stroke();
+      const element = getSphereElementForBranch(branch);
+      const elementColor = element ? SPHERE_ELEMENT_META[element].color : null;
+      if (elementColor) {
+        ctx.save();
+        ctx.translate(local.x, local.y);
+        ctx.rotate(a + Math.PI / 2);
+        ctx.globalAlpha = depth * .72;
+        ctx.strokeStyle = elementColor;
+        ctx.lineWidth = 1.0;
+        if (element === 'fire') {
+          ctx.beginPath();
+          ctx.moveTo(-r * .10, 0);
+          ctx.quadraticCurveTo(0, -r * .16, r * .04, 0);
+          ctx.quadraticCurveTo(0, r * .12, -r * .08, 0);
+          ctx.stroke();
+        } else if (element === 'freeze') {
+          ctx.beginPath();
+          ctx.moveTo(-r * .09, 0);
+          ctx.lineTo(r * .09, 0);
+          ctx.moveTo(0, -r * .09);
+          ctx.lineTo(0, r * .09);
+          ctx.stroke();
+        } else {
+          ctx.beginPath();
+          ctx.arc(0, 0, r * .09, 0, TAU);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(r * .10, -r * .04, r * .035, 0, TAU);
+          ctx.stroke();
+        }
+        ctx.restore();
       }
-      ctx.restore();
-    }
 
-    if (i === 0 && v.attack > 0) {
-      const q = 1 - v.attack / .28;
-      ctx.save();
-      ctx.translate(x, y);
-      ctx.rotate(a + Math.PI / 2);
-      ctx.globalAlpha = (1 - q) * .32;
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 1.0;
-      ctx.beginPath();
-      ctx.moveTo(-r * .32, 0);
-      ctx.lineTo(-r * .04, 0);
-      ctx.stroke();
-      ctx.restore();
+      if (ring === 'inner' && i === 0 && v.attack > 0) {
+        const q = 1 - v.attack / .28;
+        ctx.save();
+        ctx.translate(local.x, local.y);
+        ctx.rotate(a + Math.PI / 2);
+        ctx.globalAlpha = (1 - q) * .32;
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1.0;
+        ctx.beginPath();
+        ctx.moveTo(-r * .32, 0);
+        ctx.lineTo(-r * .04, 0);
+        ctx.stroke();
+        ctx.restore();
+      }
     }
-  }
+  };
+
+  drawRing('inner', counts.inner, innerOrbitRadius);
+  drawRing('outer', counts.outer, outerOrbitRadius);
 
   if (v.attack > 0) {
     const q = 1 - v.attack / .28;
-    const strikePhase = phase + (1 - Math.pow(1 - q, 3)) * .95;
-    const sx = Math.cos(strikePhase) * orbitRadius;
-    const sy = Math.sin(strikePhase) * orbitRadius;
+    const strikePhase = sphere.rotation + (1 - Math.pow(1 - q, 3)) * .95;
+    const sx = Math.cos(strikePhase) * innerOrbitRadius;
+    const sy = Math.sin(strikePhase) * innerOrbitRadius;
     let ix = sx;
     let iy = sy;
     let near = Infinity;
