@@ -107,16 +107,33 @@ export function getSphereDpsEstimate(s: GameState, sphere: SphereEntity): number
   const damage = getSphereDamage(s, sphere, network);
   const delay = Math.max(0.05, getSphereDelay(s, sphere, network) * def.delayMult * mods.delay);
   if (sphere.type === 'orbital') {
-    const satellites = sphereLevel(s, 'orbital') + 1 + (s.player.artifacts.includes('orbital_crown') ? 1 : 0);
-    return (damage * satellites * 2.2) / Math.max(0.12, 0.42 * mods.auraPulse);
+    const level = sphereLevel(s, 'orbital');
+    const branch = s.player.sphereBranches?.orbital;
+    const final = getSphereFinalIndex(s, 'orbital');
+    const satelliteCounts = getOrbitalRingCounts(
+      level,
+      (s.player.artifacts.includes('orbital_crown') ? 1 : 0)
+        + (branch === 'orbital_dance' && final === 2 ? 1 : 0),
+    );
+    const satellites = satelliteCounts.inner + satelliteCounts.outer;
+    const interval = getSpecialSphereCadence(s, sphere, 0.42 * mods.auraPulse, network);
+    return (damage * satellites * 2.2) / interval;
   }
   if (sphere.type === 'prism') return (damage * Math.max(1, 1 + mods.multishot)) / delay;
   if (sphere.type === 'pulse') {
     const waves = 1 + (s.player.artifacts.includes('pulse_crown') ? 1 : 0);
-    const interval = Math.max(0.25, 1.15 * mods.auraPulse * (s.player.artifacts.includes('pulse_driver') ? 0.90 : 1));
+    const interval = getSpecialSphereCadence(
+      s,
+      sphere,
+      1.15 * mods.auraPulse * (s.player.artifacts.includes('pulse_driver') ? 0.90 : 1),
+      network,
+    );
     return (damage * waves * 4) / interval;
   }
-  if (sphere.type === 'gravity') return (damage * 4) / Math.max(0.25, 0.80 * mods.auraPulse);
+  if (sphere.type === 'gravity') {
+    const interval = getSpecialSphereCadence(s, sphere, 0.80 * mods.auraPulse, network);
+    return (damage * 4) / interval;
+  }
   if (sphere.type === 'void') return (damage * (sphereLevel(s, 'void') >= 2 ? 1.30 : 1.15)) / delay;
   if (def.aura) return damage / delay;
   const shots = (1 + mods.multishot) * def.pellets;
