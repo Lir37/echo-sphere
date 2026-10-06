@@ -697,6 +697,8 @@ function updateGravitySphere(s: GameState, sphere: SphereEntity, damage: number,
   if (branch === 'gravity_tide') pullStrength *= 1.05 * branchPower;
   if (branch === 'gravity_collapse') pullStrength *= 0.90 * branchPower;
 
+  // Gravity Tide is deliberately phase-based. The authored pull/counter-push
+  // identity is resolved from the current orbital phase.
   const phase = branch === 'gravity_tide' ? Math.sin(sphere.rotation) : 1;
   const status = getActiveStatusEffect(s, sphere);
   const grouped = s.enemies.filter((enemy) => enemy.hp > 0 && dist(enemy.pos, sphere.pos) <= pullRadius).length;
@@ -714,6 +716,28 @@ function updateGravitySphere(s: GameState, sphere: SphereEntity, damage: number,
     }
     if (clusterBonus > 0) hitDamage *= 1 + 0.08 * clusterBonus;
     dealDamageToEnemy(s, enemy, hitDamage, sphere);
+
+    if (branch === 'gravity_tide') {
+      const directionPulling = phase >= 0;
+      const finalControl = finalIndex === null || finalIndex === 2
+        ? directionPulling
+        : finalIndex === 1;
+      const controlStrength = finalIndex === 1 ? pullStrength * 1.20 : pullStrength;
+      if (finalControl) {
+        const dx = sphere.pos.x - enemy.pos.x;
+        const dy = sphere.pos.y - enemy.pos.y;
+        const distance = Math.hypot(dx, dy) || 1;
+        enemy.pos.x += dx / distance * controlStrength;
+        enemy.pos.y += dy / distance * controlStrength;
+      } else {
+        const dx = enemy.pos.x - sphere.pos.x;
+        const dy = enemy.pos.y - sphere.pos.y;
+        const distance = Math.hypot(dx, dy) || 1;
+        const counterPush = Math.max(22, 36 * branchPower);
+        enemy.pos.x += dx / distance * counterPush;
+        enemy.pos.y += dy / distance * counterPush;
+      }
+    }
     if (status !== 'none') {
       if (isSpecialElementalBranch(branch)) applyElementalFieldReaction(s, enemy, sphere);
       else applyDirectSphereStatus(s, enemy, status, sphere);
