@@ -485,6 +485,7 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
         ? (branchLevel >= 6 ? 0.60 : branchLevel >= 5 ? 0.45 : 0.32)
         : finalIndex === 0 ? 0.25 : finalIndex === 1 ? 0.4 : 0.32;
       if (nextRandom(s) < chance) {
+        if (finalIndex === 2) actual *= 1.08;
         const radius = finalIndex === 1 ? 65 : 45;
         const shardCount = finalIndex === 1 ? 8 : finalIndex === null && branchLevel >= 6 ? 7 : 6;
         for (let i = 0; i < shardCount; i++) {
@@ -502,7 +503,6 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
             dealDamageToEnemy(s, nearby, actual * (finalIndex === 1 ? 0.18 : 0.12), fromSphere, false);
           }
         }
-        if (finalIndex === 2) actual *= 1.08;
         for (let i = 0; i < shardCount; i++) {
           const angle = (i / shardCount) * Math.PI * 2;
           s.particles.push({ pos: { ...enemy.pos }, vel: { x: Math.cos(angle) * 110, y: Math.sin(angle) * 110 }, life: 0.35, maxLife: 0.35, color: '#f0b35a', size: 3 });
