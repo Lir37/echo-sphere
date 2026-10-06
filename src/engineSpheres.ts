@@ -559,8 +559,8 @@ let beamCount = Math.max(1, 1 + mods.multishot);
     if (latticeBonus > 0) beamDamage *= 1 + 0.08 * latticeBonus;
 
     dealDamageToEnemy(s, beamTarget, beamDamage, sphere);
-    if (status !== 'none') applyDirectSphereStatus(s, target, status, sphere);
-    s.lightnings.push({ from: { ...sphere.pos }, to: { ...target.pos }, life: 0.10 });
+    if (status !== 'none') applyDirectSphereStatus(s, beamTarget, status, sphere);
+    s.lightnings.push({ from: { ...sphere.pos }, to: { ...beamTarget.pos }, life: 0.10 });
   }
 
   if (branch === 'prism_mirror' || s.player.artifacts.includes('prism_filter')) {
@@ -575,12 +575,11 @@ let beamCount = Math.max(1, 1 + mods.multishot);
       const linked = getLinkedNodeIndexes(network, s.spheres.indexOf(sphere))
         .filter((index) => index < s.spheres.length && s.spheres[index]?.alive)
         .slice(0, reflectionCount);
-      const target = target;
       for (const index of linked) {
         const relay = s.spheres[index];
         dealDamageToEnemy(s, target, damage * 0.42, relay, false);
         if (status !== 'none') applyDirectSphereStatus(s, target, status, sphere);
-        s.lightnings.push({ from: { ...relay.pos }, to: { ...beamTarget.pos }, life: 0.12 });
+        s.lightnings.push({ from: { ...relay.pos }, to: { ...target.pos }, life: 0.12 });
       }
     }
   }
