@@ -355,24 +355,33 @@ LATE:
 4. RUN LENGTH
 ======================================================================
 
-NORMAL RUN:
-15-20 minutes.
+REGION STABILIZATION RUN:
+25-35 minutes, with 30 minutes as the default target.
 
-EXTENDED RUN:
-20-30 minutes.
+This is a full content run, not merely a stretched combat timer.
+The run must contain multiple build pivots, regional events, exploration
+decisions and boss encounters.
+
+EXTENDED REGION RUN:
+35-45 minutes may exist for selected Regions or Challenge Contracts.
 
 ENDLESS:
-30+ minutes.
+begins after the Region Stabilization objective is completed and may
+continue indefinitely.
+
+DEVELOPMENT FUN GATE:
+10-15 minutes remains a development acceptance slice only.
+It is NOT the target duration of a finished Region.
 
 Design target:
-the main run should reach its decisive build pivot before minute 12-14.
+the decisive build identity should emerge by approximately 10-14 min,
+but the player should still have substantial progression and tactical
+recontextualization through the final 5-10 minutes.
 
-No requirement to make 45-60 minute runs.
-
-Boss cadence:
-- first major boss approximately 5-6 min;
-- second major boss approximately 10-12 min;
-- final encounter approximately 15-20 min.
+Default boss cadence for a 30-minute Region:
+- first major boss approximately 7-8 min;
+- second major boss approximately 15-18 min;
+- final encounter approximately 27-30 min.
 
 Exact timing is configurable by stage.
 
@@ -4139,4 +4148,169 @@ FINAL BALANCE CONTRACT:
 
 CI:
 GitHub Actions #1659: SUCCESS.
+======================================================================
+
+
+
+======================================================================
+2026-10-06 — REGION / STAGE / EXPLORATION GAMEPLAY AMENDMENT
+======================================================================
+
+The finished game is a collection of named Regions, not a list of numbered
+Levels and not an endless-only arena.
+
+REGION CONTRACT
+- Each Region is a complete gameplay ecosystem.
+- A Region owns visual profile, enemy ecology, wave schedule, Elite/boss
+  schedule, regional rule(s), Spatial Pockets, POIs, clear rewards,
+  Region Endless, Challenges and lore.
+- Region variety must change gameplay context, not only art or enemy HP.
+
+STAGE DURATION
+- Region Stabilization target: 25-35 min.
+- Default target: 30 min.
+- 10-15 min remains only the development fun-gate.
+- Region events are staged to create meaningful build pivots throughout
+  the full 30-minute run.
+
+MOBILE WORLD MODEL
+- The logical playfield may be larger than the visible screen.
+- The camera remains local and Core-centered.
+- Regions use 4-8 Spatial Pockets with lightweight transitions.
+- Spatial Pockets are gameplay areas with distinct local pressure, not
+  PC-style narrow corridors.
+- A compact Field Radar shows nearby POIs and important signals.
+- Long empty traversal is prohibited as a design goal.
+
+POINTS OF INTEREST
+Core POIs:
+- Resonance Cache;
+- Breach Node;
+- Echo Relay;
+- Lost Signal;
+- Elite Nest;
+- Rupture;
+- Boss Trace.
+
+Typical POI travel should be about 5-15 seconds.
+Major POIs may be 10-25 seconds away with clear radar guidance.
+The player is never required to abandon the Network to collect an optional
+reward.
+
+CORE / NETWORK MOVEMENT MODES
+1. FREE NETWORK MODE
+   - default current behaviour;
+   - Core moves independently;
+   - Spheres keep their world positions;
+   - player may move between and away from Spheres;
+   - Dash and teleport remain independent Core movement.
+
+2. FORMATION FOLLOW MODE
+   - new optional toggle next to LOCK;
+   - separate from LOCK;
+   - available only when Core is approximately at the Formation Centroid;
+   - once activated, all active Spheres translate by the same Core delta;
+   - Sphere local offsets remain unchanged;
+   - Links, Geometry and Network topology remain stable;
+   - no automatic re-centering or re-scaling.
+
+FORMATION CENTROID
+Average world position of eligible active Spheres.
+
+Activation:
+distance(Core, FormationCentroid) <= FOLLOW_ACTIVATE_RADIUS
+
+FOLLOW UX
+- button is disabled/dimmed when Core is too far from the formation centre;
+- activation threshold is centralized and configurable;
+- threshold handling should use hysteresis/equivalent state logic to avoid
+  visual flicker.
+
+FOLLOW RUNTIME
+- movement edits only the Core world position plus the common Network
+  translation;
+- manual Sphere repositioning remains available and edits local offset;
+- LOCK remains solely a Sphere-editing lock;
+- FOLLOW remains active when the Core travels away from the original centre;
+- Dash and authored teleports translate the whole formation atomically;
+- temporary Network disruption does not cancel FOLLOW.
+
+The only default relationship is:
+SphereWorldPosition = CoreWorldPosition + SphereLocalOffset
+
+A future ability may explicitly opt out, but such an exception must be
+authored and visible.
+
+REGION ENDLESS
+After first clear:
+Region -> Stabilization -> CLEAR -> Region Endless unlocked.
+
+Region Endless retains the Region identity while introducing mutated
+enemy combinations, richer event composition and stronger systemic
+pressure. It must not rely primarily on HP multipliers.
+
+THE CONVERGENCE
+After all main Regions are cleared:
+- 0-25 min: regional ecology rotations;
+- 25 min: major convergence boss event;
+- 25-40 min: mixed regional pressure;
+- 40 min: final convergence boss event;
+- 40+ min: escalating combinations.
+
+THE CONVERGENCE is the final cross-Region Endless stress test.
+
+CHALLENGES
+Challenge Contracts:
+player-selected run modifiers such as Fractured Network, Overload,
+Low Gravity, Silent Core and Limited Capacity.
+
+Mastery Challenges:
+in-run objectives such as activating multiple Geometry states, preserving
+Dominant Geometry, limiting Sphere count, reaching Level VII on several
+Spheres or satisfying a specific Network condition.
+
+Challenges must encourage different play, not become only stat checks.
+
+LORE
+Every Region should eventually provide:
+- Region record;
+- 2-5 incident/environment logs;
+- major enemy records;
+- boss record;
+- optional Character reactions.
+
+Lore is delivered through Archive entries, signal fragments, POI
+discoveries, boss records and short Character remarks.
+Avoid long mandatory cinematics.
+
+CHARACTER LORE
+Each of the 10 Characters receives:
+- Origin;
+- defining Incident;
+- motivation;
+- Network/Core connection;
+- Signature mechanic explanation.
+
+Relevant Regions may trigger short non-blocking contextual remarks.
+
+FIRST REGION GATE
+Before scaling to multiple Regions, build one complete Region with:
+- 4-6 Spatial Pockets;
+- 5-7 POI types;
+- 3-5 regional enemy behaviour variants;
+- 2 major boss events + final boss;
+- 1 regional rule;
+- 30-minute Stabilization;
+- Region Endless;
+- 3 Challenge Contracts;
+- 3 Mastery Challenges;
+- 3-5 lore records;
+- FORMATION FOLLOW.
+
+Acceptance:
+After clearing the Region, the tester should want to replay it with a
+different build.
+
+======================================================================
+END REGION / STAGE / EXPLORATION AMENDMENT
 ======================================================================
