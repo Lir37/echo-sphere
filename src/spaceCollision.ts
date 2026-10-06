@@ -1,5 +1,5 @@
 import type { EnemyEntity, GameState, SphereEntity, Vec } from './engine';
-import { syncFormationFollow, updateSphereFollowOffset } from './formationFollow';
+import { syncFormationFollow, updateSphereFollowOffset } from './formationFollow.ts';
 
 // Physical size of a tower is intentionally much smaller than its attack radius.
 // It closely follows the visible tower base instead of its much larger firing range.

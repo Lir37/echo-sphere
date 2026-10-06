@@ -19,7 +19,7 @@ import { generateUpgradeChoices } from './engineProgression';
 import { updateCharacterRuntime } from './characterRuntime';
 import { chargeResonance as chargeResonanceRuntime } from './engineResonance';
 import { dist, rand, getNetworkFrame } from './engineRuntime';
-import { applyCoreDisplacement } from './formationFollow';
+import { applyCoreDisplacement } from './formationFollow.ts';
 import type { GameState, RuneEntity } from './engineTypes';
 
 function pickArtifacts(s: GameState): ArtifactId[] {

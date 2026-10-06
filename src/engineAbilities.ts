@@ -10,7 +10,7 @@ import {
 import { getLinkedNodeIndexes } from './network';
 import { getActiveSphereAbilitySynergies, getAbilityEvolutionChoice } from './sphereProgression';
 import { chargeResonance } from './engineResonance';
-import { applyCoreDisplacement } from './formationFollow';
+import { applyCoreDisplacement } from './formationFollow.ts';
 
 
 function synergyStrength(index:number):number {

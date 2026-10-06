@@ -21,7 +21,7 @@ export {
   syncFormationFollow,
   applyCoreDisplacement,
   updateSphereFollowOffset,
-} from './formationFollow';
+} from './formationFollow.ts';
 
 export {
   DEFAULT_MAX_SPHERES, MAX_SPHERES_CAP, BASE_SPHERE_RADIUS, BASE_SPHERE_DAMAGE, BASE_SPHERE_DELAY,
