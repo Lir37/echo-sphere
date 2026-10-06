@@ -235,6 +235,14 @@ console.log('sphere-audit: OK');
 
 assert.match(engine, /const contactBand = Math\.max\([\s\S]*enemy\.radius/,
   'Orbital contact must account for large enemy/boss body radius.');
+assert.match(gameData, /id: 'orbital',[\s\S]*damageMult: 0\.72/,
+  'Orbital baseline damage must be high enough to avoid an early-game DPS trap.');
+assert.match(engine, /dealDamageToEnemy\(s, nearest, damage \* relayMultiplier, sphere\)/,
+  'Chain primary target must receive the actual first hit.');
+assert.match(read('src/spheres/orbitalVisual.ts'), /function drawOrbitalElementTrail/,
+  'Orbital elemental mutation trail must be visibly authored on combat elements.');
+assert.match(read('src/spheres/orbitalVisual.ts'), /satelliteBaseColor/,
+  'Orbital combat elements must inherit the active mutation element color.');
 assert.match(engine, /dealDamageToEnemy\(s, enemy, hitDamage, sphere\)/,
   'Orbital contact must route damage through the authoritative damage path.');
 assert.match(progression, /if\(branch==='orbital_blade'\)[\s\S]*damage\*=final===0 \? 1\.15 : final===1 \? 1\.05 : 1\.20/,
