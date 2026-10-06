@@ -123,16 +123,21 @@ test('All Sphere cores reuse the exact Standard core geometry',()=>{
   }
 });
 
-test('Orbital combat motion and Blade mutation are explicit',()=>{
+test('Orbital combat motion and all three mutation visuals are explicit',()=>{
   const c=read('src/spheres/orbitalVisual.ts');
   assert.match(c,/const bladeMutation = branch === 'orbital_blade'/);
   assert.match(c,/drawSatellite\(ctx, localX, localY, r \* \.20, color, depth, a, bladeMutation\)/);
-  assert.match(c,/ctx\.lineTo\(size \* \.78, 0\)/);
+  assert.match(c,/const innerOrbitRadius = r \* 1\.68/);
+  assert.match(c,/const outerOrbitRadius = r \* 2\.02/);
+  assert.match(c,/getOrbitalRingCounts/);
+  assert.match(c,/orbitalRadiusScale/);
+  const m=read('src/spheres/mutationVisual.ts');
+  assert.match(m,/branch==='orbital_dance'/);
+  assert.match(m,/branch==='orbital_halo'/);
+  assert.match(m,/branch==='orbital_blade'/);
   const e=read('src/engineSpheres.ts');
   assert.match(e,/let angularSpeed = 1\.8/);
-  assert.match(e,/branch === 'orbital_dance'/);
-  assert.match(e,/branch === 'orbital_halo'/);
-  assert.match(e,/branch === 'orbital_blade'/);
+  assert.match(e,/angularSpeed \*= mods\.rotationSpeed/);
 });
 
 test('Enemy production renderer uses authored creature families and boss-specific bodies',()=>{
