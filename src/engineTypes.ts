@@ -339,6 +339,7 @@ export interface DamageNumber {
   maxLife: number;
   crit: boolean;
   vel: Vec;
+  sourceSphereType?: SphereType;
 }
 
 export interface ChestEntity {
