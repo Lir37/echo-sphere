@@ -452,8 +452,12 @@ function updateOrbitalSphere(
     const enemyAngle = Math.atan2(dy, dx);
 
     const angularTolerance = finalIndex === 1 ? 0.30 : 0.22;
+    const contactBand = Math.max(
+      band,
+      enemy.radius + Math.max(6, bodyRadius * 0.24),
+    );
 
-    if (Math.abs(distance - orbitRadius) <= band) {
+    if (Math.abs(distance - orbitRadius) <= contactBand) {
       for (let satellite = 0; satellite < counts.inner; satellite += 1) {
         const startAngle = orbitalElementAngle(innerSweepStart, 'inner', satellite, counts.inner);
         const endAngle = innerAngles[satellite];
@@ -464,7 +468,7 @@ function updateOrbitalSphere(
       }
     }
 
-    if (!hit && Math.abs(distance - outerOrbitRadius) <= band) {
+    if (!hit && Math.abs(distance - outerOrbitRadius) <= contactBand) {
       for (let satellite = 0; satellite < counts.outer; satellite += 1) {
         const startAngle = orbitalElementAngle(outerSweepStart, 'outer', satellite, counts.outer);
         const endAngle = outerAngles[satellite];
@@ -598,7 +602,13 @@ let beamCount = Math.max(1, 1 + mods.multishot);
         // Level-VII Prism Mirror finals now make their authored Ricochet/Echo
         // modifiers real. Prism is beam-based, so the bounce is resolved here
         // instead of passing through the projectile-only path.
-        const bounceCount = Math.min(2, mods.ricochet);
+        const branchExtraBounce =
+          branch === 'prism_mirror'
+          && finalIndex === null
+          && sphereLevel(s, 'prism') >= 6
+            ? 1
+            : 0;
+        const bounceCount = Math.min(2, mods.ricochet + branchExtraBounce);
         const visited = new Set<EnemyEntity>([target]);
         let bounceTarget: EnemyEntity = target;
         for (let bounce = 0; bounce < bounceCount; bounce += 1) {
@@ -671,8 +681,14 @@ function updateGravitySphere(s: GameState, sphere: SphereEntity, damage: number,
 
   for (const enemy of s.enemies) {
     if (enemy.hp <= 0 || dist(enemy.pos, sphere.pos) > pullRadius) continue;
-    enemy.slowTimer = Math.max(enemy.slowTimer, branch === 'gravity_well' ? 0.75 : 0.45);
-    enemy.slowFactor = Math.min(enemy.slowFactor, branch === 'gravity_well' ? 0.56 : 0.72);
+    const gravityControlPower = finalIndex === null ? preFinalBranchPower(s, 'gravity') : 1;
+    enemy.slowTimer = Math.max(enemy.slowTimer, (branch === 'gravity_well' ? 0.75 : 0.45) * gravityControlPower);
+    enemy.slowFactor = Math.min(
+      enemy.slowFactor,
+      branch === 'gravity_well'
+        ? Math.max(0.46, 0.56 - (gravityControlPower - 1) * 0.06)
+        : 0.72,
+    );
 
     let hitDamage = damage;
     if (branch === 'gravity_collapse') {
@@ -724,7 +740,7 @@ function updatePulseSphere(s: GameState, sphere: SphereEntity, damage: number, m
 
   const waveCount = 1
     + (s.player.artifacts.includes('pulse_crown') ? 1 : 0)
-    + (branch === 'pulse_burst' && (finalIndex === 2 || (finalIndex === null && sphereLevel(s, 'pulse') >= 5)) ? 1 : 0);
+    + (branch === 'pulse_burst' && (finalIndex === 2 || finalIndex === null) ? 1 : 0);
   const intervalMultiplier = s.player.artifacts.includes('pulse_driver') ? 0.90 : 1;
   sphere.auraTimer = getSpecialSphereCadence(
     s,
@@ -740,8 +756,9 @@ function updatePulseSphere(s: GameState, sphere: SphereEntity, damage: number, m
 
   for (let wave = 0; wave < waveCount; wave++) {
     const branchPower = finalIndex === null ? preFinalBranchPower(s, 'pulse') : 1;
+    const pulseLevel = sphereLevel(s, 'pulse');
     const secondaryPower = branch === 'pulse_burst' && finalIndex === null
-      ? 1 + (sphereLevel(s, 'pulse') >= 6 ? 0.25 : 0)
+      ? pulseLevel >= 6 ? 1.25 : pulseLevel >= 5 ? 1.15 : 1
       : 1;
     const waveDamage = damage * (wave === 0 ? 1 : 0.46 + (branch === 'pulse_burst' ? 0.14 : 0) * secondaryPower * branchPower);
     const pulseRadius = radius * (wave === 0 ? 1 : 0.68);
