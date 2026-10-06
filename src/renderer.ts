@@ -616,7 +616,46 @@ function drawRune(ctx: CanvasRenderingContext2D, rune: GameState['runes'][number
   }
 }
 
-function drawRegionLayer(ctx:CanvasRenderingContext2D,s:GameState):void{if(!s.region)return;ctx.save();for(const p of REGION_POCKETS){const active=p.id===s.region.pocketId;ctx.globalAlpha=active?.16:.05;ctx.strokeStyle=p.accent;ctx.lineWidth=active?2:1;ctx.setLineDash(active?[12,8]:[5,12]);ctx.beginPath();ctx.arc(p.center.x,p.center.y,p.radius,0,Math.PI*2);ctx.stroke();ctx.setLineDash([])}for(const p of s.region.pois){if(!p.alive)continue;const color=p.type==='elite_nest'||p.type==='rupture'?'#ff6b6b':p.type==='boss_trace'?'#ffb84d':'#55e6c1';ctx.globalAlpha=.25;ctx.fillStyle=color;ctx.beginPath();ctx.arc(p.pos.x,p.pos.y,40+Math.sin(s.time*4+p.id)*4,0,Math.PI*2);ctx.fill();ctx.globalAlpha=.9;ctx.strokeStyle=color;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(p.pos.x,p.pos.y-11);ctx.lineTo(p.pos.x+11,p.pos.y);ctx.lineTo(p.pos.x,p.pos.y+11);ctx.lineTo(p.pos.x-11,p.pos.y);ctx.closePath();ctx.stroke()}ctx.restore()}
+function drawRegionLayer(ctx:CanvasRenderingContext2D,s:GameState):void{
+  if(!s.region)return;
+  ctx.save();
+  for(const p of REGION_POCKETS){
+    const active=p.id===s.region.pocketId;
+    ctx.globalAlpha=active?.18:.055;
+    ctx.strokeStyle=p.accent;
+    ctx.lineWidth=active?2:1;
+    ctx.setLineDash(active?[12,8]:[5,12]);
+    ctx.beginPath();ctx.arc(p.center.x,p.center.y,p.radius,0,Math.PI*2);ctx.stroke();
+    ctx.setLineDash([]);
+    if(active){
+      ctx.globalAlpha=.78;
+      ctx.fillStyle=p.accent;
+      ctx.font='bold 11px system-ui,sans-serif';
+      ctx.textAlign='center';
+      ctx.fillText(p.name.en,p.center.x,p.center.y-p.radius+22);
+    }
+  }
+  const poiLabels:Record<RegionPoiType,string>={
+    resonance_cache:'RESONANCE CACHE',
+    breach_node:'BREACH NODE',
+    echo_relay:'ECHO RELAY',
+    lost_signal:'LOST SIGNAL',
+    elite_nest:'ELITE NEST',
+    rupture:'RUPTURE',
+    boss_trace:'BOSS TRACE',
+  };
+  for(const p of s.region.pois){
+    if(!p.alive)continue;
+    const color=p.type==='elite_nest'||p.type==='rupture'?'#ff6b6b':p.type==='boss_trace'?'#ffb84d':'#55e6c1';
+    const pulse=40+Math.sin(s.time*4+p.id)*4;
+    ctx.globalAlpha=.22;ctx.fillStyle=color;ctx.beginPath();ctx.arc(p.pos.x,p.pos.y,pulse,0,Math.PI*2);ctx.fill();
+    ctx.globalAlpha=.92;ctx.strokeStyle=color;ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(p.pos.x,p.pos.y-11);ctx.lineTo(p.pos.x+11,p.pos.y);ctx.lineTo(p.pos.x,p.pos.y+11);ctx.lineTo(p.pos.x-11,p.pos.y);ctx.closePath();ctx.stroke();
+    ctx.globalAlpha=.86;ctx.fillStyle=color;ctx.font='bold 8px system-ui,sans-serif';ctx.textAlign='center';
+    ctx.fillText(poiLabels[p.type],p.pos.x,p.pos.y-16);
+  }
+  ctx.restore();
+}
 
 function drawCharacterHud(_ctx: CanvasRenderingContext2D, _s: GameState, _canvasW: number, _canvasH: number): void {
   // Character state is communicated by world indicators and the main HUD.
