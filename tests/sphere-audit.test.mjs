@@ -97,8 +97,11 @@ assert.doesNotMatch(renderer, /sphere-standard-panels|external-panels\.png/, 'Ob
 assert.doesNotMatch(renderer, /['\"]sphere-standard['\"]\s*:\s*['\"]\/art\/standard\.svg/, 'Full Standard reference sticker is still wired into the renderer');
 assert.doesNotMatch(renderer, /drawOrbitalSatelliteArt|drawSphereCoreArt/, 'Legacy procedural Orbital visual remains in renderer');
 assert.doesNotMatch(renderer, /sphere-standard-panels|external-panels\\.png/, 'Removed Standard reference panel returned');
-assert.match(renderer, /sphere\.type === 'orbital'[\s\S]*satelliteCount/, 'Orbital satellite visuals missing');
-assert.match(engine, /satelliteCount[\s\S]*bestAngularDistance/, 'Orbital satellite damage targeting missing');
+assert.match(renderer, /renderOrbitalSphereAttackersVfx/, 'Orbital attacker visual layer missing');
+assert.match(renderer, /getOrbitalRingCounts/, 'Orbital visual ring progression missing');
+assert.match(engine, /getOrbitalRingCounts/, 'Orbital dual-ring progression missing');
+assert.match(engine, /orbitalElementAngle/, 'Orbital angular geometry missing');
+assert.match(engine, /isAngleOnOrbitalSweep/, 'Orbital swept collision targeting missing');
 assert.match(collision, /resolvePlayerTowerCollisions/, 'Sphere physical collision layer missing');
 assert.match(collision, /TOWER_BODY_RADIUS/, 'Sphere body radius contract missing');
 assert.match(mobileControls, /canvas\.width \/ rect\.width/, 'Pointer/CSS coordinate mapping missing');
