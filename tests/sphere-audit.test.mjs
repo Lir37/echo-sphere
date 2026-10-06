@@ -60,7 +60,9 @@ const canonicalBranchIds = [
 ];
 assert.equal(new Set(canonicalBranchIds).size, 30, 'Canonical branch roster must contain 30 unique branches.');
 for (const id of canonicalBranchIds) {
-  assert.match(progression, new RegExp(id + ".*signature behavior"), 'Branch description missing: ' + id);
+  assert.match(progression, new RegExp(id), 'Branch definition missing: ' + id);
+  assert.match(progression, new RegExp(id + ':\\{level5:'), 'Branch Level V description missing: ' + id);
+  assert.match(progression, new RegExp(id + ':\\{level5:[\\s\\S]*level6:'), 'Branch Level VI description missing: ' + id);
 }
 
 assert.equal(canonicalBranchIds.length * 3, 90, 'Canonical Sphere roster must expose exactly 90 Level-VII finals.');
