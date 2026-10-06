@@ -162,7 +162,7 @@ const SPHERE_LEVEL_EN:Record<string,string>={
   "-12% разброса": "-12% spread",
   "+1 цель цепи": "+1 chain target",
   "+10% урона цепи": "+10% chain damage",
-  "+15% скорости перехода": "+15% chain jump speed",
+  "-15% интервала атаки": "-15% attack interval",
   "+20% радиуса ауры": "+20% Aura radius",
   "-10% интервала импульса": "-10% pulse interval",
   "+10% урона ауры": "+10% Aura damage",
