@@ -96,6 +96,42 @@ assert.match(engine, /finalIndex === null || finalIndex === 0 || finalIndex === 
 assert.match(engine, /const baseExecuteChance = voidLevel >= 2 ? 0\.10 : 0/,
   'Void Level II execute chance must have a concrete runtime consumer.');
 
+
+const baseLevelContracts = [
+  [/if\\(type==='standard'\\)[\\s\\S]*if\\(l>=1\\) damage\\*=1\\.15/, 'Standard L1 damage'],
+  [/if\\(type==='standard'\\)[\\s\\S]*if\\(l>=2\\) pierce\\+=1/, 'Standard L2 pierce'],
+  [/if\\(type==='standard'\\)[\\s\\S]*if\\(l>=3\\) delay\\*=\\.9/, 'Standard L3 delay'],
+  [/if\\(type==='sniper'\\)[\\s\\S]*if\\(l>=1\\) damage\\*=1\\.25/, 'Sniper L1 damage'],
+  [/if\\(type==='sniper'\\)[\\s\\S]*if\\(l>=2\\) radius\\*=1\\.15/, 'Sniper L2 range'],
+  [/sphere\\?\\.type === 'sniper' && sphereLevel\\(s, 'sniper'\\) >= 3/, 'Sniper L3 crit'],
+  [/if\\(type==='shotgun'\\)[\\s\\S]*if\\(l>=1\\) multishot\\+=1/, 'Shotgun L1 pellet'],
+  [/fromSphere\\?\\.type === 'shotgun' && sphereLevel\\(s, 'shotgun'\\) >= 2/, 'Shotgun L2 close damage'],
+  [/if\\(l>=3\\) spreadMult\\*=\\.88/, 'Shotgun L3 spread'],
+  [/if\\(type==='chain'\\)[\\s\\S]*if\\(l>=1\\) chainTargets\\+=1/, 'Chain L1 target'],
+  [/if\\(type==='chain'\\)[\\s\\S]*if\\(l>=2\\) damage\\*=1\\.10/, 'Chain L2 damage'],
+  [/if\\(type==='chain'\\)[\\s\\S]*if\\(l>=3\\) delay\\*=\\.85/, 'Chain L3 interval'],
+  [/if\\(type==='aura'\\)[\\s\\S]*if\\(l>=1\\) auraRadius\\*=1\\.20/, 'Aura L1 radius'],
+  [/if\\(type==='aura'\\)[\\s\\S]*if\\(l>=2\\) auraPulse\\*=\\.9/, 'Aura L2 interval'],
+  [/if\\(type==='aura'\\)[\\s\\S]*if\\(l>=3\\) damage\\*=1\\.10/, 'Aura L3 damage'],
+  [/if\\(type==='orbital'\\)[\\s\\S]*if\\(l>=1\\) damage\\*=1\\.15/, 'Orbital L1 damage'],
+  [/if\\(type==='orbital'\\)[\\s\\S]*if\\(l>=2\\) radius\\*=1\\.15/, 'Orbital L2 radius'],
+  [/if\\(type==='orbital'\\)[\\s\\S]*if\\(l>=3\\) rotationSpeed\\*=1\\.15/, 'Orbital L3 rotation speed'],
+  [/if\\(type==='prism'\\)[\\s\\S]*if\\(l>=1\\) damage\\*=1\\.20/, 'Prism L1 damage'],
+  [/if\\(type==='prism'\\)[\\s\\S]*if\\(l>=2\\) radius\\*=1\\.15/, 'Prism L2 range'],
+  [/if\\(type==='prism'\\)[\\s\\S]*if\\(l>=3\\) multishot\\+=1/, 'Prism L3 direction'],
+  [/if\\(type==='gravity'\\)[\\s\\S]*if\\(l>=1\\) damage\\*=1\\.20/, 'Gravity L1 damage'],
+  [/if\\(type==='gravity'\\)[\\s\\S]*if\\(l>=2\\) radius\\*=1\\.15/, 'Gravity L2 radius'],
+  [/if\\(type==='gravity'\\)[\\s\\S]*if\\(l>=3\\) auraPulse\\*=\\.85/, 'Gravity L3 interval'],
+  [/if\\(type==='pulse'\\)[\\s\\S]*if\\(l>=1\\) damage\\*=1\\.20/, 'Pulse L1 damage'],
+  [/if\\(type==='pulse'\\)[\\s\\S]*if\\(l>=2\\) radius\\*=1\\.15/, 'Pulse L2 radius'],
+  [/if\\(type==='pulse'\\)[\\s\\S]*if\\(l>=3\\) auraPulse\\*=\\.88/, 'Pulse L3 interval'],
+  [/if\\(type==='void'\\)[\\s\\S]*if\\(l>=1\\) damage\\*=1\\.20/, 'Void L1 damage'],
+  [/if\\(type==='void'\\)[\\s\\S]*if\\(l>=3\\) radius\\*=1\\.15/, 'Void L3 range'],
+];
+for (const [pattern, label] of baseLevelContracts) {
+  assert.match(progression, pattern, label + ' contract missing.');
+}
+
 for (const fn of ['updateOrbitalSphere','updatePrismSphere','updateGravitySphere','updatePulseSphere']) {
   assert.match(engine, new RegExp('function ' + fn + '\\('), 'Dedicated runtime missing: ' + fn);
 }
