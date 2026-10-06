@@ -279,9 +279,16 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
       });
     }
     if (allowSphereProc && mods.staticChance > 0 && nextRandom(s) < mods.staticChance) {
-      const next = s.enemies
-        .filter((candidate) => candidate !== enemy && candidate.hp > 0 && dist(candidate.pos, enemy.pos) <= 110)
-        .sort((a, b) => dist(a.pos, enemy.pos) - dist(b.pos, enemy.pos))[0];
+      let next: EnemyEntity | undefined;
+      let nextDistance = Infinity;
+      for (const candidate of s.enemies) {
+        if (candidate === enemy || candidate.hp <= 0) continue;
+        const distance = dist(candidate.pos, enemy.pos);
+        if (distance <= 110 && distance < nextDistance) {
+          next = candidate;
+          nextDistance = distance;
+        }
+      }
       if (next) {
         s.lightnings.push({ from: { ...enemy.pos }, to: { ...next.pos }, life: 0.22, sourceSphere: fromSphere });
         dealDamageToEnemy(s, next, actual * 0.35, fromSphere, false);
@@ -624,6 +631,7 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
     pos: { x: enemy.pos.x + rand(s,-8, 8), y: enemy.pos.y - enemy.radius - 5 },
     value: Math.round(actual), life: 0.8, maxLife: 0.8, crit: isCrit,
     vel: { x: rand(s,-30, 30), y: -60 },
+    sourceSphereType: fromSphere?.type,
   });
   if (isCrit) playSound('crit'); else if (fromSphere) playSound('hit');
   // vampire
