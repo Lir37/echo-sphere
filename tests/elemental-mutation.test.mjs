@@ -111,3 +111,19 @@ test('Special elemental VFX has distinct Chain / Aura / Gravity / Pulse signatur
   assert.ok(elemental.includes('radius * (0.72 + q * 1.15)'));
 });
 
+
+
+test('Elemental damage numbers are color-coded and Crit remains distinct',()=>{
+  assert.ok(combat.includes('element,'));
+  assert.ok(renderer.includes("dn.element === 'fire'"));
+  assert.ok(renderer.includes("dn.element === 'freeze'"));
+  assert.ok(renderer.includes("dn.element === 'poison'"));
+  assert.ok(renderer.includes("dn.crit ? '#ffd166'"));
+  assert.match(enemies,/pushStatusDamageNumber\\(s, e, e\\.fireDamageNumberAccumulator, 'fire'\\)/);
+  assert.match(enemies,/pushStatusDamageNumber\\(s, e, e\\.poisonDamageNumberAccumulator, 'poison'\\)/);
+});
+test('Echo Freeze Mutation I is distinct from the existing Level III rule',()=>{
+  assert.match(progression,/Фазовый залп/);
+  assert.match(progression,/немедленный залп/);
+  assert.ok(combat.includes("getAbilityBranchId(s, 'timestop', 4) === 'timestop_echo_phase'"));
+});
