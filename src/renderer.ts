@@ -478,8 +478,12 @@ function drawRune(ctx: CanvasRenderingContext2D, rune: GameState['runes'][number
   // hunter mark and alchemist reaction indicators sit above enemies
   drawCharacterTargetIndicators(ctx, s);
 
-  // boss projectiles
-  for (const e of s.enemies) for (const bp of e.bossProjectiles) drawBossProjectile(ctx, bp.pos.x, bp.pos.y, bp.radius, e.color, e.bossType, bp.vel);
+  // Boss and normal ranged projectiles share storage but use different readable VFX.
+  for (const e of s.enemies) for (const bp of e.bossProjectiles) {
+    if (bp.visualType === 'enemy_ranged') drawEnemyProjectile(ctx, bp.pos.x, bp.pos.y, bp.radius, bp.vel, false);
+    else if (bp.visualType === 'enemy_sniper') drawEnemyProjectile(ctx, bp.pos.x, bp.pos.y, bp.radius, bp.vel, true);
+    else drawBossProjectile(ctx, bp.pos.x, bp.pos.y, bp.radius, e.color, e.bossType, bp.vel);
+  }
 
 
   // particles
@@ -514,8 +518,17 @@ function drawRune(ctx: CanvasRenderingContext2D, rune: GameState['runes'][number
     if (dn.sourceSphereType === 'orbital') continue;
     const alpha = Math.min(1, dn.life / dn.maxLife * 1.5);
     ctx.globalAlpha = alpha;
-    ctx.fillStyle = dn.crit ? '#ffd166' : '#e8f6ff';
-    ctx.shadowColor = dn.crit ? '#ff7a3d' : '#39d8ff';
+    const damageColor = dn.crit
+      ? '#ffd166'
+      : dn.element === 'fire'
+        ? '#ff5a36'
+        : dn.element === 'freeze'
+          ? '#69d6ff'
+          : dn.element === 'poison'
+            ? '#72f08e'
+            : '#e8f6ff';
+    ctx.fillStyle = damageColor;
+    ctx.shadowColor = dn.crit ? '#b8860b' : damageColor;
     ctx.shadowBlur=0;
     ctx.font = `bold ${dn.crit ? 20 : 14}px system-ui, sans-serif`;
     ctx.textAlign = 'center';
@@ -526,8 +539,17 @@ function drawRune(ctx: CanvasRenderingContext2D, rune: GameState['runes'][number
     if (dn.sourceSphereType !== 'orbital') continue;
     const alpha = Math.min(1, dn.life / dn.maxLife * 1.5);
     ctx.globalAlpha = alpha;
-    ctx.fillStyle = dn.crit ? '#ffd166' : '#e8f6ff';
-    ctx.shadowColor = dn.crit ? '#ff7a3d' : '#39d8ff';
+    const damageColor = dn.crit
+      ? '#ffd166'
+      : dn.element === 'fire'
+        ? '#ff5a36'
+        : dn.element === 'freeze'
+          ? '#69d6ff'
+          : dn.element === 'poison'
+            ? '#72f08e'
+            : '#e8f6ff';
+    ctx.fillStyle = damageColor;
+    ctx.shadowColor = dn.crit ? '#b8860b' : damageColor;
     ctx.shadowBlur=0;
     ctx.font = `bold ${dn.crit ? 20 : 14}px system-ui, sans-serif`;
     ctx.textAlign = 'center';
@@ -2250,20 +2272,21 @@ function drawEnemySilhouette(ctx: CanvasRenderingContext2D, e: EnemyEntity, colo
 }
 
 function drawEliteCrest(ctx: CanvasRenderingContext2D, e: EnemyEntity, t: number): void {
-  const r=e.radius, pulse=.72+.28*Math.sin(t*6);
+  const r=e.radius, pulse=.70+.30*Math.sin(t*5);
+  const rgb=hexToRgb(e.color);
   ctx.save();
   ctx.globalCompositeOperation='source-over';
-  ctx.translate(0,-r*1.08);
-  ctx.rotate(t*.55);
-  ctx.strokeStyle=`rgba(216,121,255,${.48+.30*pulse})`;
-  ctx.lineWidth=1.8;
-  for(let i=0;i<4;i++){
-    const a=i*Math.PI/2;
-    const x=Math.cos(a)*r*.55, y=Math.sin(a)*r*.55;
-    ctx.beginPath();ctx.moveTo(Math.cos(a)*r*.18,Math.sin(a)*r*.18);ctx.lineTo(x,y);ctx.stroke();
+  ctx.strokeStyle=`rgba(${rgb},${.38+.20*pulse})`;
+  ctx.lineWidth=1.5;
+  ctx.beginPath();
+  ctx.arc(0,0,r*1.30,-Math.PI*.82,Math.PI*.82);
+  ctx.stroke();
+  for(let i=-1;i<=1;i++){
+    const a=-Math.PI*.5+i*Math.PI*.5;
+    const x=Math.cos(a)*r*1.30, y=Math.sin(a)*r*1.30;
+    ctx.fillStyle=e.color;
+    ctx.fillRect(x-2.5,y-2.5,5,5);
   }
-  ctx.fillStyle='#f0c9ff'; ctx.shadowColor='#d879ff';ctx.shadowBlur=5;
-  ctx.beginPath();ctx.moveTo(0,-r*.48);ctx.lineTo(r*.20,-r*.08);ctx.lineTo(0,r*.26);ctx.lineTo(-r*.20,-r*.08);ctx.closePath();ctx.fill();
   ctx.restore();
 }
 
@@ -3519,6 +3542,57 @@ function drawModernBossBody(ctx:CanvasRenderingContext2D,e:EnemyEntity,color:str
   ctx.strokeStyle='rgba(230,251,255,.78)';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(0,0,coreR,0,Math.PI*2);ctx.stroke();
   ctx.restore();
 
+}
+
+function drawEnemyProjectile(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  r: number,
+  vel: { x: number; y: number },
+  sniper: boolean,
+): void {
+  const color = sniper ? '#ffe066' : '#ff6b55';
+  const rgb = hexToRgb(color);
+  const angle = Math.atan2(vel.y, vel.x);
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(angle);
+  ctx.globalCompositeOperation='lighter';
+  ctx.shadowColor=color;
+  ctx.shadowBlur=7;
+  ctx.strokeStyle=`rgba(${rgb},.30)`;
+  ctx.lineWidth=Math.max(2,r*.55);
+  ctx.beginPath();
+  ctx.moveTo(-r*4.8,0);
+  ctx.lineTo(-r*.35,0);
+  ctx.stroke();
+  ctx.globalCompositeOperation='source-over';
+  ctx.fillStyle='#07101a';
+  ctx.strokeStyle=color;
+  ctx.lineWidth=Math.max(1,r*.14);
+  if (sniper) {
+    ctx.beginPath();
+    ctx.moveTo(r*1.9,0);
+    ctx.lineTo(-r*.8,-r*.60);
+    ctx.lineTo(-r*.45,0);
+    ctx.lineTo(-r*.8,r*.60);
+    ctx.closePath();
+  } else {
+    ctx.beginPath();
+    ctx.moveTo(r*1.35,0);
+    ctx.lineTo(0,-r*.72);
+    ctx.lineTo(-r*.95,0);
+    ctx.lineTo(0,r*.72);
+    ctx.closePath();
+  }
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle='#ffffff';
+  ctx.beginPath();
+  ctx.arc(r*.35,0,Math.max(1.4,r*.24),0,Math.PI*2);
+  ctx.fill();
+  ctx.restore();
 }
 
 function drawBossProjectile(ctx:CanvasRenderingContext2D,x:number,y:number,r:number,color:string,bossType:string,vel:{x:number;y:number}):void{
