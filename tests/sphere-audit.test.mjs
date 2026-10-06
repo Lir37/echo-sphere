@@ -86,12 +86,14 @@ assert.match(engine, /bodyRadius \* 2\.02 \* radiusMultiplier/,
   'Orbital outer combat ring is not aligned with the authored visual orbit.');
 assert.match(engine, /branch === 'orbital_dance' && finalIndex === 2/,
   'Only Orbital Dance final III should add the extra core satellite.');
-assert.match(progression, /orbital_dance:\{0:\{afterimage:2\},1:\{afterimage:2\},2:\{afterimage:2\}\}/,
-  'Orbital Dance finals must retain their authored Afterimage behavior.');
+assert.match(progression, /orbital_dance:\{0:\{afterimage:2\},1:\{afterimage:3\},2:\{afterimage:3\}\}/,
+  'Orbital Dance finals must strengthen Afterimage on finals II/III.');
 assert.match(progression, /prism_spectrum:\{0:\{fire:1\},1:\{freeze:1\},2:\{poison:1\}\}/,
   'Prism Spectrum finals must map to Fire/Freeze/Poison.');
-assert.match(engine, /const bounceCount = Math\.min\(2, mods\.ricochet\)/,
-  'Prism Mirror finals must consume authored Ricochet levels.');
+assert.match(engine, /const branchExtraBounce =/,
+  'Prism Mirror Level VI must add a real second bounce before Level VII.');
+assert.match(engine, /const bounceCount = Math\.min\(2, mods\.ricochet \+ branchExtraBounce\)/,
+  'Prism Mirror finals must consume authored Ricochet levels plus the pre-final bounce contract.');
 assert.match(read('src/spheres/orbitalGeometry.ts'), /export function isAngleOnOrbitalSweep/,
   'Orbital swept collision contract must live in the shared geometry module.');
 assert.ok(engine.includes('finalIndex === 1 ? 1.35 : finalIndex === 2 ? 1.50 : 1.15'),
@@ -100,7 +102,7 @@ assert.ok(engine.includes('finalIndex === 2 ? 1.50'),
   'Gravity Well final III pull scaling must be stronger than the base branch.');
 assert.match(engine, /finalIndex === null || finalIndex === 0 || finalIndex === 2/,
   'Standard Singularity base branch must pull enemies before Level VII selection.');
-assert.match(engine, /const baseExecuteChance = voidLevel >= 2 ? 0\.10 : 0/,
+assert.match(engine, /const baseExecuteChance = voidLevel >= 2 \? 0\.10 : 0/,
   'Void Level II execute chance must have a concrete runtime consumer.');
 
 
@@ -210,3 +212,28 @@ assert.match(engine, /sameTypeCount\s*=\s*s\.spheres\.filter/, 'Sphere placement
 
 
 console.log('sphere-audit: OK');
+
+assert.match(engine, /const contactBand = Math\.max\([\s\S]*enemy\.radius/,
+  'Orbital contact must account for large enemy/boss body radius.');
+assert.match(engine, /dealDamageToEnemy\(s, enemy, hitDamage, sphere\)/,
+  'Orbital contact must route damage through the authoritative damage path.');
+assert.match(engine, /branch === 'orbital_blade'\).*final === 2 \? 1\.20/,
+  'Orbital Blade final III must be stronger than final II.');
+assert.match(progression, /orbital_blade:\{0:\{impact:2\},1:\{afterimage:2\},2:\{impact:2,afterimage:3\}\}/,
+  'Orbital Blade finals must preserve Impact and strengthen Afterimage.');
+assert.match(engine, /mods\.resonantCharge \/ 2/,
+  'Resonant modifier magnitude must affect actual Resonance charge.');
+assert.match(engine, /branch !== 'pulse_resonator'/,
+  'Pulse Resonator must use its dedicated formation-aware Resonance path without double charging.');
+assert.match(engine, /const pulseLevel = sphereLevel\(s, 'pulse'\)/,
+  'Pulse Burst Level V/VI secondary discharge scaling must be explicit.');
+assert.match(progression, /standard_swarm:\{level5:'Боковой осколок получает повышенный урон/,
+  'Standard Swarm Level V must have a real enhancement beyond Level IV.');
+assert.match(progression, /pulse_burst:\{level5:'Второй разряд становится мощнее/,
+  'Pulse Burst Level V must strengthen the branch behavior rather than introduce it late.');
+assert.match(engine, /if \(finalIndex === 2\) actual \*= 1\.08;/,
+  'Shotgun Hail final III main-hit bonus must be unconditional.');
+assert.match(engine, /finalIndex === 2\) actual \*= 1\.18/,
+  'Aura Gravity final III must retain its authored damage increase.');
+assert.match(engine, /if \(finalIndex === 0 \|\| finalIndex === 1 \|\| finalIndex === 2\)/,
+  'Aura Gravity final III must retain strong pull behavior.');
