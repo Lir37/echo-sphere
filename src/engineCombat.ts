@@ -31,6 +31,11 @@ import type { ArtifactId } from './gameData';
 import { dist, rand, getNetworkFrame, getAbilityBranchId, getNearestSphere, getSphereFinalIndex } from './engineRuntime';
 import { chargeResonance } from './engineResonance';
 
+function preFinalBranchPower(s: GameState, type: SphereEntity['type']): number {
+  const level = sphereLevel(s, type);
+  return level >= 6 ? 1.30 : level >= 5 ? 1.15 : 1;
+}
+
 function registerHunterHit(s: GameState, enemy: EnemyEntity, sphere: SphereEntity): void {
   if (getCharacterId(s) !== 'hunter') return;
   if (!['sniper', 'chain', 'prism', 'void'].includes(sphere.type)) return;
@@ -347,7 +352,8 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
       const hits = ((fromSphere as any).evolutionHits || 0) + 1;
       (fromSphere as any).evolutionHits = hits;
       if (hits % 3 === 0) {
-        const shockDamage = finalIndex === 0 ? actual * 0.65 : finalIndex === 1 ? actual * 0.45 : actual * 0.35;
+        const branchPower = finalIndex === null ? preFinalBranchPower(s, 'standard') : 1;
+        const shockDamage = (finalIndex === 0 ? actual * 0.65 : finalIndex === 1 ? actual * 0.45 : actual * 0.35) * branchPower;
         const shockRadius = finalIndex === 0 ? 115 : finalIndex === 1 ? 100 : 90;
         for (const nearby of s.enemies) {
           if (nearby !== enemy && nearby.hp > 0 && dist(nearby.pos, enemy.pos) < shockRadius) {
@@ -371,11 +377,14 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
         s.screenShake = Math.min(0.14, s.screenShake + (finalIndex === 0 ? 0.04 : 0.025));
       }
     } else if (branch === 'standard_singularity') {
-      enemy.slowTimer = Math.max(enemy.slowTimer, finalIndex === 0 ? 1.2 : finalIndex === 1 ? 1.8 : 0.9);
-      enemy.slowFactor = Math.min(enemy.slowFactor, finalIndex === 0 ? 0.5 : finalIndex === 1 ? 0.58 : 0.68);
+      const branchPower = finalIndex === null ? preFinalBranchPower(s, 'standard') : 1;
+      const slowDuration = (finalIndex === 0 ? 1.2 : finalIndex === 1 ? 1.8 : 0.9) * branchPower;
+      enemy.slowTimer = Math.max(enemy.slowTimer, slowDuration);
+      enemy.slowFactor = Math.min(enemy.slowFactor, Math.max(0.45, (finalIndex === 0 ? 0.5 : finalIndex === 1 ? 0.58 : 0.68) - (branchPower - 1) * 0.08));
       if (finalIndex === null || finalIndex === 0 || finalIndex === 2) {
-        const pull = finalIndex === 0 ? 24 : finalIndex === 2 ? 40 : 20;
-        const pullRadius = finalIndex === 0 ? 75 : finalIndex === 2 ? 100 : 65;
+        const branchPower = finalIndex === null ? preFinalBranchPower(s, 'standard') : 1;
+        const pull = (finalIndex === 0 ? 24 : finalIndex === 2 ? 40 : 20) * branchPower;
+        const pullRadius = (finalIndex === 0 ? 75 : finalIndex === 2 ? 100 : 65) * branchPower;
         for (const nearby of s.enemies) {
           if (nearby !== enemy && nearby.hp > 0 && dist(nearby.pos, enemy.pos) < pullRadius) {
             const dx = enemy.pos.x - nearby.pos.x, dy = enemy.pos.y - nearby.pos.y;
@@ -389,8 +398,11 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
     } else if (branch === 'standard_swarm') {
       // Swarm is a side-projectile evolution. It must not secretly become
       // permanent Multishot, otherwise it double-counts its own mechanic.
-      const count = finalIndex === 2 ? 2 : 1;
-      const chance = finalIndex === null ? 1 : finalIndex === 0 ? 0.35 : finalIndex === 1 ? 0.55 : 1;
+      const preFinalLevel = sphereLevel(s, 'standard');
+      const count = finalIndex === 2 ? 2 : finalIndex === null && preFinalLevel >= 6 ? 2 : 1;
+      const chance = finalIndex === null
+        ? (preFinalLevel >= 5 ? 1 : 1)
+        : finalIndex === 0 ? 0.35 : finalIndex === 1 ? 0.55 : 1;
       if (nextRandom(s) < chance) {
         // Swarm shards are fragments of the projectile at the moment of impact.
         // They must spawn on the struck enemy, fly in random directions, deal
@@ -405,6 +417,8 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
           });
         }
       }
+    } else if (branch === 'sniper_oracle' && s.player.hunterMarkTarget === enemy && finalIndex === null) {
+      actual *= preFinalBranchPower(s, 'sniper');
     } else if (branch === 'sniper_oracle' && s.player.hunterMarkTarget === enemy && isCrit) {
       actual *= finalIndex === 0 ? 1.5 : finalIndex === 1 ? 1.3 : 1.22;
       if (finalIndex === 2) {
@@ -415,14 +429,16 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
         }
       }
     } else if (branch === 'sniper_assassin' && enemy.hp / enemy.maxHp < 0.35) {
-      actual *= finalIndex === 0 ? 1.7 : finalIndex === 1 ? 2.2 : 1.45;
+      if (finalIndex === null) actual *= preFinalBranchPower(s, 'sniper');
+      else actual *= finalIndex === 0 ? 1.7 : finalIndex === 1 ? 2.2 : 1.45;
       if (finalIndex === 2) s.player.hp = Math.min(s.player.maxHp, s.player.hp + actual * 0.01);
     } else if (branch === 'sniper_beacon') {
+      const branchPower = finalIndex === null ? preFinalBranchPower(s, 'sniper') : 1;
       s.player.hunterMarkTarget = enemy;
-      s.player.hunterMarkTimer = Math.max(s.player.hunterMarkTimer, finalIndex === 1 ? 5 : 3);
-      enemy.slowTimer = Math.max(enemy.slowTimer, finalIndex === 0 ? 0.9 : finalIndex === 1 ? 1.2 : 0.7);
-      enemy.slowFactor = Math.min(enemy.slowFactor, finalIndex === 0 ? 0.65 : finalIndex === 1 ? 0.7 : 0.6);
-      const radius = finalIndex === 0 ? 90 : finalIndex === 1 ? 140 : 110;
+      s.player.hunterMarkTimer = Math.max(s.player.hunterMarkTimer, (finalIndex === 1 ? 5 : 3) * branchPower);
+      enemy.slowTimer = Math.max(enemy.slowTimer, (finalIndex === 0 ? 0.9 : finalIndex === 1 ? 1.2 : 0.7) * branchPower);
+      enemy.slowFactor = Math.min(enemy.slowFactor, Math.max(0.42, (finalIndex === 0 ? 0.65 : finalIndex === 1 ? 0.7 : 0.6) - (branchPower - 1) * 0.06));
+      const radius = (finalIndex === 0 ? 90 : finalIndex === 1 ? 140 : 110) * branchPower;
       for (const nearby of s.enemies) {
         if (nearby !== enemy && nearby.hp > 0 && dist(nearby.pos, enemy.pos) < radius) {
           nearby.slowTimer = Math.max(nearby.slowTimer, finalIndex === 1 ? 1 : 0.5);
@@ -430,11 +446,16 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
         }
       }
     } else if (branch === 'shotgun_burst') {
-      if (dist(enemy.pos, fromSphere.pos) < (finalIndex === 1 ? 180 : 150)) actual *= finalIndex === 0 ? 1.3 : finalIndex === 1 ? 1.5 : 1.22;
+      if (finalIndex === null && dist(enemy.pos, fromSphere.pos) < 120) {
+        actual *= preFinalBranchPower(s, 'shotgun');
+      } else if (dist(enemy.pos, fromSphere.pos) < (finalIndex === 1 ? 180 : 150)) {
+        actual *= finalIndex === 0 ? 1.3 : finalIndex === 1 ? 1.5 : 1.22;
+      }
       if (finalIndex === 2 && dist(enemy.pos, fromSphere.pos) < 90) enemy.slowTimer = Math.max(enemy.slowTimer, 0.4);
     } else if (branch === 'shotgun_cataclysm') {
-      const radius = finalIndex === 0 ? 60 : finalIndex === 1 ? 85 : 55;
-      const splash = finalIndex === 0 ? 0.45 : finalIndex === 1 ? 0.65 : 0.35;
+      const branchPower = finalIndex === null ? preFinalBranchPower(s, 'shotgun') : 1;
+      const radius = (finalIndex === 0 ? 60 : finalIndex === 1 ? 85 : 55) * branchPower;
+      const splash = (finalIndex === 0 ? 0.45 : finalIndex === 1 ? 0.65 : 0.35) * branchPower;
       for (let i = 0; i < 14; i++) {
         const a = nextRandom(s) * Math.PI * 2;
         s.particles.push({ pos: { ...enemy.pos }, vel: { x: Math.cos(a) * 90, y: Math.sin(a) * 90 }, life: 0.35, maxLife: 0.35, color: '#c4453d', size: 3 });
@@ -449,10 +470,13 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
         enemy.slowFactor = Math.min(enemy.slowFactor, 0.65);
       }
     } else if (branch === 'shotgun_hail') {
-      const chance = finalIndex === 0 ? 0.25 : finalIndex === 1 ? 0.4 : 0.32;
+      const branchLevel = sphereLevel(s, 'shotgun');
+      const chance = finalIndex === null
+        ? (branchLevel >= 6 ? 0.60 : branchLevel >= 5 ? 0.45 : 0.32)
+        : finalIndex === 0 ? 0.25 : finalIndex === 1 ? 0.4 : 0.32;
       if (nextRandom(s) < chance) {
         const radius = finalIndex === 1 ? 65 : 45;
-        const shardCount = finalIndex === 1 ? 8 : 6;
+        const shardCount = finalIndex === 1 ? 8 : finalIndex === null && branchLevel >= 6 ? 7 : 6;
         for (let i = 0; i < shardCount; i++) {
           const angle = (i / shardCount) * Math.PI * 2 + nextRandom(s) * 0.18;
           s.sphereProjectiles.push({
@@ -475,8 +499,9 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
         }
       }
     } else if (branch === 'chain_web') {
-      enemy.slowTimer = Math.max(enemy.slowTimer, finalIndex === 0 ? 0.7 : finalIndex === 1 ? 1.4 : 0.5);
-      enemy.slowFactor = Math.min(enemy.slowFactor, finalIndex === 0 ? 0.7 : finalIndex === 1 ? 0.55 : 0.72);
+      const branchPower = finalIndex === null ? preFinalBranchPower(s, 'chain') : 1;
+      enemy.slowTimer = Math.max(enemy.slowTimer, (finalIndex === 0 ? 0.7 : finalIndex === 1 ? 1.4 : 0.5) * branchPower);
+      enemy.slowFactor = Math.min(enemy.slowFactor, Math.max(0.42, (finalIndex === 0 ? 0.7 : finalIndex === 1 ? 0.55 : 0.72) - (branchPower - 1) * 0.08));
       if (finalIndex === 2) actual *= 1.25;
       for (const nearby of s.enemies) {
         if (nearby !== enemy && nearby.hp > 0 && dist(nearby.pos, enemy.pos) < 90) {
@@ -484,8 +509,9 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
         }
       }
     } else if (branch === 'chain_storm') {
-      const radius = finalIndex === 0 ? 70 : finalIndex === 1 ? 100 : 55;
-      const splash = finalIndex === 0 ? 0.25 : finalIndex === 1 ? 0.4 : 0.2;
+      const branchPower = finalIndex === null ? preFinalBranchPower(s, 'chain') : 1;
+      const radius = (finalIndex === 0 ? 70 : finalIndex === 1 ? 100 : 55) * branchPower;
+      const splash = (finalIndex === 0 ? 0.25 : finalIndex === 1 ? 0.4 : 0.2) * branchPower;
       for (const nearby of s.enemies) {
         if (nearby !== enemy && nearby.hp > 0 && dist(nearby.pos, enemy.pos) < radius) {
           dealDamageToEnemy(s, nearby, actual * splash, fromSphere, false);
@@ -494,7 +520,8 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
       }
       if (finalIndex === 2) actual *= 1.12;
     } else if (branch === 'chain_leech') {
-      const heal = finalIndex === 0 ? 0.025 : finalIndex === 1 ? 0.045 : 0.018;
+      const branchPower = finalIndex === null ? preFinalBranchPower(s, 'chain') : 1;
+      const heal = (finalIndex === 0 ? 0.025 : finalIndex === 1 ? 0.045 : 0.018) * branchPower;
       s.player.hp = Math.min(s.player.maxHp, s.player.hp + actual * heal);
       if (finalIndex === 2 && enemy.hp < enemy.maxHp * 0.4) actual *= 1.2;
     } else if (branch === 'aura_sanctum') {
