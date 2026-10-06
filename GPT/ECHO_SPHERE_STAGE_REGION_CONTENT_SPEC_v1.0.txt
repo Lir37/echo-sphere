@@ -365,3 +365,33 @@ FOLLOW:
 ======================================================================
 END FOLLOW BALANCE AMENDMENT
 ======================================================================
+
+
+======================================================================
+2026-10-06 — RESONANCE BASIN IMPLEMENTATION AMENDMENT
+======================================================================
+
+The first Region Slice is implemented on branch new-desing.
+
+Region:
+- Resonance Basin.
+- Stabilization: 30:00.
+- Endless unlocks after stabilization.
+- Five Pockets with ecology-specific enemy profiles.
+- Seven optional POIs.
+- Three challenge contracts.
+- Three mastery challenges.
+- Five lore records.
+- Major boss events at 08:00 and 16:00.
+- Final Stella Warden at 27:00.
+- Clear reward and Endless unlock.
+
+The Region layer does not replace Sphere/Network/Geometry architecture.
+
+PLAYER-CHECK GATE:
+- Verify Pocket transitions and POI readability.
+- Verify regional enemy ecology differences.
+- Verify 08:00 / 16:00 / 27:00 boss cadence.
+- Verify final clear and Endless unlock.
+- Verify each Challenge Contract changes gameplay.
+======================================================================

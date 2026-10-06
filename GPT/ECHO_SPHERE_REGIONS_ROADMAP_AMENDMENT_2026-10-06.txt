@@ -123,3 +123,25 @@ Do not increase penalty constants without a concrete APK observation.
 ======================================================================
 END FOLLOW BALANCE GATE
 ======================================================================
+
+
+======================================================================
+2026-10-06 — REGION 1 ACCEPTANCE STATUS
+======================================================================
+
+REGION 1: RESONANCE BASIN
+Implementation status: COMPLETE.
+CI status: GREEN (#1683).
+APK/web artifacts: produced by CI.
+
+Acceptance gate:
+[GREEN] Region runtime/type contract.
+[GREEN] Unit regression.
+[GREEN] Gameplay coverage.
+[GREEN] Web/Playwright.
+[GREEN] Android debug APK.
+[OPEN] Full real-device 30-minute PlayerCheck.
+
+Do not begin Region 2 production before the real-device Region 1 gate is
+passed and the balance observations are recorded.
+======================================================================

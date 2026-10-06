@@ -1685,3 +1685,47 @@ Verify on the green APK:
 ======================================================================
 END FORMATION FOLLOW BALANCE / COUNTERPLAY PASS
 ======================================================================
+
+
+======================================================================
+2026-10-06 — RESONANCE BASIN REGION SLICE COMPLETE
+======================================================================
+
+CURRENT HEAD:
+cf400ba1d9c9820bfed7d8d55f837852d49f8053
+
+CI:
+#1683 SUCCESS.
+
+FIRST REGION SLICE:
+[DONE] Named Region: RESONANCE BASIN.
+[DONE] Stabilization mode with 30:00 authored clear gate.
+[DONE] Endless mode unlock persisted after first stabilization clear.
+[DONE] Five Spatial Pockets with distinct ecology profiles.
+[DONE] Seven POI types: Resonance Cache, Breach Node, Echo Relay, Lost Signal,
+      Elite Nest, Rupture, Boss Trace.
+[DONE] Three Region Challenge Contracts.
+[DONE] Three Mastery Challenges.
+[DONE] Five Region lore records.
+[DONE] Phase progression: Orientation -> First Resonance -> Specialization ->
+      Escalation -> Convergence -> Stabilization.
+[DONE] Major boss schedule at 08:00 and 16:00.
+[DONE] Final Stella Warden event at 27:00.
+[DONE] Region-specific enemy ecology multipliers and role pools.
+[DONE] Region visual Pocket boundaries and POI markers.
+[DONE] Region HUD state and menu mode/contract selection.
+[DONE] First-clear reward and Endless unlock clear screen.
+[DONE] Regression coverage for Region contract.
+
+ARCHITECTURE:
+Region is an isolated runtime/content layer. Existing Sphere, Network and
+Geometry solvers remain authoritative. Region modifies authored spawning,
+movement modifiers, Resonance gain, collision repulsion and world content
+without replacing those systems.
+
+OPEN:
+[DONE] CI acceptance.
+[OPEN] Real APK PlayerCheck of the complete 30-minute Stabilization is still
+      required before calling the slice production-validated in gameplay.
+[OPEN] Balance tuning only after real-play evidence.
+======================================================================
