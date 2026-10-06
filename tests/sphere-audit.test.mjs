@@ -118,7 +118,7 @@ const baseLevelContracts = [
   [/if\(type==='standard'\)[\s\S]*if\(l>=3\) delay\*=\.9/, 'Standard L3 delay'],
   [/if\(type==='sniper'\)[\s\S]*if\(l>=1\) damage\*=1\.25/, 'Sniper L1 damage'],
   [/if\(type==='sniper'\)[\s\S]*if\(l>=2\) radius\*=1\.15/, 'Sniper L2 range'],
-  [/sphere\?\.type === 'sniper'/, 'Sniper crit sphere selector'],
+  [/sphere\.type === 'sniper' && sphereLevel\(s, 'sniper'\) >= 3/, 'Sniper L3 crit selector'],
   [/if\(type==='shotgun'\)[\s\S]*if\(l>=1\) multishot\+=1/, 'Shotgun L1 pellet'],
   [/fromSphere\?\.type === 'shotgun' && sphereLevel\(s, 'shotgun'\) >= 2/, 'Shotgun L2 close damage'],
   [/if\(l>=3\) spreadMult\*=\.88/, 'Shotgun L3 spread'],
