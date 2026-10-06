@@ -698,7 +698,7 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
       pos: { x: enemy.pos.x + rand(s,-8, 8), y: enemy.pos.y - enemy.radius - 5 },
       value: Math.round(actual), life: 0.8, maxLife: 0.8, crit: isCrit,
       vel: { x: rand(s,-30, 30), y: -60 },
-      sourceSphereType: fromSphere.type,
+      sourceSphereType: fromSphere?.type,
       element,
     });
     if (isCrit) playSound('crit'); else playSound('hit');
