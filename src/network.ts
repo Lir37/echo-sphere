@@ -27,6 +27,9 @@ export interface NetworkShape {
    * strength so a precise lower-order form can beat a sloppy higher-order one.
    */
   dominanceScore?: number;
+  /** Temporarily disrupted formations retain slot identity while inactive. */
+  active?: boolean;
+  inactiveReason?: 'network-disabled';
 }
 
 export interface NetworkFormationSelection {
@@ -114,30 +117,20 @@ function rankGeometryCandidates(
   return filtered;
 }
 
-function selectActiveGeometry(
+function chooseSecondaryFormation(
   ranked: NetworkShape[],
+  dominant: NetworkShape,
   selection?: NetworkFormationSelection | null,
-): { dominant: NetworkShape | null; secondary: NetworkShape | null } {
-  const selectedDominant = selection?.dominant && selection.dominant !== 'none'
-    ? ranked.find((shape) => shape.type === selection.dominant) || null
-    : null;
-  const dominant = selectedDominant || ranked[0] || null;
-  if (!dominant) return { dominant: null, secondary: null };
-
+): NetworkShape | null {
   const selectedSecondary = selection?.secondary && selection.secondary !== 'none' && selection.secondary !== dominant.type
     ? ranked.find((shape) => shape.type === selection.secondary) || null
     : null;
-  if (selectedSecondary) {
-    return { dominant, secondary: selectedSecondary };
-  }
+  if (selectedSecondary) return selectedSecondary;
 
   const dominantNodes = new Set(dominant.nodes);
   const scoreGap = (shape: NetworkShape): number =>
     (dominant.dominanceScore || 0) - (shape.dominanceScore || 0);
 
-  // Automatic secondary selection remains score-gated. Explicit HUD swaps,
-  // however, preserve the chosen pair instead of silently rejecting a
-  // secondary because its score is currently below the automatic gap.
   const disjointCandidate = ranked.find((shape) =>
     shape.type !== dominant.type &&
     scoreGap(shape) <= SECONDARY_DISJOINT_SCORE_GAP &&
@@ -149,9 +142,50 @@ function selectActiveGeometry(
     scoreGap(shape) <= SECONDARY_SCORE_GAP,
   );
 
+  return disjointCandidate || overlappingCandidate || null;
+}
+
+function selectActiveGeometry(
+  ranked: NetworkShape[],
+  selection?: NetworkFormationSelection | null,
+  preservedDominant?: NetworkShape | null,
+): { dominant: NetworkShape | null; secondary: NetworkShape | null } {
+  const selectedDominant = selection?.dominant && selection.dominant !== 'none'
+    ? ranked.find((shape) => shape.type === selection.dominant) || null
+    : null;
+
+  const rememberedSuppressed = preservedDominant?.active === false &&
+    preservedDominant.inactiveReason === 'network-disabled'
+    ? preservedDominant
+    : null;
+
+  if (rememberedSuppressed && !selectedDominant &&
+      (!selection?.dominant || selection.dominant === rememberedSuppressed.type)) {
+    const restored = ranked.find((shape) => shape.type === rememberedSuppressed.type);
+    if (restored) {
+      return {
+        dominant: restored,
+        secondary: chooseSecondaryFormation(ranked, restored, selection),
+      };
+    }
+
+    const inactiveDominant: NetworkShape = {
+      ...rememberedSuppressed,
+      active: false,
+      inactiveReason: 'network-disabled',
+    };
+    return {
+      dominant: inactiveDominant,
+      secondary: ranked.find((shape) => shape.type !== inactiveDominant.type) || null,
+    };
+  }
+
+  const dominant = selectedDominant || ranked[0] || null;
+  if (!dominant) return { dominant: null, secondary: null };
+
   return {
     dominant,
-    secondary: disjointCandidate || overlappingCandidate || null,
+    secondary: chooseSecondaryFormation(ranked, dominant, selection),
   };
 }
 
@@ -163,7 +197,7 @@ export function getFormationBonusMultiplier(
   const includesNode = (shape: NetworkShape | null): boolean =>
     Boolean(shape && (nodeIndex === undefined || nodeIndex < 0 || shape.nodes.includes(nodeIndex)));
 
-  if (network.dominantFormation?.type === type && includesNode(network.dominantFormation)) return 1;
+  if (network.dominantFormation?.active !== false && network.dominantFormation?.type === type && includesNode(network.dominantFormation)) return 1;
   if (network.secondaryFormation?.type === type && includesNode(network.secondaryFormation)) return 0.5;
   return 0;
 }
@@ -341,6 +375,7 @@ export function analyzeSphereNetwork(
   linkDistance = DEFAULT_LINK_DISTANCE,
   previousDominant: NetworkFormation = 'none',
   selection?: NetworkFormationSelection | null,
+  preservedDominant?: NetworkShape | null,
 ): SphereNetworkState {
   const indexes = aliveIndexes(nodes);
   const links: NetworkLink[] = [];
@@ -421,7 +456,7 @@ export function analyzeSphereNetwork(
     line,
   };
   const ranked = rankGeometryCandidates(candidates, previousDominant);
-  const active = selectActiveGeometry(ranked, selection);
+  const active = selectActiveGeometry(ranked, selection, preservedDominant);
   const activeTypes = new Set(
     [active.dominant, active.secondary]
       .filter((shape): shape is NetworkShape => Boolean(shape))
