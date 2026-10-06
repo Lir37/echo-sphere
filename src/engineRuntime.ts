@@ -1,7 +1,7 @@
 import type { AbilityType, SphereType } from './gameData';
 import type { GameState, SphereEntity, Vec } from './engineTypes';
 import { buildRuntimeNetworkNodes } from './networkRuntime';
-import { analyzeSphereNetwork, type SphereNetworkState, type NetworkFormationSelection } from './network';
+import { analyzeSphereNetwork, type SphereNetworkState, type NetworkShape } from './network';
 import { nextRandom } from './rng';
 
 export function dist(a: Vec, b: Vec): number {
@@ -53,28 +53,47 @@ export function getSphereFinalIndex(s: GameState, type: SphereType): number | nu
 
 export function getNetworkFrame(s: GameState): SphereNetworkState {
   if (s.networkFrame?.frameId === s.networkFrameId) return s.networkFrame.network;
-  // Keep the previous frame's Network object long enough to provide formation
-  // inertia. frameId still invalidates the cache, while the previous dominant
-  // type becomes the reference for the 10-point switch margin.
-  const previousDominant = s.networkFrame?.network.dominantFormation?.type || 'none';
+
+  // Preserve formation identity through temporary Network disruption.
+  const previousNetwork = s.networkFrame?.network;
+  const previousDominantShape = previousNetwork?.dominantFormation || null;
+  const previousDominant = previousDominantShape?.type || 'none';
+
+  let preservedDominant: NetworkShape | null = null;
+  if (previousDominantShape) {
+    const allNodesArePersistentSpheres = previousDominantShape.nodes.length > 0 &&
+      previousDominantShape.nodes.every((index) =>
+        index >= 0 &&
+        index < s.spheres.length &&
+        s.spheres[index]?.alive !== false
+      );
+    const currentlyDisabledNode = previousDominantShape.nodes.some((index) =>
+      index >= 0 &&
+      index < s.spheres.length &&
+      s.spheres[index]?.alive !== false &&
+      (s.spheres[index]?.networkDisabledTimer || 0) > 0
+    );
+
+    if (previousDominantShape.active === false ||
+        (allNodesArePersistentSpheres && currentlyDisabledNode)) {
+      preservedDominant = {
+        ...previousDominantShape,
+        active: false,
+        inactiveReason: 'network-disabled',
+      };
+    }
+  }
+
   const network = analyzeSphereNetwork(
     getNetworkNodes(s),
     220,
     previousDominant,
     s.networkFormationSelection,
+    preservedDominant,
   );
 
-  // A HUD swap is an explicit two-slot choice. Keep it as long as the
-  // selected formations still exist; if one disappears, normalize the choice
-  // to the formations the Network can actually sustain.
-  if (s.networkFormationSelection) {
-    const normalized: NetworkFormationSelection = {
-      dominant: network.dominantFormation?.type || 'none',
-      secondary: network.secondaryFormation?.type || 'none',
-    };
-    s.networkFormationSelection = normalized;
-  }
-
+  // Do not rewrite the selected slot order merely because the Dominant is
+  // temporarily unavailable. Recovery restores the same Dominant identity.
   s.networkFrame = { frameId: s.networkFrameId, network };
   return network;
 }
