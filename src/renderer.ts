@@ -491,9 +491,12 @@ function drawRune(ctx: CanvasRenderingContext2D, rune: GameState['runes'][number
   }
   ctx.globalAlpha = 1;
 
-  // damage numbers
+  // Damage readability: dense builds may generate many combat events, but
+  // Orbital hits are always rendered and rendered after the throttled general
+  // stream so their contact damage remains obvious to the player.
   for (let damageIndex=0; damageIndex<s.damageNumbers.length; damageIndex+=damageStride) {
     const dn=s.damageNumbers[damageIndex];
+    if (dn.sourceSphereType === 'orbital') continue;
     const alpha = Math.min(1, dn.life / dn.maxLife * 1.5);
     ctx.globalAlpha = alpha;
     ctx.fillStyle = dn.crit ? '#ffd166' : '#e8f6ff';
@@ -502,7 +505,18 @@ function drawRune(ctx: CanvasRenderingContext2D, rune: GameState['runes'][number
     ctx.font = `bold ${dn.crit ? 20 : 14}px system-ui, sans-serif`;
     ctx.textAlign = 'center';
     ctx.fillText(String(dn.value), dn.pos.x, dn.pos.y);
+  }
+  for (let damageIndex=0; damageIndex<s.damageNumbers.length; damageIndex+=1) {
+    const dn=s.damageNumbers[damageIndex];
+    if (dn.sourceSphereType !== 'orbital') continue;
+    const alpha = Math.min(1, dn.life / dn.maxLife * 1.5);
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = dn.crit ? '#ffd166' : '#e8f6ff';
+    ctx.shadowColor = dn.crit ? '#ff7a3d' : '#39d8ff';
     ctx.shadowBlur=0;
+    ctx.font = `bold ${dn.crit ? 20 : 14}px system-ui, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText(String(dn.value), dn.pos.x, dn.pos.y);
   }
   ctx.globalAlpha = 1;
 
