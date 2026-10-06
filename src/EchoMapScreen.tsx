@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { REGION_CHALLENGES, REGION_POCKETS, getRegionChallengeProgress, loadRegionChallengeCompletions, loadRegionEndlessUnlock, loadRegionStabilized, type RegionChallengeId, type RegionMode } from './region';
 import { CHARACTER_DEFS } from './characters';
 import { loadCharacterId } from './persistence';
@@ -19,6 +20,7 @@ export default function EchoMapScreen({
   onCharacters: () => void;
   onBack: () => void;
 }) {
+  const [regionOpen, setRegionOpen] = useState(false);
   const completed = loadRegionChallengeCompletions();
   const progress = getRegionChallengeProgress();
   const endlessUnlocked = loadRegionEndlessUnlock();
@@ -34,15 +36,15 @@ export default function EchoMapScreen({
   };
 
   return (
-    <div className="es-map-screen">
+    <div className={'es-map-screen ' + (regionOpen ? 'is-region-open' : 'is-region-overview')}>
       <header className="es-map-header">
-        <button type="button" className="es-map-back" onClick={onBack}>
+        <button type="button" className="es-map-back" onClick={() => { if (regionOpen) setRegionOpen(false); else onBack(); }}>
           <span>‹</span>
           {lang === 'ru' ? 'К МЕНЮ' : 'MENU'}
         </button>
         <div className="text-center">
           <div className="es-map-title">{lang === 'ru' ? 'КАРТА ЭХА' : 'ECHO MAP'}</div>
-          <div className="es-map-subtitle">{lang === 'ru' ? 'Собирай осколки. Открывай формы. Углубляйся в Эхо.' : 'Collect fragments. Open forms. Descend into the Echo.'}</div>
+          <div className="es-map-subtitle">{regionOpen ? (lang === 'ru' ? 'РЕГИОН В ФОКУСЕ' : 'REGION IN FOCUS') : (lang === 'ru' ? 'ЗВЁЗДНОЕ ПОЛЕ' : 'STAR FIELD')}</div>
         </div>
         <button type="button" className="es-map-character" onClick={onCharacters}>
           <span className="es-map-character-orb" style={{ ['--map-char' as string]: character.color }}>✦</span>
@@ -57,6 +59,13 @@ export default function EchoMapScreen({
         <div className="es-map-space">
           <div className="es-map-stars" />
           <div className="es-map-grid" />
+          <div className="es-map-background-bodies" aria-hidden="true">
+            <span className="es-map-background-body echo-body-1" />
+            <span className="es-map-background-body echo-body-2" />
+            <span className="es-map-background-body echo-body-3" />
+            <span className="es-map-background-body echo-body-4" />
+            <span className="es-map-background-body echo-body-5" />
+          </div>
 
           <svg className="es-map-orbits" viewBox="0 0 1000 700" aria-hidden="true">
             <ellipse cx="500" cy="340" rx="285" ry="175" />
@@ -75,7 +84,7 @@ export default function EchoMapScreen({
             </span>
           ))}
 
-          <button type="button" className="es-map-region-node" onClick={() => onStartRun('stabilization', 'none')} aria-label={lang === 'ru' ? 'Начать стабилизацию Резонансного бассейна' : 'Start Resonance Basin stabilization'}>
+          <button type="button" className="es-map-region-node" onClick={() => { if (!regionOpen) setRegionOpen(true); else onStartRun('stabilization', 'none'); }} aria-label={regionOpen ? (lang === 'ru' ? 'Начать стандартную стабилизацию Резонансного бассейна' : 'Start Resonance Basin stabilization') : (lang === 'ru' ? 'Приблизить Резонансный бассейн' : 'Approach Resonance Basin')}>
             <span className="es-map-planet-ring ring-outer" />
             <span className="es-map-planet-ring ring-mid" />
             <span className="es-map-planet" />
@@ -89,19 +98,21 @@ export default function EchoMapScreen({
           {REGION_CHALLENGES.map((challenge, index) => {
             const done = completed.includes(challenge.id);
             const meta = challengeCopy[challenge.id];
+            const locked = !stabilized;
             return (
               <button
                 type="button"
                 key={challenge.id}
-                className={`es-map-satellite ${challengePositions[index]}`}
+                className={'es-map-satellite ' + challengePositions[index] + (locked ? ' is-locked' : '') + (done ? ' is-complete' : '')}
+                disabled={locked}
                 style={{ ['--satellite-color' as string]: meta.accent }}
-                onClick={() => onStartRun('stabilization', challenge.id)}
+                onClick={() => !locked && onStartRun('stabilization', challenge.id)}
               >
                 <span className="es-map-satellite-orbit" />
                 <span className="es-map-satellite-core">◈</span>
                 <span className="es-map-satellite-copy">
                   <small>{challenge.name[lang]}</small>
-                  <b>{done ? (lang === 'ru' ? 'ПРОЙДЕНО' : 'CLEARED') : meta.kicker[lang]}</b>
+                  <b>{done ? (lang === 'ru' ? 'ПРОЙДЕНО' : 'CLEARED') : locked ? (lang === 'ru' ? 'ПОСЛЕ СТАНДАРТА' : 'AFTER BASE RUN') : meta.kicker[lang]}</b>
                   <em>{challenge.desc[lang]}</em>
                 </span>
               </button>
@@ -135,7 +146,7 @@ export default function EchoMapScreen({
             <div className="es-map-info-kicker">{lang === 'ru' ? 'ТЕКУЩИЙ СИГНАЛ' : 'CURRENT SIGNAL'}</div>
             <h2>{lang === 'ru' ? 'Резонансный бассейн' : 'Resonance Basin'}</h2>
             <p>{lang === 'ru'
-              ? 'Центральный регион-узел. Сначала стабилизируй его. Затем пройди три орбитальных испытания. Каждый маршрут меняет правила боя, а не просто повышает числа.'
+              ? 'Звёздное поле показывает мир Эха. Сначала стабилизируй регион, затем открой три испытания и только после них войди в Бесконечное ядро.'
               : 'The central region node. Stabilize it first, then clear the three orbital challenges. Each route changes how the run plays, not just the numbers.'}</p>
           </div>
 
