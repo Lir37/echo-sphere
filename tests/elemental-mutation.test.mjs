@@ -119,8 +119,8 @@ test('Elemental damage numbers are color-coded and Crit remains distinct',()=>{
   assert.ok(renderer.includes("dn.element === 'freeze'"));
   assert.ok(renderer.includes("dn.element === 'poison'"));
   assert.ok(renderer.includes("dn.crit ? '#ffd166'"));
-  assert.match(enemies,/pushStatusDamageNumber\\(s, e, e\\.fireDamageNumberAccumulator, 'fire'\\)/);
-  assert.match(enemies,/pushStatusDamageNumber\\(s, e, e\\.poisonDamageNumberAccumulator, 'poison'\\)/);
+  assert.ok(enemies.includes("pushStatusDamageNumber(s, e, e.fireDamageNumberAccumulator, 'fire')"));
+  assert.ok(enemies.includes("pushStatusDamageNumber(s, e, e.poisonDamageNumberAccumulator, 'poison')"));
 });
 test('Echo Freeze Mutation I is distinct from the existing Level III rule',()=>{
   assert.match(progression,/Фазовый залп/);
