@@ -4117,3 +4117,26 @@ Orbital elemental presentation:
 - Fire / Freeze / Poison use distinct visible trails on the combat elements;
 - main orbital rails remain in the existing 2.5D visual language.
 ======================================================================
+
+
+======================================================================
+2026-10-06 — BALANCE AUDIT FINAL VALIDATION
+======================================================================
+
+FINAL IMPLEMENTATION HEAD:
+37a7e79f6010d7538e8e6892f3049790f263497a
+
+FINAL BALANCE CONTRACT:
+- Orbital base damage multiplier is 0.72.
+- Orbital early contact envelope is widened for the L1/L2 dual-ring start.
+- Orbital DPS display uses real orbital pass rate rather than special-sphere
+  cadence, so the HUD no longer overstates Orbital output.
+- Chain primary target receives its first full damage hit before secondary jumps.
+- Orbital Mutation I combat elements inherit Fire/Freeze/Poison colors and emit
+  distinct geometric elemental trails.
+- Role differentiation remains intentional; Spheres are not forced into equal
+  single-target DPS.
+
+CI:
+GitHub Actions #1659: SUCCESS.
+======================================================================
