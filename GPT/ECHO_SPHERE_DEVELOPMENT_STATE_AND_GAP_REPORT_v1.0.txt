@@ -1548,3 +1548,57 @@ Human APK PlayerCheck of the exact 37a7e79f6010d7538e8e6892f3049790f263497a APK:
 3) Chain primary target HP reduction.
 4) Existing 6-Sphere + 5+ enemy Chain/Aura/Orbital FPS gate.
 ======================================================================
+
+
+
+======================================================================
+2026-10-06 — STAGE / REGION SYSTEM DESIGN STATUS
+======================================================================
+
+[PLANNED / NOT IMPLEMENTED]
+The project now has an approved stage/content layer above the existing
+combat and Network systems.
+
+Planned:
+- named Regions instead of numbered Levels;
+- Region Stabilization: 25-35 min, default 30 min;
+- 4-8 Spatial Pockets per Region;
+- local Field Radar and nearby POIs;
+- Region-specific enemy ecology and regional rules;
+- Region Endless unlocked after first clear;
+- THE CONVERGENCE cross-Region Endless after campaign completion;
+- Challenge Contracts;
+- Mastery Challenges;
+- Region Archive/Lore records;
+- Character-region contextual lore.
+
+FORMATION FOLLOW [PLANNED / NOT IMPLEMENTED]
+- separate toggle from LOCK;
+- activatable only near Formation Centroid;
+- when active, all active Spheres receive the same Core displacement;
+- Sphere local offsets remain authoritative;
+- Network topology/Geometry remains stable during translation;
+- FOLLOW remains active after leaving the original centroid;
+- LOCK remains independent and continues to control Sphere editing only;
+- Dash/teleport translate the formation atomically by default.
+
+IMPORTANT
+No existing Sphere / Network / Geometry / Resonance mechanics were removed
+or replaced by this design addition.
+
+NEXT MAJOR IMPLEMENTATION SLICE
+One authored Region:
+- 30-minute Stabilization;
+- Spatial Pockets;
+- mobile POIs;
+- one regional rule;
+- enemy ecology;
+- bosses;
+- Region Endless;
+- Challenges;
+- first lore;
+- FOLLOW mode.
+
+This section is a design status update, not a claim that the above systems
+already exist in code.
+======================================================================
