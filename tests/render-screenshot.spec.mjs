@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import fs from 'node:fs/promises';
 
-test('capture the actual rendered game after pressing Play', async ({ page }, testInfo) => {
+test('capture the actual rendered game after navigating the Echo Map', async ({ page }, testInfo) => {
   const consoleErrors = [];
   page.on('console', (message) => {
     if (message.type() === 'error') consoleErrors.push(message.text());
@@ -14,9 +14,13 @@ test('capture the actual rendered game after pressing Play', async ({ page }, te
 
   // CI runs with an English browser locale, but support both translations so
   // the test follows the real UI rather than bypassing the menu.
-  const playButton = page.locator('button.es-main-play').first();
-  await expect(playButton).toBeVisible();
-  await playButton.click();
+  const mapEntry = page.locator('button.es-main-map-entry').first();
+  await expect(mapEntry).toBeVisible();
+  await mapEntry.click();
+
+  const regionNode = page.locator('button.es-map-region-node').first();
+  await expect(regionNode).toBeVisible();
+  await regionNode.click();
 
   const canvas = page.locator('canvas').first();
   await expect(canvas).toBeVisible();
