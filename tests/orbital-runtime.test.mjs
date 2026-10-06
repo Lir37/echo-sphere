@@ -26,6 +26,12 @@ test('Orbital contact is latched per element so repeated cadence checks cannot r
   assert.match(engine, /contactLatch\.add\(key\)/);
   assert.match(engine, /for \(const key of Array\.from\(contactLatch\)/);
 });
+test('Orbital DPS estimate uses real orbital pass rate rather than special-sphere cadence', () => {
+  const engine = fs.readFileSync(new URL('../src/engineSpheres.ts', import.meta.url), 'utf8');
+  assert.match(engine, /const angularSpeed = \(1\.8 \+ Math\.min\(2\.4/);
+  assert.match(engine, /const passRate = satellites \* angularSpeed \/ \(Math\.PI \* 2\)/);
+  assert.doesNotMatch(engine, /satellites \* 2\.2 \* mods\.rotationSpeed/);
+});
 test('Orbital mutations expose clear element-colored combat-element trails', () => {
   const visual = read('src/spheres/orbitalVisual.ts');
   assert.match(visual, /drawOrbitalElementTrail/);
