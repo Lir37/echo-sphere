@@ -21,7 +21,7 @@ import {
   getArtifactSetBehavior,
   pickArtifactChoices,
 } from './artifactSystem';
-import { sphereLevel, sphereModifiers } from './sphereProgression';
+import { sphereLevel, sphereModifiers, getSphereElementForBranch } from './sphereProgression';
 import { getSphereNetworkProfile, getLinkedNodeIndexes, getFormationBonusMultiplier } from './network';
 import { nextRandom } from './rng';
 import { RUNE_DEFS, type RuneType } from './runes';
@@ -174,6 +174,7 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
       actual *= 1.22;
     }
   }
+  if (fromSphere && s.player.timestopTimer > 0 && getAbilityBranchId(s, 'timestop', 4) === 'timestop_echo_phase') actual *= 1.18;
   const contextualCritChance = getContextualCritChance(getCritChance(s, fromSphere), {
     hunterMarked: Boolean(
       fromSphere
@@ -210,7 +211,7 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
   }
 
   // predator claw: every 5th hit
-  if (fromSphere && getArtifactSetBehavior(s).singularityPath && s.spheres.filter((x) => x.alive).every((x) => x.type === fromSphere.type)) {
+  if (fromSphere && allowSphereProc && getArtifactSetBehavior(s).singularityPath && s.spheres.filter((x) => x.alive).every((x) => x.type === fromSphere.type)) {
     if (isCrit && enemy.hp > 0) {
       const nearby = s.enemies.filter((other) => other !== enemy && other.hp > 0 && dist(other.pos, enemy.pos) <= 72);
       for (const other of nearby.slice(0, 3)) dealDamageToEnemy(s, other, actual * 0.20, fromSphere, false);
@@ -224,7 +225,7 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
 
   if (fromSphere) {
     const mods = sphereModifiers(s, fromSphere.type, fromSphere);
-    if (mods.shatter > 0 && enemy.freezeTimer > 0) {
+    if (allowSphereProc && mods.shatter > 0 && enemy.freezeTimer > 0) {
       const burst = actual * (0.20 + 0.08 * mods.shatter);
       for (const nearby of s.enemies) {
         if (nearby !== enemy && nearby.hp > 0 && dist(nearby.pos, enemy.pos) <= 48) {
@@ -669,7 +670,7 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
     }
   }
 
-  const impactCount = enemy.isBoss ? 10 : isCrit ? 9 : enemy.isElite ? 7 : 4;
+  const impactCount = !fromSphere ? 1 : allowSphereProc ? (enemy.isBoss ? 10 : isCrit ? 9 : enemy.isElite ? 7 : 4) : 1;
   for (let i = 0; i < impactCount; i++) {
     const angle = nextRandom(s) * Math.PI * 2;
     const speed = rand(s,isCrit ? 120 : 80, isCrit ? 260 : 180);
@@ -686,14 +687,22 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
     s.screenShake = Math.min(0.24, s.screenShake + 0.06);
   }
 
-  // damage number
-  s.damageNumbers.push({
-    pos: { x: enemy.pos.x + rand(s,-8, 8), y: enemy.pos.y - enemy.radius - 5 },
-    value: Math.round(actual), life: 0.8, maxLife: 0.8, crit: isCrit,
-    vel: { x: rand(s,-30, 30), y: -60 },
-    sourceSphereType: fromSphere?.type,
-  });
-  if (isCrit) playSound('crit'); else if (fromSphere) playSound('hit');
+  // Primary/authoritative hits keep full feedback; recursive secondary damage stays real
+  // but does not create an audio, particle and number storm.
+  if (fromSphere && allowSphereProc) {
+    const branchElement = getSphereElementForBranch(s.player.sphereBranches?.[fromSphere.type]);
+    const mods = sphereModifiers(s, fromSphere.type, fromSphere);
+    const element = branchElement ?? (mods.fire > 0 ? 'fire' : mods.freeze > 0 ? 'freeze' : mods.poison > 0 ? 'poison' : undefined);
+    if (s.damageNumbers.length >= 72) s.damageNumbers.splice(0, s.damageNumbers.length - 71);
+    s.damageNumbers.push({
+      pos: { x: enemy.pos.x + rand(s,-8, 8), y: enemy.pos.y - enemy.radius - 5 },
+      value: Math.round(actual), life: 0.8, maxLife: 0.8, crit: isCrit,
+      vel: { x: rand(s,-30, 30), y: -60 },
+      sourceSphereType: fromSphere.type,
+      element,
+    });
+    if (isCrit) playSound('crit'); else playSound('hit');
+  }
   // vampire
   if (fromSphere) {
     const vPct = getVampirePercent(s);
