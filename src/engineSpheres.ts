@@ -488,12 +488,9 @@ function updateOrbitalSphere(
         satellite,
         count,
       );
-      const endAngle = orbitalElementAngle(
-        ring === 'inner' ? innerAngles[satellite] : outerAngles[satellite],
-        ring,
-        satellite,
-        count,
-      );
+      const endAngle = ring === 'inner'
+        ? innerAngles[satellite]
+        : outerAngles[satellite];
 
       if (!isAngleOnOrbitalSweep(enemyAngle, startAngle, endAngle, direction, angularTolerance)) return;
 
