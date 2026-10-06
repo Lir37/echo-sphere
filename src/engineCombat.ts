@@ -30,6 +30,7 @@ import type { GameState, SphereEntity, EnemyEntity, Vec } from './engineTypes';
 import type { ArtifactId } from './gameData';
 import { dist, rand, getNetworkFrame, getAbilityBranchId, getNearestSphere, getSphereFinalIndex } from './engineRuntime';
 import { chargeResonance } from './engineResonance';
+import { getRegionRepulsionMultiplier } from './region';
 
 function preFinalBranchPower(s: GameState, type: SphereEntity['type']): number {
   const level = sphereLevel(s, type);
