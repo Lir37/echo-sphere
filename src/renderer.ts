@@ -27,6 +27,7 @@ import { renderSphereModifierVfx } from './spheres/modifierVisual';
 import { renderSphereElementalVfx } from './spheres/elementalVisual';
 import { drawEnemyCreature, drawBossCreature } from './enemies/enemyVisual';
 import { renderSphereMutationVfx, renderSphereProjectileVfx, renderChainLightningVfx } from './spheres/mutationVisual';
+import { REGION_POCKETS } from './region';
 
 // ===== Origami / Paper Craft Style =====
 // Warm backgrounds, faceted folded-paper shapes, fold lines, drop shadows.
@@ -359,6 +360,7 @@ export function render(ctx: CanvasRenderingContext2D, s: GameState, backingWidth
   ctx.translate(canvasW / 2 - s.camera.x + shakeX, canvasH / 2 - s.camera.y + shakeY);
 
   drawVoidField(ctx, s.worldWidth, s.worldHeight, theme, -s.worldWidth / 2, -s.worldHeight / 2, s.player.pos.x, s.player.pos.y);
+  drawRegionLayer(ctx,s);
 
   // world bounds
   ctx.strokeStyle = theme.border;
@@ -591,6 +593,8 @@ function drawRune(ctx: CanvasRenderingContext2D, rune: GameState['runes'][number
     });
   }
 }
+
+function drawRegionLayer(ctx:CanvasRenderingContext2D,s:GameState):void{if(!s.region)return;ctx.save();for(const p of REGION_POCKETS){const active=p.id===s.region.pocketId;ctx.globalAlpha=active?.16:.05;ctx.strokeStyle=p.accent;ctx.lineWidth=active?2:1;ctx.setLineDash(active?[12,8]:[5,12]);ctx.beginPath();ctx.arc(p.center.x,p.center.y,p.radius,0,Math.PI*2);ctx.stroke();ctx.setLineDash([])}for(const p of s.region.pois){if(!p.alive)continue;const color=p.type==='elite_nest'||p.type==='rupture'?'#ff6b6b':p.type==='boss_trace'?'#ffb84d':'#55e6c1';ctx.globalAlpha=.25;ctx.fillStyle=color;ctx.beginPath();ctx.arc(p.pos.x,p.pos.y,40+Math.sin(s.time*4+p.id)*4,0,Math.PI*2);ctx.fill();ctx.globalAlpha=.9;ctx.strokeStyle=color;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(p.pos.x,p.pos.y-11);ctx.lineTo(p.pos.x+11,p.pos.y);ctx.lineTo(p.pos.x,p.pos.y+11);ctx.lineTo(p.pos.x-11,p.pos.y);ctx.closePath();ctx.stroke()}ctx.restore()}
 
 function drawCharacterHud(_ctx: CanvasRenderingContext2D, _s: GameState, _canvasW: number, _canvasH: number): void {
   // Character state is communicated by world indicators and the main HUD.

@@ -1,4 +1,5 @@
 import { Fragment, useEffect, useRef, useState } from 'react';
+import { loadRegionEndlessUnlock, REGION_CHALLENGES, type RegionChallengeId, type RegionMode } from './region';
 import { Settings, Store, Trophy, Play, ArrowLeft, RotateCcw, Award, UserRound, BarChart3, Sparkles, Package, Network, X, BookOpen } from 'lucide-react';
 import { translations, type Lang, type TranslationKey } from './i18n';
 import {
@@ -54,6 +55,8 @@ export default function App() {
   const [difficulty, setDifficulty] = useState<Difficulty>(() => loadDifficulty());
   const [soundOn, setSoundOn] = useState<boolean>(() => loadSound());
   const [handedness, setHandedness] = useState<Handedness>(() => loadHandedness());
+  const [regionMode, setRegionMode] = useState<RegionMode>('stabilization');
+  const [regionChallenge, setRegionChallenge] = useState<RegionChallengeId>('none');
 
   const t = (k: TranslationKey) => translations[lang][k];
 
@@ -67,8 +70,8 @@ export default function App() {
 
   return (
     <div className="es-app min-h-screen w-full text-[#dcecff] overflow-hidden flex items-center justify-center">
-      {screen === 'menu' && <Menu lang={lang} t={t} difficulty={difficulty} setDifficulty={setDifficulty} onPlay={() => setScreen('game')} onShop={() => { setShop(loadShop()); setGold(loadGold()); setScreen('shop'); }} onCharacters={() => { setGold(loadGold()); setScreen('characters'); }} onLeader={() => setScreen('leaderboard')} onSettings={() => setScreen('settings')} onAchievements={() => setScreen('achievements')} onKnowledge={() => setScreen('knowledge')} />}
-      {screen === 'game' && <GameScreen lang={lang} t={t} shop={shop} difficulty={difficulty} handedness={handedness} onExit={() => { setShop(loadShop()); setGold(loadGold()); setScreen('menu'); }} />}
+      {screen === 'menu' && <Menu lang={lang} t={t} difficulty={difficulty} setDifficulty={setDifficulty} regionMode={regionMode} setRegionMode={setRegionMode} regionChallenge={regionChallenge} setRegionChallenge={setRegionChallenge} onPlay={() => setScreen('game')} onShop={() => { setShop(loadShop()); setGold(loadGold()); setScreen('shop'); }} onCharacters={() => { setGold(loadGold()); setScreen('characters'); }} onLeader={() => setScreen('leaderboard')} onSettings={() => setScreen('settings')} onAchievements={() => setScreen('achievements')} onKnowledge={() => setScreen('knowledge')} />}
+      {screen === 'game' && <GameScreen lang={lang} t={t} shop={shop} difficulty={difficulty} handedness={handedness} regionMode={regionMode} regionChallenge={regionChallenge} onExit={() => { setShop(loadShop()); setGold(loadGold()); setScreen('menu'); }} />}
       {screen === 'shop' && <ShopScreen lang={lang} t={t} shop={shop} setShop={setShop} onBack={() => { setGold(loadGold()); setScreen('menu'); }} />}
       {screen === 'characters' && <CharacterSelect lang={lang} gold={gold} onGoldChange={(nextGold) => { setGold(nextGold); setShop(loadShop()); }} onBack={() => { setGold(loadGold()); setShop(loadShop()); setScreen('menu'); }} />}
       {screen === 'leaderboard' && <LeaderboardScreen lang={lang} t={t} onBack={() => setScreen('menu')} />}
@@ -83,6 +86,8 @@ export default function App() {
 function Menu({ lang, t, difficulty, setDifficulty, onPlay, onShop, onCharacters, onLeader, onSettings, onAchievements, onKnowledge }: {
   lang: Lang; t: (k: TranslationKey) => string;
   difficulty: Difficulty; setDifficulty: (d: Difficulty) => void;
+  regionMode: RegionMode; setRegionMode: (m: RegionMode) => void;
+  regionChallenge: RegionChallengeId; setRegionChallenge: (c: RegionChallengeId) => void;
   onPlay: () => void; onShop: () => void; onCharacters: () => void; onLeader: () => void; onSettings: () => void; onAchievements: () => void; onKnowledge: () => void;
 }) {
   const [name, setName] = useState(() => loadName());
@@ -138,6 +143,18 @@ function Menu({ lang, t, difficulty, setDifficulty, onPlay, onShop, onCharacters
 
           </div>
 
+          <div className="mt-4 rounded-xl border border-[#243b55] bg-[#07111d]/80 p-3">
+            <div className="text-[9px] uppercase tracking-[.18em] text-[#7f9bb8] mb-2">{lang === 'ru' ? 'РЕЖИМ РЕГИОНА' : 'REGION MODE'}</div>
+            <div className="flex gap-2">
+              <button onClick={() => setRegionMode('stabilization')} className={`flex-1 rounded-lg border px-2 py-2 text-[9px] font-bold ${regionMode==='stabilization'?'border-[#39d8ff]/60 bg-[#39d8ff]/10 text-[#dcecff]':'border-[#243b55] text-[#7f9bb8]'}`}>{lang === 'ru' ? 'СТАБИЛИЗАЦИЯ · 30:00' : 'STABILIZATION · 30:00'}</button>
+              <button disabled={!loadRegionEndlessUnlock()} onClick={() => setRegionMode('endless')} className={`flex-1 rounded-lg border px-2 py-2 text-[9px] font-bold ${regionMode==='endless'?'border-[#ffb84d]/60 bg-[#ffb84d]/10 text-[#ffb84d]':'border-[#243b55] text-[#7f9bb8]'} ${!loadRegionEndlessUnlock()?'opacity-40':''}`}>ENDLESS {!loadRegionEndlessUnlock() && '· LOCKED'}</button>
+            </div>
+            <div className="text-[9px] uppercase tracking-[.18em] text-[#7f9bb8] mt-3 mb-2">{lang === 'ru' ? 'КОНТРАКТ' : 'CONTRACT'}</div>
+            <div className="grid grid-cols-3 gap-1.5">
+              {REGION_CHALLENGES.map(c => <button key={c.id} onClick={() => setRegionChallenge(c.id)} title={c.desc[lang]} className={`rounded-lg border px-2 py-2 text-[8px] font-bold ${regionChallenge===c.id?'border-[#55e6c1]/60 bg-[#55e6c1]/10 text-[#55e6c1]':'border-[#243b55] text-[#7f9bb8]'}`}>{c.name[lang]}</button>)}
+            </div>
+          </div>
+
           <div className="es-main-name">
             <span>ID</span>
             <input value={name} onChange={(e) => setName(e.target.value.slice(0, 16))} placeholder={t('namePlaceholder')} />
@@ -165,8 +182,8 @@ function Menu({ lang, t, difficulty, setDifficulty, onPlay, onShop, onCharacters
 }
 
 
-function GameScreen({ lang, t, shop, difficulty, handedness, onExit }: {
-  lang: Lang; t: (k: TranslationKey) => string; shop: ShopState; difficulty: Difficulty; handedness: Handedness; onExit: () => void;
+function GameScreen({ lang, t, shop, difficulty, handedness, regionMode, regionChallenge, onExit }: {
+  lang: Lang; t: (k: TranslationKey) => string; shop: ShopState; difficulty: Difficulty; handedness: Handedness; regionMode: RegionMode; regionChallenge: RegionChallengeId; onExit: () => void;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const renderer3dRef = useRef<Echo3DRenderer | null>(null);
@@ -178,7 +195,7 @@ function GameScreen({ lang, t, shop, difficulty, handedness, onExit }: {
   const lastTimeRef = useRef<number>(0);
   const uiAccumulatorRef = useRef(0);
   const [, forceRender] = useState(0);
-  const [gameOverData, setGameOverData] = useState<{ time: number; wave: number; gold: number; rank: number; isNewRecord: boolean } | null>(null);
+  const [gameOverData, setGameOverData] = useState<{ time: number; wave: number; gold: number; rank: number; isNewRecord: boolean; regionClear: boolean } | null>(null);
   const [paused, setPaused] = useState(false);
   const [pauseTab, setPauseTab] = useState<PauseTab>('stats');
   const [selectedArtifactSetId, setSelectedArtifactSetId] = useState<string | null>(null);
@@ -221,7 +238,7 @@ function GameScreen({ lang, t, shop, difficulty, handedness, onExit }: {
 
   useEffect(() => {
     const name = loadName() || translations[lang].namePlaceholder;
-    const s = createInitialState(shop, name, difficulty);
+    const s = createInitialState(shop, name, difficulty, undefined, regionMode, regionChallenge);
     stateRef.current = s;
     const tutorialActive = !loadTutorialCompleted();
     if (tutorialActive) {
@@ -292,7 +309,7 @@ function GameScreen({ lang, t, shop, difficulty, handedness, onExit }: {
           if (st.player.combo >= 50) unlockAchievement('combo_50');
           if (st.player.chestOpens >= 5) unlockAchievement('chest_5');
           if (st.player.dashCount >= 50) unlockAchievement('dash_50');
-          setGameOverData({ time, wave: st.wave, gold, rank, isNewRecord });
+          setGameOverData({ time, wave: st.wave, gold, rank, isNewRecord, regionClear: Boolean(st.region?.cleared) });
         }
 
         if (ENABLE_3D_RENDERER && renderer3dRef.current) {
@@ -437,12 +454,13 @@ function GameScreen({ lang, t, shop, difficulty, handedness, onExit }: {
       {gameOverData && (
         <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-50">
           <div className="text-center max-w-sm px-6">
-            <h2 className="text-4xl font-bold text-[#ff4d5d] mb-2">{t('gameOver')}</h2>
+            <h2 className={`text-4xl font-bold mb-2 ${gameOverData.regionClear ? 'text-[#55e6c1]' : 'text-[#ff4d5d]'}`}>{gameOverData.regionClear ? (lang === 'ru' ? 'РЕГИОН СТАБИЛИЗИРОВАН' : 'REGION STABILIZED') : t('gameOver')}</h2>
             {gameOverData.isNewRecord && <p className="text-2xl font-bold text-[#ffb84d] mb-4 animate-pulse">{t('newRecord')}</p>}
             <div className="bg-[#0d1726] border border-[#243b55] rounded-xl p-6 mb-6 space-y-2 text-left">
               <Row label={t('survived')} value={`${gameOverData.time} ${t('seconds')}`} />
               <Row label={t('wave')} value={`${gameOverData.wave}`} />
               <Row label={t('goldEarned')} value={`${gameOverData.gold}`} />
+              {gameOverData.regionClear && <Row label={lang === 'ru' ? 'ENDLESS' : 'ENDLESS'} value={lang === 'ru' ? 'РАЗБЛОКИРОВАН' : 'UNLOCKED'} />}
               {gameOverData.rank > 0 && gameOverData.rank <= 10 && <Row label={t('rank')} value={`#${gameOverData.rank}`} />}
             </div>
             <button onClick={onExit} className="px-8 py-3 rounded-xl bg-[#39d8ff]/20 border border-[#39d8ff]/40 text-[#dcecff] hover:bg-[#39d8ff]/30 transition w-full">{t('return')}</button>
@@ -1081,6 +1099,7 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
             </div>
           </div>
           <RadarHud st={st} />
+          {st.region && <div className="min-w-[120px] pt-1"><div className="text-[8px] uppercase tracking-[.12em] text-[#55e6c1] font-bold">RESONANCE BASIN</div><div className="text-[9px] font-bold text-[#dcecff]">{st.region.phaseName[lang]}</div><div className="text-[8px] text-[#7f9bb8]">{st.region.pocketId.toUpperCase()} · {st.region.mode.toUpperCase()}</div></div>}
           <div className="min-w-[64px] pt-1 text-right">
             <div className="es-hud-stat"><span className="es-stat-gem">◆</span>{Math.floor(st.xpOrbs.reduce((sum, orb) => sum + orb.radius, 0))}</div>
             <div className="es-hud-stat text-[#c8b7ff]"><span className="es-stat-gem">◇</span>{st.player.kills}</div>
