@@ -70,6 +70,8 @@ export function createInitialState(
     resonanceFormationCandidateKeys: [],
     resonanceEventsTriggered: 0,
     resonanceLineBurst: 0,
+    spheristChorusHits: 0,
+    berserkerRedlineHits: 0,
     resonanceRingTimer: 0,
     resonanceRingPulseTimer: 0,
     resonanceRingCursor: 0,
@@ -131,6 +133,7 @@ export function createInitialState(
     alchemistCatalystTimer: 0,
     alchemistReactionCount: 0,
     conductorOverdriveTimer: 0,
+    conductorDischargeFormation: 'none',
     oracleForecastKeys: [],
     oracleForecastRerollUsed: false,
     fractalFormationHistory: [],
@@ -141,6 +144,8 @@ export function createInitialState(
     fractalEchoStrength: 0.5,
     voidPhantomTimer: 0,
     voidPhantomPulseTimer: 0,
+    voidPhantomPulseCount: 0,
+    voidPhantomSource: null,
     voidPhantomPos: null,
   };
   return {
