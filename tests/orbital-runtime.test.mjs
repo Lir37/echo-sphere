@@ -26,6 +26,13 @@ test('Orbital contact is latched per element so repeated cadence checks cannot r
   assert.match(engine, /contactLatch\.add\(key\)/);
   assert.match(engine, /for \(const key of Array\.from\(contactLatch\)/);
 });
+test('Orbital mutations expose clear element-colored combat-element trails', () => {
+  const visual = read('src/spheres/orbitalVisual.ts');
+  assert.match(visual, /drawOrbitalElementTrail/);
+  assert.match(visual, /SPHERE_ELEMENT_META\[element\]\.color/);
+  assert.match(visual, /Mutation I\+ changes the combat elements themselves/);
+  assert.match(visual, /satelliteBaseColor/);
+});
 test('Orbital Level IV can register a large boss whose body overlaps the visible path', () => {
   const bodyRadius = Math.min(25, 25 * 0.19 + 4 * 0.8);
   const innerRadius = bodyRadius * 1.68;
