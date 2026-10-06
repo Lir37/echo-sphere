@@ -2354,7 +2354,7 @@ function drawModernSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: S
   }
   if (sphere.type === 'orbital') {
     const orbitalRadiusScale = getSphereRadius(s, sphere) / Math.max(1, sphere.radius);
-    renderOrbitalSphereRuntimeVfx(ctx, sphere, s.player, time, scale, s.enemies);
+    renderOrbitalSphereRuntimeVfx(ctx, sphere, s.player, time, scale, s.enemies, orbitalRadiusScale);
     renderSphereElementalVfx(ctx, sphere, s.player, time, scale);
     renderSphereModifierVfx(ctx, sphere, s.player, time, scale);
     drawNetworkDisabledIndicator(ctx, sphere, time);
