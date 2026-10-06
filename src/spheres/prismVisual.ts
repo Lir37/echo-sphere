@@ -1,4 +1,5 @@
 import type { PlayerState, SphereEntity } from '../engine';
+import { SPHERE_ELEMENT_META } from '../sphereProgression';
 import { core, drawSphereOrbit, finishDisabled, orbitPoint, stateColor, glow } from './visualHelpers';
 
 function drawPrismEmitter(ctx: CanvasRenderingContext2D, r: number, color: string, disabled: boolean): void {
@@ -37,18 +38,26 @@ export function renderPrismSphereRuntimeVfx(
   scale = 1,
 ): void {
   const st = stateColor(sphere, player, '#ff8de1', time);
+  const branch = player?.sphereBranches?.prism;
+  const finalId = (player?.evolutions || []).find((id: string) => id.startsWith('sphere:prism:7:'));
+  const finalIndex = finalId ? Number(finalId.split(':').pop()) : null;
+  const spectrumElement = branch === 'prism_spectrum'
+    ? finalIndex === 1 ? 'freeze' : finalIndex === 2 ? 'poison' : 'fire'
+    : null;
+  const elementColor = spectrumElement ? SPHERE_ELEMENT_META[spectrumElement].color : null;
+  const visualColor = elementColor && !st.resonance && !st.disabled ? elementColor : visualColor;
   const r = 24 * scale;
   const coreR = r;
   ctx.save();
   ctx.translate(sphere.pos.x, sphere.pos.y);
   ctx.globalCompositeOperation = 'lighter';
-  glow(ctx, r * 2.40, st.color, st.disabled ? .05 : .12);
-  drawSphereOrbit(ctx, r * 1.03, st.color, time * .16, st.disabled ? .12 : .66, 'prism', st.pulse);
+  glow(ctx, r * 2.40, visualColor, st.disabled ? .05 : .12);
+  drawSphereOrbit(ctx, r * 1.03, visualColor, time * .16, st.disabled ? .12 : .66, 'prism', st.pulse);
   ctx.globalCompositeOperation = 'source-over';
-  core(ctx, coreR, st.color, st.pulse);
+  core(ctx, coreR, visualColor, st.pulse);
 
   ctx.rotate(sphere.rotation || 0);
-  drawPrismEmitter(ctx, r, st.color, st.disabled);
+  drawPrismEmitter(ctx, r, visualColor, st.disabled);
 
   for (let i = 0; i < 2; i++) {
     const a = time * (.30 + i * .05) + i * Math.PI;
@@ -58,7 +67,7 @@ export function renderPrismSphereRuntimeVfx(
     ctx.rotate(a + Math.PI / 2);
     ctx.globalAlpha = st.disabled ? .06 : .42 * p.depth;
     ctx.fillStyle = '#07111d';
-    ctx.strokeStyle = st.color;
+    ctx.strokeStyle = visualColor;
     ctx.lineWidth = .85;
     ctx.beginPath();
     ctx.moveTo(0, -r * .09);
@@ -71,7 +80,7 @@ export function renderPrismSphereRuntimeVfx(
     ctx.restore();
   }
 
-  finishDisabled(ctx, r, st.color, st.disabled);
+  finishDisabled(ctx, r, visualColor, st.disabled);
   ctx.restore();
 }
 export default renderPrismSphereRuntimeVfx;
