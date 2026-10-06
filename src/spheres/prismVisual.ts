@@ -45,7 +45,7 @@ export function renderPrismSphereRuntimeVfx(
     ? finalIndex === 1 ? 'freeze' : finalIndex === 2 ? 'poison' : 'fire'
     : null;
   const elementColor = spectrumElement ? SPHERE_ELEMENT_META[spectrumElement].color : null;
-  const visualColor = elementColor && !st.resonance && !st.disabled ? elementColor : visualColor;
+  const visualColor = elementColor && !st.resonance && !st.disabled ? elementColor : st.color;
   const r = 24 * scale;
   const coreR = r;
   ctx.save();
