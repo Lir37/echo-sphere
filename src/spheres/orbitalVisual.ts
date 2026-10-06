@@ -84,6 +84,79 @@ function rgbaColor(hex: string, alpha: number): string {
   return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${alpha})`;
 }
 
+function drawOrbitalElementTrail(
+  ctx: CanvasRenderingContext2D,
+  element: NonNullable<ReturnType<typeof getSphereElementForBranch>>,
+  size: number,
+  angle: number,
+  alpha: number,
+  blade: boolean,
+): void {
+  const color = SPHERE_ELEMENT_META[element].color;
+  const trailScale = blade ? 1.0 : 0.86;
+
+  ctx.save();
+  ctx.rotate(angle);
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.strokeStyle = color;
+  ctx.fillStyle = rgbaColor(color, alpha * 0.26);
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  // The trail is deliberately geometric and chunky enough to survive mobile
+  // gameplay scale. Shape, not a faint blur, carries the elemental identity.
+  if (element === 'fire') {
+    ctx.globalAlpha = alpha * 0.82;
+    ctx.lineWidth = Math.max(1.1, size * 0.12);
+    ctx.beginPath();
+    ctx.moveTo(-size * 0.34 * trailScale, 0);
+    ctx.quadraticCurveTo(-size * 0.86 * trailScale, -size * 0.18, -size * 1.28 * trailScale, 0);
+    ctx.quadraticCurveTo(-size * 0.86 * trailScale, size * 0.18, -size * 0.34 * trailScale, 0);
+    ctx.stroke();
+    ctx.globalAlpha = alpha * 0.68;
+    ctx.lineWidth = Math.max(0.9, size * 0.08);
+    ctx.beginPath();
+    ctx.moveTo(-size * 0.50, -size * 0.08);
+    ctx.lineTo(-size * 0.96, 0);
+    ctx.lineTo(-size * 0.54, size * 0.10);
+    ctx.stroke();
+  } else if (element === 'freeze') {
+    ctx.globalAlpha = alpha * 0.86;
+    ctx.lineWidth = Math.max(1.0, size * 0.10);
+    for (const side of [-1, 1]) {
+      ctx.beginPath();
+      ctx.moveTo(-size * 0.26 * trailScale, side * size * 0.05);
+      ctx.lineTo(-size * 0.88 * trailScale, side * size * 0.18);
+      ctx.lineTo(-size * 1.28 * trailScale, side * size * 0.03);
+      ctx.stroke();
+    }
+    ctx.globalAlpha = alpha * 0.78;
+    ctx.beginPath();
+    ctx.moveTo(-size * 0.78, -size * 0.22);
+    ctx.lineTo(-size * 1.02, 0);
+    ctx.lineTo(-size * 0.78, size * 0.22);
+    ctx.stroke();
+  } else {
+    ctx.globalAlpha = alpha * 0.84;
+    ctx.lineWidth = Math.max(1.0, size * 0.095);
+    ctx.beginPath();
+    ctx.moveTo(-size * 0.30 * trailScale, 0);
+    ctx.quadraticCurveTo(-size * 0.74, -size * 0.20, -size * 1.15, -size * 0.04);
+    ctx.quadraticCurveTo(-size * 0.86, size * 0.20, -size * 0.30 * trailScale, 0);
+    ctx.stroke();
+    ctx.globalAlpha = alpha * 0.64;
+    ctx.fillStyle = rgbaColor(color, alpha * 0.42);
+    for (let i = 0; i < 3; i++) {
+      const px = -size * (0.58 + i * 0.25);
+      const py = (i - 1) * size * 0.14;
+      ctx.beginPath();
+      ctx.arc(px, py, Math.max(0.9, size * (0.08 - i * 0.015)), 0, TAU);
+      ctx.fill();
+    }
+  }
+  ctx.restore();
+}
+
 function drawSatellite(
   ctx: CanvasRenderingContext2D,
   x: number,
@@ -231,7 +304,9 @@ export function renderOrbitalSphereAttackersVfx(
   const r = 24 * scale;
   const level = Math.max(1, Math.min(7, sphere.visualTier || 1));
   const resonance = v.resonance > 0;
+  const branchElement = getSphereElementForBranch(branch);
   const color = resonance ? RESONANCE : BASE;
+  const satelliteBaseColor = branchElement ? SPHERE_ELEMENT_META[branchElement].color : color;
   const branch = player?.sphereBranches?.orbital;
   const extraElements =
     (player?.artifacts?.includes('orbital_crown') ? 1 : 0)
@@ -252,39 +327,30 @@ export function renderOrbitalSphereAttackersVfx(
       const localX = Math.cos(a) * radius;
       const localY = Math.sin(a) * radius;
       const depth = .74 + .26 * ((Math.sin(a) + 1) * .5);
-      drawSatellite(ctx, localX, localY, r * .20, color, depth, a, bladeMutation);
+      drawSatellite(ctx, localX, localY, r * .20, satelliteBaseColor, depth, a, bladeMutation);
 
       const element = getSphereElementForBranch(branch);
       const elementColor = element ? SPHERE_ELEMENT_META[element].color : null;
-      if (elementColor) {
+      if (element) {
+        const combatElementColor = elementColor || color;
+        // Mutation I+ changes the combat elements themselves, not only the
+        // outer Sphere. Make the elemental read obvious on every satellite.
         ctx.save();
         ctx.translate(localX, localY);
-        ctx.rotate(a + Math.PI / 2);
-        ctx.globalAlpha = depth * .72;
-        ctx.strokeStyle = elementColor;
-        ctx.lineWidth = 1.0;
-        if (element === 'fire') {
-          ctx.beginPath();
-          ctx.moveTo(-r * .10, 0);
-          ctx.quadraticCurveTo(0, -r * .16, r * .04, 0);
-          ctx.quadraticCurveTo(0, r * .12, -r * .08, 0);
-          ctx.stroke();
-        } else if (element === 'freeze') {
-          ctx.beginPath();
-          ctx.moveTo(-r * .09, 0);
-          ctx.lineTo(r * .09, 0);
-          ctx.moveTo(0, -r * .09);
-          ctx.lineTo(0, r * .09);
-          ctx.stroke();
-        } else {
-          ctx.beginPath();
-          ctx.arc(0, 0, r * .09, 0, TAU);
-          ctx.stroke();
-          ctx.beginPath();
-          ctx.arc(r * .10, -r * .04, r * .035, 0, TAU);
-          ctx.stroke();
-        }
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.globalAlpha = depth * .92;
+        ctx.strokeStyle = combatElementColor;
+        ctx.fillStyle = rgbaColor(combatElementColor, depth * .22);
+        ctx.lineWidth = Math.max(1.25, r * .075);
+        ctx.beginPath();
+        ctx.arc(0, 0, r * .18, 0, TAU);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(0, 0, r * .095, 0, TAU);
+        ctx.fill();
         ctx.restore();
+
+        drawOrbitalElementTrail(ctx, element, r * .20, a, depth, bladeMutation);
       }
 
       if (ring === 'inner' && i === 0 && v.attack > 0) {
