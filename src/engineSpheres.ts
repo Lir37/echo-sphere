@@ -581,7 +581,36 @@ let beamCount = Math.max(1, 1 + mods.multishot);
       for (const index of linked) {
         const relay = s.spheres[index];
         dealDamageToEnemy(s, target, damage * 0.42, relay, false);
-        if (status !== 'none') applyDirectSphereStatus(s, target, status, sphere);
+        if (status !== 'none') applyDirectSphereStatus(s, target, status, relay);
+
+        // Level-VII Prism Mirror finals now make their authored Ricochet/Echo
+        // modifiers real. Prism is beam-based, so the bounce is resolved here
+        // instead of passing through the projectile-only path.
+        const bounceCount = finalIndex === null ? 0 : Math.min(2, mods.ricochet);
+        const visited = new Set<EnemyEntity>([target]);
+        let bounceTarget: EnemyEntity = target;
+        for (let bounce = 0; bounce < bounceCount; bounce += 1) {
+          let next: EnemyEntity | null = null;
+          let nextDistance = Infinity;
+          for (const candidate of s.enemies) {
+            if (candidate.hp <= 0 || visited.has(candidate)) continue;
+            const d = dist(candidate.pos, bounceTarget.pos);
+            if (d < 115 && d < nextDistance) {
+              next = candidate;
+              nextDistance = d;
+            }
+          }
+          if (!next) break;
+          visited.add(next);
+          dealDamageToEnemy(s, next, damage * (bounce === 0 ? 0.30 : 0.24), relay, false);
+          if (status !== 'none') applyDirectSphereStatus(s, next, status, relay);
+          s.lightnings.push({ from: { ...bounceTarget.pos }, to: { ...next.pos }, life: 0.12 });
+          bounceTarget = next;
+        }
+        if (finalIndex === 2 && mods.echo > 0) {
+          dealDamageToEnemy(s, bounceTarget, damage * 0.18, relay, false);
+          if (status !== 'none') applyDirectSphereStatus(s, bounceTarget, status, relay);
+        }
         s.lightnings.push({ from: { ...relay.pos }, to: { ...target.pos }, life: 0.12 });
       }
     }
