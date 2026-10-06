@@ -974,3 +974,32 @@ ACCEPTANCE GATE:
 - Final automated CI: PENDING.
 - APK PlayerCheck remains the authority for real-device gameplay behavior.
 ======================================================================
+
+
+======================================================================
+2026-10-06 — FULL SPHERE BALANCE AUDIT / VISUAL FOLLOW-UP
+======================================================================
+
+[PASS] All 10 Sphere archetypes audited for progression, branch identity,
+       runtime wiring, final behavior and role-based effectiveness.
+[FIX] Orbital early output: base damage multiplier 0.50 -> 0.72.
+[FIX] Orbital early reliability: widened contact envelope.
+[FIX] Chain primary target now receives real first-hit damage.
+[PASS] Orbital mutation elements now use direct element colors and clear
+       Fire / Freeze / Poison trails.
+[PASS] No broad performance architecture rewrite.
+[PASS] Existing role differentiation retained.
+
+L1 diagnostic paper DPS, no external bonuses:
+Standard 11.5; Sniper 15.6; Shotgun 20.0; Chain 18.5 total multi-hit;
+Aura 14.4 per enemy; Orbital ~6.25 per ideal stationary path target;
+Prism 11.6; Gravity 12.6 per enemy; Pulse 20.9 per enemy; Void 9.6 baseline.
+
+These are diagnostic figures, not a claim that all Spheres should have equal
+single-target DPS. AoE/control/network value is intentionally separate.
+
+VALIDATION:
+Code/test revision CI: PASS.
+Documentation revision CI: PENDING.
+Human APK PlayerCheck remains final device acceptance gate.
+======================================================================
