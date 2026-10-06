@@ -87,6 +87,19 @@ function getLocale(): Locale {
 function localizeCanvasText(text: string): string {
   if (getLocale() === 'en') return text;
   let result = text;
+  const regionPhraseReplacements: Array<[string,string]> = [
+    ['RESONANCE BASIN','РЕЗОНАНСНЫЙ БАССЕЙН'],['REGION STABILIZED','РЕГИОН СТАБИЛИЗИРОВАН'],
+    ['FIRST RESONANCE','ПЕРВЫЙ РЕЗОНАНС'],['HOLLOW CONTOUR','ПУСТОЙ КОНТУР'],['PRESSURE FIELD','ЗОНА ДАВЛЕНИЯ'],
+    ['RESONANCE CACHE','ТАЙНИК РЕЗОНАНСА'],['BREACH NODE','УЗЕЛ ПРОБОЯ'],['ECHO RELAY','РЕЛЕ ЭХА'],
+    ['LOST SIGNAL','ПОТЕРЯННЫЙ СИГНАЛ'],['ELITE NEST','ГНЕЗДО ЭЛИТЫ'],['BOSS TRACE','СЛЕД БОССА'],
+    ['FRACTURED NETWORK','РАЗЛОМ СЕТИ'],['NETWORK FRACTURE','РАЗЛОМ СЕТИ'],
+    ['CONDUCTOR BREAK','РАЗРЫВ ПРОВОДНИКА'],['CONDUCTOR SURGE','ИМПУЛЬС ПРОВОДНИКА'],
+    ['GEOMETRY SHIFT','СДВИГ ГЕОМЕТРИИ'],['ARCHITECT SEAL','ПЕЧАТЬ АРХИТЕКТОРА'],
+    ['NULL FIELD','ПОЛЕ НУЛЯ'],['NULL SHOCK','УДАР НУЛЯ'],['STELLA GUARD','СТРАЖ СТЕЛЛЫ'],
+    ['STELLA JUDGEMENT','ПРИГОВОР СТЕЛЛЫ'],['CHORUS SYNC','СИНХРОНИЗАЦИЯ ХОРА'],['CHORUS PULSE','ИМПУЛЬС ХОРА'],
+    ['CLOSED TIME NETWORK','ЗАМКНУТАЯ СЕТЬ ВРЕМЕНИ'],['TEMPORAL CORE','ВРЕМЕННОЕ ЯДРО'],
+  ];
+  for (const [english, russian] of regionPhraseReplacements) result = result.replaceAll(english, russian);
   for (const [pattern, replacement] of RU_REPLACEMENTS) {
     result = result.replace(pattern, replacement);
   }
