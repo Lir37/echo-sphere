@@ -176,6 +176,7 @@ test('temporarily disabled Dominant Triangle keeps its slot identity and returns
     'triangle',
     { dominant: 'triangle', secondary: 'line' },
     { ...base.dominantFormation, active: false, inactiveReason: 'network-disabled' },
+    true,
   );
   assert.equal(suppressed.dominantFormation?.type, 'triangle');
   assert.equal(suppressed.dominantFormation?.active, false);
