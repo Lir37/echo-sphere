@@ -30,7 +30,7 @@ import type { GameState, SphereEntity, EnemyEntity, Vec } from './engineTypes';
 import {
   dist, rand, getSphereFinalIndex, getAbilityBranchId, getNetworkFrame
 } from './engineRuntime';
-import { getOrbitalRingCounts, orbitalElementAngle } from './spheres/orbitalGeometry';
+import { getOrbitalRingCounts, orbitalElementAngle, isAngleOnOrbitalSweep } from './spheres/orbitalGeometry';
 import {
   dealDamageToEnemy, onEnemyDeath, triggerEngineerRelay, consumeEngineerRelayBonus, emitSpherePulse
 } from './engineCombat';
@@ -364,42 +364,6 @@ function getActiveStatusEffect(s: GameState, sphere?: SphereEntity): 'none' | 'f
   return 'none';
 }
 
-function normalizeAnglePositive(angle: number): number {
-  const tau = Math.PI * 2;
-  return ((angle % tau) + tau) % tau;
-}
-
-function circularAngleDistance(a: number, b: number): number {
-  const tau = Math.PI * 2;
-  const delta = Math.abs(normalizeAnglePositive(a) - normalizeAnglePositive(b));
-  return Math.min(delta, tau - delta);
-}
-
-function isAngleOnOrbitalSweep(
-  targetAngle: number,
-  startAngle: number,
-  endAngle: number,
-  direction: 1 | -1,
-  tolerance: number,
-): boolean {
-  const tau = Math.PI * 2;
-  const travelled = direction === 1
-    ? normalizeAnglePositive(endAngle - startAngle)
-    : normalizeAnglePositive(startAngle - endAngle);
-  const targetTravel = direction === 1
-    ? normalizeAnglePositive(targetAngle - startAngle)
-    : normalizeAnglePositive(startAngle - targetAngle);
-
-  if (targetTravel <= travelled) {
-    return Math.min(targetTravel, travelled - targetTravel) <= tolerance;
-  }
-
-  return Math.min(
-    circularAngleDistance(targetAngle, startAngle),
-    circularAngleDistance(targetAngle, endAngle),
-  ) <= tolerance;
-}
-
 function getSpecialSphereCadence(
   s: GameState,
   sphere: SphereEntity,
@@ -686,7 +650,9 @@ function updateGravitySphere(s: GameState, sphere: SphereEntity, damage: number,
   );
 
   const pullRadius = SPHERE_TYPES.gravity.auraRadius * mods.radius * mods.auraRadius;
-  let pullStrength = 34 * Math.min(1.6, sphereLevel(s, 'gravity') * 0.18 + 0.5);
+  const gravityLevel = sphereLevel(s, 'gravity');
+  let pullStrength = 34;
+  if (gravityLevel >= 1) pullStrength *= 1.20;
   pullStrength *= 1 + (s.player.artifacts.includes('gravity_bead') ? 0.12 : 0);
   pullStrength *= 1 + (s.player.artifacts.includes('gravity_hook') ? 0.10 : 0);
   const sphereIndex = s.spheres.indexOf(sphere);
