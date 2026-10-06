@@ -901,7 +901,8 @@ function getNetworkTooltipLines(label: string, st: GameState, lang: Lang, networ
   const activeTypes = new Set(st.spheres.filter((sphere) => sphere.alive).map((sphere) => sphere.type));
   const ru = lang === 'ru';
   const isSecondary = network.secondaryFormation?.type === label.toLowerCase();
-  const scale = isSecondary ? 0.5 : 1;
+  const isInactiveDominant = network.dominantFormation?.active === false && network.dominantFormation?.type === label.toLowerCase();
+  const scale = isInactiveDominant ? 0 : isSecondary ? 0.5 : 1;
   const percent = (value: number): string => { const scaled = value * scale; return Number.isInteger(scaled) ? String(scaled) : scaled.toFixed(1); };
   const lines: NetworkTooltipLine[] = [];
   const add = (activeRu: string, restRu: string, activeEn: string, restEn: string): void => {
@@ -998,8 +999,8 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
   };
 
   const formationSlots = [
-    network.dominantFormation ? { slot: 'dominant' as const, type: network.dominantFormation.type } : null,
-    network.secondaryFormation ? { slot: 'secondary' as const, type: network.secondaryFormation.type } : null,
+    network.dominantFormation ? { slot: 'dominant' as const, type: network.dominantFormation.type, inactive: network.dominantFormation.active === false } : null,
+    network.secondaryFormation ? { slot: 'secondary' as const, type: network.secondaryFormation.type, inactive: network.secondaryFormation.active === false } : null,
   ].filter((slot): slot is NonNullable<typeof slot> => Boolean(slot));
   return (
     <>
@@ -1064,7 +1065,7 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
           {networkTooltip && <div role="button" tabIndex={0} onPointerDown={hideNetworkTooltip} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') hideNetworkTooltip(); }} style={{ userSelect: 'none' }} className="es-network-tooltip">
             <div className={`es-network-tooltip-title ${network.secondaryFormation?.type === networkTooltip.toLowerCase() ? 'is-secondary' : 'is-dominant'}`}>
               <span>{formationDisplayName(networkTooltip.toLowerCase(), lang)}</span>
-              <span className="es-network-tooltip-effectiveness">{network.secondaryFormation?.type === networkTooltip.toLowerCase() ? '50%' : '100%'}</span>
+              <span className="es-network-tooltip-effectiveness">{network.dominantFormation?.active === false && network.dominantFormation?.type === networkTooltip.toLowerCase() ? (lang === 'ru' ? 'ВРЕМЕННО ОТКЛ.' : 'TEMP OFF') : network.secondaryFormation?.type === networkTooltip.toLowerCase() ? '50%' : '100%'}</span>
             </div>
             {getNetworkTooltipLines(networkTooltip, st, lang, network).map((line, index) => <div key={index} className="es-network-tooltip-line"><span className={`es-network-tooltip-active ${network.secondaryFormation?.type === networkTooltip.toLowerCase() ? 'is-secondary' : 'is-dominant'}`}>{line.active}</span><span className="es-network-tooltip-rest">{line.rest}</span></div>)}
           </div>}
