@@ -127,3 +127,21 @@ test('movement, Dash, Teleport, collision sync and UI all route through the FOLL
   assert.match(controls, /sphereMovementLocked/);
   assert.match(controls, /setFormationFollow/);
 });
+
+test('FOLLOW balance layer enforces movement lock, steering inertia and strain floors', () => {
+  const formation = fs.readFileSync(new URL('../src/formationFollow.ts', import.meta.url), 'utf8');
+  const loop = fs.readFileSync(new URL('../src/engineLoop.ts', import.meta.url), 'utf8');
+  const abilities = fs.readFileSync(new URL('../src/engineAbilities.ts', import.meta.url), 'utf8');
+  const controls = fs.readFileSync(new URL('../src/MobileControls.tsx', import.meta.url), 'utf8');
+  const collisions = fs.readFileSync(new URL('../src/spaceCollision.ts', import.meta.url), 'utf8');
+  assert.match(formation, /FOLLOW_MIN_NETWORK_EFFICIENCY = 0\.72/);
+  assert.match(formation, /FOLLOW_MIN_RESONANCE_EFFICIENCY = 0\.65/);
+  assert.match(loop, /FOLLOW: DASH LOCKED/);
+  assert.match(loop, /getFormationFollowMovementMultiplier/);
+  assert.match(loop, /updateFormationFollowMotion/);
+  assert.match(abilities, /FOLLOW: TELEPORT LOCKED/);
+  assert.match(abilities, /isFormationFollowMovementAbility/);
+  assert.match(controls, /isFormationFollowMovementAbility/);
+  assert.match(controls, /formationFollowStrain/);
+  assert.match(collisions, /FOLLOW_BREACH_ROLES/);
+});

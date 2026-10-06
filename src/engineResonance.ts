@@ -4,6 +4,7 @@ import { getLinkedNodeIndexes } from './network';
 import { dist, getNetworkNodes, getNetworkFrame } from './engineRuntime';
 import type { GameState, EnemyEntity, SphereEntity, Vec } from './engineTypes';
 import { getCharacterId, recordCharacterFormation } from './characterRuntime';
+import { getFormationFollowResonanceEfficiency } from './formationFollow.ts';
 
 export type ResonanceDamageHandler = (
   s: GameState,
@@ -200,10 +201,13 @@ export function chargeResonance(
   if (s.player.resonanceEventActive || sourceEffectMultiplier <= 0) return;
   const resonanceLevel = Number(s.player.abilities.resonance || 0);
   const resonanceGainMultiplier = 1 + resonanceLevel * 0.08;
+  const formationEfficiency = source === 'geometry' || source === 'network'
+    ? getFormationFollowResonanceEfficiency(s)
+    : 1;
   const events = addResonanceChargeFromSource(
     s.player,
     source,
-    resonanceGainMultiplier * sourceEffectMultiplier,
+    resonanceGainMultiplier * sourceEffectMultiplier * formationEfficiency,
   );
   const network = getNetworkFrame(s);
   for (let i = 0; i < events; i++) triggerResonanceEvent(s, dealDamage, network);

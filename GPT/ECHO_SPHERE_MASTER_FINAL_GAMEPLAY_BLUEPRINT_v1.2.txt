@@ -4314,3 +4314,28 @@ different build.
 ======================================================================
 END REGION / STAGE / EXPLORATION AMENDMENT
 ======================================================================
+
+======================================================================
+2026-10-06 — FOLLOW BALANCE CONTRACT
+======================================================================
+
+FOLLOW is a tactical macro-movement mode, not a strict upgrade over FREE.
+
+- Dash, Teleport and future Core-displacement abilities are unavailable while
+  FOLLOW is active unless an ability explicitly opts in.
+- Straight FOLLOW travel remains close to normal movement.
+- Sharp reversals have bounded steering inertia.
+- FOLLOW accumulates visible Network Strain from movement, with stronger cost
+  on direction changes and rapid recovery while stationary.
+- Formation-specific combat effects scale down to a 72% minimum at maximum
+  Strain; base Sphere damage is not globally reduced.
+- Network-derived Resonance gains scale down to a 65% minimum at maximum Strain.
+- Charger and phase roles can breach the moving Sphere wall.
+- Existing ranged/sniper pressure and Link Breaker disruption remain valid.
+
+FREE is the micro-evasion mode.
+FOLLOW is the macro-movement / formation-preservation mode.
+
+======================================================================
+END FOLLOW BALANCE CONTRACT
+======================================================================

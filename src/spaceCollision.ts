@@ -1,5 +1,5 @@
 import type { EnemyEntity, GameState, SphereEntity, Vec } from './engine';
-import { syncFormationFollow, updateSphereFollowOffset } from './formationFollow.ts';
+import { FOLLOW_BREACH_ROLES, syncFormationFollow, updateSphereFollowOffset } from './formationFollow.ts';
 
 // Physical size of a tower is intentionally much smaller than its attack radius.
 // It closely follows the visible tower base instead of its much larger firing range.
@@ -96,6 +96,7 @@ export function resolveSpaceCollisions(s: GameState, dt: number): void {
 function resolveEnemyTowerCollisions(s: GameState, dt: number): void {
   for (const enemy of s.enemies) {
     if (enemy.hp <= 0) continue;
+    if (s.player.formationFollowActive && FOLLOW_BREACH_ROLES.has(enemy.role as 'charger' | 'phase')) continue;
 
     for (const tower of s.spheres) {
       if (!tower.alive) continue;

@@ -21,6 +21,7 @@ export {
   syncFormationFollow,
   applyCoreDisplacement,
   updateSphereFollowOffset,
+  isFormationFollowMovementAbility,
 } from './formationFollow.ts';
 
 export {

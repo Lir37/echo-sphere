@@ -4,7 +4,7 @@ import { Pause, Zap, Lock, Unlock, Move } from 'lucide-react';
 import { ABILITIES, SPHERE_TYPES, type AbilityType, type SphereType } from './gameData';
 import {
   activateByKey, activateDash, getMaxSpheres, placeSphere, setSphereType,
-  canActivateFormationFollow, setFormationFollow,
+  canActivateFormationFollow, setFormationFollow, isFormationFollowMovementAbility,
   type GameState, type SphereEntity, type Vec,
 } from './engine';
 import { CHARACTER_DEFS } from './characters';
@@ -461,7 +461,8 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
           {activeAbilities.map(([key, ability]) => {
             const def = ABILITIES[ability];
             const cd = getAbilityCooldown(stateRef.current, ability);
-            return <button key={`${key}-${ability}`} data-mobile-control="true" className="relative w-16 h-12 rounded-xl bg-[#0d1726]/90 border border-[#243b55] shadow-lg px-1 overflow-hidden active:scale-95" onPointerDown={(e) => { e.stopPropagation(); const st = stateRef.current; if (!st || st.gameOver || st.paused) return; if (st.pendingUpgrade || st.pendingArtifact) return; haptic(12); activateByKey(st, key); }}>
+            const followMovementLock = Boolean(stateRef.current?.player.formationFollowActive && isFormationFollowMovementAbility(ability));
+            return <button key={`${key}-${ability}`} data-mobile-control="true" disabled={followMovementLock} className="relative w-16 h-12 rounded-xl bg-[#0d1726]/90 border border-[#243b55] shadow-lg px-1 overflow-hidden active:scale-95" onPointerDown={(e) => { e.stopPropagation(); const st = stateRef.current; if (!st || st.gameOver || st.paused) return; if (st.pendingUpgrade || st.pendingArtifact) return; haptic(12); activateByKey(st, key); }}>
               <span className="text-[9px] text-[#7f9bb8] block truncate">{getAbilityDisplayName(stateRef.current, ability, lang) || def.name[lang]}</span>
               <span className="text-[8px] text-[#b6c9de]/60">{cd > 0 ? `${Math.ceil(cd)}s` : t('ready')}</span>
               {cd > 0 && <span className="absolute inset-x-0 bottom-0 h-1 bg-[#ff4d5d]/70" style={{ width: `${Math.min(100, (cd / getAbilityMaxCooldown(ability)) * 100)}%` }} />}
@@ -469,7 +470,12 @@ export default function MobileControls({ lang, t, stateRef, canvasRef, handednes
           })}
         </div>
 
-        <button data-mobile-control="true" className="pointer-events-auto w-16 h-16 rounded-full bg-[#ffb84d]/85 border border-[#ff6b6b] shadow-lg flex flex-col items-center justify-center text-[#dcecff] active:scale-95" onPointerDown={(e) => { e.stopPropagation(); const st = stateRef.current; if (!st || st.gameOver || st.paused) return; const { x, y } = lastDirectionRef.current; clearMovementKeys(); if (y < -0.2) st.keys.w = true; if (y > 0.2) st.keys.s = true; if (x < -0.2) st.keys.a = true; if (x > 0.2) st.keys.d = true; haptic(16); activateDash(st); clearMovementKeys(); }} aria-label={t('dashCooldown')}>
+        {stateRef.current?.player.formationFollowActive && (
+          <div className="pointer-events-none text-[8px] font-bold tracking-[0.16em] text-[#7f9bb8] bg-[#0d1726]/80 border border-[#243b55] rounded-md px-2 py-1">
+            {lang === 'ru' ? 'НАГРУЗКА СЕТИ' : 'NETWORK STRAIN'} {Math.round(stateRef.current?.player.formationFollowStrain || 0)}%
+          </div>
+        )}
+        <button data-mobile-control="true" disabled={Boolean(stateRef.current?.player.formationFollowActive)} className="pointer-events-auto w-16 h-16 rounded-full bg-[#ffb84d]/85 border border-[#ff6b6b] shadow-lg flex flex-col items-center justify-center text-[#dcecff] active:scale-95" onPointerDown={(e) => { e.stopPropagation(); const st = stateRef.current; if (!st || st.gameOver || st.paused || st.player.formationFollowActive) return; const { x, y } = lastDirectionRef.current; clearMovementKeys(); if (y < -0.2) st.keys.w = true; if (y > 0.2) st.keys.s = true; if (x < -0.2) st.keys.a = true; if (x > 0.2) st.keys.d = true; haptic(16); activateDash(st); clearMovementKeys(); }} aria-label={t('dashCooldown')}>
           <Zap size={20} /><span className="text-[8px] font-bold">{stDashLabel(stateRef.current, lang, t)}</span>
         </button>
 

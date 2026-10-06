@@ -1637,3 +1637,51 @@ One authored Region:
 This section is a design status update, not a claim that the above systems
 already exist in code.
 ======================================================================
+
+======================================================================
+2026-10-06 — FORMATION FOLLOW BALANCE / COUNTERPLAY PASS
+======================================================================
+
+BASELINE:
+89e5b8f1153ea87300d0ca282c74f92b883a4e8d
+
+PLAYER INPUT:
+Human APK PlayerCheck confirmed basic FOLLOW translation works and identified
+the systemic risk that a fully mobile formation could make FREE micro-maneuvering
+strategically obsolete.
+
+IMPLEMENTED:
+[DONE] Dash and Teleport are locked while FOLLOW is active.
+[DONE] Future Core-displacement ability path is represented by an explicit
+      movement-ability contract.
+[DONE] Added bounded steering inertia, mainly affecting sharp reversals.
+[DONE] Added visible 0..100 Network Strain with rapid stationary recovery.
+[DONE] Formation-specific effects use Strain-scaled efficiency down to 72%.
+[DONE] Network-derived Resonance gains use Strain-scaled efficiency down to 65%.
+[DONE] Base Sphere damage remains unchanged.
+[DONE] Charger and phase roles can breach the moving Formation wall.
+[DONE] Ranged/sniper pressure and Link Breaker disruption remain active.
+[DONE] Mobile controls expose Strain and disable movement-type controls.
+[DONE] Regression coverage extended for movement locks, steering, Strain and
+      counterplay contracts.
+
+ARCHITECTURE:
+No Network solver rewrite.
+No Geometry rewrite.
+No Sphere architecture rewrite.
+The balance layer is coupled through existing movement, Network and collision
+consumption paths.
+
+OPEN PLAYER GATE:
+Verify on the green APK:
+- straight FOLLOW;
+- rapid direction reversals;
+- Strain visibility/recovery;
+- Dash/Teleport lockout;
+- charger/phase breach;
+- ranged/sniper pressure;
+- Link Breaker disruption while FOLLOW remains active.
+
+======================================================================
+END FORMATION FOLLOW BALANCE / COUNTERPLAY PASS
+======================================================================

@@ -91,6 +91,8 @@ export interface PlayerState {
   sphereMods: SphereMods;
   sphereMovementLocked: boolean;
   formationFollowActive: boolean;
+  formationFollowStrain: number;
+  formationFollowLastDirection: Vec;
   knownSphereTypes: SphereType[];
   sphereProgression: Partial<Record<SphereType, number>>;
   sphereBranches: Partial<Record<SphereType, import('./sphereProgression').SphereEvolutionId>>;

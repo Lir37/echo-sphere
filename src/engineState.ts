@@ -110,6 +110,8 @@ export function createInitialState(
     },
     sphereMovementLocked: false,
     formationFollowActive: false,
+    formationFollowStrain: 0,
+    formationFollowLastDirection: { x: 0, y: 0 },
     knownSphereTypes: ['standard'],
     dashCooldown: 0,
     dashTimer: 0,

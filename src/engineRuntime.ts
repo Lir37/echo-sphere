@@ -2,6 +2,7 @@ import type { AbilityType, SphereType } from './gameData';
 import type { GameState, SphereEntity, Vec } from './engineTypes';
 import { buildRuntimeNetworkNodes } from './networkRuntime';
 import { analyzeSphereNetwork, type SphereNetworkState, type NetworkShape } from './network';
+import { getFormationFollowNetworkEfficiency } from './formationFollow.ts';
 import { nextRandom } from './rng';
 
 export function dist(a: Vec, b: Vec): number {
@@ -111,6 +112,7 @@ export function getNetworkFrame(s: GameState): SphereNetworkState {
 
   // Do not rewrite the selected slot order merely because the Dominant is
   // temporarily unavailable. Recovery restores the same Dominant identity.
+  network.formationEfficiency = getFormationFollowNetworkEfficiency(s);
   s.networkFrame = { frameId: s.networkFrameId, network };
   return network;
 }

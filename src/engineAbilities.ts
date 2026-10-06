@@ -10,7 +10,7 @@ import {
 import { getLinkedNodeIndexes } from './network';
 import { getActiveSphereAbilitySynergies, getAbilityEvolutionChoice } from './sphereProgression';
 import { chargeResonance } from './engineResonance';
-import { applyCoreDisplacement } from './formationFollow.ts';
+import { applyCoreDisplacement, isFormationFollowMovementAbility } from './formationFollow.ts';
 
 
 function synergyStrength(index:number):number {
@@ -440,6 +440,10 @@ function doTeleportTo(s: GameState, target: Vec): void {
 
 
 function activateTeleport(s: GameState): void {
+  if (s.player.formationFollowActive) {
+    s.flashText = { text: 'FOLLOW: TELEPORT LOCKED', life: 0.55, color: '#7f9bb8' };
+    return;
+  }
   const lvl = s.player.abilities.teleport || 0;
   if (lvl === 0 || s.player.teleportCooldown > 0) return;
   const cd = (15 - Math.min(4, (lvl - 1) * 2)) * getCooldownMult(s);
@@ -896,6 +900,10 @@ function activateDarkRitual(s: GameState): void {
 export function activateByKey(s: GameState, key: string): void {
   const ability = s.activeKeyMap[key];
   if (!ability) return;
+  if (s.player.formationFollowActive && isFormationFollowMovementAbility(ability)) {
+    s.flashText = { text: 'FOLLOW: MOVEMENT LOCKED', life: 0.55, color: '#7f9bb8' };
+    return;
+  }
   switch (ability) {
     case 'blast': activateBlast(s); break;
     case 'shield': activateShield(s); break;

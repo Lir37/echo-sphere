@@ -54,6 +54,7 @@ export interface SphereNetworkState {
   ring: NetworkShape | null;
   lattice: NetworkShape | null;
   fractal: NetworkShape | null;
+  formationEfficiency?: number;
 }
 
 export interface SphereNetworkProfile {
@@ -203,12 +204,12 @@ export function getFormationBonusMultiplier(
   network: SphereNetworkState,
   type: Exclude<NetworkFormation, 'none'>,
   nodeIndex?: number,
-): 0 | 0.5 | 1 {
+): number {
   const includesNode = (shape: NetworkShape | null): boolean =>
     Boolean(shape && (nodeIndex === undefined || nodeIndex < 0 || shape.nodes.includes(nodeIndex)));
-
-  if (network.dominantFormation?.active !== false && network.dominantFormation?.type === type && includesNode(network.dominantFormation)) return 1;
-  if (network.secondaryFormation?.type === type && includesNode(network.secondaryFormation)) return 0.5;
+  const efficiency = Math.max(0, Math.min(1, network.formationEfficiency ?? 1));
+  if (network.dominantFormation?.active !== false && network.dominantFormation?.type === type && includesNode(network.dominantFormation)) return efficiency;
+  if (network.secondaryFormation?.type === type && includesNode(network.secondaryFormation)) return 0.5 * efficiency;
   return 0;
 }
 
@@ -481,6 +482,7 @@ export function analyzeSphereNetwork(
     linkDistance,
     nodes: indexes,
     links,
+    formationEfficiency: 1,
     formationCandidates: ranked,
     dominantFormation: active.dominant,
     secondaryFormation: active.secondary,

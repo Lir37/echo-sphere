@@ -104,3 +104,22 @@ One Region is the vertical slice for the new content architecture.
 The first Region should prove the model before content volume expands.
 
 END ROADMAP AMENDMENT
+
+======================================================================
+2026-10-06 — FOLLOW BALANCE GATE
+======================================================================
+
+The first Region PlayerCheck must explicitly verify:
+- long straight FOLLOW travel;
+- 90/180-degree steering responsiveness;
+- visible Strain accumulation and recovery;
+- clear Dash/Teleport lockout;
+- charger/phase breach;
+- ranged/sniper pressure;
+- Link Breaker disruption while FOLLOW remains active.
+
+Do not increase penalty constants without a concrete APK observation.
+
+======================================================================
+END FOLLOW BALANCE GATE
+======================================================================

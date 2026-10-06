@@ -19,7 +19,7 @@ import { generateUpgradeChoices } from './engineProgression';
 import { updateCharacterRuntime } from './characterRuntime';
 import { chargeResonance as chargeResonanceRuntime } from './engineResonance';
 import { dist, rand, getNetworkFrame } from './engineRuntime';
-import { applyCoreDisplacement } from './formationFollow.ts';
+import { applyCoreDisplacement, getFormationFollowMovementMultiplier, updateFormationFollowMotion } from './formationFollow.ts';
 import type { GameState, RuneEntity } from './engineTypes';
 
 function pickArtifacts(s: GameState): ArtifactId[] {
@@ -201,7 +201,9 @@ export function update(s: GameState, dt: number): void {
   const len = Math.hypot(mx, my);
   if (len > 0) { mx /= len; my /= len; }
   const sp = getMoveSpeed(s);
-  applyCoreDisplacement(s, mx * sp * dt, my * sp * dt);
+  const followMovementMultiplier = getFormationFollowMovementMultiplier(s, mx, my);
+  updateFormationFollowMotion(s, mx, my, dt);
+  applyCoreDisplacement(s, mx * sp * dt * followMovementMultiplier, my * sp * dt * followMovementMultiplier);
 
   // fire trail
   if (s.player.fireTrailTimer > 0) s.player.fireTrailTimer = Math.max(0, s.player.fireTrailTimer - dt);
@@ -520,6 +522,10 @@ function updateHealthPacks(s: GameState): void {
 }
 
 export function activateDash(s: GameState): void {
+  if (s.player.formationFollowActive) {
+    s.flashText = { text: 'FOLLOW: DASH LOCKED', life: 0.55, color: '#7f9bb8' };
+    return;
+  }
   if (s.player.dashCooldown > 0) return;
   let dx = 0, dy = 0;
   if (s.keys['w'] || s.keys['arrowup']) dy -= 1;

@@ -343,3 +343,25 @@ Do not:
 
 ============================================================
 END
+
+======================================================================
+2026-10-06 — FOLLOW BALANCE AMENDMENT
+======================================================================
+
+The current FOLLOW implementation supersedes generic wording that Dash/Teleport
+remain normal Core movement while FOLLOW is active.
+
+FOLLOW:
+- Dash/Teleport are locked while active;
+- future Core-displacement abilities require explicit compatibility;
+- steering inertia affects sharp reversals;
+- visible Network Strain is 0..100 and recovers rapidly when stationary;
+- formation-specific effects have a 72% efficiency floor;
+- Network-derived Resonance has a 65% efficiency floor;
+- base Sphere damage is unchanged;
+- charger/phase can breach the moving Sphere wall;
+- ranged/sniper and Link Breaker remain valid counter-pressure.
+
+======================================================================
+END FOLLOW BALANCE AMENDMENT
+======================================================================
