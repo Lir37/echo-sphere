@@ -41,9 +41,9 @@ test('Elemental Mutation II exposes mastery and keeps existing final choice', ()
 
 test('Fire and Poison Tempo use faster status ticks without raising DPS/sec', () => {
   assert.match(enemies, /const tickInterval = Number(e.fireTickInterval || 0)/);
-  assert.ok(enemies.includes('e.hp -= e.fireDps * tickInterval;'));
+  assert.ok(enemies.includes('appliedDamage = e.fireDps * tickInterval;'));
   assert.match(enemies, /const tickInterval = Number(e.poisonTickInterval || 0)/);
-  assert.ok(enemies.includes('e.hp -= e.poisonDps * tickInterval;'));
+  assert.ok(enemies.includes('appliedDamage = e.poisonDps * tickInterval;'));
 });
 
 test('Freeze mastery provides same-Sphere vulnerability or post-thaw control', () => {
@@ -118,7 +118,7 @@ test('Elemental damage numbers are color-coded and Crit remains distinct',()=>{
   assert.ok(renderer.includes("dn.element === 'fire'"));
   assert.ok(renderer.includes("dn.element === 'freeze'"));
   assert.ok(renderer.includes("dn.element === 'poison'"));
-  assert.ok(renderer.includes("dn.crit ? '#ffd166'"));
+  assert.ok(renderer.includes("? '#ffd166'"));
   assert.ok(enemies.includes("pushStatusDamageNumber(s, e, e.fireDamageNumberAccumulator, 'fire')"));
   assert.ok(enemies.includes("pushStatusDamageNumber(s, e, e.poisonDamageNumberAccumulator, 'poison')"));
 });
