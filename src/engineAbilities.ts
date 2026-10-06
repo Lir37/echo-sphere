@@ -822,8 +822,9 @@ function activateTimeStop(s: GameState): void {
     }
   }
   if (branch === 'timestop_echo_phase') {
+    // Mutation I adds an immediate volley; Level III already allows attacking during the stop.
     for (const sphere of s.spheres) {
-      if (sphere.alive) sphere.attackTimer = Math.max(0, sphere.attackTimer - 0.65);
+      if (sphere.alive) sphere.attackTimer = 0;
     }
   }
   if (nearest) {
