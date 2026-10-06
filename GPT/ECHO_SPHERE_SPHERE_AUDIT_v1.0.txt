@@ -847,3 +847,43 @@ MODIFIERS:
        separate pass.
 
 ======================================================================
+
+
+======================================================================
+[2026-10-06] ORBITAL DUAL-RING + PERFORMANCE RECONCILIATION
+======================================================================
+
+CURRENT BRANCH:
+new-desing
+
+ORBITAL:
+[DONE] Canonical core progression is now dual-ring rather than one
+      single satellite ring.
+[DONE] Level 1 starts at 1 inner + 1 outer combat element.
+[DONE] Level 2 adds outer; Level 3 adds inner; L4 outer; L5 inner;
+      L6 outer; L7 inner.
+[DONE] At the canonical Level 7 state this produces 4 inner + 4 outer
+      combat elements.
+[DONE] Inner orbit is clockwise; outer orbit is counter-clockwise.
+[DONE] Combat and render positions share the same orbital angle contract.
+[DONE] Orbital combat now checks the travelled angular sweep between contact
+      checks, reducing false "visual pass but no damage" misses.
+[DONE] Orbital floating damage numbers are tagged and rendered in a dedicated
+      pass so they remain visible in dense combat.
+[OPEN] Human APK PlayerCheck remains mandatory for final scale/readability.
+
+PERFORMANCE:
+[DONE] Sphere targeting no longer allocates/sorts candidate arrays on every
+      fire cycle.
+[DONE] Prism highest-HP target selection no longer sorts candidates.
+[DONE] Dense Static modifier chaining no longer sorts its secondary target.
+[DONE] Dense hit/shoot/pickup/kill audio is throttled to limit Web Audio churn.
+[DONE] Orbital satellite glow no longer creates a radial gradient per
+      satellite each frame.
+[DONE] Projectile glow no longer creates a radial gradient per projectile.
+[DONE] Common enemy glow uses lightweight additive discs.
+[OPEN] Real-device FPS/freeze acceptance is still a human APK gate. CI can
+      verify build/render regressions but cannot prove a specific phone's
+      sustained frame rate.
+
+======================================================================
