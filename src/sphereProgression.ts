@@ -186,7 +186,7 @@ const BRANCH_LEVEL_DETAILS:Partial<Record<SphereEvolutionId,{level5:string;level
   standard_resonator:{level5:'Каждое 3-е попадание создаёт импульс вокруг цели. На V уровне импульс становится частью основного цикла атак.',level6:'Импульс срабатывает стабильнее: после каждого третьего попадания сфера усиливает массовое поражение перед финальной формой.'},
   standard_singularity:{level5:'Каждое попадание замедляет врага и начинает стягивать ближайших противников к точке удара.',level6:'Стягивание становится сильнее: сфера лучше собирает группу врагов в одной зоне для последующих попаданий.'},
   standard_swarm:{level5:'Попадания выпускают дополнительный боковой осколок, расширяя покрытие по площади.',level6:'Боковые осколки становятся частью постоянного паттерна атаки и закрывают больше направлений вокруг сферы.'},
-  sniper_oracle:{level5:'По отмеченной цели срабатывает усиленный выстрел, превращая Метку в главный источник урона.',level6:'Усиленный выстрел по Метке получает ещё один шаг мощности и становится надёжнее против приоритетной цели.'},
+  sniper_oracle:{level5:'По отмеченной цели срабатывает усиленный выстрел, увеличивая урон по приоритетной цели.',level6:'Усиленный выстрел по Метке получает ещё один шаг мощности и наносит ещё больше урона приоритетной цели.'},
   sniper_assassin:{level5:'Враги ниже 35% HP получают резко повышенный урон, чтобы снайперская сфера добивала ослабленные цели.',level6:'Добивающий урон ещё сильнее наказывает цели с низким запасом здоровья, подготавливая финальную форму.'},
   sniper_beacon:{level5:'Попадание создаёт вокруг цели зону Метки и замедляет ближайших врагов.',level6:'Зона Метки становится заметнее и охватывает больше целей, усиливая контроль пространства.'},
   shotgun_burst:{level5:'Чем ближе враг к сфере, тем выше урон центральных дробин.',level6:'Ближний бой становится ещё опаснее: бонус урона работает на более широкой дистанции и сильнее вознаграждает сближение.'},
@@ -234,7 +234,7 @@ const BRANCH_LEVEL_DETAILS_EN:Partial<Record<SphereEvolutionId,{level5:string;le
 };
 const NEW_BRANCH_LEVEL_DETAILS:Partial<Record<SphereEvolutionId,{level5:string;level6:string}>>={
   orbital_dance:{level5:'Орбиты ускоряются и чаще пересекают врагов.',level6:'Ускорение орбит усиливается, а окно между боевыми проходами сокращается.'},
-  orbital_halo:{level5:'Орбита создаёт защитный резонанс для ближайших сфер.',level6:'Защитный резонанс распространяется на большее число связанных сфер.'},
+  orbital_halo:{level5:'Каждый успешный проход орбиты дополнительно подпитывает Resonance.',level6:'Резонансный заряд от успешных проходов становится сильнее.'},
   orbital_blade:{level5:'Орбитальные лезвия наносят повышенный урон по врагам на траектории.',level6:'Урон лезвий растёт, а эффективная зона прохода становится шире.'},
   prism_split:{level5:'Луч делится на дополнительную цель после основного попадания.',level6:'Разделённый луч поражает дополнительную цель с меньшей потерей мощности.'},
   prism_spectrum:{level5:'Луч переносит активный статусный эффект на поражённую цель.',level6:'Статусная передача становится стабильнее и сильнее взаимодействует с реакциями.'},
@@ -1111,7 +1111,11 @@ export function sphereModifiers(s:any,type:SphereType,sphere?:any){
   if(type==='chain'&&branch==='chain_storm'){damage*=1.08;chainTargets+=1;if(final===0)damage*=1.18;}
   if(type==='chain'&&branch==='chain_leech'){damage*=1.05;if(final===0)damage*=1.15;}
   if(type==='aura'&&branch==='aura_sanctum'){auraRadius*=1.15;if(final===0)auraPulse*=0.8;}
-  if(type==='aura'&&branch==='aura_gravity'){auraRadius*=1.10;if(final===0)auraRadius*=1.18;}
+  if(type==='aura'&&branch==='aura_gravity'){
+    auraRadius*=1.10;
+    if(final===0) auraRadius*=1.18;
+    if(final===null && l>=5) auraRadius*=l>=6?1.15:1.08;
+  }
   if(type==='aura'&&branch==='aura_overgrowth'){damage*=1.06;auraRadius*=1.08;if(final===0)damage*=1.15;}
 
   // NEW FIVE: their level 1-3 upgrades must modify real combat parameters.
@@ -1147,7 +1151,10 @@ export function sphereModifiers(s:any,type:SphereType,sphere?:any){
     if(l>=2) radius*=1.15;
     if(l>=3) auraPulse*=0.85;
     if(branch==='gravity_well'){ auraRadius*=final===1?1.20:1.08; }
-    if(branch==='gravity_tide'){ auraPulse*=0.90; }
+    if(branch==='gravity_tide'){
+      auraPulse*=0.90;
+      if(final===null && l>=5) auraRadius*=l>=6?1.14:1.07;
+    }
     if(branch==='gravity_collapse'){ damage*=final===2?1.18:1.08; }
   }
   if(type==='pulse'){
