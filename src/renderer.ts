@@ -450,7 +450,8 @@ function drawRune(ctx: CanvasRenderingContext2D, rune: GameState['runes'][number
   for (const sphere of s.spheres) {
     if (sphere.alive && sphere.type === 'orbital') {
       const orbitScale = Math.max(15, Math.min(25, sphere.radius * 0.19 + (sphere.visualTier || 0) * 0.8)) / 24;
-      renderOrbitalSphereAttackersVfx(ctx, sphere, s.player, s.time, orbitScale, s.enemies);
+      const orbitalRadiusScale = getSphereRadius(s, sphere) / Math.max(1, sphere.radius);
+      renderOrbitalSphereAttackersVfx(ctx, sphere, s.player, s.time, orbitScale, s.enemies, orbitalRadiusScale);
     }
   }
 
@@ -2340,7 +2341,8 @@ function drawModernSphere(ctx: CanvasRenderingContext2D, s: GameState, sphere: S
     return;
   }
   if (sphere.type === 'orbital') {
-    renderOrbitalSphereRuntimeVfx(ctx, sphere, s.player, time, scale, s.enemies);
+    const orbitalRadiusScale = getSphereRadius(s, sphere) / Math.max(1, sphere.radius);
+    renderOrbitalSphereRuntimeVfx(ctx, sphere, s.player, time, scale, s.enemies, orbitalRadiusScale);
     renderSphereElementalVfx(ctx, sphere, s.player, time, scale);
     renderSphereModifierVfx(ctx, sphere, s.player, time, scale);
     drawNetworkDisabledIndicator(ctx, sphere, time);
