@@ -235,7 +235,7 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
       const dx = enemy.pos.x - fromSphere.pos.x;
       const dy = enemy.pos.y - fromSphere.pos.y;
       const d = Math.hypot(dx, dy) || 1;
-      const push = 18 * mods.impact;
+      const push = 18 * mods.impact * (s.region ? getRegionRepulsionMultiplier(s) : 1);
       enemy.pos.x += dx / d * push;
       enemy.pos.y += dy / d * push;
     }

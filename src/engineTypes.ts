@@ -2,7 +2,6 @@ import type { AbilityType, ArtifactId, SphereType, BossType, Difficulty } from '
 import type { CharacterId } from './characters';
 import type { RuneType } from './runes';
 import type { SphereNetworkState } from './network';
-import type { RegionState } from './region';
 
 export interface Vec { x: number; y: number; }
 
@@ -422,7 +421,6 @@ export interface GameState {
   networkFrameId: number;
   /** Optional player-selected order of the two active Network formations. */
   networkFormationSelection: import('./network').NetworkFormationSelection | null;
-  region: RegionState;
 }
 
 export interface ShopState {

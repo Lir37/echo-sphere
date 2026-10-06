@@ -5,6 +5,7 @@ import { dist, getNetworkNodes, getNetworkFrame } from './engineRuntime';
 import type { GameState, EnemyEntity, SphereEntity, Vec } from './engineTypes';
 import { getCharacterId, recordCharacterFormation } from './characterRuntime';
 import { getFormationFollowResonanceEfficiency } from './formationFollow.ts';
+import { getRegionResonanceMultiplier } from './region';
 
 export type ResonanceDamageHandler = (
   s: GameState,
@@ -208,7 +209,7 @@ export function chargeResonance(
   const events = addResonanceChargeFromSource(
     s.player,
     source,
-    resonanceGainMultiplier * sourceEffectMultiplier,
+    resonanceGainMultiplier * sourceEffectMultiplier * getRegionResonanceMultiplier(s),
   );
   const network = getNetworkFrame(s);
   for (let i = 0; i < events; i++) triggerResonanceEvent(s, dealDamage, network);

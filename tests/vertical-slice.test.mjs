@@ -79,3 +79,6 @@ test('Enemy roster contains fifteen authored roles', async () => {
   const roles = ['grunt', 'swarmer', 'charger', 'tank_guard', 'ranged', 'splitter', 'healer', 'bomber', 'leech', 'sniper', 'disruptor', 'anchor', 'phase', 'scavenger', 'corruptor'];
   for (const role of roles) assert.match(source, new RegExp(`['"]${role}['"]`));
 });
+
+
+test('Region runtime contract exposes 5 pockets, 7 POIs, 3 contracts and 30-minute clear schedule',()=>{assert.equal(REGION_POCKETS.length,5);assert.equal(REGION_CHALLENGES.length,3);assert.equal(getRegionPhase(1800).id,5);const r=createRegionState('stabilization','fractured_network');assert.equal(r.id,'resonance_basin');});

@@ -19,6 +19,7 @@ import { BOSS_CHARGER_COMMIT_SECONDS, BOSS_CHARGER_TOTAL_TELEGRAPH_SECONDS } fro
 import { LINK_BREAKER_COOLDOWN_SECONDS, LINK_BREAKER_DISABLED_SECONDS, LINK_BREAKER_TARGET_RANGE, LINK_BREAKER_TELEGRAPH_SECONDS } from './eliteBalance';
 import type { GameState, EnemyEntity, SphereEntity, Vec, EliteVariant, EnemyRole } from './engineTypes';
 import type { BossType } from './gameData';
+import { getRegionEnemyMultipliers, getRegionEnemyRole, getRegionRepulsionMultiplier } from './region';
 
 export const PLAYER_RADIUS = 16;
 
@@ -63,7 +64,7 @@ export function getSlowFactor(s: GameState): number {
   return lvl > 0 ? 1 - (0.1 + (lvl - 1) * 0.05) : 1;
 }
 
-export function spawnEnemy(s: GameState, isBoss: boolean): EnemyEntity {
+export function spawnEnemy(s: GameState, isBoss: boolean, forcedBossType?: BossType): EnemyEntity {
   const wave = s.wave;
   const angle = nextRandom(s) * Math.PI * 2;
   const spawnDist = 700;
@@ -74,7 +75,7 @@ export function spawnEnemy(s: GameState, isBoss: boolean): EnemyEntity {
     const hp = (BALANCE.bossHpBase + wave * BALANCE.bossHpPerWave) * diff.enemyHpMult;
     // pick boss type based on boss count
     const bossTypes: BossType[] = ['shooter', 'charger', 'summoner', 'aura', 'conductor', 'architect', 'null', 'stella_warden'];
-    const bt = bossTypes[s.bossDefeated % bossTypes.length];
+    const bt = forcedBossType || bossTypes[s.bossDefeated % bossTypes.length];
     const bdef = BOSS_TYPES[bt];
     const baseSpeed = bt === 'charger'
       ? BALANCE.bossChargerSpeedBase + wave * BALANCE.bossChargerSpeedPerWave
@@ -132,7 +133,8 @@ export function spawnEnemy(s: GameState, isBoss: boolean): EnemyEntity {
   else { const variants: EnemyEntity['visualVariant'][] = ['wisp','leech','serpent','stalker','prism']; visualVariant = variants[Math.floor(nextRandom(s) * variants.length)]; }
   // elite chance: 5% after wave 5, scales up
   const baseType = type;
-  const role = ENEMY_ROLES[Math.floor(nextRandom(s) * ENEMY_ROLES.length)];
+  const role = s.region ? getRegionEnemyRole(s, ENEMY_ROLES[Math.floor(nextRandom(s) * ENEMY_ROLES.length)]) : ENEMY_ROLES[Math.floor(nextRandom(s) * ENEMY_ROLES.length)];
+  const regionMult=s.region?getRegionEnemyMultipliers(s):{hp:1,speed:1,damage:1,xp:1};
   switch (role) {
     case 'swarmer': hp *= 0.65; speed *= 1.35; radius *= 0.85; break;
     case 'charger': speed *= 1.25; dmg *= 1.10; break;
@@ -149,6 +151,7 @@ export function spawnEnemy(s: GameState, isBoss: boolean): EnemyEntity {
     case 'scavenger': speed *= 1.10; break;
     case 'corruptor': dmg *= 1.20; break;
   }
+  hp*=regionMult.hp;speed*=regionMult.speed;dmg*=regionMult.damage;
   const isElite = wave > 5 && nextRandom(s) < Math.min(0.12, 0.03 + wave * 0.005);
   let eliteVariant: EliteVariant | undefined;
   if (isElite) {
@@ -168,7 +171,7 @@ export function spawnEnemy(s: GameState, isBoss: boolean): EnemyEntity {
     color, shape,
     slowTimer: 0, slowFactor: 1, freezeTimer: 0, hitFlash: 0,
     isBoss: false, bossShootTimer: 0, bossProjectiles: [],
-    xpValue: (baseType === 'tank' ? 4 : baseType === 'fast' ? 2 : 1) * (isElite ? 5 : 1),
+    xpValue: (baseType === 'tank' ? 4 : baseType === 'fast' ? 2 : 1) * (isElite ? 5 : 1) * regionMult.xp,
     rotation: 0,
     tier: s.bossDefeated,
     trailTimer: 0,
@@ -187,7 +190,7 @@ export function spawnEnemy(s: GameState, isBoss: boolean): EnemyEntity {
 export function startWave(s: GameState): void {
   s.wave++;
   s.stats.wave = s.wave;
-  const isBossWave = s.wave % 10 === 0;
+  const isBossWave = !s.region && s.wave % 10 === 0;
   if (isBossWave) {
     s.bossActive = true;
     s.enemies.push(spawnEnemy(s, true));

@@ -21,6 +21,7 @@ import { chargeResonance as chargeResonanceRuntime } from './engineResonance';
 import { dist, rand, getNetworkFrame } from './engineRuntime';
 import { applyCoreDisplacement, getFormationFollowMovementMultiplier, updateFormationFollowMotion } from './formationFollow.ts';
 import type { GameState, RuneEntity } from './engineTypes';
+import { collectRegionPoi, getRegionMovementMultiplier, updateRegion, type RegionPoiType } from './region';
 
 function pickArtifacts(s: GameState): ArtifactId[] {
   return pickArtifactChoices(s, 3, false, () => nextRandom(s));
@@ -84,6 +85,7 @@ export function update(s: GameState, dt: number): void {
 
   s.time += dt;
   s.stats.time = s.time;
+  const regionSignal=updateRegion(s,dt);
   if (s.player.abilities.regen) {
     s.player.hp = Math.min(s.player.maxHp, s.player.hp + s.player.abilities.regen * 0.6 * dt);
   }
@@ -200,7 +202,7 @@ export function update(s: GameState, dt: number): void {
   if (s.keys['d'] || s.keys['arrowright']) mx += 1;
   const len = Math.hypot(mx, my);
   if (len > 0) { mx /= len; my /= len; }
-  const sp = getMoveSpeed(s);
+  const sp = getMoveSpeed(s)*getRegionMovementMultiplier(s);
   const followMovementMultiplier = getFormationFollowMovementMultiplier(s, mx, my);
   updateFormationFollowMotion(s, mx, my, dt);
   applyCoreDisplacement(s, mx * sp * dt * followMovementMultiplier, my * sp * dt * followMovementMultiplier);
@@ -261,6 +263,7 @@ export function update(s: GameState, dt: number): void {
   updateMinions(s, dt);
 
   if (!s.tutorialMode) {
+    if(s.region&&regionSignal.spawnBoss){s.bossActive=true;s.enemies.push(spawnEnemy(s,true,regionSignal.finalBoss?'stella_warden':(s.region.majorBossesSpawned===1?'architect':'conductor')));playSound('boss')}
     // waves
     s.waveTimer -= dt;
     if (s.waveTimer <= 0 && s.waveEnemiesToSpawn > 0) {
@@ -279,9 +282,13 @@ export function update(s: GameState, dt: number): void {
   
     // enemies
     updateEnemies(s, dt);
+    const poi=collectRegionPoi(s);
+    if(poi){const labels:Record<RegionPoiType,string>={resonance_cache:'RESONANCE CACHE',breach_node:'BREACH NODE',echo_relay:'ECHO RELAY',lost_signal:'LOST SIGNAL',elite_nest:'ELITE NEST',rupture:'RUPTURE',boss_trace:'BOSS TRACE'};s.flashText={text:labels[poi],life:1,color:poi==='elite_nest'||poi==='rupture'?'#ff6b6b':'#55e6c1'};if(poi==='resonance_cache')s.player.resonanceCharge=Math.min(100,s.player.resonanceCharge+28);if(poi==='echo_relay')s.player.resonanceCharge=Math.min(100,s.player.resonanceCharge+45);if(poi==='breach_node')for(const e of s.enemies)if(e.hp>0&&dist(e.pos,s.player.pos)<260)e.hp*=.72;if(poi==='rupture')for(const e of s.enemies)if(e.hp>0&&dist(e.pos,s.player.pos)<220)e.hp*=.62;if(poi==='lost_signal')s.region!.regionXpReward+=12;if(poi==='elite_nest')for(let i=0;i<2;i++)s.enemies.push(spawnEnemy(s,false));}
   
   
   }
+
+  if(s.region?.cleared){s.gameOver=true;s.stats.time=s.time;}
 
   // xp orbs
   updateXpOrbs(s, dt);

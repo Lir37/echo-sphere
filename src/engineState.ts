@@ -5,7 +5,6 @@ import { BALANCE } from './engineBalance';
 import { BASE_SPHERE_RADIUS, BASE_SPHERE_DAMAGE, BASE_SPHERE_DELAY } from './engineSpheres';
 import { CHARACTER_DEFS, type CharacterId } from './characters';
 import type { GameState, ShopState, PlayerState } from './engineTypes';
-import { createRegionState, type RegionChallengeId, type RegionMode } from './region';
 
 export interface LeaderEntry {
   name: string;
@@ -38,8 +37,6 @@ export function createInitialState(
   playerName: string,
   difficulty: Difficulty = 'normal',
   runSeedOverride?: number,
-  regionMode: RegionMode = 'stabilization',
-  regionChallenge: RegionChallengeId = 'none',
 ): GameState {
   const runSeed = runSeedOverride === undefined ? createRunSeed(playerName, difficulty) : (runSeedOverride >>> 0) || 1;
   const rngState = createRngState(runSeed);
@@ -227,6 +224,5 @@ export function createInitialState(
     networkFrame: null,
     networkFrameId: 0,
     networkFormationSelection: null,
-    region: createRegionState(regionMode, regionChallenge),
   };
 }
