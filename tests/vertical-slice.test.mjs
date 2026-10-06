@@ -85,3 +85,22 @@ test('Enemy roster contains fifteen authored roles', async () => {
 test('Region runtime contract exposes 5 pockets, 7 POIs, 3 contracts and 30-minute clear schedule',()=>{assert.equal(REGION_POCKETS.length,5);assert.equal(REGION_CHALLENGES.length,3);assert.equal(getRegionPhase(1800).id,5);const r=createRegionState('stabilization','fractured_network');assert.equal(r.id,'resonance_basin');});
 test('Region player-facing contract explains challenges, objective and POIs',async()=>{const app=await fs.readFile(new URL('../src/EchoMapScreen.tsx',import.meta.url),'utf8');const loop=await fs.readFile(new URL('../src/engineLoop.ts',import.meta.url),'utf8');const locale=await fs.readFile(new URL('../src/canvasLocale.ts',import.meta.url),'utf8');assert.match(app,/ИСПЫТАНИЯ/);assert.match(app,/БЕСКОНЕЧНОЕ ЯДРО/);assert.match(app,/5 ОСКОЛКОВ/);assert.match(app,/Резонансный бассейн/);for(const token of ['RESONANCE CACHE','BREACH NODE','ECHO RELAY','LOST SIGNAL','ELITE NEST','RUPTURE','BOSS TRACE'])assert.match(loop,new RegExp(token));assert.match(locale,/ТАЙНИК РЕЗОНАНСА/);assert.match(locale,/СЛЕД БОССА/);});
 test('Region Endless unlock requires all three challenge satellites',async()=>{const region=await fs.readFile(new URL('../src/region.ts',import.meta.url),'utf8');assert.match(region,/getRegionChallengeProgress\(\)>=3/);assert.match(region,/markRegionChallengeComplete/);assert.match(region,/persistRegionStabilized\(true\)/);});
+
+
+test('Echo Map uses a zoomed star overview and gates challenge satellites behind Standard', async () => {
+  const app = await fs.readFile(new URL('../src/EchoMapScreen.tsx', import.meta.url), 'utf8');
+  assert.match(app, /regionOpen/);
+  assert.match(app, /const locked = !stabilized/);
+  assert.match(app, /disabled=\{locked\}/);
+  assert.match(app, /СТАНДАРТ/);
+  assert.match(app, /ИСПЫТАНИЯ/);
+  assert.match(app, /БЕСКОНЕЧНОЕ ЯДРО/);
+});
+
+test('End-of-run statistics expose kills and field XP HUD is absent', async () => {
+  const app = await fs.readFile(new URL('../src/App.tsx', import.meta.url), 'utf8');
+  assert.match(app, /kills: number/);
+  assert.match(app, /kills: st\.player\.kills/);
+  assert.match(app, /gameOverData\.kills/);
+  assert.doesNotMatch(app, /ОПЫТ НА ПОЛЕ|XP ON FIELD/);
+});
