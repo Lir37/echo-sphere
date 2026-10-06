@@ -1053,7 +1053,7 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
                         networkDragRef.current = null;
                       }}
                       onContextMenu={(event) => event.preventDefault()}
-                      className={`es-network-formation-chip pointer-events-auto ${item.slot === 'dominant' ? 'is-dominant' : 'is-secondary'}`}
+                      className={`es-network-formation-chip pointer-events-auto ${item.slot === 'dominant' ? 'is-dominant' : 'is-secondary'} ${item.inactive ? 'is-inactive' : ''}`}
                     >
                       <span className="es-network-formation-name">{formationDisplayName(item.type, lang)}</span>
                     </button>
@@ -1063,7 +1063,7 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
             </>
           ) : <span className="text-[7px] text-[#7f9bb8]">{lang === 'ru' ? 'ФОРМАЦИЯ НЕ АКТИВНА' : 'NO FORMATION'}</span>}
           {networkTooltip && <div role="button" tabIndex={0} onPointerDown={hideNetworkTooltip} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') hideNetworkTooltip(); }} style={{ userSelect: 'none' }} className="es-network-tooltip">
-            <div className={`es-network-tooltip-title ${network.secondaryFormation?.type === networkTooltip.toLowerCase() ? 'is-secondary' : 'is-dominant'}`}>
+            <div className={`es-network-tooltip-title ${network.secondaryFormation?.type === networkTooltip.toLowerCase() ? 'is-secondary' : 'is-dominant'} ${network.dominantFormation?.active === false && network.dominantFormation?.type === networkTooltip.toLowerCase() ? 'is-inactive' : ''}`}>
               <span>{formationDisplayName(networkTooltip.toLowerCase(), lang)}</span>
               <span className="es-network-tooltip-effectiveness">{network.dominantFormation?.active === false && network.dominantFormation?.type === networkTooltip.toLowerCase() ? (lang === 'ru' ? 'ВРЕМЕННО ОТКЛ.' : 'TEMP OFF') : network.secondaryFormation?.type === networkTooltip.toLowerCase() ? '50%' : '100%'}</span>
             </div>
