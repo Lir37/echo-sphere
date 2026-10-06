@@ -99,7 +99,7 @@ function localizeCanvasText(text: string): string {
     ['STELLA JUDGEMENT','ПРИГОВОР СТЕЛЛЫ'],['CHORUS SYNC','СИНХРОНИЗАЦИЯ ХОРА'],['CHORUS PULSE','ИМПУЛЬС ХОРА'],
     ['CLOSED TIME NETWORK','ЗАМКНУТАЯ СЕТЬ ВРЕМЕНИ'],['TEMPORAL CORE','ВРЕМЕННОЕ ЯДРО'],
   ];
-  for (const [english, russian] of regionPhraseReplacements) result = result.replaceAll(english, russian);
+  for (const [english, russian] of regionPhraseReplacements) result = result.split(english).join(russian);
   for (const [pattern, replacement] of RU_REPLACEMENTS) {
     result = result.replace(pattern, replacement);
   }
