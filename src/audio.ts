@@ -4,6 +4,18 @@ let ctx: AudioContext | null = null;
 let masterGain: GainNode | null = null;
 let enabled = true;
 
+const SOUND_MIN_INTERVAL: Partial<Record<SoundName, number>> = {
+  // Hit/shoot sounds can be generated dozens of times per frame in dense
+  // builds. Throttling only the noisy effects prevents Web Audio node churn
+  // without muting important state-change sounds.
+  hit: 0.045,
+  shoot: 0.06,
+  pickup: 0.035,
+  kill: 0.045,
+};
+
+const lastSoundTime = new Map<SoundName, number>();
+
 function ensureCtx(): AudioContext | null {
   if (!ctx) {
     try {
@@ -36,6 +48,15 @@ type SoundName =
 
 export function playSound(name: SoundName): void {
   if (!enabled) return;
+
+  const nowWall = typeof performance !== 'undefined' ? performance.now() / 1000 : Date.now() / 1000;
+  const minInterval = SOUND_MIN_INTERVAL[name] ?? 0;
+  if (minInterval > 0) {
+    const previous = lastSoundTime.get(name);
+    if (previous !== undefined && nowWall - previous < minInterval) return;
+    lastSoundTime.set(name, nowWall);
+  }
+
   const c = ensureCtx();
   if (!c || !masterGain) return;
   const now = c.currentTime;
