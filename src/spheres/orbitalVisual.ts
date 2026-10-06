@@ -170,20 +170,24 @@ export function renderOrbitalSphereRuntimeVfx(
   time: number,
   scale = 1,
   _enemies: EnemyEntity[] = [],
+  orbitalRadiusScale = 1,
 ): void {
   const v = update(sphere, player, time);
   const disabled = sphere.networkDisabledTimer > 0 || !sphere.alive;
   const resonance = !disabled && v.resonance > 0;
   const color = disabled ? DISABLED : resonance ? RESONANCE : BASE;
   const r = 24 * scale;
+  const orbitMultiplier = Number.isFinite(orbitalRadiusScale) && orbitalRadiusScale > 0
+    ? orbitalRadiusScale
+    : 1;
   const coreR = r * .70;
 
   ctx.save();
   ctx.translate(sphere.pos.x, sphere.pos.y);
   ctx.globalCompositeOperation = 'lighter';
   glow(ctx, r * 2.55, color, disabled ? .05 : .13);
-  drawSphereOrbit(ctx, r * 1.05, color, time * .18 + v.phase, disabled ? .12 : .66, 'orbital', .5 + .5 * Math.sin(time * 3.0 + v.phase));
-  drawSphereOrbit(ctx, r * .88, color, -time * .22 + v.phase * .5, disabled ? .08 : .38, 'orbital', .5);
+  drawSphereOrbit(ctx, r * 1.05 * orbitMultiplier, color, time * .18 + v.phase, disabled ? .12 : .66, 'orbital', .5 + .5 * Math.sin(time * 3.0 + v.phase));
+  drawSphereOrbit(ctx, r * .88 * orbitMultiplier, color, -time * .22 + v.phase * .5, disabled ? .08 : .38, 'orbital', .5);
   ctx.globalCompositeOperation = 'source-over';
   core(ctx, coreR, color, disabled ? .5 : .5 + .5 * Math.sin(time * 3.0 + v.phase));
 
