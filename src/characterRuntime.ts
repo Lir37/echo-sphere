@@ -33,7 +33,11 @@ interface CharacterRuntimePlayer {
   fractalEchoStrength?: number;
   voidPhantomTimer?: number;
   voidPhantomPulseTimer?: number;
+  voidPhantomPulseCount?: number;
+  voidPhantomSource?: SphereEntity | null;
   voidPhantomPos?: Vec | null;
+  spheristChorusHits?: number;
+  berserkerRedlineHits?: number;
   architectFormationType?: CharacterFormation;
   architectFormationChangedAt?: number;
 }
@@ -353,6 +357,7 @@ export function recordCharacterFormation(s: GameState, formation: { type: Networ
   history.push({ type: formation.type, key, nodes: formation.nodes.filter(i => i < s.spheres.length).map(i => s.spheres[i]?.pos).filter((v): v is Vec => Boolean(v)).map(v => ({...v})) });
   p.fractalFormationHistory = history.slice(-((p.characterMasteryLevel || 1) >= 7 ? 4 : 3));
   const recent = p.fractalFormationHistory.slice(-3);
+  if ((p.characterMasteryLevel || 1) < 3) return;
   if (recent.length < 3 || new Set(recent.map(v => v.type)).size < 3 || (p.fractalEchoCooldown || 0) > 0) return;
   p.fractalEchoNodes = recent[0].nodes.map(v => ({...v}));
   p.fractalEchoStrength = (p.characterMasteryLevel || 1) >= 10 ? 0.70 : (p.characterMasteryLevel || 1) >= 6 ? 0.60 : 0.50;
@@ -380,18 +385,40 @@ export function updateCharacterRuntime(s: GameState, dt: number, network: Sphere
     if ((p.voidPhantomTimer || 0) <= 0 && disabled) {
       p.voidPhantomTimer = mastery >= 10 ? 3.5 : mastery >= 2 ? 3 : 2.5;
       p.voidPhantomPulseTimer = 0;
+      p.voidPhantomPulseCount = 0;
+      p.voidPhantomSource = disabled;
       p.voidPhantomPos = {...disabled.pos};
       s.flashText = { text:'PHANTOM NODE', life:0.8, color:'#8a5a8a' };
+    } else if ((p.voidPhantomTimer || 0) > 0 && mastery >= 6 && disabled && p.voidPhantomSource !== disabled) {
+      p.voidPhantomTimer = mastery >= 10 ? 3.5 : mastery >= 2 ? 3 : 2.5;
+      p.voidPhantomPulseTimer = 0;
+      p.voidPhantomPulseCount = 0;
+      p.voidPhantomSource = disabled;
+      p.voidPhantomPos = {...disabled.pos};
+      s.flashText = { text:'BREACH REFRESH', life:0.7, color:'#8a5a8a' };
     }
     if ((p.voidPhantomTimer || 0) > 0) {
       p.voidPhantomTimer = Math.max(0,p.voidPhantomTimer! - dt);
       p.voidPhantomPulseTimer = (p.voidPhantomPulseTimer || 0) - dt;
       if (p.voidPhantomPulseTimer <= 0 && p.voidPhantomPos) {
         p.voidPhantomPulseTimer = 0.6;
-        const dmg=(12+s.player.level)*(mastery>=10?0.70:mastery>=4?0.60:0.50);
-        for(const enemy of s.enemies) if(enemy.hp>0 && distance(enemy.pos,p.voidPhantomPos)<=105){dealDamage(s,enemy,dmg,undefined,false);if(mastery>=3){enemy.slowTimer=Math.max(enemy.slowTimer,0.6);enemy.slowFactor=Math.min(enemy.slowFactor||1,0.82);}}
+        p.voidPhantomPulseCount = (p.voidPhantomPulseCount || 0) + 1;
+        const activeVoidGravity = s.spheres.some(v => v.alive && v.type === 'void') && s.spheres.some(v => v.alive && v.type === 'gravity');
+        for(const enemy of s.enemies) {
+          if(enemy.hp <= 0 || distance(enemy.pos,p.voidPhantomPos)>105) continue;
+          let dmg=(12+s.player.level)*(mastery>=10?0.70:mastery>=4?0.60:0.50);
+          if (mastery >= 7 && enemy.hp / Math.max(1, enemy.maxHp) <= 0.35) dmg *= mastery >= 10 ? 1.35 : 1.20;
+          if (mastery >= 8 && activeVoidGravity) dmg *= 1.10;
+          if (mastery >= 9 && p.voidPhantomPulseCount === 1) dmg *= 1.50;
+          dealDamage(s,enemy,dmg,undefined,false);
+          if(mastery>=3){enemy.slowTimer=Math.max(enemy.slowTimer,0.6);enemy.slowFactor=Math.min(enemy.slowFactor||1,0.82);}
+        }
       }
-    } else p.voidPhantomPos=null;
+    } else {
+      p.voidPhantomPos=null;
+      p.voidPhantomSource=null;
+      p.voidPhantomPulseCount=0;
+    }
   }
 }
 
