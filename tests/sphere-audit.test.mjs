@@ -46,6 +46,56 @@ for (const [type, ids] of Object.entries(branches)) {
   }
 }
 
+const canonicalBranchIds = [
+  'standard_resonator','standard_singularity','standard_swarm',
+  'sniper_oracle','sniper_assassin','sniper_beacon',
+  'shotgun_burst','shotgun_cataclysm','shotgun_hail',
+  'chain_web','chain_storm','chain_leech',
+  'aura_sanctum','aura_gravity','aura_overgrowth',
+  'orbital_dance','orbital_halo','orbital_blade',
+  'prism_split','prism_spectrum','prism_mirror',
+  'gravity_well','gravity_tide','gravity_collapse',
+  'pulse_wave','pulse_resonator','pulse_burst',
+  'void_hunger','void_reaper','void_execution',
+];
+assert.equal(new Set(canonicalBranchIds).size, 30, 'Canonical branch roster must contain 30 unique branches.');
+for (const id of canonicalBranchIds) {
+  assert.match(progression, new RegExp(id + ".*signature behavior"), 'Branch description missing: ' + id);
+}
+
+const finalIdMatches = progression.match(/sphere:[a-z]+:7:[a-z_]+:[012]/g) || [];
+assert.equal(new Set(finalIdMatches).size, 90, 'Every one of the 30 branches must expose exactly 3 Level-VII finals.');
+for (const id of canonicalBranchIds) {
+  for (const index of [0, 1, 2]) {
+    assert.match(progression, new RegExp(id + "_final_" + (index + 1)), 'Final description missing: ' + id + ' final ' + (index + 1));
+  }
+}
+
+assert.match(progression, /\['\+15% орбитального урона','\+15% радиуса орбиты','\+15% скорости вращения'\]/,
+  'Orbital Level III must describe rotation speed, not an undefined interval.');
+assert.match(progression, /rotationSpeed\*=1\.15/,
+  'Orbital Level III rotation speed modifier is missing.');
+assert.match(engine, /const bodyRadius = Math\.max\(15, Math\.min\(25, sphere\.radius \* 0\.19 \+ level \* 0\.8\)\)/,
+  'Orbital combat radius must use the same body-radius basis as the renderer.');
+assert.match(engine, /bodyRadius \* 1\.68 \* mods\.radius/,
+  'Orbital inner combat ring is not aligned with the authored visual orbit.');
+assert.match(engine, /bodyRadius \* 2\.02 \* mods\.radius/,
+  'Orbital outer combat ring is not aligned with the authored visual orbit.');
+assert.match(engine, /branch === 'orbital_dance' && finalIndex === 2/,
+  'Only Orbital Dance final III should add the extra core satellite.');
+assert.match(progression, /orbital_dance:\{0:\{afterimage:2\},1:\{afterimage:2\},2:\{afterimage:2\}\}/,
+  'Orbital Dance finals must retain their authored Afterimage behavior.');
+assert.match(progression, /prism_spectrum:\{0:\{fire:1\},1:\{freeze:1\},2:\{poison:1\}\}/,
+  'Prism Spectrum finals must map to Fire/Freeze/Poison.');
+assert.match(engine, /const bounceCount = finalIndex === null ? 0 : Math\.min\(2, mods\.ricochet\)/,
+  'Prism Mirror finals must consume authored Ricochet levels.');
+assert.match(engine, /finalIndex === 2 ? 1\.50 : 1\.15/,
+  'Gravity Well final III pull scaling must be stronger than the base branch.');
+assert.match(engine, /finalIndex === null || finalIndex === 0 || finalIndex === 2/,
+  'Standard Singularity base branch must pull enemies before Level VII selection.');
+assert.match(engine, /const baseExecuteChance = voidLevel >= 2 ? 0\.10 : 0/,
+  'Void Level II execute chance must have a concrete runtime consumer.');
+
 for (const fn of ['updateOrbitalSphere','updatePrismSphere','updateGravitySphere','updatePulseSphere']) {
   assert.match(engine, new RegExp('function ' + fn + '\\('), 'Dedicated runtime missing: ' + fn);
 }
