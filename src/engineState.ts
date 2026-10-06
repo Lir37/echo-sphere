@@ -106,7 +106,7 @@ export function createInitialState(
       multishot: 0, pierce: 0, ricochet: 0, fire: 0, freeze: 0, poison: 0,
       breach: 0, overload: 0, split: 0, shatter: 0, execute: 0, mark: 0,
       echo: 0, anchor: 0, phase: 0, static: 0, resonant: 0, magnetic: 0,
-      vampiric: 0, corrupt: 0, drain: 0, afterimage: 0, impact: 0, gravitic: 0,
+      vampiric: 0, corrupt: 0, drain: 0, afterimage: 0, impact: 0, gravitic: 0, rotationSpeed: 1,
     },
     sphereMovementLocked: false,
     knownSphereTypes: ['standard'],
