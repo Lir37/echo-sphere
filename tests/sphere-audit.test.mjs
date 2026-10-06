@@ -63,7 +63,7 @@ for (const id of canonicalBranchIds) {
   assert.match(progression, new RegExp(id + ".*signature behavior"), 'Branch description missing: ' + id);
 }
 
-const finalIdMatches = progression.match(/sphere:[a-z]+:7:[a-z_]+:[012]/g) || [];
+const finalIdMatches = progression.match(/f\('([a-z_]+_final_[123])'/g) || [];
 assert.equal(new Set(finalIdMatches).size, 90, 'Every one of the 30 branches must expose exactly 3 Level-VII finals.');
 for (const id of canonicalBranchIds) {
   for (const index of [0, 1, 2]) {
