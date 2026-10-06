@@ -1467,3 +1467,46 @@ IMPLEMENTED CONTRACT:
   its effect while inactive, and restores the same Dominant automatically.
 - Genuine structural removal still releases the old Dominant normally.
 ======================================================================
+
+
+======================================================================
+2026-10-06 — FULL SPHERE BALANCE AUDIT / ORBITAL ELEMENT READABILITY
+======================================================================
+
+AUDIT VERDICT:
+- All 10 Sphere archetypes reviewed across L1-III, Mutation I, V-VI and VII.
+- Spheres are role-balanced, not raw-DPS-equalized: damage, coverage,
+  control, execution, Resonance/network interaction and support all count.
+- Two concrete defects were fixed:
+  1) Orbital's 1+1 opening was too weak for early single-target pressure.
+  2) Chain visually hit its primary target but did not damage that target.
+
+DIAGNOSTIC L1 PAPER DPS, NO EXTERNAL BONUSES:
+Standard 11.5; Sniper 15.6; Shotgun 20.0 with all 4 pellets connecting;
+Chain 18.5 total across primary + two jumps; Aura 14.4 per enemy in field;
+Orbital ~6.25 against a stationary target exactly on one ideal path; Prism 11.6;
+Gravity 12.6 per enemy in radius; Pulse 20.9 per enemy in radius; Void 9.6
+baseline before weakened-target / execute effects.
+
+BALANCE CHANGES:
+[DONE] Orbital base damage multiplier: 0.50 -> 0.72.
+[DONE] Orbital early contact envelope widened for reliable L1/L2 passes.
+[DONE] Chain primary target now receives the first full hit through the
+      authoritative damage path.
+[DONE] Orbital contact latch remains one-hit-per-element-per-contact episode.
+
+MUTATION / ROLE BALANCE:
+- All 30 Mutation I branches remain mechanically distinct.
+- Utility/control finals are intentionally allowed to trade raw DPS for slow,
+  pull, Resonance, sustain, reflected damage or team acceleration.
+- No broad Sphere homogenization was introduced.
+
+ORBITAL ELEMENT READABILITY:
+- Mutation elements are now directly color-coded on every moving combat element.
+- Fire / Freeze / Poison each receive a distinct geometric trail.
+- No per-element radial-gradient hot path was added.
+
+NEXT PLAYER CHECK:
+Validate the final green APK for Orbital L1/L2 feel, obvious elemental trails,
+correct Chain primary damage and the existing dense-combat performance gate.
+======================================================================
