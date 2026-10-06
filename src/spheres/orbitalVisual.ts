@@ -27,6 +27,7 @@ function stateOf(s: SphereEntity): VisualState {
 
 function update(s: SphereEntity, p: PlayerState, t: number): VisualState {
   const v = stateOf(s);
+  if (v.lastTime === t && v.lastTime !== 0) return v;
   const dt = v.lastTime > 0 ? Math.min(.05, Math.max(0, t - v.lastTime)) : 0;
   v.lastTime = t;
   const disabled = s.networkDisabledTimer > 0 || !s.alive;
@@ -232,14 +233,6 @@ export function renderOrbitalSphereAttackersVfx(
   const color = resonance ? RESONANCE : BASE;
   const branch = player?.sphereBranches?.orbital;
   const bladeMutation = branch === 'orbital_blade';
-  const speed = branch === 'orbital_dance'
-    ? 3.15
-    : branch === 'orbital_halo'
-      ? 1.55
-      : branch === 'orbital_blade'
-        ? 2.75
-        : 2.35;
-
   const innerOrbitRadius = r * 1.68;
   const outerOrbitRadius = r * 2.02;
 
