@@ -30,6 +30,7 @@ import type { GameState, SphereEntity, EnemyEntity, Vec } from './engineTypes';
 import {
   dist, rand, getSphereFinalIndex, getAbilityBranchId, getNetworkFrame
 } from './engineRuntime';
+import { getOrbitalRingCounts, orbitalElementAngle } from './spheres/orbitalGeometry';
 import {
   dealDamageToEnemy, onEnemyDeath, triggerEngineerRelay, consumeEngineerRelayBonus, emitSpherePulse
 } from './engineCombat';
