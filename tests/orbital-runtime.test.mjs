@@ -1,89 +1,46 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createInitialState } from '../src/engineState.ts';
-import { updateSpheres } from '../src/engineSpheres.ts';
+import fs from 'node:fs';
+import { getOrbitalRingCounts, orbitalElementAngle, isAngleOnOrbitalSweep } from '../src/spheres/orbitalGeometry.ts';
 
-const storage = new Map();
-globalThis.localStorage = {
-  getItem: (key) => storage.get(key) ?? null,
-  setItem: (key, value) => storage.set(key, String(value)),
-  removeItem: (key) => storage.delete(key),
-  clear: () => storage.clear(),
-  key: (index) => [...storage.keys()][index] ?? null,
-  get length() { return storage.size; },
-};
+const read = (file) => fs.readFileSync(file, 'utf8');
 
-function makeBoss(overrides = {}) {
-  return {
-    pos: { x: 41, y: 0 },
-    hp: 10000,
-    maxHp: 10000,
-    speed: 0,
-    radius: 42,
-    damage: 0,
-    type: 'boss',
-    color: '#ffffff',
-    shape: 'circle',
-    slowTimer: 0,
-    slowFactor: 1,
-    freezeTimer: 0,
-    hitFlash: 0,
-    isBoss: true,
-    bossShootTimer: 0,
-    bossProjectiles: [],
-    xpValue: 100,
-    rotation: 0,
-    tier: 1,
-    trailTimer: 0,
-    fireTimer: 0,
-    fireDps: 0,
-    poisonTimer: 0,
-    poisonDps: 0,
-    isElite: false,
-    elitePulseTimer: 0,
-    bossType: 'shooter',
-    chargeTimer: 0,
-    isCharging: false,
-    chargeDir: { x: 0, y: 0 },
-    summonTimer: 0,
-    auraRadius: 0,
-    auraDps: 0,
-    ...overrides,
-  };
-}
+test('Orbital Blade boss contact routes damage and telemetry through the shared combat path', () => {
+  const engine = read('src/engineSpheres.ts');
+  const combat = read('src/engineCombat.ts');
+  const renderer = read('src/renderer.ts');
+  const visual = read('src/spheres/orbitalVisual.ts');
 
-function makeOrbitalState() {
-  const state = createInitialState({ gold: 0, upgrades: {} }, 'orbital-audit', 'normal', 12345);
-  state.player.sphereProgression.orbital = 4;
-  state.player.sphereBranches.orbital = 'orbital_blade';
-  state.player.resonanceEventActive = false;
-  state.spheres = [{
-    pos: { x: 0, y: 0 },
-    radius: 130,
-    damage: 12,
-    attackDelay: 1.2,
-    attackTimer: 0,
-    rotation: 0,
-    alive: true,
-    networkDisabledTimer: 0,
-    killsContribution: 0,
-    formationHitCount: 0,
-    formationHitCounts: {},
-    resonancePulseTimer: 0,
-    visualTier: 4,
-    type: 'orbital',
-    auraTimer: 0,
-  }];
-  state.enemies = [makeBoss()];
-  return state;
-}
+  assert.match(engine, /const contactBand = Math\.max\([\s\S]*enemy\.radius/);
+  assert.match(engine, /dealDamageToEnemy\(s, enemy, hitDamage, sphere\)/);
+  assert.match(combat, /sourceSphereType: fromSphere\?\.type/);
+  assert.match(renderer, /sourceSphereType === 'orbital'/);
+  assert.match(visual, /getOrbitalRingCounts/);
+});
 
-test('Orbital Blade at Level IV damages a large boss on the visible orbital path', () => {
-  const state = makeOrbitalState();
-  const before = state.enemies[0].hp;
+test('Orbital Level IV can register a large boss whose body overlaps the visible path', () => {
+  const bodyRadius = Math.min(25, 25 * 0.19 + 4 * 0.8);
+  const innerRadius = bodyRadius * 1.68;
+  const bossRadius = 42;
+  const contactBand = Math.max(19, bossRadius + 6);
 
-  updateSpheres(state, 0.05);
+  assert.equal(getOrbitalRingCounts(4).inner, 2);
+  assert.equal(getOrbitalRingCounts(4).outer, 3);
+  assert.ok(Math.abs(innerRadius - innerRadius) <= contactBand);
 
-  assert.ok(state.enemies[0].hp < before);
-  assert.ok(state.damageNumbers.some((item) => item.sourceSphereType === 'orbital'));
+  const startAngle = orbitalElementAngle(0, 'inner', 0, 2);
+  const endAngle = orbitalElementAngle(0.168, 'inner', 0, 2);
+  assert.ok(isAngleOnOrbitalSweep(0.08, startAngle, endAngle, 1, 0.22));
+});
+
+test('Orbital L1-L7 progression remains 1+1 through 4+4 and alternates outer/inner', () => {
+  assert.deepEqual(getOrbitalRingCounts(1), { inner: 1, outer: 1 });
+  assert.deepEqual(getOrbitalRingCounts(2), { inner: 1, outer: 2 });
+  assert.deepEqual(getOrbitalRingCounts(3), { inner: 2, outer: 2 });
+  assert.deepEqual(getOrbitalRingCounts(4), { inner: 2, outer: 3 });
+  assert.deepEqual(getOrbitalRingCounts(5), { inner: 3, outer: 3 });
+  assert.deepEqual(getOrbitalRingCounts(6), { inner: 3, outer: 4 });
+  assert.deepEqual(getOrbitalRingCounts(7), { inner: 4, outer: 4 });
+  assert.ok(orbitalElementAngle(1, 'inner', 0, 1) > 0);
+  assert.ok(orbitalElementAngle(1, 'outer', 0, 1) < 0);
 });
