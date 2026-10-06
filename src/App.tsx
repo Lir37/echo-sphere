@@ -91,6 +91,7 @@ function Menu({ lang, t, difficulty, setDifficulty, onOpenMap, onShop, onCharact
   onOpenMap: () => void; onShop: () => void; onCharacters: () => void; onLeader: () => void; onSettings: () => void; onAchievements: () => void; onKnowledge: () => void;
 }) {
   const [name, setName] = useState(() => loadName());
+  const [identityOpen, setIdentityOpen] = useState(false);
   const selectedCharacter = CHARACTER_DEFS[loadCharacterId()];
   useEffect(() => { saveName(name); }, [name]);
 
@@ -103,62 +104,48 @@ function Menu({ lang, t, difficulty, setDifficulty, onOpenMap, onShop, onCharact
         </div>
      </header>
 
+
       <main className="es-main-stage">
-        <section className="es-main-core">
-          <div className="es-core-caption">ECHO CORE // {lang === 'ru' ? 'ГОТОВ' : 'READY'}</div>
-          <button type="button" className="es-main-map-entry" onClick={onOpenMap} aria-label={lang === 'ru' ? 'Открыть карту Эха' : 'Open Echo Map'}>
-            <div className="es-main-core-art" aria-hidden="true">
-              <div className="es-core-orbit orbit-a" />
-              <div className="es-core-orbit orbit-b" />
-              <div className="es-core-orbit orbit-c" />
-              <div className="es-core-ring ring-a" />
-              <div className="es-core-ring ring-b" />
-              <div className="es-core-body" />
-              <div className="es-core-highlight" />
-              <div className="es-map-entry-shard shard-a" />
-              <div className="es-map-entry-shard shard-b" />
-              <div className="es-map-entry-shard shard-c" />
+        <section className="es-main-core es-menu-core">
+          <div className="es-menu-orbit-system">
+            <div className="es-menu-orbit es-menu-orbit-outer">
+              <button type="button" className="es-menu-orbit-item menu-item-character" onClick={onCharacters} aria-label={lang === 'ru' ? 'Персонажи' : 'Characters'}><span className="es-menu-glyph glyph-character" style={{ ['--glyph-color' as string]: selectedCharacter.color }} /></button>
+              <button type="button" className="es-menu-orbit-item menu-item-shop" onClick={onShop} aria-label={lang === 'ru' ? 'Снаряжение' : 'Loadout'}><span className="es-menu-glyph glyph-cache" /></button>
+              <button type="button" className="es-menu-orbit-item menu-item-settings" onClick={onSettings} aria-label={lang === 'ru' ? 'Настройки' : 'Settings'}><span className="es-menu-glyph glyph-calibration" /></button>
             </div>
-            <span className="es-main-core-title">{lang === 'ru' ? 'КАРТА ЭХА' : 'ECHO MAP'}</span>
-            <span className="es-map-entry-label">{lang === 'ru' ? 'ОТКРЫТЬ КАРТУ' : 'OPEN MAP'}</span>
-          </button>
-          <div className="es-main-core-copy">
-            {lang === 'ru' ? 'Нажми на сферу и выбери путь. Регионы, испытания и Бесконечность теперь живут на одной карте.' : 'Tap the sphere to choose your path. Regions, challenges and Infinity now live on one map.'}
-          </div>
-
-          <div className="es-main-loadout">
-            <button onClick={onCharacters} className="es-loadout-character">
-              <span className="es-loadout-avatar" style={{ ['--character-color' as string]: selectedCharacter.color }}>✦</span>
-              <span>
-                <b>{selectedCharacter.name[lang]}</b>
-                <small>{selectedCharacter.role[lang]}</small>
-              </span>
-              <UserRound size={14} />
-            </button>
-
-            <div className="es-loadout-divider" />
-
-            <div className="es-loadout-setting">
-              <span>{t('difficulty')}</span>
-              <div className="es-loadout-options">
-                {DIFFICULTIES.map((d) => (
-                  <button key={d.id} onClick={() => setDifficulty(d.id)} className={difficulty === d.id ? 'is-active' : ''}>{d.name[lang]}</button>
-                ))}
+            <div className="es-menu-orbit es-menu-orbit-mid">
+              <button type="button" className="es-menu-orbit-item menu-item-leader" onClick={onLeader} aria-label={lang === 'ru' ? 'Рекорды' : 'Leaderboard'}><span className="es-menu-glyph glyph-signal-bars" /></button>
+              <button type="button" className="es-menu-orbit-item menu-item-achievements" onClick={onAchievements} aria-label={lang === 'ru' ? 'Достижения' : 'Achievements'}><span className="es-menu-glyph glyph-resonance-star" /></button>
+              <button type="button" className="es-menu-orbit-item menu-item-difficulty" onClick={() => {
+                const index = Math.max(0, DIFFICULTIES.findIndex((item) => item.id === difficulty));
+                setDifficulty(DIFFICULTIES[(index + 1) % DIFFICULTIES.length].id);
+              }} aria-label={lang === 'ru' ? 'Сложность' : 'Difficulty'}><span className="es-menu-glyph glyph-difficulty">{DIFFICULTIES.map((item) => <i key={item.id} className={item.id === difficulty ? 'is-current' : ''} />)}</span></button>
+            </div>
+            <div className="es-menu-orbit es-menu-orbit-inner">
+              <button type="button" className="es-menu-orbit-item menu-item-archive" onClick={onKnowledge} aria-label={lang === 'ru' ? 'Архив Эха' : 'Echo Archive'}><span className="es-menu-glyph glyph-memory" /></button>
+              <button type="button" className="es-menu-orbit-item menu-item-identity" onClick={() => setIdentityOpen((value) => !value)} aria-label={lang === 'ru' ? 'Профиль' : 'Profile'}><span className="es-menu-glyph glyph-identity" /></button>
+            </div>
+            <button type="button" className="es-main-map-entry" onClick={onOpenMap} aria-label={lang === 'ru' ? 'Открыть карту Эха' : 'Open Echo Map'}>
+              <div className="es-main-core-art" aria-hidden="true">
+                <div className="es-core-halo" />
+                <div className="es-core-orbit orbit-a" />
+                <div className="es-core-orbit orbit-b" />
+                <div className="es-core-orbit orbit-c" />
+                <div className="es-core-ring ring-a" />
+                <div className="es-core-ring ring-b" />
+                <div className="es-core-body" />
+                <div className="es-core-surface" />
+                <div className="es-core-highlight" />
               </div>
-            </div>
-
+            </button>
           </div>
-
-          <div className="es-main-name">
+          {identityOpen && <div className="es-menu-identity-popover">
             <span>ID</span>
-            <input value={name} onChange={(e) => setName(e.target.value.slice(0, 16))} placeholder={t('namePlaceholder')} />
-          </div>
-
-          <div className="es-main-map-hint">{lang === 'ru' ? 'Выбор региона и режима производится на карте Эха' : 'Region and mode selection happens on the Echo Map'}</div>
+            <input autoFocus value={name} onChange={(event) => setName(event.target.value.slice(0, 16))} placeholder={t('namePlaceholder')} aria-label={t('namePlaceholder')} />
+            <button type="button" onClick={() => setIdentityOpen(false)} aria-label={lang === 'ru' ? 'Закрыть' : 'Close'}>×</button>
+          </div>}
         </section>
-
       </main>
-
       <nav className="es-main-nav">
         <button onClick={onCharacters}><UserRound size={16} /><span>{lang === 'ru' ? 'Персонажи' : 'Characters'}</span></button>
         <button onClick={onShop}><Store size={16} /><span>{t('shop')}</span></button>
@@ -185,7 +172,7 @@ function GameScreen({ lang, t, shop, difficulty, handedness, regionMode, regionC
   const lastTimeRef = useRef<number>(0);
   const uiAccumulatorRef = useRef(0);
   const [, forceRender] = useState(0);
-  const [gameOverData, setGameOverData] = useState<{ time: number; wave: number; gold: number; rank: number; isNewRecord: boolean; regionClear: boolean; masteryChallengesCompleted: number; challengeProgress: number; endlessUnlocked: boolean } | null>(null);
+  const [gameOverData, setGameOverData] = useState<{ time: number; wave: number; kills: number; gold: number; rank: number; isNewRecord: boolean; regionClear: boolean; masteryChallengesCompleted: number; challengeProgress: number; endlessUnlocked: boolean } | null>(null);
   const [paused, setPaused] = useState(false);
   const [pauseTab, setPauseTab] = useState<PauseTab>('stats');
   const [selectedArtifactSetId, setSelectedArtifactSetId] = useState<string | null>(null);
@@ -299,7 +286,7 @@ function GameScreen({ lang, t, shop, difficulty, handedness, regionMode, regionC
           if (st.player.combo >= 50) unlockAchievement('combo_50');
           if (st.player.chestOpens >= 5) unlockAchievement('chest_5');
           if (st.player.dashCount >= 50) unlockAchievement('dash_50');
-          setGameOverData({ time, wave: st.wave, gold, rank, isNewRecord, regionClear: Boolean(st.region?.cleared), masteryChallengesCompleted: st.region?.masteryChallengesCompleted || 0, challengeProgress: getRegionChallengeProgress(), endlessUnlocked: loadRegionEndlessUnlock() });
+          setGameOverData({ time, wave: st.wave, kills: st.player.kills, gold, rank, isNewRecord, regionClear: Boolean(st.region?.cleared), masteryChallengesCompleted: st.region?.masteryChallengesCompleted || 0, challengeProgress: getRegionChallengeProgress(), endlessUnlocked: loadRegionEndlessUnlock() });
         }
 
         if (ENABLE_3D_RENDERER && renderer3dRef.current) {
@@ -449,6 +436,7 @@ function GameScreen({ lang, t, shop, difficulty, handedness, regionMode, regionC
             <div className="bg-[#0d1726] border border-[#243b55] rounded-xl p-6 mb-6 space-y-2 text-left">
               <Row label={t('survived')} value={`${gameOverData.time} ${t('seconds')}`} />
               <Row label={t('wave')} value={`${gameOverData.wave}`} />
+              <Row label={lang === 'ru' ? 'УБИЙСТВА' : 'KILLS'} value={`${gameOverData.kills}`} />
               <Row label={t('goldEarned')} value={`${gameOverData.gold}`} />
               {gameOverData.regionClear && <><Row label={lang === 'ru' ? 'ИСПЫТАНИЯ' : 'CHALLENGES'} value={`${gameOverData.challengeProgress}/3`} /><Row label={lang === 'ru' ? 'БЕСКОНЕЧНЫЙ' : 'ENDLESS'} value={gameOverData.endlessUnlocked ? (lang === 'ru' ? 'ОТКРЫТ' : 'UNLOCKED') : (lang === 'ru' ? 'ЗАКРЫТ' : 'LOCKED')} /><Row label={lang === 'ru' ? 'МАСТЕРСТВО' : 'MASTERY'} value={`${gameOverData.masteryChallengesCompleted}/3`} /></>}
               {gameOverData.rank > 0 && gameOverData.rank <= 10 && <Row label={t('rank')} value={`#${gameOverData.rank}`} />}
@@ -1099,11 +1087,7 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
               <div className="mt-0.5 text-[7px] leading-tight text-[#91adc8]">{st.region!.mode === 'stabilization' ? (lang === 'ru' ? `ЦЕЛЬ: 30:00 + 3 стража · ИСПЫТАНИЯ ${getRegionChallengeProgress()}/3` : `GOAL: 30:00 + 3 wardens · CHALLENGES ${getRegionChallengeProgress()}/3`) : (lang === 'ru' ? 'ЦЕЛЬ: пережить нарастающее давление' : 'GOAL: survive escalating pressure')}</div>
             </div>;
           })()}
-          <div className="es-hud-counters">
-            <div className="es-hud-counter"><span>{lang === 'ru' ? 'ОПЫТ НА ПОЛЕ' : 'XP ON FIELD'}</span><b>◆ {Math.floor(st.xpOrbs.reduce((sum, orb) => sum + orb.value, 0))}</b></div>
-            <div className="es-hud-counter"><span>{lang === 'ru' ? 'УБИЙСТВА' : 'KILLS'}</span><b>◇ {st.player.kills}</b></div>
-            {st.player.buffTimer > 0 && <div className="es-hud-buff">{Math.ceil(st.player.buffTimer)}s</div>}
-          </div>
+
         </div>
         {activeBoss && <div className="es-boss-telemetry mt-2">{t('bossWave')}</div>}
       </div>
