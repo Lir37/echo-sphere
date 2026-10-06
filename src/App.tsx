@@ -1028,7 +1028,6 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
             </div>
           </div>
         </div>
-        </div>
         <div className="es-hud-meta-grid mt-2">
           <span>{t('spheres').toUpperCase()} <b>{st.spheres.length}/{getMaxSpheres(st)}</b></span>
           <span>{t('wave').toUpperCase()} <b>{st.wave}</b></span>
@@ -1093,7 +1092,7 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
           {st.region && (() => {
             const pocket = REGION_POCKETS.find(item => item.id === st.region!.pocketId) || REGION_POCKETS[0];
             const modeLabel = st.region!.mode === 'stabilization' ? (lang === 'ru' ? 'СТАБИЛИЗАЦИЯ' : 'STABILIZATION') : (lang === 'ru' ? 'БЕСКОНЕЧНЫЙ' : 'ENDLESS');
-            return <div className="min-w-[160px] max-w-[190px] pt-1">
+            return <div className="es-hud-region">
               <div className="text-[8px] uppercase tracking-[.12em] text-[#55e6c1] font-bold">{lang === 'ru' ? 'РЕЗОНАНСНЫЙ БАССЕЙН' : 'RESONANCE BASIN'}</div>
               <div className="text-[9px] font-bold text-[#dcecff]">{st.region!.phaseName[lang]}</div>
               <div className="text-[8px] text-[#7f9bb8]">{pocket.name[lang]} · {modeLabel}</div>
