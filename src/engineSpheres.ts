@@ -439,7 +439,7 @@ function updateOrbitalSphere(
   const preFinalPower = finalIndex === null ? preFinalBranchPower(s, 'orbital') : 1;
   const band = finalIndex === 1 ? 26 : finalIndex === 0 ? 22 : finalIndex === null ? 19 * preFinalPower : 19;
 
-  let hitSomething = false;
+  const hitSomething = false;
 
   // Save the end of this checked interval only after collision processing.
   // Between checks the visual element may travel a large fraction of a turn;
