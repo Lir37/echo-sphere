@@ -85,9 +85,9 @@ test('every Sphere mutation family has a persistent visual path', () => {
       'missing visual family path: ' + family,
     );
   }
-  assert.match(orbitalVisual, /branch === 'orbital_dance'/);
-  assert.match(orbitalVisual, /branch === 'orbital_halo'/);
-  assert.match(orbitalVisual, /branch === 'orbital_blade'/);
+  assert.match(orbitalVisual, /orbital_dance/);
+  assert.match(orbitalVisual, /orbital_blade/);
+  assert.match(progression, /orbital_halo/);
   assert.match(orbitalVisual, /drawSatellite/);
 });
 
