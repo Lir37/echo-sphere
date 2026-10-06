@@ -590,49 +590,65 @@ function drawRune(ctx: CanvasRenderingContext2D, rune: GameState['runes'][number
   // character HUD (screen space)
   drawCharacterHud(ctx, s, canvasW, canvasH);
 
-  // Compact world feedback banner. Keep it inside the viewport on mobile.
-  if (s.flashText) {
-    const isBoundary = s.flashText.text.startsWith('POCKET:');
-    const maxWidth = Math.min(canvasW - 28, 520);
-    const alpha = Math.min(1, Math.max(0, s.flashText.life / 0.65));
-    if (isBoundary) {
-      const progress = 1 - Math.min(1, s.flashText.life / 1.35);
-      ctx.save();
-      ctx.translate(s.player.pos.x, s.player.pos.y);
-      ctx.globalAlpha = 0.35 * (1 - progress);
-      ctx.strokeStyle = s.flashText.color;
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.arc(0, 0, PLAYER_RADIUS + 8 + progress * 46, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.globalAlpha = 0.18 * (1 - progress);
-      ctx.beginPath();
-      ctx.arc(0, 0, PLAYER_RADIUS + 14 + progress * 64, 0, Math.PI * 2);
-      ctx.stroke();
-      for (let i = 0; i < 8; i++) {
-        const a = i * Math.PI / 4 + progress * 0.7;
-        const rr = PLAYER_RADIUS + 10 + progress * 40;
-        ctx.fillStyle = s.flashText.color;
-        ctx.beginPath();
-        ctx.arc(Math.cos(a) * rr, Math.sin(a) * rr, 1.7, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      ctx.restore();
-    }
+
+  // Compact world feedback banner.
+  // Boundary FX is rendered while the world transform is still active.
+  if (s.flashText?.kind === 'boundary') {
+    const progress = 1 - Math.min(1, s.flashText.life / 1.35);
     ctx.save();
-    const bannerY = Math.max(64, Math.min(canvasH * 0.18, 150));
-    const fontSize = Math.max(13, Math.min(18, canvasW * 0.045));
+    ctx.translate(s.player.pos.x, s.player.pos.y);
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.globalAlpha = 0.30 * (1 - progress);
+    ctx.strokeStyle = s.flashText.color;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(0, 0, PLAYER_RADIUS + 10 + progress * 44, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.globalAlpha = 0.15 * (1 - progress);
+    ctx.beginPath();
+    ctx.arc(0, 0, PLAYER_RADIUS + 18 + progress * 82, 0, Math.PI * 2);
+    ctx.stroke();
+    for (let i = 0; i < 8; i++) {
+      const a = i * Math.PI / 4 + progress * 1.2;
+      const rr = PLAYER_RADIUS + 14 + progress * 52;
+      ctx.fillStyle = s.flashText.color;
+      ctx.beginPath();
+      ctx.arc(Math.cos(a) * rr, Math.sin(a) * rr, 1.8, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  if (s.flashText) {
+    ctx.save();
+    const maxTextWidth = Math.min(canvasW - 42, 250);
+    const fontSize = Math.max(10, Math.min(13, canvasW * 0.034));
     ctx.font = `bold ${fontSize}px system-ui, sans-serif`;
     ctx.textAlign = 'center';
-    const measured = Math.min(maxWidth, Math.max(160, ctx.measureText(s.flashText.text).width + 28));
-    ctx.globalAlpha = alpha;
-    ctx.fillStyle = 'rgba(2,7,13,.88)';
-    ctx.fillRect(canvasW / 2 - measured / 2, bannerY - fontSize - 9, measured, fontSize + 18);
+    const words = s.flashText.text.split(/\s+/);
+    const lines: string[] = [];
+    let current = '';
+    for (const word of words) {
+      const next = current ? current + ' ' + word : word;
+      if (ctx.measureText(next).width <= maxTextWidth || !current) current = next;
+      else { lines.push(current); current = word; }
+    }
+    if (current) lines.push(current);
+    const displayLines = lines.length <= 2 ? lines : [lines[0], lines.slice(1).join(' ').slice(0, 38) + '…'];
+    const lineGap = fontSize + 2;
+    const boxHeight = displayLines.length * lineGap + 10;
+    const widest = Math.max(...displayLines.map((line) => ctx.measureText(line).width), 112);
+    const boxWidth = Math.min(canvasW - 24, Math.max(130, widest + 18));
+    const bannerY = Math.max(58, Math.min(canvasH * 0.15, 118));
+    const top = bannerY - boxHeight + 4;
+    ctx.globalAlpha = Math.min(1, Math.max(0, s.flashText.life / 0.85));
+    ctx.fillStyle = 'rgba(2,7,13,.90)';
+    ctx.fillRect(canvasW / 2 - boxWidth / 2, top, boxWidth, boxHeight);
     ctx.strokeStyle = s.flashText.color;
     ctx.lineWidth = 1;
-    ctx.strokeRect(canvasW / 2 - measured / 2, bannerY - fontSize - 9, measured, fontSize + 18);
+    ctx.strokeRect(canvasW / 2 - boxWidth / 2, top, boxWidth, boxHeight);
     ctx.fillStyle = s.flashText.color;
-    ctx.fillText(s.flashText.text, canvasW / 2, bannerY);
+    displayLines.forEach((line, index) => ctx.fillText(line, canvasW / 2, top + 13 + index * lineGap));
     ctx.restore();
   }
 
@@ -683,13 +699,6 @@ function drawRegionLayer(ctx:CanvasRenderingContext2D,s:GameState):void{
       ctx.lineTo(x-Math.cos(a+0.16)*7,y-Math.sin(a+0.16)*7);
       ctx.closePath();
       ctx.fill();
-    }
-    if(active){
-      ctx.globalAlpha=.72;
-      ctx.fillStyle=p.accent;
-      ctx.font='bold 11px system-ui,sans-serif';
-      ctx.textAlign='center';
-      ctx.fillText(p.name.en,p.center.x,p.center.y-p.radius+22);
     }
   }
   const poiLabels:Record<RegionPoiType,string>={
