@@ -1296,3 +1296,43 @@ After CI is green, perform the APK PlayerCheck on the exact build and record
 actual FPS/freeze behavior. Only then decide whether another targeted
 performance pass is necessary.
 ======================================================================
+
+
+======================================================================
+CURRENT WORK SESSION FINAL VALIDATION — ORBITAL / PERFORMANCE — 2026-10-06
+======================================================================
+
+AUTOMATED VALIDATION:
+- Final implementation HEAD before this reconciliation:
+  706d7c65b55f878b3ef55293b70b35190425b8b7.
+- GitHub Actions #1525: SUCCESS.
+- Typecheck: PASS.
+- Asset usage / PNG sanity: PASS.
+- Unit tests: PASS (185/185).
+- Gameplay coverage audit: PASS.
+- Lint: PASS.
+- Web build: PASS.
+- Playwright rendered gameplay QA: PASS.
+- Capacitor Android sync: PASS.
+- Debug APK build: PASS.
+- APK upload: PASS.
+
+CURRENT IMPLEMENTATION STATE:
+- The final intended Orbital/performance code is on branch new-desing.
+- The three GPT reports have been reconciled with the dual-ring Orbital model
+  and performance stabilization pass.
+- Device-specific FPS/freeze behavior remains an explicit Human APK PlayerCheck;
+  automated CI cannot prove sustained frame rate on a particular phone.
+
+KNOWN PLAYER-CHECK TARGET:
+- Run with approximately 6 Spheres and 5+ enemies, especially builds containing
+  Chain + Aura + Orbital, and verify whether the previous 0-2 FPS multi-second
+  freezes reproduce.
+- Verify Orbital damage numbers are visible on contact.
+- Verify Orbital progression: L1 = 1 inner CW + 1 outer CCW; L2 outer; L3 inner;
+  continuing alternation through L7 = 4 inner + 4 outer.
+
+NEXT:
+Human APK PlayerCheck of the exact green build. Do not perform another broad
+performance rewrite unless the freeze reproduces with the new build.
+======================================================================
