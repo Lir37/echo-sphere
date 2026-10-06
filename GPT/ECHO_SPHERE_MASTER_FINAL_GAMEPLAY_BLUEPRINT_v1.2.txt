@@ -3839,10 +3839,13 @@ FORMATION INERTIA:
 When a dominant formation already exists, another formation must exceed
 its dominance score by 10 points to take over.
 
-The old dominant formation is immediately lost if it is no longer valid.
+A Dominant formation is immediately released only when its structure is genuinely
+broken by Sphere removal/repositioning or another permanent loss of validity.
+A temporary Network-disruption state must NOT release the Dominant slot. During
+temporary disable, the formation remains Dominant-but-inactive until restored.
 
-This prevents visual jitter and accidental Network identity changes while
-moving a Sphere a few pixels.
+This prevents visual jitter and, more importantly, prevents a frequent temporary
+disable mechanic from silently promoting the Secondary formation.
 
 HOW THE PLAYER CHANGES DOMINANCE:
 
@@ -4060,4 +4063,31 @@ PERFORMANCE GATE:
 - These are implementation guardrails; human APK PlayerCheck remains the
   acceptance authority for actual device FPS/stability.
 
+======================================================================
+
+
+======================================================================
+2026-10-06 — ORBITAL CONTACT / TEMPORARY DOMINANCE CONTRACT
+======================================================================
+
+ORBITAL CONTACT:
+- Orbital still uses swept angular collision.
+- Each individual combat element deals damage to a given enemy only once during
+  one continuous contact episode.
+- Repeated cadence checks while that same element remains in contact do not deal
+  additional damage.
+- After the element leaves the enemy's contact band, its contact latch resets and
+  the next genuine orbital pass may deal damage again.
+
+TEMPORARY NETWORK DISRUPTION:
+- A temporary Network-disruption mechanic does not change the Dominant/Secondary
+  slot order.
+- The disabled formation remains the Dominant identity, but is marked inactive
+  and contributes zero formation power while suppressed.
+- The inactive Dominant cannot own or trigger a player-level Resonance Event.
+- A currently valid alternative may continue as Secondary. It does not become
+  Dominant merely because the primary formation is temporarily disabled.
+- When the Dominant formation becomes valid again, it resumes the same Dominant
+  slot automatically unless the player explicitly changed the slot order.
+- Genuine structural breakage remains governed by normal Geometry dominance rules.
 ======================================================================
