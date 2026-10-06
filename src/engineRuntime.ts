@@ -84,12 +84,29 @@ export function getNetworkFrame(s: GameState): SphereNetworkState {
     }
   }
 
+  const preserveSuppressedWhenUnavailable = Boolean(
+    previousDominantShape &&
+    previousDominantShape.nodes.length > 0 &&
+    previousDominantShape.nodes.every((index) =>
+      index >= 0 &&
+      index < s.spheres.length &&
+      s.spheres[index]?.alive !== false
+    ) &&
+    previousDominantShape.nodes.some((index) =>
+      index >= 0 &&
+      index < s.spheres.length &&
+      s.spheres[index]?.alive !== false &&
+      (s.spheres[index]?.networkDisabledTimer || 0) > 0
+    )
+  );
+
   const network = analyzeSphereNetwork(
     getNetworkNodes(s),
     220,
     previousDominant,
     s.networkFormationSelection,
     preservedDominant,
+    preserveSuppressedWhenUnavailable,
   );
 
   // Do not rewrite the selected slot order merely because the Dominant is
