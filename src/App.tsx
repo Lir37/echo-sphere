@@ -1134,9 +1134,10 @@ function RadarHud({ st }: { st: GameState }) {
     const dy = poi.pos.y - st.player.pos.y;
     const distance = Math.hypot(dx, dy);
     const angle = Math.atan2(dy, dx);
-    const rr = Math.min(25, (distance / radius) * 25);
+    const outside = distance > radius;
+    const rr = outside ? 42 : Math.min(25, (distance / radius) * 25);
     const color = poi.type === 'boss_trace' ? '#ffb84d' : poi.type === 'elite_nest' || poi.type === 'rupture' ? '#ff6b6b' : '#55e6c1';
-    return { key: `poi-${poi.id}`, x: 50 + Math.cos(angle) * rr, y: 50 + Math.sin(angle) * rr, color };
+    return { key: `poi-${poi.id}`, x: 50 + Math.cos(angle) * rr, y: 50 + Math.sin(angle) * rr, color, angle, outside };
   });
 
   return (
@@ -1152,8 +1153,10 @@ function RadarHud({ st }: { st: GameState }) {
           style={{ left: `${dot.x}%`, top: `${dot.y}%` }}
         />
       ))}
-      {poiDots.map((dot) => (
-        <span key={dot.key} aria-hidden="true" style={{ position:'absolute', left:`${dot.x}%`, top:`${dot.y}%`, width:6, height:6, transform:'translate(-50%,-50%) rotate(45deg)', background:dot.color, boxShadow:`0 0 7px ${dot.color}` }} />
+      {poiDots.map((dot) => dot.outside ? (
+        <span key={dot.key} aria-hidden="true" style={{ position:'absolute', left:`${dot.x}%`, top:`${dot.y}%`, width:0, height:0, borderLeft:'5px solid transparent', borderRight:'5px solid transparent', borderBottom:`10px solid ${dot.color}`, transform:`translate(-50%,-50%) rotate(${dot.angle + Math.PI / 2}rad)`, filter:`drop-shadow(0 0 4px ${dot.color})` }} />
+      ) : (
+        <span key={dot.key} aria-hidden="true" style={{ position:'absolute', left:`${dot.x}%`, top:`${dot.y}%`, width:7, height:7, transform:'translate(-50%,-50%) rotate(45deg)', background:dot.color, boxShadow:`0 0 7px ${dot.color}` }} />
       ))}
       <span className="es-radar-player" />
     </div>
