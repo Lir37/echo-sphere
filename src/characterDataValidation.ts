@@ -37,7 +37,7 @@ export function validateCharacterData(): void {
     }
 
     character.mastery.forEach((mastery, index) => {
-      if (mastery.level !== index + 1) report(`${id}: mastery levels are not ordered 1..5`);
+      if (mastery.level !== index + 1) report(`${id}: mastery levels are not ordered 1..10`);
       if (!mastery.title.ru || !mastery.title.en) report(`${id}: mastery ${mastery.level} has incomplete title localization`);
       if (!mastery.description.ru || !mastery.description.en) report(`${id}: mastery ${mastery.level} has incomplete description localization`);
     });
