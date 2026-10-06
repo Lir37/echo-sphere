@@ -13,7 +13,7 @@ export const REGION_MASTERY_CHALLENGES=Object.freeze([
 {id:'geometry_triad',name:{ru:'ТРИ ГЕОМЕТРИИ',en:'GEOMETRY TRIAD'},desc:{ru:'Активировать три разных Geometry-состояния.',en:'Activate three different Geometry states.'}},
 {id:'dominant_hold',name:{ru:'УДЕРЖАНИЕ',en:'DOMINANT HOLD'},desc:{ru:'Сохранить Dominant Geometry активной не менее 60 секунд.',en:'Keep Dominant Geometry active for at least 60 seconds.'}},
 {id:'lean_network',name:{ru:'ТОНКАЯ СЕТЬ',en:'LEAN NETWORK'},desc:{ru:'Завершить Region с четырьмя или менее Spheres.',en:'Clear the Region with four or fewer Spheres.'}}
-] as const;
+] as const);
 export const REGION_LORE=[
 {id:'origin',title:{ru:'Первый сигнал',en:'First Signal'},text:{ru:'Бассейн не был построен. Он возник вокруг первого стабильного Echo.',en:'The Basin was not built. It formed around the first stable Echo.'}},
 {id:'fracture',title:{ru:'Трещина',en:'The Fracture'},text:{ru:'Сеть запоминает не только связи. Она запоминает разрывы.',en:'The Network remembers not only connections. It remembers breaks.'}},
