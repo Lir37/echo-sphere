@@ -34,68 +34,56 @@ export function selectSphereTarget<T extends TargetableEnemy>(
   rule: SphereTargetingRule,
 ): T | null {
   const rangeSquared = range * range;
-  const candidates = enemies.filter(
-    (enemy) => enemy.hp > 0 && distanceSquared(enemy.pos, spherePos) <= rangeSquared,
-  );
+  let best: T | null = null;
+  let bestDistance = Infinity;
+  let bestHp = rule === 'lowest_hp' ? Infinity : -Infinity;
+  let bestTier = -Infinity;
 
-  if (candidates.length === 0) return null;
+  for (const enemy of enemies) {
+    if (enemy.hp <= 0) continue;
+    const distance = distanceSquared(enemy.pos, spherePos);
+    if (distance > rangeSquared) continue;
 
-  // Do not sort or allocate a second candidate array on every fire cycle.
-  // All three rules only need a single best candidate.
-  if (rule === 'highest_hp') {
-    let best = candidates[0];
-    for (let i = 1; i < candidates.length; i += 1) {
-      if (candidates[i].hp > best.hp) best = candidates[i];
+    if (!best) {
+      best = enemy;
+      bestDistance = distance;
+      bestHp = enemy.hp;
+      bestTier = valueTier(enemy);
+      continue;
     }
-    return best ?? null;
-  }
-  if (rule === 'lowest_hp') {
-    let best = candidates[0];
-    for (let i = 1; i < candidates.length; i += 1) {
-      if (candidates[i].hp < best.hp) best = candidates[i];
-    }
-    return best ?? null;
-  }
-  if (rule === 'area_control') {
-    let best = candidates[0];
-    let bestDistance = distanceSquared(best.pos, spherePos);
-    for (let i = 1; i < candidates.length; i += 1) {
-      const distance = distanceSquared(candidates[i].pos, spherePos);
-      if (distance < bestDistance) {
-        best = candidates[i];
-        bestDistance = distance;
+
+    if (rule === 'highest_hp') {
+      if (enemy.hp > bestHp) {
+        best = enemy;
+        bestHp = enemy.hp;
       }
+      continue;
     }
-    return best ?? null;
-  }
 
-  if (rule === 'high_value_far') {
-    let best = candidates[0];
-    let bestTier = valueTier(best);
-    let bestDistance = distanceSquared(best.pos, spherePos);
+    if (rule === 'lowest_hp') {
+      if (enemy.hp < bestHp) {
+        best = enemy;
+        bestHp = enemy.hp;
+      }
+      continue;
+    }
 
-    for (let i = 1; i < candidates.length; i++) {
-      const candidate = candidates[i];
-      const tier = valueTier(candidate);
-      const distance = distanceSquared(candidate.pos, spherePos);
+    if (rule === 'high_value_far') {
+      const tier = valueTier(enemy);
       if (tier > bestTier || (tier === bestTier && distance > bestDistance)) {
-        best = candidate;
+        best = enemy;
         bestTier = tier;
         bestDistance = distance;
       }
+      continue;
     }
-    return best;
+
+    // nearest and area_control use the same closest-in-range selection.
+    if (distance < bestDistance) {
+      best = enemy;
+      bestDistance = distance;
+    }
   }
 
-  let nearest = candidates[0];
-  let nearestDistance = distanceSquared(nearest.pos, spherePos);
-  for (let i = 1; i < candidates.length; i++) {
-    const candidate = candidates[i];
-    const distance = distanceSquared(candidate.pos, spherePos);
-    if (distance < nearestDistance) {
-      nearest = candidate;
-      nearestDistance = distance;
-    }
-  }
-  return nearest;
+  return best;
 }
