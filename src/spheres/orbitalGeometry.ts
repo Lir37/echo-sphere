@@ -48,6 +48,26 @@ export function orbitalElementAngle(
   return rotation * direction + index * (TAU / safeCount);
 }
 
+export function isAngleOnOrbitalSweep(
+  targetAngle: number,
+  startAngle: number,
+  endAngle: number,
+  direction: 1 | -1,
+  tolerance = 0,
+): boolean {
+  const tau = Math.PI * 2;
+  const safeTolerance = Math.max(0, tolerance);
+  const normalizeAnglePositive = (angle: number): number => ((angle % tau) + tau) % tau;
+  const travelled = direction === 1
+    ? normalizeAnglePositive(endAngle - startAngle)
+    : normalizeAnglePositive(startAngle - endAngle);
+  const targetTravel = direction === 1
+    ? normalizeAnglePositive(targetAngle - startAngle)
+    : normalizeAnglePositive(startAngle - targetAngle);
+  if (travelled >= tau - safeTolerance) return true;
+  return targetTravel <= travelled + safeTolerance || targetTravel >= tau - safeTolerance;
+}
+
 export function orbitalElementPosition(
   centerX: number,
   centerY: number,
