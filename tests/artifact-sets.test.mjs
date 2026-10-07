@@ -314,6 +314,7 @@ test('Sphere mutation synergy activates only for the selected branch at Sphere V
       sphereProgression: { pulse: 7 },
       sphereBranches: { pulse: 'pulse_wave' },
       abilities: { blast: 7 },
+      evolutions: ['ability:blast:4:blast_core', 'ability:blast:7:blast_core_f2'],
     },
   };
   assert.equal(mod.getActiveSphereAbilitySynergies(state).some((x) => x.sphere === 'pulse' && x.sphereBranch === 'pulse_wave' && x.ability === 'blast'), true);
