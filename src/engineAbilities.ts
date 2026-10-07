@@ -40,7 +40,7 @@ function applyAbilityFinalVariantRider(
       const standard=alive.filter(v=>v.type==='standard');
       if(variant===0) {
         const target=enemies.sort((a,b)=>dist(a.pos,s.player.pos)-dist(b.pos,s.player.pos))[0];
-        if(target&&standard.length) dealDamageToEnemy(s,target,(10+lvl*2)*power,false as never);
+        if(target&&standard.length) dealDamageToEnemy(s,target,(10+lvl*2)*power);
       } else if(variant===1) {
         for(const sphere of standard) sphere.attackTimer=Math.max(0,sphere.attackTimer-0.65*power);
       } else {
