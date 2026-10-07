@@ -17,6 +17,282 @@ function synergyStrength(index:number):number {
   return 1 / (1 + index * 0.18);
 }
 
+function abilityFinalVariantIndex(abilityFinal:string): number {
+  const match=/_f([1-3])$/.exec(abilityFinal);
+  return match ? Number(match[1]) - 1 : 0;
+}
+
+function applyAbilityFinalVariantRider(
+  s:GameState,
+  link:{ behavior:string; abilityFinal:string },
+  lvl:number,
+  power:number,
+  variant:number,
+):void {
+  const enemies=s.enemies.filter(e=>e.hp>0);
+  const alive=s.spheres.filter(v=>v.alive);
+  const nearby=(origin:Vec,radius:number)=>enemies
+    .filter(e=>dist(e.pos,origin)<=radius)
+    .sort((a,b)=>dist(a.pos,origin)-dist(b.pos,origin));
+
+  switch(link.behavior) {
+    case 'blast_standard_resonator': {
+      const standard=alive.filter(v=>v.type==='standard');
+      if(variant===0) {
+        const target=enemies.sort((a,b)=>dist(a.pos,s.player.pos)-dist(b.pos,s.player.pos))[0];
+        if(target&&standard.length) dealDamageToEnemy(s,target,(10+lvl*2)*power,false as never);
+      } else if(variant===1) {
+        for(const sphere of standard) sphere.attackTimer=Math.max(0,sphere.attackTimer-0.65*power);
+      } else {
+        const origin=standard[standard.length-1];
+        if(origin) for(const enemy of nearby(origin.pos,110).slice(0,4)) dealDamageToEnemy(s,enemy,(7+lvl)*power);
+      }
+      break;
+    }
+    case 'blast_shotgun_cataclysm': {
+      for(const sphere of alive.filter(v=>v.type==='shotgun')) {
+        const targets=nearby(sphere.pos,variant===1?105:85);
+        if(variant===0) for(const e of targets.slice(0,3)) dealDamageToEnemy(s,e,(12+lvl*2)*power);
+        if(variant===1) for(const e of targets.slice(0,5)) {
+          const dx=e.pos.x-sphere.pos.x,dy=e.pos.y-sphere.pos.y,d=Math.hypot(dx,dy)||1;
+          e.pos.x+=dx/d*28*power;e.pos.y+=dy/d*28*power;
+        }
+        if(variant===2) sphere.attackTimer=Math.max(0,sphere.attackTimer-0.9*power);
+      }
+      break;
+    }
+    case 'blast_prism_split': {
+      for(const sphere of alive.filter(v=>v.type==='prism')) {
+        const targets=nearby(sphere.pos,180);
+        if(variant===0) for(const e of targets.slice(0,2)) dealDamageToEnemy(s,e,(10+lvl*2)*power);
+        if(variant===1) for(const e of targets.slice(0,4)) { e.slowTimer=Math.max(e.slowTimer,0.7); e.slowFactor=Math.min(e.slowFactor,0.72); }
+        if(variant===2) for(const e of targets.slice(0,3)) s.lightnings.push({from:{...sphere.pos},to:{...e.pos},life:0.18});
+      }
+      break;
+    }
+    case 'blast_gravity_collapse': {
+      for(const sphere of alive.filter(v=>v.type==='gravity')) {
+        const targets=nearby(sphere.pos,variant===1?165:135);
+        if(variant===0) for(const e of targets.slice(0,5)) {
+          const dx=sphere.pos.x-e.pos.x,dy=sphere.pos.y-e.pos.y,d=Math.hypot(dx,dy)||1;
+          e.pos.x+=dx/d*22*power;e.pos.y+=dy/d*22*power;
+        }
+        if(variant===1) for(const e of targets.slice(0,5)) dealDamageToEnemy(s,e,(11+lvl*2)*power);
+        if(variant===2) for(const e of targets.slice(0,5)) { e.slowTimer=Math.max(e.slowTimer,1.1);e.slowFactor=Math.min(e.slowFactor,0.62); }
+      }
+      break;
+    }
+    case 'blast_pulse_wave': {
+      for(const sphere of alive.filter(v=>v.type==='pulse')) {
+        if(variant===0) sphere.attackTimer=Math.max(0,sphere.attackTimer-1.0*power);
+        if(variant===1) chargeResonance(s,'network',dealDamageToEnemy,0.75*power);
+        if(variant===2) for(const e of nearby(sphere.pos,100).slice(0,6)) dealDamageToEnemy(s,e,(8+lvl)*power);
+      }
+      break;
+    }
+    case 'timestop_standard_singularity': {
+      for(const sphere of alive.filter(v=>v.type==='standard')) for(const e of nearby(sphere.pos,150).slice(0,6)) {
+        if(variant===0) { e.freezeTimer=Math.max(e.freezeTimer,0.8*power); }
+        if(variant===1) { e.slowTimer=Math.max(e.slowTimer,1.6*power);e.slowFactor=Math.min(e.slowFactor,0.5); }
+        if(variant===2) dealDamageToEnemy(s,e,(8+lvl*2)*power);
+      }
+      break;
+    }
+    case 'timestop_chain_web': {
+      for(const sphere of alive.filter(v=>v.type==='chain')) {
+        if(variant===0) for(const e of nearby(sphere.pos,170).slice(0,4)) e.freezeTimer=Math.max(e.freezeTimer,0.8*power);
+        if(variant===1) for(const e of nearby(sphere.pos,120).slice(0,6)) { e.slowTimer=Math.max(e.slowTimer,1.2);e.slowFactor=Math.min(e.slowFactor,0.55); }
+        if(variant===2) for(const e of nearby(sphere.pos,105).slice(0,3)) dealDamageToEnemy(s,e,(9+lvl)*power);
+      }
+      break;
+    }
+    case 'timestop_gravity_tide': {
+      for(const sphere of alive.filter(v=>v.type==='gravity')) for(const e of nearby(sphere.pos,160).slice(0,6)) {
+        const dx=e.pos.x-sphere.pos.x,dy=e.pos.y-sphere.pos.y,d=Math.hypot(dx,dy)||1;
+        const amount=variant===0?72:variant===1?38:20;
+        e.pos.x+=dx/d*amount*power;e.pos.y+=dy/d*amount*power;
+        if(variant===2) dealDamageToEnemy(s,e,(10+lvl*2)*power);
+      }
+      break;
+    }
+    case 'minion_standard_swarm': {
+      for(const sphere of alive.filter(v=>v.type==='standard')) {
+        if(variant===0) emitSpherePulse(s,sphere,(9+lvl*2)*power,70,'#72f08e');
+        if(variant===1) sphere.attackTimer=Math.max(0,sphere.attackTimer-0.8*power);
+        if(variant===2) for(const e of nearby(sphere.pos,90).slice(0,3)) dealDamageToEnemy(s,e,(7+lvl)*power);
+      }
+      break;
+    }
+    case 'minion_orbital_dance': {
+      for(const sphere of alive.filter(v=>v.type==='orbital')) {
+        if(variant===0) sphere.attackTimer=Math.max(0,sphere.attackTimer-1.1*power);
+        if(variant===1) emitSpherePulse(s,sphere,(12+lvl*2)*power,80,'#68d9ff');
+        if(variant===2) for(const e of nearby(sphere.pos,100).slice(0,4)) dealDamageToEnemy(s,e,(7+lvl)*power);
+      }
+      break;
+    }
+    case 'minion_void_reaper': {
+      for(const sphere of alive.filter(v=>v.type==='void')) {
+        if(variant===0) for(const e of nearby(sphere.pos,105).slice(0,3)) dealDamageToEnemy(s,e,(8+lvl*2)*power);
+        if(variant===1) { const missing=1-s.player.hp/Math.max(1,s.player.maxHp); s.player.hp=Math.min(s.player.maxHp,s.player.hp+missing*s.player.maxHp*0.04*power); }
+        if(variant===2) sphere.attackTimer=Math.max(0,sphere.attackTimer-0.75*power);
+      }
+      break;
+    }
+    case 'teleport_sniper_oracle': {
+      const sniper=alive.filter(v=>v.type==='sniper');
+      for(const sphere of sniper) {
+        const target=nearby(sphere.pos,190)[0];
+        if(!target) continue;
+        if(variant===0) { s.player.hunterMarkTarget=target;s.player.hunterMarkTimer=Math.max(s.player.hunterMarkTimer,4); }
+        if(variant===1) dealDamageToEnemy(s,target,(14+lvl*3)*power);
+        if(variant===2) { target.slowTimer=Math.max(target.slowTimer,1.1);target.slowFactor=Math.min(target.slowFactor,0.58); }
+      }
+      break;
+    }
+    case 'teleport_aura_gravity': {
+      for(const sphere of alive.filter(v=>v.type==='aura')) for(const e of nearby(sphere.pos,140).slice(0,6)) {
+        if(variant===0) e.slowTimer=Math.max(e.slowTimer,1.3);
+        if(variant===1) { const dx=sphere.pos.x-e.pos.x,dy=sphere.pos.y-e.pos.y,d=Math.hypot(dx,dy)||1;e.pos.x+=dx/d*34*power;e.pos.y+=dy/d*34*power; }
+        if(variant===2) dealDamageToEnemy(s,e,(9+lvl)*power);
+      }
+      break;
+    }
+    case 'teleport_prism_mirror': {
+      for(const sphere of alive.filter(v=>v.type==='prism')) {
+        const targets=nearby(sphere.pos,190);
+        if(variant===0) for(const e of targets.slice(0,2)) dealDamageToEnemy(s,e,(12+lvl*2)*power);
+        if(variant===1) for(const e of targets.slice(0,4)) s.lightnings.push({from:{...sphere.pos},to:{...e.pos},life:0.16});
+        if(variant===2) for(const e of targets.slice(0,3)) { e.slowTimer=Math.max(e.slowTimer,0.9);e.slowFactor=Math.min(e.slowFactor,0.65); }
+      }
+      break;
+    }
+    case 'firetrail_sniper_beacon': {
+      for(const sphere of alive.filter(v=>v.type==='sniper')) for(const e of nearby(sphere.pos,125).slice(0,5)) {
+        if(variant===0) { e.fireTimer=Math.max(e.fireTimer,2.5); }
+        if(variant===1) { e.slowTimer=Math.max(e.slowTimer,1.8);e.slowFactor=Math.min(e.slowFactor,0.58); }
+        if(variant===2) dealDamageToEnemy(s,e,(9+lvl*2)*power);
+      }
+      break;
+    }
+    case 'firetrail_aura_overgrowth': {
+      for(const aura of alive.filter(v=>v.type==='aura')) {
+        const allies=alive.filter(v=>v!==aura&&dist(v.pos,aura.pos)<155);
+        if(variant===0) for(const sphere of allies) sphere.attackTimer=Math.max(0,sphere.attackTimer-0.7*power);
+        if(variant===1) for(const e of nearby(aura.pos,105).slice(0,5)) { e.fireTimer=Math.max(e.fireTimer,2.2);e.fireDps=Math.max(e.fireDps,5+lvl); }
+        if(variant===2) for(const sphere of allies.slice(0,1)) emitSpherePulse(s,sphere,(12+lvl*2)*power,72,'#ff7a3d');
+      }
+      break;
+    }
+    case 'firetrail_prism_spectrum': {
+      for(const prism of alive.filter(v=>v.type==='prism')) for(const e of nearby(prism.pos,115).slice(0,5)) {
+        if(variant===0) dealDamageToEnemy(s,e,(11+lvl*2)*power);
+        if(variant===1) { e.fireTimer=Math.max(e.fireTimer,2.8);e.fireDps=Math.max(e.fireDps,7+lvl); }
+        if(variant===2) { e.slowTimer=Math.max(e.slowTimer,1.0);e.slowFactor=Math.min(e.slowFactor,0.62); }
+      }
+      break;
+    }
+    case 'firetrail_gravity_well': {
+      for(const gravity of alive.filter(v=>v.type==='gravity')) for(const e of nearby(gravity.pos,135).slice(0,6)) {
+        if(variant===0) dealDamageToEnemy(s,e,(10+lvl*2)*power);
+        if(variant===1) { e.slowTimer=Math.max(e.slowTimer,1.8);e.slowFactor=Math.min(e.slowFactor,0.5); }
+        if(variant===2) { e.fireTimer=Math.max(e.fireTimer,4);e.fireDps=Math.max(e.fireDps,7+lvl); }
+      }
+      break;
+    }
+    case 'shield_shotgun_burst': {
+      for(const sphere of alive.filter(v=>v.type==='shotgun')) for(const e of nearby(sphere.pos,110).slice(0,6)) {
+        if(variant===0) { const dx=e.pos.x-sphere.pos.x,dy=e.pos.y-sphere.pos.y,d=Math.hypot(dx,dy)||1;e.pos.x+=dx/d*34*power;e.pos.y+=dy/d*34*power; }
+        if(variant===1) dealDamageToEnemy(s,e,(12+lvl*2)*power);
+        if(variant===2) { e.slowTimer=Math.max(e.slowTimer,1.0);e.slowFactor=Math.min(e.slowFactor,0.55); }
+      }
+      break;
+    }
+    case 'shield_aura_sanctum': {
+      for(const aura of alive.filter(v=>v.type==='aura')) {
+        if(variant===0) s.player.shieldCharges=Math.min(5,s.player.shieldCharges+1);
+        if(variant===1) for(const e of nearby(aura.pos,110).slice(0,5)) { e.slowTimer=Math.max(e.slowTimer,1.4);e.slowFactor=Math.min(e.slowFactor,0.55); }
+        if(variant===2) emitSpherePulse(s,aura,(14+lvl*2)*power,90,'#5ac8ff');
+      }
+      break;
+    }
+    case 'shield_orbital_halo': {
+      for(const sphere of alive.filter(v=>v.type==='orbital')) {
+        if(variant===0) s.player.shieldCharges=Math.min(5,s.player.shieldCharges+1);
+        if(variant===1) emitSpherePulse(s,sphere,(13+lvl*2)*power,78,'#b9e8ff');
+        if(variant===2) sphere.attackTimer=Math.max(0,sphere.attackTimer-0.8*power);
+      }
+      break;
+    }
+    case 'shield_pulse_burst': {
+      for(const sphere of alive.filter(v=>v.type==='pulse')) {
+        if(variant===0) emitSpherePulse(s,sphere,(12+lvl*2)*power,95,'#fff0a9');
+        if(variant===1) { sphere.attackTimer=Math.max(0,sphere.attackTimer-0.9*power);chargeResonance(s,'network',dealDamageToEnemy,0.35*power); }
+        if(variant===2) for(const e of nearby(sphere.pos,95).slice(0,5)) dealDamageToEnemy(s,e,(8+lvl)*power);
+      }
+      break;
+    }
+    case 'lightning_shotgun_hail': {
+      for(const sphere of alive.filter(v=>v.type==='shotgun')) {
+        const targets=nearby(sphere.pos,250).slice(0,3);
+        if(variant===0) for(const e of targets) dealDamageToEnemy(s,e,(9+lvl*2)*power);
+        if(variant===1) for(const e of targets) { e.slowTimer=Math.max(e.slowTimer,1.0);e.slowFactor=Math.min(e.slowFactor,0.58); }
+        if(variant===2) sphere.attackTimer=Math.max(0,sphere.attackTimer-0.75*power);
+      }
+      break;
+    }
+    case 'lightning_chain_storm': {
+      for(const sphere of alive.filter(v=>v.type==='chain')) {
+        const targets=nearby(sphere.pos,105).slice(0,3);
+        if(variant===0) for(const e of targets) dealDamageToEnemy(s,e,(9+lvl*2)*power);
+        if(variant===1) for(const e of targets) s.lightnings.push({from:{...sphere.pos},to:{...e.pos},life:0.16});
+        if(variant===2) { sphere.attackTimer=Math.max(0,sphere.attackTimer-0.75*power);chargeResonance(s,'network',dealDamageToEnemy,0.4*power); }
+      }
+      break;
+    }
+    case 'lightning_pulse_resonator': {
+      for(const sphere of alive.filter(v=>v.type==='pulse')) {
+        if(variant===0) chargeResonance(s,'network',dealDamageToEnemy,0.75*power);
+        if(variant===1) sphere.attackTimer=Math.max(0,sphere.attackTimer-1.0*power);
+        if(variant===2) emitSpherePulse(s,sphere,(10+lvl*2)*power,86,'#9b7cff');
+      }
+      break;
+    }
+    case 'darkritual_sniper_assassin': {
+      const target=enemies.sort((a,b)=>(a.hp/a.maxHp)-(b.hp/b.maxHp))[0];
+      if(target) {
+        if(variant===0) dealDamageToEnemy(s,target,Math.min(target.hp,Math.max(12,target.maxHp*0.05))*power);
+        if(variant===1) { target.slowTimer=Math.max(target.slowTimer,1.2);target.slowFactor=Math.min(target.slowFactor,0.55); }
+        if(variant===2) s.player.hp=Math.min(s.player.maxHp,s.player.hp+Math.min(s.player.maxHp*0.03,target.maxHp*0.03)*power);
+      }
+      break;
+    }
+    case 'darkritual_chain_leech': {
+      if(variant===0) s.player.hp=Math.min(s.player.maxHp,s.player.hp+s.player.maxHp*0.035*power);
+      if(variant===1) chargeResonance(s,'network',dealDamageToEnemy,0.55*power);
+      if(variant===2) for(const sphere of alive.filter(v=>v.type==='chain')) sphere.attackTimer=Math.max(0,sphere.attackTimer-0.7*power);
+      break;
+    }
+    case 'darkritual_orbital_blade': {
+      for(const sphere of alive.filter(v=>v.type==='orbital')) {
+        if(variant===0) emitSpherePulse(s,sphere,(15+lvl*3)*power,90,'#ffbf69');
+        if(variant===1) sphere.attackTimer=Math.max(0,sphere.attackTimer-0.9*power);
+        if(variant===2) for(const e of nearby(sphere.pos,105).slice(0,4)) dealDamageToEnemy(s,e,(9+lvl*2)*power);
+      }
+      break;
+    }
+    case 'darkritual_void_hunger': {
+      const missing=1-s.player.hp/Math.max(1,s.player.maxHp);
+      for(const sphere of alive.filter(v=>v.type==='void')) {
+        if(variant===0) emitSpherePulse(s,sphere,(12+lvl*2)*(0.7+missing)*power,95,'#c58cff');
+        if(variant===1) { if(missing>0.45) s.player.hp=Math.min(s.player.maxHp,s.player.hp+s.player.maxHp*0.025*power); }
+        if(variant===2) sphere.attackTimer=Math.max(0,sphere.attackTimer-(0.5+missing*0.8)*power);
+      }
+      break;
+    }
+  }
+}
+
 function applySphereAbilitySynergyRiders(s:GameState, ability:AbilityType):void {
   const links = getActiveSphereAbilitySynergies(s)
     .filter((link)=>link.ability===ability)
@@ -243,6 +519,13 @@ function applySphereAbilitySynergyRiders(s:GameState, ability:AbilityType):void 
         break;
       }
     }
+    applyAbilityFinalVariantRider(
+      s,
+      link,
+      lvl,
+      power,
+      abilityFinalVariantIndex(link.abilityFinal),
+    );
   }
 }
 
