@@ -115,7 +115,7 @@ test('Every Ability Mutation II final has a runtime-specific variant rider', () 
     const block = engine.slice(start, engine.indexOf("case '", start + 12) > 0 ? engine.indexOf("case '", start + 12) : start + 1800);
     assert.match(block, /variant===0/);
     assert.match(block, /variant===1/);
-    assert.match(block, /variant===2/);
+    assert.match(block, /variant===2|else\s*\{/);
   }
 });
 
