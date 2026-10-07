@@ -654,7 +654,7 @@ function drawRune(ctx: CanvasRenderingContext2D, rune: GameState['runes'][number
     const boxHeight = displayLines.length * lineGap + 9;
     const widest = Math.max(...displayLines.map((line) => ctx.measureText(line).width), 104);
     const boxWidth = Math.min(canvasW - 22, Math.max(122, widest + 16));
-    const bannerY = Math.max(58, Math.min(canvasH * 0.145, 112));
+    const bannerY = Math.max(142, Math.min(canvasH * 0.205, 178));
     const top = bannerY - boxHeight + 3;
 
     ctx.globalAlpha = Math.min(1, Math.max(0, s.flashText.life / 0.82));
