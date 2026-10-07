@@ -4339,3 +4339,52 @@ FOLLOW is the macro-movement / formation-preservation mode.
 ======================================================================
 END FOLLOW BALANCE CONTRACT
 ======================================================================
+
+
+======================================================================
+2026-10-07 — MUTATION II BRANCH DEPTH AMENDMENT
+======================================================================
+
+ABILITY MUTATION II
+Every major Ability uses:
+- 3 Mutation I branches at Level IV;
+- 3 unique Mutation II finals inside EACH selected branch at Level VII.
+
+Therefore:
+3 branches x 3 finals = 9 authored Level VII mutations per Ability.
+
+The three finals of one branch must be mechanically distinguishable and
+must not be duplicated as the exact same final choice under another branch.
+The final may share a low-level runtime archetype where useful for balance and
+implementation stability, but its authored identity, ID, branch context and
+build interaction must remain unique.
+
+SPHERE MUTATION II
+Every Sphere keeps the same 3 Mutation I branches at Level IV and 3 authored
+Level VII finals within each branch, for 9 Level VII choices per Sphere.
+
+Level VII finals must represent meaningful behavioral alternatives.
+"Same mechanic with only a larger/smaller number" is insufficient when the
+player is choosing between finals. Preferred differences are changes in:
+- targeting;
+- trajectory;
+- control mode;
+- area behavior;
+- chaining;
+- projectile behavior;
+- conditional triggers;
+- resource interaction;
+- network interaction;
+- temporal behavior.
+
+SPHERE → ABILITY SYNERGY
+Each Sphere Mutation I branch may target a specific Ability Mutation II final.
+The synergy requirement is:
+Sphere VII + selected Sphere Mutation I branch + required Ability VII final.
+
+This permits multiple different Sphere branches to use the same Ability while
+still opening different Level VII build outcomes.
+
+======================================================================
+END MUTATION II BRANCH DEPTH AMENDMENT
+======================================================================
