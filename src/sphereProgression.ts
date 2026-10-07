@@ -257,10 +257,43 @@ const NEW_BRANCH_LEVEL_DETAILS:Partial<Record<SphereEvolutionId,{level5:string;l
 const BRANCH_EN:Partial<Record<SphereEvolutionId,[string,string]>>={
   standard_resonator:['Standard Resonator','Every third hit releases a pulse, while hits also feed Resonance.'],
   standard_singularity:['Standard Singularity','Develops the Standard Singularity branch and its signature behavior.'],
-  standard_swarm:[
-    f('standard_swarm_final_1','Рой • Охотничий осколок','Standard Swarm • Hunter Shard','После попадания выпускает один осколок, который ищет ближайшую другую цель.','After a hit, one shard seeks the nearest different target.'),
-    f('standard_swarm_final_2','Рой • Перекрёстный огонь','Standard Swarm • Crossfire','После попадания создаёт два боковых осколка по расходящимся траекториям.','After a hit, creates two side shards on diverging trajectories.'),
-    f('standard_swarm_final_3','Рой • Осколочная сеть','Standard Swarm • Shard Web','После попадания создаёт три осколка, расходящихся веером и насыщащих зону вокруг цели.','After a hit, creates three fan-shaped shards that saturate the area around the target.'),
+  standard_swarm:['Standard Swarm','Develops the Standard Swarm branch and its signature behavior.'],
+  sniper_oracle:['Sniper Oracle','Develops the Sniper Oracle branch and its signature behavior.'],
+  sniper_assassin:['Sniper Assassin','Develops the Sniper Assassin branch and its signature behavior.'],
+  sniper_beacon:['Sniper Beacon','Develops the Sniper Beacon branch and its signature behavior.'],
+  shotgun_burst:['Shotgun Burst','Develops the Shotgun Burst branch and its signature behavior.'],
+  shotgun_cataclysm:['Shotgun Cataclysm','Develops the Shotgun Cataclysm branch and its signature behavior.'],
+  shotgun_hail:['Shotgun Hail','Develops the Shotgun Hail branch and its signature behavior.'],
+  chain_web:['Chain Web','Develops the Chain Web branch and its signature behavior.'],
+  chain_storm:['Chain Storm','Develops the Chain Storm branch, adds transition surges and extra Resonance.'],
+  chain_leech:['Chain Leech','Develops the Chain Leech branch and its signature behavior.'],
+  aura_sanctum:['Aura Sanctum','Develops the Aura Sanctum branch and its signature behavior.'],
+  aura_gravity:['Aura Gravity','Develops the Aura Gravity branch and its signature behavior.'],
+  aura_overgrowth:['Aura Overgrowth','Develops the Aura Overgrowth branch and its signature behavior.'],
+  orbital_dance:['Orbital Dance','Develops the Orbital Dance branch and its signature behavior.'],
+  orbital_halo:['Orbital Halo','Develops the Orbital Halo branch and its signature behavior.'],
+  orbital_blade:['Orbital Blade','Develops the Orbital Blade branch and its signature behavior.'],
+  prism_split:['Prism Split','Develops the Prism Split branch and its signature behavior.'],
+  prism_spectrum:['Prism Spectrum','Develops the Prism Spectrum branch, transfers elemental status and feeds Resonance.'],
+  prism_mirror:['Prism Mirror','Develops the Prism Mirror branch and its signature behavior.'],
+  gravity_well:['Gravity Well','Develops the Gravity Well branch and its signature behavior.'],
+  gravity_tide:['Gravity Tide','Develops the Gravity Tide branch and its signature behavior.'],
+  gravity_collapse:['Gravity Collapse','Develops the Gravity Collapse branch and its signature behavior.'],
+  pulse_wave:['Pulse Wave','Develops the Pulse Wave branch and its signature behavior.'],
+  pulse_resonator:['Pulse Resonator','Develops the Pulse Resonator branch and its signature behavior.'],
+  pulse_burst:['Pulse Burst','Develops the Pulse Burst branch and its signature behavior.'],
+  void_hunger:['Void Hunger','Develops the Void Hunger branch and its signature behavior.'],
+  void_reaper:['Void Reaper','Develops the Void Reaper branch and its signature behavior.'],
+  void_execution:['Void Execution','Develops the Void Execution branch and its signature behavior.'],
+};
+
+const f=(id:string,ru:string,en:string,descRu:string,descEn:string):SphereEvolutionDef=>e(id,ru,en,descRu,descEn);
+
+const SPHERE_FINAL_VARIANTS:Record<SphereEvolutionId,[SphereEvolutionDef,SphereEvolutionDef,SphereEvolutionDef]>={
+  standard_resonator:[
+    f('standard_resonator_final_1','Резонатор • Импульс','Standard Resonator • Pulse','Каждое третье попадание создаёт усиленный импульс вокруг цели: 65% урона, радиус 115.','Every third hit creates an empowered pulse around the target: 65% damage, radius 115.'),
+    f('standard_resonator_final_2','Резонатор • Отбой','Standard Resonator • Rebound','Каждое третье попадание создаёт импульс по площади: 45% урона в радиусе 100 и отбрасывает ближайших врагов.','Every third hit creates an area pulse: 45% damage in radius 100 and knocks back nearby enemies.'),
+    f('standard_resonator_final_3','Резонатор • Срыв','Standard Resonator • Suppression','Каждое третье попадание создаёт импульс: 35% урона в радиусе 90 и замедляет ближайших врагов на 0.8 с.','Every third hit creates a pulse: 35% damage in radius 90 and slows nearby enemies for 0.8s.'),
   ],
   standard_singularity:[
     f('standard_singularity_final_1','Сингулярность • Сжатие','Standard Singularity • Compression','Попадание сильнее стягивает ближайших врагов и удерживает цель замедленной на 1.2 с.','Hits pull nearby enemies harder and keep the target slowed for 1.2s.'),
@@ -268,9 +301,9 @@ const BRANCH_EN:Partial<Record<SphereEvolutionId,[string,string]>>={
     f('standard_singularity_final_3','Сингулярность • Коллапс','Standard Singularity • Collapse','Попадание сильнее стягивает врагов; цели ниже 50% HP получают +15% урона.','Hits pull enemies harder, and targets below 50% HP take 15% more damage.'),
   ],
   standard_swarm:[
-    f('standard_swarm_final_1','Рой • Осколочный залп','Standard Swarm • Shard Volley','При попадании с вероятностью 35% выпускается 1 осколок, наносящий 50% урона исходного попадания.','On hit, there is a 35% chance to launch 1 shard dealing 50% of the original hit damage.'),
-    f('standard_swarm_final_2','Рой • Шрапнель','Standard Swarm • Shrapnel','При попадании с вероятностью 55% выпускается 1 осколок, наносящий 50% урона исходного попадания.','On hit, there is a 55% chance to launch 1 shard dealing 50% of the original hit damage.'),
-    f('standard_swarm_final_3','Рой • Рой осколков','Standard Swarm • Shard Swarm','Каждое попадание выпускает 2 осколка, каждый наносит 50% урона исходного попадания.','Every hit launches 2 shards, each dealing 50% of the original hit damage.'),
+    f('standard_swarm_final_1','Рой • Охотничий осколок','Standard Swarm • Hunter Shard','После попадания выпускает один осколок, который ищет ближайшую другую цель.','After a hit, one shard seeks the nearest different target.'),
+    f('standard_swarm_final_2','Рой • Перекрёстный огонь','Standard Swarm • Crossfire','После попадания создаёт два боковых осколка по расходящимся траекториям.','After a hit, creates two side shards on diverging trajectories.'),
+    f('standard_swarm_final_3','Рой • Осколочная сеть','Standard Swarm • Shard Web','После попадания создаёт три осколка, расходящихся веером и насыщащих зону вокруг цели.','After a hit, creates three fan-shaped shards that saturate the area around the target.'),
   ],
   sniper_oracle:[
     f('sniper_oracle_final_1','Оракул • Критический фокус','Sniper Oracle • Critical Focus','Крит по отмеченной цели наносит +50% урона.','Critical hits against marked targets deal 50% more damage.'),
@@ -914,8 +947,10 @@ const ABILITY_FINAL_POOLS = Object.fromEntries(
 ) as Record<string, Record<string, AbilityEvolutionChoice[]>>;
 
 export function getAbilityFinalArchetype(s:any, ability:AbilityType): string | null {
-  const selected = getAbilityBranchId(s, ability, 7);
-  if (!selected) return null;
+  const prefix = 'ability:' + ability + ':7:';
+  const marker = (s.player.evolutions || []).find((x:string) => x.startsWith(prefix));
+  if (!marker) return null;
+  const selected = marker.slice(prefix.length);
   const match = /_f([1-3])$/.exec(selected);
   if (!match) return null;
   const index = Number(match[1]) - 1;
