@@ -1,6 +1,7 @@
 import type { ShopState, LeaderEntry } from './engine';
 import { CHARACTER_DEFS, CHARACTER_LIST, DEFAULT_CHARACTER_ID, type CharacterId, type CharacterProfile } from './characters';
 import type { Difficulty } from './gameData';
+import { clearSavedRun } from './runPersistence';
 
 const GOLD_KEY = 'echosphere_gold';
 const SHOP_KEY = 'echosphere_shop';
@@ -304,6 +305,7 @@ export function resetAll(): void {
   localStorage.removeItem(NAME_KEY);
   localStorage.removeItem(KNOWLEDGE_KEY);
   localStorage.removeItem(TUTORIAL_KEY);
+  clearSavedRun();
   localStorage.removeItem('echo-sphere:region:resonance_basin:stabilized');
   localStorage.removeItem('echo-sphere:region:resonance_basin:challenges');
   localStorage.removeItem('echo-sphere:region:resonance_basin:endless');
