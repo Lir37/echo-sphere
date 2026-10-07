@@ -1,170 +1,210 @@
-import { useState } from 'react';
-import { REGION_CHALLENGES, REGION_POCKETS, getRegionChallengeProgress, loadRegionChallengeCompletions, loadRegionEndlessUnlock, loadRegionStabilized, type RegionChallengeId, type RegionMode } from './region';
-import { CHARACTER_DEFS } from './characters';
-import { loadCharacterId } from './persistence';
-import { DIFFICULTIES, type Difficulty } from './gameData';
+import { useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
+import {
+  REGION_CHALLENGES,
+  getRegionChallengeProgress,
+  loadRegionChallengeCompletions,
+  loadRegionEndlessUnlock,
+  loadRegionStabilized,
+  type RegionChallengeId,
+  type RegionMode,
+} from './region';
+import type { Difficulty } from './gameData';
 import type { Lang } from './i18n';
 
 type StartRun = (mode: RegionMode, challenge: RegionChallengeId) => void;
+
+const REGION_BODIES = [
+  { id: 'resonance_basin', x: 50, y: 51, scale: 1, active: true, color: '#63e6ff' },
+  { id: 'unresolved_a', x: 18, y: 29, scale: .56, active: false, color: '#6fa9ff' },
+  { id: 'unresolved_b', x: 80, y: 26, scale: .46, active: false, color: '#9d83ff' },
+  { id: 'unresolved_c', x: 76, y: 78, scale: .62, active: false, color: '#6fe7cf' },
+  { id: 'unresolved_d', x: 23, y: 76, scale: .40, active: false, color: '#e7aa63' },
+] as const;
+
+const CHALLENGE_GLYPHS = ['fracture', 'overload', 'gravity'] as const;
 
 export default function EchoMapScreen({
   lang,
   difficulty,
   onStartRun,
-  onCharacters,
   onBack,
 }: {
   lang: Lang;
   difficulty: Difficulty;
   onStartRun: StartRun;
-  onCharacters: () => void;
   onBack: () => void;
 }) {
-  const [regionOpen, setRegionOpen] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const dragRef = useRef<{ id: number; startX: number; startY: number; baseX: number; baseY: number; moved: boolean } | null>(null);
+
   const completed = loadRegionChallengeCompletions();
   const progress = getRegionChallengeProgress();
   const endlessUnlocked = loadRegionEndlessUnlock();
   const stabilized = loadRegionStabilized();
-  const character = CHARACTER_DEFS[loadCharacterId()];
-  const challengePositions = ['es-map-satellite-a', 'es-map-satellite-b', 'es-map-satellite-c'];
 
-  const challengeCopy: Record<RegionChallengeId, { kicker: { ru: string; en: string }; goal: { ru: string; en: string }; accent: string }> = {
-    none: { kicker: { ru: 'БАЗОВЫЙ МАРШРУТ', en: 'BASE ROUTE' }, goal: { ru: '30:00 + 3 стража', en: '30:00 + 3 wardens' }, accent: '#63e6ff' },
-    fractured_network: { kicker: { ru: 'ИСПЫТАНИЕ', en: 'CHALLENGE' }, goal: { ru: 'Сеть рвётся каждые 45с', en: 'Network breaks every 45s' }, accent: '#ff6b6b' },
-    overload: { kicker: { ru: 'ИСПЫТАНИЕ', en: 'CHALLENGE' }, goal: { ru: 'Враги сильнее, XP больше', en: 'Stronger enemies, more XP' }, accent: '#ffb84d' },
-    low_gravity: { kicker: { ru: 'ИСПЫТАНИЕ', en: 'CHALLENGE' }, goal: { ru: 'Быстрее Core, слабее отталкивание', en: 'Faster Core, weaker repulsion' }, accent: '#a88cff' },
+  const onMapPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    dragRef.current = {
+      id: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      baseX: offset.x,
+      baseY: offset.y,
+      moved: false,
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+
+  const onMapPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const drag = dragRef.current;
+    if (!drag || drag.id !== event.pointerId) return;
+    const dx = event.clientX - drag.startX;
+    const dy = event.clientY - drag.startY;
+    if (Math.hypot(dx, dy) > 5) drag.moved = true;
+    setOffset({
+      x: Math.max(-28, Math.min(28, drag.baseX + dx)),
+      y: Math.max(-20, Math.min(20, drag.baseY + dy)),
+    });
+  };
+
+  const onMapPointerUp = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (dragRef.current?.id === event.pointerId) {
+      dragRef.current = null;
+      try { event.currentTarget.releasePointerCapture(event.pointerId); } catch { /* pointer may already be released */ }
+    }
+  };
+
+  const onRegionClick = (event: ReactPointerEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    const drag = dragRef.current;
+    if (drag?.moved) return;
+    if (!focused) setFocused(true);
+    else onStartRun('stabilization', 'none');
   };
 
   return (
-    <div className={'es-map-screen ' + (regionOpen ? 'is-region-open' : 'is-region-overview')}>
+    <div className={focused ? 'es-map-screen is-region-open' : 'es-map-screen is-region-overview'}>
       <header className="es-map-header">
-        <button type="button" className="es-map-back" onClick={() => { if (regionOpen) setRegionOpen(false); else onBack(); }}>
-          <span>‹</span>
-          {lang === 'ru' ? 'К МЕНЮ' : 'MENU'}
+        <button
+          type="button"
+          className="es-map-back"
+          onClick={() => focused ? setFocused(false) : onBack()}
+          aria-label={focused ? (lang === 'ru' ? 'Вернуться к звёздной карте' : 'Back to star map') : (lang === 'ru' ? 'Вернуться в меню' : 'Back to menu')}
+        >
+          <span>‹</span>{focused ? (lang === 'ru' ? 'К ЗВЁЗДНОЙ КАРТЕ' : 'STAR MAP') : (lang === 'ru' ? 'МЕНЮ' : 'MENU')}
         </button>
-        <div className="text-center">
-          <div className="es-map-title">{lang === 'ru' ? 'КАРТА ЭХА' : 'ECHO MAP'}</div>
-          <div className="es-map-subtitle">{regionOpen ? (lang === 'ru' ? 'РЕГИОН В ФОКУСЕ' : 'REGION IN FOCUS') : (lang === 'ru' ? 'ЗВЁЗДНОЕ ПОЛЕ' : 'STAR FIELD')}</div>
+        <div className="es-map-title-cluster" aria-hidden="true">
+          <div className="es-map-title">ECHO MAP</div>
+          <div className="es-map-subtitle">{focused ? 'REGION FOCUS' : 'STAR FIELD'}</div>
         </div>
-        <button type="button" className="es-map-character" onClick={onCharacters}>
-          <span className="es-map-character-orb" style={{ ['--map-char' as string]: character.color }}>✦</span>
-          <span>
-            <b>{character.name[lang]}</b>
-            <small>{DIFFICULTIES.find(item => item.id === difficulty)?.name[lang] || difficulty}</small>
-          </span>
-        </button>
       </header>
 
-      <main className="es-map-main">
-        <div className="es-map-space">
+      <main
+        className="es-map-main"
+        onPointerDown={onMapPointerDown}
+        onPointerMove={onMapPointerMove}
+        onPointerUp={onMapPointerUp}
+        onPointerCancel={onMapPointerUp}
+        style={{ touchAction: 'none' }}
+      >
+        <div className="es-map-starfield" style={{ transform: `translate3d(${offset.x}px,${offset.y}px,0)` }}>
           <div className="es-map-stars" />
+          <div className="es-map-nebula nebula-a" />
+          <div className="es-map-nebula nebula-b" />
           <div className="es-map-grid" />
-          <div className="es-map-background-bodies" aria-hidden="true">
-            <span className="es-map-background-body echo-body-1" />
-            <span className="es-map-background-body echo-body-2" />
-            <span className="es-map-background-body echo-body-3" />
-            <span className="es-map-background-body echo-body-4" />
-            <span className="es-map-background-body echo-body-5" />
+
+          <div className="es-map-constellation-lines" aria-hidden="true">
+            <span />
+            <span />
+            <span />
+            <span />
+            <span />
           </div>
 
-          <svg className="es-map-orbits" viewBox="0 0 1000 700" aria-hidden="true">
-            <ellipse cx="500" cy="340" rx="285" ry="175" />
-            <ellipse cx="500" cy="340" rx="220" ry="132" />
-            <ellipse cx="500" cy="340" rx="150" ry="92" />
-          </svg>
-
-          {REGION_POCKETS.map((pocket, index) => (
-            <span
-              key={pocket.id}
-              className={`es-map-fragment fragment-${index}`}
-              title={pocket.name[lang]}
-              style={{ ['--fragment-color' as string]: pocket.accent }}
-            >
-              ◇
-            </span>
-          ))}
-
-          <button type="button" className="es-map-region-node" onClick={() => { if (!regionOpen) setRegionOpen(true); else onStartRun('stabilization', 'none'); }} aria-label={regionOpen ? (lang === 'ru' ? 'Начать стандартную стабилизацию Резонансного бассейна' : 'Start Resonance Basin stabilization') : (lang === 'ru' ? 'Приблизить Резонансный бассейн' : 'Approach Resonance Basin')}>
-            <span className="es-map-planet-ring ring-outer" />
-            <span className="es-map-planet-ring ring-mid" />
-            <span className="es-map-planet" />
-            <span className="es-map-planet-core" />
-            <span className="es-map-node-label">
-              <b>{lang === 'ru' ? 'РЕЗОНАНСНЫЙ БАССЕЙН' : 'RESONANCE BASIN'}</b>
-              <small>{stabilized ? (lang === 'ru' ? 'СТАБИЛИЗИРОВАН' : 'STABILIZED') : (lang === 'ru' ? 'ОБЛАСТЬ СИГНАЛА' : 'SIGNAL REGION')}</small>
-            </span>
-          </button>
-
-          {REGION_CHALLENGES.map((challenge, index) => {
-            const done = completed.includes(challenge.id);
-            const meta = challengeCopy[challenge.id];
-            const locked = !stabilized;
+          {REGION_BODIES.map((body, index) => {
+            const isMain = body.id === 'resonance_basin';
+            const bodyScale = focused && isMain ? 1.46 : body.scale;
             return (
-              <button
-                type="button"
-                key={challenge.id}
-                className={'es-map-satellite ' + challengePositions[index] + (locked ? ' is-locked' : '') + (done ? ' is-complete' : '')}
-                disabled={locked}
-                style={{ ['--satellite-color' as string]: meta.accent }}
-                onClick={() => !locked && onStartRun('stabilization', challenge.id)}
+              <div
+                key={body.id}
+                className={'es-map-celestial-body ' + (isMain ? 'is-main' : 'is-distant') + (focused && isMain ? ' is-focused' : '')}
+                style={{
+                  left: body.x + '%',
+                  top: body.y + '%',
+                  ['--body-scale' as string]: String(bodyScale),
+                  ['--body-color' as string]: body.color,
+                }}
               >
-                <span className="es-map-satellite-orbit" />
-                <span className="es-map-satellite-core">◈</span>
-                <span className="es-map-satellite-copy">
-                  <small>{challenge.name[lang]}</small>
-                  <b>{done ? (lang === 'ru' ? 'ПРОЙДЕНО' : 'CLEARED') : locked ? (lang === 'ru' ? 'ПОСЛЕ СТАНДАРТА' : 'AFTER BASE RUN') : meta.kicker[lang]}</b>
-                  <em>{challenge.desc[lang]}</em>
-                </span>
-              </button>
+                <span className="es-map-celestial-atmosphere" />
+                <span className="es-map-celestial-ring ring-a" />
+                <span className="es-map-celestial-ring ring-b" />
+
+                {isMain && CHALLENGE_GLYPHS.map((glyph, index) => {
+                  const challenge = REGION_CHALLENGES[index];
+                  const done = completed.includes(challenge.id);
+                  const locked = !stabilized;
+                  const start = index * 120 - 90;
+                  return (
+                    <button
+                      key={glyph}
+                      type="button"
+                      className={'es-map-orbit-challenge challenge-' + index + (locked ? ' is-locked' : '') + (done ? ' is-complete' : '')}
+                      style={{ ['--challenge-angle' as string]: start + 'deg', ['--challenge-color' as string]: challenge.id === 'fractured_network' ? '#ff6b6b' : challenge.id === 'overload' ? '#ffbd72' : '#aa91ff' }}
+                      onPointerDown={(e) => e.stopPropagation()}
+                      onClick={(e) => { e.stopPropagation(); if (!locked) onStartRun('stabilization', challenge.id); }}
+                      aria-label={challenge.name[lang]}
+                    >
+                      <span className="es-map-challenge-glyph">
+                        {glyph === 'fracture' ? '⟐' : glyph === 'overload' ? '✦' : '⌁'}
+                      </span>
+                    </button>
+                  );
+                })}
+
+                {isMain && (
+                  <>
+                    <button
+                      type="button"
+                      className="es-map-region-body"
+                      onPointerDown={(e) => e.stopPropagation()}
+                      onClick={onRegionClick}
+                      aria-label={lang === 'ru'
+                        ? (focused ? 'Начать стандартную стабилизацию' : 'Приблизить Резонансный бассейн')
+                        : (focused ? 'Start Standard Stabilization' : 'Approach Resonance Basin')}
+                    >
+                      <span className="es-map-region-core" />
+                      <span className="es-map-region-surface" />
+                    </button>
+                    {focused && endlessUnlocked && (
+                      <button
+                        type="button"
+                        className="es-map-endless-node"
+                        onPointerDown={(e) => e.stopPropagation()}
+                        onClick={(e) => { e.stopPropagation(); onStartRun('endless', 'none'); }}
+                        aria-label={lang === 'ru' ? 'Бесконечное ядро' : 'Endless Core'}
+                      >
+                        <span>✦</span>
+                      </button>
+                    )}
+                  </>
+                )}
+              </div>
             );
           })}
 
-          <button
-            type="button"
-            disabled={!endlessUnlocked}
-            className={`es-map-endless-core ${endlessUnlocked ? 'is-unlocked' : 'is-locked'}`}
-            onClick={() => endlessUnlocked && onStartRun('endless', 'none')}
-          >
-            <span className="es-map-endless-core-glow" />
-            <span className="es-map-endless-core-symbol">✦</span>
-            <span className="es-map-endless-core-copy">
-              <b>{lang === 'ru' ? 'БЕСКОНЕЧНОЕ ЯДРО' : 'ENDLESS CORE'}</b>
-              <small>{endlessUnlocked
-                ? (lang === 'ru' ? 'ОТКРЫТО · ВХОД В БЕСКОНЕЧНОСТЬ' : 'UNLOCKED · ENTER INFINITY')
-                : (lang === 'ru' ? `ЗАКРЫТО · ИСПЫТАНИЯ ${progress}/3` : `LOCKED · CHALLENGES ${progress}/3`)}</small>
-            </span>
-          </button>
-
-          <div className="es-map-fragment-caption">
-            <span>{lang === 'ru' ? '5 ОСКОЛКОВ' : '5 FRAGMENTS'}</span>
-            <small>{lang === 'ru' ? 'покеты региона' : 'regional pockets'}</small>
+          <div className="es-map-progress-rune" aria-hidden="true">
+            <span className={stabilized ? 'is-on' : ''}>01</span>
+            <i />
+            <span className={progress >= 1 ? 'is-on' : ''}>02</span>
+            <i />
+            <span className={endlessUnlocked ? 'is-on' : ''}>∞</span>
           </div>
         </div>
 
-        <section className="es-map-info">
-          <div>
-            <div className="es-map-info-kicker">{lang === 'ru' ? 'ТЕКУЩИЙ СИГНАЛ' : 'CURRENT SIGNAL'}</div>
-            <h2>{lang === 'ru' ? 'Резонансный бассейн' : 'Resonance Basin'}</h2>
-            <p>{lang === 'ru'
-              ? 'Звёздное поле показывает мир Эха. Сначала стабилизируй регион, затем открой три испытания и только после них войди в Бесконечное ядро.'
-              : 'The central region node. Stabilize it first, then clear the three orbital challenges. Each route changes how the run plays, not just the numbers.'}</p>
-          </div>
-
-          <div className="es-map-goal-row">
-            <div>
-              <small>{lang === 'ru' ? 'БАЗОВЫЙ ЗАБЕГ' : 'BASE RUN'}</small>
-              <b>{challengeCopy.none.goal[lang]}</b>
-            </div>
-            <div>
-              <small>{lang === 'ru' ? 'СПУТНИКИ' : 'SATELLITES'}</small>
-              <b>{progress}/3</b>
-            </div>
-            <div className={endlessUnlocked ? 'is-ready' : ''}>
-              <small>{lang === 'ru' ? 'ЯДРО' : 'CORE'}</small>
-              <b>{endlessUnlocked ? (lang === 'ru' ? 'ГОТОВО' : 'READY') : (lang === 'ru' ? 'ЗАПЕЧАТАНО' : 'SEALED')}</b>
-            </div>
-          </div>
-        </section>
+        <div className="es-map-gesture-hint" aria-hidden="true">
+          <span>{focused ? '✦' : '◇'}</span>
+          <small>{focused ? (lang === 'ru' ? 'СПУТНИКИ ИСПЫТАНИЙ' : 'CHALLENGE SATELLITES') : (lang === 'ru' ? 'ПЕРЕМЕЩАЙ ПАЛЬЦЕМ · ВЫБЕРИ МИР' : 'DRAG TO TRAVEL · CHOOSE A WORLD')}</small>
+        </div>
       </main>
     </div>
   );
