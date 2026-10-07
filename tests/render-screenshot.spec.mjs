@@ -22,7 +22,7 @@ test('capture the actual rendered game after navigating the Echo Map', async ({ 
   await expect(regionNode).toBeVisible();
   await regionNode.click();
   await expect(page.locator('.es-map-screen.is-region-open')).toBeVisible();
-  await regionNode.click();
+  await page.locator('button.es-map-focused-body').click();
 
   const canvas = page.locator('canvas').first();
   await expect(canvas).toBeVisible();
