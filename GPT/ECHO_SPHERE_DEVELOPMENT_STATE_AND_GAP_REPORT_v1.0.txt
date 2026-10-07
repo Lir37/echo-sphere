@@ -1925,3 +1925,49 @@ CODELINE BASE:
 ======================================================================
 END ECHO MAP / MAIN MENU / HUD CORRECTION PASS
 ======================================================================
+
+======================================================================
+2026-10-07 — PLAYER-VIEW POLISH / ECHO MAP REWORK
+======================================================================
+
+IMPLEMENTED FROM:
+32bd897f90330809470148432656be4767f203cf
+
+[DONE]
+- Legacy bottom navigation is removed from the Main Menu DOM.
+- Center menu Core has no visible rectangular button/frame. The clickable area is
+  visually transparent and does not mask orbital menu objects.
+- Main Core uses a tilted Y-axis rotation with a small Z-axis inclination,
+  plus a soft halo and layered surface treatment for a stronger 2.5D/near-3D read.
+- Main-menu orbital system was tightened so the outer orbit remains inside mobile
+  viewport bounds.
+- Added a restrained comet pass across the menu background; it is infrequent and
+  low-opacity to preserve readability.
+- Echo Map no longer shows the current-character button or a region description panel.
+- Echo Map is a star-field with several small celestial region bodies. The developed
+  Resonance Basin is the interactive region body; distant bodies act as future
+  region signals. Challenge markers orbit the developed region without text cards.
+- Map supports touch/pointer dragging with bounded pan movement.
+- Selecting the Resonance Basin first focuses/zooms the region. A second tap enters
+  Standard Stabilization.
+- In focused mode, three challenge satellites orbit the region as compact symbols.
+  No textual challenge description windows are used on the global map.
+- Right gameplay HUD now follows the requested stack: radar top-right, compact timer
+  below it, then full-width Region/Pocket information with natural text wrapping.
+- Goal/challenge instructions were removed from the right gameplay HUD.
+- Left and right gameplay HUD panels are forced to identical width and height.
+- Pocket boundary transition FX was strengthened with an expanding wave plus four
+  restrained fold-shards. Boundary feedback text remains compact and omits the
+  Pocket name.
+
+[PROGRESSION CONTRACT]
+STANDARD STABILIZATION -> THREE CHALLENGES -> ENDLESS CORE remains authoritative.
+Challenge satellites stay unavailable until Standard Stabilization is complete.
+Endless remains locked until all three challenge contracts are completed.
+
+[VALIDATION UPDATED]
+- Playwright follows the new map body selector and two-step region focus flow.
+- Vertical-slice tests validate pannable star-map/focus markers and end-of-run KILLS.
+======================================================================
+END PLAYER-VIEW POLISH / ECHO MAP REWORK
+======================================================================
