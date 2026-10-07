@@ -81,7 +81,7 @@ export default function EchoMapScreen({ lang, onStartRun, onBack }: {
                 <span className={'es-map-orbit-satellite challenge-gravity '+(completed.includes('low_gravity')?'is-complete':'is-locked')}/>
               </div>
 
-              <button type="button" className="es-map-region-body" onClick={()=>setRegionOpen(true)} aria-label={lang==='ru'?'Приблизить Резонансный бассейн':'Approach Resonance Basin'}>
+              <button type="button" className="es-map-region-body" onClick={()=>regionOpen?onStartRun('stabilization','none'):setRegionOpen(true)} aria-label={regionOpen?(lang==='ru'?'Начать стандартную стабилизацию':'Start Standard Stabilization'):(lang==='ru'?'Приблизить Резонансный бассейн':'Approach Resonance Basin')}>
                 <span className="es-map-region-glow"/>
                 <span className="es-map-region-surface"/>
                 <span className="es-map-region-core"/>
