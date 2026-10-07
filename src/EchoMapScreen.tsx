@@ -92,7 +92,7 @@ export default function EchoMapScreen({ lang, onStartRun, onBack }: {
                 {REGION_CHALLENGES.map(challenge=>{
                   const done=completed.includes(challenge.id);
                   const locked=!stabilized;
-                  const cls=CHALLENGE_CLASS[challenge.id];
+                  const cls=challenge.id==='none'?'':CHALLENGE_CLASS[challenge.id];
                   return <button key={challenge.id} type="button" disabled={locked}
                     className={'es-map-orbit-action '+cls+(done?' is-complete':'')+(locked?' is-locked':'')}
                     onClick={()=>!locked&&onStartRun('stabilization',challenge.id)}
