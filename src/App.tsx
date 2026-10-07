@@ -1081,7 +1081,6 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
         </div>
         {activeBoss && <div className="es-boss-telemetry mt-1.5">{t('bossWave')}</div>}
       </div>
-      </div>
     </>
   );
 }
