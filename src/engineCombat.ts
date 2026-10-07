@@ -414,15 +414,13 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
       }
       if (finalIndex === 2 && enemy.hp < enemy.maxHp * 0.5) actual *= 1.15;
     } else if (branch === 'standard_swarm') {
-      // Level VII Swarm finals are behaviorally different patterns:
-      // 0 = guided hunter shard, 1 = crossfire pair, 2 = fan-shaped shard web.
+      // Level VII Swarm finals are three different shard patterns:
+      // guided hunter shard, crossfire pair, or fan-shaped shard web.
       const preFinalLevel = sphereLevel(s, 'standard');
       const count = finalIndex === null
         ? (preFinalLevel >= 6 ? 2 : 1)
         : finalIndex === 0 ? 1 : finalIndex === 1 ? 2 : 3;
-      const chance = finalIndex === null
-        ? 1
-        : finalIndex === 0 ? 0.75 : finalIndex === 1 ? 0.70 : 1;
+      const chance = finalIndex === null ? 1 : finalIndex === 0 ? 0.75 : finalIndex === 1 ? 0.70 : 1;
       if (nextRandom(s) < chance) {
         const shardDamageMultiplier = finalIndex === null
           ? preFinalLevel >= 6 ? 0.65 : preFinalLevel >= 5 ? 0.58 : 0.50
@@ -442,7 +440,8 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
           const a = angles[i] ?? (nextRandom(s) * Math.PI * 2);
           s.sphereProjectiles.push({
             pos: { ...enemy.pos }, vel: { x: Math.cos(a) * 320, y: Math.sin(a) * 320 },
-            damage: actual * shardDamageMultiplier, radius: 4, alive: true, color: '#d4943d', pierce: finalIndex === 2 ? 1 : 0,
+            damage: actual * shardDamageMultiplier, radius: 4, alive: true, color: '#d4943d',
+            pierce: finalIndex === 2 ? 1 : 0,
             hitEnemies: new Set([enemy]), effect: 'none', ricochet: 0, life: 0.55,
             sourceSphere: fromSphere, procOnHit: false,
           });
@@ -593,11 +592,7 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
         const dx = nearby.pos.x - fromSphere.pos.x;
         const dy = nearby.pos.y - fromSphere.pos.y;
         const len = Math.hypot(dx,dy) || 1;
-        const direction = mode === 0
-          ? 1
-          : mode === 1
-            ? -1
-            : hitCount % 2 === 0 ? 1 : -1;
+        const direction = mode === 0 ? 1 : mode === 1 ? -1 : hitCount % 2 === 0 ? 1 : -1;
         nearby.pos.x += (dx / len) * 52 * direction;
         nearby.pos.y += (dy / len) * 52 * direction;
       }
@@ -765,6 +760,7 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
     }
     onEnemyDeath(s, enemy, fromSphere);
   }
+}
 
 
 export function onEnemyDeath(s: GameState, enemy: EnemyEntity, fromSphere?: SphereEntity): void {
