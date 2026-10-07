@@ -76,7 +76,7 @@ export default function App() {
     <div className="es-app min-h-screen w-full text-[#dcecff] overflow-hidden flex items-center justify-center">
       {screen === 'menu' && <Menu lang={lang} t={t} difficulty={difficulty} setDifficulty={setDifficulty} savedRunTime={resumeRun ? getSavedRunTime() : null} onContinue={() => { const saved = loadSavedRun(); if (saved) { setResumeRun(saved); setRegionId(saved.region.id); setRegionMode(saved.region.mode); setRegionChallenge(saved.region.challengeId); setScreen('game'); } else { setResumeRun(null); } }} onOpenMap={() => setScreen('map')} onShop={() => { setShop(loadShop()); setGold(loadGold()); setScreen('shop'); }} onCharacters={() => { setGold(loadGold()); setScreen('characters'); }} onLeader={() => setScreen('leaderboard')} onSettings={() => setScreen('settings')} onAchievements={() => setScreen('achievements')} onKnowledge={() => setScreen('knowledge')} />}
       {screen === 'map' && <EchoMapScreen lang={lang} onStartRun={(id, mode, challenge) => { clearSavedRun(); setResumeRun(null); setRegionId(id); setRegionMode(mode); setRegionChallenge(challenge); setScreen('game'); }} onBack={() => setScreen('menu')} />}
-      {screen === 'game' && <GameScreen lang={lang} t={t} shop={shop} difficulty={difficulty} handedness={handedness} regionId={regionId} regionMode={regionMode} regionChallenge={regionChallenge} initialState={resumeRun} onSavedRunChange={(saved) => setResumeRun(saved ? loadSavedRun() : null)} onExit={() => { clearSavedRun(); setResumeRun(null); setShop(loadShop()); setGold(loadGold()); setScreen('map'); }} />}
+      {screen === 'game' && <GameScreen lang={lang} t={t} shop={shop} difficulty={difficulty} handedness={handedness} regionId={regionId} regionMode={regionMode} regionChallenge={regionChallenge} initialState={resumeRun} onExit={() => { clearSavedRun(); setResumeRun(null); setShop(loadShop()); setGold(loadGold()); setScreen('map'); }} />}
       {screen === 'shop' && <ShopScreen lang={lang} t={t} shop={shop} setShop={setShop} onBack={() => { setGold(loadGold()); setScreen('menu'); }} />}
       {screen === 'characters' && <CharacterSelect lang={lang} gold={gold} onGoldChange={(nextGold) => { setGold(nextGold); setShop(loadShop()); }} onBack={() => { setGold(loadGold()); setShop(loadShop()); setScreen('menu'); }} />}
       {screen === 'leaderboard' && <LeaderboardScreen lang={lang} t={t} onBack={() => setScreen('menu')} />}
@@ -177,8 +177,8 @@ function Menu({ lang, t, difficulty, setDifficulty, savedRunTime, onContinue, on
 }
 
 // Main menu closes cleanly before the gameplay screen declaration.
-function GameScreen({ lang, t, shop, difficulty, handedness, regionId, regionMode, regionChallenge, initialState, onSavedRunChange, onExit }: {
-  lang: Lang; t: (k: TranslationKey) => string; shop: ShopState; difficulty: Difficulty; handedness: Handedness; regionId: RegionId; regionMode: RegionMode; regionChallenge: RegionChallengeId; initialState: GameState | null; onSavedRunChange: (saved: boolean) => void; onExit: () => void;
+function GameScreen({ lang, t, shop, difficulty, handedness, regionId, regionMode, regionChallenge, initialState, onExit }: {
+  lang: Lang; t: (k: TranslationKey) => string; shop: ShopState; difficulty: Difficulty; handedness: Handedness; regionId: RegionId; regionMode: RegionMode; regionChallenge: RegionChallengeId; initialState: GameState | null; onExit: () => void;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const renderer3dRef = useRef<Echo3DRenderer | null>(null);
@@ -189,6 +189,7 @@ function GameScreen({ lang, t, shop, difficulty, handedness, regionId, regionMod
   const masterySavedRef = useRef(false);
   const lastTimeRef = useRef<number>(0);
   const uiAccumulatorRef = useRef(0);
+  const runSaveAccumulatorRef = useRef(0);
   const [, forceRender] = useState(0);
   const [gameOverData, setGameOverData] = useState<{ time: number; wave: number; kills: number; gold: number; rank: number; isNewRecord: boolean; regionClear: boolean; masteryChallengesCompleted: number; challengeProgress: number; endlessUnlocked: boolean } | null>(null);
   const [paused, setPaused] = useState(false);
@@ -258,7 +259,6 @@ function GameScreen({ lang, t, shop, difficulty, handedness, regionId, regionMod
       current.paused = true;
       setPaused(true);
       saveRunSnapshot(current);
-      onSavedRunChange(true);
     };
 
     const handleVisibilityChange = () => {
@@ -291,7 +291,11 @@ function GameScreen({ lang, t, shop, difficulty, handedness, regionId, regionMod
         } else if (st.tutorialMode && tutorial === 4 && tutorialUpgradeOpenedRef.current && !st.pendingUpgrade) {
           transitionTutorial(5);
         }
-        if (!st.tutorialMode && !st.gameOver && Math.floor(st.time) % 1 === 0) saveRunSnapshot(st);
+        runSaveAccumulatorRef.current += dt;
+        if (!st.tutorialMode && !st.gameOver && runSaveAccumulatorRef.current >= 1) {
+          runSaveAccumulatorRef.current = 0;
+          saveRunSnapshot(st);
+        }
         tickCharacterMastery(st, dt, masteryTrackerRef.current);
         resolveSpaceCollisions(st, dt);
         knowledgeTickRef.current += dt;
@@ -300,7 +304,7 @@ function GameScreen({ lang, t, shop, difficulty, handedness, regionId, regionMod
           syncKnowledgeFromRun(st);
         }
 
-        if (st.gameOver) { syncKnowledgeFromRun(st); clearSavedRun(); onSavedRunChange(false); }
+        if (st.gameOver) syncKnowledgeFromRun(st);
 
         if (st.gameOver && !gameOverData) {
           if (!masterySavedRef.current) {
@@ -325,6 +329,8 @@ function GameScreen({ lang, t, shop, difficulty, handedness, regionId, regionMod
           if (st.player.combo >= 50) unlockAchievement('combo_50');
           if (st.player.chestOpens >= 5) unlockAchievement('chest_5');
           if (st.player.dashCount >= 50) unlockAchievement('dash_50');
+          clearSavedRun();
+          setResumeRun(null);
           setGameOverData({ time, wave: st.wave, kills: st.player.kills, gold, rank, isNewRecord, regionClear: Boolean(st.region?.cleared), masteryChallengesCompleted: st.region?.masteryChallengesCompleted || 0, challengeProgress: getRegionChallengeProgress(), endlessUnlocked: loadRegionEndlessUnlock() });
         }
 
@@ -421,7 +427,7 @@ function GameScreen({ lang, t, shop, difficulty, handedness, regionId, regionMod
               st={st}
               tab={pauseTab}
               setTab={setPauseTab}
-              onResume={() => { setPaused(false); st.paused = false; saveRunSnapshot(st); onSavedRunChange(true); setSelectedArtifactSetId(null); }}
+              onResume={() => { setPaused(false); st.paused = false; saveRunSnapshot(st); setSelectedArtifactSetId(null); }}
               onExit={onExit}
               selectedArtifactSetId={selectedArtifactSetId}
               setSelectedArtifactSetId={setSelectedArtifactSetId}
