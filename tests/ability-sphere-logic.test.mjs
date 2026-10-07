@@ -90,6 +90,35 @@ test('Every Ability has exactly 9 authored Mutation II finals', () => {
   assert.equal(new Set(all).size, 72);
 });
 
+test('Every Ability Mutation II final has a runtime-specific variant rider', () => {
+  const specs = progression.slice(
+    progression.indexOf('const ABILITY_FINAL_VARIANT_SPECS:'),
+    progression.indexOf('function buildAuthoredAbilityFinalVariants'),
+  );
+  const finals = [...specs.matchAll(/\['([^']+_f[1-3])'/g)].map((m) => m[1]);
+  assert.equal(finals.length, 72);
+  assert.equal(new Set(finals).size, 72);
+  assert.match(engine, /function abilityFinalVariantIndex\(abilityFinal:string\)/);
+  assert.match(engine, /applyAbilityFinalVariantRider\(/);
+  for (const behavior of [
+    'blast_standard_resonator','blast_shotgun_cataclysm','blast_prism_split','blast_gravity_collapse','blast_pulse_wave',
+    'timestop_standard_singularity','timestop_chain_web','timestop_gravity_tide',
+    'minion_standard_swarm','minion_orbital_dance','minion_void_reaper',
+    'teleport_sniper_oracle','teleport_aura_gravity','teleport_prism_mirror',
+    'firetrail_sniper_beacon','firetrail_aura_overgrowth','firetrail_prism_spectrum','firetrail_gravity_well',
+    'shield_shotgun_burst','shield_aura_sanctum','shield_orbital_halo','shield_pulse_burst',
+    'lightning_shotgun_hail','lightning_chain_storm','lightning_pulse_resonator',
+    'darkritual_sniper_assassin','darkritual_chain_leech','darkritual_orbital_blade','darkritual_void_hunger',
+  ]) {
+    const start = engine.indexOf("case '" + behavior + "':", engine.indexOf('function applyAbilityFinalVariantRider'));
+    assert.ok(start >= 0, 'missing runtime rider for ' + behavior);
+    const block = engine.slice(start, engine.indexOf("case '", start + 12) > 0 ? engine.indexOf("case '", start + 12) : start + 1800);
+    assert.match(block, /variant===0/);
+    assert.match(block, /variant===1/);
+    assert.match(block, /variant===2/);
+  }
+});
+
 test('Sphere Ability synergies target exact unique Ability Mutation II finals', () => {
   const targets = [...progression.matchAll(/abilityFinal:'([^']+)'/g)].map((m) => m[1]);
   assert.equal(targets.length, 30);
