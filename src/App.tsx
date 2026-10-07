@@ -146,7 +146,7 @@ function Menu({ lang, t, difficulty, setDifficulty, onOpenMap, onShop, onCharact
           </div>}
         </section>
       </main>
-/div>
+    </div>
   );
 }
 
