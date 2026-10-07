@@ -153,7 +153,7 @@ function Menu({ lang, t, difficulty, setDifficulty, onOpenMap, onShop, onCharact
 }
 
 // Main menu closes cleanly before the gameplay screen declaration.
-function GameScreen({ lang, t, shop, difficulty, handedness, regionMode, regionChallenge, onExit }: {
+function GameScreen({ lang, t, shop, difficulty, handedness, regionId, regionMode, regionChallenge, onExit }: {
   lang: Lang; t: (k: TranslationKey) => string; shop: ShopState; difficulty: Difficulty; handedness: Handedness; regionId: RegionId; regionMode: RegionMode; regionChallenge: RegionChallengeId; onExit: () => void;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
