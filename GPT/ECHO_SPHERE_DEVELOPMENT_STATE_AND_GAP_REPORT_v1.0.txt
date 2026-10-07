@@ -2020,3 +2020,39 @@ Human APK recheck of the menu/map visuals remains the device-level acceptance ga
 ======================================================================
 END CYCLE CLOSE / CI VALIDATION
 ======================================================================
+
+======================================================================
+2026-10-07 — REGION 2 / PLAYER-VIEW CORRECTION PASS
+======================================================================
+
+BASELINE:
+5ec12dfa589b158b4046404dfb08687f781bd8df
+
+[DONE]
+- Main menu Core is a static volumetric 2.5D sphere with a slight Y-axis
+  presentation tilt. Whole-sphere rotation is removed.
+- Orbital menu controls are small volumetric colored spheres, not rectangular
+  buttons; bottom navigation remains absent from the presentation.
+- Echo Map contains two small celestial Region bodies: Resonance Basin and
+  the newly authored Spectral Rift. Each body has its own compact orbit system.
+- Selecting a Region focuses it; only focused Region exposes its three Challenge
+  satellites and Endless Core. No Region description card is shown on the global map.
+- Star map remains touch-draggable.
+- Region 2 is a real runtime identity: five authored Pockets, three authored
+  Challenge Contracts, distinct challenge rules, separate persistence, separate
+  mastery/lore data, and authored boss sequence Null -> Aura -> Stella Warden.
+- Region 2 is available after Region 1 Standard Stabilization.
+- Active Network formation records are inside the left gameplay HUD; the decorative
+  character marker is removed.
+- Boundary transition banner is lowered below the HUD stack.
+
+[PROGRESSION]
+REGION 1 STANDARD -> REGION 1 CHALLENGES -> REGION 1 ENDLESS.
+REGION 2 STANDARD -> REGION 2 CHALLENGES -> REGION 2 ENDLESS.
+
+[OPEN]
+- Human APK acceptance of volumetric menu/map presentation and Region 2 balance.
+======================================================================
+END REGION 2 / PLAYER-VIEW CORRECTION PASS
+======================================================================
+
