@@ -21,7 +21,7 @@ import {
   getArtifactSetBehavior,
   pickArtifactChoices,
 } from './artifactSystem';
-import { sphereLevel, sphereModifiers, getSphereElementForBranch } from './sphereProgression';
+import { sphereLevel, sphereModifiers, getSphereElementForBranch, getAbilityFinalArchetype } from './sphereProgression';
 import { getSphereNetworkProfile, getLinkedNodeIndexes, getFormationBonusMultiplier } from './network';
 import { nextRandom } from './rng';
 import { RUNE_DEFS, type RuneType } from './runes';
@@ -414,25 +414,35 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
       }
       if (finalIndex === 2 && enemy.hp < enemy.maxHp * 0.5) actual *= 1.15;
     } else if (branch === 'standard_swarm') {
-      // Swarm is a side-projectile evolution. It must not secretly become
-      // permanent Multishot, otherwise it double-counts its own mechanic.
+      // Level VII Swarm finals are behaviorally different patterns:
+      // 0 = guided hunter shard, 1 = crossfire pair, 2 = fan-shaped shard web.
       const preFinalLevel = sphereLevel(s, 'standard');
-      const count = finalIndex === 2 ? 2 : finalIndex === null && preFinalLevel >= 6 ? 2 : 1;
+      const count = finalIndex === null
+        ? (preFinalLevel >= 6 ? 2 : 1)
+        : finalIndex === 0 ? 1 : finalIndex === 1 ? 2 : 3;
       const chance = finalIndex === null
-        ? (preFinalLevel >= 5 ? 1 : 1)
-        : finalIndex === 0 ? 0.35 : finalIndex === 1 ? 0.55 : 1;
+        ? 1
+        : finalIndex === 0 ? 0.75 : finalIndex === 1 ? 0.70 : 1;
       if (nextRandom(s) < chance) {
-        // Swarm shards are fragments of the projectile at the moment of impact.
-        // They must spawn on the struck enemy, fly in random directions, deal
-        // a meaningful fraction of the parent hit, and never recursively proc Swarm.
         const shardDamageMultiplier = finalIndex === null
           ? preFinalLevel >= 6 ? 0.65 : preFinalLevel >= 5 ? 0.58 : 0.50
-          : 0.50;
+          : finalIndex === 0 ? 0.72 : finalIndex === 1 ? 0.56 : 0.44;
+        const otherTarget = s.enemies
+          .filter((candidate) => candidate !== enemy && candidate.hp > 0)
+          .sort((a, b) => dist(a.pos, enemy.pos) - dist(b.pos, enemy.pos))[0];
+        const baseAngle = otherTarget
+          ? Math.atan2(otherTarget.pos.y - enemy.pos.y, otherTarget.pos.x - enemy.pos.x)
+          : nextRandom(s) * Math.PI * 2;
+        const angles = finalIndex === 0
+          ? [baseAngle]
+          : finalIndex === 1
+            ? [baseAngle - 0.55, baseAngle + 0.55]
+            : [baseAngle - 0.7, baseAngle, baseAngle + 0.7];
         for (let i = 0; i < count; i++) {
-          const a = nextRandom(s) * Math.PI * 2;
+          const a = angles[i] ?? (nextRandom(s) * Math.PI * 2);
           s.sphereProjectiles.push({
             pos: { ...enemy.pos }, vel: { x: Math.cos(a) * 320, y: Math.sin(a) * 320 },
-            damage: actual * shardDamageMultiplier, radius: 4, alive: true, color: '#d4943d', pierce: 0,
+            damage: actual * shardDamageMultiplier, radius: 4, alive: true, color: '#d4943d', pierce: finalIndex === 2 ? 1 : 0,
             hitEnemies: new Set([enemy]), effect: 'none', ricochet: 0, life: 0.55,
             sourceSphere: fromSphere, procOnHit: false,
           });
@@ -571,7 +581,27 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
         }
       }
       if (finalIndex === 2) actual *= 1.18;
-    } else if (branch === 'aura_overgrowth') {
+    } else if (branch === 'gravity_tide') {
+      const hitCount = ((fromSphere as any).gravityTideHits || 0) + 1;
+      (fromSphere as any).gravityTideHits = hitCount;
+      const mode = finalIndex === null ? 0 : finalIndex;
+      const radius = mode === 1 ? 170 : 150;
+      for (const nearby of s.enemies) {
+        if (nearby === enemy || nearby.hp <= 0) continue;
+        const d = dist(nearby.pos, fromSphere.pos);
+        if (d >= radius) continue;
+        const dx = nearby.pos.x - fromSphere.pos.x;
+        const dy = nearby.pos.y - fromSphere.pos.y;
+        const len = Math.hypot(dx,dy) || 1;
+        const direction = mode === 0
+          ? 1
+          : mode === 1
+            ? -1
+            : hitCount % 2 === 0 ? 1 : -1;
+        nearby.pos.x += (dx / len) * 52 * direction;
+        nearby.pos.y += (dy / len) * 52 * direction;
+      }
+    }    } else if (branch === 'aura_overgrowth') {
       const bonus = finalIndex === 0 ? 0.18 : finalIndex === 1 ? 0.3 : 0.1;
       for (const ally of s.spheres) {
         if (ally !== fromSphere && ally.alive && dist(ally.pos, fromSphere.pos) < (finalIndex === 1 ? 180 : 140)) {
@@ -969,10 +999,10 @@ export function damagePlayer(s: GameState, amount: number): void {
     if (nearest) dealDamageToEnemy(s, nearest, amount * 1.25);
   }
   // shield
+  const shieldBranch = getAbilityBranchId(s, 'shield', 4);
+  const shieldFinal = getAbilityFinalArchetype(s, 'shield');
   if (s.player.shieldCharges > 0) {
     s.player.shieldCharges--;
-    const shieldBranch = getAbilityBranchId(s, 'shield', 4);
-    const shieldFinal = getAbilityBranchId(s, 'shield', 7);
     if (shieldBranch === 'shield_reflector') {
       const nearest = s.enemies
         .filter((enemy) => enemy.hp > 0)
@@ -984,12 +1014,25 @@ export function damagePlayer(s: GameState, amount: number): void {
     if (shieldFinal === 'shield_resonant_guard') {
       s.player.shieldCharges = Math.min(5, s.player.shieldCharges + 1);
     }
+    if (shieldBranch === 'shield_bastion') {
+      for (const enemy of s.enemies) {
+        if (enemy.hp <= 0) continue;
+        const d = dist(enemy.pos, s.player.pos);
+        if (d > 150) continue;
+        const dx = enemy.pos.x - s.player.pos.x;
+        const dy = enemy.pos.y - s.player.pos.y;
+        const len = Math.hypot(dx,dy) || 1;
+        enemy.pos.x += (dx / len) * 36;
+        enemy.pos.y += (dy / len) * 36;
+      }
+    }
     for (let i = 0; i < 12; i++) {
       s.particles.push({ pos: { ...s.player.pos }, vel: { x: rand(s,-150, 150), y: rand(s,-150, 150) }, life: 0.4, maxLife: 0.4, color: '#4a7a8a', size: 3 });
     }
     return;
   }
-  const dmg = amount * getDamageTakenMult(s);
+  const bastionReduction = shieldBranch === 'shield_bastion' && s.player.shieldTimer > 0 ? 0.70 : 1;
+  const dmg = amount * getDamageTakenMult(s) * bastionReduction;
   // mirror reflect
   if (s.player.artifacts.includes('mirror') && nextRandom(s) < 0.2) {
     // reflect: find nearest enemy and damage
