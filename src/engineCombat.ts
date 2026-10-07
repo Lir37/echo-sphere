@@ -765,7 +765,6 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
     }
     onEnemyDeath(s, enemy, fromSphere);
   }
-}
 
 
 export function onEnemyDeath(s: GameState, enemy: EnemyEntity, fromSphere?: SphereEntity): void {
