@@ -458,10 +458,28 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
           }
         }
       }
-    } else if (branch === 'sniper_assassin' && enemy.hp / enemy.maxHp < 0.35) {
-      if (finalIndex === null) actual *= preFinalBranchPower(s, 'sniper');
-      else actual *= finalIndex === 0 ? 1.7 : finalIndex === 1 ? 2.2 : 1.45;
-      if (finalIndex === 2) s.player.hp = Math.min(s.player.maxHp, s.player.hp + actual * 0.01);
+    } else if (branch === 'sniper_assassin') {
+      const hpRatio = enemy.hp / Math.max(1, enemy.maxHp);
+      if (finalIndex === null) {
+        if (hpRatio < 0.35) actual *= preFinalBranchPower(s, 'sniper');
+      } else if (finalIndex === 0) {
+        if (hpRatio < 0.45) actual *= 1.35;
+        if (hpRatio < 0.45) {
+          s.player.hunterMarkTarget = enemy;
+          s.player.hunterMarkTimer = Math.max(s.player.hunterMarkTimer, 0.9);
+        }
+      } else if (finalIndex === 1) {
+        if (hpRatio < 0.20) actual *= 2.0;
+        if (hpRatio < 0.20) {
+          s.player.hunterMarkTarget = enemy;
+          s.player.hunterMarkTimer = Math.max(s.player.hunterMarkTimer, 1.0);
+        }
+      } else {
+        if (hpRatio < 0.35) {
+          actual *= 1.5;
+          s.player.hp = Math.min(s.player.maxHp, s.player.hp + actual * 0.012);
+        }
+      }
     } else if (branch === 'sniper_beacon') {
       const branchPower = finalIndex === null ? preFinalBranchPower(s, 'sniper') : 1;
       s.player.hunterMarkTarget = enemy;
@@ -516,13 +534,22 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
             ? branchLevel >= 6 ? 60 : branchLevel >= 5 ? 52 : 45
             : 45;
         const shardCount = finalIndex === 1 ? 8 : finalIndex === null && branchLevel >= 6 ? 7 : 6;
+        const guidedTargets = finalIndex === 2
+          ? s.enemies
+            .filter((candidate) => candidate !== enemy && candidate.hp > 0)
+            .sort((a, b) => dist(a.pos, enemy.pos) - dist(b.pos, enemy.pos))
+            .slice(0, shardCount)
+          : [];
         for (let i = 0; i < shardCount; i++) {
-          const angle = (i / shardCount) * Math.PI * 2 + nextRandom(s) * 0.18;
+          const guided = guidedTargets[i];
+          const angle = guided
+            ? Math.atan2(guided.pos.y - enemy.pos.y, guided.pos.x - enemy.pos.x)
+            : (i / shardCount) * Math.PI * 2 + nextRandom(s) * 0.18;
           s.sphereProjectiles.push({
             pos: { ...enemy.pos },
             vel: { x: Math.cos(angle) * 300, y: Math.sin(angle) * 300 },
-            damage: actual * (finalIndex === 1 ? 0.22 : 0.16),
-            radius: 5, alive: true, color: '#f0b35a', pierce: 0,
+            damage: actual * (finalIndex === 1 ? 0.22 : finalIndex === 2 ? 0.19 : 0.16),
+            radius: 5, alive: true, color: '#f0b35a', pierce: finalIndex === 2 ? 1 : 0,
             hitEnemies: new Set(), effect: 'none', ricochet: 0, life: 0.45, sourceSphere: fromSphere, procOnHit: false,
           });
         }
@@ -556,7 +583,24 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
           s.lightnings.push({ from: { ...enemy.pos }, to: { ...nearby.pos }, life: 0.2 });
         }
       }
-      if (finalIndex === 2) actual *= 1.12;
+      if (finalIndex === 1) {
+        const linkedCharge = ((fromSphere as any).chainStormCharge || 0) + 1;
+        (fromSphere as any).chainStormCharge = linkedCharge;
+        if (linkedCharge % 2 === 0) fromSphere.resonancePulseTimer = Math.max(fromSphere.resonancePulseTimer, 0.45);
+      }
+      if (finalIndex === 2) {
+        const cycle = ((fromSphere as any).chainStormCycle || 0) + 1;
+        (fromSphere as any).chainStormCycle = cycle;
+        if (cycle % 3 === 0) {
+          const extra = s.enemies
+            .filter((candidate) => candidate !== enemy && candidate.hp > 0)
+            .sort((a, b) => dist(a.pos, enemy.pos) - dist(b.pos, enemy.pos))[0];
+          if (extra) {
+            s.lightnings.push({ from: { ...enemy.pos }, to: { ...extra.pos }, life: 0.24, sourceSphere: fromSphere });
+            dealDamageToEnemy(s, extra, actual * 0.38, fromSphere, false);
+          }
+        }
+      }
     } else if (branch === 'chain_leech') {
       const branchPower = finalIndex === null ? preFinalBranchPower(s, 'chain') : 1;
       const heal = (finalIndex === 0 ? 0.025 : finalIndex === 1 ? 0.045 : 0.018) * branchPower;
@@ -576,6 +620,10 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
             const d = Math.hypot(dx, dy) || 1;
             nearby.pos.x += dx / d * pull;
             nearby.pos.y += dy / d * pull;
+            if (finalIndex === 1) {
+              nearby.slowTimer = Math.max(nearby.slowTimer, 0.8);
+              nearby.slowFactor = Math.min(nearby.slowFactor, 0.72);
+            }
           }
         }
       }
