@@ -92,62 +92,79 @@ function Menu({ lang, t, difficulty, setDifficulty, onOpenMap, onShop, onCharact
   onOpenMap: () => void; onShop: () => void; onCharacters: () => void; onLeader: () => void; onSettings: () => void; onAchievements: () => void; onKnowledge: () => void;
 }) {
   const [name, setName] = useState(() => loadName());
-  const [identityOpen, setIdentityOpen] = useState(false);
   const selectedCharacter = CHARACTER_DEFS[loadCharacterId()];
   useEffect(() => { saveName(name); }, [name]);
 
   return (
-    <div className="es-main-menu">
+    <div className="es-main-menu es-main-menu-legacy">
       <header className="es-main-topbar">
         <div>
           <div className="es-main-logo">ECHO SPHERE</div>
           <div className="es-main-sub">{lang === 'ru' ? 'СИСТЕМА ВЫЖИВАНИЯ РЕЗОНАНСА' : 'RESONANCE SURVIVAL SYSTEM'}</div>
         </div>
-     </header>
-
+      </header>
 
       <main className="es-main-stage">
-        <div className="es-menu-atmosphere" aria-hidden="true"><span className="es-menu-comet comet-a" /><span className="es-menu-comet comet-b" /><span className="es-menu-comet comet-c" /></div>
-        <section className="es-main-core es-menu-core">
-          <div className="es-menu-orbit-system">
-            <div className="es-menu-orbit es-menu-orbit-outer">
-              <button type="button" className="es-menu-orbit-item menu-item-character" onClick={onCharacters} aria-label={lang === 'ru' ? 'Персонажи' : 'Characters'}><span className="es-menu-glyph glyph-character" style={{ ['--glyph-color' as string]: selectedCharacter.color }} /></button>
-              <button type="button" className="es-menu-orbit-item menu-item-shop" onClick={onShop} aria-label={lang === 'ru' ? 'Снаряжение' : 'Loadout'}><span className="es-menu-glyph glyph-cache" /></button>
-              <button type="button" className="es-menu-orbit-item menu-item-settings" onClick={onSettings} aria-label={lang === 'ru' ? 'Настройки' : 'Settings'}><span className="es-menu-glyph glyph-calibration" /></button>
+        <section className="es-main-core">
+          <div className="es-core-caption">ECHO CORE // {lang === 'ru' ? 'ГОТОВ' : 'READY'}</div>
+
+          <button type="button" className="es-main-map-entry" onClick={onOpenMap} aria-label={lang === 'ru' ? 'Открыть регионы Эха' : 'Open Echo Regions'}>
+            <div className="es-main-core-art" aria-hidden="true">
+              <div className="es-core-orbit orbit-a" />
+              <div className="es-core-orbit orbit-b" />
+              <div className="es-core-orbit orbit-c" />
+              <div className="es-core-ring ring-a" />
+              <div className="es-core-ring ring-b" />
+              <div className="es-core-body" />
+              <div className="es-core-highlight" />
             </div>
-            <div className="es-menu-orbit es-menu-orbit-mid">
-              <button type="button" className="es-menu-orbit-item menu-item-leader" onClick={onLeader} aria-label={lang === 'ru' ? 'Рекорды' : 'Leaderboard'}><span className="es-menu-glyph glyph-signal-bars" /></button>
-              <button type="button" className="es-menu-orbit-item menu-item-achievements" onClick={onAchievements} aria-label={lang === 'ru' ? 'Достижения' : 'Achievements'}><span className="es-menu-glyph glyph-resonance-star" /></button>
-              <button type="button" className="es-menu-orbit-item menu-item-difficulty" onClick={() => {
-                const index = Math.max(0, DIFFICULTIES.findIndex((item) => item.id === difficulty));
-                setDifficulty(DIFFICULTIES[(index + 1) % DIFFICULTIES.length].id);
-              }} aria-label={lang === 'ru' ? 'Сложность' : 'Difficulty'}><span className="es-menu-glyph glyph-difficulty">{DIFFICULTIES.map((item) => <i key={item.id} className={item.id === difficulty ? 'is-current' : ''} />)}</span></button>
-            </div>
-            <div className="es-menu-orbit es-menu-orbit-inner">
-              <button type="button" className="es-menu-orbit-item menu-item-archive" onClick={onKnowledge} aria-label={lang === 'ru' ? 'Архив Эха' : 'Echo Archive'}><span className="es-menu-glyph glyph-memory" /></button>
-              <button type="button" className="es-menu-orbit-item menu-item-identity" onClick={() => setIdentityOpen((value) => !value)} aria-label={lang === 'ru' ? 'Профиль' : 'Profile'}><span className="es-menu-glyph glyph-identity" /></button>
-            </div>
-            <button type="button" className="es-main-map-entry" onClick={onOpenMap} aria-label={lang === 'ru' ? 'Открыть карту Эха' : 'Open Echo Map'}>
-              <div className="es-main-core-art" aria-hidden="true">
-                <div className="es-core-halo" />
-                <div className="es-core-orbit orbit-a" />
-                <div className="es-core-orbit orbit-b" />
-                <div className="es-core-orbit orbit-c" />
-                <div className="es-core-ring ring-a" />
-                <div className="es-core-ring ring-b" />
-                <div className="es-core-body" />
-                <div className="es-core-surface" />
-                <div className="es-core-highlight" />
-              </div>
-            </button>
+            <span className="es-main-core-title">{lang === 'ru' ? 'РЕГИОНЫ ЭХА' : 'ECHO REGIONS'}</span>
+            <span className="es-map-entry-label">{lang === 'ru' ? 'ВЫБРАТЬ ЗАБЕГ' : 'SELECT RUN'}</span>
+          </button>
+
+          <div className="es-main-core-copy">
+            {lang === 'ru'
+              ? 'Выбери область, стабилизируй её, открой испытания и доберись до Бесконечности.'
+              : 'Choose a region, stabilize it, unlock challenges and reach Endless.'}
           </div>
-          {identityOpen && <div className="es-menu-identity-popover">
+
+          <div className="es-main-loadout">
+            <button onClick={onCharacters} className="es-loadout-character">
+              <span className="es-loadout-avatar" style={{ ['--character-color' as string]: selectedCharacter.color }}>✦</span>
+              <span>
+                <b>{selectedCharacter.name[lang]}</b>
+                <small>{selectedCharacter.role[lang]}</small>
+              </span>
+              <UserRound size={14} />
+            </button>
+
+            <div className="es-loadout-divider" />
+
+            <div className="es-loadout-setting">
+              <span>{t('difficulty')}</span>
+              <div className="es-loadout-options">
+                {DIFFICULTIES.map((d) => (
+                  <button key={d.id} onClick={() => setDifficulty(d.id)} className={difficulty === d.id ? 'is-active' : ''}>{d.name[lang]}</button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="es-main-name">
             <span>ID</span>
-            <input autoFocus value={name} onChange={(event) => setName(event.target.value.slice(0, 16))} placeholder={t('namePlaceholder')} aria-label={t('namePlaceholder')} />
-            <button type="button" onClick={() => setIdentityOpen(false)} aria-label={lang === 'ru' ? 'Закрыть' : 'Close'}>×</button>
-          </div>}
+            <input value={name} onChange={(e) => setName(e.target.value.slice(0, 16))} placeholder={t('namePlaceholder')} />
+          </div>
         </section>
       </main>
+
+      <nav className="es-main-nav" aria-label={lang === 'ru' ? 'Навигация' : 'Navigation'}>
+        <button onClick={onCharacters}><UserRound size={16} /><span>{lang === 'ru' ? 'Персонажи' : 'Characters'}</span></button>
+        <button onClick={onShop}><Store size={16} /><span>{t('shop')}</span></button>
+        <button onClick={onLeader}><Trophy size={16} /><span>{t('leaderboard')}</span></button>
+        <button onClick={onAchievements}><Award size={16} /><span>{t('achievements')}</span></button>
+        <button onClick={onKnowledge} className="es-knowledge-nav"><BookOpen size={16} /><span>{lang === 'ru' ? 'Архив Эха' : 'Echo Archive'}</span></button>
+        <button onClick={onSettings}><Settings size={16} /><span>{t('settings')}</span></button>
+      </nav>
     </div>
   );
 }

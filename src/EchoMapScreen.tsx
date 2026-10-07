@@ -1,31 +1,16 @@
-import { useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react';
-import {
-  REGION_CONFIGS,
-  getRegionConfig,
-  isRegionAvailable,
-  loadRegionChallengeCompletions,
-  loadRegionEndlessUnlock,
-  loadRegionStabilized,
-  type RegionChallengeId,
-  type RegionId,
-  type RegionMode,
-} from './region';
+import { ChevronRight, Infinity as InfinityIcon, LockKeyhole, Swords, Target } from 'lucide-react';
+import { REGION_CONFIGS, getRegionConfig, isRegionAvailable, loadRegionChallengeCompletions, loadRegionEndlessUnlock, loadRegionStabilized, type RegionChallengeId, type RegionId, type RegionMode } from './region';
 import type { Lang } from './i18n';
 
 type StartRun = (regionId: RegionId, mode: RegionMode, challenge: RegionChallengeId) => void;
 
-const BODY_POSITIONS: Record<RegionId, { x: number; y: number; size: number }> = {
-  resonance_basin: { x: 34, y: 50, size: 44 },
-  spectral_rift: { x: 68, y: 39, size: 38 },
-};
-
-const CHALLENGE_CLASS: Record<string, string> = {
-  fractured_network: 'challenge-fracture',
-  overload: 'challenge-overload',
-  low_gravity: 'challenge-gravity',
-  mirror_tide: 'challenge-mirror',
-  volatile_core: 'challenge-volatile',
-  phase_drift: 'challenge-phase',
+const challengeAccent: Record<string, string> = {
+  fractured_network: '#ff6b6b',
+  overload: '#ffb84d',
+  low_gravity: '#a88cff',
+  mirror_tide: '#7fd8ff',
+  volatile_core: '#f49cff',
+  phase_drift: '#64e4c4',
 };
 
 export default function EchoMapScreen({
@@ -37,180 +22,146 @@ export default function EchoMapScreen({
   onStartRun: StartRun;
   onBack: () => void;
 }) {
-  const [selected, setSelected] = useState<RegionId | null>(null);
-  const [pan, setPan] = useState({ x: 0, y: 0 });
-  const drag = useRef({
-    active: false,
-    pointerId: -1,
-    startX: 0,
-    startY: 0,
-    originX: 0,
-    originY: 0,
-  });
-
-  const beginPan = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (event.target instanceof Element && event.target.closest('button')) return;
-    drag.current = {
-      active: true,
-      pointerId: event.pointerId,
-      startX: event.clientX,
-      startY: event.clientY,
-      originX: pan.x,
-      originY: pan.y,
-    };
-    event.currentTarget.setPointerCapture(event.pointerId);
-  };
-
-  const movePan = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (!drag.current.active || drag.current.pointerId !== event.pointerId) return;
-    event.preventDefault();
-    setPan({
-      x: Math.max(-340, Math.min(340, drag.current.originX + event.clientX - drag.current.startX)),
-      y: Math.max(-240, Math.min(240, drag.current.originY + event.clientY - drag.current.startY)),
-    });
-  };
-
-  const endPan = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (drag.current.pointerId === event.pointerId) drag.current.active = false;
-  };
-
-  const focused = selected ? getRegionConfig(selected) : null;
-
-  const closeRegion = () => {
-    setSelected(null);
-    setPan({ x: 0, y: 0 });
-  };
-
   return (
-    <div className={'es-map-screen ' + (selected ? 'is-region-open' : 'is-region-overview')}>
-      <header className="es-map-header">
-        <button
-          type="button"
-          className="es-map-back"
-          onClick={() => (selected ? closeRegion() : onBack())}
-          aria-label={selected ? (lang === 'ru' ? 'Назад к звёздам' : 'Back to stars') : (lang === 'ru' ? 'В меню' : 'Back to menu')}
-        >
+    <div className="es-stage-select">
+      <header className="es-stage-select-header">
+        <button type="button" className="es-stage-select-back" onClick={onBack}>
           <span>‹</span>
-          {selected ? (lang === 'ru' ? 'ЗВЁЗДНАЯ КАРТА' : 'STAR MAP') : (lang === 'ru' ? 'МЕНЮ' : 'MENU')}
+          {lang === 'ru' ? 'В МЕНЮ' : 'MENU'}
         </button>
-        <div className="es-map-title-cluster">
-          <div className="es-map-title">{lang === 'ru' ? 'КАРТА ЭХА' : 'ECHO MAP'}</div>
-          <div className="es-map-subtitle">
-            {selected ? (lang === 'ru' ? 'РЕГИОН В ФОКУСЕ' : 'REGION FOCUS') : (lang === 'ru' ? 'ЗВЁЗДНОЕ ПОЛЕ' : 'STAR FIELD')}
+        <div className="es-stage-select-heading">
+          <div className="es-stage-select-title">{lang === 'ru' ? 'РЕГИОНЫ ЭХА' : 'ECHO REGIONS'}</div>
+          <div className="es-stage-select-subtitle">
+            {lang === 'ru' ? 'СТАБИЛИЗИРУЙ · ИСПЫТАЙ · УГЛУБИСЬ' : 'STABILIZE · CHALLENGE · DESCEND'}
           </div>
         </div>
       </header>
 
-      <main
-        className="es-map-main"
-        onPointerDown={beginPan}
-        onPointerMove={movePan}
-        onPointerUp={endPan}
-        onPointerCancel={endPan}
-      >
-        <div className="es-map-space">
-          <div className="es-map-stars" />
-          <div className="es-map-nebula nebula-a" />
-          <div className="es-map-nebula nebula-b" />
+      <main className="es-stage-select-main">
+        <div className="es-stage-select-intro">
+          <span>{lang === 'ru' ? 'ВЫБОР ОБЛАСТИ' : 'REGION SELECT'}</span>
+          <b>{lang === 'ru' ? 'Один регион · несколько способов пройти его.' : 'One region · several ways to run it.'}</b>
+        </div>
 
-          <div
-            className="es-map-camera"
-            style={{
-              transform: 'translate3d(' + pan.x + 'px,' + pan.y + 'px,0) scale(' + (selected ? 1.72 : 1) + ')',
-            }}
-          >
-            <div className="es-map-star-lines" aria-hidden="true" />
+        <div className="es-region-list">
+          {REGION_CONFIGS.map((region, index) => {
+            const available = isRegionAvailable(region.id);
+            const stabilized = available && loadRegionStabilized(region.id);
+            const completed = loadRegionChallengeCompletions(region.id);
+            const endlessUnlocked = available && loadRegionEndlessUnlock(region.id);
+            const progress = completed.length;
+            const baseLabel = stabilized
+              ? (lang === 'ru' ? 'ПОВТОРИТЬ СТАБИЛИЗАЦИЮ' : 'REPLAY STABILIZATION')
+              : (lang === 'ru' ? 'СТАБИЛИЗАЦИЯ · 30:00' : 'STABILIZATION · 30:00');
 
-            {!selected &&
-              REGION_CONFIGS.map((config) => {
-                const position = BODY_POSITIONS[config.id];
-                const available = isRegionAvailable(config.id);
-                const style = {
-                  left: position.x + '%',
-                  top: position.y + '%',
-                  '--region-accent': config.accent,
-                  '--region-size': position.size + 'px',
-                } as CSSProperties;
+            return (
+              <section
+                key={region.id}
+                className={'es-region-card ' + (available ? 'is-available' : 'is-locked')}
+                style={{ ['--region-accent' as string]: region.accent }}
+              >
+                <div className="es-region-card-header">
+                  <div className="es-region-index">0{index + 1}</div>
+                  <div className="es-region-card-title-group">
+                    <div className="es-region-card-kicker">{lang === 'ru' ? 'РЕГИОН' : 'REGION'} {String(index + 1).padStart(2, '0')}</div>
+                    <h2>{region.name[lang]}</h2>
+                    <p>{region.subtitle[lang]}</p>
+                  </div>
+                  <div className="es-region-status">
+                    {available ? (
+                      stabilized ? (
+                        <span className="is-stable">{lang === 'ru' ? 'СТАБИЛЕН' : 'STABLE'}</span>
+                      ) : (
+                        <span>{lang === 'ru' ? 'ДОСТУПЕН' : 'AVAILABLE'}</span>
+                      )
+                    ) : <LockKeyhole size={15} />}
+                  </div>
+                </div>
 
-                return (
-                  <button
-                    key={config.id}
-                    type="button"
-                    className={'es-map-region-body es-map-overview-body ' + (available ? 'is-available' : 'is-locked')}
-                    style={style}
-                    onClick={() => available && setSelected(config.id)}
-                    aria-label={available ? config.name[lang] : (lang === 'ru' ? 'Регион закрыт' : 'Region locked')}
-                  >
-                    <span className="es-map-region-glow" />
-                    <span className="es-map-region-surface" />
-                    <span className="es-map-region-core" />
-                    <span className="es-map-region-ring ring-a" />
-                    <span className="es-map-region-ring ring-b" />
-                    <span className="es-map-body-orbit"><i /><i /><i /></span>
-                  </button>
-                );
-              })}
+                <div className="es-region-card-rule" />
 
-            {selected && focused && (
-              <div className="es-map-region-cluster" style={{ left: '50%', top: '50%' }}>
-                <div className="es-map-region-orbit-track" aria-hidden="true" />
-
-                {focused.challenges.map((challenge) => {
-                  const completed = loadRegionChallengeCompletions(selected).includes(challenge.id);
-                  const locked = !loadRegionStabilized(selected);
-                  return (
-                    <button
-                      key={challenge.id}
-                      type="button"
-                      disabled={locked}
-                      className={
-                        'es-map-orbit-action ' +
-                        (CHALLENGE_CLASS[challenge.id] || 'challenge-generic') +
-                        (completed ? ' is-complete' : '') +
-                        (locked ? ' is-locked' : '')
-                      }
-                      onClick={() => !locked && onStartRun(selected, 'stabilization', challenge.id)}
-                      aria-label={challenge.name[lang]}
-                    >
-                      <span className="es-map-challenge-icon" />
-                    </button>
-                  );
-                })}
-
-                <button
-                  type="button"
-                  className="es-map-region-body es-map-focused-body"
-                  onClick={() => onStartRun(selected, 'stabilization', 'none')}
-                  aria-label={lang === 'ru' ? 'Стандартная стабилизация' : 'Standard Stabilization'}
-                >
-                  <span className="es-map-region-glow" />
-                  <span className="es-map-region-surface" />
-                  <span className="es-map-region-core" />
-                  <span className="es-map-region-ring ring-a" />
-                  <span className="es-map-region-ring ring-b" />
-                </button>
-
-                {(() => {
-                  const endless = loadRegionEndlessUnlock(selected);
-                  return (
+                {!available ? (
+                  <div className="es-region-locked-message">
+                    <LockKeyhole size={15} />
+                    <span>
+                      {lang === 'ru'
+                        ? 'Откроется после стабилизации Резонансного Бассейна.'
+                        : 'Unlocks after Resonance Basin is stabilized.'}
+                    </span>
+                  </div>
+                ) : (
+                  <>
                     <button
                       type="button"
-                      disabled={!endless}
-                      className={'es-map-endless-node ' + (endless ? 'is-unlocked' : 'is-locked')}
-                      onClick={() => endless && onStartRun(selected, 'endless', 'none')}
-                      aria-label={lang === 'ru' ? 'Бесконечное ядро' : 'Endless Core'}
+                      className="es-region-primary-run"
+                      onClick={() => onStartRun(region.id, 'stabilization', 'none')}
                     >
-                      <span className="es-map-endless-symbol" />
+                      <span className="es-run-icon"><Swords size={17} /></span>
+                      <span className="es-run-copy">
+                        <b>{baseLabel}</b>
+                        <small>{lang === 'ru' ? 'Базовый маршрут · открывает историю региона' : 'Base route · opens the region story'}</small>
+                      </span>
+                      <ChevronRight size={18} />
                     </button>
-                  );
-                })()}
-              </div>
-            )}
-          </div>
 
-          <div className="es-map-pan-hint" aria-hidden="true">
-            {lang === 'ru' ? 'СВАЙП ДЛЯ ПЕРЕМЕЩЕНИЯ' : 'DRAG TO PAN'}
-          </div>
+                    <div className="es-region-section-heading">
+                      <span>{lang === 'ru' ? 'ИСПЫТАНИЯ' : 'CHALLENGES'}</span>
+                      <b>{progress}/3</b>
+                    </div>
+
+                    <div className="es-region-challenges">
+                      {region.challenges.map((challenge) => {
+                        const done = completed.includes(challenge.id);
+                        const accent = challengeAccent[challenge.id] || region.accent;
+                        return (
+                          <button
+                            key={challenge.id}
+                            type="button"
+                            disabled={!stabilized}
+                            className={'es-region-challenge ' + (done ? 'is-complete' : '') + (!stabilized ? ' is-locked' : '')}
+                            style={{ ['--challenge-accent' as string]: accent }}
+                            onClick={() => stabilized && onStartRun(region.id, 'stabilization', challenge.id)}
+                          >
+                            <span className="es-region-challenge-mark" />
+                            <span className="es-region-challenge-copy">
+                              <b>{challenge.name[lang]}</b>
+                              <small>{challenge.desc[lang]}</small>
+                            </span>
+                            <span className="es-region-challenge-state">
+                              {done ? (lang === 'ru' ? 'ПРОЙДЕНО' : 'CLEARED') : stabilized ? <ChevronRight size={15} /> : <LockKeyhole size={14} />}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <button
+                      type="button"
+                      disabled={!endlessUnlocked}
+                      className={'es-region-endless ' + (endlessUnlocked ? 'is-unlocked' : 'is-locked')}
+                      onClick={() => endlessUnlocked && onStartRun(region.id, 'endless', 'none')}
+                    >
+                      <span className="es-region-endless-mark"><InfinityIcon size={20} /></span>
+                      <span className="es-region-endless-copy">
+                        <b>{lang === 'ru' ? 'БЕСКОНЕЧНОСТЬ' : 'ENDLESS'}</b>
+                        <small>
+                          {endlessUnlocked
+                            ? (lang === 'ru' ? 'Все три испытания пройдены · вход открыт' : 'All three challenges cleared · access open')
+                            : (lang === 'ru' ? `Закрыто · испытания ${progress}/3` : `Locked · challenges ${progress}/3`)}
+                        </small>
+                      </span>
+                      {endlessUnlocked ? <ChevronRight size={18} /> : <LockKeyhole size={15} />}
+                    </button>
+                  </>
+                )}
+              </section>
+            );
+          })}
+        </div>
+
+        <div className="es-stage-select-foot">
+          <Target size={13} />
+          <span>{lang === 'ru' ? 'Каждая область меняет ритм врагов, события и давление на Сеть.' : 'Each region changes enemy rhythm, events and Network pressure.'}</span>
         </div>
       </main>
     </div>

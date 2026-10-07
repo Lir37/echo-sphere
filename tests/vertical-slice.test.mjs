@@ -83,17 +83,19 @@ test('Enemy roster contains fifteen authored roles', async () => {
 
 
 test('Region runtime contract exposes 5 pockets, 7 POIs, 3 contracts and 30-minute clear schedule',()=>{assert.equal(REGION_POCKETS.length,5);assert.equal(REGION_CHALLENGES.length,3);assert.equal(getRegionPhase(1800).id,5);const r=createRegionState('resonance_basin','stabilization','fractured_network');assert.equal(r.id,'resonance_basin');});
-test('Region player-facing contract is represented by the interactive star map and POI runtime',async()=>{const app=await fs.readFile(new URL('../src/EchoMapScreen.tsx',import.meta.url),'utf8');const loop=await fs.readFile(new URL('../src/engineLoop.ts',import.meta.url),'utf8');const locale=await fs.readFile(new URL('../src/canvasLocale.ts',import.meta.url),'utf8');assert.match(app,/es-map-region-body/);assert.match(app,/es-map-orbit-action/);assert.match(app,/onPointerMove/);assert.match(app,/БЕСКОНЕЧНОЕ ЯДРО|endless/);for(const token of ['RESONANCE CACHE','BREACH NODE','ECHO RELAY','LOST SIGNAL','ELITE NEST','RUPTURE','BOSS TRACE'])assert.match(loop,new RegExp(token));assert.match(locale,/ТАЙНИК РЕЗОНАНСА/);assert.match(locale,/СЛЕД БОССА/);});
+test('Region player-facing contract is represented by the practical stage selector and POI runtime',async()=>{const app=await fs.readFile(new URL('../src/EchoMapScreen.tsx',import.meta.url),'utf8');const loop=await fs.readFile(new URL('../src/engineLoop.ts',import.meta.url),'utf8');const locale=await fs.readFile(new URL('../src/canvasLocale.ts',import.meta.url),'utf8');assert.match(app,/es-stage-select/);assert.match(app,/es-region-card/);assert.match(app,/es-region-challenge/);assert.match(app,/БЕСКОНЕЧНОСТЬ|ENDLESS/);assert.doesNotMatch(app,/onPointerMove/);assert.doesNotMatch(app,/es-map-orbit-action/);for(const token of ['RESONANCE CACHE','BREACH NODE','ECHO RELAY','LOST SIGNAL','ELITE NEST','RUPTURE','BOSS TRACE'])assert.match(loop,new RegExp(token));assert.match(locale,/ТАЙНИК РЕЗОНАНСА/);assert.match(locale,/СЛЕД БОССА/);});
 test('Region Endless unlock requires all three challenge satellites',async()=>{const region=await fs.readFile(new URL('../src/region.ts',import.meta.url),'utf8');assert.match(region,/getRegionChallengeProgress\([^)]*\)>=3/);assert.match(region,/markRegionChallengeComplete/);assert.match(region,/persistRegionStabilized\(true,[^)]*\)/);});
 
 
-test('Echo Map uses a pannable star overview and gates challenge satellites behind Standard', async () => {
+test('Stage selector exposes ordinary run/challenge/endless rows and keeps locked regions readable', async () => {
   const app = await fs.readFile(new URL('../src/EchoMapScreen.tsx', import.meta.url), 'utf8');
-  assert.match(app, /selected/);
-  assert.match(app, /is-locked/);
+  assert.match(app, /es-region-primary-run/);
+  assert.match(app, /es-region-challenge/);
+  assert.match(app, /es-region-endless/);
   assert.match(app, /loadRegionStabilized/);
+  assert.match(app, /loadRegionEndlessUnlock/);
   assert.match(app, /REGION_CONFIGS/);
-  assert.match(app, /Бесконечное ядро|Endless Core/);
+  assert.match(app, /Откроется после стабилизации Резонансного Бассейна/);
 });
 
 test('End-of-run statistics expose kills and field XP HUD is absent', async () => {
@@ -111,3 +113,13 @@ test('Run creation carries explicit Region identity', async()=>{const source=awa
 test('Region 2 is a distinct authored runtime region', async()=>{const region=await fs.readFile(new URL('../src/region.ts',import.meta.url),'utf8');assert.match(region,/spectral_rift/);assert.match(region,/СПЕКТРАЛЬНЫЙ РАЗЛОМ/);assert.match(region,/mirror_tide/);assert.match(region,/volatile_core/);assert.match(region,/phase_drift/);assert.match(region,/bossTypes:\['null','aura','stella_warden'\]/);});
 test('Echo Map exposes small region bodies and focused orbit contracts', async()=>{const app=await fs.readFile(new URL('../src/EchoMapScreen.tsx',import.meta.url),'utf8');assert.match(app,/REGION_CONFIGS/);assert.match(app,/es-map-overview-body/);assert.match(app,/onStartRun\(selected, 'stabilization', 'none'\)/);assert.match(app,/СВАЙП ДЛЯ ПЕРЕМЕЩЕНИЯ/);});
 test('Run creation carries explicit Region identity', async()=>{const source=await fs.readFile(new URL('../src/engineState.ts',import.meta.url),'utf8');assert.match(source,/regionId: RegionId/);assert.match(source,/createRegionState\(regionId, regionMode, regionChallenge\)/);});
+
+test('Main Menu restores the practical legacy composition', async () => {
+  const app = await fs.readFile(new URL('../src/App.tsx', import.meta.url), 'utf8');
+  const css = await fs.readFile(new URL('../src/conceptStyle.css', import.meta.url), 'utf8');
+  assert.match(app, /es-main-menu-legacy/);
+  assert.match(app, /es-main-loadout/);
+  assert.match(app, /es-main-nav/);
+  assert.match(css, /\.es-main-menu-legacy/);
+  assert.match(css, /backdrop-filter:none!important/);
+});
