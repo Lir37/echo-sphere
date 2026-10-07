@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useRef, useState } from 'react';
-import { REGION_POCKETS, type RegionChallengeId, type RegionMode, getRegionChallengeProgress, loadRegionEndlessUnlock, loadRegionStabilized } from './region';
+import { REGION_POCKETS, getRegionConfig, type RegionChallengeId, type RegionId, type RegionMode, getRegionChallengeProgress, loadRegionEndlessUnlock, loadRegionStabilized } from './region';
 import { Settings, Store, Trophy, Play, ArrowLeft, RotateCcw, Award, UserRound, BarChart3, Sparkles, Package, Network, X, BookOpen } from 'lucide-react';
 import { translations, type Lang, type TranslationKey } from './i18n';
 import {
@@ -58,6 +58,7 @@ export default function App() {
   const [handedness, setHandedness] = useState<Handedness>(() => loadHandedness());
   const [regionMode, setRegionMode] = useState<RegionMode>('stabilization');
   const [regionChallenge, setRegionChallenge] = useState<RegionChallengeId>('none');
+  const [regionId, setRegionId] = useState<RegionId>('resonance_basin');
 
   const t = (k: TranslationKey) => translations[lang][k];
 
@@ -72,8 +73,8 @@ export default function App() {
   return (
     <div className="es-app min-h-screen w-full text-[#dcecff] overflow-hidden flex items-center justify-center">
       {screen === 'menu' && <Menu lang={lang} t={t} difficulty={difficulty} setDifficulty={setDifficulty} onOpenMap={() => setScreen('map')} onShop={() => { setShop(loadShop()); setGold(loadGold()); setScreen('shop'); }} onCharacters={() => { setGold(loadGold()); setScreen('characters'); }} onLeader={() => setScreen('leaderboard')} onSettings={() => setScreen('settings')} onAchievements={() => setScreen('achievements')} onKnowledge={() => setScreen('knowledge')} />}
-      {screen === 'map' && <EchoMapScreen lang={lang} onStartRun={(mode, challenge) => { setRegionMode(mode); setRegionChallenge(challenge); setScreen('game'); }} onBack={() => setScreen('menu')} />}
-      {screen === 'game' && <GameScreen lang={lang} t={t} shop={shop} difficulty={difficulty} handedness={handedness} regionMode={regionMode} regionChallenge={regionChallenge} onExit={() => { setShop(loadShop()); setGold(loadGold()); setScreen('map'); }} />}
+      {screen === 'map' && <EchoMapScreen lang={lang} onStartRun={(id, mode, challenge) => { setRegionId(id); setRegionMode(mode); setRegionChallenge(challenge); setScreen('game'); }} onBack={() => setScreen('menu')} />}
+      {screen === 'game' && <GameScreen lang={lang} t={t} shop={shop} difficulty={difficulty} handedness={handedness} regionId={regionId} regionMode={regionMode} regionChallenge={regionChallenge} onExit={() => { setShop(loadShop()); setGold(loadGold()); setScreen('map'); }} />}
       {screen === 'shop' && <ShopScreen lang={lang} t={t} shop={shop} setShop={setShop} onBack={() => { setGold(loadGold()); setScreen('menu'); }} />}
       {screen === 'characters' && <CharacterSelect lang={lang} gold={gold} onGoldChange={(nextGold) => { setGold(nextGold); setShop(loadShop()); }} onBack={() => { setGold(loadGold()); setShop(loadShop()); setScreen('menu'); }} />}
       {screen === 'leaderboard' && <LeaderboardScreen lang={lang} t={t} onBack={() => setScreen('menu')} />}
@@ -153,7 +154,7 @@ function Menu({ lang, t, difficulty, setDifficulty, onOpenMap, onShop, onCharact
 
 // Main menu closes cleanly before the gameplay screen declaration.
 function GameScreen({ lang, t, shop, difficulty, handedness, regionMode, regionChallenge, onExit }: {
-  lang: Lang; t: (k: TranslationKey) => string; shop: ShopState; difficulty: Difficulty; handedness: Handedness; regionMode: RegionMode; regionChallenge: RegionChallengeId; onExit: () => void;
+  lang: Lang; t: (k: TranslationKey) => string; shop: ShopState; difficulty: Difficulty; handedness: Handedness; regionId: RegionId; regionMode: RegionMode; regionChallenge: RegionChallengeId; onExit: () => void;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const renderer3dRef = useRef<Echo3DRenderer | null>(null);
@@ -208,7 +209,7 @@ function GameScreen({ lang, t, shop, difficulty, handedness, regionMode, regionC
 
   useEffect(() => {
     const name = loadName() || translations[lang].namePlaceholder;
-    const s = createInitialState(shop, name, difficulty, undefined, regionMode, regionChallenge);
+    const s = createInitialState(shop, name, difficulty, undefined, regionMode, regionChallenge, regionId);
     stateRef.current = s;
     const tutorialActive = !loadTutorialCompleted();
     if (tutorialActive) {
@@ -995,7 +996,7 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
     <>
       <div data-tutorial-target="network" className="es-hud-panel es-top-left absolute top-3 left-3 z-30 pointer-events-none">
         <div className="es-hud-top-panel">
-          <div className="es-hud-avatar">✦</div>
+          
           <div className="min-w-0 flex-1">
             <div className="flex items-center justify-between gap-2">
               <span className="es-hud-title">{t('level')} {st.player.level}</span>
@@ -1013,11 +1014,7 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
           <span>{t('spheres').toUpperCase()} <b>{st.spheres.length}/{getMaxSpheres(st)}</b></span>
           <span>{t('wave').toUpperCase()} <b>{st.wave}</b></span>
         </div>
-        <div className="mt-1.5 flex items-center justify-between gap-2 text-[7px] uppercase tracking-[0.12em] text-[#7f9bb8]">
-          <div className="flex items-center gap-1.5"><Network size={10} /><span>{lang === 'ru' ? 'СЕТЬ' : 'NETWORK'}</span></div>
-          <b className="text-[#dcecff]">{network.links.length}</b>
-        </div>
-
+        <div className="es-network-inside-hud-label"><span>{lang === 'ru' ? 'АКТИВНЫЕ СВЯЗИ' : 'ACTIVE LINKS'}</span><b>{network.links.length}</b></div>
         <div className="es-network-formation-stack mt-1.5 pointer-events-auto"
           onPointerUp={(event) => endFormationDrag(event.nativeEvent)}
           onPointerCancel={() => { networkDragRef.current = null; }}
@@ -1071,10 +1068,11 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
             </div>
           </div>
           {st.region && (() => {
-            const pocket = REGION_POCKETS.find(item => item.id === st.region!.pocketId) || REGION_POCKETS[0];
+            const regionCfg = getRegionConfig(st.region!.id);
+            const pocket = regionCfg.pockets.find(item => item.id === st.region!.pocketId) || regionCfg.pockets[0];
             const modeLabel = st.region!.mode === 'stabilization' ? (lang === 'ru' ? 'СТАБИЛИЗАЦИЯ' : 'STABILIZATION') : (lang === 'ru' ? 'БЕСКОНЕЧНЫЙ' : 'ENDLESS');
             return <div className="es-hud-region">
-              <div className="es-hud-region-title">{lang === 'ru' ? 'РЕЗОНАНСНЫЙ БАССЕЙН' : 'RESONANCE BASIN'}</div>
+              <div className="es-hud-region-title">{regionCfg.name[lang]}</div>
               <div className="es-hud-region-phase">{st.region!.phaseName[lang]}</div>
               <div className="es-hud-region-pocket">{pocket.name[lang]} · {modeLabel}</div>
             </div>;
