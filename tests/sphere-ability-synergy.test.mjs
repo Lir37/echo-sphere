@@ -12,7 +12,7 @@ const matrix = progression.slice(
 );
 
 test('every one of the 30 Sphere Mutation branches has exactly one Ability Synergy', () => {
-  const entries = [...matrix.matchAll(/\{id:'([^']+)',sphere:'([^']+)',sphereBranch:'([^']+)',ability:'([^']+)'/g)]
+  const entries = [...matrix.matchAll(/\{id:'([^']+)',sphere:'([^']+)',sphereBranch:'([^']+)',(?:abilityFinal:'[^']+',)?ability:'([^']+)'/g)]
     .map((m) => ({ id: m[1], sphere: m[2], branch: m[3], ability: m[4] }));
   assert.equal(entries.length, 30);
   assert.equal(new Set(entries.map((e) => e.branch)).size, 30);
@@ -21,7 +21,7 @@ test('every one of the 30 Sphere Mutation branches has exactly one Ability Syner
 
 test('multiple Spheres can converge on the same Ability with different behavioral riders', () => {
   const byAbility = {};
-  for (const m of matrix.matchAll(/sphere:'([^']+)',sphereBranch:'([^']+)',ability:'([^']+)'[\s\S]*?behavior:'([^']+)'/g)) {
+  for (const m of matrix.matchAll(/sphere:'([^']+)',sphereBranch:'([^']+)',(?:abilityFinal:'[^']+',)?ability:'([^']+)'[\s\S]*?behavior:'([^']+)'/g)) {
     const [_, sphere, branch, ability, behavior] = m;
     (byAbility[ability] ||= []).push({ sphere, branch, behavior });
   }
