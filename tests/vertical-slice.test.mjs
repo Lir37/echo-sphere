@@ -92,9 +92,8 @@ test('Echo Map uses a pannable star overview and gates challenge satellites behi
   assert.match(app, /focused/);
   assert.match(app, /const locked = !stabilized/);
   assert.match(app, /is-locked/);
-  assert.match(app, /СТАНДАРТ/);
-  assert.match(app, /ИСПЫТАНИЯ/);
-  assert.match(app, /БЕСКОНЕЧНОЕ ЯДРО|onStartRun\('endless'/);
+  assert.match(app, /loadRegionStabilized/);
+  assert.match(app, /Бесконечное|Endless/);
 });
 
 test('End-of-run statistics expose kills and field XP HUD is absent', async () => {
