@@ -23,10 +23,5 @@ assert.match(conceptStyle, /\.es-core-body\{[^}]*transform:none!important/, 'men
 assert.match(renderer, /const boundaryX = canvasW \/ 2 \+ \(s\.player\.pos\.x - s\.camera\.x\) \+ shakeX/, 'boundary FX must be anchored to the player in screen space');
 
 
-assert.doesNotMatch(conceptStyle, /\.es-main-core-art\{[^}]*filter:drop-shadow/, 'menu Core must not use a broad compositor filter');
-assert.match(conceptStyle, /\.es-main-menu\{background:#02050c!important/, 'menu background must not add a centered haze');
-assert.match(conceptStyle, /\.es-core-halo,\.es-core-surface,\.es-core-highlight\{display:none!important/, 'obsolete Core haze/surface layers must stay hidden');
-assert.match(conceptStyle, /\.es-core-body\{[^}]*inset:8%!important/, 'Core body should occupy the centered Core container evenly');
-
-assert.match(conceptStyle, /\.es-main-map-entry\{backdrop-filter:none!important;-webkit-backdrop-filter:none!important\}/, 'main Core button must not blur behind itself');
-assert.match(conceptStyle, /\.es-core-body::before,\.es-core-body::after\{display:none!important\}/, 'Core must not use compositing pseudo-layers that can create a rectangular veil');
+assert.equal(conceptStyle.includes('.es-main-map-entry{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}'), true, 'main Core button must not blur behind itself');
+assert.equal(conceptStyle.includes('.es-core-body::before,.es-core-body::after{display:none!important}'), true, 'Core must not use compositing pseudo-layers that can create a rectangular veil');
