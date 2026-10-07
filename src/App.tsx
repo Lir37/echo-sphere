@@ -330,7 +330,6 @@ function GameScreen({ lang, t, shop, difficulty, handedness, regionId, regionMod
           if (st.player.chestOpens >= 5) unlockAchievement('chest_5');
           if (st.player.dashCount >= 50) unlockAchievement('dash_50');
           clearSavedRun();
-          setResumeRun(null);
           setGameOverData({ time, wave: st.wave, kills: st.player.kills, gold, rank, isNewRecord, regionClear: Boolean(st.region?.cleared), masteryChallengesCompleted: st.region?.masteryChallengesCompleted || 0, challengeProgress: getRegionChallengeProgress(), endlessUnlocked: loadRegionEndlessUnlock() });
         }
 
