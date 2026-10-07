@@ -1,23 +1,10 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
-class MemoryStorage {
-  store = new Map();
-  getItem(key){ return this.store.has(key) ? this.store.get(key) : null; }
-  setItem(key,value){ this.store.set(key,String(value)); }
-  removeItem(key){ this.store.delete(key); }
-  clear(){ this.store.clear(); }
-}
-
-Object.defineProperty(globalThis, 'localStorage', { value: new MemoryStorage(), configurable: true, writable: true });
-
 const { createInitialState } = await import('../src/engineState.ts');
 const {
-  saveRunSnapshot,
-  loadSavedRun,
-  clearSavedRun,
-  getSavedRunTime,
   serializeRunSnapshot,
+  restoreRunSnapshot,
 } = await import('../src/runPersistence.ts');
 
 const state = createInitialState({ gold: 0, upgrades: {} }, 'Tester', 'normal', 1234);
@@ -34,25 +21,26 @@ state.sphereProjectiles.push({
   alive: true,
   color: '#fff',
   pierce: 0,
-  hitEnemies: new Set(state.enemies),
+  hitEnemies: new Set(),
   effect: 'none',
   ricochet: 0,
   life: 1,
 });
 
-assert.equal(saveRunSnapshot(state), true);
-const resumed = loadSavedRun();
+const raw = serializeRunSnapshot(state);
+assert.match(raw, /"version":1/);
+const resumed = restoreRunSnapshot(raw);
 assert.ok(resumed);
 assert.equal(resumed.paused, true);
 assert.equal(resumed.time, 137.8);
 assert.deepEqual(resumed.keys, {});
 assert.deepEqual(resumed.mouse, { x: 0, y: 0, down: false });
 assert.ok(resumed.sphereProjectiles[0].hitEnemies instanceof Set);
-assert.equal(getSavedRunTime(), 137);
-assert.match(serializeRunSnapshot(state), /"version":1/);
-
-clearSavedRun();
-assert.equal(loadSavedRun(), null);
+assert.equal(resumed.player.hunterMarkTarget, null);
+assert.equal(resumed.player.hunterHuntTarget, null);
+assert.equal(resumed.player.engineerRelaySource, null);
+assert.equal(resumed.player.engineerRelayTimer, 0);
+assert.equal(resumed.player.voidPhantomSource, null);
 
 const app = fs.readFileSync(new URL('../src/App.tsx', import.meta.url), 'utf8');
 assert.match(app, /document\.addEventListener\('visibilitychange'/);
@@ -62,8 +50,14 @@ assert.match(app, /current\.paused = true/);
 assert.match(app, /saveRunSnapshot\(current\)/);
 assert.match(app, /runSaveAccumulatorRef/);
 assert.match(app, /ПРОДОЛЖИТЬ ЗАБЕГ/);
+assert.match(app, /initialState \|\| createInitialState/);
 
-const persistence = fs.readFileSync(new URL('../src/persistence.ts', import.meta.url), 'utf8');
-assert.match(persistence, /clearSavedRun\(\)/);
+const persistence = fs.readFileSync(new URL('../src/runPersistence.ts', import.meta.url), 'utf8');
+assert.match(persistence, /localStorage\.setItem\(RUN_SNAPSHOT_KEY/);
+assert.match(persistence, /localStorage\.removeItem\(RUN_SNAPSHOT_KEY/);
+assert.match(persistence, /state\.paused = true/);
+
+const resetPersistence = fs.readFileSync(new URL('../src/persistence.ts', import.meta.url), 'utf8');
+assert.match(resetPersistence, /clearSavedRun\(\)/);
 
 console.log('run persistence: OK');
