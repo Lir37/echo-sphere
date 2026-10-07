@@ -29,6 +29,7 @@ import {
   loadSound, saveSound, loadHandedness, saveHandedness, loadCharacterId, loadTutorialCompleted, saveTutorialCompleted, type Handedness,
 } from './persistence';
 import { playSound, setAudioEnabled } from './audio';
+import { loadSavedRun, clearSavedRun, saveRunSnapshot, getSavedRunTime } from './runPersistence';
 import MobileControls from './MobileControls';
 import CharacterSelect from './CharacterSelect';
 import { createMasteryRunTracker, getMasteryRunXp, tickCharacterMastery } from './characterMastery';
@@ -59,6 +60,7 @@ export default function App() {
   const [regionMode, setRegionMode] = useState<RegionMode>('stabilization');
   const [regionChallenge, setRegionChallenge] = useState<RegionChallengeId>('none');
   const [regionId, setRegionId] = useState<RegionId>('resonance_basin');
+  const [resumeRun, setResumeRun] = useState<GameState | null>(() => loadSavedRun());
 
   const t = (k: TranslationKey) => translations[lang][k];
 
@@ -72,9 +74,9 @@ export default function App() {
 
   return (
     <div className="es-app min-h-screen w-full text-[#dcecff] overflow-hidden flex items-center justify-center">
-      {screen === 'menu' && <Menu lang={lang} t={t} difficulty={difficulty} setDifficulty={setDifficulty} onOpenMap={() => setScreen('map')} onShop={() => { setShop(loadShop()); setGold(loadGold()); setScreen('shop'); }} onCharacters={() => { setGold(loadGold()); setScreen('characters'); }} onLeader={() => setScreen('leaderboard')} onSettings={() => setScreen('settings')} onAchievements={() => setScreen('achievements')} onKnowledge={() => setScreen('knowledge')} />}
-      {screen === 'map' && <EchoMapScreen lang={lang} onStartRun={(id, mode, challenge) => { setRegionId(id); setRegionMode(mode); setRegionChallenge(challenge); setScreen('game'); }} onBack={() => setScreen('menu')} />}
-      {screen === 'game' && <GameScreen lang={lang} t={t} shop={shop} difficulty={difficulty} handedness={handedness} regionId={regionId} regionMode={regionMode} regionChallenge={regionChallenge} onExit={() => { setShop(loadShop()); setGold(loadGold()); setScreen('map'); }} />}
+      {screen === 'menu' && <Menu lang={lang} t={t} difficulty={difficulty} setDifficulty={setDifficulty} savedRunTime={resumeRun ? getSavedRunTime() : null} onContinue={() => { const saved = loadSavedRun(); if (saved) { setResumeRun(saved); setRegionId(saved.region.id); setRegionMode(saved.region.mode); setRegionChallenge(saved.region.challengeId); setScreen('game'); } else { setResumeRun(null); } }} onOpenMap={() => setScreen('map')} onShop={() => { setShop(loadShop()); setGold(loadGold()); setScreen('shop'); }} onCharacters={() => { setGold(loadGold()); setScreen('characters'); }} onLeader={() => setScreen('leaderboard')} onSettings={() => setScreen('settings')} onAchievements={() => setScreen('achievements')} onKnowledge={() => setScreen('knowledge')} />}
+      {screen === 'map' && <EchoMapScreen lang={lang} onStartRun={(id, mode, challenge) => { clearSavedRun(); setResumeRun(null); setRegionId(id); setRegionMode(mode); setRegionChallenge(challenge); setScreen('game'); }} onBack={() => setScreen('menu')} />}
+      {screen === 'game' && <GameScreen lang={lang} t={t} shop={shop} difficulty={difficulty} handedness={handedness} regionId={regionId} regionMode={regionMode} regionChallenge={regionChallenge} initialState={resumeRun} onSavedRunChange={(saved) => setResumeRun(saved ? loadSavedRun() : null)} onExit={() => { clearSavedRun(); setResumeRun(null); setShop(loadShop()); setGold(loadGold()); setScreen('map'); }} />}
       {screen === 'shop' && <ShopScreen lang={lang} t={t} shop={shop} setShop={setShop} onBack={() => { setGold(loadGold()); setScreen('menu'); }} />}
       {screen === 'characters' && <CharacterSelect lang={lang} gold={gold} onGoldChange={(nextGold) => { setGold(nextGold); setShop(loadShop()); }} onBack={() => { setGold(loadGold()); setShop(loadShop()); setScreen('menu'); }} />}
       {screen === 'leaderboard' && <LeaderboardScreen lang={lang} t={t} onBack={() => setScreen('menu')} />}
@@ -86,9 +88,9 @@ export default function App() {
 }
 
 // ===== Menu =====
-function Menu({ lang, t, difficulty, setDifficulty, onOpenMap, onShop, onCharacters, onLeader, onSettings, onAchievements, onKnowledge }: {
+function Menu({ lang, t, difficulty, setDifficulty, savedRunTime, onContinue, onOpenMap, onShop, onCharacters, onLeader, onSettings, onAchievements, onKnowledge }: {
   lang: Lang; t: (k: TranslationKey) => string;
-  difficulty: Difficulty; setDifficulty: (d: Difficulty) => void;
+  difficulty: Difficulty; setDifficulty: (d: Difficulty) => void; savedRunTime: number | null; onContinue: () => void;
   onOpenMap: () => void; onShop: () => void; onCharacters: () => void; onLeader: () => void; onSettings: () => void; onAchievements: () => void; onKnowledge: () => void;
 }) {
   const [name, setName] = useState(() => loadName());
@@ -154,6 +156,11 @@ function Menu({ lang, t, difficulty, setDifficulty, onOpenMap, onShop, onCharact
             <span>ID</span>
             <input value={name} onChange={(e) => setName(e.target.value.slice(0, 16))} placeholder={t('namePlaceholder')} />
           </div>
+
+          {savedRunTime !== null && <button type="button" className="es-main-continue" onClick={onContinue}>
+            <span>{lang === 'ru' ? 'ПРОДОЛЖИТЬ ЗАБЕГ' : 'CONTINUE RUN'}</span>
+            <small>{lang === 'ru' ? `Сохранено на ${Math.floor(savedRunTime / 60)}:${String(savedRunTime % 60).padStart(2, '0')}` : `Saved at ${Math.floor(savedRunTime / 60)}:${String(savedRunTime % 60).padStart(2, '0')}`}</small>
+          </button>}
         </section>
       </main>
 
@@ -170,8 +177,8 @@ function Menu({ lang, t, difficulty, setDifficulty, onOpenMap, onShop, onCharact
 }
 
 // Main menu closes cleanly before the gameplay screen declaration.
-function GameScreen({ lang, t, shop, difficulty, handedness, regionId, regionMode, regionChallenge, onExit }: {
-  lang: Lang; t: (k: TranslationKey) => string; shop: ShopState; difficulty: Difficulty; handedness: Handedness; regionId: RegionId; regionMode: RegionMode; regionChallenge: RegionChallengeId; onExit: () => void;
+function GameScreen({ lang, t, shop, difficulty, handedness, regionId, regionMode, regionChallenge, initialState, onSavedRunChange, onExit }: {
+  lang: Lang; t: (k: TranslationKey) => string; shop: ShopState; difficulty: Difficulty; handedness: Handedness; regionId: RegionId; regionMode: RegionMode; regionChallenge: RegionChallengeId; initialState: GameState | null; onSavedRunChange: (saved: boolean) => void; onExit: () => void;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const renderer3dRef = useRef<Echo3DRenderer | null>(null);
@@ -226,9 +233,9 @@ function GameScreen({ lang, t, shop, difficulty, handedness, regionId, regionMod
 
   useEffect(() => {
     const name = loadName() || translations[lang].namePlaceholder;
-    const s = createInitialState(shop, name, difficulty, undefined, regionMode, regionChallenge, regionId);
+    const s = initialState || createInitialState(shop, name, difficulty, undefined, regionMode, regionChallenge, regionId);
     stateRef.current = s;
-    const tutorialActive = !loadTutorialCompleted();
+    const tutorialActive = !initialState && !loadTutorialCompleted();
     if (tutorialActive) {
       s.tutorialMode = true;
       s.paused = true;
@@ -244,6 +251,26 @@ function GameScreen({ lang, t, shop, difficulty, handedness, regionId, regionMod
     if (canvas && ENABLE_3D_RENDERER) renderer3dRef.current = createEcho3DRenderer(canvas);
 
     lastTimeRef.current = performance.now();
+
+    const pauseAndPersist = () => {
+      const current = stateRef.current;
+      if (!current || current.gameOver || current.tutorialMode) return;
+      current.paused = true;
+      setPaused(true);
+      saveRunSnapshot(current);
+      onSavedRunChange(true);
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') pauseAndPersist();
+    };
+
+    const handleWindowBlur = () => pauseAndPersist();
+    const handlePageHide = () => pauseAndPersist();
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('blur', handleWindowBlur);
+    window.addEventListener('pagehide', handlePageHide);
 
     let frameFaultLogged = false;
 
@@ -264,6 +291,7 @@ function GameScreen({ lang, t, shop, difficulty, handedness, regionId, regionMod
         } else if (st.tutorialMode && tutorial === 4 && tutorialUpgradeOpenedRef.current && !st.pendingUpgrade) {
           transitionTutorial(5);
         }
+        if (!st.tutorialMode && !st.gameOver && Math.floor(st.time) % 1 === 0) saveRunSnapshot(st);
         tickCharacterMastery(st, dt, masteryTrackerRef.current);
         resolveSpaceCollisions(st, dt);
         knowledgeTickRef.current += dt;
@@ -272,7 +300,7 @@ function GameScreen({ lang, t, shop, difficulty, handedness, regionId, regionMod
           syncKnowledgeFromRun(st);
         }
 
-        if (st.gameOver) syncKnowledgeFromRun(st);
+        if (st.gameOver) { syncKnowledgeFromRun(st); clearSavedRun(); onSavedRunChange(false); }
 
         if (st.gameOver && !gameOverData) {
           if (!masterySavedRef.current) {
@@ -331,6 +359,9 @@ function GameScreen({ lang, t, shop, difficulty, handedness, regionId, regionMod
       cancelAnimationFrame(rafRef.current);
       renderer3dRef.current?.dispose();
       renderer3dRef.current = null;
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('blur', handleWindowBlur);
+      window.removeEventListener('pagehide', handlePageHide);
       stopCanvasResolutionPolicy();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -390,7 +421,7 @@ function GameScreen({ lang, t, shop, difficulty, handedness, regionId, regionMod
               st={st}
               tab={pauseTab}
               setTab={setPauseTab}
-              onResume={() => { setPaused(false); st.paused = false; setSelectedArtifactSetId(null); }}
+              onResume={() => { setPaused(false); st.paused = false; saveRunSnapshot(st); onSavedRunChange(true); setSelectedArtifactSetId(null); }}
               onExit={onExit}
               selectedArtifactSetId={selectedArtifactSetId}
               setSelectedArtifactSetId={setSelectedArtifactSetId}
