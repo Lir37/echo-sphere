@@ -601,7 +601,7 @@ export function dealDamageToEnemy(s: GameState, enemy: EnemyEntity, dmg: number,
         nearby.pos.x += (dx / len) * 52 * direction;
         nearby.pos.y += (dy / len) * 52 * direction;
       }
-    }    } else if (branch === 'aura_overgrowth') {
+    } else if (branch === 'aura_overgrowth') {
       const bonus = finalIndex === 0 ? 0.18 : finalIndex === 1 ? 0.3 : 0.1;
       for (const ally of s.spheres) {
         if (ally !== fromSphere && ally.alive && dist(ally.pos, fromSphere.pos) < (finalIndex === 1 ? 180 : 140)) {
