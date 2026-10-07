@@ -72,7 +72,7 @@ export default function App() {
   return (
     <div className="es-app min-h-screen w-full text-[#dcecff] overflow-hidden flex items-center justify-center">
       {screen === 'menu' && <Menu lang={lang} t={t} difficulty={difficulty} setDifficulty={setDifficulty} onOpenMap={() => setScreen('map')} onShop={() => { setShop(loadShop()); setGold(loadGold()); setScreen('shop'); }} onCharacters={() => { setGold(loadGold()); setScreen('characters'); }} onLeader={() => setScreen('leaderboard')} onSettings={() => setScreen('settings')} onAchievements={() => setScreen('achievements')} onKnowledge={() => setScreen('knowledge')} />}
-      {screen === 'map' && <EchoMapScreen lang={lang} difficulty={difficulty} onStartRun={(mode, challenge) => { setRegionMode(mode); setRegionChallenge(challenge); setScreen('game'); }} onCharacters={() => { setGold(loadGold()); setScreen('characters'); }} onBack={() => setScreen('menu')} />}
+      {screen === 'map' && <EchoMapScreen lang={lang} onStartRun={(mode, challenge) => { setRegionMode(mode); setRegionChallenge(challenge); setScreen('game'); }} onBack={() => setScreen('menu')} />}
       {screen === 'game' && <GameScreen lang={lang} t={t} shop={shop} difficulty={difficulty} handedness={handedness} regionMode={regionMode} regionChallenge={regionChallenge} onExit={() => { setShop(loadShop()); setGold(loadGold()); setScreen('map'); }} />}
       {screen === 'shop' && <ShopScreen lang={lang} t={t} shop={shop} setShop={setShop} onBack={() => { setGold(loadGold()); setScreen('menu'); }} />}
       {screen === 'characters' && <CharacterSelect lang={lang} gold={gold} onGoldChange={(nextGold) => { setGold(nextGold); setShop(loadShop()); }} onBack={() => { setGold(loadGold()); setShop(loadShop()); setScreen('menu'); }} />}
@@ -1061,7 +1061,7 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
 
       <div className="es-hud-panel es-top-right absolute top-3 right-3 z-30 pointer-events-none">
         <div className="es-hud-right-content">
-          <RadarHud st={st} />
+          <div className="es-hud-right-radar"><RadarHud st={st} /></div>
           <div className="es-hud-right-timer">
             <div className="es-time-hud-line">
               <span className="es-time-hud-dot" />
@@ -1080,6 +1080,7 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
           })()}
         </div>
         {activeBoss && <div className="es-boss-telemetry mt-1.5">{t('bossWave')}</div>}
+      </div>
       </div>
     </>
   );
