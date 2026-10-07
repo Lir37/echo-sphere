@@ -27,3 +27,6 @@ assert.doesNotMatch(conceptStyle, /\.es-main-core-art\{[^}]*filter:drop-shadow/,
 assert.match(conceptStyle, /\.es-main-menu\{background:#02050c!important/, 'menu background must not add a centered haze');
 assert.match(conceptStyle, /\.es-core-halo,\.es-core-surface,\.es-core-highlight\{display:none!important/, 'obsolete Core haze/surface layers must stay hidden');
 assert.match(conceptStyle, /\.es-core-body\{[^}]*inset:8%!important/, 'Core body should occupy the centered Core container evenly');
+
+assert.match(conceptStyle, /\.es-main-map-entry\{backdrop-filter:none!important;-webkit-backdrop-filter:none!important\}/, 'main Core button must not blur behind itself');
+assert.match(conceptStyle, /\.es-core-body::before,\.es-core-body::after\{display:none!important\}/, 'Core must not use compositing pseudo-layers that can create a rectangular veil');
