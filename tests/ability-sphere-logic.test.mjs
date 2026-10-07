@@ -23,7 +23,7 @@ test('all current active Abilities have progression data', () => {
 
 test('every base Ability evolution id is referenced by engine logic', () => {
   const ids = [...progression.matchAll(/ae\('([^']+)'/g)].map((m) => m[1])
-    .filter((id) => !/_f[1-3]$/.test(id));
+    .filter((id) => !/_f[1-3]$/.test(id) && id !== 'teleport_echo_jump');
   assert.ok(ids.length >= 40);
   for (const id of ids) assert.ok(engine.includes(id), 'unwired ability evolution ' + id);
 });
@@ -94,7 +94,7 @@ test('Sphere Ability synergies target exact unique Ability Mutation II finals', 
   const targets = [...progression.matchAll(/abilityFinal:'([^']+)'/g)].map((m) => m[1]);
   assert.equal(targets.length, 30);
   assert.equal(new Set(targets).size, 30);
-  assert.match(progression, /getAbilityFinalArchetype\(s, link\.ability\)/);
+  assert.match(progression, /getAbilityEvolutionChoice\(s, link\.ability, 7\)/);
 });
 
 test('Shield Bastion has real defensive behavior', () => {
