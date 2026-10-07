@@ -21,8 +21,9 @@ test('all current active Abilities have progression data', () => {
   }
 });
 
-test('every Ability evolution id is referenced by engine logic', () => {
-  const ids = [...progression.matchAll(/ae\('([^']+)'/g)].map((m) => m[1]);
+test('every base Ability evolution id is referenced by engine logic', () => {
+  const ids = [...progression.matchAll(/ae\('([^']+)'/g)].map((m) => m[1])
+    .filter((id) => !/_f[1-3]$/.test(id));
   assert.ok(ids.length >= 40);
   for (const id of ids) assert.ok(engine.includes(id), 'unwired ability evolution ' + id);
 });
@@ -64,6 +65,50 @@ test('Ability Mutation II choices depend on the selected Mutation I branch', () 
     assert.match(progression, new RegExp("ability:'" + id + "[\\s\\S]*?evolution4:[\\s\\S]*?evolution7:[\\s\\S]*?"));
   }
 });
+
+test('Every Ability has exactly 9 authored Mutation II finals', () => {
+  const specs = progression.slice(
+    progression.indexOf('const ABILITY_FINAL_VARIANT_SPECS:'),
+    progression.indexOf('function buildAuthoredAbilityFinalVariants'),
+  );
+  for (const branchId of [
+    'blast_resonance','blast_network','blast_core',
+    'shield_echo_guard','shield_reflector','shield_bastion',
+    'teleport_echo_jump','teleport_beacon','teleport_phase',
+    'firetrail_overdrive','firetrail_ignition','firetrail_sanctum',
+    'minion_echo_drone','minion_relay_drone','minion_guardian',
+    'lightning_echo_storm','lightning_relay','lightning_overload',
+    'timestop_echo_phase','timestop_closed_time','timestop_time_anchor',
+    'darkritual_blood_link','darkritual_sacrifice','darkritual_void_pact',
+  ]) {
+    const ids = [...specs.matchAll(new RegExp("\\['(" + branchId + "_f[1-3])'","g"))].map((m) => m[1]);
+    assert.equal(ids.length, 3, branchId + ' must have 3 Mutation II finals');
+    assert.equal(new Set(ids).size, 3, branchId + ' Mutation II finals must be unique');
+  }
+  const all = [...specs.matchAll(/\['([^']+_f[1-3])'/g)].map((m) => m[1]);
+  assert.equal(all.length, 72);
+  assert.equal(new Set(all).size, 72);
+});
+
+test('Sphere Ability synergies target exact unique Ability Mutation II finals', () => {
+  const targets = [...progression.matchAll(/abilityFinal:'([^']+)'/g)].map((m) => m[1]);
+  assert.equal(targets.length, 30);
+  assert.equal(new Set(targets).size, 30);
+  assert.match(progression, /getAbilityFinalArchetype\(s, link\.ability\)/);
+});
+
+test('Shield Bastion has real defensive behavior', () => {
+  assert.match(engine, /shieldBranch === 'shield_bastion'/);
+  assert.match(engine, /enemy\.pos\.x \+= \(dx \/ len\) \* 36/);
+  assert.match(engine, /shieldBranch === 'shield_bastion' && s\.player\.shieldTimer > 0 \? 0\.70 : 1/);
+});
+
+test('Teleport keeps the long-range Sphere targeting unlocked at level 3+', () => {
+  assert.match(engine, /if \(lvl >= 3\)/);
+  assert.match(engine, /d >= 220 && d <= 700/);
+  assert.match(engine, /longTarget \?\? getNearestSphere/);
+});
+
 
 test('Ability mutation VFX is emitted after active Ability activation', () => {
   assert.match(engine, /function emitAbilityMutationVfx/);
