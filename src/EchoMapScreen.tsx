@@ -13,7 +13,8 @@ const DISTANT_BODIES = [
   { x: 66, y: 13, size: 9, tone: '#709fc4' },
 ] as const;
 
-const CHALLENGE_CLASS: Record<Exclude<RegionChallengeId,'none'>, string> = {
+const CHALLENGE_CLASS: Record<RegionChallengeId, string> = {
+  none: '',
   fractured_network: 'challenge-fracture',
   overload: 'challenge-overload',
   low_gravity: 'challenge-gravity',
