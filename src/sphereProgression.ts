@@ -257,43 +257,10 @@ const NEW_BRANCH_LEVEL_DETAILS:Partial<Record<SphereEvolutionId,{level5:string;l
 const BRANCH_EN:Partial<Record<SphereEvolutionId,[string,string]>>={
   standard_resonator:['Standard Resonator','Every third hit releases a pulse, while hits also feed Resonance.'],
   standard_singularity:['Standard Singularity','Develops the Standard Singularity branch and its signature behavior.'],
-  standard_swarm:['Standard Swarm','Develops the Standard Swarm branch and its signature behavior.'],
-  sniper_oracle:['Sniper Oracle','Develops the Sniper Oracle branch and its signature behavior.'],
-  sniper_assassin:['Sniper Assassin','Develops the Sniper Assassin branch and its signature behavior.'],
-  sniper_beacon:['Sniper Beacon','Develops the Sniper Beacon branch and its signature behavior.'],
-  shotgun_burst:['Shotgun Burst','Develops the Shotgun Burst branch and its signature behavior.'],
-  shotgun_cataclysm:['Shotgun Cataclysm','Develops the Shotgun Cataclysm branch and its signature behavior.'],
-  shotgun_hail:['Shotgun Hail','Develops the Shotgun Hail branch and its signature behavior.'],
-  chain_web:['Chain Web','Develops the Chain Web branch and its signature behavior.'],
-  chain_storm:['Chain Storm','Develops the Chain Storm branch, adds transition surges and extra Resonance.'],
-  chain_leech:['Chain Leech','Develops the Chain Leech branch and its signature behavior.'],
-  aura_sanctum:['Aura Sanctum','Develops the Aura Sanctum branch and its signature behavior.'],
-  aura_gravity:['Aura Gravity','Develops the Aura Gravity branch and its signature behavior.'],
-  aura_overgrowth:['Aura Overgrowth','Develops the Aura Overgrowth branch and its signature behavior.'],
-  orbital_dance:['Orbital Dance','Develops the Orbital Dance branch and its signature behavior.'],
-  orbital_halo:['Orbital Halo','Develops the Orbital Halo branch and its signature behavior.'],
-  orbital_blade:['Orbital Blade','Develops the Orbital Blade branch and its signature behavior.'],
-  prism_split:['Prism Split','Develops the Prism Split branch and its signature behavior.'],
-  prism_spectrum:['Prism Spectrum','Develops the Prism Spectrum branch, transfers elemental status and feeds Resonance.'],
-  prism_mirror:['Prism Mirror','Develops the Prism Mirror branch and its signature behavior.'],
-  gravity_well:['Gravity Well','Develops the Gravity Well branch and its signature behavior.'],
-  gravity_tide:['Gravity Tide','Develops the Gravity Tide branch and its signature behavior.'],
-  gravity_collapse:['Gravity Collapse','Develops the Gravity Collapse branch and its signature behavior.'],
-  pulse_wave:['Pulse Wave','Develops the Pulse Wave branch and its signature behavior.'],
-  pulse_resonator:['Pulse Resonator','Develops the Pulse Resonator branch and its signature behavior.'],
-  pulse_burst:['Pulse Burst','Develops the Pulse Burst branch and its signature behavior.'],
-  void_hunger:['Void Hunger','Develops the Void Hunger branch and its signature behavior.'],
-  void_reaper:['Void Reaper','Develops the Void Reaper branch and its signature behavior.'],
-  void_execution:['Void Execution','Develops the Void Execution branch and its signature behavior.'],
-};
-
-const f=(id:string,ru:string,en:string,descRu:string,descEn:string):SphereEvolutionDef=>e(id,ru,en,descRu,descEn);
-
-const SPHERE_FINAL_VARIANTS:Record<SphereEvolutionId,[SphereEvolutionDef,SphereEvolutionDef,SphereEvolutionDef]>={
-  standard_resonator:[
-    f('standard_resonator_final_1','Резонатор • Импульс','Standard Resonator • Pulse','Каждое третье попадание создаёт усиленный импульс вокруг цели: 65% урона, радиус 115.','Every third hit creates an empowered pulse around the target: 65% damage, radius 115.'),
-    f('standard_resonator_final_2','Резонатор • Отбой','Standard Resonator • Rebound','Каждое третье попадание создаёт импульс по площади: 45% урона в радиусе 100 и отбрасывает ближайших врагов.','Every third hit creates an area pulse: 45% damage in radius 100 and knocks back nearby enemies.'),
-    f('standard_resonator_final_3','Резонатор • Срыв','Standard Resonator • Suppression','Каждое третье попадание создаёт импульс: 35% урона в радиусе 90 и замедляет ближайших врагов на 0.8 с.','Every third hit creates a pulse: 35% damage in radius 90 and slows nearby enemies for 0.8s.'),
+  standard_swarm:[
+    f('standard_swarm_final_1','Рой • Охотничий осколок','Standard Swarm • Hunter Shard','После попадания выпускает один осколок, который ищет ближайшую другую цель.','After a hit, one shard seeks the nearest different target.'),
+    f('standard_swarm_final_2','Рой • Перекрёстный огонь','Standard Swarm • Crossfire','После попадания создаёт два боковых осколка по расходящимся траекториям.','After a hit, creates two side shards on diverging trajectories.'),
+    f('standard_swarm_final_3','Рой • Осколочная сеть','Standard Swarm • Shard Web','После попадания создаёт три осколка, расходящихся веером и насыщащих зону вокруг цели.','After a hit, creates three fan-shaped shards that saturate the area around the target.'),
   ],
   standard_singularity:[
     f('standard_singularity_final_1','Сингулярность • Сжатие','Standard Singularity • Compression','Попадание сильнее стягивает ближайших врагов и удерживает цель замедленной на 1.2 с.','Hits pull nearby enemies harder and keep the target slowed for 1.2s.'),
@@ -361,9 +328,9 @@ const SPHERE_FINAL_VARIANTS:Record<SphereEvolutionId,[SphereEvolutionDef,SphereE
     f('aura_gravity_final_3','Гравитация • Удар','Aura Gravity • Impact','Сильная тяга и Anchor объединяются; аура получает +18% урона.','Strong pull and network anchor combine, and the Aura gains 18% damage.'),
   ],
   aura_overgrowth:[
-    f('aura_overgrowth_final_1','Живая сеть • Ускорение','Aura Overgrowth • Acceleration','Ближайшие сферы внутри радиуса 140 ускоряют следующий выстрел.','Nearby Spheres within radius 140 speed up their next attack cycle.'),
-    f('aura_overgrowth_final_2','Живая сеть • Разгон','Aura Overgrowth • Overdrive','Ближайшие сферы в радиусе 180 получают более сильное ускорение следующего выстрела.','Nearby Spheres within radius 180 gain a stronger next-attack acceleration.'),
-    f('aura_overgrowth_final_3','Живая сеть • Давление','Aura Overgrowth • Pressure','Сферы ускоряются в радиусе 140, а сама Aura получает +12% урона.','Nearby Spheres speed up within radius 140, and the Aura gains 12% damage.'),
+    f('aura_overgrowth_final_1','Живая сеть • Ускоритель','Living Network • Accelerator','Сферы внутри ауры получают постоянное ускорение следующего цикла атак.','Spheres inside the Aura gain persistent acceleration for their next attack cycle.'),
+    f('aura_overgrowth_final_2','Живая сеть • Перелив','Living Network • Overflow','Когда сфера внутри ауры атакует, ускорение передаётся следующей ближайшей сфере в сети.','When a Sphere inside the Aura attacks, its acceleration transfers to the next nearest Sphere in the network.'),
+    f('aura_overgrowth_final_3','Живая сеть • Синхрон','Living Network • Synchrony','Все сферы внутри ауры одновременно сокращают задержку и выпускают следующую атаку почти синхронно.','All Spheres inside the Aura reduce delay together and fire their next attack in near-synchrony.'),
   ],
   orbital_dance:[
     f('orbital_dance_final_1','Танец • Ритм','Orbital Dance • Rhythm','Орбитальные спутники вращаются заметно быстрее и Afterimage создаёт повторный след-удар.','Orbital satellites rotate faster and gain an Afterimage effect that creates a repeating trail strike.'),
@@ -381,9 +348,9 @@ const SPHERE_FINAL_VARIANTS:Record<SphereEvolutionId,[SphereEvolutionDef,SphereE
     f('orbital_blade_final_3','Клинок • Разрез сети','Orbital Blade • Network Cut','Impact и Afterimage работают вместе, а урон лезвий возрастает ещё сильнее.','Impact and Afterimage work together, and blade damage increases further.'),
   ],
   prism_split:[
-    f('prism_split_final_1','Расщепление • Вторичный луч','Prism Split • Secondary Beam','Луч получает дополнительные вторичные направления с меньшим уроном.','The beam gains additional secondary directions with reduced damage.'),
-    f('prism_split_final_2','Расщепление • Усиленный луч','Prism Split • Reinforced Split','Вторичные лучи наносят больше урона, чем на базовой мутации расщепления.','Secondary beams deal more damage than the base split mutation.'),
-    f('prism_split_final_3','Расщепление • Многолучевой раскол','Prism Split • Multi-Split','Добавляется ещё один луч поверх усиленного расщепления.','One more beam is added on top of the reinforced split effect.'),
+    f('prism_split_final_1','Расщепление • Веер','Prism Split • Fan','Луч создаёт веер дополнительных направлений, покрывая несколько целей одновременно.','The beam creates a fan of additional directions to cover several targets at once.'),
+    f('prism_split_final_2','Расщепление • Пробой','Prism Split • Pierce','После расщепления основной луч сохраняет энергию и пробивает первую цель насквозь.','After splitting, the main beam keeps its energy and pierces through the first target.'),
+    f('prism_split_final_3','Расщепление • Отражение','Prism Split • Ricochet','После расщепления лучи рикошетят и могут сменить цель после первого попадания.','After splitting, the beams ricochet and can retarget after the first hit.'),
   ],
   prism_spectrum:[
     f('prism_spectrum_final_1','Спектр • Пламя','Prism Spectrum • Flame','Призма получает огненный статус для боевых реакций.','Prism gains a Fire status for combat reactions.'),
@@ -401,9 +368,9 @@ const SPHERE_FINAL_VARIANTS:Record<SphereEvolutionId,[SphereEvolutionDef,SphereE
     f('gravity_well_final_3','Колодец • Полный колодец','Gravity Well • Full Well','Якорь и усиленная тяга работают вместе, превращая центр в стабильную контрольную точку.','Anchor and stronger pull work together, turning the center into a stable control point.'),
   ],
   gravity_tide:[
-    f('gravity_tide_final_1','Прилив • Удар','Gravity Tide • Impact','Импульс прилива получает усиление Impact и отбрасывает врагов.','The tide pulse gains Impact and knocks enemies away.'),
-    f('gravity_tide_final_2','Прилив • Тяга','Gravity Tide • Pull','Импульс получает усиление гравитационного притяжения и лучше собирает группу.','The tide pulse gains stronger gravitational pull and groups enemies more effectively.'),
-    f('gravity_tide_final_3','Прилив • Обратная волна','Gravity Tide • Reversal','Удар и тяга объединяются для чередования притяжения и отбрасывания.','Impact and pull combine to alternate between attraction and knockback.'),
+    f('gravity_tide_final_1','Прилив • Обратный толчок','Gravity Tide • Recoil','Каждый импульс резко отбрасывает врагов от Гравитационной сферы.','Each pulse strongly knocks enemies away from the Gravity Sphere.'),
+    f('gravity_tide_final_2','Прилив • Стягивание','Gravity Tide • Draw','Каждый импульс притягивает врагов к Гравитационной сфере и уплотняет группу.','Each pulse pulls enemies toward the Gravity Sphere and compresses the group.'),
+    f('gravity_tide_final_3','Прилив • Маятник','Gravity Tide • Pendulum','Импульсы чередуют притяжение и отбрасывание, формируя ритм контроля пространства.','Pulses alternate between pull and knockback, creating a spatial-control rhythm.'),
   ],
   gravity_collapse:[
     f('gravity_collapse_final_1','Коллапс • Экзекуция','Gravity Collapse • Execution','Собранные враги получают более сильное добивание, когда их HP уже снижено.','Grouped enemies are easier to execute when their HP is already reduced.'),
@@ -775,28 +742,186 @@ export const ABILITY_PROGRESSION:Partial<Record<AbilityType,AbilityProgressionDe
 };
 
 
-function buildAbilityFinalPools():Record<string, Record<string, AbilityEvolutionChoice[]>> {
-  const result:Record<string, Record<string, AbilityEvolutionChoice[]>> = {};
-  for (const [ability, progression] of Object.entries(ABILITY_PROGRESSION) as [AbilityType, AbilityProgressionDef][]) {
-    result[ability] = {};
-    for (const branch of progression.evolution4) {
-      result[ability][branch.id] = progression.evolution7.map((finalChoice) => ({
-        ...finalChoice,
-        name: {
-          ru: `${branch.name.ru} · ${finalChoice.name.ru}`,
-          en: `${branch.name.en} · ${finalChoice.name.en}`,
-        },
-        desc: {
-          ru: `Продолжение ветки «${branch.name.ru}»: ${finalChoice.desc.ru}`,
-          en: `Continuation of “${branch.name.en}”: ${finalChoice.desc.en}`,
-        },
+type AbilityFinalSpec = [id:string, ru:string, en:string, descRu:string, descEn:string];
+
+const ABILITY_FINAL_VARIANT_SPECS: Record<string, Record<string, AbilityFinalSpec[]>> = {
+  blast: {
+    blast_resonance: [
+      ['blast_resonance_f1','Резонанс • Цветение','Resonance • Bloom','Каждый третий импульс создаёт вторичный импульс от последней Standard-сферы, который проходит по ближайшей цели.','Every third pulse creates a secondary pulse from the last Standard Sphere and seeks the nearest target.'],
+      ['blast_resonance_f2','Резонанс • Волна','Resonance • Wave','После прохождения Standard импульс расширяется: ближайшие связанные сферы получают короткий дополнительный всплеск.','After passing through Standard, the pulse expands and nearby linked Spheres emit a brief extra surge.'],
+      ['blast_resonance_f3','Резонанс • Возврат','Resonance • Return','Финальный узел возвращает часть импульса обратно по активной сети, создавая второй проход с уменьшенной силой.','The final node sends part of the pulse back through the active network for a second pass at reduced strength.'],
+    ],
+    blast_network: [
+      ['blast_network_f1','Сеть • Эстафета','Network • Relay','Волна последовательно активирует связанные сферы, каждая передаёт её следующему узлу.','The wave activates linked Spheres in sequence, each passing it to the next node.'],
+      ['blast_network_f2','Сеть • Разрыв','Network • Fracture','Каждый второй посещённый узел создаёт боковой взрыв по врагам вокруг себя.','Every second visited node creates a side blast against enemies around it.'],
+      ['blast_network_f3','Сеть • Обратный контур','Network • Backflow','После последнего узла волна меняет направление и возвращается к началу сети.','After the final node, the wave reverses direction and returns to the start of the network.'],
+    ],
+    blast_core: [
+      ['blast_core_f1','Ядро • Детонация','Core • Detonation','Центр сети создаёт отдельную мощную детонацию, если рядом находятся враги.','The network center creates a separate powerful detonation when enemies are nearby.'],
+      ['blast_core_f2','Ядро • Сжатие','Core • Compression','Перед взрывом центр кратко стягивает врагов к себе, собирая их в зоне импульса.','Before exploding, the core briefly pulls enemies inward and gathers them into the pulse zone.'],
+      ['blast_core_f3','Ядро • Перегрузка','Core • Overdrive','После детонации ближайшие сферы мгновенно сокращают задержку следующей атаки.','After detonation, nearby Spheres instantly reduce the delay before their next attack.'],
+    ],
+  },
+  shield: {
+    shield_echo_guard: [
+      ['shield_echo_guard_f1','Барьер • Резерв','Barrier • Reserve','Каждая пара ближайших сфер формирует дополнительный резервный заряд щита.','Each pair of nearby Spheres forms an additional reserve shield charge.'],
+      ['shield_echo_guard_f2','Барьер • Реле','Barrier • Relay','Поглощённый удар передаёт короткий защитный импульс ближайшим сферам и ускоряет их следующий выстрел.','A blocked hit sends a brief defensive pulse to nearby Spheres and accelerates their next attack.'],
+      ['shield_echo_guard_f3','Барьер • Обратный контур','Barrier • Feedback','Когда расходуется последний заряд, ближайшие сферы получают короткий защитный контур до следующего щита.','When the last charge is spent, nearby Spheres gain a brief defensive circuit until the next shield activation.'],
+    ],
+    shield_reflector: [
+      ['shield_reflector_f1','Отражатель • Контрудар','Reflector • Counterstrike','Поглощённый удар направляет отражённый разряд в ближайшую цель с повышенным уроном.','A blocked hit sends a reflected discharge into the nearest enemy for increased damage.'],
+      ['shield_reflector_f2','Отражатель • Рикошет','Reflector • Ricochet','Отражённый разряд может перейти от первой поражённой цели к следующей соседней цели.','The reflected discharge can jump from the first target to a second nearby enemy.'],
+      ['shield_reflector_f3','Отражатель • Разряд сети','Reflector • Network Discharge','Отражение проходит через ближайшую связанную сферу и затем поражает врагов рядом с ней.','The reflection travels through a nearby linked Sphere before striking enemies around it.'],
+    ],
+    shield_bastion: [
+      ['shield_bastion_f1','Бастион • Стена','Bastion • Wall','Пока щит активен, сферы вокруг игрока образуют защитную стену и снижают входящий урон после исчерпания зарядов.','While the shield is active, nearby Spheres form a defensive wall that reduces incoming damage after charges are exhausted.'],
+      ['shield_bastion_f2','Бастион • Контур','Bastion • Circuit','При получении удара все защищающие сферу узлы одновременно создают защитный импульс, отталкивающий врагов.','When hit, all protected Sphere nodes emit a defensive pulse that pushes enemies away.'],
+      ['shield_bastion_f3','Бастион • Периметр','Bastion • Perimeter','Каждая сфера в защитном периметре создаёт независимую зону перехвата вокруг игрока.','Each Sphere in the defensive perimeter creates an independent interception zone around the player.'],
+    ],
+  },
+  teleport: {
+    teleport_echo_jump: [
+      ['teleport_echo_jump_f1','Прыжок • Дальняя дуга','Jump • Long Arc','Телепорт предпочитает ближайшую доступную дальнюю сферу за пределами ближней зоны.','Teleport prefers the nearest available Sphere beyond the close-range zone.'],
+      ['teleport_echo_jump_f2','Прыжок • Цепь','Jump • Chain','Телепорт оставляет реле между исходной и целевой сферами, временно связывая их.','Teleport leaves a relay between origin and destination, temporarily linking them.'],
+      ['teleport_echo_jump_f3','Прыжок • Возврат','Jump • Return','После прыжка следующий телепорт в течение короткого окна может вернуть игрока к исходному узлу.','For a brief window after the jump, the next teleport can return the player to the origin node.'],
+    ],
+    teleport_beacon: [
+      ['teleport_beacon_f1','Маяк • Метка','Beacon • Mark','Приземление на сферу помечает ближайшего врага и усиливает следующий удар по нему.','Landing at a Sphere marks the nearest enemy and empowers the next hit against it.'],
+      ['teleport_beacon_f2','Маяк • Волна','Beacon • Wave','Приземление выпускает импульс вокруг целевой сферы и временно замедляет врагов.','Landing emits a pulse around the destination Sphere and temporarily slows enemies.'],
+      ['teleport_beacon_f3','Маяк • Разветвление','Beacon • Split','Приземление у сферы создаёт второй прыжковый ориентир и расширяет выбор следующего узла.','Landing at a Sphere creates a second jump beacon and expands the next destination choice.'],
+    ],
+    teleport_phase: [
+      ['teleport_phase_f1','Фаза • Сквозь сеть','Phase • Throughline','Во время прыжка игрок игнорирует столкновения с врагами и получает короткое окно после приземления.','During the jump, the player ignores enemy collisions and gains a brief post-arrival window.'],
+      ['teleport_phase_f2','Фаза • Разрыв','Phase • Rift','Траектория прыжка режет врагов между исходным и целевым узлами.','The jump path cuts through enemies between the origin and destination nodes.'],
+      ['teleport_phase_f3','Фаза • Укрытие','Phase • Shelter','После приземления ближайшая сфера создаёт краткую область, в которой игрок неуязвим.','After arrival, the nearest Sphere creates a brief area of invulnerability around the player.'],
+    ],
+  },
+  firetrail: {
+    firetrail_overdrive: [
+      ['firetrail_overdrive_f1','Перегрев • Вспышка','Overheat • Flash','Перегрев мгновенно усиливает следующую атаку каждой огненной сферы.','Overheat instantly empowers the next attack of each Fire-aligned Sphere.'],
+      ['firetrail_overdrive_f2','Перегрев • Конвекция','Overheat • Convection','После усиления скорость атаки огненных сфер повышается ступенчато, пока перегрев не закончится.','After empowerment, Fire-aligned Spheres gain stacking attack speed until Overheat ends.'],
+      ['firetrail_overdrive_f3','Перегрев • Выплеск','Overheat • Vent','Когда перегрев заканчивается, каждая усиленная сфера создаёт короткий огненный всплеск вокруг себя.','When Overheat ends, each empowered Sphere releases a brief fire burst around itself.'],
+    ],
+    firetrail_ignition: [
+      ['firetrail_ignition_f1','Воспламенитель • Реакция','Igniter • Reaction','Враг с другим статусом при воспламенении получает дополнительный урон от реакции.','An enemy carrying another status takes bonus reaction damage when ignited.'],
+      ['firetrail_ignition_f2','Воспламенитель • Цепь','Igniter • Chain','Воспламенение переносится на ближайшего врага с активным статусом.','Ignition jumps to the nearest enemy carrying an active status.'],
+      ['firetrail_ignition_f3','Воспламенитель • Вулкан','Igniter • Volcano','Если реакция убивает цель, на её месте возникает вторичный огненный всплеск.','If the reaction kills the target, a secondary fire burst erupts at its position.'],
+    ],
+    firetrail_sanctum: [
+      ['firetrail_sanctum_f1','Святилище • Поджиг','Sanctum • Kindle','Перегрев усиливает следующий импульс Aura и поджигает врагов внутри её зоны.','Overheat empowers the next Aura pulse and ignites enemies inside its area.'],
+      ['firetrail_sanctum_f2','Святилище • Жаровня','Sanctum • Brazier','Пылающая Aura периодически выпускает огненный импульс, пока действует перегрев.','The burning Aura periodically emits a fire pulse while Overheat is active.'],
+      ['firetrail_sanctum_f3','Святилище • Цикл','Sanctum • Cycle','Когда Aura получает усиление, ближайшая другая сфера получает короткий огненный перегрев.','When the Aura is empowered, a nearby different Sphere receives a brief Fire overheat.'],
+    ],
+  },
+  minion: {
+    minion_echo_drone: [
+      ['minion_echo_drone_f1','Дрон • Осколки','Drone • Shards','Каждый Эхо-дрон создаёт один дополнительный осколочный импульс при подключении к сети.','Each Echo Drone releases an extra shard pulse when it joins the network.'],
+      ['minion_echo_drone_f2','Дрон • Узлы','Drone • Nodes','Дроны считаются временными узлами и увеличивают число возможных сетевых связей.','Drones count as temporary nodes and increase the number of available network links.'],
+      ['minion_echo_drone_f3','Дрон • Стая','Drone • Pack','Дроны группируются вокруг ближайшей сферы и усиливают её следующий боевой цикл.','Drones cluster around the nearest Sphere and empower its next combat cycle.'],
+    ],
+    minion_relay_drone: [
+      ['minion_relay_drone_f1','Реле • Передача','Relay • Transfer','Дрон передаёт импульс по кратчайшему пути между двумя связанными сферами.','The drone transfers a pulse along the shortest path between two linked Spheres.'],
+      ['minion_relay_drone_f2','Реле • Расщепление','Relay • Split','Передаваемый импульс разделяется на два более слабых импульса на следующем узле.','The transferred pulse splits into two weaker pulses at the next node.'],
+      ['minion_relay_drone_f3','Реле • Перезапуск','Relay • Restart','После успешной передачи одна выбранная сфера мгновенно готовится к следующей атаке.','After a successful transfer, one linked Sphere is instantly readied for its next attack.'],
+    ],
+    minion_guardian: [
+      ['minion_guardian_f1','Страж • Щит','Guardian • Shield','Дрон-страж периодически создаёт дополнительный защитный заряд у ближайшей сферы.','The Guardian Drone periodically creates an extra protective charge for the nearest Sphere.'],
+      ['minion_guardian_f2','Страж • Перехват','Guardian • Intercept','Дрон-страж притягивает ближайшего врага к себе и отвлекает его от игрока.','The Guardian Drone draws the nearest enemy toward itself and away from the player.'],
+      ['minion_guardian_f3','Страж • Атака','Guardian • Assault','После защиты сферы дрон выпускает контратаку по ближайшей цели.','After protecting a Sphere, the drone counterattacks the nearest target.'],
+    ],
+  },
+  lightning: {
+    lightning_echo_storm: [
+      ['lightning_echo_storm_f1','Шторм • Прогон','Storm • Run','Разряд проходит через все Chain-сферы и усиливает каждый следующий перескок.','The discharge passes through all Chain Spheres, strengthening every subsequent jump.'],
+      ['lightning_echo_storm_f2','Шторм • Гром','Storm • Thunder','После прохождения последней Chain-сферы возникает громовой взрыв вокруг конечной цели.','After the last Chain Sphere, a thunder burst detonates around the final target.'],
+      ['lightning_echo_storm_f3','Шторм • Возврат','Storm • Return','После конечного удара часть заряда возвращается к первой Chain-сфере и создаёт второй слабый разряд.','After the final strike, part of the charge returns to the first Chain Sphere for a weaker second discharge.'],
+    ],
+    lightning_relay: [
+      ['lightning_relay_f1','Реле • Перескок','Relay • Leap','Разряд всегда выбирает связанный узел, сохраняя непрерывную цепь.','The discharge always selects a linked node, preserving a continuous chain.'],
+      ['lightning_relay_f2','Реле • Двойная дуга','Relay • Twin Arc','На каждом релейном переходе создаётся дополнительная короткая дуга к соседнему врагу.','Each relay transition creates a short extra arc to a nearby enemy.'],
+      ['lightning_relay_f3','Реле • Перенос заряда','Relay • Charge Transfer','Последний переход сохраняет заряд и сокращает время до следующего Chain-цикла.','The final transition preserves charge and shortens the time until the next Chain cycle.'],
+    ],
+    lightning_overload: [
+      ['lightning_overload_f1','Перегрузка • Финал','Overload • Finisher','Последний разряд серии получает мощный одиночный импульс по основной цели.','The final discharge of the sequence gains a powerful single-target burst.'],
+      ['lightning_overload_f2','Перегрузка • Разрядка','Overload • Discharge','Последний разряд взрывается и поражает всех врагов рядом с целью.','The final discharge detonates and strikes all enemies near the target.'],
+      ['lightning_overload_f3','Перегрузка • Перенапряжение','Overload • Overcurrent','После финального разряда одна Chain-сфера мгновенно запускает дополнительный укороченный разряд.','After the final discharge, one Chain Sphere immediately starts a shortened extra discharge.'],
+    ],
+  },
+  timestop: {
+    timestop_echo_phase: [
+      ['timestop_echo_phase_f1','Фаза • Залп','Phase • Volley','При запуске остановки все сферы дают немедленный залп, а первый удар после остановки создаёт дополнительный импульс.','When Time Stop starts, all Spheres fire an immediate volley and the first hit after the stop creates an extra pulse.'],
+      ['timestop_echo_phase_f2','Фаза • Окно','Phase • Window','Во время остановки сферы атакуют заметно чаще, но эффект сразу прекращается после возобновления времени.','During the stop, Spheres attack much more often, then the effect ends immediately when time resumes.'],
+      ['timestop_echo_phase_f3','Фаза • Шрам','Phase • Scar','Каждая поражённая во время остановки цель получает метку, усиливающую следующий удар по ней.','Each enemy hit during the stop receives a mark that empowers the next hit against it.'],
+    ],
+    timestop_closed_time: [
+      ['timestop_closed_time_f1','Замкнутое время • Кольцо','Closed Time • Ring','Зона остановки распространяется по активному кольцу связанных сфер.','The time-stop zone propagates through the active ring of linked Spheres.'],
+      ['timestop_closed_time_f2','Замкнутое время • Коридор','Closed Time • Corridor','Между связанными узлами возникает коридор остановленного времени, замедляющий входящих врагов.','A corridor of stopped time forms between linked nodes and slows enemies entering it.'],
+      ['timestop_closed_time_f3','Замкнутое время • Клетка','Closed Time • Cage','Связанные сферы замыкают вокруг группы врагов временную клетку, ограничивая выход.','Linked Spheres close a temporary time cage around a group, restricting escape.'],
+    ],
+    timestop_time_anchor: [
+      ['timestop_time_anchor_f1','Якорь • Фиксация','Anchor • Lock','Ближайшая сфера фиксирует несколько целей вокруг себя на всё время остановки.','The nearest Sphere locks several targets around it for the full stop duration.'],
+      ['timestop_time_anchor_f2','Якорь • Перенос','Anchor • Transfer','После снятия остановки зафиксированные цели передают остаток эффекта ближайшим врагам.','When the stop ends, anchored enemies pass the remaining effect to nearby enemies.'],
+      ['timestop_time_anchor_f3','Якорь • Разрыв','Anchor • Break','При снятии якоря зафиксированные цели получают короткий импульс и замедление.','When the anchor breaks, locked targets receive a short pulse and slow.'],
+    ],
+  },
+  darkritual: {
+    darkritual_blood_link: [
+      ['darkritual_blood_link_f1','Кровь • Передача','Blood • Transfer','Часть перегрузки передаётся ближайшей Standard-сфере и мгновенно ускоряет её атаку.','Part of the overload transfers to the nearest Standard Sphere and instantly accelerates its attack.'],
+      ['darkritual_blood_link_f2','Кровь • Цепь','Blood • Chain','Заряд проходит через связанные Standard-сферы, ослабевая на каждом следующем узле.','Charge travels through linked Standard Spheres, weakening at each subsequent node.'],
+      ['darkritual_blood_link_f3','Кровь • Возмездие','Blood • Vengeance','Если игрок получает урон от жертвы, ближайшая Standard-сфера выпускает ответный импульс.','If the player takes damage from the sacrifice, the nearest Standard Sphere releases a retaliatory pulse.'],
+    ],
+    darkritual_sacrifice: [
+      ['darkritual_sacrifice_f1','Жертва • Импульс','Sacrifice • Pulse','Потерянное HP превращается в дополнительный круговой импульс вокруг ближайшей сферы.','Lost HP becomes an extra radial pulse around the nearest Sphere.'],
+      ['darkritual_sacrifice_f2','Жертва • Шипы','Sacrifice • Thorns','Потеря HP создаёт короткие направленные шипы от ближайшей сферы к окружающим врагам.','HP sacrifice creates short directed spikes from the nearest Sphere toward nearby enemies.'],
+      ['darkritual_sacrifice_f3','Жертва • Регенерация','Sacrifice • Reprieve','После импульса следующая серия убийств частично возвращает потраченное HP.','After the pulse, the next kill streak partially refunds the HP spent.'],
+    ],
+    darkritual_void_pact: [
+      ['darkritual_void_pact_f1','Пустота • Низший предел','Void • Low Threshold','Чем ниже HP игрока, тем сильнее перегрузка, но только до безопасного предела.','The lower the player HP, the stronger the overload becomes, up to a safe threshold.'],
+      ['darkritual_void_pact_f2','Пустота • Последний шанс','Void • Last Stand','При критически низком HP перегрузка даёт краткую неуязвимость после активации.','At critical HP, Overload grants brief invulnerability after activation.'],
+      ['darkritual_void_pact_f3','Пустота • Экстремум','Void • Extremum','При низком HP перегрузка увеличивает урон и длится дольше, но не усиливает стоимость жертвы.','At low HP, Overload deals more damage and lasts longer without increasing the sacrifice cost.'],
+    ],
+  },
+};
+
+function buildAuthoredAbilityFinalVariants(): Record<string, Record<string, AbilityEvolutionChoice[]>> {
+  const out: Record<string, Record<string, AbilityEvolutionChoice[]>> = {};
+  for (const [ability, branches] of Object.entries(ABILITY_FINAL_VARIANT_SPECS)) {
+    out[ability] = {};
+    for (const [branch, specs] of Object.entries(branches)) {
+      out[ability][branch] = specs.map(([id, ru, en, descRu, descEn]) => ({
+        id,
+        name: { ru, en },
+        desc: { ru: descRu, en: descEn },
       }));
     }
   }
-  return result;
+  return out;
 }
 
-const ABILITY_FINAL_POOLS = buildAbilityFinalPools();
+const AUTHORED_ABILITY_FINAL_VARIANTS = buildAuthoredAbilityFinalVariants();
+
+
+for (const [ability, branches] of Object.entries(AUTHORED_ABILITY_FINAL_VARIANTS)) {
+  const progression = ABILITY_PROGRESSION[ability as AbilityType];
+  if (progression) progression.evolution7ByBranch = branches;
+}
+
+const ABILITY_FINAL_POOLS = Object.fromEntries(
+  Object.entries(ABILITY_PROGRESSION).map(([ability, progression]) => [
+    ability,
+    progression?.evolution7ByBranch ?? {},
+  ]),
+) as Record<string, Record<string, AbilityEvolutionChoice[]>>;
+
+export function getAbilityFinalArchetype(s:any, ability:AbilityType): string | null {
+  const selected = getAbilityBranchId(s, ability, 7);
+  if (!selected) return null;
+  const match = /_f([1-3])$/.exec(selected);
+  if (!match) return null;
+  const index = Number(match[1]) - 1;
+  return ABILITY_PROGRESSION[ability]?.evolution7?.[index]?.id ?? null;
+}
+
 
 export function getAbilityEvolutionPool(s:any, ability:AbilityType, stage:4|7):AbilityEvolutionChoice[] {
   const progression=ABILITY_PROGRESSION[ability];
@@ -1015,11 +1140,11 @@ const AUTHORED_FINAL_MODIFIERS: Partial<Record<SphereEvolutionId, Partial<Record
   orbital_dance:{0:{afterimage:2},1:{afterimage:3},2:{afterimage:3}},
   orbital_halo:{0:{resonant:1},1:{},2:{resonant:2}},
   orbital_blade:{0:{impact:2},1:{afterimage:2},2:{impact:2,afterimage:3}},
-  prism_split:{0:{multishot:2},1:{multishot:2},2:{multishot:2}},
+  prism_split:{0:{multishot:2},1:{multishot:1,pierce:2},2:{multishot:1,ricochet:1}},
   prism_spectrum:{0:{fire:1},1:{freeze:1},2:{poison:1}},
   prism_mirror:{0:{ricochet:1},1:{ricochet:2},2:{ricochet:2,echo:1}},
   gravity_well:{0:{anchor:2},1:{gravitic:2},2:{anchor:2,gravitic:2}},
-  gravity_tide:{0:{},1:{},2:{}},
+  gravity_tide:{0:{impact:2},1:{gravitic:2},2:{impact:1,gravitic:1}},
   gravity_collapse:{0:{execute:2},1:{gravitic:2},2:{execute:2,gravitic:2}},
   pulse_wave:{0:{impact:2},1:{freeze:1},2:{impact:2,freeze:1}},
   pulse_resonator:{0:{resonant:2},1:{resonant:2,impact:1},2:{resonant:2,shatter:1}},
