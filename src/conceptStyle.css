@@ -2943,3 +2943,29 @@ html, body, #root {
   .es-region-card-title-group h2{font-size:12px}
   .es-stage-select-main{padding:12px 9px 16px}
 }
+
+
+.es-main-continue{
+  width:min(420px,100%);
+  min-height:42px;
+  margin-top:8px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:7px 10px;
+  border:1px solid rgba(99,222,255,.42);
+  border-radius:7px;
+  background:linear-gradient(180deg,rgba(37,111,140,.28),rgba(8,27,42,.60));
+  color:#dffaff;
+  box-shadow:0 0 18px rgba(69,206,255,.08),inset 0 0 15px rgba(92,221,255,.04);
+  text-align:left;
+}
+.es-main-continue span{font-size:10px;font-weight:900;letter-spacing:.12em}
+.es-main-continue small{color:#6f97ad;font-size:7px;letter-spacing:.06em}
+.es-main-continue:hover{border-color:rgba(107,230,255,.68);background:linear-gradient(180deg,rgba(37,130,158,.36),rgba(10,35,53,.68))}
+@media(max-width:650px){
+  .es-main-continue{min-height:40px}
+  .es-main-continue span{font-size:9px}
+  .es-main-continue small{font-size:6px}
+}
