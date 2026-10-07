@@ -307,4 +307,7 @@ export function resetAll(): void {
   localStorage.removeItem('echo-sphere:region:resonance_basin:stabilized');
   localStorage.removeItem('echo-sphere:region:resonance_basin:challenges');
   localStorage.removeItem('echo-sphere:region:resonance_basin:endless');
+  localStorage.removeItem('echo-sphere:region:spectral_rift:stabilized');
+  localStorage.removeItem('echo-sphere:region:spectral_rift:challenges');
+  localStorage.removeItem('echo-sphere:region:spectral_rift:endless');
 }
