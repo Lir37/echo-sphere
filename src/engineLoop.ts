@@ -263,7 +263,7 @@ export function update(s: GameState, dt: number): void {
   updateMinions(s, dt);
 
   if (!s.tutorialMode) {
-    if(s.region&&regionSignal.spawnBoss){s.bossActive=true;s.enemies.push(spawnEnemy(s,true,regionSignal.finalBoss?'stella_warden':(s.region.majorBossesSpawned===1?'architect':'conductor')));playSound('boss')}
+    if(s.region&&regionSignal.spawnBoss){s.bossActive=true;s.enemies.push(spawnEnemy(s,true,regionSignal.bossType));playSound('boss')}
     // waves
     s.waveTimer -= dt;
     if (s.waveTimer <= 0 && s.waveEnemiesToSpawn > 0) {
