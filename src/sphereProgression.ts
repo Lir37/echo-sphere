@@ -1074,17 +1074,8 @@ export function getActiveSphereAbilitySynergies(s:any): SphereAbilitySynergy[] {
     sphereLevel(s, link.sphere) >= 7 &&
     s.player.sphereBranches?.[link.sphere] === link.sphereBranch &&
     (s.player.abilities?.[link.ability] || 0) >= 7 &&
-    getAbilityFinalArchetype(s, link.ability) === progressionFinalIdForSynergy(link.ability, link.abilityFinal)
+    getAbilityEvolutionChoice(s, link.ability, 7)?.id === link.abilityFinal
   );
-}
-
-function progressionFinalIdForSynergy(ability:AbilityType, authoredFinalId:string): string | null {
-  const match = /_f([1-3])$/.exec(authoredFinalId);
-  if (!match) return null;
-  const index = Number(match[1]) - 1;
-  return ABILITY_PROGRESSION[ability]?.evolution7ByBranch
-    ? authoredFinalId
-    : ABILITY_PROGRESSION[ability]?.evolution7?.[index]?.id ?? null;
 }
 
 export function hasActiveSphereAbilitySynergy(
