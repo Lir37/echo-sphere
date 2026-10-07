@@ -106,6 +106,7 @@ function Menu({ lang, t, difficulty, setDifficulty, onOpenMap, onShop, onCharact
 
 
       <main className="es-main-stage">
+        <div className="es-menu-atmosphere" aria-hidden="true"><span className="es-menu-comet comet-a" /><span className="es-menu-comet comet-b" /><span className="es-menu-comet comet-c" /></div>
         <section className="es-main-core es-menu-core">
           <div className="es-menu-orbit-system">
             <div className="es-menu-orbit es-menu-orbit-outer">
