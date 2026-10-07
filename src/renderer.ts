@@ -591,29 +591,42 @@ function drawRune(ctx: CanvasRenderingContext2D, rune: GameState['runes'][number
   drawCharacterHud(ctx, s, canvasW, canvasH);
 
 
-  // Compact world feedback banner.
-  // Boundary FX is rendered while the world transform is still active.
+  // Compact world feedback banner + boundary transition FX.
   if (s.flashText?.kind === 'boundary') {
     const progress = 1 - Math.min(1, s.flashText.life / 1.35);
+    const fade = 1 - progress;
     ctx.save();
     ctx.translate(s.player.pos.x, s.player.pos.y);
     ctx.globalCompositeOperation = 'lighter';
-    ctx.globalAlpha = 0.30 * (1 - progress);
+
+    // A short radial wave indicates the exact frame in which the player crosses a fold.
+    ctx.globalAlpha = 0.46 * fade;
     ctx.strokeStyle = s.flashText.color;
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 2.2;
     ctx.beginPath();
-    ctx.arc(0, 0, PLAYER_RADIUS + 10 + progress * 44, 0, Math.PI * 2);
+    ctx.arc(0, 0, PLAYER_RADIUS + 8 + progress * 58, 0, Math.PI * 2);
     ctx.stroke();
-    ctx.globalAlpha = 0.15 * (1 - progress);
+
+    ctx.globalAlpha = 0.20 * fade;
+    ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.arc(0, 0, PLAYER_RADIUS + 18 + progress * 82, 0, Math.PI * 2);
+    ctx.arc(0, 0, PLAYER_RADIUS + 20 + progress * 96, 0, Math.PI * 2);
     ctx.stroke();
-    for (let i = 0; i < 8; i++) {
-      const a = i * Math.PI / 4 + progress * 1.2;
-      const rr = PLAYER_RADIUS + 14 + progress * 52;
+
+    // Four moving "fold shards" make the transition legible without adding a new object.
+    for (let i = 0; i < 4; i++) {
+      const a = i * Math.PI / 2 + progress * 1.7;
+      const rr = PLAYER_RADIUS + 14 + progress * 62;
+      const size = 5 + progress * 4;
+      const x = Math.cos(a) * rr;
+      const y = Math.sin(a) * rr;
+      ctx.globalAlpha = 0.50 * fade;
       ctx.fillStyle = s.flashText.color;
       ctx.beginPath();
-      ctx.arc(Math.cos(a) * rr, Math.sin(a) * rr, 1.8, 0, Math.PI * 2);
+      ctx.moveTo(x + Math.cos(a) * size, y + Math.sin(a) * size);
+      ctx.lineTo(x - Math.sin(a) * size * .6, y + Math.cos(a) * size * .6);
+      ctx.lineTo(x + Math.sin(a) * size * .6, y - Math.cos(a) * size * .6);
+      ctx.closePath();
       ctx.fill();
     }
     ctx.restore();
@@ -621,10 +634,11 @@ function drawRune(ctx: CanvasRenderingContext2D, rune: GameState['runes'][number
 
   if (s.flashText) {
     ctx.save();
-    const maxTextWidth = Math.min(canvasW - 42, 250);
-    const fontSize = Math.max(10, Math.min(13, canvasW * 0.034));
+    const maxTextWidth = Math.min(canvasW - 44, 224);
+    const fontSize = Math.max(10, Math.min(12, canvasW * 0.032));
     ctx.font = `bold ${fontSize}px system-ui, sans-serif`;
     ctx.textAlign = 'center';
+
     const words = s.flashText.text.split(/\s+/);
     const lines: string[] = [];
     let current = '';
@@ -634,21 +648,23 @@ function drawRune(ctx: CanvasRenderingContext2D, rune: GameState['runes'][number
       else { lines.push(current); current = word; }
     }
     if (current) lines.push(current);
-    const displayLines = lines.length <= 2 ? lines : [lines[0], lines.slice(1).join(' ').slice(0, 38) + '…'];
+
+    const displayLines = lines.length <= 2 ? lines : [lines[0], lines.slice(1).join(' ').slice(0, 34) + '…'];
     const lineGap = fontSize + 2;
-    const boxHeight = displayLines.length * lineGap + 10;
-    const widest = Math.max(...displayLines.map((line) => ctx.measureText(line).width), 112);
-    const boxWidth = Math.min(canvasW - 24, Math.max(130, widest + 18));
-    const bannerY = Math.max(58, Math.min(canvasH * 0.15, 118));
-    const top = bannerY - boxHeight + 4;
-    ctx.globalAlpha = Math.min(1, Math.max(0, s.flashText.life / 0.85));
-    ctx.fillStyle = 'rgba(2,7,13,.90)';
+    const boxHeight = displayLines.length * lineGap + 9;
+    const widest = Math.max(...displayLines.map((line) => ctx.measureText(line).width), 104);
+    const boxWidth = Math.min(canvasW - 22, Math.max(122, widest + 16));
+    const bannerY = Math.max(58, Math.min(canvasH * 0.145, 112));
+    const top = bannerY - boxHeight + 3;
+
+    ctx.globalAlpha = Math.min(1, Math.max(0, s.flashText.life / 0.82));
+    ctx.fillStyle = 'rgba(2,7,13,.92)';
     ctx.fillRect(canvasW / 2 - boxWidth / 2, top, boxWidth, boxHeight);
     ctx.strokeStyle = s.flashText.color;
     ctx.lineWidth = 1;
     ctx.strokeRect(canvasW / 2 - boxWidth / 2, top, boxWidth, boxHeight);
     ctx.fillStyle = s.flashText.color;
-    displayLines.forEach((line, index) => ctx.fillText(line, canvasW / 2, top + 13 + index * lineGap));
+    displayLines.forEach((line, index) => ctx.fillText(line, canvasW / 2, top + 12 + index * lineGap));
     ctx.restore();
   }
 
