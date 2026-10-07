@@ -2371,3 +2371,63 @@ VALIDATION STATUS:
 ======================================================================
 END ABILITY MUTATION II / SPHERE FINAL VARIABILITY CORRECTION
 ======================================================================
+
+
+======================================================================
+2026-10-07 — FINAL VALIDATION / MUTATION DEPTH CYCLE
+======================================================================
+
+FINAL IMPLEMENTATION HEAD BEFORE THIS DOCUMENTATION COMMIT:
+0ff0416f011c6c37441297b509378ec054bbfed3
+
+CI:
+- Workflow #1840: SUCCESS.
+- Typecheck: SUCCESS.
+- Unit tests: SUCCESS.
+- Gameplay coverage audit: SUCCESS.
+- Lint: SUCCESS.
+- Web build: SUCCESS.
+- Playwright rendered gameplay/visual QA: SUCCESS.
+- Debug APK build: SUCCESS.
+- APK artifact upload: SUCCESS.
+
+ABILITY MUTATION II:
+- All 8 active Abilities now expose 9 authored Level VII choices:
+  3 Mutation II finals for each of 3 Mutation I branches.
+- Total authored Ability Level VII choices: 72.
+- Final IDs are unique and branch-local.
+- Sphere→Ability synergy now targets an exact authored Ability Level VII
+  final ID rather than only the Ability ID.
+- All 30 Sphere Mutation I branches therefore point to 30 distinct Ability
+  Level VII final IDs within the synergy matrix.
+
+SPHERE MUTATION II:
+- All 10 Spheres retain 3 Mutation I branches and 3 Level VII finals per
+  branch: 90 final choices.
+- Weak same-effect variants were reauthored into behavioral alternatives,
+  including Standard Swarm, Prism Split, Gravity Tide, Aura Overgrowth,
+  Sniper Assassin, Shotgun Hail, Chain Storm, Aura Gravity, Orbital Dance
+  and Prism Mirror.
+- The corrected finals now distinguish targeting, projectile pattern,
+  control mode, network interaction, temporal behavior, healing/conditional
+  effects or attack synchronization instead of relying only on larger
+  numeric values.
+
+SHIELD / TELEPORT:
+- Shield Mutation I Bastion now has concrete defensive runtime behavior:
+  blocked hits repel nearby enemies, and while the active shield window
+  remains after charges are exhausted, incoming damage is reduced.
+- Teleport progression now preserves the Level III long-range targeting:
+  at level 3+ it prefers the nearest Sphere outside the close-range band
+  (220–700), with nearest-Sphere fallback when no distant target exists.
+- CI test coverage locks both contracts.
+
+PLAYER CHECK:
+- APK is built and uploaded by CI.
+- Manual device/feel validation of Bastion and Teleport still belongs to the
+  product-owner PlayerCheck step; automated CI validates structure/runtime
+  contracts, not subjective gameplay feel.
+
+======================================================================
+END FINAL VALIDATION / MUTATION DEPTH CYCLE
+======================================================================
