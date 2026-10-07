@@ -68,12 +68,14 @@ jobs:
           path: dist/
           retention-days: 14
 
-      - name: Upload rendered gameplay screenshot
+      - name: Upload rendered menu, stage selector and gameplay screenshots
         uses: actions/upload-artifact@v5
         if: always()
         with:
           name: echo-sphere-render-screenshot
           path: |
+            test-results/echo-sphere-menu.png
+            test-results/echo-sphere-stage-select.png
             test-results/echo-sphere-render.png
             test-results/render-metrics.json
           retention-days: 30

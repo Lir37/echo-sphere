@@ -1,28 +1,50 @@
 import { test, expect } from '@playwright/test';
 import fs from 'node:fs/promises';
 
-test('capture the actual rendered game after navigating the Echo Map', async ({ page }, testInfo) => {
+test('capture the actual rendered menu, stage selector and game', async ({ page }, testInfo) => {
   const consoleErrors = [];
   page.on('console', (message) => {
     if (message.type() === 'error') consoleErrors.push(message.text());
   });
-
   const pageErrors = [];
   page.on('pageerror', (error) => pageErrors.push(error.message));
 
   await page.goto('/', { waitUntil: 'networkidle' });
 
-  // CI runs with an English browser locale, but support both translations so
-  // the test follows the real UI rather than bypassing the menu.
-  const mapEntry = page.locator('button.es-main-map-entry').first();
-  await expect(mapEntry).toBeVisible();
-  await mapEntry.click();
+  const menu = page.locator('.es-main-menu-legacy');
+  await expect(menu).toBeVisible();
+  const menuEntry = page.locator('button.es-main-map-entry').first();
+  await expect(menuEntry).toBeVisible();
 
-  const regionNode = page.locator('button.es-map-overview-body.is-available').first();
-  await expect(regionNode).toBeVisible();
-  await regionNode.click();
-  await expect(page.locator('.es-map-screen.is-region-open')).toBeVisible();
-  await page.locator('button.es-map-focused-body').click();
+  await fs.mkdir('test-results', { recursive: true });
+  await page.screenshot({
+    path: 'test-results/echo-sphere-menu.png',
+    fullPage: false,
+  });
+  const menuStat = await fs.stat('test-results/echo-sphere-menu.png');
+  expect(menuStat.size).toBeGreaterThan(10_000);
+  await testInfo.attach('echo-sphere-menu', {
+    path: 'test-results/echo-sphere-menu.png',
+    contentType: 'image/png',
+  });
+
+  await menuEntry.click();
+
+  const stageSelector = page.locator('.es-stage-select');
+  await expect(stageSelector).toBeVisible();
+  await expect(page.locator('.es-region-card.is-available').first()).toBeVisible();
+  await page.screenshot({
+    path: 'test-results/echo-sphere-stage-select.png',
+    fullPage: false,
+  });
+  const stageStat = await fs.stat('test-results/echo-sphere-stage-select.png');
+  expect(stageStat.size).toBeGreaterThan(10_000);
+  await testInfo.attach('echo-sphere-stage-select', {
+    path: 'test-results/echo-sphere-stage-select.png',
+    contentType: 'image/png',
+  });
+
+  await page.locator('.es-region-card.is-available .es-region-primary-run').first().click();
 
   const canvas = page.locator('canvas').first();
   await expect(canvas).toBeVisible();
@@ -33,7 +55,6 @@ test('capture the actual rendered game after navigating the Echo Map', async ({ 
   await followButton.dispatchEvent('pointerdown');
   await expect(followButton).toHaveAttribute('aria-pressed', 'true');
 
-  // Give the game loop five seconds to spawn/render actual gameplay.
   await page.waitForTimeout(5_000);
 
   const renderMetrics = await canvas.evaluate((element) => {
@@ -53,12 +74,10 @@ test('capture the actual rendered game after navigating the Echo Map', async ({ 
     };
   });
 
-  await fs.mkdir('test-results', { recursive: true });
   await page.screenshot({
     path: 'test-results/echo-sphere-render.png',
     fullPage: false,
   });
-
   const screenshotStat = await fs.stat('test-results/echo-sphere-render.png');
   renderMetrics.screenshotBytes = screenshotStat.size;
   renderMetrics.renderActive = renderMetrics.renderActive && screenshotStat.size > 10_000;
@@ -68,7 +87,6 @@ test('capture the actual rendered game after navigating the Echo Map', async ({ 
     JSON.stringify({ renderMetrics, consoleErrors, pageErrors }, null, 2),
     'utf8',
   );
-
   await testInfo.attach('echo-sphere-render', {
     path: 'test-results/echo-sphere-render.png',
     contentType: 'image/png',
