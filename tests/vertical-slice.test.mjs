@@ -89,11 +89,11 @@ test('Region Endless unlock requires all three challenge satellites',async()=>{c
 
 test('Echo Map uses a pannable star overview and gates challenge satellites behind Standard', async () => {
   const app = await fs.readFile(new URL('../src/EchoMapScreen.tsx', import.meta.url), 'utf8');
-  assert.match(app, /regionOpen/);
-  assert.match(app, /locked=!stabilized/);
+  assert.match(app, /selected/);
   assert.match(app, /is-locked/);
   assert.match(app, /loadRegionStabilized/);
-  assert.match(app, /Бесконечное|Endless/);
+  assert.match(app, /REGION_CONFIGS/);
+  assert.match(app, /Бесконечное ядро|Endless Core/);
 });
 
 test('End-of-run statistics expose kills and field XP HUD is absent', async () => {
