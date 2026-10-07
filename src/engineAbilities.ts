@@ -2,13 +2,13 @@ import { playSound } from './audio';
 import type { AbilityType } from './gameData';
 import type { GameState, SphereEntity, Vec } from './engineTypes';
 import {
-  dist, rand, getNetworkFrame, getAbilityBranchId, getAbilityFinalArchetype, getNearestSphere
+  dist, rand, getNetworkFrame, getAbilityBranchId, getNearestSphere
 } from './engineRuntime';
 import {
   dealDamageToEnemy, getCooldownMult, getVampirePercent, emitSpherePulse
 } from './engineCombat';
 import { getLinkedNodeIndexes } from './network';
-import { getActiveSphereAbilitySynergies, getAbilityEvolutionChoice } from './sphereProgression';
+import { getActiveSphereAbilitySynergies, getAbilityEvolutionChoice, getAbilityFinalArchetype } from './sphereProgression';
 import { chargeResonance } from './engineResonance';
 import { applyCoreDisplacement, isFormationFollowMovementAbility } from './formationFollow.ts';
 
