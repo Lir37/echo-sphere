@@ -146,15 +146,7 @@ function Menu({ lang, t, difficulty, setDifficulty, onOpenMap, onShop, onCharact
           </div>}
         </section>
       </main>
-      <nav className="es-main-nav">
-        <button onClick={onCharacters}><UserRound size={16} /><span>{lang === 'ru' ? 'Персонажи' : 'Characters'}</span></button>
-        <button onClick={onShop}><Store size={16} /><span>{t('shop')}</span></button>
-        <button onClick={onLeader}><Trophy size={16} /><span>{t('leaderboard')}</span></button>
-        <button onClick={onAchievements}><Award size={16} /><span>{t('achievements')}</span></button>
-        <button onClick={onKnowledge} className="es-knowledge-nav"><BookOpen size={16} /><span>{lang === 'ru' ? 'Архив Эха' : 'Echo Archive'}</span></button>
-        <button onClick={onSettings}><Settings size={16} /><span>{t('settings')}</span></button>
-      </nav>
-    </div>
+/div>
   );
 }
 
