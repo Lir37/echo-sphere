@@ -19,7 +19,7 @@ test('Sphere progression and synergy coverage are complete', () => {
   const progression = read('src/sphereProgression.ts');
   const branches = [...progression.matchAll(/br\('([^']+)'/g)].map((m) => m[1]);
   const finals = [...progression.matchAll(/f\('([^']+)'/g)].map((m) => m[1]);
-  const synergies = [...progression.matchAll(/\{id:'([^']+)',sphere:'([^']+)',sphereBranch:'([^']+)',ability:'([^']+)'/g)];
+  const synergies = [...progression.matchAll(/\{id:'([^']+)',sphere:'([^']+)',sphereBranch:'([^']+)',(?:abilityFinal:'[^']+',)?ability:'([^']+)'/g)];
   assert.equal(new Set(branches).size, 30);
   assert.equal(new Set(finals).size, 90);
   assert.equal(synergies.length, 30);
