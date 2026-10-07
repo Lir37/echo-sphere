@@ -28,11 +28,13 @@ export default function EchoMapScreen({
   difficulty,
   onStartRun,
   onBack,
+  onCharacters: _onCharacters,
 }: {
   lang: Lang;
   difficulty: Difficulty;
   onStartRun: StartRun;
   onBack: () => void;
+  onCharacters?: () => void;
 }) {
   const [focused, setFocused] = useState(false);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
