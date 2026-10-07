@@ -1971,3 +1971,23 @@ Endless remains locked until all three challenge contracts are completed.
 ======================================================================
 END PLAYER-VIEW POLISH / ECHO MAP REWORK
 ======================================================================
+
+======================================================================
+2026-10-07 — FINAL PLAYER-VIEW POLISH CORRECTION
+======================================================================
+
+[DONE]
+- Comet ambience is now mounted in the actual Main Menu DOM, so the visual
+  effect is present rather than being CSS-only.
+- Menu Core rotation contract is explicitly Y-axis rotation with a slight
+  X-axis tilt; the tilt is not a Z-axis spin.
+- Test expectations were synchronized with the current draggable star-map
+  selectors and pointer handlers.
+
+[UNCHANGED]
+- Region 1 gameplay systems.
+- 2.5D/Canvas gameplay renderer.
+- Standard -> Challenges -> Endless progression.
+======================================================================
+END FINAL PLAYER-VIEW POLISH CORRECTION
+======================================================================
