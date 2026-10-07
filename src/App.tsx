@@ -1060,28 +1060,27 @@ function Hud({ lang, t, st }: { lang: Lang; t: (k: TranslationKey) => string; st
         </div>      </div>
 
       <div className="es-hud-panel es-top-right absolute top-3 right-3 z-30 pointer-events-none">
-        <div className="es-hud-topline">
-          <div className="es-hud-timer">
+        <div className="es-hud-right-content">
+          <RadarHud st={st} />
+          <div className="es-hud-right-timer">
             <div className="es-time-hud-line">
               <span className="es-time-hud-dot" />
               <span className="es-time-hud-value">{timer}</span>
               <span className="es-time-hud-dot" />
             </div>
           </div>
-          <RadarHud st={st} />
           {st.region && (() => {
             const pocket = REGION_POCKETS.find(item => item.id === st.region!.pocketId) || REGION_POCKETS[0];
             const modeLabel = st.region!.mode === 'stabilization' ? (lang === 'ru' ? 'СТАБИЛИЗАЦИЯ' : 'STABILIZATION') : (lang === 'ru' ? 'БЕСКОНЕЧНЫЙ' : 'ENDLESS');
             return <div className="es-hud-region">
-              <div className="text-[8px] uppercase tracking-[.12em] text-[#55e6c1] font-bold">{lang === 'ru' ? 'РЕЗОНАНСНЫЙ БАССЕЙН' : 'RESONANCE BASIN'}</div>
-              <div className="text-[9px] font-bold text-[#dcecff]">{st.region!.phaseName[lang]}</div>
-              <div className="text-[8px] text-[#7f9bb8]">{pocket.name[lang]} · {modeLabel}</div>
-              <div className="mt-0.5 text-[7px] leading-tight text-[#91adc8]">{st.region!.mode === 'stabilization' ? (lang === 'ru' ? `ЦЕЛЬ: 30:00 + 3 стража · ИСПЫТАНИЯ ${getRegionChallengeProgress()}/3` : `GOAL: 30:00 + 3 wardens · CHALLENGES ${getRegionChallengeProgress()}/3`) : (lang === 'ru' ? 'ЦЕЛЬ: пережить нарастающее давление' : 'GOAL: survive escalating pressure')}</div>
+              <div className="es-hud-region-title">{lang === 'ru' ? 'РЕЗОНАНСНЫЙ БАССЕЙН' : 'RESONANCE BASIN'}</div>
+              <div className="es-hud-region-phase">{st.region!.phaseName[lang]}</div>
+              <div className="es-hud-region-pocket">{pocket.name[lang]} · {modeLabel}</div>
             </div>;
           })()}
-
         </div>
-        {activeBoss && <div className="es-boss-telemetry mt-2">{t('bossWave')}</div>}
+        {activeBoss && <div className="es-boss-telemetry mt-1.5">{t('bossWave')}</div>}
+      </div>
       </div>
     </>
   );
