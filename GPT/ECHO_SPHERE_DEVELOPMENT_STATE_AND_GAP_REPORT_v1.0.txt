@@ -2158,3 +2158,50 @@ OPEN:
 ======================================================================
 END MAIN MENU CORE / BACKDROP BLUR CORRECTION
 ======================================================================
+
+
+======================================================================
+2026-10-07 — MAIN MENU RESTORE / PRACTICAL REGION SELECTOR
+======================================================================
+
+CURRENT CODE HEAD BEFORE DOCUMENTATION:
+9bf138dbe3440db13086180f061f5e3e4d124476
+
+[DONE]
+- Restored the proven practical Main Menu composition instead of continuing
+  the experimental orbital menu presentation.
+- Main Menu again uses a centered Core presentation, explicit "Regions" entry,
+  selected Character/loadout, difficulty controls, ID field and bottom utility
+  navigation.
+- Added an explicit legacy-menu CSS scope so later visual experiments cannot
+  silently reapply the abandoned spherical button treatment.
+- Replaced the experimental pannable/orbital Echo Map presentation with a
+  conventional mobile Region/Stage Selector.
+- Region cards now present the base 30-minute Stabilization run, three named
+  Challenge Contracts and Region Endless in an ordinary readable hierarchy.
+- Region unlocks, Stabilization persistence, challenge completion and Endless
+  gating remain backed by the existing Region runtime state. No combat/Region
+  simulation rules were changed.
+- Playwright now renders and captures Main Menu, Region Selector and gameplay
+  separately in CI, making player-view regressions visible in the CI artifact.
+
+DESIGN DECISION:
+The Main Menu and stage selector are intentionally practical UI rather than
+complex simulated 3D scenes. ECHO SPHERE's visual identity remains in the
+2.5D Core, battlefield, Region styling and technical UI language.
+
+VALIDATION:
+- CI for commit 9bf138dbe3440db13086180f061f5e3e4d124476: SUCCESS.
+- Unit tests: PASS.
+- Typecheck / assets / gameplay audit / lint: PASS.
+- Web build: PASS.
+- Playwright: PASS, including menu + stage-selector + gameplay render captures.
+- Capacitor sync: PASS.
+- Debug APK build/upload: PASS.
+
+OPEN:
+- Human APK PlayerCheck of Main Menu + Region Selector remains the device
+  acceptance gate.
+======================================================================
+END MAIN MENU RESTORE / PRACTICAL REGION SELECTOR
+======================================================================
