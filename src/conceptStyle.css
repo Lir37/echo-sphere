@@ -2712,3 +2712,20 @@ html, body, #root {
   .es-menu-orbit-item{width:31px!important;height:31px!important}
   .es-menu-glyph{transform:scale(.78)!important}
 }
+
+
+/* PLAYER-VIEW 2 / clean volumetric Core */
+.es-main-menu{background:#02050c!important}
+.es-main-map-entry{width:132px!important;height:132px!important;z-index:10!important}
+.es-main-core-art{width:100%!important;height:100%!important;filter:none!important;overflow:visible!important;transform:none!important}
+.es-core-halo,.es-core-surface,.es-core-highlight{display:none!important}
+.es-main-core-art::after{display:none!important}
+.es-core-body{
+  inset:8%!important;border-radius:50%!important;transform:none!important;overflow:hidden!important;
+  background:radial-gradient(circle at 29% 24%,#ffffff 0 4%,#e9fdff 8%,#8cecff 15%,#52cfff 24%,#2d78b0 39%,#16405f 55%,#082033 68%,#020912 84%,#01040a 100%)!important;
+  border:1px solid rgba(186,240,255,.24)!important;
+  box-shadow:0 0 18px rgba(75,210,255,.38),0 0 38px rgba(75,150,255,.14),inset 9px 7px 15px rgba(255,255,255,.10),inset -13px -16px 22px rgba(0,0,0,.48)!important;
+  animation:es-core-depth-breathe 4.8s ease-in-out infinite!important;
+}
+.es-core-body::before{inset:7%!important;border-radius:50%!important;background:radial-gradient(ellipse at 31% 23%,rgba(255,255,255,.54) 0 8%,rgba(214,250,255,.20) 18%,transparent 44%)!important;opacity:1!important;mix-blend-mode:screen!important}
+.es-core-body::after{inset:-3%!important;border-radius:50%!important;background:radial-gradient(ellipse at 76% 78%,rgba(0,0,0,.60) 0 18%,rgba(0,0,0,.26) 38%,transparent 67%)!important}

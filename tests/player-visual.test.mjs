@@ -22,3 +22,8 @@ assert.match(conceptStyle, /\.es-menu-orbit-item::before,\s*\.es-menu-orbit-item
 assert.match(conceptStyle, /\.es-core-body\{[^}]*transform:none!important/, 'menu Core must remain geometrically centered');
 assert.match(renderer, /const boundaryX = canvasW \/ 2 \+ \(s\.player\.pos\.x - s\.camera\.x\) \+ shakeX/, 'boundary FX must be anchored to the player in screen space');
 
+
+assert.doesNotMatch(conceptStyle, /\.es-main-core-art\{[^}]*filter:drop-shadow/, 'menu Core must not use a broad compositor filter');
+assert.match(conceptStyle, /\.es-main-menu\{background:#02050c!important/, 'menu background must not add a centered haze');
+assert.match(conceptStyle, /\.es-core-halo,\.es-core-surface,\.es-core-highlight\{display:none!important/, 'obsolete Core haze/surface layers must stay hidden');
+assert.match(conceptStyle, /\.es-core-body\{[^}]*inset:8%!important/, 'Core body should occupy the centered Core container evenly');
