@@ -1,13 +1,46 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
-const { createInitialState } = await import('../src/engineState.ts');
-const {
-  serializeRunSnapshot,
-  restoreRunSnapshot,
-} = await import('../src/runPersistence.ts');
+const { serializeRunSnapshot, restoreRunSnapshot } = await import('../src/runPersistence.ts');
 
-const state = createInitialState({ gold: 0, upgrades: {} }, 'Tester', 'normal', 1234);
+const state = {
+  player: {
+    hunterMarkTarget: null,
+    hunterMarkTimer: 12,
+    hunterHitCount: 3,
+    hunterHuntTarget: null,
+    hunterHuntTimer: 8,
+    engineerRelaySource: null,
+    engineerRelayTimer: 5,
+    voidPhantomSource: null,
+  },
+  spheres: [],
+  enemies: [],
+  xpOrbs: [],
+  healthPacks: [],
+  particles: [],
+  fireTrails: [],
+  minions: [],
+  lightnings: [],
+  wave: 4,
+  waveTimer: 2,
+  waveEnemiesToSpawn: 3,
+  waveSpawnTimer: 1,
+  bossActive: false,
+  bossDefeated: 1,
+  time: 137.8,
+  paused: false,
+  gameOver: false,
+  pendingUpgrade: null,
+  pendingArtifact: null,
+  pendingStella: false,
+  sphereProjectiles: [],
+  keys: { ArrowUp: true },
+  mouse: { x: 4, y: 5, down: true },
+  camera: { x: 0, y: 0 },
+  stats: { time: 137.8, wave: 4, enemiesKilled: 20, goldEarned: 0 },
+  region: {},
+};
 state.time = 137.8;
 state.stats.time = state.time;
 state.paused = false;
