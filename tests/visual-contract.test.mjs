@@ -278,11 +278,11 @@ test('Level 7 has concrete descriptions for all 90 branch/final variants',()=>{
   // Level VII descriptions are gameplay-driven. Core/Cascade/Apex remains
   // only the presentation-layer expansion vocabulary in mutationVisual.ts.
   assert.match(p,/Каждое третье попадание создаёт усиленный импульс вокруг цели/);
-  assert.match(p,/При попадании с вероятностью 35% выпускается 1 осколок/);
+  assert.match(p,/После попадания выпускает один осколок, который ищет ближайшую другую цель/);
   assert.match(p,/Призма получает огненный статус для боевых реакций/);
 });
 
-test('Level 7 mutation adds an explicit additive expansion for Core/Cascade/Apex',()=>{
+test('Level 7 mutation adds an explicit additive expansion for Core/Cascade/Apex',()=>{Cascade/Apex',()=>{
   const m=read('src/spheres/mutationVisual.ts');
   assert.match(m,/function drawFinalExpansion/);
   assert.match(m,/type FinalExpansionMode = 'core' \| 'cascade' \| 'apex'/);
