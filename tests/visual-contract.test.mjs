@@ -282,7 +282,7 @@ test('Level 7 has concrete descriptions for all 90 branch/final variants',()=>{
   assert.match(p,/Призма получает огненный статус для боевых реакций/);
 });
 
-test('Level 7 mutation adds an explicit additive expansion for Core/Cascade/Apex',()=>{Cascade/Apex',()=>{
+test('Level 7 mutation adds an explicit additive expansion for Core/Cascade/Apex',()=>{
   const m=read('src/spheres/mutationVisual.ts');
   assert.match(m,/function drawFinalExpansion/);
   assert.match(m,/type FinalExpansionMode = 'core' \| 'cascade' \| 'apex'/);
