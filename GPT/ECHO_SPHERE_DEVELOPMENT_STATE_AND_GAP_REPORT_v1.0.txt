@@ -2056,3 +2056,58 @@ REGION 2 STANDARD -> REGION 2 CHALLENGES -> REGION 2 ENDLESS.
 END REGION 2 / PLAYER-VIEW CORRECTION PASS
 ======================================================================
 
+
+
+======================================================================
+2026-10-07 — APK FEEDBACK / PLAYER-VIEW CORRECTION
+======================================================================
+
+BASELINE:
+bf4a1d6aea0f4a1e0a2293c75240854c9d0b7f30
+
+HUMAN APK OBSERVATION:
+- Main Menu showed a diffuse translucent circular veil around the Core that
+  visually masked nearby orbit controls.
+- The central Core read as a skewed/flattened object rather than a clean
+  volumetric sphere.
+- Menu controls had become spherical "orb" buttons; this reduced the earlier
+  technical icon/module readability.
+- Pocket transition FX appeared away from the player because the boundary FX
+  was rendered after leaving world-space transform while still using world
+  coordinates.
+
+[DONE]
+- Removed the diffuse Core halo from the Main Menu.
+- Kept the Core as a centered, stable 2.5D volumetric sphere without whole-body
+  Y-axis skew/rotation; retained layered shading for depth.
+- Restored small technical menu modules with square corners and glyphs instead
+  of spherical button shells.
+- Disabled the extra spherical pseudo-shell and highlight layers on menu
+  controls; orbit container no longer clips controls.
+- Reauthored Region Pocket brief text to use a more atmospheric short phrase
+  plus an explicit enemy-role cue, preserving gameplay readability.
+- Corrected boundary transition anchoring: the effect is now positioned from
+  the player's world position converted into current screen space, including
+  camera displacement and screen shake.
+
+[VALIDATION]
+- CI for implementation commit c49e061673f72f36d1edce23fb5aee3735052319:
+  SUCCESS.
+- Typecheck: PASS.
+- Asset check: PASS.
+- Unit tests: PASS.
+- Gameplay coverage: PASS.
+- Lint: PASS.
+- Web build: PASS.
+- Playwright rendered gameplay QA: PASS.
+- Capacitor sync: PASS.
+- Debug APK build/upload: PASS.
+
+[OPEN]
+- Human APK PlayerCheck of the corrected Main Menu and Region Pocket transition
+  visual remains required. No further visual rewrite should be made without a
+  concrete device observation.
+
+======================================================================
+END APK FEEDBACK / PLAYER-VIEW CORRECTION
+======================================================================
