@@ -2,7 +2,7 @@ import { playSound } from './audio';
 import type { AbilityType } from './gameData';
 import type { GameState, SphereEntity, Vec } from './engineTypes';
 import {
-  dist, rand, getNetworkFrame, getAbilityBranchId, getNearestSphere
+  dist, rand, getNetworkFrame, getAbilityBranchId, getAbilityFinalArchetype, getNearestSphere
 } from './engineRuntime';
 import {
   dealDamageToEnemy, getCooldownMult, getVampirePercent, emitSpherePulse
@@ -286,7 +286,7 @@ function activateBlast(s: GameState): void {
   const baseDamage = 30 + (lvl - 1) * 10;
   const radius = 125 + lvl * 12;
   const branch = getAbilityBranchId(s, 'blast', 4);
-  const final = getAbilityBranchId(s, 'blast', 7);
+  const final = getAbilityFinalArchetype(s, 'blast');
 
   if (spheres.length === 0) {
     for (const e of s.enemies) {
@@ -358,7 +358,7 @@ function activateShield(s: GameState): void {
   const nearby = s.spheres.filter((sphere) => sphere.alive && dist(sphere.pos, s.player.pos) <= 260).length;
   const networkBonus = lvl >= 3 ? Math.min(2, Math.floor(nearby / 2)) : lvl >= 2 ? Math.min(1, Math.floor(nearby / 2)) : 0;
   const branch = getAbilityBranchId(s, 'shield', 4);
-  const final = getAbilityBranchId(s, 'shield', 7);
+  const final = getAbilityFinalArchetype(s, 'shield');
   const branchBonus = branch === 'shield_echo_guard' ? Math.min(2, Math.floor(nearby / 2)) : 0;
   const bastionBonus = branch === 'shield_bastion' ? 1 : 0;
   const networkState = final === 'shield_network_guard' ? getNetworkFrame(s) : null;
@@ -419,7 +419,7 @@ function doTeleportTo(s: GameState, target: Vec): void {
     s.particles.push({ pos: { ...s.player.pos }, vel: { x: rand(s,-140, 140), y: rand(s,-140, 140) }, life: 0.45, maxLife: 0.45, color: '#5a8c4a', size: 3 });
   }
   const branch = getAbilityBranchId(s, 'teleport', 4);
-  const final = getAbilityBranchId(s, 'teleport', 7);
+  const final = getAbilityFinalArchetype(s, 'teleport');
   if (branch === 'teleport_phase' || final === 'teleport_phase_break') {
     s.player.invulnerableTimer = Math.max(s.player.invulnerableTimer, 0.8);
   }
@@ -450,10 +450,24 @@ function activateTeleport(s: GameState): void {
   s.player.teleportCooldown = Math.max(5, cd);
 
   const branch = getAbilityBranchId(s, 'teleport', 4);
-  const final = getAbilityBranchId(s, 'teleport', 7);
-  const targetSphere = final === 'teleport_hunter_beacon' || branch === 'teleport_echo_jump'
-    ? getNearestSphere(s, s.player.pos)
-    : getNearestSphere(s, s.player.pos, (sphere) => dist(sphere.pos, s.player.pos) <= 700);
+  const final = getAbilityFinalArchetype(s, 'teleport');
+  // Level III explicitly unlocks long-range Sphere targeting. Mutation I must
+  // extend that behavior rather than silently reverting to the nearest Sphere.
+  const targetSphere = (() => {
+    const origin = s.player.pos;
+    if (lvl >= 3) {
+      const longTarget = getNearestSphere(
+        s,
+        origin,
+        (sphere) => {
+          const d = dist(sphere.pos, origin);
+          return d >= 220 && d <= 700;
+        },
+      );
+      return longTarget ?? getNearestSphere(s, origin);
+    }
+    return getNearestSphere(s, origin);
+  })();
 
   if (targetSphere) {
     const target = { ...targetSphere.pos };
@@ -493,7 +507,7 @@ function activateFireTrail(s: GameState): void {
   s.player.fireTrailCooldown = 25 * getCooldownMult(s);
   s.player.fireTrailTimer = 5 + Math.min(3, lvl - 1);
   const branch = getAbilityBranchId(s, 'firetrail', 4);
-  const final = getAbilityBranchId(s, 'firetrail', 7);
+  const final = getAbilityFinalArchetype(s, 'firetrail');
   const fireAligned = s.spheres.filter((sphere) => sphere.alive && s.player.sphereMods.fire > 0);
   for (const sphere of fireAligned) {
     sphere.attackTimer = Math.max(0, sphere.attackTimer - 0.5);
@@ -551,7 +565,7 @@ function activateMinion(s: GameState): void {
   s.player.minionCooldown = 30 * getCooldownMult(s);
   const count = 1 + Math.floor((lvl - 1) / 2);
   const branch = getAbilityBranchId(s, 'minion', 4);
-  const final = getAbilityBranchId(s, 'minion', 7);
+  const final = getAbilityFinalArchetype(s, 'minion');
   const relayMode = branch === 'minion_relay_drone' || final === 'minion_network_nodes';
   const liveSpheres = s.spheres.filter((sphere) => sphere.alive);
 
@@ -661,7 +675,7 @@ function activateLightning(s: GameState): void {
   if (lvl === 0 || s.player.lightningCooldown > 0) return;
   s.player.lightningCooldown = 20 * getCooldownMult(s);
   const branch = getAbilityBranchId(s, 'lightning', 4);
-  const final = getAbilityBranchId(s, 'lightning', 7);
+  const final = getAbilityFinalArchetype(s, 'lightning');
   const networkSpheres = s.spheres.filter((sphere) => sphere.alive);
   let ordered = [...networkSpheres].sort((a, b) => dist(a.pos, s.player.pos) - dist(b.pos, s.player.pos));
   const networkState = getNetworkFrame(s);
@@ -787,7 +801,7 @@ function activateTimeStop(s: GameState): void {
   s.player.timestopTimer = 3 + Math.min(2, lvl - 1);
   const nearest = getNearestSphere(s, s.player.pos);
   const branch = getAbilityBranchId(s, 'timestop', 4);
-  const final = getAbilityBranchId(s, 'timestop', 7);
+  const final = getAbilityFinalArchetype(s, 'timestop');
   const radius = nearest ? 520 : Infinity;
   for (const e of s.enemies) {
     if (e.hp <= 0) continue;
@@ -845,7 +859,7 @@ function activateDarkRitual(s: GameState): void {
   s.player.hp -= hpCost;
   s.player.overloadTimer = 5 + Math.min(3, lvl - 1);
   const branch = getAbilityBranchId(s, 'darkritual', 4);
-  const final = getAbilityBranchId(s, 'darkritual', 7);
+  const final = getAbilityFinalArchetype(s, 'darkritual');
   for (const sphere of s.spheres) {
     if (!sphere.alive) continue;
     sphere.attackTimer = Math.max(0, sphere.attackTimer - 0.8);
