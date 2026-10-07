@@ -3469,3 +3469,62 @@ html, body, #root {
   .es-main-map-entry{width:min(180px,30vh)}
   .es-menu-orbit-item{width:34px;height:34px}
 }
+
+/* 2026-10-07 final main-menu visual containment */
+.es-main-menu > .es-main-nav { display:none !important; }
+.es-main-stage { overflow:hidden; }
+.es-menu-orbit-system { overflow:visible; width:min(620px,88vw); height:min(620px,78vh); }
+.es-menu-orbit-outer { width:min(600px,86vw); height:min(420px,58vh); }
+.es-menu-orbit-mid { width:min(455px,68vw); height:min(330px,48vh); }
+.es-menu-orbit-inner { width:min(320px,52vw); height:min(245px,35vh); }
+.es-main-map-entry {
+  perspective: 700px;
+  transform:translate(-50%,-50%);
+  isolation:isolate;
+}
+.es-main-core-art { transform-style:preserve-3d; }
+.es-core-body {
+  transform-style:preserve-3d;
+  animation:es-core-y-spin 11s linear infinite, es-core-body-breathe 4.8s ease-in-out infinite;
+}
+.es-core-body::before { transform:translateZ(1px); }
+@keyframes es-core-y-spin {
+  0% { transform:rotateZ(-8deg) rotateY(0deg); }
+  50% { transform:rotateZ(-8deg) rotateY(180deg); }
+  100% { transform:rotateZ(-8deg) rotateY(360deg); }
+}
+@keyframes es-core-body-breathe {
+  0%,100% { filter:saturate(1); }
+  50% { filter:saturate(1.12) brightness(1.05); }
+}
+.es-core-surface {
+  transform:rotateZ(-8deg) rotateX(66deg) rotateY(0deg);
+  animation:es-core-surface-y-spin 7s linear infinite;
+}
+@keyframes es-core-surface-y-spin {
+  from { transform:rotateZ(-8deg) rotateX(66deg) rotateY(0deg); }
+  to { transform:rotateZ(-8deg) rotateX(66deg) rotateY(360deg); }
+}
+.es-main-core-art::after {
+  transform:rotateZ(-8deg) rotateX(66deg) rotateY(0deg);
+  animation:es-core-frame-y-spin 15s linear infinite;
+}
+@keyframes es-core-frame-y-spin {
+  from { transform:rotateZ(-8deg) rotateX(66deg) rotateY(0deg); }
+  to { transform:rotateZ(-8deg) rotateX(66deg) rotateY(360deg); }
+}
+.es-core-halo { animation:es-menu-halo 3.8s ease-in-out infinite; }
+@media (max-width:800px) {
+  .es-menu-orbit-system { width:min(580px,92vw); height:76vh; }
+  .es-menu-orbit-outer { width:90vw; height:55vh; }
+  .es-menu-orbit-mid { width:68vw; height:46vh; }
+  .es-menu-orbit-inner { width:50vw; height:33vh; }
+}
+@media (max-width:600px) {
+  .es-menu-orbit-system { width:96vw; height:72vh; }
+  .es-menu-orbit-outer { width:91vw; height:49vh; }
+  .es-menu-orbit-mid { width:73vw; height:42vh; }
+  .es-menu-orbit-inner { width:54vw; height:30vh; }
+  .es-menu-orbit-item { width:32px; height:32px; }
+  .es-main-map-entry { width:min(180px,42vw); }
+}
