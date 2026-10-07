@@ -150,7 +150,7 @@ function Menu({ lang, t, difficulty, setDifficulty, onOpenMap, onShop, onCharact
   );
 }
 
-
+// Main menu closes cleanly before the gameplay screen declaration.
 function GameScreen({ lang, t, shop, difficulty, handedness, regionMode, regionChallenge, onExit }: {
   lang: Lang; t: (k: TranslationKey) => string; shop: ShopState; difficulty: Difficulty; handedness: Handedness; regionMode: RegionMode; regionChallenge: RegionChallengeId; onExit: () => void;
 }) {
