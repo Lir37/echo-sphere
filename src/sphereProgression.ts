@@ -1175,7 +1175,7 @@ const AUTHORED_FINAL_MODIFIERS: Partial<Record<SphereEvolutionId, Partial<Record
   aura_sanctum:{0:{freeze:2},1:{anchor:2},2:{freeze:2,anchor:2}},
   aura_gravity:{0:{gravitic:2},1:{gravitic:1,anchor:2},2:{gravitic:2,anchor:2}},
   aura_overgrowth:{0:{},1:{},2:{}},
-  orbital_dance:{0:{afterimage:2},1:{afterimage:3},2:{afterimage:2}},
+  orbital_dance:{0:{afterimage:2},1:{afterimage:3},2:{afterimage:3}},
   orbital_halo:{0:{resonant:1},1:{},2:{resonant:2}},
   orbital_blade:{0:{impact:2},1:{afterimage:2},2:{impact:2,afterimage:3}},
   prism_split:{0:{multishot:2},1:{multishot:1,pierce:2},2:{multishot:1,ricochet:1}},
