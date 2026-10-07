@@ -2309,3 +2309,65 @@ OPEN:
 ======================================================================
 END ACTIVE RUN PERSISTENCE / MOBILE LIFECYCLE
 ======================================================================
+
+
+======================================================================
+2026-10-07 — ABILITY MUTATION II / SPHERE FINAL VARIABILITY CORRECTION
+======================================================================
+
+IMPLEMENTATION HEAD:
+8ff466274e9a1974058c39c166453e51553da1d7
+
+[FIXED — ABILITY MUTATION II]
+- All 8 active Abilities now have 3 authored Mutation I branches.
+- Every Mutation I branch now has its own 3 authored Mutation II finals.
+- Total authored Level VII Ability choices: 8 x 3 x 3 = 72 unique final IDs.
+- The previous implementation incorrectly reused the same 3 final archetypes
+  across all Mutation I branches.
+- Runtime keeps the three underlying archetype behaviors for compatibility,
+  but the player-facing Level VII choice is now branch-specific and uniquely
+  identified.
+- Sphere→Ability synergy now points to an exact Ability Mutation II final,
+  rather than only the Ability ID.
+- All 30 Sphere Mutation I branches now target distinct Ability Mutation II
+  final IDs within their corresponding Ability, preventing accidental reuse.
+
+[FIXED — SPHERE LEVEL VII VARIABILITY]
+- Audited all 30 Sphere Mutation I branches / 90 Level VII final choices.
+- Reauthored weakly differentiated finals for:
+  - Standard Swarm;
+  - Prism Split;
+  - Gravity Tide;
+  - Aura Overgrowth.
+- Standard Swarm finals now use distinct projectile patterns:
+  guided shard, crossfire pair, and fan-shaped shard web.
+- Prism Split finals now differentiate between fan coverage, penetration and
+  ricochet.
+- Gravity Tide finals now implement knockback, pull, and alternating
+  pendulum-control behavior.
+- Aura Overgrowth finals now describe distinct acceleration, transfer and
+  synchronization behavior.
+- Prism Split and Gravity Tide authored modifier/runtime paths were updated so
+  their final choices are not presentation-only.
+
+[FIXED — SHIELD / TELEPORT]
+- Shield Mutation I "Bastion" was not mechanically adequate: it mainly added
+  one charge and visual particles.
+- Bastion now emits a defensive repulse on blocked hits and reduces incoming
+  damage while its active shield window remains after charges are exhausted.
+- Teleport's Level III long-range progression was being overridden by the
+  "Echo Jump" branch, which always selected the nearest Sphere.
+- Teleport now preserves the Level III long-range behavior: it prefers the
+  nearest Sphere outside the close-range zone (220-700 range), falling back
+  to the nearest Sphere when no distant target exists.
+
+VALIDATION STATUS:
+- Structural content checks pass for 72 unique Ability Mutation II finals.
+- Structural synergy check passes for 30/30 unique Ability-final targets.
+- Full CI is the remaining integration gate for this cycle.
+- APK PlayerCheck remains required for visual/feel acceptance of Bastion,
+  Teleport targeting, Swarm and Gravity Tide.
+
+======================================================================
+END ABILITY MUTATION II / SPHERE FINAL VARIABILITY CORRECTION
+======================================================================
