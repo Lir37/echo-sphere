@@ -2111,3 +2111,50 @@ HUMAN APK OBSERVATION:
 ======================================================================
 END APK FEEDBACK / PLAYER-VIEW CORRECTION
 ======================================================================
+
+
+======================================================================
+2026-10-07 — MAIN MENU CORE / BACKDROP BLUR CORRECTION
+======================================================================
+
+CURRENT IMPLEMENTATION HEAD:
+c299e0f0a9d5da73f36426faca04f7273b4c0c79
+
+HUMAN APK FEEDBACK RECONCILIATION:
+- The translucent "veil" around the Main Menu Core was traced to the global
+  button backdrop-filter being applied to the transparent .es-main-map-entry
+  button. The button therefore blurred the rectangular area behind the Core.
+- The previous Core treatment also contained compositing pseudo-layers that
+  made the silhouette harder to read.
+
+[DONE]
+- Disabled backdrop-filter and -webkit-backdrop-filter on the transparent Core
+  hit-target.
+- Removed the Core pseudo compositing layers responsible for the remaining
+  veil risk.
+- Rebuilt the Core as a single centered volumetric 2.5D sphere using local
+  radial lighting, restrained inset shading and no broad compositor filter.
+- Removed the diffuse center background haze from the Main Menu.
+- Kept technical orbit controls as compact non-spherical modules.
+
+VISUAL QA:
+- Current menu was reproduced in a Chromium visual harness using the current
+  Main Menu DOM structure and production CSS. The broad central veil is absent,
+  the Core is geometrically centered, and the Core reads as a spherical
+  volumetric object rather than a wedge/cone.
+- Human APK PlayerCheck remains the final device acceptance gate.
+
+CI:
+- Implementation commit c49e061673f72f36d1edce23fb5aee3735052319: SUCCESS.
+- The intermediate visual assertion-only commit failed Unit Tests; no gameplay
+  or rendering regression was indicated. The assertion was simplified and the
+  final commit c299e0f0... passed the full CI pipeline.
+
+OPEN:
+- Install/inspect the APK from c299e0f0... and confirm the same visual on the
+  real device. Do not reopen the Core structure without a concrete device
+  mismatch.
+
+======================================================================
+END MAIN MENU CORE / BACKDROP BLUR CORRECTION
+======================================================================
