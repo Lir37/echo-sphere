@@ -2654,3 +2654,61 @@ html, body, #root {
 .es-hud-panel.es-top-left,.es-hud-panel.es-top-right{height:140px}.es-network-inside-hud-label{display:flex;align-items:center;justify-content:space-between;margin-top:5px;color:#6f8da4;font-size:6px;font-weight:800;letter-spacing:.12em}.es-network-inside-hud-label b{color:#dcecff}.es-network-formation-stack{margin-top:3px!important}
 @media(max-width:700px){.es-menu-orbit-system{width:94vw!important;height:72vh!important}.es-menu-orbit-outer{width:82vw!important;height:45vh!important}.es-menu-orbit-mid{width:64vw!important;height:36vh!important}.es-menu-orbit-inner{width:48vw!important;height:27vh!important}.es-menu-orbit-item{width:31px;height:31px}.es-hud-panel.es-top-left,.es-hud-panel.es-top-right{height:136px!important}}
 @media(max-width:480px){.es-menu-orbit-system{height:70vh!important}.es-menu-orbit-outer{width:84vw!important;height:43vh!important}.es-menu-orbit-mid{width:66vw!important;height:35vh!important}.es-menu-orbit-inner{width:49vw!important;height:26vh!important}.es-menu-orbit-item{width:29px;height:29px}.es-main-map-entry{width:min(175px,41vw)}}
+
+
+/* =========================================================
+   2026-10-07 / PLAYER-VIEW CORRECTION
+   Remove the diffuse menu veil and restore technical controls.
+   Keep the Core volumetric, centered and stable.
+   ========================================================= */
+.es-core-halo{display:none!important}
+.es-main-core-art::after{opacity:.035!important}
+.es-menu-orbit-system{overflow:visible!important}
+.es-core-body{
+  transform:none!important;
+  animation:es-core-depth-breathe 4.8s ease-in-out infinite!important;
+  background:
+    radial-gradient(circle at 30% 23%,#ffffff 0 3%,#dffbff 6%,#68ddff 16%,#2d83bd 34%,#14364e 55%,#06111c 72%,#01050b 100%),
+    conic-gradient(from 215deg,rgba(128,231,255,.24),transparent 18%,rgba(155,124,255,.16) 52%,transparent 73%,rgba(101,223,255,.18))!important;
+  box-shadow:
+    0 0 30px rgba(65,218,255,.56),
+    0 0 72px rgba(91,103,255,.18),
+    inset 13px 9px 16px rgba(255,255,255,.10),
+    inset -20px -24px 27px rgba(0,0,0,.62)!important;
+}
+.es-core-body::before{
+  animation:none!important;
+  transform:none!important;
+  opacity:.52!important;
+  mix-blend-mode:screen;
+}
+.es-core-body::after{
+  inset:0!important;
+  background:radial-gradient(ellipse at 69% 73%,rgba(0,0,0,.56) 0 20%,rgba(0,0,0,.18) 44%,transparent 66%)!important;
+}
+.es-core-surface{
+  inset:17%!important;
+  border-color:rgba(211,246,255,.17)!important;
+  transform:rotateX(68deg) rotateZ(0deg)!important;
+}
+.es-menu-orbit-item{
+  width:34px!important;
+  height:34px!important;
+  border-radius:7px!important;
+  border:1px solid rgba(106,220,251,.26)!important;
+  background:rgba(3,10,18,.82)!important;
+  box-shadow:0 0 14px rgba(0,0,0,.38),inset 0 0 11px rgba(75,184,224,.045)!important;
+}
+.es-menu-orbit-item::before,
+.es-menu-orbit-item::after{display:none!important}
+.es-menu-glyph{
+  transform:scale(.82)!important;
+  filter:drop-shadow(0 0 3px currentColor)!important;
+}
+@media(max-width:700px){
+  .es-menu-orbit-item{width:33px!important;height:33px!important}
+}
+@media(max-width:480px){
+  .es-menu-orbit-item{width:31px!important;height:31px!important}
+  .es-menu-glyph{transform:scale(.78)!important}
+}

@@ -3,6 +3,7 @@ import fs from 'node:fs';
 
 const renderer = fs.readFileSync(new URL('../src/renderer.ts', import.meta.url), 'utf8');
 const mobileControls = fs.readFileSync(new URL('../src/MobileControls.tsx', import.meta.url), 'utf8');
+const conceptStyle = fs.readFileSync(new URL('../src/conceptStyle.css', import.meta.url), 'utf8');
 
 assert.equal(renderer.includes('function drawBerserkerRange'), true, 'Berserker range mechanic must remain preserved');
 assert.equal(renderer.includes("if (characterId === 'berserker') drawBerserkerRange"), true, 'Berserker range indicator must remain wired');
@@ -14,4 +15,10 @@ assert.equal(playerBody.includes('ctx.ellipse('), false, 'player rendering must 
 assert.match(playerBody, /Do not draw containment spheres, orbit rings, selection rings or status ellipses around it/);
 assert.equal(mobileControls.includes('CharacterAvatarOverlay'), false, 'the duplicate center character overlay must remain removed from mobile controls');
 assert.equal(mobileControls.includes('data-character-avatar-overlay'), false, 'the obsolete avatar overlay marker must remain removed');
+assert.match(conceptStyle, /\.es-core-halo\{display:none!important\}/, 'the diffuse menu halo must stay removed');
+assert.match(conceptStyle, /\.es-menu-orbit-system\{overflow:visible!important\}/, 'menu orbit container must not clip orbiting controls');
+assert.match(conceptStyle, /\.es-menu-orbit-item\{[^}]*border-radius:7px!important/, 'menu controls should remain technical modules, not orb buttons');
+assert.match(conceptStyle, /\.es-menu-orbit-item::before,\s*\.es-menu-orbit-item::after\{display:none!important\}/, 'menu controls must not add spherical shells');
+assert.match(conceptStyle, /\.es-core-body\{[^}]*transform:none!important/, 'menu Core must remain geometrically centered');
+assert.match(renderer, /const boundaryX = canvasW \/ 2 \+ \(s\.player\.pos\.x - s\.camera\.x\) \+ shakeX/, 'boundary FX must be anchored to the player in screen space');
 

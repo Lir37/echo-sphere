@@ -596,7 +596,9 @@ function drawRune(ctx: CanvasRenderingContext2D, rune: GameState['runes'][number
     const progress = 1 - Math.min(1, s.flashText.life / 1.35);
     const fade = 1 - progress;
     ctx.save();
-    ctx.translate(s.player.pos.x, s.player.pos.y);
+    const boundaryX = canvasW / 2 + (s.player.pos.x - s.camera.x) + shakeX;
+    const boundaryY = canvasH / 2 + (s.player.pos.y - s.camera.y) + shakeY;
+    ctx.translate(boundaryX, boundaryY);
     ctx.globalCompositeOperation = 'lighter';
 
     // A short radial wave indicates the exact frame in which the player crosses a fold.
