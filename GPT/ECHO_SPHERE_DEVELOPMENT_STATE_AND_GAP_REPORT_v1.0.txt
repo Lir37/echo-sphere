@@ -2205,3 +2205,56 @@ OPEN:
 ======================================================================
 END MAIN MENU RESTORE / PRACTICAL REGION SELECTOR
 ======================================================================
+
+
+======================================================================
+2026-10-07 — ACTIVE RUN PERSISTENCE / AUTO-PAUSE
+======================================================================
+
+FINAL IMPLEMENTATION HEAD:
+c29f899842185c6a9ff50edd83d463c99b6d1240
+
+[DONE]
+- Active gameplay state is periodically persisted to localStorage during a
+  non-tutorial run.
+- The current run snapshot is also written immediately when the app/document
+  becomes inactive via visibilitychange, window blur, or pagehide.
+- A restored run always opens paused, so returning to the game never causes it
+  to continue running invisibly in the background.
+- The Main Menu exposes "ПРОДОЛЖИТЬ ЗАБЕГ" when a valid saved run exists and
+  restores the saved Region, mode/challenge and gameplay state.
+- Starting a new run or explicitly exiting an existing run clears the old
+  active snapshot.
+- Completed/game-over runs clear the active snapshot.
+- Reset All also clears the active run.
+- Save/restore has dedicated regression coverage.
+
+IMPORTANT RUNTIME DETAIL:
+- JSON cannot preserve runtime entity identity. Current v1 snapshot restore
+  intentionally resets temporary combat object references while preserving the
+  durable run state. Visual/input transients are not treated as persistent
+  gameplay data.
+- The restored state is explicitly paused and clears movement input before the
+  player can resume.
+
+CI:
+- Final implementation/test HEAD c29f899842185c6a9ff50edd83d463c99b6d1240:
+  SUCCESS.
+- Unit tests: PASS.
+- Typecheck: PASS.
+- Asset check: PASS.
+- Gameplay coverage: PASS.
+- Lint: PASS.
+- Web build: PASS.
+- Playwright rendered QA: PASS.
+- Capacitor sync: PASS.
+- Debug APK build/upload: PASS.
+
+OPEN:
+- Human APK PlayerCheck of "close/minimize -> reopen -> Continue Run" is the
+  device acceptance gate. Also verify notification shade/minimize causes the
+  pause screen to appear on return.
+
+======================================================================
+END ACTIVE RUN PERSISTENCE / AUTO-PAUSE
+======================================================================
