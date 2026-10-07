@@ -9,7 +9,7 @@ class MemoryStorage {
   clear(){ this.store.clear(); }
 }
 
-globalThis.localStorage = new MemoryStorage();
+Object.defineProperty(globalThis, 'localStorage', { value: new MemoryStorage(), configurable: true, writable: true });
 
 const { createInitialState } = await import('../src/engineState.ts');
 const {
