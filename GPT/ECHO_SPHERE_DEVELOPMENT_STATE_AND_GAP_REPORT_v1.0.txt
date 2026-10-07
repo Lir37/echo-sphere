@@ -2258,3 +2258,54 @@ OPEN:
 ======================================================================
 END ACTIVE RUN PERSISTENCE / AUTO-PAUSE
 ======================================================================
+
+
+======================================================================
+2026-10-07 — ACTIVE RUN PERSISTENCE / MOBILE LIFECYCLE
+======================================================================
+
+IMPLEMENTATION HEAD BEFORE DOCUMENTATION:
+c29f899842185c6a9ff50edd83d463c99b6d1240
+
+[DONE]
+- Active non-tutorial runs are now serialized to localStorage under a
+  versioned snapshot envelope.
+- Autosave runs approximately once per second while gameplay is active.
+- pagehide, document visibilitychange -> hidden, and window blur all force
+  an immediate pause plus snapshot save.
+- Returning to the app does NOT auto-resume. The run remains paused until the
+  player explicitly chooses Continue Run.
+- Main Menu exposes Continue Run when a valid saved run exists and shows the
+  saved gameplay time.
+- Starting a new run clears the previous continuation slot, avoiding two
+  competing active runs.
+- Manual exit and completed/game-over runs clear the continuation slot.
+- Reset All also clears the continuation slot.
+- Runtime-only object references (entity Sets and live entity pointers) are
+  intentionally omitted from the serialized form and reconstructed/reset on
+  resume. Input state is also cleared so a resumed run cannot inherit a stuck
+  movement key or pointer press.
+- Snapshot restore always forces paused=true.
+
+MOBILE BEHAVIOUR:
+The lifecycle handling uses both browser visibility and window focus loss.
+This covers normal app minimization/backgrounding and notification/control-panel
+interaction as long as the WebView reports the corresponding lifecycle event.
+The periodic autosave is the fallback for process termination between lifecycle
+callbacks.
+
+VALIDATION:
+- Implementation/unit-test correction cycle completed.
+- Final CI on test commit 7d9414a83a9d08b615771a02698a22413077c1da: SUCCESS
+  (full build-apk pipeline).
+- Previous failing test revisions were isolated to the newly added persistence
+  test and were corrected before the final green build.
+
+OPEN:
+- Human APK PlayerCheck: start a run, background the app and reopen; open the
+  Android notification/control shade; force-close/relaunch the app; verify the
+  Continue Run snapshot and that time/enemies stop while inactive.
+
+======================================================================
+END ACTIVE RUN PERSISTENCE / MOBILE LIFECYCLE
+======================================================================
