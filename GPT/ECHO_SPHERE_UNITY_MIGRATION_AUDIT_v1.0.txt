@@ -278,3 +278,40 @@ Play Mode.
 ======================================================================
 END 2026-10-09 URP FIX UPDATE
 ======================================================================
+
+
+======================================================================
+2026-10-09 — FOLLOW-UP: URP ERROR PERSISTED AFTER FIRST FIX
+======================================================================
+
+USER CONFIRMATION:
+The original "Default Renderer is missing" error continued after the first
+bootstrap patch. The first patch was insufficient; do not mark P1 passed.
+
+REVISED DIAGNOSIS:
+The first patch only repaired the renderer list when its first element was
+missing/invalid. It did not repair a valid renderer list whose
+m_DefaultRendererIndex was unset (-1), out of range, or pointed at a null
+slot. This is a plausible explanation for the persistent message, not yet
+confirmed against the user's serialized EchoSphere_URP asset.
+
+SECOND FIX:
+- Validate m_DefaultRendererIndex against the renderer-data list and confirm
+  the selected slot actually references ScriptableRendererData.
+- If the index is invalid, select an existing valid renderer slot.
+- If no valid renderer exists, create/load UniversalRendererData, assign it
+  into the list and set its index as the default.
+- This patch is committed on unity-migration; check CI after this commit.
+
+NEXT USER CHECK:
+The Editor must be using the updated branch contents. After the updated
+bootstrap compiles, check whether the repeating message stops. If it persists,
+do not keep guessing at serialized fields: inspect the actual EchoSphere_URP
+asset in the Inspector and capture the first Console error after clearing
+the Console, along with the exact Unity Editor version and whether the
+project was re-downloaded/re-extracted after the latest commit.
+
+P1 remains OPEN until verified in the actual Editor.
+======================================================================
+END FOLLOW-UP
+======================================================================
