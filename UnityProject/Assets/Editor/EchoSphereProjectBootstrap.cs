@@ -70,8 +70,8 @@ internal static class EchoSphereProjectBootstrap
             return;
         }
 
-        // A renderer can exist in the list while the default index is still -1.
-        // Validate the selected index separately, not just whether the list has entries.
+        // The list may contain valid renderer data while the default index is -1,
+        // out of range, or pointing to an empty slot. Validate the selected entry.
         var selectedRendererIsValid =
             rendererList.arraySize > 0 &&
             defaultRendererIndex.intValue >= 0 &&
@@ -80,19 +80,19 @@ internal static class EchoSphereProjectBootstrap
 
         if (!selectedRendererIsValid)
         {
-            ScriptableRendererData rendererData = null;
+            var validRendererIndex = -1;
             for (var i = 0; i < rendererList.arraySize; i++)
             {
-                if (rendererList.GetArrayElementAtIndex(i).objectReferenceValue is ScriptableRendererData existingRenderer)
+                if (rendererList.GetArrayElementAtIndex(i).objectReferenceValue is ScriptableRendererData)
                 {
-                    rendererData = existingRenderer;
+                    validRendererIndex = i;
                     break;
                 }
             }
 
-            if (rendererData == null)
+            if (validRendererIndex < 0)
             {
-                rendererData = AssetDatabase.LoadAssetAtPath<UniversalRendererData>(RendererPath);
+                var rendererData = AssetDatabase.LoadAssetAtPath<UniversalRendererData>(RendererPath);
                 if (rendererData == null)
                 {
                     rendererData = ScriptableObject.CreateInstance<UniversalRendererData>();
@@ -103,15 +103,12 @@ internal static class EchoSphereProjectBootstrap
 
                 rendererList.arraySize = 1;
                 rendererList.GetArrayElementAtIndex(0).objectReferenceValue = rendererData;
-                Debug.Log("[ECHO SPHERE] Added ECHO SPHERE Renderer to the URP renderer list.");
+                validRendererIndex = 0;
             }
 
-            // Always set a known-good default index, including when the list was populated
-            // but m_DefaultRendererIndex was unset or pointed at a null entry.
-            defaultRendererIndex.intValue = 0;
+            defaultRendererIndex.intValue = validRendererIndex;
             pipelineObject.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(pipeline);
-            EditorUtility.SetDirty(rendererData);
             Debug.Log("[ECHO SPHERE] Repaired the default URP Renderer assignment.");
         }
 
