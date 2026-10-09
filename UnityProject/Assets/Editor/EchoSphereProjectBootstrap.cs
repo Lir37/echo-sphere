@@ -61,37 +61,58 @@ internal static class EchoSphereProjectBootstrap
             Debug.Log("[ECHO SPHERE] Created the URP pipeline asset.");
         }
 
-        // UniversalRenderPipelineAsset.Create() can leave the renderer list empty.
-        // Repair both fresh and already-created assets instead of only assigning the pipeline.
         var pipelineObject = new SerializedObject(pipeline);
         var rendererList = pipelineObject.FindProperty("m_RendererDataList");
         var defaultRendererIndex = pipelineObject.FindProperty("m_DefaultRendererIndex");
         if (rendererList == null || defaultRendererIndex == null)
         {
-            Debug.LogError("[ECHO SPHERE] URP asset is missing expected renderer settings; cannot assign a default Renderer.");
+            Debug.LogError("[ECHO SPHERE] URP renderer settings are unavailable. Check the installed URP package version.");
             return;
         }
 
-        var hasValidRenderer = rendererList.arraySize > 0 &&
-            rendererList.GetArrayElementAtIndex(0).objectReferenceValue is ScriptableRendererData;
-        if (!hasValidRenderer)
+        // A renderer can exist in the list while the default index is still -1.
+        // Validate the selected index separately, not just whether the list has entries.
+        var selectedRendererIsValid =
+            rendererList.arraySize > 0 &&
+            defaultRendererIndex.intValue >= 0 &&
+            defaultRendererIndex.intValue < rendererList.arraySize &&
+            rendererList.GetArrayElementAtIndex(defaultRendererIndex.intValue).objectReferenceValue is ScriptableRendererData;
+
+        if (!selectedRendererIsValid)
         {
-            var rendererData = AssetDatabase.LoadAssetAtPath<UniversalRendererData>(RendererPath);
-            if (rendererData == null)
+            ScriptableRendererData rendererData = null;
+            for (var i = 0; i < rendererList.arraySize; i++)
             {
-                rendererData = ScriptableObject.CreateInstance<UniversalRendererData>();
-                rendererData.name = "ECHO SPHERE Renderer";
-                AssetDatabase.CreateAsset(rendererData, RendererPath);
-                Debug.Log("[ECHO SPHERE] Created the default Universal Renderer asset.");
+                if (rendererList.GetArrayElementAtIndex(i).objectReferenceValue is ScriptableRendererData existingRenderer)
+                {
+                    rendererData = existingRenderer;
+                    break;
+                }
             }
 
-            rendererList.arraySize = 1;
-            rendererList.GetArrayElementAtIndex(0).objectReferenceValue = rendererData;
+            if (rendererData == null)
+            {
+                rendererData = AssetDatabase.LoadAssetAtPath<UniversalRendererData>(RendererPath);
+                if (rendererData == null)
+                {
+                    rendererData = ScriptableObject.CreateInstance<UniversalRendererData>();
+                    rendererData.name = "ECHO SPHERE Renderer";
+                    AssetDatabase.CreateAsset(rendererData, RendererPath);
+                    Debug.Log("[ECHO SPHERE] Created the default Universal Renderer asset.");
+                }
+
+                rendererList.arraySize = 1;
+                rendererList.GetArrayElementAtIndex(0).objectReferenceValue = rendererData;
+                Debug.Log("[ECHO SPHERE] Added ECHO SPHERE Renderer to the URP renderer list.");
+            }
+
+            // Always set a known-good default index, including when the list was populated
+            // but m_DefaultRendererIndex was unset or pointed at a null entry.
             defaultRendererIndex.intValue = 0;
             pipelineObject.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(pipeline);
             EditorUtility.SetDirty(rendererData);
-            Debug.Log("[ECHO SPHERE] Assigned ECHO SPHERE Renderer as the default URP Renderer.");
+            Debug.Log("[ECHO SPHERE] Repaired the default URP Renderer assignment.");
         }
 
         GraphicsSettings.defaultRenderPipeline = pipeline;
