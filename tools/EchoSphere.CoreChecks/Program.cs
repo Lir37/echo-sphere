@@ -65,7 +65,8 @@ internal static class Program
         True(!FormationFollowRules.CanActivate(new Vec2(0f, 0f), new[] { new FormationNode(new Vec2(1.61f, 0f), true) }), "activation outside 1.6 world units denied");
         Near(FormationFollowRules.GetNetworkEfficiency(true, 100f), 0.72f, 0.000001f, "network strain floor");
         Near(FormationFollowRules.GetResonanceEfficiency(true, 100f), 0.65f, 0.000001f, "resonance strain floor");
-        Near(FormationFollowRules.GetMovementMultiplier(true, 100f, new Vec2(1f, 0f), new Vec2(0f, 1f)), 0.72f, 0.000001f, "movement multiplier floor");
+        Near(FormationFollowRules.GetMovementMultiplier(true, 100f, new Vec2(1f, 0f), new Vec2(0f, 1f)), 0.77f, 0.000001f, "quarter-turn movement multiplier");
+        Near(FormationFollowRules.GetMovementMultiplier(true, 100f, new Vec2(1f, 0f), new Vec2(-1f, 0f)), 0.72f, 0.000001f, "movement multiplier floor on reversal");
         var updated = FormationFollowRules.UpdateStrain(10f, new Vec2(1f, 0f), new Vec2(0f, 1f), 0.1f, out var direction);
         Near(updated, 17.025f, 0.0001f, "turn strain plus continuous strain");
         True(direction.Equals(new Vec2(0f, 1f)), "requested direction stored normalized");
