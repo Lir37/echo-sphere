@@ -1,0 +1,35 @@
+name: Unity Migration Contracts
+
+on:
+  push:
+    branches:
+      - unity-migration
+    paths:
+      - 'UnityProject/**'
+      - 'tools/EchoSphere.CoreChecks/**'
+      - 'scripts/check-unity-project.mjs'
+      - '.github/workflows/unity-migration-check.yml'
+      - 'GPT/ECHO_SPHERE_UNITY_MIGRATION_AUDIT_v1.0.txt'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  core-contracts:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 8.0.x
+      - name: Run pure C# gameplay contract checks
+        run: dotnet run --project tools/EchoSphere.CoreChecks/EchoSphere.CoreChecks.csproj --configuration Release
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Validate Unity project structure and runtime boundaries
+        run: node scripts/check-unity-project.mjs

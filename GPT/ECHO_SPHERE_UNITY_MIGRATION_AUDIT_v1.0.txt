@@ -1,0 +1,185 @@
+ECHO SPHERE — UNITY MIGRATION AUDIT
+Version 1.0
+Date: 2026-10-09
+Working branch: unity-migration
+Migration base HEAD: 737ef2af4a877e0995db5f92331d536d2f29a934
+Protected baseline branch: new-desing
+Baseline CI: Android APK #1845 — SUCCESS
+
+======================================================================
+0. PURPOSE
+======================================================================
+
+This document tracks the controlled migration from the current
+TypeScript/React/Canvas/Capacitor runtime to Unity. It does not replace the
+authoritative gameplay Blueprint, Development State & Gap Report or Sphere
+Audit. Newer dated audit addenda and actual code supersede older inventory
+snapshots where they disagree.
+
+Authoritative gameplay:
+GPT/ECHO_SPHERE_MASTER_FINAL_GAMEPLAY_BLUEPRINT_v1.2.txt
+
+Operational state/gaps:
+GPT/ECHO_SPHERE_DEVELOPMENT_STATE_AND_GAP_REPORT_v1.0.txt
+
+Sphere contracts / dated implementation audits:
+GPT/ECHO_SPHERE_SPHERE_AUDIT_v1.0.txt
+
+======================================================================
+1. VERIFIED BASELINE
+======================================================================
+
+Source branch: new-desing
+Source HEAD: 737ef2af4a877e0995db5f92331d536d2f29a934
+Latest observed source CI: Android APK run #1845, SUCCESS
+Migration branch created from this exact HEAD. Source branch must remain
+unchanged during migration.
+
+Current app architecture:
+React 18 + TypeScript + Vite + custom Canvas 2D renderer + Capacitor Android.
+The old branch already contains substantial gameplay/data modules including
+all ten Sphere families, 30 Level-IV branches and 90 Level-VII choices. Do
+not use the initial inventory of the September 25 Gap Report as a current
+content list without reconciling dated Sphere Audit addenda and actual code.
+
+Approved direction:
+- Unity 6.3 LTS, 6000.3 editor stream; confirm installed patch before open.
+- 2D-first/2.5D presentation, URP planned, no mass GLB/3D production.
+- Landscape Android, application id com.lir37.echosphere.
+- First stores planned: RuStore and TapTap.
+- Monetization plan: opt-in rewarded only (one revive per eligible run;
+  double rewards after run completion), no forced interstitials planned.
+
+======================================================================
+2. RECENT PROJECT DECISIONS TO PRESERVE
+======================================================================
+
+- 2026-10-08: Magic Survival visual discussion. Benchmark the layering of
+  sprites, animation, shader effects and performance-friendly VFX; do not
+  copy their assets, character designs or exact UI.
+- 2026-10-06: Replace endless-only repetition with Region Stabilization runs
+  targeted at 25-35 minutes, then optional Endless for that Region.
+- 2026-10-06: Formation Follow slice is a real gameplay contract, not merely
+  a visual orbit. It must stay authoritative in gameplay state, with Sphere
+  views following the resulting positions.
+- 2026-10-05: Existing character roster/progression needs an audit and mapping;
+  do not invent substitute characters during port.
+- 2026-10-04: Artifact runtime audit found 29 material behavior gaps in its
+  audited catalog and Set completion effects that need behavioral, not only
+  universal stat, effects.
+- 2026-10-03: Artifact selection conveys rarity, Set membership/progress and
+  future branch-aware Sphere/Ability synergy. Keep that information design,
+  not old CSS.
+- 2026-09-29: Orbital visual audit specifies distinct shell, core, crystal
+  and satellite pieces and authored orbit behavior; never restore duplicate
+  visual layers or reference crops as final art.
+- 2026-09-26: 2.5D Canvas is the current production direction and heavy GLB
+  production was parked. Unity migration does not reverse that choice.
+
+======================================================================
+3. PORT / REWRITE POLICY
+======================================================================
+
+Port as pure C# contracts first:
+- seeded run RNG;
+- combat crit / contact grace rules;
+- Formation Follow math;
+- canonical Sphere roster;
+- provider-neutral rewarded-ad eligibility.
+
+Port as data/behavior domain:
+- Sphere stats, level progression, 30 branch choices and 90 final choices;
+- Modifiers, Abilities/evolutions, Artifacts, Sets, Protocols and Synergies;
+- Characters/mastery; enemy roles and bosses; Regions; economy/persistence;
+- deterministic build choices and run state.
+
+Rewrite for Unity:
+- Canvas renderer -> native SpriteRenderer, animation and VFX composition;
+- React/CSS UI -> Unity UI;
+- web input/camera/audio lifecycle -> Unity runtime;
+- Capacitor wrapper -> Unity Android build.
+
+Do not copy node_modules, dist, Capacitor build output, the legacy renderer,
+unused reference crops, base64 image dumps, or large assets without verified
+runtime usage. Gameplay state must not depend on visuals. Cosmetic random
+effects must not consume run RNG.
+
+======================================================================
+4. FIRST SCAFFOLD IN THIS COMMIT
+======================================================================
+
+The initial slice adds:
+- a Unity 6000.3 project skeleton and package manifest;
+- an editor bootstrap that configures the Android application id/orientation
+  and generates a prototype scene on first Editor open;
+- pure C# contracts for vector data, seeded RNG, combat safety/crit,
+  Formation Follow, all ten Sphere identifiers and reward-ad eligibility;
+- a temporary native SpriteRenderer prototype with a controllable Core,
+  three auto-attacking placeholder Spheres, pursuing enemies, projectiles,
+  death/XP pickups, level-up choice pause, Dash and Formation Follow toggle;
+- .NET contract tests runnable without Unity Editor;
+- a preflight check for required project files and runtime/editor boundaries;
+- a separate GitHub Actions workflow for the pure contracts and project preflight.
+
+Important limits:
+- This is a prototype harness, not full gameplay parity or release art.
+- Procedural ring/disc sprites are temporary QA geometry; not approved final art.
+- No ad SDK, real ad-unit IDs, store credentials, signing key or Unity
+  license secrets are added.
+- CI can test pure rules and project structure but does not compile the
+  UnityEngine-facing scripts or create an APK yet.
+- First actual Unity Editor open must verify the exact installed patch and
+  URP package resolution. The Editor bootstrap must be observed generating
+  the scene and compilation must have zero errors.
+
+======================================================================
+5. PHASE GATES
+======================================================================
+
+P0 — Current scaffold:
+- create migration branch from green baseline;
+- run .NET contract tests and project preflight;
+- wait for migration CI SUCCESS.
+P1 — First Editor open (user):
+- confirm the installed 6000.3.x patch;
+- open UnityProject from Unity Hub;
+- resolve URP and compile all scripts; fix any actual API errors.
+P2 — First Android slice:
+- configure the mobile input after device test;
+- build/install debug APK;
+- verify movement, Sphere attacks, damage, enemy death, XP/level-up,
+  Dash and Formation Follow.
+P3 — Gameplay parity:
+- compare TypeScript/C# contracts on deterministic inputs;
+- port full sphere/progression/artifact/character data and behavior;
+- explicitly resolve documented gaps.
+P4 — Full final design:
+- Network/Geometry/Resonance, artifact behavioral sets, Runes, Protocols,
+  Synergies, characters/mastery and Regions with Endless.
+P5 — Presentation:
+- authored 2D/2.5D art, readable animations/VFX, UI/audio and device profiling.
+P6 — Android/release:
+- test ad provider plugins before choosing a final integration;
+- reward only on confirmed rewarded callback, with one revive per run and
+  one double-reward claim after completion;
+- verify RuStore and TapTap delivery requirements independently.
+P7 — Switch production runtime only after explicit user acceptance; keep
+  new-desing and its last green APK as a rollback baseline.
+
+======================================================================
+6. HANDOFF CHECKLIST
+======================================================================
+
+At cycle start:
+1. inspect both branches and the last successful CI runs;
+2. read all three authoritative GPT docs and relevant dated audit addenda;
+3. compare runtime code against recent project-chat facts;
+4. modify only the isolated Unity branch.
+
+At cycle end:
+1. run pure C# checks and project preflight;
+2. inspect Unity migration CI and the original Android APK CI status;
+3. update this report when implementation/status changes;
+4. provide the exact HEAD and next step in a short next-chat prompt.
+
+END
