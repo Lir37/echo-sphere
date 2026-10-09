@@ -47,4 +47,14 @@ for (const file of runtimeFiles) {
 const bootstrap = readFileSync(join(root, 'Assets/Editor/EchoSphereProjectBootstrap.cs'), 'utf8');
 assert.ok(bootstrap.includes('EchoSphere_Prototype.unity'), 'first-open scene generation contract missing');
 assert.ok(bootstrap.includes('com.lir37.echosphere'), 'Android application id contract missing');
-console.log(`Unity project preflight: PASS (Unity ${version}, ${runtimeFiles.length} C# source files)`);
+
+// Regression guard for the real Editor failure observed on 2026-10-09:
+// the URP asset can exist while its renderer-data slot is missing or its
+// default index is invalid. This is a source-level guard, not a substitute
+// for opening the project in Unity Editor.
+assert.ok(bootstrap.includes('m_RendererDataList'), 'URP renderer list repair is missing');
+assert.ok(bootstrap.includes('m_DefaultRendererIndex'), 'URP default renderer index validation is missing');
+assert.ok(bootstrap.includes('UniversalRendererData'), 'bootstrap must be able to create/load a Universal Renderer Data asset');
+assert.ok(bootstrap.includes('selectedRendererIsValid'), 'bootstrap must validate the selected default renderer slot');
+assert.ok(bootstrap.includes('ApplyModifiedPropertiesWithoutUndo'), 'URP serialized renderer repairs must be applied');
+console.log(`Unity project preflight: PASS (Unity ${version}, ${runtimeFiles.length} C# source files, URP renderer regression guard)`);
