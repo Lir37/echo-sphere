@@ -5,12 +5,15 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 [InitializeOnLoad]
 internal static class EchoSphereProjectBootstrap
 {
     private const string ScenePath = "Assets/Scenes/EchoSphere_Prototype.unity";
     private const string ApplicationId = "com.lir37.echosphere";
+    private const string PipelinePath = "Assets/Settings/EchoSphere_URP.asset";
 
     static EchoSphereProjectBootstrap() { EditorApplication.delayCall += EnsurePrototypeScene; }
 
@@ -22,6 +25,7 @@ internal static class EchoSphereProjectBootstrap
             return;
         }
         ConfigureProjectSettings();
+        ConfigureUniversalRenderPipeline();
         Directory.CreateDirectory("Assets/Scenes");
         if (AssetDatabase.LoadAssetAtPath<SceneAsset>(ScenePath) == null)
         {
@@ -41,6 +45,22 @@ internal static class EchoSphereProjectBootstrap
         }
         if (!registered) scenes.Insert(0, new EditorBuildSettingsScene(ScenePath, true));
         EditorBuildSettings.scenes = scenes.ToArray();
+        AssetDatabase.SaveAssets();
+    }
+
+    private static void ConfigureUniversalRenderPipeline()
+    {
+        Directory.CreateDirectory("Assets/Settings");
+        var pipeline = AssetDatabase.LoadAssetAtPath<UniversalRenderPipelineAsset>(PipelinePath);
+        if (pipeline == null)
+        {
+            pipeline = UniversalRenderPipelineAsset.Create();
+            pipeline.name = "ECHO SPHERE URP";
+            AssetDatabase.CreateAsset(pipeline, PipelinePath);
+            Debug.Log("[ECHO SPHERE] Created the URP pipeline asset.");
+        }
+
+        GraphicsSettings.defaultRenderPipeline = pipeline;
         AssetDatabase.SaveAssets();
     }
 
