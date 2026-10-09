@@ -355,3 +355,45 @@ NEXT:
 ======================================================================
 END 2026-10-09 EDITOR ACCEPTANCE UPDATE
 ======================================================================
+
+
+======================================================================
+2026-10-09 — URP FAILURE REPRODUCTION CLOSED / PREFLIGHT REGRESSION GUARD
+======================================================================
+
+USER-VERIFIED EDITOR ACCEPTANCE:
+- User found the missing Universal Renderer Data reference in EchoSphere_URP.
+- Assigning the available Universal Renderer Data asset removed the warning.
+- Renderer List contained one valid row afterward.
+- User cleared Console and confirmed the game launches and is playable.
+- P1 actual Editor launch/Play Mode gate: PASS by direct user observation.
+
+ROOT-CAUSE ACCURACY:
+The actual serialized asset was missing its Renderer Data reference. The
+earlier hypothesis that only the default index was wrong was not proven.
+The user repaired the resource manually. The bootstrap source also contains
+repair logic, but the manual Editor action is the observed fix. Do not claim
+that CI alone verifies the serialized URP asset or Editor startup.
+
+AUTOMATION HARDENING:
+- Updated scripts/check-unity-project.mjs with source-level regression guards
+  for m_RendererDataList, m_DefaultRendererIndex, UniversalRendererData
+  creation/loading, selected-slot validation and serialized-property apply.
+- These checks help prevent accidental removal of the bootstrap repair path.
+- They do NOT replace actual Unity Editor compilation or Android APK testing.
+
+CURRENT GATES:
+P0 scaffold + contract CI: previously green per user confirmation.
+P1 Unity Editor launch and gameplay: PASS per user.
+P2 Android debug APK build/install/device test: OPEN.
+Migration CI for the newest source/documentation commits must be checked after
+the new regression guard and this report update.
+
+NEXT SLICE:
+Prioritize a reproducible Android debug APK pipeline/device gate. First inspect
+the current workflow and available Unity licensing/build environment. Do not
+claim an APK was built until a real build artifact exists and can be installed.
+Keep new-desing protected and unchanged.
+======================================================================
+END 2026-10-09 UPDATE
+======================================================================
