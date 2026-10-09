@@ -235,3 +235,46 @@ or playable Android build is made until P1/P2 are observed.
 ======================================================================
 END 2026-10-09 UPDATE
 ======================================================================
+
+
+======================================================================
+2026-10-09 — FIRST EDITOR RUN: URP DEFAULT RENDERER FIX
+======================================================================
+
+USER-OBSERVED FAILURE:
+Unity Console produced repeated errors:
+"Default Renderer is missing, make sure there is a Renderer assigned as
+the default on the current Universal RP asset: EchoSphere_URP"
+
+ROOT CAUSE IN BOOTSTRAP:
+The initial bootstrap created/loaded a UniversalRenderPipelineAsset and
+assigned it to GraphicsSettings.defaultRenderPipeline, but did not ensure
+that its serialized renderer-data list contained a valid default renderer.
+
+FIX COMMITTED:
+- Bootstrap now creates Assets/Settings/EchoSphere_Renderer.asset as a
+  UniversalRendererData asset when needed.
+- It assigns that asset to m_RendererDataList and selects index 0 as the
+  default renderer when the list is empty/invalid.
+- It repairs the existing EchoSphere_URP asset as well as newly created
+  assets, so the user should not need to delete generated files manually.
+- If the expected serialized URP properties cannot be found, the bootstrap
+  emits one explicit diagnostic rather than silently pretending setup passed.
+
+VALIDATION STATUS:
+- Code and this report are committed on unity-migration.
+- GitHub CI must be checked after the fix.
+- CI only validates pure C# contracts and project preflight. It cannot prove
+  Unity's actual URP serialized setup or Editor compilation.
+- User must allow Unity to recompile/re-run the bootstrap, then confirm that
+  the repeated "Default Renderer is missing" message stops. If it remains,
+  capture the first Console error after clearing the Console and report the
+  exact Editor version; do not delete Library or project assets as a first step.
+
+NEXT GATE:
+P1 remains open until the real Unity Editor shows zero compile errors and no
+repeating missing-default-renderer error, and EchoSphere_Prototype can enter
+Play Mode.
+======================================================================
+END 2026-10-09 URP FIX UPDATE
+======================================================================
