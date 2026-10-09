@@ -183,3 +183,55 @@ At cycle end:
 4. provide the exact HEAD and next step in a short next-chat prompt.
 
 END
+
+
+======================================================================
+2026-10-09 — FIRST UNITY SCAFFOLD / CI STATUS UPDATE
+======================================================================
+
+Latest source baseline protected:
+new-desing HEAD 737ef2af4a877e0995db5f92331d536d2f29a934
+Legacy Android APK CI #1845: SUCCESS
+
+Current Unity branch code baseline:
+657a23b1b3fa08dfe27e4ac2b04b19213bf6d915
+Unity Migration Contracts CI #3: SUCCESS
+Run: https://github.com/Lir37/echo-sphere/actions/runs/37918730874
+
+Verified in CI:
+- 124 pure C# contract assertions passed.
+- Project preflight passed for Unity 6000.3.24f1 and 14 C# source files.
+- Runtime script scan confirms UnityEditor dependencies are not included under the runtime Scripts folder.
+- Branch new-desing remains at the original baseline; migration is isolated.
+
+The first CI attempt failed because one test incorrectly expected the minimum Formation
+Follow movement multiplier for a 90-degree turn. The gameplay formula was not changed.
+The test now verifies the 0.77 quarter-turn value and 0.72 minimum on a full reversal.
+The corrected contract run passed.
+
+Scaffold now contains:
+- Unity 6.3 project skeleton, URP 17.3.0 dependency and Android application id.
+- First-open editor bootstrap that creates a Universal Render Pipeline asset and
+  EchoSphere_Prototype scene and registers the scene for Android builds.
+- Native SpriteRenderer harness: Core, three auto-attacking placeholder Spheres,
+  pursuing enemies, projectiles, impact pulse, XP pickups, level-up pause, Dash,
+  and Formation Follow toggle.
+- Provider-neutral rewarded-ad eligibility tests. No ad SDK or real ad IDs added.
+
+P0 scaffold gate: COMPLETE (contract CI green).
+P1 actual Editor gate: NOT YET VERIFIED.
+Next required action:
+1. Let Unity Hub finish installing the Editor and Android Build Support.
+2. Confirm the installed Editor is 6000.3.24f1 (or report the exact 6000.3.x version).
+3. Open the `UnityProject` folder from this branch.
+4. Wait for package resolution and script compilation; record any Console errors.
+5. Verify the generated scene opens and Play Mode starts before attempting Android APK.
+
+Explicit limit:
+The current CI does not contain a licensed Unity Editor and does not compile
+UnityEngine-facing scripts or build the APK. No claim of Unity Editor compilation
+or playable Android build is made until P1/P2 are observed.
+
+======================================================================
+END 2026-10-09 UPDATE
+======================================================================
