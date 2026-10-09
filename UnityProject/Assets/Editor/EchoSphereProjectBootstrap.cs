@@ -14,6 +14,7 @@ internal static class EchoSphereProjectBootstrap
     private const string ScenePath = "Assets/Scenes/EchoSphere_Prototype.unity";
     private const string ApplicationId = "com.lir37.echosphere";
     private const string PipelinePath = "Assets/Settings/EchoSphere_URP.asset";
+    private const string RendererPath = "Assets/Settings/EchoSphere_Renderer.asset";
 
     static EchoSphereProjectBootstrap() { EditorApplication.delayCall += EnsurePrototypeScene; }
 
@@ -60,7 +61,41 @@ internal static class EchoSphereProjectBootstrap
             Debug.Log("[ECHO SPHERE] Created the URP pipeline asset.");
         }
 
+        // UniversalRenderPipelineAsset.Create() can leave the renderer list empty.
+        // Repair both fresh and already-created assets instead of only assigning the pipeline.
+        var pipelineObject = new SerializedObject(pipeline);
+        var rendererList = pipelineObject.FindProperty("m_RendererDataList");
+        var defaultRendererIndex = pipelineObject.FindProperty("m_DefaultRendererIndex");
+        if (rendererList == null || defaultRendererIndex == null)
+        {
+            Debug.LogError("[ECHO SPHERE] URP asset is missing expected renderer settings; cannot assign a default Renderer.");
+            return;
+        }
+
+        var hasValidRenderer = rendererList.arraySize > 0 &&
+            rendererList.GetArrayElementAtIndex(0).objectReferenceValue is ScriptableRendererData;
+        if (!hasValidRenderer)
+        {
+            var rendererData = AssetDatabase.LoadAssetAtPath<UniversalRendererData>(RendererPath);
+            if (rendererData == null)
+            {
+                rendererData = ScriptableObject.CreateInstance<UniversalRendererData>();
+                rendererData.name = "ECHO SPHERE Renderer";
+                AssetDatabase.CreateAsset(rendererData, RendererPath);
+                Debug.Log("[ECHO SPHERE] Created the default Universal Renderer asset.");
+            }
+
+            rendererList.arraySize = 1;
+            rendererList.GetArrayElementAtIndex(0).objectReferenceValue = rendererData;
+            defaultRendererIndex.intValue = 0;
+            pipelineObject.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(pipeline);
+            EditorUtility.SetDirty(rendererData);
+            Debug.Log("[ECHO SPHERE] Assigned ECHO SPHERE Renderer as the default URP Renderer.");
+        }
+
         GraphicsSettings.defaultRenderPipeline = pipeline;
+        EditorUtility.SetDirty(pipeline);
         AssetDatabase.SaveAssets();
     }
 
