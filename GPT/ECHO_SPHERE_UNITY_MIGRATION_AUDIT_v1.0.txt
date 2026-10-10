@@ -1515,3 +1515,73 @@ CI FOLLOW-UP — UNITY SVG REGRESSION GUARD:
 - Unity Editor acceptance is still pending because CI does not execute the
   actual Vector Graphics SVG parser; the user-provided Editor log is the
   original confirmation that prompted this fix.
+
+======================================================================
+VISUAL PARITY RESET — 2026-10-10
+======================================================================
+
+STATUS CORRECTION:
+The Unity project is NOT yet a visual port of the current new-desing game.
+It is a playable migration harness with partial rules and prototype visuals.
+A green contract/preflight CI run does not establish visual parity or Unity
+Editor compilation.
+
+AUTHORITATIVE VISUAL SOURCE:
+The protected branch new-desing at baseline HEAD
+737ef2af4a877e0995db5f92331d536d2f29a934 is the source of truth.
+Do not derive production art direction from early 3D experiments or from
+the first Unity harness.
+
+Required source-to-Unity mapping:
+- Main menu / regions / character selection / shop / settings / archive:
+  src/App.tsx, src/EchoMapScreen.tsx, src/CharacterSelect.tsx,
+  src/conceptStyle.css, and the screen-specific components.
+- In-run composition, Core, enemies, bosses, damage numbers, telegraphs,
+  world effects and HUD: src/renderer.ts plus its imported render modules.
+- Sphere identity and animation: src/spheres/*Visual.ts, shared visual
+  helpers, orbitalGeometry, and the dated visual audit addenda in
+  GPT/ECHO_SPHERE_SPHERE_AUDIT_v1.0.txt.
+- Character art and animation: src/characters.ts and the actual active
+  character rendering paths in src/renderer.ts. Do not substitute the
+  old experimental GLB/3D character concepts.
+- Upgrade/evolution selection, artifact Sets and protocols: the active
+  components and data/runtime modules imported by src/App.tsx.
+- Styling tokens, panel hierarchy, responsive layout and visual states:
+  src/conceptStyle.css. Translate the rules into Unity UI; do not copy CSS
+  literally and do not invent a replacement design.
+
+CURRENT UNITY VISUAL GAPS:
+- EchoSphereRuntime still uses immediate-mode OnGUI for menu and HUD.
+- RuntimeSpriteFactory contains procedural geometric fallbacks explicitly
+  described as prototype silhouettes.
+- The current SVG files are not a replacement for the full authored Canvas
+  rendering in src/renderer.ts and src/spheres/*Visual.ts.
+- The current menu does not reproduce the complete new-desing navigation
+  and screen set.
+- Character/enemy/Sphere rendering, HUD layout, upgrade choice cards,
+  pause flow, and all secondary screens have not passed visual parity review.
+These are migration gaps, not approved design changes.
+
+MANDATORY NEXT IMPLEMENTATION ORDER:
+1. Build a source-to-Unity visual inventory from actual new-desing files.
+2. Port the current main menu and region selection layout/interactions.
+3. Port in-run scene composition and HUD from renderer.ts, not from SVG
+   stand-ins or the early 3D experiments.
+4. Port the actual per-family Sphere visuals and enemy/boss visual states.
+5. Port level-up/evolution choice cards, pause, game-over, character,
+   artifact, shop, archive and settings screens.
+6. Validate Unity compilation and Android APK; then compare screenshots
+   against the current source build at matched aspect ratios.
+
+NO-REGRESSION RULE:
+Do not add new invented placeholder art, legacy 3D assets, GLBs, or a new
+art direction to close a visual gap. Keep working gameplay contracts and
+the existing importer fix unless a concrete test or Unity Editor log shows
+a reason to change them. Keep new-desing untouched.
+
+ACCEPTANCE:
+A passing pure C# contract suite is necessary but insufficient. A slice is
+complete only when its source mapping is documented, its Unity code builds,
+its behaviour is checked, and its visual result is reviewed against the
+current new-desing implementation. If actual Unity Editor/APK execution is
+unavailable in CI, report that limitation explicitly.
