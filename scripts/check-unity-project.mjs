@@ -22,8 +22,6 @@ const required = [
   'Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs',
   'Assets/Editor/EchoSphereSvgImportSettings.cs',
   'Assets/Resources/EchoSphere/Art/player.svg',
-  'Assets/Resources/EchoSphere/Art/sphere-standard.svg',
-  'Assets/Resources/EchoSphere/Art/sphere-orbital.svg',
   'Assets/Resources/EchoSphere/Art/sphere-aura.svg',
   'Assets/Resources/EchoSphere/Art/sphere-chain.svg',
   'Assets/Resources/EchoSphere/Art/sphere-gravity.svg',
@@ -34,6 +32,11 @@ const required = [
   'Assets/Resources/EchoSphere/Art/sphere-void.svg',
   'Assets/Resources/EchoSphere/Art/character-spherist-front.svg',
   'Assets/Resources/EchoSphere/Art/character-spherist-3q.svg',
+  'Assets/Resources/EchoSphere/Art/character-spherist-shield.png',
+  'Assets/Resources/EchoSphere/Art/standard-sphere/energy-core.png',
+  'Assets/Resources/EchoSphere/Art/standard-sphere/lower-crystal.png',
+  'Assets/Resources/EchoSphere/Art/standard-sphere/stabilization-ring.png',
+  'Assets/Resources/EchoSphere/Art/standard-sphere/upper-crystal.png',
   'Assets/Resources/EchoSphere/Art/enemy-boss.svg',
 ];
 assert.ok(existsSync(root), 'UnityProject directory exists');
@@ -45,7 +48,7 @@ for (const relative of svgArtPaths) {
   const svg = readFileSync(join(root, relative), 'utf8');
   assert.ok(svg.trim().startsWith('<svg') && svg.includes('</svg>'), `invalid SVG document: ${relative}`);
   assert.ok(!/\bcurrentColor\b/i.test(svg), `Unity SVG importer does not support currentColor: ${relative}`);
-  assert.ok(!/<filter\\b|<fe[A-Za-z]/i.test(svg), `unsupported SVG filter effect: ${relative}`);
+  assert.ok(!/<filter\b|<fe[A-Za-z]/i.test(svg), `unsupported SVG filter effect: ${relative}`);
 }
 
 const versionText = readFileSync(join(root, 'ProjectSettings/ProjectVersion.txt'), 'utf8');
@@ -85,6 +88,21 @@ assert.ok(bootstrap.includes('m_RendererDataList'), 'URP renderer list repair is
 assert.ok(bootstrap.includes('m_DefaultRendererIndex'), 'URP default renderer index validation is missing');
 assert.ok(bootstrap.includes('UniversalRendererData'), 'bootstrap must be able to create/load a Universal Renderer Data asset');
 assert.ok(bootstrap.includes('selectedRendererIsValid'), 'bootstrap must validate the selected default renderer slot');
+
+const svgImporterSettings = readFileSync(join(root, 'Assets/Editor/EchoSphereSvgImportSettings.cs'), 'utf8');
+assert.ok(svgImporterSettings.includes('void OnPreprocessAsset()'), 'source assets must be configured before import');
+assert.ok(svgImporterSettings.includes('TextureImporterType.Sprite'), 'production transparent PNG parts must be imported as Sprites');
+assert.ok(svgImporterSettings.includes('alphaIsTransparency = true'), 'authored transparent PNG artwork must preserve alpha');
+assert.ok(!svgImporterSettings.includes('SaveAndReimport') && !svgImporterSettings.includes('OnPostprocessAllAssets'), 'asset postprocessor must not start recursive import loops');
+
+const runtimeArt = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs'), 'utf8');
+assert.ok(runtimeArt.includes('LoadAuthored("character-spherist-3q")'), 'the active player must use the source Spherist character, not the Core glyph');
+assert.ok(runtimeArt.includes('standard-sphere/upper-crystal') && runtimeArt.includes('standard-sphere/energy-core') && runtimeArt.includes('standard-sphere/stabilization-ring') && runtimeArt.includes('standard-sphere/lower-crystal'), 'Standard Sphere must use the four authored source parts');
+assert.ok(runtimeArt.includes('TickSphereArtAnimation') && runtimeArt.includes('ApplyOrbitalSphereVisual'), 'authored Sphere animation and the native Orbital construction are required');
+assert.ok(!runtimeArt.includes('LoadAuthored("sphere-standard")') && !runtimeArt.includes('LoadAuthored("sphere-orbital")'), 'the flat prototype SVG substitutions must not be used as source art');
+assert.ok(!existsSync(join(root, 'Assets/Resources/EchoSphere/Art/sphere-standard.svg')), 'obsolete flattened Standard Sphere SVG must be removed');
+assert.ok(!existsSync(join(root, 'Assets/Resources/EchoSphere/Art/sphere-orbital.svg')), 'obsolete static Orbital mock SVG must be removed');
+
 assert.ok(bootstrap.includes('ApplyModifiedPropertiesWithoutUndo'), 'URP serialized renderer repairs must be applied');
 
 const runtime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs'), 'utf8');

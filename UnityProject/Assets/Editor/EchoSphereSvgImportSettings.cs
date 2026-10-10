@@ -1,12 +1,13 @@
 using System;
 using UnityEditor;
+using UnityEngine;
 using Unity.VectorGraphics.Editor;
 
 namespace EchoSphere.Editor
 {
     /// <summary>
-    /// Applies SVG import settings before the SVG importer runs.
-    /// Asset settings are supplied before parsing; no manual reimport is required.
+    /// Applies safe import settings before source SVG/PNG artwork is imported.
+    /// Never manually reimports an asset from a postprocessor callback.
     /// </summary>
     internal sealed class EchoSphereSvgImportSettings : AssetPostprocessor
     {
@@ -16,19 +17,35 @@ namespace EchoSphere.Editor
         private void OnPreprocessAsset()
         {
             if (string.IsNullOrEmpty(assetPath) ||
-                !assetPath.StartsWith(ArtRoot, StringComparison.OrdinalIgnoreCase) ||
-                !assetPath.EndsWith(".svg", StringComparison.OrdinalIgnoreCase))
+                !assetPath.StartsWith(ArtRoot, StringComparison.OrdinalIgnoreCase))
                 return;
 
-            var importer = assetImporter as SVGImporter;
-            if (importer == null) return;
+            if (assetPath.EndsWith(".svg", StringComparison.OrdinalIgnoreCase))
+            {
+                var svgImporter = assetImporter as SVGImporter;
+                if (svgImporter == null) return;
 
-            // These values are applied to the importer before parsing begins.
-            // Mutating importer settings here avoids recursive reimport loops.
-            importer.SvgType = SVGType.TexturedSprite;
-            importer.UseSVGPixelsPerUnit = true;
-            importer.SvgPixelsPerUnit = PixelsPerUnit;
-            importer.GradientResolution = 64;
+                svgImporter.SvgType = SVGType.TexturedSprite;
+                svgImporter.UseSVGPixelsPerUnit = true;
+                svgImporter.SvgPixelsPerUnit = PixelsPerUnit;
+                svgImporter.GradientResolution = 64;
+                return;
+            }
+
+            if (!assetPath.EndsWith(".png", StringComparison.OrdinalIgnoreCase)) return;
+            var textureImporter = assetImporter as TextureImporter;
+            if (textureImporter == null) return;
+
+            // The Standard Sphere is assembled from four authored transparent
+            // layers; import them as Sprite assets so Resources.Load<Sprite>()
+            // works without manual Inspector changes.
+            textureImporter.textureType = TextureImporterType.Sprite;
+            textureImporter.spriteImportMode = SpriteImportMode.Single;
+            textureImporter.spritePixelsPerUnit = PixelsPerUnit;
+            textureImporter.alphaIsTransparency = true;
+            textureImporter.mipmapEnabled = false;
+            textureImporter.filterMode = FilterMode.Bilinear;
+            textureImporter.wrapMode = TextureWrapMode.Clamp;
         }
     }
 }

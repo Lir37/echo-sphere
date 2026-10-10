@@ -74,11 +74,17 @@ namespace EchoSphere.Runtime
             if (_mainMenu || _paused || _playerCore == null) return;
             var dt = Time.deltaTime;
             _runTime += dt;
+            TickSphereArtAnimation(dt);
             _playerCore.Tick(dt);
             if (_messageTimer > 0f) _messageTimer -= dt;
             if (Input.GetKeyDown(KeyCode.Space)) _playerCore.TryDash(_playerCore.LastMoveDirection);
 
             var input = ReadMovement();
+            var playerShell = _player != null ? _player.Find("Shell") : null;
+            var playerSprite = playerShell != null ? playerShell.GetComponent<SpriteRenderer>() : null;
+            // The authored three-quarter Spherist faces left; mirror only while
+            // travelling right, matching the active Canvas renderer contract.
+            if (playerSprite != null && Mathf.Abs(input.x) > 0.05f) playerSprite.flipX = input.x > 0f;
             if (input.sqrMagnitude > 0.0001f) _playerCore.RememberMoveDirection(input);
             var requested = new Vec2(input.x, input.y);
             var followMultiplier = _follow ? FormationFollowRules.GetMovementMultiplier(true, _formationStrain, _lastDirection, requested) : 1f;
@@ -181,15 +187,28 @@ namespace EchoSphere.Runtime
         private void CreatePlayer()
         {
             var tint = new Color(0.2f, 0.91f, 1f);
-            var go = CreateOrb("Core", Vector2.zero, 1f, tint, Color.white, 10);
-            var authoredCore = RuntimeSpriteFactory.LoadAuthored("player");
-            if (!ApplyAuthoredShellVisual(go, authoredCore, 1.06f))
-                ApplyShellVisual(go, RuntimeSpriteFactory.Faceted, 1.06f);
-            AddOrbitRail(go.transform, tint, new Vector3(1.82f, 0.72f, 1f), -28f, 7);
-            AddOrbitRail(go.transform, new Color(0.43f, 0.76f, 1f, 0.8f), new Vector3(1.45f, 0.54f, 1f), 42f, 8);
+            var go = CreateOrb("Spherist", Vector2.zero, 1f, tint, Color.white, 10);
+
+            // In the source renderer, player.svg is the Core glyph. The actual
+            // playable character is the authored three-quarter Spherist art.
+            // Use that production sprite and do not stack primitive rings/core
+            // layers over its already-authored shell and energy ring.
+            var authoredCharacter = RuntimeSpriteFactory.LoadAuthored("character-spherist-3q");
+            if (!ApplyAuthoredShellVisual(go, authoredCharacter, 0.62f))
+                ApplyShellVisual(go, RuntimeSpriteFactory.Faceted, 0.95f);
+
+            var glow = go.transform.Find("Glow");
+            if (glow != null)
+            {
+                glow.localScale = Vector3.one * 1.16f;
+                var glowRenderer = glow.GetComponent<SpriteRenderer>();
+                if (glowRenderer != null) glowRenderer.color = new Color(tint.r, tint.g, tint.b, 0.09f);
+            }
+
             _player = go.transform;
             _playerCore = go.AddComponent<PlayerCoreController2D>();
         }
+
 
         private void CreateSpheres()
         {
@@ -261,12 +280,15 @@ namespace EchoSphere.Runtime
         {
             switch (type)
             {
-                case SphereId.Standard: return RuntimeSpriteFactory.LoadAuthored("sphere-standard");
+                case SphereId.Standard:
+                case SphereId.Orbital:
+                    // Standard is composed from four production PNG parts;
+                    // Orbital is a native 2.5D core/ring construction.
+                    return null;
                 case SphereId.Sniper: return RuntimeSpriteFactory.LoadAuthored("sphere-sniper");
                 case SphereId.Chain: return RuntimeSpriteFactory.LoadAuthored("sphere-chain");
                 case SphereId.Shotgun: return RuntimeSpriteFactory.LoadAuthored("sphere-shotgun");
                 case SphereId.Aura: return RuntimeSpriteFactory.LoadAuthored("sphere-aura");
-                case SphereId.Orbital: return RuntimeSpriteFactory.LoadAuthored("sphere-orbital");
                 case SphereId.Prism: return RuntimeSpriteFactory.LoadAuthored("sphere-prism");
                 case SphereId.Gravity: return RuntimeSpriteFactory.LoadAuthored("sphere-gravity");
                 case SphereId.Pulse: return RuntimeSpriteFactory.LoadAuthored("sphere-pulse");
@@ -275,22 +297,146 @@ namespace EchoSphere.Runtime
             }
         }
 
+
+        private static bool ApplyStandardSphereArtwork(GameObject root)
+        {
+            var upper = RuntimeSpriteFactory.LoadAuthored("standard-sphere/upper-crystal");
+            var energy = RuntimeSpriteFactory.LoadAuthored("standard-sphere/energy-core");
+            var ring = RuntimeSpriteFactory.LoadAuthored("standard-sphere/stabilization-ring");
+            var lower = RuntimeSpriteFactory.LoadAuthored("standard-sphere/lower-crystal");
+            if (upper == null || energy == null || ring == null || lower == null) return false;
+
+            var shell = root.transform.Find("Shell");
+            var frame = root.transform.Find("Inner Frame");
+            var core = root.transform.Find("Core Light");
+            if (shell == null || frame == null || core == null) return false;
+
+            var upperRenderer = shell.GetComponent<SpriteRenderer>();
+            var ringRenderer = frame.GetComponent<SpriteRenderer>();
+            var coreRenderer = core.GetComponent<SpriteRenderer>();
+            if (upperRenderer == null || ringRenderer == null || coreRenderer == null) return false;
+
+            // The source renderer assembles Standard from independent production
+            // parts. Keep that architecture instead of flattening it into a generic SVG.
+            upperRenderer.sprite = upper;
+            upperRenderer.color = Color.white;
+            upperRenderer.sortingOrder = 10;
+            shell.localScale = Vector3.one * 0.54f;
+            shell.gameObject.SetActive(true);
+
+            coreRenderer.sprite = energy;
+            coreRenderer.color = Color.white;
+            coreRenderer.sortingOrder = 8;
+            core.localScale = Vector3.one * 0.50f;
+            core.gameObject.SetActive(true);
+
+            ringRenderer.sprite = ring;
+            ringRenderer.color = Color.white;
+            ringRenderer.sortingOrder = 9;
+            frame.localScale = Vector3.one * 0.59f;
+            frame.gameObject.SetActive(true);
+
+            var lowerObject = root.transform.Find("Standard Lower Crystal");
+            if (lowerObject == null)
+            {
+                var lowerGo = new GameObject("Standard Lower Crystal");
+                lowerGo.transform.SetParent(root.transform, false);
+                lowerObject = lowerGo.transform;
+            }
+            lowerObject.localPosition = Vector3.zero;
+            lowerObject.localRotation = Quaternion.identity;
+            lowerObject.localScale = Vector3.one * 0.54f;
+            var lowerRenderer = lowerObject.GetComponent<SpriteRenderer>();
+            if (lowerRenderer == null) lowerRenderer = lowerObject.gameObject.AddComponent<SpriteRenderer>();
+            lowerRenderer.sprite = lower;
+            lowerRenderer.color = Color.white;
+            lowerRenderer.sortingOrder = 11;
+            return true;
+        }
+
+        private static void ApplyOrbitalSphereVisual(GameObject root)
+        {
+            var shell = root.transform.Find("Shell");
+            var frame = root.transform.Find("Inner Frame");
+            var core = root.transform.Find("Core Light");
+            if (shell == null || core == null) return;
+
+            // The source has no single orbital SVG. Its identity is a 2.5D core,
+            // crossing rings and crystal terminals. Do not use the old static mock.
+            var shellRenderer = shell.GetComponent<SpriteRenderer>();
+            if (shellRenderer != null)
+            {
+                shellRenderer.sprite = RuntimeSpriteFactory.Faceted;
+                shellRenderer.color = new Color(0.12f, 0.30f, 0.43f, 1f);
+                shellRenderer.sortingOrder = 8;
+                shell.localScale = Vector3.one * 0.78f;
+            }
+            if (frame != null) frame.gameObject.SetActive(false);
+
+            var coreRenderer = core.GetComponent<SpriteRenderer>();
+            if (coreRenderer != null)
+            {
+                coreRenderer.sprite = RuntimeSpriteFactory.Disc;
+                coreRenderer.color = new Color(0.56f, 0.94f, 1f, 1f);
+                coreRenderer.sortingOrder = 9;
+            }
+            core.localScale = Vector3.one * 0.31f;
+
+            var glow = root.transform.Find("Glow");
+            if (glow != null)
+            {
+                glow.localScale = Vector3.one * 1.45f;
+                var glowRenderer = glow.GetComponent<SpriteRenderer>();
+                if (glowRenderer != null) glowRenderer.color = new Color(0.30f, 0.87f, 1f, 0.11f);
+            }
+
+            AddRadialNodes(root.transform, RuntimeSpriteFactory.Diamond, new Color(0.79f, 0.98f, 1f), 2, 0.84f, 0.16f, 11, 0.35f);
+            AddOrbitRail(root.transform, new Color(0.56f, 0.94f, 1f, 0.94f), new Vector3(1.75f, 0.7f, 1f), -34f, 6);
+            AddOrbitRail(root.transform, new Color(0.8f, 0.98f, 1f, 0.85f), new Vector3(1.5f, 0.58f, 1f), 36f, 7);
+        }
+
+        private void TickSphereArtAnimation(float deltaTime)
+        {
+            for (var i = 0; i < _spheres.Count; i++)
+            {
+                var sphere = _spheres[i];
+                if (sphere == null || sphere.Type != SphereId.Standard) continue;
+
+                var frame = sphere.transform.Find("Inner Frame");
+                if (frame != null && frame.gameObject.activeSelf)
+                    frame.Rotate(0f, 0f, 12.6f * deltaTime, Space.Self);
+
+                var pulse = 0.5f + 0.5f * Mathf.Sin(_runTime * 4.6f + sphere.transform.position.y * 0.009f);
+                var core = sphere.transform.Find("Core Light");
+                if (core != null && core.gameObject.activeSelf)
+                    core.localScale = Vector3.one * (0.50f * (1f + pulse * 0.035f));
+
+                var upper = sphere.transform.Find("Shell");
+                if (upper != null && upper.gameObject.activeSelf)
+                    upper.localScale = Vector3.one * (0.54f * (1f + pulse * 0.022f));
+
+                var lower = sphere.transform.Find("Standard Lower Crystal");
+                if (lower != null && lower.gameObject.activeSelf)
+                    lower.localScale = Vector3.one * (0.54f * (1f + pulse * 0.022f));
+            }
+        }
+
         private void ApplySphereVisual(GameObject root, SphereId type)
         {
             var shell = root.transform.Find("Shell");
             var core = root.transform.Find("Core Light");
             if (shell == null || core == null) return;
-            var authored = GetAuthoredSphereArtwork(type);
-            if (ApplyAuthoredShellVisual(root, authored, type == SphereId.Orbital ? 1.08f : 1.04f))
+
+            if (type == SphereId.Standard && ApplyStandardSphereArtwork(root)) return;
+            if (type == SphereId.Orbital)
             {
-                if (type == SphereId.Orbital)
-                {
-                    AddRadialNodes(root.transform, RuntimeSpriteFactory.Diamond, new Color(0.79f, 0.98f, 1f), 2, 0.84f, 0.16f, 11, 0.35f);
-                    AddOrbitRail(root.transform, SphereColor(type), new Vector3(1.75f, 0.7f, 1f), -34f, 6);
-                    AddOrbitRail(root.transform, new Color(0.8f, 0.98f, 1f, 0.85f), new Vector3(1.5f, 0.58f, 1f), 36f, 7);
-                }
+                ApplyOrbitalSphereVisual(root);
                 return;
             }
+
+            var authored = GetAuthoredSphereArtwork(type);
+            if (ApplyAuthoredShellVisual(root, authored, 1.04f)) return;
+
             var renderer = shell.GetComponent<SpriteRenderer>();
             switch (type)
             {
@@ -322,12 +468,9 @@ namespace EchoSphere.Runtime
                 }
             }
 
-            // Each Sphere family gets a readable silhouette language, not only a color swap.
+            // Procedural fallback is only used if a source asset fails to import.
             switch (type)
             {
-                case SphereId.Standard:
-                    AddRadialNodes(root.transform, RuntimeSpriteFactory.Disc, SphereColor(type), 3, 0.78f, 0.13f, 11, 0.2f);
-                    break;
                 case SphereId.Sniper:
                     AddRadialNodes(root.transform, RuntimeSpriteFactory.Diamond, new Color(0.91f, 0.78f, 1f), 2, 0.78f, 0.15f, 11, Mathf.PI * 0.5f);
                     AddOrbitRail(root.transform, new Color(0.83f, 0.62f, 1f, 0.72f), new Vector3(1.52f, 0.30f, 1f), 0f, 6);
@@ -341,11 +484,6 @@ namespace EchoSphere.Runtime
                 case SphereId.Aura:
                     AddRadialNodes(root.transform, RuntimeSpriteFactory.Disc, new Color(0.67f, 1f, 0.86f), 4, 0.78f, 0.12f, 11, Mathf.PI * 0.25f);
                     AddOrbitRail(root.transform, new Color(0.34f, 0.95f, 0.76f, 0.45f), new Vector3(1.72f, 0.78f, 1f), 18f, 6);
-                    break;
-                case SphereId.Orbital:
-                    AddRadialNodes(root.transform, RuntimeSpriteFactory.Diamond, new Color(0.79f, 0.98f, 1f), 2, 0.84f, 0.16f, 11, 0.35f);
-                    AddOrbitRail(root.transform, SphereColor(type), new Vector3(1.75f, 0.7f, 1f), -34f, 6);
-                    AddOrbitRail(root.transform, new Color(0.8f, 0.98f, 1f, 0.85f), new Vector3(1.5f, 0.58f, 1f), 36f, 7);
                     break;
                 case SphereId.Prism:
                     AddRadialNodes(root.transform, RuntimeSpriteFactory.Prism, new Color(1f, 0.78f, 0.95f), 3, 0.78f, 0.14f, 11, Mathf.PI * 0.5f);
@@ -365,6 +503,7 @@ namespace EchoSphere.Runtime
                     break;
             }
         }
+
 
         private static void AddOrbitRail(Transform parent, Color tint, Vector3 scale, float angle, int order)
         {
@@ -396,6 +535,8 @@ namespace EchoSphere.Runtime
 
         private static Sprite GetSphereIcon(SphereId type)
         {
+            if (type == SphereId.Standard)
+                return RuntimeSpriteFactory.LoadAuthored("standard-sphere/energy-core") ?? RuntimeSpriteFactory.Faceted;
             var authored = GetAuthoredSphereArtwork(type);
             if (authored != null) return authored;
             switch (type)
