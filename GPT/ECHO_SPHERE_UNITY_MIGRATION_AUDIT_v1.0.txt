@@ -1508,4 +1508,10 @@ CI FOLLOW-UP — UNITY SVG REGRESSION GUARD:
   SaveAndReimport, not because the method was present in the importer.
 - Removed the misleading phrase from the importer comment and corrected the
   preflight's word-boundary expression so it detects the actual currentColor
-  token. The next CI run is the acceptance gate for the corrected guard.
+  token.
+- CI #81 on HEAD 793c03b50767b063be958581a2ce6b38335cd6f0: SUCCESS.
+  The 305 C# contract assertions and the project preflight both passed.
+  Run: https://github.com/Lir37/echo-sphere/actions/runs/38047805221
+- Unity Editor acceptance is still pending because CI does not execute the
+  actual Vector Graphics SVG parser; the user-provided Editor log is the
+  original confirmation that prompted this fix.
