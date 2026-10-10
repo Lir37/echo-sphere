@@ -1875,9 +1875,20 @@ gates until executed. Do not describe structural CI as an Editor compile.
   Sniper Beacon visual was still expressed through the generic fallback path.
 - Kept the guard strict and added an explicit Sniper Beacon arc/reticle motif
   in ProjectileVfx2D.cs, mapped to the authored sniper_beacon projectile path.
-- No combat or RNG behavior was changed. Re-run result is recorded after the
-  correction commit's Actions run completes.
+- No combat or RNG behavior was changed. Final validation result is recorded in the Slice 6 validation section below.
 
 - The next strict coverage run exposed that Void Execution also still used the generic
   default visual. Added an explicit pale execution reticle to that source branch; the
-  coverage guard remains strict and no combat behavior changed. See the latest CI run.
+  coverage guard remains strict and no combat behavior changed. Final validation is recorded below.
+
+
+[2026-10-11] SLICE 6 VALIDATION RESULT
+- Unity Migration Contracts CI #102 on HEAD
+  db45c5704b0df5c99d772e7be52fa15f73986aea: SUCCESS.
+  Run: https://github.com/Lir37/echo-sphere/actions/runs/38091924076
+- All 305 pure C# gameplay assertions passed. The Unity project preflight and
+  added source-mapping, visual branch coverage, runtime wiring and no-gameplay-
+  RNG guards passed.
+- This successful workflow verifies pure gameplay contracts and source/project
+  structure only. It does not compile UnityEngine-facing scripts, prove SVG or
+  material import in the Editor, generate an Android APK or replace device review.
