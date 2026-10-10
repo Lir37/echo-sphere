@@ -24,6 +24,7 @@ namespace EchoSphere.Runtime
         private int _gravityTideHits;
         private readonly List<Transform> _orbitalElements = new List<Transform>();
         private readonly List<float> _orbitalContactTimers = new List<float>();
+        private int _orbitalHitCount;
         public void AccelerateNextAttack(float amount) => _attackTimer = Mathf.Max(0f, _attackTimer - Mathf.Max(0f, amount));
 
         public SphereId Type => _type;
@@ -105,6 +106,7 @@ namespace EchoSphere.Runtime
             var origin = (Vector2)transform.position;
             var target = _runtime.FindNearestEnemy(origin, AttackRange);
             var damage = BaseDamage * _runtime.SphereDamageMultiplier;
+            if (target != null && _runtime.ConsumeResonanceLineBurst()) damage *= 1.60f;
             if (_type == SphereId.Shotgun && target != null)
             {
                 var targetDistance = Vector2.Distance(origin, target.transform.position);
@@ -207,6 +209,16 @@ namespace EchoSphere.Runtime
                 if (contact == null) continue;
                 var damage = BaseDamage * _runtime.SphereDamageMultiplier * damageMultiplier;
                 contact.ReceiveDamage(damage);
+                _runtime.AddResonanceCharge(1f);
+                _orbitalHitCount++;
+                if (branch == "orbital_halo")
+                {
+                    var bonusCharge = SphereEvolutionCombatRules.GetOrbitalResonanceBonus(_progressionLevel, finalId);
+                    if (bonusCharge > 0f) _runtime.AddResonanceCharge(bonusCharge);
+                    if (finalId == "orbital_halo_final_3" &&
+                        SphereEvolutionCombatRules.ShouldOrbitalGrantShieldCharge(_orbitalHitCount))
+                        _runtime.GrantPlayerShieldCharge(1);
+                }
                 _runtime.SpawnImpact(contact.transform.position, new Color(0.56f, 0.94f, 1f));
                 var afterimage = SphereEvolutionCombatRules.GetOrbitalAfterimageMultiplier(branch, finalId);
                 if (afterimage > 0f) _runtime.TriggerOrbitalAfterimage(contact, damage * afterimage, 0.65f);
@@ -255,6 +267,7 @@ namespace EchoSphere.Runtime
                 var direction = ((Vector2)target.transform.position - origin).normalized;
                 hitDamage = OnProjectileHit(target, direction, hitDamage, wasCritical);
                 target.ReceiveDamage(hitDamage);
+                _runtime.AddResonanceCharge(1f);
                 _runtime.SpawnImpact(target.transform.position, ColorFor(_type));
             }
         }
@@ -373,6 +386,7 @@ namespace EchoSphere.Runtime
             {
                 if (pull && !(_type == SphereId.Gravity && !string.IsNullOrEmpty(branch))) targets[i].PullToward(origin, 1.8f * _levelStats.PullMultiplier);
                 targets[i].ReceiveDamage(auraDamage);
+                _runtime.AddResonanceCharge(1f);
             }
             if (targets.Count > 0) _runtime.SpawnImpact(origin, tint);
         }

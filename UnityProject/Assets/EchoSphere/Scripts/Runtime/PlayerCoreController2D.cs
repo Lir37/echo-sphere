@@ -11,6 +11,7 @@ namespace EchoSphere.Runtime
         public float ContactGraceTimer { get; private set; }
         public float DashCooldown { get; private set; }
         public float DashTimer { get; private set; }
+        public int ShieldCharges { get; private set; }
         public Vector2 LastMoveDirection { get; private set; } = Vector2.down;
         public Vector2 DashDirection { get; private set; } = Vector2.down;
         public bool IsDead => CurrentHp <= 0f;
@@ -48,9 +49,21 @@ namespace EchoSphere.Runtime
         public bool TryTakeDamage(float amount)
         {
             if (IsDead || !CombatRules.CanReceivePlayerDamage(InvulnerableTimer, ContactGraceTimer)) return false;
+            if (ShieldCharges > 0)
+            {
+                ShieldCharges--;
+                InvulnerableTimer = Mathf.Max(InvulnerableTimer, 0.45f);
+                ContactGraceTimer = Mathf.Max(ContactGraceTimer, CombatRules.ContactDamageGraceSeconds);
+                return false;
+            }
             CurrentHp = Mathf.Max(0f, CurrentHp - Mathf.Max(0f, amount));
             ContactGraceTimer = CombatRules.ContactDamageGraceSeconds;
             return true;
+        }
+
+        public void GrantShieldCharge(int amount = 1)
+        {
+            ShieldCharges = Mathf.Clamp(ShieldCharges + Mathf.Max(0, amount), 0, 5);
         }
 
         public void Heal(float amount)

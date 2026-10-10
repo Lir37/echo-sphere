@@ -41,6 +41,7 @@ namespace EchoSphere.Runtime
                 var resolvedDamage = _runtime.ResolveProjectileDamage(_damage, _critChanceBonus, out var wasCritical);
                 if (_evolutionOwner != null) resolvedDamage = _evolutionOwner.OnProjectileHit(enemy, _direction, resolvedDamage, wasCritical);
                 enemy.ReceiveDamage(resolvedDamage);
+                _runtime.AddResonanceCharge(1f);
                 _runtime.SpawnImpact(transform.position, _impactColor);
                 if (_remainingPierces > 0) _remainingPierces--;
                 else { Destroy(gameObject); return; }

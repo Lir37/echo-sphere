@@ -15,6 +15,7 @@ const required = [
   'Assets/EchoSphere/Scripts/Core/GameCatalog.cs',
   'Assets/EchoSphere/Scripts/Core/RewardedAdsRules.cs',
   'Assets/EchoSphere/Scripts/Core/SphereEvolutionCombatRules.cs',
+  'Assets/EchoSphere/Scripts/Core/ResonanceRules.cs',
   'Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs',
   'Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs',
   'Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs',
@@ -73,6 +74,11 @@ assert.ok(runtime.includes('RefreshNetworkState') && runtime.includes('UpdateNet
 assert.ok(runtime.includes('RUN PAUSED') && runtime.includes('RESTART RUN'), 'pause overlay controls are missing');
 assert.ok(spriteFactory.includes('CreatePolygonSprite'), 'procedural faceted silhouette generation is missing');
 assert.ok(spriteFactory.includes('ES_Diamond') && spriteFactory.includes('ES_Prism') && spriteFactory.includes('ES_Shard'), 'distinct archetype silhouettes are missing');
+const resonanceRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/ResonanceRules.cs'), 'utf8');
+assert.ok(resonanceRules.includes('BaseCap = 100f') && resonanceRules.includes('OverflowCap = 150f'), 'Resonance charge contract is missing');
+assert.ok(runtime.includes('TriggerResonanceEvent') && runtime.includes('TickResonanceRing') && runtime.includes('RESONANCE {Mathf.FloorToInt'), 'formation-aware Resonance event runtime/HUD is missing');
+assert.ok(runtime.includes('GetFormationKey') && runtime.includes('AddResonanceChargeFromSource'), 'new-geometry Resonance charging is missing');
+assert.ok(sphereAttack.includes('GetOrbitalResonanceBonus') && sphereAttack.includes('ShouldOrbitalGrantShieldCharge'), 'Orbital Halo Resonance/Guard behavior is missing');
 console.log(`Unity project preflight: PASS (Unity ${version}, ${runtimeFiles.length} C# source files, URP renderer regression guard)`);
 
 const evolutionRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/SphereEvolutionCombatRules.cs'), 'utf8');

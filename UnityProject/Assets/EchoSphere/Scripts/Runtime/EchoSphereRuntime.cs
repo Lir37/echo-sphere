@@ -27,6 +27,11 @@ namespace EchoSphere.Runtime
         private int _kills, _level = 1, _xp, _xpRequired = RunBalanceRules.GetXpToNextLevel(1);
         private bool _follow, _paused, _levelUp, _gameOver, _userPaused;
         private float _damageMultiplier = 1f, _attackSpeedMultiplier = 1f;
+        private float _resonanceCharge, _resonanceRingTimer, _resonanceRingPulseTimer;
+        private int _resonanceEventsTriggered, _resonanceRingCursor, _resonanceLineBurst;
+        private bool _resonanceEventActive;
+        private readonly HashSet<string> _resonanceKnownFormationKeys = new HashSet<string>();
+        private readonly List<int> _resonanceRingNodes = new List<int>();
         private string _message = "Drag on the left half to move. Tap DASH to evade.";
         private GUIStyle _box, _label, _button, _title;
         private readonly List<LineRenderer> _networkLinkRenderers = new List<LineRenderer>();
@@ -38,6 +43,8 @@ namespace EchoSphere.Runtime
         public bool IsGameplayPaused => _paused;
         public float SphereDamageMultiplier => _damageMultiplier;
         public float AttackSpeedMultiplier => _attackSpeedMultiplier;
+        public float ResonanceCharge => _resonanceCharge;
+        public int ResonanceEventsTriggered => _resonanceEventsTriggered;
 
         public string GetSphereBranch(SphereId type) => _sphereBranches.TryGetValue(type, out var id) ? id : null;
         public string GetSphereFinal(SphereId type) => _sphereFinals.TryGetValue(type, out var id) ? id : null;
@@ -79,6 +86,7 @@ namespace EchoSphere.Runtime
                 RefreshNetworkState();
                 _networkRefreshTimer = 0.12f;
             }
+            TickResonanceRing(dt);
             var cameraTarget = new Vector3(_player.position.x, _player.position.y, -10f);
             _camera.transform.position = Vector3.Lerp(_camera.transform.position, cameraTarget, 1f - Mathf.Exp(-5f * dt));
             _spawnTimer -= dt;
@@ -426,6 +434,216 @@ namespace EchoSphere.Runtime
             if (_playerCore != null && !_playerCore.IsDead) _playerCore.Heal(Mathf.Max(0f, amount));
         }
 
+        public void AddResonanceCharge(float amount)
+        {
+            if (_resonanceEventActive) return;
+            var events = ResonanceRules.Add(ref _resonanceCharge, amount);
+            for (var i = 0; i < events; i++) TriggerResonanceEvent();
+        }
+
+        private void AddResonanceChargeFromSource(float amount, bool applyFormationEfficiency)
+        {
+            if (_resonanceEventActive) return;
+            if (applyFormationEfficiency)
+                amount *= FormationFollowRules.GetResonanceEfficiency(_follow, _formationStrain);
+            AddResonanceCharge(amount);
+        }
+
+        public void GrantPlayerShieldCharge(int amount)
+        {
+            if (_playerCore != null && !_playerCore.IsDead) _playerCore.GrantShieldCharge(amount);
+        }
+
+        public bool ConsumeResonanceLineBurst()
+        {
+            if (_resonanceLineBurst <= 0) return false;
+            _resonanceLineBurst--;
+            return true;
+        }
+
+        private string GetFormationKey(SphereNetworkShape formation)
+        {
+            if (formation == null) return "none";
+            var indexes = new List<int>(formation.NodeIndexes);
+            indexes.Sort();
+            return formation.Type + ":" + string.Join(",", indexes.ConvertAll(index => index.ToString()).ToArray());
+        }
+
+        private Vector2 GetFormationCenter(SphereNetworkShape formation)
+        {
+            if (formation == null || _spheres.Count == 0) return _player == null ? Vector2.zero : (Vector2)_player.position;
+            var center = Vector2.zero;
+            var count = 0;
+            for (var i = 0; i < formation.NodeIndexes.Count; i++)
+            {
+                var index = formation.NodeIndexes[i];
+                if (index < 0 || index >= _spheres.Count || _spheres[index] == null) continue;
+                center += (Vector2)_spheres[index].transform.position;
+                count++;
+            }
+            return count > 0 ? center / count : (_player == null ? Vector2.zero : (Vector2)_player.position);
+        }
+
+        private SphereNetworkShape FindFormationCandidate(SphereNetworkFormation type)
+        {
+            if (_networkState == null) return null;
+            for (var i = 0; i < _networkState.FormationCandidates.Count; i++)
+                if (_networkState.FormationCandidates[i].Type == type) return _networkState.FormationCandidates[i];
+            return null;
+        }
+
+        private void DamageEnemiesInRadius(Vector2 center, float radius, float damage)
+        {
+            var targets = FindEnemiesInRadius(center, radius);
+            for (var i = 0; i < targets.Count; i++) targets[i].ReceiveDamage(damage);
+        }
+
+        private void TriggerResonanceEvent()
+        {
+            if (_resonanceEventActive) return;
+            _resonanceEventActive = true;
+            _resonanceEventsTriggered++;
+            try
+            {
+                var formation = _networkState == null ? null : _networkState.DominantFormation;
+                if (formation != null && !formation.Active) formation = null;
+                var type = formation == null ? SphereNetworkFormation.None : formation.Type;
+                var center = GetFormationCenter(formation);
+                var baseDamage = 16f + _level * 2f;
+
+                if (type == SphereNetworkFormation.Fractal)
+                {
+                    var replay = FindFormationCandidate(SphereNetworkFormation.Lattice)
+                        ?? FindFormationCandidate(SphereNetworkFormation.Ring)
+                        ?? FindFormationCandidate(SphereNetworkFormation.Square)
+                        ?? FindFormationCandidate(SphereNetworkFormation.Triangle)
+                        ?? formation;
+                    for (var i = 0; i < replay.NodeIndexes.Count; i++)
+                    {
+                        var index = replay.NodeIndexes[i];
+                        if (index < 0 || index >= _spheres.Count || _spheres[index] == null) continue;
+                        var sphere = _spheres[index];
+                        sphere.AccelerateNextAttack(0.35f);
+                        SpawnImpact(sphere.transform.position, new Color(1f, 0.72f, 0.28f, 0.95f));
+                        DamageEnemiesInRadius(sphere.transform.position, 0.95f, baseDamage * 0.55f);
+                    }
+                    DamageEnemiesInRadius(center, 1.55f, baseDamage * 0.65f);
+                    ShowMessage("FRACTAL ECHO");
+                }
+                else if (type == SphereNetworkFormation.Lattice)
+                {
+                    for (var i = 0; i < formation.NodeIndexes.Count; i++)
+                    {
+                        var index = formation.NodeIndexes[i];
+                        if (index < 0 || index >= _spheres.Count || _spheres[index] == null) continue;
+                        _spheres[index].AccelerateNextAttack(0.55f);
+                        SpawnImpact(_spheres[index].transform.position, new Color(0.22f, 0.82f, 1f, 0.9f));
+                    }
+                    DamageEnemiesInRadius(center, 1.45f, baseDamage * 0.95f);
+                    ShowMessage("LATTICE CASCADE");
+                }
+                else if (type == SphereNetworkFormation.Ring)
+                {
+                    _resonanceRingTimer = 2.4f;
+                    _resonanceRingPulseTimer = 0f;
+                    _resonanceRingCursor = 0;
+                    _resonanceRingNodes.Clear();
+                    _resonanceRingNodes.AddRange(formation.NodeIndexes);
+                    ShowMessage("RING LOOP");
+                }
+                else if (type == SphereNetworkFormation.Square)
+                {
+                    GrantPlayerShieldCharge(2);
+                    DamageEnemiesInRadius(center, 1.50f, baseDamage * 1.20f);
+                    SpawnImpact(center, new Color(1f, 0.70f, 0.28f, 0.95f));
+                    ShowMessage("SQUARE RESONANCE");
+                }
+                else if (type == SphereNetworkFormation.Triangle)
+                {
+                    var nodes = new List<int>();
+                    for (var i = 0; i < formation.NodeIndexes.Count; i++)
+                    {
+                        var index = formation.NodeIndexes[i];
+                        if (index >= 0 && index < _spheres.Count && _spheres[index] != null) nodes.Add(index);
+                    }
+                    var targets = FindNearestEnemies(center, 100f, nodes.Count);
+                    var usedTargets = new HashSet<int>();
+                    for (var i = 0; i < nodes.Count; i++)
+                    {
+                        var nodeIndex = nodes[i];
+                        var linked = SphereNetworkRules.GetLinkedNodeIndexes(_networkState, nodeIndex);
+                        var nextIndex = -1;
+                        for (var j = 0; j < linked.Count; j++)
+                            if (nodes.Contains(linked[j])) { nextIndex = linked[j]; break; }
+                        if (nextIndex < 0 && nodes.Count > 1) nextIndex = nodes[(i + 1) % nodes.Count];
+                        var from = (Vector2)_spheres[nodeIndex].transform.position;
+                        SpawnImpact(from, new Color(0.72f, 0.40f, 0.86f, 0.9f));
+                        if (nextIndex >= 0 && nextIndex < _spheres.Count && _spheres[nextIndex] != null)
+                            SpawnImpact(Vector2.Lerp(from, _spheres[nextIndex].transform.position, 0.5f), new Color(0.72f, 0.40f, 0.86f, 0.95f));
+                        if (i < targets.Count && targets[i] != null && usedTargets.Add(targets[i].GetInstanceID()))
+                            targets[i].ReceiveDamage(baseDamage * 0.65f);
+                    }
+                    ShowMessage("TRIANGLE RESONANCE");
+                }
+                else if (type == SphereNetworkFormation.Cluster)
+                {
+                    var targets = FindEnemiesInRadius(center, 1.35f);
+                    for (var i = 0; i < targets.Count; i++)
+                    {
+                        targets[i].KnockBackFrom(center, 0.36f);
+                        targets[i].ReceiveDamage(baseDamage * 0.90f);
+                    }
+                    ShowMessage("CLUSTER RESONANCE");
+                }
+                else if (type == SphereNetworkFormation.Line)
+                {
+                    _resonanceLineBurst = Mathf.Max(_resonanceLineBurst, 1);
+                    ShowMessage("LINE RESONANCE");
+                }
+                else
+                {
+                    DamageEnemiesInRadius(center, 0.90f, baseDamage * 0.60f);
+                    ShowMessage("RESONANCE");
+                }
+            }
+            finally
+            {
+                _resonanceEventActive = false;
+            }
+        }
+
+        private void TickResonanceRing(float deltaTime)
+        {
+            if (_resonanceRingTimer <= 0f) return;
+            _resonanceRingTimer = Mathf.Max(0f, _resonanceRingTimer - deltaTime);
+            _resonanceRingPulseTimer -= deltaTime;
+            if (_resonanceRingPulseTimer > 0f) return;
+
+            var nodes = new List<int>();
+            for (var i = 0; i < _resonanceRingNodes.Count; i++)
+            {
+                var index = _resonanceRingNodes[i];
+                if (index >= 0 && index < _spheres.Count && _spheres[index] != null) nodes.Add(index);
+            }
+            if (nodes.Count == 0)
+            {
+                _resonanceRingTimer = 0f;
+                return;
+            }
+
+            _resonanceRingPulseTimer = 0.42f;
+            var cursor = _resonanceRingCursor % nodes.Count;
+            var nodeIndex = nodes[cursor];
+            var nextIndex = nodes[(cursor + 1) % nodes.Count];
+            _resonanceRingCursor = (cursor + 1) % nodes.Count;
+            var sphere = _spheres[nodeIndex];
+            sphere.AccelerateNextAttack(0.30f);
+            SpawnImpact(sphere.transform.position, new Color(0.32f, 0.90f, 0.60f, 0.9f));
+            if (_spheres[nextIndex] != null)
+                SpawnImpact(Vector2.Lerp(sphere.transform.position, _spheres[nextIndex].transform.position, 0.5f), new Color(0.32f, 0.90f, 0.60f, 0.85f));
+            DamageEnemiesInRadius(sphere.transform.position, 1.05f, (16f + _level * 2f) * 0.42f);
+        }
+
         public void TriggerSniperOracleSplash(EnemyAgent2D primary, float damage, float radius)
         {
             if (primary == null) return;
@@ -730,7 +948,10 @@ namespace EchoSphere.Runtime
 
         public void TryDamagePlayer(float damage)
         {
-            if (_playerCore != null && !_playerCore.IsDead && _playerCore.TryTakeDamage(damage)) ShowMessage("Core integrity damaged!");
+            if (_playerCore == null || _playerCore.IsDead) return;
+            var shieldsBefore = _playerCore.ShieldCharges;
+            if (_playerCore.TryTakeDamage(damage)) ShowMessage("Core integrity damaged!");
+            else if (_playerCore.ShieldCharges < shieldsBefore) ShowMessage("Shield charge absorbed impact!");
         }
 
         public bool SetFormationFollowMode(bool active, bool skipRangeCheck = false)
@@ -908,6 +1129,9 @@ namespace EchoSphere.Runtime
             if (_networkState.DominantFormation != null)
                 _previousDominantFormation = _networkState.DominantFormation.Type;
             UpdateNetworkLinkVisuals();
+            var dominant = _networkState.DominantFormation;
+            if (dominant != null && dominant.Active && _resonanceKnownFormationKeys.Add(GetFormationKey(dominant)))
+                AddResonanceChargeFromSource(ResonanceRules.GeometryCharge, true);
         }
 
         private void UpdateNetworkLinkVisuals()
@@ -983,16 +1207,19 @@ namespace EchoSphere.Runtime
             }
             var hp = _playerCore == null ? 0f : _playerCore.CurrentHp;
             var maxHp = _playerCore == null ? 100f : _playerCore.MaxHp;
-            GUI.Box(new Rect(18, 18, 285, 110), GUIContent.none, _box);
+            GUI.Box(new Rect(18, 18, 285, 154), GUIContent.none, _box);
             var geometryLabel = _networkState != null && _networkState.DominantFormation != null
                 ? "GEOMETRY " + _networkState.DominantFormation.Type.ToString().ToUpperInvariant()
                 : "NETWORK DISCONNECTED";
-            GUI.Label(new Rect(32, 103, 260, 20), geometryLabel, _label);
+            GUI.Label(new Rect(32, 153, 260, 18), geometryLabel, _label);
             GUI.Label(new Rect(32, 26, 255, 28), "ECHO SPHERE / UNITY SLICE", _title);
             GUI.Label(new Rect(32, 57, 250, 22), $"CORE {Mathf.CeilToInt(hp)} / {Mathf.CeilToInt(maxHp)}", _label);
             GUI.Box(new Rect(32, 81, 245, 10), GUIContent.none);
             GUI.Box(new Rect(32, 81, 245f * (maxHp <= 0f ? 0f : hp / maxHp), 10), GUIContent.none);
-            GUI.Label(new Rect(32, 96, 250, 24), $"LV {_level}   KILLS {_kills}   {FormatTime(_runTime)}", _label);
+            GUI.Label(new Rect(32, 96, 250, 20), $"LV {_level}   KILLS {_kills}   {FormatTime(_runTime)}", _label);
+            GUI.Label(new Rect(32, 116, 250, 18), $"RESONANCE {Mathf.FloorToInt(_resonanceCharge)} / 100   SHIELD {_playerCore?.ShieldCharges ?? 0}", _label);
+            GUI.Box(new Rect(32, 137, 245, 7), GUIContent.none);
+            GUI.Box(new Rect(32, 137, 245f * Mathf.Clamp01(_resonanceCharge / ResonanceRules.BaseCap), 7), GUIContent.none);
             var y = Screen.height - 76f;
             if (GUI.Button(new Rect(18, y, 215, 54), _follow ? "FORMATION FOLLOW ON" : "FORMATION FOLLOW OFF", _button))
                 SetFormationFollowMode(!_follow);
@@ -1002,7 +1229,7 @@ namespace EchoSphere.Runtime
                 SetUserPaused(!_userPaused);
             DrawSphereRoster();
             if (!string.IsNullOrEmpty(_message) && _messageTimer > 0f)
-                GUI.Label(new Rect(18, 140, Mathf.Min(Screen.width - 36f, 520f), 30), _message, _label);
+                GUI.Label(new Rect(18, 178, Mathf.Min(Screen.width - 36f, 520f), 30), _message, _label);
             if (_levelUp)
             {
                 var left = Screen.width * 0.5f - 220f;

@@ -1128,3 +1128,34 @@ NETWORK GEOMETRY CI REVIEW:
   triangle-strength threshold (0.82), so it cannot form a Lattice. Replaced
   that assertion with two equilateral triangles sharing an edge, which is a
   valid source-shaped Lattice fixture; square/ring checks remain separate.
+
+
+======================================================================
+2026-10-10 — UNITY GAMEPLAY PORT SLICE 16: FORMATION-AWARE RESONANCE EVENTS
+======================================================================
+
+IMPLEMENTED:
+- Resonance charge now enters from direct projectile, Chain, area and Orbital
+  hits; every 100 charge triggers a formation-aware event.
+- New dominant geometry keys charge Resonance once per run using the existing
+  FormationFollowRules efficiency modifier.
+- Line queues a stronger next Sphere attack; Triangle targets distinct enemies
+  along its node sequence; Cluster pushes enemies outward; Square grants two
+  shield charges and discharges an AoE.
+- Ring starts a timed node-by-node pulse loop; Lattice accelerates member
+  Spheres and discharges around its center; Fractal replays a lower-order
+  formation and adds a center pulse.
+- Added a visible Resonance meter, shield count, damage-absorption feedback,
+  and regression/preflight checks.
+
+LIMITS:
+- This is the current Unity formation fallback/first pass, not yet fully
+  feature-parity with source character masteries, region modifiers, and all
+  resonance side effects. Geometry charge is wired; Network source charge and
+  rune charge sources remain unconnected pending their source runtime hooks.
+- Unity Editor compilation, Play Mode behavior and Android device acceptance
+  remain separate from CI.
+
+======================================================================
+END SLICE 16
+======================================================================
