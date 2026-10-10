@@ -36,6 +36,42 @@ namespace EchoSphere.Core
 
         public static float GetStandardSwarmShardDamageMultiplier(int level) => level >= 6 ? 0.50f : level >= 5 ? 0.45f : 0.35f;
 
+        public static float GetAuraSanctumSlowDuration(string finalId) =>
+            finalId == "aura_sanctum_final_1" ? 1.4f : finalId == "aura_sanctum_final_2" ? 2f : finalId == "aura_sanctum_final_3" ? 0.9f : 0.8f;
+
+        public static float GetAuraSanctumSlowMultiplier(string finalId) =>
+            finalId == "aura_sanctum_final_1" ? 0.50f : finalId == "aura_sanctum_final_2" ? 0.42f : finalId == "aura_sanctum_final_3" ? 0.62f : 0.65f;
+
+        public static float GetAuraGravityPullRadius(int level, string finalId)
+        {
+            if (finalId == "aura_gravity_final_1") return 3f;
+            if (finalId == "aura_gravity_final_2" || finalId == "aura_gravity_final_3") return 3.8f;
+            return 2.8f * GetChainBranchPower(level);
+        }
+
+        public static float GetAuraGravityPullDistance(int level, string finalId)
+        {
+            if (finalId == "aura_gravity_final_1") return 1.1f;
+            if (finalId == "aura_gravity_final_2" || finalId == "aura_gravity_final_3") return 1.6f;
+            return 0.55f * GetChainBranchPower(level);
+        }
+
+        public static float GetAuraOvergrowthRadius(int level, string finalId)
+        {
+            if (finalId == "aura_overgrowth_final_2") return 3.6f;
+            if (finalId == "aura_overgrowth_final_1") return 2.8f;
+            if (finalId == "aura_overgrowth_final_3") return 2.4f;
+            return 2.2f * GetChainBranchPower(level);
+        }
+
+        public static float GetAuraOvergrowthAttackTimerReduction(int level, string finalId)
+        {
+            if (finalId == "aura_overgrowth_final_1") return 0.18f;
+            if (finalId == "aura_overgrowth_final_2") return 0.30f;
+            if (finalId == "aura_overgrowth_final_3") return 0.10f;
+            return 0.08f * GetChainBranchPower(level);
+        }
+
         public static float GetChainBranchPower(int level) => level >= 6 ? 1.30f : level >= 5 ? 1.15f : 1f;
 
         public static float GetChainWebSlowDuration(int level, string finalId)

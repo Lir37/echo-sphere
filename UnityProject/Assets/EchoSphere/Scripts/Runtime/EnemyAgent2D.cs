@@ -42,6 +42,12 @@ namespace EchoSphere.Runtime
             transform.position += (Vector3)(away * Mathf.Max(0f, distance));
         }
 
+        public void PullByDistance(Vector2 center, float distance)
+        {
+            if (_dead || _runtime == null || _runtime.IsGameplayPaused) return;
+            transform.position = Vector2.MoveTowards(transform.position, center, Mathf.Max(0f, distance));
+        }
+
         public void PullToward(Vector2 center, float distance)
         {
             if (_dead || _runtime == null || _runtime.IsGameplayPaused) return;

@@ -21,6 +21,7 @@ internal static class Program
             CheckSniperEvolutionCombatRules();
             CheckShotgunEvolutionCombatRules();
             CheckChainEvolutionCombatRules();
+            CheckAuraEvolutionCombatRules();
             Console.WriteLine($"ECHO SPHERE Unity core contracts: PASS ({_assertions} assertions)");
             return 0;
         }
@@ -235,6 +236,18 @@ internal static class Program
         Near(SphereEvolutionCombatRules.GetChainStormSplash(7, "chain_storm_final_2"), 0.4f, 0f, "Resonant Storm splash");
         Near(SphereEvolutionCombatRules.GetChainLeechHealRatio(7, "chain_leech_final_2"), 0.045f, 0f, "Harvest healing ratio");
         True(SphereEvolutionCombatRules.GetChainLeechHealRatio(6, null) > SphereEvolutionCombatRules.GetChainLeechHealRatio(5, null), "Chain Leech improves at level VI");
+    }
+
+    private static void CheckAuraEvolutionCombatRules()
+    {
+        Near(SphereEvolutionCombatRules.GetAuraSanctumSlowDuration(null), 0.8f, 0f, "Sanctum baseline slow");
+        Near(SphereEvolutionCombatRules.GetAuraSanctumSlowDuration("aura_sanctum_final_2"), 2f, 0f, "Locking Sanctum duration");
+        Near(SphereEvolutionCombatRules.GetAuraSanctumSlowMultiplier("aura_sanctum_final_2"), 0.42f, 0f, "Locking Sanctum slow strength");
+        Near(SphereEvolutionCombatRules.GetAuraGravityPullRadius(7, "aura_gravity_final_2"), 3.8f, 0f, "Aura Gravity Hold radius");
+        Near(SphereEvolutionCombatRules.GetAuraGravityPullDistance(7, "aura_gravity_final_1"), 1.1f, 0f, "Aura Gravity Pull distance");
+        Near(SphereEvolutionCombatRules.GetAuraOvergrowthRadius(7, "aura_overgrowth_final_2"), 3.6f, 0f, "Overgrowth Overflow radius");
+        Near(SphereEvolutionCombatRules.GetAuraOvergrowthAttackTimerReduction(7, "aura_overgrowth_final_2"), 0.30f, 0f, "Overgrowth Overflow acceleration");
+        True(SphereEvolutionCombatRules.GetAuraOvergrowthRadius(6, null) > SphereEvolutionCombatRules.GetAuraOvergrowthRadius(5, null), "Overgrowth level VI expands its buff zone");
     }
 
     private static void CheckCatalogAndRewardedContracts()

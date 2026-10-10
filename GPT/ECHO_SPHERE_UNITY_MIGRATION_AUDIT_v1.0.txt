@@ -902,3 +902,27 @@ SLICE 9 CI REVIEW / RULE ALIGNMENT:
 - Shotgun Burst level-V/VI close-range strengthening is now applied even before
   a final variant is selected: level V uses a 1.15x branch close-range factor,
   level VI/VII uses 1.25x, with the widened range gates preserved.
+
+
+======================================================================
+2026-10-10 — UNITY GAMEPLAY PORT SLICE 10: AURA SANCTUM / GRAVITY / OVERGROWTH
+======================================================================
+
+IMPLEMENTED:
+- Sanctum slows enemies inside the Aura pulse and accelerates nearby allied
+  Sphere attack timers; final Control adds damage.
+- Aura Gravity applies an inward impulse around the Aura, with Hold adding slow
+  and Impact increasing damage.
+- Overgrowth accelerates nearby allied Spheres; final forms tune buff radius
+  and attack-timer reduction, with Synchrony adding damage.
+- Added pure C# rule tests and CI source guards.
+
+LIMITS:
+- The current Aura harness uses attack-timed area pulses rather than the
+  source's exact continuous aura tick model.
+- Resonance/Anchor status integration is still open.
+- Unity Editor and Android device validation remain separate from CI.
+
+======================================================================
+END SLICE 10
+======================================================================

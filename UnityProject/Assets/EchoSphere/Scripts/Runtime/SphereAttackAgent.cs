@@ -21,6 +21,7 @@ namespace EchoSphere.Runtime
         private SphereLevelStats _levelStats;
         private int _branchHitCount;
         private int _chainStormCycle;
+        public void AccelerateNextAttack(float amount) => _attackTimer = Mathf.Max(0f, _attackTimer - Mathf.Max(0f, amount));
 
         public SphereId Type => _type;
         public int ProgressionLevel => _progressionLevel;
@@ -214,10 +215,38 @@ namespace EchoSphere.Runtime
         {
             radius *= _levelStats.AuraRadiusMultiplier;
             var targets = _runtime.FindEnemiesInRadius(origin, radius);
+            var branch = _runtime.GetSphereBranch(_type);
+            var finalId = _runtime.GetSphereFinal(_type);
+            var auraDamage = damage;
+
+            if (_type == SphereId.Aura && branch == "aura_sanctum")
+            {
+                var slowDuration = SphereEvolutionCombatRules.GetAuraSanctumSlowDuration(finalId);
+                var slowMultiplier = SphereEvolutionCombatRules.GetAuraSanctumSlowMultiplier(finalId);
+                for (var i = 0; i < targets.Count; i++) targets[i].ApplySlow(slowDuration, slowMultiplier);
+                auraDamage *= finalId == "aura_sanctum_final_3" ? 1.12f : 1f;
+                _runtime.AccelerateNearbySpheres(this, 2.4f, 0.12f);
+            }
+            else if (_type == SphereId.Aura && branch == "aura_gravity")
+            {
+                _runtime.ApplyAuraGravityControl(origin,
+                    SphereEvolutionCombatRules.GetAuraGravityPullRadius(_progressionLevel, finalId),
+                    SphereEvolutionCombatRules.GetAuraGravityPullDistance(_progressionLevel, finalId),
+                    finalId == "aura_gravity_final_2");
+                if (finalId == "aura_gravity_final_3") auraDamage *= 1.18f;
+            }
+            else if (_type == SphereId.Aura && branch == "aura_overgrowth")
+            {
+                var boostRadius = SphereEvolutionCombatRules.GetAuraOvergrowthRadius(_progressionLevel, finalId);
+                var reduction = SphereEvolutionCombatRules.GetAuraOvergrowthAttackTimerReduction(_progressionLevel, finalId);
+                _runtime.AccelerateNearbySpheres(this, boostRadius, reduction);
+                if (finalId == "aura_overgrowth_final_3") auraDamage *= 1.12f;
+            }
+
             for (var i = 0; i < targets.Count; i++)
             {
                 if (pull) targets[i].PullToward(origin, 1.8f * _levelStats.PullMultiplier);
-                targets[i].ReceiveDamage(damage);
+                targets[i].ReceiveDamage(auraDamage);
             }
             if (targets.Count > 0) _runtime.SpawnImpact(origin, tint);
         }

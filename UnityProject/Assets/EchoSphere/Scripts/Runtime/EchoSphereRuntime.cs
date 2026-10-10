@@ -423,6 +423,28 @@ namespace EchoSphere.Runtime
             SpawnImpact(primary.transform.position, new Color(0.76f, 0.58f, 1f, 0.9f));
         }
 
+        public void AccelerateNearbySpheres(SphereAttackAgent source, float radius, float timerReduction)
+        {
+            var radiusSquared = radius * radius;
+            for (var i = 0; i < _spheres.Count; i++)
+            {
+                var sphere = _spheres[i];
+                if (sphere == null || sphere == source) continue;
+                if (((Vector2)sphere.transform.position - (Vector2)source.transform.position).sqrMagnitude <= radiusSquared)
+                    sphere.AccelerateNextAttack(timerReduction);
+            }
+        }
+
+        public void ApplyAuraGravityControl(Vector2 center, float radius, float pullDistance, bool applySlow)
+        {
+            var targets = FindEnemiesInRadius(center, radius);
+            for (var i = 0; i < targets.Count; i++)
+            {
+                targets[i].PullByDistance(center, pullDistance);
+                if (applySlow) targets[i].ApplySlow(0.8f, 0.72f);
+            }
+        }
+
         public void TriggerChainStorm(EnemyAgent2D primary, float directDamage, int level, string finalId)
         {
             if (primary == null) return;
