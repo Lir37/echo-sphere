@@ -16,6 +16,7 @@ const required = [
   'Assets/EchoSphere/Scripts/Core/RewardedAdsRules.cs',
   'Assets/EchoSphere/Scripts/Core/SphereEvolutionCombatRules.cs',
   'Assets/EchoSphere/Scripts/Core/ResonanceRules.cs',
+  'Assets/EchoSphere/Scripts/Core/EnemySpawnRules.cs',
   'Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs',
   'Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs',
   'Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs',
@@ -77,6 +78,10 @@ assert.ok(spriteFactory.includes('ES_Diamond') && spriteFactory.includes('ES_Pri
 const resonanceRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/ResonanceRules.cs'), 'utf8');
 assert.ok(resonanceRules.includes('BaseCap = 100f') && resonanceRules.includes('OverflowCap = 150f'), 'Resonance charge contract is missing');
 assert.ok(runtime.includes('TriggerResonanceEvent') && runtime.includes('TickResonanceRing') && runtime.includes('RESONANCE {Mathf.FloorToInt'), 'formation-aware Resonance event runtime/HUD is missing');
+const enemySpawnRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/EnemySpawnRules.cs'), 'utf8');
+assert.ok(enemySpawnRules.includes('Select(float elapsedSeconds, float roll)') && enemySpawnRules.includes('EnemyArchetype.Elite'), 'deterministic enemy archetype selection is missing');
+assert.ok(runtime.includes('GetEnemyPopulationCap') && runtime.includes('GetEnemySpawnInterval'), 'time-scaled enemy pressure controls are missing');
+assert.ok(runtime.includes('profile.XpReward') && runtime.includes('GetEnemySprite') && runtime.includes('Initialize(this, _player, xpReward)'), 'enemy role visuals/XP pickup wiring is missing');
 assert.ok(runtime.includes('GetFormationKey') && runtime.includes('AddResonanceChargeFromSource'), 'new-geometry Resonance charging is missing');
 console.log(`Unity project preflight: PASS (Unity ${version}, ${runtimeFiles.length} C# source files, URP renderer regression guard)`);
 

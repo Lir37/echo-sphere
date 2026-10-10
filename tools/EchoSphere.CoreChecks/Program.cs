@@ -13,6 +13,7 @@ internal static class Program
             CheckFormationFollow();
             CheckCatalogAndRewardedContracts();
             CheckRunBalance();
+            CheckEnemySpawnRules();
             CheckSphereCombatProfiles();
             CheckSphereProgressionRules();
             CheckSphereEvolutionCatalog();
@@ -100,6 +101,31 @@ internal static class Program
         Equal(RunBalanceRules.GetXpToNextLevel(10), 43, "new-desing level 10 XP threshold");
         Equal(RunBalanceRules.GetXpToNextLevel(0), 10, "invalid low level normalized to first threshold");
         Equal(RunBalanceRules.GetXpToNextLevel(-50), 10, "negative level normalized to first threshold");
+    }
+
+    private static void CheckEnemySpawnRules()
+    {
+        Equal(EnemySpawnRules.Select(0f, 0.99f), EnemyArchetype.Normal, "opening phase uses baseline enemy");
+        Equal(EnemySpawnRules.Select(20f, 0.10f), EnemyArchetype.Fast, "fast enemy unlock");
+        Equal(EnemySpawnRules.Select(30f, 0.30f), EnemyArchetype.Tank, "tank enemy unlock");
+        Equal(EnemySpawnRules.Select(90f, 0.55f), EnemyArchetype.Elite, "elite enemy unlock");
+        var normal = EnemySpawnRules.GetProfile(EnemyArchetype.Normal);
+        var fast = EnemySpawnRules.GetProfile(EnemyArchetype.Fast);
+        var tank = EnemySpawnRules.GetProfile(EnemyArchetype.Tank);
+        var elite = EnemySpawnRules.GetProfile(EnemyArchetype.Elite);
+        Near(normal.HpMultiplier, 1f, 0f, "normal baseline HP");
+        True(fast.SpeedMultiplier > normal.SpeedMultiplier && fast.HpMultiplier < normal.HpMultiplier, "fast trades HP for speed");
+        True(tank.HpMultiplier > normal.HpMultiplier && tank.SpeedMultiplier < normal.SpeedMultiplier, "tank trades speed for HP");
+        True(elite.HpMultiplier > tank.HpMultiplier && elite.XpReward > tank.XpReward, "elite is durable high-value target");
+        Equal(normal.XpReward, 1, "normal XP reward");
+        Equal(tank.XpReward, 3, "tank XP reward");
+        Equal(elite.XpReward, 5, "elite XP reward");
+        Near(RunBalanceRules.GetEnemySpawnInterval(0f), 1.25f, 0.000001f, "opening spawn interval");
+        Near(RunBalanceRules.GetEnemySpawnInterval(1000f), 0.42f, 0.000001f, "spawn interval lower bound");
+        Equal(RunBalanceRules.GetEnemyPopulationCap(0f), 30, "opening population cap");
+        Equal(RunBalanceRules.GetEnemyPopulationCap(300f), 40, "population cap scales with time");
+        Equal(RunBalanceRules.GetEnemyPopulationCap(900f), 60, "population cap reaches ceiling");
+        Equal(RunBalanceRules.GetEnemyPopulationCap(5000f), 60, "population cap remains bounded");
     }
 
     private static void CheckSphereCombatProfiles()

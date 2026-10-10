@@ -9,6 +9,7 @@ namespace EchoSphere.Runtime
         private SpriteRenderer _shell;
         private float _hp;
         private float _maxHp;
+        private int _xpReward = 1;
         private float _moveSpeed;
         private bool _dead;
         private float _slowTimer;
@@ -65,14 +66,15 @@ namespace EchoSphere.Runtime
             transform.position = Vector2.MoveTowards(transform.position, center, Mathf.Max(0f, distance) * 0.22f);
         }
 
-        public void Initialize(EchoSphereRuntime runtime, Transform player, float hp, float moveSpeed)
+        public void Initialize(EchoSphereRuntime runtime, Transform player, float hp, float moveSpeed, int xpReward = 1)
         {
             _runtime = runtime;
             _player = player;
             _hp = hp;
             _maxHp = Mathf.Max(1f, hp);
-            _moveSpeed = moveSpeed;
-            _shell = GetComponentInChildren<SpriteRenderer>();
+            _moveSpeed = Mathf.Max(0f, moveSpeed);
+            _xpReward = Mathf.Max(1, xpReward);
+            _shell = transform.Find("Shell")?.GetComponent<SpriteRenderer>();
             if (_shell != null) _baseColor = _shell.color;
         }
 
@@ -112,7 +114,7 @@ namespace EchoSphere.Runtime
             if (_hp <= 0f)
             {
                 _dead = true;
-                _runtime.RegisterEnemyDeath(this, transform.position);
+                _runtime.RegisterEnemyDeath(this, transform.position, _xpReward);
                 Destroy(gameObject);
             }
         }

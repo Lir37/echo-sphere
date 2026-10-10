@@ -94,8 +94,8 @@ namespace EchoSphere.Runtime
             _spawnTimer -= dt;
             if (_spawnTimer <= 0f)
             {
-                if (_enemies.Count < 60) SpawnEnemy();
-                _spawnTimer = Mathf.Max(0.42f, 1.25f - _runTime * 0.008f);
+                if (_enemies.Count < RunBalanceRules.GetEnemyPopulationCap(_runTime)) SpawnEnemy();
+                _spawnTimer = RunBalanceRules.GetEnemySpawnInterval(_runTime);
             }
             if (_playerCore.IsDead && !_gameOver)
             {
@@ -337,15 +337,31 @@ namespace EchoSphere.Runtime
             var angle = _rng.NextFloat() * Mathf.PI * 2f;
             var radius = 8f + _rng.NextFloat() * 2.8f;
             var position = (Vector2)_player.position + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius;
-            var enemyTint = new Color(1f, 0.19f, 0.34f);
-            var go = CreateOrb("Echo Wraith", position, 0.72f, enemyTint, new Color(1f, 0.7f, 0.75f), 4);
-            ApplyShellVisual(go, RuntimeSpriteFactory.Shard, 1.12f);
+            var archetype = EnemySpawnRules.Select(_runTime, _rng.NextFloat());
+            var profile = EnemySpawnRules.GetProfile(archetype);
+            var baseHp = 34f + _runTime * 0.3f;
+            var baseSpeed = 0.72f + Mathf.Min(0.55f, _runTime * 0.003f);
+            var tint = GetEnemyTint(archetype);
+            var go = CreateOrb(GetEnemyName(archetype), position, 0.72f * profile.VisualScale, tint, Color.white, 4);
+            ApplyShellVisual(go, GetEnemySprite(archetype), archetype == EnemyArchetype.Normal ? 1.12f : 1.02f);
             var enemyCore = go.transform.Find("Core Light");
-            if (enemyCore != null) enemyCore.localScale = Vector3.one * 0.22f;
-            AddOrbitRail(go.transform, new Color(1f, 0.16f, 0.35f, 0.65f), new Vector3(1.7f, 0.62f, 1f), 38f, 3);
-            var enemy = go.AddComponent<EnemyAgent2D>();
-            enemy.Initialize(this, _player, 34f + _runTime * 0.3f, 0.72f + Mathf.Min(0.55f, _runTime * 0.003f));
-            _enemies.Add(enemy);
+            if (enemyCore != null) enemyCore.localScale = Vector3.one * (archetype == EnemyArchetype.Tank ? 0.29f : 0.22f);
+            AddOrbitRail(go.transform, new Color(tint.r, tint.g, tint.b, 0.65f), new Vector3(1.7f, 0.62f, 1f), archetype == EnemyArchetype.Fast ? -28f : 38f, 3);
+            var agent = go.AddComponent<EnemyAgent2D>();
+            agent.Initialize(this, _player, baseHp * profile.HpMultiplier, baseSpeed * profile.SpeedMultiplier, profile.XpReward);
+            _enemies.Add(agent);
+        }
+        private static string GetEnemyName(EnemyArchetype archetype)
+        {
+            switch (archetype) { case EnemyArchetype.Fast: return "Rift Skirmisher"; case EnemyArchetype.Tank: return "Abyss Bulwark"; case EnemyArchetype.Elite: return "Fracture Elite"; default: return "Echo Wraith"; }
+        }
+        private static Sprite GetEnemySprite(EnemyArchetype archetype)
+        {
+            switch (archetype) { case EnemyArchetype.Fast: return RuntimeSpriteFactory.Diamond; case EnemyArchetype.Tank: return RuntimeSpriteFactory.Hexagon; case EnemyArchetype.Elite: return RuntimeSpriteFactory.Star; default: return RuntimeSpriteFactory.Shard; }
+        }
+        private static Color GetEnemyTint(EnemyArchetype archetype)
+        {
+            switch (archetype) { case EnemyArchetype.Fast: return new Color(1f, 0.56f, 0.25f); case EnemyArchetype.Tank: return new Color(0.72f, 0.36f, 1f); case EnemyArchetype.Elite: return new Color(1f, 0.24f, 0.68f); default: return new Color(1f, 0.19f, 0.34f); }
         }
 
         public EnemyAgent2D FindNearestEnemy(Vector2 from, float range)
@@ -914,18 +930,18 @@ namespace EchoSphere.Runtime
             go.AddComponent<PulseEffect2D>().Initialize(color, 0.18f, 1.1f);
         }
 
-        public void RegisterEnemyDeath(EnemyAgent2D enemy, Vector2 position)
+        public void RegisterEnemyDeath(EnemyAgent2D enemy, Vector2 position, int xpReward = 1)
         {
             _enemies.Remove(enemy);
             _kills++;
             var go = new GameObject("Echo Shard");
             go.transform.position = position;
-            go.transform.localScale = Vector3.one * 0.22f;
+            go.transform.localScale = Vector3.one * (0.22f + Mathf.Min(0.12f, Mathf.Max(0, xpReward - 1) * 0.035f));
             var sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = RuntimeSpriteFactory.Disc;
-            sr.color = new Color(0.26f, 0.91f, 1f);
+            sr.sprite = xpReward >= 5 ? RuntimeSpriteFactory.Star : xpReward >= 3 ? RuntimeSpriteFactory.Hexagon : RuntimeSpriteFactory.Disc;
+            sr.color = xpReward >= 5 ? new Color(1f, 0.45f, 0.82f) : xpReward >= 3 ? new Color(0.76f, 0.55f, 1f) : new Color(0.26f, 0.91f, 1f);
             sr.sortingOrder = 7;
-            go.AddComponent<ExperienceOrbAgent>().Initialize(this, _player, 1);
+            go.AddComponent<ExperienceOrbAgent>().Initialize(this, _player, xpReward);
         }
 
         public void AddExperience(int amount)

@@ -1292,3 +1292,46 @@ END SLICE 18
 ======================================================================
 END COMPILER FIX
 ======================================================================
+
+
+======================================================================
+2026-10-10 — UNITY GAMEPLAY PORT SLICES 19–21: ENEMY ROLES / RUN PRESSURE / XP
+======================================================================
+
+BASE HEAD:
+1974fc4fd9e37656064daaf398a96c537fda9fed
+
+IMPLEMENTED:
+- Slice 19: Added deterministic Normal/Fast/Tank/Elite archetype selection from
+  elapsed run time plus seeded run RNG. Fast enemies trade HP for speed; Tanks
+  are slower and durable; Elites are high-durability/high-reward targets.
+  Each role receives a distinct silhouette, tint and scale.
+- Slice 20: Extracted spawn interval and population cap into pure C# balance
+  rules. Spawn interval retains the existing 1.25s opening and 0.42s lower
+  bound. Population cap starts at 30, rises by one per 30 seconds, and never
+  exceeds 60.
+- Slice 21: Archetype XP rewards reach dropped pickups instead of every kill
+  granting exactly one XP. Normal/Fast grant 1, Tank grants 3 and Elite grants
+  5; pickup silhouette/size/tint communicate reward weight.
+- Enemy contact still routes through PlayerCoreController2D's existing 0.60s
+  contact grace; no duplicate damage cooldown was introduced.
+- Added pure C# assertions and project-preflight guards for archetype unlock
+  timing, stat trade-offs, reward values and bounded spawn pressure.
+
+VALIDATION:
+- New CI run is the integration gate for these changes.
+- Pure C# tests cover deterministic selection, role trade-offs, rewards and
+  spawn-pressure bounds.
+- Project preflight checks runtime wiring and the new required file.
+- UnityEngine-facing scripts are not compiled by this CI. Unity Editor Play
+  Mode and Android APK validation remain mandatory before claiming parity.
+
+LIMITS / NEXT:
+- Elite currently means a tougher high-value pursuer; the Blueprint's
+  Network-disrupting Link Breaker behavior remains unimplemented.
+- Boss/Region run structure and the full source gameplay catalogue remain.
+- Input Manager warning remains intentionally parked for its own migration.
+
+======================================================================
+END SLICES 19–21
+======================================================================
