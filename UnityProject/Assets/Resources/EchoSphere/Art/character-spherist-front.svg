@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+<defs>
+<radialGradient id="core" cx=".38" cy=".34"><stop stop-color="#fff"/><stop offset=".18" stop-color="#e7ffff"/><stop offset=".48" stop-color="#48dcff"/><stop offset=".8" stop-color="#286eff"/><stop offset="1" stop-color="#06152d"/></radialGradient>
+<linearGradient id="ice" x1=".15" y1="0" x2=".85" y2="1"><stop stop-color="#f7ffff"/><stop offset=".22" stop-color="#a8e7ff"/><stop offset=".55" stop-color="#377ab5"/><stop offset="1" stop-color="#07172d"/></linearGradient>
+<linearGradient id="ice2" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#d5f8ff"/><stop offset=".35" stop-color="#398bd2"/><stop offset="1" stop-color="#09203d"/></linearGradient>
+<linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff6b7"/><stop offset=".34" stop-color="#ffc84f"/><stop offset=".72" stop-color="#c57919"/><stop offset="1" stop-color="#542706"/></linearGradient>
+<linearGradient id="ring" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff"/><stop offset=".25" stop-color="#5df0ff"/><stop offset=".7" stop-color="#3479ff"/><stop offset="1" stop-color="#8a4cff"/></linearGradient>
+
+</defs>
+<!-- generous transparent margin prevents runtime clipping -->
+<ellipse cx="128" cy="224" rx="43" ry="6" fill="#20dfff" opacity=".12"/>
+<ellipse cx="128" cy="128" rx="91" ry="27" fill="none" stroke="#43eaff" stroke-width="7" opacity=".18"/>
+<ellipse cx="128" cy="128" rx="92" ry="28" fill="none" stroke="url(#ring)" stroke-width="4.5" opacity=".92"/>
+<ellipse cx="128" cy="128" rx="92" ry="28" fill="none" stroke="#d5fbff" stroke-width="1.1" opacity=".65"/>
+
+<!-- four large folded petals, based on turnaround silhouette -->
+<path d="M128 30 153 57 141 82 128 92 115 82 103 57Z" fill="url(#ice)" stroke="#b9f1ff" stroke-width="2"/>
+<path d="M128 226 103 199 115 174 128 164 141 174 153 199Z" fill="url(#ice2)" stroke="#68e5ff" stroke-width="2"/>
+<path d="M30 128 57 103 82 115 92 128 82 141 57 153Z" fill="url(#ice2)" stroke="#68e5ff" stroke-width="2"/>
+<path d="M226 128 199 103 174 115 164 128 174 141 199 153Z" fill="url(#ice2)" stroke="#68e5ff" stroke-width="2"/>
+
+<!-- folded gold braces -->
+<path d="M54 61 78 70 94 97 77 91 62 77Z" fill="url(#gold)" stroke="#ffe27c" stroke-width="1.6"/>
+<path d="M202 61 178 70 162 97 179 91 194 77Z" fill="url(#gold)" stroke="#ffe27c" stroke-width="1.6"/>
+<path d="M54 195 78 186 94 159 77 165 62 179Z" fill="url(#gold)" stroke="#ffd66b" stroke-width="1.6"/>
+<path d="M202 195 178 186 162 159 179 165 194 179Z" fill="url(#gold)" stroke="#ffd66b" stroke-width="1.6"/>
+
+<!-- faceted spherical shell -->
+<path d="M128 57 164 84 174 128 164 172 128 199 92 172 82 128 92 84Z" fill="#071628" stroke="#67e6ff" stroke-width="2.5"/>
+<path d="M128 57 164 84 128 112 92 84Z" fill="url(#ice)"/>
+<path d="M92 84 113 128 92 172 82 128Z" fill="#17466f"/>
+<path d="M164 84 174 128 164 172 143 128Z" fill="#245781"/>
+<path d="M92 172 128 145 164 172 128 199Z" fill="#0d2b4b"/>
+<path d="M128 57 128 112 92 84Z" fill="#efffff" opacity=".30"/>
+<path d="M128 199 128 145 164 172Z" fill="#06182e" opacity=".78"/>
+<!-- extra fold cuts make the shell read as assembled parts -->
+<path d="M104 96 128 112 113 128 92 84Z" fill="#3b83b5" opacity=".52"/>
+<path d="M152 96 164 84 143 128 128 112Z" fill="#6bb4d7" opacity=".28"/>
+<path d="M103 160 128 145 128 168 92 172Z" fill="#17466d" opacity=".7"/>
+<path d="M153 160 164 172 128 168 128 145Z" fill="#2c5c82" opacity=".36"/>
+
+<!-- core assembly -->
+<circle cx="128" cy="128" r="52" fill="url(#core)" opacity=".48"/>
+<circle cx="128" cy="128" r="38" fill="url(#core)" stroke="#ecffff" stroke-width="1.8"/>
+<path d="M128 94 151 111 146 145 128 163 110 145 105 111Z" fill="#061526" stroke="#a5efff" stroke-width="1.6"/>
+<path d="M128 101 143 113 139 139 128 151 117 139 113 113Z" fill="url(#ice2)" opacity=".9"/>
+<circle cx="128" cy="128" r="16" fill="url(#core)"/>
+<circle cx="128" cy="128" r="5.5" fill="#fff"/>
+<!-- authored spark facets -->
+<path d="M128 30 138 46 128 57 118 46Z" fill="#f0ffff"/>
+<path d="M226 128 210 138 199 128 210 118Z" fill="#d5fbff"/>
+<path d="M128 226 118 210 128 199 138 210Z" fill="#c7f8ff"/>
+<path d="M30 128 46 118 57 128 46 138Z" fill="#d5fbff"/>
+<!-- fine authored facet pass -->
+<g fill="none" stroke="#d7faff" stroke-opacity=".22" stroke-width="1">
+  <path d="M103 76 L128 90 L153 76"/>
+  <path d="M76 113 L103 128 L87 146"/>
+  <path d="M180 113 L153 128 L169 146"/>
+  <path d="M103 180 L128 166 L153 180"/>
+</g>
+<g fill="#efffff" opacity=".62">
+  <path d="M86 85 l5 -4 5 4 -5 4z"/>
+  <path d="M165 85 l5 -4 5 4 -5 4z"/>
+  <path d="M84 171 l5 -3 4 3 -4 4z"/>
+  <path d="M163 171 l5 -3 4 3 -4 4z"/>
+</g>
+<path d="M78 128 L96 120 L88 128 L96 136 Z" fill="#7de9ff" opacity=".42"/>
+<path d="M178 128 L160 120 L168 128 L160 136 Z" fill="#7de9ff" opacity=".32"/>
+</svg>
