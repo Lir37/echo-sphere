@@ -46,7 +46,7 @@ namespace EchoSphere.Runtime
         private static bool InsidePolygon(Vector2 p,Vector2[] poly)
         {
             var inside=false;
-            for(var i=0,j=poly.Length-1;i<poly.Length;j=i++){var a=poly[i];var b=poly[j];if((a.y>p.y)!=(b.y>p.y)&&p.x<(b.x-a.x)*(p.y-a.y)/((b.y-a.y)==0f?0.0001f:b.y-a.y)+a.x)inside=!inside;}
+            for(int i=0,j=poly.Length-1;i<poly.Length;j=i++){var a=poly[i];var b=poly[j];if((a.y>p.y)!=(b.y>p.y)&&p.x<(b.x-a.x)*(p.y-a.y)/((b.y-a.y)==0f?0.0001f:b.y-a.y)+a.x)inside=!inside;}
             return inside;
         }
         private static float DistanceToPolygonEdge(Vector2 p,Vector2[] poly)
