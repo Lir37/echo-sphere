@@ -1823,3 +1823,47 @@ source-mapped visual implementation, not a claim of pixel-exact Canvas parity.
 - Normalised the UnityEngine.Random / Random.Range regular-expression guards so
   they match literal API names rather than a backslash-prefixed string. This is
   test-only hardening; no gameplay/system behavior changed.
+
+
+======================================================================
+[2026-10-11] PROJECTILE / ELEMENTAL TRACE / HIT IMPACT VISUAL PORT SLICE 6
+======================================================================
+
+BASE:
+unity-migration HEAD before this slice: 5d514abe43b244a1a1a90d5b7e476c23cf081f66
+Protected source: new-desing HEAD 737ef2af4a877e0995db5f92331d536d2f29a934.
+
+IMPLEMENTED:
+- Added ProjectileVfx2D.cs and connected it to the existing SpawnProjectile path.
+  The source mapping is src/spheres/mutationVisual.ts:
+  renderSphereProjectileVfx, projectileTail and projectileCore.
+- Replaced the generic projectile disc/glow stack with a dynamic-mesh tapered
+  energy trail, a layered core and source-specific projectile marks for
+  Standard, Sniper, Shotgun, Prism and Void. The implemented branch variants
+  include Standard Singularity/Swarm, Sniper Oracle/Assassin/Beacon,
+  Shotgun Hail/Cataclysm, Prism Split/Spectrum and Void Hunger/Reaper/Execution.
+- Added SphereElementalVfx2D.cs mapped to src/spheres/elementalVisual.ts and
+  branch-element data in src/sphereProgression.ts. The 30 canonical branch IDs
+  map to Fire, Freeze or Poison, with the Prism Spectrum Level VII exception.
+  The component adds the source-layered flattened orbit, moving glyph motes and
+  the directional weapon accent to each Sphere, including Standard.
+- Added ImpactVfx2D.cs as the source-mapped replacement for the minimal impact
+  pulse. It composes an expanding ring, a secondary fading arc, deterministic
+  shard sparks and a hot center; animation uses reusable dynamic-mesh buffers.
+- Added CI source-mapping, branch coverage, live wiring and no-gameplay-RNG guards.
+
+GAMEPLAY SAFETY:
+No ProjectileAgent movement, target lookup, collision radius, damage resolution,
+critical rolls, pierce counts, Sphere attack cadence, Resonance routing, enemy
+HP, XP or progression formula was changed. The new visuals receive the existing
+owner/branch presentation data only and do not call gameplay actions or RNG.
+The original authored SVGs and the existing 2.5D Sphere/enemy meshes remain in
+place; no GLB or substitute projectile art was introduced.
+
+VALIDATION LIMITS:
+The new CI guards validate wiring, source coverage and runtime/presentation
+boundaries only. Unity Editor compilation, shader/material resolution, visual
+scale/composition against the Canvas renderer, high-density frame/GC profiling,
+Android APK build and on-device visual acceptance remain separate unverified
+gates until executed. Do not describe structural CI as an Editor compile.
+

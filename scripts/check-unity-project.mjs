@@ -219,3 +219,30 @@ assert.ok(enemy.includes('ApplyDamageOverTime'), 'Timed status damage support is
 assert.ok(projectile.includes('out var wasCritical'), 'projectile hit must expose critical-hit state to evolution mechanics');
 assert.ok(projectile.includes('_evolutionOwner.OnProjectileHit'), 'projectile hit callbacks must reach selected evolution behavior');
 assert.ok(runtime.includes('TriggerStandardResonatorPulse') && runtime.includes('SpawnStandardSwarmShards'), 'Standard evolution runtime effects are missing');
+
+
+const projectileVisualPath = 'Assets/EchoSphere/Scripts/Runtime/ProjectileVfx2D.cs';
+assert.ok(existsSync(join(root, projectileVisualPath)), 'source-mapped projectile VFX component is missing');
+const projectileVisual = readFileSync(join(root, projectileVisualPath), 'utf8');
+assert.ok(projectileVisual.includes('src/spheres/mutationVisual.ts') && projectileVisual.includes('renderSphereProjectileVfx') && projectileVisual.includes('projectileTail') && projectileVisual.includes('projectileCore'), 'projectile VFX must retain explicit Canvas source mapping');
+for (const family of ['Standard','Sniper','Shotgun','Prism','Void']) assert.ok(projectileVisual.includes('case SphereId.' + family), 'source projectile body dispatch missing: ' + family);
+for (const branch of ['standard_singularity','standard_swarm','sniper_oracle','sniper_assassin','sniper_beacon','shotgun_hail','shotgun_cataclysm','prism_split','prism_spectrum','void_hunger','void_reaper','void_execution']) assert.ok(projectileVisual.includes('"' + branch + '"'), 'source projectile mutation path missing: ' + branch);
+assert.ok(projectileVisual.includes('MarkDynamic') && projectileVisual.includes('new List<Vector3>') && projectileVisual.includes('new List<Color>'), 'projectile mesh buffers must be dynamic and reused');
+assert.ok(!/UnityEngine\.Random|Random\.Range|_rng/.test(projectileVisual), 'projectile presentation must not consume gameplay RNG');
+
+const elementalVfxPath = 'Assets/EchoSphere/Scripts/Runtime/SphereElementalVfx2D.cs';
+assert.ok(existsSync(join(root, elementalVfxPath)), 'source-mapped elemental trace component is missing');
+const elementalVfx = readFileSync(join(root, elementalVfxPath), 'utf8');
+assert.ok(elementalVfx.includes('src/spheres/elementalVisual.ts') && elementalVfx.includes('src/sphereProgression.ts') && elementalVfx.includes('ResolveElement'), 'elemental visuals must retain their source branch mapping');
+for (const branch of ['standard_resonator','standard_singularity','standard_swarm','sniper_oracle','sniper_assassin','sniper_beacon','shotgun_burst','shotgun_cataclysm','shotgun_hail','orbital_dance','orbital_halo','orbital_blade','prism_split','prism_spectrum','prism_mirror','void_hunger','void_reaper','void_execution','chain_web','chain_storm','chain_leech','aura_sanctum','aura_gravity','aura_overgrowth','gravity_well','gravity_tide','gravity_collapse','pulse_wave','pulse_resonator','pulse_burst']) assert.ok(elementalVfx.includes('"' + branch + '"'), 'elemental source branch mapping missing: ' + branch);
+assert.ok(elementalVfx.includes('#ff743d') && elementalVfx.includes('#d9f6ff') && elementalVfx.includes('#72f08e') && elementalVfx.includes('MarkDynamic'), 'Fire/Freeze/Poison elemental trace signatures are missing');
+assert.ok(!/UnityEngine\.Random|Random\.Range|_rng/.test(elementalVfx), 'elemental presentation must not consume gameplay RNG');
+
+const impactVisualPath = 'Assets/EchoSphere/Scripts/Runtime/ImpactVfx2D.cs';
+assert.ok(existsSync(join(root, impactVisualPath)), 'source-mapped hit impact component is missing');
+const impactVisual = readFileSync(join(root, impactVisualPath), 'utf8');
+assert.ok(impactVisual.includes('src/renderer.ts') && impactVisual.includes('Impact Ring and Shards') && impactVisual.includes('MarkDynamic'), 'hit impact must retain the source particle/ring mapping');
+assert.ok(!/UnityEngine\.Random|Random\.Range|_rng/.test(impactVisual), 'impact presentation must not consume gameplay RNG');
+assert.ok(runtime.includes('projectileVfx.Initialize(this, direction, speed, color, evolutionOwner)'), 'ProjectileAgent spawn path must connect the source-mapped visual');
+assert.ok(runtime.includes('elementalVfx.Initialize(this, agent)'), 'all Sphere types must connect branch-aware elemental traces');
+assert.ok(runtime.includes('impactVfx.Initialize(color)'), 'hit resolution must connect the layered impact visual');

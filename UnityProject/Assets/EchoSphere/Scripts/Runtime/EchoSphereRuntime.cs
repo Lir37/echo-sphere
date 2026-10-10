@@ -237,6 +237,8 @@ namespace EchoSphere.Runtime
                 var runtimeVfx = go.AddComponent<SphereRuntimeVfx2D>();
                 runtimeVfx.Initialize(this, agent);
             }
+            var elementalVfx = go.AddComponent<SphereElementalVfx2D>();
+            elementalVfx.Initialize(this, agent);
             agent.ApplyProgressionLevel(level);
             _spheres.Add(agent);
             if (_follow) agent.SetFollowMode(true, (Vector2)_player.position);
@@ -750,19 +752,10 @@ namespace EchoSphere.Runtime
         {
             var go = new GameObject("Sphere Projectile");
             go.transform.position = position;
-            go.transform.localScale = Vector3.one * 0.20f;
-            var sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = RuntimeSpriteFactory.Disc;
-            sr.color = color;
-            sr.sortingOrder = 12;
-            var glow = new GameObject("Projectile Glow");
-            glow.transform.SetParent(go.transform, false);
-            glow.transform.localScale = Vector3.one * 2.2f;
-            var gs = glow.AddComponent<SpriteRenderer>();
-            gs.sprite = RuntimeSpriteFactory.Disc;
-            gs.color = new Color(color.r, color.g, color.b, 0.34f);
-            gs.sortingOrder = 11;
-            go.AddComponent<ProjectileAgent>().Initialize(this, direction, damage, color, speed, pierce, critChanceBonus, evolutionOwner);
+            var agent = go.AddComponent<ProjectileAgent>();
+            agent.Initialize(this, direction, damage, color, speed, pierce, critChanceBonus, evolutionOwner);
+            var projectileVfx = go.AddComponent<ProjectileVfx2D>();
+            projectileVfx.Initialize(this, direction, speed, color, evolutionOwner);
         }
 
 
@@ -1243,12 +1236,8 @@ namespace EchoSphere.Runtime
         {
             var go = new GameObject("Impact Pulse");
             go.transform.position = position;
-            go.transform.localScale = Vector3.one * 0.2f;
-            var sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = RuntimeSpriteFactory.Ring;
-            sr.color = color;
-            sr.sortingOrder = 18;
-            go.AddComponent<PulseEffect2D>().Initialize(color, 0.18f, 1.1f);
+            var impactVfx = go.AddComponent<ImpactVfx2D>();
+            impactVfx.Initialize(color);
         }
 
         public void RegisterEnemyDeath(EnemyAgent2D enemy, Vector2 position, int xpReward = 1)
