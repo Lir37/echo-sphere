@@ -1877,3 +1877,7 @@ gates until executed. Do not describe structural CI as an Editor compile.
   in ProjectileVfx2D.cs, mapped to the authored sniper_beacon projectile path.
 - No combat or RNG behavior was changed. Re-run result is recorded after the
   correction commit's Actions run completes.
+
+- The next strict coverage run exposed that Void Execution also still used the generic
+  default visual. Added an explicit pale execution reticle to that source branch; the
+  coverage guard remains strict and no combat behavior changed. See the latest CI run.

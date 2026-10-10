@@ -189,6 +189,13 @@ namespace EchoSphere.Runtime
                     }
                     else if (_branch == "void_reaper")
                         _core.Fin(Vector2.zero, R * 0.95f, R * 0.24f, _color, 0f);
+                    else if (_branch == "void_execution")
+                    {
+                        _core.Line(new Vector2(-R * 0.44f, 0f), new Vector2(R * 0.9f, 0f), R * 0.07f, _color);
+                        _core.Line(new Vector2(R * 0.55f, -R * 0.25f), new Vector2(R * 0.9f, 0f), R * 0.07f, _color);
+                        _core.Line(new Vector2(R * 0.9f, 0f), new Vector2(R * 0.55f, R * 0.25f), R * 0.07f, _color);
+                        _core.Ring(new Vector2(R * 0.62f, 0f), R * 0.18f, R * 0.18f, 0f, -0.9f, 0.9f, R * 0.07f, WithAlpha(Color.white, 0.70f), 8);
+                    }
                     else
                     {
                         _core.Line(new Vector2(-R * 0.44f, 0f), new Vector2(R * 0.9f, 0f), R * 0.07f, _color);
