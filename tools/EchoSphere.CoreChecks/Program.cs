@@ -301,6 +301,32 @@ internal static class Program
         Equal(SphereEvolutionCombatRules.GetVoidExecutionPierce(0, "void_execution_final_2"), 1, "Phase adds projectile pierce");
     }
 
+    private static void CheckResonanceRules()
+    {
+        Near(ResonanceRules.Clamp(float.NaN), 0f, 0f, "Resonance NaN normalized");
+        Near(ResonanceRules.Clamp(170f), 100f, 0f, "Resonance baseline cap");
+        Near(ResonanceRules.Clamp(170f, true), 150f, 0f, "Resonance explicit overflow cap");
+        Near(ResonanceRules.SphereHitCharge, 1f, 0f, "Sphere hit charge");
+        Near(ResonanceRules.GeometryCharge, 5f, 0f, "Geometry charge");
+        Near(ResonanceRules.NetworkCharge, 5f, 0f, "Network charge");
+        Near(ResonanceRules.RuneCharge, 60f, 0f, "Rune charge");
+        var charge = 0f;
+        Equal(ResonanceRules.Add(ref charge, 1f), 0, "one hit does not trigger Resonance event");
+        Near(charge, 1f, 0f, "single hit charge retained");
+        charge = 99f;
+        Equal(ResonanceRules.Add(ref charge, 2f), 1, "crossing 100 triggers one event");
+        Near(charge, 1f, 0f, "event preserves remainder");
+        Equal(ResonanceRules.Add(ref charge, float.NaN), 0, "invalid Resonance gain ignored");
+        Near(charge, 1f, 0f, "invalid gain leaves charge unchanged");
+        charge = 149f;
+        Equal(ResonanceRules.Add(ref charge, 2f, true), 1, "overflow mode still emits event");
+        Near(charge, 51f, 0f, "overflow event preserves remainder");
+        Near(SphereEvolutionCombatRules.GetOrbitalResonanceBonus(7, "orbital_halo_final_1"), 1f, 0f, "Halo Resonance final bonus");
+        Near(SphereEvolutionCombatRules.GetOrbitalResonanceBonus(6, null), 0.25f, 0f, "Halo level VI charge bonus");
+        True(SphereEvolutionCombatRules.ShouldOrbitalGrantShieldCharge(3), "Halo Guard shield cadence");
+        True(!SphereEvolutionCombatRules.ShouldOrbitalGrantShieldCharge(2), "Halo Guard avoids charge on every pass");
+    }
+
     private static void CheckCatalogAndRewardedContracts()
     {
         Equal(GameCatalog.Spheres.Count, 10, "canonical Sphere roster size");

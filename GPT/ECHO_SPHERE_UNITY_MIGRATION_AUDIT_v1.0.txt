@@ -1037,3 +1037,27 @@ LIMITS:
 ======================================================================
 END SLICE 14
 ======================================================================
+
+
+======================================================================
+2026-10-10 — UNITY GAMEPLAY PORT SLICE 15: RESONANCE CORE CONTRACT
+======================================================================
+
+IMPLEMENTED:
+- Added pure C# Resonance rules matching src/resonance.ts: baseline cap 100,
+  explicit overflow cap 150, canonical source amounts and event remainder.
+- Added tests for finite-value normalization, both caps, threshold crossing,
+  remainder preservation and Orbital Halo charge/shield rule contracts.
+
+NEXT:
+- Wire Resonance to real projectile, Chain, area and Orbital hit paths; emit
+  the no-formation fallback event at 100; add the HUD meter and shield charge
+  consumption. Formation-specific events wait for Network/Geometry migration.
+
+VALIDATION:
+- Pure C# contracts are included in the existing CI job; UnityEngine runtime
+  compilation and Android device acceptance remain separate.
+
+======================================================================
+END SLICE 15
+======================================================================
