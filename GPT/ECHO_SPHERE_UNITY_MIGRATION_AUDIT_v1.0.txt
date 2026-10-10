@@ -1867,3 +1867,13 @@ scale/composition against the Canvas renderer, high-density frame/GC profiling,
 Android APK build and on-device visual acceptance remain separate unverified
 gates until executed. Do not describe structural CI as an Editor compile.
 
+
+
+[2026-10-11] SLICE 6 CI GUARD CORRECTION
+- The first CI run for Slice 6 passed the 305 pure C# assertions and the base
+  project preflight, then failed the added source coverage guard because the
+  Sniper Beacon visual was still expressed through the generic fallback path.
+- Kept the guard strict and added an explicit Sniper Beacon arc/reticle motif
+  in ProjectileVfx2D.cs, mapped to the authored sniper_beacon projectile path.
+- No combat or RNG behavior was changed. Re-run result is recorded after the
+  correction commit's Actions run completes.

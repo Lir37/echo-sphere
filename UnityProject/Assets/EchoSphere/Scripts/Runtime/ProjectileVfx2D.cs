@@ -155,6 +155,11 @@ namespace EchoSphere.Runtime
                         _core.Ring(new Vector2(R * 0.35f, 0f), R * 0.50f, R * 0.50f, 0f, 0f, Mathf.PI * 2f, R * 0.11f, _color, 12);
                     else if (_branch == "sniper_assassin")
                         _core.Fin(new Vector2(R * 0.18f, 0f), R * (0.85f + 0.15f * Mathf.Max(0, FinalIndex(_final))), R * 0.18f, _color, 0f);
+                    else if (_branch == "sniper_beacon")
+                    {
+                        _core.Ring(Vector2.zero, R * 0.84f, R * 0.84f, 0f, -0.58f, 0.58f, R * 0.10f, _color, 12);
+                        _core.Ring(new Vector2(R * 0.46f, 0f), R * 0.27f, R * 0.27f, 0f, -0.72f, 0.72f, R * 0.085f, WithAlpha(Color.white, 0.82f), 8);
+                    }
                     else
                         _core.Ring(Vector2.zero, R, R, 0f, -0.8f, 0.8f, R * 0.12f, _color, 10);
                     break;
