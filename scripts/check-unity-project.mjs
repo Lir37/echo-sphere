@@ -44,7 +44,7 @@ const svgArtPaths = required.filter((relative) =>
 for (const relative of svgArtPaths) {
   const svg = readFileSync(join(root, relative), 'utf8');
   assert.ok(svg.trim().startsWith('<svg') && svg.includes('</svg>'), `invalid SVG document: ${relative}`);
-  assert.ok(!/\\bcurrentColor\\b/i.test(svg), `Unity SVG importer does not support currentColor: ${relative}`);
+  assert.ok(!/\bcurrentColor\b/i.test(svg), `Unity SVG importer does not support currentColor: ${relative}`);
   assert.ok(!/<filter\\b|<fe[A-Za-z]/i.test(svg), `unsupported SVG filter effect: ${relative}`);
 }
 

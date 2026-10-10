@@ -6,7 +6,7 @@ namespace EchoSphere.Editor
 {
     /// <summary>
     /// Applies SVG import settings before the SVG importer runs.
-    /// Never call SaveAndReimport from an asset-postprocess callback.
+    /// Asset settings are supplied before parsing; no manual reimport is required.
     /// </summary>
     internal sealed class EchoSphereSvgImportSettings : AssetPostprocessor
     {

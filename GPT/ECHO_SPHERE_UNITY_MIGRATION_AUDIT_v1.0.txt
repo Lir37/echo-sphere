@@ -1500,3 +1500,12 @@ VALIDATION STATUS:
   zero SVG import errors and no infinite import loop.
 - Until that Editor check passes, record SVG import as source-fixed but
   Editor acceptance pending. The protected new-desing branch is unchanged.
+
+
+CI FOLLOW-UP — UNITY SVG REGRESSION GUARD:
+- Run #80 passed all 305 C# contract assertions but failed the project preflight
+  because the guard rejected a documentation comment that mentioned
+  SaveAndReimport, not because the method was present in the importer.
+- Removed the misleading phrase from the importer comment and corrected the
+  preflight's word-boundary expression so it detects the actual currentColor
+  token. The next CI run is the acceptance gate for the corrected guard.
