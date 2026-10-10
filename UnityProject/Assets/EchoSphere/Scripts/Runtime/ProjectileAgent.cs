@@ -39,8 +39,8 @@ namespace EchoSphere.Runtime
             {
                 _hitEnemyIds.Add(enemy.GetInstanceID());
                 var resolvedDamage = _runtime.ResolveProjectileDamage(_damage, _critChanceBonus);
-                enemy.ReceiveDamage(resolvedDamage);
                 if (_evolutionOwner != null) _evolutionOwner.OnProjectileHit(enemy, _direction, resolvedDamage);
+                enemy.ReceiveDamage(resolvedDamage);
                 _runtime.SpawnImpact(transform.position, _impactColor);
                 if (_remainingPierces > 0) _remainingPierces--;
                 else { Destroy(gameObject); return; }

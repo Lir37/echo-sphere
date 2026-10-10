@@ -414,11 +414,11 @@ namespace EchoSphere.Runtime
             for (var i = 0; i < targets.Count; i++)
             {
                 var target = targets[i];
-                target.ReceiveDamage(damage);
                 if (finalId == "standard_resonator_final_2")
                     target.KnockBackFrom(center, 0.85f);
                 else if (finalId == "standard_resonator_final_3")
                     target.ApplySlow(0.8f, 0.55f);
+                target.ReceiveDamage(damage);
             }
             SpawnImpact(center, new Color(0.32f, 0.9f, 1f, 0.9f));
         }

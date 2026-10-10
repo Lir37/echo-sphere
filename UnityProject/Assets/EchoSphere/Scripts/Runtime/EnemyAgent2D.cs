@@ -23,6 +23,14 @@ namespace EchoSphere.Runtime
             _slowMultiplier = Mathf.Clamp(multiplier, 0.15f, 1f);
         }
 
+        public void KnockBackFrom(Vector2 center, float distance)
+        {
+            if (_dead || _runtime == null || _runtime.IsGameplayPaused) return;
+            var away = ((Vector2)transform.position - center).normalized;
+            if (away.sqrMagnitude <= 0.0001f) away = Vector2.up;
+            transform.position += (Vector3)(away * Mathf.Max(0f, distance));
+        }
+
         public void PullToward(Vector2 center, float distance)
         {
             if (_dead || _runtime == null || _runtime.IsGameplayPaused) return;
