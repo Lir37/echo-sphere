@@ -234,9 +234,10 @@ namespace EchoSphere.Runtime
                 var slow = SphereEvolutionCombatRules.GetStandardSingularitySlowDuration(_progressionLevel);
                 if (finalId == "standard_singularity_final_1" || finalId == "standard_singularity_final_3") pull *= 1.25f;
                 if (finalId == "standard_singularity_final_2") slow = Mathf.Max(slow, 1.8f);
-                if (finalId == "standard_singularity_final_3" && target.HpFraction <= 0.5f)
-                    target.ReceiveDamage(dealtDamage * 0.15f);
+                var receivesCollapseBonus = finalId == "standard_singularity_final_3" && target.HpFraction <= 0.5f;
                 _runtime.TriggerStandardSingularity(target, pull, slow);
+                if (receivesCollapseBonus && target != null)
+                    target.ReceiveDamage(dealtDamage * 0.15f);
                 return;
             }
 
