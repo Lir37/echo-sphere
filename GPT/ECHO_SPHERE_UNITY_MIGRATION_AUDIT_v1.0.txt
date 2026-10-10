@@ -1389,3 +1389,36 @@ LIMITS:
   level, character-specific portraits/models and production VFX remain open.
 - Verify sorting/overlap and device readability in Unity Editor and Android;
   CI preflight is not a substitute for a rendered visual check.
+
+
+======================================================================
+2026-10-10 — VISUAL RESTORATION SLICE 3: AUTHOR ART IN UNITY
+======================================================================
+
+IMPLEMENTED:
+- Migrated source-branch artwork into Unity Resources without changing the
+  protected new-desing branch: Core/player, eight authored Sphere designs,
+  Spherist front/three-quarter art and boss artwork.
+- Added dedicated Standard and Orbital bridge SVGs. They provide a clean
+  native Sprite layer for the Unity port; source production visuals for these
+  two families include separable PNG parts / dynamic Canvas geometry.
+- Added Unity 6.3 Vector Graphics package pin 3.0.0-preview.7 plus an Editor
+  import preset: textured Sprite output, SVG pixel units enabled, 128 PPU,
+  64 gradient resolution. Unsupported SVG filter effects were removed during
+  asset migration; source paths, strokes, colors and gradients are preserved.
+- Runtime loads authored Core/Sphere sprites from Resources. Procedural
+  fallback remains available when an art import is missing. The title screen
+  uses the canonical Spherist three-quarter illustration.
+- Extended project preflight to check the package pin, importer preset,
+  art inventory and code wiring.
+
+LIMITS / ACCEPTANCE GATE:
+- The Unity Editor must import the SVG library and be checked for importer
+  warnings, missing gradients, silhouettes, scale and sorting. CI doesn't run
+  Unity's SVG importer or compile UnityEngine-facing scripts.
+- Character art is currently shown in the title screen only; character
+  selection, unlock/mastery and other canonical character visuals remain unported.
+- Boss SVG is staged but no boss gameplay actor is wired yet. Full enemy creature
+  animation, dynamic Orbital satellite progression, production combat VFX and
+  final HUD/menu layout remain future slices.
+- No source code/assets on new-desing were changed.

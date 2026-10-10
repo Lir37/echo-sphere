@@ -22,6 +22,8 @@ const required = [
   'Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs',
   'Assets/Editor/EchoSphereSvgImportSettings.cs',
   'Assets/Resources/EchoSphere/Art/player.svg',
+  'Assets/Resources/EchoSphere/Art/sphere-standard.svg',
+  'Assets/Resources/EchoSphere/Art/sphere-orbital.svg',
   'Assets/Resources/EchoSphere/Art/sphere-aura.svg',
   'Assets/Resources/EchoSphere/Art/sphere-chain.svg',
   'Assets/Resources/EchoSphere/Art/sphere-gravity.svg',
@@ -92,6 +94,7 @@ assert.ok(spriteFactory.includes('Resources.Load<Sprite>') && runtime.includes('
 const svgImportSettings = readFileSync(join(root, 'Assets/Editor/EchoSphereSvgImportSettings.cs'), 'utf8');
 assert.ok(svgImportSettings.includes('SVGType.TexturedSprite') && svgImportSettings.includes('SaveAndReimport'), 'SVG artwork must import as textured Sprite assets');
 assert.ok(runtime.includes('LoadAuthored("player")') && runtime.includes('character-spherist-3q'), 'Core and canonical Spherist visuals are not connected');
+assert.ok(runtime.includes('LoadAuthored("sphere-standard")') && runtime.includes('LoadAuthored("sphere-orbital")'), 'bridge Sphere art fallback coverage is missing');
 assert.ok(spriteFactory.includes('ES_Diamond') && spriteFactory.includes('ES_Prism') && spriteFactory.includes('ES_Shard'), 'distinct archetype silhouettes are missing');
 const resonanceRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/ResonanceRules.cs'), 'utf8');
 assert.ok(resonanceRules.includes('BaseCap = 100f') && resonanceRules.includes('OverflowCap = 150f'), 'Resonance charge contract is missing');
