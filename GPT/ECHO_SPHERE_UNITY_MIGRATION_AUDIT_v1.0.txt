@@ -1111,3 +1111,12 @@ SLICE 15 CI REVIEW:
   Resonance/Guard contract calls that had no matching pure rule methods.
   Added the source-routed Halo charge bonus and every-third-successful-pass
   shield cadence so the tests have authoritative rule implementations.
+
+
+SLICE 15 CI REVIEW FOLLOW-UP:
+- The test fixture originally expected all overlapping geometries to be active
+  at once. The source intentionally allows only dominant and secondary
+  geometries to grant combat bonuses, while retaining every valid shape in
+  FormationCandidates. The fixture now asserts Ring/Lattice/Fractal detection
+  from the candidate catalogue and reserves active-layer assertions for the
+  selected dominant/secondary formations.
