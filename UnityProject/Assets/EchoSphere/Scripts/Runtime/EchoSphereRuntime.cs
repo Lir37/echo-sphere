@@ -27,6 +27,7 @@ namespace EchoSphere.Runtime
         private int _kills, _level = 1, _xp, _xpRequired = RunBalanceRules.GetXpToNextLevel(1);
         private bool _follow, _paused, _levelUp, _gameOver, _userPaused;
         private bool _mainMenu = true;
+        private float _uiScale = 1f, _uiWidth, _uiHeight;
         private Texture2D _uiPanelTexture, _uiButtonTexture, _uiButtonHoverTexture, _uiButtonActiveTexture, _uiAccentTexture;
         private GUIStyle _menuTitle;
         private float _damageMultiplier = 1f, _attackSpeedMultiplier = 1f;
@@ -116,14 +117,14 @@ namespace EchoSphere.Runtime
             {
                 var touch = Input.GetTouch(0);
                 if (touch.phase == TouchPhase.Began) _touchStart = touch.position;
-                if (_touchStart.x < Screen.width * 0.58f && touch.phase != TouchPhase.Ended && touch.phase != TouchPhase.Canceled)
+                if (_touchStart.x < _uiWidth * 0.58f && touch.phase != TouchPhase.Ended && touch.phase != TouchPhase.Canceled)
                 {
                     var drag = touch.position - _touchStart;
                     if (drag.sqrMagnitude > 100f) return Vector2.ClampMagnitude(drag / 90f, 1f);
                 }
             }
             if (Input.GetMouseButtonDown(0)) _touchStart = Input.mousePosition;
-            if (Input.GetMouseButton(0) && _touchStart.x < Screen.width * 0.58f)
+            if (Input.GetMouseButton(0) && _touchStart.x < _uiWidth * 0.58f)
             {
                 var drag = (Vector2)Input.mousePosition - _touchStart;
                 if (drag.sqrMagnitude > 100f) return Vector2.ClampMagnitude(drag / 90f, 1f);
@@ -395,6 +396,8 @@ namespace EchoSphere.Runtime
 
         private static Sprite GetSphereIcon(SphereId type)
         {
+            var authored = GetAuthoredSphereArtwork(type);
+            if (authored != null) return authored;
             switch (type)
             {
                 case SphereId.Sniper: return RuntimeSpriteFactory.Diamond;
@@ -1477,15 +1480,15 @@ namespace EchoSphere.Runtime
         {
             var previousColor = GUI.color;
             GUI.color = new Color(0.008f, 0.018f, 0.055f, 0.98f);
-            GUI.DrawTexture(new Rect(0f, 0f, Screen.width, Screen.height), _uiPanelTexture);
+            GUI.DrawTexture(new Rect(0f, 0f, _uiWidth, _uiHeight), _uiPanelTexture);
             GUI.color = new Color(0.08f, 0.54f, 0.94f, 0.7f);
-            GUI.DrawTexture(new Rect(0f, 0f, Screen.width, 3f), _uiAccentTexture);
-            GUI.DrawTexture(new Rect(0f, Screen.height - 3f, Screen.width, 3f), _uiAccentTexture);
+            GUI.DrawTexture(new Rect(0f, 0f, _uiWidth, 3f), _uiAccentTexture);
+            GUI.DrawTexture(new Rect(0f, _uiHeight - 3f, _uiWidth, 3f), _uiAccentTexture);
             GUI.color = previousColor;
 
-            var width = Mathf.Min(620f, Screen.width - 32f);
-            var height = Mathf.Min(480f, Screen.height - 28f);
-            var panel = new Rect((Screen.width - width) * 0.5f, (Screen.height - height) * 0.5f, width, height);
+            var width = Mathf.Min(620f, _uiWidth - 32f);
+            var height = Mathf.Min(480f, _uiHeight - 28f);
+            var panel = new Rect((_uiWidth - width) * 0.5f, (_uiHeight - height) * 0.5f, width, height);
             GUI.Box(panel, GUIContent.none, _box);
             GUI.color = new Color(0.1f, 0.68f, 1f, 0.9f);
             GUI.DrawTexture(new Rect(panel.x + 28f, panel.y + 24f, panel.width - 56f, 2f), _uiAccentTexture);
@@ -1522,135 +1525,182 @@ namespace EchoSphere.Runtime
             GUI.color = previousColor;
         }
 
-        private void OnGUI()
+        private void DrawProgressBar(Rect rect, float amount, Color fillColor)
         {
-            if (_box == null)
+            var previousColor = GUI.color;
+            GUI.color = new Color(0.018f, 0.045f, 0.09f, 1f);
+            GUI.DrawTexture(rect, _uiPanelTexture);
+            var inset = new Rect(rect.x + 1f, rect.y + 1f,
+                Mathf.Max(0f, (rect.width - 2f) * Mathf.Clamp01(amount)),
+                Mathf.Max(1f, rect.height - 2f));
+            if (inset.width > 0f)
             {
-                _uiPanelTexture = CreateUiTexture(new Color(0.012f, 0.032f, 0.082f, 0.96f));
-                _uiButtonTexture = CreateUiTexture(new Color(0.025f, 0.12f, 0.23f, 0.98f));
-                _uiButtonHoverTexture = CreateUiTexture(new Color(0.04f, 0.24f, 0.39f, 1f));
-                _uiButtonActiveTexture = CreateUiTexture(new Color(0.04f, 0.38f, 0.55f, 1f));
-                _uiAccentTexture = CreateUiTexture(Color.white);
-                _box = new GUIStyle(GUI.skin.box) { alignment = TextAnchor.UpperLeft, fontSize = 15, padding = new RectOffset(14, 14, 10, 10) };
-                _box.normal.background = _uiPanelTexture;
-                _box.border = new RectOffset(5, 5, 5, 5);
-                _label = new GUIStyle(GUI.skin.label) { fontSize = 15, normal = { textColor = new Color(0.72f, 0.88f, 1f) } };
-                _button = new GUIStyle(GUI.skin.button) { fontSize = 14, wordWrap = true, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter };
-                _button.normal.background = _uiButtonTexture;
-                _button.hover.background = _uiButtonHoverTexture;
-                _button.active.background = _uiButtonActiveTexture;
-                _button.normal.textColor = new Color(0.86f, 0.97f, 1f);
-                _button.hover.textColor = Color.white;
-                _button.active.textColor = Color.white;
-                _title = new GUIStyle(GUI.skin.label) { fontSize = 19, fontStyle = FontStyle.Bold, normal = { textColor = Color.white } };
-                _menuTitle = new GUIStyle(_title) { fontSize = Mathf.Clamp(Screen.width / 23, 30, 44), alignment = TextAnchor.MiddleCenter };
+                GUI.color = fillColor;
+                GUI.DrawTexture(inset, _uiAccentTexture);
             }
-            if (_mainMenu)
-            {
-                DrawMainMenu();
-                return;
-            }
-            var hp = _playerCore == null ? 0f : _playerCore.CurrentHp;
-            var maxHp = _playerCore == null ? 100f : _playerCore.MaxHp;
-            GUI.Box(new Rect(18, 18, 285, 154), GUIContent.none, _box);
-            var geometryLabel = _networkState != null && _networkState.DominantFormation != null
-                ? "GEOMETRY " + _networkState.DominantFormation.Type.ToString().ToUpperInvariant()
-                : "NETWORK DISCONNECTED";
-            if (GUI.Button(new Rect(32, 151, 125, 20), "MAIN: " + geometryLabel.Replace("GEOMETRY ", ""), _button))
-                CycleDominantFormation();
-            var secondaryLabel = _networkState != null && _networkState.SecondaryFormation != null
-                ? _networkState.SecondaryFormation.Type.ToString().ToUpperInvariant() : "AUTO";
-            if (GUI.Button(new Rect(162, 151, 125, 20), "SUB: " + secondaryLabel, _button))
-                CycleSecondaryFormation();
-            GUI.Label(new Rect(32, 26, 255, 28), "ECHO SPHERE / UNITY SLICE", _title);
-            GUI.Label(new Rect(32, 57, 250, 22), $"CORE {Mathf.CeilToInt(hp)} / {Mathf.CeilToInt(maxHp)}", _label);
-            GUI.Box(new Rect(32, 81, 245, 10), GUIContent.none);
-            GUI.Box(new Rect(32, 81, 245f * (maxHp <= 0f ? 0f : hp / maxHp), 10), GUIContent.none);
-            GUI.Label(new Rect(32, 96, 250, 20), $"LV {_level}   KILLS {_kills}   {FormatTime(_runTime)}", _label);
-            GUI.Label(new Rect(32, 116, 250, 18), $"RESONANCE {Mathf.FloorToInt(_resonanceCharge)} / 100   SHIELD {_playerCore?.ShieldCharges ?? 0}", _label);
-            GUI.Box(new Rect(32, 137, 245, 7), GUIContent.none);
-            GUI.Box(new Rect(32, 137, 245f * Mathf.Clamp01(_resonanceCharge / ResonanceRules.BaseCap), 7), GUIContent.none);
-            var y = Screen.height - 76f;
-            if (GUI.Button(new Rect(18, y, 215, 54), _follow ? "FORMATION FOLLOW ON" : "FORMATION FOLLOW OFF", _button))
-                SetFormationFollowMode(!_follow);
-            if (GUI.Button(new Rect(Screen.width - 176, y, 158, 54), "DASH", _button)) _playerCore.TryDash(_playerCore.LastMoveDirection);
-            if (!_gameOver && !_levelUp && !_choosingEvolution &&
-                GUI.Button(new Rect(Screen.width - 158f, 140f, 140f, 36f), _userPaused ? "RESUME" : "PAUSE", _button))
-                SetUserPaused(!_userPaused);
-            DrawSphereRoster();
-            if (!string.IsNullOrEmpty(_message) && _messageTimer > 0f)
-                GUI.Label(new Rect(18, 178, Mathf.Min(Screen.width - 36f, 520f), 30), _message, _label);
-            if (_levelUp)
-            {
-                var left = Screen.width * 0.5f - 220f;
-                var top = Screen.height * 0.5f - 170f;
-                GUI.Box(new Rect(left, top, 440f, 340f), GUIContent.none, _box);
-                GUI.Label(new Rect(left + 36f, top + 25f, 360f, 32f), _choosingEvolution
-                    ? (_pendingFinalEvolution ? "FINAL EVOLUTION / CHOOSE ONE" : "MUTATION BRANCH / CHOOSE ONE")
-                    : "LEVEL UP / CHOOSE ONE", _title);
-                if (_choosingEvolution)
-                {
-                    for (var i = 0; i < _evolutionChoices.Count; i++)
-                    {
-                        var yOffset = 70f + i * 78f;
-                        var choice = _evolutionChoices[i];
-                        var rect = new Rect(left + 35f, top + yOffset, 370f, 64f);
-                        if (GUI.Button(rect, GUIContent.none, _button)) ChooseEvolution(i);
-                        DrawSpriteIcon(new Rect(rect.x + 10f, rect.y + 10f, 42f, 42f), GetSphereIcon(_pendingEvolutionSphere), SphereColor(_pendingEvolutionSphere));
-                        GUI.Label(new Rect(rect.x + 60f, rect.y + 8f, 298f, 25f), choice.Name, _label);
-                        GUI.Label(new Rect(rect.x + 60f, rect.y + 31f, 298f, 29f), choice.Description, _button);
-                    }
-                }
-                else
-                {
-                    for (var i = 0; i < _levelUpChoices.Count; i++)
-                    {
-                        var yOffset = 70f + i * 78f;
-                        var choice = _levelUpChoices[i];
-                        var rect = new Rect(left + 35f, top + yOffset, 370f, 64f);
-                        if (GUI.Button(rect, GUIContent.none, _button)) ChooseUpgrade(i);
-                        var icon = choice.Kind == RunUpgradeKind.Sphere ? GetSphereIcon(choice.Sphere)
-                            : choice.Kind == RunUpgradeKind.Repair ? RuntimeSpriteFactory.Hexagon
-                            : choice.Kind == RunUpgradeKind.AttackSpeed ? RuntimeSpriteFactory.Star
-                            : RuntimeSpriteFactory.Faceted;
-                        var tint = choice.Kind == RunUpgradeKind.Sphere ? SphereColor(choice.Sphere)
-                            : choice.Kind == RunUpgradeKind.Repair ? new Color(0.35f, 1f, 0.72f)
-                            : choice.Kind == RunUpgradeKind.AttackSpeed ? new Color(1f, 0.78f, 0.28f)
-                            : new Color(0.28f, 0.88f, 1f);
-                        DrawSpriteIcon(new Rect(rect.x + 10f, rect.y + 10f, 42f, 42f), icon, tint);
-                        GUI.Label(new Rect(rect.x + 60f, rect.y + 8f, 298f, 25f), choice.Title, _label);
-                        GUI.Label(new Rect(rect.x + 60f, rect.y + 31f, 298f, 29f), choice.Description, _button);
-                    }
-                }
-            }
-            if (_userPaused)
-            {
-                var pauseLeft = Screen.width * 0.5f - 190f;
-                var pauseTop = Screen.height * 0.5f - 105f;
-                GUI.Box(new Rect(pauseLeft, pauseTop, 380f, 210f), GUIContent.none, _box);
-                GUI.Label(new Rect(pauseLeft + 40f, pauseTop + 25f, 300f, 34f), "RUN PAUSED", _title);
-                GUI.Label(new Rect(pauseLeft + 40f, pauseTop + 62f, 300f, 28f), "Your run is safe. Resume when ready.", _label);
-                if (GUI.Button(new Rect(pauseLeft + 30f, pauseTop + 112f, 150f, 52f), "RESUME", _button))
-                    SetUserPaused(false);
-                if (GUI.Button(new Rect(pauseLeft + 200f, pauseTop + 112f, 150f, 52f), "RESTART RUN", _button))
-                {
-                    _userPaused = false;
-                    _paused = false;
-                    SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-                }
-            }
-            if (_gameOver)
-            {
-                var left = Screen.width * 0.5f - 190f;
-                var top = Screen.height * 0.5f - 85f;
-                GUI.Box(new Rect(left, top, 380f, 170f), GUIContent.none, _box);
-                GUI.Label(new Rect(left + 40f, top + 24f, 300f, 32f), "CORE DESTROYED", _title);
-                GUI.Label(new Rect(left + 40f, top + 60f, 300f, 28f), $"Survived {FormatTime(_runTime)} · {_kills} kills", _label);
-                if (GUI.Button(new Rect(left + 100f, top + 102f, 180f, 44f), "RESTART"))
-                    SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-            }
+            GUI.color = previousColor;
         }
 
+        private void OnGUI()
+        {
+            var previousMatrix = GUI.matrix;
+            _uiScale = Mathf.Clamp(Screen.height / 720f, 1f, 1.5f);
+            _uiWidth = Screen.width / _uiScale;
+            _uiHeight = Screen.height / _uiScale;
+            GUI.matrix = previousMatrix * Matrix4x4.Scale(new Vector3(_uiScale, _uiScale, 1f));
+
+            try
+            {
+                if (_box == null)
+                {
+                    _uiPanelTexture = CreateUiTexture(new Color(0.012f, 0.032f, 0.082f, 0.96f));
+                    _uiButtonTexture = CreateUiTexture(new Color(0.025f, 0.12f, 0.23f, 0.98f));
+                    _uiButtonHoverTexture = CreateUiTexture(new Color(0.04f, 0.24f, 0.39f, 1f));
+                    _uiButtonActiveTexture = CreateUiTexture(new Color(0.04f, 0.38f, 0.55f, 1f));
+                    _uiAccentTexture = CreateUiTexture(Color.white);
+                    _box = new GUIStyle(GUI.skin.box) { alignment = TextAnchor.UpperLeft, fontSize = 15, padding = new RectOffset(14, 14, 10, 10) };
+                    _box.normal.background = _uiPanelTexture;
+                    _box.border = new RectOffset(5, 5, 5, 5);
+                    _label = new GUIStyle(GUI.skin.label) { fontSize = 15, normal = { textColor = new Color(0.72f, 0.88f, 1f) } };
+                    _button = new GUIStyle(GUI.skin.button) { fontSize = 14, wordWrap = true, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter };
+                    _button.normal.background = _uiButtonTexture;
+                    _button.hover.background = _uiButtonHoverTexture;
+                    _button.active.background = _uiButtonActiveTexture;
+                    _button.normal.textColor = new Color(0.86f, 0.97f, 1f);
+                    _button.hover.textColor = Color.white;
+                    _button.active.textColor = Color.white;
+                    _title = new GUIStyle(GUI.skin.label) { fontSize = 19, fontStyle = FontStyle.Bold, normal = { textColor = Color.white } };
+                    _menuTitle = new GUIStyle(_title) { fontSize = Mathf.Clamp(Mathf.RoundToInt(_uiWidth / 23f), 30, 44), alignment = TextAnchor.MiddleCenter };
+                }
+
+                if (_mainMenu)
+                {
+                    DrawMainMenu();
+                    return;
+                }
+
+                var hp = _playerCore == null ? 0f : _playerCore.CurrentHp;
+                var maxHp = _playerCore == null ? 100f : _playerCore.MaxHp;
+                var hpRatio = maxHp <= 0f ? 0f : Mathf.Clamp01(hp / maxHp);
+                var xpRatio = _xpRequired <= 0 ? 0f : Mathf.Clamp01(_xp / (float)_xpRequired);
+                var resonanceRatio = Mathf.Clamp01(_resonanceCharge / ResonanceRules.BaseCap);
+
+                GUI.Box(new Rect(18, 18, 310, 210), GUIContent.none, _box);
+                GUI.Label(new Rect(32, 25, 276, 28), "ECHO SPHERE  /  CORE SYSTEM", _title);
+                GUI.Label(new Rect(32, 56, 270, 20), $"CORE INTEGRITY   {Mathf.CeilToInt(hp)} / {Mathf.CeilToInt(maxHp)}", _label);
+                var hpColor = hpRatio > 0.55f
+                    ? new Color(0.25f, 0.92f, 0.73f, 1f)
+                    : hpRatio > 0.25f ? new Color(1f, 0.66f, 0.25f, 1f) : new Color(1f, 0.28f, 0.39f, 1f);
+                DrawProgressBar(new Rect(32, 79, 270, 9), hpRatio, hpColor);
+
+                GUI.Label(new Rect(32, 95, 278, 20), $"LV {_level}     KILLS {_kills}     {FormatTime(_runTime)}", _label);
+                GUI.Label(new Rect(32, 116, 270, 18), $"EXPERIENCE   {_xp} / {_xpRequired}", _label);
+                DrawProgressBar(new Rect(32, 136, 270, 8), xpRatio, new Color(0.58f, 0.48f, 1f, 1f));
+
+                GUI.Label(new Rect(32, 149, 276, 18), $"RESONANCE   {Mathf.FloorToInt(_resonanceCharge)} / 100   SHIELD {_playerCore?.ShieldCharges ?? 0}", _label);
+                var resonanceColor = Color.Lerp(new Color(0.25f, 0.86f, 1f, 1f), new Color(1f, 0.82f, 0.33f, 1f), resonanceRatio);
+                DrawProgressBar(new Rect(32, 169, 270, 8), resonanceRatio, resonanceColor);
+
+                var geometryLabel = _networkState != null && _networkState.DominantFormation != null
+                    ? "GEOMETRY " + _networkState.DominantFormation.Type.ToString().ToUpperInvariant()
+                    : "NETWORK DISCONNECTED";
+                if (GUI.Button(new Rect(32, 188, 132, 24), "MAIN: " + geometryLabel.Replace("GEOMETRY ", ""), _button))
+                    CycleDominantFormation();
+                var secondaryLabel = _networkState != null && _networkState.SecondaryFormation != null
+                    ? _networkState.SecondaryFormation.Type.ToString().ToUpperInvariant() : "AUTO";
+                if (GUI.Button(new Rect(170, 188, 132, 24), "SUB: " + secondaryLabel, _button))
+                    CycleSecondaryFormation();
+
+                var bottomY = _uiHeight - 76f;
+                if (GUI.Button(new Rect(18, bottomY, 215, 54), _follow ? "FORMATION FOLLOW ON" : "FORMATION FOLLOW OFF", _button))
+                    SetFormationFollowMode(!_follow);
+                if (GUI.Button(new Rect(_uiWidth - 176f, bottomY, 158f, 54f), "DASH", _button))
+                    _playerCore.TryDash(_playerCore.LastMoveDirection);
+                if (!_gameOver && !_levelUp && !_choosingEvolution &&
+                    GUI.Button(new Rect(_uiWidth - 158f, 140f, 140f, 36f), _userPaused ? "RESUME" : "PAUSE", _button))
+                    SetUserPaused(!_userPaused);
+
+                DrawSphereRoster();
+                if (!string.IsNullOrEmpty(_message) && _messageTimer > 0f)
+                    GUI.Label(new Rect(18f, 236f, Mathf.Min(_uiWidth - 36f, 520f), 30f), _message, _label);
+
+                if (_levelUp)
+                {
+                    var left = _uiWidth * 0.5f - 220f;
+                    var top = _uiHeight * 0.5f - 170f;
+                    GUI.Box(new Rect(left, top, 440f, 340f), GUIContent.none, _box);
+                    GUI.Label(new Rect(left + 36f, top + 25f, 368f, 32f), _choosingEvolution
+                        ? (_pendingFinalEvolution ? "FINAL EVOLUTION / CHOOSE ONE" : "MUTATION BRANCH / CHOOSE ONE")
+                        : "LEVEL UP / CHOOSE ONE", _title);
+                    if (_choosingEvolution)
+                    {
+                        for (var i = 0; i < _evolutionChoices.Count; i++)
+                        {
+                            var yOffset = 70f + i * 78f;
+                            var choice = _evolutionChoices[i];
+                            var rect = new Rect(left + 35f, top + yOffset, 370f, 64f);
+                            if (GUI.Button(rect, GUIContent.none, _button)) ChooseEvolution(i);
+                            DrawSpriteIcon(new Rect(rect.x + 10f, rect.y + 10f, 42f, 42f), GetSphereIcon(_pendingEvolutionSphere), SphereColor(_pendingEvolutionSphere));
+                            GUI.Label(new Rect(rect.x + 60f, rect.y + 8f, 298f, 25f), choice.Name, _label);
+                            GUI.Label(new Rect(rect.x + 60f, rect.y + 31f, 298f, 29f), choice.Description, _button);
+                        }
+                    }
+                    else
+                    {
+                        for (var i = 0; i < _levelUpChoices.Count; i++)
+                        {
+                            var yOffset = 70f + i * 78f;
+                            var choice = _levelUpChoices[i];
+                            var rect = new Rect(left + 35f, top + yOffset, 370f, 64f);
+                            if (GUI.Button(rect, GUIContent.none, _button)) ChooseUpgrade(i);
+                            var icon = choice.Kind == RunUpgradeKind.Sphere ? GetSphereIcon(choice.Sphere)
+                                : choice.Kind == RunUpgradeKind.Repair ? RuntimeSpriteFactory.Hexagon
+                                : choice.Kind == RunUpgradeKind.AttackSpeed ? RuntimeSpriteFactory.Star
+                                : RuntimeSpriteFactory.Faceted;
+                            var tint = choice.Kind == RunUpgradeKind.Sphere ? Color.white
+                                : choice.Kind == RunUpgradeKind.Repair ? new Color(0.35f, 1f, 0.72f)
+                                : choice.Kind == RunUpgradeKind.AttackSpeed ? new Color(1f, 0.78f, 0.28f)
+                                : new Color(0.28f, 0.88f, 1f);
+                            DrawSpriteIcon(new Rect(rect.x + 10f, rect.y + 10f, 42f, 42f), icon, tint);
+                            GUI.Label(new Rect(rect.x + 60f, rect.y + 8f, 298f, 25f), choice.Title, _label);
+                            GUI.Label(new Rect(rect.x + 60f, rect.y + 31f, 298f, 29f), choice.Description, _button);
+                        }
+                    }
+                }
+
+                if (_userPaused)
+                {
+                    var pauseLeft = _uiWidth * 0.5f - 190f;
+                    var pauseTop = _uiHeight * 0.5f - 105f;
+                    GUI.Box(new Rect(pauseLeft, pauseTop, 380f, 210f), GUIContent.none, _box);
+                    GUI.Label(new Rect(pauseLeft + 40f, pauseTop + 25f, 300f, 34f), "RUN PAUSED", _title);
+                    GUI.Label(new Rect(pauseLeft + 40f, pauseTop + 62f, 300f, 28f), "Your run is safe. Resume when ready.", _label);
+                    if (GUI.Button(new Rect(pauseLeft + 30f, pauseTop + 112f, 150f, 52f), "RESUME", _button))
+                        SetUserPaused(false);
+                    if (GUI.Button(new Rect(pauseLeft + 200f, pauseTop + 112f, 150f, 52f), "RESTART RUN", _button))
+                    {
+                        _userPaused = false;
+                        _paused = false;
+                        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+                    }
+                }
+
+                if (_gameOver)
+                {
+                    var left = _uiWidth * 0.5f - 190f;
+                    var top = _uiHeight * 0.5f - 85f;
+                    GUI.Box(new Rect(left, top, 380f, 170f), GUIContent.none, _box);
+                    GUI.Label(new Rect(left + 40f, top + 24f, 300f, 32f), "CORE DESTROYED", _title);
+                    GUI.Label(new Rect(left + 40f, top + 60f, 300f, 28f), $"Survived {FormatTime(_runTime)} · {_kills} kills", _label);
+                    if (GUI.Button(new Rect(left + 100f, top + 102f, 180f, 44f), "RESTART", _button))
+                        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+                }
+            }
+            finally
+            {
+                GUI.matrix = previousMatrix;
+            }
+        }
 
         private void DrawSphereRoster()
         {
@@ -1658,7 +1708,7 @@ namespace EchoSphere.Runtime
             if (count <= 0) return;
             const float cardWidth = 56f;
             var panelWidth = count * cardWidth + 12f;
-            var panel = new Rect(Screen.width - panelWidth - 18f, 18f, panelWidth, 110f);
+            var panel = new Rect(_uiWidth - panelWidth - 18f, 18f, panelWidth, 110f);
             GUI.Box(panel, GUIContent.none, _box);
             GUI.Label(new Rect(panel.x + 8f, panel.y + 4f, panel.width - 16f, 18f), "ACTIVE SPHERES", _label);
             for (var i = 0; i < count; i++)

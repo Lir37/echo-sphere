@@ -1422,3 +1422,27 @@ LIMITS / ACCEPTANCE GATE:
   animation, dynamic Orbital satellite progression, production combat VFX and
   final HUD/menu layout remain future slices.
 - No source code/assets on new-desing were changed.
+
+
+======================================================================
+2026-10-10 — VISUAL RESTORATION SLICE 4: RESPONSIVE HUD / ICONS
+======================================================================
+
+IMPLEMENTED:
+- Rebuilt the run HUD with visible Core integrity, XP-to-next-level and
+  Resonance progress bars. Each bar has its own state-derived fill color;
+  prior generic GUI.Box styling made the background and fill visually alike
+  after the UI skin was introduced.
+- Added a consistent compact hierarchy for level, kills, elapsed run time,
+  shield charges and primary/secondary Geometry selection.
+- Scaled GUI coordinates and fonts by landscape screen height, retaining
+  a consistent logical layout on 720p and higher-resolution Android displays.
+- Level-up/evolution cards, pause/resume, game-over/restart, Dash and Formation
+  Follow retain their existing actions under the responsive skin.
+- Active Sphere roster and level-up choices now prefer authored Sphere icons.
+
+VALIDATION LIMIT:
+- Preflight guards the progress bars, experience display, authored icon routing
+  and screen scaling. The layout still needs inspection in Unity Editor at the
+  target landscape aspect ratio and on the Android device.
+- No combat, XP progression, pause-state or Formation Follow rules changed.

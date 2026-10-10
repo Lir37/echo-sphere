@@ -89,6 +89,8 @@ assert.ok(networkRules.includes('Analyze') && networkRules.includes('FindFractal
 assert.ok(runtime.includes('RefreshNetworkState') && runtime.includes('UpdateNetworkLinkVisuals') && runtime.includes('GEOMETRY '), 'live Network links and Geometry HUD are missing');
 
 assert.ok(runtime.includes('RUN PAUSED') && runtime.includes('RESTART RUN'), 'pause overlay controls are missing');
+assert.ok(runtime.includes('DrawProgressBar') && runtime.includes('EXPERIENCE') && runtime.includes('_uiScale'), 'responsive color-coded HP/XP/Resonance HUD is missing');
+assert.ok(runtime.includes('GetAuthoredSphereArtwork(type)') && runtime.includes('return authored'), 'Sphere icon UI must prefer authored source art');
 assert.ok(spriteFactory.includes('CreatePolygonSprite'), 'procedural faceted silhouette generation is missing');
 assert.ok(spriteFactory.includes('Resources.Load<Sprite>') && runtime.includes('GetAuthoredSphereArtwork'), 'authored SVG runtime binding is missing');
 const svgImportSettings = readFileSync(join(root, 'Assets/Editor/EchoSphereSvgImportSettings.cs'), 'utf8');
@@ -104,7 +106,7 @@ assert.ok(enemySpawnRules.includes('Select(float elapsedSeconds, float roll)') &
 assert.ok(runtime.includes('GetEnemyPopulationCap') && runtime.includes('GetEnemySpawnInterval'), 'time-scaled enemy pressure controls are missing');
 assert.ok(runtime.includes('profile.XpReward') && runtime.includes('GetEnemySprite') && runtime.includes('Initialize(this, _player, xpReward)'), 'enemy role visuals/XP pickup wiring is missing');
 assert.ok(runtime.includes('GetFormationKey') && runtime.includes('AddResonanceChargeFromSource'), 'new-geometry Resonance charging is missing');
-console.log(`Unity project preflight: PASS (Unity ${version}, ${runtimeFiles.length} C# source files, URP and authored SVG asset guards)`);
+console.log(`Unity project preflight: PASS (Unity ${version}, ${runtimeFiles.length} C# source files, URP, authored SVG and responsive HUD guards)`);
 
 const evolutionRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/SphereEvolutionCombatRules.cs'), 'utf8');
 const sphereAttack = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs'), 'utf8');
