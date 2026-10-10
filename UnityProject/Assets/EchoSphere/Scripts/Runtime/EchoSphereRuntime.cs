@@ -408,6 +408,8 @@ namespace EchoSphere.Runtime
         }
 
 
+        public bool RollCombatChance(float chance) => _rng.NextFloat() < Mathf.Clamp01(chance);
+
         public void HealPlayer(float amount)
         {
             if (_playerCore != null && !_playerCore.IsDead) _playerCore.Heal(Mathf.Max(0f, amount));
@@ -419,6 +421,65 @@ namespace EchoSphere.Runtime
             var targets = FindEnemiesInRadius(primary.transform.position, radius);
             for (var i = 0; i < targets.Count; i++) if (targets[i] != primary) targets[i].ReceiveDamage(damage);
             SpawnImpact(primary.transform.position, new Color(0.76f, 0.58f, 1f, 0.9f));
+        }
+
+        public void TriggerShotgunCataclysm(EnemyAgent2D primary, float directDamage, int level, string finalId)
+        {
+            if (primary == null) return;
+            var radius = SphereEvolutionCombatRules.GetShotgunCataclysmRadius(level, finalId);
+            var splash = SphereEvolutionCombatRules.GetShotgunCataclysmSplash(level, finalId);
+            var center = (Vector2)primary.transform.position;
+            var targets = FindEnemiesInRadius(center, radius);
+            for (var i = 0; i < targets.Count; i++)
+            {
+                var target = targets[i];
+                if (target == primary) continue;
+                target.ReceiveDamage(directDamage * splash);
+            }
+            SpawnImpact(center, new Color(0.85f, 0.28f, 0.24f, 0.92f));
+            var effect = new GameObject("Cataclysm Shatter");
+            effect.transform.position = center;
+            effect.transform.localScale = Vector3.one * radius * 1.8f;
+            var sr = effect.AddComponent<SpriteRenderer>();
+            sr.sprite = RuntimeSpriteFactory.Ring;
+            sr.color = new Color(1f, 0.3f, 0.22f, 0.55f);
+            sr.sortingOrder = 17;
+            effect.AddComponent<PulseEffect2D>().Initialize(sr.color, 0.24f, 1.15f);
+            if (finalId == "shotgun_cataclysm_final_3")
+            {
+                primary.ApplySlow(0.8f, 0.65f);
+                for (var i = 0; i < targets.Count; i++)
+                    if (targets[i] != primary) targets[i].ApplySlow(0.8f, 0.65f);
+            }
+        }
+
+        public void TriggerShotgunHail(EnemyAgent2D primary, Vector2 incomingDirection, float directDamage, int level, string finalId, int shardCount)
+        {
+            if (primary == null || shardCount <= 0) return;
+            var origin = (Vector2)primary.transform.position;
+            var radius = SphereEvolutionCombatRules.GetShotgunHailRadius(level, finalId);
+            var shardDamage = directDamage * SphereEvolutionCombatRules.GetShotgunHailShardDamageMultiplier(finalId);
+            var targets = FindNearestEnemies(origin, 5.5f, shardCount + 2);
+            var guided = finalId == "shotgun_hail_final_3";
+            for (var i = 0; i < shardCount; i++)
+            {
+                Vector2 direction;
+                if (guided && i < targets.Count && targets[i] != primary)
+                    direction = ((Vector2)targets[i].transform.position - origin).normalized;
+                else
+                {
+                    var angle = (i / (float)shardCount) * Mathf.PI * 2f;
+                    if (incomingDirection.sqrMagnitude > 0.001f && !guided)
+                        angle += Mathf.Atan2(incomingDirection.y, incomingDirection.x);
+                    direction = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+                }
+                SpawnProjectile(origin, direction, shardDamage, new Color(1f, 0.69f, 0.30f), 9f, guided ? 1 : 0, 0f);
+            }
+            var nearby = FindEnemiesInRadius(origin, radius);
+            var splash = directDamage * SphereEvolutionCombatRules.GetShotgunHailSplashMultiplier(finalId);
+            for (var i = 0; i < nearby.Count; i++)
+                if (nearby[i] != primary) nearby[i].ReceiveDamage(splash);
+            SpawnImpact(origin, new Color(1f, 0.69f, 0.30f, 0.9f));
         }
 
         public void TriggerStandardResonatorPulse(Vector2 center, float damage, float radius, string finalId)

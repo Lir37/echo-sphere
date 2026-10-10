@@ -161,7 +161,7 @@ namespace EchoSphere.Runtime
                 var t = count == 1 ? 0f : (float)i / (count - 1) - 0.5f;
                 var angle = t * _profile.Spread * _levelStats.SpreadMultiplier * Mathf.Rad2Deg;
                 var shot = Rotate(direction, angle);
-                _runtime.SpawnProjectile(origin, shot, damage, ColorFor(_type));
+                _runtime.SpawnProjectile(origin, shot, damage, ColorFor(_type), 8f, 0, 0f, this);
             }
         }
 
@@ -245,6 +245,19 @@ namespace EchoSphere.Runtime
                 var count = SphereEvolutionCombatRules.GetStandardSwarmShardCount(_progressionLevel, finalId);
                 _runtime.SpawnStandardSwarmShards(target, direction, count, dealtDamage * SphereEvolutionCombatRules.GetStandardSwarmShardDamageMultiplier(_progressionLevel));
                 return dealtDamage;
+            }
+            if (_type == SphereId.Shotgun && branch == "shotgun_cataclysm")
+            {
+                _runtime.TriggerShotgunCataclysm(target, dealtDamage, _progressionLevel, finalId);
+                return dealtDamage;
+            }
+            if (_type == SphereId.Shotgun && branch == "shotgun_hail")
+            {
+                var shardCount = SphereEvolutionCombatRules.GetShotgunHailShardCount(_progressionLevel, finalId);
+                var chance = SphereEvolutionCombatRules.GetShotgunHailChance(_progressionLevel, finalId);
+                if (_runtime.RollCombatChance(chance))
+                    _runtime.TriggerShotgunHail(target, direction, dealtDamage, _progressionLevel, finalId, shardCount);
+                return dealtDamage * (finalId == "shotgun_hail_final_3" ? 1.08f : 1f);
             }
             if (_type == SphereId.Sniper && branch == "sniper_oracle")
             {

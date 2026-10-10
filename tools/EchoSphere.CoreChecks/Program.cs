@@ -19,6 +19,7 @@ internal static class Program
             CheckSphereLevelRules();
             CheckSphereEvolutionCombatRules();
             CheckSniperEvolutionCombatRules();
+            CheckShotgunEvolutionCombatRules();
             Console.WriteLine($"ECHO SPHERE Unity core contracts: PASS ({_assertions} assertions)");
             return 0;
         }
@@ -195,6 +196,19 @@ internal static class Program
         Near(SphereEvolutionCombatRules.GetSniperBeaconMarkDuration(6, "sniper_beacon_final_2"), 5f, 0f, "Beacon Spotlight mark duration");
         True(SphereEvolutionCombatRules.GetSniperBeaconRadius(6, "sniper_beacon_final_2") > SphereEvolutionCombatRules.GetSniperBeaconRadius(5, null), "Beacon Spotlight expands mark area");
         Near(SphereEvolutionCombatRules.GetSniperBeaconSlowMultiplier("sniper_beacon_final_1"), 0.45f, 0f, "Beacon Anchor slow");
+    }
+
+    private static void CheckShotgunEvolutionCombatRules()
+    {
+        Near(SphereEvolutionCombatRules.GetShotgunCataclysmRadius(5, "shotgun_cataclysm_final_1"), 1.2f, 0f, "Cataclysm Fragment Blast radius");
+        Near(SphereEvolutionCombatRules.GetShotgunCataclysmSplash(5, "shotgun_cataclysm_final_2"), 0.65f, 0f, "Cataclysm Heavy Blast splash");
+        True(SphereEvolutionCombatRules.GetShotgunCataclysmRadius(6, null) > SphereEvolutionCombatRules.GetShotgunCataclysmRadius(5, null), "Cataclysm grows at level VI");
+        Near(SphereEvolutionCombatRules.GetShotgunHailChance(4, null), 0.32f, 0f, "Hail base proc chance");
+        Near(SphereEvolutionCombatRules.GetShotgunHailChance(5, null), 0.45f, 0f, "Hail level V proc chance");
+        Near(SphereEvolutionCombatRules.GetShotgunHailChance(6, null), 0.60f, 0f, "Hail level VI proc chance");
+        Equal(SphereEvolutionCombatRules.GetShotgunHailShardCount(6, null), 7, "Hail level VI shard count");
+        Equal(SphereEvolutionCombatRules.GetShotgunHailShardCount(7, "shotgun_hail_final_2"), 8, "Dense Hail shard count");
+        Near(SphereEvolutionCombatRules.GetShotgunHailShardDamageMultiplier("shotgun_hail_final_2"), 0.22f, 0f, "Dense Hail shard damage");
     }
 
     private static void CheckCatalogAndRewardedContracts()

@@ -36,6 +36,50 @@ namespace EchoSphere.Core
 
         public static float GetStandardSwarmShardDamageMultiplier(int level) => level >= 6 ? 0.50f : level >= 5 ? 0.45f : 0.35f;
 
+        public static float GetShotgunCataclysmRadius(int level, string finalId)
+        {
+            var radius = finalId == "shotgun_cataclysm_final_1" ? 1.20f
+                : finalId == "shotgun_cataclysm_final_2" ? 1.70f
+                : finalId == "shotgun_cataclysm_final_3" ? 1.10f : 1.05f;
+            if (string.IsNullOrEmpty(finalId)) radius *= level >= 6 ? 1.30f : level >= 5 ? 1.15f : 1f;
+            return radius;
+        }
+
+        public static float GetShotgunCataclysmSplash(int level, string finalId)
+        {
+            var splash = finalId == "shotgun_cataclysm_final_1" ? 0.45f
+                : finalId == "shotgun_cataclysm_final_2" ? 0.65f
+                : finalId == "shotgun_cataclysm_final_3" ? 0.35f : 0.30f;
+            if (string.IsNullOrEmpty(finalId)) splash *= level >= 6 ? 1.30f : level >= 5 ? 1.15f : 1f;
+            return splash;
+        }
+
+        public static float GetShotgunHailChance(int level, string finalId)
+        {
+            if (finalId == "shotgun_hail_final_1") return 0.25f;
+            if (finalId == "shotgun_hail_final_2") return 0.40f;
+            if (finalId == "shotgun_hail_final_3") return 0.32f;
+            return level >= 6 ? 0.60f : level >= 5 ? 0.45f : 0.32f;
+        }
+
+        public static int GetShotgunHailShardCount(int level, string finalId)
+        {
+            if (finalId == "shotgun_hail_final_2") return 8;
+            return string.IsNullOrEmpty(finalId) && level >= 6 ? 7 : 6;
+        }
+
+        public static float GetShotgunHailRadius(int level, string finalId)
+        {
+            if (finalId == "shotgun_hail_final_2") return 1.3f;
+            return string.IsNullOrEmpty(finalId) ? (level >= 6 ? 1.2f : level >= 5 ? 1.04f : 0.9f) : 0.9f;
+        }
+
+        public static float GetShotgunHailShardDamageMultiplier(string finalId) =>
+            finalId == "shotgun_hail_final_2" ? 0.22f : finalId == "shotgun_hail_final_3" ? 0.19f : 0.16f;
+
+        public static float GetShotgunHailSplashMultiplier(string finalId) =>
+            finalId == "shotgun_hail_final_2" ? 0.18f : 0.12f;
+
         public static float GetSniperOracleCriticalMultiplier(string finalId)
         {
             if (finalId == "sniper_oracle_final_1") return 1.50f;

@@ -805,3 +805,28 @@ SLICE 7 CI REVIEW:
 - CI #33 caught an incorrect test fixture: a level-V Assassin without the Execution Mark final form uses the 30% base threshold, so the test target was changed from 34% to 25% HP.
 - Removed an unintended second multiplier from the Sentence final form; the pure combat rule already returns the intended 2.0x finishing multiplier.
 - Removed unused mark-ID tracking; timed marks are owned by EnemyAgent2D.
+
+
+======================================================================
+2026-10-10 — UNITY GAMEPLAY PORT SLICE 8: SHOTGUN CATACLYSM / HAIL
+======================================================================
+
+IMPLEMENTED:
+- Shotgun pellets now report hits to their owning Sphere evolution.
+- Cataclysm: each hit produces a visible area blast and secondary damage;
+  the three final forms tune blast radius/damage and Lockdown adds slow.
+- Hail: chance-based ring of shards, secondary area damage and visual impact;
+  levels V/VI increase trigger chance and VI adds a seventh shard.
+- Dense Hail launches eight shards; Hunter Hail guides shards toward nearby
+  distinct targets and gives them one pierce.
+- Added pure C# tests and CI guards for chances, counts, radii and damage.
+
+LIMITS:
+- The Unity projectile/shard simulation is a first pass, not yet identical to
+  the source's full projectile lifetime/status/reaction model.
+- Other Shotgun Burst close-range behavior is still open.
+- Unity Editor Play Mode and Android APK/device checks remain separate from CI.
+
+======================================================================
+END SLICE 8
+======================================================================
