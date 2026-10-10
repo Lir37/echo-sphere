@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace EchoSphere.Runtime
@@ -6,6 +7,7 @@ namespace EchoSphere.Runtime
     internal static class RuntimeSpriteFactory
     {
         private static Sprite _disc, _ring, _faceted, _diamond, _hexagon, _prism, _shard, _star;
+        private static readonly Dictionary<string, Sprite> AuthoredCache = new Dictionary<string, Sprite>();
         public static Sprite Disc { get { if (_disc == null) _disc = CreateSprite(false); return _disc; } }
         public static Sprite Ring { get { if (_ring == null) _ring = CreateSprite(true); return _ring; } }
         public static Sprite Faceted { get { if (_faceted == null) _faceted = CreatePolygonSprite("ES_Faceted", new[] { new Vector2(-0.68f,-0.72f),new Vector2(0.18f,-0.92f),new Vector2(0.83f,-0.35f),new Vector2(0.72f,0.54f),new Vector2(-0.12f,0.88f),new Vector2(-0.88f,0.22f) }); return _faceted; } }
@@ -14,6 +16,16 @@ namespace EchoSphere.Runtime
         public static Sprite Prism { get { if (_prism == null) _prism = CreatePolygonSprite("ES_Prism", new[] { new Vector2(0f,0.96f),new Vector2(0.86f,-0.62f),new Vector2(-0.86f,-0.62f) }); return _prism; } }
         public static Sprite Shard { get { if (_shard == null) _shard = CreatePolygonSprite("ES_Shard", new[] { new Vector2(-0.08f,0.98f),new Vector2(0.72f,0.34f),new Vector2(0.5f,-0.72f),new Vector2(-0.2f,-0.92f),new Vector2(-0.9f,-0.08f) }); return _shard; } }
         public static Sprite Star { get { if (_star == null) _star = CreatePolygonSprite("ES_Star", RegularPolygon(10,0.9f,0.52f)); return _star; } }
+
+        /// <summary>Loads an authored SVG sprite from Resources. A missing import allows the procedural fallback to work.</summary>
+        public static Sprite LoadAuthored(string assetName)
+        {
+            if (string.IsNullOrWhiteSpace(assetName)) return null;
+            if (AuthoredCache.TryGetValue(assetName, out var cached)) return cached;
+            var loaded = Resources.Load<Sprite>("EchoSphere/Art/" + assetName);
+            AuthoredCache[assetName] = loaded;
+            return loaded;
+        }
 
         private static Vector2[] RegularPolygon(int count,float outerRadius,float innerRadius)
         {

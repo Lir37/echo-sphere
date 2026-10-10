@@ -181,9 +181,9 @@ namespace EchoSphere.Runtime
         {
             var tint = new Color(0.2f, 0.91f, 1f);
             var go = CreateOrb("Core", Vector2.zero, 1f, tint, Color.white, 10);
-            ApplyShellVisual(go, RuntimeSpriteFactory.Faceted, 1.06f);
-            var core = go.transform.Find("Core Light");
-            if (core != null) core.localScale = Vector3.one * 0.25f;
+            var authoredCore = RuntimeSpriteFactory.LoadAuthored("player");
+            if (!ApplyAuthoredShellVisual(go, authoredCore, 1.06f))
+                ApplyShellVisual(go, RuntimeSpriteFactory.Faceted, 1.06f);
             AddOrbitRail(go.transform, tint, new Vector3(1.82f, 0.72f, 1f), -28f, 7);
             AddOrbitRail(go.transform, new Color(0.43f, 0.76f, 1f, 0.8f), new Vector3(1.45f, 0.54f, 1f), 42f, 8);
             _player = go.transform;
@@ -233,8 +233,45 @@ namespace EchoSphere.Runtime
         {
             var shell = root.transform.Find("Shell");
             if (shell == null) return;
-            shell.GetComponent<SpriteRenderer>().sprite = sprite;
+            var renderer = shell.GetComponent<SpriteRenderer>();
+            if (renderer == null) return;
+            renderer.sprite = sprite;
             shell.localScale = Vector3.one * scale;
+        }
+
+        private static bool ApplyAuthoredShellVisual(GameObject root, Sprite sprite, float scale)
+        {
+            if (root == null || sprite == null) return false;
+            var shell = root.transform.Find("Shell");
+            if (shell == null) return false;
+            var renderer = shell.GetComponent<SpriteRenderer>();
+            if (renderer == null) return false;
+            renderer.sprite = sprite;
+            renderer.color = Color.white;
+            shell.localScale = Vector3.one * scale;
+            var frame = root.transform.Find("Inner Frame");
+            if (frame != null) frame.gameObject.SetActive(false);
+            var core = root.transform.Find("Core Light");
+            if (core != null) core.gameObject.SetActive(false);
+            return true;
+        }
+
+        private static Sprite GetAuthoredSphereArtwork(SphereId type)
+        {
+            switch (type)
+            {
+                case SphereId.Standard: return RuntimeSpriteFactory.LoadAuthored("sphere-standard");
+                case SphereId.Sniper: return RuntimeSpriteFactory.LoadAuthored("sphere-sniper");
+                case SphereId.Chain: return RuntimeSpriteFactory.LoadAuthored("sphere-chain");
+                case SphereId.Shotgun: return RuntimeSpriteFactory.LoadAuthored("sphere-shotgun");
+                case SphereId.Aura: return RuntimeSpriteFactory.LoadAuthored("sphere-aura");
+                case SphereId.Orbital: return RuntimeSpriteFactory.LoadAuthored("sphere-orbital");
+                case SphereId.Prism: return RuntimeSpriteFactory.LoadAuthored("sphere-prism");
+                case SphereId.Gravity: return RuntimeSpriteFactory.LoadAuthored("sphere-gravity");
+                case SphereId.Pulse: return RuntimeSpriteFactory.LoadAuthored("sphere-pulse");
+                case SphereId.Void: return RuntimeSpriteFactory.LoadAuthored("sphere-void");
+                default: return null;
+            }
         }
 
         private void ApplySphereVisual(GameObject root, SphereId type)
@@ -242,6 +279,17 @@ namespace EchoSphere.Runtime
             var shell = root.transform.Find("Shell");
             var core = root.transform.Find("Core Light");
             if (shell == null || core == null) return;
+            var authored = GetAuthoredSphereArtwork(type);
+            if (ApplyAuthoredShellVisual(root, authored, type == SphereId.Orbital ? 1.08f : 1.04f))
+            {
+                if (type == SphereId.Orbital)
+                {
+                    AddRadialNodes(root.transform, RuntimeSpriteFactory.Diamond, new Color(0.79f, 0.98f, 1f), 2, 0.84f, 0.16f, 11, 0.35f);
+                    AddOrbitRail(root.transform, SphereColor(type), new Vector3(1.75f, 0.7f, 1f), -34f, 6);
+                    AddOrbitRail(root.transform, new Color(0.8f, 0.98f, 1f, 0.85f), new Vector3(1.5f, 0.58f, 1f), 36f, 7);
+                }
+                return;
+            }
             var renderer = shell.GetComponent<SpriteRenderer>();
             switch (type)
             {
@@ -1444,11 +1492,22 @@ namespace EchoSphere.Runtime
             GUI.color = previousColor;
 
             var logoSize = Mathf.Min(104f, height * 0.23f);
-            DrawSpriteIcon(new Rect(panel.center.x - logoSize * 0.5f, panel.y + 42f, logoSize, logoSize), RuntimeSpriteFactory.Faceted, new Color(0.28f, 0.91f, 1f));
+            var coreLogo = RuntimeSpriteFactory.LoadAuthored("player") ?? RuntimeSpriteFactory.Faceted;
+            DrawSpriteIcon(new Rect(panel.center.x - logoSize * 0.5f, panel.y + 42f, logoSize, logoSize), coreLogo, Color.white);
             DrawSpriteIcon(new Rect(panel.center.x - logoSize * 0.64f, panel.y + 36f, logoSize * 1.28f, logoSize * 1.28f), RuntimeSpriteFactory.Ring, new Color(0.22f, 0.67f, 1f, 0.8f));
             GUI.Label(new Rect(panel.x + 24f, panel.y + 152f, panel.width - 48f, 48f), "ECHO SPHERE", _menuTitle);
             GUI.Label(new Rect(panel.x + 24f, panel.y + 198f, panel.width - 48f, 25f), "RESONANCE SURVIVAL PROTOCOL", _label);
-            GUI.Label(new Rect(panel.x + 38f, panel.y + 235f, panel.width - 76f, 44f), "Keep the Core alive. Build your Sphere network. Bend the battlefield.", _label);
+            var characterArt = RuntimeSpriteFactory.LoadAuthored("character-spherist-3q");
+            if (characterArt != null)
+            {
+                DrawSpriteIcon(new Rect(panel.x + 44f, panel.y + 222f, 86f, 106f), characterArt, Color.white);
+                GUI.Label(new Rect(panel.x + 144f, panel.y + 234f, panel.width - 180f, 58f), "SPHERIST  /  ALL-ROUNDER", _label);
+                GUI.Label(new Rect(panel.x + 144f, panel.y + 267f, panel.width - 180f, 51f), "Keep the Core alive. Build your Sphere network. Bend the battlefield.", _label);
+            }
+            else
+            {
+                GUI.Label(new Rect(panel.x + 38f, panel.y + 235f, panel.width - 76f, 44f), "Keep the Core alive. Build your Sphere network. Bend the battlefield.", _label);
+            }
             var buttonWidth = Mathf.Min(330f, panel.width - 60f);
             var button = new Rect(panel.center.x - buttonWidth * 0.5f, panel.y + height - 148f, buttonWidth, 54f);
             if (GUI.Button(button, "ENTER THE SPHERE", _button))
