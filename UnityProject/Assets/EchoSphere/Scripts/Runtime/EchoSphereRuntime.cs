@@ -264,19 +264,20 @@ namespace EchoSphere.Runtime
             return found;
         }
 
-        public EnemyAgent2D TryHitEnemy(Vector2 position, float radius)
+        public EnemyAgent2D TryHitEnemy(Vector2 position, float radius, HashSet<int> ignoredIds = null)
         {
             var combined = radius + 0.27f;
             var limit = combined * combined;
             for (var i = 0; i < _enemies.Count; i++)
             {
                 var e = _enemies[i];
-                if (e != null && e.IsAlive && ((Vector2)e.transform.position - position).sqrMagnitude <= limit) return e;
+                if (e != null && e.IsAlive && (ignoredIds == null || !ignoredIds.Contains(e.GetInstanceID())) &&
+                    ((Vector2)e.transform.position - position).sqrMagnitude <= limit) return e;
             }
             return null;
         }
 
-        public void SpawnProjectile(Vector2 position, Vector2 direction, float damage, Color color, float speed = 8f, int pierce = 0)
+        public void SpawnProjectile(Vector2 position, Vector2 direction, float damage, Color color, float speed = 8f, int pierce = 0, float critChanceBonus = 0f)
         {
             var go = new GameObject("Sphere Projectile");
             go.transform.position = position;
@@ -292,7 +293,7 @@ namespace EchoSphere.Runtime
             gs.sprite = RuntimeSpriteFactory.Disc;
             gs.color = new Color(color.r, color.g, color.b, 0.34f);
             gs.sortingOrder = 11;
-            go.AddComponent<ProjectileAgent>().Initialize(this, direction, damage, color, speed, pierce);
+            go.AddComponent<ProjectileAgent>().Initialize(this, direction, damage, color, speed, pierce, critChanceBonus);
         }
 
         public void SpawnImpact(Vector2 position, Color color)
@@ -340,9 +341,10 @@ namespace EchoSphere.Runtime
             _message = "Choose one upgrade.";
         }
 
-        public float ResolveProjectileDamage(float damage)
+        public float ResolveProjectileDamage(float damage, float critChanceBonus = 0f)
         {
-            return CombatRules.ResolveDamage(damage, CombatRules.CritBase, _rng.NextFloat(), CombatRules.CritMultiplierBase).Damage;
+            var critChance = Mathf.Min(CombatRules.CritHardCap, CombatRules.CritBase + Mathf.Max(0f, critChanceBonus));
+            return CombatRules.ResolveDamage(damage, critChance, _rng.NextFloat(), CombatRules.CritMultiplierBase).Damage;
         }
 
         public void TryDamagePlayer(float damage)

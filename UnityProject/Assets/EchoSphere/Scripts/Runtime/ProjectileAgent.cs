@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace EchoSphere.Runtime
@@ -11,14 +12,17 @@ namespace EchoSphere.Runtime
         private float _life = 2.5f;
         private Color _impactColor;
         private int _remainingPierces;
+        private readonly HashSet<int> _hitEnemyIds = new HashSet<int>();
+        private float _critChanceBonus;
 
-        public void Initialize(EchoSphereRuntime runtime, Vector2 direction, float damage, Color color, float speed = 8f, int pierce = 0)
+        public void Initialize(EchoSphereRuntime runtime, Vector2 direction, float damage, Color color, float speed = 8f, int pierce = 0, float critChanceBonus = 0f)
         {
             _runtime = runtime;
             _direction = direction.sqrMagnitude <= 0.0001f ? Vector2.right : direction.normalized;
             _damage = damage;
             _speed = speed;
             _remainingPierces = Mathf.Max(0, pierce);
+            _critChanceBonus = Mathf.Max(0f, critChanceBonus);
             _impactColor = color;
         }
 
@@ -28,10 +32,11 @@ namespace EchoSphere.Runtime
             var deltaTime = Time.deltaTime;
             transform.position += (Vector3)(_direction * (_speed * deltaTime));
             _life -= deltaTime;
-            var enemy = _runtime.TryHitEnemy(transform.position, 0.22f);
+            var enemy = _runtime.TryHitEnemy(transform.position, 0.22f, _hitEnemyIds);
             if (enemy != null)
             {
-                enemy.ReceiveDamage(_runtime.ResolveProjectileDamage(_damage));
+                _hitEnemyIds.Add(enemy.GetInstanceID());
+                enemy.ReceiveDamage(_runtime.ResolveProjectileDamage(_damage, _critChanceBonus));
                 _runtime.SpawnImpact(transform.position, _impactColor);
                 if (_remainingPierces > 0) _remainingPierces--;
                 else { Destroy(gameObject); return; }

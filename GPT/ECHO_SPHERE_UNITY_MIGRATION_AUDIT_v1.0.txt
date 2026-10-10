@@ -652,3 +652,12 @@ LIMITS:
 ======================================================================
 END SLICE 5
 ======================================================================
+
+
+IMPLEMENTATION NOTE (slice 5 follow-up):
+- Standard projectile pierce now tracks already-hit enemy instance IDs, so a
+  projectile cannot repeatedly damage the same overlapping target while
+  passing through a group.
+- Sniper level III crit bonus is wired into projectile crit resolution and
+  respects the existing 75% hard cap. Void's execution-crit bonus is not
+  misapplied as ordinary crit; it remains reserved for execution behavior.

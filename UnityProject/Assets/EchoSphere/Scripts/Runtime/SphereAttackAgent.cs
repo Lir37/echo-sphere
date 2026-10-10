@@ -147,7 +147,7 @@ namespace EchoSphere.Runtime
         {
             if (target == null) return;
             var direction = ((Vector2)target.transform.position - origin).normalized;
-            _runtime.SpawnProjectile(origin, direction, damage, tint, 8f * _profile.ProjectileSpeedMultiplier, _levelStats.Pierce);
+            _runtime.SpawnProjectile(origin, direction, damage, tint, 8f * _profile.ProjectileSpeedMultiplier, _levelStats.Pierce, _levelStats.CritChanceBonus);
         }
 
         private void FireSpread(EnemyAgent2D target, Vector2 origin, float damage)
