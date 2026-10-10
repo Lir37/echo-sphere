@@ -1190,3 +1190,9 @@ LIMITS:
 ======================================================================
 END SLICE 16
 ======================================================================
+
+
+RESONANCE CI REVIEW:
+- CI #58 passed the pure C# contract suite but the Node preflight stopped on
+  a temporal-dead-zone error: the Orbital Halo guard referenced sphereAttack
+  before its const declaration. Moved that assertion after the file bindings.
