@@ -642,6 +642,13 @@ IMPLEMENTED:
 - Added regression assertions covering the level I–III effects across the
   complete ten-Sphere roster.
 
+CI RESULT:
+- Unity Migration Contracts #24: SUCCESS.
+- Run: https://github.com/Lir37/echo-sphere/actions/runs/38029834212
+- Pure C# gameplay contracts and Unity project structure/runtime-boundary
+  checks passed. This workflow still does not compile UnityEngine scripts
+  or produce an Android APK.
+
 LIMITS:
 - Sniper's +15% crit and Void's +10% execution crit are represented in pure
   level stats but not yet consumed by runtime's shared crit resolver.
