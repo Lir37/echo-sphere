@@ -63,6 +63,8 @@ const spriteFactory = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime
 assert.ok(runtime.includes('DrawSphereRoster'), 'active Sphere roster HUD is missing');
 assert.ok(runtime.includes('DrawSpriteIcon'), 'Sphere choice UI must render visual icons');
 assert.ok(runtime.includes('ApplySphereVisual'), 'Sphere archetypes must use distinct visual silhouettes');
+assert.ok(runtime.includes('SetUserPaused'), 'pause/resume state handling is missing');
+assert.ok(runtime.includes('RUN PAUSED') && runtime.includes('RESTART RUN'), 'pause overlay controls are missing');
 assert.ok(spriteFactory.includes('CreatePolygonSprite'), 'procedural faceted silhouette generation is missing');
 assert.ok(spriteFactory.includes('ES_Diamond') && spriteFactory.includes('ES_Prism') && spriteFactory.includes('ES_Shard'), 'distinct archetype silhouettes are missing');
 console.log(`Unity project preflight: PASS (Unity ${version}, ${runtimeFiles.length} C# source files, URP renderer regression guard)`);

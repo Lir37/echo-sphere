@@ -25,7 +25,7 @@ namespace EchoSphere.Runtime
         private float _spawnTimer = 0.6f, _runTime, _messageTimer, _formationStrain;
         private Vec2 _lastDirection = Vec2.Zero;
         private int _kills, _level = 1, _xp, _xpRequired = RunBalanceRules.GetXpToNextLevel(1);
-        private bool _follow, _paused, _levelUp, _gameOver;
+        private bool _follow, _paused, _levelUp, _gameOver, _userPaused;
         private float _damageMultiplier = 1f, _attackSpeedMultiplier = 1f;
         private string _message = "Drag on the left half to move. Tap DASH to evade.";
         private GUIStyle _box, _label, _button, _title;
@@ -48,6 +48,8 @@ namespace EchoSphere.Runtime
         private void Update()
         {
             PruneDestroyed();
+            if (Input.GetKeyDown(KeyCode.Escape) && !_gameOver && !_levelUp && !_choosingEvolution)
+                SetUserPaused(!_userPaused);
             if (_paused || _playerCore == null) return;
             var dt = Time.deltaTime;
             _runTime += dt;
@@ -589,6 +591,14 @@ namespace EchoSphere.Runtime
 
         private void ShowMessage(string text) { _message = text; _messageTimer = 2.2f; }
 
+        private void SetUserPaused(bool paused)
+        {
+            if (_gameOver || _levelUp || _choosingEvolution) return;
+            _userPaused = paused;
+            _paused = paused;
+            ShowMessage(paused ? "Run paused." : "Run resumed.");
+        }
+
         private void OnGUI()
         {
             if (_box == null)
@@ -610,6 +620,9 @@ namespace EchoSphere.Runtime
             if (GUI.Button(new Rect(18, y, 215, 54), _follow ? "FORMATION FOLLOW ON" : "FORMATION FOLLOW OFF", _button))
                 SetFormationFollowMode(!_follow);
             if (GUI.Button(new Rect(Screen.width - 176, y, 158, 54), "DASH", _button)) _playerCore.TryDash(_playerCore.LastMoveDirection);
+            if (!_gameOver && !_levelUp && !_choosingEvolution &&
+                GUI.Button(new Rect(Screen.width - 158f, 140f, 140f, 36f), _userPaused ? "RESUME" : "PAUSE", _button))
+                SetUserPaused(!_userPaused);
             DrawSphereRoster();
             if (!string.IsNullOrEmpty(_message) && _messageTimer > 0f)
                 GUI.Label(new Rect(18, 140, Mathf.Min(Screen.width - 36f, 520f), 30), _message, _label);
@@ -654,6 +667,22 @@ namespace EchoSphere.Runtime
                         GUI.Label(new Rect(rect.x + 60f, rect.y + 8f, 298f, 25f), choice.Title, _label);
                         GUI.Label(new Rect(rect.x + 60f, rect.y + 31f, 298f, 29f), choice.Description, _button);
                     }
+                }
+            }
+            if (_userPaused)
+            {
+                var pauseLeft = Screen.width * 0.5f - 190f;
+                var pauseTop = Screen.height * 0.5f - 105f;
+                GUI.Box(new Rect(pauseLeft, pauseTop, 380f, 210f), GUIContent.none, _box);
+                GUI.Label(new Rect(pauseLeft + 40f, pauseTop + 25f, 300f, 34f), "RUN PAUSED", _title);
+                GUI.Label(new Rect(pauseLeft + 40f, pauseTop + 62f, 300f, 28f), "Your run is safe. Resume when ready.", _label);
+                if (GUI.Button(new Rect(pauseLeft + 30f, pauseTop + 112f, 150f, 52f), "RESUME", _button))
+                    SetUserPaused(false);
+                if (GUI.Button(new Rect(pauseLeft + 200f, pauseTop + 112f, 150f, 52f), "RESTART RUN", _button))
+                {
+                    _userPaused = false;
+                    _paused = false;
+                    SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
                 }
             }
             if (_gameOver)

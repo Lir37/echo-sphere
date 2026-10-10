@@ -704,3 +704,29 @@ LIMITS / ACCEPTANCE:
 ======================================================================
 END PRESENTATION SLICE 1
 ======================================================================
+
+
+======================================================================
+2026-10-10 — UNITY PRESENTATION SLICE 2: PAUSE / RESUME / RESTART
+======================================================================
+
+BASE HEAD:
+f88b839ff8d3bbbd179837c49b3eb1a764cd2318
+
+IMPLEMENTED:
+- Added an Escape-key pause toggle and an in-game Pause/Resume control.
+- Added a pause overlay with Resume and Restart Run actions.
+- Pause state is kept separate from level-up/evolution selection and Game Over;
+  the pause toggle is rejected while those modal states are active.
+- Added a CI structure guard for the pause state and overlay actions.
+
+LIMITS:
+- This remains a compact prototype overlay using IMGUI. It is not the full
+  menu/settings/region navigation UI from the original app.
+- UnityEngine script compilation, Play Mode input verification and Android
+  APK/device testing remain open. The CI workflow does not perform those tests.
+- The protected new-desing branch remains unchanged.
+
+======================================================================
+END PRESENTATION SLICE 2
+======================================================================
