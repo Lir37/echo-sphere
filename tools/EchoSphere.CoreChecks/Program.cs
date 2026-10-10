@@ -12,6 +12,7 @@ internal static class Program
             CheckCombatRules();
             CheckFormationFollow();
             CheckCatalogAndRewardedContracts();
+            CheckRunBalance();
             Console.WriteLine($"ECHO SPHERE Unity core contracts: PASS ({_assertions} assertions)");
             return 0;
         }
@@ -75,6 +76,16 @@ internal static class Program
         var offsets = FormationFollowRules.CaptureOffsets(Vec2.Zero, new[] { new Vec2(1f, 2f), new Vec2(-1f, 0f) });
         var positions = FormationFollowRules.ApplyOffsets(new Vec2(10f, 5f), offsets);
         True(positions[0].Equals(new Vec2(11f, 7f)) && positions[1].Equals(new Vec2(9f, 5f)), "formation offsets preserve positions");
+    }
+
+    private static void CheckRunBalance()
+    {
+        Equal(RunBalanceRules.GetXpToNextLevel(1), 10, "new-desing first level XP threshold");
+        Equal(RunBalanceRules.GetXpToNextLevel(2), 13, "new-desing level 2 XP threshold");
+        Equal(RunBalanceRules.GetXpToNextLevel(3), 16, "new-desing level 3 XP threshold uses JS rounding");
+        Equal(RunBalanceRules.GetXpToNextLevel(10), 42, "new-desing level 10 XP threshold");
+        Equal(RunBalanceRules.GetXpToNextLevel(0), 10, "invalid low level normalized to first threshold");
+        Equal(RunBalanceRules.GetXpToNextLevel(-50), 10, "negative level normalized to first threshold");
     }
 
     private static void CheckCatalogAndRewardedContracts()

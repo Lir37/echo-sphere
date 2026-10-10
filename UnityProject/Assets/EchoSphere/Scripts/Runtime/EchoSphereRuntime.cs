@@ -17,7 +17,7 @@ namespace EchoSphere.Runtime
         private Vector2 _touchStart;
         private float _spawnTimer = 0.6f, _runTime, _messageTimer, _formationStrain;
         private Vec2 _lastDirection = Vec2.Zero;
-        private int _kills, _level = 1, _xp, _xpRequired = 6;
+        private int _kills, _level = 1, _xp, _xpRequired = RunBalanceRules.GetXpToNextLevel(1);
         private bool _follow, _paused, _levelUp, _gameOver;
         private float _damageMultiplier = 1f, _attackSpeedMultiplier = 1f;
         private string _message = "Drag on the left half to move. Tap DASH to evade.";
@@ -266,7 +266,7 @@ namespace EchoSphere.Runtime
         {
             if (_gameOver || _levelUp || _xp < _xpRequired) return;
             _xp -= _xpRequired;
-            _xpRequired = 6 + _level * 3;
+            _xpRequired = RunBalanceRules.GetXpToNextLevel(_level);
             _level++;
             _levelUp = true;
             _paused = true;

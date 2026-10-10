@@ -397,3 +397,39 @@ Keep new-desing protected and unchanged.
 ======================================================================
 END 2026-10-09 UPDATE
 ======================================================================
+
+
+======================================================================
+2026-10-10 — UNITY GAMEPLAY PORT SLICE 1: XP BALANCE PARITY
+======================================================================
+
+BASE HEAD:
+c63d6feb29ed6fec71d072987003899e7780d7ef
+
+IMPLEMENTED:
+- Added pure C# RunBalanceRules with source-mapped balance constants from
+  new-desing/src/engineBalance.ts.
+- Ported the authoritative getXpToNextLevel(level) formula from
+  new-desing/src/engineState.ts, including JavaScript-compatible rounding.
+- Unity prototype now uses the canonical XP curve instead of the temporary
+  6, 9, 12... threshold sequence.
+- Added deterministic contract assertions for levels 1, 2, 3, 10 and invalid
+  low-level inputs.
+- This change is intentionally narrow: it does not alter working movement,
+  URP, Sphere attack timing, or scene bootstrapping.
+
+VERIFICATION:
+- Contract assertions added; CI result must be recorded after this commit.
+- The migration workflow still does not compile UnityEngine-facing scripts
+  or build an APK. Existing user-observed Editor launch remains accepted;
+  Android APK/device gate remains open.
+
+NEXT PORT PRIORITY:
+- Replace the generic three-Sphere placeholder attack setup with data-driven
+  Sphere entities and distinct behavior dispatch for the canonical ten Sphere
+  families, using new-desing runtime formulas and source tests as authority.
+- Then port Network/Geometry/Resonance as one connected gameplay system;
+  do not implement isolated decorative links without mechanical effects.
+======================================================================
+END 2026-10-10 SLICE 1 UPDATE
+======================================================================
