@@ -259,13 +259,62 @@ namespace EchoSphere.Runtime
             }
             shell.localScale = Vector3.one * (type == SphereId.Aura ? 1.18f : 1.02f);
             core.localScale = Vector3.one * (type == SphereId.Aura ? 0.24f : type == SphereId.Prism ? 0.20f : 0.27f);
-            if (type == SphereId.Orbital)
+            var coreRenderer = core.GetComponent<SpriteRenderer>();
+            if (coreRenderer != null)
             {
-                AddOrbitRail(root.transform, SphereColor(type), new Vector3(1.75f, 0.7f, 1f), -34f, 6);
-                AddOrbitRail(root.transform, new Color(0.8f, 0.98f, 1f, 0.85f), new Vector3(1.5f, 0.58f, 1f), 36f, 7);
+                switch (type)
+                {
+                    case SphereId.Gravity: coreRenderer.color = new Color(0.73f, 0.56f, 1f); break;
+                    case SphereId.Void: coreRenderer.color = new Color(0.84f, 0.72f, 1f); break;
+                    case SphereId.Chain: coreRenderer.color = new Color(1f, 0.97f, 0.76f); break;
+                    case SphereId.Prism: coreRenderer.color = new Color(1f, 0.88f, 0.98f); break;
+                    case SphereId.Pulse: coreRenderer.color = new Color(1f, 0.96f, 0.72f); break;
+                    default: coreRenderer.color = Color.white; break;
+                }
             }
-            else if (type == SphereId.Gravity || type == SphereId.Void)
-                AddOrbitRail(root.transform, SphereColor(type), new Vector3(1.55f, 0.62f, 1f), type == SphereId.Gravity ? 28f : -22f, 6);
+
+            // Each Sphere family gets a readable silhouette language, not only a color swap.
+            switch (type)
+            {
+                case SphereId.Standard:
+                    AddRadialNodes(root.transform, RuntimeSpriteFactory.Disc, SphereColor(type), 3, 0.78f, 0.13f, 11, 0.2f);
+                    break;
+                case SphereId.Sniper:
+                    AddRadialNodes(root.transform, RuntimeSpriteFactory.Diamond, new Color(0.91f, 0.78f, 1f), 2, 0.78f, 0.15f, 11, Mathf.PI * 0.5f);
+                    AddOrbitRail(root.transform, new Color(0.83f, 0.62f, 1f, 0.72f), new Vector3(1.52f, 0.30f, 1f), 0f, 6);
+                    break;
+                case SphereId.Chain:
+                    AddRadialNodes(root.transform, RuntimeSpriteFactory.Disc, new Color(1f, 0.92f, 0.46f), 3, 0.78f, 0.17f, 11, Mathf.PI * 0.5f);
+                    break;
+                case SphereId.Shotgun:
+                    AddRadialNodes(root.transform, RuntimeSpriteFactory.Disc, new Color(1f, 0.76f, 0.37f), 5, 0.76f, 0.11f, 11, Mathf.PI * 0.5f);
+                    break;
+                case SphereId.Aura:
+                    AddRadialNodes(root.transform, RuntimeSpriteFactory.Disc, new Color(0.67f, 1f, 0.86f), 4, 0.78f, 0.12f, 11, Mathf.PI * 0.25f);
+                    AddOrbitRail(root.transform, new Color(0.34f, 0.95f, 0.76f, 0.45f), new Vector3(1.72f, 0.78f, 1f), 18f, 6);
+                    break;
+                case SphereId.Orbital:
+                    AddRadialNodes(root.transform, RuntimeSpriteFactory.Diamond, new Color(0.79f, 0.98f, 1f), 2, 0.84f, 0.16f, 11, 0.35f);
+                    AddOrbitRail(root.transform, SphereColor(type), new Vector3(1.75f, 0.7f, 1f), -34f, 6);
+                    AddOrbitRail(root.transform, new Color(0.8f, 0.98f, 1f, 0.85f), new Vector3(1.5f, 0.58f, 1f), 36f, 7);
+                    break;
+                case SphereId.Prism:
+                    AddRadialNodes(root.transform, RuntimeSpriteFactory.Prism, new Color(1f, 0.78f, 0.95f), 3, 0.78f, 0.14f, 11, Mathf.PI * 0.5f);
+                    AddOrbitRail(root.transform, new Color(1f, 0.58f, 0.88f, 0.65f), new Vector3(1.55f, 0.38f, 1f), 60f, 6);
+                    break;
+                case SphereId.Gravity:
+                    AddRadialNodes(root.transform, RuntimeSpriteFactory.Hexagon, new Color(0.79f, 0.68f, 1f), 4, 0.79f, 0.12f, 11, Mathf.PI * 0.25f);
+                    AddOrbitRail(root.transform, SphereColor(type), new Vector3(1.55f, 0.62f, 1f), 28f, 6);
+                    break;
+                case SphereId.Pulse:
+                    AddRadialNodes(root.transform, RuntimeSpriteFactory.Disc, new Color(1f, 0.9f, 0.54f), 4, 0.78f, 0.13f, 11, Mathf.PI * 0.25f);
+                    AddOrbitRail(root.transform, new Color(1f, 0.82f, 0.32f, 0.62f), new Vector3(1.62f, 0.64f, 1f), -45f, 6);
+                    break;
+                case SphereId.Void:
+                    AddRadialNodes(root.transform, RuntimeSpriteFactory.Shard, new Color(0.85f, 0.72f, 1f), 3, 0.79f, 0.14f, 11, Mathf.PI * 0.5f);
+                    AddOrbitRail(root.transform, SphereColor(type), new Vector3(1.55f, 0.62f, 1f), -22f, 6);
+                    break;
+            }
         }
 
         private static void AddOrbitRail(Transform parent, Color tint, Vector3 scale, float angle, int order)
@@ -278,6 +327,22 @@ namespace EchoSphere.Runtime
             renderer.sprite = RuntimeSpriteFactory.Ring;
             renderer.color = new Color(tint.r, tint.g, tint.b, Mathf.Min(tint.a, 0.78f));
             renderer.sortingOrder = order;
+        }
+
+        private static void AddRadialNodes(Transform parent, Sprite sprite, Color tint, int count, float radius, float size, int order, float phase = 0f)
+        {
+            for (var i = 0; i < count; i++)
+            {
+                var angle = phase + Mathf.PI * 2f * i / count;
+                var node = new GameObject("Sphere Signature Node");
+                node.transform.SetParent(parent, false);
+                node.transform.localPosition = new Vector3(Mathf.Cos(angle) * radius, Mathf.Sin(angle) * radius, 0f);
+                node.transform.localScale = Vector3.one * size;
+                var renderer = node.AddComponent<SpriteRenderer>();
+                renderer.sprite = sprite;
+                renderer.color = tint;
+                renderer.sortingOrder = order;
+            }
         }
 
         private static Sprite GetSphereIcon(SphereId type)
@@ -374,6 +439,20 @@ namespace EchoSphere.Runtime
             var enemyCore = go.transform.Find("Core Light");
             if (enemyCore != null) enemyCore.localScale = Vector3.one * (archetype == EnemyArchetype.Tank ? 0.29f : 0.22f);
             AddOrbitRail(go.transform, new Color(tint.r, tint.g, tint.b, 0.65f), new Vector3(1.7f, 0.62f, 1f), archetype == EnemyArchetype.Fast ? -28f : 38f, 3);
+            switch (archetype)
+            {
+                case EnemyArchetype.Fast:
+                    AddRadialNodes(go.transform, RuntimeSpriteFactory.Diamond, new Color(1f, 0.78f, 0.5f), 2, 0.78f, 0.15f, 7, Mathf.PI * 0.5f);
+                    break;
+                case EnemyArchetype.Tank:
+                    AddOrbitRail(go.transform, new Color(0.88f, 0.65f, 1f, 0.62f), new Vector3(1.36f, 1.12f, 1f), -18f, 5);
+                    AddRadialNodes(go.transform, RuntimeSpriteFactory.Hexagon, new Color(0.88f, 0.72f, 1f), 4, 0.8f, 0.13f, 7, Mathf.PI * 0.25f);
+                    break;
+                case EnemyArchetype.Elite:
+                    AddOrbitRail(go.transform, new Color(1f, 0.44f, 0.78f, 0.82f), new Vector3(1.28f, 1.28f, 1f), 0f, 5);
+                    AddRadialNodes(go.transform, RuntimeSpriteFactory.Star, new Color(1f, 0.76f, 0.9f), 3, 0.82f, 0.13f, 7, Mathf.PI * 0.5f);
+                    break;
+            }
             var agent = go.AddComponent<EnemyAgent2D>();
             agent.Initialize(this, _player, baseHp * profile.HpMultiplier, baseSpeed * profile.SpeedMultiplier, profile.XpReward);
             _enemies.Add(agent);
