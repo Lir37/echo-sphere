@@ -130,6 +130,32 @@ namespace EchoSphere.Core
             return state;
         }
 
+        public static bool TrySetDominantFormation(SphereNetworkState state, SphereNetworkFormation type)
+        {
+            if (state == null || type == SphereNetworkFormation.None) return false;
+            SphereNetworkShape candidate = null;
+            for (var i = 0; i < state.FormationCandidates.Count; i++)
+                if (state.FormationCandidates[i].Type == type && state.FormationCandidates[i].Active) { candidate = state.FormationCandidates[i]; break; }
+            if (candidate == null) return false;
+            state.DominantFormation = candidate;
+            if (state.SecondaryFormation == null || state.SecondaryFormation.Type == type ||
+                !state.SecondaryFormation.Active)
+                state.SecondaryFormation = ChooseSecondary(state.FormationCandidates, candidate);
+            return true;
+        }
+
+        public static bool TrySetSecondaryFormation(SphereNetworkState state, SphereNetworkFormation type)
+        {
+            if (state == null || type == SphereNetworkFormation.None ||
+                (state.DominantFormation != null && state.DominantFormation.Type == type)) return false;
+            for (var i = 0; i < state.FormationCandidates.Count; i++)
+            {
+                var candidate = state.FormationCandidates[i];
+                if (candidate.Type == type && candidate.Active) { state.SecondaryFormation = candidate; return true; }
+            }
+            return false;
+        }
+
         public static List<int> GetLinkedNodeIndexes(SphereNetworkState state, int nodeIndex)
         {
             var result = new List<int>();

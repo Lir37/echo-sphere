@@ -38,6 +38,8 @@ namespace EchoSphere.Runtime
         private Material _networkLineMaterial;
         private SphereNetworkState _networkState;
         private SphereNetworkFormation _previousDominantFormation = SphereNetworkFormation.None;
+        private SphereNetworkFormation _preferredDominantFormation = SphereNetworkFormation.None;
+        private SphereNetworkFormation _preferredSecondaryFormation = SphereNetworkFormation.None;
         private float _networkRefreshTimer;
 
         public bool IsGameplayPaused => _paused;
@@ -1150,13 +1152,65 @@ namespace EchoSphere.Runtime
                 nodes.Add(new SphereNetworkNode(new Vec2(position.x, position.y), true));
             }
 
-            _networkState = SphereNetworkRules.Analyze(nodes, SphereNetworkRules.DefaultLinkDistance, _previousDominantFormation);
+            var previous = _preferredDominantFormation != SphereNetworkFormation.None ? _preferredDominantFormation : _previousDominantFormation;
+            _networkState = SphereNetworkRules.Analyze(nodes, SphereNetworkRules.DefaultLinkDistance, previous);
+            if (_preferredDominantFormation != SphereNetworkFormation.None &&
+                !SphereNetworkRules.TrySetDominantFormation(_networkState, _preferredDominantFormation))
+                _preferredDominantFormation = SphereNetworkFormation.None;
+            if (_preferredSecondaryFormation != SphereNetworkFormation.None &&
+                !SphereNetworkRules.TrySetSecondaryFormation(_networkState, _preferredSecondaryFormation))
+                _preferredSecondaryFormation = SphereNetworkFormation.None;
             if (_networkState.DominantFormation != null)
                 _previousDominantFormation = _networkState.DominantFormation.Type;
             UpdateNetworkLinkVisuals();
             var dominant = _networkState.DominantFormation;
             if (dominant != null && dominant.Active && _resonanceKnownFormationKeys.Add(GetFormationKey(dominant)))
                 AddResonanceChargeFromSource(ResonanceRules.GeometryCharge, true);
+        }
+
+        private void CycleDominantFormation()
+        {
+            if (_networkState == null || _networkState.FormationCandidates.Count == 0) return;
+            var current = _preferredDominantFormation != SphereNetworkFormation.None
+                ? _preferredDominantFormation : _networkState.DominantFormation?.Type ?? SphereNetworkFormation.None;
+            var currentIndex = _networkState.FormationCandidates.FindIndex(x => x.Type == current);
+            if (currentIndex >= _networkState.FormationCandidates.Count - 1)
+            {
+                _preferredDominantFormation = SphereNetworkFormation.None;
+                RefreshNetworkState();
+                ShowMessage("GEOMETRY AUTO");
+                return;
+            }
+            _preferredDominantFormation = _networkState.FormationCandidates[currentIndex + 1].Type;
+            RefreshNetworkState();
+            ShowMessage("MAIN GEOMETRY: " + _preferredDominantFormation.ToString().ToUpperInvariant());
+        }
+
+        private void CycleSecondaryFormation()
+        {
+            if (_networkState == null || _networkState.FormationCandidates.Count < 2) return;
+            var current = _preferredSecondaryFormation != SphereNetworkFormation.None
+                ? _preferredSecondaryFormation : _networkState.SecondaryFormation?.Type ?? SphereNetworkFormation.None;
+            var currentIndex = _networkState.FormationCandidates.FindIndex(x => x.Type == current);
+            var next = SphereNetworkFormation.None;
+            for (var offset = 1; offset <= _networkState.FormationCandidates.Count; offset++)
+            {
+                var index = (Math.Max(-1, currentIndex) + offset) % _networkState.FormationCandidates.Count;
+                var candidate = _networkState.FormationCandidates[index];
+                if (_networkState.DominantFormation != null && candidate.Type == _networkState.DominantFormation.Type) continue;
+                next = candidate.Type;
+                break;
+            }
+            if (next == SphereNetworkFormation.None || next == current)
+            {
+                _preferredSecondaryFormation = SphereNetworkFormation.None;
+                RefreshNetworkState();
+                ShowMessage("SECONDARY GEOMETRY AUTO");
+                return;
+            }
+            _preferredSecondaryFormation = next;
+            RefreshNetworkState();
+            ShowMessage("SECONDARY: " + next.ToString().ToUpperInvariant());
         }
 
         private void UpdateNetworkLinkVisuals()
@@ -1236,7 +1290,12 @@ namespace EchoSphere.Runtime
             var geometryLabel = _networkState != null && _networkState.DominantFormation != null
                 ? "GEOMETRY " + _networkState.DominantFormation.Type.ToString().ToUpperInvariant()
                 : "NETWORK DISCONNECTED";
-            GUI.Label(new Rect(32, 153, 260, 18), geometryLabel, _label);
+            if (GUI.Button(new Rect(32, 151, 125, 20), "MAIN: " + geometryLabel.Replace("GEOMETRY ", ""), _button))
+                CycleDominantFormation();
+            var secondaryLabel = _networkState != null && _networkState.SecondaryFormation != null
+                ? _networkState.SecondaryFormation.Type.ToString().ToUpperInvariant() : "AUTO";
+            if (GUI.Button(new Rect(162, 151, 125, 20), "SUB: " + secondaryLabel, _button))
+                CycleSecondaryFormation();
             GUI.Label(new Rect(32, 26, 255, 28), "ECHO SPHERE / UNITY SLICE", _title);
             GUI.Label(new Rect(32, 57, 250, 22), $"CORE {Mathf.CeilToInt(hp)} / {Mathf.CeilToInt(maxHp)}", _label);
             GUI.Box(new Rect(32, 81, 245, 10), GUIContent.none);

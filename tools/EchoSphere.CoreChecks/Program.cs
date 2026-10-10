@@ -363,6 +363,10 @@ internal static class Program
         True(lattice.FormationCandidates.Exists(shape => shape.Type == SphereNetworkFormation.Lattice), "two equilateral triangles sharing an edge form a Lattice");
         True(lattice.FormationCandidates.Exists(shape => shape.Type == SphereNetworkFormation.Fractal), "overlapping Lattice and Triangle form a Fractal");
         True(square.DominantFormation != null, "geometry dominance selected");
+        True(SphereNetworkRules.TrySetDominantFormation(square, SphereNetworkFormation.Square), "manual dominant geometry selection succeeds");
+        True(square.DominantFormation.Type == SphereNetworkFormation.Square, "manual dominant geometry is applied");
+        True(SphereNetworkRules.TrySetSecondaryFormation(square, SphereNetworkFormation.Ring), "manual secondary geometry selection succeeds");
+        True(square.SecondaryFormation.Type == SphereNetworkFormation.Ring, "manual secondary geometry is applied");
         Near(SphereNetworkRules.GetFormationBonusMultiplier(square, square.DominantFormation.Type, 0), 1f, 0f, "dominant formation full bonus");
         True(SphereNetworkRules.GetLinkedNodeIndexes(square, 0).Count == 3, "square graph retains both sides and diagonal");
 

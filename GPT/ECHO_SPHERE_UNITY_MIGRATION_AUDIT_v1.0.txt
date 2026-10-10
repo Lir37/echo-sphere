@@ -1221,3 +1221,26 @@ RESONANCE HIT-ACCOUNTING FIX:
   RegisterSphereHit to avoid duplicate charge for the same damage event.
 - Network/Geometry branch charge now applies FormationFollow resonance efficiency,
   matching the source charge path instead of bypassing the multiplier.
+
+
+======================================================================
+2026-10-10 — UNITY NETWORK SLICE 17: MANUAL DOMINANT / SECONDARY GEOMETRY
+======================================================================
+
+IMPLEMENTED:
+- Added safe rule-level selection of dominant and secondary active geometry.
+- HUD now exposes MAIN and SUB controls to cycle detected formation candidates;
+  AUTO resets to the analyzer's preferred ranking.
+- Manual selections persist across network refreshes while their candidates
+  remain valid, and reset automatically if the geometry disappears.
+- Added regression tests and source guards.
+
+LIMITS:
+- Geometry suppression/disable controls and save-state persistence are not yet
+  ported. Current selection is per-run and only cycles candidates detected in
+  the current formation.
+- Unity Editor/Android interaction validation remains open.
+
+======================================================================
+END SLICE 17
+======================================================================
