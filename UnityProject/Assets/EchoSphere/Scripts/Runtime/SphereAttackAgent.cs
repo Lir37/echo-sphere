@@ -15,6 +15,12 @@ namespace EchoSphere.Runtime
         private SphereCombatProfile _profile;
         private SphereId _type;
         private float _orbitAngle;
+        private float _initialDamage;
+        private float _initialDelay;
+        private int _progressionLevel = 1;
+
+        public SphereId Type => _type;
+        public int ProgressionLevel => _progressionLevel;
 
         public float BaseDamage { get; private set; } = 12f;
         public float AttackDelay { get; private set; } = 1.2f;
@@ -26,8 +32,9 @@ namespace EchoSphere.Runtime
             _player = player;
             _type = type;
             _profile = SphereCombatRules.GetProfile(type);
-            BaseDamage = damage * _profile.DamageMultiplier;
-            AttackDelay = 1.2f * _profile.DelayMultiplier;
+            _initialDamage = damage * _profile.DamageMultiplier;
+            _initialDelay = 1.2f * _profile.DelayMultiplier;
+            ApplyProgressionLevel(1);
             AttackRange = 6.8f * _profile.RangeMultiplier;
             _attackTimer = 0.25f;
             _orbitAngle = type == SphereId.Orbital ? 0f : 0f;
@@ -42,6 +49,14 @@ namespace EchoSphere.Runtime
                     renderers[i].color = new Color(tint.r, tint.g, tint.b, alpha);
                 }
             }
+        }
+
+        public void ApplyProgressionLevel(int level)
+        {
+            _progressionLevel = Mathf.Clamp(level, 1, SphereProgressionRules.MaxLevel);
+            // Common first-pass scaling; exact per-Sphere effects and IV/VII mutations remain open.
+            BaseDamage = _initialDamage * (1f + 0.15f * (_progressionLevel - 1));
+            AttackDelay = Mathf.Max(0.12f, _initialDelay * (1f - 0.04f * (_progressionLevel - 1)));
         }
 
         public void SetFollowMode(bool enabled, Vector2 playerPosition)

@@ -14,6 +14,7 @@ internal static class Program
             CheckCatalogAndRewardedContracts();
             CheckRunBalance();
             CheckSphereCombatProfiles();
+            CheckSphereProgressionRules();
             Console.WriteLine($"ECHO SPHERE Unity core contracts: PASS ({_assertions} assertions)");
             return 0;
         }
@@ -101,6 +102,24 @@ internal static class Program
         True(SphereCombatRules.GetProfile(SphereId.Gravity).Aura, "Gravity uses pulse area");
         Near(SphereCombatRules.GetProfile(SphereId.Pulse).RangeMultiplier, 1.15f, 0f, "Pulse range multiplier");
         Near(SphereCombatRules.GetProfile(SphereId.Void).DamageMultiplier, 1.15f, 0f, "Void base damage multiplier");
+    }
+
+    private static void CheckSphereProgressionRules()
+    {
+        var levels = new Dictionary<SphereId, int> { [SphereId.Standard] = 1 };
+        Equal(SphereProgressionRules.GetLevel(levels, SphereId.Standard), 1, "Standard starts at level I");
+        True(SphereProgressionRules.IsUnlocked(levels, SphereId.Standard), "Standard is initially unlocked");
+        True(!SphereProgressionRules.IsUnlocked(levels, SphereId.Sniper), "Sniper is initially locked");
+        Equal(SphereProgressionRules.GetNextLevel(levels, SphereId.Standard), 2, "known Sphere advances one level");
+        Equal(SphereProgressionRules.GetNextLevel(levels, SphereId.Sniper), 1, "new Sphere starts at level I");
+        True(SphereProgressionRules.CanUpgrade(levels, SphereId.Void), "Void can be acquired");
+        levels[SphereId.Void] = 7;
+        True(!SphereProgressionRules.CanUpgrade(levels, SphereId.Void), "level VII is the Sphere cap");
+        Equal(SphereProgressionRules.GetNextLevel(levels, SphereId.Void), 7, "capped Sphere cannot advance past VII");
+        var unlock = SphereProgressionRules.CreateSphereChoice(levels, SphereId.Sniper);
+        Equal(unlock.CurrentLevel, 0, "new Sphere choice records locked state");
+        Equal(unlock.NextLevel, 1, "new Sphere choice grants level I");
+        Equal(unlock.Kind, RunUpgradeKind.Sphere, "acquisition is a Sphere upgrade");
     }
 
     private static void CheckCatalogAndRewardedContracts()

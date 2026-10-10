@@ -539,3 +539,39 @@ mechanical Geometry/Resonance effects.
 ======================================================================
 END 2026-10-10 SLICE 2 VERIFICATION
 ======================================================================
+
+
+======================================================================
+2026-10-10 — UNITY GAMEPLAY PORT SLICE 3: SPHERE ACQUISITION / LEVEL CHOICES
+======================================================================
+
+BASE HEAD:
+891f992b252f48c42c29ffdba7a0369cfb23e936
+
+IMPLEMENTED:
+- Runtime now starts with one Standard Sphere, matching the source run's
+  initial Sphere roster instead of fixed Standard/Sniper/Chain test objects.
+- Added per-type progression state and acquisition choices across the ten
+  canonical Sphere types. A type at level 0 is acquired at I; owned types
+  can advance to VII; capped types are excluded from the choice pool.
+- Replaced hardcoded level-up buttons with three choices drawn from the
+  canonical Sphere roster and the existing utility upgrades.
+- New Sphere instances join Formation Follow when it is active.
+- Fixed XP threshold sequencing so the next threshold is computed after
+  incrementing the run level.
+- Added pure C# contract assertions for lock/unlock, next level, acquisition
+  level and level cap.
+
+PARITY LIMITS:
+- This is a first migration slice, not full progression parity. The source
+  has type-specific level effects, branch mutation at IV, final evolution at
+  VII, weighted choices, ability upgrades, pity, rerolls and Lock. These
+  remain open and must be ported from engineProgression.ts/sphereProgression.ts.
+- Current level scaling is a common first-pass multiplier, not the source's
+  exact per-Sphere level table.
+- CI does not compile UnityEngine-facing scripts or build an Android APK.
+  A fresh Editor compile/play check is required for this runtime change.
+- Android APK/device acceptance remains OPEN.
+======================================================================
+END SLICE 3
+======================================================================

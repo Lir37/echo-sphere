@@ -10,6 +10,8 @@ namespace EchoSphere.Runtime
     {
         private readonly List<EnemyAgent2D> _enemies = new List<EnemyAgent2D>();
         private readonly List<SphereAttackAgent> _spheres = new List<SphereAttackAgent>();
+        private readonly Dictionary<SphereId, int> _sphereLevels = new Dictionary<SphereId, int>();
+        private readonly List<RunUpgradeChoice> _levelUpChoices = new List<RunUpgradeChoice>();
         private readonly SeededRng _rng = new SeededRng(20261009u);
         private Camera _camera;
         private Transform _player;
@@ -134,14 +136,39 @@ namespace EchoSphere.Runtime
 
         private void CreateSpheres()
         {
-            var positions = new[] { new Vector2(-0.85f, -0.12f), new Vector2(0.65f, 0.58f), new Vector2(0.62f, -0.62f) };
-            var colors = new[] { new Color(0.24f, 0.88f, 1f), new Color(0.77f, 0.45f, 1f), new Color(1f, 0.72f, 0.27f) };
-            for (var i = 0; i < positions.Length; i++)
+            _sphereLevels[SphereId.Standard] = 1;
+            CreateSphere(SphereId.Standard, 1);
+        }
+
+        private void CreateSphere(SphereId type, int level)
+        {
+            var angle = _spheres.Count * 2.3999632f;
+            var radius = 0.9f + 0.12f * (_spheres.Count % 3);
+            var position = (Vector2)_player.position + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius;
+            var definition = GameCatalog.Spheres[(int)type];
+            var go = CreateOrb(definition.DisplayName + " Sphere", position, 0.67f, SphereColor(type), Color.white, 8);
+            var agent = go.AddComponent<SphereAttackAgent>();
+            agent.Initialize(this, _player, type, 12f);
+            agent.ApplyProgressionLevel(level);
+            _spheres.Add(agent);
+            if (_follow) agent.SetFollowMode(true, (Vector2)_player.position);
+        }
+
+        private static Color SphereColor(SphereId type)
+        {
+            switch (type)
             {
-                var go = CreateOrb("Sphere " + (i + 1), positions[i], 0.67f, colors[i], Color.white, 8);
-                var agent = go.AddComponent<SphereAttackAgent>();
-                agent.Initialize(this, _player, (SphereId)i, 12f + i * 1.5f);
-                _spheres.Add(agent);
+                case SphereId.Standard: return new Color(0.24f, 0.88f, 1f);
+                case SphereId.Sniper: return new Color(0.77f, 0.45f, 1f);
+                case SphereId.Chain: return new Color(1f, 0.88f, 0.35f);
+                case SphereId.Shotgun: return new Color(1f, 0.56f, 0.24f);
+                case SphereId.Aura: return new Color(0.34f, 0.90f, 0.71f);
+                case SphereId.Orbital: return new Color(0.56f, 0.94f, 1f);
+                case SphereId.Prism: return new Color(1f, 0.55f, 0.88f);
+                case SphereId.Gravity: return new Color(0.65f, 0.55f, 1f);
+                case SphereId.Pulse: return new Color(1f, 0.83f, 0.35f);
+                case SphereId.Void: return new Color(0.76f, 0.55f, 1f);
+                default: return Color.white;
             }
         }
 
@@ -300,8 +327,9 @@ namespace EchoSphere.Runtime
         {
             if (_gameOver || _levelUp || _xp < _xpRequired) return;
             _xp -= _xpRequired;
-            _xpRequired = RunBalanceRules.GetXpToNextLevel(_level);
             _level++;
+            _xpRequired = RunBalanceRules.GetXpToNextLevel(_level);
+            BuildLevelUpChoices();
             _levelUp = true;
             _paused = true;
             _message = "Choose one upgrade.";
@@ -345,14 +373,58 @@ namespace EchoSphere.Runtime
             return true;
         }
 
-        private void ChooseUpgrade(int choice)
+        private void BuildLevelUpChoices()
         {
-            if (choice == 0) _damageMultiplier *= 1.18f;
-            else if (choice == 1) _attackSpeedMultiplier *= 1.15f;
-            else _playerCore.Heal(35f);
+            _levelUpChoices.Clear();
+            var pool = new List<RunUpgradeChoice>();
+            foreach (var definition in GameCatalog.Spheres)
+                if (SphereProgressionRules.CanUpgrade(_sphereLevels, definition.Id))
+                    pool.Add(SphereProgressionRules.CreateSphereChoice(_sphereLevels, definition.Id));
+            pool.Add(new RunUpgradeChoice(RunUpgradeKind.Damage, SphereId.Standard, 0, 0, "RESONANT CORE", "+18% damage for all Spheres."));
+            pool.Add(new RunUpgradeChoice(RunUpgradeKind.AttackSpeed, SphereId.Standard, 0, 0, "ACCELERATION", "+15% attack speed for the network."));
+            pool.Add(new RunUpgradeChoice(RunUpgradeKind.Repair, SphereId.Standard, 0, 0, "REPAIR PROTOCOL", "Restore 35 Core HP."));
+
+            // Use the run RNG so choices are reproducible for an equivalent run seed/state.
+            while (pool.Count > 0 && _levelUpChoices.Count < 3)
+            {
+                var index = _rng.NextInt(pool.Count);
+                _levelUpChoices.Add(pool[index]);
+                pool.RemoveAt(index);
+            }
+        }
+
+        private void ChooseUpgrade(int choiceIndex)
+        {
+            if (choiceIndex < 0 || choiceIndex >= _levelUpChoices.Count) return;
+            var choice = _levelUpChoices[choiceIndex];
+            switch (choice.Kind)
+            {
+                case RunUpgradeKind.Sphere:
+                    _sphereLevels[choice.Sphere] = choice.NextLevel;
+                    if (choice.CurrentLevel == 0) CreateSphere(choice.Sphere, choice.NextLevel);
+                    else
+                        foreach (var sphere in _spheres)
+                            if (sphere != null && sphere.Type == choice.Sphere)
+                                sphere.ApplyProgressionLevel(choice.NextLevel);
+                    ShowMessage(choice.Title + " acquired.");
+                    break;
+                case RunUpgradeKind.Damage:
+                    _damageMultiplier *= 1.18f;
+                    ShowMessage("Sphere damage increased.");
+                    break;
+                case RunUpgradeKind.AttackSpeed:
+                    _attackSpeedMultiplier *= 1.15f;
+                    ShowMessage("Network attack speed increased.");
+                    break;
+                case RunUpgradeKind.Repair:
+                    _playerCore.Heal(35f);
+                    ShowMessage("Core repaired.");
+                    break;
+            }
             _levelUp = false;
             _paused = false;
-            ShowMessage(choice == 0 ? "Sphere power increased." : choice == 1 ? "Attack speed increased." : "Core repaired.");
+            _levelUpChoices.Clear();
+            if (_follow) SetFormationFollowMode(true, true);
             OpenLevelUpIfReady();
         }
 
@@ -393,9 +465,13 @@ namespace EchoSphere.Runtime
                 var top = Screen.height * 0.5f - 170f;
                 GUI.Box(new Rect(left, top, 440f, 340f), GUIContent.none, _box);
                 GUI.Label(new Rect(left + 36f, top + 25f, 360f, 32f), "LEVEL UP / CHOOSE ONE", _title);
-                if (GUI.Button(new Rect(left + 35f, top + 70f, 370f, 55f), "RESONANT CORE\n+18% Sphere damage", _button)) ChooseUpgrade(0);
-                if (GUI.Button(new Rect(left + 35f, top + 138f, 370f, 55f), "ACCELERATION\n+15% attack speed", _button)) ChooseUpgrade(1);
-                if (GUI.Button(new Rect(left + 35f, top + 206f, 370f, 55f), "REPAIR PROTOCOL\nRestore 35 Core HP", _button)) ChooseUpgrade(2);
+                for (var i = 0; i < _levelUpChoices.Count; i++)
+                {
+                    var yOffset = 70f + i * 78f;
+                    var choice = _levelUpChoices[i];
+                    if (GUI.Button(new Rect(left + 35f, top + yOffset, 370f, 64f), choice.Title + "\n" + choice.Description, _button))
+                        ChooseUpgrade(i);
+                }
             }
             if (_gameOver)
             {
