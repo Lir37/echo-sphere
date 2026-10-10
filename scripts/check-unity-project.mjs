@@ -88,6 +88,7 @@ assert.ok(evolutionRules.includes('GetAuraSanctumSlowDuration') && evolutionRule
 assert.ok(evolutionRules.includes('GetGravityWellPullDistance') && evolutionRules.includes('GetGravityTideDistance'), 'Gravity evolution combat rules are missing');
 assert.ok(evolutionRules.includes('GetOrbitalInnerCount') && evolutionRules.includes('GetOrbitalAngularSpeed'), 'Orbital ring progression rules are missing');
 assert.ok(evolutionRules.includes('GetPrismMirrorBounces') && evolutionRules.includes('GetPrismPierce'), 'Prism evolution combat rules are missing');
+assert.ok(evolutionRules.includes('GetPulseWaveKnockbackDistance') && evolutionRules.includes('GetVoidExecutionChance'), 'Pulse/Void evolution combat rules are missing');
 assert.ok(sphereAttack.includes('OnProjectileHit') && sphereAttack.includes('standard_swarm'), 'Standard evolution hit dispatch is missing');
 assert.ok(sphereAttack.includes('sniper_oracle') && sphereAttack.includes('sniper_beacon'), 'Sniper evolution hit dispatch is missing');
 assert.ok(sphereAttack.includes('shotgun_cataclysm') && sphereAttack.includes('shotgun_hail'), 'Shotgun evolution hit dispatch is missing');
@@ -96,6 +97,8 @@ assert.ok(sphereAttack.includes('aura_sanctum') && sphereAttack.includes('aura_g
 assert.ok(sphereAttack.includes('gravity_well') && sphereAttack.includes('gravity_tide') && sphereAttack.includes('gravity_collapse'), 'Gravity evolution runtime effects are missing');
 assert.ok(sphereAttack.includes('UpdateOrbitalElements') && sphereAttack.includes('UpdateOrbitalContacts'), 'Orbital satellite combat loop is missing');
 assert.ok(sphereAttack.includes('prism_split') && sphereAttack.includes('prism_spectrum') && sphereAttack.includes('prism_mirror'), 'Prism evolution runtime effects are missing');
+assert.ok(sphereAttack.includes('pulse_wave') && sphereAttack.includes('pulse_burst') && sphereAttack.includes('void_execution'), 'Pulse/Void evolution runtime effects are missing');
+assert.ok(runtime.includes('SpawnVoidShards'), 'Void Reaper shard spawning is missing');
 assert.ok(enemy.includes('ApplyDamageOverTime'), 'Timed status damage support is missing');
 assert.ok(projectile.includes('out var wasCritical'), 'projectile hit must expose critical-hit state to evolution mechanics');
 assert.ok(projectile.includes('_evolutionOwner.OnProjectileHit'), 'projectile hit callbacks must reach selected evolution behavior');

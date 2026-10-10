@@ -423,6 +423,19 @@ namespace EchoSphere.Runtime
             SpawnImpact(primary.transform.position, new Color(0.76f, 0.58f, 1f, 0.9f));
         }
 
+        public void SpawnVoidShards(EnemyAgent2D source, float damage, int count)
+        {
+            if (source == null || count <= 0) return;
+            var origin = (Vector2)source.transform.position;
+            for (var i = 0; i < count; i++)
+            {
+                var angle = i * Mathf.PI * 2f / count;
+                var direction = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+                SpawnProjectile(origin, direction, damage, new Color(0.58f, 0.36f, 1f), 9.5f, 0, 0f);
+            }
+            SpawnImpact(origin, new Color(0.62f, 0.40f, 1f, 0.9f));
+        }
+
         public void TriggerPrismRicochet(EnemyAgent2D primary, Vector2 incomingDirection, float damage, int bounceCount)
         {
             if (primary == null || bounceCount <= 0) return;

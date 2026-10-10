@@ -1007,3 +1007,33 @@ END SLICE 13
 
 SLICE 13 CI REVIEW:
 - CI #46 passed all 256 pure C# assertions and caught a source-guard wiring issue: the checker referenced the EnemyAgent2D source without loading it. Added the missing readFileSync declaration; no runtime gameplay code was changed for this CI correction.
+
+
+======================================================================
+2026-10-10 — UNITY GAMEPLAY PORT SLICE 14: PULSE / VOID EVOLUTIONS
+======================================================================
+
+IMPLEMENTED:
+- Pulse Wave expands its radius, pushes enemies away and adds Frost slow on
+  the Freeze/Shatter finals.
+- Pulse Burst emits a secondary wave before the final form and on Double Pulse;
+  final forms add knockback behavior.
+- Void Hunger scales damage with missing target HP and adds Devour's low-HP
+  multiplier.
+- Void Reaper boosts damage against weakened targets, restores Core HP on a
+  predicted kill and launches radial Void shards.
+- Void Execution rolls an execute chance below its authored HP threshold;
+  Phase/Absolute add projectile pierce.
+- Added pure C# regression checks and CI guards.
+
+LIMITS:
+- Pulse Resonator's Resonance charge and Pulse Burst's geometry interaction
+  remain open until Network/Geometry/Resonance are ported.
+- Void Reaper sustain/shards use predicted lethal damage; boss-specific execute
+  protections are not yet relevant to the current basic-enemy-only harness.
+- Status reactions and source-accurate artifact interactions remain open.
+- Unity Editor/Android validation is still separate from CI.
+
+======================================================================
+END SLICE 14
+======================================================================

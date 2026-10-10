@@ -283,10 +283,43 @@ namespace EchoSphere.Runtime
         private void DamageArea(Vector2 origin, float radius, float damage, Color tint, bool pull)
         {
             radius *= _levelStats.AuraRadiusMultiplier;
-            var targets = _runtime.FindEnemiesInRadius(origin, radius);
             var branch = _runtime.GetSphereBranch(_type);
             var finalId = _runtime.GetSphereFinal(_type);
+            if (_type == SphereId.Pulse && branch == "pulse_wave")
+                radius *= SphereEvolutionCombatRules.GetPulseWaveRadiusMultiplier(_progressionLevel, finalId);
+            var targets = _runtime.FindEnemiesInRadius(origin, radius);
             var auraDamage = damage;
+
+            if (_type == SphereId.Pulse && branch == "pulse_wave")
+            {
+                var knockback = SphereEvolutionCombatRules.GetPulseWaveKnockbackDistance(_progressionLevel, finalId);
+                for (var i = 0; i < targets.Count; i++)
+                {
+                    targets[i].KnockBackFrom(origin, knockback);
+                    if (finalId == "pulse_wave_final_2" || finalId == "pulse_wave_final_3")
+                        targets[i].ApplySlow(0.8f, finalId == "pulse_wave_final_2" ? 0.42f : 0.58f);
+                }
+            }
+            else if (_type == SphereId.Pulse && branch == "pulse_burst")
+            {
+                if (finalId == "pulse_burst_final_2" || finalId == "pulse_burst_final_3")
+                    for (var i = 0; i < targets.Count; i++) targets[i].KnockBackFrom(origin, 0.35f);
+                if (SphereEvolutionCombatRules.ShouldPulseBurstDoubleWave(_progressionLevel, finalId))
+                {
+                    var secondTargets = _runtime.FindEnemiesInRadius(origin, radius * 0.68f);
+                    var secondDamage = damage * SphereEvolutionCombatRules.GetPulseBurstSecondaryDamageMultiplier(_progressionLevel, finalId);
+                    for (var i = 0; i < secondTargets.Count; i++)
+                    {
+                        if (finalId == "pulse_burst_final_3") secondTargets[i].KnockBackFrom(origin, 0.30f);
+                        secondTargets[i].ReceiveDamage(secondDamage);
+                    }
+                    if (secondTargets.Count > 0) _runtime.SpawnImpact(origin, new Color(1f, 0.72f, 0.34f, 0.85f));
+                }
+            }
+            else if (_type == SphereId.Pulse && branch == "pulse_resonator")
+            {
+                _runtime.SpawnImpact(origin, new Color(1f, 0.88f, 0.38f, 0.9f));
+            }
 
             if (_type == SphereId.Gravity && branch == "gravity_well")
             {
@@ -352,7 +385,8 @@ namespace EchoSphere.Runtime
             var target = targets[0];
             var multiplier = target.HpFraction <= 0.25f ? 2.5f * _levelStats.WeakenedDamageMultiplier : 1f;
             var direction = ((Vector2)target.transform.position - origin).normalized;
-            _runtime.SpawnProjectile(origin, direction, damage * multiplier, ColorFor(_type), 8f * _profile.ProjectileSpeedMultiplier, _levelStats.Pierce);
+            var voidPierce = SphereEvolutionCombatRules.GetVoidExecutionPierce(_levelStats.Pierce, _runtime.GetSphereFinal(_type));
+            _runtime.SpawnProjectile(origin, direction, damage * multiplier, ColorFor(_type), 8f * _profile.ProjectileSpeedMultiplier, voidPierce, 0f, this);
         }
 
 
@@ -389,6 +423,29 @@ namespace EchoSphere.Runtime
             {
                 var count = SphereEvolutionCombatRules.GetStandardSwarmShardCount(_progressionLevel, finalId);
                 _runtime.SpawnStandardSwarmShards(target, direction, count, dealtDamage * SphereEvolutionCombatRules.GetStandardSwarmShardDamageMultiplier(_progressionLevel));
+                return dealtDamage;
+            }
+            if (_type == SphereId.Void && branch == "void_hunger")
+            {
+                return dealtDamage * SphereEvolutionCombatRules.GetVoidHungerDamageMultiplier(_progressionLevel, finalId, target.HpFraction);
+            }
+            if (_type == SphereId.Void && branch == "void_reaper")
+            {
+                var multiplier = target.HpFraction <= 0.25f ? (finalId == "void_reaper_final_1" ? 1.25f : 1.12f) : 1f;
+                var expectedKill = dealtDamage * multiplier >= target.CurrentHp;
+                if (expectedKill)
+                {
+                    _runtime.HealPlayer(SphereEvolutionCombatRules.GetVoidReaperKillHeal(_progressionLevel, finalId));
+                    _runtime.SpawnVoidShards(target, Mathf.Max(4f, dealtDamage * SphereEvolutionCombatRules.GetVoidReaperShardDamageMultiplier(finalId)), SphereEvolutionCombatRules.GetVoidReaperShardCount(_progressionLevel, finalId));
+                }
+                return dealtDamage * multiplier;
+            }
+            if (_type == SphereId.Void && branch == "void_execution")
+            {
+                var threshold = SphereEvolutionCombatRules.GetVoidExecutionThreshold(_progressionLevel, finalId);
+                var chance = SphereEvolutionCombatRules.GetVoidExecutionChance(_progressionLevel, finalId);
+                if (target.HpFraction <= threshold && _runtime.RollCombatChance(chance))
+                    return Mathf.Max(dealtDamage, target.CurrentHp + 1f);
                 return dealtDamage;
             }
             if (_type == SphereId.Prism && branch == "prism_split")

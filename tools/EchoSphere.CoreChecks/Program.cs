@@ -25,6 +25,7 @@ internal static class Program
             CheckGravityEvolutionCombatRules();
             CheckOrbitalEvolutionCombatRules();
             CheckPrismEvolutionCombatRules();
+            CheckPulseVoidEvolutionCombatRules();
             Console.WriteLine($"ECHO SPHERE Unity core contracts: PASS ({_assertions} assertions)");
             return 0;
         }
@@ -282,6 +283,22 @@ internal static class Program
         Equal(SphereEvolutionCombatRules.GetPrismMirrorBounces("prism_mirror_final_1"), 1, "Mirror first bounce");
         Equal(SphereEvolutionCombatRules.GetPrismMirrorBounces("prism_mirror_final_2"), 2, "Mirror double bounce");
         Equal(SphereEvolutionCombatRules.GetPrismMirrorBounces("prism_mirror_final_3"), 2, "Mirror network reflection bounce count");
+    }
+
+    private static void CheckPulseVoidEvolutionCombatRules()
+    {
+        True(SphereEvolutionCombatRules.GetPulseWaveRadiusMultiplier(6, null) > SphereEvolutionCombatRules.GetPulseWaveRadiusMultiplier(5, null), "Pulse Wave level VI radius");
+        Near(SphereEvolutionCombatRules.GetPulseWaveRadiusMultiplier(7, "pulse_wave_final_2"), 1.24f, 0f, "Pulse Freeze radius");
+        Near(SphereEvolutionCombatRules.GetPulseWaveKnockbackDistance(7, "pulse_wave_final_1"), 0.50f, 0f, "Pulse Rebound knockback");
+        True(SphereEvolutionCombatRules.ShouldPulseBurstDoubleWave(5, null), "Pulse Burst branch emits secondary wave");
+        True(!SphereEvolutionCombatRules.ShouldPulseBurstDoubleWave(7, "pulse_burst_final_2"), "Impact Burst is single wave");
+        True(SphereEvolutionCombatRules.ShouldPulseBurstDoubleWave(7, "pulse_burst_final_3"), "Double Pulse emits second wave");
+        True(SphereEvolutionCombatRules.GetVoidHungerDamageMultiplier(7, "void_hunger_final_3", 0.20f) > SphereEvolutionCombatRules.GetVoidHungerDamageMultiplier(7, "void_hunger_final_1", 0.20f), "Void Devour low-HP bonus");
+        Equal(SphereEvolutionCombatRules.GetVoidReaperShardCount(6, null), 3, "Void Reaper level VI shard count");
+        Near(SphereEvolutionCombatRules.GetVoidReaperKillHeal(7, "void_reaper_final_3"), 6f, 0f, "Devouring Reaper kill heal");
+        Near(SphereEvolutionCombatRules.GetVoidExecutionThreshold(7, "void_execution_final_3"), 0.30f, 0f, "Absolute execution threshold");
+        Near(SphereEvolutionCombatRules.GetVoidExecutionChance(7, "void_execution_final_3"), 0.18f, 0f, "Absolute execution chance");
+        Equal(SphereEvolutionCombatRules.GetVoidExecutionPierce(0, "void_execution_final_2"), 1, "Phase adds projectile pierce");
     }
 
     private static void CheckCatalogAndRewardedContracts()

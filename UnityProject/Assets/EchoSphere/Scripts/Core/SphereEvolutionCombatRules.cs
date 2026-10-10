@@ -36,6 +36,66 @@ namespace EchoSphere.Core
 
         public static float GetStandardSwarmShardDamageMultiplier(int level) => level >= 6 ? 0.50f : level >= 5 ? 0.45f : 0.35f;
 
+        public static float GetPulseWaveRadiusMultiplier(int level, string finalId)
+        {
+            var multiplier = finalId == "pulse_wave_final_2" ? 1.24f : 1.10f;
+            return string.IsNullOrEmpty(finalId) ? multiplier * GetChainBranchPower(level) : multiplier;
+        }
+
+        public static float GetPulseWaveKnockbackDistance(int level, string finalId)
+        {
+            if (finalId == "pulse_wave_final_1") return 0.50f;
+            if (finalId == "pulse_wave_final_2") return 0.38f;
+            if (finalId == "pulse_wave_final_3") return 0.48f;
+            return 0.36f * GetChainBranchPower(level);
+        }
+
+        public static bool ShouldPulseBurstDoubleWave(int level, string finalId) =>
+            string.IsNullOrEmpty(finalId) || finalId == "pulse_burst_final_3";
+
+        public static float GetPulseBurstSecondaryDamageMultiplier(int level, string finalId)
+        {
+            var multiplier = 0.46f + 0.14f * (string.IsNullOrEmpty(finalId) ? (level >= 6 ? 1.25f : level >= 5 ? 1.15f : 1f) : finalId == "pulse_burst_final_3" ? 1f : 0f);
+            return string.IsNullOrEmpty(finalId) ? multiplier * GetChainBranchPower(level) : multiplier;
+        }
+
+        public static float GetVoidHungerDamageMultiplier(int level, string finalId, float hpFraction)
+        {
+            var power = string.IsNullOrEmpty(finalId) ? GetChainBranchPower(level) : 1f;
+            var multiplier = 1f + Math.Min(0.55f, (1f - hpFraction) * (finalId == "void_hunger_final_3" ? 0.72f : 0.42f) * power);
+            if (finalId == "void_hunger_final_3" && hpFraction <= 0.30f) multiplier *= 1.12f;
+            return multiplier;
+        }
+
+        public static float GetVoidReaperKillHeal(int level, string finalId) =>
+            (finalId == "void_reaper_final_3" ? 6f : 3f) * (string.IsNullOrEmpty(finalId) ? GetChainBranchPower(level) : 1f);
+
+        public static int GetVoidReaperShardCount(int level, string finalId) =>
+            finalId == "void_reaper_final_3" || (string.IsNullOrEmpty(finalId) && level >= 6) ? 3 : 2;
+
+        public static float GetVoidReaperShardDamageMultiplier(string finalId) =>
+            finalId == "void_reaper_final_2" ? 0.24f : 0.18f;
+
+        public static float GetVoidExecutionThreshold(int level, string finalId)
+        {
+            if (finalId == "void_execution_final_3") return 0.30f;
+            if (finalId == "void_execution_final_1") return 0.28f;
+            if (string.IsNullOrEmpty(finalId) && level >= 6) return 0.28f;
+            if (string.IsNullOrEmpty(finalId) && level >= 5) return 0.27f;
+            return level >= 3 ? 0.25f : 0.20f;
+        }
+
+        public static float GetVoidExecutionChance(int level, string finalId)
+        {
+            var chance = level >= 2 ? 0.10f : 0f;
+            if (finalId == "void_execution_final_2") chance += 0.04f;
+            if (finalId == "void_execution_final_3") chance += 0.08f;
+            return Math.Min(0.45f, chance);
+        }
+
+        public static int GetVoidExecutionPierce(int basePierce, string finalId) =>
+            Math.Max(0, basePierce) + (finalId == "void_execution_final_2" || finalId == "void_execution_final_3" ? 1 : 0);
+
         public static int GetPrismPierce(int basePierce, string branch, string finalId)
         {
             var extra = branch == "prism_split" && finalId == "prism_split_final_2" ? 2
