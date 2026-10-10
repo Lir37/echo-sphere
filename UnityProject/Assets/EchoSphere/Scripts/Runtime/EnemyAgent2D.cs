@@ -8,15 +8,24 @@ namespace EchoSphere.Runtime
         private Transform _player;
         private SpriteRenderer _shell;
         private float _hp;
+        private float _maxHp;
         private float _moveSpeed;
         private bool _dead;
         public bool IsAlive => !_dead && _hp > 0f;
+        public float HpFraction => _maxHp <= 0f ? 0f : Mathf.Clamp01(_hp / _maxHp);
+
+        public void PullToward(Vector2 center, float distancePerSecond)
+        {
+            if (_dead || _runtime == null || _runtime.IsGameplayPaused) return;
+            transform.position = Vector2.MoveTowards(transform.position, center, Mathf.Max(0f, distancePerSecond) * Time.deltaTime);
+        }
 
         public void Initialize(EchoSphereRuntime runtime, Transform player, float hp, float moveSpeed)
         {
             _runtime = runtime;
             _player = player;
             _hp = hp;
+            _maxHp = Mathf.Max(1f, hp);
             _moveSpeed = moveSpeed;
             _shell = GetComponentInChildren<SpriteRenderer>();
         }

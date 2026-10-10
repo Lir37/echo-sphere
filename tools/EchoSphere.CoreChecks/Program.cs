@@ -13,6 +13,7 @@ internal static class Program
             CheckFormationFollow();
             CheckCatalogAndRewardedContracts();
             CheckRunBalance();
+            CheckSphereCombatProfiles();
             Console.WriteLine($"ECHO SPHERE Unity core contracts: PASS ({_assertions} assertions)");
             return 0;
         }
@@ -86,6 +87,20 @@ internal static class Program
         Equal(RunBalanceRules.GetXpToNextLevel(10), 43, "new-desing level 10 XP threshold");
         Equal(RunBalanceRules.GetXpToNextLevel(0), 10, "invalid low level normalized to first threshold");
         Equal(RunBalanceRules.GetXpToNextLevel(-50), 10, "negative level normalized to first threshold");
+    }
+
+    private static void CheckSphereCombatProfiles()
+    {
+        Equal(SphereCombatRules.GetProfile(SphereId.Standard).DamageMultiplier, 1f, "Standard Sphere damage multiplier");
+        Equal(SphereCombatRules.GetProfile(SphereId.Sniper).DamageMultiplier, 2.5f, "Sniper damage multiplier");
+        Equal(SphereCombatRules.GetProfile(SphereId.Shotgun).Pellets, 3, "Shotgun pellet count");
+        Near(SphereCombatRules.GetProfile(SphereId.Chain).DelayMultiplier, 1.3f, 0f, "Chain delay multiplier");
+        True(SphereCombatRules.GetProfile(SphereId.Aura).Aura, "Aura uses area damage");
+        Near(SphereCombatRules.GetProfile(SphereId.Orbital).DamageMultiplier, 0.72f, 0f, "Orbital contact damage multiplier");
+        Equal(SphereCombatRules.GetProfile(SphereId.Prism).Pellets, 3, "Prism split target count");
+        True(SphereCombatRules.GetProfile(SphereId.Gravity).Aura, "Gravity uses pulse area");
+        Near(SphereCombatRules.GetProfile(SphereId.Pulse).RangeMultiplier, 1.15f, 0f, "Pulse range multiplier");
+        Near(SphereCombatRules.GetProfile(SphereId.Void).DamageMultiplier, 1.15f, 0f, "Void base damage multiplier");
     }
 
     private static void CheckCatalogAndRewardedContracts()

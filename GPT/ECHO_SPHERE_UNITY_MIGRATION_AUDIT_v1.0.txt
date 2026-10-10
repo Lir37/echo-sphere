@@ -464,3 +464,44 @@ connected Network/Geometry/Resonance gameplay system.
 ======================================================================
 END 2026-10-10 SLICE 1 VERIFICATION
 ======================================================================
+
+
+======================================================================
+2026-10-10 — UNITY GAMEPLAY PORT SLICE 2: SPHERE PROFILE / DISPATCH
+======================================================================
+
+BASE HEAD:
+3e01f388c0fe3d8f99aa30aa31a6c31ffa3427b5
+
+IMPLEMENTATION:
+- Added SphereCombatRules with baseline multipliers copied from
+  new-desing/src/gameData.ts for all ten canonical Sphere families.
+- SphereAttackAgent now dispatches by SphereId instead of treating every
+  Sphere as the same projectile emitter:
+  Standard projectile, Sniper high-damage/long-range shot, Shotgun spread,
+  Chain multi-target strike, Aura area damage, Orbital contact orbit,
+  Prism multi-target shots, Gravity pull/pulse, Pulse area wave and Void
+  low-health execution bonus.
+- Added runtime queries for nearest multiple enemies and enemies in radius.
+- Added enemy HP fraction and a bounded pull-toward hook for Gravity.
+- Added pure C# assertions for canonical Sphere profile values.
+- Prototype still starts with three test Spheres (Standard, Sniper, Chain);
+  this is explicitly temporary harness setup, not final source progression.
+  Level-up acquisition/choices and the remaining runtime integration still
+  need to be ported. Several attack shapes are first-pass behavior approximations
+  and must be compared against new-desing tests and actual play, not called
+  full parity yet.
+
+VERIFICATION:
+- Must record the resulting migration CI before this slice is accepted.
+- UnityEngine-facing scripts are not compiled by current CI; the user-verified
+  Editor gate remains important after pulling this commit.
+- No Android APK build is claimed.
+
+NEXT:
+- Port canonical Sphere acquisition/progression and replace the fixed
+  three-Sphere harness lineup with source-driven run state.
+- Then add real Network links and connected Geometry/Resonance mechanics.
+======================================================================
+END 2026-10-10 SLICE 2
+======================================================================

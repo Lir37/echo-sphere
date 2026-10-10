@@ -140,7 +140,7 @@ namespace EchoSphere.Runtime
             {
                 var go = CreateOrb("Sphere " + (i + 1), positions[i], 0.67f, colors[i], Color.white, 8);
                 var agent = go.AddComponent<SphereAttackAgent>();
-                agent.Initialize(this, _player, 12f + i * 1.5f, 0.75f - i * 0.06f);
+                agent.Initialize(this, _player, (SphereId)i, 12f + i * 1.5f);
                 _spheres.Add(agent);
             }
         }
@@ -196,6 +196,40 @@ namespace EchoSphere.Runtime
                 if (distance < bestDistance) { best = e; bestDistance = distance; }
             }
             return best;
+        }
+
+        public List<EnemyAgent2D> FindNearestEnemies(Vector2 from, float range, int maxCount)
+        {
+            var found = new List<EnemyAgent2D>();
+            var maxDistance = range * range;
+            for (var i = 0; i < _enemies.Count; i++)
+            {
+                var enemy = _enemies[i];
+                if (enemy == null || !enemy.IsAlive) continue;
+                if (((Vector2)enemy.transform.position - from).sqrMagnitude <= maxDistance) found.Add(enemy);
+            }
+            found.Sort((a, b) =>
+            {
+                var da = ((Vector2)a.transform.position - from).sqrMagnitude;
+                var db = ((Vector2)b.transform.position - from).sqrMagnitude;
+                return da.CompareTo(db);
+            });
+            if (found.Count > maxCount) found.RemoveRange(maxCount, found.Count - maxCount);
+            return found;
+        }
+
+        public List<EnemyAgent2D> FindEnemiesInRadius(Vector2 center, float radius)
+        {
+            var found = new List<EnemyAgent2D>();
+            var maxDistance = radius * radius;
+            for (var i = 0; i < _enemies.Count; i++)
+            {
+                var enemy = _enemies[i];
+                if (enemy != null && enemy.IsAlive &&
+                    ((Vector2)enemy.transform.position - center).sqrMagnitude <= maxDistance)
+                    found.Add(enemy);
+            }
+            return found;
         }
 
         public EnemyAgent2D TryHitEnemy(Vector2 position, float radius)
