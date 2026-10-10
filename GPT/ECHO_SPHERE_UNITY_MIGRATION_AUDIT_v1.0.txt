@@ -1244,3 +1244,33 @@ LIMITS:
 ======================================================================
 END SLICE 17
 ======================================================================
+
+
+======================================================================
+2026-10-10 — UNITY GAMEPLAY PORT SLICE 18: NETWORK / GEOMETRY COMBAT ROUTING
+======================================================================
+
+BASE HEAD:
+4023a44d5a791bb1b717ac0f5d1e23e0b1494fdd
+
+IMPLEMENTED:
+- Prism Spectrum routes Network Resonance charge when its Sphere participates
+  in a Triangle candidate. Active formations use their dominant/secondary
+  bonus; a valid non-active candidate uses the source-compatible base charge.
+- Pulse Burst routes Cluster Geometry charge through the shared formation
+  efficiency path when the Sphere belongs to a Cluster candidate.
+- Gravity pull strength receives the source-defined +20% Cluster multiplier,
+  scaled by the dominant/secondary formation bonus.
+- Chain Storm charges Network Resonance when its source Sphere has live links.
+- Added pure C# tests and CI source guards for these interactions.
+
+LIMITS:
+- Character-specific resonance modifiers, artifact resonance modifiers and
+  player-selected formation priorities are not yet fully connected to combat.
+- Prism Mirror uses nearest-enemy ricochet as a first pass; node-routed
+  reflection needs the complete Network combat graph.
+- Region modifiers and rune activation remain open.
+
+======================================================================
+END SLICE 18
+======================================================================

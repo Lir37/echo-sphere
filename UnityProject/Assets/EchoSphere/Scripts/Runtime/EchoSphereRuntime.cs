@@ -699,6 +699,9 @@ namespace EchoSphere.Runtime
         public void TriggerOrbitalAfterimage(EnemyAgent2D primary, float damage, float radius)
         {
             if (primary == null) return;
+            var sourceIndex = GetSphereIndex(source);
+            if (sourceIndex >= 0 && SphereNetworkRules.GetLinkedNodeIndexes(_networkState, sourceIndex).Count > 0)
+                ChargeResonanceFromSource(ResonanceRules.NetworkCharge, true);
             var center = (Vector2)primary.transform.position;
             var targets = FindEnemiesInRadius(center, radius);
             for (var i = 0; i < targets.Count; i++)
@@ -757,7 +760,7 @@ namespace EchoSphere.Runtime
             }
         }
 
-        public void TriggerChainStorm(EnemyAgent2D primary, float directDamage, int level, string finalId)
+        public void TriggerChainStorm(SphereAttackAgent source, EnemyAgent2D primary, float directDamage, int level, string finalId)
         {
             if (primary == null) return;
             var center = (Vector2)primary.transform.position;
@@ -1132,6 +1135,15 @@ namespace EchoSphere.Runtime
                 + 0.15f * GetFormationBonus(SphereNetworkFormation.Fractal, index);
             if (ConsumeResonanceLineBurst()) multiplier *= 1.60f;
             return multiplier;
+        }
+
+        public bool HasNetworkCandidateForSphere(SphereNetworkFormation type, int sphereIndex)
+        {
+            if (_networkState == null) return false;
+            for (var i = 0; i < _networkState.FormationCandidates.Count; i++)
+                if (_networkState.FormationCandidates[i].Type == type && _networkState.FormationCandidates[i].Contains(sphereIndex))
+                    return true;
+            return false;
         }
 
         public float GetFormationBonus(SphereNetworkFormation type, int sphereIndex = -1) =>

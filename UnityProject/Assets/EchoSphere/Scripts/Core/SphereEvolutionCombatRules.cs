@@ -176,6 +176,9 @@ namespace EchoSphere.Core
             return 2.5f * GetChainBranchPower(level);
         }
 
+        public static float GetGravityClusterPullMultiplier(float formationBonus) =>
+            1f + 0.20f * Math.Max(0f, Math.Min(1f, formationBonus));
+
         public static float GetGravityWellPullDistance(int level, string finalId)
         {
             if (finalId == "gravity_well_final_1") return 0.35f;

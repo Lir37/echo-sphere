@@ -341,20 +341,33 @@ namespace EchoSphere.Runtime
             if (_type == SphereId.Pulse && branch == "pulse_burst")
             {
                 var index = _runtime.GetSphereIndex(this);
-                var clusterBonus = _runtime.GetFormationBonus(SphereNetworkFormation.Cluster, index);
-                if (clusterBonus > 0f) _runtime.ChargeResonance(ResonanceRules.GeometryCharge * clusterBonus);
+                var network = _runtime.NetworkState;
+                var clusterCandidate = false;
+                if (network != null)
+                    for (var i = 0; i < network.FormationCandidates.Count; i++)
+                        if (network.FormationCandidates[i].Type == SphereNetworkFormation.Cluster &&
+                            network.FormationCandidates[i].Contains(index))
+                        {
+                            clusterCandidate = true;
+                            break;
+                        }
+                if (clusterCandidate)
+                    _runtime.ChargeResonanceFromSource(ResonanceRules.GeometryCharge, true);
             }
 
+            var gravityIndex = _runtime.GetSphereIndex(this);
+            var clusterBonus = _runtime.GetFormationBonus(SphereNetworkFormation.Cluster, gravityIndex);
+            var clusterPullMultiplier = SphereEvolutionCombatRules.GetGravityClusterPullMultiplier(clusterBonus);
             if (_type == SphereId.Gravity && branch == "gravity_well")
             {
                 var control = SphereEvolutionCombatRules.GetGravityWellSlow(finalId);
-                _runtime.ApplyGravityWellControl(origin, SphereEvolutionCombatRules.GetGravityWellRadius(_progressionLevel, finalId), SphereEvolutionCombatRules.GetGravityWellPullDistance(_progressionLevel, finalId), control.duration, control.multiplier);
+                _runtime.ApplyGravityWellControl(origin, SphereEvolutionCombatRules.GetGravityWellRadius(_progressionLevel, finalId), SphereEvolutionCombatRules.GetGravityWellPullDistance(_progressionLevel, finalId) * clusterPullMultiplier, control.duration, control.multiplier);
             }
             else if (_type == SphereId.Gravity && branch == "gravity_tide")
             {
                 _gravityTideHits++;
                 var mode = finalId == "gravity_tide_final_1" ? -1 : finalId == "gravity_tide_final_2" ? 1 : finalId == "gravity_tide_final_3" ? (_gravityTideHits % 2 == 0 ? 1 : -1) : 1;
-                _runtime.ApplyGravityTidePulse(origin, SphereEvolutionCombatRules.GetGravityTideRadius(finalId), SphereEvolutionCombatRules.GetGravityTideDistance(_progressionLevel), mode);
+                _runtime.ApplyGravityTidePulse(origin, SphereEvolutionCombatRules.GetGravityTideRadius(finalId), SphereEvolutionCombatRules.GetGravityTideDistance(_progressionLevel) * clusterPullMultiplier, mode);
             }
             else if (_type == SphereId.Gravity && branch == "gravity_collapse")
             {
@@ -367,7 +380,7 @@ namespace EchoSphere.Runtime
                 if (finalId == "gravity_collapse_final_3" && grouped >= 4)
                     _runtime.TriggerGravityCollapse(origin, damage * 0.30f, radius * 1.25f);
                 auraDamage *= multiplier;
-                _runtime.ApplyGravityWellControl(origin, radius, 0.32f, 0f, 1f);
+                _runtime.ApplyGravityWellControl(origin, radius, 0.32f * clusterPullMultiplier, 0f, 1f);
             }
             else if (_type == SphereId.Aura && branch == "aura_sanctum")
             {
@@ -481,6 +494,23 @@ namespace EchoSphere.Runtime
             }
             if (_type == SphereId.Prism && branch == "prism_spectrum")
             {
+                var prismIndex = _runtime.GetSphereIndex(this);
+                var network = _runtime.NetworkState;
+                var hasTriangleProfile = false;
+                if (network != null)
+                    for (var i = 0; i < network.FormationCandidates.Count; i++)
+                        if (network.FormationCandidates[i].Type == SphereNetworkFormation.Triangle &&
+                            network.FormationCandidates[i].Contains(prismIndex))
+                        {
+                            hasTriangleProfile = true;
+                            break;
+                        }
+                if (hasTriangleProfile)
+                {
+                    var triangleBonus = _runtime.GetFormationBonus(SphereNetworkFormation.Triangle, prismIndex);
+                    _runtime.ChargeResonanceFromSource(
+                        ResonanceRules.NetworkCharge * (triangleBonus > 0f ? triangleBonus : 1f), true);
+                }
                 if (finalId == "prism_spectrum_final_2")
                     target.ApplySlow(0.75f, 0.55f);
                 else if (finalId == "prism_spectrum_final_3")
@@ -507,7 +537,7 @@ namespace EchoSphere.Runtime
             }
             if (_type == SphereId.Chain && branch == "chain_storm")
             {
-                _runtime.TriggerChainStorm(target, dealtDamage, _progressionLevel, finalId);
+                _runtime.TriggerChainStorm(this, target, dealtDamage, _progressionLevel, finalId);
                 _chainStormCycle++;
                 if (finalId == "chain_storm_final_3" && _chainStormCycle % 3 == 0)
                     _runtime.TriggerChainStormExtraStrike(target, dealtDamage * 0.38f);

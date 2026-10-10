@@ -111,6 +111,10 @@ assert.ok(sphereAttack.includes('prism_split') && sphereAttack.includes('prism_s
 assert.ok(sphereAttack.includes('pulse_wave') && sphereAttack.includes('pulse_burst') && sphereAttack.includes('void_execution'), 'Pulse/Void evolution runtime effects are missing');
 assert.ok(runtime.includes('SpawnVoidShards'), 'Void Reaper shard spawning is missing');
 assert.ok(runtime.includes('AddResonanceCharge') && runtime.includes('TriggerResonanceEvent') && runtime.includes('TickResonanceRing'), 'Resonance runtime event loop is missing');
+assert.ok(sphereAttack.includes('hasTriangleProfile') && sphereAttack.includes('ResonanceRules.NetworkCharge'), 'Prism Spectrum triangle Network charge is missing');
+assert.ok(sphereAttack.includes('GetGravityClusterPullMultiplier') && runtime.includes('TriggerChainStorm(SphereAttackAgent source'), 'Gravity Cluster and Chain Storm Network routing are missing');
+assert.ok(sphereAttack.includes('clusterCandidate') && sphereAttack.includes('ChargeResonanceFromSource(ResonanceRules.GeometryCharge'), 'Pulse Burst Geometry charge is missing');
+
 assert.ok(sphereAttack.includes('AddResonanceCharge(1f)') && projectile.includes('AddResonanceCharge(1f)'), 'Sphere-hit Resonance charge routing is missing');
 assert.ok(enemy.includes('ApplyDamageOverTime'), 'Timed status damage support is missing');
 assert.ok(projectile.includes('out var wasCritical'), 'projectile hit must expose critical-hit state to evolution mechanics');

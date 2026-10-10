@@ -263,6 +263,8 @@ internal static class Program
         Near(SphereEvolutionCombatRules.GetGravityWellSlow("gravity_well_final_1").multiplier, 0.55f, 0f, "Gravity Well Anchor slow strength");
         Near(SphereEvolutionCombatRules.GetGravityTideRadius("gravity_tide_final_2"), 3.4f, 0f, "Gravity Tide Draw radius");
         Near(SphereEvolutionCombatRules.GetGravityTideDistance(6), 0.72f, 0f, "Gravity Tide level VI impulse");
+        Near(SphereEvolutionCombatRules.GetGravityClusterPullMultiplier(1f), 1.2f, 0f, "Cluster formation boosts Gravity pull");
+        Near(SphereEvolutionCombatRules.GetGravityClusterPullMultiplier(0.5f), 1.1f, 0f, "Secondary Cluster gives half Gravity pull bonus");
     }
 
     private static void CheckOrbitalEvolutionCombatRules()
