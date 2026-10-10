@@ -1814,3 +1814,12 @@ CI verifies pure contracts and wiring, not Unity Editor compilation. Unity 6.3
 Editor compile, SVG import/material behavior, visual scale review, device frame
 and GC profiling, APK build and device acceptance remain unverified. This is a
 source-mapped visual implementation, not a claim of pixel-exact Canvas parity.
+
+
+[2026-10-11] CI GUARD CORRECTION
+- CI #98 rejected only the new source-path assertion because it looked for the
+  full src/spheres/visualHelpers.ts path while the C# XML summary named only the
+  helper file. The source comment now spells out the full path.
+- Normalised the UnityEngine.Random / Random.Range regular-expression guards so
+  they match literal API names rather than a backslash-prefixed string. This is
+  test-only hardening; no gameplay/system behavior changed.

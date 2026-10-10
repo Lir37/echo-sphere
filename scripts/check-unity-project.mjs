@@ -107,7 +107,7 @@ for (const boss of ['shooter', 'charger', 'summoner']) assert.ok(creatureVisual.
 assert.ok(creatureVisual.includes('Mesh') && creatureVisual.includes('Legs(') && creatureVisual.includes('Gradient('), 'creatures require mesh paths, gait and layered glow');
 assert.ok(creatureVisual.includes('PathScratch') && creatureVisual.includes('_shapeScratch') && creatureVisual.includes('MarkDynamic'), 'animated creature mesh must reuse path/shape buffers');
 assert.equal((creatureVisual.match(/new List<Vector2>/g) || []).length, 2, 'per-frame creature rendering must keep exactly two reusable vector buffers');
-assert.ok(!/UnityEngine\\.Random|Random\\.Range|_rng/.test(creatureVisual), 'presentation animation must not consume run RNG');
+assert.ok(!/UnityEngine\.Random|Random\.Range|_rng/.test(creatureVisual), 'presentation animation must not consume run RNG');
 
 const sphereVisualPath = 'Assets/EchoSphere/Scripts/Runtime/SphereRuntimeVfx2D.cs';
 assert.ok(existsSync(join(root, sphereVisualPath)), 'source-mapped Sphere family VFX component is missing');
@@ -115,7 +115,7 @@ const sphereVisual = readFileSync(join(root, sphereVisualPath), 'utf8');
 assert.ok(sphereVisual.includes('src/spheres/*Visual.ts') && sphereVisual.includes('src/spheres/visualHelpers.ts'), 'Sphere VFX source mapping is required');
 for (const family of ['Sniper','Chain','Shotgun','Aura','Orbital','Prism','Gravity','Pulse','Void']) assert.ok(sphereVisual.includes('case SphereId.' + family), 'Sphere VFX family dispatch missing: ' + family);
 assert.ok(sphereVisual.includes('Ellipse(Vector2.zero') && sphereVisual.includes('DrawDiamond') && sphereVisual.includes('ResonanceEventActive'), 'Sphere family rings, accents and Resonance state must be wired');
-assert.ok(!/UnityEngine\\.Random|Random\\.Range|_rng/.test(sphereVisual), 'Sphere presentation must not consume gameplay RNG');
+assert.ok(!/UnityEngine\.Random|Random\.Range|_rng/.test(sphereVisual), 'Sphere presentation must not consume gameplay RNG');
 assert.equal((sphereVisual.match(/new List<Vector2>/g) || []).length, 1, 'Sphere VFX must use a reusable vector path buffer');
 
 const regionVisualsPath = 'Assets/EchoSphere/Scripts/Runtime/RegionFieldVisuals.cs';

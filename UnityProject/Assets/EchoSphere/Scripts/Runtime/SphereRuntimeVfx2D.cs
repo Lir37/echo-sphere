@@ -5,7 +5,7 @@ using UnityEngine;
 namespace EchoSphere.Runtime
 {
     /// <summary>
-    /// Source-mapped 2.5D runtime accents for src/spheres/*Visual.ts and visualHelpers.ts.
+    /// Source-mapped 2.5D runtime accents for src/spheres/*Visual.ts, including src/spheres/visualHelpers.ts.
     /// Authored SVGs remain the main Sphere bodies; this adds animated orbit geometry,
     /// family-specific emitters, anchors, plates, terminals and resonance feedback.
     /// </summary>
