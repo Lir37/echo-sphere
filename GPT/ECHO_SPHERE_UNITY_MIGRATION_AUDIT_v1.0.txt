@@ -433,3 +433,34 @@ NEXT PORT PRIORITY:
 ======================================================================
 END 2026-10-10 SLICE 1 UPDATE
 ======================================================================
+
+
+======================================================================
+2026-10-10 — SLICE 1 CI RESULT / XP PARITY
+======================================================================
+
+Implementation HEAD:
+7cdfc65db0eeac79d59df5d7c38d0d5889160bc6
+
+Correction HEAD:
+9a20d7d4cf1494b055150dce1a3ab05ce9a5bbe9
+
+CI:
+- Unity Migration Contracts #13 failed on the newly added level-10 XP
+  assertion: the test expected 42, but the source formula correctly rounds
+  10 + 9*3 + 9^2*0.08 = 43.48 to 43. The implementation formula was correct.
+- Corrected the test expectation only; no gameplay formula was changed.
+- Unity Migration Contracts #14: SUCCESS.
+  Run: https://github.com/Lir37/echo-sphere/actions/runs/38028459695
+- Pure C# contracts and Unity project preflight passed after correction.
+
+Slice 1 status: COMPLETE.
+Canonical XP progression is now shared by the Unity runtime and pure C#
+contract tests. This does not claim UnityEngine script compilation or an
+Android APK build.
+
+Next: data-driven Sphere runtime and distinct behavior dispatch, then the
+connected Network/Geometry/Resonance gameplay system.
+======================================================================
+END 2026-10-10 SLICE 1 VERIFICATION
+======================================================================
