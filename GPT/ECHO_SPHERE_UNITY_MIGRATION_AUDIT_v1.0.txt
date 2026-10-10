@@ -1585,3 +1585,44 @@ complete only when its source mapping is documented, its Unity code builds,
 its behaviour is checked, and its visual result is reviewed against the
 current new-desing implementation. If actual Unity Editor/APK execution is
 unavailable in CI, report that limitation explicitly.
+
+
+======================================================================
+2026-10-10 — VISUAL PORT SLICE 1: MAIN MENU → REGION SELECT
+======================================================================
+
+IMPLEMENTED ON unity-migration:
+- Replaced the title-screen action with the source-aligned "SELECT RUN" flow.
+- Added a dedicated region-selection screen instead of jumping directly from
+  the title into combat.
+- Ported the current source labels and progression presentation for:
+  Resonance Basin (available) and Spectral Rift (locked until Basin
+  stabilization).
+- Added explicit Back navigation and a start action for Resonance Basin.
+- The selection screen uses the existing Unity UI skin and authored Core
+  presentation; it does not add GLB/3D assets or new gameplay art.
+
+SOURCE MAPPING:
+- new-desing/src/App.tsx — Menu screen and navigation to EchoMapScreen.
+- new-desing/src/EchoMapScreen.tsx — region names, subtitles, availability,
+  and the source progression rule for Spectral Rift.
+- new-desing/src/region.ts — canonical region IDs and descriptions.
+
+LIMITS / ACCEPTANCE:
+- This is the first menu/region-navigation slice, not full region gameplay.
+  The current Unity harness still runs its existing prototype simulation
+  after starting Resonance Basin; the 30-minute stabilization objective,
+  region-specific encounter ecology, challenges, unlock persistence, Endless,
+  character selection, and secondary menu screens are not yet ported.
+- Spectral Rift is intentionally non-interactive until region progression
+  is implemented; no fake unlock button is exposed.
+- CI validates C# contracts and project preflight only. Unity Editor compile,
+  actual screen layout, touch behavior, and Android APK acceptance remain
+  separate gates.
+- Protected new-desing remains unchanged.
+
+NEXT:
+1. Validate this screen in Unity Editor at landscape aspect ratio.
+2. Continue with the authored in-run composition/HUD mapping from src/renderer.ts.
+3. Port real region progression and run-mode behavior before enabling locked
+   region/challenge/Endless interactions.
