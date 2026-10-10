@@ -53,6 +53,7 @@ namespace EchoSphere.Runtime
         public float SphereDamageMultiplier => _damageMultiplier;
         public float AttackSpeedMultiplier => _attackSpeedMultiplier;
         public float ResonanceCharge => _resonanceCharge;
+        public bool ResonanceEventActive => _resonanceEventActive;
         public int ResonanceEventsTriggered => _resonanceEventsTriggered;
 
         public string GetSphereBranch(SphereId type) => _sphereBranches.TryGetValue(type, out var id) ? id : null;
@@ -231,6 +232,11 @@ namespace EchoSphere.Runtime
             ApplySphereVisual(go, type);
             var agent = go.AddComponent<SphereAttackAgent>();
             agent.Initialize(this, _player, type, 12f);
+            if (type != SphereId.Standard)
+            {
+                var runtimeVfx = go.AddComponent<SphereRuntimeVfx2D>();
+                runtimeVfx.Initialize(this, agent);
+            }
             agent.ApplyProgressionLevel(level);
             _spheres.Add(agent);
             if (_follow) agent.SetFollowMode(true, (Vector2)_player.position);
@@ -395,9 +401,8 @@ namespace EchoSphere.Runtime
                 if (glowRenderer != null) glowRenderer.color = new Color(0.30f, 0.87f, 1f, 0.11f);
             }
 
-            AddRadialNodes(root.transform, RuntimeSpriteFactory.Diamond, new Color(0.79f, 0.98f, 1f), 2, 0.84f, 0.16f, 11, 0.35f);
-            AddOrbitRail(root.transform, new Color(0.56f, 0.94f, 1f, 0.94f), new Vector3(1.75f, 0.7f, 1f), -34f, 6);
-            AddOrbitRail(root.transform, new Color(0.8f, 0.98f, 1f, 0.85f), new Vector3(1.5f, 0.58f, 1f), 36f, 7);
+            // Animated Orbital contours/terminals are owned by SphereRuntimeVfx2D.
+            // Remove the old static rail/node layer to avoid doubled rings.
         }
 
         private void TickSphereArtAnimation(float deltaTime)

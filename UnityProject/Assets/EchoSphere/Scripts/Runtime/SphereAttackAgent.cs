@@ -28,6 +28,7 @@ namespace EchoSphere.Runtime
         public void AccelerateNextAttack(float amount) => _attackTimer = Mathf.Max(0f, _attackTimer - Mathf.Max(0f, amount));
 
         public SphereId Type => _type;
+        public float VisualRotation { get; private set; }
         public int ProgressionLevel => _progressionLevel;
 
         public float BaseDamage { get; private set; } = 12f;
@@ -105,6 +106,11 @@ namespace EchoSphere.Runtime
 
             var origin = (Vector2)transform.position;
             var target = _runtime.FindNearestEnemy(origin, AttackRange);
+            if (target != null)
+            {
+                var targetDelta = (Vector2)target.transform.position - origin;
+                if (targetDelta.sqrMagnitude > 0.0001f) VisualRotation = Mathf.Atan2(targetDelta.y, targetDelta.x);
+            }
             var damage = BaseDamage * _runtime.SphereDamageMultiplier * _runtime.GetNetworkDamageMultiplier(this);
             if (target != null && _runtime.ConsumeResonanceLineBurst()) damage *= 1.60f;
             if (_type == SphereId.Shotgun && target != null)

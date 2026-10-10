@@ -1771,3 +1771,46 @@ and the other per-Sphere Canvas combat VFX modules remain future slices.
   marked dynamic. This avoids the obvious managed-allocation pattern during animation.
 - Added a CI assertion protecting the reusable buffers. Real device profiling is still
   required before claiming a frame-time or garbage-collection budget has been met.
+
+
+======================================================================
+[2026-10-11] SPHERE FAMILY VISUAL PORT SLICE 5 — 2.5D RUNTIME ACCENTS
+======================================================================
+
+BASE:
+unity-migration HEAD before this slice: 9a65a3913381790f01b6f0be56222ed9d513c2c0
+Protected source: new-desing HEAD 737ef2af4a877e0995db5f92331d536d2f29a934.
+
+IMPLEMENTED:
+- Added SphereRuntimeVfx2D.cs and wired it into CreateSphere for the nine
+  non-Standard Sphere families. Imported source-authored SVGs remain the main
+  bodies. Native dynamic-mesh overlays add animated orbit contours and each
+  family's authored recognisable accent geometry.
+- Source mapping: src/spheres/visualHelpers.ts plus auraVisual, chainVisual,
+  gravityVisual, orbitalVisual, prismVisual, pulseVisual, shotgunVisual,
+  sniperVisual and voidVisual.
+- Sniper: directional needle tip, scan reticle and ellipse orbit. Chain: four
+  conductor traces and pulsing orbit. Shotgun: triple emitter tips and rotating
+  markers. Aura: six rotating field blades. Orbital: two counter-rotating 2.5D
+  rings and two crystal terminals. Prism: directional emitter and orbit diamonds.
+  Gravity: five orbit anchors. Pulse: four resonator plates and an expanding
+  echo ring. Void: emitter and four counter-rotating partial arcs.
+- Added Resonance-event gold tint and baseline colors from source family modules;
+  the already-existing radial Glow node pulses without a duplicate glow mesh.
+  Emitter direction follows a presentation-only angle derived from the target.
+- Removed the old static Orbital signature-node/rail layer, avoiding duplicate
+  rendering alongside the animated Orbital presentation. Added CI guards for
+  nine-family coverage, source mapping, no-RNG boundary and runtime wiring.
+
+GAMEPLAY SAFETY:
+No attack/damage/cooldown/target-selection/projectile/progression formulas or
+RNG use changed. VisualRotation is a presentation-only value and is not read by
+combat. Standard retains its existing four-part PNG assembly and animation. The
+Unity scaffold has no per-Sphere Network-disabled timer, so disabled-state VFX
+are deliberately not fabricated in this slice.
+
+VALIDATION LIMITS:
+CI verifies pure contracts and wiring, not Unity Editor compilation. Unity 6.3
+Editor compile, SVG import/material behavior, visual scale review, device frame
+and GC profiling, APK build and device acceptance remain unverified. This is a
+source-mapped visual implementation, not a claim of pixel-exact Canvas parity.

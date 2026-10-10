@@ -109,6 +109,15 @@ assert.ok(creatureVisual.includes('PathScratch') && creatureVisual.includes('_sh
 assert.equal((creatureVisual.match(/new List<Vector2>/g) || []).length, 2, 'per-frame creature rendering must keep exactly two reusable vector buffers');
 assert.ok(!/UnityEngine\\.Random|Random\\.Range|_rng/.test(creatureVisual), 'presentation animation must not consume run RNG');
 
+const sphereVisualPath = 'Assets/EchoSphere/Scripts/Runtime/SphereRuntimeVfx2D.cs';
+assert.ok(existsSync(join(root, sphereVisualPath)), 'source-mapped Sphere family VFX component is missing');
+const sphereVisual = readFileSync(join(root, sphereVisualPath), 'utf8');
+assert.ok(sphereVisual.includes('src/spheres/*Visual.ts') && sphereVisual.includes('src/spheres/visualHelpers.ts'), 'Sphere VFX source mapping is required');
+for (const family of ['Sniper','Chain','Shotgun','Aura','Orbital','Prism','Gravity','Pulse','Void']) assert.ok(sphereVisual.includes('case SphereId.' + family), 'Sphere VFX family dispatch missing: ' + family);
+assert.ok(sphereVisual.includes('Ellipse(Vector2.zero') && sphereVisual.includes('DrawDiamond') && sphereVisual.includes('ResonanceEventActive'), 'Sphere family rings, accents and Resonance state must be wired');
+assert.ok(!/UnityEngine\\.Random|Random\\.Range|_rng/.test(sphereVisual), 'Sphere presentation must not consume gameplay RNG');
+assert.equal((sphereVisual.match(/new List<Vector2>/g) || []).length, 1, 'Sphere VFX must use a reusable vector path buffer');
+
 const regionVisualsPath = 'Assets/EchoSphere/Scripts/Runtime/RegionFieldVisuals.cs';
 assert.ok(existsSync(join(root, regionVisualsPath)), 'source-mapped Region Field visual layer is missing');
 const regionVisuals = readFileSync(join(root, regionVisualsPath), 'utf8');
@@ -134,6 +143,7 @@ assert.ok(!existsSync(join(root, 'Assets/Resources/EchoSphere/Art/sphere-orbital
 assert.ok(bootstrap.includes('ApplyModifiedPropertiesWithoutUndo'), 'URP serialized renderer repairs must be applied');
 
 const runtime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs'), 'utf8');
+assert.ok(runtime.includes('runtimeVfx.Initialize(this, agent)') && runtime.includes('public bool ResonanceEventActive =>'), 'Sphere VFX must be connected to live gameplay presentation');
 assert.ok(runtime.includes('GetEnemyVisualVariant(archetype)') && runtime.includes('GetEnemyVisualVariant(EnemyArchetype archetype)'), 'enemy spawn must wire source-mapped silhouette variants');
 const spriteFactory = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/RuntimeSpriteFactory.cs'), 'utf8');
 assert.ok(runtime.includes('DrawSphereRoster'), 'active Sphere roster HUD is missing');
@@ -169,6 +179,7 @@ console.log(`Unity project preflight: PASS (Unity ${version}, ${runtimeFiles.len
 
 const evolutionRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/SphereEvolutionCombatRules.cs'), 'utf8');
 const sphereAttack = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs'), 'utf8');
+assert.ok(sphereAttack.includes('VisualRotation') && sphereAttack.includes('targetDelta.y'), 'Sphere emitter presentation must track target direction without altering combat');
 const projectile = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/ProjectileAgent.cs'), 'utf8');
 const enemy = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs'), 'utf8');
 assert.ok(enemy.includes('SetFacing(target - (Vector2)transform.position)') && enemy.includes('SetMarked(true)') && enemy.includes('PulseHit()'), 'enemy visual must track facing and source mark/hit feedback');
