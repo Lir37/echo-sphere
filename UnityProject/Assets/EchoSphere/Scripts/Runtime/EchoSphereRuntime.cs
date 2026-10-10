@@ -37,15 +37,6 @@ namespace EchoSphere.Runtime
         private readonly List<LineRenderer> _networkLinkRenderers = new List<LineRenderer>();
         private Material _networkLineMaterial;
         private SphereNetworkState _networkState;
-        private float _resonanceCharge;
-        private int _resonanceEventsTriggered;
-        private bool _resonanceEventActive;
-        private int _resonanceLineBurst;
-        private float _resonanceRingTimer;
-        private float _resonanceRingPulseTimer;
-        private int _resonanceRingCursor;
-        private int _shieldCharges;
-        private readonly HashSet<string> _previousFormationCandidateKeys = new HashSet<string>();
         private SphereNetworkFormation _previousDominantFormation = SphereNetworkFormation.None;
         private float _networkRefreshTimer;
 
@@ -441,6 +432,15 @@ namespace EchoSphere.Runtime
         public void HealPlayer(float amount)
         {
             if (_playerCore != null && !_playerCore.IsDead) _playerCore.Heal(Mathf.Max(0f, amount));
+        }
+
+        public void RegisterSphereHit(SphereAttackAgent owner, EnemyAgent2D target, float damage)
+        {
+            if (owner == null || _resonanceEventActive) return;
+            var multiplier = 1f;
+            if (owner.Type == SphereId.Orbital && GetSphereBranch(SphereId.Orbital) == "orbital_halo")
+                multiplier += SphereEvolutionCombatRules.GetOrbitalResonanceBonus(owner.ProgressionLevel, GetSphereFinal(SphereId.Orbital));
+            AddResonanceChargeFromSource(ResonanceRules.SphereHitCharge * multiplier, false);
         }
 
         public void AddResonanceCharge(float amount)
@@ -1116,6 +1116,19 @@ namespace EchoSphere.Runtime
             return result;
         }
 
+        public int GetSphereIndex(SphereAttackAgent sphere) => sphere == null ? -1 : _spheres.IndexOf(sphere);
+
+        public float GetNetworkDamageMultiplier(SphereAttackAgent sphere)
+        {
+            var index = GetSphereIndex(sphere);
+            if (index < 0) return 1f;
+            var multiplier = 1f
+                + 0.10f * GetFormationBonus(SphereNetworkFormation.Line, index)
+                + 0.15f * GetFormationBonus(SphereNetworkFormation.Fractal, index);
+            if (ConsumeResonanceLineBurst()) multiplier *= 1.60f;
+            return multiplier;
+        }
+
         public float GetFormationBonus(SphereNetworkFormation type, int sphereIndex = -1) =>
             SphereNetworkRules.GetFormationBonusMultiplier(_networkState, type, sphereIndex);
 
@@ -1135,14 +1148,6 @@ namespace EchoSphere.Runtime
             }
 
             _networkState = SphereNetworkRules.Analyze(nodes, SphereNetworkRules.DefaultLinkDistance, _previousDominantFormation);
-            var currentCandidateKeys = new HashSet<string>();
-            for (var i = 0; i < _networkState.FormationCandidates.Count; i++)
-                currentCandidateKeys.Add(FormationKey(_networkState.FormationCandidates[i]));
-            var dominantKey = FormationKey(_networkState.DominantFormation);
-            if (_networkState.DominantFormation != null && !_previousFormationCandidateKeys.Contains(dominantKey))
-                ChargeResonance(ResonanceRules.GeometryCharge);
-            _previousFormationCandidateKeys.Clear();
-            foreach (var key in currentCandidateKeys) _previousFormationCandidateKeys.Add(key);
             if (_networkState.DominantFormation != null)
                 _previousDominantFormation = _networkState.DominantFormation.Type;
             UpdateNetworkLinkVisuals();

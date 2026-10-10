@@ -1196,3 +1196,10 @@ RESONANCE CI REVIEW:
 - CI #58 passed the pure C# contract suite but the Node preflight stopped on
   a temporal-dead-zone error: the Orbital Halo guard referenced sphereAttack
   before its const declaration. Moved that assertion after the file bindings.
+
+RESONANCE RUNTIME INTEGRATION FOLLOW-UP:
+- Reused the existing runtime Resonance charge/event/shield implementation and
+  removed a duplicate field set from the parallel integration patch.
+- Sphere hits now route through RegisterSphereHit; network Line/Fractal bonuses
+  and Line Resonance burst are exposed to Sphere attack damage calculation.
+- HUD shield count reads PlayerCoreController2D's authoritative shield state.

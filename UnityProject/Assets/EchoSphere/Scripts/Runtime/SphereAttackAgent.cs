@@ -22,7 +22,6 @@ namespace EchoSphere.Runtime
         private int _branchHitCount;
         private int _chainStormCycle;
         private int _gravityTideHits;
-        private int _orbitalSuccessfulContacts;
         private readonly List<Transform> _orbitalElements = new List<Transform>();
         private readonly List<float> _orbitalContactTimers = new List<float>();
         private int _orbitalHitCount;
@@ -336,7 +335,7 @@ namespace EchoSphere.Runtime
                 var index = _runtime.GetSphereIndex(this);
                 var formationBonus = Mathf.Max(_runtime.GetFormationBonus(SphereNetworkFormation.Triangle, index),
                     Mathf.Max(_runtime.GetFormationBonus(SphereNetworkFormation.Lattice, index), _runtime.GetFormationBonus(SphereNetworkFormation.Ring, index)));
-                if (formationBonus > 0f) _runtime.ChargeResonance(ResonanceRules.NetworkCharge * formationBonus);
+                if (formationBonus > 0f) _runtime.AddResonanceCharge(ResonanceRules.NetworkCharge * formationBonus);
                 _runtime.SpawnImpact(origin, new Color(1f, 0.88f, 0.38f, 0.9f));
             }
             if (_type == SphereId.Pulse && branch == "pulse_burst")
