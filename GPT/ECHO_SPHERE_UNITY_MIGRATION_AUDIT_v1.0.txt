@@ -668,3 +668,39 @@ IMPLEMENTATION NOTE (slice 5 follow-up):
 - Sniper level III crit bonus is wired into projectile crit resolution and
   respects the existing 75% hard cap. Void's execution-crit bonus is not
   misapplied as ordinary crit; it remains reserved for execution behavior.
+
+
+======================================================================
+2026-10-10 — UNITY PRESENTATION SLICE 1: DISTINCT SPHERE SILHOUETTES / ROSTER HUD
+======================================================================
+
+BASE HEAD:
+db92fa3131ead6df544119f21c0fd1b5e402260e
+
+IMPLEMENTED:
+- Added cached procedural faceted, diamond, hexagon, prism, shard and star
+  silhouettes to the runtime sprite factory. These are temporary procedural
+  shapes, not final production art.
+- Player Core now has a faceted shell and two crossed elliptical energy rails.
+- Ten Sphere families map to different silhouettes; Orbital, Gravity and Void
+  receive additional energy rails. A persistent HUD strip shows each active
+  Sphere icon, short name and current level.
+- Level-up/acquisition choices and mutation/final choices now render a colored
+  Sphere emblem beside the title and description, instead of text-only generic
+  buttons.
+- Echo Wraith uses an angular shard silhouette and a red energy rail.
+- Added CI structure guards for the Sphere roster HUD and distinct silhouettes.
+
+LIMITS / ACCEPTANCE:
+- This is a visual-readability pass using procedural geometry, not final
+  authored sprites, character animation, shaders, VFX or complete native Unity UI.
+- UI remains the existing IMGUI prototype harness, not full parity with the
+  original React/CSS screens.
+- CI checks pure C# contracts and source structure only. It does not compile
+  UnityEngine scripts or build Android APK. Unity Editor compile/Play Mode and
+  Android APK/device acceptance remain open.
+- The protected new-desing branch is untouched.
+
+======================================================================
+END PRESENTATION SLICE 1
+======================================================================

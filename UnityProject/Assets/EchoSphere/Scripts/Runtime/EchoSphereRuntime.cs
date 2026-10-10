@@ -134,7 +134,13 @@ namespace EchoSphere.Runtime
 
         private void CreatePlayer()
         {
-            var go = CreateOrb("Core", Vector2.zero, 1f, new Color(0.2f, 0.91f, 1f), Color.white, 10);
+            var tint = new Color(0.2f, 0.91f, 1f);
+            var go = CreateOrb("Core", Vector2.zero, 1f, tint, Color.white, 10);
+            ApplyShellVisual(go, RuntimeSpriteFactory.Faceted, 1.06f);
+            var core = go.transform.Find("Core Light");
+            if (core != null) core.localScale = Vector3.one * 0.25f;
+            AddOrbitRail(go.transform, tint, new Vector3(1.82f, 0.72f, 1f), -28f, 7);
+            AddOrbitRail(go.transform, new Color(0.43f, 0.76f, 1f, 0.8f), new Vector3(1.45f, 0.54f, 1f), 42f, 8);
             _player = go.transform;
             _playerCore = go.AddComponent<PlayerCoreController2D>();
         }
@@ -152,6 +158,7 @@ namespace EchoSphere.Runtime
             var position = (Vector2)_player.position + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius;
             var definition = GameCatalog.Spheres[(int)type];
             var go = CreateOrb(definition.DisplayName + " Sphere", position, 0.67f, SphereColor(type), Color.white, 8);
+            ApplySphereVisual(go, type);
             var agent = go.AddComponent<SphereAttackAgent>();
             agent.Initialize(this, _player, type, 12f);
             agent.ApplyProgressionLevel(level);
@@ -175,6 +182,100 @@ namespace EchoSphere.Runtime
                 case SphereId.Void: return new Color(0.76f, 0.55f, 1f);
                 default: return Color.white;
             }
+        }
+
+        private static void ApplyShellVisual(GameObject root, Sprite sprite, float scale)
+        {
+            var shell = root.transform.Find("Shell");
+            if (shell == null) return;
+            shell.GetComponent<SpriteRenderer>().sprite = sprite;
+            shell.localScale = Vector3.one * scale;
+        }
+
+        private void ApplySphereVisual(GameObject root, SphereId type)
+        {
+            var shell = root.transform.Find("Shell");
+            var core = root.transform.Find("Core Light");
+            if (shell == null || core == null) return;
+            var renderer = shell.GetComponent<SpriteRenderer>();
+            switch (type)
+            {
+                case SphereId.Standard: renderer.sprite = RuntimeSpriteFactory.Faceted; break;
+                case SphereId.Sniper: renderer.sprite = RuntimeSpriteFactory.Diamond; break;
+                case SphereId.Shotgun: renderer.sprite = RuntimeSpriteFactory.Star; break;
+                case SphereId.Chain: renderer.sprite = RuntimeSpriteFactory.Hexagon; break;
+                case SphereId.Aura: renderer.sprite = RuntimeSpriteFactory.Ring; break;
+                case SphereId.Orbital: renderer.sprite = RuntimeSpriteFactory.Faceted; break;
+                case SphereId.Prism: renderer.sprite = RuntimeSpriteFactory.Prism; break;
+                case SphereId.Gravity: renderer.sprite = RuntimeSpriteFactory.Diamond; break;
+                case SphereId.Pulse: renderer.sprite = RuntimeSpriteFactory.Star; break;
+                case SphereId.Void: renderer.sprite = RuntimeSpriteFactory.Shard; break;
+                default: renderer.sprite = RuntimeSpriteFactory.Faceted; break;
+            }
+            shell.localScale = Vector3.one * (type == SphereId.Aura ? 1.18f : 1.02f);
+            core.localScale = Vector3.one * (type == SphereId.Aura ? 0.24f : type == SphereId.Prism ? 0.20f : 0.27f);
+            if (type == SphereId.Orbital)
+            {
+                AddOrbitRail(root.transform, SphereColor(type), new Vector3(1.75f, 0.7f, 1f), -34f, 6);
+                AddOrbitRail(root.transform, new Color(0.8f, 0.98f, 1f, 0.85f), new Vector3(1.5f, 0.58f, 1f), 36f, 7);
+            }
+            else if (type == SphereId.Gravity || type == SphereId.Void)
+                AddOrbitRail(root.transform, SphereColor(type), new Vector3(1.55f, 0.62f, 1f), type == SphereId.Gravity ? 28f : -22f, 6);
+        }
+
+        private static void AddOrbitRail(Transform parent, Color tint, Vector3 scale, float angle, int order)
+        {
+            var rail = new GameObject("Visual Orbit Rail");
+            rail.transform.SetParent(parent, false);
+            rail.transform.localScale = scale;
+            rail.transform.localRotation = Quaternion.Euler(0f, 0f, angle);
+            var renderer = rail.AddComponent<SpriteRenderer>();
+            renderer.sprite = RuntimeSpriteFactory.Ring;
+            renderer.color = new Color(tint.r, tint.g, tint.b, Mathf.Min(tint.a, 0.78f));
+            renderer.sortingOrder = order;
+        }
+
+        private static Sprite GetSphereIcon(SphereId type)
+        {
+            switch (type)
+            {
+                case SphereId.Sniper: return RuntimeSpriteFactory.Diamond;
+                case SphereId.Shotgun: return RuntimeSpriteFactory.Star;
+                case SphereId.Chain: return RuntimeSpriteFactory.Hexagon;
+                case SphereId.Aura: return RuntimeSpriteFactory.Ring;
+                case SphereId.Prism: return RuntimeSpriteFactory.Prism;
+                case SphereId.Void: return RuntimeSpriteFactory.Shard;
+                case SphereId.Gravity: return RuntimeSpriteFactory.Diamond;
+                case SphereId.Pulse: return RuntimeSpriteFactory.Star;
+                default: return RuntimeSpriteFactory.Faceted;
+            }
+        }
+
+        private static string SphereShortName(SphereId type)
+        {
+            switch (type)
+            {
+                case SphereId.Standard: return "STD";
+                case SphereId.Sniper: return "SNP";
+                case SphereId.Shotgun: return "SGN";
+                case SphereId.Chain: return "CHN";
+                case SphereId.Aura: return "AUR";
+                case SphereId.Orbital: return "ORB";
+                case SphereId.Prism: return "PRS";
+                case SphereId.Gravity: return "GRV";
+                case SphereId.Pulse: return "PLS";
+                case SphereId.Void: return "VOI";
+                default: return "???";
+            }
+        }
+
+        private static void DrawSpriteIcon(Rect rect, Sprite sprite, Color tint)
+        {
+            if (sprite == null) return;
+            var previous = GUI.color;
+            GUI.color = tint;
+            GUI.DrawTexture(rect, sprite.texture, ScaleMode.ScaleToFit, true);
+            GUI.color = previous;
         }
 
         private GameObject CreateOrb(string name, Vector2 position, float scale, Color tint, Color coreTint, int order)
@@ -210,7 +311,12 @@ namespace EchoSphere.Runtime
             var angle = _rng.NextFloat() * Mathf.PI * 2f;
             var radius = 8f + _rng.NextFloat() * 2.8f;
             var position = (Vector2)_player.position + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius;
-            var go = CreateOrb("Echo Wraith", position, 0.72f, new Color(1f, 0.19f, 0.34f), new Color(1f, 0.7f, 0.75f), 4);
+            var enemyTint = new Color(1f, 0.19f, 0.34f);
+            var go = CreateOrb("Echo Wraith", position, 0.72f, enemyTint, new Color(1f, 0.7f, 0.75f), 4);
+            ApplyShellVisual(go, RuntimeSpriteFactory.Shard, 1.12f);
+            var enemyCore = go.transform.Find("Core Light");
+            if (enemyCore != null) enemyCore.localScale = Vector3.one * 0.22f;
+            AddOrbitRail(go.transform, new Color(1f, 0.16f, 0.35f, 0.65f), new Vector3(1.7f, 0.62f, 1f), 38f, 3);
             var enemy = go.AddComponent<EnemyAgent2D>();
             enemy.Initialize(this, _player, 34f + _runTime * 0.3f, 0.72f + Mathf.Min(0.55f, _runTime * 0.003f));
             _enemies.Add(enemy);
@@ -504,6 +610,7 @@ namespace EchoSphere.Runtime
             if (GUI.Button(new Rect(18, y, 215, 54), _follow ? "FORMATION FOLLOW ON" : "FORMATION FOLLOW OFF", _button))
                 SetFormationFollowMode(!_follow);
             if (GUI.Button(new Rect(Screen.width - 176, y, 158, 54), "DASH", _button)) _playerCore.TryDash(_playerCore.LastMoveDirection);
+            DrawSphereRoster();
             if (!string.IsNullOrEmpty(_message) && _messageTimer > 0f)
                 GUI.Label(new Rect(18, 140, Mathf.Min(Screen.width - 36f, 520f), 30), _message, _label);
             if (_levelUp)
@@ -520,8 +627,11 @@ namespace EchoSphere.Runtime
                     {
                         var yOffset = 70f + i * 78f;
                         var choice = _evolutionChoices[i];
-                        if (GUI.Button(new Rect(left + 35f, top + yOffset, 370f, 64f), choice.Name + "\n" + choice.Description, _button))
-                            ChooseEvolution(i);
+                        var rect = new Rect(left + 35f, top + yOffset, 370f, 64f);
+                        if (GUI.Button(rect, GUIContent.none, _button)) ChooseEvolution(i);
+                        DrawSpriteIcon(new Rect(rect.x + 10f, rect.y + 10f, 42f, 42f), GetSphereIcon(_pendingEvolutionSphere), SphereColor(_pendingEvolutionSphere));
+                        GUI.Label(new Rect(rect.x + 60f, rect.y + 8f, 298f, 25f), choice.Name, _label);
+                        GUI.Label(new Rect(rect.x + 60f, rect.y + 31f, 298f, 29f), choice.Description, _button);
                     }
                 }
                 else
@@ -530,8 +640,19 @@ namespace EchoSphere.Runtime
                     {
                         var yOffset = 70f + i * 78f;
                         var choice = _levelUpChoices[i];
-                        if (GUI.Button(new Rect(left + 35f, top + yOffset, 370f, 64f), choice.Title + "\n" + choice.Description, _button))
-                            ChooseUpgrade(i);
+                        var rect = new Rect(left + 35f, top + yOffset, 370f, 64f);
+                        if (GUI.Button(rect, GUIContent.none, _button)) ChooseUpgrade(i);
+                        var icon = choice.Kind == RunUpgradeKind.Sphere ? GetSphereIcon(choice.Sphere)
+                            : choice.Kind == RunUpgradeKind.Repair ? RuntimeSpriteFactory.Hexagon
+                            : choice.Kind == RunUpgradeKind.AttackSpeed ? RuntimeSpriteFactory.Star
+                            : RuntimeSpriteFactory.Faceted;
+                        var tint = choice.Kind == RunUpgradeKind.Sphere ? SphereColor(choice.Sphere)
+                            : choice.Kind == RunUpgradeKind.Repair ? new Color(0.35f, 1f, 0.72f)
+                            : choice.Kind == RunUpgradeKind.AttackSpeed ? new Color(1f, 0.78f, 0.28f)
+                            : new Color(0.28f, 0.88f, 1f);
+                        DrawSpriteIcon(new Rect(rect.x + 10f, rect.y + 10f, 42f, 42f), icon, tint);
+                        GUI.Label(new Rect(rect.x + 60f, rect.y + 8f, 298f, 25f), choice.Title, _label);
+                        GUI.Label(new Rect(rect.x + 60f, rect.y + 31f, 298f, 29f), choice.Description, _button);
                     }
                 }
             }
@@ -544,6 +665,41 @@ namespace EchoSphere.Runtime
                 GUI.Label(new Rect(left + 40f, top + 60f, 300f, 28f), $"Survived {FormatTime(_runTime)} · {_kills} kills", _label);
                 if (GUI.Button(new Rect(left + 100f, top + 102f, 180f, 44f), "RESTART"))
                     SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            }
+        }
+
+
+        private void DrawSphereRoster()
+        {
+            var count = Mathf.Min(_spheres.Count, 10);
+            if (count <= 0) return;
+            const float cardWidth = 56f;
+            var panelWidth = count * cardWidth + 12f;
+            var panel = new Rect(Screen.width - panelWidth - 18f, 18f, panelWidth, 110f);
+            GUI.Box(panel, GUIContent.none, _box);
+            GUI.Label(new Rect(panel.x + 8f, panel.y + 4f, panel.width - 16f, 18f), "ACTIVE SPHERES", _label);
+            for (var i = 0; i < count; i++)
+            {
+                var sphere = _spheres[i];
+                if (sphere == null) continue;
+                var x = panel.x + 6f + i * cardWidth;
+                DrawSpriteIcon(new Rect(x + 13f, panel.y + 24f, 30f, 30f), GetSphereIcon(sphere.Type), SphereColor(sphere.Type));
+                GUI.Label(new Rect(x + 1f, panel.y + 56f, cardWidth - 2f, 16f), SphereShortName(sphere.Type), _label);
+                GUI.Label(new Rect(x + 1f, panel.y + 74f, cardWidth - 2f, 16f), "LV " + RomanLevel(sphere.ProgressionLevel), _label);
+            }
+        }
+
+        private static string RomanLevel(int level)
+        {
+            switch (Mathf.Clamp(level, 1, 7))
+            {
+                case 1: return "I";
+                case 2: return "II";
+                case 3: return "III";
+                case 4: return "IV";
+                case 5: return "V";
+                case 6: return "VI";
+                default: return "VII";
             }
         }
 
