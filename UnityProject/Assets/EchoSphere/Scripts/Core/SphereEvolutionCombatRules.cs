@@ -147,6 +147,17 @@ namespace EchoSphere.Core
             return 0f;
         }
 
+        public static float GetOrbitalResonanceBonus(int level, string finalId)
+        {
+            if (finalId == "orbital_halo_final_1") return 1f;
+            if (finalId == "orbital_halo_final_3") return 2f;
+            if (!string.IsNullOrEmpty(finalId)) return 0f;
+            return level >= 6 ? 0.25f : level >= 5 ? 0.12f : 0f;
+        }
+
+        public static bool ShouldOrbitalGrantShieldCharge(int hitCount) =>
+            hitCount > 0 && hitCount % 3 == 0;
+
         public static (float duration, float multiplier) GetGravityWellSlow(string finalId)
         {
             if (finalId == "gravity_well_final_1") return (0.75f, 0.55f);

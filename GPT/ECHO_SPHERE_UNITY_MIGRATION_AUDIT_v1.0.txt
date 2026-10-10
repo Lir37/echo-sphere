@@ -1097,3 +1097,10 @@ LIMITS:
 ======================================================================
 END SLICE 15
 ======================================================================
+
+
+RESONANCE CONTRACT CI REVIEW:
+- CI #49 and #51 caught that the new Resonance tests referenced Orbital Halo
+  charge/shield helper methods that were not yet present in the rule class.
+  Added both pure helper contracts here before wiring the runtime. No runtime
+  Resonance behavior is claimed until the following integration slice passes.
