@@ -14,10 +14,10 @@ namespace EchoSphere.Runtime
         public bool IsAlive => !_dead && _hp > 0f;
         public float HpFraction => _maxHp <= 0f ? 0f : Mathf.Clamp01(_hp / _maxHp);
 
-        public void PullToward(Vector2 center, float distancePerSecond)
+        public void PullToward(Vector2 center, float distance)
         {
             if (_dead || _runtime == null || _runtime.IsGameplayPaused) return;
-            transform.position = Vector2.MoveTowards(transform.position, center, Mathf.Max(0f, distancePerSecond) * Time.deltaTime);
+            transform.position = Vector2.MoveTowards(transform.position, center, Mathf.Max(0f, distance) * 0.22f);
         }
 
         public void Initialize(EchoSphereRuntime runtime, Transform player, float hp, float moveSpeed)

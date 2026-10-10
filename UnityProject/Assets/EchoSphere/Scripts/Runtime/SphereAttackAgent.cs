@@ -14,7 +14,6 @@ namespace EchoSphere.Runtime
         private bool _followEnabled;
         private SphereCombatProfile _profile;
         private SphereId _type;
-        private float _baseDamage = 12f;
         private float _orbitAngle;
 
         public float BaseDamage { get; private set; } = 12f;
@@ -27,7 +26,6 @@ namespace EchoSphere.Runtime
             _player = player;
             _type = type;
             _profile = SphereCombatRules.GetProfile(type);
-            _baseDamage = damage;
             BaseDamage = damage * _profile.DamageMultiplier;
             AttackDelay = 1.2f * _profile.DelayMultiplier;
             AttackRange = 6.8f * _profile.RangeMultiplier;
@@ -36,8 +34,13 @@ namespace EchoSphere.Runtime
             Color tint;
             if (ColorUtility.TryParseHtmlString(GetColor(type), out tint))
             {
-                var renderer = GetComponentInChildren<SpriteRenderer>();
-                if (renderer != null) renderer.color = tint;
+                var renderers = GetComponentsInChildren<SpriteRenderer>();
+                for (var i = 0; i < renderers.Length; i++)
+                {
+                    if (renderers[i].sortingOrder > 8) continue;
+                    var alpha = renderers[i].color.a;
+                    renderers[i].color = new Color(tint.r, tint.g, tint.b, alpha);
+                }
             }
         }
 

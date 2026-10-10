@@ -244,7 +244,7 @@ namespace EchoSphere.Runtime
             return null;
         }
 
-        public void SpawnProjectile(Vector2 position, Vector2 direction, float damage, Color color)
+        public void SpawnProjectile(Vector2 position, Vector2 direction, float damage, Color color, float speed = 8f)
         {
             var go = new GameObject("Sphere Projectile");
             go.transform.position = position;
@@ -260,7 +260,7 @@ namespace EchoSphere.Runtime
             gs.sprite = RuntimeSpriteFactory.Disc;
             gs.color = new Color(color.r, color.g, color.b, 0.34f);
             gs.sortingOrder = 11;
-            go.AddComponent<ProjectileAgent>().Initialize(this, direction, damage, color);
+            go.AddComponent<ProjectileAgent>().Initialize(this, direction, damage, color, speed);
         }
 
         public void SpawnImpact(Vector2 position, Color color)
