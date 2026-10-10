@@ -699,9 +699,6 @@ namespace EchoSphere.Runtime
         public void TriggerOrbitalAfterimage(EnemyAgent2D primary, float damage, float radius)
         {
             if (primary == null) return;
-            var sourceIndex = GetSphereIndex(source);
-            if (sourceIndex >= 0 && SphereNetworkRules.GetLinkedNodeIndexes(_networkState, sourceIndex).Count > 0)
-                ChargeResonanceFromSource(ResonanceRules.NetworkCharge, true);
             var center = (Vector2)primary.transform.position;
             var targets = FindEnemiesInRadius(center, radius);
             for (var i = 0; i < targets.Count; i++)
@@ -1207,7 +1204,7 @@ namespace EchoSphere.Runtime
             var next = SphereNetworkFormation.None;
             for (var offset = 1; offset <= _networkState.FormationCandidates.Count; offset++)
             {
-                var index = (Math.Max(-1, currentIndex) + offset) % _networkState.FormationCandidates.Count;
+                var index = (Mathf.Max(-1, currentIndex) + offset) % _networkState.FormationCandidates.Count;
                 var candidate = _networkState.FormationCandidates[index];
                 if (_networkState.DominantFormation != null && candidate.Type == _networkState.DominantFormation.Type) continue;
                 next = candidate.Type;

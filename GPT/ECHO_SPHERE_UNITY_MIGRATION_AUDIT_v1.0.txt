@@ -1274,3 +1274,21 @@ LIMITS:
 ======================================================================
 END SLICE 18
 ======================================================================
+
+
+======================================================================
+2026-10-10 — UNITY COMPILER FIX: ORBITAL AFTERIMAGE / FORMATION CYCLE
+======================================================================
+
+- Removed an accidental copy of Network Resonance charging code from
+  TriggerOrbitalAfterimage. That method has no Sphere source parameter; Prism
+  Spectrum already charges Network Resonance in SphereAttackAgent.
+- Replaced Math.Max with Unity's Mathf.Max in secondary-formation cycling,
+  avoiding a missing System namespace dependency.
+- Input Manager deprecation is a Unity warning, not a compile error. Kept the
+  current input backend unchanged to avoid breaking keyboard/touch controls
+  mid-migration; switch to the Input System only in a separately tested slice.
+
+======================================================================
+END COMPILER FIX
+======================================================================
