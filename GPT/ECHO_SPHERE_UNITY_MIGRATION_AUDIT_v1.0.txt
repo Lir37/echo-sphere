@@ -1068,7 +1068,7 @@ END SLICE 15
 ======================================================================
 
 BASE HEAD:
-53ea221c5db4c1601e38a0a236e4a5c4a2bd5a96
+e77eaa2d49712c9b47e229c59cfdb4def0c9e386
 
 IMPLEMENTED:
 - Added a pure C# Network graph using the source's 2.2-world-unit link
@@ -1104,3 +1104,10 @@ RESONANCE CONTRACT CI REVIEW:
   charge/shield helper methods that were not yet present in the rule class.
   Added both pure helper contracts here before wiring the runtime. No runtime
   Resonance behavior is claimed until the following integration slice passes.
+
+
+SLICE 15 CI REVIEW:
+- The first Network/Geometry integration run exposed two pre-existing Orbital
+  Resonance/Guard contract calls that had no matching pure rule methods.
+  Added the source-routed Halo charge bonus and every-third-successful-pass
+  shield cadence so the tests have authoritative rule implementations.

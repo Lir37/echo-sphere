@@ -139,6 +139,17 @@ namespace EchoSphere.Core
             }
             return 0.95f;
         }
+        public static float GetOrbitalResonanceBonus(int level, string finalId)
+        {
+            if (finalId == "orbital_halo_final_1") return 1f;
+            if (string.IsNullOrEmpty(finalId) && level >= 6) return 0.25f;
+            if (string.IsNullOrEmpty(finalId) && level >= 5) return 0.12f;
+            return 0f;
+        }
+
+        public static bool ShouldOrbitalGrantShieldCharge(int successfulPassCount) =>
+            successfulPassCount > 0 && successfulPassCount % 3 == 0;
+
         public static float GetOrbitalAfterimageMultiplier(string branch, string finalId)
         {
             if (branch == "orbital_dance" && finalId == "orbital_dance_final_1") return 0.28f;
