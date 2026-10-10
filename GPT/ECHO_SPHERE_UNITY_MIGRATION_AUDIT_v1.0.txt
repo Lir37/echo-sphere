@@ -830,3 +830,28 @@ LIMITS:
 ======================================================================
 END SLICE 8
 ======================================================================
+
+
+======================================================================
+2026-10-10 — UNITY GAMEPLAY PORT SLICE 9: CHAIN WEB / STORM / LEECH
+======================================================================
+
+IMPLEMENTED:
+- Chain jumps now resolve critical hits and dispatch evolution effects.
+- Web applies timed slow to the struck enemy and nearby enemies; final Paralysis
+  Web increases direct damage.
+- Storm applies radius-based secondary damage; Discharge Cycle fires an extra
+  strike at the nearest distinct enemy every third chain hit.
+- Leech converts damage into Core healing; Predator Cycle adds damage against
+  targets below 40% HP.
+- Added pure C# rules, regression tests and CI structure guards.
+
+LIMITS:
+- Resonant Storm cannot yet charge the original Resonance meter because the
+  Unity Resonance system remains unported.
+- Lightning is represented by impact pulses, not the final beam renderer.
+- Unity Editor/Android validation remains open.
+
+======================================================================
+END SLICE 9
+======================================================================

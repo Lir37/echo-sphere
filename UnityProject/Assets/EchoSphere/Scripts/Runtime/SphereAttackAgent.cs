@@ -20,6 +20,7 @@ namespace EchoSphere.Runtime
         private int _progressionLevel = 1;
         private SphereLevelStats _levelStats;
         private int _branchHitCount;
+        private int _chainStormCycle;
 
         public SphereId Type => _type;
         public int ProgressionLevel => _progressionLevel;
@@ -171,7 +172,10 @@ namespace EchoSphere.Runtime
             for (var i = 0; i < targets.Count; i++)
             {
                 var target = targets[i];
-                target.ReceiveDamage(damage * Mathf.Pow(0.72f, i));
+                var hitDamage = _runtime.ResolveProjectileDamage(damage * Mathf.Pow(0.72f, i), _levelStats.CritChanceBonus, out var wasCritical);
+                var direction = ((Vector2)target.transform.position - origin).normalized;
+                hitDamage = OnProjectileHit(target, direction, hitDamage, wasCritical);
+                target.ReceiveDamage(hitDamage);
                 _runtime.SpawnImpact(target.transform.position, ColorFor(_type));
             }
         }
@@ -245,6 +249,30 @@ namespace EchoSphere.Runtime
                 var count = SphereEvolutionCombatRules.GetStandardSwarmShardCount(_progressionLevel, finalId);
                 _runtime.SpawnStandardSwarmShards(target, direction, count, dealtDamage * SphereEvolutionCombatRules.GetStandardSwarmShardDamageMultiplier(_progressionLevel));
                 return dealtDamage;
+            }
+            if (_type == SphereId.Chain && branch == "chain_web")
+            {
+                var slowDuration = SphereEvolutionCombatRules.GetChainWebSlowDuration(_progressionLevel, finalId);
+                var slowMultiplier = SphereEvolutionCombatRules.GetChainWebSlowMultiplier(_progressionLevel, finalId);
+                target.ApplySlow(slowDuration, slowMultiplier);
+                var nearby = _runtime.FindEnemiesInRadius(target.transform.position, 1.8f);
+                for (var i = 0; i < nearby.Count; i++)
+                    if (nearby[i] != target) nearby[i].ApplySlow(slowDuration * 0.65f, slowMultiplier);
+                return dealtDamage * (finalId == "chain_web_final_3" ? 1.25f : 1f);
+            }
+            if (_type == SphereId.Chain && branch == "chain_storm")
+            {
+                _runtime.TriggerChainStorm(target, dealtDamage, _progressionLevel, finalId);
+                _chainStormCycle++;
+                if (finalId == "chain_storm_final_3" && _chainStormCycle % 3 == 0)
+                    _runtime.TriggerChainStormExtraStrike(target, dealtDamage * 0.38f);
+                return dealtDamage;
+            }
+            if (_type == SphereId.Chain && branch == "chain_leech")
+            {
+                var healRatio = SphereEvolutionCombatRules.GetChainLeechHealRatio(_progressionLevel, finalId);
+                _runtime.HealPlayer(dealtDamage * healRatio);
+                return dealtDamage * (finalId == "chain_leech_final_3" && target.HpFraction < 0.40f ? 1.20f : 1f);
             }
             if (_type == SphereId.Shotgun && branch == "shotgun_cataclysm")
             {

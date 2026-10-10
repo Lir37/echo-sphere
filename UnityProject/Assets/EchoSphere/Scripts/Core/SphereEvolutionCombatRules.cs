@@ -36,6 +36,38 @@ namespace EchoSphere.Core
 
         public static float GetStandardSwarmShardDamageMultiplier(int level) => level >= 6 ? 0.50f : level >= 5 ? 0.45f : 0.35f;
 
+        public static float GetChainBranchPower(int level) => level >= 6 ? 1.30f : level >= 5 ? 1.15f : 1f;
+
+        public static float GetChainWebSlowDuration(int level, string finalId)
+        {
+            var duration = finalId == "chain_web_final_1" ? 0.7f : finalId == "chain_web_final_2" ? 1.4f : finalId == "chain_web_final_3" ? 0.5f : 0.7f;
+            return string.IsNullOrEmpty(finalId) ? duration * GetChainBranchPower(level) : duration;
+        }
+
+        public static float GetChainWebSlowMultiplier(int level, string finalId)
+        {
+            var multiplier = finalId == "chain_web_final_1" ? 0.70f : finalId == "chain_web_final_2" ? 0.55f : finalId == "chain_web_final_3" ? 0.72f : 0.70f;
+            return string.IsNullOrEmpty(finalId) ? Math.Max(0.42f, multiplier - (GetChainBranchPower(level) - 1f) * 0.08f) : multiplier;
+        }
+
+        public static float GetChainStormRadius(int level, string finalId)
+        {
+            var radius = finalId == "chain_storm_final_1" ? 1.4f : finalId == "chain_storm_final_2" ? 2f : finalId == "chain_storm_final_3" ? 1.1f : 1.4f;
+            return string.IsNullOrEmpty(finalId) ? radius * GetChainBranchPower(level) : radius;
+        }
+
+        public static float GetChainStormSplash(int level, string finalId)
+        {
+            var splash = finalId == "chain_storm_final_1" ? 0.25f : finalId == "chain_storm_final_2" ? 0.40f : finalId == "chain_storm_final_3" ? 0.20f : 0.22f;
+            return string.IsNullOrEmpty(finalId) ? splash * GetChainBranchPower(level) : splash;
+        }
+
+        public static float GetChainLeechHealRatio(int level, string finalId)
+        {
+            var ratio = finalId == "chain_leech_final_1" ? 0.025f : finalId == "chain_leech_final_2" ? 0.045f : finalId == "chain_leech_final_3" ? 0.018f : 0.020f;
+            return string.IsNullOrEmpty(finalId) ? ratio * GetChainBranchPower(level) : ratio;
+        }
+
         public static float GetShotgunCataclysmRadius(int level, string finalId)
         {
             var radius = finalId == "shotgun_cataclysm_final_1" ? 1.20f

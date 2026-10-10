@@ -423,6 +423,37 @@ namespace EchoSphere.Runtime
             SpawnImpact(primary.transform.position, new Color(0.76f, 0.58f, 1f, 0.9f));
         }
 
+        public void TriggerChainStorm(EnemyAgent2D primary, float directDamage, int level, string finalId)
+        {
+            if (primary == null) return;
+            var center = (Vector2)primary.transform.position;
+            var radius = SphereEvolutionCombatRules.GetChainStormRadius(level, finalId);
+            var splash = directDamage * SphereEvolutionCombatRules.GetChainStormSplash(level, finalId);
+            var targets = FindEnemiesInRadius(center, radius);
+            for (var i = 0; i < targets.Count; i++)
+            {
+                if (targets[i] == primary) continue;
+                targets[i].ReceiveDamage(splash);
+                SpawnImpact(Vector2.Lerp(center, targets[i].transform.position, 0.5f), new Color(1f, 0.88f, 0.35f, 0.75f));
+            }
+            SpawnImpact(center, new Color(1f, 0.88f, 0.35f, 0.9f));
+        }
+
+        public void TriggerChainStormExtraStrike(EnemyAgent2D primary, float damage)
+        {
+            if (primary == null) return;
+            var target = FindNearestEnemy(primary.transform.position, 5.5f);
+            if (target == null || target == primary)
+            {
+                var candidates = FindNearestEnemies(primary.transform.position, 5.5f, 2);
+                for (var i = 0; i < candidates.Count; i++)
+                    if (candidates[i] != primary) { target = candidates[i]; break; }
+            }
+            if (target == null || target == primary) return;
+            SpawnImpact(Vector2.Lerp(primary.transform.position, target.transform.position, 0.5f), new Color(1f, 0.92f, 0.45f, 0.9f));
+            target.ReceiveDamage(damage);
+        }
+
         public void TriggerShotgunCataclysm(EnemyAgent2D primary, float directDamage, int level, string finalId)
         {
             if (primary == null) return;
