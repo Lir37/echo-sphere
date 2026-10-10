@@ -765,3 +765,8 @@ LIMITS:
 ======================================================================
 END SLICE 6
 ======================================================================
+
+IMPLEMENTATION FOLLOW-UP (SLICE 6 REVIEW):
+- Evolution hit callbacks are processed before applying the projectile's direct damage, so a lethal hit still triggers its selected branch behavior.
+- Resonator knockback and slow are applied before pulse damage to avoid acting on an enemy already destroyed by that pulse.
+- Added the explicit EnemyAgent2D knockback operation used by the Rebound final form.
