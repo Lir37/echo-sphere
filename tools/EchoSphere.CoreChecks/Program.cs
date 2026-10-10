@@ -17,6 +17,7 @@ internal static class Program
             CheckSphereProgressionRules();
             CheckSphereEvolutionCatalog();
             CheckSphereLevelRules();
+            CheckSphereEvolutionCombatRules();
             Console.WriteLine($"ECHO SPHERE Unity core contracts: PASS ({_assertions} assertions)");
             return 0;
         }
@@ -165,6 +166,20 @@ internal static class Program
         Near(SphereLevelRules.GetStats(SphereId.Void, 2).CritChanceBonus, 0.10f, 0.00001f, "Void II execution crit chance");
         Near(SphereLevelRules.GetStats(SphereId.Void, 3).RangeMultiplier, 1.15f, 0.00001f, "Void III range");
         Near(SphereLevelRules.GetStats(SphereId.Standard, 99).DamageMultiplier, 1.15f, 0.00001f, "level input clamps to VII");
+    }
+
+
+    private static void CheckSphereEvolutionCombatRules()
+    {
+        True(!SphereEvolutionCombatRules.ShouldTriggerStandardResonatorPulse(2), "Resonator does not pulse before third hit");
+        True(SphereEvolutionCombatRules.ShouldTriggerStandardResonatorPulse(3), "Resonator pulses every third hit");
+        Near(SphereEvolutionCombatRules.GetStandardResonatorPulseDamageMultiplier(7, "standard_resonator_final_1"), 0.65f, 0f, "Resonator Pulse final damage");
+        Near(SphereEvolutionCombatRules.GetStandardResonatorPulseRadius(7, "standard_resonator_final_2"), 1f, 0f, "Resonator Rebound radius");
+        Near(SphereEvolutionCombatRules.GetStandardSingularityPullDistance(6), 3.6f, 0f, "Singularity level VI pull");
+        Near(SphereEvolutionCombatRules.GetStandardSingularitySlowDuration(6), 1.2f, 0f, "Singularity level VI slow");
+        Equal(SphereEvolutionCombatRules.GetStandardSwarmShardCount(6, null), 2, "Swarm level VI launches two shards");
+        Equal(SphereEvolutionCombatRules.GetStandardSwarmShardCount(7, "standard_swarm_final_3"), 3, "Swarm final shard web launches three shards");
+        Near(SphereEvolutionCombatRules.GetStandardSwarmShardDamageMultiplier(5), 0.45f, 0f, "Swarm level V shard damage");
     }
 
     private static void CheckCatalogAndRewardedContracts()

@@ -19,6 +19,7 @@ namespace EchoSphere.Runtime
         private float _initialDelay;
         private int _progressionLevel = 1;
         private SphereLevelStats _levelStats;
+        private int _branchHitCount;
 
         public SphereId Type => _type;
         public int ProgressionLevel => _progressionLevel;
@@ -147,7 +148,7 @@ namespace EchoSphere.Runtime
         {
             if (target == null) return;
             var direction = ((Vector2)target.transform.position - origin).normalized;
-            _runtime.SpawnProjectile(origin, direction, damage, tint, 8f * _profile.ProjectileSpeedMultiplier, _levelStats.Pierce, _levelStats.CritChanceBonus);
+            _runtime.SpawnProjectile(origin, direction, damage, tint, 8f * _profile.ProjectileSpeedMultiplier, _levelStats.Pierce, _levelStats.CritChanceBonus, this);
         }
 
         private void FireSpread(EnemyAgent2D target, Vector2 origin, float damage)
@@ -207,6 +208,44 @@ namespace EchoSphere.Runtime
             var multiplier = target.HpFraction <= 0.25f ? 2.5f * _levelStats.WeakenedDamageMultiplier : 1f;
             var direction = ((Vector2)target.transform.position - origin).normalized;
             _runtime.SpawnProjectile(origin, direction, damage * multiplier, ColorFor(_type), 8f * _profile.ProjectileSpeedMultiplier, _levelStats.Pierce);
+        }
+
+
+        public void OnProjectileHit(EnemyAgent2D target, Vector2 direction, float dealtDamage)
+        {
+            if (target == null || _runtime == null || _type != SphereId.Standard) return;
+            var branch = _runtime.GetSphereBranch(_type);
+            if (string.IsNullOrEmpty(branch)) return;
+            var finalId = _runtime.GetSphereFinal(_type);
+            _branchHitCount++;
+
+            if (branch == "standard_resonator")
+            {
+                if (!SphereEvolutionCombatRules.ShouldTriggerStandardResonatorPulse(_branchHitCount)) return;
+                var pulseDamage = dealtDamage * SphereEvolutionCombatRules.GetStandardResonatorPulseDamageMultiplier(_progressionLevel, finalId);
+                var radius = SphereEvolutionCombatRules.GetStandardResonatorPulseRadius(_progressionLevel, finalId);
+                _runtime.TriggerStandardResonatorPulse(target.transform.position, pulseDamage, radius, finalId);
+                return;
+            }
+
+            if (branch == "standard_singularity")
+            {
+                var pull = SphereEvolutionCombatRules.GetStandardSingularityPullDistance(_progressionLevel);
+                var slow = SphereEvolutionCombatRules.GetStandardSingularitySlowDuration(_progressionLevel);
+                if (finalId == "standard_singularity_final_1" || finalId == "standard_singularity_final_3") pull *= 1.25f;
+                if (finalId == "standard_singularity_final_2") slow = Mathf.Max(slow, 1.8f);
+                if (finalId == "standard_singularity_final_3" && target.HpFraction <= 0.5f)
+                    target.ReceiveDamage(dealtDamage * 0.15f);
+                _runtime.TriggerStandardSingularity(target, pull, slow);
+                return;
+            }
+
+            if (branch == "standard_swarm")
+            {
+                var count = SphereEvolutionCombatRules.GetStandardSwarmShardCount(_progressionLevel, finalId);
+                var shardDamage = dealtDamage * SphereEvolutionCombatRules.GetStandardSwarmShardDamageMultiplier(_progressionLevel);
+                _runtime.SpawnStandardSwarmShards(target, direction, count, shardDamage);
+            }
         }
 
         private static Vector2 Rotate(Vector2 direction, float degrees)

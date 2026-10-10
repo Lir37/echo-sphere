@@ -730,3 +730,38 @@ LIMITS:
 ======================================================================
 END PRESENTATION SLICE 2
 ======================================================================
+
+
+======================================================================
+2026-10-10 — UNITY GAMEPLAY PORT SLICE 6: STANDARD EVOLUTION COMBAT
+======================================================================
+
+BASE HEAD:
+1d44b3961a8a422d6fa7113ef62e25521497b9cb
+
+IMPLEMENTED:
+- Selected Standard evolution now affects real projectile-hit events instead
+  of remaining catalog-only metadata.
+- Resonator: every third Standard projectile hit creates an area pulse.
+  Final forms change pulse damage/radius and add knockback or slow.
+- Singularity: hits pull nearby enemies together and apply timed slow;
+  levels V/VI strengthen control, and final forms specialize compression,
+  stasis or bonus damage against targets below 50% HP.
+- Swarm: hits launch homing/angled side shards; levels V/VI improve shard
+  damage/count and final forms select one, two or three shards.
+- Added pure C# rules and regression assertions for hit cadence, final pulse
+  tuning, control scaling and shard count/damage.
+- Enemy movement now supports a timed slow and explicit knockback.
+
+LIMITS:
+- This is the first fully runtime-backed branch slice and covers Standard
+  only. Other nine Sphere families' branch/final mechanics remain open.
+- Resonator pulses do not yet feed the player-level Resonance resource because
+  the Unity runtime's Resonance architecture is not ported yet.
+- Values are first-pass port values and require Unity Editor playtesting.
+- CI checks pure C# contracts and source structure; it does not compile
+  UnityEngine-facing scripts or build an Android APK.
+
+======================================================================
+END SLICE 6
+======================================================================

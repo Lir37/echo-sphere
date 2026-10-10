@@ -34,6 +34,9 @@ namespace EchoSphere.Runtime
         public float SphereDamageMultiplier => _damageMultiplier;
         public float AttackSpeedMultiplier => _attackSpeedMultiplier;
 
+        public string GetSphereBranch(SphereId type) => _sphereBranches.TryGetValue(type, out var id) ? id : null;
+        public string GetSphereFinal(SphereId type) => _sphereFinals.TryGetValue(type, out var id) ? id : null;
+
         private void Start()
         {
             Application.targetFrameRate = 60;
@@ -385,7 +388,7 @@ namespace EchoSphere.Runtime
             return null;
         }
 
-        public void SpawnProjectile(Vector2 position, Vector2 direction, float damage, Color color, float speed = 8f, int pierce = 0, float critChanceBonus = 0f)
+        public void SpawnProjectile(Vector2 position, Vector2 direction, float damage, Color color, float speed = 8f, int pierce = 0, float critChanceBonus = 0f, SphereAttackAgent evolutionOwner = null)
         {
             var go = new GameObject("Sphere Projectile");
             go.transform.position = position;
@@ -401,7 +404,63 @@ namespace EchoSphere.Runtime
             gs.sprite = RuntimeSpriteFactory.Disc;
             gs.color = new Color(color.r, color.g, color.b, 0.34f);
             gs.sortingOrder = 11;
-            go.AddComponent<ProjectileAgent>().Initialize(this, direction, damage, color, speed, pierce, critChanceBonus);
+            go.AddComponent<ProjectileAgent>().Initialize(this, direction, damage, color, speed, pierce, critChanceBonus, evolutionOwner);
+        }
+
+
+        public void TriggerStandardResonatorPulse(Vector2 center, float damage, float radius, string finalId)
+        {
+            var targets = FindEnemiesInRadius(center, radius);
+            for (var i = 0; i < targets.Count; i++)
+            {
+                var target = targets[i];
+                target.ReceiveDamage(damage);
+                if (finalId == "standard_resonator_final_2")
+                    target.KnockBackFrom(center, 0.85f);
+                else if (finalId == "standard_resonator_final_3")
+                    target.ApplySlow(0.8f, 0.55f);
+            }
+            SpawnImpact(center, new Color(0.32f, 0.9f, 1f, 0.9f));
+        }
+
+        public void TriggerStandardSingularity(EnemyAgent2D primary, float pullDistance, float slowDuration)
+        {
+            if (primary == null) return;
+            var center = (Vector2)primary.transform.position;
+            var targets = FindEnemiesInRadius(center, 1.65f);
+            for (var i = 0; i < targets.Count; i++)
+            {
+                var target = targets[i];
+                target.PullToward(center, pullDistance);
+                target.ApplySlow(slowDuration, 0.68f);
+            }
+            SpawnImpact(center, new Color(0.68f, 0.52f, 1f, 0.85f));
+        }
+
+        public void SpawnStandardSwarmShards(EnemyAgent2D hitTarget, Vector2 incomingDirection, int count, float damage)
+        {
+            if (hitTarget == null || count <= 0) return;
+            var origin = (Vector2)hitTarget.transform.position;
+            var candidates = FindNearestEnemies(origin, 5.5f, 12);
+            var targets = new List<EnemyAgent2D>();
+            for (var i = 0; i < candidates.Count; i++)
+                if (candidates[i] != hitTarget) targets.Add(candidates[i]);
+
+            for (var i = 0; i < count; i++)
+            {
+                Vector2 direction;
+                if (i < targets.Count)
+                    direction = ((Vector2)targets[i].transform.position - origin).normalized;
+                else
+                {
+                    var angle = (i - (count - 1) * 0.5f) * 22f * Mathf.Deg2Rad;
+                    var sin = Mathf.Sin(angle);
+                    var cos = Mathf.Cos(angle);
+                    direction = new Vector2(incomingDirection.x * cos - incomingDirection.y * sin,
+                        incomingDirection.x * sin + incomingDirection.y * cos).normalized;
+                }
+                SpawnProjectile(origin, direction, damage, new Color(0.36f, 0.9f, 1f), 9.5f, 0, 0f);
+            }
         }
 
         public void SpawnImpact(Vector2 position, Color color)

@@ -11,8 +11,17 @@ namespace EchoSphere.Runtime
         private float _maxHp;
         private float _moveSpeed;
         private bool _dead;
+        private float _slowTimer;
+        private float _slowMultiplier = 1f;
         public bool IsAlive => !_dead && _hp > 0f;
         public float HpFraction => _maxHp <= 0f ? 0f : Mathf.Clamp01(_hp / _maxHp);
+
+        public void ApplySlow(float duration, float multiplier)
+        {
+            if (_dead) return;
+            _slowTimer = Mathf.Max(_slowTimer, Mathf.Max(0f, duration));
+            _slowMultiplier = Mathf.Clamp(multiplier, 0.15f, 1f);
+        }
 
         public void PullToward(Vector2 center, float distance)
         {
@@ -33,8 +42,10 @@ namespace EchoSphere.Runtime
         private void Update()
         {
             if (_dead || _runtime == null || _runtime.IsGameplayPaused || _player == null) return;
+            if (_slowTimer > 0f) _slowTimer = Mathf.Max(0f, _slowTimer - Time.deltaTime);
+            else _slowMultiplier = 1f;
             var target = (Vector2)_player.position;
-            transform.position = Vector2.MoveTowards(transform.position, target, _moveSpeed * Time.deltaTime);
+            transform.position = Vector2.MoveTowards(transform.position, target, _moveSpeed * _slowMultiplier * Time.deltaTime);
             if (Vector2.Distance(transform.position, target) < 0.54f) _runtime.TryDamagePlayer(9f);
         }
 
