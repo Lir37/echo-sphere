@@ -505,3 +505,37 @@ NEXT:
 ======================================================================
 END 2026-10-10 SLICE 2
 ======================================================================
+
+
+======================================================================
+2026-10-10 — SLICE 2 VERIFICATION
+======================================================================
+
+Sphere-dispatch implementation:
+15f2aca6885daa13274980e0a19760c8a43870b1
+
+Runtime integration correction:
+d88ace8697339d727f70839c6587ed768864b849
+
+CI:
+- Unity Migration Contracts #16: SUCCESS.
+- Unity Migration Contracts #17: SUCCESS.
+  Run: https://github.com/Lir37/echo-sphere/actions/runs/38028645624
+- Pure C# contract suite and project preflight passed, including ten Sphere
+  profile assertions.
+- Follow-up code review wired profile projectile speed through the runtime
+  projectile factory and normalized Void's target HP fraction against each
+  enemy's actual max HP.
+
+ACCURACY LIMIT:
+The GitHub Actions workflow does not compile UnityEngine scripts. Sphere
+runtime dispatch is committed but still requires an actual Unity Editor
+compile/playtest. Android APK/device acceptance remains open.
+
+Next implementation slice:
+Replace the fixed prototype lineup/three generic level-up choices with source-
+driven Sphere acquisition and progression, then port Network links with
+mechanical Geometry/Resonance effects.
+======================================================================
+END 2026-10-10 SLICE 2 VERIFICATION
+======================================================================
