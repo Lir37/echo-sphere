@@ -261,12 +261,22 @@ namespace EchoSphere.Runtime
 
         private void FireAtMultiple(Vector2 origin, float damage)
         {
-            var targets = _runtime.FindNearestEnemies(origin, AttackRange, Mathf.Max(1, _levelStats.PrismDirections));
+            var branch = _runtime.GetSphereBranch(_type);
+            var finalId = _runtime.GetSphereFinal(_type);
+            var targetCount = Mathf.Max(1, _levelStats.PrismDirections);
+            if (branch == "prism_split" && finalId == "prism_split_final_1") targetCount += 2;
+            var targets = _runtime.FindNearestEnemies(origin, AttackRange, targetCount);
             if (targets.Count == 0) return;
+            var pierce = SphereEvolutionCombatRules.GetPrismPierce(_levelStats.Pierce, branch, finalId);
             for (var i = 0; i < targets.Count; i++)
             {
                 var direction = ((Vector2)targets[i].transform.position - origin).normalized;
-                _runtime.SpawnProjectile(origin, direction, damage, ColorFor(_type), 8f * _profile.ProjectileSpeedMultiplier);
+                _runtime.SpawnProjectile(origin, direction, damage, ColorFor(_type), 8f * _profile.ProjectileSpeedMultiplier, pierce, 0f, this);
+                if (branch == "prism_split" && finalId == "prism_split_final_1" && i == 0)
+                {
+                    _runtime.SpawnProjectile(origin, Rotate(direction, -14f), damage * 0.72f, ColorFor(_type), 8f * _profile.ProjectileSpeedMultiplier, pierce, 0f, this);
+                    _runtime.SpawnProjectile(origin, Rotate(direction, 14f), damage * 0.72f, ColorFor(_type), 8f * _profile.ProjectileSpeedMultiplier, pierce, 0f, this);
+                }
             }
         }
 
@@ -379,6 +389,28 @@ namespace EchoSphere.Runtime
             {
                 var count = SphereEvolutionCombatRules.GetStandardSwarmShardCount(_progressionLevel, finalId);
                 _runtime.SpawnStandardSwarmShards(target, direction, count, dealtDamage * SphereEvolutionCombatRules.GetStandardSwarmShardDamageMultiplier(_progressionLevel));
+                return dealtDamage;
+            }
+            if (_type == SphereId.Prism && branch == "prism_split")
+            {
+                if (finalId == "prism_split_final_3")
+                    _runtime.TriggerPrismRicochet(target, direction, dealtDamage, 1);
+                return dealtDamage;
+            }
+            if (_type == SphereId.Prism && branch == "prism_spectrum")
+            {
+                if (finalId == "prism_spectrum_final_2")
+                    target.ApplySlow(0.75f, 0.55f);
+                else if (finalId == "prism_spectrum_final_3")
+                    target.ApplyDamageOverTime(dealtDamage * 0.18f, 2.5f);
+                else
+                    target.ApplyDamageOverTime(dealtDamage * 0.24f, 1.5f);
+                return dealtDamage * (finalId == "prism_spectrum_final_1" ? 1.08f : 1f);
+            }
+            if (_type == SphereId.Prism && branch == "prism_mirror")
+            {
+                var bounces = SphereEvolutionCombatRules.GetPrismMirrorBounces(finalId);
+                if (bounces > 0) _runtime.TriggerPrismRicochet(target, direction, dealtDamage, bounces);
                 return dealtDamage;
             }
             if (_type == SphereId.Chain && branch == "chain_web")

@@ -978,3 +978,29 @@ LIMITS:
 ======================================================================
 END SLICE 12
 ======================================================================
+
+
+======================================================================
+2026-10-10 — UNITY GAMEPLAY PORT SLICE 13: PRISM SPLIT / SPECTRUM / MIRROR
+======================================================================
+
+IMPLEMENTED:
+- Prism projectiles now report hits to their selected evolution.
+- Split • Fan fires additional angled shots; Pierce adds projectile penetration;
+  Ricochet adds secondary target hits.
+- Spectrum applies real timed status effects: Flame burn damage, Frost slow,
+  and Toxin damage over time.
+- Mirror finals perform one or two distinct-target ricochets.
+- EnemyAgent2D now supports refreshed timed damage-over-time effects.
+- Added pure C# rule tests and CI guards.
+
+LIMITS:
+- Spectrum status effects are a first-pass Unity model, not the original
+  complete elemental reaction/transfer system.
+- Mirror Network Reflection does not yet route through actual Network nodes.
+- Prism's full beam rendering and source swept collision are still open.
+- Unity Editor and Android device validation remain separate from CI.
+
+======================================================================
+END SLICE 13
+======================================================================

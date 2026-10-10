@@ -36,6 +36,17 @@ namespace EchoSphere.Core
 
         public static float GetStandardSwarmShardDamageMultiplier(int level) => level >= 6 ? 0.50f : level >= 5 ? 0.45f : 0.35f;
 
+        public static int GetPrismPierce(int basePierce, string branch, string finalId)
+        {
+            var extra = branch == "prism_split" && finalId == "prism_split_final_2" ? 2
+                : branch == "prism_mirror" && finalId == "prism_mirror_final_2" ? 1
+                : branch == "prism_mirror" && finalId == "prism_mirror_final_3" ? 1 : 0;
+            return Math.Max(0, basePierce) + extra;
+        }
+
+        public static int GetPrismMirrorBounces(string finalId) =>
+            finalId == "prism_mirror_final_1" ? 1 : finalId == "prism_mirror_final_2" || finalId == "prism_mirror_final_3" ? 2 : 0;
+
         private static int[] GetOrbitalRingCounts(int level, string finalId)
         {
             var effectiveLevel = Math.Max(1, Math.Min(7, level));

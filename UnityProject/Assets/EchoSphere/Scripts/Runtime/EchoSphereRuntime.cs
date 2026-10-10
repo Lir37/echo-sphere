@@ -423,6 +423,23 @@ namespace EchoSphere.Runtime
             SpawnImpact(primary.transform.position, new Color(0.76f, 0.58f, 1f, 0.9f));
         }
 
+        public void TriggerPrismRicochet(EnemyAgent2D primary, Vector2 incomingDirection, float damage, int bounceCount)
+        {
+            if (primary == null || bounceCount <= 0) return;
+            var origin = (Vector2)primary.transform.position;
+            var candidates = FindNearestEnemies(origin, 6f, 12);
+            var hits = 0;
+            for (var i = 0; i < candidates.Count && hits < bounceCount; i++)
+            {
+                var target = candidates[i];
+                if (target == primary) continue;
+                var multiplier = hits == 0 ? 0.30f : 0.24f;
+                target.ReceiveDamage(damage * multiplier);
+                SpawnImpact(Vector2.Lerp(origin, target.transform.position, 0.5f), new Color(1f, 0.55f, 0.88f, 0.9f));
+                hits++;
+            }
+        }
+
         public void TriggerOrbitalAfterimage(EnemyAgent2D primary, float damage, float radius)
         {
             if (primary == null) return;

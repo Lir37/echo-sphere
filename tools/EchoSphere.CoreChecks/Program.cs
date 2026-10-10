@@ -24,6 +24,7 @@ internal static class Program
             CheckAuraEvolutionCombatRules();
             CheckGravityEvolutionCombatRules();
             CheckOrbitalEvolutionCombatRules();
+            CheckPrismEvolutionCombatRules();
             Console.WriteLine($"ECHO SPHERE Unity core contracts: PASS ({_assertions} assertions)");
             return 0;
         }
@@ -272,6 +273,15 @@ internal static class Program
         True(SphereEvolutionCombatRules.GetOrbitalAngularSpeed(7, "orbital_dance_final_2") > SphereEvolutionCombatRules.GetOrbitalAngularSpeed(7, null), "Hypercycle speed");
         Near(SphereEvolutionCombatRules.GetOrbitalDamageMultiplier(7, "orbital_blade", "orbital_blade_final_3"), 1.30f, 0f, "Orbital Blade final damage");
         Near(SphereEvolutionCombatRules.GetOrbitalAfterimageMultiplier("orbital_blade", "orbital_blade_final_2"), 0.25f, 0f, "Blade afterimage multiplier");
+    }
+
+    private static void CheckPrismEvolutionCombatRules()
+    {
+        Equal(SphereEvolutionCombatRules.GetPrismPierce(0, "prism_split", "prism_split_final_2"), 2, "Prism Split pierce final");
+        Equal(SphereEvolutionCombatRules.GetPrismPierce(1, "prism_mirror", "prism_mirror_final_2"), 2, "Prism Mirror adds pierce");
+        Equal(SphereEvolutionCombatRules.GetPrismMirrorBounces("prism_mirror_final_1"), 1, "Mirror first bounce");
+        Equal(SphereEvolutionCombatRules.GetPrismMirrorBounces("prism_mirror_final_2"), 2, "Mirror double bounce");
+        Equal(SphereEvolutionCombatRules.GetPrismMirrorBounces("prism_mirror_final_3"), 2, "Mirror network reflection bounce count");
     }
 
     private static void CheckCatalogAndRewardedContracts()

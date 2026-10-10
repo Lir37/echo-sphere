@@ -14,11 +14,22 @@ namespace EchoSphere.Runtime
         private float _slowTimer;
         private float _slowMultiplier = 1f;
         private float _markTimer;
+        private float _dotTimer;
+        private float _dotRemaining;
+        private float _dotDamagePerSecond;
         private Color _baseColor = Color.white;
         public bool IsMarked => _markTimer > 0f;
         public float CurrentHp => Mathf.Max(0f, _hp);
         public bool IsAlive => !_dead && _hp > 0f;
         public float HpFraction => _maxHp <= 0f ? 0f : Mathf.Clamp01(_hp / _maxHp);
+
+        public void ApplyDamageOverTime(float damagePerSecond, float duration)
+        {
+            if (_dead) return;
+            _dotDamagePerSecond = Mathf.Max(_dotDamagePerSecond, Mathf.Max(0f, damagePerSecond));
+            _dotRemaining = Mathf.Max(_dotRemaining, Mathf.Max(0f, duration));
+            if (_dotTimer <= 0f) _dotTimer = 0.5f;
+        }
 
         public void ApplyMark(float duration)
         {
@@ -68,6 +79,18 @@ namespace EchoSphere.Runtime
         private void Update()
         {
             if (_dead || _runtime == null || _runtime.IsGameplayPaused || _player == null) return;
+            if (_dotRemaining > 0f)
+            {
+                _dotRemaining = Mathf.Max(0f, _dotRemaining - Time.deltaTime);
+                _dotTimer -= Time.deltaTime;
+                if (_dotTimer <= 0f)
+                {
+                    ReceiveDamage(_dotDamagePerSecond * 0.5f);
+                    _dotTimer = 0.5f;
+                    if (_dead) return;
+                }
+                if (_dotRemaining <= 0f) _dotDamagePerSecond = 0f;
+            }
             if (_markTimer > 0f)
             {
                 _markTimer = Mathf.Max(0f, _markTimer - Time.deltaTime);
