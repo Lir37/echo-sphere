@@ -926,3 +926,27 @@ LIMITS:
 ======================================================================
 END SLICE 10
 ======================================================================
+
+
+======================================================================
+2026-10-10 — UNITY GAMEPLAY PORT SLICE 11: GRAVITY WELL / TIDE / COLLAPSE
+======================================================================
+
+IMPLEMENTED:
+- Gravity Well applies inward control and timed slow, with final-form-specific
+  pull radius/strength and slow tuning.
+- Gravity Tide supports recoil, draw and alternating Pendulum pulses; levels
+  V/VI increase impulse distance.
+- Gravity Collapse scales damage against grouped enemies and low-HP targets;
+  Zero Pulse adds an area damage event for groups of four or more.
+- Added pure C# rule tests and CI guards.
+
+LIMITS:
+- Gravity uses discrete Unity attack pulses; original continuous pull simulation
+  still needs frame-accurate migration.
+- Grouping, damage thresholds and area sizes require Unity playtest tuning.
+- Network Anchor, status reactions and Resonance interactions remain open.
+
+======================================================================
+END SLICE 11
+======================================================================

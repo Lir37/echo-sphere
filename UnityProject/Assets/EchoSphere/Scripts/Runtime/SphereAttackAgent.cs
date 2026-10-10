@@ -223,8 +223,7 @@ namespace EchoSphere.Runtime
             if (_type == SphereId.Gravity && branch == "gravity_well")
             {
                 var control = SphereEvolutionCombatRules.GetGravityWellSlow(finalId);
-                var pullStep = SphereEvolutionCombatRules.GetGravityWellPullDistance(_progressionLevel, finalId);
-                _runtime.ApplyGravityWellControl(origin, SphereEvolutionCombatRules.GetGravityWellRadius(_progressionLevel, finalId), pullStep, control.duration, control.multiplier);
+                _runtime.ApplyGravityWellControl(origin, SphereEvolutionCombatRules.GetGravityWellRadius(_progressionLevel, finalId), SphereEvolutionCombatRules.GetGravityWellPullDistance(_progressionLevel, finalId), control.duration, control.multiplier);
             }
             else if (_type == SphereId.Gravity && branch == "gravity_tide")
             {
@@ -241,7 +240,7 @@ namespace EchoSphere.Runtime
                     if (targets[i].HpFraction < 0.45f)
                         multiplier = Mathf.Max(multiplier, finalId == "gravity_collapse_final_1" ? 1.30f : 1.12f);
                 if (finalId == "gravity_collapse_final_3" && grouped >= 4)
-                    _runtime.TriggerGravityCollapse(origin, auraDamage * 0.30f, radius * 1.25f);
+                    _runtime.TriggerGravityCollapse(origin, damage * 0.30f, radius * 1.25f);
                 auraDamage *= multiplier;
                 _runtime.ApplyGravityWellControl(origin, radius, 0.32f, 0f, 1f);
             }
