@@ -210,6 +210,18 @@ internal static class Program
         Equal(SphereEvolutionCombatRules.GetShotgunHailShardCount(6, null), 7, "Hail level VI shard count");
         Equal(SphereEvolutionCombatRules.GetShotgunHailShardCount(7, "shotgun_hail_final_2"), 8, "Dense Hail shard count");
         Near(SphereEvolutionCombatRules.GetShotgunHailShardDamageMultiplier("shotgun_hail_final_2"), 0.22f, 0f, "Dense Hail shard damage");
+        Near(SphereEvolutionCombatRules.GetShotgunBurstDamageMultiplier(4, null, 1.4f), 1.08f, 0.00001f, "Burst base branch damage");
+        Near(SphereEvolutionCombatRules.GetShotgunBurstDamageMultiplier(4, "shotgun_burst_final_1", 1.4f), 1.08f * 1.20f * 1.30f, 0.00001f, "Close Burst damage and branch bonuses");
+        Near(SphereEvolutionCombatRules.GetShotgunBurstDamageMultiplier(4, "shotgun_burst_final_2", 1.7f), 1.08f * 1.50f, 0.00001f, "Siege Burst extended close range");
+        Near(SphereEvolutionCombatRules.GetShotgunBurstDamageMultiplier(4, "shotgun_burst_final_3", 2.0f), 1.08f, 0.00001f, "Impact Burst bonus is gated by range");
+        Equal(SphereEvolutionCombatRules.GetShotgunBurstExtraPellets(4, "shotgun_burst_final_1", 1.4f), 2, "Close Burst adds two pellets");
+        Equal(SphereEvolutionCombatRules.GetShotgunBurstExtraPellets(4, "shotgun_burst_final_1", 1.6f), 0, "Close Burst extra pellets require range");
+        True(SphereEvolutionCombatRules.ShouldShotgunBurstApplySlow(6, "shotgun_burst_final_3", 1.05f), "Impact Burst level VI slow zone widens");
+        True(!SphereEvolutionCombatRules.ShouldShotgunBurstApplySlow(4, "shotgun_burst_final_3", 1.05f), "Impact Burst base slow zone remains short");
+        Equal(SphereEvolutionCombatRules.GetShotgunCataclysmPierce(0, null), 2, "Cataclysm grants two piercing hits");
+        Equal(SphereEvolutionCombatRules.GetShotgunCataclysmPierce(0, "shotgun_cataclysm_final_1"), 4, "Fragment Blast adds two more pierces");
+        Equal(SphereEvolutionCombatRules.GetShotgunHailBonusPellets(null), 1, "Hail adds one pellet");
+        Equal(SphereEvolutionCombatRules.GetShotgunHailBonusPellets("shotgun_hail_final_1"), 2, "Fragment Hail adds a second bonus pellet");
     }
 
     private static void CheckChainEvolutionCombatRules()

@@ -855,3 +855,38 @@ LIMITS:
 ======================================================================
 END SLICE 9
 ======================================================================
+
+
+======================================================================
+2026-10-10 — UNITY GAMEPLAY PORT SLICE 9: SHOTGUN BURST / BRANCH BONUSES
+======================================================================
+
+BASE HEAD:
+ce675df0bc7332a4e826cdf14d2590468e491a30
+
+IMPLEMENTED:
+- Shotgun Burst now applies the source branch damage bonus and final-form
+  close-range bonuses; level V/VI widen the empowered range.
+- Close Burst and Impact Burst add two pellets inside their range gate.
+- Impact Burst applies a timed slow at very close range, with the slow zone
+  widened at levels V/VI.
+- Cataclysm branch damage and its +2 pierce are wired into actual Shotgun
+  projectiles; Fragment Blast adds its further +2 pierce.
+- Hail's branch multishot and Fragment Hail's extra multishot now affect the
+  real volley in addition to Hail's shard proc.
+- Added pure C# assertions and source-structure guards for these mechanics.
+
+LIMITS:
+- Range thresholds are mapped from source gameplay units to the Unity
+  prototype's world scale (150 -> 1.5 world units). Levels V/VI widening uses
+  a first-pass 0.25/0.50 world-unit increase because the source describes
+  expansion without explicit numeric deltas.
+- Shotgun status/effect integration still lacks the source's full Shatter and
+  Impact reaction graph; current implementation uses real pierce, area damage,
+  slow and projectiles instead of catalog-only metadata.
+- Unity Editor compile/Play Mode and Android APK/device acceptance remain
+  separate from CI.
+
+======================================================================
+END SLICE 9
+======================================================================

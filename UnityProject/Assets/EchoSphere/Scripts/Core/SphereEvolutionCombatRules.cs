@@ -112,6 +112,51 @@ namespace EchoSphere.Core
         public static float GetShotgunHailSplashMultiplier(string finalId) =>
             finalId == "shotgun_hail_final_2" ? 0.18f : 0.12f;
 
+        public static float GetShotgunBurstCloseRangeThreshold(int level, string finalId)
+        {
+            var threshold = finalId == "shotgun_burst_final_2" ? 1.8f : 1.5f;
+            if (level >= 6) threshold += 0.50f;
+            else if (level >= 5) threshold += 0.25f;
+            return threshold;
+        }
+
+        public static float GetShotgunBurstDamageMultiplier(int level, string finalId, float targetDistance)
+        {
+            var multiplier = 1.08f;
+            if (finalId == "shotgun_burst_final_1") multiplier *= 1.20f;
+            if (!string.IsNullOrEmpty(finalId) &&
+                targetDistance <= GetShotgunBurstCloseRangeThreshold(level, finalId))
+            {
+                if (finalId == "shotgun_burst_final_1") multiplier *= 1.30f;
+                else if (finalId == "shotgun_burst_final_2") multiplier *= 1.50f;
+                else if (finalId == "shotgun_burst_final_3") multiplier *= 1.22f;
+            }
+            return multiplier;
+        }
+
+        public static int GetShotgunBurstExtraPellets(int level, string finalId, float targetDistance)
+        {
+            if (finalId != "shotgun_burst_final_1" && finalId != "shotgun_burst_final_3") return 0;
+            return targetDistance <= GetShotgunBurstCloseRangeThreshold(level, finalId) ? 2 : 0;
+        }
+
+        public static bool ShouldShotgunBurstApplySlow(int level, string finalId, float targetDistance)
+        {
+            if (finalId != "shotgun_burst_final_3") return false;
+            var threshold = 0.9f + (level >= 6 ? 0.2f : level >= 5 ? 0.1f : 0f);
+            return targetDistance <= threshold;
+        }
+
+        public static int GetShotgunCataclysmPierce(int basePierce, string finalId)
+        {
+            var branchPierce = 2;
+            if (finalId == "shotgun_cataclysm_final_1") branchPierce += 2;
+            return Math.Max(0, basePierce) + branchPierce;
+        }
+
+        public static int GetShotgunHailBonusPellets(string finalId) =>
+            1 + (finalId == "shotgun_hail_final_1" ? 1 : 0);
+
         public static float GetSniperOracleCriticalMultiplier(string finalId)
         {
             if (finalId == "sniper_oracle_final_1") return 1.50f;

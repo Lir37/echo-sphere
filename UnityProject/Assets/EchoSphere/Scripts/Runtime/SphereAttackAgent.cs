@@ -108,8 +108,17 @@ namespace EchoSphere.Runtime
             var origin = (Vector2)transform.position;
             var target = _runtime.FindNearestEnemy(origin, AttackRange);
             var damage = BaseDamage * _runtime.SphereDamageMultiplier;
-            if (_type == SphereId.Shotgun && target != null && Vector2.Distance(origin, target.transform.position) <= 1.5f)
-                damage *= _levelStats.CloseRangeDamageMultiplier;
+            if (_type == SphereId.Shotgun && target != null)
+            {
+                var targetDistance = Vector2.Distance(origin, target.transform.position);
+                if (targetDistance <= 1.5f) damage *= _levelStats.CloseRangeDamageMultiplier;
+                var shotgunBranch = _runtime.GetSphereBranch(_type);
+                var shotgunFinal = _runtime.GetSphereFinal(_type);
+                if (shotgunBranch == "shotgun_burst")
+                    damage *= SphereEvolutionCombatRules.GetShotgunBurstDamageMultiplier(_progressionLevel, shotgunFinal, targetDistance);
+                else if (shotgunBranch == "shotgun_cataclysm")
+                    damage *= 1.12f;
+            }
 
             switch (_type)
             {
@@ -156,13 +165,23 @@ namespace EchoSphere.Runtime
         {
             if (target == null) return;
             var direction = ((Vector2)target.transform.position - origin).normalized;
+            var targetDistance = Vector2.Distance(origin, target.transform.position);
+            var branch = _runtime.GetSphereBranch(_type);
+            var finalId = _runtime.GetSphereFinal(_type);
             var count = Mathf.Max(1, _profile.Pellets + _levelStats.Pellets - 3);
+            if (branch == "shotgun_hail")
+                count += SphereEvolutionCombatRules.GetShotgunHailBonusPellets(finalId);
+            else if (branch == "shotgun_burst")
+                count += SphereEvolutionCombatRules.GetShotgunBurstExtraPellets(_progressionLevel, finalId, targetDistance);
+            var pierce = branch == "shotgun_cataclysm"
+                ? SphereEvolutionCombatRules.GetShotgunCataclysmPierce(_levelStats.Pierce, finalId)
+                : _levelStats.Pierce;
             for (var i = 0; i < count; i++)
             {
                 var t = count == 1 ? 0f : (float)i / (count - 1) - 0.5f;
                 var angle = t * _profile.Spread * _levelStats.SpreadMultiplier * Mathf.Rad2Deg;
                 var shot = Rotate(direction, angle);
-                _runtime.SpawnProjectile(origin, shot, damage, ColorFor(_type), 8f, 0, 0f, this);
+                _runtime.SpawnProjectile(origin, shot, damage, ColorFor(_type), 8f, pierce, 0f, this);
             }
         }
 
@@ -273,6 +292,13 @@ namespace EchoSphere.Runtime
                 var healRatio = SphereEvolutionCombatRules.GetChainLeechHealRatio(_progressionLevel, finalId);
                 _runtime.HealPlayer(dealtDamage * healRatio);
                 return dealtDamage * (finalId == "chain_leech_final_3" && target.HpFraction < 0.40f ? 1.20f : 1f);
+            }
+            if (_type == SphereId.Shotgun && branch == "shotgun_burst")
+            {
+                var targetDistance = Vector2.Distance(transform.position, target.transform.position);
+                if (SphereEvolutionCombatRules.ShouldShotgunBurstApplySlow(_progressionLevel, finalId, targetDistance))
+                    target.ApplySlow(0.8f, 0.62f);
+                return dealtDamage;
             }
             if (_type == SphereId.Shotgun && branch == "shotgun_cataclysm")
             {
