@@ -1446,3 +1446,17 @@ VALIDATION LIMIT:
   and screen scaling. The layout still needs inspection in Unity Editor at the
   target landscape aspect ratio and on the Android device.
 - No combat, XP progression, pause-state or Formation Follow rules changed.
+
+
+======================================================================
+2026-10-10 — HUD PREFLIGHT CORRECTION
+======================================================================
+
+- Corrected the Resonance HUD source guard to validate the charge expression
+  rather than requiring a single exact number of spaces in the label string.
+- Restored touch/mouse movement's left-side threshold to physical Screen.width.
+  GUI scale coordinates are presentation-only and must not leak into raw input.
+- Added a preflight regression guard for separation of device input coordinates
+  from GUI-scaled coordinates.
+- CI #78 exposed the overly strict HUD label check after the layout change;
+  gameplay contracts passed. The corrected preflight is now the integration gate.

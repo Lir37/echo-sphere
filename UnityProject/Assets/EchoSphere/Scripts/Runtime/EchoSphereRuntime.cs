@@ -117,14 +117,14 @@ namespace EchoSphere.Runtime
             {
                 var touch = Input.GetTouch(0);
                 if (touch.phase == TouchPhase.Began) _touchStart = touch.position;
-                if (_touchStart.x < _uiWidth * 0.58f && touch.phase != TouchPhase.Ended && touch.phase != TouchPhase.Canceled)
+                if (_touchStart.x < Screen.width * 0.58f && touch.phase != TouchPhase.Ended && touch.phase != TouchPhase.Canceled)
                 {
                     var drag = touch.position - _touchStart;
                     if (drag.sqrMagnitude > 100f) return Vector2.ClampMagnitude(drag / 90f, 1f);
                 }
             }
             if (Input.GetMouseButtonDown(0)) _touchStart = Input.mousePosition;
-            if (Input.GetMouseButton(0) && _touchStart.x < _uiWidth * 0.58f)
+            if (Input.GetMouseButton(0) && _touchStart.x < Screen.width * 0.58f)
             {
                 var drag = (Vector2)Input.mousePosition - _touchStart;
                 if (drag.sqrMagnitude > 100f) return Vector2.ClampMagnitude(drag / 90f, 1f);
