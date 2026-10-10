@@ -1460,3 +1460,43 @@ VALIDATION LIMIT:
   from GUI-scaled coordinates.
 - CI #78 exposed the overly strict HUD label check after the layout change;
   gameplay contracts passed. The corrected preflight is now the integration gate.
+
+
+======================================================================
+2026-10-10 — UNITY SVG IMPORT INCIDENT / REGRESSION FIX
+======================================================================
+
+USER-REPORTED EDITOR ERRORS:
+- Unity.VectorGraphics throws KeyNotFoundException for "currentcolor" and
+  reports "currentColor is not supported as a stroke value" while importing
+  the authored art.
+- Unity then reports an infinite import loop while processing the art folder.
+
+ROOT CAUSE:
+- Eight migrated SVGs still used the CSS keyword currentColor in path strokes
+  and/or gradient stops, which this Unity Vector Graphics importer version does
+  not handle.
+- EchoSphereSvgImportSettings changed importer properties from
+  OnPostprocessAllAssets and called SaveAndReimport. That recursively queued the
+  same assets during postprocessing; a re-entry boolean was not sufficient to
+  prevent Unity's import-loop detector from firing.
+
+FIX:
+- Replaced unsupported currentColor tokens with each asset's explicit authored
+  accent color in player, Aura, Chain, Gravity, Pulse, Shotgun, Void and Boss
+  SVGs. No geometry or gradients were intentionally removed by this fix.
+- Reworked EchoSphereSvgImportSettings to set SVGType.TexturedSprite,
+  pixels-per-unit and gradient resolution in OnPreprocessAsset, before parsing.
+  Removed the delay-call importer scan, postprocess callback, and
+  SaveAndReimport recursion.
+- Added CI preflight checks that scan every required SVG for remaining
+  currentColor and unsupported filter tags, and reject any return of
+  SaveAndReimport/OnPostprocessAllAssets in the importer preset.
+
+VALIDATION STATUS:
+- Source-level regression checks are part of Unity Migration Contracts CI.
+- The CI does not execute Unity's real SVG parser. User should reopen the
+  project after syncing, let the assets reimport, and confirm Console has
+  zero SVG import errors and no infinite import loop.
+- Until that Editor check passes, record SVG import as source-fixed but
+  Editor acceptance pending. The protected new-desing branch is unchanged.

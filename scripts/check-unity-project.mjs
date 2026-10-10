@@ -39,6 +39,15 @@ const required = [
 assert.ok(existsSync(root), 'UnityProject directory exists');
 for (const relative of required) assert.ok(existsSync(join(root, relative)), `missing Unity project file: ${relative}`);
 
+const svgArtPaths = required.filter((relative) =>
+  relative.startsWith('Assets/Resources/EchoSphere/Art/') && relative.endsWith('.svg'));
+for (const relative of svgArtPaths) {
+  const svg = readFileSync(join(root, relative), 'utf8');
+  assert.ok(svg.trim().startsWith('<svg') && svg.includes('</svg>'), `invalid SVG document: ${relative}`);
+  assert.ok(!/\\bcurrentColor\\b/i.test(svg), `Unity SVG importer does not support currentColor: ${relative}`);
+  assert.ok(!/<filter\\b|<fe[A-Za-z]/i.test(svg), `unsupported SVG filter effect: ${relative}`);
+}
+
 const versionText = readFileSync(join(root, 'ProjectSettings/ProjectVersion.txt'), 'utf8');
 const version = versionText.match(/m_EditorVersion:\s*(\S+)/)?.[1] ?? '';
 assert.ok(/^6000\.3\./.test(version), `Unity editor pin must stay on 6000.3 stream, got ${version}`);
@@ -96,7 +105,8 @@ assert.ok(runtime.includes('GetAuthoredSphereArtwork(type)') && runtime.includes
 assert.ok(spriteFactory.includes('CreatePolygonSprite'), 'procedural faceted silhouette generation is missing');
 assert.ok(spriteFactory.includes('Resources.Load<Sprite>') && runtime.includes('GetAuthoredSphereArtwork'), 'authored SVG runtime binding is missing');
 const svgImportSettings = readFileSync(join(root, 'Assets/Editor/EchoSphereSvgImportSettings.cs'), 'utf8');
-assert.ok(svgImportSettings.includes('SVGType.TexturedSprite') && svgImportSettings.includes('SaveAndReimport'), 'SVG artwork must import as textured Sprite assets');
+assert.ok(svgImportSettings.includes('SVGType.TexturedSprite') && svgImportSettings.includes('void OnPreprocessAsset()'), 'SVG artwork must be configured as textured Sprites before import');
+assert.ok(!svgImportSettings.includes('SaveAndReimport') && !svgImportSettings.includes('OnPostprocessAllAssets'), 'SVG importer must not recursively reimport assets from a postprocess callback');
 assert.ok(runtime.includes('LoadAuthored("player")') && runtime.includes('character-spherist-3q'), 'Core and canonical Spherist visuals are not connected');
 assert.ok(runtime.includes('LoadAuthored("sphere-standard")') && runtime.includes('LoadAuthored("sphere-orbital")'), 'bridge Sphere art fallback coverage is missing');
 assert.ok(spriteFactory.includes('ES_Diamond') && spriteFactory.includes('ES_Prism') && spriteFactory.includes('ES_Shard'), 'distinct archetype silhouettes are missing');
