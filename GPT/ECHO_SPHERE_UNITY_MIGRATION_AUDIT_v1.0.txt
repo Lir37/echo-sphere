@@ -1335,3 +1335,35 @@ LIMITS / NEXT:
 ======================================================================
 END SLICES 19–21
 ======================================================================
+
+
+======================================================================
+2026-10-10 — VISUAL RESTORATION SLICE 1: 2.5D IDENTITY / FRONT-END
+======================================================================
+
+IMPLEMENTED ON unity-migration:
+- Added a first-launch title screen with ECHO SPHERE identity, cold blue/cyan
+  palette, faceted Core emblem, resonance-ring mark, short game premise and
+  clear ENTER THE SPHERE action. The simulation remains frozen behind it
+  until the player starts the run.
+- Replaced default Unity IMGUI surfaces with a consistent dark navy/cyan
+  panel and button treatment. Existing pause, game-over and level-up controls
+  now share the same visual foundation rather than default gray controls.
+- Layered the runtime orb composition into tinted shell, inset ring/frame and
+  luminous core. This is a reusable 2.5D composition for Core, Spheres and
+  enemy silhouettes, not a GLB/3D asset.
+- Rebuilt the starfield as a denser deterministic backdrop with subtle blue/
+  violet haze. Presentation coordinates no longer consume the seeded run RNG.
+- Preserved combat, movement, Formation Follow, Sphere targeting and balance
+  rules. Only visual composition, menu gate and UI skin were changed.
+
+LIMITS / ACCEPTANCE GATE:
+- The current branch still uses procedural silhouette sprites and immediate-
+  mode Unity GUI; this is a coherent visual foundation, not yet full parity
+  with the authored Canvas art/UI on new-desing.
+- No original gameplay code or assets on new-desing were changed.
+- UnityEngine-facing compile, screen-size/layout review, animation polish and
+  Android APK visual acceptance still require Unity Editor/device validation.
+- Next visual slices should map the canonical character roster and all ten
+  Sphere designs from the source branch, then build distinct enemy families,
+  readable combat VFX, and the full in-run HUD / pause / level-up presentation.
