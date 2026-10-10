@@ -21,6 +21,7 @@ namespace EchoSphere.Runtime
         private SphereLevelStats _levelStats;
         private int _branchHitCount;
         private int _chainStormCycle;
+        private int _gravityTideHits;
         public void AccelerateNextAttack(float amount) => _attackTimer = Mathf.Max(0f, _attackTimer - Mathf.Max(0f, amount));
 
         public SphereId Type => _type;
@@ -219,7 +220,32 @@ namespace EchoSphere.Runtime
             var finalId = _runtime.GetSphereFinal(_type);
             var auraDamage = damage;
 
-            if (_type == SphereId.Aura && branch == "aura_sanctum")
+            if (_type == SphereId.Gravity && branch == "gravity_well")
+            {
+                var control = SphereEvolutionCombatRules.GetGravityWellSlow(finalId);
+                var pullStep = SphereEvolutionCombatRules.GetGravityWellPullDistance(_progressionLevel, finalId);
+                _runtime.ApplyGravityWellControl(origin, SphereEvolutionCombatRules.GetGravityWellRadius(_progressionLevel, finalId), pullStep, control.duration, control.multiplier);
+            }
+            else if (_type == SphereId.Gravity && branch == "gravity_tide")
+            {
+                _gravityTideHits++;
+                var mode = finalId == "gravity_tide_final_1" ? -1 : finalId == "gravity_tide_final_2" ? 1 : finalId == "gravity_tide_final_3" ? (_gravityTideHits % 2 == 0 ? 1 : -1) : 1;
+                _runtime.ApplyGravityTidePulse(origin, SphereEvolutionCombatRules.GetGravityTideRadius(finalId), SphereEvolutionCombatRules.GetGravityTideDistance(_progressionLevel), mode);
+            }
+            else if (_type == SphereId.Gravity && branch == "gravity_collapse")
+            {
+                var grouped = targets.Count;
+                var multiplier = 1f;
+                if (grouped >= 4) multiplier *= finalId == "gravity_collapse_final_3" ? 1.25f : 1.20f;
+                for (var i = 0; i < targets.Count; i++)
+                    if (targets[i].HpFraction < 0.45f)
+                        multiplier = Mathf.Max(multiplier, finalId == "gravity_collapse_final_1" ? 1.30f : 1.12f);
+                if (finalId == "gravity_collapse_final_3" && grouped >= 4)
+                    _runtime.TriggerGravityCollapse(origin, auraDamage * 0.30f, radius * 1.25f);
+                auraDamage *= multiplier;
+                _runtime.ApplyGravityWellControl(origin, radius, 0.32f, 0f, 1f);
+            }
+            else if (_type == SphereId.Aura && branch == "aura_sanctum")
             {
                 var slowDuration = SphereEvolutionCombatRules.GetAuraSanctumSlowDuration(finalId);
                 var slowMultiplier = SphereEvolutionCombatRules.GetAuraSanctumSlowMultiplier(finalId);

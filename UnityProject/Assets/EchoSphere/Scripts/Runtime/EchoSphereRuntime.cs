@@ -423,6 +423,34 @@ namespace EchoSphere.Runtime
             SpawnImpact(primary.transform.position, new Color(0.76f, 0.58f, 1f, 0.9f));
         }
 
+        public void ApplyGravityWellControl(Vector2 center, float radius, float pullDistance, float slowDuration, float slowMultiplier)
+        {
+            var targets = FindEnemiesInRadius(center, radius);
+            for (var i = 0; i < targets.Count; i++)
+            {
+                targets[i].PullByDistance(center, pullDistance);
+                if (slowDuration > 0f) targets[i].ApplySlow(slowDuration, slowMultiplier);
+            }
+        }
+
+        public void ApplyGravityTidePulse(Vector2 center, float radius, float distance, int mode)
+        {
+            var targets = FindEnemiesInRadius(center, radius);
+            for (var i = 0; i < targets.Count; i++)
+            {
+                if (mode < 0) targets[i].KnockBackFrom(center, distance);
+                else targets[i].PullByDistance(center, distance);
+            }
+            SpawnImpact(center, new Color(0.65f, 0.55f, 1f, 0.9f));
+        }
+
+        public void TriggerGravityCollapse(Vector2 center, float damage, float radius)
+        {
+            var targets = FindEnemiesInRadius(center, radius);
+            for (var i = 0; i < targets.Count; i++) targets[i].ReceiveDamage(damage);
+            SpawnImpact(center, new Color(0.75f, 0.58f, 1f, 0.95f));
+        }
+
         public void AccelerateNearbySpheres(SphereAttackAgent source, float radius, float timerReduction)
         {
             var radiusSquared = radius * radius;
