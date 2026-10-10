@@ -1367,3 +1367,25 @@ LIMITS / ACCEPTANCE GATE:
 - Next visual slices should map the canonical character roster and all ten
   Sphere designs from the source branch, then build distinct enemy families,
   readable combat VFX, and the full in-run HUD / pause / level-up presentation.
+
+
+======================================================================
+2026-10-10 — VISUAL RESTORATION SLICE 2: SPHERE / ENEMY SILHOUETTES
+======================================================================
+
+IMPLEMENTED:
+- Added family-specific visual signatures for all ten Sphere types using
+  distinct combinations of facets, radial nodes, inset cores and orbit rails:
+  Standard, Sniper, Chain, Shotgun, Aura, Orbital, Prism, Gravity, Pulse, Void.
+- Added role-specific details to Fast, Tank and Elite enemy silhouettes so
+  their shapes read differently before contact, in addition to their existing
+  scale and color differences.
+- Preserved the current attack agents, target selection, progression levels,
+  enemy stats and XP rewards. These accents are presentation-only children.
+
+LIMITS:
+- These are procedural 2.5D placeholder signatures, not the final authored
+  source-branch artwork. Sphere tier animation, satellite counts driven by
+  level, character-specific portraits/models and production VFX remain open.
+- Verify sorting/overlap and device readability in Unity Editor and Android;
+  CI preflight is not a substitute for a rendered visual check.
