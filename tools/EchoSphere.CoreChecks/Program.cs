@@ -352,8 +352,16 @@ internal static class Program
         var square = SphereNetworkRules.Analyze(squareNodes);
         True(square.GetFormation(SphereNetworkFormation.Square) != null, "four balanced nodes form a Square");
         True(square.FormationCandidates.Exists(shape => shape.Type == SphereNetworkFormation.Ring), "closed loop forms a Ring");
-        True(square.FormationCandidates.Exists(shape => shape.Type == SphereNetworkFormation.Lattice), "overlapping linked triangles form a Lattice");
-        True(square.FormationCandidates.Exists(shape => shape.Type == SphereNetworkFormation.Fractal), "overlapping geometries form a Fractal");
+        var latticeNodes = new[]
+        {
+            new SphereNetworkNode(new Vec2(0f, 0f)),
+            new SphereNetworkNode(new Vec2(1f, 0f)),
+            new SphereNetworkNode(new Vec2(0.5f, 0.8660254f)),
+            new SphereNetworkNode(new Vec2(1.5f, 0.8660254f))
+        };
+        var lattice = SphereNetworkRules.Analyze(latticeNodes);
+        True(lattice.FormationCandidates.Exists(shape => shape.Type == SphereNetworkFormation.Lattice), "two equilateral triangles sharing an edge form a Lattice");
+        True(lattice.FormationCandidates.Exists(shape => shape.Type == SphereNetworkFormation.Fractal), "overlapping Lattice and Triangle form a Fractal");
         True(square.DominantFormation != null, "geometry dominance selected");
         Near(SphereNetworkRules.GetFormationBonusMultiplier(square, square.DominantFormation.Type, 0), 1f, 0f, "dominant formation full bonus");
         True(SphereNetworkRules.GetLinkedNodeIndexes(square, 0).Count == 3, "square graph retains both sides and diagonal");

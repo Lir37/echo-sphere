@@ -1120,3 +1120,11 @@ SLICE 15 CI REVIEW FOLLOW-UP:
   FormationCandidates. The fixture now asserts Ring/Lattice/Fractal detection
   from the candidate catalogue and reserves active-layer assertions for the
   selected dominant/secondary formations.
+
+
+NETWORK GEOMETRY CI REVIEW:
+- CI #54/#55 exposed a test-fixture error, not a ported-rule defect. A
+  right-triangle pair in the square arrangement does not meet the source's
+  triangle-strength threshold (0.82), so it cannot form a Lattice. Replaced
+  that assertion with two equilateral triangles sharing an edge, which is a
+  valid source-shaped Lattice fixture; square/ring checks remain separate.
