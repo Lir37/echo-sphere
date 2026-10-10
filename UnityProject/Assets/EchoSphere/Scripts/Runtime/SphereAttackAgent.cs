@@ -22,6 +22,8 @@ namespace EchoSphere.Runtime
         private int _branchHitCount;
         private int _chainStormCycle;
         private int _gravityTideHits;
+        private readonly List<Transform> _orbitalElements = new List<Transform>();
+        private readonly List<float> _orbitalContactTimers = new List<float>();
         public void AccelerateNextAttack(float amount) => _attackTimer = Mathf.Max(0f, _attackTimer - Mathf.Max(0f, amount));
 
         public SphereId Type => _type;
@@ -77,9 +79,8 @@ namespace EchoSphere.Runtime
             if (_runtime == null || _runtime.IsGameplayPaused || _player == null) return;
             if (_type == SphereId.Orbital)
             {
-                _orbitAngle += Time.deltaTime * 2.2f * _levelStats.OrbitSpeedMultiplier;
-                var orbitRadius = 1.05f * _levelStats.OrbitRadiusMultiplier;
-                transform.position = (Vector2)_player.position + new Vector2(Mathf.Cos(_orbitAngle), Mathf.Sin(_orbitAngle)) * orbitRadius;
+                if (_followEnabled) transform.position = (Vector2)_player.position + _followOffset;
+                UpdateOrbitalElements(Time.deltaTime);
                 return;
             }
             if (!_followEnabled) return;
@@ -94,13 +95,7 @@ namespace EchoSphere.Runtime
 
             if (_type == SphereId.Orbital)
             {
-                var contact = _runtime.TryHitEnemy(transform.position, 0.20f);
-                if (contact != null && _contactTimer <= 0f)
-                {
-                    contact.ReceiveDamage(BaseDamage * _runtime.SphereDamageMultiplier * 0.95f);
-                    _runtime.SpawnImpact(contact.transform.position, new Color(0.56f, 0.94f, 1f));
-                    _contactTimer = 0.32f;
-                }
+                UpdateOrbitalContacts(dt);
                 return;
             }
 
@@ -154,6 +149,69 @@ namespace EchoSphere.Runtime
             }
 
             _attackTimer = Mathf.Max(0.05f, AttackDelay);
+        }
+
+        private void UpdateOrbitalElements(float dt)
+        {
+            var finalId = _runtime.GetSphereFinal(SphereId.Orbital);
+            var innerCount = SphereEvolutionCombatRules.GetOrbitalInnerCount(_progressionLevel, finalId);
+            var outerCount = SphereEvolutionCombatRules.GetOrbitalOuterCount(_progressionLevel, finalId);
+            EnsureOrbitalElements(innerCount + outerCount);
+            _orbitAngle += dt * SphereEvolutionCombatRules.GetOrbitalAngularSpeed(_progressionLevel, finalId) * _levelStats.OrbitSpeedMultiplier;
+            for (var i = 0; i < _orbitalElements.Count; i++)
+            {
+                var inner = i < innerCount;
+                var index = inner ? i : i - innerCount;
+                var count = inner ? innerCount : outerCount;
+                var angle = _orbitAngle * (inner ? 1f : -1f) + index * Mathf.PI * 2f / Mathf.Max(1, count);
+                var radius = (inner ? 0.72f : 0.98f) * _levelStats.OrbitRadiusMultiplier;
+                _orbitalElements[i].localPosition = new Vector3(Mathf.Cos(angle) * radius, Mathf.Sin(angle) * radius, -0.08f);
+            }
+        }
+
+        private void EnsureOrbitalElements(int count)
+        {
+            while (_orbitalElements.Count < count)
+            {
+                var index = _orbitalElements.Count;
+                var go = new GameObject("Orbital Combat Element " + (index + 1));
+                go.transform.SetParent(transform, false);
+                go.transform.localScale = Vector3.one * (index % 2 == 0 ? 0.24f : 0.20f);
+                var renderer = go.AddComponent<SpriteRenderer>();
+                renderer.sprite = RuntimeSpriteFactory.Disc;
+                renderer.color = new Color(0.45f, 0.94f, 1f, 1f);
+                renderer.sortingOrder = 13;
+                var glow = new GameObject("Orbital Element Glow");
+                glow.transform.SetParent(go.transform, false);
+                glow.transform.localScale = Vector3.one * 2.2f;
+                var glowRenderer = glow.AddComponent<SpriteRenderer>();
+                glowRenderer.sprite = RuntimeSpriteFactory.Disc;
+                glowRenderer.color = new Color(0.35f, 0.82f, 1f, 0.30f);
+                glowRenderer.sortingOrder = 12;
+                _orbitalElements.Add(go.transform);
+                _orbitalContactTimers.Add(0f);
+            }
+        }
+
+        private void UpdateOrbitalContacts(float dt)
+        {
+            var branch = _runtime.GetSphereBranch(SphereId.Orbital);
+            var finalId = _runtime.GetSphereFinal(SphereId.Orbital);
+            var contactRadius = SphereEvolutionCombatRules.GetOrbitalContactRadius(finalId);
+            var damageMultiplier = SphereEvolutionCombatRules.GetOrbitalDamageMultiplier(_progressionLevel, branch, finalId);
+            for (var i = 0; i < _orbitalElements.Count; i++)
+            {
+                _orbitalContactTimers[i] = Mathf.Max(0f, _orbitalContactTimers[i] - dt);
+                if (_orbitalContactTimers[i] > 0f) continue;
+                var contact = _runtime.TryHitEnemy(_orbitalElements[i].position, contactRadius);
+                if (contact == null) continue;
+                var damage = BaseDamage * _runtime.SphereDamageMultiplier * damageMultiplier;
+                contact.ReceiveDamage(damage);
+                _runtime.SpawnImpact(contact.transform.position, new Color(0.56f, 0.94f, 1f));
+                var afterimage = SphereEvolutionCombatRules.GetOrbitalAfterimageMultiplier(branch, finalId);
+                if (afterimage > 0f) _runtime.TriggerOrbitalAfterimage(contact, damage * afterimage, 0.65f);
+                _orbitalContactTimers[i] = 0.28f;
+            }
         }
 
         private void FireAt(EnemyAgent2D target, Vector2 origin, float damage, Color tint)
@@ -270,7 +328,7 @@ namespace EchoSphere.Runtime
 
             for (var i = 0; i < targets.Count; i++)
             {
-                if (pull) targets[i].PullToward(origin, 1.8f * _levelStats.PullMultiplier);
+                if (pull && !(_type == SphereId.Gravity && !string.IsNullOrEmpty(branch))) targets[i].PullToward(origin, 1.8f * _levelStats.PullMultiplier);
                 targets[i].ReceiveDamage(auraDamage);
             }
             if (targets.Count > 0) _runtime.SpawnImpact(origin, tint);

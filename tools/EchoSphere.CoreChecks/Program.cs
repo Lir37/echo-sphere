@@ -23,6 +23,7 @@ internal static class Program
             CheckChainEvolutionCombatRules();
             CheckAuraEvolutionCombatRules();
             CheckGravityEvolutionCombatRules();
+            CheckOrbitalEvolutionCombatRules();
             Console.WriteLine($"ECHO SPHERE Unity core contracts: PASS ({_assertions} assertions)");
             return 0;
         }
@@ -259,6 +260,18 @@ internal static class Program
         Near(SphereEvolutionCombatRules.GetGravityWellSlow("gravity_well_final_1").multiplier, 0.55f, 0f, "Gravity Well Anchor slow strength");
         Near(SphereEvolutionCombatRules.GetGravityTideRadius("gravity_tide_final_2"), 3.4f, 0f, "Gravity Tide Draw radius");
         Near(SphereEvolutionCombatRules.GetGravityTideDistance(6), 0.72f, 0f, "Gravity Tide level VI impulse");
+    }
+
+    private static void CheckOrbitalEvolutionCombatRules()
+    {
+        Equal(SphereEvolutionCombatRules.GetOrbitalInnerCount(1, null), 1, "Orbital level I inner count");
+        Equal(SphereEvolutionCombatRules.GetOrbitalOuterCount(1, null), 1, "Orbital level I outer count");
+        Equal(SphereEvolutionCombatRules.GetOrbitalInnerCount(7, null), 4, "Orbital level VII inner count");
+        Equal(SphereEvolutionCombatRules.GetOrbitalOuterCount(7, null), 4, "Orbital level VII outer count");
+        Equal(SphereEvolutionCombatRules.GetOrbitalOuterCount(7, "orbital_dance_final_3"), 5, "Dance Swarm adds ninth element");
+        True(SphereEvolutionCombatRules.GetOrbitalAngularSpeed(7, "orbital_dance_final_2") > SphereEvolutionCombatRules.GetOrbitalAngularSpeed(7, null), "Hypercycle speed");
+        Near(SphereEvolutionCombatRules.GetOrbitalDamageMultiplier(7, "orbital_blade", "orbital_blade_final_3"), 1.30f, 0f, "Orbital Blade final damage");
+        Near(SphereEvolutionCombatRules.GetOrbitalAfterimageMultiplier("orbital_blade", "orbital_blade_final_2"), 0.25f, 0f, "Blade afterimage multiplier");
     }
 
     private static void CheckCatalogAndRewardedContracts()

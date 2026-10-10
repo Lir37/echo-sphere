@@ -423,6 +423,17 @@ namespace EchoSphere.Runtime
             SpawnImpact(primary.transform.position, new Color(0.76f, 0.58f, 1f, 0.9f));
         }
 
+        public void TriggerOrbitalAfterimage(EnemyAgent2D primary, float damage, float radius)
+        {
+            if (primary == null) return;
+            var center = (Vector2)primary.transform.position;
+            var targets = FindEnemiesInRadius(center, radius);
+            for (var i = 0; i < targets.Count; i++)
+                if (targets[i] != primary) targets[i].ReceiveDamage(damage * 0.65f);
+            primary.ReceiveDamage(damage);
+            SpawnImpact(center, new Color(0.52f, 0.92f, 1f, 0.85f));
+        }
+
         public void ApplyGravityWellControl(Vector2 center, float radius, float pullDistance, float slowDuration, float slowMultiplier)
         {
             var targets = FindEnemiesInRadius(center, radius);

@@ -36,6 +36,46 @@ namespace EchoSphere.Core
 
         public static float GetStandardSwarmShardDamageMultiplier(int level) => level >= 6 ? 0.50f : level >= 5 ? 0.45f : 0.35f;
 
+        private static int[] GetOrbitalRingCounts(int level, string finalId)
+        {
+            var effectiveLevel = Math.Max(1, Math.Min(7, level));
+            var inner = 1; var outer = 1;
+            for (var currentLevel = 2; currentLevel <= effectiveLevel; currentLevel++)
+                if (currentLevel % 2 == 0) outer++; else inner++;
+            var extras = finalId == "orbital_dance_final_3" ? 1 : 0;
+            for (var extra = 0; extra < extras; extra++)
+                if (outer < inner) outer++; else if (inner < outer) inner++; else if (extra % 2 == 0) outer++; else inner++;
+            return new[] { inner, outer };
+        }
+        public static int GetOrbitalInnerCount(int level, string finalId) => GetOrbitalRingCounts(level, finalId)[0];
+        public static int GetOrbitalOuterCount(int level, string finalId) => GetOrbitalRingCounts(level, finalId)[1];
+        public static float GetOrbitalAngularSpeed(int level, string finalId)
+        {
+            var speed = 1.8f + Math.Min(2.4f, Math.Max(1, level) * 0.28f);
+            return finalId == "orbital_dance_final_2" ? speed * 1.55f : speed;
+        }
+        public static float GetOrbitalContactRadius(string finalId) =>
+            finalId == "orbital_halo_final_2" ? 0.26f : finalId == "orbital_dance_final_3" ? 0.18f : 0.20f;
+        public static float GetOrbitalDamageMultiplier(int level, string branch, string finalId)
+        {
+            if (branch == "orbital_dance") return 0.96f;
+            if (branch == "orbital_halo") return 0.92f;
+            if (branch == "orbital_blade")
+            {
+                var multiplier = finalId == "orbital_blade_final_3" ? 1.30f : 1.15f;
+                if (string.IsNullOrEmpty(finalId)) multiplier *= GetChainBranchPower(level);
+                return multiplier;
+            }
+            return 0.95f;
+        }
+        public static float GetOrbitalAfterimageMultiplier(string branch, string finalId)
+        {
+            if (branch == "orbital_dance" && finalId == "orbital_dance_final_1") return 0.28f;
+            if (branch == "orbital_blade" && finalId == "orbital_blade_final_2") return 0.25f;
+            if (branch == "orbital_blade" && finalId == "orbital_blade_final_3") return 0.32f;
+            return 0f;
+        }
+
         public static (float duration, float multiplier) GetGravityWellSlow(string finalId)
         {
             if (finalId == "gravity_well_final_1") return (0.75f, 0.55f);

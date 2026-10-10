@@ -950,3 +950,31 @@ LIMITS:
 ======================================================================
 END SLICE 11
 ======================================================================
+
+
+======================================================================
+2026-10-10 — UNITY GAMEPLAY PORT SLICE 12: ORBITAL DUAL-RING COMBAT
+======================================================================
+
+IMPLEMENTED:
+- Orbital Sphere follows its formation position and uses separate inner
+  clockwise / outer counter-clockwise satellite rings rather than orbiting
+  the player as a single projectile.
+- Ring element counts match the source progression: two at level I, one added
+  per level through VII; Orbital Dance • Swarm adds the ninth element.
+- Each element has an independent contact cooldown and deals contact damage.
+- Hypercycle increases angular speed and Halo • Expansion widens contact;
+  Blade final forms receive damage scaling and Afterimage splash.
+- Removed duplicate generic pull from custom Gravity evolution effects.
+- Added pure C# regression tests and CI source guards.
+
+LIMITS:
+- Orbital uses sampled contact checks with per-element cooldowns, not the
+  source's swept angular collision latch, so some fast passes may still miss.
+- Halo Resonance/shield-charge behavior remains pending until those systems
+  are ported; final authored orbital visuals are not done.
+- Unity Editor and Android validation remain open.
+
+======================================================================
+END SLICE 12
+======================================================================
