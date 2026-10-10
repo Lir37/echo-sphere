@@ -1720,3 +1720,45 @@ NEXT:
   branch unchanged and validate the rendered result in Unity Editor before
   claiming visual parity.
 ======================================================================
+
+
+======================================================================
+[2026-10-11] ENEMY CREATURE VISUAL PORT SLICE 4 — SOURCE-MAPPED MESH
+======================================================================
+
+BASE:
+unity-migration HEAD before this slice: 486af223fc5df9c1c20ec8f170a29c2e4b285d14
+Protected source: new-desing HEAD 737ef2af4a877e0995db5f92331d536d2f29a934.
+
+IMPLEMENTED:
+- Added EnemyCreatureVisual2D.cs as a native unlit mesh compositor mapped to
+  src/enemies/enemyVisual.ts. It rebuilds the Canvas-authored silhouettes into
+  one dynamic mesh per enemy: sampled body curves, articulated multi-joint gait,
+  wing contours/veins, segmented tails, eyes, core layers and radial glow.
+- Ported the ten source visualVariant dispatch outcomes: wisp, leech, serpent,
+  skitter, moth, beetle, brute, prism, stalker and the linkbreaker/Cable Widow
+  fallback. Ported the four source enemyVisual boss silhouettes: shooter,
+  charger, summoner and the source fallback used for Aura/other boss types.
+- Replaced the Unity scaffold's generic shell/ring/node stack on spawned enemies
+  with the source-mapped mesh. Runtime presentation time pauses with gameplay;
+  the mesh faces toward the player and receives marked/hit feedback hooks.
+- Runtime archetype colours now map to source engineEnemies.ts values for normal,
+  fast, tank and elite. The current four-archetype scaffold uses deterministic
+  variants (normal=wisp, fast=skitter, tank=beetle, elite=linkbreaker), so this
+  visual pass consumes no additional gameplay RNG. Exact seeded visualVariant
+  distribution remains part of the future full enemy-spawn contract port.
+- Added CI guards for source mapping, variant/boss coverage, mesh/gait/glow and
+  no-RNG presentation boundaries.
+
+GAMEPLAY SAFETY:
+No HP, movement speed, contact threshold, damage, XP, attack, spawn timing,
+combat RNG or progression formulas changed. The visual selector does not affect
+current Unity enemy AI. This is a port of authored source paths and animation
+proportions, not a GLB substitute or a generic placeholder sprite stack.
+
+VALIDATION LIMITS:
+Migration CI performs structural/contract checks; it is not a Unity Editor
+compile and cannot confirm material/shader resolution or device visual parity.
+Unity 6.3 Editor compilation, mesh winding/scale inspection, GPU performance
+profiling and APK/device acceptance remain open gates. Full eight-boss gameplay
+and the other per-Sphere Canvas combat VFX modules remain future slices.

@@ -651,9 +651,22 @@ namespace EchoSphere.Runtime
                     break;
             }
             var agent = go.AddComponent<EnemyAgent2D>();
-            agent.Initialize(this, _player, baseHp * profile.HpMultiplier, baseSpeed * profile.SpeedMultiplier, profile.XpReward);
+            agent.Initialize(this, _player, baseHp * profile.HpMultiplier, baseSpeed * profile.SpeedMultiplier, profile.XpReward, GetEnemyVisualVariant(archetype));
             _enemies.Add(agent);
         }
+        // Deterministic source-variant mapping for the current four-archetype Unity scaffold.
+        // Full seeded visualVariant distribution belongs to the later enemy-spawn contract port.
+        private static string GetEnemyVisualVariant(EnemyArchetype archetype)
+        {
+            switch (archetype)
+            {
+                case EnemyArchetype.Fast: return "skitter";
+                case EnemyArchetype.Tank: return "beetle";
+                case EnemyArchetype.Elite: return "linkbreaker";
+                default: return "wisp";
+            }
+        }
+
         private static string GetEnemyName(EnemyArchetype archetype)
         {
             switch (archetype) { case EnemyArchetype.Fast: return "Rift Skirmisher"; case EnemyArchetype.Tank: return "Abyss Bulwark"; case EnemyArchetype.Elite: return "Fracture Elite"; default: return "Echo Wraith"; }
@@ -664,7 +677,7 @@ namespace EchoSphere.Runtime
         }
         private static Color GetEnemyTint(EnemyArchetype archetype)
         {
-            switch (archetype) { case EnemyArchetype.Fast: return new Color(1f, 0.56f, 0.25f); case EnemyArchetype.Tank: return new Color(0.72f, 0.36f, 1f); case EnemyArchetype.Elite: return new Color(1f, 0.24f, 0.68f); default: return new Color(1f, 0.19f, 0.34f); }
+            switch (archetype) { case EnemyArchetype.Fast: return new Color(0.831f, 0.659f, 0.188f); case EnemyArchetype.Tank: return new Color(0.541f, 0.353f, 0.541f); case EnemyArchetype.Elite: return new Color(0.722f, 0.278f, 0.353f); default: return new Color(0.290f, 0.478f, 0.541f); }
         }
 
         public EnemyAgent2D FindNearestEnemy(Vector2 from, float range)

@@ -19,6 +19,7 @@ namespace EchoSphere.Runtime
         private float _dotRemaining;
         private float _dotDamagePerSecond;
         private Color _baseColor = Color.white;
+        private EnemyCreatureVisual2D _creatureVisual;
         public bool IsMarked => _markTimer > 0f;
         public float CurrentHp => Mathf.Max(0f, _hp);
         public bool IsAlive => !_dead && _hp > 0f;
@@ -37,6 +38,7 @@ namespace EchoSphere.Runtime
             if (_dead) return;
             _markTimer = Mathf.Max(_markTimer, Mathf.Max(0f, duration));
             if (_shell != null) _shell.color = new Color(0.5f, 0.82f, 1f, 1f);
+            if (_creatureVisual != null) _creatureVisual.SetMarked(true);
         }
 
         public void ApplySlow(float duration, float multiplier)
@@ -66,7 +68,7 @@ namespace EchoSphere.Runtime
             transform.position = Vector2.MoveTowards(transform.position, center, Mathf.Max(0f, distance) * 0.22f);
         }
 
-        public void Initialize(EchoSphereRuntime runtime, Transform player, float hp, float moveSpeed, int xpReward = 1)
+        public void Initialize(EchoSphereRuntime runtime, Transform player, float hp, float moveSpeed, int xpReward = 1, string visualVariant = "wisp", string bossType = "")
         {
             _runtime = runtime;
             _player = player;
@@ -76,6 +78,9 @@ namespace EchoSphere.Runtime
             _xpReward = Mathf.Max(1, xpReward);
             _shell = transform.Find("Shell")?.GetComponent<SpriteRenderer>();
             if (_shell != null) _baseColor = _shell.color;
+            _creatureVisual = GetComponent<EnemyCreatureVisual2D>();
+            if (_creatureVisual == null) _creatureVisual = gameObject.AddComponent<EnemyCreatureVisual2D>();
+            _creatureVisual.Initialize(_runtime, visualVariant, bossType, _baseColor);
         }
 
         private void Update()
@@ -96,12 +101,17 @@ namespace EchoSphere.Runtime
             if (_markTimer > 0f)
             {
                 _markTimer = Mathf.Max(0f, _markTimer - Time.deltaTime);
-                if (_markTimer <= 0f && _shell != null) _shell.color = _baseColor;
+                if (_markTimer <= 0f)
+                {
+                    if (_shell != null) _shell.color = _baseColor;
+                    if (_creatureVisual != null) _creatureVisual.SetMarked(false);
+                }
             }
             if (_slowTimer > 0f) _slowTimer = Mathf.Max(0f, _slowTimer - Time.deltaTime);
             else _slowMultiplier = 1f;
             var target = (Vector2)_player.position;
             transform.position = Vector2.MoveTowards(transform.position, target, _moveSpeed * _slowMultiplier * Time.deltaTime);
+            if (_creatureVisual != null) _creatureVisual.SetFacing(target - (Vector2)transform.position);
             if (Vector2.Distance(transform.position, target) < 0.54f) _runtime.TryDamagePlayer(9f);
         }
 
@@ -110,6 +120,7 @@ namespace EchoSphere.Runtime
             if (_dead) return;
             _hp -= Mathf.Max(0f, damage);
             if (_shell != null) _shell.color = IsMarked ? new Color(0.5f, 0.82f, 1f, 1f) : _baseColor;
+            if (_creatureVisual != null) _creatureVisual.PulseHit();
             _runtime.SpawnImpact(transform.position, new Color(1f, 0.26f, 0.34f));
             if (_hp <= 0f)
             {
