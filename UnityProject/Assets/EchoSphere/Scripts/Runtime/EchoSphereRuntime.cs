@@ -12,6 +12,11 @@ namespace EchoSphere.Runtime
         private readonly List<SphereAttackAgent> _spheres = new List<SphereAttackAgent>();
         private readonly Dictionary<SphereId, int> _sphereLevels = new Dictionary<SphereId, int>();
         private readonly List<RunUpgradeChoice> _levelUpChoices = new List<RunUpgradeChoice>();
+        private readonly Dictionary<SphereId, string> _sphereBranches = new Dictionary<SphereId, string>();
+        private readonly Dictionary<SphereId, string> _sphereFinals = new Dictionary<SphereId, string>();
+        private readonly List<SphereEvolutionOption> _evolutionChoices = new List<SphereEvolutionOption>();
+        private SphereId _pendingEvolutionSphere;
+        private bool _choosingEvolution, _pendingFinalEvolution;
         private readonly SeededRng _rng = new SeededRng(20261009u);
         private Camera _camera;
         private Transform _player;
@@ -407,6 +412,23 @@ namespace EchoSphere.Runtime
                             if (sphere != null && sphere.Type == choice.Sphere)
                                 sphere.ApplyProgressionLevel(choice.NextLevel);
                     ShowMessage(choice.Title + " acquired.");
+                    if (choice.NextLevel == 4 || choice.NextLevel == 7)
+                    {
+                        _pendingEvolutionSphere = choice.Sphere;
+                        _pendingFinalEvolution = choice.NextLevel == 7;
+                        _evolutionChoices.Clear();
+                        var branchId = _sphereBranches.TryGetValue(choice.Sphere, out var selectedBranch) ? selectedBranch : null;
+                        var options = _pendingFinalEvolution
+                            ? SphereEvolutionCatalog.GetFinals(branchId)
+                            : SphereEvolutionCatalog.GetBranches(choice.Sphere);
+                        _evolutionChoices.AddRange(options);
+                        _choosingEvolution = _evolutionChoices.Count > 0;
+                        if (_choosingEvolution)
+                        {
+                            ShowMessage(_pendingFinalEvolution ? "Choose final evolution." : "Choose mutation branch.");
+                            return;
+                        }
+                    }
                     break;
                 case RunUpgradeKind.Damage:
                     _damageMultiplier *= 1.18f;
@@ -421,10 +443,33 @@ namespace EchoSphere.Runtime
                     ShowMessage("Core repaired.");
                     break;
             }
+            if (_choosingEvolution) return;
             _levelUp = false;
             _paused = false;
             _levelUpChoices.Clear();
             if (_follow) SetFormationFollowMode(true, true);
+            OpenLevelUpIfReady();
+        }
+
+        private void ChooseEvolution(int index)
+        {
+            if (!_choosingEvolution || index < 0 || index >= _evolutionChoices.Count) return;
+            var option = _evolutionChoices[index];
+            if (_pendingFinalEvolution)
+            {
+                _sphereFinals[_pendingEvolutionSphere] = option.Id;
+                ShowMessage("Final evolution: " + option.Name);
+            }
+            else
+            {
+                _sphereBranches[_pendingEvolutionSphere] = option.Id;
+                ShowMessage("Mutation branch: " + option.Name);
+            }
+            _choosingEvolution = false;
+            _pendingFinalEvolution = false;
+            _evolutionChoices.Clear();
+            _levelUp = false;
+            _paused = false;
             OpenLevelUpIfReady();
         }
 
@@ -464,13 +509,28 @@ namespace EchoSphere.Runtime
                 var left = Screen.width * 0.5f - 220f;
                 var top = Screen.height * 0.5f - 170f;
                 GUI.Box(new Rect(left, top, 440f, 340f), GUIContent.none, _box);
-                GUI.Label(new Rect(left + 36f, top + 25f, 360f, 32f), "LEVEL UP / CHOOSE ONE", _title);
-                for (var i = 0; i < _levelUpChoices.Count; i++)
+                GUI.Label(new Rect(left + 36f, top + 25f, 360f, 32f), _choosingEvolution
+                    ? (_pendingFinalEvolution ? "FINAL EVOLUTION / CHOOSE ONE" : "MUTATION BRANCH / CHOOSE ONE")
+                    : "LEVEL UP / CHOOSE ONE", _title);
+                if (_choosingEvolution)
                 {
-                    var yOffset = 70f + i * 78f;
-                    var choice = _levelUpChoices[i];
-                    if (GUI.Button(new Rect(left + 35f, top + yOffset, 370f, 64f), choice.Title + "\n" + choice.Description, _button))
-                        ChooseUpgrade(i);
+                    for (var i = 0; i < _evolutionChoices.Count; i++)
+                    {
+                        var yOffset = 70f + i * 78f;
+                        var choice = _evolutionChoices[i];
+                        if (GUI.Button(new Rect(left + 35f, top + yOffset, 370f, 64f), choice.Name + "\n" + choice.Description, _button))
+                            ChooseEvolution(i);
+                    }
+                }
+                else
+                {
+                    for (var i = 0; i < _levelUpChoices.Count; i++)
+                    {
+                        var yOffset = 70f + i * 78f;
+                        var choice = _levelUpChoices[i];
+                        if (GUI.Button(new Rect(left + 35f, top + yOffset, 370f, 64f), choice.Title + "\n" + choice.Description, _button))
+                            ChooseUpgrade(i);
+                    }
                 }
             }
             if (_gameOver)

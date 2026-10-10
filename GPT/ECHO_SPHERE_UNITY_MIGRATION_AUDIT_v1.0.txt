@@ -584,3 +584,31 @@ PARITY LIMITS:
 ======================================================================
 END SLICE 3
 ======================================================================
+
+
+======================================================================
+2026-10-10 — UNITY GAMEPLAY PORT SLICE 4: SPHERE MUTATION / FINAL CHOICE DATA
+======================================================================
+
+BASE HEAD:
+e1376e172c4b81cb247b24c070f2e18a1eac1edb
+
+IMPLEMENTED:
+- Ported the 30 source-defined Sphere mutation branches and 90 final variant
+  names/descriptions from new-desing/src/sphereProgression.ts into a typed C#
+  catalog, preserving source IDs.
+- Reaching Sphere IV now opens a separate three-branch mutation choice.
+- Reaching Sphere VII opens a separate final-variant choice for the selected
+  branch. Both choices pause gameplay and persist the chosen IDs in run state.
+- Added pure C# contract coverage for branch count, source IDs, final variant
+  count and safe handling of an unknown branch.
+
+LIMIT:
+- The selected mutation/final IDs are now stored and visible, but their full
+  combat behavior has not yet been ported. This slice ports choice structure
+  and source content, not all 120+ branch-specific mechanics.
+- The migration workflow does not compile UnityEngine scripts or build APK.
+  Android device acceptance remains OPEN.
+======================================================================
+END SLICE 4
+======================================================================

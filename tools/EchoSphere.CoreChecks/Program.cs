@@ -15,6 +15,7 @@ internal static class Program
             CheckRunBalance();
             CheckSphereCombatProfiles();
             CheckSphereProgressionRules();
+            CheckSphereEvolutionCatalog();
             Console.WriteLine($"ECHO SPHERE Unity core contracts: PASS ({_assertions} assertions)");
             return 0;
         }
@@ -120,6 +121,18 @@ internal static class Program
         Equal(unlock.CurrentLevel, 0, "new Sphere choice records locked state");
         Equal(unlock.NextLevel, 1, "new Sphere choice grants level I");
         Equal(unlock.Kind, RunUpgradeKind.Sphere, "acquisition is a Sphere upgrade");
+    }
+
+    private static void CheckSphereEvolutionCatalog()
+    {
+        Equal(SphereEvolutionCatalog.GetBranches(SphereId.Standard).Count, 3, "Standard has three mutation branches");
+        Equal(SphereEvolutionCatalog.GetBranches(SphereId.Sniper).Count, 3, "Sniper has three mutation branches");
+        Equal(SphereEvolutionCatalog.GetBranches(SphereId.Gravity).Count, 3, "Gravity has three mutation branches");
+        var branches = SphereEvolutionCatalog.GetBranches(SphereId.Standard);
+        Equal(branches[0].Id, "standard_resonator", "source branch id preserved");
+        Equal(SphereEvolutionCatalog.GetFinals(branches[0].Id).Count, 3, "each branch has three final variants");
+        Equal(SphereEvolutionCatalog.GetFinals("void_execution").Count, 3, "Void execution has three final variants");
+        Equal(SphereEvolutionCatalog.GetFinals("unknown").Count, 0, "unknown evolution branch safely returns no choices");
     }
 
     private static void CheckCatalogAndRewardedContracts()
