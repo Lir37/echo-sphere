@@ -1215,3 +1215,9 @@ RESONANCE CI REVIEW:
   SphereAttackAgent and ProjectileAgent. The runtime intentionally routes
   direct hits through AddResonanceCharge(1f), not a separate RegisterSphereHit
   wrapper.
+
+RESONANCE HIT-ACCOUNTING FIX:
+- Unified projectile, Chain, Aura/area and Orbital contact charging through
+  RegisterSphereHit to avoid duplicate charge for the same damage event.
+- Network/Geometry branch charge now applies FormationFollow resonance efficiency,
+  matching the source charge path instead of bypassing the multiplier.

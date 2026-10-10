@@ -450,6 +450,9 @@ namespace EchoSphere.Runtime
             for (var i = 0; i < events; i++) TriggerResonanceEvent();
         }
 
+        public void ChargeResonanceFromSource(float amount, bool applyFormationEfficiency) =>
+            AddResonanceChargeFromSource(amount, applyFormationEfficiency);
+
         private void AddResonanceChargeFromSource(float amount, bool applyFormationEfficiency)
         {
             if (_resonanceEventActive) return;

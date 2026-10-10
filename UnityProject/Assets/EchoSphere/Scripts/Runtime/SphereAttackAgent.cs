@@ -267,7 +267,7 @@ namespace EchoSphere.Runtime
                 var direction = ((Vector2)target.transform.position - origin).normalized;
                 hitDamage = OnProjectileHit(target, direction, hitDamage, wasCritical);
                 target.ReceiveDamage(hitDamage);
-                _runtime.AddResonanceCharge(1f);
+                _runtime.RegisterSphereHit(this, target, hitDamage);
                 _runtime.SpawnImpact(target.transform.position, ColorFor(_type));
             }
         }
@@ -335,7 +335,7 @@ namespace EchoSphere.Runtime
                 var index = _runtime.GetSphereIndex(this);
                 var formationBonus = Mathf.Max(_runtime.GetFormationBonus(SphereNetworkFormation.Triangle, index),
                     Mathf.Max(_runtime.GetFormationBonus(SphereNetworkFormation.Lattice, index), _runtime.GetFormationBonus(SphereNetworkFormation.Ring, index)));
-                if (formationBonus > 0f) _runtime.AddResonanceCharge(ResonanceRules.NetworkCharge * formationBonus);
+                if (formationBonus > 0f) _runtime.ChargeResonanceFromSource(ResonanceRules.NetworkCharge * formationBonus, true);
                 _runtime.SpawnImpact(origin, new Color(1f, 0.88f, 0.38f, 0.9f));
             }
             if (_type == SphereId.Pulse && branch == "pulse_burst")
@@ -398,7 +398,6 @@ namespace EchoSphere.Runtime
                 if (pull && !(_type == SphereId.Gravity && !string.IsNullOrEmpty(branch))) targets[i].PullToward(origin, 1.8f * _levelStats.PullMultiplier);
                 targets[i].ReceiveDamage(auraDamage);
                 _runtime.RegisterSphereHit(this, targets[i], auraDamage);
-                _runtime.AddResonanceCharge(1f);
             }
             if (targets.Count > 0) _runtime.SpawnImpact(origin, tint);
         }
