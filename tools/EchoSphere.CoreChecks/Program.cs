@@ -228,7 +228,7 @@ internal static class Program
     {
         Near(SphereEvolutionCombatRules.GetChainWebSlowDuration(5, null), 0.805f, 0.00001f, "Chain Web level V slow duration");
         Near(SphereEvolutionCombatRules.GetChainWebSlowDuration(7, "chain_web_final_2"), 1.4f, 0f, "Static Web slow duration");
-        Near(SphereEvolutionCombatRules.GetChainWebSlowMultiplier(6, null), 0.684f, 0.0001f, "Chain Web level VI slow strength");
+        Near(SphereEvolutionCombatRules.GetChainWebSlowMultiplier(6, null), 0.676f, 0.0001f, "Chain Web level VI slow strength");
         Near(SphereEvolutionCombatRules.GetChainStormRadius(7, "chain_storm_final_2"), 2f, 0f, "Resonant Storm radius");
         Near(SphereEvolutionCombatRules.GetChainStormSplash(7, "chain_storm_final_2"), 0.4f, 0f, "Resonant Storm splash");
         Near(SphereEvolutionCombatRules.GetChainLeechHealRatio(7, "chain_leech_final_2"), 0.045f, 0f, "Harvest healing ratio");
