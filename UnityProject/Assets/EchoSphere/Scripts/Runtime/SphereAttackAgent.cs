@@ -20,7 +20,6 @@ namespace EchoSphere.Runtime
         private int _progressionLevel = 1;
         private SphereLevelStats _levelStats;
         private int _branchHitCount;
-        private readonly HashSet<int> _markedTargetIds = new HashSet<int>();
 
         public SphereId Type => _type;
         public int ProgressionLevel => _progressionLevel;
@@ -253,7 +252,6 @@ namespace EchoSphere.Runtime
                 var multiplier = alreadyMarked && wasCritical ? SphereEvolutionCombatRules.GetSniperOracleCriticalMultiplier(finalId) : 1f;
                 if (finalId == "sniper_oracle_final_3" && target.HpFraction <= 0.30f) multiplier *= 1.22f;
                 target.ApplyMark(SphereEvolutionCombatRules.GetSniperOracleMarkDuration(finalId));
-                _markedTargetIds.Add(target.GetInstanceID());
                 if (finalId == "sniper_oracle_final_3" && alreadyMarked && wasCritical)
                     _runtime.TriggerSniperOracleSplash(target, dealtDamage * 0.22f, 1.15f);
                 return dealtDamage * multiplier;
@@ -264,7 +262,6 @@ namespace EchoSphere.Runtime
                 var multiplier = SphereEvolutionCombatRules.GetSniperAssassinDamageMultiplier(_progressionLevel, finalId, target.HpFraction);
                 var expectedKill = dealtDamage * multiplier >= target.CurrentHp;
                 if (finalId == "sniper_assassin_final_1" && target.HpFraction <= threshold) target.ApplyMark(1.1f);
-                if (finalId == "sniper_assassin_final_2" && target.HpFraction <= 0.20f) multiplier *= 1.35f;
                 if (finalId == "sniper_assassin_final_3" && expectedKill && target.HpFraction <= threshold)
                     _runtime.HealPlayer(SphereEvolutionCombatRules.GetSniperAssassinKillHeal(finalId));
                 return dealtDamage * multiplier;

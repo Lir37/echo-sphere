@@ -800,3 +800,8 @@ LIMITS:
 ======================================================================
 END SLICE 7
 ======================================================================
+
+SLICE 7 CI REVIEW:
+- CI #33 caught an incorrect test fixture: a level-V Assassin without the Execution Mark final form uses the 30% base threshold, so the test target was changed from 34% to 25% HP.
+- Removed an unintended second multiplier from the Sentence final form; the pure combat rule already returns the intended 2.0x finishing multiplier.
+- Removed unused mark-ID tracking; timed marks are owned by EnemyAgent2D.

@@ -189,7 +189,7 @@ internal static class Program
         Near(SphereEvolutionCombatRules.GetSniperOracleCriticalMultiplier("sniper_oracle_final_2"), 1.30f, 0f, "Oracle resonance sight critical bonus");
         Near(SphereEvolutionCombatRules.GetSniperOracleMarkDuration("sniper_oracle_final_2"), 3.5f, 0f, "Oracle mark duration");
         Near(SphereEvolutionCombatRules.GetSniperAssassinThreshold("sniper_assassin_final_1", 5), 0.45f, 0f, "Assassin execution mark threshold");
-        Near(SphereEvolutionCombatRules.GetSniperAssassinDamageMultiplier(5, null, 0.34f), 1.5f, 0f, "Assassin level V weakened target damage");
+        Near(SphereEvolutionCombatRules.GetSniperAssassinDamageMultiplier(5, null, 0.25f), 1.5f, 0f, "Assassin level V weakened target damage");
         Near(SphereEvolutionCombatRules.GetSniperAssassinDamageMultiplier(6, null, 0.34f), 1.8f, 0f, "Assassin level VI execution damage");
         Near(SphereEvolutionCombatRules.GetSniperAssassinDamageMultiplier(7, "sniper_assassin_final_2", 0.19f), 2f, 0f, "Assassin Sentence execution multiplier");
         Near(SphereEvolutionCombatRules.GetSniperBeaconMarkDuration(6, "sniper_beacon_final_2"), 5f, 0f, "Beacon Spotlight mark duration");
