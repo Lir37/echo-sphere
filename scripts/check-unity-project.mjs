@@ -95,6 +95,23 @@ assert.ok(svgImporterSettings.includes('TextureImporterType.Sprite'), 'productio
 assert.ok(svgImporterSettings.includes('alphaIsTransparency = true'), 'authored transparent PNG artwork must preserve alpha');
 assert.ok(!svgImporterSettings.includes('SaveAndReimport') && !svgImporterSettings.includes('OnPostprocessAllAssets'), 'asset postprocessor must not start recursive import loops');
 
+
+const regionVisualsPath = 'Assets/EchoSphere/Scripts/Runtime/RegionFieldVisuals.cs';
+assert.ok(existsSync(join(root, regionVisualsPath)), 'source-mapped Region Field visual layer is missing');
+const regionVisuals = readFileSync(join(root, regionVisualsPath), 'utf8');
+assert.ok(runtimeArt.includes('AddComponent<RegionFieldVisuals>()') && runtimeArt.includes('IsPresentationPaused => _mainMenu || _paused'), 'Region Field must be wired into the active runtime and pause with the presentation');
+assert.ok(regionVisuals.includes('src/region.ts') && regionVisuals.includes('renderer.ts'), 'Region Field source mapping must remain explicit');
+for (const pocket of [
+  'AddPocket("Axis Node", 0f, 0f, 340f, "#39d8ff", true)',
+  'AddPocket("Glass Flow", 520f, -260f, 330f, "#7cf7d4", false)',
+  'AddPocket("Fracture", 500f, 430f, 330f, "#ff6b6b", false)',
+  'AddPocket("Hollow Contour", -480f, 430f, 330f, "#9b7cff", false)',
+  'AddPocket("Pressure Field", -520f, -300f, 330f, "#ffb84d", false)',
+]) assert.ok(regionVisuals.includes(pocket), `canonical source region pocket missing: ${pocket}`);
+assert.ok(regionVisuals.includes('CircleSegments = 96') && regionVisuals.includes('SeamSegments = 10'), 'Region Field ring/seam geometry resolution regressed');
+assert.ok(regionVisuals.includes('pocket.Seams.Add') && regionVisuals.includes('pocket.Markers.Add'), 'Region Field fold seams and boundary markers are required');
+assert.ok(!/\\b_rng\\b|UnityEngine\\.Random|Random\\.Range/.test(regionVisuals), 'presentation-only region visuals must not consume gameplay RNG');
+
 const runtimeArt = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs'), 'utf8');
 assert.ok(runtimeArt.includes('LoadAuthored("character-spherist-3q")'), 'the active player must use the source Spherist character, not the Core glyph');
 assert.ok(runtimeArt.includes('standard-sphere/upper-crystal') && runtimeArt.includes('standard-sphere/energy-core') && runtimeArt.includes('standard-sphere/stabilization-ring') && runtimeArt.includes('standard-sphere/lower-crystal'), 'Standard Sphere must use the four authored source parts');
