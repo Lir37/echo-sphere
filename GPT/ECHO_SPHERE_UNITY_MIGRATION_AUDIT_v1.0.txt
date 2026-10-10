@@ -1626,3 +1626,38 @@ NEXT:
 2. Continue with the authored in-run composition/HUD mapping from src/renderer.ts.
 3. Port real region progression and run-mode behavior before enabling locked
    region/challenge/Endless interactions.
+
+
+======================================================================
+2026-10-10 — VISUAL PORT SLICE 2: IN-RUN UI GRID ALIGNMENT
+======================================================================
+
+IMPLEMENTED:
+- Added the source app's restrained 140 px technical grid and center axes
+  to the Unity in-run UI composition.
+- Source reference: new-desing/src/conceptStyle.css, where the app shell
+  uses a low-opacity 140 px grid with a radial center mask.
+- The overlay is drawn only in the in-run UI path, after menu/region screens
+  return, and before the existing HUD. It reuses the existing 1x1 UI accent
+  texture and does not add gameplay entities or change simulation state.
+- Existing Core HP, XP, Resonance, Network/Geometry, Sphere roster, pause and
+  run controls remain intact.
+
+LIMITS:
+- This is a small composition-alignment slice, not a full port of
+  src/renderer.ts. The current Unity HUD still uses immediate-mode OnGUI and
+  its layout has not been visually compared in Unity Editor at matched
+  landscape resolutions.
+- The Canvas renderer's world-space camera transform, region pockets,
+  authored player/enemy/Sphere animation, projectiles, telegraphs, damage
+  numbers, particles and complete HUD/menu presentation remain outstanding.
+- CI does not establish Unity Editor compilation or Android APK acceptance.
+
+NEXT:
+1. Inspect the actual in-run scene and HUD in Unity Editor at a matched
+   landscape aspect ratio; correct any visible layout defects based on that
+   evidence, not guesses.
+2. Continue source-to-Unity mapping of renderer.ts world composition and
+   authored visual modules, prioritizing the active Core/player, enemy and
+   Sphere render paths.
+3. Keep new-desing unchanged and rerun CI after each completed slice.
