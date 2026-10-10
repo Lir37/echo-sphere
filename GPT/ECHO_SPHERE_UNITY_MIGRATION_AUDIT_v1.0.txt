@@ -1661,3 +1661,62 @@ NEXT:
    authored visual modules, prioritizing the active Core/player, enemy and
    Sphere render paths.
 3. Keep new-desing unchanged and rerun CI after each completed slice.
+
+
+======================================================================
+2026-10-10 — VISUAL PORT SLICE 3: RESONANCE BASIN REGION FIELD
+======================================================================
+
+IMPLEMENTED ON unity-migration:
+- Added RegionFieldVisuals.cs and wired it into EchoSphereRuntime startup.
+- Ported the five canonical Resonance Basin pockets from new-desing/src/region.ts:
+  Axis Node, Glass Flow, Fracture, Hollow Contour and Pressure Field.
+- Added low-opacity pocket boundaries, six animated fold seams per pocket,
+  and eight rotating boundary markers per pocket, following the drawing rules
+  in new-desing/src/renderer.ts drawRegionLayer().
+- Converted source coordinates from the 720 px reference height to Unity's
+  12.6 world-unit camera height. Axis Node is the initial active pocket.
+- Presentation animation pauses while the menu or gameplay pause is active.
+- The visual layer has no gameplay RNG dependency and does not change combat,
+  movement, enemy spawning, progression, or region unlock state.
+- Added CI preflight assertions for the source mapping, all five pocket
+  coordinates/colors, geometry coverage, runtime wiring, and RNG isolation.
+
+SOURCE MAPPING:
+- new-desing/src/region.ts — canonical Resonance Basin pocket centers, radii,
+  ecology names and accent colors.
+- new-desing/src/renderer.ts — drawRegionLayer() ring, fold-seam and perimeter
+  marker geometry.
+- UnityProject/Assets/EchoSphere/Scripts/Runtime/RegionFieldVisuals.cs —
+  Unity 2.5D presentation implementation.
+- UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs —
+  runtime initialization and presentation pause state.
+- scripts/check-unity-project.mjs — migration regression guards.
+
+VALIDATION:
+- Implementation commit: e6351fb301ddf3cf9537a2fbda9cb2b065bee011.
+- CI #91 on the implementation commit: SUCCESS.
+- CI #92 and #93 exposed an ordering defect in the new preflight assertions
+  (the test referenced runtimeArt before its declaration); the assertions
+  were moved after initialization.
+- CI #94 on 005d9828aa12173e4f00cac3f3ebac520deb1968: SUCCESS.
+- The pure C# contract suite passed all 305 assertions; Unity project
+  structure/preflight passed.
+- Unity Editor compilation, actual Vector Graphics import, in-Editor visual
+  review and Android APK/device acceptance remain unverified. The source
+  coordinate conversion is a baseline calibration and still requires visual
+  comparison at matched landscape resolution.
+
+LIMITS:
+- The current run harness does not yet implement the full RegionState,
+  region transitions, POI gameplay, stabilization objective, region-specific
+  ecology or Endless unlock. These visuals do not imply those mechanics exist.
+- Enemy creature animation, complete authored Sphere VFX and full renderer.ts
+  battlefield composition remain open.
+
+NEXT:
+- Continue the source-to-Unity visual port with actual enemy/boss state
+  rendering and the authored Sphere family animation modules. Keep the source
+  branch unchanged and validate the rendered result in Unity Editor before
+  claiming visual parity.
+======================================================================
