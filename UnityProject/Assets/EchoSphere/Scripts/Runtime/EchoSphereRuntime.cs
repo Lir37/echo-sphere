@@ -27,6 +27,8 @@ namespace EchoSphere.Runtime
         private int _kills, _level = 1, _xp, _xpRequired = RunBalanceRules.GetXpToNextLevel(1);
         private bool _follow, _paused, _levelUp, _gameOver, _userPaused;
         private bool _mainMenu = true;
+        private bool _regionSelect;
+        private int _selectedRegion;
         private float _uiScale = 1f, _uiWidth, _uiHeight;
         private Texture2D _uiPanelTexture, _uiButtonTexture, _uiButtonHoverTexture, _uiButtonActiveTexture, _uiAccentTexture;
         private GUIStyle _menuTitle;
@@ -1654,16 +1656,80 @@ namespace EchoSphere.Runtime
             }
             var buttonWidth = Mathf.Min(330f, panel.width - 60f);
             var button = new Rect(panel.center.x - buttonWidth * 0.5f, panel.y + height - 148f, buttonWidth, 54f);
-            if (GUI.Button(button, "ENTER THE SPHERE", _button))
+            if (GUI.Button(button, "SELECT RUN", _button))
             {
-                _mainMenu = false;
-                _paused = false;
-                _messageTimer = 0f;
+                _regionSelect = true;
             }
             GUI.Label(new Rect(panel.x + 24f, button.y + 65f, panel.width - 48f, 38f), "MOVE / drag left side     •     DASH / evade     •     NETWORK / stay connected", _label);
             GUI.color = new Color(0.33f, 0.76f, 1f, 0.6f);
             GUI.DrawTexture(new Rect(panel.x + 28f, panel.y + height - 24f, panel.width - 56f, 1f), _uiAccentTexture);
             GUI.color = previousColor;
+        }
+
+
+        private void DrawRegionSelect()
+        {
+            var previousColor = GUI.color;
+            GUI.color = new Color(0.008f, 0.018f, 0.055f, 0.98f);
+            GUI.DrawTexture(new Rect(0f, 0f, _uiWidth, _uiHeight), _uiPanelTexture);
+            GUI.color = new Color(0.08f, 0.54f, 0.94f, 0.7f);
+            GUI.DrawTexture(new Rect(0f, 0f, _uiWidth, 3f), _uiAccentTexture);
+            GUI.color = previousColor;
+
+            var width = Mathf.Min(760f, _uiWidth - 28f);
+            var height = Mathf.Min(540f, _uiHeight - 24f);
+            var panel = new Rect((_uiWidth - width) * 0.5f, (_uiHeight - height) * 0.5f, width, height);
+            GUI.Box(panel, GUIContent.none, _box);
+            GUI.Label(new Rect(panel.x + 24f, panel.y + 18f, panel.width - 48f, 42f), "ECHO REGIONS", _menuTitle);
+            GUI.Label(new Rect(panel.x + 24f, panel.y + 61f, panel.width - 48f, 24f),
+                "STABILIZE  /  CHALLENGE  /  DESCEND", _label);
+            GUI.Label(new Rect(panel.x + 24f, panel.y + 91f, panel.width - 48f, 34f),
+                "One region. Several ways to run it.", _label);
+
+            var cardGap = 14f;
+            var cardWidth = (panel.width - 60f - cardGap) * 0.5f;
+            var cardTop = panel.y + 140f;
+            var cardHeight = Mathf.Min(240f, panel.height - 230f);
+            var basin = new Rect(panel.x + 20f, cardTop, cardWidth, cardHeight);
+            var rift = new Rect(basin.xMax + cardGap, cardTop, cardWidth, cardHeight);
+
+            GUI.Box(basin, GUIContent.none, _box);
+            GUI.color = new Color(0.25f, 0.9f, 0.76f, 0.95f);
+            GUI.DrawTexture(new Rect(basin.x + 12f, basin.y + 12f, 3f, basin.height - 24f), _uiAccentTexture);
+            GUI.color = previousColor;
+            GUI.Label(new Rect(basin.x + 26f, basin.y + 18f, basin.width - 40f, 20f), "REGION 01  /  AVAILABLE", _label);
+            GUI.Label(new Rect(basin.x + 26f, basin.y + 48f, basin.width - 40f, 48f), "RESONANCE BASIN", _title);
+            GUI.Label(new Rect(basin.x + 26f, basin.y + 98f, basin.width - 40f, 45f), "THE FIRST STABLE ECHO", _label);
+            GUI.Label(new Rect(basin.x + 26f, basin.y + 148f, basin.width - 40f, 38f), "Stabilization route", _label);
+            if (GUI.Button(new Rect(basin.x + 20f, basin.yMax - 58f, basin.width - 40f, 42f),
+                _selectedRegion == 0 ? "SELECTED  /  STABILIZATION" : "SELECT STABILIZATION", _button))
+                _selectedRegion = 0;
+
+            GUI.Box(rift, GUIContent.none, _box);
+            GUI.color = new Color(0.66f, 0.52f, 1f, 0.75f);
+            GUI.DrawTexture(new Rect(rift.x + 12f, rift.y + 12f, 3f, rift.height - 24f), _uiAccentTexture);
+            GUI.color = previousColor;
+            GUI.Label(new Rect(rift.x + 26f, rift.y + 18f, rift.width - 40f, 20f), "REGION 02  /  LOCKED", _label);
+            GUI.Label(new Rect(rift.x + 26f, rift.y + 48f, rift.width - 40f, 48f), "SPECTRAL RIFT", _title);
+            GUI.Label(new Rect(rift.x + 26f, rift.y + 98f, rift.width - 40f, 45f), "ZONE OF REWRITTEN DISTANCE", _label);
+            GUI.Label(new Rect(rift.x + 26f, rift.y + 148f, rift.width - 40f, 38f),
+                "Unlocks after Resonance Basin is stabilized.", _label);
+            GUI.enabled = false;
+            GUI.Button(new Rect(rift.x + 20f, rift.yMax - 58f, rift.width - 40f, 42f), "LOCKED", _button);
+            GUI.enabled = true;
+
+            var actionWidth = Mathf.Min(330f, panel.width - 80f);
+            if (GUI.Button(new Rect(panel.center.x - actionWidth * 0.5f, panel.yMax - 72f, actionWidth, 44f),
+                "START RESONANCE BASIN", _button))
+            {
+                _selectedRegion = 0;
+                _regionSelect = false;
+                _mainMenu = false;
+                _paused = false;
+                _messageTimer = 0f;
+            }
+            if (GUI.Button(new Rect(panel.x + 18f, panel.yMax - 68f, 110f, 36f), "BACK", _button))
+                _regionSelect = false;
         }
 
         private void DrawProgressBar(Rect rect, float amount, Color fillColor)
@@ -1716,7 +1782,8 @@ namespace EchoSphere.Runtime
 
                 if (_mainMenu)
                 {
-                    DrawMainMenu();
+                    if (_regionSelect) DrawRegionSelect();
+                    else DrawMainMenu();
                     return;
                 }
 
