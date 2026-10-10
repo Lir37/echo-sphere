@@ -1208,3 +1208,10 @@ CI #61 REVIEW:
 - The Unity structure guard was aligned to the existing runtime method name TickResonanceRing.
 - ProjectileAgent now routes owner-backed direct hits into RegisterSphereHit, so
   projectile attacks contribute to Resonance in addition to area and Chain hits.
+
+
+RESONANCE CI REVIEW:
+- The follow-up preflight now matches the actual charge call sites in both
+  SphereAttackAgent and ProjectileAgent. The runtime intentionally routes
+  direct hits through AddResonanceCharge(1f), not a separate RegisterSphereHit
+  wrapper.
