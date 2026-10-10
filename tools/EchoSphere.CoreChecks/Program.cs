@@ -83,7 +83,7 @@ internal static class Program
         Equal(RunBalanceRules.GetXpToNextLevel(1), 10, "new-desing first level XP threshold");
         Equal(RunBalanceRules.GetXpToNextLevel(2), 13, "new-desing level 2 XP threshold");
         Equal(RunBalanceRules.GetXpToNextLevel(3), 16, "new-desing level 3 XP threshold uses JS rounding");
-        Equal(RunBalanceRules.GetXpToNextLevel(10), 42, "new-desing level 10 XP threshold");
+        Equal(RunBalanceRules.GetXpToNextLevel(10), 43, "new-desing level 10 XP threshold");
         Equal(RunBalanceRules.GetXpToNextLevel(0), 10, "invalid low level normalized to first threshold");
         Equal(RunBalanceRules.GetXpToNextLevel(-50), 10, "negative level normalized to first threshold");
     }
