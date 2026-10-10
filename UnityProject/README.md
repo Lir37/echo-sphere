@@ -18,14 +18,15 @@ This directory is the new Unity runtime. The existing React/TypeScript/Capacitor
 4. On first editor launch, the editor bootstrap creates `Assets/Scenes/EchoSphere_Prototype.unity` and registers it in Build Settings.
 5. Open that scene if Unity does not open it automatically, then press **Play**.
 
-The generated scene is a prototype harness, not the final art direction. It exists to verify movement, combat, Sphere attacks, Formation Follow, XP/level-up, and runtime composition before the full content port.
+The generated scene is a prototype harness, not the final art direction or a visual port of the current game. The protected `new-desing` branch is the only source of truth for current menu/UI, character, enemy, Sphere, HUD and VFX design. Do not use early 3D experiments or procedural placeholder silhouettes as production references. The harness currently verifies only a subset of movement, combat, Sphere attacks, Formation Follow and XP/level-up. Visual parity remains incomplete.
 
 ## Development rules
 
 - Do not copy `node_modules`, `dist`, Capacitor's `android/`, or the old Canvas renderer into this project.
-- Port deterministic rules before UI/visual code; preserve behaviour by adding parity tests against the current TypeScript contracts.
+- Preserve deterministic gameplay contracts, but do not mistake that work for a completed game port. Visual/UI work must map directly to the active `new-desing` source (`src/App.tsx`, `src/conceptStyle.css`, `src/renderer.ts`, `src/spheres/*Visual.ts`, `src/enemies/*`, and screen-specific components).
 - Runtime gameplay code must not depend on `UnityEditor`.
-- Keep the old branch `new-desing` intact. Work only on `unity-migration` until the Unity build and human APK checks pass.
+- Keep the protected branch `new-desing` intact. Work only on `unity-migration` until functional and visual parity, Unity compilation, and human APK checks pass.
+- Do not add invented placeholder art or resurrect assets from early 3D experiments to fill gaps. Translate the current authored Canvas/2.5D visuals and UI into Unity-native rendering and UI.
 - Never commit `Library/`, `Temp/`, generated IDE projects, local keystores, ad credentials, or Unity licensing data.
 
 ## Validation
