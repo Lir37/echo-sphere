@@ -37,6 +37,15 @@ namespace EchoSphere.Runtime
         private readonly List<LineRenderer> _networkLinkRenderers = new List<LineRenderer>();
         private Material _networkLineMaterial;
         private SphereNetworkState _networkState;
+        private float _resonanceCharge;
+        private int _resonanceEventsTriggered;
+        private bool _resonanceEventActive;
+        private int _resonanceLineBurst;
+        private float _resonanceRingTimer;
+        private float _resonanceRingPulseTimer;
+        private int _resonanceRingCursor;
+        private int _shieldCharges;
+        private readonly HashSet<string> _previousFormationCandidateKeys = new HashSet<string>();
         private SphereNetworkFormation _previousDominantFormation = SphereNetworkFormation.None;
         private float _networkRefreshTimer;
 
@@ -1126,6 +1135,14 @@ namespace EchoSphere.Runtime
             }
 
             _networkState = SphereNetworkRules.Analyze(nodes, SphereNetworkRules.DefaultLinkDistance, _previousDominantFormation);
+            var currentCandidateKeys = new HashSet<string>();
+            for (var i = 0; i < _networkState.FormationCandidates.Count; i++)
+                currentCandidateKeys.Add(FormationKey(_networkState.FormationCandidates[i]));
+            var dominantKey = FormationKey(_networkState.DominantFormation);
+            if (_networkState.DominantFormation != null && !_previousFormationCandidateKeys.Contains(dominantKey))
+                ChargeResonance(ResonanceRules.GeometryCharge);
+            _previousFormationCandidateKeys.Clear();
+            foreach (var key in currentCandidateKeys) _previousFormationCandidateKeys.Add(key);
             if (_networkState.DominantFormation != null)
                 _previousDominantFormation = _networkState.DominantFormation.Type;
             UpdateNetworkLinkVisuals();

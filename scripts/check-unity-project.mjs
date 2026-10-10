@@ -110,6 +110,8 @@ assert.ok(sphereAttack.includes('UpdateOrbitalElements') && sphereAttack.include
 assert.ok(sphereAttack.includes('prism_split') && sphereAttack.includes('prism_spectrum') && sphereAttack.includes('prism_mirror'), 'Prism evolution runtime effects are missing');
 assert.ok(sphereAttack.includes('pulse_wave') && sphereAttack.includes('pulse_burst') && sphereAttack.includes('void_execution'), 'Pulse/Void evolution runtime effects are missing');
 assert.ok(runtime.includes('SpawnVoidShards'), 'Void Reaper shard spawning is missing');
+assert.ok(runtime.includes('ChargeResonance') && runtime.includes('TriggerResonanceEvent') && runtime.includes('UpdateResonanceRing'), 'Resonance runtime event loop is missing');
+assert.ok(sphereAttack.includes('RegisterSphereHit') && projectile.includes('RegisterSphereHit'), 'Sphere-hit Resonance charge routing is missing');
 assert.ok(enemy.includes('ApplyDamageOverTime'), 'Timed status damage support is missing');
 assert.ok(projectile.includes('out var wasCritical'), 'projectile hit must expose critical-hit state to evolution mechanics');
 assert.ok(projectile.includes('_evolutionOwner.OnProjectileHit'), 'projectile hit callbacks must reach selected evolution behavior');

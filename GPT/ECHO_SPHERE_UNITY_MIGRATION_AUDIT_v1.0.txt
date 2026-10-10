@@ -1159,3 +1159,34 @@ LIMITS:
 ======================================================================
 END SLICE 16
 ======================================================================
+
+
+======================================================================
+2026-10-10 — UNITY SYSTEM PORT SLICE 16: RESONANCE RUNTIME EVENTS
+======================================================================
+
+IMPLEMENTED:
+- Runtime Resonance charge now consumes the shared ResonanceRules contract:
+  1 charge per Sphere hit, 5 for a new Geometry, 5 for Network formation effects.
+- Reaching 100 charge triggers a formation-specific Resonance Event.
+- Added runtime event effects for Line, Triangle, Cluster, Square, Ring, Lattice,
+  Fractal and no-formation fallback; Ring continues with timed node-by-node pulses.
+- Square events grant shield charges; shields absorb incoming Core damage before
+  the normal invulnerability/grace checks.
+- Orbital Halo modifies Resonance gain and Halo Guard grants a shield charge
+  every third successful orbital contact.
+- Line Resonance amplifies the next actual Sphere attack by 1.6x.
+- Line and Fractal formation damage bonuses are now applied to Sphere attacks.
+- Added Resonance charge/shield HUD and regression assertions.
+
+LIMITS:
+- Event effects are ported into the Unity prototype and still require balancing
+  against the source's full status/character/region modifiers.
+- Ring/triangle link beams are represented by impacts rather than the original
+  continuous lightning renderer.
+- Network/Geometry status reactions and character mastery modifiers remain open.
+- Unity Editor/Android validation remains separate from CI.
+
+======================================================================
+END SLICE 16
+======================================================================

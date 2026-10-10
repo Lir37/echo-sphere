@@ -378,6 +378,17 @@ internal static class Program
         Near(SphereNetworkRules.GetFormationBonusMultiplier(disrupted, SphereNetworkFormation.Line), 0f, 0f, "inactive geometry grants no bonus");
     }
 
+    private static void CheckResonanceEventContracts()
+    {
+        var charge = 99f;
+        Equal(ResonanceRules.Add(ref charge, ResonanceRules.SphereHitCharge), 1, "Sphere hit triggers event at full Resonance");
+        Near(charge, 0f, 0f, "Resonance event clears consumed charge");
+        charge = 95f;
+        Equal(ResonanceRules.Add(ref charge, ResonanceRules.GeometryCharge), 1, "new geometry can trigger event");
+        Near(charge, 0f, 0f, "geometry event preserves remainder");
+        True(SphereEvolutionCombatRules.GetOrbitalResonanceBonus(7, "orbital_halo_final_3") > SphereEvolutionCombatRules.GetOrbitalResonanceBonus(7, "orbital_halo_final_1"), "Halo final three increases Resonance charge");
+    }
+
     private static void CheckCatalogAndRewardedContracts()
     {
         Equal(GameCatalog.Spheres.Count, 10, "canonical Sphere roster size");

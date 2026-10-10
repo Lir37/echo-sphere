@@ -22,6 +22,7 @@ namespace EchoSphere.Runtime
         private int _branchHitCount;
         private int _chainStormCycle;
         private int _gravityTideHits;
+        private int _orbitalSuccessfulContacts;
         private readonly List<Transform> _orbitalElements = new List<Transform>();
         private readonly List<float> _orbitalContactTimers = new List<float>();
         private int _orbitalHitCount;
@@ -105,7 +106,7 @@ namespace EchoSphere.Runtime
 
             var origin = (Vector2)transform.position;
             var target = _runtime.FindNearestEnemy(origin, AttackRange);
-            var damage = BaseDamage * _runtime.SphereDamageMultiplier;
+            var damage = BaseDamage * _runtime.SphereDamageMultiplier * _runtime.GetNetworkDamageMultiplier(this);
             if (target != null && _runtime.ConsumeResonanceLineBurst()) damage *= 1.60f;
             if (_type == SphereId.Shotgun && target != null)
             {
@@ -207,7 +208,7 @@ namespace EchoSphere.Runtime
                 if (_orbitalContactTimers[i] > 0f) continue;
                 var contact = _runtime.TryHitEnemy(_orbitalElements[i].position, contactRadius);
                 if (contact == null) continue;
-                var damage = BaseDamage * _runtime.SphereDamageMultiplier * damageMultiplier;
+                var damage = BaseDamage * _runtime.SphereDamageMultiplier * _runtime.GetNetworkDamageMultiplier(this) * damageMultiplier;
                 contact.ReceiveDamage(damage);
                 _runtime.AddResonanceCharge(1f);
                 _orbitalHitCount++;
@@ -325,13 +326,24 @@ namespace EchoSphere.Runtime
                     {
                         if (finalId == "pulse_burst_final_3") secondTargets[i].KnockBackFrom(origin, 0.30f);
                         secondTargets[i].ReceiveDamage(secondDamage);
+                        _runtime.RegisterSphereHit(this, secondTargets[i], secondDamage);
                     }
                     if (secondTargets.Count > 0) _runtime.SpawnImpact(origin, new Color(1f, 0.72f, 0.34f, 0.85f));
                 }
             }
             else if (_type == SphereId.Pulse && branch == "pulse_resonator")
             {
+                var index = _runtime.GetSphereIndex(this);
+                var formationBonus = Mathf.Max(_runtime.GetFormationBonus(SphereNetworkFormation.Triangle, index),
+                    Mathf.Max(_runtime.GetFormationBonus(SphereNetworkFormation.Lattice, index), _runtime.GetFormationBonus(SphereNetworkFormation.Ring, index)));
+                if (formationBonus > 0f) _runtime.ChargeResonance(ResonanceRules.NetworkCharge * formationBonus);
                 _runtime.SpawnImpact(origin, new Color(1f, 0.88f, 0.38f, 0.9f));
+            }
+            if (_type == SphereId.Pulse && branch == "pulse_burst")
+            {
+                var index = _runtime.GetSphereIndex(this);
+                var clusterBonus = _runtime.GetFormationBonus(SphereNetworkFormation.Cluster, index);
+                if (clusterBonus > 0f) _runtime.ChargeResonance(ResonanceRules.GeometryCharge * clusterBonus);
             }
 
             if (_type == SphereId.Gravity && branch == "gravity_well")
@@ -386,6 +398,7 @@ namespace EchoSphere.Runtime
             {
                 if (pull && !(_type == SphereId.Gravity && !string.IsNullOrEmpty(branch))) targets[i].PullToward(origin, 1.8f * _levelStats.PullMultiplier);
                 targets[i].ReceiveDamage(auraDamage);
+                _runtime.RegisterSphereHit(this, targets[i], auraDamage);
                 _runtime.AddResonanceCharge(1f);
             }
             if (targets.Count > 0) _runtime.SpawnImpact(origin, tint);
