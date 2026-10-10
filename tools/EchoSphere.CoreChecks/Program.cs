@@ -18,6 +18,7 @@ internal static class Program
             CheckSphereEvolutionCatalog();
             CheckSphereLevelRules();
             CheckSphereEvolutionCombatRules();
+            CheckSniperEvolutionCombatRules();
             Console.WriteLine($"ECHO SPHERE Unity core contracts: PASS ({_assertions} assertions)");
             return 0;
         }
@@ -180,6 +181,20 @@ internal static class Program
         Equal(SphereEvolutionCombatRules.GetStandardSwarmShardCount(6, null), 2, "Swarm level VI launches two shards");
         Equal(SphereEvolutionCombatRules.GetStandardSwarmShardCount(7, "standard_swarm_final_3"), 3, "Swarm final shard web launches three shards");
         Near(SphereEvolutionCombatRules.GetStandardSwarmShardDamageMultiplier(5), 0.45f, 0f, "Swarm level V shard damage");
+    }
+
+    private static void CheckSniperEvolutionCombatRules()
+    {
+        Near(SphereEvolutionCombatRules.GetSniperOracleCriticalMultiplier("sniper_oracle_final_1"), 1.50f, 0f, "Oracle critical focus bonus");
+        Near(SphereEvolutionCombatRules.GetSniperOracleCriticalMultiplier("sniper_oracle_final_2"), 1.30f, 0f, "Oracle resonance sight critical bonus");
+        Near(SphereEvolutionCombatRules.GetSniperOracleMarkDuration("sniper_oracle_final_2"), 3.5f, 0f, "Oracle mark duration");
+        Near(SphereEvolutionCombatRules.GetSniperAssassinThreshold("sniper_assassin_final_1", 5), 0.45f, 0f, "Assassin execution mark threshold");
+        Near(SphereEvolutionCombatRules.GetSniperAssassinDamageMultiplier(5, null, 0.34f), 1.5f, 0f, "Assassin level V weakened target damage");
+        Near(SphereEvolutionCombatRules.GetSniperAssassinDamageMultiplier(6, null, 0.34f), 1.8f, 0f, "Assassin level VI execution damage");
+        Near(SphereEvolutionCombatRules.GetSniperAssassinDamageMultiplier(7, "sniper_assassin_final_2", 0.19f), 2f, 0f, "Assassin Sentence execution multiplier");
+        Near(SphereEvolutionCombatRules.GetSniperBeaconMarkDuration(6, "sniper_beacon_final_2"), 5f, 0f, "Beacon Spotlight mark duration");
+        True(SphereEvolutionCombatRules.GetSniperBeaconRadius(6, "sniper_beacon_final_2") > SphereEvolutionCombatRules.GetSniperBeaconRadius(5, null), "Beacon Spotlight expands mark area");
+        Near(SphereEvolutionCombatRules.GetSniperBeaconSlowMultiplier("sniper_beacon_final_1"), 0.45f, 0f, "Beacon Anchor slow");
     }
 
     private static void CheckCatalogAndRewardedContracts()

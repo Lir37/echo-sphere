@@ -770,3 +770,33 @@ IMPLEMENTATION FOLLOW-UP (SLICE 6 REVIEW):
 - Evolution hit callbacks are processed before applying the projectile's direct damage, so a lethal hit still triggers its selected branch behavior.
 - Resonator knockback and slow are applied before pulse damage to avoid acting on an enemy already destroyed by that pulse.
 - Added the explicit EnemyAgent2D knockback operation used by the Rebound final form.
+
+
+======================================================================
+2026-10-10 — UNITY GAMEPLAY PORT SLICE 7: SNIPER EVOLUTION COMBAT
+======================================================================
+
+IMPLEMENTED:
+- Projectile damage resolution exposes whether the direct hit was critical.
+- Enemy targets support a timed visible Mark status.
+- Sniper Oracle: marked critical hits receive final-form-specific damage
+  multipliers; Explosive Crit adds nearby splash and a low-HP bonus.
+- Sniper Assassin: damage scales against weakened targets, with final-form
+  thresholds and the Sentence finishing multiplier; Blood Trail restores HP
+  when a weakened-target kill is predicted from incoming damage.
+- Sniper Beacon: marks and slows nearby enemies in a configurable zone;
+  final forms extend mark duration/radius and specialize slow strength.
+- Added pure C# regression checks and CI source guards.
+
+LIMITS:
+- These are first-pass Unity runtime values; confirm scale/balance in Play Mode.
+- Oracle Resonant Sight cannot yet grant the original Resonance resource because
+  the Resonance runtime has not been ported. That interaction remains open.
+- Assassin Sentence does not yet persist/retarget a priority target after a kill.
+- Blood Trail currently implements sustain but its separate hunting pulse is
+  not yet connected.
+- CI does not compile UnityEngine-facing scripts or build an Android APK.
+
+======================================================================
+END SLICE 7
+======================================================================

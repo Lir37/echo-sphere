@@ -13,8 +13,19 @@ namespace EchoSphere.Runtime
         private bool _dead;
         private float _slowTimer;
         private float _slowMultiplier = 1f;
+        private float _markTimer;
+        private Color _baseColor = Color.white;
+        public bool IsMarked => _markTimer > 0f;
+        public float CurrentHp => Mathf.Max(0f, _hp);
         public bool IsAlive => !_dead && _hp > 0f;
         public float HpFraction => _maxHp <= 0f ? 0f : Mathf.Clamp01(_hp / _maxHp);
+
+        public void ApplyMark(float duration)
+        {
+            if (_dead) return;
+            _markTimer = Mathf.Max(_markTimer, Mathf.Max(0f, duration));
+            if (_shell != null) _shell.color = new Color(0.5f, 0.82f, 1f, 1f);
+        }
 
         public void ApplySlow(float duration, float multiplier)
         {
@@ -45,11 +56,17 @@ namespace EchoSphere.Runtime
             _maxHp = Mathf.Max(1f, hp);
             _moveSpeed = moveSpeed;
             _shell = GetComponentInChildren<SpriteRenderer>();
+            if (_shell != null) _baseColor = _shell.color;
         }
 
         private void Update()
         {
             if (_dead || _runtime == null || _runtime.IsGameplayPaused || _player == null) return;
+            if (_markTimer > 0f)
+            {
+                _markTimer = Mathf.Max(0f, _markTimer - Time.deltaTime);
+                if (_markTimer <= 0f && _shell != null) _shell.color = _baseColor;
+            }
             if (_slowTimer > 0f) _slowTimer = Mathf.Max(0f, _slowTimer - Time.deltaTime);
             else _slowMultiplier = 1f;
             var target = (Vector2)_player.position;
@@ -61,7 +78,7 @@ namespace EchoSphere.Runtime
         {
             if (_dead) return;
             _hp -= Mathf.Max(0f, damage);
-            if (_shell != null) _shell.color = Color.white;
+            if (_shell != null) _shell.color = IsMarked ? new Color(0.5f, 0.82f, 1f, 1f) : _baseColor;
             _runtime.SpawnImpact(transform.position, new Color(1f, 0.26f, 0.34f));
             if (_hp <= 0f)
             {

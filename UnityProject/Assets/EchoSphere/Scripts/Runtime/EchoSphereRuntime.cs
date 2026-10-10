@@ -408,6 +408,19 @@ namespace EchoSphere.Runtime
         }
 
 
+        public void HealPlayer(float amount)
+        {
+            if (_playerCore != null && !_playerCore.IsDead) _playerCore.Heal(Mathf.Max(0f, amount));
+        }
+
+        public void TriggerSniperOracleSplash(EnemyAgent2D primary, float damage, float radius)
+        {
+            if (primary == null) return;
+            var targets = FindEnemiesInRadius(primary.transform.position, radius);
+            for (var i = 0; i < targets.Count; i++) if (targets[i] != primary) targets[i].ReceiveDamage(damage);
+            SpawnImpact(primary.transform.position, new Color(0.76f, 0.58f, 1f, 0.9f));
+        }
+
         public void TriggerStandardResonatorPulse(Vector2 center, float damage, float radius, string finalId)
         {
             var targets = FindEnemiesInRadius(center, radius);
@@ -510,8 +523,15 @@ namespace EchoSphere.Runtime
 
         public float ResolveProjectileDamage(float damage, float critChanceBonus = 0f)
         {
+            return ResolveProjectileDamage(damage, critChanceBonus, out _);
+        }
+
+        public float ResolveProjectileDamage(float damage, float critChanceBonus, out bool wasCritical)
+        {
             var critChance = Mathf.Min(CombatRules.CritHardCap, CombatRules.CritBase + Mathf.Max(0f, critChanceBonus));
-            return CombatRules.ResolveDamage(damage, critChance, _rng.NextFloat(), CombatRules.CritMultiplierBase).Damage;
+            var result = CombatRules.ResolveDamage(damage, critChance, _rng.NextFloat(), CombatRules.CritMultiplierBase);
+            wasCritical = result.WasCritical;
+            return result.Damage;
         }
 
         public void TryDamagePlayer(float damage)

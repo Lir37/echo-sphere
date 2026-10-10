@@ -20,6 +20,7 @@ namespace EchoSphere.Runtime
         private int _progressionLevel = 1;
         private SphereLevelStats _levelStats;
         private int _branchHitCount;
+        private readonly HashSet<int> _markedTargetIds = new HashSet<int>();
 
         public SphereId Type => _type;
         public int ProgressionLevel => _progressionLevel;
@@ -211,24 +212,25 @@ namespace EchoSphere.Runtime
         }
 
 
-        public void OnProjectileHit(EnemyAgent2D target, Vector2 direction, float dealtDamage)
+        public float OnProjectileHit(EnemyAgent2D target, Vector2 direction, float dealtDamage, bool wasCritical)
         {
-            if (target == null || _runtime == null || _type != SphereId.Standard) return;
+            if (target == null || _runtime == null) return dealtDamage;
             var branch = _runtime.GetSphereBranch(_type);
-            if (string.IsNullOrEmpty(branch)) return;
+            if (string.IsNullOrEmpty(branch)) return dealtDamage;
             var finalId = _runtime.GetSphereFinal(_type);
             _branchHitCount++;
 
-            if (branch == "standard_resonator")
+            if (_type == SphereId.Standard && branch == "standard_resonator")
             {
-                if (!SphereEvolutionCombatRules.ShouldTriggerStandardResonatorPulse(_branchHitCount)) return;
-                var pulseDamage = dealtDamage * SphereEvolutionCombatRules.GetStandardResonatorPulseDamageMultiplier(_progressionLevel, finalId);
-                var radius = SphereEvolutionCombatRules.GetStandardResonatorPulseRadius(_progressionLevel, finalId);
-                _runtime.TriggerStandardResonatorPulse(target.transform.position, pulseDamage, radius, finalId);
-                return;
+                if (SphereEvolutionCombatRules.ShouldTriggerStandardResonatorPulse(_branchHitCount))
+                {
+                    var pulseDamage = dealtDamage * SphereEvolutionCombatRules.GetStandardResonatorPulseDamageMultiplier(_progressionLevel, finalId);
+                    var radius = SphereEvolutionCombatRules.GetStandardResonatorPulseRadius(_progressionLevel, finalId);
+                    _runtime.TriggerStandardResonatorPulse(target.transform.position, pulseDamage, radius, finalId);
+                }
+                return dealtDamage;
             }
-
-            if (branch == "standard_singularity")
+            if (_type == SphereId.Standard && branch == "standard_singularity")
             {
                 var pull = SphereEvolutionCombatRules.GetStandardSingularityPullDistance(_progressionLevel);
                 var slow = SphereEvolutionCombatRules.GetStandardSingularitySlowDuration(_progressionLevel);
@@ -236,17 +238,53 @@ namespace EchoSphere.Runtime
                 if (finalId == "standard_singularity_final_2") slow = Mathf.Max(slow, 1.8f);
                 var receivesCollapseBonus = finalId == "standard_singularity_final_3" && target.HpFraction <= 0.5f;
                 _runtime.TriggerStandardSingularity(target, pull, slow);
-                if (receivesCollapseBonus && target != null)
-                    target.ReceiveDamage(dealtDamage * 0.15f);
-                return;
+                if (receivesCollapseBonus && target != null) target.ReceiveDamage(dealtDamage * 0.15f);
+                return dealtDamage;
             }
-
-            if (branch == "standard_swarm")
+            if (_type == SphereId.Standard && branch == "standard_swarm")
             {
                 var count = SphereEvolutionCombatRules.GetStandardSwarmShardCount(_progressionLevel, finalId);
-                var shardDamage = dealtDamage * SphereEvolutionCombatRules.GetStandardSwarmShardDamageMultiplier(_progressionLevel);
-                _runtime.SpawnStandardSwarmShards(target, direction, count, shardDamage);
+                _runtime.SpawnStandardSwarmShards(target, direction, count, dealtDamage * SphereEvolutionCombatRules.GetStandardSwarmShardDamageMultiplier(_progressionLevel));
+                return dealtDamage;
             }
+            if (_type == SphereId.Sniper && branch == "sniper_oracle")
+            {
+                var alreadyMarked = target.IsMarked;
+                var multiplier = alreadyMarked && wasCritical ? SphereEvolutionCombatRules.GetSniperOracleCriticalMultiplier(finalId) : 1f;
+                if (finalId == "sniper_oracle_final_3" && target.HpFraction <= 0.30f) multiplier *= 1.22f;
+                target.ApplyMark(SphereEvolutionCombatRules.GetSniperOracleMarkDuration(finalId));
+                _markedTargetIds.Add(target.GetInstanceID());
+                if (finalId == "sniper_oracle_final_3" && alreadyMarked && wasCritical)
+                    _runtime.TriggerSniperOracleSplash(target, dealtDamage * 0.22f, 1.15f);
+                return dealtDamage * multiplier;
+            }
+            if (_type == SphereId.Sniper && branch == "sniper_assassin")
+            {
+                var threshold = SphereEvolutionCombatRules.GetSniperAssassinThreshold(finalId, _progressionLevel);
+                var multiplier = SphereEvolutionCombatRules.GetSniperAssassinDamageMultiplier(_progressionLevel, finalId, target.HpFraction);
+                var expectedKill = dealtDamage * multiplier >= target.CurrentHp;
+                if (finalId == "sniper_assassin_final_1" && target.HpFraction <= threshold) target.ApplyMark(1.1f);
+                if (finalId == "sniper_assassin_final_2" && target.HpFraction <= 0.20f) multiplier *= 1.35f;
+                if (finalId == "sniper_assassin_final_3" && expectedKill && target.HpFraction <= threshold)
+                    _runtime.HealPlayer(SphereEvolutionCombatRules.GetSniperAssassinKillHeal(finalId));
+                return dealtDamage * multiplier;
+            }
+            if (_type == SphereId.Sniper && branch == "sniper_beacon")
+            {
+                var duration = SphereEvolutionCombatRules.GetSniperBeaconMarkDuration(_progressionLevel, finalId);
+                var radius = SphereEvolutionCombatRules.GetSniperBeaconRadius(_progressionLevel, finalId);
+                var slowMultiplier = SphereEvolutionCombatRules.GetSniperBeaconSlowMultiplier(finalId);
+                target.ApplyMark(duration);
+                var nearby = _runtime.FindEnemiesInRadius(target.transform.position, radius);
+                for (var i = 0; i < nearby.Count; i++)
+                {
+                    nearby[i].ApplyMark(duration);
+                    nearby[i].ApplySlow(duration, slowMultiplier);
+                }
+                _runtime.SpawnImpact(target.transform.position, new Color(0.55f, 0.78f, 1f, 0.85f));
+                return dealtDamage * (finalId == "sniper_beacon_final_2" ? 1.15f : 1f);
+            }
+            return dealtDamage;
         }
 
         private static Vector2 Rotate(Vector2 direction, float degrees)
