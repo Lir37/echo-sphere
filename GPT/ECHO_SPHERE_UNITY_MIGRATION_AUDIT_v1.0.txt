@@ -1203,3 +1203,8 @@ RESONANCE RUNTIME INTEGRATION FOLLOW-UP:
 - Sphere hits now route through RegisterSphereHit; network Line/Fractal bonuses
   and Line Resonance burst are exposed to Sphere attack damage calculation.
 - HUD shield count reads PlayerCoreController2D's authoritative shield state.
+
+CI #61 REVIEW:
+- The Unity structure guard was aligned to the existing runtime method name TickResonanceRing.
+- ProjectileAgent now routes owner-backed direct hits into RegisterSphereHit, so
+  projectile attacks contribute to Resonance in addition to area and Chain hits.
