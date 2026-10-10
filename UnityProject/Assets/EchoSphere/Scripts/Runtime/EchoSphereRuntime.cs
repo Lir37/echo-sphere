@@ -1732,6 +1732,28 @@ namespace EchoSphere.Runtime
                 _regionSelect = false;
         }
 
+
+        // Translate the active conceptStyle.css battlefield overlay: a very
+        // low-contrast 140 px technical grid with a restrained center focus.
+        // This is UI composition only; gameplay coordinates and simulation are untouched.
+        private void DrawHudBackdrop()
+        {
+            var previousColor = GUI.color;
+            GUI.color = new Color(0.47f, 0.83f, 1f, 0.035f);
+            const float cell = 140f;
+            for (var x = 0f; x <= _uiWidth; x += cell)
+                GUI.DrawTexture(new Rect(x, 0f, 1f, _uiHeight), _uiAccentTexture);
+            for (var y = 0f; y <= _uiHeight; y += cell)
+                GUI.DrawTexture(new Rect(0f, y, _uiWidth, 1f), _uiAccentTexture);
+
+            // Center cross-lines are the restrained focal cue used by the
+            // source app shell, not a new gameplay-world object.
+            GUI.color = new Color(0.47f, 0.83f, 1f, 0.055f);
+            GUI.DrawTexture(new Rect(_uiWidth * 0.5f - 0.5f, 0f, 1f, _uiHeight), _uiAccentTexture);
+            GUI.DrawTexture(new Rect(0f, _uiHeight * 0.5f - 0.5f, _uiWidth, 1f), _uiAccentTexture);
+            GUI.color = previousColor;
+        }
+
         private void DrawProgressBar(Rect rect, float amount, Color fillColor)
         {
             var previousColor = GUI.color;
@@ -1786,6 +1808,8 @@ namespace EchoSphere.Runtime
                     else DrawMainMenu();
                     return;
                 }
+
+                DrawHudBackdrop();
 
                 var hp = _playerCore == null ? 0f : _playerCore.CurrentHp;
                 var maxHp = _playerCore == null ? 100f : _playerCore.MaxHp;
