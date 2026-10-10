@@ -49,6 +49,7 @@ namespace EchoSphere.Runtime
         private float _networkRefreshTimer;
 
         public bool IsGameplayPaused => _paused;
+        public bool IsPresentationPaused => _mainMenu || _paused;
         public float SphereDamageMultiplier => _damageMultiplier;
         public float AttackSpeedMultiplier => _attackSpeedMultiplier;
         public float ResonanceCharge => _resonanceCharge;
@@ -62,6 +63,8 @@ namespace EchoSphere.Runtime
             Application.targetFrameRate = 60;
             ConfigureCamera();
             CreateStarfield();
+            var regionFieldVisuals = gameObject.AddComponent<RegionFieldVisuals>();
+            regionFieldVisuals.Initialize(this);
             CreatePlayer();
             CreateSpheres();
             _follow = false;
