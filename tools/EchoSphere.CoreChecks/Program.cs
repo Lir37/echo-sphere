@@ -211,6 +211,8 @@ internal static class Program
         Equal(SphereEvolutionCombatRules.GetShotgunHailShardCount(7, "shotgun_hail_final_2"), 8, "Dense Hail shard count");
         Near(SphereEvolutionCombatRules.GetShotgunHailShardDamageMultiplier("shotgun_hail_final_2"), 0.22f, 0f, "Dense Hail shard damage");
         Near(SphereEvolutionCombatRules.GetShotgunBurstDamageMultiplier(4, null, 1.4f), 1.08f, 0.00001f, "Burst base branch damage");
+        Near(SphereEvolutionCombatRules.GetShotgunBurstDamageMultiplier(5, null, 1.6f), 1.08f * 1.15f, 0.00001f, "Burst level V strengthens widened close range");
+        Near(SphereEvolutionCombatRules.GetShotgunBurstDamageMultiplier(6, null, 1.9f), 1.08f * 1.25f, 0.00001f, "Burst level VI further strengthens widened close range");
         Near(SphereEvolutionCombatRules.GetShotgunBurstDamageMultiplier(4, "shotgun_burst_final_1", 1.4f), 1.08f * 1.20f * 1.30f, 0.00001f, "Close Burst damage and branch bonuses");
         Near(SphereEvolutionCombatRules.GetShotgunBurstDamageMultiplier(4, "shotgun_burst_final_2", 1.7f), 1.08f * 1.50f, 0.00001f, "Siege Burst extended close range");
         Near(SphereEvolutionCombatRules.GetShotgunBurstDamageMultiplier(4, "shotgun_burst_final_3", 2.0f), 1.08f, 0.00001f, "Impact Burst bonus is gated by range");

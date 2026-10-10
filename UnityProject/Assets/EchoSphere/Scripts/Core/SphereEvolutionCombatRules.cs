@@ -124,9 +124,11 @@ namespace EchoSphere.Core
         {
             var multiplier = 1.08f;
             if (finalId == "shotgun_burst_final_1") multiplier *= 1.20f;
-            if (!string.IsNullOrEmpty(finalId) &&
-                targetDistance <= GetShotgunBurstCloseRangeThreshold(level, finalId))
+            if (targetDistance <= GetShotgunBurstCloseRangeThreshold(level, finalId))
             {
+                if (level >= 6) multiplier *= 1.25f;
+                else if (level >= 5) multiplier *= 1.15f;
+
                 if (finalId == "shotgun_burst_final_1") multiplier *= 1.30f;
                 else if (finalId == "shotgun_burst_final_2") multiplier *= 1.50f;
                 else if (finalId == "shotgun_burst_final_3") multiplier *= 1.22f;

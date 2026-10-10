@@ -893,3 +893,12 @@ END SLICE 9
 
 SLICE 9 CI REVIEW:
 - CI #36 caught a test expectation arithmetic typo: the level-VI Web slow multiplier is 0.70 - ((1.30 - 1.0) * 0.08) = 0.676. Corrected the regression expectation to match the implemented rule.
+
+
+SLICE 9 CI REVIEW / RULE ALIGNMENT:
+- CI #36 and #37 exposed a stale Chain Web test expectation (0.684). The
+  implemented level-VI rule evaluates to 0.676; corrected the assertion to
+  match the explicit rule formula rather than changing runtime behavior.
+- Shotgun Burst level-V/VI close-range strengthening is now applied even before
+  a final variant is selected: level V uses a 1.15x branch close-range factor,
+  level VI/VII uses 1.25x, with the widened range gates preserved.
