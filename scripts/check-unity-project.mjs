@@ -110,7 +110,7 @@ for (const pocket of [
 ]) assert.ok(regionVisuals.includes(pocket), `canonical source region pocket missing: ${pocket}`);
 assert.ok(regionVisuals.includes('CircleSegments = 96') && regionVisuals.includes('SeamSegments = 10'), 'Region Field ring/seam geometry resolution regressed');
 assert.ok(regionVisuals.includes('pocket.Seams.Add') && regionVisuals.includes('pocket.Markers.Add'), 'Region Field fold seams and boundary markers are required');
-assert.ok(!/\\b_rng\\b|UnityEngine\\.Random|Random\\.Range/.test(regionVisuals), 'presentation-only region visuals must not consume gameplay RNG');
+assert.ok(!/\b_rng\b|UnityEngine\.Random|Random\.Range/.test(regionVisuals), 'presentation-only region visuals must not consume gameplay RNG');
 
 const runtimeArt = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs'), 'utf8');
 assert.ok(runtimeArt.includes('LoadAuthored("character-spherist-3q")'), 'the active player must use the source Spherist character, not the Core glyph');
