@@ -26,6 +26,9 @@ namespace EchoSphere.Runtime
         private Vec2 _lastDirection = Vec2.Zero;
         private int _kills, _level = 1, _xp, _xpRequired = RunBalanceRules.GetXpToNextLevel(1);
         private bool _follow, _paused, _levelUp, _gameOver, _userPaused;
+        private bool _mainMenu = true;
+        private Texture2D _uiPanelTexture, _uiButtonTexture, _uiButtonHoverTexture, _uiButtonActiveTexture, _uiAccentTexture;
+        private GUIStyle _menuTitle;
         private float _damageMultiplier = 1f, _attackSpeedMultiplier = 1f;
         private float _resonanceCharge, _resonanceRingTimer, _resonanceRingPulseTimer;
         private int _resonanceEventsTriggered, _resonanceRingCursor, _resonanceLineBurst;
@@ -67,7 +70,7 @@ namespace EchoSphere.Runtime
             PruneDestroyed();
             if (Input.GetKeyDown(KeyCode.Escape) && !_gameOver && !_levelUp && !_choosingEvolution)
                 SetUserPaused(!_userPaused);
-            if (_paused || _playerCore == null) return;
+            if (_mainMenu || _paused || _playerCore == null) return;
             var dt = Time.deltaTime;
             _runTime += dt;
             _playerCore.Tick(dt);
@@ -146,14 +149,30 @@ namespace EchoSphere.Runtime
 
         private void CreateStarfield()
         {
-            for (var i = 0; i < 52; i++)
+            // Presentation-only coordinates are deterministic and never consume the run RNG.
+            for (var i = 0; i < 4; i++)
+            {
+                var nebula = new GameObject("Nebula Haze");
+                nebula.transform.position = new Vector3((i % 2 == 0 ? -1f : 1f) * (3.4f + i * 0.7f), (i < 2 ? 1f : -1f) * (2.6f + i * 0.4f), 3f);
+                nebula.transform.localScale = Vector3.one * (5.8f + (i % 2) * 1.4f);
+                var haze = nebula.AddComponent<SpriteRenderer>();
+                haze.sprite = RuntimeSpriteFactory.Disc;
+                haze.color = i % 2 == 0 ? new Color(0.08f, 0.34f, 0.78f, 0.055f) : new Color(0.31f, 0.12f, 0.72f, 0.045f);
+                haze.sortingOrder = -30;
+            }
+
+            for (var i = 0; i < 104; i++)
             {
                 var go = new GameObject("Background Star");
-                go.transform.position = new Vector3(_rng.NextFloat() * 26f - 13f, _rng.NextFloat() * 26f - 13f, 2f);
-                go.transform.localScale = Vector3.one * (0.025f + _rng.NextFloat() * 0.045f);
+                var x = Mathf.Repeat(i * 0.7548777f, 1f) * 27f - 13.5f;
+                var y = Mathf.Repeat(i * 0.5698403f + 0.173f, 1f) * 27f - 13.5f;
+                go.transform.position = new Vector3(x, y, 2f);
+                var size = 0.018f + Mathf.Repeat(i * 0.381966f, 1f) * 0.047f;
+                go.transform.localScale = Vector3.one * size;
                 var sr = go.AddComponent<SpriteRenderer>();
                 sr.sprite = RuntimeSpriteFactory.Disc;
-                sr.color = new Color(0.31f, 0.65f, 1f, 0.28f);
+                var alpha = 0.12f + Mathf.Repeat(i * 0.217f, 1f) * 0.28f;
+                sr.color = i % 9 == 0 ? new Color(0.45f, 0.86f, 1f, alpha) : new Color(0.31f, 0.65f, 1f, alpha);
                 sr.sortingOrder = -20;
             }
         }
@@ -322,13 +341,21 @@ namespace EchoSphere.Runtime
             shellRenderer.sprite = RuntimeSpriteFactory.Ring;
             shellRenderer.color = tint;
             shellRenderer.sortingOrder = order;
+            var innerFrame = new GameObject("Inner Frame");
+            innerFrame.transform.SetParent(root.transform, false);
+            innerFrame.transform.localScale = Vector3.one * 0.66f;
+            var frameRenderer = innerFrame.AddComponent<SpriteRenderer>();
+            frameRenderer.sprite = RuntimeSpriteFactory.Ring;
+            frameRenderer.color = new Color(tint.r * 0.68f, tint.g * 0.78f, tint.b, 0.9f);
+            frameRenderer.sortingOrder = order + 1;
+
             var core = new GameObject("Core Light");
             core.transform.SetParent(root.transform, false);
             core.transform.localScale = Vector3.one * 0.30f;
             var coreRenderer = core.AddComponent<SpriteRenderer>();
             coreRenderer.sprite = RuntimeSpriteFactory.Disc;
             coreRenderer.color = coreTint;
-            coreRenderer.sortingOrder = order + 1;
+            coreRenderer.sortingOrder = order + 2;
             return root;
         }
 
@@ -1298,16 +1325,92 @@ namespace EchoSphere.Runtime
         private void OnDestroy()
         {
             if (_networkLineMaterial != null) Destroy(_networkLineMaterial);
+            if (_uiPanelTexture != null) Destroy(_uiPanelTexture);
+            if (_uiButtonTexture != null) Destroy(_uiButtonTexture);
+            if (_uiButtonHoverTexture != null) Destroy(_uiButtonHoverTexture);
+            if (_uiButtonActiveTexture != null) Destroy(_uiButtonActiveTexture);
+            if (_uiAccentTexture != null) Destroy(_uiAccentTexture);
+        }
+
+        private static Texture2D CreateUiTexture(Color color)
+        {
+            var texture = new Texture2D(1, 1, TextureFormat.RGBA32, false)
+            {
+                name = "EchoSphere UI Surface",
+                hideFlags = HideFlags.DontSave,
+                filterMode = FilterMode.Point,
+                wrapMode = TextureWrapMode.Clamp
+            };
+            texture.SetPixel(0, 0, color);
+            texture.Apply(false, true);
+            return texture;
+        }
+
+        private void DrawMainMenu()
+        {
+            var previousColor = GUI.color;
+            GUI.color = new Color(0.008f, 0.018f, 0.055f, 0.98f);
+            GUI.DrawTexture(new Rect(0f, 0f, Screen.width, Screen.height), _uiPanelTexture);
+            GUI.color = new Color(0.08f, 0.54f, 0.94f, 0.7f);
+            GUI.DrawTexture(new Rect(0f, 0f, Screen.width, 3f), _uiAccentTexture);
+            GUI.DrawTexture(new Rect(0f, Screen.height - 3f, Screen.width, 3f), _uiAccentTexture);
+            GUI.color = previousColor;
+
+            var width = Mathf.Min(620f, Screen.width - 32f);
+            var height = Mathf.Min(480f, Screen.height - 28f);
+            var panel = new Rect((Screen.width - width) * 0.5f, (Screen.height - height) * 0.5f, width, height);
+            GUI.Box(panel, GUIContent.none, _box);
+            GUI.color = new Color(0.1f, 0.68f, 1f, 0.9f);
+            GUI.DrawTexture(new Rect(panel.x + 28f, panel.y + 24f, panel.width - 56f, 2f), _uiAccentTexture);
+            GUI.color = previousColor;
+
+            var logoSize = Mathf.Min(104f, height * 0.23f);
+            DrawSpriteIcon(new Rect(panel.center.x - logoSize * 0.5f, panel.y + 42f, logoSize, logoSize), RuntimeSpriteFactory.Faceted, new Color(0.28f, 0.91f, 1f));
+            DrawSpriteIcon(new Rect(panel.center.x - logoSize * 0.64f, panel.y + 36f, logoSize * 1.28f, logoSize * 1.28f), RuntimeSpriteFactory.Ring, new Color(0.22f, 0.67f, 1f, 0.8f));
+            GUI.Label(new Rect(panel.x + 24f, panel.y + 152f, panel.width - 48f, 48f), "ECHO SPHERE", _menuTitle);
+            GUI.Label(new Rect(panel.x + 24f, panel.y + 198f, panel.width - 48f, 25f), "RESONANCE SURVIVAL PROTOCOL", _label);
+            GUI.Label(new Rect(panel.x + 38f, panel.y + 235f, panel.width - 76f, 44f), "Keep the Core alive. Build your Sphere network. Bend the battlefield.", _label);
+            var buttonWidth = Mathf.Min(330f, panel.width - 60f);
+            var button = new Rect(panel.center.x - buttonWidth * 0.5f, panel.y + height - 148f, buttonWidth, 54f);
+            if (GUI.Button(button, "ENTER THE SPHERE", _button))
+            {
+                _mainMenu = false;
+                _paused = false;
+                _messageTimer = 0f;
+            }
+            GUI.Label(new Rect(panel.x + 24f, button.y + 65f, panel.width - 48f, 38f), "MOVE / drag left side     •     DASH / evade     •     NETWORK / stay connected", _label);
+            GUI.color = new Color(0.33f, 0.76f, 1f, 0.6f);
+            GUI.DrawTexture(new Rect(panel.x + 28f, panel.y + height - 24f, panel.width - 56f, 1f), _uiAccentTexture);
+            GUI.color = previousColor;
         }
 
         private void OnGUI()
         {
             if (_box == null)
             {
+                _uiPanelTexture = CreateUiTexture(new Color(0.012f, 0.032f, 0.082f, 0.96f));
+                _uiButtonTexture = CreateUiTexture(new Color(0.025f, 0.12f, 0.23f, 0.98f));
+                _uiButtonHoverTexture = CreateUiTexture(new Color(0.04f, 0.24f, 0.39f, 1f));
+                _uiButtonActiveTexture = CreateUiTexture(new Color(0.04f, 0.38f, 0.55f, 1f));
+                _uiAccentTexture = CreateUiTexture(Color.white);
                 _box = new GUIStyle(GUI.skin.box) { alignment = TextAnchor.UpperLeft, fontSize = 15, padding = new RectOffset(14, 14, 10, 10) };
-                _label = new GUIStyle(GUI.skin.label) { fontSize = 15, normal = { textColor = new Color(0.82f, 0.92f, 1f) } };
-                _button = new GUIStyle(GUI.skin.button) { fontSize = 14, wordWrap = true };
+                _box.normal.background = _uiPanelTexture;
+                _box.border = new RectOffset(5, 5, 5, 5);
+                _label = new GUIStyle(GUI.skin.label) { fontSize = 15, normal = { textColor = new Color(0.72f, 0.88f, 1f) } };
+                _button = new GUIStyle(GUI.skin.button) { fontSize = 14, wordWrap = true, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter };
+                _button.normal.background = _uiButtonTexture;
+                _button.hover.background = _uiButtonHoverTexture;
+                _button.active.background = _uiButtonActiveTexture;
+                _button.normal.textColor = new Color(0.86f, 0.97f, 1f);
+                _button.hover.textColor = Color.white;
+                _button.active.textColor = Color.white;
                 _title = new GUIStyle(GUI.skin.label) { fontSize = 19, fontStyle = FontStyle.Bold, normal = { textColor = Color.white } };
+                _menuTitle = new GUIStyle(_title) { fontSize = Mathf.Clamp(Screen.width / 23, 30, 44), alignment = TextAnchor.MiddleCenter };
+            }
+            if (_mainMenu)
+            {
+                DrawMainMenu();
+                return;
             }
             var hp = _playerCore == null ? 0f : _playerCore.CurrentHp;
             var maxHp = _playerCore == null ? 100f : _playerCore.MaxHp;
