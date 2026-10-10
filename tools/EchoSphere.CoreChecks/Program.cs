@@ -26,6 +26,7 @@ internal static class Program
             CheckOrbitalEvolutionCombatRules();
             CheckPrismEvolutionCombatRules();
             CheckPulseVoidEvolutionCombatRules();
+            CheckSphereNetworkRules();
             Console.WriteLine($"ECHO SPHERE Unity core contracts: PASS ({_assertions} assertions)");
             return 0;
         }
@@ -325,6 +326,48 @@ internal static class Program
         Near(SphereEvolutionCombatRules.GetOrbitalResonanceBonus(6, null), 0.25f, 0f, "Halo level VI charge bonus");
         True(SphereEvolutionCombatRules.ShouldOrbitalGrantShieldCharge(3), "Halo Guard shield cadence");
         True(!SphereEvolutionCombatRules.ShouldOrbitalGrantShieldCharge(2), "Halo Guard avoids charge on every pass");
+    }
+
+    private static void CheckSphereNetworkRules()
+    {
+        var lineNodes = new[]
+        {
+            new SphereNetworkNode(new Vec2(0f, 0f)),
+            new SphereNetworkNode(new Vec2(1f, 0f)),
+            new SphereNetworkNode(new Vec2(2f, 0f))
+        };
+        var line = SphereNetworkRules.Analyze(lineNodes);
+        True(line.Links.Count == 3, "Network links include every pair within 2.2 units");
+        True(line.GetFormation(SphereNetworkFormation.Line) != null, "collinear Spheres form a Line");
+        Equal(SphereNetworkRules.GetLinkedNodeIndexes(line, 1).Count, 2, "linked-neighbour lookup");
+        True(SphereNetworkRules.AreNodesLinked(line, 0, 2), "link query is symmetric");
+
+        var squareNodes = new[]
+        {
+            new SphereNetworkNode(new Vec2(0f, 0f)),
+            new SphereNetworkNode(new Vec2(1f, 0f)),
+            new SphereNetworkNode(new Vec2(1f, 1f)),
+            new SphereNetworkNode(new Vec2(0f, 1f))
+        };
+        var square = SphereNetworkRules.Analyze(squareNodes);
+        True(square.GetFormation(SphereNetworkFormation.Square) != null, "four balanced nodes form a Square");
+        True(square.GetFormation(SphereNetworkFormation.Ring) != null, "closed loop forms a Ring");
+        True(square.GetFormation(SphereNetworkFormation.Lattice) != null, "overlapping linked triangles form a Lattice");
+        True(square.GetFormation(SphereNetworkFormation.Fractal) != null, "overlapping geometries form a Fractal");
+        True(square.DominantFormation != null, "geometry dominance selected");
+        Near(SphereNetworkRules.GetFormationBonusMultiplier(square, square.DominantFormation.Type, 0), 1f, 0f, "dominant formation full bonus");
+        True(SphereNetworkRules.GetLinkedNodeIndexes(square, 0).Count == 3, "square graph retains both sides and diagonal");
+
+        var disruptedNodes = new[]
+        {
+            new SphereNetworkNode(new Vec2(0f, 0f)),
+            new SphereNetworkNode(new Vec2(1f, 0f)),
+            new SphereNetworkNode(new Vec2(2f, 0f), true, 0.5f)
+        };
+        var disrupted = SphereNetworkRules.Analyze(disruptedNodes);
+        Equal(disrupted.Nodes.Count, 2, "disabled node leaves active Network");
+        Equal(disrupted.Links.Count, 1, "disabled node contributes no links");
+        Near(SphereNetworkRules.GetFormationBonusMultiplier(disrupted, SphereNetworkFormation.Line), 0f, 0f, "inactive geometry grants no bonus");
     }
 
     private static void CheckCatalogAndRewardedContracts()

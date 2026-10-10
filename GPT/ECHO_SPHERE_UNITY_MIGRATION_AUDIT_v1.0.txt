@@ -1061,3 +1061,39 @@ VALIDATION:
 ======================================================================
 END SLICE 15
 ======================================================================
+
+
+======================================================================
+2026-10-10 — UNITY GAMEPLAY PORT SLICE 15: NETWORK LINKS / GEOMETRY ANALYSIS
+======================================================================
+
+BASE HEAD:
+53ea221c5db4c1601e38a0a236e4a5c4a2bd5a96
+
+IMPLEMENTED:
+- Added a pure C# Network graph using the source's 2.2-world-unit link
+  distance (220 logical pixels at 100 px per Unity unit).
+- Ported active-node filtering, physical links, Line/Triangle/Square/Cluster/
+  Ring/Lattice/Fractal strength calculations, dominance ranking, previous
+  dominant-formation inertia, and automatic secondary-geometry selection.
+- Added link-neighbour queries and formation bonus lookup so combat branches
+  can consume real topology in later slices.
+- Runtime refreshes the graph at 0.12-second intervals and draws persistent
+  world-space links. Dominant links are gold, secondary links violet, and
+  other active links cyan.
+- Added a Geometry label to the HUD, pure C# regression checks and CI guards.
+
+LIMITS:
+- Explicit player-selected dominant/secondary geometry and temporary disabled
+  node memory are not yet wired to the UI; the current selector is automatic.
+- Runtime link refresh is sampled at 0.12 seconds, so moving formations may
+  show short visual lag.
+- Geometry detection is a direct C# port of the current source thresholds;
+  shape dominance and mobile readability still need Play Mode acceptance.
+- Resonance event routing, Ghost Snap placement preview, Network disruption
+  elites, and final authored link effects remain open.
+- CI does not compile UnityEngine code or build an Android APK.
+
+======================================================================
+END SLICE 15
+======================================================================

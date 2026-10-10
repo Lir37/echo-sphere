@@ -11,6 +11,7 @@ const required = [
   'Assets/EchoSphere/Scripts/Core/SeededRng.cs',
   'Assets/EchoSphere/Scripts/Core/CombatRules.cs',
   'Assets/EchoSphere/Scripts/Core/FormationFollowRules.cs',
+  'Assets/EchoSphere/Scripts/Core/SphereNetworkRules.cs',
   'Assets/EchoSphere/Scripts/Core/GameCatalog.cs',
   'Assets/EchoSphere/Scripts/Core/RewardedAdsRules.cs',
   'Assets/EchoSphere/Scripts/Core/SphereEvolutionCombatRules.cs',
@@ -65,6 +66,10 @@ assert.ok(runtime.includes('DrawSphereRoster'), 'active Sphere roster HUD is mis
 assert.ok(runtime.includes('DrawSpriteIcon'), 'Sphere choice UI must render visual icons');
 assert.ok(runtime.includes('ApplySphereVisual'), 'Sphere archetypes must use distinct visual silhouettes');
 assert.ok(runtime.includes('SetUserPaused'), 'pause/resume state handling is missing');
+const networkRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/SphereNetworkRules.cs'), 'utf8');
+assert.ok(networkRules.includes('Analyze') && networkRules.includes('FindFractal') && networkRules.includes('GetFormationBonusMultiplier'), 'Network/Geometry analysis contract is missing');
+assert.ok(runtime.includes('RefreshNetworkState') && runtime.includes('UpdateNetworkLinkVisuals') && runtime.includes('GEOMETRY '), 'live Network links and Geometry HUD are missing');
+
 assert.ok(runtime.includes('RUN PAUSED') && runtime.includes('RESTART RUN'), 'pause overlay controls are missing');
 assert.ok(spriteFactory.includes('CreatePolygonSprite'), 'procedural faceted silhouette generation is missing');
 assert.ok(spriteFactory.includes('ES_Diamond') && spriteFactory.includes('ES_Prism') && spriteFactory.includes('ES_Shard'), 'distinct archetype silhouettes are missing');

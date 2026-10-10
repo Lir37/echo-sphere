@@ -29,6 +29,11 @@ namespace EchoSphere.Runtime
         private float _damageMultiplier = 1f, _attackSpeedMultiplier = 1f;
         private string _message = "Drag on the left half to move. Tap DASH to evade.";
         private GUIStyle _box, _label, _button, _title;
+        private readonly List<LineRenderer> _networkLinkRenderers = new List<LineRenderer>();
+        private Material _networkLineMaterial;
+        private SphereNetworkState _networkState;
+        private SphereNetworkFormation _previousDominantFormation = SphereNetworkFormation.None;
+        private float _networkRefreshTimer;
 
         public bool IsGameplayPaused => _paused;
         public float SphereDamageMultiplier => _damageMultiplier;
@@ -68,6 +73,12 @@ namespace EchoSphere.Runtime
             else { _formationStrain = 0f; _lastDirection = Vec2.Zero; }
 
             _player.position += (Vector3)(_playerCore.GetVelocity(input, 3.6f, followMultiplier) * dt);
+            _networkRefreshTimer -= dt;
+            if (_networkRefreshTimer <= 0f)
+            {
+                RefreshNetworkState();
+                _networkRefreshTimer = 0.12f;
+            }
             var cameraTarget = new Vector3(_player.position.x, _player.position.y, -10f);
             _camera.transform.position = Vector3.Lerp(_camera.transform.position, cameraTarget, 1f - Mathf.Exp(-5f * dt));
             _spawnTimer -= dt;
@@ -861,6 +872,106 @@ namespace EchoSphere.Runtime
             ShowMessage(paused ? "Run paused." : "Run resumed.");
         }
 
+        public SphereNetworkState NetworkState => _networkState;
+
+        public bool AreNetworkSpheresLinked(int a, int b) => SphereNetworkRules.AreNodesLinked(_networkState, a, b);
+
+        public List<SphereAttackAgent> GetLinkedSpheres(int sphereIndex)
+        {
+            var result = new List<SphereAttackAgent>();
+            var linked = SphereNetworkRules.GetLinkedNodeIndexes(_networkState, sphereIndex);
+            for (var i = 0; i < linked.Count; i++)
+                if (linked[i] >= 0 && linked[i] < _spheres.Count && _spheres[linked[i]] != null)
+                    result.Add(_spheres[linked[i]]);
+            return result;
+        }
+
+        public float GetFormationBonus(SphereNetworkFormation type, int sphereIndex = -1) =>
+            SphereNetworkRules.GetFormationBonusMultiplier(_networkState, type, sphereIndex);
+
+        private void RefreshNetworkState()
+        {
+            var nodes = new List<SphereNetworkNode>(_spheres.Count);
+            for (var i = 0; i < _spheres.Count; i++)
+            {
+                var sphere = _spheres[i];
+                if (sphere == null || !sphere.gameObject.activeInHierarchy)
+                {
+                    nodes.Add(new SphereNetworkNode(Vec2.Zero, false));
+                    continue;
+                }
+                var position = (Vector2)sphere.transform.position;
+                nodes.Add(new SphereNetworkNode(new Vec2(position.x, position.y), true));
+            }
+
+            _networkState = SphereNetworkRules.Analyze(nodes, SphereNetworkRules.DefaultLinkDistance, _previousDominantFormation);
+            if (_networkState.DominantFormation != null)
+                _previousDominantFormation = _networkState.DominantFormation.Type;
+            UpdateNetworkLinkVisuals();
+        }
+
+        private void UpdateNetworkLinkVisuals()
+        {
+            if (_networkState == null) return;
+            if (_networkLineMaterial == null)
+            {
+                var shader = Shader.Find("Sprites/Default");
+                if (shader != null) _networkLineMaterial = new Material(shader);
+            }
+
+            while (_networkLinkRenderers.Count < _networkState.Links.Count)
+            {
+                var go = new GameObject("Sphere Network Link");
+                go.transform.SetParent(transform, false);
+                var line = go.AddComponent<LineRenderer>();
+                line.useWorldSpace = true;
+                line.positionCount = 2;
+                line.startWidth = 0.022f;
+                line.endWidth = 0.022f;
+                line.numCapVertices = 2;
+                line.sortingOrder = 5;
+                if (_networkLineMaterial != null) line.sharedMaterial = _networkLineMaterial;
+                _networkLinkRenderers.Add(line);
+            }
+
+            for (var i = 0; i < _networkLinkRenderers.Count; i++)
+            {
+                var line = _networkLinkRenderers[i];
+                if (i >= _networkState.Links.Count)
+                {
+                    line.enabled = false;
+                    continue;
+                }
+
+                var link = _networkState.Links[i];
+                if (link.A < 0 || link.B < 0 || link.A >= _spheres.Count || link.B >= _spheres.Count ||
+                    _spheres[link.A] == null || _spheres[link.B] == null)
+                {
+                    line.enabled = false;
+                    continue;
+                }
+
+                line.enabled = true;
+                line.SetPosition(0, _spheres[link.A].transform.position);
+                line.SetPosition(1, _spheres[link.B].transform.position);
+                var color = new Color(0.20f, 0.72f, 0.88f, 0.40f);
+                if (IsFormationLink(_networkState.DominantFormation, link.A, link.B))
+                    color = new Color(1f, 0.77f, 0.34f, 0.82f);
+                else if (IsFormationLink(_networkState.SecondaryFormation, link.A, link.B))
+                    color = new Color(0.63f, 0.52f, 1f, 0.70f);
+                line.startColor = color;
+                line.endColor = color;
+            }
+        }
+
+        private static bool IsFormationLink(SphereNetworkShape shape, int a, int b) =>
+            shape != null && shape.Contains(a) && shape.Contains(b);
+
+        private void OnDestroy()
+        {
+            if (_networkLineMaterial != null) Destroy(_networkLineMaterial);
+        }
+
         private void OnGUI()
         {
             if (_box == null)
@@ -873,6 +984,10 @@ namespace EchoSphere.Runtime
             var hp = _playerCore == null ? 0f : _playerCore.CurrentHp;
             var maxHp = _playerCore == null ? 100f : _playerCore.MaxHp;
             GUI.Box(new Rect(18, 18, 285, 110), GUIContent.none, _box);
+            var geometryLabel = _networkState != null && _networkState.DominantFormation != null
+                ? "GEOMETRY " + _networkState.DominantFormation.Type.ToString().ToUpperInvariant()
+                : "NETWORK DISCONNECTED";
+            GUI.Label(new Rect(32, 103, 260, 20), geometryLabel, _label);
             GUI.Label(new Rect(32, 26, 255, 28), "ECHO SPHERE / UNITY SLICE", _title);
             GUI.Label(new Rect(32, 57, 250, 22), $"CORE {Mathf.CeilToInt(hp)} / {Mathf.CeilToInt(maxHp)}", _label);
             GUI.Box(new Rect(32, 81, 245, 10), GUIContent.none);
