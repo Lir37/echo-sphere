@@ -105,6 +105,8 @@ assert.ok(creatureVisual.includes('src/enemies/enemyVisual.ts') && creatureVisua
 for (const variant of ['wisp', 'leech', 'serpent', 'skitter', 'moth', 'beetle', 'brute', 'prism', 'stalker', 'linkbreaker']) assert.ok(creatureVisual.includes('case "' + variant + '"'), 'source creature variant missing: ' + variant);
 for (const boss of ['shooter', 'charger', 'summoner']) assert.ok(creatureVisual.includes('case "' + boss + '"'), 'source boss silhouette missing: ' + boss);
 assert.ok(creatureVisual.includes('Mesh') && creatureVisual.includes('Legs(') && creatureVisual.includes('Gradient('), 'creatures require mesh paths, gait and layered glow');
+assert.ok(creatureVisual.includes('PathScratch') && creatureVisual.includes('_shapeScratch') && creatureVisual.includes('MarkDynamic'), 'animated creature mesh must reuse path/shape buffers');
+assert.equal((creatureVisual.match(/new List<Vector2>/g) || []).length, 2, 'per-frame creature rendering must keep exactly two reusable vector buffers');
 assert.ok(!/UnityEngine\\.Random|Random\\.Range|_rng/.test(creatureVisual), 'presentation animation must not consume run RNG');
 
 const regionVisualsPath = 'Assets/EchoSphere/Scripts/Runtime/RegionFieldVisuals.cs';

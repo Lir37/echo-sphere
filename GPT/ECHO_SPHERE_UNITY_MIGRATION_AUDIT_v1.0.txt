@@ -1762,3 +1762,12 @@ compile and cannot confirm material/shader resolution or device visual parity.
 Unity 6.3 Editor compilation, mesh winding/scale inspection, GPU performance
 profiling and APK/device acceptance remain open gates. Full eight-boss gameplay
 and the other per-Sphere Canvas combat VFX modules remain future slices.
+
+
+[2026-10-11] ENEMY VISUAL HOT-PATH REVIEW
+- Follow-up to Slice 4: replaced per-frame Canvas-path List allocations with a shared
+  scratch path, a painter-owned reusable shape buffer, cached leg-anchor arrays and
+  reusable radial-gradient ring indices. The dynamic mesh itself remains cached and
+  marked dynamic. This avoids the obvious managed-allocation pattern during animation.
+- Added a CI assertion protecting the reusable buffers. Real device profiling is still
+  required before claiming a frame-time or garbage-collection budget has been met.

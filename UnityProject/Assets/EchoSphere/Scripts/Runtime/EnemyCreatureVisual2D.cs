@@ -12,6 +12,21 @@ namespace EchoSphere.Runtime
         private const float R = 0.48f;
         private static readonly Color Dark = new Color(0.012f, 0.027f, 0.047f, 0.985f);
         private static readonly Color EyeWhite = new Color(0.96f, 0.985f, 1f, 0.94f);
+        // Reused scratch paths and immutable anchors avoid per-frame path/list allocations.
+        private static readonly List<Vector2> PathScratch = new List<Vector2>(96);
+        private static readonly float[] LegWisp = { -.28f, .20f };
+        private static readonly float[] LegLeech = { -.36f, -.02f };
+        private static readonly float[] LegSkitter = { -.40f, -.04f, .32f };
+        private static readonly float[] LegMoth = { -.16f, .10f };
+        private static readonly float[] LegBeetle = { -.34f, .12f };
+        private static readonly float[] LegBrute = { -.45f, -.12f, .20f, .48f };
+        private static readonly float[] LegPrism = { -.34f, .10f };
+        private static readonly float[] LegStalker = { -.22f, .16f };
+        private static readonly float[] LegLinkbreaker = { -.36f, -.12f, .12f, .36f };
+        private static readonly float[] LegBossShooter = { -.30f, .18f };
+        private static readonly float[] LegBossCharger = { -.34f, .20f };
+        private static readonly float[] LegBossSummoner = { -.34f, .18f };
+        private static readonly float[] LegBossAura = { -.28f, .10f };
         private static Material _sharedMaterial;
         private EchoSphereRuntime _runtime;
         private Transform _visualRoot;
@@ -118,7 +133,7 @@ namespace EchoSphere.Runtime
                     Body(p, Vector2.zero, r, c, Mathf.Sin(t * 2.4f) * .04f, .82f);
                     Wing(p, new Vector2(-r * .18f, -r * .38f), r * .82f, r * .34f, -1.15f, c, t * 5f);
                     Wing(p, new Vector2(-r * .18f, r * .38f), r * .82f, r * .34f, 1.15f, c, t * 5f);
-                    Legs(p, r, new[] { -.28f, .20f }, .30f, .58f, t * 3f, c, .60f);
+                    Legs(p, r, LegWisp, .30f, .58f, t * 3f, c, .60f);
                     Eye(p, new Vector2(r * .30f, -r * .12f), r * .13f, c);
                     Core(p, new Vector2(-r * .16f, r * .10f), r * .09f, c);
                     break;
@@ -134,7 +149,7 @@ namespace EchoSphere.Runtime
                     Body(p, lh, r * .34f, c, .05f, .66f);
                     Eye(p, lh + new Vector2(r * .14f, -r * .10f), r * .09f, c);
                     Eye(p, lh + new Vector2(r * .14f, r * .10f), r * .09f, c);
-                    Legs(p, r, new[] { -.36f, -.02f }, .20f, .30f, t * 4f, c, .34f);
+                    Legs(p, r, LegLeech, .20f, .30f, t * 4f, c, .34f);
                     break;
                 case "serpent": // Fanged Coil
                     for (var i = 0; i < 8; i++)
@@ -150,11 +165,13 @@ namespace EchoSphere.Runtime
                     Body(p, sh, r * .36f, c, -.06f, .62f);
                     Eye(p, sh + new Vector2(r * .14f, -r * .10f), r * .09f, c);
                     Eye(p, sh + new Vector2(r * .14f, r * .10f), r * .09f, c);
-                    p.Polygon(new List<Vector2> { sh + new Vector2(r * .12f, 0f), sh + new Vector2(r * .34f, r * .05f), sh + new Vector2(r * .12f, r * .10f) }, Dark, c, .008f);
+                    var fang = PathScratch; fang.Clear();
+                    fang.Add(sh + new Vector2(r * .12f, 0f)); fang.Add(sh + new Vector2(r * .34f, r * .05f)); fang.Add(sh + new Vector2(r * .12f, r * .10f));
+                    p.Polygon(fang, Dark, c, .008f);
                     break;
                 case "skitter": // Carrion Skitter
                     Body(p, Vector2.zero, r, c, Mathf.Sin(t * 4f) * .05f, .58f);
-                    Legs(p, r, new[] { -.40f, -.04f, .32f }, .22f, .58f, t * 7f, c, .62f);
+                    Legs(p, r, LegSkitter, .22f, .58f, t * 7f, c, .62f);
                     var kh = new Vector2(r * .45f, 0f);
                     Body(p, kh, r * .34f, c, -.05f, .70f);
                     Eye(p, kh + new Vector2(0f, -r * .10f), r * .075f, c);
@@ -164,32 +181,34 @@ namespace EchoSphere.Runtime
                     Wing(p, new Vector2(-r * .08f, -r * .40f), r * .92f, r * .62f, -2.72f, c, t * 8f);
                     Wing(p, new Vector2(-r * .08f, r * .40f), r * .92f, r * .62f, 2.72f, c, t * 8f);
                     Body(p, Vector2.zero, r * .72f, c, 0f, 1.125f);
-                    Legs(p, r, new[] { -.16f, .10f }, .28f, .48f, t * 8f, c, .36f);
+                    Legs(p, r, LegMoth, .28f, .48f, t * 8f, c, .36f);
                     Eye(p, new Vector2(-r * .07f, -r * .26f), r * .09f, c);
                     Eye(p, new Vector2(r * .07f, -r * .26f), r * .09f, c);
                     break;
                 case "beetle": // Rift Scarab
                     Body(p, Vector2.zero, r, c, Mathf.Sin(t * 1.6f) * .03f, .68f);
                     for (var i = -1; i <= 1; i++) p.Stroke(new Vector2(-r * .52f, i * r * .12f), new Vector2(r * .50f, i * r * .08f), new Color(.92f, .976f, 1f, .28f), Mathf.Max(.006f, r * .025f));
-                    Legs(p, r, new[] { -.34f, .12f }, .24f, .55f, t * 3f, c, .55f);
+                    Legs(p, r, LegBeetle, .24f, .55f, t * 3f, c, .55f);
                     Eye(p, new Vector2(r * .48f, -r * .10f), r * .07f, c);
                     Eye(p, new Vector2(r * .48f, r * .10f), r * .07f, c);
                     Core(p, new Vector2(-r * .22f, 0f), r * .08f, c);
                     break;
                 case "brute": // Boneback Brute
                     Body(p, Vector2.zero, r * 1.05f, c, Mathf.Sin(t * 1.7f) * .025f, .88f);
-                    Legs(p, r, new[] { -.45f, -.12f, .20f, .48f }, .30f, .72f, t * 6f, c, .78f);
+                    Legs(p, r, LegBrute, .30f, .72f, t * 6f, c, .78f);
                     for (var i = 0; i < 3; i++)
                     {
                         var x = -r * .25f + i * r * .22f;
-                        p.Polygon(new List<Vector2> { new Vector2(x, -r * .40f), new Vector2(x + r * .10f, -r * .70f), new Vector2(x + r * .20f, -r * .40f) }, new Color(.024f, .039f, .063f, .98f), new Color(.90f, .94f, .98f, .46f), .009f);
+                        var horn = PathScratch; horn.Clear();
+                        horn.Add(new Vector2(x, -r * .40f)); horn.Add(new Vector2(x + r * .10f, -r * .70f)); horn.Add(new Vector2(x + r * .20f, -r * .40f));
+                        p.Polygon(horn, new Color(.024f, .039f, .063f, .98f), new Color(.90f, .94f, .98f, .46f), .009f);
                     }
                     Eye(p, new Vector2(r * .36f, -r * .17f), r * .11f, c);
                     Eye(p, new Vector2(r * .36f, r * .17f), r * .11f, c);
                     break;
                 case "prism": // Glass Hound
                     Body(p, Vector2.zero, r * .92f, c, Mathf.Sin(t * 2.5f) * .04f, .62f);
-                    Legs(p, r, new[] { -.34f, .10f }, .30f, .60f, t * 5f, c, .48f);
+                    Legs(p, r, LegPrism, .30f, .60f, t * 5f, c, .48f);
                     var ph = new Vector2(r * .48f, -r * .10f);
                     Body(p, ph, r * .42f, c, -.12f, .62f);
                     Eye(p, ph + new Vector2(r * .13f, -r * .10f), r * .09f, c);
@@ -197,14 +216,14 @@ namespace EchoSphere.Runtime
                     break;
                 case "stalker": // Hollow Stalker
                     Body(p, new Vector2(0f, Mathf.Sin(t * 4f) * r * .06f), r * .72f, c, 0f, 1.25f);
-                    Legs(p, r, new[] { -.22f, .16f }, .24f, .90f, t * 5f, c, .52f);
+                    Legs(p, r, LegStalker, .24f, .90f, t * 5f, c, .52f);
                     Eye(p, new Vector2(r * .10f, -r * .24f), r * .12f, c);
                     Core(p, new Vector2(-r * .12f, r * .20f), r * .075f, c);
                     break;
                 case "linkbreaker":
                 default: // Cable Widow; source dispatcher intentionally falls back here.
                     Body(p, Vector2.zero, r * .92f, c, 0f, .72f);
-                    Legs(p, r, new[] { -.36f, -.12f, .12f, .36f }, .18f, .58f, t * 4f, c, .40f);
+                    Legs(p, r, LegLinkbreaker, .18f, .58f, t * 4f, c, .40f);
                     Eye(p, new Vector2(r * .26f, -r * .10f), r * .085f, new Color(1f, .39f, .50f));
                     Eye(p, new Vector2(r * .26f, r * .10f), r * .085f, new Color(1f, .39f, .50f));
                     Core(p, new Vector2(-r * .20f, 0f), r * .08f, new Color(1f, .39f, .50f));
@@ -214,7 +233,7 @@ namespace EchoSphere.Runtime
 
         private static void DrawBoss(Painter p, float r, Color c, float t, string type)
         {
-            var arc = new List<Vector2>();
+            var arc = PathScratch; arc.Clear();
             for (var i = 0; i <= 48; i++)
             {
                 var a = t * .2f + 4.9f * i / 48f;
@@ -227,7 +246,7 @@ namespace EchoSphere.Runtime
                     Body(p, Vector2.zero, r * 1.12f, c, Mathf.Sin(t * 1.7f) * .025f, .62f);
                     Wing(p, new Vector2(-r * .18f, -r * .48f), r, r * .36f, -1.15f, c, t * 4f);
                     Wing(p, new Vector2(-r * .18f, r * .48f), r, r * .36f, 1.15f, c, t * 4f + .35f);
-                    Legs(p, r, new[] { -.30f, .18f }, .34f, .62f, t * 3f, c, .82f);
+                    Legs(p, r, LegBossShooter, .34f, .62f, t * 3f, c, .82f);
                     var vh = new Vector2(r * .62f, 0f);
                     Body(p, vh, r * .48f, c, 0f, .58f);
                     Eye(p, vh + new Vector2(r * .18f, -r * .12f), r * .14f, c);
@@ -237,7 +256,7 @@ namespace EchoSphere.Runtime
                     break;
                 case "charger": // Dread Charger
                     Body(p, Vector2.zero, r * 1.14f, c, Mathf.Sin(t * 2f) * .025f, .84f);
-                    Legs(p, r, new[] { -.34f, .20f }, .35f, .82f, t * 6f, c, .90f);
+                    Legs(p, r, LegBossCharger, .35f, .82f, t * 6f, c, .90f);
                     var ch = new Vector2(r * .50f, 0f);
                     Body(p, ch, r * .50f, c, 0f, .72f);
                     Eye(p, ch + new Vector2(r * .20f, -r * .14f), r * .15f, c);
@@ -248,7 +267,7 @@ namespace EchoSphere.Runtime
                     break;
                 case "summoner": // Brood Matriarch
                     Body(p, Vector2.zero, r, c, Mathf.Sin(t) * .02f, .96f);
-                    Legs(p, r, new[] { -.34f, .18f }, .38f, 1f, t * 3f, c, .95f);
+                    Legs(p, r, LegBossSummoner, .38f, 1f, t * 3f, c, .95f);
                     var bh = new Vector2(r * .34f, -r * .05f);
                     Body(p, bh, r * .52f, c, -.05f, .76f);
                     Eye(p, bh + new Vector2(r * .20f, -r * .12f), r * .14f, c);
@@ -273,7 +292,7 @@ namespace EchoSphere.Runtime
                     Body(p, ah, r * .58f, c, -.08f, .68f);
                     Eye(p, ah + new Vector2(r * .22f, -r * .16f), r * .15f, c);
                     Eye(p, ah + new Vector2(r * .22f, r * .16f), r * .15f, c);
-                    Legs(p, r, new[] { -.28f, .10f }, .32f, .82f, t * 2f, c, .70f);
+                    Legs(p, r, LegBossAura, .32f, .82f, t * 2f, c, .70f);
                     Tail(p, -r * .90f, 0f, r * 1.16f, c, t, 9, .14f);
                     Core(p, new Vector2(-r * .08f, 0f), r * .12f, c);
                     break;
@@ -282,7 +301,7 @@ namespace EchoSphere.Runtime
 
         private static void Body(Painter p, Vector2 center, float r, Color c, float rot, float sy)
         {
-            var v = new List<Vector2>();
+            var v = PathScratch; v.Clear();
             QuadCurve(v, new Vector2(-r * .72f, 0f), new Vector2(-r * .52f, -r * .62f), new Vector2(0f, -r * .58f), 6);
             QuadCurve(v, v[v.Count - 1], new Vector2(r * .58f, -r * .52f), new Vector2(r * .70f, 0f), 6, true);
             QuadCurve(v, v[v.Count - 1], new Vector2(r * .52f, r * .56f), new Vector2(0f, r * .62f), 6, true);
@@ -294,7 +313,7 @@ namespace EchoSphere.Runtime
         private static void Wing(Painter p, Vector2 at, float len, float w, float angle, Color c, float flap)
         {
             angle += Mathf.Sin(flap) * .14f;
-            var v = new List<Vector2>();
+            var v = PathScratch; v.Clear();
             QuadCurve(v, Vector2.zero, new Vector2(len * .35f, -w * .85f), new Vector2(len, -w * .18f), 6);
             QuadCurve(v, v[v.Count - 1], new Vector2(len * .68f, w * .55f), new Vector2(len * .12f, w * .36f), 6, true);
             for (var i = 0; i < v.Count; i++) v[i] = at + Rotate(v[i], angle);
@@ -343,7 +362,7 @@ namespace EchoSphere.Runtime
         private static void Segment(Painter p, Vector2 from, Vector2 to, float w, Color c, float alpha)
         {
             var d = to - from; var len = d.magnitude; if (len <= .00001f) return;
-            var v = new List<Vector2>();
+            var v = PathScratch; v.Clear();
             QuadCurve(v, new Vector2(0f, -w * .34f), new Vector2(len * .48f, -w * .48f), new Vector2(len, -w * .10f), 5);
             QuadCurve(v, v[v.Count - 1], new Vector2(len * .62f, w * .42f), new Vector2(0f, w * .30f), 5, true);
             var angle = Mathf.Atan2(d.y, d.x);
@@ -388,6 +407,9 @@ namespace EchoSphere.Runtime
             public readonly List<Vector3> Vertices = new List<Vector3>(1400);
             public readonly List<Color> Colors = new List<Color>(1400);
             public readonly List<int> Triangles = new List<int>(3000);
+            private readonly List<Vector2> _shapeScratch = new List<Vector2>(24);
+            private readonly int[] _ringStarts = new int[3];
+            private static readonly float[] GradientRadii = { .30f, .63f, 1f };
             public void Clear() { Vertices.Clear(); Colors.Clear(); Triangles.Clear(); }
 
             private int Vertex(Vector2 p, Color c)
@@ -421,27 +443,27 @@ namespace EchoSphere.Runtime
             }
             public void Circle(Vector2 at, float radius, Color fill, Color outline, float width)
             {
-                var pts = new List<Vector2>(20);
+                var pts = _shapeScratch; pts.Clear();
                 for (var i = 0; i < 20; i++) { var a = i * Mathf.PI * 2f / 20f; pts.Add(at + new Vector2(Mathf.Cos(a), Mathf.Sin(a)) * radius); }
                 Polygon(pts, fill, outline, width);
             }
             public void Ellipse(Vector2 at, float rx, float ry, Color fill, Color outline, float width, float rotation)
             {
-                var pts = new List<Vector2>(20);
+                var pts = _shapeScratch; pts.Clear();
                 for (var i = 0; i < 20; i++) { var a = i * Mathf.PI * 2f / 20f; pts.Add(at + Rotate(new Vector2(Mathf.Cos(a) * rx, Mathf.Sin(a) * ry), rotation)); }
                 Polygon(pts, fill, outline, width);
             }
             public void Gradient(Vector2 at, float radius, Color color, float alpha)
             {
                 const int n = 28;
-                var radii = new[] { .30f, .63f, 1f };
-                var levels = new[] { alpha * 1.6f, alpha * .48f, 0f };
-                var ci = Vertex(at, new Color(color.r, color.g, color.b, Mathf.Clamp01(levels[0])));
-                var starts = new int[radii.Length];
+                var radii = GradientRadii;
+                var starts = _ringStarts;
+                var ci = Vertex(at, new Color(color.r, color.g, color.b, Mathf.Clamp01(alpha * 1.6f)));
                 for (var ring = 0; ring < radii.Length; ring++)
                 {
                     starts[ring] = Vertices.Count;
-                    var tint = new Color(color.r, color.g, color.b, Mathf.Clamp01(levels[ring]));
+                    var level = ring == 0 ? alpha * 1.6f : ring == 1 ? alpha * .48f : 0f;
+                    var tint = new Color(color.r, color.g, color.b, Mathf.Clamp01(level));
                     for (var i = 0; i < n; i++)
                     {
                         var a = i * Mathf.PI * 2f / n;
