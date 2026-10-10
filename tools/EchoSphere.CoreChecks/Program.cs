@@ -16,6 +16,7 @@ internal static class Program
             CheckSphereCombatProfiles();
             CheckSphereProgressionRules();
             CheckSphereEvolutionCatalog();
+            CheckSphereLevelRules();
             Console.WriteLine($"ECHO SPHERE Unity core contracts: PASS ({_assertions} assertions)");
             return 0;
         }
@@ -133,6 +134,37 @@ internal static class Program
         Equal(SphereEvolutionCatalog.GetFinals(branches[0].Id).Count, 3, "each branch has three final variants");
         Equal(SphereEvolutionCatalog.GetFinals("void_execution").Count, 3, "Void execution has three final variants");
         Equal(SphereEvolutionCatalog.GetFinals("unknown").Count, 0, "unknown evolution branch safely returns no choices");
+    }
+
+    private static void CheckSphereLevelRules()
+    {
+        var standard1 = SphereLevelRules.GetStats(SphereId.Standard, 1);
+        Near(standard1.DamageMultiplier, 1.15f, 0.00001f, "Standard I +15% damage");
+        Equal(standard1.Pierce, 0, "Standard I has no extra pierce");
+        var standard2 = SphereLevelRules.GetStats(SphereId.Standard, 2);
+        Equal(standard2.Pierce, 1, "Standard II +1 pierce");
+        Near(SphereLevelRules.GetStats(SphereId.Standard, 3).DelayMultiplier, 0.90f, 0.00001f, "Standard III -10% delay");
+
+        var sniper = SphereLevelRules.GetStats(SphereId.Sniper, 3);
+        Near(sniper.DamageMultiplier, 1.25f, 0.00001f, "Sniper I +25% damage persists");
+        Near(sniper.RangeMultiplier, 1.15f, 0.00001f, "Sniper II +15% range");
+        Near(sniper.CritChanceBonus, 0.15f, 0.00001f, "Sniper III +15% crit");
+
+        Equal(SphereLevelRules.GetStats(SphereId.Shotgun, 1).Pellets, 4, "Shotgun I +1 pellet");
+        Near(SphereLevelRules.GetStats(SphereId.Shotgun, 2).CloseRangeDamageMultiplier, 1.20f, 0.00001f, "Shotgun II close damage");
+        Near(SphereLevelRules.GetStats(SphereId.Shotgun, 3).SpreadMultiplier, 0.88f, 0.00001f, "Shotgun III tighter spread");
+        Equal(SphereLevelRules.GetStats(SphereId.Chain, 1).ChainTargets, 4, "Chain I +1 target");
+        Near(SphereLevelRules.GetStats(SphereId.Chain, 2).DamageMultiplier, 1.10f, 0.00001f, "Chain II damage");
+        Near(SphereLevelRules.GetStats(SphereId.Chain, 3).DelayMultiplier, 0.85f, 0.00001f, "Chain III interval");
+        Near(SphereLevelRules.GetStats(SphereId.Aura, 1).AuraRadiusMultiplier, 1.20f, 0.00001f, "Aura I radius");
+        Near(SphereLevelRules.GetStats(SphereId.Orbital, 3).OrbitSpeedMultiplier, 1.15f, 0.00001f, "Orbital III rotation speed");
+        Equal(SphereLevelRules.GetStats(SphereId.Prism, 3).PrismDirections, 2, "Prism III +1 direction");
+        Near(SphereLevelRules.GetStats(SphereId.Gravity, 1).PullMultiplier, 1.20f, 0.00001f, "Gravity I pull");
+        Near(SphereLevelRules.GetStats(SphereId.Pulse, 3).DelayMultiplier, 0.88f, 0.00001f, "Pulse III interval");
+        Near(SphereLevelRules.GetStats(SphereId.Void, 1).WeakenedDamageMultiplier, 1.20f, 0.00001f, "Void I weakened damage");
+        Near(SphereLevelRules.GetStats(SphereId.Void, 2).CritChanceBonus, 0.10f, 0.00001f, "Void II execution crit chance");
+        Near(SphereLevelRules.GetStats(SphereId.Void, 3).RangeMultiplier, 1.15f, 0.00001f, "Void III range");
+        Near(SphereLevelRules.GetStats(SphereId.Standard, 99).DamageMultiplier, 1.15f, 0.00001f, "level input clamps to VII");
     }
 
     private static void CheckCatalogAndRewardedContracts()

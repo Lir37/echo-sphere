@@ -621,3 +621,34 @@ LIMIT:
 ======================================================================
 END SLICE 4
 ======================================================================
+
+
+======================================================================
+2026-10-10 — UNITY GAMEPLAY PORT SLICE 5: EXACT SPHERE LEVEL I–III BONUSES
+======================================================================
+
+BASE HEAD:
+a9043277e5706d0d1b3351eeb1803a5c41829366
+
+IMPLEMENTED:
+- Added pure C# SphereLevelRules matching the source-defined level I, II and
+  III bonuses for all ten Sphere types. Removed the temporary universal
+  +15% damage / -4% delay per level approximation.
+- Wired source bonuses into runtime attack values: damage, range, interval,
+  shotgun pellet count/spread/close-range bonus, Chain target count, Aura/
+  Gravity/Pulse radius, Gravity pull, Orbital radius/speed, Prism directions,
+  Void weakened-target damage and Standard projectile pierce.
+- ProjectileAgent and runtime projectile spawning now support pierce.
+- Added regression assertions covering the level I–III effects across the
+  complete ten-Sphere roster.
+
+LIMITS:
+- Sniper's +15% crit and Void's +10% execution crit are represented in pure
+  level stats but not yet consumed by runtime's shared crit resolver.
+- Level IV branch-specific V/VI upgrades and branch/final combat behavior
+  remain in progress. This slice does not claim complete Sphere parity.
+- CI verifies pure C# contracts and project structure, not UnityEngine script
+  compilation or Android APK/device acceptance.
+======================================================================
+END SLICE 5
+======================================================================

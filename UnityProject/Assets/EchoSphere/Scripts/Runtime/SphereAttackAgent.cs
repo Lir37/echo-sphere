@@ -18,6 +18,7 @@ namespace EchoSphere.Runtime
         private float _initialDamage;
         private float _initialDelay;
         private int _progressionLevel = 1;
+        private SphereLevelStats _levelStats;
 
         public SphereId Type => _type;
         public int ProgressionLevel => _progressionLevel;
@@ -25,6 +26,7 @@ namespace EchoSphere.Runtime
         public float BaseDamage { get; private set; } = 12f;
         public float AttackDelay { get; private set; } = 1.2f;
         public float AttackRange { get; private set; } = 6.8f;
+        public int PierceCount => _levelStats.Pierce;
 
         public void Initialize(EchoSphereRuntime runtime, Transform player, SphereId type, float damage)
         {
@@ -54,9 +56,10 @@ namespace EchoSphere.Runtime
         public void ApplyProgressionLevel(int level)
         {
             _progressionLevel = Mathf.Clamp(level, 1, SphereProgressionRules.MaxLevel);
-            // Common first-pass scaling; exact per-Sphere effects and IV/VII mutations remain open.
-            BaseDamage = _initialDamage * (1f + 0.15f * (_progressionLevel - 1));
-            AttackDelay = Mathf.Max(0.12f, _initialDelay * (1f - 0.04f * (_progressionLevel - 1)));
+            _levelStats = SphereLevelRules.GetStats(_type, _progressionLevel);
+            BaseDamage = _initialDamage * _levelStats.DamageMultiplier;
+            AttackDelay = Mathf.Max(0.12f, _initialDelay * _levelStats.DelayMultiplier);
+            AttackRange = 6.8f * _profile.RangeMultiplier * _levelStats.RangeMultiplier;
         }
 
         public void SetFollowMode(bool enabled, Vector2 playerPosition)
@@ -70,8 +73,8 @@ namespace EchoSphere.Runtime
             if (_runtime == null || _runtime.IsGameplayPaused || _player == null) return;
             if (_type == SphereId.Orbital)
             {
-                _orbitAngle += Time.deltaTime * 2.2f;
-                var orbitRadius = 1.05f;
+                _orbitAngle += Time.deltaTime * 2.2f * _levelStats.OrbitSpeedMultiplier;
+                var orbitRadius = 1.05f * _levelStats.OrbitRadiusMultiplier;
                 transform.position = (Vector2)_player.position + new Vector2(Mathf.Cos(_orbitAngle), Mathf.Sin(_orbitAngle)) * orbitRadius;
                 return;
             }
@@ -103,6 +106,8 @@ namespace EchoSphere.Runtime
             var origin = (Vector2)transform.position;
             var target = _runtime.FindNearestEnemy(origin, AttackRange);
             var damage = BaseDamage * _runtime.SphereDamageMultiplier;
+            if (_type == SphereId.Shotgun && target != null && Vector2.Distance(origin, target.transform.position) <= 1.5f)
+                damage *= _levelStats.CloseRangeDamageMultiplier;
 
             switch (_type)
             {
@@ -142,18 +147,18 @@ namespace EchoSphere.Runtime
         {
             if (target == null) return;
             var direction = ((Vector2)target.transform.position - origin).normalized;
-            _runtime.SpawnProjectile(origin, direction, damage, tint, 8f * _profile.ProjectileSpeedMultiplier);
+            _runtime.SpawnProjectile(origin, direction, damage, tint, 8f * _profile.ProjectileSpeedMultiplier, _levelStats.Pierce);
         }
 
         private void FireSpread(EnemyAgent2D target, Vector2 origin, float damage)
         {
             if (target == null) return;
             var direction = ((Vector2)target.transform.position - origin).normalized;
-            var count = Mathf.Max(1, _profile.Pellets);
+            var count = Mathf.Max(1, _profile.Pellets + _levelStats.Pellets - 3);
             for (var i = 0; i < count; i++)
             {
                 var t = count == 1 ? 0f : (float)i / (count - 1) - 0.5f;
-                var angle = t * _profile.Spread * Mathf.Rad2Deg;
+                var angle = t * _profile.Spread * _levelStats.SpreadMultiplier * Mathf.Rad2Deg;
                 var shot = Rotate(direction, angle);
                 _runtime.SpawnProjectile(origin, shot, damage, ColorFor(_type));
             }
@@ -161,7 +166,7 @@ namespace EchoSphere.Runtime
 
         private void ChainTargets(Vector2 origin, float damage)
         {
-            var targets = _runtime.FindNearestEnemies(origin, AttackRange, 3);
+            var targets = _runtime.FindNearestEnemies(origin, AttackRange, _levelStats.ChainTargets);
             for (var i = 0; i < targets.Count; i++)
             {
                 var target = targets[i];
@@ -172,7 +177,7 @@ namespace EchoSphere.Runtime
 
         private void FireAtMultiple(Vector2 origin, float damage)
         {
-            var targets = _runtime.FindNearestEnemies(origin, AttackRange, Mathf.Max(1, _profile.Pellets));
+            var targets = _runtime.FindNearestEnemies(origin, AttackRange, Mathf.Max(1, _levelStats.PrismDirections));
             if (targets.Count == 0) return;
             for (var i = 0; i < targets.Count; i++)
             {
@@ -183,10 +188,11 @@ namespace EchoSphere.Runtime
 
         private void DamageArea(Vector2 origin, float radius, float damage, Color tint, bool pull)
         {
+            radius *= _levelStats.AuraRadiusMultiplier;
             var targets = _runtime.FindEnemiesInRadius(origin, radius);
             for (var i = 0; i < targets.Count; i++)
             {
-                if (pull) targets[i].PullToward(origin, 1.8f);
+                if (pull) targets[i].PullToward(origin, 1.8f * _levelStats.PullMultiplier);
                 targets[i].ReceiveDamage(damage);
             }
             if (targets.Count > 0) _runtime.SpawnImpact(origin, tint);
@@ -198,9 +204,9 @@ namespace EchoSphere.Runtime
             if (targets.Count == 0) return;
             targets.Sort((a, b) => a.HpFraction.CompareTo(b.HpFraction));
             var target = targets[0];
-            var multiplier = target.HpFraction <= 0.25f ? 2.5f : 1f;
+            var multiplier = target.HpFraction <= 0.25f ? 2.5f * _levelStats.WeakenedDamageMultiplier : 1f;
             var direction = ((Vector2)target.transform.position - origin).normalized;
-            _runtime.SpawnProjectile(origin, direction, damage * multiplier, ColorFor(_type), 8f * _profile.ProjectileSpeedMultiplier);
+            _runtime.SpawnProjectile(origin, direction, damage * multiplier, ColorFor(_type), 8f * _profile.ProjectileSpeedMultiplier, _levelStats.Pierce);
         }
 
         private static Vector2 Rotate(Vector2 direction, float degrees)

@@ -10,13 +10,15 @@ namespace EchoSphere.Runtime
         private float _speed;
         private float _life = 2.5f;
         private Color _impactColor;
+        private int _remainingPierces;
 
-        public void Initialize(EchoSphereRuntime runtime, Vector2 direction, float damage, Color color, float speed = 8f)
+        public void Initialize(EchoSphereRuntime runtime, Vector2 direction, float damage, Color color, float speed = 8f, int pierce = 0)
         {
             _runtime = runtime;
             _direction = direction.sqrMagnitude <= 0.0001f ? Vector2.right : direction.normalized;
             _damage = damage;
             _speed = speed;
+            _remainingPierces = Mathf.Max(0, pierce);
             _impactColor = color;
         }
 
@@ -31,8 +33,8 @@ namespace EchoSphere.Runtime
             {
                 enemy.ReceiveDamage(_runtime.ResolveProjectileDamage(_damage));
                 _runtime.SpawnImpact(transform.position, _impactColor);
-                Destroy(gameObject);
-                return;
+                if (_remainingPierces > 0) _remainingPierces--;
+                else { Destroy(gameObject); return; }
             }
             if (_life <= 0f) Destroy(gameObject);
         }
