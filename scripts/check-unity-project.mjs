@@ -359,8 +359,8 @@ assert.ok(runtime.includes('GetShopSphereRadiusMultiplier()') && runtime.include
   'persistent shop and Difficulty must affect live runtime paths');
 const sphereAttackShopRadiusCheck = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs'), 'utf8');
 assert.ok(sphereAttackShopRadiusCheck.includes('_runtime.GetShopSphereRadiusMultiplier()'), 'persistent Sphere Radius must affect live Sphere range');
-const playerCore = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/PlayerCoreController2D.cs'), 'utf8');
-assert.ok(playerCore.includes('DashCount++'), 'Dash counter must follow successful Dash runtime');
+const shopDashCounterCheck = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/PlayerCoreController2D.cs'), 'utf8');
+assert.ok(shopDashCounterCheck.includes('DashCount++'), 'Dash counter must follow successful Dash runtime');
 const regionUnlockRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/RegionUnlockRules.cs'), 'utf8');
 assert.ok(regionUnlockRules.includes('resonanceBasinStabilized') && regionUnlockRules.includes('EchoRegionId.SpectralRift'),
   'Rift unlock must follow source Basin stabilization');
