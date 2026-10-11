@@ -57,6 +57,14 @@ namespace EchoSphere.Core
             return Math.Max(MaxSameSphereCopies, GetCharacterSphereCopyCap(character, sphereType, masteryLevel));
         }
 
+        public static float GetCopyDamageMultiplier(
+            SphereCharacterId character, SphereId sphereType, int masteryLevel, int sameTypeCopyIndex)
+        {
+            if (GetCharacterSphereCopyCap(character, sphereType, masteryLevel) <= MaxSameSphereCopies || sameTypeCopyIndex < 2)
+                return 1f;
+            return sameTypeCopyIndex == 2 ? 0.85f : 0.70f;
+        }
+
         private static SphereId GetSignatureSphere(SphereCharacterId character)
         {
             switch (character)
