@@ -472,6 +472,8 @@ internal static class Program
         True(SpherePlacementRules.CanAddSphere(4, 2, 5, 3), "mastery V signature cap permits a third copy");
         True(!SpherePlacementRules.CanAddSphere(4, 3, 5, 3), "mastery V signature cap blocks a fourth copy");
         True(SpherePlacementRules.CanAddSphere(6, 3, 8, 4), "mastery X signature cap permits a fourth copy");
+        Equal(SpherePlacementRules.GetMaxSpheres(1, 0), 6, "one maxspheres ability level adds one active Sphere slot");
+        Equal(SpherePlacementRules.GetMaxSpheres(3, 0), 8, "third maxspheres ability level reaches global cap");
         Equal(SpherePlacementRules.GetMaxSpheres(0, 2), 7, "source shop sphere upgrades add to the base cap");
         Equal(SpherePlacementRules.GetMaxSpheres(1, 2), 8, "ability and shop Sphere bonuses are combined");
         Equal(SpherePlacementRules.GetMaxSpheres(3, 3), 8, "combined Sphere capacity bonuses clamp at eight");
