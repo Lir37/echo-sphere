@@ -2467,3 +2467,13 @@ CI FOLLOW-UP | 2026-10-12
 - Follow-up commit renames the new local check variable to remove the syntax
   collision. Re-run the complete workflow and verify it is green before the
   next implementation stage.
+
+
+CI FOLLOW-UP | 2026-10-12 (second contract correction)
+- Unity Migration Contracts run #212:
+  - C# core contracts: PASS (653 assertions).
+  - Node check advanced past parsing and failed on a stale assertion still
+    requiring the pre-refactor CreateMaxSpheresChoice factory. The runtime
+    intentionally routes MaxSpheres through LevelUpAbilityRules.CreateChoice.
+- The structural guard now checks the new catalog call and continues to require
+  a live link to SpherePlacementRules.GetMaxSpheres. A full rerun is required.

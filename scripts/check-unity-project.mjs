@@ -245,9 +245,9 @@ for (const required of ['src/spaceCollision.ts','PlayerBuildGap','TowerPlacement
   assert.ok(spherePlacementRules.includes(required), 'source Sphere placement/copy-cap contract missing: ' + required);
 assert.ok(runtime.includes('_maxSphereAbilityLevel') && runtime.includes('GetCurrentMaxSpheres') &&
   runtime.includes('SpherePlacementRules.GetMaxSpheres(_maxSphereAbilityLevel, 0)') &&
-  runtime.includes('SphereProgressionRules.CreateMaxSpheresChoice') &&
+  runtime.includes('LevelUpAbilityRules.CreateChoice(RunUpgradeKind.MaxSpheres, _maxSphereAbilityLevel)') &&
   runtime.includes('RunUpgradeKind.MaxSpheres'),
-  'source maxspheres passive ability is not connected to Level Up and live placement capacity');
+  'source maxspheres passive ability must use the Level-Up catalog and change live placement capacity');
 assert.ok(runtime.includes('SpherePlacementRules.GetSameTypeCap') &&
   runtime.includes('_sphereCharacterId') && runtime.includes('_characterMasteryLevel') &&
   !runtime.includes('CountSpheresOfType(_selectedSphereType) >= SpherePlacementRules.MaxSameSphereCopies'),
