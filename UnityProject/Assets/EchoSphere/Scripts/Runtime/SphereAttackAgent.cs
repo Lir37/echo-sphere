@@ -120,7 +120,7 @@ namespace EchoSphere.Runtime
                 var targetDelta = (Vector2)target.transform.position - origin;
                 if (targetDelta.sqrMagnitude > 0.0001f) VisualRotation = Mathf.Atan2(targetDelta.y, targetDelta.x);
             }
-            var damage = BaseDamage * _runtime.SphereDamageMultiplier * _runtime.GetNetworkDamageMultiplier(this);
+            var damage = BaseDamage * _runtime.SphereDamageMultiplier * _runtime.GetNetworkDamageMultiplier(this) * _runtime.GetSphereCopyOutputMultiplier(this);
             if (target != null && _runtime.ConsumeResonanceLineBurst()) damage *= 1.60f;
             if (_type == SphereId.Shotgun && target != null)
             {
@@ -222,7 +222,7 @@ namespace EchoSphere.Runtime
                 if (_orbitalContactTimers[i] > 0f) continue;
                 var contact = _runtime.TryHitEnemy(_orbitalElements[i].position, contactRadius);
                 if (contact == null) continue;
-                var damage = BaseDamage * _runtime.SphereDamageMultiplier * _runtime.GetNetworkDamageMultiplier(this) * damageMultiplier;
+                var damage = BaseDamage * _runtime.SphereDamageMultiplier * _runtime.GetNetworkDamageMultiplier(this) * _runtime.GetSphereCopyOutputMultiplier(this) * damageMultiplier;
                 contact.ReceiveDamage(damage);
                 _runtime.AddResonanceCharge(1f);
                 _orbitalHitCount++;
