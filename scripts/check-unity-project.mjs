@@ -367,9 +367,10 @@ assert.ok(evolutionRules.includes('GetChainStormRadius') && evolutionRules.inclu
 assert.ok(evolutionRules.includes('GetAuraSanctumSlowDuration') && evolutionRules.includes('GetAuraOvergrowthAttackTimerReduction'), 'Aura evolution combat rules are missing');
 assert.ok(evolutionRules.includes('GetGravityWellPullDistance') && evolutionRules.includes('GetGravityTideDistance'), 'Gravity evolution combat rules are missing');
 assert.ok(evolutionRules.includes('GetOrbitalInnerCount') && evolutionRules.includes('GetOrbitalAngularSpeed'), 'Orbital ring progression rules are missing');
-assert.ok(evolutionRules.includes('GetPrismBeamCount') && evolutionRules.includes('GetPrismBranchPower') &&
-  evolutionRules.includes('GetPrismBeamDamageMultiplier') && evolutionRules.includes('GetPrismReflectionCount') &&
-  evolutionRules.includes('GetPrismMirrorRicochetCount'), 'Prism direct-beam and Network-refraction rules are missing');
+assert.ok(evolutionRules.includes('GetPrismBeamCount') && evolutionRules.includes('GetPrismRangeWorld') &&
+  evolutionRules.includes('GetPrismBranchPower') && evolutionRules.includes('GetPrismBeamDamageMultiplier') &&
+  evolutionRules.includes('GetPrismReflectionCount') && evolutionRules.includes('GetPrismMirrorRicochetCount'),
+  'Prism direct-beam, source-range and Network-refraction rules are missing');
 assert.ok(evolutionRules.includes('GetPulseWaveKnockbackDistance') && evolutionRules.includes('GetVoidExecutionChance'), 'Pulse/Void evolution combat rules are missing');
 assert.ok(sphereAttack.includes('OnProjectileHit') && sphereAttack.includes('standard_swarm'), 'Standard evolution hit dispatch is missing');
 assert.ok(sphereAttack.includes('sniper_oracle') && sphereAttack.includes('sniper_beacon'), 'Sniper evolution hit dispatch is missing');
@@ -379,10 +380,15 @@ assert.ok(sphereAttack.includes('aura_sanctum') && sphereAttack.includes('aura_g
 assert.ok(sphereAttack.includes('gravity_well') && sphereAttack.includes('gravity_tide') && sphereAttack.includes('gravity_collapse'), 'Gravity evolution runtime effects are missing');
 assert.ok(sphereAttack.includes('UpdateOrbitalElements') && sphereAttack.includes('UpdateOrbitalContacts'), 'Orbital satellite combat loop is missing');
 assert.ok(sphereAttack.includes('prism_mirror') &&
+  sphereAttack.includes('GetPrismSourceRangeWorld') &&
   sphereAttack.includes('ResolveElement(branch, finalId)') &&
   sphereAttack.includes('ResolvePrismNetworkRefraction') &&
   sphereAttack.includes('GetPrismBeamDamageMultiplier'),
-  'Prism direct-beam branch/status/refraction dispatch is missing');
+  'Prism direct-beam source range/branch/status/refraction dispatch is missing');
+assert.ok(evolutionRules.includes('130f * SpherePlacementRules.SourcePixelsToWorld') &&
+  sphereAttack.includes('GetPrismSourceRangeWorld()') &&
+  !sphereAttack.includes('var beamRange = AttackRange'),
+  'Prism must use source-calibrated direct-beam range rather than the placeholder 6.8-world range');
 assert.ok(sphereAttack.includes('pulse_wave') && sphereAttack.includes('pulse_burst') && sphereAttack.includes('void_execution'), 'Pulse/Void evolution runtime effects are missing');
 assert.ok(runtime.includes('SpawnVoidShards'), 'Void Reaper shard spawning is missing');
 assert.ok(runtime.includes('AddResonanceCharge') && runtime.includes('TriggerResonanceEvent') && runtime.includes('TickResonanceRing'), 'Resonance runtime event loop is missing');

@@ -2275,6 +2275,7 @@ Authoritative combat path: `src/engineSpheres.ts:updatePrismSphere` and `src/sph
 IMPLEMENTED IN THIS SLICE:
 - Replaced Unity's Prism travelling projectiles with immediate, source-mapped direct beam hits. Each beam selects the living in-range enemy with the highest current HP, and a target cannot receive two beams from the same volley.
 - Source beam-count rules now include the Sphere-level directions, source authored Multishot, and the separate Prism Split final-II/final-III beam.
+- Corrected the base Prism attack radius to source `BASE_SPHERE_RADIUS = 130` px × source `rangeMult = 1.35`, converted with `SpherePlacementRules.SourcePixelsToWorld`, then applying the currently ported Prism level-II ×1.15 radius, Prism Mirror ×1.08 radius, and Unity's current artifact radius multiplier. Both target acquisition and beam execution now use this source-calibrated radius rather than the former `6.8`-world placeholder.
 - Ported the source Prism Split secondary-beam factors (72% for final II, otherwise 62%, with pre-final branch power at levels V/VI), Prism Spectrum's active-status damage factor, and per-beam Line (+12%) / Lattice (+8%) formation bonuses.
 - Connected the direct hit path to the existing critical/damage resolver, authored hit effects, elemental status, Resonance hit registration, and a short 0.10-second Prism arc.
 - Ported Prism Mirror / Prism Filter Network reflections from linked active nodes: Mirror reflection count, Filter/Crown/Ring additions, 42% relay hits, nearest-target ricochets inside the source 115-pixel range (including pre-final branch power), 30%/24% sequential bounce factors, and the final-III 18% Echo hit. Triangle Resonance for Prism Spectrum is charged once per attack when the Prism belongs to a Triangle candidate.
@@ -2282,6 +2283,7 @@ IMPLEMENTED IN THIS SLICE:
 - Added C# pure-contract assertions for beam counts, branch power, damage factors, Network reflection counts, relay/bounce constants, and source-pixel range conversion. Unity project preflight now guards the direct-beam/refraction integration.
 
 VALIDATION:
-- Unity Migration Contracts [#200](https://github.com/Lir37/echo-sphere/actions/runs/38162982985): SUCCESS on validation HEAD `dcba454d748e20012fdcf7f45d3dbd53711884d5`; 625 pure C# contract assertions and Unity project structure/runtime preflight passed.
+- Unity Migration Contracts [#200](https://github.com/Lir37/echo-sphere/actions/runs/38162982985) passed on the preceding beam/Network implementation (625 pure C# contract assertions and Unity project structure/runtime preflight). The source-radius calibration in this follow-up is awaiting its own workflow result.
+- Dynamic source radius factors still not wired into the Unity runtime include player Radius ability levels, persistent shop Radius upgrades, active Chaos Orb radius buff, Mutation Stage II, and character-specific radius multipliers. The range formula is therefore source-calibrated for the current Unity-supported factors, not yet full runtime-radius parity.
 - Unity Migration Contracts checks do not compile UnityEngine runtime scripts inside a real Unity Editor. Unity Editor compilation, APK generation, and device-side combat/visual verification remain unverified in this environment.
 - This slice does not close remaining character/profile, shop, region ecology, artifact-set, or other non-Prism migration gaps.

@@ -114,7 +114,8 @@ namespace EchoSphere.Runtime
             if (_attackTimer > 0f) return;
 
             var origin = (Vector2)transform.position;
-            var target = _runtime.FindNearestEnemy(origin, AttackRange);
+            var targetRange = _type == SphereId.Prism ? GetPrismSourceRangeWorld() : AttackRange;
+            var target = _runtime.FindNearestEnemy(origin, targetRange);
             if (target != null)
             {
                 var targetDelta = (Vector2)target.transform.position - origin;
@@ -382,11 +383,16 @@ namespace EchoSphere.Runtime
 
         // Source mapping: new-desing/src/engineSpheres.ts:updatePrismSphere.
         // Prism resolves each beam immediately; it is not a travelling projectile.
+        private float GetPrismSourceRangeWorld() =>
+            SphereEvolutionCombatRules.GetPrismRangeWorld(
+                _progressionLevel, _runtime.GetSphereBranch(SphereId.Prism),
+                _runtime.GetArtifactSphereRadiusMultiplier(SphereId.Prism));
+
         private void FireAtMultiple(Vector2 origin, float damage)
         {
             var branch = _runtime.GetSphereBranch(_type);
             var finalId = _runtime.GetSphereFinal(_type);
-            var beamRange = AttackRange * (branch == "prism_mirror" ? 1.08f : 1f);
+            var beamRange = GetPrismSourceRangeWorld();
             var candidates = _runtime.FindEnemiesInRadius(origin, beamRange);
             if (candidates.Count == 0) return;
 

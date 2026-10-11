@@ -427,6 +427,17 @@ internal static class Program
         Equal(SphereEvolutionCombatRules.GetPrismBeamCount(2, "prism_split", "prism_split_final_2", 1), 4,
             "Prism beam count includes the independent authored Multishot modifier");
 
+        var prismBaseRange = 130f * SpherePlacementRules.SourcePixelsToWorld *
+            SphereCombatRules.GetProfile(SphereId.Prism).RangeMultiplier;
+        Near(SphereEvolutionCombatRules.GetPrismRangeWorld(1, null, 1f), prismBaseRange, 0.0001f,
+            "Prism range uses the source 130px base radius and source-pixel world scale");
+        Near(SphereEvolutionCombatRules.GetPrismRangeWorld(2, null, 1f), prismBaseRange * 1.15f, 0.0001f,
+            "Prism level II radius upgrade");
+        Near(SphereEvolutionCombatRules.GetPrismRangeWorld(1, "prism_mirror", 1f), prismBaseRange * 1.08f, 0.0001f,
+            "Prism Mirror source radius modifier");
+        Near(SphereEvolutionCombatRules.GetPrismRangeWorld(1, null, 0.8f), prismBaseRange * 0.8f, 0.0001f,
+            "Prism artifact radius modifier");
+
         Near(SphereEvolutionCombatRules.GetPrismBranchPower(4, null), 1f, 0f, "Prism pre-final branch power before level V");
         Near(SphereEvolutionCombatRules.GetPrismBranchPower(5, null), 1.15f, 0.0001f, "Prism pre-final branch power at level V");
         Near(SphereEvolutionCombatRules.GetPrismBranchPower(6, null), 1.30f, 0.0001f, "Prism pre-final branch power at level VI");

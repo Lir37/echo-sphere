@@ -108,6 +108,16 @@ namespace EchoSphere.Core
             return count;
         }
 
+        public static float GetPrismRangeWorld(int level, string branch, float artifactRadiusMultiplier)
+        {
+            var profile = SphereCombatRules.GetProfile(SphereId.Prism);
+            var stats = level <= 0 ? SphereLevelRules.GetUnlevelledStats() : SphereLevelRules.GetStats(SphereId.Prism, level);
+            var radius = 130f * SpherePlacementRules.SourcePixelsToWorld * profile.RangeMultiplier *
+                stats.RangeMultiplier * Math.Max(0.5f, artifactRadiusMultiplier);
+            if (branch == "prism_mirror") radius *= 1.08f;
+            return radius;
+        }
+
         public static float GetPrismBranchPower(int level, string finalId)
         {
             if (!string.IsNullOrEmpty(finalId)) return 1f;
