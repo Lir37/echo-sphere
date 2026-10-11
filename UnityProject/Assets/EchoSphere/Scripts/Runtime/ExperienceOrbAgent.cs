@@ -17,7 +17,7 @@ namespace EchoSphere.Runtime
         {
             if (_runtime == null || _runtime.IsGameplayPaused || _player == null) return;
             var distance = Vector2.Distance(transform.position, _player.position);
-            if (distance < 1.8f) transform.position = Vector2.MoveTowards(transform.position, _player.position, 4.5f * Time.deltaTime);
+            if (distance < _runtime.GetExperienceMagnetRadiusWorld()) transform.position = Vector2.MoveTowards(transform.position, _player.position, 4.5f * Time.deltaTime);
             if (distance < 0.32f)
             {
                 _runtime.AddExperience(_amount);

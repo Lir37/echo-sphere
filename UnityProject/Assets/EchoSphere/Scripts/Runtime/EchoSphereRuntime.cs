@@ -22,6 +22,9 @@ namespace EchoSphere.Runtime
         private readonly HashSet<SphereId> _artifactSphereTypeScratch = new HashSet<SphereId>();
         private readonly Dictionary<SphereId, int> _sphereLevels = new Dictionary<SphereId, int>();
         private readonly List<RunUpgradeChoice> _levelUpChoices = new List<RunUpgradeChoice>();
+        private readonly Dictionary<RunUpgradeKind, int> _abilityLevels = new Dictionary<RunUpgradeKind, int>();
+        private readonly List<string> _recentUpgradeChoiceKeys = new List<string>();
+        private int _levelUpAbilityPity, _levelUpSpherePity;
         private readonly Dictionary<SphereId, string> _sphereBranches = new Dictionary<SphereId, string>();
         private readonly Dictionary<SphereId, string> _sphereFinals = new Dictionary<SphereId, string>();
         private readonly List<SphereEvolutionOption> _evolutionChoices = new List<SphereEvolutionOption>();
@@ -93,10 +96,14 @@ namespace EchoSphere.Runtime
         public Vector2 PlayerPosition => _player == null ? Vector2.zero : (Vector2)_player.position;
         public float CurrentRunTime => _runTime;
         public int CurrentWave => _wave;
+        public float GetEnemyAbilitySpeedMultiplier() => LevelUpAbilityRules.GetEnemySlowMultiplier(GetAbilityLevel(RunUpgradeKind.Slow));
+        public float GetExperienceMagnetRadiusWorld() => LevelUpAbilityRules.GetMagnetRadiusWorld(GetAbilityLevel(RunUpgradeKind.Magnet));
         public bool RegionStabilized => _regionStabilized;
         public float NextRunRandom() => _rng.NextFloat();
-        public float SphereDamageMultiplier => _damageMultiplier * Mathf.Max(0.25f, 1f + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "sphereDamage"));
-        public float AttackSpeedMultiplier => _attackSpeedMultiplier / Mathf.Max(0.5f, 1f + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "sphereDelay"));
+        public float SphereDamageMultiplier => _damageMultiplier * LevelUpAbilityRules.GetSphereDamageMultiplier(GetAbilityLevel(RunUpgradeKind.Damage)) *
+            Mathf.Max(0.25f, 1f + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "sphereDamage"));
+        public float AttackSpeedMultiplier => _attackSpeedMultiplier * LevelUpAbilityRules.GetAttackSpeedMultiplier(GetAbilityLevel(RunUpgradeKind.AttackSpeed)) /
+            Mathf.Max(0.5f, 1f + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "sphereDelay"));
         public float ResonanceCharge => _resonanceCharge;
         public bool ResonanceEventActive => _resonanceEventActive;
         public int ResonanceEventsTriggered => _resonanceEventsTriggered;
@@ -210,7 +217,7 @@ namespace EchoSphere.Runtime
             _playerCore.Tick(dt);
             _swiftBootsTimer = Mathf.Max(0f, _swiftBootsTimer - dt);
             _alchemistCatalystTimer = Mathf.Max(0f, _alchemistCatalystTimer - dt);
-            _playerCore.Heal(Mathf.Max(0f, ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "regen")) * dt);
+            _playerCore.Heal((Mathf.Max(0f, ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "regen")) + LevelUpAbilityRules.GetRegenPerSecond(GetAbilityLevel(RunUpgradeKind.Regen))) * dt);
             if (_messageTimer > 0f) _messageTimer -= dt;
             _formationMemoryTimer = Mathf.Max(0f, _formationMemoryTimer - dt);
             _placementFlashTimer = Mathf.Max(0f, _placementFlashTimer - dt);
@@ -229,7 +236,7 @@ namespace EchoSphere.Runtime
             if (_follow) _formationStrain = FormationFollowRules.UpdateStrain(_formationStrain, _lastDirection, requested, dt, out _lastDirection);
             else { _formationStrain = 0f; _lastDirection = Vec2.Zero; }
 
-            _player.position += (Vector3)(_playerCore.GetVelocity(input, 3.6f * GetArtifactMoveSpeedMultiplier(), followMultiplier) * dt);
+            _player.position += (Vector3)(_playerCore.GetVelocity(input, 3.6f * GetArtifactMoveSpeedMultiplier() * LevelUpAbilityRules.GetMoveSpeedMultiplier(GetAbilityLevel(RunUpgradeKind.MoveSpeed)), followMultiplier) * dt);
             _networkRefreshTimer -= dt;
             if (_networkRefreshTimer <= 0f)
             {
@@ -922,7 +929,8 @@ namespace EchoSphere.Runtime
                 ((Vector2)a.transform.position - origin).sqrMagnitude.CompareTo(
                     ((Vector2)b.transform.position - origin).sqrMagnitude));
             var limit = Mathf.Min(Mathf.Max(0, count), candidates.Count);
-            for (var i = 0; i < limit; i++) candidates[i].ApplyNetworkDisable(duration);
+            var authoredDuration = LevelUpAbilityRules.GetNetworkDisableDuration(duration, GetAbilityLevel(RunUpgradeKind.Stability));
+            for (var i = 0; i < limit; i++) candidates[i].ApplyNetworkDisable(authoredDuration);
             if (limit > 0) RefreshNetworkState();
         }
 
@@ -1752,6 +1760,8 @@ namespace EchoSphere.Runtime
             if (_gameOver || _levelUp || _xp < _xpRequired) return;
             _xp -= _xpRequired;
             _level++;
+            // Source new-desing grants +6 Max HP and restores up to +6 HP on every player level.
+            _playerCore?.IncreaseMaxHp(6f);
             _xpRequired = RunBalanceRules.GetXpToNextLevel(_level);
             BuildLevelUpChoices();
             _levelUp = true;
@@ -1767,7 +1777,8 @@ namespace EchoSphere.Runtime
         public float ResolveProjectileDamage(float damage, float critChanceBonus, out bool wasCritical)
         {
             var artifactCrit = ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "critChance");
-            var critChance = Mathf.Min(CombatRules.CritHardCap, CombatRules.CritBase + Mathf.Max(0f, critChanceBonus + artifactCrit));
+            var abilityCrit = LevelUpAbilityRules.GetCritChanceBonus(GetAbilityLevel(RunUpgradeKind.Crit));
+            var critChance = Mathf.Min(CombatRules.CritHardCap, CombatRules.CritBase + Mathf.Max(0f, critChanceBonus + artifactCrit + abilityCrit));
             var result = CombatRules.ResolveDamage(damage, critChance, _rng.NextFloat(), CombatRules.CritMultiplierBase);
             wasCritical = result.WasCritical;
             return result.Damage;
@@ -1776,7 +1787,9 @@ namespace EchoSphere.Runtime
         public void TryDamagePlayer(float damage)
         {
             if (_playerCore == null || _playerCore.IsDead) return;
-            var dodgeBonus = Mathf.Clamp01(ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "dodgeChance"));
+            var dodgeBonus = LevelUpAbilityRules.GetDodgeChance(
+                GetAbilityLevel(RunUpgradeKind.Dodge),
+                ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "dodgeChance"));
             if (dodgeBonus > 0f && _playerCore.CanReceiveDamageNow && _rng.NextFloat() < dodgeBonus)
             {
                 ShowMessage("DODGED");
@@ -1849,7 +1862,8 @@ namespace EchoSphere.Runtime
         }
 
         private float GetArtifactDamageTakenMultiplier() =>
-            Mathf.Max(0.45f, 1f - ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "damageTakenReduction"));
+            Mathf.Max(0.25f, 1f - ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "damageTakenReduction")) *
+            LevelUpAbilityRules.GetDamageTakenMultiplier(GetAbilityLevel(RunUpgradeKind.Armor));
 
         private float GetArtifactSphereFamilyDamageMultiplier(SphereId type)
         {
@@ -1957,21 +1971,134 @@ namespace EchoSphere.Runtime
         {
             _levelUpChoices.Clear();
             var pool = new List<RunUpgradeChoice>();
+
             foreach (var definition in GameCatalog.Spheres)
                 if (SphereProgressionRules.CanUpgrade(_sphereLevels, definition.Id))
                     pool.Add(SphereProgressionRules.CreateSphereChoice(_sphereLevels, definition.Id));
-            if (SphereProgressionRules.CanUpgradeMaxSpheres(_maxSphereAbilityLevel))
-                pool.Add(SphereProgressionRules.CreateMaxSpheresChoice(_maxSphereAbilityLevel));
-            pool.Add(new RunUpgradeChoice(RunUpgradeKind.Damage, SphereId.Standard, 0, 0, "RESONANT CORE", "+18% damage for all Spheres."));
-            pool.Add(new RunUpgradeChoice(RunUpgradeKind.AttackSpeed, SphereId.Standard, 0, 0, "ACCELERATION", "+15% attack speed for the network."));
-            pool.Add(new RunUpgradeChoice(RunUpgradeKind.Repair, SphereId.Standard, 0, 0, "REPAIR PROTOCOL", "Restore 35 Core HP."));
 
-            // Use the run RNG so choices are reproducible for an equivalent run seed/state.
-            while (pool.Count > 0 && _levelUpChoices.Count < 3)
+            if (SphereProgressionRules.CanUpgradeMaxSpheres(_maxSphereAbilityLevel))
+                pool.Add(LevelUpAbilityRules.CreateChoice(RunUpgradeKind.MaxSpheres, _maxSphereAbilityLevel));
+
+            foreach (var kind in LevelUpAbilityRules.RoutineAbilityKinds)
             {
-                var index = _rng.NextInt(pool.Count);
-                _levelUpChoices.Add(pool[index]);
-                pool.RemoveAt(index);
+                var current = GetAbilityLevel(kind);
+                if (LevelUpAbilityRules.CanUpgrade(kind, current))
+                    pool.Add(LevelUpAbilityRules.CreateChoice(kind, current));
+            }
+
+            if (pool.Count == 0) return;
+            var recent = new HashSet<string>(_recentUpgradeChoiceKeys);
+            var cooled = pool.FindAll(choice => !recent.Contains(GetUpgradeChoiceKey(choice)));
+            var candidates = cooled.Count >= 3 ? cooled : pool;
+
+            var abilityScore = 0f;
+            foreach (var pair in _abilityLevels) if (pair.Value > 0) abilityScore += 1f;
+            if (_maxSphereAbilityLevel > 0) abilityScore += 1f;
+
+            var sphereScore = _spheres.FindAll(sphere => sphere != null && sphere.gameObject.activeInHierarchy).Count;
+            foreach (var pair in _sphereLevels) sphereScore += pair.Value * 0.15f;
+            var minimumScore = Mathf.Min(abilityScore, sphereScore);
+            var abilitySourceWeight = (1f + Mathf.Min(4, _levelUpAbilityPity) * 0.20f) *
+                (abilityScore <= minimumScore + 0.001f ? 1.15f : 1f);
+            var sphereSourceWeight = (1f + Mathf.Min(4, _levelUpSpherePity) * 0.20f) *
+                (sphereScore <= minimumScore + 0.001f ? 1.15f : 1f);
+
+            while (candidates.Count > 0 && _levelUpChoices.Count < 3)
+            {
+                var usedSphere = false;
+                var usedAbility = false;
+                foreach (var selected in _levelUpChoices)
+                {
+                    if (selected.Kind == RunUpgradeKind.Sphere) usedSphere = true;
+                    else usedAbility = true;
+                }
+
+                var totalWeight = 0f;
+                var weights = new float[candidates.Count];
+                for (var i = 0; i < candidates.Count; i++)
+                {
+                    var choice = candidates[i];
+                    float weight;
+                    if (choice.Kind == RunUpgradeKind.Sphere)
+                    {
+                        var level = SphereProgressionRules.GetLevel(_sphereLevels, choice.Sphere);
+                        var activeCopies = 0;
+                        for (var sphereIndex = 0; sphereIndex < _spheres.Count; sphereIndex++)
+                            if (_spheres[sphereIndex] != null && _spheres[sphereIndex].gameObject.activeInHierarchy &&
+                                _spheres[sphereIndex].Type == choice.Sphere) activeCopies++;
+                        weight = sphereSourceWeight * (1f + (7 - level) * 0.25f +
+                            (activeCopies > 0 ? 1.5f : 0f) + GetSphereAffinityWeight(choice.Sphere));
+                        if (_levelUpChoices.Count > 0) weight *= usedSphere ? 0.88f : 1.16f;
+                    }
+                    else
+                    {
+                        weight = abilitySourceWeight * (choice.CurrentLevel == 0 ? 1.35f : 1.15f);
+                        if (_sphereCharacterId == SphereCharacterId.Oracle && choice.Kind == RunUpgradeKind.Crit)
+                            weight *= (1f + 0.75f / (choice.CurrentLevel == 0 ? 1.35f : 1.15f));
+                        if (_levelUpChoices.Count > 0) weight *= usedAbility ? 0.88f : 1.16f;
+                    }
+                    weights[i] = Mathf.Max(0.01f, weight);
+                    totalWeight += weights[i];
+                }
+
+                var roll = _rng.NextFloat() * totalWeight;
+                var chosenIndex = candidates.Count - 1;
+                for (var i = 0; i < candidates.Count; i++)
+                {
+                    roll -= weights[i];
+                    if (roll <= 0f) { chosenIndex = i; break; }
+                }
+                _levelUpChoices.Add(candidates[chosenIndex]);
+                candidates.RemoveAt(chosenIndex);
+            }
+        }
+
+        private string GetUpgradeChoiceKey(RunUpgradeChoice choice) =>
+            choice.Kind == RunUpgradeKind.Sphere
+                ? "sphere:" + choice.Sphere + ":" + choice.CurrentLevel + ":" + choice.NextLevel
+                : "ability:" + choice.Kind + ":" + choice.CurrentLevel + ":" + choice.NextLevel;
+
+        private float GetSphereAffinityWeight(SphereId type)
+        {
+            var signature = SphereId.Standard;
+            var partner = SphereId.Orbital;
+            switch (_sphereCharacterId)
+            {
+                case SphereCharacterId.Hunter: signature = SphereId.Sniper; partner = SphereId.Void; break;
+                case SphereCharacterId.Engineer: signature = SphereId.Chain; partner = SphereId.Aura; break;
+                case SphereCharacterId.Berserker: signature = SphereId.Shotgun; partner = SphereId.Void; break;
+                case SphereCharacterId.Alchemist: signature = SphereId.Aura; partner = SphereId.Chain; break;
+                case SphereCharacterId.Architect: signature = SphereId.Gravity; partner = SphereId.Prism; break;
+                case SphereCharacterId.Conductor: signature = SphereId.Pulse; partner = SphereId.Chain; break;
+                case SphereCharacterId.Oracle: signature = SphereId.Prism; partner = SphereId.Pulse; break;
+                case SphereCharacterId.Voidwalker: signature = SphereId.Void; partner = SphereId.Gravity; break;
+                case SphereCharacterId.Fractal: signature = SphereId.Orbital; partner = SphereId.Aura; break;
+            }
+            return type == signature ? 0.70f : type == partner ? 0.30f : 0f;
+        }
+
+        private int GetAbilityLevel(RunUpgradeKind kind)
+        {
+            if (kind == RunUpgradeKind.MaxSpheres) return _maxSphereAbilityLevel;
+            return _abilityLevels.TryGetValue(kind, out var level) ? level : 0;
+        }
+
+        private void RecordLevelUpChoice(RunUpgradeChoice choice)
+        {
+            var key = GetUpgradeChoiceKey(choice);
+            _recentUpgradeChoiceKeys.Remove(key);
+            _recentUpgradeChoiceKeys.Insert(0, key);
+            while (_recentUpgradeChoiceKeys.Count > 2) _recentUpgradeChoiceKeys.RemoveAt(_recentUpgradeChoiceKeys.Count - 1);
+
+            if (choice.Kind == RunUpgradeKind.Sphere)
+            {
+                _levelUpSpherePity = 0;
+                _levelUpAbilityPity = Mathf.Min(4, _levelUpAbilityPity + 1);
+            }
+            else
+            {
+                _levelUpAbilityPity = 0;
+                _levelUpSpherePity = Mathf.Min(4, _levelUpSpherePity + 1);
             }
         }
 
@@ -1979,6 +2106,7 @@ namespace EchoSphere.Runtime
         {
             if (choiceIndex < 0 || choiceIndex >= _levelUpChoices.Count) return;
             var choice = _levelUpChoices[choiceIndex];
+            RecordLevelUpChoice(choice);
             switch (choice.Kind)
             {
                 case RunUpgradeKind.Sphere:
@@ -2013,16 +2141,22 @@ namespace EchoSphere.Runtime
                     ShowMessage("MAX SPHERES: " + GetCurrentMaxSpheres());
                     break;
                 case RunUpgradeKind.Damage:
-                    _damageMultiplier *= 1.18f;
-                    ShowMessage("Sphere damage increased.");
-                    break;
                 case RunUpgradeKind.AttackSpeed:
-                    _attackSpeedMultiplier *= 1.15f;
-                    ShowMessage("Network attack speed increased.");
+                case RunUpgradeKind.MoveSpeed:
+                case RunUpgradeKind.Slow:
+                case RunUpgradeKind.Dodge:
+                case RunUpgradeKind.Crit:
+                case RunUpgradeKind.Magnet:
+                case RunUpgradeKind.Armor:
+                case RunUpgradeKind.Regen:
+                case RunUpgradeKind.Stability:
+                    _abilityLevels[choice.Kind] = choice.NextLevel;
+                    ShowMessage(choice.Title + " upgraded.");
                     break;
-                case RunUpgradeKind.Repair:
-                    _playerCore.Heal(35f);
-                    ShowMessage("Core repaired.");
+                case RunUpgradeKind.Vitality:
+                    _abilityLevels[choice.Kind] = choice.NextLevel;
+                    _playerCore?.IncreaseMaxHp(20f);
+                    ShowMessage("VITALITY: Core capacity increased.");
                     break;
             }
             if (_choosingEvolution) return;
@@ -3267,12 +3401,12 @@ namespace EchoSphere.Runtime
                             var rect = new Rect(left + 35f, top + yOffset, 370f, 64f);
                             if (GUI.Button(rect, GUIContent.none, _button)) ChooseUpgrade(i);
                             var icon = choice.Kind == RunUpgradeKind.Sphere ? GetSphereIcon(choice.Sphere)
-                                : choice.Kind == RunUpgradeKind.Repair ? RuntimeSpriteFactory.Hexagon
-                                : choice.Kind == RunUpgradeKind.AttackSpeed ? RuntimeSpriteFactory.Star
+                                : choice.Kind == RunUpgradeKind.AttackSpeed || choice.Kind == RunUpgradeKind.MoveSpeed ? RuntimeSpriteFactory.Star
+                                : choice.Kind == RunUpgradeKind.Vitality || choice.Kind == RunUpgradeKind.Regen ? RuntimeSpriteFactory.Hexagon
                                 : RuntimeSpriteFactory.Faceted;
                             var tint = choice.Kind == RunUpgradeKind.Sphere ? Color.white
-                                : choice.Kind == RunUpgradeKind.Repair ? new Color(0.35f, 1f, 0.72f)
-                                : choice.Kind == RunUpgradeKind.AttackSpeed ? new Color(1f, 0.78f, 0.28f)
+                                : choice.Kind == RunUpgradeKind.AttackSpeed || choice.Kind == RunUpgradeKind.Crit ? new Color(1f, 0.78f, 0.28f)
+                                : choice.Kind == RunUpgradeKind.Vitality || choice.Kind == RunUpgradeKind.Regen ? new Color(0.35f, 1f, 0.72f)
                                 : new Color(0.28f, 0.88f, 1f);
                             DrawSpriteIcon(new Rect(rect.x + 10f, rect.y + 10f, 42f, 42f), icon, tint);
                             GUI.Label(new Rect(rect.x + 60f, rect.y + 8f, 298f, 25f), choice.Title, _label);

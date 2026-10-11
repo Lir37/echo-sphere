@@ -19,6 +19,7 @@ internal static class Program
             CheckArtifactRewardRules();
             CheckSphereCombatProfiles();
             CheckSphereProgressionRules();
+            CheckLevelUpAbilityRules();
             CheckSphereEvolutionCatalog();
             CheckSphereLevelRules();
             CheckSphereEvolutionCombatRules();
@@ -263,6 +264,35 @@ internal static class Program
         Equal(unlock.CurrentLevel, 0, "new Sphere choice records locked state");
         Equal(unlock.NextLevel, 1, "new Sphere choice grants level I");
         Equal(unlock.Kind, RunUpgradeKind.Sphere, "acquisition is a Sphere upgrade");
+    }
+
+    private static void CheckLevelUpAbilityRules()
+    {
+        Equal(LevelUpAbilityRules.GetMaxLevel(RunUpgradeKind.MaxSpheres), 3, "source maxspheres cap");
+        Equal(LevelUpAbilityRules.GetMaxLevel(RunUpgradeKind.Damage), 7, "source passive Ability cap");
+        True(LevelUpAbilityRules.CanUpgrade(RunUpgradeKind.Crit, 6), "passive Ability can advance to VII");
+        True(!LevelUpAbilityRules.CanUpgrade(RunUpgradeKind.Crit, 7), "passive Ability is capped at VII");
+        Equal(LevelUpAbilityRules.RoutineAbilityKinds.Count, 11, "only runtime-wired passive abilities are offered");
+        Near(LevelUpAbilityRules.GetSphereDamageMultiplier(0), 1f, 0f, "no damage Ability starts at baseline");
+        Near(LevelUpAbilityRules.GetSphereDamageMultiplier(2), 1.30f, 0.000001f, "Sphere Damage is additive +15% per level");
+        Near(LevelUpAbilityRules.GetAttackSpeedMultiplier(1), 1f / 0.93f, 0.00001f, "attack speed matches source 0.93 delay multiplier");
+        Near(LevelUpAbilityRules.GetMoveSpeedMultiplier(3), 1.30f, 0.000001f, "movement speed +10% per level");
+        Near(LevelUpAbilityRules.GetEnemySlowMultiplier(0), 1f, 0f, "enemy slow baseline");
+        Near(LevelUpAbilityRules.GetEnemySlowMultiplier(1), 0.90f, 0.000001f, "enemy slow level I");
+        Near(LevelUpAbilityRules.GetEnemySlowMultiplier(7), 0.60f, 0.000001f, "enemy slow level VII");
+        Near(LevelUpAbilityRules.GetDodgeChance(3), 0.30f, 0.000001f, "dodge is +10% per level");
+        Near(LevelUpAbilityRules.GetDodgeChance(7, 0.10f), 0.75f, 0.000001f, "dodge source hard cap");
+        Near(LevelUpAbilityRules.GetCritChanceBonus(3), 0.30f, 0.000001f, "critical chance +10% per level");
+        Near(LevelUpAbilityRules.GetDamageTakenMultiplier(7), 0.72f, 0.000001f, "armor is -4% taken damage per level");
+        Near(LevelUpAbilityRules.GetRegenPerSecond(3), 1.8f, 0.000001f, "regeneration is +0.6 HP/s per level");
+        Near(LevelUpAbilityRules.GetMagnetRadiusWorld(0), 60f * SpherePlacementRules.SourcePixelsToWorld, 0.000001f, "XP magnet uses source 60 px baseline");
+        Near(LevelUpAbilityRules.GetMagnetRadiusWorld(2), 60f * SpherePlacementRules.SourcePixelsToWorld * 1.4f, 0.000001f, "XP magnet is +20% radius per level");
+        Near(LevelUpAbilityRules.GetNetworkDisableDuration(10f, 3), 6.4f, 0.000001f, "network stability reduces disable duration");
+        Near(LevelUpAbilityRules.GetNetworkDisableDuration(10f, 7), 1.6f, 0.000001f, "network stability obeys source 16% duration floor");
+        var damageChoice = LevelUpAbilityRules.CreateChoice(RunUpgradeKind.Damage, 2);
+        Equal(damageChoice.CurrentLevel, 2, "Ability choice preserves current level");
+        Equal(damageChoice.NextLevel, 3, "Ability choice advances exactly one level");
+        Equal(damageChoice.Kind, RunUpgradeKind.Damage, "Ability card resolves to its authored Ability id");
     }
 
     private static void CheckSphereEvolutionCatalog()

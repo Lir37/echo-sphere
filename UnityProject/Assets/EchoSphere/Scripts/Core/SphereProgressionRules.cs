@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace EchoSphere.Core
 {
-    public enum RunUpgradeKind { Sphere, MaxSpheres, Damage, AttackSpeed, Repair }
+    public enum RunUpgradeKind { Sphere, MaxSpheres, Damage, AttackSpeed, MoveSpeed, Slow, Vitality, Dodge, Crit, Magnet, Armor, Regen, Stability }
 
     public readonly struct RunUpgradeChoice
     {
@@ -61,10 +61,14 @@ namespace EchoSphere.Core
             var current = GetLevel(levels, id);
             var next = GetNextLevel(levels, id);
             var definition = GameCatalog.Spheres[(int)id];
-            var title = current == 0 ? "UNLOCK / " + definition.DisplayName : definition.DisplayName + " / LEVEL " + ToRoman(next);
-            var description = current == 0 ? "Add this Sphere to the combat network."
-                : next == 4 || next == 7 ? "Sphere level " + ToRoman(next) + ": evolution choice is a pending parity task."
-                : "Sphere level " + ToRoman(next) + ": improve its combat output.";
+            var title = current == 0 ? "UNLOCK PROGRESSION / " + definition.DisplayName : definition.DisplayName + " / LEVEL " + ToRoman(next);
+            var description = current == 0
+                ? "Unlock this Sphere's progression. Place the physical Sphere separately on the battlefield."
+                : next == 4
+                    ? "Reach level IV, then choose one of the three source mutation branches."
+                    : next == 7
+                        ? "Reach level VII, then choose one of the three source final forms."
+                        : "Advance this Sphere to level " + ToRoman(next) + " using its authored progression.";
             return new RunUpgradeChoice(RunUpgradeKind.Sphere, id, current, next, title, description);
         }
 

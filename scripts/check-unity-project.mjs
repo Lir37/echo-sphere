@@ -345,6 +345,21 @@ for (const sourceBoss of ['conductor','architect','null','aura','stella_warden']
 assert.ok(regionSchedule.includes('480f') && regionSchedule.includes('960f') && regionSchedule.includes('1620f') && regionSchedule.includes('1800f'), 'source Region boss/stabilization timing contract missing');
 assert.ok(runtimeArt.includes('AdvanceRegionBossSchedule') && runtimeArt.includes('RegionBossScheduleRules.Advance') && runtimeArt.includes('StartNextWave'), 'Region signal and source wave loop must be wired in live runtime');
 assert.ok(runtimeArt.includes('CountLivingNonBossEnemies') && runtimeArt.includes('HasActiveBoss'), 'next source wave must wait for living enemies and boss completion');
+const levelUpAbilities = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/LevelUpAbilityRules.cs'), 'utf8');
+assert.ok(levelUpAbilities.includes('RoutineAbilityKinds') && levelUpAbilities.includes('GetNetworkDisableDuration'), 'source Level-Up Ability catalog is missing');
+for (const token of ['0.93d', '0.15f', '0.10f', '0.16f', 'SourcePixelsToWorld', 'GetDamageTakenMultiplier'])
+  assert.ok(levelUpAbilities.includes(token), 'source Level-Up Ability formula is missing: ' + token);
+assert.ok(runtime.includes('LevelUpAbilityRules.RoutineAbilityKinds') && runtime.includes('RecordLevelUpChoice(choice)') &&
+  runtime.includes('GetSphereAffinityWeight(choice.Sphere)') && runtime.includes('GetAbilityLevel(RunUpgradeKind.Slow)'),
+  'Level-Up weighted generation, choice recording and live Ability effects must be wired');
+assert.ok(runtime.includes('IncreaseMaxHp(6f)') && runtime.includes('IncreaseMaxHp(20f)') &&
+  runtime.includes('GetSphereDamageMultiplier(GetAbilityLevel(RunUpgradeKind.Damage))') &&
+  !runtime.includes('REPAIR PROTOCOL') && !runtime.includes('+18% damage for all Spheres'),
+  'Level-Up must use source per-level effects and must not offer placeholder repair/damage cards');
+const experienceOrb = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/ExperienceOrbAgent.cs'), 'utf8');
+assert.ok(experienceOrb.includes('GetExperienceMagnetRadiusWorld()'), 'Magnet Level-Up must affect XP orb attraction');
+const enemyRuntime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs'), 'utf8');
+assert.ok(enemyRuntime.includes('GetEnemyAbilitySpeedMultiplier()'), 'Slow Level-Up must affect live enemy movement');
 const balanceRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/RunBalanceRules.cs'), 'utf8');
 assert.ok(balanceRules.includes('GetEnemiesPerWave') && balanceRules.includes('GetWaveSpawnInterval'), 'source wave count and spawn interval rules missing');
 const bossProjectile = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/BossProjectileAgent2D.cs'), 'utf8');

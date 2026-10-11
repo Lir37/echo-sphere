@@ -358,7 +358,7 @@ namespace EchoSphere.Runtime
                 if (_creatureVisual != null) _creatureVisual.SetFacing(target - (Vector2)transform.position);
                 return;
             }
-            transform.position = Vector2.MoveTowards(transform.position, target, _moveSpeed * _slowMultiplier * Time.deltaTime);
+            transform.position = Vector2.MoveTowards(transform.position, target, _moveSpeed * _slowMultiplier * _runtime.GetEnemyAbilitySpeedMultiplier() * Time.deltaTime);
             if (_creatureVisual != null) _creatureVisual.SetFacing(target - (Vector2)transform.position);
             if (Vector2.Distance(transform.position, target) < 0.54f) _runtime.TryDamagePlayer(9f);
         }

@@ -2405,3 +2405,54 @@ END APK BUILD DISABLED UPDATE
 ======================================================================
 END CI PREFLIGHT UPDATE
 ======================================================================
+
+
+======================================================================
+2026-10-12 | LEVEL-UP PARITY PASS (CI PENDING AT COMMIT TIME)
+======================================================================
+
+Parent Unity migration HEAD: e0dc9ee769ca2ef065c53d1d7755f9fb661232ef
+Source of truth: new-desing/src/engineProgression.ts, src/engineState.ts,
+src/engineBalance.ts, src/gameData.ts, src/engineCombat.ts, src/engineEnemies.ts
+and src/engineStats.ts.
+
+CHANGES:
+- Removed the non-source "+18% damage", "+15% attack speed" and "Restore 35 HP"
+  cards. Damage and attack speed are cumulative source Ability levels; the fake
+  Repair option is no longer offered.
+- Added a source-backed routine passive Ability catalog for the 11 abilities
+  whose effects are now wired in Unity: Damage, Attack Speed, Move Speed, Slow,
+  Vitality, Dodge, Crit, Magnet, Armor, Regen and Stability. Active abilities
+  and passive abilities with incomplete runtime integration stay unavailable.
+- Level-Up uses seeded weighted unique selection, source Sphere level/build/
+  character-affinity weights, Ability-vs-Sphere pity, soft source diversity and
+  a two-choice recent-repeat cooldown.
+- Added the missing player-level reward from new-desing: +6 Max HP and up to +6
+  HP restored on every player level-up. XP remainder and threshold formula stay.
+- Wired the selected passives into Sphere damage/attack cadence, player movement
+  and health, enemy movement, crit/dodge, XP orb attraction, damage reduction and
+  network-disable duration.
+- Corrected misleading Sphere progression text: unlocking its progression and
+  physically placing that Sphere are separate source actions.
+- Added deterministic core formula tests and source-contract CI regressions.
+
+REMAINING LEVEL-UP GAPS:
+- Additional source passives (Sphere Radius, Vampirism, Sphere Boost, Resonance,
+  cooldown and other effects) and active abilities with the three progressively
+  unlocked slots still need full runtime integration. They are not shown as live
+  Level-Up cards in this slice.
+- Level-Up Reroll/Lock controls, full Russian localization and comparison of
+  concrete runtime scenarios against browser behavior remain open.
+- Main menu navigation, character/shop/settings/archive/achievement/leaderboard
+  screens, region challenge/endless selection and exact in-run HUD parity remain
+  incomplete. This commit does not claim the requested full UI port.
+- Unity Editor compilation, Android APK production and device visual validation
+  still require independent verification. Contract CI alone is not evidence of
+  Unity compilation or visual parity.
+
+NEXT:
+1. Confirm this Level-Up Ability patch and its CI result.
+2. Port main-menu navigation and Region Select unlock/state from src/App.tsx and
+   src/EchoMapScreen.tsx into the Unity runtime.
+3. Complete remaining ability integrations and Level-Up controls before claiming
+   Level-Up parity.
