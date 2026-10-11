@@ -2341,7 +2341,11 @@ namespace EchoSphere.Runtime
             {
                 if (target != null && target.gameObject != null && CanPlaceSphereAt(world, target))
                 {
-                    target.transform.position = world;
+                    var committed = SpherePlacementRules.ClampReposition(
+                        new Vec2(world.x, world.y),
+                        SpherePlacementRules.WorldWidth,
+                        SpherePlacementRules.WorldHeight);
+                    target.transform.position = new Vector3(committed.X, committed.Y, target.transform.position.z);
                     target.SetFollowMode(_follow, (Vector2)_player.position);
                     RefreshNetworkState();
                     CaptureSphereFormationMemoryIfChanged();
