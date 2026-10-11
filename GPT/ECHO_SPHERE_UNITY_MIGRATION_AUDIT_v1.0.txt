@@ -2093,3 +2093,15 @@ LIMITS:
 - Unity Editor compile, physical boss playtest, region transitions, Stella reward
   effect application, APK and Android acceptance remain unverified.
 
+
+
+[2026-10-11] SLICE 11 CI GUARD CORRECTION
+- CI #112 passed all 362 C# contract assertions, then preflight failed on an older
+  assertion that required the scaffold's continuous time-based enemy population cap
+  and spawn interval. Slice 11 intentionally replaces that loop with the source
+  startWave/updateEnemies progression. The guard now checks source wave count,
+  interval and completion gates instead; it still strictly validates live runtime
+  wiring rather than relaxing coverage.
+- Also corrected the single projectile conversion test expectation to 3.15 world
+  units under the audited 720 px / 12.6 world-unit camera scale. No gameplay code
+  was changed by these test-only corrections.
