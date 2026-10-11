@@ -105,7 +105,7 @@ assert.ok(!svgImporterSettings.includes('SaveAndReimport') && !svgImporterSettin
 
 const runtimeArt = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs'), 'utf8');
 assert.equal(
-  (runtimeArt.match(/public int GetSphereAuthoredModifierLevel\\(SphereId type, SphereAuthoredModifier modifier\\)\\s*=>/g) || []).length,
+  (runtimeArt.split('public int GetSphereAuthoredModifierLevel(SphereId type, SphereAuthoredModifier modifier) =>').length - 1),
   1,
   'GetSphereAuthoredModifierLevel must have exactly one declaration (CS0111 regression guard)',
 );
