@@ -200,14 +200,17 @@ assert.ok(existsSync(join(root, spherePlacementRulesPath)), 'source-mapped Spher
 const spherePlacementRules = readFileSync(join(root, spherePlacementRulesPath), 'utf8');
 for (const required of ['src/spaceCollision.ts','PlayerBuildGap','TowerPlacementGap','EnemyPlacementGap','HasRouteToOutside','GetMaxSpheres','MaxSameSphereCopies'])
   assert.ok(spherePlacementRules.includes(required), 'source Sphere placement contract missing: ' + required);
+assert.ok(spherePlacementRules.includes('ClampReposition') && runtime.includes('SpherePlacementRules.ClampReposition'),
+  'dragged Sphere coordinates must clamp only on source-style reposition commit');
 assert.ok(runtime.includes('HandleSpherePointerInput()') && runtime.includes('BeginSpherePointer') && runtime.includes('FinishSpherePointer'), 'Sphere placement/drag pointer lifecycle is not wired into the runtime');
 assert.ok(runtime.includes('DrawSpherePicker') && runtime.includes('GetSpherePickerRect') && runtime.includes('SetSelectedSphereType') === false && runtime.includes('_selectedSphereType'),
   'all ten authored Sphere types must be selectable through the live Unity picker');
 assert.ok(runtime.includes('TryPlaceOrRemoveSphereAt') && runtime.includes('RemoveSphereAgent') && runtime.includes('CanPlaceSphereAt'),
   'Sphere placement/removal and collision validation are not connected to live runtime');
 assert.ok(runtime.includes('BuildSphereNetworkPreview') && runtime.includes('DrawSpherePlacementOverlay') &&
-  runtime.includes('CaptureSphereFormationMemoryIfChanged') && runtime.includes('DrawSphereGuiCircle'),
-  'Ghost Snap preview or formation-memory presentation is not wired');
+  runtime.includes('CaptureSphereFormationMemoryIfChanged') && runtime.includes('DrawSphereGuiDashedLine') &&
+  runtime.includes('DrawSphereGuiDashedCircle') && runtime.includes('GetSphereFormationDisplayName'),
+  'Ghost Snap candidate links, predicted formation contour, or formation-memory presentation is not wired');
 assert.ok(runtime.includes('CreateSphere(SphereId.Standard, 0,') && runtime.includes('_follow = false;'),
   'source initial Standard Sphere/progression state and Formation Follow default are missing');
 assert.ok(!runtime.includes('if (choice.CurrentLevel == 0) CreateSphere(choice.Sphere, choice.NextLevel)'),
