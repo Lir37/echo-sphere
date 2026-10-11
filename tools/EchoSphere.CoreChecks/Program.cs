@@ -33,6 +33,7 @@ internal static class Program
             CheckSphereNetworkRules();
             CheckSpherePlacementRules();
             CheckSphereElementalRules();
+            CheckAlchemistReactionRules();
             Console.WriteLine($"ECHO SPHERE Unity core contracts: PASS ({_assertions} assertions)");
             return 0;
         }
@@ -617,6 +618,53 @@ internal static class Program
         Near(SphereElementalRules.CreateStatus(SphereElement.Poison, "field_duration", SphereElementalMode.Field).Duration, 5.8f, 0.0001f, "Field Duration poison status");
         Near(SphereElementalRules.CreateStatus(SphereElement.Fire, null, SphereElementalMode.Direct, 1.30f, 1.15f).Duration, 3.9f, 0.0001f, "Alchemist source status duration multiplier");
         Near(SphereElementalRules.CreateStatus(SphereElement.Fire, null, SphereElementalMode.Direct, 1f, 1.15f).DamagePerSecond, 9.2f, 0.0001f, "Alchemist source status damage multiplier");
+    }
+
+    private static void CheckAlchemistReactionRules()
+    {
+        Equal(AlchemistReactionRules.Resolve(true, false, true), AlchemistReactionKind.ToxinIgnition,
+            "Fire + Poison creates Toxin Ignition");
+        Equal(AlchemistReactionRules.Resolve(false, true, true), AlchemistReactionKind.Cryotoxin,
+            "Freeze + Poison creates Cryotoxin");
+        Equal(AlchemistReactionRules.Resolve(true, true, false), AlchemistReactionKind.ThermalShock,
+            "Fire + Freeze creates Thermal Shock");
+        Equal(AlchemistReactionRules.Resolve(false, false, true), AlchemistReactionKind.None,
+            "one elemental status cannot react alone");
+        Equal(AlchemistReactionRules.Resolve(true, true, true), AlchemistReactionKind.ToxinIgnition,
+            "when all three statuses coexist source priority consumes Fire + Poison first");
+
+        Near(AlchemistReactionRules.GetBaseDamage(1), 22f, 0f, "source Alchemist burst damage at player level I");
+        Near(AlchemistReactionRules.GetBaseDamage(10), 40f, 0f, "source Alchemist burst damage scales with player level");
+        Near(AlchemistReactionRules.GetBurstMultiplier(AlchemistReactionKind.ToxinIgnition, 1, 1), 2f, 0f,
+            "Toxin Ignition base multiplier");
+        Near(AlchemistReactionRules.GetBurstMultiplier(AlchemistReactionKind.Cryotoxin, 1, 1), 1.6f, 0f,
+            "Cryotoxin base multiplier");
+        Near(AlchemistReactionRules.GetBurstMultiplier(AlchemistReactionKind.ThermalShock, 1, 1), 1.8f, 0f,
+            "Thermal Shock base multiplier");
+        Near(AlchemistReactionRules.GetBurstMultiplier(AlchemistReactionKind.ToxinIgnition, 7, 1), 2.1f, 0.0001f,
+            "Alchemist mastery VII burst bonus");
+        Near(AlchemistReactionRules.GetBurstMultiplier(AlchemistReactionKind.ToxinIgnition, 9, 3), 2.625f, 0.0001f,
+            "Alchemist mastery IX boosts every third reaction");
+        Near(AlchemistReactionRules.GetBurstMultiplier(AlchemistReactionKind.ToxinIgnition, 9, 2), 2.1f, 0.0001f,
+            "Alchemist mastery IX leaves non-third reactions at the normal mastery bonus");
+        Near(AlchemistReactionRules.GetBurstMultiplier(AlchemistReactionKind.None, 10, 3), 0f, 0f,
+            "no reaction yields no burst damage");
+
+        Equal(AlchemistReactionRules.GetReactionRadiusSourcePixels(1), 55, "Alchemist base reaction radius");
+        Equal(AlchemistReactionRules.GetReactionRadiusSourcePixels(2), 60, "Alchemist mastery II reaction radius");
+        Equal(AlchemistReactionRules.GetReactionRadiusSourcePixels(6), 70, "Alchemist mastery VI reaction radius");
+        Equal(AlchemistReactionRules.GetSplashTargetCount(3), 0, "Alchemist splash locked before mastery IV");
+        Equal(AlchemistReactionRules.GetSplashTargetCount(4), 1, "Alchemist mastery IV splashes one nearby enemy");
+        Equal(AlchemistReactionRules.GetSplashTargetCount(9), 1, "Alchemist splash remains one target before mastery X");
+        Equal(AlchemistReactionRules.GetSplashTargetCount(10), 2, "Alchemist mastery X splashes two nearby enemies");
+        Near(AlchemistReactionRules.GetSplashDamageMultiplier(), 0.5f, 0f, "Alchemist splash damage is half the burst");
+        Near(AlchemistReactionRules.GetSlowDuration(AlchemistReactionKind.Cryotoxin), 2f, 0f, "Cryotoxin slow duration");
+        Near(AlchemistReactionRules.GetSlowMultiplier(AlchemistReactionKind.Cryotoxin), 0.35f, 0f, "Cryotoxin slow strength");
+        Near(AlchemistReactionRules.GetSlowDuration(AlchemistReactionKind.ThermalShock), 2f, 0f, "Thermal Shock slow duration");
+        Near(AlchemistReactionRules.GetSlowMultiplier(AlchemistReactionKind.ThermalShock), 0.40f, 0f, "Thermal Shock slow strength");
+        Near(AlchemistReactionRules.GetSlowDuration(AlchemistReactionKind.ToxinIgnition), 0f, 0f, "Toxin Ignition does not add a slow");
+        Near(AlchemistReactionRules.GetCatalystDurationSeconds(4), 0f, 0f, "Catalyst locked before mastery V");
+        Near(AlchemistReactionRules.GetCatalystDurationSeconds(5), 2f, 0f, "mastery V Catalyst window");
     }
 
     private static void CheckSphereNetworkRules()

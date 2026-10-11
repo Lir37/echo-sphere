@@ -176,7 +176,6 @@ namespace EchoSphere.Runtime
             var element = SphereElementalRules.ResolveElement(branch, finalId);
             if (element == SphereElement.None) return;
             var masteryId = SphereElementalRules.GetMasteryId(branch, finalId);
-            var durationMultiplier = _runtime.GetSphereStatusDurationMultiplier();
             var damageMultiplier = _runtime.GetSphereStatusDamageMultiplier() * _runtime.GetSphereElementalMasteryDamageMultiplier();
 
             if (_type == SphereId.Chain && SphereElementalRules.IsChainBranch(branch))
@@ -188,6 +187,7 @@ namespace EchoSphere.Runtime
                 target.ReceiveSphereDamage(_type, baseDamage * SphereElementalRules.GetConductionDamageMultiplier(masteryId));
                 if (target.IsAlive)
                 {
+                    var durationMultiplier = _runtime.GetSphereStatusDurationMultiplier(element);
                     var status = SphereElementalRules.CreateStatus(element, masteryId, SphereElementalMode.Conduction,
                         durationMultiplier, damageMultiplier);
                     target.ApplyElementalStatus(status, _type);
@@ -200,14 +200,16 @@ namespace EchoSphere.Runtime
                 SphereElementalRules.IsFieldBranch(branch))
             {
                 if (!target.TryBeginFieldElementalReaction(SphereElementalRules.GetFieldCooldown(masteryId))) return;
+                var durationMultiplier = _runtime.GetSphereStatusDurationMultiplier(element);
                 var status = SphereElementalRules.CreateStatus(element, masteryId, SphereElementalMode.Field,
                     durationMultiplier, damageMultiplier);
                 target.ApplyElementalStatus(status, _type);
                 return;
             }
 
+            var directDurationMultiplier = _runtime.GetSphereStatusDurationMultiplier(element);
             var directStatus = SphereElementalRules.CreateStatus(element, masteryId, SphereElementalMode.Direct,
-                durationMultiplier, damageMultiplier);
+                directDurationMultiplier, damageMultiplier);
             target.ApplyElementalStatus(directStatus, _type);
         }
 

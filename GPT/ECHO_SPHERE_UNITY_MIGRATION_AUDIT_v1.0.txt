@@ -2177,3 +2177,14 @@ Ported a runtime-backed first slice of the source elemental Mutation combat:
 - Added contract tests for 29 fixed branch mappings, all three Prism Spectrum final elements, mastery selection, duration/DPS, Tempo, Conduction and Field numbers. CI run #164 for commit `b632025c825f45e097f1837aac904258793dafad` passed: 433 previous C# assertions plus the new elemental contracts, and the Node Unity structure/runtime guard.
 
 Known remaining Sphere parity gaps: full character selection and persistent mastery/profile loop; Alchemist elemental-combination reactions/catalyst; persistent shop `shopUpgrades.spheres` contribution to runtime capacity; source Sphere modifier upgrade path and `SPHERE_ABILITY_SYNERGIES` interaction/visibility; final audit still requires a full per-branch combat-path review. Unity Editor compilation, APK build and on-device verification have not been performed in this environment.
+
+
+## Alchemist Elemental Reactions — 2026-10-11
+
+Ported the source Alchemist reaction rules from `new-desing/src/characterRuntime.ts` into the Unity 2.5D runtime.
+
+- Fire + Poison resolves to Toxin Ignition (2.0x); Freeze + Poison resolves to Cryotoxin (1.6x); Fire + Freeze resolves to Thermal Shock (1.8x). If all three statuses coexist, source priority consumes Fire + Poison first.
+- Reaction damage uses the source formula `20 + player level * 2`. Cryotoxin and Thermal Shock consume their paired statuses and apply their source slow (2 seconds at 0.35x / 0.40x); Toxin Ignition consumes Fire + Poison without adding a slow.
+- Mastery thresholds were ported: radius 55/60/70 source pixels at I/II/VI; mastery IV adds 50%-damage splash to one nearby enemy; mastery X targets two; mastery VII adds 5% burst power; mastery IX boosts every third reaction by 25%; mastery V enables a 2-second Catalyst.
+- Catalyst extends the next Fire/Poison status duration by 50% and is consumed; Alchemist mastery III extends Freeze duration by 50%. Existing Alchemist base duration/damage modifiers remain applied.
+- Added pure contract tests and CI source guards. Runtime execution remains dependent on wiring a selected character/profile: the current default character is still Spherist, so these Alchemist-only effects are not active in a fresh run until character selection/profile integration is ported.

@@ -389,3 +389,17 @@ assert.ok(runtime.includes('SpawnCombatArc(Vector2 from, Vector2 to') && runtime
 assert.ok(sphereAttack.includes('_runtime.SpawnCombatArc(origin, target.transform.position, SphereId.Chain'), 'Chain targets must connect to the live source-mapped arc');
 assert.ok(runtime.includes('SpawnCombatArc(center, targets[i].transform.position, SphereId.Chain') && runtime.includes('SpawnCombatArc(primary.transform.position, target.transform.position, SphereId.Chain'), 'Chain Storm secondary and extra strikes need visual arcs');
 assert.ok(runtime.includes('SpawnCombatArc(origin, target.transform.position, SphereId.Prism'), 'Prism Mirror ricochets must connect the source-mapped refraction visual');
+const alchemistReactionPath = 'Assets/EchoSphere/Scripts/Core/AlchemistReactionRules.cs';
+assert.ok(existsSync(join(root, alchemistReactionPath)), 'source Alchemist elemental reaction rules are missing');
+const alchemistReactionRules = readFileSync(join(root, alchemistReactionPath), 'utf8');
+for (const token of ['ToxinIgnition', 'Cryotoxin', 'ThermalShock', 'GetBurstMultiplier', 'GetReactionRadiusSourcePixels', 'GetSplashTargetCount', 'GetCatalystDurationSeconds'])
+  assert.ok(alchemistReactionRules.includes(token), 'Alchemist source reaction contract missing: ' + token);
+assert.ok(runtime.includes('TryTriggerAlchemistReaction') && runtime.includes('AlchemistReactionRules.GetBaseDamage(_level)') &&
+  runtime.includes('GetSphereStatusDurationMultiplier(SphereElement element)') &&
+  runtime.includes('_alchemistCatalystTimer = Mathf.Max(0f, _alchemistCatalystTimer - dt)'),
+  'Alchemist reaction, status-duration Catalyst and runtime timer are not connected');
+assert.ok(enemy.includes('GetAlchemistReactionKind') && enemy.includes('ConsumeAlchemistReaction') &&
+  enemy.includes('_runtime.TryTriggerAlchemistReaction(this)'),
+  'elemental status application must trigger and consume actual Alchemist reactions');
+assert.ok(sphereAttack.includes('GetSphereStatusDurationMultiplier(element)'),
+  'Sphere elemental status application must use Alchemist Catalyst/mastery duration rules');

@@ -103,6 +103,55 @@ namespace EchoSphere.Runtime
                 _slowTimer = Mathf.Max(_slowTimer, status.AdditionalSlowDuration);
                 _slowMultiplier = Mathf.Min(_slowMultiplier, status.AdditionalSlowMultiplier);
             }
+            if (_runtime != null) _runtime.TryTriggerAlchemistReaction(this);
+        }
+
+        public AlchemistReactionKind GetAlchemistReactionKind() =>
+            AlchemistReactionRules.Resolve(HasFireStatus, HasFreezeStatus, HasPoisonStatus);
+
+        public void ConsumeAlchemistReaction(AlchemistReactionKind kind)
+        {
+            if (_dead) return;
+            switch (kind)
+            {
+                case AlchemistReactionKind.ToxinIgnition:
+                    ClearFireStatus();
+                    ClearPoisonStatus();
+                    break;
+                case AlchemistReactionKind.Cryotoxin:
+                    ClearFreezeStatus();
+                    ClearPoisonStatus();
+                    ApplySlow(2f, 0.35f);
+                    break;
+                case AlchemistReactionKind.ThermalShock:
+                    ClearFireStatus();
+                    ClearFreezeStatus();
+                    ApplySlow(2f, 0.40f);
+                    break;
+            }
+        }
+
+        private void ClearFireStatus()
+        {
+            _fireTimer = 0f;
+            _fireDps = 0f;
+            _fireTickTimer = 0f;
+            _fireTickInterval = 0f;
+        }
+
+        private void ClearFreezeStatus()
+        {
+            _freezeTimer = 0f;
+            _freezeVulnerabilityTimer = 0f;
+            _freezeVulnerabilitySource = null;
+        }
+
+        private void ClearPoisonStatus()
+        {
+            _poisonTimer = 0f;
+            _poisonDps = 0f;
+            _poisonTickTimer = 0f;
+            _poisonTickInterval = 0f;
         }
 
         public bool TryAdvanceElementalConduction(SphereId source, int threshold, float cooldown)

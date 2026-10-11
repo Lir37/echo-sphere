@@ -63,6 +63,8 @@ namespace EchoSphere.Runtime
         private bool _follow, _paused, _levelUp, _gameOver, _userPaused, _regionStabilized;
         private bool _stellaRewardPending, _stellaRewardIsLegendary;
         private float _swiftBootsTimer;
+        private float _alchemistCatalystTimer;
+        private int _alchemistReactionCount;
         private RegionBossScheduleState _regionSchedule;
         private bool _mainMenu = true;
         private bool _regionSelect;
@@ -101,10 +103,69 @@ namespace EchoSphere.Runtime
 
         public string GetSphereBranch(SphereId type) => _sphereBranches.TryGetValue(type, out var id) ? id : null;
         public string GetSphereFinal(SphereId type) => _sphereFinals.TryGetValue(type, out var id) ? id : null;
-        public float GetSphereStatusDurationMultiplier() => _sphereCharacterId == SphereCharacterId.Alchemist ? 1.30f : 1f;
+        public float GetSphereStatusDurationMultiplier(SphereElement element)
+        {
+            if (_sphereCharacterId != SphereCharacterId.Alchemist) return 1f;
+            var multiplier = 1.30f;
+            // Source Alchemist mastery III extends every Freeze application by 50%.
+            // A ready Catalyst instead extends the next Fire/Poison application and is consumed.
+            if (element == SphereElement.Freeze && _characterMasteryLevel >= 3)
+            {
+                multiplier *= 1.5f;
+                _alchemistCatalystTimer = 0f;
+            }
+            else if ((element == SphereElement.Fire || element == SphereElement.Poison) && _alchemistCatalystTimer > 0f)
+            {
+                multiplier *= 1.5f;
+                _alchemistCatalystTimer = 0f;
+            }
+            return multiplier;
+        }
         public float GetSphereStatusDamageMultiplier() => _sphereCharacterId == SphereCharacterId.Alchemist ? 1.15f : 1f;
         public float GetSphereElementalMasteryDamageMultiplier() =>
             _sphereCharacterId == SphereCharacterId.Alchemist && _characterMasteryLevel >= 3 ? 1.05f : 1f;
+
+        public void TryTriggerAlchemistReaction(EnemyAgent2D enemy)
+        {
+            if (_sphereCharacterId != SphereCharacterId.Alchemist || enemy == null || !enemy.IsAlive) return;
+            var kind = enemy.GetAlchemistReactionKind();
+            if (kind == AlchemistReactionKind.None) return;
+
+            _alchemistReactionCount++;
+            var mastery = Mathf.Clamp(_characterMasteryLevel, 1, 10);
+            var multiplier = AlchemistReactionRules.GetBurstMultiplier(kind, mastery, _alchemistReactionCount);
+            if (multiplier <= 0f) return;
+
+            var center = (Vector2)enemy.transform.position;
+            var damage = AlchemistReactionRules.GetBaseDamage(_level) * multiplier;
+            var color = kind == AlchemistReactionKind.ToxinIgnition
+                ? new Color(0.35f, 0.55f, 0.29f, 0.95f)
+                : kind == AlchemistReactionKind.Cryotoxin
+                    ? new Color(0.29f, 0.48f, 0.54f, 0.95f)
+                    : new Color(0.77f, 0.43f, 0.24f, 0.95f);
+
+            enemy.ConsumeAlchemistReaction(kind);
+            enemy.ReceiveDamage(damage);
+
+            var splashCount = AlchemistReactionRules.GetSplashTargetCount(mastery);
+            if (splashCount > 0)
+            {
+                var radius = AlchemistReactionRules.GetReactionRadiusSourcePixels(mastery) * SpherePlacementRules.SourcePixelsToWorld;
+                var nearby = FindEnemiesInRadius(center, radius);
+                var applied = 0;
+                for (var i = 0; i < nearby.Count && applied < splashCount; i++)
+                {
+                    var target = nearby[i];
+                    if (target == null || target == enemy || !target.IsAlive) continue;
+                    target.ReceiveDamage(damage * AlchemistReactionRules.GetSplashDamageMultiplier());
+                    SpawnImpact(target.transform.position, color);
+                    applied++;
+                }
+            }
+
+            SpawnImpact(center, color);
+            _alchemistCatalystTimer = AlchemistReactionRules.GetCatalystDurationSeconds(mastery);
+        }
 
         private void Start()
         {
@@ -133,6 +194,7 @@ namespace EchoSphere.Runtime
             TickSphereArtAnimation(dt);
             _playerCore.Tick(dt);
             _swiftBootsTimer = Mathf.Max(0f, _swiftBootsTimer - dt);
+            _alchemistCatalystTimer = Mathf.Max(0f, _alchemistCatalystTimer - dt);
             _playerCore.Heal(Mathf.Max(0f, ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "regen")) * dt);
             if (_messageTimer > 0f) _messageTimer -= dt;
             _formationMemoryTimer = Mathf.Max(0f, _formationMemoryTimer - dt);
