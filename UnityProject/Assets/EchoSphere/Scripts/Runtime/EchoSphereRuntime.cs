@@ -72,7 +72,7 @@ namespace EchoSphere.Runtime
         private readonly HashSet<string> _resonanceKnownFormationKeys = new HashSet<string>();
         private readonly List<int> _resonanceRingNodes = new List<int>();
         private string _message = "RIGHT HALF: MOVE. LEFT HALF: PLACE / DRAG SPHERES. TAP SPHERE: REMOVE.";
-        private GUIStyle _box, _label, _button, _title, _sphereDescriptionStyle, _spherePickerLabelStyle;
+        private GUIStyle _box, _label, _button, _title, _sphereDescriptionStyle;
         private readonly List<LineRenderer> _networkLinkRenderers = new List<LineRenderer>();
         private Material _networkLineMaterial;
         private SphereNetworkState _networkState;
@@ -636,24 +636,6 @@ namespace EchoSphere.Runtime
                 case SphereId.Gravity: return RuntimeSpriteFactory.Diamond;
                 case SphereId.Pulse: return RuntimeSpriteFactory.Star;
                 default: return RuntimeSpriteFactory.Faceted;
-            }
-        }
-
-        private static string SphereShortName(SphereId type)
-        {
-            switch (type)
-            {
-                case SphereId.Standard: return "STD";
-                case SphereId.Sniper: return "SNP";
-                case SphereId.Shotgun: return "SGN";
-                case SphereId.Chain: return "CHN";
-                case SphereId.Aura: return "AUR";
-                case SphereId.Orbital: return "ORB";
-                case SphereId.Prism: return "PRS";
-                case SphereId.Gravity: return "GRV";
-                case SphereId.Pulse: return "PLS";
-                case SphereId.Void: return "VOI";
-                default: return "???";
             }
         }
 
@@ -2855,7 +2837,6 @@ namespace EchoSphere.Runtime
                     _box.border = new RectOffset(5, 5, 5, 5);
                     _label = new GUIStyle(GUI.skin.label) { fontSize = 15, normal = { textColor = new Color(0.72f, 0.88f, 1f) } };
                     _sphereDescriptionStyle = new GUIStyle(_label) { fontSize = 11, wordWrap = true, clipping = TextClipping.Clip };
-                    _spherePickerLabelStyle = new GUIStyle(_label) { fontSize = 12, alignment = TextAnchor.MiddleLeft, clipping = TextClipping.Clip };
                     _button = new GUIStyle(GUI.skin.button) { fontSize = 14, wordWrap = true, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter };
                     _button.normal.background = _uiButtonTexture;
                     _button.hover.background = _uiButtonHoverTexture;
