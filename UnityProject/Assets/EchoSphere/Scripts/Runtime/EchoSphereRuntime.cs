@@ -2716,13 +2716,20 @@ namespace EchoSphere.Runtime
                             new Color(1f, 0.72f, 0.30f, 0.82f), 2f, 6f, 5f);
                     }
                 }
+                var candidateFill = _spherePointerPositionValid
+                    ? new Color(previewColor.r, previewColor.g, previewColor.b, 0.09f)
+                    : new Color(1f, 0.30f, 0.37f, 0.12f);
+                DrawSpriteIcon(new Rect(candidateGui.x - 25f, candidateGui.y - 25f, 50f, 50f),
+                    RuntimeSpriteFactory.Disc, candidateFill);
                 DrawSphereGuiDashedCircle(candidateGui, 25f,
-                    new Color(previewColor.r, previewColor.g, previewColor.b, 0.92f), 2f, 5f, 4f);
+                    new Color(previewColor.r, previewColor.g, previewColor.b, 1f), 2f, 5f, 4f);
                 var formationName = GetSphereFormationDisplayName(formation);
                 var status = _spherePointerPositionValid ? formationName : "INVALID";
                 var style = new GUIStyle(_label) { alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold };
-                GUI.color = previewColor;
-                GUI.Label(new Rect(candidateGui.x - 80f, candidateGui.y - 36f, 160f, 24f), status, style);
+                GUI.color = _spherePointerPositionValid
+                    ? new Color(0.86f, 0.92f, 1f)
+                    : new Color(1f, 0.48f, 0.52f);
+                GUI.Label(new Rect(candidateGui.x - 80f, candidateGui.y - 31f, 160f, 24f), status, style);
             }
 
             if (_formationMemoryTimer > 0f && _formationMemoryPoints != null && _formationMemoryPoints.Length >= 2)
@@ -2735,14 +2742,19 @@ namespace EchoSphere.Runtime
                 if (_formationMemoryType != SphereNetworkFormation.Line && _formationMemoryPoints.Length > 2)
                     DrawSphereGuiDashedLine(WorldToGuiPoint(_formationMemoryPoints[_formationMemoryPoints.Length - 1]),
                         WorldToGuiPoint(_formationMemoryPoints[0]), memoryColor, 1.5f, 4f, 6f);
+                for (var i = 0; i < _formationMemoryPoints.Length; i++)
+                    DrawSphereGuiCircle(WorldToGuiPoint(_formationMemoryPoints[i]), 9f, memoryColor, 1.5f);
             }
 
             if (_placementFlashTimer > 0f)
             {
                 var ratio = Mathf.Clamp01(_placementFlashTimer / 0.45f);
                 var radius = 18f + (1f - ratio) * 25f;
-                DrawSphereGuiCircle(WorldToGuiPoint(_placementFlashPosition), radius,
+                var placementPoint = WorldToGuiPoint(_placementFlashPosition);
+                DrawSphereGuiCircle(placementPoint, radius,
                     new Color(_placementFlashColor.r, _placementFlashColor.g, _placementFlashColor.b, ratio * 0.8f), 2f);
+                DrawSphereGuiCircle(placementPoint, 17f,
+                    new Color(_placementFlashColor.r, _placementFlashColor.g, _placementFlashColor.b, ratio * 0.55f), 1f);
             }
 
             GUI.color = previousColor;
