@@ -247,12 +247,12 @@ namespace EchoSphere.Runtime
             }
             if (_agent.NetworkDisabled)
             {
-                var disabled = new Color(1f, 0.22f, 0.39f, 0.94f);
-                _detail.Line(new Vector2(-R * 1.18f, -R * 0.54f), new Vector2(-R * 0.52f, -R * 0.02f), disabled, 0.025f);
-                _detail.Line(new Vector2(-R * 1.18f, R * 0.54f), new Vector2(-R * 0.52f, R * 0.02f), disabled, 0.025f);
-                _detail.Line(new Vector2(R * 1.18f, -R * 0.54f), new Vector2(R * 0.52f, -R * 0.02f), disabled, 0.025f);
-                _detail.Line(new Vector2(R * 1.18f, R * 0.54f), new Vector2(R * 0.52f, R * 0.02f), disabled, 0.025f);
-                _detail.Arc(Vector2.zero, R * 1.25f, R * 0.82f, _time * 2.1f, Mathf.PI * 1.4f, disabled, 0.016f, 0.62f);
+                var disabledColor = new Color(1f, 0.22f, 0.39f, 0.94f);
+                _detail.Line(new Vector2(-R * 1.18f, -R * 0.54f), new Vector2(-R * 0.52f, -R * 0.02f), disabledColor, 0.025f);
+                _detail.Line(new Vector2(-R * 1.18f, R * 0.54f), new Vector2(-R * 0.52f, R * 0.02f), disabledColor, 0.025f);
+                _detail.Line(new Vector2(R * 1.18f, -R * 0.54f), new Vector2(R * 0.52f, -R * 0.02f), disabledColor, 0.025f);
+                _detail.Line(new Vector2(R * 1.18f, R * 0.54f), new Vector2(R * 0.52f, R * 0.02f), disabledColor, 0.025f);
+                _detail.Arc(Vector2.zero, R * 1.25f, R * 0.82f, _time * 2.1f, Mathf.PI * 1.4f, disabledColor, 0.016f, 0.62f);
             }
             Upload(_detailMesh, _detail);
         }
