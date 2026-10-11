@@ -63,19 +63,21 @@ jobs:
           MISSING_SECRETS: ${{ steps.check.outputs.missing }}
         run: |
           {
-            echo "## Unity Android APK build skipped"
-            echo
-            echo "The build workflow is installed, but Unity requires these GitHub Actions secrets before the cloud Editor can run:"
-            echo
-            echo "- `UNITY_LICENSE`"
-            echo "- `UNITY_EMAIL`"
-            echo "- `UNITY_PASSWORD`"
-            echo
-            echo "Missing now: `$MISSING_SECRETS`."
-            echo
-            echo "Add the values in **Settings → Secrets and variables → Actions**. Do not commit a license file or credentials to the repository. Then push a UnityProject change or run this workflow manually."
-            echo
-            echo "No APK artifact is produced by this skipped run."
+            printf '%s\n' \
+              '## Unity Android APK build skipped' \
+              '' \
+              'The build workflow is installed, but Unity requires these GitHub Actions secrets before the cloud Editor can run:' \
+              '' \
+              '- `UNITY_LICENSE`' \
+              '- `UNITY_EMAIL`' \
+              '- `UNITY_PASSWORD`' \
+              ''
+            printf 'Missing now: `%s`.\n' "$MISSING_SECRETS"
+            printf '%s\n' \
+              '' \
+              'Add the values in **Settings → Secrets and variables → Actions**. Do not commit a license file or credentials to the repository. Then push a UnityProject change or run this workflow manually.' \
+              '' \
+              'No APK artifact is produced by this skipped run.'
           } >> "$GITHUB_STEP_SUMMARY"
 
   build-apk:
