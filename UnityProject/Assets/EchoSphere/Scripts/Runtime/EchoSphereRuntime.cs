@@ -639,6 +639,26 @@ namespace EchoSphere.Runtime
             }
         }
 
+        // Retained for the existing compact active-Sphere roster; the new type
+        // picker itself uses the authored MobileControls glyphs without text labels.
+        private static string SphereShortName(SphereId type)
+        {
+            switch (type)
+            {
+                case SphereId.Standard: return "STD";
+                case SphereId.Sniper: return "SNP";
+                case SphereId.Shotgun: return "SGN";
+                case SphereId.Chain: return "CHN";
+                case SphereId.Aura: return "AUR";
+                case SphereId.Orbital: return "ORB";
+                case SphereId.Prism: return "PRS";
+                case SphereId.Gravity: return "GRV";
+                case SphereId.Pulse: return "PLS";
+                case SphereId.Void: return "VOI";
+                default: return "???";
+            }
+        }
+
         private static void DrawSpriteIcon(Rect rect, Sprite sprite, Color tint)
         {
             if (sprite == null) return;
