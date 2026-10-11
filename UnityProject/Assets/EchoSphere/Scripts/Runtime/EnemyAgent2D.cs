@@ -13,6 +13,7 @@ namespace EchoSphere.Runtime
         private int _xpReward = 1;
         private float _moveSpeed;
         private bool _dead;
+        private bool _isElite;
         private float _slowTimer;
         private float _slowMultiplier = 1f;
         private float _markTimer;
@@ -33,6 +34,7 @@ namespace EchoSphere.Runtime
         private string _bossType = "";
         public bool IsMarked => _markTimer > 0f;
         public bool IsBoss => !string.IsNullOrEmpty(_bossType);
+        public bool IsElite => _isElite;
         public string BossType => _bossType;
         public float MaxHp => _maxHp;
         public Vector2 PlayerPosition => _player == null ? Vector2.zero : (Vector2)_player.position;
@@ -248,11 +250,12 @@ namespace EchoSphere.Runtime
             transform.position = Vector2.MoveTowards(transform.position, center, Mathf.Max(0f, distance) * 0.22f);
         }
 
-        public void Initialize(EchoSphereRuntime runtime, Transform player, float hp, float moveSpeed, int xpReward = 1, string visualVariant = "wisp", string bossType = "")
+        public void Initialize(EchoSphereRuntime runtime, Transform player, float hp, float moveSpeed, int xpReward = 1, string visualVariant = "wisp", string bossType = "", bool isElite = false)
         {
             _runtime = runtime;
             _player = player;
             _bossType = bossType ?? "";
+            _isElite = isElite;
             _hp = hp;
             _maxHp = Mathf.Max(1f, hp);
             _moveSpeed = Mathf.Max(0f, moveSpeed);

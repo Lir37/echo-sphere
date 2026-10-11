@@ -21,6 +21,8 @@ const required = [
   'Assets/EchoSphere/Scripts/Core/BossCombatRules.cs',
   'Assets/EchoSphere/Scripts/Core/RegionBossScheduleRules.cs',
   'Assets/EchoSphere/Scripts/Core/RegionUnlockRules.cs',
+  'Assets/EchoSphere/Scripts/Core/PersistentUpgradeRules.cs',
+  'Assets/EchoSphere/Scripts/Core/DifficultyRules.cs',
   'Assets/EchoSphere/Scripts/Core/ArtifactRewardRules.cs',
   'Assets/EchoSphere/Scripts/Runtime/StellaChestAgent2D.cs',
   'Assets/EchoSphere/Scripts/Runtime/BossCombatAgent2D.cs',
@@ -345,6 +347,20 @@ assert.ok(runtime.includes('if (GUI.Button(button, IsRussianUi ? "ВЫБРАТЬ
   'localized main-menu button must retain valid IMGUI call syntax');
 const regionFieldNamespaceCheck = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/RegionFieldVisuals.cs'), 'utf8');
 assert.ok(regionFieldNamespaceCheck.includes('using EchoSphere.Core;'), 'Region field must import the source Region id types');
+const persistentUpgradeRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/PersistentUpgradeRules.cs'), 'utf8');
+for (const token of ['"dmg"', '"radius"', '"speed"', '"spheres"', '"hp"', '"crit"', '"xp"', 'Math.Pow(3d, currentLevel)'])
+  assert.ok(persistentUpgradeRules.includes(token), 'source persistent-shop contract missing: ' + token);
+const difficultyRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/DifficultyRules.cs'), 'utf8');
+for (const token of ['0.7f, 0.8f, 0.7f, 0.8f, 0.8f', '1.4f, 1.2f, 1.3f, 1.5f, 1.2f', '2f, 1.4f, 1.6f, 2f, 1.5f'])
+  assert.ok(difficultyRules.includes(token), 'source Difficulty multipliers missing: ' + token);
+assert.ok(runtime.includes('GetShopSphereRadiusMultiplier()') && runtime.includes('PersistentUpgradeRules.GetStartingHpBonus') &&
+  runtime.includes('GetShopUpgradeLevel("xp")') && runtime.includes('CurrentDifficulty.EnemyHpMultiplier') &&
+  runtime.includes('CurrentDifficulty.SpawnRateMultiplier') && runtime.includes('CurrentDifficulty.EnemyDamageMultiplier'),
+  'persistent shop and Difficulty must affect live runtime paths');
+const sphereAttack = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs'), 'utf8');
+assert.ok(sphereAttack.includes('_runtime.GetShopSphereRadiusMultiplier()'), 'persistent Sphere Radius must affect live Sphere range');
+const playerCore = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/PlayerCoreController2D.cs'), 'utf8');
+assert.ok(playerCore.includes('DashCount++'), 'Dash counter must follow successful Dash runtime');
 const regionUnlockRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/RegionUnlockRules.cs'), 'utf8');
 assert.ok(regionUnlockRules.includes('resonanceBasinStabilized') && regionUnlockRules.includes('EchoRegionId.SpectralRift'),
   'Rift unlock must follow source Basin stabilization');

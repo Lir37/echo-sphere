@@ -17,6 +17,8 @@ internal static class Program
             CheckBossCombatRules();
             CheckRegionBossSchedule();
             CheckRegionUnlockRules();
+            CheckPersistentUpgradeRules();
+            CheckDifficultyRules();
             CheckArtifactRewardRules();
             CheckSphereCombatProfiles();
             CheckSphereProgressionRules();
@@ -178,6 +180,40 @@ internal static class Program
         True(!RegionUnlockRules.IsAvailable(EchoRegionId.SpectralRift, false), "Rift remains locked before Basin stabilization");
         True(RegionUnlockRules.IsAvailable(EchoRegionId.SpectralRift, true), "Rift opens after Basin stabilization");
         True(RegionUnlockRules.IsAvailable(EchoRegionId.ResonanceBasin, true), "Basin remains available after stabilization");
+    }
+
+    private static void CheckPersistentUpgradeRules()
+    {
+        Equal(PersistentUpgradeRules.Ids.Length, 7, "source shop has seven persistent upgrades");
+        Equal(PersistentUpgradeRules.GetBaseCost("dmg"), 200, "source Sphere damage base cost");
+        Equal(PersistentUpgradeRules.GetBaseCost("hp"), 150, "source starting HP base cost");
+        Equal(PersistentUpgradeRules.GetCost("dmg", 0), 200, "shop cost at level zero");
+        Equal(PersistentUpgradeRules.GetCost("dmg", 1), 600, "shop cost follows baseCost * 3^level");
+        Equal(PersistentUpgradeRules.GetCost("dmg", 10), 0, "max-level item cannot be purchased");
+        Equal(PersistentUpgradeRules.GetMaxLevel("spheres"), 3, "source start-sphere upgrade cap");
+        Near(PersistentUpgradeRules.GetPercentMultiplier(4), 1.20f, 0.000001f, "shop +5% level scaling");
+        Equal(PersistentUpgradeRules.GetStartingHpBonus(3), 30, "shop HP is +10 per level");
+        Equal(PersistentUpgradeRules.GetExtraSpheres(3), 3, "shop capacity is +1 per level");
+        Near(PersistentUpgradeRules.GetCritChanceBonus(4), 0.20f, 0.000001f, "shop crit is +5% per level");
+    }
+
+    private static void CheckDifficultyRules()
+    {
+        var easy = DifficultyRules.GetProfile("easy");
+        Near(easy.EnemyHpMultiplier, 0.7f, 0f, "source Easy enemy HP");
+        Near(easy.EnemySpeedMultiplier, 0.8f, 0f, "source Easy enemy speed");
+        Near(easy.EnemyDamageMultiplier, 0.7f, 0f, "source Easy incoming damage");
+        Near(easy.GoldMultiplier, 0.8f, 0f, "source Easy gold multiplier");
+        Near(easy.SpawnRateMultiplier, 0.8f, 0f, "source Easy spawn rate");
+        Near(DifficultyRules.GetProfile("normal").EnemyHpMultiplier, 1f, 0f, "source Normal baseline");
+        var hard = DifficultyRules.GetProfile("hard");
+        Near(hard.EnemyHpMultiplier, 1.4f, 0f, "source Hard enemy HP");
+        Near(hard.GoldMultiplier, 1.5f, 0f, "source Hard gold multiplier");
+        var nightmare = DifficultyRules.GetProfile("nightmare");
+        Near(nightmare.EnemyHpMultiplier, 2f, 0f, "source Nightmare enemy HP");
+        Near(nightmare.EnemyDamageMultiplier, 1.6f, 0f, "source Nightmare incoming damage");
+        Near(nightmare.SpawnRateMultiplier, 1.5f, 0f, "source Nightmare spawn rate");
+        Equal(DifficultyRules.Normalize("unknown"), "normal", "invalid difficulty falls back to normal");
     }
 
     private static void CheckRegionBossSchedule()

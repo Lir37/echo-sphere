@@ -2541,3 +2541,30 @@ CI FOLLOW-UP | 2026-10-12
     earlier region-field assertion.
 - Renamed that new local guard identifier. Re-run CI #216 before extending
   this migration stage. Contract checks do not compile the Unity Editor project.
+
+
+======================================================================
+2026-10-12 | PERSISTENT SHOP AND DIFFICULTY RULES (CI PENDING)
+======================================================================
+
+CHANGES:
+- Added pure source-mapped PersistentUpgradeRules and DifficultyRules, with
+  direct deterministic Core tests.
+- Runtime now reads the source-compatible `echosphere_shop` object, including
+  all seven source upgrade IDs/caps/costs, and keeps gold at `echosphere_gold`.
+- Purchased HP, Sphere damage, Sphere range, crit chance, XP gain, movement
+  speed and max Sphere capacity are wired to actual runtime values.
+- Four source Difficulty profiles affect regular/boss HP and speed, incoming
+  damage, wave spawn interval and the gold multiplier path prepared for results.
+- PlayerCoreController2D counts successful Dashes; EnemyAgent2D tracks authored
+  Elite archetypes for the source achievements that depend on those counters.
+- Fixed a Region-clear death-path defect: Core death is checked before the
+  post-stabilization update return, so a cleared region does not prevent normal
+  death/end-of-run handling.
+
+NEXT:
+- Add the functional Shop, Settings, Leaderboard and Achievements screens to the
+  home menu and connect end-of-run gold/records/achievement persistence.
+- Character selection/mastery, Knowledge Archive, Region Challenges/Endless,
+  full source Ability catalog, exact HUD parity, Unity compile/APK/device checks
+  remain open. This CI does not compile Unity Editor scripts or build an APK.

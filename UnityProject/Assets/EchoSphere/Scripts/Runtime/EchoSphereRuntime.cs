@@ -8,6 +8,35 @@ namespace EchoSphere.Runtime
     /// <summary>First-playable migration harness; intentionally not the full production game.</summary>
     public sealed class EchoSphereRuntime : MonoBehaviour
     {
+        [System.Serializable]
+        private sealed class ShopUpgradeData
+        {
+            public int dmg, radius, speed, spheres, hp, crit, xp;
+            public int Get(string id)
+            {
+                switch (id) { case "dmg": return dmg; case "radius": return radius; case "speed": return speed; case "spheres": return spheres; case "hp": return hp; case "crit": return crit; case "xp": return xp; default: return 0; }
+            }
+            public void Set(string id, int level)
+            {
+                switch (id) { case "dmg": dmg = level; break; case "radius": radius = level; break; case "speed": speed = level; break; case "spheres": spheres = level; break; case "hp": hp = level; break; case "crit": crit = level; break; case "xp": xp = level; break; }
+            }
+            public void Clamp()
+            {
+                for (var i = 0; i < PersistentUpgradeRules.Ids.Length; i++)
+                {
+                    var id = PersistentUpgradeRules.Ids[i];
+                    Set(id, PersistentUpgradeRules.ClampLevel(id, Get(id)));
+                }
+            }
+        }
+        [System.Serializable]
+        private sealed class ShopSaveData { public ShopUpgradeData upgrades = new ShopUpgradeData(); }
+        private const string ShopPreferenceKey = "echosphere_shop";
+        private const string GoldPreferenceKey = "echosphere_gold";
+        private const string DifficultyPreferenceKey = "echosphere_difficulty";
+        private ShopSaveData _shopSave;
+        private bool _shopSaveLoaded;
+
         // Exact picker order from Object.keys(SPHERE_TYPES) in new-desing/src/gameData.ts.
         private static readonly SphereId[] SpherePickerOrder =
         {
@@ -106,7 +135,11 @@ namespace EchoSphere.Runtime
         public bool IsRegionAvailable(EchoRegionId region) =>
             RegionUnlockRules.IsAvailable(region, PlayerPrefs.GetInt(BasinStabilizedPreferenceKey, 0) == 1);
         public float NextRunRandom() => _rng.NextFloat();
+        public int GetShopUpgradeLevel(string id) { EnsureShopSaveLoaded(); return _shopSave.upgrades.Get(id); }
+        public float GetShopSphereRadiusMultiplier() => PersistentUpgradeRules.GetPercentMultiplier(GetShopUpgradeLevel("radius"));
+        private DifficultyProfile CurrentDifficulty => DifficultyRules.GetProfile(PlayerPrefs.GetString(DifficultyPreferenceKey, "normal"));
         public float SphereDamageMultiplier => _damageMultiplier * LevelUpAbilityRules.GetSphereDamageMultiplier(GetAbilityLevel(RunUpgradeKind.Damage)) *
+            PersistentUpgradeRules.GetPercentMultiplier(GetShopUpgradeLevel("dmg")) *
             Mathf.Max(0.25f, 1f + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "sphereDamage"));
         public float AttackSpeedMultiplier => _attackSpeedMultiplier * LevelUpAbilityRules.GetAttackSpeedMultiplier(GetAbilityLevel(RunUpgradeKind.AttackSpeed)) /
             Mathf.Max(0.5f, 1f + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "sphereDelay"));
@@ -195,9 +228,37 @@ namespace EchoSphere.Runtime
             _alchemistCatalystTimer = AlchemistReactionRules.GetCatalystDurationSeconds(mastery);
         }
 
+        private void EnsureShopSaveLoaded()
+        {
+            if (_shopSaveLoaded) return;
+            var raw = PlayerPrefs.GetString(ShopPreferenceKey, "");
+            try { _shopSave = string.IsNullOrEmpty(raw) ? new ShopSaveData() : JsonUtility.FromJson<ShopSaveData>(raw); }
+            catch { _shopSave = new ShopSaveData(); }
+            if (_shopSave == null || _shopSave.upgrades == null) _shopSave = new ShopSaveData();
+            _shopSave.upgrades.Clamp();
+            _shopSaveLoaded = true;
+        }
+
+        private void SaveShopState()
+        {
+            EnsureShopSaveLoaded();
+            _shopSave.upgrades.Clamp();
+            PlayerPrefs.SetString(ShopPreferenceKey, JsonUtility.ToJson(_shopSave));
+            PlayerPrefs.Save();
+        }
+
+        private int GetGold() => Mathf.Max(0, PlayerPrefs.GetInt(GoldPreferenceKey, 0));
+
+        private void SaveGold(int value)
+        {
+            PlayerPrefs.SetInt(GoldPreferenceKey, Mathf.Max(0, value));
+            PlayerPrefs.Save();
+        }
+
         private void Start()
         {
             Application.targetFrameRate = 60;
+            EnsureShopSaveLoaded();
             ConfigureCamera();
             CreateStarfield();
             var savedRegionValue = PlayerPrefs.GetInt(SelectedRegionPreferenceKey, (int)EchoRegionId.ResonanceBasin);
@@ -256,6 +317,13 @@ namespace EchoSphere.Runtime
             var cameraTarget = new Vector3(_player.position.x, _player.position.y, -10f);
             _camera.transform.position = Vector3.Lerp(_camera.transform.position, cameraTarget, 1f - Mathf.Exp(-5f * dt));
             AdvanceRegionBossSchedule();
+            if (_playerCore.IsDead && !_gameOver)
+            {
+                _gameOver = true;
+                _paused = true;
+                ShowMessage(IsRussianUi ? "ЯДРО РАЗРУШЕНО" : "CORE DESTROYED");
+                return;
+            }
             if (_regionStabilized) return;
 
             _spawnTimer -= dt;
@@ -263,7 +331,7 @@ namespace EchoSphere.Runtime
             {
                 SpawnEnemy();
                 _waveEnemiesToSpawn--;
-                _spawnTimer = RunBalanceRules.GetWaveSpawnInterval(_wave);
+                _spawnTimer = RunBalanceRules.GetWaveSpawnInterval(_wave) / Mathf.Max(0.1f, CurrentDifficulty.SpawnRateMultiplier);
             }
             if (_waveEnemiesToSpawn <= 0 && CountLivingNonBossEnemies() == 0 && !HasActiveBoss())
             {
@@ -274,7 +342,7 @@ namespace EchoSphere.Runtime
             {
                 _gameOver = true;
                 _paused = true;
-                ShowMessage("Core destroyed.");
+                ShowMessage(IsRussianUi ? "ЯДРО РАЗРУШЕНО" : "CORE DESTROYED");
             }
         }
 
@@ -378,6 +446,7 @@ namespace EchoSphere.Runtime
 
             _player = go.transform;
             _playerCore = go.AddComponent<PlayerCoreController2D>();
+            _playerCore.IncreaseMaxHp(PersistentUpgradeRules.GetStartingHpBonus(GetShopUpgradeLevel("hp")));
         }
 
 
@@ -813,8 +882,9 @@ namespace EchoSphere.Runtime
                 new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * BossCombatRules.BossSpawnDistanceWorld;
             var archetype = EnemySpawnRules.Select(_runTime, _rng.NextFloat());
             var profile = EnemySpawnRules.GetProfile(archetype);
-            var baseHp = 18f + _wave * 5.5f;
-            var baseSpeed = BossCombatRules.ToWorldUnits(68f + _wave * 1.8f);
+            var difficulty = CurrentDifficulty;
+            var baseHp = (18f + _wave * 5.5f) * difficulty.EnemyHpMultiplier;
+            var baseSpeed = BossCombatRules.ToWorldUnits(68f + _wave * 1.8f) * difficulty.EnemySpeedMultiplier;
             var tint = GetEnemyTint(archetype);
             var go = CreateOrb(GetEnemyName(archetype), position, 0.72f * profile.VisualScale, tint, Color.white, 4);
             ApplyShellVisual(go, GetEnemySprite(archetype), archetype == EnemyArchetype.Normal ? 1.12f : 1.02f);
@@ -836,7 +906,8 @@ namespace EchoSphere.Runtime
                     break;
             }
             var agent = go.AddComponent<EnemyAgent2D>();
-            agent.Initialize(this, _player, baseHp * profile.HpMultiplier, baseSpeed * profile.SpeedMultiplier, profile.XpReward, GetEnemyVisualVariant(archetype));
+            agent.Initialize(this, _player, baseHp * profile.HpMultiplier, baseSpeed * profile.SpeedMultiplier, profile.XpReward,
+                GetEnemyVisualVariant(archetype), "", archetype == EnemyArchetype.Elite);
             _enemies.Add(agent);
         }
         private bool HasActiveBoss()
@@ -899,8 +970,9 @@ namespace EchoSphere.Runtime
                 new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * BossCombatRules.BossSpawnDistanceWorld;
             var tint = Color.white;
             ColorUtility.TryParseHtmlString(BossCombatRules.GetColorHex(type), out tint);
-            var hp = BossCombatRules.GetMaxHp(wave);
-            var speed = BossCombatRules.GetMoveSpeedWorldUnitsPerSecond(type, wave);
+            var difficulty = CurrentDifficulty;
+            var hp = BossCombatRules.GetMaxHp(wave) * difficulty.EnemyHpMultiplier;
+            var speed = BossCombatRules.GetMoveSpeedWorldUnitsPerSecond(type, wave) * difficulty.EnemySpeedMultiplier;
             var damage = BossCombatRules.GetContactDamage(wave);
             var root = CreateOrb("ECHO SPHERE Boss / " + type, position, 1.23f, tint, Color.white, 4);
             var agent = root.AddComponent<EnemyAgent2D>();
@@ -916,9 +988,10 @@ namespace EchoSphere.Runtime
         public EnemyAgent2D SpawnBossMinion(Vector2 position, float hp, float moveSpeed, int xpReward, string visualVariant, Color tint)
         {
             if (_player == null || _gameOver) return null;
+            var difficulty = CurrentDifficulty;
             var root = CreateOrb("Boss Minion", position, 0.38f, tint, Color.white, 4);
             var agent = root.AddComponent<EnemyAgent2D>();
-            agent.Initialize(this, _player, hp, moveSpeed, xpReward, visualVariant);
+            agent.Initialize(this, _player, hp * difficulty.EnemyHpMultiplier, moveSpeed * difficulty.EnemySpeedMultiplier, xpReward, visualVariant);
             _enemies.Add(agent);
             return agent;
         }
@@ -1765,7 +1838,8 @@ namespace EchoSphere.Runtime
         public void AddExperience(int amount)
         {
             if (_paused || _gameOver) return;
-            var multiplier = Mathf.Max(0.5f, 1f + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "xpGain"));
+            var multiplier = Mathf.Max(0.5f, PersistentUpgradeRules.GetPercentMultiplier(GetShopUpgradeLevel("xp")) *
+                (1f + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "xpGain")));
             _xp += Mathf.Max(0, (int)Mathf.Floor(Mathf.Max(0, amount) * multiplier + 0.5f));
             OpenLevelUpIfReady();
         }
@@ -1793,7 +1867,8 @@ namespace EchoSphere.Runtime
         {
             var artifactCrit = ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "critChance");
             var abilityCrit = LevelUpAbilityRules.GetCritChanceBonus(GetAbilityLevel(RunUpgradeKind.Crit));
-            var critChance = Mathf.Min(CombatRules.CritHardCap, CombatRules.CritBase + Mathf.Max(0f, critChanceBonus + artifactCrit + abilityCrit));
+            var shopCrit = PersistentUpgradeRules.GetCritChanceBonus(GetShopUpgradeLevel("crit"));
+            var critChance = Mathf.Min(CombatRules.CritHardCap, CombatRules.CritBase + Mathf.Max(0f, critChanceBonus + artifactCrit + abilityCrit + shopCrit));
             var result = CombatRules.ResolveDamage(damage, critChance, _rng.NextFloat(), CombatRules.CritMultiplierBase);
             wasCritical = result.WasCritical;
             return result.Damage;
@@ -1810,7 +1885,7 @@ namespace EchoSphere.Runtime
                 ShowMessage("DODGED");
                 return;
             }
-            var received = Mathf.Max(0f, damage) * GetArtifactDamageTakenMultiplier();
+            var received = Mathf.Max(0f, damage) * GetArtifactDamageTakenMultiplier() * CurrentDifficulty.EnemyDamageMultiplier;
             if (_ownedArtifacts.Contains("mirror") && _playerCore.CanReceiveDamageNow && _rng.NextFloat() < 0.20f)
             {
                 EnemyAgent2D nearest = null;
@@ -1839,7 +1914,7 @@ namespace EchoSphere.Runtime
         public void TryDamagePlayerOverTime(float damage)
         {
             if (_playerCore != null && !_playerCore.IsDead &&
-                _playerCore.TryTakeDotDamage(Mathf.Max(0f, damage) * GetArtifactDamageTakenMultiplier()))
+                _playerCore.TryTakeDotDamage(Mathf.Max(0f, damage) * GetArtifactDamageTakenMultiplier() * CurrentDifficulty.EnemyDamageMultiplier))
                 ShowMessage("Core integrity damaged!");
         }
 
@@ -1852,7 +1927,8 @@ namespace EchoSphere.Runtime
 
         private float GetArtifactMoveSpeedMultiplier()
         {
-            var multiplier = Mathf.Max(0.5f, 1f + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "moveSpeed"));
+            var multiplier = Mathf.Max(0.5f, PersistentUpgradeRules.GetPercentMultiplier(GetShopUpgradeLevel("speed")) *
+                (1f + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "moveSpeed")));
             if (_swiftBootsTimer > 0f && _ownedArtifacts.Contains("swift_boots")) multiplier *= 1.10f;
             return multiplier;
         }
@@ -2896,13 +2972,8 @@ namespace EchoSphere.Runtime
             return nearest;
         }
 
-        private int GetCurrentMaxSpheres()
-        {
-            // The source formula also accepts persistent shopUpgrades.spheres.
-            // The shop system is not part of the current Unity runtime slice,
-            // so its fresh-run value remains zero rather than being simulated.
-            return SpherePlacementRules.GetMaxSpheres(_maxSphereAbilityLevel, 0);
-        }
+        private int GetCurrentMaxSpheres() =>
+            SpherePlacementRules.GetMaxSpheres(_maxSphereAbilityLevel, PersistentUpgradeRules.GetExtraSpheres(GetShopUpgradeLevel("spheres")));
 
         private int CountSpheresOfType(SphereId type)
         {

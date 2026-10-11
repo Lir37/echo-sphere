@@ -12,6 +12,7 @@ namespace EchoSphere.Runtime
         public float DashCooldown { get; private set; }
         public float DashTimer { get; private set; }
         public int ShieldCharges { get; private set; }
+        public int DashCount { get; private set; }
         public Vector2 LastMoveDirection { get; private set; } = Vector2.down;
         public Vector2 DashDirection { get; private set; } = Vector2.down;
         public bool IsDead => CurrentHp <= 0f;
@@ -49,6 +50,7 @@ namespace EchoSphere.Runtime
             if (IsDead || DashCooldown > 0f) return false;
             if (direction.sqrMagnitude <= 0.0001f) direction = LastMoveDirection;
             DashDirection = direction.normalized;
+            DashCount++;
             DashTimer = 0.14f;
             InvulnerableTimer = Mathf.Max(InvulnerableTimer, 0.30f);
             DashCooldown = 3f * _dashCooldownMultiplier;
