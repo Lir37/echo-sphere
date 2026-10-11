@@ -175,7 +175,7 @@ assert.ok(runtime.includes('RefreshNetworkState') && runtime.includes('UpdateNet
 assert.ok(runtime.includes('RUN PAUSED') && runtime.includes('RESTART RUN'), 'pause overlay controls are missing');
 assert.ok(runtime.includes('DrawProgressBar') && runtime.includes('EXPERIENCE') && runtime.includes('_uiScale'), 'responsive color-coded HP/XP/Resonance HUD is missing');
 const readMovement = runtime.slice(runtime.indexOf('private Vector2 ReadMovement()'), runtime.indexOf('private void ConfigureCamera()'));
-assert.ok(readMovement.includes('Screen.width * 0.58f') && !readMovement.includes('_uiWidth'), 'touch/mouse movement threshold must use device input coordinates, not GUI-scaled coordinates');
+assert.ok(readMovement.includes('Screen.width * 0.5f') && !readMovement.includes('_uiWidth'), 'touch/mouse movement threshold must use the original right-half device input region');
 assert.ok(runtime.includes('GetAuthoredSphereArtwork(type)') && runtime.includes('return authored'), 'Sphere icon UI must prefer authored source art');
 assert.ok(spriteFactory.includes('CreatePolygonSprite'), 'procedural faceted silhouette generation is missing');
 assert.ok(spriteFactory.includes('Resources.Load<Sprite>') && runtime.includes('GetAuthoredSphereArtwork'), 'authored SVG runtime binding is missing');
