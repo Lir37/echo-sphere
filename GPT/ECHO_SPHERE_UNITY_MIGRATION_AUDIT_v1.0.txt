@@ -2531,3 +2531,13 @@ CI FOLLOW-UP | 2026-10-12
   one closing parenthesis, and RegionFieldVisuals needed the Core namespace
   import for EchoRegionId. Both are fixed here, and structural guards now
   catch these exact slips. This is still not a Unity Editor compile or APK test.
+
+
+CI FOLLOW-UP | 2026-10-12
+- Unity Migration Contracts #215:
+  - C# gameplay contracts passed: 657 assertions.
+  - Node source check failed parsing because the newly-added namespace guard
+    declared a top-level `regionFieldVisuals` identifier already used by an
+    earlier region-field assertion.
+- Renamed that new local guard identifier. Re-run CI #216 before extending
+  this migration stage. Contract checks do not compile the Unity Editor project.
