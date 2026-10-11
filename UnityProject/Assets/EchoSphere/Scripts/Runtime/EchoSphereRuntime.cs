@@ -2632,6 +2632,7 @@ namespace EchoSphere.Runtime
 
         private void DrawSpherePickerGlyph(Rect button, SphereId type, Color color)
         {
+            var originalGuiColor = GUI.color;
             var center = button.center;
             var fill = new Color(color.r, color.g, color.b, 0.20f);
             if (type == SphereId.Sniper)
@@ -2666,7 +2667,7 @@ namespace EchoSphere.Runtime
                 DrawSphereGuiLine(new Vector2(center.x + 2f, center.y - 8f), new Vector2(center.x + 10f, center.y - 8f), color, 2f);
                 DrawSphereGuiLine(new Vector2(center.x + 10f, center.y - 8f), new Vector2(center.x + 10f, center.y + 8f), color, 2f);
                 DrawSphereGuiLine(new Vector2(center.x + 10f, center.y + 8f), new Vector2(center.x + 2f, center.y + 8f), color, 2f);
-                GUI.color = previousColor;
+                GUI.color = originalGuiColor;
                 return;
             }
 
