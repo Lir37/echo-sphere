@@ -157,5 +157,23 @@ namespace EchoSphere.Core
         public static int GetResonantCharge(int level) => Math.Max(0, level);
         public static float GetShatterRadiusPixels() => 48f;
         public static float GetShatterDamageMultiplier(int level) => level > 0 ? 0.20f + 0.08f * level : 0f;
+
+        public static float GetSplitChance(int level) => Math.Min(0.45f, 0.18f * Math.Max(0, level));
+        public static float GetEchoChance(int level) => Math.Min(0.35f, 0.12f * Math.Max(0, level));
+        public static float GetStaticChance(int level) => Math.Min(0.35f, 0.12f * Math.Max(0, level));
+        public static float GetAfterimageChance(int level) => Math.Min(0.40f, 0.16f * Math.Max(0, level));
+        public static float GetAfterimageDamageMultiplier(int level) =>
+            Math.Min(0.32f, 0.16f + 0.04f * Math.Max(0, level));
+
+        public static int GetProjectilePierceBonus(string branchId, string finalId) =>
+            GetLevel(branchId, finalId, SphereAuthoredModifier.Breach) +
+            GetLevel(branchId, finalId, SphereAuthoredModifier.Pierce) +
+            GetLevel(branchId, finalId, SphereAuthoredModifier.Phase);
+
+        public static int GetProjectileRicochetCount(string branchId, string finalId) =>
+            GetLevel(branchId, finalId, SphereAuthoredModifier.Ricochet);
+
+        public static int GetMultishotCount(string branchId, string finalId) =>
+            GetLevel(branchId, finalId, SphereAuthoredModifier.Multishot);
     }
 }

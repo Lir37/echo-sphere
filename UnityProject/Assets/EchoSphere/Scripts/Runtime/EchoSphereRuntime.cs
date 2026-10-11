@@ -105,6 +105,16 @@ namespace EchoSphere.Runtime
         public string GetSphereFinal(SphereId type) => _sphereFinals.TryGetValue(type, out var id) ? id : null;
         public int GetSphereAuthoredModifierLevel(SphereId type, SphereAuthoredModifier modifier) =>
             SphereAuthoredModifierRules.GetLevel(GetSphereBranch(type), GetSphereFinal(type), modifier);
+        public int GetSphereProjectilePierceBonus(SphereId type) =>
+            SphereAuthoredModifierRules.GetProjectilePierceBonus(GetSphereBranch(type), GetSphereFinal(type));
+        public int GetSphereProjectileRicochetCount(SphereId type)
+        {
+            // Prism branches have a dedicated beam/refraction path that resolves their authored Ricochet.
+            if (type == SphereId.Prism) return 0;
+            return SphereAuthoredModifierRules.GetProjectileRicochetCount(GetSphereBranch(type), GetSphereFinal(type));
+        }
+        public int GetSphereAuthoredModifierLevel(SphereId type, SphereAuthoredModifier modifier) =>
+            SphereAuthoredModifierRules.GetLevel(GetSphereBranch(type), GetSphereFinal(type), modifier);
         public float GetSphereAuthoredDamageMultiplier(SphereId type) =>
             SphereAuthoredModifierRules.GetDamageMultiplier(GetSphereBranch(type), GetSphereFinal(type));
         public float GetSphereStatusDurationMultiplier(SphereElement element)
@@ -984,6 +994,21 @@ namespace EchoSphere.Runtime
             return found;
         }
 
+        public EnemyAgent2D FindNearestUnhitEnemy(Vector2 from, HashSet<int> ignoredIds)
+        {
+            EnemyAgent2D best = null;
+            var bestDistance = float.PositiveInfinity;
+            for (var i = 0; i < _enemies.Count; i++)
+            {
+                var enemy = _enemies[i];
+                if (enemy == null || !enemy.IsAlive ||
+                    (ignoredIds != null && ignoredIds.Contains(enemy.GetInstanceID()))) continue;
+                var distance = ((Vector2)enemy.transform.position - from).sqrMagnitude;
+                if (distance < bestDistance) { bestDistance = distance; best = enemy; }
+            }
+            return best;
+        }
+
         public List<EnemyAgent2D> FindEnemiesInRadius(Vector2 center, float radius)
         {
             var found = new List<EnemyAgent2D>();
@@ -1011,14 +1036,20 @@ namespace EchoSphere.Runtime
             return null;
         }
 
-        public void SpawnProjectile(Vector2 position, Vector2 direction, float damage, Color color, float speed = 8f, int pierce = 0, float critChanceBonus = 0f, SphereAttackAgent evolutionOwner = null)
+        public ProjectileAgent SpawnProjectile(
+            Vector2 position, Vector2 direction, float damage, Color color,
+            float speed = 8f, int pierce = 0, float critChanceBonus = 0f,
+            SphereAttackAgent evolutionOwner = null, int ricochets = 0, float lifetime = 2.5f,
+            bool allowAuthoredProcs = true, bool useEvolutionHitEffects = true, bool applyElementalStatus = true)
         {
             var go = new GameObject("Sphere Projectile");
             go.transform.position = position;
             var agent = go.AddComponent<ProjectileAgent>();
-            agent.Initialize(this, direction, damage, color, speed, pierce, critChanceBonus, evolutionOwner);
+            agent.Initialize(this, direction, damage, color, speed, pierce, critChanceBonus,
+                evolutionOwner, ricochets, lifetime, allowAuthoredProcs, useEvolutionHitEffects, applyElementalStatus);
             var projectileVfx = go.AddComponent<ProjectileVfx2D>();
             projectileVfx.Initialize(this, direction, speed, color, evolutionOwner);
+            return agent;
         }
 
 
@@ -1092,6 +1123,51 @@ namespace EchoSphere.Runtime
             var resonant = GetSphereAuthoredModifierLevel(source, SphereAuthoredModifier.Resonant);
             if (resonant > 0 && branch != "pulse_resonator")
                 ChargeResonanceFromSource(SphereAuthoredModifierRules.GetResonantCharge(resonant), false);
+
+            if (allowAuthoredProcs)
+            {
+                var echoLevel = GetSphereAuthoredModifierLevel(source, SphereAuthoredModifier.Echo);
+                var echoChance = SphereAuthoredModifierRules.GetEchoChance(echoLevel);
+                if (echoChance > 0f && RollCombatChance(echoChance))
+                    target.ReceiveSphereDamage(source, damage * 0.22f, false, false, owner);
+
+                var afterimageLevel = GetSphereAuthoredModifierLevel(source, SphereAuthoredModifier.Afterimage);
+                var afterimageChance = SphereAuthoredModifierRules.GetAfterimageChance(afterimageLevel);
+                if (afterimageChance > 0f && RollCombatChance(afterimageChance))
+                {
+                    var direction = ((Vector2)target.transform.position - origin).normalized;
+                    if (direction.sqrMagnitude <= 0.0001f) direction = Vector2.right;
+                    var projectile = SpawnProjectile(
+                        target.transform.position, direction,
+                        damage * SphereAuthoredModifierRules.GetAfterimageDamageMultiplier(afterimageLevel),
+                        new Color(0.85f, 0.76f, 1f, 0.9f),
+                        250f * SpherePlacementRules.SourcePixelsToWorld, 0, 0f, owner,
+                        0, 0.42f, false, false, false);
+                    if (projectile != null) projectile.IgnoreEnemy(target);
+                }
+
+                var staticLevel = GetSphereAuthoredModifierLevel(source, SphereAuthoredModifier.Static);
+                var staticChance = SphereAuthoredModifierRules.GetStaticChance(staticLevel);
+                if (staticChance > 0f && RollCombatChance(staticChance))
+                {
+                    var center = (Vector2)target.transform.position;
+                    var candidates = FindNearestEnemies(center,
+                        110f * SpherePlacementRules.SourcePixelsToWorld, _enemies.Count);
+                    EnemyAgent2D next = null;
+                    for (var i = 0; i < candidates.Count; i++)
+                    {
+                        if (candidates[i] == target) continue;
+                        next = candidates[i];
+                        break;
+                    }
+                    if (next != null)
+                    {
+                        SpawnCombatArc(center, next.transform.position, source, branch, finalId,
+                            new Color(0.40f, 0.90f, 1f, 0.9f), 0.22f);
+                        next.ReceiveSphereDamage(source, damage * 0.35f, false, false, owner);
+                    }
+                }
+            }
 
             var mark = GetSphereAuthoredModifierLevel(source, SphereAuthoredModifier.Mark);
             if (mark > 0 && _sphereCharacterId != SphereCharacterId.Hunter)
