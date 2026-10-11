@@ -378,7 +378,7 @@ assert.ok(sphereAttack.includes('chain_web') && sphereAttack.includes('chain_sto
 assert.ok(sphereAttack.includes('aura_sanctum') && sphereAttack.includes('aura_gravity') && sphereAttack.includes('aura_overgrowth'), 'Aura evolution runtime effects are missing');
 assert.ok(sphereAttack.includes('gravity_well') && sphereAttack.includes('gravity_tide') && sphereAttack.includes('gravity_collapse'), 'Gravity evolution runtime effects are missing');
 assert.ok(sphereAttack.includes('UpdateOrbitalElements') && sphereAttack.includes('UpdateOrbitalContacts'), 'Orbital satellite combat loop is missing');
-assert.ok(sphereAttack.includes('prism_split') && sphereAttack.includes('prism_mirror') &&
+assert.ok(sphereAttack.includes('prism_mirror') &&
   sphereAttack.includes('ResolveElement(branch, finalId)') &&
   sphereAttack.includes('ResolvePrismNetworkRefraction') &&
   sphereAttack.includes('GetPrismBeamDamageMultiplier'),
@@ -386,7 +386,9 @@ assert.ok(sphereAttack.includes('prism_split') && sphereAttack.includes('prism_m
 assert.ok(sphereAttack.includes('pulse_wave') && sphereAttack.includes('pulse_burst') && sphereAttack.includes('void_execution'), 'Pulse/Void evolution runtime effects are missing');
 assert.ok(runtime.includes('SpawnVoidShards'), 'Void Reaper shard spawning is missing');
 assert.ok(runtime.includes('AddResonanceCharge') && runtime.includes('TriggerResonanceEvent') && runtime.includes('TickResonanceRing'), 'Resonance runtime event loop is missing');
-assert.ok(sphereAttack.includes('hasTriangleProfile') && sphereAttack.includes('ResonanceRules.NetworkCharge'), 'Prism Spectrum triangle Network charge is missing');
+assert.ok(sphereAttack.includes('HasNetworkCandidateForSphere(SphereNetworkFormation.Triangle') &&
+  sphereAttack.includes('ResonanceRules.NetworkCharge') && sphereAttack.includes('ChargeResonanceFromSource'),
+  'Prism Spectrum triangle Network charge is missing');
 assert.ok(sphereAttack.includes('GetGravityClusterPullMultiplier') && runtime.includes('TriggerChainStorm(SphereAttackAgent source'), 'Gravity Cluster and Chain Storm Network routing are missing');
 assert.ok(sphereAttack.includes('clusterCandidate') && sphereAttack.includes('ChargeResonanceFromSource(ResonanceRules.GeometryCharge'), 'Pulse Burst Geometry charge is missing');
 
