@@ -42,6 +42,7 @@ namespace EchoSphere.Runtime
         private float _time;
         private float _hitFlash;
         private bool _marked;
+        private float _fireRemaining, _poisonRemaining, _freezeRemaining;
 
         public void Initialize(EchoSphereRuntime runtime, string variant, string bossType, Color color)
         {
@@ -93,6 +94,12 @@ namespace EchoSphere.Runtime
             if (direction.sqrMagnitude > 0.0001f) _facing = direction.normalized;
         }
         public void SetMarked(bool value) { _marked = value; }
+        public void SetStatusVfx(float fireRemaining, float poisonRemaining, float freezeRemaining)
+        {
+            _fireRemaining = Mathf.Max(0f, fireRemaining);
+            _poisonRemaining = Mathf.Max(0f, poisonRemaining);
+            _freezeRemaining = Mathf.Max(0f, freezeRemaining);
+        }
         public void PulseHit() { _hitFlash = HitFlashDuration; }
 
         private void LateUpdate()
@@ -118,13 +125,16 @@ namespace EchoSphere.Runtime
             {
                 DrawSourceOuterGlow(_p, R * 1.65f, c, 0.21f);
                 _p.Gradient(Vector2.zero, R * 2.55f, c, 0.085f);
-                DrawBoss(_p, R * 1.15f, c, _time, _bossType);
+                // The boss root scale already maps the source 34 px radius to world units.
+                // Do not apply the old prototype's extra 1.15 visual-size multiplier.
+                DrawBoss(_p, R, c, _time, _bossType);
             }
             else
             {
                 DrawSourceOuterGlow(_p, R * 1.15f, c, 0.10f);
                 _p.Gradient(Vector2.zero, R * 2.15f, c, 0.065f);
                 DrawCreature(_p, R, c, _time, _variant);
+                DrawElementalStatusVfx(_p, R, _time, _fireRemaining > 0f, _poisonRemaining > 0f, _freezeRemaining > 0f);
                 if (hit > 0f) DrawHitFlash(_p, hit);
             }
             _mesh.Clear();
@@ -132,6 +142,69 @@ namespace EchoSphere.Runtime
             _mesh.SetColors(_p.Colors);
             _mesh.SetTriangles(_p.Triangles, 0);
             _mesh.RecalculateBounds();
+        }
+
+        private static void DrawElementalStatusVfx(Painter p, float r, float t, bool burning, bool poisoned, bool frozen)
+        {
+            // Source-mapped from src/renderer.ts:drawEnemyStatusVfx. The effects are
+            // presentation-only and use the calibrated 19 px creature radius as a unit.
+            const float pixelsPerRadius = 19f;
+            if (burning)
+            {
+                var pulse = .5f + .5f * Mathf.Sin(t * 10f);
+                var fireColor = new Color(1f, 102f / 255f, 61f / 255f, .28f + .18f * pulse);
+                for (var i = 0; i < 4; i++)
+                {
+                    var a = t * 2.4f + i * Mathf.PI / 2f;
+                    var rr = r * (.8f + .18f * Mathf.Sin(t * 5f + i));
+                    var at = new Vector2(Mathf.Cos(a) * rr, Mathf.Sin(a) * rr * .65f - r * .18f);
+                    var pxRadius = r * (2.2f + pulse * 1.4f) / pixelsPerRadius;
+                    var particle = new Color(fireColor.r, fireColor.g, fireColor.b, .28f + .18f * pulse);
+                    p.Circle(at, pxRadius, particle, particle, 0f);
+                }
+
+                var flameCrest = PathScratch; flameCrest.Clear();
+                QuadCurve(flameCrest, new Vector2(-r * .35f, -r * .65f),
+                    new Vector2(0f, -r * (1.15f + pulse * .15f)),
+                    new Vector2(r * .35f, -r * .65f), 8);
+                p.StrokePath(flameCrest, new Color(1f, 190f / 255f, 90f / 255f, .25f + .2f * pulse),
+                    r * 1.4f / pixelsPerRadius, false);
+            }
+
+            if (poisoned)
+            {
+                for (var i = 0; i < 5; i++)
+                {
+                    var a = t * .65f + i * 1.23f;
+                    var rr = r * (.85f + .18f * Mathf.Repeat(t * .7f + i * .2f, 1f));
+                    var at = new Vector2(Mathf.Cos(a) * rr, Mathf.Sin(a) * rr * .55f - r * .12f);
+                    var pxRadius = r * (2f + i % 2) / pixelsPerRadius;
+                    var particle = new Color(101f / 255f, 227f / 255f, 143f / 255f, .38f);
+                    p.Circle(at, pxRadius, particle, particle, 0f);
+                }
+
+                var poisonTrail = PathScratch; poisonTrail.Clear();
+                QuadCurve(poisonTrail, new Vector2(-r * .7f, r * .35f),
+                    new Vector2(0f, r * .72f), new Vector2(r * .7f, r * .35f), 8);
+                p.StrokePath(poisonTrail, new Color(113f / 255f, 245f / 255f, 157f / 255f, .35f),
+                    r / pixelsPerRadius, false);
+            }
+
+            if (frozen)
+            {
+                var spin = t * .8f;
+                var ice = new Color(140f / 255f, 233f / 255f, 1f, .72f);
+                for (var i = 0; i < 6; i++)
+                {
+                    var a = spin + i * Mathf.PI / 3f;
+                    var direction = new Vector2(Mathf.Cos(a), Mathf.Sin(a));
+                    var from = new Vector2(direction.x * r * 1.12f, direction.y * r * .72f);
+                    var to = from + new Vector2(direction.x * r * .22f, direction.y * r * .22f);
+                    p.Stroke(from, to, ice, r * 1.3f / pixelsPerRadius);
+                }
+                var frostCore = new Color(210f / 255f, 250f / 255f, 1f, .32f);
+                p.Circle(Vector2.zero, r * .22f, frostCore, frostCore, 0f);
+            }
         }
 
         private static void DrawSourceOuterGlow(Painter p, float radius, Color color, float alpha)
