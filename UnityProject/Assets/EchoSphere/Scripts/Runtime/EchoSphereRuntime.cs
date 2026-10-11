@@ -2621,19 +2621,36 @@ namespace EchoSphere.Runtime
                     var other = link.A == candidateIndex ? link.B : link.A;
                     if (other < 0 || other >= _spherePointerPreviewPositions.Count) continue;
                     var point = _spherePointerPreviewPositions[other];
-                    DrawSphereGuiLine(WorldToGuiPoint(new Vector2(point.X, point.Y)),
-                        WorldToGuiPoint(_spherePointerWorld), new Color(previewColor.r, previewColor.g, previewColor.b, 0.85f), 2f);
+                    DrawSphereGuiDashedLine(WorldToGuiPoint(new Vector2(point.X, point.Y)),
+                        WorldToGuiPoint(_spherePointerWorld), new Color(previewColor.r, previewColor.g, previewColor.b, 0.85f), 2f, 7f, 5f);
                 }
 
                 var candidateGui = WorldToGuiPoint(_spherePointerWorld);
-                DrawSphereGuiCircle(candidateGui, 20f, new Color(previewColor.r, previewColor.g, previewColor.b, 0.92f), 2f);
-                DrawSphereGuiCircle(candidateGui, 25f, new Color(previewColor.r, previewColor.g, previewColor.b, 0.38f), 1f);
                 var formation = _spherePointerPreview.DominantFormation;
-                var formationName = formation == null ? "NETWORK" : formation.Type.ToString().ToUpperInvariant();
+                if (formation != null && formation.NodeIndexes.Count >= 2)
+                {
+                    for (var i = 0; i < formation.NodeIndexes.Count - 1; i++)
+                    {
+                        var fromIndex = formation.NodeIndexes[i];
+                        var toIndex = formation.NodeIndexes[i + 1];
+                        if (fromIndex < 0 || toIndex < 0 ||
+                            fromIndex >= _spherePointerPreviewPositions.Count ||
+                            toIndex >= _spherePointerPreviewPositions.Count) continue;
+                        var from = _spherePointerPreviewPositions[fromIndex];
+                        var to = _spherePointerPreviewPositions[toIndex];
+                        DrawSphereGuiDashedLine(
+                            WorldToGuiPoint(new Vector2(from.X, from.Y)),
+                            WorldToGuiPoint(new Vector2(to.X, to.Y)),
+                            new Color(1f, 0.72f, 0.30f, 0.82f), 2f, 6f, 5f);
+                    }
+                }
+                DrawSphereGuiDashedCircle(candidateGui, 25f,
+                    new Color(previewColor.r, previewColor.g, previewColor.b, 0.92f), 2f, 5f, 4f);
+                var formationName = GetSphereFormationDisplayName(formation);
                 var status = _spherePointerPositionValid ? formationName : "INVALID";
                 var style = new GUIStyle(_label) { alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold };
                 GUI.color = previewColor;
-                GUI.Label(new Rect(candidateGui.x - 80f, candidateGui.y - 48f, 160f, 24f), status, style);
+                GUI.Label(new Rect(candidateGui.x - 80f, candidateGui.y - 36f, 160f, 24f), status, style);
             }
 
             if (_formationMemoryTimer > 0f && _formationMemoryPoints != null && _formationMemoryPoints.Length >= 2)
@@ -2641,10 +2658,11 @@ namespace EchoSphere.Runtime
                 var alpha = Mathf.Clamp01(_formationMemoryTimer / 0.9f) * 0.55f;
                 var memoryColor = new Color(0.72f, 0.83f, 0.94f, alpha);
                 for (var i = 0; i < _formationMemoryPoints.Length - 1; i++)
-                    DrawSphereGuiLine(WorldToGuiPoint(_formationMemoryPoints[i]), WorldToGuiPoint(_formationMemoryPoints[i + 1]), memoryColor, 1.5f);
+                    DrawSphereGuiDashedLine(WorldToGuiPoint(_formationMemoryPoints[i]),
+                        WorldToGuiPoint(_formationMemoryPoints[i + 1]), memoryColor, 1.5f, 4f, 6f);
                 if (_formationMemoryType != SphereNetworkFormation.Line && _formationMemoryPoints.Length > 2)
-                    DrawSphereGuiLine(WorldToGuiPoint(_formationMemoryPoints[_formationMemoryPoints.Length - 1]),
-                        WorldToGuiPoint(_formationMemoryPoints[0]), memoryColor, 1.5f);
+                    DrawSphereGuiDashedLine(WorldToGuiPoint(_formationMemoryPoints[_formationMemoryPoints.Length - 1]),
+                        WorldToGuiPoint(_formationMemoryPoints[0]), memoryColor, 1.5f, 4f, 6f);
             }
 
             if (_placementFlashTimer > 0f)
@@ -2656,6 +2674,56 @@ namespace EchoSphere.Runtime
             }
 
             GUI.color = previousColor;
+        }
+
+        private static string GetSphereFormationDisplayName(SphereNetworkShape formation)
+        {
+            if (formation == null) return "NETWORK";
+            switch (formation.Type)
+            {
+                case SphereNetworkFormation.Line: return "LINE";
+                case SphereNetworkFormation.Triangle: return "TRIANGLE";
+                case SphereNetworkFormation.Square: return "SQUARE";
+                case SphereNetworkFormation.Cluster: return "CLUSTER";
+                case SphereNetworkFormation.Ring: return "RING";
+                case SphereNetworkFormation.Lattice: return "LATTICE";
+                case SphereNetworkFormation.Fractal: return "FRACTAL";
+                default: return "NETWORK";
+            }
+        }
+
+        private void DrawSphereGuiDashedCircle(Vector2 center, float radius, Color color, float width, float dashLength, float gapLength)
+        {
+            var circumference = Mathf.PI * 2f * radius;
+            for (var offset = 0f; offset < circumference; offset += dashLength + gapLength)
+            {
+                var endOffset = Mathf.Min(circumference, offset + dashLength);
+                var startAngle = offset / radius;
+                var endAngle = endOffset / radius;
+                const int arcSegments = 3;
+                var previous = center + new Vector2(Mathf.Cos(startAngle), Mathf.Sin(startAngle)) * radius;
+                for (var segment = 1; segment <= arcSegments; segment++)
+                {
+                    var angle = Mathf.Lerp(startAngle, endAngle, segment / (float)arcSegments);
+                    var next = center + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius;
+                    DrawSphereGuiLine(previous, next, color, width);
+                    previous = next;
+                }
+            }
+        }
+
+        private void DrawSphereGuiDashedLine(Vector2 start, Vector2 end, Color color, float width, float dashLength, float gapLength)
+        {
+            var delta = end - start;
+            var length = delta.magnitude;
+            if (length < 0.1f) return;
+            var direction = delta / length;
+            var cycle = Mathf.Max(0.1f, dashLength + gapLength);
+            for (var offset = 0f; offset < length; offset += cycle)
+            {
+                var segmentEnd = Mathf.Min(length, offset + dashLength);
+                DrawSphereGuiLine(start + direction * offset, start + direction * segmentEnd, color, width);
+            }
         }
 
         private void DrawSphereGuiCircle(Vector2 center, float radius, Color color, float width)
