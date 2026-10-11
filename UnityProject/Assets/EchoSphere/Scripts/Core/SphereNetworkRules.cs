@@ -76,7 +76,8 @@ namespace EchoSphere.Core
 
     public static class SphereNetworkRules
     {
-        public const float DefaultLinkDistance = 2.20f;
+        // Source network.ts uses 220 logical px; renderer camera calibration is 720 px / 12.6 world units.
+        public const float DefaultLinkDistance = 3.85f;
         private const float SecondaryScoreGap = 0.14f * 100f;
         private const float SecondaryDisjointScoreGap = 0.18f * 100f;
         private const float DominanceSwitchMargin = 10f;
