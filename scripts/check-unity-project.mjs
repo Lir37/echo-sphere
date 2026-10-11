@@ -354,8 +354,9 @@ const difficultyRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/
 for (const token of ['0.7f, 0.8f, 0.7f, 0.8f, 0.8f', '1.4f, 1.2f, 1.3f, 1.5f, 1.2f', '2f, 1.4f, 1.6f, 2f, 1.5f'])
   assert.ok(difficultyRules.includes(token), 'source Difficulty multipliers missing: ' + token);
 assert.ok(runtime.includes('GetShopSphereRadiusMultiplier()') && runtime.includes('PersistentUpgradeRules.GetStartingHpBonus') &&
-  runtime.includes('GetShopUpgradeLevel("xp")') && runtime.includes('CurrentDifficulty.EnemyHpMultiplier') &&
-  runtime.includes('CurrentDifficulty.SpawnRateMultiplier') && runtime.includes('CurrentDifficulty.EnemyDamageMultiplier'),
+  runtime.includes('GetShopUpgradeLevel("xp")') && runtime.includes('difficulty.EnemyHpMultiplier') &&
+  runtime.includes('difficulty.EnemySpeedMultiplier') && runtime.includes('CurrentDifficulty.SpawnRateMultiplier') &&
+  runtime.includes('CurrentDifficulty.EnemyDamageMultiplier'),
   'persistent shop and Difficulty must affect live runtime paths');
 const sphereAttackShopRadiusCheck = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs'), 'utf8');
 assert.ok(sphereAttackShopRadiusCheck.includes('_runtime.GetShopSphereRadiusMultiplier()'), 'persistent Sphere Radius must affect live Sphere range');

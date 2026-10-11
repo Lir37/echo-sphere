@@ -2594,3 +2594,15 @@ CI FOLLOW-UP | 2026-10-12
 - Updated the guard to require PersistentUpgradeRules.GetExtraSpheres and the
   live LevelUpAbilityRules catalog path. Re-run CI before continuing the UI
   stage; these checks still do not compile the Unity Editor project or APK.
+
+
+CI FOLLOW-UP | 2026-10-12
+- Unity Migration Contracts #220: C# core contracts passed (680 assertions)
+  and Unity project preflight passed, but an added runtime-structure guard
+  expected `CurrentDifficulty.EnemyHpMultiplier`. The real SpawnEnemy path
+  correctly snapshots `CurrentDifficulty` into a local `difficulty` before
+  using its HP and speed multipliers.
+- Updated the assertion to verify the actual local `difficulty.EnemyHpMultiplier`
+  and `difficulty.EnemySpeedMultiplier` path, while retaining checks for the
+  dynamic spawn-rate and incoming-damage multipliers. This checker correction
+  does not change gameplay runtime behavior.
