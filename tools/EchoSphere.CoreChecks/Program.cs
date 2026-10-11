@@ -469,6 +469,36 @@ internal static class Program
         True(SpherePlacementRules.CanAddSphere(4, 1, 5, 2), "place Sphere while below global and same-type caps");
         True(!SpherePlacementRules.CanAddSphere(5, 1, 5, 2), "global Sphere cap blocks placement");
         True(!SpherePlacementRules.CanAddSphere(2, 2, 5, 2), "source same-type copy cap blocks placement");
+        True(SpherePlacementRules.CanAddSphere(4, 2, 5, 3), "mastery V signature cap permits a third copy");
+        True(!SpherePlacementRules.CanAddSphere(4, 3, 5, 3), "mastery V signature cap blocks a fourth copy");
+        True(SpherePlacementRules.CanAddSphere(6, 3, 8, 4), "mastery X signature cap permits a fourth copy");
+        Equal(SpherePlacementRules.GetMaxSpheres(0, 2), 7, "source shop sphere upgrades add to the base cap");
+        Equal(SpherePlacementRules.GetMaxSpheres(1, 2), 8, "ability and shop Sphere bonuses are combined");
+        Equal(SpherePlacementRules.GetMaxSpheres(3, 3), 8, "combined Sphere capacity bonuses clamp at eight");
+
+        Equal(SpherePlacementRules.GetSameTypeCap(SphereCharacterId.Spherist, SphereId.Standard, 1), 2, "Spherist signature starts at two copies");
+        Equal(SpherePlacementRules.GetSameTypeCap(SphereCharacterId.Spherist, SphereId.Standard, 4), 2, "signature cap stays two below mastery V");
+        Equal(SpherePlacementRules.GetSameTypeCap(SphereCharacterId.Spherist, SphereId.Standard, 5), 3, "signature cap rises to three at mastery V");
+        Equal(SpherePlacementRules.GetSameTypeCap(SphereCharacterId.Spherist, SphereId.Standard, 9), 3, "signature cap stays three below mastery X");
+        Equal(SpherePlacementRules.GetSameTypeCap(SphereCharacterId.Spherist, SphereId.Standard, 10), 4, "signature cap rises to four at mastery X");
+        Equal(SpherePlacementRules.GetSameTypeCap(SphereCharacterId.Spherist, SphereId.Sniper, 10), 2, "non-signature cap remains two");
+        Equal(SpherePlacementRules.GetSameTypeCap(SphereCharacterId.Hunter, SphereId.Sniper, 5), 3, "Hunter signature is Sniper");
+        Equal(SpherePlacementRules.GetSameTypeCap(SphereCharacterId.Engineer, SphereId.Chain, 5), 3, "Engineer signature is Chain");
+        Equal(SpherePlacementRules.GetSameTypeCap(SphereCharacterId.Berserker, SphereId.Shotgun, 5), 3, "Berserker signature is Shotgun");
+        Equal(SpherePlacementRules.GetSameTypeCap(SphereCharacterId.Alchemist, SphereId.Aura, 5), 3, "Alchemist signature is Aura");
+        Equal(SpherePlacementRules.GetSameTypeCap(SphereCharacterId.Architect, SphereId.Gravity, 5), 3, "Architect signature is Gravity");
+        Equal(SpherePlacementRules.GetSameTypeCap(SphereCharacterId.Conductor, SphereId.Pulse, 5), 3, "Conductor signature is Pulse");
+        Equal(SpherePlacementRules.GetSameTypeCap(SphereCharacterId.Oracle, SphereId.Prism, 5), 3, "Oracle signature is Prism");
+        Equal(SpherePlacementRules.GetSameTypeCap(SphereCharacterId.Voidwalker, SphereId.Void, 5), 3, "Voidwalker signature is Void");
+        Equal(SpherePlacementRules.GetSameTypeCap(SphereCharacterId.Fractal, SphereId.Orbital, 5), 3, "Fractal signature is Orbital");
+
+        True(SphereProgressionRules.CanUpgradeMaxSpheres(0), "maxspheres ability starts available at level zero");
+        True(SphereProgressionRules.CanUpgradeMaxSpheres(2), "maxspheres ability can reach level three");
+        True(!SphereProgressionRules.CanUpgradeMaxSpheres(3), "maxspheres ability stops at source level three");
+        var maxSphereChoice = SphereProgressionRules.CreateMaxSpheresChoice(0);
+        Equal(maxSphereChoice.Kind, RunUpgradeKind.MaxSpheres, "source maxspheres choice kind");
+        Equal(maxSphereChoice.NextLevel, 1, "source maxspheres ability advances one level");
+        Equal(SphereProgressionRules.CreateMaxSpheresChoice(2).NextLevel, 3, "source maxspheres ability reaches level three");
 
         var noSpheres = Array.Empty<Vec2>();
         var noSphereAlive = Array.Empty<bool>();
