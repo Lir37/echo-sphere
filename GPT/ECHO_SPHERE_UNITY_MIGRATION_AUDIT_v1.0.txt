@@ -2209,3 +2209,16 @@ Limits: this slice ports the authored data and shared damage factors only. Remai
 - Added pure contract tests for the key thresholds/formulas and CI guards for common damage/death wiring.
 
 Known remaining work: random Split/Echo/Static/Afterimage procs, projectile Ricochet/Pierce/Multishot integration, and source-perfect Region repulsion scaling are intentionally deferred to the next modifier slices. Unity Editor compilation and Android testing remain unverified by contract CI.
+
+
+## Authored Projectile Modifier Runtime — 2026-10-11
+
+Implementation checkpoint: `unity-migration` HEAD `09ec8152409f00313831f05adb611491bbc1036f`; GitHub Actions run [#165](https://github.com/Lir37/echo-sphere/actions/runs/38132775322) passed with **604 C# contract assertions and Unity structural preflight**.
+
+- Wired source chance curves and caps for Split (18% per level, cap 45%), Echo (12%, cap 35%), Static (12%, cap 35%), and Afterimage (16%, cap 40%; damage factor 16% + 4% per level, capped at 32%).
+- Added attack-time Echo projectiles (28% damage, small angle offset, 1.1-second life) as well as the separate on-hit Echo proc (22% of the resolved hit), source Static jumps (35% damage within 110 pixels), and Afterimage projectiles (source speed/radius/lifetime and current-target exclusion).
+- Split creates two shards at ±0.34 radians, each dealing 30% of the source projectile damage, with the existing hit exclusions copied across. Projectile movement now applies remaining Pierce before Ricochet; a Ricochet retargets the nearest living unhit enemy at 350 source pixels/second.
+- Source Modifier II values for Prism Split Pierce and Void Execution Phase now resolve from the authored modifier table and are no longer duplicated as hardcoded pierce counts. Prism's existing refraction/ricochet behavior remains on its dedicated combat path to avoid double bounces.
+- Added contract assertions and CI structural guards for the new modifier formulas, projectile hit exclusions, source ordering, and attack integration.
+
+Still open: verify and finish the deeper Prism beam/Network-refraction parity, region-dependent Impact push scaling, Magnetic behavior if/where it is defined in live source, and integrate character selection/mastery + shop profile into runtime. Current first playable still starts as Spherist/mastery I. The contract workflow does not compile UnityEngine runtime code inside the Unity Editor and does not generate or validate an APK/device run.

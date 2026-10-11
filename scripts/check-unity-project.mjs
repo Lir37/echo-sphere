@@ -428,3 +428,28 @@ assert.ok(runtime.includes('SphereAuthoredModifierRules.GetExecuteDamageMultipli
 assert.ok(enemy.includes('RegisterEnemyDeath(this, transform.position, _xpReward, sourceSphere)') &&
   runtime.includes('GetSphereAuthoredModifierLevel(sourceSphere.Value, SphereAuthoredModifier.Drain)'),
   'Drain kill healing must retain the Sphere that delivered the lethal damage');
+
+const projectileAgent = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/ProjectileAgent.cs'), 'utf8');
+assert.ok(authoredModifiers.includes('GetSplitChance') && authoredModifiers.includes('GetEchoChance') &&
+  authoredModifiers.includes('GetStaticChance') && authoredModifiers.includes('GetAfterimageChance') &&
+  authoredModifiers.includes('GetProjectilePierceBonus'),
+  'source random/projection modifier formulas are missing');
+assert.ok(runtime.includes('FindNearestUnhitEnemy') && runtime.includes('GetSphereProjectileRicochetCount') &&
+  runtime.includes('GetSphereProjectilePierceBonus') && runtime.includes('GetAfterimageDamageMultiplier(afterimageLevel)'),
+  'authored projectile pierce/ricochet and Afterimage routing is missing');
+assert.ok(projectileAgent.includes('TrySplitAfterHit') && projectileAgent.includes('CopyIgnoredEnemiesFrom') &&
+  projectileAgent.includes('350f * SpherePlacementRules.SourcePixelsToWorld') &&
+  projectileAgent.includes('_remainingPierces > 0') && projectileAgent.includes('_remainingRicochets > 0'),
+  'projectile hit/split/pierce/ricochet source order or hit exclusion is missing');
+assert.ok(runtime.includes('GetStaticChance(staticLevel)') && runtime.includes('GetEchoChance(echoLevel)') &&
+  runtime.includes('SphereAuthoredModifier.Static'),
+  'source Echo/Static hit procs are not connected');
+assert.ok(sphereAttack.includes('SpawnAuthoredMainProjectile') &&
+  sphereAttack.includes('SphereAuthoredModifier.Multishot') &&
+  sphereAttack.includes('GetSphereProjectilePierceBonus(_type)') &&
+  sphereAttack.includes('GetPrismPierce(_levelStats.Pierce, branch, finalId)'),
+  'Sphere attack emission does not apply source Multishot/Pierce modifier data');
+assert.ok(evolutionRules.includes('GetProjectilePierceBonus("void_execution", finalId)') &&
+  evolutionRules.includes('GetProjectilePierceBonus(branch, finalId)') &&
+  !evolutionRules.includes('branch == "prism_mirror" && finalId == "prism_mirror_final_2" ? 1'),
+  'Prism/Void pierce must use authored modifier levels exactly once');
