@@ -1930,3 +1930,11 @@ visual scale and readability against the Canvas build, stress profiling and
 Android APK/device acceptance remain pending. The slice is not a claim of
 pixel-exact visual parity.
 
+
+
+[2026-10-11] SLICE 7 CI GUARD CORRECTION
+- CI #104 passed all 305 pure C# assertions and the Unity project preflight, but the
+  strict source-branch guard found Prism Split still shared the generic endpoint shape.
+- Added its own forked refraction endpoint, scaled for the Prism Split Level VII final;
+  the Prism Mirror endpoint remains separate. Guards were not relaxed; combat logic is
+  untouched. Revalidation follows the correction commit.

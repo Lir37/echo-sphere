@@ -187,10 +187,18 @@ namespace EchoSphere.Runtime
                 var facet = WithAlpha(new Color(1f, 0.93f, 1f, 1f), fade * 0.86f);
                 _painter.Line(_end - side * 0.075f, _end + direction * 0.075f, 0.014f, facet);
                 _painter.Line(_end + direction * 0.075f, _end + side * 0.075f, 0.014f, facet);
-                if (_branch == "prism_mirror")
+                if (_branch == "prism_split")
                 {
-                    _painter.Line(_end, _end + direction * 0.12f + side * 0.10f, 0.012f, WithAlpha(_color, fade * 0.78f));
-                    _painter.Line(_end, _end + direction * 0.12f - side * 0.10f, 0.012f, WithAlpha(_color, fade * 0.78f));
+                    var splitLength = _final == "prism_split_final_3" ? 0.15f : 0.11f;
+                    var splitSpread = _final == "prism_split_final_3" ? 0.12f : 0.075f;
+                    _painter.Line(_end, _end + direction * splitLength + side * splitSpread, 0.012f, WithAlpha(_color, fade * 0.76f));
+                    _painter.Line(_end, _end + direction * splitLength - side * splitSpread, 0.012f, WithAlpha(_color, fade * 0.76f));
+                }
+                else if (_branch == "prism_mirror")
+                {
+                    var mirrorSpread = _final == "prism_mirror_final_3" ? 0.13f : 0.10f;
+                    _painter.Line(_end, _end + direction * 0.12f + side * mirrorSpread, 0.012f, WithAlpha(_color, fade * 0.78f));
+                    _painter.Line(_end, _end + direction * 0.12f - side * mirrorSpread, 0.012f, WithAlpha(_color, fade * 0.78f));
                 }
             }
         }
