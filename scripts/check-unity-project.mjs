@@ -211,6 +211,11 @@ assert.ok(runtime.includes('BuildSphereNetworkPreview') && runtime.includes('Dra
   runtime.includes('CaptureSphereFormationMemoryIfChanged') && runtime.includes('DrawSphereGuiDashedLine') &&
   runtime.includes('DrawSphereGuiDashedCircle') && runtime.includes('GetSphereFormationDisplayName'),
   'Ghost Snap candidate links, predicted formation contour, or formation-memory presentation is not wired');
+assert.ok(runtime.includes('DrawSpherePickerGlyph') && runtime.includes('SphereId.Sniper') &&
+  runtime.includes('SphereId.Shotgun') && runtime.includes('SphereId.Chain') && runtime.includes('SphereId.Aura'),
+  'Sphere picker must port the actual MobileControls glyphs instead of invented text abbreviations');
+assert.ok(!runtime.includes('SphereShortName(') && !runtime.includes('"STD"') && !runtime.includes('"SNP"'),
+  'source Sphere picker must not display invented abbreviation labels');
 assert.ok(runtime.includes('CreateSphere(SphereId.Standard, 0,') && runtime.includes('_follow = false;'),
   'source initial Standard Sphere/progression state and Formation Follow default are missing');
 assert.ok(!runtime.includes('if (choice.CurrentLevel == 0) CreateSphere(choice.Sphere, choice.NextLevel)'),
