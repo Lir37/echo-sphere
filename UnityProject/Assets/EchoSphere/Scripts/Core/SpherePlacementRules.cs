@@ -35,6 +35,15 @@ namespace EchoSphere.Core
                 && sameTypeCount < Math.Max(0, sameTypeCap);
         }
 
+        /// <summary>Mirrors repositionSphere: placement is checked first, then committed coordinates are clamped to the source world bounds.</summary>
+        public static Vec2 ClampReposition(Vec2 candidate, float worldWidth = WorldWidth, float worldHeight = WorldHeight)
+        {
+            if (worldWidth <= 0f || worldHeight <= 0f) return candidate;
+            return new Vec2(
+                ClampScalar(candidate.X, -worldWidth * 0.5f, worldWidth * 0.5f),
+                ClampScalar(candidate.Y, -worldHeight * 0.5f, worldHeight * 0.5f));
+        }
+
         public static bool CanPlace(
             Vec2 candidate,
             Vec2 player,
