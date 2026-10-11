@@ -2568,3 +2568,11 @@ NEXT:
 - Character selection/mastery, Knowledge Archive, Region Challenges/Endless,
   full source Ability catalog, exact HUD parity, Unity compile/APK/device checks
   remain open. This CI does not compile Unity Editor scripts or build an APK.
+
+
+CI FOLLOW-UP | 2026-10-12
+- Unity Migration Contracts #217: C# gameplay contracts passed (680 assertions).
+  Node source check failed at parse time due to the newly-added Shop Radius
+  guard reusing an existing top-level `sphereAttack` identifier.
+- Renamed only that new check variable; no gameplay source change was needed
+  for this CI issue. Run #218 must be green before extending the UI slice.

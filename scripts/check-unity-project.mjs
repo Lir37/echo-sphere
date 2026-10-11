@@ -357,8 +357,8 @@ assert.ok(runtime.includes('GetShopSphereRadiusMultiplier()') && runtime.include
   runtime.includes('GetShopUpgradeLevel("xp")') && runtime.includes('CurrentDifficulty.EnemyHpMultiplier') &&
   runtime.includes('CurrentDifficulty.SpawnRateMultiplier') && runtime.includes('CurrentDifficulty.EnemyDamageMultiplier'),
   'persistent shop and Difficulty must affect live runtime paths');
-const sphereAttack = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs'), 'utf8');
-assert.ok(sphereAttack.includes('_runtime.GetShopSphereRadiusMultiplier()'), 'persistent Sphere Radius must affect live Sphere range');
+const sphereAttackShopRadiusCheck = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs'), 'utf8');
+assert.ok(sphereAttackShopRadiusCheck.includes('_runtime.GetShopSphereRadiusMultiplier()'), 'persistent Sphere Radius must affect live Sphere range');
 const playerCore = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/PlayerCoreController2D.cs'), 'utf8');
 assert.ok(playerCore.includes('DashCount++'), 'Dash counter must follow successful Dash runtime');
 const regionUnlockRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/RegionUnlockRules.cs'), 'utf8');
