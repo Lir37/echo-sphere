@@ -50,8 +50,10 @@ namespace EchoSphere.Core
             if (spherePositions.Count != sphereAlive.Count || enemyPositions.Count != enemyRadii.Count) return false;
             if (worldWidth <= 0f || worldHeight <= 0f || NavigationCellSize <= 0f) return false;
 
-            if (candidate.X < -worldWidth * 0.5f || candidate.X > worldWidth * 0.5f
-                || candidate.Y < -worldHeight * 0.5f || candidate.Y > worldHeight * 0.5f) return false;
+            // Source canPlaceSphere has no separate world-bounds rejection.
+            // Its route search clamps grid coordinates; repositionSphere clamps
+            // the committed move. Keep those source semantics rather than adding
+            // a new placement prohibition here.
             if (Vec2.Distance(candidate, player) < TowerBodyRadius + PlayerBuildGap) return false;
 
             for (var i = 0; i < spherePositions.Count; i++)
