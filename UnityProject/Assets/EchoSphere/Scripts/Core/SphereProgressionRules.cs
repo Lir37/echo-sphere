@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace EchoSphere.Core
 {
-    public enum RunUpgradeKind { Sphere, Damage, AttackSpeed, Repair }
+    public enum RunUpgradeKind { Sphere, MaxSpheres, Damage, AttackSpeed, Repair }
 
     public readonly struct RunUpgradeChoice
     {
@@ -24,6 +24,23 @@ namespace EchoSphere.Core
     public static class SphereProgressionRules
     {
         public const int MaxLevel = 7;
+        public const int MaxSphereCapacityAbilityLevel = 3;
+
+        public static bool CanUpgradeMaxSpheres(int currentLevel) =>
+            currentLevel >= 0 && currentLevel < MaxSphereCapacityAbilityLevel;
+
+        public static RunUpgradeChoice CreateMaxSpheresChoice(int currentLevel)
+        {
+            var current = Math.Max(0, Math.Min(MaxSphereCapacityAbilityLevel, currentLevel));
+            var next = Math.Min(MaxSphereCapacityAbilityLevel, current + 1);
+            return new RunUpgradeChoice(
+                RunUpgradeKind.MaxSpheres,
+                SphereId.Standard,
+                current,
+                next,
+                "+1 SPHERE",
+                "+1 maximum active Sphere.");
+        }
 
         public static int GetLevel(IReadOnlyDictionary<SphereId, int> levels, SphereId id)
         {
