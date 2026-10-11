@@ -494,6 +494,11 @@ internal static class Program
             "placement under a living enemy is blocked");
 
         Near(SpherePlacementRules.SourcePixelsToWorld, 0.0175f, 0.000001f, "Source-to-Unity Sphere coordinate calibration");
+        var clampedReposition = SpherePlacementRules.ClampReposition(new Vec2(22f, -22f));
+        Near(clampedReposition.X, SpherePlacementRules.WorldWidth * 0.5f, 0.000001f,
+            "reposition clamps to source world X bounds only on commit");
+        Near(clampedReposition.Y, -SpherePlacementRules.WorldHeight * 0.5f, 0.000001f,
+            "reposition clamps to source world Y bounds only on commit");
         Near(SpherePlacementRules.DefaultMaxSpheres, 5f, 0f, "source default maximum Sphere count");
         Near(SphereNetworkRules.DefaultLinkDistance, 220f * SpherePlacementRules.SourcePixelsToWorld, 0.000001f,
             "source 220 px Network distance uses current camera scale");
