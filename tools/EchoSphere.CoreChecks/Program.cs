@@ -734,9 +734,9 @@ internal static class Program
             "Void Execution final III sets Phase II");
 
         Near(SphereAuthoredModifierRules.GetDamageMultiplier("shotgun_cataclysm", "shotgun_cataclysm_final_3"),
-            1.08f * 1.04f, 0.0001f, "Shatter II scales outgoing damage by source 8%");
+            1.08f, 0.0001f, "Shatter II scales outgoing damage by source 8%");
         Near(SphereAuthoredModifierRules.GetDamageMultiplier("sniper_beacon", "sniper_beacon_final_2"),
-            1.08f * 1.08f, 0.0001f, "Mark II contributes the source global and conditional damage channels separately");
+            1.08f, 0.0001f, "Mark II contributes the source global 8% damage channel");
         Near(SphereAuthoredModifierRules.GetDamageMultiplier("standard_swarm", null), 1f, 0f,
             "branches without authored damage modifiers stay at baseline");
         Equal(SphereAuthoredModifierRules.GetLevel("unknown_branch", "unknown_branch_final_2", SphereAuthoredModifier.Pierce), 0,
