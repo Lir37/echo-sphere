@@ -33,6 +33,11 @@ namespace EchoSphere.Runtime
         private PlayerCoreController2D _playerCore;
         private Vector2 _touchStart;
         private SphereId _selectedSphereType = SphereId.Standard;
+        // Current Unity character path starts as the source default Spherist.
+        // Character selection/mastery progression is not yet exposed by this runtime.
+        private SphereCharacterId _sphereCharacterId = SphereCharacterId.Spherist;
+        private int _characterMasteryLevel = 1;
+        private int _maxSphereAbilityLevel;
         private bool _sphereMovementLocked;
         private bool _spherePointerActive, _spherePointerFromTouch, _spherePointerMoved;
         private bool _spherePointerIsMovement, _spherePointerIsPlacing;
@@ -1731,6 +1736,8 @@ namespace EchoSphere.Runtime
             foreach (var definition in GameCatalog.Spheres)
                 if (SphereProgressionRules.CanUpgrade(_sphereLevels, definition.Id))
                     pool.Add(SphereProgressionRules.CreateSphereChoice(_sphereLevels, definition.Id));
+            if (SphereProgressionRules.CanUpgradeMaxSpheres(_maxSphereAbilityLevel))
+                pool.Add(SphereProgressionRules.CreateMaxSpheresChoice(_maxSphereAbilityLevel));
             pool.Add(new RunUpgradeChoice(RunUpgradeKind.Damage, SphereId.Standard, 0, 0, "RESONANT CORE", "+18% damage for all Spheres."));
             pool.Add(new RunUpgradeChoice(RunUpgradeKind.AttackSpeed, SphereId.Standard, 0, 0, "ACCELERATION", "+15% attack speed for the network."));
             pool.Add(new RunUpgradeChoice(RunUpgradeKind.Repair, SphereId.Standard, 0, 0, "REPAIR PROTOCOL", "Restore 35 Core HP."));
@@ -1776,6 +1783,10 @@ namespace EchoSphere.Runtime
                             return;
                         }
                     }
+                    break;
+                case RunUpgradeKind.MaxSpheres:
+                    _maxSphereAbilityLevel = choice.NextLevel;
+                    ShowMessage("MAX SPHERES: " + GetCurrentMaxSpheres());
                     break;
                 case RunUpgradeKind.Damage:
                     _damageMultiplier *= 1.18f;
@@ -2308,7 +2319,7 @@ namespace EchoSphere.Runtime
 
             _spherePointerIsMovement = screenPoint.x >= Screen.width * 0.5f;
             _spherePointerIsPlacing = !_spherePointerIsMovement
-                && _spheres.Count < SpherePlacementRules.GetMaxSpheres();
+                && _spheres.Count < GetCurrentMaxSpheres();
         }
 
         private void MoveSpherePointer(Vector2 screenPoint)
@@ -2328,7 +2339,7 @@ namespace EchoSphere.Runtime
             }
             else if (_spherePointerIsPlacing)
             {
-                _spherePointerPositionValid = _spheres.Count < SpherePlacementRules.GetMaxSpheres()
+                _spherePointerPositionValid = _spheres.Count < GetCurrentMaxSpheres()
                     && CanPlaceSphereAt(_spherePointerWorld, null);
                 BuildSphereNetworkPreview(_spherePointerWorld, -1, true);
             }
@@ -2371,7 +2382,7 @@ namespace EchoSphere.Runtime
             }
             else if (placing)
             {
-                if (_spheres.Count < SpherePlacementRules.GetMaxSpheres() && CanPlaceSphereAt(world, null))
+                if (_spheres.Count < GetCurrentMaxSpheres() && CanPlaceSphereAt(world, null))
                     TryPlaceOrRemoveSphereAt(world);
                 else
                     ShowMessage("Path blocked.");
@@ -2447,6 +2458,14 @@ namespace EchoSphere.Runtime
             return nearest;
         }
 
+        private int GetCurrentMaxSpheres()
+        {
+            // The source formula also accepts persistent shopUpgrades.spheres.
+            // The shop system is not part of the current Unity runtime slice,
+            // so its fresh-run value remains zero rather than being simulated.
+            return SpherePlacementRules.GetMaxSpheres(_maxSphereAbilityLevel, 0);
+        }
+
         private int CountSpheresOfType(SphereId type)
         {
             var count = 0;
@@ -2499,10 +2518,12 @@ namespace EchoSphere.Runtime
                 return;
             }
 
-            if (_spheres.Count >= SpherePlacementRules.GetMaxSpheres()) return;
-            if (CountSpheresOfType(_selectedSphereType) >= SpherePlacementRules.MaxSameSphereCopies)
+            if (_spheres.Count >= GetCurrentMaxSpheres()) return;
+            var sameTypeCap = SpherePlacementRules.GetSameTypeCap(
+                _sphereCharacterId, _selectedSphereType, _characterMasteryLevel);
+            if (CountSpheresOfType(_selectedSphereType) >= sameTypeCap)
             {
-                ShowMessage("MAX " + SpherePlacementRules.MaxSameSphereCopies);
+                ShowMessage("MAX " + sameTypeCap);
                 return;
             }
             if (!CanPlaceSphereAt(world, null))
