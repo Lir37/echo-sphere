@@ -1938,3 +1938,15 @@ pixel-exact visual parity.
 - Added its own forked refraction endpoint, scaled for the Prism Split Level VII final;
   the Prism Mirror endpoint remains separate. Guards were not relaxed; combat logic is
   untouched. Revalidation follows the correction commit.
+
+
+[2026-10-11] SLICE 7 VALIDATION RESULT
+- Unity Migration Contracts CI #105 on code HEAD
+  4a750f0e3fd7f27a739c76089496a5732b93223a: SUCCESS.
+  Run: https://github.com/Lir37/echo-sphere/actions/runs/38111528853
+- All 305 pure C# gameplay assertions passed. Unity project preflight, source-to-
+  component guards, branch coverage, live event wiring and no-gameplay-RNG checks
+  also passed.
+- This workflow validates pure contracts and structural/source mapping only. It
+  does not compile UnityEngine-facing code in Unity Editor, verify GPU/material
+  rendering, build an Android APK or replace on-device acceptance.
