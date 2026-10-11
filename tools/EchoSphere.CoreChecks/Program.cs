@@ -31,6 +31,7 @@ internal static class Program
             CheckPrismEvolutionCombatRules();
             CheckPulseVoidEvolutionCombatRules();
             CheckSphereNetworkRules();
+            CheckSpherePlacementRules();
             Console.WriteLine($"ECHO SPHERE Unity core contracts: PASS ({_assertions} assertions)");
             return 0;
         }
@@ -453,6 +454,43 @@ internal static class Program
         Near(SphereEvolutionCombatRules.GetOrbitalResonanceBonus(6, null), 0.25f, 0f, "Halo level VI charge bonus");
         True(SphereEvolutionCombatRules.ShouldOrbitalGrantShieldCharge(3), "Halo Guard shield cadence");
         True(!SphereEvolutionCombatRules.ShouldOrbitalGrantShieldCharge(2), "Halo Guard avoids charge on every pass");
+    }
+
+    private static void CheckSpherePlacementRules()
+    {
+        Equal(SpherePlacementRules.GetMaxSpheres(), 5, "source default Sphere cap");
+        Equal(SpherePlacementRules.GetMaxSpheres(3, 4), 8, "source Sphere cap clamps to eight");
+        True(SpherePlacementRules.CanAddSphere(4, 1, 5, 2), "place Sphere while below global and same-type caps");
+        True(!SpherePlacementRules.CanAddSphere(5, 1, 5, 2), "global Sphere cap blocks placement");
+        True(!SpherePlacementRules.CanAddSphere(2, 2, 5, 2), "source same-type copy cap blocks placement");
+
+        var noSpheres = Array.Empty<Vec2>();
+        var noSphereAlive = Array.Empty<bool>();
+        var noEnemies = Array.Empty<Vec2>();
+        var noEnemyRadii = Array.Empty<float>();
+        True(SpherePlacementRules.CanPlace(new Vec2(0f, -2f), Vec2.Zero, noSpheres, noSphereAlive, noEnemies, noEnemyRadii),
+            "source-valid placement outside the Core exclusion radius");
+        True(!SpherePlacementRules.CanPlace(new Vec2(0f, -0.5f), Vec2.Zero, noSpheres, noSphereAlive, noEnemies, noEnemyRadii),
+            "placement near Core is blocked");
+        True(!SpherePlacementRules.CanPlace(new Vec2(22f, 0f), Vec2.Zero, noSpheres, noSphereAlive, noEnemies, noEnemyRadii),
+            "placement outside the source world bounds is blocked");
+
+        var oneSphere = new[] { new Vec2(0f, -2f) };
+        var oneAlive = new[] { true };
+        True(!SpherePlacementRules.CanPlace(new Vec2(0f, -2.5f), Vec2.Zero, oneSphere, oneAlive, noEnemies, noEnemyRadii),
+            "overlapping Sphere placement is blocked");
+        True(SpherePlacementRules.CanPlace(new Vec2(0f, -4f), Vec2.Zero, oneSphere, oneAlive, noEnemies, noEnemyRadii),
+            "valid placement preserves navigable route around existing Sphere");
+
+        var enemyPositions = new[] { new Vec2(0f, -2.8f) };
+        var enemyRadii = new[] { 0.4f };
+        True(!SpherePlacementRules.CanPlace(new Vec2(0f, -2f), Vec2.Zero, noSpheres, noSphereAlive, enemyPositions, enemyRadii),
+            "placement under a living enemy is blocked");
+
+        Near(SpherePlacementRules.SourcePixelsToWorld, 0.0175f, 0.000001f, "Source-to-Unity Sphere coordinate calibration");
+        Near(SpherePlacementRules.DefaultMaxSpheres, 5f, 0f, "source default maximum Sphere count");
+        Near(SphereNetworkRules.DefaultLinkDistance, 220f * SpherePlacementRules.SourcePixelsToWorld, 0.000001f,
+            "source 220 px Network distance uses current camera scale");
     }
 
     private static void CheckSphereNetworkRules()
