@@ -214,8 +214,14 @@ assert.ok(runtime.includes('BuildSphereNetworkPreview') && runtime.includes('Dra
 assert.ok(runtime.includes('DrawSpherePickerGlyph') && runtime.includes('SphereId.Sniper') &&
   runtime.includes('SphereId.Shotgun') && runtime.includes('SphereId.Chain') && runtime.includes('SphereId.Aura'),
   'Sphere picker must port the actual MobileControls glyphs instead of invented text abbreviations');
-assert.ok(!runtime.includes('SphereShortName(') && !runtime.includes('"STD"') && !runtime.includes('"SNP"'),
-  'source Sphere picker must not display invented abbreviation labels');
+assert.ok(runtime.includes('GetSpherePickerDescriptionHeight') && runtime.includes('definition.DescriptionEn.Length'),
+  'Sphere picker must expand for the source Orbital description instead of clipping it');
+const spherePickerStart = runtime.indexOf('private void DrawSpherePicker()');
+const spherePickerEnd = runtime.indexOf('private void DrawSpherePickerGlyph(', spherePickerStart);
+assert.ok(spherePickerStart >= 0 && spherePickerEnd > spherePickerStart, 'source Sphere picker implementation is missing');
+const spherePickerImplementation = runtime.slice(spherePickerStart, spherePickerEnd);
+assert.ok(!spherePickerImplementation.includes('SphereShortName(') && !spherePickerImplementation.includes('"STD"') && !spherePickerImplementation.includes('"SNP"'),
+  'source Sphere picker must use glyphs rather than text abbreviations');
 assert.ok(runtime.includes('CreateSphere(SphereId.Standard, 0,') && runtime.includes('_follow = false;'),
   'source initial Standard Sphere/progression state and Formation Follow default are missing');
 assert.ok(!runtime.includes('if (choice.CurrentLevel == 0) CreateSphere(choice.Sphere, choice.NextLevel)'),
