@@ -115,7 +115,7 @@ namespace EchoSphere.Runtime
             _vertices.Clear();
             _colors.Clear();
             _triangles.Clear();
-            var radius = Mathf.Max(0.36f, Mathf.Abs(transform.localScale.x) * 0.48f * 1.15f);
+            var radius = Mathf.Max(0.36f, Mathf.Abs(transform.localScale.x) * 0.48f);
             var pulse = 0.55f + Mathf.Sin(_time * 14f) * 0.16f;
             var playerDelta = _agent.PlayerPosition - (Vector2)transform.position;
 
