@@ -194,6 +194,31 @@ assert.ok(runtime.includes('GetWaveSpawnInterval') && runtime.includes('GetEnemi
 assert.ok(runtime.includes('_waveEnemiesToSpawn > 0') && runtime.includes('CountLivingNonBossEnemies() == 0') && runtime.includes('HasActiveBoss()'), 'source wave progression must wait for the current wave and active boss to finish');
 assert.ok(runtime.includes('profile.XpReward') && runtime.includes('GetEnemySprite') && runtime.includes('Initialize(this, _player, xpReward)'), 'enemy role visuals/XP pickup wiring is missing');
 assert.ok(runtime.includes('GetFormationKey') && runtime.includes('AddResonanceChargeFromSource'), 'new-geometry Resonance charging is missing');
+
+const spherePlacementRulesPath = 'Assets/EchoSphere/Scripts/Core/SpherePlacementRules.cs';
+assert.ok(existsSync(join(root, spherePlacementRulesPath)), 'source-mapped Sphere placement safety rules are missing');
+const spherePlacementRules = readFileSync(join(root, spherePlacementRulesPath), 'utf8');
+for (const required of ['src/spaceCollision.ts','PlayerBuildGap','TowerPlacementGap','EnemyPlacementGap','HasRouteToOutside','GetMaxSpheres','MaxSameSphereCopies'])
+  assert.ok(spherePlacementRules.includes(required), 'source Sphere placement contract missing: ' + required);
+assert.ok(runtime.includes('HandleSpherePointerInput()') && runtime.includes('BeginSpherePointer') && runtime.includes('FinishSpherePointer'), 'Sphere placement/drag pointer lifecycle is not wired into the runtime');
+assert.ok(runtime.includes('DrawSpherePicker') && runtime.includes('GetSpherePickerRect') && runtime.includes('SetSelectedSphereType') === false && runtime.includes('_selectedSphereType'),
+  'all ten authored Sphere types must be selectable through the live Unity picker');
+assert.ok(runtime.includes('TryPlaceOrRemoveSphereAt') && runtime.includes('RemoveSphereAgent') && runtime.includes('CanPlaceSphereAt'),
+  'Sphere placement/removal and collision validation are not connected to live runtime');
+assert.ok(runtime.includes('BuildSphereNetworkPreview') && runtime.includes('DrawSpherePlacementOverlay') &&
+  runtime.includes('CaptureSphereFormationMemoryIfChanged') && runtime.includes('DrawSphereGuiCircle'),
+  'Ghost Snap preview or formation-memory presentation is not wired');
+assert.ok(runtime.includes('CreateSphere(SphereId.Standard, 0,') && runtime.includes('_follow = false;'),
+  'source initial Standard Sphere/progression state and Formation Follow default are missing');
+assert.ok(!runtime.includes('if (choice.CurrentLevel == 0) CreateSphere(choice.Sphere, choice.NextLevel)'),
+  'level-up must not spawn a physical Sphere; placement is an independent source action');
+assert.ok(sphereAttack.includes('Mathf.Clamp(level, 0, SphereProgressionRules.MaxLevel)'),
+  'source unlevelled Sphere state (level 0) is not preserved');
+const sphereNetworkRulesPath = 'Assets/EchoSphere/Scripts/Core/SphereNetworkRules.cs';
+const sphereNetworkRules = readFileSync(join(root, sphereNetworkRulesPath), 'utf8');
+assert.ok(sphereNetworkRules.includes('DefaultLinkDistance = 3.85f'),
+  'source 220 px Network link distance must use the current 720/12.6 camera calibration');
+
 console.log(`Unity project preflight: PASS (Unity ${version}, ${runtimeFiles.length} C# source files, URP, authored SVG and responsive HUD guards)`);
 
 const evolutionRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/SphereEvolutionCombatRules.cs'), 'utf8');
