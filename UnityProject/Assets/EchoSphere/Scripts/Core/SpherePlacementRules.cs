@@ -80,8 +80,10 @@ namespace EchoSphere.Core
         {
             var minX = -worldWidth * 0.5f;
             var minY = -worldHeight * 0.5f;
-            var columns = (int)Math.Ceiling(worldWidth / NavigationCellSize);
-            var rows = (int)Math.Ceiling(worldHeight / NavigationCellSize);
+            // Round the camera-calibrated ratio before converting to a cell count;
+            // 42 / 0.7 can otherwise round up to 61 because of float representation.
+            var columns = (int)Math.Round(worldWidth / NavigationCellSize);
+            var rows = (int)Math.Round(worldHeight / NavigationCellSize);
             if (columns <= 0 || rows <= 0) return false;
 
             var obstaclePositions = new List<Vec2>();
