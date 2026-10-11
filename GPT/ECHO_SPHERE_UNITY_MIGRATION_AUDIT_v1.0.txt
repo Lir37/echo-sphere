@@ -2161,3 +2161,19 @@ Source-mapped from `new-desing/src/engineSpheres.ts`, `src/characters.ts`, and `
 - Added core contract cases for all signature mappings, mastery thresholds, max-sphere progression and duplicate-output scaling; added CI source guards for runtime wiring.
 
 Known parity limits: Unity runtime still defaults to Spherist/mastery I because the character-selection/mastery profile system has not yet been ported. The pure capacity rule accepts the source persistent shop bonus, but the Unity runtime currently supplies zero because the shop system is not yet present. CI check status for the latest push could not be read with the available GitHub status/run interfaces; this note does not claim CI success or Unity Editor compilation.
+
+
+## Elemental Sphere Mutations — 2026-10-11
+
+Source baseline: `new-desing` at `737ef2af4a877e0995db5f92331d536d2f29a934`.
+
+Ported a runtime-backed first slice of the source elemental Mutation combat:
+
+- Added `SphereElementalRules.cs` with the actual branch-to-element map (Fire / Freeze / Poison), final-choice mastery IDs and source timing/damage values.
+- Implemented typed Fire and Poison DoT timers, tick-tempo mastery (0.12 s cadence without a DPS increase), Freeze movement lock, Freeze Impact same-Sphere +22% damage window, and Permafrost post-thaw slow.
+- Connected direct elemental statuses to projectile hits and Orbital contact; Chain uses per-target conduction count/cooldown with source 20% / 27% damage and applies status when the conduction threshold is reached; Aura, Gravity and Pulse use per-target Field cadence and Field power/duration/frequency variants.
+- Alchemist base status modifiers are represented in the runtime multiplier getters, but character selection/profile integration is not yet ported, so current gameplay still runs Spherist/mastery I.
+- Corrected Prism Spectrum final visual element ordering to match the authored catalog: final 1 Fire, final 2 Freeze, final 3 Poison.
+- Added contract tests for 29 fixed branch mappings, all three Prism Spectrum final elements, mastery selection, duration/DPS, Tempo, Conduction and Field numbers. CI run #164 for commit `b632025c825f45e097f1837aac904258793dafad` passed: 433 previous C# assertions plus the new elemental contracts, and the Node Unity structure/runtime guard.
+
+Known remaining Sphere parity gaps: full character selection and persistent mastery/profile loop; Alchemist elemental-combination reactions/catalyst; persistent shop `shopUpgrades.spheres` contribution to runtime capacity; source Sphere modifier upgrade path and `SPHERE_ABILITY_SYNERGIES` interaction/visibility; final audit still requires a full per-branch combat-path review. Unity Editor compilation, APK build and on-device verification have not been performed in this environment.
