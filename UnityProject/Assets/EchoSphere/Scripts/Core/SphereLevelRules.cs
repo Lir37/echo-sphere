@@ -27,6 +27,9 @@ namespace EchoSphere.Core
 
     public static class SphereLevelRules
     {
+        public static SphereLevelStats GetUnlevelledStats() =>
+            new SphereLevelStats(1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 0f, 0, 3, 3, 1);
+
         public static SphereLevelStats GetStats(SphereId id, int level)
         {
             var l = Math.Max(1, Math.Min(7, level));
