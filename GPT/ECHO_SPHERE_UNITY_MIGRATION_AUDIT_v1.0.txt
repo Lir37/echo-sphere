@@ -2335,3 +2335,31 @@ LICENSE GATE / IMPORTANT LIMIT:
 ======================================================================
 END CLOUD APK PIPELINE UPDATE
 ======================================================================
+
+
+======================================================================
+2026-10-11 — CLOUD APK PIPELINE CI CHECKPOINT
+======================================================================
+
+- The first full migration-contract run after adding the cloud build entry
+  point, checker guards, and audit update completed SUCCESS:
+  Unity Migration Contracts #204 on `db4b3141671acdd9444185ed36b57820b2bb8ed2`.
+  Run: https://github.com/Lir37/echo-sphere/actions/runs/38164748398
+- Unity Android APK workflow #1 also completed successfully at the workflow
+  level on that implementation commit. Its license gate correctly detected
+  that all three required secrets are absent and skipped the actual APK job.
+  No APK artifact was produced:
+  https://github.com/Lir37/echo-sphere/actions/runs/38164748464
+- Fixed shell quoting in the license-gate summary output in follow-up commit
+  `424f42aa5ea878863271ed0bfa7774a9edc574b3`. The follow-up verification
+  must be read from Actions for the resulting current HEAD, not inferred from
+  either earlier run.
+- `new-desing` remains untouched at source HEAD
+  `737ef2af4a877e0995db5f92331d536d2f29a934`.
+
+No Unity Editor compilation, Android APK generation, or phone installation
+is claimed until the cloud workflow publishes the actual APK artifact.
+
+======================================================================
+END CLOUD APK CI CHECKPOINT
+======================================================================
