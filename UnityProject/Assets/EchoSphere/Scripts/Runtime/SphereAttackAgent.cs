@@ -25,7 +25,11 @@ namespace EchoSphere.Runtime
         private readonly List<Transform> _orbitalElements = new List<Transform>();
         private readonly List<float> _orbitalContactTimers = new List<float>();
         private int _orbitalHitCount;
+        private float _networkDisabledTimer;
         public void AccelerateNextAttack(float amount) => _attackTimer = Mathf.Max(0f, _attackTimer - Mathf.Max(0f, amount));
+        public void DelayNextAttack(float amount) => _attackTimer += Mathf.Max(0f, amount);
+        public bool NetworkDisabled => _networkDisabledTimer > 0f;
+        public void ApplyNetworkDisable(float duration) => _networkDisabledTimer = Mathf.Max(_networkDisabledTimer, Mathf.Max(0f, duration));
 
         public SphereId Type => _type;
         public float VisualRotation { get; private set; }
@@ -94,6 +98,7 @@ namespace EchoSphere.Runtime
             if (_runtime == null || _runtime.IsGameplayPaused) return;
             var dt = Time.deltaTime;
             _contactTimer = Mathf.Max(0f, _contactTimer - dt);
+            _networkDisabledTimer = Mathf.Max(0f, _networkDisabledTimer - dt);
 
             if (_type == SphereId.Orbital)
             {

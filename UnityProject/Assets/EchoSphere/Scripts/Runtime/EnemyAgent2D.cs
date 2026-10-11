@@ -21,6 +21,7 @@ namespace EchoSphere.Runtime
         private Color _baseColor = Color.white;
         private EnemyCreatureVisual2D _creatureVisual;
         private BossPresentationVfx2D _bossPresentation;
+        private BossCombatAgent2D _bossCombat;
         private string _bossType = "";
         public bool IsMarked => _markTimer > 0f;
         public bool IsBoss => !string.IsNullOrEmpty(_bossType);
@@ -28,6 +29,8 @@ namespace EchoSphere.Runtime
         public float MaxHp => _maxHp;
         public Vector2 PlayerPosition => _player == null ? Vector2.zero : (Vector2)_player.position;
         public bool PresentationPaused => _runtime == null || _runtime.IsPresentationPaused;
+        public float MovementSlowMultiplier => _slowTimer > 0f ? _slowMultiplier : 1f;
+        public void SetBossCombat(BossCombatAgent2D combat) { _bossCombat = combat; }
 
         public void SetBossPresentationState(float shootTimer, float summonTimer, float chargeTimer,
             bool isCharging, Vector2 chargeDirection, float auraRadius)
@@ -131,6 +134,12 @@ namespace EchoSphere.Runtime
             if (_slowTimer > 0f) _slowTimer = Mathf.Max(0f, _slowTimer - Time.deltaTime);
             else _slowMultiplier = 1f;
             var target = (Vector2)_player.position;
+            if (_bossCombat != null)
+            {
+                _bossCombat.Tick(Time.deltaTime);
+                if (_creatureVisual != null) _creatureVisual.SetFacing(target - (Vector2)transform.position);
+                return;
+            }
             transform.position = Vector2.MoveTowards(transform.position, target, _moveSpeed * _slowMultiplier * Time.deltaTime);
             if (_creatureVisual != null) _creatureVisual.SetFacing(target - (Vector2)transform.position);
             if (Vector2.Distance(transform.position, target) < 0.54f) _runtime.TryDamagePlayer(9f);

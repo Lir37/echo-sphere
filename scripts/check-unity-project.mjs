@@ -17,6 +17,10 @@ const required = [
   'Assets/EchoSphere/Scripts/Core/SphereEvolutionCombatRules.cs',
   'Assets/EchoSphere/Scripts/Core/ResonanceRules.cs',
   'Assets/EchoSphere/Scripts/Core/EnemySpawnRules.cs',
+  'Assets/EchoSphere/Scripts/Core/BossCombatRules.cs',
+  'Assets/EchoSphere/Scripts/Runtime/BossCombatAgent2D.cs',
+  'Assets/EchoSphere/Scripts/Runtime/BossProjectileAgent2D.cs',
+  'Assets/EchoSphere/Scripts/Runtime/BossPresentationVfx2D.cs',
   'Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs',
   'Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs',
   'Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs',
@@ -194,6 +198,20 @@ const projectile = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/Pr
 const enemy = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs'), 'utf8');
 assert.ok(enemy.includes('SetFacing(target - (Vector2)transform.position)') && enemy.includes('SetMarked(true)') && enemy.includes('PulseHit()'), 'enemy visual must track facing and source mark/hit feedback');
 assert.ok(enemy.includes('_bossPresentation.Initialize(this, bossType, _baseColor)') && enemy.includes('SetBossPresentationState'), 'boss presentation must bind to EnemyAgent2D');
+const bossRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/BossCombatRules.cs'), 'utf8');
+for (const boss of ['shooter','charger','summoner','aura','conductor','architect','null','stella_warden']) assert.ok(bossRules.includes('"' + boss + '"'), 'canonical boss roster missing: ' + boss);
+assert.ok(bossRules.includes('GetTypeForDefeatedCount') && bossRules.includes('GetMaxHp') && bossRules.includes('GetMoveSpeedWorldUnitsPerSecond'), 'source boss balance rules missing');
+const bossAgent = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/BossCombatAgent2D.cs'), 'utf8');
+assert.ok(bossAgent.includes('src/engineEnemies.ts') && bossAgent.includes('SpawnBossProjectile') && bossAgent.includes('SpawnBossMinion'), 'boss runtime source mapping/attack spawns missing');
+for (const method of ['TickFan','TickRadial','DisableNearestNetworkSpheres','DrainResonance','DelayAllSphereAttacks']) assert.ok(bossAgent.includes(method), 'boss behaviour hook missing: ' + method);
+assert.ok(runtimeArt.includes('SpawnBossForRegionEvent') && runtimeArt.includes('BossCombatRules.GetTypeForDefeatedCount'), 'boss spawn must be an explicit Region event contract');
+const bossProjectile = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/BossProjectileAgent2D.cs'), 'utf8');
+assert.ok(bossProjectile.includes('renderer.ts:drawBossProjectile') && bossProjectile.includes('_velocity * dt'), 'source boss projectile motion/VFX missing');
+assert.ok(!/UnityEngine\.Random|Random\.Range|_rng/.test(bossProjectile), 'boss projectile presentation must not consume gameplay RNG');
+const sphereAttackRuntime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs'), 'utf8');
+assert.ok(sphereAttackRuntime.includes('NetworkDisabled') && sphereAttackRuntime.includes('ApplyNetworkDisable') && sphereAttackRuntime.includes('DelayNextAttack'), 'boss-to-Sphere disruption contract missing');
+const sphereDisabledVfx = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/SphereRuntimeVfx2D.cs'), 'utf8');
+assert.ok(sphereDisabledVfx.includes('_agent.NetworkDisabled') && sphereDisabledVfx.includes('new Color(1f, 0.22f, 0.39f'), 'network-disabled Sphere overlay missing');
 assert.ok(sphereAttack.includes('GetOrbitalResonanceBonus') && sphereAttack.includes('ShouldOrbitalGrantShieldCharge'), 'Orbital Halo Resonance/Guard behavior is missing');
 assert.ok(evolutionRules.includes('ShouldTriggerStandardResonatorPulse'), 'Standard Resonator combat rules are missing');
 assert.ok(evolutionRules.includes('GetSniperAssassinDamageMultiplier'), 'Sniper Assassin combat rules are missing');

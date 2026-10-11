@@ -2002,3 +2002,40 @@ VALIDATION LIMITS:
 - Moved the same strict assertion beside the other EnemyAgent2D checks after its
   source read. No assertion was removed or weakened, and no gameplay code changed.
 - Revalidation is required before proceeding to the boss runtime slice.
+
+
+======================================================================
+[2026-10-11] BOSS COMBAT RUNTIME PORT SLICE 9 — EIGHT SOURCE TYPES
+======================================================================
+
+BASE:
+unity-migration HEAD before this slice: 58258ecdb3d5caa13ce7dc8282c1460525949f1d
+Protected source: new-desing HEAD 737ef2af4a877e0995db5f92331d536d2f29a934.
+
+IMPLEMENTED:
+- Added pure BossCombatRules.cs for the canonical source roster, boss cycle,
+  HP/speed/damage/XP formulas, source-to-world scale and Charger phases.
+- Added BossCombatAgent2D.cs for Shooter, Charger, Summoner, Aura, Conductor,
+  Architect, Null and Stella Warden using source attack timers, fan/radial
+  projectiles, summon patterns, Aura DoT, resonance drains and Sphere disruption.
+- Added BossProjectileAgent2D.cs mapped to renderer.ts:drawBossProjectile.
+  Movement, damage, source radius, collision distance and despawn bounds are
+  converted from the source engineEnemies.ts values.
+- Added SpawnBossForRegionEvent as the future Region event contract. There is
+  no independent wall-clock boss timer. The current Unity RegionState and
+  spawnBoss signal remain unported, so this method is not auto-triggered.
+- Added source-aligned minion spawning, boss defeat counting, resonance drain,
+  attack delays and temporary network disable. Disabled Spheres leave formation
+  calculations but keep their individual attack behavior and display red
+  chevron/arc feedback.
+- Added pure contract checks for all eight IDs, cycle order, wave scaling,
+  coordinate conversion and Charger phase boundaries.
+
+LIMITS:
+- No Unity Region objective/state, post-boss Stella chest/reward flow or
+  artifact-choice UI was invented. Those systems are still absent in the
+  current Unity runtime.
+- CI validates pure rules and source wiring, not UnityEngine compilation,
+  mesh material rendering or real encounter playability. Unity Editor compile,
+  boss encounter smoke test, Android APK and device acceptance remain open.
+

@@ -14,6 +14,7 @@ internal static class Program
             CheckCatalogAndRewardedContracts();
             CheckRunBalance();
             CheckEnemySpawnRules();
+            CheckBossCombatRules();
             CheckSphereCombatProfiles();
             CheckSphereProgressionRules();
             CheckSphereEvolutionCatalog();
@@ -126,6 +127,34 @@ internal static class Program
         Equal(RunBalanceRules.GetEnemyPopulationCap(300f), 40, "population cap scales with time");
         Equal(RunBalanceRules.GetEnemyPopulationCap(900f), 60, "population cap reaches ceiling");
         Equal(RunBalanceRules.GetEnemyPopulationCap(5000f), 60, "population cap remains bounded");
+    }
+
+    private static void CheckBossCombatRules()
+    {
+        Equal(BossCombatRules.BossTypeCount, 8, "canonical eight boss types");
+        Equal(BossCombatRules.GetTypeForDefeatedCount(0), "shooter", "boss cycle first type");
+        Equal(BossCombatRules.GetTypeForDefeatedCount(7), "stella_warden", "boss cycle eighth type");
+        Equal(BossCombatRules.GetTypeForDefeatedCount(8), "shooter", "boss cycle wraps after eight types");
+        Equal(BossCombatRules.GetTypeForDefeatedCount(15), "stella_warden", "boss cycle repeats deterministically");
+        True(BossCombatRules.IsKnownBossType("conductor"), "Conductor is canonical");
+        True(BossCombatRules.IsKnownBossType("architect"), "Architect is canonical");
+        True(!BossCombatRules.IsKnownBossType("origami_phoenix"), "legacy silhouette helper is not a gameplay boss type");
+        Near(BossCombatRules.GetMaxHp(0), 450f, 0f, "source boss HP at wave 0");
+        Near(BossCombatRules.GetMaxHp(10), 1000f, 0f, "source boss HP wave scaling");
+        Near(BossCombatRules.GetContactDamage(10), 34.5f, 0.0001f, "source boss damage scaling");
+        Equal(BossCombatRules.GetXpReward(10), 100, "source boss XP reward");
+        Near(BossCombatRules.GetMoveSpeedSourceUnitsPerSecond("shooter", 10), 60f, 0f, "source standard boss speed");
+        Near(BossCombatRules.GetMoveSpeedSourceUnitsPerSecond("charger", 10), 90f, 0f, "source charger speed");
+        Near(BossCombatRules.GetMoveSpeedWorldUnitsPerSecond("shooter", 10), 1.2f, 0.0001f, "boss world-space speed conversion");
+        Near(BossCombatRules.ToWorldUnits(700f), 14f, 0f, "source spawn distance conversion");
+        Near(BossCombatRules.ToWorldUnits(180f), 3.6f, 0.0001f, "source projectile speed conversion");
+        Near(BossCombatRules.BossRadiusWorld + BossCombatRules.PlayerRadiusWorld, 1f, 0f, "boss collision radius conversion");
+        Near(BossCombatRules.GetAuraRadiusWorld(), 2.4f, 0.0001f, "Aura radius conversion");
+        Near(BossCombatRules.GetAuraDamagePerSecond(10), 30f, 0f, "Aura DPS scaling");
+        Equal(BossCombatRules.GetChargerPhase(0.8f), BossChargerPhase.Windup, "Charger windup phase");
+        Equal(BossCombatRules.GetChargerPhase(0.35f), BossChargerPhase.CommittedDash, "Charger commit threshold");
+        Equal(BossCombatRules.GetChargerPhase(0f), BossChargerPhase.Ready, "Charger reset phase");
+        Equal(BossCombatRules.GetColorHex("stella_warden"), "#ffd15a", "Stella Warden source tint");
     }
 
     private static void CheckSphereCombatProfiles()

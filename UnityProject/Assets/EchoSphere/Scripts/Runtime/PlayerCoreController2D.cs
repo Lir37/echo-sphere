@@ -61,6 +61,13 @@ namespace EchoSphere.Runtime
             return true;
         }
 
+        public bool TryTakeDotDamage(float amount)
+        {
+            if (IsDead || !CombatRules.CanReceivePlayerDotDamage(InvulnerableTimer)) return false;
+            CurrentHp = Mathf.Max(0f, CurrentHp - Mathf.Max(0f, amount));
+            return true;
+        }
+
         public void GrantShieldCharge(int amount = 1)
         {
             ShieldCharges = Mathf.Clamp(ShieldCharges + Mathf.Max(0, amount), 0, 5);

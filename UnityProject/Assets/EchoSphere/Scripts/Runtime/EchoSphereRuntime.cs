@@ -25,6 +25,7 @@ namespace EchoSphere.Runtime
         private float _spawnTimer = 0.6f, _runTime, _messageTimer, _formationStrain;
         private Vec2 _lastDirection = Vec2.Zero;
         private int _kills, _level = 1, _xp, _xpRequired = RunBalanceRules.GetXpToNextLevel(1);
+        private int _bossesDefeated;
         private bool _follow, _paused, _levelUp, _gameOver, _userPaused;
         private bool _mainMenu = true;
         private bool _regionSelect;
@@ -50,6 +51,8 @@ namespace EchoSphere.Runtime
 
         public bool IsGameplayPaused => _paused;
         public bool IsPresentationPaused => _mainMenu || _paused;
+        public float CurrentRunTime => _runTime;
+        public float NextRunRandom() => _rng.NextFloat();
         public float SphereDamageMultiplier => _damageMultiplier;
         public float AttackSpeedMultiplier => _attackSpeedMultiplier;
         public float ResonanceCharge => _resonanceCharge;
@@ -661,6 +664,81 @@ namespace EchoSphere.Runtime
             agent.Initialize(this, _player, baseHp * profile.HpMultiplier, baseSpeed * profile.SpeedMultiplier, profile.XpReward, GetEnemyVisualVariant(archetype));
             _enemies.Add(agent);
         }
+        /// <summary>
+        /// Called by the future Region boss event. The source uses a Region signal,
+        /// so this entry point deliberately has no elapsed-time trigger.
+        /// </summary>
+        public EnemyAgent2D SpawnBossForRegionEvent(string forcedBossType, int wave)
+        {
+            if (_player == null || _mainMenu || _gameOver) return null;
+            var type = string.IsNullOrEmpty(forcedBossType)
+                ? BossCombatRules.GetTypeForDefeatedCount(_bossesDefeated)
+                : forcedBossType;
+            if (!BossCombatRules.IsKnownBossType(type)) return null;
+
+            var angle = _rng.NextFloat() * Mathf.PI * 2f;
+            var position = (Vector2)_player.position +
+                new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * BossCombatRules.BossSpawnDistanceWorld;
+            var tint = Color.white;
+            ColorUtility.TryParseHtmlString(BossCombatRules.GetColorHex(type), out tint);
+            var hp = BossCombatRules.GetMaxHp(wave);
+            var speed = BossCombatRules.GetMoveSpeedWorldUnitsPerSecond(type, wave);
+            var damage = BossCombatRules.GetContactDamage(wave);
+            var root = CreateOrb("ECHO SPHERE Boss / " + type, position, 1.23f, tint, Color.white, 4);
+            var agent = root.AddComponent<EnemyAgent2D>();
+            agent.Initialize(this, _player, hp, speed, BossCombatRules.GetXpReward(wave),
+                BossCombatRules.GetVisualVariant(type), type);
+            _enemies.Add(agent);
+            var combat = root.AddComponent<BossCombatAgent2D>();
+            combat.Initialize(this, _player, agent, type, wave, speed, damage, tint);
+            agent.SetBossCombat(combat);
+            return agent;
+        }
+
+        public EnemyAgent2D SpawnBossMinion(Vector2 position, float hp, float moveSpeed, int xpReward, string visualVariant, Color tint)
+        {
+            if (_player == null || _gameOver) return null;
+            var root = CreateOrb("Boss Minion", position, 0.38f, tint, Color.white, 4);
+            var agent = root.AddComponent<EnemyAgent2D>();
+            agent.Initialize(this, _player, hp, moveSpeed, xpReward, visualVariant);
+            _enemies.Add(agent);
+            return agent;
+        }
+
+        public void SpawnBossProjectile(Vector2 position, Vector2 velocity, float damage, float sourceRadius, string bossType, Color color)
+        {
+            var projectile = new GameObject("Boss Projectile / " + bossType);
+            projectile.transform.position = position;
+            projectile.AddComponent<BossProjectileAgent2D>().Initialize(this, _player, velocity, sourceRadius, damage, bossType, color);
+        }
+
+        public void DisableNearestNetworkSpheres(Vector2 origin, int count, float duration, bool includeCurrentlyDisabled)
+        {
+            var candidates = new List<SphereAttackAgent>(_spheres.Count);
+            for (var i = 0; i < _spheres.Count; i++)
+            {
+                var sphere = _spheres[i];
+                if (sphere == null || !sphere.gameObject.activeInHierarchy) continue;
+                if (!includeCurrentlyDisabled && sphere.NetworkDisabled) continue;
+                candidates.Add(sphere);
+            }
+            candidates.Sort((a, b) =>
+                ((Vector2)a.transform.position - origin).sqrMagnitude.CompareTo(
+                    ((Vector2)b.transform.position - origin).sqrMagnitude));
+            var limit = Mathf.Min(Mathf.Max(0, count), candidates.Count);
+            for (var i = 0; i < limit; i++) candidates[i].ApplyNetworkDisable(duration);
+            if (limit > 0) RefreshNetworkState();
+        }
+
+        public void DelayAllSphereAttacks(float amount)
+        {
+            for (var i = 0; i < _spheres.Count; i++)
+                if (_spheres[i] != null) _spheres[i].DelayNextAttack(amount);
+        }
+
+        public void DrainResonance(float amount) => _resonanceCharge = Mathf.Max(0f, _resonanceCharge - Mathf.Max(0f, amount));
+        public void ShowBossMessage(string message) => ShowMessage(message);
+
         // Deterministic source-variant mapping for the current four-archetype Unity scaffold.
         // Full seeded visualVariant distribution belongs to the later enemy-spawn contract port.
         private static string GetEnemyVisualVariant(EnemyArchetype archetype)
@@ -1259,6 +1337,7 @@ namespace EchoSphere.Runtime
         public void RegisterEnemyDeath(EnemyAgent2D enemy, Vector2 position, int xpReward = 1)
         {
             _enemies.Remove(enemy);
+            if (enemy != null && enemy.IsBoss) _bossesDefeated++;
             _kills++;
             var go = new GameObject("Echo Shard");
             go.transform.position = position;
@@ -1308,6 +1387,12 @@ namespace EchoSphere.Runtime
             var shieldsBefore = _playerCore.ShieldCharges;
             if (_playerCore.TryTakeDamage(damage)) ShowMessage("Core integrity damaged!");
             else if (_playerCore.ShieldCharges < shieldsBefore) ShowMessage("Shield charge absorbed impact!");
+        }
+
+        public void TryDamagePlayerOverTime(float damage)
+        {
+            if (_playerCore != null && !_playerCore.IsDead && _playerCore.TryTakeDotDamage(damage))
+                ShowMessage("Core integrity damaged!");
         }
 
         public bool SetFormationFollowMode(bool active, bool skipRangeCheck = false)
@@ -1500,7 +1585,7 @@ namespace EchoSphere.Runtime
                     continue;
                 }
                 var position = (Vector2)sphere.transform.position;
-                nodes.Add(new SphereNetworkNode(new Vec2(position.x, position.y), true));
+                nodes.Add(new SphereNetworkNode(new Vec2(position.x, position.y), !sphere.NetworkDisabled));
             }
 
             var previous = _preferredDominantFormation != SphereNetworkFormation.None ? _preferredDominantFormation : _previousDominantFormation;
