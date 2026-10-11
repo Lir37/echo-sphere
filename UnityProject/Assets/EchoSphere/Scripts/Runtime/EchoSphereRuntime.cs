@@ -2209,9 +2209,10 @@ namespace EchoSphere.Runtime
 
         private Rect GetSpherePickerRect()
         {
-            var width = Mathf.Min(480f, Mathf.Max(280f, _uiWidth - 470f));
+            var width = Mathf.Max(220f, Mathf.Min(420f, _uiWidth - 36f));
             const float height = 146f;
-            return new Rect((_uiWidth - width) * 0.5f, _uiHeight - height - 10f, width, height);
+            var bottomControlsY = _uiHeight - 76f;
+            return new Rect(18f, bottomControlsY - height - 10f, width, height);
         }
 
         private Vector2 ScreenToWorldPoint(Vector2 screenPoint)
@@ -2314,7 +2315,7 @@ namespace EchoSphere.Runtime
             }
             else if (_spherePointerIsPlacing)
             {
-                _spherePointerPositionValid = CanAddSelectedSphere()
+                _spherePointerPositionValid = _spheres.Count < SpherePlacementRules.GetMaxSpheres()
                     && CanPlaceSphereAt(_spherePointerWorld, null);
                 BuildSphereNetworkPreview(_spherePointerWorld, -1, true);
             }
@@ -2327,7 +2328,6 @@ namespace EchoSphere.Runtime
             var moved = _spherePointerMoved;
             var target = _spherePointerTarget;
             var placing = _spherePointerIsPlacing;
-            var valid = _spherePointerPositionValid;
             var world = _spherePointerWorld;
 
             if (!moved)
@@ -2339,7 +2339,7 @@ namespace EchoSphere.Runtime
             }
             else if (target != null)
             {
-                if (valid && target != null && target.gameObject != null)
+                if (target != null && target.gameObject != null && CanPlaceSphereAt(world, target))
                 {
                     target.transform.position = world;
                     target.SetFollowMode(_follow, (Vector2)_player.position);
@@ -2354,8 +2354,10 @@ namespace EchoSphere.Runtime
             }
             else if (placing)
             {
-                if (valid) TryPlaceOrRemoveSphereAt(world);
-                else ShowMessage("Invalid position.");
+                if (_spheres.Count < SpherePlacementRules.GetMaxSpheres() && CanPlaceSphereAt(world, null))
+                    TryPlaceOrRemoveSphereAt(world);
+                else
+                    ShowMessage("Path blocked.");
             }
 
             ClearSpherePointer();
@@ -2428,14 +2430,12 @@ namespace EchoSphere.Runtime
             return nearest;
         }
 
-        private bool CanAddSelectedSphere()
+        private int CountSpheresOfType(SphereId type)
         {
-            var sameType = 0;
+            var count = 0;
             for (var i = 0; i < _spheres.Count; i++)
-                if (_spheres[i] != null && _spheres[i].Type == _selectedSphereType) sameType++;
-            return SpherePlacementRules.CanAddSphere(
-                _spheres.Count, sameType, SpherePlacementRules.GetMaxSpheres(),
-                SpherePlacementRules.MaxSameSphereCopies);
+                if (_spheres[i] != null && _spheres[i].Type == type) count++;
+            return count;
         }
 
         private bool CanPlaceSphereAt(Vector2 world, SphereAttackAgent ignoredSphere)
@@ -2482,9 +2482,10 @@ namespace EchoSphere.Runtime
                 return;
             }
 
-            if (!CanAddSelectedSphere())
+            if (_spheres.Count >= SpherePlacementRules.GetMaxSpheres()) return;
+            if (CountSpheresOfType(_selectedSphereType) >= SpherePlacementRules.MaxSameSphereCopies)
             {
-                ShowMessage("SPHERE LIMIT REACHED.");
+                ShowMessage("MAX " + SpherePlacementRules.MaxSameSphereCopies);
                 return;
             }
             if (!CanPlaceSphereAt(world, null))
