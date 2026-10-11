@@ -2470,8 +2470,29 @@ namespace EchoSphere.Runtime
         {
             var count = 0;
             for (var i = 0; i < _spheres.Count; i++)
-                if (_spheres[i] != null && _spheres[i].Type == type) count++;
+                if (_spheres[i] != null && _spheres[i].gameObject.activeInHierarchy && _spheres[i].Type == type) count++;
             return count;
+        }
+
+        public float GetSphereCopyOutputMultiplier(SphereAttackAgent sphere)
+        {
+            if (sphere == null) return 1f;
+            var copyCap = SpherePlacementRules.GetCharacterSphereCopyCap(
+                _sphereCharacterId, sphere.Type, _characterMasteryLevel);
+            if (copyCap <= SpherePlacementRules.MaxSameSphereCopies) return 1f;
+
+            var copyIndex = 0;
+            var found = false;
+            for (var i = 0; i < _spheres.Count; i++)
+            {
+                var candidate = _spheres[i];
+                if (candidate == null || !candidate.gameObject.activeInHierarchy || candidate.Type != sphere.Type) continue;
+                if (candidate == sphere) { found = true; break; }
+                copyIndex++;
+            }
+            if (!found) return 1f;
+            return SpherePlacementRules.GetCopyDamageMultiplier(
+                _sphereCharacterId, sphere.Type, _characterMasteryLevel, copyIndex);
         }
 
         private bool CanPlaceSphereAt(Vector2 world, SphereAttackAgent ignoredSphere)
