@@ -1993,3 +1993,12 @@ VALIDATION LIMITS:
   migrated. This slice only establishes the active-source visual presentation
   when a boss entity is supplied by the upcoming runtime slice.
 
+
+
+[2026-10-11] SLICE 8 CI GUARD ORDER CORRECTION
+- CI #107 passed all 305 pure C# gameplay assertions but the Unity project preflight
+  stopped in the Node guard script because the new EnemyAgent2D binding assertion
+  was placed before the local source variable was declared.
+- Moved the same strict assertion beside the other EnemyAgent2D checks after its
+  source read. No assertion was removed or weakened, and no gameplay code changed.
+- Revalidation is required before proceeding to the boss runtime slice.
