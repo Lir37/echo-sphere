@@ -137,7 +137,9 @@ assert.ok(existsSync(join(root, sphereVisualPath)), 'source-mapped Sphere family
 const sphereVisual = readFileSync(join(root, sphereVisualPath), 'utf8');
 assert.ok(sphereVisual.includes('src/spheres/*Visual.ts') && sphereVisual.includes('src/spheres/visualHelpers.ts'), 'Sphere VFX source mapping is required');
 for (const family of ['Sniper','Chain','Shotgun','Aura','Orbital','Prism','Gravity','Pulse','Void']) assert.ok(sphereVisual.includes('case SphereId.' + family), 'Sphere VFX family dispatch missing: ' + family);
-assert.ok(sphereVisual.includes('Ellipse(Vector2.zero') && sphereVisual.includes('DrawDiamond') && sphereVisual.includes('ResonanceEventActive'), 'Sphere family rings, accents and Resonance state must be wired');
+assert.ok(sphereVisual.includes('DrawSourceOrbit(') && sphereVisual.includes('OrbitPoint(') &&
+  sphereVisual.includes('DrawDiamond') && sphereVisual.includes('ResonanceEventActive'),
+  'Sphere family source-orbit geometry, outward accents and Resonance state must be wired');
 assert.ok(sphereVisual.includes('private Mesh _orbitMesh, _coreMesh, _detailMesh') &&
   sphereVisual.includes('RadialGlow(') && sphereVisual.includes('CoreOutline') &&
   sphereVisual.includes('private void DisablePrototypeSphereLayers()'),
