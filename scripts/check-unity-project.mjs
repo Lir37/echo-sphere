@@ -148,6 +148,12 @@ assert.ok(sphereVisual.includes('private static void DrawSourceOrbit(') &&
   sphereVisual.includes('mode == SphereId.Chain') && sphereVisual.includes('mode == SphereId.Void') &&
   sphereVisual.includes('mode == SphereId.Prism'),
   'Sphere families must retain source-specific orbit silhouettes');
+assert.ok(sphereVisual.includes('DrawEmitter(_detail, R, color, facing, 0, 0f, disabled, _time)') &&
+  sphereVisual.includes('var shapeAlpha = disabled ? .14f') &&
+  sphereVisual.includes('var scan = .10f + .05f * Mathf.Sin(time * 7f)'),
+  'source Sniper emitter must stay at its forward anchor and dim accurately when disabled');
+assert.ok(!sphereVisual.includes('var angles = new[]'),
+  'source-matched per-frame Sphere rendering must not allocate a new tick-angle array');
 assert.ok(runtimeArt.includes('position, 1.05f, SphereColor(type)') &&
   runtimeArt.includes('NormalEnemyVisualVariants = { "wisp", "leech", "serpent", "stalker", "prism" }') &&
   runtimeArt.includes('FastEnemyVisualVariants = { "moth", "skitter", "stalker" }') &&
