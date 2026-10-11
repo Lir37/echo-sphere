@@ -2189,12 +2189,21 @@ namespace EchoSphere.Runtime
             return false;
         }
 
+        private float GetSpherePickerDescriptionHeight()
+        {
+            var definition = GameCatalog.Spheres[(int)_selectedSphereType];
+            // The source description expands naturally for Orbital's multi-line
+            // text instead of clipping its last lines.
+            var lines = Mathf.Max(1, Mathf.CeilToInt(definition.DescriptionEn.Length / 42f));
+            return Mathf.Max(43f, 21f + lines * 12f);
+        }
+
         private Rect GetSpherePickerRect()
         {
-            // Source MobileControls uses a 5-column grid of 44 px type glyphs,
+            // Source MobileControls uses a 5-column grid of compact type glyphs,
             // with the selected type's name/description directly above it.
             var width = Mathf.Min(252f, _uiWidth - 36f);
-            const float height = 146f;
+            var height = GetSpherePickerDescriptionHeight() + 103f;
             var bottomControlsY = _uiHeight - 76f;
             return new Rect(18f, bottomControlsY - height - 10f, width, height);
         }
@@ -2541,7 +2550,8 @@ namespace EchoSphere.Runtime
 
             // Source UI: selected type/description card above five columns of
             // SphereTypeGlyph controls. No invented abbreviations or asset-list labels.
-            var descriptionRect = new Rect(panel.x, panel.y, panel.width, 43f);
+            var descriptionHeight = GetSpherePickerDescriptionHeight();
+            var descriptionRect = new Rect(panel.x, panel.y, panel.width, descriptionHeight);
             GUI.Box(descriptionRect, GUIContent.none, _box);
             var titleStyle = new GUIStyle(_label)
             {
@@ -2558,7 +2568,7 @@ namespace EchoSphere.Runtime
             };
             GUI.Label(new Rect(descriptionRect.x + 4f, descriptionRect.y + 1f, descriptionRect.width - 8f, 17f),
                 definition.DisplayName, titleStyle);
-            GUI.Label(new Rect(descriptionRect.x + 5f, descriptionRect.y + 17f, descriptionRect.width - 10f, 24f),
+            GUI.Label(new Rect(descriptionRect.x + 5f, descriptionRect.y + 17f, descriptionRect.width - 10f, descriptionRect.height - 17f),
                 definition.DescriptionEn, descriptionStyle);
 
             var buttonWidth = (panel.width - 12f) / 5f;
@@ -2569,7 +2579,7 @@ namespace EchoSphere.Runtime
                 var column = i % 5;
                 var row = i / 5;
                 var rect = new Rect(panel.x + column * (buttonWidth + 3f),
-                    panel.y + 48f + row * 43f, buttonWidth, buttonHeight);
+                    panel.y + descriptionHeight + 5f + row * 43f, buttonWidth, buttonHeight);
                 var color = SphereUiColor(type);
                 if (GUI.Button(rect, GUIContent.none, _button)) _selectedSphereType = type;
 
