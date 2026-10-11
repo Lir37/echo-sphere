@@ -3,6 +3,20 @@ using System.Collections.Generic;
 
 namespace EchoSphere.Core
 {
+    public enum SphereCharacterId
+    {
+        Spherist,
+        Hunter,
+        Engineer,
+        Berserker,
+        Alchemist,
+        Architect,
+        Conductor,
+        Oracle,
+        Voidwalker,
+        Fractal
+    }
+
     /// <summary>
     /// Source-mapped sphere placement rules from new-desing/src/spaceCollision.ts
     /// and src/engineSpheres.ts. Distances are converted from source logical
@@ -27,6 +41,37 @@ namespace EchoSphere.Core
         public static int GetMaxSpheres(int abilityBonus = 0, int shopBonus = 0)
         {
             return Math.Min(MaxSpheresCap, Math.Max(0, DefaultMaxSpheres + abilityBonus + shopBonus));
+        }
+
+        public static int GetCharacterSphereCopyCap(SphereCharacterId character, SphereId sphereType, int masteryLevel)
+        {
+            var signatureSphere = GetSignatureSphere(character);
+            if (sphereType != signatureSphere) return MaxSameSphereCopies;
+            if (masteryLevel >= 10) return 4;
+            if (masteryLevel >= 5) return 3;
+            return MaxSameSphereCopies;
+        }
+
+        public static int GetSameTypeCap(SphereCharacterId character, SphereId sphereType, int masteryLevel)
+        {
+            return Math.Max(MaxSameSphereCopies, GetCharacterSphereCopyCap(character, sphereType, masteryLevel));
+        }
+
+        private static SphereId GetSignatureSphere(SphereCharacterId character)
+        {
+            switch (character)
+            {
+                case SphereCharacterId.Hunter: return SphereId.Sniper;
+                case SphereCharacterId.Engineer: return SphereId.Chain;
+                case SphereCharacterId.Berserker: return SphereId.Shotgun;
+                case SphereCharacterId.Alchemist: return SphereId.Aura;
+                case SphereCharacterId.Architect: return SphereId.Gravity;
+                case SphereCharacterId.Conductor: return SphereId.Pulse;
+                case SphereCharacterId.Oracle: return SphereId.Prism;
+                case SphereCharacterId.Voidwalker: return SphereId.Void;
+                case SphereCharacterId.Fractal: return SphereId.Orbital;
+                default: return SphereId.Standard;
+            }
         }
 
         public static bool CanAddSphere(int currentCount, int sameTypeCount, int maxSpheres, int sameTypeCap = MaxSameSphereCopies)
