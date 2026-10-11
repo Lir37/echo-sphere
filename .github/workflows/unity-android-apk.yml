@@ -1,112 +1,31 @@
-name: Unity Android APK
+name: Unity Checks (No APK)
 
 on:
-  push:
-    branches:
-      - unity-migration
-    paths:
-      - 'UnityProject/**'
-      - 'scripts/check-unity-project.mjs'
-      - '.github/workflows/unity-android-apk.yml'
-      - '.github/workflows/unity-migration-check.yml'
-      - 'GPT/ECHO_SPHERE_UNITY_MIGRATION_AUDIT_v1.0.txt'
   workflow_dispatch:
-    inputs:
-      build_apk:
-        description: Run a cloud debug APK build when Unity license secrets are configured
-        required: true
-        type: boolean
-        default: true
 
 permissions:
   contents: read
 
-concurrency:
-  group: unity-android-apk-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
-  check-license:
-    name: Check cloud build credentials
+  core-contracts:
+    name: Check gameplay contracts and Unity project structure
     runs-on: ubuntu-24.04
-    outputs:
-      ready: ${{ steps.check.outputs.ready }}
-      missing: ${{ steps.check.outputs.missing }}
-    steps:
-      - name: Check required Unity license secrets without exposing their values
-        id: check
-        shell: bash
-        env:
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-        run: |
-          missing=()
-          [[ -n "$UNITY_LICENSE" ]] || missing+=("UNITY_LICENSE")
-          [[ -n "$UNITY_EMAIL" ]] || missing+=("UNITY_EMAIL")
-          [[ -n "$UNITY_PASSWORD" ]] || missing+=("UNITY_PASSWORD")
-          if (( ${#missing[@]} == 0 )); then
-            echo "ready=true" >> "$GITHUB_OUTPUT"
-            echo "missing=none" >> "$GITHUB_OUTPUT"
-            echo "Unity license secrets are configured."
-          else
-            echo "ready=false" >> "$GITHUB_OUTPUT"
-            missing_text="$(IFS=', '; echo "${missing[*]}")"
-            echo "missing=$missing_text" >> "$GITHUB_OUTPUT"
-            echo "::notice::Unity Android APK build is skipped until required GitHub Actions secrets are configured."
-            echo "Missing secrets: $missing_text"
-          fi
-      - name: Explain why no APK was built
-        if: steps.check.outputs.ready != 'true'
-        shell: bash
-        env:
-          MISSING_SECRETS: ${{ steps.check.outputs.missing }}
-        run: |
-          {
-            printf '%s\n' \
-              '## Unity Android APK build skipped' \
-              '' \
-              'The build workflow is installed, but Unity requires these GitHub Actions secrets before the cloud Editor can run:' \
-              '' \
-              '- `UNITY_LICENSE`' \
-              '- `UNITY_EMAIL`' \
-              '- `UNITY_PASSWORD`' \
-              ''
-            printf 'Missing now: `%s`.\n' "$MISSING_SECRETS"
-            printf '%s\n' \
-              '' \
-              'Add the values in **Settings → Secrets and variables → Actions**. Do not commit a license file or credentials to the repository. Then push a UnityProject change or run this workflow manually.' \
-              '' \
-              'No APK artifact is produced by this skipped run.'
-          } >> "$GITHUB_STEP_SUMMARY"
-
-  build-apk:
-    name: Build Unity Android debug APK
-    needs: check-license
-    if: needs.check-license.outputs.ready == 'true' && (github.event_name != 'workflow_dispatch' || inputs.build_apk)
-    runs-on: ubuntu-24.04
-    timeout-minutes: 90
     steps:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Build Android APK with GameCI
-        uses: game-ci/unity-builder@v4
-        env:
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
         with:
-          projectPath: UnityProject
-          unityVersion: 6000.3.24f1
-          targetPlatform: Android
-          androidExportType: androidPackage
-          buildMethod: EchoSphereCiBuild.BuildAndroidDevelopmentApk
+          dotnet-version: 8.0.x
 
-      - name: Upload installable debug APK
-        uses: actions/upload-artifact@v5
+      - name: Run pure C# gameplay contract checks
+        run: dotnet run --project tools/EchoSphere.CoreChecks/EchoSphere.CoreChecks.csproj --configuration Release
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
         with:
-          name: echo-sphere-unity-debug-apk
-          path: UnityProject/Builds/Android/ECHO-SPHERE-debug.apk
-          if-no-files-found: error
-          retention-days: 14
+          node-version: 22
+
+      - name: Validate Unity project structure and runtime boundaries
+        run: node scripts/check-unity-project.mjs
