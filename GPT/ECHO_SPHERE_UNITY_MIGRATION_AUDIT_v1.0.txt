@@ -2229,3 +2229,16 @@ Still open: verify and finish the deeper Prism beam/Network-refraction parity, r
 - Fixed the Unity compiler error caused by two identical declarations of `GetSphereAuthoredModifierLevel(SphereId, SphereAuthoredModifier)` in `UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs`. The surviving implementation is unchanged.
 - Added a Unity project preflight regression assertion requiring exactly one declaration of this accessor.
 - Verification: Unity Migration Contracts CI #175 on HEAD `f0cdbba081d993ade852d816542984fb7cba4b18` completed SUCCESS (604 C# contract assertions; Unity project preflight passed). The workflow does not invoke Unity Editor compilation; reopening the project and confirming a clean Unity Console remains a separate verification gate.
+
+
+## Enemy Visual Feedback Parity — 2026-10-11
+
+Source: active `src/renderer.ts:drawModernEnemy` and `src/enemies/enemyVisual.ts`.
+
+- Ported the source breathing pulse (`1 + sin(time*5 + sourceX*0.01)*0.025`) and hit-dependent visual scale to the creature child only, leaving gameplay position/collision untouched.
+- Corrected hit feedback from a 0.09-second body tint to the source 0.15-second hit window and the short white X overlay used for non-boss enemies. Bosses retain pulse/scale feedback without the non-boss X.
+- Added two-disc outer-glow geometry with the source boss/non-boss radius and alpha parameters. Structural assertions now bind these details to the active source rendering modules.
+
+Validation: Unity Migration Contracts [#185](https://github.com/Lir37/echo-sphere/actions/runs/38142946946) passed on code/guard HEAD `94ff562b3f6426a8cea5a8a0740d03a679c6be0a` (604 C# pure-contract assertions and Unity structure/runtime preflight).
+
+Limits: CI does not compile UnityEngine scripts in the Unity Editor and does not confirm the resulting mesh appearance in a running build. Unity Editor compilation, APK generation and device-side visual acceptance remain unverified.
