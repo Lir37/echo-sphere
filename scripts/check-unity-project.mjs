@@ -199,7 +199,7 @@ const spherePlacementRulesPath = 'Assets/EchoSphere/Scripts/Core/SpherePlacement
 assert.ok(existsSync(join(root, spherePlacementRulesPath)), 'source-mapped Sphere placement safety rules are missing');
 const spherePlacementRules = readFileSync(join(root, spherePlacementRulesPath), 'utf8');
 for (const required of ['src/spaceCollision.ts','PlayerBuildGap','TowerPlacementGap','EnemyPlacementGap','HasRouteToOutside','GetMaxSpheres','MaxSameSphereCopies',
-  'SphereCharacterId','GetSignatureSphere','GetCharacterSphereCopyCap','GetSameTypeCap','SphereCharacterId.Fractal'])
+  'SphereCharacterId','GetSignatureSphere','GetCharacterSphereCopyCap','GetSameTypeCap','GetCopyDamageMultiplier','SphereCharacterId.Fractal'])
   assert.ok(spherePlacementRules.includes(required), 'source Sphere placement/copy-cap contract missing: ' + required);
 assert.ok(runtime.includes('_maxSphereAbilityLevel') && runtime.includes('GetCurrentMaxSpheres') &&
   runtime.includes('SpherePlacementRules.GetMaxSpheres(_maxSphereAbilityLevel, 0)') &&
@@ -210,6 +210,10 @@ assert.ok(runtime.includes('SpherePlacementRules.GetSameTypeCap') &&
   runtime.includes('_sphereCharacterId') && runtime.includes('_characterMasteryLevel') &&
   !runtime.includes('CountSpheresOfType(_selectedSphereType) >= SpherePlacementRules.MaxSameSphereCopies'),
   'signature Sphere copy limits must follow source character/mastery rules rather than a fixed two-copy runtime cap');
+assert.ok(runtime.includes('GetSphereCopyOutputMultiplier') &&
+  sphereAttack.includes('_runtime.GetSphereCopyOutputMultiplier(this)') &&
+  spherePlacementRules.includes('sameTypeCopyIndex == 2 ? 0.85f : 0.70f'),
+  'source duplicate signature Sphere output scaling is not applied to combat damage');
 assert.ok(spherePlacementRules.includes('ClampReposition') && runtime.includes('SpherePlacementRules.ClampReposition'),
   'dragged Sphere coordinates must clamp only on source-style reposition commit');
 assert.ok(runtime.includes('HandleSpherePointerInput()') && runtime.includes('BeginSpherePointer') && runtime.includes('FinishSpherePointer'), 'Sphere placement/drag pointer lifecycle is not wired into the runtime');
