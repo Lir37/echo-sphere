@@ -103,6 +103,10 @@ namespace EchoSphere.Runtime
 
         public string GetSphereBranch(SphereId type) => _sphereBranches.TryGetValue(type, out var id) ? id : null;
         public string GetSphereFinal(SphereId type) => _sphereFinals.TryGetValue(type, out var id) ? id : null;
+        public int GetSphereAuthoredModifierLevel(SphereId type, SphereAuthoredModifier modifier) =>
+            SphereAuthoredModifierRules.GetLevel(GetSphereBranch(type), GetSphereFinal(type), modifier);
+        public float GetSphereAuthoredDamageMultiplier(SphereId type) =>
+            SphereAuthoredModifierRules.GetDamageMultiplier(GetSphereBranch(type), GetSphereFinal(type));
         public float GetSphereStatusDurationMultiplier(SphereElement element)
         {
             if (_sphereCharacterId != SphereCharacterId.Alchemist) return 1f;

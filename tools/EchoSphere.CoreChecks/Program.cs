@@ -34,6 +34,7 @@ internal static class Program
             CheckSpherePlacementRules();
             CheckSphereElementalRules();
             CheckAlchemistReactionRules();
+            CheckSphereAuthoredModifierRules();
             Console.WriteLine($"ECHO SPHERE Unity core contracts: PASS ({_assertions} assertions)");
             return 0;
         }
@@ -665,6 +666,81 @@ internal static class Program
         Near(AlchemistReactionRules.GetSlowDuration(AlchemistReactionKind.ToxinIgnition), 0f, 0f, "Toxin Ignition does not add a slow");
         Near(AlchemistReactionRules.GetCatalystDurationSeconds(4), 0f, 0f, "Catalyst locked before mastery V");
         Near(AlchemistReactionRules.GetCatalystDurationSeconds(5), 2f, 0f, "mastery V Catalyst window");
+    }
+
+    private static void CheckSphereAuthoredModifierRules()
+    {
+        Equal(SphereAuthoredModifierRules.BranchCount, 30, "all 30 source Mutation I branches have modifier data");
+        Equal(SphereAuthoredModifierRules.FinalChoiceCount, 90, "all 90 source Mutation II choices have modifier data");
+        Equal(SphereAuthoredModifierRules.AllModifiers.Count, 24, "full source Sphere modifier set is represented");
+
+        Equal(SphereAuthoredModifierRules.GetLevel("standard_resonator", null, SphereAuthoredModifier.Resonant), 1,
+            "Standard Resonator base Resonant modifier");
+        Equal(SphereAuthoredModifierRules.GetLevel("standard_resonator", "standard_resonator_final_2", SphereAuthoredModifier.Impact), 1,
+            "Standard Resonator final II adds Impact");
+        Equal(SphereAuthoredModifierRules.GetLevel("standard_singularity", "standard_singularity_final_1", SphereAuthoredModifier.Gravitic), 2,
+            "Standard Singularity final I raises inherited Gravitic to II");
+        Equal(SphereAuthoredModifierRules.GetLevel("sniper_oracle", "sniper_oracle_final_2", SphereAuthoredModifier.Resonant), 1,
+            "Sniper Oracle final II adds Resonant");
+        Equal(SphereAuthoredModifierRules.GetLevel("sniper_assassin", "sniper_assassin_final_2", SphereAuthoredModifier.Execute), 2,
+            "Sniper Assassin final II sets Execute II");
+        Equal(SphereAuthoredModifierRules.GetLevel("sniper_beacon", "sniper_beacon_final_2", SphereAuthoredModifier.Mark), 2,
+            "Sniper Beacon final II sets Mark II");
+        Equal(SphereAuthoredModifierRules.GetLevel("shotgun_burst", "shotgun_burst_final_1", SphereAuthoredModifier.Multishot), 2,
+            "Shotgun Burst final I sets Multishot II");
+        Equal(SphereAuthoredModifierRules.GetLevel("shotgun_cataclysm", "shotgun_cataclysm_final_3", SphereAuthoredModifier.Impact), 2,
+            "Shotgun Cataclysm final III has Impact II");
+        Equal(SphereAuthoredModifierRules.GetLevel("shotgun_hail", "shotgun_hail_final_2", SphereAuthoredModifier.Multishot), 2,
+            "Shotgun Hail final II has Multishot II");
+        Equal(SphereAuthoredModifierRules.GetLevel("chain_web", "chain_web_final_3", SphereAuthoredModifier.Static), 1,
+            "Chain Web final III adds Static");
+        Equal(SphereAuthoredModifierRules.GetLevel("chain_storm", "chain_storm_final_1", SphereAuthoredModifier.Static), 2,
+            "Chain Storm final I sets Static II");
+        Equal(SphereAuthoredModifierRules.GetLevel("chain_leech", "chain_leech_final_2", SphereAuthoredModifier.Drain), 1,
+            "Chain Leech final II adds Drain");
+        Equal(SphereAuthoredModifierRules.GetLevel("aura_sanctum", "aura_sanctum_final_2", SphereAuthoredModifier.Anchor), 2,
+            "Aura Sanctum final II sets Anchor II");
+        Equal(SphereAuthoredModifierRules.GetLevel("aura_gravity", "aura_gravity_final_1", SphereAuthoredModifier.Gravitic), 2,
+            "Aura Gravity final I sets Gravitic II");
+        Equal(SphereAuthoredModifierRules.GetLevel("orbital_dance", "orbital_dance_final_3", SphereAuthoredModifier.Afterimage), 3,
+            "Orbital Dance final III sets Afterimage III");
+        Equal(SphereAuthoredModifierRules.GetLevel("orbital_halo", "orbital_halo_final_3", SphereAuthoredModifier.Resonant), 2,
+            "Orbital Halo final III sets Resonant II");
+        Equal(SphereAuthoredModifierRules.GetLevel("orbital_blade", "orbital_blade_final_3", SphereAuthoredModifier.Impact), 2,
+            "Orbital Blade final III keeps Impact II");
+        Equal(SphereAuthoredModifierRules.GetLevel("prism_split", "prism_split_final_2", SphereAuthoredModifier.Pierce), 2,
+            "Prism Split final II sets Pierce II");
+        Equal(SphereAuthoredModifierRules.GetLevel("prism_spectrum", "prism_spectrum_final_3", SphereAuthoredModifier.Poison), 1,
+            "Prism Spectrum final III switches to Poison");
+        Equal(SphereAuthoredModifierRules.GetLevel("prism_mirror", "prism_mirror_final_3", SphereAuthoredModifier.Echo), 1,
+            "Prism Mirror final III adds Echo");
+        Equal(SphereAuthoredModifierRules.GetLevel("gravity_well", "gravity_well_final_1", SphereAuthoredModifier.Anchor), 2,
+            "Gravity Well final I sets Anchor II");
+        Equal(SphereAuthoredModifierRules.GetLevel("gravity_tide", "gravity_tide_final_2", SphereAuthoredModifier.Gravitic), 2,
+            "Gravity Tide final II sets Gravitic II");
+        Equal(SphereAuthoredModifierRules.GetLevel("gravity_collapse", "gravity_collapse_final_3", SphereAuthoredModifier.Execute), 2,
+            "Gravity Collapse final III sets Execute II");
+        Equal(SphereAuthoredModifierRules.GetLevel("pulse_wave", "pulse_wave_final_2", SphereAuthoredModifier.Freeze), 1,
+            "Pulse Wave final II adds Freeze");
+        Equal(SphereAuthoredModifierRules.GetLevel("pulse_resonator", "pulse_resonator_final_2", SphereAuthoredModifier.Impact), 1,
+            "Pulse Resonator final II adds Impact");
+        Equal(SphereAuthoredModifierRules.GetLevel("pulse_burst", "pulse_burst_final_3", SphereAuthoredModifier.Shatter), 2,
+            "Pulse Burst final III sets Shatter II");
+        Equal(SphereAuthoredModifierRules.GetLevel("void_hunger", "void_hunger_final_2", SphereAuthoredModifier.Corrupt), 2,
+            "Void Hunger final II sets Corrupt II");
+        Equal(SphereAuthoredModifierRules.GetLevel("void_reaper", "void_reaper_final_2", SphereAuthoredModifier.Drain), 2,
+            "Void Reaper final II sets Drain II");
+        Equal(SphereAuthoredModifierRules.GetLevel("void_execution", "void_execution_final_3", SphereAuthoredModifier.Phase), 2,
+            "Void Execution final III sets Phase II");
+
+        Near(SphereAuthoredModifierRules.GetDamageMultiplier("shotgun_cataclysm", "shotgun_cataclysm_final_3"),
+            1.08f * 1.04f, 0.0001f, "Shatter II scales outgoing damage by source 8%");
+        Near(SphereAuthoredModifierRules.GetDamageMultiplier("sniper_beacon", "sniper_beacon_final_2"),
+            1.08f * 1.08f, 0.0001f, "Mark II contributes the source global and conditional damage channels separately");
+        Near(SphereAuthoredModifierRules.GetDamageMultiplier("standard_swarm", null), 1f, 0f,
+            "branches without authored damage modifiers stay at baseline");
+        Equal(SphereAuthoredModifierRules.GetLevel("unknown_branch", "unknown_branch_final_2", SphereAuthoredModifier.Pierce), 0,
+            "unknown branches have no invented modifier levels");
     }
 
     private static void CheckSphereNetworkRules()

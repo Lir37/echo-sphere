@@ -2188,3 +2188,13 @@ Ported the source Alchemist reaction rules from `new-desing/src/characterRuntime
 - Mastery thresholds were ported: radius 55/60/70 source pixels at I/II/VI; mastery IV adds 50%-damage splash to one nearby enemy; mastery X targets two; mastery VII adds 5% burst power; mastery IX boosts every third reaction by 25%; mastery V enables a 2-second Catalyst.
 - Catalyst extends the next Fire/Poison status duration by 50% and is consumed; Alchemist mastery III extends Freeze duration by 50%. Existing Alchemist base duration/damage modifiers remain applied.
 - Added pure contract tests and CI source guards. Runtime execution remains dependent on wiring a selected character/profile: the current default character is still Spherist, so these Alchemist-only effects are not active in a fresh run until character selection/profile integration is ported.
+
+
+## Authored Sphere Modifier Catalogue — 2026-10-11
+
+- Added the source-defined Modifier I mapping for all 30 Mutation I branches and Modifier II overrides for all 90 Mutation II finals, using the original rule `max(branch base, final override)` rather than stacking both values.
+- Added the full 24-modifier source enum and exposed lookup through the Unity runtime.
+- Connected the source global outgoing-damage multipliers from Overload (+8% per level), Shatter (+4% per level), and Mark (+4% per level) into all regular Sphere attacks and Orbital contact attacks.
+- Added C# contract assertions for branch/final catalog coverage, representative inherited/overridden levels, missing-branch safety and damage scaling, plus CI structural guards.
+
+Limits: this slice ports the authored data and shared damage factors only. Remaining modifier hit/proc behavior (Split, Echo, Static, Impact, Gravitic, Anchor, Vampiric, Drain, Mark target cadence, Piercing and Ricochet) still needs explicit runtime wiring; those effects must not be claimed fully ported yet.
