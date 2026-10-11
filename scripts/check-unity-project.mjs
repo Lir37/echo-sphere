@@ -113,9 +113,9 @@ assert.equal(
 const creatureVisualPath = 'Assets/EchoSphere/Scripts/Runtime/EnemyCreatureVisual2D.cs';
 assert.ok(existsSync(join(root, creatureVisualPath)), 'source-mapped enemy creature visual port is missing');
 const creatureVisual = readFileSync(join(root, creatureVisualPath), 'utf8');
-const sourceEnemyRenderer = readFileSync(join(root, 'src/renderer.ts'), 'utf8');
+const sourceEnemyRenderer = readFileSync(join(root, '..', 'src/renderer.ts'), 'utf8');
 assert.ok(creatureVisual.includes('src/enemies/enemyVisual.ts') && creatureVisual.includes('DrawCreature') && creatureVisual.includes('DrawBoss'), 'enemy visual must retain explicit source mapping');
-const sourceCreatureVisual = readFileSync(join(root, 'src/enemies/enemyVisual.ts'), 'utf8');
+const sourceCreatureVisual = readFileSync(join(root, '..', 'src/enemies/enemyVisual.ts'), 'utf8');
 assert.ok(sourceEnemyRenderer.includes('e.radius*(e.isBoss?1.65:1.15)') && sourceEnemyRenderer.includes('alpha * 0.16') && sourceEnemyRenderer.includes('alpha * 0.55') && sourceCreatureVisual.includes('glow(ctx,r*2.15,color,.065)') && sourceCreatureVisual.includes('glow(ctx,r*2.55,color,.085)'), 'active Canvas enemy renderer must retain the authored outer and creature glow contracts');
 assert.ok(creatureVisual.includes('private const float HitFlashDuration = 0.15f;') && creatureVisual.includes('_hitFlash = HitFlashDuration;') && creatureVisual.includes('var hit = Mathf.Clamp01(_hitFlash / HitFlashDuration);'), 'Unity enemy hit feedback must preserve the source 0.15-second flash window');
 assert.ok(creatureVisual.includes('transform.position.x / SpherePlacementRules.SourcePixelsToWorld') && creatureVisual.includes('Mathf.Sin(_time * 5f + sourceX * 0.01f) * 0.025f') && creatureVisual.includes('hit * 0.05f'), 'enemy presentation must reproduce source breathing and hit scale without changing gameplay transforms');
