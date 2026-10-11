@@ -169,14 +169,18 @@ namespace EchoSphere.Runtime
             _attackTimer = Mathf.Max(0.05f, AttackDelay);
         }
 
-        public void OnSphereHitApplied(EnemyAgent2D target)
+        public void OnSphereHitApplied(EnemyAgent2D target) => OnSphereHitApplied(target, _type);
+
+        public void OnSphereHitApplied(EnemyAgent2D target, SphereId statusSource)
         {
             if (target == null || !target.IsAlive || _runtime == null) return;
             var branch = _runtime.GetSphereBranch(_type);
             var finalId = _runtime.GetSphereFinal(_type);
             var element = SphereElementalRules.ResolveElement(branch, finalId);
             if (element == SphereElement.None) return;
-            var masteryId = SphereElementalRules.GetMasteryId(branch, finalId);
+            var sourceBranch = _runtime.GetSphereBranch(statusSource);
+            var sourceFinalId = _runtime.GetSphereFinal(statusSource);
+            var masteryId = SphereElementalRules.GetMasteryId(sourceBranch, sourceFinalId);
             var damageMultiplier = _runtime.GetSphereStatusDamageMultiplier() * _runtime.GetSphereElementalMasteryDamageMultiplier();
 
             if (_type == SphereId.Chain && SphereElementalRules.IsChainBranch(branch))
@@ -191,7 +195,7 @@ namespace EchoSphere.Runtime
                     var durationMultiplier = _runtime.GetSphereStatusDurationMultiplier(element);
                     var status = SphereElementalRules.CreateStatus(element, masteryId, SphereElementalMode.Conduction,
                         durationMultiplier, damageMultiplier);
-                    target.ApplyElementalStatus(status, _type);
+                    target.ApplyElementalStatus(status, statusSource);
                 }
                 _runtime.SpawnImpact(target.transform.position, ElementColor(element));
                 return;
@@ -204,14 +208,14 @@ namespace EchoSphere.Runtime
                 var durationMultiplier = _runtime.GetSphereStatusDurationMultiplier(element);
                 var status = SphereElementalRules.CreateStatus(element, masteryId, SphereElementalMode.Field,
                     durationMultiplier, damageMultiplier);
-                target.ApplyElementalStatus(status, _type);
+                target.ApplyElementalStatus(status, statusSource);
                 return;
             }
 
             var directDurationMultiplier = _runtime.GetSphereStatusDurationMultiplier(element);
             var directStatus = SphereElementalRules.CreateStatus(element, masteryId, SphereElementalMode.Direct,
                 directDurationMultiplier, damageMultiplier);
-            target.ApplyElementalStatus(directStatus, _type);
+            target.ApplyElementalStatus(directStatus, statusSource);
         }
 
         private static Color ElementColor(SphereElement element)
@@ -376,26 +380,164 @@ namespace EchoSphere.Runtime
             }
         }
 
+        // Source mapping: new-desing/src/engineSpheres.ts:updatePrismSphere.
+        // Prism resolves each beam immediately; it is not a travelling projectile.
         private void FireAtMultiple(Vector2 origin, float damage)
         {
             var branch = _runtime.GetSphereBranch(_type);
             var finalId = _runtime.GetSphereFinal(_type);
-            var targetCount = Mathf.Max(1, _levelStats.PrismDirections +
+            var beamRange = AttackRange * (branch == "prism_mirror" ? 1.08f : 1f);
+            var candidates = _runtime.FindEnemiesInRadius(origin, beamRange);
+            if (candidates.Count == 0) return;
+
+            var targetCount = SphereEvolutionCombatRules.GetPrismBeamCount(
+                _levelStats.PrismDirections, branch, finalId,
                 _runtime.GetSphereAuthoredModifierLevel(_type, SphereAuthoredModifier.Multishot));
-            if (branch == "prism_split" && (finalId == "prism_split_final_2" || finalId == "prism_split_final_3"))
-                targetCount += 1;
-            var targets = _runtime.FindNearestEnemies(origin, AttackRange, targetCount);
-            if (targets.Count == 0) return;
-            var pierce = SphereEvolutionCombatRules.GetPrismPierce(_levelStats.Pierce, branch, finalId);
-            for (var i = 0; i < targets.Count; i++)
+            var hasActiveStatus = SphereElementalRules.ResolveElement(branch, finalId) != SphereElement.None;
+            var sphereIndex = _runtime.GetSphereIndex(this);
+            var formationMultiplier = SphereEvolutionCombatRules.GetPrismFormationDamageMultiplier(
+                _runtime.GetFormationBonus(SphereNetworkFormation.Line, sphereIndex),
+                _runtime.GetFormationBonus(SphereNetworkFormation.Lattice, sphereIndex));
+            var usedTargets = new HashSet<int>();
+            EnemyAgent2D primaryTarget = null;
+
+            for (var beam = 0; beam < targetCount; beam++)
             {
-                var direction = ((Vector2)targets[i].transform.position - origin).normalized;
-                var beamDamage = damage;
-                if (branch == "prism_split" && i > 0)
-                    beamDamage *= finalId == "prism_split_final_2" ? 0.72f : 0.62f;
-                _runtime.SpawnProjectile(origin, direction, beamDamage, ColorFor(_type),
-                    8f * _profile.ProjectileSpeedMultiplier, pierce, 0f, this);
+                EnemyAgent2D beamTarget = null;
+                var highestHp = float.NegativeInfinity;
+                for (var i = 0; i < candidates.Count; i++)
+                {
+                    var candidate = candidates[i];
+                    if (candidate == null || !candidate.IsAlive || usedTargets.Contains(candidate.GetInstanceID())) continue;
+                    if (candidate.CurrentHp <= highestHp) continue;
+                    highestHp = candidate.CurrentHp;
+                    beamTarget = candidate;
+                }
+                if (beamTarget == null) break;
+
+                usedTargets.Add(beamTarget.GetInstanceID());
+                if (beam == 0)
+                {
+                    primaryTarget = beamTarget;
+                    var direction = (Vector2)beamTarget.transform.position - origin;
+                    if (direction.sqrMagnitude > 0.0001f)
+                        VisualRotation = Mathf.Atan2(direction.y, direction.x);
+                }
+
+                var beamMultiplier = SphereEvolutionCombatRules.GetPrismBeamDamageMultiplier(
+                    _progressionLevel, branch, finalId, beam, hasActiveStatus);
+                DealPrismBeamHit(beamTarget, damage * beamMultiplier * formationMultiplier);
+                _runtime.SpawnCombatArc(origin, beamTarget.transform.position, SphereId.Prism,
+                    branch, finalId, ColorFor(_type), 0.10f);
             }
+
+            if (primaryTarget == null) return;
+            ResolvePrismNetworkRefraction(primaryTarget, damage, branch, finalId);
+
+            if (branch == "prism_spectrum" &&
+                _runtime.HasNetworkCandidateForSphere(SphereNetworkFormation.Triangle, sphereIndex))
+            {
+                var triangleBonus = _runtime.GetFormationBonus(SphereNetworkFormation.Triangle, sphereIndex);
+                _runtime.ChargeResonanceFromSource(
+                    ResonanceRules.NetworkCharge * (triangleBonus > 0f ? triangleBonus : 1f), true);
+            }
+        }
+
+        private void DealPrismBeamHit(EnemyAgent2D target, float damage)
+        {
+            if (target == null || !target.IsAlive || _runtime == null) return;
+            var resolvedDamage = _runtime.ResolveProjectileDamage(damage, _levelStats.CritChanceBonus, out _);
+            resolvedDamage = _runtime.ResolveAuthoredSphereHitDamage(SphereId.Prism, target, resolvedDamage);
+            var dealtDamage = target.ReceiveSphereDamage(SphereId.Prism, resolvedDamage, true, true, this);
+            OnSphereHitApplied(target);
+            _runtime.RegisterSphereHit(this, target, dealtDamage);
+        }
+
+        private void ResolvePrismNetworkRefraction(
+            EnemyAgent2D primaryTarget, float damage, string branch, string finalId)
+        {
+            var prismFilter = _runtime.HasArtifact("prism_filter");
+            if (branch != "prism_mirror" && !prismFilter) return;
+
+            var sphereIndex = _runtime.GetSphereIndex(this);
+            var ringBonus = _runtime.GetFormationBonus(SphereNetworkFormation.Ring, sphereIndex);
+            var ringReflection = ringBonus >= 1f || (ringBonus > 0f && _runtime.RollCombatChance(ringBonus));
+            var reflectionCount = SphereEvolutionCombatRules.GetPrismReflectionCount(
+                branch, finalId, prismFilter, _runtime.HasArtifact("prism_crown"), ringReflection);
+            if (reflectionCount <= 0) return;
+
+            var linkedSpheres = _runtime.GetLinkedSpheres(sphereIndex);
+            var relayCount = Mathf.Min(reflectionCount, linkedSpheres.Count);
+            for (var i = 0; i < relayCount; i++)
+            {
+                var relay = linkedSpheres[i];
+                if (relay == null) continue;
+                var relayOrigin = (Vector2)relay.transform.position;
+                _runtime.SpawnCombatArc(relayOrigin, primaryTarget.transform.position, SphereId.Prism,
+                    branch, finalId, new Color(1f, 0.55f, 0.88f, 0.95f), 0.12f);
+                DealPrismRelayHit(relay, primaryTarget,
+                    damage * SphereEvolutionCombatRules.GetPrismNetworkRelayDamageMultiplier());
+
+                var ricochetModifier = SphereAuthoredModifierRules.GetProjectileRicochetCount(branch, finalId);
+                var bounceCount = SphereEvolutionCombatRules.GetPrismMirrorRicochetCount(
+                    _progressionLevel, branch, finalId, ricochetModifier);
+                var bounceRange = SphereEvolutionCombatRules.GetPrismRicochetRangeWorld(_progressionLevel, finalId);
+                var visited = new HashSet<int> { primaryTarget.GetInstanceID() };
+                var bounceTarget = primaryTarget;
+
+                for (var bounce = 0; bounce < bounceCount; bounce++)
+                {
+                    if (bounceTarget == null) break;
+                    var center = (Vector2)bounceTarget.transform.position;
+                    var nearby = _runtime.FindEnemiesInRadius(center, bounceRange);
+                    EnemyAgent2D next = null;
+                    var nearestDistanceSquared = bounceRange * bounceRange;
+                    for (var candidateIndex = 0; candidateIndex < nearby.Count; candidateIndex++)
+                    {
+                        var candidate = nearby[candidateIndex];
+                        if (candidate == null || !candidate.IsAlive || visited.Contains(candidate.GetInstanceID())) continue;
+                        var distanceSquared = ((Vector2)candidate.transform.position - center).sqrMagnitude;
+                        if (distanceSquared >= nearestDistanceSquared) continue;
+                        nearestDistanceSquared = distanceSquared;
+                        next = candidate;
+                    }
+                    if (next == null) break;
+
+                    visited.Add(next.GetInstanceID());
+                    _runtime.SpawnCombatArc(center, next.transform.position, SphereId.Prism,
+                        branch, finalId, new Color(1f, 0.55f, 0.88f, 0.95f), 0.12f);
+                    DealPrismRelayHit(relay, next,
+                        damage * SphereEvolutionCombatRules.GetPrismRicochetDamageMultiplier(
+                            bounce, _progressionLevel, finalId));
+                    bounceTarget = next;
+                }
+
+                if (finalId == "prism_mirror_final_3" &&
+                    _runtime.GetSphereAuthoredModifierLevel(SphereId.Prism, SphereAuthoredModifier.Echo) > 0 &&
+                    bounceTarget != null && bounceTarget.IsAlive)
+                {
+                    DealPrismRelayHit(relay, bounceTarget,
+                        damage * SphereEvolutionCombatRules.GetPrismEchoDamageMultiplier());
+                }
+            }
+        }
+
+        private float DealPrismRelayHit(SphereAttackAgent relay, EnemyAgent2D target, float sourceDamage)
+        {
+            if (relay == null || target == null || !target.IsAlive || _runtime == null) return 0f;
+
+            // Source damage starts with the Prism's attack stats, but the receiving
+            // Sphere supplies target-side procs/conditional modifiers for the relay.
+            // The ratio prevents reapplying the receiver's global damage factors.
+            var prismDamageFactor = _runtime.GetSphereAuthoredDamageMultiplier(SphereId.Prism);
+            var relayDamageFactor = _runtime.GetSphereAuthoredDamageMultiplier(relay.Type);
+            var damage = sourceDamage * prismDamageFactor / Mathf.Max(0.0001f, relayDamageFactor);
+            damage = _runtime.ResolveProjectileDamage(damage, relay._levelStats.CritChanceBonus, out _);
+            damage = _runtime.ResolveAuthoredSphereHitDamage(relay.Type, target, damage);
+            var dealtDamage = target.ReceiveSphereDamage(relay.Type, damage, true, false, relay);
+            OnSphereHitApplied(target, relay.Type);
+            _runtime.RegisterSphereHit(relay, target, dealtDamage);
+            return dealtDamage;
         }
 
         private void DamageArea(Vector2 origin, float radius, float damage, Color tint, bool pull)
@@ -592,45 +734,6 @@ namespace EchoSphere.Runtime
                 var chance = SphereEvolutionCombatRules.GetVoidExecutionChance(_progressionLevel, finalId);
                 if (target.HpFraction <= threshold && _runtime.RollCombatChance(chance))
                     return Mathf.Max(dealtDamage, target.CurrentHp + 1f);
-                return dealtDamage;
-            }
-            if (_type == SphereId.Prism && branch == "prism_split")
-            {
-                if (finalId == "prism_split_final_3")
-                    _runtime.TriggerPrismRicochet(target, direction, dealtDamage, 1);
-                return dealtDamage;
-            }
-            if (_type == SphereId.Prism && branch == "prism_spectrum")
-            {
-                var prismIndex = _runtime.GetSphereIndex(this);
-                var network = _runtime.NetworkState;
-                var hasTriangleProfile = false;
-                if (network != null)
-                    for (var i = 0; i < network.FormationCandidates.Count; i++)
-                        if (network.FormationCandidates[i].Type == SphereNetworkFormation.Triangle &&
-                            network.FormationCandidates[i].Contains(prismIndex))
-                        {
-                            hasTriangleProfile = true;
-                            break;
-                        }
-                if (hasTriangleProfile)
-                {
-                    var triangleBonus = _runtime.GetFormationBonus(SphereNetworkFormation.Triangle, prismIndex);
-                    _runtime.ChargeResonanceFromSource(
-                        ResonanceRules.NetworkCharge * (triangleBonus > 0f ? triangleBonus : 1f), true);
-                }
-                if (finalId == "prism_spectrum_final_2")
-                    target.ApplySlow(0.75f, 0.55f);
-                else if (finalId == "prism_spectrum_final_3")
-                    target.ApplyDamageOverTime(dealtDamage * 0.18f, 2.5f);
-                else
-                    target.ApplyDamageOverTime(dealtDamage * 0.24f, 1.5f);
-                return dealtDamage * (finalId == "prism_spectrum_final_1" ? 1.08f : 1f);
-            }
-            if (_type == SphereId.Prism && branch == "prism_mirror")
-            {
-                var bounces = SphereEvolutionCombatRules.GetPrismMirrorBounces(finalId);
-                if (bounces > 0) _runtime.TriggerPrismRicochet(target, direction, dealtDamage, bounces);
                 return dealtDamage;
             }
             if (_type == SphereId.Chain && branch == "chain_web")

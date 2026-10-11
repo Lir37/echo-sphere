@@ -97,12 +97,65 @@ namespace EchoSphere.Core
             Math.Max(0, basePierce) +
             SphereAuthoredModifierRules.GetProjectilePierceBonus("void_execution", finalId);
 
-        public static int GetPrismPierce(int basePierce, string branch, string finalId) =>
-            Math.Max(0, basePierce) +
-            SphereAuthoredModifierRules.GetProjectilePierceBonus(branch, finalId);
+        // Source mapping: new-desing/src/engineSpheres.ts:updatePrismSphere and
+        // src/sphereProgression.ts:sphereModifiers. Prism uses direct beams, not travelling projectiles.
+        public static int GetPrismBeamCount(int sourceDirectionCount, string branch, string finalId, int authoredMultishotLevel)
+        {
+            var count = Math.Max(1, sourceDirectionCount + Math.Max(0, authoredMultishotLevel));
+            if (branch == "prism_split" &&
+                (finalId == "prism_split_final_2" || finalId == "prism_split_final_3"))
+                count++;
+            return count;
+        }
 
-        public static int GetPrismMirrorBounces(string finalId) =>
-            finalId == "prism_mirror_final_1" ? 1 : finalId == "prism_mirror_final_2" || finalId == "prism_mirror_final_3" ? 2 : 0;
+        public static float GetPrismBranchPower(int level, string finalId)
+        {
+            if (!string.IsNullOrEmpty(finalId)) return 1f;
+            return level >= 6 ? 1.30f : level >= 5 ? 1.15f : 1f;
+        }
+
+        public static float GetPrismBeamDamageMultiplier(
+            int level, string branch, string finalId, int beamIndex, bool hasActiveStatus)
+        {
+            var multiplier = 1f;
+            if (branch == "prism_split" && beamIndex > 0)
+            {
+                multiplier *= finalId == "prism_split_final_2" ? 0.72f : 0.62f;
+                if (string.IsNullOrEmpty(finalId)) multiplier *= GetPrismBranchPower(level, finalId);
+            }
+            if (branch == "prism_spectrum" && hasActiveStatus)
+                multiplier *= 1.08f * GetPrismBranchPower(level, finalId);
+            return multiplier;
+        }
+
+        public static float GetPrismFormationDamageMultiplier(float lineBonus, float latticeBonus) =>
+            1f + 0.12f * Math.Max(0f, lineBonus) + 0.08f * Math.Max(0f, latticeBonus);
+
+        public static int GetPrismReflectionCount(
+            string branch, string finalId, bool prismFilter, bool prismCrown, bool ringReflection)
+        {
+            if (branch != "prism_mirror" && !prismFilter) return 0;
+            return (branch == "prism_mirror" ? (finalId == "prism_mirror_final_3" ? 2 : 1) : 0)
+                + (prismFilter ? 1 : 0)
+                + (prismCrown ? 1 : 0)
+                + (ringReflection ? 1 : 0);
+        }
+
+        public static int GetPrismMirrorRicochetCount(int level, string branch, string finalId, int modifierLevel)
+        {
+            var branchExtraBounce = branch == "prism_mirror" && string.IsNullOrEmpty(finalId) && level >= 6 ? 1 : 0;
+            return Math.Min(2, Math.Max(0, modifierLevel) + branchExtraBounce);
+        }
+
+        public static float GetPrismNetworkRelayDamageMultiplier() => 0.42f;
+
+        public static float GetPrismRicochetDamageMultiplier(int bounceIndex, int level, string finalId) =>
+            (bounceIndex == 0 ? 0.30f : 0.24f) * GetPrismBranchPower(level, finalId);
+
+        public static float GetPrismRicochetRangeWorld(int level, string finalId) =>
+            115f * GetPrismBranchPower(level, finalId) * SpherePlacementRules.SourcePixelsToWorld;
+
+        public static float GetPrismEchoDamageMultiplier() => 0.18f;
 
         private static int[] GetOrbitalRingCounts(int level, string finalId)
         {

@@ -418,11 +418,52 @@ internal static class Program
 
     private static void CheckPrismEvolutionCombatRules()
     {
-        Equal(SphereEvolutionCombatRules.GetPrismPierce(0, "prism_split", "prism_split_final_2"), 2, "Prism Split pierce final");
-        Equal(SphereEvolutionCombatRules.GetPrismPierce(1, "prism_mirror", "prism_mirror_final_2"), 1, "Prism Mirror Ricochet does not become pierce");
-        Equal(SphereEvolutionCombatRules.GetPrismMirrorBounces("prism_mirror_final_1"), 1, "Mirror first bounce");
-        Equal(SphereEvolutionCombatRules.GetPrismMirrorBounces("prism_mirror_final_2"), 2, "Mirror double bounce");
-        Equal(SphereEvolutionCombatRules.GetPrismMirrorBounces("prism_mirror_final_3"), 2, "Mirror network reflection bounce count");
+        Equal(SphereEvolutionCombatRules.GetPrismBeamCount(1, null, null, 0), 1, "Prism default emits one direct beam");
+        Equal(SphereEvolutionCombatRules.GetPrismBeamCount(2, null, null, 0), 2, "Prism level III emits its second direction");
+        Equal(SphereEvolutionCombatRules.GetPrismBeamCount(2, "prism_split", "prism_split_final_2", 0), 3,
+            "Prism Split final II adds its authored beam");
+        Equal(SphereEvolutionCombatRules.GetPrismBeamCount(2, "prism_split", "prism_split_final_3", 0), 3,
+            "Prism Split final III adds its authored beam");
+        Equal(SphereEvolutionCombatRules.GetPrismBeamCount(2, "prism_split", "prism_split_final_2", 1), 4,
+            "Prism beam count includes the independent authored Multishot modifier");
+
+        Near(SphereEvolutionCombatRules.GetPrismBranchPower(4, null), 1f, 0f, "Prism pre-final branch power before level V");
+        Near(SphereEvolutionCombatRules.GetPrismBranchPower(5, null), 1.15f, 0.0001f, "Prism pre-final branch power at level V");
+        Near(SphereEvolutionCombatRules.GetPrismBranchPower(6, null), 1.30f, 0.0001f, "Prism pre-final branch power at level VI");
+        Near(SphereEvolutionCombatRules.GetPrismBranchPower(7, "prism_mirror_final_1"), 1f, 0f, "Prism final choice replaces pre-final branch power");
+        Near(SphereEvolutionCombatRules.GetPrismBeamDamageMultiplier(6, "prism_split", null, 1, false), 0.806f, 0.0001f,
+            "Prism Split secondary pre-final beam scales by 62% and branch power");
+        Near(SphereEvolutionCombatRules.GetPrismBeamDamageMultiplier(7, "prism_split", "prism_split_final_2", 1, false), 0.72f, 0.0001f,
+            "Prism Split final II secondary beam");
+        Near(SphereEvolutionCombatRules.GetPrismBeamDamageMultiplier(5, "prism_spectrum", null, 0, true), 1.242f, 0.0001f,
+            "Prism Spectrum pre-final status beam bonus");
+        Near(SphereEvolutionCombatRules.GetPrismBeamDamageMultiplier(7, "prism_spectrum", "prism_spectrum_final_3", 0, false), 1f, 0f,
+            "Prism Spectrum does not apply status bonus without an active status");
+        Near(SphereEvolutionCombatRules.GetPrismFormationDamageMultiplier(0.5f, 0.5f), 1.10f, 0.0001f,
+            "Prism source Line and Lattice beam bonuses");
+
+        Equal(SphereEvolutionCombatRules.GetPrismReflectionCount("prism_mirror", "prism_mirror_final_2", false, false, false), 1,
+            "Prism Mirror final II reflects to one linked node");
+        Equal(SphereEvolutionCombatRules.GetPrismReflectionCount("prism_mirror", "prism_mirror_final_3", true, true, true), 5,
+            "Prism Mirror final III stacks filter, crown and Ring reflection");
+        Equal(SphereEvolutionCombatRules.GetPrismReflectionCount("prism_split", "prism_split_final_2", true, true, true), 3,
+            "Prism Filter opens reflections and stacks Crown plus Ring");
+        Equal(SphereEvolutionCombatRules.GetPrismReflectionCount("prism_split", "prism_split_final_2", false, true, true), 0,
+            "Prism Crown and Ring alone do not open the reflection path");
+        Equal(SphereEvolutionCombatRules.GetPrismMirrorRicochetCount(6, "prism_mirror", null, 0), 1,
+            "Prism Mirror adds its level-VI pre-final bounce");
+        Equal(SphereEvolutionCombatRules.GetPrismMirrorRicochetCount(7, "prism_mirror", "prism_mirror_final_2", 2), 2,
+            "Prism Mirror authored Ricochet is capped at two");
+        Equal(SphereEvolutionCombatRules.GetPrismMirrorRicochetCount(6, "prism_split", null, 1), 1,
+            "other branches do not receive Prism Mirror's extra pre-final bounce");
+        Near(SphereEvolutionCombatRules.GetPrismNetworkRelayDamageMultiplier(), 0.42f, 0f, "Prism linked-node relay damage");
+        Near(SphereEvolutionCombatRules.GetPrismRicochetDamageMultiplier(0, 5, null), 0.345f, 0.0001f,
+            "Prism first pre-final ricochet damage");
+        Near(SphereEvolutionCombatRules.GetPrismRicochetDamageMultiplier(1, 5, null), 0.276f, 0.0001f,
+            "Prism second pre-final ricochet damage");
+        Near(SphereEvolutionCombatRules.GetPrismRicochetRangeWorld(5, null), 2.314375f, 0.0001f,
+            "Prism ricochet range is source 115 pixels scaled by branch power");
+        Near(SphereEvolutionCombatRules.GetPrismEchoDamageMultiplier(), 0.18f, 0f, "Prism Mirror final III Echo multiplier");
     }
 
     private static void CheckPulseVoidEvolutionCombatRules()

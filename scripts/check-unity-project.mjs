@@ -428,7 +428,20 @@ assert.ok(!/UnityEngine\.Random|Random\.Range|_rng/.test(combatArc), 'combat arc
 assert.ok(runtime.includes('SpawnCombatArc(Vector2 from, Vector2 to') && runtime.includes('arc.Initialize(this, from, to, family, branch, finalId, color, duration)'), 'combat arc visual entry point is missing');
 assert.ok(sphereAttack.includes('_runtime.SpawnCombatArc(origin, target.transform.position, SphereId.Chain'), 'Chain targets must connect to the live source-mapped arc');
 assert.ok(runtime.includes('SpawnCombatArc(center, targets[i].transform.position, SphereId.Chain') && runtime.includes('SpawnCombatArc(primary.transform.position, target.transform.position, SphereId.Chain'), 'Chain Storm secondary and extra strikes need visual arcs');
-assert.ok(runtime.includes('SpawnCombatArc(origin, target.transform.position, SphereId.Prism'), 'Prism Mirror ricochets must connect the source-mapped refraction visual');
+assert.ok(sphereAttack.includes('src/engineSpheres.ts:updatePrismSphere') &&
+  sphereAttack.includes('GetPrismBeamCount') && sphereAttack.includes('highestHp') &&
+  sphereAttack.includes('ReceiveSphereDamage(SphereId.Prism') && sphereAttack.includes('0.10f'),
+  'Prism attacks must use source-selected highest-HP targets and immediate direct beams');
+assert.ok(sphereAttack.includes('GetPrismFormationDamageMultiplier') &&
+  sphereAttack.includes('GetPrismReflectionCount') && sphereAttack.includes('GetLinkedSpheres') &&
+  sphereAttack.includes('GetPrismNetworkRelayDamageMultiplier') &&
+  sphereAttack.includes('GetPrismRicochetRangeWorld') &&
+  sphereAttack.includes('GetPrismRicochetDamageMultiplier') &&
+  sphereAttack.includes('HasArtifact("prism_filter")') && sphereAttack.includes('HasArtifact("prism_crown")'),
+  'Prism beam damage, linked reflections, Relay and Ricochet must follow source rules');
+assert.ok(!sphereAttack.includes('_runtime.SpawnProjectile(origin, direction, beamDamage') &&
+  !runtime.includes('TriggerPrismRicochet'),
+  'Prism must not fall back to the former travelling-projectile approximation');
 const alchemistReactionPath = 'Assets/EchoSphere/Scripts/Core/AlchemistReactionRules.cs';
 assert.ok(existsSync(join(root, alchemistReactionPath)), 'source Alchemist elemental reaction rules are missing');
 const alchemistReactionRules = readFileSync(join(root, alchemistReactionPath), 'utf8');

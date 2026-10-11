@@ -103,6 +103,8 @@ namespace EchoSphere.Runtime
 
         public string GetSphereBranch(SphereId type) => _sphereBranches.TryGetValue(type, out var id) ? id : null;
         public string GetSphereFinal(SphereId type) => _sphereFinals.TryGetValue(type, out var id) ? id : null;
+        public bool HasArtifact(string artifactId) =>
+            !string.IsNullOrEmpty(artifactId) && _ownedArtifacts.Contains(artifactId);
         public int GetSphereAuthoredModifierLevel(SphereId type, SphereAuthoredModifier modifier) =>
             SphereAuthoredModifierRules.GetLevel(GetSphereBranch(type), GetSphereFinal(type), modifier);
         public int GetSphereProjectilePierceBonus(SphereId type) =>
@@ -1438,26 +1440,6 @@ namespace EchoSphere.Runtime
                 SpawnProjectile(origin, direction, damage, new Color(0.58f, 0.36f, 1f), 9.5f, 0, 0f);
             }
             SpawnImpact(origin, new Color(0.62f, 0.40f, 1f, 0.9f));
-        }
-
-        public void TriggerPrismRicochet(EnemyAgent2D primary, Vector2 incomingDirection, float damage, int bounceCount)
-        {
-            if (primary == null || bounceCount <= 0) return;
-            var origin = (Vector2)primary.transform.position;
-            var candidates = FindNearestEnemies(origin, 6f, 12);
-            var hits = 0;
-            for (var i = 0; i < candidates.Count && hits < bounceCount; i++)
-            {
-                var target = candidates[i];
-                if (target == primary) continue;
-                SpawnCombatArc(origin, target.transform.position, SphereId.Prism,
-                    GetSphereBranch(SphereId.Prism), GetSphereFinal(SphereId.Prism),
-                    new Color(1f, 0.55f, 0.88f, 0.95f), 0.26f);
-                var multiplier = hits == 0 ? 0.30f : 0.24f;
-                target.ReceiveDamage(damage * multiplier);
-                SpawnImpact(Vector2.Lerp(origin, target.transform.position, 0.5f), new Color(1f, 0.55f, 0.88f, 0.9f));
-                hits++;
-            }
         }
 
         public void TriggerOrbitalAfterimage(EnemyAgent2D primary, float damage, float radius)

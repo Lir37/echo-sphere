@@ -2265,3 +2265,23 @@ LIMITS:
 - Unity CI does not compile UnityEngine-facing scripts inside a real Unity Editor and cannot certify mesh rendering or the exact visual scale from a screenshot.
 - The boss radius correction is source-calibrated from the repository's explicit camera scale and source radius, but actual Editor/image comparison is still required for visual acceptance.
 - Unity Editor compilation, APK generation and Android on-device acceptance remain unverified in this cycle.
+
+
+## Prism Direct-Beam + Network Refraction Parity — 2026-10-11
+
+Source baseline: `new-desing` HEAD `737ef2af4a877e0995db5f92331d536d2f29a934`.
+Authoritative combat path: `src/engineSpheres.ts:updatePrismSphere` and `src/sphereProgression.ts:sphereModifiers`.
+
+IMPLEMENTED IN THIS SLICE:
+- Replaced Unity's Prism travelling projectiles with immediate, source-mapped direct beam hits. Each beam selects the living in-range enemy with the highest current HP, and a target cannot receive two beams from the same volley.
+- Source beam-count rules now include the Sphere-level directions, source authored Multishot, and the separate Prism Split final-II/final-III beam.
+- Ported the source Prism Split secondary-beam factors (72% for final II, otherwise 62%, with pre-final branch power at levels V/VI), Prism Spectrum's active-status damage factor, and per-beam Line (+12%) / Lattice (+8%) formation bonuses.
+- Connected the direct hit path to the existing critical/damage resolver, authored hit effects, elemental status, Resonance hit registration, and a short 0.10-second Prism arc.
+- Ported Prism Mirror / Prism Filter Network reflections from linked active nodes: Mirror reflection count, Filter/Crown/Ring additions, 42% relay hits, nearest-target ricochets inside the source 115-pixel range (including pre-final branch power), 30%/24% sequential bounce factors, and the final-III 18% Echo hit. Triangle Resonance for Prism Spectrum is charged once per attack when the Prism belongs to a Triangle candidate.
+- Removed Prism's obsolete projectile-hit Split/Spectrum/Mirror handlers and the unused long-range `TriggerPrismRicochet` approximation. Their behavior is now resolved on the dedicated beam path.
+- Added C# pure-contract assertions for beam counts, branch power, damage factors, Network reflection counts, relay/bounce constants, and source-pixel range conversion. Unity project preflight now guards the direct-beam/refraction integration.
+
+VALIDATION LIMITS:
+- The implementation commit's Unity Migration Contracts workflow must finish successfully before this cycle is accepted; that workflow does not invoke Unity Editor compilation.
+- Unity Editor compilation, APK generation, and device-side combat/visual verification remain unverified in this environment.
+- This slice does not close remaining character/profile, shop, region ecology, artifact-set, or other non-Prism migration gaps.
