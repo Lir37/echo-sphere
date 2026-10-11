@@ -49,7 +49,7 @@ namespace EchoSphere.Runtime
             _initialDamage = damage * _profile.DamageMultiplier;
             _initialDelay = 1.2f * _profile.DelayMultiplier;
             ApplyProgressionLevel(1);
-            AttackRange = 6.8f * _profile.RangeMultiplier;
+            AttackRange = 6.8f * _profile.RangeMultiplier * _runtime.GetArtifactSphereRadiusMultiplier(type);
             _attackTimer = 0.25f;
             _orbitAngle = type == SphereId.Orbital ? 0f : 0f;
             Color tint;
@@ -71,7 +71,7 @@ namespace EchoSphere.Runtime
             _levelStats = SphereLevelRules.GetStats(_type, _progressionLevel);
             BaseDamage = _initialDamage * _levelStats.DamageMultiplier;
             AttackDelay = Mathf.Max(0.12f, _initialDelay * _levelStats.DelayMultiplier);
-            AttackRange = 6.8f * _profile.RangeMultiplier * _levelStats.RangeMultiplier;
+            AttackRange = 6.8f * _profile.RangeMultiplier * _levelStats.RangeMultiplier * _runtime.GetArtifactSphereRadiusMultiplier(_type);
         }
 
         public void SetFollowMode(bool enabled, Vector2 playerPosition)

@@ -16,6 +16,7 @@ internal static class Program
             CheckEnemySpawnRules();
             CheckBossCombatRules();
             CheckRegionBossSchedule();
+            CheckArtifactRewardRules();
             CheckSphereCombatProfiles();
             CheckSphereProgressionRules();
             CheckSphereEvolutionCatalog();
@@ -202,6 +203,28 @@ internal static class Program
         Near(endless.NextBossAt, 630f, 0f, "Endless schedule advances by 150 seconds");
         Equal(RegionBossScheduleRules.Advance(endless, 630f, false).BossType, "architect", "Endless second boss");
         True(!endless.Cleared, "Endless mode has no stabilization completion");
+    }
+
+    private static void CheckArtifactRewardRules()
+    {
+        Equal(ArtifactRewardRules.All.Count, 82, "canonical artifact catalog count");
+        Equal(ArtifactRewardRules.LegendaryCount, 6, "six Stella-gated Legendary artifacts");
+        True(ArtifactRewardRules.IsLegendaryStellaWindow(1499.9f), "Stella Legendary window before 25 minutes");
+        True(!ArtifactRewardRules.IsLegendaryStellaWindow(1500f), "Stella changes to ordinary artifacts at 25 minutes");
+        Equal(ArtifactRewardRules.GetStellaChoiceCount(Array.Empty<string>()), 3, "base Stella choice count");
+        Equal(ArtifactRewardRules.GetStellaChoiceCount(new[] { "quantum_fold" }), 4, "Quantum Fold adds a fourth Stella choice");
+        var legendary = ArtifactRewardRules.PickChoices(Array.Empty<string>(), () => 0f, true, 3);
+        Equal(legendary.Count, 3, "Stella returns requested unowned Legendary choices");
+        True(legendary.TrueForAll(x => x.Rarity == ArtifactRarity.Legendary), "Stella Legendary pool excludes normal rarity");
+        Equal(new HashSet<string>(legendary.ConvertAll(x => x.Id)).Count, legendary.Count, "no duplicate choices within one chest");
+        var ownedLegendary = new List<string> { "zero_sphere", "unified_mind", "time_splitter", "stasis_mandala", "axiom_core", "universal_fold" };
+        Equal(ArtifactRewardRules.PickChoices(ownedLegendary, () => 0f, true, 3).Count, 0, "owned Legendary items cannot be offered twice");
+        var ordinary = ArtifactRewardRules.PickChoices(Array.Empty<string>(), () => 0f, false, 3);
+        Equal(ordinary.Count, 3, "ordinary Stella fallback offers up to three items");
+        True(ordinary.TrueForAll(x => x.Rarity != ArtifactRarity.Legendary), "post-cutoff Stella pool excludes Legendary");
+        Near(ArtifactRewardRules.GetEffectTotal(new[] { "crystal_speed", "dragon_heart" }, "moveSpeed"), 0.05f, 0.0001f, "move-speed metadata totals");
+        Near(ArtifactRewardRules.GetEffectTotal(new[] { "zero_sphere", "time_splitter" }, "sphereDamage"), 0.47f, 0.0001f, "sphere-damage metadata totals");
+        Near(ArtifactRewardRules.GetEffectTotal(new[] { "axiom_core", "universal_fold" }, "cooldown"), -0.16f, 0.0001f, "cooldown metadata totals");
     }
 
     private static void CheckSphereCombatProfiles()

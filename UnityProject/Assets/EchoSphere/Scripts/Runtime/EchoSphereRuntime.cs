@@ -10,6 +10,9 @@ namespace EchoSphere.Runtime
     {
         private readonly List<EnemyAgent2D> _enemies = new List<EnemyAgent2D>();
         private readonly List<SphereAttackAgent> _spheres = new List<SphereAttackAgent>();
+        private readonly List<string> _ownedArtifacts = new List<string>();
+        private readonly List<ArtifactRewardDefinition> _stellaRewardChoices = new List<ArtifactRewardDefinition>();
+        private readonly HashSet<SphereId> _artifactSphereTypeScratch = new HashSet<SphereId>();
         private readonly Dictionary<SphereId, int> _sphereLevels = new Dictionary<SphereId, int>();
         private readonly List<RunUpgradeChoice> _levelUpChoices = new List<RunUpgradeChoice>();
         private readonly Dictionary<SphereId, string> _sphereBranches = new Dictionary<SphereId, string>();
@@ -27,6 +30,8 @@ namespace EchoSphere.Runtime
         private int _kills, _level = 1, _xp, _xpRequired = RunBalanceRules.GetXpToNextLevel(1);
         private int _bossesDefeated, _wave, _waveEnemiesToSpawn;
         private bool _follow, _paused, _levelUp, _gameOver, _userPaused, _regionStabilized;
+        private bool _stellaRewardPending, _stellaRewardIsLegendary;
+        private float _swiftBootsTimer;
         private RegionBossScheduleState _regionSchedule;
         private bool _mainMenu = true;
         private bool _regionSelect;
@@ -52,12 +57,13 @@ namespace EchoSphere.Runtime
 
         public bool IsGameplayPaused => _paused;
         public bool IsPresentationPaused => _mainMenu || _paused;
+        public Vector2 PlayerPosition => _player == null ? Vector2.zero : (Vector2)_player.position;
         public float CurrentRunTime => _runTime;
         public int CurrentWave => _wave;
         public bool RegionStabilized => _regionStabilized;
         public float NextRunRandom() => _rng.NextFloat();
-        public float SphereDamageMultiplier => _damageMultiplier;
-        public float AttackSpeedMultiplier => _attackSpeedMultiplier;
+        public float SphereDamageMultiplier => _damageMultiplier * Mathf.Max(0.25f, 1f + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "sphereDamage"));
+        public float AttackSpeedMultiplier => _attackSpeedMultiplier / Mathf.Max(0.5f, 1f + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "sphereDelay"));
         public float ResonanceCharge => _resonanceCharge;
         public bool ResonanceEventActive => _resonanceEventActive;
         public int ResonanceEventsTriggered => _resonanceEventsTriggered;
@@ -82,13 +88,15 @@ namespace EchoSphere.Runtime
         private void Update()
         {
             PruneDestroyed();
-            if (Input.GetKeyDown(KeyCode.Escape) && !_gameOver && !_levelUp && !_choosingEvolution)
+            if (Input.GetKeyDown(KeyCode.Escape) && !_gameOver && !_levelUp && !_choosingEvolution && !_stellaRewardPending)
                 SetUserPaused(!_userPaused);
             if (_mainMenu || _paused || _playerCore == null) return;
             var dt = Time.deltaTime;
             _runTime += dt;
             TickSphereArtAnimation(dt);
             _playerCore.Tick(dt);
+            _swiftBootsTimer = Mathf.Max(0f, _swiftBootsTimer - dt);
+            _playerCore.Heal(Mathf.Max(0f, ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "regen")) * dt);
             if (_messageTimer > 0f) _messageTimer -= dt;
             if (Input.GetKeyDown(KeyCode.Space)) _playerCore.TryDash(_playerCore.LastMoveDirection);
 
@@ -104,7 +112,7 @@ namespace EchoSphere.Runtime
             if (_follow) _formationStrain = FormationFollowRules.UpdateStrain(_formationStrain, _lastDirection, requested, dt, out _lastDirection);
             else { _formationStrain = 0f; _lastDirection = Vec2.Zero; }
 
-            _player.position += (Vector3)(_playerCore.GetVelocity(input, 3.6f, followMultiplier) * dt);
+            _player.position += (Vector3)(_playerCore.GetVelocity(input, 3.6f * GetArtifactMoveSpeedMultiplier(), followMultiplier) * dt);
             _networkRefreshTimer -= dt;
             if (_networkRefreshTimer <= 0f)
             {
@@ -708,9 +716,9 @@ namespace EchoSphere.Runtime
             else if (signal.Kind == RegionBossSignalKind.RegionCleared)
             {
                 _regionStabilized = true;
-                _gameOver = true;
-                _paused = true;
+                // Region completion is not game-over: keep pickups alive after the final boss.
                 ShowMessage("REGION STABILIZED");
+                AddExperience(RegionBossScheduleRules.GetRegionXpReward(_level));
             }
         }
 
@@ -896,7 +904,9 @@ namespace EchoSphere.Runtime
 
         public void RegisterSphereHit(SphereAttackAgent owner, EnemyAgent2D target, float damage)
         {
-            if (owner == null || _resonanceEventActive) return;
+            if (owner == null || target == null) return;
+            HealCoreFromDamage(damage);
+            if (_resonanceEventActive) return;
             var multiplier = 1f;
             if (owner.Type == SphereId.Orbital && GetSphereBranch(SphereId.Orbital) == "orbital_halo")
                 multiplier += SphereEvolutionCombatRules.GetOrbitalResonanceBonus(owner.ProgressionLevel, GetSphereFinal(SphereId.Orbital));
@@ -1384,10 +1394,59 @@ namespace EchoSphere.Runtime
             impactVfx.Initialize(color);
         }
 
+        private void SpawnStellaChest(Vector2 position)
+        {
+            var root = new GameObject("STELLA Reward Cache");
+            root.transform.position = position;
+            root.AddComponent<StellaChestAgent2D>().Initialize(this, position);
+        }
+
+        public void CollectStellaChest(StellaChestAgent2D chest)
+        {
+            if (chest == null || _gameOver || _stellaRewardPending || _levelUp || _choosingEvolution) return;
+            Destroy(chest.gameObject);
+            _stellaRewardChoices.Clear();
+            var count = ArtifactRewardRules.GetStellaChoiceCount(_ownedArtifacts);
+            if (ArtifactRewardRules.IsLegendaryStellaWindow(_runTime))
+                _stellaRewardChoices.AddRange(ArtifactRewardRules.PickChoices(_ownedArtifacts, _rng.NextFloat, true, count));
+            _stellaRewardIsLegendary = _stellaRewardChoices.Count > 0;
+            if (_stellaRewardChoices.Count == 0)
+                _stellaRewardChoices.AddRange(ArtifactRewardRules.PickChoices(_ownedArtifacts, _rng.NextFloat, false,
+                    ArtifactRewardRules.BaseStellaChoiceCount));
+            if (_stellaRewardChoices.Count == 0) { ShowMessage("STELLA CACHE EMPTY"); return; }
+            _stellaRewardPending = true;
+            _userPaused = false;
+            _paused = true;
+            ShowMessage(_stellaRewardIsLegendary ? "LEGENDARY STELLA CACHE" : "STELLA ARTIFACT CACHE");
+        }
+
+        private void ChooseStellaReward(int choiceIndex)
+        {
+            if (!_stellaRewardPending || choiceIndex < 0 || choiceIndex >= _stellaRewardChoices.Count) return;
+            var choice = _stellaRewardChoices[choiceIndex];
+            if (choice == null || _ownedArtifacts.Contains(choice.Id)) return;
+            _ownedArtifacts.Add(choice.Id);
+            if (choice.GetEffect("maxHp") > 0f && _playerCore != null) _playerCore.IncreaseMaxHp(choice.GetEffect("maxHp"));
+            if (_playerCore != null)
+                _playerCore.SetDashCooldownMultiplier(Mathf.Max(0.55f, 1f + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "cooldown")));
+            _stellaRewardPending = false;
+            _stellaRewardChoices.Clear();
+            _paused = false;
+            _userPaused = false;
+            ShowMessage("ARTIFACT ACQUIRED · " + choice.NameEnglish);
+            OpenLevelUpIfReady();
+        }
+
         public void RegisterEnemyDeath(EnemyAgent2D enemy, Vector2 position, int xpReward = 1)
         {
             _enemies.Remove(enemy);
-            if (enemy != null && enemy.IsBoss) _bossesDefeated++;
+            if (_ownedArtifacts.Contains("swift_boots")) _swiftBootsTimer = 3f;
+            if (enemy != null && enemy.IsBoss)
+            {
+                _bossesDefeated++;
+                SpawnStellaChest(position);
+                ShowMessage("BOSS DEFEATED!");
+            }
             _kills++;
             var go = new GameObject("Echo Shard");
             go.transform.position = position;
@@ -1402,7 +1461,8 @@ namespace EchoSphere.Runtime
         public void AddExperience(int amount)
         {
             if (_paused || _gameOver) return;
-            _xp += Mathf.Max(0, amount);
+            var multiplier = Mathf.Max(0.5f, 1f + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "xpGain"));
+            _xp += Mathf.Max(0, (int)Mathf.Floor(Mathf.Max(0, amount) * multiplier + 0.5f));
             OpenLevelUpIfReady();
         }
 
@@ -1425,7 +1485,8 @@ namespace EchoSphere.Runtime
 
         public float ResolveProjectileDamage(float damage, float critChanceBonus, out bool wasCritical)
         {
-            var critChance = Mathf.Min(CombatRules.CritHardCap, CombatRules.CritBase + Mathf.Max(0f, critChanceBonus));
+            var artifactCrit = ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "critChance");
+            var critChance = Mathf.Min(CombatRules.CritHardCap, CombatRules.CritBase + Mathf.Max(0f, critChanceBonus + artifactCrit));
             var result = CombatRules.ResolveDamage(damage, critChance, _rng.NextFloat(), CombatRules.CritMultiplierBase);
             wasCritical = result.WasCritical;
             return result.Damage;
@@ -1434,15 +1495,153 @@ namespace EchoSphere.Runtime
         public void TryDamagePlayer(float damage)
         {
             if (_playerCore == null || _playerCore.IsDead) return;
+            var dodgeBonus = Mathf.Clamp01(ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "dodgeChance"));
+            if (dodgeBonus > 0f && _playerCore.CanReceiveDamageNow && _rng.NextFloat() < dodgeBonus)
+            {
+                ShowMessage("DODGED");
+                return;
+            }
+            var received = Mathf.Max(0f, damage) * GetArtifactDamageTakenMultiplier();
+            if (_ownedArtifacts.Contains("mirror") && _playerCore.CanReceiveDamageNow && _rng.NextFloat() < 0.20f)
+            {
+                EnemyAgent2D nearest = null;
+                var nearestDistance = float.PositiveInfinity;
+                for (var i = 0; i < _enemies.Count; i++)
+                {
+                    var candidate = _enemies[i];
+                    if (candidate == null || !candidate.IsAlive) continue;
+                    var distance = Vector2.Distance(candidate.transform.position, _playerCore.transform.position);
+                    if (distance < nearestDistance) { nearestDistance = distance; nearest = candidate; }
+                }
+                if (nearest != null) nearest.ReceiveDamage(received * 1.25f);
+                return;
+            }
             var shieldsBefore = _playerCore.ShieldCharges;
-            if (_playerCore.TryTakeDamage(damage)) ShowMessage("Core integrity damaged!");
+            if (_playerCore.TryTakeDamage(received))
+            {
+                ShowMessage("Core integrity damaged!");
+                if (_ownedArtifacts.Contains("stasis_core"))
+                    for (var i = 0; i < _enemies.Count; i++)
+                        if (_enemies[i] != null && _enemies[i].IsAlive) _enemies[i].ApplySlow(2f, 0.5f);
+            }
             else if (_playerCore.ShieldCharges < shieldsBefore) ShowMessage("Shield charge absorbed impact!");
         }
 
         public void TryDamagePlayerOverTime(float damage)
         {
-            if (_playerCore != null && !_playerCore.IsDead && _playerCore.TryTakeDotDamage(damage))
+            if (_playerCore != null && !_playerCore.IsDead &&
+                _playerCore.TryTakeDotDamage(Mathf.Max(0f, damage) * GetArtifactDamageTakenMultiplier()))
                 ShowMessage("Core integrity damaged!");
+        }
+
+        public void HealCoreFromDamage(float damage)
+        {
+            var vampire = Mathf.Max(0f, ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "vampire"));
+            if (_playerCore != null && !_playerCore.IsDead && vampire > 0f)
+                _playerCore.Heal(Mathf.Max(0f, damage) * vampire);
+        }
+
+        private float GetArtifactMoveSpeedMultiplier()
+        {
+            var multiplier = Mathf.Max(0.5f, 1f + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "moveSpeed"));
+            if (_swiftBootsTimer > 0f && _ownedArtifacts.Contains("swift_boots")) multiplier *= 1.10f;
+            return multiplier;
+        }
+
+        public float GetArtifactSphereRadiusMultiplier(SphereId type)
+        {
+            var key = type switch
+            {
+                SphereId.Standard => "standardRadius",
+                SphereId.Sniper => "sniperRadius",
+                SphereId.Shotgun => "shotgunRadius",
+                SphereId.Chain => "chainRadius",
+                SphereId.Aura => "auraRadius",
+                SphereId.Gravity => "gravityRadius",
+                SphereId.Pulse => "pulseRadius",
+                _ => null
+            };
+            var multiplier = 1f + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "sphereRadius");
+            if (!string.IsNullOrEmpty(key)) multiplier += ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, key);
+            if (_ownedArtifacts.Contains("formation_compass")) multiplier *= 1.08f;
+            return Mathf.Clamp(multiplier, 0.5f, 3f);
+        }
+
+        private float GetArtifactDamageTakenMultiplier() =>
+            Mathf.Max(0.45f, 1f - ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "damageTakenReduction"));
+
+        private float GetArtifactSphereFamilyDamageMultiplier(SphereId type)
+        {
+            var key = type switch
+            {
+                SphereId.Standard => "standardDamage",
+                SphereId.Sniper => "sniperDamage",
+                SphereId.Shotgun => "shotgunDamage",
+                SphereId.Chain => "chainDamage",
+                SphereId.Aura => "auraDamage",
+                SphereId.Orbital => "orbitalDamage",
+                SphereId.Prism => "prismDamage",
+                SphereId.Gravity => "gravityDamage",
+                SphereId.Pulse => "pulseDamage",
+                SphereId.Void => "voidDamage",
+                _ => null
+            };
+            var multiplier = string.IsNullOrEmpty(key) ? 1f :
+                Mathf.Max(0.25f, 1f + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, key));
+            var uniqueTypes = CountUniqueActiveSphereTypes();
+            if (_ownedArtifacts.Contains("zero_sphere")) multiplier *= 1.20f;
+            if (_ownedArtifacts.Contains("unified_mind")) multiplier *= 1f + GetStrongestSphereLevel() * 0.03f;
+            if (_ownedArtifacts.Contains("lone_bastion") && uniqueTypes <= 1) multiplier *= 1.30f;
+            if (_ownedArtifacts.Contains("fivefold_resonance") && uniqueTypes > 1) multiplier *= 1f + 0.04f * Mathf.Min(5, uniqueTypes);
+            if (_ownedArtifacts.Contains("relay_matrix") && HasLevelSevenSphere()) multiplier *= 1.10f;
+            if (_ownedArtifacts.Contains("network_relay") && uniqueTypes >= 2) multiplier *= 1.05f;
+            if (_ownedArtifacts.Contains("network_coil") && uniqueTypes >= 2) multiplier *= 1.08f;
+            if (_ownedArtifacts.Contains("geometry_die") && _networkState != null && _networkState.DominantFormation != null && _networkState.DominantFormation.Active) multiplier *= 1.08f;
+            if (_ownedArtifacts.Contains("mirror_network") && uniqueTypes >= 2) multiplier *= 1.12f;
+            if (_ownedArtifacts.Contains("singularity_engine") && uniqueTypes <= 2) multiplier *= 1.18f;
+            if (_ownedArtifacts.Contains("triangle_circuit"))
+            {
+                var index = _spheres.FindIndex(x => x != null && x.Type == type);
+                if (index >= 0 && GetFormationBonus(SphereNetworkFormation.Triangle, index) > 0f) multiplier *= 1.15f;
+            }
+            if (_ownedArtifacts.Contains("resonance_core") && SphereNearAnotherType(type)) multiplier *= 1.12f;
+            return multiplier;
+        }
+
+        private bool SphereNearAnotherType(SphereId type)
+        {
+            SphereAttackAgent first = null;
+            for (var i = 0; i < _spheres.Count; i++)
+                if (_spheres[i] != null && _spheres[i].Type == type) { first = _spheres[i]; break; }
+            if (first == null) return false;
+            for (var i = 0; i < _spheres.Count; i++)
+            {
+                var other = _spheres[i];
+                if (other == null || other == first) continue;
+                if (Vector2.Distance(first.transform.position, other.transform.position) <= BossCombatRules.ToWorldUnits(190f)) return true;
+            }
+            return false;
+        }
+
+        private int CountUniqueActiveSphereTypes()
+        {
+            _artifactSphereTypeScratch.Clear();
+            for (var i = 0; i < _spheres.Count; i++)
+                if (_spheres[i] != null && _spheres[i].gameObject.activeInHierarchy) _artifactSphereTypeScratch.Add(_spheres[i].Type);
+            return _artifactSphereTypeScratch.Count;
+        }
+
+        private int GetStrongestSphereLevel()
+        {
+            var strongest = 0;
+            foreach (var level in _sphereLevels.Values) if (level > strongest) strongest = level;
+            return strongest;
+        }
+
+        private bool HasLevelSevenSphere()
+        {
+            foreach (var level in _sphereLevels.Values) if (level >= 7) return true;
+            return false;
         }
 
         public bool SetFormationFollowMode(bool active, bool skipRangeCheck = false)
@@ -1578,7 +1777,7 @@ namespace EchoSphere.Runtime
 
         private void SetUserPaused(bool paused)
         {
-            if (_gameOver || _levelUp || _choosingEvolution) return;
+            if (_gameOver || _levelUp || _choosingEvolution || _stellaRewardPending) return;
             _userPaused = paused;
             _paused = paused;
             ShowMessage(paused ? "Run paused." : "Run resumed.");
@@ -1602,13 +1801,16 @@ namespace EchoSphere.Runtime
 
         public float GetNetworkDamageMultiplier(SphereAttackAgent sphere)
         {
+            if (sphere == null) return 1f;
             var index = GetSphereIndex(sphere);
-            if (index < 0) return 1f;
-            var multiplier = 1f
-                + 0.10f * GetFormationBonus(SphereNetworkFormation.Line, index)
-                + 0.15f * GetFormationBonus(SphereNetworkFormation.Fractal, index);
-            if (ConsumeResonanceLineBurst()) multiplier *= 1.60f;
-            return multiplier;
+            var multiplier = 1f;
+            if (index >= 0)
+            {
+                multiplier += 0.10f * GetFormationBonus(SphereNetworkFormation.Line, index)
+                    + 0.15f * GetFormationBonus(SphereNetworkFormation.Fractal, index);
+                if (ConsumeResonanceLineBurst()) multiplier *= 1.60f;
+            }
+            return multiplier * GetArtifactSphereFamilyDamageMultiplier(sphere.Type);
         }
 
         public bool HasNetworkCandidateForSphere(SphereNetworkFormation type, int sphereIndex)
@@ -2009,13 +2211,35 @@ namespace EchoSphere.Runtime
                     SetFormationFollowMode(!_follow);
                 if (GUI.Button(new Rect(_uiWidth - 176f, bottomY, 158f, 54f), "DASH", _button))
                     _playerCore.TryDash(_playerCore.LastMoveDirection);
-                if (!_gameOver && !_levelUp && !_choosingEvolution &&
+                if (!_gameOver && !_levelUp && !_choosingEvolution && !_stellaRewardPending &&
                     GUI.Button(new Rect(_uiWidth - 158f, 140f, 140f, 36f), _userPaused ? "RESUME" : "PAUSE", _button))
                     SetUserPaused(!_userPaused);
 
                 DrawSphereRoster();
                 if (!string.IsNullOrEmpty(_message) && _messageTimer > 0f)
                     GUI.Label(new Rect(18f, 236f, Mathf.Min(_uiWidth - 36f, 520f), 30f), _message, _label);
+
+                if (_stellaRewardPending)
+                {
+                    var count = _stellaRewardChoices.Count;
+                    var panelWidth = Mathf.Min(660f, _uiWidth - 32f);
+                    var panelHeight = 88f + count * 78f;
+                    var panelLeft = (_uiWidth - panelWidth) * 0.5f;
+                    var panelTop = (_uiHeight - panelHeight) * 0.5f;
+                    GUI.Box(new Rect(panelLeft, panelTop, panelWidth, panelHeight), GUIContent.none, _box);
+                    GUI.Label(new Rect(panelLeft + 24f, panelTop + 18f, panelWidth - 48f, 30f),
+                        _stellaRewardIsLegendary ? "STELLA / LEGENDARY ARTIFACT" : "STELLA / ARTIFACT CHOICE", _title);
+                    for (var i = 0; i < count; i++)
+                    {
+                        var choice = _stellaRewardChoices[i];
+                        var rect = new Rect(panelLeft + 22f, panelTop + 62f + i * 78f, panelWidth - 44f, 70f);
+                        if (GUI.Button(rect, GUIContent.none, _button)) ChooseStellaReward(i);
+                        GUI.Label(new Rect(rect.x + 12f, rect.y + 5f, rect.width - 24f, 24f),
+                            choice.NameEnglish + "  /  " + choice.Rarity.ToString().ToUpperInvariant(), _label);
+                        GUI.Label(new Rect(rect.x + 12f, rect.y + 29f, rect.width - 24f, 36f),
+                            choice.DescriptionEnglish, _button);
+                    }
+                }
 
                 if (_levelUp)
                 {

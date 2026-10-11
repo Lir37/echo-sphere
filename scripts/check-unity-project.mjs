@@ -19,6 +19,8 @@ const required = [
   'Assets/EchoSphere/Scripts/Core/EnemySpawnRules.cs',
   'Assets/EchoSphere/Scripts/Core/BossCombatRules.cs',
   'Assets/EchoSphere/Scripts/Core/RegionBossScheduleRules.cs',
+  'Assets/EchoSphere/Scripts/Core/ArtifactRewardRules.cs',
+  'Assets/EchoSphere/Scripts/Runtime/StellaChestAgent2D.cs',
   'Assets/EchoSphere/Scripts/Runtime/BossCombatAgent2D.cs',
   'Assets/EchoSphere/Scripts/Runtime/BossProjectileAgent2D.cs',
   'Assets/EchoSphere/Scripts/Runtime/BossPresentationVfx2D.cs',
@@ -208,6 +210,23 @@ const bossAgent = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/Bos
 assert.ok(bossAgent.includes('src/engineEnemies.ts') && bossAgent.includes('SpawnBossProjectile') && bossAgent.includes('SpawnBossMinion'), 'boss runtime source mapping/attack spawns missing');
 for (const method of ['TickFan','TickRadial','DisableNearestNetworkSpheres','DrainResonance','DelayAllSphereAttacks']) assert.ok(bossAgent.includes(method), 'boss behaviour hook missing: ' + method);
 assert.ok(runtimeArt.includes('SpawnBossForRegionEvent') && runtimeArt.includes('BossCombatRules.GetTypeForDefeatedCount'), 'boss spawn must be an explicit Region event contract');
+const artifactRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/ArtifactRewardRules.cs'), 'utf8');
+assert.ok(artifactRules.includes('StellaLegendaryCutoffSeconds = 1500f') && artifactRules.includes('62f') && artifactRules.includes('24f') && artifactRules.includes('9f') && artifactRules.includes('4f'), 'source artifact rarity weights/cutoff missing');
+for (const id of ['zero_sphere','unified_mind','time_splitter','stasis_mandala','axiom_core','universal_fold']) assert.ok(artifactRules.includes('"' + id + '"'), 'source Stella legendary missing: ' + id);
+assert.equal((artifactRules.match(/new ArtifactRewardDefinition\(/g) || []).length, 82, 'source artifact metadata catalog must contain all 82 artifacts');
+const stellaChest = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/StellaChestAgent2D.cs'), 'utf8');
+assert.ok(stellaChest.includes('renderer.ts:drawStellaChest') && stellaChest.includes('engineLoop.ts chest proximity collection'), 'Stella chest must map to live source renderer/pickup path');
+assert.ok(stellaChest.includes('BossCombatRules.PlayerRadiusSourceUnits+28f') && stellaChest.includes('CollectStellaChest(this)'), 'Stella source pickup distance/event hook missing');
+assert.ok(stellaChest.includes('MarkDynamic') && stellaChest.includes('_vertices.Clear()') && stellaChest.includes('_triangles.Clear()'), 'Stella dynamic mesh must reuse buffers');
+assert.ok(runtimeArt.includes('SpawnStellaChest(position)') && runtimeArt.includes('CollectStellaChest(StellaChestAgent2D chest)'), 'boss death must produce a collectible Stella cache');
+assert.ok(runtimeArt.includes('ArtifactRewardRules.IsLegendaryStellaWindow') && runtimeArt.includes('PickChoices(_ownedArtifacts, _rng.NextFloat, true') && runtimeArt.includes('PickChoices(_ownedArtifacts, _rng.NextFloat, false'), 'Stella rarity-window selection/fallback is missing');
+assert.ok(runtimeArt.includes('GetStellaChoiceCount(_ownedArtifacts)') && artifactRules.includes('Contains(owned,"quantum_fold")'), 'Quantum Fold must add a fourth Stella choice');
+assert.ok(runtimeArt.includes('ChooseStellaReward(i)') && runtimeArt.includes('_stellaRewardPending'), 'Stella rewards must wait for explicit player selection');
+assert.ok(runtimeArt.includes('HealCoreFromDamage(damage)') && runtimeArt.includes('GetArtifactSphereFamilyDamageMultiplier') && runtimeArt.includes('SetDashCooldownMultiplier'), 'artifact combat/stat hooks are not connected');
+const playerCore = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/PlayerCoreController2D.cs'), 'utf8');
+assert.ok(playerCore.includes('CanReceiveDamageNow') && playerCore.includes('IncreaseMaxHp') && playerCore.includes('SetDashCooldownMultiplier'), 'player artifact stat hooks are missing');
+const enemyRuntime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs'), 'utf8');
+assert.ok(!enemyRuntime.includes('HealCoreFromDamage(appliedDamage)'), 'vampirism must not heal from arbitrary enemy/status damage');
 const regionSchedule = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/RegionBossScheduleRules.cs'), 'utf8');
 for (const sourceBoss of ['conductor','architect','null','aura','stella_warden']) assert.ok(regionSchedule.includes('"' + sourceBoss + '"'), 'Region schedule source boss missing: ' + sourceBoss);
 assert.ok(regionSchedule.includes('480f') && regionSchedule.includes('960f') && regionSchedule.includes('1620f') && regionSchedule.includes('1800f'), 'source Region boss/stabilization timing contract missing');

@@ -2105,3 +2105,49 @@ LIMITS:
 - Also corrected the single projectile conversion test expectation to 3.15 world
   units under the audited 720 px / 12.6 world-unit camera scale. No gameplay code
   was changed by these test-only corrections.
+
+
+======================================================================
+[2026-10-11] STELLA PICKUP + SOURCE ARTIFACT REWARD PORT SLICE 12
+======================================================================
+
+IMPLEMENTED:
+- Added StellaChestAgent2D, a 2.5D unlit faceted cache mapped to
+  renderer.ts:drawStellaChest. It uses cached dynamic-mesh buffers and the source
+  pickup radius (Core 16 px + Stella 28 px) under the calibrated Canvas/world scale.
+- Every boss death now creates a physical Stella cache at the death position.
+  The player must move into pickup range. Pickup opens a paused choice panel;
+  the artifact is applied only after an explicit player selection.
+- Added all 82 source artifact definitions with names/descriptions in Russian and
+  English, rarity and base effect metadata from gameData.ts/artifactSystem.ts.
+  Selection excludes owned items and in-pick duplicates, uses source rarity
+  weights Common/Rare/Epic/Special = 62/24/9/4, and only offers the six
+  Legendary artifacts before 25 minutes. At/after 25 minutes it selects only
+  non-Legendary artifacts. Quantum Fold grants the source fourth choice slot.
+- Connected source base-stat effects for move speed, max HP, XP gain, regeneration,
+  generic and per-Sphere damage/range, attack delay, Dash cooldown, critical
+  chance, damage taken, dodge chance, vampire healing on Sphere hits, Mirror
+  reflection, Stasis Core slow, Swift Boots kill-speed window and selected
+  source conditional damage multipliers.
+- Region completion at 30 minutes is no longer represented as game over; the
+  stabilized run stays playable and grants source region XP so the final Stella
+  cache remains collectible.
+
+VALIDATION:
+- Added pure C# tests for the exact artifact catalog count, six Legendary IDs,
+  25-minute cutoff, Quantum Fold's choice count, no-repeat/owned filtering,
+  rarity filtering and representative aggregated effect values.
+- CI source guard checks the catalog count, cutoff/weights, source renderer/pickup
+  mapping, actual boss-death drop and explicit player-choice path.
+
+LIMITS:
+- This is a source-backed base metadata and selected mechanic pass, not full
+  artifact-system parity. Condition-driven Artifact Sets/Synergies/Protocols,
+  Chaos Orb timed buff selection, Time Splitter trigger, Stasis Mandala shield
+  conversion, Axiom/Universal system-wide effects and other remaining unique
+  mechanics are still open work.
+- Region gold payout/settlement, region unlock persistence/selection UI and
+  broader region POIs/ecology remain unported.
+- CI does not compile UnityEngine scripts in Unity Editor or verify TextMesh/mesh
+  rendering, APK generation or Android on-device acceptance.
+

@@ -15,6 +15,15 @@ namespace EchoSphere.Runtime
         public Vector2 LastMoveDirection { get; private set; } = Vector2.down;
         public Vector2 DashDirection { get; private set; } = Vector2.down;
         public bool IsDead => CurrentHp <= 0f;
+        public bool CanReceiveDamageNow => !IsDead && CombatRules.CanReceivePlayerDamage(InvulnerableTimer, ContactGraceTimer);
+        private float _dashCooldownMultiplier = 1f;
+        public void SetDashCooldownMultiplier(float multiplier) => _dashCooldownMultiplier = Mathf.Clamp(multiplier, 0.55f, 1.5f);
+        public void IncreaseMaxHp(float amount)
+        {
+            var gain = Mathf.Max(0f, amount);
+            MaxHp += gain;
+            CurrentHp = Mathf.Min(MaxHp, CurrentHp + gain);
+        }
 
         public void Tick(float deltaTime)
         {
@@ -42,7 +51,7 @@ namespace EchoSphere.Runtime
             DashDirection = direction.normalized;
             DashTimer = 0.14f;
             InvulnerableTimer = Mathf.Max(InvulnerableTimer, 0.30f);
-            DashCooldown = 3f;
+            DashCooldown = 3f * _dashCooldownMultiplier;
             return true;
         }
 
