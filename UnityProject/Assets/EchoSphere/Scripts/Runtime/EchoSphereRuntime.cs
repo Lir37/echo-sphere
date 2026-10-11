@@ -2316,9 +2316,7 @@ namespace EchoSphere.Runtime
             _spherePointerWorld = ScreenToWorldPoint(screenPoint);
             var moved = _spherePointerMoved;
             var target = _spherePointerTarget;
-            var lockedTap = _spherePointerLockedSphereTap;
             var placing = _spherePointerIsPlacing;
-            var movement = _spherePointerIsMovement;
             var valid = _spherePointerPositionValid;
             var world = _spherePointerWorld;
 
