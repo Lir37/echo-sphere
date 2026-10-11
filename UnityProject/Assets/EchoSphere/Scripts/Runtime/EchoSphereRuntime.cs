@@ -25,6 +25,24 @@ namespace EchoSphere.Runtime
         private Transform _player;
         private PlayerCoreController2D _playerCore;
         private Vector2 _touchStart;
+        private SphereId _selectedSphereType = SphereId.Standard;
+        private bool _sphereMovementLocked;
+        private bool _spherePointerActive, _spherePointerFromTouch, _spherePointerMoved;
+        private bool _spherePointerIsMovement, _spherePointerIsPlacing, _spherePointerLockedSphereTap;
+        private int _spherePointerTouchId = -1;
+        private Vector2 _spherePointerStartScreen, _spherePointerScreen, _spherePointerWorld;
+        private SphereAttackAgent _spherePointerTarget;
+        private bool _spherePointerPositionValid;
+        private SphereNetworkState _spherePointerPreview;
+        private int _spherePointerPreviewIndex = -1;
+        private SphereNetworkFormation _spherePointerOriginalFormation = SphereNetworkFormation.None;
+        private int[] _spherePointerOriginalNodeIndexes;
+        private Vector2[] _spherePointerOriginalFormationPoints;
+        private Vector2[] _formationMemoryPoints;
+        private SphereNetworkFormation _formationMemoryType = SphereNetworkFormation.None;
+        private float _formationMemoryTimer, _placementFlashTimer;
+        private Vector2 _placementFlashPosition;
+        private Color _placementFlashColor = Color.white;
         private float _spawnTimer = 3f, _runTime, _messageTimer, _formationStrain;
         private Vec2 _lastDirection = Vec2.Zero;
         private int _kills, _level = 1, _xp, _xpRequired = RunBalanceRules.GetXpToNextLevel(1);
@@ -82,7 +100,9 @@ namespace EchoSphere.Runtime
             CreatePlayer();
             CreateSpheres();
             _follow = false;
-            SetFormationFollowMode(true, true);
+            // Source new-desing starts with Formation Follow off. Players can
+            // enable it from the existing control when they choose to. 
+            RefreshNetworkState();
         }
 
         private void Update()
@@ -98,8 +118,11 @@ namespace EchoSphere.Runtime
             _swiftBootsTimer = Mathf.Max(0f, _swiftBootsTimer - dt);
             _playerCore.Heal(Mathf.Max(0f, ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "regen")) * dt);
             if (_messageTimer > 0f) _messageTimer -= dt;
+            _formationMemoryTimer = Mathf.Max(0f, _formationMemoryTimer - dt);
+            _placementFlashTimer = Mathf.Max(0f, _placementFlashTimer - dt);
             if (Input.GetKeyDown(KeyCode.Space)) _playerCore.TryDash(_playerCore.LastMoveDirection);
 
+            HandleSpherePointerInput();
             var input = ReadMovement();
             var playerShell = _player != null ? _player.Find("Shell") : null;
             var playerSprite = playerShell != null ? playerShell.GetComponent<SpriteRenderer>() : null;
@@ -149,18 +172,26 @@ namespace EchoSphere.Runtime
         {
             var direction = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
             if (direction.sqrMagnitude > 0.0001f) return direction.normalized;
+
+            // new-desing/MobileControls.tsx places the movement joystick on
+            // the right half by default. The left half is used for Sphere
+            // placement and dragging, so those gestures must never move Core.
+            if (_spherePointerActive && !_spherePointerIsMovement) return Vector2.zero;
+
             if (Input.touchCount > 0)
             {
                 var touch = Input.GetTouch(0);
                 if (touch.phase == TouchPhase.Began) _touchStart = touch.position;
-                if (_touchStart.x < Screen.width * 0.58f && touch.phase != TouchPhase.Ended && touch.phase != TouchPhase.Canceled)
+                if (IsScreenPointOverUi(_touchStart)) return Vector2.zero;
+                if (_touchStart.x >= Screen.width * 0.5f && touch.phase != TouchPhase.Ended && touch.phase != TouchPhase.Canceled)
                 {
                     var drag = touch.position - _touchStart;
                     if (drag.sqrMagnitude > 100f) return Vector2.ClampMagnitude(drag / 90f, 1f);
                 }
             }
             if (Input.GetMouseButtonDown(0)) _touchStart = Input.mousePosition;
-            if (Input.GetMouseButton(0) && _touchStart.x < Screen.width * 0.58f)
+            if (IsScreenPointOverUi(_touchStart)) return Vector2.zero;
+            if (Input.GetMouseButton(0) && _touchStart.x >= Screen.width * 0.5f)
             {
                 var drag = (Vector2)Input.mousePosition - _touchStart;
                 if (drag.sqrMagnitude > 100f) return Vector2.ClampMagnitude(drag / 90f, 1f);
@@ -242,15 +273,18 @@ namespace EchoSphere.Runtime
 
         private void CreateSpheres()
         {
-            _sphereLevels[SphereId.Standard] = 1;
-            CreateSphere(SphereId.Standard, 1);
+            // Source engineState.ts starts with one unlevelled Standard Sphere
+            // 95 logical px below Core. Unlocking/levelling a Sphere is a
+            // separate progression action from physically placing it.
+            _sphereLevels[SphereId.Standard] = 0;
+            CreateSphere(SphereId.Standard, 0, (Vector2)_player.position + new Vector2(0f, -95f * SpherePlacementRules.SourcePixelsToWorld));
         }
 
-        private void CreateSphere(SphereId type, int level)
+        private void CreateSphere(SphereId type, int level, Vector2? explicitPosition = null)
         {
             var angle = _spheres.Count * 2.3999632f;
             var radius = 0.9f + 0.12f * (_spheres.Count % 3);
-            var position = (Vector2)_player.position + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius;
+            var position = explicitPosition ?? ((Vector2)_player.position + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius);
             var definition = GameCatalog.Spheres[(int)type];
             var go = CreateOrb(definition.DisplayName + " Sphere", position, 0.67f, SphereColor(type), Color.white, 8);
             ApplySphereVisual(go, type);
@@ -1700,12 +1734,13 @@ namespace EchoSphere.Runtime
             {
                 case RunUpgradeKind.Sphere:
                     _sphereLevels[choice.Sphere] = choice.NextLevel;
-                    if (choice.CurrentLevel == 0) CreateSphere(choice.Sphere, choice.NextLevel);
-                    else
-                        foreach (var sphere in _spheres)
-                            if (sphere != null && sphere.Type == choice.Sphere)
-                                sphere.ApplyProgressionLevel(choice.NextLevel);
-                    ShowMessage(choice.Title + " acquired.");
+                    // Level Up changes the source Sphere progression only. The
+                    // physical Sphere entity is independently placed/removed
+                    // through MobileControls in new-desing.
+                    foreach (var sphere in _spheres)
+                        if (sphere != null && sphere.Type == choice.Sphere)
+                            sphere.ApplyProgressionLevel(choice.NextLevel);
+                    ShowMessage(choice.Title + " upgraded.");
                     if (choice.NextLevel == 4 || choice.NextLevel == 7)
                     {
                         _pendingEvolutionSphere = choice.Sphere;
@@ -2133,6 +2168,489 @@ namespace EchoSphere.Runtime
             GUI.color = previousColor;
         }
 
+
+        private bool IsScreenPointOverUi(Vector2 screenPoint)
+        {
+            if (_uiWidth <= 0f || _uiHeight <= 0f) return false;
+            var scale = Mathf.Max(1f, _uiScale);
+            var point = new Vector2(screenPoint.x / scale, _uiHeight - screenPoint.y / scale);
+            if (new Rect(18f, 18f, 310f, 210f).Contains(point)) return true;
+
+            var activeCount = Mathf.Min(_spheres.Count, 10);
+            if (activeCount > 0)
+            {
+                var rosterWidth = activeCount * 56f + 12f;
+                if (new Rect(_uiWidth - rosterWidth - 18f, 18f, rosterWidth, 110f).Contains(point)) return true;
+            }
+
+            if (GetSpherePickerRect().Contains(point)) return true;
+            var bottomY = _uiHeight - 76f;
+            if (new Rect(18f, bottomY, 215f, 54f).Contains(point)) return true;
+            if (new Rect(_uiWidth - 176f, bottomY, 158f, 54f).Contains(point)) return true;
+            if (new Rect(_uiWidth - 158f, 140f, 140f, 36f).Contains(point)) return true;
+            return false;
+        }
+
+        private Rect GetSpherePickerRect()
+        {
+            var width = Mathf.Min(310f, Mathf.Max(250f, _uiWidth - 24f));
+            const float height = 134f;
+            return new Rect((_uiWidth - width) * 0.5f, _uiHeight - height - 10f, width, height);
+        }
+
+        private Vector2 ScreenToWorldPoint(Vector2 screenPoint)
+        {
+            if (_camera == null) return Vector2.zero;
+            var world = _camera.ScreenToWorldPoint(new Vector3(screenPoint.x, screenPoint.y, -_camera.transform.position.z));
+            return new Vector2(world.x, world.y);
+        }
+
+        private Vector2 WorldToGuiPoint(Vector2 worldPoint)
+        {
+            var screen = _camera == null ? Vector3.zero : _camera.WorldToScreenPoint(worldPoint);
+            return new Vector2(screen.x / Mathf.Max(1f, _uiScale), _uiHeight - screen.y / Mathf.Max(1f, _uiScale));
+        }
+
+        private void HandleSpherePointerInput()
+        {
+            if (_mainMenu) return;
+            if (_paused || _gameOver || _levelUp || _choosingEvolution || _stellaRewardPending)
+            {
+                if (_spherePointerActive) ClearSpherePointer();
+                return;
+            }
+
+            if (Input.touchCount > 0)
+            {
+                var touch = Input.GetTouch(0);
+                if (!_spherePointerActive && touch.phase == TouchPhase.Began)
+                    BeginSpherePointer(touch.position, true, touch.fingerId);
+
+                if (_spherePointerActive && _spherePointerFromTouch && touch.fingerId == _spherePointerTouchId)
+                {
+                    if (touch.phase == TouchPhase.Moved || touch.phase == TouchPhase.Stationary || touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled)
+                        MoveSpherePointer(touch.position);
+                    if (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled)
+                        FinishSpherePointer(touch.position);
+                }
+                return;
+            }
+
+            if (_spherePointerActive && _spherePointerFromTouch) ClearSpherePointer();
+            if (Input.GetMouseButtonDown(0)) BeginSpherePointer(Input.mousePosition, false, -1);
+            if (_spherePointerActive && !_spherePointerFromTouch)
+            {
+                if (Input.GetMouseButton(0)) MoveSpherePointer(Input.mousePosition);
+                if (Input.GetMouseButtonUp(0))
+                {
+                    MoveSpherePointer(Input.mousePosition);
+                    FinishSpherePointer(Input.mousePosition);
+                }
+            }
+        }
+
+        private void BeginSpherePointer(Vector2 screenPoint, bool fromTouch, int touchId)
+        {
+            if (_mainMenu || _paused || _gameOver || _levelUp || _choosingEvolution || _stellaRewardPending) return;
+            if (IsScreenPointOverUi(screenPoint)) return;
+
+            _spherePointerActive = true;
+            _spherePointerFromTouch = fromTouch;
+            _spherePointerTouchId = touchId;
+            _spherePointerStartScreen = screenPoint;
+            _spherePointerScreen = screenPoint;
+            _spherePointerWorld = ScreenToWorldPoint(screenPoint);
+            _spherePointerMoved = false;
+            _spherePointerIsMovement = false;
+            _spherePointerIsPlacing = false;
+            _spherePointerLockedSphereTap = false;
+            _spherePointerTarget = null;
+            _spherePointerPositionValid = false;
+            _spherePointerPreview = null;
+            _spherePointerPreviewIndex = -1;
+            _touchStart = screenPoint;
+
+            CaptureSpherePointerOriginalFormation();
+            var hit = FindSphereAtWorld(_spherePointerWorld, 34f * SpherePlacementRules.SourcePixelsToWorld);
+            if (hit != null)
+            {
+                if (_sphereMovementLocked) _spherePointerLockedSphereTap = true;
+                else _spherePointerTarget = hit;
+                return;
+            }
+
+            _spherePointerIsMovement = screenPoint.x >= Screen.width * 0.5f;
+            _spherePointerIsPlacing = !_spherePointerIsMovement
+                && _spheres.Count < SpherePlacementRules.GetMaxSpheres();
+        }
+
+        private void MoveSpherePointer(Vector2 screenPoint)
+        {
+            if (!_spherePointerActive) return;
+            _spherePointerScreen = screenPoint;
+            _spherePointerWorld = ScreenToWorldPoint(screenPoint);
+            var deadzone = 12f * Mathf.Max(1f, _uiScale);
+            if ((screenPoint - _spherePointerStartScreen).sqrMagnitude > deadzone * deadzone)
+                _spherePointerMoved = true;
+            if (!_spherePointerMoved) return;
+
+            if (_spherePointerTarget != null)
+            {
+                var index = _spheres.IndexOf(_spherePointerTarget);
+                _spherePointerPositionValid = index >= 0 && CanPlaceSphereAt(_spherePointerWorld, _spherePointerTarget);
+                BuildSphereNetworkPreview(_spherePointerWorld, index, false);
+            }
+            else if (_spherePointerIsPlacing)
+            {
+                _spherePointerPositionValid = CanAddSelectedSphere()
+                    && CanPlaceSphereAt(_spherePointerWorld, null);
+                BuildSphereNetworkPreview(_spherePointerWorld, -1, true);
+            }
+        }
+
+        private void FinishSpherePointer(Vector2 screenPoint)
+        {
+            if (!_spherePointerActive) return;
+            _spherePointerScreen = screenPoint;
+            _spherePointerWorld = ScreenToWorldPoint(screenPoint);
+            var moved = _spherePointerMoved;
+            var target = _spherePointerTarget;
+            var lockedTap = _spherePointerLockedSphereTap;
+            var placing = _spherePointerIsPlacing;
+            var movement = _spherePointerIsMovement;
+            var valid = _spherePointerPositionValid;
+            var world = _spherePointerWorld;
+
+            if (!moved)
+            {
+                if (target != null)
+                    RemoveSphereAgent(target);
+                else if (!movement || lockedTap)
+                    TryPlaceOrRemoveSphereAt(world);
+            }
+            else if (target != null)
+            {
+                if (valid && target != null && target.gameObject != null)
+                {
+                    target.transform.position = world;
+                    target.SetFollowMode(_follow, (Vector2)_player.position);
+                    RefreshNetworkState();
+                    CaptureSphereFormationMemoryIfChanged();
+                    ShowMessage(GameCatalog.Spheres[(int)target.Type].DisplayName + " moved.");
+                }
+                else
+                {
+                    ShowMessage("Invalid position.");
+                }
+            }
+            else if (placing)
+            {
+                if (valid) TryPlaceOrRemoveSphereAt(world);
+                else ShowMessage("Invalid position.");
+            }
+
+            ClearSpherePointer();
+        }
+
+        private void ClearSpherePointer()
+        {
+            _spherePointerActive = false;
+            _spherePointerFromTouch = false;
+            _spherePointerTouchId = -1;
+            _spherePointerMoved = false;
+            _spherePointerIsMovement = false;
+            _spherePointerIsPlacing = false;
+            _spherePointerLockedSphereTap = false;
+            _spherePointerTarget = null;
+            _spherePointerPositionValid = false;
+            _spherePointerPreview = null;
+            _spherePointerPreviewIndex = -1;
+        }
+
+        private void CaptureSpherePointerOriginalFormation()
+        {
+            RefreshNetworkState();
+            _spherePointerOriginalFormation = SphereNetworkFormation.None;
+            _spherePointerOriginalNodeIndexes = null;
+            _spherePointerOriginalFormationPoints = null;
+            var formation = _networkState == null ? null : _networkState.DominantFormation;
+            if (formation == null || !formation.Active || formation.NodeIndexes.Count == 0) return;
+
+            _spherePointerOriginalFormation = formation.Type;
+            _spherePointerOriginalNodeIndexes = formation.NodeIndexes.ToArray();
+            _spherePointerOriginalFormationPoints = new Vector2[formation.NodeIndexes.Count];
+            for (var i = 0; i < formation.NodeIndexes.Count; i++)
+            {
+                var index = formation.NodeIndexes[i];
+                if (index < 0 || index >= _spheres.Count || _spheres[index] == null) continue;
+                _spherePointerOriginalFormationPoints[i] = _spheres[index].transform.position;
+            }
+        }
+
+        private void CaptureSphereFormationMemoryIfChanged()
+        {
+            var oldIndexes = _spherePointerOriginalNodeIndexes;
+            var oldPoints = _spherePointerOriginalFormationPoints;
+            if (_spherePointerOriginalFormation == SphereNetworkFormation.None || oldIndexes == null || oldPoints == null) return;
+            var next = _networkState == null ? null : _networkState.DominantFormation;
+            var changed = next == null || !next.Active || next.Type != _spherePointerOriginalFormation
+                || next.NodeIndexes.Count != oldIndexes.Length;
+            if (!changed && next != null)
+            {
+                for (var i = 0; i < oldIndexes.Length; i++)
+                    if (next.NodeIndexes[i] != oldIndexes[i]) { changed = true; break; }
+            }
+            if (!changed) return;
+            _formationMemoryType = _spherePointerOriginalFormation;
+            _formationMemoryPoints = (Vector2[])oldPoints.Clone();
+            _formationMemoryTimer = 0.9f;
+        }
+
+        private SphereAttackAgent FindSphereAtWorld(Vector2 world, float tolerance)
+        {
+            SphereAttackAgent nearest = null;
+            var best = tolerance * tolerance;
+            for (var i = 0; i < _spheres.Count; i++)
+            {
+                var sphere = _spheres[i];
+                if (sphere == null || !sphere.gameObject.activeInHierarchy) continue;
+                var distance = ((Vector2)sphere.transform.position - world).sqrMagnitude;
+                if (distance < best) { best = distance; nearest = sphere; }
+            }
+            return nearest;
+        }
+
+        private bool CanAddSelectedSphere()
+        {
+            var sameType = 0;
+            for (var i = 0; i < _spheres.Count; i++)
+                if (_spheres[i] != null && _spheres[i].Type == _selectedSphereType) sameType++;
+            return SpherePlacementRules.CanAddSphere(
+                _spheres.Count, sameType, SpherePlacementRules.GetMaxSpheres(),
+                SpherePlacementRules.MaxSameSphereCopies);
+        }
+
+        private bool CanPlaceSphereAt(Vector2 world, SphereAttackAgent ignoredSphere)
+        {
+            var spherePositions = new List<Vec2>(_spheres.Count);
+            var sphereAlive = new List<bool>(_spheres.Count);
+            var ignoredIndex = ignoredSphere == null ? -1 : _spheres.IndexOf(ignoredSphere);
+            for (var i = 0; i < _spheres.Count; i++)
+            {
+                var sphere = _spheres[i];
+                var alive = sphere != null && sphere.gameObject.activeInHierarchy;
+                var position = alive ? (Vector2)sphere.transform.position : Vector2.zero;
+                spherePositions.Add(new Vec2(position.x, position.y));
+                sphereAlive.Add(alive);
+            }
+
+            var enemyPositions = new List<Vec2>(_enemies.Count);
+            var enemyRadii = new List<float>(_enemies.Count);
+            for (var i = 0; i < _enemies.Count; i++)
+            {
+                var enemy = _enemies[i];
+                if (enemy == null || !enemy.IsAlive) continue;
+                var position = (Vector2)enemy.transform.position;
+                var scale = enemy.transform.lossyScale;
+                var radius = 0.5f * Mathf.Max(Mathf.Abs(scale.x), Mathf.Abs(scale.y));
+                enemyPositions.Add(new Vec2(position.x, position.y));
+                enemyRadii.Add(radius);
+            }
+
+            var playerPosition = (Vector2)_player.position;
+            return SpherePlacementRules.CanPlace(
+                new Vec2(world.x, world.y),
+                new Vec2(playerPosition.x, playerPosition.y),
+                spherePositions, sphereAlive, enemyPositions, enemyRadii,
+                ignoredIndex, SpherePlacementRules.WorldWidth, SpherePlacementRules.WorldHeight);
+        }
+
+        private void TryPlaceOrRemoveSphereAt(Vector2 world)
+        {
+            var existing = FindSphereAtWorld(world, 26f * SpherePlacementRules.SourcePixelsToWorld);
+            if (existing != null)
+            {
+                RemoveSphereAgent(existing);
+                return;
+            }
+
+            if (!CanAddSelectedSphere())
+            {
+                ShowMessage("SPHERE LIMIT REACHED.");
+                return;
+            }
+            if (!CanPlaceSphereAt(world, null))
+            {
+                ShowMessage("Path blocked.");
+                return;
+            }
+
+            var level = _sphereLevels.TryGetValue(_selectedSphereType, out var currentLevel) ? currentLevel : 0;
+            CreateSphere(_selectedSphereType, level, world);
+            _placementFlashPosition = world;
+            _placementFlashColor = SphereColor(_selectedSphereType);
+            _placementFlashTimer = 0.45f;
+            RefreshNetworkState();
+            CaptureSphereFormationMemoryIfChanged();
+            ShowMessage(GameCatalog.Spheres[(int)_selectedSphereType].DisplayName + " placed.");
+        }
+
+        private void RemoveSphereAgent(SphereAttackAgent sphere)
+        {
+            if (sphere == null) return;
+            _spheres.Remove(sphere);
+            if (sphere.gameObject != null) Destroy(sphere.gameObject);
+            RefreshNetworkState();
+            CaptureSphereFormationMemoryIfChanged();
+            ShowMessage(GameCatalog.Spheres[(int)sphere.Type].DisplayName + " removed.");
+        }
+
+        private void BuildSphereNetworkPreview(Vector2 world, int movingSphereIndex, bool addingSphere)
+        {
+            var nodes = new List<SphereNetworkNode>(_spheres.Count + (addingSphere ? 1 : 0));
+            var playerIndex = -1;
+            for (var i = 0; i < _spheres.Count; i++)
+            {
+                var sphere = _spheres[i];
+                var active = sphere != null && sphere.gameObject.activeInHierarchy && !sphere.NetworkDisabled;
+                var position = sphere == null ? Vector2.zero : (Vector2)sphere.transform.position;
+                if (i == movingSphereIndex)
+                {
+                    position = world;
+                    playerIndex = i;
+                }
+                nodes.Add(new SphereNetworkNode(new Vec2(position.x, position.y), sphere != null && sphere.gameObject.activeInHierarchy, active ? 0f : 1f));
+            }
+            if (addingSphere)
+            {
+                playerIndex = nodes.Count;
+                nodes.Add(new SphereNetworkNode(new Vec2(world.x, world.y), true));
+            }
+            _spherePointerPreviewIndex = playerIndex;
+            _spherePointerPreview = SphereNetworkRules.Analyze(nodes, SphereNetworkRules.DefaultLinkDistance);
+        }
+
+        private void DrawSpherePicker()
+        {
+            var panel = GetSpherePickerRect();
+            GUI.Box(panel, GUIContent.none, _box);
+            var activeName = GameCatalog.Spheres[(int)_selectedSphereType].DisplayName.ToUpperInvariant();
+            GUI.Label(new Rect(panel.x + 8f, panel.y + 3f, panel.width - 84f, 20f),
+                "PLACE: " + activeName + "   " + _spheres.Count + "/" + SpherePlacementRules.GetMaxSpheres(), _label);
+            var lockRect = new Rect(panel.xMax - 72f, panel.y + 3f, 64f, 20f);
+            if (GUI.Button(lockRect, _sphereMovementLocked ? "LOCKED" : "MOVE", _button))
+                _sphereMovementLocked = !_sphereMovementLocked;
+
+            var buttonWidth = (panel.width - 22f) / 5f;
+            var buttonHeight = 40f;
+            for (var i = 0; i < GameCatalog.Spheres.Count; i++)
+            {
+                var type = GameCatalog.Spheres[i].Id;
+                var column = i % 5;
+                var row = i / 5;
+                var rect = new Rect(panel.x + 7f + column * (buttonWidth + 2f),
+                    panel.y + 26f + row * 43f, buttonWidth, buttonHeight);
+                var previousColor = GUI.color;
+                if (GUI.Button(rect, GUIContent.none, _button)) _selectedSphereType = type;
+                var color = SphereColor(type);
+                GUI.color = new Color(color.r, color.g, color.b, type == _selectedSphereType ? 1f : 0.84f);
+                DrawSpriteIcon(new Rect(rect.x + 4f, rect.y + 5f, 28f, 28f), GetSphereIcon(type), Color.white);
+                GUI.color = previousColor;
+                GUI.Label(new Rect(rect.x + 30f, rect.y + 10f, rect.width - 31f, 22f), SphereShortName(type), _label);
+                if (type == _selectedSphereType)
+                {
+                    var selectedColor = SphereColor(type);
+                    GUI.color = selectedColor;
+                    GUI.DrawTexture(new Rect(rect.x, rect.y, rect.width, 2f), _uiAccentTexture);
+                    GUI.DrawTexture(new Rect(rect.x, rect.yMax - 2f, rect.width, 2f), _uiAccentTexture);
+                    GUI.DrawTexture(new Rect(rect.x, rect.y, 2f, rect.height), _uiAccentTexture);
+                    GUI.DrawTexture(new Rect(rect.xMax - 2f, rect.y, 2f, rect.height), _uiAccentTexture);
+                    GUI.color = previousColor;
+                }
+            }
+        }
+
+        private void DrawSpherePlacementOverlay()
+        {
+            if (_camera == null || _uiAccentTexture == null) return;
+            var previousColor = GUI.color;
+
+            if (_spherePointerActive && _spherePointerMoved &&
+                (_spherePointerTarget != null || _spherePointerIsPlacing) && _spherePointerPreview != null)
+            {
+                var previewColor = _spherePointerPositionValid ? SphereColor(_selectedSphereType) : new Color(1f, 0.28f, 0.38f);
+                var candidateIndex = _spherePointerPreviewIndex;
+                for (var i = 0; i < _spherePointerPreview.Links.Count; i++)
+                {
+                    var link = _spherePointerPreview.Links[i];
+                    if (link.A != candidateIndex && link.B != candidateIndex) continue;
+                    var other = link.A == candidateIndex ? link.B : link.A;
+                    if (other < 0 || other >= _spherePointerPreview.Nodes.Count) continue;
+                    var point = _spherePointerPreview.Nodes[other].Position;
+                    DrawSphereGuiLine(WorldToGuiPoint(new Vector2(point.X, point.Y)),
+                        WorldToGuiPoint(_spherePointerWorld), new Color(previewColor.r, previewColor.g, previewColor.b, 0.85f), 2f);
+                }
+
+                var candidateGui = WorldToGuiPoint(_spherePointerWorld);
+                DrawSphereGuiCircle(candidateGui, 20f, new Color(previewColor.r, previewColor.g, previewColor.b, 0.92f), 2f);
+                DrawSphereGuiCircle(candidateGui, 25f, new Color(previewColor.r, previewColor.g, previewColor.b, 0.38f), 1f);
+                var formation = _spherePointerPreview.DominantFormation;
+                var formationName = formation == null ? "NETWORK" : formation.Type.ToString().ToUpperInvariant();
+                var status = _spherePointerPositionValid ? formationName : "INVALID";
+                var style = new GUIStyle(_label) { alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold };
+                GUI.color = previewColor;
+                GUI.Label(new Rect(candidateGui.x - 80f, candidateGui.y - 48f, 160f, 24f), status, style);
+            }
+
+            if (_formationMemoryTimer > 0f && _formationMemoryPoints != null && _formationMemoryPoints.Length >= 2)
+            {
+                var alpha = Mathf.Clamp01(_formationMemoryTimer / 0.9f) * 0.55f;
+                var memoryColor = new Color(0.72f, 0.83f, 0.94f, alpha);
+                for (var i = 0; i < _formationMemoryPoints.Length - 1; i++)
+                    DrawSphereGuiLine(WorldToGuiPoint(_formationMemoryPoints[i]), WorldToGuiPoint(_formationMemoryPoints[i + 1]), memoryColor, 1.5f);
+                if (_formationMemoryType != SphereNetworkFormation.Line && _formationMemoryPoints.Length > 2)
+                    DrawSphereGuiLine(WorldToGuiPoint(_formationMemoryPoints[_formationMemoryPoints.Length - 1]),
+                        WorldToGuiPoint(_formationMemoryPoints[0]), memoryColor, 1.5f);
+            }
+
+            if (_placementFlashTimer > 0f)
+            {
+                var ratio = Mathf.Clamp01(_placementFlashTimer / 0.45f);
+                var radius = 18f + (1f - ratio) * 25f;
+                DrawSphereGuiCircle(WorldToGuiPoint(_placementFlashPosition), radius,
+                    new Color(_placementFlashColor.r, _placementFlashColor.g, _placementFlashColor.b, ratio * 0.8f), 2f);
+            }
+
+            GUI.color = previousColor;
+        }
+
+        private void DrawSphereGuiCircle(Vector2 center, float radius, Color color, float width)
+        {
+            const int segments = 28;
+            var previous = center + new Vector2(radius, 0f);
+            for (var i = 1; i <= segments; i++)
+            {
+                var angle = Mathf.PI * 2f * i / segments;
+                var next = center + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius;
+                DrawSphereGuiLine(previous, next, color, width);
+                previous = next;
+            }
+        }
+
+        private void DrawSphereGuiLine(Vector2 start, Vector2 end, Color color, float width)
+        {
+            var delta = end - start;
+            var length = delta.magnitude;
+            if (length < 0.1f) return;
+            var previousMatrix = GUI.matrix;
+            var previousColor = GUI.color;
+            GUIUtility.RotateAroundPivot(Mathf.Atan2(delta.y, delta.x) * Mathf.Rad2Deg, start);
+            GUI.color = color;
+            GUI.DrawTexture(new Rect(start.x, start.y - width * 0.5f, length, width), _uiAccentTexture);
+            GUI.matrix = previousMatrix;
+            GUI.color = previousColor;
+        }
+
         private void OnGUI()
         {
             var previousMatrix = GUI.matrix;
@@ -2216,6 +2734,8 @@ namespace EchoSphere.Runtime
                     SetUserPaused(!_userPaused);
 
                 DrawSphereRoster();
+                DrawSpherePicker();
+                DrawSpherePlacementOverlay();
                 if (!string.IsNullOrEmpty(_message) && _messageTimer > 0f)
                     GUI.Label(new Rect(18f, 236f, Mathf.Min(_uiWidth - 36f, 520f), 30f), _message, _label);
 
