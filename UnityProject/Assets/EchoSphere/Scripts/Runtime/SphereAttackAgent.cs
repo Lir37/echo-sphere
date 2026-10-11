@@ -269,6 +269,8 @@ namespace EchoSphere.Runtime
             for (var i = 0; i < targets.Count; i++)
             {
                 var target = targets[i];
+                _runtime.SpawnCombatArc(origin, target.transform.position, SphereId.Chain,
+                    _runtime.GetSphereBranch(_type), _runtime.GetSphereFinal(_type), ColorFor(_type));
                 var hitDamage = _runtime.ResolveProjectileDamage(damage * Mathf.Pow(0.72f, i), _levelStats.CritChanceBonus, out var wasCritical);
                 var direction = ((Vector2)target.transform.position - origin).normalized;
                 hitDamage = OnProjectileHit(target, direction, hitDamage, wasCritical);

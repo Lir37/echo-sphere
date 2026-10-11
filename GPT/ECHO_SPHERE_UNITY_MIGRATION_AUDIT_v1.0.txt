@@ -1892,3 +1892,41 @@ gates until executed. Do not describe structural CI as an Editor compile.
 - This successful workflow verifies pure gameplay contracts and source/project
   structure only. It does not compile UnityEngine-facing scripts, prove SVG or
   material import in the Editor, generate an Android APK or replace device review.
+
+
+======================================================================
+[2026-10-11] CHAIN LIGHTNING / PRISM REFRACTION VISUAL PORT SLICE 7
+======================================================================
+
+BASE:
+unity-migration HEAD before this slice: 30ad3c25ad1e93131ee528db4c777236fb9509a9
+Protected source: new-desing HEAD 737ef2af4a877e0995db5f92331d536d2f29a934.
+
+IMPLEMENTED:
+- Added CombatArcVfx2D.cs, source-mapped to
+  src/spheres/mutationVisual.ts:renderChainLightningVfx and the general energy
+  bolt rendering path in src/renderer.ts.
+- Chain attacks now show a two-layer zig-zag lightning link from the active
+  Sphere to each selected target, with branch-aware proportions and endpoint
+  details for Chain Web / Chain Storm / Chain Leech.
+- Chain Storm splash links and extra-strike links display short secondary arcs.
+- Prism Mirror/Split ricochet combat events display bright refraction links,
+  parallel light rails and a facet at the endpoint.
+- Reuses dynamic mesh, vertex/color/index lists and cached path capacity. The
+  effect has a short bounded lifetime and pauses with the existing presentation.
+- Added CI guards for source mapping, branch variants, live combat-event wiring
+  and absence of gameplay RNG in the visual component.
+
+GAMEPLAY SAFETY:
+Only visual spawn calls were added around existing ChainTargets, Chain Storm
+splash/extra-strike and Prism ricochet paths. Target selection, attack cadence,
+damage multipliers, critical RNG, splash values, number of hits/ricochets, enemy
+health, XP and Resonance routing are unchanged.
+
+VALIDATION LIMITS:
+CI validates the pure C# contracts and source/project mapping, not the actual
+UnityEngine component compilation. Editor compilation, material rendering,
+visual scale and readability against the Canvas build, stress profiling and
+Android APK/device acceptance remain pending. The slice is not a claim of
+pixel-exact visual parity.
+

@@ -246,3 +246,16 @@ assert.ok(!/UnityEngine\.Random|Random\.Range|_rng/.test(impactVisual), 'impact 
 assert.ok(runtime.includes('projectileVfx.Initialize(this, direction, speed, color, evolutionOwner)'), 'ProjectileAgent spawn path must connect the source-mapped visual');
 assert.ok(runtime.includes('elementalVfx.Initialize(this, agent)'), 'all Sphere types must connect branch-aware elemental traces');
 assert.ok(runtime.includes('impactVfx.Initialize(color)'), 'hit resolution must connect the layered impact visual');
+
+const combatArcPath = 'Assets/EchoSphere/Scripts/Runtime/CombatArcVfx2D.cs';
+assert.ok(existsSync(join(root, combatArcPath)), 'source-mapped chain lightning / Prism refraction component is missing');
+const combatArc = readFileSync(join(root, combatArcPath), 'utf8');
+assert.ok(combatArc.includes('src/spheres/mutationVisual.ts') && combatArc.includes('renderChainLightningVfx') && combatArc.includes('src/renderer.ts'), 'combat arcs must keep the Canvas source mapping');
+assert.ok(combatArc.includes('Chain Lightning Arc') || runtime.includes('Chain Lightning Arc'), 'chain-lightning runtime identity is missing');
+for (const branch of ['chain_web','chain_storm','chain_leech','prism_split','prism_mirror']) assert.ok(combatArc.includes('"' + branch + '"'), 'source-mapped arc branch missing: ' + branch);
+assert.ok(combatArc.includes('MarkDynamic') && combatArc.includes('new List<Vector2>') && combatArc.includes('new List<Vector3>'), 'combat arc mesh and geometry buffers must be reused');
+assert.ok(!/UnityEngine\.Random|Random\.Range|_rng/.test(combatArc), 'combat arc presentation must not consume gameplay RNG');
+assert.ok(runtime.includes('SpawnCombatArc(Vector2 from, Vector2 to') && runtime.includes('arc.Initialize(this, from, to, family, branch, finalId, color, duration)'), 'combat arc visual entry point is missing');
+assert.ok(sphereAttack.includes('_runtime.SpawnCombatArc(origin, target.transform.position, SphereId.Chain'), 'Chain targets must connect to the live source-mapped arc');
+assert.ok(runtime.includes('SpawnCombatArc(center, targets[i].transform.position, SphereId.Chain') && runtime.includes('SpawnCombatArc(primary.transform.position, target.transform.position, SphereId.Chain'), 'Chain Storm secondary and extra strikes need visual arcs');
+assert.ok(runtime.includes('SpawnCombatArc(origin, target.transform.position, SphereId.Prism'), 'Prism Mirror ricochets must connect the source-mapped refraction visual');

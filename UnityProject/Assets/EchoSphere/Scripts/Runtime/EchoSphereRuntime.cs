@@ -1019,6 +1019,9 @@ namespace EchoSphere.Runtime
             {
                 var target = candidates[i];
                 if (target == primary) continue;
+                SpawnCombatArc(origin, target.transform.position, SphereId.Prism,
+                    GetSphereBranch(SphereId.Prism), GetSphereFinal(SphereId.Prism),
+                    new Color(1f, 0.55f, 0.88f, 0.95f), 0.26f);
                 var multiplier = hits == 0 ? 0.30f : 0.24f;
                 target.ReceiveDamage(damage * multiplier);
                 SpawnImpact(Vector2.Lerp(origin, target.transform.position, 0.5f), new Color(1f, 0.55f, 0.88f, 0.9f));
@@ -1097,6 +1100,8 @@ namespace EchoSphere.Runtime
             for (var i = 0; i < targets.Count; i++)
             {
                 if (targets[i] == primary) continue;
+                SpawnCombatArc(center, targets[i].transform.position, SphereId.Chain,
+                    GetSphereBranch(SphereId.Chain), finalId, new Color(1f, 0.88f, 0.35f, 0.96f), 0.28f);
                 targets[i].ReceiveDamage(splash);
                 SpawnImpact(Vector2.Lerp(center, targets[i].transform.position, 0.5f), new Color(1f, 0.88f, 0.35f, 0.75f));
             }
@@ -1114,6 +1119,9 @@ namespace EchoSphere.Runtime
                     if (candidates[i] != primary) { target = candidates[i]; break; }
             }
             if (target == null || target == primary) return;
+            SpawnCombatArc(primary.transform.position, target.transform.position, SphereId.Chain,
+                GetSphereBranch(SphereId.Chain), GetSphereFinal(SphereId.Chain),
+                new Color(1f, 0.92f, 0.45f, 0.96f), 0.28f);
             SpawnImpact(Vector2.Lerp(primary.transform.position, target.transform.position, 0.5f), new Color(1f, 0.92f, 0.45f, 0.9f));
             target.ReceiveDamage(damage);
         }
@@ -1230,6 +1238,14 @@ namespace EchoSphere.Runtime
                 }
                 SpawnProjectile(origin, direction, damage, new Color(0.36f, 0.9f, 1f), 9.5f, 0, 0f);
             }
+        }
+
+        public void SpawnCombatArc(Vector2 from, Vector2 to, SphereId family, string branch, string finalId, Color color, float duration = 0.30f)
+        {
+            if ((to - from).sqrMagnitude <= 0.000625f) return;
+            var go = new GameObject(family == SphereId.Chain ? "Chain Lightning Arc" : "Prism Refraction Arc");
+            var arc = go.AddComponent<CombatArcVfx2D>();
+            arc.Initialize(this, from, to, family, branch, finalId, color, duration);
         }
 
         public void SpawnImpact(Vector2 position, Color color)
