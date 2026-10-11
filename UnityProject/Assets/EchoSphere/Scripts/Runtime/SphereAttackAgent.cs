@@ -70,7 +70,9 @@ namespace EchoSphere.Runtime
             // Level 0 is the source's unlevelled but physically placeable Sphere.
             // It uses the base combat profile until the first progression pick.
             _progressionLevel = Mathf.Clamp(level, 0, SphereProgressionRules.MaxLevel);
-            _levelStats = SphereLevelRules.GetStats(_type, Mathf.Max(1, _progressionLevel));
+            _levelStats = _progressionLevel == 0
+                ? SphereLevelRules.GetUnlevelledStats()
+                : SphereLevelRules.GetStats(_type, _progressionLevel);
             BaseDamage = _initialDamage * _levelStats.DamageMultiplier;
             AttackDelay = Mathf.Max(0.12f, _initialDelay * _levelStats.DelayMultiplier);
             AttackRange = 6.8f * _profile.RangeMultiplier * _levelStats.RangeMultiplier * _runtime.GetArtifactSphereRadiusMultiplier(_type);
