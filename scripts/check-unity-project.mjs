@@ -121,6 +121,7 @@ for (const boss of ['shooter', 'charger', 'summoner', 'aura']) assert.ok(bossPre
 for (const label of ['VOID LANCER', 'BREACHER', 'BROOD MIND', 'AURA TITAN']) assert.ok(bossPresentation.includes(label), 'boss nameplate mapping missing: ' + label);
 assert.ok(bossPresentation.includes('SetCombatState') && bossPresentation.includes('MaxHp') && bossPresentation.includes('CurrentHp'), 'boss HUD must receive runtime attack state and health');
 assert.ok(bossPresentation.includes('MarkDynamic') && bossPresentation.includes('_vertices.Clear()') && bossPresentation.includes('_triangles.Clear()'), 'boss overlay must reuse dynamic-mesh buffers');
+assert.ok((bossPresentation.match(/transform\.localScale\.x\) \* 0\.48f \* 1\.15f/g) || []).length >= 2, 'boss nameplate and HP bar must match scaled enemy silhouette radius');
 assert.ok(!/UnityEngine\.Random|Random\.Range|_rng/.test(bossPresentation), 'boss presentation must not consume gameplay RNG');
 
 const sphereVisualPath = 'Assets/EchoSphere/Scripts/Runtime/SphereRuntimeVfx2D.cs';

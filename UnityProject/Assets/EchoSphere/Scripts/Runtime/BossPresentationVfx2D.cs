@@ -104,7 +104,7 @@ namespace EchoSphere.Runtime
         {
             if (_agent == null || _mesh == null || _agent.PresentationPaused) return;
             _time += Time.deltaTime;
-            var radius = Mathf.Max(0.36f, Mathf.Abs(transform.localScale.x));
+            var radius = Mathf.Max(0.36f, Mathf.Abs(transform.localScale.x) * 0.48f * 1.15f);
             if (_label != null) _label.transform.localPosition = new Vector3(0f, radius + 0.36f, 0f);
             Rebuild();
         }
@@ -115,7 +115,7 @@ namespace EchoSphere.Runtime
             _vertices.Clear();
             _colors.Clear();
             _triangles.Clear();
-            var radius = Mathf.Max(0.36f, Mathf.Abs(transform.localScale.x));
+            var radius = Mathf.Max(0.36f, Mathf.Abs(transform.localScale.x) * 0.48f * 1.15f);
             var pulse = 0.55f + Mathf.Sin(_time * 14f) * 0.16f;
             var playerDelta = _agent.PlayerPosition - (Vector2)transform.position;
 

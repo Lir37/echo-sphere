@@ -2039,3 +2039,13 @@ LIMITS:
   mesh material rendering or real encounter playability. Unity Editor compile,
   boss encounter smoke test, Android APK and device acceptance remain open.
 
+
+
+[2026-10-11] SLICE 10 — BOSS HUD SCALE CALIBRATION
+- Source review found the boss overlay positioned its nameplate/health bar using the
+  root Transform scale as though that scale were already the silhouette radius.
+  The live 2.5D creature is built from the authored local radius in
+  EnemyCreatureVisual2D, multiplied by the boss root scale.
+- Corrected both overlay radius calculations to follow the actual boss silhouette
+  scale, and added a strict source guard for the alignment formula.
+- No attack, damage, spawn, timing or RNG behavior changed. CI revalidation follows.
