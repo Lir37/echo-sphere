@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using EchoSphere.Core;
 using UnityEngine;
 
 namespace EchoSphere.Runtime
@@ -10,6 +11,7 @@ namespace EchoSphere.Runtime
     public sealed class EnemyCreatureVisual2D : MonoBehaviour
     {
         private const float R = 0.48f;
+        private const float HitFlashDuration = 0.15f;
         private static readonly Color Dark = new Color(0.012f, 0.027f, 0.047f, 0.985f);
         private static readonly Color EyeWhite = new Color(0.96f, 0.985f, 1f, 0.94f);
         // Reused scratch paths and immutable anchors avoid per-frame path/list allocations.
@@ -91,13 +93,17 @@ namespace EchoSphere.Runtime
             if (direction.sqrMagnitude > 0.0001f) _facing = direction.normalized;
         }
         public void SetMarked(bool value) { _marked = value; }
-        public void PulseHit() { _hitFlash = 0.09f; }
+        public void PulseHit() { _hitFlash = HitFlashDuration; }
 
         private void LateUpdate()
         {
             if (_mesh == null || (_runtime != null && _runtime.IsGameplayPaused)) return;
             _time += Time.deltaTime;
             _hitFlash = Mathf.Max(0f, _hitFlash - Time.deltaTime);
+            var hit = Mathf.Clamp01(_hitFlash / HitFlashDuration);
+            var sourceX = transform.position.x / SpherePlacementRules.SourcePixelsToWorld;
+            var pulse = 1f + Mathf.Sin(_time * 5f + sourceX * 0.01f) * 0.025f;
+            _visualRoot.localScale = Vector3.one * (pulse + hit * 0.05f);
             _visualRoot.localRotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(_facing.y, _facing.x) * Mathf.Rad2Deg);
             Rebuild();
         }
@@ -107,22 +113,43 @@ namespace EchoSphere.Runtime
             if (_mesh == null || _p == null) return;
             _p.Clear();
             var c = _marked ? Color.Lerp(_baseColor, new Color(0.50f, 0.82f, 1f, 1f), 0.72f) : _baseColor;
-            if (_hitFlash > 0f) c = Color.Lerp(c, Color.white, Mathf.Clamp01(_hitFlash / 0.09f) * 0.68f);
+            var hit = Mathf.Clamp01(_hitFlash / HitFlashDuration);
             if (!string.IsNullOrEmpty(_bossType))
             {
+                DrawSourceOuterGlow(_p, R * 1.65f, c, 0.21f);
                 _p.Gradient(Vector2.zero, R * 2.55f, c, 0.085f);
                 DrawBoss(_p, R * 1.15f, c, _time, _bossType);
             }
             else
             {
+                DrawSourceOuterGlow(_p, R * 1.15f, c, 0.10f);
                 _p.Gradient(Vector2.zero, R * 2.15f, c, 0.065f);
                 DrawCreature(_p, R, c, _time, _variant);
+                if (hit > 0f) DrawHitFlash(_p, hit);
             }
             _mesh.Clear();
             _mesh.SetVertices(_p.Vertices);
             _mesh.SetColors(_p.Colors);
             _mesh.SetTriangles(_p.Triangles, 0);
             _mesh.RecalculateBounds();
+        }
+
+        private static void DrawSourceOuterGlow(Painter p, float radius, Color color, float alpha)
+        {
+            // Source renderer.ts:glowCircle uses two additive discs before the creature body.
+            var outer = new Color(color.r, color.g, color.b, alpha * 0.16f);
+            p.Circle(Vector2.zero, radius, outer, outer, 0f);
+            var inner = new Color(color.r, color.g, color.b, alpha * 0.55f);
+            p.Circle(Vector2.zero, radius * 0.52f, inner, inner, 0f);
+        }
+
+        private static void DrawHitFlash(Painter p, float hit)
+        {
+            // Source renderer.ts draws a short white X over hit enemies, rather than tinting the whole body.
+            var color = new Color(1f, 1f, 1f, hit * 0.75f);
+            var line = R * 0.105f; // 2 source pixels at the authored 19 px normal-enemy radius.
+            p.Stroke(new Vector2(-R * 0.8f, -R * 0.8f), new Vector2(R * 0.8f, R * 0.8f), color, line);
+            p.Stroke(new Vector2(R * 0.8f, -R * 0.8f), new Vector2(-R * 0.8f, R * 0.8f), color, line);
         }
 
         private static void DrawCreature(Painter p, float r, Color c, float t, string v)
