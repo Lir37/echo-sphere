@@ -113,7 +113,12 @@ assert.equal(
 const creatureVisualPath = 'Assets/EchoSphere/Scripts/Runtime/EnemyCreatureVisual2D.cs';
 assert.ok(existsSync(join(root, creatureVisualPath)), 'source-mapped enemy creature visual port is missing');
 const creatureVisual = readFileSync(join(root, creatureVisualPath), 'utf8');
+const sourceEnemyRenderer = readFileSync(join(root, 'src/renderer.ts'), 'utf8');
 assert.ok(creatureVisual.includes('src/enemies/enemyVisual.ts') && creatureVisual.includes('DrawCreature') && creatureVisual.includes('DrawBoss'), 'enemy visual must retain explicit source mapping');
+assert.ok(sourceEnemyRenderer.includes('e.radius*(e.isBoss?1.65:1.15)') && sourceEnemyRenderer.includes('e.radius*2.15') && sourceEnemyRenderer.includes('alpha * 0.16') && sourceEnemyRenderer.includes('alpha * 0.55'), 'active Canvas enemy renderer must retain the authored outer glow contract');
+assert.ok(creatureVisual.includes('private const float HitFlashDuration = 0.15f;') && creatureVisual.includes('_hitFlash = HitFlashDuration;') && creatureVisual.includes('var hit = Mathf.Clamp01(_hitFlash / HitFlashDuration);'), 'Unity enemy hit feedback must preserve the source 0.15-second flash window');
+assert.ok(creatureVisual.includes('transform.position.x / SpherePlacementRules.SourcePixelsToWorld') && creatureVisual.includes('Mathf.Sin(_time * 5f + sourceX * 0.01f) * 0.025f') && creatureVisual.includes('hit * 0.05f'), 'enemy presentation must reproduce source breathing and hit scale without changing gameplay transforms');
+assert.ok(creatureVisual.includes('DrawSourceOuterGlow(_p, R * 1.65f, c, 0.21f)') && creatureVisual.includes('DrawSourceOuterGlow(_p, R * 1.15f, c, 0.10f)') && creatureVisual.includes('if (hit > 0f) DrawHitFlash(_p, hit);') && !creatureVisual.includes('_hitFlash / 0.09f'), 'Unity enemy glow/hit overlay must follow active renderer variants rather than tinting the full body');
 for (const variant of ['wisp', 'leech', 'serpent', 'skitter', 'moth', 'beetle', 'brute', 'prism', 'stalker', 'linkbreaker']) assert.ok(creatureVisual.includes('case "' + variant + '"'), 'source creature variant missing: ' + variant);
 for (const boss of ['shooter', 'charger', 'summoner']) assert.ok(creatureVisual.includes('case "' + boss + '"'), 'source boss silhouette missing: ' + boss);
 assert.ok(creatureVisual.includes('Mesh') && creatureVisual.includes('Legs(') && creatureVisual.includes('Gradient('), 'creatures require mesh paths, gait and layered glow');
