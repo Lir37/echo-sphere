@@ -153,7 +153,7 @@ internal static class Program
         Near(BossCombatRules.GetMoveSpeedSourceUnitsPerSecond("charger", 10), 90f, 0f, "source charger speed");
         Near(BossCombatRules.GetMoveSpeedWorldUnitsPerSecond("shooter", 10), 1.05f, 0.0001f, "boss world-space speed conversion against source Canvas scale");
         Near(BossCombatRules.ToWorldUnits(700f), 12.25f, 0.0001f, "source spawn distance conversion");
-        Near(BossCombatRules.ToWorldUnits(180f), 3.6f, 0.0001f, "source projectile speed conversion");
+        Near(BossCombatRules.ToWorldUnits(180f), 3.15f, 0.0001f, "source projectile speed conversion");
         Near(BossCombatRules.BossRadiusWorld + BossCombatRules.PlayerRadiusWorld, 0.875f, 0.0001f, "boss collision radius conversion");
         Near(BossCombatRules.GetAuraRadiusWorld(), 2.1f, 0.0001f, "Aura radius conversion");
         Near(BossCombatRules.GetAuraDamagePerSecond(10), 30f, 0f, "Aura DPS scaling");
