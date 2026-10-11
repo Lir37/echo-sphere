@@ -274,6 +274,12 @@ internal static class Program
 
     private static void CheckSphereLevelRules()
     {
+        var unlevelledStandard = SphereLevelRules.GetUnlevelledStats();
+        Near(unlevelledStandard.DamageMultiplier, 1f, 0f, "unlevelled Standard has no Level I damage bonus");
+        Equal(unlevelledStandard.Pierce, 0, "unlevelled Standard has no bonus pierce");
+        Equal(unlevelledStandard.Pellets, 3, "unlevelled baseline pellet count");
+        Equal(unlevelledStandard.ChainTargets, 3, "unlevelled baseline chain target count");
+        Near(unlevelledStandard.CritChanceBonus, 0f, 0f, "unlevelled Sphere has no progression crit");
         var standard1 = SphereLevelRules.GetStats(SphereId.Standard, 1);
         Near(standard1.DamageMultiplier, 1.15f, 0.00001f, "Standard I +15% damage");
         Equal(standard1.Pierce, 0, "Standard I has no extra pierce");
@@ -502,7 +508,7 @@ internal static class Program
             new SphereNetworkNode(new Vec2(2f, 0f))
         };
         var line = SphereNetworkRules.Analyze(lineNodes);
-        True(line.Links.Count == 3, "Network links include every pair within 2.2 units");
+        True(line.Links.Count == 3, "Network links include every pair within the source-calibrated range");
         True(line.GetFormation(SphereNetworkFormation.Line) != null, "collinear Spheres form a Line");
         Equal(SphereNetworkRules.GetLinkedNodeIndexes(line, 1).Count, 2, "linked-neighbour lookup");
         True(SphereNetworkRules.AreNodesLinked(line, 0, 2), "link query is symmetric");
