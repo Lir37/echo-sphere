@@ -367,7 +367,9 @@ assert.ok(evolutionRules.includes('GetChainStormRadius') && evolutionRules.inclu
 assert.ok(evolutionRules.includes('GetAuraSanctumSlowDuration') && evolutionRules.includes('GetAuraOvergrowthAttackTimerReduction'), 'Aura evolution combat rules are missing');
 assert.ok(evolutionRules.includes('GetGravityWellPullDistance') && evolutionRules.includes('GetGravityTideDistance'), 'Gravity evolution combat rules are missing');
 assert.ok(evolutionRules.includes('GetOrbitalInnerCount') && evolutionRules.includes('GetOrbitalAngularSpeed'), 'Orbital ring progression rules are missing');
-assert.ok(evolutionRules.includes('GetPrismMirrorBounces') && evolutionRules.includes('GetPrismPierce'), 'Prism evolution combat rules are missing');
+assert.ok(evolutionRules.includes('GetPrismBeamCount') && evolutionRules.includes('GetPrismBranchPower') &&
+  evolutionRules.includes('GetPrismBeamDamageMultiplier') && evolutionRules.includes('GetPrismReflectionCount') &&
+  evolutionRules.includes('GetPrismMirrorRicochetCount'), 'Prism direct-beam and Network-refraction rules are missing');
 assert.ok(evolutionRules.includes('GetPulseWaveKnockbackDistance') && evolutionRules.includes('GetVoidExecutionChance'), 'Pulse/Void evolution combat rules are missing');
 assert.ok(sphereAttack.includes('OnProjectileHit') && sphereAttack.includes('standard_swarm'), 'Standard evolution hit dispatch is missing');
 assert.ok(sphereAttack.includes('sniper_oracle') && sphereAttack.includes('sniper_beacon'), 'Sniper evolution hit dispatch is missing');
