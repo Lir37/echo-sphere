@@ -104,8 +104,8 @@ namespace EchoSphere.Runtime
         {
             if (_agent == null || _mesh == null || _agent.PresentationPaused) return;
             _time += Time.deltaTime;
-            var radius = Mathf.Max(0.36f, Mathf.Abs(transform.localScale.x) * 0.48f * 1.15f);
-            if (_label != null) _label.transform.localPosition = new Vector3(0f, radius + 0.36f, 0f);
+            var radius = Mathf.Max(0.36f, Mathf.Abs(transform.localScale.x) * 0.48f);
+            if (_label != null) _label.transform.localPosition = new Vector3(0f, radius + 0.60f, 0f);
             Rebuild();
         }
 
