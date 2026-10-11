@@ -2151,3 +2151,13 @@ LIMITS:
 - CI does not compile UnityEngine scripts in Unity Editor or verify TextMesh/mesh
   rendering, APK generation or Android on-device acceptance.
 
+## Sphere Capacity / Signature Copy Parity — 2026-10-11
+
+Source-mapped from `new-desing/src/engineSpheres.ts`, `src/characters.ts`, and `src/characterRuntime.ts` without changing `new-desing`.
+
+- Added the source character-to-signature-Sphere mapping for all ten character IDs and the matching copy-cap thresholds: default two; signature Sphere three at mastery V; four at mastery X.
+- Added the `maxspheres` passive Level-Up choice (three levels), wired it to live Sphere placement capacity, and retained the source global cap of eight.
+- Ported source duplicate-output scaling for additional signature copies: copies 1–2 at 100%, copy 3 at 85%, copy 4 at 70%.
+- Added core contract cases for all signature mappings, mastery thresholds, max-sphere progression and duplicate-output scaling; added CI source guards for runtime wiring.
+
+Known parity limits: Unity runtime still defaults to Spherist/mastery I because the character-selection/mastery profile system has not yet been ported. The pure capacity rule accepts the source persistent shop bonus, but the Unity runtime currently supplies zero because the shop system is not yet present. CI check status for the latest push could not be read with the available GitHub status/run interfaces; this note does not claim CI success or Unity Editor compilation.
