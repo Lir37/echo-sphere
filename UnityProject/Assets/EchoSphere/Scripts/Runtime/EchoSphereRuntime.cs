@@ -378,7 +378,7 @@ namespace EchoSphere.Runtime
             var radius = 0.9f + 0.12f * (_spheres.Count % 3);
             var position = explicitPosition ?? ((Vector2)_player.position + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius);
             var definition = GameCatalog.Spheres[(int)type];
-            var go = CreateOrb(definition.DisplayName + " Sphere", position, 0.67f, SphereColor(type), Color.white, 8);
+            var go = CreateOrb(definition.DisplayName + " Sphere", position, 1.05f, SphereColor(type), Color.white, 8);
             ApplySphereVisual(go, type);
             var agent = go.AddComponent<SphereAttackAgent>();
             agent.Initialize(this, _player, type, 12f);
@@ -933,17 +933,25 @@ namespace EchoSphere.Runtime
         public void DrainResonance(float amount) => _resonanceCharge = Mathf.Max(0f, _resonanceCharge - Mathf.Max(0f, amount));
         public void ShowBossMessage(string message) => ShowMessage(message);
 
-        // Deterministic source-variant mapping for the current four-archetype Unity scaffold.
-        // Full seeded visualVariant distribution belongs to the later enemy-spawn contract port.
-        private static string GetEnemyVisualVariant(EnemyArchetype archetype)
+        // Source enemyVisual selection in new-desing varies the authored creature silhouette
+        // within each archetype. Use the run seed at spawn time for reproducible variety;
+        // presentation animation itself remains free of gameplay RNG.
+        private static readonly string[] NormalEnemyVisualVariants = { "wisp", "leech", "serpent", "stalker", "prism" };
+        private static readonly string[] FastEnemyVisualVariants = { "moth", "skitter", "stalker" };
+        private static readonly string[] TankEnemyVisualVariants = { "beetle", "brute", "prism" };
+        private static readonly string[] EliteEnemyVisualVariants = { "linkbreaker", "leech", "stalker", "prism", "serpent", "beetle", "wisp", "prism", "brute", "skitter" };
+
+        private string GetEnemyVisualVariant(EnemyArchetype archetype)
         {
+            string[] variants;
             switch (archetype)
             {
-                case EnemyArchetype.Fast: return "skitter";
-                case EnemyArchetype.Tank: return "beetle";
-                case EnemyArchetype.Elite: return "linkbreaker";
-                default: return "wisp";
+                case EnemyArchetype.Fast: variants = FastEnemyVisualVariants; break;
+                case EnemyArchetype.Tank: variants = TankEnemyVisualVariants; break;
+                case EnemyArchetype.Elite: variants = EliteEnemyVisualVariants; break;
+                default: variants = NormalEnemyVisualVariants; break;
             }
+            return variants[_rng.NextInt(variants.Length)];
         }
 
         private static string GetEnemyName(EnemyArchetype archetype)

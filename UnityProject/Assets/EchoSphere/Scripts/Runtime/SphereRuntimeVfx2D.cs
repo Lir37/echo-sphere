@@ -6,21 +6,23 @@ namespace EchoSphere.Runtime
 {
     /// <summary>
     /// Source-mapped 2.5D runtime accents for src/spheres/*Visual.ts, including src/spheres/visualHelpers.ts.
-    /// Authored SVGs remain the main Sphere bodies; this adds animated orbit geometry,
-    /// family-specific emitters, anchors, plates, terminals and resonance feedback.
+    /// Canvas-faithful 2.5D Sphere core and orbit port. The same luminous core geometry
+    /// is shared by the family modules; each Sphere gets its source orbit and attachments.
     /// </summary>
     public sealed class SphereRuntimeVfx2D : MonoBehaviour
     {
         private const float R = 0.40f;
         private const float Tau = Mathf.PI * 2f;
         private static readonly Color Resonance = new Color(1f, 0.82f, 0.40f);
+        private static readonly Color Disabled = new Color(1f, 0.30f, 0.44f, 1f);
+        private static readonly Color CoreOutline = new Color(182f / 255f, 247f / 255f, 1f, 0.90f);
         private static readonly List<Vector2> Path = new List<Vector2>(32);
         private static Material _material;
         private EchoSphereRuntime _runtime;
         private SphereAttackAgent _agent;
         private SphereId _type;
-        private Mesh _orbitMesh, _detailMesh;
-        private Painter _orbit, _detail;
+        private Mesh _orbitMesh, _coreMesh, _detailMesh;
+        private Painter _orbit, _core, _detail;
         private Transform _glow;
         private SpriteRenderer _glowSprite;
         private Color _baseColor;
@@ -37,10 +39,40 @@ namespace EchoSphere.Runtime
                 _glowSprite = _glow.GetComponent<SpriteRenderer>();
                 _glow.localScale = Vector3.one * 2.35f;
             }
-            _orbit = new Painter(); _detail = new Painter();
+
+            // The source Canvas renderer builds the body from a luminous core plus
+            // orbit/emitter geometry. Disable the earlier SVG/disc prototype body so
+            // it cannot cover these details or make every family look like the same ball.
+            DisablePrototypeSphereLayers();
+            _orbit = new Painter(); _core = new Painter(); _detail = new Painter();
             CreateLayer("Sphere Runtime Orbit", 7, out _orbitMesh);
+            CreateLayer("Sphere Runtime Core", 8, out _coreMesh);
             CreateLayer("Sphere Runtime Details", 10, out _detailMesh);
             Rebuild();
+        }
+
+        private bool IsOrbitalSatelliteRenderer(SpriteRenderer renderer)
+        {
+            if (_type != SphereId.Orbital || renderer == null) return false;
+            var node = renderer.transform;
+            while (node != null && node != transform)
+            {
+                if (node.name.StartsWith("Orbital Combat Element", System.StringComparison.Ordinal) ||
+                    node.name == "Orbital Element Glow") return true;
+                node = node.parent;
+            }
+            return false;
+        }
+
+        private void DisablePrototypeSphereLayers()
+        {
+            var renderers = GetComponentsInChildren<SpriteRenderer>(true);
+            for (var i = 0; i < renderers.Length; i++)
+            {
+                var renderer = renderers[i];
+                if (renderer == null || renderer == _glowSprite || IsOrbitalSatelliteRenderer(renderer)) continue;
+                renderer.enabled = false;
+            }
         }
 
         private static Material SharedMaterial
@@ -84,34 +116,57 @@ namespace EchoSphere.Runtime
 
         private void Rebuild()
         {
-            if (_orbit == null || _detail == null || _orbitMesh == null || _detailMesh == null) return;
-            var resonance = _runtime != null && _runtime.ResonanceEventActive;
-            var color = resonance ? Resonance : _baseColor;
-            var pulse = 0.5f + 0.5f * Mathf.Sin(_time * 3.4f + _phase);
+            if (_orbit == null || _core == null || _detail == null ||
+                _orbitMesh == null || _coreMesh == null || _detailMesh == null) return;
+
+            var disabled = _agent.NetworkDisabled;
+            var resonance = !disabled && _runtime != null && _runtime.ResonanceEventActive;
+            var color = disabled ? Disabled : resonance ? Resonance : _baseColor;
+            var pulse = 0.5f + 0.5f * Mathf.Sin(_time * 4.2f + _phase);
             if (_glow != null) _glow.localScale = Vector3.one * (2.35f * (1f + pulse * .035f));
-            if (_glowSprite != null) _glowSprite.color = new Color(color.r, color.g, color.b, .10f + pulse * .045f);
+            if (_glowSprite != null)
+                _glowSprite.color = new Color(color.r, color.g, color.b, disabled ? .05f : .10f + pulse * .045f);
+
+            // Match src/spheres/visualHelpers.ts: a radial white-to-family-color glow,
+            // a compact luminous disk and a crisp pale-cyan edge. Orbital's authored
+            // source uses a smaller central core with the rings carrying its silhouette.
+            var coreRadius = _type == SphereId.Orbital ? R * .70f : R;
+            _core.Clear();
+            _core.RadialGlow(new Vector2(-coreRadius * .08f, -coreRadius * .10f),
+                coreRadius * .62f, color, .82f + pulse * .14f);
+            _core.Circle(Vector2.zero, coreRadius * .42f, color, .72f, 0f);
+            _core.Arc(Vector2.zero, coreRadius * .42f, coreRadius * .42f, 0f, Tau,
+                CoreOutline, Mathf.Max(.014f, coreRadius * .035f), disabled ? .28f : .90f);
+            Upload(_coreMesh, _core);
 
             _orbit.Clear();
             var spin = _time * OrbitSpeed(_type) + _phase;
             if (_type == SphereId.Orbital)
             {
-                _orbit.Ellipse(Vector2.zero, R * 1.20f, R * .54f, spin, color, .012f, .10f, .97f);
-                _orbit.Ellipse(Vector2.zero, R * 1.08f, R * .46f, -spin * 1.18f, color, .009f, .16f, .88f);
+                DrawSourceOrbit(_orbit, R * 1.05f, color, _time * .18f + _phase,
+                    disabled ? .12f : .66f, pulse, disabled, SphereId.Orbital);
+                DrawSourceOrbit(_orbit, R * .88f, color, -_time * .22f + _phase * .5f,
+                    disabled ? .08f : .38f, .5f, disabled, SphereId.Orbital);
             }
             else
             {
-                var flat = _type == SphereId.Sniper ? .28f : _type == SphereId.Gravity ? .38f : .34f;
-                _orbit.Ellipse(Vector2.zero, R * 1.03f, R * flat, spin, color, .010f, .09f, _type == SphereId.Chain ? .78f : .66f);
-                if (_type == SphereId.Pulse)
-                {
-                    var q = Mathf.Repeat(_time * .42f, 1f);
-                    _orbit.Ellipse(Vector2.zero, R * (1.02f + q * .86f), R * (.34f + q * .28f), 0f, color, .008f, 0f, (1f - q) * .36f);
-                }
-                else if (_type == SphereId.Gravity || _type == SphereId.Aura || _type == SphereId.Chain)
-                {
-                    var q = .5f + .5f * Mathf.Sin(_time * (_type == SphereId.Chain ? 10f : _type == SphereId.Aura ? 2.7f : 3.1f));
-                    _orbit.Ellipse(Vector2.zero, R * (1.04f + q * .04f), R * (flat + q * .025f), 0f, color, .006f, 0f, .16f + q * .08f);
-                }
+                var radius = _type == SphereId.Aura ? R * 1.03f
+                    : (_type == SphereId.Prism || _type == SphereId.Gravity || _type == SphereId.Pulse || _type == SphereId.Void)
+                        ? R * 1.03f : R * 1.02f;
+                var opacity = _type == SphereId.Chain ? .78f
+                    : _type == SphereId.Shotgun ? .64f
+                    : _type == SphereId.Void ? .58f : .66f;
+                if (_type == SphereId.Sniper || _type == SphereId.Aura) opacity = .68f;
+                DrawSourceOrbit(_orbit, radius, color, spin, disabled ? .12f : opacity, pulse, disabled, _type);
+            }
+
+            if (_type == SphereId.Pulse)
+            {
+                // The source Pulse sends out a circular wave, not a second flattened orbit.
+                var q = Mathf.Repeat(_time * .42f, 1f);
+                var waveRadius = R * (1.02f + q * .86f);
+                _orbit.Arc(Vector2.zero, waveRadius, waveRadius, 0f, Tau, color,
+                    Mathf.Max(.014f, R * .040f), disabled ? (1f - q) * .10f : (1f - q) * .36f);
             }
             Upload(_orbitMesh, _orbit);
 
@@ -122,17 +177,20 @@ namespace EchoSphere.Runtime
                 case SphereId.Sniper:
                     DrawEmitter(_detail, R, color, facing, 0, pulse);
                     var scan = _time * .46f + _phase;
-                    DrawReticle(_detail, EllipsePoint(R * .34f, R * .12f, scan), R * .10f, color, .62f);
+                    DrawReticle(_detail, OrbitPoint(R, scan, .34f, 1.15f), R * .10f, color, .62f);
                     break;
                 case SphereId.Chain:
-                    for (var i = 0; i < 4; i++) DrawConductor(_detail, R, i * Mathf.PI * .5f + _time * .28f, color, .56f);
+                    for (var i = 0; i < 4; i++) DrawConductor(_detail, R, i * Mathf.PI * .5f + _time * .28f, color, disabled ? .10f : .56f);
+                    var surge = .5f + .5f * Mathf.Sin(_time * 10f);
+                    _detail.Arc(Vector2.zero, coreRadius * (1.04f + surge * .08f), coreRadius * (1.04f + surge * .08f),
+                        0f, Tau, color, Mathf.Max(.014f, coreRadius * .040f), disabled ? .04f : .20f + surge * .16f);
                     break;
                 case SphereId.Shotgun:
                     for (var i = -1; i <= 1; i++) DrawEmitter(_detail, R, color, facing, 1, i * R * .25f);
                     for (var i = 0; i < 3; i++)
                     {
                         var a = _time * (.34f + i * .035f) + i * Tau / 3f;
-                        DrawCross(_detail, EllipsePoint(R * .34f, R * .12f, a), R * .10f, color, .48f * Depth(a));
+                        DrawCross(_detail, OrbitPoint(R, a, .34f, 1.12f), R * .10f, color, .48f * Depth(a));
                     }
                     if (Mathf.Sin(_time * 8f) > .6f) _detail.Arc(new Vector2(R * 1.43f, 0f), R * .11f, R * .11f, 0f, Tau, color, .008f, .22f);
                     break;
@@ -140,8 +198,11 @@ namespace EchoSphere.Runtime
                     for (var i = 0; i < 6; i++)
                     {
                         var a = i * Mathf.PI / 3f + _time * .10f;
-                        DrawDiamond(_detail, EllipsePoint(R * 1.08f, R * .36f, a), R * .14f, color, .48f * Depth(a), a + Mathf.PI / 2f);
+                        DrawDiamond(_detail, OrbitPoint(R, a, .34f, 1.08f), R * .14f, color, disabled ? .07f : .48f * Depth(a), a + Mathf.PI / 2f);
                     }
+                    var auraPulse = .5f + .5f * Mathf.Sin(_time * 2.7f);
+                    _detail.Arc(Vector2.zero, coreRadius * (1.04f + auraPulse * .06f), coreRadius * (1.04f + auraPulse * .06f),
+                        0f, Tau, color, Mathf.Max(.014f, coreRadius * .040f), disabled ? .04f : .16f + auraPulse * .08f);
                     break;
                 case SphereId.Orbital:
                     DrawTerminal(_detail, new Vector2(0f, -R * 1.02f), R, color, .76f, _time);
@@ -153,21 +214,24 @@ namespace EchoSphere.Runtime
                     for (var i = 0; i < 2; i++)
                     {
                         var a = _time * (.30f + i * .05f) + i * Mathf.PI;
-                        DrawDiamond(_detail, EllipsePoint(R * .34f, R * .12f, a), R * .09f, color, .42f * Depth(a), a + Mathf.PI / 2f);
+                        DrawDiamond(_detail, OrbitPoint(R, a, .34f, 1.10f), R * .09f, color, .42f * Depth(a), a + Mathf.PI / 2f);
                     }
                     break;
                 case SphereId.Gravity:
                     for (var i = 0; i < 5; i++)
                     {
                         var a = i * Tau / 5f + _time * .08f;
-                        DrawDiamond(_detail, EllipsePoint(R * 1.08f, R * .36f, a), R * .12f, color, .44f * Depth(a), a);
+                        DrawDiamond(_detail, OrbitPoint(R, a, .34f, 1.08f), R * .12f, color, disabled ? .06f : .44f * Depth(a), a);
                     }
+                    var pull = .5f + .5f * Mathf.Sin(_time * 3.1f);
+                    _detail.Arc(Vector2.zero, coreRadius * (.98f + pull * .05f), coreRadius * (.98f + pull * .05f),
+                        0f, Tau, color, Mathf.Max(.014f, coreRadius * .038f), disabled ? .04f : .16f + pull * .08f);
                     break;
                 case SphereId.Pulse:
                     for (var i = 0; i < 4; i++)
                     {
                         var a = _time * .28f + i * Mathf.PI / 2f;
-                        DrawPlate(_detail, EllipsePoint(R * .34f, R * .11f, a), R * .17f, color,
+                        DrawPlate(_detail, OrbitPoint(R, a, .34f, 1.10f), R * .17f, color,
                             .36f + .20f * (.5f + .5f * Mathf.Sin(_time * 2.8f + i)), a + Mathf.PI / 2f);
                     }
                     break;
@@ -177,7 +241,7 @@ namespace EchoSphere.Runtime
                     {
                         var a = -_time * (.22f + i * .025f) + i * Mathf.PI / 2f;
                         var rr = R * (.07f + i * .012f);
-                        _detail.Arc(EllipsePoint(R * .34f, R * .12f, a), rr, rr, Mathf.PI * .2f, Mathf.PI * 1.6f, color, .008f, .32f * Depth(a));
+                        _detail.Arc(OrbitPoint(R, a, .34f, 1.11f), rr, rr, Mathf.PI * .2f, Mathf.PI * 1.6f, color, .008f, .32f * Depth(a));
                     }
                     break;
             }
@@ -197,6 +261,160 @@ namespace EchoSphere.Runtime
         {
             mesh.Clear(); mesh.SetVertices(painter.Vertices); mesh.SetColors(painter.Colors);
             mesh.SetTriangles(painter.Triangles, 0); mesh.RecalculateBounds();
+        }
+
+        private static Vector2 OrbitPoint(float radius, float angle, float flatten, float radiusScale)
+        {
+            return EllipsePoint(radius * radiusScale, radius * flatten * radiusScale, angle);
+        }
+
+        private static void DrawSourceOrbit(Painter p, float radius, Color color, float rotation,
+            float opacity, float pulse, bool disabled, SphereId mode)
+        {
+            var rx = radius * 1.16f;
+            var ry = radius * .34f;
+            var majorWidth = Mathf.Max(.90f * SpherePlacementRules.SourcePixelsToWorld, radius * .040f);
+            var minorWidth = Mathf.Max(.55f * SpherePlacementRules.SourcePixelsToWorld, radius * .022f);
+
+            if (mode == SphereId.Chain)
+            {
+                DrawLightningEllipse(p, rx, ry, rotation, color, opacity, pulse);
+                DrawLightningEllipse(p, radius * .98f, radius * .28f, rotation, color, opacity * .36f, pulse + .5f);
+                return;
+            }
+
+            if (mode == SphereId.Void)
+            {
+                for (var i = 0; i < 7; i++)
+                {
+                    var angle = i * Tau / 7f + .08f;
+                    var span = i % 2 == 0 ? .58f : .34f;
+                    var alpha = opacity * (i % 3 == 0 ? .94f : .72f) * (disabled ? .22f : 1f);
+                    TraceEllipse(p, rx, ry, angle, angle + span, rotation,
+                        .70f * SpherePlacementRules.SourcePixelsToWorld, color,
+                        Mathf.Max(.8f * SpherePlacementRules.SourcePixelsToWorld, radius * .030f), alpha);
+                }
+                TraceEllipse(p, radius * 1.03f, radius * .295f, Mathf.PI * .16f, Mathf.PI * 1.84f,
+                    rotation, .35f * SpherePlacementRules.SourcePixelsToWorld, color,
+                    Mathf.Max(.55f * SpherePlacementRules.SourcePixelsToWorld, radius * .018f), opacity * .42f * (disabled ? .22f : 1f));
+                for (var i = 0; i < 3; i++)
+                {
+                    var angle = -rotation * .72f + i * Tau / 3f;
+                    var at = Rotate(EllipsePoint(rx * .99f, ry * .99f, angle), rotation);
+                    DrawVoidOrbitFragment(p, at, radius, color, opacity * .72f * (disabled ? .22f : 1f), rotation);
+                }
+                return;
+            }
+
+            TraceEllipse(p, rx, ry, 0f, Tau, rotation, 0f, color, majorWidth, opacity);
+            TraceEllipse(p, radius * 1.00f, radius * .285f, Mathf.PI * .10f, Mathf.PI * 1.92f,
+                rotation, 0f, color, minorWidth, opacity * .44f);
+
+            if (mode == SphereId.Sniper)
+            {
+                var tickWidth = Mathf.Max(.60f * SpherePlacementRules.SourcePixelsToWorld, radius * .020f);
+                var angles = new[] { -.56f, -.28f, 0f, .28f, .56f };
+                for (var i = 0; i < angles.Length; i++)
+                {
+                    var a = angles[i];
+                    var point = EllipsePoint(rx, ry, a);
+                    var normal = new Vector2(Mathf.Cos(a), Mathf.Sin(a));
+                    var from = Rotate(point - normal * radius * .045f, rotation);
+                    var to = Rotate(point + normal * radius * .075f, rotation);
+                    p.Line(from, to, color, tickWidth, opacity * .68f);
+                }
+            }
+            else if (mode == SphereId.Shotgun)
+            {
+                var width = Mathf.Max(.70f * SpherePlacementRules.SourcePixelsToWorld, radius * .024f);
+                for (var i = 0; i < 3; i++)
+                {
+                    var a = -.44f + i * .44f;
+                    var point = Rotate(EllipsePoint(rx, ry, a), rotation);
+                    p.Arc(point, radius * .065f, radius * .065f, 0f, Tau, color, width, opacity * .72f);
+                }
+            }
+            else if (mode == SphereId.Aura)
+            {
+                var width = Mathf.Max(.60f * SpherePlacementRules.SourcePixelsToWorld, radius * .018f);
+                for (var i = 0; i < 6; i++)
+                {
+                    var a = i * Mathf.PI / 3f + pulse * .10f;
+                    TraceEllipse(p, rx * .96f, ry * .96f, a - .26f, a + .26f, rotation,
+                        0f, color, width, opacity * .64f);
+                }
+            }
+            else if (mode == SphereId.Prism)
+            {
+                var width = Mathf.Max(.75f * SpherePlacementRules.SourcePixelsToWorld, radius * .024f);
+                var start = .08f;
+                var end = Mathf.PI * 1.95f;
+                var dash = radius * .15f / (rx * 1.01f);
+                var gap = radius * .07f / (rx * 1.01f);
+                for (var a = start; a < end; a += dash + gap)
+                    TraceEllipse(p, rx * 1.01f, ry * 1.02f, a, Mathf.Min(end, a + dash), rotation,
+                        0f, color, width, opacity * .74f);
+            }
+            else if (mode == SphereId.Gravity)
+            {
+                var width = Mathf.Max(.70f * SpherePlacementRules.SourcePixelsToWorld, radius * .026f);
+                TraceEllipse(p, rx * .88f, ry * .78f, .25f, Mathf.PI * 1.78f, rotation,
+                    0f, color, width, opacity * .56f);
+                TraceEllipse(p, rx * 1.05f, ry * .86f, Mathf.PI * 1.08f, Mathf.PI * 2.64f, rotation,
+                    0f, color, width, opacity * .56f);
+            }
+            else if (mode == SphereId.Orbital)
+            {
+                var width = Mathf.Max(.65f * SpherePlacementRules.SourcePixelsToWorld, radius * .022f);
+                TraceEllipse(p, rx * .92f, ry * .84f, Mathf.PI * .12f, Mathf.PI * 1.86f, rotation,
+                    0f, color, width, opacity * .52f);
+            }
+        }
+
+        private static void DrawLightningEllipse(Painter p, float rx, float ry, float rotation,
+            Color color, float alpha, float pulse)
+        {
+            const int segments = 20;
+            var previous = Rotate(new Vector2(rx, 0f), rotation);
+            for (var i = 1; i <= segments; i++)
+            {
+                var a = i * Tau / segments;
+                var jitter = Mathf.Sin(i * 3.7f + pulse * 5.2f) * rx * .025f;
+                var local = new Vector2(Mathf.Cos(a) * (rx + jitter), Mathf.Sin(a) * (ry + jitter * .34f));
+                var next = Rotate(local, rotation);
+                p.Line(previous, next, color, Mathf.Max(.8f * SpherePlacementRules.SourcePixelsToWorld, rx * .028f), alpha);
+                previous = next;
+            }
+        }
+
+        private static void TraceEllipse(Painter p, float rx, float ry, float start, float end,
+            float rotation, float wobble, Color color, float width, float alpha)
+        {
+            var sweep = end - start;
+            if (Mathf.Abs(sweep) < .0001f) return;
+            var segments = Mathf.Max(2, Mathf.CeilToInt(42f * Mathf.Abs(sweep) / Tau));
+            var a0 = start;
+            var n0 = wobble == 0f ? 0f : Mathf.Sin(a0 * 7f + .35f) * wobble;
+            var previous = Rotate(new Vector2(Mathf.Cos(a0) * (rx + n0), Mathf.Sin(a0) * (ry + n0 * .34f)), rotation);
+            for (var i = 1; i <= segments; i++)
+            {
+                var a = start + sweep * i / segments;
+                var n = wobble == 0f ? 0f : Mathf.Sin(a * 7f + .35f) * wobble;
+                var point = Rotate(new Vector2(Mathf.Cos(a) * (rx + n), Mathf.Sin(a) * (ry + n * .34f)), rotation);
+                p.Line(previous, point, color, width, alpha);
+                previous = point;
+            }
+        }
+
+        private static void DrawVoidOrbitFragment(Painter p, Vector2 at, float radius, Color color, float alpha, float rotation)
+        {
+            Path.Clear();
+            Path.Add(at + Rotate(new Vector2(radius * .10f, 0f), rotation));
+            Path.Add(at + Rotate(new Vector2(0f, radius * .055f), rotation));
+            Path.Add(at + Rotate(new Vector2(-radius * .10f, 0f), rotation));
+            Path.Add(at + Rotate(new Vector2(0f, -radius * .055f), rotation));
+            var tint = new Color(color.r, color.g, color.b, Mathf.Clamp01(color.a * alpha));
+            p.Polygon(Path, tint, tint, 0f);
         }
 
         private static float OrbitSpeed(SphereId t)
@@ -291,7 +509,7 @@ namespace EchoSphere.Runtime
 
         private static void DrawConductor(Painter p, float r, float angle, Color c, float alpha)
         {
-            var pos = EllipsePoint(r * .34f, r * .12f, angle); var rot = angle + Mathf.PI / 2f;
+            var pos = OrbitPoint(r, angle, .34f, 1.10f); var rot = angle + Mathf.PI / 2f;
             var a = pos + Rotate(new Vector2(-r * .08f, 0f), rot);
             var b = pos + Rotate(new Vector2(-r * .01f, -r * .07f), rot);
             var d = pos + Rotate(new Vector2(r * .07f, r * .03f), rot);
@@ -368,6 +586,43 @@ namespace EchoSphere.Runtime
                 var from=center+new Vector2(Mathf.Cos(start)*rx,Mathf.Sin(start)*ry);
                 for(var i=1;i<=count;i++){var a=start+sweep*i/count;var to=center+new Vector2(Mathf.Cos(a)*rx,Mathf.Sin(a)*ry);Line(from,to,c,width,alpha);from=to;}
             }
+            public void RadialGlow(Vector2 at,float radius,Color color,float strength)
+            {
+                const int segments=32;
+                var centerColor=Color.Lerp(color,Color.white,.98f);
+                centerColor.a=Mathf.Clamp01(strength*.98f);
+                var center=V(at,centerColor);
+                var radii=CoreGlowRadii;
+                var alphas=CoreGlowAlphas;
+                var highlights=CoreGlowHighlights;
+                for(var ring=0;ring<radii.Length;ring++)
+                {
+                    _ringStarts[ring]=Vertices.Count;
+                    var tint=Color.Lerp(color,Color.white,highlights[ring]);
+                    tint.a=alphas[ring]*strength;
+                    var r=radius*radii[ring];
+                    for(var i=0;i<segments;i++)
+                    {
+                        var a=i*Tau/segments;
+                        V(at+new Vector2(Mathf.Cos(a),Mathf.Sin(a))*r,tint);
+                    }
+                }
+                for(var i=0;i<segments;i++) T(center,_ringStarts[0]+i,_ringStarts[0]+(i+1)%segments);
+                for(var ring=0;ring<radii.Length-1;ring++)
+                    for(var i=0;i<segments;i++)
+                    {
+                        var next=(i+1)%segments;
+                        var a=_ringStarts[ring]+i;
+                        var b=_ringStarts[ring]+next;
+                        var c=_ringStarts[ring+1]+next;
+                        var d=_ringStarts[ring+1]+i;
+                        T(a,d,c);T(a,c,b);
+                    }
+            }
+            private static readonly float[] CoreGlowRadii={.20f,.48f,.82f,1f};
+            private static readonly float[] CoreGlowAlphas={.96f,.78f,.34f,0f};
+            private static readonly float[] CoreGlowHighlights={.94f,.25f,.06f,0f};
+            private readonly int[] _ringStarts=new int[4];
         }
     }
 }

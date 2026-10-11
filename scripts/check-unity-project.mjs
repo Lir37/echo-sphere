@@ -138,6 +138,19 @@ const sphereVisual = readFileSync(join(root, sphereVisualPath), 'utf8');
 assert.ok(sphereVisual.includes('src/spheres/*Visual.ts') && sphereVisual.includes('src/spheres/visualHelpers.ts'), 'Sphere VFX source mapping is required');
 for (const family of ['Sniper','Chain','Shotgun','Aura','Orbital','Prism','Gravity','Pulse','Void']) assert.ok(sphereVisual.includes('case SphereId.' + family), 'Sphere VFX family dispatch missing: ' + family);
 assert.ok(sphereVisual.includes('Ellipse(Vector2.zero') && sphereVisual.includes('DrawDiamond') && sphereVisual.includes('ResonanceEventActive'), 'Sphere family rings, accents and Resonance state must be wired');
+assert.ok(sphereVisual.includes('private Mesh _orbitMesh, _coreMesh, _detailMesh') &&
+  sphereVisual.includes('RadialGlow(') && sphereVisual.includes('CoreOutline') &&
+  sphereVisual.includes('private void DisablePrototypeSphereLayers()'),
+  'source-matched glowing core must replace the prototype SVG body');
+assert.ok(sphereVisual.includes('private static void DrawSourceOrbit(') &&
+  sphereVisual.includes('mode == SphereId.Chain') && sphereVisual.includes('mode == SphereId.Void') &&
+  sphereVisual.includes('mode == SphereId.Prism'),
+  'Sphere families must retain source-specific orbit silhouettes');
+assert.ok(runtimeArt.includes('position, 1.05f, SphereColor(type)') &&
+  runtimeArt.includes('NormalEnemyVisualVariants = { "wisp", "leech", "serpent", "stalker", "prism" }') &&
+  runtimeArt.includes('FastEnemyVisualVariants = { "moth", "skitter", "stalker" }') &&
+  runtimeArt.includes('_rng.NextInt(variants.Length)'),
+  'Sphere world size and per-archetype source enemy silhouette variety regressed');
 assert.ok(!/UnityEngine\.Random|Random\.Range|_rng/.test(sphereVisual), 'Sphere presentation must not consume gameplay RNG');
 assert.equal((sphereVisual.match(/new List<Vector2>/g) || []).length, 1, 'Sphere VFX must use a reusable vector path buffer');
 
