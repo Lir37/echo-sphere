@@ -30,30 +30,63 @@ namespace EchoSphere.Runtime
         private readonly List<PocketVisual> _pockets = new List<PocketVisual>();
         private EchoSphereRuntime _runtime;
         private Material _lineMaterial;
+        private Transform _fieldRoot;
         private bool _initialized;
         private float _seamTime;
+        public EchoRegionId ActiveRegionId { get; private set; } = EchoRegionId.ResonanceBasin;
 
-        public void Initialize(EchoSphereRuntime runtime)
+        public void Initialize(EchoSphereRuntime runtime, EchoRegionId regionId = EchoRegionId.ResonanceBasin)
         {
-            if (_initialized || runtime == null) return;
+            if (runtime == null) return;
             _runtime = runtime;
-            var shader = Shader.Find("Sprites/Default");
-            if (shader == null) return;
-
-            _lineMaterial = new Material(shader)
+            if (!_initialized)
             {
-                name = "ECHO SPHERE / Region Field Lines",
-                hideFlags = HideFlags.DontSave
-            };
+                var shader = Shader.Find("Sprites/Default");
+                if (shader == null) return;
 
-            // Canonical Resonance Basin pockets from src/region.ts.
-            // The initial active pocket is Axis Node, matching the source run start.
-            AddPocket("Axis Node", 0f, 0f, 340f, "#39d8ff", true);
-            AddPocket("Glass Flow", 520f, -260f, 330f, "#7cf7d4", false);
-            AddPocket("Fracture", 500f, 430f, 330f, "#ff6b6b", false);
-            AddPocket("Hollow Contour", -480f, 430f, 330f, "#9b7cff", false);
-            AddPocket("Pressure Field", -520f, -300f, 330f, "#ffb84d", false);
-            _initialized = true;
+                _lineMaterial = new Material(shader)
+                {
+                    name = "ECHO SPHERE / Region Field Lines",
+                    hideFlags = HideFlags.DontSave
+                };
+                var root = new GameObject("Region Field Root");
+                root.transform.SetParent(transform, false);
+                _fieldRoot = root.transform;
+                _initialized = true;
+            }
+            SetRegion(regionId);
+        }
+
+        public void SetRegion(EchoRegionId regionId)
+        {
+            if (!_initialized || _fieldRoot == null) return;
+            for (var i = _fieldRoot.childCount - 1; i >= 0; i--)
+            {
+                var child = _fieldRoot.GetChild(i).gameObject;
+                if (Application.isPlaying) Destroy(child);
+                else DestroyImmediate(child);
+            }
+            _pockets.Clear();
+            ActiveRegionId = regionId;
+
+            if (regionId == EchoRegionId.SpectralRift)
+            {
+                // Exact pocket layout from new-desing/src/region.ts:RIFT_POCKETS.
+                AddPocket("Prism Shift", 0f, 0f, 330f, "#7fe8ff", true);
+                AddPocket("Mirror Shoal", 520f, -270f, 320f, "#d48cff", false);
+                AddPocket("Ember Fault", 470f, 450f, 330f, "#ff9d63", false);
+                AddPocket("Silent Lattice", -500f, 430f, 320f, "#65f0cf", false);
+                AddPocket("Null Garden", -520f, -290f, 330f, "#a78cff", false);
+            }
+            else
+            {
+                // Exact pocket layout from new-desing/src/region.ts:BASIN_POCKETS.
+                AddPocket("Axis Node", 0f, 0f, 340f, "#39d8ff", true);
+                AddPocket("Glass Flow", 520f, -260f, 330f, "#7cf7d4", false);
+                AddPocket("Fracture", 500f, 430f, 330f, "#ff6b6b", false);
+                AddPocket("Hollow Contour", -480f, 430f, 330f, "#9b7cff", false);
+                AddPocket("Pressure Field", -520f, -300f, 330f, "#ffb84d", false);
+            }
         }
 
         private void AddPocket(string id, float sourceX, float sourceY, float sourceRadius, string htmlColor, bool active)
@@ -79,7 +112,7 @@ namespace EchoSphere.Runtime
             for (var i = 0; i < 8; i++)
             {
                 var marker = new GameObject(id + " / Boundary Marker " + i);
-                marker.transform.SetParent(transform, false);
+                marker.transform.SetParent(_fieldRoot, false);
                 var sprite = marker.AddComponent<SpriteRenderer>();
                 sprite.sprite = RuntimeSpriteFactory.Prism;
                 sprite.color = WithAlpha(accent, active ? 0.24f : 0.055f);
@@ -94,7 +127,7 @@ namespace EchoSphere.Runtime
         private LineRenderer CreateLine(string objectName, Color color, float width, int sortingOrder, bool loop)
         {
             var lineObject = new GameObject(objectName);
-            lineObject.transform.SetParent(transform, false);
+            lineObject.transform.SetParent(_fieldRoot, false);
             var line = lineObject.AddComponent<LineRenderer>();
             line.useWorldSpace = true;
             line.loop = loop;

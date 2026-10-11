@@ -2477,3 +2477,47 @@ CI FOLLOW-UP | 2026-10-12 (second contract correction)
     intentionally routes MaxSpheres through LevelUpAbilityRules.CreateChoice.
 - The structural guard now checks the new catalog call and continues to require
   a live link to SpherePlacementRules.GetMaxSpheres. A full rerun is required.
+
+
+======================================================================
+2026-10-12 | REGION SELECT AND REGION FIELD PARITY SLICE (CI PENDING)
+======================================================================
+
+Source of truth:
+- new-desing/src/EchoMapScreen.tsx
+- new-desing/src/region.ts
+- Unity RegionBossScheduleRules.cs
+
+CHANGES:
+- Region selection no longer resets to Resonance Basin when pressing Start.
+- Basin remains available; Spectral Rift unlock is persisted after Basin
+  stabilization and validated again before starting a Rift run.
+- Selected region is stored so the existing scene-reload Restart path does
+  not silently force the player back to Basin.
+- The selected Region's boss schedule is used. Rift therefore uses the source
+  schedule (Null at 7:30, Aura at 15:30 and Stella Warden final event), not
+  Basin's Conductor/Architect schedule.
+- RegionFieldVisuals can switch region. Rift pocket geometry, colors and
+  coordinates match source RIFT_POCKETS; Basin pocket values are preserved.
+- Region Select labels/cards follow the source language preference/default
+  (RU except on an English system) and Start shows the selected region.
+- Added core tests for initial Basin availability and the Rift unlock rule,
+  plus structural guards for persistence, schedule wiring and pocket lists.
+
+NOT YET PORTED:
+- Region challenges, mastery challenges, POIs, lore discovery, completion
+  persistence and Endless unlock are not implemented in Unity. No active
+  placeholder buttons were added for those features.
+- Main-menu/navigation parity remains incomplete: character selection/mastery,
+  shop, settings, leaderboard, achievements, knowledge/archive and their
+  persistence/actions need migration.
+- The HUD remains incomplete; this does not claim full source UI functionality
+  or visual equality.
+- Unity Editor compilation, Android APK production and manual device checks
+  are unverified. Report only what CI actually confirms.
+
+NEXT:
+1. Verify Unity Migration Contracts are green on the resulting HEAD.
+2. Continue migrating missing menu screens/actions from src/App.tsx and the
+   corresponding source screen modules.
+3. Then port Region challenge/Endless systems and full gameplay HUD parity.

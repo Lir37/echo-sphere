@@ -69,9 +69,12 @@ namespace EchoSphere.Runtime
         private float _alchemistCatalystTimer;
         private int _alchemistReactionCount;
         private RegionBossScheduleState _regionSchedule;
+        private RegionFieldVisuals _regionFieldVisuals;
         private bool _mainMenu = true;
         private bool _regionSelect;
-        private int _selectedRegion;
+        private EchoRegionId _selectedRegion = EchoRegionId.ResonanceBasin;
+        private const string BasinStabilizedPreferenceKey = "echo-sphere:region:resonance_basin:stabilized";
+        private const string SelectedRegionPreferenceKey = "echo-sphere:region:selected";
         private float _uiScale = 1f, _uiWidth, _uiHeight;
         private Texture2D _uiPanelTexture, _uiButtonTexture, _uiButtonHoverTexture, _uiButtonActiveTexture, _uiAccentTexture;
         private GUIStyle _menuTitle;
@@ -99,6 +102,9 @@ namespace EchoSphere.Runtime
         public float GetEnemyAbilitySpeedMultiplier() => LevelUpAbilityRules.GetEnemySlowMultiplier(GetAbilityLevel(RunUpgradeKind.Slow));
         public float GetExperienceMagnetRadiusWorld() => LevelUpAbilityRules.GetMagnetRadiusWorld(GetAbilityLevel(RunUpgradeKind.Magnet));
         public bool RegionStabilized => _regionStabilized;
+        public EchoRegionId SelectedRegion => _selectedRegion;
+        public bool IsRegionAvailable(EchoRegionId region) =>
+            RegionUnlockRules.IsAvailable(region, PlayerPrefs.GetInt(BasinStabilizedPreferenceKey, 0) == 1);
         public float NextRunRandom() => _rng.NextFloat();
         public float SphereDamageMultiplier => _damageMultiplier * LevelUpAbilityRules.GetSphereDamageMultiplier(GetAbilityLevel(RunUpgradeKind.Damage)) *
             Mathf.Max(0.25f, 1f + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "sphereDamage"));
@@ -194,9 +200,12 @@ namespace EchoSphere.Runtime
             Application.targetFrameRate = 60;
             ConfigureCamera();
             CreateStarfield();
-            _regionSchedule = RegionBossScheduleRules.Create(EchoRegionId.ResonanceBasin, EchoRegionMode.Stabilization);
-            var regionFieldVisuals = gameObject.AddComponent<RegionFieldVisuals>();
-            regionFieldVisuals.Initialize(this);
+            var savedRegionValue = PlayerPrefs.GetInt(SelectedRegionPreferenceKey, (int)EchoRegionId.ResonanceBasin);
+            _selectedRegion = (EchoRegionId)Mathf.Clamp(savedRegionValue, (int)EchoRegionId.ResonanceBasin, (int)EchoRegionId.SpectralRift);
+            if (!IsRegionAvailable(_selectedRegion)) _selectedRegion = EchoRegionId.ResonanceBasin;
+            _regionSchedule = RegionBossScheduleRules.Create(_selectedRegion, EchoRegionMode.Stabilization);
+            _regionFieldVisuals = gameObject.AddComponent<RegionFieldVisuals>();
+            _regionFieldVisuals.Initialize(this, _selectedRegion);
             CreatePlayer();
             CreateSpheres();
             _follow = false;
@@ -861,8 +870,14 @@ namespace EchoSphere.Runtime
             else if (signal.Kind == RegionBossSignalKind.RegionCleared)
             {
                 _regionStabilized = true;
+                if (_regionSchedule.RegionId == EchoRegionId.ResonanceBasin &&
+                    _regionSchedule.Mode == EchoRegionMode.Stabilization)
+                {
+                    PlayerPrefs.SetInt(BasinStabilizedPreferenceKey, 1);
+                    PlayerPrefs.Save();
+                }
                 // Region completion is not game-over: keep pickups alive after the final boss.
-                ShowMessage("REGION STABILIZED");
+                ShowMessage(IsRussianUi ? "РЕГИОН СТАБИЛИЗИРОВАН" : "REGION STABILIZED");
                 AddExperience(RegionBossScheduleRules.GetRegionXpReward(_level));
             }
         }
@@ -2390,6 +2405,9 @@ namespace EchoSphere.Runtime
             if (_uiAccentTexture != null) Destroy(_uiAccentTexture);
         }
 
+        private static bool IsRussianUi =>
+            PlayerPrefs.GetString("echosphere_lang", Application.systemLanguage == SystemLanguage.English ? "en" : "ru") != "en";
+
         private static Texture2D CreateUiTexture(Color color)
         {
             var texture = new Texture2D(1, 1, TextureFormat.RGBA32, false)
@@ -2427,21 +2445,25 @@ namespace EchoSphere.Runtime
             DrawSpriteIcon(new Rect(panel.center.x - logoSize * 0.5f, panel.y + 42f, logoSize, logoSize), coreLogo, Color.white);
             DrawSpriteIcon(new Rect(panel.center.x - logoSize * 0.64f, panel.y + 36f, logoSize * 1.28f, logoSize * 1.28f), RuntimeSpriteFactory.Ring, new Color(0.22f, 0.67f, 1f, 0.8f));
             GUI.Label(new Rect(panel.x + 24f, panel.y + 152f, panel.width - 48f, 48f), "ECHO SPHERE", _menuTitle);
-            GUI.Label(new Rect(panel.x + 24f, panel.y + 198f, panel.width - 48f, 25f), "RESONANCE SURVIVAL PROTOCOL", _label);
+            GUI.Label(new Rect(panel.x + 24f, panel.y + 198f, panel.width - 48f, 25f),
+                IsRussianUi ? "СИСТЕМА ВЫЖИВАНИЯ РЕЗОНАНСА" : "RESONANCE SURVIVAL PROTOCOL", _label);
             var characterArt = RuntimeSpriteFactory.LoadAuthored("character-spherist-3q");
             if (characterArt != null)
             {
                 DrawSpriteIcon(new Rect(panel.x + 44f, panel.y + 222f, 86f, 106f), characterArt, Color.white);
-                GUI.Label(new Rect(panel.x + 144f, panel.y + 234f, panel.width - 180f, 58f), "SPHERIST  /  ALL-ROUNDER", _label);
-                GUI.Label(new Rect(panel.x + 144f, panel.y + 267f, panel.width - 180f, 51f), "Keep the Core alive. Build your Sphere network. Bend the battlefield.", _label);
+                GUI.Label(new Rect(panel.x + 144f, panel.y + 234f, panel.width - 180f, 58f),
+                    IsRussianUi ? "СФЕРИСТ  /  УНИВЕРСАЛ" : "SPHERIST  /  ALL-ROUNDER", _label);
+                GUI.Label(new Rect(panel.x + 144f, panel.y + 267f, panel.width - 180f, 51f),
+                    IsRussianUi ? "Сохраняй Core. Собирай сеть Сфер. Меняй ход боя." : "Keep the Core alive. Build your Sphere network. Bend the battlefield.", _label);
             }
             else
             {
-                GUI.Label(new Rect(panel.x + 38f, panel.y + 235f, panel.width - 76f, 44f), "Keep the Core alive. Build your Sphere network. Bend the battlefield.", _label);
+                GUI.Label(new Rect(panel.x + 38f, panel.y + 235f, panel.width - 76f, 44f),
+                    IsRussianUi ? "Сохраняй Core. Собирай сеть Сфер. Меняй ход боя." : "Keep the Core alive. Build your Sphere network. Bend the battlefield.", _label);
             }
             var buttonWidth = Mathf.Min(330f, panel.width - 60f);
             var button = new Rect(panel.center.x - buttonWidth * 0.5f, panel.y + height - 148f, buttonWidth, 54f);
-            if (GUI.Button(button, "SELECT RUN", _button))
+            if (GUI.Button(button, IsRussianUi ? "ВЫБРАТЬ ЗАБЕГ" : "SELECT RUN", _button)
             {
                 _regionSelect = true;
             }
@@ -2465,11 +2487,12 @@ namespace EchoSphere.Runtime
             var height = Mathf.Min(540f, _uiHeight - 24f);
             var panel = new Rect((_uiWidth - width) * 0.5f, (_uiHeight - height) * 0.5f, width, height);
             GUI.Box(panel, GUIContent.none, _box);
-            GUI.Label(new Rect(panel.x + 24f, panel.y + 18f, panel.width - 48f, 42f), "ECHO REGIONS", _menuTitle);
+            GUI.Label(new Rect(panel.x + 24f, panel.y + 18f, panel.width - 48f, 42f),
+                IsRussianUi ? "РЕГИОНЫ ЭХА" : "ECHO REGIONS", _menuTitle);
             GUI.Label(new Rect(panel.x + 24f, panel.y + 61f, panel.width - 48f, 24f),
-                "STABILIZE  /  CHALLENGE  /  DESCEND", _label);
+                IsRussianUi ? "СТАБИЛИЗИРУЙ  /  ИССЛЕДУЙ" : "STABILIZE  /  EXPLORE", _label);
             GUI.Label(new Rect(panel.x + 24f, panel.y + 91f, panel.width - 48f, 34f),
-                "One region. Several ways to run it.", _label);
+                IsRussianUi ? "Выбери регион для забега." : "Choose a region for this run.", _label);
 
             var cardGap = 14f;
             var cardWidth = (panel.width - 60f - cardGap) * 0.5f;
@@ -2477,44 +2500,101 @@ namespace EchoSphere.Runtime
             var cardHeight = Mathf.Min(240f, panel.height - 230f);
             var basin = new Rect(panel.x + 20f, cardTop, cardWidth, cardHeight);
             var rift = new Rect(basin.xMax + cardGap, cardTop, cardWidth, cardHeight);
+            var basinSelected = _selectedRegion == EchoRegionId.ResonanceBasin;
+            var riftSelected = _selectedRegion == EchoRegionId.SpectralRift;
+            var riftAvailable = IsRegionAvailable(EchoRegionId.SpectralRift);
 
             GUI.Box(basin, GUIContent.none, _box);
             GUI.color = new Color(0.25f, 0.9f, 0.76f, 0.95f);
             GUI.DrawTexture(new Rect(basin.x + 12f, basin.y + 12f, 3f, basin.height - 24f), _uiAccentTexture);
             GUI.color = previousColor;
-            GUI.Label(new Rect(basin.x + 26f, basin.y + 18f, basin.width - 40f, 20f), "REGION 01  /  AVAILABLE", _label);
-            GUI.Label(new Rect(basin.x + 26f, basin.y + 48f, basin.width - 40f, 48f), "RESONANCE BASIN", _title);
-            GUI.Label(new Rect(basin.x + 26f, basin.y + 98f, basin.width - 40f, 45f), "THE FIRST STABLE ECHO", _label);
-            GUI.Label(new Rect(basin.x + 26f, basin.y + 148f, basin.width - 40f, 38f), "Stabilization route", _label);
-            if (GUI.Button(new Rect(basin.x + 20f, basin.yMax - 58f, basin.width - 40f, 42f),
-                _selectedRegion == 0 ? "SELECTED  /  STABILIZATION" : "SELECT STABILIZATION", _button))
-                _selectedRegion = 0;
+            GUI.Label(new Rect(basin.x + 26f, basin.y + 18f, basin.width - 40f, 20f),
+                IsRussianUi ? "РЕГИОН 01  /  ДОСТУПЕН" : "REGION 01  /  AVAILABLE", _label);
+            GUI.Label(new Rect(basin.x + 26f, basin.y + 48f, basin.width - 40f, 48f),
+                IsRussianUi ? "РЕЗОНАНСНЫЙ БАССЕЙН" : "RESONANCE BASIN", _title);
+            GUI.Label(new Rect(basin.x + 26f, basin.y + 98f, basin.width - 40f, 45f),
+                IsRussianUi ? "ПЕРВЫЙ СТАБИЛЬНЫЙ ECHO" : "THE FIRST STABLE ECHO", _label);
+            GUI.Label(new Rect(basin.x + 26f, basin.y + 148f, basin.width - 40f, 38f),
+                IsRussianUi ? "Маршрут стабилизации · 30:00" : "Stabilization route · 30:00", _label);
+            var basinButtonLabel = basinSelected
+                ? (IsRussianUi ? "ВЫБРАНО" : "SELECTED")
+                : (IsRussianUi ? "ВЫБРАТЬ РЕГИОН" : "SELECT REGION");
+            if (GUI.Button(new Rect(basin.x + 20f, basin.yMax - 58f, basin.width - 40f, 42f), basinButtonLabel, _button))
+                _selectedRegion = EchoRegionId.ResonanceBasin;
 
             GUI.Box(rift, GUIContent.none, _box);
-            GUI.color = new Color(0.66f, 0.52f, 1f, 0.75f);
+            GUI.color = new Color(0.66f, 0.52f, 1f, riftAvailable ? 0.95f : 0.55f);
             GUI.DrawTexture(new Rect(rift.x + 12f, rift.y + 12f, 3f, rift.height - 24f), _uiAccentTexture);
             GUI.color = previousColor;
-            GUI.Label(new Rect(rift.x + 26f, rift.y + 18f, rift.width - 40f, 20f), "REGION 02  /  LOCKED", _label);
-            GUI.Label(new Rect(rift.x + 26f, rift.y + 48f, rift.width - 40f, 48f), "SPECTRAL RIFT", _title);
-            GUI.Label(new Rect(rift.x + 26f, rift.y + 98f, rift.width - 40f, 45f), "ZONE OF REWRITTEN DISTANCE", _label);
+            GUI.Label(new Rect(rift.x + 26f, rift.y + 18f, rift.width - 40f, 20f),
+                riftAvailable
+                    ? (IsRussianUi ? "РЕГИОН 02  /  ДОСТУПЕН" : "REGION 02  /  AVAILABLE")
+                    : (IsRussianUi ? "РЕГИОН 02  /  ЗАКРЫТ" : "REGION 02  /  LOCKED"), _label);
+            GUI.Label(new Rect(rift.x + 26f, rift.y + 48f, rift.width - 40f, 48f),
+                IsRussianUi ? "СПЕКТРАЛЬНЫЙ РАЗЛОМ" : "SPECTRAL RIFT", _title);
+            GUI.Label(new Rect(rift.x + 26f, rift.y + 98f, rift.width - 40f, 45f),
+                IsRussianUi ? "ЗОНА ПЕРЕПИСАННЫХ РАССТОЯНИЙ" : "ZONE OF REWRITTEN DISTANCE", _label);
             GUI.Label(new Rect(rift.x + 26f, rift.y + 148f, rift.width - 40f, 38f),
-                "Unlocks after Resonance Basin is stabilized.", _label);
-            GUI.enabled = false;
-            GUI.Button(new Rect(rift.x + 20f, rift.yMax - 58f, rift.width - 40f, 42f), "LOCKED", _button);
-            GUI.enabled = true;
+                riftAvailable
+                    ? (IsRussianUi ? "Маршрут стабилизации · 30:00" : "Stabilization route · 30:00")
+                    : (IsRussianUi ? "Откроется после стабилизации Резонансного Бассейна." : "Unlocks after Resonance Basin is stabilized."), _label);
+
+            var previousEnabled = GUI.enabled;
+            GUI.enabled = riftAvailable;
+            var riftButtonLabel = !riftAvailable
+                ? (IsRussianUi ? "ЗАКРЫТО" : "LOCKED")
+                : riftSelected
+                    ? (IsRussianUi ? "ВЫБРАНО" : "SELECTED")
+                    : (IsRussianUi ? "ВЫБРАТЬ РЕГИОН" : "SELECT REGION");
+            if (GUI.Button(new Rect(rift.x + 20f, rift.yMax - 58f, rift.width - 40f, 42f), riftButtonLabel, _button) && riftAvailable)
+                _selectedRegion = EchoRegionId.SpectralRift;
+            GUI.enabled = previousEnabled;
+
+            GUI.color = new Color(0.60f, 0.80f, 1f, 0.6f);
+            GUI.DrawTexture(new Rect(panel.x + 26f, panel.yMax - 104f, panel.width - 52f, 1f), _uiAccentTexture);
+            GUI.color = previousColor;
+            GUI.Label(new Rect(panel.x + 142f, panel.yMax - 96f, panel.width - 284f, 22f),
+                IsRussianUi
+                    ? "Регион влияет на состав врагов и расписание боссов."
+                    : "Region changes enemy composition and boss schedule.", _label);
 
             var actionWidth = Mathf.Min(330f, panel.width - 80f);
-            if (GUI.Button(new Rect(panel.center.x - actionWidth * 0.5f, panel.yMax - 72f, actionWidth, 44f),
-                "START RESONANCE BASIN", _button))
+            var selectedName = _selectedRegion == EchoRegionId.SpectralRift
+                ? (IsRussianUi ? "СПЕКТРАЛЬНЫЙ РАЗЛОМ" : "SPECTRAL RIFT")
+                : (IsRussianUi ? "РЕЗОНАНСНЫЙ БАССЕЙН" : "RESONANCE BASIN");
+            if (GUI.Button(new Rect(panel.center.x - actionWidth * 0.5f, panel.yMax - 70f, actionWidth, 42f),
+                IsRussianUi ? "НАЧАТЬ: " + selectedName : "START: " + selectedName, _button))
+                BeginSelectedRegionRun();
+
+            if (GUI.Button(new Rect(panel.x + 18f, panel.yMax - 68f, 110f, 36f),
+                IsRussianUi ? "НАЗАД" : "BACK", _button))
+                _regionSelect = false;
+        }
+
+        private void BeginSelectedRegionRun()
+        {
+            if (!IsRegionAvailable(_selectedRegion))
             {
-                _selectedRegion = 0;
-                _regionSelect = false;
-                _mainMenu = false;
-                _paused = false;
-                _messageTimer = 0f;
+                _selectedRegion = EchoRegionId.ResonanceBasin;
+                ShowMessage(IsRussianUi ? "СНАЧАЛА СТАБИЛИЗИРУЙ РЕЗОНАНСНЫЙ БАССЕЙН" : "STABILIZE RESONANCE BASIN FIRST");
+                return;
             }
-            if (GUI.Button(new Rect(panel.x + 18f, panel.yMax - 68f, 110f, 36f), "BACK", _button))
-                _regionSelect = false;
+
+            PlayerPrefs.SetInt(SelectedRegionPreferenceKey, (int)_selectedRegion);
+            PlayerPrefs.Save();
+            _regionSchedule = RegionBossScheduleRules.Create(_selectedRegion, EchoRegionMode.Stabilization);
+            _regionStabilized = false;
+            _regionFieldVisuals?.SetRegion(_selectedRegion);
+            _regionSelect = false;
+            _mainMenu = false;
+            _paused = false;
+            _userPaused = false;
+            _messageTimer = 0f;
+            _runTime = 0f;
+            _wave = 0;
+            _waveEnemiesToSpawn = 0;
+            _spawnTimer = 3f;
+            StartNextWave();
         }
 
 

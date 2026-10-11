@@ -16,6 +16,7 @@ internal static class Program
             CheckEnemySpawnRules();
             CheckBossCombatRules();
             CheckRegionBossSchedule();
+            CheckRegionUnlockRules();
             CheckArtifactRewardRules();
             CheckSphereCombatProfiles();
             CheckSphereProgressionRules();
@@ -169,6 +170,14 @@ internal static class Program
         Equal(BossCombatRules.GetChargerPhase(0.35f), BossChargerPhase.CommittedDash, "Charger commit threshold");
         Equal(BossCombatRules.GetChargerPhase(0f), BossChargerPhase.Ready, "Charger reset phase");
         Equal(BossCombatRules.GetColorHex("stella_warden"), "#ffd15a", "Stella Warden source tint");
+    }
+
+    private static void CheckRegionUnlockRules()
+    {
+        True(RegionUnlockRules.IsAvailable(EchoRegionId.ResonanceBasin, false), "Basin is the source initial available region");
+        True(!RegionUnlockRules.IsAvailable(EchoRegionId.SpectralRift, false), "Rift remains locked before Basin stabilization");
+        True(RegionUnlockRules.IsAvailable(EchoRegionId.SpectralRift, true), "Rift opens after Basin stabilization");
+        True(RegionUnlockRules.IsAvailable(EchoRegionId.ResonanceBasin, true), "Basin remains available after stabilization");
     }
 
     private static void CheckRegionBossSchedule()

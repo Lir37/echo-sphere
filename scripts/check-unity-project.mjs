@@ -20,6 +20,7 @@ const required = [
   'Assets/EchoSphere/Scripts/Core/EnemySpawnRules.cs',
   'Assets/EchoSphere/Scripts/Core/BossCombatRules.cs',
   'Assets/EchoSphere/Scripts/Core/RegionBossScheduleRules.cs',
+  'Assets/EchoSphere/Scripts/Core/RegionUnlockRules.cs',
   'Assets/EchoSphere/Scripts/Core/ArtifactRewardRules.cs',
   'Assets/EchoSphere/Scripts/Runtime/StellaChestAgent2D.cs',
   'Assets/EchoSphere/Scripts/Runtime/BossCombatAgent2D.cs',
@@ -340,6 +341,18 @@ const playerCore = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/Pl
 assert.ok(playerCore.includes('CanReceiveDamageNow') && playerCore.includes('IncreaseMaxHp') && playerCore.includes('SetDashCooldownMultiplier'), 'player artifact stat hooks are missing');
 const enemyRuntime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs'), 'utf8');
 assert.ok(!enemyRuntime.includes('HealCoreFromDamage(appliedDamage)'), 'vampirism must not heal from arbitrary enemy/status damage');
+const regionUnlockRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/RegionUnlockRules.cs'), 'utf8');
+assert.ok(regionUnlockRules.includes('resonanceBasinStabilized') && regionUnlockRules.includes('EchoRegionId.SpectralRift'),
+  'Rift unlock must follow source Basin stabilization');
+assert.ok(runtime.includes('BeginSelectedRegionRun()') && runtime.includes('RegionUnlockRules.IsAvailable') &&
+  runtime.includes('BasinStabilizedPreferenceKey') && runtime.includes('SelectedRegionPreferenceKey') &&
+  runtime.includes('_regionSchedule = RegionBossScheduleRules.Create(_selectedRegion, EchoRegionMode.Stabilization)'),
+  'Region selector must preserve the selected available Region, persist Basin unlock and use its matching boss schedule');
+const regionFieldVisuals = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/RegionFieldVisuals.cs'), 'utf8');
+for (const pocket of ['Prism Shift', 'Mirror Shoal', 'Ember Fault', 'Silent Lattice', 'Null Garden', 'Axis Node', 'Glass Flow', 'Pressure Field'])
+  assert.ok(regionFieldVisuals.includes(pocket), 'source Region pocket visual missing: ' + pocket);
+assert.ok(regionFieldVisuals.includes('SetRegion(EchoRegionId regionId)') && runtime.includes('_regionFieldVisuals?.SetRegion(_selectedRegion)'),
+  'selected Region must rebuild the matching source pocket field');
 const regionSchedule = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/RegionBossScheduleRules.cs'), 'utf8');
 for (const sourceBoss of ['conductor','architect','null','aura','stella_warden']) assert.ok(regionSchedule.includes('"' + sourceBoss + '"'), 'Region schedule source boss missing: ' + sourceBoss);
 assert.ok(regionSchedule.includes('480f') && regionSchedule.includes('960f') && regionSchedule.includes('1620f') && regionSchedule.includes('1800f'), 'source Region boss/stabilization timing contract missing');
