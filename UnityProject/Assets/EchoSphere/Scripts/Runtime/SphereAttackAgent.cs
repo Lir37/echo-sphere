@@ -304,7 +304,31 @@ namespace EchoSphere.Runtime
         {
             if (target == null) return;
             var direction = ((Vector2)target.transform.position - origin).normalized;
-            _runtime.SpawnProjectile(origin, direction, damage, tint, 8f * _profile.ProjectileSpeedMultiplier, _levelStats.Pierce, _levelStats.CritChanceBonus, this);
+            var count = 1 + _runtime.GetSphereAuthoredModifierLevel(_type, SphereAuthoredModifier.Multishot);
+            var pierce = _levelStats.Pierce + _runtime.GetSphereProjectilePierceBonus(_type);
+            var spread = _profile.Spread * _levelStats.SpreadMultiplier;
+            if (spread <= 0.0001f) spread = 0.15f;
+            for (var i = 0; i < count; i++)
+            {
+                var t = count == 1 ? 0f : (float)i / (count - 1) - 0.5f;
+                SpawnAuthoredMainProjectile(origin, Rotate(direction, t * spread * Mathf.Rad2Deg), damage,
+                    tint, 8f * _profile.ProjectileSpeedMultiplier, pierce, _levelStats.CritChanceBonus);
+            }
+        }
+
+        private void SpawnAuthoredMainProjectile(Vector2 origin, Vector2 direction, float damage,
+            Color tint, float speed, int pierce, float critChanceBonus)
+        {
+            var ricochets = _runtime.GetSphereProjectileRicochetCount(_type);
+            _runtime.SpawnProjectile(origin, direction, damage, tint, speed, pierce, critChanceBonus,
+                this, ricochets, 2.0f, true, true, true);
+
+            var echoLevel = _runtime.GetSphereAuthoredModifierLevel(_type, SphereAuthoredModifier.Echo);
+            var echoChance = SphereAuthoredModifierRules.GetEchoChance(echoLevel);
+            if (echoChance <= 0f || !_runtime.RollCombatChance(echoChance)) return;
+            var echoAngle = (_runtime.NextRunRandom() - 0.5f) * 10.31324f;
+            _runtime.SpawnProjectile(origin, Rotate(direction, echoAngle), damage * 0.28f, tint,
+                speed, 0, 0f, this, 0, 1.1f, false, false, false);
         }
 
         private void FireSpread(EnemyAgent2D target, Vector2 origin, float damage)
@@ -319,15 +343,17 @@ namespace EchoSphere.Runtime
                 count += SphereEvolutionCombatRules.GetShotgunHailBonusPellets(finalId);
             else if (branch == "shotgun_burst")
                 count += SphereEvolutionCombatRules.GetShotgunBurstExtraPellets(_progressionLevel, finalId, targetDistance);
+            count += _runtime.GetSphereAuthoredModifierLevel(_type, SphereAuthoredModifier.Multishot);
             var pierce = branch == "shotgun_cataclysm"
                 ? SphereEvolutionCombatRules.GetShotgunCataclysmPierce(_levelStats.Pierce, finalId)
                 : _levelStats.Pierce;
+            pierce += _runtime.GetSphereProjectilePierceBonus(_type);
             for (var i = 0; i < count; i++)
             {
                 var t = count == 1 ? 0f : (float)i / (count - 1) - 0.5f;
                 var angle = t * _profile.Spread * _levelStats.SpreadMultiplier * Mathf.Rad2Deg;
                 var shot = Rotate(direction, angle);
-                _runtime.SpawnProjectile(origin, shot, damage, ColorFor(_type), 8f, pierce, 0f, this);
+                SpawnAuthoredMainProjectile(origin, shot, damage, ColorFor(_type), 8f, pierce, 0f);
             }
         }
 
@@ -354,20 +380,21 @@ namespace EchoSphere.Runtime
         {
             var branch = _runtime.GetSphereBranch(_type);
             var finalId = _runtime.GetSphereFinal(_type);
-            var targetCount = Mathf.Max(1, _levelStats.PrismDirections);
-            if (branch == "prism_split" && finalId == "prism_split_final_1") targetCount += 2;
+            var targetCount = Mathf.Max(1, _levelStats.PrismDirections +
+                _runtime.GetSphereAuthoredModifierLevel(_type, SphereAuthoredModifier.Multishot));
+            if (branch == "prism_split" && (finalId == "prism_split_final_2" || finalId == "prism_split_final_3"))
+                targetCount += 1;
             var targets = _runtime.FindNearestEnemies(origin, AttackRange, targetCount);
             if (targets.Count == 0) return;
             var pierce = SphereEvolutionCombatRules.GetPrismPierce(_levelStats.Pierce, branch, finalId);
             for (var i = 0; i < targets.Count; i++)
             {
                 var direction = ((Vector2)targets[i].transform.position - origin).normalized;
-                _runtime.SpawnProjectile(origin, direction, damage, ColorFor(_type), 8f * _profile.ProjectileSpeedMultiplier, pierce, 0f, this);
-                if (branch == "prism_split" && finalId == "prism_split_final_1" && i == 0)
-                {
-                    _runtime.SpawnProjectile(origin, Rotate(direction, -14f), damage * 0.72f, ColorFor(_type), 8f * _profile.ProjectileSpeedMultiplier, pierce, 0f, this);
-                    _runtime.SpawnProjectile(origin, Rotate(direction, 14f), damage * 0.72f, ColorFor(_type), 8f * _profile.ProjectileSpeedMultiplier, pierce, 0f, this);
-                }
+                var beamDamage = damage;
+                if (branch == "prism_split" && i > 0)
+                    beamDamage *= finalId == "prism_split_final_2" ? 0.72f : 0.62f;
+                _runtime.SpawnProjectile(origin, direction, beamDamage, ColorFor(_type),
+                    8f * _profile.ProjectileSpeedMultiplier, pierce, 0f, this);
             }
         }
 
@@ -504,7 +531,8 @@ namespace EchoSphere.Runtime
             var multiplier = target.HpFraction <= 0.25f ? 2.5f * _levelStats.WeakenedDamageMultiplier : 1f;
             var direction = ((Vector2)target.transform.position - origin).normalized;
             var voidPierce = SphereEvolutionCombatRules.GetVoidExecutionPierce(_levelStats.Pierce, _runtime.GetSphereFinal(_type));
-            _runtime.SpawnProjectile(origin, direction, damage * multiplier, ColorFor(_type), 8f * _profile.ProjectileSpeedMultiplier, voidPierce, 0f, this);
+            SpawnAuthoredMainProjectile(origin, direction, damage * multiplier, ColorFor(_type),
+                8f * _profile.ProjectileSpeedMultiplier, voidPierce, 0f);
         }
 
 

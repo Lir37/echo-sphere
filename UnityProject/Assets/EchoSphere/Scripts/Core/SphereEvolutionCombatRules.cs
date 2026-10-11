@@ -94,15 +94,12 @@ namespace EchoSphere.Core
         }
 
         public static int GetVoidExecutionPierce(int basePierce, string finalId) =>
-            Math.Max(0, basePierce) + (finalId == "void_execution_final_2" || finalId == "void_execution_final_3" ? 1 : 0);
+            Math.Max(0, basePierce) +
+            SphereAuthoredModifierRules.GetProjectilePierceBonus("void_execution", finalId);
 
-        public static int GetPrismPierce(int basePierce, string branch, string finalId)
-        {
-            var extra = branch == "prism_split" && finalId == "prism_split_final_2" ? 2
-                : branch == "prism_mirror" && finalId == "prism_mirror_final_2" ? 1
-                : branch == "prism_mirror" && finalId == "prism_mirror_final_3" ? 1 : 0;
-            return Math.Max(0, basePierce) + extra;
-        }
+        public static int GetPrismPierce(int basePierce, string branch, string finalId) =>
+            Math.Max(0, basePierce) +
+            SphereAuthoredModifierRules.GetProjectilePierceBonus(branch, finalId);
 
         public static int GetPrismMirrorBounces(string finalId) =>
             finalId == "prism_mirror_final_1" ? 1 : finalId == "prism_mirror_final_2" || finalId == "prism_mirror_final_3" ? 2 : 0;

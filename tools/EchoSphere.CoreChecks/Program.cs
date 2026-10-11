@@ -36,6 +36,7 @@ internal static class Program
             CheckAlchemistReactionRules();
             CheckSphereAuthoredModifierRules();
             CheckSphereAuthoredHitEffects();
+            CheckAuthoredProjectileRuntime();
             Console.WriteLine($"ECHO SPHERE Unity core contracts: PASS ({_assertions} assertions)");
             return 0;
         }
@@ -418,7 +419,7 @@ internal static class Program
     private static void CheckPrismEvolutionCombatRules()
     {
         Equal(SphereEvolutionCombatRules.GetPrismPierce(0, "prism_split", "prism_split_final_2"), 2, "Prism Split pierce final");
-        Equal(SphereEvolutionCombatRules.GetPrismPierce(1, "prism_mirror", "prism_mirror_final_2"), 2, "Prism Mirror adds pierce");
+        Equal(SphereEvolutionCombatRules.GetPrismPierce(1, "prism_mirror", "prism_mirror_final_2"), 1, "Prism Mirror Ricochet does not become pierce");
         Equal(SphereEvolutionCombatRules.GetPrismMirrorBounces("prism_mirror_final_1"), 1, "Mirror first bounce");
         Equal(SphereEvolutionCombatRules.GetPrismMirrorBounces("prism_mirror_final_2"), 2, "Mirror double bounce");
         Equal(SphereEvolutionCombatRules.GetPrismMirrorBounces("prism_mirror_final_3"), 2, "Mirror network reflection bounce count");
@@ -776,6 +777,38 @@ internal static class Program
             "Shatter source splash radius");
         Near(SphereAuthoredModifierRules.GetShatterDamageMultiplier(2), 0.36f, 0.0001f,
             "Shatter II burst is 36% of actual primary damage");
+        Near(SphereAuthoredModifierRules.GetSplitChance(1), 0.18f, 0.0001f, "Split I chance");
+        Near(SphereAuthoredModifierRules.GetSplitChance(3), 0.45f, 0.0001f, "Split chance cap");
+        Near(SphereAuthoredModifierRules.GetEchoChance(1), 0.12f, 0.0001f, "Echo I chance");
+        Near(SphereAuthoredModifierRules.GetEchoChance(3), 0.35f, 0.0001f, "Echo chance cap");
+        Near(SphereAuthoredModifierRules.GetStaticChance(1), 0.12f, 0.0001f, "Static I chance");
+        Near(SphereAuthoredModifierRules.GetStaticChance(3), 0.35f, 0.0001f, "Static chance cap");
+        Near(SphereAuthoredModifierRules.GetAfterimageChance(1), 0.16f, 0.0001f, "Afterimage I chance");
+        Near(SphereAuthoredModifierRules.GetAfterimageChance(3), 0.40f, 0.0001f, "Afterimage chance cap");
+        Near(SphereAuthoredModifierRules.GetAfterimageDamageMultiplier(1), 0.20f, 0.0001f, "Afterimage I damage");
+        Near(SphereAuthoredModifierRules.GetAfterimageDamageMultiplier(4), 0.32f, 0.0001f, "Afterimage damage cap");
+        Equal(SphereAuthoredModifierRules.GetProjectilePierceBonus("prism_split", "prism_split_final_2"), 2,
+            "authored Prism Split Pierce II is applied once");
+        Equal(SphereAuthoredModifierRules.GetProjectilePierceBonus("void_execution", "void_execution_final_3"), 2,
+            "authored Void Execution Phase II is applied as pierce");
+        Equal(SphereAuthoredModifierRules.GetProjectileRicochetCount("prism_mirror", "prism_mirror_final_3"), 2,
+            "Prism Mirror authored Ricochet II");
+        Equal(SphereAuthoredModifierRules.GetMultishotCount("shotgun_hail", "shotgun_hail_final_2"), 2,
+            "Shotgun Hail authored Multishot II");
+    }
+
+    private static void CheckAuthoredProjectileRuntime()
+    {
+        Equal(SphereAuthoredModifierRules.GetProjectilePierceBonus("prism_split", "prism_split_final_2"), 2,
+            "Prism Split Pierce II resolves once");
+        Equal(SphereAuthoredModifierRules.GetProjectilePierceBonus("void_execution", "void_execution_final_2"), 1,
+            "Void Execution Phase I resolves as one pierce");
+        Equal(SphereAuthoredModifierRules.GetProjectilePierceBonus("void_execution", "void_execution_final_3"), 2,
+            "Void Execution Phase II resolves as two pierces");
+        Near(SphereAuthoredModifierRules.GetSplitChance(2), 0.36f, 0.0001f, "Split II chance");
+        Near(SphereAuthoredModifierRules.GetEchoChance(2), 0.24f, 0.0001f, "Echo II chance");
+        Near(SphereAuthoredModifierRules.GetStaticChance(2), 0.24f, 0.0001f, "Static II chance");
+        Near(SphereAuthoredModifierRules.GetAfterimageChance(2), 0.32f, 0.0001f, "Afterimage II chance");
     }
 
     private static void CheckSphereNetworkRules()
