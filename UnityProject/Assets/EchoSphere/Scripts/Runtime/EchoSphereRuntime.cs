@@ -8,6 +8,13 @@ namespace EchoSphere.Runtime
     /// <summary>First-playable migration harness; intentionally not the full production game.</summary>
     public sealed class EchoSphereRuntime : MonoBehaviour
     {
+        // Exact picker order from Object.keys(SPHERE_TYPES) in new-desing/src/gameData.ts.
+        private static readonly SphereId[] SpherePickerOrder =
+        {
+            SphereId.Standard, SphereId.Sniper, SphereId.Shotgun, SphereId.Chain, SphereId.Aura,
+            SphereId.Orbital, SphereId.Prism, SphereId.Gravity, SphereId.Pulse, SphereId.Void
+        };
+
         private readonly List<EnemyAgent2D> _enemies = new List<EnemyAgent2D>();
         private readonly List<SphereAttackAgent> _spheres = new List<SphereAttackAgent>();
         private readonly List<string> _ownedArtifacts = new List<string>();
@@ -28,9 +35,9 @@ namespace EchoSphere.Runtime
         private SphereId _selectedSphereType = SphereId.Standard;
         private bool _sphereMovementLocked;
         private bool _spherePointerActive, _spherePointerFromTouch, _spherePointerMoved;
-        private bool _spherePointerIsMovement, _spherePointerIsPlacing, _spherePointerLockedSphereTap;
+        private bool _spherePointerIsMovement, _spherePointerIsPlacing;
         private int _spherePointerTouchId = -1;
-        private Vector2 _spherePointerStartScreen, _spherePointerScreen, _spherePointerWorld;
+        private Vector2 _spherePointerStartScreen, _spherePointerWorld;
         private SphereAttackAgent _spherePointerTarget;
         private bool _spherePointerPositionValid;
         private SphereNetworkState _spherePointerPreview;
@@ -301,6 +308,14 @@ namespace EchoSphere.Runtime
             agent.ApplyProgressionLevel(level);
             _spheres.Add(agent);
             if (_follow) agent.SetFollowMode(true, (Vector2)_player.position);
+        }
+
+        private static Color SphereUiColor(SphereId type)
+        {
+            var definition = GameCatalog.Spheres[(int)type];
+            if (!string.IsNullOrEmpty(definition.ColorHex) && ColorUtility.TryParseHtmlString(definition.ColorHex, out var sourceColor))
+                return sourceColor;
+            return SphereColor(type);
         }
 
         private static Color SphereColor(SphereId type)
@@ -2259,12 +2274,10 @@ namespace EchoSphere.Runtime
             _spherePointerFromTouch = fromTouch;
             _spherePointerTouchId = touchId;
             _spherePointerStartScreen = screenPoint;
-            _spherePointerScreen = screenPoint;
             _spherePointerWorld = ScreenToWorldPoint(screenPoint);
             _spherePointerMoved = false;
             _spherePointerIsMovement = false;
             _spherePointerIsPlacing = false;
-            _spherePointerLockedSphereTap = false;
             _spherePointerTarget = null;
             _spherePointerPositionValid = false;
             _spherePointerPreview = null;
@@ -2275,8 +2288,7 @@ namespace EchoSphere.Runtime
             var hit = FindSphereAtWorld(_spherePointerWorld, 34f * SpherePlacementRules.SourcePixelsToWorld);
             if (hit != null)
             {
-                if (_sphereMovementLocked) _spherePointerLockedSphereTap = true;
-                else _spherePointerTarget = hit;
+                if (!_sphereMovementLocked) _spherePointerTarget = hit;
                 return;
             }
 
@@ -2288,7 +2300,6 @@ namespace EchoSphere.Runtime
         private void MoveSpherePointer(Vector2 screenPoint)
         {
             if (!_spherePointerActive) return;
-            _spherePointerScreen = screenPoint;
             _spherePointerWorld = ScreenToWorldPoint(screenPoint);
             var deadzone = 12f * Mathf.Max(1f, _uiScale);
             if ((screenPoint - _spherePointerStartScreen).sqrMagnitude > deadzone * deadzone)
@@ -2312,7 +2323,6 @@ namespace EchoSphere.Runtime
         private void FinishSpherePointer(Vector2 screenPoint)
         {
             if (!_spherePointerActive) return;
-            _spherePointerScreen = screenPoint;
             _spherePointerWorld = ScreenToWorldPoint(screenPoint);
             var moved = _spherePointerMoved;
             var target = _spherePointerTarget;
@@ -2359,7 +2369,6 @@ namespace EchoSphere.Runtime
             _spherePointerMoved = false;
             _spherePointerIsMovement = false;
             _spherePointerIsPlacing = false;
-            _spherePointerLockedSphereTap = false;
             _spherePointerTarget = null;
             _spherePointerPositionValid = false;
             _spherePointerPreview = null;
@@ -2487,7 +2496,7 @@ namespace EchoSphere.Runtime
             var level = _sphereLevels.TryGetValue(_selectedSphereType, out var currentLevel) ? currentLevel : 0;
             CreateSphere(_selectedSphereType, level, world);
             _placementFlashPosition = world;
-            _placementFlashColor = SphereColor(_selectedSphereType);
+            _placementFlashColor = SphereUiColor(_selectedSphereType);
             _placementFlashTimer = 0.45f;
             RefreshNetworkState();
             CaptureSphereFormationMemoryIfChanged();
@@ -2550,16 +2559,16 @@ namespace EchoSphere.Runtime
 
             var buttonWidth = (panel.width - 22f) / 5f;
             var buttonHeight = 40f;
-            for (var i = 0; i < GameCatalog.Spheres.Count; i++)
+            for (var i = 0; i < SpherePickerOrder.Length; i++)
             {
-                var type = GameCatalog.Spheres[i].Id;
+                var type = SpherePickerOrder[i];
                 var column = i % 5;
                 var row = i / 5;
                 var rect = new Rect(panel.x + 7f + column * (buttonWidth + 2f),
                     panel.y + 48f + row * 42f, buttonWidth, 38f);
                 var previousColor = GUI.color;
                 if (GUI.Button(rect, GUIContent.none, _button)) _selectedSphereType = type;
-                var color = SphereColor(type);
+                var color = SphereUiColor(type);
                 GUI.color = new Color(color.r, color.g, color.b, type == _selectedSphereType ? 1f : 0.84f);
                 DrawSpriteIcon(new Rect(rect.x + 4f, rect.y + 5f, 28f, 28f), GetSphereIcon(type), Color.white);
                 GUI.color = previousColor;
@@ -2586,7 +2595,7 @@ namespace EchoSphere.Runtime
                 (_spherePointerTarget != null || _spherePointerIsPlacing) && _spherePointerPreview != null)
             {
                 var previewType = _spherePointerTarget != null ? _spherePointerTarget.Type : _selectedSphereType;
-                var previewColor = _spherePointerPositionValid ? SphereColor(previewType) : new Color(1f, 0.28f, 0.38f);
+                var previewColor = _spherePointerPositionValid ? SphereUiColor(previewType) : new Color(1f, 0.28f, 0.38f);
                 var candidateIndex = _spherePointerPreviewIndex;
                 for (var i = 0; i < _spherePointerPreview.Links.Count; i++)
                 {
