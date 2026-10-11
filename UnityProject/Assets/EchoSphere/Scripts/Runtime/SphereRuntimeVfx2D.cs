@@ -313,10 +313,9 @@ namespace EchoSphere.Runtime
             if (mode == SphereId.Sniper)
             {
                 var tickWidth = Mathf.Max(.60f * SpherePlacementRules.SourcePixelsToWorld, radius * .020f);
-                var angles = new[] { -.56f, -.28f, 0f, .28f, .56f };
-                for (var i = 0; i < angles.Length; i++)
+                for (var i = -2; i <= 2; i++)
                 {
-                    var a = angles[i];
+                    var a = i * .28f;
                     var point = EllipsePoint(rx, ry, a);
                     var normal = new Vector2(Mathf.Cos(a), Mathf.Sin(a));
                     var from = Rotate(point - normal * radius * .045f, rotation);
