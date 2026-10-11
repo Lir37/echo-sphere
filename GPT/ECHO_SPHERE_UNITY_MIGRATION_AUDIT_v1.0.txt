@@ -2584,3 +2584,13 @@ CI FOLLOW-UP | 2026-10-12
   redeclared an existing top-level `playerCore` variable.
 - Renamed the new guard variable to `shopDashCounterCheck`. This is a
   checker-only fix; no runtime code was changed in this follow-up.
+
+
+CI FOLLOW-UP | 2026-10-12
+- Unity Migration Contracts #219 and #220: C# gameplay contracts passed
+  (680 assertions). The Node structural check failed at the old MaxSpheres
+  assertion because it still required temporary shop bonus 0 after persistent
+  Shop support had replaced that value with the source shopUpgrades.spheres.
+- Updated the guard to require PersistentUpgradeRules.GetExtraSpheres and the
+  live LevelUpAbilityRules catalog path. Re-run CI before continuing the UI
+  stage; these checks still do not compile the Unity Editor project or APK.

@@ -247,10 +247,10 @@ for (const required of ['src/spaceCollision.ts','PlayerBuildGap','TowerPlacement
   'SphereCharacterId','GetSignatureSphere','GetCharacterSphereCopyCap','GetSameTypeCap','GetCopyDamageMultiplier','SphereCharacterId.Fractal'])
   assert.ok(spherePlacementRules.includes(required), 'source Sphere placement/copy-cap contract missing: ' + required);
 assert.ok(runtime.includes('_maxSphereAbilityLevel') && runtime.includes('GetCurrentMaxSpheres') &&
-  runtime.includes('SpherePlacementRules.GetMaxSpheres(_maxSphereAbilityLevel, 0)') &&
+  runtime.includes('SpherePlacementRules.GetMaxSpheres(_maxSphereAbilityLevel, PersistentUpgradeRules.GetExtraSpheres(GetShopUpgradeLevel("spheres")))') &&
   runtime.includes('LevelUpAbilityRules.CreateChoice(RunUpgradeKind.MaxSpheres, _maxSphereAbilityLevel)') &&
   runtime.includes('RunUpgradeKind.MaxSpheres'),
-  'source maxspheres passive ability must use the Level-Up catalog and change live placement capacity');
+  'source maxspheres passive ability must use the Level-Up catalog and live persistent-shop capacity');
 assert.ok(runtime.includes('SpherePlacementRules.GetSameTypeCap') &&
   runtime.includes('_sphereCharacterId') && runtime.includes('_characterMasteryLevel') &&
   !runtime.includes('CountSpheresOfType(_selectedSphereType) >= SpherePlacementRules.MaxSameSphereCopies'),
