@@ -40,8 +40,13 @@ namespace EchoSphere.Runtime
                 _hitEnemyIds.Add(enemy.GetInstanceID());
                 var resolvedDamage = _runtime.ResolveProjectileDamage(_damage, _critChanceBonus, out var wasCritical);
                 if (_evolutionOwner != null) resolvedDamage = _evolutionOwner.OnProjectileHit(enemy, _direction, resolvedDamage, wasCritical);
-                enemy.ReceiveDamage(resolvedDamage);
-                if (_evolutionOwner != null) _runtime.RegisterSphereHit(_evolutionOwner, enemy, resolvedDamage);
+                if (_evolutionOwner != null)
+                {
+                    resolvedDamage = enemy.ReceiveSphereDamage(_evolutionOwner.Type, resolvedDamage);
+                    _evolutionOwner.OnSphereHitApplied(enemy);
+                    _runtime.RegisterSphereHit(_evolutionOwner, enemy, resolvedDamage);
+                }
+                else enemy.ReceiveDamage(resolvedDamage);
                 _runtime.AddResonanceCharge(1f);
                 _runtime.SpawnImpact(transform.position, _impactColor);
                 if (_remainingPierces > 0) _remainingPierces--;

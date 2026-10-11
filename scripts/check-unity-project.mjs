@@ -231,6 +231,25 @@ assert.ok(runtime.includes('DrawSpherePickerGlyph') && runtime.includes('SphereI
   'Sphere picker must port the actual MobileControls glyphs instead of invented text abbreviations');
 assert.ok(runtime.includes('GetSpherePickerDescriptionHeight') && runtime.includes('definition.DescriptionEn.Length'),
   'Sphere picker must expand for the source Orbital description instead of clipping it');
+const sphereElementalRulesPath = 'Assets/EchoSphere/Scripts/Core/SphereElementalRules.cs';
+assert.ok(existsSync(join(root, sphereElementalRulesPath)), 'source Sphere elemental gameplay rules are missing');
+const sphereElementalRules = readFileSync(join(root, sphereElementalRulesPath), 'utf8');
+for (const required of ['standard_resonator','sniper_oracle','chain_storm','aura_sanctum','gravity_tide','pulse_burst',
+  'ResolveElement','GetMasteryId','fire_tempo','freeze_impact','poison_tempo','conduction_rate','field_frequency',
+  'GetConductionDamageMultiplier','GetFieldCooldown'])
+  assert.ok(sphereElementalRules.includes(required), 'source elemental Mutation rule missing: ' + required);
+const sphereEnemy = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs'), 'utf8');
+const sphereProjectile = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/ProjectileAgent.cs'), 'utf8');
+const sphereElementalVfx = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/SphereElementalVfx2D.cs'), 'utf8');
+assert.ok(sphereEnemy.includes('ApplyElementalStatus') && sphereEnemy.includes('_fireTimer') &&
+  sphereEnemy.includes('_poisonTimer') && sphereEnemy.includes('_freezeTimer') &&
+  sphereEnemy.includes('TryAdvanceElementalConduction') && sphereEnemy.includes('TryBeginFieldElementalReaction'),
+  'elemental statuses and per-target Chain/Field cooldowns must run on live enemies');
+assert.ok(runtime.includes('GetSphereStatusDurationMultiplier') && runtime.includes('GetSphereStatusDamageMultiplier') &&
+  sphereAttack.includes('OnSphereHitApplied') && sphereProjectile.includes('_evolutionOwner.OnSphereHitApplied(enemy)'),
+  'element status rules must connect through Sphere attacks and projectile impacts');
+assert.ok(sphereElementalVfx.includes('return index == 2 ? 2 : index == 3 ? 3 : 1;'),
+  'Prism Spectrum presentation must match authored Fire / Freeze / Poison finals');
 const spherePickerStart = runtime.indexOf('private void DrawSpherePicker()');
 const spherePickerEnd = runtime.indexOf('private void DrawSpherePickerGlyph(', spherePickerStart);
 assert.ok(spherePickerStart >= 0 && spherePickerEnd > spherePickerStart, 'source Sphere picker implementation is missing');

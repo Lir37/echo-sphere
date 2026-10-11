@@ -32,6 +32,7 @@ internal static class Program
             CheckPulseVoidEvolutionCombatRules();
             CheckSphereNetworkRules();
             CheckSpherePlacementRules();
+            CheckSphereElementalRules();
             Console.WriteLine($"ECHO SPHERE Unity core contracts: PASS ({_assertions} assertions)");
             return 0;
         }
@@ -546,6 +547,76 @@ internal static class Program
         Near(SpherePlacementRules.DefaultMaxSpheres, 5f, 0f, "source default maximum Sphere count");
         Near(SphereNetworkRules.DefaultLinkDistance, 220f * SpherePlacementRules.SourcePixelsToWorld, 0.000001f,
             "source 220 px Network distance uses current camera scale");
+    }
+
+    private static void CheckSphereElementalRules()
+    {
+        var branchElements = new Dictionary<string, SphereElement>
+        {
+            ["standard_resonator"] = SphereElement.Fire, ["standard_singularity"] = SphereElement.Freeze, ["standard_swarm"] = SphereElement.Poison,
+            ["sniper_oracle"] = SphereElement.Poison, ["sniper_assassin"] = SphereElement.Fire, ["sniper_beacon"] = SphereElement.Freeze,
+            ["shotgun_burst"] = SphereElement.Fire, ["shotgun_cataclysm"] = SphereElement.Poison, ["shotgun_hail"] = SphereElement.Freeze,
+            ["orbital_dance"] = SphereElement.Poison, ["orbital_halo"] = SphereElement.Freeze, ["orbital_blade"] = SphereElement.Fire,
+            ["prism_split"] = SphereElement.Poison, ["prism_mirror"] = SphereElement.Freeze,
+            ["void_hunger"] = SphereElement.Poison, ["void_reaper"] = SphereElement.Fire, ["void_execution"] = SphereElement.Freeze,
+            ["chain_web"] = SphereElement.Freeze, ["chain_storm"] = SphereElement.Fire, ["chain_leech"] = SphereElement.Poison,
+            ["aura_sanctum"] = SphereElement.Freeze, ["aura_gravity"] = SphereElement.Fire, ["aura_overgrowth"] = SphereElement.Poison,
+            ["gravity_well"] = SphereElement.Freeze, ["gravity_tide"] = SphereElement.Fire, ["gravity_collapse"] = SphereElement.Poison,
+            ["pulse_wave"] = SphereElement.Freeze, ["pulse_resonator"] = SphereElement.Fire, ["pulse_burst"] = SphereElement.Poison
+        };
+        foreach (var entry in branchElements)
+            Equal(SphereElementalRules.ResolveElement(entry.Key), entry.Value, "source element mapping: " + entry.Key);
+
+        Equal(SphereElementalRules.ResolveElement("prism_spectrum", "prism_spectrum_final_1"), SphereElement.Fire, "Prism Spectrum final I uses Fire");
+        Equal(SphereElementalRules.ResolveElement("prism_spectrum", "prism_spectrum_final_2"), SphereElement.Freeze, "Prism Spectrum final II uses Freeze");
+        Equal(SphereElementalRules.ResolveElement("prism_spectrum", "prism_spectrum_final_3"), SphereElement.Poison, "Prism Spectrum final III uses Poison");
+        Equal(SphereElementalRules.GetMasteryId("standard_resonator", "standard_resonator_final_1"), "fire_power", "Fire mastery power");
+        Equal(SphereElementalRules.GetMasteryId("standard_resonator", "standard_resonator_final_2"), "fire_tempo", "Fire mastery tempo");
+        Equal(SphereElementalRules.GetMasteryId("standard_singularity", "standard_singularity_final_3"), "freeze_permafrost", "Freeze mastery Permafrost");
+        Equal(SphereElementalRules.GetMasteryId("chain_storm", "chain_storm_final_2"), "conduction_rate", "Chain Conduction Rate");
+        Equal(SphereElementalRules.GetMasteryId("gravity_well", "gravity_well_final_3"), "field_duration", "Field Duration mastery");
+
+        var fire = SphereElementalRules.CreateStatus(SphereElement.Fire, null, SphereElementalMode.Direct);
+        Near(fire.Duration, 3f, 0f, "source Fire duration");
+        Near(fire.DamagePerSecond, 8f, 0f, "source Fire DPS");
+        Near(SphereElementalRules.CreateStatus(SphereElement.Fire, "fire_power", SphereElementalMode.Direct).DamagePerSecond, 10.8f, 0.0001f, "Fire Power plus 35%");
+        var rapidFire = SphereElementalRules.CreateStatus(SphereElement.Fire, "fire_tempo", SphereElementalMode.Direct);
+        Near(rapidFire.TickInterval, 0.12f, 0f, "Fire Tempo tick interval");
+        Near(rapidFire.DamagePerSecond, 8f, 0f, "Fire Tempo preserves DPS");
+        Near(SphereElementalRules.CreateStatus(SphereElement.Fire, "fire_duration", SphereElementalMode.Direct).Duration, 4.35f, 0.0001f, "Fire Duration");
+
+        Near(SphereElementalRules.CreateStatus(SphereElement.Freeze, null, SphereElementalMode.Direct).Duration, 0.8f, 0.0001f, "source Freeze duration");
+        Near(SphereElementalRules.CreateStatus(SphereElement.Freeze, "freeze_duration", SphereElementalMode.Direct).Duration, 1.12f, 0.0001f, "Freeze Duration");
+        True(SphereElementalRules.CreateStatus(SphereElement.Freeze, "freeze_impact", SphereElementalMode.Direct).FreezeVulnerability, "Freeze Impact same-Sphere vulnerability");
+        var permafrost = SphereElementalRules.CreateStatus(SphereElement.Freeze, "freeze_permafrost", SphereElementalMode.Direct);
+        Near(permafrost.AdditionalSlowDuration, 1f, 0f, "Permafrost post-freeze slow duration");
+        Near(permafrost.AdditionalSlowMultiplier, 0.72f, 0f, "Permafrost slow multiplier");
+
+        var poison = SphereElementalRules.CreateStatus(SphereElement.Poison, null, SphereElementalMode.Direct);
+        Near(poison.Duration, 4f, 0f, "source Poison duration");
+        Near(poison.DamagePerSecond, 5f, 0f, "source Poison DPS");
+        Near(SphereElementalRules.CreateStatus(SphereElement.Poison, "poison_power", SphereElementalMode.Direct).DamagePerSecond, 6.75f, 0.0001f, "Poison Power plus 35%");
+        Near(SphereElementalRules.CreateStatus(SphereElement.Poison, "poison_tempo", SphereElementalMode.Direct).TickInterval, 0.12f, 0f, "Poison Tempo tick interval");
+        Near(SphereElementalRules.CreateStatus(SphereElement.Poison, "poison_duration", SphereElementalMode.Direct).Duration, 5.8f, 0.0001f, "Poison Duration");
+
+        Equal(SphereElementalRules.GetConductionThreshold(null), 3, "base Chain reaction threshold");
+        Equal(SphereElementalRules.GetConductionThreshold("conduction_rate"), 2, "Conduction Rate threshold");
+        Near(SphereElementalRules.GetConductionCooldown(null), 2f, 0f, "base Chain reaction cooldown");
+        Near(SphereElementalRules.GetConductionCooldown("conduction_rate"), 1.4f, 0f, "Conduction Rate cooldown");
+        Near(SphereElementalRules.GetConductionDamageMultiplier(null), 0.20f, 0f, "base Chain reaction damage");
+        Near(SphereElementalRules.GetConductionDamageMultiplier("conduction_power"), 0.27f, 0f, "Conduction Power reaction damage");
+        Near(SphereElementalRules.CreateStatus(SphereElement.Fire, "conduction_power", SphereElementalMode.Conduction).DamagePerSecond, 10.8f, 0.0001f, "Conduction Power Fire status");
+        Near(SphereElementalRules.CreateStatus(SphereElement.Fire, "conduction_duration", SphereElementalMode.Conduction).Duration, 4.35f, 0.0001f, "Conduction Duration");
+        Near(SphereElementalRules.GetFieldCooldown(null), 1.8f, 0f, "base field reaction cooldown");
+        Near(SphereElementalRules.GetFieldCooldown("field_frequency"), 1.25f, 0f, "Field Frequency cooldown");
+        var fieldFreeze = SphereElementalRules.CreateStatus(SphereElement.Freeze, "field_power", SphereElementalMode.Field);
+        Near(fieldFreeze.Duration, 1.08f, 0.0001f, "Field Power freeze duration");
+        Near(fieldFreeze.AdditionalSlowDuration, 0.8f, 0f, "Field Power control duration");
+        Near(fieldFreeze.AdditionalSlowMultiplier, 0.62f, 0f, "Field Power control multiplier");
+        Near(SphereElementalRules.CreateStatus(SphereElement.Poison, "field_power", SphereElementalMode.Field).DamagePerSecond, 6.75f, 0.0001f, "Field Power poison status");
+        Near(SphereElementalRules.CreateStatus(SphereElement.Poison, "field_duration", SphereElementalMode.Field).Duration, 5.8f, 0.0001f, "Field Duration poison status");
+        Near(SphereElementalRules.CreateStatus(SphereElement.Fire, null, SphereElementalMode.Direct, 1.30f, 1.15f).Duration, 3.9f, 0.0001f, "Alchemist source status duration multiplier");
+        Near(SphereElementalRules.CreateStatus(SphereElement.Fire, null, SphereElementalMode.Direct, 1f, 1.15f).DamagePerSecond, 9.2f, 0.0001f, "Alchemist source status damage multiplier");
     }
 
     private static void CheckSphereNetworkRules()

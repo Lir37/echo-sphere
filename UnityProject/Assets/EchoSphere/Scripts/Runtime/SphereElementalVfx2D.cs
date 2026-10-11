@@ -79,7 +79,7 @@ namespace EchoSphere.Runtime
             if (branch == "prism_spectrum")
             {
                 var index = FinalIndex(final);
-                return index == 1 ? 2 : index == 2 ? 3 : 1;
+                return index == 2 ? 2 : index == 3 ? 3 : 1;
             }
             switch (branch)
             {

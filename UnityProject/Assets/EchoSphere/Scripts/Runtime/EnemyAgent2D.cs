@@ -1,3 +1,4 @@
+using EchoSphere.Core;
 using UnityEngine;
 
 namespace EchoSphere.Runtime
@@ -18,6 +19,11 @@ namespace EchoSphere.Runtime
         private float _dotTimer;
         private float _dotRemaining;
         private float _dotDamagePerSecond;
+        private float _fireTimer, _fireDps, _fireTickTimer, _fireTickInterval;
+        private float _poisonTimer, _poisonDps, _poisonTickTimer, _poisonTickInterval;
+        private float _freezeTimer, _freezeVulnerabilityTimer, _elementalReactionTimer;
+        private SphereId? _freezeVulnerabilitySource, _elementalConductionSource;
+        private int _elementalConduction;
         private Color _baseColor = Color.white;
         private EnemyCreatureVisual2D _creatureVisual;
         private BossPresentationVfx2D _bossPresentation;
@@ -41,6 +47,85 @@ namespace EchoSphere.Runtime
         public float CurrentHp => Mathf.Max(0f, _hp);
         public bool IsAlive => !_dead && _hp > 0f;
         public float HpFraction => _maxHp <= 0f ? 0f : Mathf.Clamp01(_hp / _maxHp);
+        public bool IsFrozen => _freezeTimer > 0f;
+        public bool HasFireStatus => _fireTimer > 0f;
+        public bool HasFreezeStatus => _freezeTimer > 0f;
+        public bool HasPoisonStatus => _poisonTimer > 0f;
+
+        public float IncomingSphereDamageMultiplier(SphereId source)
+        {
+            return _freezeTimer > 0f && _freezeVulnerabilityTimer > 0f &&
+                _freezeVulnerabilitySource.HasValue && _freezeVulnerabilitySource.Value == source ? 1.22f : 1f;
+        }
+
+        public float ReceiveSphereDamage(SphereId source, float damage)
+        {
+            if (_dead) return 0f;
+            var actual = damage * IncomingSphereDamageMultiplier(source);
+            ReceiveDamage(actual);
+            return actual;
+        }
+
+        public void ApplyElementalStatus(SphereElementalStatus status, SphereId source)
+        {
+            if (_dead || status.Element == SphereElement.None) return;
+            switch (status.Element)
+            {
+                case SphereElement.Fire:
+                    _fireTimer = Mathf.Max(_fireTimer, status.Duration);
+                    _fireDps = status.DamagePerSecond;
+                    _fireTickInterval = status.TickInterval;
+                    _fireTickTimer = 0f;
+                    break;
+                case SphereElement.Freeze:
+                    _freezeTimer = Mathf.Max(_freezeTimer, status.Duration);
+                    if (status.FreezeVulnerability)
+                    {
+                        _freezeVulnerabilityTimer = Mathf.Max(_freezeVulnerabilityTimer, status.Duration);
+                        _freezeVulnerabilitySource = source;
+                    }
+                    else
+                    {
+                        _freezeVulnerabilityTimer = 0f;
+                        _freezeVulnerabilitySource = null;
+                    }
+                    break;
+                case SphereElement.Poison:
+                    _poisonTimer = Mathf.Max(_poisonTimer, status.Duration);
+                    _poisonDps = status.DamagePerSecond;
+                    _poisonTickInterval = status.TickInterval;
+                    _poisonTickTimer = 0f;
+                    break;
+            }
+
+            if (status.AdditionalSlowDuration > 0f)
+            {
+                _slowTimer = Mathf.Max(_slowTimer, status.AdditionalSlowDuration);
+                _slowMultiplier = Mathf.Min(_slowMultiplier, status.AdditionalSlowMultiplier);
+            }
+        }
+
+        public bool TryAdvanceElementalConduction(SphereId source, int threshold, float cooldown)
+        {
+            if (_dead || _elementalReactionTimer > 0f) return false;
+            if (!_elementalConductionSource.HasValue || _elementalConductionSource.Value != source)
+            {
+                _elementalConductionSource = source;
+                _elementalConduction = 0;
+            }
+            _elementalConduction = Mathf.Min(Mathf.Max(1, threshold), _elementalConduction + 1);
+            if (_elementalConduction < Mathf.Max(1, threshold)) return false;
+            _elementalConduction = 0;
+            _elementalReactionTimer = Mathf.Max(0f, cooldown);
+            return true;
+        }
+
+        public bool TryBeginFieldElementalReaction(float cooldown)
+        {
+            if (_dead || _elementalReactionTimer > 0f) return false;
+            _elementalReactionTimer = Mathf.Max(0f, cooldown);
+            return true;
+        }
 
         public void ApplyDamageOverTime(float damagePerSecond, float duration)
         {
@@ -110,10 +195,18 @@ namespace EchoSphere.Runtime
         private void Update()
         {
             if (_dead || _runtime == null || _runtime.IsGameplayPaused || _player == null) return;
+            var dt = Time.deltaTime;
+            _elementalReactionTimer = Mathf.Max(0f, _elementalReactionTimer - dt);
+            if (_freezeVulnerabilityTimer > 0f)
+            {
+                _freezeVulnerabilityTimer = Mathf.Max(0f, _freezeVulnerabilityTimer - dt);
+                if (_freezeVulnerabilityTimer <= 0f) _freezeVulnerabilitySource = null;
+            }
+
             if (_dotRemaining > 0f)
             {
-                _dotRemaining = Mathf.Max(0f, _dotRemaining - Time.deltaTime);
-                _dotTimer -= Time.deltaTime;
+                _dotRemaining = Mathf.Max(0f, _dotRemaining - dt);
+                _dotTimer -= dt;
                 if (_dotTimer <= 0f)
                 {
                     ReceiveDamage(_dotDamagePerSecond * 0.5f);
@@ -122,6 +215,37 @@ namespace EchoSphere.Runtime
                 }
                 if (_dotRemaining <= 0f) _dotDamagePerSecond = 0f;
             }
+
+            if (_fireTimer > 0f)
+            {
+                _fireTimer = Mathf.Max(0f, _fireTimer - dt);
+                var damage = 0f;
+                if (_fireTickInterval > 0f)
+                {
+                    _fireTickTimer -= dt;
+                    if (_fireTickTimer <= 0f) { _fireTickTimer = _fireTickInterval; damage = _fireDps * _fireTickInterval; }
+                }
+                else damage = _fireDps * dt;
+                ApplyStatusDamage(damage);
+                if (_dead) return;
+                if (_fireTimer <= 0f) { _fireDps = 0f; _fireTickInterval = 0f; _fireTickTimer = 0f; }
+            }
+
+            if (_poisonTimer > 0f)
+            {
+                _poisonTimer = Mathf.Max(0f, _poisonTimer - dt);
+                var damage = 0f;
+                if (_poisonTickInterval > 0f)
+                {
+                    _poisonTickTimer -= dt;
+                    if (_poisonTickTimer <= 0f) { _poisonTickTimer = _poisonTickInterval; damage = _poisonDps * _poisonTickInterval; }
+                }
+                else damage = _poisonDps * dt;
+                ApplyStatusDamage(damage);
+                if (_dead) return;
+                if (_poisonTimer <= 0f) { _poisonDps = 0f; _poisonTickInterval = 0f; _poisonTickTimer = 0f; }
+            }
+
             if (_markTimer > 0f)
             {
                 _markTimer = Mathf.Max(0f, _markTimer - Time.deltaTime);
@@ -131,7 +255,20 @@ namespace EchoSphere.Runtime
                     if (_creatureVisual != null) _creatureVisual.SetMarked(false);
                 }
             }
-            if (_slowTimer > 0f) _slowTimer = Mathf.Max(0f, _slowTimer - Time.deltaTime);
+            if (_freezeTimer > 0f)
+            {
+                _freezeTimer = Mathf.Max(0f, _freezeTimer - dt);
+                if (_freezeTimer > 0f)
+                {
+                    if (_bossCombat != null)
+                    {
+                        _bossCombat.Tick(dt);
+                        if (_creatureVisual != null) _creatureVisual.SetFacing((Vector2)_player.position - (Vector2)transform.position);
+                    }
+                    return;
+                }
+            }
+            if (_slowTimer > 0f) _slowTimer = Mathf.Max(0f, _slowTimer - dt);
             else _slowMultiplier = 1f;
             var target = (Vector2)_player.position;
             if (_bossCombat != null)
@@ -143,6 +280,18 @@ namespace EchoSphere.Runtime
             transform.position = Vector2.MoveTowards(transform.position, target, _moveSpeed * _slowMultiplier * Time.deltaTime);
             if (_creatureVisual != null) _creatureVisual.SetFacing(target - (Vector2)transform.position);
             if (Vector2.Distance(transform.position, target) < 0.54f) _runtime.TryDamagePlayer(9f);
+        }
+
+        private void ApplyStatusDamage(float damage)
+        {
+            if (_dead || damage <= 0f) return;
+            _hp -= damage;
+            if (_hp <= 0f)
+            {
+                _dead = true;
+                _runtime.RegisterEnemyDeath(this, transform.position, _xpReward);
+                Destroy(gameObject);
+            }
         }
 
         public void ReceiveDamage(float damage)

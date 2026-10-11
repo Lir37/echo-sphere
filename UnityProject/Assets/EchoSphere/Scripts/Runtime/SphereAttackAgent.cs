@@ -168,6 +168,60 @@ namespace EchoSphere.Runtime
             _attackTimer = Mathf.Max(0.05f, AttackDelay);
         }
 
+        public void OnSphereHitApplied(EnemyAgent2D target)
+        {
+            if (target == null || !target.IsAlive || _runtime == null) return;
+            var branch = _runtime.GetSphereBranch(_type);
+            var finalId = _runtime.GetSphereFinal(_type);
+            var element = SphereElementalRules.ResolveElement(branch, finalId);
+            if (element == SphereElement.None) return;
+            var masteryId = SphereElementalRules.GetMasteryId(branch, finalId);
+            var durationMultiplier = _runtime.GetSphereStatusDurationMultiplier();
+            var damageMultiplier = _runtime.GetSphereStatusDamageMultiplier() * _runtime.GetSphereElementalMasteryDamageMultiplier();
+
+            if (_type == SphereId.Chain && SphereElementalRules.IsChainBranch(branch))
+            {
+                if (!target.TryAdvanceElementalConduction(_type,
+                    SphereElementalRules.GetConductionThreshold(masteryId), SphereElementalRules.GetConductionCooldown(masteryId))) return;
+                var baseDamage = BaseDamage * _runtime.SphereDamageMultiplier *
+                    _runtime.GetNetworkDamageMultiplier(this) * _runtime.GetSphereCopyOutputMultiplier(this);
+                target.ReceiveSphereDamage(_type, baseDamage * SphereElementalRules.GetConductionDamageMultiplier(masteryId));
+                if (target.IsAlive)
+                {
+                    var status = SphereElementalRules.CreateStatus(element, masteryId, SphereElementalMode.Conduction,
+                        durationMultiplier, damageMultiplier);
+                    target.ApplyElementalStatus(status, _type);
+                }
+                _runtime.SpawnImpact(target.transform.position, ElementColor(element));
+                return;
+            }
+
+            if ((_type == SphereId.Aura || _type == SphereId.Gravity || _type == SphereId.Pulse) &&
+                SphereElementalRules.IsFieldBranch(branch))
+            {
+                if (!target.TryBeginFieldElementalReaction(SphereElementalRules.GetFieldCooldown(masteryId))) return;
+                var status = SphereElementalRules.CreateStatus(element, masteryId, SphereElementalMode.Field,
+                    durationMultiplier, damageMultiplier);
+                target.ApplyElementalStatus(status, _type);
+                return;
+            }
+
+            var directStatus = SphereElementalRules.CreateStatus(element, masteryId, SphereElementalMode.Direct,
+                durationMultiplier, damageMultiplier);
+            target.ApplyElementalStatus(directStatus, _type);
+        }
+
+        private static Color ElementColor(SphereElement element)
+        {
+            switch (element)
+            {
+                case SphereElement.Fire: return new Color(1f, 0.45f, 0.24f, 0.95f);
+                case SphereElement.Freeze: return new Color(0.85f, 0.96f, 1f, 0.95f);
+                case SphereElement.Poison: return new Color(0.45f, 0.94f, 0.56f, 0.95f);
+                default: return Color.white;
+            }
+        }
+
         private void UpdateOrbitalElements(float dt)
         {
             var finalId = _runtime.GetSphereFinal(SphereId.Orbital);
@@ -223,7 +277,8 @@ namespace EchoSphere.Runtime
                 var contact = _runtime.TryHitEnemy(_orbitalElements[i].position, contactRadius);
                 if (contact == null) continue;
                 var damage = BaseDamage * _runtime.SphereDamageMultiplier * _runtime.GetNetworkDamageMultiplier(this) * _runtime.GetSphereCopyOutputMultiplier(this) * damageMultiplier;
-                contact.ReceiveDamage(damage);
+                var dealtDamage = contact.ReceiveSphereDamage(_type, damage);
+                OnSphereHitApplied(contact);
                 _runtime.AddResonanceCharge(1f);
                 _orbitalHitCount++;
                 if (branch == "orbital_halo")
@@ -283,7 +338,8 @@ namespace EchoSphere.Runtime
                 var hitDamage = _runtime.ResolveProjectileDamage(damage * Mathf.Pow(0.72f, i), _levelStats.CritChanceBonus, out var wasCritical);
                 var direction = ((Vector2)target.transform.position - origin).normalized;
                 hitDamage = OnProjectileHit(target, direction, hitDamage, wasCritical);
-                target.ReceiveDamage(hitDamage);
+                hitDamage = target.ReceiveSphereDamage(_type, hitDamage);
+                OnSphereHitApplied(target);
                 _runtime.RegisterSphereHit(this, target, hitDamage);
                 _runtime.SpawnImpact(target.transform.position, ColorFor(_type));
             }
@@ -341,8 +397,9 @@ namespace EchoSphere.Runtime
                     for (var i = 0; i < secondTargets.Count; i++)
                     {
                         if (finalId == "pulse_burst_final_3") secondTargets[i].KnockBackFrom(origin, 0.30f);
-                        secondTargets[i].ReceiveDamage(secondDamage);
-                        _runtime.RegisterSphereHit(this, secondTargets[i], secondDamage);
+                        var secondDealt = secondTargets[i].ReceiveSphereDamage(_type, secondDamage);
+                        OnSphereHitApplied(secondTargets[i]);
+                        _runtime.RegisterSphereHit(this, secondTargets[i], secondDealt);
                     }
                     if (secondTargets.Count > 0) _runtime.SpawnImpact(origin, new Color(1f, 0.72f, 0.34f, 0.85f));
                 }
@@ -426,8 +483,9 @@ namespace EchoSphere.Runtime
             for (var i = 0; i < targets.Count; i++)
             {
                 if (pull && !(_type == SphereId.Gravity && !string.IsNullOrEmpty(branch))) targets[i].PullToward(origin, 1.8f * _levelStats.PullMultiplier);
-                targets[i].ReceiveDamage(auraDamage);
-                _runtime.RegisterSphereHit(this, targets[i], auraDamage);
+                var dealtDamage = targets[i].ReceiveSphereDamage(_type, auraDamage);
+                OnSphereHitApplied(targets[i]);
+                _runtime.RegisterSphereHit(this, targets[i], dealtDamage);
             }
             if (targets.Count > 0) _runtime.SpawnImpact(origin, tint);
         }
@@ -471,7 +529,7 @@ namespace EchoSphere.Runtime
                 if (finalId == "standard_singularity_final_2") slow = Mathf.Max(slow, 1.8f);
                 var receivesCollapseBonus = finalId == "standard_singularity_final_3" && target.HpFraction <= 0.5f;
                 _runtime.TriggerStandardSingularity(target, pull, slow);
-                if (receivesCollapseBonus && target != null) target.ReceiveDamage(dealtDamage * 0.15f);
+                if (receivesCollapseBonus && target != null) target.ReceiveSphereDamage(_type, dealtDamage * 0.15f);
                 return dealtDamage;
             }
             if (_type == SphereId.Standard && branch == "standard_swarm")

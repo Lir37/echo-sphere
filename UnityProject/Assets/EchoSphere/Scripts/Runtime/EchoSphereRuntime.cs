@@ -101,6 +101,10 @@ namespace EchoSphere.Runtime
 
         public string GetSphereBranch(SphereId type) => _sphereBranches.TryGetValue(type, out var id) ? id : null;
         public string GetSphereFinal(SphereId type) => _sphereFinals.TryGetValue(type, out var id) ? id : null;
+        public float GetSphereStatusDurationMultiplier() => _sphereCharacterId == SphereCharacterId.Alchemist ? 1.30f : 1f;
+        public float GetSphereStatusDamageMultiplier() => _sphereCharacterId == SphereCharacterId.Alchemist ? 1.15f : 1f;
+        public float GetSphereElementalMasteryDamageMultiplier() =>
+            _sphereCharacterId == SphereCharacterId.Alchemist && _characterMasteryLevel >= 3 ? 1.05f : 1f;
 
         private void Start()
         {
