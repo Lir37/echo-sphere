@@ -119,7 +119,9 @@ namespace EchoSphere.Runtime
         {
             if (_mesh == null || _p == null) return;
             _p.Clear();
-            var c = _marked ? Color.Lerp(_baseColor, new Color(0.50f, 0.82f, 1f, 1f), 0.72f) : _baseColor;
+            var c = _freezeRemaining > 0f
+                ? new Color(105f / 255f, 214f / 255f, 1f, 1f)
+                : _marked ? Color.Lerp(_baseColor, new Color(0.50f, 0.82f, 1f, 1f), 0.72f) : _baseColor;
             var hit = Mathf.Clamp01(_hitFlash / HitFlashDuration);
             if (!string.IsNullOrEmpty(_bossType))
             {
