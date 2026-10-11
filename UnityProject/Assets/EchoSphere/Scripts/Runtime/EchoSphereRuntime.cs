@@ -64,7 +64,7 @@ namespace EchoSphere.Runtime
         private bool _resonanceEventActive;
         private readonly HashSet<string> _resonanceKnownFormationKeys = new HashSet<string>();
         private readonly List<int> _resonanceRingNodes = new List<int>();
-        private string _message = "Drag on the left half to move. Tap DASH to evade.";
+        private string _message = "RIGHT HALF: MOVE. LEFT HALF: PLACE / DRAG SPHERES. TAP SPHERE: REMOVE.";
         private GUIStyle _box, _label, _button, _title;
         private readonly List<LineRenderer> _networkLinkRenderers = new List<LineRenderer>();
         private Material _networkLineMaterial;
@@ -2326,7 +2326,7 @@ namespace EchoSphere.Runtime
             {
                 if (target != null)
                     RemoveSphereAgent(target);
-                else if (!movement || lockedTap)
+                else
                     TryPlaceOrRemoveSphereAt(world);
             }
             else if (target != null)
