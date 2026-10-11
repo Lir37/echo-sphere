@@ -155,6 +155,7 @@ namespace EchoSphere.Core
             return false;
         }
 
+        private static float ClampScalar(float value, float min, float max) => Math.Max(min, Math.Min(max, value));
         private static int Clamp(int value, int min, int max) => Math.Max(min, Math.Min(max, value));
     }
 }
