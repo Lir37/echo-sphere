@@ -478,8 +478,8 @@ internal static class Program
             "source-valid placement outside the Core exclusion radius");
         True(!SpherePlacementRules.CanPlace(new Vec2(0f, -0.5f), Vec2.Zero, noSpheres, noSphereAlive, noEnemies, noEnemyRadii),
             "placement near Core is blocked");
-        True(!SpherePlacementRules.CanPlace(new Vec2(22f, 0f), Vec2.Zero, noSpheres, noSphereAlive, noEnemies, noEnemyRadii),
-            "placement outside the source world bounds is blocked");
+        True(SpherePlacementRules.CanPlace(new Vec2(22f, 0f), Vec2.Zero, noSpheres, noSphereAlive, noEnemies, noEnemyRadii),
+            "placement does not add a world-bounds rule absent from source canPlaceSphere");
 
         var oneSphere = new[] { new Vec2(0f, -2f) };
         var oneAlive = new[] { true };
