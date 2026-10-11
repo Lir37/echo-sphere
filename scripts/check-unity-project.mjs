@@ -341,6 +341,10 @@ const playerCore = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/Pl
 assert.ok(playerCore.includes('CanReceiveDamageNow') && playerCore.includes('IncreaseMaxHp') && playerCore.includes('SetDashCooldownMultiplier'), 'player artifact stat hooks are missing');
 const enemyRuntime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs'), 'utf8');
 assert.ok(!enemyRuntime.includes('HealCoreFromDamage(appliedDamage)'), 'vampirism must not heal from arbitrary enemy/status damage');
+assert.ok(runtime.includes('if (GUI.Button(button, IsRussianUi ? "ВЫБРАТЬ ЗАБЕГ" : "SELECT RUN", _button))'),
+  'localized main-menu button must retain valid IMGUI call syntax');
+const regionFieldVisuals = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/RegionFieldVisuals.cs'), 'utf8');
+assert.ok(regionFieldVisuals.includes('using EchoSphere.Core;'), 'Region field must import the source Region id types');
 const regionUnlockRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/RegionUnlockRules.cs'), 'utf8');
 assert.ok(regionUnlockRules.includes('resonanceBasinStabilized') && regionUnlockRules.includes('EchoRegionId.SpectralRift'),
   'Rift unlock must follow source Basin stabilization');

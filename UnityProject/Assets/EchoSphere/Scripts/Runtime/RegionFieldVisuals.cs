@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using EchoSphere.Core;
 using UnityEngine;
 
 namespace EchoSphere.Runtime

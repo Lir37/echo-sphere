@@ -2463,7 +2463,7 @@ namespace EchoSphere.Runtime
             }
             var buttonWidth = Mathf.Min(330f, panel.width - 60f);
             var button = new Rect(panel.center.x - buttonWidth * 0.5f, panel.y + height - 148f, buttonWidth, 54f);
-            if (GUI.Button(button, IsRussianUi ? "ВЫБРАТЬ ЗАБЕГ" : "SELECT RUN", _button)
+            if (GUI.Button(button, IsRussianUi ? "ВЫБРАТЬ ЗАБЕГ" : "SELECT RUN", _button))
             {
                 _regionSelect = true;
             }
