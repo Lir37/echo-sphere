@@ -34,6 +34,7 @@ namespace EchoSphere.Runtime
         private SphereAttackAgent _spherePointerTarget;
         private bool _spherePointerPositionValid;
         private SphereNetworkState _spherePointerPreview;
+        private readonly List<Vec2> _spherePointerPreviewPositions = new List<Vec2>();
         private int _spherePointerPreviewIndex = -1;
         private SphereNetworkFormation _spherePointerOriginalFormation = SphereNetworkFormation.None;
         private int[] _spherePointerOriginalNodeIndexes;
@@ -2498,16 +2499,18 @@ namespace EchoSphere.Runtime
         private void RemoveSphereAgent(SphereAttackAgent sphere)
         {
             if (sphere == null) return;
+            var removedType = sphere.Type;
             _spheres.Remove(sphere);
             if (sphere.gameObject != null) Destroy(sphere.gameObject);
             RefreshNetworkState();
             CaptureSphereFormationMemoryIfChanged();
-            ShowMessage(GameCatalog.Spheres[(int)sphere.Type].DisplayName + " removed.");
+            ShowMessage(GameCatalog.Spheres[(int)removedType].DisplayName + " removed.");
         }
 
         private void BuildSphereNetworkPreview(Vector2 world, int movingSphereIndex, bool addingSphere)
         {
             var nodes = new List<SphereNetworkNode>(_spheres.Count + (addingSphere ? 1 : 0));
+            _spherePointerPreviewPositions.Clear();
             var playerIndex = -1;
             for (var i = 0; i < _spheres.Count; i++)
             {
@@ -2519,12 +2522,16 @@ namespace EchoSphere.Runtime
                     position = world;
                     playerIndex = i;
                 }
-                nodes.Add(new SphereNetworkNode(new Vec2(position.x, position.y), sphere != null && sphere.gameObject.activeInHierarchy, active ? 0f : 1f));
+                var point = new Vec2(position.x, position.y);
+                _spherePointerPreviewPositions.Add(point);
+                nodes.Add(new SphereNetworkNode(point, sphere != null && sphere.gameObject.activeInHierarchy, active ? 0f : 1f));
             }
             if (addingSphere)
             {
                 playerIndex = nodes.Count;
-                nodes.Add(new SphereNetworkNode(new Vec2(world.x, world.y), true));
+                var point = new Vec2(world.x, world.y);
+                _spherePointerPreviewPositions.Add(point);
+                nodes.Add(new SphereNetworkNode(point, true));
             }
             _spherePointerPreviewIndex = playerIndex;
             _spherePointerPreview = SphereNetworkRules.Analyze(nodes, SphereNetworkRules.DefaultLinkDistance);
@@ -2585,8 +2592,8 @@ namespace EchoSphere.Runtime
                     var link = _spherePointerPreview.Links[i];
                     if (link.A != candidateIndex && link.B != candidateIndex) continue;
                     var other = link.A == candidateIndex ? link.B : link.A;
-                    if (other < 0 || other >= _spherePointerPreview.Nodes.Count) continue;
-                    var point = _spherePointerPreview.Nodes[other].Position;
+                    if (other < 0 || other >= _spherePointerPreviewPositions.Count) continue;
+                    var point = _spherePointerPreviewPositions[other];
                     DrawSphereGuiLine(WorldToGuiPoint(new Vector2(point.X, point.Y)),
                         WorldToGuiPoint(_spherePointerWorld), new Color(previewColor.r, previewColor.g, previewColor.b, 0.85f), 2f);
                 }
