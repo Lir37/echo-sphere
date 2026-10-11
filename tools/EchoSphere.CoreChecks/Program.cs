@@ -15,6 +15,7 @@ internal static class Program
             CheckRunBalance();
             CheckEnemySpawnRules();
             CheckBossCombatRules();
+            CheckRegionBossSchedule();
             CheckSphereCombatProfiles();
             CheckSphereProgressionRules();
             CheckSphereEvolutionCatalog();
@@ -102,6 +103,11 @@ internal static class Program
         Equal(RunBalanceRules.GetXpToNextLevel(10), 43, "new-desing level 10 XP threshold");
         Equal(RunBalanceRules.GetXpToNextLevel(0), 10, "invalid low level normalized to first threshold");
         Equal(RunBalanceRules.GetXpToNextLevel(-50), 10, "negative level normalized to first threshold");
+        Equal(RunBalanceRules.GetEnemiesPerWave(1), 5, "source first wave has five enemies");
+        Equal(RunBalanceRules.GetEnemiesPerWave(2), 6, "source second wave has six enemies");
+        Equal(RunBalanceRules.GetEnemiesPerWave(10), 15, "source wave count growth formula");
+        Near(RunBalanceRules.GetWaveSpawnInterval(1), 1.18f, 0.0001f, "source wave 1 spawn interval");
+        Near(RunBalanceRules.GetWaveSpawnInterval(45), 0.3f, 0.0001f, "source wave spawn interval lower bound");
     }
 
     private static void CheckEnemySpawnRules()
@@ -145,16 +151,57 @@ internal static class Program
         Equal(BossCombatRules.GetXpReward(10), 100, "source boss XP reward");
         Near(BossCombatRules.GetMoveSpeedSourceUnitsPerSecond("shooter", 10), 60f, 0f, "source standard boss speed");
         Near(BossCombatRules.GetMoveSpeedSourceUnitsPerSecond("charger", 10), 90f, 0f, "source charger speed");
-        Near(BossCombatRules.GetMoveSpeedWorldUnitsPerSecond("shooter", 10), 1.2f, 0.0001f, "boss world-space speed conversion");
-        Near(BossCombatRules.ToWorldUnits(700f), 14f, 0f, "source spawn distance conversion");
+        Near(BossCombatRules.GetMoveSpeedWorldUnitsPerSecond("shooter", 10), 1.05f, 0.0001f, "boss world-space speed conversion against source Canvas scale");
+        Near(BossCombatRules.ToWorldUnits(700f), 12.25f, 0.0001f, "source spawn distance conversion");
         Near(BossCombatRules.ToWorldUnits(180f), 3.6f, 0.0001f, "source projectile speed conversion");
-        Near(BossCombatRules.BossRadiusWorld + BossCombatRules.PlayerRadiusWorld, 1f, 0f, "boss collision radius conversion");
-        Near(BossCombatRules.GetAuraRadiusWorld(), 2.4f, 0.0001f, "Aura radius conversion");
+        Near(BossCombatRules.BossRadiusWorld + BossCombatRules.PlayerRadiusWorld, 0.875f, 0.0001f, "boss collision radius conversion");
+        Near(BossCombatRules.GetAuraRadiusWorld(), 2.1f, 0.0001f, "Aura radius conversion");
         Near(BossCombatRules.GetAuraDamagePerSecond(10), 30f, 0f, "Aura DPS scaling");
         Equal(BossCombatRules.GetChargerPhase(0.8f), BossChargerPhase.Windup, "Charger windup phase");
         Equal(BossCombatRules.GetChargerPhase(0.35f), BossChargerPhase.CommittedDash, "Charger commit threshold");
         Equal(BossCombatRules.GetChargerPhase(0f), BossChargerPhase.Ready, "Charger reset phase");
         Equal(BossCombatRules.GetColorHex("stella_warden"), "#ffd15a", "Stella Warden source tint");
+    }
+
+    private static void CheckRegionBossSchedule()
+    {
+        Equal(RegionBossScheduleRules.GetRegularBossCount(EchoRegionId.ResonanceBasin), 2, "Resonance Basin has two scheduled major bosses");
+        Near(RegionBossScheduleRules.GetRegularBossTime(EchoRegionId.ResonanceBasin, 0), 480f, 0f, "Basin first boss at 8 minutes");
+        Near(RegionBossScheduleRules.GetRegularBossTime(EchoRegionId.ResonanceBasin, 1), 960f, 0f, "Basin second boss at 16 minutes");
+        Near(RegionBossScheduleRules.FinalPrepSeconds, 1620f, 0f, "final boss event starts at 27 minutes");
+        Near(RegionBossScheduleRules.StabilizationSeconds, 1800f, 0f, "Basin stabilization check at 30 minutes");
+        Equal(RegionBossScheduleRules.GetBaseGoldReward(EchoRegionId.ResonanceBasin), 250, "Basin source base region reward");
+        Equal(RegionBossScheduleRules.GetBaseGoldReward(EchoRegionId.SpectralRift), 360, "Rift source base region reward");
+        Equal(RegionBossScheduleRules.GetRegionXpReward(10), 240, "source region XP reward scales with level");
+
+        var basin = RegionBossScheduleRules.Create(EchoRegionId.ResonanceBasin, EchoRegionMode.Stabilization);
+        Equal(RegionBossScheduleRules.Advance(basin, 479f, false).Kind, RegionBossSignalKind.None, "no early Basin boss signal");
+        var signal = RegionBossScheduleRules.Advance(basin, 480f, false);
+        Equal(signal.Kind, RegionBossSignalKind.SpawnBoss, "Basin first boss signal");
+        Equal(signal.BossType, "conductor", "Basin first boss type");
+        Equal(basin.MajorBossesSpawned, 1, "Basin first major boss tracked");
+        Equal(RegionBossScheduleRules.Advance(basin, 960f, true).Kind, RegionBossSignalKind.None, "active boss defers the next Region boss");
+        signal = RegionBossScheduleRules.Advance(basin, 960f, false);
+        Equal(signal.BossType, "architect", "Basin second boss type after previous boss dies");
+        signal = RegionBossScheduleRules.Advance(basin, 1620f, false);
+        Equal(signal.Kind, RegionBossSignalKind.SpawnBoss, "Basin final boss signal");
+        Equal(signal.BossType, "stella_warden", "Basin final boss is Stella Warden");
+        True(signal.IsFinalBoss && basin.FinalBossSpawned, "final spawn state is recorded");
+        Equal(RegionBossScheduleRules.Advance(basin, 1800f, true).Kind, RegionBossSignalKind.None, "active final boss defers stabilization");
+        Equal(RegionBossScheduleRules.Advance(basin, 1800f, false).Kind, RegionBossSignalKind.RegionCleared, "Basin clears after final boss is no longer active");
+        True(basin.Cleared && basin.FinalBossDefeated, "Basin terminal state is persisted in the run state");
+        Equal(RegionBossScheduleRules.Advance(basin, 2000f, false).Kind, RegionBossSignalKind.None, "cleared Basin cannot emit duplicate events");
+
+        var rift = RegionBossScheduleRules.Create(EchoRegionId.SpectralRift, EchoRegionMode.Stabilization);
+        Equal(RegionBossScheduleRules.Advance(rift, 450f, false).BossType, "null", "Rift first boss");
+        Equal(RegionBossScheduleRules.Advance(rift, 930f, false).BossType, "aura", "Rift second boss");
+        Equal(RegionBossScheduleRules.GetFinalBossType(EchoRegionId.SpectralRift), "stella_warden", "Rift final boss");
+
+        var endless = RegionBossScheduleRules.Create(EchoRegionId.ResonanceBasin, EchoRegionMode.Endless);
+        Equal(RegionBossScheduleRules.Advance(endless, 480f, false).BossType, "conductor", "Endless first scheduled boss");
+        Near(endless.NextBossAt, 630f, 0f, "Endless schedule advances by 150 seconds");
+        Equal(RegionBossScheduleRules.Advance(endless, 630f, false).BossType, "architect", "Endless second boss");
+        True(!endless.Cleared, "Endless mode has no stabilization completion");
     }
 
     private static void CheckSphereCombatProfiles()

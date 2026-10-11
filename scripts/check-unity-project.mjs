@@ -18,6 +18,7 @@ const required = [
   'Assets/EchoSphere/Scripts/Core/ResonanceRules.cs',
   'Assets/EchoSphere/Scripts/Core/EnemySpawnRules.cs',
   'Assets/EchoSphere/Scripts/Core/BossCombatRules.cs',
+  'Assets/EchoSphere/Scripts/Core/RegionBossScheduleRules.cs',
   'Assets/EchoSphere/Scripts/Runtime/BossCombatAgent2D.cs',
   'Assets/EchoSphere/Scripts/Runtime/BossProjectileAgent2D.cs',
   'Assets/EchoSphere/Scripts/Runtime/BossPresentationVfx2D.cs',
@@ -206,6 +207,13 @@ const bossAgent = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/Bos
 assert.ok(bossAgent.includes('src/engineEnemies.ts') && bossAgent.includes('SpawnBossProjectile') && bossAgent.includes('SpawnBossMinion'), 'boss runtime source mapping/attack spawns missing');
 for (const method of ['TickFan','TickRadial','DisableNearestNetworkSpheres','DrainResonance','DelayAllSphereAttacks']) assert.ok(bossAgent.includes(method), 'boss behaviour hook missing: ' + method);
 assert.ok(runtimeArt.includes('SpawnBossForRegionEvent') && runtimeArt.includes('BossCombatRules.GetTypeForDefeatedCount'), 'boss spawn must be an explicit Region event contract');
+const regionSchedule = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/RegionBossScheduleRules.cs'), 'utf8');
+for (const sourceBoss of ['conductor','architect','null','aura','stella_warden']) assert.ok(regionSchedule.includes('"' + sourceBoss + '"'), 'Region schedule source boss missing: ' + sourceBoss);
+assert.ok(regionSchedule.includes('480f') && regionSchedule.includes('960f') && regionSchedule.includes('1620f') && regionSchedule.includes('1800f'), 'source Region boss/stabilization timing contract missing');
+assert.ok(runtimeArt.includes('AdvanceRegionBossSchedule') && runtimeArt.includes('RegionBossScheduleRules.Advance') && runtimeArt.includes('StartNextWave'), 'Region signal and source wave loop must be wired in live runtime');
+assert.ok(runtimeArt.includes('CountLivingNonBossEnemies') && runtimeArt.includes('HasActiveBoss'), 'next source wave must wait for living enemies and boss completion');
+const balanceRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/RunBalanceRules.cs'), 'utf8');
+assert.ok(balanceRules.includes('GetEnemiesPerWave') && balanceRules.includes('GetWaveSpawnInterval'), 'source wave count and spawn interval rules missing');
 const bossProjectile = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/BossProjectileAgent2D.cs'), 'utf8');
 assert.ok(bossProjectile.includes('renderer.ts:drawBossProjectile') && bossProjectile.includes('_velocity * dt'), 'source boss projectile motion/VFX missing');
 assert.ok(!/UnityEngine\.Random|Random\.Range|_rng/.test(bossProjectile), 'boss projectile presentation must not consume gameplay RNG');

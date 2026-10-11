@@ -22,11 +22,12 @@ namespace EchoSphere.Runtime
         private Transform _player;
         private PlayerCoreController2D _playerCore;
         private Vector2 _touchStart;
-        private float _spawnTimer = 0.6f, _runTime, _messageTimer, _formationStrain;
+        private float _spawnTimer = 3f, _runTime, _messageTimer, _formationStrain;
         private Vec2 _lastDirection = Vec2.Zero;
         private int _kills, _level = 1, _xp, _xpRequired = RunBalanceRules.GetXpToNextLevel(1);
-        private int _bossesDefeated;
-        private bool _follow, _paused, _levelUp, _gameOver, _userPaused;
+        private int _bossesDefeated, _wave, _waveEnemiesToSpawn;
+        private bool _follow, _paused, _levelUp, _gameOver, _userPaused, _regionStabilized;
+        private RegionBossScheduleState _regionSchedule;
         private bool _mainMenu = true;
         private bool _regionSelect;
         private int _selectedRegion;
@@ -52,6 +53,8 @@ namespace EchoSphere.Runtime
         public bool IsGameplayPaused => _paused;
         public bool IsPresentationPaused => _mainMenu || _paused;
         public float CurrentRunTime => _runTime;
+        public int CurrentWave => _wave;
+        public bool RegionStabilized => _regionStabilized;
         public float NextRunRandom() => _rng.NextFloat();
         public float SphereDamageMultiplier => _damageMultiplier;
         public float AttackSpeedMultiplier => _attackSpeedMultiplier;
@@ -67,6 +70,7 @@ namespace EchoSphere.Runtime
             Application.targetFrameRate = 60;
             ConfigureCamera();
             CreateStarfield();
+            _regionSchedule = RegionBossScheduleRules.Create(EchoRegionId.ResonanceBasin, EchoRegionMode.Stabilization);
             var regionFieldVisuals = gameObject.AddComponent<RegionFieldVisuals>();
             regionFieldVisuals.Initialize(this);
             CreatePlayer();
@@ -110,11 +114,20 @@ namespace EchoSphere.Runtime
             TickResonanceRing(dt);
             var cameraTarget = new Vector3(_player.position.x, _player.position.y, -10f);
             _camera.transform.position = Vector3.Lerp(_camera.transform.position, cameraTarget, 1f - Mathf.Exp(-5f * dt));
+            AdvanceRegionBossSchedule();
+            if (_regionStabilized) return;
+
             _spawnTimer -= dt;
-            if (_spawnTimer <= 0f)
+            if (_spawnTimer <= 0f && _waveEnemiesToSpawn > 0)
             {
-                if (_enemies.Count < RunBalanceRules.GetEnemyPopulationCap(_runTime)) SpawnEnemy();
-                _spawnTimer = RunBalanceRules.GetEnemySpawnInterval(_runTime);
+                SpawnEnemy();
+                _waveEnemiesToSpawn--;
+                _spawnTimer = RunBalanceRules.GetWaveSpawnInterval(_wave);
+            }
+            if (_waveEnemiesToSpawn <= 0 && CountLivingNonBossEnemies() == 0 && !HasActiveBoss())
+            {
+                _spawnTimer = 3f;
+                StartNextWave();
             }
             if (_playerCore.IsDead && !_gameOver)
             {
@@ -634,12 +647,12 @@ namespace EchoSphere.Runtime
         private void SpawnEnemy()
         {
             var angle = _rng.NextFloat() * Mathf.PI * 2f;
-            var radius = 8f + _rng.NextFloat() * 2.8f;
-            var position = (Vector2)_player.position + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius;
+            var position = (Vector2)_player.position +
+                new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * BossCombatRules.BossSpawnDistanceWorld;
             var archetype = EnemySpawnRules.Select(_runTime, _rng.NextFloat());
             var profile = EnemySpawnRules.GetProfile(archetype);
-            var baseHp = 34f + _runTime * 0.3f;
-            var baseSpeed = 0.72f + Mathf.Min(0.55f, _runTime * 0.003f);
+            var baseHp = 18f + _wave * 5.5f;
+            var baseSpeed = BossCombatRules.ToWorldUnits(68f + _wave * 1.8f);
             var tint = GetEnemyTint(archetype);
             var go = CreateOrb(GetEnemyName(archetype), position, 0.72f * profile.VisualScale, tint, Color.white, 4);
             ApplyShellVisual(go, GetEnemySprite(archetype), archetype == EnemyArchetype.Normal ? 1.12f : 1.02f);
@@ -664,9 +677,46 @@ namespace EchoSphere.Runtime
             agent.Initialize(this, _player, baseHp * profile.HpMultiplier, baseSpeed * profile.SpeedMultiplier, profile.XpReward, GetEnemyVisualVariant(archetype));
             _enemies.Add(agent);
         }
+        private bool HasActiveBoss()
+        {
+            for (var i = 0; i < _enemies.Count; i++)
+                if (_enemies[i] != null && _enemies[i].IsBoss && _enemies[i].IsAlive) return true;
+            return false;
+        }
+
+        private int CountLivingNonBossEnemies()
+        {
+            var count = 0;
+            for (var i = 0; i < _enemies.Count; i++)
+                if (_enemies[i] != null && !_enemies[i].IsBoss && _enemies[i].IsAlive) count++;
+            return count;
+        }
+
+        private void StartNextWave()
+        {
+            _wave++;
+            _waveEnemiesToSpawn = RunBalanceRules.GetEnemiesPerWave(_wave);
+        }
+
+        private void AdvanceRegionBossSchedule()
+        {
+            var signal = RegionBossScheduleRules.Advance(_regionSchedule, _runTime, HasActiveBoss());
+            if (signal.Kind == RegionBossSignalKind.SpawnBoss)
+            {
+                SpawnBossForRegionEvent(signal.BossType, _wave);
+            }
+            else if (signal.Kind == RegionBossSignalKind.RegionCleared)
+            {
+                _regionStabilized = true;
+                _gameOver = true;
+                _paused = true;
+                ShowMessage("REGION STABILIZED");
+            }
+        }
+
         /// <summary>
-        /// Called by the future Region boss event. The source uses a Region signal,
-        /// so this entry point deliberately has no elapsed-time trigger.
+        /// Invoked only by RegionBossScheduleRules.Advance, matching the source
+        /// updateRegion spawnBoss signal instead of using an independent timer.
         /// </summary>
         public EnemyAgent2D SpawnBossForRegionEvent(string forcedBossType, int wave)
         {
@@ -2033,8 +2083,10 @@ namespace EchoSphere.Runtime
                     var left = _uiWidth * 0.5f - 190f;
                     var top = _uiHeight * 0.5f - 85f;
                     GUI.Box(new Rect(left, top, 380f, 170f), GUIContent.none, _box);
-                    GUI.Label(new Rect(left + 40f, top + 24f, 300f, 32f), "CORE DESTROYED", _title);
-                    GUI.Label(new Rect(left + 40f, top + 60f, 300f, 28f), $"Survived {FormatTime(_runTime)} · {_kills} kills", _label);
+                    GUI.Label(new Rect(left + 40f, top + 24f, 300f, 32f),
+                        _regionStabilized ? "REGION STABILIZED" : "CORE DESTROYED", _title);
+                    GUI.Label(new Rect(left + 40f, top + 60f, 300f, 28f),
+                        _regionStabilized ? $"Basin secured · {_bossesDefeated} bosses defeated" : $"Survived {FormatTime(_runTime)} · {_kills} kills", _label);
                     if (GUI.Button(new Rect(left + 100f, top + 102f, 180f, 44f), "RESTART", _button))
                         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
                 }

@@ -25,6 +25,19 @@ namespace EchoSphere.Core
             var rounded = (int)System.Math.Floor(value + 0.5d);
             return rounded < FirstLevelXp ? FirstLevelXp : rounded;
         }
+        /// <summary>Matches startWave in src/engineEnemies.ts for normal difficulty.</summary>
+        public static int GetEnemiesPerWave(int wave)
+        {
+            var normalizedWave = System.Math.Max(0, wave);
+            return 4 + (int)System.Math.Floor(normalizedWave * 1.1d);
+        }
+
+        public static float GetWaveSpawnInterval(int wave)
+        {
+            var normalizedWave = System.Math.Max(0, wave);
+            return (float)System.Math.Max(0.3d, 1.2d - normalizedWave * 0.02d);
+        }
+
         public static float GetEnemySpawnInterval(float elapsedSeconds)
         {
             var time = IsFinite(elapsedSeconds) ? System.Math.Max(0f, elapsedSeconds) : 0f;

@@ -13,7 +13,7 @@ namespace EchoSphere.Core
             "conductor", "architect", "null", "stella_warden"
         };
 
-        public const float SourceUnitsPerWorldUnit = 50f;
+        public const float SourceUnitsPerWorldUnit = 720f / 12.6f;
         public const float BossRadiusSourceUnits = 34f;
         public const float PlayerRadiusSourceUnits = 16f;
         public const float ChargerWindupSeconds = 0.45f;

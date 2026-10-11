@@ -2049,3 +2049,47 @@ LIMITS:
 - Corrected both overlay radius calculations to follow the actual boss silhouette
   scale, and added a strict source guard for the alignment formula.
 - No attack, damage, spawn, timing or RNG behavior changed. CI revalidation follows.
+
+
+======================================================================
+[2026-10-11] REGION BOSS SCHEDULE + SOURCE WAVES PORT SLICE 11
+======================================================================
+
+BASE:
+unity-migration HEAD before this slice: 41e910af9e15d506a7f82a167cc7abe9792406f1
+Protected source: new-desing HEAD 737ef2af4a877e0995db5f92331d536d2f29a934.
+
+SOURCE CONTRACT:
+- Region schedule is ported from src/region.ts:createRegionState/updateRegion.
+  Resonance Basin regular bosses are Conductor at 480 s and Architect at 960 s;
+  final preparation sends Stella Warden at 1620 s; Basin clears at 1800 s only
+  when no boss remains active. A live boss defers the next signal rather than
+  being overwritten. Spectral Rift rules are kept in the pure schedule contract
+  for the later unlock/selection slice (Null at 450 s, Aura at 930 s, Stella
+  Warden final).
+- Endless mode advances the next boss signal by 150 seconds, as the source does.
+- Normal wave count and spawn intervals now follow startWave in
+  src/engineEnemies.ts: 4 + floor(wave*1.1) normal enemies per wave and
+  max(0.3, 1.2 - wave*0.02) spawn interval on Normal difficulty. Next wave waits
+  until all non-boss enemies/minions and the current boss have been defeated.
+- Boss HP, speed, contact damage and XP now receive the real Unity wave index;
+  the previous continuous timer-based spawn loop is replaced by source wave
+  progression. Normal enemy baseline HP/speed now scale by source wave and use
+  the Canvas-to-Unity scale shared with RegionFieldVisuals (720 px -> 12.6 units).
+- Corrected BossCombatRules source unit conversion from 50 units/world-unit to
+  720/12.6 based on the actual RegionFieldVisuals camera calibration.
+
+VALIDATION:
+- Added pure Region schedule tests for both region schedules, major/final order,
+  boss-active deferral, endless recurrence, clear transition, source wave counts
+  and spawn cadence. Added strict preflight guards for live runtime wiring.
+- This contract CI still does not compile UnityEngine scripts in the Editor.
+  Region POIs/ecologies/challenges/mastery/lore, region unlock persistence and
+  Stella chest/reward selection remain separate next slices.
+
+LIMITS:
+- The current start menu still only starts Resonance Basin. Region selection/
+  unlock UI is not connected to this schedule contract yet.
+- Unity Editor compile, physical boss playtest, region transitions, Stella reward
+  effect application, APK and Android acceptance remain unverified.
+
