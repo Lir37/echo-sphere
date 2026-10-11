@@ -2363,3 +2363,28 @@ is claimed until the cloud workflow publishes the actual APK artifact.
 ======================================================================
 END CLOUD APK CI CHECKPOINT
 ======================================================================
+
+
+======================================================================
+2026-10-11 — APK BUILD DISABLED, CI-ONLY MODE
+======================================================================
+
+- At the user's request, the Unity Android cloud APK build was removed from
+  `.github/workflows/unity-android-apk.yml`. The workflow is now manual
+  (`workflow_dispatch`) and runs only pure C# gameplay contract checks plus
+  the Unity project structure/runtime-boundary preflight.
+- The workflow no longer invokes GameCI, requires Unity license secrets,
+  compiles with the Unity Editor, or uploads an APK artifact.
+- Automatic migration validation remains in
+  `.github/workflows/unity-migration-check.yml` and runs the same two
+  validation layers on relevant branch changes.
+- Changes to `.github/workflows/unity-android-apk.yml` are now included in
+  the migration CI path filters, so edits to this validation-only workflow
+  are checked by CI.
+- No Unity Editor compilation, Android APK generation, or device installation
+  is claimed. Re-enabling cloud APK generation requires a separate explicit
+  decision.
+
+======================================================================
+END APK BUILD DISABLED UPDATE
+======================================================================
