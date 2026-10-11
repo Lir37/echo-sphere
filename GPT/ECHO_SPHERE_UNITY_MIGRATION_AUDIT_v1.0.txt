@@ -2388,3 +2388,20 @@ END CLOUD APK CI CHECKPOINT
 ======================================================================
 END APK BUILD DISABLED UPDATE
 ======================================================================
+
+
+======================================================================
+2026-10-11 — CI PREFLIGHT UPDATED FOR NO-APK MODE
+======================================================================
+
+- The first CI run after disabling the APK workflow correctly exposed a stale
+  preflight assertion that still required the GameCI builder and license
+  secrets. Updated the structural guard to require the two CI validation
+  commands and to reject GameCI/license/artifact configuration in the
+  validation-only workflow.
+- Pure C# contract checks passed (629 assertions) on the first run. The
+  updated preflight is being rechecked on the resulting HEAD.
+
+======================================================================
+END CI PREFLIGHT UPDATE
+======================================================================
