@@ -123,10 +123,17 @@ namespace EchoSphere.Runtime
                 _slowMultiplier = Mathf.Min(_slowMultiplier, status.AdditionalSlowMultiplier);
             }
             if (_runtime != null) _runtime.TryTriggerAlchemistReaction(this);
+            RefreshElementalStatusVfx();
         }
 
         public AlchemistReactionKind GetAlchemistReactionKind() =>
             AlchemistReactionRules.Resolve(HasFireStatus, HasFreezeStatus, HasPoisonStatus);
+
+        private void RefreshElementalStatusVfx()
+        {
+            if (_creatureVisual != null)
+                _creatureVisual.SetStatusVfx(_fireTimer, _poisonTimer, _freezeTimer);
+        }
 
         public void ConsumeAlchemistReaction(AlchemistReactionKind kind)
         {
@@ -156,6 +163,7 @@ namespace EchoSphere.Runtime
             _fireDps = 0f;
             _fireTickTimer = 0f;
             _fireTickInterval = 0f;
+            RefreshElementalStatusVfx();
         }
 
         private void ClearFreezeStatus()
@@ -163,6 +171,7 @@ namespace EchoSphere.Runtime
             _freezeTimer = 0f;
             _freezeVulnerabilityTimer = 0f;
             _freezeVulnerabilitySource = null;
+            RefreshElementalStatusVfx();
         }
 
         private void ClearPoisonStatus()
@@ -171,6 +180,7 @@ namespace EchoSphere.Runtime
             _poisonDps = 0f;
             _poisonTickTimer = 0f;
             _poisonTickInterval = 0f;
+            RefreshElementalStatusVfx();
         }
 
         public bool TryAdvanceElementalConduction(SphereId source, int threshold, float cooldown)
@@ -314,6 +324,8 @@ namespace EchoSphere.Runtime
                 if (_poisonTimer <= 0f) { _poisonDps = 0f; _poisonTickInterval = 0f; _poisonTickTimer = 0f; }
             }
 
+            RefreshElementalStatusVfx();
+
             if (_markTimer > 0f)
             {
                 _markTimer = Mathf.Max(0f, _markTimer - Time.deltaTime);
@@ -326,6 +338,7 @@ namespace EchoSphere.Runtime
             if (_freezeTimer > 0f)
             {
                 _freezeTimer = Mathf.Max(0f, _freezeTimer - dt);
+                RefreshElementalStatusVfx();
                 if (_freezeTimer > 0f)
                 {
                     if (_bossCombat != null)
