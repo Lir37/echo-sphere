@@ -7,6 +7,7 @@ const required = [
   'ProjectSettings/ProjectVersion.txt',
   'Packages/manifest.json',
   'Assets/Editor/EchoSphereProjectBootstrap.cs',
+  'Assets/Editor/EchoSphereCiBuild.cs',
   'Assets/EchoSphere/Scripts/Core/Vec2.cs',
   'Assets/EchoSphere/Scripts/Core/SeededRng.cs',
   'Assets/EchoSphere/Scripts/Core/CombatRules.cs',
@@ -521,3 +522,32 @@ assert.ok(evolutionRules.includes('GetProjectilePierceBonus("void_execution", fi
   evolutionRules.includes('GetPrismMirrorRicochetCount') &&
   !evolutionRules.includes('branch == "prism_mirror" && finalId == "prism_mirror_final_2" ? 1'),
   'Void projectile pierce and Prism beam/ricochet rules must use source-authored modifier data');
+
+
+// Cloud APK build regression guards. These are structural guards only;
+// the Unity contract workflow does not claim that Unity Editor compiled the
+// project or that an Android APK was produced.
+const ciBuildPath = 'Assets/Editor/EchoSphereCiBuild.cs';
+const ciBuild = readFileSync(join(root, ciBuildPath), 'utf8');
+assert.ok(ciBuild.includes('BuildAndroidDevelopmentApk'), 'Unity CI APK build entry point is missing');
+assert.ok(ciBuild.includes('EchoSphereProjectBootstrap.EnsurePrototypeScene()'), 'CI build must explicitly generate/register the bootstrap scene');
+assert.ok(ciBuild.includes('BuildPipeline.BuildPlayer') && ciBuild.includes('BuildTarget.Android'), 'CI build must use Unity BuildPipeline for Android');
+assert.ok(ciBuild.includes('BuildOptions.Development') && ciBuild.includes('ECHO-SPHERE-debug.apk'), 'CI build must produce an installable debug APK at the known output path');
+
+const ciWorkflowPath = join(root, '..', '.github', 'workflows', 'unity-android-apk.yml');
+assert.ok(existsSync(ciWorkflowPath), 'Unity Android cloud APK workflow is missing');
+const ciWorkflow = readFileSync(ciWorkflowPath, 'utf8');
+for (const token of [
+  'game-ci/unity-builder@v4',
+  'unityVersion: 6000.3.24f1',
+  'projectPath: UnityProject',
+  'targetPlatform: Android',
+  'androidExportType: androidPackage',
+  'UNITY_LICENSE',
+  'UNITY_EMAIL',
+  'UNITY_PASSWORD',
+  'echo-sphere-unity-debug-apk',
+]) {
+  assert.ok(ciWorkflow.includes(token), `Unity Android cloud build configuration missing: ${token}`);
+}
+assert.ok(ciWorkflow.includes('GITHUB_STEP_SUMMARY'), 'missing-license builds must explain the skipped APK build in the Actions summary');

@@ -18,7 +18,7 @@ internal static class EchoSphereProjectBootstrap
 
     static EchoSphereProjectBootstrap() { EditorApplication.delayCall += EnsurePrototypeScene; }
 
-    private static void EnsurePrototypeScene()
+    internal static void EnsurePrototypeScene()
     {
         if (EditorApplication.isCompiling || EditorApplication.isUpdating)
         {

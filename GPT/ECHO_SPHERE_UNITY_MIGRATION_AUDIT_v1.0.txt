@@ -2287,3 +2287,51 @@ VALIDATION:
 - Dynamic source radius factors still not wired into the Unity runtime include player Radius ability levels, persistent shop Radius upgrades, active Chaos Orb radius buff, Mutation Stage II, and character-specific radius multipliers. The range formula is therefore source-calibrated for the current Unity-supported factors, not yet full runtime-radius parity.
 - Unity Migration Contracts checks do not compile UnityEngine runtime scripts inside a real Unity Editor. Unity Editor compilation, APK generation, and device-side combat/visual verification remain unverified in this environment.
 - This slice does not close remaining character/profile, shop, region ecology, artifact-set, or other non-Prism migration gaps.
+
+
+======================================================================
+2026-10-11 — CLOUD UNITY ANDROID DEBUG APK PIPELINE
+======================================================================
+
+Implementation base before this slice:
+unity-migration HEAD `9da5cbcf3f4b45a56ce805baa86aac7240871937`.
+Protected source remains:
+new-desing HEAD `737ef2af4a877e0995db5f92331d536d2f29a934`.
+
+IMPLEMENTED:
+- Added `.github/workflows/unity-android-apk.yml` using GameCI
+  `game-ci/unity-builder@v4`, pinned to the project's exact Editor version
+  `6000.3.24f1`, Android package output and the `UnityProject` directory.
+- Workflow runs for Unity project/code/audit changes and can be started
+  manually. The debug APK is uploaded as `echo-sphere-unity-debug-apk`
+  for 14 days.
+- Added `EchoSphereCiBuild.BuildAndroidDevelopmentApk`, which explicitly
+  invokes the editor bootstrap, verifies enabled scene registration, fixes
+  the Android application identifier, and requests a development/debug APK
+  at `UnityProject/Builds/Android/ECHO-SPHERE-debug.apk`.
+- Made the scene-bootstrap entry point internal to the Editor assembly so
+  the CI build method can invoke it deterministically. Runtime gameplay
+  scripts were not changed by this pipeline slice.
+- Added Node structural guards for the custom build entry point, Unity
+  version pin, workflow, platform, and artifact path.
+
+LICENSE GATE / IMPORTANT LIMIT:
+- GameCI requires Unity license activation. The workflow checks for GitHub
+  Actions secrets `UNITY_LICENSE`, `UNITY_EMAIL`, and `UNITY_PASSWORD`
+  without printing their values.
+- If they are absent, the workflow records the missing names and explicitly
+  skips APK generation; a green migration-contract run is NOT evidence that
+  a Unity APK exists. Configure the secrets in repository Settings before
+  expecting the artifact.
+- Never commit license files, account credentials, Android signing keys, or
+  other secrets. The produced development APK is for manual testing, not a
+  production/store-signed release.
+- The Unity Editor/Android build and device installation remain unverified
+  until a real `echo-sphere-unity-debug-apk` artifact is present and tested.
+- The migration-contract workflow continues to test pure C# contracts and
+  structural preflight only; no claim of Editor compilation or APK success
+  is made from that workflow alone.
+
+======================================================================
+END CLOUD APK PIPELINE UPDATE
+======================================================================
