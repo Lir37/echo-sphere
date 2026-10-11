@@ -491,6 +491,18 @@ internal static class Program
         Equal(SpherePlacementRules.GetSameTypeCap(SphereCharacterId.Oracle, SphereId.Prism, 5), 3, "Oracle signature is Prism");
         Equal(SpherePlacementRules.GetSameTypeCap(SphereCharacterId.Voidwalker, SphereId.Void, 5), 3, "Voidwalker signature is Void");
         Equal(SpherePlacementRules.GetSameTypeCap(SphereCharacterId.Fractal, SphereId.Orbital, 5), 3, "Fractal signature is Orbital");
+        Near(SpherePlacementRules.GetCopyDamageMultiplier(SphereCharacterId.Spherist, SphereId.Standard, 4, 2), 1f, 0f,
+            "extra-copy damage scaling is disabled before signature mastery unlocks");
+        Near(SpherePlacementRules.GetCopyDamageMultiplier(SphereCharacterId.Spherist, SphereId.Standard, 5, 1), 1f, 0f,
+            "first two signature copies retain full output");
+        Near(SpherePlacementRules.GetCopyDamageMultiplier(SphereCharacterId.Spherist, SphereId.Standard, 5, 2), 0.85f, 0f,
+            "third signature copy uses source 85% output");
+        Near(SpherePlacementRules.GetCopyDamageMultiplier(SphereCharacterId.Spherist, SphereId.Standard, 10, 3), 0.70f, 0f,
+            "fourth signature copy uses source 70% output");
+        Near(SpherePlacementRules.GetCopyDamageMultiplier(SphereCharacterId.Hunter, SphereId.Sniper, 10, 2), 0.85f, 0f,
+            "Hunter's third signature Sniper uses source 85% output");
+        Near(SpherePlacementRules.GetCopyDamageMultiplier(SphereCharacterId.Hunter, SphereId.Standard, 10, 2), 1f, 0f,
+            "non-signature Sphere output is not reduced");
 
         True(SphereProgressionRules.CanUpgradeMaxSpheres(0), "maxspheres ability starts available at level zero");
         True(SphereProgressionRules.CanUpgradeMaxSpheres(2), "maxspheres ability can reach level three");
