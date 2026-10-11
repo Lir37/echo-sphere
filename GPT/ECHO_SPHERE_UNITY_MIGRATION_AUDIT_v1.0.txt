@@ -1950,3 +1950,46 @@ pixel-exact visual parity.
 - This workflow validates pure contracts and structural/source mapping only. It
   does not compile UnityEngine-facing code in Unity Editor, verify GPU/material
   rendering, build an Android APK or replace on-device acceptance.
+
+
+
+======================================================================
+[2026-10-11] BOSS PRESENTATION PORT SLICE 8 — ACTIVE RENDERER PATH
+======================================================================
+
+BASE:
+unity-migration HEAD before this slice: 11d69aa944e82b8aa5cab031945d8e7b175cf8e3
+Protected source: new-desing HEAD 737ef2af4a877e0995db5f92331d536d2f29a934.
+
+SOURCE AUDIT:
+- The live Canvas call at renderer.ts:451 uses drawModernEnemy; its boss branch
+  invokes drawBossAttackTelegraph and drawBossCreature imported from
+  src/enemies/enemyVisual.ts. The old drawBossLegacy/drawOrigami* helpers are
+  not the live boss rendering path and must not be used as the migration source.
+- Project art direction remains Folded Technology / Geometric Resonance.
+- Current source has three explicit enemyVisual boss silhouettes (shooter,
+  charger, summoner); the other canonical boss types use that module's authored
+  Abyssal Leviathan fallback. renderer.ts adds only the existing type-specific
+  telegraphs for charger, shooter, summoner and aura, plus the HP bar and
+  current source nameplate mapping. This slice preserves that exact scope rather
+  than inventing bespoke silhouettes or attacks for other types.
+
+IMPLEMENTED:
+- Added BossPresentationVfx2D.cs. It draws the boss HP bar/nameplate and maps
+  the live Canvas charger direction/commit line, shooter spread rays, summoner
+  ring/orbit glyphs and Aura radius warning to a reusable 2D dynamic mesh.
+- Wired EnemyAgent2D to create the overlay only for a non-empty bossType and
+  exposed read-only health/type/pause state plus a narrow attack-presentation
+  update method for the upcoming boss runtime component.
+- Kept boss silhouette generation in EnemyCreatureVisual2D, which remains the
+  port of src/enemies/enemyVisual.ts. No GLB, literal-origami fallback or new
+  boss gameplay behaviour was introduced.
+
+VALIDATION LIMITS:
+- CI checks source mapping and structural wiring, not UnityEngine compilation.
+  Unity Editor compile, MeshRenderer/TextMesh material behavior, accurate
+  world-scale comparison, Android APK and device review remain open.
+- Boss spawn is not yet wired because the Unity Region boss event/state is not
+  migrated. This slice only establishes the active-source visual presentation
+  when a boss entity is supplied by the upcoming runtime slice.
+

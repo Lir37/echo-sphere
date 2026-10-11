@@ -109,6 +109,17 @@ assert.ok(creatureVisual.includes('PathScratch') && creatureVisual.includes('_sh
 assert.equal((creatureVisual.match(/new List<Vector2>/g) || []).length, 2, 'per-frame creature rendering must keep exactly two reusable vector buffers');
 assert.ok(!/UnityEngine\.Random|Random\.Range|_rng/.test(creatureVisual), 'presentation animation must not consume run RNG');
 
+const bossPresentationPath = 'Assets/EchoSphere/Scripts/Runtime/BossPresentationVfx2D.cs';
+assert.ok(existsSync(join(root, bossPresentationPath)), 'source-mapped boss presentation VFX is missing');
+const bossPresentation = readFileSync(join(root, bossPresentationPath), 'utf8');
+assert.ok(bossPresentation.includes('renderer.ts') && bossPresentation.includes('drawBossAttackTelegraph'), 'boss overlay must map to the live Canvas renderer path');
+for (const boss of ['shooter', 'charger', 'summoner', 'aura']) assert.ok(bossPresentation.includes('"' + boss + '"'), 'live-source boss telegraph missing: ' + boss);
+for (const label of ['VOID LANCER', 'BREACHER', 'BROOD MIND', 'AURA TITAN']) assert.ok(bossPresentation.includes(label), 'boss nameplate mapping missing: ' + label);
+assert.ok(bossPresentation.includes('SetCombatState') && bossPresentation.includes('MaxHp') && bossPresentation.includes('CurrentHp'), 'boss HUD must receive runtime attack state and health');
+assert.ok(bossPresentation.includes('MarkDynamic') && bossPresentation.includes('_vertices.Clear()') && bossPresentation.includes('_triangles.Clear()'), 'boss overlay must reuse dynamic-mesh buffers');
+assert.ok(!/UnityEngine\.Random|Random\.Range|_rng/.test(bossPresentation), 'boss presentation must not consume gameplay RNG');
+assert.ok(enemy.includes('_bossPresentation.Initialize(this, bossType, _baseColor)') && enemy.includes('SetBossPresentationState'), 'boss presentation must bind to EnemyAgent2D');
+
 const sphereVisualPath = 'Assets/EchoSphere/Scripts/Runtime/SphereRuntimeVfx2D.cs';
 assert.ok(existsSync(join(root, sphereVisualPath)), 'source-mapped Sphere family VFX component is missing');
 const sphereVisual = readFileSync(join(root, sphereVisualPath), 'utf8');

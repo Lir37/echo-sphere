@@ -20,7 +20,21 @@ namespace EchoSphere.Runtime
         private float _dotDamagePerSecond;
         private Color _baseColor = Color.white;
         private EnemyCreatureVisual2D _creatureVisual;
+        private BossPresentationVfx2D _bossPresentation;
+        private string _bossType = "";
         public bool IsMarked => _markTimer > 0f;
+        public bool IsBoss => !string.IsNullOrEmpty(_bossType);
+        public string BossType => _bossType;
+        public float MaxHp => _maxHp;
+        public Vector2 PlayerPosition => _player == null ? Vector2.zero : (Vector2)_player.position;
+        public bool PresentationPaused => _runtime == null || _runtime.IsPresentationPaused;
+
+        public void SetBossPresentationState(float shootTimer, float summonTimer, float chargeTimer,
+            bool isCharging, Vector2 chargeDirection, float auraRadius)
+        {
+            if (_bossPresentation != null)
+                _bossPresentation.SetCombatState(shootTimer, summonTimer, chargeTimer, isCharging, chargeDirection, auraRadius);
+        }
         public float CurrentHp => Mathf.Max(0f, _hp);
         public bool IsAlive => !_dead && _hp > 0f;
         public float HpFraction => _maxHp <= 0f ? 0f : Mathf.Clamp01(_hp / _maxHp);
@@ -72,6 +86,7 @@ namespace EchoSphere.Runtime
         {
             _runtime = runtime;
             _player = player;
+            _bossType = bossType ?? "";
             _hp = hp;
             _maxHp = Mathf.Max(1f, hp);
             _moveSpeed = Mathf.Max(0f, moveSpeed);
@@ -81,6 +96,12 @@ namespace EchoSphere.Runtime
             _creatureVisual = GetComponent<EnemyCreatureVisual2D>();
             if (_creatureVisual == null) _creatureVisual = gameObject.AddComponent<EnemyCreatureVisual2D>();
             _creatureVisual.Initialize(_runtime, visualVariant, bossType, _baseColor);
+            if (!string.IsNullOrEmpty(bossType))
+            {
+                _bossPresentation = GetComponent<BossPresentationVfx2D>();
+                if (_bossPresentation == null) _bossPresentation = gameObject.AddComponent<BossPresentationVfx2D>();
+                _bossPresentation.Initialize(this, bossType, _baseColor);
+            }
         }
 
         private void Update()
