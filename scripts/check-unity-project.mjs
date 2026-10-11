@@ -198,8 +198,18 @@ assert.ok(runtime.includes('GetFormationKey') && runtime.includes('AddResonanceC
 const spherePlacementRulesPath = 'Assets/EchoSphere/Scripts/Core/SpherePlacementRules.cs';
 assert.ok(existsSync(join(root, spherePlacementRulesPath)), 'source-mapped Sphere placement safety rules are missing');
 const spherePlacementRules = readFileSync(join(root, spherePlacementRulesPath), 'utf8');
-for (const required of ['src/spaceCollision.ts','PlayerBuildGap','TowerPlacementGap','EnemyPlacementGap','HasRouteToOutside','GetMaxSpheres','MaxSameSphereCopies'])
-  assert.ok(spherePlacementRules.includes(required), 'source Sphere placement contract missing: ' + required);
+for (const required of ['src/spaceCollision.ts','PlayerBuildGap','TowerPlacementGap','EnemyPlacementGap','HasRouteToOutside','GetMaxSpheres','MaxSameSphereCopies',
+  'SphereCharacterId','GetSignatureSphere','GetCharacterSphereCopyCap','GetSameTypeCap','SphereCharacterId.Fractal'])
+  assert.ok(spherePlacementRules.includes(required), 'source Sphere placement/copy-cap contract missing: ' + required);
+assert.ok(runtime.includes('_maxSphereAbilityLevel') && runtime.includes('GetCurrentMaxSpheres') &&
+  runtime.includes('SpherePlacementRules.GetMaxSpheres(_maxSphereAbilityLevel, 0)') &&
+  runtime.includes('SphereProgressionRules.CreateMaxSpheresChoice') &&
+  runtime.includes('RunUpgradeKind.MaxSpheres'),
+  'source maxspheres passive ability is not connected to Level Up and live placement capacity');
+assert.ok(runtime.includes('SpherePlacementRules.GetSameTypeCap') &&
+  runtime.includes('_sphereCharacterId') && runtime.includes('_characterMasteryLevel') &&
+  !runtime.includes('CountSpheresOfType(_selectedSphereType) >= SpherePlacementRules.MaxSameSphereCopies'),
+  'signature Sphere copy limits must follow source character/mastery rules rather than a fixed two-copy runtime cap');
 assert.ok(spherePlacementRules.includes('ClampReposition') && runtime.includes('SpherePlacementRules.ClampReposition'),
   'dragged Sphere coordinates must clamp only on source-style reposition commit');
 assert.ok(runtime.includes('HandleSpherePointerInput()') && runtime.includes('BeginSpherePointer') && runtime.includes('FinishSpherePointer'), 'Sphere placement/drag pointer lifecycle is not wired into the runtime');
