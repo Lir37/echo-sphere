@@ -2242,3 +2242,26 @@ Source: active `src/renderer.ts:drawModernEnemy` and `src/enemies/enemyVisual.ts
 Validation: Unity Migration Contracts [#185](https://github.com/Lir37/echo-sphere/actions/runs/38142946946) passed on code/guard HEAD `94ff562b3f6426a8cea5a8a0740d03a679c6be0a` (604 C# pure-contract assertions and Unity structure/runtime preflight).
 
 Limits: CI does not compile UnityEngine scripts in the Unity Editor and does not confirm the resulting mesh appearance in a running build. Unity Editor compilation, APK generation and device-side visual acceptance remain unverified.
+
+
+## Enemy Elemental Status VFX + Boss Radius Calibration — 2026-10-11
+
+Source baseline: `new-desing` HEAD `737ef2af4a877e0995db5f92331d536d2f29a934`.
+Implementation: active `src/renderer.ts:drawEnemyStatusVfx`, `src/renderer.ts:drawModernEnemy`, `src/engineEnemies.ts`, and Unity runtime visual/state files.
+
+IMPLEMENTED:
+- Added source-mapped enemy Fire visual: four pulsing ember particles and the curved flame crest, including authored timing, alpha, offsets and pixel-relative line/particle sizes.
+- Added source-mapped Poison visual: five drifting green motes and the lower curved trail, using the active Canvas timing and proportions.
+- Added source-mapped Freeze visual: six animated cyan spokes and the translucent central frost disc. The enemy silhouette also receives the active source freeze tint `#69d6ff`.
+- Bound these presentation effects to live `EnemyAgent2D` status timers. Visual state is refreshed while timers tick and immediately after statuses are applied or consumed by Alchemist reactions; effect rendering does not change combat timing or damage.
+- Corrected the boss silhouette radius. The source boss radius is 34 px; the existing Unity boss root scale (1.23) already maps the calibrated local radius `R=0.48` to the source size. Removed the second `1.15` multiplier from `EnemyCreatureVisual2D.DrawBoss`, and aligned the boss HUD/telegraphs and nameplate offset with the resulting radius.
+- Added structural source-to-Unity guards for all three status paths, live state binding, freeze tint, the source-size boss mesh, and the matching boss HUD/telegraph radius.
+
+VALIDATION:
+- Intermediate CI #191 correctly failed on a guard identifying that one of the two boss HUD radius calculations still retained the old `1.15` multiplier. The remaining calculation was corrected and the legacy guard updated to enforce the source-calibrated radius.
+- Unity Migration Contracts [#193](https://github.com/Lir37/echo-sphere/actions/runs/38147208331): SUCCESS on implementation/guard HEAD `ce1f33e39b4cebc59d61ee044ebbd1729e2b2515`; 604 pure C# contract assertions and Unity project structure/runtime preflight passed.
+
+LIMITS:
+- Unity CI does not compile UnityEngine-facing scripts inside a real Unity Editor and cannot certify mesh rendering or the exact visual scale from a screenshot.
+- The boss radius correction is source-calibrated from the repository's explicit camera scale and source radius, but actual Editor/image comparison is still required for visual acceptance.
+- Unity Editor compilation, APK generation and Android on-device acceptance remain unverified in this cycle.
