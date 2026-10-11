@@ -113,8 +113,7 @@ namespace EchoSphere.Runtime
             if (type == SphereId.Prism) return 0;
             return SphereAuthoredModifierRules.GetProjectileRicochetCount(GetSphereBranch(type), GetSphereFinal(type));
         }
-        public int GetSphereAuthoredModifierLevel(SphereId type, SphereAuthoredModifier modifier) =>
-            SphereAuthoredModifierRules.GetLevel(GetSphereBranch(type), GetSphereFinal(type), modifier);
+
         public float GetSphereAuthoredDamageMultiplier(SphereId type) =>
             SphereAuthoredModifierRules.GetDamageMultiplier(GetSphereBranch(type), GetSphereFinal(type));
         public float GetSphereStatusDurationMultiplier(SphereElement element)

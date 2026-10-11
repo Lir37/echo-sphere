@@ -104,6 +104,11 @@ assert.ok(!svgImporterSettings.includes('SaveAndReimport') && !svgImporterSettin
 
 
 const runtimeArt = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs'), 'utf8');
+assert.equal(
+  (runtimeArt.match(/public int GetSphereAuthoredModifierLevel\\(SphereId type, SphereAuthoredModifier modifier\\)\\s*=>/g) || []).length,
+  1,
+  'GetSphereAuthoredModifierLevel must have exactly one declaration (CS0111 regression guard)',
+);
 
 const creatureVisualPath = 'Assets/EchoSphere/Scripts/Runtime/EnemyCreatureVisual2D.cs';
 assert.ok(existsSync(join(root, creatureVisualPath)), 'source-mapped enemy creature visual port is missing');

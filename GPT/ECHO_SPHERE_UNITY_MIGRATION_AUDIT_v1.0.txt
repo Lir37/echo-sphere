@@ -2222,3 +2222,10 @@ Implementation checkpoint: `unity-migration` HEAD `09ec8152409f00313831f05adb611
 - Added contract assertions and CI structural guards for the new modifier formulas, projectile hit exclusions, source ordering, and attack integration.
 
 Still open: verify and finish the deeper Prism beam/Network-refraction parity, region-dependent Impact push scaling, Magnetic behavior if/where it is defined in live source, and integrate character selection/mastery + shop profile into runtime. Current first playable still starts as Spherist/mastery I. The contract workflow does not compile UnityEngine runtime code inside the Unity Editor and does not generate or validate an APK/device run.
+
+
+## Duplicate Sphere Modifier Accessor / CS0111 — 2026-10-11
+
+- Fixed the Unity compiler error caused by two identical declarations of `GetSphereAuthoredModifierLevel(SphereId, SphereAuthoredModifier)` in `UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs`. The surviving implementation is unchanged.
+- Added a Unity project preflight regression assertion requiring exactly one declaration of this accessor.
+- The migration contract workflow still does not invoke Unity Editor compilation; reopening the project and confirming a clean Unity Console remains a separate verification gate.
