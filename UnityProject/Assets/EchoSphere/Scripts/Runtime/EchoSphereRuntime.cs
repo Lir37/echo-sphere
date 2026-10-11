@@ -2209,7 +2209,9 @@ namespace EchoSphere.Runtime
 
         private Rect GetSpherePickerRect()
         {
-            var width = Mathf.Max(220f, Mathf.Min(420f, _uiWidth - 36f));
+            // Source MobileControls uses a 5-column grid of 44 px type glyphs,
+            // with the selected type's name/description directly above it.
+            var width = Mathf.Min(252f, _uiWidth - 36f);
             const float height = 146f;
             var bottomControlsY = _uiHeight - 76f;
             return new Rect(18f, bottomControlsY - height - 10f, width, height);
@@ -2552,32 +2554,44 @@ namespace EchoSphere.Runtime
         private void DrawSpherePicker()
         {
             var panel = GetSpherePickerRect();
-            GUI.Box(panel, GUIContent.none, _box);
             var definition = GameCatalog.Spheres[(int)_selectedSphereType];
-            GUI.Label(new Rect(panel.x + 8f, panel.y + 3f, panel.width - 84f, 20f),
-                "PLACE: " + definition.DisplayName.ToUpperInvariant() + "   " + _spheres.Count + "/" + SpherePlacementRules.GetMaxSpheres(), _label);
-            GUI.Label(new Rect(panel.x + 8f, panel.y + 22f, panel.width - 16f, 25f),
-                definition.DescriptionEn, _sphereDescriptionStyle ?? _label);
-            var lockRect = new Rect(panel.xMax - 72f, panel.y + 3f, 64f, 20f);
-            if (GUI.Button(lockRect, _sphereMovementLocked ? "LOCKED" : "MOVE", _button))
-                _sphereMovementLocked = !_sphereMovementLocked;
+            var previousColor = GUI.color;
 
-            var buttonWidth = (panel.width - 22f) / 5f;
-            var buttonHeight = 40f;
+            // Source UI: selected type/description card above five columns of
+            // SphereTypeGlyph controls. No invented abbreviations or asset-list labels.
+            var descriptionRect = new Rect(panel.x, panel.y, panel.width, 43f);
+            GUI.Box(descriptionRect, GUIContent.none, _box);
+            var titleStyle = new GUIStyle(_label)
+            {
+                fontSize = 12,
+                fontStyle = FontStyle.Bold,
+                alignment = TextAnchor.MiddleCenter,
+                clipping = TextClipping.Clip
+            };
+            var descriptionStyle = new GUIStyle(_sphereDescriptionStyle ?? _label)
+            {
+                alignment = TextAnchor.MiddleCenter,
+                wordWrap = true,
+                clipping = TextClipping.Clip
+            };
+            GUI.Label(new Rect(descriptionRect.x + 4f, descriptionRect.y + 1f, descriptionRect.width - 8f, 17f),
+                definition.DisplayName, titleStyle);
+            GUI.Label(new Rect(descriptionRect.x + 5f, descriptionRect.y + 17f, descriptionRect.width - 10f, 24f),
+                definition.DescriptionEn, descriptionStyle);
+
+            var buttonWidth = (panel.width - 12f) / 5f;
+            const float buttonHeight = 42f;
             for (var i = 0; i < SpherePickerOrder.Length; i++)
             {
                 var type = SpherePickerOrder[i];
                 var column = i % 5;
                 var row = i / 5;
-                var rect = new Rect(panel.x + 7f + column * (buttonWidth + 2f),
-                    panel.y + 48f + row * 42f, buttonWidth, 38f);
-                var previousColor = GUI.color;
-                if (GUI.Button(rect, GUIContent.none, _button)) _selectedSphereType = type;
+                var rect = new Rect(panel.x + column * (buttonWidth + 3f),
+                    panel.y + 48f + row * 43f, buttonWidth, buttonHeight);
                 var color = SphereUiColor(type);
-                GUI.color = new Color(color.r, color.g, color.b, type == _selectedSphereType ? 1f : 0.84f);
-                DrawSpriteIcon(new Rect(rect.x + 4f, rect.y + 5f, 28f, 28f), GetSphereIcon(type), Color.white);
-                GUI.color = previousColor;
-                GUI.Label(new Rect(rect.x + 30f, rect.y + 9f, rect.width - 31f, 20f), SphereShortName(type), _spherePickerLabelStyle ?? _label);
+                if (GUI.Button(rect, GUIContent.none, _button)) _selectedSphereType = type;
+
+                DrawSpherePickerGlyph(rect, type, color);
                 var preferredForSpherist = type == SphereId.Standard || type == SphereId.Orbital;
                 if (preferredForSpherist)
                 {
@@ -2592,8 +2606,7 @@ namespace EchoSphere.Runtime
                 }
                 if (type == _selectedSphereType)
                 {
-                    var selectedColor = SphereUiColor(type);
-                    GUI.color = selectedColor;
+                    GUI.color = color;
                     GUI.DrawTexture(new Rect(rect.x, rect.y, rect.width, 2f), _uiAccentTexture);
                     GUI.DrawTexture(new Rect(rect.x, rect.yMax - 2f, rect.width, 2f), _uiAccentTexture);
                     GUI.DrawTexture(new Rect(rect.x, rect.y, 2f, rect.height), _uiAccentTexture);
@@ -2601,6 +2614,73 @@ namespace EchoSphere.Runtime
                     GUI.color = previousColor;
                 }
             }
+
+            GUI.color = previousColor;
+        }
+
+        private void DrawSpherePickerGlyph(Rect button, SphereId type, Color color)
+        {
+            var center = button.center;
+            var fill = new Color(color.r, color.g, color.b, 0.20f);
+            if (type == SphereId.Sniper)
+            {
+                var previousMatrix = GUI.matrix;
+                var previousColor = GUI.color;
+                GUIUtility.RotateAroundPivot(45f, center);
+                GUI.color = fill;
+                GUI.DrawTexture(new Rect(center.x - 6f, center.y - 6f, 12f, 12f), _uiAccentTexture);
+                GUI.matrix = previousMatrix;
+                GUI.color = previousColor;
+                var points = new[]
+                {
+                    new Vector2(center.x, center.y - 8f), new Vector2(center.x + 8f, center.y),
+                    new Vector2(center.x, center.y + 8f), new Vector2(center.x - 8f, center.y)
+                };
+                for (var i = 0; i < points.Length; i++)
+                    DrawSphereGuiLine(points[i], points[(i + 1) % points.Length], color, 2f);
+                return;
+            }
+
+            if (type == SphereId.Shotgun)
+            {
+                var chamber = new Rect(center.x - 10f, center.y - 4f, 12f, 8f);
+                GUI.color = fill;
+                GUI.DrawTexture(chamber, _uiAccentTexture);
+                GUI.color = color;
+                DrawSphereGuiLine(new Vector2(chamber.xMin, chamber.yMin), new Vector2(chamber.xMax, chamber.yMin), color, 2f);
+                DrawSphereGuiLine(new Vector2(chamber.xMax, chamber.yMin), new Vector2(chamber.xMax, chamber.yMax), color, 2f);
+                DrawSphereGuiLine(new Vector2(chamber.xMax, chamber.yMax), new Vector2(chamber.xMin, chamber.yMax), color, 2f);
+                DrawSphereGuiLine(new Vector2(chamber.xMin, chamber.yMax), new Vector2(chamber.xMin, chamber.yMin), color, 2f);
+                DrawSphereGuiLine(new Vector2(center.x + 2f, center.y - 8f), new Vector2(center.x + 10f, center.y - 8f), color, 2f);
+                DrawSphereGuiLine(new Vector2(center.x + 10f, center.y - 8f), new Vector2(center.x + 10f, center.y + 8f), color, 2f);
+                DrawSphereGuiLine(new Vector2(center.x + 10f, center.y + 8f), new Vector2(center.x + 2f, center.y + 8f), color, 2f);
+                GUI.color = previousColor;
+                return;
+            }
+
+            if (type == SphereId.Chain)
+            {
+                for (var i = 0; i < 3; i++)
+                {
+                    var node = new Vector2(center.x + (i - 1) * 12f, center.y);
+                    DrawSpriteIcon(new Rect(node.x - 5f, node.y - 5f, 10f, 10f), RuntimeSpriteFactory.Disc, fill);
+                    DrawSphereGuiCircle(node, 5f, color, 2f);
+                }
+                return;
+            }
+
+            if (type == SphereId.Aura)
+            {
+                DrawSphereGuiCircle(center, 13f, new Color(color.r, color.g, color.b, 0.13f), 1.5f);
+                DrawSphereGuiCircle(center, 10f, color, 2f);
+                return;
+            }
+
+            // Source glyphs for Standard, Orbital, Prism, Gravity, Pulse and Void
+            // share the same filled circular mark.
+            var defaultFill = new Color(color.r, color.g, color.b, 0.27f);
+            DrawSpriteIcon(new Rect(center.x - 8f, center.y - 8f, 16f, 16f), RuntimeSpriteFactory.Disc, defaultFill);
+            DrawSphereGuiCircle(center, 8f, color, 2f);
         }
 
         private void DrawSpherePlacementOverlay()
@@ -2829,7 +2909,9 @@ namespace EchoSphere.Runtime
                     CycleSecondaryFormation();
 
                 var bottomY = _uiHeight - 76f;
-                if (GUI.Button(new Rect(18, bottomY, 215, 54), _follow ? "FORMATION FOLLOW ON" : "FORMATION FOLLOW OFF", _button))
+                if (GUI.Button(new Rect(18f, bottomY, 105f, 54f), _sphereMovementLocked ? "SPHERES LOCKED" : "MOVE SPHERES", _button))
+                    _sphereMovementLocked = !_sphereMovementLocked;
+                if (GUI.Button(new Rect(127f, bottomY, 106f, 54f), _follow ? "FOLLOW ON" : "FOLLOW OFF", _button))
                     SetFormationFollowMode(!_follow);
                 if (GUI.Button(new Rect(_uiWidth - 176f, bottomY, 158f, 54f), "DASH", _button))
                     _playerCore.TryDash(_playerCore.LastMoveDirection);
