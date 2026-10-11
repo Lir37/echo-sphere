@@ -9,6 +9,7 @@ on:
       - 'tools/EchoSphere.CoreChecks/**'
       - 'scripts/check-unity-project.mjs'
       - '.github/workflows/unity-migration-check.yml'
+      - '.github/workflows/unity-android-apk.yml'
       - 'GPT/ECHO_SPHERE_UNITY_MIGRATION_AUDIT_v1.0.txt'
   workflow_dispatch:
 
