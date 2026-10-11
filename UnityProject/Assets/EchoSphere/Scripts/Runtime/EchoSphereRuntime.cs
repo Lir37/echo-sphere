@@ -285,7 +285,7 @@ namespace EchoSphere.Runtime
             // 95 logical px below Core. Unlocking/levelling a Sphere is a
             // separate progression action from physically placing it.
             _sphereLevels[SphereId.Standard] = 0;
-            CreateSphere(SphereId.Standard, 0, (Vector2)_player.position + new Vector2(0f, -95f * SpherePlacementRules.SourcePixelsToWorld));
+            CreateSphere(SphereId.Standard, 0, (Vector2)_player.position + new Vector2(0f, 95f * SpherePlacementRules.SourcePixelsToWorld));
         }
 
         private void CreateSphere(SphereId type, int level, Vector2? explicitPosition = null)
@@ -2574,9 +2574,21 @@ namespace EchoSphere.Runtime
                 DrawSpriteIcon(new Rect(rect.x + 4f, rect.y + 5f, 28f, 28f), GetSphereIcon(type), Color.white);
                 GUI.color = previousColor;
                 GUI.Label(new Rect(rect.x + 30f, rect.y + 9f, rect.width - 31f, 20f), SphereShortName(type), _spherePickerLabelStyle ?? _label);
+                var preferredForSpherist = type == SphereId.Standard || type == SphereId.Orbital;
+                if (preferredForSpherist)
+                {
+                    // Port of CHARACTER_DEFS.spherist.preferredSphereTypes.
+                    var preferredColor = new Color(1f, 0.72f, 0.30f, 0.5f);
+                    GUI.color = preferredColor;
+                    GUI.DrawTexture(new Rect(rect.x + 2f, rect.y + 2f, rect.width - 4f, 1f), _uiAccentTexture);
+                    GUI.DrawTexture(new Rect(rect.x + 2f, rect.yMax - 3f, rect.width - 4f, 1f), _uiAccentTexture);
+                    GUI.DrawTexture(new Rect(rect.x + 2f, rect.y + 2f, 1f, rect.height - 4f), _uiAccentTexture);
+                    GUI.DrawTexture(new Rect(rect.xMax - 3f, rect.y + 2f, 1f, rect.height - 4f), _uiAccentTexture);
+                    GUI.color = previousColor;
+                }
                 if (type == _selectedSphereType)
                 {
-                    var selectedColor = SphereColor(type);
+                    var selectedColor = SphereUiColor(type);
                     GUI.color = selectedColor;
                     GUI.DrawTexture(new Rect(rect.x, rect.y, rect.width, 2f), _uiAccentTexture);
                     GUI.DrawTexture(new Rect(rect.x, rect.yMax - 2f, rect.width, 2f), _uiAccentTexture);
