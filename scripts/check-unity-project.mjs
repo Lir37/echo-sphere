@@ -411,7 +411,9 @@ assert.ok(authoredModifiers.includes('AUTHORED_BASE_MODIFIERS') === false && aut
 assert.ok(authoredModifiers.includes('standard_resonator') && authoredModifiers.includes('void_execution_final_3') === false && authoredModifiers.includes('SphereAuthoredModifier.Gravitic'), 'canonical Sphere modifier mapping is incomplete');
 assert.ok(authoredModifiers.includes('BranchCount => BaseLevels.Count') && authoredModifiers.includes('FinalChoiceCount'), 'complete source modifier catalog counts must remain guarded');
 assert.ok(runtime.includes('GetSphereAuthoredDamageMultiplier') && runtime.includes('GetSphereAuthoredModifierLevel'), 'source-authored modifier catalogue is not exposed by the live runtime');
-assert.ok(sphereAttack.includes('GetSphereAuthoredDamageMultiplier(_type)'), 'source Overload/Shatter/Mark damage scaling is not used by Sphere and Orbital attacks');
+assert.ok(runtime.includes('SphereAuthoredModifierRules.GetDamageMultiplier(branch, finalId)') &&
+  runtime.includes('ResolveAuthoredSphereHitDamage') && enemy.includes('ReceiveSphereDamage(SphereAttackAgent owner'),
+  'source Overload/Shatter/Mark damage must be resolved in the shared Sphere hit pipeline');
 
 assert.ok(enemy.includes('ResolveAuthoredSphereHitDamage') && enemy.includes('ApplyAuthoredSphereHitEffects') &&
   enemy.includes('ReceiveSphereDamage(SphereAttackAgent owner'),
