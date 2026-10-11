@@ -35,6 +35,7 @@ internal static class Program
             CheckSphereElementalRules();
             CheckAlchemistReactionRules();
             CheckSphereAuthoredModifierRules();
+            CheckSphereAuthoredHitEffects();
             Console.WriteLine($"ECHO SPHERE Unity core contracts: PASS ({_assertions} assertions)");
             return 0;
         }
@@ -741,6 +742,40 @@ internal static class Program
             "branches without authored damage modifiers stay at baseline");
         Equal(SphereAuthoredModifierRules.GetLevel("unknown_branch", "unknown_branch_final_2", SphereAuthoredModifier.Pierce), 0,
             "unknown branches have no invented modifier levels");
+    }
+
+    private static void CheckSphereAuthoredHitEffects()
+    {
+        Near(SphereAuthoredModifierRules.GetExecuteDamageMultiplier(2, 0.30f), 1.36f, 0.0001f,
+            "Execute II threshold includes exactly 30% HP");
+        Near(SphereAuthoredModifierRules.GetExecuteDamageMultiplier(2, 0.3001f), 1f, 0f,
+            "Execute does not trigger above 30% HP");
+        Near(SphereAuthoredModifierRules.GetMarkedDamageMultiplier(2, true), 1.30f, 0.0001f,
+            "Mark II increases damage against a marked target");
+        Near(SphereAuthoredModifierRules.GetMarkedDamageMultiplier(2, false), 1f, 0f,
+            "Mark has no conditional bonus before a target is marked");
+        Near(SphereAuthoredModifierRules.GetCorruptDamageMultiplier(2, 1), 1.04f, 0.0001f,
+            "Corrupt first stack adds 4% damage");
+        Near(SphereAuthoredModifierRules.GetCorruptDamageMultiplier(2, 5), 1.20f, 0.0001f,
+            "Corrupt caps at five stacks");
+        Near(SphereAuthoredModifierRules.GetImpactDistancePixels(2), 36f, 0f,
+            "Impact II pushes by 36 source pixels");
+        Near(SphereAuthoredModifierRules.GetGraviticRangePixels(), 72f, 0f,
+            "Gravitic source range is 72 pixels");
+        Near(SphereAuthoredModifierRules.GetGraviticPullDistancePixels(2), 8f, 0f,
+            "Gravitic II pull is eight source pixels");
+        Near(SphereAuthoredModifierRules.GetAnchorSlowDuration(2), 1.3f, 0.0001f,
+            "Anchor II duration");
+        Near(SphereAuthoredModifierRules.GetAnchorSlowMultiplier(2), 0.55f, 0.0001f,
+            "Anchor II strength");
+        Near(SphereAuthoredModifierRules.GetVampiricHealFraction(2), 0.012f, 0.0001f,
+            "Vampiric II heals 1.2% of dealt damage");
+        Equal(SphereAuthoredModifierRules.GetResonantCharge(2), 2,
+            "Resonant II adds two charge");
+        Near(SphereAuthoredModifierRules.GetShatterRadiusPixels(), 48f, 0f,
+            "Shatter source splash radius");
+        Near(SphereAuthoredModifierRules.GetShatterDamageMultiplier(2), 0.36f, 0.0001f,
+            "Shatter II burst is 36% of actual primary damage");
     }
 
     private static void CheckSphereNetworkRules()

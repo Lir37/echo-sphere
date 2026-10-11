@@ -16,6 +16,8 @@ namespace EchoSphere.Runtime
         private float _slowTimer;
         private float _slowMultiplier = 1f;
         private float _markTimer;
+        private int _corruptStacks;
+        public int CorruptStacks => _corruptStacks;
         private float _dotTimer;
         private float _dotRemaining;
         private float _dotDamagePerSecond;
@@ -58,12 +60,29 @@ namespace EchoSphere.Runtime
                 _freezeVulnerabilitySource.HasValue && _freezeVulnerabilitySource.Value == source ? 1.22f : 1f;
         }
 
-        public float ReceiveSphereDamage(SphereId source, float damage)
+        public int AddCorruptStack()
+        {
+            _corruptStacks = Mathf.Min(5, _corruptStacks + 1);
+            return _corruptStacks;
+        }
+
+        public float ReceiveSphereDamage(SphereId source, float damage, bool authoredDamageResolved = false,
+            bool allowAuthoredProcs = true, SphereAttackAgent owner = null)
         {
             if (_dead) return 0f;
-            var actual = damage * IncomingSphereDamageMultiplier(source);
-            ReceiveDamage(actual);
+            var authoredDamage = authoredDamageResolved || _runtime == null
+                ? damage : _runtime.ResolveAuthoredSphereHitDamage(source, this, damage);
+            var actual = authoredDamage * IncomingSphereDamageMultiplier(source);
+            if (_runtime != null) _runtime.ApplyAuthoredSphereHitEffects(source, this, actual, allowAuthoredProcs, owner);
+            ReceiveDamage(actual, source);
             return actual;
+        }
+
+        public float ReceiveSphereDamage(SphereAttackAgent owner, float damage,
+            bool authoredDamageResolved = false, bool allowAuthoredProcs = true)
+        {
+            if (owner == null) return 0f;
+            return ReceiveSphereDamage(owner.Type, damage, authoredDamageResolved, allowAuthoredProcs, owner);
         }
 
         public void ApplyElementalStatus(SphereElementalStatus status, SphereId source)
@@ -343,7 +362,7 @@ namespace EchoSphere.Runtime
             }
         }
 
-        public void ReceiveDamage(float damage)
+        public void ReceiveDamage(float damage, SphereId? sourceSphere = null)
         {
             if (_dead) return;
             _hp -= Mathf.Max(0f, damage);
@@ -353,7 +372,7 @@ namespace EchoSphere.Runtime
             if (_hp <= 0f)
             {
                 _dead = true;
-                _runtime.RegisterEnemyDeath(this, transform.position, _xpReward);
+                _runtime.RegisterEnemyDeath(this, transform.position, _xpReward, sourceSphere);
                 Destroy(gameObject);
             }
         }

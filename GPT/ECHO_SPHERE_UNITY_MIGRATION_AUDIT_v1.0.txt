@@ -2198,3 +2198,14 @@ Ported the source Alchemist reaction rules from `new-desing/src/characterRuntime
 - Added C# contract assertions for branch/final catalog coverage, representative inherited/overridden levels, missing-branch safety and damage scaling, plus CI structural guards.
 
 Limits: this slice ports the authored data and shared damage factors only. Remaining modifier hit/proc behavior (Split, Echo, Static, Impact, Gravitic, Anchor, Vampiric, Drain, Mark target cadence, Piercing and Ricochet) still needs explicit runtime wiring; those effects must not be claimed fully ported yet.
+
+
+## Shared Authored Modifier Hit Effects — 2026-10-11
+
+- Routed common Sphere damage through the source modifier resolver so global Overload/Shatter/Mark damage factors also apply to secondary branch hits, not only the initial attack.
+- Added Execute's 30%-HP threshold and +18% per level, Mark's +15% per level against marked targets, and Corrupt's capped five-stack +4% per stack before HP is reduced.
+- Wired Shatter's frozen-target splash (48 source pixels, 20% + 8% per level), Impact knockback, Gravitic nearby pull, Anchor slow, Vampiric heal-on-hit, Resonant extra charge (excluding Pulse Resonator), Mark application, and Drain heal-on-kill into the live enemy damage/death path.
+- Primary projectile/Chain damage now resolves authored modifier damage before branch-specific hit logic; runtime/helper Sphere hits also pass through the common modifier path.
+- Added pure contract tests for the key thresholds/formulas and CI guards for common damage/death wiring.
+
+Known remaining work: random Split/Echo/Static/Afterimage procs, projectile Ricochet/Pierce/Multishot integration, and source-perfect Region repulsion scaling are intentionally deferred to the next modifier slices. Unity Editor compilation and Android testing remain unverified by contract CI.

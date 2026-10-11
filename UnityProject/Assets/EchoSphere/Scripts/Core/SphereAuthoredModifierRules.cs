@@ -138,5 +138,24 @@ namespace EchoSphere.Core
             var mark = GetLevel(branchId, finalId, SphereAuthoredModifier.Mark);
             return (1f + 0.08f * overload) * (1f + 0.04f * shatter) * (1f + 0.04f * mark);
         }
+
+        public static float GetExecuteDamageMultiplier(int level, float hpFraction) =>
+            level > 0 && hpFraction <= 0.30f ? 1f + 0.18f * level : 1f;
+
+        public static float GetMarkedDamageMultiplier(int level, bool marked) =>
+            level > 0 && marked ? 1f + 0.15f * level : 1f;
+
+        public static float GetCorruptDamageMultiplier(int level, int stackCount) =>
+            level > 0 ? 1f + 0.04f * Math.Max(0, Math.Min(5, stackCount)) : 1f;
+
+        public static float GetImpactDistancePixels(int level) => Math.Max(0, level) * 18f;
+        public static float GetGraviticRangePixels() => 72f;
+        public static float GetGraviticPullDistancePixels(int level) => Math.Min(10f, Math.Max(0, level) * 4f);
+        public static float GetAnchorSlowDuration(int level) => level > 0 ? 0.8f + 0.25f * level : 0f;
+        public static float GetAnchorSlowMultiplier(int level) => level > 0 ? Math.Max(0.35f, 0.65f - 0.05f * level) : 1f;
+        public static float GetVampiricHealFraction(int level) => Math.Max(0, level) * 0.006f;
+        public static int GetResonantCharge(int level) => Math.Max(0, level);
+        public static float GetShatterRadiusPixels() => 48f;
+        public static float GetShatterDamageMultiplier(int level) => level > 0 ? 0.20f + 0.08f * level : 0f;
     }
 }

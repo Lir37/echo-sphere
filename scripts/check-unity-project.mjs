@@ -412,3 +412,17 @@ assert.ok(authoredModifiers.includes('standard_resonator') && authoredModifiers.
 assert.ok(authoredModifiers.includes('BranchCount => BaseLevels.Count') && authoredModifiers.includes('FinalChoiceCount'), 'complete source modifier catalog counts must remain guarded');
 assert.ok(runtime.includes('GetSphereAuthoredDamageMultiplier') && runtime.includes('GetSphereAuthoredModifierLevel'), 'source-authored modifier catalogue is not exposed by the live runtime');
 assert.ok(sphereAttack.includes('GetSphereAuthoredDamageMultiplier(_type)'), 'source Overload/Shatter/Mark damage scaling is not used by Sphere and Orbital attacks');
+
+assert.ok(enemy.includes('ResolveAuthoredSphereHitDamage') && enemy.includes('ApplyAuthoredSphereHitEffects') &&
+  enemy.includes('ReceiveSphereDamage(SphereAttackAgent owner'),
+  'source-authored hit modifiers are not wired through the common enemy damage receiver');
+assert.ok(runtime.includes('SphereAuthoredModifierRules.GetExecuteDamageMultiplier') &&
+  runtime.includes('SphereAuthoredModifierRules.GetCorruptDamageMultiplier') &&
+  runtime.includes('SphereAuthoredModifierRules.GetImpactDistancePixels') &&
+  runtime.includes('SphereAuthoredModifierRules.GetAnchorSlowMultiplier') &&
+  runtime.includes('SphereAuthoredModifierRules.GetVampiricHealFraction') &&
+  runtime.includes('SphereAuthoredModifierRules.GetShatterDamageMultiplier'),
+  'Execute/Mark/Corrupt or deterministic on-hit modifier effects are missing from runtime');
+assert.ok(enemy.includes('RegisterEnemyDeath(this, transform.position, _xpReward, sourceSphere)') &&
+  runtime.includes('GetSphereAuthoredModifierLevel(sourceSphere.Value, SphereAuthoredModifier.Drain)'),
+  'Drain kill healing must retain the Sphere that delivered the lethal damage');

@@ -121,7 +121,7 @@ namespace EchoSphere.Runtime
                 if (targetDelta.sqrMagnitude > 0.0001f) VisualRotation = Mathf.Atan2(targetDelta.y, targetDelta.x);
             }
             var damage = BaseDamage * _runtime.SphereDamageMultiplier * _runtime.GetNetworkDamageMultiplier(this) *
-                _runtime.GetSphereCopyOutputMultiplier(this) * _runtime.GetSphereAuthoredDamageMultiplier(_type);
+                _runtime.GetSphereCopyOutputMultiplier(this);
             if (target != null && _runtime.ConsumeResonanceLineBurst()) damage *= 1.60f;
             if (_type == SphereId.Shotgun && target != null)
             {
@@ -280,8 +280,8 @@ namespace EchoSphere.Runtime
                 var contact = _runtime.TryHitEnemy(_orbitalElements[i].position, contactRadius);
                 if (contact == null) continue;
                 var damage = BaseDamage * _runtime.SphereDamageMultiplier * _runtime.GetNetworkDamageMultiplier(this) *
-                    _runtime.GetSphereCopyOutputMultiplier(this) * _runtime.GetSphereAuthoredDamageMultiplier(_type) * damageMultiplier;
-                var dealtDamage = contact.ReceiveSphereDamage(_type, damage);
+                    _runtime.GetSphereCopyOutputMultiplier(this) * damageMultiplier;
+                var dealtDamage = contact.ReceiveSphereDamage(this, damage);
                 OnSphereHitApplied(contact);
                 _runtime.AddResonanceCharge(1f);
                 _orbitalHitCount++;
@@ -341,8 +341,9 @@ namespace EchoSphere.Runtime
                     _runtime.GetSphereBranch(_type), _runtime.GetSphereFinal(_type), ColorFor(_type));
                 var hitDamage = _runtime.ResolveProjectileDamage(damage * Mathf.Pow(0.72f, i), _levelStats.CritChanceBonus, out var wasCritical);
                 var direction = ((Vector2)target.transform.position - origin).normalized;
+                hitDamage = _runtime.ResolveAuthoredSphereHitDamage(_type, target, hitDamage);
                 hitDamage = OnProjectileHit(target, direction, hitDamage, wasCritical);
-                hitDamage = target.ReceiveSphereDamage(_type, hitDamage);
+                hitDamage = target.ReceiveSphereDamage(_type, hitDamage, true, true, this);
                 OnSphereHitApplied(target);
                 _runtime.RegisterSphereHit(this, target, hitDamage);
                 _runtime.SpawnImpact(target.transform.position, ColorFor(_type));
@@ -401,7 +402,7 @@ namespace EchoSphere.Runtime
                     for (var i = 0; i < secondTargets.Count; i++)
                     {
                         if (finalId == "pulse_burst_final_3") secondTargets[i].KnockBackFrom(origin, 0.30f);
-                        var secondDealt = secondTargets[i].ReceiveSphereDamage(_type, secondDamage);
+                        var secondDealt = secondTargets[i].ReceiveSphereDamage(this, secondDamage);
                         OnSphereHitApplied(secondTargets[i]);
                         _runtime.RegisterSphereHit(this, secondTargets[i], secondDealt);
                     }
@@ -487,7 +488,7 @@ namespace EchoSphere.Runtime
             for (var i = 0; i < targets.Count; i++)
             {
                 if (pull && !(_type == SphereId.Gravity && !string.IsNullOrEmpty(branch))) targets[i].PullToward(origin, 1.8f * _levelStats.PullMultiplier);
-                var dealtDamage = targets[i].ReceiveSphereDamage(_type, auraDamage);
+                var dealtDamage = targets[i].ReceiveSphereDamage(this, auraDamage);
                 OnSphereHitApplied(targets[i]);
                 _runtime.RegisterSphereHit(this, targets[i], dealtDamage);
             }

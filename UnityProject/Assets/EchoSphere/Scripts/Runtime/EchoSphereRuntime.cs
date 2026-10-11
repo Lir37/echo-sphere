@@ -1029,6 +1029,89 @@ namespace EchoSphere.Runtime
             if (_playerCore != null && !_playerCore.IsDead) _playerCore.Heal(Mathf.Max(0f, amount));
         }
 
+        public float ResolveAuthoredSphereHitDamage(SphereId source, EnemyAgent2D target, float damage)
+        {
+            if (target == null || !target.IsAlive) return 0f;
+            var branch = GetSphereBranch(source);
+            var finalId = GetSphereFinal(source);
+            damage *= SphereAuthoredModifierRules.GetDamageMultiplier(branch, finalId);
+
+            var execute = GetSphereAuthoredModifierLevel(source, SphereAuthoredModifier.Execute);
+            damage *= SphereAuthoredModifierRules.GetExecuteDamageMultiplier(execute, target.HpFraction);
+            var mark = GetSphereAuthoredModifierLevel(source, SphereAuthoredModifier.Mark);
+            damage *= SphereAuthoredModifierRules.GetMarkedDamageMultiplier(mark, target.IsMarked);
+            var corrupt = GetSphereAuthoredModifierLevel(source, SphereAuthoredModifier.Corrupt);
+            if (corrupt > 0) damage *= SphereAuthoredModifierRules.GetCorruptDamageMultiplier(corrupt, target.AddCorruptStack());
+            return Mathf.Max(0f, damage);
+        }
+
+        public void ApplyAuthoredSphereHitEffects(SphereId source, EnemyAgent2D target, float damage,
+            bool allowAuthoredProcs, SphereAttackAgent owner = null)
+        {
+            if (target == null || _gameOver) return;
+            var branch = GetSphereBranch(source);
+            var finalId = GetSphereFinal(source);
+            var origin = owner != null ? (Vector2)owner.transform.position : FindNearestSphereOrigin(source, target.transform.position);
+            var shatter = GetSphereAuthoredModifierLevel(source, SphereAuthoredModifier.Shatter);
+            if (allowAuthoredProcs && shatter > 0 && target.IsFrozen)
+            {
+                var nearby = FindEnemiesInRadius(target.transform.position,
+                    SphereAuthoredModifierRules.GetShatterRadiusPixels() * SpherePlacementRules.SourcePixelsToWorld);
+                var burst = damage * SphereAuthoredModifierRules.GetShatterDamageMultiplier(shatter);
+                for (var i = 0; i < nearby.Count; i++)
+                    if (nearby[i] != target && nearby[i].IsAlive)
+                        nearby[i].ReceiveSphereDamage(source, burst, false, false, owner);
+            }
+
+            var impact = GetSphereAuthoredModifierLevel(source, SphereAuthoredModifier.Impact);
+            if (impact > 0)
+                target.KnockBackFrom(origin,
+                    SphereAuthoredModifierRules.GetImpactDistancePixels(impact) * SpherePlacementRules.SourcePixelsToWorld);
+
+            var gravitic = GetSphereAuthoredModifierLevel(source, SphereAuthoredModifier.Gravitic);
+            if (gravitic > 0)
+            {
+                var center = (Vector2)target.transform.position;
+                var radius = SphereAuthoredModifierRules.GetGraviticRangePixels() * SpherePlacementRules.SourcePixelsToWorld;
+                var pullDistance = SphereAuthoredModifierRules.GetGraviticPullDistancePixels(gravitic) * SpherePlacementRules.SourcePixelsToWorld;
+                var nearby = FindEnemiesInRadius(center, radius);
+                for (var i = 0; i < nearby.Count; i++)
+                    if (nearby[i] != target)
+                        nearby[i].PullByDistance(center, pullDistance);
+            }
+
+            var anchor = GetSphereAuthoredModifierLevel(source, SphereAuthoredModifier.Anchor);
+            if (anchor > 0)
+                target.ApplySlow(
+                    SphereAuthoredModifierRules.GetAnchorSlowDuration(anchor),
+                    SphereAuthoredModifierRules.GetAnchorSlowMultiplier(anchor));
+
+            var vampiric = GetSphereAuthoredModifierLevel(source, SphereAuthoredModifier.Vampiric);
+            if (vampiric > 0) HealPlayer(damage * SphereAuthoredModifierRules.GetVampiricHealFraction(vampiric));
+
+            var resonant = GetSphereAuthoredModifierLevel(source, SphereAuthoredModifier.Resonant);
+            if (resonant > 0 && branch != "pulse_resonator")
+                ChargeResonanceFromSource(SphereAuthoredModifierRules.GetResonantCharge(resonant), false);
+
+            var mark = GetSphereAuthoredModifierLevel(source, SphereAuthoredModifier.Mark);
+            if (mark > 0 && _sphereCharacterId != SphereCharacterId.Hunter)
+                target.ApplyMark(2.5f);
+        }
+
+        private Vector2 FindNearestSphereOrigin(SphereId type, Vector2 targetPosition)
+        {
+            SphereAttackAgent best = null;
+            var bestDistance = float.PositiveInfinity;
+            for (var i = 0; i < _spheres.Count; i++)
+            {
+                var sphere = _spheres[i];
+                if (sphere == null || sphere.Type != type) continue;
+                var distance = ((Vector2)sphere.transform.position - targetPosition).sqrMagnitude;
+                if (distance < bestDistance) { bestDistance = distance; best = sphere; }
+            }
+            return best == null ? targetPosition : (Vector2)best.transform.position;
+        }
+
         public void RegisterSphereHit(SphereAttackAgent owner, EnemyAgent2D target, float damage)
         {
             if (owner == null || target == null) return;
@@ -1564,9 +1647,15 @@ namespace EchoSphere.Runtime
             OpenLevelUpIfReady();
         }
 
-        public void RegisterEnemyDeath(EnemyAgent2D enemy, Vector2 position, int xpReward = 1)
+        public void RegisterEnemyDeath(EnemyAgent2D enemy, Vector2 position, int xpReward = 1, SphereId? sourceSphere = null)
         {
             _enemies.Remove(enemy);
+            if (sourceSphere.HasValue)
+            {
+                var drain = GetSphereAuthoredModifierLevel(sourceSphere.Value, SphereAuthoredModifier.Drain);
+                if (drain > 0 && _playerCore != null)
+                    HealPlayer(_playerCore.MaxHp * 0.03f * drain);
+            }
             if (_ownedArtifacts.Contains("swift_boots")) _swiftBootsTimer = 3f;
             if (enemy != null && enemy.IsBoss)
             {
