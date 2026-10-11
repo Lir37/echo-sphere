@@ -175,7 +175,7 @@ namespace EchoSphere.Runtime
             switch (_type)
             {
                 case SphereId.Sniper:
-                    DrawEmitter(_detail, R, color, facing, 0, pulse);
+                    DrawEmitter(_detail, R, color, facing, 0, 0f, disabled, _time);
                     var scan = _time * .46f + _phase;
                     DrawReticle(_detail, OrbitPoint(R, scan, .34f, 1.15f), R * .10f, color, .62f);
                     break;
@@ -186,7 +186,7 @@ namespace EchoSphere.Runtime
                         0f, Tau, color, Mathf.Max(.014f, coreRadius * .040f), disabled ? .04f : .20f + surge * .16f);
                     break;
                 case SphereId.Shotgun:
-                    for (var i = -1; i <= 1; i++) DrawEmitter(_detail, R, color, facing, 1, i * R * .25f);
+                    for (var i = -1; i <= 1; i++) DrawEmitter(_detail, R, color, facing, 1, i * R * .25f, disabled);
                     for (var i = 0; i < 3; i++)
                     {
                         var a = _time * (.34f + i * .035f) + i * Tau / 3f;
@@ -210,7 +210,7 @@ namespace EchoSphere.Runtime
                     if (resonance) _detail.Arc(Vector2.zero, R * 1.34f, R * 1.34f, _time * .65f, Mathf.PI * 1.15f, Resonance, .010f, .42f);
                     break;
                 case SphereId.Prism:
-                    DrawEmitter(_detail, R, color, facing, 2, 0f);
+                    DrawEmitter(_detail, R, color, facing, 2, 0f, disabled);
                     for (var i = 0; i < 2; i++)
                     {
                         var a = _time * (.30f + i * .05f) + i * Mathf.PI;
@@ -236,7 +236,7 @@ namespace EchoSphere.Runtime
                     }
                     break;
                 case SphereId.Void:
-                    DrawEmitter(_detail, R, color, facing, 3, 0f);
+                    DrawEmitter(_detail, R, color, facing, 3, 0f, disabled);
                     for (var i = 0; i < 4; i++)
                     {
                         var a = -_time * (.22f + i * .025f) + i * Mathf.PI / 2f;
@@ -445,7 +445,7 @@ namespace EchoSphere.Runtime
         private static Vector2 Rotate(Vector2 v, float a) { var s = Mathf.Sin(a); var c = Mathf.Cos(a); return new Vector2(v.x * c - v.y * s, v.x * s + v.y * c); }
 
         // kind: 0 sniper needle, 1 shotgun muzzle, 2 prism emitter, 3 void emitter.
-        private static void DrawEmitter(Painter p, float r, Color c, float facing, int kind, float y)
+        private static void DrawEmitter(Painter p, float r, Color c, float facing, int kind, float y, bool disabled, float time = 0f)
         {
             var center = new Vector2(r * (kind == 0 ? 1.22f : kind == 3 ? 1.20f : 1.18f), y);
             Path.Clear();
@@ -474,20 +474,31 @@ namespace EchoSphere.Runtime
             }
             var rot = (kind == 0 ? -Mathf.PI / 2f : 0f) + facing;
             for (var i = 0; i < Path.Count; i++) Path[i] = center + Rotate(Path[i], rot);
-            var fill = new Color(.027f, .067f, .105f, kind == 3 ? .97f : .94f);
-            p.Polygon(Path, fill, c, .009f);
+            var shapeAlpha = disabled ? .14f : kind == 3 ? .97f : .94f;
+            var fill = new Color(.027f, .067f, .105f, shapeAlpha);
+            var outline = new Color(c.r, c.g, c.b, shapeAlpha);
+            p.Polygon(Path, fill, outline, .009f);
             if (kind == 0)
             {
-                p.Line(center + Rotate(new Vector2(0f, -r * .18f), rot), center + Rotate(new Vector2(0f, r * .16f), rot), Color.white, .006f, .70f);
-                p.Circle(center, r * .12f, c, .10f, 0f);
+                p.Line(center + Rotate(new Vector2(0f, -r * .18f), rot), center + Rotate(new Vector2(0f, r * .16f), rot),
+                    Color.white, .006f, disabled ? .08f : .70f);
+                var scan = .10f + .05f * Mathf.Sin(time * 7f);
+                p.Circle(center, r * .13f, c, disabled ? .04f : scan, 0f);
             }
-            else if (kind == 1) p.Circle(center + Rotate(new Vector2(r * .25f, 0f), rot), r * .055f, Color.white, .70f, .005f);
+            else if (kind == 1)
+            {
+                var ringCenter = center + Rotate(new Vector2(r * .25f, 0f), rot);
+                p.Arc(ringCenter, r * .055f, r * .055f, 0f, Tau, Color.white, .006f, disabled ? .07f : .72f);
+            }
             else if (kind == 2)
             {
-                p.Line(center + Rotate(new Vector2(r * .09f, -r * .10f), rot), center + Rotate(new Vector2(r * .21f, 0f), rot), Color.white, .006f, .68f);
-                p.Line(center + Rotate(new Vector2(r * .21f, 0f), rot), center + Rotate(new Vector2(r * .09f, r * .10f), rot), Color.white, .006f, .68f);
+                p.Line(center + Rotate(new Vector2(r * .09f, -r * .10f), rot), center + Rotate(new Vector2(r * .21f, 0f), rot),
+                    Color.white, .006f, disabled ? .06f : .68f);
+                p.Line(center + Rotate(new Vector2(r * .21f, 0f), rot), center + Rotate(new Vector2(r * .09f, r * .10f), rot),
+                    Color.white, .006f, disabled ? .06f : .68f);
             }
-            else p.Arc(center + Rotate(new Vector2(r * .18f, 0f), rot), r * .07f, r * .07f, 0f, Tau, new Color(.92f, .875f, 1f), .006f, .65f);
+            else p.Arc(center + Rotate(new Vector2(r * .18f, 0f), rot), r * .07f, r * .07f, 0f, Tau,
+                new Color(.92f, .875f, 1f), .006f, disabled ? .04f : .65f);
         }
 
         private static void DrawTerminal(Painter p, Vector2 pos, float r, Color c, float alpha, float phase)
