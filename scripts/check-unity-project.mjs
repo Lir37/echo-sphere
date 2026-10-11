@@ -508,9 +508,10 @@ assert.ok(runtime.includes('GetStaticChance(staticLevel)') && runtime.includes('
 assert.ok(sphereAttack.includes('SpawnAuthoredMainProjectile') &&
   sphereAttack.includes('SphereAuthoredModifier.Multishot') &&
   sphereAttack.includes('GetSphereProjectilePierceBonus(_type)') &&
-  sphereAttack.includes('GetPrismPierce(_levelStats.Pierce, branch, finalId)'),
-  'Sphere attack emission does not apply source Multishot/Pierce modifier data');
+  sphereAttack.includes('GetPrismBeamCount'),
+  'Sphere projectile emission and Prism direct-beam emission must retain their source modifier paths');
 assert.ok(evolutionRules.includes('GetProjectilePierceBonus("void_execution", finalId)') &&
-  evolutionRules.includes('GetProjectilePierceBonus(branch, finalId)') &&
+  evolutionRules.includes('GetPrismBeamCount') &&
+  evolutionRules.includes('GetPrismMirrorRicochetCount') &&
   !evolutionRules.includes('branch == "prism_mirror" && finalId == "prism_mirror_final_2" ? 1'),
-  'Prism/Void pierce must use authored modifier levels exactly once');
+  'Void projectile pierce and Prism beam/ricochet rules must use source-authored modifier data');
