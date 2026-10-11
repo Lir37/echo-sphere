@@ -2456,3 +2456,14 @@ NEXT:
    src/EchoMapScreen.tsx into the Unity runtime.
 3. Complete remaining ability integrations and Level-Up controls before claiming
    Level-Up parity.
+
+
+CI FOLLOW-UP | 2026-10-12
+- Unity Migration Contracts run #211:
+  - C# core contracts passed: 653 assertions.
+  - Node structural check failed before assertions due to duplicate top-level
+    const identifier `enemyRuntime` in the check script, introduced by this
+    Level-Up patch. No game compile/APK result was involved.
+- Follow-up commit renames the new local check variable to remove the syntax
+  collision. Re-run the complete workflow and verify it is green before the
+  next implementation stage.

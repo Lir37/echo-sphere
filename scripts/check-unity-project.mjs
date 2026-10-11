@@ -358,8 +358,8 @@ assert.ok(runtime.includes('IncreaseMaxHp(6f)') && runtime.includes('IncreaseMax
   'Level-Up must use source per-level effects and must not offer placeholder repair/damage cards');
 const experienceOrb = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/ExperienceOrbAgent.cs'), 'utf8');
 assert.ok(experienceOrb.includes('GetExperienceMagnetRadiusWorld()'), 'Magnet Level-Up must affect XP orb attraction');
-const enemyRuntime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs'), 'utf8');
-assert.ok(enemyRuntime.includes('GetEnemyAbilitySpeedMultiplier()'), 'Slow Level-Up must affect live enemy movement');
+const enemyAbilitySlowCheck = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs'), 'utf8');
+assert.ok(enemyAbilitySlowCheck.includes('GetEnemyAbilitySpeedMultiplier()'), 'Slow Level-Up must affect live enemy movement');
 const balanceRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/RunBalanceRules.cs'), 'utf8');
 assert.ok(balanceRules.includes('GetEnemiesPerWave') && balanceRules.includes('GetWaveSpawnInterval'), 'source wave count and spawn interval rules missing');
 const bossProjectile = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/BossProjectileAgent2D.cs'), 'utf8');
