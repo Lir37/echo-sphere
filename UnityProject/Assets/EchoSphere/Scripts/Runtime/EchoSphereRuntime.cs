@@ -65,7 +65,7 @@ namespace EchoSphere.Runtime
         private readonly HashSet<string> _resonanceKnownFormationKeys = new HashSet<string>();
         private readonly List<int> _resonanceRingNodes = new List<int>();
         private string _message = "RIGHT HALF: MOVE. LEFT HALF: PLACE / DRAG SPHERES. TAP SPHERE: REMOVE.";
-        private GUIStyle _box, _label, _button, _title;
+        private GUIStyle _box, _label, _button, _title, _sphereDescriptionStyle, _spherePickerLabelStyle;
         private readonly List<LineRenderer> _networkLinkRenderers = new List<LineRenderer>();
         private Material _networkLineMaterial;
         private SphereNetworkState _networkState;
@@ -2194,8 +2194,8 @@ namespace EchoSphere.Runtime
 
         private Rect GetSpherePickerRect()
         {
-            var width = Mathf.Min(310f, Mathf.Max(250f, _uiWidth - 24f));
-            const float height = 134f;
+            var width = Mathf.Min(480f, Mathf.Max(280f, _uiWidth - 470f));
+            const float height = 146f;
             return new Rect((_uiWidth - width) * 0.5f, _uiHeight - height - 10f, width, height);
         }
 
@@ -2539,9 +2539,11 @@ namespace EchoSphere.Runtime
         {
             var panel = GetSpherePickerRect();
             GUI.Box(panel, GUIContent.none, _box);
-            var activeName = GameCatalog.Spheres[(int)_selectedSphereType].DisplayName.ToUpperInvariant();
+            var definition = GameCatalog.Spheres[(int)_selectedSphereType];
             GUI.Label(new Rect(panel.x + 8f, panel.y + 3f, panel.width - 84f, 20f),
-                "PLACE: " + activeName + "   " + _spheres.Count + "/" + SpherePlacementRules.GetMaxSpheres(), _label);
+                "PLACE: " + definition.DisplayName.ToUpperInvariant() + "   " + _spheres.Count + "/" + SpherePlacementRules.GetMaxSpheres(), _label);
+            GUI.Label(new Rect(panel.x + 8f, panel.y + 22f, panel.width - 16f, 25f),
+                definition.DescriptionEn, _sphereDescriptionStyle ?? _label);
             var lockRect = new Rect(panel.xMax - 72f, panel.y + 3f, 64f, 20f);
             if (GUI.Button(lockRect, _sphereMovementLocked ? "LOCKED" : "MOVE", _button))
                 _sphereMovementLocked = !_sphereMovementLocked;
@@ -2554,14 +2556,14 @@ namespace EchoSphere.Runtime
                 var column = i % 5;
                 var row = i / 5;
                 var rect = new Rect(panel.x + 7f + column * (buttonWidth + 2f),
-                    panel.y + 26f + row * 43f, buttonWidth, buttonHeight);
+                    panel.y + 48f + row * 42f, buttonWidth, 38f);
                 var previousColor = GUI.color;
                 if (GUI.Button(rect, GUIContent.none, _button)) _selectedSphereType = type;
                 var color = SphereColor(type);
                 GUI.color = new Color(color.r, color.g, color.b, type == _selectedSphereType ? 1f : 0.84f);
                 DrawSpriteIcon(new Rect(rect.x + 4f, rect.y + 5f, 28f, 28f), GetSphereIcon(type), Color.white);
                 GUI.color = previousColor;
-                GUI.Label(new Rect(rect.x + 30f, rect.y + 10f, rect.width - 31f, 22f), SphereShortName(type), _label);
+                GUI.Label(new Rect(rect.x + 30f, rect.y + 9f, rect.width - 31f, 20f), SphereShortName(type), _spherePickerLabelStyle ?? _label);
                 if (type == _selectedSphereType)
                 {
                     var selectedColor = SphereColor(type);
@@ -2583,7 +2585,8 @@ namespace EchoSphere.Runtime
             if (_spherePointerActive && _spherePointerMoved &&
                 (_spherePointerTarget != null || _spherePointerIsPlacing) && _spherePointerPreview != null)
             {
-                var previewColor = _spherePointerPositionValid ? SphereColor(_selectedSphereType) : new Color(1f, 0.28f, 0.38f);
+                var previewType = _spherePointerTarget != null ? _spherePointerTarget.Type : _selectedSphereType;
+                var previewColor = _spherePointerPositionValid ? SphereColor(previewType) : new Color(1f, 0.28f, 0.38f);
                 var candidateIndex = _spherePointerPreviewIndex;
                 for (var i = 0; i < _spherePointerPreview.Links.Count; i++)
                 {
@@ -2677,6 +2680,8 @@ namespace EchoSphere.Runtime
                     _box.normal.background = _uiPanelTexture;
                     _box.border = new RectOffset(5, 5, 5, 5);
                     _label = new GUIStyle(GUI.skin.label) { fontSize = 15, normal = { textColor = new Color(0.72f, 0.88f, 1f) } };
+                    _sphereDescriptionStyle = new GUIStyle(_label) { fontSize = 11, wordWrap = true, clipping = TextClipping.Clip };
+                    _spherePickerLabelStyle = new GUIStyle(_label) { fontSize = 12, alignment = TextAnchor.MiddleLeft, clipping = TextClipping.Clip };
                     _button = new GUIStyle(GUI.skin.button) { fontSize = 14, wordWrap = true, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter };
                     _button.normal.background = _uiButtonTexture;
                     _button.hover.background = _uiButtonHoverTexture;
