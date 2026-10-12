@@ -62,14 +62,16 @@ namespace EchoSphere.Runtime
             if (enemy != null)
             {
                 _hitEnemyIds.Add(enemy.GetInstanceID());
-                var resolvedDamage = _runtime.ResolveProjectileDamage(_damage, _critChanceBonus, out var wasCritical);
+                if (_evolutionOwner != null)
+                    _runtime.RegisterCharacterSphereHit(_evolutionOwner.Type, enemy);
+                var resolvedDamage = _runtime.ResolveProjectileDamage(_damage, _critChanceBonus, out var wasCritical, enemy);
                 if (_evolutionOwner != null)
                 {
                     resolvedDamage = _runtime.ResolveAuthoredSphereHitDamage(_evolutionOwner.Type, enemy, resolvedDamage);
                     if (_useEvolutionHitEffects)
                         resolvedDamage = _evolutionOwner.OnProjectileHit(enemy, _direction, resolvedDamage, wasCritical);
                     resolvedDamage = enemy.ReceiveSphereDamage(
-                        _evolutionOwner.Type, resolvedDamage, true, _allowAuthoredProcs, _evolutionOwner);
+                        _evolutionOwner.Type, resolvedDamage, true, _allowAuthoredProcs, _evolutionOwner, true);
                     if (_useEvolutionHitEffects && _applyElementalStatus)
                         _evolutionOwner.OnSphereHitApplied(enemy);
                     if (_allowAuthoredProcs && _useEvolutionHitEffects)
