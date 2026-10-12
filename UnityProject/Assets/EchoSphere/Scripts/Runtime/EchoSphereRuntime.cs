@@ -116,6 +116,11 @@ namespace EchoSphere.Runtime
         private bool _characterProfilesLoaded;
         private bool _runResultSaved;
         private int _runGoldEarned;
+        private float _characterMasteryRunXp;
+        private float _characterMasteryLastTime = -1f;
+        private int _characterMasteryLastEliteKills;
+        private int _characterMasteryLastBosses;
+        private int _characterMasteryLastResonanceEvents;
         private int _runEliteKills;
         private int _runEvolutions;
         private int _runChestOpens;
@@ -535,6 +540,14 @@ namespace EchoSphere.Runtime
             if (_runResultSaved) return;
             _runResultSaved = true;
 
+            var characterProfile = GetCharacterProfile(_sphereCharacterId);
+            var masteryRunXp = Mathf.FloorToInt(_characterMasteryRunXp);
+            characterProfile.masteryXp = CharacterRules.GetUpdatedMasteryXp(characterProfile.masteryXp, masteryRunXp);
+            characterProfile.masteryLevel = Mathf.Max(characterProfile.masteryLevel,
+                CharacterRules.GetMasteryLevelForXp(characterProfile.masteryXp));
+            _characterMasteryLevel = characterProfile.masteryLevel;
+            SaveCharacterProfiles();
+
             var difficulty = CurrentDifficulty;
             var goldFormula = _runTime * 0.15d + _bossesDefeated * 25d + _kills * 0.05d;
             _runGoldEarned = (int)System.Math.Floor(goldFormula * difficulty.GoldMultiplier);
@@ -692,6 +705,7 @@ namespace EchoSphere.Runtime
                 ShowMessage(IsRussianUi ? "ЯДРО РАЗРУШЕНО" : "CORE DESTROYED");
                 return;
             }
+            TickCharacterMastery();
             if (_regionStabilized) return;
 
             _spawnTimer -= dt;
@@ -2712,6 +2726,133 @@ namespace EchoSphere.Runtime
             return scale;
         }
 
+        private void TickCharacterMastery()
+        {
+            if (_gameOver || _paused || _levelUp || _choosingEvolution || _stellaRewardPending)
+            {
+                _characterMasteryLastTime = _runTime;
+                return;
+            }
+
+            if (_characterMasteryLastTime < 0f)
+            {
+                _characterMasteryLastTime = _runTime;
+                _characterMasteryLastEliteKills = _runEliteKills;
+                _characterMasteryLastBosses = _bossesDefeated;
+                _characterMasteryLastResonanceEvents = _resonanceEventsTriggered;
+                return;
+            }
+
+            // Mirrors src/characterMastery.ts: use simulation time, cap a frame's credited
+            // interval at 0.1 seconds, and pause mastery progress during source modal states.
+            var dt = Mathf.Clamp(_runTime - _characterMasteryLastTime, 0f, 0.1f);
+            _characterMasteryLastTime = _runTime;
+            if (dt <= 0f) return;
+
+            var eliteDelta = Mathf.Max(0, _runEliteKills - _characterMasteryLastEliteKills);
+            var bossDelta = Mathf.Max(0, _bossesDefeated - _characterMasteryLastBosses);
+            var resonanceDelta = Mathf.Max(0, _resonanceEventsTriggered - _characterMasteryLastResonanceEvents);
+            _characterMasteryLastEliteKills = _runEliteKills;
+            _characterMasteryLastBosses = _bossesDefeated;
+            _characterMasteryLastResonanceEvents = _resonanceEventsTriggered;
+
+            var activeSphereCount = GetActiveCharacterSphereCount();
+            switch (_sphereCharacterId)
+            {
+                case SphereCharacterId.Spherist:
+                    if (activeSphereCount >= 4) _characterMasteryRunXp += dt * 0.85f;
+                    if (activeSphereCount >= 6) _characterMasteryRunXp += dt * 0.65f;
+                    if (activeSphereCount >= 8) _characterMasteryRunXp += dt * 0.5f;
+                    break;
+
+                case SphereCharacterId.Hunter:
+                    _characterMasteryRunXp += eliteDelta * 20f + bossDelta * 45f;
+                    // Hunter mark/hunt runtime states are not yet migrated, so their source XP
+                    // conditions remain inactive instead of being simulated with invented timers.
+                    break;
+
+                case SphereCharacterId.Engineer:
+                {
+                    var local = GetLocalCharacterSpheres();
+                    var largestNetwork = 0;
+                    var range = _characterMasteryLevel >= 6 ? 260f : _characterMasteryLevel >= 2 ? 240f : 220f;
+                    for (var i = 0; i < local.Count; i++)
+                        largestNetwork = Mathf.Max(largestNetwork, GetConnectedSphereNetworkSize(local[i], range));
+                    if (largestNetwork >= 3) _characterMasteryRunXp += dt;
+                    if (largestNetwork >= 5) _characterMasteryRunXp += dt * 0.65f;
+                    // Engineer relay activation is not migrated yet; no relay XP is fabricated.
+                    break;
+                }
+
+                case SphereCharacterId.Berserker:
+                {
+                    var hpRatio = _playerCore == null ? 1f : _playerCore.CurrentHp / Mathf.Max(1f, _playerCore.MaxHp);
+                    if (hpRatio <= 0.6f) _characterMasteryRunXp += dt * 0.85f;
+                    if (hpRatio <= 0.3f) _characterMasteryRunXp += dt * 0.8f;
+                    var closeRange = 110f * SpherePlacementRules.SourcePixelsToWorld;
+                    for (var i = 0; i < _enemies.Count; i++)
+                    {
+                        var enemy = _enemies[i];
+                        if (enemy == null || !enemy.IsAlive || Vector2.Distance(enemy.transform.position, PlayerPosition) > closeRange) continue;
+                        _characterMasteryRunXp += dt * 0.55f;
+                        break;
+                    }
+                    break;
+                }
+
+                case SphereCharacterId.Alchemist:
+                {
+                    var statusTargets = 0;
+                    var multiStatusTargets = 0;
+                    for (var i = 0; i < _enemies.Count; i++)
+                    {
+                        var enemy = _enemies[i];
+                        if (enemy == null || !enemy.IsAlive) continue;
+                        var statusCount = (enemy.HasFireStatus ? 1 : 0) + (enemy.HasFreezeStatus ? 1 : 0) + (enemy.HasPoisonStatus ? 1 : 0);
+                        if (statusCount > 0) statusTargets++;
+                        if (statusCount >= 2) multiStatusTargets++;
+                    }
+                    _characterMasteryRunXp += statusTargets * dt * 0.07f;
+                    _characterMasteryRunXp += multiStatusTargets * dt * 0.12f;
+                    if (_alchemistCatalystTimer > 0f) _characterMasteryRunXp += dt * 2f;
+                    break;
+                }
+
+                case SphereCharacterId.Architect:
+                {
+                    var formation = _networkState == null ? null : _networkState.DominantFormation;
+                    if (formation != null && formation.Active) _characterMasteryRunXp += dt;
+                    if (formation != null && formation.Active && formation.Strength >= 0.9f) _characterMasteryRunXp += dt * 0.75f;
+                    break;
+                }
+
+                case SphereCharacterId.Conductor:
+                    _characterMasteryRunXp += resonanceDelta * 28f;
+                    // The source overdrive timer has no activation path yet; don't invent one.
+                    break;
+
+                case SphereCharacterId.Oracle:
+                    // Forecast state is not ported yet, so its source-specific time XP is gated off.
+                    break;
+
+                case SphereCharacterId.Voidwalker:
+                    for (var i = 0; i < _spheres.Count; i++)
+                    {
+                        var sphere = _spheres[i];
+                        if (sphere == null || !sphere.gameObject.activeInHierarchy || !sphere.NetworkDisabled) continue;
+                        _characterMasteryRunXp += dt * 1.1f;
+                        break;
+                    }
+                    // Void Phantom isn't migrated yet; no source phantom XP is fabricated.
+                    break;
+
+                case SphereCharacterId.Fractal:
+                    // Source formation history and Recursive Echo aren't ported yet.
+                    break;
+            }
+            _characterMasteryRunXp = Mathf.Max(0f, _characterMasteryRunXp);
+        }
+
         private float GetSphereAffinityWeight(SphereId type)
         {
             return CharacterRules.GetSphereAffinityWeight(_sphereCharacterId, type);
@@ -3706,6 +3847,11 @@ namespace EchoSphere.Runtime
             _runChestOpens = 0;
             _runResultSaved = false;
             _runGoldEarned = 0;
+            _characterMasteryRunXp = 0f;
+            _characterMasteryLastTime = -1f;
+            _characterMasteryLastEliteKills = 0;
+            _characterMasteryLastBosses = 0;
+            _characterMasteryLastResonanceEvents = 0;
             _wave = 0;
             _waveEnemiesToSpawn = 0;
             _spawnTimer = 3f;
