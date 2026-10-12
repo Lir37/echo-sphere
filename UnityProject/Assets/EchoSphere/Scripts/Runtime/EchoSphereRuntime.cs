@@ -1846,8 +1846,7 @@ namespace EchoSphere.Runtime
                         {
                             var from = (Vector2)_spheres[nodeIndexes[0]].transform.position;
                             var to = (Vector2)_spheres[nodeIndexes[1]].transform.position;
-                            SpawnCombatArc(from, to, SphereId.Chain, "chain_storm", string.Empty,
-                                new Color(57f / 255f, 216f / 255f, 1f, 0.9f), 0.28f);
+                            SpawnEngineerRelayLightning(from, to, 0.28f);
                         }
                         break;
                     }
@@ -2270,11 +2269,11 @@ namespace EchoSphere.Runtime
             }
         }
 
-        public void SpawnEngineerRelayLightning(Vector2 from, Vector2 to)
+        public void SpawnEngineerRelayLightning(Vector2 from, Vector2 to, float duration = 0.12f)
         {
-            var go = new GameObject("Engineer Relay Lightning");
+            var go = new GameObject("Energy Bolt");
             var vfx = go.AddComponent<EngineerRelayVfx2D>();
-            vfx.Initialize(this, from, to);
+            vfx.Initialize(this, from, to, duration);
         }
 
         public void SpawnCombatArc(Vector2 from, Vector2 to, SphereId family, string branch, string finalId, Color color, float duration = 0.30f)

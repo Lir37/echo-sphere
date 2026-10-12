@@ -19,16 +19,17 @@ namespace EchoSphere.Runtime
         private Vector2 _from;
         private Vector2 _to;
         private float _elapsed;
-        private const float Duration = 0.12f;
+        private float _duration = 0.12f;
 
-        public void Initialize(EchoSphereRuntime runtime, Vector2 from, Vector2 to)
+        public void Initialize(EchoSphereRuntime runtime, Vector2 from, Vector2 to, float duration = 0.12f)
         {
             _runtime = runtime;
+            _duration = Mathf.Max(0.01f, duration);
             _from = from;
             _to = to;
             _glow = CreateLine("Relay Glow", 17, 7f * SpherePlacementRules.SourcePixelsToWorld);
             _core = CreateLine("Relay Core", 18, 1.5f * SpherePlacementRules.SourcePixelsToWorld);
-            Rebuild(0.4f);
+            Rebuild(Mathf.Clamp01(_duration / SourceAlphaLifetime));
         }
 
         private static Material SharedMaterial
@@ -74,7 +75,7 @@ namespace EchoSphere.Runtime
         {
             if (_runtime != null && _runtime.IsPresentationPaused) return;
             _elapsed += Time.deltaTime;
-            var life = Duration - _elapsed;
+            var life = _duration - _elapsed;
             if (life <= 0f)
             {
                 Destroy(gameObject);

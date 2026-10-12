@@ -775,6 +775,9 @@ assert.ok(sphereAttack.includes('EngineerRelayRules.ConsumesOnAttack(_type)') &&
   sphereAttack.includes('if (hitSomething) _runtime.TriggerEngineerRelay(this)'),
   'Engineer relay must be applied once to eligible attacks and trigger from actual field/orbital activity');
 assert.ok(engineerRelayVfxSource.includes('src/renderer.ts:drawEnergyBolt') &&
+  engineerRelayVfxSource.includes('Mathf.Clamp01(_duration / SourceAlphaLifetime)') &&
+  engineerRelayVfxSource.includes('_duration = Mathf.Max(0.01f, duration)') &&
+  menuRuntime.includes('SpawnEngineerRelayLightning(from, to, 0.28f)') &&
   engineerRelayVfxSource.includes('SpherePlacementRules.SourcePixelsToWorld') &&
   engineerRelayVfxSource.includes('Mathf.Min(26f * SpherePlacementRules.SourcePixelsToWorld, length * 0.08f)') &&
   engineerRelayVfxSource.includes('0.28f * alpha') &&
