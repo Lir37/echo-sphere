@@ -640,8 +640,11 @@ assert.ok(menuRuntime.includes('GetCharacterGlobalSphereDamageMultiplier()') &&
   menuRuntime.includes('GetCharacterAttackSpeedMultiplier()') &&
   menuRuntime.includes('GetCharacterMoveSpeedMultiplier()') &&
   menuRuntime.includes('GetCharacterDamageTakenMultiplier()') &&
-  menuRuntime.includes('CharacterRules.GetSphereAffinityWeight(_sphereCharacterId, type)'),
-  'selected character base combat modifiers must be connected to actual Unity runtime call paths');
+  menuRuntime.includes('CharacterRules.GetSphereAffinityWeight(_sphereCharacterId, type)') &&
+  menuRuntime.includes('GetArchitectFormationCritBonus()') &&
+  menuRuntime.includes('0.12f * GetArchitectFormationBonusScale(SphereNetworkFormation.Square)') &&
+  menuRuntime.includes('_runTime - _architectFormationChangedAt <= 2f'),
+  'selected character base combat modifiers and Architect formation bonuses must be connected to actual Unity runtime call paths');
 assert.ok(menuRuntime.includes('TickCharacterMastery();') &&
   menuRuntime.includes('Mathf.Clamp(_runTime - _characterMasteryLastTime, 0f, 0.1f)') &&
   menuRuntime.includes('CharacterRules.GetUpdatedMasteryXp(characterProfile.masteryXp, masteryRunXp)') &&
