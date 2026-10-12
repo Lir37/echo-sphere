@@ -5063,7 +5063,143 @@ namespace EchoSphere.Runtime
                     new Color(_placementFlashColor.r, _placementFlashColor.g, _placementFlashColor.b, ratio * 0.55f), 1f);
             }
 
+            DrawTriangleResonanceOverlay();
             GUI.color = previousColor;
+        }
+
+        private void DrawTriangleResonanceOverlay()
+        {
+            if (_networkState == null || _camera == null || _uiAccentTexture == null) return;
+
+            SphereNetworkShape triangle = null;
+            for (var i = 0; i < _networkState.FormationCandidates.Count; i++)
+            {
+                var candidate = _networkState.FormationCandidates[i];
+                if (candidate == null || candidate.Type != SphereNetworkFormation.Triangle) continue;
+                triangle = candidate;
+                break;
+            }
+            if (triangle == null || triangle.NodeIndexes == null || triangle.NodeIndexes.Count < 3) return;
+
+            var indexes = new int[3];
+            var points = new Vector2[3];
+            for (var i = 0; i < 3; i++)
+            {
+                var index = triangle.NodeIndexes[i];
+                if (index < 0 || index >= _spheres.Count ||
+                    _spheres[index] == null || !_spheres[index].gameObject.activeInHierarchy) return;
+                indexes[i] = index;
+                points[i] = WorldToGuiPoint(_spheres[index].transform.position);
+            }
+
+            var time = Time.unscaledTime;
+            var formationAlpha = triangle.Active ? 1f : 0.3f;
+            var fillAlpha = (0.028f + 0.018f * Mathf.Sin(time * 3f)) * formationAlpha;
+            DrawSphereGuiTriangleFill(points[0], points[1], points[2],
+                new Color(1f, 184f / 255f, 77f / 255f, fillAlpha));
+
+            var edgeAlpha = (0.24f + 0.08f * Mathf.Sin(time * 3f)) * formationAlpha;
+            var edgeColor = new Color(1f, 207f / 255f, 115f / 255f, edgeAlpha);
+            DrawSphereGuiLine(points[0], points[1], edgeColor, 1f);
+            DrawSphereGuiLine(points[1], points[2], edgeColor, 1f);
+            DrawSphereGuiLine(points[2], points[0], edgeColor, 1f);
+
+            var center = Vector2.zero;
+            var activePulse = false;
+            for (var i = 0; i < 3; i++)
+            {
+                var sphereIndex = indexes[i];
+                var sphere = _spheres[sphereIndex];
+                var point = points[i];
+                center += point;
+
+                var radius = 25f + Mathf.Sin(time * 5f + sphereIndex) * 1.5f;
+                DrawSphereGuiCircle(point, radius,
+                    new Color(1f, 184f / 255f, 77f / 255f, 0.20f * formationAlpha), 1.4f);
+
+                // Formation charge writers from Rune of Resonance and the
+                // Echo Architecture set are separate source systems not yet
+                // migrated. Until those events are ported, keep all three ticks
+                // in the source's uncharged state instead of fabricating charge.
+                for (var tick = 0; tick < 3; tick++)
+                {
+                    var angle = -Mathf.PI * 0.5f + tick / 3f * Mathf.PI * 2f;
+                    var inner = radius + 2f;
+                    var outer = inner + 2f;
+                    var direction = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+                    DrawSphereGuiLine(point + direction * inner, point + direction * outer,
+                        new Color(1f, 184f / 255f, 77f / 255f, 0.30f * formationAlpha), 1.4f);
+                }
+
+                var pulseTimer = sphere.ResonancePulseTimer;
+                if (pulseTimer > 0f)
+                {
+                    activePulse = true;
+                    var flash = pulseTimer / 0.45f;
+                    DrawSphereGuiCircle(point, radius + 5f + (1f - flash) * 10f,
+                        new Color(1f, 240f / 255f, 194f / 255f,
+                            (0.45f + 0.4f * flash) * formationAlpha), 2.6f);
+                }
+            }
+            center /= 3f;
+            var corePulse = 1f + (activePulse
+                ? 0.28f + 0.08f * Mathf.Sin(time * 24f)
+                : 0.04f * Mathf.Sin(time * 6f));
+            DrawSphereGuiFilledCircle(center, (activePulse ? 4.5f : 2.5f) * corePulse,
+                new Color(1f, 184f / 255f, 77f / 255f,
+                    (activePulse ? 0.90f : 0.26f) * formationAlpha));
+        }
+
+        private void DrawSphereGuiTriangleFill(Vector2 a, Vector2 b, Vector2 c, Color color)
+        {
+            var minY = Mathf.Min(a.y, Mathf.Min(b.y, c.y));
+            var maxY = Mathf.Max(a.y, Mathf.Max(b.y, c.y));
+            for (var y = minY; y <= maxY; y += 4f)
+            {
+                var count = 0;
+                var x0 = 0f;
+                var x1 = 0f;
+                var x2 = 0f;
+                AddTriangleGuiIntersection(a, b, y, ref count, ref x0, ref x1, ref x2);
+                AddTriangleGuiIntersection(b, c, y, ref count, ref x0, ref x1, ref x2);
+                AddTriangleGuiIntersection(c, a, y, ref count, ref x0, ref x1, ref x2);
+                if (count < 2) continue;
+
+                float left;
+                float right;
+                if (count == 2)
+                {
+                    left = Mathf.Min(x0, x1);
+                    right = Mathf.Max(x0, x1);
+                }
+                else
+                {
+                    left = Mathf.Min(x0, Mathf.Min(x1, x2));
+                    right = Mathf.Max(x0, Mathf.Max(x1, x2));
+                }
+                DrawSphereGuiLine(new Vector2(left, y), new Vector2(right, y), color, 4.2f);
+            }
+        }
+
+        private static void AddTriangleGuiIntersection(
+            Vector2 from, Vector2 to, float y, ref int count, ref float x0, ref float x1, ref float x2)
+        {
+            if (!((from.y <= y && to.y > y) || (to.y <= y && from.y > y))) return;
+            var x = from.x + (y - from.y) * (to.x - from.x) / (to.y - from.y);
+            if (count == 0) x0 = x;
+            else if (count == 1) x1 = x;
+            else if (count == 2) x2 = x;
+            count++;
+        }
+
+        private void DrawSphereGuiFilledCircle(Vector2 center, float radius, Color color)
+        {
+            for (var y = -radius; y <= radius; y += 1f)
+            {
+                var halfWidth = Mathf.Sqrt(Mathf.Max(0f, radius * radius - y * y));
+                DrawSphereGuiLine(new Vector2(center.x - halfWidth, center.y + y),
+                    new Vector2(center.x + halfWidth, center.y + y), color, 1.2f);
+            }
         }
 
         private static string GetSphereFormationDisplayName(SphereNetworkShape formation)

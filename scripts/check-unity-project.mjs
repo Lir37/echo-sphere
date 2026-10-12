@@ -840,3 +840,16 @@ assert.ok(menuRuntime.includes('GetOracleRerollPreservationCount(_characterMaste
   menuRuntime.includes('_oracleForecastRerollUsed = true') &&
   menuRuntime.includes('GUI.Button(rerollRect, rerollLabel, _button)'),
   'Oracle preserves forecasted choices on its first eligible unlocked reroll; UI exposes functional Lock/Reroll controls');
+
+
+// Triangle formation Canvas overlay: source radius, pulse expansion, 3 ticks,
+// active/inactive alpha, low-alpha triangle fill and center core pulse.
+assert.ok(menuRuntime.includes('DrawTriangleResonanceOverlay();') &&
+  menuRuntime.includes('private void DrawTriangleResonanceOverlay()') &&
+  menuRuntime.includes('_networkState.FormationCandidates') &&
+  menuRuntime.includes('25f + Mathf.Sin(time * 5f + sphereIndex) * 1.5f') &&
+  menuRuntime.includes('radius + 5f + (1f - flash) * 10f') &&
+  menuRuntime.includes('pulseTimer / 0.45f') &&
+  menuRuntime.includes('private void DrawSphereGuiTriangleFill') &&
+  menuRuntime.includes('private void DrawSphereGuiFilledCircle'),
+  'Triangle Resonance rings, pulse expansion, triangular fill and pulsing core must be connected to active Unity runtime');
