@@ -118,6 +118,8 @@ namespace EchoSphere.Runtime
         private float _hunterMarkTimer;
         private float _hunterHuntTimer;
         private float _hunterTrophyTimer;
+        private float _hunterScreenShakeIntensity;
+        private Vector3 _lastHunterScreenShakeOffset;
         private int _hunterHitCount;
         private Vector2 _characterScrollPosition;
         private string _expandedCharacterId = "spherist";
@@ -225,6 +227,7 @@ namespace EchoSphere.Runtime
         public bool IsGameplayPaused => _paused;
         public bool IsPresentationPaused => _mainMenu || _paused;
         public Vector2 PlayerPosition => _player == null ? Vector2.zero : (Vector2)_player.position;
+        public bool IsCombatSimulationPaused => _mainMenu || _paused || _playerCore == null;
         public float CurrentRunTime => _runTime;
         public int CurrentWave => _wave;
         public float GetEnemyAbilitySpeedMultiplier() => LevelUpAbilityRules.GetEnemySlowMultiplier(GetAbilityLevel(RunUpgradeKind.Slow));
@@ -718,7 +721,14 @@ namespace EchoSphere.Runtime
             }
             TickResonanceRing(dt);
             var cameraTarget = new Vector3(_player.position.x, _player.position.y, -10f);
-            _camera.transform.position = Vector3.Lerp(_camera.transform.position, cameraTarget, 1f - Mathf.Exp(-5f * dt));
+            var cameraBase = _camera.transform.position - _lastHunterScreenShakeOffset;
+            cameraBase = Vector3.Lerp(cameraBase, cameraTarget, 1f - Mathf.Exp(-5f * dt));
+            var shakePixelsX = (UnityEngine.Random.value - 0.5f) * _hunterScreenShakeIntensity * 20f;
+            var shakePixelsY = (UnityEngine.Random.value - 0.5f) * _hunterScreenShakeIntensity * 20f;
+            _lastHunterScreenShakeOffset = new Vector3(
+                shakePixelsX * SpherePlacementRules.SourcePixelsToWorld,
+                shakePixelsY * SpherePlacementRules.SourcePixelsToWorld, 0f);
+            _camera.transform.position = cameraBase + _lastHunterScreenShakeOffset;
             AdvanceRegionBossSchedule();
             if (_playerCore.IsDead && !_gameOver)
             {
@@ -796,6 +806,7 @@ namespace EchoSphere.Runtime
             _camera.orthographicSize = 6.3f;
             _camera.backgroundColor = new Color(0.018f, 0.027f, 0.075f, 1f);
             _camera.transform.position = new Vector3(0f, 0f, -10f);
+            _lastHunterScreenShakeOffset = Vector3.zero;
             _camera.clearFlags = CameraClearFlags.SolidColor;
         }
 
@@ -2759,6 +2770,7 @@ namespace EchoSphere.Runtime
             _hunterMarkTimer = Mathf.Max(0f, _hunterMarkTimer - dt);
             _hunterHuntTimer = Mathf.Max(0f, _hunterHuntTimer - dt);
             _hunterTrophyTimer = Mathf.Max(0f, _hunterTrophyTimer - dt);
+            _hunterScreenShakeIntensity = Mathf.Max(0f, _hunterScreenShakeIntensity - dt);
 
             if (_hunterMarkTimer <= 0f)
             {
@@ -2777,6 +2789,44 @@ namespace EchoSphere.Runtime
             }
         }
 
+        private void SpawnHunterMarkBurst(EnemyAgent2D target)
+        {
+            if (target == null) return;
+            var position = (Vector2)target.transform.position;
+            var color = new Color32(184, 71, 90, 255);
+            for (var i = 0; i < 10; i++)
+            {
+                var angle = _rng.NextFloat() * Mathf.PI * 2f;
+                var speed = 50f + _rng.NextFloat() * 80f;
+                var velocity = new Vector2(Mathf.Cos(angle) * speed, Mathf.Sin(angle) * speed);
+                SpawnHunterParticle(position, velocity, 0.35f, 2.5f, color);
+            }
+        }
+
+        private void SpawnHunterHuntBurst(EnemyAgent2D target)
+        {
+            if (target == null) return;
+            var position = (Vector2)target.transform.position;
+            var color = new Color32(196, 69, 61, 255);
+            for (var i = 0; i < 18; i++)
+            {
+                var angle = _rng.NextFloat() * Mathf.PI * 2f;
+                var radius = 18f + _rng.NextFloat() * 24f;
+                var particlePosition = position + new Vector2(Mathf.Cos(angle) * radius, Mathf.Sin(angle) * radius) *
+                    SpherePlacementRules.SourcePixelsToWorld;
+                SpawnHunterParticle(particlePosition, new Vector2(0f, -25f), 0.5f, 3f, color);
+            }
+            _hunterScreenShakeIntensity = Mathf.Min(0.16f, _hunterScreenShakeIntensity + 0.04f);
+        }
+
+        private void SpawnHunterParticle(Vector2 worldPosition, Vector2 sourceVelocityPixels, float lifetime, float sourceSizePixels, Color color)
+        {
+            var go = new GameObject("Hunter Source Particle");
+            go.transform.position = worldPosition;
+            go.AddComponent<HunterParticleVfx2D>().Initialize(
+                this, sourceVelocityPixels, lifetime, sourceSizePixels, color);
+        }
+
         public void RegisterCharacterSphereHit(SphereId source, EnemyAgent2D target)
         {
             if (_sphereCharacterId != SphereCharacterId.Hunter || target == null || !target.IsAlive) return;
@@ -2790,6 +2840,7 @@ namespace EchoSphere.Runtime
             if (!activeSameTarget)
             {
                 _hunterHitCount = 1;
+                SpawnHunterMarkBurst(target);
                 return;
             }
 
@@ -2799,6 +2850,7 @@ namespace EchoSphere.Runtime
             _hunterHuntTarget = target;
             _hunterHuntTimer = 3f;
             _hunterHitCount = 0;
+            SpawnHunterHuntBurst(target);
         }
 
         public float GetHunterMarkedTargetDamageMultiplier(SphereId source, EnemyAgent2D target)
