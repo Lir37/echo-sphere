@@ -514,6 +514,7 @@ namespace EchoSphere.Runtime
             _sphereCharacterId = id;
             _characterMasteryLevel = profile.masteryLevel;
             _architectFormationTracked = false;
+            TrackArchitectFormationChange();
             _expandedCharacterId = CharacterRules.ToSourceId(id);
             if (_mainMenu && _playerCore != null)
             {
@@ -2756,8 +2757,6 @@ namespace EchoSphere.Runtime
             if (_architectFormationType == nextType) return;
             _architectFormationType = nextType;
             _architectFormationChangedAt = _runTime;
-            if (nextType != SphereNetworkFormation.None)
-                SpawnImpact(PlayerPosition, new Color(0.34f, 0.78f, 1f, 0.95f));
         }
 
         private float GetArchitectFormationBonusScale(SphereNetworkFormation type)
