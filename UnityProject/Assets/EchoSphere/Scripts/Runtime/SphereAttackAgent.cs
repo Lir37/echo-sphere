@@ -164,13 +164,20 @@ namespace EchoSphere.Runtime
                     break;
                 case SphereId.Prism:
                     FireAtMultiple(origin, damage);
-                    triggeredEngineerRelay = target != null;
+                    // The source Prism cadence opens a Relay window even when
+                    // no enemy is available for the direct beam.
+                    triggeredEngineerRelay = true;
                     break;
                 case SphereId.Gravity:
-                    triggeredEngineerRelay = DamageArea(origin, _profile.AuraRadius / 100f, damage, ColorFor(_type), true);
+                    DamageArea(origin, _profile.AuraRadius / 100f, damage, ColorFor(_type), true);
+                    // The source Gravity pulse triggers Relay on its own cadence,
+                    // independently of whether an enemy is caught in the field.
+                    triggeredEngineerRelay = true;
                     break;
                 case SphereId.Pulse:
-                    triggeredEngineerRelay = DamageArea(origin, _profile.AuraRadius / 100f, damage, ColorFor(_type), false);
+                    DamageArea(origin, _profile.AuraRadius / 100f, damage, ColorFor(_type), false);
+                    // The source Pulse cadence triggers Relay even in an empty field.
+                    triggeredEngineerRelay = true;
                     break;
                 case SphereId.Void:
                     FireVoid(origin, damage);
