@@ -26,9 +26,13 @@ namespace EchoSphere.Runtime
         private readonly List<float> _orbitalContactTimers = new List<float>();
         private int _orbitalHitCount;
         private float _networkDisabledTimer;
+        private float _resonancePulseTimer;
         public void AccelerateNextAttack(float amount) => _attackTimer = Mathf.Max(0f, _attackTimer - Mathf.Max(0f, amount));
         public void DelayNextAttack(float amount) => _attackTimer += Mathf.Max(0f, amount);
         public bool NetworkDisabled => _networkDisabledTimer > 0f;
+        public float ResonancePulseTimer => _resonancePulseTimer;
+        public void TriggerResonancePulse(float duration) =>
+            _resonancePulseTimer = Mathf.Max(_resonancePulseTimer, Mathf.Max(0f, duration));
         public void ApplyNetworkDisable(float duration) => _networkDisabledTimer = Mathf.Max(_networkDisabledTimer, Mathf.Max(0f, duration));
 
         public SphereId Type => _type;
@@ -105,6 +109,7 @@ namespace EchoSphere.Runtime
             var dt = Time.deltaTime;
             _contactTimer = Mathf.Max(0f, _contactTimer - dt);
             _networkDisabledTimer = Mathf.Max(0f, _networkDisabledTimer - dt);
+            _resonancePulseTimer = Mathf.Max(0f, _resonancePulseTimer - dt);
 
             if (_type == SphereId.Orbital)
             {

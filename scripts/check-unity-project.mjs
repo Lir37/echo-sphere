@@ -745,6 +745,11 @@ assert.ok(conductorRulesSource.includes('masteryLevel >= 2 ? 2.5f : 2f') &&
   conductorRulesSource.includes('masteryLevel >= 6 && resonanceEventCount > 0 && resonanceEventCount % 3 == 0') &&
   conductorRulesSource.includes('masteryLevel >= 9 ? 3 : masteryLevel >= 7 ? 2 : 1'),
   'Conductor Overdrive duration, speed tiers and Cascade thresholds must preserve source values');
+assert.ok(characterSphereAttackRuntime.includes('TriggerResonancePulse(float duration)') &&
+  characterSphereAttackRuntime.includes('_resonancePulseTimer = Mathf.Max(0f, _resonancePulseTimer - dt)') &&
+  menuRuntime.includes('sphere.TriggerResonancePulse(0.42f)') &&
+  menuRuntime.includes('_spheres[nodeIndex].TriggerResonancePulse(0.38f)'),
+  'source Resonance pulse timers must be stored and connected to Conductor Cluster, Triangle and Sphere formation events');
 assert.ok(menuRuntime.includes('ApplyConductorResonanceEffects(type, center, baseDamage)') &&
   menuRuntime.includes('ConductorOverdriveRules.GetOverdriveDurationSeconds(_characterMasteryLevel)') &&
   menuRuntime.includes('ConductorOverdriveRules.GetAttackSpeedBonus(_characterMasteryLevel)') &&

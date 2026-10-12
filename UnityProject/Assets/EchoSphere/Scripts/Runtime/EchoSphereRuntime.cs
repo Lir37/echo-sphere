@@ -1858,7 +1858,7 @@ namespace EchoSphere.Runtime
                             var sphere = _spheres[nodeIndexes[i]];
                             sphere.AccelerateNextAttack(
                                 ConductorOverdriveRules.GetClusterAttackAdvanceSeconds(_characterMasteryLevel));
-                            SpawnImpact(sphere.transform.position, new Color(57f / 255f, 216f / 255f, 1f, 0.42f));
+                            sphere.TriggerResonancePulse(0.42f);
                         }
                         break;
 
@@ -1914,6 +1914,7 @@ namespace EchoSphere.Runtime
                         if (index < 0 || index >= _spheres.Count || _spheres[index] == null) continue;
                         var sphere = _spheres[index];
                         sphere.AccelerateNextAttack(0.35f);
+                        sphere.TriggerResonancePulse(0.45f);
                         SpawnImpact(sphere.transform.position, new Color(1f, 0.72f, 0.28f, 0.95f));
                         DamageEnemiesInRadius(sphere.transform.position, 0.95f, baseDamage * 0.55f);
                     }
@@ -1927,6 +1928,7 @@ namespace EchoSphere.Runtime
                         var index = formation.NodeIndexes[i];
                         if (index < 0 || index >= _spheres.Count || _spheres[index] == null) continue;
                         _spheres[index].AccelerateNextAttack(0.55f);
+                        _spheres[index].TriggerResonancePulse(0.40f);
                         SpawnImpact(_spheres[index].transform.position, new Color(0.22f, 0.82f, 1f, 0.9f));
                     }
                     DamageEnemiesInRadius(center, 1.45f, baseDamage * 0.95f);
@@ -1967,6 +1969,7 @@ namespace EchoSphere.Runtime
                             if (nodes.Contains(linked[j])) { nextIndex = linked[j]; break; }
                         if (nextIndex < 0 && nodes.Count > 1) nextIndex = nodes[(i + 1) % nodes.Count];
                         var from = (Vector2)_spheres[nodeIndex].transform.position;
+                        _spheres[nodeIndex].TriggerResonancePulse(0.38f);
                         SpawnImpact(from, new Color(0.72f, 0.40f, 0.86f, 0.9f));
                         if (nextIndex >= 0 && nextIndex < _spheres.Count && _spheres[nextIndex] != null)
                             SpawnImpact(Vector2.Lerp(from, _spheres[nextIndex].transform.position, 0.5f), new Color(0.72f, 0.40f, 0.86f, 0.95f));
@@ -2028,6 +2031,7 @@ namespace EchoSphere.Runtime
             _resonanceRingCursor = (cursor + 1) % nodes.Count;
             var sphere = _spheres[nodeIndex];
             sphere.AccelerateNextAttack(0.30f);
+            sphere.TriggerResonancePulse(0.40f);
             SpawnImpact(sphere.transform.position, new Color(0.32f, 0.90f, 0.60f, 0.9f));
             if (_spheres[nextIndex] != null)
                 SpawnImpact(Vector2.Lerp(sphere.transform.position, _spheres[nextIndex].transform.position, 0.5f), new Color(0.32f, 0.90f, 0.60f, 0.85f));
