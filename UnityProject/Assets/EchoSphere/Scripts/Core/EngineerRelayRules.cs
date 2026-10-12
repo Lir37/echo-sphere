@@ -26,9 +26,15 @@ namespace EchoSphere.Core
                 case SphereId.Chain:
                 case SphereId.Void:
                     return true;
-                default:
+                case SphereId.Aura:
+                case SphereId.Orbital:
+                case SphereId.Prism:
+                case SphereId.Gravity:
+                case SphereId.Pulse:
                     // These types use their own source update paths and do not
                     // consume the generic projectile-loop relay bonus.
+                    return false;
+                default:
                     return false;
             }
         }
