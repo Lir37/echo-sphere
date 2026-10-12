@@ -19,6 +19,14 @@ namespace EchoSphere.Runtime
         public bool CanReceiveDamageNow => !IsDead && CombatRules.CanReceivePlayerDamage(InvulnerableTimer, ContactGraceTimer);
         private float _dashCooldownMultiplier = 1f;
         public void SetDashCooldownMultiplier(float multiplier) => _dashCooldownMultiplier = Mathf.Clamp(multiplier, 0.55f, 1.5f);
+        public void ApplyBaseMaxHpMultiplier(float multiplier)
+        {
+            var previousMax = Mathf.Max(1f, MaxHp);
+            var ratio = Mathf.Clamp01(CurrentHp / previousMax);
+            MaxHp = Mathf.Max(1f, MaxHp * Mathf.Max(0.01f, multiplier));
+            CurrentHp = Mathf.Clamp(MaxHp * ratio, 0f, MaxHp);
+        }
+
         public void IncreaseMaxHp(float amount)
         {
             var gain = Mathf.Max(0f, amount);
