@@ -225,8 +225,10 @@ namespace EchoSphere.Runtime
         private DifficultyProfile CurrentDifficulty => DifficultyRules.GetProfile(PlayerPrefs.GetString(DifficultyPreferenceKey, "normal"));
         public float SphereDamageMultiplier => _damageMultiplier * LevelUpAbilityRules.GetSphereDamageMultiplier(GetAbilityLevel(RunUpgradeKind.Damage)) *
             PersistentUpgradeRules.GetPercentMultiplier(GetShopUpgradeLevel("dmg")) *
-            Mathf.Max(0.25f, 1f + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "sphereDamage"));
-        public float AttackSpeedMultiplier => _attackSpeedMultiplier * LevelUpAbilityRules.GetAttackSpeedMultiplier(GetAbilityLevel(RunUpgradeKind.AttackSpeed)) /
+            Mathf.Max(0.25f, 1f + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "sphereDamage")) *
+            GetCharacterGlobalSphereDamageMultiplier();
+        public float AttackSpeedMultiplier => _attackSpeedMultiplier * LevelUpAbilityRules.GetAttackSpeedMultiplier(GetAbilityLevel(RunUpgradeKind.AttackSpeed)) *
+            GetCharacterAttackSpeedMultiplier() /
             Mathf.Max(0.5f, 1f + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "sphereDelay"));
         public float ResonanceCharge => _resonanceCharge;
         public bool ResonanceEventActive => _resonanceEventActive;
@@ -251,23 +253,25 @@ namespace EchoSphere.Runtime
             SphereAuthoredModifierRules.GetDamageMultiplier(GetSphereBranch(type), GetSphereFinal(type));
         public float GetSphereStatusDurationMultiplier(SphereElement element)
         {
-            if (_sphereCharacterId != SphereCharacterId.Alchemist) return 1f;
-            var multiplier = 1.30f;
+            var multiplier = 1f + CharacterRules.Get(_sphereCharacterId).StatusDuration;
             // Source Alchemist mastery III extends every Freeze application by 50%.
             // A ready Catalyst instead extends the next Fire/Poison application and is consumed.
-            if (element == SphereElement.Freeze && _characterMasteryLevel >= 3)
+            if (_sphereCharacterId == SphereCharacterId.Alchemist)
             {
-                multiplier *= 1.5f;
-                _alchemistCatalystTimer = 0f;
-            }
-            else if ((element == SphereElement.Fire || element == SphereElement.Poison) && _alchemistCatalystTimer > 0f)
-            {
-                multiplier *= 1.5f;
-                _alchemistCatalystTimer = 0f;
+                if (element == SphereElement.Freeze && _characterMasteryLevel >= 3)
+                {
+                    multiplier *= 1.5f;
+                    _alchemistCatalystTimer = 0f;
+                }
+                else if ((element == SphereElement.Fire || element == SphereElement.Poison) && _alchemistCatalystTimer > 0f)
+                {
+                    multiplier *= 1.5f;
+                    _alchemistCatalystTimer = 0f;
+                }
             }
             return multiplier;
         }
-        public float GetSphereStatusDamageMultiplier() => _sphereCharacterId == SphereCharacterId.Alchemist ? 1.15f : 1f;
+        public float GetSphereStatusDamageMultiplier() => 1f + CharacterRules.Get(_sphereCharacterId).StatusDamage;
         public float GetSphereElementalMasteryDamageMultiplier() =>
             _sphereCharacterId == SphereCharacterId.Alchemist && _characterMasteryLevel >= 3 ? 1.05f : 1f;
 
@@ -423,7 +427,7 @@ namespace EchoSphere.Runtime
             {
                 try
                 {
-                    var data = JsonUtility.FromJson<CharacterProfilesSaveData>("{\\"profiles\\":" + raw + "}");
+                    var data = JsonUtility.FromJson<CharacterProfilesSaveData>("{\"profiles\":" + raw + "}");
                     if (data != null && data.profiles != null)
                     {
                         for (var i = 0; i < data.profiles.Count; i++)
@@ -667,7 +671,9 @@ namespace EchoSphere.Runtime
             if (_follow) _formationStrain = FormationFollowRules.UpdateStrain(_formationStrain, _lastDirection, requested, dt, out _lastDirection);
             else { _formationStrain = 0f; _lastDirection = Vec2.Zero; }
 
-            _player.position += (Vector3)(_playerCore.GetVelocity(input, 3.6f * GetArtifactMoveSpeedMultiplier() * LevelUpAbilityRules.GetMoveSpeedMultiplier(GetAbilityLevel(RunUpgradeKind.MoveSpeed)), followMultiplier) * dt);
+            _player.position += (Vector3)(_playerCore.GetVelocity(input, 3.6f * GetArtifactMoveSpeedMultiplier() *
+                LevelUpAbilityRules.GetMoveSpeedMultiplier(GetAbilityLevel(RunUpgradeKind.MoveSpeed)) *
+                GetCharacterMoveSpeedMultiplier(), followMultiplier) * dt);
             _networkRefreshTimer -= dt;
             if (_networkRefreshTimer <= 0f)
             {
@@ -809,6 +815,7 @@ namespace EchoSphere.Runtime
 
             _player = go.transform;
             _playerCore = go.AddComponent<PlayerCoreController2D>();
+            _playerCore.ApplyBaseMaxHpMultiplier(1f + CharacterRules.Get(_sphereCharacterId).MaxHp);
             _playerCore.IncreaseMaxHp(PersistentUpgradeRules.GetStartingHpBonus(GetShopUpgradeLevel("hp")));
         }
 
@@ -2318,6 +2325,7 @@ namespace EchoSphere.Runtime
         }
 
         private float GetArtifactDamageTakenMultiplier() =>
+            GetCharacterDamageTakenMultiplier() *
             Mathf.Max(0.25f, 1f - ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "damageTakenReduction")) *
             LevelUpAbilityRules.GetDamageTakenMultiplier(GetAbilityLevel(RunUpgradeKind.Armor));
 
@@ -2514,23 +2522,198 @@ namespace EchoSphere.Runtime
                 ? "sphere:" + choice.Sphere + ":" + choice.CurrentLevel + ":" + choice.NextLevel
                 : "ability:" + choice.Kind + ":" + choice.CurrentLevel + ":" + choice.NextLevel;
 
+        private int GetActiveCharacterSphereCount()
+        {
+            var count = 0;
+            for (var i = 0; i < _spheres.Count; i++)
+                if (_spheres[i] != null && _spheres[i].gameObject.activeInHierarchy) count++;
+            return count;
+        }
+
+        private List<SphereAttackAgent> GetLocalCharacterSpheres()
+        {
+            var result = new List<SphereAttackAgent>();
+            var radius = 420f * SpherePlacementRules.SourcePixelsToWorld;
+            var radiusSq = radius * radius;
+            var playerPosition = PlayerPosition;
+            for (var i = 0; i < _spheres.Count; i++)
+            {
+                var sphere = _spheres[i];
+                if (sphere == null || !sphere.gameObject.activeInHierarchy) continue;
+                if (((Vector2)sphere.transform.position - playerPosition).sqrMagnitude <= radiusSq) result.Add(sphere);
+            }
+            return result;
+        }
+
+        private int GetSphereNeighbourCount(SphereAttackAgent sphere, float rangePixels)
+        {
+            if (sphere == null) return 0;
+            var range = rangePixels * SpherePlacementRules.SourcePixelsToWorld;
+            var rangeSq = range * range;
+            var center = (Vector2)sphere.transform.position;
+            var neighbours = 0;
+            for (var i = 0; i < _spheres.Count; i++)
+            {
+                var candidate = _spheres[i];
+                if (candidate == null || candidate == sphere || !candidate.gameObject.activeInHierarchy || candidate.NetworkDisabled) continue;
+                if (((Vector2)candidate.transform.position - center).sqrMagnitude <= rangeSq) neighbours++;
+            }
+            return neighbours;
+        }
+
+        private int GetConnectedSphereNetworkSize(SphereAttackAgent sphere, float rangePixels)
+        {
+            if (sphere == null || !sphere.gameObject.activeInHierarchy) return 0;
+            var local = GetLocalCharacterSpheres();
+            if (!local.Contains(sphere)) return 0;
+            var visited = new HashSet<SphereAttackAgent> { sphere };
+            var queue = new Queue<SphereAttackAgent>();
+            queue.Enqueue(sphere);
+            var range = rangePixels * SpherePlacementRules.SourcePixelsToWorld;
+            var rangeSq = range * range;
+            while (queue.Count > 0)
+            {
+                var current = queue.Dequeue();
+                var center = (Vector2)current.transform.position;
+                for (var i = 0; i < local.Count; i++)
+                {
+                    var candidate = local[i];
+                    if (visited.Contains(candidate) || candidate.NetworkDisabled) continue;
+                    if (((Vector2)candidate.transform.position - center).sqrMagnitude > rangeSq) continue;
+                    visited.Add(candidate);
+                    queue.Enqueue(candidate);
+                }
+            }
+            return visited.Count;
+        }
+
+        private float GetCharacterGlobalSphereDamageMultiplier()
+        {
+            var definition = CharacterRules.Get(_sphereCharacterId);
+            var multiplier = 1f + definition.SphereDamage;
+            var sphereCount = GetActiveCharacterSphereCount();
+            if (_sphereCharacterId == SphereCharacterId.Spherist)
+                multiplier += CharacterRules.GetSpheristDamageBonus(_characterMasteryLevel, sphereCount);
+            else if (_sphereCharacterId == SphereCharacterId.Berserker && _playerCore != null)
+            {
+                var hpRatio = _playerCore.CurrentHp / Mathf.Max(1f, _playerCore.MaxHp);
+                multiplier += CharacterRules.GetBerserkerFuryDamageBonus(hpRatio);
+                var closeRange = 110f * SpherePlacementRules.SourcePixelsToWorld;
+                var closeEnemy = false;
+                for (var i = 0; i < _enemies.Count; i++)
+                {
+                    var enemy = _enemies[i];
+                    if (enemy != null && enemy.IsAlive && Vector2.Distance(enemy.transform.position, PlayerPosition) <= closeRange)
+                    {
+                        closeEnemy = true;
+                        break;
+                    }
+                }
+                if (closeEnemy) multiplier += CharacterRules.GetBerserkerCloseDamageBonus(_characterMasteryLevel);
+            }
+            if (_sphereCharacterId == SphereCharacterId.Architect && _networkState != null &&
+                _networkState.DominantFormation != null && _networkState.DominantFormation.Type == SphereNetworkFormation.Line)
+                multiplier *= GetArchitectFormationBonusScale(SphereNetworkFormation.Line) * 0.10f + 1f;
+            return multiplier;
+        }
+
+        private float GetCharacterNetworkDamageMultiplier(SphereAttackAgent sphere)
+        {
+            if (_sphereCharacterId == SphereCharacterId.Engineer)
+            {
+                var range = _characterMasteryLevel >= 6 ? 260f : _characterMasteryLevel >= 2 ? 240f : 220f;
+                var neighbours = GetSphereNeighbourCount(sphere, range);
+                var multiplier = 1f + Mathf.Min(2, neighbours) * 0.06f;
+                if (_characterMasteryLevel >= 5 && neighbours > 0)
+                {
+                    var connectedToMasterNode = false;
+                    var rangeWorldSq = range * SpherePlacementRules.SourcePixelsToWorld;
+                    rangeWorldSq *= rangeWorldSq;
+                    for (var i = 0; i < _spheres.Count; i++)
+                    {
+                        var neighbour = _spheres[i];
+                        if (neighbour == null || neighbour == sphere || !neighbour.gameObject.activeInHierarchy ||
+                            Vector2.Distance(neighbour.transform.position, sphere.transform.position) > range * SpherePlacementRules.SourcePixelsToWorld) continue;
+                        if (GetSphereNeighbourCount(neighbour, range) >= 2) { connectedToMasterNode = true; break; }
+                    }
+                    if (connectedToMasterNode) multiplier += _characterMasteryLevel >= 10 ? 0.04f : 0.02f;
+                }
+                var networkSize = GetConnectedSphereNetworkSize(sphere, range);
+                if (networkSize >= 4) multiplier += 0.03f;
+                if (_characterMasteryLevel >= 7 && networkSize >= 4) multiplier += 0.03f;
+                return multiplier;
+            }
+            return 1f;
+        }
+
+        private float GetCharacterAttackSpeedMultiplier()
+        {
+            var definition = CharacterRules.Get(_sphereCharacterId);
+            var multiplier = 1f + definition.SphereAttackSpeed;
+            var sphereCount = GetActiveCharacterSphereCount();
+            if (_sphereCharacterId == SphereCharacterId.Spherist)
+                multiplier += CharacterRules.GetSpheristAttackSpeedBonus(_characterMasteryLevel, sphereCount);
+            else if (_sphereCharacterId == SphereCharacterId.Berserker && _playerCore != null)
+            {
+                var hpRatio = _playerCore.CurrentHp / Mathf.Max(1f, _playerCore.MaxHp);
+                multiplier += CharacterRules.GetBerserkerFuryAttackSpeedBonus(hpRatio);
+                if (_characterMasteryLevel >= 3) multiplier += 0.02f;
+            }
+            else if (_sphereCharacterId == SphereCharacterId.Architect && sphereCount >= 5 &&
+                _networkState != null && _networkState.DominantFormation != null &&
+                _networkState.DominantFormation.Type == SphereNetworkFormation.Cluster)
+                multiplier += 0.15f * GetArchitectFormationBonusScale(SphereNetworkFormation.Cluster);
+            return multiplier;
+        }
+
+        public float GetCharacterSphereRadiusMultiplier()
+        {
+            var definition = CharacterRules.Get(_sphereCharacterId);
+            var multiplier = 1f + definition.SphereRadius;
+            var sphereCount = GetActiveCharacterSphereCount();
+            var localCount = GetLocalCharacterSpheres().Count;
+            if (_sphereCharacterId == SphereCharacterId.Spherist && _characterMasteryLevel >= 5 && sphereCount >= 8)
+                multiplier += 0.05f;
+            if (_sphereCharacterId == SphereCharacterId.Architect)
+            {
+                if (localCount >= 4) multiplier += 0.05f;
+                if (_characterMasteryLevel >= 3) multiplier += 0.02f;
+            }
+            if (_sphereCharacterId == SphereCharacterId.Engineer)
+            {
+                var connected = 0;
+                var local = GetLocalCharacterSpheres();
+                var range = _characterMasteryLevel >= 6 ? 260f : _characterMasteryLevel >= 2 ? 240f : 220f;
+                for (var i = 0; i < local.Count; i++)
+                    connected = Mathf.Max(connected, GetConnectedSphereNetworkSize(local[i], range));
+                if (connected >= 3) multiplier += 0.08f;
+            }
+            return multiplier;
+        }
+
+        private float GetCharacterMoveSpeedMultiplier() => 1f + CharacterRules.Get(_sphereCharacterId).MoveSpeed;
+
+        private float GetCharacterDamageTakenMultiplier()
+        {
+            var multiplier = 1f + CharacterRules.Get(_sphereCharacterId).DamageTaken;
+            if (_sphereCharacterId == SphereCharacterId.Architect && _networkState != null &&
+                _networkState.DominantFormation != null && _networkState.DominantFormation.Type == SphereNetworkFormation.Square)
+                multiplier *= Mathf.Max(0.70f, 1f - 0.10f * GetArchitectFormationBonusScale(SphereNetworkFormation.Square));
+            return multiplier;
+        }
+
+        private float GetArchitectFormationBonusScale(SphereNetworkFormation type)
+        {
+            var scale = 1f;
+            if (_characterMasteryLevel >= 5 && GetLocalCharacterSpheres().Count >= 5) scale *= 1.05f;
+            if (_characterMasteryLevel >= 7) scale *= 1.05f;
+            if (_characterMasteryLevel >= 10 && type != SphereNetworkFormation.None) scale *= 1.10f;
+            return scale;
+        }
+
         private float GetSphereAffinityWeight(SphereId type)
         {
-            var signature = SphereId.Standard;
-            var partner = SphereId.Orbital;
-            switch (_sphereCharacterId)
-            {
-                case SphereCharacterId.Hunter: signature = SphereId.Sniper; partner = SphereId.Void; break;
-                case SphereCharacterId.Engineer: signature = SphereId.Chain; partner = SphereId.Aura; break;
-                case SphereCharacterId.Berserker: signature = SphereId.Shotgun; partner = SphereId.Void; break;
-                case SphereCharacterId.Alchemist: signature = SphereId.Aura; partner = SphereId.Chain; break;
-                case SphereCharacterId.Architect: signature = SphereId.Gravity; partner = SphereId.Prism; break;
-                case SphereCharacterId.Conductor: signature = SphereId.Pulse; partner = SphereId.Chain; break;
-                case SphereCharacterId.Oracle: signature = SphereId.Prism; partner = SphereId.Pulse; break;
-                case SphereCharacterId.Voidwalker: signature = SphereId.Void; partner = SphereId.Gravity; break;
-                case SphereCharacterId.Fractal: signature = SphereId.Orbital; partner = SphereId.Aura; break;
-            }
-            return type == signature ? 0.70f : type == partner ? 0.30f : 0f;
+            return CharacterRules.GetSphereAffinityWeight(_sphereCharacterId, type);
         }
 
         private int GetAbilityLevel(RunUpgradeKind kind)
@@ -2689,6 +2872,7 @@ namespace EchoSphere.Runtime
                     + 0.15f * GetFormationBonus(SphereNetworkFormation.Fractal, index);
                 if (ConsumeResonanceLineBurst()) multiplier *= 1.60f;
             }
+            multiplier *= GetCharacterNetworkDamageMultiplier(sphere);
             return multiplier * GetArtifactSphereFamilyDamageMultiplier(sphere.Type);
         }
 
