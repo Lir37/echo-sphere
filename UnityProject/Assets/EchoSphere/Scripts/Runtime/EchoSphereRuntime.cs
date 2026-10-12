@@ -46,6 +46,18 @@ namespace EchoSphere.Runtime
         [System.Serializable]
         private sealed class AchievementSaveData { public List<string> ids = new List<string>(); }
 
+        [System.Serializable]
+        private sealed class CharacterProfileData
+        {
+            public string id;
+            public int masteryLevel = 1;
+            public int masteryXp;
+            public bool unlocked;
+        }
+
+        [System.Serializable]
+        private sealed class CharacterProfilesSaveData { public List<CharacterProfileData> profiles = new List<CharacterProfileData>(); }
+
         private sealed class AchievementDefinition
         {
             public readonly string Id;
@@ -64,7 +76,7 @@ namespace EchoSphere.Runtime
             }
         }
 
-        private enum MainMenuPage { Home, Shop, Settings, Leaderboard, Achievements }
+        private enum MainMenuPage { Home, Shop, Settings, Leaderboard, Achievements, Characters }
 
         private static readonly AchievementDefinition[] SourceAchievements =
         {
@@ -89,6 +101,8 @@ namespace EchoSphere.Runtime
         private const string NamePreferenceKey = "echosphere_name";
         private const string LeaderboardPreferenceKey = "echosphere_leaderboard";
         private const string AchievementPreferenceKey = "echosphere_achievements";
+        private const string CharacterPreferenceKey = "echosphere_character";
+        private const string CharacterProfilesPreferenceKey = "echosphere_character_profiles";
         private const string SoundPreferenceKey = "echosphere_sound";
         private const string HandednessPreferenceKey = "echosphere_handedness";
         private ShopSaveData _shopSave;
@@ -96,6 +110,10 @@ namespace EchoSphere.Runtime
         private MainMenuPage _mainMenuPage = MainMenuPage.Home;
         private string _playerName = "";
         private bool _settingsResetPending;
+        private Vector2 _characterScrollPosition;
+        private string _expandedCharacterId = "spherist";
+        private List<CharacterProfileData> _characterProfiles = new List<CharacterProfileData>();
+        private bool _characterProfilesLoaded;
         private bool _runResultSaved;
         private int _runGoldEarned;
         private int _runEliteKills;
@@ -383,6 +401,124 @@ namespace EchoSphere.Runtime
             PlayerPrefs.Save();
         }
 
+        private void EnsureCharacterProfilesLoaded()
+        {
+            if (_characterProfilesLoaded) return;
+            _characterProfilesLoaded = true;
+            _characterProfiles = new List<CharacterProfileData>();
+            for (var i = 0; i < CharacterRules.All.Count; i++)
+            {
+                var definition = CharacterRules.All[i];
+                _characterProfiles.Add(new CharacterProfileData
+                {
+                    id = CharacterRules.ToSourceId(definition.Id),
+                    masteryLevel = 1,
+                    masteryXp = 0,
+                    unlocked = definition.Id == SphereCharacterId.Spherist
+                });
+            }
+
+            var raw = PlayerPrefs.GetString(CharacterProfilesPreferenceKey, "");
+            if (!string.IsNullOrEmpty(raw))
+            {
+                try
+                {
+                    var data = JsonUtility.FromJson<CharacterProfilesSaveData>("{\\"profiles\\":" + raw + "}");
+                    if (data != null && data.profiles != null)
+                    {
+                        for (var i = 0; i < data.profiles.Count; i++)
+                        {
+                            var saved = data.profiles[i];
+                            if (saved == null || !CharacterRules.TryParseSourceId(saved.id, out var characterId)) continue;
+                            var current = FindCharacterProfile(characterId);
+                            if (current == null) continue;
+                            current.unlocked = characterId == SphereCharacterId.Spherist || saved.unlocked;
+                            current.masteryLevel = Mathf.Clamp(saved.masteryLevel, 1, 10);
+                            current.masteryXp = Mathf.Max(CharacterRules.GetMasteryThreshold(current.masteryLevel),
+                                Mathf.Clamp(saved.masteryXp, 0, CharacterRules.MasteryMaxXp));
+                            current.masteryLevel = Mathf.Max(current.masteryLevel, CharacterRules.GetMasteryLevelForXp(current.masteryXp));
+                        }
+                    }
+                }
+                catch
+                {
+                    // Keep valid defaults when the persisted source array is malformed.
+                }
+            }
+
+            var selectedRaw = PlayerPrefs.GetString(CharacterPreferenceKey, "spherist");
+            if (CharacterRules.TryParseSourceId(selectedRaw, out var selectedId) &&
+                FindCharacterProfile(selectedId) != null && FindCharacterProfile(selectedId).unlocked)
+                _sphereCharacterId = selectedId;
+            else
+                _sphereCharacterId = SphereCharacterId.Spherist;
+            _characterMasteryLevel = GetCharacterProfile(_sphereCharacterId).masteryLevel;
+            _expandedCharacterId = CharacterRules.ToSourceId(_sphereCharacterId);
+        }
+
+        private CharacterProfileData FindCharacterProfile(SphereCharacterId id)
+        {
+            var sourceId = CharacterRules.ToSourceId(id);
+            for (var i = 0; i < _characterProfiles.Count; i++)
+                if (_characterProfiles[i].id == sourceId) return _characterProfiles[i];
+            return null;
+        }
+
+        private CharacterProfileData GetCharacterProfile(SphereCharacterId id)
+        {
+            EnsureCharacterProfilesLoaded();
+            return FindCharacterProfile(id) ?? _characterProfiles[0];
+        }
+
+        private void SaveCharacterProfiles()
+        {
+            EnsureCharacterProfilesLoaded();
+            var json = JsonUtility.ToJson(new CharacterProfilesSaveData { profiles = _characterProfiles });
+            var start = json.IndexOf('[');
+            var end = json.LastIndexOf(']');
+            if (start < 0 || end < start) return;
+            // new-desing persists a top-level array; do not change its schema to Unity's wrapper object.
+            PlayerPrefs.SetString(CharacterProfilesPreferenceKey, json.Substring(start, end - start + 1));
+            PlayerPrefs.SetString(CharacterPreferenceKey, CharacterRules.ToSourceId(_sphereCharacterId));
+            PlayerPrefs.Save();
+        }
+
+        private bool SelectOrUnlockCharacter(SphereCharacterId id)
+        {
+            EnsureCharacterProfilesLoaded();
+            var definition = CharacterRules.Get(id);
+            var profile = FindCharacterProfile(id);
+            if (profile == null) return false;
+            if (!profile.unlocked)
+            {
+                if (GetGold() < definition.UnlockCost)
+                {
+                    ShowMessage(IsRussianUi ? "НЕДОСТАТОЧНО ЗОЛОТА" : "NOT ENOUGH GOLD");
+                    return false;
+                }
+                SaveGold(GetGold() - definition.UnlockCost);
+                profile.unlocked = true;
+            }
+            _sphereCharacterId = id;
+            _characterMasteryLevel = profile.masteryLevel;
+            _expandedCharacterId = CharacterRules.ToSourceId(id);
+            SaveCharacterProfiles();
+            ShowMessage((IsRussianUi ? "ВЫБРАН ПЕРСОНАЖ: " : "CHARACTER SELECTED: ") +
+                (IsRussianUi ? definition.NameRu : definition.NameEn));
+            return true;
+        }
+
+        private void ResetCharacterProgress()
+        {
+            _characterProfiles.Clear();
+            _characterProfilesLoaded = false;
+            EnsureCharacterProfilesLoaded();
+            _sphereCharacterId = SphereCharacterId.Spherist;
+            _characterMasteryLevel = 1;
+            PlayerPrefs.DeleteKey(CharacterPreferenceKey);
+            PlayerPrefs.DeleteKey(CharacterProfilesPreferenceKey);
+        }
+
         private void UnlockAchievementIf(bool condition, string id)
         {
             if (!condition || _unlockedAchievementIds.Contains(id)) return;
@@ -447,8 +583,7 @@ namespace EchoSphere.Runtime
             PlayerPrefs.DeleteKey(HandednessPreferenceKey);
             PlayerPrefs.DeleteKey(LanguagePreferenceKey);
             PlayerPrefs.DeleteKey(NamePreferenceKey);
-            PlayerPrefs.DeleteKey("echosphere_character");
-            PlayerPrefs.DeleteKey("echosphere_character_profiles");
+            ResetCharacterProgress();
             PlayerPrefs.DeleteKey("echosphere_knowledge_v1");
             PlayerPrefs.DeleteKey("echosphere_tutorial_completed_v1");
             PlayerPrefs.DeleteKey("echo-sphere:region:resonance_basin:stabilized");
@@ -475,6 +610,7 @@ namespace EchoSphere.Runtime
         {
             Application.targetFrameRate = 60;
             EnsureShopSaveLoaded();
+            EnsureCharacterProfilesLoaded();
             _playerName = PlayerPrefs.GetString(NamePreferenceKey, "");
             _leaderboardEntries = LoadLeaderboardEntries();
             _unlockedAchievementIds = LoadUnlockedAchievementIds();
@@ -2736,6 +2872,7 @@ namespace EchoSphere.Runtime
                 case MainMenuPage.Settings: DrawSettingsScreen(); return;
                 case MainMenuPage.Leaderboard: DrawLeaderboardScreen(); return;
                 case MainMenuPage.Achievements: DrawAchievementsScreen(); return;
+                case MainMenuPage.Characters: DrawCharacterSelectScreen(); return;
             }
 
             var previousColor = GUI.color;
@@ -2818,7 +2955,7 @@ namespace EchoSphere.Runtime
             var navY = panel.y + height - 124f;
             var navLeft = panel.x + 22f;
             var navGap = 7f;
-            var navWidth = (panel.width - 44f - navGap * 3f) / 4f;
+            var navWidth = (panel.width - 44f - navGap * 4f) / 5f;
             if (GUI.Button(new Rect(navLeft, navY, navWidth, 38f), IsRussianUi ? "МАГАЗИН" : "SHOP", _button))
                 _mainMenuPage = MainMenuPage.Shop;
             if (GUI.Button(new Rect(navLeft + (navWidth + navGap), navY, navWidth, 38f), IsRussianUi ? "НАСТРОЙКИ" : "SETTINGS", _button))
@@ -2827,6 +2964,8 @@ namespace EchoSphere.Runtime
                 _mainMenuPage = MainMenuPage.Leaderboard;
             if (GUI.Button(new Rect(navLeft + (navWidth + navGap) * 3f, navY, navWidth, 38f), IsRussianUi ? "ДОСТИЖЕНИЯ" : "ACHIEVEMENTS", _button))
                 _mainMenuPage = MainMenuPage.Achievements;
+            if (GUI.Button(new Rect(navLeft + (navWidth + navGap) * 4f, navY, navWidth, 38f), IsRussianUi ? "ПЕРСОНАЖИ" : "CHARACTERS", _button))
+                _mainMenuPage = MainMenuPage.Characters;
 
             GUI.Label(new Rect(panel.x + 24f, panel.y + height - 76f, panel.width - 48f, 34f),
                 IsRussianUi ? "Движение: правая часть экрана · Сферы: левая часть · Рывок: кнопка DASH" :
@@ -2938,6 +3077,121 @@ namespace EchoSphere.Runtime
             SaveGold(GetGold() - cost);
             SaveShopState();
             ShowMessage((IsRussianUi ? "КУПЛЕНО: " : "PURCHASED: ") + GetShopUpgradeName(id));
+        }
+
+        private void DrawCharacterSelectScreen()
+        {
+            EnsureCharacterProfilesLoaded();
+            var panel = DrawMenuScreenFrame(
+                IsRussianUi ? "ПЕРСОНАЖИ" : "CHARACTERS",
+                IsRussianUi ? "Персонаж меняет стиль билда, но не управление." : "Characters change your build style, not the controls.", 640f);
+            GUI.Label(new Rect(panel.x + 22f, panel.y + 82f, panel.width - 44f, 20f),
+                (IsRussianUi ? "ЗОЛОТО" : "GOLD") + "  ●  " + GetGold() +
+                "     ·     " + (IsRussianUi ? "ВЫБРАН" : "SELECTED") + ": " +
+                (IsRussianUi ? CharacterRules.Get(_sphereCharacterId).NameRu : CharacterRules.Get(_sphereCharacterId).NameEn), _label);
+
+            var viewport = new Rect(panel.x + 12f, panel.y + 108f, panel.width - 24f, panel.height - 164f);
+            var contentWidth = Mathf.Max(120f, viewport.width - 18f);
+            var contentHeight = 0f;
+            for (var i = 0; i < CharacterRules.All.Count; i++)
+            {
+                var definition = CharacterRules.All[i];
+                var profile = GetCharacterProfile(definition.Id);
+                var expanded = profile.unlocked && _expandedCharacterId == CharacterRules.ToSourceId(definition.Id);
+                contentHeight += 184f + (expanded ? definition.Mastery.Count * 36f + 10f : 0f) + 8f;
+            }
+            GUI.BeginScrollView(viewport, _characterScrollPosition, new Rect(0f, 0f, contentWidth, contentHeight));
+            var cardY = 0f;
+            for (var i = 0; i < CharacterRules.All.Count; i++)
+            {
+                var definition = CharacterRules.All[i];
+                var profile = GetCharacterProfile(definition.Id);
+                var isSelected = definition.Id == _sphereCharacterId;
+                var expanded = profile.unlocked && _expandedCharacterId == CharacterRules.ToSourceId(definition.Id);
+                var cardHeight = 184f + (expanded ? definition.Mastery.Count * 36f + 10f : 0f);
+                var card = new Rect(0f, cardY, contentWidth, cardHeight);
+                GUI.Box(card, GUIContent.none, _box);
+
+                var oldColor = GUI.color;
+                if (ColorUtility.TryParseHtmlString(definition.ColorHex, out var characterColor))
+                    GUI.color = new Color(characterColor.r, characterColor.g, characterColor.b, 0.95f);
+                GUI.DrawTexture(new Rect(card.x + 8f, card.y + 9f, 3f, 18f), _uiAccentTexture);
+                GUI.color = oldColor;
+
+                GUI.Label(new Rect(card.x + 18f, card.y + 6f, card.width - 150f, 22f),
+                    (IsRussianUi ? definition.NameRu : definition.NameEn) + "  ·  " +
+                    (IsRussianUi ? definition.RoleRu : definition.RoleEn), _label);
+                GUI.Label(new Rect(card.x + 18f, card.y + 29f, card.width - 28f, 29f),
+                    IsRussianUi ? definition.DescriptionRu : definition.DescriptionEn, _sphereDescriptionStyle);
+                GUI.Label(new Rect(card.x + 18f, card.y + 56f, card.width - 28f, 39f),
+                    IsRussianUi ? definition.MechanicRu : definition.MechanicEn, _sphereDescriptionStyle);
+
+                var signature = GameCatalog.Spheres[(int)definition.SignatureSphere];
+                var partner = GameCatalog.Spheres[(int)definition.PartnerSphere];
+                GUI.Label(new Rect(card.x + 18f, card.y + 96f, card.width - 28f, 18f),
+                    (IsRussianUi ? "СИГНАТУРНАЯ" : "SIGNATURE") + ": " +
+                    (IsRussianUi ? signature.DisplayNameRu : signature.DisplayName) + "  ·  " +
+                    (IsRussianUi ? "ПАРТНЁР" : "PARTNER") + ": " +
+                    (IsRussianUi ? partner.DisplayNameRu : partner.DisplayName), _sphereDescriptionStyle);
+
+                var masteryThreshold = CharacterRules.GetNextMasteryThreshold(profile.masteryLevel);
+                var xpText = masteryThreshold < 0
+                    ? (IsRussianUi ? "МАКС." : "MAX")
+                    : profile.masteryXp + "/" + masteryThreshold + " XP";
+                GUI.Label(new Rect(card.x + 18f, card.y + 115f, card.width - 28f, 17f),
+                    (IsRussianUi ? "МАСТЕРСТВО " : "MASTERY ") + profile.masteryLevel + "/10  ·  " + xpText, _sphereDescriptionStyle);
+                var currentThreshold = CharacterRules.GetMasteryThreshold(profile.masteryLevel);
+                var progress = masteryThreshold < 0 ? 1f :
+                    Mathf.Clamp01((profile.masteryXp - currentThreshold) / (float)Mathf.Max(1, masteryThreshold - currentThreshold));
+                DrawProgressBar(new Rect(card.x + 18f, card.y + 133f, card.width - 36f, 5f), progress, new Color(0.22f, 0.85f, 1f, 0.95f));
+
+                var actionY = card.y + 145f;
+                if (profile.unlocked)
+                {
+                    var actionWidth = Mathf.Min(124f, (card.width - 48f) * 0.5f);
+                    if (GUI.Button(new Rect(card.x + 18f, actionY, actionWidth, 29f),
+                        isSelected ? (IsRussianUi ? "ВЫБРАН" : "SELECTED") : (IsRussianUi ? "ВЫБРАТЬ" : "SELECT"), _button))
+                        SelectOrUnlockCharacter(definition.Id);
+                    if (GUI.Button(new Rect(card.x + 26f + actionWidth, actionY, actionWidth, 29f),
+                        expanded ? (IsRussianUi ? "СКРЫТЬ" : "HIDE") : (IsRussianUi ? "МАСТЕРСТВО" : "MASTERY"), _button))
+                        _expandedCharacterId = expanded ? "" : CharacterRules.ToSourceId(definition.Id);
+                }
+                else
+                {
+                    var buyWidth = Mathf.Min(150f, card.width - 36f);
+                    if (GUI.Button(new Rect(card.x + 18f, actionY, buyWidth, 29f),
+                        (IsRussianUi ? "ОТКРЫТЬ · " : "UNLOCK · ") + definition.UnlockCost + " ●", _button))
+                        SelectOrUnlockCharacter(definition.Id);
+                }
+
+                if (expanded)
+                {
+                    var rowY = card.y + 180f;
+                    for (var j = 0; j < definition.Mastery.Count; j++)
+                    {
+                        var mastery = definition.Mastery[j];
+                        var reached = mastery.Level <= profile.masteryLevel;
+                        var current = mastery.Level == profile.masteryLevel;
+                        var row = new Rect(card.x + 8f, rowY + j * 36f, card.width - 16f, 33f);
+                        GUI.Box(row, GUIContent.none, _box);
+                        var rowColor = GUI.color;
+                        GUI.color = reached ? new Color(0.34f, 0.88f, 1f, 1f) : new Color(0.5f, 0.62f, 0.75f, 0.8f);
+                        GUI.Label(new Rect(row.x + 7f, row.y + 2f, row.width - 16f, 15f),
+                            mastery.Level + ". " + (IsRussianUi ? mastery.TitleRu : mastery.TitleEn) +
+                            (current ? (IsRussianUi ? " · ТЕКУЩИЙ" : " · CURRENT") : "") +
+                            "   " + CharacterRules.GetMasteryThreshold(mastery.Level) + " XP", _sphereDescriptionStyle);
+                        GUI.color = rowColor;
+                        GUI.Label(new Rect(row.x + 7f, row.y + 16f, row.width - 14f, 16f),
+                            IsRussianUi ? mastery.DescriptionRu : mastery.DescriptionEn, _sphereDescriptionStyle);
+                    }
+                }
+                cardY += cardHeight + 8f;
+            }
+            GUI.EndScrollView();
+
+            if (GUI.Button(new Rect(panel.x + 22f, panel.yMax - 48f, 132f, 34f),
+                IsRussianUi ? "НАЗАД" : "BACK", _button))
+                _mainMenuPage = MainMenuPage.Home;
         }
 
         private void DrawSettingsScreen()
