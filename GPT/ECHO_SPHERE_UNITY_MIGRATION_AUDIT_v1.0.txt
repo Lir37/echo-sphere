@@ -2988,3 +2988,47 @@ NEXT:
 ======================================================================
 END LEVEL-UP LOCK/REROLL AND ORACLE FORECAST
 ======================================================================
+
+[2026-10-13 | TRIANGLE RESONANCE CANVAS OVERLAY]
+
+SOURCE:
+- new-desing remains 737ef2af4a877e0995db5f92331d536d2f29a934, unchanged.
+- Visual reference: src/renderer.ts Triangle formation drawing and sphere.resonancePulseTimer.
+
+IMPLEMENTED:
+1. EchoSphereRuntime now draws an IMGUI Canvas overlay from the live
+   SphereNetworkState Triangle candidate and current Sphere world positions.
+2. Added the source-scaled triangular amber fill/outline, 25 px per-node ring,
+   three faint uncharged tick marks, expanding pulse circle tied to the existing
+   ResonancePulseTimer, and a filled central dot that pulses while any Triangle
+   node is in its Resonance window.
+3. Added Node structural guards for runtime invocation, candidate sourcing,
+   source radius, pulse expansion, timer ratio and fill/core draw helpers.
+
+OPEN / LIMITS:
+- Tick-charge progression intentionally remains uncharged in this pass. Source
+  formationHitCount is incremented by Rune of Resonance and Echo Architecture
+  set behavior. Those source writer systems are not present in this Unity build,
+  so no artificial charge increment was added. Their migration is needed before
+  charged arcs can be wired truthfully.
+- The overlay has not been visually compared in a Unity Editor or APK. Current
+  CI only checks contracts/project structure, not Unity compilation or pixels.
+- Original per-node charge arcs and exact device-level visual parity remain OPEN.
+
+VALIDATION:
+- Unity Migration Contracts #273: SUCCESS:
+  https://github.com/Lir37/echo-sphere/actions/runs/38314211432
+- This confirms the source-structure checks only, not real Unity Editor compile,
+  APK build/install, or device visual comparison.
+
+NEXT:
+1. Trace and port the missing Rune of Resonance and Echo Architecture set-state
+   writers from src/engineLoop.ts and src/engineCombat.ts, preserving their
+   event conditions and counters, then wire real charge progress to the Triangle
+   overlay instead of inventing hit increments.
+2. Continue full-system audit and verify Triangle overlay on an actual APK when
+   available.
+
+======================================================================
+END TRIANGLE RESONANCE CANVAS OVERLAY
+======================================================================
