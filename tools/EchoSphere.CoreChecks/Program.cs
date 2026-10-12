@@ -37,6 +37,7 @@ internal static class Program
             CheckSphereNetworkRules();
             CheckSpherePlacementRules();
             CheckCharacterRules();
+            CheckHunterCombatRules();
             CheckSphereElementalRules();
             CheckAlchemistReactionRules();
             CheckSphereAuthoredModifierRules();
@@ -732,6 +733,53 @@ internal static class Program
         Near(CharacterRules.GetSpheristDamageBonus(10, 8), 0.12f, 0.000001f, "Spherist mastery X damage bonuses stack from source thresholds");
         Near(CharacterRules.GetSpheristAttackSpeedBonus(1, 4), 0.09f, 0.000001f, "Spherist Resonance gives +3% per Sphere after first");
         Near(CharacterRules.GetSpheristAttackSpeedBonus(4, 4), 0.105f, 0.000001f, "Spherist mastery IV adds +0.5% per Sphere after first");
+    }
+
+    private static void CheckHunterCombatRules()
+    {
+        True(HunterCombatRules.CanMarkTarget(SphereId.Sniper, false, false, EnemyArchetype.Tank),
+            "Hunter Sniper can mark a tank");
+        True(HunterCombatRules.CanMarkTarget(SphereId.Chain, false, true, EnemyArchetype.Normal),
+            "Hunter Chain can mark an elite");
+        True(HunterCombatRules.CanMarkTarget(SphereId.Prism, true, false, EnemyArchetype.Normal),
+            "Hunter Prism can mark a boss");
+        True(HunterCombatRules.CanMarkTarget(SphereId.Void, false, false, EnemyArchetype.Normal) == false,
+            "Hunter Void cannot mark an ordinary non-tank enemy");
+        True(!HunterCombatRules.CanMarkTarget(SphereId.Aura, false, true, EnemyArchetype.Elite),
+            "non-source eligible Aura hits do not build Hunter Mark");
+        True(!HunterCombatRules.CanMarkTarget(SphereId.Standard, true, false, EnemyArchetype.Normal),
+            "non-source eligible Standard hits do not build Hunter Mark");
+
+        Near(HunterCombatRules.GetMarkDuration(1), 5f, 0f, "Hunter mastery I Mark duration is five seconds");
+        Near(HunterCombatRules.GetMarkDuration(2), 6f, 0f, "Hunter mastery II extends Mark to six seconds");
+        Equal(HunterCombatRules.GetHuntHitThreshold(1), 5, "Hunter Hunt takes five same-target hits at mastery I");
+        Equal(HunterCombatRules.GetHuntHitThreshold(3), 5, "Hunter Hunt threshold remains five before mastery IV");
+        Equal(HunterCombatRules.GetHuntHitThreshold(4), 4, "Hunter mastery IV starts Hunt after four same-target hits");
+
+        Near(HunterCombatRules.GetMarkedDamageMultiplier(1, false, true), 1f, 0f,
+            "Hunter does not amplify an unmarked target");
+        Near(HunterCombatRules.GetMarkedDamageMultiplier(1, true, false), 1.20f, 0.000001f,
+            "Hunter Mark adds twenty percent damage");
+        Near(HunterCombatRules.GetMarkedDamageMultiplier(6, true, false), 1.25f, 0.000001f,
+            "Hunter mastery VI raises Mark damage to twenty-five percent");
+        Near(HunterCombatRules.GetMarkedDamageMultiplier(1, true, true), 1.56f, 0.000001f,
+            "Hunter Hunt stacks the source 1.20 Mark and 1.30 Hunt multipliers");
+        Near(HunterCombatRules.GetMarkedDamageMultiplier(8, true, true), 1.6875f, 0.000001f,
+            "Hunter mastery VIII stacks 1.25 Mark and 1.35 Hunt multipliers");
+
+        Near(HunterCombatRules.GetMarkedTargetCritBonus(2, true), 0f, 0f,
+            "Hunter marked-target critical bonus is locked before mastery III");
+        Near(HunterCombatRules.GetMarkedTargetCritBonus(3, true), 0.02f, 0.000001f,
+            "Hunter mastery III adds two percent marked-target critical chance");
+        Near(HunterCombatRules.GetMarkedTargetCritBonus(3, false), 0f, 0f,
+            "Hunter critical bonus requires an active mark");
+
+        Near(HunterCombatRules.GetTrophyMoveSpeedBonus(4, true), 0f, 0f,
+            "Hunter Trophy speed is locked before mastery V");
+        Near(HunterCombatRules.GetTrophyMoveSpeedBonus(5, true), 0.10f, 0.000001f,
+            "Hunter mastery V Trophy grants ten percent movement speed");
+        Near(HunterCombatRules.GetTrophyMoveSpeedBonus(10, false), 0f, 0f,
+            "Hunter Trophy speed ends when its timer expires");
     }
 
     private static void CheckSphereElementalRules()
