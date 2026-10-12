@@ -298,13 +298,15 @@ namespace EchoSphere.Core
         public static float GetBerserkerFuryDamageBonus(float hpRatio)
         {
             var missingRatio = Math.Max(0f, Math.Min(1f, 1f - hpRatio));
-            return Math.Min(4, (int)Math.Floor(missingRatio / 0.2f)) * 0.07f;
+            // Preserve the source's exact 20% HP threshold despite float representation of 0.6/0.4.
+            return Math.Min(4, (int)Math.Floor((missingRatio + 0.00001f) / 0.2f)) * 0.07f;
         }
 
         public static float GetBerserkerFuryAttackSpeedBonus(float hpRatio)
         {
             var missingRatio = Math.Max(0f, Math.Min(1f, 1f - hpRatio));
-            return Math.Min(4, (int)Math.Floor(missingRatio / 0.2f)) * 0.04f;
+            // Use the same boundary handling as the source Fury damage calculation.
+            return Math.Min(4, (int)Math.Floor((missingRatio + 0.00001f) / 0.2f)) * 0.04f;
         }
 
         public static float GetBerserkerCloseDamageBonus(int masteryLevel)
