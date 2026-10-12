@@ -728,7 +728,7 @@ internal static class Program
         Near(CharacterRules.GetSpheristDamageBonus(1, 4), 0f, 0f, "Spherist five-Sphere threshold at mastery I");
         Near(CharacterRules.GetSpheristDamageBonus(1, 5), 0.05f, 0f, "Spherist damage bonus at five Spheres");
         Near(CharacterRules.GetSpheristDamageBonus(2, 4), 0.05f, 0f, "Spherist mastery II lowers threshold to four Spheres");
-        Near(CharacterRules.GetSpheristDamageBonus(8, 3), 0.05f, 0f, "Spherist mastery VIII lowers threshold to three Spheres");
+        Near(CharacterRules.GetSpheristDamageBonus(8, 3), 0.07f, 0.000001f, "Spherist mastery VIII lowers threshold to three Spheres and includes the mastery III +2% damage bonus");
         Near(CharacterRules.GetSpheristDamageBonus(10, 8), 0.12f, 0.000001f, "Spherist mastery X damage bonuses stack from source thresholds");
         Near(CharacterRules.GetSpheristAttackSpeedBonus(1, 4), 0.09f, 0.000001f, "Spherist Resonance gives +3% per Sphere after first");
         Near(CharacterRules.GetSpheristAttackSpeedBonus(4, 4), 0.105f, 0.000001f, "Spherist mastery IV adds +0.5% per Sphere after first");
