@@ -2928,3 +2928,63 @@ NEXT:
 ======================================================================
 END CONDUCTOR OVERDRIVE AND RESONANCE CASCADE
 ======================================================================
+
+[2026-10-13 | LEVEL-UP LOCK/REROLL AND ORACLE FORECAST]
+
+SOURCE:
+- new-desing remains 737ef2af4a877e0995db5f92331d536d2f29a934 (read-only).
+- Ported from src/engineProgression.ts (lockUpgradeChoice, rerollUpgradeChoices,
+  generateUpgradeChoices), src/engineTypes.ts, src/engineState.ts and src/App.tsx.
+
+IMPLEMENTED:
+1. Routine Level-Up now has one Lock and one Reroll per run. The Lock button
+   reserves the selected logical choice. Reservation persists when a different
+   card is picked and is consumed only when that exact card is selected, or is
+   cleared when the choice is no longer available.
+2. Reroll is available only while three normal routine choices are displayed.
+   It uses the existing weighted BuildLevelUpChoices path, retries up to four
+   times for a changed card set, and decrements the one-use counter on use.
+   If a card is locked, the reroll retains it and searches up to eight generated
+   sets for two replacement choices not in the previous set.
+3. Oracle Forecast is computed from the actual current three choices and the
+   source base choice weights, not the between-source diversity multiplier.
+   Oracle shows one forecast card before mastery IV and two from mastery IV.
+   At mastery VI, the first unlocked reroll preserves one forecasted choice;
+   mastery IX preserves two. This protection is once per run and does not
+   override the source locked-reroll branch.
+4. Oracle's brief source hint appears from mastery VII for 0.65 s and is based
+   on the first offered choice's source (Sphere / Ability). Forecast labels,
+   lock state, reroll counter, and actions are connected to the Level-Up GUI.
+5. Run start resets pity counters, Lock/Reroll counts, current reservation,
+   recent-choice keys and Oracle forecast state.
+6. Added Core/LevelUpChoiceRules.cs and its .meta file; updated
+   EchoSphereRuntime.cs, Program.cs and check-unity-project.mjs.
+   Added 20 pure C# assertions covering eligibility, one-use limits, Oracle
+   thresholds, forecast preservation and source hint gates.
+
+VALIDATION:
+- Unity Migration Contracts #271: SUCCESS (pure C# contract project and
+  Node project/runtime-structure checks):
+  https://github.com/Lir37/echo-sphere/actions/runs/38313696647
+- This does not validate compilation of UnityEngine scripts in Unity Editor,
+  nor build/install an Android APK or confirm device visuals. Those gates remain
+  open; no APK/device run was performed in this work cycle.
+
+OPEN:
+- Triangle Resonance pulse timer is present but the actual original per-node
+  pulse-ring overlay still needs exact renderer parity.
+- User's prior APK observations about Sphere size and oversized/round enemy
+  visuals remain open pending fresh APK screenshots or device inspection.
+- Full Unity Editor compile, APK build and install have not been verified.
+
+NEXT:
+1. Port the next confirmed character/runtime gap from source after reviewing
+   the remaining new-desing character modules and migration gaps, while
+   preserving the existing Level-Up selection weights.
+2. In a separate bounded visual step, compare the Unity Triangle pulse ring
+   and actual game object scales against the source Canvas renderer; do not
+   adjust sizes without a measured mismatch.
+
+======================================================================
+END LEVEL-UP LOCK/REROLL AND ORACLE FORECAST
+======================================================================
