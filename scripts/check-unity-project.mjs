@@ -608,7 +608,7 @@ assert.ok(menuRuntime.includes('ResetPersistentProgress()') && menuRuntime.inclu
 // runtime behavior and the complete source data catalogue, not only class names.
 const characterRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/CharacterRules.cs'), 'utf8');
 const characterPlayerCore = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/PlayerCoreController2D.cs'), 'utf8');
-const sphereAttackRuntime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs'), 'utf8');
+const characterSphereAttackRuntime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs'), 'utf8');
 assert.ok(menuRuntime.includes('MainMenuPage.Characters') && menuRuntime.includes('DrawCharacterSelectScreen()') &&
   menuRuntime.includes('SelectOrUnlockCharacter(definition.Id)'),
   'Character Select must be reachable from the home menu and its cards must call the select/unlock flow');
@@ -646,8 +646,8 @@ assert.ok(characterPlayerCore.includes('ApplyBaseMaxHpMultiplier(1f + CharacterR
   (menuRuntime.includes('ApplyBaseMaxHpMultiplier(1f + CharacterRules.Get(_sphereCharacterId).MaxHp)') &&
    characterPlayerCore.includes('ApplyBaseMaxHpMultiplier(float multiplier)')),
   'selected character maximum HP modifier must change the actual player Core');
-assert.ok(sphereAttackRuntime.includes('GetCharacterSphereRadiusMultiplier()') &&
-  sphereAttackRuntime.includes('_runtime.GetCharacterSphereRadiusMultiplier()'),
+assert.ok(characterSphereAttackRuntime.includes('GetCharacterSphereRadiusMultiplier()') &&
+  characterSphereAttackRuntime.includes('_runtime.GetCharacterSphereRadiusMultiplier()'),
   'selected character sphere-radius modifier must affect live Sphere attack range');
 assert.ok(menuRuntime.includes('PlayerPrefs.SetString(CharacterPreferenceKey, CharacterRules.ToSourceId(_sphereCharacterId))') &&
   menuRuntime.includes('ResetCharacterProgress()'),
