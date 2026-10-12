@@ -372,11 +372,12 @@ namespace EchoSphere.Runtime
                 var target = targets[i];
                 _runtime.SpawnCombatArc(origin, target.transform.position, SphereId.Chain,
                     _runtime.GetSphereBranch(_type), _runtime.GetSphereFinal(_type), ColorFor(_type));
-                var hitDamage = _runtime.ResolveProjectileDamage(damage * Mathf.Pow(0.72f, i), _levelStats.CritChanceBonus, out var wasCritical);
+                _runtime.RegisterCharacterSphereHit(_type, target);
+                var hitDamage = _runtime.ResolveProjectileDamage(damage * Mathf.Pow(0.72f, i), _levelStats.CritChanceBonus, out var wasCritical, target);
                 var direction = ((Vector2)target.transform.position - origin).normalized;
                 hitDamage = _runtime.ResolveAuthoredSphereHitDamage(_type, target, hitDamage);
                 hitDamage = OnProjectileHit(target, direction, hitDamage, wasCritical);
-                hitDamage = target.ReceiveSphereDamage(_type, hitDamage, true, true, this);
+                hitDamage = target.ReceiveSphereDamage(_type, hitDamage, true, true, this, true);
                 OnSphereHitApplied(target);
                 _runtime.RegisterSphereHit(this, target, hitDamage);
                 _runtime.SpawnImpact(target.transform.position, ColorFor(_type));
@@ -454,9 +455,10 @@ namespace EchoSphere.Runtime
         private void DealPrismBeamHit(EnemyAgent2D target, float damage)
         {
             if (target == null || !target.IsAlive || _runtime == null) return;
-            var resolvedDamage = _runtime.ResolveProjectileDamage(damage, _levelStats.CritChanceBonus, out _);
+            _runtime.RegisterCharacterSphereHit(SphereId.Prism, target);
+            var resolvedDamage = _runtime.ResolveProjectileDamage(damage, _levelStats.CritChanceBonus, out _, target);
             resolvedDamage = _runtime.ResolveAuthoredSphereHitDamage(SphereId.Prism, target, resolvedDamage);
-            var dealtDamage = target.ReceiveSphereDamage(SphereId.Prism, resolvedDamage, true, true, this);
+            var dealtDamage = target.ReceiveSphereDamage(SphereId.Prism, resolvedDamage, true, true, this, true);
             OnSphereHitApplied(target);
             _runtime.RegisterSphereHit(this, target, dealtDamage);
         }
@@ -540,9 +542,10 @@ namespace EchoSphere.Runtime
             var prismDamageFactor = _runtime.GetSphereAuthoredDamageMultiplier(SphereId.Prism);
             var relayDamageFactor = _runtime.GetSphereAuthoredDamageMultiplier(relay.Type);
             var damage = sourceDamage * prismDamageFactor / Mathf.Max(0.0001f, relayDamageFactor);
-            damage = _runtime.ResolveProjectileDamage(damage, relay._levelStats.CritChanceBonus, out _);
+            _runtime.RegisterCharacterSphereHit(relay.Type, target);
+            damage = _runtime.ResolveProjectileDamage(damage, relay._levelStats.CritChanceBonus, out _, target);
             damage = _runtime.ResolveAuthoredSphereHitDamage(relay.Type, target, damage);
-            var dealtDamage = target.ReceiveSphereDamage(relay.Type, damage, true, false, relay);
+            var dealtDamage = target.ReceiveSphereDamage(relay.Type, damage, true, false, relay, true);
             OnSphereHitApplied(target, relay.Type);
             _runtime.RegisterSphereHit(relay, target, dealtDamage);
             return dealtDamage;
