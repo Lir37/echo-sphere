@@ -604,6 +604,55 @@ assert.ok(menuRuntime.includes('ResetPersistentProgress()') && menuRuntime.inclu
   menuRuntime.includes('PlayerPrefs.DeleteKey(AchievementPreferenceKey)'),
   'settings reset must clear the source persistent progress groups');
 
+// Source character selection/profile migration contracts. These validate selected
+// runtime behavior and the complete source data catalogue, not only class names.
+const characterRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/CharacterRules.cs'), 'utf8');
+const playerCore = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/PlayerCoreController2D.cs'), 'utf8');
+const sphereAttackRuntime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs'), 'utf8');
+assert.ok(menuRuntime.includes('MainMenuPage.Characters') && menuRuntime.includes('DrawCharacterSelectScreen()') &&
+  menuRuntime.includes('SelectOrUnlockCharacter(definition.Id)'),
+  'Character Select must be reachable from the home menu and its cards must call the select/unlock flow');
+for (const token of [
+  'echosphere_character',
+  'echosphere_character_profiles',
+  'EnsureCharacterProfilesLoaded()',
+  'SaveCharacterProfiles()',
+  'CharacterRules.GetNextMasteryThreshold(profile.masteryLevel)',
+  'CharacterRules.GetMasteryThreshold(mastery.Level)',
+  'definition.UnlockCost',
+  'SaveGold(GetGold() - definition.UnlockCost)',
+]) {
+  assert.ok(menuRuntime.includes(token), `source character persistence/select flow missing: ${token}`);
+}
+for (const token of [
+  'SphereCharacterId.Spherist', 'SphereCharacterId.Hunter', 'SphereCharacterId.Engineer',
+  'SphereCharacterId.Berserker', 'SphereCharacterId.Alchemist', 'SphereCharacterId.Architect',
+  'SphereCharacterId.Conductor', 'SphereCharacterId.Oracle', 'SphereCharacterId.Voidwalker',
+  'SphereCharacterId.Fractal', 'MasteryThresholds = { 0, 250, 750, 1500, 2500, 4000, 6000, 8500, 11500, 15000 }',
+  'UnlockCost', 'GetBerserkerFuryDamageBonus', 'GetSpheristAttackSpeedBonus',
+]) {
+  assert.ok(characterRules.includes(token), `source character rules/data missing: ${token}`);
+}
+assert.ok((characterRules.match(/new CharacterDefinition\(/g) || []).length === 10 &&
+  (characterRules.match(/new CharacterMasteryDefinition\(10,/g) || []).length === 10,
+  'CharacterRules must retain all ten source characters and all ten levels of mastery per character');
+assert.ok(menuRuntime.includes('GetCharacterGlobalSphereDamageMultiplier()') &&
+  menuRuntime.includes('GetCharacterAttackSpeedMultiplier()') &&
+  menuRuntime.includes('GetCharacterMoveSpeedMultiplier()') &&
+  menuRuntime.includes('GetCharacterDamageTakenMultiplier()') &&
+  menuRuntime.includes('GetCharacterSphereAffinityWeight(_sphereCharacterId, type)'),
+  'selected character base combat modifiers must be connected to actual Unity runtime call paths');
+assert.ok(playerCore.includes('ApplyBaseMaxHpMultiplier(1f + CharacterRules.Get(_sphereCharacterId).MaxHp)') ||
+  (menuRuntime.includes('ApplyBaseMaxHpMultiplier(1f + CharacterRules.Get(_sphereCharacterId).MaxHp)') &&
+   playerCore.includes('ApplyBaseMaxHpMultiplier(float multiplier)')),
+  'selected character maximum HP modifier must change the actual player Core');
+assert.ok(sphereAttackRuntime.includes('GetCharacterSphereRadiusMultiplier()') &&
+  sphereAttackRuntime.includes('_runtime.GetCharacterSphereRadiusMultiplier()'),
+  'selected character sphere-radius modifier must affect live Sphere attack range');
+assert.ok(menuRuntime.includes('PlayerPrefs.SetString(CharacterPreferenceKey, CharacterRules.ToSourceId(_sphereCharacterId))') &&
+  menuRuntime.includes('ResetCharacterProgress()'),
+  'selected character and its persistent profiles must use source keys and participate in progress reset');
+
 // CI-only workflow guards. The Unity Editor/APK cloud build is intentionally
 // disabled; this workflow must keep validating contracts and project structure
 // without requiring Unity license secrets or invoking GameCI.
