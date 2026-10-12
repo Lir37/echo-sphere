@@ -2797,3 +2797,65 @@ NEXT:
 ======================================================================
 END SOURCE CHARACTER SELECTION AND HUNTER MARK/HUNT
 ======================================================================
+
+[2026-10-13 | ENGINEER RELAY WINDOW, DAMAGE CONSUMPTION AND SOURCE LIGHTNING]
+
+SOURCE / BASELINE:
+- Source branch remains new-desing @737ef2af4a877e0995db5f92331d536d2f29a934; it was not modified.
+- Unity implementation source slice is on unity-migration, relay feature + follow-up timing fixes through
+  49bec5121ce9ab2b6abbd81443f8f41fc2464bc7. Do not reset to an older audit checkpoint.
+
+IMPLEMENTED IN UNITY:
+1. EngineerRelayRules.cs maps source network range exactly: 220 px by default,
+   240 px from mastery II, 260 px from mastery VI. Relay lasts 0.40 s until
+   mastery IV and 0.55 s from mastery IV. The one-use damage multiplier is 1.25.
+2. EchoSphereRuntime owns the source Sphere and active window, clears it on expiry
+   or source deactivation, validates the consumer against the source range, and
+   clears the window after one eligible consumer uses it.
+3. Generic projectile-loop consumers are explicitly Standard, Sniper, Shotgun,
+   Chain and Void, matching src/engineSpheres.ts. Aura, Orbital, Prism, Gravity
+   and Pulse do not consume the generic projectile-loop bonus.
+4. Relay activation is connected to generic attacks, field-hit paths and Orbital
+   contact. Prism, Gravity and Pulse activate on their source cadence even with
+   no target in range; Aura activation still requires an actual field hit.
+5. Engineer mastery XP now includes the source +0.75 XP/s while the relay window
+   is active, in addition to existing connected-network XP.
+6. EngineerRelayVfx2D renders a source-pixel-scaled, two-layer cyan lightning
+   segment using the source drawEnergyBolt wobble, width and alpha proportions.
+   This runtime visual has structural checks but has not been compared on device.
+
+CHECKS:
+- Added pure C# EngineerRelayRules cases for range/mastery thresholds, window
+  duration, 1.25x multiplier, consumer categories, expired/missing/source-node
+  relay rejection and the network-distance boundary.
+- Added Unity-project structural checks for the new core/runtime files and the
+  real runtime call paths.
+- Unity Migration Contracts #265: SUCCESS, 815 C# contract assertions plus
+  Node project preflight/structural guards:
+  https://github.com/Lir37/echo-sphere/actions/runs/38312266665
+- #263 on the first relay commit failed one new structural assertion because
+  the special Sphere types were only represented by a default switch branch.
+  The switch now explicitly enumerates the five special paths; #264 passed.
+  Additional source-order inspection then corrected Prism/Gravity/Pulse trigger
+  timing; final implementation CI #265 passed.
+
+STATUS / OPEN:
+- Engineer Relay code slice: IMPLEMENTED, not yet VERIFIED in real Unity runtime.
+  C# rule contracts and Node structural guards do not compile UnityEngine code.
+- The source Unity scripts were not compiled in a real Unity Editor in this cycle.
+  No Android APK build/install or fresh device/screenshot comparison was run.
+  User's reported visual concerns about Sphere sizing/enemy presentation remain
+  OPEN pending a refreshed APK/device comparison; no arbitrary scale adjustment
+  was made without a proven source mismatch.
+
+NEXT:
+1. Port Conductor Overdrive from src/characterRuntime.ts and its Resonance event
+   flow, including timer thresholds, attack-speed output and mastery/cascade
+   effects. Add numeric contracts and live runtime-path guards.
+2. Continue remaining character abilities / mastery gaps, then Knowledge Archive
+   and full menu/HUD parity. Keep APK and device comparison explicitly pending
+   until actually performed.
+
+======================================================================
+END ENGINEER RELAY WINDOW AND LIGHTNING
+======================================================================
