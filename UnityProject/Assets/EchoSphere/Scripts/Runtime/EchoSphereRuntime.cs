@@ -511,6 +511,17 @@ namespace EchoSphere.Runtime
             _sphereCharacterId = id;
             _characterMasteryLevel = profile.masteryLevel;
             _expandedCharacterId = CharacterRules.ToSourceId(id);
+            if (_mainMenu && _playerCore != null)
+            {
+                var newMaxHp = 100f * (1f + definition.MaxHp) +
+                    PersistentUpgradeRules.GetStartingHpBonus(GetShopUpgradeLevel("hp"));
+                _playerCore.SetMaxHpForNewRun(newMaxHp);
+                for (var i = 0; i < _spheres.Count; i++)
+                {
+                    var sphere = _spheres[i];
+                    if (sphere != null) sphere.ApplyProgressionLevel(sphere.ProgressionLevel);
+                }
+            }
             SaveCharacterProfiles();
             ShowMessage((IsRussianUi ? "ВЫБРАН ПЕРСОНАЖ: " : "CHARACTER SELECTED: ") +
                 (IsRussianUi ? definition.NameRu : definition.NameEn));
