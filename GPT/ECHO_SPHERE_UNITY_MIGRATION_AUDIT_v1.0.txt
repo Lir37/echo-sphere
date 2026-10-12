@@ -2859,3 +2859,72 @@ NEXT:
 ======================================================================
 END ENGINEER RELAY WINDOW AND LIGHTNING
 ======================================================================
+
+[2026-10-13 | CONDUCTOR OVERDRIVE AND RESONANCE CASCADE]
+
+SOURCE / BASELINE:
+- Source remains new-desing @737ef2af4a877e0995db5f92331d536d2f29a934 and was not modified.
+- Unity feature work: deda9bee643a1df1db641dc1cb76ebdb6f6db6e7, followed by source-state
+  correction c73ac6b06df9018793026d141651f266c0ca1b63 and Energy Bolt lifetime match
+  7f357b67e703cb44a58d20acfc600c4987d20a98.
+
+IMPLEMENTED IN UNITY:
+1. Overdrive now activates only from the actual Resonance-event handler; its timer is
+   refreshed with max(existing, source duration) and ticks down in gameplay time.
+   Source duration: 2.0 s at mastery I, 2.5 s from mastery II.
+2. Active Overdrive feeds the live attack-cadence multiplier: +18% normally, +23%
+   from mastery IV, +28% from mastery VIII, in addition to the character base modifier.
+3. Conductor mastery XP now uses +28 XP per actual Resonance event and +1.1 XP/s
+   while Overdrive is active, matching src/characterMastery.ts.
+4. Mastery-III formation discharge effects are connected: Line extends Surge charges
+   (2 from mastery VII); Triangle performs the extra source damage pulse (0.40x base,
+   0.55x from mastery VIII) and an Energy Bolt between the first two active nodes;
+   Cluster advances node attack timers by 0.32 s / 0.48 s from mastery VIII and sets
+   the 0.42 s Resonance pulse state; Square grants its additional +1 / +2 shield
+   charges from mastery VIII.
+5. Cascade activates every third Resonance event from mastery VI, targets 1 / 2 / 3
+   living enemies from mastery VI / VII / IX within 170 source pixels, and applies
+   0.55x base damage. Candidate order follows the source enemy-list iteration.
+6. Source Resonance pulse state now ticks on Sphere runtime and is set for Fractal
+   (0.45 s), Lattice (0.40 s), Triangle (0.38 s), Ring (0.40 s), and Conductor
+   Cluster (0.42 s). The invented generic impact substitute was removed from
+   Conductor Cluster. Conductor Triangle lightning reuses the source-mapped
+   drawEnergyBolt renderer with its source 0.28 s lifetime; Engineer Relay remains
+   at 0.12 s.
+
+FILES:
+- Added Core/ConductorOverdriveRules.cs and its Unity .meta file.
+- Updated EchoSphereRuntime.cs, SphereAttackAgent.cs, CoreChecks/Program.cs and
+  scripts/check-unity-project.mjs.
+- Added numeric tests for Overdrive tiers, duration, geometry effects, Cascade
+  cadence/target count/damage, plus runtime wiring assertions.
+
+VALIDATION:
+- Unity Migration Contracts #267 SUCCESS (Conductor rules/runtime wiring):
+  https://github.com/Lir37/echo-sphere/actions/runs/38312698619
+- #268 SUCCESS (source Resonance pulse timers):
+  https://github.com/Lir37/echo-sphere/actions/runs/38312833338
+- #269 SUCCESS (Energy Bolt source lifetime):
+  https://github.com/Lir37/echo-sphere/actions/runs/38312961557
+- These workflows test pure C# contracts and project structure only. They do not
+  compile UnityEngine runtime scripts in Unity Editor, build/install an APK, or
+  verify visual parity on the physical device.
+
+STILL OPEN:
+- The source Renderer has a dedicated Triangle formation charge/pulse ring around
+  each node, using resonancePulseTimer. The timer is now present, but that specific
+  HUD overlay is not yet rendered/verified in Unity.
+- Real Unity Editor compilation, APK build/install and refreshed device screenshots
+  remain unverified. The user's previous Sphere/enemy size concerns remain open;
+  no unsupported scale coefficient was introduced.
+
+NEXT:
+1. Audit and port Oracle Forecast / reroll preservation from src/characterRuntime.ts
+   and src/engineProgression.ts into the real Unity Level-Up selection path. Preserve
+   exact eligibility, mastery thresholds, reroll/lock interaction and key identity.
+2. Continue remaining unique character abilities/mastery gaps and Knowledge Archive
+   parity; keep Unity Editor, APK and device visual gates explicitly open until run.
+
+======================================================================
+END CONDUCTOR OVERDRIVE AND RESONANCE CASCADE
+======================================================================
