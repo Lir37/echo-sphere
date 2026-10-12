@@ -640,8 +640,25 @@ assert.ok(menuRuntime.includes('GetCharacterGlobalSphereDamageMultiplier()') &&
   menuRuntime.includes('GetCharacterAttackSpeedMultiplier()') &&
   menuRuntime.includes('GetCharacterMoveSpeedMultiplier()') &&
   menuRuntime.includes('GetCharacterDamageTakenMultiplier()') &&
-  menuRuntime.includes('GetCharacterSphereAffinityWeight(_sphereCharacterId, type)'),
+  menuRuntime.includes('CharacterRules.GetSphereAffinityWeight(_sphereCharacterId, type)'),
   'selected character base combat modifiers must be connected to actual Unity runtime call paths');
+assert.ok(menuRuntime.includes('TickCharacterMastery();') &&
+  menuRuntime.includes('Mathf.Clamp(_runTime - _characterMasteryLastTime, 0f, 0.1f)') &&
+  menuRuntime.includes('CharacterRules.GetUpdatedMasteryXp(characterProfile.masteryXp, masteryRunXp)') &&
+  menuRuntime.includes('SaveCharacterProfiles();'),
+  'source character mastery must accumulate during the run and persist once at run completion');
+for (const token of [
+  'if (activeSphereCount >= 4) _characterMasteryRunXp += dt * 0.85f',
+  'eliteDelta * 20f + bossDelta * 45f',
+  'largestNetwork >= 3',
+  'hpRatio <= 0.6f',
+  'statusTargets * dt * 0.07f',
+  'formation.Strength >= 0.9f',
+  'resonanceDelta * 28f',
+  'sphere.NetworkDisabled',
+]) {
+  assert.ok(menuRuntime.includes(token), `source mastery XP rule missing from runtime: ${token}`);
+}
 assert.ok(characterPlayerCore.includes('ApplyBaseMaxHpMultiplier(1f + CharacterRules.Get(_sphereCharacterId).MaxHp)') ||
   (menuRuntime.includes('ApplyBaseMaxHpMultiplier(1f + CharacterRules.Get(_sphereCharacterId).MaxHp)') &&
    characterPlayerCore.includes('ApplyBaseMaxHpMultiplier(float multiplier)')),
