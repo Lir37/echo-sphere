@@ -331,7 +331,7 @@ namespace EchoSphere.Runtime
             try
             {
                 // Source persistence stores a JSON array. Wrap it temporarily for Unity JsonUtility.
-                var data = JsonUtility.FromJson<LeaderboardSaveData>("{\\"entries\\":" + raw + "}");
+                var data = JsonUtility.FromJson<LeaderboardSaveData>("{\\\"entries\\\":" + raw + "}");
                 if (data != null && data.entries != null) entries = data.entries;
             }
             catch
@@ -363,7 +363,7 @@ namespace EchoSphere.Runtime
             if (string.IsNullOrEmpty(raw)) return new List<string>();
             try
             {
-                var data = JsonUtility.FromJson<AchievementSaveData>("{\\"ids\\":" + raw + "}");
+                var data = JsonUtility.FromJson<AchievementSaveData>("{\\\"ids\\\":" + raw + "}");
                 return data != null && data.ids != null ? data.ids : new List<string>();
             }
             catch
@@ -399,7 +399,11 @@ namespace EchoSphere.Runtime
             var goldFormula = _runTime * 0.15d + _bossesDefeated * 25d + _kills * 0.05d;
             _runGoldEarned = (int)System.Math.Floor(goldFormula * difficulty.GoldMultiplier);
             if (_regionStabilized)
-                _runGoldEarned += RegionBossScheduleRules.GetBaseGoldReward(_selectedRegion);
+            {
+                // Exact src/region.ts reward: region base + 5 per elite + 35 per defeated boss.
+                _runGoldEarned += RegionBossScheduleRules.GetBaseGoldReward(_selectedRegion) +
+                    _runEliteKills * 5 + _bossesDefeated * 35;
+            }
             SaveGold(GetGold() + _runGoldEarned);
 
             var fallbackName = IsRussianUi ? "Игрок" : "Player";
@@ -483,17 +487,17 @@ namespace EchoSphere.Runtime
             _regionFieldVisuals = gameObject.AddComponent<RegionFieldVisuals>();
             _regionFieldVisuals.Initialize(this, _selectedRegion);
             CreatePlayer();
+            CreateSpheres();
+            _follow = false;
+            // Source new-desing starts with Formation Follow off. Players can
+            // enable it from the existing control when they choose to.
+            RefreshNetworkState();
             if (PlayerPrefs.GetInt("echo-sphere:start_selected_region_after_reload", 0) == 1)
             {
                 PlayerPrefs.DeleteKey("echo-sphere:start_selected_region_after_reload");
                 PlayerPrefs.Save();
                 BeginSelectedRegionRun();
             }
-            CreateSpheres();
-            _follow = false;
-            // Source new-desing starts with Formation Follow off. Players can
-            // enable it from the existing control when they choose to. 
-            RefreshNetworkState();
         }
 
         private void Update()
