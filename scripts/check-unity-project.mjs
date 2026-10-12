@@ -699,6 +699,20 @@ for (const token of [
 assert.ok(menuRuntime.includes('if (enemy.IsElite && _characterMasteryLevel >= 5') &&
   menuRuntime.includes('_hunterTrophyTimer = 4f') && menuRuntime.includes('_hunterMarkTarget == enemy'),
   'Hunter mastery V Trophy requires killing the active marked Elite and lasts four seconds');
+const hunterParticleRuntime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/HunterParticleVfx2D.cs'), 'utf8');
+for (const token of [
+  'new Color32(184, 71, 90, 255)', 'i < 10', '0.35f, 2.5f',
+  'new Color32(196, 69, 61, 255)', 'i < 18', '0.5f, 3f',
+  'new Vector2(0f, -25f)', 'Mathf.Min(0.16f, _hunterScreenShakeIntensity + 0.04f)',
+  'Mathf.Max(0f, _hunterScreenShakeIntensity - dt)',
+  'shakePixelsX * SpherePlacementRules.SourcePixelsToWorld',
+]) {
+  assert.ok(menuRuntime.includes(token) || hunterParticleRuntime.includes(token),
+    `source Hunter visual/shake behavior missing: ${token}`);
+}
+assert.ok(hunterParticleRuntime.includes('SpherePlacementRules.SourcePixelsToWorld') &&
+  hunterParticleRuntime.includes('point.x * 1.8f') && hunterParticleRuntime.includes('point.y * 0.55f'),
+  'Hunter particles must retain source pixel scaling and elongated diamond silhouettes');
 
 // CI-only workflow guards. The Unity Editor/APK cloud build is intentionally
 // disabled; this workflow must keep validating contracts and project structure
