@@ -27,6 +27,12 @@ namespace EchoSphere.Runtime
             CurrentHp = Mathf.Clamp(MaxHp * ratio, 0f, MaxHp);
         }
 
+        public void SetMaxHpForNewRun(float maxHp)
+        {
+            MaxHp = Mathf.Max(1f, maxHp);
+            CurrentHp = MaxHp;
+        }
+
         public void IncreaseMaxHp(float amount)
         {
             var gain = Mathf.Max(0f, amount);
