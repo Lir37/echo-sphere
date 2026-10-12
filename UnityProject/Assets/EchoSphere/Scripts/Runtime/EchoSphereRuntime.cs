@@ -2750,7 +2750,9 @@ namespace EchoSphere.Runtime
 
         private float GetCharacterMoveSpeedMultiplier() =>
             1f + CharacterRules.Get(_sphereCharacterId).MoveSpeed +
-            (_sphereCharacterId == SphereCharacterId.Hunter && _hunterTrophyTimer > 0f && _characterMasteryLevel >= 5 ? 0.10f : 0f);
+            (_sphereCharacterId == SphereCharacterId.Hunter
+                ? HunterCombatRules.GetTrophyMoveSpeedBonus(_characterMasteryLevel, _hunterTrophyTimer > 0f)
+                : 0f);
 
         private void TickHunterCharacterState(float dt)
         {
@@ -2778,10 +2780,9 @@ namespace EchoSphere.Runtime
         public void RegisterCharacterSphereHit(SphereId source, EnemyAgent2D target)
         {
             if (_sphereCharacterId != SphereCharacterId.Hunter || target == null || !target.IsAlive) return;
-            if (source != SphereId.Sniper && source != SphereId.Chain && source != SphereId.Prism && source != SphereId.Void) return;
-            if (!target.IsBoss && !target.IsElite && !target.IsTank) return;
+            if (!HunterCombatRules.CanMarkTarget(source, target.IsBoss, target.IsElite, target.Archetype)) return;
 
-            var duration = _characterMasteryLevel >= 2 ? 6f : 5f;
+            var duration = HunterCombatRules.GetMarkDuration(_characterMasteryLevel);
             var activeSameTarget = _hunterMarkTarget == target && _hunterMarkTimer > 0f;
             _hunterMarkTarget = target;
             _hunterMarkTimer = duration;
@@ -2793,7 +2794,7 @@ namespace EchoSphere.Runtime
             }
 
             _hunterHitCount++;
-            var threshold = _characterMasteryLevel >= 4 ? 4 : 5;
+            var threshold = HunterCombatRules.GetHuntHitThreshold(_characterMasteryLevel);
             if (_hunterHitCount < threshold) return;
             _hunterHuntTarget = target;
             _hunterHuntTimer = 3f;
@@ -2805,16 +2806,16 @@ namespace EchoSphere.Runtime
             if (_sphereCharacterId != SphereCharacterId.Hunter || target == null ||
                 _hunterMarkTarget != target || _hunterMarkTimer <= 0f) return 1f;
 
-            var markMultiplier = _characterMasteryLevel >= 6 ? 1.25f : 1.20f;
-            var huntMultiplier = _hunterHuntTimer > 0f && _hunterHuntTarget == target
-                ? (_characterMasteryLevel >= 8 ? 1.35f : 1.30f) : 1f;
-            return markMultiplier * huntMultiplier;
+            return HunterCombatRules.GetMarkedDamageMultiplier(
+                _characterMasteryLevel, true, _hunterHuntTimer > 0f && _hunterHuntTarget == target);
         }
 
         private float GetHunterCriticalChanceBonus(EnemyAgent2D target)
         {
-            return _sphereCharacterId == SphereCharacterId.Hunter && _characterMasteryLevel >= 3 &&
-                target != null && _hunterMarkTarget == target && _hunterMarkTimer > 0f ? 0.02f : 0f;
+            return _sphereCharacterId == SphereCharacterId.Hunter
+                ? HunterCombatRules.GetMarkedTargetCritBonus(_characterMasteryLevel,
+                    target != null && _hunterMarkTarget == target && _hunterMarkTimer > 0f)
+                : 0f;
         }
 
         private float GetCharacterDamageTakenMultiplier()
