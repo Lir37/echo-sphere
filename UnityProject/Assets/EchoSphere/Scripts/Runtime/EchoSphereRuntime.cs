@@ -113,6 +113,12 @@ namespace EchoSphere.Runtime
         private bool _architectFormationTracked;
         private SphereNetworkFormation _architectFormationType = SphereNetworkFormation.None;
         private float _architectFormationChangedAt = float.NegativeInfinity;
+        private EnemyAgent2D _hunterMarkTarget;
+        private EnemyAgent2D _hunterHuntTarget;
+        private float _hunterMarkTimer;
+        private float _hunterHuntTimer;
+        private float _hunterTrophyTimer;
+        private int _hunterHitCount;
         private Vector2 _characterScrollPosition;
         private string _expandedCharacterId = "spherist";
         private List<CharacterProfileData> _characterProfiles = new List<CharacterProfileData>();
@@ -681,6 +687,7 @@ namespace EchoSphere.Runtime
             _playerCore.Tick(dt);
             _swiftBootsTimer = Mathf.Max(0f, _swiftBootsTimer - dt);
             _alchemistCatalystTimer = Mathf.Max(0f, _alchemistCatalystTimer - dt);
+            TickHunterCharacterState(dt);
             _playerCore.Heal((Mathf.Max(0f, ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "regen")) + LevelUpAbilityRules.GetRegenPerSecond(GetAbilityLevel(RunUpgradeKind.Regen))) * dt);
             if (_messageTimer > 0f) _messageTimer -= dt;
             _formationMemoryTimer = Mathf.Max(0f, _formationMemoryTimer - dt);
@@ -1308,7 +1315,7 @@ namespace EchoSphere.Runtime
             }
             var agent = go.AddComponent<EnemyAgent2D>();
             agent.Initialize(this, _player, baseHp * profile.HpMultiplier, baseSpeed * profile.SpeedMultiplier, profile.XpReward,
-                GetEnemyVisualVariant(archetype), "", archetype == EnemyArchetype.Elite);
+                GetEnemyVisualVariant(archetype), "", archetype == EnemyArchetype.Elite, archetype);
             _enemies.Add(agent);
         }
         private bool HasActiveBoss()
@@ -2212,6 +2219,23 @@ namespace EchoSphere.Runtime
 
         public void RegisterEnemyDeath(EnemyAgent2D enemy, Vector2 position, int xpReward = 1, SphereId? sourceSphere = null)
         {
+            if (_sphereCharacterId == SphereCharacterId.Hunter && enemy != null)
+            {
+                if (enemy.IsElite && _characterMasteryLevel >= 5 &&
+                    _hunterMarkTarget == enemy && _hunterMarkTimer > 0f)
+                    _hunterTrophyTimer = 4f;
+                if (_hunterMarkTarget == enemy)
+                {
+                    _hunterMarkTarget = null;
+                    _hunterMarkTimer = 0f;
+                    _hunterHitCount = 0;
+                }
+                if (_hunterHuntTarget == enemy)
+                {
+                    _hunterHuntTarget = null;
+                    _hunterHuntTimer = 0f;
+                }
+            }
             _enemies.Remove(enemy);
             if (sourceSphere.HasValue)
             {
@@ -2266,13 +2290,14 @@ namespace EchoSphere.Runtime
             return ResolveProjectileDamage(damage, critChanceBonus, out _);
         }
 
-        public float ResolveProjectileDamage(float damage, float critChanceBonus, out bool wasCritical)
+        public float ResolveProjectileDamage(float damage, float critChanceBonus, out bool wasCritical, EnemyAgent2D target = null)
         {
             var artifactCrit = ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "critChance");
             var abilityCrit = LevelUpAbilityRules.GetCritChanceBonus(GetAbilityLevel(RunUpgradeKind.Crit));
             var shopCrit = PersistentUpgradeRules.GetCritChanceBonus(GetShopUpgradeLevel("crit"));
+            var hunterCrit = GetHunterCriticalChanceBonus(target);
             var critChance = Mathf.Min(CombatRules.CritHardCap, CombatRules.CritBase +
-                Mathf.Max(0f, critChanceBonus + artifactCrit + abilityCrit + shopCrit + GetArchitectFormationCritBonus()));
+                Mathf.Max(0f, critChanceBonus + artifactCrit + abilityCrit + shopCrit + hunterCrit + GetArchitectFormationCritBonus()));
             var result = CombatRules.ResolveDamage(damage, critChance, _rng.NextFloat(), CombatRules.CritMultiplierBase);
             wasCritical = result.WasCritical;
             return result.Damage;
@@ -2723,7 +2748,74 @@ namespace EchoSphere.Runtime
             return multiplier;
         }
 
-        private float GetCharacterMoveSpeedMultiplier() => 1f + CharacterRules.Get(_sphereCharacterId).MoveSpeed;
+        private float GetCharacterMoveSpeedMultiplier() =>
+            1f + CharacterRules.Get(_sphereCharacterId).MoveSpeed +
+            (_sphereCharacterId == SphereCharacterId.Hunter && _hunterTrophyTimer > 0f && _characterMasteryLevel >= 5 ? 0.10f : 0f);
+
+        private void TickHunterCharacterState(float dt)
+        {
+            _hunterMarkTimer = Mathf.Max(0f, _hunterMarkTimer - dt);
+            _hunterHuntTimer = Mathf.Max(0f, _hunterHuntTimer - dt);
+            _hunterTrophyTimer = Mathf.Max(0f, _hunterTrophyTimer - dt);
+
+            if (_hunterMarkTimer <= 0f)
+            {
+                _hunterMarkTarget = null;
+                _hunterHitCount = 0;
+            }
+            if (_hunterHuntTimer <= 0f) _hunterHuntTarget = null;
+            if (_sphereCharacterId != SphereCharacterId.Hunter)
+            {
+                _hunterMarkTarget = null;
+                _hunterHuntTarget = null;
+                _hunterMarkTimer = 0f;
+                _hunterHuntTimer = 0f;
+                _hunterTrophyTimer = 0f;
+                _hunterHitCount = 0;
+            }
+        }
+
+        public void RegisterCharacterSphereHit(SphereId source, EnemyAgent2D target)
+        {
+            if (_sphereCharacterId != SphereCharacterId.Hunter || target == null || !target.IsAlive) return;
+            if (source != SphereId.Sniper && source != SphereId.Chain && source != SphereId.Prism && source != SphereId.Void) return;
+            if (!target.IsBoss && !target.IsElite && !target.IsTank) return;
+
+            var duration = _characterMasteryLevel >= 2 ? 6f : 5f;
+            var activeSameTarget = _hunterMarkTarget == target && _hunterMarkTimer > 0f;
+            _hunterMarkTarget = target;
+            _hunterMarkTimer = duration;
+            target.ApplyMark(duration);
+            if (!activeSameTarget)
+            {
+                _hunterHitCount = 1;
+                return;
+            }
+
+            _hunterHitCount++;
+            var threshold = _characterMasteryLevel >= 4 ? 4 : 5;
+            if (_hunterHitCount < threshold) return;
+            _hunterHuntTarget = target;
+            _hunterHuntTimer = 3f;
+            _hunterHitCount = 0;
+        }
+
+        public float GetHunterMarkedTargetDamageMultiplier(SphereId source, EnemyAgent2D target)
+        {
+            if (_sphereCharacterId != SphereCharacterId.Hunter || target == null ||
+                _hunterMarkTarget != target || _hunterMarkTimer <= 0f) return 1f;
+
+            var markMultiplier = _characterMasteryLevel >= 6 ? 1.25f : 1.20f;
+            var huntMultiplier = _hunterHuntTimer > 0f && _hunterHuntTarget == target
+                ? (_characterMasteryLevel >= 8 ? 1.35f : 1.30f) : 1f;
+            return markMultiplier * huntMultiplier;
+        }
+
+        private float GetHunterCriticalChanceBonus(EnemyAgent2D target)
+        {
+            return _sphereCharacterId == SphereCharacterId.Hunter && _characterMasteryLevel >= 3 &&
+                target != null && _hunterMarkTarget == target && _hunterMarkTimer > 0f ? 0.02f : 0f;
+        }
 
         private float GetCharacterDamageTakenMultiplier()
         {
