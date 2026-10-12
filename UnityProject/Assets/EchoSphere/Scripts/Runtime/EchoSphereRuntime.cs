@@ -331,7 +331,7 @@ namespace EchoSphere.Runtime
             try
             {
                 // Source persistence stores a JSON array. Wrap it temporarily for Unity JsonUtility.
-                var data = JsonUtility.FromJson<LeaderboardSaveData>("{\\\"\entries\":" + raw + "}");
+                var data = JsonUtility.FromJson<LeaderboardSaveData>("{\"entries\":" + raw + "}");
                 if (data != null && data.entries != null) entries = data.entries;
             }
             catch
@@ -363,7 +363,7 @@ namespace EchoSphere.Runtime
             if (string.IsNullOrEmpty(raw)) return new List<string>();
             try
             {
-                var data = JsonUtility.FromJson<AchievementSaveData>("{\\\"\ids\":" + raw + "}");
+                var data = JsonUtility.FromJson<AchievementSaveData>("{\"ids\":" + raw + "}");
                 return data != null && data.ids != null ? data.ids : new List<string>();
             }
             catch
