@@ -2606,3 +2606,85 @@ CI FOLLOW-UP | 2026-10-12
   and `difficulty.EnemySpeedMultiplier` path, while retaining checks for the
   dynamic spawn-rate and incoming-damage multipliers. This checker correction
   does not change gameplay runtime behavior.
+
+
+======================================================================
+2026-10-12 | SOURCE MENU SCREENS AND RUN RESULT PERSISTENCE
+======================================================================
+
+IMPLEMENTATION:
+- Runtime UI and source-compatible persistence were added on top of the then-current
+  Unity migration head 99770052cd24af82dbe98be5c29c4b5b96741182. The current
+  implementation commit is recorded by GitHub on branch unity-migration.
+- Source of truth: new-desing/src/App.tsx, src/gameData.ts, src/persistence.ts,
+  src/region.ts and Unity PersistentUpgradeRules.cs / DifficultyRules.cs.
+
+CHANGES:
+- Added reachable Unity menu pages for Shop, Settings, Leaderboard and Achievements.
+  The entry screen links to those pages without placeholder destinations for
+  character selection or Echo Archive, which are still not ported.
+- Shop purchases use PersistentUpgradeRules costs/caps, deduct the actual
+  echosphere_gold balance, update the seven source upgrade IDs, and persist them
+  under the source-compatible echosphere_shop key.
+- Settings now supports the source language preference, difficulty selection,
+  player-name persistence and a confirmation step before resetting persistent
+  progress. Sound controls, handedness controls and tutorial replay remain open
+  because their runtime subsystems are not yet migrated.
+- Leaderboard reads and writes the source top-level JSON-array shape for
+  echosphere_leaderboard, validates entries, sorts by survival time and retains
+  the top ten rows.
+- On core death, run results are finalized once: gold is awarded using the
+  source formula and selected difficulty multiplier, the leaderboard row is
+  persisted, and supported achievement thresholds are checked against runtime
+  counters. Region-clear reward uses the source base reward plus 5 per elite
+  defeated and 35 per boss defeated.
+- The Achievement screen contains the 12 source definitions and persists IDs
+  using the source echosphere_achievements array schema. Kills, waves, bosses,
+  Sphere evolution choices, elite defeats, opened Stella caches and successful
+  Dashes have runtime counters. combo_50 remains unavailable because the source
+  combo mechanic itself is not yet implemented in the Unity runtime; it is not
+  claimed as migrated.
+- Restart from the end screen now requests a reload into the currently selected
+  region, while the menu action returns to the normal entry screen.
+- Added structural guards for navigation, source shop purchase/persistence,
+  leaderboard and achievement serialization, run-finalization and reset behavior
+  in scripts/check-unity-project.mjs.
+
+STATUS AFTER THIS SLICE:
+- Main-menu navigation: PARTIAL. The implemented destinations are reachable,
+  while Characters/Mastery and Echo Archive remain absent.
+- Persistent Shop screen/purchase path: TRANSFERRED in code, not visually verified.
+- Language, difficulty, name and reset settings: PARTIAL. Sound, handedness and
+  tutorial behavior remain absent.
+- Local leaderboard and supported achievement persistence: PARTIAL. The UI and
+  source-compatible storage shape are implemented, but Unity runtime compilation
+  is unverified and combo_50 cannot yet be earned.
+- Run reward/record save on core death: TRANSFERRED in code, not verified in the
+  Unity Editor or on a device.
+- Visual fidelity for every new page is NOT VERIFIED. The implementation uses
+  Unity IMGUI; no screenshot comparison against the source web/Android UI has
+  been performed.
+
+VALIDATION:
+- Unity Migration Contracts #222 through #226 completed SUCCESS. Latest run at
+  the current implementation/checker revision before this audit update:
+  https://github.com/Lir37/echo-sphere/actions/runs/38205489824
+- CI runs 680 pure C# gameplay contract assertions plus Node structural checks.
+  It does not compile UnityEngine runtime scripts in Unity Editor, create an APK,
+  or verify visual/interaction parity on an Android device.
+- No Unity APK, device installation or manual visual check is claimed.
+- Source branch new-desing remains unchanged at
+  737ef2af4a877e0995db5f92331d536d2f29a934.
+
+NEXT:
+1. Implement source CharacterSelect/character profiles and mastery as a complete
+   gameplay-linked slice from src/CharacterSelect.tsx, src/characters.ts,
+   src/characterMastery.ts and src/persistence.ts. Do not expose characters whose
+   source modifiers/mastery mechanics are not yet wired into Unity runtime.
+2. Then migrate Knowledge Archive and the remaining settings controls.
+3. Continue Region Challenges/Endless, unported abilities and exact HUD/UI parity.
+4. Independently obtain a real Unity Editor compile, Android APK and device
+   validation before marking those gates as verified.
+======================================================================
+END SOURCE MENU SCREENS AND RUN RESULT PERSISTENCE
+======================================================================
