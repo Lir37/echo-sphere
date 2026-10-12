@@ -688,7 +688,7 @@ assert.ok(hunterProjectileRuntime.includes('RegisterCharacterSphereHit(_evolutio
   hunterProjectileRuntime.includes('out var wasCritical, enemy'),
   'projectile Hunter marks are applied before resolving a marked-target critical roll');
 for (const token of [
-  'source == SphereId.Sniper', 'source == SphereId.Chain', 'source == SphereId.Prism', 'source == SphereId.Void',
+    'sphere == SphereId.Sniper', 'sphere == SphereId.Chain', 'sphere == SphereId.Prism', 'sphere == SphereId.Void',
   'archetype == EnemyArchetype.Tank', 'masteryLevel >= 2 ? 6f : 5f',
   'masteryLevel >= 4 ? 4 : 5', 'masteryLevel >= 6 ? 1.25f : 1.20f',
   'masteryLevel >= 8 ? 1.35f : 1.30f', 'masteryLevel >= 3 ? 0.02f : 0f',
