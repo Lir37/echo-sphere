@@ -31,11 +31,78 @@ namespace EchoSphere.Runtime
         }
         [System.Serializable]
         private sealed class ShopSaveData { public ShopUpgradeData upgrades = new ShopUpgradeData(); }
+
+        [System.Serializable]
+        private sealed class LeaderboardEntry
+        {
+            public string name;
+            public float time;
+            public int wave;
+            public long date;
+        }
+
+        [System.Serializable]
+        private sealed class LeaderboardSaveData { public List<LeaderboardEntry> entries = new List<LeaderboardEntry>(); }
+        [System.Serializable]
+        private sealed class AchievementSaveData { public List<string> ids = new List<string>(); }
+
+        private sealed class AchievementDefinition
+        {
+            public readonly string Id;
+            public readonly string NameRu;
+            public readonly string NameEn;
+            public readonly string DescriptionRu;
+            public readonly string DescriptionEn;
+
+            public AchievementDefinition(string id, string nameRu, string nameEn, string descriptionRu, string descriptionEn)
+            {
+                Id = id;
+                NameRu = nameRu;
+                NameEn = nameEn;
+                DescriptionRu = descriptionRu;
+                DescriptionEn = descriptionEn;
+            }
+        }
+
+        private enum MainMenuPage { Home, Shop, Settings, Leaderboard, Achievements }
+
+        private static readonly AchievementDefinition[] SourceAchievements =
+        {
+            new AchievementDefinition("kills_500", "Палач", "Executioner", "Убить 500 врагов", "Kill 500 enemies"),
+            new AchievementDefinition("kills_1000", "Мясник", "Butcher", "Убить 1000 врагов", "Kill 1000 enemies"),
+            new AchievementDefinition("wave_30", "Выживший", "Survivor", "Достичь волны 30", "Reach wave 30"),
+            new AchievementDefinition("wave_50", "Легенда", "Legend", "Достичь волны 50", "Reach wave 50"),
+            new AchievementDefinition("boss_5", "Охотник", "Hunter", "Убить 5 боссов", "Kill 5 bosses"),
+            new AchievementDefinition("boss_10", "Герой", "Hero", "Убить 10 боссов", "Kill 10 bosses"),
+            new AchievementDefinition("evolve_1", "Эволюция", "Evolution", "Эволюционировать способность", "Evolve an ability"),
+            new AchievementDefinition("evolve_3", "Совершенство", "Perfection", "3 эволюции за забег", "3 evolutions in one run"),
+            new AchievementDefinition("elite_10", "Элитный охотник", "Elite Hunter", "Убить 10 элитных врагов", "Kill 10 elite enemies"),
+            new AchievementDefinition("combo_50", "Мастер комбо", "Combo Master", "Комбо x50", "Reach combo x50"),
+            new AchievementDefinition("chest_5", "Сокровищница", "Treasure Hunter", "Открыть 5 сундуков", "Open 5 chests"),
+            new AchievementDefinition("dash_50", "Призрак", "Phantom", "50 рывков за забег", "50 dashes in one run")
+        };
+
         private const string ShopPreferenceKey = "echosphere_shop";
         private const string GoldPreferenceKey = "echosphere_gold";
         private const string DifficultyPreferenceKey = "echosphere_difficulty";
+        private const string LanguagePreferenceKey = "echosphere_lang";
+        private const string NamePreferenceKey = "echosphere_name";
+        private const string LeaderboardPreferenceKey = "echosphere_leaderboard";
+        private const string AchievementPreferenceKey = "echosphere_achievements";
+        private const string SoundPreferenceKey = "echosphere_sound";
+        private const string HandednessPreferenceKey = "echosphere_handedness";
         private ShopSaveData _shopSave;
         private bool _shopSaveLoaded;
+        private MainMenuPage _mainMenuPage = MainMenuPage.Home;
+        private string _playerName = "";
+        private bool _settingsResetPending;
+        private bool _runResultSaved;
+        private int _runGoldEarned;
+        private int _runEliteKills;
+        private int _runEvolutions;
+        private int _runChestOpens;
+        private List<LeaderboardEntry> _leaderboardEntries = new List<LeaderboardEntry>();
+        private List<string> _unlockedAchievementIds = new List<string>();
 
         // Exact picker order from Object.keys(SPHERE_TYPES) in new-desing/src/gameData.ts.
         private static readonly SphereId[] SpherePickerOrder =
@@ -255,10 +322,158 @@ namespace EchoSphere.Runtime
             PlayerPrefs.Save();
         }
 
+        private List<LeaderboardEntry> LoadLeaderboardEntries()
+        {
+            var entries = new List<LeaderboardEntry>();
+            var raw = PlayerPrefs.GetString(LeaderboardPreferenceKey, "");
+            if (string.IsNullOrEmpty(raw)) return entries;
+
+            try
+            {
+                // Source persistence stores a JSON array. Wrap it temporarily for Unity JsonUtility.
+                var data = JsonUtility.FromJson<LeaderboardSaveData>("{\\"entries\\":" + raw + "}");
+                if (data != null && data.entries != null) entries = data.entries;
+            }
+            catch
+            {
+                return new List<LeaderboardEntry>();
+            }
+
+            entries.RemoveAll(entry => entry == null || string.IsNullOrEmpty(entry.name) ||
+                float.IsNaN(entry.time) || float.IsInfinity(entry.time) || entry.time < 0f || entry.wave < 0 || entry.date < 0);
+            entries.Sort((a, b) => b.time.CompareTo(a.time));
+            if (entries.Count > 10) entries.RemoveRange(10, entries.Count - 10);
+            return entries;
+        }
+
+        private void SaveLeaderboardEntries()
+        {
+            var json = JsonUtility.ToJson(new LeaderboardSaveData { entries = _leaderboardEntries });
+            var start = json.IndexOf('[');
+            var end = json.LastIndexOf(']');
+            if (start < 0 || end < start) return;
+            // Keep the exact top-level JSON-array schema used by src/persistence.ts.
+            PlayerPrefs.SetString(LeaderboardPreferenceKey, json.Substring(start, end - start + 1));
+            PlayerPrefs.Save();
+        }
+
+        private List<string> LoadUnlockedAchievementIds()
+        {
+            var raw = PlayerPrefs.GetString(AchievementPreferenceKey, "");
+            if (string.IsNullOrEmpty(raw)) return new List<string>();
+            try
+            {
+                var data = JsonUtility.FromJson<AchievementSaveData>("{\\"ids\\":" + raw + "}");
+                return data != null && data.ids != null ? data.ids : new List<string>();
+            }
+            catch
+            {
+                return new List<string>();
+            }
+        }
+
+        private void SaveUnlockedAchievementIds()
+        {
+            var json = JsonUtility.ToJson(new AchievementSaveData { ids = _unlockedAchievementIds });
+            var start = json.IndexOf('[');
+            var end = json.LastIndexOf(']');
+            if (start < 0 || end < start) return;
+            // Source stores an array of IDs, not a Unity-specific wrapper object.
+            PlayerPrefs.SetString(AchievementPreferenceKey, json.Substring(start, end - start + 1));
+            PlayerPrefs.Save();
+        }
+
+        private void UnlockAchievementIf(bool condition, string id)
+        {
+            if (!condition || _unlockedAchievementIds.Contains(id)) return;
+            _unlockedAchievementIds.Add(id);
+            SaveUnlockedAchievementIds();
+        }
+
+        private void FinalizeRunResult()
+        {
+            if (_runResultSaved) return;
+            _runResultSaved = true;
+
+            var difficulty = CurrentDifficulty;
+            var goldFormula = _runTime * 0.15d + _bossesDefeated * 25d + _kills * 0.05d;
+            _runGoldEarned = (int)System.Math.Floor(goldFormula * difficulty.GoldMultiplier);
+            if (_regionStabilized)
+                _runGoldEarned += RegionBossScheduleRules.GetBaseGoldReward(_selectedRegion);
+            SaveGold(GetGold() + _runGoldEarned);
+
+            var fallbackName = IsRussianUi ? "Игрок" : "Player";
+            var entry = new LeaderboardEntry
+            {
+                name = string.IsNullOrEmpty(_playerName) ? fallbackName : _playerName,
+                time = Mathf.FloorToInt(_runTime),
+                wave = _wave,
+                date = System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
+            };
+            var isNewRecord = _leaderboardEntries.Count == 0 || entry.time > _leaderboardEntries[0].time;
+            _leaderboardEntries.Add(entry);
+            _leaderboardEntries.Sort((a, b) => b.time.CompareTo(a.time));
+            if (_leaderboardEntries.Count > 10) _leaderboardEntries.RemoveRange(10, _leaderboardEntries.Count - 10);
+            SaveLeaderboardEntries();
+
+            UnlockAchievementIf(_kills >= 500, "kills_500");
+            UnlockAchievementIf(_kills >= 1000, "kills_1000");
+            UnlockAchievementIf(_wave >= 30, "wave_30");
+            UnlockAchievementIf(_wave >= 50, "wave_50");
+            UnlockAchievementIf(_bossesDefeated >= 5, "boss_5");
+            UnlockAchievementIf(_bossesDefeated >= 10, "boss_10");
+            UnlockAchievementIf(_runEvolutions >= 1, "evolve_1");
+            UnlockAchievementIf(_runEvolutions >= 3, "evolve_3");
+            UnlockAchievementIf(_runEliteKills >= 10, "elite_10");
+            UnlockAchievementIf(_runChestOpens >= 5, "chest_5");
+            UnlockAchievementIf(_playerCore != null && _playerCore.DashCount >= 50, "dash_50");
+
+            if (isNewRecord) ShowMessage(IsRussianUi ? "НОВЫЙ РЕКОРД!" : "NEW RECORD!");
+            else ShowMessage(IsRussianUi ? "РЕЗУЛЬТАТ СОХРАНЁН" : "RUN RESULT SAVED");
+        }
+
+        private void ResetPersistentProgress()
+        {
+            PlayerPrefs.DeleteKey(GoldPreferenceKey);
+            PlayerPrefs.DeleteKey(ShopPreferenceKey);
+            PlayerPrefs.DeleteKey(LeaderboardPreferenceKey);
+            PlayerPrefs.DeleteKey(AchievementPreferenceKey);
+            PlayerPrefs.DeleteKey(DifficultyPreferenceKey);
+            PlayerPrefs.DeleteKey(SoundPreferenceKey);
+            PlayerPrefs.DeleteKey(HandednessPreferenceKey);
+            PlayerPrefs.DeleteKey(LanguagePreferenceKey);
+            PlayerPrefs.DeleteKey(NamePreferenceKey);
+            PlayerPrefs.DeleteKey("echosphere_character");
+            PlayerPrefs.DeleteKey("echosphere_character_profiles");
+            PlayerPrefs.DeleteKey("echosphere_knowledge_v1");
+            PlayerPrefs.DeleteKey("echosphere_tutorial_completed_v1");
+            PlayerPrefs.DeleteKey("echo-sphere:region:resonance_basin:stabilized");
+            PlayerPrefs.DeleteKey("echo-sphere:region:resonance_basin:challenges");
+            PlayerPrefs.DeleteKey("echo-sphere:region:resonance_basin:endless");
+            PlayerPrefs.DeleteKey("echo-sphere:region:spectral_rift:stabilized");
+            PlayerPrefs.DeleteKey("echo-sphere:region:spectral_rift:challenges");
+            PlayerPrefs.DeleteKey("echo-sphere:region:spectral_rift:endless");
+            PlayerPrefs.DeleteKey(SelectedRegionPreferenceKey);
+            PlayerPrefs.Save();
+
+            _shopSave = new ShopSaveData();
+            _shopSaveLoaded = true;
+            _playerName = "";
+            _leaderboardEntries.Clear();
+            _unlockedAchievementIds.Clear();
+            _selectedRegion = EchoRegionId.ResonanceBasin;
+            _settingsResetPending = false;
+            _mainMenuPage = MainMenuPage.Home;
+            ShowMessage(IsRussianUi ? "ПРОГРЕСС СБРОШЕН" : "PROGRESS RESET");
+        }
+
         private void Start()
         {
             Application.targetFrameRate = 60;
             EnsureShopSaveLoaded();
+            _playerName = PlayerPrefs.GetString(NamePreferenceKey, "");
+            _leaderboardEntries = LoadLeaderboardEntries();
+            _unlockedAchievementIds = LoadUnlockedAchievementIds();
             ConfigureCamera();
             CreateStarfield();
             var savedRegionValue = PlayerPrefs.GetInt(SelectedRegionPreferenceKey, (int)EchoRegionId.ResonanceBasin);
@@ -268,6 +483,12 @@ namespace EchoSphere.Runtime
             _regionFieldVisuals = gameObject.AddComponent<RegionFieldVisuals>();
             _regionFieldVisuals.Initialize(this, _selectedRegion);
             CreatePlayer();
+            if (PlayerPrefs.GetInt("echo-sphere:start_selected_region_after_reload", 0) == 1)
+            {
+                PlayerPrefs.DeleteKey("echo-sphere:start_selected_region_after_reload");
+                PlayerPrefs.Save();
+                BeginSelectedRegionRun();
+            }
             CreateSpheres();
             _follow = false;
             // Source new-desing starts with Formation Follow off. Players can
@@ -321,6 +542,7 @@ namespace EchoSphere.Runtime
             {
                 _gameOver = true;
                 _paused = true;
+                FinalizeRunResult();
                 ShowMessage(IsRussianUi ? "ЯДРО РАЗРУШЕНО" : "CORE DESTROYED");
                 return;
             }
@@ -342,6 +564,7 @@ namespace EchoSphere.Runtime
             {
                 _gameOver = true;
                 _paused = true;
+                FinalizeRunResult();
                 ShowMessage(IsRussianUi ? "ЯДРО РАЗРУШЕНО" : "CORE DESTROYED");
             }
         }
@@ -1785,6 +2008,7 @@ namespace EchoSphere.Runtime
                 _stellaRewardChoices.AddRange(ArtifactRewardRules.PickChoices(_ownedArtifacts, _rng.NextFloat, false,
                     ArtifactRewardRules.BaseStellaChoiceCount));
             if (_stellaRewardChoices.Count == 0) { ShowMessage("STELLA CACHE EMPTY"); return; }
+            _runChestOpens++;
             _stellaRewardPending = true;
             _userPaused = false;
             _paused = true;
@@ -1824,6 +2048,7 @@ namespace EchoSphere.Runtime
                 SpawnStellaChest(position);
                 ShowMessage("BOSS DEFEATED!");
             }
+            if (enemy != null && enemy.IsElite) _runEliteKills++;
             _kills++;
             var go = new GameObject("Echo Shard");
             go.transform.position = position;
@@ -2272,6 +2497,7 @@ namespace EchoSphere.Runtime
                 _sphereBranches[_pendingEvolutionSphere] = option.Id;
                 ShowMessage("Mutation branch: " + option.Name);
             }
+            _runEvolutions++;
             _choosingEvolution = false;
             _pendingFinalEvolution = false;
             _evolutionChoices.Clear();
@@ -2482,7 +2708,7 @@ namespace EchoSphere.Runtime
         }
 
         private static bool IsRussianUi =>
-            PlayerPrefs.GetString("echosphere_lang", Application.systemLanguage == SystemLanguage.English ? "en" : "ru") != "en";
+            PlayerPrefs.GetString(LanguagePreferenceKey, Application.systemLanguage == SystemLanguage.English ? "en" : "ru") != "en";
 
         private static Texture2D CreateUiTexture(Color color)
         {
@@ -2500,6 +2726,368 @@ namespace EchoSphere.Runtime
 
         private void DrawMainMenu()
         {
+            switch (_mainMenuPage)
+            {
+                case MainMenuPage.Shop: DrawShopScreen(); return;
+                case MainMenuPage.Settings: DrawSettingsScreen(); return;
+                case MainMenuPage.Leaderboard: DrawLeaderboardScreen(); return;
+                case MainMenuPage.Achievements: DrawAchievementsScreen(); return;
+            }
+
+            var previousColor = GUI.color;
+            GUI.color = new Color(0.008f, 0.018f, 0.055f, 0.98f);
+            GUI.DrawTexture(new Rect(0f, 0f, _uiWidth, _uiHeight), _uiPanelTexture);
+            GUI.color = new Color(0.08f, 0.54f, 0.94f, 0.7f);
+            GUI.DrawTexture(new Rect(0f, 0f, _uiWidth, 3f), _uiAccentTexture);
+            GUI.DrawTexture(new Rect(0f, _uiHeight - 3f, _uiWidth, 3f), _uiAccentTexture);
+            GUI.color = previousColor;
+
+            var width = Mathf.Min(620f, _uiWidth - 32f);
+            var height = Mathf.Min(560f, _uiHeight - 28f);
+            var panel = new Rect((_uiWidth - width) * 0.5f, (_uiHeight - height) * 0.5f, width, height);
+            GUI.Box(panel, GUIContent.none, _box);
+            GUI.color = new Color(0.1f, 0.68f, 1f, 0.9f);
+            GUI.DrawTexture(new Rect(panel.x + 28f, panel.y + 24f, panel.width - 56f, 2f), _uiAccentTexture);
+            GUI.color = previousColor;
+
+            var logoSize = Mathf.Min(88f, height * 0.18f);
+            var coreLogo = RuntimeSpriteFactory.LoadAuthored("player") ?? RuntimeSpriteFactory.Faceted;
+            DrawSpriteIcon(new Rect(panel.center.x - logoSize * 0.5f, panel.y + 28f, logoSize, logoSize), coreLogo, Color.white);
+            DrawSpriteIcon(new Rect(panel.center.x - logoSize * 0.64f, panel.y + 23f, logoSize * 1.28f, logoSize * 1.28f), RuntimeSpriteFactory.Ring, new Color(0.22f, 0.67f, 1f, 0.8f));
+            GUI.Label(new Rect(panel.x + 24f, panel.y + 115f, panel.width - 48f, 42f), "ECHO SPHERE", _menuTitle);
+            GUI.Label(new Rect(panel.x + 24f, panel.y + 157f, panel.width - 48f, 23f),
+                IsRussianUi ? "СИСТЕМА ВЫЖИВАНИЯ РЕЗОНАНСА" : "RESONANCE SURVIVAL PROTOCOL", _label);
+
+            var characterArt = RuntimeSpriteFactory.LoadAuthored("character-spherist-3q");
+            if (characterArt != null)
+            {
+                DrawSpriteIcon(new Rect(panel.x + 34f, panel.y + 185f, 76f, 96f), characterArt, Color.white);
+                GUI.Label(new Rect(panel.x + 128f, panel.y + 198f, panel.width - 160f, 48f),
+                    IsRussianUi ? "СФЕРИСТ  /  УНИВЕРСАЛ" : "SPHERIST  /  ALL-ROUNDER", _label);
+                GUI.Label(new Rect(panel.x + 128f, panel.y + 229f, panel.width - 160f, 45f),
+                    IsRussianUi ? "Сохраняй Core. Собирай сеть Сфер. Меняй ход боя." : "Keep the Core alive. Build your Sphere network. Bend the battlefield.", _label);
+            }
+            else
+            {
+                GUI.Label(new Rect(panel.x + 34f, panel.y + 205f, panel.width - 68f, 48f),
+                    IsRussianUi ? "Сохраняй Core. Собирай сеть Сфер. Меняй ход боя." : "Keep the Core alive. Build your Sphere network. Bend the battlefield.", _label);
+            }
+
+            GUI.Label(new Rect(panel.x + 34f, panel.y + height - 276f, 76f, 26f), "ID", _label);
+            var enteredName = GUI.TextField(new Rect(panel.x + 100f, panel.y + height - 280f, panel.width - 134f, 30f), _playerName, 16, _button);
+            if (enteredName != _playerName)
+            {
+                _playerName = enteredName;
+                PlayerPrefs.SetString(NamePreferenceKey, _playerName);
+                PlayerPrefs.Save();
+            }
+
+            GUI.Label(new Rect(panel.x + 34f, panel.y + height - 238f, 96f, 28f),
+                IsRussianUi ? "СЛОЖНОСТЬ" : "DIFFICULTY", _label);
+            var difficultyIds = new[] { "easy", "normal", "hard", "nightmare" };
+            var difficultyLabels = IsRussianUi
+                ? new[] { "ЛЁГКАЯ", "ОБЫЧНАЯ", "СЛОЖНАЯ", "КОШМАР" }
+                : new[] { "EASY", "NORMAL", "HARD", "NIGHTMARE" };
+            var currentDifficulty = PlayerPrefs.GetString(DifficultyPreferenceKey, "normal");
+            var difficultyLeft = panel.x + 126f;
+            var difficultyWidth = (panel.width - 160f) / 4f;
+            for (var i = 0; i < difficultyIds.Length; i++)
+            {
+                var rect = new Rect(difficultyLeft + i * difficultyWidth, panel.y + height - 240f, difficultyWidth - 4f, 30f);
+                var oldColor = GUI.color;
+                GUI.color = currentDifficulty == difficultyIds[i] ? new Color(0.25f, 0.82f, 1f, 1f) : Color.white;
+                if (GUI.Button(rect, difficultyLabels[i], _button))
+                {
+                    PlayerPrefs.SetString(DifficultyPreferenceKey, difficultyIds[i]);
+                    PlayerPrefs.Save();
+                }
+                GUI.color = oldColor;
+            }
+
+            var buttonWidth = Mathf.Min(330f, panel.width - 60f);
+            var runButton = new Rect(panel.center.x - buttonWidth * 0.5f, panel.y + height - 188f, buttonWidth, 48f);
+            if (GUI.Button(runButton, IsRussianUi ? "ВЫБРАТЬ ЗАБЕГ" : "SELECT RUN", _button))
+            {
+                _regionSelect = true;
+            }
+
+            var navY = panel.y + height - 124f;
+            var navLeft = panel.x + 22f;
+            var navGap = 7f;
+            var navWidth = (panel.width - 44f - navGap * 3f) / 4f;
+            if (GUI.Button(new Rect(navLeft, navY, navWidth, 38f), IsRussianUi ? "МАГАЗИН" : "SHOP", _button))
+                _mainMenuPage = MainMenuPage.Shop;
+            if (GUI.Button(new Rect(navLeft + (navWidth + navGap), navY, navWidth, 38f), IsRussianUi ? "НАСТРОЙКИ" : "SETTINGS", _button))
+                _mainMenuPage = MainMenuPage.Settings;
+            if (GUI.Button(new Rect(navLeft + (navWidth + navGap) * 2f, navY, navWidth, 38f), IsRussianUi ? "РЕКОРДЫ" : "RECORDS", _button))
+                _mainMenuPage = MainMenuPage.Leaderboard;
+            if (GUI.Button(new Rect(navLeft + (navWidth + navGap) * 3f, navY, navWidth, 38f), IsRussianUi ? "ДОСТИЖЕНИЯ" : "ACHIEVEMENTS", _button))
+                _mainMenuPage = MainMenuPage.Achievements;
+
+            GUI.Label(new Rect(panel.x + 24f, panel.y + height - 76f, panel.width - 48f, 34f),
+                IsRussianUi ? "Движение: правая часть экрана · Сферы: левая часть · Рывок: кнопка DASH" :
+                "Move: right half · Spheres: left half · Evade: DASH", _label);
+            GUI.color = new Color(0.33f, 0.76f, 1f, 0.6f);
+            GUI.DrawTexture(new Rect(panel.x + 28f, panel.y + height - 24f, panel.width - 56f, 1f), _uiAccentTexture);
+            GUI.color = previousColor;
+        }
+
+        private Rect DrawMenuScreenFrame(string title, string subtitle, float preferredHeight)
+        {
+            var previousColor = GUI.color;
+            GUI.color = new Color(0.008f, 0.018f, 0.055f, 0.98f);
+            GUI.DrawTexture(new Rect(0f, 0f, _uiWidth, _uiHeight), _uiPanelTexture);
+            GUI.color = new Color(0.08f, 0.54f, 0.94f, 0.7f);
+            GUI.DrawTexture(new Rect(0f, 0f, _uiWidth, 3f), _uiAccentTexture);
+            GUI.color = previousColor;
+
+            var width = Mathf.Min(760f, _uiWidth - 28f);
+            var height = Mathf.Min(preferredHeight, _uiHeight - 28f);
+            var panel = new Rect((_uiWidth - width) * 0.5f, (_uiHeight - height) * 0.5f, width, height);
+            GUI.Box(panel, GUIContent.none, _box);
+            GUI.Label(new Rect(panel.x + 22f, panel.y + 16f, panel.width - 44f, 38f), title, _menuTitle);
+            GUI.Label(new Rect(panel.x + 22f, panel.y + 58f, panel.width - 44f, 24f), subtitle, _label);
+            GUI.color = new Color(0.1f, 0.68f, 1f, 0.7f);
+            GUI.DrawTexture(new Rect(panel.x + 22f, panel.y + 88f, panel.width - 44f, 2f), _uiAccentTexture);
+            GUI.color = previousColor;
+            return panel;
+        }
+
+        private void DrawShopScreen()
+        {
+            var panel = DrawMenuScreenFrame(
+                IsRussianUi ? "МАГАЗИН ПОСТОЯННЫХ УЛУЧШЕНИЙ" : "PERMANENT UPGRADES",
+                (IsRussianUi ? "ЗОЛОТО" : "GOLD") + "  ●  " + GetGold(), 620f);
+            var ids = PersistentUpgradeRules.Ids;
+            var rowTop = panel.y + 101f;
+            var rowHeight = 58f;
+            var left = panel.x + 20f;
+            var rowWidth = panel.width - 40f;
+            for (var i = 0; i < ids.Length; i++)
+            {
+                var id = ids[i];
+                var level = GetShopUpgradeLevel(id);
+                var maxLevel = PersistentUpgradeRules.GetMaxLevel(id);
+                var cost = PersistentUpgradeRules.GetCost(id, level);
+                var row = new Rect(left, rowTop + i * rowHeight, rowWidth, rowHeight - 5f);
+                GUI.Box(row, GUIContent.none, _box);
+                GUI.Label(new Rect(row.x + 12f, row.y + 4f, row.width * 0.54f, 22f),
+                    GetShopUpgradeName(id), _label);
+                GUI.Label(new Rect(row.x + 12f, row.y + 25f, row.width * 0.54f, 20f),
+                    GetShopUpgradeDescription(id) + "  ·  " + (IsRussianUi ? "КУПЛЕНО" : "OWNED") + " " + level + "/" + maxLevel,
+                    _sphereDescriptionStyle);
+                var buyRect = new Rect(row.xMax - 160f, row.y + 6f, 146f, row.height - 12f);
+                var canBuy = level < maxLevel && GetGold() >= cost;
+                var oldEnabled = GUI.enabled;
+                GUI.enabled = canBuy;
+                var buttonLabel = level >= maxLevel
+                    ? (IsRussianUi ? "МАКС." : "MAX")
+                    : cost.ToString() + "  ●";
+                if (GUI.Button(buyRect, buttonLabel, _button))
+                    PurchasePersistentUpgrade(id);
+                GUI.enabled = oldEnabled;
+            }
+
+            if (GUI.Button(new Rect(panel.x + 22f, panel.yMax - 48f, 132f, 34f),
+                IsRussianUi ? "НАЗАД" : "BACK", _button))
+                _mainMenuPage = MainMenuPage.Home;
+            GUI.Label(new Rect(panel.x + 168f, panel.yMax - 45f, panel.width - 190f, 28f),
+                IsRussianUi ? "Цена следующего уровня растёт в 3 раза." : "Each next level costs 3× more.", _label);
+        }
+
+        private string GetShopUpgradeName(string id)
+        {
+            switch (id)
+            {
+                case "dmg": return IsRussianUi ? "Урон сфер" : "Sphere Damage";
+                case "radius": return IsRussianUi ? "Радиус сфер" : "Sphere Radius";
+                case "speed": return IsRussianUi ? "Скорость движения" : "Move Speed";
+                case "spheres": return IsRussianUi ? "Стартовые сферы" : "Start Spheres";
+                case "hp": return IsRussianUi ? "Стартовое HP" : "Start HP";
+                case "crit": return IsRussianUi ? "Шанс крита" : "Crit Chance";
+                case "xp": return IsRussianUi ? "Получаемый опыт" : "XP Gain";
+                default: return id;
+            }
+        }
+
+        private string GetShopUpgradeDescription(string id)
+        {
+            switch (id)
+            {
+                case "dmg": return "+5% " + (IsRussianUi ? "урона" : "damage");
+                case "radius": return "+5% " + (IsRussianUi ? "радиуса" : "radius");
+                case "speed": return "+5% " + (IsRussianUi ? "скорости" : "speed");
+                case "spheres": return "+1 " + (IsRussianUi ? "сфера" : "sphere");
+                case "hp": return "+10 HP";
+                case "crit": return "+5% " + (IsRussianUi ? "шанс крита" : "crit chance");
+                case "xp": return "+5% " + (IsRussianUi ? "опыта" : "XP");
+                default: return "";
+            }
+        }
+
+        private void PurchasePersistentUpgrade(string id)
+        {
+            var level = GetShopUpgradeLevel(id);
+            var cost = PersistentUpgradeRules.GetCost(id, level);
+            if (level >= PersistentUpgradeRules.GetMaxLevel(id) || cost <= 0 || GetGold() < cost) return;
+            _shopSave.upgrades.Set(id, level + 1);
+            SaveGold(GetGold() - cost);
+            SaveShopState();
+            ShowMessage((IsRussianUi ? "КУПЛЕНО: " : "PURCHASED: ") + GetShopUpgradeName(id));
+        }
+
+        private void DrawSettingsScreen()
+        {
+            var panel = DrawMenuScreenFrame(
+                IsRussianUi ? "НАСТРОЙКИ" : "SETTINGS",
+                IsRussianUi ? "ЯЗЫК · СЛОЖНОСТЬ · ПРОГРЕСС" : "LANGUAGE · DIFFICULTY · PROGRESS", 570f);
+
+            GUI.Label(new Rect(panel.x + 28f, panel.y + 112f, 150f, 28f),
+                IsRussianUi ? "ЯЗЫК / LANGUAGE" : "LANGUAGE", _label);
+            var ruRect = new Rect(panel.x + 198f, panel.y + 106f, 190f, 40f);
+            var enRect = new Rect(panel.x + 402f, panel.y + 106f, 190f, 40f);
+            var lang = PlayerPrefs.GetString(LanguagePreferenceKey, Application.systemLanguage == SystemLanguage.English ? "en" : "ru");
+            var oldColor = GUI.color;
+            GUI.color = lang == "ru" ? new Color(0.25f, 0.82f, 1f, 1f) : Color.white;
+            if (GUI.Button(ruRect, "Русский", _button)) { PlayerPrefs.SetString(LanguagePreferenceKey, "ru"); PlayerPrefs.Save(); }
+            GUI.color = lang == "en" ? new Color(0.25f, 0.82f, 1f, 1f) : Color.white;
+            if (GUI.Button(enRect, "English", _button)) { PlayerPrefs.SetString(LanguagePreferenceKey, "en"); PlayerPrefs.Save(); }
+            GUI.color = oldColor;
+
+            GUI.Label(new Rect(panel.x + 28f, panel.y + 170f, 150f, 28f),
+                IsRussianUi ? "СЛОЖНОСТЬ" : "DIFFICULTY", _label);
+            var difficultyIds = new[] { "easy", "normal", "hard", "nightmare" };
+            var difficultyLabels = IsRussianUi
+                ? new[] { "ЛЁГКАЯ", "ОБЫЧНАЯ", "СЛОЖНАЯ", "КОШМАР" }
+                : new[] { "EASY", "NORMAL", "HARD", "NIGHTMARE" };
+            var currentDifficulty = PlayerPrefs.GetString(DifficultyPreferenceKey, "normal");
+            var difficultyLeft = panel.x + 198f;
+            var difficultyWidth = (panel.width - 226f) / 4f;
+            for (var i = 0; i < difficultyIds.Length; i++)
+            {
+                var rect = new Rect(difficultyLeft + i * difficultyWidth, panel.y + 164f, difficultyWidth - 5f, 40f);
+                oldColor = GUI.color;
+                GUI.color = currentDifficulty == difficultyIds[i] ? new Color(0.25f, 0.82f, 1f, 1f) : Color.white;
+                if (GUI.Button(rect, difficultyLabels[i], _button))
+                {
+                    PlayerPrefs.SetString(DifficultyPreferenceKey, difficultyIds[i]);
+                    PlayerPrefs.Save();
+                }
+                GUI.color = oldColor;
+            }
+
+            GUI.Label(new Rect(panel.x + 28f, panel.y + 232f, 150f, 26f),
+                IsRussianUi ? "ИМЯ ИГРОКА" : "PLAYER NAME", _label);
+            var nameValue = GUI.TextField(new Rect(panel.x + 198f, panel.y + 225f, panel.width - 228f, 34f), _playerName, 16, _button);
+            if (nameValue != _playerName)
+            {
+                _playerName = nameValue;
+                PlayerPrefs.SetString(NamePreferenceKey, _playerName);
+                PlayerPrefs.Save();
+            }
+
+            GUI.Label(new Rect(panel.x + 28f, panel.y + 286f, panel.width - 56f, 70f),
+                IsRussianUi
+                    ? "Движение: правая часть экрана. Размещение и перемещение Сфер: левая часть. DASH выполняет рывок."
+                    : "Movement: right half of the screen. Sphere placement and dragging: left half. DASH performs a quick evade.",
+                _sphereDescriptionStyle);
+
+            if (!_settingsResetPending)
+            {
+                if (GUI.Button(new Rect(panel.center.x - 165f, panel.y + 370f, 330f, 44f),
+                    IsRussianUi ? "СБРОСИТЬ ВЕСЬ ПРОГРЕСС" : "RESET ALL PROGRESS", _button))
+                    _settingsResetPending = true;
+            }
+            else
+            {
+                GUI.Label(new Rect(panel.x + 30f, panel.y + 363f, panel.width - 60f, 34f),
+                    IsRussianUi ? "Удалить золото, улучшения, рекорды и достижения?" :
+                    "Delete gold, upgrades, records and achievements?", _label);
+                if (GUI.Button(new Rect(panel.center.x - 175f, panel.y + 405f, 165f, 42f),
+                    IsRussianUi ? "ОТМЕНА" : "CANCEL", _button))
+                    _settingsResetPending = false;
+                if (GUI.Button(new Rect(panel.center.x + 10f, panel.y + 405f, 165f, 42f),
+                    IsRussianUi ? "ПОДТВЕРДИТЬ" : "CONFIRM", _button))
+                    ResetPersistentProgress();
+            }
+
+            if (GUI.Button(new Rect(panel.x + 22f, panel.yMax - 48f, 132f, 34f),
+                IsRussianUi ? "НАЗАД" : "BACK", _button))
+            {
+                _settingsResetPending = false;
+                _mainMenuPage = MainMenuPage.Home;
+            }
+        }
+
+        private void DrawLeaderboardScreen()
+        {
+            var panel = DrawMenuScreenFrame(
+                IsRussianUi ? "РЕКОРДЫ ЗАБЕГА" : "RUN RECORDS",
+                IsRussianUi ? "ТОП-10 ПО ВРЕМЕНИ ВЫЖИВАНИЯ" : "TOP 10 BY SURVIVAL TIME", 610f);
+
+            if (_leaderboardEntries.Count == 0)
+            {
+                GUI.Label(new Rect(panel.x + 30f, panel.y + 150f, panel.width - 60f, 48f),
+                    IsRussianUi ? "ПОКА НЕТ РЕЗУЛЬТАТОВ" : "NO SCORES YET", _label);
+            }
+            else
+            {
+                var left = panel.x + 22f;
+                var tableWidth = panel.width - 44f;
+                GUI.Label(new Rect(left, panel.y + 101f, tableWidth * 0.14f, 24f),
+                    IsRussianUi ? "МЕСТО" : "RANK", _label);
+                GUI.Label(new Rect(left + tableWidth * 0.16f, panel.y + 101f, tableWidth * 0.46f, 24f),
+                    IsRussianUi ? "ИГРОК" : "PLAYER", _label);
+                GUI.Label(new Rect(left + tableWidth * 0.66f, panel.y + 101f, tableWidth * 0.14f, 24f),
+                    IsRussianUi ? "ВОЛНА" : "WAVE", _label);
+                GUI.Label(new Rect(left + tableWidth * 0.82f, panel.y + 101f, tableWidth * 0.17f, 24f),
+                    IsRussianUi ? "ВРЕМЯ" : "TIME", _label);
+
+                for (var i = 0; i < _leaderboardEntries.Count; i++)
+                {
+                    var entry = _leaderboardEntries[i];
+                    var rowY = panel.y + 128f + i * 35f;
+                    GUI.Box(new Rect(left, rowY, tableWidth, 32f), GUIContent.none, _box);
+                    GUI.Label(new Rect(left + 10f, rowY + 4f, tableWidth * 0.14f, 24f), "#" + (i + 1), _label);
+                    GUI.Label(new Rect(left + tableWidth * 0.16f, rowY + 4f, tableWidth * 0.46f, 24f), entry.name, _label);
+                    GUI.Label(new Rect(left + tableWidth * 0.66f, rowY + 4f, tableWidth * 0.14f, 24f), entry.wave.ToString(), _label);
+                    GUI.Label(new Rect(left + tableWidth * 0.82f, rowY + 4f, tableWidth * 0.17f, 24f), Mathf.FloorToInt(entry.time) + "s", _label);
+                }
+            }
+
+            if (GUI.Button(new Rect(panel.x + 22f, panel.yMax - 48f, 132f, 34f),
+                IsRussianUi ? "НАЗАД" : "BACK", _button))
+                _mainMenuPage = MainMenuPage.Home;
+        }
+
+        private void DrawAchievementsScreen()
+        {
+            var panel = DrawMenuScreenFrame(
+                IsRussianUi ? "ДОСТИЖЕНИЯ" : "ACHIEVEMENTS",
+                (IsRussianUi ? "ОТКРЫТО" : "UNLOCKED") + "  " + _unlockedAchievementIds.Count + "/" + SourceAchievements.Length, 620f);
+            for (var i = 0; i < SourceAchievements.Length; i++)
+            {
+                var achievement = SourceAchievements[i];
+                var unlocked = _unlockedAchievementIds.Contains(achievement.Id);
+                var rowY = panel.y + 101f + i * 35f;
+                GUI.Box(new Rect(panel.x + 22f, rowY, panel.width - 44f, 32f), GUIContent.none, _box);
+                var statusColor = GUI.color;
+                GUI.color = unlocked ? new Color(1f, 0.73f, 0.28f, 1f) : new Color(0.52f, 0.68f, 0.82f, 0.75f);
+                GUI.Label(new Rect(panel.x + 34f, rowY + 2f, 210f, 24f),
+                    IsRussianUi ? achievement.NameRu : achievement.NameEn, _label);
+                GUI.color = statusColor;
+                GUI.Label(new Rect(panel.x + 248f, rowY + 2f, panel.width - 370f, 24f),
+                    IsRussianUi ? achievement.DescriptionRu : achievement.DescriptionEn, _sphereDescriptionStyle);
+                GUI.Label(new Rect(panel.xMax - 112f, rowY + 2f, 80f, 24f),
+                    unlocked ? (IsRussianUi ? "ОТКРЫТО" : "UNLOCKED") : (IsRussianUi ? "ЗАКРЫТО" : "LOCKED"), _sphereDescriptionStyle);
+            }
+
+            if (GUI.Button(new Rect(panel.x + 22f, panel.yMax - 48f, 132f, 34f),
+                IsRussianUi ? "НАЗАД" : "BACK", _button))
+                _mainMenuPage = MainMenuPage.Home;
+        }
+
+        private void DrawRegionSelect()
             var previousColor = GUI.color;
             GUI.color = new Color(0.008f, 0.018f, 0.055f, 0.98f);
             GUI.DrawTexture(new Rect(0f, 0f, _uiWidth, _uiHeight), _uiPanelTexture);
@@ -2662,11 +3250,19 @@ namespace EchoSphere.Runtime
             _regionStabilized = false;
             _regionFieldVisuals?.SetRegion(_selectedRegion);
             _regionSelect = false;
+            _mainMenuPage = MainMenuPage.Home;
             _mainMenu = false;
             _paused = false;
             _userPaused = false;
             _messageTimer = 0f;
             _runTime = 0f;
+            _kills = 0;
+            _bossesDefeated = 0;
+            _runEliteKills = 0;
+            _runEvolutions = 0;
+            _runChestOpens = 0;
+            _runResultSaved = false;
+            _runGoldEarned = 0;
             _wave = 0;
             _waveEnemiesToSpawn = 0;
             _spawnTimer = 3f;
@@ -3585,15 +4181,29 @@ namespace EchoSphere.Runtime
 
                 if (_gameOver)
                 {
-                    var left = _uiWidth * 0.5f - 190f;
-                    var top = _uiHeight * 0.5f - 85f;
-                    GUI.Box(new Rect(left, top, 380f, 170f), GUIContent.none, _box);
-                    GUI.Label(new Rect(left + 40f, top + 24f, 300f, 32f),
-                        _regionStabilized ? "REGION STABILIZED" : "CORE DESTROYED", _title);
-                    GUI.Label(new Rect(left + 40f, top + 60f, 300f, 28f),
-                        _regionStabilized ? $"Basin secured · {_bossesDefeated} bosses defeated" : $"Survived {FormatTime(_runTime)} · {_kills} kills", _label);
-                    if (GUI.Button(new Rect(left + 100f, top + 102f, 180f, 44f), "RESTART", _button))
+                    var left = _uiWidth * 0.5f - 210f;
+                    var top = _uiHeight * 0.5f - 112f;
+                    GUI.Box(new Rect(left, top, 420f, 224f), GUIContent.none, _box);
+                    GUI.Label(new Rect(left + 30f, top + 20f, 360f, 32f),
+                        _regionStabilized
+                            ? (IsRussianUi ? "РЕГИОН СТАБИЛИЗИРОВАН" : "REGION STABILIZED")
+                            : (IsRussianUi ? "ЯДРО РАЗРУШЕНО" : "CORE DESTROYED"), _title);
+                    GUI.Label(new Rect(left + 30f, top + 58f, 360f, 28f),
+                        _regionStabilized
+                            ? (IsRussianUi ? $"Бассейн сохранён · боссов: {_bossesDefeated}" : $"Region secured · bosses: {_bossesDefeated}")
+                            : (IsRussianUi ? $"Выживание {FormatTime(_runTime)} · убийств: {_kills}" : $"Survived {FormatTime(_runTime)} · kills: {_kills}"), _label);
+                    GUI.Label(new Rect(left + 30f, top + 88f, 360f, 24f),
+                        (IsRussianUi ? "ЗОЛОТО ПОЛУЧЕНО" : "GOLD EARNED") + ": " + _runGoldEarned, _label);
+                    if (GUI.Button(new Rect(left + 24f, top + 142f, 176f, 46f),
+                        IsRussianUi ? "В МЕНЮ" : "MAIN MENU", _button))
                         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+                    if (GUI.Button(new Rect(left + 220f, top + 142f, 176f, 46f),
+                        IsRussianUi ? "НАЧАТЬ ЗАНОВО" : "RESTART", _button))
+                    {
+                        PlayerPrefs.SetInt("echo-sphere:start_selected_region_after_reload", 1);
+                        PlayerPrefs.Save();
+                        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+                    }
                 }
             }
             finally
