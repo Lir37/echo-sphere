@@ -199,6 +199,7 @@ namespace EchoSphere.Runtime
         private bool _stellaRewardPending, _stellaRewardIsLegendary;
         private float _swiftBootsTimer;
         private float _alchemistCatalystTimer;
+        private float _conductorOverdriveTimer;
         private int _alchemistReactionCount;
         private RegionBossScheduleState _regionSchedule;
         private RegionFieldVisuals _regionFieldVisuals;
@@ -692,6 +693,7 @@ namespace EchoSphere.Runtime
             _playerCore.Tick(dt);
             _swiftBootsTimer = Mathf.Max(0f, _swiftBootsTimer - dt);
             _alchemistCatalystTimer = Mathf.Max(0f, _alchemistCatalystTimer - dt);
+            _conductorOverdriveTimer = Mathf.Max(0f, _conductorOverdriveTimer - dt);
             TickHunterCharacterState(dt);
             TickEngineerRelay(dt);
             _playerCore.Heal((Mathf.Max(0f, ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "regen")) + LevelUpAbilityRules.GetRegenPerSecond(GetAbilityLevel(RunUpgradeKind.Regen))) * dt);
@@ -1793,6 +1795,98 @@ namespace EchoSphere.Runtime
             for (var i = 0; i < targets.Count; i++) targets[i].ReceiveDamage(damage);
         }
 
+        private void ApplyConductorResonanceEffects(SphereNetworkFormation type, Vector2 center, float baseDamage)
+        {
+            if (_sphereCharacterId != SphereCharacterId.Conductor) return;
+
+            _conductorOverdriveTimer = Mathf.Max(_conductorOverdriveTimer,
+                ConductorOverdriveRules.GetOverdriveDurationSeconds(_characterMasteryLevel));
+
+            var nodeIndexes = new List<int>();
+            var formation = _networkState != null ? _networkState.DominantFormation : null;
+            if (formation != null && formation.Active && formation.Type == type)
+            {
+                for (var i = 0; i < formation.NodeIndexes.Count; i++)
+                {
+                    var index = formation.NodeIndexes[i];
+                    if (index >= 0 && index < _spheres.Count && _spheres[index] != null &&
+                        _spheres[index].gameObject.activeInHierarchy)
+                        nodeIndexes.Add(index);
+                }
+            }
+
+            if (_characterMasteryLevel >= 3)
+            {
+                switch (type)
+                {
+                    case SphereNetworkFormation.Line:
+                        _resonanceLineBurst = Mathf.Max(_resonanceLineBurst,
+                            ConductorOverdriveRules.GetLineSurgeCharges(_characterMasteryLevel));
+                        break;
+
+                    case SphereNetworkFormation.Triangle:
+                    {
+                        EnemyAgent2D nearest = null;
+                        var nearestDistanceSq = float.PositiveInfinity;
+                        for (var i = 0; i < _enemies.Count; i++)
+                        {
+                            var enemy = _enemies[i];
+                            if (enemy == null || !enemy.IsAlive) continue;
+                            var delta = (Vector2)enemy.transform.position - center;
+                            var distanceSq = delta.sqrMagnitude;
+                            if (distanceSq >= nearestDistanceSq) continue;
+                            nearest = enemy;
+                            nearestDistanceSq = distanceSq;
+                        }
+                        if (nearest != null)
+                            nearest.ReceiveDamage(baseDamage *
+                                ConductorOverdriveRules.GetTriangleDischargeDamageMultiplier(_characterMasteryLevel));
+
+                        if (nodeIndexes.Count >= 2)
+                        {
+                            var from = (Vector2)_spheres[nodeIndexes[0]].transform.position;
+                            var to = (Vector2)_spheres[nodeIndexes[1]].transform.position;
+                            SpawnCombatArc(from, to, SphereId.Chain, "chain_storm", string.Empty,
+                                new Color(57f / 255f, 216f / 255f, 1f, 0.9f), 0.28f);
+                        }
+                        break;
+                    }
+
+                    case SphereNetworkFormation.Cluster:
+                        for (var i = 0; i < nodeIndexes.Count; i++)
+                        {
+                            var sphere = _spheres[nodeIndexes[i]];
+                            sphere.AccelerateNextAttack(
+                                ConductorOverdriveRules.GetClusterAttackAdvanceSeconds(_characterMasteryLevel));
+                            SpawnImpact(sphere.transform.position, new Color(57f / 255f, 216f / 255f, 1f, 0.42f));
+                        }
+                        break;
+
+                    case SphereNetworkFormation.Square:
+                        GrantPlayerShieldCharge(ConductorOverdriveRules.GetSquareShieldChargeBonus(_characterMasteryLevel));
+                        break;
+                }
+            }
+
+            if (!ConductorOverdriveRules.ShouldTriggerCascade(_characterMasteryLevel, _resonanceEventsTriggered))
+                return;
+
+            var targetCount = ConductorOverdriveRules.GetCascadeTargetCount(_characterMasteryLevel);
+            var radius = 170f * SpherePlacementRules.SourcePixelsToWorld;
+            var radiusSq = radius * radius;
+            var hitCount = 0;
+            // The source takes the first qualifying living enemies in the
+            // engine list, rather than re-sorting the Cascade by distance.
+            for (var i = 0; i < _enemies.Count && hitCount < targetCount; i++)
+            {
+                var enemy = _enemies[i];
+                if (enemy == null || !enemy.IsAlive ||
+                    ((Vector2)enemy.transform.position - center).sqrMagnitude > radiusSq) continue;
+                enemy.ReceiveDamage(baseDamage * ConductorOverdriveRules.GetCascadeDamageMultiplier());
+                hitCount++;
+            }
+        }
+
         private void TriggerResonanceEvent()
         {
             if (_resonanceEventActive) return;
@@ -1805,6 +1899,7 @@ namespace EchoSphere.Runtime
                 var type = formation == null ? SphereNetworkFormation.None : formation.Type;
                 var center = GetFormationCenter(formation);
                 var baseDamage = 16f + _level * 2f;
+                ApplyConductorResonanceEffects(type, center, baseDamage);
 
                 if (type == SphereNetworkFormation.Fractal)
                 {
@@ -2782,6 +2877,8 @@ namespace EchoSphere.Runtime
             var sphereCount = GetActiveCharacterSphereCount();
             if (_sphereCharacterId == SphereCharacterId.Spherist)
                 multiplier += CharacterRules.GetSpheristAttackSpeedBonus(_characterMasteryLevel, sphereCount);
+            else if (_sphereCharacterId == SphereCharacterId.Conductor && _conductorOverdriveTimer > 0f)
+                multiplier += ConductorOverdriveRules.GetAttackSpeedBonus(_characterMasteryLevel);
             else if (_sphereCharacterId == SphereCharacterId.Berserker && _playerCore != null)
             {
                 var hpRatio = _playerCore.CurrentHp / Mathf.Max(1f, _playerCore.MaxHp);
@@ -3078,7 +3175,7 @@ namespace EchoSphere.Runtime
 
                 case SphereCharacterId.Conductor:
                     _characterMasteryRunXp += resonanceDelta * 28f;
-                    // The source overdrive timer has no activation path yet; don't invent one.
+                    if (_conductorOverdriveTimer > 0f) _characterMasteryRunXp += dt * 1.1f;
                     break;
 
                 case SphereCharacterId.Oracle:

@@ -26,6 +26,8 @@ const required = [
   'Assets/EchoSphere/Scripts/Core/ArtifactRewardRules.cs',
   'Assets/EchoSphere/Scripts/Core/EngineerRelayRules.cs',
   'Assets/EchoSphere/Scripts/Core/EngineerRelayRules.cs.meta',
+  'Assets/EchoSphere/Scripts/Core/ConductorOverdriveRules.cs',
+  'Assets/EchoSphere/Scripts/Core/ConductorOverdriveRules.cs.meta',
   'Assets/EchoSphere/Scripts/Runtime/StellaChestAgent2D.cs',
   'Assets/EchoSphere/Scripts/Runtime/BossCombatAgent2D.cs',
   'Assets/EchoSphere/Scripts/Runtime/BossProjectileAgent2D.cs',
@@ -737,6 +739,24 @@ assert.ok(engineerRelayRulesSource.includes('SphereId.Standard') &&
   engineerRelayRulesSource.includes('SphereId.Pulse') &&
   engineerRelayRulesSource.includes('SphereId.Aura'),
   'Engineer relay consumers must preserve the source generic/special Sphere split');
+const conductorRulesSource = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/ConductorOverdriveRules.cs'), 'utf8');
+assert.ok(conductorRulesSource.includes('masteryLevel >= 2 ? 2.5f : 2f') &&
+  conductorRulesSource.includes('masteryLevel >= 8 ? 0.28f : masteryLevel >= 4 ? 0.23f : 0.18f') &&
+  conductorRulesSource.includes('masteryLevel >= 6 && resonanceEventCount > 0 && resonanceEventCount % 3 == 0') &&
+  conductorRulesSource.includes('masteryLevel >= 9 ? 3 : masteryLevel >= 7 ? 2 : 1'),
+  'Conductor Overdrive duration, speed tiers and Cascade thresholds must preserve source values');
+assert.ok(menuRuntime.includes('ApplyConductorResonanceEffects(type, center, baseDamage)') &&
+  menuRuntime.includes('ConductorOverdriveRules.GetOverdriveDurationSeconds(_characterMasteryLevel)') &&
+  menuRuntime.includes('ConductorOverdriveRules.GetAttackSpeedBonus(_characterMasteryLevel)') &&
+  menuRuntime.includes('_conductorOverdriveTimer = Mathf.Max(0f, _conductorOverdriveTimer - dt)') &&
+  menuRuntime.includes('if (_conductorOverdriveTimer > 0f) _characterMasteryRunXp += dt * 1.1f'),
+  'Conductor Overdrive must activate on real Resonance events, tick down, affect attack speed and award source mastery XP');
+assert.ok(menuRuntime.includes('ConductorOverdriveRules.ShouldTriggerCascade(_characterMasteryLevel, _resonanceEventsTriggered)') &&
+  menuRuntime.includes('ConductorOverdriveRules.GetTriangleDischargeDamageMultiplier(_characterMasteryLevel)') &&
+  menuRuntime.includes('ConductorOverdriveRules.GetClusterAttackAdvanceSeconds(_characterMasteryLevel)') &&
+  menuRuntime.includes('ConductorOverdriveRules.GetSquareShieldChargeBonus(_characterMasteryLevel)'),
+  'Conductor events must apply source geometry supercharge and every-third-event Cascade');
+
 assert.ok(menuRuntime.includes('TickEngineerRelay(dt)') &&
   menuRuntime.includes('TriggerEngineerRelay(SphereAttackAgent source)') &&
   menuRuntime.includes('SpawnEngineerRelayLightning(sourcePosition, neighbour.transform.position)') &&

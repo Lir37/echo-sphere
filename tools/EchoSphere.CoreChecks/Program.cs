@@ -39,6 +39,7 @@ internal static class Program
             CheckCharacterRules();
             CheckHunterCombatRules();
             CheckEngineerRelayRules();
+            CheckConductorOverdriveRules();
             CheckSphereElementalRules();
             CheckAlchemistReactionRules();
             CheckSphereAuthoredModifierRules();
@@ -817,6 +818,35 @@ internal static class Program
             "non-Engineer character cannot consume relay");
         True(!EngineerRelayRules.CanConsumeRelay(true, false, 0.40f, false, 100f, 1),
             "relay requires a source Sphere");
+    }
+
+    private static void CheckConductorOverdriveRules()
+    {
+        Near(ConductorOverdriveRules.GetOverdriveDurationSeconds(1), 2f, 0f, "Conductor mastery I Overdrive duration");
+        Near(ConductorOverdriveRules.GetOverdriveDurationSeconds(2), 2.5f, 0f, "Conductor mastery II Overdrive duration");
+        Near(ConductorOverdriveRules.GetAttackSpeedBonus(1), 0.18f, 0f, "Conductor base Overdrive speed");
+        Near(ConductorOverdriveRules.GetAttackSpeedBonus(3), 0.18f, 0f, "Conductor speed before mastery IV");
+        Near(ConductorOverdriveRules.GetAttackSpeedBonus(4), 0.23f, 0f, "Conductor mastery IV speed");
+        Near(ConductorOverdriveRules.GetAttackSpeedBonus(7), 0.23f, 0f, "Conductor speed before mastery VIII");
+        Near(ConductorOverdriveRules.GetAttackSpeedBonus(8), 0.28f, 0f, "Conductor mastery VIII speed");
+        Equal(ConductorOverdriveRules.GetLineSurgeCharges(3), 1, "Conductor mastery III Line Surge");
+        Equal(ConductorOverdriveRules.GetLineSurgeCharges(6), 1, "Conductor Line Surge before mastery VII");
+        Equal(ConductorOverdriveRules.GetLineSurgeCharges(7), 2, "Conductor mastery VII Line Surge");
+        Near(ConductorOverdriveRules.GetTriangleDischargeDamageMultiplier(7), 0.40f, 0f, "Conductor Triangle before mastery VIII");
+        Near(ConductorOverdriveRules.GetTriangleDischargeDamageMultiplier(8), 0.55f, 0f, "Conductor mastery VIII Triangle");
+        Near(ConductorOverdriveRules.GetClusterAttackAdvanceSeconds(7), 0.32f, 0f, "Conductor Cluster before mastery VIII");
+        Near(ConductorOverdriveRules.GetClusterAttackAdvanceSeconds(8), 0.48f, 0f, "Conductor mastery VIII Cluster");
+        Equal(ConductorOverdriveRules.GetSquareShieldChargeBonus(7), 1, "Conductor Square shield before mastery VIII");
+        Equal(ConductorOverdriveRules.GetSquareShieldChargeBonus(8), 2, "Conductor mastery VIII Square shield");
+        True(!ConductorOverdriveRules.ShouldTriggerCascade(5, 3), "Conductor Cascade locked before mastery VI");
+        True(!ConductorOverdriveRules.ShouldTriggerCascade(6, 2), "Conductor Cascade before third event");
+        True(ConductorOverdriveRules.ShouldTriggerCascade(6, 3), "Conductor mastery VI every-third-event Cascade");
+        True(ConductorOverdriveRules.ShouldTriggerCascade(9, 6), "Conductor mastery IX retains Cascade cadence");
+        Equal(ConductorOverdriveRules.GetCascadeTargetCount(6), 1, "Conductor Cascade base target count");
+        Equal(ConductorOverdriveRules.GetCascadeTargetCount(7), 2, "Conductor mastery VII Cascade relay");
+        Equal(ConductorOverdriveRules.GetCascadeTargetCount(8), 2, "Conductor mastery VIII Cascade target count");
+        Equal(ConductorOverdriveRules.GetCascadeTargetCount(9), 3, "Conductor mastery IX Cascade target count");
+        Near(ConductorOverdriveRules.GetCascadeDamageMultiplier(), 0.55f, 0f, "Conductor Cascade damage");
     }
 
     private static void CheckSphereElementalRules()
