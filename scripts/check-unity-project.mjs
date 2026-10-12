@@ -677,8 +677,8 @@ assert.ok(menuRuntime.includes('PlayerPrefs.SetString(CharacterPreferenceKey, Ch
 const hunterRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/HunterCombatRules.cs'), 'utf8');
 const hunterEnemyRuntime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs'), 'utf8');
 const hunterProjectileRuntime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/ProjectileAgent.cs'), 'utf8');
-assert.ok(menuRuntime.includes('RegisterCharacterSphereHit(source, this)') &&
-  menuRuntime.includes('GetHunterMarkedTargetDamageMultiplier(source, this)') &&
+assert.ok(hunterEnemyRuntime.includes('RegisterCharacterSphereHit(source, this)') &&
+  hunterEnemyRuntime.includes('GetHunterMarkedTargetDamageMultiplier(source, this)') &&
   menuRuntime.includes('GetHunterCriticalChanceBonus(target)'),
   'Hunter Mark and damage/critical multipliers must run through live enemy damage');
 assert.ok(hunterEnemyRuntime.includes('_archetype = archetype') && hunterEnemyRuntime.includes('public bool IsTank => _archetype == EnemyArchetype.Tank') &&
