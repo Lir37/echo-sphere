@@ -24,12 +24,16 @@ const required = [
   'Assets/EchoSphere/Scripts/Core/PersistentUpgradeRules.cs',
   'Assets/EchoSphere/Scripts/Core/DifficultyRules.cs',
   'Assets/EchoSphere/Scripts/Core/ArtifactRewardRules.cs',
+  'Assets/EchoSphere/Scripts/Core/EngineerRelayRules.cs',
+  'Assets/EchoSphere/Scripts/Core/EngineerRelayRules.cs.meta',
   'Assets/EchoSphere/Scripts/Runtime/StellaChestAgent2D.cs',
   'Assets/EchoSphere/Scripts/Runtime/BossCombatAgent2D.cs',
   'Assets/EchoSphere/Scripts/Runtime/BossProjectileAgent2D.cs',
   'Assets/EchoSphere/Scripts/Runtime/BossPresentationVfx2D.cs',
   'Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs',
   'Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs',
+  'Assets/EchoSphere/Scripts/Runtime/EngineerRelayVfx2D.cs',
+  'Assets/EchoSphere/Scripts/Runtime/EngineerRelayVfx2D.cs.meta',
   'Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs',
   'Assets/Editor/EchoSphereSvgImportSettings.cs',
   'Assets/Resources/EchoSphere/Art/player.svg',
@@ -713,6 +717,44 @@ for (const token of [
 assert.ok(hunterParticleRuntime.includes('SpherePlacementRules.SourcePixelsToWorld') &&
   hunterParticleRuntime.includes('size * 1.8f') && hunterParticleRuntime.includes('size * 0.55f'),
   'Hunter particles must retain source pixel scaling and elongated diamond silhouettes');
+
+// Engineer Relay source contracts: duration/range, exact consumer Sphere set,
+// one-shot 1.25x damage, and a Canvas-scaled drawEnergyBolt presentation.
+const engineerRelayRulesSource = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/EngineerRelayRules.cs'), 'utf8');
+const engineerRelayVfxSource = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EngineerRelayVfx2D.cs'), 'utf8');
+assert.ok(engineerRelayRulesSource.includes('masteryLevel >= 6 ? 260 : masteryLevel >= 2 ? 240 : 220') &&
+  engineerRelayRulesSource.includes('masteryLevel >= 4 ? 0.55f : 0.40f') &&
+  engineerRelayRulesSource.includes('1.25f'),
+  'Engineer link range, relay duration and bonus must retain source values');
+assert.ok(engineerRelayRulesSource.includes('SphereId.Standard') &&
+  engineerRelayRulesSource.includes('SphereId.Sniper') &&
+  engineerRelayRulesSource.includes('SphereId.Shotgun') &&
+  engineerRelayRulesSource.includes('SphereId.Chain') &&
+  engineerRelayRulesSource.includes('SphereId.Void') &&
+  engineerRelayRulesSource.includes('SphereId.Orbital') &&
+  engineerRelayRulesSource.includes('SphereId.Prism') &&
+  engineerRelayRulesSource.includes('SphereId.Gravity') &&
+  engineerRelayRulesSource.includes('SphereId.Pulse') &&
+  engineerRelayRulesSource.includes('SphereId.Aura'),
+  'Engineer relay consumers must preserve the source generic/special Sphere split');
+assert.ok(menuRuntime.includes('TickEngineerRelay(dt)') &&
+  menuRuntime.includes('TriggerEngineerRelay(SphereAttackAgent source)') &&
+  menuRuntime.includes('SpawnEngineerRelayLightning(sourcePosition, neighbour.transform.position)') &&
+  menuRuntime.includes('ConsumeEngineerRelayBonus(SphereAttackAgent consumer)') &&
+  menuRuntime.includes('if (_engineerRelayTimer > 0f) _characterMasteryRunXp += dt * 0.75f;'),
+  'Engineer relay state must tick, activate from a source Sphere, link neighbours and award source mastery XP');
+assert.ok(sphereAttack.includes('EngineerRelayRules.ConsumesOnAttack(_type)') &&
+  sphereAttack.includes('_runtime.ConsumeEngineerRelayBonus(this)') &&
+  sphereAttack.includes('_runtime.TriggerEngineerRelay(this)') &&
+  sphereAttack.includes('private bool DamageArea') &&
+  sphereAttack.includes('if (hitSomething) _runtime.TriggerEngineerRelay(this)'),
+  'Engineer relay must be applied once to eligible attacks and trigger from actual field/orbital activity');
+assert.ok(engineerRelayVfxSource.includes('src/renderer.ts:drawEnergyBolt') &&
+  engineerRelayVfxSource.includes('SpherePlacementRules.SourcePixelsToWorld') &&
+  engineerRelayVfxSource.includes('Mathf.Min(26f * SpherePlacementRules.SourcePixelsToWorld, length * 0.08f)') &&
+  engineerRelayVfxSource.includes('0.28f * alpha') &&
+  engineerRelayVfxSource.includes('0.90f * alpha'),
+  'Engineer relay bolt must preserve source wobble, source-pixel thickness and alpha layers');
 
 // CI-only workflow guards. The Unity Editor/APK cloud build is intentionally
 // disabled; this workflow must keep validating contracts and project structure

@@ -38,6 +38,7 @@ internal static class Program
             CheckSpherePlacementRules();
             CheckCharacterRules();
             CheckHunterCombatRules();
+            CheckEngineerRelayRules();
             CheckSphereElementalRules();
             CheckAlchemistReactionRules();
             CheckSphereAuthoredModifierRules();
@@ -780,6 +781,42 @@ internal static class Program
             "Hunter mastery V Trophy grants ten percent movement speed");
         Near(HunterCombatRules.GetTrophyMoveSpeedBonus(10, false), 0f, 0f,
             "Hunter Trophy speed ends when its timer expires");
+    }
+
+    private static void CheckEngineerRelayRules()
+    {
+        Equal(EngineerRelayRules.GetNetworkRangePixels(1), 220, "Engineer mastery I link range");
+        Equal(EngineerRelayRules.GetNetworkRangePixels(2), 240, "Engineer mastery II link range");
+        Equal(EngineerRelayRules.GetNetworkRangePixels(5), 240, "Engineer link range stays 240 px before mastery VI");
+        Equal(EngineerRelayRules.GetNetworkRangePixels(6), 260, "Engineer mastery VI link range");
+        Near(EngineerRelayRules.GetWindowSeconds(1), 0.40f, 0f, "Engineer base relay window");
+        Near(EngineerRelayRules.GetWindowSeconds(3), 0.40f, 0f, "Engineer relay window remains 0.40 s before mastery IV");
+        Near(EngineerRelayRules.GetWindowSeconds(4), 0.55f, 0f, "Engineer mastery IV extends relay window");
+        Near(EngineerRelayRules.GetDamageMultiplier(), 1.25f, 0f, "Engineer relay source multiplier");
+        True(EngineerRelayRules.ConsumesOnAttack(SphereId.Standard), "Standard consumes relay bonus");
+        True(EngineerRelayRules.ConsumesOnAttack(SphereId.Sniper), "Sniper consumes relay bonus");
+        True(EngineerRelayRules.ConsumesOnAttack(SphereId.Shotgun), "Shotgun consumes relay bonus");
+        True(EngineerRelayRules.ConsumesOnAttack(SphereId.Chain), "Chain consumes relay bonus");
+        True(EngineerRelayRules.ConsumesOnAttack(SphereId.Void), "Void consumes relay bonus");
+        True(!EngineerRelayRules.ConsumesOnAttack(SphereId.Aura), "Aura does not consume generic relay bonus");
+        True(!EngineerRelayRules.ConsumesOnAttack(SphereId.Orbital), "Orbital does not consume generic relay bonus");
+        True(!EngineerRelayRules.ConsumesOnAttack(SphereId.Prism), "Prism does not consume generic relay bonus");
+        True(!EngineerRelayRules.ConsumesOnAttack(SphereId.Gravity), "Gravity does not consume generic relay bonus");
+        True(!EngineerRelayRules.ConsumesOnAttack(SphereId.Pulse), "Pulse does not consume generic relay bonus");
+        True(EngineerRelayRules.CanConsumeRelay(true, true, 0.01f, false, 220f, 1),
+            "Engineer can consume a live relay at the source range boundary");
+        True(EngineerRelayRules.CanConsumeRelay(true, true, 0.01f, false, 260f, 6),
+            "Engineer mastery VI can consume at 260 px");
+        True(!EngineerRelayRules.CanConsumeRelay(true, true, 0.01f, false, 220.01f, 1),
+            "Engineer relay does not cross its source link range");
+        True(!EngineerRelayRules.CanConsumeRelay(true, true, 0.01f, true, 0f, 1),
+            "Engineer relay source cannot consume its own bonus");
+        True(!EngineerRelayRules.CanConsumeRelay(true, true, 0f, false, 100f, 1),
+            "expired Engineer relay cannot be consumed");
+        True(!EngineerRelayRules.CanConsumeRelay(false, true, 0.40f, false, 100f, 1),
+            "non-Engineer character cannot consume relay");
+        True(!EngineerRelayRules.CanConsumeRelay(true, false, 0.40f, false, 100f, 1),
+            "relay requires a source Sphere");
     }
 
     private static void CheckSphereElementalRules()

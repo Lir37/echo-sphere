@@ -121,6 +121,8 @@ namespace EchoSphere.Runtime
         private float _hunterScreenShakeIntensity;
         private Vector3 _lastHunterScreenShakeOffset;
         private int _hunterHitCount;
+        private SphereAttackAgent _engineerRelaySource;
+        private float _engineerRelayTimer;
         private Vector2 _characterScrollPosition;
         private string _expandedCharacterId = "spherist";
         private List<CharacterProfileData> _characterProfiles = new List<CharacterProfileData>();
@@ -691,6 +693,7 @@ namespace EchoSphere.Runtime
             _swiftBootsTimer = Mathf.Max(0f, _swiftBootsTimer - dt);
             _alchemistCatalystTimer = Mathf.Max(0f, _alchemistCatalystTimer - dt);
             TickHunterCharacterState(dt);
+            TickEngineerRelay(dt);
             _playerCore.Heal((Mathf.Max(0f, ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "regen")) + LevelUpAbilityRules.GetRegenPerSecond(GetAbilityLevel(RunUpgradeKind.Regen))) * dt);
             if (_messageTimer > 0f) _messageTimer -= dt;
             _formationMemoryTimer = Mathf.Max(0f, _formationMemoryTimer - dt);
@@ -2168,6 +2171,13 @@ namespace EchoSphere.Runtime
             }
         }
 
+        public void SpawnEngineerRelayLightning(Vector2 from, Vector2 to)
+        {
+            var go = new GameObject("Engineer Relay Lightning");
+            var vfx = go.AddComponent<EngineerRelayVfx2D>();
+            vfx.Initialize(this, from, to);
+        }
+
         public void SpawnCombatArc(Vector2 from, Vector2 to, SphereId family, string branch, string finalId, Color color, float duration = 0.30f)
         {
             if ((to - from).sqrMagnitude <= 0.000625f) return;
@@ -2685,6 +2695,57 @@ namespace EchoSphere.Runtime
             return multiplier;
         }
 
+        public void TriggerEngineerRelay(SphereAttackAgent source)
+        {
+            if (_sphereCharacterId != SphereCharacterId.Engineer || source == null ||
+                !source.gameObject.activeInHierarchy) return;
+
+            _engineerRelaySource = source;
+            _engineerRelayTimer = EngineerRelayRules.GetWindowSeconds(_characterMasteryLevel);
+            var rangeWorld = EngineerRelayRules.GetNetworkRangePixels(_characterMasteryLevel) *
+                SpherePlacementRules.SourcePixelsToWorld;
+            var rangeWorldSq = rangeWorld * rangeWorld;
+            var sourcePosition = (Vector2)source.transform.position;
+            for (var i = 0; i < _spheres.Count; i++)
+            {
+                var neighbour = _spheres[i];
+                if (neighbour == null || neighbour == source || !neighbour.gameObject.activeInHierarchy) continue;
+                var delta = (Vector2)neighbour.transform.position - sourcePosition;
+                if (delta.sqrMagnitude > rangeWorldSq) continue;
+                SpawnEngineerRelayLightning(sourcePosition, neighbour.transform.position);
+            }
+        }
+
+        public float ConsumeEngineerRelayBonus(SphereAttackAgent consumer)
+        {
+            if (consumer == null || !EngineerRelayRules.ConsumesOnAttack(consumer.Type)) return 1f;
+            var hasSource = _engineerRelaySource != null;
+            var distancePixels = hasSource
+                ? Vector2.Distance(_engineerRelaySource.transform.position, consumer.transform.position) /
+                    SpherePlacementRules.SourcePixelsToWorld
+                : float.PositiveInfinity;
+            if (!EngineerRelayRules.CanConsumeRelay(
+                    _sphereCharacterId == SphereCharacterId.Engineer, hasSource, _engineerRelayTimer,
+                    consumer == _engineerRelaySource, distancePixels, _characterMasteryLevel)) return 1f;
+
+            _engineerRelaySource = null;
+            _engineerRelayTimer = 0f;
+            return EngineerRelayRules.GetDamageMultiplier();
+        }
+
+        private void TickEngineerRelay(float dt)
+        {
+            if (_engineerRelaySource == null || !_engineerRelaySource.gameObject.activeInHierarchy)
+            {
+                _engineerRelaySource = null;
+                _engineerRelayTimer = 0f;
+                return;
+            }
+
+            _engineerRelayTimer = Mathf.Max(0f, _engineerRelayTimer - dt);
+            if (_engineerRelayTimer <= 0f) _engineerRelaySource = null;
+        }
+
         private float GetCharacterNetworkDamageMultiplier(SphereAttackAgent sphere)
         {
             if (_sphereCharacterId == SphereCharacterId.Engineer)
@@ -2969,7 +3030,7 @@ namespace EchoSphere.Runtime
                         largestNetwork = Mathf.Max(largestNetwork, GetConnectedSphereNetworkSize(local[i], range));
                     if (largestNetwork >= 3) _characterMasteryRunXp += dt;
                     if (largestNetwork >= 5) _characterMasteryRunXp += dt * 0.65f;
-                    // Engineer relay activation is not migrated yet; no relay XP is fabricated.
+                    if (_engineerRelayTimer > 0f) _characterMasteryRunXp += dt * 0.75f;
                     break;
                 }
 

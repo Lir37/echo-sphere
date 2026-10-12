@@ -138,37 +138,47 @@ namespace EchoSphere.Runtime
                     damage *= 1.12f;
             }
 
+            if (target != null && EngineerRelayRules.ConsumesOnAttack(_type))
+                damage *= _runtime.ConsumeEngineerRelayBonus(this);
+            var triggeredEngineerRelay = false;
             switch (_type)
             {
                 case SphereId.Standard:
                     FireAt(target, origin, damage, ColorFor(_type));
+                    triggeredEngineerRelay = target != null;
                     break;
                 case SphereId.Sniper:
                     FireAt(target, origin, damage, ColorFor(_type));
+                    triggeredEngineerRelay = target != null;
                     break;
                 case SphereId.Shotgun:
                     FireSpread(target, origin, damage);
+                    triggeredEngineerRelay = target != null;
                     break;
                 case SphereId.Chain:
                     ChainTargets(origin, damage);
+                    triggeredEngineerRelay = target != null;
                     break;
                 case SphereId.Aura:
-                    DamageArea(origin, _profile.AuraRadius / 100f, damage, ColorFor(_type), false);
+                    triggeredEngineerRelay = DamageArea(origin, _profile.AuraRadius / 100f, damage, ColorFor(_type), false);
                     break;
                 case SphereId.Prism:
                     FireAtMultiple(origin, damage);
+                    triggeredEngineerRelay = target != null;
                     break;
                 case SphereId.Gravity:
-                    DamageArea(origin, _profile.AuraRadius / 100f, damage, ColorFor(_type), true);
+                    triggeredEngineerRelay = DamageArea(origin, _profile.AuraRadius / 100f, damage, ColorFor(_type), true);
                     break;
                 case SphereId.Pulse:
-                    DamageArea(origin, _profile.AuraRadius / 100f, damage, ColorFor(_type), false);
+                    triggeredEngineerRelay = DamageArea(origin, _profile.AuraRadius / 100f, damage, ColorFor(_type), false);
                     break;
                 case SphereId.Void:
                     FireVoid(origin, damage);
+                    triggeredEngineerRelay = target != null;
                     break;
             }
 
+            if (triggeredEngineerRelay) _runtime.TriggerEngineerRelay(this);
             _attackTimer = Mathf.Max(0.05f, AttackDelay);
         }
 
@@ -276,6 +286,7 @@ namespace EchoSphere.Runtime
 
         private void UpdateOrbitalContacts(float dt)
         {
+            var hitSomething = false;
             var branch = _runtime.GetSphereBranch(SphereId.Orbital);
             var finalId = _runtime.GetSphereFinal(SphereId.Orbital);
             var contactRadius = SphereEvolutionCombatRules.GetOrbitalContactRadius(finalId);
@@ -286,6 +297,7 @@ namespace EchoSphere.Runtime
                 if (_orbitalContactTimers[i] > 0f) continue;
                 var contact = _runtime.TryHitEnemy(_orbitalElements[i].position, contactRadius);
                 if (contact == null) continue;
+                hitSomething = true;
                 var damage = BaseDamage * _runtime.SphereDamageMultiplier * _runtime.GetNetworkDamageMultiplier(this) *
                     _runtime.GetSphereCopyOutputMultiplier(this) * damageMultiplier;
                 var dealtDamage = contact.ReceiveSphereDamage(this, damage);
@@ -305,6 +317,7 @@ namespace EchoSphere.Runtime
                 if (afterimage > 0f) _runtime.TriggerOrbitalAfterimage(contact, damage * afterimage, 0.65f);
                 _orbitalContactTimers[i] = 0.28f;
             }
+            if (hitSomething) _runtime.TriggerEngineerRelay(this);
         }
 
         private void FireAt(EnemyAgent2D target, Vector2 origin, float damage, Color tint)
@@ -551,7 +564,7 @@ namespace EchoSphere.Runtime
             return dealtDamage;
         }
 
-        private void DamageArea(Vector2 origin, float radius, float damage, Color tint, bool pull)
+        private bool DamageArea(Vector2 origin, float radius, float damage, Color tint, bool pull)
         {
             radius *= _levelStats.AuraRadiusMultiplier;
             var branch = _runtime.GetSphereBranch(_type);
@@ -673,6 +686,7 @@ namespace EchoSphere.Runtime
                 _runtime.RegisterSphereHit(this, targets[i], dealtDamage);
             }
             if (targets.Count > 0) _runtime.SpawnImpact(origin, tint);
+            return targets.Count > 0;
         }
 
         private void FireVoid(Vector2 origin, float damage)
