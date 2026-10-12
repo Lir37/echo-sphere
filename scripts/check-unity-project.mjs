@@ -573,6 +573,37 @@ assert.ok(evolutionRules.includes('GetProjectilePierceBonus("void_execution", fi
   'Void projectile pierce and Prism beam/ricochet rules must use source-authored modifier data');
 
 
+// Source menu/persistence migration contracts. These guard actual runtime call paths,
+// not just the presence of similarly named screen types.
+const menuRuntime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs'), 'utf8');
+assert.ok(menuRuntime.includes('DrawShopScreen') && menuRuntime.includes('DrawSettingsScreen') &&
+  menuRuntime.includes('DrawLeaderboardScreen') && menuRuntime.includes('DrawAchievementsScreen'),
+  'the source main-menu Shop/Settings/Leaderboard/Achievements destinations must be reachable from Unity IMGUI');
+assert.ok(menuRuntime.includes('MainMenuPage.Shop') && menuRuntime.includes('MainMenuPage.Settings') &&
+  menuRuntime.includes('MainMenuPage.Leaderboard') && menuRuntime.includes('MainMenuPage.Achievements'),
+  'home navigation must route each implemented source menu destination');
+assert.ok(menuRuntime.includes('PersistentUpgradeRules.GetCost(id, level)') &&
+  menuRuntime.includes('SaveGold(GetGold() - cost)') && menuRuntime.includes('SaveShopState()'),
+  'persistent shop purchases must use source cost/cap rules, deduct gold and persist the level');
+assert.ok(menuRuntime.includes('JsonUtility.FromJson<LeaderboardSaveData>') &&
+  menuRuntime.includes('SaveLeaderboardEntries()') && menuRuntime.includes('LeaderboardPreferenceKey'),
+  'source leaderboard array must be loaded, sorted, capped and saved by the runtime');
+assert.ok(menuRuntime.includes('JsonUtility.FromJson<AchievementSaveData>') &&
+  menuRuntime.includes('SaveUnlockedAchievementIds()') && menuRuntime.includes('SourceAchievements'),
+  'source achievement IDs and the achievement catalogue must be persisted and displayed');
+assert.ok(menuRuntime.includes('FinalizeRunResult()') && menuRuntime.includes('_runResultSaved') &&
+  menuRuntime.includes('Math.Floor(goldFormula * difficulty.GoldMultiplier)') &&
+  menuRuntime.includes('RegionBossScheduleRules.GetBaseGoldReward(_selectedRegion)') &&
+  menuRuntime.includes('SaveLeaderboardEntries()'),
+  'game-over must award source-formula gold and persist one leaderboard result per run');
+assert.ok(menuRuntime.includes('UnlockAchievementIf(_kills >= 500, "kills_500")') &&
+  menuRuntime.includes('UnlockAchievementIf(_playerCore != null && _playerCore.DashCount >= 50, "dash_50")') &&
+  menuRuntime.includes('UnlockAchievementIf(_runChestOpens >= 5, "chest_5")'),
+  'ported source achievement thresholds must consume actual run counters');
+assert.ok(menuRuntime.includes('ResetPersistentProgress()') && menuRuntime.includes('PlayerPrefs.DeleteKey(LeaderboardPreferenceKey)') &&
+  menuRuntime.includes('PlayerPrefs.DeleteKey(AchievementPreferenceKey)'),
+  'settings reset must clear the source persistent progress groups');
+
 // CI-only workflow guards. The Unity Editor/APK cloud build is intentionally
 // disabled; this workflow must keep validating contracts and project structure
 // without requiring Unity license secrets or invoking GameCI.
