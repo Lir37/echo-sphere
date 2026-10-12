@@ -711,7 +711,7 @@ for (const token of [
     `source Hunter visual/shake behavior missing: ${token}`);
 }
 assert.ok(hunterParticleRuntime.includes('SpherePlacementRules.SourcePixelsToWorld') &&
-  hunterParticleRuntime.includes('point.x * 1.8f') && hunterParticleRuntime.includes('size * 0.55f'),
+  hunterParticleRuntime.includes('size * 1.8f') && hunterParticleRuntime.includes('size * 0.55f'),
   'Hunter particles must retain source pixel scaling and elongated diamond silhouettes');
 
 // CI-only workflow guards. The Unity Editor/APK cloud build is intentionally
