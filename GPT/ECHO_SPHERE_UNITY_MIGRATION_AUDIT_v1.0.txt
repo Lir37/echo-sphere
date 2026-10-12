@@ -2688,3 +2688,112 @@ NEXT:
 ======================================================================
 END SOURCE MENU SCREENS AND RUN RESULT PERSISTENCE
 ======================================================================
+
+
+======================================================================
+2026-10-12 | SOURCE CHARACTER SELECTION, MASTERY AND HUNTER MARK/HUNT
+======================================================================
+
+REFERENCE STATE:
+- Source branch: new-desing @ 737ef2af4a877e0995db5f92331d536d2f29a934
+- Unity branch at the latest validated checkpoint: unity-migration @
+  bac8ac8e7e6366a0b16abe86efa0a79e40283880
+- The source branch was not modified.
+- The immediately preceding Unity checkpoint 99770052cd24af82dbe98be5c29c4b5b96741182
+  was only an earlier baseline for the 2026-10-12 menu slice.
+
+SOURCE FILES READ:
+- src/CharacterSelect.tsx
+- src/characters.ts
+- src/characterRuntime.ts
+- src/characterMastery.ts
+- src/persistence.ts
+- src/engineCombat.ts
+- src/combatRules.ts
+- src/App.tsx and existing Unity CharacterRules / runtime / core tests.
+
+IMPLEMENTED:
+1. CharacterRules.cs maps the ten source character definitions, localized names,
+   roles, descriptions and mechanics, signature/partner Spheres, unlock prices,
+   base modifiers, all ten mastery labels/descriptions per character and the
+   source mastery-XP thresholds.
+2. Main-menu Characters page is reachable and shows the source-defined character
+   cards, unlock price, signature/partner Sphere, mastery progress and the ten
+   source mastery descriptions.
+3. Character ID and per-character profile persistence use the source keys
+   echosphere_character and echosphere_character_profiles, with a top-level
+   JSON-array profile shape. Only the source-default Spherist is initially
+   unlocked. Unlocks deduct the source gold price and selected character/profile
+   is saved.
+4. Selected-character base modifiers are connected to actual runtime paths:
+   Sphere damage, attack cadence, movement speed, maximum HP, Sphere radius,
+   status duration/damage and signature/partner Sphere affinity. Pre-run
+   character selection refreshes character-dependent HP and Sphere radius.
+5. Additional sourced passives currently wired include Spherist's Sphere-count
+   damage/attack-speed thresholds, Berserker's missing-HP Fury and close-range
+   damage, Engineer's local connected-network passives, and Architect's active
+   line/triangle/square/cluster formation bonuses. Architect Square damage
+   reduction is 12%; Triangle adds the source 10% critical chance; Cluster's
+   attack-speed bonus requires at least five local Spheres. Architect's mastery-IV
+   2-second formation transition scale is represented in runtime state.
+6. Character mastery XP is accumulated during active simulation time and saved
+   once at run finalization. The source conditions currently represented are
+   Spherist, Hunter, Engineer, Berserker, Alchemist, Architect, Conductor and
+   Voidwalker, using their source thresholds / counters. Oracle forecast and
+   Fractal formation-history/Recursive Echo XP remain inactive until those source
+   runtime mechanics are ported. XP is not fabricated for missing conditions.
+7. Hunter Mark/Hunt is now wired through sphere hit handling. Only Sniper, Chain,
+   Prism and Void hits on bosses, elite enemies or Tank archetypes qualify.
+   Source durations are 5/6 seconds, Hunt activates after 5/4 repeated hits at
+   the mastery-IV threshold, marked damage is 1.20/1.25, Hunt stacks 1.30/1.35,
+   marked-target critical chance is +2% from mastery III, and the mastery-V
+   marked Elite kill grants +10% movement speed for four seconds. Relevant
+   projectile and direct Chain/Prism paths register the Mark before their
+   contextual critical roll to preserve event ordering.
+8. Added pure HunterCombatRules.cs and direct numeric contract tests for target
+   eligibility, duration, hit threshold, stacked multipliers, critical chance
+   and Trophy movement bonus. Structural guards verify that those rules are
+   connected to enemy/projectile runtime paths.
+
+PARTIAL / STILL OPEN:
+- Character roster UI is text-based. Individual character portraits/art and
+  screenshot comparison to the source are not present/verified.
+- This slice does not finish each character's unique ability. The remaining
+  identified gaps include Hunter's exact 10-particle Mark burst, 18-particle Hunt
+  burst and source screen-shake behavior; Engineer relay activation/consumption;
+  Conductor Overdrive; Oracle Forecast; Voidwalker Phantom; Fractal formation
+  history and Recursive Echo; and the complete source effects/visuals for all
+  character-specific mastery levels. These systems must not be considered done
+  from the existence of the character cards or base modifiers.
+- Runtime mastery conditions for Oracle and Fractal do not award XP until their
+  source behavior is implemented. Hunter/Engineer/Conductor special-condition XP
+  remains partial where the underlying ability state is not implemented.
+- The new runtime scripts have not been compiled in a real Unity Editor in this
+  work cycle. No APK build, Android installation or manual visual/device check
+  is claimed. CI core contracts and structural guards are not substitutes for
+  those checks.
+
+VALIDATION:
+- Unity Migration Contracts #256: SUCCESS, 790 C# contract assertions plus the
+  Node project preflight/structural checks:
+  https://github.com/Lir37/echo-sphere/actions/runs/38206744483
+- An earlier run #255 failed on a structural assertion that searched the runtime
+  controller instead of EnemyAgent2D for the enemy hit callback. The assertion
+  was corrected; #256 passed on the corrected checker and current HEAD.
+- Green CI here confirms pure C# rule contracts and source-structure guards; it
+  does not establish UnityEngine runtime compilation or visual/runtime parity.
+
+NEXT:
+1. Port Hunter's source Mark/Hunt particle patterns and screen shake without
+   replacing them with generic impact VFX, then verify all Sphere-origin hit
+   routes apply exactly one mark-stack increment per real hit.
+2. Port and test the remaining unique character abilities and mastery effects,
+   prioritizing Engineer relay and Conductor Overdrive after the Hunter visuals.
+3. Continue Knowledge Archive, remaining settings, challenges/endless, and full
+   HUD/menu parity against new-desing.
+4. Obtain real Unity Editor compilation, APK build and device/screenshot checks;
+   keep each gate explicitly unverified until it actually runs.
+
+======================================================================
+END SOURCE CHARACTER SELECTION AND HUNTER MARK/HUNT
+======================================================================
