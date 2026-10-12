@@ -110,6 +110,9 @@ namespace EchoSphere.Runtime
         private MainMenuPage _mainMenuPage = MainMenuPage.Home;
         private string _playerName = "";
         private bool _settingsResetPending;
+        private bool _architectFormationTracked;
+        private SphereNetworkFormation _architectFormationType = SphereNetworkFormation.None;
+        private float _architectFormationChangedAt = float.NegativeInfinity;
         private Vector2 _characterScrollPosition;
         private string _expandedCharacterId = "spherist";
         private List<CharacterProfileData> _characterProfiles = new List<CharacterProfileData>();
@@ -510,6 +513,7 @@ namespace EchoSphere.Runtime
             }
             _sphereCharacterId = id;
             _characterMasteryLevel = profile.masteryLevel;
+            _architectFormationTracked = false;
             _expandedCharacterId = CharacterRules.ToSourceId(id);
             if (_mainMenu && _playerCore != null)
             {
@@ -2266,7 +2270,8 @@ namespace EchoSphere.Runtime
             var artifactCrit = ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "critChance");
             var abilityCrit = LevelUpAbilityRules.GetCritChanceBonus(GetAbilityLevel(RunUpgradeKind.Crit));
             var shopCrit = PersistentUpgradeRules.GetCritChanceBonus(GetShopUpgradeLevel("crit"));
-            var critChance = Mathf.Min(CombatRules.CritHardCap, CombatRules.CritBase + Mathf.Max(0f, critChanceBonus + artifactCrit + abilityCrit + shopCrit));
+            var critChance = Mathf.Min(CombatRules.CritHardCap, CombatRules.CritBase +
+                Mathf.Max(0f, critChanceBonus + artifactCrit + abilityCrit + shopCrit + GetArchitectFormationCritBonus()));
             var result = CombatRules.ResolveDamage(damage, critChance, _rng.NextFloat(), CombatRules.CritMultiplierBase);
             wasCritical = result.WasCritical;
             return result.Damage;
@@ -2685,8 +2690,8 @@ namespace EchoSphere.Runtime
                 multiplier += CharacterRules.GetBerserkerFuryAttackSpeedBonus(hpRatio);
                 if (_characterMasteryLevel >= 3) multiplier += 0.02f;
             }
-            else if (_sphereCharacterId == SphereCharacterId.Architect && sphereCount >= 5 &&
-                _networkState != null && _networkState.DominantFormation != null &&
+            else if (_sphereCharacterId == SphereCharacterId.Architect && GetLocalCharacterSpheres().Count >= 5 &&
+                _networkState != null && _networkState.DominantFormation != null && _networkState.DominantFormation.Active &&
                 _networkState.DominantFormation.Type == SphereNetworkFormation.Cluster)
                 multiplier += 0.15f * GetArchitectFormationBonusScale(SphereNetworkFormation.Cluster);
             return multiplier;
@@ -2724,13 +2729,42 @@ namespace EchoSphere.Runtime
             var multiplier = 1f + CharacterRules.Get(_sphereCharacterId).DamageTaken;
             if (_sphereCharacterId == SphereCharacterId.Architect && _networkState != null &&
                 _networkState.DominantFormation != null && _networkState.DominantFormation.Type == SphereNetworkFormation.Square)
-                multiplier *= Mathf.Max(0.70f, 1f - 0.10f * GetArchitectFormationBonusScale(SphereNetworkFormation.Square));
+                multiplier *= Mathf.Max(0.70f, 1f - 0.12f * GetArchitectFormationBonusScale(SphereNetworkFormation.Square));
             return multiplier;
+        }
+
+        private void TrackArchitectFormationChange()
+        {
+            if (_sphereCharacterId != SphereCharacterId.Architect)
+            {
+                _architectFormationTracked = false;
+                return;
+            }
+
+            var formation = _networkState == null ? null : _networkState.DominantFormation;
+            var nextType = formation != null && formation.Active &&
+                (formation.Type == SphereNetworkFormation.Line || formation.Type == SphereNetworkFormation.Triangle ||
+                 formation.Type == SphereNetworkFormation.Square || formation.Type == SphereNetworkFormation.Cluster)
+                    ? formation.Type : SphereNetworkFormation.None;
+            if (!_architectFormationTracked)
+            {
+                _architectFormationTracked = true;
+                _architectFormationType = nextType;
+                _architectFormationChangedAt = float.NegativeInfinity;
+                return;
+            }
+            if (_architectFormationType == nextType) return;
+            _architectFormationType = nextType;
+            _architectFormationChangedAt = _runTime;
+            if (nextType != SphereNetworkFormation.None)
+                SpawnImpact(PlayerPosition, new Color(0.34f, 0.78f, 1f, 0.95f));
         }
 
         private float GetArchitectFormationBonusScale(SphereNetworkFormation type)
         {
             var scale = 1f;
+            if (_characterMasteryLevel >= 4 && _architectFormationType == type &&
+                _runTime - _architectFormationChangedAt <= 2f) scale *= 1.25f;
             if (_characterMasteryLevel >= 5 && GetLocalCharacterSpheres().Count >= 5) scale *= 1.05f;
             if (_characterMasteryLevel >= 7) scale *= 1.05f;
             if (_characterMasteryLevel >= 10 && type != SphereNetworkFormation.None) scale *= 1.10f;
@@ -3066,6 +3100,7 @@ namespace EchoSphere.Runtime
                 _preferredSecondaryFormation = SphereNetworkFormation.None;
             if (_networkState.DominantFormation != null)
                 _previousDominantFormation = _networkState.DominantFormation.Type;
+            TrackArchitectFormationChange();
             UpdateNetworkLinkVisuals();
             var dominant = _networkState.DominantFormation;
             if (dominant != null && dominant.Active && _resonanceKnownFormationKeys.Add(GetFormationKey(dominant)))
