@@ -846,8 +846,9 @@ namespace EchoSphere.Runtime
             }
             var elementalVfx = go.AddComponent<SphereElementalVfx2D>();
             elementalVfx.Initialize(this, agent);
-            agent.ApplyProgressionLevel(level);
             _spheres.Add(agent);
+            // Character radius bonuses depend on the active network/count. Include this Sphere before recalculating its range.
+            agent.ApplyProgressionLevel(level);
             if (_follow) agent.SetFollowMode(true, (Vector2)_player.position);
         }
 
