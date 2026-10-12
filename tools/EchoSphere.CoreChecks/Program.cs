@@ -36,6 +36,7 @@ internal static class Program
             CheckPulseVoidEvolutionCombatRules();
             CheckSphereNetworkRules();
             CheckSpherePlacementRules();
+            CheckCharacterRules();
             CheckSphereElementalRules();
             CheckAlchemistReactionRules();
             CheckSphereAuthoredModifierRules();
@@ -678,6 +679,59 @@ internal static class Program
         Near(SpherePlacementRules.DefaultMaxSpheres, 5f, 0f, "source default maximum Sphere count");
         Near(SphereNetworkRules.DefaultLinkDistance, 220f * SpherePlacementRules.SourcePixelsToWorld, 0.000001f,
             "source 220 px Network distance uses current camera scale");
+    }
+
+    private static void CheckCharacterRules()
+    {
+        Equal(CharacterRules.All.Count, 10, "source character roster contains ten characters");
+        Equal(CharacterRules.Get(SphereCharacterId.Spherist).UnlockCost, 0, "Spherist unlock is free");
+        Equal(CharacterRules.Get(SphereCharacterId.Hunter).UnlockCost, 1500, "Hunter source unlock cost");
+        Equal(CharacterRules.Get(SphereCharacterId.Engineer).UnlockCost, 2000, "Engineer source unlock cost");
+        Equal(CharacterRules.Get(SphereCharacterId.Berserker).UnlockCost, 2000, "Berserker source unlock cost");
+        Equal(CharacterRules.Get(SphereCharacterId.Alchemist).UnlockCost, 2500, "Alchemist source unlock cost");
+        Equal(CharacterRules.Get(SphereCharacterId.Architect).UnlockCost, 3000, "Architect source unlock cost");
+        Equal(CharacterRules.Get(SphereCharacterId.Conductor).UnlockCost, 3500, "Conductor source unlock cost");
+        Equal(CharacterRules.Get(SphereCharacterId.Oracle).UnlockCost, 4000, "Oracle source unlock cost");
+        Equal(CharacterRules.Get(SphereCharacterId.Voidwalker).UnlockCost, 4500, "Voidwalker source unlock cost");
+        Equal(CharacterRules.Get(SphereCharacterId.Fractal).UnlockCost, 5000, "Fractal source unlock cost");
+        foreach (var character in CharacterRules.All)
+        {
+            True(!string.IsNullOrEmpty(character.NameRu) && !string.IsNullOrEmpty(character.NameEn), "character names are source-defined");
+            Equal(character.Mastery.Count, 10, "every source character has ten mastery levels");
+            Equal(character.Mastery[0].Level, 1, "mastery definitions preserve source ordering");
+            Equal(character.Mastery[9].Level, 10, "mastery definitions include final level");
+            True(CharacterRules.TryParseSourceId(CharacterRules.ToSourceId(character.Id), out var parsed) && parsed == character.Id,
+                "character ID round-trips to source persistence schema");
+        }
+
+        Equal(CharacterRules.GetMasteryThreshold(1), 0, "mastery I threshold");
+        Equal(CharacterRules.GetMasteryThreshold(2), 250, "mastery II threshold");
+        Equal(CharacterRules.GetMasteryThreshold(4), 1500, "mastery IV threshold");
+        Equal(CharacterRules.GetMasteryThreshold(10), 15000, "mastery X threshold");
+        Equal(CharacterRules.GetMasteryLevelForXp(1499), 3, "XP below 1500 stays mastery III");
+        Equal(CharacterRules.GetMasteryLevelForXp(1500), 4, "1500 XP reaches mastery IV");
+        Equal(CharacterRules.GetMasteryLevelForXp(15000), 10, "maximum XP reaches mastery X");
+        Equal(CharacterRules.GetNextMasteryThreshold(1), 250, "mastery I next threshold");
+        Equal(CharacterRules.GetNextMasteryThreshold(10), -1, "mastery X has no next threshold");
+        Equal(CharacterRules.GetUpdatedMasteryXp(14990, 100), 15000, "mastery XP clamps at source cap");
+        Equal(CharacterRules.GetUpdatedMasteryXp(600, -10), 600, "negative mastery XP gain is ignored");
+
+        Near(CharacterRules.GetSphereAffinityWeight(SphereCharacterId.Hunter, SphereId.Sniper), 0.70f, 0f, "Hunter signature affinity");
+        Near(CharacterRules.GetSphereAffinityWeight(SphereCharacterId.Hunter, SphereId.Void), 0.30f, 0f, "Hunter partner affinity");
+        Near(CharacterRules.GetSphereAffinityWeight(SphereCharacterId.Hunter, SphereId.Aura), 0f, 0f, "unpreferred Sphere has no character affinity");
+        Near(CharacterRules.GetBerserkerFuryDamageBonus(0.6f), 0.14f, 0.000001f, "Berserker Fury +7% for each missing 20% HP");
+        Near(CharacterRules.GetBerserkerFuryAttackSpeedBonus(0.6f), 0.08f, 0.000001f, "Berserker Fury +4% attack speed for each missing 20% HP");
+        Near(CharacterRules.GetBerserkerFuryDamageBonus(0f), 0.28f, 0.000001f, "Berserker Fury damage is capped at +28%");
+        Near(CharacterRules.GetBerserkerCloseDamageBonus(1), 0.12f, 0f, "Berserker close bonus at mastery I");
+        Near(CharacterRules.GetBerserkerCloseDamageBonus(2), 0.15f, 0f, "Berserker close bonus at mastery II");
+        Near(CharacterRules.GetBerserkerCloseDamageBonus(10), 0.20f, 0f, "Berserker close bonus at mastery X");
+        Near(CharacterRules.GetSpheristDamageBonus(1, 4), 0f, 0f, "Spherist five-Sphere threshold at mastery I");
+        Near(CharacterRules.GetSpheristDamageBonus(1, 5), 0.05f, 0f, "Spherist damage bonus at five Spheres");
+        Near(CharacterRules.GetSpheristDamageBonus(2, 4), 0.05f, 0f, "Spherist mastery II lowers threshold to four Spheres");
+        Near(CharacterRules.GetSpheristDamageBonus(8, 3), 0.05f, 0f, "Spherist mastery VIII lowers threshold to three Spheres");
+        Near(CharacterRules.GetSpheristDamageBonus(10, 8), 0.12f, 0.000001f, "Spherist mastery X damage bonuses stack from source thresholds");
+        Near(CharacterRules.GetSpheristAttackSpeedBonus(1, 4), 0.09f, 0.000001f, "Spherist Resonance gives +3% per Sphere after first");
+        Near(CharacterRules.GetSpheristAttackSpeedBonus(4, 4), 0.105f, 0.000001f, "Spherist mastery IV adds +0.5% per Sphere after first");
     }
 
     private static void CheckSphereElementalRules()
