@@ -40,6 +40,7 @@ internal static class Program
             CheckHunterCombatRules();
             CheckEngineerRelayRules();
             CheckConductorOverdriveRules();
+            CheckLevelUpChoiceRules();
             CheckSphereElementalRules();
             CheckAlchemistReactionRules();
             CheckSphereAuthoredModifierRules();
@@ -847,6 +848,41 @@ internal static class Program
         Equal(ConductorOverdriveRules.GetCascadeTargetCount(8), 2, "Conductor mastery VIII Cascade target count");
         Equal(ConductorOverdriveRules.GetCascadeTargetCount(9), 3, "Conductor mastery IX Cascade target count");
         Near(ConductorOverdriveRules.GetCascadeDamageMultiplier(), 0.55f, 0f, "Conductor Cascade damage");
+    }
+
+    private static void CheckLevelUpChoiceRules()
+    {
+        Equal(LevelUpChoiceRules.GetOracleForecastCount(1), 1, "Oracle forecast before mastery IV");
+        Equal(LevelUpChoiceRules.GetOracleForecastCount(3), 1, "Oracle forecast remains one before mastery IV");
+        Equal(LevelUpChoiceRules.GetOracleForecastCount(4), 2, "Oracle mastery IV forecasts two choices");
+        Equal(LevelUpChoiceRules.GetOracleRerollPreservationCount(6), 1, "Oracle mastery VI preserves one forecast");
+        Equal(LevelUpChoiceRules.GetOracleRerollPreservationCount(8), 1, "Oracle preserves one forecast before mastery IX");
+        Equal(LevelUpChoiceRules.GetOracleRerollPreservationCount(9), 2, "Oracle mastery IX preserves two forecasts");
+        True(LevelUpChoiceRules.CanLockChoice(3, 1, false), "Lock is available for three choices");
+        True(!LevelUpChoiceRules.CanLockChoice(2, 1, false), "Lock requires three choices");
+        True(!LevelUpChoiceRules.CanLockChoice(3, 0, false), "Lock is one-use");
+        True(!LevelUpChoiceRules.CanLockChoice(3, 1, true), "Only one choice can be reserved");
+        True(LevelUpChoiceRules.CanRerollChoices(3, 1), "Reroll is available for three choices");
+        True(!LevelUpChoiceRules.CanRerollChoices(2, 1), "Reroll requires three choices");
+        True(!LevelUpChoiceRules.CanRerollChoices(3, 0), "Reroll is one-use");
+        True(LevelUpChoiceRules.ShouldPreserveOracleForecast(true, 6, false, false, true),
+            "Oracle mastery VI keeps a forecast card on its first unlocked reroll");
+        True(!LevelUpChoiceRules.ShouldPreserveOracleForecast(false, 9, false, false, true),
+            "Non-Oracle characters do not preserve forecast cards");
+        True(!LevelUpChoiceRules.ShouldPreserveOracleForecast(true, 5, false, false, true),
+            "Oracle reroll preservation is locked before mastery VI");
+        True(!LevelUpChoiceRules.ShouldPreserveOracleForecast(true, 9, true, false, true),
+            "Oracle forecast preservation can occur only once per run");
+        True(!LevelUpChoiceRules.ShouldPreserveOracleForecast(true, 9, false, true, true),
+            "Locked rerolls use the lock-first replacement path");
+        True(!LevelUpChoiceRules.ShouldPreserveOracleForecast(true, 9, false, false, false),
+            "Oracle preservation requires a forecasted choice");
+        True(!LevelUpChoiceRules.ShouldShowOracleSourceFlash(6, true),
+            "Oracle source flash is locked before mastery VII");
+        True(LevelUpChoiceRules.ShouldShowOracleSourceFlash(7, true),
+            "Oracle mastery VII shows the source flash");
+        True(!LevelUpChoiceRules.ShouldShowOracleSourceFlash(9, false),
+            "Oracle source flash requires choices");
     }
 
     private static void CheckSphereElementalRules()

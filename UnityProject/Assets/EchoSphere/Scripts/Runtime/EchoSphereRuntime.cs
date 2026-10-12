@@ -156,7 +156,14 @@ namespace EchoSphere.Runtime
         private readonly List<RunUpgradeChoice> _levelUpChoices = new List<RunUpgradeChoice>();
         private readonly Dictionary<RunUpgradeKind, int> _abilityLevels = new Dictionary<RunUpgradeKind, int>();
         private readonly List<string> _recentUpgradeChoiceKeys = new List<string>();
+        private readonly List<string> _oracleForecastKeys = new List<string>();
         private int _levelUpAbilityPity, _levelUpSpherePity;
+        private int _levelUpRerollsRemaining = 1;
+        private int _levelUpLocksRemaining = 1;
+        private string _levelUpLockChoiceKey;
+        private bool _oracleForecastRerollUsed;
+        private string _oracleSourceFlashText = string.Empty;
+        private float _oracleSourceFlashTimer;
         private readonly Dictionary<SphereId, string> _sphereBranches = new Dictionary<SphereId, string>();
         private readonly Dictionary<SphereId, string> _sphereFinals = new Dictionary<SphereId, string>();
         private readonly List<SphereEvolutionOption> _evolutionChoices = new List<SphereEvolutionOption>();
@@ -694,6 +701,7 @@ namespace EchoSphere.Runtime
             _swiftBootsTimer = Mathf.Max(0f, _swiftBootsTimer - dt);
             _alchemistCatalystTimer = Mathf.Max(0f, _alchemistCatalystTimer - dt);
             _conductorOverdriveTimer = Mathf.Max(0f, _conductorOverdriveTimer - dt);
+            _oracleSourceFlashTimer = Mathf.Max(0f, _oracleSourceFlashTimer - dt);
             TickHunterCharacterState(dt);
             TickEngineerRelay(dt);
             _playerCore.Heal((Mathf.Max(0f, ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "regen")) + LevelUpAbilityRules.GetRegenPerSecond(GetAbilityLevel(RunUpgradeKind.Regen))) * dt);
@@ -2626,10 +2634,28 @@ namespace EchoSphere.Runtime
                     pool.Add(LevelUpAbilityRules.CreateChoice(kind, current));
             }
 
-            if (pool.Count == 0) return;
+            if (pool.Count == 0)
+            {
+                _levelUpLockChoiceKey = null;
+                _oracleForecastKeys.Clear();
+                _oracleSourceFlashText = string.Empty;
+                _oracleSourceFlashTimer = 0f;
+                return;
+            }
+
+            var lockedChoiceIndex = string.IsNullOrEmpty(_levelUpLockChoiceKey)
+                ? -1
+                : pool.FindIndex(choice => GetUpgradeChoiceKey(choice) == _levelUpLockChoiceKey);
+            if (!string.IsNullOrEmpty(_levelUpLockChoiceKey) && lockedChoiceIndex < 0)
+                _levelUpLockChoiceKey = null;
+
             var recent = new HashSet<string>(_recentUpgradeChoiceKeys);
             var cooled = pool.FindAll(choice => !recent.Contains(GetUpgradeChoiceKey(choice)));
             var candidates = cooled.Count >= 3 ? cooled : pool;
+            var selectionCandidates = lockedChoiceIndex >= 0
+                ? candidates.FindAll(choice => GetUpgradeChoiceKey(choice) != _levelUpLockChoiceKey)
+                : candidates;
+            if (lockedChoiceIndex >= 0) _levelUpChoices.Add(pool[lockedChoiceIndex]);
 
             var abilityScore = 0f;
             foreach (var pair in _abilityLevels) if (pair.Value > 0) abilityScore += 1f;
@@ -2643,7 +2669,7 @@ namespace EchoSphere.Runtime
             var sphereSourceWeight = (1f + Mathf.Min(4, _levelUpSpherePity) * 0.20f) *
                 (sphereScore <= minimumScore + 0.001f ? 1.15f : 1f);
 
-            while (candidates.Count > 0 && _levelUpChoices.Count < 3)
+            while (selectionCandidates.Count > 0 && _levelUpChoices.Count < 3)
             {
                 var usedSphere = false;
                 var usedAbility = false;
@@ -2654,49 +2680,208 @@ namespace EchoSphere.Runtime
                 }
 
                 var totalWeight = 0f;
-                var weights = new float[candidates.Count];
-                for (var i = 0; i < candidates.Count; i++)
+                var weights = new float[selectionCandidates.Count];
+                for (var i = 0; i < selectionCandidates.Count; i++)
                 {
-                    var choice = candidates[i];
-                    float weight;
-                    if (choice.Kind == RunUpgradeKind.Sphere)
-                    {
-                        var level = SphereProgressionRules.GetLevel(_sphereLevels, choice.Sphere);
-                        var activeCopies = 0;
-                        for (var sphereIndex = 0; sphereIndex < _spheres.Count; sphereIndex++)
-                            if (_spheres[sphereIndex] != null && _spheres[sphereIndex].gameObject.activeInHierarchy &&
-                                _spheres[sphereIndex].Type == choice.Sphere) activeCopies++;
-                        weight = sphereSourceWeight * (1f + (7 - level) * 0.25f +
-                            (activeCopies > 0 ? 1.5f : 0f) + GetSphereAffinityWeight(choice.Sphere));
-                        if (_levelUpChoices.Count > 0) weight *= usedSphere ? 0.88f : 1.16f;
-                    }
-                    else
-                    {
-                        weight = abilitySourceWeight * (choice.CurrentLevel == 0 ? 1.35f : 1.15f);
-                        if (_sphereCharacterId == SphereCharacterId.Oracle && choice.Kind == RunUpgradeKind.Crit)
-                            weight *= (1f + 0.75f / (choice.CurrentLevel == 0 ? 1.35f : 1.15f));
-                        if (_levelUpChoices.Count > 0) weight *= usedAbility ? 0.88f : 1.16f;
-                    }
+                    var choice = selectionCandidates[i];
+                    var weight = GetLevelUpChoiceBaseWeight(choice, abilitySourceWeight, sphereSourceWeight);
+                    if (_levelUpChoices.Count > 0)
+                        weight *= choice.Kind == RunUpgradeKind.Sphere
+                            ? (usedSphere ? 0.88f : 1.16f)
+                            : (usedAbility ? 0.88f : 1.16f);
                     weights[i] = Mathf.Max(0.01f, weight);
                     totalWeight += weights[i];
                 }
 
                 var roll = _rng.NextFloat() * totalWeight;
-                var chosenIndex = candidates.Count - 1;
-                for (var i = 0; i < candidates.Count; i++)
+                var chosenIndex = selectionCandidates.Count - 1;
+                for (var i = 0; i < selectionCandidates.Count; i++)
                 {
                     roll -= weights[i];
                     if (roll <= 0f) { chosenIndex = i; break; }
                 }
-                _levelUpChoices.Add(candidates[chosenIndex]);
-                candidates.RemoveAt(chosenIndex);
+                _levelUpChoices.Add(selectionCandidates[chosenIndex]);
+                selectionCandidates.RemoveAt(chosenIndex);
             }
+
+            RefreshOracleForecast(abilitySourceWeight, sphereSourceWeight);
         }
 
         private string GetUpgradeChoiceKey(RunUpgradeChoice choice) =>
             choice.Kind == RunUpgradeKind.Sphere
                 ? "sphere:" + choice.Sphere + ":" + choice.CurrentLevel + ":" + choice.NextLevel
                 : "ability:" + choice.Kind + ":" + choice.CurrentLevel + ":" + choice.NextLevel;
+
+        private float GetLevelUpChoiceBaseWeight(
+            RunUpgradeChoice choice, float abilitySourceWeight, float sphereSourceWeight)
+        {
+            float weight;
+            if (choice.Kind == RunUpgradeKind.Sphere)
+            {
+                var level = SphereProgressionRules.GetLevel(_sphereLevels, choice.Sphere);
+                var activeCopies = 0;
+                for (var sphereIndex = 0; sphereIndex < _spheres.Count; sphereIndex++)
+                    if (_spheres[sphereIndex] != null && _spheres[sphereIndex].gameObject.activeInHierarchy &&
+                        _spheres[sphereIndex].Type == choice.Sphere) activeCopies++;
+
+                weight = sphereSourceWeight * (1f + (7 - level) * 0.25f +
+                    (activeCopies > 0 ? 1.5f : 0f) + GetSphereAffinityWeight(choice.Sphere));
+            }
+            else
+            {
+                var levelWeight = choice.CurrentLevel == 0 ? 1.35f : 1.15f;
+                weight = abilitySourceWeight * levelWeight;
+                if (_sphereCharacterId == SphereCharacterId.Oracle && choice.Kind == RunUpgradeKind.Crit)
+                    weight *= 1f + 0.75f / levelWeight;
+            }
+            return Mathf.Max(0.01f, weight);
+        }
+
+        private void RefreshOracleForecast(float abilitySourceWeight, float sphereSourceWeight)
+        {
+            _oracleForecastKeys.Clear();
+            _oracleSourceFlashText = string.Empty;
+            _oracleSourceFlashTimer = 0f;
+            if (_sphereCharacterId != SphereCharacterId.Oracle || _levelUpChoices.Count == 0) return;
+
+            var selectedIndexes = new List<int>();
+            var forecastCount = LevelUpChoiceRules.GetOracleForecastCount(_characterMasteryLevel);
+            for (var rank = 0; rank < forecastCount && rank < _levelUpChoices.Count; rank++)
+            {
+                var bestIndex = -1;
+                var bestWeight = float.NegativeInfinity;
+                for (var i = 0; i < _levelUpChoices.Count; i++)
+                {
+                    if (selectedIndexes.Contains(i)) continue;
+                    var weight = GetLevelUpChoiceBaseWeight(_levelUpChoices[i], abilitySourceWeight, sphereSourceWeight);
+                    if (weight <= bestWeight) continue;
+                    bestWeight = weight;
+                    bestIndex = i;
+                }
+                if (bestIndex < 0) break;
+                selectedIndexes.Add(bestIndex);
+                _oracleForecastKeys.Add(GetUpgradeChoiceKey(_levelUpChoices[bestIndex]));
+            }
+
+            if (LevelUpChoiceRules.ShouldShowOracleSourceFlash(_characterMasteryLevel, _levelUpChoices.Count > 0))
+            {
+                _oracleSourceFlashText = "ORACLE: " +
+                    (_levelUpChoices[0].Kind == RunUpgradeKind.Sphere ? "SPHERE" : "ABILITY");
+                _oracleSourceFlashTimer = 0.65f;
+            }
+        }
+
+        private bool LockLevelUpChoice(int choiceIndex)
+        {
+            if (!_levelUp || _choosingEvolution || choiceIndex < 0 || choiceIndex >= _levelUpChoices.Count)
+                return false;
+            if (!LevelUpChoiceRules.CanLockChoice(
+                    _levelUpChoices.Count, _levelUpLocksRemaining, !string.IsNullOrEmpty(_levelUpLockChoiceKey)))
+                return false;
+
+            _levelUpLockChoiceKey = GetUpgradeChoiceKey(_levelUpChoices[choiceIndex]);
+            _levelUpLocksRemaining--;
+            _oracleSourceFlashTimer = 0f;
+            ShowMessage("LOCK");
+            _messageTimer = 0.8f;
+            return true;
+        }
+
+        private bool RerollLevelUpChoices()
+        {
+            if (!_levelUp || _choosingEvolution ||
+                !LevelUpChoiceRules.CanRerollChoices(_levelUpChoices.Count, _levelUpRerollsRemaining))
+                return false;
+
+            var current = new List<RunUpgradeChoice>(_levelUpChoices);
+            var currentKeys = new HashSet<string>();
+            foreach (var choice in current) currentKeys.Add(GetUpgradeChoiceKey(choice));
+
+            var lockedChoiceIndex = string.IsNullOrEmpty(_levelUpLockChoiceKey)
+                ? -1
+                : current.FindIndex(choice => GetUpgradeChoiceKey(choice) == _levelUpLockChoiceKey);
+            var oracleForecastChoices = new List<RunUpgradeChoice>();
+            if (_sphereCharacterId == SphereCharacterId.Oracle &&
+                _characterMasteryLevel >= 6 && !_oracleForecastRerollUsed)
+            {
+                var forecastLimit = LevelUpChoiceRules.GetOracleRerollPreservationCount(_characterMasteryLevel);
+                for (var i = 0; i < _oracleForecastKeys.Count && i < forecastLimit; i++)
+                {
+                    var index = current.FindIndex(choice => GetUpgradeChoiceKey(choice) == _oracleForecastKeys[i]);
+                    if (index >= 0) oracleForecastChoices.Add(current[index]);
+                }
+            }
+
+            var next = current;
+            if (lockedChoiceIndex >= 0)
+            {
+                var replacements = new List<RunUpgradeChoice>(2);
+                var replacementKeys = new HashSet<string>();
+                for (var attempt = 0; attempt < 8 && replacements.Count < 2; attempt++)
+                {
+                    BuildLevelUpChoices();
+                    foreach (var choice in _levelUpChoices)
+                    {
+                        var key = GetUpgradeChoiceKey(choice);
+                        if (key == _levelUpLockChoiceKey || currentKeys.Contains(key) || !replacementKeys.Add(key))
+                            continue;
+                        replacements.Add(choice);
+                        if (replacements.Count >= 2) break;
+                    }
+                }
+                if (replacements.Count >= 2)
+                    next = new List<RunUpgradeChoice> { current[lockedChoiceIndex], replacements[0], replacements[1] };
+            }
+            else
+            {
+                for (var attempt = 0; attempt < 4; attempt++)
+                {
+                    BuildLevelUpChoices();
+                    if (_levelUpChoices.Count != 3) continue;
+                    var candidate = new List<RunUpgradeChoice>(_levelUpChoices);
+                    var hasNewChoice = false;
+                    foreach (var choice in candidate)
+                    {
+                        if (!currentKeys.Contains(GetUpgradeChoiceKey(choice)))
+                        {
+                            hasNewChoice = true;
+                            break;
+                        }
+                    }
+                    next = candidate;
+                    if (hasNewChoice) break;
+                }
+            }
+
+            if (oracleForecastChoices.Count > 0 && lockedChoiceIndex < 0 &&
+                LevelUpChoiceRules.ShouldPreserveOracleForecast(
+                    _sphereCharacterId == SphereCharacterId.Oracle, _characterMasteryLevel,
+                    _oracleForecastRerollUsed, false, true))
+            {
+                var preservedKeys = new HashSet<string>();
+                var merged = new List<RunUpgradeChoice>(3);
+                foreach (var choice in oracleForecastChoices)
+                {
+                    var key = GetUpgradeChoiceKey(choice);
+                    if (merged.Count < 3 && preservedKeys.Add(key)) merged.Add(choice);
+                }
+                foreach (var choice in next)
+                {
+                    var key = GetUpgradeChoiceKey(choice);
+                    if (merged.Count < 3 && preservedKeys.Add(key)) merged.Add(choice);
+                }
+                next = merged;
+                _oracleForecastRerollUsed = true;
+            }
+
+            _levelUpChoices.Clear();
+            _levelUpChoices.AddRange(next);
+            _levelUpRerollsRemaining--;
+            _oracleSourceFlashTimer = 0f;
+            ShowMessage(lockedChoiceIndex >= 0 ? "LOCK + REROLL" : "REROLL");
+            _messageTimer = 0.8f;
+            return true;
+        }
 
         private int GetActiveCharacterSphereCount()
         {
@@ -3237,6 +3422,8 @@ namespace EchoSphere.Runtime
         {
             if (choiceIndex < 0 || choiceIndex >= _levelUpChoices.Count) return;
             var choice = _levelUpChoices[choiceIndex];
+            var selectedChoiceKey = GetUpgradeChoiceKey(choice);
+            if (_levelUpLockChoiceKey == selectedChoiceKey) _levelUpLockChoiceKey = null;
             RecordLevelUpChoice(choice);
             switch (choice.Kind)
             {
@@ -4198,6 +4385,17 @@ namespace EchoSphere.Runtime
             _runChestOpens = 0;
             _runResultSaved = false;
             _runGoldEarned = 0;
+            _levelUpAbilityPity = 0;
+            _levelUpSpherePity = 0;
+            _levelUpRerollsRemaining = 1;
+            _levelUpLocksRemaining = 1;
+            _levelUpLockChoiceKey = null;
+            _recentUpgradeChoiceKeys.Clear();
+            _levelUpChoices.Clear();
+            _oracleForecastKeys.Clear();
+            _oracleForecastRerollUsed = false;
+            _oracleSourceFlashText = string.Empty;
+            _oracleSourceFlashTimer = 0f;
             _characterMasteryRunXp = 0f;
             _characterMasteryLastTime = -1f;
             _characterMasteryLastEliteKills = 0;
@@ -5086,7 +5284,8 @@ namespace EchoSphere.Runtime
                             var yOffset = 70f + i * 78f;
                             var choice = _levelUpChoices[i];
                             var rect = new Rect(left + 35f, top + yOffset, 370f, 64f);
-                            if (GUI.Button(rect, GUIContent.none, _button)) ChooseUpgrade(i);
+                            if (GUI.Button(new Rect(rect.x, rect.y, rect.width - 48f, rect.height),
+                                GUIContent.none, _button)) ChooseUpgrade(i);
                             var icon = choice.Kind == RunUpgradeKind.Sphere ? GetSphereIcon(choice.Sphere)
                                 : choice.Kind == RunUpgradeKind.AttackSpeed || choice.Kind == RunUpgradeKind.MoveSpeed ? RuntimeSpriteFactory.Star
                                 : choice.Kind == RunUpgradeKind.Vitality || choice.Kind == RunUpgradeKind.Regen ? RuntimeSpriteFactory.Hexagon
@@ -5096,8 +5295,58 @@ namespace EchoSphere.Runtime
                                 : choice.Kind == RunUpgradeKind.Vitality || choice.Kind == RunUpgradeKind.Regen ? new Color(0.35f, 1f, 0.72f)
                                 : new Color(0.28f, 0.88f, 1f);
                             DrawSpriteIcon(new Rect(rect.x + 10f, rect.y + 10f, 42f, 42f), icon, tint);
-                            GUI.Label(new Rect(rect.x + 60f, rect.y + 8f, 298f, 25f), choice.Title, _label);
-                            GUI.Label(new Rect(rect.x + 60f, rect.y + 31f, 298f, 29f), choice.Description, _button);
+                            var choiceKey = GetUpgradeChoiceKey(choice);
+                            var forecasted = _sphereCharacterId == SphereCharacterId.Oracle &&
+                                _oracleForecastKeys.Contains(choiceKey);
+                            var previousColor = GUI.color;
+                            GUI.Label(new Rect(rect.x + 60f, rect.y + 8f, forecasted ? 170f : 250f, 25f), choice.Title, _label);
+                            if (forecasted)
+                            {
+                                GUI.color = new Color(0.78f, 0.67f, 1f, 1f);
+                                GUI.Label(new Rect(rect.x + 233f, rect.y + 8f, 79f, 18f),
+                                    IsRussianUi ? "ПРОГНОЗ" : "FORECAST", _label);
+                            }
+                            GUI.color = previousColor;
+                            GUI.Label(new Rect(rect.x + 60f, rect.y + 31f, 250f, 29f), choice.Description, _button);
+
+                            var isLocked = _levelUpLockChoiceKey == choiceKey;
+                            var lockRect = new Rect(rect.x + rect.width - 46f, rect.y + 4f, 44f, 22f);
+                            if (isLocked)
+                            {
+                                GUI.color = new Color(0.83f, 0.58f, 0.22f, 1f);
+                                GUI.Label(lockRect, IsRussianUi ? "ЗАКРЕП." : "LOCKED", _label);
+                                GUI.color = previousColor;
+                            }
+                            else
+                            {
+                                var wasEnabled = GUI.enabled;
+                                GUI.enabled = LevelUpChoiceRules.CanLockChoice(
+                                    _levelUpChoices.Count, _levelUpLocksRemaining,
+                                    !string.IsNullOrEmpty(_levelUpLockChoiceKey));
+                                if (GUI.Button(lockRect, IsRussianUi ? "ЗАКРЕП." : "LOCK", _button))
+                                    LockLevelUpChoice(i);
+                                GUI.enabled = wasEnabled;
+                            }
+                        }
+
+                        if (_levelUpChoices.Count == 3)
+                        {
+                            var wasEnabled = GUI.enabled;
+                            GUI.enabled = LevelUpChoiceRules.CanRerollChoices(
+                                _levelUpChoices.Count, _levelUpRerollsRemaining);
+                            var rerollRect = new Rect(left + 135f, top + 301f, 170f, 27f);
+                            var rerollLabel = (IsRussianUi ? "ПЕРЕБРОСИТЬ" : "REROLL") +
+                                " · " + _levelUpRerollsRemaining;
+                            if (GUI.Button(rerollRect, rerollLabel, _button)) RerollLevelUpChoices();
+                            GUI.enabled = wasEnabled;
+                        }
+
+                        if (_oracleSourceFlashTimer > 0f && !string.IsNullOrEmpty(_oracleSourceFlashText))
+                        {
+                            var previousColor = GUI.color;
+                            GUI.color = new Color(0.71f, 0.55f, 1f, Mathf.Clamp01(_oracleSourceFlashTimer / 0.65f));
+                            GUI.Label(new Rect(left + 235f, top + 6f, 165f, 18f), _oracleSourceFlashText, _label);
+                            GUI.color = previousColor;
                         }
                     }
                 }

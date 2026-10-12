@@ -28,6 +28,8 @@ const required = [
   'Assets/EchoSphere/Scripts/Core/EngineerRelayRules.cs.meta',
   'Assets/EchoSphere/Scripts/Core/ConductorOverdriveRules.cs',
   'Assets/EchoSphere/Scripts/Core/ConductorOverdriveRules.cs.meta',
+  'Assets/EchoSphere/Scripts/Core/LevelUpChoiceRules.cs',
+  'Assets/EchoSphere/Scripts/Core/LevelUpChoiceRules.cs.meta',
   'Assets/EchoSphere/Scripts/Runtime/StellaChestAgent2D.cs',
   'Assets/EchoSphere/Scripts/Runtime/BossCombatAgent2D.cs',
   'Assets/EchoSphere/Scripts/Runtime/BossProjectileAgent2D.cs',
@@ -812,3 +814,29 @@ for (const forbidden of [
 ]) {
   assert.ok(!ciWorkflow.includes(forbidden), `APK build must remain disabled in the CI-only workflow: ${forbidden}`);
 }
+
+
+// Source-mapped Level-Up Lock/Reroll and Oracle Forecast behavior.
+const levelUpChoiceRulesSource = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/LevelUpChoiceRules.cs'), 'utf8');
+assert.ok(levelUpChoiceRulesSource.includes('masteryLevel >= 4 ? 2 : 1') &&
+  levelUpChoiceRulesSource.includes('masteryLevel >= 9 ? 2 : 1') &&
+  levelUpChoiceRulesSource.includes('masteryLevel >= 6 && !rerollUsed && !hasLockedChoice && hasForecastedChoices') &&
+  levelUpChoiceRulesSource.includes('masteryLevel >= 7 && hasChoices'),
+  'Oracle Forecast mastery thresholds must preserve source rules');
+assert.ok(menuRuntime.includes('_levelUpRerollsRemaining = 1') &&
+  menuRuntime.includes('_levelUpLocksRemaining = 1') &&
+  menuRuntime.includes('private bool LockLevelUpChoice(int choiceIndex)') &&
+  menuRuntime.includes('private bool RerollLevelUpChoices()') &&
+  menuRuntime.includes('BuildLevelUpChoices()') &&
+  menuRuntime.includes('_levelUpChoices.Add(pool[lockedChoiceIndex])'),
+  'Level-Up must initialise one Lock and one Reroll and carry reserved choices into the offer');
+assert.ok(menuRuntime.includes('if (_levelUpLockChoiceKey == selectedChoiceKey) _levelUpLockChoiceKey = null') &&
+  menuRuntime.includes('_oracleForecastKeys.Contains(choiceKey)') &&
+  menuRuntime.includes('RefreshOracleForecast(abilitySourceWeight, sphereSourceWeight)') &&
+  menuRuntime.includes('GetLevelUpChoiceBaseWeight'),
+  'Lock reservation must survive other picks; Oracle forecast markers use the live logical card keys');
+assert.ok(menuRuntime.includes('GetOracleRerollPreservationCount(_characterMasteryLevel)') &&
+  menuRuntime.includes('oracleForecastChoices.Count > 0 && lockedChoiceIndex < 0') &&
+  menuRuntime.includes('_oracleForecastRerollUsed = true') &&
+  menuRuntime.includes('GUI.Button(rerollRect, rerollLabel, _button)'),
+  'Oracle preserves forecasted choices on its first eligible unlocked reroll; UI exposes functional Lock/Reroll controls');
