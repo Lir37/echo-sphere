@@ -673,6 +673,33 @@ assert.ok(menuRuntime.includes('PlayerPrefs.SetString(CharacterPreferenceKey, Ch
   menuRuntime.includes('ResetCharacterProgress()'),
   'selected character and its persistent profiles must use source keys and participate in progress reset');
 
+// Hunter Mark/Hunt combat rules are pure contracts and must also be connected to live hit/death paths.
+const hunterRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/HunterCombatRules.cs'), 'utf8');
+const hunterEnemyRuntime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs'), 'utf8');
+const hunterProjectileRuntime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/ProjectileAgent.cs'), 'utf8');
+assert.ok(menuRuntime.includes('RegisterCharacterSphereHit(source, this)') &&
+  menuRuntime.includes('GetHunterMarkedTargetDamageMultiplier(source, this)') &&
+  menuRuntime.includes('GetHunterCriticalChanceBonus(target)'),
+  'Hunter Mark and damage/critical multipliers must run through live enemy damage');
+assert.ok(hunterEnemyRuntime.includes('_archetype = archetype') && hunterEnemyRuntime.includes('public bool IsTank => _archetype == EnemyArchetype.Tank') &&
+  menuRuntime.includes('GetEnemyVisualVariant(archetype), "", archetype == EnemyArchetype.Elite, archetype'),
+  'Hunter target eligibility must use the actual selected enemy archetype');
+assert.ok(hunterProjectileRuntime.includes('RegisterCharacterSphereHit(_evolutionOwner.Type, enemy)') &&
+  hunterProjectileRuntime.includes('out var wasCritical, enemy'),
+  'projectile Hunter marks are applied before resolving a marked-target critical roll');
+for (const token of [
+  'source == SphereId.Sniper', 'source == SphereId.Chain', 'source == SphereId.Prism', 'source == SphereId.Void',
+  'archetype == EnemyArchetype.Tank', 'masteryLevel >= 2 ? 6f : 5f',
+  'masteryLevel >= 4 ? 4 : 5', 'masteryLevel >= 6 ? 1.25f : 1.20f',
+  'masteryLevel >= 8 ? 1.35f : 1.30f', 'masteryLevel >= 3 ? 0.02f : 0f',
+  'masteryLevel >= 5 ? 0.10f : 0f',
+]) {
+  assert.ok(hunterRules.includes(token), `source Hunter rule missing: ${token}`);
+}
+assert.ok(menuRuntime.includes('if (enemy.IsElite && _characterMasteryLevel >= 5') &&
+  menuRuntime.includes('_hunterTrophyTimer = 4f') && menuRuntime.includes('_hunterMarkTarget == enemy'),
+  'Hunter mastery V Trophy requires killing the active marked Elite and lasts four seconds');
+
 // CI-only workflow guards. The Unity Editor/APK cloud build is intentionally
 // disabled; this workflow must keep validating contracts and project structure
 // without requiring Unity license secrets or invoking GameCI.
