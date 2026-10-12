@@ -14,6 +14,7 @@ namespace EchoSphere.Runtime
         private float _moveSpeed;
         private bool _dead;
         private bool _isElite;
+        private EnemyArchetype _archetype = EnemyArchetype.Normal;
         private float _slowTimer;
         private float _slowMultiplier = 1f;
         private float _markTimer;
@@ -35,6 +36,8 @@ namespace EchoSphere.Runtime
         public bool IsMarked => _markTimer > 0f;
         public bool IsBoss => !string.IsNullOrEmpty(_bossType);
         public bool IsElite => _isElite;
+        public bool IsTank => _archetype == EnemyArchetype.Tank;
+        public EnemyArchetype Archetype => _archetype;
         public string BossType => _bossType;
         public float MaxHp => _maxHp;
         public Vector2 PlayerPosition => _player == null ? Vector2.zero : (Vector2)_player.position;
@@ -69,12 +72,14 @@ namespace EchoSphere.Runtime
         }
 
         public float ReceiveSphereDamage(SphereId source, float damage, bool authoredDamageResolved = false,
-            bool allowAuthoredProcs = true, SphereAttackAgent owner = null)
+            bool allowAuthoredProcs = true, SphereAttackAgent owner = null, bool characterHitRegistered = false)
         {
             if (_dead) return 0f;
+            if (_runtime != null && !characterHitRegistered) _runtime.RegisterCharacterSphereHit(source, this);
             var authoredDamage = authoredDamageResolved || _runtime == null
                 ? damage : _runtime.ResolveAuthoredSphereHitDamage(source, this, damage);
-            var actual = authoredDamage * IncomingSphereDamageMultiplier(source);
+            var characterMultiplier = _runtime == null ? 1f : _runtime.GetHunterMarkedTargetDamageMultiplier(source, this);
+            var actual = authoredDamage * characterMultiplier * IncomingSphereDamageMultiplier(source);
             if (_runtime != null) _runtime.ApplyAuthoredSphereHitEffects(source, this, actual, allowAuthoredProcs, owner);
             ReceiveDamage(actual, source);
             return actual;
@@ -250,12 +255,14 @@ namespace EchoSphere.Runtime
             transform.position = Vector2.MoveTowards(transform.position, center, Mathf.Max(0f, distance) * 0.22f);
         }
 
-        public void Initialize(EchoSphereRuntime runtime, Transform player, float hp, float moveSpeed, int xpReward = 1, string visualVariant = "wisp", string bossType = "", bool isElite = false)
+        public void Initialize(EchoSphereRuntime runtime, Transform player, float hp, float moveSpeed, int xpReward = 1,
+            string visualVariant = "wisp", string bossType = "", bool isElite = false, EnemyArchetype archetype = EnemyArchetype.Normal)
         {
             _runtime = runtime;
             _player = player;
             _bossType = bossType ?? "";
             _isElite = isElite;
+            _archetype = archetype;
             _hp = hp;
             _maxHp = Mathf.Max(1f, hp);
             _moveSpeed = Mathf.Max(0f, moveSpeed);
