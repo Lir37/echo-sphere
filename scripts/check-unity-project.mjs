@@ -607,7 +607,7 @@ assert.ok(menuRuntime.includes('ResetPersistentProgress()') && menuRuntime.inclu
 // Source character selection/profile migration contracts. These validate selected
 // runtime behavior and the complete source data catalogue, not only class names.
 const characterRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/CharacterRules.cs'), 'utf8');
-const playerCore = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/PlayerCoreController2D.cs'), 'utf8');
+const characterPlayerCore = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/PlayerCoreController2D.cs'), 'utf8');
 const sphereAttackRuntime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs'), 'utf8');
 assert.ok(menuRuntime.includes('MainMenuPage.Characters') && menuRuntime.includes('DrawCharacterSelectScreen()') &&
   menuRuntime.includes('SelectOrUnlockCharacter(definition.Id)'),
@@ -642,9 +642,9 @@ assert.ok(menuRuntime.includes('GetCharacterGlobalSphereDamageMultiplier()') &&
   menuRuntime.includes('GetCharacterDamageTakenMultiplier()') &&
   menuRuntime.includes('GetCharacterSphereAffinityWeight(_sphereCharacterId, type)'),
   'selected character base combat modifiers must be connected to actual Unity runtime call paths');
-assert.ok(playerCore.includes('ApplyBaseMaxHpMultiplier(1f + CharacterRules.Get(_sphereCharacterId).MaxHp)') ||
+assert.ok(characterPlayerCore.includes('ApplyBaseMaxHpMultiplier(1f + CharacterRules.Get(_sphereCharacterId).MaxHp)') ||
   (menuRuntime.includes('ApplyBaseMaxHpMultiplier(1f + CharacterRules.Get(_sphereCharacterId).MaxHp)') &&
-   playerCore.includes('ApplyBaseMaxHpMultiplier(float multiplier)')),
+   characterPlayerCore.includes('ApplyBaseMaxHpMultiplier(float multiplier)')),
   'selected character maximum HP modifier must change the actual player Core');
 assert.ok(sphereAttackRuntime.includes('GetCharacterSphereRadiusMultiplier()') &&
   sphereAttackRuntime.includes('_runtime.GetCharacterSphereRadiusMultiplier()'),
