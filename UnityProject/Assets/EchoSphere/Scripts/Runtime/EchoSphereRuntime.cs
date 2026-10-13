@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using EchoSphere.Core;
 using UnityEngine;
@@ -2767,7 +2768,7 @@ namespace EchoSphere.Runtime
             foreach (var pair in _abilityLevels) if (pair.Value > 0) abilityScore += 1f;
             if (_maxSphereAbilityLevel > 0) abilityScore += 1f;
 
-            var sphereScore = _spheres.FindAll(sphere => sphere != null && sphere.gameObject.activeInHierarchy).Count;
+            var sphereScore = (float)_spheres.FindAll(sphere => sphere != null && sphere.gameObject.activeInHierarchy).Count;
             foreach (var pair in _sphereLevels) sphereScore += pair.Value * 0.15f;
             var minimumScore = Mathf.Min(abilityScore, sphereScore);
             var abilitySourceWeight = (1f + Mathf.Min(4, _levelUpAbilityPity) * 0.20f) *
@@ -3354,6 +3355,17 @@ namespace EchoSphere.Runtime
             if (_architectFormationType == nextType) return;
             _architectFormationType = nextType;
             _architectFormationChangedAt = _runTime;
+        }
+
+        private float GetArchitectFormationCritBonus()
+        {
+            if (_sphereCharacterId != SphereCharacterId.Architect || _networkState == null ||
+                _networkState.DominantFormation == null || !_networkState.DominantFormation.Active ||
+                _networkState.DominantFormation.Type != SphereNetworkFormation.Triangle)
+                return 0f;
+
+            // Source engineCombat.ts grants Architect +10 percentage points of crit chance in Triangle formation.
+            return 0.10f;
         }
 
         private float GetArchitectFormationBonusScale(SphereNetworkFormation type)
