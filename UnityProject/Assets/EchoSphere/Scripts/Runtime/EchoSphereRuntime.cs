@@ -1198,7 +1198,7 @@ namespace EchoSphere.Runtime
 
                 // Source renderer.ts: targetPulse only affects the visual assembly,
                 // not the Sphere's gameplay transform or attack calculations.
-                var sourceTargetRange = 130f * GameCatalog.Spheres[(int)sphere.Type].RangeMultiplier *
+                var sourceTargetRange = 130f * SphereCombatRules.GetProfile(sphere.Type).RangeMultiplier *
                     SpherePlacementRules.SourcePixelsToWorld;
                 var hasTarget = false;
                 for (var enemyIndex = 0; enemyIndex < _enemies.Count; enemyIndex++)
