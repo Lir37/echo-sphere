@@ -1088,6 +1088,20 @@ assert.ok(runtimeArt.includes('ComboRules.IncrementOnKill') &&
   'source Combo timer, kill, XP, damage-reset and achievement paths must be wired');
 for (const threshold of ['>= 10', '>= 25', '>= 50', '>= 100'])
   assert.ok(comboRulesSource.includes(threshold), `source Combo XP multiplier threshold missing: ${threshold}`);
+assert.ok(runtimeArt.includes('private GUIStyle _menuTitle, _comboTitleStyle, _comboMultiplierStyle;') &&
+  runtimeArt.includes('_comboTitleStyle = new GUIStyle(GUI.skin.label)') &&
+  runtimeArt.includes('_comboMultiplierStyle = new GUIStyle(GUI.skin.label)') &&
+  runtimeArt.includes('if (_combo >= 5)') &&
+  runtimeArt.includes('var comboTitle = (IsRussianUi ? "КОМБО" : "COMBO") + " x" + _combo;') &&
+  runtimeArt.includes('_combo >= 50') && runtimeArt.includes('_combo >= 25') &&
+  runtimeArt.includes('_comboMultiplier.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)') &&
+  runtimeArt.includes('Mathf.Clamp01(_comboTimer / ComboRules.WindowSeconds)') &&
+  runtimeArt.includes('const float comboTop = 270f;') &&
+  runtimeArt.includes('(_uiWidth - comboWidth) * 0.5f') &&
+  runtimeArt.includes('new Color(1f, 0.72156864f, 0.3019608f, 1f)') &&
+  runtimeArt.includes('new Color(1f, 0.41960785f, 0.41960785f, 1f)') &&
+  runtimeArt.includes('new Color(1f, 0.3019608f, 0.3647059f, 1f)'),
+  'combo HUD must bind live runtime combo/multiplier/timer, preserve source labels and colors, and stay center-aligned in the portrait layout');
 assert.ok(runtimeArt.includes('critical_echo') &&
   runtimeArt.includes('ArtifactProtocolRules.IsCriticalEchoActive(discovered, _combo)') &&
   runtimeArt.includes('temporal_fold_protocol') &&
