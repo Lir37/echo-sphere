@@ -15,7 +15,7 @@ namespace EchoSphere.Core
         // Keep these IDs as catalog metadata only; the runtime choice generator must not consume them.
         private static readonly RunUpgradeKind[] PassiveCatalogKinds =
         {
-            RunUpgradeKind.Damage, RunUpgradeKind.AttackSpeed, RunUpgradeKind.MoveSpeed,
+            RunUpgradeKind.Damage, RunUpgradeKind.AttackSpeed, RunUpgradeKind.MaxSpheres, RunUpgradeKind.MoveSpeed,
             RunUpgradeKind.Slow, RunUpgradeKind.Vitality, RunUpgradeKind.Dodge,
             RunUpgradeKind.Crit, RunUpgradeKind.Magnet, RunUpgradeKind.Armor,
             RunUpgradeKind.Regen, RunUpgradeKind.Stability, RunUpgradeKind.Radius, RunUpgradeKind.Vampire,
@@ -26,7 +26,8 @@ namespace EchoSphere.Core
 
         public static IReadOnlyList<RunUpgradeKind> SourcePassiveCatalog => PassiveCatalogKinds;
 
-        public static int GetMaxLevel(RunUpgradeKind kind) => 7;
+        public static int GetMaxLevel(RunUpgradeKind kind) =>
+            kind == RunUpgradeKind.MaxSpheres ? 3 : 7;
 
         public static bool IsAbilityChoice(RunUpgradeKind kind) => kind != RunUpgradeKind.Sphere;
 
