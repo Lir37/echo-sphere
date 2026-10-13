@@ -3624,7 +3624,58 @@ namespace EchoSphere.Runtime
                 ArtifactSynergyRules.HasSingularitySynergy(_ownedArtifacts), uniqueTypes);
             multiplier *= ArtifactSynergyRules.GetCoreRelayDamageMultiplier(
                 ArtifactSynergyRules.HasCoreRelaySynergy(_ownedArtifacts), uniqueTypes);
+
+            var hasVoidHorizon = ArtifactSynergyRules.HasVoidHorizonSynergy(_ownedArtifacts) &&
+                sphere.Type == SphereId.Void;
+            multiplier *= ArtifactSynergyRules.GetVoidHorizonDamageMultiplier(
+                hasVoidHorizon, sphere.Type == SphereId.Void, hasVoidHorizon && HasLivingEliteEnemy());
+
+            multiplier *= ArtifactSynergyRules.GetOrbitalPrismDamageMultiplier(
+                ArtifactSynergyRules.HasOrbitalPrismSynergy(_ownedArtifacts), sphere.Type == SphereId.Orbital);
+
+            var hasGravityPulse = ArtifactSynergyRules.HasGravityPulseSynergy(_ownedArtifacts) &&
+                sphere.Type == SphereId.Pulse;
+            multiplier *= ArtifactSynergyRules.GetGravityPulseDamageMultiplier(
+                hasGravityPulse, sphere.Type == SphereId.Pulse,
+                hasGravityPulse ? CountLivingEnemiesNearAnySphere(140f) : 0);
             return multiplier;
+        }
+
+        private bool HasLivingEliteEnemy()
+        {
+            for (var i = 0; i < _enemies.Count; i++)
+            {
+                var enemy = _enemies[i];
+                if (enemy != null && enemy.IsAlive && enemy.IsElite) return true;
+            }
+            return false;
+        }
+
+        // Source gravity_pulse groups each living enemy once when any living
+        // Sphere is strictly closer than 140 source pixels.
+        private int CountLivingEnemiesNearAnySphere(float sourceDistancePixels)
+        {
+            var radius = sourceDistancePixels * SpherePlacementRules.SourcePixelsToWorld;
+            var radiusSq = radius * radius;
+            var count = 0;
+            for (var enemyIndex = 0; enemyIndex < _enemies.Count; enemyIndex++)
+            {
+                var enemy = _enemies[enemyIndex];
+                if (enemy == null || !enemy.IsAlive) continue;
+                var enemyPosition = (Vector2)enemy.transform.position;
+                for (var sphereIndex = 0; sphereIndex < _spheres.Count; sphereIndex++)
+                {
+                    var sphere = _spheres[sphereIndex];
+                    if (sphere == null || !sphere.gameObject.activeInHierarchy) continue;
+                    var delta = enemyPosition - (Vector2)sphere.transform.position;
+                    if (delta.sqrMagnitude < radiusSq)
+                    {
+                        count++;
+                        break;
+                    }
+                }
+            }
+            return count;
         }
 
         private bool HasNearbyActiveSphere(SphereAttackAgent sphere, float sourceDistancePixels)

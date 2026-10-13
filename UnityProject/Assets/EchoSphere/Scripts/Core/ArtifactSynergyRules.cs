@@ -22,6 +22,15 @@ namespace EchoSphere.Core
         public static bool HasCoreRelaySynergy(IList<string> ownedArtifacts) =>
             HasBoth(ownedArtifacts, "unified_mind", "echo_thread");
 
+        public static bool HasVoidHorizonSynergy(IList<string> ownedArtifacts) =>
+            HasBoth(ownedArtifacts, "void_ink", "void_mark");
+
+        public static bool HasOrbitalPrismSynergy(IList<string> ownedArtifacts) =>
+            HasBoth(ownedArtifacts, "orbital_blade", "prism_filter");
+
+        public static bool HasGravityPulseSynergy(IList<string> ownedArtifacts) =>
+            HasBoth(ownedArtifacts, "gravity_hook", "pulse_driver");
+
         public static float GetFortressNetworkDamageMultiplier(bool hasSynergy, bool hasNearbySphere) =>
             hasSynergy && hasNearbySphere ? 1.10f : 1f;
 
@@ -36,6 +45,17 @@ namespace EchoSphere.Core
 
         public static float GetCoreRelayDamageMultiplier(bool hasSynergy, int uniqueTypeCount) =>
             hasSynergy && uniqueTypeCount >= 2 ? 1.08f : 1f;
+
+        public static float GetVoidHorizonDamageMultiplier(
+            bool hasSynergy, bool isVoidSphere, bool hasLivingElite) =>
+            hasSynergy && isVoidSphere && hasLivingElite ? 1.15f : 1f;
+
+        public static float GetOrbitalPrismDamageMultiplier(bool hasSynergy, bool isOrbitalSphere) =>
+            hasSynergy && isOrbitalSphere ? 1.15f : 1f;
+
+        public static float GetGravityPulseDamageMultiplier(
+            bool hasSynergy, bool isPulseSphere, int groupedLivingEnemyCount) =>
+            hasSynergy && isPulseSphere && groupedLivingEnemyCount >= 3 ? 1.15f : 1f;
 
         private static bool HasBoth(IList<string> ownedArtifacts, string first, string second)
         {

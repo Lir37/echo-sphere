@@ -921,3 +921,22 @@ assert.ok(menuRuntime.includes('ArtifactSynergyRules.GetFortressNetworkDamageMul
   menuRuntime.includes('ArtifactSynergyRules.GetCoreRelayDamageMultiplier') &&
   menuRuntime.includes('ArtifactSynergyRules.GetGlassCannonDamageTakenMultiplier'),
   'Artifact Synergy pair effects must be connected to real Sphere damage and incoming-player-damage runtime paths');
+
+
+// Source-mapped target-state Artifact Synergies: Void Horizon checks for any
+// living Elite; Orbital Prism buffs Orbital only; Gravity Pulse counts living
+// enemies with any living Sphere strictly within 140 source pixels.
+assert.ok(artifactSynergyRulesSource.includes('HasBoth(ownedArtifacts, "void_ink", "void_mark")') &&
+  artifactSynergyRulesSource.includes('HasBoth(ownedArtifacts, "orbital_blade", "prism_filter")') &&
+  artifactSynergyRulesSource.includes('HasBoth(ownedArtifacts, "gravity_hook", "pulse_driver")') &&
+  artifactSynergyRulesSource.includes('hasSynergy && isVoidSphere && hasLivingElite ? 1.15f : 1f') &&
+  artifactSynergyRulesSource.includes('hasSynergy && isOrbitalSphere ? 1.15f : 1f') &&
+  artifactSynergyRulesSource.includes('hasSynergy && isPulseSphere && groupedLivingEnemyCount >= 3 ? 1.15f : 1f'),
+  'Target-state Artifact Synergies must match source pair IDs, Sphere categories and thresholds');
+assert.ok(menuRuntime.includes('HasLivingEliteEnemy()') &&
+  menuRuntime.includes('CountLivingEnemiesNearAnySphere(140f)') &&
+  menuRuntime.includes('delta.sqrMagnitude < radiusSq') &&
+  menuRuntime.includes('ArtifactSynergyRules.GetVoidHorizonDamageMultiplier') &&
+  menuRuntime.includes('ArtifactSynergyRules.GetOrbitalPrismDamageMultiplier') &&
+  menuRuntime.includes('ArtifactSynergyRules.GetGravityPulseDamageMultiplier'),
+  'Void Horizon, Orbital Prism and Gravity Pulse must use live combat entities in the actual damage path');

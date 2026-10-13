@@ -43,6 +43,7 @@ internal static class Program
             CheckLevelUpChoiceRules();
             CheckFormationHitRules();
             CheckArtifactSynergyRules();
+            CheckSituationalArtifactSynergies();
             CheckSphereElementalRules();
             CheckAlchemistReactionRules();
             CheckSphereAuthoredModifierRules();
@@ -976,6 +977,38 @@ internal static class Program
             "Core Relay grants +8% to a mixed Sphere network");
         Near(ArtifactSynergyRules.GetCoreRelayDamageMultiplier(false, 3), 1f, 0f,
             "Core Relay requires both artifacts");
+    }
+
+    private static void CheckSituationalArtifactSynergies()
+    {
+        True(ArtifactSynergyRules.HasVoidHorizonSynergy(new List<string> { "void_ink", "void_mark" }),
+            "Void Horizon requires Void Ink and Void Mark");
+        True(!ArtifactSynergyRules.HasVoidHorizonSynergy(new List<string> { "void_ink" }),
+            "Void Horizon requires both source artifacts");
+        Near(ArtifactSynergyRules.GetVoidHorizonDamageMultiplier(true, true, true), 1.15f, 0f,
+            "Void Horizon gives Void +15% while any living elite exists");
+        Near(ArtifactSynergyRules.GetVoidHorizonDamageMultiplier(true, true, false), 1f, 0f,
+            "Void Horizon bonus requires a living elite");
+        Near(ArtifactSynergyRules.GetVoidHorizonDamageMultiplier(true, false, true), 1f, 0f,
+            "Void Horizon bonus applies only to Void");
+
+        True(ArtifactSynergyRules.HasOrbitalPrismSynergy(new List<string> { "orbital_blade", "prism_filter" }),
+            "Orbital Prism requires Orbital Blade and Prism Filter");
+        Near(ArtifactSynergyRules.GetOrbitalPrismDamageMultiplier(true, true), 1.15f, 0f,
+            "Orbital Prism gives Orbital +15% damage");
+        Near(ArtifactSynergyRules.GetOrbitalPrismDamageMultiplier(true, false), 1f, 0f,
+            "Orbital Prism does not buff other Sphere types");
+
+        True(ArtifactSynergyRules.HasGravityPulseSynergy(new List<string> { "gravity_hook", "pulse_driver" }),
+            "Gravity Pulse requires Gravity Hook and Pulse Driver");
+        Near(ArtifactSynergyRules.GetGravityPulseDamageMultiplier(true, true, 2), 1f, 0f,
+            "Gravity Pulse requires three grouped living enemies");
+        Near(ArtifactSynergyRules.GetGravityPulseDamageMultiplier(true, true, 3), 1.15f, 0f,
+            "Gravity Pulse gives Pulse +15% against three or more grouped living enemies");
+        Near(ArtifactSynergyRules.GetGravityPulseDamageMultiplier(true, false, 3), 1f, 0f,
+            "Gravity Pulse synergy only affects Pulse");
+        Near(ArtifactSynergyRules.GetGravityPulseDamageMultiplier(false, true, 4), 1f, 0f,
+            "Gravity Pulse needs both source artifacts");
     }
 
     private static void CheckSphereElementalRules()
