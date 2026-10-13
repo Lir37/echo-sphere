@@ -1260,6 +1260,9 @@ assert.ok(!runtimeArt.includes('GetAbilityFinalArchetype(RunUpgradeKind.TimeStop
   !runtimeArt.includes('_timeStopTimer <= 1f && GetAbilityFinalArchetype(RunUpgradeKind.TimeStop) == "timestop_temporal_core"') &&
   !abilityDroneSource.includes('_final == "minion_sphere_guard"'),
   'do not activate final-ability riders that the source code checks through the raw branch-choice ID and therefore never triggers');
+assert.ok(runtimeArt.includes('var effectiveDamage = damage * synergyMultiplier;') &&
+  !runtimeArt.includes('var sourceDamage = damage * synergyMultiplier * GetSphereDamageMultiplier(source.Type);'),
+  'active ability pulses must match source damage calls without a Sphere source and must not inherit Sphere-hit modifiers');
 assert.ok(runtimeArt.includes('private readonly List<AbilityDroneAgent2D> _abilityDrones') &&
   runtimeArt.includes('GetAbilityLevel(RunUpgradeKind.Minion) >= 3') &&
   runtimeArt.includes('drone.NetworkPosition') &&
