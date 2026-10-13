@@ -2967,6 +2967,15 @@ namespace EchoSphere.Runtime
                     pool.Add(LevelUpAbilityRules.CreateChoice(kind, current));
             }
 
+            var activeAbilityCount = _activeAbilityHotkeys.Count;
+            foreach (var kind in new[] { RunUpgradeKind.Teleport, RunUpgradeKind.TimeStop })
+            {
+                var current = GetAbilityLevel(kind);
+                if (current > 0 || activeAbilityCount < _activeAbilitySlots)
+                    if (LevelUpAbilityRules.CanUpgrade(kind, current))
+                        pool.Add(LevelUpAbilityRules.CreateChoice(kind, current));
+            }
+
             if (pool.Count == 0)
             {
                 _levelUpLockChoiceKey = null;
@@ -3743,6 +3752,120 @@ namespace EchoSphere.Runtime
             return _abilityLevels.TryGetValue(kind, out var level) ? level : 0;
         }
 
+        private void AssignActiveAbilityHotkey(RunUpgradeKind kind)
+        {
+            if (_activeAbilityHotkeys.ContainsKey(kind)) return;
+            foreach (var key in SourceActiveAbilityKeys)
+            {
+                var occupied = false;
+                foreach (var binding in _activeAbilityHotkeys)
+                    if (binding.Value == key) { occupied = true; break; }
+                if (occupied) continue;
+                _activeAbilityHotkeys[kind] = key;
+                return;
+            }
+        }
+
+        private float GetActiveAbilityCooldownMultiplier() =>
+            Mathf.Max(0.55f, 1f + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "cooldown"));
+
+        private void ActivateActiveAbility(RunUpgradeKind kind)
+        {
+            if (_mainMenu || _paused || _levelUp || _choosingEvolution || _gameOver || _stellaRewardPending)
+                return;
+            if (kind == RunUpgradeKind.TimeStop) ActivateTimeStop();
+            else if (kind == RunUpgradeKind.Teleport) ActivateTeleport();
+        }
+
+        private void ActivateTimeStop()
+        {
+            var level = GetAbilityLevel(RunUpgradeKind.TimeStop);
+            if (level <= 0 || _timeStopCooldown > 0f) return;
+
+            _timeStopCooldown = 40f * GetActiveAbilityCooldownMultiplier();
+            _timeStopTimer = 3f + Mathf.Min(2, level - 1);
+            SphereAttackAgent nearest = null;
+            var origin = (Vector2)_player.position;
+            var nearestDistance = float.PositiveInfinity;
+            foreach (var sphere in _spheres)
+            {
+                if (sphere == null || !sphere.gameObject.activeInHierarchy) continue;
+                var distance = Vector2.Distance(origin, sphere.transform.position);
+                if (distance < nearestDistance) { nearest = sphere; nearestDistance = distance; }
+            }
+
+            var radius = nearest != null ? 520f * SpherePlacementRules.SourcePixelsToWorld : float.PositiveInfinity;
+            var freezeDuration = _timeStopTimer;
+            foreach (var enemy in _enemies)
+            {
+                if (enemy == null || !enemy.IsAlive) continue;
+                if (nearest == null || Vector2.Distance(enemy.transform.position, nearest.transform.position) <= radius)
+                    enemy.ApplyFreeze(freezeDuration);
+            }
+
+            if (nearest != null)
+            {
+                var pulseRadius = 150f * SpherePlacementRules.SourcePixelsToWorld;
+                var pulseDamage = 10f + level * 4f;
+                foreach (var enemy in _enemies)
+                    if (enemy != null && enemy.IsAlive &&
+                        Vector2.Distance(enemy.transform.position, nearest.transform.position) <= pulseRadius)
+                        enemy.ReceiveSphereDamage(nearest.Type, pulseDamage, true, false, nearest);
+            }
+            ShowTimedCombatMessage("ECHO FREEZE", 1.2f);
+        }
+
+        private void ActivateTeleport()
+        {
+            var level = GetAbilityLevel(RunUpgradeKind.Teleport);
+            if (level <= 0 || _teleportCooldown > 0f) return;
+            if (_follow)
+            {
+                ShowTimedCombatMessage("FOLLOW: TELEPORT LOCKED", 0.55f);
+                return;
+            }
+
+            _teleportCooldown = Mathf.Max(5f, 15f - Mathf.Min(4, (level - 1) * 2)) *
+                GetActiveAbilityCooldownMultiplier();
+            var origin = (Vector2)_player.position;
+            SphereAttackAgent nearest = null;
+            var nearestDistance = float.PositiveInfinity;
+            foreach (var sphere in _spheres)
+            {
+                if (sphere == null || !sphere.gameObject.activeInHierarchy) continue;
+                var distance = Vector2.Distance(origin, sphere.transform.position);
+                if (level >= 3)
+                {
+                    var sourceDistance = distance / SpherePlacementRules.SourcePixelsToWorld;
+                    if (sourceDistance < 220f || sourceDistance > 700f) continue;
+                }
+                if (distance < nearestDistance) { nearest = sphere; nearestDistance = distance; }
+            }
+
+            if (nearest == null && level >= 3)
+            {
+                foreach (var sphere in _spheres)
+                {
+                    if (sphere == null || !sphere.gameObject.activeInHierarchy) continue;
+                    var distance = Vector2.Distance(origin, sphere.transform.position);
+                    if (distance < nearestDistance) { nearest = sphere; nearestDistance = distance; }
+                }
+            }
+
+            Vector2 destination;
+            if (nearest != null) destination = nearest.transform.position;
+            else
+            {
+                var offset = 300f * SpherePlacementRules.SourcePixelsToWorld;
+                destination = origin + new Vector2((_rng.NextFloat() * 2f - 1f) * offset,
+                    (_rng.NextFloat() * 2f - 1f) * offset);
+            }
+            _player.position = new Vector3(destination.x, destination.y, _player.position.z);
+            // The source damage buff is branch/final-specific (Teleport Beacon / Hunter Beacon).
+            // Those ability evolution choices are not yet migrated, so do not fabricate the buff here.
+            ShowTimedCombatMessage("ECHO JUMP", 0.9f);
+        }
+
         private void RecordLevelUpChoice(RunUpgradeChoice choice)
         {
             var key = GetUpgradeChoiceKey(choice);
@@ -3801,6 +3924,12 @@ namespace EchoSphere.Runtime
                 case RunUpgradeKind.MaxSpheres:
                     _maxSphereAbilityLevel = choice.NextLevel;
                     ShowMessage("MAX SPHERES: " + GetCurrentMaxSpheres());
+                    break;
+                case RunUpgradeKind.Teleport:
+                case RunUpgradeKind.TimeStop:
+                    _abilityLevels[choice.Kind] = choice.NextLevel;
+                    if (choice.CurrentLevel == 0) AssignActiveAbilityHotkey(choice.Kind);
+                    ShowMessage(choice.Title + " acquired.");
                     break;
                 case RunUpgradeKind.Damage:
                 case RunUpgradeKind.AttackSpeed:
@@ -6343,8 +6472,23 @@ namespace EchoSphere.Runtime
                 DrawSphereRoster();
                 DrawSpherePicker();
                 DrawSpherePlacementOverlay();
+                if (_activeAbilityHotkeys.TryGetValue(RunUpgradeKind.Teleport, out var teleportKey))
+                {
+                    var cooldownLabel = _teleportCooldown > 0f ? Mathf.CeilToInt(_teleportCooldown) + "s" : "READY";
+                    if (GUI.Button(new Rect(_uiWidth - 158f, 222f, 140f, 34f),
+                        "ECHO JUMP [" + teleportKey + "]  " + cooldownLabel, _button))
+                        ActivateActiveAbility(RunUpgradeKind.Teleport);
+                }
+                if (_activeAbilityHotkeys.TryGetValue(RunUpgradeKind.TimeStop, out var timeStopKey))
+                {
+                    var cooldownLabel = _timeStopCooldown > 0f ? Mathf.CeilToInt(_timeStopCooldown) + "s" : "READY";
+                    if (GUI.Button(new Rect(_uiWidth - 158f, 260f, 140f, 34f),
+                        "ECHO FREEZE [" + timeStopKey + "]  " + cooldownLabel, _button))
+                        ActivateActiveAbility(RunUpgradeKind.TimeStop);
+                }
+
                 if (!string.IsNullOrEmpty(_message) && _messageTimer > 0f)
-                    GUI.Label(new Rect(18f, 236f, Mathf.Min(_uiWidth - 36f, 520f), 30f), _message, _label);
+                    GUI.Label(new Rect(18f, 236f, Mathf.Max(120f, Mathf.Min(_activeAbilityHotkeys.Count > 0 ? _uiWidth - 210f : 520f, _uiWidth - 36f)), 30f), _message, _label);
 
                 // Port of src/App.tsx's combo overlay. The first HUD row, roster,
                 // pause controls and transient message occupy the space above this
