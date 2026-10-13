@@ -4,10 +4,10 @@ using System.Collections.Generic;
 namespace EchoSphere.Core
 {
     /// <summary>
-    /// Source-mapped Level-Up passive abilities from new-desing/src/gameData.ts,
-    /// engineStats.ts and engineCombat.ts. Only abilities whose effects are wired
-    /// in Unity are offered; active abilities and incomplete passive effects stay
-    /// out of the choice pool instead of appearing functional when they are not.
+    /// Source-mapped active Ability cards and passive catalog metadata from
+    /// new-desing/src/gameData.ts and src/sphereProgression.ts. Routine Level-Up
+    /// offers active Abilities and Spheres; the constructed passive pool is not
+    /// included in the source choice pools.
     /// </summary>
     public static class LevelUpAbilityRules
     {
