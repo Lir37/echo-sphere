@@ -1262,10 +1262,10 @@ assert.ok(runtimeArt.includes('40f * GetActiveAbilityCooldownMultiplier()') &&
   'Time Stop / Teleport must preserve source cooldowns, duration scaling and level-III target range');
 assert.ok(activeAbilityEnemy.includes('public void ApplyFreeze(float duration)') &&
   runtimeArt.includes('enemy.ApplyFreeze(freezeDuration)') &&
-  runtimeArt.includes('enemy.ReceiveDamage(pulseDamage)') &&
+  runtimeArt.includes('DamageEnemiesNearFromSphere(nearest, nearest.transform.position, pulseRadius, pulseDamage') &&
   runtimeArt.includes('for (var i = 0; i < 28; i++) _rng.NextFloat();') &&
   runtimeArt.includes('ShowTimedCombatMessage("ECHO FREEZE", 1.2f)'),
-  'Time Stop must apply direct source pulse damage, preserve RNG and show source feedback');
+  'Time Stop must apply the source Sphere pulse damage, preserve RNG and show source feedback');
 assert.ok(runtimeArt.includes('GetActiveAbilityEvolutionChoices') &&
   runtimeArt.includes('_abilityBranches') && runtimeArt.includes('_abilityFinals') &&
   runtimeArt.includes('teleport_echo_jump_f1') && runtimeArt.includes('teleport_beacon_f2') &&
