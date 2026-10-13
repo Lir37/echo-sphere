@@ -1270,6 +1270,30 @@ internal static class Program
             "Network Legacy protocol requires Ring, Lattice or Fractal");
         Near(ArtifactProtocolRules.GetNetworkLegacyProtocolMultiplier(true, 2, SphereNetworkFormation.Ring), 1f, 0f,
             "Network Legacy protocol requires three unique types");
+
+        Equal(ArtifactProtocolRules.Protocols.Count, 12, "all source Artifact Protocols are catalogued");
+        var protocolIds = new HashSet<string>();
+        foreach (var protocol in ArtifactProtocolRules.Protocols)
+        {
+            True(!string.IsNullOrWhiteSpace(protocol.Id), "Artifact Protocol id exists");
+            True(!string.IsNullOrWhiteSpace(protocol.SetId), "Artifact Protocol set id exists");
+            True(!string.IsNullOrWhiteSpace(protocol.NameRussian) &&
+                !string.IsNullOrWhiteSpace(protocol.NameEnglish), "Artifact Protocol has both localized names");
+            True(protocolIds.Add(protocol.Id), "Artifact Protocol ids are unique");
+        }
+        True(ArtifactProtocolRules.TryGetProtocol("triangle_resonance", out var triangleProtocol) &&
+            triangleProtocol.SetId == "resonance_grid", "Triangle Resonance discovery maps to Resonance Grid");
+        True(ArtifactProtocolRules.TryGetProtocol("sphere_relay", out var relayProtocol) &&
+            relayProtocol.SetId == "echo_architecture", "Sphere Relay discovery maps to Echo Architecture");
+        True(ArtifactProtocolRules.TryGetProtocol("critical_echo", out var criticalProtocol) &&
+            criticalProtocol.HasUnmappedRuntimeState, "Critical Echo remains pending until combo state is ported");
+        True(ArtifactProtocolRules.TryGetProtocol("temporal_fold_protocol", out var temporalProtocol) &&
+            temporalProtocol.HasUnmappedRuntimeState, "Temporal Fold remains pending until time-control state is ported");
+        True(ArtifactProtocolRules.TryGetProtocol("status_circuit_protocol", out var statusProtocol) &&
+            statusProtocol.HasUnmappedRuntimeState, "Status Circuit remains pending until the source-wide modifier map is ported");
+        True(!ArtifactProtocolRules.IsProtocolActive(false, true), "an undiscovered protocol cannot report active");
+        True(ArtifactProtocolRules.IsProtocolActive(true, true), "a discovered protocol reports active when its state gate is met");
+        True(!ArtifactProtocolRules.IsProtocolActive(true, false), "a discovered protocol remains inactive when its state gate is unmet");
     }
 
     private static void CheckSphereElementalRules()

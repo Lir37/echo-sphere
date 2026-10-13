@@ -76,7 +76,7 @@ namespace EchoSphere.Runtime
             }
         }
 
-        private enum MainMenuPage { Home, Shop, Settings, Leaderboard, Achievements, Characters }
+        private enum MainMenuPage { Home, Shop, Settings, Leaderboard, Achievements, Characters, Knowledge }
 
         private static readonly AchievementDefinition[] SourceAchievements =
         {
@@ -103,11 +103,17 @@ namespace EchoSphere.Runtime
         private const string AchievementPreferenceKey = "echosphere_achievements";
         private const string CharacterPreferenceKey = "echosphere_character";
         private const string CharacterProfilesPreferenceKey = "echosphere_character_profiles";
+        private const string ArtifactProtocolKnowledgePreferenceKey = "echosphere_artifact_protocol_knowledge_v1";
         private const string SoundPreferenceKey = "echosphere_sound";
         private const string HandednessPreferenceKey = "echosphere_handedness";
         private ShopSaveData _shopSave;
         private bool _shopSaveLoaded;
         private MainMenuPage _mainMenuPage = MainMenuPage.Home;
+        private readonly HashSet<string> _knownArtifactProtocolIds = new HashSet<string>();
+        private bool _artifactProtocolKnowledgeLoaded;
+        private bool _artifactPanelOpen;
+        private Vector2 _artifactProtocolScrollPosition;
+        private Vector2 _knowledgeScrollPosition;
         private string _playerName = "";
         private bool _settingsResetPending;
         private bool _architectFormationTracked;
@@ -645,6 +651,10 @@ namespace EchoSphere.Runtime
             PlayerPrefs.DeleteKey(NamePreferenceKey);
             ResetCharacterProgress();
             PlayerPrefs.DeleteKey("echosphere_knowledge_v1");
+            PlayerPrefs.DeleteKey(ArtifactProtocolKnowledgePreferenceKey);
+            _knownArtifactProtocolIds.Clear();
+            _artifactProtocolKnowledgeLoaded = true;
+            _artifactPanelOpen = false;
             PlayerPrefs.DeleteKey("echosphere_tutorial_completed_v1");
             PlayerPrefs.DeleteKey("echo-sphere:region:resonance_basin:stabilized");
             PlayerPrefs.DeleteKey("echo-sphere:region:resonance_basin:challenges");
@@ -2392,6 +2402,7 @@ namespace EchoSphere.Runtime
             var choice = _stellaRewardChoices[choiceIndex];
             if (choice == null || _ownedArtifacts.Contains(choice.Id)) return;
             _ownedArtifacts.Add(choice.Id);
+            RecordDiscoveredArtifactProtocols();
             if (choice.GetEffect("maxHp") > 0f && _playerCore != null) _playerCore.IncreaseMaxHp(choice.GetEffect("maxHp"));
             if (_playerCore != null)
                 _playerCore.SetDashCooldownMultiplier(Mathf.Max(0.55f, 1f + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "cooldown")));
@@ -3617,6 +3628,146 @@ namespace EchoSphere.Runtime
             return multiplier * GetArtifactSphereSynergyDamageMultiplier(sphere);
         }
 
+        private bool IsArtifactProtocolSetComplete(string setId)
+        {
+            switch (setId)
+            {
+                case "resonance_grid":
+                    return ArtifactSetRules.HasCompletedResonanceGrid(
+                        ArtifactSynergyRules.HasFortressNetworkSynergy(_ownedArtifacts),
+                        ArtifactSynergyRules.HasPerfectNetworkSynergy(_ownedArtifacts));
+                case "echo_architecture":
+                    return FormationHitRules.HasCompletedEchoArchitecture(_ownedArtifacts);
+                case "singularity_path":
+                    return ArtifactSetRules.HasCompletedSingularityPath(
+                        ArtifactSynergyRules.HasGlassCannonSynergy(_ownedArtifacts),
+                        ArtifactSynergyRules.HasSingularitySynergy(_ownedArtifacts));
+                case "geometry_craft":
+                    return ArtifactSetRules.HasCompletedGeometryCraft(
+                        ArtifactSynergyRules.HasGeometryLoopSynergy(_ownedArtifacts),
+                        ArtifactSynergyRules.HasLatticeMemorySynergy(_ownedArtifacts),
+                        ArtifactSynergyRules.HasNetworkMemorySynergy(_ownedArtifacts));
+                case "void_horizon":
+                    return ArtifactSetRules.HasCompletedVoidHorizonSet(
+                        ArtifactSynergyRules.HasVoidHorizonSynergy(_ownedArtifacts),
+                        ArtifactSynergyRules.HasOrbitalPrismSynergy(_ownedArtifacts),
+                        ArtifactSynergyRules.HasGravityPulseSynergy(_ownedArtifacts));
+                case "temporal_fold":
+                    // Source discovery requires the Temporal Echo artifact pair plus Axiom Fold.
+                    // Missing time-control behavior stays pending rather than being simulated.
+                    return HasArtifact("time_splitter") && HasArtifact("stasis_mandala") &&
+                        ArtifactSynergyRules.HasAxiomFoldSynergy(_ownedArtifacts);
+                case "status_circuit":
+                    return ArtifactSynergyRules.HasStatusCircuitSynergy(_ownedArtifacts) &&
+                        ArtifactSynergyRules.HasStatusLoopSynergy(_ownedArtifacts);
+                case "hunter_doctrine":
+                    return ArtifactSetRules.HasCompletedHunterDoctrineSet(
+                        ArtifactSynergyRules.HasHunterDoctrineSynergy(_ownedArtifacts),
+                        ArtifactSynergyRules.HasHunterFocusSynergy(_ownedArtifacts));
+                case "pulse_engineering":
+                    return ArtifactSetRules.HasCompletedPulseEngineeringSet(
+                        ArtifactSynergyRules.HasPulseEngineeringSynergy(_ownedArtifacts),
+                        ArtifactSynergyRules.HasPulseOverloadSynergy(_ownedArtifacts));
+                case "core_forge":
+                    return ArtifactSetRules.HasCompletedCoreForgeSet(
+                        ArtifactSynergyRules.HasCoreForgeSynergy(_ownedArtifacts),
+                        ArtifactSynergyRules.HasCoreRelaySynergy(_ownedArtifacts));
+                case "prism_dominion":
+                    return ArtifactSetRules.HasCompletedPrismDominionSet(
+                        ArtifactSynergyRules.HasOrbitalPrismSynergy(_ownedArtifacts),
+                        ArtifactSynergyRules.HasStatusCircuitSynergy(_ownedArtifacts));
+                case "network_legacy":
+                    return ArtifactSetRules.HasCompletedNetworkLegacySet(
+                        ArtifactSynergyRules.HasNetworkMemorySynergy(_ownedArtifacts),
+                        ArtifactSynergyRules.HasPerfectNetworkSynergy(_ownedArtifacts));
+                default:
+                    return false;
+            }
+        }
+
+        private bool IsArtifactProtocolCurrentlyActive(ArtifactProtocolDefinition protocol)
+        {
+            var discovered = IsArtifactProtocolSetComplete(protocol.SetId);
+            if (!discovered || protocol.HasUnmappedRuntimeState) return false;
+
+            bool conditionSatisfied;
+            switch (protocol.Id)
+            {
+                case "triangle_resonance":
+                    conditionSatisfied = false;
+                    for (var i = 0; i < _spheres.Count; i++)
+                        if (SphereFormsTriangleWithinSourceRange(_spheres[i])) { conditionSatisfied = true; break; }
+                    break;
+                case "sphere_relay":
+                    conditionSatisfied = CountUniqueActiveSphereTypes() >= 2;
+                    break;
+                case "critical_echo":
+                case "temporal_fold_protocol":
+                case "status_circuit_protocol":
+                    conditionSatisfied = false;
+                    break;
+                case "geometry_circuit":
+                    conditionSatisfied = ArtifactSetRules.IsRingLatticeOrFractal(_resonanceGeometryType);
+                    break;
+                case "void_horizon_protocol":
+                    conditionSatisfied = HasActiveSphereType(SphereId.Void) && HasLivingEliteOrBossEnemy();
+                    break;
+                case "hunter_doctrine_protocol":
+                    conditionSatisfied = HasActiveSphereType(SphereId.Sniper) && HasLivingEliteOrBossEnemy();
+                    break;
+                case "pulse_engineering_protocol":
+                    conditionSatisfied = HasActiveSphereType(SphereId.Pulse) && CountLivingEnemiesInRun() >= 4;
+                    break;
+                case "core_forge_protocol":
+                    conditionSatisfied = CountUniqueActiveSphereTypes() >= 3;
+                    break;
+                case "prism_dominion_protocol":
+                    conditionSatisfied = HasActiveSphereType(SphereId.Prism) &&
+                        (HasActiveSphereType(SphereId.Orbital) || HasActiveSphereType(SphereId.Void));
+                    break;
+                case "network_legacy_protocol":
+                    conditionSatisfied = CountUniqueActiveSphereTypes() >= 3 &&
+                        ArtifactSetRules.IsRingLatticeOrFractal(_resonanceGeometryType);
+                    break;
+                default:
+                    conditionSatisfied = false;
+                    break;
+            }
+            return ArtifactProtocolRules.IsProtocolActive(discovered, conditionSatisfied);
+        }
+
+        private void EnsureArtifactProtocolKnowledgeLoaded()
+        {
+            if (_artifactProtocolKnowledgeLoaded) return;
+            _artifactProtocolKnowledgeLoaded = true;
+            _knownArtifactProtocolIds.Clear();
+            var raw = PlayerPrefs.GetString(ArtifactProtocolKnowledgePreferenceKey, string.Empty);
+            var ids = raw.Split(new[] { '|' }, System.StringSplitOptions.RemoveEmptyEntries);
+            for (var i = 0; i < ids.Length; i++)
+                if (ArtifactProtocolRules.TryGetProtocol(ids[i], out _)) _knownArtifactProtocolIds.Add(ids[i]);
+        }
+
+        private void RecordDiscoveredArtifactProtocols()
+        {
+            EnsureArtifactProtocolKnowledgeLoaded();
+            var changed = false;
+            for (var i = 0; i < ArtifactProtocolRules.Protocols.Count; i++)
+            {
+                var protocol = ArtifactProtocolRules.Protocols[i];
+                if (IsArtifactProtocolSetComplete(protocol.SetId) && _knownArtifactProtocolIds.Add(protocol.Id))
+                    changed = true;
+            }
+            if (!changed) return;
+            var savedIds = new List<string>();
+            for (var i = 0; i < ArtifactProtocolRules.Protocols.Count; i++)
+            {
+                var id = ArtifactProtocolRules.Protocols[i].Id;
+                if (_knownArtifactProtocolIds.Contains(id)) savedIds.Add(id);
+            }
+            PlayerPrefs.SetString(ArtifactProtocolKnowledgePreferenceKey, System.String.Join("|", savedIds.ToArray()));
+            PlayerPrefs.Save();
+        }
+
         private float GetArtifactSphereSynergyDamageMultiplier(SphereAttackAgent sphere)
         {
             var uniqueTypes = CountUniqueActiveSphereTypes();
@@ -4123,6 +4274,7 @@ namespace EchoSphere.Runtime
                 case MainMenuPage.Leaderboard: DrawLeaderboardScreen(); return;
                 case MainMenuPage.Achievements: DrawAchievementsScreen(); return;
                 case MainMenuPage.Characters: DrawCharacterSelectScreen(); return;
+                case MainMenuPage.Knowledge: DrawKnowledgeBaseScreen(); return;
             }
 
             var previousColor = GUI.color;
@@ -4205,7 +4357,7 @@ namespace EchoSphere.Runtime
             var navY = panel.y + height - 124f;
             var navLeft = panel.x + 22f;
             var navGap = 7f;
-            var navWidth = (panel.width - 44f - navGap * 4f) / 5f;
+            var navWidth = (panel.width - 44f - navGap * 5f) / 6f;
             if (GUI.Button(new Rect(navLeft, navY, navWidth, 38f), IsRussianUi ? "МАГАЗИН" : "SHOP", _button))
                 _mainMenuPage = MainMenuPage.Shop;
             if (GUI.Button(new Rect(navLeft + (navWidth + navGap), navY, navWidth, 38f), IsRussianUi ? "НАСТРОЙКИ" : "SETTINGS", _button))
@@ -4216,6 +4368,8 @@ namespace EchoSphere.Runtime
                 _mainMenuPage = MainMenuPage.Achievements;
             if (GUI.Button(new Rect(navLeft + (navWidth + navGap) * 4f, navY, navWidth, 38f), IsRussianUi ? "ПЕРСОНАЖИ" : "CHARACTERS", _button))
                 _mainMenuPage = MainMenuPage.Characters;
+            if (GUI.Button(new Rect(navLeft + (navWidth + navGap) * 5f, navY, navWidth, 38f), IsRussianUi ? "ЗНАНИЯ" : "KNOWLEDGE", _button))
+                _mainMenuPage = MainMenuPage.Knowledge;
 
             GUI.Label(new Rect(panel.x + 24f, panel.y + height - 76f, panel.width - 48f, 34f),
                 IsRussianUi ? "Движение: правая часть экрана · Сферы: левая часть · Рывок: кнопка DASH" :
@@ -4566,6 +4720,119 @@ namespace EchoSphere.Runtime
             if (GUI.Button(new Rect(panel.x + 22f, panel.yMax - 48f, 132f, 34f),
                 IsRussianUi ? "НАЗАД" : "BACK", _button))
                 _mainMenuPage = MainMenuPage.Home;
+        }
+
+        private void DrawKnowledgeBaseScreen()
+        {
+            EnsureArtifactProtocolKnowledgeLoaded();
+            var panel = DrawMenuScreenFrame(
+                IsRussianUi ? "БАЗА ЗНАНИЙ" : "KNOWLEDGE BASE",
+                (IsRussianUi ? "ПРОТОКОЛЫ ОТКРЫТЫ" : "PROTOCOLS DISCOVERED") + "  " +
+                    _knownArtifactProtocolIds.Count + "/" + ArtifactProtocolRules.Protocols.Count,
+                650f);
+
+            var view = new Rect(panel.x + 18f, panel.y + 99f, panel.width - 36f, panel.height - 151f);
+            var columns = panel.width >= 590f ? 2 : 1;
+            var gap = 10f;
+            var cellWidth = (view.width - (columns - 1) * gap - 18f) / columns;
+            const float rowHeight = 100f;
+            var rowCount = (ArtifactProtocolRules.Protocols.Count + columns - 1) / columns;
+            var contentHeight = rowCount * (rowHeight + gap);
+            _knowledgeScrollPosition = GUI.BeginScrollView(
+                view, _knowledgeScrollPosition, new Rect(0f, 0f, view.width - 18f, contentHeight));
+
+            for (var i = 0; i < ArtifactProtocolRules.Protocols.Count; i++)
+            {
+                var protocol = ArtifactProtocolRules.Protocols[i];
+                var unlocked = _knownArtifactProtocolIds.Contains(protocol.Id);
+                var column = i % columns;
+                var row = i / columns;
+                var card = new Rect(column * (cellWidth + gap), row * (rowHeight + gap), cellWidth, rowHeight - 4f);
+                GUI.Box(card, GUIContent.none, _box);
+                var title = unlocked
+                    ? (IsRussianUi ? protocol.NameRussian : protocol.NameEnglish)
+                    : (IsRussianUi ? "ЗАПИСЬ НЕ ОТКРЫТА" : "ENTRY LOCKED");
+                var description = unlocked
+                    ? (IsRussianUi ? protocol.DescriptionRussian : protocol.DescriptionEnglish)
+                    : (IsRussianUi ? "Завершите соответствующий набор артефактов, чтобы открыть запись."
+                        : "Complete the corresponding Artifact Set to unlock this entry.");
+                GUI.Label(new Rect(card.x + 10f, card.y + 7f, card.width - 20f, 25f), title, _label);
+                var previousColor = GUI.color;
+                GUI.color = unlocked ? new Color(0.33f, 0.91f, 1f, 1f) : new Color(0.52f, 0.68f, 0.82f, 0.72f);
+                GUI.Label(new Rect(card.x + 10f, card.y + 31f, card.width - 20f, 17f),
+                    unlocked ? (IsRussianUi ? "ОТКРЫТО" : "DISCOVERED") : (IsRussianUi ? "ЗАКРЫТО" : "LOCKED"), _sphereDescriptionStyle);
+                GUI.color = previousColor;
+                GUI.Label(new Rect(card.x + 10f, card.y + 51f, card.width - 20f, card.height - 55f), description, _sphereDescriptionStyle);
+            }
+
+            GUI.EndScrollView();
+            if (GUI.Button(new Rect(panel.x + 22f, panel.yMax - 46f, 142f, 32f),
+                IsRussianUi ? "НАЗАД" : "BACK", _button))
+                _mainMenuPage = MainMenuPage.Home;
+        }
+
+        private void DrawArtifactProtocolOverlay()
+        {
+            var previousColor = GUI.color;
+            GUI.color = new Color(0.006f, 0.015f, 0.045f, 0.96f);
+            GUI.DrawTexture(new Rect(0f, 0f, _uiWidth, _uiHeight), _uiPanelTexture);
+            GUI.color = previousColor;
+
+            var panelWidth = Mathf.Min(760f, _uiWidth - 24f);
+            var panelHeight = Mathf.Min(660f, _uiHeight - 24f);
+            var panel = new Rect((_uiWidth - panelWidth) * 0.5f, (_uiHeight - panelHeight) * 0.5f, panelWidth, panelHeight);
+            GUI.Box(panel, GUIContent.none, _box);
+            GUI.Label(new Rect(panel.x + 20f, panel.y + 14f, panel.width - 40f, 34f),
+                IsRussianUi ? "АРТЕФАКТЫ / ПРОТОКОЛЫ" : "ARTIFACTS / PROTOCOLS", _menuTitle);
+            GUI.Label(new Rect(panel.x + 22f, panel.y + 55f, panel.width - 44f, 22f),
+                IsRussianUi ? "Открытые протоколы и текущие боевые условия" : "Discovered protocols and current combat conditions",
+                _sphereDescriptionStyle);
+
+            var view = new Rect(panel.x + 16f, panel.y + 86f, panel.width - 32f, panel.height - 142f);
+            const float rowHeight = 68f;
+            var contentHeight = ArtifactProtocolRules.Protocols.Count * rowHeight;
+            _artifactProtocolScrollPosition = GUI.BeginScrollView(
+                view, _artifactProtocolScrollPosition, new Rect(0f, 0f, view.width - 18f, contentHeight));
+
+            for (var i = 0; i < ArtifactProtocolRules.Protocols.Count; i++)
+            {
+                var protocol = ArtifactProtocolRules.Protocols[i];
+                var discovered = IsArtifactProtocolSetComplete(protocol.SetId);
+                var active = discovered && IsArtifactProtocolCurrentlyActive(protocol);
+                var rect = new Rect(0f, i * rowHeight, view.width - 18f, rowHeight - 5f);
+                GUI.Box(rect, GUIContent.none, _box);
+
+                var status = !discovered
+                    ? "???"
+                    : protocol.HasUnmappedRuntimeState
+                        ? (IsRussianUi ? "ОЖИДАЕТ СИСТЕМУ" : "WAITING FOR STATE")
+                        : active
+                            ? (IsRussianUi ? "АКТИВЕН" : "ACTIVE")
+                            : (IsRussianUi ? "ОТКРЫТ" : "DISCOVERED");
+                var title = discovered
+                    ? (IsRussianUi ? protocol.NameRussian : protocol.NameEnglish)
+                    : "???";
+                var description = discovered
+                    ? (IsRussianUi ? protocol.DescriptionRussian : protocol.DescriptionEnglish)
+                    : (IsRussianUi ? "Неизвестный протокол." : "Unknown protocol.");
+
+                GUI.Label(new Rect(rect.x + 10f, rect.y + 4f, rect.width - 164f, 24f), title, _label);
+                var previousCardColor = GUI.color;
+                GUI.color = active ? new Color(0.33f, 0.91f, 1f, 1f)
+                    : protocol.HasUnmappedRuntimeState && discovered ? new Color(1f, 0.75f, 0.32f, 1f)
+                    : new Color(0.52f, 0.68f, 0.82f, 0.9f);
+                GUI.Label(new Rect(rect.xMax - 154f, rect.y + 5f, 144f, 20f), status, _sphereDescriptionStyle);
+                GUI.color = previousCardColor;
+                GUI.Label(new Rect(rect.x + 10f, rect.y + 28f, rect.width - 20f, 34f), description, _sphereDescriptionStyle);
+            }
+
+            GUI.EndScrollView();
+            if (GUI.Button(new Rect(panel.x + 20f, panel.yMax - 44f, 150f, 30f),
+                IsRussianUi ? "ВОЗВРАТ В ЗАБЕГ" : "BACK TO RUN", _button))
+            {
+                _artifactPanelOpen = false;
+                SetUserPaused(false);
+            }
         }
 
         private void DrawAchievementsScreen()
@@ -5771,6 +6038,11 @@ namespace EchoSphere.Runtime
                 }
 
                 DrawHudBackdrop();
+                if (_artifactPanelOpen)
+                {
+                    DrawArtifactProtocolOverlay();
+                    return;
+                }
 
                 var hp = _playerCore == null ? 0f : _playerCore.CurrentHp;
                 var maxHp = _playerCore == null ? 100f : _playerCore.MaxHp;
@@ -5811,9 +6083,21 @@ namespace EchoSphere.Runtime
                     SetFormationFollowMode(!_follow);
                 if (GUI.Button(new Rect(_uiWidth - 176f, bottomY, 158f, 54f), "DASH", _button))
                     _playerCore.TryDash(_playerCore.LastMoveDirection);
-                if (!_gameOver && !_levelUp && !_choosingEvolution && !_stellaRewardPending &&
+                if (!_gameOver && !_levelUp && !_choosingEvolution && !_stellaRewardPending && !_artifactPanelOpen &&
                     GUI.Button(new Rect(_uiWidth - 158f, 140f, 140f, 36f), _userPaused ? "RESUME" : "PAUSE", _button))
                     SetUserPaused(!_userPaused);
+                if (!_userPaused && !_gameOver && !_levelUp && !_choosingEvolution && !_stellaRewardPending &&
+                    GUI.Button(new Rect(_uiWidth - 158f, 180f, 140f, 36f),
+                        IsRussianUi ? "АРТЕФАКТЫ / ПРОТОКОЛЫ" : "ARTIFACT PROTOCOLS", _button))
+                {
+                    _artifactPanelOpen = true;
+                    SetUserPaused(true);
+                }
+                if (_artifactPanelOpen)
+                {
+                    DrawArtifactProtocolOverlay();
+                    return;
+                }
 
                 DrawSphereRoster();
                 DrawSpherePicker();
@@ -5938,7 +6222,7 @@ namespace EchoSphere.Runtime
                     }
                 }
 
-                if (_userPaused)
+                if (_userPaused && !_artifactPanelOpen)
                 {
                     var pauseLeft = _uiWidth * 0.5f - 190f;
                     var pauseTop = _uiHeight * 0.5f - 105f;

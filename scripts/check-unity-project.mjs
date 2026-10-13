@@ -1053,3 +1053,30 @@ assert.ok(artifactProtocolRulesSource.includes('completedGrid && sphereFormsTria
   artifactProtocolRulesSource.includes('completedPulseEngineering && isPulseSphere && livingEnemyCount >= 4 ? 1.08f : 1f') &&
   artifactProtocolRulesSource.includes('completedPrismDominion && isPrismOrbitalOrVoid && refractionPressure ? 1.06f : 1f'),
   'Artifact Protocol bonuses must preserve source values and active-state gates');
+
+
+// Artifact Protocol status is exposed both in the run and in the persistent encyclopedia.
+assert.equal((artifactProtocolRulesSource.match(/new ArtifactProtocolDefinition\(/g) || []).length, 12,
+  'the protocol catalog must contain all twelve source definitions');
+assert.ok(runtimeArt.includes('MainMenuPage.Knowledge: DrawKnowledgeBaseScreen(); return;') &&
+  runtimeArt.includes('IsRussianUi ? "ЗНАНИЯ" : "KNOWLEDGE"') &&
+  runtimeArt.includes('private void DrawKnowledgeBaseScreen()'),
+  'the main menu must open the Artifact Protocol encyclopedia');
+assert.ok(runtimeArt.includes('private void DrawArtifactProtocolOverlay()') &&
+  runtimeArt.includes('IsRussianUi ? "АРТЕФАКТЫ / ПРОТОКОЛЫ" : "ARTIFACTS / PROTOCOLS"') &&
+  runtimeArt.includes('IsArtifactProtocolCurrentlyActive(protocol)'),
+  'the run must show protocol discovery and live active state');
+assert.ok(runtimeArt.includes('RecordDiscoveredArtifactProtocols();') &&
+  runtimeArt.includes('ArtifactProtocolKnowledgePreferenceKey') &&
+  runtimeArt.includes('PlayerPrefs.SetString(ArtifactProtocolKnowledgePreferenceKey'),
+  'completed Artifact Sets must persist protocol encyclopedia unlocks');
+assert.ok(runtimeArt.includes('critical_echo') &&
+  runtimeArt.includes('temporal_fold_protocol') &&
+  runtimeArt.includes('status_circuit_protocol') &&
+  runtimeArt.includes('protocol.HasUnmappedRuntimeState'),
+  'three protocols requiring unported source runtime states must remain explicitly pending');
+assert.ok(artifactProtocolRulesSource.includes('HasUnmappedRuntimeState') &&
+  artifactProtocolRulesSource.includes('"critical_echo"') &&
+  artifactProtocolRulesSource.includes('"temporal_fold_protocol"') &&
+  artifactProtocolRulesSource.includes('"status_circuit_protocol"'),
+  'the protocol catalog must flag the three unmapped activation dependencies');
