@@ -4127,3 +4127,63 @@ device visual parity remain unverified.
 ======================================================================
 END ACTIVE ABILITY / GLOBAL SPHEREMODS SOURCE TRACE
 ======================================================================
+
+
+======================================================================
+[2026-10-13 | TIME STOP / TELEPORT BASELINE ACTIVATION SLICE]
+======================================================================
+
+SOURCE:
+- Active slots are unlocked in src/engineLoop.ts at player levels 5, 12 and
+  20, for 1, 2 and 3 active abilities. Source hotkey order is E, Q, R, F, G.
+- src/engineProgression.ts includes active ability upgrades only while the
+  ability already belongs to the active map or an active slot is available.
+- src/engineAbilities.ts activateTimeStop() uses a 40 s base cooldown,
+  duration 3..5 s by level, freezes enemies around the nearest Sphere within
+  520 source pixels (or all living enemies if no Sphere exists), and emits a
+  10 + 4*level pulse within 150 source pixels of the nearest Sphere.
+- activateTeleport() is blocked during Formation Follow; cooldown is
+  max(5, 15 - min(4, (level - 1)*2)) seconds before cooldown modifiers. At
+  level III it prefers a Sphere 220..700 source pixels away, falling back to
+  the nearest Sphere. If there is no Sphere, it uses seeded random +/-300
+  source-pixel offsets on both axes.
+- The source Teleport damage buff is not baseline behavior: it is produced
+  only by Teleport Beacon (4 s) or Hunter Beacon final evolution (5 s when
+  targeting Sniper). Those ability branch/final choices are not yet ported.
+- Current engineProgression.ts explicitly excludes global sphereMods from the
+  player-facing routine Level-Up pools. Do not invent global modifier choices;
+  keep tracing source writes and keep this distinct from authored per-Sphere
+  modifier progression.
+
+IMPLEMENTED ON unity-migration:
+- Added Time Stop and Teleport to RunUpgradeKind and LevelUpAbilityRules.
+- Added source level thresholds for active slots and source-ordered key
+  assignment for the two currently ported active abilities.
+- Added Level-Up choices gated by acquired active slots and ability level < 7.
+- Added manual keyboard activation plus on-screen buttons with cooldown
+  feedback; abilities are not auto-triggered.
+- Time Stop sets the real timer, freezes targets, emits the source-sized pulse,
+  uses source level-scaled duration and cooldown, and shows ECHO FREEZE.
+- Teleport respects Formation Follow lock, source cooldown/level-III target
+  range and seeded fallback displacement, then shows ECHO JUMP.
+- Added EnemyAgent2D.ApplyFreeze and structural regression assertions.
+- new-desing remains untouched.
+
+LIMITATIONS / NEXT:
+- This is the baseline activation slice, not the full active-ability system.
+  Ability branch/final evolution and their network/invulnerability/pulse riders
+  are not yet ported. Teleport damage-buff timer therefore has no producer yet.
+- Cooldown artifacts are included, but the separate source passive cooldown
+  ability and its complete progression are not ported.
+- Temporal Fold / Status Circuit remain gated until all their actual source
+  predicates and producers are wired. No global sphereMods choice path was
+  added because none is present in the current source Level-Up pool.
+- Unity Editor compilation, APK build and device visual parity remain unverified.
+
+VALIDATION:
+- Run Unity Migration Contracts CI after the final code/test/report commits.
+- Green contract CI is not a substitute for Unity Editor, APK or device checks.
+
+======================================================================
+END TIME STOP / TELEPORT BASELINE ACTIVATION SLICE
+======================================================================
