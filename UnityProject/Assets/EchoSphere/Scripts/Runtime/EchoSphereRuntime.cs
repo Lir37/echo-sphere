@@ -3811,7 +3811,7 @@ namespace EchoSphere.Runtime
                 foreach (var enemy in _enemies)
                     if (enemy != null && enemy.IsAlive &&
                         Vector2.Distance(enemy.transform.position, nearest.transform.position) <= pulseRadius)
-                        enemy.ReceiveSphereDamage(nearest.Type, pulseDamage, true, false, nearest);
+                        enemy.ReceiveDamage(pulseDamage);
             }
             ShowTimedCombatMessage("ECHO FREEZE", 1.2f);
         }
