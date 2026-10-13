@@ -42,6 +42,7 @@ internal static class Program
             CheckConductorOverdriveRules();
             CheckLevelUpChoiceRules();
             CheckFormationHitRules();
+            CheckArtifactSynergyRules();
             CheckSphereElementalRules();
             CheckAlchemistReactionRules();
             CheckSphereAuthoredModifierRules();
@@ -932,6 +933,49 @@ internal static class Program
             "Unified Core does not boost the strongest Sphere itself");
         Near(FormationHitRules.GetUnifiedCoreDamageMultiplier(false, 2, 7), 1f, 0f,
             "Unified Core boost requires both source artifacts");
+    }
+
+    private static void CheckArtifactSynergyRules()
+    {
+        True(ArtifactSynergyRules.HasFortressNetworkSynergy(new List<string> { "heavy_core", "resonance_core" }),
+            "Fortress Network requires Heavy Core and Resonance Core");
+        True(!ArtifactSynergyRules.HasFortressNetworkSynergy(new List<string> { "heavy_core" }),
+            "Fortress Network does not activate from one artifact");
+        Near(ArtifactSynergyRules.GetFortressNetworkDamageMultiplier(true, false), 1f, 0f,
+            "Fortress Network requires another nearby Sphere");
+        Near(ArtifactSynergyRules.GetFortressNetworkDamageMultiplier(true, true), 1.10f, 0f,
+            "Fortress Network grants +10% near a Sphere");
+        Near(ArtifactSynergyRules.GetFortressNetworkDamageMultiplier(false, true), 1f, 0f,
+            "Fortress Network requires its pair even when Spheres are nearby");
+
+        True(ArtifactSynergyRules.HasGlassCannonSynergy(new List<string> { "overclock", "void_contract" }),
+            "Glass Cannon requires Overclock and Void Contract");
+        Near(ArtifactSynergyRules.GetGlassCannonDamageMultiplier(true), 1.12f, 0f,
+            "Glass Cannon grants +12% Sphere damage");
+        Near(ArtifactSynergyRules.GetGlassCannonDamageMultiplier(false), 1f, 0f,
+            "Glass Cannon damage bonus requires both artifacts");
+        Near(ArtifactSynergyRules.GetGlassCannonDamageTakenMultiplier(true), 1.05f, 0f,
+            "Glass Cannon adds +5% incoming damage");
+        Near(ArtifactSynergyRules.GetGlassCannonDamageTakenMultiplier(false), 1f, 0f,
+            "Incoming damage penalty is absent without the Glass Cannon synergy");
+
+        True(ArtifactSynergyRules.HasSingularitySynergy(new List<string> { "lone_bastion", "singularity_engine" }),
+            "Singularity requires Lone Bastion and Singularity Engine");
+        Near(ArtifactSynergyRules.GetSingularityDamageMultiplier(true, 1), 1.20f, 0f,
+            "Singularity grants +20% at one active Sphere type");
+        Near(ArtifactSynergyRules.GetSingularityDamageMultiplier(true, 2), 1f, 0f,
+            "Singularity synergy is inactive above one active Sphere type");
+        Near(ArtifactSynergyRules.GetSingularityDamageMultiplier(false, 1), 1f, 0f,
+            "Singularity bonus requires both artifacts");
+
+        True(ArtifactSynergyRules.HasCoreRelaySynergy(new List<string> { "unified_mind", "echo_thread" }),
+            "Core Relay requires Unified Mind and Echo Thread");
+        Near(ArtifactSynergyRules.GetCoreRelayDamageMultiplier(true, 1), 1f, 0f,
+            "Core Relay requires at least two active Sphere types");
+        Near(ArtifactSynergyRules.GetCoreRelayDamageMultiplier(true, 2), 1.08f, 0f,
+            "Core Relay grants +8% to a mixed Sphere network");
+        Near(ArtifactSynergyRules.GetCoreRelayDamageMultiplier(false, 3), 1f, 0f,
+            "Core Relay requires both artifacts");
     }
 
     private static void CheckSphereElementalRules()

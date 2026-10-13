@@ -32,6 +32,8 @@ const required = [
   'Assets/EchoSphere/Scripts/Core/LevelUpChoiceRules.cs.meta',
   'Assets/EchoSphere/Scripts/Core/FormationHitRules.cs',
   'Assets/EchoSphere/Scripts/Core/FormationHitRules.cs.meta',
+  'Assets/EchoSphere/Scripts/Core/ArtifactSynergyRules.cs',
+  'Assets/EchoSphere/Scripts/Core/ArtifactSynergyRules.cs.meta',
   'Assets/EchoSphere/Scripts/Runtime/StellaChestAgent2D.cs',
   'Assets/EchoSphere/Scripts/Runtime/BossCombatAgent2D.cs',
   'Assets/EchoSphere/Scripts/Runtime/BossProjectileAgent2D.cs',
@@ -896,3 +898,26 @@ assert.ok(menuRuntime.includes('GetArtifactSphereSynergyDamageMultiplier(sphere)
   menuRuntime.includes('FormationHitRules.HasEchoRelaySynergy(_ownedArtifacts)') &&
   menuRuntime.includes('FormationHitRules.HasUnifiedCoreSynergy(_ownedArtifacts)'),
   'Echo Relay, completed Echo Architecture proximity and Unified Core must affect actual live attack damage');
+
+
+// Source-mapped live Artifact Synergy pair effects: Fortress Network, Glass
+// Cannon, Singularity and Core Relay. Base artifact effects stay separate.
+const artifactSynergyRulesSource = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/ArtifactSynergyRules.cs'), 'utf8');
+assert.ok(artifactSynergyRulesSource.includes('HasBoth(ownedArtifacts, "heavy_core", "resonance_core")') &&
+  artifactSynergyRulesSource.includes('HasBoth(ownedArtifacts, "overclock", "void_contract")') &&
+  artifactSynergyRulesSource.includes('HasBoth(ownedArtifacts, "lone_bastion", "singularity_engine")') &&
+  artifactSynergyRulesSource.includes('HasBoth(ownedArtifacts, "unified_mind", "echo_thread")'),
+  'Artifact Synergy activation must require exact source pairs');
+assert.ok(artifactSynergyRulesSource.includes('hasSynergy && hasNearbySphere ? 1.10f : 1f') &&
+  artifactSynergyRulesSource.includes('hasSynergy ? 1.12f : 1f') &&
+  artifactSynergyRulesSource.includes('hasSynergy ? 1.05f : 1f') &&
+  artifactSynergyRulesSource.includes('hasSynergy && uniqueTypeCount <= 1 ? 1.20f : 1f') &&
+  artifactSynergyRulesSource.includes('hasSynergy && uniqueTypeCount >= 2 ? 1.08f : 1f'),
+  'Artifact Synergy multipliers and gates must match source values');
+assert.ok(menuRuntime.includes('ArtifactSynergyRules.GetFortressNetworkDamageMultiplier') &&
+  menuRuntime.includes('HasNearbyActiveSphere(sphere, 190f)') &&
+  menuRuntime.includes('ArtifactSynergyRules.GetGlassCannonDamageMultiplier') &&
+  menuRuntime.includes('ArtifactSynergyRules.GetSingularityDamageMultiplier') &&
+  menuRuntime.includes('ArtifactSynergyRules.GetCoreRelayDamageMultiplier') &&
+  menuRuntime.includes('ArtifactSynergyRules.GetGlassCannonDamageTakenMultiplier'),
+  'Artifact Synergy pair effects must be connected to real Sphere damage and incoming-player-damage runtime paths');

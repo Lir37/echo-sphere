@@ -2556,6 +2556,8 @@ namespace EchoSphere.Runtime
         private float GetArtifactDamageTakenMultiplier() =>
             GetCharacterDamageTakenMultiplier() *
             Mathf.Max(0.25f, 1f - ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "damageTakenReduction")) *
+            ArtifactSynergyRules.GetGlassCannonDamageTakenMultiplier(
+                ArtifactSynergyRules.HasGlassCannonSynergy(_ownedArtifacts)) *
             LevelUpAbilityRules.GetDamageTakenMultiplier(GetAbilityLevel(RunUpgradeKind.Armor));
 
         private float GetArtifactSphereFamilyDamageMultiplier(SphereId type)
@@ -3613,6 +3615,15 @@ namespace EchoSphere.Runtime
                 FormationHitRules.HasUnifiedCoreSynergy(_ownedArtifacts),
                 SphereProgressionRules.GetLevel(_sphereLevels, sphere.Type),
                 GetStrongestSphereLevel());
+            multiplier *= ArtifactSynergyRules.GetFortressNetworkDamageMultiplier(
+                ArtifactSynergyRules.HasFortressNetworkSynergy(_ownedArtifacts),
+                HasNearbyActiveSphere(sphere, 190f));
+            multiplier *= ArtifactSynergyRules.GetGlassCannonDamageMultiplier(
+                ArtifactSynergyRules.HasGlassCannonSynergy(_ownedArtifacts));
+            multiplier *= ArtifactSynergyRules.GetSingularityDamageMultiplier(
+                ArtifactSynergyRules.HasSingularitySynergy(_ownedArtifacts), uniqueTypes);
+            multiplier *= ArtifactSynergyRules.GetCoreRelayDamageMultiplier(
+                ArtifactSynergyRules.HasCoreRelaySynergy(_ownedArtifacts), uniqueTypes);
             return multiplier;
         }
 
