@@ -4217,5 +4217,12 @@ LIMITS:
   compilation, APK build and device visual parity are not established by CI.
 
 ======================================================================
+VALIDATION FOLLOW-UP:
+- CI #354 passed the 1,114 pure C# contract assertions but failed one stale
+  structural assertion that still required active ability evolutions to be
+  absent. Updated the guard to require the newly wired evolution choices and
+  combat riders while keeping artifact protocol activation separately gated.
+- CI must be rerun on the guard correction before this work cycle is complete.
+
 END ACTIVE ABILITY EVOLUTION CHOICES AND COMBAT RIDERS
 ======================================================================

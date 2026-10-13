@@ -1224,10 +1224,15 @@ assert.ok(activeAbilityEnemy.includes('public void ApplyFreeze(float duration)')
   runtimeArt.includes('for (var i = 0; i < 28; i++) _rng.NextFloat();') &&
   runtimeArt.includes('ShowTimedCombatMessage("ECHO FREEZE", 1.2f)'),
   'Time Stop must apply direct source pulse damage, preserve RNG and show source feedback');
-assert.ok(runtimeArt.includes('Those ability evolution choices are not yet migrated') &&
+assert.ok(runtimeArt.includes('GetActiveAbilityEvolutionChoices') &&
+  runtimeArt.includes('_abilityBranches') && runtimeArt.includes('_abilityFinals') &&
+  runtimeArt.includes('teleport_phase_break') && runtimeArt.includes('teleport_spatial_network') &&
+  runtimeArt.includes('timestop_closed_network') && runtimeArt.includes('timestop_temporal_core') &&
+  runtimeArt.includes('GrantInvulnerability') &&
+  levelUpAbilities.includes('GetActiveAbilityEvolutionChoices') &&
   artifactProtocolRulesSource.includes('"temporal_fold_protocol"') &&
   artifactProtocolRulesSource.includes('"status_circuit_protocol"'),
-  'unported ability branch/final effects must not be fabricated to unlock artifact timers');
+  'active ability branches/finals must have real choices and combat riders; artifact protocols remain independently gated until their full predicates are wired');
 
 
 // Link Breaker source parity: authored range/timers, disabled-target filtering and Stability scaling.
