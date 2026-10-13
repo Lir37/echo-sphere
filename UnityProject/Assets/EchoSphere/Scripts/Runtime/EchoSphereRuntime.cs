@@ -938,7 +938,7 @@ namespace EchoSphere.Runtime
             var position = explicitPosition ?? ((Vector2)_player.position + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius);
             var definition = GameCatalog.Spheres[(int)type];
             var go = CreateOrb(definition.DisplayName + " Sphere", position, 1.05f, SphereColor(type), Color.white, 8);
-            ApplySphereVisual(go, type);
+            ApplySphereVisual(go, type, level);
             var agent = go.AddComponent<SphereAttackAgent>();
             agent.Initialize(this, _player, type, 12f);
             if (type != SphereId.Standard)
@@ -1038,7 +1038,7 @@ namespace EchoSphere.Runtime
             return sourcePixels * SpherePlacementRules.SourcePixelsToWorld / rootScale;
         }
 
-        private static bool ApplyStandardSphereArtwork(GameObject root)
+        private static bool ApplyStandardSphereArtwork(GameObject root, int visualTier)
         {
             if (root == null) return false;
 
@@ -1056,7 +1056,7 @@ namespace EchoSphere.Runtime
             var coreRenderer = core.GetComponent<SpriteRenderer>();
             if (upperRenderer == null || ringRenderer == null || coreRenderer == null) return false;
 
-            var radius = GetStandardSphereLocalRadius(root.transform, 0);
+            var radius = GetStandardSphereLocalRadius(root.transform, visualTier);
             var coreGlow = root.transform.Find("Glow");
             if (coreGlow != null)
             {
@@ -1085,18 +1085,18 @@ namespace EchoSphere.Runtime
             }
             var outlineRenderer = outline.GetComponent<SpriteRenderer>();
             if (outlineRenderer == null) outlineRenderer = outline.gameObject.AddComponent<SpriteRenderer>();
-            outlineRenderer.sprite = RuntimeSpriteFactory.Ring;
+            outlineRenderer.sprite = RuntimeSpriteFactory.StandardCoreOutline;
             outlineRenderer.color = new Color(182f / 255f, 247f / 255f, 1f, 0.90f);
             outlineRenderer.sortingOrder = 9;
             outline.localScale = Vector3.one * (0.84f * radius / (0.73f * Mathf.Max(0.0001f, outlineRenderer.sprite.bounds.size.x)));
             outline.gameObject.SetActive(true);
 
-            ringRenderer.sprite = RuntimeSpriteFactory.Ring;
+            ringRenderer.sprite = RuntimeSpriteFactory.StandardOrbitRing;
             ringRenderer.color = new Color(48f / 255f, 214f / 255f, 1f, 0.82f);
             ringRenderer.sortingOrder = 10;
             frame.localScale = new Vector3(
-                2f * 1.18f * 0.98f * radius / Mathf.Max(0.0001f, ringRenderer.sprite.bounds.size.x),
-                2f * 1.18f * 0.34f * radius / Mathf.Max(0.0001f, ringRenderer.sprite.bounds.size.y),
+                2f * 1.18f * 0.98f * radius / (0.73f * Mathf.Max(0.0001f, ringRenderer.sprite.bounds.size.x)),
+                2f * 1.18f * 0.34f * radius / (0.73f * Mathf.Max(0.0001f, ringRenderer.sprite.bounds.size.y)),
                 1f);
             frame.gameObject.SetActive(true);
 
@@ -1192,7 +1192,7 @@ namespace EchoSphere.Runtime
                 var radius = GetStandardSphereLocalRadius(sphere.transform, sphere.ProgressionLevel);
                 var frame = sphere.transform.Find("Inner Frame");
                 if (frame != null && frame.gameObject.activeSelf)
-                    frame.Rotate(0f, 0f, 12.6f * deltaTime, Space.Self);
+                    frame.Rotate(0f, 0f, Mathf.Rad2Deg * (0.22f + Mathf.Max(0, sphere.ProgressionLevel) * 0.018f) * deltaTime, Space.Self);
 
                 var pulse = 0.5f + 0.5f * Mathf.Sin(_runTime * 4.6f + sphere.transform.position.y * 0.009f);
                 var glow = sphere.transform.Find("Glow");
@@ -1239,13 +1239,13 @@ namespace EchoSphere.Runtime
             }
         }
 
-        private void ApplySphereVisual(GameObject root, SphereId type)
+        private void ApplySphereVisual(GameObject root, SphereId type, int visualTier)
         {
             var shell = root.transform.Find("Shell");
             var core = root.transform.Find("Core Light");
             if (shell == null || core == null) return;
 
-            if (type == SphereId.Standard && ApplyStandardSphereArtwork(root)) return;
+            if (type == SphereId.Standard && ApplyStandardSphereArtwork(root, visualTier)) return;
             if (type == SphereId.Orbital)
             {
                 ApplyOrbitalSphereVisual(root);
