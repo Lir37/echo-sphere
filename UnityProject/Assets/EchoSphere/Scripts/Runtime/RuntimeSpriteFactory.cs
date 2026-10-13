@@ -6,10 +6,11 @@ namespace EchoSphere.Runtime
     /// <summary>Cached procedural silhouettes for the migration prototype, not final production art.</summary>
     internal static class RuntimeSpriteFactory
     {
-        private static Sprite _disc, _ring, _faceted, _diamond, _hexagon, _prism, _shard, _star;
+        private static Sprite _disc, _ring, _standardCoreGlow, _faceted, _diamond, _hexagon, _prism, _shard, _star;
         private static readonly Dictionary<string, Sprite> AuthoredCache = new Dictionary<string, Sprite>();
         public static Sprite Disc { get { if (_disc == null) _disc = CreateSprite(false); return _disc; } }
         public static Sprite Ring { get { if (_ring == null) _ring = CreateSprite(true); return _ring; } }
+        public static Sprite StandardCoreGlow { get { if (_standardCoreGlow == null) _standardCoreGlow = CreateStandardCoreGlow(); return _standardCoreGlow; } }
         public static Sprite Faceted { get { if (_faceted == null) _faceted = CreatePolygonSprite("ES_Faceted", new[] { new Vector2(-0.68f,-0.72f),new Vector2(0.18f,-0.92f),new Vector2(0.83f,-0.35f),new Vector2(0.72f,0.54f),new Vector2(-0.12f,0.88f),new Vector2(-0.88f,0.22f) }); return _faceted; } }
         public static Sprite Diamond { get { if (_diamond == null) _diamond = CreatePolygonSprite("ES_Diamond", new[] { new Vector2(0f,0.98f),new Vector2(0.68f,0.12f),new Vector2(0.42f,-0.68f),new Vector2(0f,-0.92f),new Vector2(-0.42f,-0.68f),new Vector2(-0.68f,0.12f) }); return _diamond; } }
         public static Sprite Hexagon { get { if (_hexagon == null) _hexagon = CreatePolygonSprite("ES_Hexagon", RegularPolygon(6,0.88f,0.88f)); return _hexagon; } }
@@ -33,6 +34,57 @@ namespace EchoSphere.Runtime
             for(var i=0;i<count;i++){var angle=Mathf.PI*0.5f+i*Mathf.PI*2f/count;var radius=(count==6||i%2==0)?outerRadius:innerRadius;points[i]=new Vector2(Mathf.Cos(angle),Mathf.Sin(angle))*radius;}
             return points;
         }
+        // Matches drawStandardSphereCore's radial-gradient stops from src/renderer.ts.
+        // The texture is generated in Unity because the upstream PNG parts are corrupt in both branches.
+        private static Sprite CreateStandardCoreGlow()
+        {
+            const int size = 96;
+            var texture = new Texture2D(size, size, TextureFormat.RGBA32, false)
+            {
+                name = "ES_StandardCoreGlow",
+                filterMode = FilterMode.Bilinear,
+                wrapMode = TextureWrapMode.Clamp,
+                hideFlags = HideFlags.DontSave,
+            };
+            var pixels = new Color32[size * size];
+            for (var y = 0; y < size; y++)
+            for (var x = 0; x < size; x++)
+            {
+                var nx = ((x + 0.5f) / size) * 2f - 1f;
+                var ny = ((y + 0.5f) / size) * 2f - 1f;
+                var clipRadius = Mathf.Sqrt(nx * nx + ny * ny);
+                if (clipRadius > 1f)
+                {
+                    pixels[y * size + x] = new Color32(255, 255, 255, 0);
+                    continue;
+                }
+
+                // Canvas gradient center is (-0.08r, -0.10r); Unity texture Y is upward.
+                var gx = nx + 0.08f / 0.58f;
+                var gy = ny - 0.10f / 0.58f;
+                var t = Mathf.Sqrt(gx * gx + gy * gy) * (0.58f / 0.62f);
+                var color = EvaluateStandardCoreGradient(t);
+                pixels[y * size + x] = new Color32(
+                    (byte)Mathf.RoundToInt(color.r * 255f),
+                    (byte)Mathf.RoundToInt(color.g * 255f),
+                    (byte)Mathf.RoundToInt(color.b * 255f),
+                    (byte)Mathf.RoundToInt(color.a * 255f));
+            }
+
+            texture.SetPixels32(pixels);
+            texture.Apply(false, true);
+            return Sprite.Create(texture, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), size);
+        }
+
+        private static Color EvaluateStandardCoreGradient(float t)
+        {
+            if (t <= 0.20f) return Color.Lerp(new Color(1f, 1f, 1f, 0.98f), new Color(176f / 255f, 244f / 255f, 1f, 0.96f), t / 0.20f);
+            if (t <= 0.48f) return Color.Lerp(new Color(176f / 255f, 244f / 255f, 1f, 0.96f), new Color(38f / 255f, 170f / 255f, 1f, 0.78f), (t - 0.20f) / 0.28f);
+            if (t <= 0.82f) return Color.Lerp(new Color(38f / 255f, 170f / 255f, 1f, 0.78f), new Color(20f / 255f, 92f / 255f, 220f / 255f, 0.34f), (t - 0.48f) / 0.34f);
+            if (t <= 1f) return Color.Lerp(new Color(20f / 255f, 92f / 255f, 220f / 255f, 0.34f), new Color(0f, 30f / 255f, 90f / 255f, 0f), (t - 0.82f) / 0.18f);
+            return new Color(0f, 30f / 255f, 90f / 255f, 0f);
+        }
+
         private static Sprite CreateSprite(bool ring)
         {
             const int size=96;
