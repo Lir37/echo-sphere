@@ -3374,3 +3374,63 @@ NEXT:
 ======================================================================
 END AXIOM FOLD SYNERGY
 ======================================================================
+
+[2026-10-13 | RESONANCE GEOMETRY MEMORY SYNERGIES]
+
+SOURCE:
+- Source HEAD remains new-desing @737ef2af4a877e0995db5f92331d536d2f29a934.
+- State transition mapped from src/engineResonance.ts:syncResonanceGeometry()
+  and visual reference from src/renderer.ts:drawFormationMemory().
+
+IMPLEMENTED:
+1. Unity now tracks a separate resonance geometry key, node-index list and
+   candidate-key set. Geometry state refreshes when the dominant key changes OR
+   membership of the candidate set changes, matching the source's early-return
+   test. Candidate membership is order-independent.
+2. When switching from a previous non-none geometry, the old stored node indexes
+   are resolved against current Sphere transforms. If at least two positions
+   resolve, their positions/type are saved for 0.9 s. If fewer than two resolve,
+   existing memory is preserved rather than spuriously cleared, matching source.
+3. A separate resonance geometry memory overlay draws the source-like dashed
+   previous formation and node markers. It does not reuse or overwrite the
+   existing pointer-drag formation preview memory.
+4. Geometry Loop requires triangle_engine + ring_engine; active Ring/Lattice/
+   Fractal geometry adds 1.08 damage. Lattice Memory requires lattice_engine +
+   fractal_seed; while stored resonance memory is Lattice or Fractal it adds
+   1.08. Network Memory requires network_anchor + echo_weaver; any live stored
+   resonance formation memory adds 1.08.
+5. Added Core/ResonanceGeometryMemoryRules.cs + .meta and updated
+   ArtifactSynergyRules.cs, EchoSphereRuntime.cs, CoreChecks/Program.cs and
+   check-unity-project.mjs. Tests cover geometry/candidate changes, order-
+   independent candidate membership, 0.9 s lifetime, previous-node eligibility,
+   and synergy artifact pairs/formulas.
+6. Unity Migration Contracts #289: SUCCESS (geometry memory state and three
+   synergies):
+   https://github.com/Lir37/echo-sphere/actions/runs/38346619329
+7. Unity Migration Contracts #290: SUCCESS (preserve active memory when fewer
+   than two old positions resolve):
+   https://github.com/Lir37/echo-sphere/actions/runs/38346695954
+
+LIMITS / OPEN:
+- The resonance memory overlay is structurally tested but has not been rendered
+  in a real Unity Editor session/APK and compared pixel-by-pixel with Canvas.
+- Temporal Echo still references source timestopTimer / teleportDamageBuffTimer.
+  Those timers were not found in the Unity runtime, so the synergy remains
+  unported until the underlying time-stop/teleport-buff runtime behaviors are
+  mapped and implemented.
+- Rune spawn/pickup source gap, full Unity Editor compile, APK install and
+  physical-device visual checks remain open. Sphere sizing/enemy silhouette
+  feedback is still not confirmed fixed.
+
+NEXT:
+1. Audit source Artifact Set completion effects in getSphereArtifactDamageMultiplier()
+   independently from pair synergies. Several current setBehavior branches remain
+   to be checked (Resonance Grid, Singularity Path, Geometry Craft, Temporal Fold,
+   Status Circuit, Hunter Doctrine, Pulse Engineering, Core Forge, Prism Dominion,
+   Network Legacy).
+2. Do not port Temporal Echo by adding an isolated timer just for its synergy;
+   first trace the real source and Unity base abilities.
+
+======================================================================
+END RESONANCE GEOMETRY MEMORY SYNERGIES
+======================================================================
