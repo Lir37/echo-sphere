@@ -17,6 +17,7 @@ namespace EchoSphere.Runtime
         private float _orbitAngle;
         private float _initialDamage;
         private float _initialDelay;
+        private Vector3 _initialScale = Vector3.one;
         private int _progressionLevel = 1;
         private SphereLevelStats _levelStats;
         private int _branchHitCount;
@@ -55,8 +56,9 @@ namespace EchoSphere.Runtime
             _profile = SphereCombatRules.GetProfile(type);
             _initialDamage = damage * _profile.DamageMultiplier;
             _initialDelay = 1.2f * _profile.DelayMultiplier;
+            _initialScale = transform.localScale;
             ApplyProgressionLevel(1);
-            AttackRange = 6.8f * _profile.RangeMultiplier * _runtime.GetSphereRadiusMultiplier() * _runtime.GetArtifactSphereRadiusMultiplier(type) *
+            AttackRange = 6.8f * _profile.RangeMultiplier * _runtime.GetArtifactSphereRadiusMultiplier(type) *
                 _runtime.GetShopSphereRadiusMultiplier() * _runtime.GetCharacterSphereRadiusMultiplier();
             _attackTimer = 0.25f;
             _orbitAngle = type == SphereId.Orbital ? 0f : 0f;
@@ -78,12 +80,13 @@ namespace EchoSphere.Runtime
             // Level 0 is the source's unlevelled but physically placeable Sphere.
             // It uses the base combat profile until the first progression pick.
             _progressionLevel = Mathf.Clamp(level, 0, SphereProgressionRules.MaxLevel);
+            transform.localScale = _initialScale * _runtime.GetSphereRadiusMultiplier();
             _levelStats = _progressionLevel == 0
                 ? SphereLevelRules.GetUnlevelledStats()
                 : SphereLevelRules.GetStats(_type, _progressionLevel);
             BaseDamage = _initialDamage * _levelStats.DamageMultiplier;
             AttackDelay = Mathf.Max(0.12f, _initialDelay * _levelStats.DelayMultiplier);
-            AttackRange = 6.8f * _profile.RangeMultiplier * _levelStats.RangeMultiplier * _runtime.GetSphereRadiusMultiplier() * _runtime.GetArtifactSphereRadiusMultiplier(_type) *
+            AttackRange = 6.8f * _profile.RangeMultiplier * _levelStats.RangeMultiplier * _runtime.GetArtifactSphereRadiusMultiplier(_type) *
                 _runtime.GetShopSphereRadiusMultiplier() * _runtime.GetCharacterSphereRadiusMultiplier();
         }
 
@@ -131,7 +134,7 @@ namespace EchoSphere.Runtime
                 var targetDelta = (Vector2)target.transform.position - origin;
                 if (targetDelta.sqrMagnitude > 0.0001f) VisualRotation = Mathf.Atan2(targetDelta.y, targetDelta.x);
             }
-            var damage = BaseDamage * _runtime.SphereDamageMultiplier * _runtime.GetNetworkDamageMultiplier(this) *
+            var damage = (BaseDamage + _runtime.SphereBoostDamageBonus) * _runtime.SphereDamageMultiplier * _runtime.GetNetworkDamageMultiplier(this) *
                 _runtime.GetSphereCopyOutputMultiplier(this);
             if (target != null && _runtime.ConsumeResonanceLineBurst()) damage *= 1.60f;
             if (_type == SphereId.Shotgun && target != null)
@@ -355,7 +358,7 @@ namespace EchoSphere.Runtime
             Color tint, float speed, int pierce, float critChanceBonus)
         {
             var ricochets = _runtime.GetSphereProjectileRicochetCount(_type);
-            _runtime.SpawnProjectile(origin, direction, damage, tint, speed * _runtime.GetProjectileSpeedMultiplier(), pierce, critChanceBonus,
+            _runtime.SpawnProjectile(origin, direction, damage, tint, speed, pierce, critChanceBonus,
                 this, ricochets, 2.0f, true, true, true);
 
             var echoLevel = _runtime.GetSphereAuthoredModifierLevel(_type, SphereAuthoredModifier.Echo);

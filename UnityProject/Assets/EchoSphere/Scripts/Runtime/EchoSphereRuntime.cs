@@ -171,8 +171,7 @@ namespace EchoSphere.Runtime
         private float _teleportCooldown, _timeStopCooldown;
         private float _blastCooldown, _shieldCooldown, _fireTrailCooldown, _minionCooldown, _lightningCooldown, _darkRitualCooldown;
         private float _fireTrailTimer, _darkRitualOverloadTimer;
-        private int _sphereBoostKillCount, _sphereBoostDamageBonus, _lastMomentumDashCount;
-        private float _momentumTimer;
+        
         private readonly List<string> _recentUpgradeChoiceKeys = new List<string>();
         private readonly List<string> _oracleForecastKeys = new List<string>();
         private int _levelUpAbilityPity, _levelUpSpherePity;
@@ -307,8 +306,8 @@ namespace EchoSphere.Runtime
         public float AttackSpeedMultiplier => _attackSpeedMultiplier * (_fireTrailTimer > 0f ? 1.12f : 1f) * (_darkRitualOverloadTimer > 0f ? 1.15f : 1f) * LevelUpAbilityRules.GetAttackSpeedMultiplier(GetAbilityLevel(RunUpgradeKind.AttackSpeed)) *
             GetCharacterAttackSpeedMultiplier() /
             Mathf.Max(0.5f, 1f + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "sphereDelay"));
-        public float GetSphereRadiusMultiplier() => LevelUpAbilityRules.GetSphereRadiusMultiplier(GetAbilityLevel(RunUpgradeKind.Radius), GetAbilityLevel(RunUpgradeKind.Range));
-        public float GetProjectileSpeedMultiplier() => LevelUpAbilityRules.GetProjectileSpeedMultiplier(GetAbilityLevel(RunUpgradeKind.ProjectileSpeed));
+        public float GetSphereRadiusMultiplier() => LevelUpAbilityRules.GetSphereRadiusMultiplier(GetAbilityLevel(RunUpgradeKind.Radius));
+        public int SphereBoostDamageBonus => LevelUpAbilityRules.GetSphereBoostDamageBonus(_kills, GetAbilityLevel(RunUpgradeKind.SphereBoost));
         public float ResonanceCharge => _resonanceCharge;
         public bool ResonanceEventActive => _resonanceEventActive;
         public int ResonanceEventsTriggered => _resonanceEventsTriggered;
@@ -767,12 +766,6 @@ namespace EchoSphere.Runtime
             }
             TickSphereArtAnimation(dt);
             _playerCore.Tick(dt);
-            if (_playerCore.DashCount != _lastMomentumDashCount)
-            {
-                _lastMomentumDashCount = _playerCore.DashCount;
-                if (GetAbilityLevel(RunUpgradeKind.Momentum) > 0) _momentumTimer = 1.5f;
-            }
-            _momentumTimer = Mathf.Max(0f, _momentumTimer - dt);
             _swiftBootsTimer = Mathf.Max(0f, _swiftBootsTimer - dt);
             _timeStopTimer = Mathf.Max(0f, _timeStopTimer - dt);
             _teleportDamageBuffTimer = Mathf.Max(0f, _teleportDamageBuffTimer - dt);
@@ -821,7 +814,7 @@ namespace EchoSphere.Runtime
 
             _player.position += (Vector3)(_playerCore.GetVelocity(input, 3.6f * GetArtifactMoveSpeedMultiplier() *
                 LevelUpAbilityRules.GetMoveSpeedMultiplier(GetAbilityLevel(RunUpgradeKind.MoveSpeed)) *
-                LevelUpAbilityRules.GetMomentumSpeedMultiplier(GetAbilityLevel(RunUpgradeKind.Momentum), _momentumTimer > 0f) *
+                LevelUpAbilityRules.GetMomentumSpeedMultiplier(GetAbilityLevel(RunUpgradeKind.Momentum), _playerCore.DashTimer > 0f) *
                 GetCharacterMoveSpeedMultiplier(), followMultiplier) * dt);
             _networkRefreshTimer -= dt;
             if (_networkRefreshTimer <= 0f)
@@ -1896,7 +1889,6 @@ namespace EchoSphere.Runtime
             var branch = GetSphereBranch(source);
             var finalId = GetSphereFinal(source);
             damage *= SphereAuthoredModifierRules.GetDamageMultiplier(branch, finalId);
-            damage += _sphereBoostDamageBonus;
 
             var execute = GetSphereAuthoredModifierLevel(source, SphereAuthoredModifier.Execute);
             damage *= SphereAuthoredModifierRules.GetExecuteDamageMultiplier(execute, target.HpFraction);
@@ -2089,7 +2081,6 @@ namespace EchoSphere.Runtime
 
         private void AddResonanceChargeFromSource(float amount, bool applyFormationEfficiency)
         {
-            amount *= LevelUpAbilityRules.GetResonanceGainMultiplier(GetAbilityLevel(RunUpgradeKind.Resonance));
             if (_resonanceEventActive) return;
             if (applyFormationEfficiency)
                 amount *= FormationFollowRules.GetResonanceEfficiency(_follow, _formationStrain);
@@ -2810,17 +2801,6 @@ namespace EchoSphere.Runtime
                     _hunterHuntTimer = 0f;
                 }
             }
-            if (GetAbilityLevel(RunUpgradeKind.SphereBoost) > 0)
-            {
-                _sphereBoostKillCount++;
-                var required = LevelUpAbilityRules.GetSphereBoostKillsRequired(GetAbilityLevel(RunUpgradeKind.SphereBoost));
-                while (_sphereBoostKillCount >= required)
-                {
-                    _sphereBoostKillCount -= required;
-                    _sphereBoostDamageBonus++;
-                    ShowTimedCombatMessage("SPHERE BOOST +1", 0.8f);
-                }
-            }
             if (enemy != null && !enemy.IsBoss)
             {
                 _combo = ComboRules.IncrementOnKill(_combo, false);
@@ -2933,7 +2913,7 @@ namespace EchoSphere.Runtime
             var hunterCrit = GetHunterCriticalChanceBonus(target);
             var critChance = Mathf.Min(CombatRules.CritHardCap, CombatRules.CritBase +
                 Mathf.Max(0f, critChanceBonus + artifactCrit + abilityCrit + shopCrit + hunterCrit + GetArchitectFormationCritBonus()));
-            var result = CombatRules.ResolveDamage(damage, critChance, _rng.NextFloat(), CombatRules.CritMultiplierBase * LevelUpAbilityRules.GetCritPowerMultiplier(GetAbilityLevel(RunUpgradeKind.CritPower)));
+            var result = CombatRules.ResolveDamage(damage, critChance, _rng.NextFloat(), CombatRules.CritMultiplierBase);
             wasCritical = result.WasCritical;
             return result.Damage;
         }
@@ -4807,13 +4787,8 @@ namespace EchoSphere.Runtime
                 case RunUpgradeKind.Radius:
                 case RunUpgradeKind.Vampire:
                 case RunUpgradeKind.SphereBoost:
-                case RunUpgradeKind.Resonance:
                 case RunUpgradeKind.Cooldown:
-                case RunUpgradeKind.CritPower:
-                case RunUpgradeKind.Range:
-                case RunUpgradeKind.ProjectileSpeed:
                 case RunUpgradeKind.Momentum:
-                case RunUpgradeKind.Fortune:
                     _abilityLevels[choice.Kind] = choice.NextLevel;
                     ShowMessage(choice.Title + " upgraded.");
                     break;
