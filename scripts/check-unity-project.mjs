@@ -274,7 +274,23 @@ const svgImportSettings = readFileSync(join(root, 'Assets/Editor/EchoSphereSvgIm
 assert.ok(svgImportSettings.includes('SVGType.TexturedSprite') && svgImportSettings.includes('void OnPreprocessAsset()'), 'SVG artwork must be configured as textured Sprites before import');
 assert.ok(!svgImportSettings.includes('SaveAndReimport') && !svgImportSettings.includes('OnPostprocessAllAssets'), 'SVG importer must not recursively reimport assets from a postprocess callback');
 assert.ok(runtime.includes('LoadAuthored("character-spherist-3q")') && runtime.includes('character-spherist-3q'), 'the playable Spherist must use the canonical authored character sprite, not the Core glyph');
-assert.ok(runtime.includes('ApplyStandardSphereArtwork') && runtime.includes('ApplyOrbitalSphereVisual') && runtime.includes('RuntimeSpriteFactory.StandardCoreGlow') && spriteFactory.includes('EvaluateStandardCoreGradient'), 'source-mapped Standard core/ring assembly and native Orbital 2.5D art paths are missing');
+assert.ok(runtime.includes('ApplyStandardSphereArtwork') && runtime.includes('ApplyOrbitalSphereVisual') &&
+  runtime.includes('RuntimeSpriteFactory.StandardCoreGlow') && runtime.includes('RuntimeSpriteFactory.StandardCoreOutline') &&
+  runtime.includes('RuntimeSpriteFactory.StandardOrbitRing') && spriteFactory.includes('EvaluateStandardCoreGradient') &&
+  spriteFactory.includes('CreateStandardOrbitRing') && spriteFactory.includes('CreateThinRing("ES_StandardCoreOutline", 0.73f, 0.0304f)'),
+  'source-mapped Standard core, thin outlines/orbit strokes and native Orbital 2.5D art paths are missing');
+assert.ok(sourceSphereRenderer.includes('ctx.lineWidth = Math.max(0.9, r * 0.045)') &&
+  sourceSphereRenderer.includes('ctx.lineWidth = Math.max(0.55, r * 0.022)') &&
+  sourceSphereRenderer.includes('ctx.ellipse(0, 0, r * 0.88, r * 0.27, 0, Math.PI * 0.10, Math.PI * 1.92)') &&
+  spriteFactory.includes('outerHalfWidth = 0.0142f') && spriteFactory.includes('innerHalfWidth = 0.0069f'),
+  'the Standard Sphere ring strokes must preserve source radii, thickness and partial-arc gap');
+assert.ok(runtime.includes('0.22f + tier * 0.018f') &&
+  runtime.includes('0.72f + targetPulse * 0.20f') &&
+  runtime.includes('Mathf.Sin(_runTime * 2.2f + sourceX * 0.013f) * 0.028f') &&
+  runtime.includes('Mathf.Sin(_runTime * 4.6f + sourceY * 0.009f)') &&
+  runtime.includes('Mathf.Sin(_runTime * 11f)') &&
+  !runtime.includes('frame.Rotate(0f, 0f, 12.6f * deltaTime'),
+  'the Standard Sphere must use source tier rotation, source-space breath/core pulse and target-reactive ring opacity');
 assert.ok(spriteFactory.includes('ES_Diamond') && spriteFactory.includes('ES_Prism') && spriteFactory.includes('ES_Shard'), 'distinct archetype silhouettes are missing');
 const resonanceRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/ResonanceRules.cs'), 'utf8');
 assert.ok(resonanceRules.includes('BaseCap = 100f') && resonanceRules.includes('OverflowCap = 150f'), 'Resonance charge contract is missing');
