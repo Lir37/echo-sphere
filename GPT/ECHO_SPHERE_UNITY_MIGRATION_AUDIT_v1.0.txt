@@ -4162,10 +4162,13 @@ IMPLEMENTED ON unity-migration:
 - Added Level-Up choices gated by acquired active slots and ability level < 7.
 - Added manual keyboard activation plus on-screen buttons with cooldown
   feedback; abilities are not auto-triggered.
-- Time Stop sets the real timer, freezes targets, emits the source-sized pulse,
-  uses source level-scaled duration and cooldown, and shows ECHO FREEZE.
-- Teleport respects Formation Follow lock, source cooldown/level-III target
-  range and seeded fallback displacement, then shows ECHO JUMP.
+- Time Stop sets the real timer, freezes targets, applies source direct pulse
+  damage in the 150-pixel radius, uses source level-scaled duration/cooldown
+  floor, preserves RNG draws reserved for the not-yet-ported pulse particles,
+  and shows ECHO FREEZE.
+- Teleport respects Formation Follow lock, source cooldown floor and level-III
+  target range, clamps displacement to source world bounds, preserves seeded RNG
+  draws for the not-yet-ported teleport particles, then shows ECHO JUMP.
 - Added EnemyAgent2D.ApplyFreeze and structural regression assertions.
 - new-desing remains untouched.
 
