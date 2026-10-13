@@ -4110,6 +4110,204 @@ namespace EchoSphere.Runtime
         }
 
 
+
+        private void ApplyActiveAbilitySynergyRiders(RunUpgradeKind ability, int level)
+        {
+            var scale = SpherePlacementRules.SourcePixelsToWorld;
+            if (ability == RunUpgradeKind.Blast)
+            {
+                if (HasActiveAbilitySynergy(SphereId.Standard, "standard_resonator", ability, "blast_resonance_f1"))
+                    foreach (var sphere in _spheres)
+                        if (sphere != null && sphere.gameObject.activeInHierarchy && sphere.Type == SphereId.Standard)
+                            DamageEnemiesNear(sphere.transform.position, 0.92f, (26f + level * 8f) * 0.30f, new Color(0.83f, 0.43f, 0.24f));
+                if (HasActiveAbilitySynergy(SphereId.Shotgun, "shotgun_cataclysm", ability, "blast_network_f2"))
+                    foreach (var sphere in _spheres)
+                        if (sphere != null && sphere.gameObject.activeInHierarchy && sphere.Type == SphereId.Shotgun)
+                            DamageEnemiesNear(sphere.transform.position, 0.88f, (30f + (level - 1) * 10f) * 0.42f, new Color(1f, 0.82f, 0.42f));
+                if (HasActiveAbilitySynergy(SphereId.Prism, "prism_split", ability, "blast_core_f3"))
+                {
+                    var targets = FindNearestEnemies(_player.position, 3.2f, 3);
+                    foreach (var sphere in _spheres)
+                        if (sphere != null && sphere.gameObject.activeInHierarchy && sphere.Type == SphereId.Prism)
+                            foreach (var target in targets)
+                            {
+                                if (target == null || !target.IsAlive) continue;
+                                SpawnCombatArc(sphere.transform.position, target.transform.position, SphereId.Prism,
+                                    GetSphereBranch(SphereId.Prism), GetSphereFinal(SphereId.Prism), new Color(0.82f, 0.48f, 1f), 0.18f);
+                                target.ReceiveDamage((30f + (level - 1) * 10f) * 0.28f);
+                            }
+                }
+                if (HasActiveAbilitySynergy(SphereId.Gravity, "gravity_collapse", ability, "blast_network_f1"))
+                    foreach (var sphere in _spheres)
+                        if (sphere != null && sphere.gameObject.activeInHierarchy && sphere.Type == SphereId.Gravity)
+                            foreach (var enemy in _enemies)
+                                if (enemy != null && enemy.IsAlive && Vector2.Distance(enemy.transform.position, sphere.transform.position) <= 1.45f)
+                                {
+                                    enemy.PullToward(sphere.transform.position, 0.48f);
+                                    enemy.ReceiveDamage((30f + (level - 1) * 10f) * 0.25f);
+                                }
+                if (HasActiveAbilitySynergy(SphereId.Pulse, "pulse_wave", ability, "blast_core_f2"))
+                    foreach (var sphere in _spheres)
+                        if (sphere != null && sphere.gameObject.activeInHierarchy && sphere.Type == SphereId.Pulse)
+                            foreach (var enemy in _enemies)
+                                if (enemy != null && enemy.IsAlive && Vector2.Distance(enemy.transform.position, sphere.transform.position) <= 0.92f)
+                                    enemy.KnockBackFrom(sphere.transform.position, 0.46f);
+            }
+            else if (ability == RunUpgradeKind.Shield)
+            {
+                if (HasActiveAbilitySynergy(SphereId.Shotgun, "shotgun_burst", ability, "shield_echo_guard_f1"))
+                    foreach (var sphere in _spheres)
+                        if (sphere != null && sphere.gameObject.activeInHierarchy && sphere.Type == SphereId.Shotgun)
+                            foreach (var enemy in _enemies)
+                                if (enemy != null && enemy.IsAlive && Vector2.Distance(enemy.transform.position, sphere.transform.position) <= 0.95f)
+                                    enemy.KnockBackFrom(sphere.transform.position, 0.62f);
+                if (HasActiveAbilitySynergy(SphereId.Aura, "aura_sanctum", ability, "shield_reflector_f2"))
+                    foreach (var sphere in _spheres)
+                        if (sphere != null && sphere.gameObject.activeInHierarchy && sphere.Type == SphereId.Aura)
+                        {
+                            _playerCore?.GrantShieldCharge(1);
+                            foreach (var enemy in _enemies)
+                                if (enemy != null && enemy.IsAlive && Vector2.Distance(enemy.transform.position, sphere.transform.position) <= 1.05f)
+                                    enemy.ApplySlow(2f, 0.68f);
+                        }
+                if (HasActiveAbilitySynergy(SphereId.Orbital, "orbital_halo", ability, "shield_bastion_f3"))
+                    foreach (var sphere in _spheres)
+                        if (sphere != null && sphere.gameObject.activeInHierarchy && sphere.Type == SphereId.Orbital)
+                        {
+                            _playerCore?.GrantShieldCharge(1);
+                            DamageEnemiesNear(sphere.transform.position, 0.72f, (10f + level * 2f) * 0.45f, new Color(0.72f, 0.90f, 1f));
+                        }
+                if (HasActiveAbilitySynergy(SphereId.Pulse, "pulse_burst", ability, "shield_echo_guard_f2"))
+                    foreach (var sphere in _spheres)
+                        if (sphere != null && sphere.gameObject.activeInHierarchy && sphere.Type == SphereId.Pulse)
+                            DamageEnemiesNear(sphere.transform.position, 0.92f, (10f + level * 2f) * 0.65f, new Color(1f, 0.92f, 0.65f));
+            }
+            else if (ability == RunUpgradeKind.FireTrail)
+            {
+                if (HasActiveAbilitySynergy(SphereId.Sniper, "sniper_beacon", ability, "firetrail_overdrive_f1"))
+                    foreach (var sphere in _spheres)
+                        if (sphere != null && sphere.gameObject.activeInHierarchy && sphere.Type == SphereId.Sniper)
+                            foreach (var enemy in _enemies)
+                                if (enemy != null && enemy.IsAlive && Vector2.Distance(enemy.transform.position, sphere.transform.position) <= 1.15f)
+                                {
+                                    enemy.ApplyDamageOverTime(6f + level * 2f, 2.2f);
+                                    enemy.ApplySlow(2f, 0.72f);
+                                }
+                if (HasActiveAbilitySynergy(SphereId.Aura, "aura_overgrowth", ability, "firetrail_sanctum_f3"))
+                    foreach (var aura in _spheres)
+                        if (aura != null && aura.gameObject.activeInHierarchy && aura.Type == SphereId.Aura)
+                            foreach (var sphere in _spheres)
+                                if (sphere != null && sphere.gameObject.activeInHierarchy && Vector2.Distance(sphere.transform.position, aura.transform.position) <= 1.5f)
+                                    sphere.AccelerateNextAttack(0.5f);
+                if (HasActiveAbilitySynergy(SphereId.Prism, "prism_spectrum", ability, "firetrail_ignition_f2"))
+                    foreach (var prism in _spheres)
+                        if (prism != null && prism.gameObject.activeInHierarchy && prism.Type == SphereId.Prism)
+                            foreach (var enemy in _enemies)
+                                if (enemy != null && enemy.IsAlive && Vector2.Distance(enemy.transform.position, prism.transform.position) <= 1.05f)
+                                {
+                                    var hadStatus = enemy.HasFreezeStatus || enemy.HasPoisonStatus;
+                                    enemy.ApplyDamageOverTime(6f + level * 2f, 1.8f);
+                                    if (hadStatus) enemy.ReceiveDamage((16f + level * 4f) * 0.85f);
+                                }
+                if (HasActiveAbilitySynergy(SphereId.Gravity, "gravity_well", ability, "firetrail_overdrive_f3"))
+                    foreach (var gravity in _spheres)
+                        if (gravity != null && gravity.gameObject.activeInHierarchy && gravity.Type == SphereId.Gravity)
+                            foreach (var enemy in _enemies)
+                                if (enemy != null && enemy.IsAlive && Vector2.Distance(enemy.transform.position, gravity.transform.position) <= 1.25f)
+                                {
+                                    enemy.ApplyDamageOverTime(6f + level * 2f, 3f);
+                                    enemy.ApplySlow(2.5f, 0.60f);
+                                }
+            }
+            else if (ability == RunUpgradeKind.Minion)
+            {
+                if (HasActiveAbilitySynergy(SphereId.Standard, "standard_swarm", ability, "minion_echo_drone_f1"))
+                    foreach (var sphere in _spheres)
+                        if (sphere != null && sphere.gameObject.activeInHierarchy && sphere.Type == SphereId.Standard)
+                            DamageEnemiesNear(sphere.transform.position, 0.72f, (10f + level * 2f) * 0.55f, new Color(0.45f, 0.95f, 0.58f));
+                if (HasActiveAbilitySynergy(SphereId.Orbital, "orbital_dance", ability, "minion_relay_drone_f2"))
+                    foreach (var sphere in _spheres)
+                        if (sphere != null && sphere.gameObject.activeInHierarchy && sphere.Type == SphereId.Orbital)
+                        {
+                            sphere.AccelerateNextAttack(0.65f);
+                            DamageEnemiesNear(sphere.transform.position, 0.62f, (8f + level * 2f) * 0.5f, new Color(0.40f, 0.82f, 1f));
+                        }
+                if (HasActiveAbilitySynergy(SphereId.Void, "void_reaper", ability, "minion_guardian_f3"))
+                    foreach (var sphere in _spheres)
+                        if (sphere != null && sphere.gameObject.activeInHierarchy && sphere.Type == SphereId.Void)
+                        {
+                            var kills = 0;
+                            foreach (var enemy in _enemies)
+                                if (enemy != null && enemy.IsAlive && Vector2.Distance(enemy.transform.position, sphere.transform.position) <= 0.92f)
+                                {
+                                    enemy.ReceiveDamage((10f + level * 2f) * 0.55f);
+                                    if (!enemy.IsAlive) kills++;
+                                }
+                            if (kills > 0) _playerCore?.Heal(kills * 2f);
+                        }
+            }
+            else if (ability == RunUpgradeKind.Lightning)
+            {
+                if (HasActiveAbilitySynergy(SphereId.Shotgun, "shotgun_hail", ability, "lightning_echo_storm_f1"))
+                    foreach (var sphere in _spheres)
+                        if (sphere != null && sphere.gameObject.activeInHierarchy && sphere.Type == SphereId.Shotgun)
+                            foreach (var enemy in _enemies)
+                                if (enemy != null && enemy.IsAlive && Vector2.Distance(enemy.transform.position, sphere.transform.position) <= 2.5f)
+                                {
+                                    SpawnCombatArc(sphere.transform.position, enemy.transform.position, SphereId.Chain,
+                                        GetSphereBranch(SphereId.Chain), GetSphereFinal(SphereId.Chain), new Color(0.65f, 0.42f, 1f), 0.14f);
+                                    enemy.ReceiveDamage((20f + level * 5f) * 0.40f);
+                                }
+                if (HasActiveAbilitySynergy(SphereId.Chain, "chain_storm", ability, "lightning_relay_f2"))
+                    foreach (var sphere in _spheres)
+                        if (sphere != null && sphere.gameObject.activeInHierarchy && sphere.Type == SphereId.Chain)
+                            foreach (var enemy in _enemies)
+                                if (enemy != null && enemy.IsAlive && Vector2.Distance(enemy.transform.position, sphere.transform.position) <= 0.95f)
+                                {
+                                    SpawnCombatArc(sphere.transform.position, enemy.transform.position, SphereId.Chain,
+                                        GetSphereBranch(SphereId.Chain), GetSphereFinal(SphereId.Chain), new Color(1f, 0.88f, 0.35f), 0.12f);
+                                    enemy.ReceiveDamage((8f + level * 3f) * 0.80f);
+                                }
+                if (HasActiveAbilitySynergy(SphereId.Pulse, "pulse_resonator", ability, "lightning_echo_storm_f3"))
+                    foreach (var sphere in _spheres)
+                        if (sphere != null && sphere.gameObject.activeInHierarchy && sphere.Type == SphereId.Pulse)
+                            sphere.AccelerateNextAttack(0.45f);
+            }
+            else if (ability == RunUpgradeKind.DarkRitual)
+            {
+                if (HasActiveAbilitySynergy(SphereId.Sniper, "sniper_assassin", ability, "darkritual_blood_link_f1"))
+                {
+                    EnemyAgent2D weakest = null;
+                    var ratio = float.PositiveInfinity;
+                    foreach (var enemy in _enemies)
+                        if (enemy != null && enemy.IsAlive && enemy.HpFraction < ratio) { ratio = enemy.HpFraction; weakest = enemy; }
+                    if (weakest != null) weakest.ReceiveDamage(Mathf.Min(weakest.CurrentHp, Mathf.Max(18f, weakest.MaxHp * 0.08f)));
+                }
+                if (HasActiveAbilitySynergy(SphereId.Chain, "chain_leech", ability, "darkritual_sacrifice_f2"))
+                    _playerCore?.Heal(_playerCore.MaxHp * 0.035f);
+                if (HasActiveAbilitySynergy(SphereId.Orbital, "orbital_blade", ability, "darkritual_void_pact_f3"))
+                    foreach (var sphere in _spheres)
+                        if (sphere != null && sphere.gameObject.activeInHierarchy && sphere.Type == SphereId.Orbital)
+                            DamageEnemiesNear(sphere.transform.position, 0.85f, (22f + level * 5f) * 0.48f, new Color(1f, 0.75f, 0.40f));
+                if (HasActiveAbilitySynergy(SphereId.Void, "void_hunger", ability, "darkritual_blood_link_f2"))
+                {
+                    var missing = 1f - (_playerCore != null ? _playerCore.CurrentHp / Mathf.Max(1f, _playerCore.MaxHp) : 0f);
+                    foreach (var sphere in _spheres)
+                        if (sphere != null && sphere.gameObject.activeInHierarchy && sphere.Type == SphereId.Void)
+                            DamageEnemiesNear(sphere.transform.position, 0.92f, (18f + level * 5f) * (0.65f + missing * 0.75f), new Color(0.77f, 0.55f, 1f));
+                }
+            }
+        }
+
+        private void DamageEnemiesNear(Vector2 center, float radiusWorld, float damage, Color color)
+        {
+            var hitRadius = Mathf.Max(0f, radiusWorld);
+            foreach (var enemy in _enemies)
+                if (enemy != null && enemy.IsAlive && Vector2.Distance(enemy.transform.position, center) <= hitRadius)
+                    enemy.ReceiveDamage(damage);
+            SpawnImpact(center, color);
+        }
+
         private void ActivateBlast()
         {
             var level = GetAbilityLevel(RunUpgradeKind.Blast);
@@ -4146,6 +4344,7 @@ namespace EchoSphere.Runtime
                 foreach (var enemy in _enemies)
                     if (enemy != null && enemy.IsAlive && Vector2.Distance(origin, enemy.transform.position) <= 180f * SpherePlacementRules.SourcePixelsToWorld)
                         enemy.ReceiveDamage(damage);
+            ApplyActiveAbilitySynergyRiders(RunUpgradeKind.Blast, level);
             ShowTimedCombatMessage("ECHO PULSE", 0.9f);
         }
 
@@ -4176,6 +4375,7 @@ namespace EchoSphere.Runtime
                     if (sphere != null && sphere.gameObject.activeInHierarchy &&
                         Vector2.Distance(sphere.transform.position, _player.position) <= 260f * SpherePlacementRules.SourcePixelsToWorld)
                         sphere.AccelerateNextAttack(0.6f);
+            ApplyActiveAbilitySynergyRiders(RunUpgradeKind.Shield, level);
             ShowTimedCombatMessage("SPHERE BARRIER", 0.9f);
         }
 
@@ -4200,6 +4400,7 @@ namespace EchoSphere.Runtime
                     if (enemy != null && enemy.IsAlive && (enemy.HasFireStatus || enemy.HasFreezeStatus || enemy.HasPoisonStatus))
                         enemy.ApplyDamageOverTime(8f + level, 2f);
             if (finalVariant == 3) _fireTrailTimer += 1.5f;
+            ApplyActiveAbilitySynergyRiders(RunUpgradeKind.FireTrail, level);
             ShowTimedCombatMessage("OVERHEAT", 0.9f);
         }
 
@@ -4238,6 +4439,7 @@ namespace EchoSphere.Runtime
                 if (anchor != null) anchor.AccelerateNextAttack(branch == "minion_guardian" ? 1.1f : 0.35f);
                 SpawnImpact(anchorPosition, new Color(0.35f, 0.83f, 1f, 0.9f));
             }
+            ApplyActiveAbilitySynergyRiders(RunUpgradeKind.Minion, level);
             ShowTimedCombatMessage("ECHO DRONE", 0.9f);
         }
 
@@ -4280,6 +4482,7 @@ namespace EchoSphere.Runtime
                 target.ApplySlow(0.65f, 0.72f);
                 previous = targetPosition;
             }
+            ApplyActiveAbilitySynergyRiders(RunUpgradeKind.Lightning, level);
             ShowTimedCombatMessage("CHAIN LIGHTNING", 0.9f);
         }
 
@@ -4318,6 +4521,7 @@ namespace EchoSphere.Runtime
             foreach (var enemy in _enemies)
                 if (enemy != null && enemy.IsAlive && Vector2.Distance(enemy.transform.position, origin) <= 115f * SpherePlacementRules.SourcePixelsToWorld)
                     enemy.ReceiveDamage(damage * 0.45f);
+            ApplyActiveAbilitySynergyRiders(RunUpgradeKind.DarkRitual, level);
             ShowTimedCombatMessage("DARK RITUAL", 1.1f);
         }
 
