@@ -358,7 +358,7 @@ namespace EchoSphere.Runtime
         public float SphereDamageMultiplier => _damageMultiplier * (Time.time < _runeAttackBuffUntil ? 1.3f : 1f) *
             (_teleportDamageBuffTimer > 0f ? 2f : 1f) *
             (_timeStopTimer > 0f && GetAbilityBranch(RunUpgradeKind.TimeStop) == "timestop_echo_phase" ? 1.18f : 1f) *
-            (_timeStopTimer > 0f && _timeStopTimer <= 1f && GetAbilityFinalArchetype(RunUpgradeKind.TimeStop) == "timestop_temporal_core" ? 2f : 1f) *
+
             (_darkRitualOverloadTimer > 0f ? 1.25f + GetAbilityLevel(RunUpgradeKind.DarkRitual) * 0.04f : 1f) *
             LevelUpAbilityRules.GetSphereDamageMultiplier(GetAbilityLevel(RunUpgradeKind.Damage)) *
             PersistentUpgradeRules.GetPercentMultiplier(GetShopUpgradeLevel("dmg")) *
