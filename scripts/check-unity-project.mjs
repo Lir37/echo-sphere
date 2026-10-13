@@ -1049,7 +1049,8 @@ assert.ok(menuRuntime.includes('ArtifactProtocolRules.GetTriangleResonanceMultip
   menuRuntime.includes('ArtifactProtocolRules.GetPrismDominionProtocolMultiplier') &&
   menuRuntime.includes('ArtifactProtocolRules.GetNetworkLegacyProtocolMultiplier'),
   'Nine completed-set Artifact Protocols must feed the real Sphere damage multiplier');
-assert.ok(artifactProtocolRulesSource.includes('completedSingularityPath && combo >= 5 ? 1.06f : 1f') &&
+assert.ok(artifactProtocolRulesSource.includes('completedSingularityPath && combo >= 5') &&
+  artifactProtocolRulesSource.includes('IsCriticalEchoActive(completedSingularityPath, combo) ? 1.06f : 1f') &&
   artifactProtocolRulesSource.includes('completedGrid && sphereFormsTriangle ? 1.05f : 1f') &&
   artifactProtocolRulesSource.includes('completedEchoArchitecture && uniqueTypeCount >= 2 && hasNearbySphere ? 1.05f : 1f') &&
   artifactProtocolRulesSource.includes('completedVoidHorizon && isVoidSphere && hasLivingEliteOrBoss ? 1.08f : 1f') &&
