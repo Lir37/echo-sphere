@@ -96,6 +96,11 @@ namespace EchoSphere.Runtime
             return true;
         }
 
+        public void SetShieldCharges(int amount)
+        {
+            ShieldCharges = Mathf.Clamp(amount, 0, 5);
+        }
+
         public void GrantShieldCharge(int amount = 1)
         {
             ShieldCharges = Mathf.Clamp(ShieldCharges + Mathf.Max(0, amount), 0, 5);
