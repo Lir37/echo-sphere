@@ -101,6 +101,14 @@ namespace EchoSphere.Runtime
             ShieldCharges = Mathf.Clamp(ShieldCharges + Mathf.Max(0, amount), 0, 5);
         }
 
+        public bool SpendHp(float amount)
+        {
+            var cost = Mathf.Max(0f, amount);
+            if (IsDead || CurrentHp <= cost) return false;
+            CurrentHp -= cost;
+            return true;
+        }
+
         public void Heal(float amount)
         {
             if (!IsDead) CurrentHp = Mathf.Min(MaxHp, CurrentHp + Mathf.Max(0f, amount));
