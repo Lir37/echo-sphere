@@ -4633,32 +4633,59 @@ namespace EchoSphere.Runtime
             var count = 1 + (level - 1) / 2;
             var branch = GetAbilityBranch(RunUpgradeKind.Minion);
             var final = GetAbilityFinalArchetype(RunUpgradeKind.Minion);
-            var finalVariant = GetAbilityFinalVariant(RunUpgradeKind.Minion);
+            var liveSpheres = new List<SphereAttackAgent>();
+            foreach (var sphere in _spheres)
+                if (sphere != null && sphere.gameObject.activeInHierarchy) liveSpheres.Add(sphere);
+
+            SphereAttackAgent nearest = null;
+            var nearestDistance = float.PositiveInfinity;
+            foreach (var sphere in liveSpheres)
+            {
+                var distance = Vector2.Distance(_player.position, sphere.transform.position);
+                if (distance < nearestDistance) { nearestDistance = distance; nearest = sphere; }
+            }
+
+            SphereAttackAgent pairA = null, pairB = null;
+            var pairDistance = float.PositiveInfinity;
+            var relayMode = branch == "minion_relay_drone" || final == "minion_network_nodes";
+            if (relayMode && liveSpheres.Count >= 2)
+                for (var i = 0; i < liveSpheres.Count - 1; i++)
+                    for (var j = i + 1; j < liveSpheres.Count; j++)
+                    {
+                        var distance = Vector2.Distance(liveSpheres[i].transform.position, liveSpheres[j].transform.position);
+                        if (distance < pairDistance) { pairDistance = distance; pairA = liveSpheres[i]; pairB = liveSpheres[j]; }
+                    }
+
+            var scale = SpherePlacementRules.SourcePixelsToWorld;
             for (var i = 0; i < count; i++)
             {
-                SphereAttackAgent anchor = null;
-                var nearestDistance = float.PositiveInfinity;
-                foreach (var sphere in _spheres)
-                {
-                    if (sphere == null || !sphere.gameObject.activeInHierarchy) continue;
-                    var distance = Vector2.Distance(_player.position, sphere.transform.position);
-                    if (distance < nearestDistance) { nearestDistance = distance; anchor = sphere; }
-                }
-                var drone = new GameObject("Echo Drone");
-                var anchorPosition = anchor != null ? (Vector2)anchor.transform.position : (Vector2)_player.position;
+                var anchorPosition = nearest != null ? (Vector2)nearest.transform.position : (Vector2)_player.position;
                 var angle = (i / (float)Mathf.Max(1, count)) * Mathf.PI * 2f;
-                drone.transform.position = anchorPosition + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * 0.42f;
+                var spawnPosition = anchorPosition + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * (42f * scale);
+                if (relayMode && pairA != null && pairB != null && pairDistance <= 400f * scale)
+                    spawnPosition = ((Vector2)pairA.transform.position + (Vector2)pairB.transform.position) * 0.5f;
+
+                var drone = new GameObject("Echo Drone");
+                drone.transform.position = spawnPosition;
                 drone.transform.localScale = Vector3.one * 0.28f;
                 var renderer = drone.AddComponent<SpriteRenderer>();
                 renderer.sprite = RuntimeSpriteFactory.Diamond;
                 renderer.color = new Color(0.35f, 0.83f, 1f, 0.95f);
                 renderer.sortingOrder = 16;
                 var agent = drone.AddComponent<AbilityDroneAgent2D>();
-                agent.Initialize(this, anchor != null ? anchor.transform : _player, 10f, 8f + level * 2f,
-                    branch == "minion_relay_drone" || final.StartsWith("minion_relay_drone", StringComparison.Ordinal) || finalVariant == 2);
-                if (anchor != null) anchor.AccelerateNextAttack(branch == "minion_guardian" ? 1.1f : 0.35f);
-                SpawnImpact(anchorPosition, new Color(0.35f, 0.83f, 1f, 0.9f));
+                agent.Initialize(this, nearest != null ? nearest.Type : SphereId.Standard, level,
+                    10f + (level >= 5 ? 2f : 0f), branch, final, i);
+
+                if (nearest != null && branch == "minion_echo_drone") nearest.AccelerateNextAttack(0.45f);
+                else if (nearest != null && branch == "minion_guardian") nearest.AccelerateNextAttack(0.35f);
+                if (final == "minion_echo_swarm")
+                {
+                    SpawnImpact(spawnPosition, new Color(0.83f, 0.58f, 0.24f, 0.95f));
+                    if (nearest != null) nearest.AccelerateNextAttack(0.22f);
+                }
+                SpawnImpact(spawnPosition, new Color(0.35f, 0.83f, 1f, 0.9f));
             }
+
             ApplyActiveAbilitySynergyRiders(RunUpgradeKind.Minion, level);
             ShowTimedCombatMessage("ECHO DRONE", 0.9f);
         }
