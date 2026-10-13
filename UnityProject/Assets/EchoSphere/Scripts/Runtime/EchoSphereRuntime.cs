@@ -3270,7 +3270,7 @@ namespace EchoSphere.Runtime
                 var current = GetAbilityLevel(kind);
                 if (current > 0 || activeAbilityCount < _activeAbilitySlots)
                     if (LevelUpAbilityRules.CanUpgrade(kind, current))
-                        pool.Add(LevelUpAbilityRules.CreateChoice(kind, current));
+                        pool.Add(LevelUpAbilityRules.CreateChoice(kind, current, IsRussianUi));
             }
 
             if (pool.Count == 0)
