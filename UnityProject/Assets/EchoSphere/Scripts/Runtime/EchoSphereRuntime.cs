@@ -4979,7 +4979,7 @@ namespace EchoSphere.Runtime
 
         private void EmitSourceSpherePulse(SphereAttackAgent source, Vector2 center, float radiusWorld, float damage, Color color, bool slow = false)
         {
-            DamageEnemiesNearFromSphere(source, center, radiusWorld, damage, color, slow, false);
+            DamageEnemiesNearFromSphere(source, center, radiusWorld, damage, color, slow);
             // Source emitSpherePulse deals damage first, then consumes one seeded
             // random angle for each of its 14 radial particles.
             var angles = new float[14];
@@ -4991,7 +4991,7 @@ namespace EchoSphere.Runtime
 
         private void DamageEnemiesNearFromSphere(
             SphereAttackAgent source, Vector2 center, float radiusWorld, float damage, Color color,
-            bool slow = false, bool spawnImpact = true)
+            bool slow = false)
         {
             // Source emitSpherePulse/dealDamageToEnemy calls from active abilities
             // omit the sourceSphere argument. Keep the Sphere only as the pulse
@@ -5005,7 +5005,6 @@ namespace EchoSphere.Runtime
                 enemy.ReceiveDamage(effectiveDamage);
                 if (slow) enemy.ApplySlow(1.2f, 0.6f);
             }
-            if (spawnImpact) SpawnImpact(center, color);
         }
 
         public void DamageEnemiesNear(Vector2 center, float radiusWorld, float damage, Color color)
