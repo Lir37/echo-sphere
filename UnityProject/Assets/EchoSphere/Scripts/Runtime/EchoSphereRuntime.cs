@@ -7560,9 +7560,8 @@ namespace EchoSphere.Runtime
             _spherePointerOriginalFormationPoints = new Vector2[formation.NodeIndexes.Count];
             for (var i = 0; i < formation.NodeIndexes.Count; i++)
             {
-                var index = formation.NodeIndexes[i];
-                if (index < 0 || index >= _spheres.Count || _spheres[index] == null) continue;
-                _spherePointerOriginalFormationPoints[i] = _spheres[index].transform.position;
+                if (!TryGetNetworkNodePosition(formation.NodeIndexes[i], out var position)) continue;
+                _spherePointerOriginalFormationPoints[i] = position;
             }
         }
 
