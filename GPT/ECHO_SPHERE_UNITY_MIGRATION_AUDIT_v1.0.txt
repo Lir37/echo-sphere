@@ -3150,3 +3150,51 @@ NEXT:
 ======================================================================
 END ECHO ARCHITECTURE COMBAT SYNERGIES
 ======================================================================
+
+[2026-10-13 | FOUR ADDITIONAL ARTIFACT PAIR SYNERGIES]
+
+SOURCE:
+- new-desing remains 737ef2af4a877e0995db5f92331d536d2f29a934, unchanged.
+- Formulas are source-mapped from src/artifactSystem.ts:
+  getArtifactDamageTakenMultiplier() and getSphereArtifactModifiers().
+
+IMPLEMENTED:
+1. Fortress Network: requires heavy_core + resonance_core. Adds a 1.10 multiplier
+   when the attacking Sphere has another active Sphere within 190 source pixels.
+2. Glass Cannon: requires overclock + void_contract. Adds 1.12 to Sphere damage
+   and independently multiplies incoming damage by 1.05, after the existing
+   artifact damage-taken modifier.
+3. Singularity: requires lone_bastion + singularity_engine. Adds 1.20 to Sphere
+   damage only when at most one active Sphere type exists. Existing standalone
+   artifact effects remain in place and stack as in the source.
+4. Core Relay: requires unified_mind + echo_thread. Adds 1.08 to Sphere damage
+   only with two or more active Sphere types.
+5. Added Core/ArtifactSynergyRules.cs and its .meta; updated EchoSphereRuntime,
+   CoreChecks/Program.cs, and scripts/check-unity-project.mjs. Added 18 assertions
+   covering exact required pairs, conditional gates and source multipliers.
+
+VALIDATION:
+- Unity Migration Contracts #279: SUCCESS:
+  https://github.com/Lir37/echo-sphere/actions/runs/38345669008
+- The CI includes pure C# contract checks and Node structural/runtime checks.
+  It is not a Unity Editor compilation, APK build/install or device visual test.
+
+OPEN:
+- Previously recorded gaps remain: Rune effect exists but source branch has no
+  producer adding RuneEntity to GameState.runes; the physical Rune pickup route
+  must not be invented.
+- Remaining Artifact Synergies and Artifact Protocols require separate source
+  audits before being marked transferred.
+- Unity Editor compile, APK build/install and physical-device visual inspection
+  remain unverified. The Sphere sizing and enemy silhouette feedback remains open.
+
+NEXT:
+1. Audit the next source-defined Artifact Synergy and compare its exact condition
+   against the Unity runtime, then port only its missing live effect with numeric
+   contracts.
+2. Preserve the current base artifact effects and existing damage-multiplier
+   order; don't replace or rewrite working systems wholesale.
+
+======================================================================
+END FOUR ADDITIONAL ARTIFACT PAIR SYNERGIES
+======================================================================
