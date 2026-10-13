@@ -4492,28 +4492,28 @@ namespace EchoSphere.Runtime
                 if (HasActiveAbilitySynergy(SphereId.Shotgun, "shotgun_hail", ability, "lightning_echo_storm_f1"))
                     foreach (var sphere in _spheres)
                         if (sphere != null && sphere.gameObject.activeInHierarchy && sphere.Type == SphereId.Shotgun)
-                            foreach (var enemy in _enemies)
-                                if (enemy != null && enemy.IsAlive && Vector2.Distance(enemy.transform.position, sphere.transform.position) <= 250f * scale)
-                                {
-                                    SpawnCombatArc(sphere.transform.position, enemy.transform.position, SphereId.Chain,
-                                        GetSphereBranch(SphereId.Chain), GetSphereFinal(SphereId.Chain), new Color(0.65f, 0.42f, 1f), 0.14f);
-                                    enemy.ReceiveDamage((20f + level * 5f) * 0.40f);
-                                }
+                            foreach (var enemy in FindNearestEnemies(sphere.transform.position, 250f * scale, 3))
+                            {
+                                SpawnCombatArc(sphere.transform.position, enemy.transform.position, SphereId.Chain,
+                                    GetSphereBranch(SphereId.Chain), GetSphereFinal(SphereId.Chain), new Color(0.65f, 0.42f, 1f), 0.14f);
+                                enemy.ReceiveDamage((20f + level * 5f) * 0.40f);
+                            }
                 if (HasActiveAbilitySynergy(SphereId.Chain, "chain_storm", ability, "lightning_relay_f2"))
                     foreach (var sphere in _spheres)
                         if (sphere != null && sphere.gameObject.activeInHierarchy && sphere.Type == SphereId.Chain)
-                            foreach (var enemy in _enemies)
-                                if (enemy != null && enemy.IsAlive && Vector2.Distance(enemy.transform.position, sphere.transform.position) <= 95f * scale)
-                                {
-                                    SpawnCombatArc(sphere.transform.position, enemy.transform.position, SphereId.Chain,
-                                        GetSphereBranch(SphereId.Chain), GetSphereFinal(SphereId.Chain), new Color(1f, 0.88f, 0.35f), 0.12f);
-                                    enemy.ReceiveDamage((8f + level * 3f) * 0.80f);
-                                }
+                            foreach (var enemy in FindNearestEnemies(sphere.transform.position, 95f * scale, 2))
+                            {
+                                SpawnCombatArc(sphere.transform.position, enemy.transform.position, SphereId.Chain,
+                                    GetSphereBranch(SphereId.Chain), GetSphereFinal(SphereId.Chain), new Color(1f, 0.88f, 0.35f), 0.12f);
+                                enemy.ReceiveDamage((8f + level * 3f) * 0.80f);
+                            }
                 if (HasActiveAbilitySynergy(SphereId.Pulse, "pulse_resonator", ability, "lightning_echo_storm_f3"))
+                {
+                    AddResonanceCharge(0.45f * _activeAbilitySynergyPower);
                     foreach (var sphere in _spheres)
                         if (sphere != null && sphere.gameObject.activeInHierarchy && sphere.Type == SphereId.Pulse)
-                            AddResonanceCharge(0.45f * _activeAbilitySynergyPower);
                             sphere.AccelerateNextAttack(0.45f * _activeAbilitySynergyPower);
+                }
             }
             else if (ability == RunUpgradeKind.DarkRitual)
             {
@@ -4530,7 +4530,7 @@ namespace EchoSphere.Runtime
                 if (HasActiveAbilitySynergy(SphereId.Orbital, "orbital_blade", ability, "darkritual_void_pact_f3"))
                     foreach (var sphere in _spheres)
                         if (sphere != null && sphere.gameObject.activeInHierarchy && sphere.Type == SphereId.Orbital)
-                            DamageEnemiesNear(sphere.transform.position, 0.85f, (22f + level * 5f) * 0.48f, new Color(1f, 0.75f, 0.40f));
+                            DamageEnemiesNear(sphere.transform.position, 85f * scale, (22f + level * 5f) * 0.48f, new Color(1f, 0.75f, 0.40f));
                 if (HasActiveAbilitySynergy(SphereId.Void, "void_hunger", ability, "darkritual_blood_link_f2"))
                 {
                     var missing = 1f - (_playerCore != null ? _playerCore.CurrentHp / Mathf.Max(1f, _playerCore.MaxHp) : 0f);
