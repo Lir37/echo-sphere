@@ -1232,6 +1232,11 @@ for (const ability of ['Blast', 'Shield', 'Teleport', 'FireTrail', 'Minion', 'Li
     runtimeArt.includes('Activate' + ability + '()'),
     'source active ability ' + ability + ' must have progression and a runtime activation path');
 }
+assert.ok(runtimeArt.includes('GetSphereRadiusMultiplier()') &&
+  runtimeArt.includes('SphereBoostDamageBonus') &&
+  runtimeArt.includes('GetActiveAbilityCooldownMultiplier') &&
+  runtimeArt.includes('_playerCore.DashTimer > 0f'),
+  'Radius, Sphere Boost, Chrono Core and Momentum must affect live combat state');
 assert.ok(runtimeArt.includes('AddComponent<AbilityDroneAgent2D>()') &&
   runtimeArt.includes('_fireTrailTimer > 0f') &&
   runtimeArt.includes('_darkRitualOverloadTimer > 0f') &&

@@ -4778,13 +4778,18 @@ namespace EchoSphere.Runtime
                 case RunUpgradeKind.AttackSpeed:
                 case RunUpgradeKind.MoveSpeed:
                 case RunUpgradeKind.Slow:
+                case RunUpgradeKind.Radius:
+                    _abilityLevels[choice.Kind] = choice.NextLevel;
+                    for (var i = 0; i < _spheres.Count; i++)
+                        if (_spheres[i] != null) _spheres[i].ApplyProgressionLevel(_spheres[i].ProgressionLevel);
+                    ShowMessage("SPHERE RADIUS increased.");
+                    break;
                 case RunUpgradeKind.Dodge:
                 case RunUpgradeKind.Crit:
                 case RunUpgradeKind.Magnet:
                 case RunUpgradeKind.Armor:
                 case RunUpgradeKind.Regen:
                 case RunUpgradeKind.Stability:
-                case RunUpgradeKind.Radius:
                 case RunUpgradeKind.Vampire:
                 case RunUpgradeKind.SphereBoost:
                 case RunUpgradeKind.Cooldown:
