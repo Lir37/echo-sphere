@@ -40,6 +40,8 @@ const required = [
   'Assets/EchoSphere/Scripts/Core/ArtifactSetRules.cs.meta',
   'Assets/EchoSphere/Scripts/Core/ArtifactProtocolRules.cs',
   'Assets/EchoSphere/Scripts/Core/ArtifactProtocolRules.cs.meta',
+  'Assets/EchoSphere/Scripts/Core/ComboRules.cs',
+  'Assets/EchoSphere/Scripts/Core/ComboRules.cs.meta',
   'Assets/EchoSphere/Scripts/Runtime/StellaChestAgent2D.cs',
   'Assets/EchoSphere/Scripts/Runtime/BossCombatAgent2D.cs',
   'Assets/EchoSphere/Scripts/Runtime/BossProjectileAgent2D.cs',
@@ -1038,6 +1040,7 @@ assert.ok(artifactSetRulesSource.includes('complete && hasNearbySphere && hasAct
 const artifactProtocolRulesSource = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/ArtifactProtocolRules.cs'), 'utf8');
 assert.ok(menuRuntime.includes('ArtifactProtocolRules.GetTriangleResonanceMultiplier') &&
   menuRuntime.includes('ArtifactProtocolRules.GetSphereRelayMultiplier') &&
+  menuRuntime.includes('ArtifactProtocolRules.GetCriticalEchoMultiplier') &&
   menuRuntime.includes('ArtifactProtocolRules.GetGeometryCircuitMultiplier') &&
   menuRuntime.includes('ArtifactProtocolRules.GetVoidHorizonProtocolMultiplier') &&
   menuRuntime.includes('ArtifactProtocolRules.GetHunterDoctrineProtocolMultiplier') &&
@@ -1046,7 +1049,8 @@ assert.ok(menuRuntime.includes('ArtifactProtocolRules.GetTriangleResonanceMultip
   menuRuntime.includes('ArtifactProtocolRules.GetPrismDominionProtocolMultiplier') &&
   menuRuntime.includes('ArtifactProtocolRules.GetNetworkLegacyProtocolMultiplier'),
   'Nine completed-set Artifact Protocols must feed the real Sphere damage multiplier');
-assert.ok(artifactProtocolRulesSource.includes('completedGrid && sphereFormsTriangle ? 1.05f : 1f') &&
+assert.ok(artifactProtocolRulesSource.includes('completedSingularityPath && combo >= 5 ? 1.06f : 1f') &&
+  artifactProtocolRulesSource.includes('completedGrid && sphereFormsTriangle ? 1.05f : 1f') &&
   artifactProtocolRulesSource.includes('completedEchoArchitecture && uniqueTypeCount >= 2 && hasNearbySphere ? 1.05f : 1f') &&
   artifactProtocolRulesSource.includes('completedVoidHorizon && isVoidSphere && hasLivingEliteOrBoss ? 1.08f : 1f') &&
   artifactProtocolRulesSource.includes('completedHunterDoctrine && isSniperSphere && hasLivingEliteOrBoss ? 1.08f : 1f') &&
@@ -1070,13 +1074,25 @@ assert.ok(runtimeArt.includes('RecordDiscoveredArtifactProtocols();') &&
   runtimeArt.includes('ArtifactProtocolKnowledgePreferenceKey') &&
   runtimeArt.includes('PlayerPrefs.SetString(ArtifactProtocolKnowledgePreferenceKey'),
   'completed Artifact Sets must persist protocol encyclopedia unlocks');
+const comboRulesSource = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/ComboRules.cs'), 'utf8');
+assert.ok(runtimeArt.includes('ComboRules.IncrementOnKill') &&
+  runtimeArt.includes('ComboRules.TickTimer') &&
+  runtimeArt.includes('ComboRules.GetExperienceMultiplier') &&
+  runtimeArt.includes('ComboRules.GetExperienceOrbValue') &&
+  runtimeArt.includes('ResetCombo();') &&
+  runtimeArt.includes('UnlockAchievementIf(_combo >= 50, "combo_50")'),
+  'source Combo timer, kill, XP, damage-reset and achievement paths must be wired');
+for (const threshold of ['>= 10', '>= 25', '>= 50', '>= 100'])
+  assert.ok(comboRulesSource.includes(threshold), `source Combo XP multiplier threshold missing: ${threshold}`);
 assert.ok(runtimeArt.includes('critical_echo') &&
+  runtimeArt.includes('ArtifactProtocolRules.IsCriticalEchoActive(discovered, _combo)') &&
   runtimeArt.includes('temporal_fold_protocol') &&
   runtimeArt.includes('status_circuit_protocol') &&
   runtimeArt.includes('protocol.HasUnmappedRuntimeState'),
-  'three protocols requiring unported source runtime states must remain explicitly pending');
+  'Critical Echo must use the mapped combo state; only time-control and global-modifier protocols remain pending');
 assert.ok(artifactProtocolRulesSource.includes('HasUnmappedRuntimeState') &&
   artifactProtocolRulesSource.includes('"critical_echo"') &&
+  artifactProtocolRulesSource.includes('GetCriticalEchoMultiplier') &&
   artifactProtocolRulesSource.includes('"temporal_fold_protocol"') &&
   artifactProtocolRulesSource.includes('"status_circuit_protocol"'),
   'the protocol catalog must flag the three unmapped activation dependencies');

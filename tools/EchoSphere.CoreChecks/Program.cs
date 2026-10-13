@@ -49,6 +49,7 @@ internal static class Program
             CheckAxiomFoldSynergy();
             CheckResonanceGeometryMemoryRules();
             CheckArtifactSetRules();
+            CheckComboRules();
             CheckArtifactProtocolRules();
             CheckSphereElementalRules();
             CheckAlchemistReactionRules();
@@ -1210,6 +1211,29 @@ internal static class Program
         Near(ArtifactSetRules.GetNetworkLegacySetDamageMultiplier(true, 2, SphereNetworkFormation.Ring), 1f, 0f, "Network Legacy requires three types");
     }
 
+    private static void CheckComboRules()
+    {
+        Equal(ComboRules.IncrementOnKill(0, false), 1, "a non-Boss kill starts Combo at one");
+        Equal(ComboRules.IncrementOnKill(14, false), 15, "consecutive non-Boss kills increment Combo");
+        Equal(ComboRules.IncrementOnKill(14, true), 14, "Boss kills do not increment Combo");
+
+        Near(ComboRules.GetExperienceMultiplier(0), 1f, 0f, "Combo below ten keeps base XP");
+        Near(ComboRules.GetExperienceMultiplier(9), 1f, 0f, "Combo x9 keeps base XP");
+        Near(ComboRules.GetExperienceMultiplier(10), 1.5f, 0f, "Combo x10 grants x1.5 XP");
+        Near(ComboRules.GetExperienceMultiplier(24), 1.5f, 0f, "Combo x24 keeps x1.5 XP");
+        Near(ComboRules.GetExperienceMultiplier(25), 2f, 0f, "Combo x25 grants x2 XP");
+        Near(ComboRules.GetExperienceMultiplier(49), 2f, 0f, "Combo x49 keeps x2 XP");
+        Near(ComboRules.GetExperienceMultiplier(50), 3f, 0f, "Combo x50 grants x3 XP");
+        Near(ComboRules.GetExperienceMultiplier(99), 3f, 0f, "Combo x99 keeps x3 XP");
+        Near(ComboRules.GetExperienceMultiplier(100), 4f, 0f, "Combo x100 grants x4 XP");
+
+        Equal(ComboRules.GetExperienceOrbValue(5, 1.5f), 8, "Combo XP uses source Math.round behavior for halves");
+        Equal(ComboRules.GetExperienceOrbValue(4, 2f), 8, "Combo XP applies the experience multiplier to orb value");
+        Near(ComboRules.TickTimer(3f, 1f), 2f, 0f, "Combo timer counts down by frame delta");
+        Near(ComboRules.TickTimer(0.1f, 0.2f), 0f, 0f, "Combo timer expires at zero rather than going negative");
+        Near(ComboRules.TickTimer(0f, 0.2f), 0f, 0f, "expired Combo timer remains zero");
+    }
+
     private static void CheckArtifactProtocolRules()
     {
         Near(ArtifactProtocolRules.GetTriangleResonanceMultiplier(true, true), 1.05f, 0f,
@@ -1223,6 +1247,16 @@ internal static class Program
             "Sphere Relay protocol requires two unique active Sphere types");
         Near(ArtifactProtocolRules.GetSphereRelayMultiplier(true, 2, false), 1f, 0f,
             "Sphere Relay protocol requires another Sphere within 220 px");
+
+        True(!ArtifactProtocolRules.IsCriticalEchoActive(true, 4), "Critical Echo stays inactive below combo x5");
+        True(ArtifactProtocolRules.IsCriticalEchoActive(true, 5), "Critical Echo activates at combo x5 for a completed Singularity Path");
+        True(!ArtifactProtocolRules.IsCriticalEchoActive(false, 50), "Critical Echo requires the completed Singularity Path");
+        Near(ArtifactProtocolRules.GetCriticalEchoMultiplier(true, 5), 1.06f, 0f,
+            "Critical Echo grants the source +6% damage at combo x5");
+        Near(ArtifactProtocolRules.GetCriticalEchoMultiplier(true, 4), 1f, 0f,
+            "Critical Echo does not grant damage below combo x5");
+        Near(ArtifactProtocolRules.GetCriticalEchoMultiplier(false, 5), 1f, 0f,
+            "Critical Echo multiplier is unavailable before the completed set");
 
         Near(ArtifactProtocolRules.GetGeometryCircuitMultiplier(true, SphereNetworkFormation.Ring), 1.05f, 0f,
             "Geometry Circuit protocol grants +5% during Ring");
@@ -1286,7 +1320,7 @@ internal static class Program
         True(ArtifactProtocolRules.TryGetProtocol("sphere_relay", out var relayProtocol) &&
             relayProtocol.SetId == "echo_architecture", "Sphere Relay discovery maps to Echo Architecture");
         True(ArtifactProtocolRules.TryGetProtocol("critical_echo", out var criticalProtocol) &&
-            criticalProtocol.HasUnmappedRuntimeState, "Critical Echo remains pending until combo state is ported");
+            !criticalProtocol.HasUnmappedRuntimeState, "Critical Echo uses its source-mapped combo runtime state");
         True(ArtifactProtocolRules.TryGetProtocol("temporal_fold_protocol", out var temporalProtocol) &&
             temporalProtocol.HasUnmappedRuntimeState, "Temporal Fold remains pending until time-control state is ported");
         True(ArtifactProtocolRules.TryGetProtocol("status_circuit_protocol", out var statusProtocol) &&

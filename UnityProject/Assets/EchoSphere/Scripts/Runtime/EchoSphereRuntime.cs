@@ -143,6 +143,9 @@ namespace EchoSphere.Runtime
         private int _runEliteKills;
         private int _runEvolutions;
         private int _runChestOpens;
+        private int _combo;
+        private float _comboTimer;
+        private float _comboMultiplier = 1f;
         private List<LeaderboardEntry> _leaderboardEntries = new List<LeaderboardEntry>();
         private List<string> _unlockedAchievementIds = new List<string>();
 
@@ -274,6 +277,9 @@ namespace EchoSphere.Runtime
         public float ResonanceCharge => _resonanceCharge;
         public bool ResonanceEventActive => _resonanceEventActive;
         public int ResonanceEventsTriggered => _resonanceEventsTriggered;
+        public int CurrentCombo => _combo;
+        public float CurrentComboTimer => _comboTimer;
+        public float CurrentComboMultiplier => _comboMultiplier;
 
         public string GetSphereBranch(SphereId type) => _sphereBranches.TryGetValue(type, out var id) ? id : null;
         public string GetSphereFinal(SphereId type) => _sphereFinals.TryGetValue(type, out var id) ? id : null;
@@ -631,6 +637,7 @@ namespace EchoSphere.Runtime
             UnlockAchievementIf(_runEvolutions >= 1, "evolve_1");
             UnlockAchievementIf(_runEvolutions >= 3, "evolve_3");
             UnlockAchievementIf(_runEliteKills >= 10, "elite_10");
+            UnlockAchievementIf(_combo >= 50, "combo_50");
             UnlockAchievementIf(_runChestOpens >= 5, "chest_5");
             UnlockAchievementIf(_playerCore != null && _playerCore.DashCount >= 50, "dash_50");
 
@@ -714,6 +721,15 @@ namespace EchoSphere.Runtime
             if (_mainMenu || _paused || _playerCore == null) return;
             var dt = Time.deltaTime;
             _runTime += dt;
+            if (_comboTimer > 0f)
+            {
+                _comboTimer = ComboRules.TickTimer(_comboTimer, dt);
+                if (_comboTimer <= 0f)
+                {
+                    _combo = 0;
+                    _comboMultiplier = 1f;
+                }
+            }
             TickSphereArtAnimation(dt);
             _playerCore.Tick(dt);
             _swiftBootsTimer = Mathf.Max(0f, _swiftBootsTimer - dt);
@@ -2433,6 +2449,12 @@ namespace EchoSphere.Runtime
                     _hunterHuntTimer = 0f;
                 }
             }
+            if (enemy != null && !enemy.IsBoss)
+            {
+                _combo = ComboRules.IncrementOnKill(_combo, false);
+                _comboTimer = ComboRules.WindowSeconds;
+                _comboMultiplier = ComboRules.GetExperienceMultiplier(_combo);
+            }
             _enemies.Remove(enemy);
             if (sourceSphere.HasValue)
             {
@@ -2456,7 +2478,8 @@ namespace EchoSphere.Runtime
             sr.sprite = xpReward >= 5 ? RuntimeSpriteFactory.Star : xpReward >= 3 ? RuntimeSpriteFactory.Hexagon : RuntimeSpriteFactory.Disc;
             sr.color = xpReward >= 5 ? new Color(1f, 0.45f, 0.82f) : xpReward >= 3 ? new Color(0.76f, 0.55f, 1f) : new Color(0.26f, 0.91f, 1f);
             sr.sortingOrder = 7;
-            go.AddComponent<ExperienceOrbAgent>().Initialize(this, _player, xpReward);
+            var comboExperience = ComboRules.GetExperienceOrbValue(xpReward, _comboMultiplier);
+            go.AddComponent<ExperienceOrbAgent>().Initialize(this, _player, comboExperience);
         }
 
         public void AddExperience(int amount)
@@ -2529,6 +2552,7 @@ namespace EchoSphere.Runtime
             var shieldsBefore = _playerCore.ShieldCharges;
             if (_playerCore.TryTakeDamage(received))
             {
+                ResetCombo();
                 ShowMessage("Core integrity damaged!");
                 if (_ownedArtifacts.Contains("stasis_core"))
                     for (var i = 0; i < _enemies.Count; i++)
@@ -2541,7 +2565,17 @@ namespace EchoSphere.Runtime
         {
             if (_playerCore != null && !_playerCore.IsDead &&
                 _playerCore.TryTakeDotDamage(Mathf.Max(0f, damage) * GetArtifactDamageTakenMultiplier() * CurrentDifficulty.EnemyDamageMultiplier))
+            {
+                ResetCombo();
                 ShowMessage("Core integrity damaged!");
+            }
+        }
+
+        private void ResetCombo()
+        {
+            _combo = 0;
+            _comboTimer = 0f;
+            _comboMultiplier = 1f;
         }
 
         public void HealCoreFromDamage(float damage)
@@ -3702,6 +3736,8 @@ namespace EchoSphere.Runtime
                     conditionSatisfied = CountUniqueActiveSphereTypes() >= 2;
                     break;
                 case "critical_echo":
+                    conditionSatisfied = ArtifactProtocolRules.IsCriticalEchoActive(discovered, _combo);
+                    break;
                 case "temporal_fold_protocol":
                 case "status_circuit_protocol":
                     conditionSatisfied = false;
@@ -3904,6 +3940,7 @@ namespace EchoSphere.Runtime
             multiplier *= ArtifactProtocolRules.GetSphereRelayMultiplier(
                 FormationHitRules.HasCompletedEchoArchitecture(_ownedArtifacts), uniqueTypes,
                 HasNearbyActiveSphere(sphere, 220f));
+            multiplier *= ArtifactProtocolRules.GetCriticalEchoMultiplier(hasSingularityPath, _combo);
             multiplier *= ArtifactProtocolRules.GetGeometryCircuitMultiplier(
                 hasGeometryCraft, _resonanceGeometryType);
             multiplier *= ArtifactProtocolRules.GetVoidHorizonProtocolMultiplier(
@@ -5031,6 +5068,9 @@ namespace EchoSphere.Runtime
             _userPaused = false;
             _messageTimer = 0f;
             _runTime = 0f;
+            _combo = 0;
+            _comboTimer = 0f;
+            _comboMultiplier = 1f;
             _kills = 0;
             _bossesDefeated = 0;
             _runEliteKills = 0;

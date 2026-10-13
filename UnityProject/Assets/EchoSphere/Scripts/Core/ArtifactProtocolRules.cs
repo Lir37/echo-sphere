@@ -43,7 +43,7 @@ namespace EchoSphere.Core
                 "+5% damage for linked Spheres when 2+ Sphere types are present.", false),
             new ArtifactProtocolDefinition("critical_echo", "singularity_path", "Критическое Эхо", "Critical Echo",
                 "+6% урона при комбо x5 и выше.",
-                "+6% damage at combo x5 or higher.", true),
+                "+6% damage at combo x5 or higher.", false),
             new ArtifactProtocolDefinition("geometry_circuit", "geometry_craft", "Контур геометрии", "Geometry Circuit",
                 "+5% урона при активной геометрии Кольца, Решётки или Фрактала.",
                 "+5% damage while Ring, Lattice or Fractal geometry is active.", false),
@@ -98,6 +98,12 @@ namespace EchoSphere.Core
         public static float GetSphereRelayMultiplier(
             bool completedEchoArchitecture, int uniqueTypeCount, bool hasNearbySphere) =>
             completedEchoArchitecture && uniqueTypeCount >= 2 && hasNearbySphere ? 1.05f : 1f;
+
+        public static bool IsCriticalEchoActive(bool completedSingularityPath, int combo) =>
+            completedSingularityPath && combo >= 5;
+
+        public static float GetCriticalEchoMultiplier(bool completedSingularityPath, int combo) =>
+            IsCriticalEchoActive(completedSingularityPath, combo) ? 1.06f : 1f;
 
         public static float GetGeometryCircuitMultiplier(
             bool completedGeometryCraft, SphereNetworkFormation geometryType) =>
