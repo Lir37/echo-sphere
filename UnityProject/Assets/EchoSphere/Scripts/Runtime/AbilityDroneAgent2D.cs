@@ -68,8 +68,7 @@ namespace EchoSphere.Runtime
                         _branch, _final, new Color(0.35f, 0.83f, 1f, 0.95f), 0.08f);
                 }
 
-                if (_final == "minion_sphere_guard")
-                    anchor.AccelerateNextAttack(dt * 0.12f);
+
             }
             else
             {
