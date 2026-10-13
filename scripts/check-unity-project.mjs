@@ -63,15 +63,22 @@ const required = [
   'Assets/Resources/EchoSphere/Art/sphere-void.svg',
   'Assets/Resources/EchoSphere/Art/character-spherist-front.svg',
   'Assets/Resources/EchoSphere/Art/character-spherist-3q.svg',
-  'Assets/Resources/EchoSphere/Art/character-spherist-shield.png',
-  'Assets/Resources/EchoSphere/Art/standard-sphere/energy-core.png',
-  'Assets/Resources/EchoSphere/Art/standard-sphere/lower-crystal.png',
   'Assets/Resources/EchoSphere/Art/standard-sphere/stabilization-ring.png',
-  'Assets/Resources/EchoSphere/Art/standard-sphere/upper-crystal.png',
   'Assets/Resources/EchoSphere/Art/enemy-boss.svg',
 ];
 assert.ok(existsSync(root), 'UnityProject directory exists');
 for (const relative of required) assert.ok(existsSync(join(root, relative)), `missing Unity project file: ${relative}`);
+
+const invalidUpstreamPngs = [
+  'Assets/Resources/EchoSphere/Art/character-spherist-shield.png',
+  'Assets/Resources/EchoSphere/Art/standard-sphere/energy-core.png',
+  'Assets/Resources/EchoSphere/Art/standard-sphere/lower-crystal.png',
+  'Assets/Resources/EchoSphere/Art/standard-sphere/upper-crystal.png',
+];
+// These exact upstream blobs fail PNG/DEFLATE validation on both branches.
+// Keep Unity from repeatedly emitting import errors until clean source assets exist.
+for (const relative of invalidUpstreamPngs)
+  assert.ok(!existsSync(join(root, relative)), `corrupt upstream PNG must not be imported by Unity: ${relative}`);
 
 const svgArtPaths = required.filter((relative) =>
   relative.startsWith('Assets/Resources/EchoSphere/Art/') && relative.endsWith('.svg'));
@@ -216,7 +223,27 @@ assert.ok(regionVisuals.includes('CircleSegments = 96') && regionVisuals.include
 assert.ok(regionVisuals.includes('pocket.Seams.Add') && regionVisuals.includes('pocket.Markers.Add'), 'Region Field fold seams and boundary markers are required');
 assert.ok(!/\b_rng\b|UnityEngine\.Random|Random\.Range/.test(regionVisuals), 'presentation-only region visuals must not consume gameplay RNG');
 assert.ok(runtimeArt.includes('LoadAuthored("character-spherist-3q")'), 'the active player must use the source Spherist character, not the Core glyph');
-assert.ok(runtimeArt.includes('standard-sphere/upper-crystal') && runtimeArt.includes('standard-sphere/energy-core') && runtimeArt.includes('standard-sphere/stabilization-ring') && runtimeArt.includes('standard-sphere/lower-crystal'), 'Standard Sphere must use the four authored source parts');
+const sourceSphereRenderer = readFileSync(join(root, '..', 'src/renderer.ts'), 'utf8');
+const activeStandardAssembly = sourceSphereRenderer.slice(
+  sourceSphereRenderer.indexOf('function drawStandardSphereAssembly('),
+  sourceSphereRenderer.indexOf('function drawStandardAttackVfx('),
+);
+assert.ok(activeStandardAssembly.includes('drawStandardSphereCore(ctx, coreRadius, energyPulse)') &&
+  activeStandardAssembly.includes('drawStandardSphereRing(ctx, ringRadius, ringRotation') &&
+  (activeStandardAssembly.match(/'sphere-standard-upper-crystal'/g) || []).length === 2 &&
+  activeStandardAssembly.includes('false,\n    true,' ) &&
+  !activeStandardAssembly.includes("'sphere-standard-core'") &&
+  !activeStandardAssembly.includes("'sphere-standard-ring'") &&
+  !activeStandardAssembly.includes("'sphere-standard-lower-crystal'"),
+  'active source Standard Sphere assembly is core/ring procedural and draws the upper crystal twice, mirrored');
+assert.ok(runtimeArt.includes('LoadAuthored("standard-sphere/upper-crystal")') &&
+  runtimeArt.includes('RuntimeSpriteFactory.StandardCoreGlow') &&
+  runtimeArt.includes('lowerRenderer.flipY = true') &&
+  runtimeArt.includes('GetStandardSphereLocalRadius') &&
+  !runtimeArt.includes('LoadAuthored("standard-sphere/energy-core")') &&
+  !runtimeArt.includes('LoadAuthored("standard-sphere/stabilization-ring")') &&
+  !runtimeArt.includes('LoadAuthored("standard-sphere/lower-crystal")'),
+  'Unity Standard Sphere must mirror the active source assembly and avoid broken/non-active PNG dependencies');
 assert.ok(runtimeArt.includes('TickSphereArtAnimation') && runtimeArt.includes('ApplyOrbitalSphereVisual'), 'authored Sphere animation and the native Orbital construction are required');
 assert.ok(!runtimeArt.includes('LoadAuthored("sphere-standard")') && !runtimeArt.includes('LoadAuthored("sphere-orbital")'), 'the flat prototype SVG substitutions must not be used as source art');
 assert.ok(!existsSync(join(root, 'Assets/Resources/EchoSphere/Art/sphere-standard.svg')), 'obsolete flattened Standard Sphere SVG must be removed');
@@ -247,7 +274,7 @@ const svgImportSettings = readFileSync(join(root, 'Assets/Editor/EchoSphereSvgIm
 assert.ok(svgImportSettings.includes('SVGType.TexturedSprite') && svgImportSettings.includes('void OnPreprocessAsset()'), 'SVG artwork must be configured as textured Sprites before import');
 assert.ok(!svgImportSettings.includes('SaveAndReimport') && !svgImportSettings.includes('OnPostprocessAllAssets'), 'SVG importer must not recursively reimport assets from a postprocess callback');
 assert.ok(runtime.includes('LoadAuthored("character-spherist-3q")') && runtime.includes('character-spherist-3q'), 'the playable Spherist must use the canonical authored character sprite, not the Core glyph');
-assert.ok(runtime.includes('ApplyStandardSphereArtwork') && runtime.includes('ApplyOrbitalSphereVisual') && runtime.includes('standard-sphere/energy-core'), 'production Standard assembly and native Orbital 2.5D art paths are missing');
+assert.ok(runtime.includes('ApplyStandardSphereArtwork') && runtime.includes('ApplyOrbitalSphereVisual') && runtime.includes('RuntimeSpriteFactory.StandardCoreGlow') && spriteFactory.includes('EvaluateStandardCoreGradient'), 'source-mapped Standard core/ring assembly and native Orbital 2.5D art paths are missing');
 assert.ok(spriteFactory.includes('ES_Diamond') && spriteFactory.includes('ES_Prism') && spriteFactory.includes('ES_Shard'), 'distinct archetype silhouettes are missing');
 const resonanceRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/ResonanceRules.cs'), 'utf8');
 assert.ok(resonanceRules.includes('BaseCap = 100f') && resonanceRules.includes('OverflowCap = 150f'), 'Resonance charge contract is missing');
