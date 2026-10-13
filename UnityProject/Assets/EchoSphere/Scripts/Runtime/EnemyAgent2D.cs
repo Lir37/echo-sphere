@@ -106,6 +106,16 @@ namespace EchoSphere.Runtime
             _fireTickTimer = 0f;
         }
 
+        public void ExtendFireStatus(float duration)
+        {
+            if (!_dead) _fireTimer = Mathf.Max(_fireTimer, Mathf.Max(0f, duration));
+        }
+
+        public void ExtendSlowStatus(float duration)
+        {
+            if (!_dead) _slowTimer = Mathf.Max(_slowTimer, Mathf.Max(0f, duration));
+        }
+
         public void ApplyElementalStatus(SphereElementalStatus status, SphereId source)
         {
             if (_dead || status.Element == SphereElement.None) return;
