@@ -3952,6 +3952,38 @@ namespace EchoSphere.Runtime
             }
         }
 
+        private float GetActiveAbilityCooldown(RunUpgradeKind kind)
+        {
+            switch (kind)
+            {
+                case RunUpgradeKind.Blast: return _blastCooldown;
+                case RunUpgradeKind.Shield: return _shieldCooldown;
+                case RunUpgradeKind.Teleport: return _teleportCooldown;
+                case RunUpgradeKind.FireTrail: return _fireTrailCooldown;
+                case RunUpgradeKind.Minion: return _minionCooldown;
+                case RunUpgradeKind.Lightning: return _lightningCooldown;
+                case RunUpgradeKind.TimeStop: return _timeStopCooldown;
+                case RunUpgradeKind.DarkRitual: return _darkRitualCooldown;
+                default: return 0f;
+            }
+        }
+
+        private string GetActiveAbilityShortLabel(RunUpgradeKind kind)
+        {
+            switch (kind)
+            {
+                case RunUpgradeKind.Blast: return "ECHO PULSE";
+                case RunUpgradeKind.Shield: return "SHIELD";
+                case RunUpgradeKind.Teleport: return "ECHO JUMP";
+                case RunUpgradeKind.FireTrail: return "OVERHEAT";
+                case RunUpgradeKind.Minion: return "ECHO DRONE";
+                case RunUpgradeKind.Lightning: return "LIGHTNING";
+                case RunUpgradeKind.TimeStop: return "ECHO FREEZE";
+                case RunUpgradeKind.DarkRitual: return "DARK RITUAL";
+                default: return kind.ToString().ToUpperInvariant();
+            }
+        }
+
         private float GetActiveAbilityCooldownMultiplier() =>
             Mathf.Max(0.55f, (1f - GetAbilityLevel(RunUpgradeKind.Cooldown) * 0.04f) * (1f + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "cooldown")));
 
@@ -7357,19 +7389,26 @@ namespace EchoSphere.Runtime
                 DrawSphereRoster();
                 DrawSpherePicker();
                 DrawSpherePlacementOverlay();
-                if (_activeAbilityHotkeys.TryGetValue(RunUpgradeKind.Teleport, out var teleportKey))
+                var activeAbilityButtonRow = 0;
+                foreach (var key in SourceActiveAbilityKeys)
                 {
-                    var cooldownLabel = _teleportCooldown > 0f ? Mathf.CeilToInt(_teleportCooldown) + "s" : "READY";
-                    if (GUI.Button(new Rect(_uiWidth - 158f, 222f, 140f, 34f),
-                        "ECHO JUMP [" + teleportKey + "]  " + cooldownLabel, _button))
-                        ActivateActiveAbility(RunUpgradeKind.Teleport);
-                }
-                if (_activeAbilityHotkeys.TryGetValue(RunUpgradeKind.TimeStop, out var timeStopKey))
-                {
-                    var cooldownLabel = _timeStopCooldown > 0f ? Mathf.CeilToInt(_timeStopCooldown) + "s" : "READY";
-                    if (GUI.Button(new Rect(_uiWidth - 158f, 260f, 140f, 34f),
-                        "ECHO FREEZE [" + timeStopKey + "]  " + cooldownLabel, _button))
-                        ActivateActiveAbility(RunUpgradeKind.TimeStop);
+                    var foundAbility = false;
+                    var activeKind = RunUpgradeKind.Teleport;
+                    foreach (var binding in _activeAbilityHotkeys)
+                        if (binding.Value == key)
+                        {
+                            activeKind = binding.Key;
+                            foundAbility = true;
+                            break;
+                        }
+                    if (!foundAbility) continue;
+                    var cooldown = GetActiveAbilityCooldown(activeKind);
+                    var cooldownLabel = cooldown > 0f ? Mathf.CeilToInt(cooldown) + "s" : "READY";
+                    var label = GetActiveAbilityShortLabel(activeKind);
+                    var buttonRect = new Rect(_uiWidth - 158f, 222f + activeAbilityButtonRow * 38f, 140f, 34f);
+                    if (GUI.Button(buttonRect, label + " [" + key + "]  " + cooldownLabel, _button))
+                        ActivateActiveAbility(activeKind);
+                    activeAbilityButtonRow++;
                 }
 
                 if (!string.IsNullOrEmpty(_message) && _messageTimer > 0f)
