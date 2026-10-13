@@ -4190,3 +4190,32 @@ VALIDATION:
 ======================================================================
 END TIME STOP / TELEPORT BASELINE ACTIVATION SLICE
 ======================================================================
+
+
+======================================================================
+[2026-10-13 | ACTIVE ABILITY EVOLUTION CHOICES AND COMBAT RIDERS]
+======================================================================
+
+IMPLEMENTED ON unity-migration:
+- Time Stop and Teleport now offer source-mapped branch choices at level IV
+  and final specializations at level VII through the existing evolution UI.
+- Teleport Beacon produces the source 4-second damage-buff timer; Phase Jump
+  grants source invulnerability; Hunter Beacon grants 5 seconds when landing
+  on Sniper; Spatial Network damages enemies around the destination and linked
+  Sphere nodes; Phase Break damages enemies along the jump path.
+- Time Anchor extends the initial freeze; Closed Time / Closed Network propagate
+  freeze through linked Sphere nodes; Phase Volley readies active Spheres; and
+  Temporal Core uses the source level-scaled stronger pulse.
+- Added an explicit player invulnerability grant used by Teleport's source
+  branch/final behavior. new-desing remains untouched.
+
+LIMITS:
+- This slice ports the main branch/final combat riders above. The source's
+  additional branch-specific final-variant synergy riders and all other
+  non-ported active abilities remain separate migration work.
+- Contract CI validates pure C# rules and structural guards only; Unity Editor
+  compilation, APK build and device visual parity are not established by CI.
+
+======================================================================
+END ACTIVE ABILITY EVOLUTION CHOICES AND COMBAT RIDERS
+======================================================================

@@ -71,6 +71,9 @@ namespace EchoSphere.Runtime
             return true;
         }
 
+        public void GrantInvulnerability(float duration) =>
+            InvulnerableTimer = Mathf.Max(InvulnerableTimer, Mathf.Max(0f, duration));
+
         public bool TryTakeDamage(float amount)
         {
             if (IsDead || !CombatRules.CanReceivePlayerDamage(InvulnerableTimer, ContactGraceTimer)) return false;

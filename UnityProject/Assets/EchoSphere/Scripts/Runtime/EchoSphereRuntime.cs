@@ -181,6 +181,10 @@ namespace EchoSphere.Runtime
         private readonly Dictionary<SphereId, string> _sphereBranches = new Dictionary<SphereId, string>();
         private readonly Dictionary<SphereId, string> _sphereFinals = new Dictionary<SphereId, string>();
         private readonly List<SphereEvolutionOption> _evolutionChoices = new List<SphereEvolutionOption>();
+        private readonly Dictionary<RunUpgradeKind, string> _abilityBranches = new Dictionary<RunUpgradeKind, string>();
+        private readonly Dictionary<RunUpgradeKind, string> _abilityFinals = new Dictionary<RunUpgradeKind, string>();
+        private RunUpgradeKind _pendingEvolutionAbility;
+        private bool _pendingEvolutionIsAbility;
         private SphereId _pendingEvolutionSphere;
         private bool _choosingEvolution, _pendingFinalEvolution;
         private readonly SeededRng _rng = new SeededRng(20261009u);
@@ -3782,9 +3786,10 @@ namespace EchoSphere.Runtime
         {
             var level = GetAbilityLevel(RunUpgradeKind.TimeStop);
             if (level <= 0 || _timeStopCooldown > 0f) return;
-
             _timeStopCooldown = 40f * GetActiveAbilityCooldownMultiplier();
             _timeStopTimer = 3f + Mathf.Min(2, level - 1);
+            _abilityBranches.TryGetValue(RunUpgradeKind.TimeStop, out var branch);
+            _abilityFinals.TryGetValue(RunUpgradeKind.TimeStop, out var final);
             SphereAttackAgent nearest = null;
             var origin = (Vector2)_player.position;
             var nearestDistance = float.PositiveInfinity;
@@ -3794,27 +3799,47 @@ namespace EchoSphere.Runtime
                 var distance = Vector2.Distance(origin, sphere.transform.position);
                 if (distance < nearestDistance) { nearest = sphere; nearestDistance = distance; }
             }
-
-            var radius = nearest != null ? 520f * SpherePlacementRules.SourcePixelsToWorld : float.PositiveInfinity;
-            var freezeDuration = _timeStopTimer;
+            var scale = SpherePlacementRules.SourcePixelsToWorld;
+            var radius = nearest != null ? 520f * scale : float.PositiveInfinity;
+            var freezeDuration = _timeStopTimer + (branch == "timestop_time_anchor" ? 1f : 0f);
             foreach (var enemy in _enemies)
-            {
-                if (enemy == null || !enemy.IsAlive) continue;
-                if (nearest == null || Vector2.Distance(enemy.transform.position, nearest.transform.position) <= radius)
+                if (enemy != null && enemy.IsAlive &&
+                    (nearest == null || Vector2.Distance(enemy.transform.position, nearest.transform.position) <= radius))
                     enemy.ApplyFreeze(freezeDuration);
-            }
 
+            if (branch == "timestop_echo_phase")
+                foreach (var sphere in _spheres)
+                    if (sphere != null && sphere.gameObject.activeInHierarchy) sphere.AccelerateNextAttack(999f);
+
+            if ((branch == "timestop_closed_time" || final == "timestop_closed_network") &&
+                nearest != null && _networkState != null)
+            {
+                var startIndex = _spheres.IndexOf(nearest);
+                var queue = new Queue<int>();
+                var visited = new HashSet<int>();
+                if (startIndex >= 0) queue.Enqueue(startIndex);
+                while (queue.Count > 0)
+                {
+                    var sphereIndex = queue.Dequeue();
+                    if (!visited.Add(sphereIndex) || sphereIndex < 0 || sphereIndex >= _spheres.Count) continue;
+                    var sphere = _spheres[sphereIndex];
+                    if (sphere == null || !sphere.gameObject.activeInHierarchy) continue;
+                    foreach (var enemy in _enemies)
+                        if (enemy != null && enemy.IsAlive &&
+                            Vector2.Distance(enemy.transform.position, sphere.transform.position) <= 260f * scale)
+                            enemy.ApplyFreeze(_timeStopTimer);
+                    foreach (var linkedIndex in SphereNetworkRules.GetLinkedNodeIndexes(_networkState, sphereIndex))
+                        if (!visited.Contains(linkedIndex)) queue.Enqueue(linkedIndex);
+                }
+            }
             if (nearest != null)
             {
-                var pulseRadius = 150f * SpherePlacementRules.SourcePixelsToWorld;
-                var pulseDamage = 10f + level * 4f;
+                var pulseRadius = 150f * scale;
+                var pulseDamage = final == "timestop_temporal_core" ? 10f + level * 8f : 10f + level * 4f;
                 foreach (var enemy in _enemies)
                     if (enemy != null && enemy.IsAlive &&
                         Vector2.Distance(enemy.transform.position, nearest.transform.position) <= pulseRadius)
                         enemy.ReceiveDamage(pulseDamage);
-                // Source emitSpherePulse consumes two seeded RNG draws for each of
-                // its 14 cosmetic particles. Preserve the run RNG stream until those
-                // particle visuals are ported.
                 for (var i = 0; i < 28; i++) _rng.NextFloat();
             }
             ShowTimedCombatMessage("ECHO FREEZE", 1.2f);
@@ -3824,14 +3849,11 @@ namespace EchoSphere.Runtime
         {
             var level = GetAbilityLevel(RunUpgradeKind.Teleport);
             if (level <= 0 || _teleportCooldown > 0f) return;
-            if (_follow)
-            {
-                ShowTimedCombatMessage("FOLLOW: TELEPORT LOCKED", 0.55f);
-                return;
-            }
-
+            if (_follow) { ShowTimedCombatMessage("FOLLOW: TELEPORT LOCKED", 0.55f); return; }
             _teleportCooldown = Mathf.Max(5f,
                 (15f - Mathf.Min(4, (level - 1) * 2)) * GetActiveAbilityCooldownMultiplier());
+            _abilityBranches.TryGetValue(RunUpgradeKind.Teleport, out var branch);
+            _abilityFinals.TryGetValue(RunUpgradeKind.Teleport, out var final);
             var origin = (Vector2)_player.position;
             SphereAttackAgent nearest = null;
             var nearestDistance = float.PositiveInfinity;
@@ -3846,35 +3868,69 @@ namespace EchoSphere.Runtime
                 }
                 if (distance < nearestDistance) { nearest = sphere; nearestDistance = distance; }
             }
-
             if (nearest == null && level >= 3)
-            {
                 foreach (var sphere in _spheres)
                 {
                     if (sphere == null || !sphere.gameObject.activeInHierarchy) continue;
                     var distance = Vector2.Distance(origin, sphere.transform.position);
                     if (distance < nearestDistance) { nearest = sphere; nearestDistance = distance; }
                 }
-            }
 
+            var scale = SpherePlacementRules.SourcePixelsToWorld;
             Vector2 destination;
             if (nearest != null) destination = nearest.transform.position;
             else
             {
-                var offset = 300f * SpherePlacementRules.SourcePixelsToWorld;
+                var offset = 300f * scale;
                 destination = origin + new Vector2((_rng.NextFloat() * 2f - 1f) * offset,
                     (_rng.NextFloat() * 2f - 1f) * offset);
             }
-            var worldLimit = 1200f * SpherePlacementRules.SourcePixelsToWorld;
+            var worldLimit = 1200f * scale;
             destination.x = Mathf.Clamp(destination.x, -worldLimit, worldLimit);
             destination.y = Mathf.Clamp(destination.y, -worldLimit, worldLimit);
             _player.position = new Vector3(destination.x, destination.y, _player.position.z);
-            // Source doTeleportTo consumes 64 seeded draws for its 32 cosmetic
-            // particle velocity vectors. Keep subsequent run RNG aligned until the
-            // authored teleport particles are ported.
             for (var i = 0; i < 64; i++) _rng.NextFloat();
-            // The source damage buff is branch/final-specific (Teleport Beacon / Hunter Beacon).
-            // Those ability evolution choices are not yet migrated, so do not fabricate the buff here.
+
+            if (branch == "teleport_phase" || final == "teleport_phase_break") _playerCore?.GrantInvulnerability(0.8f);
+            if (branch == "teleport_beacon") _teleportDamageBuffTimer = 4f;
+            if (branch == "teleport_phase") _playerCore?.GrantInvulnerability(1.25f);
+            if (final == "teleport_hunter_beacon" && nearest != null && nearest.Type == SphereId.Sniper)
+                _teleportDamageBuffTimer = 5f;
+
+            if (nearest != null && final == "teleport_spatial_network")
+            {
+                foreach (var enemy in _enemies)
+                    if (enemy != null && enemy.IsAlive &&
+                        Vector2.Distance(enemy.transform.position, destination) <= 90f * scale)
+                        enemy.ReceiveDamage(22f);
+                if (_networkState != null)
+                    foreach (var linkedIndex in SphereNetworkRules.GetLinkedNodeIndexes(_networkState, _spheres.IndexOf(nearest)))
+                    {
+                        if (linkedIndex < 0 || linkedIndex >= _spheres.Count) continue;
+                        var linkedSphere = _spheres[linkedIndex];
+                        if (linkedSphere == null || !linkedSphere.gameObject.activeInHierarchy) continue;
+                        foreach (var enemy in _enemies)
+                            if (enemy != null && enemy.IsAlive &&
+                                Vector2.Distance(enemy.transform.position, linkedSphere.transform.position) <= 70f * scale)
+                                enemy.ReceiveDamage(12f);
+                    }
+            }
+            if (final == "teleport_phase_break")
+            {
+                var distancePixels = Vector2.Distance(origin, destination) / scale;
+                if (distancePixels > 140f)
+                {
+                    var steps = Mathf.Max(1, Mathf.FloorToInt(distancePixels / 140f));
+                    for (var step = 1; step < steps; step++)
+                    {
+                        var point = Vector2.Lerp(origin, destination, step / (float)steps);
+                        foreach (var enemy in _enemies)
+                            if (enemy != null && enemy.IsAlive &&
+                                Vector2.Distance(enemy.transform.position, point) <= 70f * scale)
+                                enemy.ReceiveDamage(14f);
+                    }
+                }
+            }
             ShowTimedCombatMessage("ECHO JUMP", 0.9f);
         }
 
@@ -3907,6 +3963,7 @@ namespace EchoSphere.Runtime
             switch (choice.Kind)
             {
                 case RunUpgradeKind.Sphere:
+                    _pendingEvolutionIsAbility = false;
                     _sphereLevels[choice.Sphere] = choice.NextLevel;
                     // Level Up changes the source Sphere progression only. The
                     // physical Sphere entity is independently placed/removed
@@ -3942,6 +3999,23 @@ namespace EchoSphere.Runtime
                     _abilityLevels[choice.Kind] = choice.NextLevel;
                     if (choice.CurrentLevel == 0) AssignActiveAbilityHotkey(choice.Kind);
                     ShowMessage(choice.Title + " acquired.");
+                    if (choice.NextLevel == 4 || choice.NextLevel == 7)
+                    {
+                        _pendingEvolutionAbility = choice.Kind;
+                        _pendingEvolutionIsAbility = true;
+                        _pendingEvolutionSphere = SphereId.Standard;
+                        _pendingFinalEvolution = choice.NextLevel == 7;
+                        _evolutionChoices.Clear();
+                        _abilityBranches.TryGetValue(choice.Kind, out var activeBranchId);
+                        _evolutionChoices.AddRange(LevelUpAbilityRules.GetActiveAbilityEvolutionChoices(
+                            choice.Kind, _pendingFinalEvolution, activeBranchId));
+                        _choosingEvolution = _evolutionChoices.Count > 0;
+                        if (_choosingEvolution)
+                        {
+                            ShowMessage(_pendingFinalEvolution ? "Choose active ability final evolution." : "Choose active ability branch.");
+                            return;
+                        }
+                    }
                     break;
                 case RunUpgradeKind.Damage:
                 case RunUpgradeKind.AttackSpeed:
@@ -3974,7 +4048,13 @@ namespace EchoSphere.Runtime
         {
             if (!_choosingEvolution || index < 0 || index >= _evolutionChoices.Count) return;
             var option = _evolutionChoices[index];
-            if (_pendingFinalEvolution)
+            if (_pendingEvolutionIsAbility)
+            {
+                if (_pendingFinalEvolution) _abilityFinals[_pendingEvolutionAbility] = option.Id;
+                else _abilityBranches[_pendingEvolutionAbility] = option.Id;
+                ShowMessage((_pendingFinalEvolution ? "Active ability final evolution: " : "Active ability branch: ") + option.Name);
+            }
+            else if (_pendingFinalEvolution)
             {
                 _sphereFinals[_pendingEvolutionSphere] = option.Id;
                 ShowMessage("Final evolution: " + option.Name);
@@ -3987,6 +4067,7 @@ namespace EchoSphere.Runtime
             _runEvolutions++;
             _choosingEvolution = false;
             _pendingFinalEvolution = false;
+            _pendingEvolutionIsAbility = false;
             _evolutionChoices.Clear();
             _levelUp = false;
             _paused = false;
@@ -6575,7 +6656,11 @@ namespace EchoSphere.Runtime
                             var choice = _evolutionChoices[i];
                             var rect = new Rect(left + 35f, top + yOffset, 370f, 64f);
                             if (GUI.Button(rect, GUIContent.none, _button)) ChooseEvolution(i);
-                            DrawSpriteIcon(new Rect(rect.x + 10f, rect.y + 10f, 42f, 42f), GetSphereIcon(_pendingEvolutionSphere), SphereColor(_pendingEvolutionSphere));
+                            var evolutionIcon = _pendingEvolutionIsAbility ? RuntimeSpriteFactory.Faceted : GetSphereIcon(_pendingEvolutionSphere);
+                            var evolutionTint = _pendingEvolutionIsAbility
+                                ? (_pendingEvolutionAbility == RunUpgradeKind.Teleport ? new Color(0.45f, 0.9f, 0.55f) : new Color(0.7f, 0.62f, 1f))
+                                : SphereColor(_pendingEvolutionSphere);
+                            DrawSpriteIcon(new Rect(rect.x + 10f, rect.y + 10f, 42f, 42f), evolutionIcon, evolutionTint);
                             GUI.Label(new Rect(rect.x + 60f, rect.y + 8f, 298f, 25f), choice.Name, _label);
                             GUI.Label(new Rect(rect.x + 60f, rect.y + 31f, 298f, 29f), choice.Description, _button);
                         }
