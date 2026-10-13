@@ -5390,7 +5390,7 @@ namespace EchoSphere.Runtime
                         var to = (Vector2)ordered[i].transform.position;
                         SpawnCombatArc(from, to, SphereId.Chain, branch, final,
                             new Color(0.63f, 0.42f, 1f, 0.95f), 0.18f);
-                        DamageEnemiesNearFromSphere(_spheres[targetIndex], to, 85f * scale, (35f + level * 8f) * 0.35f, new Color(0.63f, 0.42f, 1f, 0.9f));
+                        DamageEnemiesNearFromSphere(ordered[i], to, 85f * scale, (35f + level * 8f) * 0.35f, new Color(0.63f, 0.42f, 1f, 0.9f));
                     }
             }
 
