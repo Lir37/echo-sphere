@@ -1252,6 +1252,12 @@ assert.ok(runtimeArt.includes('AddComponent<AbilityDroneAgent2D>()') &&
   levelUpAbilities.includes('lightning_echo_storm') &&
   levelUpAbilities.includes('darkritual_blood_link'),
   'Fire Trail and Dark Ritual must modify runtime combat, Minion must spawn active drones, and new active abilities must expose evolution branches');
+assert.ok(runtimeArt.includes('private readonly List<AbilityDroneAgent2D> _abilityDrones') &&
+  runtimeArt.includes('GetAbilityLevel(RunUpgradeKind.Minion) >= 3') &&
+  runtimeArt.includes('drone.NetworkPosition') &&
+  runtimeArt.includes('TryGetNetworkNodePosition(link.A') &&
+  runtimeArt.includes('drone.IsNetworkNodeAlive'),
+  'source runtime network must append live Minions from Ability level III and preserve drone links/formation centers');
 assert.ok(runtimeArt.includes('!linkedSphere.NetworkDisabled') &&
   runtimeArt.includes('Vector2.Distance(linkedSphere.transform.position, spawnPosition) <= SphereNetworkRules.DefaultLinkDistance'),
   'Minion Echo Swarm must accelerate only live network-linked Spheres, excluding temporarily disabled nodes');
