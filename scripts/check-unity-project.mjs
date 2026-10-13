@@ -1298,15 +1298,21 @@ assert.ok(runtimeArt.includes('40f * GetActiveAbilityCooldownMultiplier()') &&
   runtimeArt.includes('(15f - Mathf.Min(4, (level - 1) * 2)) * GetActiveAbilityCooldownMultiplier()') &&
   runtimeArt.includes('220f') && runtimeArt.includes('700f') && runtimeArt.includes('300f'),
   'Time Stop / Teleport must preserve source cooldowns, duration scaling and level-III target range');
+const spherePulseVfxSource = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/SpherePulseVfx2D.cs'), 'utf8');
 assert.ok(activeAbilityEnemy.includes('public void ApplyFreeze(float duration)') &&
   activeAbilityEnemy.includes('public void SetFreezeDuration(float duration)') &&
   runtimeArt.includes('enemy.SetFreezeDuration(freezeDuration)') &&
   runtimeArt.includes('EmitSourceSpherePulse(nearest, nearest.transform.position, pulseRadius, pulseDamage') &&
-  runtimeArt.includes('for (var i = 0; i < 14; i++) _rng.NextFloat();') &&
+  runtimeArt.includes('var angles = new float[14];') &&
+  runtimeArt.includes('angles[i] = _rng.NextFloat() * Mathf.PI * 2f;') &&
+  runtimeArt.includes('new SpherePulseVfx2D()') &&
   !runtimeArt.includes('for (var i = 0; i < 28; i++) _rng.NextFloat();') &&
+  spherePulseVfxSource.includes('SourceLife = 0.35f') &&
+  spherePulseVfxSource.includes('(90f * _sourceScale)') &&
+  spherePulseVfxSource.includes('3f * _sourceScale') &&
   runtimeArt.includes('enemy.ApplySlow(1.2f, 0.6f)') &&
   runtimeArt.includes('ShowTimedCombatMessage("ECHO FREEZE", 1.2f)'),
-  'Time Stop must preserve source freeze semantics, pulse RNG count, slow rider support and feedback');
+  'Time Stop must preserve source freeze semantics, seeded 14-particle pulse behavior, slow rider support and feedback');
 assert.ok(runtimeArt.includes('GetActiveAbilityEvolutionChoices') &&
   runtimeArt.includes('_abilityBranches') && runtimeArt.includes('_abilityFinals') &&
   runtimeArt.includes('teleport_echo_jump_f1') && runtimeArt.includes('teleport_beacon_f2') &&
