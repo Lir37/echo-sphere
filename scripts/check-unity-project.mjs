@@ -1301,10 +1301,12 @@ assert.ok(runtimeArt.includes('40f * GetActiveAbilityCooldownMultiplier()') &&
 assert.ok(activeAbilityEnemy.includes('public void ApplyFreeze(float duration)') &&
   activeAbilityEnemy.includes('public void SetFreezeDuration(float duration)') &&
   runtimeArt.includes('enemy.SetFreezeDuration(freezeDuration)') &&
-  runtimeArt.includes('DamageEnemiesNearFromSphere(nearest, nearest.transform.position, pulseRadius, pulseDamage') &&
-  runtimeArt.includes('for (var i = 0; i < 28; i++) _rng.NextFloat();') &&
+  runtimeArt.includes('EmitSourceSpherePulse(nearest, nearest.transform.position, pulseRadius, pulseDamage') &&
+  runtimeArt.includes('for (var i = 0; i < 14; i++) _rng.NextFloat();') &&
+  !runtimeArt.includes('for (var i = 0; i < 28; i++) _rng.NextFloat();') &&
+  runtimeArt.includes('enemy.ApplySlow(1.2f, 0.6f)') &&
   runtimeArt.includes('ShowTimedCombatMessage("ECHO FREEZE", 1.2f)'),
-  'Time Stop must apply the source Sphere pulse damage, preserve RNG and show source feedback');
+  'Time Stop must preserve source freeze semantics, pulse RNG count, slow rider support and feedback');
 assert.ok(runtimeArt.includes('GetActiveAbilityEvolutionChoices') &&
   runtimeArt.includes('_abilityBranches') && runtimeArt.includes('_abilityFinals') &&
   runtimeArt.includes('teleport_echo_jump_f1') && runtimeArt.includes('teleport_beacon_f2') &&
