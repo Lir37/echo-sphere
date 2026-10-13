@@ -170,7 +170,7 @@ namespace EchoSphere.Runtime
         private int _activeAbilitySlots;
         private float _teleportCooldown, _timeStopCooldown;
         private float _blastCooldown, _shieldCooldown, _fireTrailCooldown, _minionCooldown, _lightningCooldown, _darkRitualCooldown;
-        private float _fireTrailTimer, _darkRitualOverloadTimer;
+        private float _fireTrailTimer, _fireCatalystTimer, _darkRitualOverloadTimer;
         
         private readonly List<string> _recentUpgradeChoiceKeys = new List<string>();
         private readonly List<string> _oracleForecastKeys = new List<string>();
@@ -299,13 +299,36 @@ namespace EchoSphere.Runtime
         public int GetShopUpgradeLevel(string id) { EnsureShopSaveLoaded(); return _shopSave.upgrades.Get(id); }
         public float GetShopSphereRadiusMultiplier() => PersistentUpgradeRules.GetPercentMultiplier(GetShopUpgradeLevel("radius"));
         private DifficultyProfile CurrentDifficulty => DifficultyRules.GetProfile(PlayerPrefs.GetString(DifficultyPreferenceKey, "normal"));
-        public float SphereDamageMultiplier => _damageMultiplier * (Time.time < _runeAttackBuffUntil ? 1.3f : 1f) * (_fireTrailTimer > 0f ? 1.20f + Mathf.Min(3, GetAbilityLevel(RunUpgradeKind.FireTrail) - 1) * 0.05f : 1f) * (_darkRitualOverloadTimer > 0f ? 1.29f + Mathf.Min(3, GetAbilityLevel(RunUpgradeKind.DarkRitual) - 1) * 0.04f : 1f) * LevelUpAbilityRules.GetSphereDamageMultiplier(GetAbilityLevel(RunUpgradeKind.Damage)) *
+        public float SphereDamageMultiplier => _damageMultiplier * (Time.time < _runeAttackBuffUntil ? 1.3f : 1f) *
+            (_teleportDamageBuffTimer > 0f ? 2f : 1f) *
+            (_timeStopTimer > 0f && _timeStopTimer <= 1f && GetAbilityFinalArchetype(RunUpgradeKind.TimeStop) == "timestop_temporal_core" ? 2f : 1f) *
+            (_darkRitualOverloadTimer > 0f ? 1.25f + GetAbilityLevel(RunUpgradeKind.DarkRitual) * 0.04f : 1f) *
+            LevelUpAbilityRules.GetSphereDamageMultiplier(GetAbilityLevel(RunUpgradeKind.Damage)) *
             PersistentUpgradeRules.GetPercentMultiplier(GetShopUpgradeLevel("dmg")) *
             Mathf.Max(0.25f, 1f + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "sphereDamage")) *
             GetCharacterGlobalSphereDamageMultiplier();
-        public float AttackSpeedMultiplier => _attackSpeedMultiplier * (_fireTrailTimer > 0f ? 1.12f : 1f) * (_darkRitualOverloadTimer > 0f ? 1.15f : 1f) * LevelUpAbilityRules.GetAttackSpeedMultiplier(GetAbilityLevel(RunUpgradeKind.AttackSpeed)) *
+        public float AttackSpeedMultiplier => _attackSpeedMultiplier * (_darkRitualOverloadTimer > 0f ? 1f / 0.72f : 1f) *
+            LevelUpAbilityRules.GetAttackSpeedMultiplier(GetAbilityLevel(RunUpgradeKind.AttackSpeed)) *
             GetCharacterAttackSpeedMultiplier() /
             Mathf.Max(0.5f, 1f + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "sphereDelay"));
+
+        public float GetSphereDamageMultiplier(SphereId type)
+        {
+            var multiplier = SphereDamageMultiplier;
+            var fireAligned = GetGlobalSphereModifierLevel("fire") > 0;
+            if (fireAligned && _fireTrailTimer > 0f)
+                multiplier *= 1.2f + GetAbilityLevel(RunUpgradeKind.FireTrail) * 0.025f;
+            if (fireAligned && _fireCatalystTimer > 0f) multiplier *= 1.35f;
+            if (fireAligned && GetAbilityBranch(RunUpgradeKind.FireTrail) == "firetrail_overdrive") multiplier *= 1.15f;
+            return multiplier;
+        }
+
+        public float GetSphereAttackSpeedMultiplier(SphereId type)
+        {
+            var multiplier = AttackSpeedMultiplier;
+            if (GetGlobalSphereModifierLevel("fire") > 0 && _fireTrailTimer > 0f) multiplier *= 1f / 0.78f;
+            return multiplier;
+        }
         public float GetSphereRadiusMultiplier() => LevelUpAbilityRules.GetSphereRadiusMultiplier(GetAbilityLevel(RunUpgradeKind.Radius));
         public float GetSphereRangeMultiplier() => LevelUpAbilityRules.GetSphereRangeMultiplier(GetAbilityLevel(RunUpgradeKind.Range));
         public float GetProjectileSpeedMultiplier() => LevelUpAbilityRules.GetProjectileSpeedMultiplier(GetAbilityLevel(RunUpgradeKind.ProjectileSpeed));
@@ -780,6 +803,7 @@ namespace EchoSphere.Runtime
             _lightningCooldown = Mathf.Max(0f, _lightningCooldown - dt);
             _darkRitualCooldown = Mathf.Max(0f, _darkRitualCooldown - dt);
             _fireTrailTimer = Mathf.Max(0f, _fireTrailTimer - dt);
+            _fireCatalystTimer = Mathf.Max(0f, _fireCatalystTimer - dt);
             _darkRitualOverloadTimer = Mathf.Max(0f, _darkRitualOverloadTimer - dt);
             _activeAbilitySlots = _level >= 20 ? 3 : _level >= 12 ? 2 : _level >= 5 ? 1 : 0;
             _alchemistCatalystTimer = Mathf.Max(0f, _alchemistCatalystTimer - dt);
@@ -4512,21 +4536,62 @@ namespace EchoSphere.Runtime
             _fireTrailCooldown = 25f * GetActiveAbilityCooldownMultiplier();
             _fireTrailTimer = 5f + Mathf.Min(3, level - 1);
             var branch = GetAbilityBranch(RunUpgradeKind.FireTrail);
-            foreach (var sphere in _spheres)
-            {
-                if (sphere == null || !sphere.gameObject.activeInHierarchy) continue;
-                sphere.AccelerateNextAttack(branch == "firetrail_overdrive" ? 1.2f : 0.5f);
-                SpawnImpact(sphere.transform.position, new Color(1f, 0.42f, 0.18f, 0.9f));
-                if (branch == "firetrail_sanctum" && sphere.Type == SphereId.Aura)
-                    sphere.AccelerateNextAttack(1.5f);
-            }
-            var finalVariant = GetAbilityFinalVariant(RunUpgradeKind.FireTrail);
             var final = GetAbilityFinalArchetype(RunUpgradeKind.FireTrail);
-            if (branch == "firetrail_ignition" || finalVariant == 2)
+            var fireAligned = GetGlobalSphereModifierLevel("fire") > 0;
+            var fireSpheres = new List<SphereAttackAgent>();
+
+            if (fireAligned)
+                foreach (var sphere in _spheres)
+                {
+                    if (sphere == null || !sphere.gameObject.activeInHierarchy) continue;
+                    fireSpheres.Add(sphere);
+                    sphere.AccelerateNextAttack(0.5f);
+                    SpawnImpact(sphere.transform.position, new Color(0.77f, 0.43f, 0.24f, 0.9f));
+                }
+
+            if (branch == "firetrail_overdrive")
+                foreach (var sphere in fireSpheres)
+                    sphere.AccelerateNextAttack(0.7f);
+
+            if (branch == "firetrail_sanctum")
+                foreach (var sphere in _spheres)
+                    if (sphere != null && sphere.gameObject.activeInHierarchy && sphere.Type == SphereId.Aura)
+                        sphere.AccelerateNextAttack(999f);
+
+            if (branch == "firetrail_ignition" || final == "firetrail_catalyst")
                 foreach (var enemy in _enemies)
-                    if (enemy != null && enemy.IsAlive && (enemy.HasFireStatus || enemy.HasFreezeStatus || enemy.HasPoisonStatus))
-                        enemy.ApplyDamageOverTime(8f + level, 2f);
-            if (finalVariant == 3) _fireTrailTimer += 1.5f;
+                    if (enemy != null && enemy.IsAlive &&
+                        (enemy.HasFireStatus || enemy.HasFreezeStatus || enemy.HasPoisonStatus))
+                        enemy.ApplyFireStatus(2f, 5f + level * 2f);
+
+            if (final == "firetrail_catalyst") _fireCatalystTimer = 4f;
+
+            if ((final == "firetrail_network" || final == "firetrail_inferno") &&
+                fireSpheres.Count > 1 && _networkState != null)
+            {
+                var fireIndexes = new HashSet<int>();
+                foreach (var sphere in fireSpheres) fireIndexes.Add(_spheres.IndexOf(sphere));
+                var processedPairs = new HashSet<string>();
+                foreach (var sourceIndex in fireIndexes)
+                {
+                    if (sourceIndex < 0) continue;
+                    foreach (var targetIndex in SphereNetworkRules.GetLinkedNodeIndexes(_networkState, sourceIndex))
+                    {
+                        if (targetIndex < 0 || targetIndex >= _spheres.Count || !fireIndexes.Contains(targetIndex)) continue;
+                        var key = sourceIndex < targetIndex ? sourceIndex + ":" + targetIndex : targetIndex + ":" + sourceIndex;
+                        if (!processedPairs.Add(key)) continue;
+                        var source = _spheres[sourceIndex];
+                        var target = _spheres[targetIndex];
+                        if (source == null || target == null) continue;
+                        SpawnCombatArc(source.transform.position, target.transform.position, source.Type,
+                            branch, final, new Color(0.77f, 0.43f, 0.24f, 0.9f), 0.18f);
+                        var boost = final == "firetrail_inferno" ? 0.32f : 0.20f;
+                        source.AccelerateNextAttack(boost);
+                        target.AccelerateNextAttack(boost);
+                    }
+                }
+            }
+
             ApplyActiveAbilitySynergyRiders(RunUpgradeKind.FireTrail, level);
             ShowTimedCombatMessage("OVERHEAT", 0.9f);
         }
