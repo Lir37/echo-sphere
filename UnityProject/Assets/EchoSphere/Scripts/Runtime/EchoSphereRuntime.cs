@@ -3830,8 +3830,8 @@ namespace EchoSphere.Runtime
                 return;
             }
 
-            _teleportCooldown = Mathf.Max(5f, 15f - Mathf.Min(4, (level - 1) * 2)) *
-                GetActiveAbilityCooldownMultiplier();
+            _teleportCooldown = Mathf.Max(5f,
+                (15f - Mathf.Min(4, (level - 1) * 2)) * GetActiveAbilityCooldownMultiplier());
             var origin = (Vector2)_player.position;
             SphereAttackAgent nearest = null;
             var nearestDistance = float.PositiveInfinity;
