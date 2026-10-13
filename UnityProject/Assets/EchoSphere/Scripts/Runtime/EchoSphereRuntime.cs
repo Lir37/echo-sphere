@@ -4760,41 +4760,161 @@ namespace EchoSphere.Runtime
             var level = GetAbilityLevel(RunUpgradeKind.Lightning);
             if (level <= 0 || _lightningCooldown > 0f) return;
             _lightningCooldown = 20f * GetActiveAbilityCooldownMultiplier();
-            var maxTargets = 1 + (level - 1) / 2;
-            var finalVariant = GetAbilityFinalVariant(RunUpgradeKind.Lightning);
+            var branch = GetAbilityBranch(RunUpgradeKind.Lightning);
             var final = GetAbilityFinalArchetype(RunUpgradeKind.Lightning);
+            var scale = SpherePlacementRules.SourcePixelsToWorld;
+            var ordered = new List<SphereAttackAgent>();
+            foreach (var sphere in _spheres)
+                if (sphere != null && sphere.gameObject.activeInHierarchy) ordered.Add(sphere);
+            ordered.Sort((a, b) => Vector2.Distance(a.transform.position, _player.position).CompareTo(
+                Vector2.Distance(b.transform.position, _player.position)));
+
             var targets = new List<EnemyAgent2D>();
             foreach (var enemy in _enemies)
                 if (enemy != null && enemy.IsAlive) targets.Add(enemy);
-            targets.Sort((a, b) => Vector2.Distance(_player.position, a.transform.position).CompareTo(Vector2.Distance(_player.position, b.transform.position)));
-            var chainSpheres = new List<SphereAttackAgent>();
-            foreach (var sphere in _spheres)
-                if (sphere != null && sphere.gameObject.activeInHierarchy && sphere.Type == SphereId.Chain)
-                    chainSpheres.Add(sphere);
-            var previous = (Vector2)_player.position;
-            for (var i = 0; i < chainSpheres.Count; i++)
+            targets.Sort((a, b) => Vector2.Distance(a.transform.position, _player.position).CompareTo(
+                Vector2.Distance(b.transform.position, _player.position)));
+            if (targets.Count == 0) return;
+
+            if ((branch == "lightning_relay" || final == "lightning_storm_network") &&
+                ordered.Count > 0 && _networkState != null)
             {
-                var node = (Vector2)chainSpheres[i].transform.position;
-                SpawnCombatArc(previous, node, SphereId.Chain, GetSphereBranch(SphereId.Chain), GetSphereFinal(SphereId.Chain), new Color(0.63f, 0.42f, 1f, 0.95f), 0.24f);
-                previous = node;
-                if (GetAbilityBranch(RunUpgradeKind.Lightning) == "lightning_echo_storm")
-                    foreach (var enemy in _enemies)
-                        if (enemy != null && enemy.IsAlive && Vector2.Distance(enemy.transform.position, node) <= 55f * SpherePlacementRules.SourcePixelsToWorld)
-                            enemy.ReceiveDamage(10f + level * 3f);
+                var remaining = new HashSet<SphereAttackAgent>(ordered);
+                var networkOrder = new List<SphereAttackAgent>();
+                var current = ordered[0];
+                while (current != null)
+                {
+                    networkOrder.Add(current);
+                    remaining.Remove(current);
+                    var currentIndex = _spheres.IndexOf(current);
+                    SphereAttackAgent next = null;
+                    var nextDistance = float.PositiveInfinity;
+                    if (currentIndex >= 0)
+                        foreach (var linkedIndex in SphereNetworkRules.GetLinkedNodeIndexes(_networkState, currentIndex))
+                        {
+                            if (linkedIndex < 0 || linkedIndex >= _spheres.Count) continue;
+                            var candidate = _spheres[linkedIndex];
+                            if (candidate == null || !remaining.Contains(candidate)) continue;
+                            var distance = Vector2.Distance(candidate.transform.position, current.transform.position);
+                            if (distance < nextDistance) { nextDistance = distance; next = candidate; }
+                        }
+                    current = next;
+                }
+                ordered = new List<SphereAttackAgent>(networkOrder);
+                foreach (var sphere in remaining) ordered.Add(sphere);
             }
-            if (finalVariant == 2) maxTargets += chainSpheres.Count;
-            for (var jump = 0; jump < Mathf.Min(maxTargets, targets.Count); jump++)
+
+            var previous = ordered.Count > 0 ? (Vector2)ordered[0].transform.position : (Vector2)_player.position;
+            var jump = 0;
+            for (var networkIndex = 0; networkIndex < ordered.Count; networkIndex++)
             {
-                var target = targets[jump];
+                var sphere = ordered[networkIndex];
+                var node = (Vector2)sphere.transform.position;
+                if (networkIndex > 0)
+                    SpawnCombatArc(previous, node, SphereId.Chain, branch, final,
+                        new Color(0.63f, 0.42f, 1f, 0.95f), 0.24f);
+                if (branch == "lightning_echo_storm")
+                    foreach (var enemy in _enemies)
+                        if (enemy != null && enemy.IsAlive &&
+                            Vector2.Distance(enemy.transform.position, node) <= 55f * scale)
+                            enemy.ReceiveDamage(10f + level * 3f);
+                previous = node;
+                jump++;
+            }
+
+            var maxTargets = 1 + (level - 1) / 2;
+            if (final == "lightning_thunder_chain") maxTargets += ordered.Count;
+            var targetCount = Mathf.Min(maxTargets, targets.Count);
+            for (var i = 0; i < targetCount; i++)
+            {
+                var target = targets[i];
                 if (target == null || !target.IsAlive) continue;
                 var targetPosition = (Vector2)target.transform.position;
-                SpawnCombatArc(previous, targetPosition, SphereId.Chain, GetSphereBranch(SphereId.Chain), GetSphereFinal(SphereId.Chain), new Color(0.63f, 0.42f, 1f, 0.95f), 0.30f);
-                target.ReceiveDamage(40f + level * 15f);
-                if ((GetAbilityBranch(RunUpgradeKind.Lightning) == "lightning_overload" || finalVariant == 3) && jump == Mathf.Min(maxTargets, targets.Count) - 1)
-                    target.ReceiveDamage(30f + level * 10f);
-                target.ApplySlow(0.65f, 0.72f);
+                SpawnCombatArc(previous, targetPosition, SphereId.Chain, branch, final,
+                    new Color(0.63f, 0.42f, 1f, 0.95f), 0.30f);
+                var damage = (40f + level * 15f) * (1f + jump * 0.12f);
+                target.ReceiveDamage(damage);
                 previous = targetPosition;
+                jump++;
+
+                if (branch == "lightning_relay" && ordered.Count > 0 && _networkState != null)
+                {
+                    var sourceSphere = ordered[i % ordered.Count];
+                    var sourceIndex = _spheres.IndexOf(sourceSphere);
+                    SphereAttackAgent next = null;
+                    var nextDistance = float.PositiveInfinity;
+                    if (sourceIndex >= 0)
+                        foreach (var linkedIndex in SphereNetworkRules.GetLinkedNodeIndexes(_networkState, sourceIndex))
+                        {
+                            if (linkedIndex < 0 || linkedIndex >= _spheres.Count) continue;
+                            var candidate = _spheres[linkedIndex];
+                            if (candidate == null || !candidate.gameObject.activeInHierarchy) continue;
+                            var distance = Vector2.Distance(candidate.transform.position, sourceSphere.transform.position);
+                            if (distance < nextDistance) { nextDistance = distance; next = candidate; }
+                        }
+                    if (next != null)
+                        SpawnCombatArc(targetPosition, next.transform.position, next.Type, branch, final,
+                            new Color(0.63f, 0.42f, 1f, 0.95f), 0.22f);
+                }
+
+                if (final == "lightning_thunder_chain")
+                {
+                    var nextTarget = targets[(i + 1) % targets.Count];
+                    if (nextTarget != null && nextTarget != target)
+                    {
+                        SpawnCombatArc(targetPosition, nextTarget.transform.position, SphereId.Chain, branch, final,
+                            new Color(0.63f, 0.42f, 1f, 0.95f), 0.22f);
+                        nextTarget.ReceiveDamage(damage * 0.25f);
+                    }
+                }
             }
+
+            if (branch == "lightning_overload" || final == "lightning_overload_core")
+            {
+                var lastIndex = Mathf.Min(maxTargets, targets.Count) - 1;
+                if (lastIndex >= 0 && targets[lastIndex] != null && targets[lastIndex].IsAlive)
+                    targets[lastIndex].ReceiveDamage(30f + level * 10f);
+            }
+
+            if (final == "lightning_storm_network" && ordered.Count > 0 && _networkState != null)
+            {
+                var chainIndexes = new HashSet<int>();
+                foreach (var sphere in ordered) chainIndexes.Add(_spheres.IndexOf(sphere));
+                var processedPairs = new HashSet<string>();
+                var edgeCount = 0;
+                foreach (var sourceIndex in chainIndexes)
+                {
+                    if (sourceIndex < 0) continue;
+                    foreach (var targetIndex in SphereNetworkRules.GetLinkedNodeIndexes(_networkState, sourceIndex))
+                    {
+                        if (targetIndex < 0 || targetIndex >= _spheres.Count || !chainIndexes.Contains(targetIndex)) continue;
+                        var key = sourceIndex < targetIndex ? sourceIndex + ":" + targetIndex : targetIndex + ":" + sourceIndex;
+                        if (!processedPairs.Add(key)) continue;
+                        edgeCount++;
+                        var from = _spheres[sourceIndex].transform.position;
+                        var to = _spheres[targetIndex].transform.position;
+                        SpawnCombatArc(from, to, SphereId.Chain, branch, final,
+                            new Color(0.63f, 0.42f, 1f, 0.95f), 0.18f);
+                        foreach (var enemy in _enemies)
+                            if (enemy != null && enemy.IsAlive &&
+                                Vector2.Distance(enemy.transform.position, to) < 85f * scale)
+                                enemy.ReceiveDamage((35f + level * 8f) * 0.35f);
+                    }
+                }
+                if (edgeCount == 0)
+                    for (var i = ordered.Count - 1; i >= 0; i--)
+                    {
+                        var from = i > 0 ? (Vector2)ordered[i - 1].transform.position : (Vector2)_player.position;
+                        var to = (Vector2)ordered[i].transform.position;
+                        SpawnCombatArc(from, to, SphereId.Chain, branch, final,
+                            new Color(0.63f, 0.42f, 1f, 0.95f), 0.18f);
+                        foreach (var enemy in _enemies)
+                            if (enemy != null && enemy.IsAlive &&
+                                Vector2.Distance(enemy.transform.position, to) < 85f * scale)
+                                enemy.ReceiveDamage((35f + level * 8f) * 0.35f);
+                    }
+            }
+
             ApplyActiveAbilitySynergyRiders(RunUpgradeKind.Lightning, level);
             ShowTimedCombatMessage("CHAIN LIGHTNING", 0.9f);
         }
