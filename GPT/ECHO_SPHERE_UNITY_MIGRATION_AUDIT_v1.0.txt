@@ -3857,3 +3857,64 @@ NEXT:
 ======================================================================
 END UNITY FOLLOW-UP COMPILATION ERRORS
 ======================================================================
+
+
+======================================================================
+[2026-10-13 | STANDARD SPHERE SOURCE PARITY AND CORRUPT PNG CONTAINMENT]
+======================================================================
+
+SOURCE OF TRUTH:
+- new-desing HEAD: 737ef2af4a877e0995db5f92331d536d2f29a934.
+- Active renderer: src/renderer.ts, drawStandardSphereAssembly(),
+  drawStandardSphereCore(), and drawStandardSphereRing().
+- The active source assembly draws core and elliptical ring procedurally,
+  and uses upper-crystal.png twice, vertically mirroring the second draw.
+  It does not use energy-core.png, lower-crystal.png, or
+  stabilization-ring.png in that active assembly.
+
+IMPLEMENTED ON unity-migration:
+- RuntimeSpriteFactory now builds the Standard core radial glow from the
+  source gradient's color stops instead of loading the broken energy-core.png.
+- EchoSphereRuntime's Standard assembly uses the source radius conversion,
+  procedural core and ellipse ring, source ring angular speed, core glow
+  pulse, and one optional upper crystal mirrored for the lower part.
+- If the upstream crystal cannot load, Unity keeps the procedural core/ring
+  assembly instead of falling back to a generic faceted whole-Sphere sprite.
+- Standard Sphere's UI icon no longer depends on energy-core.png.
+- Removed four unusable copied Unity PNGs: character-spherist-shield.png,
+  standard-sphere/energy-core.png, standard-sphere/lower-crystal.png, and
+  standard-sphere/upper-crystal.png. Their Git blobs have invalid PNG/DEFLATE
+  data; matching upstream blobs in new-desing are also invalid. No generated
+  replacement artwork was introduced, and new-desing was not changed.
+- The active Unity source checker now verifies the source assembly structure
+  and prevents these malformed PNG copies from being reintroduced.
+
+VALIDATION:
+- Unity Migration Contracts #319: SUCCESS:
+  https://github.com/Lir37/echo-sphere/actions/runs/38409129278
+- Workflow checks completed: pure C# gameplay contracts and Node project /
+  runtime-boundary checks. It does not compile Unity Editor scripts, build an
+  APK, or prove device visual parity.
+- Code HEAD before this report update: fd4120b44708bde1b793b385f3ce16d1beeabd2a.
+- Current source branch remains untouched at 737ef2af4a877e0995db5f92331d536d2f29a934.
+
+OPEN:
+- The authored upper-crystal remains unavailable because the active source PNG
+  is corrupt. The Unity version intentionally matches source's runtime
+  fallback (procedural core/ring with no crystal) until a valid original asset
+  can be recovered. Do not generate a visual substitute without approval.
+- Reopen/refresh Unity Editor and inspect Console to verify the PNG import
+  messages are gone and no new C# compile errors remain.
+- Run an APK/device comparison when available; this CI is not visual or device
+  acceptance.
+
+NEXT:
+1. Confirm the refreshed Unity Console and APK/Game View after removing the
+   invalid asset copies.
+2. Recover a valid original upper-crystal asset only from an authentic source
+   or provide the remaining exact visual observations, then continue auditing
+   the next source-to-Unity runtime discrepancy.
+
+======================================================================
+END STANDARD SPHERE SOURCE PARITY FOLLOW-UP
+======================================================================
