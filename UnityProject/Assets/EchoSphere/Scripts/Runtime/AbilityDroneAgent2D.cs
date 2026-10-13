@@ -100,11 +100,13 @@ namespace EchoSphere.Runtime
                     break;
                 case SphereId.Aura:
                 case SphereId.Pulse:
+                {
                     var pulseRadius = (_anchorType == SphereId.Aura ? 52f : 68f) * scaleWorld;
                     var pulseDamage = baseDamage * (_anchorType == SphereId.Pulse ? 0.62f : 0.52f);
                     foreach (var enemy in _runtime.FindEnemiesInRadius(attackOrigin, pulseRadius))
                         if (enemy != null && enemy.IsAlive) enemy.ReceiveDamage(pulseDamage);
                     break;
+                }
                 case SphereId.Chain:
                     target.ReceiveDamage(baseDamage);
                     var chainTargets = _runtime.FindNearestEnemies(target.transform.position, 85f * scaleWorld, 2);
