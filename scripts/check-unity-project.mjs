@@ -1224,6 +1224,22 @@ assert.ok(runtimeArt.includes('_level >= 20 ? 3 : _level >= 12 ? 2 : _level >= 5
   runtimeArt.includes('SourceActiveAbilityKeys = { KeyCode.E, KeyCode.Q, KeyCode.R, KeyCode.F, KeyCode.G }') &&
   runtimeArt.includes('AssignActiveAbilityHotkey(choice.Kind)'),
   'active ability slots and hotkey assignment must follow source progression');
+// All eight source active abilities must be selectable, manually activatable and level/evolution wired.
+for (const ability of ['Blast', 'Shield', 'Teleport', 'FireTrail', 'Minion', 'Lightning', 'TimeStop', 'DarkRitual']) {
+  assert.ok(sphereProgressionRulesSource.includes(ability) &&
+    levelUpAbilities.includes('case RunUpgradeKind.' + ability + ':') &&
+    runtimeArt.includes('RunUpgradeKind.' + ability) &&
+    runtimeArt.includes('Activate' + ability + '()'),
+    'source active ability ' + ability + ' must have progression and a runtime activation path');
+}
+assert.ok(runtimeArt.includes('new AbilityDroneAgent2D()') &&
+  runtimeArt.includes('_fireTrailTimer > 0f') &&
+  runtimeArt.includes('_darkRitualOverloadTimer > 0f') &&
+  levelUpAbilities.includes('firetrail_overdrive') &&
+  levelUpAbilities.includes('lightning_echo_storm') &&
+  levelUpAbilities.includes('darkritual_blood_link'),
+  'Fire Trail and Dark Ritual must modify runtime combat, Minion must spawn active drones, and new active abilities must expose evolution branches');
+
 assert.ok(runtimeArt.includes('40f * GetActiveAbilityCooldownMultiplier()') &&
   runtimeArt.includes('3f + Mathf.Min(2, level - 1)') &&
   runtimeArt.includes('(15f - Mathf.Min(4, (level - 1) * 2)) * GetActiveAbilityCooldownMultiplier()') &&
