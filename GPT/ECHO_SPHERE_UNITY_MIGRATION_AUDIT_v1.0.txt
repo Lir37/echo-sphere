@@ -3659,3 +3659,69 @@ NEXT:
 ======================================================================
 END ANDROID ORIENTATION CORRECTION
 ======================================================================
+
+======================================================================
+[2026-10-13 | SOURCE COMBO STATE + CRITICAL ECHO]
+======================================================================
+
+CODE COMMITS:
+- fc1b99eeb0bbfc3ee0697adf83bc8330b9305c29
+  feat(unity): port source combo state and Critical Echo
+  https://github.com/Lir37/echo-sphere/commit/fc1b99eeb0bbfc3ee0697adf83bc8330b9305c29
+- e70616d31772ec40fd0450085067cf33d591ec5a
+  test(unity): match Critical Echo gate contract
+  https://github.com/Lir37/echo-sphere/commit/e70616d31772ec40fd0450085067cf33d591ec5a
+- e4dede57f1210c3935c3d96c228a1f0758caf533
+  test(unity): guard Combo-adjusted XP pickup
+  https://github.com/Lir37/echo-sphere/commit/e4dede57f1210c3935c3d96c228a1f0758caf533
+
+SOURCE MAPPING:
+- Source files: src/engineCombat.ts (non-Boss kill combo and rounded XP orb value),
+  src/engineLoop.ts (3-second combo expiry), src/artifactSystem.ts (Critical Echo
+  completed-set gate and +6% Sphere damage), src/App.tsx (combo_50 achievement
+  condition and combo HUD presentation).
+- Added Core/ComboRules.cs and runtime combo state. Non-Boss kills increment
+  combo, refresh its 3-second window, and apply source XP multipliers:
+  x1.5 at 10, x2 at 25, x3 at 50, x4 at 100. XP orb values use non-negative
+  JavaScript-compatible rounding. Bosses do not increment combo.
+- Actual HP damage and successfully applied damage-over-time reset combo;
+  dodge and shield-absorbed hits do not reset it. New runs reset combo state.
+- The combo_50 achievement is checked at run finalization, matching the source
+  run-completion condition.
+- Critical Echo now uses combo >= 5 and a completed Singularity Path, applies
+  its source +6% Sphere damage multiplier, and no longer reports WAITING FOR
+  STATE. Temporal Fold and Status Circuit remain explicitly pending because
+  their source runtime states are not yet ported.
+- Added deterministic C# assertions for kill gating, XP thresholds/rounding,
+  timer expiry, Critical Echo gates, and its damage multiplier; updated Node
+  guards to follow the actual XP and protocol runtime call paths.
+
+VALIDATION:
+- Unity Migration Contracts #301: SUCCESS
+  https://github.com/Lir37/echo-sphere/actions/runs/38395122312
+- The pure C# contracts passed (1114 assertions); the Node Unity-project and
+  runtime-boundary checks passed. new-desing was not changed.
+- No Unity Editor compile, APK build/install, or physical-device visual check
+  was performed in this cycle.
+
+OPEN:
+- The visible combo HUD from src/App.tsx (combo label, multiplier and 3-second
+  bar) is NOT yet ported. Do not place it blindly over the present Unity HUD:
+  the source top-centre overlay needs a portrait-aware placement against the
+  current fixed-coordinate HUD to avoid overlap.
+- Temporal Fold needs source-equivalent time-stop/teleport-buff timers.
+  Status Circuit needs the real source-wide player.sphereMods state; do not
+  substitute a Sphere evolution or branch.
+- Rune pickup/spawn, full Knowledge Base coverage, real Unity Editor build,
+  APK/device parity and the reported Sphere/enemy scale mismatch remain open.
+
+NEXT:
+1. Port the source combo HUD with responsive positioning in the existing
+   portrait layout, then add structural checks for its real runtime bindings.
+2. Continue source-state audit for Temporal Fold and Status Circuit without
+   inventing substitute conditions.
+3. Keep APK/device visual verification marked pending until actually run.
+
+======================================================================
+END SOURCE COMBO STATE + CRITICAL ECHO
+======================================================================
