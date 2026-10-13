@@ -18,11 +18,27 @@ namespace EchoSphere.Core
         public static bool ShouldTriggerEchoArchitectureRelay(int formationHitCount) =>
             formationHitCount > 0 && formationHitCount % 5 == 0;
 
-        public static bool HasCompletedEchoArchitecture(IList<string> ownedArtifacts)
-        {
-            return HasBoth(ownedArtifacts, "echo_conductor", "network_relay") &&
-                HasBoth(ownedArtifacts, "unified_mind", "zero_sphere");
-        }
+        public static bool HasEchoRelaySynergy(IList<string> ownedArtifacts) =>
+            HasBoth(ownedArtifacts, "echo_conductor", "network_relay");
+
+        public static bool HasUnifiedCoreSynergy(IList<string> ownedArtifacts) =>
+            HasBoth(ownedArtifacts, "unified_mind", "zero_sphere");
+
+        public static bool HasCompletedEchoArchitecture(IList<string> ownedArtifacts) =>
+            HasEchoRelaySynergy(ownedArtifacts) && HasUnifiedCoreSynergy(ownedArtifacts);
+
+        public static float GetEchoRelayDamageMultiplier(bool hasSynergy, int uniqueTypeCount) =>
+            hasSynergy && uniqueTypeCount >= 2 ? 1.08f : 1f;
+
+        public static float GetEchoArchitectureDamageMultiplier(
+            bool setComplete, int uniqueTypeCount, bool hasNearbySphere) =>
+            setComplete && uniqueTypeCount >= 2 && hasNearbySphere ? 1.06f : 1f;
+
+        public static float GetUnifiedCoreDamageMultiplier(
+            bool hasSynergy, int sphereLevel, int strongestSphereLevel) =>
+            hasSynergy && sphereLevel < strongestSphereLevel
+                ? 1f + strongestSphereLevel * 0.05f
+                : 1f;
 
         private static bool HasBoth(IList<string> ownedArtifacts, string first, string second)
         {

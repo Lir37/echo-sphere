@@ -879,3 +879,20 @@ assert.ok(sphereAttack.includes('public int FormationHitCount => _formationHitCo
   menuRuntime.includes('var charge = sphere.FormationHitCount % 3') &&
   menuRuntime.includes('DrawSphereGuiArc(point, radius, startAngle, endAngle'),
   'Triangle charge arcs and ticks must render from the actual Sphere counter');
+
+
+// Echo Architecture source pair synergies have distinct active combat effects:
+// Echo Relay +8% on mixed networks, completed Set +6% within 220 px, and
+// Unified Core +5% per strongest-Sphere level only on lower-level Spheres.
+assert.ok(formationHitRulesSource.includes('GetEchoRelayDamageMultiplier(bool hasSynergy, int uniqueTypeCount)') &&
+  formationHitRulesSource.includes('hasSynergy && uniqueTypeCount >= 2 ? 1.08f : 1f') &&
+  formationHitRulesSource.includes('setComplete && uniqueTypeCount >= 2 && hasNearbySphere ? 1.06f : 1f') &&
+  formationHitRulesSource.includes('1f + strongestSphereLevel * 0.05f'),
+  'Echo Architecture pair-synergy combat multipliers must preserve source percentages and gates');
+assert.ok(menuRuntime.includes('GetArtifactSphereSynergyDamageMultiplier(sphere)') &&
+  menuRuntime.includes('HasNearbyActiveSphere(sphere, 220f)') &&
+  menuRuntime.includes('SpherePlacementRules.SourcePixelsToWorld') &&
+  menuRuntime.includes('SphereProgressionRules.GetLevel(_sphereLevels, sphere.Type)') &&
+  menuRuntime.includes('FormationHitRules.HasEchoRelaySynergy(_ownedArtifacts)') &&
+  menuRuntime.includes('FormationHitRules.HasUnifiedCoreSynergy(_ownedArtifacts)'),
+  'Echo Relay, completed Echo Architecture proximity and Unified Core must affect actual live attack damage');

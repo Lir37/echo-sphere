@@ -904,9 +904,34 @@ internal static class Program
             "Unified Core synergy alone is not a completed set");
         True(!FormationHitRules.HasCompletedEchoArchitecture(new List<string> { "echo_conductor", "network_relay", "unified_mind" }),
             "Echo Architecture remains incomplete when one required synergy artifact is missing");
+        var echoPair = new List<string> { "echo_conductor", "network_relay" };
+        var unifiedPair = new List<string> { "unified_mind", "zero_sphere" };
+        True(FormationHitRules.HasEchoRelaySynergy(echoPair), "Echo Relay synergy requires its exact source pair");
+        True(FormationHitRules.HasUnifiedCoreSynergy(unifiedPair), "Unified Core synergy requires its exact source pair");
         True(FormationHitRules.HasCompletedEchoArchitecture(new List<string>
             { "echo_conductor", "network_relay", "unified_mind", "zero_sphere" }),
             "Echo Architecture completes only when both source pair synergies are owned");
+
+        Near(FormationHitRules.GetEchoRelayDamageMultiplier(true, 1), 1f, 0f,
+            "Echo Relay does not bonus a single active Sphere type");
+        Near(FormationHitRules.GetEchoRelayDamageMultiplier(true, 2), 1.08f, 0f,
+            "Echo Relay grants +8% damage with two active Sphere types");
+        Near(FormationHitRules.GetEchoRelayDamageMultiplier(false, 3), 1f, 0f,
+            "Echo Relay requires the source synergy even with a mixed network");
+        Near(FormationHitRules.GetEchoArchitectureDamageMultiplier(true, 1, true), 1f, 0f,
+            "Echo Architecture completion bonus requires two active Sphere types");
+        Near(FormationHitRules.GetEchoArchitectureDamageMultiplier(true, 2, false), 1f, 0f,
+            "Echo Architecture completion bonus requires a neighbouring Sphere within 220 px");
+        Near(FormationHitRules.GetEchoArchitectureDamageMultiplier(true, 2, true), 1.06f, 0f,
+            "Echo Architecture completed set grants +6% inside its source range");
+        Near(FormationHitRules.GetEchoArchitectureDamageMultiplier(false, 3, true), 1f, 0f,
+            "Echo Architecture proximity bonus requires the complete source set");
+        Near(FormationHitRules.GetUnifiedCoreDamageMultiplier(true, 3, 7), 1.35f, 0f,
+            "Unified Core grants +5% per strongest-Sphere level to lower-level Spheres");
+        Near(FormationHitRules.GetUnifiedCoreDamageMultiplier(true, 7, 7), 1f, 0f,
+            "Unified Core does not boost the strongest Sphere itself");
+        Near(FormationHitRules.GetUnifiedCoreDamageMultiplier(false, 2, 7), 1f, 0f,
+            "Unified Core boost requires both source artifacts");
     }
 
     private static void CheckSphereElementalRules()

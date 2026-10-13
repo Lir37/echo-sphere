@@ -3597,7 +3597,39 @@ namespace EchoSphere.Runtime
                 if (ConsumeResonanceLineBurst()) multiplier *= 1.60f;
             }
             multiplier *= GetCharacterNetworkDamageMultiplier(sphere);
-            return multiplier * GetArtifactSphereFamilyDamageMultiplier(sphere.Type);
+            multiplier *= GetArtifactSphereFamilyDamageMultiplier(sphere.Type);
+            return multiplier * GetArtifactSphereSynergyDamageMultiplier(sphere);
+        }
+
+        private float GetArtifactSphereSynergyDamageMultiplier(SphereAttackAgent sphere)
+        {
+            var uniqueTypes = CountUniqueActiveSphereTypes();
+            var multiplier = FormationHitRules.GetEchoRelayDamageMultiplier(
+                FormationHitRules.HasEchoRelaySynergy(_ownedArtifacts), uniqueTypes);
+            multiplier *= FormationHitRules.GetEchoArchitectureDamageMultiplier(
+                FormationHitRules.HasCompletedEchoArchitecture(_ownedArtifacts), uniqueTypes,
+                HasNearbyActiveSphere(sphere, 220f));
+            multiplier *= FormationHitRules.GetUnifiedCoreDamageMultiplier(
+                FormationHitRules.HasUnifiedCoreSynergy(_ownedArtifacts),
+                SphereProgressionRules.GetLevel(_sphereLevels, sphere.Type),
+                GetStrongestSphereLevel());
+            return multiplier;
+        }
+
+        private bool HasNearbyActiveSphere(SphereAttackAgent sphere, float sourceDistancePixels)
+        {
+            if (sphere == null || !sphere.gameObject.activeInHierarchy) return false;
+            var radius = sourceDistancePixels * SpherePlacementRules.SourcePixelsToWorld;
+            var radiusSq = radius * radius;
+            var position = (Vector2)sphere.transform.position;
+            for (var i = 0; i < _spheres.Count; i++)
+            {
+                var other = _spheres[i];
+                if (other == null || other == sphere || !other.gameObject.activeInHierarchy) continue;
+                var delta = (Vector2)other.transform.position - position;
+                if (delta.sqrMagnitude <= radiusSq) return true;
+            }
+            return false;
         }
 
         public bool HasNetworkCandidateForSphere(SphereNetworkFormation type, int sphereIndex)
