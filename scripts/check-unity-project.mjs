@@ -453,6 +453,10 @@ const levelUpAbilities = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core
 assert.ok(levelUpAbilities.includes('RoutineAbilityKinds') && levelUpAbilities.includes('GetNetworkDisableDuration'), 'source Level-Up Ability catalog is missing');
 for (const token of ['0.93d', '0.15f', '0.10f', '0.16f', 'SourcePixelsToWorld', 'GetDamageTakenMultiplier'])
   assert.ok(levelUpAbilities.includes(token), 'source Level-Up Ability formula is missing: ' + token);
+assert.ok(!levelUpAbilities.includes('GetFortuneDropBonus') &&
+  levelUpAbilities.includes('rare drop chance') &&
+  !runtime.includes('GetFortuneDropBonus(GetAbilityLevel(RunUpgradeKind.Fortune))'),
+  'Fortune may retain its source catalog description but must not add an unsupported cache-drop formula');
 assert.ok(!runtime.includes('LevelUpAbilityRules.RoutineAbilityKinds') && runtime.includes('RecordLevelUpChoice(choice)') &&
   runtime.includes('GetSphereAffinityWeight(choice.Sphere)') &&
   runtime.includes('foreach (var kind in new[] { RunUpgradeKind.Teleport, RunUpgradeKind.TimeStop, RunUpgradeKind.Blast'),
