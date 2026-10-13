@@ -1259,6 +1259,7 @@ assert.ok(runtimeArt.includes('private readonly List<AbilityDroneAgent2D> _abili
   runtimeArt.includes('GetAbilityLevel(RunUpgradeKind.Minion) >= 3') &&
   runtimeArt.includes('drone.NetworkPosition') &&
   runtimeArt.includes('TryGetNetworkNodePosition(link.A') &&
+  runtimeArt.includes('TryGetNetworkNodePosition(formation.NodeIndexes[i], out var position)') &&
   runtimeArt.includes('drone.IsNetworkNodeAlive'),
   'source runtime network must append live Minions from Ability level III and preserve drone links/formation centers');
 assert.ok(runtimeArt.includes('!linkedSphere.NetworkDisabled') &&
