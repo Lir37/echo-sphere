@@ -4539,6 +4539,389 @@ namespace EchoSphere.Runtime
             _activeAbilitySynergyPower = 1f;
         }
 
+        private void ApplyActiveAbilityFinalVariantRiders(RunUpgradeKind ability, int level)
+        {
+            var active = new List<ActiveAbilitySynergyLink>();
+            foreach (var link in ActiveAbilitySynergyLinks)
+                if (link.Ability == ability && IsActiveAbilitySynergyRaw(link.Sphere, link.SphereBranch, link.Ability, link.AbilityFinal))
+                    active.Add(link);
+            active.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
+            for (var i = 0; i < active.Count; i++)
+            {
+                var link = active[i];
+                var power = 1f / (1f + i * 0.18f);
+                var variant = GetAbilityFinalVariant(link.Ability) - 1;
+                _activeAbilitySynergyPower = power;
+                ApplyActiveAbilityFinalVariantRider(link, level, power, variant);
+            }
+        }
+
+        private void ApplyActiveAbilityFinalVariantRider(ActiveAbilitySynergyLink link, int level, float power, int variant)
+        {
+            if (variant < 0 || variant > 2) return;
+            var scale = SpherePlacementRules.SourcePixelsToWorld;
+            var spheres = new List<SphereAttackAgent>();
+            foreach (var sphere in _spheres)
+                if (sphere != null && sphere.gameObject.activeInHierarchy && sphere.Type == link.Sphere) spheres.Add(sphere);
+            var enemies = new List<EnemyAgent2D>();
+            foreach (var enemy in _enemies) if (enemy != null && enemy.IsAlive) enemies.Add(enemy);
+
+            switch (link.Id)
+            {
+                case "std_res_blast":
+                    if (variant == 0)
+                    {
+                        var target = FindNearestEnemy(PlayerPosition, float.PositiveInfinity);
+                        if (target != null && spheres.Count > 0) target.ReceiveDamage((10f + level * 2f) * power);
+                    }
+                    else if (variant == 1) foreach (var sphere in spheres) sphere.AccelerateNextAttack(0.65f * power);
+                    else if (spheres.Count > 0)
+                    {
+                        var origin = (Vector2)spheres[spheres.Count - 1].transform.position;
+                        foreach (var target in FindNearestEnemies(origin, 110f * scale, 4))
+                            target.ReceiveDamage((7f + level) * power);
+                    }
+                    break;
+
+                case "std_singularity_timestop":
+                    foreach (var sphere in spheres)
+                        foreach (var enemy in FindNearestEnemies(sphere.transform.position, 150f * scale, 6))
+                        {
+                            if (variant == 0) enemy.ApplyFreeze(0.8f * power);
+                            else if (variant == 1) enemy.ApplySlow(1.6f * power, 0.5f);
+                            else enemy.ReceiveDamage((8f + level * 2f) * power);
+                        }
+                    break;
+
+                case "std_swarm_minion":
+                    foreach (var sphere in spheres)
+                    {
+                        if (variant == 0) DamageEnemiesNear(sphere.transform.position, 70f * scale, 9f + level * 2f, new Color(0.45f, 0.95f, 0.58f));
+                        else if (variant == 1) sphere.AccelerateNextAttack(0.8f * power);
+                        else foreach (var enemy in FindNearestEnemies(sphere.transform.position, 90f * scale, 3))
+                            enemy.ReceiveDamage((7f + level) * power);
+                    }
+                    break;
+
+                case "sniper_oracle_teleport":
+                    foreach (var sphere in spheres)
+                    {
+                        var target = FindNearestEnemy(sphere.transform.position, 190f * scale);
+                        if (target == null) continue;
+                        if (variant == 0) target.ApplyMark(4f);
+                        else if (variant == 1) target.ReceiveDamage((14f + level * 3f) * power);
+                        else target.ApplySlow(1.1f, 0.58f);
+                    }
+                    break;
+
+                case "sniper_assassin_darkritual":
+                    {
+                        EnemyAgent2D target = null;
+                        var lowest = float.PositiveInfinity;
+                        foreach (var enemy in enemies)
+                            if (enemy.HpFraction < lowest) { lowest = enemy.HpFraction; target = enemy; }
+                        if (target == null) break;
+                        if (variant == 0) target.ReceiveDamage(Mathf.Min(target.CurrentHp, Mathf.Max(12f, target.MaxHp * 0.05f)) * power);
+                        else if (variant == 1) target.ApplySlow(1.2f, 0.55f);
+                        else _playerCore?.Heal(Mathf.Min(_playerCore.MaxHp * 0.03f, target.MaxHp * 0.03f) * power);
+                        break;
+                    }
+
+                case "sniper_beacon_firetrail":
+                    foreach (var sphere in spheres)
+                        foreach (var enemy in FindNearestEnemies(sphere.transform.position, 125f * scale, 5))
+                        {
+                            if (variant == 0) enemy.ExtendFireStatus(2.5f);
+                            else if (variant == 1) enemy.ApplySlow(1.8f, 0.58f);
+                            else enemy.ReceiveDamage((9f + level * 2f) * power);
+                        }
+                    break;
+
+                case "shotgun_burst_shield":
+                    foreach (var sphere in spheres)
+                        foreach (var enemy in FindNearestEnemies(sphere.transform.position, 110f * scale, 6))
+                        {
+                            if (variant == 0) enemy.KnockBackFrom(sphere.transform.position, 34f * power * scale);
+                            else if (variant == 1) enemy.ReceiveDamage((12f + level * 2f) * power);
+                            else enemy.ApplySlow(1f, 0.55f);
+                        }
+                    break;
+
+                case "shotgun_cataclysm_blast":
+                    foreach (var sphere in spheres)
+                    {
+                        var radius = (variant == 1 ? 105f : 85f) * scale;
+                        var targets = FindNearestEnemies(sphere.transform.position, radius, variant == 0 ? 3 : variant == 1 ? 5 : 1);
+                        if (variant == 0) foreach (var enemy in targets) enemy.ReceiveDamage((12f + level * 2f) * power);
+                        else if (variant == 1) foreach (var enemy in targets) enemy.KnockBackFrom(sphere.transform.position, 28f * power * scale);
+                        else sphere.AccelerateNextAttack(0.9f * power);
+                    }
+                    break;
+
+                case "shotgun_hail_lightning":
+                    foreach (var sphere in spheres)
+                        foreach (var enemy in FindNearestEnemies(sphere.transform.position, 250f * scale, 3))
+                        {
+                            if (variant == 0) enemy.ReceiveDamage((9f + level * 2f) * power);
+                            else if (variant == 1) enemy.ApplySlow(1f, 0.58f);
+                            else sphere.AccelerateNextAttack(0.75f * power);
+                        }
+                    break;
+
+                case "chain_web_timestop":
+                    foreach (var sphere in spheres)
+                    {
+                        var radius = variant == 0 ? 170f : variant == 1 ? 120f : 105f;
+                        var count = variant == 0 ? 4 : variant == 1 ? 6 : 3;
+                        foreach (var enemy in FindNearestEnemies(sphere.transform.position, radius * scale, count))
+                        {
+                            if (variant == 0) enemy.ApplyFreeze(0.8f * power);
+                            else if (variant == 1) enemy.ApplySlow(1.2f, 0.55f);
+                            else enemy.ReceiveDamage((9f + level) * power);
+                        }
+                    }
+                    break;
+
+                case "chain_storm_lightning":
+                    foreach (var sphere in spheres)
+                    {
+                        var targets = FindNearestEnemies(sphere.transform.position, 105f * scale, 3);
+                        if (variant == 0) foreach (var enemy in targets) enemy.ReceiveDamage((9f + level * 2f) * power);
+                        else if (variant == 1) foreach (var enemy in targets)
+                            SpawnCombatArc(sphere.transform.position, enemy.transform.position, SphereId.Chain,
+                                GetSphereBranch(SphereId.Chain), GetSphereFinal(SphereId.Chain), new Color(0.63f, 0.42f, 1f), 0.16f);
+                        else
+                        {
+                            sphere.AccelerateNextAttack(0.75f * power);
+                            AddResonanceCharge(0.4f * power);
+                        }
+                    }
+                    break;
+
+                case "chain_leech_darkritual":
+                    if (variant == 0) _playerCore?.Heal(_playerCore.MaxHp * 0.035f * power);
+                    else if (variant == 1) AddResonanceCharge(0.55f * power);
+                    else foreach (var sphere in spheres) sphere.AccelerateNextAttack(0.7f * power);
+                    break;
+
+                case "aura_sanctum_shield":
+                    foreach (var sphere in spheres)
+                    {
+                        if (variant == 0) _playerCore?.GrantShieldCharge(1);
+                        else if (variant == 1)
+                            foreach (var enemy in FindNearestEnemies(sphere.transform.position, 110f * scale, 5)) enemy.ApplySlow(1.4f, 0.55f);
+                        else DamageEnemiesNear(sphere.transform.position, 90f * scale, 14f + level * 2f, new Color(0.35f, 0.78f, 1f));
+                    }
+                    break;
+
+                case "aura_gravity_teleport":
+                    foreach (var sphere in spheres)
+                        foreach (var enemy in FindNearestEnemies(sphere.transform.position, 140f * scale, 6))
+                        {
+                            if (variant == 0) enemy.ExtendSlowStatus(1.3f);
+                            else if (variant == 1) enemy.PullToward(sphere.transform.position, 34f * power * scale);
+                            else enemy.ReceiveDamage((9f + level) * power);
+                        }
+                    break;
+
+                case "aura_overgrowth_firetrail":
+                    foreach (var aura in spheres)
+                    {
+                        var allies = new List<SphereAttackAgent>();
+                        foreach (var sphere in _spheres)
+                            if (sphere != null && sphere.gameObject.activeInHierarchy && sphere != aura &&
+                                Vector2.Distance(sphere.transform.position, aura.transform.position) < 155f * scale) allies.Add(sphere);
+                        if (variant == 0) foreach (var sphere in allies) sphere.AccelerateNextAttack(0.7f * power);
+                        else if (variant == 1)
+                            foreach (var enemy in FindNearestEnemies(aura.transform.position, 105f * scale, 5)) enemy.ApplyFireStatus(2.2f, 5f + level);
+                        else if (allies.Count > 0) DamageEnemiesNear(allies[0].transform.position, 72f * scale, 12f + level * 2f, new Color(1f, 0.48f, 0.18f));
+                    }
+                    break;
+
+                case "orbital_dance_minion":
+                    foreach (var sphere in spheres)
+                    {
+                        if (variant == 0) sphere.AccelerateNextAttack(1.1f * power);
+                        else if (variant == 1) DamageEnemiesNear(sphere.transform.position, 80f * scale, 12f + level * 2f, new Color(0.40f, 0.82f, 1f));
+                        else foreach (var enemy in FindNearestEnemies(sphere.transform.position, 100f * scale, 4))
+                            enemy.ReceiveDamage((7f + level) * power);
+                    }
+                    break;
+
+                case "orbital_halo_shield":
+                    foreach (var sphere in spheres)
+                    {
+                        if (variant == 0) _playerCore?.GrantShieldCharge(1);
+                        else if (variant == 1) DamageEnemiesNear(sphere.transform.position, 78f * scale, 13f + level * 2f, new Color(0.72f, 0.90f, 1f));
+                        else sphere.AccelerateNextAttack(0.8f * power);
+                    }
+                    break;
+
+                case "orbital_blade_darkritual":
+                    foreach (var sphere in spheres)
+                    {
+                        if (variant == 0) DamageEnemiesNear(sphere.transform.position, 90f * scale, 15f + level * 3f, new Color(1f, 0.75f, 0.40f));
+                        else if (variant == 1) sphere.AccelerateNextAttack(0.9f * power);
+                        else foreach (var enemy in FindNearestEnemies(sphere.transform.position, 105f * scale, 4))
+                            enemy.ReceiveDamage((9f + level * 2f) * power);
+                    }
+                    break;
+
+                case "prism_split_blast":
+                    foreach (var sphere in spheres)
+                    {
+                        var targets = FindNearestEnemies(sphere.transform.position, 180f * scale, variant == 0 ? 2 : variant == 1 ? 4 : 3);
+                        if (variant == 0) foreach (var enemy in targets) enemy.ReceiveDamage((10f + level * 2f) * power);
+                        else if (variant == 1) foreach (var enemy in targets) enemy.ApplySlow(0.7f, 0.72f);
+                        else foreach (var enemy in targets)
+                            SpawnCombatArc(sphere.transform.position, enemy.transform.position, SphereId.Prism,
+                                GetSphereBranch(SphereId.Prism), GetSphereFinal(SphereId.Prism), new Color(0.82f, 0.48f, 1f), 0.18f);
+                    }
+                    break;
+
+                case "prism_spectrum_firetrail":
+                    foreach (var sphere in spheres)
+                        foreach (var enemy in FindNearestEnemies(sphere.transform.position, 115f * scale, 5))
+                        {
+                            if (variant == 0) enemy.ReceiveDamage((11f + level * 2f) * power);
+                            else if (variant == 1) enemy.ApplyFireStatus(2.8f, 7f + level);
+                            else enemy.ApplySlow(1f, 0.62f);
+                        }
+                    break;
+
+                case "prism_mirror_teleport":
+                    foreach (var sphere in spheres)
+                        foreach (var enemy in FindNearestEnemies(sphere.transform.position, 190f * scale, variant == 0 ? 2 : variant == 1 ? 4 : 3))
+                        {
+                            if (variant == 0) enemy.ReceiveDamage((12f + level * 2f) * power);
+                            else if (variant == 1) SpawnCombatArc(sphere.transform.position, enemy.transform.position, SphereId.Prism,
+                                GetSphereBranch(SphereId.Prism), GetSphereFinal(SphereId.Prism), new Color(0.82f, 0.48f, 1f), 0.16f);
+                            else enemy.ApplySlow(0.9f, 0.65f);
+                        }
+                    break;
+
+                case "gravity_well_firetrail":
+                    foreach (var sphere in spheres)
+                        foreach (var enemy in FindNearestEnemies(sphere.transform.position, 135f * scale, 6))
+                        {
+                            if (variant == 0) enemy.ReceiveDamage((10f + level * 2f) * power);
+                            else if (variant == 1) enemy.ApplySlow(1.8f, 0.5f);
+                            else enemy.ApplyFireStatus(4f, 7f + level);
+                        }
+                    break;
+
+                case "gravity_tide_timestop":
+                    foreach (var sphere in spheres)
+                        foreach (var enemy in FindNearestEnemies(sphere.transform.position, 160f * scale, 6))
+                        {
+                            if (variant == 0) enemy.KnockBackFrom(sphere.transform.position, 72f * power * scale);
+                            else if (variant == 1) enemy.KnockBackFrom(sphere.transform.position, 38f * power * scale);
+                            else
+                            {
+                                enemy.KnockBackFrom(sphere.transform.position, 20f * power * scale);
+                                enemy.ReceiveDamage((10f + level * 2f) * power);
+                            }
+                        }
+                    break;
+
+                case "gravity_collapse_blast":
+                    foreach (var sphere in spheres)
+                    {
+                        var targets = FindNearestEnemies(sphere.transform.position, (variant == 1 ? 165f : 135f) * scale, 5);
+                        if (variant == 0) foreach (var enemy in targets) enemy.PullToward(sphere.transform.position, 22f * power * scale);
+                        else if (variant == 1) foreach (var enemy in targets) enemy.ReceiveDamage((11f + level * 2f) * power);
+                        else foreach (var enemy in targets) enemy.ApplySlow(1.1f, 0.62f);
+                    }
+                    break;
+
+                case "pulse_wave_blast":
+                    foreach (var sphere in spheres)
+                    {
+                        if (variant == 0) sphere.AccelerateNextAttack(1f * power);
+                        else if (variant == 1) AddResonanceCharge(0.75f * power);
+                        else foreach (var enemy in FindNearestEnemies(sphere.transform.position, 100f * scale, 6))
+                            enemy.ReceiveDamage((8f + level) * power);
+                    }
+                    break;
+
+                case "pulse_resonator_lightning":
+                    foreach (var sphere in spheres)
+                    {
+                        if (variant == 0) AddResonanceCharge(0.75f * power);
+                        else if (variant == 1) sphere.AccelerateNextAttack(1f * power);
+                        else DamageEnemiesNear(sphere.transform.position, 86f * scale, 10f + level * 2f, new Color(0.63f, 0.42f, 1f));
+                    }
+                    break;
+
+                case "pulse_burst_shield":
+                    foreach (var sphere in spheres)
+                    {
+                        if (variant == 0) DamageEnemiesNear(sphere.transform.position, 95f * scale, 12f + level * 2f, new Color(1f, 0.92f, 0.65f));
+                        else if (variant == 1)
+                        {
+                            sphere.AccelerateNextAttack(0.9f * power);
+                            AddResonanceCharge(0.35f * power);
+                        }
+                        else foreach (var enemy in FindNearestEnemies(sphere.transform.position, 95f * scale, 5))
+                            enemy.ReceiveDamage((8f + level) * power);
+                    }
+                    break;
+
+                case "void_hunger_darkritual":
+                    {
+                        var missing = 1f - (_playerCore != null ? _playerCore.CurrentHp / Mathf.Max(1f, _playerCore.MaxHp) : 0f);
+                        foreach (var sphere in spheres)
+                        {
+                            if (variant == 0) DamageEnemiesNear(sphere.transform.position, 95f * scale,
+                                (12f + level * 2f) * (0.7f + missing), new Color(0.77f, 0.55f, 1f));
+                            else if (variant == 1)
+                            {
+                                if (missing > 0.45f && _playerCore != null)
+                                    _playerCore.Heal(_playerCore.MaxHp * 0.025f * power);
+                            }
+                            else sphere.AccelerateNextAttack((0.5f + missing * 0.8f) * power);
+                        }
+                        break;
+                    }
+
+                case "void_reaper_minion":
+                    foreach (var sphere in spheres)
+                    {
+                        if (variant == 0)
+                            foreach (var enemy in FindNearestEnemies(sphere.transform.position, 105f * scale, 3))
+                                enemy.ReceiveDamage((8f + level * 2f) * power);
+                        else if (variant == 1)
+                        {
+                            var missing = 1f - (_playerCore != null ? _playerCore.CurrentHp / Mathf.Max(1f, _playerCore.MaxHp) : 0f);
+                            if (_playerCore != null) _playerCore.Heal(missing * _playerCore.MaxHp * 0.04f * power);
+                        }
+                        else sphere.AccelerateNextAttack(0.75f * power);
+                    }
+                    break;
+
+                case "void_execution_teleport":
+                    foreach (var sphere in spheres)
+                    {
+                        if (variant == 0)
+                            foreach (var enemy in FindNearestEnemies(sphere.transform.position, 155f * scale, 3))
+                            {
+                                var hpRatio = enemy.CurrentHp / Mathf.Max(1f, enemy.MaxHp);
+                                if (hpRatio <= 0.30f && !enemy.IsBoss) enemy.ReceiveDamage(enemy.CurrentHp + 1f);
+                                else enemy.ReceiveDamage((8f + level) * power);
+                            }
+                        else if (variant == 1) AddResonanceCharge(0.55f * power);
+                        else
+                            foreach (var enemy in FindEnemiesInRadius(sphere.transform.position, 155f * scale))
+                            {
+                                var hpRatio = enemy.CurrentHp / Mathf.Max(1f, enemy.MaxHp);
+                                if (hpRatio <= 0.30f && !enemy.IsBoss) enemy.ReceiveDamage(enemy.CurrentHp + 1f);
+                                else enemy.ReceiveDamage((20f + level * 5f) * 0.70f * power);
+                            }
+                    }
+                    break;
+            }
+        }
+
         public void DamageEnemiesNear(Vector2 center, float radiusWorld, float damage, Color color)
         {
             var hitRadius = Mathf.Max(0f, radiusWorld);
