@@ -1080,3 +1080,15 @@ assert.ok(artifactProtocolRulesSource.includes('HasUnmappedRuntimeState') &&
   artifactProtocolRulesSource.includes('"temporal_fold_protocol"') &&
   artifactProtocolRulesSource.includes('"status_circuit_protocol"'),
   'the protocol catalog must flag the three unmapped activation dependencies');
+
+
+// Mobile orientation is part of the ECHO SPHERE baseline: fixed upright portrait.
+assert.ok(bootstrap.includes('PlayerSettings.defaultInterfaceOrientation = UIOrientation.Portrait;'),
+  'Unity Android must default to upright portrait orientation');
+assert.ok(bootstrap.includes('PlayerSettings.allowedAutorotateToPortrait = true;') &&
+  bootstrap.includes('PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;'),
+  'Unity Android must allow upright portrait and reject upside-down portrait');
+assert.ok(bootstrap.includes('PlayerSettings.allowedAutorotateToLandscapeLeft = false;') &&
+  bootstrap.includes('PlayerSettings.allowedAutorotateToLandscapeRight = false;') &&
+  !bootstrap.includes('UIOrientation.LandscapeLeft'),
+  'Unity Android must not force or auto-rotate to landscape');

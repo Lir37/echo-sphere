@@ -45,7 +45,7 @@ content list without reconciling dated Sphere Audit addenda and actual code.
 Approved direction:
 - Unity 6.3 LTS, 6000.3 editor stream; confirm installed patch before open.
 - 2D-first/2.5D presentation, URP planned, no mass GLB/3D production.
-- Landscape Android, application id com.lir37.echosphere.
+- Portrait Android, fixed upright orientation, matching the original mobile game intent; application id com.lir37.echosphere.
 - First stores planned: RuStore and TapTap.
 - Monetization plan: opt-in rewarded only (one revive per eligible run;
   double rewards after run completion), no forced interstitials planned.
@@ -3621,4 +3621,41 @@ NEXT:
 
 ======================================================================
 END ARTIFACT PROTOCOL UI + PERSISTENT KNOWLEDGE BASE
+======================================================================
+
+
+======================================================================
+[2026-10-13 | ANDROID ORIENTATION CORRECTION]
+======================================================================
+
+ISSUE:
+- The Unity Editor bootstrap forced LandscapeLeft and disabled both portrait
+  orientations. This contradicted the original game's intended upright
+  portrait mobile presentation. Older audit entries describing landscape are
+  historical notes from that scaffold and are superseded by this correction.
+
+CHANGE:
+- EchoSphereProjectBootstrap now sets UIOrientation.Portrait.
+- Upright portrait autorotation is allowed; upside-down portrait and both
+  landscape rotations are disabled.
+- Added Unity project CI guards to prevent the bootstrap from reverting to
+  LandscapeLeft or enabling landscape autorotation.
+- Only unity-migration was changed. new-desing remains untouched.
+
+VALIDATION:
+- Unity Migration Contracts CI is required to pass after this commit.
+- This configuration change has not been verified with a newly built APK or
+  a device run. A fresh Android build is needed to observe orientation.
+- Portrait orientation does not itself prove all fixed-coordinate Unity HUD
+  panels have correct portrait layout. That requires separate device/layout
+  validation and should be handled against actual observed clipping or overlap.
+
+NEXT:
+1. Build and install the updated APK when a practical build path is available;
+   verify upright portrait launch on device.
+2. Inspect portrait HUD layout on device and make only evidence-backed fixes.
+3. Keep new-desing unchanged and continue source-exact migration work.
+
+======================================================================
+END ANDROID ORIENTATION CORRECTION
 ======================================================================

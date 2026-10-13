@@ -123,10 +123,12 @@ internal static class EchoSphereProjectBootstrap
         PlayerSettings.productName = "ECHO SPHERE";
         PlayerSettings.bundleVersion = "0.1.0";
         PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android, ApplicationId);
-        PlayerSettings.defaultInterfaceOrientation = UIOrientation.LandscapeLeft;
-        PlayerSettings.allowedAutorotateToLandscapeLeft = true;
-        PlayerSettings.allowedAutorotateToLandscapeRight = true;
-        PlayerSettings.allowedAutorotateToPortrait = false;
+        // ECHO SPHERE is designed for upright portrait mobile play.
+        // Keep Android from rotating into a landscape layout.
+        PlayerSettings.defaultInterfaceOrientation = UIOrientation.Portrait;
+        PlayerSettings.allowedAutorotateToLandscapeLeft = false;
+        PlayerSettings.allowedAutorotateToLandscapeRight = false;
+        PlayerSettings.allowedAutorotateToPortrait = true;
         PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
     }
 }
