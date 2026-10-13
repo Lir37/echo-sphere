@@ -5271,6 +5271,7 @@ namespace EchoSphere.Runtime
                     }
 
             var scale = SpherePlacementRules.SourcePixelsToWorld;
+            var spawnedDrones = new List<AbilityDroneAgent2D>();
             for (var i = 0; i < count; i++)
             {
                 var anchorPosition = nearest != null ? (Vector2)nearest.transform.position : (Vector2)_player.position;
@@ -5290,18 +5291,31 @@ namespace EchoSphere.Runtime
                 agent.Initialize(this, nearest != null ? nearest.Type : SphereId.Standard, level,
                     10f + (level >= 5 ? 2f : 0f), branch, final, i);
                 _abilityDrones.Add(agent);
+                spawnedDrones.Add(agent);
 
                 if (nearest != null && branch == "minion_echo_drone") nearest.AccelerateNextAttack(0.45f);
                 else if (nearest != null && branch == "minion_guardian") nearest.AccelerateNextAttack(0.35f);
                 if (final == "minion_echo_swarm")
-                {
                     SpawnImpact(spawnPosition, new Color(0.83f, 0.58f, 0.24f, 0.95f));
-                    foreach (var linkedSphere in liveSpheres)
-                        if (!linkedSphere.NetworkDisabled &&
-                            Vector2.Distance(linkedSphere.transform.position, spawnPosition) <= SphereNetworkRules.DefaultLinkDistance)
-                            linkedSphere.AccelerateNextAttack(0.22f);
-                }
                 SpawnImpact(spawnPosition, new Color(0.35f, 0.83f, 1f, 0.9f));
+            }
+
+            // Source activateMinion rebuilds the network after adding drones, then
+            // accelerates only Sphere nodes linked to each newly spawned drone.
+            if (final == "minion_echo_swarm" && GetAbilityLevel(RunUpgradeKind.Minion) >= 3)
+            {
+                RefreshNetworkState();
+                foreach (var drone in spawnedDrones)
+                {
+                    var droneIndex = _spheres.Count + _abilityDrones.IndexOf(drone);
+                    foreach (var linkedIndex in SphereNetworkRules.GetLinkedNodeIndexes(_networkState, droneIndex))
+                    {
+                        if (linkedIndex < 0 || linkedIndex >= _spheres.Count) continue;
+                        var linkedSphere = _spheres[linkedIndex];
+                        if (linkedSphere == null || !linkedSphere.gameObject.activeInHierarchy || linkedSphere.NetworkDisabled) continue;
+                        linkedSphere.AccelerateNextAttack(0.22f);
+                    }
+                }
             }
 
             // Source minion_sphere_guard accelerates every live Sphere near the player
