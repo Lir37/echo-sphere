@@ -1286,9 +1286,12 @@ assert.ok(runtimeArt.includes('private readonly List<AbilityDroneAgent2D> _abili
   runtimeArt.includes('TryGetNetworkNodePosition(formation.NodeIndexes[i], out var position)') &&
   runtimeArt.includes('drone.IsNetworkNodeAlive'),
   'source runtime network must append live Minions from Ability level III and preserve drone links/formation centers');
-assert.ok(runtimeArt.includes('!linkedSphere.NetworkDisabled') &&
-  runtimeArt.includes('Vector2.Distance(linkedSphere.transform.position, spawnPosition) <= SphereNetworkRules.DefaultLinkDistance'),
-  'Minion Echo Swarm must accelerate only live network-linked Spheres, excluding temporarily disabled nodes');
+assert.ok(runtimeArt.includes('RefreshNetworkState();') &&
+  runtimeArt.includes('var droneIndex = _spheres.Count + _abilityDrones.IndexOf(drone);') &&
+  runtimeArt.includes('SphereNetworkRules.GetLinkedNodeIndexes(_networkState, droneIndex)') &&
+  runtimeArt.includes('linkedSphere.AccelerateNextAttack(0.22f)') &&
+  runtimeArt.includes('linkedSphere.NetworkDisabled'),
+  'Minion Echo Swarm must use the refreshed live network graph and accelerate only linked, active, enabled Spheres');
 assert.ok(runtimeArt.includes('GetGlobalSphereModifierLevel("fire") <= 0') &&
   !runtimeArt.includes('!IsFireAlignedSphere(sphere.Type) continue'),
   'Fire Trail activation must use the source global player fire modifier, not sphere-authored fire affinity');
