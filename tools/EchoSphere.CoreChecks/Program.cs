@@ -45,6 +45,7 @@ internal static class Program
             CheckArtifactSynergyRules();
             CheckSituationalArtifactSynergies();
             CheckPerfectNetworkSynergy();
+            CheckCombatStateArtifactSynergies();
             CheckSphereElementalRules();
             CheckAlchemistReactionRules();
             CheckSphereAuthoredModifierRules();
@@ -1034,6 +1035,50 @@ internal static class Program
             "Source formsTriangle rejects a side above 300 px");
         True(!ArtifactSynergyRules.IsTriangleWithinSourceRange(-0.01f, 100f, 100f),
             "Invalid negative side lengths are rejected");
+    }
+
+    private static void CheckCombatStateArtifactSynergies()
+    {
+        True(ArtifactSynergyRules.HasHunterDoctrineSynergy(new List<string> { "foresight_eye", "sniper_scope" }),
+            "Hunter Doctrine requires Foresight Eye and Sniper Scope");
+        Near(ArtifactSynergyRules.GetHunterDoctrineDamageMultiplier(true, true, true), 1.12f, 0f,
+            "Hunter Doctrine grants Sniper +12% when a living Elite or Boss exists");
+        Near(ArtifactSynergyRules.GetHunterDoctrineDamageMultiplier(true, true, false), 1f, 0f,
+            "Hunter Doctrine requires a living Elite or Boss");
+        Near(ArtifactSynergyRules.GetHunterDoctrineDamageMultiplier(true, false, true), 1f, 0f,
+            "Hunter Doctrine only affects Sniper");
+
+        True(ArtifactSynergyRules.HasPulseEngineeringSynergy(new List<string> { "pulse_driver", "pulse_lens" }),
+            "Pulse Engineering requires Pulse Driver and Pulse Lens");
+        Near(ArtifactSynergyRules.GetPulseEngineeringDamageMultiplier(true, true, 3), 1f, 0f,
+            "Pulse Engineering requires four living enemies");
+        Near(ArtifactSynergyRules.GetPulseEngineeringDamageMultiplier(true, true, 4), 1.12f, 0f,
+            "Pulse Engineering grants Pulse +12% with four living enemies");
+        Near(ArtifactSynergyRules.GetPulseEngineeringDamageMultiplier(true, false, 4), 1f, 0f,
+            "Pulse Engineering only affects Pulse");
+
+        True(ArtifactSynergyRules.HasCoreForgeSynergy(new List<string> { "echo_weaver", "folded_core" }),
+            "Core Forge requires Echo Weaver and Folded Core");
+        Near(ArtifactSynergyRules.GetCoreForgeDamageMultiplier(true, 2), 1f, 0f,
+            "Core Forge requires three active Sphere types");
+        Near(ArtifactSynergyRules.GetCoreForgeDamageMultiplier(true, 3), 1.06f, 0f,
+            "Core Forge grants +6% in a network of three types");
+
+        True(ArtifactSynergyRules.HasHunterFocusSynergy(new List<string> { "sniper_crown", "long_lens" }),
+            "Hunter Focus requires Sniper Crown and Long Lens");
+        Near(ArtifactSynergyRules.GetHunterFocusDamageMultiplier(true, true, true), 1.10f, 0f,
+            "Hunter Focus grants Sniper +10% with Long Lens");
+        Near(ArtifactSynergyRules.GetHunterFocusDamageMultiplier(true, true, false), 1f, 0f,
+            "Hunter Focus retains its Long Lens condition");
+
+        True(ArtifactSynergyRules.HasPulseOverloadSynergy(new List<string> { "pulse_crown", "tempo_ring" }),
+            "Pulse Overload requires Pulse Crown and Tempo Ring");
+        Near(ArtifactSynergyRules.GetPulseOverloadDamageMultiplier(true, true, true), 1.10f, 0f,
+            "Pulse Overload grants Pulse +10% when Pulse Driver is also owned");
+        Near(ArtifactSynergyRules.GetPulseOverloadDamageMultiplier(true, true, false), 1f, 0f,
+            "Pulse Overload requires Pulse Driver in addition to its pair");
+        Near(ArtifactSynergyRules.GetPulseOverloadDamageMultiplier(true, false, true), 1f, 0f,
+            "Pulse Overload only affects Pulse");
     }
 
     private static void CheckSphereElementalRules()

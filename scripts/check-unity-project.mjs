@@ -953,3 +953,20 @@ assert.ok(menuRuntime.includes('SphereFormsTriangleWithinSourceRange(sphere)') &
   menuRuntime.includes('ArtifactSynergyRules.IsTriangleWithinSourceRange(abDistance, asDistance, bsDistance)') &&
   menuRuntime.includes('var sourceDistanceScale = SpherePlacementRules.SourcePixelsToWorld'),
   'Perfect Network must use the source formsTriangle distance test in the live damage multiplier rather than the unrelated Unity Resonance Triangle score');
+
+
+// Source pair synergies with live target/build gates.
+assert.ok(artifactSynergyRulesSource.includes('HasBoth(ownedArtifacts, "foresight_eye", "sniper_scope")') &&
+  artifactSynergyRulesSource.includes('HasBoth(ownedArtifacts, "pulse_driver", "pulse_lens")') &&
+  artifactSynergyRulesSource.includes('HasBoth(ownedArtifacts, "echo_weaver", "folded_core")') &&
+  artifactSynergyRulesSource.includes('HasBoth(ownedArtifacts, "sniper_crown", "long_lens")') &&
+  artifactSynergyRulesSource.includes('HasBoth(ownedArtifacts, "pulse_crown", "tempo_ring")'),
+  'Hunter Doctrine, Pulse Engineering, Core Forge, Hunter Focus and Pulse Overload require the source artifact pairs');
+assert.ok(menuRuntime.includes('HasLivingEliteOrBossEnemy()') &&
+  menuRuntime.includes('CountLivingEnemiesInRun()') &&
+  menuRuntime.includes('ArtifactSynergyRules.GetHunterDoctrineDamageMultiplier') &&
+  menuRuntime.includes('ArtifactSynergyRules.GetPulseEngineeringDamageMultiplier') &&
+  menuRuntime.includes('ArtifactSynergyRules.GetCoreForgeDamageMultiplier') &&
+  menuRuntime.includes('ArtifactSynergyRules.GetHunterFocusDamageMultiplier') &&
+  menuRuntime.includes('ArtifactSynergyRules.GetPulseOverloadDamageMultiplier'),
+  'Five conditional pair synergies must be wired into live Sphere damage using enemy/build state');

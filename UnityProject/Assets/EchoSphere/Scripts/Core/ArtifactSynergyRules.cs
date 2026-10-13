@@ -34,6 +34,21 @@ namespace EchoSphere.Core
         public static bool HasPerfectNetworkSynergy(IList<string> ownedArtifacts) =>
             HasBoth(ownedArtifacts, "fivefold_resonance", "triangle_circuit");
 
+        public static bool HasHunterDoctrineSynergy(IList<string> ownedArtifacts) =>
+            HasBoth(ownedArtifacts, "foresight_eye", "sniper_scope");
+
+        public static bool HasPulseEngineeringSynergy(IList<string> ownedArtifacts) =>
+            HasBoth(ownedArtifacts, "pulse_driver", "pulse_lens");
+
+        public static bool HasCoreForgeSynergy(IList<string> ownedArtifacts) =>
+            HasBoth(ownedArtifacts, "echo_weaver", "folded_core");
+
+        public static bool HasHunterFocusSynergy(IList<string> ownedArtifacts) =>
+            HasBoth(ownedArtifacts, "sniper_crown", "long_lens");
+
+        public static bool HasPulseOverloadSynergy(IList<string> ownedArtifacts) =>
+            HasBoth(ownedArtifacts, "pulse_crown", "tempo_ring");
+
         public static float GetFortressNetworkDamageMultiplier(bool hasSynergy, bool hasNearbySphere) =>
             hasSynergy && hasNearbySphere ? 1.10f : 1f;
 
@@ -72,6 +87,25 @@ namespace EchoSphere.Core
                 IsFiniteNonNegative(bsDistancePixels) &&
                 abDistancePixels <= 300f && asDistancePixels <= 300f && bsDistancePixels <= 300f;
         }
+
+        public static float GetHunterDoctrineDamageMultiplier(
+            bool hasSynergy, bool isSniper, bool hasLivingEliteOrBoss) =>
+            hasSynergy && isSniper && hasLivingEliteOrBoss ? 1.12f : 1f;
+
+        public static float GetPulseEngineeringDamageMultiplier(
+            bool hasSynergy, bool isPulse, int livingEnemyCount) =>
+            hasSynergy && isPulse && livingEnemyCount >= 4 ? 1.12f : 1f;
+
+        public static float GetCoreForgeDamageMultiplier(bool hasSynergy, int uniqueTypeCount) =>
+            hasSynergy && uniqueTypeCount >= 3 ? 1.06f : 1f;
+
+        public static float GetHunterFocusDamageMultiplier(
+            bool hasSynergy, bool isSniper, bool hasLongLens) =>
+            hasSynergy && isSniper && hasLongLens ? 1.10f : 1f;
+
+        public static float GetPulseOverloadDamageMultiplier(
+            bool hasSynergy, bool isPulse, bool hasPulseDriver) =>
+            hasSynergy && isPulse && hasPulseDriver ? 1.10f : 1f;
 
         private static bool IsFiniteNonNegative(float value) =>
             !float.IsNaN(value) && !float.IsInfinity(value) && value >= 0f;

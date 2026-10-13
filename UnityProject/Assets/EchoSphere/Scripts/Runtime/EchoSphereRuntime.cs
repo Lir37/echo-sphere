@@ -3644,6 +3644,27 @@ namespace EchoSphere.Runtime
                 SphereFormsTriangleWithinSourceRange(sphere);
             multiplier *= ArtifactSynergyRules.GetPerfectNetworkDamageMultiplier(
                 hasPerfectNetwork, uniqueTypes, sphereFormsTriangle);
+
+            var hasHunterDoctrine = ArtifactSynergyRules.HasHunterDoctrineSynergy(_ownedArtifacts);
+            multiplier *= ArtifactSynergyRules.GetHunterDoctrineDamageMultiplier(
+                hasHunterDoctrine, sphere.Type == SphereId.Sniper,
+                hasHunterDoctrine && sphere.Type == SphereId.Sniper && HasLivingEliteOrBossEnemy());
+
+            var hasPulseEngineering = ArtifactSynergyRules.HasPulseEngineeringSynergy(_ownedArtifacts);
+            multiplier *= ArtifactSynergyRules.GetPulseEngineeringDamageMultiplier(
+                hasPulseEngineering, sphere.Type == SphereId.Pulse,
+                hasPulseEngineering && sphere.Type == SphereId.Pulse ? CountLivingEnemiesInRun() : 0);
+
+            multiplier *= ArtifactSynergyRules.GetCoreForgeDamageMultiplier(
+                ArtifactSynergyRules.HasCoreForgeSynergy(_ownedArtifacts), uniqueTypes);
+
+            multiplier *= ArtifactSynergyRules.GetHunterFocusDamageMultiplier(
+                ArtifactSynergyRules.HasHunterFocusSynergy(_ownedArtifacts),
+                sphere.Type == SphereId.Sniper, _ownedArtifacts.Contains("long_lens"));
+
+            multiplier *= ArtifactSynergyRules.GetPulseOverloadDamageMultiplier(
+                ArtifactSynergyRules.HasPulseOverloadSynergy(_ownedArtifacts),
+                sphere.Type == SphereId.Pulse, _ownedArtifacts.Contains("pulse_driver"));
             return multiplier;
         }
 
@@ -3677,6 +3698,24 @@ namespace EchoSphere.Runtime
                 }
             }
             return false;
+        }
+
+        private bool HasLivingEliteOrBossEnemy()
+        {
+            for (var i = 0; i < _enemies.Count; i++)
+            {
+                var enemy = _enemies[i];
+                if (enemy != null && enemy.IsAlive && (enemy.IsElite || enemy.IsBoss)) return true;
+            }
+            return false;
+        }
+
+        private int CountLivingEnemiesInRun()
+        {
+            var count = 0;
+            for (var i = 0; i < _enemies.Count; i++)
+                if (_enemies[i] != null && _enemies[i].IsAlive) count++;
+            return count;
         }
 
         private bool HasLivingEliteEnemy()
