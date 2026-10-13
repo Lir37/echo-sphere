@@ -3828,26 +3828,25 @@ namespace EchoSphere.Runtime
             if (ResonanceGeometryMemoryRules.ShouldCapturePreviousGeometry(
                     _resonanceGeometryKey, _resonanceGeometryNodeIndexes.Count))
             {
-                _resonanceGeometryMemoryPoints.Clear();
+                var previousPoints = new List<Vector2>();
                 for (var i = 0; i < _resonanceGeometryNodeIndexes.Count; i++)
                 {
                     var index = _resonanceGeometryNodeIndexes[i];
                     // Source maps stored old node indexes to current positions if
                     // the Sphere entry still exists, without requiring it alive.
                     if (index >= 0 && index < _spheres.Count && _spheres[index] != null)
-                        _resonanceGeometryMemoryPoints.Add(_spheres[index].transform.position);
+                        previousPoints.Add(_spheres[index].transform.position);
                 }
 
-                if (_resonanceGeometryMemoryPoints.Count >= 2)
-                {
-                    _resonanceGeometryMemoryType = _resonanceGeometryType;
-                    _resonanceGeometryMemoryTimer = ResonanceGeometryMemoryRules.MemoryDurationSeconds;
-                }
-                else
+                // Source only replaces formationMemory if at least two previous
+                // points resolve. Otherwise an already-running memory remains
+                // intact until its own 0.9 s expiry.
+                if (ResonanceGeometryMemoryRules.ShouldStoreMemory(previousPoints.Count))
                 {
                     _resonanceGeometryMemoryPoints.Clear();
-                    _resonanceGeometryMemoryType = SphereNetworkFormation.None;
-                    _resonanceGeometryMemoryTimer = 0f;
+                    _resonanceGeometryMemoryPoints.AddRange(previousPoints);
+                    _resonanceGeometryMemoryType = _resonanceGeometryType;
+                    _resonanceGeometryMemoryTimer = ResonanceGeometryMemoryRules.MemoryDurationSeconds;
                 }
             }
 
