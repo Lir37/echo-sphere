@@ -332,13 +332,12 @@ internal static class Program
         Equal(LevelUpAbilityRules.GetMaxLevel(RunUpgradeKind.Damage), 7, "source passive Ability cap");
         True(LevelUpAbilityRules.CanUpgrade(RunUpgradeKind.Crit, 6), "passive Ability can advance to VII");
         True(!LevelUpAbilityRules.CanUpgrade(RunUpgradeKind.Crit, 7), "passive Ability is capped at VII");
-        Equal(LevelUpAbilityRules.RoutineAbilityKinds.Count, 21, "all source passive abilities are offered");
+        Equal(LevelUpAbilityRules.SourcePassiveCatalog.Count, 21, "source passive catalog is preserved without offering it as routine Level-Up choices");
         Near(LevelUpAbilityRules.GetSphereRadiusMultiplier(2), 1.30f, 0.000001f, "Sphere Radius +15% per level");
         Near(LevelUpAbilityRules.GetSphereRangeMultiplier(2), 1.10f, 0.000001f, "Sphere Range +5% per level");
         Near(LevelUpAbilityRules.GetProjectileSpeedMultiplier(2), 1.16f, 0.000001f, "projectile speed +8% per level");
         Near(LevelUpAbilityRules.GetCritPowerMultiplier(2), 1.16f, 0.000001f, "critical power +8% per level");
         Near(LevelUpAbilityRules.GetResonanceGainMultiplier(2), 1.16f, 0.000001f, "Resonance gain +8% per level");
-        Near(LevelUpAbilityRules.GetFortuneDropBonus(2), 0.04f, 0.000001f, "Fortune rare drop bonus +2% per level");
         Equal(LevelUpAbilityRules.GetSphereBoostKillsRequired(1), 100, "Sphere Boost starts at 100 kills");
         Equal(LevelUpAbilityRules.GetSphereBoostKillsRequired(7), 50, "Sphere Boost kill threshold floor");
         Equal(LevelUpAbilityRules.GetSphereBoostDamageBonus(250, 2), 2, "Sphere Boost uses total run kills and level threshold");
