@@ -317,11 +317,10 @@ const spherePlacementRules = readFileSync(join(root, spherePlacementRulesPath), 
 for (const required of ['src/spaceCollision.ts','PlayerBuildGap','TowerPlacementGap','EnemyPlacementGap','HasRouteToOutside','GetMaxSpheres','MaxSameSphereCopies',
   'SphereCharacterId','GetSignatureSphere','GetCharacterSphereCopyCap','GetSameTypeCap','GetCopyDamageMultiplier','SphereCharacterId.Fractal'])
   assert.ok(spherePlacementRules.includes(required), 'source Sphere placement/copy-cap contract missing: ' + required);
-assert.ok(runtime.includes('_maxSphereAbilityLevel') && runtime.includes('GetCurrentMaxSpheres') &&
-  runtime.includes('SpherePlacementRules.GetMaxSpheres(_maxSphereAbilityLevel, PersistentUpgradeRules.GetExtraSpheres(GetShopUpgradeLevel("spheres")))') &&
-  runtime.includes('LevelUpAbilityRules.CreateChoice(RunUpgradeKind.MaxSpheres, _maxSphereAbilityLevel)') &&
-  runtime.includes('RunUpgradeKind.MaxSpheres'),
-  'source maxspheres passive ability must use the Level-Up catalog and live persistent-shop capacity');
+assert.ok(runtime.includes('GetCurrentMaxSpheres') &&
+  runtime.includes('SpherePlacementRules.GetMaxSpheres(0, PersistentUpgradeRules.GetExtraSpheres(GetShopUpgradeLevel("spheres")))') &&
+  !runtime.includes('LevelUpAbilityRules.CreateChoice(RunUpgradeKind.MaxSpheres, _maxSphereAbilityLevel)'),
+  'routine Level-Up must not expose the source passive maxspheres ability; Sphere capacity comes from the persistent shop');
 assert.ok(runtime.includes('SpherePlacementRules.GetSameTypeCap') &&
   runtime.includes('_sphereCharacterId') && runtime.includes('_characterMasteryLevel') &&
   !runtime.includes('CountSpheresOfType(_selectedSphereType) >= SpherePlacementRules.MaxSameSphereCopies'),
@@ -454,13 +453,15 @@ const levelUpAbilities = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core
 assert.ok(levelUpAbilities.includes('RoutineAbilityKinds') && levelUpAbilities.includes('GetNetworkDisableDuration'), 'source Level-Up Ability catalog is missing');
 for (const token of ['0.93d', '0.15f', '0.10f', '0.16f', 'SourcePixelsToWorld', 'GetDamageTakenMultiplier'])
   assert.ok(levelUpAbilities.includes(token), 'source Level-Up Ability formula is missing: ' + token);
-assert.ok(runtime.includes('LevelUpAbilityRules.RoutineAbilityKinds') && runtime.includes('RecordLevelUpChoice(choice)') &&
-  runtime.includes('GetSphereAffinityWeight(choice.Sphere)') && runtime.includes('GetAbilityLevel(RunUpgradeKind.Slow)'),
-  'Level-Up weighted generation, choice recording and live Ability effects must be wired');
+assert.ok(!runtime.includes('LevelUpAbilityRules.RoutineAbilityKinds') && runtime.includes('RecordLevelUpChoice(choice)') &&
+  runtime.includes('GetSphereAffinityWeight(choice.Sphere)') &&
+  runtime.includes('foreach (var kind in new[] { RunUpgradeKind.Teleport, RunUpgradeKind.TimeStop, RunUpgradeKind.Blast'),
+  'routine Level-Up must use source Sphere and active-Ability pools, not the constructed-but-unused passive pool');
 assert.ok(runtime.includes('IncreaseMaxHp(6f)') && runtime.includes('IncreaseMaxHp(20f)') &&
   runtime.includes('GetSphereDamageMultiplier(GetAbilityLevel(RunUpgradeKind.Damage))') &&
+  !runtime.includes('GetFortuneDropBonus(GetAbilityLevel(RunUpgradeKind.Fortune))') &&
   !runtime.includes('REPAIR PROTOCOL') && !runtime.includes('+18% damage for all Spheres'),
-  'Level-Up must use source per-level effects and must not offer placeholder repair/damage cards');
+  'Level-Up must retain source per-level HP behavior, exclude unselected passive choices, and not add Fortune to the cache-drop formula');
 const experienceOrb = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/ExperienceOrbAgent.cs'), 'utf8');
 assert.ok(experienceOrb.includes('GetExperienceMagnetRadiusWorld()'), 'Magnet Level-Up must affect XP orb attraction');
 const enemyAbilitySlowCheck = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs'), 'utf8');
