@@ -1248,6 +1248,8 @@ assert.ok(runtimeArt.includes('IsCharacterPreferredActiveAbility') &&
   runtimeArt.includes('levelWeight + characterAffinity + 0.08f') &&
   !runtimeArt.includes('_sphereCharacterId == SphereCharacterId.Oracle && choice.Kind == RunUpgradeKind.Crit'),
   'Level-Up active Ability weighting must match source character preferences and active-choice affinity without an Oracle-only rule');
+assert.ok(!runtimeArt.includes('if (_maxSphereAbilityLevel > 0) abilityScore += 1f;'),
+  'Level-Up source weighting must count actual acquired abilities only, not a separate Max Spheres pseudo-ability');
 assert.ok(runtimeArt.includes('GetSphereRadiusMultiplier()') &&
   runtimeArt.includes('SphereBoostDamageBonus') &&
   runtimeArt.includes('GetActiveAbilityCooldownMultiplier') &&
