@@ -1215,13 +1215,15 @@ assert.ok(runtimeArt.includes('_level >= 20 ? 3 : _level >= 12 ? 2 : _level >= 5
   'active ability slots and hotkey assignment must follow source progression');
 assert.ok(runtimeArt.includes('40f * GetActiveAbilityCooldownMultiplier()') &&
   runtimeArt.includes('3f + Mathf.Min(2, level - 1)') &&
-  runtimeArt.includes('Mathf.Max(5f, 15f - Mathf.Min(4, (level - 1) * 2))') &&
+  runtimeArt.includes('(15f - Mathf.Min(4, (level - 1) * 2)) * GetActiveAbilityCooldownMultiplier()') &&
   runtimeArt.includes('220f') && runtimeArt.includes('700f') && runtimeArt.includes('300f'),
   'Time Stop / Teleport must preserve source cooldowns, duration scaling and level-III target range');
 assert.ok(activeAbilityEnemy.includes('public void ApplyFreeze(float duration)') &&
   runtimeArt.includes('enemy.ApplyFreeze(freezeDuration)') &&
+  runtimeArt.includes('enemy.ReceiveDamage(pulseDamage)') &&
+  runtimeArt.includes('for (var i = 0; i < 28; i++) _rng.NextFloat();') &&
   runtimeArt.includes('ShowTimedCombatMessage("ECHO FREEZE", 1.2f)'),
-  'Time Stop must apply real freeze status and source feedback');
+  'Time Stop must apply direct source pulse damage, preserve RNG and show source feedback');
 assert.ok(runtimeArt.includes('Those ability evolution choices are not yet migrated') &&
   artifactProtocolRulesSource.includes('"temporal_fold_protocol"') &&
   artifactProtocolRulesSource.includes('"status_circuit_protocol"'),
