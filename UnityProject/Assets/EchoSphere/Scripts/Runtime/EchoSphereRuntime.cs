@@ -5126,7 +5126,7 @@ namespace EchoSphere.Runtime
 
             foreach (var sphere in _spheres)
             {
-                if (sphere == null || !sphere.gameObject.activeInHierarchy || !IsFireAlignedSphere(sphere.Type)) continue;
+                if (sphere == null || !sphere.gameObject.activeInHierarchy || GetGlobalSphereModifierLevel("fire") <= 0) continue;
                 fireSpheres.Add(sphere);
                 sphere.AccelerateNextAttack(0.5f);
                 SpawnImpact(sphere.transform.position, new Color(0.77f, 0.43f, 0.24f, 0.9f));
@@ -5291,8 +5291,12 @@ namespace EchoSphere.Runtime
                         }
                     current = next;
                 }
-                ordered = new List<SphereAttackAgent>(networkOrder);
-                foreach (var sphere in remaining) ordered.Add(sphere);
+                // Preserve source ordering for disconnected Spheres. The source
+                // appends leftovers from the original distance-sorted list, not Set order.
+                var networkOrdered = new List<SphereAttackAgent>(networkOrder);
+                foreach (var sphere in ordered)
+                    if (remaining.Contains(sphere)) networkOrdered.Add(sphere);
+                ordered = networkOrdered;
             }
 
             var previous = ordered.Count > 0 ? (Vector2)ordered[0].transform.position : (Vector2)_player.position;
