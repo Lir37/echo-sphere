@@ -1243,6 +1243,11 @@ for (const ability of ['Blast', 'Shield', 'Teleport', 'FireTrail', 'Minion', 'Li
 assert.ok(runtimeArt.includes('GetSphereRangeMultiplier()') &&
   runtimeArt.includes('SPHERE RANGE increased.'),
   'Range upgrades refresh live Sphere range');
+assert.ok(runtimeArt.includes('IsCharacterPreferredActiveAbility') &&
+  runtimeArt.includes('var characterAffinity = IsCharacterPreferredActiveAbility(choice.Kind) ? 0.75f : 0f;') &&
+  runtimeArt.includes('levelWeight + characterAffinity + 0.08f') &&
+  !runtimeArt.includes('_sphereCharacterId == SphereCharacterId.Oracle && choice.Kind == RunUpgradeKind.Crit'),
+  'Level-Up active Ability weighting must match source character preferences and active-choice affinity without an Oracle-only rule');
 assert.ok(runtimeArt.includes('GetSphereRadiusMultiplier()') &&
   runtimeArt.includes('SphereBoostDamageBonus') &&
   runtimeArt.includes('GetActiveAbilityCooldownMultiplier') &&
