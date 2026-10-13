@@ -242,21 +242,21 @@ namespace EchoSphere.Core
                 {
                     case "teleport_echo_jump": return new SphereEvolutionOption[]
                     {
-                        new SphereEvolutionOption("teleport_spatial_network", "Прыжок • Цепь", "Телепорт оставляет реле между исходным и целевым узлом."),
-                        new SphereEvolutionOption("teleport_hunter_beacon", "Прыжок • Возврат", "Финальная специализация усиливает прыжок к Снайперской сфере."),
-                        new SphereEvolutionOption("teleport_phase_break", "Прыжок • Разрыв", "Траектория прыжка наносит дополнительный урон врагам.")
+                        new SphereEvolutionOption("teleport_echo_jump_f1", "Прыжок • Дальняя дуга", "Телепорт предпочитает ближайшую доступную дальнюю сферу за пределами ближней зоны."),
+                        new SphereEvolutionOption("teleport_echo_jump_f2", "Прыжок • Цепь", "Телепорт оставляет реле между исходной и целевой сферами, временно связывая их."),
+                        new SphereEvolutionOption("teleport_echo_jump_f3", "Прыжок • Возврат", "После прыжка следующий телепорт в течение короткого окна может вернуть игрока к исходному узлу.")
                     };
                     case "teleport_beacon": return new SphereEvolutionOption[]
                     {
-                        new SphereEvolutionOption("teleport_spatial_network", "Маяк • Метка", "Приземление связывает исходный и целевой узлы сети."),
-                        new SphereEvolutionOption("teleport_hunter_beacon", "Маяк • Волна", "Прыжок к Снайперской сфере усиливает следующую атаку."),
-                        new SphereEvolutionOption("teleport_phase_break", "Маяк • Разветвление", "Приземление создаёт дополнительный боевой эффект на траектории.")
+                        new SphereEvolutionOption("teleport_beacon_f1", "Маяк • Метка", "Приземление на сферу помечает ближайшего врага и усиливает следующий удар по нему."),
+                        new SphereEvolutionOption("teleport_beacon_f2", "Маяк • Волна", "Приземление выпускает импульс вокруг целевой сферы и временно замедляет врагов."),
+                        new SphereEvolutionOption("teleport_beacon_f3", "Маяк • Разветвление", "Приземление у сферы создаёт второй прыжковый ориентир и расширяет выбор следующего узла.")
                     };
                     default: return new SphereEvolutionOption[]
                     {
-                        new SphereEvolutionOption("teleport_spatial_network", "Фаза • Сквозь сеть", "Телепорт соединяет исходный и целевой узлы."),
-                        new SphereEvolutionOption("teleport_hunter_beacon", "Фаза • Укрытие", "Прыжок к Снайперской сфере усиливает следующую атаку."),
-                        new SphereEvolutionOption("teleport_phase_break", "Фаза • Разрыв", "Сферы между точками прыжка создают дополнительные импульсы.")
+                        new SphereEvolutionOption("teleport_phase_f1", "Фаза • Сквозь сеть", "Во время прыжка игрок игнорирует столкновения с врагами и получает короткое окно после приземления."),
+                        new SphereEvolutionOption("teleport_phase_f2", "Фаза • Разрыв", "Траектория прыжка режет врагов между исходным и целевым узлами."),
+                        new SphereEvolutionOption("teleport_phase_f3", "Фаза • Укрытие", "После приземления ближайшая сфера создаёт краткую область, в которой игрок неуязвим.")
                     };
                 }
             }
@@ -264,29 +264,29 @@ namespace EchoSphere.Core
             {
                 if (!final) return new SphereEvolutionOption[]
                 {
-                    new SphereEvolutionOption("timestop_echo_phase", "Фазовый залп", "При запуске остановки все сферы получают немедленный залп."),
+                    new SphereEvolutionOption("timestop_echo_phase", "Фазовый залп", "При запуске остановки все Сферы получают немедленный залп; во время остановки их урон увеличен на 18%."),
                     new SphereEvolutionOption("timestop_closed_time", "Замкнутое время", "Зона остановки расширяется через сеть."),
-                    new SphereEvolutionOption("timestop_time_anchor", "Якорь времени", "Остановка дольше удерживает врагов вокруг ближайшей сферы.")
+                    new SphereEvolutionOption("timestop_time_anchor", "Якорь времени", "Остановка фиксирует врагов вокруг ближайшей сферы.")
                 };
                 switch (branchId)
                 {
                     case "timestop_echo_phase": return new SphereEvolutionOption[]
                     {
-                        new SphereEvolutionOption("timestop_outside_time", "Фаза • Залп", "Остановка времени сочетается с дополнительным залпом сфер."),
-                        new SphereEvolutionOption("timestop_closed_network", "Фаза • Окно", "Сеть сохраняет контроль между связанными узлами."),
-                        new SphereEvolutionOption("timestop_temporal_core", "Фаза • Шрам", "Финальный импульс остановки наносит повышенный урон.")
+                        new SphereEvolutionOption("timestop_echo_phase_f1", "Фаза • Залп", "При запуске остановки все сферы дают немедленный залп, а первый удар после остановки создаёт дополнительный импульс."),
+                        new SphereEvolutionOption("timestop_echo_phase_f2", "Фаза • Окно", "Во время остановки сферы атакуют заметно чаще, но эффект сразу прекращается после возобновления времени."),
+                        new SphereEvolutionOption("timestop_echo_phase_f3", "Фаза • Шрам", "Каждая поражённая во время остановки цель получает метку, усиливающую следующий удар по ней.")
                     };
                     case "timestop_closed_time": return new SphereEvolutionOption[]
                     {
-                        new SphereEvolutionOption("timestop_outside_time", "Замкнутое время • Кольцо", "Зона остановки распространяется по связанным сферам."),
-                        new SphereEvolutionOption("timestop_closed_network", "Замкнутая сеть времени", "Сеть сохраняет эффект остановки между узлами."),
-                        new SphereEvolutionOption("timestop_temporal_core", "Замкнутое время • Клетка", "Финальный импульс остановки наносит повышенный урон.")
+                        new SphereEvolutionOption("timestop_closed_time_f1", "Замкнутое время • Кольцо", "Зона остановки распространяется по активному кольцу связанных сфер."),
+                        new SphereEvolutionOption("timestop_closed_time_f2", "Замкнутое время • Коридор", "Между связанными узлами возникает коридор остановленного времени, замедляющий входящих врагов."),
+                        new SphereEvolutionOption("timestop_closed_time_f3", "Замкнутое время • Клетка", "Связанные сферы замыкают вокруг группы врагов временную клетку, ограничивая выход.")
                     };
                     default: return new SphereEvolutionOption[]
                     {
-                        new SphereEvolutionOption("timestop_outside_time", "Якорь • Фиксация", "Ближайшая сфера фиксирует цели на время остановки."),
-                        new SphereEvolutionOption("timestop_closed_network", "Якорь • Перенос", "Эффект остановки распространяется через сеть."),
-                        new SphereEvolutionOption("timestop_temporal_core", "Якорь • Разрыв", "Финальный импульс остановки наносит повышенный урон.")
+                        new SphereEvolutionOption("timestop_time_anchor_f1", "Якорь • Фиксация", "Ближайшая сфера фиксирует несколько целей вокруг себя на всё время остановки."),
+                        new SphereEvolutionOption("timestop_time_anchor_f2", "Якорь • Перенос", "После снятия остановки зафиксированные цели передают остаток эффекта ближайшим врагам."),
+                        new SphereEvolutionOption("timestop_time_anchor_f3", "Якорь • Разрыв", "При снятии якоря зафиксированные цели получают короткий импульс и замедление.")
                     };
                 }
             }
