@@ -1232,7 +1232,7 @@ for (const ability of ['Blast', 'Shield', 'Teleport', 'FireTrail', 'Minion', 'Li
     runtimeArt.includes('Activate' + ability + '()'),
     'source active ability ' + ability + ' must have progression and a runtime activation path');
 }
-assert.ok(runtimeArt.includes('new AbilityDroneAgent2D()') &&
+assert.ok(runtimeArt.includes('AddComponent<AbilityDroneAgent2D>()') &&
   runtimeArt.includes('_fireTrailTimer > 0f') &&
   runtimeArt.includes('_darkRitualOverloadTimer > 0f') &&
   levelUpAbilities.includes('firetrail_overdrive') &&
