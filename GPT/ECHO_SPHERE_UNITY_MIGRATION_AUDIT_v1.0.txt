@@ -4255,3 +4255,11 @@ VALIDATION:
 ======================================================================
 END TEMPORAL FOLD / STATUS CIRCUIT LIVE DAMAGE PARITY
 ======================================================================
+
+
+VALIDATION FOLLOW-UP:
+- CI #356 confirmed the new core rules compile but failed two old assertions
+  that explicitly expected Temporal Fold and Status Circuit to remain gated.
+  Replaced those obsolete expectations with assertions for source-mapped
+  set/synergy/protocol multipliers and conditional activation. CI rerun required.
+

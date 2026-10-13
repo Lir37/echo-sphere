@@ -1322,9 +1322,29 @@ internal static class Program
         True(ArtifactProtocolRules.TryGetProtocol("critical_echo", out var criticalProtocol) &&
             !criticalProtocol.HasUnmappedRuntimeState, "Critical Echo uses its source-mapped combo runtime state");
         True(ArtifactProtocolRules.TryGetProtocol("temporal_fold_protocol", out var temporalProtocol) &&
-            temporalProtocol.HasUnmappedRuntimeState, "Temporal Fold remains pending until time-control state is ported");
+            !temporalProtocol.HasUnmappedRuntimeState &&
+            ArtifactProtocolRules.GetTemporalFoldProtocolMultiplier(true, true) == 1.06f &&
+            ArtifactProtocolRules.GetTemporalFoldProtocolMultiplier(true, false) == 1f,
+            "Temporal Fold protocol follows the source time-control timer and conditional multiplier");
         True(ArtifactProtocolRules.TryGetProtocol("status_circuit_protocol", out var statusProtocol) &&
-            statusProtocol.HasUnmappedRuntimeState, "Status Circuit remains pending until the source-wide modifier map is ported");
+            !statusProtocol.HasUnmappedRuntimeState &&
+            ArtifactProtocolRules.GetStatusCircuitProtocolMultiplier(true, true, true) == 1.06f &&
+            ArtifactProtocolRules.GetStatusCircuitProtocolMultiplier(true, false, true) == 1f,
+            "Status Circuit protocol follows the source Prism/status-build predicate");
+        True(ArtifactSetRules.HasCompletedTemporalFold(true, true) &&
+            ArtifactSetRules.GetTemporalFoldDamageMultiplier(true, true) == 1.12f &&
+            ArtifactSetRules.GetTemporalFoldDamageMultiplier(true, false) == 1f,
+            "Temporal Fold set bonus requires its two source synergies and active time control");
+        True(ArtifactSetRules.HasCompletedStatusCircuit(true, true) &&
+            ArtifactSetRules.GetStatusCircuitSetDamageMultiplier(true, true, true) == 1.10f &&
+            ArtifactSetRules.GetStatusCircuitSetDamageMultiplier(true, false, true) == 1f,
+            "Status Circuit set bonus requires its two source synergies and a Prism status build");
+        True(ArtifactSynergyRules.HasTemporalEchoSynergy(new List<string> { "time_splitter", "stasis_mandala" }) &&
+            ArtifactSynergyRules.GetTemporalEchoDamageMultiplier(true, true) == 1.12f,
+            "Temporal Echo synergy matches the source artifact pair and time-control bonus");
+        True(ArtifactSynergyRules.GetStatusCircuitDamageMultiplier(true, true, true) == 1.10f &&
+            ArtifactSynergyRules.GetStatusLoopDamageMultiplier(true, true, true) == 1.10f,
+            "Status Circuit and Status Loop synergies apply their source Prism bonuses");
         True(!ArtifactProtocolRules.IsProtocolActive(false, true), "an undiscovered protocol cannot report active");
         True(ArtifactProtocolRules.IsProtocolActive(true, true), "a discovered protocol reports active when its state gate is met");
         True(!ArtifactProtocolRules.IsProtocolActive(true, false), "a discovered protocol remains inactive when its state gate is unmet");
