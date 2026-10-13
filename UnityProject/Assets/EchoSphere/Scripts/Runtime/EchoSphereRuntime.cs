@@ -356,6 +356,7 @@ namespace EchoSphere.Runtime
         private DifficultyProfile CurrentDifficulty => DifficultyRules.GetProfile(PlayerPrefs.GetString(DifficultyPreferenceKey, "normal"));
         public float SphereDamageMultiplier => _damageMultiplier * (Time.time < _runeAttackBuffUntil ? 1.3f : 1f) *
             (_teleportDamageBuffTimer > 0f ? 2f : 1f) *
+            (_timeStopTimer > 0f && GetAbilityBranch(RunUpgradeKind.TimeStop) == "timestop_echo_phase" ? 1.18f : 1f) *
             (_timeStopTimer > 0f && _timeStopTimer <= 1f && GetAbilityFinalArchetype(RunUpgradeKind.TimeStop) == "timestop_temporal_core" ? 2f : 1f) *
             (_darkRitualOverloadTimer > 0f ? 1.25f + GetAbilityLevel(RunUpgradeKind.DarkRitual) * 0.04f : 1f) *
             LevelUpAbilityRules.GetSphereDamageMultiplier(GetAbilityLevel(RunUpgradeKind.Damage)) *
@@ -5234,7 +5235,9 @@ namespace EchoSphere.Runtime
                 if (final == "minion_echo_swarm")
                 {
                     SpawnImpact(spawnPosition, new Color(0.83f, 0.58f, 0.24f, 0.95f));
-                    if (nearest != null) nearest.AccelerateNextAttack(0.22f);
+                    foreach (var linkedSphere in liveSpheres)
+                        if (Vector2.Distance(linkedSphere.transform.position, spawnPosition) <= 220f * scale)
+                            linkedSphere.AccelerateNextAttack(0.22f);
                 }
                 SpawnImpact(spawnPosition, new Color(0.35f, 0.83f, 1f, 0.9f));
             }
