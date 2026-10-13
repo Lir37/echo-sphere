@@ -41,6 +41,7 @@ internal static class Program
             CheckEngineerRelayRules();
             CheckConductorOverdriveRules();
             CheckLevelUpChoiceRules();
+            CheckFormationHitRules();
             CheckSphereElementalRules();
             CheckAlchemistReactionRules();
             CheckSphereAuthoredModifierRules();
@@ -883,6 +884,29 @@ internal static class Program
             "Oracle mastery VII shows the source flash");
         True(!LevelUpChoiceRules.ShouldShowOracleSourceFlash(9, false),
             "Oracle source flash requires choices");
+    }
+
+    private static void CheckFormationHitRules()
+    {
+        Equal(FormationHitRules.ResonanceRuneHitIncrement, 2, "Rune of Resonance adds two formation-charge hits");
+        Near(FormationHitRules.ResonanceRunePulseSeconds, 0.5f, 0f, "Rune of Resonance extends pulse to 0.5 seconds");
+        Equal(FormationHitRules.EchoArchitectureRelayHitIncrement, 2, "Echo Architecture relay adds two charge hits to linked Sphere");
+        Near(FormationHitRules.EchoArchitectureRelayPulseSeconds, 0.35f, 0f, "Echo Architecture relay pulse duration");
+        Near(FormationHitRules.EchoArchitectureRelayLightningSeconds, 0.20f, 0f, "Echo Architecture relay lightning duration");
+        True(!FormationHitRules.ShouldTriggerEchoArchitectureRelay(0), "Echo Architecture does not relay with an empty source counter");
+        True(!FormationHitRules.ShouldTriggerEchoArchitectureRelay(4), "Echo Architecture does not relay below its modulo boundary");
+        True(FormationHitRules.ShouldTriggerEchoArchitectureRelay(5), "Echo Architecture source condition triggers on a positive multiple of five");
+        True(FormationHitRules.ShouldTriggerEchoArchitectureRelay(10), "Echo Architecture source condition remains true at ten");
+        True(!FormationHitRules.HasCompletedEchoArchitecture(null), "Echo Architecture requires owned artifact state");
+        True(!FormationHitRules.HasCompletedEchoArchitecture(new List<string> { "echo_conductor", "network_relay" }),
+            "Echo Relay synergy alone is not a completed set");
+        True(!FormationHitRules.HasCompletedEchoArchitecture(new List<string> { "unified_mind", "zero_sphere" }),
+            "Unified Core synergy alone is not a completed set");
+        True(!FormationHitRules.HasCompletedEchoArchitecture(new List<string> { "echo_conductor", "network_relay", "unified_mind" }),
+            "Echo Architecture remains incomplete when one required synergy artifact is missing");
+        True(FormationHitRules.HasCompletedEchoArchitecture(new List<string>
+            { "echo_conductor", "network_relay", "unified_mind", "zero_sphere" }),
+            "Echo Architecture completes only when both source pair synergies are owned");
     }
 
     private static void CheckSphereElementalRules()

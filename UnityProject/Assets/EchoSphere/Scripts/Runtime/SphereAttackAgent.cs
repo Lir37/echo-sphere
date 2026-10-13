@@ -27,10 +27,13 @@ namespace EchoSphere.Runtime
         private int _orbitalHitCount;
         private float _networkDisabledTimer;
         private float _resonancePulseTimer;
+        private int _formationHitCount;
         public void AccelerateNextAttack(float amount) => _attackTimer = Mathf.Max(0f, _attackTimer - Mathf.Max(0f, amount));
         public void DelayNextAttack(float amount) => _attackTimer += Mathf.Max(0f, amount);
         public bool NetworkDisabled => _networkDisabledTimer > 0f;
         public float ResonancePulseTimer => _resonancePulseTimer;
+        public int FormationHitCount => _formationHitCount;
+        public void AddFormationHitCount(int amount) => _formationHitCount += amount;
         public void TriggerResonancePulse(float duration) =>
             _resonancePulseTimer = Mathf.Max(_resonancePulseTimer, Mathf.Max(0f, duration));
         public void ApplyNetworkDisable(float duration) => _networkDisabledTimer = Mathf.Max(_networkDisabledTimer, Mathf.Max(0f, duration));

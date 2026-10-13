@@ -30,6 +30,8 @@ const required = [
   'Assets/EchoSphere/Scripts/Core/ConductorOverdriveRules.cs.meta',
   'Assets/EchoSphere/Scripts/Core/LevelUpChoiceRules.cs',
   'Assets/EchoSphere/Scripts/Core/LevelUpChoiceRules.cs.meta',
+  'Assets/EchoSphere/Scripts/Core/FormationHitRules.cs',
+  'Assets/EchoSphere/Scripts/Core/FormationHitRules.cs.meta',
   'Assets/EchoSphere/Scripts/Runtime/StellaChestAgent2D.cs',
   'Assets/EchoSphere/Scripts/Runtime/BossCombatAgent2D.cs',
   'Assets/EchoSphere/Scripts/Runtime/BossProjectileAgent2D.cs',
@@ -853,3 +855,27 @@ assert.ok(menuRuntime.includes('DrawTriangleResonanceOverlay();') &&
   menuRuntime.includes('private void DrawSphereGuiTriangleFill') &&
   menuRuntime.includes('private void DrawSphereGuiFilledCircle'),
   'Triangle Resonance rings, pulse expansion, triangular fill and pulsing core must be connected to active Unity runtime');
+
+
+// Rune of Resonance and Echo Architecture are the two source writers for
+// formationHitCount. Check their runtime paths and the real charge-ring renderer.
+const formationHitRulesSource = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/FormationHitRules.cs'), 'utf8');
+assert.ok(formationHitRulesSource.includes('ResonanceRuneHitIncrement = 2') &&
+  formationHitRulesSource.includes('ResonanceRunePulseSeconds = 0.5f') &&
+  formationHitRulesSource.includes('EchoArchitectureRelayHitIncrement = 2') &&
+  formationHitRulesSource.includes('EchoArchitectureRelayPulseSeconds = 0.35f') &&
+  formationHitRulesSource.includes('EchoArchitectureRelayLightningSeconds = 0.20f') &&
+  formationHitRulesSource.includes('formationHitCount > 0 && formationHitCount % 5 == 0'),
+  'Formation charge writer constants and Echo Architecture counter condition must match source');
+assert.ok(menuRuntime.includes('ActivateResonanceRune()') &&
+  menuRuntime.includes('AddFormationHitCount(FormationHitRules.ResonanceRuneHitIncrement)') &&
+  menuRuntime.includes('ApplyEchoArchitectureRelayOnSphereHit(owner)') &&
+  menuRuntime.includes('FormationHitRules.HasCompletedEchoArchitecture(_ownedArtifacts)') &&
+  menuRuntime.includes('relay.AddFormationHitCount(FormationHitRules.EchoArchitectureRelayHitIncrement)') &&
+  menuRuntime.includes('FormationHitRules.EchoArchitectureRelayLightningSeconds'),
+  'Rune and Echo Architecture must write actual live Sphere counters/pulses and use the real linked-node relay path');
+assert.ok(sphereAttack.includes('public int FormationHitCount => _formationHitCount') &&
+  sphereAttack.includes('public void AddFormationHitCount(int amount)') &&
+  menuRuntime.includes('var charge = sphere.FormationHitCount % 3') &&
+  menuRuntime.includes('DrawSphereGuiArc(point, radius, startAngle, endAngle'),
+  'Triangle charge arcs and ticks must render from the actual Sphere counter');

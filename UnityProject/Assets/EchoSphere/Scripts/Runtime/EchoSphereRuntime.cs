@@ -1709,6 +1709,35 @@ namespace EchoSphere.Runtime
             var mark = GetSphereAuthoredModifierLevel(source, SphereAuthoredModifier.Mark);
             if (mark > 0 && _sphereCharacterId != SphereCharacterId.Hunter)
                 target.ApplyMark(2.5f);
+
+            if (owner != null)
+                ApplyEchoArchitectureRelayOnSphereHit(owner);
+        }
+
+        // Source equivalent: engineCombat.ts Echo Architecture block inside
+        // dealDamageToEnemy. Preserve its current counter test and first-linked
+        // living-node selection; do not increment the source node per hit.
+        private void ApplyEchoArchitectureRelayOnSphereHit(SphereAttackAgent source)
+        {
+            if (source == null || !FormationHitRules.HasCompletedEchoArchitecture(_ownedArtifacts) ||
+                !FormationHitRules.ShouldTriggerEchoArchitectureRelay(source.FormationHitCount)) return;
+
+            var sourceIndex = GetSphereIndex(source);
+            if (sourceIndex < 0) return;
+            var linked = SphereNetworkRules.GetLinkedNodeIndexes(_networkState, sourceIndex);
+            for (var i = 0; i < linked.Count; i++)
+            {
+                var index = linked[i];
+                if (index < 0 || index >= _spheres.Count) continue;
+                var relay = _spheres[index];
+                if (relay == null || !relay.gameObject.activeInHierarchy) continue;
+
+                relay.AddFormationHitCount(FormationHitRules.EchoArchitectureRelayHitIncrement);
+                relay.TriggerResonancePulse(FormationHitRules.EchoArchitectureRelayPulseSeconds);
+                SpawnEngineerRelayLightning(source.transform.position, relay.transform.position,
+                    FormationHitRules.EchoArchitectureRelayLightningSeconds);
+                return;
+            }
         }
 
         private Vector2 FindNearestSphereOrigin(SphereId type, Vector2 targetPosition)
@@ -1734,6 +1763,22 @@ namespace EchoSphere.Runtime
             if (owner.Type == SphereId.Orbital && GetSphereBranch(SphereId.Orbital) == "orbital_halo")
                 multiplier += SphereEvolutionCombatRules.GetOrbitalResonanceBonus(owner.ProgressionLevel, GetSphereFinal(SphereId.Orbital));
             AddResonanceChargeFromSource(ResonanceRules.SphereHitCharge * multiplier, false);
+        }
+
+        // Source equivalent: engineLoop.ts activateRune('resonance').
+        // The source branch has no live rune-spawn writer at this HEAD; a
+        // future Rune pickup must call this method rather than inventing a
+        // new spawn cadence here.
+        public void ActivateResonanceRune()
+        {
+            AddResonanceCharge(ResonanceRules.RuneCharge);
+            for (var i = 0; i < _spheres.Count; i++)
+            {
+                var sphere = _spheres[i];
+                if (sphere == null) continue;
+                sphere.AddFormationHitCount(FormationHitRules.ResonanceRuneHitIncrement);
+                sphere.TriggerResonancePulse(FormationHitRules.ResonanceRunePulseSeconds);
+            }
         }
 
         public void AddResonanceCharge(float amount)
@@ -5117,18 +5162,26 @@ namespace EchoSphere.Runtime
                 DrawSphereGuiCircle(point, radius,
                     new Color(1f, 184f / 255f, 77f / 255f, 0.20f * formationAlpha), 1.4f);
 
-                // Formation charge writers from Rune of Resonance and the
-                // Echo Architecture set are separate source systems not yet
-                // migrated. Until those events are ported, keep all three ticks
-                // in the source's uncharged state instead of fabricating charge.
+                var charge = sphere.FormationHitCount % 3;
+                if (charge > 0)
+                {
+                    var startAngle = -Mathf.PI * 0.5f;
+                    var endAngle = startAngle + Mathf.PI * 2f * (charge / 3f);
+                    DrawSphereGuiArc(point, radius, startAngle, endAngle,
+                        new Color(1f, 184f / 255f, 77f / 255f, 0.28f * formationAlpha), 3.8f);
+                    DrawSphereGuiArc(point, radius, startAngle, endAngle,
+                        new Color(1f, 184f / 255f, 77f / 255f, 0.86f * formationAlpha), 1.4f);
+                }
+
                 for (var tick = 0; tick < 3; tick++)
                 {
                     var angle = -Mathf.PI * 0.5f + tick / 3f * Mathf.PI * 2f;
                     var inner = radius + 2f;
-                    var outer = inner + 2f;
+                    var outer = inner + (tick < charge ? 5f : 2f);
                     var direction = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+                    var alpha = tick < charge ? 0.95f : 0.30f;
                     DrawSphereGuiLine(point + direction * inner, point + direction * outer,
-                        new Color(1f, 184f / 255f, 77f / 255f, 0.30f * formationAlpha), 1.4f);
+                        new Color(1f, 184f / 255f, 77f / 255f, alpha * formationAlpha), 1.4f);
                 }
 
                 var pulseTimer = sphere.ResonancePulseTimer;
@@ -5148,6 +5201,21 @@ namespace EchoSphere.Runtime
             DrawSphereGuiFilledCircle(center, (activePulse ? 4.5f : 2.5f) * corePulse,
                 new Color(1f, 184f / 255f, 77f / 255f,
                     (activePulse ? 0.90f : 0.26f) * formationAlpha));
+        }
+
+        private void DrawSphereGuiArc(
+            Vector2 center, float radius, float startAngle, float endAngle, Color color, float width)
+        {
+            if (radius <= 0f || Mathf.Approximately(startAngle, endAngle)) return;
+            var segmentCount = Mathf.Max(2, Mathf.CeilToInt(Mathf.Abs(endAngle - startAngle) * radius / 3f));
+            var previous = center + new Vector2(Mathf.Cos(startAngle), Mathf.Sin(startAngle)) * radius;
+            for (var i = 1; i <= segmentCount; i++)
+            {
+                var angle = Mathf.Lerp(startAngle, endAngle, i / (float)segmentCount);
+                var next = center + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius;
+                DrawSphereGuiLine(previous, next, color, width);
+                previous = next;
+            }
         }
 
         private void DrawSphereGuiTriangleFill(Vector2 a, Vector2 b, Vector2 c, Color color)
