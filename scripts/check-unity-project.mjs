@@ -940,3 +940,16 @@ assert.ok(menuRuntime.includes('HasLivingEliteEnemy()') &&
   menuRuntime.includes('ArtifactSynergyRules.GetOrbitalPrismDamageMultiplier') &&
   menuRuntime.includes('ArtifactSynergyRules.GetGravityPulseDamageMultiplier'),
   'Void Horizon, Orbital Prism and Gravity Pulse must use live combat entities in the actual damage path');
+
+
+// Perfect Network source geometry is formsTriangle(): a qualifying active
+// triplet around the attacker with every side <= 300 logical pixels. Do not
+// substitute the stricter resonance-network TriangleStrength threshold.
+assert.ok(artifactSynergyRulesSource.includes('HasBoth(ownedArtifacts, "fivefold_resonance", "triangle_circuit")') &&
+  artifactSynergyRulesSource.includes('hasSynergy && uniqueTypeCount >= 3 && sphereFormsTriangle ? 1.10f : 1f') &&
+  artifactSynergyRulesSource.includes('abDistancePixels <= 300f && asDistancePixels <= 300f && bsDistancePixels <= 300f'),
+  'Perfect Network must preserve the source pair, three-type threshold and 300 px maximum side');
+assert.ok(menuRuntime.includes('SphereFormsTriangleWithinSourceRange(sphere)') &&
+  menuRuntime.includes('ArtifactSynergyRules.IsTriangleWithinSourceRange(abDistance, asDistance, bsDistance)') &&
+  menuRuntime.includes('var sourceDistanceScale = SpherePlacementRules.SourcePixelsToWorld'),
+  'Perfect Network must use the source formsTriangle distance test in the live damage multiplier rather than the unrelated Unity Resonance Triangle score');

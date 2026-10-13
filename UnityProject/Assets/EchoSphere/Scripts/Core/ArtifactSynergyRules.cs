@@ -31,6 +31,9 @@ namespace EchoSphere.Core
         public static bool HasGravityPulseSynergy(IList<string> ownedArtifacts) =>
             HasBoth(ownedArtifacts, "gravity_hook", "pulse_driver");
 
+        public static bool HasPerfectNetworkSynergy(IList<string> ownedArtifacts) =>
+            HasBoth(ownedArtifacts, "fivefold_resonance", "triangle_circuit");
+
         public static float GetFortressNetworkDamageMultiplier(bool hasSynergy, bool hasNearbySphere) =>
             hasSynergy && hasNearbySphere ? 1.10f : 1f;
 
@@ -56,6 +59,22 @@ namespace EchoSphere.Core
         public static float GetGravityPulseDamageMultiplier(
             bool hasSynergy, bool isPulseSphere, int groupedLivingEnemyCount) =>
             hasSynergy && isPulseSphere && groupedLivingEnemyCount >= 3 ? 1.15f : 1f;
+
+        public static float GetPerfectNetworkDamageMultiplier(
+            bool hasSynergy, int uniqueTypeCount, bool sphereFormsTriangle) =>
+            hasSynergy && uniqueTypeCount >= 3 && sphereFormsTriangle ? 1.10f : 1f;
+
+        public static bool IsTriangleWithinSourceRange(
+            float abDistancePixels, float asDistancePixels, float bsDistancePixels)
+        {
+            return IsFiniteNonNegative(abDistancePixels) &&
+                IsFiniteNonNegative(asDistancePixels) &&
+                IsFiniteNonNegative(bsDistancePixels) &&
+                abDistancePixels <= 300f && asDistancePixels <= 300f && bsDistancePixels <= 300f;
+        }
+
+        private static bool IsFiniteNonNegative(float value) =>
+            !float.IsNaN(value) && !float.IsInfinity(value) && value >= 0f;
 
         private static bool HasBoth(IList<string> ownedArtifacts, string first, string second)
         {

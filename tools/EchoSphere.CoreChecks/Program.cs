@@ -44,6 +44,7 @@ internal static class Program
             CheckFormationHitRules();
             CheckArtifactSynergyRules();
             CheckSituationalArtifactSynergies();
+            CheckPerfectNetworkSynergy();
             CheckSphereElementalRules();
             CheckAlchemistReactionRules();
             CheckSphereAuthoredModifierRules();
@@ -1009,6 +1010,30 @@ internal static class Program
             "Gravity Pulse synergy only affects Pulse");
         Near(ArtifactSynergyRules.GetGravityPulseDamageMultiplier(false, true, 4), 1f, 0f,
             "Gravity Pulse needs both source artifacts");
+    }
+
+    private static void CheckPerfectNetworkSynergy()
+    {
+        True(ArtifactSynergyRules.HasPerfectNetworkSynergy(new List<string> { "fivefold_resonance", "triangle_circuit" }),
+            "Perfect Network requires Fivefold Resonance and Triangle Circuit");
+        True(!ArtifactSynergyRules.HasPerfectNetworkSynergy(new List<string> { "fivefold_resonance" }),
+            "Perfect Network does not activate without Triangle Circuit");
+        Near(ArtifactSynergyRules.GetPerfectNetworkDamageMultiplier(true, 2, true), 1f, 0f,
+            "Perfect Network requires three active Sphere types");
+        Near(ArtifactSynergyRules.GetPerfectNetworkDamageMultiplier(true, 3, false), 1f, 0f,
+            "Perfect Network requires the attacking Sphere to belong to an actual source-range triangle");
+        Near(ArtifactSynergyRules.GetPerfectNetworkDamageMultiplier(false, 3, true), 1f, 0f,
+            "Perfect Network requires the source artifact pair");
+        Near(ArtifactSynergyRules.GetPerfectNetworkDamageMultiplier(true, 3, true), 1.10f, 0f,
+            "Perfect Network grants +10% damage at three types inside a qualifying triangle");
+        True(ArtifactSynergyRules.IsTriangleWithinSourceRange(300f, 300f, 300f),
+            "Source formsTriangle includes its exact 300 px edge boundary");
+        True(ArtifactSynergyRules.IsTriangleWithinSourceRange(299f, 120f, 300f),
+            "Source formsTriangle accepts any three sides within 300 px, independent of equilateral strength");
+        True(!ArtifactSynergyRules.IsTriangleWithinSourceRange(300.01f, 100f, 100f),
+            "Source formsTriangle rejects a side above 300 px");
+        True(!ArtifactSynergyRules.IsTriangleWithinSourceRange(-0.01f, 100f, 100f),
+            "Invalid negative side lengths are rejected");
     }
 
     private static void CheckSphereElementalRules()

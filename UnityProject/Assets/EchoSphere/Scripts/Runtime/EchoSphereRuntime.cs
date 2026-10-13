@@ -3638,7 +3638,45 @@ namespace EchoSphere.Runtime
             multiplier *= ArtifactSynergyRules.GetGravityPulseDamageMultiplier(
                 hasGravityPulse, sphere.Type == SphereId.Pulse,
                 hasGravityPulse ? CountLivingEnemiesNearAnySphere(140f) : 0);
+
+            var hasPerfectNetwork = ArtifactSynergyRules.HasPerfectNetworkSynergy(_ownedArtifacts);
+            var sphereFormsTriangle = hasPerfectNetwork && uniqueTypes >= 3 &&
+                SphereFormsTriangleWithinSourceRange(sphere);
+            multiplier *= ArtifactSynergyRules.GetPerfectNetworkDamageMultiplier(
+                hasPerfectNetwork, uniqueTypes, sphereFormsTriangle);
             return multiplier;
+        }
+
+        // Source artifactSystem.ts:formsTriangle checks any alive triplet
+        // containing the attacking Sphere. It uses a 300 logical-pixel maximum
+        // for every side, not Unity's stricter active Triangle geometry profile.
+        private bool SphereFormsTriangleWithinSourceRange(SphereAttackAgent sphere)
+        {
+            if (sphere == null || !sphere.gameObject.activeInHierarchy) return false;
+            const float maxSidePixels = 300f;
+            var sourcePosition = (Vector2)sphere.transform.position;
+            var sourceDistanceScale = SpherePlacementRules.SourcePixelsToWorld;
+
+            for (var i = 0; i < _spheres.Count; i++)
+            {
+                var a = _spheres[i];
+                if (a == null || a == sphere || !a.gameObject.activeInHierarchy) continue;
+                var asDistance = Vector2.Distance(sourcePosition, a.transform.position) / sourceDistanceScale;
+                if (asDistance > maxSidePixels) continue;
+
+                for (var j = i + 1; j < _spheres.Count; j++)
+                {
+                    var other = _spheres[j];
+                    if (other == null || other == sphere || other == a ||
+                        !other.gameObject.activeInHierarchy) continue;
+                    var bsDistance = Vector2.Distance(sourcePosition, other.transform.position) / sourceDistanceScale;
+                    if (bsDistance > maxSidePixels) continue;
+                    var abDistance = Vector2.Distance(a.transform.position, other.transform.position) / sourceDistanceScale;
+                    if (ArtifactSynergyRules.IsTriangleWithinSourceRange(abDistance, asDistance, bsDistance))
+                        return true;
+                }
+            }
+            return false;
         }
 
         private bool HasLivingEliteEnemy()
