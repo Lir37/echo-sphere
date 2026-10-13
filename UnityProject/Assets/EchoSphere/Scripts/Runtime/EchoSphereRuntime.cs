@@ -1189,28 +1189,84 @@ namespace EchoSphere.Runtime
                 var sphere = _spheres[i];
                 if (sphere == null || sphere.Type != SphereId.Standard) continue;
 
-                var radius = GetStandardSphereLocalRadius(sphere.transform, sphere.ProgressionLevel);
+                var tier = Mathf.Max(0, sphere.ProgressionLevel);
+                var radius = GetStandardSphereLocalRadius(sphere.transform, tier);
+                var sourceX = sphere.transform.position.x / SpherePlacementRules.SourcePixelsToWorld;
+                var sourceY = sphere.transform.position.y / SpherePlacementRules.SourcePixelsToWorld;
+                var breathe = Mathf.Sin(_runTime * 2.2f + sourceX * 0.013f) * 0.028f;
+                var energyPulse = 0.5f + 0.5f * Mathf.Sin(_runTime * 4.6f + sourceY * 0.009f);
+
+                // Source renderer.ts: targetPulse only affects the visual assembly,
+                // not the Sphere's gameplay transform or attack calculations.
+                var sourceTargetRange = 130f * GameCatalog.Spheres[(int)sphere.Type].RangeMultiplier *
+                    SpherePlacementRules.SourcePixelsToWorld;
+                var hasTarget = false;
+                for (var enemyIndex = 0; enemyIndex < _enemies.Count; enemyIndex++)
+                {
+                    var enemy = _enemies[enemyIndex];
+                    if (enemy == null || !enemy.IsAlive) continue;
+                    if (Vector2.Distance((Vector2)enemy.transform.position, sphere.transform.position) >= sourceTargetRange) continue;
+                    hasTarget = true;
+                    break;
+                }
+                var targetPulse = hasTarget ? 0.5f + 0.5f * Mathf.Sin(_runTime * 11f) : 0f;
+                var attackScale = 1f + targetPulse * 0.025f;
+                var xScale = attackScale + breathe * 0.18f;
+                var yScale = attackScale - breathe * 0.12f;
+                var crystalPulse = 1f + energyPulse * 0.022f;
+
                 var frame = sphere.transform.Find("Inner Frame");
                 if (frame != null && frame.gameObject.activeSelf)
-                    frame.Rotate(0f, 0f, Mathf.Rad2Deg * (0.22f + Mathf.Max(0, sphere.ProgressionLevel) * 0.018f) * deltaTime, Space.Self);
+                {
+                    frame.Rotate(0f, 0f,
+                        Mathf.Rad2Deg * (0.22f + tier * 0.018f) * deltaTime, Space.Self);
+                    var frameRenderer = frame.GetComponent<SpriteRenderer>();
+                    if (frameRenderer != null && frameRenderer.sprite != null)
+                    {
+                        frameRenderer.color = new Color(48f / 255f, 214f / 255f, 1f, 0.72f + targetPulse * 0.20f);
+                        frame.localScale = new Vector3(
+                            2f * 1.18f * 0.98f * radius / (0.73f * frameRenderer.sprite.bounds.size.x) * xScale,
+                            2f * 1.18f * 0.34f * radius / (0.73f * frameRenderer.sprite.bounds.size.y) * yScale,
+                            1f);
+                    }
+                }
 
-                var pulse = 0.5f + 0.5f * Mathf.Sin(_runTime * 4.6f + sphere.transform.position.y * 0.009f);
                 var glow = sphere.transform.Find("Glow");
                 if (glow != null && glow.gameObject.activeSelf)
                 {
-                    glow.localScale = Vector3.one * (1.16f * radius * (1f + pulse * 0.035f));
+                    glow.localPosition = Vector3.zero;
+                    glow.localScale = new Vector3(
+                        1.16f * radius * (1f + energyPulse * 0.035f) * xScale,
+                        1.16f * radius * (1f + energyPulse * 0.035f) * yScale,
+                        1f);
                     var glowRenderer = glow.GetComponent<SpriteRenderer>();
                     if (glowRenderer != null)
-                        glowRenderer.color = new Color(1f, 1f, 1f, 0.82f + pulse * 0.14f);
+                        glowRenderer.color = new Color(1f, 1f, 1f, 0.82f + energyPulse * 0.14f);
                 }
 
                 var core = sphere.transform.Find("Core Light");
                 if (core != null && core.gameObject.activeSelf)
                 {
+                    core.localPosition = Vector3.zero;
                     var coreRenderer = core.GetComponent<SpriteRenderer>();
                     if (coreRenderer != null && coreRenderer.sprite != null)
-                        core.localScale = Vector3.one * (0.84f * radius * (1f + pulse * 0.035f) /
-                            Mathf.Max(0.0001f, coreRenderer.sprite.bounds.size.x));
+                    {
+                        var scale = 0.84f * radius * (1f + energyPulse * 0.035f) /
+                            Mathf.Max(0.0001f, coreRenderer.sprite.bounds.size.x);
+                        core.localScale = new Vector3(scale * xScale, scale * yScale, 1f);
+                    }
+                }
+
+                var outline = sphere.transform.Find("Standard Core Outline");
+                if (outline != null && outline.gameObject.activeSelf)
+                {
+                    outline.localPosition = Vector3.zero;
+                    var outlineRenderer = outline.GetComponent<SpriteRenderer>();
+                    if (outlineRenderer != null && outlineRenderer.sprite != null)
+                    {
+                        var scale = 0.84f * radius / (0.73f * Mathf.Max(0.0001f, outlineRenderer.sprite.bounds.size.x));
+                        outline.localScale = new Vector3(scale * xScale, scale * yScale, 1f);
+                    }
                 }
 
                 var upper = sphere.transform.Find("Shell");
@@ -1219,9 +1275,9 @@ namespace EchoSphere.Runtime
                     var upperRenderer = upper.GetComponent<SpriteRenderer>();
                     if (upperRenderer != null && upperRenderer.sprite != null)
                     {
-                        upper.localPosition = new Vector3(0f, 0.62f * radius, 0f);
-                        upper.localScale = Vector3.one * (1.34f * radius * (1f + pulse * 0.022f) /
-                            Mathf.Max(0.0001f, upperRenderer.sprite.bounds.size.x));
+                        upper.localPosition = new Vector3(0f, 0.62f * radius * yScale, 0f);
+                        var scale = 1.34f * radius * crystalPulse / Mathf.Max(0.0001f, upperRenderer.sprite.bounds.size.x);
+                        upper.localScale = new Vector3(scale * xScale, scale * yScale, 1f);
                     }
                 }
 
@@ -1231,9 +1287,9 @@ namespace EchoSphere.Runtime
                     var lowerRenderer = lower.GetComponent<SpriteRenderer>();
                     if (lowerRenderer != null && lowerRenderer.sprite != null)
                     {
-                        lower.localPosition = new Vector3(0f, -0.66f * radius, 0f);
-                        lower.localScale = Vector3.one * (1.34f * radius * (1f + pulse * 0.022f) /
-                            Mathf.Max(0.0001f, lowerRenderer.sprite.bounds.size.x));
+                        lower.localPosition = new Vector3(0f, -0.66f * radius * yScale, 0f);
+                        var scale = 1.34f * radius * crystalPulse / Mathf.Max(0.0001f, lowerRenderer.sprite.bounds.size.x);
+                        lower.localScale = new Vector3(scale * xScale, scale * yScale, 1f);
                     }
                 }
             }
