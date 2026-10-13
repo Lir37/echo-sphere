@@ -5126,6 +5126,8 @@ namespace EchoSphere.Runtime
 
             if (nearest != null && final == "teleport_spatial_network")
             {
+                SpawnCombatArc(origin, destination, nearest.Type, branch, final,
+                    new Color(0.35f, 0.55f, 0.75f, 0.9f), 0.5f);
                 foreach (var enemy in _enemies)
                     if (enemy != null && enemy.IsAlive &&
                         Vector2.Distance(enemy.transform.position, destination) <= 90f * scale)
