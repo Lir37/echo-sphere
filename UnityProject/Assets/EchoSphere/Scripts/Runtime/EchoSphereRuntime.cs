@@ -4906,58 +4906,6 @@ namespace EchoSphere.Runtime
             GUI.DrawTexture(new Rect(0f, 0f, _uiWidth, _uiHeight), _uiPanelTexture);
             GUI.color = new Color(0.08f, 0.54f, 0.94f, 0.7f);
             GUI.DrawTexture(new Rect(0f, 0f, _uiWidth, 3f), _uiAccentTexture);
-            GUI.DrawTexture(new Rect(0f, _uiHeight - 3f, _uiWidth, 3f), _uiAccentTexture);
-            GUI.color = previousColor;
-
-            var width = Mathf.Min(620f, _uiWidth - 32f);
-            var height = Mathf.Min(480f, _uiHeight - 28f);
-            var panel = new Rect((_uiWidth - width) * 0.5f, (_uiHeight - height) * 0.5f, width, height);
-            GUI.Box(panel, GUIContent.none, _box);
-            GUI.color = new Color(0.1f, 0.68f, 1f, 0.9f);
-            GUI.DrawTexture(new Rect(panel.x + 28f, panel.y + 24f, panel.width - 56f, 2f), _uiAccentTexture);
-            GUI.color = previousColor;
-
-            var logoSize = Mathf.Min(104f, height * 0.23f);
-            var coreLogo = RuntimeSpriteFactory.LoadAuthored("player") ?? RuntimeSpriteFactory.Faceted;
-            DrawSpriteIcon(new Rect(panel.center.x - logoSize * 0.5f, panel.y + 42f, logoSize, logoSize), coreLogo, Color.white);
-            DrawSpriteIcon(new Rect(panel.center.x - logoSize * 0.64f, panel.y + 36f, logoSize * 1.28f, logoSize * 1.28f), RuntimeSpriteFactory.Ring, new Color(0.22f, 0.67f, 1f, 0.8f));
-            GUI.Label(new Rect(panel.x + 24f, panel.y + 152f, panel.width - 48f, 48f), "ECHO SPHERE", _menuTitle);
-            GUI.Label(new Rect(panel.x + 24f, panel.y + 198f, panel.width - 48f, 25f),
-                IsRussianUi ? "СИСТЕМА ВЫЖИВАНИЯ РЕЗОНАНСА" : "RESONANCE SURVIVAL PROTOCOL", _label);
-            var characterArt = RuntimeSpriteFactory.LoadAuthored("character-spherist-3q");
-            if (characterArt != null)
-            {
-                DrawSpriteIcon(new Rect(panel.x + 44f, panel.y + 222f, 86f, 106f), characterArt, Color.white);
-                GUI.Label(new Rect(panel.x + 144f, panel.y + 234f, panel.width - 180f, 58f),
-                    IsRussianUi ? "СФЕРИСТ  /  УНИВЕРСАЛ" : "SPHERIST  /  ALL-ROUNDER", _label);
-                GUI.Label(new Rect(panel.x + 144f, panel.y + 267f, panel.width - 180f, 51f),
-                    IsRussianUi ? "Сохраняй Core. Собирай сеть Сфер. Меняй ход боя." : "Keep the Core alive. Build your Sphere network. Bend the battlefield.", _label);
-            }
-            else
-            {
-                GUI.Label(new Rect(panel.x + 38f, panel.y + 235f, panel.width - 76f, 44f),
-                    IsRussianUi ? "Сохраняй Core. Собирай сеть Сфер. Меняй ход боя." : "Keep the Core alive. Build your Sphere network. Bend the battlefield.", _label);
-            }
-            var buttonWidth = Mathf.Min(330f, panel.width - 60f);
-            var button = new Rect(panel.center.x - buttonWidth * 0.5f, panel.y + height - 148f, buttonWidth, 54f);
-            if (GUI.Button(button, IsRussianUi ? "ВЫБРАТЬ ЗАБЕГ" : "SELECT RUN", _button))
-            {
-                _regionSelect = true;
-            }
-            GUI.Label(new Rect(panel.x + 24f, button.y + 65f, panel.width - 48f, 38f), "MOVE / drag left side     •     DASH / evade     •     NETWORK / stay connected", _label);
-            GUI.color = new Color(0.33f, 0.76f, 1f, 0.6f);
-            GUI.DrawTexture(new Rect(panel.x + 28f, panel.y + height - 24f, panel.width - 56f, 1f), _uiAccentTexture);
-            GUI.color = previousColor;
-        }
-
-
-        private void DrawRegionSelect()
-        {
-            var previousColor = GUI.color;
-            GUI.color = new Color(0.008f, 0.018f, 0.055f, 0.98f);
-            GUI.DrawTexture(new Rect(0f, 0f, _uiWidth, _uiHeight), _uiPanelTexture);
-            GUI.color = new Color(0.08f, 0.54f, 0.94f, 0.7f);
-            GUI.DrawTexture(new Rect(0f, 0f, _uiWidth, 3f), _uiAccentTexture);
             GUI.color = previousColor;
 
             var width = Mathf.Min(760f, _uiWidth - 28f);
