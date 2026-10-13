@@ -3784,3 +3784,32 @@ NEXT:
 ======================================================================
 END VISIBLE COMBO HUD PORT
 ======================================================================
+
+
+======================================================================
+[2026-10-13 | UNITY COMPILATION ERROR TRIAGE]
+======================================================================
+
+REPORTED IN UNITY EDITOR:
+- 300+ syntax errors in UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs,
+  spanning approximately lines 4902-6404.
+- Unity could not read character-spherist-shield.png, upper-crystal.png,
+  and energy-core.png.
+
+FIXED:
+- Restored the missing opening brace immediately after
+  private void DrawRegionSelect(). This malformed method boundary was a
+  root syntax error capable of cascading into hundreds of parser diagnostics.
+- Commit: 26ea5d2606055c9525f984d28bdad7e8ffcffea5.
+- CI core-contracts: SUCCESS. This is not a Unity Editor compilation result.
+
+REMAINING:
+- The three PNG blobs have PNG signatures and IHDR chunks, but their IDAT
+  CRC/end-chunk structure does not validate when read from the repository.
+  Unity import failures therefore remain unresolved. Do not mark art import
+  or Unity Editor compilation as verified until repaired assets are imported
+  successfully in Unity.
+
+======================================================================
+END UNITY COMPILATION ERROR TRIAGE
+======================================================================
