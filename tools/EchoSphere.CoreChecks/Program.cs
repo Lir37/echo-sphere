@@ -338,7 +338,7 @@ internal static class Program
         Near(LevelUpAbilityRules.GetCritPowerMultiplier(2), 1.16f, 0.000001f, "critical power +8% per level");
         Near(LevelUpAbilityRules.GetResonanceGainMultiplier(2), 1.16f, 0.000001f, "Resonance gain +8% per level");
         Equal(LevelUpAbilityRules.GetSphereBoostKillsRequired(1), 100, "Sphere Boost starts at 100 kills");
-        Equal(LevelUpAbilityRules.GetSphereBoostKillsRequired(7), 40, "Sphere Boost kill threshold floor");
+        Equal(LevelUpAbilityRules.GetSphereBoostKillsRequired(7), 50, "Sphere Boost kill threshold floor");
         Near(LevelUpAbilityRules.GetMomentumSpeedMultiplier(2, true), 1.10f, 0.000001f, "Momentum speed after dash");
         Near(LevelUpAbilityRules.GetMomentumSpeedMultiplier(2, false), 1f, 0f, "Momentum returns to baseline");
         Near(LevelUpAbilityRules.GetSphereDamageMultiplier(0), 1f, 0f, "no damage Ability starts at baseline");
