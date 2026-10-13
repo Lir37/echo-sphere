@@ -4222,7 +4222,7 @@ VALIDATION FOLLOW-UP:
   structural assertion that still required active ability evolutions to be
   absent. Updated the guard to require the newly wired evolution choices and
   combat riders while keeping artifact protocol activation separately gated.
-- CI must be rerun on the guard correction before this work cycle is complete.
+- CI #355 SUCCESS on commit 790ffe04d83f17f1c10d4343e40630af21f55fe0: 1,114 core assertions and Unity project structural checks passed.
 
 END ACTIVE ABILITY EVOLUTION CHOICES AND COMBAT RIDERS
 ======================================================================
@@ -4249,7 +4249,7 @@ IMPLEMENTED ON unity-migration:
 VALIDATION:
 - CI #355 passed 1,114 pure C# assertions and Unity project structural checks
   after active-ability evolution work.
-- CI must pass again on this additional set/protocol wiring commit.
+- CI #357 SUCCESS on commit bffb9bce7593e3f39f2451a0811e0866c875e24f: 1,118 core assertions and Unity project structural checks passed.
 - Unity Editor compilation, APK build and device visual parity remain unverified.
 
 ======================================================================
@@ -4261,5 +4261,11 @@ VALIDATION FOLLOW-UP:
 - CI #356 confirmed the new core rules compile but failed two old assertions
   that explicitly expected Temporal Fold and Status Circuit to remain gated.
   Replaced those obsolete expectations with assertions for source-mapped
-  set/synergy/protocol multipliers and conditional activation. CI rerun required.
+  set/synergy/protocol multipliers and conditional activation. CI #357 then passed: 1,118 core assertions and Unity project structural checks.
 
+
+NEXT CONFIRMED SOURCE GAP:
+- Port the branch-specific final-variant Sphere/active-ability synergy riders for
+  Teleport and Time Stop, preserving source final-variant IDs and conditions.
+- Broader character/profile, region ecology/challenges and remaining combat
+  parity gaps are still open; this cycle does not claim the whole migration complete.
