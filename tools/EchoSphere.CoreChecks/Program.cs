@@ -47,6 +47,7 @@ internal static class Program
             CheckPerfectNetworkSynergy();
             CheckCombatStateArtifactSynergies();
             CheckAxiomFoldSynergy();
+            CheckResonanceGeometryMemoryRules();
             CheckSphereElementalRules();
             CheckAlchemistReactionRules();
             CheckSphereAuthoredModifierRules();
@@ -1094,6 +1095,71 @@ internal static class Program
             "Axiom Fold grants +6% with three active Sphere types");
         Near(ArtifactSynergyRules.GetAxiomFoldDamageMultiplier(false, 4), 1f, 0f,
             "Axiom Fold requires the source artifact pair");
+
+        True(ArtifactSynergyRules.HasGeometryLoopSynergy(new List<string> { "triangle_engine", "ring_engine" }),
+            "Geometry Loop requires Triangle Engine and Ring Engine");
+        Near(ArtifactSynergyRules.GetGeometryLoopDamageMultiplier(true, SphereNetworkFormation.Ring), 1.08f, 0f,
+            "Geometry Loop gives +8% with Ring geometry");
+        Near(ArtifactSynergyRules.GetGeometryLoopDamageMultiplier(true, SphereNetworkFormation.Lattice), 1.08f, 0f,
+            "Geometry Loop gives +8% with Lattice geometry");
+        Near(ArtifactSynergyRules.GetGeometryLoopDamageMultiplier(true, SphereNetworkFormation.Fractal), 1.08f, 0f,
+            "Geometry Loop gives +8% with Fractal geometry");
+        Near(ArtifactSynergyRules.GetGeometryLoopDamageMultiplier(true, SphereNetworkFormation.Triangle), 1f, 0f,
+            "Geometry Loop does not buff unrelated geometry");
+
+        True(ArtifactSynergyRules.HasLatticeMemorySynergy(new List<string> { "lattice_engine", "fractal_seed" }),
+            "Lattice Memory requires Lattice Engine and Fractal Seed");
+        Near(ArtifactSynergyRules.GetLatticeMemoryDamageMultiplier(true, true, SphereNetworkFormation.Lattice), 1.08f, 0f,
+            "Lattice Memory buffs the Lattice source memory window");
+        Near(ArtifactSynergyRules.GetLatticeMemoryDamageMultiplier(true, true, SphereNetworkFormation.Fractal), 1.08f, 0f,
+            "Lattice Memory also buffs Fractal memory");
+        Near(ArtifactSynergyRules.GetLatticeMemoryDamageMultiplier(true, false, SphereNetworkFormation.Fractal), 1f, 0f,
+            "Lattice Memory requires active formation memory");
+        Near(ArtifactSynergyRules.GetLatticeMemoryDamageMultiplier(true, true, SphereNetworkFormation.Ring), 1f, 0f,
+            "Lattice Memory ignores non-Lattice/Fractal memory");
+
+        True(ArtifactSynergyRules.HasNetworkMemorySynergy(new List<string> { "network_anchor", "echo_weaver" }),
+            "Network Memory requires Network Anchor and Echo Weaver");
+        Near(ArtifactSynergyRules.GetNetworkMemoryDamageMultiplier(true, true), 1.08f, 0f,
+            "Network Memory buffs during source formation memory");
+        Near(ArtifactSynergyRules.GetNetworkMemoryDamageMultiplier(true, false), 1f, 0f,
+            "Network Memory is inactive outside formation memory");
+    }
+
+    private static void CheckResonanceGeometryMemoryRules()
+    {
+        True(!ResonanceGeometryMemoryRules.ShouldRefreshGeometry(
+            "triangle:0,1,2", "triangle:0,1,2",
+            new List<string> { "triangle:0,1,2", "line:0,1" },
+            new List<string> { "line:0,1", "triangle:0,1,2" }),
+            "Same geometry key and same source candidate set do not refresh memory");
+        True(ResonanceGeometryMemoryRules.ShouldRefreshGeometry(
+            "triangle:0,1,2", "ring:0,1,2,3",
+            new List<string> { "triangle:0,1,2" },
+            new List<string> { "triangle:0,1,2" }),
+            "Current geometry key change refreshes source memory");
+        True(ResonanceGeometryMemoryRules.ShouldRefreshGeometry(
+            "triangle:0,1,2", "triangle:0,1,2",
+            new List<string> { "triangle:0,1,2" },
+            new List<string> { "triangle:0,1,2", "line:0,1" }),
+            "Formation candidate set change refreshes source memory even when dominant key stays same");
+        True(!ResonanceGeometryMemoryRules.ShouldRefreshGeometry(
+            "triangle:0,1,2", "triangle:0,1,2",
+            new List<string> { "triangle:0,1,2", "line:0,1" },
+            new List<string> { "triangle:0,1,2", "line:0,1" }),
+            "Unchanged candidate membership does not refresh memory");
+        True(ResonanceGeometryMemoryRules.ShouldCapturePreviousGeometry("triangle:0,1,2", 3),
+            "A previous non-none geometry with nodes is eligible for memory");
+        True(!ResonanceGeometryMemoryRules.ShouldCapturePreviousGeometry("none", 3),
+            "No memory is emitted when previous geometry was none");
+        True(!ResonanceGeometryMemoryRules.ShouldCapturePreviousGeometry("triangle:0,1,2", 0),
+            "Previous geometry must have stored nodes");
+        True(!ResonanceGeometryMemoryRules.ShouldStoreMemory(1),
+            "Source memory requires at least two resolvable previous positions");
+        True(ResonanceGeometryMemoryRules.ShouldStoreMemory(2),
+            "Source memory stores at least two resolvable previous positions");
+        Near(ResonanceGeometryMemoryRules.MemoryDurationSeconds, 0.9f, 0f,
+            "Source resonance geometry memory lasts 0.9 seconds");
     }
 
     private static void CheckSphereElementalRules()

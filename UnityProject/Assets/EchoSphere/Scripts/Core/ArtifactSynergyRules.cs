@@ -52,6 +52,15 @@ namespace EchoSphere.Core
         public static bool HasAxiomFoldSynergy(IList<string> ownedArtifacts) =>
             HasBoth(ownedArtifacts, "axiom_core", "universal_fold");
 
+        public static bool HasGeometryLoopSynergy(IList<string> ownedArtifacts) =>
+            HasBoth(ownedArtifacts, "triangle_engine", "ring_engine");
+
+        public static bool HasLatticeMemorySynergy(IList<string> ownedArtifacts) =>
+            HasBoth(ownedArtifacts, "lattice_engine", "fractal_seed");
+
+        public static bool HasNetworkMemorySynergy(IList<string> ownedArtifacts) =>
+            HasBoth(ownedArtifacts, "network_anchor", "echo_weaver");
+
         public static float GetFortressNetworkDamageMultiplier(bool hasSynergy, bool hasNearbySphere) =>
             hasSynergy && hasNearbySphere ? 1.10f : 1f;
 
@@ -112,6 +121,21 @@ namespace EchoSphere.Core
 
         public static float GetAxiomFoldDamageMultiplier(bool hasSynergy, int uniqueTypeCount) =>
             hasSynergy && uniqueTypeCount >= 3 ? 1.06f : 1f;
+
+        public static float GetGeometryLoopDamageMultiplier(
+            bool hasSynergy, SphereNetworkFormation geometryType) =>
+            hasSynergy && (geometryType == SphereNetworkFormation.Ring ||
+                geometryType == SphereNetworkFormation.Lattice ||
+                geometryType == SphereNetworkFormation.Fractal) ? 1.08f : 1f;
+
+        public static float GetLatticeMemoryDamageMultiplier(
+            bool hasSynergy, bool hasResonanceMemory, SphereNetworkFormation memoryType) =>
+            hasSynergy && hasResonanceMemory &&
+                (memoryType == SphereNetworkFormation.Lattice || memoryType == SphereNetworkFormation.Fractal)
+                ? 1.08f : 1f;
+
+        public static float GetNetworkMemoryDamageMultiplier(bool hasSynergy, bool hasResonanceMemory) =>
+            hasSynergy && hasResonanceMemory ? 1.08f : 1f;
 
         private static bool IsFiniteNonNegative(float value) =>
             !float.IsNaN(value) && !float.IsInfinity(value) && value >= 0f;

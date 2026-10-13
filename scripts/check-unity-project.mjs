@@ -34,6 +34,8 @@ const required = [
   'Assets/EchoSphere/Scripts/Core/FormationHitRules.cs.meta',
   'Assets/EchoSphere/Scripts/Core/ArtifactSynergyRules.cs',
   'Assets/EchoSphere/Scripts/Core/ArtifactSynergyRules.cs.meta',
+  'Assets/EchoSphere/Scripts/Core/ResonanceGeometryMemoryRules.cs',
+  'Assets/EchoSphere/Scripts/Core/ResonanceGeometryMemoryRules.cs.meta',
   'Assets/EchoSphere/Scripts/Runtime/StellaChestAgent2D.cs',
   'Assets/EchoSphere/Scripts/Runtime/BossCombatAgent2D.cs',
   'Assets/EchoSphere/Scripts/Runtime/BossProjectileAgent2D.cs',
@@ -978,3 +980,22 @@ assert.ok(artifactSynergyRulesSource.includes('HasBoth(ownedArtifacts, "axiom_co
   menuRuntime.includes('ArtifactSynergyRules.GetAxiomFoldDamageMultiplier') &&
   menuRuntime.includes('ArtifactSynergyRules.HasAxiomFoldSynergy(_ownedArtifacts)'),
   'Axiom Fold must apply +6% only when its exact pair and three-type condition are met');
+
+
+// Geometry Loop and formation-memory synergies read the source-equivalent
+// resonance geometry key/candidate set, not the separate pointer-drag preview.
+const resonanceGeometryMemoryRulesSource = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/ResonanceGeometryMemoryRules.cs'), 'utf8');
+assert.ok(menuRuntime.includes('TrackResonanceGeometryState()') &&
+  menuRuntime.includes('ResonanceGeometryMemoryRules.ShouldRefreshGeometry') &&
+  menuRuntime.includes('_resonanceGeometryCandidateKeys') &&
+  menuRuntime.includes('_resonanceGeometryMemoryTimer = ResonanceGeometryMemoryRules.MemoryDurationSeconds') &&
+  menuRuntime.includes('DrawResonanceGeometryMemoryOverlay()') &&
+  menuRuntime.includes('ArtifactSynergyRules.GetGeometryLoopDamageMultiplier') &&
+  menuRuntime.includes('ArtifactSynergyRules.GetLatticeMemoryDamageMultiplier') &&
+  menuRuntime.includes('ArtifactSynergyRules.GetNetworkMemoryDamageMultiplier'),
+  'Resonance geometry key/candidate changes must capture their own 0.9 s memory and drive the three actual combat bonuses');
+assert.ok(artifactSynergyRulesSource.includes('HasBoth(ownedArtifacts, "triangle_engine", "ring_engine")') &&
+  artifactSynergyRulesSource.includes('HasBoth(ownedArtifacts, "lattice_engine", "fractal_seed")') &&
+  artifactSynergyRulesSource.includes('HasBoth(ownedArtifacts, "network_anchor", "echo_weaver")') &&
+  resonanceGeometryMemoryRulesSource.includes('MemoryDurationSeconds = 0.9f'),
+  'Geometry Loop/Lattice Memory/Network Memory must require source artifact pairs and source memory duration');

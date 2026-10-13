@@ -196,6 +196,14 @@ namespace EchoSphere.Runtime
         private Vector2[] _formationMemoryPoints;
         private SphereNetworkFormation _formationMemoryType = SphereNetworkFormation.None;
         private float _formationMemoryTimer, _placementFlashTimer;
+
+        private readonly List<int> _resonanceGeometryNodeIndexes = new List<int>();
+        private readonly List<string> _resonanceGeometryCandidateKeys = new List<string>();
+        private readonly List<Vector2> _resonanceGeometryMemoryPoints = new List<Vector2>();
+        private string _resonanceGeometryKey = "none";
+        private SphereNetworkFormation _resonanceGeometryType = SphereNetworkFormation.None;
+        private SphereNetworkFormation _resonanceGeometryMemoryType = SphereNetworkFormation.None;
+        private float _resonanceGeometryMemoryTimer;
         private Vector2 _placementFlashPosition;
         private Color _placementFlashColor = Color.white;
         private float _spawnTimer = 3f, _runTime, _messageTimer, _formationStrain;
@@ -707,6 +715,12 @@ namespace EchoSphere.Runtime
             _playerCore.Heal((Mathf.Max(0f, ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "regen")) + LevelUpAbilityRules.GetRegenPerSecond(GetAbilityLevel(RunUpgradeKind.Regen))) * dt);
             if (_messageTimer > 0f) _messageTimer -= dt;
             _formationMemoryTimer = Mathf.Max(0f, _formationMemoryTimer - dt);
+            _resonanceGeometryMemoryTimer = Mathf.Max(0f, _resonanceGeometryMemoryTimer - dt);
+            if (_resonanceGeometryMemoryTimer <= 0f)
+            {
+                _resonanceGeometryMemoryPoints.Clear();
+                _resonanceGeometryMemoryType = SphereNetworkFormation.None;
+            }
             _placementFlashTimer = Mathf.Max(0f, _placementFlashTimer - dt);
             if (Input.GetKeyDown(KeyCode.Space)) _playerCore.TryDash(_playerCore.LastMoveDirection);
 
@@ -3668,6 +3682,14 @@ namespace EchoSphere.Runtime
 
             multiplier *= ArtifactSynergyRules.GetAxiomFoldDamageMultiplier(
                 ArtifactSynergyRules.HasAxiomFoldSynergy(_ownedArtifacts), uniqueTypes);
+            multiplier *= ArtifactSynergyRules.GetGeometryLoopDamageMultiplier(
+                ArtifactSynergyRules.HasGeometryLoopSynergy(_ownedArtifacts), _resonanceGeometryType);
+            multiplier *= ArtifactSynergyRules.GetLatticeMemoryDamageMultiplier(
+                ArtifactSynergyRules.HasLatticeMemorySynergy(_ownedArtifacts),
+                _resonanceGeometryMemoryTimer > 0f, _resonanceGeometryMemoryType);
+            multiplier *= ArtifactSynergyRules.GetNetworkMemoryDamageMultiplier(
+                ArtifactSynergyRules.HasNetworkMemorySynergy(_ownedArtifacts),
+                _resonanceGeometryMemoryTimer > 0f);
             return multiplier;
         }
 
@@ -3786,6 +3808,57 @@ namespace EchoSphere.Runtime
         public float GetFormationBonus(SphereNetworkFormation type, int sphereIndex = -1) =>
             SphereNetworkRules.GetFormationBonusMultiplier(_networkState, type, sphereIndex);
 
+        private void TrackResonanceGeometryState()
+        {
+            var formation = _networkState != null ? _networkState.DominantFormation : null;
+            if (formation != null && !formation.Active) formation = null;
+            var currentKey = GetFormationKey(formation);
+            var currentCandidateKeys = new List<string>();
+            if (_networkState != null)
+            {
+                for (var i = 0; i < _networkState.FormationCandidates.Count; i++)
+                    currentCandidateKeys.Add(GetFormationKey(_networkState.FormationCandidates[i]));
+            }
+
+            if (!ResonanceGeometryMemoryRules.ShouldRefreshGeometry(
+                    _resonanceGeometryKey, currentKey,
+                    _resonanceGeometryCandidateKeys, currentCandidateKeys))
+                return;
+
+            if (ResonanceGeometryMemoryRules.ShouldCapturePreviousGeometry(
+                    _resonanceGeometryKey, _resonanceGeometryNodeIndexes.Count))
+            {
+                _resonanceGeometryMemoryPoints.Clear();
+                for (var i = 0; i < _resonanceGeometryNodeIndexes.Count; i++)
+                {
+                    var index = _resonanceGeometryNodeIndexes[i];
+                    // Source maps stored old node indexes to current positions if
+                    // the Sphere entry still exists, without requiring it alive.
+                    if (index >= 0 && index < _spheres.Count && _spheres[index] != null)
+                        _resonanceGeometryMemoryPoints.Add(_spheres[index].transform.position);
+                }
+
+                if (_resonanceGeometryMemoryPoints.Count >= 2)
+                {
+                    _resonanceGeometryMemoryType = _resonanceGeometryType;
+                    _resonanceGeometryMemoryTimer = ResonanceGeometryMemoryRules.MemoryDurationSeconds;
+                }
+                else
+                {
+                    _resonanceGeometryMemoryPoints.Clear();
+                    _resonanceGeometryMemoryType = SphereNetworkFormation.None;
+                    _resonanceGeometryMemoryTimer = 0f;
+                }
+            }
+
+            _resonanceGeometryKey = currentKey;
+            _resonanceGeometryType = formation != null ? formation.Type : SphereNetworkFormation.None;
+            _resonanceGeometryNodeIndexes.Clear();
+            if (formation != null) _resonanceGeometryNodeIndexes.AddRange(formation.NodeIndexes);
+            _resonanceGeometryCandidateKeys.Clear();
+            _resonanceGeometryCandidateKeys.AddRange(currentCandidateKeys);
+        }
+
         private void RefreshNetworkState()
         {
             var nodes = new List<SphereNetworkNode>(_spheres.Count);
@@ -3809,6 +3882,9 @@ namespace EchoSphere.Runtime
             if (_preferredSecondaryFormation != SphereNetworkFormation.None &&
                 !SphereNetworkRules.TrySetSecondaryFormation(_networkState, _preferredSecondaryFormation))
                 _preferredSecondaryFormation = SphereNetworkFormation.None;
+
+            TrackResonanceGeometryState();
+
             if (_networkState.DominantFormation != null)
                 _previousDominantFormation = _networkState.DominantFormation.Type;
             TrackArchitectFormationChange();
@@ -5271,6 +5347,8 @@ namespace EchoSphere.Runtime
                     DrawSphereGuiCircle(WorldToGuiPoint(_formationMemoryPoints[i]), 9f, memoryColor, 1.5f);
             }
 
+            DrawResonanceGeometryMemoryOverlay();
+
             if (_placementFlashTimer > 0f)
             {
                 var ratio = Mathf.Clamp01(_placementFlashTimer / 0.45f);
@@ -5442,6 +5520,46 @@ namespace EchoSphere.Runtime
                 DrawSphereGuiLine(new Vector2(center.x - halfWidth, center.y + y),
                     new Vector2(center.x + halfWidth, center.y + y), color, 1.2f);
             }
+        }
+
+        private void DrawResonanceGeometryMemoryOverlay()
+        {
+            if (_resonanceGeometryMemoryTimer <= 0f || _resonanceGeometryMemoryPoints.Count < 2) return;
+            var alpha = Mathf.Clamp01(
+                _resonanceGeometryMemoryTimer / ResonanceGeometryMemoryRules.MemoryDurationSeconds);
+            Color memoryColor;
+            switch (_resonanceGeometryMemoryType)
+            {
+                case SphereNetworkFormation.Triangle:
+                    memoryColor = new Color(1f, 184f / 255f, 77f / 255f);
+                    break;
+                case SphereNetworkFormation.Square:
+                    memoryColor = new Color(105f / 255f, 183f / 255f, 1f);
+                    break;
+                case SphereNetworkFormation.Cluster:
+                    memoryColor = new Color(179f / 255f, 140f / 255f, 1f);
+                    break;
+                default:
+                    memoryColor = new Color(99f / 255f, 230f / 255f, 1f);
+                    break;
+            }
+
+            var lineColor = new Color(memoryColor.r, memoryColor.g, memoryColor.b, 0.34f * alpha);
+            var screenPoints = new List<Vector2>(_resonanceGeometryMemoryPoints.Count);
+            for (var i = 0; i < _resonanceGeometryMemoryPoints.Count; i++)
+                screenPoints.Add(WorldToGuiPoint(_resonanceGeometryMemoryPoints[i]));
+
+            for (var i = 0; i < screenPoints.Count - 1; i++)
+                DrawSphereGuiDashedLine(screenPoints[i], screenPoints[i + 1], lineColor, 1.4f, 5f, 7f);
+            if ((_resonanceGeometryMemoryType == SphereNetworkFormation.Triangle ||
+                _resonanceGeometryMemoryType == SphereNetworkFormation.Square) && screenPoints.Count > 2)
+                DrawSphereGuiDashedLine(screenPoints[screenPoints.Count - 1], screenPoints[0],
+                    lineColor, 1.4f, 5f, 7f);
+
+            var nodeColor = new Color(memoryColor.r, memoryColor.g, memoryColor.b, 0.22f * alpha);
+            var pulseRadius = 10f + Mathf.Sin(_runTime * 7f) * 1.5f;
+            for (var i = 0; i < screenPoints.Count; i++)
+                DrawSphereGuiCircle(screenPoints[i], pulseRadius, nodeColor, 1.2f);
         }
 
         private static string GetSphereFormationDisplayName(SphereNetworkShape formation)
