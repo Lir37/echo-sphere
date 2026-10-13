@@ -49,6 +49,9 @@ namespace EchoSphere.Core
         public static bool HasPulseOverloadSynergy(IList<string> ownedArtifacts) =>
             HasBoth(ownedArtifacts, "pulse_crown", "tempo_ring");
 
+        public static bool HasAxiomFoldSynergy(IList<string> ownedArtifacts) =>
+            HasBoth(ownedArtifacts, "axiom_core", "universal_fold");
+
         public static float GetFortressNetworkDamageMultiplier(bool hasSynergy, bool hasNearbySphere) =>
             hasSynergy && hasNearbySphere ? 1.10f : 1f;
 
@@ -106,6 +109,9 @@ namespace EchoSphere.Core
         public static float GetPulseOverloadDamageMultiplier(
             bool hasSynergy, bool isPulse, bool hasPulseDriver) =>
             hasSynergy && isPulse && hasPulseDriver ? 1.10f : 1f;
+
+        public static float GetAxiomFoldDamageMultiplier(bool hasSynergy, int uniqueTypeCount) =>
+            hasSynergy && uniqueTypeCount >= 3 ? 1.06f : 1f;
 
         private static bool IsFiniteNonNegative(float value) =>
             !float.IsNaN(value) && !float.IsInfinity(value) && value >= 0f;

@@ -970,3 +970,11 @@ assert.ok(menuRuntime.includes('HasLivingEliteOrBossEnemy()') &&
   menuRuntime.includes('ArtifactSynergyRules.GetHunterFocusDamageMultiplier') &&
   menuRuntime.includes('ArtifactSynergyRules.GetPulseOverloadDamageMultiplier'),
   'Five conditional pair synergies must be wired into live Sphere damage using enemy/build state');
+
+
+// Axiom Fold: source artifact pair and at least three distinct active Sphere types.
+assert.ok(artifactSynergyRulesSource.includes('HasBoth(ownedArtifacts, "axiom_core", "universal_fold")') &&
+  artifactSynergyRulesSource.includes('hasSynergy && uniqueTypeCount >= 3 ? 1.06f : 1f') &&
+  menuRuntime.includes('ArtifactSynergyRules.GetAxiomFoldDamageMultiplier') &&
+  menuRuntime.includes('ArtifactSynergyRules.HasAxiomFoldSynergy(_ownedArtifacts)'),
+  'Axiom Fold must apply +6% only when its exact pair and three-type condition are met');

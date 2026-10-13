@@ -46,6 +46,7 @@ internal static class Program
             CheckSituationalArtifactSynergies();
             CheckPerfectNetworkSynergy();
             CheckCombatStateArtifactSynergies();
+            CheckAxiomFoldSynergy();
             CheckSphereElementalRules();
             CheckAlchemistReactionRules();
             CheckSphereAuthoredModifierRules();
@@ -1079,6 +1080,20 @@ internal static class Program
             "Pulse Overload requires Pulse Driver in addition to its pair");
         Near(ArtifactSynergyRules.GetPulseOverloadDamageMultiplier(true, false, true), 1f, 0f,
             "Pulse Overload only affects Pulse");
+    }
+
+    private static void CheckAxiomFoldSynergy()
+    {
+        True(ArtifactSynergyRules.HasAxiomFoldSynergy(new List<string> { "axiom_core", "universal_fold" }),
+            "Axiom Fold requires Axiom Core and Universal Fold");
+        True(!ArtifactSynergyRules.HasAxiomFoldSynergy(new List<string> { "axiom_core" }),
+            "Axiom Fold requires both source artifacts");
+        Near(ArtifactSynergyRules.GetAxiomFoldDamageMultiplier(true, 2), 1f, 0f,
+            "Axiom Fold requires three active Sphere types");
+        Near(ArtifactSynergyRules.GetAxiomFoldDamageMultiplier(true, 3), 1.06f, 0f,
+            "Axiom Fold grants +6% with three active Sphere types");
+        Near(ArtifactSynergyRules.GetAxiomFoldDamageMultiplier(false, 4), 1f, 0f,
+            "Axiom Fold requires the source artifact pair");
     }
 
     private static void CheckSphereElementalRules()

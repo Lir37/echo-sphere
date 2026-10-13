@@ -3665,6 +3665,9 @@ namespace EchoSphere.Runtime
             multiplier *= ArtifactSynergyRules.GetPulseOverloadDamageMultiplier(
                 ArtifactSynergyRules.HasPulseOverloadSynergy(_ownedArtifacts),
                 sphere.Type == SphereId.Pulse, _ownedArtifacts.Contains("pulse_driver"));
+
+            multiplier *= ArtifactSynergyRules.GetAxiomFoldDamageMultiplier(
+                ArtifactSynergyRules.HasAxiomFoldSynergy(_ownedArtifacts), uniqueTypes);
             return multiplier;
         }
 
