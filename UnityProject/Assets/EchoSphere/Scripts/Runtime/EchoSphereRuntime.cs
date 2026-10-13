@@ -234,7 +234,7 @@ namespace EchoSphere.Runtime
         private const string SelectedRegionPreferenceKey = "echo-sphere:region:selected";
         private float _uiScale = 1f, _uiWidth, _uiHeight;
         private Texture2D _uiPanelTexture, _uiButtonTexture, _uiButtonHoverTexture, _uiButtonActiveTexture, _uiAccentTexture;
-        private GUIStyle _menuTitle;
+        private GUIStyle _menuTitle, _comboTitleStyle, _comboMultiplierStyle;
         private float _damageMultiplier = 1f, _attackSpeedMultiplier = 1f;
         private float _resonanceCharge, _resonanceRingTimer, _resonanceRingPulseTimer;
         private int _resonanceEventsTriggered, _resonanceRingCursor, _resonanceLineBurst;
@@ -6068,6 +6068,20 @@ namespace EchoSphere.Runtime
                     _button.active.textColor = Color.white;
                     _title = new GUIStyle(GUI.skin.label) { fontSize = 19, fontStyle = FontStyle.Bold, normal = { textColor = Color.white } };
                     _menuTitle = new GUIStyle(_title) { fontSize = Mathf.Clamp(Mathf.RoundToInt(_uiWidth / 23f), 30, 44), alignment = TextAnchor.MiddleCenter };
+                    _comboTitleStyle = new GUIStyle(GUI.skin.label)
+                    {
+                        fontSize = 24,
+                        fontStyle = FontStyle.Bold,
+                        alignment = TextAnchor.MiddleCenter,
+                        normal = { textColor = Color.white }
+                    };
+                    _comboMultiplierStyle = new GUIStyle(GUI.skin.label)
+                    {
+                        fontSize = 14,
+                        fontStyle = FontStyle.Bold,
+                        alignment = TextAnchor.MiddleCenter,
+                        normal = { textColor = new Color(0.7137255f, 0.7882353f, 0.87058824f, 1f) }
+                    };
                 }
 
                 if (_mainMenu)
@@ -6144,6 +6158,41 @@ namespace EchoSphere.Runtime
                 DrawSpherePlacementOverlay();
                 if (!string.IsNullOrEmpty(_message) && _messageTimer > 0f)
                     GUI.Label(new Rect(18f, 236f, Mathf.Min(_uiWidth - 36f, 520f), 30f), _message, _label);
+
+                // Port of src/App.tsx's combo overlay. The first HUD row, roster,
+                // pause controls and transient message occupy the space above this
+                // compact center-aligned position; width follows the portrait viewport.
+                if (_combo >= 5)
+                {
+                    var comboWidth = Mathf.Min(240f, Mathf.Max(1f, _uiWidth - 36f));
+                    var comboLeft = (_uiWidth - comboWidth) * 0.5f;
+                    const float comboTop = 270f;
+                    var comboColor = _combo >= 50
+                        ? new Color(1f, 0.72156864f, 0.3019608f, 1f)
+                        : _combo >= 25
+                            ? new Color(1f, 0.41960785f, 0.41960785f, 1f)
+                            : new Color(1f, 0.3019608f, 0.3647059f, 1f);
+                    var comboTitle = (IsRussianUi ? "КОМБО" : "COMBO") + " x" + _combo;
+                    var previousComboGuiColor = GUI.color;
+                    GUI.color = comboColor;
+                    GUI.Label(new Rect(comboLeft, comboTop, comboWidth, 30f), comboTitle, _comboTitleStyle);
+                    GUI.color = Color.white;
+                    GUI.Label(new Rect(comboLeft, comboTop + 27f, comboWidth, 20f),
+                        "x" + _comboMultiplier.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture),
+                        _comboMultiplierStyle);
+
+                    var comboBarWidth = Mathf.Min(96f, comboWidth);
+                    var comboBar = new Rect((_uiWidth - comboBarWidth) * 0.5f, comboTop + 51f, comboBarWidth, 4f);
+                    GUI.color = new Color(0.14117648f, 0.23137255f, 0.33333334f, 1f);
+                    GUI.DrawTexture(comboBar, _uiAccentTexture);
+                    var comboFillWidth = comboBar.width * Mathf.Clamp01(_comboTimer / ComboRules.WindowSeconds);
+                    if (comboFillWidth > 0f)
+                    {
+                        GUI.color = new Color(1f, 0.72156864f, 0.3019608f, 1f);
+                        GUI.DrawTexture(new Rect(comboBar.x, comboBar.y, comboFillWidth, comboBar.height), _uiAccentTexture);
+                    }
+                    GUI.color = previousComboGuiColor;
+                }
 
                 if (_stellaRewardPending)
                 {
