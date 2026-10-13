@@ -3032,3 +3032,61 @@ NEXT:
 ======================================================================
 END TRIANGLE RESONANCE CANVAS OVERLAY
 ======================================================================
+
+[2026-10-13 | FORMATION HIT COUNTERS / ECHO ARCHITECTURE RELAY]
+
+SOURCE / CHECKPOINT:
+- Source branch remains new-desing @737ef2af4a877e0995db5f92331d536d2f29a934; unchanged.
+- Unity implementation: 49247eee76aa6a2dc95f8ac16d4e3f66c6f1ce86.
+- Source behavior was traced in src/engineLoop.ts:activateRune('resonance'),
+  updateRunes(), src/engineCombat.ts:dealDamageToEnemy(), and
+  src/artifactSystem.ts artifact-set synergy completion.
+
+IMPLEMENTED:
+1. SphereAttackAgent now stores FormationHitCount. The Triangle charge overlay
+   uses FormationHitCount % 3, draws the corresponding amber partial arc and
+   stretches the corresponding charge ticks while retaining the source's
+   25 px radius and active pulse animation.
+2. ActivateResonanceRune applies source RuneCharge (60) through the normal
+   Resonance event path, then adds exactly +2 to each non-null Sphere's hit
+   count and extends each pulse timer to 0.5 seconds.
+3. Echo Architecture triggers from the real authored-hit runtime path. It only
+   runs when both source pair synergies are complete:
+   echo_relay (echo_conductor + network_relay) and unified_core
+   (unified_mind + zero_sphere).
+4. The source condition is preserved literally:
+   formationHitCount > 0 && formationHitCount % 5 === 0.
+   When it matches, Unity resolves linked nodes from the current Sphere network,
+   selects the first live linked Sphere in sorted link order, adds +2 to that
+   recipient's counter, extends its pulse to 0.35 s and draws the source-mapped
+   lightning for 0.20 s. The source node itself is not incremented on ordinary
+   hits; no alternative counter cadence was invented.
+5. Added FormationHitRules.cs + .meta, and updated SphereAttackAgent.cs,
+   EchoSphereRuntime.cs, CoreChecks/Program.cs and check-unity-project.mjs.
+   Added 14 pure C# assertions for exact increments, durations, modulo condition
+   and full/partial artifact-set completion.
+6. Unity Migration Contracts #275: SUCCESS:
+   https://github.com/Lir37/echo-sphere/actions/runs/38345163959
+
+IMPORTANT OPEN SOURCE GAP:
+- Although new-desing defines RuneEntity, activateRune() and updateRunes(), a
+  whole-source search at source HEAD 737ef2a found no producer that appends a
+  RuneEntity to GameState.runes. Unity also has no Rune pickup/spawn system.
+  ActivateResonanceRune is therefore an implemented runtime operation but not
+  yet reachable from a physical pickup. Do NOT invent a spawn cadence/condition;
+  investigate the intended source entry point before closing Rune pickup parity.
+- The overlay has not been visually verified in Unity Editor or on APK/device.
+  CI is still contract/structural validation, not UnityEngine compilation or
+  visual parity verification.
+- Unity Editor compile, APK build/install and device PlayerCheck remain OPEN.
+
+NEXT:
+1. Inspect the source history/tests/region systems for the intended RuneEntity
+   producer. If the current branch truly has none, leave spawn rules unimplemented
+   rather than inventing them; continue another confirmed active source gap.
+2. Keep the visual concerns (Sphere sizes and oversized/round enemy appearance)
+   open until a current APK screenshot is compared against source Canvas output.
+
+======================================================================
+END FORMATION HIT COUNTERS / ECHO ARCHITECTURE RELAY
+======================================================================
