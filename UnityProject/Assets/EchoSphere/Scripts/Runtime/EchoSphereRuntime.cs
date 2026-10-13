@@ -4619,38 +4619,87 @@ namespace EchoSphere.Runtime
             if (level <= 0 || _darkRitualCooldown > 0f || _playerCore == null) return;
             var cost = _playerCore.MaxHp * 0.20f;
             if (_playerCore.CurrentHp <= cost || !_playerCore.SpendHp(cost)) return;
+
             _darkRitualCooldown = 30f * GetActiveAbilityCooldownMultiplier();
             var branch = GetAbilityBranch(RunUpgradeKind.DarkRitual);
-            var finalVariant = GetAbilityFinalVariant(RunUpgradeKind.DarkRitual);
             var final = GetAbilityFinalArchetype(RunUpgradeKind.DarkRitual);
             _darkRitualOverloadTimer = 5f + Mathf.Min(3, level - 1);
-            if (branch == "darkritual_void_pact" || finalVariant == 3)
-                if (_playerCore.CurrentHp / Mathf.Max(1f, _playerCore.MaxHp) < 0.45f) _darkRitualOverloadTimer += 2f;
-            var damage = 18f + level * 5f;
-            var nearest = FindNearestEnemy(_player.position, 600f * SpherePlacementRules.SourcePixelsToWorld);
+
             foreach (var sphere in _spheres)
             {
                 if (sphere == null || !sphere.gameObject.activeInHierarchy) continue;
                 sphere.AccelerateNextAttack(0.8f);
                 SpawnImpact(sphere.transform.position, new Color(0.65f, 0.22f, 0.34f, 0.95f));
             }
-            if (nearest != null)
-            {
-                nearest.ReceiveDamage(damage * (branch == "darkritual_sacrifice" || finalVariant == 2 ? 1.35f : 1f));
-                nearest.ApplySlow(1.2f, 0.55f);
-                if (branch == "darkritual_sacrifice" || finalVariant == 2)
-                    SpawnImpact(nearest.transform.position, new Color(0.65f, 0.22f, 0.34f, 0.95f));
-            }
+
             if (branch == "darkritual_blood_link")
+            {
+                SphereAttackAgent nearestStandard = null;
+                var nearestDistance = float.PositiveInfinity;
                 foreach (var sphere in _spheres)
-                    if (sphere != null && sphere.gameObject.activeInHierarchy && sphere.Type == SphereId.Standard)
-                        sphere.AccelerateNextAttack(1.4f);
-            var origin = (Vector2)_player.position;
-            foreach (var enemy in _enemies)
-                if (enemy != null && enemy.IsAlive && Vector2.Distance(enemy.transform.position, origin) <= 115f * SpherePlacementRules.SourcePixelsToWorld)
-                    enemy.ReceiveDamage(damage * 0.45f);
+                {
+                    if (sphere == null || !sphere.gameObject.activeInHierarchy || sphere.Type != SphereId.Standard) continue;
+                    var distance = Vector2.Distance(_player.position, sphere.transform.position);
+                    if (distance < nearestDistance) { nearestDistance = distance; nearestStandard = sphere; }
+                }
+                nearestStandard?.AccelerateNextAttack(1.4f);
+            }
+
+            if (branch == "darkritual_void_pact" || final == "darkritual_void_engine")
+                if (_playerCore.CurrentHp / Mathf.Max(1f, _playerCore.MaxHp) < 0.35f)
+                    _darkRitualOverloadTimer += 2f;
+
+            if (branch == "darkritual_sacrifice" || final == "darkritual_sacrifice_core")
+            {
+                SphereAttackAgent nearest = null;
+                var nearestDistance = float.PositiveInfinity;
+                foreach (var sphere in _spheres)
+                {
+                    if (sphere == null || !sphere.gameObject.activeInHierarchy) continue;
+                    var distance = Vector2.Distance(_player.position, sphere.transform.position);
+                    if (distance < nearestDistance) { nearestDistance = distance; nearest = sphere; }
+                }
+                var center = nearest != null ? (Vector2)nearest.transform.position : (Vector2)_player.position;
+                var pulseDamage = (20f + level * 5f) * (final == "darkritual_sacrifice_core" ? 1.35f : 1f);
+                var pulseRadius = (final == "darkritual_sacrifice_core" ? 145f : 130f) * SpherePlacementRules.SourcePixelsToWorld;
+                DamageEnemiesNear(center, pulseRadius, pulseDamage, new Color(0.65f, 0.22f, 0.34f, 0.95f));
+            }
+
+            if (final == "darkritual_blood_network" && _networkState != null)
+            {
+                var standardIndexes = new List<int>();
+                for (var i = 0; i < _spheres.Count; i++)
+                    if (_spheres[i] != null && _spheres[i].gameObject.activeInHierarchy && _spheres[i].Type == SphereId.Standard)
+                        standardIndexes.Add(i);
+                foreach (var index in standardIndexes)
+                {
+                    var connectedToStandard = false;
+                    foreach (var linkedIndex in SphereNetworkRules.GetLinkedNodeIndexes(_networkState, index))
+                        if (standardIndexes.Contains(linkedIndex)) { connectedToStandard = true; break; }
+                    if (!connectedToStandard) continue;
+                    var sphere = _spheres[index];
+                    sphere.AccelerateNextAttack(0.8f);
+                    foreach (var linkedIndex in SphereNetworkRules.GetLinkedNodeIndexes(_networkState, index))
+                    {
+                        if (linkedIndex < 0 || linkedIndex >= _spheres.Count) continue;
+                        var linked = _spheres[linkedIndex];
+                        if (linked == null || !linked.gameObject.activeInHierarchy || linked.Type != SphereId.Standard) continue;
+                        SpawnCombatArc(sphere.transform.position, linked.transform.position, SphereId.Standard,
+                            GetSphereBranch(SphereId.Standard), GetSphereFinal(SphereId.Standard),
+                            new Color(0.65f, 0.22f, 0.34f, 0.9f), 0.16f);
+                    }
+                }
+            }
+
+            if (final == "darkritual_void_engine" &&
+                _playerCore.CurrentHp / Mathf.Max(1f, _playerCore.MaxHp) < 0.20f)
+                foreach (var sphere in _spheres)
+                    if (sphere != null && sphere.gameObject.activeInHierarchy)
+                        DamageEnemiesNear(sphere.transform.position, 110f * SpherePlacementRules.SourcePixelsToWorld,
+                            18f + level * 6f, new Color(0.65f, 0.22f, 0.34f, 0.95f));
+
             ApplyActiveAbilitySynergyRiders(RunUpgradeKind.DarkRitual, level);
-            ShowTimedCombatMessage("DARK RITUAL", 1.1f);
+            ShowTimedCombatMessage("OVERLOAD", 1.2f);
         }
 
         private void ActivateTimeStop()
