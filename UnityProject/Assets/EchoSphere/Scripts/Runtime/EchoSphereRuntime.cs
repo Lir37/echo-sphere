@@ -2960,6 +2960,8 @@ namespace EchoSphere.Runtime
                 return;
             }
             var received = Mathf.Max(0f, damage) * GetArtifactDamageTakenMultiplier() * CurrentDifficulty.EnemyDamageMultiplier;
+            if (GetAbilityBranch(RunUpgradeKind.Shield) == "shield_bastion" && _shieldTimer > 0f)
+                received *= 0.70f;
             if (_ownedArtifacts.Contains("mirror") && _playerCore.CanReceiveDamageNow && _rng.NextFloat() < 0.20f)
             {
                 EnemyAgent2D nearest = null;
@@ -2983,7 +2985,30 @@ namespace EchoSphere.Runtime
                     for (var i = 0; i < _enemies.Count; i++)
                         if (_enemies[i] != null && _enemies[i].IsAlive) _enemies[i].ApplySlow(2f, 0.5f);
             }
-            else if (_playerCore.ShieldCharges < shieldsBefore) ShowMessage("Shield charge absorbed impact!");
+            else if (_playerCore.ShieldCharges < shieldsBefore)
+            {
+                ShowMessage("Shield charge absorbed impact!");
+                var shieldBranch = GetAbilityBranch(RunUpgradeKind.Shield);
+                var shieldFinal = GetAbilityFinalArchetype(RunUpgradeKind.Shield);
+                if (shieldFinal == "shield_resonant_guard") _playerCore.GrantShieldCharge(1);
+                if (shieldBranch == "shield_reflector")
+                {
+                    var nearest = FindNearestEnemy(PlayerPosition, 220f * SpherePlacementRules.SourcePixelsToWorld);
+                    if (nearest != null) nearest.ReceiveDamage(Mathf.Max(0f, damage) * 0.75f);
+                }
+                if (shieldBranch == "shield_bastion")
+                {
+                    var center = PlayerPosition;
+                    foreach (var enemy in _enemies)
+                    {
+                        if (enemy == null || !enemy.IsAlive) continue;
+                        var delta = (Vector2)enemy.transform.position - center;
+                        if (delta.magnitude > 150f * SpherePlacementRules.SourcePixelsToWorld) continue;
+                        var direction = delta.sqrMagnitude > 0.0001f ? delta.normalized : Vector2.zero;
+                        enemy.transform.position += (Vector3)(direction * (36f * SpherePlacementRules.SourcePixelsToWorld));
+                    }
+                }
+            }
         }
 
         public void TryDamagePlayerOverTime(float damage)
@@ -4578,8 +4603,7 @@ namespace EchoSphere.Runtime
                         Vector2.Distance(sphere.transform.position, _player.position) <= 260f * SpherePlacementRules.SourcePixelsToWorld)
                         sphere.AccelerateNextAttack(0.35f);
 
-            if ((branch == "shield_bastion" || final == "shield_iron_dome" || final == "shield_resonant_guard") &&
-                final == "shield_network_guard" && _networkState != null)
+            if (final == "shield_network_guard" && _networkState != null)
             {
                 for (var i = 0; i < _spheres.Count; i++)
                 {
