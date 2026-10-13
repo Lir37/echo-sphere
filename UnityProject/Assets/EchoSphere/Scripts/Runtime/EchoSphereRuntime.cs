@@ -3926,6 +3926,16 @@ namespace EchoSphere.Runtime
             return _abilityLevels.TryGetValue(kind, out var level) ? level : 0;
         }
 
+        private string GetAbilityBranch(RunUpgradeKind kind)
+        {
+            return _abilityBranches.TryGetValue(kind, out var branch) ? branch : string.Empty;
+        }
+
+        private string GetAbilityFinal(RunUpgradeKind kind)
+        {
+            return _abilityFinals.TryGetValue(kind, out var final) ? final : string.Empty;
+        }
+
         private void AssignActiveAbilityHotkey(RunUpgradeKind kind)
         {
             if (_activeAbilityHotkeys.ContainsKey(kind)) return;
