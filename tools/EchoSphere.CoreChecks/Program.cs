@@ -328,11 +328,11 @@ internal static class Program
 
     private static void CheckLevelUpAbilityRules()
     {
-        Equal(LevelUpAbilityRules.GetMaxLevel(RunUpgradeKind.MaxSpheres), 7, "source maxspheres catalog cap; routine Level-Up still excludes this passive");
+        Equal(LevelUpAbilityRules.GetMaxLevel(RunUpgradeKind.MaxSpheres), 3, "source maxspheres catalog cap; routine Level-Up still excludes this passive");
         Equal(LevelUpAbilityRules.GetMaxLevel(RunUpgradeKind.Damage), 7, "source passive Ability cap");
         True(LevelUpAbilityRules.CanUpgrade(RunUpgradeKind.Crit, 6), "passive Ability can advance to VII");
         True(!LevelUpAbilityRules.CanUpgrade(RunUpgradeKind.Crit, 7), "passive Ability is capped at VII");
-        Equal(LevelUpAbilityRules.SourcePassiveCatalog.Count, 21, "source passive catalog is preserved without offering it as routine Level-Up choices");
+        Equal(LevelUpAbilityRules.SourcePassiveCatalog.Count, 22, "all source passive catalog entries are preserved without offering them as routine Level-Up choices");
         Near(LevelUpAbilityRules.GetSphereRadiusMultiplier(2), 1.30f, 0.000001f, "Sphere Radius +15% per level");
         Near(LevelUpAbilityRules.GetSphereRangeMultiplier(2), 1.10f, 0.000001f, "Sphere Range +5% per level");
         Near(LevelUpAbilityRules.GetProjectileSpeedMultiplier(2), 1.16f, 0.000001f, "projectile speed +8% per level");
