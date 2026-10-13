@@ -3434,3 +3434,67 @@ NEXT:
 ======================================================================
 END RESONANCE GEOMETRY MEMORY SYNERGIES
 ======================================================================
+
+[2026-10-13 | NINE COMPLETED ARTIFACT SET BONUSES]
+
+SOURCE:
+- Source remains new-desing @737ef2af4a877e0995db5f92331d536d2f29a934, unchanged.
+- Completion is determined by ARTIFACT_SETS[].synergyIds all being active in
+  src/artifactSystem.ts:getArtifactSetProgress(). Each completed-set bonus is
+  separate from, and multiplicative with, its individual pair synergies.
+
+IMPLEMENTED IN LIVE DAMAGE CALCULATION:
+1. Resonance Grid: requires both Fortress Network and Perfect Network pairs;
+   +6% if an active resonance geometry key exists and another live Sphere is
+   within 190 source pixels.
+2. Singularity Path: requires Glass Cannon + Singularity; +8% when at most one
+   active Sphere type is present.
+3. Geometry Craft: requires Geometry Loop + Lattice Memory + Network Memory;
+   +10% during Ring, Lattice or Fractal geometry.
+4. Void Horizon set: requires Void Horizon + Orbital Prism + Gravity Pulse pairs;
+   Void receives an additional +10%, independent of the individual Void Horizon
+   pair's elite-target +15% condition.
+5. Hunter Doctrine set: requires Hunter Doctrine + Hunter Focus; Sniper +10%.
+6. Pulse Engineering set: requires Pulse Engineering + Pulse Overload; Pulse
+   +10%.
+7. Core Forge set: requires Core Forge + Core Relay; +6% at 3+ active Sphere
+   types. This correctly stacks with the standalone Core Forge pair bonus.
+8. Prism Dominion: requires Orbital Prism + Status Circuit pairs; Prism and
+   Orbital receive +8%.
+9. Network Legacy: requires Network Memory + Perfect Network; +6% with 3+ active
+   Sphere types and active Ring, Lattice or Fractal geometry.
+10. Added Core/ArtifactSetRules.cs + .meta and updated ArtifactSynergyRules,
+    EchoSphereRuntime, CoreChecks/Program.cs and check-unity-project.mjs.
+    C# contracts check set completeness, pair prerequisites, percentages and
+    runtime conditions.
+
+VALIDATION:
+- Unity Migration Contracts #292: SUCCESS:
+  https://github.com/Lir37/echo-sphere/actions/runs/38346975659
+- The tests cover pure C# rules and project structure/runtime wiring. They do
+  not compile UnityEngine code in real Unity Editor or verify APK/device output.
+
+OPEN:
+- Status Circuit completion bonus remains pending because its source gate checks
+  Object.values(player.sphereMods).some(level > 0). Unity's authored per-branch
+  modifiers have not yet been proven equivalent to that source-wide sphereMods
+  collection; don't substitute one without tracing the state model.
+- Temporal Fold remains pending because source requires timestopTimer or
+  teleportDamageBuffTimer to be active. Those base time-control/teleport timers
+  have not been found in Unity runtime; do not create them just for the set bonus.
+- Artifact Protocols and remaining standalone effects need their own audit.
+- No Unity Editor compile, APK build/install or physical-device visual comparison
+  was performed. Previously reported Sphere sizing/enemy silhouette concerns
+  remain open. The Rune pickup/spawn producer is still absent in source at this
+  HEAD, so no pickup cadence has been invented.
+
+NEXT:
+1. Trace the source-wide player.sphereMods model versus Unity's modifier runtime
+   before deciding whether Status Circuit can be connected faithfully.
+2. Audit the underlying Time Stop / teleport buff abilities before implementing
+   Temporal Echo/Fold. Continue with directly provable Artifact Protocol/runtime
+   gaps while those state dependencies are unresolved.
+
+======================================================================
+END NINE COMPLETED ARTIFACT SET BONUSES
+======================================================================
