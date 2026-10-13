@@ -170,7 +170,7 @@ namespace EchoSphere.Runtime
         private int _activeAbilitySlots;
         private float _teleportCooldown, _timeStopCooldown;
         private float _blastCooldown, _shieldCooldown, _fireTrailCooldown, _minionCooldown, _lightningCooldown, _darkRitualCooldown;
-        private float _fireTrailTimer, _fireCatalystTimer, _darkRitualOverloadTimer;
+        private float _fireTrailTimer, _fireCatalystTimer, _darkRitualOverloadTimer, _shieldTimer, _shieldVisualPulse;
         
         private readonly List<string> _recentUpgradeChoiceKeys = new List<string>();
         private readonly List<string> _oracleForecastKeys = new List<string>();
@@ -806,6 +806,8 @@ namespace EchoSphere.Runtime
             _fireTrailTimer = Mathf.Max(0f, _fireTrailTimer - dt);
             _fireCatalystTimer = Mathf.Max(0f, _fireCatalystTimer - dt);
             _darkRitualOverloadTimer = Mathf.Max(0f, _darkRitualOverloadTimer - dt);
+            _shieldTimer = Mathf.Max(0f, _shieldTimer - dt);
+            _shieldVisualPulse = Mathf.Max(0f, _shieldVisualPulse - dt);
             _activeAbilitySlots = _level >= 20 ? 3 : _level >= 12 ? 2 : _level >= 5 ? 1 : 0;
             _alchemistCatalystTimer = Mathf.Max(0f, _alchemistCatalystTimer - dt);
             _conductorOverdriveTimer = Mathf.Max(0f, _conductorOverdriveTimer - dt);
@@ -4535,25 +4537,64 @@ namespace EchoSphere.Runtime
             foreach (var sphere in _spheres)
                 if (sphere != null && sphere.gameObject.activeInHierarchy &&
                     Vector2.Distance(sphere.transform.position, _player.position) <= 260f * SpherePlacementRules.SourcePixelsToWorld)
-                {
                     nearby++;
-                    sphere.AccelerateNextAttack(0.35f);
-                    SpawnImpact(sphere.transform.position, new Color(0.35f, 0.78f, 1f, 0.9f));
-                }
+
             var branch = GetAbilityBranch(RunUpgradeKind.Shield);
-            var finalVariant = GetAbilityFinalVariant(RunUpgradeKind.Shield);
             var final = GetAbilityFinalArchetype(RunUpgradeKind.Shield);
-            var charges = 1 + (level - 1) / 2 + (level >= 2 ? Mathf.Min(level >= 3 ? 2 : 1, nearby / 2) : 0);
+            var networkBonus = level >= 3 ? Mathf.Min(2, nearby / 2) : level >= 2 ? Mathf.Min(1, nearby / 2) : 0;
+            var branchBonus = branch == "shield_echo_guard" ? Mathf.Min(2, nearby / 2) : 0;
+            var bastionBonus = branch == "shield_bastion" ? 1 : 0;
+            var networkGuardBonus = 0;
+            if (final == "shield_network_guard" && _networkState != null)
+            {
+                var connectedSphereCount = 0;
+                for (var i = 0; i < _spheres.Count; i++)
+                {
+                    var sphere = _spheres[i];
+                    if (sphere == null || !sphere.gameObject.activeInHierarchy) continue;
+                    if (SphereNetworkRules.GetLinkedNodeIndexes(_networkState, i).Count > 0) connectedSphereCount++;
+                }
+                networkGuardBonus = Mathf.Min(2, connectedSphereCount / 2);
+            }
+
+            var charges = Mathf.Min(5, 1 + (level - 1) / 2 + networkBonus + branchBonus + bastionBonus + networkGuardBonus);
+            _shieldTimer = 10f + (level >= 5 ? 2f : 0f);
+            _shieldVisualPulse = 0.85f;
             if (branch == "shield_bastion") charges++;
-            if (branch == "shield_echo_guard") charges += Mathf.Min(2, nearby / 2);
-            if (finalVariant == 1) charges++;
-            _playerCore?.GrantShieldCharge(Mathf.Clamp(charges, 1, 5));
-            if (level >= 5 || finalVariant == 3) _playerCore?.GrantInvulnerability(0.45f);
-            if (finalVariant == 2)
+            if (final == "shield_iron_dome")
+            {
+                var protectedCount = 0;
+                foreach (var sphere in _spheres)
+                    if (sphere != null && sphere.gameObject.activeInHierarchy &&
+                        Vector2.Distance(sphere.transform.position, _player.position) <= 300f * SpherePlacementRules.SourcePixelsToWorld)
+                        protectedCount++;
+                charges += Mathf.Min(2, protectedCount);
+            }
+            _playerCore?.SetShieldCharges(Mathf.Clamp(charges, 0, 5));
+
+            if (branch == "shield_echo_guard" || final == "shield_network_guard")
                 foreach (var sphere in _spheres)
                     if (sphere != null && sphere.gameObject.activeInHierarchy &&
                         Vector2.Distance(sphere.transform.position, _player.position) <= 260f * SpherePlacementRules.SourcePixelsToWorld)
-                        sphere.AccelerateNextAttack(0.6f);
+                        sphere.AccelerateNextAttack(0.35f);
+
+            if ((branch == "shield_bastion" || final == "shield_iron_dome" || final == "shield_resonant_guard") &&
+                final == "shield_network_guard" && _networkState != null)
+            {
+                for (var i = 0; i < _spheres.Count; i++)
+                {
+                    var sphere = _spheres[i];
+                    if (sphere == null || !sphere.gameObject.activeInHierarchy) continue;
+                    foreach (var linkedIndex in SphereNetworkRules.GetLinkedNodeIndexes(_networkState, i))
+                    {
+                        if (linkedIndex <= i || linkedIndex >= _spheres.Count) continue;
+                        var linked = _spheres[linkedIndex];
+                        if (linked == null || !linked.gameObject.activeInHierarchy) continue;
+                        SpawnCombatArc(sphere.transform.position, linked.transform.position, sphere.Type,
+                            branch, final, new Color(0.35f, 0.78f, 1f, 0.9f), 0.22f);
+                    }
+                }
+            }
             ApplyActiveAbilitySynergyRiders(RunUpgradeKind.Shield, level);
             ShowTimedCombatMessage("SPHERE BARRIER", 0.9f);
         }
