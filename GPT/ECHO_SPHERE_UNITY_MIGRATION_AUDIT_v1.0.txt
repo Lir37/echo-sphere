@@ -3292,3 +3292,49 @@ NEXT:
 ======================================================================
 END PERFECT NETWORK SOURCE GEOMETRY
 ======================================================================
+
+[2026-10-13 | FIVE COMBAT-STATE ARTIFACT SYNERGIES]
+
+SOURCE:
+- Source HEAD remains new-desing @737ef2af4a877e0995db5f92331d536d2f29a934.
+- Conditions are mapped from src/artifactSystem.ts, getSphereArtifactModifiers().
+
+IMPLEMENTED:
+1. Hunter Doctrine requires foresight_eye + sniper_scope. Sniper gains 1.12
+   damage while any living enemy has Elite or Boss status.
+2. Pulse Engineering requires pulse_driver + pulse_lens. Pulse gains 1.12
+   damage when at least four enemies are alive, independent of distance.
+3. Core Forge requires echo_weaver + folded_core. With at least three active
+   Sphere types, damage gains a 1.06 multiplier.
+4. Hunter Focus requires sniper_crown + long_lens and the additional source
+   long_lens ownership check. Sniper gains 1.10 damage.
+5. Pulse Overload requires pulse_crown + tempo_ring and the extra source
+   pulse_driver ownership check. Pulse gains 1.10 damage.
+6. ArtifactSynergyRules.cs, EchoSphereRuntime.cs, CoreChecks/Program.cs and
+   check-unity-project.mjs were updated. Added 17 C# contract assertions for
+   exact source pairs, target type gates, enemy-count thresholds and multipliers.
+
+VALIDATION:
+- Unity Migration Contracts #285: SUCCESS:
+  https://github.com/Lir37/echo-sphere/actions/runs/38346155746
+- Contract and Node source-structure checks passed. No Unity Editor compile,
+  APK build/install, or physical-device comparison ran in this cycle.
+
+OPEN:
+- Remaining synergies include geometry_loop, lattice_memory, network_memory,
+  temporal_echo, axiom_fold, status_circuit, plus any whose source runtime effect
+  is elsewhere. The effect audit must follow code, not descriptions alone.
+- Artifact Set completion behaviors are a separate layer from pair synergies.
+- Rune pickup/spawn remains unimplemented because the current source branch has
+  no producer adding RuneEntity to GameState.runes.
+- Device visual parity and Sphere/enemy size feedback remain unverified.
+
+NEXT:
+1. Audit and port the next source-confirmed pair-synergy group from
+   src/artifactSystem.ts, retaining actual state conditions.
+2. Preserve standalone artifact multipliers and confirm CI after code and docs
+   commits separately.
+
+======================================================================
+END FIVE COMBAT-STATE ARTIFACT SYNERGIES
+======================================================================
