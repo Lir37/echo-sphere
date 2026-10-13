@@ -256,7 +256,7 @@ namespace EchoSphere.Runtime
         {
             if (_dead) return;
             _slowTimer = Mathf.Max(_slowTimer, Mathf.Max(0f, duration));
-            _slowMultiplier = Mathf.Clamp(multiplier, 0.15f, 1f);
+            _slowMultiplier = Mathf.Min(_slowMultiplier, Mathf.Clamp(multiplier, 0.15f, 1f));
         }
 
         public void ApplyFreeze(float duration)
