@@ -3498,3 +3498,68 @@ NEXT:
 ======================================================================
 END NINE COMPLETED ARTIFACT SET BONUSES
 ======================================================================
+
+[2026-10-13 | NINE ARTIFACT PROTOCOLS - LIVE COMBAT EFFECTS]
+
+SOURCE:
+- new-desing remains 737ef2af4a877e0995db5f92331d536d2f29a934, unchanged.
+- Activation gates map to src/artifactSystem.ts:getArtifactProtocolStates();
+  multipliers map to getSphereArtifactDamageMultiplier() lines 716-727.
+- Unity feature checkpoint: e44bb88c873725aabd59ef20f988e58859cc8d04.
+
+IMPLEMENTED:
+1. Triangle Resonance protocol: requires completed Resonance Grid set and a
+   qualifying source formsTriangle triplet involving the attacking Sphere;
+   applies +5%.
+2. Sphere Relay: requires completed Echo Architecture set, two or more active
+   Sphere types, and another active Sphere within 220 source pixels; applies +5%.
+3. Geometry Circuit: requires completed Geometry Craft set and Ring/Lattice/
+   Fractal geometry; applies +5%.
+4. Void Horizon protocol: completed Void Horizon set plus a living Elite or Boss;
+   Void receives +8%.
+5. Hunter Doctrine protocol: completed Hunter Doctrine set plus a living Elite
+   or Boss; Sniper receives +8%.
+6. Pulse Engineering protocol: completed Pulse Engineering set and four or more
+   living enemies; Pulse receives +8%.
+7. Core Forge protocol: completed Core Forge set and at least three active
+   Sphere types; all Spheres receive +5%.
+8. Prism Dominion protocol: completed Prism Dominion set and active build has
+   Prism plus Orbital or Void; Prism/Orbital/Void receive +6%.
+9. Network Legacy protocol: completed Network Legacy set, three or more active
+   types and Ring/Lattice/Fractal geometry; all Spheres receive +6%.
+10. Added ArtifactProtocolRules.cs + .meta and wired all nine multipliers into
+    EchoSphereRuntime's live damage multiplier. Added 26 pure C# assertions and
+    Node guards for runtime call paths/source conditions. These protocol bonuses
+    remain separate multipliers and therefore stack with pair/set bonuses as
+    in source.
+
+VALIDATION:
+- Unity Migration Contracts #294: SUCCESS:
+  https://github.com/Lir37/echo-sphere/actions/runs/38347242106
+- Pure C# contracts and Node structure/runtime source guards passed. No real
+  Unity Editor compilation or APK build/install/device comparison was run.
+
+OPEN:
+- Three protocol gates are intentionally not wired pending their underlying
+  source states: Critical Echo requires player.combo >= 5; Temporal Fold requires
+  timestopTimer or teleportDamageBuffTimer; Status Circuit requires a positive
+  value in the source-wide player.sphereMods map. Unity runtime does not yet
+  expose verified equivalents for these three states.
+- The protocols discovery/active state list and visual cards on the artifact
+  screen are NOT yet ported; this commit implements the gameplay damage effects
+  only. Do not call the entire Protocol system complete.
+- Rune pickup/spawn source gap, remaining Artifact Protocol state/UI, full Unity
+  Editor compile, APK/device visual parity and Sphere/enemy size feedback remain
+  open.
+
+NEXT:
+1. Inspect the current Unity artifact/knowledge UI and compare it with the
+   source UI block at src/App.tsx around the protocol section. Port its visible
+   discovered/active protocol status in a separate bounded UI change, without
+   claiming the three unavailable protocols can activate.
+2. Continue to keep Critical Echo, Temporal Fold and Status Circuit inactive
+   until their source-equivalent base runtime state is available.
+
+======================================================================
+END NINE ARTIFACT PROTOCOLS - LIVE COMBAT EFFECTS
+======================================================================
