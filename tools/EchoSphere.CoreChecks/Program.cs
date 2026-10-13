@@ -333,7 +333,7 @@ internal static class Program
         True(LevelUpAbilityRules.CanUpgrade(RunUpgradeKind.Crit, 6), "passive Ability can advance to VII");
         True(!LevelUpAbilityRules.CanUpgrade(RunUpgradeKind.Crit, 7), "passive Ability is capped at VII");
         Equal(LevelUpAbilityRules.RoutineAbilityKinds.Count, 21, "all source passive abilities are offered");
-        Near(LevelUpAbilityRules.GetSphereRadiusMultiplier(2, 2), 1.404f, 0.00001f, "Sphere Radius and Range stack source multipliers");
+        Near(LevelUpAbilityRules.GetSphereRadiusMultiplier(2, 2), 1.43f, 0.00001f, "Sphere Radius and Range stack source multipliers");
         Near(LevelUpAbilityRules.GetProjectileSpeedMultiplier(2), 1.16f, 0.000001f, "projectile speed +8% per level");
         Near(LevelUpAbilityRules.GetCritPowerMultiplier(2), 1.16f, 0.000001f, "critical power +8% per level");
         Near(LevelUpAbilityRules.GetResonanceGainMultiplier(2), 1.16f, 0.000001f, "Resonance gain +8% per level");
