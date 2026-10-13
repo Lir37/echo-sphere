@@ -1233,7 +1233,8 @@ for (const ability of ['Blast', 'Shield', 'Teleport', 'FireTrail', 'Minion', 'Li
     'source active ability ' + ability + ' must have progression and a runtime activation path');
 }
 assert.ok(runtimeArt.includes('GetSphereRangeMultiplier()') &&
-  runtimeArt.includes('SPHERE RANGE increased.') &&
+  runtimeArt.includes('SPHERE RANGE increased.'),
+  'Range upgrades refresh live Sphere range');
 assert.ok(runtimeArt.includes('GetSphereRadiusMultiplier()') &&
   runtimeArt.includes('SphereBoostDamageBonus') &&
   runtimeArt.includes('GetActiveAbilityCooldownMultiplier') &&
