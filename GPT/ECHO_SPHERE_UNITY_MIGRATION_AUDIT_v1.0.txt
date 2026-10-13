@@ -3249,3 +3249,46 @@ NEXT:
 ======================================================================
 END SITUATIONAL ARTIFACT SYNERGIES
 ======================================================================
+
+[2026-10-13 | PERFECT NETWORK SOURCE GEOMETRY]
+
+SOURCE:
+- new-desing remains 737ef2af4a877e0995db5f92331d536d2f29a934, unchanged.
+- Source predicate is src/artifactSystem.ts:formsTriangle().
+
+IMPLEMENTED:
+1. Perfect Network requires fivefold_resonance + triangle_circuit, at least
+   three active Sphere types, and the attacking Sphere must be a node in some
+   alive triplet whose three side distances are each <= 300 source pixels.
+2. This predicate deliberately does not reuse Unity SphereNetworkRules' regular
+   Resonance Triangle detector. That algorithm has a separate 220 px network
+   range, minimum mean side and near-equilateral strength threshold. Source
+   formsTriangle() checks only all three sides <= 300 px.
+3. The qualifying attack receives the source 1.10 damage multiplier (+10%).
+   Added ArtifactSynergyRules.HasPerfectNetworkSynergy(),
+   GetPerfectNetworkDamageMultiplier() and the pure
+   IsTriangleWithinSourceRange() boundary helper. EchoSphereRuntime performs
+   the live triplet search and converts world distances back to source pixels.
+4. Added 9 pure C# assertions for pair activation, type-count gate, triplet gate,
+   +10% output and exact 300 px inclusive boundary; Node guards confirm the
+   actual runtime geometry function and multiplier are connected.
+5. Unity Migration Contracts #283: SUCCESS:
+   https://github.com/Lir37/echo-sphere/actions/runs/38345991052
+
+OPEN:
+- Perfect Network source geometry is ported but remains unverified visually/in
+  a real Unity runtime. CI proves contracts and source structure, not UnityEditor
+  compilation, APK build or device visual parity.
+- Remaining source-defined artifact pair synergies and completed-set effects
+  still require audit. Rune pickup remains blocked by missing source RuneEntity
+  producer, and no spawn behavior has been invented.
+
+NEXT:
+1. Continue auditing the remaining live Artifact Synergies and Artifact Set
+   completion bonuses directly from src/artifactSystem.ts, preserving each
+   source condition. Start with effects that have direct numeric attack output.
+2. Keep Editor/APK/device verification pending until actually run.
+
+======================================================================
+END PERFECT NETWORK SOURCE GEOMETRY
+======================================================================
