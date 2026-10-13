@@ -6,11 +6,12 @@ namespace EchoSphere.Runtime
     /// <summary>Cached procedural silhouettes for the migration prototype, not final production art.</summary>
     internal static class RuntimeSpriteFactory
     {
-        private static Sprite _disc, _ring, _standardCoreGlow, _faceted, _diamond, _hexagon, _prism, _shard, _star;
+        private static Sprite _disc, _ring, _standardCoreGlow, _standardOrbitRing, _faceted, _diamond, _hexagon, _prism, _shard, _star;
         private static readonly Dictionary<string, Sprite> AuthoredCache = new Dictionary<string, Sprite>();
         public static Sprite Disc { get { if (_disc == null) _disc = CreateSprite(false); return _disc; } }
         public static Sprite Ring { get { if (_ring == null) _ring = CreateSprite(true); return _ring; } }
         public static Sprite StandardCoreGlow { get { if (_standardCoreGlow == null) _standardCoreGlow = CreateStandardCoreGlow(); return _standardCoreGlow; } }
+        public static Sprite StandardOrbitRing { get { if (_standardOrbitRing == null) _standardOrbitRing = CreateStandardOrbitRing(); return _standardOrbitRing; } }
         public static Sprite Faceted { get { if (_faceted == null) _faceted = CreatePolygonSprite("ES_Faceted", new[] { new Vector2(-0.68f,-0.72f),new Vector2(0.18f,-0.92f),new Vector2(0.83f,-0.35f),new Vector2(0.72f,0.54f),new Vector2(-0.12f,0.88f),new Vector2(-0.88f,0.22f) }); return _faceted; } }
         public static Sprite Diamond { get { if (_diamond == null) _diamond = CreatePolygonSprite("ES_Diamond", new[] { new Vector2(0f,0.98f),new Vector2(0.68f,0.12f),new Vector2(0.42f,-0.68f),new Vector2(0f,-0.92f),new Vector2(-0.42f,-0.68f),new Vector2(-0.68f,0.12f) }); return _diamond; } }
         public static Sprite Hexagon { get { if (_hexagon == null) _hexagon = CreatePolygonSprite("ES_Hexagon", RegularPolygon(6,0.88f,0.88f)); return _hexagon; } }
@@ -34,6 +35,45 @@ namespace EchoSphere.Runtime
             for(var i=0;i<count;i++){var angle=Mathf.PI*0.5f+i*Mathf.PI*2f/count;var radius=(count==6||i%2==0)?outerRadius:innerRadius;points[i]=new Vector2(Mathf.Cos(angle),Mathf.Sin(angle))*radius;}
             return points;
         }
+        // Reproduces both thin elliptical strokes from drawStandardSphereRing().
+        // A second partial arc has the source's 0.55 opacity and 18-degree gap.
+        private static Sprite CreateStandardOrbitRing()
+        {
+            const int size = 128;
+            const float outerRadius = 0.73f;
+            const float outerHalfWidth = 0.0142f;
+            const float innerRadius = outerRadius * 0.88f / 0.98f;
+            const float innerHalfWidth = 0.0069f;
+            var texture = new Texture2D(size, size, TextureFormat.RGBA32, false)
+            {
+                name = "ES_StandardOrbitRing",
+                filterMode = FilterMode.Bilinear,
+                wrapMode = TextureWrapMode.Clamp,
+                hideFlags = HideFlags.DontSave,
+            };
+            var pixels = new Color32[size * size];
+            for (var y = 0; y < size; y++)
+            for (var x = 0; x < size; x++)
+            {
+                var nx = ((x + 0.5f) / size) * 2f - 1f;
+                var ny = ((y + 0.5f) / size) * 2f - 1f;
+                var radius = Mathf.Sqrt(nx * nx + ny * ny);
+                var alpha = 0f;
+                if (Mathf.Abs(radius - outerRadius) <= outerHalfWidth) alpha = 1f;
+
+                var angle = Mathf.Atan2(ny, nx);
+                if (angle < 0f) angle += Mathf.PI * 2f;
+                var onSourceArc = angle >= Mathf.PI * 0.10f && angle <= Mathf.PI * 1.92f;
+                if (onSourceArc && Mathf.Abs(radius - innerRadius) <= innerHalfWidth)
+                    alpha = Mathf.Max(alpha, 0.55f);
+
+                pixels[y * size + x] = new Color32(255, 255, 255, (byte)Mathf.RoundToInt(alpha * 255f));
+            }
+            texture.SetPixels32(pixels);
+            texture.Apply(false, true);
+            return Sprite.Create(texture, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), size);
+        }
+
         // Matches drawStandardSphereCore's radial-gradient stops from src/renderer.ts.
         // The texture is generated in Unity because the upstream PNG parts are corrupt in both branches.
         private static Sprite CreateStandardCoreGlow()
