@@ -103,7 +103,6 @@ namespace EchoSphere.Runtime
             _fireTimer = Mathf.Max(_fireTimer, Mathf.Max(0f, duration));
             _fireDps = Mathf.Max(_fireDps, Mathf.Max(0f, damagePerSecond));
             if (_fireTickInterval <= 0f) _fireTickInterval = 0.5f;
-            _fireTickTimer = 0f;
         }
 
         public void ExtendFireStatus(float duration)
