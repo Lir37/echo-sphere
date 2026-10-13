@@ -1248,6 +1248,9 @@ assert.ok(runtimeArt.includes('AddComponent<AbilityDroneAgent2D>()') &&
   levelUpAbilities.includes('lightning_echo_storm') &&
   levelUpAbilities.includes('darkritual_blood_link'),
   'Fire Trail and Dark Ritual must modify runtime combat, Minion must spawn active drones, and new active abilities must expose evolution branches');
+assert.ok(runtimeArt.includes('!linkedSphere.NetworkDisabled') &&
+  runtimeArt.includes('Vector2.Distance(linkedSphere.transform.position, spawnPosition) <= SphereNetworkRules.DefaultLinkDistance'),
+  'Minion Echo Swarm must accelerate only live network-linked Spheres, excluding temporarily disabled nodes');
 assert.ok(runtimeArt.includes('GetGlobalSphereModifierLevel("fire") <= 0') &&
   !runtimeArt.includes('!IsFireAlignedSphere(sphere.Type) continue'),
   'Fire Trail activation must use the source global player fire modifier, not sphere-authored fire affinity');
