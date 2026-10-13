@@ -287,8 +287,15 @@ namespace EchoSphere.Core
                     description = "+" + (next * 2) + "% rare drop chance.";
                     break;
                 case RunUpgradeKind.Blast:
-                    title = "ECHO PULSE / " + next;
-                    description = "Pulse damage scales with level; source cooldown starts at 30s and falls by 2s per level.";
+                case RunUpgradeKind.Shield:
+                case RunUpgradeKind.Teleport:
+                case RunUpgradeKind.FireTrail:
+                case RunUpgradeKind.Minion:
+                case RunUpgradeKind.Lightning:
+                case RunUpgradeKind.TimeStop:
+                case RunUpgradeKind.DarkRitual:
+                    title = GetSourceActiveAbilityName(kind, russian);
+                    description = GetSourceActiveAbilityDescription(kind, current, russian);
                     break;
 
 
