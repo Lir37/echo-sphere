@@ -1269,10 +1269,13 @@ assert.ok(runtimeArt.includes('AddComponent<AbilityDroneAgent2D>()') &&
   levelUpAbilities.includes('darkritual_blood_link'),
   'Fire Trail and Dark Ritual must modify runtime combat, Minion must spawn active drones, and new active abilities must expose evolution branches');
 const abilityDroneSource = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/AbilityDroneAgent2D.cs'), 'utf8');
-assert.ok(!runtimeArt.includes('GetAbilityFinalArchetype(RunUpgradeKind.TimeStop) == "timestop_outside_time"') &&
-  !runtimeArt.includes('_timeStopTimer <= 1f && GetAbilityFinalArchetype(RunUpgradeKind.TimeStop) == "timestop_temporal_core"') &&
-  !abilityDroneSource.includes('_final == "minion_sphere_guard"'),
-  'do not activate final-ability riders that the source code checks through the raw branch-choice ID and therefore never triggers');
+assert.ok(runtimeArt.includes('GetAbilityFinalArchetype(RunUpgradeKind.TimeStop)') &&
+  runtimeArt.includes('GetAbilityFinalArchetype(RunUpgradeKind.Teleport)') &&
+  runtimeArt.includes('if (final == "minion_sphere_guard")') &&
+  runtimeArt.includes('sphere.AccelerateNextAttack(0.35f)') &&
+  abilityDroneSource.includes('_final == "minion_sphere_guard"') &&
+  abilityDroneSource.includes('anchor.AccelerateNextAttack(dt * 0.12f)'),
+  'canonical final archetypes must activate source-mapped Time Stop, Teleport and Minion final riders');
 assert.ok(runtimeArt.includes('var effectiveDamage = damage * synergyMultiplier;') &&
   !runtimeArt.includes('var sourceDamage = damage * synergyMultiplier * GetSphereDamageMultiplier(source.Type);'),
   'active ability pulses must match source damage calls without a Sphere source and must not inherit Sphere-hit modifiers');
