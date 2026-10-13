@@ -3974,3 +3974,38 @@ STILL OPEN:
 ======================================================================
 END STANDARD SPHERE ANIMATION / RING PARITY EXTENSION
 ======================================================================
+
+
+======================================================================
+[2026-10-13 | LINK BREAKER NETWORK DISRUPTION SLICE]
+======================================================================
+
+SOURCE:
+- new-desing/src/engineEnemies.ts selects the nearest alive, network-enabled
+  Sphere within 260 source pixels, telegraphs for 0.75 s, repeats on a 6 s
+  cooldown, and disables the target for 2 s adjusted by Stability (12% reduction
+  per level, 16% duration floor).
+- new-desing/src/renderer.ts draws the red source-to-target line, target
+  chevrons/crossbars and a 0.30 s impact line.
+- Timing/range constants come from new-desing/src/eliteBalance.ts.
+
+IMPLEMENTED ON unity-migration:
+- EnemyAgent2D tracks Link Breaker target/cooldown/telegraph/impact state,
+  filters disabled Spheres, uses SourcePixelsToWorld for distances and applies
+  the source duration modifier.
+- EchoSphereRuntime exposes target selection, duration calculation and 0.8 s
+  NETWORK BREAK feedback. Runtime LineRenderers reproduce the source line,
+  target marker geometry, color and timing without placeholder art.
+
+VALIDATION:
+- Added structural regression checks for range/timers, disabled-target filtering,
+  Stability scaling and VFX wiring.
+- Unity Editor compilation, APK build and device visual parity remain unverified.
+
+OPEN:
+- Confirm line layering and geometry in Unity Game View/device, then continue
+  with the next source/runtime discrepancy.
+
+======================================================================
+END LINK BREAKER NETWORK DISRUPTION SLICE
+======================================================================

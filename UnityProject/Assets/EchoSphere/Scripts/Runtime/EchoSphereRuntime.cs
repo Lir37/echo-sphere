@@ -1696,6 +1696,32 @@ namespace EchoSphere.Runtime
             return best;
         }
 
+        public SphereAttackAgent FindNearestLinkBreakerTarget(Vector2 from, float rangePixels)
+        {
+            var range = Mathf.Max(0f, rangePixels) * SpherePlacementRules.SourcePixelsToWorld;
+            var bestDistance = range * range;
+            SphereAttackAgent best = null;
+            for (var i = 0; i < _spheres.Count; i++)
+            {
+                var sphere = _spheres[i];
+                if (sphere == null || !sphere.gameObject.activeInHierarchy || sphere.NetworkDisabled) continue;
+                var distance = ((Vector2)sphere.transform.position - from).sqrMagnitude;
+                if (distance < bestDistance) { best = sphere; bestDistance = distance; }
+            }
+            return best;
+        }
+
+        public float GetNetworkDisableDuration(float baseDuration)
+        {
+            return Mathf.Max(0.16f, 1f - GetAbilityLevel(RunUpgradeKind.Stability) * 0.12f) * Mathf.Max(0f, baseDuration);
+        }
+
+        public void ShowTimedCombatMessage(string text, float duration)
+        {
+            _message = text ?? "";
+            _messageTimer = Mathf.Max(0f, duration);
+        }
+
         public List<EnemyAgent2D> FindNearestEnemies(Vector2 from, float range, int maxCount)
         {
             var found = new List<EnemyAgent2D>();

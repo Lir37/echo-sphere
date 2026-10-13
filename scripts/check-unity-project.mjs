@@ -1171,3 +1171,20 @@ assert.ok(bootstrap.includes('PlayerSettings.allowedAutorotateToLandscapeLeft = 
   bootstrap.includes('PlayerSettings.allowedAutorotateToLandscapeRight = false;') &&
   !bootstrap.includes('UIOrientation.LandscapeLeft'),
   'Unity Android must not force or auto-rotate to landscape');
+
+
+// Link Breaker source parity: authored range/timers, disabled-target filtering and Stability scaling.
+const linkBreakerEnemy = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs'), 'utf8');
+const linkBreakerRuntime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs'), 'utf8');
+assert.ok(linkBreakerEnemy.includes('260f') && linkBreakerEnemy.includes('0.75f') &&
+  linkBreakerEnemy.includes('0.30f') && linkBreakerEnemy.includes('6f') &&
+  linkBreakerEnemy.includes('GetNetworkDisableDuration(2f)'),
+  'Link Breaker must retain source range, telegraph/cooldown timing and base disable duration');
+assert.ok(linkBreakerEnemy.includes('SpherePlacementRules.SourcePixelsToWorld') &&
+  linkBreakerEnemy.includes('NETWORK BREAK') && linkBreakerEnemy.includes('UpdateLinkBreakerLines()'),
+  'Link Breaker must use source distance calibration and render telegraph/impact cues');
+assert.ok(linkBreakerRuntime.includes('FindNearestLinkBreakerTarget') &&
+  linkBreakerRuntime.includes('!sphere.NetworkDisabled') &&
+  linkBreakerRuntime.includes('GetAbilityLevel(RunUpgradeKind.Stability)') &&
+  linkBreakerRuntime.includes('ShowTimedCombatMessage'),
+  'Link Breaker must skip disabled Spheres and use the source Stability duration modifier');

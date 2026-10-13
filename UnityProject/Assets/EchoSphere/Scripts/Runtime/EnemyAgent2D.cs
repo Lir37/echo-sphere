@@ -26,6 +26,10 @@ namespace EchoSphere.Runtime
         private float _fireTimer, _fireDps, _fireTickTimer, _fireTickInterval;
         private float _poisonTimer, _poisonDps, _poisonTickTimer, _poisonTickInterval;
         private float _freezeTimer, _freezeVulnerabilityTimer, _elementalReactionTimer;
+        private float _linkBreakerCooldownTimer, _linkBreakerTelegraphTimer, _linkBreakerImpactTimer;
+        private SphereAttackAgent _linkBreakerTarget, _linkBreakerImpactTarget;
+        private LineRenderer[] _linkBreakerLines;
+        private static Material _linkBreakerLineMaterial;
         private SphereId? _freezeVulnerabilitySource, _elementalConductionSource;
         private int _elementalConduction;
         private Color _baseColor = Color.white;
@@ -262,6 +266,7 @@ namespace EchoSphere.Runtime
             _player = player;
             _bossType = bossType ?? "";
             _isElite = isElite;
+            _linkBreakerCooldownTimer = isElite ? 5f : 0f;
             _archetype = archetype;
             _hp = hp;
             _maxHp = Mathf.Max(1f, hp);
@@ -269,6 +274,7 @@ namespace EchoSphere.Runtime
             _xpReward = Mathf.Max(1, xpReward);
             _shell = transform.Find("Shell")?.GetComponent<SpriteRenderer>();
             if (_shell != null) _baseColor = _shell.color;
+            if (_isElite) EnsureLinkBreakerLines();
             _creatureVisual = GetComponent<EnemyCreatureVisual2D>();
             if (_creatureVisual == null) _creatureVisual = gameObject.AddComponent<EnemyCreatureVisual2D>();
             _creatureVisual.Initialize(_runtime, visualVariant, bossType, _baseColor);
@@ -284,6 +290,7 @@ namespace EchoSphere.Runtime
         {
             if (_dead || _runtime == null || _runtime.IsGameplayPaused || _player == null) return;
             var dt = Time.deltaTime;
+            TickLinkBreaker(dt);
             _elementalReactionTimer = Mathf.Max(0f, _elementalReactionTimer - dt);
             if (_freezeVulnerabilityTimer > 0f)
             {
@@ -399,5 +406,117 @@ namespace EchoSphere.Runtime
                 Destroy(gameObject);
             }
         }
+        private void TickLinkBreaker(float dt)
+        {
+            if (!_isElite || _runtime == null) return;
+            _linkBreakerImpactTimer = Mathf.Max(0f, _linkBreakerImpactTimer - dt);
+            if (_linkBreakerTelegraphTimer > 0f)
+            {
+                _linkBreakerTelegraphTimer = Mathf.Max(0f, _linkBreakerTelegraphTimer - dt);
+                if (_linkBreakerTelegraphTimer <= 0f)
+                {
+                    var target = _linkBreakerTarget;
+                    _linkBreakerTarget = null;
+                    if (target != null && target.gameObject.activeInHierarchy &&
+                        Vector2.Distance(target.transform.position, transform.position) <= 320f * SpherePlacementRules.SourcePixelsToWorld)
+                    {
+                        target.ApplyNetworkDisable(_runtime.GetNetworkDisableDuration(2f));
+                        _runtime.ShowTimedCombatMessage("NETWORK BREAK", 0.8f);
+                        _linkBreakerImpactTarget = target;
+                        _linkBreakerImpactTimer = 0.30f;
+                    }
+                }
+            }
+            else
+            {
+                _linkBreakerCooldownTimer -= dt;
+                if (_linkBreakerCooldownTimer <= 0f)
+                {
+                    _linkBreakerCooldownTimer = 6f;
+                    _linkBreakerTarget = _runtime.FindNearestLinkBreakerTarget(transform.position, 260f);
+                    if (_linkBreakerTarget != null) _linkBreakerTelegraphTimer = 0.75f;
+                }
+            }
+            UpdateLinkBreakerLines();
+        }
+
+        private void EnsureLinkBreakerLines()
+        {
+            if (_linkBreakerLines != null) return;
+            if (_linkBreakerLineMaterial == null)
+            {
+                var shader = Shader.Find("Sprites/Default");
+                if (shader != null) _linkBreakerLineMaterial = new Material(shader);
+            }
+            _linkBreakerLines = new LineRenderer[5];
+            for (var i = 0; i < _linkBreakerLines.Length; i++)
+            {
+                var lineObject = new GameObject("Link Breaker Telegraph " + i);
+                lineObject.transform.SetParent(transform, false);
+                var line = lineObject.AddComponent<LineRenderer>();
+                line.useWorldSpace = true;
+                line.positionCount = (i == 1 || i == 2) ? 3 : 2;
+                line.numCapVertices = 2;
+                line.numCornerVertices = 2;
+                if (_linkBreakerLineMaterial != null) line.material = _linkBreakerLineMaterial;
+                line.startWidth = line.endWidth = (i == 0 ? 2.5f : 2f) * SpherePlacementRules.SourcePixelsToWorld;
+                line.sortingOrder = 30;
+                line.enabled = false;
+                _linkBreakerLines[i] = line;
+            }
+        }
+
+        private void UpdateLinkBreakerLines()
+        {
+            if (_linkBreakerLines == null) return;
+            var telegraph = _linkBreakerTelegraphTimer > 0f && _linkBreakerTarget != null;
+            var impact = !telegraph && _linkBreakerImpactTimer > 0f && _linkBreakerImpactTarget != null;
+            var target = telegraph ? _linkBreakerTarget : (impact ? _linkBreakerImpactTarget : null);
+            if (target == null || !target.gameObject.activeInHierarchy)
+            {
+                for (var i = 0; i < _linkBreakerLines.Length; i++) _linkBreakerLines[i].enabled = false;
+                return;
+            }
+            var from = (Vector2)transform.position;
+            var to = (Vector2)target.transform.position;
+            var direction = (to - from).sqrMagnitude > 0.0001f ? (to - from).normalized : Vector2.right;
+            var perpendicular = new Vector2(-direction.y, direction.x);
+            var scale = SpherePlacementRules.SourcePixelsToWorld;
+            var remaining = Mathf.Clamp01(_linkBreakerTelegraphTimer / 0.75f);
+            var pulse = 0.65f + 0.35f * Mathf.Sin(Time.time * 16f);
+            var alpha = impact ? Mathf.Clamp01(_linkBreakerImpactTimer / 0.30f) : 0.30f + (1f - remaining) * 0.55f;
+            var color = new Color(1f, 0.302f, 0.439f, alpha);
+            for (var i = 0; i < _linkBreakerLines.Length; i++)
+            {
+                _linkBreakerLines[i].enabled = telegraph || (impact && i == 0);
+                _linkBreakerLines[i].startColor = _linkBreakerLines[i].endColor = color;
+            }
+            _linkBreakerLines[0].SetPosition(0, new Vector3(from.x, from.y, -0.1f));
+            _linkBreakerLines[0].SetPosition(1, new Vector3(to.x, to.y, -0.1f));
+            if (!telegraph) return;
+            var back = to - direction * (16f * scale);
+            var tip = to - direction * (5f * scale);
+            var spread = perpendicular * (10f * scale);
+            _linkBreakerLines[1].SetPosition(0, new Vector3(back.x - spread.x, back.y - spread.y, -0.1f));
+            _linkBreakerLines[1].SetPosition(1, new Vector3(tip.x, tip.y, -0.1f));
+            _linkBreakerLines[1].SetPosition(2, new Vector3(back.x + spread.x, back.y + spread.y, -0.1f));
+            var forward = to + direction * (16f * scale);
+            var forwardTip = to + direction * (5f * scale);
+            _linkBreakerLines[2].SetPosition(0, new Vector3(forward.x - spread.x, forward.y - spread.y, -0.1f));
+            _linkBreakerLines[2].SetPosition(1, new Vector3(forwardTip.x, forwardTip.y, -0.1f));
+            _linkBreakerLines[2].SetPosition(2, new Vector3(forward.x + spread.x, forward.y + spread.y, -0.1f));
+            for (var i = 0; i < 2; i++)
+            {
+                var offset = perpendicular * ((i == 0 ? -15f : 15f) * scale);
+                var start = to - direction * (9f * scale) + offset;
+                var finish = to + direction * (9f * scale) + offset;
+                _linkBreakerLines[3 + i].SetPosition(0, new Vector3(start.x, start.y, -0.1f));
+                _linkBreakerLines[3 + i].SetPosition(1, new Vector3(finish.x, finish.y, -0.1f));
+            }
+            color.a = alpha * (0.55f + 0.35f * pulse);
+            for (var i = 1; i < _linkBreakerLines.Length; i++)
+                _linkBreakerLines[i].startColor = _linkBreakerLines[i].endColor = color;
+        }
+
     }
 }
