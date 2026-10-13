@@ -3563,3 +3563,62 @@ NEXT:
 ======================================================================
 END NINE ARTIFACT PROTOCOLS - LIVE COMBAT EFFECTS
 ======================================================================
+
+
+======================================================================
+[2026-10-13 | ARTIFACT PROTOCOL UI + PERSISTENT KNOWLEDGE BASE]
+======================================================================
+
+CODE COMMIT:
+- 7b650a0829d1c5148cf9fef6d176e66080f7a8ce
+  feat(unity): show artifact protocols in run and knowledge base
+
+IMPLEMENTED:
+- Added a bilingual catalog of all 12 Artifact Protocols from
+  src/artifactSystem.ts, including source set IDs and descriptions.
+- Added a run-side Artifact Protocol panel reachable from the HUD. It pauses
+  the run while open, displays unknown protocols as ???, and shows discovered
+  versus currently active status using source-mapped state checks where the
+  Unity runtime has the required state.
+- Added a main-menu KNOWLEDGE / ЗНАНИЯ entry and a persistent Knowledge Base
+  screen for the protocol catalog. A protocol entry is unlocked when its
+  corresponding Artifact Set is completed, and these unlocks persist through
+  PlayerPrefs until the game's persistent progress is reset.
+- Existing combat multipliers for the nine previously ported protocols were
+  not changed by this UI work.
+
+LIMITS KEPT EXPLICIT:
+- Critical Echo (player.combo >= 5), Temporal Fold
+  (timestopTimer / teleportDamageBuffTimer), and Status Circuit
+  (positive player.sphereMods entry) still have no verified Unity source-state
+  equivalents. The UI marks discovered instances as WAITING FOR STATE, not
+  ACTIVE. No substitute state was invented and no combat behavior was added
+  for these three.
+- The run-side panel is a bounded Unity modal over the run HUD because the
+  equivalent full artifact screen is not yet present in the migrated UI.
+- The Knowledge Base page currently covers Artifact Protocol entries; the
+  rest of the source KnowledgeBase sections are not claimed as ported.
+
+VALIDATION:
+- Unity Migration Contracts #296: SUCCESS:
+  https://github.com/Lir37/echo-sphere/actions/runs/38382186056
+- The pure C# contracts (including new catalog/state-gate assertions) and
+  Node structural/runtime guards passed. This is not a Unity Editor build.
+- No APK build/install or device visual comparison was performed.
+
+STILL OPEN:
+- Port source-equivalent runtime states for Critical Echo, Temporal Fold, and
+  Status Circuit before allowing them to report ACTIVE.
+- Rune pickup/spawn path.
+- Real Unity Editor compilation, APK/device visual parity, and the reported
+  Sphere/enemy size mismatch remain unverified/open.
+
+NEXT:
+1. Compare source runtime state ownership for the three pending Artifact
+   Protocol gates, then implement one gate at a time only where an exact
+   source-equivalent Unity state can be verified.
+2. Keep the migration strictly on unity-migration; leave new-desing unchanged.
+
+======================================================================
+END ARTIFACT PROTOCOL UI + PERSISTENT KNOWLEDGE BASE
+======================================================================
