@@ -55,6 +55,8 @@ namespace EchoSphere.Runtime
                 transform.position = new Vector3(current.x, current.y, transform.position.z);
 
                 var nearby = _runtime.FindNearestSphereNearDrone(current, anchor, 240f * scale);
+                if (_final == "minion_sphere_guard")
+                    anchor.AccelerateNextAttack(dt * 0.12f);
                 if (_branch == "minion_relay_drone" && nearby != null && _runtime.NextRunRandom() < dt * 4f)
                 {
                     _runtime.SpawnCombatArc(anchor.transform.position, nearby.transform.position, anchor.Type,
