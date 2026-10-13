@@ -1257,6 +1257,7 @@ assert.ok(runtimeArt.includes('AddComponent<AbilityDroneAgent2D>()') &&
   'Fire Trail and Dark Ritual must modify runtime combat, Minion must spawn active drones, and new active abilities must expose evolution branches');
 const abilityDroneSource = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/AbilityDroneAgent2D.cs'), 'utf8');
 assert.ok(!runtimeArt.includes('GetAbilityFinalArchetype(RunUpgradeKind.TimeStop) == "timestop_outside_time"') &&
+  !runtimeArt.includes('_timeStopTimer <= 1f && GetAbilityFinalArchetype(RunUpgradeKind.TimeStop) == "timestop_temporal_core"') &&
   !abilityDroneSource.includes('_final == "minion_sphere_guard"'),
   'do not activate final-ability riders that the source code checks through the raw branch-choice ID and therefore never triggers');
 assert.ok(runtimeArt.includes('private readonly List<AbilityDroneAgent2D> _abilityDrones') &&
