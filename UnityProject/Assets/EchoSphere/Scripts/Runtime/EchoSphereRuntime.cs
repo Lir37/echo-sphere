@@ -286,6 +286,7 @@ namespace EchoSphere.Runtime
         public bool IsGameplayPaused => _paused;
         public bool IsPresentationPaused => _mainMenu || _paused;
         public Vector2 PlayerPosition => _player == null ? Vector2.zero : (Vector2)_player.position;
+        public bool IsDarkRitualOverloaded => _darkRitualOverloadTimer > 0f;
         public bool IsCombatSimulationPaused => _mainMenu || _paused || _playerCore == null;
         public float CurrentRunTime => _runTime;
         public int CurrentWave => _wave;
@@ -4094,13 +4095,41 @@ namespace EchoSphere.Runtime
             return false;
         }
 
-        private SphereAttackAgent FindNearestSphereOfType(SphereId type, Vector2 origin)
+        public SphereAttackAgent FindNearestSphereOfType(SphereId type, Vector2 origin)
         {
             SphereAttackAgent nearest = null;
             var nearestDistance = float.PositiveInfinity;
             foreach (var sphere in _spheres)
             {
                 if (sphere == null || !sphere.gameObject.activeInHierarchy || sphere.Type != type) continue;
+                var distance = Vector2.Distance(origin, sphere.transform.position);
+                if (distance < nearestDistance) { nearest = sphere; nearestDistance = distance; }
+            }
+            return nearest;
+        }
+
+        public SphereAttackAgent FindNearestSphereForDrone(SphereId type, Vector2 origin)
+        {
+            var matching = FindNearestSphereOfType(type, origin);
+            if (matching != null) return matching;
+            SphereAttackAgent nearest = null;
+            var nearestDistance = float.PositiveInfinity;
+            foreach (var sphere in _spheres)
+            {
+                if (sphere == null || !sphere.gameObject.activeInHierarchy) continue;
+                var distance = Vector2.Distance(origin, sphere.transform.position);
+                if (distance < nearestDistance) { nearest = sphere; nearestDistance = distance; }
+            }
+            return nearest;
+        }
+
+        public SphereAttackAgent FindNearestSphereNearDrone(Vector2 origin, SphereAttackAgent excluded, float radiusWorld)
+        {
+            SphereAttackAgent nearest = null;
+            var nearestDistance = Mathf.Max(0f, radiusWorld);
+            foreach (var sphere in _spheres)
+            {
+                if (sphere == null || sphere == excluded || !sphere.gameObject.activeInHierarchy) continue;
                 var distance = Vector2.Distance(origin, sphere.transform.position);
                 if (distance < nearestDistance) { nearest = sphere; nearestDistance = distance; }
             }
@@ -4401,7 +4430,7 @@ namespace EchoSphere.Runtime
             }
         }
 
-        private void DamageEnemiesNear(Vector2 center, float radiusWorld, float damage, Color color)
+        public void DamageEnemiesNear(Vector2 center, float radiusWorld, float damage, Color color)
         {
             var hitRadius = Mathf.Max(0f, radiusWorld);
             foreach (var enemy in _enemies)
