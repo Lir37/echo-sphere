@@ -328,7 +328,7 @@ internal static class Program
 
     private static void CheckLevelUpAbilityRules()
     {
-        Equal(LevelUpAbilityRules.GetMaxLevel(RunUpgradeKind.MaxSpheres), 3, "source maxspheres cap");
+        Equal(LevelUpAbilityRules.GetMaxLevel(RunUpgradeKind.MaxSpheres), 7, "source maxspheres catalog cap; routine Level-Up still excludes this passive");
         Equal(LevelUpAbilityRules.GetMaxLevel(RunUpgradeKind.Damage), 7, "source passive Ability cap");
         True(LevelUpAbilityRules.CanUpgrade(RunUpgradeKind.Crit, 6), "passive Ability can advance to VII");
         True(!LevelUpAbilityRules.CanUpgrade(RunUpgradeKind.Crit, 7), "passive Ability is capped at VII");
