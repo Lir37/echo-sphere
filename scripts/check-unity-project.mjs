@@ -1271,6 +1271,48 @@ assert.ok(runtimeArt.includes('GetActiveAbilityEvolutionChoices') &&
   artifactProtocolRulesSource.includes('"status_circuit_protocol"'),
   'active ability branch-specific final variants must use source IDs and have real choices/riders; artifact protocols remain independently gated until their full predicates are wired');
 
+const sourceAbilitySynergyLinks = [
+  ['std_res_blast', 'blast_resonance_f1'],
+  ['std_singularity_timestop', 'timestop_echo_phase_f1'],
+  ['std_swarm_minion', 'minion_echo_drone_f1'],
+  ['sniper_oracle_teleport', 'teleport_echo_jump_f1'],
+  ['sniper_assassin_darkritual', 'darkritual_blood_link_f1'],
+  ['sniper_beacon_firetrail', 'firetrail_overdrive_f1'],
+  ['shotgun_burst_shield', 'shield_echo_guard_f1'],
+  ['shotgun_cataclysm_blast', 'blast_network_f2'],
+  ['shotgun_hail_lightning', 'lightning_echo_storm_f1'],
+  ['chain_web_timestop', 'timestop_closed_time_f2'],
+  ['chain_storm_lightning', 'lightning_relay_f2'],
+  ['chain_leech_darkritual', 'darkritual_sacrifice_f2'],
+  ['aura_sanctum_shield', 'shield_reflector_f2'],
+  ['aura_gravity_teleport', 'teleport_beacon_f2'],
+  ['aura_overgrowth_firetrail', 'firetrail_sanctum_f3'],
+  ['orbital_dance_minion', 'minion_relay_drone_f2'],
+  ['orbital_halo_shield', 'shield_bastion_f3'],
+  ['orbital_blade_darkritual', 'darkritual_void_pact_f3'],
+  ['prism_split_blast', 'blast_core_f3'],
+  ['prism_spectrum_firetrail', 'firetrail_ignition_f2'],
+  ['prism_mirror_teleport', 'teleport_phase_f3'],
+  ['gravity_well_firetrail', 'firetrail_overdrive_f3'],
+  ['gravity_tide_timestop', 'timestop_time_anchor_f3'],
+  ['gravity_collapse_blast', 'blast_network_f1'],
+  ['pulse_wave_blast', 'blast_core_f2'],
+  ['pulse_resonator_lightning', 'lightning_echo_storm_f3'],
+  ['pulse_burst_shield', 'shield_echo_guard_f2'],
+  ['void_hunger_darkritual', 'darkritual_blood_link_f2'],
+  ['void_reaper_minion', 'minion_guardian_f3'],
+  ['void_execution_teleport', 'teleport_echo_jump_f2']
+];
+assert.ok(runtimeArt.includes('ApplyActiveAbilityFinalVariantRiders') &&
+  runtimeArt.includes('ActiveAbilitySynergyLinks') &&
+  runtimeArt.includes('1f / (1f + i * 0.18f)'),
+  'active Sphere-Ability synergies must use source final-variant riders and source synergy strength');
+for (const [linkId, finalId] of sourceAbilitySynergyLinks) {
+  assert.ok(runtimeArt.includes('"' + linkId + '"'), 'source active synergy link is missing: ' + linkId);
+  assert.ok(levelUpAbilities.includes('"' + finalId + '"'), 'source active final variant is missing: ' + finalId);
+}
+
+
 
 // Link Breaker source parity: authored range/timers, disabled-target filtering and Stability scaling.
 const linkBreakerEnemy = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs'), 'utf8');
