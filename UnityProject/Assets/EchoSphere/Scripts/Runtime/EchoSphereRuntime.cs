@@ -4900,6 +4900,7 @@ namespace EchoSphere.Runtime
         }
 
         private void DrawRegionSelect()
+        {
             var previousColor = GUI.color;
             GUI.color = new Color(0.008f, 0.018f, 0.055f, 0.98f);
             GUI.DrawTexture(new Rect(0f, 0f, _uiWidth, _uiHeight), _uiPanelTexture);
