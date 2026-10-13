@@ -332,7 +332,15 @@ internal static class Program
         Equal(LevelUpAbilityRules.GetMaxLevel(RunUpgradeKind.Damage), 7, "source passive Ability cap");
         True(LevelUpAbilityRules.CanUpgrade(RunUpgradeKind.Crit, 6), "passive Ability can advance to VII");
         True(!LevelUpAbilityRules.CanUpgrade(RunUpgradeKind.Crit, 7), "passive Ability is capped at VII");
-        Equal(LevelUpAbilityRules.RoutineAbilityKinds.Count, 11, "only runtime-wired passive abilities are offered");
+        Equal(LevelUpAbilityRules.RoutineAbilityKinds.Count, 21, "all source passive abilities are offered");
+        Near(LevelUpAbilityRules.GetSphereRadiusMultiplier(2, 2), 1.404f, 0.00001f, "Sphere Radius and Range stack source multipliers");
+        Near(LevelUpAbilityRules.GetProjectileSpeedMultiplier(2), 1.16f, 0.000001f, "projectile speed +8% per level");
+        Near(LevelUpAbilityRules.GetCritPowerMultiplier(2), 1.16f, 0.000001f, "critical power +8% per level");
+        Near(LevelUpAbilityRules.GetResonanceGainMultiplier(2), 1.16f, 0.000001f, "Resonance gain +8% per level");
+        Equal(LevelUpAbilityRules.GetSphereBoostKillsRequired(1), 100, "Sphere Boost starts at 100 kills");
+        Equal(LevelUpAbilityRules.GetSphereBoostKillsRequired(7), 40, "Sphere Boost kill threshold floor");
+        Near(LevelUpAbilityRules.GetMomentumSpeedMultiplier(2, true), 1.10f, 0.000001f, "Momentum speed after dash");
+        Near(LevelUpAbilityRules.GetMomentumSpeedMultiplier(2, false), 1f, 0f, "Momentum returns to baseline");
         Near(LevelUpAbilityRules.GetSphereDamageMultiplier(0), 1f, 0f, "no damage Ability starts at baseline");
         Near(LevelUpAbilityRules.GetSphereDamageMultiplier(2), 1.30f, 0.000001f, "Sphere Damage is additive +15% per level");
         Near(LevelUpAbilityRules.GetAttackSpeedMultiplier(1), 1f / 0.93f, 0.00001f, "attack speed matches source 0.93 delay multiplier");
