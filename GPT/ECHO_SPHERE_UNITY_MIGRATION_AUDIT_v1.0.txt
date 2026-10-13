@@ -3918,3 +3918,59 @@ NEXT:
 ======================================================================
 END STANDARD SPHERE SOURCE PARITY FOLLOW-UP
 ======================================================================
+
+
+======================================================================
+[2026-10-13 | STANDARD SPHERE ANIMATION / RING PARITY EXTENSION]
+======================================================================
+
+ADDITIONAL SOURCE DETAILS TRANSFERRED:
+- Source drawStandardSphereRing uses a full ellipse at 0.98r x 0.34r and a
+  lower-alpha partial ellipse at 0.88r x 0.27r, with a gap from 18 to 345.6
+  degrees. Its line widths are max(0.9, r*0.045) and max(0.55, r*0.022).
+- RuntimeSpriteFactory now provides thin, source-sized Standard core outline
+  and orbit-ring sprites. The orbit texture contains both the full stroke and
+  the source partial arc at 0.55 alpha. Existing generic Ring sprites were
+  left untouched for every other system.
+- EchoSphereRuntime now rotates the Standard ring at 0.22 + tier*0.018 rad/s,
+  pulses the whole presentation through child transforms (not the gameplay
+  root transform), maps source-space X/Y before evaluating breathe and core
+  pulse, and raises orbit opacity only when a living enemy falls within the
+  source profile range. Source opacity stacking is preserved.
+- The target range uses SphereCombatRules.GetProfile(type).RangeMultiplier,
+  not an ungrounded catalog field. No damage, timing, or gameplay transform
+  was changed by this visual-only animation pass.
+
+FILES:
+- UnityProject/Assets/EchoSphere/Scripts/Runtime/RuntimeSpriteFactory.cs
+- UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs
+- scripts/check-unity-project.mjs (source/parity regression guards)
+
+VALIDATION:
+- Unity Migration Contracts #331: SUCCESS:
+  https://github.com/Lir37/echo-sphere/actions/runs/38411283668
+- The source structure checker now asserts ring geometry/thickness, the
+  partial-arc gap, source rotation rate, source-space pulse, target-reactive
+  opacity and source profile lookup.
+- Report update is pending its own CI; code HEAD before this report update:
+  457704baddde8134c5da9feac0f58ba883d9dac0.
+- new-desing remains untouched at 737ef2af4a877e0995db5f92331d536d2f29a934.
+
+STILL OPEN:
+- All four corrupt Unity-only PNG copies are removed, and Unity should no
+  longer attempt to import them. But upper-crystal.png itself is also corrupt
+  in the source branch, with no valid alternate blob found in the available
+  branch/history check. The exact authored crystal cannot be shown until a
+  valid original file is recovered. Current runtime follows source's own
+  fallback of procedural core + ring when the crystal image cannot load.
+- Still not validated in Unity Editor or on APK/device. Contract CI is not a
+  Unity compile or visual acceptance test.
+- Temporal Fold / Status Circuit are not enabled prematurely. Current Unity
+  runtime has no source-equivalent player.timestopTimer,
+  teleportDamageBuffTimer, or global player.sphereMods state, which are
+  explicit prerequisites in new-desing/src/artifactSystem.ts. Port that
+  state/mechanics first, then map these conditional set/protocol bonuses.
+
+======================================================================
+END STANDARD SPHERE ANIMATION / RING PARITY EXTENSION
+======================================================================
