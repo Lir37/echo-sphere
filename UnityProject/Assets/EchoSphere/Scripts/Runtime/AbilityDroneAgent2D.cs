@@ -16,6 +16,9 @@ namespace EchoSphere.Runtime
         private string _branch;
         private string _final;
 
+        public bool IsNetworkNodeAlive => _remaining > 0f && gameObject.activeInHierarchy;
+        public Vector2 NetworkPosition => transform.position;
+
         public void Initialize(EchoSphereRuntime runtime, SphereId anchorType, int abilityLevel,
             float duration, string branch, string final, int ordinal)
         {
