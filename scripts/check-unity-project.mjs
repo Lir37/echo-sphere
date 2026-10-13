@@ -450,7 +450,7 @@ assert.ok(regionSchedule.includes('480f') && regionSchedule.includes('960f') && 
 assert.ok(runtimeArt.includes('AdvanceRegionBossSchedule') && runtimeArt.includes('RegionBossScheduleRules.Advance') && runtimeArt.includes('StartNextWave'), 'Region signal and source wave loop must be wired in live runtime');
 assert.ok(runtimeArt.includes('CountLivingNonBossEnemies') && runtimeArt.includes('HasActiveBoss'), 'next source wave must wait for living enemies and boss completion');
 const levelUpAbilities = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/LevelUpAbilityRules.cs'), 'utf8');
-assert.ok(levelUpAbilities.includes('RoutineAbilityKinds') && levelUpAbilities.includes('GetNetworkDisableDuration'), 'source Level-Up Ability catalog is missing');
+assert.ok(levelUpAbilities.includes('SourcePassiveCatalog') && levelUpAbilities.includes('GetNetworkDisableDuration'), 'source passive catalog metadata is missing');
 for (const token of ['0.93d', '0.15f', '0.10f', '0.16f', 'SourcePixelsToWorld', 'GetDamageTakenMultiplier'])
   assert.ok(levelUpAbilities.includes(token), 'source Level-Up Ability formula is missing: ' + token);
 assert.ok(!levelUpAbilities.includes('GetFortuneDropBonus') &&
