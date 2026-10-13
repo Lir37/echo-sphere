@@ -85,6 +85,14 @@ namespace EchoSphere.Core
                     title = "NETWORK STABILITY / " + next;
                     description = "-" + (next * 12) + "% network-disable duration, with the source 16% floor.";
                     break;
+                case RunUpgradeKind.Teleport:
+                    title = "ECHO JUMP / " + next;
+                    description = "Teleport to a nearby Sphere; cooldown " + Math.Max(5, 15 - Math.Min(4, (next - 1) * 2)) + "s.";
+                    break;
+                case RunUpgradeKind.TimeStop:
+                    title = "ECHO FREEZE / " + next;
+                    description = "Freeze enemies for " + (3 + Math.Min(2, next - 1)) + "s; cooldown 40s.";
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(kind), kind, "Not a source-mapped routine Ability.");
             }
