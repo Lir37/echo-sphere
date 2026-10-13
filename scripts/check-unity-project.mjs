@@ -1173,6 +1173,31 @@ assert.ok(bootstrap.includes('PlayerSettings.allowedAutorotateToLandscapeLeft = 
   'Unity Android must not force or auto-rotate to landscape');
 
 
+// Temporal Fold / Status Circuit prerequisite state: source timer names and global sphereMods schema.
+assert.ok(runtimeArt.includes('private float _timeStopTimer, _teleportDamageBuffTimer;') &&
+  runtimeArt.includes('_timeStopTimer = Mathf.Max(0f, _timeStopTimer - dt);') &&
+  runtimeArt.includes('_teleportDamageBuffTimer = Mathf.Max(0f, _teleportDamageBuffTimer - dt);') &&
+  runtimeArt.includes('SetTimeStopTimer(float duration)') &&
+  runtimeArt.includes('SetTeleportDamageBuffTimer(float duration)'),
+  'Temporal Fold must use source-equivalent timers that decay and are only set by mapped ability handlers');
+for (const modifier of [
+  'multishot', 'pierce', 'ricochet', 'fire', 'freeze', 'poison', 'breach',
+  'overload', 'split', 'shatter', 'execute', 'mark', 'echo', 'anchor', 'phase',
+  'static', 'resonant', 'magnetic', 'vampiric', 'corrupt', 'drain',
+  'afterimage', 'impact', 'gravitic', 'rotationSpeed'
+]) assert.ok(runtimeArt.includes('{ "' + modifier + '",'),
+  'source player.sphereMods field must exist: ' + modifier);
+assert.ok(runtimeArt.includes('{ "rotationSpeed", 1 }') &&
+  runtimeArt.includes('GetGlobalSphereModifierLevel') &&
+  runtimeArt.includes('SetGlobalSphereModifierLevel') &&
+  runtimeArt.includes('HasAnyGlobalSphereModifier'),
+  'global Sphere modifiers must preserve the source initial rotationSpeed and expose typed state access');
+assert.ok(artifactProtocolRulesSource.includes('"temporal_fold_protocol"') &&
+  artifactProtocolRulesSource.includes('"status_circuit_protocol"') &&
+  artifactProtocolRulesSource.includes('HasUnmappedRuntimeState'),
+  'Temporal Fold and Status Circuit must remain gated until source state producers and modifier progression are wired');
+
+
 // Link Breaker source parity: authored range/timers, disabled-target filtering and Stability scaling.
 const linkBreakerEnemy = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs'), 'utf8');
 const linkBreakerRuntime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs'), 'utf8');
