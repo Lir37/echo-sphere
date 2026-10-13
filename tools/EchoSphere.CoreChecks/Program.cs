@@ -372,7 +372,7 @@ internal static class Program
         Equal(blastChoiceEn.Description, "Pulse travels through all active Spheres and deals 30 damage around each. Cooldown: 30s.",
             "source active Ability English description is preserved");
         var blastMutation = LevelUpAbilityRules.CreateChoice(RunUpgradeKind.Blast, 3, true);
-        Equal(blastMutation.Description, "Следующий выбор откроет одну из трёх веток способности.",
+        Equal(blastMutation.Description, "Следующий выбор откроет одну из трёх веток способности",
             "level-IV active Ability card explains the source mutation decision");
     }
 
