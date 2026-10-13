@@ -3198,3 +3198,54 @@ NEXT:
 ======================================================================
 END FOUR ADDITIONAL ARTIFACT PAIR SYNERGIES
 ======================================================================
+
+[2026-10-13 | SITUATIONAL ARTIFACT SYNERGIES]
+
+SOURCE:
+- new-desing remains 737ef2af4a877e0995db5f92331d536d2f29a934, unchanged.
+- Source behavior is from src/artifactSystem.ts:getSphereArtifactDamageMultiplier().
+
+IMPLEMENTED IN THE REAL SPHERE DAMAGE MULTIPLIER:
+1. Void Horizon pair requires void_ink + void_mark. Void Spheres receive a
+   1.15 multiplier while at least one living Elite exists anywhere in the
+   current enemy list; the synergy applies only to SphereId.Void.
+2. Orbital Prism pair requires orbital_blade + prism_filter. Orbital Spheres
+   receive a 1.15 multiplier; the bonus does not affect another Sphere type.
+3. Gravity Pulse pair requires gravity_hook + pulse_driver. Pulse receives a
+   1.15 multiplier when at least three living enemies each have any active
+   Sphere strictly closer than 140 source pixels. Each qualifying enemy counts
+   once, regardless of how many Spheres are near it. The check uses runtime
+   combat entities and remains inside the actual attack damage path.
+4. ArtifactSynergyRules.cs now covers seven individual active artifact pair
+   effects in addition to Echo Relay / Unified Core in FormationHitRules:
+   Fortress Network, Glass Cannon, Singularity, Core Relay, Void Horizon,
+   Orbital Prism and Gravity Pulse. Glass Cannon's 1.05 incoming-damage factor
+   is connected separately to the player's actual damage-taken calculation.
+5. Added 13 pure C# assertions for exact pair IDs, target category, enemy-state
+   threshold and multipliers. Node structure guards validate live runtime hooks.
+
+VALIDATION:
+- Unity Migration Contracts #281: SUCCESS:
+  https://github.com/Lir37/echo-sphere/actions/runs/38345837074
+- These checks still do not compile UnityEngine scripts inside the real Unity
+  Editor or produce/verify an APK. No fresh device screenshot was inspected.
+
+OPEN:
+- Perfect Network remains a separate unported pair synergy; it depends on the
+  source formsTriangle() geometry test and should not be approximated without
+  matching that function.
+- Other set completion bonuses and Artifact Protocol effects remain separate
+  audit items. Do not infer their behavior from names or descriptions alone.
+- Rune pickup remains incomplete because there is no RuneEntity producer in the
+  current source branch. Unity Editor compile, APK/device parity and the user's
+  visual sizing concerns remain open.
+
+NEXT:
+1. Port Perfect Network only after matching source formsTriangle() and its
+   distance thresholds to the existing Unity network rules.
+2. Then continue the remaining source-defined pair synergies / set behaviors
+   one audited group at a time, with exact gates and numeric contracts.
+
+======================================================================
+END SITUATIONAL ARTIFACT SYNERGIES
+======================================================================
