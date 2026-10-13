@@ -313,10 +313,13 @@ namespace EchoSphere.Runtime
             GetCharacterAttackSpeedMultiplier() /
             Mathf.Max(0.5f, 1f + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "sphereDelay"));
 
+        private bool IsFireAlignedSphere(SphereId type) =>
+            Mathf.Max(GetGlobalSphereModifierLevel("fire"), GetSphereAuthoredModifierLevel(type, SphereAuthoredModifier.Fire)) > 0;
+
         public float GetSphereDamageMultiplier(SphereId type)
         {
             var multiplier = SphereDamageMultiplier;
-            var fireAligned = GetGlobalSphereModifierLevel("fire") > 0;
+            var fireAligned = IsFireAlignedSphere(type);
             if (fireAligned && _fireTrailTimer > 0f)
                 multiplier *= 1.2f + GetAbilityLevel(RunUpgradeKind.FireTrail) * 0.025f;
             if (fireAligned && _fireCatalystTimer > 0f) multiplier *= 1.35f;
@@ -327,7 +330,7 @@ namespace EchoSphere.Runtime
         public float GetSphereAttackSpeedMultiplier(SphereId type)
         {
             var multiplier = AttackSpeedMultiplier;
-            if (GetGlobalSphereModifierLevel("fire") > 0 && _fireTrailTimer > 0f) multiplier *= 1f / 0.78f;
+            if (IsFireAlignedSphere(type) && _fireTrailTimer > 0f) multiplier *= 1f / 0.78f;
             return multiplier;
         }
         public float GetSphereRadiusMultiplier() => LevelUpAbilityRules.GetSphereRadiusMultiplier(GetAbilityLevel(RunUpgradeKind.Radius));
@@ -4633,17 +4636,15 @@ namespace EchoSphere.Runtime
             _fireTrailTimer = 5f + Mathf.Min(3, level - 1);
             var branch = GetAbilityBranch(RunUpgradeKind.FireTrail);
             var final = GetAbilityFinalArchetype(RunUpgradeKind.FireTrail);
-            var fireAligned = GetGlobalSphereModifierLevel("fire") > 0;
             var fireSpheres = new List<SphereAttackAgent>();
 
-            if (fireAligned)
-                foreach (var sphere in _spheres)
-                {
-                    if (sphere == null || !sphere.gameObject.activeInHierarchy) continue;
-                    fireSpheres.Add(sphere);
-                    sphere.AccelerateNextAttack(0.5f);
-                    SpawnImpact(sphere.transform.position, new Color(0.77f, 0.43f, 0.24f, 0.9f));
-                }
+            foreach (var sphere in _spheres)
+            {
+                if (sphere == null || !sphere.gameObject.activeInHierarchy || !IsFireAlignedSphere(sphere.Type)) continue;
+                fireSpheres.Add(sphere);
+                sphere.AccelerateNextAttack(0.5f);
+                SpawnImpact(sphere.transform.position, new Color(0.77f, 0.43f, 0.24f, 0.9f));
+            }
 
             if (branch == "firetrail_overdrive")
                 foreach (var sphere in fireSpheres)
