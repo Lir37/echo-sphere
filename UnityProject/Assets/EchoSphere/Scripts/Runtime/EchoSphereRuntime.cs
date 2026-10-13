@@ -1223,7 +1223,7 @@ namespace EchoSphere.Runtime
                     var frameRenderer = frame.GetComponent<SpriteRenderer>();
                     if (frameRenderer != null && frameRenderer.sprite != null)
                     {
-                        frameRenderer.color = new Color(48f / 255f, 214f / 255f, 1f, 0.72f + targetPulse * 0.20f);
+                        frameRenderer.color = new Color(48f / 255f, 214f / 255f, 1f, 0.82f * (0.72f + targetPulse * 0.20f));
                         frame.localScale = new Vector3(
                             2f * 1.18f * 0.98f * radius / (0.73f * frameRenderer.sprite.bounds.size.x) * xScale,
                             2f * 1.18f * 0.34f * radius / (0.73f * frameRenderer.sprite.bounds.size.y) * yScale,
