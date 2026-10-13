@@ -307,6 +307,8 @@ namespace EchoSphere.Runtime
             GetCharacterAttackSpeedMultiplier() /
             Mathf.Max(0.5f, 1f + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "sphereDelay"));
         public float GetSphereRadiusMultiplier() => LevelUpAbilityRules.GetSphereRadiusMultiplier(GetAbilityLevel(RunUpgradeKind.Radius));
+        public float GetSphereRangeMultiplier() => LevelUpAbilityRules.GetSphereRangeMultiplier(GetAbilityLevel(RunUpgradeKind.Range));
+        public float GetProjectileSpeedMultiplier() => LevelUpAbilityRules.GetProjectileSpeedMultiplier(GetAbilityLevel(RunUpgradeKind.ProjectileSpeed));
         public int SphereBoostDamageBonus => LevelUpAbilityRules.GetSphereBoostDamageBonus(_kills, GetAbilityLevel(RunUpgradeKind.SphereBoost));
         public float ResonanceCharge => _resonanceCharge;
         public bool ResonanceEventActive => _resonanceEventActive;
@@ -2072,6 +2074,7 @@ namespace EchoSphere.Runtime
         public void AddResonanceCharge(float amount)
         {
             if (_resonanceEventActive) return;
+            amount *= LevelUpAbilityRules.GetResonanceGainMultiplier(GetAbilityLevel(RunUpgradeKind.Resonance));
             var events = ResonanceRules.Add(ref _resonanceCharge, amount);
             for (var i = 0; i < events; i++) TriggerResonanceEvent();
         }
@@ -2863,6 +2866,7 @@ namespace EchoSphere.Runtime
             }
 
             var chestChance = enemy != null && enemy.IsBoss ? 1f : enemy != null && enemy.IsElite ? 0.2f : 0.02f;
+            chestChance = Mathf.Clamp01(chestChance + LevelUpAbilityRules.GetFortuneDropBonus(GetAbilityLevel(RunUpgradeKind.Fortune)));
             if (_rng.NextFloat() < chestChance && (enemy == null || !enemy.IsBoss))
             {
                 var chest = new GameObject("Artifact Cache");
@@ -2913,7 +2917,7 @@ namespace EchoSphere.Runtime
             var hunterCrit = GetHunterCriticalChanceBonus(target);
             var critChance = Mathf.Min(CombatRules.CritHardCap, CombatRules.CritBase +
                 Mathf.Max(0f, critChanceBonus + artifactCrit + abilityCrit + shopCrit + hunterCrit + GetArchitectFormationCritBonus()));
-            var result = CombatRules.ResolveDamage(damage, critChance, _rng.NextFloat(), CombatRules.CritMultiplierBase);
+            var result = CombatRules.ResolveDamage(damage, critChance, _rng.NextFloat(), CombatRules.CritMultiplierBase * LevelUpAbilityRules.GetCritPowerMultiplier(GetAbilityLevel(RunUpgradeKind.CritPower)));
             wasCritical = result.WasCritical;
             return result.Damage;
         }

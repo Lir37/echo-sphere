@@ -17,7 +17,9 @@ namespace EchoSphere.Core
             RunUpgradeKind.Slow, RunUpgradeKind.Vitality, RunUpgradeKind.Dodge,
             RunUpgradeKind.Crit, RunUpgradeKind.Magnet, RunUpgradeKind.Armor,
             RunUpgradeKind.Regen, RunUpgradeKind.Stability, RunUpgradeKind.Radius, RunUpgradeKind.Vampire,
-            RunUpgradeKind.SphereBoost, RunUpgradeKind.Cooldown, RunUpgradeKind.Momentum
+            RunUpgradeKind.SphereBoost, RunUpgradeKind.Cooldown, RunUpgradeKind.Momentum,
+            RunUpgradeKind.Resonance, RunUpgradeKind.CritPower, RunUpgradeKind.Range,
+            RunUpgradeKind.ProjectileSpeed, RunUpgradeKind.Fortune
         };
 
         public static IReadOnlyList<RunUpgradeKind> RoutineAbilityKinds => RoutineKinds;
@@ -106,6 +108,26 @@ namespace EchoSphere.Core
                     title = "MOMENTUM / " + next;
                     description = "+" + (next * 5) + "% movement speed briefly after Dash.";
                     break;
+                case RunUpgradeKind.Resonance:
+                    title = "RESONATOR / " + next;
+                    description = "+" + (next * 8) + "% Resonance gain.";
+                    break;
+                case RunUpgradeKind.CritPower:
+                    title = "CRITICAL RESONANCE / " + next;
+                    description = "+" + (next * 8) + "% critical damage multiplier.";
+                    break;
+                case RunUpgradeKind.Range:
+                    title = "FIELD FOCUS / " + next;
+                    description = "+" + (next * 5) + "% Sphere attack range.";
+                    break;
+                case RunUpgradeKind.ProjectileSpeed:
+                    title = "VECTOR DRIVE / " + next;
+                    description = "+" + (next * 8) + "% projectile speed.";
+                    break;
+                case RunUpgradeKind.Fortune:
+                    title = "FORTUNE / " + next;
+                    description = "+" + (next * 2) + "% artifact cache drop chance.";
+                    break;
                 case RunUpgradeKind.Blast:
                     title = "ECHO PULSE / " + next;
                     description = "Pulse damage scales with level; source cooldown starts at 30s and falls by 2s per level.";
@@ -146,6 +168,21 @@ namespace EchoSphere.Core
 
         public static float GetSphereRadiusMultiplier(int level) =>
             1f + Math.Max(0, Math.Min(7, level)) * 0.15f;
+
+        public static float GetSphereRangeMultiplier(int level) =>
+            1f + Math.Max(0, Math.Min(7, level)) * 0.05f;
+
+        public static float GetProjectileSpeedMultiplier(int level) =>
+            1f + Math.Max(0, Math.Min(7, level)) * 0.08f;
+
+        public static float GetCritPowerMultiplier(int level) =>
+            1f + Math.Max(0, Math.Min(7, level)) * 0.08f;
+
+        public static float GetResonanceGainMultiplier(int level) =>
+            1f + Math.Max(0, Math.Min(7, level)) * 0.08f;
+
+        public static float GetFortuneDropBonus(int level) =>
+            Math.Max(0, Math.Min(7, level)) * 0.02f;
 
         public static int GetSphereBoostKillsRequired(int level) =>
             Math.Max(50, 100 - (Math.Max(1, Math.Min(7, level)) - 1) * 10);

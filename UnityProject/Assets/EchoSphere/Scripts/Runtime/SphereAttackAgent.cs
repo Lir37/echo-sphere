@@ -58,7 +58,7 @@ namespace EchoSphere.Runtime
             _initialDelay = 1.2f * _profile.DelayMultiplier;
             _initialScale = transform.localScale;
             ApplyProgressionLevel(1);
-            AttackRange = 6.8f * _profile.RangeMultiplier * _runtime.GetArtifactSphereRadiusMultiplier(type) *
+            AttackRange = 6.8f * _profile.RangeMultiplier * _runtime.GetSphereRangeMultiplier() * _runtime.GetArtifactSphereRadiusMultiplier(type) *
                 _runtime.GetShopSphereRadiusMultiplier() * _runtime.GetCharacterSphereRadiusMultiplier();
             _attackTimer = 0.25f;
             _orbitAngle = type == SphereId.Orbital ? 0f : 0f;
@@ -86,7 +86,7 @@ namespace EchoSphere.Runtime
                 : SphereLevelRules.GetStats(_type, _progressionLevel);
             BaseDamage = _initialDamage * _levelStats.DamageMultiplier;
             AttackDelay = Mathf.Max(0.12f, _initialDelay * _levelStats.DelayMultiplier);
-            AttackRange = 6.8f * _profile.RangeMultiplier * _levelStats.RangeMultiplier * _runtime.GetArtifactSphereRadiusMultiplier(_type) *
+            AttackRange = 6.8f * _profile.RangeMultiplier * _levelStats.RangeMultiplier * _runtime.GetSphereRangeMultiplier() * _runtime.GetArtifactSphereRadiusMultiplier(_type) *
                 _runtime.GetShopSphereRadiusMultiplier() * _runtime.GetCharacterSphereRadiusMultiplier();
         }
 
@@ -358,7 +358,7 @@ namespace EchoSphere.Runtime
             Color tint, float speed, int pierce, float critChanceBonus)
         {
             var ricochets = _runtime.GetSphereProjectileRicochetCount(_type);
-            _runtime.SpawnProjectile(origin, direction, damage, tint, speed, pierce, critChanceBonus,
+            _runtime.SpawnProjectile(origin, direction, damage, tint, speed * _runtime.GetProjectileSpeedMultiplier(), pierce, critChanceBonus,
                 this, ricochets, 2.0f, true, true, true);
 
             var echoLevel = _runtime.GetSphereAuthoredModifierLevel(_type, SphereAuthoredModifier.Echo);
