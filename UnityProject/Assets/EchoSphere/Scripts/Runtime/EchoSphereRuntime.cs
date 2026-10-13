@@ -5236,7 +5236,8 @@ namespace EchoSphere.Runtime
                 {
                     SpawnImpact(spawnPosition, new Color(0.83f, 0.58f, 0.24f, 0.95f));
                     foreach (var linkedSphere in liveSpheres)
-                        if (Vector2.Distance(linkedSphere.transform.position, spawnPosition) <= 220f * scale)
+                        if (!linkedSphere.NetworkDisabled &&
+                            Vector2.Distance(linkedSphere.transform.position, spawnPosition) <= SphereNetworkRules.DefaultLinkDistance)
                             linkedSphere.AccelerateNextAttack(0.22f);
                 }
                 SpawnImpact(spawnPosition, new Color(0.35f, 0.83f, 1f, 0.9f));
