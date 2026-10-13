@@ -227,9 +227,9 @@ namespace EchoSphere.Runtime
         private bool _follow, _paused, _levelUp, _gameOver, _userPaused, _regionStabilized;
         private bool _stellaRewardPending, _stellaRewardIsLegendary;
         private float _swiftBootsTimer;
-        // Source player.timestopTimer / teleportDamageBuffTimer. Their active-ability
-        // producers remain pending; keep these timers source-shaped without enabling
-        // Artifact Set/Protocol bonuses until those producers are ported.
+        // Source player.timestopTimer / teleportDamageBuffTimer. Time Stop now produces
+        // its timer; the Teleport buff remains branch/final-specific and gated until those
+        // ability evolution choices are ported. Artifact bonuses remain independently gated.
         private float _timeStopTimer, _teleportDamageBuffTimer;
         // Exact source PlayerState.sphereMods keys and initial values from engineState.ts.
         // rotationSpeed starts at 1 in the source, so source Object.values(...).some(level > 0)
