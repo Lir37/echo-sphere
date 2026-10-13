@@ -3813,3 +3813,47 @@ REMAINING:
 ======================================================================
 END UNITY COMPILATION ERROR TRIAGE
 ======================================================================
+
+
+======================================================================
+[2026-10-13 | UNITY FOLLOW-UP COMPILATION ERRORS]
+======================================================================
+
+REPORTED AFTER THE INITIAL SYNTAX FIX:
+- EchoSphereRuntime.cs: missing System.StringComparison namespace import.
+- EchoSphereRuntime.cs: sphereScore inferred as int but receives fractional
+  weighting, causing float-to-int conversion error.
+- EchoSphereRuntime.cs: GetArchitectFormationCritBonus was called but absent.
+- EngineerRelayVfx2D.cs: SpherePlacementRules was used without importing
+  EchoSphere.Core.
+
+FIXED ON unity-migration:
+- Added using System; for StringComparison.
+- Declared sphereScore as float so fractional sphere-level weighting remains
+  intact.
+- Implemented Architect Triangle formation critical chance bonus (+0.10),
+  matching the contextual crit behavior in new-desing/src/engineCombat.ts.
+- Added using EchoSphere.Core; to EngineerRelayVfx2D.cs.
+- Removed the duplicate, malformed DrawRegionSelect block while preserving
+  the actual region-selection screen. Renamed the main-menu button local
+  variable to retain the repository's existing structural contract check.
+- Latest implementation HEAD: 956c374d7be3a62b70d1e365c643929fcf6c7044.
+- Unity Migration Contracts #311: SUCCESS:
+  https://github.com/Lir37/echo-sphere/actions/runs/38402871154
+
+VALIDATION LIMIT:
+- The workflow passed 1114 pure C# gameplay contract assertions and the Node
+  project/runtime-boundary checks. This is not a Unity Editor compile, APK
+  build, or device test. Confirm these exact compiler errors are gone in the
+  user's Unity Editor before declaring compilation clean.
+- The three previously reported PNG import failures remain unresolved.
+
+NEXT:
+1. Recheck Unity Console after refreshing/reimporting the current branch.
+2. Continue from any remaining actual compiler diagnostics, not speculative
+   refactors.
+3. Restore the three malformed PNG assets from valid source/history before
+   claiming successful asset import.
+======================================================================
+END UNITY FOLLOW-UP COMPILATION ERRORS
+======================================================================
