@@ -97,6 +97,15 @@ namespace EchoSphere.Runtime
             return ReceiveSphereDamage(owner.Type, damage, authoredDamageResolved, allowAuthoredProcs, owner);
         }
 
+        public void ApplyFireStatus(float duration, float damagePerSecond)
+        {
+            if (_dead) return;
+            _fireTimer = Mathf.Max(_fireTimer, Mathf.Max(0f, duration));
+            _fireDps = Mathf.Max(_fireDps, Mathf.Max(0f, damagePerSecond));
+            if (_fireTickInterval <= 0f) _fireTickInterval = 0.5f;
+            _fireTickTimer = 0f;
+        }
+
         public void ApplyElementalStatus(SphereElementalStatus status, SphereId source)
         {
             if (_dead || status.Element == SphereElement.None) return;
