@@ -223,6 +223,25 @@ namespace EchoSphere.Runtime
         private bool _follow, _paused, _levelUp, _gameOver, _userPaused, _regionStabilized;
         private bool _stellaRewardPending, _stellaRewardIsLegendary;
         private float _swiftBootsTimer;
+        // Source player.timestopTimer / teleportDamageBuffTimer. Their active-ability
+        // producers remain pending; keep these timers source-shaped without enabling
+        // Artifact Set/Protocol bonuses until those producers are ported.
+        private float _timeStopTimer, _teleportDamageBuffTimer;
+        // Exact source PlayerState.sphereMods keys and initial values from engineState.ts.
+        // rotationSpeed starts at 1 in the source, so source Object.values(...).some(level > 0)
+        // is true even before a modifier upgrade is learned.
+        private readonly Dictionary<string, int> _sphereMods = new Dictionary<string, int>
+        {
+            { "multishot", 0 }, { "pierce", 0 }, { "ricochet", 0 },
+            { "fire", 0 }, { "freeze", 0 }, { "poison", 0 },
+            { "breach", 0 }, { "overload", 0 }, { "split", 0 },
+            { "shatter", 0 }, { "execute", 0 }, { "mark", 0 },
+            { "echo", 0 }, { "anchor", 0 }, { "phase", 0 },
+            { "static", 0 }, { "resonant", 0 }, { "magnetic", 0 },
+            { "vampiric", 0 }, { "corrupt", 0 }, { "drain", 0 },
+            { "afterimage", 0 }, { "impact", 0 }, { "gravitic", 0 },
+            { "rotationSpeed", 1 }
+        };
         private float _alchemistCatalystTimer;
         private float _conductorOverdriveTimer;
         private int _alchemistReactionCount;
@@ -734,6 +753,8 @@ namespace EchoSphere.Runtime
             TickSphereArtAnimation(dt);
             _playerCore.Tick(dt);
             _swiftBootsTimer = Mathf.Max(0f, _swiftBootsTimer - dt);
+            _timeStopTimer = Mathf.Max(0f, _timeStopTimer - dt);
+            _teleportDamageBuffTimer = Mathf.Max(0f, _teleportDamageBuffTimer - dt);
             _alchemistCatalystTimer = Mathf.Max(0f, _alchemistCatalystTimer - dt);
             _conductorOverdriveTimer = Mathf.Max(0f, _conductorOverdriveTimer - dt);
             _oracleSourceFlashTimer = Mathf.Max(0f, _oracleSourceFlashTimer - dt);
@@ -1720,6 +1741,32 @@ namespace EchoSphere.Runtime
         {
             _message = text ?? "";
             _messageTimer = Mathf.Max(0f, duration);
+        }
+
+        public float TimeStopTimer => _timeStopTimer;
+        public float TeleportDamageBuffTimer => _teleportDamageBuffTimer;
+
+        // Called by the source-equivalent active-ability handlers once those
+        // handlers are ported. Do not synthesize time-control state from unrelated effects.
+        public void SetTimeStopTimer(float duration) => _timeStopTimer = Mathf.Max(0f, duration);
+        public void SetTeleportDamageBuffTimer(float duration) => _teleportDamageBuffTimer = Mathf.Max(0f, duration);
+
+        public int GetGlobalSphereModifierLevel(string modifier)
+        {
+            return !string.IsNullOrEmpty(modifier) && _sphereMods.TryGetValue(modifier, out var level) ? level : 0;
+        }
+
+        public void SetGlobalSphereModifierLevel(string modifier, int level)
+        {
+            if (!string.IsNullOrEmpty(modifier) && _sphereMods.ContainsKey(modifier))
+                _sphereMods[modifier] = Mathf.Max(0, level);
+        }
+
+        public bool HasAnyGlobalSphereModifier()
+        {
+            foreach (var level in _sphereMods.Values)
+                if (level > 0) return true;
+            return false;
         }
 
         public List<EnemyAgent2D> FindNearestEnemies(Vector2 from, float range, int maxCount)
