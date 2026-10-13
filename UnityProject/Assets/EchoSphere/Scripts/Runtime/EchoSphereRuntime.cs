@@ -165,6 +165,10 @@ namespace EchoSphere.Runtime
         private readonly Dictionary<SphereId, int> _sphereLevels = new Dictionary<SphereId, int>();
         private readonly List<RunUpgradeChoice> _levelUpChoices = new List<RunUpgradeChoice>();
         private readonly Dictionary<RunUpgradeKind, int> _abilityLevels = new Dictionary<RunUpgradeKind, int>();
+        private readonly Dictionary<RunUpgradeKind, KeyCode> _activeAbilityHotkeys = new Dictionary<RunUpgradeKind, KeyCode>();
+        private static readonly KeyCode[] SourceActiveAbilityKeys = { KeyCode.E, KeyCode.Q, KeyCode.R, KeyCode.F, KeyCode.G };
+        private int _activeAbilitySlots;
+        private float _teleportCooldown, _timeStopCooldown;
         private readonly List<string> _recentUpgradeChoiceKeys = new List<string>();
         private readonly List<string> _oracleForecastKeys = new List<string>();
         private int _levelUpAbilityPity, _levelUpSpherePity;
@@ -755,6 +759,9 @@ namespace EchoSphere.Runtime
             _swiftBootsTimer = Mathf.Max(0f, _swiftBootsTimer - dt);
             _timeStopTimer = Mathf.Max(0f, _timeStopTimer - dt);
             _teleportDamageBuffTimer = Mathf.Max(0f, _teleportDamageBuffTimer - dt);
+            _teleportCooldown = Mathf.Max(0f, _teleportCooldown - dt);
+            _timeStopCooldown = Mathf.Max(0f, _timeStopCooldown - dt);
+            _activeAbilitySlots = _level >= 20 ? 3 : _level >= 12 ? 2 : _level >= 5 ? 1 : 0;
             _alchemistCatalystTimer = Mathf.Max(0f, _alchemistCatalystTimer - dt);
             _conductorOverdriveTimer = Mathf.Max(0f, _conductorOverdriveTimer - dt);
             _oracleSourceFlashTimer = Mathf.Max(0f, _oracleSourceFlashTimer - dt);
@@ -771,6 +778,8 @@ namespace EchoSphere.Runtime
             }
             _placementFlashTimer = Mathf.Max(0f, _placementFlashTimer - dt);
             if (Input.GetKeyDown(KeyCode.Space)) _playerCore.TryDash(_playerCore.LastMoveDirection);
+            foreach (var binding in _activeAbilityHotkeys)
+                if (Input.GetKeyDown(binding.Value)) ActivateActiveAbility(binding.Key);
 
             HandleSpherePointerInput();
             var input = ReadMovement();
