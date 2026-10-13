@@ -298,11 +298,11 @@ namespace EchoSphere.Runtime
         public int GetShopUpgradeLevel(string id) { EnsureShopSaveLoaded(); return _shopSave.upgrades.Get(id); }
         public float GetShopSphereRadiusMultiplier() => PersistentUpgradeRules.GetPercentMultiplier(GetShopUpgradeLevel("radius"));
         private DifficultyProfile CurrentDifficulty => DifficultyRules.GetProfile(PlayerPrefs.GetString(DifficultyPreferenceKey, "normal"));
-        public float SphereDamageMultiplier => _damageMultiplier * (Time.time < _runeAttackBuffUntil ? 1.3f : 1f) * LevelUpAbilityRules.GetSphereDamageMultiplier(GetAbilityLevel(RunUpgradeKind.Damage)) *
+        public float SphereDamageMultiplier => _damageMultiplier * (Time.time < _runeAttackBuffUntil ? 1.3f : 1f) * (_fireTrailTimer > 0f ? 1.20f + Mathf.Min(3, GetAbilityLevel(RunUpgradeKind.FireTrail) - 1) * 0.05f : 1f) * (_darkRitualOverloadTimer > 0f ? 1.29f + Mathf.Min(3, GetAbilityLevel(RunUpgradeKind.DarkRitual) - 1) * 0.04f : 1f) * LevelUpAbilityRules.GetSphereDamageMultiplier(GetAbilityLevel(RunUpgradeKind.Damage)) *
             PersistentUpgradeRules.GetPercentMultiplier(GetShopUpgradeLevel("dmg")) *
             Mathf.Max(0.25f, 1f + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "sphereDamage")) *
             GetCharacterGlobalSphereDamageMultiplier();
-        public float AttackSpeedMultiplier => _attackSpeedMultiplier * LevelUpAbilityRules.GetAttackSpeedMultiplier(GetAbilityLevel(RunUpgradeKind.AttackSpeed)) *
+        public float AttackSpeedMultiplier => _attackSpeedMultiplier * (_fireTrailTimer > 0f ? 1.12f : 1f) * (_darkRitualOverloadTimer > 0f ? 1.15f : 1f) * LevelUpAbilityRules.GetAttackSpeedMultiplier(GetAbilityLevel(RunUpgradeKind.AttackSpeed)) *
             GetCharacterAttackSpeedMultiplier() /
             Mathf.Max(0.5f, 1f + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "sphereDelay"));
         public float ResonanceCharge => _resonanceCharge;
@@ -4112,22 +4112,26 @@ namespace EchoSphere.Runtime
             var radius = (125f + level * 12f) * SpherePlacementRules.SourcePixelsToWorld;
             var damage = 30f + (level - 1) * 10f;
             var origin = (Vector2)_player.position;
+            var activeSpheres = 0;
             foreach (var sphere in _spheres)
             {
                 if (sphere == null || !sphere.gameObject.activeInHierarchy) continue;
+                activeSpheres++;
+                var center = (Vector2)sphere.transform.position;
                 sphere.AccelerateNextAttack(0.35f + level * 0.04f);
-                SpawnImpact(sphere.transform.position, new Color(0.83f, 0.43f, 0.24f, 0.95f));
+                SpawnImpact(center, new Color(0.83f, 0.43f, 0.24f, 0.95f));
+                foreach (var enemy in _enemies)
+                {
+                    if (enemy == null || !enemy.IsAlive || Vector2.Distance(center, enemy.transform.position) > radius) continue;
+                    enemy.ReceiveDamage(damage);
+                    if (GetAbilityBranch(RunUpgradeKind.Blast) == "blast_core")
+                        enemy.KnockBackFrom(center, 0.35f * SpherePlacementRules.SourcePixelsToWorld);
+                }
             }
-            var hit = 0;
-            foreach (var enemy in _enemies)
-            {
-                if (enemy == null || !enemy.IsAlive) continue;
-                var distance = Vector2.Distance(origin, enemy.transform.position);
-                if (distance > radius) continue;
-                enemy.ReceiveDamage(damage * (1f - 0.25f * distance / Mathf.Max(0.01f, radius)));
-                enemy.KnockBackFrom(origin, 0.45f * SpherePlacementRules.SourcePixelsToWorld);
-                hit++;
-            }
+            if (activeSpheres == 0)
+                foreach (var enemy in _enemies)
+                    if (enemy != null && enemy.IsAlive && Vector2.Distance(origin, enemy.transform.position) <= 180f * SpherePlacementRules.SourcePixelsToWorld)
+                        enemy.ReceiveDamage(damage);
             ShowTimedCombatMessage("ECHO PULSE", 0.9f);
         }
 
@@ -4158,12 +4162,19 @@ namespace EchoSphere.Runtime
             _fireTrailCooldown = 25f * GetActiveAbilityCooldownMultiplier();
             _fireTrailTimer = 5f + Mathf.Min(3, level - 1);
             _fireTrailTickTimer = 0f;
+            var branch = GetAbilityBranch(RunUpgradeKind.FireTrail);
             foreach (var sphere in _spheres)
             {
                 if (sphere == null || !sphere.gameObject.activeInHierarchy) continue;
-                sphere.AccelerateNextAttack(0.5f);
+                sphere.AccelerateNextAttack(branch == "firetrail_overdrive" ? 1.2f : 0.5f);
                 SpawnImpact(sphere.transform.position, new Color(1f, 0.42f, 0.18f, 0.9f));
+                if (branch == "firetrail_sanctum" && sphere.Type == SphereId.Aura)
+                    sphere.AccelerateNextAttack(1.5f);
             }
+            if (branch == "firetrail_ignition")
+                foreach (var enemy in _enemies)
+                    if (enemy != null && enemy.IsAlive && (enemy.HasFireStatus || enemy.HasFreezeStatus || enemy.HasPoisonStatus))
+                        enemy.ApplyDamageOverTime(8f + level, 2f);
             ShowTimedCombatMessage("OVERHEAT", 0.9f);
         }
 
@@ -4173,23 +4184,32 @@ namespace EchoSphere.Runtime
             if (level <= 0 || _minionCooldown > 0f) return;
             _minionCooldown = 30f * GetActiveAbilityCooldownMultiplier();
             var count = 1 + (level - 1) / 2;
-            var radius = 90f * SpherePlacementRules.SourcePixelsToWorld;
-            var damage = 9f + level * 3f;
+            var branch = GetAbilityBranch(RunUpgradeKind.Minion);
+            var final = GetAbilityFinal(RunUpgradeKind.Minion);
             for (var i = 0; i < count; i++)
             {
-                var anchor = _spheres.Count > 0 ? _spheres[i % _spheres.Count] : null;
-                var origin = anchor != null ? (Vector2)anchor.transform.position : (Vector2)_player.position;
-                if (anchor != null) anchor.AccelerateNextAttack(0.8f);
-                SpawnImpact(origin, new Color(0.35f, 0.83f, 1f, 0.9f));
-                var nearest = FindNearestEnemy(origin, radius);
-                if (nearest != null)
+                SphereAttackAgent anchor = null;
+                var nearestDistance = float.PositiveInfinity;
+                foreach (var sphere in _spheres)
                 {
-                    nearest.ReceiveDamage(damage);
-                    nearest.ApplySlow(0.7f, 0.75f);
+                    if (sphere == null || !sphere.gameObject.activeInHierarchy) continue;
+                    var distance = Vector2.Distance(_player.position, sphere.transform.position);
+                    if (distance < nearestDistance) { nearestDistance = distance; anchor = sphere; }
                 }
-                foreach (var enemy in _enemies)
-                    if (enemy != null && enemy.IsAlive && Vector2.Distance(enemy.transform.position, origin) <= radius * 0.65f)
-                        enemy.ReceiveDamage(damage * 0.35f);
+                var drone = new GameObject("Echo Drone");
+                var anchorPosition = anchor != null ? (Vector2)anchor.transform.position : (Vector2)_player.position;
+                var angle = (i / (float)Mathf.Max(1, count)) * Mathf.PI * 2f;
+                drone.transform.position = anchorPosition + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * 0.42f;
+                drone.transform.localScale = Vector3.one * 0.28f;
+                var renderer = drone.AddComponent<SpriteRenderer>();
+                renderer.sprite = RuntimeSpriteFactory.Diamond;
+                renderer.color = new Color(0.35f, 0.83f, 1f, 0.95f);
+                renderer.sortingOrder = 16;
+                var agent = drone.AddComponent<AbilityDroneAgent2D>();
+                agent.Initialize(this, anchor != null ? anchor.transform : _player, 10f, 8f + level * 2f,
+                    branch == "minion_relay_drone" || final == "minion_network_nodes");
+                if (anchor != null) anchor.AccelerateNextAttack(branch == "minion_guardian" ? 1.1f : 0.35f);
+                SpawnImpact(anchorPosition, new Color(0.35f, 0.83f, 1f, 0.9f));
             }
             ShowTimedCombatMessage("ECHO DRONE", 0.9f);
         }
@@ -4201,25 +4221,34 @@ namespace EchoSphere.Runtime
             _lightningCooldown = 20f * GetActiveAbilityCooldownMultiplier();
             var maxTargets = 1 + (level - 1) / 2;
             var targets = new List<EnemyAgent2D>();
-            var remaining = new List<EnemyAgent2D>();
             foreach (var enemy in _enemies)
-                if (enemy != null && enemy.IsAlive) remaining.Add(enemy);
+                if (enemy != null && enemy.IsAlive) targets.Add(enemy);
+            targets.Sort((a, b) => Vector2.Distance(_player.position, a.transform.position).CompareTo(Vector2.Distance(_player.position, b.transform.position)));
+            var chainSpheres = new List<SphereAttackAgent>();
+            foreach (var sphere in _spheres)
+                if (sphere != null && sphere.gameObject.activeInHierarchy && sphere.Type == SphereId.Chain)
+                    chainSpheres.Add(sphere);
             var previous = (Vector2)_player.position;
-            for (var jump = 0; jump < maxTargets && remaining.Count > 0; jump++)
+            for (var i = 0; i < chainSpheres.Count; i++)
             {
-                EnemyAgent2D nearest = null;
-                var best = float.PositiveInfinity;
-                foreach (var enemy in remaining)
-                {
-                    var distance = Vector2.Distance(previous, enemy.transform.position);
-                    if (distance < best) { best = distance; nearest = enemy; }
-                }
-                if (nearest == null) break;
-                remaining.Remove(nearest);
-                var targetPosition = (Vector2)nearest.transform.position;
-                SpawnImpact(Vector2.Lerp(previous, targetPosition, 0.5f), new Color(0.63f, 0.42f, 1f, 0.95f));
-                nearest.ReceiveDamage(40f + level * 15f);
-                nearest.ApplySlow(0.65f, 0.72f);
+                var node = (Vector2)chainSpheres[i].transform.position;
+                SpawnCombatArc(previous, node, SphereId.Chain, GetSphereBranch(SphereId.Chain), GetSphereFinal(SphereId.Chain), new Color(0.63f, 0.42f, 1f, 0.95f), 0.24f);
+                previous = node;
+                if (GetAbilityBranch(RunUpgradeKind.Lightning) == "lightning_echo_storm")
+                    foreach (var enemy in _enemies)
+                        if (enemy != null && enemy.IsAlive && Vector2.Distance(enemy.transform.position, node) <= 55f * SpherePlacementRules.SourcePixelsToWorld)
+                            enemy.ReceiveDamage(10f + level * 3f);
+            }
+            for (var jump = 0; jump < Mathf.Min(maxTargets, targets.Count); jump++)
+            {
+                var target = targets[jump];
+                if (target == null || !target.IsAlive) continue;
+                var targetPosition = (Vector2)target.transform.position;
+                SpawnCombatArc(previous, targetPosition, SphereId.Chain, GetSphereBranch(SphereId.Chain), GetSphereFinal(SphereId.Chain), new Color(0.63f, 0.42f, 1f, 0.95f), 0.30f);
+                target.ReceiveDamage(40f + level * 15f);
+                if (GetAbilityBranch(RunUpgradeKind.Lightning) == "lightning_overload" && jump == Mathf.Min(maxTargets, targets.Count) - 1)
+                    target.ReceiveDamage(30f + level * 10f);
+                target.ApplySlow(0.65f, 0.72f);
                 previous = targetPosition;
             }
             ShowTimedCombatMessage("CHAIN LIGHTNING", 0.9f);
