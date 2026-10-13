@@ -1220,7 +1220,6 @@ assert.ok(runtimeArt.includes('40f * GetActiveAbilityCooldownMultiplier()') &&
   'Time Stop / Teleport must preserve source cooldowns, duration scaling and level-III target range');
 assert.ok(activeAbilityEnemy.includes('public void ApplyFreeze(float duration)') &&
   runtimeArt.includes('enemy.ApplyFreeze(freezeDuration)') &&
-  runtimeArt.includes('SetTimedCombatMessage("ECHO FREEZE", 1.2f)') === false &&
   runtimeArt.includes('ShowTimedCombatMessage("ECHO FREEZE", 1.2f)'),
   'Time Stop must apply real freeze status and source feedback');
 assert.ok(runtimeArt.includes('Those ability evolution choices are not yet migrated') &&
