@@ -3935,6 +3935,49 @@ namespace EchoSphere.Runtime
             return suffix == "_f1" ? 1 : suffix == "_f2" ? 2 : suffix == "_f3" ? 3 : 0;
         }
 
+        // Source getAbilityFinalArchetype maps the chosen branch-specific _f1/_f2/_f3
+        // card to the ability's canonical evolution7 archetype by option index.
+        private string GetAbilityFinalArchetype(RunUpgradeKind kind)
+        {
+            switch (kind)
+            {
+                case RunUpgradeKind.Blast:
+                    return GetAbilityFinalVariant(kind) == 1 ? "blast_echo_network" :
+                        GetAbilityFinalVariant(kind) == 2 ? "blast_resonant_core" :
+                        GetAbilityFinalVariant(kind) == 3 ? "blast_infinite_pulse" : string.Empty;
+                case RunUpgradeKind.Shield:
+                    return GetAbilityFinalVariant(kind) == 1 ? "shield_network_guard" :
+                        GetAbilityFinalVariant(kind) == 2 ? "shield_iron_dome" :
+                        GetAbilityFinalVariant(kind) == 3 ? "shield_resonant_guard" : string.Empty;
+                case RunUpgradeKind.Teleport:
+                    return GetAbilityFinalVariant(kind) == 1 ? "teleport_spatial_network" :
+                        GetAbilityFinalVariant(kind) == 2 ? "teleport_hunter_beacon" :
+                        GetAbilityFinalVariant(kind) == 3 ? "teleport_phase_break" : string.Empty;
+                case RunUpgradeKind.FireTrail:
+                    return GetAbilityFinalVariant(kind) == 1 ? "firetrail_network" :
+                        GetAbilityFinalVariant(kind) == 2 ? "firetrail_catalyst" :
+                        GetAbilityFinalVariant(kind) == 3 ? "firetrail_inferno" : string.Empty;
+                case RunUpgradeKind.Minion:
+                    return GetAbilityFinalVariant(kind) == 1 ? "minion_echo_swarm" :
+                        GetAbilityFinalVariant(kind) == 2 ? "minion_network_nodes" :
+                        GetAbilityFinalVariant(kind) == 3 ? "minion_sphere_guard" : string.Empty;
+                case RunUpgradeKind.Lightning:
+                    return GetAbilityFinalVariant(kind) == 1 ? "lightning_storm_network" :
+                        GetAbilityFinalVariant(kind) == 2 ? "lightning_thunder_chain" :
+                        GetAbilityFinalVariant(kind) == 3 ? "lightning_overload_core" : string.Empty;
+                case RunUpgradeKind.TimeStop:
+                    return GetAbilityFinalVariant(kind) == 1 ? "timestop_outside_time" :
+                        GetAbilityFinalVariant(kind) == 2 ? "timestop_closed_network" :
+                        GetAbilityFinalVariant(kind) == 3 ? "timestop_temporal_core" : string.Empty;
+                case RunUpgradeKind.DarkRitual:
+                    return GetAbilityFinalVariant(kind) == 1 ? "darkritual_blood_network" :
+                        GetAbilityFinalVariant(kind) == 2 ? "darkritual_sacrifice_core" :
+                        GetAbilityFinalVariant(kind) == 3 ? "darkritual_void_engine" : string.Empty;
+                default:
+                    return string.Empty;
+            }
+        }
+
         private void AssignActiveAbilityHotkey(RunUpgradeKind kind)
         {
             if (_activeAbilityHotkeys.ContainsKey(kind)) return;
@@ -4354,6 +4397,7 @@ namespace EchoSphere.Runtime
             var activeSpheres = 0;
             var branch = GetAbilityBranch(RunUpgradeKind.Blast);
             var finalVariant = GetAbilityFinalVariant(RunUpgradeKind.Blast);
+            var final = GetAbilityFinalArchetype(RunUpgradeKind.Blast);
             SphereAttackAgent previousSphere = null;
             foreach (var sphere in _spheres)
             {
@@ -4399,6 +4443,7 @@ namespace EchoSphere.Runtime
                 }
             var branch = GetAbilityBranch(RunUpgradeKind.Shield);
             var finalVariant = GetAbilityFinalVariant(RunUpgradeKind.Shield);
+            var final = GetAbilityFinalArchetype(RunUpgradeKind.Shield);
             var charges = 1 + (level - 1) / 2 + (level >= 2 ? Mathf.Min(level >= 3 ? 2 : 1, nearby / 2) : 0);
             if (branch == "shield_bastion") charges++;
             if (branch == "shield_echo_guard") charges += Mathf.Min(2, nearby / 2);
@@ -4430,6 +4475,7 @@ namespace EchoSphere.Runtime
                     sphere.AccelerateNextAttack(1.5f);
             }
             var finalVariant = GetAbilityFinalVariant(RunUpgradeKind.FireTrail);
+            var final = GetAbilityFinalArchetype(RunUpgradeKind.FireTrail);
             if (branch == "firetrail_ignition" || finalVariant == 2)
                 foreach (var enemy in _enemies)
                     if (enemy != null && enemy.IsAlive && (enemy.HasFireStatus || enemy.HasFreezeStatus || enemy.HasPoisonStatus))
@@ -4446,9 +4492,8 @@ namespace EchoSphere.Runtime
             _minionCooldown = 30f * GetActiveAbilityCooldownMultiplier();
             var count = 1 + (level - 1) / 2;
             var branch = GetAbilityBranch(RunUpgradeKind.Minion);
-            var final = GetAbilityFinal(RunUpgradeKind.Minion);
+            var final = GetAbilityFinalArchetype(RunUpgradeKind.Minion);
             var finalVariant = GetAbilityFinalVariant(RunUpgradeKind.Minion);
-            if (finalVariant == 1) count++;
             for (var i = 0; i < count; i++)
             {
                 SphereAttackAgent anchor = null;
@@ -4485,6 +4530,7 @@ namespace EchoSphere.Runtime
             _lightningCooldown = 20f * GetActiveAbilityCooldownMultiplier();
             var maxTargets = 1 + (level - 1) / 2;
             var finalVariant = GetAbilityFinalVariant(RunUpgradeKind.Lightning);
+            var final = GetAbilityFinalArchetype(RunUpgradeKind.Lightning);
             var targets = new List<EnemyAgent2D>();
             foreach (var enemy in _enemies)
                 if (enemy != null && enemy.IsAlive) targets.Add(enemy);
@@ -4530,6 +4576,7 @@ namespace EchoSphere.Runtime
             _darkRitualCooldown = 30f * GetActiveAbilityCooldownMultiplier();
             var branch = GetAbilityBranch(RunUpgradeKind.DarkRitual);
             var finalVariant = GetAbilityFinalVariant(RunUpgradeKind.DarkRitual);
+            var final = GetAbilityFinalArchetype(RunUpgradeKind.DarkRitual);
             _darkRitualOverloadTimer = 5f + Mathf.Min(3, level - 1);
             if (branch == "darkritual_void_pact" || finalVariant == 3)
                 if (_playerCore.CurrentHp / Mathf.Max(1f, _playerCore.MaxHp) < 0.45f) _darkRitualOverloadTimer += 2f;
@@ -4566,8 +4613,8 @@ namespace EchoSphere.Runtime
             if (level <= 0 || _timeStopCooldown > 0f) return;
             _timeStopCooldown = 40f * GetActiveAbilityCooldownMultiplier();
             _timeStopTimer = 3f + Mathf.Min(2, level - 1);
-            _abilityBranches.TryGetValue(RunUpgradeKind.TimeStop, out var branch);
-            _abilityFinals.TryGetValue(RunUpgradeKind.TimeStop, out var final);
+            var branch = GetAbilityBranch(RunUpgradeKind.TimeStop);
+            var final = GetAbilityFinalArchetype(RunUpgradeKind.TimeStop);
             SphereAttackAgent nearest = null;
             var origin = (Vector2)_player.position;
             var nearestDistance = float.PositiveInfinity;
@@ -4631,8 +4678,8 @@ namespace EchoSphere.Runtime
             if (_follow) { ShowTimedCombatMessage("FOLLOW: TELEPORT LOCKED", 0.55f); return; }
             _teleportCooldown = Mathf.Max(5f,
                 (15f - Mathf.Min(4, (level - 1) * 2)) * GetActiveAbilityCooldownMultiplier());
-            _abilityBranches.TryGetValue(RunUpgradeKind.Teleport, out var branch);
-            _abilityFinals.TryGetValue(RunUpgradeKind.Teleport, out var final);
+            var branch = GetAbilityBranch(RunUpgradeKind.Teleport);
+            var final = GetAbilityFinalArchetype(RunUpgradeKind.Teleport);
             var origin = (Vector2)_player.position;
             SphereAttackAgent nearest = null;
             var nearestDistance = float.PositiveInfinity;
