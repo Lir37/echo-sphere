@@ -256,7 +256,10 @@ const enemySpawnRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/
 assert.ok(enemySpawnRules.includes('Select(float elapsedSeconds, float roll)') && enemySpawnRules.includes('EnemyArchetype.Elite'), 'deterministic enemy archetype selection is missing');
 assert.ok(runtime.includes('GetWaveSpawnInterval') && runtime.includes('GetEnemiesPerWave') && runtime.includes('StartNextWave'), 'source wave count and spawn cadence controls are missing');
 assert.ok(runtime.includes('_waveEnemiesToSpawn > 0') && runtime.includes('CountLivingNonBossEnemies() == 0') && runtime.includes('HasActiveBoss()'), 'source wave progression must wait for the current wave and active boss to finish');
-assert.ok(runtime.includes('profile.XpReward') && runtime.includes('GetEnemySprite') && runtime.includes('Initialize(this, _player, xpReward)'), 'enemy role visuals/XP pickup wiring is missing');
+assert.ok(runtime.includes('profile.XpReward') && runtime.includes('GetEnemySprite') &&
+  runtime.includes('ComboRules.GetExperienceOrbValue(xpReward, _comboMultiplier)') &&
+  runtime.includes('Initialize(this, _player, comboExperience)'),
+  'enemy role visuals/Combo-adjusted XP pickup wiring is missing');
 assert.ok(runtime.includes('GetFormationKey') && runtime.includes('AddResonanceChargeFromSource'), 'new-geometry Resonance charging is missing');
 
 const sphereAttack = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs'), 'utf8');
