@@ -4815,10 +4815,11 @@ namespace EchoSphere.Runtime
                 case RunUpgradeKind.MoveSpeed:
                 case RunUpgradeKind.Slow:
                 case RunUpgradeKind.Radius:
+                case RunUpgradeKind.Range:
                     _abilityLevels[choice.Kind] = choice.NextLevel;
                     for (var i = 0; i < _spheres.Count; i++)
                         if (_spheres[i] != null) _spheres[i].ApplyProgressionLevel(_spheres[i].ProgressionLevel);
-                    ShowMessage("SPHERE RADIUS increased.");
+                    ShowMessage(choice.Kind == RunUpgradeKind.Radius ? "SPHERE RADIUS increased." : "SPHERE RANGE increased.");
                     break;
                 case RunUpgradeKind.Dodge:
                 case RunUpgradeKind.Crit:

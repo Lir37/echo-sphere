@@ -1232,6 +1232,8 @@ for (const ability of ['Blast', 'Shield', 'Teleport', 'FireTrail', 'Minion', 'Li
     runtimeArt.includes('Activate' + ability + '()'),
     'source active ability ' + ability + ' must have progression and a runtime activation path');
 }
+assert.ok(runtimeArt.includes('GetSphereRangeMultiplier()') &&
+  runtimeArt.includes('SPHERE RANGE increased.') &&
 assert.ok(runtimeArt.includes('GetSphereRadiusMultiplier()') &&
   runtimeArt.includes('SphereBoostDamageBonus') &&
   runtimeArt.includes('GetActiveAbilityCooldownMultiplier') &&
