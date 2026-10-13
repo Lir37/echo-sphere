@@ -4876,13 +4876,13 @@ namespace EchoSphere.Runtime
             if (nearest != null)
             {
                 var pulseRadius = 150f * scale;
-                var pulseDamage = final == "timestop_temporal_core" ? 10f + level * 8f : 10f + level * 4f;
+                var pulseDamage = 10f + level * 4f;
                 foreach (var enemy in _enemies)
                     if (enemy != null && enemy.IsAlive &&
                         Vector2.Distance(enemy.transform.position, nearest.transform.position) <= pulseRadius)
                         enemy.ReceiveDamage(pulseDamage);
-                for (var i = 0; i < 28; i++) _rng.NextFloat();
             }
+            for (var i = 0; i < 28; i++) _rng.NextFloat();
             ApplyTimeStopSynergyRiders(level);
             ShowTimedCombatMessage("ECHO FREEZE", 1.2f);
         }
