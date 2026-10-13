@@ -220,6 +220,96 @@ namespace EchoSphere.Core
                     };
                 }
             }
+            if (kind == RunUpgradeKind.Blast)
+            {
+                if (!final) return new SphereEvolutionOption[]
+                {
+                    new SphereEvolutionOption("blast_resonance", "Резонансный импульс", "Standard выпускает дополнительный импульс."),
+                    new SphereEvolutionOption("blast_network", "Сетевой импульс", "Импульс последовательно проходит по связанным сферам."),
+                    new SphereEvolutionOption("blast_core", "Ядро взрыва", "Усиливает импульс в центре сети.")
+                };
+                return new SphereEvolutionOption[]
+                {
+                    new SphereEvolutionOption("blast_resonance_f1", "Резонанс • Цветение", "Standard добавляет вторичный импульс."),
+                    new SphereEvolutionOption("blast_network_f2", "Сеть • Разрыв", "Посещённые узлы наносят боковой урон."),
+                    new SphereEvolutionOption("blast_core_f3", "Ядро • Перегрузка", "После импульса сферы быстрее атакуют.")
+                };
+            }
+            if (kind == RunUpgradeKind.Shield)
+            {
+                if (!final) return new SphereEvolutionOption[]
+                {
+                    new SphereEvolutionOption("shield_echo_guard", "Эхо-барьер", "Ближайшие сферы добавляют заряды щита."),
+                    new SphereEvolutionOption("shield_reflector", "Отражающий контур", "Защитный заряд отражает часть давления на врагов."),
+                    new SphereEvolutionOption("shield_bastion", "Бастион", "Сферы образуют единый защитный контур.")
+                };
+                return new SphereEvolutionOption[]
+                {
+                    new SphereEvolutionOption("shield_network_guard", "Network Bastion", "Связанные сферы увеличивают запас щита."),
+                    new SphereEvolutionOption("shield_iron_dome", "Iron Dome", "Сферы рядом с игроком добавляют заряды."),
+                    new SphereEvolutionOption("shield_resonant_guard", "Resonant Guard", "Защита усиливает боевую сеть.")
+                };
+            }
+            if (kind == RunUpgradeKind.FireTrail)
+            {
+                if (!final) return new SphereEvolutionOption[]
+                {
+                    new SphereEvolutionOption("firetrail_overdrive", "Перегрев", "Огненные сферы получают дополнительное ускорение атак."),
+                    new SphereEvolutionOption("firetrail_ignition", "Воспламенитель", "Перегрев поджигает врагов с активным статусом."),
+                    new SphereEvolutionOption("firetrail_sanctum", "Пылающее святилище", "Мгновенно усиливает Aura-сферу.")
+                };
+                return new SphereEvolutionOption[]
+                {
+                    new SphereEvolutionOption("firetrail_network_f1", "Thermal Network", "Перегрев передаётся между узлами."),
+                    new SphereEvolutionOption("firetrail_catalyst_f2", "Catalyst Flame", "Статусы усиливают следующий огненный импульс."),
+                    new SphereEvolutionOption("firetrail_inferno_f3", "Network Inferno", "Каждый перегретый узел усиливает сеть.")
+                };
+            }
+            if (kind == RunUpgradeKind.Minion)
+            {
+                if (!final) return new SphereEvolutionOption[]
+                {
+                    new SphereEvolutionOption("minion_echo_drone", "Эхо-дрон", "Временный дрон поддерживает ближайшую сферу."),
+                    new SphereEvolutionOption("minion_relay_drone", "Релейный дрон", "Дрон передаёт импульс между узлами."),
+                    new SphereEvolutionOption("minion_guardian", "Дрон-страж", "Дрон ускоряет следующую атаку сферы.")
+                };
+                return new SphereEvolutionOption[]
+                {
+                    new SphereEvolutionOption("minion_echo_drone_f1", "Echo Swarm", "Дроны создают дополнительные импульсы."),
+                    new SphereEvolutionOption("minion_relay_drone_f2", "Network Nodes", "Дроны усиливают сетевые переходы."),
+                    new SphereEvolutionOption("minion_guardian_f3", "Sphere Guardians", "Дроны усиливают защищаемые сферы.")
+                };
+            }
+            if (kind == RunUpgradeKind.Lightning)
+            {
+                if (!final) return new SphereEvolutionOption[]
+                {
+                    new SphereEvolutionOption("lightning_echo_storm", "Эхо-шторм", "Разряд проходит через Chain-сферы."),
+                    new SphereEvolutionOption("lightning_relay", "Релейный разряд", "Разряд перескакивает между связанными сферами."),
+                    new SphereEvolutionOption("lightning_overload", "Перегрузка", "Последний разряд серии наносит дополнительный урон.")
+                };
+                return new SphereEvolutionOption[]
+                {
+                    new SphereEvolutionOption("lightning_storm_network_f1", "Storm Network", "Создаёт последовательные разряды между узлами."),
+                    new SphereEvolutionOption("lightning_thunder_chain_f2", "Thunder Network", "Каждая Chain-сфера добавляет переход."),
+                    new SphereEvolutionOption("lightning_overload_core_f3", "Overload Core", "Сеть завершается мощным разрядом.")
+                };
+            }
+            if (kind == RunUpgradeKind.DarkRitual)
+            {
+                if (!final) return new SphereEvolutionOption[]
+                {
+                    new SphereEvolutionOption("darkritual_blood_link", "Кровавая связь", "Передаёт часть перегрузки Standard-сфере."),
+                    new SphereEvolutionOption("darkritual_sacrifice", "Жертвенный круг", "Потеря HP создаёт дополнительный импульс."),
+                    new SphereEvolutionOption("darkritual_void_pact", "Договор пустоты", "Низкий запас HP продлевает перегрузку.")
+                };
+                return new SphereEvolutionOption[]
+                {
+                    new SphereEvolutionOption("darkritual_blood_network_f1", "Blood Network", "Перегрузка передаёт заряд по сети."),
+                    new SphereEvolutionOption("darkritual_sacrifice_core_f2", "Sacrifice Core", "Жертва создаёт усиленный импульс."),
+                    new SphereEvolutionOption("darkritual_void_engine_f3", "Void Engine", "Низкий HP усиливает перегрузку.")
+                };
+            }
             return Array.Empty<SphereEvolutionOption>();
         }
 
