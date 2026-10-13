@@ -239,6 +239,13 @@ namespace EchoSphere.Runtime
             _slowMultiplier = Mathf.Clamp(multiplier, 0.15f, 1f);
         }
 
+        public void ApplyFreeze(float duration)
+        {
+            if (_dead) return;
+            _freezeTimer = Mathf.Max(_freezeTimer, Mathf.Max(0f, duration));
+            RefreshElementalStatusVfx();
+        }
+
         public void KnockBackFrom(Vector2 center, float distance)
         {
             if (_dead || _runtime == null || _runtime.IsGameplayPaused) return;
