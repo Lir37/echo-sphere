@@ -11,7 +11,9 @@ namespace EchoSphere.Core
     /// </summary>
     public static class LevelUpAbilityRules
     {
-        private static readonly RunUpgradeKind[] RoutineKinds =
+        // Source game constructs a passive pool but excludes it from routine Level-Up choices.
+        // Keep these IDs as catalog metadata only; the runtime choice generator must not consume them.
+        private static readonly RunUpgradeKind[] PassiveCatalogKinds =
         {
             RunUpgradeKind.Damage, RunUpgradeKind.AttackSpeed, RunUpgradeKind.MoveSpeed,
             RunUpgradeKind.Slow, RunUpgradeKind.Vitality, RunUpgradeKind.Dodge,
@@ -22,7 +24,7 @@ namespace EchoSphere.Core
             RunUpgradeKind.ProjectileSpeed, RunUpgradeKind.Fortune
         };
 
-        public static IReadOnlyList<RunUpgradeKind> RoutineAbilityKinds => RoutineKinds;
+        public static IReadOnlyList<RunUpgradeKind> SourcePassiveCatalog => PassiveCatalogKinds;
 
         public static int GetMaxLevel(RunUpgradeKind kind) =>
             kind == RunUpgradeKind.MaxSpheres ? 3 : 7;
