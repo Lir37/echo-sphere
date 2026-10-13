@@ -2866,7 +2866,6 @@ namespace EchoSphere.Runtime
             }
 
             var chestChance = enemy != null && enemy.IsBoss ? 1f : enemy != null && enemy.IsElite ? 0.2f : 0.02f;
-            chestChance = Mathf.Clamp01(chestChance + LevelUpAbilityRules.GetFortuneDropBonus(GetAbilityLevel(RunUpgradeKind.Fortune)));
             if (_rng.NextFloat() < chestChance && (enemy == null || !enemy.IsBoss))
             {
                 var chest = new GameObject("Artifact Cache");
@@ -3129,15 +3128,9 @@ namespace EchoSphere.Runtime
                 if (SphereProgressionRules.CanUpgrade(_sphereLevels, definition.Id))
                     pool.Add(SphereProgressionRules.CreateSphereChoice(_sphereLevels, definition.Id));
 
-            if (SphereProgressionRules.CanUpgradeMaxSpheres(_maxSphereAbilityLevel))
-                pool.Add(LevelUpAbilityRules.CreateChoice(RunUpgradeKind.MaxSpheres, _maxSphereAbilityLevel));
-
-            foreach (var kind in LevelUpAbilityRules.RoutineAbilityKinds)
-            {
-                var current = GetAbilityLevel(kind);
-                if (LevelUpAbilityRules.CanUpgrade(kind, current))
-                    pool.Add(LevelUpAbilityRules.CreateChoice(kind, current));
-            }
+            // new-desing builds a passivePool but deliberately excludes it from
+            // sourcePools. Routine Level-Up offers active abilities and Sphere
+            // progression only, so do not expose passive stats or Max Spheres here.
 
             var activeAbilityCount = _activeAbilityHotkeys.Count;
             foreach (var kind in new[] { RunUpgradeKind.Teleport, RunUpgradeKind.TimeStop, RunUpgradeKind.Blast, RunUpgradeKind.Shield, RunUpgradeKind.FireTrail, RunUpgradeKind.Minion, RunUpgradeKind.Lightning, RunUpgradeKind.DarkRitual })
@@ -6638,7 +6631,7 @@ namespace EchoSphere.Runtime
         }
 
         private int GetCurrentMaxSpheres() =>
-            SpherePlacementRules.GetMaxSpheres(_maxSphereAbilityLevel, PersistentUpgradeRules.GetExtraSpheres(GetShopUpgradeLevel("spheres")));
+            SpherePlacementRules.GetMaxSpheres(0, PersistentUpgradeRules.GetExtraSpheres(GetShopUpgradeLevel("spheres")));
 
         private int CountSpheresOfType(SphereId type)
         {
