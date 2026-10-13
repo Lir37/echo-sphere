@@ -4009,3 +4009,53 @@ OPEN:
 ======================================================================
 END LINK BREAKER NETWORK DISRUPTION SLICE
 ======================================================================
+
+
+======================================================================
+[2026-10-13 | TEMPORAL FOLD / STATUS CIRCUIT PREREQUISITE STATE]
+======================================================================
+
+SOURCE AUDIT:
+- Source fields are defined in src/engineTypes.ts and initialized in
+  src/engineState.ts. Timers are updated in src/engineLoop.ts.
+- Time Stop sets player.timestopTimer from the active Time Stop ability;
+  Teleport branches set teleportDamageBuffTimer to 4 s or 5 s in
+  src/engineAbilities.ts. These producers are not yet implemented in Unity.
+- player.sphereMods contains 25 source keys. Its initial rotationSpeed is 1,
+  while the remaining keys start at 0. Consequently the source predicate
+  Object.values(s.player.sphereMods).some(level > 0) is true at baseline;
+  preserve this observed behavior rather than silently changing its condition.
+- src/artifactSystem.ts applies Temporal Fold / Status Circuit set and protocol
+  bonuses through these runtime predicates. The full producer/progression paths
+  must be ported before enabling those bonuses.
+
+IMPLEMENTED ON unity-migration:
+- EchoSphereRuntime now stores and ticks source-equivalent time-control timers.
+  Explicit setters are available for the future source-mapped Time Stop and
+  Teleport ability handlers; unrelated effects do not synthesize these states.
+- Added the complete source player.sphereMods key map with source initial values,
+  including rotationSpeed = 1, plus level getters/setters and the source-shaped
+  any-positive-level predicate.
+- Added Node structural guards for the timer lifecycle, all 25 keys and the
+  baseline value. Temporal Fold / Status Circuit remain marked as having
+  unmapped runtime state in ArtifactProtocolRules and their bonuses are not
+  activated by this prerequisite-only slice.
+- new-desing remains untouched.
+
+VALIDATION:
+- Unity Migration Contracts CI must pass on the final commit for this slice.
+- These state fields are groundwork only: Time Stop / Teleport ability producers
+  and the global Sphere-modifier choice/progression path are still not wired.
+- Unity Editor compilation, APK build and device visual parity remain unverified.
+
+NEXT:
+1. Port the source ability producers for Time Stop and Teleport, preserving their
+   source durations and cooldown/branch conditions.
+2. Port the global Sphere-modifier choice/progression path so the state map is
+   driven by actual player choices.
+3. Only then wire and test the Temporal Fold / Status Circuit set and protocol
+   multipliers, including source-stacked bonuses.
+
+======================================================================
+END TEMPORAL FOLD / STATUS CIRCUIT PREREQUISITE STATE
+======================================================================
