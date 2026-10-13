@@ -211,6 +211,7 @@ namespace EchoSphere.Runtime
 
         private readonly List<EnemyAgent2D> _enemies = new List<EnemyAgent2D>();
         private readonly List<SphereAttackAgent> _spheres = new List<SphereAttackAgent>();
+        private readonly List<AbilityDroneAgent2D> _abilityDrones = new List<AbilityDroneAgent2D>();
         private readonly List<string> _ownedArtifacts = new List<string>();
         private readonly List<ArtifactRewardDefinition> _stellaRewardChoices = new List<ArtifactRewardDefinition>();
         private readonly HashSet<SphereId> _artifactSphereTypeScratch = new HashSet<SphereId>();
@@ -2204,12 +2205,31 @@ namespace EchoSphere.Runtime
             var count = 0;
             for (var i = 0; i < formation.NodeIndexes.Count; i++)
             {
-                var index = formation.NodeIndexes[i];
-                if (index < 0 || index >= _spheres.Count || _spheres[index] == null) continue;
-                center += (Vector2)_spheres[index].transform.position;
+                if (!TryGetNetworkNodePosition(formation.NodeIndexes[i], out var position)) continue;
+                center += position;
                 count++;
             }
             return count > 0 ? center / count : (_player == null ? Vector2.zero : (Vector2)_player.position);
+        }
+
+        private bool TryGetNetworkNodePosition(int index, out Vector2 position)
+        {
+            position = Vector2.zero;
+            if (index < 0) return false;
+            if (index < _spheres.Count)
+            {
+                var sphere = _spheres[index];
+                if (sphere == null || !sphere.gameObject.activeInHierarchy) return false;
+                position = sphere.transform.position;
+                return true;
+            }
+            if (GetAbilityLevel(RunUpgradeKind.Minion) < 3) return false;
+            var droneIndex = index - _spheres.Count;
+            if (droneIndex < 0 || droneIndex >= _abilityDrones.Count) return false;
+            var drone = _abilityDrones[droneIndex];
+            if (drone == null || !drone.IsNetworkNodeAlive) return false;
+            position = drone.NetworkPosition;
+            return true;
         }
 
         private SphereNetworkShape FindFormationCandidate(SphereNetworkFormation type)
@@ -5229,6 +5249,7 @@ namespace EchoSphere.Runtime
                 var agent = drone.AddComponent<AbilityDroneAgent2D>();
                 agent.Initialize(this, nearest != null ? nearest.Type : SphereId.Standard, level,
                     10f + (level >= 5 ? 2f : 0f), branch, final, i);
+                _abilityDrones.Add(agent);
 
                 if (nearest != null && branch == "minion_echo_drone") nearest.AccelerateNextAttack(0.45f);
                 else if (nearest != null && branch == "minion_guardian") nearest.AccelerateNextAttack(0.35f);
@@ -6357,7 +6378,9 @@ namespace EchoSphere.Runtime
 
         private void RefreshNetworkState()
         {
-            var nodes = new List<SphereNetworkNode>(_spheres.Count);
+            _abilityDrones.RemoveAll(drone => drone == null || !drone.IsNetworkNodeAlive);
+            var includeDrones = GetAbilityLevel(RunUpgradeKind.Minion) >= 3;
+            var nodes = new List<SphereNetworkNode>(_spheres.Count + (includeDrones ? _abilityDrones.Count : 0));
             for (var i = 0; i < _spheres.Count; i++)
             {
                 var sphere = _spheres[i];
@@ -6369,6 +6392,15 @@ namespace EchoSphere.Runtime
                 var position = (Vector2)sphere.transform.position;
                 nodes.Add(new SphereNetworkNode(new Vec2(position.x, position.y), !sphere.NetworkDisabled));
             }
+            // new-desing appends temporary Minions to the runtime network from
+            // Minion Ability level III onward. Keep Sphere indexes first, then
+            // drone indexes in their live-list order.
+            if (includeDrones)
+                foreach (var drone in _abilityDrones)
+                {
+                    var position = drone.NetworkPosition;
+                    nodes.Add(new SphereNetworkNode(new Vec2(position.x, position.y), drone.IsNetworkNodeAlive));
+                }
 
             var previous = _preferredDominantFormation != SphereNetworkFormation.None ? _preferredDominantFormation : _previousDominantFormation;
             _networkState = SphereNetworkRules.Analyze(nodes, SphereNetworkRules.DefaultLinkDistance, previous);
@@ -6469,16 +6501,16 @@ namespace EchoSphere.Runtime
                 }
 
                 var link = _networkState.Links[i];
-                if (link.A < 0 || link.B < 0 || link.A >= _spheres.Count || link.B >= _spheres.Count ||
-                    _spheres[link.A] == null || _spheres[link.B] == null)
+                if (!TryGetNetworkNodePosition(link.A, out var from) ||
+                    !TryGetNetworkNodePosition(link.B, out var to))
                 {
                     line.enabled = false;
                     continue;
                 }
 
                 line.enabled = true;
-                line.SetPosition(0, _spheres[link.A].transform.position);
-                line.SetPosition(1, _spheres[link.B].transform.position);
+                line.SetPosition(0, from);
+                line.SetPosition(1, to);
                 var color = new Color(0.20f, 0.72f, 0.88f, 0.40f);
                 if (IsFormationLink(_networkState.DominantFormation, link.A, link.B))
                     color = new Color(1f, 0.77f, 0.34f, 0.82f);
