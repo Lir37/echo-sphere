@@ -47,6 +47,58 @@ namespace EchoSphere.Runtime
         [System.Serializable]
         private sealed class AchievementSaveData { public List<string> ids = new List<string>(); }
 
+        private sealed class ActiveAbilitySynergyLink
+        {
+            public readonly string Id;
+            public readonly SphereId Sphere;
+            public readonly string SphereBranch;
+            public readonly RunUpgradeKind Ability;
+            public readonly string AbilityFinal;
+
+            public ActiveAbilitySynergyLink(string id, SphereId sphere, string sphereBranch, RunUpgradeKind ability, string abilityFinal)
+            {
+                Id = id;
+                Sphere = sphere;
+                SphereBranch = sphereBranch;
+                Ability = ability;
+                AbilityFinal = abilityFinal;
+            }
+        }
+
+        private static readonly ActiveAbilitySynergyLink[] ActiveAbilitySynergyLinks =
+        {
+            new ActiveAbilitySynergyLink("std_res_blast", SphereId.Standard, "standard_resonator", RunUpgradeKind.Blast, "blast_resonance_f1"),
+            new ActiveAbilitySynergyLink("std_singularity_timestop", SphereId.Standard, "standard_singularity", RunUpgradeKind.TimeStop, "timestop_echo_phase_f1"),
+            new ActiveAbilitySynergyLink("std_swarm_minion", SphereId.Standard, "standard_swarm", RunUpgradeKind.Minion, "minion_echo_drone_f1"),
+            new ActiveAbilitySynergyLink("sniper_oracle_teleport", SphereId.Sniper, "sniper_oracle", RunUpgradeKind.Teleport, "teleport_echo_jump_f1"),
+            new ActiveAbilitySynergyLink("sniper_assassin_darkritual", SphereId.Sniper, "sniper_assassin", RunUpgradeKind.DarkRitual, "darkritual_blood_link_f1"),
+            new ActiveAbilitySynergyLink("sniper_beacon_firetrail", SphereId.Sniper, "sniper_beacon", RunUpgradeKind.FireTrail, "firetrail_overdrive_f1"),
+            new ActiveAbilitySynergyLink("shotgun_burst_shield", SphereId.Shotgun, "shotgun_burst", RunUpgradeKind.Shield, "shield_echo_guard_f1"),
+            new ActiveAbilitySynergyLink("shotgun_cataclysm_blast", SphereId.Shotgun, "shotgun_cataclysm", RunUpgradeKind.Blast, "blast_network_f2"),
+            new ActiveAbilitySynergyLink("shotgun_hail_lightning", SphereId.Shotgun, "shotgun_hail", RunUpgradeKind.Lightning, "lightning_echo_storm_f1"),
+            new ActiveAbilitySynergyLink("chain_web_timestop", SphereId.Chain, "chain_web", RunUpgradeKind.TimeStop, "timestop_closed_time_f2"),
+            new ActiveAbilitySynergyLink("chain_storm_lightning", SphereId.Chain, "chain_storm", RunUpgradeKind.Lightning, "lightning_relay_f2"),
+            new ActiveAbilitySynergyLink("chain_leech_darkritual", SphereId.Chain, "chain_leech", RunUpgradeKind.DarkRitual, "darkritual_sacrifice_f2"),
+            new ActiveAbilitySynergyLink("aura_sanctum_shield", SphereId.Aura, "aura_sanctum", RunUpgradeKind.Shield, "shield_reflector_f2"),
+            new ActiveAbilitySynergyLink("aura_gravity_teleport", SphereId.Aura, "aura_gravity", RunUpgradeKind.Teleport, "teleport_beacon_f2"),
+            new ActiveAbilitySynergyLink("aura_overgrowth_firetrail", SphereId.Aura, "aura_overgrowth", RunUpgradeKind.FireTrail, "firetrail_sanctum_f3"),
+            new ActiveAbilitySynergyLink("orbital_dance_minion", SphereId.Orbital, "orbital_dance", RunUpgradeKind.Minion, "minion_relay_drone_f2"),
+            new ActiveAbilitySynergyLink("orbital_halo_shield", SphereId.Orbital, "orbital_halo", RunUpgradeKind.Shield, "shield_bastion_f3"),
+            new ActiveAbilitySynergyLink("orbital_blade_darkritual", SphereId.Orbital, "orbital_blade", RunUpgradeKind.DarkRitual, "darkritual_void_pact_f3"),
+            new ActiveAbilitySynergyLink("prism_split_blast", SphereId.Prism, "prism_split", RunUpgradeKind.Blast, "blast_core_f3"),
+            new ActiveAbilitySynergyLink("prism_spectrum_firetrail", SphereId.Prism, "prism_spectrum", RunUpgradeKind.FireTrail, "firetrail_ignition_f2"),
+            new ActiveAbilitySynergyLink("prism_mirror_teleport", SphereId.Prism, "prism_mirror", RunUpgradeKind.Teleport, "teleport_phase_f3"),
+            new ActiveAbilitySynergyLink("gravity_well_firetrail", SphereId.Gravity, "gravity_well", RunUpgradeKind.FireTrail, "firetrail_overdrive_f3"),
+            new ActiveAbilitySynergyLink("gravity_tide_timestop", SphereId.Gravity, "gravity_tide", RunUpgradeKind.TimeStop, "timestop_time_anchor_f3"),
+            new ActiveAbilitySynergyLink("gravity_collapse_blast", SphereId.Gravity, "gravity_collapse", RunUpgradeKind.Blast, "blast_network_f1"),
+            new ActiveAbilitySynergyLink("pulse_wave_blast", SphereId.Pulse, "pulse_wave", RunUpgradeKind.Blast, "blast_core_f2"),
+            new ActiveAbilitySynergyLink("pulse_resonator_lightning", SphereId.Pulse, "pulse_resonator", RunUpgradeKind.Lightning, "lightning_echo_storm_f3"),
+            new ActiveAbilitySynergyLink("pulse_burst_shield", SphereId.Pulse, "pulse_burst", RunUpgradeKind.Shield, "shield_echo_guard_f2"),
+            new ActiveAbilitySynergyLink("void_hunger_darkritual", SphereId.Void, "void_hunger", RunUpgradeKind.DarkRitual, "darkritual_blood_link_f2"),
+            new ActiveAbilitySynergyLink("void_reaper_minion", SphereId.Void, "void_reaper", RunUpgradeKind.Minion, "minion_guardian_f3"),
+            new ActiveAbilitySynergyLink("void_execution_teleport", SphereId.Void, "void_execution", RunUpgradeKind.Teleport, "teleport_echo_jump_f2")
+        };
+
         [System.Serializable]
         private sealed class CharacterProfileData
         {
@@ -171,6 +223,8 @@ namespace EchoSphere.Runtime
         private float _teleportCooldown, _timeStopCooldown;
         private float _blastCooldown, _shieldCooldown, _fireTrailCooldown, _minionCooldown, _lightningCooldown, _darkRitualCooldown;
         private float _fireTrailTimer, _fireCatalystTimer, _darkRitualOverloadTimer, _shieldTimer, _shieldVisualPulse;
+        private bool _applyingActiveAbilitySynergyRiders;
+        private float _activeAbilitySynergyPower = 1f;
         
         private readonly List<string> _recentUpgradeChoiceKeys = new List<string>();
         private readonly List<string> _oracleForecastKeys = new List<string>();
@@ -4103,15 +4157,19 @@ namespace EchoSphere.Runtime
 
         private bool HasActiveAbilitySynergy(SphereId sphere, string sphereBranch, RunUpgradeKind ability, string abilityFinal)
         {
+            if (!IsActiveAbilitySynergyRaw(sphere, sphereBranch, ability, abilityFinal)) return false;
+            _activeAbilitySynergyPower = GetActiveAbilitySynergyPower(sphere, sphereBranch, ability, abilityFinal);
+            return true;
+        }
+
+        private bool IsActiveAbilitySynergyRaw(SphereId sphere, string sphereBranch, RunUpgradeKind ability, string abilityFinal)
+        {
             if (GetAbilityLevel(ability) < 7 ||
                 !_sphereLevels.TryGetValue(sphere, out var sphereLevel) || sphereLevel < 7 ||
                 !_sphereBranches.TryGetValue(sphere, out var selectedSphereBranch) || selectedSphereBranch != sphereBranch ||
                 string.IsNullOrEmpty(abilityFinal) || abilityFinal.Length < 3)
                 return false;
 
-            // Source synergy IDs use branchId_f1/f2/f3. Unity stores the selected
-            // final option by its own ID, so compare its position in the same
-            // three-option evolution pool instead of comparing unlike IDs.
             var suffix = abilityFinal.Substring(abilityFinal.Length - 3);
             if (suffix != "_f1" && suffix != "_f2" && suffix != "_f3") return false;
             var expectedBranch = abilityFinal.Substring(0, abilityFinal.Length - 3);
@@ -4125,6 +4183,20 @@ namespace EchoSphere.Runtime
             for (var i = 0; i < choices.Count; i++)
                 if (choices[i].Id == selectedFinalId) return i == expectedVariant;
             return false;
+        }
+
+        private float GetActiveAbilitySynergyPower(SphereId sphere, string sphereBranch, RunUpgradeKind ability, string abilityFinal)
+        {
+            var active = new List<ActiveAbilitySynergyLink>();
+            foreach (var link in ActiveAbilitySynergyLinks)
+                if (link.Ability == ability && IsActiveAbilitySynergyRaw(link.Sphere, link.SphereBranch, link.Ability, link.AbilityFinal))
+                    active.Add(link);
+            active.Sort((a, b) => string.CompareOrdinal(a.Id, b.Id));
+            for (var i = 0; i < active.Count; i++)
+                if (active[i].Sphere == sphere && active[i].SphereBranch == sphereBranch &&
+                    active[i].Ability == ability && active[i].AbilityFinal == abilityFinal)
+                    return 1f / (1f + i * 0.18f);
+            return 1f;
         }
 
         public SphereAttackAgent FindNearestSphereOfType(SphereId type, Vector2 origin)
