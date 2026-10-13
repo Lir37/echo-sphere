@@ -4059,3 +4059,71 @@ NEXT:
 ======================================================================
 END TEMPORAL FOLD / STATUS CIRCUIT PREREQUISITE STATE
 ======================================================================
+
+
+======================================================================
+[2026-10-13 | ACTIVE ABILITY / GLOBAL SPHEREMODS SOURCE TRACE]
+======================================================================
+
+SOURCE TRACE (new-desing HEAD 737ef2af4a877e0995db5f92331d536d2f29a934):
+
+TIME STOP:
+- src/engineAbilities.ts: activateTimeStop() is explicitly invoked by the
+  player's active-key mapping, not automatically by cooldown expiry.
+- Activation requires abilities.timestop > 0 and timestopCooldown <= 0.
+- It sets cooldown to 40 * getCooldownMult(s) and timer to
+  3 + min(2, ability level - 1) seconds, then applies enemy freeze and
+  branch/final effects. The full handler also propagates freeze through
+  source-specific Sphere/network rules and emits a Sphere pulse.
+- engineLoop.ts decrements timestopTimer and the cooldown independently.
+
+TELEPORT:
+- src/engineAbilities.ts: activateTeleport() is also key-triggered.
+- It is blocked while formationFollowActive, and requires ability level > 0
+  and teleportCooldown <= 0. Cooldown is
+  max(5, (15 - min(4, (level - 1) * 2)) * getCooldownMult(s).
+- Target selection changes at level 3: prefer a Sphere 220..700 source pixels
+  away, otherwise use the nearest Sphere; with no target, teleport to a
+  seeded-random offset in +/-300 on each axis.
+- teleportDamageBuffTimer is set to 4 s for branch teleport_beacon, or
+  5 s for final teleport_hunter_beacon when the target Sphere is Sniper.
+- The source handler additionally applies movement, invulnerability,
+  network/lightning damage and branch/final riders. Timer setters alone are
+  not equivalent to porting this handler.
+
+GLOBAL player.sphereMods:
+- src/engineState.ts initializes 25 keys, with rotationSpeed = 1 and all
+  other listed keys = 0.
+- The inspected source combat/ability/Sphere runtime paths read these values
+  as fallback modifier state (notably fire/freeze/poison, ricochet and drain).
+  No source-wide Level-Up choice/progression path that mutates this map was
+  found in the inspected paths. Do not invent a new global modifier-choice
+  system; continue tracing actual assignments and preserve per-Sphere
+  modifier progression separately.
+
+UNITY MIGRATION CONSEQUENCE:
+- Unity currently has only source-mapped passive RunUpgradeKind choices and
+  Dash input; LevelUpAbilityRules deliberately excludes non-ported active
+  abilities. There is no faithful active-key/mobile-button route to call
+  Time Stop / Teleport handlers yet.
+- Do not auto-trigger either ability on cooldown: that would contradict the
+  source key-triggered behavior.
+- The previously added timers and sphereMods map remain prerequisite state,
+  not a completed ability port. Temporal Fold / Status Circuit stay gated.
+
+NEXT IMPLEMENTATION SLICE:
+1. Port a source-equivalent active-ability activation/input path and ability
+   levels for Time Stop and Teleport, without auto-triggering them.
+2. Port their source target selection, cooldowns, timer producers and gameplay
+   effects in bounded steps; preserve source branch/final conditions.
+3. Trace actual source assignments to player.sphereMods before adding any
+   progression mechanism. Only then connect Temporal Fold / Status Circuit.
+
+VALIDATION LIMIT:
+This section is a source audit only. It does not claim the active abilities
+or mobile controls are implemented. Unity Editor compilation, APK build and
+device visual parity remain unverified.
+
+======================================================================
+END ACTIVE ABILITY / GLOBAL SPHEREMODS SOURCE TRACE
+======================================================================
