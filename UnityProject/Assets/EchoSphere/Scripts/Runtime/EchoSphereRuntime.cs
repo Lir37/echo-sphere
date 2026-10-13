@@ -3812,6 +3812,10 @@ namespace EchoSphere.Runtime
                     if (enemy != null && enemy.IsAlive &&
                         Vector2.Distance(enemy.transform.position, nearest.transform.position) <= pulseRadius)
                         enemy.ReceiveDamage(pulseDamage);
+                // Source emitSpherePulse consumes two seeded RNG draws for each of
+                // its 14 cosmetic particles. Preserve the run RNG stream until those
+                // particle visuals are ported.
+                for (var i = 0; i < 28; i++) _rng.NextFloat();
             }
             ShowTimedCombatMessage("ECHO FREEZE", 1.2f);
         }
@@ -3861,7 +3865,14 @@ namespace EchoSphere.Runtime
                 destination = origin + new Vector2((_rng.NextFloat() * 2f - 1f) * offset,
                     (_rng.NextFloat() * 2f - 1f) * offset);
             }
+            var worldLimit = 1200f * SpherePlacementRules.SourcePixelsToWorld;
+            destination.x = Mathf.Clamp(destination.x, -worldLimit, worldLimit);
+            destination.y = Mathf.Clamp(destination.y, -worldLimit, worldLimit);
             _player.position = new Vector3(destination.x, destination.y, _player.position.z);
+            // Source doTeleportTo consumes 64 seeded draws for its 32 cosmetic
+            // particle velocity vectors. Keep subsequent run RNG aligned until the
+            // authored teleport particles are ported.
+            for (var i = 0; i < 64; i++) _rng.NextFloat();
             // The source damage buff is branch/final-specific (Teleport Beacon / Hunter Beacon).
             // Those ability evolution choices are not yet migrated, so do not fabricate the buff here.
             ShowTimedCombatMessage("ECHO JUMP", 0.9f);
