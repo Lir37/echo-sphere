@@ -85,13 +85,37 @@ namespace EchoSphere.Core
                     title = "NETWORK STABILITY / " + next;
                     description = "-" + (next * 12) + "% network-disable duration, with the source 16% floor.";
                     break;
+                case RunUpgradeKind.Blast:
+                    title = "ECHO PULSE / " + next;
+                    description = "Pulse damage scales with level; source cooldown starts at 30s and falls by 2s per level.";
+                    break;
+                case RunUpgradeKind.Shield:
+                    title = "ECHO GUARD / " + next;
+                    description = "Grants shield charges and a 10s defensive window; source cooldown 20s.";
+                    break;
                 case RunUpgradeKind.Teleport:
                     title = "ECHO JUMP / " + next;
                     description = "Teleport to a nearby Sphere; cooldown " + Math.Max(5, 15 - Math.Min(4, (next - 1) * 2)) + "s.";
                     break;
+                case RunUpgradeKind.FireTrail:
+                    title = "OVERHEAT / " + next;
+                    description = "Ignites the player's trail for " + (5 + Math.Min(3, next - 1)) + "s; cooldown 25s.";
+                    break;
+                case RunUpgradeKind.Minion:
+                    title = "ECHO DRONE / " + next;
+                    description = "Deploys " + (1 + (next - 1) / 2) + " temporary combat drone(s); cooldown 30s.";
+                    break;
+                case RunUpgradeKind.Lightning:
+                    title = "CHAIN LIGHTNING / " + next;
+                    description = "Lightning chains across Spheres and damages nearby enemies; cooldown 20s.";
+                    break;
                 case RunUpgradeKind.TimeStop:
                     title = "ECHO FREEZE / " + next;
                     description = "Freeze enemies for " + (3 + Math.Min(2, next - 1)) + "s; cooldown 40s.";
+                    break;
+                case RunUpgradeKind.DarkRitual:
+                    title = "DARK RITUAL / " + next;
+                    description = "Unleashes a high-cost offensive ritual; cooldown and effects scale with level.";
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(kind), kind, "Not a source-mapped routine Ability.");
