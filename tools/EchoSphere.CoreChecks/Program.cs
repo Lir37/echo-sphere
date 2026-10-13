@@ -49,6 +49,7 @@ internal static class Program
             CheckAxiomFoldSynergy();
             CheckResonanceGeometryMemoryRules();
             CheckArtifactSetRules();
+            CheckArtifactProtocolRules();
             CheckSphereElementalRules();
             CheckAlchemistReactionRules();
             CheckSphereAuthoredModifierRules();
@@ -1207,6 +1208,68 @@ internal static class Program
         Near(ArtifactSetRules.GetNetworkLegacySetDamageMultiplier(true, 3, SphereNetworkFormation.Fractal), 1.06f, 0f, "Network Legacy adds +6% with Fractal");
         Near(ArtifactSetRules.GetNetworkLegacySetDamageMultiplier(true, 3, SphereNetworkFormation.Triangle), 1f, 0f, "Network Legacy excludes other geometries");
         Near(ArtifactSetRules.GetNetworkLegacySetDamageMultiplier(true, 2, SphereNetworkFormation.Ring), 1f, 0f, "Network Legacy requires three types");
+    }
+
+    private static void CheckArtifactProtocolRules()
+    {
+        Near(ArtifactProtocolRules.GetTriangleResonanceMultiplier(true, true), 1.05f, 0f,
+            "Triangle Resonance protocol grants +5% for a sphere in a valid source triangle");
+        Near(ArtifactProtocolRules.GetTriangleResonanceMultiplier(true, false), 1f, 0f,
+            "Triangle Resonance protocol requires the attacking Sphere to form a source triangle");
+
+        Near(ArtifactProtocolRules.GetSphereRelayMultiplier(true, 2, true), 1.05f, 0f,
+            "Sphere Relay protocol grants +5% to nearby Spheres in a mixed network");
+        Near(ArtifactProtocolRules.GetSphereRelayMultiplier(true, 1, true), 1f, 0f,
+            "Sphere Relay protocol requires two unique active Sphere types");
+        Near(ArtifactProtocolRules.GetSphereRelayMultiplier(true, 2, false), 1f, 0f,
+            "Sphere Relay protocol requires another Sphere within 220 px");
+
+        Near(ArtifactProtocolRules.GetGeometryCircuitMultiplier(true, SphereNetworkFormation.Ring), 1.05f, 0f,
+            "Geometry Circuit protocol grants +5% during Ring");
+        Near(ArtifactProtocolRules.GetGeometryCircuitMultiplier(true, SphereNetworkFormation.Fractal), 1.05f, 0f,
+            "Geometry Circuit protocol grants +5% during Fractal");
+        Near(ArtifactProtocolRules.GetGeometryCircuitMultiplier(true, SphereNetworkFormation.Triangle), 1f, 0f,
+            "Geometry Circuit protocol excludes Triangle");
+
+        Near(ArtifactProtocolRules.GetVoidHorizonProtocolMultiplier(true, true, true), 1.08f, 0f,
+            "Void Horizon protocol grants Void +8% under Elite/Boss pressure");
+        Near(ArtifactProtocolRules.GetVoidHorizonProtocolMultiplier(true, true, false), 1f, 0f,
+            "Void Horizon protocol requires a living Elite or Boss");
+        Near(ArtifactProtocolRules.GetVoidHorizonProtocolMultiplier(true, false, true), 1f, 0f,
+            "Void Horizon protocol only affects Void");
+
+        Near(ArtifactProtocolRules.GetHunterDoctrineProtocolMultiplier(true, true, true), 1.08f, 0f,
+            "Hunter Doctrine protocol grants Sniper +8% under Elite/Boss pressure");
+        Near(ArtifactProtocolRules.GetHunterDoctrineProtocolMultiplier(true, true, false), 1f, 0f,
+            "Hunter Doctrine protocol requires a living Elite or Boss");
+
+        Near(ArtifactProtocolRules.GetPulseEngineeringProtocolMultiplier(true, true, 3), 1f, 0f,
+            "Pulse Engineering protocol requires four living enemies");
+        Near(ArtifactProtocolRules.GetPulseEngineeringProtocolMultiplier(true, true, 4), 1.08f, 0f,
+            "Pulse Engineering protocol grants Pulse +8% against a group");
+        Near(ArtifactProtocolRules.GetPulseEngineeringProtocolMultiplier(true, false, 4), 1f, 0f,
+            "Pulse Engineering protocol only affects Pulse");
+
+        Near(ArtifactProtocolRules.GetCoreForgeProtocolMultiplier(true, 2), 1f, 0f,
+            "Core Forge protocol requires three unique active types");
+        Near(ArtifactProtocolRules.GetCoreForgeProtocolMultiplier(true, 3), 1.05f, 0f,
+            "Core Forge protocol grants +5% at three types");
+
+        Near(ArtifactProtocolRules.GetPrismDominionProtocolMultiplier(true, true, true), 1.06f, 0f,
+            "Prism Dominion protocol grants +6% to Prism/Orbital/Void when refraction pressure is present");
+        Near(ArtifactProtocolRules.GetPrismDominionProtocolMultiplier(true, true, false), 1f, 0f,
+            "Prism Dominion protocol requires Prism plus Orbital or Void in the active build");
+        Near(ArtifactProtocolRules.GetPrismDominionProtocolMultiplier(true, false, true), 1f, 0f,
+            "Prism Dominion protocol excludes non-specialized Sphere types");
+
+        Near(ArtifactProtocolRules.GetNetworkLegacyProtocolMultiplier(true, 3, SphereNetworkFormation.Ring), 1.06f, 0f,
+            "Network Legacy protocol grants +6% with three types and Ring");
+        Near(ArtifactProtocolRules.GetNetworkLegacyProtocolMultiplier(true, 3, SphereNetworkFormation.Fractal), 1.06f, 0f,
+            "Network Legacy protocol grants +6% with Fractal");
+        Near(ArtifactProtocolRules.GetNetworkLegacyProtocolMultiplier(true, 3, SphereNetworkFormation.Triangle), 1f, 0f,
+            "Network Legacy protocol requires Ring, Lattice or Fractal");
+        Near(ArtifactProtocolRules.GetNetworkLegacyProtocolMultiplier(true, 2, SphereNetworkFormation.Ring), 1f, 0f,
+            "Network Legacy protocol requires three unique types");
     }
 
     private static void CheckSphereElementalRules()

@@ -3745,6 +3745,32 @@ namespace EchoSphere.Runtime
                 ArtifactSynergyRules.HasPerfectNetworkSynergy(_ownedArtifacts));
             multiplier *= ArtifactSetRules.GetNetworkLegacySetDamageMultiplier(
                 hasNetworkLegacySet, uniqueTypes, _resonanceGeometryType);
+
+            // Source Artifact Protocol damage gates, kept separate from their
+            // completed-set bonus so their multiplicative stacking is preserved.
+            multiplier *= ArtifactProtocolRules.GetTriangleResonanceMultiplier(
+                hasResonanceGrid, SphereFormsTriangleWithinSourceRange(sphere));
+            multiplier *= ArtifactProtocolRules.GetSphereRelayMultiplier(
+                FormationHitRules.HasCompletedEchoArchitecture(_ownedArtifacts), uniqueTypes,
+                HasNearbyActiveSphere(sphere, 220f));
+            multiplier *= ArtifactProtocolRules.GetGeometryCircuitMultiplier(
+                hasGeometryCraft, _resonanceGeometryType);
+            multiplier *= ArtifactProtocolRules.GetVoidHorizonProtocolMultiplier(
+                hasVoidHorizonSet, sphere.Type == SphereId.Void, HasLivingEliteOrBossEnemy());
+            multiplier *= ArtifactProtocolRules.GetHunterDoctrineProtocolMultiplier(
+                hasHunterDoctrineSet, sphere.Type == SphereId.Sniper, HasLivingEliteOrBossEnemy());
+            multiplier *= ArtifactProtocolRules.GetPulseEngineeringProtocolMultiplier(
+                hasPulseEngineeringSet, sphere.Type == SphereId.Pulse, CountLivingEnemiesInRun());
+            multiplier *= ArtifactProtocolRules.GetCoreForgeProtocolMultiplier(
+                hasCoreForgeSet, uniqueTypes);
+            var refractionPressure = HasActiveSphereType(SphereId.Prism) &&
+                (HasActiveSphereType(SphereId.Orbital) || HasActiveSphereType(SphereId.Void));
+            multiplier *= ArtifactProtocolRules.GetPrismDominionProtocolMultiplier(
+                hasPrismDominionSet, sphere.Type == SphereId.Prism ||
+                    sphere.Type == SphereId.Orbital || sphere.Type == SphereId.Void,
+                refractionPressure);
+            multiplier *= ArtifactProtocolRules.GetNetworkLegacyProtocolMultiplier(
+                hasNetworkLegacySet, uniqueTypes, _resonanceGeometryType);
             return multiplier;
         }
 
@@ -3776,6 +3802,17 @@ namespace EchoSphere.Runtime
                     if (ArtifactSynergyRules.IsTriangleWithinSourceRange(abDistance, asDistance, bsDistance))
                         return true;
                 }
+            }
+            return false;
+        }
+
+        private bool HasActiveSphereType(SphereId type)
+        {
+            for (var i = 0; i < _spheres.Count; i++)
+            {
+                var sphere = _spheres[i];
+                if (sphere != null && sphere.gameObject.activeInHierarchy && sphere.Type == type)
+                    return true;
             }
             return false;
         }

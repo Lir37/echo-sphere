@@ -38,6 +38,8 @@ const required = [
   'Assets/EchoSphere/Scripts/Core/ResonanceGeometryMemoryRules.cs.meta',
   'Assets/EchoSphere/Scripts/Core/ArtifactSetRules.cs',
   'Assets/EchoSphere/Scripts/Core/ArtifactSetRules.cs.meta',
+  'Assets/EchoSphere/Scripts/Core/ArtifactProtocolRules.cs',
+  'Assets/EchoSphere/Scripts/Core/ArtifactProtocolRules.cs.meta',
   'Assets/EchoSphere/Scripts/Runtime/StellaChestAgent2D.cs',
   'Assets/EchoSphere/Scripts/Runtime/BossCombatAgent2D.cs',
   'Assets/EchoSphere/Scripts/Runtime/BossProjectileAgent2D.cs',
@@ -1030,3 +1032,24 @@ assert.ok(artifactSetRulesSource.includes('complete && hasNearbySphere && hasAct
   artifactSetRulesSource.includes('complete && isVoidSphere ? 1.10f : 1f') &&
   artifactSetRulesSource.includes('complete && isPrismOrOrbital ? 1.08f : 1f'),
   'Completed Artifact Set multipliers must retain their numeric gates');
+
+
+// Artifact Protocol combat bonuses are active runtime multipliers, not only UI state.
+const artifactProtocolRulesSource = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/ArtifactProtocolRules.cs'), 'utf8');
+assert.ok(menuRuntime.includes('ArtifactProtocolRules.GetTriangleResonanceMultiplier') &&
+  menuRuntime.includes('ArtifactProtocolRules.GetSphereRelayMultiplier') &&
+  menuRuntime.includes('ArtifactProtocolRules.GetGeometryCircuitMultiplier') &&
+  menuRuntime.includes('ArtifactProtocolRules.GetVoidHorizonProtocolMultiplier') &&
+  menuRuntime.includes('ArtifactProtocolRules.GetHunterDoctrineProtocolMultiplier') &&
+  menuRuntime.includes('ArtifactProtocolRules.GetPulseEngineeringProtocolMultiplier') &&
+  menuRuntime.includes('ArtifactProtocolRules.GetCoreForgeProtocolMultiplier') &&
+  menuRuntime.includes('ArtifactProtocolRules.GetPrismDominionProtocolMultiplier') &&
+  menuRuntime.includes('ArtifactProtocolRules.GetNetworkLegacyProtocolMultiplier'),
+  'Nine completed-set Artifact Protocols must feed the real Sphere damage multiplier');
+assert.ok(artifactProtocolRulesSource.includes('completedGrid && sphereFormsTriangle ? 1.05f : 1f') &&
+  artifactProtocolRulesSource.includes('completedEchoArchitecture && uniqueTypeCount >= 2 && hasNearbySphere ? 1.05f : 1f') &&
+  artifactProtocolRulesSource.includes('completedVoidHorizon && isVoidSphere && hasLivingEliteOrBoss ? 1.08f : 1f') &&
+  artifactProtocolRulesSource.includes('completedHunterDoctrine && isSniperSphere && hasLivingEliteOrBoss ? 1.08f : 1f') &&
+  artifactProtocolRulesSource.includes('completedPulseEngineering && isPulseSphere && livingEnemyCount >= 4 ? 1.08f : 1f') &&
+  artifactProtocolRulesSource.includes('completedPrismDominion && isPrismOrbitalOrVoid && refractionPressure ? 1.06f : 1f'),
+  'Artifact Protocol bonuses must preserve source values and active-state gates');
