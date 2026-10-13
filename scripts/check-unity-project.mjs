@@ -1198,6 +1198,37 @@ assert.ok(artifactProtocolRulesSource.includes('"temporal_fold_protocol"') &&
   'Temporal Fold and Status Circuit must remain gated until source state producers and modifier progression are wired');
 
 
+// Time Stop / Teleport activation parity: level-gated slots, manual source-key activation,
+// cooldowns, timer production and target-range behavior. Ability branches/finals remain gated.
+const activeAbilityEnemy = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs'), 'utf8');
+const sphereProgressionRulesSource = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/SphereProgressionRules.cs'), 'utf8');
+assert.ok(sphereProgressionRulesSource.includes('Teleport, TimeStop') &&
+  levelUpAbilities.includes('case RunUpgradeKind.Teleport:') &&
+  levelUpAbilities.includes('case RunUpgradeKind.TimeStop:') &&
+  runtimeArt.includes('private void ActivateTimeStop()') &&
+  runtimeArt.includes('private void ActivateTeleport()') &&
+  runtimeArt.includes('ActivateActiveAbility(binding.Key)'),
+  'Time Stop and Teleport must be actual selectable, manually activated run abilities');
+assert.ok(runtimeArt.includes('_level >= 20 ? 3 : _level >= 12 ? 2 : _level >= 5 ? 1 : 0') &&
+  runtimeArt.includes('SourceActiveAbilityKeys = { KeyCode.E, KeyCode.Q, KeyCode.R, KeyCode.F, KeyCode.G }') &&
+  runtimeArt.includes('AssignActiveAbilityHotkey(choice.Kind)'),
+  'active ability slots and hotkey assignment must follow source progression');
+assert.ok(runtimeArt.includes('40f * GetActiveAbilityCooldownMultiplier()') &&
+  runtimeArt.includes('3f + Mathf.Min(2, level - 1)') &&
+  runtimeArt.includes('Mathf.Max(5f, 15f - Mathf.Min(4, (level - 1) * 2))') &&
+  runtimeArt.includes('220f') && runtimeArt.includes('700f') && runtimeArt.includes('300f'),
+  'Time Stop / Teleport must preserve source cooldowns, duration scaling and level-III target range');
+assert.ok(activeAbilityEnemy.includes('public void ApplyFreeze(float duration)') &&
+  runtimeArt.includes('enemy.ApplyFreeze(freezeDuration)') &&
+  runtimeArt.includes('SetTimedCombatMessage("ECHO FREEZE", 1.2f)') === false &&
+  runtimeArt.includes('ShowTimedCombatMessage("ECHO FREEZE", 1.2f)'),
+  'Time Stop must apply real freeze status and source feedback');
+assert.ok(runtimeArt.includes('Those ability evolution choices are not yet migrated') &&
+  artifactProtocolRulesSource.includes('"temporal_fold_protocol"') &&
+  artifactProtocolRulesSource.includes('"status_circuit_protocol"'),
+  'unported ability branch/final effects must not be fabricated to unlock artifact timers');
+
+
 // Link Breaker source parity: authored range/timers, disabled-target filtering and Stability scaling.
 const linkBreakerEnemy = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs'), 'utf8');
 const linkBreakerRuntime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs'), 'utf8');
