@@ -4226,3 +4226,32 @@ VALIDATION FOLLOW-UP:
 
 END ACTIVE ABILITY EVOLUTION CHOICES AND COMBAT RIDERS
 ======================================================================
+
+
+======================================================================
+[2026-10-13 | TEMPORAL FOLD / STATUS CIRCUIT LIVE DAMAGE PARITY]
+======================================================================
+
+IMPLEMENTED ON unity-migration:
+- Added the source Temporal Echo artifact pair predicate (Time Splitter +
+  Stasis Mandala) and wired its +12% damage only while Time Stop or the
+  Teleport damage buff timer is active.
+- Wired the Temporal Fold completed-set +12% conditional bonus and its
+  separate +6% protocol bonus, preserving multiplicative stacking.
+- Wired Status Circuit and Status Loop synergy bonuses, the completed-set
+  +10% Prism bonus, and the +6% Status Circuit protocol bonus using the source
+  Prism + any-positive sphereMods predicate. The source-initialized
+  rotationSpeed=1 is preserved, so this predicate follows source behavior.
+- Removed the unmapped-state gate only for these two protocols; the generic
+  guard remains for any protocol whose source runtime state is still missing.
+- Updated structural checks to assert the real predicates and multipliers.
+
+VALIDATION:
+- CI #355 passed 1,114 pure C# assertions and Unity project structural checks
+  after active-ability evolution work.
+- CI must pass again on this additional set/protocol wiring commit.
+- Unity Editor compilation, APK build and device visual parity remain unverified.
+
+======================================================================
+END TEMPORAL FOLD / STATUS CIRCUIT LIVE DAMAGE PARITY
+======================================================================

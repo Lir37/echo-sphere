@@ -22,6 +22,9 @@ namespace EchoSphere.Core
         public static bool HasCoreRelaySynergy(IList<string> ownedArtifacts) =>
             HasBoth(ownedArtifacts, "unified_mind", "echo_thread");
 
+        public static bool HasTemporalEchoSynergy(IList<string> ownedArtifacts) =>
+            HasBoth(ownedArtifacts, "time_splitter", "stasis_mandala");
+
         public static bool HasVoidHorizonSynergy(IList<string> ownedArtifacts) =>
             HasBoth(ownedArtifacts, "void_ink", "void_mark");
 
@@ -145,6 +148,17 @@ namespace EchoSphere.Core
 
         private static bool IsFiniteNonNegative(float value) =>
             !float.IsNaN(value) && !float.IsInfinity(value) && value >= 0f;
+
+        public static float GetTemporalEchoDamageMultiplier(bool hasSynergy, bool timeControlActive) =>
+            hasSynergy && timeControlActive ? 1.12f : 1f;
+
+        public static float GetStatusCircuitDamageMultiplier(
+            bool hasSynergy, bool isPrism, bool hasAnySphereModifier) =>
+            hasSynergy && isPrism && hasAnySphereModifier ? 1.10f : 1f;
+
+        public static float GetStatusLoopDamageMultiplier(
+            bool hasSynergy, bool isPrism, bool hasAnySphereModifier) =>
+            hasSynergy && isPrism && hasAnySphereModifier ? 1.10f : 1f;
 
         private static bool HasBoth(IList<string> ownedArtifacts, string first, string second)
         {

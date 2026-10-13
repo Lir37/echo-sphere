@@ -4147,9 +4147,7 @@ namespace EchoSphere.Runtime
                         ArtifactSynergyRules.HasOrbitalPrismSynergy(_ownedArtifacts),
                         ArtifactSynergyRules.HasGravityPulseSynergy(_ownedArtifacts));
                 case "temporal_fold":
-                    // Source discovery requires the Temporal Echo artifact pair plus Axiom Fold.
-                    // Missing time-control behavior stays pending rather than being simulated.
-                    return HasArtifact("time_splitter") && HasArtifact("stasis_mandala") &&
+                    return ArtifactSynergyRules.HasTemporalEchoSynergy(_ownedArtifacts) &&
                         ArtifactSynergyRules.HasAxiomFoldSynergy(_ownedArtifacts);
                 case "status_circuit":
                     return ArtifactSynergyRules.HasStatusCircuitSynergy(_ownedArtifacts) &&
@@ -4199,8 +4197,10 @@ namespace EchoSphere.Runtime
                     conditionSatisfied = ArtifactProtocolRules.IsCriticalEchoActive(discovered, _combo);
                     break;
                 case "temporal_fold_protocol":
+                    conditionSatisfied = _timeStopTimer > 0f || _teleportDamageBuffTimer > 0f;
+                    break;
                 case "status_circuit_protocol":
-                    conditionSatisfied = false;
+                    conditionSatisfied = HasActiveSphereType(SphereId.Prism) && HasAnyGlobalSphereModifier();
                     break;
                 case "geometry_circuit":
                     conditionSatisfied = ArtifactSetRules.IsRingLatticeOrFractal(_resonanceGeometryType);
@@ -4267,6 +4267,8 @@ namespace EchoSphere.Runtime
         private float GetArtifactSphereSynergyDamageMultiplier(SphereAttackAgent sphere)
         {
             var uniqueTypes = CountUniqueActiveSphereTypes();
+            var timeControlActive = _timeStopTimer > 0f || _teleportDamageBuffTimer > 0f;
+            var hasAnySphereModifier = HasAnyGlobalSphereModifier();
             var multiplier = FormationHitRules.GetEchoRelayDamageMultiplier(
                 FormationHitRules.HasEchoRelaySynergy(_ownedArtifacts), uniqueTypes);
             multiplier *= FormationHitRules.GetEchoArchitectureDamageMultiplier(
@@ -4285,6 +4287,14 @@ namespace EchoSphere.Runtime
                 ArtifactSynergyRules.HasSingularitySynergy(_ownedArtifacts), uniqueTypes);
             multiplier *= ArtifactSynergyRules.GetCoreRelayDamageMultiplier(
                 ArtifactSynergyRules.HasCoreRelaySynergy(_ownedArtifacts), uniqueTypes);
+            multiplier *= ArtifactSynergyRules.GetTemporalEchoDamageMultiplier(
+                ArtifactSynergyRules.HasTemporalEchoSynergy(_ownedArtifacts), timeControlActive);
+            multiplier *= ArtifactSynergyRules.GetStatusCircuitDamageMultiplier(
+                ArtifactSynergyRules.HasStatusCircuitSynergy(_ownedArtifacts),
+                sphere.Type == SphereId.Prism, hasAnySphereModifier);
+            multiplier *= ArtifactSynergyRules.GetStatusLoopDamageMultiplier(
+                ArtifactSynergyRules.HasStatusLoopSynergy(_ownedArtifacts),
+                sphere.Type == SphereId.Prism, hasAnySphereModifier);
 
             var hasVoidHorizon = ArtifactSynergyRules.HasVoidHorizonSynergy(_ownedArtifacts) &&
                 sphere.Type == SphereId.Void;
@@ -4357,6 +4367,11 @@ namespace EchoSphere.Runtime
             multiplier *= ArtifactSetRules.GetGeometryCraftDamageMultiplier(
                 hasGeometryCraft, _resonanceGeometryType);
 
+            var hasTemporalFoldSet = ArtifactSetRules.HasCompletedTemporalFold(
+                ArtifactSynergyRules.HasTemporalEchoSynergy(_ownedArtifacts),
+                ArtifactSynergyRules.HasAxiomFoldSynergy(_ownedArtifacts));
+            multiplier *= ArtifactSetRules.GetTemporalFoldDamageMultiplier(hasTemporalFoldSet, timeControlActive);
+
             var hasVoidHorizonSet = ArtifactSetRules.HasCompletedVoidHorizonSet(
                 ArtifactSynergyRules.HasVoidHorizonSynergy(_ownedArtifacts),
                 ArtifactSynergyRules.HasOrbitalPrismSynergy(_ownedArtifacts),
@@ -4381,6 +4396,12 @@ namespace EchoSphere.Runtime
                 ArtifactSynergyRules.HasCoreRelaySynergy(_ownedArtifacts));
             multiplier *= ArtifactSetRules.GetCoreForgeSetDamageMultiplier(hasCoreForgeSet, uniqueTypes);
 
+            var hasStatusCircuitSet = ArtifactSetRules.HasCompletedStatusCircuit(
+                ArtifactSynergyRules.HasStatusCircuitSynergy(_ownedArtifacts),
+                ArtifactSynergyRules.HasStatusLoopSynergy(_ownedArtifacts));
+            multiplier *= ArtifactSetRules.GetStatusCircuitSetDamageMultiplier(
+                hasStatusCircuitSet, sphere.Type == SphereId.Prism, hasAnySphereModifier);
+
             var hasPrismDominionSet = ArtifactSetRules.HasCompletedPrismDominionSet(
                 ArtifactSynergyRules.HasOrbitalPrismSynergy(_ownedArtifacts),
                 ArtifactSynergyRules.HasStatusCircuitSynergy(_ownedArtifacts));
@@ -4400,6 +4421,10 @@ namespace EchoSphere.Runtime
             multiplier *= ArtifactProtocolRules.GetSphereRelayMultiplier(
                 FormationHitRules.HasCompletedEchoArchitecture(_ownedArtifacts), uniqueTypes,
                 HasNearbyActiveSphere(sphere, 220f));
+            multiplier *= ArtifactProtocolRules.GetTemporalFoldProtocolMultiplier(
+                hasTemporalFoldSet, timeControlActive);
+            multiplier *= ArtifactProtocolRules.GetStatusCircuitProtocolMultiplier(
+                hasStatusCircuitSet, sphere.Type == SphereId.Prism, hasAnySphereModifier);
             multiplier *= ArtifactProtocolRules.GetCriticalEchoMultiplier(hasSingularityPath, _combo);
             multiplier *= ArtifactProtocolRules.GetGeometryCircuitMultiplier(
                 hasGeometryCraft, _resonanceGeometryType);

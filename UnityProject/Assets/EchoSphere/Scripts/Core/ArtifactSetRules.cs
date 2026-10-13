@@ -22,6 +22,12 @@ namespace EchoSphere.Core
             bool voidHorizon, bool orbitalPrism, bool gravityPulse) =>
             voidHorizon && orbitalPrism && gravityPulse;
 
+        public static bool HasCompletedTemporalFold(bool temporalEcho, bool axiomFold) =>
+            temporalEcho && axiomFold;
+
+        public static bool HasCompletedStatusCircuit(bool statusCircuit, bool statusLoop) =>
+            statusCircuit && statusLoop;
+
         public static bool HasCompletedHunterDoctrineSet(bool hunterDoctrine, bool hunterFocus) =>
             hunterDoctrine && hunterFocus;
 
@@ -71,5 +77,12 @@ namespace EchoSphere.Core
         public static float GetNetworkLegacySetDamageMultiplier(
             bool complete, int uniqueTypeCount, SphereNetworkFormation geometryType) =>
             complete && uniqueTypeCount >= 3 && IsRingLatticeOrFractal(geometryType) ? 1.06f : 1f;
+        public static float GetTemporalFoldDamageMultiplier(bool complete, bool timeControlActive) =>
+            complete && timeControlActive ? 1.12f : 1f;
+
+        public static float GetStatusCircuitSetDamageMultiplier(
+            bool complete, bool isPrism, bool hasAnySphereModifier) =>
+            complete && isPrism && hasAnySphereModifier ? 1.10f : 1f;
+
     }
 }

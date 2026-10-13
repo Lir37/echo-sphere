@@ -52,10 +52,10 @@ namespace EchoSphere.Core
                 "Activates when a Void build has an Elite or Boss target.", false),
             new ArtifactProtocolDefinition("temporal_fold_protocol", "temporal_fold", "Временной сгиб", "Temporal Fold Protocol",
                 "+6% урона сфер во время локального контроля времени.",
-                "+6% Sphere damage during local time control.", true),
+                "+6% Sphere damage during local time control.", false),
             new ArtifactProtocolDefinition("status_circuit_protocol", "status_circuit", "Протокол статусов", "Status Circuit Protocol",
                 "+6% урона Призмы в статусной сборке.",
-                "+6% Prism damage in a status build.", true),
+                "+6% Prism damage in a status build.", false),
             new ArtifactProtocolDefinition("hunter_doctrine_protocol", "hunter_doctrine", "Протокол охоты", "Hunter Doctrine Protocol",
                 "+8% урона Снайперской при наличии элитной цели или босса.",
                 "+8% Sniper damage when an Elite/Boss target is present.", false),
@@ -104,6 +104,14 @@ namespace EchoSphere.Core
 
         public static float GetCriticalEchoMultiplier(bool completedSingularityPath, int combo) =>
             IsCriticalEchoActive(completedSingularityPath, combo) ? 1.06f : 1f;
+
+        public static float GetTemporalFoldProtocolMultiplier(
+            bool completedTemporalFold, bool timeControlActive) =>
+            completedTemporalFold && timeControlActive ? 1.06f : 1f;
+
+        public static float GetStatusCircuitProtocolMultiplier(
+            bool completedStatusCircuit, bool isPrism, bool hasStatusBuild) =>
+            completedStatusCircuit && isPrism && hasStatusBuild ? 1.06f : 1f;
 
         public static float GetGeometryCircuitMultiplier(
             bool completedGeometryCraft, SphereNetworkFormation geometryType) =>

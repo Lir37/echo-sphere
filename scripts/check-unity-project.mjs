@@ -1151,14 +1151,18 @@ assert.ok(runtimeArt.includes('critical_echo') &&
   runtimeArt.includes('ArtifactProtocolRules.IsCriticalEchoActive(discovered, _combo)') &&
   runtimeArt.includes('temporal_fold_protocol') &&
   runtimeArt.includes('status_circuit_protocol') &&
-  runtimeArt.includes('protocol.HasUnmappedRuntimeState'),
-  'Critical Echo must use the mapped combo state; only time-control and global-modifier protocols remain pending');
+  runtimeArt.includes('protocol.HasUnmappedRuntimeState') &&
+  runtimeArt.includes('conditionSatisfied = _timeStopTimer > 0f || _teleportDamageBuffTimer > 0f') &&
+  runtimeArt.includes('conditionSatisfied = HasActiveSphereType(SphereId.Prism) && HasAnyGlobalSphereModifier()'),
+  'protocol activation must use source-mapped combo, time-control and Prism status-build state while retaining the generic unmapped-state guard');
 assert.ok(artifactProtocolRulesSource.includes('HasUnmappedRuntimeState') &&
   artifactProtocolRulesSource.includes('"critical_echo"') &&
   artifactProtocolRulesSource.includes('GetCriticalEchoMultiplier') &&
   artifactProtocolRulesSource.includes('"temporal_fold_protocol"') &&
-  artifactProtocolRulesSource.includes('"status_circuit_protocol"'),
-  'the protocol catalog must flag the three unmapped activation dependencies');
+  artifactProtocolRulesSource.includes('"status_circuit_protocol"') &&
+  artifactProtocolRulesSource.includes('GetTemporalFoldProtocolMultiplier') &&
+  artifactProtocolRulesSource.includes('GetStatusCircuitProtocolMultiplier'),
+  'the protocol catalog must expose source-mapped Temporal Fold and Status Circuit multipliers');
 
 
 // Mobile orientation is part of the ECHO SPHERE baseline: fixed upright portrait.
@@ -1192,10 +1196,14 @@ assert.ok(runtimeArt.includes('{ "rotationSpeed", 1 }') &&
   runtimeArt.includes('SetGlobalSphereModifierLevel') &&
   runtimeArt.includes('HasAnyGlobalSphereModifier'),
   'global Sphere modifiers must preserve the source initial rotationSpeed and expose typed state access');
-assert.ok(artifactProtocolRulesSource.includes('"temporal_fold_protocol"') &&
-  artifactProtocolRulesSource.includes('"status_circuit_protocol"') &&
-  artifactProtocolRulesSource.includes('HasUnmappedRuntimeState'),
-  'Temporal Fold and Status Circuit must remain gated until source state producers and modifier progression are wired');
+assert.ok(artifactProtocolRulesSource.includes('GetTemporalFoldProtocolMultiplier') &&
+  artifactProtocolRulesSource.includes('GetStatusCircuitProtocolMultiplier') &&
+  runtimeArt.includes('ArtifactSetRules.GetTemporalFoldDamageMultiplier') &&
+  runtimeArt.includes('ArtifactSetRules.GetStatusCircuitSetDamageMultiplier') &&
+  runtimeArt.includes('ArtifactSynergyRules.GetTemporalEchoDamageMultiplier') &&
+  runtimeArt.includes('ArtifactSynergyRules.GetStatusCircuitDamageMultiplier') &&
+  runtimeArt.includes('ArtifactSynergyRules.GetStatusLoopDamageMultiplier'),
+  'Temporal Fold and Status Circuit set, synergy and protocol bonuses must be wired to the source time-control and sphereMods predicates');
 
 
 // Time Stop / Teleport activation parity: level-gated slots, manual source-key activation,
