@@ -4348,6 +4348,8 @@ namespace EchoSphere.Runtime
 
         private void ApplyActiveAbilitySynergyRiders(RunUpgradeKind ability, int level)
         {
+            _applyingActiveAbilitySynergyRiders = true;
+            _activeAbilitySynergyPower = 1f;
             var scale = SpherePlacementRules.SourcePixelsToWorld;
             if (ability == RunUpgradeKind.Blast)
             {
@@ -4532,14 +4534,18 @@ namespace EchoSphere.Runtime
                             DamageEnemiesNear(sphere.transform.position, 0.92f, (18f + level * 5f) * (0.65f + missing * 0.75f), new Color(0.77f, 0.55f, 1f));
                 }
             }
+            ApplyActiveAbilityFinalVariantRiders(ability, level);
+            _applyingActiveAbilitySynergyRiders = false;
+            _activeAbilitySynergyPower = 1f;
         }
 
         public void DamageEnemiesNear(Vector2 center, float radiusWorld, float damage, Color color)
         {
             var hitRadius = Mathf.Max(0f, radiusWorld);
+            var effectiveDamage = damage * (_applyingActiveAbilitySynergyRiders ? _activeAbilitySynergyPower : 1f);
             foreach (var enemy in _enemies)
                 if (enemy != null && enemy.IsAlive && Vector2.Distance(enemy.transform.position, center) <= hitRadius)
-                    enemy.ReceiveDamage(damage);
+                    enemy.ReceiveDamage(effectiveDamage);
             SpawnImpact(center, color);
         }
 
