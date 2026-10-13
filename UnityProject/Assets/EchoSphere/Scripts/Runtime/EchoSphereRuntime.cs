@@ -1991,8 +1991,6 @@ namespace EchoSphere.Runtime
             bool allowAuthoredProcs, SphereAttackAgent owner = null)
         {
             if (target == null || _gameOver) return;
-            if (_timeStopTimer > 0f && GetAbilityFinalArchetype(RunUpgradeKind.TimeStop) == "timestop_outside_time")
-                target.ApplyFreeze(0.35f);
             if (GetAbilityLevel(RunUpgradeKind.Vampire) > 0 && _playerCore != null)
                 HealPlayer(damage * GetAbilityLevel(RunUpgradeKind.Vampire) * 0.03f);
             var branch = GetSphereBranch(source);
