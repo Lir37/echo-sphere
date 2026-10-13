@@ -3929,6 +3929,133 @@ namespace EchoSphere.Runtime
             else if (kind == RunUpgradeKind.Teleport) ActivateTeleport();
         }
 
+        private bool HasActiveAbilitySynergy(SphereId sphere, string sphereBranch, RunUpgradeKind ability, string abilityFinal)
+        {
+            if (GetAbilityLevel(ability) < 7 ||
+                !_sphereLevels.TryGetValue(sphere, out var sphereLevel) || sphereLevel < 7 ||
+                !_sphereBranches.TryGetValue(sphere, out var selectedSphereBranch) || selectedSphereBranch != sphereBranch ||
+                !_abilityFinals.TryGetValue(ability, out var selectedAbilityFinal) || selectedAbilityFinal != abilityFinal)
+                return false;
+            return true;
+        }
+
+        private SphereAttackAgent FindNearestSphereOfType(SphereId type, Vector2 origin)
+        {
+            SphereAttackAgent nearest = null;
+            var nearestDistance = float.PositiveInfinity;
+            foreach (var sphere in _spheres)
+            {
+                if (sphere == null || !sphere.gameObject.activeInHierarchy || sphere.Type != type) continue;
+                var distance = Vector2.Distance(origin, sphere.transform.position);
+                if (distance < nearestDistance) { nearest = sphere; nearestDistance = distance; }
+            }
+            return nearest;
+        }
+
+        private void ApplyTimeStopSynergyRiders(int level)
+        {
+            var scale = SpherePlacementRules.SourcePixelsToWorld;
+            if (HasActiveAbilitySynergy(SphereId.Standard, "standard_singularity", RunUpgradeKind.TimeStop, "timestop_echo_phase_f1"))
+            {
+                var standard = FindNearestSphereOfType(SphereId.Standard, _player.position);
+                if (standard != null)
+                    foreach (var enemy in _enemies)
+                    {
+                        if (enemy == null || !enemy.IsAlive) continue;
+                        var delta = (Vector2)standard.transform.position - (Vector2)enemy.transform.position;
+                        if (delta.magnitude > 150f * scale) continue;
+                        var direction = delta.sqrMagnitude > 0.0001f ? delta.normalized : Vector2.zero;
+                        enemy.transform.position += (Vector3)(direction * 42f * scale);
+                        enemy.ApplyFreeze(_timeStopTimer + 0.45f);
+                    }
+            }
+
+            if (HasActiveAbilitySynergy(SphereId.Chain, "chain_web", RunUpgradeKind.TimeStop, "timestop_closed_time_f2"))
+                foreach (var sphere in _spheres)
+                {
+                    if (sphere == null || !sphere.gameObject.activeInHierarchy || sphere.Type != SphereId.Chain) continue;
+                    foreach (var enemy in _enemies)
+                        if (enemy != null && enemy.IsAlive &&
+                            Vector2.Distance(enemy.transform.position, sphere.transform.position) < 150f * scale)
+                            enemy.ApplyFreeze(_timeStopTimer + 0.75f);
+                }
+
+            if (HasActiveAbilitySynergy(SphereId.Gravity, "gravity_tide", RunUpgradeKind.TimeStop, "timestop_time_anchor_f3"))
+                foreach (var sphere in _spheres)
+                {
+                    if (sphere == null || !sphere.gameObject.activeInHierarchy || sphere.Type != SphereId.Gravity) continue;
+                    foreach (var enemy in _enemies)
+                    {
+                        if (enemy == null || !enemy.IsAlive) continue;
+                        var delta = (Vector2)enemy.transform.position - (Vector2)sphere.transform.position;
+                        if (delta.magnitude > 155f * scale) continue;
+                        var direction = delta.sqrMagnitude > 0.0001f ? delta.normalized : Vector2.zero;
+                        enemy.transform.position += (Vector3)(direction * 58f * scale);
+                        enemy.ReceiveDamage((12f + level * 3f) * 0.55f);
+                    }
+                }
+        }
+
+        private void ApplyTeleportSynergyRiders(int level)
+        {
+            var scale = SpherePlacementRules.SourcePixelsToWorld;
+            if (HasActiveAbilitySynergy(SphereId.Sniper, "sniper_oracle", RunUpgradeKind.Teleport, "teleport_echo_jump_f1"))
+            {
+                var sniper = FindNearestSphereOfType(SphereId.Sniper, _player.position);
+                var target = FindNearestEnemy(sniper == null ? (Vector2)_player.position : (Vector2)sniper.transform.position, float.PositiveInfinity);
+                if (sniper != null && target != null)
+                {
+                    _hunterMarkTarget = target;
+                    _hunterMarkTimer = Mathf.Max(_hunterMarkTimer, 5f);
+                    target.ApplyRuneMark(5f);
+                    target.ReceiveDamage((18f + level * 5f) * 0.75f);
+                }
+            }
+
+            if (HasActiveAbilitySynergy(SphereId.Aura, "aura_gravity", RunUpgradeKind.Teleport, "teleport_beacon_f2"))
+                foreach (var sphere in _spheres)
+                {
+                    if (sphere == null || !sphere.gameObject.activeInHierarchy || sphere.Type != SphereId.Aura) continue;
+                    foreach (var enemy in _enemies)
+                    {
+                        if (enemy == null || !enemy.IsAlive) continue;
+                        var delta = (Vector2)sphere.transform.position - (Vector2)enemy.transform.position;
+                        if (delta.magnitude > 125f * scale) continue;
+                        var direction = delta.sqrMagnitude > 0.0001f ? delta.normalized : Vector2.zero;
+                        enemy.transform.position += (Vector3)(direction * 58f * scale);
+                    }
+                }
+
+            if (HasActiveAbilitySynergy(SphereId.Prism, "prism_mirror", RunUpgradeKind.Teleport, "teleport_phase_f3"))
+            {
+                var targets = new List<EnemyAgent2D>();
+                foreach (var enemy in _enemies)
+                    if (enemy != null && enemy.IsAlive) targets.Add(enemy);
+                targets.Sort((a, b) => Vector2.Distance(a.transform.position, _player.position).CompareTo(
+                    Vector2.Distance(b.transform.position, _player.position)));
+                var prism = FindNearestSphereOfType(SphereId.Prism, _player.position);
+                for (var i = 0; i < Mathf.Min(3, targets.Count); i++)
+                {
+                    targets[i].ReceiveDamage((18f + level * 5f) * 0.55f);
+                    if (prism != null) SpawnImpact(targets[i].transform.position, new Color(1f, 0.55f, 0.9f));
+                }
+            }
+
+            if (HasActiveAbilitySynergy(SphereId.Void, "void_execution", RunUpgradeKind.Teleport, "teleport_echo_jump_f2"))
+                foreach (var sphere in _spheres)
+                {
+                    if (sphere == null || !sphere.gameObject.activeInHierarchy || sphere.Type != SphereId.Void) continue;
+                    foreach (var enemy in _enemies)
+                    {
+                        if (enemy == null || !enemy.IsAlive ||
+                            Vector2.Distance(enemy.transform.position, sphere.transform.position) > 155f * scale) continue;
+                        var hpRatio = enemy.CurrentHp / Mathf.Max(1f, enemy.MaxHp);
+                        if (hpRatio <= 0.30f && !enemy.IsBoss) enemy.ReceiveDamage(enemy.CurrentHp + 1f);
+                        else enemy.ReceiveDamage((20f + level * 5f) * 0.70f);
+                    }
+                }
+        }
+
         private void ActivateTimeStop()
         {
             var level = GetAbilityLevel(RunUpgradeKind.TimeStop);
@@ -3989,6 +4116,7 @@ namespace EchoSphere.Runtime
                         enemy.ReceiveDamage(pulseDamage);
                 for (var i = 0; i < 28; i++) _rng.NextFloat();
             }
+            ApplyTimeStopSynergyRiders(level);
             ShowTimedCombatMessage("ECHO FREEZE", 1.2f);
         }
 
@@ -4078,6 +4206,7 @@ namespace EchoSphere.Runtime
                     }
                 }
             }
+            ApplyTeleportSynergyRiders(level);
             ShowTimedCombatMessage("ECHO JUMP", 0.9f);
         }
 
