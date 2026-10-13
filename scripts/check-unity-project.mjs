@@ -1278,7 +1278,8 @@ assert.ok(runtimeArt.includes('40f * GetActiveAbilityCooldownMultiplier()') &&
   runtimeArt.includes('220f') && runtimeArt.includes('700f') && runtimeArt.includes('300f'),
   'Time Stop / Teleport must preserve source cooldowns, duration scaling and level-III target range');
 assert.ok(activeAbilityEnemy.includes('public void ApplyFreeze(float duration)') &&
-  runtimeArt.includes('enemy.ApplyFreeze(freezeDuration)') &&
+  activeAbilityEnemy.includes('public void SetFreezeDuration(float duration)') &&
+  runtimeArt.includes('enemy.SetFreezeDuration(freezeDuration)') &&
   runtimeArt.includes('DamageEnemiesNearFromSphere(nearest, nearest.transform.position, pulseRadius, pulseDamage') &&
   runtimeArt.includes('for (var i = 0; i < 28; i++) _rng.NextFloat();') &&
   runtimeArt.includes('ShowTimedCombatMessage("ECHO FREEZE", 1.2f)'),
