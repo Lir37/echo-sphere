@@ -5304,6 +5304,13 @@ namespace EchoSphere.Runtime
                 SpawnImpact(spawnPosition, new Color(0.35f, 0.83f, 1f, 0.9f));
             }
 
+            // Source minion_sphere_guard accelerates every live Sphere near the player
+            // when the ability is activated, not only the drone's current anchor.
+            if (final == "minion_sphere_guard")
+                foreach (var sphere in liveSpheres)
+                    if (Vector2.Distance(sphere.transform.position, _player.position) < 300f * scale)
+                        sphere.AccelerateNextAttack(0.35f);
+
             ApplyActiveAbilitySynergyRiders(RunUpgradeKind.Minion, level);
             ShowTimedCombatMessage("ECHO DRONE", 0.9f);
         }
