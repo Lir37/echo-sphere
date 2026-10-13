@@ -451,9 +451,10 @@ assert.ok(runtimeArt.includes('AdvanceRegionBossSchedule') && runtimeArt.include
 assert.ok(runtimeArt.includes('CountLivingNonBossEnemies') && runtimeArt.includes('HasActiveBoss'), 'next source wave must wait for living enemies and boss completion');
 const levelUpAbilities = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/LevelUpAbilityRules.cs'), 'utf8');
 assert.ok(levelUpAbilities.includes('SourcePassiveCatalog') &&
-  levelUpAbilities.includes('GetMaxLevel(RunUpgradeKind kind) => 7;') &&
+  levelUpAbilities.includes('kind == RunUpgradeKind.MaxSpheres ? 3 : 7;') &&
+  levelUpAbilities.includes('RunUpgradeKind.MaxSpheres, RunUpgradeKind.MoveSpeed') &&
   levelUpAbilities.includes('GetNetworkDisableDuration'),
-  'source passive catalog metadata and source level caps are missing');
+  'complete source passive catalog metadata and source level caps are missing');
 assert.ok(levelUpAbilities.includes('GetSourceActiveAbilityName') &&
   levelUpAbilities.includes('GetSourceActiveAbilityDescription') &&
   runtimeArt.includes('LevelUpAbilityRules.CreateChoice(kind, current, IsRussianUi)') &&
