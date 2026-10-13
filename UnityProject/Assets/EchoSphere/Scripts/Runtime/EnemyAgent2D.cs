@@ -265,6 +265,13 @@ namespace EchoSphere.Runtime
             RefreshElementalStatusVfx();
         }
 
+        public void SetFreezeDuration(float duration)
+        {
+            if (_dead) return;
+            _freezeTimer = Mathf.Max(0f, duration);
+            RefreshElementalStatusVfx();
+        }
+
         public void KnockBackFrom(Vector2 center, float distance)
         {
             if (_dead || _runtime == null || _runtime.IsGameplayPaused) return;
