@@ -1262,13 +1262,14 @@ assert.ok(activeAbilityEnemy.includes('public void ApplyFreeze(float duration)')
   'Time Stop must apply direct source pulse damage, preserve RNG and show source feedback');
 assert.ok(runtimeArt.includes('GetActiveAbilityEvolutionChoices') &&
   runtimeArt.includes('_abilityBranches') && runtimeArt.includes('_abilityFinals') &&
-  runtimeArt.includes('teleport_phase_break') && runtimeArt.includes('teleport_spatial_network') &&
-  runtimeArt.includes('timestop_closed_network') && runtimeArt.includes('timestop_temporal_core') &&
-  runtimeArt.includes('GrantInvulnerability') &&
+  runtimeArt.includes('teleport_echo_jump_f1') && runtimeArt.includes('teleport_beacon_f2') &&
+  runtimeArt.includes('teleport_phase_f3') && runtimeArt.includes('timestop_closed_time_f2') &&
+  runtimeArt.includes('timestop_time_anchor_f3') && runtimeArt.includes('GrantInvulnerability') &&
   levelUpAbilities.includes('GetActiveAbilityEvolutionChoices') &&
+  levelUpAbilities.includes('teleport_echo_jump_f1') && levelUpAbilities.includes('timestop_echo_phase_f1') &&
   artifactProtocolRulesSource.includes('"temporal_fold_protocol"') &&
   artifactProtocolRulesSource.includes('"status_circuit_protocol"'),
-  'active ability branches/finals must have real choices and combat riders; artifact protocols remain independently gated until their full predicates are wired');
+  'active ability branch-specific final variants must use source IDs and have real choices/riders; artifact protocols remain independently gated until their full predicates are wired');
 
 
 // Link Breaker source parity: authored range/timers, disabled-target filtering and Stability scaling.
