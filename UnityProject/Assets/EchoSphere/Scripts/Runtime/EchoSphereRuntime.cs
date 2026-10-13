@@ -4979,12 +4979,19 @@ namespace EchoSphere.Runtime
 
         private void EmitSourceSpherePulse(SphereAttackAgent source, Vector2 center, float radiusWorld, float damage, Color color, bool slow = false)
         {
-            DamageEnemiesNearFromSphere(source, center, radiusWorld, damage, color, slow);
-            // source emitSpherePulse consumes one seeded random value for each of its 14 particles.
-            for (var i = 0; i < 14; i++) _rng.NextFloat();
+            DamageEnemiesNearFromSphere(source, center, radiusWorld, damage, color, slow, false);
+            // Source emitSpherePulse deals damage first, then consumes one seeded
+            // random angle for each of its 14 radial particles.
+            var angles = new float[14];
+            for (var i = 0; i < angles.Length; i++) angles[i] = _rng.NextFloat() * Mathf.PI * 2f;
+            var pulse = new GameObject("Sphere Pulse Particles");
+            pulse.transform.position = center;
+            pulse.AddComponent<SpherePulseVfx2D>().Initialize(color, SpherePlacementRules.SourcePixelsToWorld, angles);
         }
 
-        private void DamageEnemiesNearFromSphere(SphereAttackAgent source, Vector2 center, float radiusWorld, float damage, Color color, bool slow = false)
+        private void DamageEnemiesNearFromSphere(
+            SphereAttackAgent source, Vector2 center, float radiusWorld, float damage, Color color,
+            bool slow = false, bool spawnImpact = true)
         {
             // Source emitSpherePulse/dealDamageToEnemy calls from active abilities
             // omit the sourceSphere argument. Keep the Sphere only as the pulse
@@ -4998,7 +5005,7 @@ namespace EchoSphere.Runtime
                 enemy.ReceiveDamage(effectiveDamage);
                 if (slow) enemy.ApplySlow(1.2f, 0.6f);
             }
-            SpawnImpact(center, color);
+            if (spawnImpact) SpawnImpact(center, color);
         }
 
         public void DamageEnemiesNear(Vector2 center, float radiusWorld, float damage, Color color)
