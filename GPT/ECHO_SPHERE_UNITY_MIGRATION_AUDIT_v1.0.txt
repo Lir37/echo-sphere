@@ -3338,3 +3338,39 @@ NEXT:
 ======================================================================
 END FIVE COMBAT-STATE ARTIFACT SYNERGIES
 ======================================================================
+
+[2026-10-13 | AXIOM FOLD SYNERGY]
+
+SOURCE:
+- Source HEAD remains new-desing @737ef2af4a877e0995db5f92331d536d2f29a934.
+- Formula from src/artifactSystem.ts: getSphereArtifactModifiers().
+
+IMPLEMENTED:
+1. Axiom Fold requires axiom_core + universal_fold.
+2. At three or more active Sphere types, it applies the source multiplier 1.06
+   (+6%) to Sphere damage. With fewer than three types or a missing artifact,
+   it returns the neutral multiplier.
+3. Added HasAxiomFoldSynergy / GetAxiomFoldDamageMultiplier to
+   ArtifactSynergyRules.cs, hooked into EchoSphereRuntime's live Sphere damage
+   path, and added five C# assertions plus Node structural guards.
+4. Unity Migration Contracts #287: SUCCESS:
+   https://github.com/Lir37/echo-sphere/actions/runs/38346323756
+
+OPEN:
+- The remaining pair-synergy audit includes Geometry Loop, Lattice Memory,
+  Network Memory and Temporal Echo. Their conditions depend on the actual
+  geometry key, resonance-geometry-change memory, or active time-control timers.
+  These states must be mapped exactly before activating their bonuses.
+- Unity Editor build, APK/device visual comparison, and Rune pickup producer
+  remain open as recorded earlier.
+
+NEXT:
+1. Map source syncResonanceGeometry() key changes and formationMemory expiry
+   against Unity's current geometry selection and pointer-rewire memory.
+   Only then connect Geometry Loop / Lattice Memory / Network Memory.
+2. Separately verify the Unity equivalent for source timestopTimer and
+   teleportDamageBuffTimer before porting Temporal Echo.
+
+======================================================================
+END AXIOM FOLD SYNERGY
+======================================================================
