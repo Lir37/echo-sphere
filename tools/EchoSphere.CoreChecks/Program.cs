@@ -363,6 +363,17 @@ internal static class Program
         Equal(damageChoice.CurrentLevel, 2, "Ability choice preserves current level");
         Equal(damageChoice.NextLevel, 3, "Ability choice advances exactly one level");
         Equal(damageChoice.Kind, RunUpgradeKind.Damage, "Ability card resolves to its authored Ability id");
+        var blastChoiceRu = LevelUpAbilityRules.CreateChoice(RunUpgradeKind.Blast, 0, true);
+        Equal(blastChoiceRu.Title, "Эхо-импульс", "source active Ability name is localized without an invented level suffix");
+        Equal(blastChoiceRu.Description, "Импульс проходит через все активные сферы и наносит 30 урона вокруг каждой. Перезарядка: 30 с.",
+            "source active Ability level-I description is preserved");
+        var blastChoiceEn = LevelUpAbilityRules.CreateChoice(RunUpgradeKind.Blast, 0, false);
+        Equal(blastChoiceEn.Title, "Echo Pulse", "source active Ability English name is preserved");
+        Equal(blastChoiceEn.Description, "Pulse travels through all active Spheres and deals 30 damage around each. Cooldown: 30s.",
+            "source active Ability English description is preserved");
+        var blastMutation = LevelUpAbilityRules.CreateChoice(RunUpgradeKind.Blast, 3, true);
+        Equal(blastMutation.Description, "Следующий выбор откроет одну из трёх веток способности.",
+            "level-IV active Ability card explains the source mutation decision");
     }
 
     private static void CheckSphereEvolutionCatalog()
