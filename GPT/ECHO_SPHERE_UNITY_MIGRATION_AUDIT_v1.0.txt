@@ -3090,3 +3090,63 @@ NEXT:
 ======================================================================
 END FORMATION HIT COUNTERS / ECHO ARCHITECTURE RELAY
 ======================================================================
+
+[2026-10-13 | ECHO ARCHITECTURE COMBAT SYNERGIES]
+
+SOURCE:
+- Source remains new-desing @737ef2af4a877e0995db5f92331d536d2f29a934.
+- Behavior mapped from src/artifactSystem.ts:
+  getSphereArtifactModifiers(), getArtifactSetBehavior() and
+  getSphereArtifactDamageMultiplier().
+- Unity code checkpoint: 9cff4e35fb7492418b64bf0283f6bc808c9ef494.
+
+IMPLEMENTED IN LIVE DAMAGE PATH:
+1. Echo Relay synergy requires echo_conductor + network_relay. With 2 or more
+   active Sphere types it multiplies Sphere damage by 1.08 (+8%).
+2. The completed Echo Architecture set still requires both source synergies:
+   echo_relay and unified_core. When complete, with 2 or more active Sphere
+   types, each Sphere within 220 source pixels of another active Sphere receives
+   a 1.06 damage multiplier (+6%). Distance is measured from the actual attacking
+   Sphere instance and uses SourcePixelsToWorld.
+3. Unified Core requires unified_mind + zero_sphere. If the attacking Sphere's
+   level is below the strongest Sphere level, it receives the source multiplier
+   1 + strongestLevel * 0.05. The strongest Sphere itself is not boosted by this
+   additional pair-synergy effect.
+4. The three modifiers are applied in GetNetworkDamageMultiplier for the
+   current attacking Sphere, after existing character/family multipliers. This
+   preserves multiplicative stacking with already-ported base artifact effects.
+5. FormationHitRules.cs now exposes shared source-mapped eligibility/multiplier
+   functions. Program.cs gained 11 assertions for mixed-type gates, the 220 px
+   set-completion condition, the exact +8% / +6% values and Unified Core
+   strongest-versus-lower-level behavior. scripts/check-unity-project.mjs now
+   guards the real runtime wiring.
+6. Unity Migration Contracts #277: SUCCESS:
+   https://github.com/Lir37/echo-sphere/actions/runs/38345439746
+
+VALIDATION SCOPE:
+- CI runs the pure C# contract executable and Node structure/runtime-source
+  checks. It does not compile UnityEngine runtime scripts in Unity Editor and
+  is not proof of APK or pixel parity.
+- No APK build/install or physical-device visual check was performed in this
+  cycle. Sphere size/enemy silhouette feedback stays open.
+
+OPEN:
+- Rune of Resonance effect code is present as ActivateResonanceRune(), but
+  source HEAD has no producer adding RuneEntity objects to GameState.runes.
+  Thus the physical Rune pickup/spawn route is not reachable yet. Spawn rules
+  are intentionally not invented.
+- The Unity Editor compilation, APK build/install and device visual check are
+  open. Triangle overlay has source-driven charge arcs now, but needs a real
+  screenshot comparison once a current APK is available.
+
+NEXT:
+1. Continue with the next confirmed live source-vs-Unity gap, prioritizing active
+   runtime behavior over cosmetic labels. Keep Rune pickup/spawn pending unless
+   a real source producer is found in the branch's history or tests.
+2. Re-read source behavior before changing any additional artifact or combat
+   formulas; do not broaden this port into other artifact sets without checking
+   the exact current source implementation.
+
+======================================================================
+END ECHO ARCHITECTURE COMBAT SYNERGIES
+======================================================================
