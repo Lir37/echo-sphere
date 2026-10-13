@@ -16,7 +16,9 @@ namespace EchoSphere.Core
             RunUpgradeKind.Damage, RunUpgradeKind.AttackSpeed, RunUpgradeKind.MoveSpeed,
             RunUpgradeKind.Slow, RunUpgradeKind.Vitality, RunUpgradeKind.Dodge,
             RunUpgradeKind.Crit, RunUpgradeKind.Magnet, RunUpgradeKind.Armor,
-            RunUpgradeKind.Regen, RunUpgradeKind.Stability
+            RunUpgradeKind.Regen, RunUpgradeKind.Stability, RunUpgradeKind.Radius, RunUpgradeKind.Vampire,
+            RunUpgradeKind.SphereBoost, RunUpgradeKind.Resonance, RunUpgradeKind.Cooldown, RunUpgradeKind.CritPower,
+            RunUpgradeKind.Range, RunUpgradeKind.ProjectileSpeed, RunUpgradeKind.Momentum, RunUpgradeKind.Fortune
         };
 
         public static IReadOnlyList<RunUpgradeKind> RoutineAbilityKinds => RoutineKinds;
@@ -85,6 +87,46 @@ namespace EchoSphere.Core
                     title = "NETWORK STABILITY / " + next;
                     description = "-" + (next * 12) + "% network-disable duration, with the source 16% floor.";
                     break;
+                case RunUpgradeKind.Radius:
+                    title = "SPHERE RADIUS / " + next;
+                    description = "+" + (next * 15) + "% Sphere attack radius.";
+                    break;
+                case RunUpgradeKind.Vampire:
+                    title = "VAMPIRISM / " + next;
+                    description = "+" + (next * 3) + "% of Sphere damage restored as Core HP.";
+                    break;
+                case RunUpgradeKind.SphereBoost:
+                    title = "SPHERE BOOST / " + next;
+                    description = "+1 flat Sphere damage per " + GetSphereBoostKillsRequired(next) + " kills.";
+                    break;
+                case RunUpgradeKind.Resonance:
+                    title = "RESONATOR / " + next;
+                    description = "+" + (next * 8) + "% Resonance gain.";
+                    break;
+                case RunUpgradeKind.Cooldown:
+                    title = "CHRONO CORE / " + next;
+                    description = "-" + (next * 4) + "% active ability cooldown.";
+                    break;
+                case RunUpgradeKind.CritPower:
+                    title = "CRITICAL RESONANCE / " + next;
+                    description = "+" + (next * 8) + "% critical damage multiplier.";
+                    break;
+                case RunUpgradeKind.Range:
+                    title = "FIELD FOCUS / " + next;
+                    description = "+" + (next * 5) + "% Sphere range.";
+                    break;
+                case RunUpgradeKind.ProjectileSpeed:
+                    title = "VECTOR DRIVE / " + next;
+                    description = "+" + (next * 8) + "% projectile speed.";
+                    break;
+                case RunUpgradeKind.Momentum:
+                    title = "MOMENTUM / " + next;
+                    description = "+" + (next * 5) + "% movement speed briefly after Dash.";
+                    break;
+                case RunUpgradeKind.Fortune:
+                    title = "FORTUNE / " + next;
+                    description = "+" + (next * 2) + "% rare drop chance.";
+                    break;
                 case RunUpgradeKind.Blast:
                     title = "ECHO PULSE / " + next;
                     description = "Pulse damage scales with level; source cooldown starts at 30s and falls by 2s per level.";
@@ -122,6 +164,25 @@ namespace EchoSphere.Core
             }
             return new RunUpgradeChoice(kind, SphereId.Standard, current, next, title, description);
         }
+
+        public static float GetSphereRadiusMultiplier(int radiusLevel, int rangeLevel) =>
+            (1f + Math.Max(0, Math.Min(7, radiusLevel)) * 0.15f) *
+            (1f + Math.Max(0, Math.Min(7, rangeLevel)) * 0.05f);
+
+        public static float GetProjectileSpeedMultiplier(int level) =>
+            1f + Math.Max(0, Math.Min(7, level)) * 0.08f;
+
+        public static float GetCritPowerMultiplier(int level) =>
+            1f + Math.Max(0, Math.Min(7, level)) * 0.08f;
+
+        public static float GetResonanceGainMultiplier(int level) =>
+            1f + Math.Max(0, Math.Min(7, level)) * 0.08f;
+
+        public static int GetSphereBoostKillsRequired(int level) =>
+            Math.Max(50, 100 - Math.Max(0, Math.Min(7, level) - 1) * 10);
+
+        public static float GetMomentumSpeedMultiplier(int level, bool active) =>
+            active ? 1f + Math.Max(0, Math.Min(7, level)) * 0.05f : 1f;
 
         public static float GetSphereDamageMultiplier(int level) =>
             1f + Math.Max(0, Math.Min(7, level)) * 0.15f;

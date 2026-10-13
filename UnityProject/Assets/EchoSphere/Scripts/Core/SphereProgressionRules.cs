@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace EchoSphere.Core
 {
-    public enum RunUpgradeKind { Sphere, MaxSpheres, Damage, AttackSpeed, MoveSpeed, Slow, Vitality, Dodge, Crit, Magnet, Armor, Regen, Stability, Teleport, TimeStop, Blast, Shield, FireTrail, Minion, Lightning, DarkRitual }
+    public enum RunUpgradeKind { Sphere, MaxSpheres, Damage, AttackSpeed, MoveSpeed, Slow, Vitality, Dodge, Crit, Magnet, Armor, Regen, Stability, Teleport, TimeStop, Blast, Shield, FireTrail, Minion, Lightning, DarkRitual, Radius, Vampire, SphereBoost, Resonance, Cooldown, CritPower, Range, ProjectileSpeed, Momentum, Fortune }
 
     public readonly struct RunUpgradeChoice
     {
