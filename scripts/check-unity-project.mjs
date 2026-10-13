@@ -454,6 +454,11 @@ assert.ok(levelUpAbilities.includes('SourcePassiveCatalog') &&
   levelUpAbilities.includes('GetMaxLevel(RunUpgradeKind kind) => 7;') &&
   levelUpAbilities.includes('GetNetworkDisableDuration'),
   'source passive catalog metadata and source level caps are missing');
+assert.ok(levelUpAbilities.includes('GetSourceActiveAbilityName') &&
+  levelUpAbilities.includes('GetSourceActiveAbilityDescription') &&
+  runtimeArt.includes('LevelUpAbilityRules.CreateChoice(kind, current, IsRussianUi)') &&
+  !levelUpAbilities.includes('ECHO PULSE / '),
+  'routine active Ability cards must preserve source names, localized level descriptions and mutation-stage text');
 for (const token of ['0.93d', '0.15f', '0.10f', '0.16f', 'SourcePixelsToWorld', 'GetDamageTakenMultiplier'])
   assert.ok(levelUpAbilities.includes(token), 'source Level-Up Ability formula is missing: ' + token);
 assert.ok(!levelUpAbilities.includes('GetFortuneDropBonus') &&
