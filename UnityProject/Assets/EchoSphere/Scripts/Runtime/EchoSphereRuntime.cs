@@ -2200,7 +2200,9 @@ namespace EchoSphere.Runtime
 
         private Vector2 GetFormationCenter(SphereNetworkShape formation)
         {
-            if (formation == null || _spheres.Count == 0) return _player == null ? Vector2.zero : (Vector2)_player.position;
+            if (formation == null || (_spheres.Count == 0 &&
+                (GetAbilityLevel(RunUpgradeKind.Minion) < 3 || _abilityDrones.Count == 0)))
+                return _player == null ? Vector2.zero : (Vector2)_player.position;
             var center = Vector2.zero;
             var count = 0;
             for (var i = 0; i < formation.NodeIndexes.Count; i++)
