@@ -231,6 +231,7 @@ namespace EchoSphere.Runtime
         private bool _follow, _paused, _levelUp, _gameOver, _userPaused, _regionStabilized;
         private bool _stellaRewardPending, _stellaRewardIsLegendary;
         private float _swiftBootsTimer;
+        private float _runeAttackBuffUntil;
         // Source player.timestopTimer / teleportDamageBuffTimer. Time Stop now produces
         // its timer; the Teleport buff remains branch/final-specific and gated until those
         // ability evolution choices are ported. Artifact bonuses remain independently gated.
@@ -295,7 +296,7 @@ namespace EchoSphere.Runtime
         public int GetShopUpgradeLevel(string id) { EnsureShopSaveLoaded(); return _shopSave.upgrades.Get(id); }
         public float GetShopSphereRadiusMultiplier() => PersistentUpgradeRules.GetPercentMultiplier(GetShopUpgradeLevel("radius"));
         private DifficultyProfile CurrentDifficulty => DifficultyRules.GetProfile(PlayerPrefs.GetString(DifficultyPreferenceKey, "normal"));
-        public float SphereDamageMultiplier => _damageMultiplier * LevelUpAbilityRules.GetSphereDamageMultiplier(GetAbilityLevel(RunUpgradeKind.Damage)) *
+        public float SphereDamageMultiplier => _damageMultiplier * (Time.time < _runeAttackBuffUntil ? 1.3f : 1f) * LevelUpAbilityRules.GetSphereDamageMultiplier(GetAbilityLevel(RunUpgradeKind.Damage)) *
             PersistentUpgradeRules.GetPercentMultiplier(GetShopUpgradeLevel("dmg")) *
             Mathf.Max(0.25f, 1f + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "sphereDamage")) *
             GetCharacterGlobalSphereDamageMultiplier();
@@ -2661,6 +2662,110 @@ namespace EchoSphere.Runtime
             OpenLevelUpIfReady();
         }
 
+        public void CollectHealthPack()
+        {
+            if (_playerCore == null || _gameOver) return;
+            _playerCore.Heal(20f);
+            ShowTimedCombatMessage("ЗДОРОВЬЕ +20", 0.8f);
+        }
+
+        public void CollectArtifactChest(ArtifactChestAgent2D chest)
+        {
+            if (chest == null || _gameOver || _stellaRewardPending || _levelUp || _choosingEvolution) return;
+            Destroy(chest.gameObject);
+            _stellaRewardChoices.Clear();
+            _stellaRewardChoices.AddRange(ArtifactRewardRules.PickChoices(
+                _ownedArtifacts, _rng.NextFloat, false, ArtifactRewardRules.BaseStellaChoiceCount));
+            if (_stellaRewardChoices.Count == 0)
+            {
+                ShowMessage("ARTIFACT CACHE EMPTY");
+                return;
+            }
+            _stellaRewardIsLegendary = false;
+            _runChestOpens++;
+            _stellaRewardPending = true;
+            _userPaused = false;
+            _paused = true;
+            ShowMessage("ARTIFACT CACHE");
+        }
+
+        public void ActivateRunePickup(string runeType, Vector2 position)
+        {
+            if (_gameOver || _playerCore == null) return;
+            var scale = SpherePlacementRules.SourcePixelsToWorld;
+            switch (runeType)
+            {
+                case "overdrive":
+                    foreach (var sphere in _spheres)
+                        if (sphere != null && sphere.gameObject.activeInHierarchy)
+                            sphere.AccelerateNextAttack(sphere.AttackDelay * 0.75f);
+                    break;
+                case "phase":
+                    _playerCore.GrantInvulnerability(1f);
+                    break;
+                case "harvest":
+                    var orbs = FindObjectsOfType<ExperienceOrbAgent>();
+                    foreach (var orb in orbs)
+                        if (orb != null && Vector2.Distance(orb.transform.position, position) <= 450f * scale)
+                            orb.CollectForRune();
+                    break;
+                case "purge":
+                    foreach (var enemy in _enemies)
+                        if (enemy != null && enemy.IsAlive && !enemy.IsBoss &&
+                            Vector2.Distance(enemy.transform.position, position) <= 240f * scale)
+                            enemy.ReceiveDamage(45f + _level * 4f);
+                    break;
+                case "resonance":
+                    AddResonanceCharge(60f);
+                    foreach (var sphere in _spheres)
+                    {
+                        if (sphere == null || !sphere.gameObject.activeInHierarchy) continue;
+                        sphere.AddFormationHitCount(2);
+                        sphere.TriggerResonancePulse(0.5f);
+                    }
+                    break;
+                case "fortify":
+                    _playerCore.GrantShieldCharge(2);
+                    break;
+                case "hunt":
+                {
+                    EnemyAgent2D target = null;
+                    var nearest = float.PositiveInfinity;
+                    foreach (var enemy in _enemies)
+                    {
+                        if (enemy == null || !enemy.IsAlive || (!enemy.IsElite && !enemy.IsBoss)) continue;
+                        var distance = Vector2.Distance(enemy.transform.position, position);
+                        if (distance >= nearest) continue;
+                        target = enemy;
+                        nearest = distance;
+                    }
+                    if (target != null)
+                    {
+                        _hunterMarkTarget = target;
+                        _hunterMarkTimer = 8f;
+                        target.ApplyRuneMark(8f);
+                    }
+                    break;
+                }
+                case "echo":
+                    _runeAttackBuffUntil = Mathf.Max(_runeAttackBuffUntil, Time.time + 4f);
+                    break;
+                case "gravity":
+                    foreach (var enemy in _enemies)
+                    {
+                        if (enemy == null || !enemy.IsAlive) continue;
+                        var delta = position - (Vector2)enemy.transform.position;
+                        var distance = delta.magnitude;
+                        if (distance <= 0.0001f || distance > 240f * scale) continue;
+                        var pull = Mathf.Min(90f * scale, distance * 0.55f);
+                        enemy.transform.position += (Vector3)(delta / distance * pull);
+                    }
+                    break;
+            }
+            SpawnImpact(position, RuneAgent2D.GetRuneColor(runeType));
+            ShowTimedCombatMessage(RuneAgent2D.GetRuneNameRussian(runeType), 1f);
+        }
+
         public void RegisterEnemyDeath(EnemyAgent2D enemy, Vector2 position, int xpReward = 1, SphereId? sourceSphere = null)
         {
             if (_sphereCharacterId == SphereCharacterId.Hunter && enemy != null)
@@ -2711,6 +2816,48 @@ namespace EchoSphere.Runtime
             sr.sortingOrder = 7;
             var comboExperience = ComboRules.GetExperienceOrbValue(xpReward, _comboMultiplier);
             go.AddComponent<ExperienceOrbAgent>().Initialize(this, _player, comboExperience);
+
+            // Match the source death-drop order and keep its seeded RNG consumption.
+            var healthChance = enemy != null && enemy.IsBoss ? 1f : enemy != null && enemy.IsElite ? 0.5f : 0.04f;
+            if (_rng.NextFloat() < healthChance)
+            {
+                var health = new GameObject("Health Pack");
+                health.transform.position = position;
+                health.transform.localScale = Vector3.one * 0.22f;
+                var healthRenderer = health.AddComponent<SpriteRenderer>();
+                healthRenderer.sprite = RuntimeSpriteFactory.Star;
+                healthRenderer.color = new Color(0.36f, 0.9f, 0.42f);
+                healthRenderer.sortingOrder = 8;
+                health.AddComponent<HealthPackAgent2D>().Initialize(this);
+            }
+
+            var runeChance = enemy != null && enemy.IsBoss ? 1f : enemy != null && enemy.IsElite ? 0.35f : 0f;
+            if (_rng.NextFloat() < runeChance)
+            {
+                var runeTypes = RuneAgent2D.AllTypes;
+                var runeType = runeTypes[Mathf.Min(runeTypes.Length - 1, Mathf.FloorToInt(_rng.NextFloat() * runeTypes.Length))];
+                var rune = new GameObject("Tactical Rune · " + runeType);
+                rune.transform.position = position;
+                rune.transform.localScale = Vector3.one * 0.26f;
+                var runeRenderer = rune.AddComponent<SpriteRenderer>();
+                runeRenderer.sprite = RuntimeSpriteFactory.Diamond;
+                runeRenderer.color = RuneAgent2D.GetRuneColor(runeType);
+                runeRenderer.sortingOrder = 9;
+                rune.AddComponent<RuneAgent2D>().Initialize(this, runeType, position, 22f);
+            }
+
+            var chestChance = enemy != null && enemy.IsBoss ? 1f : enemy != null && enemy.IsElite ? 0.2f : 0.02f;
+            if (_rng.NextFloat() < chestChance && (enemy == null || !enemy.IsBoss))
+            {
+                var chest = new GameObject("Artifact Cache");
+                chest.transform.position = position;
+                chest.transform.localScale = Vector3.one * 0.28f;
+                var chestRenderer = chest.AddComponent<SpriteRenderer>();
+                chestRenderer.sprite = RuntimeSpriteFactory.Hexagon;
+                chestRenderer.color = new Color(1f, 0.76f, 0.3f);
+                chestRenderer.sortingOrder = 8;
+                chest.AddComponent<ArtifactChestAgent2D>().Initialize(this);
+            }
         }
 
         public void AddExperience(int amount)

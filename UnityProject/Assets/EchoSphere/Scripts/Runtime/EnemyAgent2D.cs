@@ -38,6 +38,7 @@ namespace EchoSphere.Runtime
         private BossCombatAgent2D _bossCombat;
         private string _bossType = "";
         public bool IsMarked => _markTimer > 0f;
+        public void ApplyRuneMark(float duration) => _markTimer = Mathf.Max(_markTimer, Mathf.Max(0f, duration));
         public bool IsBoss => !string.IsNullOrEmpty(_bossType);
         public bool IsElite => _isElite;
         public bool IsTank => _archetype == EnemyArchetype.Tank;

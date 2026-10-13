@@ -7,12 +7,21 @@ namespace EchoSphere.Runtime
         private EchoSphereRuntime _runtime;
         private Transform _player;
         private int _amount = 1;
+        private bool _collected;
         public void Initialize(EchoSphereRuntime runtime, Transform player, int amount)
         {
             _runtime = runtime;
             _player = player;
             _amount = Mathf.Max(1, amount);
         }
+        public void CollectForRune()
+        {
+            if (_collected || _runtime == null) return;
+            _collected = true;
+            _runtime.AddExperience(_amount);
+            Destroy(gameObject);
+        }
+
         private void Update()
         {
             if (_runtime == null || _runtime.IsGameplayPaused || _player == null) return;
