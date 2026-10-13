@@ -3934,9 +3934,25 @@ namespace EchoSphere.Runtime
             if (GetAbilityLevel(ability) < 7 ||
                 !_sphereLevels.TryGetValue(sphere, out var sphereLevel) || sphereLevel < 7 ||
                 !_sphereBranches.TryGetValue(sphere, out var selectedSphereBranch) || selectedSphereBranch != sphereBranch ||
-                !_abilityFinals.TryGetValue(ability, out var selectedAbilityFinal) || selectedAbilityFinal != abilityFinal)
+                string.IsNullOrEmpty(abilityFinal) || abilityFinal.Length < 3)
                 return false;
-            return true;
+
+            // Source synergy IDs use branchId_f1/f2/f3. Unity stores the selected
+            // final option by its own ID, so compare its position in the same
+            // three-option evolution pool instead of comparing unlike IDs.
+            var suffix = abilityFinal.Substring(abilityFinal.Length - 3);
+            if (suffix != "_f1" && suffix != "_f2" && suffix != "_f3") return false;
+            var expectedBranch = abilityFinal.Substring(0, abilityFinal.Length - 3);
+            if (!_abilityBranches.TryGetValue(ability, out var selectedAbilityBranch) ||
+                selectedAbilityBranch != expectedBranch ||
+                !_abilityFinals.TryGetValue(ability, out var selectedFinalId))
+                return false;
+
+            var expectedVariant = suffix[2] - '1';
+            var choices = LevelUpAbilityRules.GetActiveAbilityEvolutionChoices(ability, true, expectedBranch);
+            for (var i = 0; i < choices.Count; i++)
+                if (choices[i].Id == selectedFinalId) return i == expectedVariant;
+            return false;
         }
 
         private SphereAttackAgent FindNearestSphereOfType(SphereId type, Vector2 origin)
