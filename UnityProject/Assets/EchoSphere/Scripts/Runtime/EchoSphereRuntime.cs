@@ -1013,7 +1013,7 @@ namespace EchoSphere.Runtime
             {
                 case SphereId.Standard:
                 case SphereId.Orbital:
-                    // Standard is composed from four production PNG parts;
+                    // Active Standard core/ring are procedural in src/renderer.ts.
                     // Orbital is a native 2.5D core/ring construction.
                     return null;
                 case SphereId.Sniper: return RuntimeSpriteFactory.LoadAuthored("sphere-sniper");
@@ -1029,14 +1029,23 @@ namespace EchoSphere.Runtime
         }
 
 
+        private static float GetStandardSphereLocalRadius(Transform root, int visualTier)
+        {
+            // Source renderer.ts: clamp(sphere.radius * 0.19 + visualTier * 0.8, 15, 25).
+            // The Standard Sphere's base gameplay radius is 130 source pixels.
+            var sourcePixels = Mathf.Clamp(130f * 0.19f + Mathf.Max(0, visualTier) * 0.8f, 15f, 25f);
+            var rootScale = root == null ? 1f : Mathf.Max(0.0001f, Mathf.Abs(root.localScale.x));
+            return sourcePixels * SpherePlacementRules.SourcePixelsToWorld / rootScale;
+        }
+
         private static bool ApplyStandardSphereArtwork(GameObject root)
         {
-            var upper = RuntimeSpriteFactory.LoadAuthored("standard-sphere/upper-crystal");
-            var energy = RuntimeSpriteFactory.LoadAuthored("standard-sphere/energy-core");
-            var ring = RuntimeSpriteFactory.LoadAuthored("standard-sphere/stabilization-ring");
-            var lower = RuntimeSpriteFactory.LoadAuthored("standard-sphere/lower-crystal");
-            if (upper == null || energy == null || ring == null || lower == null) return false;
+            if (root == null) return false;
 
+            // Active new-desing draws the core and the orbit ring procedurally.
+            // The only authored component used by the live Standard assembly is
+            // upper-crystal.png, drawn twice with the lower copy mirrored.
+            var upper = RuntimeSpriteFactory.LoadAuthored("standard-sphere/upper-crystal");
             var shell = root.transform.Find("Shell");
             var frame = root.transform.Find("Inner Frame");
             var core = root.transform.Find("Core Light");
@@ -1047,41 +1056,89 @@ namespace EchoSphere.Runtime
             var coreRenderer = core.GetComponent<SpriteRenderer>();
             if (upperRenderer == null || ringRenderer == null || coreRenderer == null) return false;
 
-            // The source renderer assembles Standard from independent production
-            // parts. Keep that architecture instead of flattening it into a generic SVG.
-            upperRenderer.sprite = upper;
-            upperRenderer.color = Color.white;
-            upperRenderer.sortingOrder = 10;
-            shell.localScale = Vector3.one * 0.54f;
-            shell.gameObject.SetActive(true);
+            var radius = GetStandardSphereLocalRadius(root.transform, 0);
+            var coreGlow = root.transform.Find("Glow");
+            if (coreGlow != null)
+            {
+                coreGlow.localScale = Vector3.one * (1.16f * radius);
+                var glowRenderer = coreGlow.GetComponent<SpriteRenderer>();
+                if (glowRenderer != null)
+                {
+                    glowRenderer.sprite = RuntimeSpriteFactory.StandardCoreGlow;
+                    glowRenderer.color = new Color(1f, 1f, 1f, 0.89f);
+                    glowRenderer.sortingOrder = 7;
+                }
+            }
 
-            coreRenderer.sprite = energy;
-            coreRenderer.color = Color.white;
+            coreRenderer.sprite = RuntimeSpriteFactory.Disc;
+            coreRenderer.color = new Color(30f / 255f, 135f / 255f, 232f / 255f, 0.72f);
             coreRenderer.sortingOrder = 8;
-            core.localScale = Vector3.one * 0.50f;
+            core.localScale = Vector3.one * (0.84f * radius / Mathf.Max(0.0001f, coreRenderer.sprite.bounds.size.x));
             core.gameObject.SetActive(true);
 
-            ringRenderer.sprite = ring;
-            ringRenderer.color = Color.white;
-            ringRenderer.sortingOrder = 9;
-            frame.localScale = Vector3.one * 0.59f;
+            var outline = root.transform.Find("Standard Core Outline");
+            if (outline == null)
+            {
+                var outlineObject = new GameObject("Standard Core Outline");
+                outlineObject.transform.SetParent(root.transform, false);
+                outline = outlineObject.transform;
+            }
+            var outlineRenderer = outline.GetComponent<SpriteRenderer>();
+            if (outlineRenderer == null) outlineRenderer = outline.gameObject.AddComponent<SpriteRenderer>();
+            outlineRenderer.sprite = RuntimeSpriteFactory.Ring;
+            outlineRenderer.color = new Color(182f / 255f, 247f / 255f, 1f, 0.90f);
+            outlineRenderer.sortingOrder = 9;
+            outline.localScale = Vector3.one * (0.84f * radius / (0.73f * Mathf.Max(0.0001f, outlineRenderer.sprite.bounds.size.x)));
+            outline.gameObject.SetActive(true);
+
+            ringRenderer.sprite = RuntimeSpriteFactory.Ring;
+            ringRenderer.color = new Color(48f / 255f, 214f / 255f, 1f, 0.82f);
+            ringRenderer.sortingOrder = 10;
+            frame.localScale = new Vector3(
+                2f * 1.18f * 0.98f * radius / Mathf.Max(0.0001f, ringRenderer.sprite.bounds.size.x),
+                2f * 1.18f * 0.34f * radius / Mathf.Max(0.0001f, ringRenderer.sprite.bounds.size.y),
+                1f);
             frame.gameObject.SetActive(true);
 
-            var lowerObject = root.transform.Find("Standard Lower Crystal");
-            if (lowerObject == null)
+            if (upper != null)
             {
-                var lowerGo = new GameObject("Standard Lower Crystal");
-                lowerGo.transform.SetParent(root.transform, false);
-                lowerObject = lowerGo.transform;
+                var crystalScale = 1.34f * radius / Mathf.Max(0.0001f, upper.bounds.size.x);
+                upperRenderer.sprite = upper;
+                upperRenderer.color = Color.white;
+                upperRenderer.sortingOrder = 11;
+                shell.localPosition = new Vector3(0f, 0.62f * radius, 0f);
+                shell.localScale = Vector3.one * crystalScale;
+                shell.gameObject.SetActive(true);
+
+                var lowerObject = root.transform.Find("Standard Lower Crystal");
+                if (lowerObject == null)
+                {
+                    var lowerGo = new GameObject("Standard Lower Crystal");
+                    lowerGo.transform.SetParent(root.transform, false);
+                    lowerObject = lowerGo.transform;
+                }
+                lowerObject.localPosition = new Vector3(0f, -0.66f * radius, 0f);
+                lowerObject.localRotation = Quaternion.identity;
+                lowerObject.localScale = Vector3.one * crystalScale;
+                var lowerRenderer = lowerObject.GetComponent<SpriteRenderer>();
+                if (lowerRenderer == null) lowerRenderer = lowerObject.gameObject.AddComponent<SpriteRenderer>();
+                lowerRenderer.sprite = upper;
+                lowerRenderer.color = Color.white;
+                lowerRenderer.flipY = true;
+                lowerRenderer.sortingOrder = 12;
+                lowerObject.gameObject.SetActive(true);
             }
-            lowerObject.localPosition = Vector3.zero;
-            lowerObject.localRotation = Quaternion.identity;
-            lowerObject.localScale = Vector3.one * 0.54f;
-            var lowerRenderer = lowerObject.GetComponent<SpriteRenderer>();
-            if (lowerRenderer == null) lowerRenderer = lowerObject.gameObject.AddComponent<SpriteRenderer>();
-            lowerRenderer.sprite = lower;
-            lowerRenderer.color = Color.white;
-            lowerRenderer.sortingOrder = 11;
+            else
+            {
+                // Upstream upper-crystal.png has a corrupt DEFLATE payload in
+                // both branches. Do not replace it with an invented silhouette:
+                // the source renderer itself falls back to core + ring when it
+                // cannot load the crystal.
+                shell.gameObject.SetActive(false);
+                var lowerObject = root.transform.Find("Standard Lower Crystal");
+                if (lowerObject != null) lowerObject.gameObject.SetActive(false);
+            }
+
             return true;
         }
 
@@ -1132,22 +1189,53 @@ namespace EchoSphere.Runtime
                 var sphere = _spheres[i];
                 if (sphere == null || sphere.Type != SphereId.Standard) continue;
 
+                var radius = GetStandardSphereLocalRadius(sphere.transform, sphere.ProgressionLevel);
                 var frame = sphere.transform.Find("Inner Frame");
                 if (frame != null && frame.gameObject.activeSelf)
                     frame.Rotate(0f, 0f, 12.6f * deltaTime, Space.Self);
 
                 var pulse = 0.5f + 0.5f * Mathf.Sin(_runTime * 4.6f + sphere.transform.position.y * 0.009f);
+                var glow = sphere.transform.Find("Glow");
+                if (glow != null && glow.gameObject.activeSelf)
+                {
+                    glow.localScale = Vector3.one * (1.16f * radius * (1f + pulse * 0.035f));
+                    var glowRenderer = glow.GetComponent<SpriteRenderer>();
+                    if (glowRenderer != null)
+                        glowRenderer.color = new Color(1f, 1f, 1f, 0.82f + pulse * 0.14f);
+                }
+
                 var core = sphere.transform.Find("Core Light");
                 if (core != null && core.gameObject.activeSelf)
-                    core.localScale = Vector3.one * (0.50f * (1f + pulse * 0.035f));
+                {
+                    var coreRenderer = core.GetComponent<SpriteRenderer>();
+                    if (coreRenderer != null && coreRenderer.sprite != null)
+                        core.localScale = Vector3.one * (0.84f * radius * (1f + pulse * 0.035f) /
+                            Mathf.Max(0.0001f, coreRenderer.sprite.bounds.size.x));
+                }
 
                 var upper = sphere.transform.Find("Shell");
                 if (upper != null && upper.gameObject.activeSelf)
-                    upper.localScale = Vector3.one * (0.54f * (1f + pulse * 0.022f));
+                {
+                    var upperRenderer = upper.GetComponent<SpriteRenderer>();
+                    if (upperRenderer != null && upperRenderer.sprite != null)
+                    {
+                        upper.localPosition = new Vector3(0f, 0.62f * radius, 0f);
+                        upper.localScale = Vector3.one * (1.34f * radius * (1f + pulse * 0.022f) /
+                            Mathf.Max(0.0001f, upperRenderer.sprite.bounds.size.x));
+                    }
+                }
 
                 var lower = sphere.transform.Find("Standard Lower Crystal");
                 if (lower != null && lower.gameObject.activeSelf)
-                    lower.localScale = Vector3.one * (0.54f * (1f + pulse * 0.022f));
+                {
+                    var lowerRenderer = lower.GetComponent<SpriteRenderer>();
+                    if (lowerRenderer != null && lowerRenderer.sprite != null)
+                    {
+                        lower.localPosition = new Vector3(0f, -0.66f * radius, 0f);
+                        lower.localScale = Vector3.one * (1.34f * radius * (1f + pulse * 0.022f) /
+                            Mathf.Max(0.0001f, lowerRenderer.sprite.bounds.size.x));
+                    }
+                }
             }
         }
 
@@ -1266,7 +1354,7 @@ namespace EchoSphere.Runtime
         private static Sprite GetSphereIcon(SphereId type)
         {
             if (type == SphereId.Standard)
-                return RuntimeSpriteFactory.LoadAuthored("standard-sphere/energy-core") ?? RuntimeSpriteFactory.Faceted;
+                return RuntimeSpriteFactory.StandardCoreGlow;
             var authored = GetAuthoredSphereArtwork(type);
             if (authored != null) return authored;
             switch (type)
