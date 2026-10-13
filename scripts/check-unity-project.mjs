@@ -1248,6 +1248,12 @@ assert.ok(runtimeArt.includes('AddComponent<AbilityDroneAgent2D>()') &&
   levelUpAbilities.includes('lightning_echo_storm') &&
   levelUpAbilities.includes('darkritual_blood_link'),
   'Fire Trail and Dark Ritual must modify runtime combat, Minion must spawn active drones, and new active abilities must expose evolution branches');
+assert.ok(runtimeArt.includes('GetGlobalSphereModifierLevel("fire") <= 0') &&
+  !runtimeArt.includes('!IsFireAlignedSphere(sphere.Type) continue'),
+  'Fire Trail activation must use the source global player fire modifier, not sphere-authored fire affinity');
+assert.ok(runtimeArt.includes('var networkOrdered = new List<SphereAttackAgent>(networkOrder)') &&
+  runtimeArt.includes('if (remaining.Contains(sphere)) networkOrdered.Add(sphere)'),
+  'Lightning network traversal must append disconnected Spheres in the original distance-sorted order');
 
 assert.ok(runtimeArt.includes('40f * GetActiveAbilityCooldownMultiplier()') &&
   runtimeArt.includes('3f + Mathf.Min(2, level - 1)') &&
