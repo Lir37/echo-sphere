@@ -61,6 +61,12 @@ namespace EchoSphere.Core
         public static bool HasNetworkMemorySynergy(IList<string> ownedArtifacts) =>
             HasBoth(ownedArtifacts, "network_anchor", "echo_weaver");
 
+        public static bool HasStatusCircuitSynergy(IList<string> ownedArtifacts) =>
+            HasBoth(ownedArtifacts, "prism_filter", "stasis_mandala");
+
+        public static bool HasStatusLoopSynergy(IList<string> ownedArtifacts) =>
+            HasBoth(ownedArtifacts, "prism_crown", "stasis_mandala");
+
         public static float GetFortressNetworkDamageMultiplier(bool hasSynergy, bool hasNearbySphere) =>
             hasSynergy && hasNearbySphere ? 1.10f : 1f;
 

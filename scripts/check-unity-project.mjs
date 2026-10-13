@@ -36,6 +36,8 @@ const required = [
   'Assets/EchoSphere/Scripts/Core/ArtifactSynergyRules.cs.meta',
   'Assets/EchoSphere/Scripts/Core/ResonanceGeometryMemoryRules.cs',
   'Assets/EchoSphere/Scripts/Core/ResonanceGeometryMemoryRules.cs.meta',
+  'Assets/EchoSphere/Scripts/Core/ArtifactSetRules.cs',
+  'Assets/EchoSphere/Scripts/Core/ArtifactSetRules.cs.meta',
   'Assets/EchoSphere/Scripts/Runtime/StellaChestAgent2D.cs',
   'Assets/EchoSphere/Scripts/Runtime/BossCombatAgent2D.cs',
   'Assets/EchoSphere/Scripts/Runtime/BossProjectileAgent2D.cs',
@@ -999,3 +1001,32 @@ assert.ok(artifactSynergyRulesSource.includes('HasBoth(ownedArtifacts, "triangle
   artifactSynergyRulesSource.includes('HasBoth(ownedArtifacts, "network_anchor", "echo_weaver")') &&
   resonanceGeometryMemoryRulesSource.includes('MemoryDurationSeconds = 0.9f'),
   'Geometry Loop/Lattice Memory/Network Memory must require source artifact pairs and source memory duration');
+
+
+// Completed Artifact Set bonuses (independent from their pair-synergy bonuses).
+const artifactSetRulesSource = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/ArtifactSetRules.cs'), 'utf8');
+assert.ok(menuRuntime.includes('ArtifactSetRules.HasCompletedResonanceGrid') &&
+  menuRuntime.includes('ArtifactSetRules.HasCompletedSingularityPath') &&
+  menuRuntime.includes('ArtifactSetRules.HasCompletedGeometryCraft') &&
+  menuRuntime.includes('ArtifactSetRules.HasCompletedVoidHorizonSet') &&
+  menuRuntime.includes('ArtifactSetRules.HasCompletedHunterDoctrineSet') &&
+  menuRuntime.includes('ArtifactSetRules.HasCompletedPulseEngineeringSet') &&
+  menuRuntime.includes('ArtifactSetRules.HasCompletedCoreForgeSet') &&
+  menuRuntime.includes('ArtifactSetRules.HasCompletedPrismDominionSet') &&
+  menuRuntime.includes('ArtifactSetRules.HasCompletedNetworkLegacySet'),
+  'Nine simple completed Artifact Sets must be wired into live damage calculations');
+assert.ok(artifactSetRulesSource.includes('fortressNetwork && perfectNetwork') &&
+  artifactSetRulesSource.includes('glassCannon && singularity') &&
+  artifactSetRulesSource.includes('geometryLoop && latticeMemory && networkMemory') &&
+  artifactSetRulesSource.includes('voidHorizon && orbitalPrism && gravityPulse') &&
+  artifactSetRulesSource.includes('hunterDoctrine && hunterFocus') &&
+  artifactSetRulesSource.includes('pulseEngineering && pulseOverload') &&
+  artifactSetRulesSource.includes('coreForge && coreRelay') &&
+  artifactSetRulesSource.includes('orbitalPrism && statusCircuit') &&
+  artifactSetRulesSource.includes('networkMemory && perfectNetwork'),
+  'Completed Artifact Sets must require every source-listed pair synergy');
+assert.ok(artifactSetRulesSource.includes('complete && hasNearbySphere && hasActiveGeometry ? 1.06f : 1f') &&
+  artifactSetRulesSource.includes('complete && uniqueTypeCount <= 1 ? 1.08f : 1f') &&
+  artifactSetRulesSource.includes('complete && isVoidSphere ? 1.10f : 1f') &&
+  artifactSetRulesSource.includes('complete && isPrismOrOrbital ? 1.08f : 1f'),
+  'Completed Artifact Set multipliers must retain their numeric gates');

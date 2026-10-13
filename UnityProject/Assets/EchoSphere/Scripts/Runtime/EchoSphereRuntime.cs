@@ -3690,6 +3690,61 @@ namespace EchoSphere.Runtime
             multiplier *= ArtifactSynergyRules.GetNetworkMemoryDamageMultiplier(
                 ArtifactSynergyRules.HasNetworkMemorySynergy(_ownedArtifacts),
                 _resonanceGeometryMemoryTimer > 0f);
+
+            var hasResonanceGrid = ArtifactSetRules.HasCompletedResonanceGrid(
+                ArtifactSynergyRules.HasFortressNetworkSynergy(_ownedArtifacts),
+                ArtifactSynergyRules.HasPerfectNetworkSynergy(_ownedArtifacts));
+            multiplier *= ArtifactSetRules.GetResonanceGridDamageMultiplier(
+                hasResonanceGrid, HasNearbyActiveSphere(sphere, 190f),
+                !string.Equals(_resonanceGeometryKey, "none", StringComparison.Ordinal));
+
+            var hasSingularityPath = ArtifactSetRules.HasCompletedSingularityPath(
+                ArtifactSynergyRules.HasGlassCannonSynergy(_ownedArtifacts),
+                ArtifactSynergyRules.HasSingularitySynergy(_ownedArtifacts));
+            multiplier *= ArtifactSetRules.GetSingularityPathDamageMultiplier(hasSingularityPath, uniqueTypes);
+
+            var hasGeometryCraft = ArtifactSetRules.HasCompletedGeometryCraft(
+                ArtifactSynergyRules.HasGeometryLoopSynergy(_ownedArtifacts),
+                ArtifactSynergyRules.HasLatticeMemorySynergy(_ownedArtifacts),
+                ArtifactSynergyRules.HasNetworkMemorySynergy(_ownedArtifacts));
+            multiplier *= ArtifactSetRules.GetGeometryCraftDamageMultiplier(
+                hasGeometryCraft, _resonanceGeometryType);
+
+            var hasVoidHorizonSet = ArtifactSetRules.HasCompletedVoidHorizonSet(
+                ArtifactSynergyRules.HasVoidHorizonSynergy(_ownedArtifacts),
+                ArtifactSynergyRules.HasOrbitalPrismSynergy(_ownedArtifacts),
+                ArtifactSynergyRules.HasGravityPulseSynergy(_ownedArtifacts));
+            multiplier *= ArtifactSetRules.GetVoidHorizonSetDamageMultiplier(
+                hasVoidHorizonSet, sphere.Type == SphereId.Void);
+
+            var hasHunterDoctrineSet = ArtifactSetRules.HasCompletedHunterDoctrineSet(
+                ArtifactSynergyRules.HasHunterDoctrineSynergy(_ownedArtifacts),
+                ArtifactSynergyRules.HasHunterFocusSynergy(_ownedArtifacts));
+            multiplier *= ArtifactSetRules.GetHunterDoctrineSetDamageMultiplier(
+                hasHunterDoctrineSet, sphere.Type == SphereId.Sniper);
+
+            var hasPulseEngineeringSet = ArtifactSetRules.HasCompletedPulseEngineeringSet(
+                ArtifactSynergyRules.HasPulseEngineeringSynergy(_ownedArtifacts),
+                ArtifactSynergyRules.HasPulseOverloadSynergy(_ownedArtifacts));
+            multiplier *= ArtifactSetRules.GetPulseEngineeringSetDamageMultiplier(
+                hasPulseEngineeringSet, sphere.Type == SphereId.Pulse);
+
+            var hasCoreForgeSet = ArtifactSetRules.HasCompletedCoreForgeSet(
+                ArtifactSynergyRules.HasCoreForgeSynergy(_ownedArtifacts),
+                ArtifactSynergyRules.HasCoreRelaySynergy(_ownedArtifacts));
+            multiplier *= ArtifactSetRules.GetCoreForgeSetDamageMultiplier(hasCoreForgeSet, uniqueTypes);
+
+            var hasPrismDominionSet = ArtifactSetRules.HasCompletedPrismDominionSet(
+                ArtifactSynergyRules.HasOrbitalPrismSynergy(_ownedArtifacts),
+                ArtifactSynergyRules.HasStatusCircuitSynergy(_ownedArtifacts));
+            multiplier *= ArtifactSetRules.GetPrismDominionSetDamageMultiplier(
+                hasPrismDominionSet, sphere.Type == SphereId.Prism || sphere.Type == SphereId.Orbital);
+
+            var hasNetworkLegacySet = ArtifactSetRules.HasCompletedNetworkLegacySet(
+                ArtifactSynergyRules.HasNetworkMemorySynergy(_ownedArtifacts),
+                ArtifactSynergyRules.HasPerfectNetworkSynergy(_ownedArtifacts));
+            multiplier *= ArtifactSetRules.GetNetworkLegacySetDamageMultiplier(
+                hasNetworkLegacySet, uniqueTypes, _resonanceGeometryType);
             return multiplier;
         }
 

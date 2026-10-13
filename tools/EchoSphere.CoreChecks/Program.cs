@@ -48,6 +48,7 @@ internal static class Program
             CheckCombatStateArtifactSynergies();
             CheckAxiomFoldSynergy();
             CheckResonanceGeometryMemoryRules();
+            CheckArtifactSetRules();
             CheckSphereElementalRules();
             CheckAlchemistReactionRules();
             CheckSphereAuthoredModifierRules();
@@ -1160,6 +1161,52 @@ internal static class Program
             "Source memory stores at least two resolvable previous positions");
         Near(ResonanceGeometryMemoryRules.MemoryDurationSeconds, 0.9f, 0f,
             "Source resonance geometry memory lasts 0.9 seconds");
+    }
+
+    private static void CheckArtifactSetRules()
+    {
+        True(ArtifactSetRules.HasCompletedResonanceGrid(true, true), "Resonance Grid requires Fortress Network and Perfect Network");
+        True(!ArtifactSetRules.HasCompletedResonanceGrid(true, false), "Resonance Grid remains incomplete without Perfect Network");
+        Near(ArtifactSetRules.GetResonanceGridDamageMultiplier(true, true, true), 1.06f, 0f, "Resonance Grid grants +6% near another Sphere while any geometry is active");
+        Near(ArtifactSetRules.GetResonanceGridDamageMultiplier(true, true, false), 1f, 0f, "Resonance Grid requires active geometry");
+        Near(ArtifactSetRules.GetResonanceGridDamageMultiplier(true, false, true), 1f, 0f, "Resonance Grid requires a neighbouring Sphere within 190 px");
+
+        True(ArtifactSetRules.HasCompletedSingularityPath(true, true), "Singularity Path requires Glass Cannon and Singularity");
+        Near(ArtifactSetRules.GetSingularityPathDamageMultiplier(true, 1), 1.08f, 0f, "Singularity Path grants +8% at one active type");
+        Near(ArtifactSetRules.GetSingularityPathDamageMultiplier(true, 2), 1f, 0f, "Singularity Path needs one active type");
+
+        True(ArtifactSetRules.HasCompletedGeometryCraft(true, true, true), "Geometry Craft requires all three source pair synergies");
+        True(!ArtifactSetRules.HasCompletedGeometryCraft(true, true, false), "Geometry Craft stays incomplete if Network Memory is missing");
+        Near(ArtifactSetRules.GetGeometryCraftDamageMultiplier(true, SphereNetworkFormation.Ring), 1.10f, 0f, "Geometry Craft gives +10% for Ring");
+        Near(ArtifactSetRules.GetGeometryCraftDamageMultiplier(true, SphereNetworkFormation.Lattice), 1.10f, 0f, "Geometry Craft gives +10% for Lattice");
+        Near(ArtifactSetRules.GetGeometryCraftDamageMultiplier(true, SphereNetworkFormation.Fractal), 1.10f, 0f, "Geometry Craft gives +10% for Fractal");
+        Near(ArtifactSetRules.GetGeometryCraftDamageMultiplier(true, SphereNetworkFormation.Triangle), 1f, 0f, "Geometry Craft excludes Triangle");
+
+        True(ArtifactSetRules.HasCompletedVoidHorizonSet(true, true, true), "Void Horizon set requires all three source synergies");
+        Near(ArtifactSetRules.GetVoidHorizonSetDamageMultiplier(true, true), 1.10f, 0f, "Void Horizon set gives Void +10%");
+        Near(ArtifactSetRules.GetVoidHorizonSetDamageMultiplier(true, false), 1f, 0f, "Void Horizon set does not buff other Sphere types");
+
+        True(ArtifactSetRules.HasCompletedHunterDoctrineSet(true, true), "Hunter Doctrine set requires its pair synergies");
+        Near(ArtifactSetRules.GetHunterDoctrineSetDamageMultiplier(true, true), 1.10f, 0f, "Hunter Doctrine set grants Sniper +10%");
+        Near(ArtifactSetRules.GetHunterDoctrineSetDamageMultiplier(true, false), 1f, 0f, "Hunter Doctrine set only buffs Sniper");
+
+        True(ArtifactSetRules.HasCompletedPulseEngineeringSet(true, true), "Pulse Engineering set requires both pair synergies");
+        Near(ArtifactSetRules.GetPulseEngineeringSetDamageMultiplier(true, true), 1.10f, 0f, "Pulse Engineering set grants Pulse +10%");
+        Near(ArtifactSetRules.GetPulseEngineeringSetDamageMultiplier(true, false), 1f, 0f, "Pulse Engineering set only buffs Pulse");
+
+        True(ArtifactSetRules.HasCompletedCoreForgeSet(true, true), "Core Forge set requires Core Forge and Core Relay");
+        Near(ArtifactSetRules.GetCoreForgeSetDamageMultiplier(true, 3), 1.06f, 0f, "Core Forge set adds +6% at three types");
+        Near(ArtifactSetRules.GetCoreForgeSetDamageMultiplier(true, 2), 1f, 0f, "Core Forge set requires three types");
+
+        True(ArtifactSetRules.HasCompletedPrismDominionSet(true, true), "Prism Dominion set requires Orbital Prism and Status Circuit");
+        Near(ArtifactSetRules.GetPrismDominionSetDamageMultiplier(true, true), 1.08f, 0f, "Prism Dominion grants +8% to Prism and Orbital");
+        Near(ArtifactSetRules.GetPrismDominionSetDamageMultiplier(true, false), 1f, 0f, "Prism Dominion excludes other Sphere types");
+
+        True(ArtifactSetRules.HasCompletedNetworkLegacySet(true, true), "Network Legacy set requires Network Memory and Perfect Network");
+        Near(ArtifactSetRules.GetNetworkLegacySetDamageMultiplier(true, 3, SphereNetworkFormation.Ring), 1.06f, 0f, "Network Legacy adds +6% at three types with Ring");
+        Near(ArtifactSetRules.GetNetworkLegacySetDamageMultiplier(true, 3, SphereNetworkFormation.Fractal), 1.06f, 0f, "Network Legacy adds +6% with Fractal");
+        Near(ArtifactSetRules.GetNetworkLegacySetDamageMultiplier(true, 3, SphereNetworkFormation.Triangle), 1f, 0f, "Network Legacy excludes other geometries");
+        Near(ArtifactSetRules.GetNetworkLegacySetDamageMultiplier(true, 2, SphereNetworkFormation.Ring), 1f, 0f, "Network Legacy requires three types");
     }
 
     private static void CheckSphereElementalRules()
