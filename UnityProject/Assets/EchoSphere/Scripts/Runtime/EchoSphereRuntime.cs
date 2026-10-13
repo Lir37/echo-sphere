@@ -3351,6 +3351,35 @@ namespace EchoSphere.Runtime
                 ? "sphere:" + choice.Sphere + ":" + choice.CurrentLevel + ":" + choice.NextLevel
                 : "ability:" + choice.Kind + ":" + choice.CurrentLevel + ":" + choice.NextLevel;
 
+        private bool IsCharacterPreferredActiveAbility(RunUpgradeKind kind)
+        {
+            switch (_sphereCharacterId)
+            {
+                case SphereCharacterId.Spherist:
+                    return kind == RunUpgradeKind.Blast || kind == RunUpgradeKind.Lightning || kind == RunUpgradeKind.Shield;
+                case SphereCharacterId.Hunter:
+                    return kind == RunUpgradeKind.Teleport || kind == RunUpgradeKind.Lightning || kind == RunUpgradeKind.Blast;
+                case SphereCharacterId.Engineer:
+                    return kind == RunUpgradeKind.Shield || kind == RunUpgradeKind.Minion || kind == RunUpgradeKind.Lightning;
+                case SphereCharacterId.Berserker:
+                    return kind == RunUpgradeKind.Shield || kind == RunUpgradeKind.DarkRitual || kind == RunUpgradeKind.FireTrail;
+                case SphereCharacterId.Alchemist:
+                    return kind == RunUpgradeKind.FireTrail || kind == RunUpgradeKind.Lightning || kind == RunUpgradeKind.TimeStop;
+                case SphereCharacterId.Architect:
+                    return kind == RunUpgradeKind.Teleport || kind == RunUpgradeKind.TimeStop || kind == RunUpgradeKind.Shield;
+                case SphereCharacterId.Conductor:
+                    return kind == RunUpgradeKind.Blast || kind == RunUpgradeKind.Lightning;
+                case SphereCharacterId.Oracle:
+                    return kind == RunUpgradeKind.Teleport || kind == RunUpgradeKind.TimeStop;
+                case SphereCharacterId.Voidwalker:
+                    return kind == RunUpgradeKind.Teleport || kind == RunUpgradeKind.DarkRitual || kind == RunUpgradeKind.Shield;
+                case SphereCharacterId.Fractal:
+                    return kind == RunUpgradeKind.Blast || kind == RunUpgradeKind.TimeStop || kind == RunUpgradeKind.Minion;
+                default:
+                    return false;
+            }
+        }
+
         private float GetLevelUpChoiceBaseWeight(
             RunUpgradeChoice choice, float abilitySourceWeight, float sphereSourceWeight)
         {
@@ -3368,10 +3397,11 @@ namespace EchoSphere.Runtime
             }
             else
             {
+                // Source getAbilityUpgradeChoiceWeight adds +0.75 for preferred
+                // abilities and +0.08 for every active Ability before weighting.
                 var levelWeight = choice.CurrentLevel == 0 ? 1.35f : 1.15f;
-                weight = abilitySourceWeight * levelWeight;
-                if (_sphereCharacterId == SphereCharacterId.Oracle && choice.Kind == RunUpgradeKind.Crit)
-                    weight *= 1f + 0.75f / levelWeight;
+                var characterAffinity = IsCharacterPreferredActiveAbility(choice.Kind) ? 0.75f : 0f;
+                weight = abilitySourceWeight * (levelWeight + characterAffinity + 0.08f);
             }
             return Mathf.Max(0.01f, weight);
         }
