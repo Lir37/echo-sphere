@@ -4950,20 +4950,15 @@ namespace EchoSphere.Runtime
 
         private void DamageEnemiesNearFromSphere(SphereAttackAgent source, Vector2 center, float radiusWorld, float damage, Color color)
         {
-            if (source == null)
-            {
-                DamageEnemiesNear(center, radiusWorld, damage, color);
-                return;
-            }
+            // Source emitSpherePulse/dealDamageToEnemy calls from active abilities
+            // omit the sourceSphere argument. Keep the Sphere only as the pulse
+            // origin; do not apply authored Sphere modifiers, crits or sphere-hit procs.
             var hitRadius = Mathf.Max(0f, radiusWorld);
             var synergyMultiplier = _applyingActiveAbilitySynergyRiders ? _activeAbilitySynergyPower : 1f;
+            var effectiveDamage = damage * synergyMultiplier;
             foreach (var enemy in _enemies)
-            {
-                if (enemy == null || !enemy.IsAlive || Vector2.Distance(enemy.transform.position, center) > hitRadius) continue;
-                var sourceDamage = damage * synergyMultiplier * GetSphereDamageMultiplier(source.Type);
-                var resolvedDamage = ResolveAuthoredSphereHitDamage(source.Type, enemy, sourceDamage);
-                enemy.ReceiveSphereDamage(source.Type, resolvedDamage, true, true, source, false);
-            }
+                if (enemy != null && enemy.IsAlive && Vector2.Distance(enemy.transform.position, center) <= hitRadius)
+                    enemy.ReceiveDamage(effectiveDamage);
             SpawnImpact(center, color);
         }
 
