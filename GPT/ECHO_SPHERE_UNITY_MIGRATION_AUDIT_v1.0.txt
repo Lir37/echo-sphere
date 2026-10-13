@@ -3725,3 +3725,62 @@ NEXT:
 ======================================================================
 END SOURCE COMBO STATE + CRITICAL ECHO
 ======================================================================
+
+
+======================================================================
+[2026-10-13 | VISIBLE COMBO HUD PORT]
+======================================================================
+
+SOURCE:
+- new-desing remains unchanged at 737ef2af4a877e0995db5f92331d536d2f29a934.
+- Visual contract is src/App.tsx: combo overlay is visible at combo >= 5,
+  title colors change at combo 25 and 50, multiplier text uses comboMult, and
+  the progress bar reflects comboTimer / 3 seconds.
+
+IMPLEMENTED:
+1. EchoSphereRuntime now renders the localized COMBO / КОМБО title and current
+   combo count when the live _combo value is at least 5.
+2. Source color thresholds are preserved: #ff4d5d below 25, #ff6b6b from 25,
+   and #ffb84d from 50. The current experience multiplier is rendered from
+   _comboMultiplier using invariant decimal formatting, matching JS-style
+   values such as x1.5. The 96 x 4 progress bar reads _comboTimer against
+   ComboRules.WindowSeconds and uses the source dark-blue/orange colors.
+3. The HUD width is capped at 240 logical units and centered relative to
+   _uiWidth. It is placed at y=270, below the current fixed upper HUD controls
+   and the transient message row at y=236, instead of drawing over the source
+   top-16 position blindly. The actual on-device portrait appearance still
+   requires a real visual check.
+4. Updated scripts/check-unity-project.mjs to guard the live combo/count,
+   multiplier and timer bindings, display gate, title localization, source
+   color thresholds, 3-second bar and responsive center placement.
+
+VALIDATION:
+- Unity Migration Contracts #303: SUCCESS on runtime HUD commit
+  bbd35364bf1482dd56ebeb16c41164893d1b7f28:
+  https://github.com/Lir37/echo-sphere/actions/runs/38397158829
+- Unity Migration Contracts #304: SUCCESS on implementation + runtime-binding
+  guard HEAD 3b4bf3f43de29d1c23c856bf5dbaf76f02b333d5:
+  https://github.com/Lir37/echo-sphere/actions/runs/38397245309
+- Both the pure C# gameplay contract job and Node Unity-project/runtime-boundary
+  check completed successfully.
+- No Unity Editor compilation, APK build/install or physical-device screenshot
+  was performed in this cycle. CI confirms contracts/structure, not visual
+  parity or UnityEngine compilation.
+
+REMAINING:
+- Visually validate the combo overlay on the real portrait HUD after an Editor
+  run or APK install; adjust only if an observed overlap or scale issue exists.
+- Temporal Fold still awaits source-equivalent time-stop/teleport-buff timers.
+  Status Circuit still awaits the real source-wide player.sphereMods state.
+- Rune pickup/spawn, full Knowledge Base coverage, and other already-listed
+  Unity Editor/APK/device parity and Sphere/enemy scale gaps remain open.
+
+NEXT:
+1. Verify the combo HUD in an actual Unity Editor portrait Game View or a fresh
+   APK on device; do not claim visual parity until observed.
+2. Continue the source-state audit for Temporal Fold and Status Circuit without
+   inventing substitute conditions.
+
+======================================================================
+END VISIBLE COMBO HUD PORT
+======================================================================
