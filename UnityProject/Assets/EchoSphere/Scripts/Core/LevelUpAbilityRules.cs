@@ -33,7 +33,164 @@ namespace EchoSphere.Core
         public static bool CanUpgrade(RunUpgradeKind kind, int currentLevel) =>
             IsAbilityChoice(kind) && currentLevel >= 0 && currentLevel < GetMaxLevel(kind);
 
-        public static RunUpgradeChoice CreateChoice(RunUpgradeKind kind, int currentLevel)
+        private static string GetSourceActiveAbilityName(RunUpgradeKind kind, bool russian)
+        {
+            switch (kind)
+            {
+                case RunUpgradeKind.Blast: return russian ? "Эхо-импульс" : "Echo Pulse";
+                case RunUpgradeKind.Shield: return russian ? "Сферный барьер" : "Sphere Barrier";
+                case RunUpgradeKind.Teleport: return russian ? "Эхо-прыжок" : "Echo Jump";
+                case RunUpgradeKind.FireTrail: return russian ? "Перегрев" : "Overheat";
+                case RunUpgradeKind.Minion: return russian ? "Эхо-дрон" : "Echo Drone";
+                case RunUpgradeKind.Lightning: return russian ? "Цепной разряд" : "Chain Lightning";
+                case RunUpgradeKind.TimeStop: return russian ? "Эхо-заморозка" : "Echo Freeze";
+                case RunUpgradeKind.DarkRitual: return russian ? "Перегрузка" : "Overload";
+                default: return string.Empty;
+            }
+        }
+
+        private static string GetSourceActiveAbilityDescription(RunUpgradeKind kind, int currentLevel, bool russian)
+        {
+            string[] ru;
+            string[] en;
+            switch (kind)
+            {
+                case RunUpgradeKind.Blast:
+                    ru = new[] { "Импульс проходит через все активные сферы и наносит 30 урона вокруг каждой. Перезарядка: 30 с.",
+                        "Импульс наносит 40 урона вокруг каждой сферы. Перезарядка: 28 с.",
+                        "Импульс наносит 50 урона вокруг каждой сферы. Перезарядка: 26 с.",
+                        "Следующий выбор откроет одну из трёх веток способности.",
+                        "Импульс начинает усиливать выбранную ветку сети.",
+                        "Передача импульса между сферами становится стабильнее и мощнее.",
+                        "Следующий выбор откроет одну из трёх финальных форм." };
+                    en = new[] { "Pulse travels through all active Spheres and deals 30 damage around each. Cooldown: 30s.",
+                        "Pulse deals 40 damage around each Sphere. Cooldown: 28s.",
+                        "Pulse deals 50 damage around each Sphere. Cooldown: 26s.",
+                        "The next choice opens one of three ability branches.",
+                        "Pulse begins empowering the selected network branch.",
+                        "Pulse transfer between Spheres becomes more stable and powerful.",
+                        "The next choice opens one of three final forms." };
+                    break;
+                case RunUpgradeKind.Shield:
+                    ru = new[] { "Сферы создают защитный контур вокруг игрока и поглощают 1 удар. Длительность: 10 с. Перезарядка: 20 с.",
+                        "Ближайшие сферы добавляют защитные заряды. Перезарядка: 20 с.",
+                        "Сеть создаёт до 2 защитных зарядов. Длительность: 10 с. Перезарядка: 20 с.",
+                        "Следующий выбор откроет одну из трёх веток способности.",
+                        "Защита распространяется на ближайшие сферы и выбранную ветку.",
+                        "Защитный контур получает дополнительные заряды и усиливает сеть.",
+                        "Следующий выбор откроет одну из трёх финальных форм." };
+                    en = new[] { "Spheres create a defensive circuit around the player and absorb 1 hit. Duration: 10s. Cooldown: 20s.",
+                        "Nearby Spheres add shield charges. Cooldown: 20s.",
+                        "The network creates up to 2 shield charges. Duration: 10s. Cooldown: 20s.",
+                        "The next choice opens one of three ability branches.",
+                        "Defense spreads to nearby Spheres and the selected branch.",
+                        "The defensive circuit gains additional charges and strengthens the network.",
+                        "The next choice opens one of three final forms." };
+                    break;
+                case RunUpgradeKind.Teleport:
+                    ru = new[] { "Телепорт перемещает игрока к ближайшей активной сфере. Перезарядка: 15 с.",
+                        "Прыжок к сфере происходит чаще. Перезарядка: 13 с.",
+                        "Прыжок работает на более дальнюю сферу сети. Перезарядка: 11 с.",
+                        "Следующий выбор откроет одну из трёх веток способности.",
+                        "Телепорт начинает использовать сферу как точку назначения выбранной ветки.",
+                        "Переход между узлами создаёт дополнительный сетевой эффект.",
+                        "Следующий выбор откроет одну из трёх финальных форм." };
+                    en = new[] { "Teleport moves the player to the nearest active Sphere. Cooldown: 15s.",
+                        "Jumping to a Sphere happens more often. Cooldown: 13s.",
+                        "The jump can target a farther Sphere in the network. Cooldown: 11s.",
+                        "The next choice opens one of three ability branches.",
+                        "Teleport begins using the Sphere as the selected branch's destination point.",
+                        "Moving between nodes creates an additional network effect.",
+                        "The next choice opens one of three final forms." };
+                    break;
+                case RunUpgradeKind.FireTrail:
+                    ru = new[] { "Перегружает сферы с огненным эффектом на 5 с: +20% урона. Перезарядка: 25 с.",
+                        "Перегрев даёт +25% урона и ускоряет атаки огненных сфер. Перезарядка: 25 с.",
+                        "Перегрев даёт +30% урона и ещё сильнее ускоряет огненные сферы. Перезарядка: 25 с.",
+                        "Следующий выбор откроет одну из трёх веток способности.",
+                        "Перегрев начинает взаимодействовать со статусами и выбранной веткой.",
+                        "Перегрев передаётся через сеть и усиливает реакции.",
+                        "Следующий выбор откроет одну из трёх финальных форм." };
+                    en = new[] { "Overheats fire-aligned Spheres for 5s: +20% damage. Cooldown: 25s.",
+                        "Overheat grants +25% damage and speeds up fire-aligned attacks. Cooldown: 25s.",
+                        "Overheat grants +30% damage and speeds up fire-aligned Spheres even more. Cooldown: 25s.",
+                        "The next choice opens one of three ability branches.",
+                        "Overheat begins interacting with statuses and the selected branch.",
+                        "Overheat is transmitted through the network and strengthens reactions.",
+                        "The next choice opens one of three final forms." };
+                    break;
+                case RunUpgradeKind.Minion:
+                    ru = new[] { "Создаёт 1 Echo Drone на 10 с, который подключается к ближайшей сфере. Перезарядка: 30 с.",
+                        "Дрон связывает соседние сферы и наносит 8 урона врагам. Перезарядка: 30 с.",
+                        "Создаёт 2 Echo Drone на 10 с. Дроны становятся дополнительными узлами сети. Перезарядка: 30 с.",
+                        "Следующий выбор откроет одну из трёх веток способности.",
+                        "Дроны начинают передавать импульсы между ближайшими сферами.",
+                        "Дроны чаще соединяют узлы и ускоряют их следующий выстрел.",
+                        "Следующий выбор откроет одну из трёх финальных форм." };
+                    en = new[] { "Creates 1 Echo Drone for 10s that connects to the nearest Sphere. Cooldown: 30s.",
+                        "The drone links neighboring Spheres and deals 8 damage to enemies. Cooldown: 30s.",
+                        "Creates 2 Echo Drones for 10s. Drones become additional network nodes. Cooldown: 30s.",
+                        "The next choice opens one of three ability branches.",
+                        "Drones begin transferring pulses between nearby Spheres.",
+                        "Drones connect nodes more often and accelerate their next shot.",
+                        "The next choice opens one of three final forms." };
+                    break;
+                case RunUpgradeKind.Lightning:
+                    ru = new[] { "Разряд проходит от игрока через Chain-сферы к 1 цели и наносит 55 урона. Перезарядка: 20 с.",
+                        "Разряд наносит 70 урона и усиливается на каждом узле Chain. Перезарядка: 20 с.",
+                        "Разряд поражает до 2 целей, проходя через сеть Chain. Урон: 85 каждой. Перезарядка: 20 с.",
+                        "Следующий выбор откроет одну из трёх веток способности.",
+                        "Каждая Chain-сфера становится проводником разряда.",
+                        "Переходы между узлами усиливают следующий разряд.",
+                        "Следующий выбор откроет одну из трёх финальных форм." };
+                    en = new[] { "The discharge travels from the player through Chain Spheres to 1 target and deals 55 damage. Cooldown: 20s.",
+                        "The discharge deals 70 damage and grows stronger at each Chain node. Cooldown: 20s.",
+                        "The discharge hits up to 2 targets through the Chain network. Damage: 85 each. Cooldown: 20s.",
+                        "The next choice opens one of three ability branches.",
+                        "Each Chain Sphere becomes a conductor for the discharge.",
+                        "Transitions between nodes strengthen the next discharge.",
+                        "The next choice opens one of three final forms." };
+                    break;
+                case RunUpgradeKind.TimeStop:
+                    ru = new[] { "Сеть останавливает врагов вокруг ближайшей сферы на 3 с. Перезарядка: 40 с.",
+                        "Сеть удерживает остановку 4 с. Перезарядка: 40 с.",
+                        "Сеть удерживает остановку 5 с и продолжает атаковать через сферы. Перезарядка: 40 с.",
+                        "Следующий выбор откроет одну из трёх веток способности.",
+                        "Во время остановки сферы продолжают атаковать.",
+                        "Остановка распространяется между узлами сети и усиливает контроль.",
+                        "Следующий выбор откроет одну из трёх финальных форм." };
+                    en = new[] { "The network stops enemies around the nearest Sphere for 3s. Cooldown: 40s.",
+                        "The network holds the stop for 4s. Cooldown: 40s.",
+                        "The network holds the stop for 5s and continues attacking through Spheres. Cooldown: 40s.",
+                        "The next choice opens one of three ability branches.",
+                        "Spheres continue attacking during the stop.",
+                        "The stop spreads between network nodes and strengthens control.",
+                        "The next choice opens one of three final forms." };
+                    break;
+                case RunUpgradeKind.DarkRitual:
+                    ru = new[] { "Жертвуете 20% максимального HP и перегружаете всю сеть на 5 с. Сферы получают +29% урона. Перезарядка: 30 с.",
+                        "Жертвуете 20% максимального HP. Перегрузка даёт +33% урона и ускоряет сферы. Перезарядка: 30 с.",
+                        "Жертвуете 20% максимального HP. Перегрузка даёт +37% урона и ускоряет сеть сильнее. Перезарядка: 30 с.",
+                        "Следующий выбор откроет одну из трёх веток способности.",
+                        "Потеря HP становится топливом для выбранной ветки и ближайших сфер.",
+                        "Перегрузка глубже взаимодействует с сетью и усиливает риск/награду.",
+                        "Следующий выбор откроет одну из трёх финальных форм." };
+                    en = new[] { "You sacrifice 20% max HP and overload the entire network for 5s. Spheres gain +29% damage. Cooldown: 30s.",
+                        "You sacrifice 20% max HP. Overload grants +33% damage and speeds up Spheres. Cooldown: 30s.",
+                        "You sacrifice 20% max HP. Overload grants +37% damage and speeds up the network further. Cooldown: 30s.",
+                        "The next choice opens one of three ability branches.",
+                        "Lost HP becomes fuel for the selected branch and nearby Spheres.",
+                        "Overload interacts more deeply with the network and strengthens risk/reward.",
+                        "The next choice opens one of three final forms." };
+                    break;
+                default:
+                    return string.Empty;
+            }
+            var index = Math.Max(0, Math.Min(6, currentLevel));
+            return russian ? ru[index] : en[index];
+        }
+
+        public static RunUpgradeChoice CreateChoice(RunUpgradeKind kind, int currentLevel, bool russian = false)
         {
             var current = Math.Max(0, Math.Min(GetMaxLevel(kind), currentLevel));
             var next = Math.Min(GetMaxLevel(kind), current + 1);
@@ -133,34 +290,13 @@ namespace EchoSphere.Core
                     title = "ECHO PULSE / " + next;
                     description = "Pulse damage scales with level; source cooldown starts at 30s and falls by 2s per level.";
                     break;
-                case RunUpgradeKind.Shield:
-                    title = "ECHO GUARD / " + next;
-                    description = "Grants shield charges and a 10s defensive window; source cooldown 20s.";
-                    break;
-                case RunUpgradeKind.Teleport:
-                    title = "ECHO JUMP / " + next;
-                    description = "Teleport to a nearby Sphere; cooldown " + Math.Max(5, 15 - Math.Min(4, (next - 1) * 2)) + "s.";
-                    break;
-                case RunUpgradeKind.FireTrail:
-                    title = "OVERHEAT / " + next;
-                    description = "Ignites the player's trail for " + (5 + Math.Min(3, next - 1)) + "s; cooldown 25s.";
-                    break;
-                case RunUpgradeKind.Minion:
-                    title = "ECHO DRONE / " + next;
-                    description = "Deploys " + (1 + (next - 1) / 2) + " temporary combat drone(s); cooldown 30s.";
-                    break;
-                case RunUpgradeKind.Lightning:
-                    title = "CHAIN LIGHTNING / " + next;
-                    description = "Lightning chains across Spheres and damages nearby enemies; cooldown 20s.";
-                    break;
-                case RunUpgradeKind.TimeStop:
-                    title = "ECHO FREEZE / " + next;
-                    description = "Freeze enemies for " + (3 + Math.Min(2, next - 1)) + "s; cooldown 40s.";
-                    break;
-                case RunUpgradeKind.DarkRitual:
-                    title = "DARK RITUAL / " + next;
-                    description = "Unleashes a high-cost offensive ritual; cooldown and effects scale with level.";
-                    break;
+
+
+
+
+
+
+
                 default:
                     throw new ArgumentOutOfRangeException(nameof(kind), kind, "Not a source-mapped routine Ability.");
             }
