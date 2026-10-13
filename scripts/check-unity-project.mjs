@@ -284,7 +284,9 @@ assert.ok(sourceSphereRenderer.includes('ctx.lineWidth = Math.max(0.9, r * 0.045
   sourceSphereRenderer.includes('ctx.ellipse(0, 0, r * 0.88, r * 0.27, 0, Math.PI * 0.10, Math.PI * 1.92)') &&
   spriteFactory.includes('outerHalfWidth = 0.0142f') && spriteFactory.includes('innerHalfWidth = 0.0069f'),
   'the Standard Sphere ring strokes must preserve source radii, thickness and partial-arc gap');
-assert.ok(runtime.includes('0.22f + tier * 0.018f') &&
+assert.ok(runtime.includes('SphereCombatRules.GetProfile(sphere.Type).RangeMultiplier') &&
+  !runtime.includes('GameCatalog.Spheres[(int)sphere.Type].RangeMultiplier') &&
+  runtime.includes('0.22f + tier * 0.018f') &&
   runtime.includes('0.82f * (0.72f + targetPulse * 0.20f)') &&
   runtime.includes('Mathf.Sin(_runTime * 2.2f + sourceX * 0.013f) * 0.028f') &&
   runtime.includes('Mathf.Sin(_runTime * 4.6f + sourceY * 0.009f)') &&
