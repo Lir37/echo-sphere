@@ -2723,6 +2723,7 @@ namespace EchoSphere.Runtime
             if (_gameOver || _levelUp || _xp < _xpRequired) return;
             _xp -= _xpRequired;
             _level++;
+            _activeAbilitySlots = _level >= 20 ? 3 : _level >= 12 ? 2 : _level >= 5 ? 1 : 0;
             // Source new-desing grants +6 Max HP and restores up to +6 HP on every player level.
             _playerCore?.IncreaseMaxHp(6f);
             _xpRequired = RunBalanceRules.GetXpToNextLevel(_level);
