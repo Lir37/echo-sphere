@@ -126,7 +126,7 @@ namespace EchoSphere.Core
                     break;
                 case RunUpgradeKind.Fortune:
                     title = "FORTUNE / " + next;
-                    description = "+" + (next * 2) + "% artifact cache drop chance.";
+                    description = "+" + (next * 2) + "% rare drop chance.";
                     break;
                 case RunUpgradeKind.Blast:
                     title = "ECHO PULSE / " + next;
@@ -180,9 +180,6 @@ namespace EchoSphere.Core
 
         public static float GetResonanceGainMultiplier(int level) =>
             1f + Math.Max(0, Math.Min(7, level)) * 0.08f;
-
-        public static float GetFortuneDropBonus(int level) =>
-            Math.Max(0, Math.Min(7, level)) * 0.02f;
 
         public static int GetSphereBoostKillsRequired(int level) =>
             Math.Max(50, 100 - (Math.Max(1, Math.Min(7, level)) - 1) * 10);
