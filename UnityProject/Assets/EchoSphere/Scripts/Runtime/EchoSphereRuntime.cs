@@ -4394,35 +4394,81 @@ namespace EchoSphere.Runtime
             var radius = (125f + level * 12f) * SpherePlacementRules.SourcePixelsToWorld;
             var damage = 30f + (level - 1) * 10f;
             var origin = (Vector2)_player.position;
-            var activeSpheres = 0;
             var branch = GetAbilityBranch(RunUpgradeKind.Blast);
-            var finalVariant = GetAbilityFinalVariant(RunUpgradeKind.Blast);
             var final = GetAbilityFinalArchetype(RunUpgradeKind.Blast);
-            SphereAttackAgent previousSphere = null;
+            var ordered = new List<SphereAttackAgent>();
             foreach (var sphere in _spheres)
+                if (sphere != null && sphere.gameObject.activeInHierarchy) ordered.Add(sphere);
+            ordered.Sort((a, b) => Vector2.Distance(a.transform.position, origin).CompareTo(
+                Vector2.Distance(b.transform.position, origin)));
+
+            if ((branch == "blast_network" || final == "blast_echo_network" || final == "blast_infinite_pulse") &&
+                _networkState != null && ordered.Count > 0)
             {
-                if (sphere == null || !sphere.gameObject.activeInHierarchy) continue;
-                activeSpheres++;
-                var center = (Vector2)sphere.transform.position;
-                sphere.AccelerateNextAttack(0.35f + level * 0.04f);
-                if (branch == "blast_network" && previousSphere != null)
-                    SpawnCombatArc(previousSphere.transform.position, center, sphere.Type, branch, GetAbilityFinal(RunUpgradeKind.Blast), new Color(0.83f, 0.43f, 0.24f, 0.9f), 0.25f);
-                if (finalVariant == 3) sphere.AccelerateNextAttack(0.45f);
-                SpawnImpact(center, new Color(0.83f, 0.43f, 0.24f, 0.95f));
-                previousSphere = sphere;
-                foreach (var enemy in _enemies)
+                var remaining = new HashSet<SphereAttackAgent>(ordered);
+                var networkOrder = new List<SphereAttackAgent>();
+                var current = ordered[0];
+                while (current != null)
                 {
-                    if (enemy == null || !enemy.IsAlive || Vector2.Distance(center, enemy.transform.position) > radius) continue;
-                    enemy.ReceiveDamage(damage * (branch == "blast_core" ? 1.15f : 1f) *
-                        (finalVariant == 2 ? 1.15f : 1f));
-                    if (branch == "blast_core" || finalVariant == 2)
-                        enemy.KnockBackFrom(center, 0.35f * SpherePlacementRules.SourcePixelsToWorld);
+                    networkOrder.Add(current);
+                    remaining.Remove(current);
+                    var currentIndex = _spheres.IndexOf(current);
+                    SphereAttackAgent next = null;
+                    var nextDistance = float.PositiveInfinity;
+                    if (currentIndex >= 0)
+                    {
+                        foreach (var linkedIndex in SphereNetworkRules.GetLinkedNodeIndexes(_networkState, currentIndex))
+                        {
+                            if (linkedIndex < 0 || linkedIndex >= _spheres.Count) continue;
+                            var candidate = _spheres[linkedIndex];
+                            if (candidate == null || !remaining.Contains(candidate)) continue;
+                            var distance = Vector2.Distance(candidate.transform.position, current.transform.position);
+                            if (distance < nextDistance) { nextDistance = distance; next = candidate; }
+                        }
+                    }
+                    current = next;
                 }
+                if (networkOrder.Count > 0) ordered = networkOrder;
             }
-            if (activeSpheres == 0)
-                foreach (var enemy in _enemies)
-                    if (enemy != null && enemy.IsAlive && Vector2.Distance(origin, enemy.transform.position) <= 180f * SpherePlacementRules.SourcePixelsToWorld)
-                        enemy.ReceiveDamage(damage);
+
+            if (ordered.Count == 0)
+            {
+                DamageEnemiesNear(origin, 180f * SpherePlacementRules.SourcePixelsToWorld, damage,
+                    new Color(0.77f, 0.43f, 0.24f));
+            }
+            else
+            {
+                var strength = 1f;
+                for (var i = 0; i < ordered.Count; i++)
+                {
+                    var sphere = ordered[i];
+                    var center = (Vector2)sphere.transform.position;
+                    DamageEnemiesNear(center, radius, damage * strength, new Color(0.77f, 0.43f, 0.24f));
+
+                    if (branch == "blast_resonance" && sphere.Type == SphereId.Standard)
+                        DamageEnemiesNear(center, radius * 0.72f, damage * 0.40f, new Color(0.83f, 0.58f, 0.24f));
+                    if (final == "blast_resonant_core" && sphere.Type == SphereId.Standard)
+                        DamageEnemiesNear(center, radius * 0.75f, damage * 0.45f, new Color(0.83f, 0.58f, 0.24f));
+
+                    if (branch == "blast_core") strength *= 1.12f;
+                    if (branch == "blast_network") strength *= 1.08f;
+                    if (final == "blast_echo_network") strength *= 1.15f;
+                }
+
+                if (branch == "blast_core")
+                    DamageEnemiesNear(origin, 100f * SpherePlacementRules.SourcePixelsToWorld,
+                        damage * 0.5f, new Color(0.83f, 0.43f, 0.24f));
+                if (branch == "blast_resonance")
+                    foreach (var sphere in ordered)
+                        if (sphere.Type == SphereId.Standard)
+                            DamageEnemiesNear(sphere.transform.position, 90f * SpherePlacementRules.SourcePixelsToWorld,
+                                damage * 0.25f, new Color(0.83f, 0.58f, 0.24f));
+                if (final == "blast_infinite_pulse")
+                    for (var i = ordered.Count - 1; i >= 0; i--)
+                        DamageEnemiesNear(ordered[i].transform.position, radius * 0.75f,
+                            damage * 0.35f, new Color(0.83f, 0.58f, 0.24f));
+            }
+
             ApplyActiveAbilitySynergyRiders(RunUpgradeKind.Blast, level);
             ShowTimedCombatMessage("ECHO PULSE", 0.9f);
         }
