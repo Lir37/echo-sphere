@@ -123,7 +123,7 @@ namespace EchoSphere.Runtime
                 return;
             }
 
-            _attackTimer -= dt * _runtime.AttackSpeedMultiplier;
+            _attackTimer -= dt * _runtime.GetSphereAttackSpeedMultiplier(_type);
             if (_attackTimer > 0f) return;
 
             var origin = (Vector2)transform.position;
@@ -134,7 +134,7 @@ namespace EchoSphere.Runtime
                 var targetDelta = (Vector2)target.transform.position - origin;
                 if (targetDelta.sqrMagnitude > 0.0001f) VisualRotation = Mathf.Atan2(targetDelta.y, targetDelta.x);
             }
-            var damage = (BaseDamage + _runtime.SphereBoostDamageBonus) * _runtime.SphereDamageMultiplier * _runtime.GetNetworkDamageMultiplier(this) *
+            var damage = (BaseDamage + _runtime.SphereBoostDamageBonus) * _runtime.GetSphereDamageMultiplier(_type) * _runtime.GetNetworkDamageMultiplier(this) *
                 _runtime.GetSphereCopyOutputMultiplier(this);
             if (target != null && _runtime.ConsumeResonanceLineBurst()) damage *= 1.60f;
             if (_type == SphereId.Shotgun && target != null)
@@ -218,7 +218,7 @@ namespace EchoSphere.Runtime
             {
                 if (!target.TryAdvanceElementalConduction(_type,
                     SphereElementalRules.GetConductionThreshold(masteryId), SphereElementalRules.GetConductionCooldown(masteryId))) return;
-                var baseDamage = BaseDamage * _runtime.SphereDamageMultiplier *
+                var baseDamage = BaseDamage * _runtime.GetSphereDamageMultiplier(_type) *
                     _runtime.GetNetworkDamageMultiplier(this) * _runtime.GetSphereCopyOutputMultiplier(this);
                 target.ReceiveSphereDamage(_type, baseDamage * SphereElementalRules.GetConductionDamageMultiplier(masteryId));
                 if (target.IsAlive)
@@ -316,7 +316,7 @@ namespace EchoSphere.Runtime
                 var contact = _runtime.TryHitEnemy(_orbitalElements[i].position, contactRadius);
                 if (contact == null) continue;
                 hitSomething = true;
-                var damage = BaseDamage * _runtime.SphereDamageMultiplier * _runtime.GetNetworkDamageMultiplier(this) *
+                var damage = BaseDamage * _runtime.GetSphereDamageMultiplier(_type) * _runtime.GetNetworkDamageMultiplier(this) *
                     _runtime.GetSphereCopyOutputMultiplier(this) * damageMultiplier;
                 var dealtDamage = contact.ReceiveSphereDamage(this, damage);
                 OnSphereHitApplied(contact);
