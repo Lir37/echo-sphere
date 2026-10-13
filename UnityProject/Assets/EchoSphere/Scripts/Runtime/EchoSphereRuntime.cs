@@ -5542,7 +5542,7 @@ namespace EchoSphere.Runtime
             foreach (var enemy in _enemies)
                 if (enemy != null && enemy.IsAlive &&
                     (nearest == null || Vector2.Distance(enemy.transform.position, nearest.transform.position) <= radius))
-                    enemy.ApplyFreeze(freezeDuration);
+                    enemy.SetFreezeDuration(freezeDuration);
 
             if (branch == "timestop_echo_phase")
                 foreach (var sphere in _spheres)
