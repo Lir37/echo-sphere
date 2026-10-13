@@ -170,7 +170,7 @@ namespace EchoSphere.Runtime
         private int _activeAbilitySlots;
         private float _teleportCooldown, _timeStopCooldown;
         private float _blastCooldown, _shieldCooldown, _fireTrailCooldown, _minionCooldown, _lightningCooldown, _darkRitualCooldown;
-        private float _fireTrailTimer, _fireTrailTickTimer, _darkRitualOverloadTimer;
+        private float _fireTrailTimer, _darkRitualOverloadTimer;
         private readonly List<string> _recentUpgradeChoiceKeys = new List<string>();
         private readonly List<string> _oracleForecastKeys = new List<string>();
         private int _levelUpAbilityPity, _levelUpSpherePity;
@@ -775,19 +775,7 @@ namespace EchoSphere.Runtime
             _lightningCooldown = Mathf.Max(0f, _lightningCooldown - dt);
             _darkRitualCooldown = Mathf.Max(0f, _darkRitualCooldown - dt);
             _fireTrailTimer = Mathf.Max(0f, _fireTrailTimer - dt);
-            _fireTrailTickTimer -= dt;
             _darkRitualOverloadTimer = Mathf.Max(0f, _darkRitualOverloadTimer - dt);
-            if (_fireTrailTimer > 0f && _fireTrailTickTimer <= 0f)
-            {
-                _fireTrailTickTimer = 0.35f;
-                var radius = (95f + GetAbilityLevel(RunUpgradeKind.FireTrail) * 8f) * SpherePlacementRules.SourcePixelsToWorld;
-                foreach (var enemy in _enemies)
-                    if (enemy != null && enemy.IsAlive && Vector2.Distance(enemy.transform.position, _player.position) <= radius)
-                    {
-                        enemy.ReceiveDamage((4f + GetAbilityLevel(RunUpgradeKind.FireTrail) * 2f) * dt * 3f);
-                        enemy.ApplyDamageOverTime(3f + GetAbilityLevel(RunUpgradeKind.FireTrail), 1.25f);
-                    }
-            }
             _activeAbilitySlots = _level >= 20 ? 3 : _level >= 12 ? 2 : _level >= 5 ? 1 : 0;
             _alchemistCatalystTimer = Mathf.Max(0f, _alchemistCatalystTimer - dt);
             _conductorOverdriveTimer = Mathf.Max(0f, _conductorOverdriveTimer - dt);
@@ -4171,7 +4159,6 @@ namespace EchoSphere.Runtime
             if (level <= 0 || _fireTrailCooldown > 0f) return;
             _fireTrailCooldown = 25f * GetActiveAbilityCooldownMultiplier();
             _fireTrailTimer = 5f + Mathf.Min(3, level - 1);
-            _fireTrailTickTimer = 0f;
             var branch = GetAbilityBranch(RunUpgradeKind.FireTrail);
             foreach (var sphere in _spheres)
             {
