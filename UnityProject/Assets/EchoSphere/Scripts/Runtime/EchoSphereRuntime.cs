@@ -3298,7 +3298,6 @@ namespace EchoSphere.Runtime
 
             var abilityScore = 0f;
             foreach (var pair in _abilityLevels) if (pair.Value > 0) abilityScore += 1f;
-            if (_maxSphereAbilityLevel > 0) abilityScore += 1f;
 
             var sphereScore = (float)_spheres.FindAll(sphere => sphere != null && sphere.gameObject.activeInHierarchy).Count;
             foreach (var pair in _sphereLevels) sphereScore += pair.Value * 0.15f;
