@@ -26,8 +26,7 @@ namespace EchoSphere.Core
 
         public static IReadOnlyList<RunUpgradeKind> SourcePassiveCatalog => PassiveCatalogKinds;
 
-        public static int GetMaxLevel(RunUpgradeKind kind) =>
-            kind == RunUpgradeKind.MaxSpheres ? 3 : 7;
+        public static int GetMaxLevel(RunUpgradeKind kind) => 7;
 
         public static bool IsAbilityChoice(RunUpgradeKind kind) => kind != RunUpgradeKind.Sphere;
 
