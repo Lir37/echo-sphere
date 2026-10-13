@@ -1932,6 +1932,8 @@ namespace EchoSphere.Runtime
             bool allowAuthoredProcs, SphereAttackAgent owner = null)
         {
             if (target == null || _gameOver) return;
+            if (_timeStopTimer > 0f && GetAbilityFinalArchetype(RunUpgradeKind.TimeStop) == "timestop_outside_time")
+                target.ApplyFreeze(0.35f);
             if (GetAbilityLevel(RunUpgradeKind.Vampire) > 0 && _playerCore != null)
                 HealPlayer(damage * GetAbilityLevel(RunUpgradeKind.Vampire) * 0.03f);
             var branch = GetSphereBranch(source);
@@ -5061,7 +5063,7 @@ namespace EchoSphere.Runtime
             if (nearest != null)
             {
                 var pulseRadius = 150f * scale;
-                var pulseDamage = 10f + level * 4f;
+                var pulseDamage = final == "timestop_temporal_core" ? 10f + level * 8f : 10f + level * 4f;
                 foreach (var enemy in _enemies)
                     if (enemy != null && enemy.IsAlive &&
                         Vector2.Distance(enemy.transform.position, nearest.transform.position) <= pulseRadius)
