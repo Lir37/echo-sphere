@@ -4265,8 +4265,8 @@ namespace EchoSphere.Runtime
 
                 case SphereCharacterId.Hunter:
                     _characterMasteryRunXp += eliteDelta * 20f + bossDelta * 45f;
-                    // Hunter mark/hunt runtime states are not yet migrated, so their source XP
-                    // conditions remain inactive instead of being simulated with invented timers.
+                    if (_hunterMarkTimer > 0f) _characterMasteryRunXp += dt * 1.5f;
+                    if (_hunterHuntTimer > 0f) _characterMasteryRunXp += dt * 2.25f;
                     break;
 
                 case SphereCharacterId.Engineer:
