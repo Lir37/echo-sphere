@@ -2852,3 +2852,34 @@ Continue only with source-confirmed behavior.
 ======================================================================
 END ORBITAL ARTIFACT / NETWORK RELAY PARITY
 ======================================================================
+
+======================================================================
+[2026-10-14] ORBITAL HALO FINAL SHIELD-CADENCE CORRECTION
+======================================================================
+
+Code HEAD: 4e9b079ec355bec88be94ca867d1690921acf8ae
+Source baseline: new-desing 737ef2af4a877e0995db5f92331d536d2f29a934
+
+Orbital Halo final now restores one shield charge on every new successful
+Orbital contact episode, matching src/engineSpheres.ts. The existing player
+shield system continues to enforce its normal cap. Removed Unity's extra
+ShouldOrbitalGrantShieldCharge cadence gate, which was absent from source.
+
+Also present on this code HEAD:
+- orbital_crown adds its source-defined extra Orbital combat element;
+- Orbital contact no longer grants unconditional Resonance;
+- orbital_blade + prism_filter produces the source-gated Ring relay visual.
+
+Validation status:
+- Combined commit status checks: 0.
+- PR-triggered workflow runs returned: 0.
+- CI success cannot be confirmed through the available status/run responses.
+- Unity Editor compilation, APK build and device parity remain unverified.
+- new-desing remains unchanged.
+
+Next confirmed audit target: Orbital swept contact/timing and source network
+geometry, followed by remaining Sphere/evolution and Artifact/Protocol gaps.
+
+======================================================================
+END ORBITAL HALO FINAL SHIELD-CADENCE CORRECTION
+======================================================================
