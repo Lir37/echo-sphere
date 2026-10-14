@@ -32,15 +32,17 @@ namespace EchoSphere.Runtime
             SourceUiLabel(new Rect(15f, 37f, _uiWidth - 30f, 13f), IsRussianUi ? "СИСТЕМА ВЫЖИВАНИЯ РЕЗОНАНСА" : "RESONANCE SURVIVAL SYSTEM", 7, "#5d8da8");
             SourceUiRect(new Rect(0f, 57f, _uiWidth, 1f), new Color(.33f, .72f, .91f, .10f));
             var compact = _uiHeight < 700f;
+            var narrowPhone = _uiWidth <= 650f;
+            var navHeight = narrowPhone ? 104f : 58f;
             var save = LoadRunSnapshot();
             // Keep the central core and its menu controls inside the usable viewport on
-            // short phones. The previous width-only cap could push the loadout behind the
-            // fixed bottom navigation on narrow/short aspect ratios.
-            var reservedHeight = 58f + 58f + (compact ? 166f : 209f) + (save != null ? 50f : 0f) + 100f;
+            // short phones. The source menu uses a two-row, three-column bottom navigation
+            // on narrow screens, so reserve its real height before sizing the central art.
+            var reservedHeight = 58f + navHeight + (compact ? 166f : 209f) + (save != null ? 50f : 0f) + 100f;
             var availableArtHeight = Mathf.Max(96f, _uiHeight - reservedHeight);
             var artSize = compact
                 ? Mathf.Min(155f, _uiHeight * .35f, availableArtHeight)
-                : Mathf.Min(270f, _uiWidth * .48f, availableArtHeight);
+                : Mathf.Min(narrowPhone ? 210f : 270f, _uiWidth * .48f, availableArtHeight);
             var totalHeight = artSize + (compact ? 166f : 209f) + (save != null ? 50f : 0f);
             var top = 58f + Mathf.Max(8f, (_uiHeight - 118f - totalHeight) * .5f);
             var center = _uiWidth * .5f;
@@ -84,10 +86,23 @@ namespace EchoSphere.Runtime
                 (IsRussianUi ? "ПРОДОЛЖИТЬ ЗАБЕГ\nСохранено на " : "CONTINUE RUN\nSaved at ") + FormatTime(save.time), 10, new Color(.14f, .44f, .55f, .28f), "#dffaff")) ContinueSavedRun();
             var labels = IsRussianUi ? new[] { "ПЕРСОНАЖИ", "МАГАЗИН", "РЕКОРДЫ", "ДОСТИЖЕНИЯ", "АРХИВ ЭХА", "НАСТРОЙКИ" } : new[] { "CHARACTERS", "SHOP", "LEADERBOARD", "ACHIEVEMENTS", "ECHO ARCHIVE", "SETTINGS" };
             var pages = new[] { MainMenuPage.Characters, MainMenuPage.Shop, MainMenuPage.Leaderboard, MainMenuPage.Achievements, MainMenuPage.Knowledge, MainMenuPage.Settings };
-            SourceUiRect(new Rect(0f, _uiHeight - 58f, _uiWidth, 58f), new Color(2f / 255f, 7f / 255f, 13f / 255f, .88f));
-            var navWidth = (_uiWidth - 20f) / 6f;
+            var navTop = _uiHeight - navHeight;
+            SourceUiRect(new Rect(0f, navTop, _uiWidth, navHeight), new Color(2f / 255f, 7f / 255f, 13f / 255f, .88f));
+            var navColumns = narrowPhone ? 3 : 6;
+            var navRows = Mathf.CeilToInt(pages.Length / (float)navColumns);
+            var navGap = 5f;
+            var navWidth = (_uiWidth - 20f - (navColumns - 1) * navGap) / navColumns;
+            var navButtonHeight = narrowPhone ? 42f : 42f;
+            var navVerticalGap = narrowPhone ? 4f : 0f;
+            var navContentHeight = navRows * navButtonHeight + (navRows - 1) * navVerticalGap;
+            var navStartY = navTop + Mathf.Max(4f, (navHeight - navContentHeight) * .5f);
             for (var i = 0; i < pages.Length; i++)
-                if (SourceUiButton(new Rect(10f + i * navWidth, _uiHeight - 50f, navWidth - 5f, 42f), labels[i], 7, Color.clear, "#66869d")) _mainMenuPage = pages[i];
+            {
+                var column = i % navColumns;
+                var row = i / navColumns;
+                var rect = new Rect(10f + column * (navWidth + navGap), navStartY + row * (navButtonHeight + navVerticalGap), navWidth, navButtonHeight);
+                if (SourceUiButton(rect, labels[i], 7, Color.clear, "#66869d")) _mainMenuPage = pages[i];
+            }
         }
         private void DrawSourceMenuCore(Rect art)
         {
