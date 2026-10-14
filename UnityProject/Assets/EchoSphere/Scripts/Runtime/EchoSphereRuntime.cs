@@ -6953,7 +6953,7 @@ namespace EchoSphere.Runtime
         {
             var panel = DrawMenuScreenFrame(
                 IsRussianUi ? "НАСТРОЙКИ" : "SETTINGS",
-                IsRussianUi ? "ЯЗЫК · СЛОЖНОСТЬ · ПРОГРЕСС" : "LANGUAGE · DIFFICULTY · PROGRESS", 570f);
+                IsRussianUi ? "ЯЗЫК · ЗВУК · УПРАВЛЕНИЕ · ПРОГРЕСС" : "LANGUAGE · SOUND · CONTROLS · PROGRESS", 570f);
 
             GUI.Label(new Rect(panel.x + 28f, panel.y + 112f, 150f, 28f),
                 IsRussianUi ? "ЯЗЫК / LANGUAGE" : "LANGUAGE", _label);
@@ -7041,7 +7041,7 @@ namespace EchoSphere.Runtime
             }
             GUI.color = oldColor;
 
-            GUI.Label(new Rect(panel.x + 28f, panel.y + 286f, panel.width - 56f, 70f),
+            GUI.Label(new Rect(panel.x + 28f, panel.y + 286f, panel.width - 56f, 38f),
                 IsRussianUi
                     ? (IsLeftHanded ? "Движение: левая часть экрана. Размещение и перемещение Сфер: правая часть. DASH выполняет рывок." : "Движение: правая часть экрана. Размещение и перемещение Сфер: левая часть. DASH выполняет рывок.")
                     : (IsLeftHanded ? "Movement: left half of the screen. Sphere placement and dragging: right half. DASH performs a quick evade." : "Movement: right half of the screen. Sphere placement and dragging: left half. DASH performs a quick evade."),
