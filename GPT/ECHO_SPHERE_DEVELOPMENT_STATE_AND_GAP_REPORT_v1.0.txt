@@ -2671,3 +2671,31 @@ Next:
 ======================================================================
 END SOURCE ENEMY SPAWN / BASE STATS / ELITE CONVERSION PASS
 ======================================================================
+
+
+======================================================================
+2026-10-14 — UNITY MIGRATION: HUNTER MASTERY XP
+======================================================================
+
+Fixed a confirmed source mismatch in EchoSphereRuntime.TickCharacterMastery.
+Hunter Mark and Hunt were already implemented in combat runtime, but their
+source-defined mastery XP contribution was omitted. Unity now credits +1.5
+mastery XP per simulation second while Mark is active and +2.25 while Hunt is
+active, in addition to existing elite/boss kill XP.
+
+Source of truth: new-desing/src/characterMastery.ts and
+new-desing/src/characterRuntime.ts.
+
+Code HEAD: 6a28da0bef55328e51c6e579188e64a43e0983e4.
+CI #519: SUCCESS. Pure C# contracts and structural preflight passed.
+Unity Editor compile, APK and manual device parity remain unverified.
+
+Still incomplete:
+- Oracle forecast state/XP integration.
+- Voidwalker phantom runtime and its source-dependent mastery XP.
+- Fractal formation history / Recursive Echo runtime and mastery XP.
+Continue by porting the source mechanics, not by simulating absent states.
+
+======================================================================
+END HUNTER MASTERY XP UPDATE
+======================================================================

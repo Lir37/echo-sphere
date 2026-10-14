@@ -4475,3 +4475,34 @@ Remaining:
 ======================================================================
 END SOURCE ENEMY SPAWN AND STAT PARITY PASS
 ======================================================================
+
+
+======================================================================
+2026-10-14 — HUNTER MASTERY XP PARITY FIX
+======================================================================
+
+Code HEAD: 6a28da0bef55328e51c6e579188e64a43e0983e4
+Source: new-desing src/characterMastery.ts and src/characterRuntime.ts.
+
+Confirmed mismatch:
+- Hunter Mark and Hunt runtime timers and combat multipliers already existed in
+  Unity, but TickCharacterMastery omitted their source-defined mastery XP.
+- Restored +1.5 XP/sec while Hunter Mark is active and +2.25 XP/sec while Hunt
+  is active, alongside the existing source XP for elite kills and boss kills.
+- Removed the stale assumption that Hunter Mark/Hunt runtime states were absent.
+
+Validation:
+- Unity Migration Contracts #519 SUCCESS on code HEAD
+  6a28da0bef55328e51c6e579188e64a43e0983e4.
+- Pure C# gameplay contracts and Unity structural preflight passed.
+- This does not establish Unity Editor compilation, APK build, or device parity.
+
+Next:
+- Continue direct source-to-runtime comparison. Oracle forecast XP and the
+  Voidwalker/Fractal mastery branches remain explicitly incomplete because
+  their corresponding source runtime states are not yet fully ported.
+- Do not fabricate missing character mechanics; port their source systems first.
+
+======================================================================
+END HUNTER MASTERY XP PARITY FIX
+======================================================================
