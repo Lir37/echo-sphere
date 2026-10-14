@@ -360,7 +360,7 @@ namespace EchoSphere.Runtime
                         {
                             var linked = linkedSpheres[i];
                             if (linked == null || !linked.gameObject.activeInHierarchy) continue;
-                            var tint = new Color(0.65f, 0.82f, 1f, 0.9f);
+                            var tint = new Color(105f / 255f, 235f / 255f, 1f, 0.9f);
                             _runtime.SpawnCombatArc(transform.position, linked.transform.position,
                                 SphereId.Orbital, _runtime.GetSphereBranch(SphereId.Orbital),
                                 _runtime.GetSphereFinal(SphereId.Orbital), tint, 0.18f);
