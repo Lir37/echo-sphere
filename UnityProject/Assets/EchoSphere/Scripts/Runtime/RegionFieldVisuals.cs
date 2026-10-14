@@ -45,6 +45,8 @@ namespace EchoSphere.Runtime
         private float _nextPoiAt = 70f;
         private EchoSphereRuntime _runtime;
         private Material _lineMaterial;
+        private Texture2D _radarTexture;
+        private Texture2D _radarPixel;
         private Transform _fieldRoot;
         private bool _initialized;
         private float _seamTime;
@@ -67,6 +69,14 @@ namespace EchoSphere.Runtime
                 var root = new GameObject("Region Field Root");
                 root.transform.SetParent(transform, false);
                 _fieldRoot = root.transform;
+                _radarTexture = CreateRadarTexture();
+                _radarPixel = new Texture2D(1, 1, TextureFormat.RGBA32, false)
+                {
+                    name = "ECHO SPHERE / Radar Pixel",
+                    hideFlags = HideFlags.DontSave
+                };
+                _radarPixel.SetPixel(0, 0, Color.white);
+                _radarPixel.Apply();
                 _initialized = true;
             }
             SetRegion(regionId);
@@ -341,14 +351,130 @@ namespace EchoSphere.Runtime
             }
         }
 
+
+        private static Texture2D CreateRadarTexture()
+        {
+            const int size = 100;
+            var texture = new Texture2D(size, size, TextureFormat.RGBA32, false)
+            {
+                name = "ECHO SPHERE / Region Radar",
+                hideFlags = HideFlags.DontSave
+            };
+            var pixels = new Color32[size * size];
+            var center = (size - 1) * 0.5f;
+            for (var y = 0; y < size; y++)
+            for (var x = 0; x < size; x++)
+            {
+                var dx = x - center;
+                var dy = y - center;
+                var distance = Mathf.Sqrt(dx * dx + dy * dy);
+                var ring = Mathf.Abs(distance - 47f) < 0.75f || Mathf.Abs(distance - 32f) < 0.65f;
+                var cross = (Mathf.Abs(dx) < 0.45f || Mathf.Abs(dy) < 0.45f) && distance < 47f;
+                var alpha = ring ? 54 : cross ? 28 : 0;
+                pixels[y * size + x] = new Color32(100, 190, 220, (byte)alpha);
+            }
+            texture.SetPixels32(pixels);
+            texture.Apply();
+            return texture;
+        }
+
+        private void OnGUI()
+        {
+            if (!_initialized || _runtime == null || _radarTexture == null || _radarPixel == null ||
+                _runtime.IsPresentationPaused) return;
+
+            var scale = Mathf.Clamp(Screen.height / 720f, 1f, 1.5f);
+            var width = Screen.width / scale;
+            const float size = 100f;
+            var radar = new Rect(width - 118f, 310f, size, size);
+            var previousMatrix = GUI.matrix;
+            var previousColor = GUI.color;
+            GUI.matrix = previousMatrix * Matrix4x4.Scale(new Vector3(scale, scale, 1f));
+
+            GUI.color = new Color(0.015f, 0.035f, 0.075f, 0.78f);
+            GUI.DrawTexture(new Rect(radar.x - 5f, radar.y - 17f, radar.width + 10f, radar.height + 22f), _radarPixel);
+            GUI.color = new Color(0.55f, 0.82f, 0.93f, 0.72f);
+            GUI.Label(new Rect(radar.x, radar.y - 17f, radar.width, 15f), "REGION SIGNALS");
+            GUI.color = Color.white;
+            GUI.DrawTexture(radar, _radarTexture);
+
+            var player = _runtime.PlayerPosition;
+            const float sourceRadius = 900f * SourcePixelsToWorld;
+            for (var i = 0; i < _pois.Count; i++)
+            {
+                var poi = _pois[i];
+                if (poi.Root == null || _runtime.CurrentRunTime >= poi.ExpiresAt) continue;
+                var delta = poi.Position - player;
+                var distance = delta.magnitude;
+                var angle = Mathf.Atan2(delta.y, delta.x);
+                var outside = distance > sourceRadius;
+                var radius = outside ? 42f : Mathf.Min(25f, distance / sourceRadius * 25f);
+                var point = new Vector2(radar.x + 50f + Mathf.Cos(angle) * radius,
+                    radar.y + 50f + Mathf.Sin(angle) * radius);
+                var color = GetPoiColor(poi.Type);
+                if (outside)
+                {
+                    var direction = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+                    var perpendicular = new Vector2(-direction.y, direction.x);
+                    var tip = point + direction * 5f;
+                    var baseCenter = point - direction * 4f;
+                    DrawRadarLine(tip, baseCenter + perpendicular * 4f, color, 1.8f);
+                    DrawRadarLine(baseCenter + perpendicular * 4f, baseCenter - perpendicular * 4f, color, 1.8f);
+                    DrawRadarLine(baseCenter - perpendicular * 4f, tip, color, 1.8f);
+                }
+                else
+                {
+                    var previous = GUI.color;
+                    var dotMatrix = GUI.matrix;
+                    GUI.color = color;
+                    var dot = new Rect(point.x - 3.5f, point.y - 3.5f, 7f, 7f);
+                    GUIUtility.RotateAroundPivot(45f, point);
+                    GUI.DrawTexture(dot, _radarPixel);
+                    GUI.matrix = dotMatrix;
+                    GUI.color = previous;
+                }
+            }
+
+            GUI.color = new Color(0.92f, 0.98f, 1f, 1f);
+            GUI.DrawTexture(new Rect(radar.x + 46f, radar.y + 46f, 8f, 8f), _radarPixel);
+            GUI.color = previousColor;
+            GUI.matrix = previousMatrix;
+        }
+
+        private void DrawRadarLine(Vector2 start, Vector2 end, Color color, float thickness)
+        {
+            var delta = end - start;
+            var length = delta.magnitude;
+            if (length <= 0.01f) return;
+            var previousMatrix = GUI.matrix;
+            var previousColor = GUI.color;
+            GUIUtility.RotateAroundPivot(Mathf.Atan2(delta.y, delta.x) * Mathf.Rad2Deg, start);
+            GUI.color = color;
+            GUI.DrawTexture(new Rect(start.x, start.y - thickness * 0.5f, length, thickness), _radarPixel);
+            GUI.matrix = previousMatrix;
+            GUI.color = previousColor;
+        }
+
         private static Color WithAlpha(Color color, float alpha) =>
             new Color(color.r, color.g, color.b, alpha);
 
         private void OnDestroy()
         {
-            if (_lineMaterial == null) return;
-            if (Application.isPlaying) Destroy(_lineMaterial);
-            else DestroyImmediate(_lineMaterial);
+            if (_lineMaterial != null)
+            {
+                if (Application.isPlaying) Destroy(_lineMaterial);
+                else DestroyImmediate(_lineMaterial);
+            }
+            if (_radarTexture != null)
+            {
+                if (Application.isPlaying) Destroy(_radarTexture);
+                else DestroyImmediate(_radarTexture);
+            }
+            if (_radarPixel != null)
+            {
+                if (Application.isPlaying) Destroy(_radarPixel);
+                else DestroyImmediate(_radarPixel);
+            }
         }
     }
 }
