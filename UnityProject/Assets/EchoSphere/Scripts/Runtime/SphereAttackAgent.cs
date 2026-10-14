@@ -29,6 +29,8 @@ namespace EchoSphere.Runtime
         private float _networkDisabledTimer;
         private float _resonancePulseTimer;
         private int _formationHitCount;
+        public float AttackTimer => _attackTimer;
+        public void ResetAttackTimer() => _attackTimer = 0f;
         public void AccelerateNextAttack(float amount) => _attackTimer = Mathf.Max(0f, _attackTimer - Mathf.Max(0f, amount));
         public void DelayNextAttack(float amount) => _attackTimer += Mathf.Max(0f, amount);
         public bool NetworkDisabled => _networkDisabledTimer > 0f;

@@ -760,6 +760,15 @@ internal static class Program
         Near(CharacterRules.GetVoidPhantomDamage(1, 1, 1f, false, 1), 6.5f, 0f, "Void Phantom base damage");
         Near(CharacterRules.GetVoidPhantomDamage(1, 7, 0.35f, false, 1), 9.36f, 0.0001f, "Void Phantom mastery VII execute modifier");
         Near(CharacterRules.GetVoidPhantomDamage(1, 10, 0.35f, true, 1), 20.27025f, 0.001f, "Void Phantom combined mastery modifiers");
+        Equal(CharacterRules.GetSpheristChorusThreshold(9), 10, "Spherist Chorus mastery IX hit threshold");
+        Equal(CharacterRules.GetSpheristChorusThreshold(10), 8, "Spherist Chorus mastery X hit threshold");
+        Equal(CharacterRules.GetBerserkerRedlineThreshold(7), 5, "Berserker Redline base hit threshold");
+        Equal(CharacterRules.GetBerserkerRedlineThreshold(10), 4, "Berserker Redline mastery X hit threshold");
+        Near(CharacterRules.GetBerserkerRedlineDamageMultiplier(7), 0.30f, 0f, "Berserker Redline base pulse damage");
+        Near(CharacterRules.GetBerserkerRedlineDamageMultiplier(8), 0.35f, 0f, "Berserker Redline mastery VIII pulse damage");
+        Near(CharacterRules.GetBerserkerRedlineDamageMultiplier(10), 0.40f, 0f, "Berserker Redline mastery X pulse damage");
+        True(CharacterRules.ShouldAccumulateBerserkerRedline(7, 0.30f), "Berserker Redline starts at source HP threshold");
+        True(!CharacterRules.ShouldAccumulateBerserkerRedline(7, 0.3001f), "Berserker Redline stops above source HP threshold");
 
         Equal(CharacterRules.All.Count, 10, "source character roster contains ten characters");
         Equal(CharacterRules.Get(SphereCharacterId.Spherist).UnlockCost, 0, "Spherist unlock is free");

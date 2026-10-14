@@ -354,5 +354,13 @@ namespace EchoSphere.Core
         }
         public const float VoidPhantomSlowDuration = 0.6f;
         public const float VoidPhantomSlowMultiplier = 0.82f;
+
+        // Source engineCombat.ts character hit-proc thresholds.
+        public static int GetSpheristChorusThreshold(int masteryLevel) => masteryLevel >= 10 ? 8 : 10;
+        public static int GetBerserkerRedlineThreshold(int masteryLevel) => masteryLevel >= 10 ? 4 : 5;
+        public static float GetBerserkerRedlineDamageMultiplier(int masteryLevel) =>
+            masteryLevel >= 10 ? 0.40f : masteryLevel >= 8 ? 0.35f : 0.30f;
+        public static bool ShouldAccumulateBerserkerRedline(int masteryLevel, float hpRatio) =>
+            masteryLevel >= 7 && hpRatio <= 0.30f;
     }
 }

@@ -99,6 +99,8 @@ namespace EchoSphere.Runtime
                 _runtime.TryDamagePlayer(actual * 0.12f);
             if (_runtime != null) _runtime.ApplyAuthoredSphereHitEffects(source, this, actual, allowAuthoredProcs, owner);
             ReceiveDamage(actual, source);
+            if (_runtime != null && owner != null)
+                _runtime.RegisterCharacterHitProcs(owner, actual, allowAuthoredProcs);
             return actual;
         }
 

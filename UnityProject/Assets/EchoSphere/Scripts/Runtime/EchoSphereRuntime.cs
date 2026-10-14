@@ -194,6 +194,8 @@ namespace EchoSphere.Runtime
         private readonly List<FractalFormationSnapshot> _fractalFormationHistory = new List<FractalFormationSnapshot>();
         private readonly List<Vector2> _fractalEchoNodes = new List<Vector2>();
         private float _fractalEchoTimer, _fractalEchoPulseTimer, _fractalEchoCooldown, _fractalEchoStrength;
+        private int _spheristChorusHits, _berserkerRedlineHits;
+        private float _characterScreenShakeIntensity;
         private SphereAttackAgent _voidPhantomSource;
         private Vector2 _voidPhantomPosition;
         private float _voidPhantomTimer, _voidPhantomPulseTimer;
@@ -999,6 +1001,7 @@ namespace EchoSphere.Runtime
             _alchemistCatalystTimer = Mathf.Max(0f, _alchemistCatalystTimer - dt);
             _conductorOverdriveTimer = Mathf.Max(0f, _conductorOverdriveTimer - dt);
             _oracleSourceFlashTimer = Mathf.Max(0f, _oracleSourceFlashTimer - dt);
+            _characterScreenShakeIntensity = Mathf.Max(0f, _characterScreenShakeIntensity - dt);
             TickHunterCharacterState(dt);
             TickEngineerRelay(dt);
             _playerCore.Heal((Mathf.Max(0f, ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "regen")) + LevelUpAbilityRules.GetRegenPerSecond(GetAbilityLevel(RunUpgradeKind.Regen))) * dt);
@@ -1044,8 +1047,9 @@ namespace EchoSphere.Runtime
             var cameraTarget = new Vector3(_player.position.x, _player.position.y, -10f);
             var cameraBase = _camera.transform.position - _lastHunterScreenShakeOffset;
             cameraBase = Vector3.Lerp(cameraBase, cameraTarget, 1f - Mathf.Exp(-5f * dt));
-            var shakePixelsX = (UnityEngine.Random.value - 0.5f) * _hunterScreenShakeIntensity * 20f;
-            var shakePixelsY = (UnityEngine.Random.value - 0.5f) * _hunterScreenShakeIntensity * 20f;
+            var screenShakeIntensity = Mathf.Max(_hunterScreenShakeIntensity, _characterScreenShakeIntensity);
+            var shakePixelsX = (UnityEngine.Random.value - 0.5f) * screenShakeIntensity * 20f;
+            var shakePixelsY = (UnityEngine.Random.value - 0.5f) * screenShakeIntensity * 20f;
             _lastHunterScreenShakeOffset = new Vector3(
                 shakePixelsX * SpherePlacementRules.SourcePixelsToWorld,
                 shakePixelsY * SpherePlacementRules.SourcePixelsToWorld, 0f);
@@ -4146,6 +4150,74 @@ namespace EchoSphere.Runtime
             go.transform.position = worldPosition;
             go.AddComponent<HunterParticleVfx2D>().Initialize(
                 this, sourceVelocityPixels, lifetime, sourceSizePixels, color);
+        }
+
+        public void RegisterCharacterHitProcs(SphereAttackAgent owner, float actualDamage, bool allowSphereProc)
+        {
+            if (owner == null || !allowSphereProc || actualDamage <= 0f || _gameOver) return;
+
+            if (_sphereCharacterId == SphereCharacterId.Spherist)
+            {
+                var sphereCount = 0;
+                for (var i = 0; i < _spheres.Count; i++)
+                    if (_spheres[i] != null && _spheres[i].gameObject.activeInHierarchy) sphereCount++;
+                if (_characterMasteryLevel >= 9 && sphereCount >= 8)
+                {
+                    _spheristChorusHits++;
+                    if (_spheristChorusHits >= CharacterRules.GetSpheristChorusThreshold(_characterMasteryLevel))
+                    {
+                        _spheristChorusHits = 0;
+                        var companions = new List<SphereAttackAgent>();
+                        for (var i = 0; i < _spheres.Count; i++)
+                        {
+                            var candidate = _spheres[i];
+                            if (candidate == null || !candidate.gameObject.activeInHierarchy || candidate == owner) continue;
+                            companions.Add(candidate);
+                        }
+                        companions.Sort((a, b) => b.AttackTimer.CompareTo(a.AttackTimer));
+                        var count = Mathf.Min(_characterMasteryLevel >= 10 ? 2 : 1, companions.Count);
+                        for (var i = 0; i < count; i++)
+                        {
+                            companions[i].ResetAttackTimer();
+                            companions[i].TriggerResonancePulse(0.45f);
+                        }
+                        _characterScreenShakeIntensity = Mathf.Min(0.16f, _characterScreenShakeIntensity + 0.025f);
+                        ShowTimedCombatMessage(_characterMasteryLevel >= 10 ? "CHORUS SYNC" : "CHORUS PULSE", 0.7f);
+                    }
+                }
+                else _spheristChorusHits = 0;
+            }
+
+            if (_sphereCharacterId == SphereCharacterId.Berserker && _characterMasteryLevel >= 7)
+            {
+                var hpRatio = _playerCore == null ? 1f : _playerCore.CurrentHp / Mathf.Max(1f, _playerCore.MaxHp);
+                if (CharacterRules.ShouldAccumulateBerserkerRedline(_characterMasteryLevel, hpRatio))
+                {
+                    _berserkerRedlineHits++;
+                    if (_berserkerRedlineHits >= CharacterRules.GetBerserkerRedlineThreshold(_characterMasteryLevel))
+                    {
+                        _berserkerRedlineHits = 0;
+                        var pulseDamage = actualDamage * CharacterRules.GetBerserkerRedlineDamageMultiplier(_characterMasteryLevel);
+                        var radius = 105f * SpherePlacementRules.SourcePixelsToWorld;
+                        for (var i = 0; i < _enemies.Count; i++)
+                        {
+                            var target = _enemies[i];
+                            if (target == null || !target.IsAlive ||
+                                Vector2.Distance(target.transform.position, PlayerPosition) > radius) continue;
+                            target.ReceiveDamage(pulseDamage);
+                        }
+                        for (var i = 0; i < 16; i++)
+                        {
+                            var angle = _rng.NextFloat() * Mathf.PI * 2f;
+                            var velocity = new Vector2(Mathf.Cos(angle) * 120f, Mathf.Sin(angle) * 120f);
+                            SpawnHunterParticle(PlayerPosition, velocity, 0.35f, 3f, new Color32(255, 98, 93, 255));
+                        }
+                        _characterScreenShakeIntensity = Mathf.Min(0.20f, _characterScreenShakeIntensity + 0.035f);
+                        ShowTimedCombatMessage("REDLINE", 0.65f);
+                    }
+                }
+                else _berserkerRedlineHits = 0;
+            }
         }
 
         public void RegisterCharacterSphereHit(SphereId source, EnemyAgent2D target)
@@ -7908,6 +7980,8 @@ namespace EchoSphere.Runtime
             _voidPhantomPosition = Vector2.zero;
             _voidPhantomTimer = _voidPhantomPulseTimer = 0f;
             _voidPhantomPulseCount = 0;
+            _spheristChorusHits = _berserkerRedlineHits = 0;
+            _characterScreenShakeIntensity = 0f;
             _oracleSourceFlashText = string.Empty;
             _oracleSourceFlashTimer = 0f;
             _characterMasteryRunXp = 0f;
