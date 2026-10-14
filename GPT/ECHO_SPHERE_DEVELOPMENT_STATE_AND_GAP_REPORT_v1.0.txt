@@ -2919,3 +2919,30 @@ Validation:
 ======================================================================
 END ORBITAL SWEPT-CONTACT PARITY PASS
 ======================================================================
+
+======================================================================
+[2026-10-14] ORBITAL SWEPT-CONTACT IMPLEMENTATION CHECKPOINT
+======================================================================
+
+Current code HEAD: 875ab2481901afdd2998134b40ab99b8a0c41559
+Report is updated separately after this checkpoint.
+Source baseline: new-desing 737ef2af4a877e0995db5f92331d536d2f29a934
+
+Implementation now includes:
+- source enemy-radius exposure from base archetype, role and elite state;
+- angular swept-contact checks and radial orbit-band checks;
+- per-enemy/per-element hit latches, reset after leaving the contact interval;
+- latch cleanup when enemies die or are removed;
+- source-defined Orbital Crown extra element and Orbital Halo final shield cadence;
+- source-gated Orbital Blade + Prism Filter Ring relay visual;
+- removal of unconditional Orbital contact Resonance gain.
+
+Open: exact source special-sphere cadence and network-dependent orbit radius
+formula still require verification against the current Unity geometry/stats.
+Do not mark the Orbital family fully source-identical yet.
+
+Validation query returned 0 combined status checks and 0 PR-triggered workflow runs. Neither response provides a CI result. Unity Editor compilation, APK build and device validation remain unverified. new-desing is unchanged.
+
+======================================================================
+END ORBITAL SWEPT-CONTACT IMPLEMENTATION CHECKPOINT
+======================================================================
