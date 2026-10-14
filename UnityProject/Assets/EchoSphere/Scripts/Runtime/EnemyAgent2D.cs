@@ -413,7 +413,7 @@ namespace EchoSphere.Runtime
             }
             transform.position = Vector2.MoveTowards(transform.position, target, _moveSpeed * _slowMultiplier * _runtime.GetEnemyAbilitySpeedMultiplier() * (_isPhaseRole ? 1.12f : 1f) * Time.deltaTime);
             if (_creatureVisual != null) _creatureVisual.SetFacing(target - (Vector2)transform.position);
-            if (Vector2.Distance(transform.position, target) < 0.54f)
+            if (Vector2.Distance(transform.position, target) < 0.54f * (_isPhaseRole ? 0.90f : 1f))
                 _runtime.TryDamagePlayer(9f * _runtime.GetRegionEnemyDamageMultiplier());
         }
 
