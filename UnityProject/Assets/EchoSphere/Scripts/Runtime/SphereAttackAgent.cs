@@ -322,7 +322,6 @@ namespace EchoSphere.Runtime
                     _runtime.GetSphereCopyOutputMultiplier(this) * damageMultiplier;
                 var dealtDamage = contact.ReceiveSphereDamage(this, damage);
                 OnSphereHitApplied(contact);
-                _runtime.AddResonanceCharge(1f);
                 _orbitalHitCount++;
                 if (branch == "orbital_halo")
                 {
