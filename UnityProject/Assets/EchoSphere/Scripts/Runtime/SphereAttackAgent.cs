@@ -267,6 +267,14 @@ namespace EchoSphere.Runtime
             var finalId = _runtime.GetSphereFinal(SphereId.Orbital);
             var innerCount = SphereEvolutionCombatRules.GetOrbitalInnerCount(_progressionLevel, finalId);
             var outerCount = SphereEvolutionCombatRules.GetOrbitalOuterCount(_progressionLevel, finalId);
+            // Source engineSpheres.ts adds one combat element for orbital_crown
+            // and distributes extra elements between the two counter-rotating rings.
+            if (_runtime.HasArtifact("orbital_crown"))
+            {
+                if (outerCount < innerCount) outerCount++;
+                else if (innerCount < outerCount) innerCount++;
+                else outerCount++;
+            }
             EnsureOrbitalElements(innerCount + outerCount);
             _orbitAngle += dt * SphereEvolutionCombatRules.GetOrbitalAngularSpeed(_progressionLevel, finalId) * _levelStats.OrbitSpeedMultiplier;
             for (var i = 0; i < _orbitalElements.Count; i++)
