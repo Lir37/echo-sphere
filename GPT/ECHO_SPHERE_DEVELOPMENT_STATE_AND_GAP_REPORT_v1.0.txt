@@ -2946,3 +2946,36 @@ Validation query returned 0 combined status checks and 0 PR-triggered workflow r
 ======================================================================
 END ORBITAL SWEPT-CONTACT IMPLEMENTATION CHECKPOINT
 ======================================================================
+
+======================================================================
+[2026-10-14] ORBITAL NETWORK GEOMETRY FOLLOW-UP
+======================================================================
+
+Code HEAD: 37945843eed57194f16d6dc3f9a3a62ce6744cc2
+Source baseline: new-desing 737ef2af4a877e0995db5f92331d536d2f29a934
+
+Orbital element radius now applies the source network-dependent multiplier:
+- +8% per active Cluster formation bonus;
+- +12% per active Ring formation bonus;
+- +3% per linked active neighbour, capped at +20%.
+
+The implementation uses the existing Unity network analysis and Sphere links;
+no new formation rules were added.
+
+Orbital source-parity work across this cycle now also includes swept contact,
+per-element contact latching, source enemy radii, Orbital Crown's extra element,
+Halo final shield cadence, removal of generic per-hit Resonance, and the
+Orbital Blade + Prism Filter Ring relay visual.
+
+Remaining: exact live Sphere-radius multiplier and special-sphere cadence still
+need verification; do not mark Orbital fully identical.
+
+CI:
+- Combined status checks: 0.
+- PR-triggered workflow runs: 0.
+- No CI result is exposed by these responses. Unity Editor compile, APK build
+  and device validation remain unverified. new-desing unchanged.
+
+======================================================================
+END ORBITAL NETWORK GEOMETRY FOLLOW-UP
+======================================================================
