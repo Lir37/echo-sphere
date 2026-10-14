@@ -4437,3 +4437,41 @@ still unconfirmed. new-desing remains unchanged at
 ======================================================================
 END ELITE VARIANT BEHAVIOR PARITY PASS
 ======================================================================
+
+
+======================================================================
+2026-10-14 — SOURCE ENEMY SPAWN AND STAT PARITY PASS
+======================================================================
+
+Code HEAD: fa6b88203f761498150f698889fc02bd3768bbce
+CI #517: SUCCESS.
+
+Source comparison: new-desing src/engineEnemies.ts and src/engineBalance.ts.
+
+- Base selection follows wave gates and source random thresholds for normal,
+  fast and tank archetypes. Elite conversion is a separate later roll.
+- Base formulas restored:
+  normal HP 18 + wave*5.5, speed 68 + wave*1.8, damage 7 + wave*0.30,
+  radius 19, XP 1;
+  fast HP 11 + wave*3.4, speed 125 + wave*2.4, damage 8 + wave*0.32,
+  radius 15, XP 2;
+  tank HP 42 + wave*10.5, speed 44 + wave*0.8, damage 11 + wave*0.38,
+  radius 26, XP 4.
+- Elite chance: wave > 5 and roll < min(0.12, 0.03 + wave*0.005).
+  Elite conversion modifies HP x3, damage x1.5, radius +4, XP x5; source
+  does not multiply elite speed.
+- RNG draw order now selects base visual before role and elite conversion;
+  elite visual variant is selected only after successful conversion.
+- Contact damage is stored on spawn with difficulty, role and region scaling;
+  Charger retains its separate x1.20 contact multiplier.
+- Core contracts: 1154 assertions passed. Unity project structural preflight
+  passed. Unity Editor compile, APK build and device parity are not verified.
+
+Remaining:
+- Continue source audit for other enemy/combat interactions and migrate confirmed
+  missing systems in cohesive groups. Preserve working systems and do not
+  introduce any behavior not present in new-desing.
+
+======================================================================
+END SOURCE ENEMY SPAWN AND STAT PARITY PASS
+======================================================================

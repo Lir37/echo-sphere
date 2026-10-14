@@ -2627,3 +2627,47 @@ new-desing.
 ======================================================================
 END ELITE VARIANT BEHAVIOR PARITY PASS
 ======================================================================
+
+
+======================================================================
+[2026-10-14] SOURCE ENEMY SPAWN / BASE STATS / ELITE CONVERSION PASS
+======================================================================
+
+Implementation commit: fa6b88203f761498150f698889fc02bd3768bbce
+Validation: Unity Migration Contracts #517 SUCCESS.
+
+Compared Unity EnemySpawnRules / SpawnEnemy / EnemyAgent2D with
+new-desing src/engineEnemies.ts and src/engineBalance.ts.
+
+Implemented:
+- Base archetype is selected from wave-based source thresholds: Fast only after
+  wave 2, Tank only after wave 4; Elite is no longer a fourth base archetype.
+- Restored source normal/fast/tank HP, speed and damage base/per-wave formulas,
+  source archetype radii, and base XP rewards (1/2/4).
+- Restored source RNG selection order: spawn position, base archetype, base
+  visual variant, role, elite-conversion roll, and elite variant only on success.
+- Elite conversion now requires wave > 5 and uses min(0.12, 0.03 + wave*0.005).
+  It applies source HP x3, damage x1.5, radius +4 and XP x5; it does not add an
+  elite speed multiplier.
+- Enemy contact damage is stored from spawn-time difficulty/region/role-scaled
+  damage; Charger retains the source x1.20 contact multiplier.
+- Preserved the base archetype on the runtime enemy so Tank eligibility and
+  normal/fast/tank contact radii remain tied to the true base type.
+- Added contract boundary tests for archetype thresholds, elite chance/cap and
+  all source stat constants. new-desing remains unchanged.
+
+Validation:
+- CI #517 SUCCESS on code HEAD fa6b88203f761498150f698889fc02bd3768bbce.
+- 1154 pure C# contract assertions passed.
+- Unity structural preflight passed (64 C# source files).
+- Unity Editor compilation, APK build and manual device validation remain
+  unverified; contract CI does not prove complete gameplay parity.
+
+Next:
+- Continue the source-to-Unity audit of remaining combat and spawn interactions,
+  then move to the largest confirmed missing system group. Do not infer or add
+  mechanics absent from source.
+
+======================================================================
+END SOURCE ENEMY SPAWN / BASE STATS / ELITE CONVERSION PASS
+======================================================================
