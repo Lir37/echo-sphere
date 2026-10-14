@@ -2508,3 +2508,38 @@ Remaining:
 ======================================================================
 END SOURCE CONTACT COLLISION / REGION CHALLENGE SCOPE
 ======================================================================
+
+
+======================================================================
+[2026-10-14] UNITY REGION HUD PARITY PASS
+======================================================================
+
+Code HEAD: 88219ef810dc71b802f364cc1b71f5cc4bf2cf87
+
+Implemented in UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs:
+- HUD now displays the selected Region, current phase, and nearest current
+  pocket for Resonance Basin and Spectral Rift.
+- Phase names and time boundaries match getRegionPhase() in src/region.ts:
+  0-300s Orientation, 300-600s First Resonance, 600-900s Specialization,
+  900-1500s Escalation, 1500-1620s Convergence, then Stabilization.
+- A 1.35-second HUD notice appears when the player enters a different pocket,
+  matching the source transition notice lifetime.
+- Pocket labels and source pocket centers are mapped from src/region.ts.
+- No gameplay rules, rewards, or run RNG were changed.
+
+Validation:
+- Unity Migration Contracts #509 SUCCESS on code HEAD
+  88219ef810dc71b802f364cc1b71f5cc4bf2cf87.
+- Pure C# contract tests and Unity project structural checks passed.
+- Unity Editor compilation, APK build and manual device validation remain
+  unverified; CI success is not proof of full gameplay or visual parity.
+
+Remaining:
+- Continue comparing enemy update order and combat interactions against
+  src/engineEnemies.ts, fixing only source-confirmed differences.
+- Continue porting other absent systems from new-desing without inventing
+  behavior. Keep new-desing unchanged.
+
+======================================================================
+END UNITY REGION HUD PARITY PASS
+======================================================================
