@@ -561,6 +561,29 @@ namespace EchoSphere.Runtime
         }
         public float GetSphereRadiusMultiplier() => LevelUpAbilityRules.GetSphereRadiusMultiplier(GetAbilityLevel(RunUpgradeKind.Radius));
         public float GetSphereRangeMultiplier() => LevelUpAbilityRules.GetSphereRangeMultiplier(GetAbilityLevel(RunUpgradeKind.Range));
+
+        // Source engineSpheres.ts:getSphereRadius + sphereModifiers(..., 'orbital').
+        // Chaos Orb and Mutation-stage radius effects are intentionally not guessed here:
+        // their source state has no confirmed equivalent in the current Unity runtime.
+        public float GetOrbitalLiveRadiusPixels(int progressionLevel)
+        {
+            var level = Mathf.Clamp(progressionLevel, 1, SphereProgressionRules.MaxLevel);
+            var multiplier = GetSphereRadiusMultiplier()
+                * GetSphereRangeMultiplier()
+                * GetShopSphereRadiusMultiplier()
+                * GetArtifactSphereRadiusMultiplier(SphereId.Orbital)
+                * GetCharacterSphereRadiusMultiplier();
+
+            if (level >= 2) multiplier *= 1.15f;
+            if (level >= 5) multiplier *= 1.06f;
+            if (level >= 7) multiplier *= 1.08f;
+            // The source applies an additional Architect mastery radius factor
+            // after getCharacterRadiusMultiplier has already been applied.
+            if (_sphereCharacterId == SphereCharacterId.Architect && _characterMasteryLevel >= 3)
+                multiplier *= 1.02f;
+
+            return 130f * multiplier;
+        }
         public float GetProjectileSpeedMultiplier() => LevelUpAbilityRules.GetProjectileSpeedMultiplier(GetAbilityLevel(RunUpgradeKind.ProjectileSpeed));
         public int SphereBoostDamageBonus => LevelUpAbilityRules.GetSphereBoostDamageBonus(_kills, GetAbilityLevel(RunUpgradeKind.SphereBoost));
         public float ResonanceCharge => _resonanceCharge;
