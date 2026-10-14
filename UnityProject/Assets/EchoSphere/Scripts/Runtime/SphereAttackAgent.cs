@@ -300,7 +300,8 @@ namespace EchoSphere.Runtime
                 + (clusterBonus > 0f ? 0.08f * clusterBonus : 0f)
                 + (ringBonus > 0f ? 0.12f * ringBonus : 0f)
                 + Mathf.Min(0.20f, linkedNeighbourCount * 0.03f);
-            _orbitAngle += dt * SphereEvolutionCombatRules.GetOrbitalAngularSpeed(_progressionLevel, finalId) * _levelStats.OrbitSpeedMultiplier;
+            var orbitalBranch = _runtime.GetSphereBranch(SphereId.Orbital);
+            _orbitAngle += dt * SphereEvolutionCombatRules.GetOrbitalAngularSpeed(_progressionLevel, orbitalBranch, finalId) * _levelStats.OrbitSpeedMultiplier;
             for (var i = 0; i < _orbitalElements.Count; i++)
             {
                 var inner = i < innerCount;
