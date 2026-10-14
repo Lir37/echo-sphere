@@ -1751,17 +1751,39 @@ namespace EchoSphere.Runtime
                 new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * BossCombatRules.BossSpawnDistanceWorld;
             var archetype = EnemySpawnRules.Select(_runTime, _rng.NextFloat());
             var profile = EnemySpawnRules.GetProfile(archetype);
-            var isPhaseRole = RegionPocketRules.SelectsPhaseRole(
+            var role = RegionPocketRules.SelectRole(
                 _selectedRegion, _player.position.x, _player.position.y, _rng.NextFloat());
+            var roleHp = 1f;
+            var roleSpeed = 1f;
+            var roleDamage = 1f;
+            var roleRadius = 1f;
+            switch (role)
+            {
+                case "swarmer": roleHp = 0.65f; roleSpeed = 1.35f; roleRadius = 0.85f; break;
+                case "charger": roleSpeed = 1.25f; roleDamage = 1.10f; break;
+                case "tank_guard": roleHp = 1.55f; roleSpeed = 0.72f; roleRadius = 1.15f; break;
+                case "ranged": roleSpeed = 0.82f; roleDamage = 1.18f; break;
+                case "splitter": roleHp = 0.85f; break;
+                case "healer": roleSpeed = 0.90f; roleDamage = 0.80f; break;
+                case "bomber": roleDamage = 1.45f; roleSpeed = 0.90f; break;
+                case "leech": roleSpeed = 0.95f; roleDamage = 1.05f; break;
+                case "sniper": roleSpeed = 0.72f; roleDamage = 1.65f; break;
+                case "disruptor": roleSpeed = 0.92f; break;
+                case "anchor": roleHp = 1.30f; roleSpeed = 0.65f; roleRadius = 1.10f; break;
+                case "phase": roleSpeed = 1.18f; roleRadius = 0.90f; break;
+                case "scavenger": roleSpeed = 1.10f; break;
+                case "corruptor": roleDamage = 1.20f; break;
+            }
+            var isPhaseRole = role == "phase";
             var difficulty = CurrentDifficulty;
             var pocket = RegionPocketRules.GetAt(_selectedRegion, _player.position.x, _player.position.y);
             var challengeHp = GetChallengeEnemyHpMultiplier();
             var challengeSpeed = GetChallengeEnemySpeedMultiplier();
             var challengeXp = GetChallengeEnemyXpMultiplier();
-            var baseHp = (18f + _wave * 5.5f) * difficulty.EnemyHpMultiplier * pocket.Hp * challengeHp;
-            var baseSpeed = BossCombatRules.ToWorldUnits(68f + _wave * 1.8f) * difficulty.EnemySpeedMultiplier * pocket.Speed * challengeSpeed * (isPhaseRole ? 1.18f : 1f);
+            var baseHp = (18f + _wave * 5.5f) * difficulty.EnemyHpMultiplier * pocket.Hp * challengeHp * roleHp;
+            var baseSpeed = BossCombatRules.ToWorldUnits(68f + _wave * 1.8f) * difficulty.EnemySpeedMultiplier * pocket.Speed * challengeSpeed * roleSpeed;
             var tint = GetEnemyTint(archetype);
-            var go = CreateOrb(GetEnemyName(archetype), position, 0.72f * profile.VisualScale * (isPhaseRole ? 0.90f : 1f), tint, Color.white, 4);
+            var go = CreateOrb(GetEnemyName(archetype), position, 0.72f * profile.VisualScale * roleRadius, tint, Color.white, 4);
             ApplyShellVisual(go, GetEnemySprite(archetype), archetype == EnemyArchetype.Normal ? 1.12f : 1.02f);
             var enemyCore = go.transform.Find("Core Light");
             if (enemyCore != null) enemyCore.localScale = Vector3.one * (archetype == EnemyArchetype.Tank ? 0.29f : 0.22f);
@@ -1783,7 +1805,8 @@ namespace EchoSphere.Runtime
             var agent = go.AddComponent<EnemyAgent2D>();
             agent.Initialize(this, _player, baseHp * profile.HpMultiplier, baseSpeed * profile.SpeedMultiplier,
                 Mathf.Max(1, Mathf.RoundToInt(profile.XpReward * pocket.Xp * challengeXp)),
-                GetEnemyVisualVariant(archetype), "", archetype == EnemyArchetype.Elite, archetype, isPhaseRole);
+                GetEnemyVisualVariant(archetype), "", archetype == EnemyArchetype.Elite, archetype, isPhaseRole,
+                role, roleDamage, roleRadius);
             _enemies.Add(agent);
         }
         private bool HasActiveBoss()
@@ -2016,6 +2039,42 @@ namespace EchoSphere.Runtime
             _message = text ?? "";
             _messageTimer = Mathf.Max(0f, duration);
         }
+
+        public void HealNearbyEnemies(EnemyAgent2D source, float radiusPixels, float maxHpFraction, int maxTargets)
+        {
+            if (source == null) return;
+            var radius = Mathf.Max(0f, radiusPixels) * SpherePlacementRules.SourcePixelsToWorld;
+            var radiusSquared = radius * radius;
+            var healed = 0;
+            for (var i = 0; i < _enemies.Count && healed < Mathf.Max(0, maxTargets); i++)
+            {
+                var ally = _enemies[i];
+                if (ally == null || ally == source || !ally.IsAlive) continue;
+                if (((Vector2)ally.transform.position - (Vector2)source.transform.position).sqrMagnitude > radiusSquared) continue;
+                ally.HealByFraction(maxHpFraction);
+                healed++;
+            }
+        }
+
+        public void TryDisruptNearestSphere(Vector2 origin, float rangePixels)
+        {
+            var range = Mathf.Max(0f, rangePixels) * SpherePlacementRules.SourcePixelsToWorld;
+            var bestDistance = range * range;
+            SphereAttackAgent best = null;
+            for (var i = 0; i < _spheres.Count; i++)
+            {
+                var sphere = _spheres[i];
+                if (sphere == null || !sphere.gameObject.activeInHierarchy || sphere.NetworkDisabled) continue;
+                var distance = ((Vector2)sphere.transform.position - origin).sqrMagnitude;
+                if (distance < bestDistance) { bestDistance = distance; best = sphere; }
+            }
+            if (best == null) return;
+            best.ApplyNetworkDisable(GetNetworkDisableDuration(1f));
+            RefreshNetworkState();
+            ShowTimedCombatMessage("DISRUPTOR", 0.5f);
+        }
+
+        public void DrainResonance(float amount) => _resonanceCharge = Mathf.Max(0f, _resonanceCharge - Mathf.Max(0f, amount));
 
         public float TimeStopTimer => _timeStopTimer;
         public float TeleportDamageBuffTimer => _teleportDamageBuffTimer;
