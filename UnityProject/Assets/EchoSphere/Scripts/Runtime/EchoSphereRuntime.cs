@@ -361,6 +361,7 @@ namespace EchoSphere.Runtime
         public float GetExperienceMagnetRadiusWorld() => LevelUpAbilityRules.GetMagnetRadiusWorld(GetAbilityLevel(RunUpgradeKind.Magnet));
         public bool RegionStabilized => _regionStabilized;
         public EchoRegionId SelectedRegion => _selectedRegion;
+        public bool RegionStabilized => _regionStabilized;
         public void RegisterRegionPoiCollected(string poiType)
         {
             if (!string.IsNullOrEmpty(poiType)) _regionLoreDiscovered.Add(poiType);
