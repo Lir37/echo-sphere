@@ -32,6 +32,8 @@ namespace EchoSphere.Runtime
         private float _poisonTimer, _poisonDps, _poisonTickTimer, _poisonTickInterval;
         private float _freezeTimer, _freezeVulnerabilityTimer, _elementalReactionTimer;
         private float _linkBreakerCooldownTimer, _linkBreakerTelegraphTimer, _linkBreakerImpactTimer;
+        private string _eliteVariant = "";
+        private float _elitePulseTimer;
         private SphereAttackAgent _linkBreakerTarget, _linkBreakerImpactTarget;
         private LineRenderer[] _linkBreakerLines;
         private static Material _linkBreakerLineMaterial;
@@ -92,6 +94,8 @@ namespace EchoSphere.Runtime
                 ? damage : _runtime.ResolveAuthoredSphereHitDamage(source, this, damage);
             var characterMultiplier = _runtime == null ? 1f : _runtime.GetHunterMarkedTargetDamageMultiplier(source, this);
             var actual = authoredDamage * characterMultiplier * IncomingSphereDamageMultiplier(source);
+            if (_eliteVariant == "mirror_warden" && actual > 0f && _runtime != null)
+                _runtime.TryDamagePlayer(actual * 0.12f);
             if (_runtime != null) _runtime.ApplyAuthoredSphereHitEffects(source, this, actual, allowAuthoredProcs, owner);
             ReceiveDamage(actual, source);
             return actual;
@@ -301,13 +305,16 @@ namespace EchoSphere.Runtime
 
         public void Initialize(EchoSphereRuntime runtime, Transform player, float hp, float moveSpeed, int xpReward = 1,
             string visualVariant = "wisp", string bossType = "", bool isElite = false, EnemyArchetype archetype = EnemyArchetype.Normal,
-            bool isPhaseRole = false, string role = "grunt", float roleDamageMultiplier = 1f, float roleRadiusMultiplier = 1f)
+            bool isPhaseRole = false, string role = "grunt", float roleDamageMultiplier = 1f, float roleRadiusMultiplier = 1f,
+            string eliteVariant = "")
         {
             _runtime = runtime;
             _player = player;
             _bossType = bossType ?? "";
             _isElite = isElite;
-            _linkBreakerCooldownTimer = isElite ? 5f : 0f;
+            _eliteVariant = isElite ? (eliteVariant ?? "") : "";
+            _elitePulseTimer = isElite ? 5f : 0f;
+            _linkBreakerCooldownTimer = _eliteVariant == "linkbreaker" ? 5f : 0f;
             _archetype = archetype;
             _isPhaseRole = isPhaseRole;
             _role = role ?? "grunt";
@@ -320,7 +327,7 @@ namespace EchoSphere.Runtime
             _xpReward = Mathf.Max(1, xpReward);
             _shell = transform.Find("Shell")?.GetComponent<SpriteRenderer>();
             if (_shell != null) _baseColor = _shell.color;
-            if (_isElite) EnsureLinkBreakerLines();
+            if (_eliteVariant == "linkbreaker") EnsureLinkBreakerLines();
             _creatureVisual = GetComponent<EnemyCreatureVisual2D>();
             if (_creatureVisual == null) _creatureVisual = gameObject.AddComponent<EnemyCreatureVisual2D>();
             _creatureVisual.Initialize(_runtime, visualVariant, bossType, _baseColor);
@@ -415,9 +422,11 @@ namespace EchoSphere.Runtime
             var toPlayer = target - (Vector2)transform.position;
             var distanceToPlayer = toPlayer.magnitude;
             var directionToPlayer = distanceToPlayer > 0.0001f ? toPlayer / distanceToPlayer : Vector2.zero;
-            TickLinkBreaker(dt);
+            if (_eliteVariant == "linkbreaker") TickLinkBreaker(dt);
             var speedMultiplier = _slowMultiplier * _runtime.GetEnemyAbilitySpeedMultiplier() * (_isPhaseRole ? 1.12f : 1f);
             if (_role == "scavenger" && _hp / Mathf.Max(1f, _maxHp) < 0.5f) speedMultiplier *= 1.30f;
+            if (_eliteVariant == "phantom_hunter" && distanceToPlayer > 180f * SpherePlacementRules.SourcePixelsToWorld) speedMultiplier *= 1.35f;
+            if (_eliteVariant == "scavenger_prime" && _hp / Mathf.Max(1f, _maxHp) < 0.5f) speedMultiplier *= 1.30f;
             transform.position += (Vector3)(directionToPlayer * _moveSpeed * speedMultiplier * dt);
             if (_creatureVisual != null) _creatureVisual.SetFacing(target - (Vector2)transform.position);
             if (_role == "leech" && distanceToPlayer < 160f * SpherePlacementRules.SourcePixelsToWorld)
@@ -457,6 +466,8 @@ namespace EchoSphere.Runtime
                     _runtime.TryDisruptNearestSphere(transform.position, 280f);
                 }
             }
+
+            TickEliteVariant(dt, distanceToPlayer);
 
             var sourceEnemyRadius = _archetype == EnemyArchetype.Fast ? 15f
                 : _archetype == EnemyArchetype.Tank ? 26f : 19f;
@@ -502,6 +513,40 @@ namespace EchoSphere.Runtime
                 Destroy(gameObject);
             }
         }
+        private void TickEliteVariant(float dt, float distanceToPlayer)
+        {
+            if (!_isElite || string.IsNullOrEmpty(_eliteVariant) || _eliteVariant == "linkbreaker") return;
+
+            if (_eliteVariant == "resonance_leech" &&
+                distanceToPlayer < 220f * SpherePlacementRules.SourcePixelsToWorld)
+                _runtime.DrainResonance(5f * dt);
+            if (_eliteVariant == "pyroclast" &&
+                distanceToPlayer < 95f * SpherePlacementRules.SourcePixelsToWorld)
+                _runtime.TryDamagePlayerOverTime(8f * dt);
+            if (_eliteVariant == "stasis_warden" &&
+                distanceToPlayer < 170f * SpherePlacementRules.SourcePixelsToWorld)
+                _runtime.TryDamagePlayerOverTime(6f * dt);
+
+            _elitePulseTimer -= dt;
+            if (_elitePulseTimer > 0f) return;
+            _elitePulseTimer = _eliteVariant == "geometry_shifter" || _eliteVariant == "nullifier" ? 6f : 4f;
+
+            if (_eliteVariant == "geometry_shifter")
+            {
+                _runtime.DrainResonance(18f);
+                _runtime.ShowTimedCombatMessage("GEOMETRY SHIFT", 0.8f);
+            }
+            else if (_eliteVariant == "nullifier")
+            {
+                _runtime.TryNullifyNearestSphere(transform.position, 300f, 2f);
+            }
+            else if (_eliteVariant == "stasis_warden" &&
+                distanceToPlayer < 170f * SpherePlacementRules.SourcePixelsToWorld)
+            {
+                _runtime.ShowTimedCombatMessage("STASIS FIELD", 0.5f);
+            }
+        }
+
         private void TickLinkBreaker(float dt)
         {
             if (!_isElite || _runtime == null) return;
