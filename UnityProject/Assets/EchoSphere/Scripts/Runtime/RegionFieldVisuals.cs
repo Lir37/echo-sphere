@@ -28,7 +28,21 @@ namespace EchoSphere.Runtime
             public readonly List<SpriteRenderer> Markers = new List<SpriteRenderer>();
         }
 
+        private sealed class PoiVisual
+        {
+            public int Id;
+            public string Type;
+            public Vector2 Position;
+            public float ExpiresAt;
+            public GameObject Root;
+            public SpriteRenderer Glow;
+            public LineRenderer Diamond;
+            public TextMesh Label;
+        }
+
         private readonly List<PocketVisual> _pockets = new List<PocketVisual>();
+        private readonly List<PoiVisual> _pois = new List<PoiVisual>();
+        private float _nextPoiAt = 70f;
         private EchoSphereRuntime _runtime;
         private Material _lineMaterial;
         private Transform _fieldRoot;
@@ -68,6 +82,8 @@ namespace EchoSphere.Runtime
                 else DestroyImmediate(child);
             }
             _pockets.Clear();
+            _pois.Clear();
+            _nextPoiAt = 70f;
             ActiveRegionId = regionId;
 
             if (regionId == EchoRegionId.SpectralRift)
@@ -176,6 +192,152 @@ namespace EchoSphere.Runtime
                     marker.position = position;
                     marker.rotation = Quaternion.Euler(0f, 0f, angle * Mathf.Rad2Deg - 90f);
                 }
+            }
+
+            UpdateRegionPois();
+        }
+
+        private void UpdateRegionPois()
+        {
+            var time = _runtime.CurrentRunTime;
+            if (!_runtime.RegionStabilized && time >= _nextPoiAt)
+            {
+                SpawnPoi(time);
+                _nextPoiAt += 38f;
+            }
+
+            for (var i = _pois.Count - 1; i >= 0; i--)
+            {
+                var poi = _pois[i];
+                if (time >= poi.ExpiresAt ||
+                    Vector2.Distance(_runtime.PlayerPosition, poi.Position) <= 42f * SourcePixelsToWorld)
+                {
+                    if (time < poi.ExpiresAt &&
+                        Vector2.Distance(_runtime.PlayerPosition, poi.Position) <= 42f * SourcePixelsToWorld)
+                        _runtime.RegisterRegionPoiCollected(poi.Type);
+                    RemovePoi(poi);
+                    _pois.RemoveAt(i);
+                    continue;
+                }
+
+                var color = GetPoiColor(poi.Type);
+                var pulse = 38f + Mathf.Sin(time * 4f + poi.Id) * 4f;
+                poi.Root.transform.position = new Vector3(poi.Position.x, poi.Position.y, 0.01f);
+                poi.Glow.color = WithAlpha(color, 0.18f);
+                poi.Glow.transform.localScale = Vector3.one * (pulse * 2f * SourcePixelsToWorld);
+                poi.Diamond.startColor = poi.Diamond.endColor = WithAlpha(color, 0.9f);
+                poi.Label.color = WithAlpha(color, 0.86f);
+                poi.Label.transform.position = new Vector3(
+                    poi.Position.x, poi.Position.y + 16f * SourcePixelsToWorld, 0f);
+
+                const float halfDiamond = 11f * SourcePixelsToWorld;
+                poi.Diamond.SetPosition(0, new Vector3(poi.Position.x, poi.Position.y + halfDiamond, 0f));
+                poi.Diamond.SetPosition(1, new Vector3(poi.Position.x + halfDiamond, poi.Position.y, 0f));
+                poi.Diamond.SetPosition(2, new Vector3(poi.Position.x, poi.Position.y - halfDiamond, 0f));
+                poi.Diamond.SetPosition(3, new Vector3(poi.Position.x - halfDiamond, poi.Position.y, 0f));
+            }
+        }
+
+        private void SpawnPoi(float time)
+        {
+            var id = 1;
+            for (var i = 0; i < _pois.Count; i++) id = Mathf.Max(id, _pois[i].Id + 1);
+            if (_pockets.Count == 0) return;
+            var pocketIndex = (id + Mathf.FloorToInt(time / 60f)) % _pockets.Count;
+            var pocket = _pockets[pocketIndex];
+            var directions = new[]
+            {
+                new Vector2(0f, -1f), new Vector2(0.92f, -0.38f),
+                new Vector2(0.88f, 0.48f), new Vector2(-0.82f, 0.55f),
+                new Vector2(-0.92f, -0.34f)
+            };
+            var types = new[]
+            {
+                "resonance_cache", "breach_node", "echo_relay", "lost_signal",
+                "elite_nest", "rupture", "boss_trace"
+            };
+            var type = types[(id - 1) % types.Length];
+            var position = pocket.Center + directions[id % directions.Length] * pocket.Radius * 0.62f;
+            var color = GetPoiColor(type);
+
+            var root = new GameObject("Region POI / " + type);
+            root.transform.SetParent(_fieldRoot, false);
+            root.transform.position = new Vector3(position.x, position.y, 0.01f);
+            var glowObject = new GameObject("Pulse");
+            glowObject.transform.SetParent(root.transform, false);
+            var glow = glowObject.AddComponent<SpriteRenderer>();
+            glow.sprite = RuntimeSpriteFactory.Disc;
+            glow.color = WithAlpha(color, 0.18f);
+            glow.sortingOrder = 3;
+
+            var diamond = CreateLine("Region POI / Marker / " + id,
+                WithAlpha(color, 0.9f), 2f * SourcePixelsToWorld, 6, true);
+            diamond.positionCount = 4;
+
+            var labelObject = new GameObject("Region POI / Label / " + id);
+            labelObject.transform.SetParent(_fieldRoot, false);
+            labelObject.transform.position = new Vector3(
+                position.x, position.y + 16f * SourcePixelsToWorld, 0f);
+            var label = labelObject.AddComponent<TextMesh>();
+            label.text = GetPoiLabel(type);
+            label.anchor = TextAnchor.MiddleCenter;
+            label.alignment = TextAlignment.Center;
+            label.fontSize = 100;
+            label.characterSize = 0.12f;
+            label.color = WithAlpha(color, 0.86f);
+            var labelRenderer = label.GetComponent<MeshRenderer>();
+            if (labelRenderer != null) labelRenderer.sortingOrder = 6;
+
+            _pois.Add(new PoiVisual
+            {
+                Id = id,
+                Type = type,
+                Position = position,
+                ExpiresAt = time + (type == "boss_trace" ? 45f : 70f),
+                Root = root,
+                Glow = glow,
+                Diamond = diamond,
+                Label = label
+            });
+        }
+
+        private void RemovePoi(PoiVisual poi)
+        {
+            if (poi.Root != null)
+            {
+                if (Application.isPlaying) Destroy(poi.Root);
+                else DestroyImmediate(poi.Root);
+            }
+            if (poi.Diamond != null)
+            {
+                if (Application.isPlaying) Destroy(poi.Diamond.gameObject);
+                else DestroyImmediate(poi.Diamond.gameObject);
+            }
+            if (poi.Label != null)
+            {
+                if (Application.isPlaying) Destroy(poi.Label.gameObject);
+                else DestroyImmediate(poi.Label.gameObject);
+            }
+        }
+
+        private static Color GetPoiColor(string type)
+        {
+            var hex = type == "elite_nest" || type == "rupture" ? "#ff6b6b"
+                : type == "boss_trace" ? "#ffb84d" : "#55e6c1";
+            return ColorUtility.TryParseHtmlString(hex, out var color) ? color : Color.white;
+        }
+
+        private static string GetPoiLabel(string type)
+        {
+            switch (type)
+            {
+                case "resonance_cache": return "RESONANCE CACHE";
+                case "breach_node": return "BREACH NODE";
+                case "echo_relay": return "ECHO RELAY";
+                case "lost_signal": return "LOST SIGNAL";
+                case "elite_nest": return "ELITE NEST";
+                case "rupture": return "RUPTURE";
+                default: return "BOSS TRACE";
             }
         }
 
