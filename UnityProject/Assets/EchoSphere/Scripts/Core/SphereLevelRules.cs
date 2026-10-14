@@ -92,6 +92,13 @@ namespace EchoSphere.Core
                     break;
             }
 
+            // Source sphereProgression.ts applies these shared post-evolution
+            // damage multipliers to every Sphere, independently of its type-specific
+            // level I-III effect and branch/final combat rules.
+            if (l >= 4) damage *= 1.12f;
+            if (l >= 5) damage *= 1.06f;
+            if (l >= 7) damage *= 1.18f;
+
             return new SphereLevelStats(damage, range, delay, spread, aura, orbitRadius, orbitSpeed, pull,
                 closeDamage, weakenedDamage, crit, pierce, pellets, chainTargets, prismDirections);
         }
