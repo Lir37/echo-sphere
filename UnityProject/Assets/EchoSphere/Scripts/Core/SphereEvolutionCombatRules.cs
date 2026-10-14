@@ -177,10 +177,22 @@ namespace EchoSphere.Core
         }
         public static int GetOrbitalInnerCount(int level, string finalId) => GetOrbitalRingCounts(level, finalId)[0];
         public static int GetOrbitalOuterCount(int level, string finalId) => GetOrbitalRingCounts(level, finalId)[1];
-        public static float GetOrbitalAngularSpeed(int level, string finalId)
+        public static float GetOrbitalAngularSpeed(int level, string branch, string finalId)
         {
             var speed = 1.8f + Math.Min(2.4f, Math.Max(1, level) * 0.28f);
-            return finalId == "orbital_dance_final_2" ? speed * 1.55f : speed;
+            if (branch == "orbital_dance")
+            {
+                // Source sphereProgression.ts: branch speed applies to all Dance
+                // forms, with an extra pre-final V/VI progression multiplier.
+                speed *= finalId == "orbital_dance_final_2" ? 1.55f : 1.28f;
+                if (string.IsNullOrEmpty(finalId) && level >= 5)
+                    speed *= level >= 6 ? 1.20f : 1.10f;
+            }
+            else if (branch == "orbital_halo")
+            {
+                speed *= 1.08f;
+            }
+            return speed;
         }
         public static float GetOrbitalContactRadius(string finalId) =>
             finalId == "orbital_halo_final_2" ? 0.26f : finalId == "orbital_dance_final_3" ? 0.18f : 0.20f;
