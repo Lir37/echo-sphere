@@ -10,9 +10,6 @@ namespace EchoSphere.Runtime
         private readonly SourceCanvasMesh _canvas = new SourceCanvasMesh();
         private Mesh _mesh;
         private Material _material;
-        private static readonly string[] Ids = { "axis", "glass", "fracture", "hollow", "pressure" };
-        private static readonly Vector2[] Centers = { Vector2.zero, new Vector2(520f,-260f), new Vector2(500f,430f), new Vector2(-480f,430f), new Vector2(-520f,-300f) };
-        private static readonly string[] Accents = { "#39d8ff", "#7cf7d4", "#ff6b6b", "#9b7cff", "#ffb84d" };
         public void Initialize(EchoSphereRuntime runtime)
         {
             _runtime = runtime; _mesh = new Mesh { name = "Source Region Seams" }; _mesh.MarkDynamic();
