@@ -465,12 +465,21 @@ namespace EchoSphere.Runtime
                 }
             }
 
-            if (distanceToPlayer < 0.54f * _roleRadiusMultiplier)
+            var sourceEnemyRadius = _archetype == EnemyArchetype.Fast ? 15f
+                : _archetype == EnemyArchetype.Tank ? 26f : 19f;
+            var sourceContactRadius = (sourceEnemyRadius * _roleRadiusMultiplier +
+                (_isElite ? 4f : 0f) + 16f) * SpherePlacementRules.SourcePixelsToWorld;
+            if (distanceToPlayer < sourceContactRadius)
             {
                 var contactDamage = 9f * _runtime.GetRegionEnemyDamageMultiplier() * _roleDamageMultiplier;
                 if (_role == "charger") contactDamage *= 1.20f;
                 _runtime.TryDamagePlayer(contactDamage);
                 if (_role == "corruptor") _runtime.DrainResonance(4f);
+
+                // Source engineEnemies.ts pushes normal enemies away by 10 source pixels on contact.
+                var awayFromPlayer = ((Vector2)transform.position - target).normalized;
+                if (awayFromPlayer.sqrMagnitude > 0.0001f)
+                    transform.position += (Vector3)(awayFromPlayer * 10f * SpherePlacementRules.SourcePixelsToWorld);
             }
         }
 
