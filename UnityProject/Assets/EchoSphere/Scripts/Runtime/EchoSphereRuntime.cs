@@ -1806,11 +1806,15 @@ namespace EchoSphere.Runtime
                     AddRadialNodes(go.transform, RuntimeSpriteFactory.Star, new Color(1f, 0.76f, 0.9f), 3, 0.82f, 0.13f, 7, Mathf.PI * 0.5f);
                     break;
             }
+            var eliteVariant = "";
+            var visualVariant = archetype == EnemyArchetype.Elite
+                ? SelectEliteVariant(out eliteVariant)
+                : GetEnemyVisualVariant(archetype);
             var agent = go.AddComponent<EnemyAgent2D>();
             agent.Initialize(this, _player, baseHp * profile.HpMultiplier, baseSpeed * profile.SpeedMultiplier,
                 Mathf.Max(1, Mathf.RoundToInt(profile.XpReward * pocket.Xp * challengeXp)),
-                GetEnemyVisualVariant(archetype), "", archetype == EnemyArchetype.Elite, archetype, isPhaseRole,
-                role, roleDamage, roleRadius);
+                visualVariant, "", archetype == EnemyArchetype.Elite, archetype, isPhaseRole,
+                role, roleDamage, roleRadius, eliteVariant);
             _enemies.Add(agent);
         }
         private bool HasActiveBoss()
@@ -1976,7 +1980,8 @@ namespace EchoSphere.Runtime
         private static readonly string[] NormalEnemyVisualVariants = { "wisp", "leech", "serpent", "stalker", "prism" };
         private static readonly string[] FastEnemyVisualVariants = { "moth", "skitter", "stalker" };
         private static readonly string[] TankEnemyVisualVariants = { "beetle", "brute", "prism" };
-        private static readonly string[] EliteEnemyVisualVariants = { "linkbreaker", "leech", "stalker", "prism", "serpent", "beetle", "wisp", "prism", "brute", "skitter" };
+        private static readonly string[] EliteVariantIds = { "linkbreaker", "resonance_leech", "phantom_hunter", "geometry_shifter", "splitter_prime", "mirror_warden", "stasis_warden", "nullifier", "pyroclast", "scavenger_prime" };
+        private static readonly string[] EliteVariantVisuals = { "linkbreaker", "leech", "stalker", "prism", "serpent", "beetle", "wisp", "prism", "brute", "skitter" };
 
         private string GetEnemyVisualVariant(EnemyArchetype archetype)
         {
@@ -1985,10 +1990,16 @@ namespace EchoSphere.Runtime
             {
                 case EnemyArchetype.Fast: variants = FastEnemyVisualVariants; break;
                 case EnemyArchetype.Tank: variants = TankEnemyVisualVariants; break;
-                case EnemyArchetype.Elite: variants = EliteEnemyVisualVariants; break;
                 default: variants = NormalEnemyVisualVariants; break;
             }
             return variants[_rng.NextInt(variants.Length)];
+        }
+
+        private string SelectEliteVariant(out string eliteVariant)
+        {
+            var index = _rng.NextInt(EliteVariantIds.Length);
+            eliteVariant = EliteVariantIds[index];
+            return EliteVariantVisuals[index];
         }
 
         private static string GetEnemyName(EnemyArchetype archetype)
@@ -2058,6 +2069,26 @@ namespace EchoSphere.Runtime
                 ally.HealByFraction(maxHpFraction);
                 healed++;
             }
+        }
+
+        public bool TryNullifyNearestSphere(Vector2 origin, float rangePixels, float disableDuration)
+        {
+            var range = Mathf.Max(0f, rangePixels) * SpherePlacementRules.SourcePixelsToWorld;
+            var bestDistance = range * range;
+            SphereAttackAgent best = null;
+            for (var i = 0; i < _spheres.Count; i++)
+            {
+                var sphere = _spheres[i];
+                if (sphere == null || !sphere.gameObject.activeInHierarchy || sphere.NetworkDisabled) continue;
+                var distance = ((Vector2)sphere.transform.position - origin).sqrMagnitude;
+                if (distance < bestDistance) { bestDistance = distance; best = sphere; }
+            }
+            if (best == null) return false;
+            best.ApplyNetworkDisable(GetNetworkDisableDuration(disableDuration));
+            RefreshNetworkState();
+            ShowTimedCombatMessage("SPHERE NULLIFIED", 0.8f);
+            SpawnEngineerRelayLightning(origin, best.transform.position, 0.25f);
+            return true;
         }
 
         public void TryDisruptNearestSphere(Vector2 origin, float rangePixels)
