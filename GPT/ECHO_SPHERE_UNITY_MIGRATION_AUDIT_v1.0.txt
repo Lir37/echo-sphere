@@ -4558,3 +4558,29 @@ Remaining audit work:
 ======================================================================
 END SOURCE-PARITY IMPLEMENTATION PASS
 ======================================================================
+
+
+======================================================================
+STANDARD SPHERE VISUAL PARITY FIX — 2026-10-14
+======================================================================
+
+Source comparison: `src/renderer.ts` on protected `new-desing` HEAD
+737ef2af4a877e0995db5f92331d536d2f29a934. The approved standard-sphere
+assembly draws the shared luminous core, the procedural stabilization ring,
+and the same `upper-crystal.png` twice: the second copy is vertically mirrored.
+The old Unity visual rendered only the shared core/orbit layers and omitted both
+crystals, making Standard visually unlike the source and its other families.
+
+Implemented in Unity migration:
+- Imported the exact source `upper-crystal.png` into Resources without editing it.
+- Added upper and vertically mirrored lower crystal SpriteRenderers to the
+  Standard Sphere only, using the source positions, size and pulse scale.
+- Kept the existing shared core and orbit rendering; no gameplay behavior or
+  other Sphere family was changed.
+
+Validation must come from CI and subsequent Unity/APK visual inspection. CI does
+not by itself establish final device visual parity.
+
+======================================================================
+END STANDARD SPHERE VISUAL PARITY FIX
+======================================================================

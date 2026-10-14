@@ -2739,3 +2739,19 @@ persistence/UI integration and device verification.
 ======================================================================
 END CONTINUED UNITY PARITY WORK
 ======================================================================
+
+
+======================================================================
+UNITY MIGRATION UPDATE — STANDARD SPHERE VISUAL — 2026-10-14
+======================================================================
+
+Fixed a source-confirmed visual omission in `SphereRuntimeVfx2D.cs`: Standard
+Sphere now uses the exact `new-desing` upper-crystal art as the upper element
+and as a vertically mirrored lower element, with source-mapped placement and
+pulse scaling. Existing core/orbit behavior and all other Sphere families are
+unchanged. Current validation is pending CI; Unity Editor/APK/device parity is
+not claimed until separately verified.
+
+======================================================================
+END STANDARD SPHERE VISUAL UPDATE
+======================================================================
