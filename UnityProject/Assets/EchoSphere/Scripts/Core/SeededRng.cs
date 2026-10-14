@@ -17,6 +17,13 @@ namespace EchoSphere.Core
                 return (t ^ (t >> 14)) / 4294967296f;
             }
         }
+        /// <summary>Matches src/region.ts nextR(), which advances the shared run RNG with the regional LCG.</summary>
+        public float NextRegionFloat()
+        {
+            unchecked { _state = _state * 1664525u + 1013904223u; }
+            return _state / 4294967296f;
+        }
+
         public int NextInt(int maxExclusive) => maxExclusive <= 0 ? 0 : (int)(NextFloat() * maxExclusive);
     }
 }

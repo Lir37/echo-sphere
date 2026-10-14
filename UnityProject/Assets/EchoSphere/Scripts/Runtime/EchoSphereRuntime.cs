@@ -1759,8 +1759,12 @@ namespace EchoSphere.Runtime
             var archetype = EnemySpawnRules.SelectBase(_wave, _rng.NextFloat());
             var profile = EnemySpawnRules.GetProfile(archetype);
             var visualVariant = GetEnemyVisualVariant(archetype);
+            // src/engineEnemies.ts evaluates the fallback ENEMY_ROLES draw before
+            // getRegionEnemyRole(), even when the regional pool replaces that fallback.
+            _rng.NextFloat();
+            var roleRoll = _rng.NextRegionFloat();
             var role = RegionPocketRules.SelectRole(
-                _selectedRegion, _player.position.x, _player.position.y, _rng.NextFloat());
+                _selectedRegion, _player.position.x, _player.position.y, roleRoll);
             var roleHp = 1f;
             var roleSpeed = 1f;
             var roleDamage = 1f;

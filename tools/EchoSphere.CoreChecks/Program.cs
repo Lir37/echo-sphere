@@ -72,6 +72,10 @@ internal static class Program
         var rng = new SeededRng(1u);
         var expected = new[] { 0.62707394f, 0.0027357212f, 0.52744704f, 0.98105097f, 0.9683779f };
         foreach (var value in expected) Near(rng.NextFloat(), value, 0.000001f, "TypeScript RNG reference sequence");
+        var mixed = new SeededRng(1u);
+        Near(mixed.NextFloat(), 0.62707394f, 0.000001f, "regional RNG sequence begins with source fallback draw");
+        Near(mixed.NextRegionFloat(), 0.012728266f, 0.000001f, "src/region.ts LCG draw after fallback draw");
+        Near(mixed.NextFloat(), 0.85688397f, 0.000001f, "TypeScript RNG resumes from regional LCG state");
         var first = new SeededRng(92731u);
         var second = new SeededRng(92731u);
         for (var i = 0; i < 64; i++) Near(first.NextFloat(), second.NextFloat(), 0f, "same seed must reproduce sequence");
