@@ -329,6 +329,7 @@ namespace EchoSphere.Runtime
             var branch = _runtime.GetSphereBranch(SphereId.Orbital);
             var finalId = _runtime.GetSphereFinal(SphereId.Orbital);
             GetOrbitalElementCounts(out var innerCount, out var outerCount);
+            EnsureOrbitalElements(innerCount + outerCount);
 
             var finalIndex = finalId != null && finalId.EndsWith("_final_1") ? 0
                 : finalId != null && finalId.EndsWith("_final_2") ? 1
