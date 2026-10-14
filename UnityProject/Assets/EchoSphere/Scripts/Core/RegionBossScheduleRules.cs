@@ -19,8 +19,8 @@ namespace EchoSphere.Core
     }
 
     /// <summary>
-    /// Boss-spawn subset of src/region.ts: createRegionState/updateRegion.
-    /// POIs, challenges, lore and region mastery remain separate unported work.
+    /// Source-mapped Region boss timing, resonance multiplier and completion metadata
+    /// from src/region.ts. Runtime POI effects and challenge behavior are wired in EchoSphereRuntime.
     /// </summary>
     public sealed class RegionBossScheduleState
     {
@@ -75,6 +75,14 @@ namespace EchoSphere.Core
             regionId == EchoRegionId.SpectralRift ? 360 : 250;
 
         public static int GetRegionXpReward(int playerLevel) => System.Math.Max(1, playerLevel * 24);
+        public static int GetRegionGoldReward(EchoRegionId region, int eliteKills, int bossesDefeated) =>
+            GetBaseGoldReward(region) + eliteKills * 5 + bossesDefeated * 35;
+        public static int GetChallengeContractsCompleted(string challengeId) =>
+            string.IsNullOrEmpty(challengeId) || challengeId == "none" ? 0 : 1;
+        public static int GetMasteryChallengesCompleted(int uniqueGeometryCount, float dominantSeconds, int livingSphereCount) =>
+            (uniqueGeometryCount >= 3 ? 1 : 0) +
+            (dominantSeconds >= 60f ? 1 : 0) +
+            (livingSphereCount <= 4 ? 1 : 0);
 
         // Exact src/region.ts:getRegionResonanceMultiplier().
         public static float GetResonanceMultiplier(

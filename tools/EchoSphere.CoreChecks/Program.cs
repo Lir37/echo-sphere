@@ -270,6 +270,12 @@ internal static class Program
         Equal(RegionBossScheduleRules.GetBaseGoldReward(EchoRegionId.ResonanceBasin), 250, "Basin source base region reward");
         Equal(RegionBossScheduleRules.GetBaseGoldReward(EchoRegionId.SpectralRift), 360, "Rift source base region reward");
         Equal(RegionBossScheduleRules.GetRegionXpReward(10), 240, "source region XP reward scales with level");
+        Equal(RegionBossScheduleRules.GetRegionGoldReward(EchoRegionId.ResonanceBasin, 2, 3), 365, "source Basin region reward metadata");
+        Equal(RegionBossScheduleRules.GetRegionGoldReward(EchoRegionId.SpectralRift, 2, 3), 475, "source Rift region reward metadata");
+        Equal(RegionBossScheduleRules.GetChallengeContractsCompleted("none"), 0, "no selected region challenge yields no contract completion");
+        Equal(RegionBossScheduleRules.GetChallengeContractsCompleted("overload"), 1, "selected region challenge yields one contract completion");
+        Equal(RegionBossScheduleRules.GetMasteryChallengesCompleted(2, 60f, 4), 2, "region mastery checks geometry, hold time and sphere cap independently");
+        Equal(RegionBossScheduleRules.GetMasteryChallengesCompleted(3, 60f, 4), 3, "all source region mastery checks complete");
         Near(RegionBossScheduleRules.GetResonanceMultiplier(EchoRegionId.ResonanceBasin, "none", 0f, 0f), 1f, 0f, "region resonance base multiplier outside pulse window");
         Near(RegionBossScheduleRules.GetResonanceMultiplier(EchoRegionId.ResonanceBasin, "none", 18f, 0f), 1.18f, 0f, "source periodic region resonance surge");
         Near(RegionBossScheduleRules.GetResonanceMultiplier(EchoRegionId.SpectralRift, "volatile_core", 18f, 69f), 1.12f, 0f, "Volatile Core multiplier below charge threshold");

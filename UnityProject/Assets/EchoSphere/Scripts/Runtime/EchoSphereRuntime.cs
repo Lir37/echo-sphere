@@ -231,7 +231,9 @@ namespace EchoSphere.Runtime
 
         private readonly List<EnemyAgent2D> _enemies = new List<EnemyAgent2D>();
         private readonly HashSet<string> _regionLoreDiscovered = new HashSet<string>();
-        private int _regionXpReward;
+        private int _regionXpReward, _regionGoldReward, _regionChallengeContractsCompleted, _regionMasteryChallengesCompleted;
+        private readonly HashSet<SphereNetworkFormation> _regionMasteryGeometryTypes = new HashSet<SphereNetworkFormation>();
+        private float _regionMasteryDominantSeconds, _regionDamageTaken, _regionLastHp = -1f;
         private readonly List<SphereAttackAgent> _spheres = new List<SphereAttackAgent>();
         private readonly List<AbilityDroneAgent2D> _abilityDrones = new List<AbilityDroneAgent2D>();
         private readonly List<string> _ownedArtifacts = new List<string>();
@@ -1108,6 +1110,7 @@ namespace EchoSphere.Runtime
                     SetTutorialStep(3);
                 return;
             }
+            TickRegionMastery(dt);
             AdvanceRegionBossSchedule();
             if (_playerCore.IsDead && !_gameOver)
             {
@@ -1947,6 +1950,22 @@ namespace EchoSphere.Runtime
             _waveEnemiesToSpawn = RunBalanceRules.GetEnemiesPerWave(_wave);
         }
 
+        private void TickRegionMastery(float dt)
+        {
+            if (_regionStabilized || _playerCore == null) return;
+            var hp = _playerCore.CurrentHp;
+            if (_regionLastHp < 0f) _regionLastHp = hp;
+            else
+            {
+                if (hp < _regionLastHp) _regionDamageTaken += _regionLastHp - hp;
+                _regionLastHp = hp;
+            }
+            var formation = _networkState == null ? null : _networkState.DominantFormation;
+            if (formation == null) return;
+            _regionMasteryGeometryTypes.Add(formation.Type);
+            if (formation.Active) _regionMasteryDominantSeconds += dt;
+        }
+
         private void AdvanceRegionBossSchedule()
         {
             if (_regionChallengeId == "fractured_network" && !_regionEndlessMode)
@@ -1998,8 +2017,11 @@ namespace EchoSphere.Runtime
                     PlayerPrefs.SetInt(BasinStabilizedPreferenceKey, 1);
                 MarkRegionChallengeComplete();
                 PlayerPrefs.Save();
-                // Region completion is not game-over: keep pickups alive after the final boss;
                 ShowMessage(IsRussianUi ? "РЕГИОН СТАБИЛИЗИРОВАН" : "REGION STABILIZED");
+                _regionChallengeContractsCompleted = RegionBossScheduleRules.GetChallengeContractsCompleted(_regionChallengeId);
+                _regionMasteryChallengesCompleted = RegionBossScheduleRules.GetMasteryChallengesCompleted(
+                    _regionMasteryGeometryTypes.Count, _regionMasteryDominantSeconds, GetActiveCharacterSphereCount());
+                _regionGoldReward = RegionBossScheduleRules.GetRegionGoldReward(_selectedRegion, _runEliteKills, _bossesDefeated);
                 _regionXpReward = RegionBossScheduleRules.GetRegionXpReward(_level);
             }
         }
@@ -8010,7 +8032,10 @@ namespace EchoSphere.Runtime
             _messageTimer = 0f;
             _runTime = 0f;
             _regionLoreDiscovered.Clear();
-            _regionXpReward = 0;
+            _regionXpReward = _regionGoldReward = _regionChallengeContractsCompleted = _regionMasteryChallengesCompleted = 0;
+            _regionMasteryGeometryTypes.Clear();
+            _regionMasteryDominantSeconds = _regionDamageTaken = 0f;
+            _regionLastHp = -1f;
             _combo = 0;
             _comboTimer = 0f;
             _comboMultiplier = 1f;

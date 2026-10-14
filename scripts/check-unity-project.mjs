@@ -470,6 +470,11 @@ const regionResonanceRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/
 assert.ok(regionResonanceRules.includes('GetResonanceMultiplier') &&
   regionPoiRuntime.includes('RegionBossScheduleRules.GetResonanceMultiplier('),
   'source region resonance surge and Volatile Core multiplier must affect live resonance gains');
+assert.ok(regionPoiRuntime.includes('TickRegionMastery(dt)') &&
+  regionPoiRuntime.includes('GetMasteryChallengesCompleted') &&
+  regionPoiRuntime.includes('GetRegionGoldReward(_selectedRegion, _runEliteKills, _bossesDefeated)') &&
+  regionPoiRuntime.includes('_regionDamageTaken += _regionLastHp - hp'),
+  'source region mastery counters and completion reward metadata must be tracked');
 assert.ok(regionPoiRuntime.includes('case "resonance_cache":') && regionPoiRuntime.includes('_resonanceCharge + 28f') &&
   regionPoiRuntime.includes('_resonanceCharge + 45f') && regionPoiRuntime.includes('ScaleLivingEnemiesNearPlayer(260f * radiusScale, 0.72f)') &&
   regionPoiRuntime.includes('ScaleLivingEnemiesNearPlayer(220f * radiusScale, 0.62f)') &&
