@@ -459,6 +459,10 @@ const regionSchedule = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/R
 for (const sourceBoss of ['conductor','architect','null','aura','stella_warden']) assert.ok(regionSchedule.includes('"' + sourceBoss + '"'), 'Region schedule source boss missing: ' + sourceBoss);
 assert.ok(regionSchedule.includes('480f') && regionSchedule.includes('960f') && regionSchedule.includes('1620f') && regionSchedule.includes('1800f'), 'source Region boss/stabilization timing contract missing');
 assert.ok(runtimeArt.includes('AdvanceRegionBossSchedule') && runtimeArt.includes('RegionBossScheduleRules.Advance') && runtimeArt.includes('StartNextWave'), 'Region signal and source wave loop must be wired in live runtime');
+const regionClearWindow = runtimeArt.slice(runtimeArt.indexOf('TickCharacterMastery();'), runtimeArt.indexOf('_spawnTimer -= dt'));
+assert.ok(regionClearWindow.includes('if (_regionStabilized)') && regionClearWindow.includes('_gameOver = true;') &&
+  regionClearWindow.includes('_paused = true;') && regionClearWindow.includes('FinalizeRunResult();'),
+  'source Region clear must end the run and persist its final result instead of continuing gameplay');
 assert.ok(runtimeArt.includes('CountLivingNonBossEnemies') && runtimeArt.includes('HasActiveBoss'), 'next source wave must wait for living enemies and boss completion');
 const regionPoiRuntime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs'), 'utf8');
 const enemyPoiRuntime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs'), 'utf8');

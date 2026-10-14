@@ -1118,7 +1118,17 @@ namespace EchoSphere.Runtime
                 return;
             }
             TickCharacterMastery();
-            if (_regionStabilized) return;
+            if (_regionStabilized)
+            {
+                // Source engineLoop.ts ends the run when updateRegion marks the Region cleared.
+                if (!_gameOver)
+                {
+                    _gameOver = true;
+                    _paused = true;
+                    FinalizeRunResult();
+                }
+                return;
+            }
 
             _spawnTimer -= dt;
             if (_spawnTimer <= 0f && _waveEnemiesToSpawn > 0)
