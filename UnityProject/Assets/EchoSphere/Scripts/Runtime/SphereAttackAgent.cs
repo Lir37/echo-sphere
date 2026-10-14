@@ -15,7 +15,8 @@ namespace EchoSphere.Runtime
         private SphereCombatProfile _profile;
         private SphereId _type;
         private float _orbitAngle;
-        private float _previousOrbitAngle;
+        private float _orbitalLastSweepAngle;
+        private float _orbitalContactCheckTimer;
         private readonly Dictionary<EnemyAgent2D, HashSet<int>> _orbitalContactLatch =
             new Dictionary<EnemyAgent2D, HashSet<int>>();
         private float _initialDamage;
@@ -28,7 +29,6 @@ namespace EchoSphere.Runtime
         private int _gravityTideHits;
         private readonly List<Transform> _orbitalElements = new List<Transform>();
         private int _orbitalHitCount;
-        private float _orbitalNetworkArcTimer;
         private float _networkDisabledTimer;
         private float _resonancePulseTimer;
         private int _formationHitCount;
@@ -296,7 +296,6 @@ namespace EchoSphere.Runtime
                 + (clusterBonus > 0f ? 0.08f * clusterBonus : 0f)
                 + (ringBonus > 0f ? 0.12f * ringBonus : 0f)
                 + Mathf.Min(0.20f, linkedNeighbourCount * 0.03f);
-            _previousOrbitAngle = _orbitAngle;
             _orbitAngle += dt * SphereEvolutionCombatRules.GetOrbitalAngularSpeed(_progressionLevel, finalId) * _levelStats.OrbitSpeedMultiplier;
             for (var i = 0; i < _orbitalElements.Count; i++)
             {
@@ -334,6 +333,14 @@ namespace EchoSphere.Runtime
 
         private void UpdateOrbitalContacts(float dt)
         {
+            var sphereIndexForCadence = _runtime.GetSphereIndex(this);
+            var clusterBonusForCadence = _runtime.GetFormationBonus(SphereNetworkFormation.Cluster, sphereIndexForCadence);
+            _orbitalContactCheckTimer -= dt;
+            if (_orbitalContactCheckTimer > 0f) return;
+            var cadenceMultiplier = clusterBonusForCadence > 0f ? 1f - 0.10f * clusterBonusForCadence : 1f;
+            _orbitalContactCheckTimer = Mathf.Max(0.08f,
+                0.21f * cadenceMultiplier / Mathf.Max(0.01f, _runtime.GetSphereAttackSpeedMultiplier(SphereId.Orbital)));
+
             var hitSomething = false;
             var staleLatchEnemies = new List<EnemyAgent2D>();
             foreach (var entry in _orbitalContactLatch)
@@ -356,8 +363,8 @@ namespace EchoSphere.Runtime
             var angularTolerance = finalIndex == 1 ? 0.30f : 0.22f;
             var bodyRadiusPixels = Mathf.Clamp(130f * 0.19f + _progressionLevel * 0.8f, 15f, 25f);
             var contactScale = SpherePlacementRules.SourcePixelsToWorld;
-            var innerSweepStart = _previousOrbitAngle;
-            var outerSweepStart = _previousOrbitAngle;
+            var innerSweepStart = _orbitalLastSweepAngle;
+            var outerSweepStart = _orbitalLastSweepAngle;
             var innerSweepEnd = _orbitAngle;
             var outerSweepEnd = _orbitAngle;
 
@@ -429,32 +436,28 @@ namespace EchoSphere.Runtime
 
             if (hitSomething) _runtime.TriggerEngineerRelay(this);
 
+            // The source stores the end angle only after collision processing.
+            _orbitalLastSweepAngle = _orbitAngle;
+
             // Source engineSpheres.ts: orbital_blade + prism_filter relay a
-            // visual bolt to the first linked Sphere while this node participates in Ring.
+            // visual bolt to the first linked Sphere on the same special-sphere cadence.
             if (_runtime.HasArtifact("orbital_blade") && _runtime.HasArtifact("prism_filter"))
             {
-                _orbitalNetworkArcTimer -= dt;
-                if (_orbitalNetworkArcTimer <= 0f)
+                var sphereIndex = _runtime.GetSphereIndex(this);
+                if (_runtime.GetFormationBonus(SphereNetworkFormation.Ring, sphereIndex) > 0f)
                 {
-                    var sphereIndex = _runtime.GetSphereIndex(this);
-                    if (_runtime.GetFormationBonus(SphereNetworkFormation.Ring, sphereIndex) > 0f)
+                    var linkedSpheres = _runtime.GetLinkedSpheres(sphereIndex);
+                    for (var i = 0; i < linkedSpheres.Count; i++)
                     {
-                        var linkedSpheres = _runtime.GetLinkedSpheres(sphereIndex);
-                        for (var i = 0; i < linkedSpheres.Count; i++)
-                        {
-                            var linked = linkedSpheres[i];
-                            if (linked == null || !linked.gameObject.activeInHierarchy) continue;
-                            var tint = new Color(105f / 255f, 235f / 255f, 1f, 0.9f);
-                            _runtime.SpawnCombatArc(transform.position, linked.transform.position,
-                                SphereId.Orbital, branch, finalId, tint, 0.18f);
-                            break;
-                        }
+                        var linked = linkedSpheres[i];
+                        if (linked == null || !linked.gameObject.activeInHierarchy) continue;
+                        var tint = new Color(105f / 255f, 235f / 255f, 1f, 0.9f);
+                        _runtime.SpawnCombatArc(transform.position, linked.transform.position,
+                            SphereId.Orbital, branch, finalId, tint, 0.18f);
+                        break;
                     }
-                    _orbitalNetworkArcTimer = Mathf.Max(0.08f,
-                        0.42f / Mathf.Max(0.01f, _runtime.GetSphereAttackSpeedMultiplier(SphereId.Orbital)));
                 }
             }
-            else _orbitalNetworkArcTimer = 0f;
         }
 
         private static bool IsAngleOnOrbitalSweep(float targetAngle, float startAngle, float endAngle,
