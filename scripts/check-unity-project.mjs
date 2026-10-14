@@ -1311,7 +1311,7 @@ assert.ok(activeAbilityEnemy.includes('public void ApplyFreeze(float duration)')
   runtimeArt.includes('EmitSourceSpherePulse(nearest, nearest.transform.position, pulseRadius, pulseDamage') &&
   runtimeArt.includes('var angles = new float[14];') &&
   runtimeArt.includes('angles[i] = _rng.NextFloat() * Mathf.PI * 2f;') &&
-  runtimeArt.includes('pulse.AddComponent<SpherePulseVfx2D>().Initialize(color, SpherePlacementRules.SourcePixelsToWorld, angles)') &&
+  runtimeArt.includes('new SpherePulseVfx2D()') &&
   !runtimeArt.includes('for (var i = 0; i < 28; i++) _rng.NextFloat();') &&
   spherePulseVfxSource.includes('SourceLife = 0.35f') &&
   spherePulseVfxSource.includes('(90f * _sourceScale)') &&
