@@ -489,7 +489,11 @@ assert.ok(runtime.includes('IncreaseMaxHp(6f)') && runtime.includes('IncreaseMax
 const experienceOrb = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/ExperienceOrbAgent.cs'), 'utf8');
 assert.ok(experienceOrb.includes('GetExperienceMagnetRadiusWorld()'), 'Magnet Level-Up must affect XP orb attraction');
 const enemyAbilitySlowCheck = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs'), 'utf8');
-assert.ok(enemyAbilitySlowCheck.includes('GetEnemyAbilitySpeedMultiplier()'), 'Slow Level-Up must affect live enemy movement');
+const enemySlowCombatRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/CombatRules.cs'), 'utf8');
+assert.ok(enemyAbilitySlowCheck.includes('GetEnemyAbilitySpeedMultiplier(distanceToPlayer, _slowMultiplier)') &&
+  enemySlowCombatRules.includes('GetEnemySpeedMultiplier') &&
+  enemyAbilitySlowCheck.includes('distanceToPlayer'),
+  'Slow Level-Up must use the source radius and min(status slow, ability slow) for live enemy movement');
 const balanceRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/RunBalanceRules.cs'), 'utf8');
 assert.ok(balanceRules.includes('GetEnemiesPerWave') && balanceRules.includes('GetWaveSpawnInterval'), 'source wave count and spawn interval rules missing');
 const bossProjectile = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/BossProjectileAgent2D.cs'), 'utf8');
