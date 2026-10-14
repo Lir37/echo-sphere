@@ -425,7 +425,7 @@ namespace EchoSphere.Runtime
             var distanceToPlayer = toPlayer.magnitude;
             var directionToPlayer = distanceToPlayer > 0.0001f ? toPlayer / distanceToPlayer : Vector2.zero;
             if (_eliteVariant == "linkbreaker") TickLinkBreaker(dt);
-            var speedMultiplier = _slowMultiplier * _runtime.GetEnemyAbilitySpeedMultiplier() * (_isPhaseRole ? 1.12f : 1f);
+            var speedMultiplier = _runtime.GetEnemyAbilitySpeedMultiplier(distanceToPlayer, _slowMultiplier) * (_isPhaseRole ? 1.12f : 1f);
             if (_role == "scavenger" && _hp / Mathf.Max(1f, _maxHp) < 0.5f) speedMultiplier *= 1.30f;
             if (_eliteVariant == "phantom_hunter" && distanceToPlayer > 180f * SpherePlacementRules.SourcePixelsToWorld) speedMultiplier *= 1.35f;
             if (_eliteVariant == "scavenger_prime" && _hp / Mathf.Max(1f, _maxHp) < 0.5f) speedMultiplier *= 1.30f;

@@ -361,7 +361,12 @@ namespace EchoSphere.Runtime
         public bool IsCombatSimulationPaused => _mainMenu || _paused || _playerCore == null;
         public float CurrentRunTime => _runTime;
         public int CurrentWave => _wave;
-        public float GetEnemyAbilitySpeedMultiplier() => LevelUpAbilityRules.GetEnemySlowMultiplier(GetAbilityLevel(RunUpgradeKind.Slow));
+        public float GetEnemyAbilitySpeedMultiplier(float distanceToPlayer, float statusSlowMultiplier)
+        {
+            var abilitySlow = LevelUpAbilityRules.GetEnemySlowMultiplier(GetAbilityLevel(RunUpgradeKind.Slow));
+            var slowRadius = 300f * SpherePlacementRules.SourcePixelsToWorld;
+            return CombatRules.GetEnemySpeedMultiplier(statusSlowMultiplier, abilitySlow, distanceToPlayer, slowRadius);
+        }
         public float GetExperienceMagnetRadiusWorld() => LevelUpAbilityRules.GetMagnetRadiusWorld(GetAbilityLevel(RunUpgradeKind.Magnet));
         public bool RegionStabilized => _regionStabilized;
         public EchoRegionId SelectedRegion => _selectedRegion;

@@ -92,6 +92,10 @@ internal static class Program
         True(!CombatRules.CanReceivePlayerDamage(0.2f, 0f), "dash invulnerability blocks damage");
         True(CombatRules.CanReceivePlayerDamage(0f, 0f), "damage allowed without protection");
         True(!CombatRules.CanReceivePlayerDotDamage(0.1f), "invulnerability blocks DoT");
+        Near(CombatRules.GetEnemySpeedMultiplier(1f, 0.8f, 299f, 300f), 0.8f, 0f, "ability slow applies inside source radius");
+        Near(CombatRules.GetEnemySpeedMultiplier(0.7f, 0.8f, 299f, 300f), 0.7f, 0f, "status and ability slow use minimum, not product");
+        Near(CombatRules.GetEnemySpeedMultiplier(1f, 0.8f, 300f, 300f), 1f, 0f, "ability slow excludes exact source radius boundary");
+        Near(CombatRules.GetEnemySpeedMultiplier(0.7f, 0.8f, 301f, 300f), 0.7f, 0f, "status slow remains outside ability radius");
         var critical = CombatRules.ResolveDamage(10f, 0.75f, 0.5f, 1.5f);
         Near(critical.Damage, 15f, 0.000001f, "critical damage amount");
         True(critical.WasCritical, "critical result flag");

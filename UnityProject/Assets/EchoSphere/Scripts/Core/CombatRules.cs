@@ -25,6 +25,14 @@ namespace EchoSphere.Core
             => !(IsFinite(invulnerableTimer) && invulnerableTimer > 0f) && !(IsFinite(contactDamageCooldown) && contactDamageCooldown > 0f);
         public static bool CanReceivePlayerDotDamage(float invulnerableTimer)
             => !(IsFinite(invulnerableTimer) && invulnerableTimer > 0f);
+
+        // Source engineEnemies.ts uses the stronger of status slow and the nearby
+        // Slow ability, not a product; the ability is limited to its source radius.
+        public static float GetEnemySpeedMultiplier(float statusSlowMultiplier, float abilitySlowMultiplier,
+            float distanceToPlayer, float slowRadius) =>
+            distanceToPlayer < slowRadius
+                ? System.Math.Min(statusSlowMultiplier, abilitySlowMultiplier)
+                : statusSlowMultiplier;
         public static DamageResolution ResolveDamage(float damage, float critChance, float critRoll, float critMultiplier)
         {
             var safeDamage = IsFinite(damage) ? System.Math.Max(0f, damage) : 0f;
