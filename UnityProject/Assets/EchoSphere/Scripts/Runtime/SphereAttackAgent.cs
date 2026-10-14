@@ -26,6 +26,7 @@ namespace EchoSphere.Runtime
         private readonly List<Transform> _orbitalElements = new List<Transform>();
         private readonly List<float> _orbitalContactTimers = new List<float>();
         private int _orbitalHitCount;
+        private float _orbitalNetworkArcTimer;
         private float _networkDisabledTimer;
         private float _resonancePulseTimer;
         private int _formationHitCount;
@@ -344,6 +345,34 @@ namespace EchoSphere.Runtime
                 if (afterimage > 0f) _runtime.TriggerOrbitalAfterimage(contact, damage * afterimage, 0.65f);
                 _orbitalContactTimers[i] = 0.28f;
             }
+            // Source engineSpheres.ts: orbital_blade + prism_filter relay a
+            // visual bolt to the first linked Sphere while this node participates in Ring.
+            if (_runtime.HasArtifact("orbital_blade") && _runtime.HasArtifact("prism_filter"))
+            {
+                _orbitalNetworkArcTimer -= dt;
+                if (_orbitalNetworkArcTimer <= 0f)
+                {
+                    var sphereIndex = _runtime.GetSphereIndex(this);
+                    if (_runtime.GetFormationBonus(SphereNetworkFormation.Ring, sphereIndex) > 0f)
+                    {
+                        var linkedSpheres = _runtime.GetLinkedSpheres(sphereIndex);
+                        for (var i = 0; i < linkedSpheres.Count; i++)
+                        {
+                            var linked = linkedSpheres[i];
+                            if (linked == null || !linked.gameObject.activeInHierarchy) continue;
+                            var tint = new Color(0.65f, 0.82f, 1f, 0.9f);
+                            _runtime.SpawnCombatArc(transform.position, linked.transform.position,
+                                SphereId.Orbital, _runtime.GetSphereBranch(SphereId.Orbital),
+                                _runtime.GetSphereFinal(SphereId.Orbital), tint, 0.18f);
+                            break;
+                        }
+                    }
+                    _orbitalNetworkArcTimer = Mathf.Max(0.08f,
+                        0.42f / Mathf.Max(0.01f, _runtime.GetSphereAttackSpeedMultiplier(SphereId.Orbital)));
+                }
+            }
+            else _orbitalNetworkArcTimer = 0f;
+
             if (hitSomething) _runtime.TriggerEngineerRelay(this);
         }
 
