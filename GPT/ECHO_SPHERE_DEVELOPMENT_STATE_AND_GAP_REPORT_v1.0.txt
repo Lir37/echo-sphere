@@ -2543,3 +2543,33 @@ Remaining:
 ======================================================================
 END UNITY REGION HUD PARITY PASS
 ======================================================================
+
+
+======================================================================
+[2026-10-14] ENEMY UPDATE-ORDER PARITY PASS
+======================================================================
+
+Code HEAD: 39f1551557846a0f3fe93125b81bb583fafdb725
+Source: new-desing src/engineEnemies.ts, updateEnemies().
+
+Confirmed and corrected Unity differences:
+- Frozen enemies no longer advance boss combat or Link Breaker actions while
+  the source update loop is stopped by freezeTimer.
+- Enemy movement, role action range checks and contact checks now use the
+  pre-movement player distance, matching the source update order.
+- Contact knockback now uses the same pre-movement direction used for enemy
+  movement and contact evaluation.
+
+Validation:
+- Unity Migration Contracts #511 SUCCESS on code HEAD
+  39f1551557846a0f3fe93125b81bb583fafdb725.
+- Pure C# contracts and structural checks passed. Unity Editor compilation,
+  APK build and manual device validation remain unverified.
+
+Next: continue the enemy-role/elite behavior audit against src/engineEnemies.ts
+and transfer other source-confirmed missing systems in larger coherent groups.
+Do not invent mechanics or change new-desing.
+
+======================================================================
+END ENEMY UPDATE-ORDER PARITY PASS
+======================================================================
