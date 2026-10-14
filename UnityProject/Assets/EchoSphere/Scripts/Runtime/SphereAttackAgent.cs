@@ -285,6 +285,17 @@ namespace EchoSphere.Runtime
             var finalId = _runtime.GetSphereFinal(SphereId.Orbital);
             GetOrbitalElementCounts(out var innerCount, out var outerCount);
             EnsureOrbitalElements(innerCount + outerCount);
+            var sphereIndex = _runtime.GetSphereIndex(this);
+            var linkedSpheres = _runtime.GetLinkedSpheres(sphereIndex);
+            var linkedNeighbourCount = 0;
+            for (var i = 0; i < linkedSpheres.Count; i++)
+                if (linkedSpheres[i] != null && linkedSpheres[i].gameObject.activeInHierarchy) linkedNeighbourCount++;
+            var clusterBonus = _runtime.GetFormationBonus(SphereNetworkFormation.Cluster, sphereIndex);
+            var ringBonus = _runtime.GetFormationBonus(SphereNetworkFormation.Ring, sphereIndex);
+            var networkRadiusMultiplier = 1f
+                + (clusterBonus > 0f ? 0.08f * clusterBonus : 0f)
+                + (ringBonus > 0f ? 0.12f * ringBonus : 0f)
+                + Mathf.Min(0.20f, linkedNeighbourCount * 0.03f);
             _previousOrbitAngle = _orbitAngle;
             _orbitAngle += dt * SphereEvolutionCombatRules.GetOrbitalAngularSpeed(_progressionLevel, finalId) * _levelStats.OrbitSpeedMultiplier;
             for (var i = 0; i < _orbitalElements.Count; i++)
@@ -293,7 +304,7 @@ namespace EchoSphere.Runtime
                 var index = inner ? i : i - innerCount;
                 var count = inner ? innerCount : outerCount;
                 var angle = _orbitAngle * (inner ? 1f : -1f) + index * Mathf.PI * 2f / Mathf.Max(1, count);
-                var radius = (inner ? 0.72f : 0.98f) * _levelStats.OrbitRadiusMultiplier;
+                var radius = (inner ? 0.72f : 0.98f) * _levelStats.OrbitRadiusMultiplier * networkRadiusMultiplier;
                 _orbitalElements[i].localPosition = new Vector3(Mathf.Cos(angle) * radius, Mathf.Sin(angle) * radius, -0.08f);
             }
         }
