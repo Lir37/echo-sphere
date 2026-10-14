@@ -33,6 +33,12 @@ namespace EchoSphere.Runtime
         [System.Serializable]
         private sealed class ShopSaveData { public ShopUpgradeData upgrades = new ShopUpgradeData(); }
 
+        private sealed class FractalFormationSnapshot
+        {
+            public SphereNetworkFormation Type;
+            public readonly List<Vector2> Nodes = new List<Vector2>();
+        }
+
         [System.Serializable]
         private sealed class LeaderboardEntry
         {
@@ -185,6 +191,13 @@ namespace EchoSphere.Runtime
         private float _hunterScreenShakeIntensity;
         private Vector3 _lastHunterScreenShakeOffset;
         private int _hunterHitCount;
+        private readonly List<FractalFormationSnapshot> _fractalFormationHistory = new List<FractalFormationSnapshot>();
+        private readonly List<Vector2> _fractalEchoNodes = new List<Vector2>();
+        private float _fractalEchoTimer, _fractalEchoPulseTimer, _fractalEchoCooldown, _fractalEchoStrength;
+        private SphereAttackAgent _voidPhantomSource;
+        private Vector2 _voidPhantomPosition;
+        private float _voidPhantomTimer, _voidPhantomPulseTimer;
+        private int _voidPhantomPulseCount;
         private SphereAttackAgent _engineerRelaySource;
         private float _engineerRelayTimer;
         private Vector2 _characterScrollPosition;
@@ -1026,6 +1039,7 @@ namespace EchoSphere.Runtime
                 RefreshNetworkState();
                 _networkRefreshTimer = 0.12f;
             }
+            TickCharacterSpecialRuntime(dt);
             TickResonanceRing(dt);
             var cameraTarget = new Vector3(_player.position.x, _player.position.y, -10f);
             var cameraBase = _camera.transform.position - _lastHunterScreenShakeOffset;
@@ -4233,6 +4247,137 @@ namespace EchoSphere.Runtime
             return scale;
         }
 
+        private void RecordFractalFormation(SphereNetworkShape formation)
+        {
+            if (_sphereCharacterId != SphereCharacterId.Fractal || formation == null ||
+                !formation.Active || formation.Type == SphereNetworkFormation.None) return;
+            if (_fractalFormationHistory.Count > 0 &&
+                _fractalFormationHistory[_fractalFormationHistory.Count - 1].Type == formation.Type) return;
+
+            var snapshot = new FractalFormationSnapshot { Type = formation.Type };
+            for (var i = 0; i < formation.NodeIndexes.Count; i++)
+            {
+                var index = formation.NodeIndexes[i];
+                if (index >= 0 && index < _spheres.Count && _spheres[index] != null)
+                    snapshot.Nodes.Add(_spheres[index].transform.position);
+            }
+            _fractalFormationHistory.Add(snapshot);
+            var historyLimit = _characterMasteryLevel >= 7 ? 4 : 3;
+            while (_fractalFormationHistory.Count > historyLimit) _fractalFormationHistory.RemoveAt(0);
+
+            if (_characterMasteryLevel < 3 || _fractalFormationHistory.Count < 3 || _fractalEchoCooldown > 0f) return;
+            var recentStart = _fractalFormationHistory.Count - 3;
+            if (_fractalFormationHistory[recentStart].Type == _fractalFormationHistory[recentStart + 1].Type ||
+                _fractalFormationHistory[recentStart].Type == _fractalFormationHistory[recentStart + 2].Type ||
+                _fractalFormationHistory[recentStart + 1].Type == _fractalFormationHistory[recentStart + 2].Type) return;
+
+            _fractalEchoNodes.Clear();
+            _fractalEchoNodes.AddRange(_fractalFormationHistory[recentStart].Nodes);
+            _fractalEchoStrength = CharacterRules.GetFractalEchoStrength(_characterMasteryLevel);
+            _fractalEchoTimer = CharacterRules.GetFractalEchoDuration(_characterMasteryLevel);
+            _fractalEchoPulseTimer = 0f;
+            _fractalEchoCooldown = 6f;
+            ShowTimedCombatMessage("RECURSIVE ECHO", 0.9f);
+        }
+
+        private void TickCharacterSpecialRuntime(float dt)
+        {
+            _fractalEchoCooldown = Mathf.Max(0f, _fractalEchoCooldown - dt);
+            if (_sphereCharacterId == SphereCharacterId.Fractal && _fractalEchoTimer > 0f)
+            {
+                _fractalEchoTimer = Mathf.Max(0f, _fractalEchoTimer - dt);
+                _fractalEchoPulseTimer -= dt;
+                if (_fractalEchoPulseTimer <= 0f)
+                {
+                    _fractalEchoPulseTimer = CharacterRules.GetFractalEchoPulseInterval(_characterMasteryLevel);
+                    var damage = (16f + _level * 2f) * _fractalEchoStrength;
+                    var radius = 95f * SpherePlacementRules.SourcePixelsToWorld;
+                    for (var n = 0; n < _fractalEchoNodes.Count; n++)
+                    {
+                        var center = _fractalEchoNodes[n];
+                        for (var i = 0; i < _enemies.Count; i++)
+                        {
+                            var enemy = _enemies[i];
+                            if (enemy == null || !enemy.IsAlive ||
+                                Vector2.Distance(enemy.transform.position, center) > radius) continue;
+                            enemy.ReceiveDamage(damage);
+                        }
+                    }
+                }
+            }
+
+            if (_sphereCharacterId != SphereCharacterId.Voidwalker) return;
+            SphereAttackAgent disabled = null;
+            for (var i = 0; i < _spheres.Count; i++)
+            {
+                var sphere = _spheres[i];
+                if (sphere != null && sphere.gameObject.activeInHierarchy && sphere.NetworkDisabled)
+                {
+                    disabled = sphere;
+                    break;
+                }
+            }
+
+            if (_voidPhantomTimer <= 0f && disabled != null)
+            {
+                _voidPhantomTimer = CharacterRules.GetVoidPhantomDuration(_characterMasteryLevel);
+                _voidPhantomPulseTimer = 0f;
+                _voidPhantomPulseCount = 0;
+                _voidPhantomSource = disabled;
+                _voidPhantomPosition = disabled.transform.position;
+                ShowTimedCombatMessage("PHANTOM NODE", 0.8f);
+            }
+            else if (_voidPhantomTimer > 0f && _characterMasteryLevel >= 6 &&
+                disabled != null && _voidPhantomSource != disabled)
+            {
+                _voidPhantomTimer = CharacterRules.GetVoidPhantomDuration(_characterMasteryLevel);
+                _voidPhantomPulseTimer = 0f;
+                _voidPhantomPulseCount = 0;
+                _voidPhantomSource = disabled;
+                _voidPhantomPosition = disabled.transform.position;
+                ShowTimedCombatMessage("BREACH REFRESH", 0.7f);
+            }
+
+            if (_voidPhantomTimer > 0f)
+            {
+                _voidPhantomTimer = Mathf.Max(0f, _voidPhantomTimer - dt);
+                _voidPhantomPulseTimer -= dt;
+                if (_voidPhantomPulseTimer <= 0f)
+                {
+                    _voidPhantomPulseTimer = 0.6f;
+                    _voidPhantomPulseCount++;
+                    var hasVoid = false;
+                    var hasGravity = false;
+                    for (var i = 0; i < _spheres.Count; i++)
+                    {
+                        var sphere = _spheres[i];
+                        if (sphere == null || !sphere.gameObject.activeInHierarchy) continue;
+                        if (sphere.Type == SphereId.Void) hasVoid = true;
+                        if (sphere.Type == SphereId.Gravity) hasGravity = true;
+                    }
+                    var activeVoidGravity = hasVoid && hasGravity;
+                    var radius = 105f * SpherePlacementRules.SourcePixelsToWorld;
+                    for (var i = 0; i < _enemies.Count; i++)
+                    {
+                        var enemy = _enemies[i];
+                        if (enemy == null || !enemy.IsAlive) continue;
+                        if (Vector2.Distance(enemy.transform.position, _voidPhantomPosition) > radius) continue;
+                        var damage = CharacterRules.GetVoidPhantomDamage(
+                            _level, _characterMasteryLevel, enemy.HpFraction, activeVoidGravity, _voidPhantomPulseCount);
+                        enemy.ReceiveDamage(damage);
+                        if (_characterMasteryLevel >= 3)
+                            enemy.ApplySourceSlow(CharacterRules.VoidPhantomSlowDuration, CharacterRules.VoidPhantomSlowMultiplier);
+                    }
+                }
+            }
+            else
+            {
+                _voidPhantomPosition = Vector2.zero;
+                _voidPhantomSource = null;
+                _voidPhantomPulseCount = 0;
+            }
+        }
+
         private void TickCharacterMastery()
         {
             if (_gameOver || _paused || _levelUp || _choosingEvolution || _stellaRewardPending)
@@ -4350,11 +4495,12 @@ namespace EchoSphere.Runtime
                         _characterMasteryRunXp += dt * 1.1f;
                         break;
                     }
-                    // Void Phantom isn't migrated yet; no source phantom XP is fabricated.
+                    if (_voidPhantomTimer > 0f) _characterMasteryRunXp += dt * 1.5f;
                     break;
 
                 case SphereCharacterId.Fractal:
-                    // Source formation history and Recursive Echo aren't ported yet.
+                    if (_fractalFormationHistory.Count >= 2) _characterMasteryRunXp += dt;
+                    if (_fractalEchoTimer > 0f) _characterMasteryRunXp += dt * 2.2f;
                     break;
             }
             _characterMasteryRunXp = Mathf.Max(0f, _characterMasteryRunXp);
@@ -6764,6 +6910,12 @@ namespace EchoSphere.Runtime
                 !SphereNetworkRules.TrySetSecondaryFormation(_networkState, _preferredSecondaryFormation))
                 _preferredSecondaryFormation = SphereNetworkFormation.None;
 
+            var dominantForFractal = _networkState.DominantFormation;
+            if (_sphereCharacterId == SphereCharacterId.Fractal && dominantForFractal != null &&
+                dominantForFractal.Active &&
+                !_resonanceGeometryCandidateKeys.Contains(GetFormationKey(dominantForFractal)))
+                RecordFractalFormation(dominantForFractal);
+
             TrackResonanceGeometryState();
 
             if (_networkState.DominantFormation != null)
@@ -7749,6 +7901,13 @@ namespace EchoSphere.Runtime
             _levelUpChoices.Clear();
             _oracleForecastKeys.Clear();
             _oracleForecastRerollUsed = false;
+            _fractalFormationHistory.Clear();
+            _fractalEchoNodes.Clear();
+            _fractalEchoTimer = _fractalEchoPulseTimer = _fractalEchoCooldown = _fractalEchoStrength = 0f;
+            _voidPhantomSource = null;
+            _voidPhantomPosition = Vector2.zero;
+            _voidPhantomTimer = _voidPhantomPulseTimer = 0f;
+            _voidPhantomPulseCount = 0;
             _oracleSourceFlashText = string.Empty;
             _oracleSourceFlashTimer = 0f;
             _characterMasteryRunXp = 0f;

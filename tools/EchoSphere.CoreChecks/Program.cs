@@ -747,6 +747,20 @@ internal static class Program
 
     private static void CheckCharacterRules()
     {
+        Near(CharacterRules.GetFractalEchoStrength(3), 0.5f, 0f, "Fractal Echo base strength");
+        Near(CharacterRules.GetFractalEchoStrength(6), 0.6f, 0f, "Fractal Echo mastery VI strength");
+        Near(CharacterRules.GetFractalEchoStrength(10), 0.7f, 0f, "Fractal Echo mastery X strength");
+        Near(CharacterRules.GetFractalEchoDuration(3), 3.5f, 0f, "Fractal Echo base duration");
+        Near(CharacterRules.GetFractalEchoDuration(4), 4f, 0f, "Fractal Echo mastery IV duration");
+        Near(CharacterRules.GetFractalEchoPulseInterval(7), 0.8f, 0f, "Fractal Echo base pulse cadence");
+        Near(CharacterRules.GetFractalEchoPulseInterval(8), 0.65f, 0f, "Fractal Echo mastery VIII pulse cadence");
+        Near(CharacterRules.GetVoidPhantomDuration(1), 2.5f, 0f, "Void Phantom base duration");
+        Near(CharacterRules.GetVoidPhantomDuration(2), 3f, 0f, "Void Phantom mastery II duration");
+        Near(CharacterRules.GetVoidPhantomDuration(10), 3.5f, 0f, "Void Phantom mastery X duration");
+        Near(CharacterRules.GetVoidPhantomDamage(1, 1, 1f, false, 1), 6.5f, 0f, "Void Phantom base damage");
+        Near(CharacterRules.GetVoidPhantomDamage(1, 7, 0.35f, false, 1), 15.6f, 0.0001f, "Void Phantom mastery VII execute modifier");
+        Near(CharacterRules.GetVoidPhantomDamage(1, 10, 0.35f, true, 1), 20.097f, 0.001f, "Void Phantom combined mastery modifiers");
+
         Equal(CharacterRules.All.Count, 10, "source character roster contains ten characters");
         Equal(CharacterRules.Get(SphereCharacterId.Spherist).UnlockCost, 0, "Spherist unlock is free");
         Equal(CharacterRules.Get(SphereCharacterId.Hunter).UnlockCost, 1500, "Hunter source unlock cost");

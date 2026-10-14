@@ -127,6 +127,13 @@ namespace EchoSphere.Runtime
             if (!_dead) _slowTimer = Mathf.Max(_slowTimer, Mathf.Max(0f, duration));
         }
 
+        public void ApplySourceSlow(float duration, float multiplier)
+        {
+            if (_dead) return;
+            _slowTimer = Mathf.Max(_slowTimer, Mathf.Max(0f, duration));
+            _slowMultiplier = Mathf.Min(_slowMultiplier, Mathf.Clamp(multiplier, 0f, 1f));
+        }
+
         public void ApplyElementalStatus(SphereElementalStatus status, SphereId source)
         {
             if (_dead || status.Element == SphereElement.None) return;

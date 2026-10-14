@@ -331,5 +331,28 @@ namespace EchoSphere.Core
             if (masteryLevel >= 10 && sphereCount >= 8) bonus += 0.03f;
             return bonus;
         }
+
+        // Source characterRuntime.ts: Fractal Recursive Echo timing and strength.
+        public static float GetFractalEchoStrength(int masteryLevel) =>
+            masteryLevel >= 10 ? 0.70f : masteryLevel >= 6 ? 0.60f : 0.50f;
+        public static float GetFractalEchoDuration(int masteryLevel) => masteryLevel >= 4 ? 4f : 3.5f;
+        public static float GetFractalEchoPulseInterval(int masteryLevel) => masteryLevel >= 8 ? 0.65f : 0.8f;
+
+        // Source characterRuntime.ts: Voidwalker Phantom Node.
+        public static float GetVoidPhantomDuration(int masteryLevel) =>
+            masteryLevel >= 10 ? 3.5f : masteryLevel >= 2 ? 3f : 2.5f;
+        public static float GetVoidPhantomDamage(
+            int playerLevel, int masteryLevel, float enemyHpFraction, bool activeVoidGravity, int pulseCount)
+        {
+            var damage = (12f + playerLevel) *
+                (masteryLevel >= 10 ? 0.70f : masteryLevel >= 4 ? 0.60f : 0.50f);
+            if (masteryLevel >= 7 && enemyHpFraction <= 0.35f)
+                damage *= masteryLevel >= 10 ? 1.35f : 1.20f;
+            if (masteryLevel >= 8 && activeVoidGravity) damage *= 1.10f;
+            if (masteryLevel >= 9 && pulseCount == 1) damage *= 1.50f;
+            return damage;
+        }
+        public const float VoidPhantomSlowDuration = 0.6f;
+        public const float VoidPhantomSlowMultiplier = 0.82f;
     }
 }
