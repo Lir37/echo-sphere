@@ -3009,3 +3009,39 @@ Validation queries for this code HEAD returned 0 combined status checks and 0 PR
 ======================================================================
 END ORBITAL SOURCE CADENCE PARITY FOLLOW-UP
 ======================================================================
+
+======================================================================
+[2026-10-14] ORBITAL LIVE-RADIUS SOURCE PARITY FOLLOW-UP
+======================================================================
+
+Code HEAD: 0d9cf00739497d3908f15af99b7a2c6a8c02d5a4
+Source baseline: new-desing 737ef2af4a877e0995db5f92331d536d2f29a934
+
+Corrected Orbital ring geometry to use the current source Sphere radius:
+- Uses the source 130 px base radius and body-radius clamp (15..25 px).
+- Inner and outer ring radii use source 1.68x and 2.02x body-radius factors.
+- Applies live radius scaling from the existing Unity ability radius, range,
+  shop upgrade, artifact and character multipliers, plus source Orbital
+  progression radius factors at levels II, V and VII.
+- Applies the source's additional Architect mastery radius factor.
+- Converts source pixels through SpherePlacementRules.SourcePixelsToWorld.
+- Preserves the existing source-mapped Cluster/Ring/linked-neighbour network
+  radius multiplier.
+
+Known remaining radius-state gap: the source radius formula also includes
+Chaos Orb's temporary radius buff and Mutation stage II. No confirmed matching
+state/API was found in the current Unity runtime during this pass, so neither
+effect was invented. Resolve only after locating an existing equivalent or
+porting its actual source system.
+
+Orbital family is not yet declared fully identical. Unity compile, APK, device
+parity and CI outcome remain unverified.
+
+CI query for code HEAD:
+- Combined status checks: 0
+- PR-triggered workflow runs returned: 0
+No CI result is exposed by these responses. new-desing remains unchanged.
+
+======================================================================
+END ORBITAL LIVE-RADIUS SOURCE PARITY FOLLOW-UP
+======================================================================
