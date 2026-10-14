@@ -277,7 +277,7 @@ namespace EchoSphere.Runtime
             if (_dead || _runtime == null || _runtime.IsGameplayPaused) return;
             var away = ((Vector2)transform.position - center).normalized;
             if (away.sqrMagnitude <= 0.0001f) away = Vector2.up;
-            transform.position += (Vector3)(away * Mathf.Max(0f, distance));
+            transform.position += (Vector3)(away * Mathf.Max(0f, distance) * _runtime.GetRegionRepulsionMultiplier());
         }
 
         public void PullByDistance(Vector2 center, float distance)
