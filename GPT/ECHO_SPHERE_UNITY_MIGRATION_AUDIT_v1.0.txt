@@ -4399,3 +4399,41 @@ systems intact unless source comparison demonstrates a real mismatch.
 ======================================================================
 END ENEMY UPDATE-ORDER PARITY PASS
 ======================================================================
+
+
+======================================================================
+[2026-10-14] ELITE VARIANT BEHAVIOR PARITY PASS
+======================================================================
+
+Code/test commit: ed1cd766b4079a9cead38bb0f180bb339b0dcf98
+Validation: Unity Migration Contracts #515 SUCCESS.
+Source: new-desing src/engineEnemies.ts and src/engineCombat.ts.
+
+Unity now selects the explicit source elite variant ID and matching source
+visual mapping. Implemented the confirmed source behavior for resonance_leech,
+phantom_hunter, geometry_shifter, mirror_warden, stasis_warden, nullifier,
+pyroclast and scavenger_prime. splitter_prime remains visual-only. Link Breaker
+telegraph/network disabling is now restricted to the linkbreaker variant,
+not every elite. The nullifier's source-range network disable, message and
+lightning effect are connected through runtime helpers. The structural guard
+was updated for the new variant selection path.
+
+CI #514 failed because the existing structural assertion expected the old
+visual-only elite selector expression. The assertion was updated to validate
+the explicit elite variant selection, and CI #515 passed. The C# contracts
+reported 1133 assertions passed; Unity project structural preflight passed.
+
+Important unresolved source mismatch: SpawnEnemy currently chooses Elite as a
+final archetype instead of retaining the original normal/fast/tank base type
+and then converting it to Elite as src/engineEnemies.ts does. Consequently,
+full equivalence of elite HP/speed/radius/damage and base fast/tank stat formulas
+is not established. Next pass must audit and port the full spawn/stat path from
+src/engineEnemies.ts and src/engineBalance.ts rather than patch isolated values.
+
+Unity Editor compilation, Android APK build, and manual device validation are
+still unconfirmed. new-desing remains unchanged at
+737ef2af4a877e0995db5f92331d536d2f29a934.
+
+======================================================================
+END ELITE VARIANT BEHAVIOR PARITY PASS
+======================================================================
