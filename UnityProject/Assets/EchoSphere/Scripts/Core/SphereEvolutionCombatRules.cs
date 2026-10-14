@@ -202,9 +202,13 @@ namespace EchoSphere.Core
             if (branch == "orbital_halo") return 0.92f;
             if (branch == "orbital_blade")
             {
-                var multiplier = finalId == "orbital_blade_final_3" ? 1.30f : 1.15f;
-                if (string.IsNullOrEmpty(finalId)) multiplier *= GetChainBranchPower(level);
-                return multiplier;
+                // Source sphereProgression.ts adds a branch-specific modifier
+                // to getSphereDamage before engineSpheres applies contact damage.
+                var branchDamage = finalId == "orbital_blade_final_1" ? 1.15f
+                    : finalId == "orbital_blade_final_2" ? 1.05f : 1.20f;
+                var contactDamage = finalId == "orbital_blade_final_3" ? 1.30f : 1.15f;
+                if (string.IsNullOrEmpty(finalId)) contactDamage *= GetChainBranchPower(level);
+                return branchDamage * contactDamage;
             }
             return 0.95f;
         }
