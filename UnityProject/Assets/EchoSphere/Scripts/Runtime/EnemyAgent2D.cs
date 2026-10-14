@@ -440,7 +440,7 @@ namespace EchoSphere.Runtime
                     _roleActionTimer = sniper ? 2.2f : 3.2f;
                     var direction = (target - (Vector2)transform.position).normalized;
                     var projectileSpeed = BossCombatRules.ToWorldUnits(sniper ? 320f : 245f);
-                    var projectileDamage = (sniper ? 10f : 6f) * _roleDamageMultiplier;
+                    var projectileDamage = sniper ? 10f : 6f;
                     _runtime.SpawnBossProjectile(transform.position, direction * projectileSpeed, projectileDamage,
                         sniper ? 5f : 6f, sniper ? "enemy_sniper" : "enemy_ranged",
                         sniper ? new Color(1f, 0.55f, 0.30f) : new Color(0.35f, 0.85f, 1f));
