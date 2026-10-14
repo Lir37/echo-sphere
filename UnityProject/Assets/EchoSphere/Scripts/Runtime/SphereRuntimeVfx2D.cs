@@ -129,7 +129,9 @@ namespace EchoSphere.Runtime
             var disabled = _agent.NetworkDisabled;
             var resonance = !disabled && _runtime != null && _runtime.ResonanceEventActive;
             var color = disabled ? Disabled : resonance ? Resonance : _baseColor;
-            var pulse = 0.5f + 0.5f * Mathf.Sin(_time * 4.2f + _phase);
+            // Orbital's source core pulse is sin(time * 3.0 + phase); other families retain their existing pulse.
+            var pulseSpeed = _type == SphereId.Orbital ? 3f : 4.2f;
+            var pulse = 0.5f + 0.5f * Mathf.Sin(_time * pulseSpeed + _phase);
             if (_glow != null) _glow.localScale = Vector3.one * (2.35f * (1f + pulse * .035f));
             if (_glowSprite != null)
                 _glowSprite.color = new Color(color.r, color.g, color.b, disabled ? .05f : .10f + pulse * .045f);
@@ -260,7 +262,11 @@ namespace EchoSphere.Runtime
                     }
                     break;
             }
-            if (_type == SphereId.Orbital) DrawOrbitalSatellites(_detail, disabled, resonance);
+            if (_type == SphereId.Orbital)
+            {
+                DrawOrbitalSatellites(_detail, disabled, resonance);
+                DrawOrbitalAttackFlash(_detail, disabled);
+            }
 
             if (_agent.NetworkDisabled)
             {
@@ -337,6 +343,46 @@ namespace EchoSphere.Runtime
                     DrawOrbitalElementTrail(p, center, size, angle, depth, element, blade);
                 }
             }
+        }
+
+        // Source orbitalVisual.ts: the auraTimer edge produces a 0.28 s strike trail and white contact flash.
+        // This is presentation-only and reads the existing Orbital cadence/rotation and live enemies.
+        private void DrawOrbitalAttackFlash(Painter p, bool disabled)
+        {
+            if (disabled || _agent == null || _runtime == null) return;
+            var timer = _agent.OrbitalAttackFlashTimer;
+            if (timer <= 0f) return;
+
+            const float duration = 0.28f;
+            var q = 1f - Mathf.Clamp01(timer / duration);
+            var strikePhase = _agent.OrbitalRotation + (1f - Mathf.Pow(1f - q, 3f)) * 0.95f;
+            var firstElement = _agent.GetOrbitalElementAt(0);
+            var radius = firstElement != null
+                ? Vector2.Distance(transform.position, firstElement.position)
+                : R * 1.68f;
+            var strike = new Vector2(Mathf.Cos(strikePhase) * radius, -Mathf.Sin(strikePhase) * radius);
+            var flashPosition = strike;
+            var nearest = float.PositiveInfinity;
+
+            for (var i = 0; i < _runtime.ActiveEnemyCount; i++)
+            {
+                var enemy = _runtime.GetActiveEnemyAt(i);
+                if (enemy == null || !enemy.IsAlive) continue;
+                var enemyLocal = (Vector2)transform.InverseTransformPoint(enemy.transform.position);
+                var distance = Vector2.Distance(enemyLocal, strike);
+                if (distance < nearest && distance <= R * 1.30f)
+                {
+                    nearest = distance;
+                    flashPosition = enemyLocal;
+                }
+            }
+
+            var streakRotation = -(strikePhase + Mathf.PI * 0.5f);
+            var streakStart = strike + Rotate(new Vector2(-R * 0.32f, 0f), streakRotation);
+            var streakEnd = strike + Rotate(new Vector2(-R * 0.04f, 0f), streakRotation);
+            p.Line(streakStart, streakEnd, Color.white, SpherePlacementRules.SourcePixelsToWorld,
+                (1f - q) * 0.32f);
+            p.Circle(flashPosition, R * 0.07f, Color.white, 0.65f * (1f - q), 0f);
         }
 
         private static void AddOrbitalPoint(List<Vector2> points, Vector2 center, float x, float y, float rotation)

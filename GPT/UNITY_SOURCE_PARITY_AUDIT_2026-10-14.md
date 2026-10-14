@@ -202,3 +202,16 @@ Implementation base: `8ba034f7738e0834f66dfb3d9e2416b46d83ae05`.
 - Added a structural check to guard the source-mapped satellite renderer and live transform access.
 
 Remaining visual checks: compare the complete Orbital body/core and intersecting ring ellipses at device scale; verify the source's brief contact flash timing against Unity's existing orbital hit events. Unity Editor/APK/device rendering are not verified by this structural change. `new-desing` was not modified.
+
+
+## Orbital core pulse and attack flash — 2026-10-14
+
+Source baseline: `new-desing` `737ef2af4a877e0995db5f92331d536d2f29a934`.
+
+- Compared `src/spheres/orbitalVisual.ts` and `src/spheres/visualHelpers.ts` with `SphereRuntimeVfx2D.cs` and `SphereAttackAgent.cs`.
+- Corrected the Orbital core pulse frequency from Unity's shared 4.2 rad/s pulse to the source Orbital pulse at 3.0 rad/s. Other Sphere families retain their existing pulse.
+- Added a presentation-only 0.28 s Orbital attack flash on the existing Orbital cadence edge, matching the source's eased strike position, short white streak, and white flash near the closest living enemy within the source visual threshold. It reads current element position/radius and live enemies; no attack cadence, collision, damage, RNG, or branch logic is changed.
+- The two main orbit ellipses and the partial inner trace use the source's same radius, rotation, opacity, and line-width coefficients in the current implementation; no speculative geometry change was made.
+- Added a structural guard for the pulse rate and flash wiring.
+
+Verification limitation: Unity Editor/APK/device rendering is not verified by the structural CI. The source branch was not modified.

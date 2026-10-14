@@ -17,6 +17,7 @@ namespace EchoSphere.Runtime
         private float _orbitAngle;
         private float _orbitalLastSweepAngle;
         private float _orbitalContactCheckTimer;
+        private float _orbitalAttackFlashTimer;
         private readonly Dictionary<EnemyAgent2D, HashSet<int>> _orbitalContactLatch =
             new Dictionary<EnemyAgent2D, HashSet<int>>();
         private float _initialDamage;
@@ -51,6 +52,8 @@ namespace EchoSphere.Runtime
         public int ProgressionLevel => _progressionLevel;
         // Read-only presentation access: gameplay owns and positions these elements.
         public int OrbitalElementCount => _orbitalElements.Count;
+        public float OrbitalAttackFlashTimer => _orbitalAttackFlashTimer;
+        public float OrbitalRotation => _orbitAngle;
         public Transform GetOrbitalElementAt(int index) =>
             index >= 0 && index < _orbitalElements.Count ? _orbitalElements[index] : null;
 
@@ -148,6 +151,7 @@ namespace EchoSphere.Runtime
             _contactTimer = Mathf.Max(0f, _contactTimer - dt);
             _networkDisabledTimer = Mathf.Max(0f, _networkDisabledTimer - dt);
             _resonancePulseTimer = Mathf.Max(0f, _resonancePulseTimer - dt);
+            _orbitalAttackFlashTimer = Mathf.Max(0f, _orbitalAttackFlashTimer - dt);
 
             if (_type == SphereId.Orbital)
             {
@@ -412,6 +416,8 @@ namespace EchoSphere.Runtime
             var cadenceMultiplier = clusterBonusForCadence > 0f ? 1f - 0.10f * clusterBonusForCadence : 1f;
             _orbitalContactCheckTimer = Mathf.Max(0.08f,
                 0.42f * _sourceModifiers.auraPulse * cadenceMultiplier / Mathf.Max(0.01f, _runtime.GetSphereAttackSpeedMultiplier(SphereId.Orbital)));
+            // Source orbitalVisual.ts detects the auraTimer reset and runs a 0.28 s attack flash.
+            _orbitalAttackFlashTimer = Mathf.Max(0f, 0.28f - dt);
 
             var hitSomething = false;
             var staleLatchEnemies = new List<EnemyAgent2D>();
