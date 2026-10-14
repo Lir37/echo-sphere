@@ -410,36 +410,36 @@ namespace EchoSphere.Runtime
         }
         private float GetChallengeEnemyHpMultiplier()
         {
-            if (_regionChallengeId == "overload") return 1.18f;
-            if (_regionChallengeId == "mirror_tide")
+            if (_selectedRegion == EchoRegionId.ResonanceBasin && _regionChallengeId == "overload") return 1.18f;
+            if (_selectedRegion == EchoRegionId.SpectralRift && _regionChallengeId == "mirror_tide")
                 return Mathf.FloorToInt(_runTime / 36f) % 2 == 0 ? 0.94f : 1.18f;
-            if (_regionChallengeId == "volatile_core" && _resonanceCharge >= 70f) return 1.12f;
+            if (_selectedRegion == EchoRegionId.SpectralRift && _regionChallengeId == "volatile_core" && _resonanceCharge >= 70f) return 1.12f;
             return 1f;
         }
         private float GetChallengeEnemySpeedMultiplier()
         {
-            if (_regionChallengeId == "overload") return 1.12f;
-            if (_regionChallengeId == "mirror_tide")
+            if (_selectedRegion == EchoRegionId.ResonanceBasin && _regionChallengeId == "overload") return 1.12f;
+            if (_selectedRegion == EchoRegionId.SpectralRift && _regionChallengeId == "mirror_tide")
                 return Mathf.FloorToInt(_runTime / 36f) % 2 == 0 ? 1.20f : 0.88f;
-            if (_regionChallengeId == "volatile_core" && _resonanceCharge >= 70f) return 1.06f;
+            if (_selectedRegion == EchoRegionId.SpectralRift && _regionChallengeId == "volatile_core" && _resonanceCharge >= 70f) return 1.06f;
             return 1f;
         }
         private float GetChallengeEnemyXpMultiplier()
         {
-            if (_regionChallengeId == "overload") return 1.15f;
-            if (_regionChallengeId == "mirror_tide")
+            if (_selectedRegion == EchoRegionId.ResonanceBasin && _regionChallengeId == "overload") return 1.15f;
+            if (_selectedRegion == EchoRegionId.SpectralRift && _regionChallengeId == "mirror_tide")
                 return Mathf.FloorToInt(_runTime / 36f) % 2 == 0 ? 1.08f : 1.20f;
-            if (_regionChallengeId == "volatile_core" && _resonanceCharge >= 70f) return 1.10f;
+            if (_selectedRegion == EchoRegionId.SpectralRift && _regionChallengeId == "volatile_core" && _resonanceCharge >= 70f) return 1.10f;
             return 1f;
         }
         public float GetRegionEnemyDamageMultiplier()
         {
             var pocketDamage = _player == null ? 1f :
                 RegionPocketRules.GetAt(_selectedRegion, _player.position.x, _player.position.y).Damage;
-            if (_regionChallengeId == "overload") return pocketDamage * 1.08f;
-            if (_regionChallengeId == "mirror_tide")
+            if (_selectedRegion == EchoRegionId.ResonanceBasin && _regionChallengeId == "overload") return pocketDamage * 1.08f;
+            if (_selectedRegion == EchoRegionId.SpectralRift && _regionChallengeId == "mirror_tide")
                 return pocketDamage * (Mathf.FloorToInt(_runTime / 36f) % 2 == 0 ? 0.94f : 1.16f);
-            if (_regionChallengeId == "volatile_core" && _resonanceCharge >= 70f) return pocketDamage * 1.12f;
+            if (_selectedRegion == EchoRegionId.SpectralRift && _regionChallengeId == "volatile_core" && _resonanceCharge >= 70f) return pocketDamage * 1.12f;
             return pocketDamage;
         }
         private float GetChallengeMovementMultiplier()
