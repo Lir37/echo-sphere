@@ -4372,3 +4372,30 @@ confirmed source mismatch.
 ======================================================================
 END UNITY REGION HUD PARITY PASS
 ======================================================================
+
+
+======================================================================
+[2026-10-14] ENEMY UPDATE-ORDER PARITY PASS
+======================================================================
+
+Code commit: 39f1551557846a0f3fe93125b81bb583fafdb725
+Validation: Unity Migration Contracts #511 SUCCESS.
+
+Compared EnemyAgent2D.Update() with new-desing src/engineEnemies.ts:updateEnemies().
+Fixed confirmed ordering differences: frozen enemies no longer tick boss combat
+or Link Breaker behavior while frozen; movement/role-range/contact checks use
+the source pre-movement distance; contact knockback uses the pre-movement
+movement direction. No new enemy role, attack, status, or reward was introduced.
+
+The current contract CI checks pure C# rules and Unity project structure only.
+Unity Editor compilation, Android APK and manual device validation are still
+unconfirmed. Source branch new-desing remains unchanged at
+737ef2af4a877e0995db5f92331d536d2f29a934.
+
+Next: continue checking role/elite combat interactions against source, then
+port other confirmed missing systems in a maximal coherent pass. Keep working
+systems intact unless source comparison demonstrates a real mismatch.
+
+======================================================================
+END ENEMY UPDATE-ORDER PARITY PASS
+======================================================================
