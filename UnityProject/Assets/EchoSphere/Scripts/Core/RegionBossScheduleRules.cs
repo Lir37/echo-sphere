@@ -213,7 +213,7 @@ namespace EchoSphere.Core
             }
         }
 
-        public static bool SelectsPhaseRole(EchoRegionId region, float worldX, float worldY, float roll)
+        public static string SelectRole(EchoRegionId region, float worldX, float worldY, float roll)
         {
             var pockets = region == EchoRegionId.SpectralRift ? Rift : Basin;
             var nearest = pockets[0];
@@ -232,11 +232,20 @@ namespace EchoSphere.Core
 
             var value = float.IsNaN(roll) || float.IsInfinity(roll)
                 ? 0.5f : System.Math.Max(0f, System.Math.Min(0.999999f, roll));
-            // Source getRegionEnemyRole pools: swarm = [swarmer, splitter, scavenger, phase],
-            // fracture = [phase, disruptor, corruptor, charger].
-            if (nearest.Ecology == 1) return value >= 0.75f;
-            if (nearest.Ecology == 3) return value < 0.25f;
-            return false;
+            // Exact ecology pools from src/region.ts:getRegionEnemyRole.
+            string[] roles;
+            switch (nearest.Ecology)
+            {
+                case 1: roles = new[] { "swarmer", "splitter", "scavenger", "phase" }; break;
+                case 2: roles = new[] { "tank_guard", "ranged", "sniper", "healer" }; break;
+                case 3: roles = new[] { "phase", "disruptor", "corruptor", "charger" }; break;
+                case 4: roles = new[] { "leech", "bomber", "anchor", "tank_guard" }; break;
+                default: roles = new[] { "grunt", "ranged", "charger", "anchor" }; break;
+            }
+            return roles[System.Math.Min(roles.Length - 1, (int)(value * roles.Length))];
         }
+
+        public static bool SelectsPhaseRole(EchoRegionId region, float worldX, float worldY, float roll) =>
+            SelectRole(region, worldX, worldY, roll) == "phase";
     }
 }
