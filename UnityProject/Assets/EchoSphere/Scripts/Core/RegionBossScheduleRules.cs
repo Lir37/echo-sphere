@@ -212,5 +212,31 @@ namespace EchoSphere.Core
                 default: return new RegionPocketMultipliers(1f, 1f, 1f, 1f);
             }
         }
+
+        public static bool SelectsPhaseRole(EchoRegionId region, float worldX, float worldY, float roll)
+        {
+            var pockets = region == EchoRegionId.SpectralRift ? Rift : Basin;
+            var nearest = pockets[0];
+            var nearestDistance = float.PositiveInfinity;
+            for (var i = 0; i < pockets.Length; i++)
+            {
+                var dx = pockets[i].X - worldX;
+                var dy = pockets[i].Y - worldY;
+                var distance = dx * dx + dy * dy;
+                if (distance < nearestDistance)
+                {
+                    nearestDistance = distance;
+                    nearest = pockets[i];
+                }
+            }
+
+            var value = float.IsNaN(roll) || float.IsInfinity(roll)
+                ? 0.5f : System.Math.Max(0f, System.Math.Min(0.999999f, roll));
+            // Source getRegionEnemyRole pools: swarm = [swarmer, splitter, scavenger, phase],
+            // fracture = [phase, disruptor, corruptor, charger].
+            if (nearest.Ecology == 1) return value >= 0.75f;
+            if (nearest.Ecology == 3) return value < 0.25f;
+            return false;
+        }
     }
 }
