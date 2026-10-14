@@ -76,6 +76,15 @@ namespace EchoSphere.Core
 
         public static int GetRegionXpReward(int playerLevel) => System.Math.Max(1, playerLevel * 24);
 
+        // Exact src/region.ts:getRegionResonanceMultiplier().
+        public static float GetResonanceMultiplier(
+            EchoRegionId region, string challengeId, float elapsedSeconds, float currentCharge)
+        {
+            if (region == EchoRegionId.SpectralRift && challengeId == "volatile_core")
+                return currentCharge >= 70f ? 1.28f : 1.12f;
+            return System.Math.Sin(elapsedSeconds / 18.0) > 0.62 ? 1.18f : 1f;
+        }
+
         public static RegionBossSignal Advance(RegionBossScheduleState state, float elapsedSeconds, bool bossActive)
         {
             if (state == null || state.Cleared || !IsFinite(elapsedSeconds))

@@ -2522,8 +2522,8 @@ namespace EchoSphere.Runtime
         {
             if (_resonanceEventActive) return;
             amount *= LevelUpAbilityRules.GetResonanceGainMultiplier(GetAbilityLevel(RunUpgradeKind.Resonance));
-            if (_selectedRegion == EchoRegionId.SpectralRift && _regionChallengeId == "volatile_core")
-                amount *= _resonanceCharge >= 70f ? 1.28f : 1.12f;
+            amount *= RegionBossScheduleRules.GetResonanceMultiplier(
+                _selectedRegion, _regionChallengeId, _runTime, _resonanceCharge);
             var events = ResonanceRules.Add(ref _resonanceCharge, amount);
             for (var i = 0; i < events; i++) TriggerResonanceEvent();
         }

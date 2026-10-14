@@ -270,6 +270,10 @@ internal static class Program
         Equal(RegionBossScheduleRules.GetBaseGoldReward(EchoRegionId.ResonanceBasin), 250, "Basin source base region reward");
         Equal(RegionBossScheduleRules.GetBaseGoldReward(EchoRegionId.SpectralRift), 360, "Rift source base region reward");
         Equal(RegionBossScheduleRules.GetRegionXpReward(10), 240, "source region XP reward scales with level");
+        Near(RegionBossScheduleRules.GetResonanceMultiplier(EchoRegionId.ResonanceBasin, "none", 0f, 0f), 1f, 0f, "region resonance base multiplier outside pulse window");
+        Near(RegionBossScheduleRules.GetResonanceMultiplier(EchoRegionId.ResonanceBasin, "none", 18f, 0f), 1.18f, 0f, "source periodic region resonance surge");
+        Near(RegionBossScheduleRules.GetResonanceMultiplier(EchoRegionId.SpectralRift, "volatile_core", 18f, 69f), 1.12f, 0f, "Volatile Core multiplier below charge threshold");
+        Near(RegionBossScheduleRules.GetResonanceMultiplier(EchoRegionId.SpectralRift, "volatile_core", 18f, 70f), 1.28f, 0f, "Volatile Core multiplier at charge threshold");
 
         var basin = RegionBossScheduleRules.Create(EchoRegionId.ResonanceBasin, EchoRegionMode.Stabilization);
         Equal(RegionBossScheduleRules.Advance(basin, 479f, false).Kind, RegionBossSignalKind.None, "no early Basin boss signal");

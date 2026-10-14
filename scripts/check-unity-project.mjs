@@ -466,6 +466,10 @@ assert.ok(regionClearWindow.includes('if (_regionStabilized)') && regionClearWin
 assert.ok(runtimeArt.includes('CountLivingNonBossEnemies') && runtimeArt.includes('HasActiveBoss'), 'next source wave must wait for living enemies and boss completion');
 const regionPoiRuntime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs'), 'utf8');
 const enemyPoiRuntime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs'), 'utf8');
+const regionResonanceRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/RegionBossScheduleRules.cs'), 'utf8');
+assert.ok(regionResonanceRules.includes('GetResonanceMultiplier') &&
+  regionPoiRuntime.includes('RegionBossScheduleRules.GetResonanceMultiplier('),
+  'source region resonance surge and Volatile Core multiplier must affect live resonance gains');
 assert.ok(regionPoiRuntime.includes('case "resonance_cache":') && regionPoiRuntime.includes('_resonanceCharge + 28f') &&
   regionPoiRuntime.includes('_resonanceCharge + 45f') && regionPoiRuntime.includes('ScaleLivingEnemiesNearPlayer(260f * radiusScale, 0.72f)') &&
   regionPoiRuntime.includes('ScaleLivingEnemiesNearPlayer(220f * radiusScale, 0.62f)') &&
