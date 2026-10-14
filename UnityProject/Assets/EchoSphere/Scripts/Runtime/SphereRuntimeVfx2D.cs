@@ -32,7 +32,12 @@ namespace EchoSphere.Runtime
         {
             _runtime = runtime; _agent = agent; _type = agent.Type;
             _baseColor = ColorFor(_type);
-            _phase = ((int)_type + 1) * 0.6180339f;
+            // Source-pixel phase formulas from visualHelpers.ts and orbitalVisual.ts.
+            var sourceX = transform.position.x / SpherePlacementRules.SourcePixelsToWorld;
+            var sourceY = transform.position.y / SpherePlacementRules.SourcePixelsToWorld;
+            _phase = _type == SphereId.Orbital
+                ? Mathf.Repeat(sourceX * .011f + sourceY * .007f, Tau)
+                : sourceX * .008f + sourceY * .006f;
             _glow = transform.Find("Glow");
             if (_glow != null)
             {
@@ -129,12 +134,13 @@ namespace EchoSphere.Runtime
             var disabled = _agent.NetworkDisabled;
             var resonance = !disabled && _runtime != null && _runtime.ResonanceEventActive;
             var color = disabled ? Disabled : resonance ? Resonance : _baseColor;
-            // Orbital's source core pulse is sin(time * 3.0 + phase); other families retain their existing pulse.
-            var pulseSpeed = _type == SphereId.Orbital ? 3f : 4.2f;
-            var pulse = 0.5f + 0.5f * Mathf.Sin(_time * pulseSpeed + _phase);
-            if (_glow != null) _glow.localScale = Vector3.one * (2.35f * (1f + pulse * .035f));
+            // visualHelpers.ts stateColor pulse, including its disabled-state hold.
+            var pulse = disabled ? .5f : .5f + .5f * Mathf.Sin(_time * 3.4f + _phase);
+            var orbitalOrbitPulse = .5f + .5f * Mathf.Sin(_time * 3f + _phase);
+            var corePulse = _type == SphereId.Orbital ? (disabled ? .5f : orbitalOrbitPulse) : pulse;
+            if (_glow != null) _glow.localScale = Vector3.one * (2.35f * (1f + corePulse * .035f));
             if (_glowSprite != null)
-                _glowSprite.color = new Color(color.r, color.g, color.b, disabled ? .05f : .10f + pulse * .045f);
+                _glowSprite.color = new Color(color.r, color.g, color.b, disabled ? .05f : .10f + corePulse * .045f);
 
             // Match src/spheres/visualHelpers.ts: a radial white-to-family-color glow,
             // a compact luminous disk and a crisp pale-cyan edge. Orbital's authored
@@ -142,18 +148,19 @@ namespace EchoSphere.Runtime
             var coreRadius = _type == SphereId.Orbital ? R * .70f : R;
             _core.Clear();
             _core.RadialGlow(new Vector2(-coreRadius * .08f, -coreRadius * .10f),
-                coreRadius * .62f, color, .82f + pulse * .14f);
+                coreRadius * .62f, color, .82f + corePulse * .14f);
             _core.Circle(Vector2.zero, coreRadius * .42f, color, .72f, 0f);
             _core.Arc(Vector2.zero, coreRadius * .42f, coreRadius * .42f, 0f, Tau,
                 CoreOutline, Mathf.Max(.014f, coreRadius * .035f), disabled ? .28f : .90f);
             Upload(_coreMesh, _core);
 
             _orbit.Clear();
-            var spin = _time * OrbitSpeed(_type) + _phase;
+            // Non-Orbital source renderers rotate from time alone; only Orbital has a positional phase.
+            var spin = _time * OrbitSpeed(_type);
             if (_type == SphereId.Orbital)
             {
                 DrawSourceOrbit(_orbit, R * 1.05f, color, _time * .18f + _phase,
-                    disabled ? .12f : .66f, pulse, disabled, SphereId.Orbital);
+                    disabled ? .12f : .66f, orbitalOrbitPulse, disabled, SphereId.Orbital);
                 DrawSourceOrbit(_orbit, R * .88f, color, -_time * .22f + _phase * .5f,
                     disabled ? .08f : .38f, .5f, disabled, SphereId.Orbital);
             }
@@ -193,7 +200,7 @@ namespace EchoSphere.Runtime
                     break;
                 case SphereId.Sniper:
                     DrawEmitter(_detail, R, color, facing, 0, 0f, disabled, _time);
-                    var scan = _time * .46f + _phase;
+                    var scan = _time * .46f;
                     DrawReticle(_detail, OrbitPoint(R, scan, .34f, 1.15f), R * .10f, color, .62f);
                     break;
                 case SphereId.Chain:

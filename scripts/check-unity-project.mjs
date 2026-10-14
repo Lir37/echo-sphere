@@ -199,12 +199,13 @@ assert.ok(sphereVisual.includes('DrawOrbitalSatellites(') &&
   readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs'), 'utf8').includes('glowRenderer.enabled = false'),
   'Orbital satellites must use source-mapped faceted/elemental geometry at existing combat positions');
 const sphereAttackRuntimeVfx = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs'), 'utf8');
-assert.ok(sphereVisual.includes('_type == SphereId.Orbital ? 3f : 4.2f') &&
+assert.ok(sphereVisual.includes('Mathf.Repeat(sourceX * .011f + sourceY * .007f, Tau)') &&
+  sphereVisual.includes('sourceX * .008f + sourceY * .006f') &&
+  sphereVisual.includes('var spin = _time * OrbitSpeed(_type)') &&
+  sphereVisual.includes('var scan = _time * .46f;') &&
   sphereVisual.includes('DrawOrbitalAttackFlash(') &&
-  sphereVisual.includes('0.65f * (1f - q)') &&
-  sphereAttackRuntimeVfx.includes('OrbitalAttackFlashTimer') &&
-  sphereAttackRuntimeVfx.includes('_orbitalAttackFlashTimer = Mathf.Max(0f, 0.28f - dt)'),
-  'Orbital core pulse and 0.28 s source attack flash must be wired to the existing cadence');
+  sphereAttackRuntimeVfx.includes('OrbitalAttackFlashTimer'),
+  'Sphere visual phases and source-time orbit rotations must use the source formulas');
 assert.ok(sphereVisual.includes('private Mesh _orbitMesh, _coreMesh, _detailMesh') &&
   sphereVisual.includes('RadialGlow(') && sphereVisual.includes('CoreOutline') &&
   sphereVisual.includes('private void DisablePrototypeSphereLayers()'),

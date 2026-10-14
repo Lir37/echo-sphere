@@ -215,3 +215,17 @@ Source baseline: `new-desing` `737ef2af4a877e0995db5f92331d536d2f29a934`.
 - Added a structural guard for the pulse rate and flash wiring.
 
 Verification limitation: Unity Editor/APK/device rendering is not verified by the structural CI. The source branch was not modified.
+
+
+## Multi-family source animation phase pass — 2026-10-14
+
+Source baseline: `new-desing` `737ef2af4a877e0995db5f92331d536d2f29a934`.
+
+- Audited active source renderers for Sniper, Shotgun, Chain, Aura, Orbital, Prism, Gravity, Pulse and Void against `SphereRuntimeVfx2D.cs`.
+- Confirmed Unity had introduced a type-derived arbitrary phase offset to the non-Orbital orbit rotations and Sniper scan. The source families use their authored time-based rotation directly. Removed that extra offset without changing their source rotation rates.
+- Replaced the shared 4.2 rad/s pulse with the source `stateColor` pulse: 3.4 rad/s plus source-pixel position phase (`x * .008 + y * .006)); disabled families now hold pulse at .5, matching `visualHelpers.ts`.
+- Orbital keeps its distinct source phase (`x * .011 + y * .007), wrapped to one turn), its 3.0 rad/s core/orbit pulse, and its separate outer/inner orbit rotations. Sniper scan no longer receives an unsupported phase offset.
+- Checked Sniper, Shotgun and Prism emitter vertex proportions, local offsets, facing rotation, and white highlights against their active source visual functions; the existing geometry matches the source coefficients, so no duplicate redesign was made.
+- Confirmed the radius path already includes the source Chaos Orb radius buff (+20% while active) and Mutation Stage II (+15%) through `GetSphereRadiusMultiplier`; no duplicate multiplier was added.
+
+Unity Editor/APK/device rendering is not verified by structural CI. `new-desing` was not modified.
