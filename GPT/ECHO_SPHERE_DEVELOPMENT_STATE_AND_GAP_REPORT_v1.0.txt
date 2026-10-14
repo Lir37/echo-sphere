@@ -2979,3 +2979,33 @@ CI:
 ======================================================================
 END ORBITAL NETWORK GEOMETRY FOLLOW-UP
 ======================================================================
+
+======================================================================
+[2026-10-14] ORBITAL SOURCE CADENCE PARITY FOLLOW-UP
+======================================================================
+
+Code HEAD: b0079e750695b54cad572817cae03d57b491f300
+Source baseline: new-desing 737ef2af4a877e0995db5f92331d536d2f29a934
+
+Orbital contact checks now preserve the last checked sweep angle between
+source cadence ticks instead of treating every rendered frame as a contact
+check. The cadence uses the source 0.42 × 0.5 base interval, attack-speed
+scaling and Cluster's source delay reduction. The Orbital Blade + Prism Filter
+relay visual is emitted on that same cadence.
+
+Orbital port scope now includes:
+- source enemy-radius contact bands and angular sweep/latching;
+- source Cluster/Ring/linked-neighbour orbit-radius scaling;
+- Orbital Crown extra element;
+- Orbital Halo's source shield/Resonance effects;
+- no unconditional Resonance per contact;
+- Orbital Blade + Prism Filter Ring relay visual.
+
+Remaining: the full live Sphere-radius multiplier still needs a source-to-Unity
+comparison, and all changes require CI/Unity Editor/APK/device validation.
+
+Validation queries for this code HEAD returned 0 combined status checks and 0 PR-triggered workflow runs. Neither response exposes CI outcome. new-desing remains unchanged.
+
+======================================================================
+END ORBITAL SOURCE CADENCE PARITY FOLLOW-UP
+======================================================================
