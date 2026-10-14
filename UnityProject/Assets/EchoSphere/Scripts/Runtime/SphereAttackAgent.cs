@@ -63,9 +63,9 @@ namespace EchoSphere.Runtime
             _initialDelay = 1.2f * _profile.DelayMultiplier;
             _initialScale = transform.localScale;
             ApplyProgressionLevel(1);
-            AttackRange = 6.8f * _profile.RangeMultiplier * _runtime.GetSphereRangeMultiplier() * _runtime.GetArtifactSphereRadiusMultiplier(type) *
+            AttackRange = 6.8f * _profile.RangeMultiplier * _runtime.GetSphereRadiusMultiplier() * _runtime.GetSphereRangeMultiplier() * _runtime.GetArtifactSphereRadiusMultiplier(type) *
                 _runtime.GetShopSphereRadiusMultiplier() * _runtime.GetCharacterSphereRadiusMultiplier();
-            _attackTimer = 0.25f;
+            _attackTimer = type == SphereId.Aura || type == SphereId.Gravity || type == SphereId.Pulse ? 0f : 0.25f;
             _orbitAngle = type == SphereId.Orbital ? 0f : 0f;
             Color tint;
             if (ColorUtility.TryParseHtmlString(GetColor(type), out tint))
@@ -91,7 +91,7 @@ namespace EchoSphere.Runtime
                 : SphereLevelRules.GetStats(_type, _progressionLevel);
             BaseDamage = _initialDamage * _levelStats.DamageMultiplier;
             AttackDelay = Mathf.Max(0.12f, _initialDelay * _levelStats.DelayMultiplier);
-            AttackRange = 6.8f * _profile.RangeMultiplier * _levelStats.RangeMultiplier * _runtime.GetSphereRangeMultiplier() * _runtime.GetArtifactSphereRadiusMultiplier(_type) *
+            AttackRange = 6.8f * _profile.RangeMultiplier * _levelStats.RangeMultiplier * _runtime.GetSphereRadiusMultiplier() * _runtime.GetSphereRangeMultiplier() * _runtime.GetArtifactSphereRadiusMultiplier(_type) *
                 _runtime.GetShopSphereRadiusMultiplier() * _runtime.GetCharacterSphereRadiusMultiplier();
         }
 
@@ -128,7 +128,10 @@ namespace EchoSphere.Runtime
                 return;
             }
 
-            _attackTimer -= dt * _runtime.GetSphereAttackSpeedMultiplier(_type);
+            // Source Aura uses its authored auraPulse interval directly.
+            // Gravity/Pulse use special cadence intervals scaled by the global attack-speed path.
+            if (_type == SphereId.Aura) _attackTimer -= dt;
+            else _attackTimer -= dt * _runtime.GetSphereAttackSpeedMultiplier(_type);
             if (_attackTimer > 0f) return;
 
             var origin = (Vector2)transform.position;
@@ -202,7 +205,32 @@ namespace EchoSphere.Runtime
             }
 
             if (triggeredEngineerRelay) _runtime.TriggerEngineerRelay(this);
-            _attackTimer = Mathf.Max(0.05f, AttackDelay);
+            _attackTimer = GetSourceCadenceInterval();
+        }
+
+        private float GetSourceCadenceInterval()
+        {
+            var branch = _runtime.GetSphereBranch(_type);
+            var finalId = _runtime.GetSphereFinal(_type);
+            switch (_type)
+            {
+                case SphereId.Aura:
+                    var auraInterval = 0.5f * _levelStats.AuraPulseMultiplier;
+                    if (branch == "aura_sanctum" && finalId == "aura_sanctum_final_1")
+                        auraInterval *= 0.80f;
+                    return Mathf.Max(0.05f, auraInterval);
+                case SphereId.Gravity:
+                    var gravityInterval = 0.80f * _levelStats.AuraPulseMultiplier;
+                    if (_runtime.HasArtifact("gravity_hook")) gravityInterval *= 0.92f;
+                    if (branch == "gravity_tide") gravityInterval *= 0.90f;
+                    return Mathf.Max(0.08f, gravityInterval);
+                case SphereId.Pulse:
+                    var pulseInterval = 1.15f * _levelStats.AuraPulseMultiplier;
+                    if (_runtime.HasArtifact("pulse_driver")) pulseInterval *= 0.90f;
+                    return Mathf.Max(0.08f, pulseInterval);
+                default:
+                    return Mathf.Max(0.05f, AttackDelay);
+            }
         }
 
         public void OnSphereHitApplied(EnemyAgent2D target) => OnSphereHitApplied(target, _type);
