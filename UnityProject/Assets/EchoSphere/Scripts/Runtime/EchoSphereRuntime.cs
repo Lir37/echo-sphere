@@ -430,7 +430,7 @@ namespace EchoSphere.Runtime
         public float GetRegionEnemyDamageMultiplier()
         {
             var pocketDamage = _player == null ? 1f :
-                RegionPocketRules.GetAt(_selectedRegion, _player.position).Damage;
+                RegionPocketRules.GetAt(_selectedRegion, _player.position.x, _player.position.y).Damage;
             if (_regionChallengeId == "overload") return pocketDamage * 1.08f;
             if (_regionChallengeId == "mirror_tide")
                 return pocketDamage * (Mathf.FloorToInt(_runTime / 36f) % 2 == 0 ? 0.94f : 1.16f);
@@ -1746,7 +1746,7 @@ namespace EchoSphere.Runtime
             var archetype = EnemySpawnRules.Select(_runTime, _rng.NextFloat());
             var profile = EnemySpawnRules.GetProfile(archetype);
             var difficulty = CurrentDifficulty;
-            var pocket = RegionPocketRules.GetAt(_selectedRegion, _player.position);
+            var pocket = RegionPocketRules.GetAt(_selectedRegion, _player.position.x, _player.position.y);
             var challengeHp = GetChallengeEnemyHpMultiplier();
             var challengeSpeed = GetChallengeEnemySpeedMultiplier();
             var challengeXp = GetChallengeEnemyXpMultiplier();
