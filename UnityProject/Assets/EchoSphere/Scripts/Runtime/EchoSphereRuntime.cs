@@ -362,6 +362,12 @@ namespace EchoSphere.Runtime
         public EchoRegionId SelectedRegion => _selectedRegion;
         public bool IsRegionAvailable(EchoRegionId region) =>
             RegionUnlockRules.IsAvailable(region, PlayerPrefs.GetInt(BasinStabilizedPreferenceKey, 0) == 1);
+        public float GetRegionRepulsionMultiplier()
+        {
+            if (_regionChallengeId == "low_gravity") return 0.55f;
+            if (_selectedRegion == EchoRegionId.SpectralRift && _regionChallengeId == "phase_drift") return 0.62f;
+            return 1f;
+        }
         private static string RegionSourceId(EchoRegionId region) =>
             region == EchoRegionId.SpectralRift ? "spectral_rift" : "resonance_basin";
         private static string RegionStabilizedKey(EchoRegionId region) =>
