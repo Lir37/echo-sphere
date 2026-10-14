@@ -159,6 +159,10 @@ namespace EchoSphere.Runtime
         private const string ArtifactProtocolKnowledgePreferenceKey = "echosphere_artifact_protocol_knowledge_v1";
         private const string SoundPreferenceKey = "echosphere_sound";
         private const string HandednessPreferenceKey = "echosphere_handedness";
+        private const string TutorialCompletedPreferenceKey = "echosphere_tutorial_completed_v1";
+        private int _tutorialStep = -1;
+        private Vector3 _tutorialStartPosition;
+        private bool _tutorialUpgradeOpened;
         private bool IsLeftHanded => PlayerPrefs.GetString(HandednessPreferenceKey, "right") == "left";
         private ShopSaveData _shopSave;
         private bool _shopSaveLoaded;
@@ -819,6 +823,10 @@ namespace EchoSphere.Runtime
             _selectedRegion = (EchoRegionId)Mathf.Clamp(savedRegionValue, (int)EchoRegionId.ResonanceBasin, (int)EchoRegionId.SpectralRift);
             if (!IsRegionAvailable(_selectedRegion)) _selectedRegion = EchoRegionId.ResonanceBasin;
             _regionSchedule = RegionBossScheduleRules.Create(_selectedRegion, EchoRegionMode.Stabilization);
+            _tutorialStep = PlayerPrefs.GetInt(TutorialCompletedPreferenceKey, 0) == 0 ? 0 : -1;
+            _tutorialUpgradeOpened = false;
+            _tutorialStartPosition = _player != null ? _player.position : Vector3.zero;
+            if (_tutorialStep >= 0) _spawnTimer = 999f;
             _regionFieldVisuals = gameObject.AddComponent<RegionFieldVisuals>();
             _regionFieldVisuals.Initialize(this, _selectedRegion);
             CreatePlayer();
@@ -840,7 +848,7 @@ namespace EchoSphere.Runtime
             PruneDestroyed();
             if (Input.GetKeyDown(KeyCode.Escape) && !_gameOver && !_levelUp && !_choosingEvolution && !_stellaRewardPending)
                 SetUserPaused(!_userPaused);
-            if (_mainMenu || _paused || _playerCore == null) return;
+            if (_mainMenu || (_paused && !(_tutorialStep == 1 || _tutorialStep == 2)) || _playerCore == null) return;
             var dt = Time.deltaTime;
             _runTime += dt;
             if (_comboTimer > 0f)
@@ -923,6 +931,14 @@ namespace EchoSphere.Runtime
                 shakePixelsX * SpherePlacementRules.SourcePixelsToWorld,
                 shakePixelsY * SpherePlacementRules.SourcePixelsToWorld, 0f);
             _camera.transform.position = cameraBase + _lastHunterScreenShakeOffset;
+            if (_tutorialStep >= 0)
+            {
+                if (_tutorialStep == 1 && Vector2.Distance(_tutorialStartPosition, _player.position) >= 72f * SpherePlacementRules.SourcePixelsToWorld)
+                    SetTutorialStep(2);
+                else if (_tutorialStep == 2 && _spheres.Count >= 2)
+                    SetTutorialStep(3);
+                return;
+            }
             AdvanceRegionBossSchedule();
             if (_playerCore.IsDead && !_gameOver)
             {
@@ -5858,6 +5874,7 @@ namespace EchoSphere.Runtime
             _levelUp = false;
             _paused = false;
             _levelUpChoices.Clear();
+            if (_tutorialStep == 4) SetTutorialStep(5);
             if (_follow) SetFormationFollowMode(true, true);
             OpenLevelUpIfReady();
         }
@@ -8689,6 +8706,125 @@ namespace EchoSphere.Runtime
             {
                 GUI.matrix = previousMatrix;
             }
+            DrawTutorialOverlay();
+        }
+
+        private void SetTutorialStep(int step)
+        {
+            _tutorialStep = Mathf.Clamp(step, 0, 5);
+            if (_tutorialStep == 1 || _tutorialStep == 2)
+            {
+                _paused = false;
+                _userPaused = false;
+                return;
+            }
+
+            _paused = true;
+            _userPaused = false;
+            if (_tutorialStep == 4 && !_tutorialUpgradeOpened)
+            {
+                _tutorialUpgradeOpened = true;
+                BuildLevelUpChoices();
+                if (_levelUpChoices.Count > 0)
+                {
+                    _levelUp = true;
+                    _paused = true;
+                }
+                else
+                {
+                    SetTutorialStep(5);
+                }
+            }
+        }
+
+        private void FinishTutorial(bool skipped)
+        {
+            _tutorialStep = -1;
+            _levelUp = false;
+            _levelUpChoices.Clear();
+            _paused = false;
+            _userPaused = false;
+            _spawnTimer = 3f;
+            PlayerPrefs.SetInt(TutorialCompletedPreferenceKey, 1);
+            PlayerPrefs.Save();
+            if (_player != null) _tutorialStartPosition = _player.position;
+        }
+
+        private void DrawTutorialOverlay()
+        {
+            if (_tutorialStep < 0 || _mainMenu || _gameOver) return;
+
+            var previousColor = GUI.color;
+            var panelWidth = Mathf.Min(480f, _uiWidth - 28f);
+            var panelHeight = _tutorialStep == 1 || _tutorialStep == 2 ? 232f : 218f;
+            var panel = new Rect((_uiWidth - panelWidth) * 0.5f, Mathf.Clamp(_uiHeight * 0.5f - panelHeight * 0.5f, 12f, _uiHeight - panelHeight - 12f), panelWidth, panelHeight);
+            GUI.color = new Color(0f, 0.025f, 0.07f, 0.82f);
+            GUI.DrawTexture(new Rect(0f, 0f, _uiWidth, _uiHeight), _uiPanelTexture);
+            GUI.color = new Color(0.39f, 0.9f, 1f, 1f);
+            GUI.Box(panel, GUIContent.none, _box);
+            var title = IsRussianUi
+                ? new[] { "Добро пожаловать в Эхо", "Управляй ядром", "Размести сферу", "Смотри на Сеть", "Первый выбор", "Теперь ты у руля" }[_tutorialStep]
+                : new[] { "Welcome to Echo", "Control the Core", "Place a Sphere", "Read the Network", "First Choice", "You are in control" }[_tutorialStep];
+            var body = IsRussianUi
+                ? new[] {
+                    "Это короткое обучение покажет главное: движение, размещение сфер, Сеть и первый выбор улучшения.",
+                    "Двигайся джойстиком. Положение ядра влияет на то, где безопасно строить Сеть.",
+                    "Тапни по свободному месту на поле. Сфера станет новым узлом твоей боевой Сети.",
+                    "Линии между сферами меняют доступные формации. Геометрия становится частью боя, а не украшением.",
+                    "Выбери любое улучшение. Так каждый забег начинает собирать собственный билд.",
+                    "Дальше начинается настоящий забег. Строй сеть, развивай сферы и ищи сильные синергии."
+                }[_tutorialStep]
+                : new[] {
+                    "This short tutorial teaches the essentials: movement, sphere placement, the Network, and your first upgrade choice.",
+                    "Move with the joystick. Your position affects where you can safely build the Network.",
+                    "Tap an open spot on the field. The Sphere becomes a new node in your combat Network.",
+                    "Links between Spheres change the available formations. Geometry is part of combat, not decoration.",
+                    "Choose any upgrade. Each run starts building its own identity from your choices.",
+                    "The real run starts now. Build the Network, evolve Spheres, and discover powerful synergies."
+                }[_tutorialStep];
+
+            GUI.color = Color.white;
+            GUI.Label(new Rect(panel.x + 20f, panel.y + 16f, panel.width - 40f, 22f),
+                (IsRussianUi ? "ОБУЧЕНИЕ · " : "TUTORIAL · ") + (_tutorialStep + 1) + "/6", _label);
+            GUI.Label(new Rect(panel.x + 20f, panel.y + 43f, panel.width - 40f, 30f), title, _title);
+            var bodyStyle = new GUIStyle(_label) { wordWrap = true, fontSize = 13, alignment = TextAnchor.UpperLeft };
+            GUI.Label(new Rect(panel.x + 20f, panel.y + 80f, panel.width - 40f, 58f), body, bodyStyle);
+
+            if (_tutorialStep == 1 || _tutorialStep == 2)
+            {
+                var ready = _tutorialStep == 1
+                    ? Vector2.Distance(_tutorialStartPosition, _player != null ? _player.position : Vector3.zero) >= 72f * SpherePlacementRules.SourcePixelsToWorld
+                    : _spheres.Count >= 2;
+                var instruction = IsRussianUi
+                    ? (ready ? (_tutorialStep == 1 ? "Отлично. Движение освоено." : "Сфера установлена.") : "Выполни действие, чтобы продолжить.")
+                    : (ready ? (_tutorialStep == 1 ? "Great. Movement learned." : "Sphere placed.") : "Perform the action to continue.");
+                GUI.Label(new Rect(panel.x + 20f, panel.y + 143f, panel.width - 40f, 24f), instruction, _label);
+            }
+            else if (_tutorialStep == 4)
+            {
+                GUI.Label(new Rect(panel.x + 20f, panel.y + 143f, panel.width - 40f, 24f),
+                    IsRussianUi ? "Выбери одну карту. Обучение продолжится после выбора." : "Choose one card. The tutorial continues after your choice.", _label);
+            }
+
+            var skipRect = new Rect(panel.x + 18f, panel.yMax - 48f, 130f, 34f);
+            if (GUI.Button(skipRect, IsRussianUi ? "ПРОПУСТИТЬ" : "SKIP", _button))
+            {
+                FinishTutorial(true);
+                GUI.color = previousColor;
+                return;
+            }
+
+            if (_tutorialStep == 0 || _tutorialStep == 3 || _tutorialStep == 5)
+            {
+                if (GUI.Button(new Rect(panel.xMax - 154f, panel.yMax - 48f, 136f, 34f),
+                    IsRussianUi ? (_tutorialStep == 5 ? "НАЧАТЬ" : "ДАЛЕЕ") : (_tutorialStep == 5 ? "START" : "NEXT"), _button))
+                {
+                    if (_tutorialStep == 0) SetTutorialStep(1);
+                    else if (_tutorialStep == 3) SetTutorialStep(4);
+                    else FinishTutorial(false);
+                }
+            }
+            GUI.color = previousColor;
         }
 
         private void DrawSphereRoster()
