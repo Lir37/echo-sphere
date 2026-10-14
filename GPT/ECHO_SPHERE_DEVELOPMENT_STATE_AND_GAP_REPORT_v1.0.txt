@@ -2573,3 +2573,57 @@ Do not invent mechanics or change new-desing.
 ======================================================================
 END ENEMY UPDATE-ORDER PARITY PASS
 ======================================================================
+
+
+======================================================================
+[2026-10-14] ELITE VARIANT BEHAVIOR PARITY PASS
+======================================================================
+
+Implementation HEAD before this report update: ed1cd766b4079a9cead38bb0f180bb339b0dcf98
+Source baseline: new-desing 737ef2af4a877e0995db5f92331d536d2f29a934
+
+Compared src/engineEnemies.ts ELITE_VARIANTS / updateEnemies() and the
+mirror_warden sphere-hit path in src/engineCombat.ts with Unity runtime.
+
+Implemented:
+- Spawn now resolves the source's ten elite variant IDs to their source-mapped
+  visual variants while preserving one random selection call for the variant.
+- Only linkbreaker variants run Link Breaker targeting/telegraph behavior.
+- resonance_leech drains Resonance in its source-defined proximity.
+- phantom_hunter and scavenger_prime use source-defined movement conditions.
+- geometry_shifter drains Resonance and displays its source message on pulse.
+- nullifier disables the nearest eligible Sphere in source range for the
+  source duration, refreshes network state, and emits the source message and
+  lightning presentation.
+- pyroclast and stasis_warden apply their source proximity damage-over-time;
+  stasis_warden also shows its source pulse message.
+- mirror_warden reflects 12% of positive sphere-hit damage to the player.
+- splitter_prime remains visual-only, matching updateEnemies() behavior.
+- Updated the structural guard to validate the new elite variant selection
+  path instead of the superseded visual-only selector expression.
+
+Validation:
+- Unity Migration Contracts #515 SUCCESS on code/test HEAD
+  ed1cd766b4079a9cead38bb0f180bb339b0dcf98.
+- The C# contract suite reported 1133 assertions passed and Unity structural
+  preflight passed. The prior #514 failure was a stale source-structure guard
+  expecting the old visual selector call; the guard was updated for the new
+  explicit variant selector, and #515 passed.
+- Unity Editor compilation, APK build and manual device validation remain
+  unverified.
+
+Confirmed open discrepancy for the next pass:
+- EnemySpawnRules / SpawnEnemy still selects a final Elite archetype rather
+  than preserving the source base archetype before elite conversion. Source
+  elite HP/speed/radius/damage scaling and base fast/tank stat formulas are
+  therefore not yet proven equivalent. Do not mark elite stat parity done;
+  audit and port the complete spawn/stat path against src/engineEnemies.ts and
+  src/engineBalance.ts before adjusting individual constants.
+
+Next: continue source-to-Unity combat and spawn/stat audit in a coherent pass;
+then inspect remaining absent systems. Do not invent behavior or alter
+new-desing.
+
+======================================================================
+END ELITE VARIANT BEHAVIOR PARITY PASS
+======================================================================
