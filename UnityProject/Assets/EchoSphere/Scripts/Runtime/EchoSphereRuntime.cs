@@ -159,6 +159,7 @@ namespace EchoSphere.Runtime
         private const string ArtifactProtocolKnowledgePreferenceKey = "echosphere_artifact_protocol_knowledge_v1";
         private const string SoundPreferenceKey = "echosphere_sound";
         private const string HandednessPreferenceKey = "echosphere_handedness";
+        private bool IsLeftHanded => PlayerPrefs.GetString(HandednessPreferenceKey, "right") == "left";
         private ShopSaveData _shopSave;
         private bool _shopSaveLoaded;
         private MainMenuPage _mainMenuPage = MainMenuPage.Home;
@@ -806,6 +807,7 @@ namespace EchoSphere.Runtime
         private void Start()
         {
             Application.targetFrameRate = 60;
+            SourceAudio2D.SetEnabled(PlayerPrefs.GetInt(SoundPreferenceKey, 1) != 0);
             EnsureShopSaveLoaded();
             EnsureCharacterProfilesLoaded();
             _playerName = PlayerPrefs.GetString(NamePreferenceKey, "");
@@ -969,7 +971,7 @@ namespace EchoSphere.Runtime
                 var touch = Input.GetTouch(0);
                 if (touch.phase == TouchPhase.Began) _touchStart = touch.position;
                 if (IsScreenPointOverUi(_touchStart)) return Vector2.zero;
-                if (_touchStart.x >= Screen.width * 0.5f && touch.phase != TouchPhase.Ended && touch.phase != TouchPhase.Canceled)
+                if ((IsLeftHanded ? _touchStart.x < Screen.width * 0.5f : _touchStart.x >= Screen.width * 0.5f) && touch.phase != TouchPhase.Ended && touch.phase != TouchPhase.Canceled)
                 {
                     var drag = touch.position - _touchStart;
                     if (drag.sqrMagnitude > 100f) return Vector2.ClampMagnitude(drag / 90f, 1f);
@@ -977,7 +979,7 @@ namespace EchoSphere.Runtime
             }
             if (Input.GetMouseButtonDown(0)) _touchStart = Input.mousePosition;
             if (IsScreenPointOverUi(_touchStart)) return Vector2.zero;
-            if (Input.GetMouseButton(0) && _touchStart.x >= Screen.width * 0.5f)
+            if (Input.GetMouseButton(0) && (IsLeftHanded ? _touchStart.x < Screen.width * 0.5f : _touchStart.x >= Screen.width * 0.5f))
             {
                 var drag = (Vector2)Input.mousePosition - _touchStart;
                 if (drag.sqrMagnitude > 100f) return Vector2.ClampMagnitude(drag / 90f, 1f);
@@ -6997,27 +6999,69 @@ namespace EchoSphere.Runtime
                 PlayerPrefs.Save();
             }
 
+            GUI.Label(new Rect(panel.x + 28f, panel.y + 332f, 150f, 28f),
+                IsRussianUi ? "ЗВУК" : "SOUND", _label);
+            var soundEnabled = PlayerPrefs.GetInt(SoundPreferenceKey, 1) != 0;
+            oldColor = GUI.color;
+            GUI.color = soundEnabled ? new Color(0.25f, 0.82f, 1f, 1f) : Color.white;
+            if (GUI.Button(new Rect(panel.x + 198f, panel.y + 326f, 190f, 40f),
+                IsRussianUi ? "ВКЛЮЧЁН" : "ON", _button))
+            {
+                PlayerPrefs.SetInt(SoundPreferenceKey, 1);
+                PlayerPrefs.Save();
+                SourceAudio2D.SetEnabled(true);
+            }
+            GUI.color = !soundEnabled ? new Color(0.25f, 0.82f, 1f, 1f) : Color.white;
+            if (GUI.Button(new Rect(panel.x + 402f, panel.y + 326f, 190f, 40f),
+                IsRussianUi ? "ВЫКЛЮЧЕН" : "OFF", _button))
+            {
+                PlayerPrefs.SetInt(SoundPreferenceKey, 0);
+                PlayerPrefs.Save();
+                SourceAudio2D.SetEnabled(false);
+            }
+            GUI.color = oldColor;
+
+            GUI.Label(new Rect(panel.x + 28f, panel.y + 385f, 150f, 28f),
+                IsRussianUi ? "РАСПОЛОЖЕНИЕ УПРАВЛЕНИЯ" : "HANDEDNESS", _label);
+            var leftHanded = IsLeftHanded;
+            oldColor = GUI.color;
+            GUI.color = !leftHanded ? new Color(0.25f, 0.82f, 1f, 1f) : Color.white;
+            if (GUI.Button(new Rect(panel.x + 198f, panel.y + 379f, 190f, 40f),
+                IsRussianUi ? "ПРАВОЙ РУКОЙ" : "RIGHT-HANDED", _button))
+            {
+                PlayerPrefs.SetString(HandednessPreferenceKey, "right");
+                PlayerPrefs.Save();
+            }
+            GUI.color = leftHanded ? new Color(0.25f, 0.82f, 1f, 1f) : Color.white;
+            if (GUI.Button(new Rect(panel.x + 402f, panel.y + 379f, 190f, 40f),
+                IsRussianUi ? "ЛЕВОЙ РУКОЙ" : "LEFT-HANDED", _button))
+            {
+                PlayerPrefs.SetString(HandednessPreferenceKey, "left");
+                PlayerPrefs.Save();
+            }
+            GUI.color = oldColor;
+
             GUI.Label(new Rect(panel.x + 28f, panel.y + 286f, panel.width - 56f, 70f),
                 IsRussianUi
-                    ? "Движение: правая часть экрана. Размещение и перемещение Сфер: левая часть. DASH выполняет рывок."
-                    : "Movement: right half of the screen. Sphere placement and dragging: left half. DASH performs a quick evade.",
+                    ? (IsLeftHanded ? "Движение: левая часть экрана. Размещение и перемещение Сфер: правая часть. DASH выполняет рывок." : "Движение: правая часть экрана. Размещение и перемещение Сфер: левая часть. DASH выполняет рывок.")
+                    : (IsLeftHanded ? "Movement: left half of the screen. Sphere placement and dragging: right half. DASH performs a quick evade." : "Movement: right half of the screen. Sphere placement and dragging: left half. DASH performs a quick evade."),
                 _sphereDescriptionStyle);
 
             if (!_settingsResetPending)
             {
-                if (GUI.Button(new Rect(panel.center.x - 165f, panel.y + 370f, 330f, 44f),
+                if (GUI.Button(new Rect(panel.center.x - 165f, panel.y + 435f, 330f, 44f),
                     IsRussianUi ? "СБРОСИТЬ ВЕСЬ ПРОГРЕСС" : "RESET ALL PROGRESS", _button))
                     _settingsResetPending = true;
             }
             else
             {
-                GUI.Label(new Rect(panel.x + 30f, panel.y + 363f, panel.width - 60f, 34f),
+                GUI.Label(new Rect(panel.x + 30f, panel.y + 423f, panel.width - 60f, 34f),
                     IsRussianUi ? "Удалить золото, улучшения, рекорды и достижения?" :
                     "Delete gold, upgrades, records and achievements?", _label);
-                if (GUI.Button(new Rect(panel.center.x - 175f, panel.y + 405f, 165f, 42f),
+                if (GUI.Button(new Rect(panel.center.x - 175f, panel.y + 462f, 165f, 42f),
                     IsRussianUi ? "ОТМЕНА" : "CANCEL", _button))
                     _settingsResetPending = false;
-                if (GUI.Button(new Rect(panel.center.x + 10f, panel.y + 405f, 165f, 42f),
+                if (GUI.Button(new Rect(panel.center.x + 10f, panel.y + 462f, 165f, 42f),
                     IsRussianUi ? "ПОДТВЕРДИТЬ" : "CONFIRM", _button))
                     ResetPersistentProgress();
             }
@@ -7438,7 +7482,7 @@ namespace EchoSphere.Runtime
             var width = Mathf.Min(252f, _uiWidth - 36f);
             var height = GetSpherePickerDescriptionHeight() + 103f;
             var bottomControlsY = _uiHeight - 76f;
-            return new Rect(18f, bottomControlsY - height - 10f, width, height);
+            return new Rect(IsLeftHanded ? _uiWidth - width - 18f : 18f, bottomControlsY - height - 10f, width, height);
         }
 
         private Vector2 ScreenToWorldPoint(Vector2 screenPoint)
@@ -7519,7 +7563,7 @@ namespace EchoSphere.Runtime
                 return;
             }
 
-            _spherePointerIsMovement = screenPoint.x >= Screen.width * 0.5f;
+            _spherePointerIsMovement = IsLeftHanded ? screenPoint.x < Screen.width * 0.5f : screenPoint.x >= Screen.width * 0.5f;
             _spherePointerIsPlacing = !_spherePointerIsMovement
                 && _spheres.Count < GetCurrentMaxSpheres();
         }
