@@ -70,7 +70,14 @@ namespace EchoSphere.Runtime
             for (var i = 0; i < renderers.Length; i++)
             {
                 var renderer = renderers[i];
-                if (renderer == null || renderer == _glowSprite || IsOrbitalSatelliteRenderer(renderer)) continue;
+                if (renderer == null || renderer == _glowSprite) continue;
+                if (IsOrbitalSatelliteRenderer(renderer))
+                {
+                    // Orbital combat elements are redrawn below using the source's
+                    // faceted satellite mesh; don't leave the oversized Disc prototype.
+                    renderer.enabled = false;
+                    continue;
+                }
                 renderer.enabled = false;
             }
         }
@@ -253,6 +260,8 @@ namespace EchoSphere.Runtime
                     }
                     break;
             }
+            if (_type == SphereId.Orbital) DrawOrbitalSatellites(_detail, disabled, resonance);
+
             if (_agent.NetworkDisabled)
             {
                 var disabledColor = new Color(1f, 0.22f, 0.39f, 0.94f);
@@ -265,7 +274,145 @@ namespace EchoSphere.Runtime
             Upload(_detailMesh, _detail);
         }
 
-        private void Upload(Mesh mesh, Painter painter)
+        
+        // src/spheres/orbitalVisual.ts:drawSatellite and drawOrbitalElementTrail.
+        // Render geometry at the combat simulation's existing element positions;
+        // this method does not move elements or participate in hit detection.
+        private void DrawOrbitalSatellites(Painter p, bool disabled, bool resonance)
+        {
+            if (_agent == null || _runtime == null) return;
+            var branch = _runtime.GetSphereBranch(SphereId.Orbital);
+            var blade = branch == "orbital_blade";
+            var element = SphereElementalRules.ResolveElement(branch, _runtime.GetSphereFinal(SphereId.Orbital));
+            var elementColor = ElementVisualColor(element);
+            var satelliteColor = element != SphereElement.None ? elementColor : (resonance ? Resonance : _baseColor);
+            var count = _agent.OrbitalElementCount;
+            var size = R * .20f;
+            var sourcePixel = SpherePlacementRules.SourcePixelsToWorld;
+
+            for (var i = 0; i < count; i++)
+            {
+                var node = _agent.GetOrbitalElementAt(i);
+                if (node == null) continue;
+                var pos3 = transform.InverseTransformPoint(node.position);
+                var center = new Vector2(pos3.x, pos3.y);
+                // Source Canvas +Y points down. Convert its orbital angle to Unity's +Y-up.
+                var angle = Mathf.Atan2(-center.y, center.x);
+                var depth = .74f + .26f * ((Mathf.Sin(angle) + 1f) * .5f);
+                var rotation = -(blade ? angle : angle + Mathf.PI / 4f);
+
+                p.Circle(center, size * .62f, satelliteColor, disabled ? .03f : depth * .30f, 0f);
+                Path.Clear();
+                AddOrbitalPoint(Path, center, size * -.56f, size * .14f, rotation);
+                AddOrbitalPoint(Path, center, size * .78f, 0f, rotation);
+                AddOrbitalPoint(Path, center, size * -.34f, size * -.15f, rotation);
+                AddOrbitalPoint(Path, center, size * -.02f, 0f, rotation);
+                var face = new Color(7f / 255f, 17f / 255f, 29f / 255f, disabled ? .20f : depth * .92f);
+                var outline = new Color(satelliteColor.r, satelliteColor.g, satelliteColor.b,
+                    disabled ? .22f : depth * .92f);
+                p.Polygon(Path, face, outline, sourcePixel);
+
+                if (blade)
+                {
+                    var a = Rotate(new Vector2(-size * .30f, 0f), rotation) + center;
+                    var b = Rotate(new Vector2(size * .54f, 0f), rotation) + center;
+                    p.Line(a, b, Color.white, .72f * sourcePixel, disabled ? .10f : depth * .72f);
+                    var c = Rotate(new Vector2(-size * .42f, size * .10f), rotation) + center;
+                    var d = Rotate(new Vector2(-size * .62f, 0f), rotation) + center;
+                    var e = Rotate(new Vector2(-size * .42f, -size * .10f), rotation) + center;
+                    p.Line(c, d, outline, sourcePixel * .72f, disabled ? .10f : depth * .50f);
+                    p.Line(d, e, outline, sourcePixel * .72f, disabled ? .10f : depth * .50f);
+                }
+                else
+                {
+                    var highlight = Rotate(new Vector2(-size * .10f, size * .12f), rotation) + center;
+                    p.Circle(highlight, size * .16f, Color.white, disabled ? .12f : depth * .90f, 0f);
+                }
+
+                if (element != SphereElement.None && !disabled)
+                {
+                    p.Circle(center, size * .18f, elementColor, depth * .22f, .70f * sourcePixel);
+                    p.Circle(center, size * .095f, elementColor, depth * .22f, 0f);
+                    DrawOrbitalElementTrail(p, center, size, angle, depth, element, blade);
+                }
+            }
+        }
+
+        private static void AddOrbitalPoint(List<Vector2> points, Vector2 center, float x, float y, float rotation)
+        {
+            points.Add(center + Rotate(new Vector2(x, y), rotation));
+        }
+
+        private static Color ElementVisualColor(SphereElement element)
+        {
+            switch (element)
+            {
+                case SphereElement.Fire: return Hex("#ff743d");
+                case SphereElement.Freeze: return Hex("#d9f6ff");
+                case SphereElement.Poison: return Hex("#72f08e");
+                default: return Color.white;
+            }
+        }
+
+        private static void DrawOrbitalElementTrail(Painter p, Vector2 center, float size, float angle,
+            float alpha, SphereElement element, bool blade)
+        {
+            var trailScale = blade ? 1f : .86f;
+            var color = ElementVisualColor(element);
+            var width = Mathf.Max(SpherePlacementRules.SourcePixelsToWorld, size * .10f);
+            if (element == SphereElement.Fire)
+            {
+                var previous = Rotate(new Vector2(-size * .34f * trailScale, 0f), -angle) + center;
+                for (var i = 1; i <= 6; i++)
+                {
+                    var t = i / 6f;
+                    var x = -size * (.34f + .94f * t) * trailScale;
+                    var y = size * .18f * Mathf.Sin(t * Mathf.PI);
+                    var next = Rotate(new Vector2(x, y), -angle) + center;
+                    p.Line(previous, next, color, width, alpha * .82f);
+                    previous = next;
+                }
+                p.Line(Rotate(new Vector2(-size * .50f, size * .08f), -angle) + center,
+                    Rotate(new Vector2(-size * .96f, 0f), -angle) + center, color, width * .72f, alpha * .68f);
+                p.Line(Rotate(new Vector2(-size * .96f, 0f), -angle) + center,
+                    Rotate(new Vector2(-size * .54f, -size * .10f), -angle) + center, color, width * .72f, alpha * .68f);
+            }
+            else if (element == SphereElement.Freeze)
+            {
+                for (var side = -1; side <= 1; side += 2)
+                {
+                    p.Line(Rotate(new Vector2(-size * .26f * trailScale, -side * size * .05f), -angle) + center,
+                        Rotate(new Vector2(-size * .88f * trailScale, -side * size * .18f), -angle) + center, color, width, alpha * .86f);
+                    p.Line(Rotate(new Vector2(-size * .88f * trailScale, -side * size * .18f), -angle) + center,
+                        Rotate(new Vector2(-size * 1.28f * trailScale, -side * size * .03f), -angle) + center, color, width, alpha * .86f);
+                }
+                p.Line(Rotate(new Vector2(-size * .78f, size * .22f), -angle) + center,
+                    Rotate(new Vector2(-size * 1.02f, 0f), -angle) + center, color, width * .78f, alpha * .78f);
+                p.Line(Rotate(new Vector2(-size * 1.02f, 0f), -angle) + center,
+                    Rotate(new Vector2(-size * .78f, -size * .22f), -angle) + center, color, width * .78f, alpha * .78f);
+            }
+            else
+            {
+                var previous = Rotate(new Vector2(-size * .30f * trailScale, 0f), -angle) + center;
+                for (var i = 1; i <= 6; i++)
+                {
+                    var t = i / 6f;
+                    var x = -size * (.30f + .85f * t);
+                    var y = -size * .20f * Mathf.Sin(t * Mathf.PI);
+                    var next = Rotate(new Vector2(x, y), -angle) + center;
+                    p.Line(previous, next, color, width * .95f, alpha * .84f);
+                    previous = next;
+                }
+                for (var i = 0; i < 3; i++)
+                {
+                    var dot = Rotate(new Vector2(-size * (.58f + i * .25f), -(i - 1) * size * .14f), -angle) + center;
+                    p.Circle(dot, Mathf.Max(SpherePlacementRules.SourcePixelsToWorld * .9f, size * (.08f - i * .015f)),
+                        color, alpha * .42f, 0f);
+                }
+            }
+        }
+
+private void Upload(Mesh mesh, Painter painter)
         {
             mesh.Clear(); mesh.SetVertices(painter.Vertices); mesh.SetColors(painter.Colors);
             mesh.SetTriangles(painter.Triangles, 0); mesh.RecalculateBounds();
