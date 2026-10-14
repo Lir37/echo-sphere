@@ -3277,11 +3277,30 @@ namespace EchoSphere.Runtime
             SourceAudio2D.Play(enemy != null && enemy.IsBoss ? "explosion" : "kill");
             var go = new GameObject("Echo Shard");
             go.transform.position = position;
-            go.transform.localScale = Vector3.one * (0.22f + Mathf.Min(0.12f, Mathf.Max(0, xpReward - 1) * 0.035f));
+            // Source drawModernXp uses radius 6 for every orb, regardless of XP value.
+            go.transform.localScale = Vector3.one * (2.2f * 6f * SpherePlacementRules.SourcePixelsToWorld);
             var sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = xpReward >= 5 ? RuntimeSpriteFactory.Star : xpReward >= 3 ? RuntimeSpriteFactory.Hexagon : RuntimeSpriteFactory.Disc;
-            sr.color = xpReward >= 5 ? new Color(1f, 0.45f, 0.82f) : xpReward >= 3 ? new Color(0.76f, 0.55f, 1f) : new Color(0.26f, 0.91f, 1f);
+            sr.sprite = RuntimeSpriteFactory.ExperienceShard;
+            sr.color = new Color(99f / 255f, 230f / 255f, 1f);
             sr.sortingOrder = 7;
+
+            var outline = new GameObject("XP Shard Outline");
+            outline.transform.SetParent(go.transform, false);
+            var outlineRenderer = outline.AddComponent<SpriteRenderer>();
+            outlineRenderer.sprite = RuntimeSpriteFactory.ExperienceShardOutline;
+            outlineRenderer.color = new Color(230f / 255f, 253f / 255f, 1f, 0.82f);
+            outlineRenderer.sortingOrder = 8;
+
+            var highlight = new GameObject("XP Shard Highlight");
+            highlight.transform.SetParent(go.transform, false);
+            highlight.transform.localPosition = new Vector3(-0.0909f, 0.1364f, -0.01f);
+            highlight.transform.localScale = Vector3.one * 0.12f;
+            var highlightRenderer = highlight.AddComponent<SpriteRenderer>();
+            highlightRenderer.sprite = RuntimeSpriteFactory.Disc;
+            highlightRenderer.color = new Color(1f, 1f, 1f, 0.58f);
+            highlightRenderer.sortingOrder = 9;
+
+            // The source rounds enemy XP * combo multiplier once, at orb creation.
             var comboExperience = ComboRules.GetExperienceOrbValue(xpReward, _comboMultiplier);
             var orbVelocity = new Vector2(-40f + _rng.NextFloat() * 80f, 40f - _rng.NextFloat() * 80f);
             var orbRotation = _rng.NextFloat() * Mathf.PI * 2f;

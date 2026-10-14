@@ -514,6 +514,18 @@ assert.ok(runtime.includes('IncreaseMaxHp(6f)') && runtime.includes('IncreaseMax
   'Level-Up must retain source per-level HP behavior, exclude unselected passive choices, and not add Fortune to the cache-drop formula');
 const experienceOrb = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/ExperienceOrbAgent.cs'), 'utf8');
 assert.ok(experienceOrb.includes('GetExperienceMagnetRadiusWorld()'), 'Magnet Level-Up must affect XP orb attraction');
+const xpOrbVisualRuntime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs'), 'utf8');
+const xpSpriteFactory = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/RuntimeSpriteFactory.cs'), 'utf8');
+assert.ok(xpOrbVisualRuntime.includes('RuntimeSpriteFactory.ExperienceShard') &&
+  xpOrbVisualRuntime.includes('RuntimeSpriteFactory.ExperienceShardOutline') &&
+  xpOrbVisualRuntime.includes('XP Shard Highlight') &&
+  xpOrbVisualRuntime.includes('2.2f * 6f * SpherePlacementRules.SourcePixelsToWorld') &&
+  !xpOrbVisualRuntime.includes('xpReward >= 5 ? RuntimeSpriteFactory.Star'),
+  'XP pickup visual must match the source fixed-size cyan shard, near-white outline and highlight rather than XP-tier-dependent generic sprites');
+assert.ok(xpSpriteFactory.includes('CreateFlatPolygonSprite("ES_ExperienceShard"') &&
+  xpSpriteFactory.includes('CreatePolygonOutlineSprite("ES_ExperienceShardOutline"') &&
+  xpSpriteFactory.includes('0.62f / 1.1f') && xpSpriteFactory.includes('0.52f / 1.1f'),
+  'XP shard shape must retain the six-point source renderer geometry');
 const enemyAbilitySlowCheck = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs'), 'utf8');
 const enemySlowCombatRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/CombatRules.cs'), 'utf8');
 assert.ok(enemyAbilitySlowCheck.includes('GetEnemyAbilitySpeedMultiplier(distanceToPlayer, _slowMultiplier)') &&

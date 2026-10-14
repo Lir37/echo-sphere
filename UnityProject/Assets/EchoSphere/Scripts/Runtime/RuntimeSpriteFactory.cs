@@ -6,7 +6,7 @@ namespace EchoSphere.Runtime
     /// <summary>Cached procedural silhouettes for the migration prototype, not final production art.</summary>
     internal static class RuntimeSpriteFactory
     {
-        private static Sprite _disc, _ring, _standardCoreGlow, _standardCoreOutline, _standardOrbitRing, _faceted, _diamond, _hexagon, _prism, _shard, _star;
+        private static Sprite _disc, _ring, _standardCoreGlow, _standardCoreOutline, _standardOrbitRing, _faceted, _diamond, _hexagon, _prism, _shard, _star, _experienceShard, _experienceShardOutline;
         private static readonly Dictionary<string, Sprite> AuthoredCache = new Dictionary<string, Sprite>();
         public static Sprite Disc { get { if (_disc == null) _disc = CreateSprite(false); return _disc; } }
         public static Sprite Ring { get { if (_ring == null) _ring = CreateSprite(true); return _ring; } }
@@ -19,6 +19,8 @@ namespace EchoSphere.Runtime
         public static Sprite Prism { get { if (_prism == null) _prism = CreatePolygonSprite("ES_Prism", new[] { new Vector2(0f,0.96f),new Vector2(0.86f,-0.62f),new Vector2(-0.86f,-0.62f) }); return _prism; } }
         public static Sprite Shard { get { if (_shard == null) _shard = CreatePolygonSprite("ES_Shard", new[] { new Vector2(-0.08f,0.98f),new Vector2(0.72f,0.34f),new Vector2(0.5f,-0.72f),new Vector2(-0.2f,-0.92f),new Vector2(-0.9f,-0.08f) }); return _shard; } }
         public static Sprite Star { get { if (_star == null) _star = CreatePolygonSprite("ES_Star", RegularPolygon(10,0.9f,0.52f)); return _star; } }
+        public static Sprite ExperienceShard { get { if (_experienceShard == null) _experienceShard = CreateFlatPolygonSprite("ES_ExperienceShard", ExperienceShardPoints()); return _experienceShard; } }
+        public static Sprite ExperienceShardOutline { get { if (_experienceShardOutline == null) _experienceShardOutline = CreatePolygonOutlineSprite("ES_ExperienceShardOutline", ExperienceShardPoints(), 0.045f); return _experienceShardOutline; } }
 
         /// <summary>Loads an authored SVG sprite from Resources. A missing import allows the procedural fallback to work.</summary>
         public static Sprite LoadAuthored(string assetName)
@@ -172,6 +174,56 @@ namespace EchoSphere.Runtime
                 pixels[y*size+x]=new Color32((byte)shade,(byte)shade,(byte)shade,255);
             }
             texture.SetPixels32(pixels);texture.Apply(false,true);return Sprite.Create(texture,new Rect(0,0,size,size),new Vector2(0.5f,0.5f),size);
+        }
+        // Geometry follows renderer.ts:drawModernXp() with its 6 px source radius.
+        // Canvas Y is down, so the local sprite coordinates are vertically inverted.
+        private static Vector2[] ExperienceShardPoints() => new[]
+        {
+            new Vector2(0f, 1f),
+            new Vector2(0.62f / 1.1f, 0.35f / 1.1f),
+            new Vector2(0.52f / 1.1f, -0.68f / 1.1f),
+            new Vector2(0f, -1.05f / 1.1f),
+            new Vector2(-0.52f / 1.1f, -0.68f / 1.1f),
+            new Vector2(-0.62f / 1.1f, 0.35f / 1.1f),
+        };
+        private static Sprite CreateFlatPolygonSprite(string name, Vector2[] points)
+        {
+            const int size = 96;
+            var texture = new Texture2D(size, size, TextureFormat.RGBA32, false)
+            {
+                name = name, filterMode = FilterMode.Bilinear, wrapMode = TextureWrapMode.Clamp, hideFlags = HideFlags.DontSave,
+            };
+            var pixels = new Color32[size * size];
+            for (var y = 0; y < size; y++)
+            for (var x = 0; x < size; x++)
+            {
+                var point = new Vector2(((x + 0.5f) / size) * 2f - 1f, ((y + 0.5f) / size) * 2f - 1f);
+                pixels[y * size + x] = InsidePolygon(point, points)
+                    ? new Color32(255, 255, 255, 255)
+                    : new Color32(255, 255, 255, 0);
+            }
+            texture.SetPixels32(pixels);
+            texture.Apply(false, true);
+            return Sprite.Create(texture, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), size);
+        }
+        private static Sprite CreatePolygonOutlineSprite(string name, Vector2[] points, float halfWidth)
+        {
+            const int size = 96;
+            var texture = new Texture2D(size, size, TextureFormat.RGBA32, false)
+            {
+                name = name, filterMode = FilterMode.Bilinear, wrapMode = TextureWrapMode.Clamp, hideFlags = HideFlags.DontSave,
+            };
+            var pixels = new Color32[size * size];
+            for (var y = 0; y < size; y++)
+            for (var x = 0; x < size; x++)
+            {
+                var point = new Vector2(((x + 0.5f) / size) * 2f - 1f, ((y + 0.5f) / size) * 2f - 1f);
+                var alpha = Mathf.Clamp01((halfWidth - DistanceToPolygonEdge(point, points)) * size * 0.5f + 0.5f);
+                pixels[y * size + x] = new Color32(255, 255, 255, (byte)Mathf.RoundToInt(alpha * 255f));
+            }
+            texture.SetPixels32(pixels);
+            texture.Apply(false, true);
+            return Sprite.Create(texture, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), size);
         }
         private static bool InsidePolygon(Vector2 p,Vector2[] poly)
         {

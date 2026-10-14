@@ -155,3 +155,24 @@
 - Остаётся проверка фактических игровых наблюдений: для доказательства ошибки нужны уровень игрока, активные слоты/способности и показанные карточки. Без этого вероятности и слотную механику не менять.
 
 В этом диагностическом цикле игровые файлы не менялись. Unity Editor/APK не запускались. Следующий адресный шаг: сверить исходное создание XP-орба и `ComboRules.GetExperienceOrbValue`, затем перенести только подтверждённое отличие формы XP-осколка; параллельно не менять Level-Up без воспроизводимого расхождения карточек.
+
+
+## XP pickup source-parity pass — 2026-10-14
+
+Source baseline: `new-desing` `737ef2af4a877e0995db5f92331d536d2f29a934`.
+Implementation base: `unity-migration` `fbe71bdc27b06a6bb47d9d27364b7268a97c3cc1`.
+
+### Combo XP calculation verified
+
+- Source `src/engineCombat.ts` creates each orb with `Math.round(enemy.xpValue * s.player.comboMult)`.
+- Unity passes the enemy's floating-point XP reward and current combo multiplier to `ComboRules.GetExperienceOrbValue`; the helper computes `floor(max(0, reward) * max(0, multiplier) + 0.5)`, matching JavaScript `Math.round` for the non-negative reward domain. Existing parity fixtures and CoreChecks cover fractional XP cases.
+- XP awarded on pickup remains a separate float multiplier in `AddExperience`, as in source `gainXp`; this pass does not change reward, combo, pickup radius, motion, or seeded RNG consumption.
+
+### Confirmed visual correction
+
+- Replaced XP-value-dependent Disc/Hexagon/Star sprites and colors with the source's fixed cyan `#63e6ff` six-point shard.
+- Ported the source vertex proportions, near-white `rgba(230,253,255,.82)` outline and `rgba(255,255,255,.58)` highlight as separate tint-safe render layers.
+- All XP shards now use the source fixed radius of 6 pixels (with the existing source-pixels-to-world conversion); XP value no longer changes visual size or silhouette.
+- Added structural checks so the Unity migration guard verifies the source-specific shard, outline, highlight and fixed-size path.
+
+No Level-Up rules were changed. Unity Editor/APK and device rendering remain unverified; structural CI does not establish full visual parity. `new-desing` was not modified.
