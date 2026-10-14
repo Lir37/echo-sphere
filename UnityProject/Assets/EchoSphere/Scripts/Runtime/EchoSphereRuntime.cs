@@ -3555,8 +3555,9 @@ namespace EchoSphere.Runtime
             };
             var multiplier = 1f + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "sphereRadius");
             if (!string.IsNullOrEmpty(key)) multiplier += ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, key);
-            // Formation Compass is already included in the source sphereRadius effect sum.
-            // Applying another conditional 1.08 multiplier double-counts its authored +8%.
+            // Source artifactSystem.ts applies Formation Compass twice by design:
+            // once through the global sphereRadius effect and once per Sphere here.
+            if (_ownedArtifacts.Contains("formation_compass")) multiplier *= 1.08f;
             return Mathf.Clamp(multiplier, 0.5f, 3f);
         }
 
