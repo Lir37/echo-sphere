@@ -255,6 +255,7 @@ namespace EchoSphere.Runtime
                 _detail.Arc(Vector2.zero, R * 1.25f, R * 0.82f, _time * 2.1f, Mathf.PI * 1.4f, disabledColor, 0.016f, 0.62f);
             }
             Upload(_detailMesh, _detail);
+        }
 
         private void Upload(Mesh mesh, Painter painter)
         {
