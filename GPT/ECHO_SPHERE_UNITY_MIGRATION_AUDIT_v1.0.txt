@@ -4341,3 +4341,34 @@ Remaining:
 ======================================================================
 END SOURCE CONTACT COLLISION / REGION CHALLENGE SCOPE
 ======================================================================
+
+
+======================================================================
+[2026-10-14] UNITY REGION HUD PARITY PASS
+======================================================================
+
+Code commit: 88219ef810dc71b802f364cc1b71f5cc4bf2cf87
+Validation: Unity Migration Contracts #509 SUCCESS.
+
+The Unity runtime HUD now shows the active Region, the source-defined phase
+label and the current nearest pocket. Pocket transitions display a short
+notice. Phase timing, localized phase names, pocket names and pocket centers
+were mapped from new-desing src/region.ts. The change is presentation-only;
+no combat formulas, rewards, or RNG behavior were changed.
+
+Current limits:
+- CI #509 confirms pure C# contracts and Unity project structural checks only.
+- Unity Editor compile, Android APK build, and human device verification have
+  not been performed/confirmed. Full gameplay and visual parity remain open.
+- new-desing HEAD remains 737ef2af4a877e0995db5f92331d536d2f29a934 and is
+  unchanged.
+
+Next: continue the source-to-Unity audit of enemy combat ordering/interactions
+against src/engineEnemies.ts, then transfer the largest set of remaining
+source-confirmed missing systems that can be implemented safely in the cycle.
+Do not introduce new mechanics or replace working implementations without
+confirmed source mismatch.
+
+======================================================================
+END UNITY REGION HUD PARITY PASS
+======================================================================
