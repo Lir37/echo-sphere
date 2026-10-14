@@ -217,6 +217,9 @@ const standardAttackVfxPath = 'Assets/EchoSphere/Scripts/Runtime/StandardSphereA
 assert.ok(existsSync(join(root, standardAttackVfxPath)), 'Standard Sphere attack charge visual is missing');
 const standardAttackVfx = readFileSync(join(root, standardAttackVfxPath), 'utf8');
 const standardRuntimeSource = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs'), 'utf8');
+assert.ok(standardAttackVfx.includes('using EchoSphere.Core;') &&
+  standardAttackVfx.includes('SpherePlacementRules.SourcePixelsToWorld'),
+  'Standard Sphere attack VFX must import the Core namespace for source-pixel calibration');
 assert.ok(standardRuntimeSource.includes('StandardSphereAttackVfx2D') &&
   standardAttackVfx.includes('drawStandardAttackVfx') &&
   standardAttackVfx.includes('_agent.AttackTimer / 1.2f') &&
