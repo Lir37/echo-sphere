@@ -429,11 +429,13 @@ namespace EchoSphere.Runtime
         }
         public float GetRegionEnemyDamageMultiplier()
         {
-            if (_regionChallengeId == "overload") return 1.08f;
+            var pocketDamage = _player == null ? 1f :
+                RegionPocketRules.GetAt(_selectedRegion, _player.position).Damage;
+            if (_regionChallengeId == "overload") return pocketDamage * 1.08f;
             if (_regionChallengeId == "mirror_tide")
-                return Mathf.FloorToInt(_runTime / 36f) % 2 == 0 ? 0.94f : 1.16f;
-            if (_regionChallengeId == "volatile_core" && _resonanceCharge >= 70f) return 1.12f;
-            return 1f;
+                return pocketDamage * (Mathf.FloorToInt(_runTime / 36f) % 2 == 0 ? 0.94f : 1.16f);
+            if (_regionChallengeId == "volatile_core" && _resonanceCharge >= 70f) return pocketDamage * 1.12f;
+            return pocketDamage;
         }
         private float GetChallengeMovementMultiplier()
         {
@@ -1744,11 +1746,12 @@ namespace EchoSphere.Runtime
             var archetype = EnemySpawnRules.Select(_runTime, _rng.NextFloat());
             var profile = EnemySpawnRules.GetProfile(archetype);
             var difficulty = CurrentDifficulty;
+            var pocket = RegionPocketRules.GetAt(_selectedRegion, _player.position);
             var challengeHp = GetChallengeEnemyHpMultiplier();
             var challengeSpeed = GetChallengeEnemySpeedMultiplier();
             var challengeXp = GetChallengeEnemyXpMultiplier();
-            var baseHp = (18f + _wave * 5.5f) * difficulty.EnemyHpMultiplier * challengeHp;
-            var baseSpeed = BossCombatRules.ToWorldUnits(68f + _wave * 1.8f) * difficulty.EnemySpeedMultiplier * challengeSpeed;
+            var baseHp = (18f + _wave * 5.5f) * difficulty.EnemyHpMultiplier * pocket.Hp * challengeHp;
+            var baseSpeed = BossCombatRules.ToWorldUnits(68f + _wave * 1.8f) * difficulty.EnemySpeedMultiplier * pocket.Speed * challengeSpeed;
             var tint = GetEnemyTint(archetype);
             var go = CreateOrb(GetEnemyName(archetype), position, 0.72f * profile.VisualScale, tint, Color.white, 4);
             ApplyShellVisual(go, GetEnemySprite(archetype), archetype == EnemyArchetype.Normal ? 1.12f : 1.02f);
@@ -1771,7 +1774,7 @@ namespace EchoSphere.Runtime
             }
             var agent = go.AddComponent<EnemyAgent2D>();
             agent.Initialize(this, _player, baseHp * profile.HpMultiplier, baseSpeed * profile.SpeedMultiplier,
-                Mathf.Max(1, Mathf.RoundToInt(profile.XpReward * challengeXp)),
+                Mathf.Max(1, Mathf.RoundToInt(profile.XpReward * pocket.Xp * challengeXp)),
                 GetEnemyVisualVariant(archetype), "", archetype == EnemyArchetype.Elite, archetype);
             _enemies.Add(agent);
         }
