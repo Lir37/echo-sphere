@@ -148,7 +148,7 @@ namespace EchoSphere.Runtime
             var coreRadius = _type == SphereId.Orbital ? R * .70f : R;
             _core.Clear();
             _core.RadialGlow(new Vector2(-coreRadius * .08f, -coreRadius * .10f),
-                coreRadius * .62f, color, .82f + corePulse * .14f);
+                coreRadius * .58f * (1f + corePulse * .035f), color, .82f + corePulse * .14f);
             _core.Circle(Vector2.zero, coreRadius * .42f, color, .72f, 0f);
             _core.Arc(Vector2.zero, coreRadius * .42f, coreRadius * .42f, 0f, Tau,
                 CoreOutline, Mathf.Max(.014f, coreRadius * .035f), disabled ? .28f : .90f);
