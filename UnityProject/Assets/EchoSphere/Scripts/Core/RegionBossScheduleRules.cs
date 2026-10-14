@@ -186,15 +186,15 @@ namespace EchoSphere.Core
             new Pocket(-520f, -290f, 4)
         };
 
-        public static RegionPocketMultipliers GetAt(EchoRegionId region, Vector2 worldPosition)
+        public static RegionPocketMultipliers GetAt(EchoRegionId region, float worldX, float worldY)
         {
             var pockets = region == EchoRegionId.SpectralRift ? Rift : Basin;
             var nearest = pockets[0];
             var nearestDistance = float.PositiveInfinity;
             for (var i = 0; i < pockets.Length; i++)
             {
-                var dx = pockets[i].X - worldPosition.x;
-                var dy = pockets[i].Y - worldPosition.y;
+                var dx = pockets[i].X - worldX;
+                var dy = pockets[i].Y - worldY;
                 var distance = dx * dx + dy * dy;
                 if (distance < nearestDistance)
                 {
