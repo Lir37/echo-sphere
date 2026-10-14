@@ -7386,7 +7386,7 @@ namespace EchoSphere.Runtime
             _regionSelect = false;
             _mainMenuPage = MainMenuPage.Home;
             _mainMenu = false;
-            _paused = false;
+            _paused = _tutorialStep >= 0 && _tutorialStep != 1 && _tutorialStep != 2;
             _userPaused = false;
             _messageTimer = 0f;
             _runTime = 0f;
@@ -8757,9 +8757,9 @@ namespace EchoSphere.Runtime
             var previousColor = GUI.color;
             var panelWidth = Mathf.Min(480f, _uiWidth - 28f);
             var panelHeight = _tutorialStep == 1 || _tutorialStep == 2 ? 232f : 218f;
-            var panel = new Rect((_uiWidth - panelWidth) * 0.5f, Mathf.Clamp(_uiHeight * 0.5f - panelHeight * 0.5f, 12f, _uiHeight - panelHeight - 12f), panelWidth, panelHeight);
-            GUI.color = new Color(0f, 0.025f, 0.07f, 0.82f);
-            GUI.DrawTexture(new Rect(0f, 0f, _uiWidth, _uiHeight), _uiPanelTexture);
+            var panelY = _tutorialStep == 4 ? 10f : Mathf.Clamp(_uiHeight * 0.5f - panelHeight * 0.5f, 12f, _uiHeight - panelHeight - 12f);
+            var panel = new Rect((_uiWidth - panelWidth) * 0.5f, panelY, panelWidth, panelHeight);
+            GUI.color = new Color(0f, 0.025f, 0.07f, 0.92f);
             GUI.color = new Color(0.39f, 0.9f, 1f, 1f);
             GUI.Box(panel, GUIContent.none, _box);
             var title = IsRussianUi
