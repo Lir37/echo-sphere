@@ -1475,4 +1475,16 @@ assert.ok(linkBreakerRuntime.includes('FindNearestLinkBreakerTarget') &&
   linkBreakerRuntime.includes('ShowTimedCombatMessage'),
   'Link Breaker must skip disabled Spheres and use the source Stability duration modifier');
 
+const sourceHomeUi = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceHome.cs'), 'utf8').replaceAll('\r\n', '\n');
+assert.ok(sourceHomeUi.includes('DrawSourceMenuNavIcon') &&
+  ['UserRound', 'Store', 'Trophy', 'Award', 'BookOpen', 'Settings'].every(icon => sourceHomeUi.includes(icon)) &&
+  sourceHomeUi.includes('SourceUiNavCircle') && sourceHomeUi.includes('SourceUiNavStroke'),
+  'main-menu navigation must preserve all six source icon identities as line-art alongside the live destinations');
+const knowledgeRuntime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereKnowledge.cs'), 'utf8').replaceAll('\r\n', '\n');
+const sourceCatalogPath = join(root, 'Assets/Resources/EchoSphere/SourceCatalog.json');
+assert.ok(existsSync(sourceCatalogPath) &&
+  knowledgeRuntime.includes('nameRu, nameEn, descRu, descEn, detailsRu, detailsEn') &&
+  knowledgeRuntime.includes('Resources.Load<TextAsset>("EchoSphere/SourceCatalog")') &&
+  ['basics', 'spheres', 'monsters', 'bosses', 'abilities', 'artifacts', 'evolutions'].every(section => knowledgeRuntime.includes(section)),
+  'Unity knowledge base must load source-catalog localized names, descriptions and details for all source sections');
 console.log(`Unity project preflight: PASS (Unity ${version}, ${runtimeFiles.length} C# source files, URP, authored SVG and responsive HUD guards)`);
