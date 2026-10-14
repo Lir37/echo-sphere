@@ -103,8 +103,8 @@ namespace EchoSphere.Runtime
                 var rect = new Rect(10f + column * (navWidth + navGap), navStartY + row * (navButtonHeight + navVerticalGap), navWidth, navButtonHeight);
                 if (SourceUiButton(rect, "", 7, Color.clear, "#66869d")) _mainMenuPage = pages[i];
                 var iconColor = new Color(102f / 255f, 134f / 255f, 157f / 255f, 1f);
-                DrawSourceMenuNavIcon(new Rect(rect.x + 5f, rect.y + 14f, 14f, 14f), i, iconColor);
-                SourceUiLabel(new Rect(rect.x + 22f, rect.y + 1f, rect.width - 25f, rect.height - 2f), labels[i], 7, "#66869d", true);
+                DrawSourceMenuNavIcon(new Rect(rect.center.x - 7f, rect.y + 4f, 14f, 14f), i, iconColor);
+                SourceUiLabel(new Rect(rect.x + 2f, rect.y + 21f, rect.width - 4f, 18f), labels[i], 7, "#66869d", true);
             }
         }
         // Matches the Lucide icon identities used by src/App.tsx. Presentation only.

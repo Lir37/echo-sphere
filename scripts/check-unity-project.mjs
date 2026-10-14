@@ -1478,7 +1478,8 @@ assert.ok(linkBreakerRuntime.includes('FindNearestLinkBreakerTarget') &&
 const sourceHomeUi = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceHome.cs'), 'utf8').replaceAll('\r\n', '\n');
 assert.ok(sourceHomeUi.includes('DrawSourceMenuNavIcon') &&
   ['UserRound', 'Store', 'Trophy', 'Award', 'BookOpen', 'Settings'].every(icon => sourceHomeUi.includes(icon)) &&
-  sourceHomeUi.includes('SourceUiNavCircle') && sourceHomeUi.includes('SourceUiNavStroke'),
+  sourceHomeUi.includes('SourceUiNavCircle') && sourceHomeUi.includes('SourceUiNavStroke') &&
+  sourceHomeUi.includes('rect.center.x - 7f') && sourceHomeUi.includes('rect.y + 21f'),
   'main-menu navigation must preserve all six source icon identities as line-art alongside the live destinations');
 const knowledgeRuntime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereKnowledge.cs'), 'utf8').replaceAll('\r\n', '\n');
 const sourceCatalogPath = join(root, 'Assets/Resources/EchoSphere/SourceCatalog.json');
