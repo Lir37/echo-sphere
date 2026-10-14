@@ -261,3 +261,13 @@ Implementation base: `unity-migration` `c6e0890aba92a21705a3fe4bd6a4217af5d021d0
 - Existing XP shard and Standard/Orbital VFX corrections are recorded in the preceding audit sections and were not rewritten in this pass.
 
 Verification boundary: structural preflight and CI can check source wiring, not Unity GUI appearance. Unity Editor, APK and device rendering have not been run in this cycle. `new-desing` remains unchanged. Remaining visual/system parity gaps listed earlier in this report are still open; this commit does not claim complete migration.
+
+## Main-menu core orbit parity — 2026-10-15
+
+Compared the final `.es-main-menu-legacy` overrides in `src/conceptStyle.css` with `DrawSourceMenuCore()`.
+
+- Confirmed discrepancies in the Unity menu core: orbit B radius and orbit A/B rotation angles differed from the final CSS; all five tracks shared one vertical flattening factor; orbit B was cyan instead of violet; and all tracks were static while the source rotates them at 12/15/18/8/10-second periods.
+- Ported the source's five radii (`9%, 22%, 31%, 15%, 39%` insets), per-track ellipse tilt, base rotations, colors/alpha and direction/speed. The center core, layout, navigation targets and gameplay state are unchanged.
+- Added a structural guard for the source-mapped radii, tilt factors, rotations, violet orbit and live animation time.
+
+Unity Editor/APK/device rendering remains unverified; CI validates the code contracts but cannot prove the visual result on the actual phone. `new-desing` remains unchanged.

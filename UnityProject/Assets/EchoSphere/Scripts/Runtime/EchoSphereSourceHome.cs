@@ -186,17 +186,30 @@ namespace EchoSphere.Runtime
             }
             var previous = GUI.color; GUI.color = Color.white;
             GUI.DrawTexture(new Rect(art.x + art.width * .28f, art.y + art.height * .28f, art.width * .44f, art.height * .44f), _sourceMenuCoreTexture);
-            var radii = new[] { .41f, .30f, .19f, .35f, .11f };
-            var rotations = new[] { 26f, -50f, -34f, -16f, -24f };
+            var radii = new[] { .41f, .28f, .19f, .35f, .11f };
+            // Final legacy CSS: three differently tilted orbits and two rings.
+            var verticalScales = new[] { .391f, .469f, .375f, .438f, .423f };
+            var baseRotations = new[] { 18f, 24f, -34f, -16f, -24f };
+            var periods = new[] { 12f, -15f, 18f, 8f, -10f };
+            var colors = new[]
+            {
+                new Color(100f / 255f, 216f / 255f, 255f / 255f, .22f),
+                new Color(163f / 255f, 124f / 255f, 255f / 255f, .20f),
+                new Color(255f / 255f, 184f / 255f, 90f / 255f, .18f),
+                new Color(190f / 255f, 242f / 255f, 255f / 255f, .24f),
+                new Color(78f / 255f, 218f / 255f, 255f / 255f, .22f)
+            };
             for (var ring = 0; ring < radii.Length; ring++)
             {
-                var points = new Vector2[97]; var angle = rotations[ring] * Mathf.Deg2Rad;
+                var points = new Vector2[97];
+                var angle = (baseRotations[ring] + Time.unscaledTime * 360f / periods[ring]) * Mathf.Deg2Rad;
                 for (var i = 0; i < points.Length; i++)
                 {
                     var a = i * Mathf.PI * 2f / 96f;
-                    var x = Mathf.Cos(a) * radii[ring] * art.width; var y = Mathf.Sin(a) * radii[ring] * art.height * .38f;
+                    var x = Mathf.Cos(a) * radii[ring] * art.width;
+                    var y = Mathf.Sin(a) * radii[ring] * art.height * verticalScales[ring];
                     points[i] = art.center + new Vector2(x * Mathf.Cos(angle) - y * Mathf.Sin(angle), x * Mathf.Sin(angle) + y * Mathf.Cos(angle));
-                    if (i > 0) DrawSphereGuiLine(points[i - 1], points[i], ring == 2 ? new Color(1f, .72f, .35f, .18f) : new Color(.39f, .85f, 1f, .22f), 1f);
+                    if (i > 0) DrawSphereGuiLine(points[i - 1], points[i], colors[ring], 1f);
                 }
             }
             GUI.color = previous;

@@ -1476,6 +1476,12 @@ assert.ok(linkBreakerRuntime.includes('FindNearestLinkBreakerTarget') &&
   'Link Breaker must skip disabled Spheres and use the source Stability duration modifier');
 
 const sourceHomeUi = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceHome.cs'), 'utf8').replaceAll('\r\n', '\n');
+assert.ok(sourceHomeUi.includes('var radii = new[] { .41f, .28f, .19f, .35f, .11f }') &&
+  sourceHomeUi.includes('var verticalScales = new[] { .391f, .469f, .375f, .438f, .423f }') &&
+  sourceHomeUi.includes('var baseRotations = new[] { 18f, 24f, -34f, -16f, -24f }') &&
+  sourceHomeUi.includes('Time.unscaledTime * 360f / periods[ring]') &&
+  sourceHomeUi.includes('new Color(163f / 255f, 124f / 255f, 255f / 255f, .20f)'),
+  'main-menu core orbit/ring geometry, tilt, color and rotation must match final source CSS');
 assert.ok(sourceHomeUi.includes('DrawSourceMenuNavIcon') &&
   ['UserRound', 'Store', 'Trophy', 'Award', 'BookOpen', 'Settings'].every(icon => sourceHomeUi.includes(icon)) &&
   sourceHomeUi.includes('SourceUiNavCircle') && sourceHomeUi.includes('SourceUiNavStroke') &&
