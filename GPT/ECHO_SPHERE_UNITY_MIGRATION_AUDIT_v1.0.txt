@@ -4269,3 +4269,40 @@ NEXT CONFIRMED SOURCE GAP:
   Teleport and Time Stop, preserving source final-variant IDs and conditions.
 - Broader character/profile, region ecology/challenges and remaining combat
   parity gaps are still open; this cycle does not claim the whole migration complete.
+
+
+======================================================================
+2026-10-14 — REGIONAL ENEMY ROLE PORT CHECKPOINT
+======================================================================
+
+Implementation baseline before audit update:
+5a88d15820f8a13b0a6af48d358d5a7813917943
+
+Source baseline (new-desing):
+737ef2af4a877e0995db5f92331d536d2f29a934
+
+Ported on unity-migration:
+- Exact regional ecology role pools: flow, swarm, pressure, fracture, hollow.
+- Role spawn modifiers for HP, speed, damage and radius.
+- Phase role: source speed/radius modifiers, extra movement multiplier and
+  immunity to the migrated gravity-field pull/pulse controls.
+- Scavenger low-HP speed, leech self-healing, ranged/sniper projectiles,
+  healer ally recovery, disruptor Sphere network disable, charger contact
+  multiplier and corruptor Resonance drain.
+- Regional world POIs and radar indicators remain implemented.
+
+Validation:
+- Unity Migration Contracts #503 SUCCESS on code commit
+  5a88d15820f8a13b0a6af48d358d5a7813917943.
+- Pure C# contract checks and Unity project structural checks passed.
+- Unity Editor compilation, APK build and device parity remain unverified.
+
+Remaining:
+- Continue auditing source enemy update order and regional event/challenge
+  behavior for actual mismatches.
+- Continue porting other systems still absent from Unity.
+- Do not infer full gameplay parity from the contract workflow.
+
+======================================================================
+END REGIONAL ENEMY ROLE PORT CHECKPOINT
+======================================================================
