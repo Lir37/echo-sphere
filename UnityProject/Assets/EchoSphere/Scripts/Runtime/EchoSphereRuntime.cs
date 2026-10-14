@@ -4330,7 +4330,7 @@ namespace EchoSphere.Runtime
                     break;
 
                 case SphereCharacterId.Oracle:
-                    // Forecast state is not ported yet, so its source-specific time XP is gated off.
+                    if (_oracleForecastKeys.Count > 0) _characterMasteryRunXp += dt * 0.9f;
                     break;
 
                 case SphereCharacterId.Voidwalker:
