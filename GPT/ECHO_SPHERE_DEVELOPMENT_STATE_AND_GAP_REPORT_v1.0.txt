@@ -2473,3 +2473,38 @@ REMAINING:
 ======================================================================
 END UNITY MIGRATION / REGIONAL ENEMY ROLE PORT
 ======================================================================
+
+
+======================================================================
+2026-10-14 — SOURCE CONTACT COLLISION / REGION CHALLENGE SCOPE
+======================================================================
+
+Implementation checkpoint:
+- Removed a duplicate RegionStabilized property declaration in
+  EchoSphereRuntime.cs that would prevent C# compilation.
+- Enemy contact distance now uses the source archetype radius (normal 19,
+  fast 15, tank 26 source pixels), role radius multiplier, elite +4 radius,
+  and player radius 16, converted through SourcePixelsToWorld.
+- Restored the source engineEnemies.ts 10-source-pixel enemy bounce after
+  contact.
+- Scoped regional challenge multipliers to the same regions as src/region.ts:
+  overload only in Resonance Basin; mirror_tide and volatile_core only in
+  Spectral Rift. Their existing source multipliers were retained.
+- new-desing was not modified.
+
+Validation:
+- Unity Migration Contracts #507 SUCCESS on code HEAD
+  f14ce4a8b71faf12b2c69c0a7edda49eda759c28.
+- Contract and structural checks passed. Unity Editor compilation, APK build
+  and manual device validation remain unverified.
+
+Remaining:
+- Continue auditing enemy combat behavior against src/engineEnemies.ts.
+- Region phase/pocket HUD and pocket-boundary notification are still not
+  confirmed as ported from src/App.tsx and src/region.ts.
+- Continue source-to-Unity transfer of other missing systems. No invented
+  mechanics or rewards.
+
+======================================================================
+END SOURCE CONTACT COLLISION / REGION CHALLENGE SCOPE
+======================================================================
