@@ -1942,7 +1942,7 @@ namespace EchoSphere.Runtime
             var difficulty = CurrentDifficulty;
             var hp = BossCombatRules.GetMaxHp(wave) * difficulty.EnemyHpMultiplier;
             var speed = BossCombatRules.GetMoveSpeedWorldUnitsPerSecond(type, wave) * difficulty.EnemySpeedMultiplier;
-            var damage = BossCombatRules.GetContactDamage(wave);
+            var damage = BossCombatRules.GetContactDamage(wave) * difficulty.EnemyDamageMultiplier;
             var root = CreateOrb("ECHO SPHERE Boss / " + type, position, 1.23f, tint, Color.white, 4);
             var agent = root.AddComponent<EnemyAgent2D>();
             agent.Initialize(this, _player, hp, speed, BossCombatRules.GetXpReward(wave),
