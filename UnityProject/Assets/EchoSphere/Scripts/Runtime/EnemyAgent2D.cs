@@ -12,6 +12,7 @@ namespace EchoSphere.Runtime
         private float _maxHp;
         private int _xpReward = 1;
         private float _moveSpeed;
+        private float _damage = 9f;
         private bool _dead;
         private bool _isElite;
         private bool _isPhaseRole;
@@ -306,7 +307,7 @@ namespace EchoSphere.Runtime
         public void Initialize(EchoSphereRuntime runtime, Transform player, float hp, float moveSpeed, int xpReward = 1,
             string visualVariant = "wisp", string bossType = "", bool isElite = false, EnemyArchetype archetype = EnemyArchetype.Normal,
             bool isPhaseRole = false, string role = "grunt", float roleDamageMultiplier = 1f, float roleRadiusMultiplier = 1f,
-            string eliteVariant = "")
+            string eliteVariant = "", float damage = 9f)
         {
             _runtime = runtime;
             _player = player;
@@ -324,6 +325,7 @@ namespace EchoSphere.Runtime
             _hp = hp;
             _maxHp = Mathf.Max(1f, hp);
             _moveSpeed = Mathf.Max(0f, moveSpeed);
+            _damage = Mathf.Max(0f, damage);
             _xpReward = Mathf.Max(1, xpReward);
             _shell = transform.Find("Shell")?.GetComponent<SpriteRenderer>();
             if (_shell != null) _baseColor = _shell.color;
@@ -475,7 +477,8 @@ namespace EchoSphere.Runtime
                 (_isElite ? 4f : 0f) + 16f) * SpherePlacementRules.SourcePixelsToWorld;
             if (distanceToPlayer < sourceContactRadius)
             {
-                var contactDamage = 9f * _runtime.GetRegionEnemyDamageMultiplier() * _roleDamageMultiplier;
+                // Source damage is resolved at spawn, including difficulty, role and region multipliers.
+                var contactDamage = _damage;
                 if (_role == "charger") contactDamage *= 1.20f;
                 _runtime.TryDamagePlayer(contactDamage);
                 if (_role == "corruptor") _runtime.DrainResonance(4f);

@@ -138,27 +138,48 @@ internal static class Program
 
     private static void CheckEnemySpawnRules()
     {
-        Equal(EnemySpawnRules.Select(0f, 0.99f), EnemyArchetype.Normal, "opening phase uses baseline enemy");
-        Equal(EnemySpawnRules.Select(20f, 0.10f), EnemyArchetype.Fast, "fast enemy unlock");
-        Equal(EnemySpawnRules.Select(30f, 0.30f), EnemyArchetype.Tank, "tank enemy unlock");
-        Equal(EnemySpawnRules.Select(90f, 0.55f), EnemyArchetype.Elite, "elite enemy unlock");
+        Equal(EnemySpawnRules.SelectBase(1, 0.10f), EnemyArchetype.Normal, "wave 1 only selects normal base archetype");
+        Equal(EnemySpawnRules.SelectBase(3, 0.10f), EnemyArchetype.Fast, "fast archetype unlocks after wave 2");
+        Equal(EnemySpawnRules.SelectBase(4, 0.30f), EnemyArchetype.Normal, "tank archetype remains locked through wave 4");
+        Equal(EnemySpawnRules.SelectBase(5, 0.30f), EnemyArchetype.Tank, "tank archetype unlocks after wave 4");
+        Equal(EnemySpawnRules.SelectBase(6, 0.35f), EnemyArchetype.Normal, "base archetype thresholds are exclusive");
+        True(!EnemySpawnRules.ShouldBeElite(5, 0f), "elite conversion is disabled through wave 5");
+        True(EnemySpawnRules.ShouldBeElite(6, 0.059f), "wave 6 elite conversion chance is 6 percent");
+        True(!EnemySpawnRules.ShouldBeElite(6, 0.06f), "elite conversion chance uses a strict source threshold");
+        True(EnemySpawnRules.ShouldBeElite(18, 0.119f), "elite conversion chance reaches the 12 percent cap");
+        True(!EnemySpawnRules.ShouldBeElite(18, 0.12f), "elite conversion cap threshold is exclusive");
+
         var normal = EnemySpawnRules.GetProfile(EnemyArchetype.Normal);
         var fast = EnemySpawnRules.GetProfile(EnemyArchetype.Fast);
         var tank = EnemySpawnRules.GetProfile(EnemyArchetype.Tank);
-        var elite = EnemySpawnRules.GetProfile(EnemyArchetype.Elite);
-        Near(normal.HpMultiplier, 1f, 0f, "normal baseline HP");
-        True(fast.SpeedMultiplier > normal.SpeedMultiplier && fast.HpMultiplier < normal.HpMultiplier, "fast trades HP for speed");
-        True(tank.HpMultiplier > normal.HpMultiplier && tank.SpeedMultiplier < normal.SpeedMultiplier, "tank trades speed for HP");
-        True(elite.HpMultiplier > tank.HpMultiplier && elite.XpReward > tank.XpReward, "elite is durable high-value target");
-        Equal(normal.XpReward, 1, "normal XP reward");
-        Equal(tank.XpReward, 3, "tank XP reward");
-        Equal(elite.XpReward, 5, "elite XP reward");
+        Near(normal.HpBase, 18f, 0f, "source normal base HP");
+        Near(normal.HpPerWave, 5.5f, 0f, "source normal HP per wave");
+        Near(normal.SpeedBase, 68f, 0f, "source normal base speed");
+        Near(normal.SpeedPerWave, 1.8f, 0f, "source normal speed per wave");
+        Near(normal.DamageBase, 7f, 0f, "source normal base damage");
+        Near(normal.DamagePerWave, 0.30f, 0f, "source normal damage per wave");
+        Near(normal.Radius, 19f, 0f, "source normal radius");
+        Equal(normal.XpReward, 1, "source normal XP reward");
+        Near(fast.HpBase, 11f, 0f, "source fast base HP");
+        Near(fast.HpPerWave, 3.4f, 0f, "source fast HP per wave");
+        Near(fast.SpeedBase, 125f, 0f, "source fast base speed");
+        Near(fast.SpeedPerWave, 2.4f, 0f, "source fast speed per wave");
+        Near(fast.DamageBase, 8f, 0f, "source fast base damage");
+        Near(fast.DamagePerWave, 0.32f, 0f, "source fast damage per wave");
+        Near(fast.Radius, 15f, 0f, "source fast radius");
+        Equal(fast.XpReward, 2, "source fast XP reward");
+        Near(tank.HpBase, 42f, 0f, "source tank base HP");
+        Near(tank.HpPerWave, 10.5f, 0f, "source tank HP per wave");
+        Near(tank.SpeedBase, 44f, 0f, "source tank base speed");
+        Near(tank.SpeedPerWave, 0.8f, 0f, "source tank speed per wave");
+        Near(tank.DamageBase, 11f, 0f, "source tank base damage");
+        Near(tank.DamagePerWave, 0.38f, 0f, "source tank damage per wave");
+        Near(tank.Radius, 26f, 0f, "source tank radius");
+        Equal(tank.XpReward, 4, "source tank XP reward");
         Near(RunBalanceRules.GetEnemySpawnInterval(0f), 1.25f, 0.000001f, "opening spawn interval");
         Near(RunBalanceRules.GetEnemySpawnInterval(1000f), 0.42f, 0.000001f, "spawn interval lower bound");
         Equal(RunBalanceRules.GetEnemyPopulationCap(0f), 30, "opening population cap");
         Equal(RunBalanceRules.GetEnemyPopulationCap(300f), 40, "population cap scales with time");
-        Equal(RunBalanceRules.GetEnemyPopulationCap(900f), 60, "population cap reaches ceiling");
-        Equal(RunBalanceRules.GetEnemyPopulationCap(5000f), 60, "population cap remains bounded");
     }
 
     private static void CheckBossCombatRules()

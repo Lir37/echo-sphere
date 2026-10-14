@@ -1753,8 +1753,12 @@ namespace EchoSphere.Runtime
             var angle = _rng.NextFloat() * Mathf.PI * 2f;
             var position = (Vector2)_player.position +
                 new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * BossCombatRules.BossSpawnDistanceWorld;
-            var archetype = EnemySpawnRules.Select(_runTime, _rng.NextFloat());
+
+            // Match src/engineEnemies.ts RNG order: base archetype, base visual,
+            // role, elite conversion, then elite variant (only when converted).
+            var archetype = EnemySpawnRules.SelectBase(_wave, _rng.NextFloat());
             var profile = EnemySpawnRules.GetProfile(archetype);
+            var visualVariant = GetEnemyVisualVariant(archetype);
             var role = RegionPocketRules.SelectRole(
                 _selectedRegion, _player.position.x, _player.position.y, _rng.NextFloat());
             var roleHp = 1f;
@@ -1778,21 +1782,46 @@ namespace EchoSphere.Runtime
                 case "scavenger": roleSpeed = 1.10f; break;
                 case "corruptor": roleDamage = 1.20f; break;
             }
+
             var isPhaseRole = role == "phase";
             var difficulty = CurrentDifficulty;
             var pocket = RegionPocketRules.GetAt(_selectedRegion, _player.position.x, _player.position.y);
             var challengeHp = GetChallengeEnemyHpMultiplier();
             var challengeSpeed = GetChallengeEnemySpeedMultiplier();
             var challengeXp = GetChallengeEnemyXpMultiplier();
-            var baseHp = (18f + _wave * 5.5f) * difficulty.EnemyHpMultiplier * pocket.Hp * challengeHp * roleHp;
-            var baseSpeed = BossCombatRules.ToWorldUnits(68f + _wave * 1.8f) * difficulty.EnemySpeedMultiplier * pocket.Speed * challengeSpeed * roleSpeed;
-            var tint = GetEnemyTint(archetype);
-            var go = CreateOrb(GetEnemyName(archetype), position, 0.72f * profile.VisualScale * roleRadius, tint, Color.white, 4);
-            ApplyShellVisual(go, GetEnemySprite(archetype), archetype == EnemyArchetype.Normal ? 1.12f : 1.02f);
+
+            var hp = (profile.HpBase + _wave * profile.HpPerWave) *
+                difficulty.EnemyHpMultiplier * pocket.Hp * challengeHp * roleHp;
+            var speed = BossCombatRules.ToWorldUnits(profile.SpeedBase + _wave * profile.SpeedPerWave) *
+                difficulty.EnemySpeedMultiplier * pocket.Speed * challengeSpeed * roleSpeed;
+            // Source stores the fully modified damage on the enemy at spawn time.
+            var damage = (profile.DamageBase + _wave * profile.DamagePerWave) *
+                difficulty.EnemyDamageMultiplier * GetRegionEnemyDamageMultiplier() * roleDamage;
+            var xpReward = profile.XpReward * pocket.Xp * challengeXp;
+            var isElite = EnemySpawnRules.ShouldBeElite(_wave, _rng.NextFloat());
+            var eliteVariant = "";
+            if (isElite)
+            {
+                hp *= 3f;
+                damage *= 1.5f;
+                xpReward *= 5f;
+                visualVariant = SelectEliteVariant(out eliteVariant);
+            }
+
+            // Source radius is 19/15/26 pixels for normal/fast/tank; elite adds 4.
+            var eliteRadiusBonus = isElite ? 4f : 0f;
+            var visualArchetype = isElite ? EnemyArchetype.Elite : archetype;
+            var visualScale = profile.VisualScale * (profile.Radius + eliteRadiusBonus) / profile.Radius;
+            var tint = GetEnemyTint(visualArchetype);
+            var go = CreateOrb(GetEnemyName(visualArchetype), position,
+                0.72f * visualScale * roleRadius, tint, Color.white, 4);
+            ApplyShellVisual(go, GetEnemySprite(visualArchetype),
+                visualArchetype == EnemyArchetype.Normal ? 1.12f : 1.02f);
             var enemyCore = go.transform.Find("Core Light");
             if (enemyCore != null) enemyCore.localScale = Vector3.one * (archetype == EnemyArchetype.Tank ? 0.29f : 0.22f);
-            AddOrbitRail(go.transform, new Color(tint.r, tint.g, tint.b, 0.65f), new Vector3(1.7f, 0.62f, 1f), archetype == EnemyArchetype.Fast ? -28f : 38f, 3);
-            switch (archetype)
+            AddOrbitRail(go.transform, new Color(tint.r, tint.g, tint.b, 0.65f),
+                new Vector3(1.7f, 0.62f, 1f), visualArchetype == EnemyArchetype.Fast ? -28f : 38f, 3);
+            switch (visualArchetype)
             {
                 case EnemyArchetype.Fast:
                     AddRadialNodes(go.transform, RuntimeSpriteFactory.Diamond, new Color(1f, 0.78f, 0.5f), 2, 0.78f, 0.15f, 7, Mathf.PI * 0.5f);
@@ -1806,15 +1835,12 @@ namespace EchoSphere.Runtime
                     AddRadialNodes(go.transform, RuntimeSpriteFactory.Star, new Color(1f, 0.76f, 0.9f), 3, 0.82f, 0.13f, 7, Mathf.PI * 0.5f);
                     break;
             }
-            var eliteVariant = "";
-            var visualVariant = archetype == EnemyArchetype.Elite
-                ? SelectEliteVariant(out eliteVariant)
-                : GetEnemyVisualVariant(archetype);
+
+            var roundedXp = Mathf.Max(1, Mathf.FloorToInt(xpReward + 0.5f));
             var agent = go.AddComponent<EnemyAgent2D>();
-            agent.Initialize(this, _player, baseHp * profile.HpMultiplier, baseSpeed * profile.SpeedMultiplier,
-                Mathf.Max(1, Mathf.RoundToInt(profile.XpReward * pocket.Xp * challengeXp)),
-                visualVariant, "", archetype == EnemyArchetype.Elite, archetype, isPhaseRole,
-                role, roleDamage, roleRadius, eliteVariant);
+            agent.Initialize(this, _player, hp, speed, roundedXp,
+                visualVariant, "", isElite, archetype, isPhaseRole,
+                role, roleDamage, roleRadius, eliteVariant, damage);
             _enemies.Add(agent);
         }
         private bool HasActiveBoss()

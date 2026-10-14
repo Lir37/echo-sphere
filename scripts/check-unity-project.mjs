@@ -301,13 +301,24 @@ const resonanceRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/R
 assert.ok(resonanceRules.includes('BaseCap = 100f') && resonanceRules.includes('OverflowCap = 150f'), 'Resonance charge contract is missing');
 assert.ok(runtime.includes('TriggerResonanceEvent') && runtime.includes('TickResonanceRing') && runtime.includes('Mathf.FloorToInt(_resonanceCharge)'), 'formation-aware Resonance event runtime/HUD is missing');
 const enemySpawnRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/EnemySpawnRules.cs'), 'utf8');
-assert.ok(enemySpawnRules.includes('Select(float elapsedSeconds, float roll)') && enemySpawnRules.includes('EnemyArchetype.Elite'), 'deterministic enemy archetype selection is missing');
+assert.ok(enemySpawnRules.includes('SelectBase(int wave, float roll)') &&
+  enemySpawnRules.includes('ShouldBeElite(int wave, float roll)') &&
+  enemySpawnRules.includes('18f, 5.5f, 68f, 1.8f, 7f, 0.30f, 19f') &&
+  enemySpawnRules.includes('11f, 3.4f, 125f, 2.4f, 8f, 0.32f, 15f') &&
+  enemySpawnRules.includes('42f, 10.5f, 44f, 0.8f, 11f, 0.38f, 26f'),
+  'source base archetype formulas and separate elite conversion are missing');
 assert.ok(runtime.includes('GetWaveSpawnInterval') && runtime.includes('GetEnemiesPerWave') && runtime.includes('StartNextWave'), 'source wave count and spawn cadence controls are missing');
 assert.ok(runtime.includes('_waveEnemiesToSpawn > 0') && runtime.includes('CountLivingNonBossEnemies() == 0') && runtime.includes('HasActiveBoss()'), 'source wave progression must wait for the current wave and active boss to finish');
-assert.ok(runtime.includes('profile.XpReward') && runtime.includes('GetEnemySprite') &&
+assert.ok(runtime.includes('profile.XpReward * pocket.Xp * challengeXp') &&
+  runtime.includes('profile.HpBase + _wave * profile.HpPerWave') &&
+  runtime.includes('profile.SpeedBase + _wave * profile.SpeedPerWave') &&
+  runtime.includes('profile.DamageBase + _wave * profile.DamagePerWave') &&
+  runtime.includes('EnemySpawnRules.ShouldBeElite(_wave, _rng.NextFloat())') &&
+  runtime.includes('hp *= 3f') && runtime.includes('damage *= 1.5f') &&
+  runtime.includes('xpReward *= 5f') &&
   runtime.includes('ComboRules.GetExperienceOrbValue(xpReward, _comboMultiplier)') &&
   runtime.includes('Initialize(this, _player, comboExperience)'),
-  'enemy role visuals/Combo-adjusted XP pickup wiring is missing');
+  'source enemy spawn stats, elite conversion or Combo-adjusted XP pickup wiring is missing');
 assert.ok(runtime.includes('GetFormationKey') && runtime.includes('AddResonanceChargeFromSource'), 'new-geometry Resonance charging is missing');
 
 const sphereAttack = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs'), 'utf8');
@@ -767,7 +778,7 @@ assert.ok(hunterEnemyRuntime.includes('RegisterCharacterSphereHit(source, this)'
   menuRuntime.includes('GetHunterCriticalChanceBonus(target)'),
   'Hunter Mark and damage/critical multipliers must run through live enemy damage');
 assert.ok(hunterEnemyRuntime.includes('_archetype = archetype') && hunterEnemyRuntime.includes('public bool IsTank => _archetype == EnemyArchetype.Tank') &&
-  menuRuntime.includes('visualVariant, "", archetype == EnemyArchetype.Elite, archetype') &&
+  menuRuntime.includes('visualVariant, "", isElite, archetype') &&
   menuRuntime.includes('SelectEliteVariant(out eliteVariant)'),
   'Hunter target eligibility must use the actual selected enemy archetype and elite variant visuals');
 assert.ok(hunterProjectileRuntime.includes('RegisterCharacterSphereHit(_evolutionOwner.Type, enemy)') &&
