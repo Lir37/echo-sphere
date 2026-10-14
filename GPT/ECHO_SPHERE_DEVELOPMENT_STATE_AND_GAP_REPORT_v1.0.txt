@@ -2771,3 +2771,25 @@ until a valid source-authored asset is found. No substitute art was invented.
 ======================================================================
 END STANDARD SPHERE VISUAL BLOCKER
 ======================================================================
+
+======================================================================
+[2026-10-14] UNITY ORBITAL RESONANCE SOURCE-PARITY CORRECTION
+======================================================================
+
+Code HEAD: e2769dff7775be0c3b11ac38f03b8d6d460a453c
+Source baseline: new-desing 737ef2af4a877e0995db5f92331d536d2f29a934
+
+Removed the unconditional +1 Resonance charge from each Orbital contact in
+SphereAttackAgent.UpdateOrbitalContacts(). The source updateOrbitalSphere()
+does not grant a generic charge per contact; Resonance is granted only through
+the source-authored resonance modifiers/effects (including Orbital Halo's
+specific bonus). This prevents Orbital contacts from silently accelerating
+Resonance beyond source behavior. new-desing was not modified.
+
+Validation: CI status query currently returns 0 reported commit status checks; this alone does not establish a successful Unity build. Unity Editor compilation, APK and device parity remain unverified.
+
+Next: continue auditing Orbital sweep/contact timing and then the remaining Sphere/evolution and Artifact/Protocol behavior against source. Do not infer mechanics.
+
+======================================================================
+END UNITY ORBITAL RESONANCE SOURCE-PARITY CORRECTION
+======================================================================
