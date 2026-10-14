@@ -3045,3 +3045,40 @@ No CI result is exposed by these responses. new-desing remains unchanged.
 ======================================================================
 END ORBITAL LIVE-RADIUS SOURCE PARITY FOLLOW-UP
 ======================================================================
+
+======================================================================
+[2026-10-14] ORBITAL LIVE RADIUS + FINAL ELEMENT PARITY
+======================================================================
+
+Code HEAD: ef396ff82ee388b053f0e49fbba99b40a416d008
+Source baseline: new-desing 737ef2af4a877e0995db5f92331d536d2f29a934
+
+Additional source-confirmed corrections:
+- Orbital ring geometry now uses source base Sphere radius (130 px), body radius
+  clamp, inner/outer factors 1.68x/2.02x, live radius multiplier and pixels-to-
+  world conversion, preserving the existing Cluster/Ring/neighbour multiplier.
+- Live radius includes current Unity ability radius/range, shop, artifact and
+  character multipliers, Orbital progression radius scaling at levels II/V/VII,
+  and the source's additional Architect mastery factor.
+- Orbital extra-element logic now matches source ordering and includes both
+  orbital_crown and orbital_dance_final_3. Base ring counts no longer silently
+  pre-apply the Dance final extra before Crown; extras are distributed in source
+  order across the two counter-rotating rings.
+
+Known remaining radius-state gap: source also applies Chaos Orb's temporary
+radius buff and Mutation stage II. No confirmed matching state/API was found
+in current Unity runtime; these effects were not invented.
+
+CI:
+- Combined status checks for code HEAD: 0.
+- PR-triggered workflow runs: 0.
+- Neither response exposes a CI result. Unity Editor compile, APK and device
+  parity remain unverified. new-desing unchanged.
+
+Orbital is not marked fully source-identical. Continue source-confirmed gaps
+only; next priority is verifying remaining source radius modifiers/state and
+then auditing other Sphere families against their current implementations.
+
+======================================================================
+END ORBITAL LIVE RADIUS + FINAL ELEMENT PARITY
+======================================================================
