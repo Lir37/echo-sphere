@@ -303,10 +303,10 @@ namespace EchoSphere.Runtime
                 var index = inner ? i : i - innerCount;
                 var count = inner ? innerCount : outerCount;
                 var angle = _orbitAngle * (inner ? 1f : -1f) + index * Mathf.PI * 2f / Mathf.Max(1, count);
-                var bodyRadiusPixels = Mathf.Clamp(
-                    _runtime.GetOrbitalLiveRadiusPixels(_progressionLevel) * 0.19f + _progressionLevel * 0.8f,
-                    15f, 25f);
-                var sourceOrbitRadiusPixels = bodyRadiusPixels * (inner ? 1.68f : 2.02f);
+                var liveSphereRadiusPixels = _runtime.GetOrbitalLiveRadiusPixels(_progressionLevel);
+                var bodyRadiusPixels = Mathf.Clamp(130f * 0.19f + _progressionLevel * 0.8f, 15f, 25f);
+                var liveRadiusMultiplier = liveSphereRadiusPixels / 130f;
+                var sourceOrbitRadiusPixels = bodyRadiusPixels * (inner ? 1.68f : 2.02f) * liveRadiusMultiplier;
                 var radius = sourceOrbitRadiusPixels * SpherePlacementRules.SourcePixelsToWorld * networkRadiusMultiplier;
                 _orbitalElements[i].localPosition = new Vector3(Mathf.Cos(angle) * radius, Mathf.Sin(angle) * radius, -0.08f);
             }
