@@ -511,6 +511,12 @@ namespace EchoSphere.Runtime
             }
         }
 
+        public void ScaleCurrentHp(float multiplier)
+        {
+            if (_dead) return;
+            _hp *= multiplier;
+        }
+
         public void ReceiveDamage(float damage, SphereId? sourceSphere = null)
         {
             if (_dead) return;

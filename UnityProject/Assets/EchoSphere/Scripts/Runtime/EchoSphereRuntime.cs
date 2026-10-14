@@ -231,6 +231,7 @@ namespace EchoSphere.Runtime
 
         private readonly List<EnemyAgent2D> _enemies = new List<EnemyAgent2D>();
         private readonly HashSet<string> _regionLoreDiscovered = new HashSet<string>();
+        private int _regionXpReward;
         private readonly List<SphereAttackAgent> _spheres = new List<SphereAttackAgent>();
         private readonly List<AbilityDroneAgent2D> _abilityDrones = new List<AbilityDroneAgent2D>();
         private readonly List<string> _ownedArtifacts = new List<string>();
@@ -387,7 +388,52 @@ namespace EchoSphere.Runtime
         public EchoRegionId SelectedRegion => _selectedRegion;
         public void RegisterRegionPoiCollected(string poiType)
         {
-            if (!string.IsNullOrEmpty(poiType)) _regionLoreDiscovered.Add(poiType);
+            if (string.IsNullOrEmpty(poiType)) return;
+            _regionLoreDiscovered.Add(poiType);
+            var radiusScale = SpherePlacementRules.SourcePixelsToWorld;
+            switch (poiType)
+            {
+                case "resonance_cache":
+                    _resonanceCharge = Mathf.Min(100f, _resonanceCharge + 28f);
+                    ShowTimedCombatMessage(IsRussianUi ? "ТАЙНИК РЕЗОНАНСА · +28 РЕЗОНАНСА" : "RESONANCE CACHE · +28 RESONANCE", 1.35f);
+                    break;
+                case "echo_relay":
+                    _resonanceCharge = Mathf.Min(100f, _resonanceCharge + 45f);
+                    ShowTimedCombatMessage(IsRussianUi ? "РЕЛЕ ЭХА · +45 РЕЗОНАНСА" : "ECHO RELAY · +45 RESONANCE", 1.35f);
+                    break;
+                case "breach_node":
+                    ScaleLivingEnemiesNearPlayer(260f * radiusScale, 0.72f);
+                    ShowTimedCombatMessage(IsRussianUi ? "УЗЕЛ ПРОБОЯ · ВРАГИ -28% HP" : "BREACH NODE · ENEMIES -28% HP", 1.35f);
+                    break;
+                case "rupture":
+                    ScaleLivingEnemiesNearPlayer(220f * radiusScale, 0.62f);
+                    ShowTimedCombatMessage(IsRussianUi ? "РАЗРЫВ · ВРАГИ -38% HP" : "RUPTURE · ENEMIES -38% HP", 1.35f);
+                    break;
+                case "lost_signal":
+                    _regionXpReward += 12;
+                    ShowTimedCombatMessage(IsRussianUi ? "ПОТЕРЯННЫЙ СИГНАЛ · +12 XP РЕГИОНА" : "LOST SIGNAL · +12 REGION XP", 1.35f);
+                    break;
+                case "elite_nest":
+                    ShowTimedCombatMessage(IsRussianUi ? "ГНЕЗДО ЭЛИТЫ · 2 ЭЛИТНЫХ ВРАГА" : "ELITE NEST · 2 ELITE HOSTILES", 1.35f);
+                    SpawnEnemy();
+                    SpawnEnemy();
+                    break;
+                case "boss_trace":
+                    ShowTimedCombatMessage(IsRussianUi ? "СЛЕД БОССА · БЛИЗКИЙ СТРАЖ" : "BOSS TRACE · NEAR WARDEN", 1.35f);
+                    break;
+            }
+        }
+
+        private void ScaleLivingEnemiesNearPlayer(float radius, float multiplier)
+        {
+            var center = PlayerPosition;
+            for (var i = 0; i < _enemies.Count; i++)
+            {
+                var enemy = _enemies[i];
+                if (enemy == null || !enemy.IsAlive ||
+                    Vector2.Distance(enemy.transform.position, center) >= radius) continue;
+                enemy.ScaleCurrentHp(multiplier);
+            }
         }
         public bool IsRegionAvailable(EchoRegionId region) =>
             RegionUnlockRules.IsAvailable(region, PlayerPrefs.GetInt(BasinStabilizedPreferenceKey, 0) == 1);
@@ -1944,7 +1990,7 @@ namespace EchoSphere.Runtime
                 PlayerPrefs.Save();
                 // Region completion is not game-over: keep pickups alive after the final boss;
                 ShowMessage(IsRussianUi ? "РЕГИОН СТАБИЛИЗИРОВАН" : "REGION STABILIZED");
-                AddExperience(RegionBossScheduleRules.GetRegionXpReward(_level));
+                _regionXpReward = RegionBossScheduleRules.GetRegionXpReward(_level);
             }
         }
 
@@ -7954,6 +8000,7 @@ namespace EchoSphere.Runtime
             _messageTimer = 0f;
             _runTime = 0f;
             _regionLoreDiscovered.Clear();
+            _regionXpReward = 0;
             _combo = 0;
             _comboTimer = 0f;
             _comboMultiplier = 1f;

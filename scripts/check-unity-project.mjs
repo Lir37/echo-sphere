@@ -460,6 +460,15 @@ for (const sourceBoss of ['conductor','architect','null','aura','stella_warden']
 assert.ok(regionSchedule.includes('480f') && regionSchedule.includes('960f') && regionSchedule.includes('1620f') && regionSchedule.includes('1800f'), 'source Region boss/stabilization timing contract missing');
 assert.ok(runtimeArt.includes('AdvanceRegionBossSchedule') && runtimeArt.includes('RegionBossScheduleRules.Advance') && runtimeArt.includes('StartNextWave'), 'Region signal and source wave loop must be wired in live runtime');
 assert.ok(runtimeArt.includes('CountLivingNonBossEnemies') && runtimeArt.includes('HasActiveBoss'), 'next source wave must wait for living enemies and boss completion');
+const regionPoiRuntime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs'), 'utf8');
+const enemyPoiRuntime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs'), 'utf8');
+assert.ok(regionPoiRuntime.includes('case "resonance_cache":') && regionPoiRuntime.includes('_resonanceCharge + 28f') &&
+  regionPoiRuntime.includes('_resonanceCharge + 45f') && regionPoiRuntime.includes('ScaleLivingEnemiesNearPlayer(260f * radiusScale, 0.72f)') &&
+  regionPoiRuntime.includes('ScaleLivingEnemiesNearPlayer(220f * radiusScale, 0.62f)') &&
+  regionPoiRuntime.includes('_regionXpReward += 12') && regionPoiRuntime.includes('case "elite_nest":') &&
+  enemyPoiRuntime.includes('ScaleCurrentHp(float multiplier)') &&
+  !regionPoiRuntime.includes('AddExperience(RegionBossScheduleRules.GetRegionXpReward(_level))'),
+  'region POI gameplay effects must match source and region XP metadata must not be converted into player XP');
 const levelUpAbilities = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/LevelUpAbilityRules.cs'), 'utf8');
 assert.ok(levelUpAbilities.includes('SourcePassiveCatalog') &&
   levelUpAbilities.includes('kind == RunUpgradeKind.MaxSpheres ? 3 : 7;') &&
