@@ -336,8 +336,7 @@ namespace EchoSphere.Runtime
                 {
                     var bonusCharge = SphereEvolutionCombatRules.GetOrbitalResonanceBonus(_progressionLevel, finalId);
                     if (bonusCharge > 0f) _runtime.AddResonanceCharge(bonusCharge);
-                    if (finalId == "orbital_halo_final_3" &&
-                        SphereEvolutionCombatRules.ShouldOrbitalGrantShieldCharge(_orbitalHitCount))
+                    if (finalId == "orbital_halo_final_3")
                         _runtime.GrantPlayerShieldCharge(1);
                 }
                 _runtime.SpawnImpact(contact.transform.position, new Color(0.56f, 0.94f, 1f));
