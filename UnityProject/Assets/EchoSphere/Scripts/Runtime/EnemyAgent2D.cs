@@ -336,7 +336,6 @@ namespace EchoSphere.Runtime
         {
             if (_dead || _runtime == null || _runtime.IsGameplayPaused || _player == null) return;
             var dt = Time.deltaTime;
-            TickLinkBreaker(dt);
             _elementalReactionTimer = Mathf.Max(0f, _elementalReactionTimer - dt);
             if (_freezeVulnerabilityTimer > 0f)
             {
@@ -402,15 +401,7 @@ namespace EchoSphere.Runtime
             {
                 _freezeTimer = Mathf.Max(0f, _freezeTimer - dt);
                 RefreshElementalStatusVfx();
-                if (_freezeTimer > 0f)
-                {
-                    if (_bossCombat != null)
-                    {
-                        _bossCombat.Tick(dt);
-                        if (_creatureVisual != null) _creatureVisual.SetFacing((Vector2)_player.position - (Vector2)transform.position);
-                    }
-                    return;
-                }
+                if (_freezeTimer > 0f) return;
             }
             if (_slowTimer > 0f) _slowTimer = Mathf.Max(0f, _slowTimer - dt);
             else _slowMultiplier = 1f;
@@ -421,12 +412,14 @@ namespace EchoSphere.Runtime
                 if (_creatureVisual != null) _creatureVisual.SetFacing(target - (Vector2)transform.position);
                 return;
             }
+            var toPlayer = target - (Vector2)transform.position;
+            var distanceToPlayer = toPlayer.magnitude;
+            var directionToPlayer = distanceToPlayer > 0.0001f ? toPlayer / distanceToPlayer : Vector2.zero;
+            TickLinkBreaker(dt);
             var speedMultiplier = _slowMultiplier * _runtime.GetEnemyAbilitySpeedMultiplier() * (_isPhaseRole ? 1.12f : 1f);
             if (_role == "scavenger" && _hp / Mathf.Max(1f, _maxHp) < 0.5f) speedMultiplier *= 1.30f;
-            transform.position = Vector2.MoveTowards(transform.position, target, _moveSpeed * speedMultiplier * Time.deltaTime);
+            transform.position += (Vector3)(directionToPlayer * _moveSpeed * speedMultiplier * dt);
             if (_creatureVisual != null) _creatureVisual.SetFacing(target - (Vector2)transform.position);
-
-            var distanceToPlayer = Vector2.Distance(transform.position, target);
             if (_role == "leech" && distanceToPlayer < 160f * SpherePlacementRules.SourcePixelsToWorld)
                 _hp = Mathf.Min(_maxHp, _hp + 3f * dt);
 
@@ -477,7 +470,7 @@ namespace EchoSphere.Runtime
                 if (_role == "corruptor") _runtime.DrainResonance(4f);
 
                 // Source engineEnemies.ts pushes normal enemies away by 10 source pixels on contact.
-                var awayFromPlayer = ((Vector2)transform.position - target).normalized;
+                var awayFromPlayer = -directionToPlayer;
                 if (awayFromPlayer.sqrMagnitude > 0.0001f)
                     transform.position += (Vector3)(awayFromPlayer * 10f * SpherePlacementRules.SourcePixelsToWorld);
             }
