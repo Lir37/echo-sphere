@@ -101,8 +101,68 @@ namespace EchoSphere.Runtime
                 var column = i % navColumns;
                 var row = i / navColumns;
                 var rect = new Rect(10f + column * (navWidth + navGap), navStartY + row * (navButtonHeight + navVerticalGap), navWidth, navButtonHeight);
-                if (SourceUiButton(rect, labels[i], 7, Color.clear, "#66869d")) _mainMenuPage = pages[i];
+                if (SourceUiButton(rect, "", 7, Color.clear, "#66869d")) _mainMenuPage = pages[i];
+                var iconColor = new Color(102f / 255f, 134f / 255f, 157f / 255f, 1f);
+                DrawSourceMenuNavIcon(new Rect(rect.x + 5f, rect.y + 14f, 14f, 14f), i, iconColor);
+                SourceUiLabel(new Rect(rect.x + 22f, rect.y + 1f, rect.width - 25f, rect.height - 2f), labels[i], 7, "#66869d", true);
             }
+        }
+        // Matches the Lucide icon identities used by src/App.tsx. Presentation only.
+        private void DrawSourceMenuNavIcon(Rect rect, int index, Color color)
+        {
+            switch (index)
+            {
+                case 0: // UserRound
+                    SourceUiNavCircle(rect, new Vector2(.5f, .29f), .17f, color, 1.25f);
+                    SourceUiNavStroke(rect, new[] { new Vector2(.18f,.88f), new Vector2(.18f,.72f), new Vector2(.29f,.57f), new Vector2(.5f,.52f), new Vector2(.71f,.57f), new Vector2(.82f,.72f), new Vector2(.82f,.88f) }, color, 1.25f);
+                    break;
+                case 1: // Store
+                    SourceUiNavStroke(rect, new[] { new Vector2(.10f,.37f), new Vector2(.22f,.12f), new Vector2(.78f,.12f), new Vector2(.90f,.37f) }, color, 1.25f);
+                    SourceUiNavStroke(rect, new[] { new Vector2(.14f,.38f), new Vector2(.14f,.88f), new Vector2(.86f,.88f), new Vector2(.86f,.38f) }, color, 1.25f);
+                    SourceUiNavStroke(rect, new[] { new Vector2(.10f,.37f), new Vector2(.90f,.37f) }, color, 1.25f);
+                    SourceUiNavStroke(rect, new[] { new Vector2(.38f,.88f), new Vector2(.38f,.57f), new Vector2(.62f,.57f), new Vector2(.62f,.88f) }, color, 1.1f);
+                    break;
+                case 2: // Trophy
+                    SourceUiNavStroke(rect, new[] { new Vector2(.29f,.12f), new Vector2(.71f,.12f), new Vector2(.68f,.49f), new Vector2(.59f,.61f), new Vector2(.41f,.61f), new Vector2(.32f,.49f), new Vector2(.29f,.12f) }, color, 1.25f);
+                    SourceUiNavStroke(rect, new[] { new Vector2(.29f,.22f), new Vector2(.10f,.22f), new Vector2(.12f,.43f), new Vector2(.32f,.50f) }, color, 1.1f);
+                    SourceUiNavStroke(rect, new[] { new Vector2(.71f,.22f), new Vector2(.90f,.22f), new Vector2(.88f,.43f), new Vector2(.68f,.50f) }, color, 1.1f);
+                    SourceUiNavStroke(rect, new[] { new Vector2(.50f,.61f), new Vector2(.50f,.82f), new Vector2(.32f,.88f), new Vector2(.68f,.88f) }, color, 1.25f);
+                    break;
+                case 3: // Award
+                    SourceUiNavStroke(rect, new[] { new Vector2(.50f,.08f), new Vector2(.63f,.35f), new Vector2(.91f,.39f), new Vector2(.70f,.59f), new Vector2(.75f,.88f), new Vector2(.50f,.74f), new Vector2(.25f,.88f), new Vector2(.30f,.59f), new Vector2(.09f,.39f), new Vector2(.37f,.35f), new Vector2(.50f,.08f) }, color, 1.15f);
+                    break;
+                case 4: // BookOpen
+                    SourceUiNavStroke(rect, new[] { new Vector2(.49f,.20f), new Vector2(.39f,.12f), new Vector2(.12f,.12f), new Vector2(.12f,.82f), new Vector2(.39f,.82f), new Vector2(.49f,.89f), new Vector2(.49f,.20f) }, color, 1.15f);
+                    SourceUiNavStroke(rect, new[] { new Vector2(.51f,.20f), new Vector2(.61f,.12f), new Vector2(.88f,.12f), new Vector2(.88f,.82f), new Vector2(.61f,.82f), new Vector2(.51f,.89f), new Vector2(.51f,.20f) }, color, 1.15f);
+                    break;
+                case 5: // Settings
+                    SourceUiNavCircle(rect, new Vector2(.5f,.5f), .30f, color, 1.15f);
+                    SourceUiNavCircle(rect, new Vector2(.5f,.5f), .10f, color, 1.15f);
+                    for (var tooth = 0; tooth < 8; tooth++)
+                    {
+                        var angle = tooth * Mathf.PI / 4f;
+                        var inner = new Vector2(.5f + Mathf.Cos(angle) * .31f, .5f + Mathf.Sin(angle) * .31f);
+                        var outer = new Vector2(.5f + Mathf.Cos(angle) * .45f, .5f + Mathf.Sin(angle) * .45f);
+                        SourceUiNavStroke(rect, new[] { inner, outer }, color, 1.15f);
+                    }
+                    break;
+            }
+        }
+        private void SourceUiNavCircle(Rect rect, Vector2 center, float radius, Color color, float width)
+        {
+            var previous = new Vector2();
+            for (var i = 0; i <= 20; i++)
+            {
+                var angle = i * Mathf.PI * 2f / 20f;
+                var point = new Vector2(center.x + Mathf.Cos(angle) * radius, center.y + Mathf.Sin(angle) * radius);
+                if (i > 0) DrawSphereGuiLine(new Vector2(rect.x + previous.x * rect.width, rect.y + previous.y * rect.height), new Vector2(rect.x + point.x * rect.width, rect.y + point.y * rect.height), color, width);
+                previous = point;
+            }
+        }
+        private void SourceUiNavStroke(Rect rect, Vector2[] points, Color color, float width)
+        {
+            for (var i = 1; i < points.Length; i++)
+                DrawSphereGuiLine(new Vector2(rect.x + points[i - 1].x * rect.width, rect.y + points[i - 1].y * rect.height), new Vector2(rect.x + points[i].x * rect.width, rect.y + points[i].y * rect.height), color, width);
         }
         private void DrawSourceMenuCore(Rect art)
         {

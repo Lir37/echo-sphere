@@ -250,3 +250,14 @@ Unity Editor/APK/device rendering remains unverified; structural CI is not proof
 - This is a compile-scope correction only. Charge timing, muzzle geometry, rotation, colors, attack logic and damage are unchanged.
 
 Unity Editor compilation and APK/device validation still require their own verification. Structural CI does not prove Unity compilation. `new-desing` remains unchanged.
+
+## Main-menu navigation icons and source descriptions — 2026-10-15
+
+Source baseline: `new-desing` `737ef2af4a877e0995db5f92331d536d2f29a934`.
+Implementation base: `unity-migration` `c6e0890aba92a21705a3fe4bd6a4217af5d021d0`.
+
+- Confirmed source menu in `src/App.tsx` uses six Lucide icons in order: `UserRound`, `Store`, `Trophy`, `Award`, `BookOpen`, `Settings`. Unity's six destinations already worked, but displayed text-only navigation. Added corresponding thin line-art icons while preserving labels, page targets, layout breakpoints and click behavior.
+- The Unity knowledge runtime loads `Assets/Resources/EchoSphere/SourceCatalog.json`; its schema carries localized `nameRu/nameEn`, `descRu/descEn`, `detailsRu/detailsEn` across Core, Spheres, Monsters, Bosses, Abilities, Artifacts and Evolutions. These source descriptions are preserved rather than paraphrased or invented.
+- Existing XP shard and Standard/Orbital VFX corrections are recorded in the preceding audit sections and were not rewritten in this pass.
+
+Verification boundary: structural preflight and CI can check source wiring, not Unity GUI appearance. Unity Editor, APK and device rendering have not been run in this cycle. `new-desing` remains unchanged. Remaining visual/system parity gaps listed earlier in this report are still open; this commit does not claim complete migration.
