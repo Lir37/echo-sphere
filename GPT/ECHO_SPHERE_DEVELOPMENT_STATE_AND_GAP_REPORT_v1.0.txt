@@ -2431,3 +2431,45 @@ PLAYER CHECK:
 ======================================================================
 END FINAL VALIDATION / MUTATION DEPTH CYCLE
 ======================================================================
+
+
+======================================================================
+2026-10-14 — UNITY MIGRATION / REGIONAL ENEMY ROLE PORT
+======================================================================
+
+UNITY MIGRATION HEAD BEFORE THIS REPORT UPDATE:
+5a88d15820f8a13b0a6af48d358d5a7813917943
+
+SOURCE BASELINE (new-desing):
+737ef2af4a877e0995db5f92331d536d2f29a934
+
+IMPLEMENTED ON unity-migration:
+- Added source ecology role pools from src/region.ts:
+  flow, swarm, pressure, fracture and hollow.
+- Applied source role HP/speed/damage/radius modifiers in enemy spawning.
+- Ported role behavior from src/engineEnemies.ts:
+  phase movement and gravity-field immunity; scavenger low-HP speed;
+  leech healing; ranged/sniper projectiles; healer ally recovery;
+  disruptor Sphere network disable; charger contact multiplier; corruptor
+  Resonance drain.
+- Existing world POI and radar indicators remain in place.
+- No new gameplay mechanics or rewards were intentionally introduced.
+- new-desing remains unchanged.
+
+VALIDATION:
+- Unity Migration Contracts #503: SUCCESS on
+  5a88d15820f8a13b0a6af48d358d5a7813917943.
+- Contract checks and Unity project structural checks passed.
+- Unity Editor compilation, APK build and device gameplay/visual parity
+  are NOT confirmed by this CI workflow.
+
+REMAINING:
+- Audit role behaviors against the complete source update order and confirm
+  remaining regional challenge/event differences.
+- Continue source-to-Unity audit of systems not yet migrated.
+- POI radar and world markers are ported; do not reimplement them.
+- Do not treat contract CI as proof of full gameplay identity.
+
+======================================================================
+END UNITY MIGRATION / REGIONAL ENEMY ROLE PORT
+======================================================================
