@@ -229,3 +229,16 @@ Source baseline: `new-desing` `737ef2af4a877e0995db5f92331d536d2f29a934`.
 - Confirmed the radius path already includes the source Chaos Orb radius buff (+20% while active) and Mutation Stage II (+15%) through `GetSphereRadiusMultiplier`; no duplicate multiplier was added.
 
 Unity Editor/APK/device rendering is not verified by structural CI. `new-desing` was not modified.
+
+
+## Sphere core glow radius pulse — 2026-10-14
+
+Source baseline: `new-desing` `737ef2af4a877e0995db5f92331d536d2f29a934`.
+Implementation base: `eada83f5e92f452d19961835f4ef6df894199a26`.
+
+- Compared `src/spheres/visualHelpers.ts:core()` with `SphereRuntimeVfx2D.Rebuild()` and the active Orbital renderer.
+- Confirmed source glow disc radius is `radius * 0.58 * (1 + pulse * 0.035)`; Unity had used a fixed `coreRadius * 0.62`, losing the source's small pulse-driven radius expansion and using a mismatched base radius.
+- Updated only the mesh glow radius expression to the source coefficient and pulse factor. The source pulse amplitude, Orbital 3.0 rad/s phase, disabled-state hold, core disk radius, outline, orbit paths, combat, damage and RNG remain unchanged.
+- Added a structural regression assertion for the radius formula and Orbital-specific core pulse selection.
+
+Unity Editor/APK/device rendering remains unverified; structural CI is not proof of full visual parity. `new-desing` was not modified.
