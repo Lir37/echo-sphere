@@ -322,8 +322,14 @@ namespace EchoSphere.Runtime
         private bool _mainMenu = true;
         private bool _regionSelect;
         private EchoRegionId _selectedRegion = EchoRegionId.ResonanceBasin;
+        private string _regionChallengeId = "none";
+        private bool _regionEndlessMode;
+        private float _endlessNextBossAt;
+        private int _endlessBossesSpawned, _fractureIntervalIndex;
         private const string BasinStabilizedPreferenceKey = "echo-sphere:region:resonance_basin:stabilized";
         private const string SelectedRegionPreferenceKey = "echo-sphere:region:selected";
+        private const string RegionChallengePreferencePrefix = "echo-sphere:region:";
+        private const string RegionEndlessPreferenceSuffix = ":endless";
         private float _uiScale = 1f, _uiWidth, _uiHeight;
         private Texture2D _uiPanelTexture, _uiButtonTexture, _uiButtonHoverTexture, _uiButtonActiveTexture, _uiAccentTexture;
         private GUIStyle _menuTitle, _comboTitleStyle, _comboMultiplierStyle;
@@ -356,6 +362,80 @@ namespace EchoSphere.Runtime
         public EchoRegionId SelectedRegion => _selectedRegion;
         public bool IsRegionAvailable(EchoRegionId region) =>
             RegionUnlockRules.IsAvailable(region, PlayerPrefs.GetInt(BasinStabilizedPreferenceKey, 0) == 1);
+        private static string RegionSourceId(EchoRegionId region) =>
+            region == EchoRegionId.SpectralRift ? "spectral_rift" : "resonance_basin";
+        private static string RegionStabilizedKey(EchoRegionId region) =>
+            RegionChallengePreferencePrefix + RegionSourceId(region) + ":stabilized";
+        private static string RegionChallengesKey(EchoRegionId region) =>
+            RegionChallengePreferencePrefix + RegionSourceId(region) + ":challenges";
+        private static string RegionEndlessKey(EchoRegionId region) =>
+            RegionChallengePreferencePrefix + RegionSourceId(region) + RegionEndlessPreferenceSuffix;
+        private bool IsRegionStabilized(EchoRegionId region) =>
+            PlayerPrefs.GetInt(RegionStabilizedKey(region), region == EchoRegionId.ResonanceBasin &&
+                PlayerPrefs.GetInt(BasinStabilizedPreferenceKey, 0) == 1 ? 1 : 0) == 1;
+        private string[] GetCompletedRegionChallenges(EchoRegionId region)
+        {
+            var raw = PlayerPrefs.GetString(RegionChallengesKey(region), string.Empty);
+            if (string.IsNullOrEmpty(raw)) return Array.Empty<string>();
+            var valid = region == EchoRegionId.ResonanceBasin
+                ? new[] { "fractured_network", "overload", "low_gravity" }
+                : new[] { "mirror_tide", "volatile_core", "phase_drift" };
+            var result = new List<string>();
+            foreach (var id in raw.Split(','))
+                if (Array.IndexOf(valid, id) >= 0 && !result.Contains(id)) result.Add(id);
+            return result.ToArray();
+        }
+        private bool IsRegionEndlessUnlocked(EchoRegionId region) =>
+            GetCompletedRegionChallenges(region).Length >= 3 &&
+            PlayerPrefs.GetInt(RegionEndlessKey(region), 0) == 1;
+        private void MarkRegionChallengeComplete()
+        {
+            if (_regionChallengeId == "none" || _regionEndlessMode) return;
+            var completed = new List<string>(GetCompletedRegionChallenges(_selectedRegion));
+            if (!completed.Contains(_regionChallengeId)) completed.Add(_regionChallengeId);
+            PlayerPrefs.SetString(RegionChallengesKey(_selectedRegion), string.Join(",", completed));
+            if (completed.Count >= 3) PlayerPrefs.SetInt(RegionEndlessKey(_selectedRegion), 1);
+            PlayerPrefs.Save();
+        }
+        private float GetChallengeEnemyHpMultiplier()
+        {
+            if (_regionChallengeId == "overload") return 1.18f;
+            if (_regionChallengeId == "mirror_tide")
+                return Mathf.FloorToInt(_runTime / 36f) % 2 == 0 ? 0.94f : 1.18f;
+            if (_regionChallengeId == "volatile_core" && _resonanceCharge >= 70f) return 1.12f;
+            return 1f;
+        }
+        private float GetChallengeEnemySpeedMultiplier()
+        {
+            if (_regionChallengeId == "overload") return 1.12f;
+            if (_regionChallengeId == "mirror_tide")
+                return Mathf.FloorToInt(_runTime / 36f) % 2 == 0 ? 1.20f : 0.88f;
+            if (_regionChallengeId == "volatile_core" && _resonanceCharge >= 70f) return 1.06f;
+            return 1f;
+        }
+        private float GetChallengeEnemyXpMultiplier()
+        {
+            if (_regionChallengeId == "overload") return 1.15f;
+            if (_regionChallengeId == "mirror_tide")
+                return Mathf.FloorToInt(_runTime / 36f) % 2 == 0 ? 1.08f : 1.20f;
+            if (_regionChallengeId == "volatile_core" && _resonanceCharge >= 70f) return 1.10f;
+            return 1f;
+        }
+        private float GetChallengeEnemyDamageMultiplier()
+        {
+            if (_regionChallengeId == "overload") return 1.08f;
+            if (_regionChallengeId == "mirror_tide")
+                return Mathf.FloorToInt(_runTime / 36f) % 2 == 0 ? 0.94f : 1.16f;
+            if (_regionChallengeId == "volatile_core" && _resonanceCharge >= 70f) return 1.12f;
+            return 1f;
+        }
+        private float GetChallengeMovementMultiplier()
+        {
+            if (_regionChallengeId == "low_gravity") return 1.12f;
+            if (_selectedRegion == EchoRegionId.SpectralRift &&
+                (_regionChallengeId == "volatile_core" || _regionChallengeId == "phase_drift")) return 1.10f;
+            return 1f;
+        }
         public float NextRunRandom() => _rng.NextFloat();
         public int GetShopUpgradeLevel(string id) { EnsureShopSaveLoaded(); return _shopSave.upgrades.Get(id); }
         public float GetShopSphereRadiusMultiplier() => PersistentUpgradeRules.GetPercentMultiplier(GetShopUpgradeLevel("radius"));
@@ -822,6 +902,8 @@ namespace EchoSphere.Runtime
             var savedRegionValue = PlayerPrefs.GetInt(SelectedRegionPreferenceKey, (int)EchoRegionId.ResonanceBasin);
             _selectedRegion = (EchoRegionId)Mathf.Clamp(savedRegionValue, (int)EchoRegionId.ResonanceBasin, (int)EchoRegionId.SpectralRift);
             if (!IsRegionAvailable(_selectedRegion)) _selectedRegion = EchoRegionId.ResonanceBasin;
+            _regionChallengeId = "none";
+            _regionEndlessMode = false;
             _regionSchedule = RegionBossScheduleRules.Create(_selectedRegion, EchoRegionMode.Stabilization);
             _tutorialStep = PlayerPrefs.GetInt(TutorialCompletedPreferenceKey, 0) == 0 ? 0 : -1;
             _tutorialUpgradeOpened = false;
@@ -911,7 +993,7 @@ namespace EchoSphere.Runtime
             if (_follow) _formationStrain = FormationFollowRules.UpdateStrain(_formationStrain, _lastDirection, requested, dt, out _lastDirection);
             else { _formationStrain = 0f; _lastDirection = Vec2.Zero; }
 
-            _player.position += (Vector3)(_playerCore.GetVelocity(input, 3.6f * GetArtifactMoveSpeedMultiplier() *
+            _player.position += (Vector3)(_playerCore.GetVelocity(input, 3.6f * GetChallengeMovementMultiplier() * GetArtifactMoveSpeedMultiplier() *
                 LevelUpAbilityRules.GetMoveSpeedMultiplier(GetAbilityLevel(RunUpgradeKind.MoveSpeed)) *
                 LevelUpAbilityRules.GetMomentumSpeedMultiplier(GetAbilityLevel(RunUpgradeKind.Momentum), _playerCore.DashTimer > 0f) *
                 GetCharacterMoveSpeedMultiplier(), followMultiplier) * dt);
@@ -1656,8 +1738,11 @@ namespace EchoSphere.Runtime
             var archetype = EnemySpawnRules.Select(_runTime, _rng.NextFloat());
             var profile = EnemySpawnRules.GetProfile(archetype);
             var difficulty = CurrentDifficulty;
-            var baseHp = (18f + _wave * 5.5f) * difficulty.EnemyHpMultiplier;
-            var baseSpeed = BossCombatRules.ToWorldUnits(68f + _wave * 1.8f) * difficulty.EnemySpeedMultiplier;
+            var challengeHp = GetChallengeEnemyHpMultiplier();
+            var challengeSpeed = GetChallengeEnemySpeedMultiplier();
+            var challengeXp = GetChallengeEnemyXpMultiplier();
+            var baseHp = (18f + _wave * 5.5f) * difficulty.EnemyHpMultiplier * challengeHp;
+            var baseSpeed = BossCombatRules.ToWorldUnits(68f + _wave * 1.8f) * difficulty.EnemySpeedMultiplier * challengeSpeed;
             var tint = GetEnemyTint(archetype);
             var go = CreateOrb(GetEnemyName(archetype), position, 0.72f * profile.VisualScale, tint, Color.white, 4);
             ApplyShellVisual(go, GetEnemySprite(archetype), archetype == EnemyArchetype.Normal ? 1.12f : 1.02f);
@@ -1679,7 +1764,8 @@ namespace EchoSphere.Runtime
                     break;
             }
             var agent = go.AddComponent<EnemyAgent2D>();
-            agent.Initialize(this, _player, baseHp * profile.HpMultiplier, baseSpeed * profile.SpeedMultiplier, profile.XpReward,
+            agent.Initialize(this, _player, baseHp * profile.HpMultiplier, baseSpeed * profile.SpeedMultiplier,
+                Mathf.Max(1, Mathf.RoundToInt(profile.XpReward * challengeXp)),
                 GetEnemyVisualVariant(archetype), "", archetype == EnemyArchetype.Elite, archetype);
             _enemies.Add(agent);
         }
@@ -1706,6 +1792,30 @@ namespace EchoSphere.Runtime
 
         private void AdvanceRegionBossSchedule()
         {
+            if (_regionChallengeId == "fractured_network" && !_regionEndlessMode)
+            {
+                var interval = Mathf.FloorToInt(_runTime / 45f);
+                if (interval > _fractureIntervalIndex)
+                {
+                    _fractureIntervalIndex = interval;
+                    if (_spheres.Count > 0)
+                        DisableNearestNetworkSpheres(_player != null ? (Vector2)_player.position : Vector2.zero, 1, 2.2f, false);
+                }
+            }
+            if (_regionEndlessMode)
+            {
+                if (_runTime >= _endlessNextBossAt && !HasActiveBoss())
+                {
+                    var basinTypes = new[] { "conductor", "architect", "stella_warden" };
+                    var riftTypes = new[] { "null", "aura", "stella_warden" };
+                    var types = _selectedRegion == EchoRegionId.SpectralRift ? riftTypes : basinTypes;
+                    var bossType = types[Mathf.Min(_endlessBossesSpawned, types.Length - 1)];
+                    _endlessBossesSpawned++;
+                    _endlessNextBossAt += 150f;
+                    SpawnBossForRegionEvent(bossType, _wave);
+                }
+                return;
+            }
             var signal = RegionBossScheduleRules.Advance(_regionSchedule, _runTime, HasActiveBoss());
             if (signal.Kind == RegionBossSignalKind.SpawnBoss)
             {
@@ -1714,13 +1824,12 @@ namespace EchoSphere.Runtime
             else if (signal.Kind == RegionBossSignalKind.RegionCleared)
             {
                 _regionStabilized = true;
-                if (_regionSchedule.RegionId == EchoRegionId.ResonanceBasin &&
-                    _regionSchedule.Mode == EchoRegionMode.Stabilization)
-                {
+                PlayerPrefs.SetInt(RegionStabilizedKey(_selectedRegion), 1);
+                if (_selectedRegion == EchoRegionId.ResonanceBasin)
                     PlayerPrefs.SetInt(BasinStabilizedPreferenceKey, 1);
-                    PlayerPrefs.Save();
-                }
-                // Region completion is not game-over: keep pickups alive after the final boss.
+                MarkRegionChallengeComplete();
+                PlayerPrefs.Save();
+                // Region completion is not game-over: keep pickups alive after the final boss;
                 ShowMessage(IsRussianUi ? "РЕГИОН СТАБИЛИЗИРОВАН" : "REGION STABILIZED");
                 AddExperience(RegionBossScheduleRules.GetRegionXpReward(_level));
             }
@@ -1745,12 +1854,13 @@ namespace EchoSphere.Runtime
             var tint = Color.white;
             ColorUtility.TryParseHtmlString(BossCombatRules.GetColorHex(type), out tint);
             var difficulty = CurrentDifficulty;
-            var hp = BossCombatRules.GetMaxHp(wave) * difficulty.EnemyHpMultiplier;
-            var speed = BossCombatRules.GetMoveSpeedWorldUnitsPerSecond(type, wave) * difficulty.EnemySpeedMultiplier;
-            var damage = BossCombatRules.GetContactDamage(wave);
+            var hp = BossCombatRules.GetMaxHp(wave) * difficulty.EnemyHpMultiplier * GetChallengeEnemyHpMultiplier();
+            var speed = BossCombatRules.GetMoveSpeedWorldUnitsPerSecond(type, wave) * difficulty.EnemySpeedMultiplier * GetChallengeEnemySpeedMultiplier();
+            var damage = BossCombatRules.GetContactDamage(wave) * GetChallengeEnemyDamageMultiplier();
             var root = CreateOrb("ECHO SPHERE Boss / " + type, position, 1.23f, tint, Color.white, 4);
             var agent = root.AddComponent<EnemyAgent2D>();
-            agent.Initialize(this, _player, hp, speed, BossCombatRules.GetXpReward(wave),
+            agent.Initialize(this, _player, hp, speed,
+                Mathf.Max(1, Mathf.RoundToInt(BossCombatRules.GetXpReward(wave) * GetChallengeEnemyXpMultiplier())),
                 BossCombatRules.GetVisualVariant(type), type);
             _enemies.Add(agent);
             var combat = root.AddComponent<BossCombatAgent2D>();
@@ -7295,7 +7405,7 @@ namespace EchoSphere.Runtime
             var cardGap = 14f;
             var cardWidth = (panel.width - 60f - cardGap) * 0.5f;
             var cardTop = panel.y + 140f;
-            var cardHeight = Mathf.Min(240f, panel.height - 230f);
+            var cardHeight = Mathf.Min(220f, panel.height - 250f);
             var basin = new Rect(panel.x + 20f, cardTop, cardWidth, cardHeight);
             var rift = new Rect(basin.xMax + cardGap, cardTop, cardWidth, cardHeight);
             var basinSelected = _selectedRegion == EchoRegionId.ResonanceBasin;
@@ -7318,7 +7428,11 @@ namespace EchoSphere.Runtime
                 ? (IsRussianUi ? "ВЫБРАНО" : "SELECTED")
                 : (IsRussianUi ? "ВЫБРАТЬ РЕГИОН" : "SELECT REGION");
             if (GUI.Button(new Rect(basin.x + 20f, basin.yMax - 58f, basin.width - 40f, 42f), basinButtonLabel, _button))
+            {
                 _selectedRegion = EchoRegionId.ResonanceBasin;
+                _regionChallengeId = "none";
+                _regionEndlessMode = false;
+            }
 
             GUI.Box(rift, GUIContent.none, _box);
             GUI.color = new Color(0.66f, 0.52f, 1f, riftAvailable ? 0.95f : 0.55f);
@@ -7345,7 +7459,55 @@ namespace EchoSphere.Runtime
                     ? (IsRussianUi ? "ВЫБРАНО" : "SELECTED")
                     : (IsRussianUi ? "ВЫБРАТЬ РЕГИОН" : "SELECT REGION");
             if (GUI.Button(new Rect(rift.x + 20f, rift.yMax - 58f, rift.width - 40f, 42f), riftButtonLabel, _button) && riftAvailable)
+            {
                 _selectedRegion = EchoRegionId.SpectralRift;
+                _regionChallengeId = "none";
+                _regionEndlessMode = false;
+            }
+            GUI.enabled = previousEnabled;
+
+            var selectedRegionStabilized = IsRegionStabilized(_selectedRegion);
+            var challengeIds = _selectedRegion == EchoRegionId.ResonanceBasin
+                ? new[] { "none", "fractured_network", "overload", "low_gravity" }
+                : new[] { "none", "mirror_tide", "volatile_core", "phase_drift" };
+            var challengeNames = _selectedRegion == EchoRegionId.ResonanceBasin
+                ? (IsRussianUi
+                    ? new[] { "БАЗОВАЯ", "РАЗЛОМ СЕТИ", "ПЕРЕГРУЗКА", "НИЗКАЯ ГРАВИТАЦИЯ" }
+                    : new[] { "BASE", "FRACTURED NETWORK", "OVERLOAD", "LOW GRAVITY" })
+                : (IsRussianUi
+                    ? new[] { "БАЗОВАЯ", "ЗЕРКАЛЬНЫЙ ПРИЛИВ", "НЕСТАБИЛЬНОЕ ЯДРО", "ФАЗОВЫЙ СДВИГ" }
+                    : new[] { "BASE", "MIRROR TIDE", "VOLATILE CORE", "PHASE DRIFT" });
+            var challengeRowY = panel.y + 365f;
+            var challengeGap = 5f;
+            var challengeButtonWidth = (panel.width - 52f - challengeGap * 3f) / 4f;
+            var completedChallenges = GetCompletedRegionChallenges(_selectedRegion);
+            for (var challengeIndex = 0; challengeIndex < challengeIds.Length; challengeIndex++)
+            {
+                var challengeId = challengeIds[challengeIndex];
+                var isChallenge = challengeId != "none";
+                var done = Array.IndexOf(completedChallenges, challengeId) >= 0;
+                var buttonLabel = (done ? "✓ " : "") + challengeNames[challengeIndex];
+                GUI.enabled = !isChallenge || selectedRegionStabilized;
+                var buttonRect = new Rect(panel.x + 26f + challengeIndex * (challengeButtonWidth + challengeGap),
+                    challengeRowY, challengeButtonWidth, 28f);
+                if (GUI.Button(buttonRect, buttonLabel, _button))
+                {
+                    _regionChallengeId = challengeId;
+                    _regionEndlessMode = false;
+                }
+            }
+            GUI.enabled = previousEnabled;
+            var challengeProgress = completedChallenges.Length;
+            var endlessUnlocked = IsRegionEndlessUnlocked(_selectedRegion);
+            GUI.enabled = endlessUnlocked;
+            var endlessLabel = endlessUnlocked
+                ? (IsRussianUi ? "∞  БЕСКОНЕЧНОСТЬ · ОТКРЫТО" : "∞  ENDLESS · UNLOCKED")
+                : (IsRussianUi ? $"∞  БЕСКОНЕЧНОСТЬ · ИСПЫТАНИЯ {challengeProgress}/3" : $"∞  ENDLESS · CHALLENGES {challengeProgress}/3");
+            if (GUI.Button(new Rect(panel.center.x - 160f, panel.y + 397f, 320f, 28f), endlessLabel, _button))
+            {
+                _regionChallengeId = "none";
+                _regionEndlessMode = true;
+            }
             GUI.enabled = previousEnabled;
 
             GUI.color = new Color(0.60f, 0.80f, 1f, 0.6f);
@@ -7378,9 +7540,25 @@ namespace EchoSphere.Runtime
                 return;
             }
 
+            var challengeAllowed = IsRegionStabilized(_selectedRegion);
+            if (_regionChallengeId != "none" && !challengeAllowed)
+            {
+                ShowMessage(IsRussianUi ? "СНАЧАЛА СТАБИЛИЗИРУЙ РЕГИОН" : "STABILIZE THE REGION FIRST");
+                _regionChallengeId = "none";
+                _regionEndlessMode = false;
+                return;
+            }
+            if (_regionEndlessMode && !IsRegionEndlessUnlocked(_selectedRegion))
+            {
+                ShowMessage(IsRussianUi ? "СНАЧАЛА ПРОЙДИ ТРИ ИСПЫТАНИЯ" : "CLEAR ALL THREE CHALLENGES FIRST");
+                _regionEndlessMode = false;
+                return;
+            }
             PlayerPrefs.SetInt(SelectedRegionPreferenceKey, (int)_selectedRegion);
-            PlayerPrefs.Save();
             _regionSchedule = RegionBossScheduleRules.Create(_selectedRegion, EchoRegionMode.Stabilization);
+            _endlessNextBossAt = _selectedRegion == EchoRegionId.SpectralRift ? 450f : 480f;
+            _endlessBossesSpawned = 0;
+            _fractureIntervalIndex = 0;
             _regionStabilized = false;
             _regionFieldVisuals?.SetRegion(_selectedRegion);
             _regionSelect = false;
