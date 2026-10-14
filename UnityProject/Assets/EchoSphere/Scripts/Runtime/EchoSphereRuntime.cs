@@ -427,7 +427,7 @@ namespace EchoSphere.Runtime
             if (_regionChallengeId == "volatile_core" && _resonanceCharge >= 70f) return 1.10f;
             return 1f;
         }
-        private float GetChallengeEnemyDamageMultiplier()
+        public float GetRegionEnemyDamageMultiplier()
         {
             if (_regionChallengeId == "overload") return 1.08f;
             if (_regionChallengeId == "mirror_tide")
@@ -1872,13 +1872,12 @@ namespace EchoSphere.Runtime
             var tint = Color.white;
             ColorUtility.TryParseHtmlString(BossCombatRules.GetColorHex(type), out tint);
             var difficulty = CurrentDifficulty;
-            var hp = BossCombatRules.GetMaxHp(wave) * difficulty.EnemyHpMultiplier * GetChallengeEnemyHpMultiplier();
-            var speed = BossCombatRules.GetMoveSpeedWorldUnitsPerSecond(type, wave) * difficulty.EnemySpeedMultiplier * GetChallengeEnemySpeedMultiplier();
-            var damage = BossCombatRules.GetContactDamage(wave) * GetChallengeEnemyDamageMultiplier();
+            var hp = BossCombatRules.GetMaxHp(wave) * difficulty.EnemyHpMultiplier;
+            var speed = BossCombatRules.GetMoveSpeedWorldUnitsPerSecond(type, wave) * difficulty.EnemySpeedMultiplier;
+            var damage = BossCombatRules.GetContactDamage(wave);
             var root = CreateOrb("ECHO SPHERE Boss / " + type, position, 1.23f, tint, Color.white, 4);
             var agent = root.AddComponent<EnemyAgent2D>();
-            agent.Initialize(this, _player, hp, speed,
-                Mathf.Max(1, Mathf.RoundToInt(BossCombatRules.GetXpReward(wave) * GetChallengeEnemyXpMultiplier())),
+            agent.Initialize(this, _player, hp, speed, BossCombatRules.GetXpReward(wave),
                 BossCombatRules.GetVisualVariant(type), type);
             _enemies.Add(agent);
             var combat = root.AddComponent<BossCombatAgent2D>();
