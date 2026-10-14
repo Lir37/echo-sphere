@@ -1,0 +1,223 @@
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using EchoSphere.Core;
+using UnityEngine;
+
+namespace EchoSphere.Runtime
+{
+    public sealed partial class EchoSphereRuntime
+    {
+        private const string RunSnapshotKey = "echosphere_active_run_v1";
+        private float _runSaveAccumulator;
+        [Serializable] private sealed class SavedEntity
+        {
+            public string kind, name, variant;
+            public Vector3 position, scale;
+            public Color color;
+            public SnapshotValue state, auxiliary;
+            public bool hasProjectileOwner;
+            public int projectileOwnerIndex;
+        }
+        [Serializable] private sealed class SavedRun
+        {
+            public int version = 1;
+            public long savedAt;
+            public float time;
+            public Vector3 playerPosition;
+            public SnapshotValue runtime, player;
+            public RegionFieldVisuals.PoiSnapshot regionPois;
+            public List<SavedEntity> entities = new List<SavedEntity>();
+        }
+        private static readonly HashSet<string> NonRunFields = new HashSet<string>
+        {
+            "_shopSaveLoaded", "_characterProfiles", "_characterProfilesLoaded", "_leaderboardEntries", "_unlockedAchievementIds",
+            "_knownArtifactProtocolIds", "_artifactProtocolKnowledgeLoaded", "_knownKnowledgeIds", "_knowledgeLoaded", "_sourceKnowledge",
+            "_mainMenuPage", "_mainMenu", "_regionSelect", "_settingsResetPending", "_characterScrollPosition", "_expandedCharacterId",
+            "_uiScale", "_uiWidth", "_uiHeight", "_artifactProtocolScrollPosition", "_knowledgeScrollPosition", "_knowledgeQuery", "_knowledgeSection",
+            "_spherePointerActive", "_spherePointerFromTouch", "_spherePointerMoved", "_spherePointerIsMovement", "_spherePointerIsPlacing",
+            "_spherePointerTouchId", "_spherePointerStartScreen", "_spherePointerWorld", "_spherePointerPositionValid", "_spherePointerPreview",
+            "_spherePointerPreviewPositions", "_spherePointerPreviewIndex", "_runSaveAccumulator", "_lastHunterScreenShakeOffset",
+            "_simulationAgents", "_simulationFrame", "_sourceParticles", "_pausePlannerTab", "_pausePlannerScroll", "_pauseArtifactSetId", "_upgradePickerScroll", "_sourceRegionScroll",
+            "_sourceRegionBossForFrame", "_sourceSettingsScroll", "_sourceLockedSphereTouch", "_sourceUiTouchFrame", "_sourceUiTouches",
+            "_sourceArtifactScroll", "_sourceSetDetailScroll", "_sourceResultRank", "_sourceResultNewRecord",
+            "_sourcePointers", "_sourceJoystickId", "_sourceJoystickStart", "_sourceJoystickDrag", "_sourceJoystickDirection", "_sourceTouchLastDirection",
+            "_sourceHudTooltip", "_sourceHudTooltipUntil", "_sourceHudDragSlot", "_sourceHudTooltipRect"
+        };
+        private void TickRunAutosave()
+        {
+            if (_mainMenu || _gameOver || _tutorialStep >= 0) return;
+            _runSaveAccumulator += Mathf.Min(0.05f, Time.unscaledDeltaTime);
+            if (_runSaveAccumulator < 1f) return;
+            _runSaveAccumulator = 0f;
+            SaveCurrentRun();
+        }
+        private void OnApplicationPause(bool paused) { if (paused) PauseAndSaveRun(); }
+        private void OnApplicationFocus(bool focused) { if (!focused) PauseAndSaveRun(); }
+        private void OnApplicationQuit() { SaveCurrentRun(); }
+        private void PauseAndSaveRun()
+        {
+            if (_mainMenu || _gameOver || _tutorialStep >= 0) return;
+            SetUserPaused(true); ClearSpherePointer(); SaveCurrentRun();
+        }
+        private void ClearRunSnapshot() { PlayerPrefs.DeleteKey(RunSnapshotKey); PlayerPrefs.Save(); }
+        private SavedRun LoadRunSnapshot()
+        {
+            if (!PlayerPrefs.HasKey(RunSnapshotKey)) return null;
+            try
+            {
+                var save = JsonUtility.FromJson<SavedRun>(PlayerPrefs.GetString(RunSnapshotKey));
+                if (save == null || save.version != 1 || save.runtime == null || save.player == null || save.entities == null ||
+                    float.IsNaN(save.time) || float.IsInfinity(save.time) || RunSnapshotCodec.Read(save.runtime, "_gameOver", false))
+                    throw new FormatException("Invalid run snapshot");
+                return save;
+            }
+            catch (Exception) { ClearRunSnapshot(); return null; }
+        }
+        private void SaveCurrentRun()
+        {
+            if (_mainMenu || _gameOver || _tutorialStep >= 0 || _playerCore == null) return;
+            try
+            {
+                var save = new SavedRun { savedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), time = _runTime,
+                    playerPosition = _player.position, player = RunSnapshotCodec.Capture(_playerCore),
+                    runtime = RunSnapshotCodec.Capture(this, field => !NonRunFields.Contains(field.Name)), regionPois = _regionFieldVisuals.CapturePoiState() };
+                var liveEnemies = new List<EnemyAgent2D>(); foreach (var enemy in _enemies) if (enemy != null && enemy.IsAlive) liveEnemies.Add(enemy);
+                foreach (var agent in _simulationAgents)
+                {
+                    if (agent == null || !agent.gameObject.activeInHierarchy) continue;
+                    var type = agent.GetType();
+                    if (type != typeof(SphereAttackAgent) && type != typeof(EnemyAgent2D) && type != typeof(ProjectileAgent) &&
+                        type != typeof(BossProjectileAgent2D) && type != typeof(AbilityDroneAgent2D) && type != typeof(ExperienceOrbAgent) &&
+                        type != typeof(HealthPackAgent2D) && type != typeof(RuneAgent2D) && type != typeof(ArtifactChestAgent2D) &&
+                        type != typeof(StellaChestAgent2D) && type != typeof(SourceParticle2D)) continue;
+                    if (agent is EnemyAgent2D enemy && !enemy.IsAlive) continue;
+                    var sprite = agent.GetComponentInChildren<SpriteRenderer>();
+                    var entity = new SavedEntity { kind = type.Name, name = agent.name, position = agent.transform.position,
+                        scale = agent.transform.localScale, color = sprite != null ? sprite.color : Color.white,
+                        state = RunSnapshotCodec.Capture(agent) };
+                    if (agent is BossProjectileAgent2D bullet && bullet.HasSourceOwner)
+                    { entity.hasProjectileOwner = true; entity.projectileOwnerIndex = liveEnemies.IndexOf(bullet.SourceOwner); }
+                    if (agent is EnemyAgent2D)
+                    {
+                        var creature = agent.GetComponent<EnemyCreatureVisual2D>();
+                        entity.variant = creature == null ? "wisp" : creature.SourceVariant;
+                        var boss = agent.GetComponent<BossCombatAgent2D>();
+                        if (boss != null) entity.auxiliary = RunSnapshotCodec.Capture(boss);
+                    }
+                    save.entities.Add(entity);
+                }
+                PlayerPrefs.SetString(RunSnapshotKey, JsonUtility.ToJson(save)); PlayerPrefs.Save();
+            }
+            catch (Exception error) { Debug.LogWarning("[ECHO SPHERE] Run save failed: " + error.Message); }
+        }
+        private void ContinueSavedRun()
+        {
+            var save = LoadRunSnapshot(); if (save == null) return;
+            // Stop old entity updates immediately; Unity's deferred Destroy happens after this frame.
+            foreach (var agent in FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.InstanceID))
+            {
+                if (agent is SphereAttackAgent || agent is EnemyAgent2D || agent is ProjectileAgent || agent is BossProjectileAgent2D ||
+                    agent is AbilityDroneAgent2D || agent is ExperienceOrbAgent || agent is HealthPackAgent2D || agent is RuneAgent2D ||
+                    agent is ArtifactChestAgent2D || agent is StellaChestAgent2D || agent is SourceParticle2D)
+                { agent.gameObject.SetActive(false); Destroy(agent.gameObject); }
+            }
+            _spheres.Clear(); _enemies.Clear(); _abilityDrones.Clear();
+            RunSnapshotCodec.Restore(save.runtime, GetType(), this);
+            RunSnapshotCodec.Restore(save.player, typeof(PlayerCoreController2D), _playerCore);
+            _player.position = save.playerPosition;
+            _regionFieldVisuals.SetRegion(_selectedRegion);
+            _regionFieldVisuals.RestorePoiState(save.regionPois);
+            foreach (var entity in save.entities) RestoreSavedEntity(entity);
+            // Recreating Unity presentation can call entity initializers which draw random values.
+            // Source restore resumes the saved generator state without those construction draws.
+            _rng.RestoreState(RunSnapshotCodec.Read(save.runtime, "_rng", new SeededRng(1u)).State);
+            // Identical reference reset policy to src/runPersistence.ts.
+            _hunterMarkTarget = _hunterHuntTarget = null; _hunterMarkTimer = _hunterHuntTimer = 0f; _hunterHitCount = 0;
+            _engineerRelaySource = null; _engineerRelayTimer = 0f; _voidPhantomSource = null;
+            ClearSpherePointer();
+            _tutorialStep = -1; _mainMenu = false; _regionSelect = false; _userPaused = true; _paused = true;
+            _runSaveAccumulator = 0f;
+            RefreshNetworkState();
+            _camera.transform.position = new Vector3(_player.position.x, _player.position.y, -10f);
+        }
+        private void RestoreSavedEntity(SavedEntity entity)
+        {
+            MonoBehaviour agent = null;
+            var state = entity.state;
+            if (entity.kind == nameof(SphereAttackAgent))
+            {
+                CreateSphere(RunSnapshotCodec.Read(state, "_type", SphereId.Standard), RunSnapshotCodec.Read(state, "_progressionLevel", 0), entity.position);
+                agent = _spheres[_spheres.Count - 1];
+            }
+            else if (entity.kind == nameof(EnemyAgent2D))
+            {
+                var baseColor = RunSnapshotCodec.Read(state, "_baseColor", entity.color);
+                var go = CreateOrb(entity.name, entity.position, 1f, baseColor, Color.white, 4);
+                var enemy = go.AddComponent<EnemyAgent2D>();
+                var bossType = RunSnapshotCodec.Read(state, "_bossType", "");
+                enemy.Initialize(this, _player, RunSnapshotCodec.Read(state, "_maxHp", 1f), RunSnapshotCodec.Read(state, "_moveSpeed", 1f),
+                    RunSnapshotCodec.Read(state, "_xpReward", 1f), entity.variant, bossType, RunSnapshotCodec.Read(state, "_isElite", false),
+                    RunSnapshotCodec.Read(state, "_archetype", EnemyArchetype.Normal), RunSnapshotCodec.Read(state, "_isPhaseRole", false),
+                    RunSnapshotCodec.Read(state, "_role", "grunt"), RunSnapshotCodec.Read(state, "_roleDamageMultiplier", 1f),
+                    RunSnapshotCodec.Read(state, "_roleRadiusMultiplier", 1f), RunSnapshotCodec.Read(state, "_eliteVariant", ""), RunSnapshotCodec.Read(state, "_damage", 1f));
+                if (entity.auxiliary != null)
+                {
+                    var boss = go.AddComponent<BossCombatAgent2D>();
+                    boss.Initialize(this, _player, enemy, bossType, _wave, enemy.SourceSpeed * SpherePlacementRules.SourcePixelsToWorld, enemy.ContactDamage, baseColor);
+                    RunSnapshotCodec.Restore(entity.auxiliary, typeof(BossCombatAgent2D), boss);
+                    enemy.SetBossCombat(boss);
+                }
+                _enemies.Add(enemy); agent = enemy;
+            }
+            else if (entity.kind == nameof(ProjectileAgent))
+                agent = SpawnProjectile(entity.position, RunSnapshotCodec.Read(state, "_direction", Vector2.right),
+                    RunSnapshotCodec.Read(state, "_damage", 1f), RunSnapshotCodec.Read(state, "_impactColor", Color.white), RunSnapshotCodec.Read(state, "_speed", 8f));
+            else
+            {
+                var go = new GameObject(entity.name); go.transform.position = entity.position;
+                if (entity.kind == nameof(BossProjectileAgent2D))
+                {
+                    var bullet = go.AddComponent<BossProjectileAgent2D>();
+                    bullet.Initialize(this, _player, RunSnapshotCodec.Read(state, "_velocity", Vector2.zero),
+                        Mathf.Max(0f, RunSnapshotCodec.Read(state, "_hitRadius", 0.1f) - BossCombatRules.PlayerRadiusWorld) * BossCombatRules.SourceUnitsPerWorldUnit,
+                        RunSnapshotCodec.Read(state, "_damage", 1f), RunSnapshotCodec.Read(state, "_bossType", ""), RunSnapshotCodec.Read(state, "_color", Color.white));
+                    if (entity.hasProjectileOwner && entity.projectileOwnerIndex >= 0 && entity.projectileOwnerIndex < _enemies.Count) bullet.SetSourceOwner(_enemies[entity.projectileOwnerIndex]);
+                    agent = bullet;
+                }
+                else if (entity.kind == nameof(StellaChestAgent2D))
+                { var chest = go.AddComponent<StellaChestAgent2D>(); chest.Initialize(this, entity.position); agent = chest; }
+                else
+                {
+                    var sprite = go.AddComponent<SpriteRenderer>(); sprite.color = entity.color; sprite.sortingOrder = 8;
+                    sprite.sprite = RuntimeSpriteFactory.Disc;
+                    if (entity.kind == nameof(ExperienceOrbAgent))
+                    { var amount = RunSnapshotCodec.Read(state, "_amount", 1); sprite.sprite = amount >= 5 ? RuntimeSpriteFactory.Star : amount >= 3 ? RuntimeSpriteFactory.Hexagon : RuntimeSpriteFactory.Disc; var orb = go.AddComponent<ExperienceOrbAgent>(); orb.Initialize(this, _player, amount); agent = orb; }
+                    else if (entity.kind == nameof(HealthPackAgent2D))
+                    { sprite.sprite = RuntimeSpriteFactory.Star; var health = go.AddComponent<HealthPackAgent2D>(); health.Initialize(this); agent = health; }
+                    else if (entity.kind == nameof(ArtifactChestAgent2D))
+                    { sprite.sprite = RuntimeSpriteFactory.Hexagon; var chest = go.AddComponent<ArtifactChestAgent2D>(); chest.Initialize(this); agent = chest; }
+                    else if (entity.kind == nameof(RuneAgent2D))
+                    { sprite.sprite = RuntimeSpriteFactory.Diamond; var rune = go.AddComponent<RuneAgent2D>(); rune.Initialize(this, RunSnapshotCodec.Read(state, "_type", "overdrive"), entity.position, RunSnapshotCodec.Read(state, "_life", 22f)); agent = rune; }
+                    else if (entity.kind == nameof(AbilityDroneAgent2D))
+                    {
+                        sprite.sprite = RuntimeSpriteFactory.Hexagon;
+                        var drone = go.AddComponent<AbilityDroneAgent2D>();
+                        drone.Initialize(this, RunSnapshotCodec.Read(state, "_anchorType", SphereId.Standard), GetAbilityLevel(RunUpgradeKind.Minion),
+                            RunSnapshotCodec.Read(state, "_remaining", 1f), RunSnapshotCodec.Read(state, "_branch", ""), RunSnapshotCodec.Read(state, "_final", ""), RunSnapshotCodec.Read(state, "_ordinal", 0));
+                        _abilityDrones.Add(drone); agent = drone;
+                    }
+                    else if (entity.kind == nameof(SourceParticle2D))
+                    {
+                        sprite.sortingOrder = 24;
+                        var particle = go.AddComponent<SourceParticle2D>(); particle.Initialize(this, Vector2.zero, 1f, entity.color); agent = particle;
+                    }
+                }
+            }
+            if (agent == null) throw new FormatException("Unknown run entity " + entity.kind);
+            RunSnapshotCodec.Restore(state, agent.GetType(), agent);
+            if (agent is ProjectileAgent projectile) projectile.ResetRestoredSourceReferences();
+            agent.transform.position = entity.position; agent.transform.localScale = entity.scale;
+        }
+    }
+}

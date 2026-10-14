@@ -13,12 +13,12 @@ namespace EchoSphere.Runtime
         public float DashTimer { get; private set; }
         public int ShieldCharges { get; private set; }
         public int DashCount { get; private set; }
-        public Vector2 LastMoveDirection { get; private set; } = Vector2.down;
-        public Vector2 DashDirection { get; private set; } = Vector2.down;
+        public Vector2 LastMoveDirection { get; private set; } = Vector2.up;
+        public Vector2 DashDirection { get; private set; } = Vector2.up;
         public bool IsDead => CurrentHp <= 0f;
         public bool CanReceiveDamageNow => !IsDead && CombatRules.CanReceivePlayerDamage(InvulnerableTimer, ContactGraceTimer);
-        private float _dashCooldownMultiplier = 1f;
-        public void SetDashCooldownMultiplier(float multiplier) => _dashCooldownMultiplier = Mathf.Clamp(multiplier, 0.55f, 1.5f);
+        // Source Dash has a fixed cooldown; generic active-ability cooldown bonuses do not affect it.
+        public void SetDashCooldownMultiplier(float multiplier) { }
         public void ApplyBaseMaxHpMultiplier(float multiplier)
         {
             var previousMax = Mathf.Max(1f, MaxHp);
@@ -55,19 +55,18 @@ namespace EchoSphere.Runtime
 
         public Vector2 GetVelocity(Vector2 requestedDirection, float speed, float followMultiplier)
         {
-            if (DashTimer > 0f) return DashDirection * speed * 4.2f;
             return requestedDirection.sqrMagnitude <= 0.0001f ? Vector2.zero : requestedDirection.normalized * speed * followMultiplier;
         }
 
         public bool TryDash(Vector2 direction)
         {
             if (IsDead || DashCooldown > 0f) return false;
-            if (direction.sqrMagnitude <= 0.0001f) direction = LastMoveDirection;
+            if (direction.sqrMagnitude <= 0.0001f) direction = Vector2.up;
             DashDirection = direction.normalized;
             DashCount++;
-            DashTimer = 0.14f;
+            DashTimer = PlayerLoopRules.DashDuration;
             InvulnerableTimer = Mathf.Max(InvulnerableTimer, 0.30f);
-            DashCooldown = 3f * _dashCooldownMultiplier;
+            DashCooldown = PlayerLoopRules.DashCooldown;
             return true;
         }
 
@@ -80,8 +79,6 @@ namespace EchoSphere.Runtime
             if (ShieldCharges > 0)
             {
                 ShieldCharges--;
-                InvulnerableTimer = Mathf.Max(InvulnerableTimer, 0.45f);
-                ContactGraceTimer = Mathf.Max(ContactGraceTimer, CombatRules.ContactDamageGraceSeconds);
                 return false;
             }
             CurrentHp = Mathf.Max(0f, CurrentHp - Mathf.Max(0f, amount));
@@ -116,7 +113,7 @@ namespace EchoSphere.Runtime
 
         public void Heal(float amount)
         {
-            if (!IsDead) CurrentHp = Mathf.Min(MaxHp, CurrentHp + Mathf.Max(0f, amount));
+            CurrentHp = Mathf.Min(MaxHp, CurrentHp + Mathf.Max(0f, amount));
         }
     }
 }

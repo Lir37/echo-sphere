@@ -34,7 +34,9 @@ namespace EchoSphere.Core
             return level >= 6 ? 2 : 1;
         }
 
-        public static float GetStandardSwarmShardDamageMultiplier(int level) => level >= 6 ? 0.50f : level >= 5 ? 0.45f : 0.35f;
+        public static float GetStandardSwarmShardDamageMultiplier(int level, string finalId = null) =>
+            finalId == "standard_swarm_final_1" ? .72f : finalId == "standard_swarm_final_2" ? .56f : finalId == "standard_swarm_final_3" ? .44f : level >= 6 ? .65f : level >= 5 ? .58f : .50f;
+        public static float GetStandardSwarmChance(string finalId) => finalId == "standard_swarm_final_1" ? .75f : finalId == "standard_swarm_final_2" ? .70f : 1f;
 
         public static float GetPulseWaveRadiusMultiplier(int level, string finalId)
         {
@@ -198,17 +200,13 @@ namespace EchoSphere.Core
             finalId == "orbital_halo_final_2" ? 0.26f : finalId == "orbital_dance_final_3" ? 0.18f : 0.20f;
         public static float GetOrbitalDamageMultiplier(int level, string branch, string finalId)
         {
-            if (branch == "orbital_dance") return 0.96f;
-            if (branch == "orbital_halo") return 0.92f;
+            if (branch == "orbital_dance") return 0.95f * 0.96f;
+            if (branch == "orbital_halo") return 0.95f * 0.92f;
             if (branch == "orbital_blade")
             {
-                // Source sphereProgression.ts adds a branch-specific modifier
-                // to getSphereDamage before engineSpheres applies contact damage.
-                var branchDamage = finalId == "orbital_blade_final_1" ? 1.15f
-                    : finalId == "orbital_blade_final_2" ? 1.05f : 1.20f;
                 var contactDamage = finalId == "orbital_blade_final_3" ? 1.30f : 1.15f;
                 if (string.IsNullOrEmpty(finalId)) contactDamage *= GetChainBranchPower(level);
-                return branchDamage * contactDamage;
+                return 0.95f * contactDamage;
             }
             return 0.95f;
         }
@@ -216,14 +214,14 @@ namespace EchoSphere.Core
         {
             if (finalId == "orbital_halo_final_1") return 1f;
             if (finalId == "orbital_halo_final_3") return 2f;
-            if (!string.IsNullOrEmpty(finalId)) return 0f;
-            if (level >= 6) return 0.25f;
-            if (string.IsNullOrEmpty(finalId) && level >= 5) return 0.12f;
-            return 0f;
+            if (!string.IsNullOrEmpty(finalId)) return 1f;
+            if (level >= 6) return 1.25f;
+            if (string.IsNullOrEmpty(finalId) && level >= 5) return 1.12f;
+            return 1f;
         }
 
         public static bool ShouldOrbitalGrantShieldCharge(int successfulPassCount) =>
-            successfulPassCount > 0 && successfulPassCount % 3 == 0;
+            successfulPassCount > 0;
 
         public static float GetOrbitalAfterimageMultiplier(string branch, string finalId)
         {

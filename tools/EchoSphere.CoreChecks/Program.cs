@@ -8,54 +8,58 @@ internal static class Program
     {
         try
         {
-            CheckRng();
-            CheckCombatRules();
-            CheckFormationFollow();
-            CheckCatalogAndRewardedContracts();
-            CheckRunBalance();
-            CheckEnemySpawnRules();
-            CheckBossCombatRules();
-            CheckRegionBossSchedule();
-            CheckRegionUnlockRules();
-            CheckPersistentUpgradeRules();
-            CheckDifficultyRules();
-            CheckArtifactRewardRules();
-            CheckSphereCombatProfiles();
-            CheckSphereProgressionRules();
-            CheckLevelUpAbilityRules();
-            CheckSphereEvolutionCatalog();
-            CheckSphereLevelRules();
-            CheckSphereEvolutionCombatRules();
-            CheckSniperEvolutionCombatRules();
-            CheckShotgunEvolutionCombatRules();
-            CheckChainEvolutionCombatRules();
-            CheckAuraEvolutionCombatRules();
-            CheckGravityEvolutionCombatRules();
-            CheckOrbitalEvolutionCombatRules();
-            CheckPrismEvolutionCombatRules();
-            CheckPulseVoidEvolutionCombatRules();
-            CheckSphereNetworkRules();
-            CheckSpherePlacementRules();
-            CheckCharacterRules();
-            CheckHunterCombatRules();
-            CheckEngineerRelayRules();
-            CheckConductorOverdriveRules();
-            CheckLevelUpChoiceRules();
-            CheckFormationHitRules();
-            CheckArtifactSynergyRules();
-            CheckSituationalArtifactSynergies();
-            CheckPerfectNetworkSynergy();
-            CheckCombatStateArtifactSynergies();
-            CheckAxiomFoldSynergy();
-            CheckResonanceGeometryMemoryRules();
-            CheckArtifactSetRules();
-            CheckComboRules();
-            CheckArtifactProtocolRules();
-            CheckSphereElementalRules();
-            CheckAlchemistReactionRules();
-            CheckSphereAuthoredModifierRules();
-            CheckSphereAuthoredHitEffects();
-            CheckAuthoredProjectileRuntime();
+            SourceParityChecks.Run();
+            var failures = new List<Exception>();
+            void Check(Action action) { try { action(); } catch (Exception error) { failures.Add(error); } }
+            Check(CheckRng);
+            Check(CheckCombatRules);
+            Check(CheckFormationFollow);
+            Check(CheckCatalogAndRewardedContracts);
+            Check(CheckRunBalance);
+            Check(CheckEnemySpawnRules);
+            Check(CheckBossCombatRules);
+            Check(CheckRegionBossSchedule);
+            Check(CheckRegionUnlockRules);
+            Check(CheckPersistentUpgradeRules);
+            Check(CheckDifficultyRules);
+            Check(CheckArtifactRewardRules);
+            Check(CheckSphereCombatProfiles);
+            Check(CheckSphereProgressionRules);
+            Check(CheckLevelUpAbilityRules);
+            Check(CheckSphereEvolutionCatalog);
+            Check(CheckSphereLevelRules);
+            Check(CheckSphereEvolutionCombatRules);
+            Check(CheckSniperEvolutionCombatRules);
+            Check(CheckShotgunEvolutionCombatRules);
+            Check(CheckChainEvolutionCombatRules);
+            Check(CheckAuraEvolutionCombatRules);
+            Check(CheckGravityEvolutionCombatRules);
+            Check(CheckOrbitalEvolutionCombatRules);
+            Check(CheckPrismEvolutionCombatRules);
+            Check(CheckPulseVoidEvolutionCombatRules);
+            Check(CheckSphereNetworkRules);
+            Check(CheckSpherePlacementRules);
+            Check(CheckCharacterRules);
+            Check(CheckHunterCombatRules);
+            Check(CheckEngineerRelayRules);
+            Check(CheckConductorOverdriveRules);
+            Check(CheckLevelUpChoiceRules);
+            Check(CheckFormationHitRules);
+            Check(CheckArtifactSynergyRules);
+            Check(CheckSituationalArtifactSynergies);
+            Check(CheckPerfectNetworkSynergy);
+            Check(CheckCombatStateArtifactSynergies);
+            Check(CheckAxiomFoldSynergy);
+            Check(CheckResonanceGeometryMemoryRules);
+            Check(CheckArtifactSetRules);
+            Check(CheckComboRules);
+            Check(CheckArtifactProtocolRules);
+            Check(CheckSphereElementalRules);
+            Check(CheckAlchemistReactionRules);
+            Check(CheckSphereAuthoredModifierRules);
+            Check(CheckSphereAuthoredHitEffects);
+            Check(CheckAuthoredProjectileRuntime);
+            if (failures.Count > 0) throw new AggregateException(failures);
             Console.WriteLine($"ECHO SPHERE Unity core contracts: PASS ({_assertions} assertions)");
             return 0;
         }
@@ -457,11 +461,11 @@ internal static class Program
         Near(SphereLevelRules.GetStats(SphereId.Orbital, 3).OrbitSpeedMultiplier, 1.15f, 0.00001f, "Orbital III rotation speed");
         Equal(SphereLevelRules.GetStats(SphereId.Prism, 3).PrismDirections, 2, "Prism III +1 direction");
         Near(SphereLevelRules.GetStats(SphereId.Gravity, 1).PullMultiplier, 1.20f, 0.00001f, "Gravity I pull");
-        Near(SphereLevelRules.GetStats(SphereId.Pulse, 3).DelayMultiplier, 0.88f, 0.00001f, "Pulse III interval");
+        Near(SphereLevelRules.GetStats(SphereId.Pulse, 3).AuraPulseMultiplier, 0.88f, 0.00001f, "Pulse III interval");
         Near(SphereLevelRules.GetStats(SphereId.Void, 1).WeakenedDamageMultiplier, 1.20f, 0.00001f, "Void I weakened damage");
         Near(SphereLevelRules.GetStats(SphereId.Void, 2).CritChanceBonus, 0.10f, 0.00001f, "Void II execution crit chance");
         Near(SphereLevelRules.GetStats(SphereId.Void, 3).RangeMultiplier, 1.15f, 0.00001f, "Void III range");
-        Near(SphereLevelRules.GetStats(SphereId.Standard, 99).DamageMultiplier, 1.15f, 0.00001f, "level input clamps to VII");
+        Near(SphereLevelRules.GetStats(SphereId.Standard, 99).DamageMultiplier, 1.15f * 1.12f * 1.06f * 1.18f, 0.00001f, "level input clamps to VII with source shared progression");
     }
 
 
@@ -475,7 +479,7 @@ internal static class Program
         Near(SphereEvolutionCombatRules.GetStandardSingularitySlowDuration(6), 1.2f, 0f, "Singularity level VI slow");
         Equal(SphereEvolutionCombatRules.GetStandardSwarmShardCount(6, null), 2, "Swarm level VI launches two shards");
         Equal(SphereEvolutionCombatRules.GetStandardSwarmShardCount(7, "standard_swarm_final_3"), 3, "Swarm final shard web launches three shards");
-        Near(SphereEvolutionCombatRules.GetStandardSwarmShardDamageMultiplier(5), 0.45f, 0f, "Swarm level V shard damage");
+        Near(SphereEvolutionCombatRules.GetStandardSwarmShardDamageMultiplier(5), 0.58f, 0f, "Swarm level V source shard damage");
     }
 
     private static void CheckSniperEvolutionCombatRules()
@@ -560,9 +564,9 @@ internal static class Program
         Equal(SphereEvolutionCombatRules.GetOrbitalOuterCount(1, null), 1, "Orbital level I outer count");
         Equal(SphereEvolutionCombatRules.GetOrbitalInnerCount(7, null), 4, "Orbital level VII inner count");
         Equal(SphereEvolutionCombatRules.GetOrbitalOuterCount(7, null), 4, "Orbital level VII outer count");
-        Equal(SphereEvolutionCombatRules.GetOrbitalOuterCount(7, "orbital_dance_final_3"), 5, "Dance Swarm adds ninth element");
-        True(SphereEvolutionCombatRules.GetOrbitalAngularSpeed(7, "orbital_dance_final_2") > SphereEvolutionCombatRules.GetOrbitalAngularSpeed(7, null), "Hypercycle speed");
-        Near(SphereEvolutionCombatRules.GetOrbitalDamageMultiplier(7, "orbital_blade", "orbital_blade_final_3"), 1.30f, 0f, "Orbital Blade final damage");
+        Equal(SphereEvolutionCombatRules.GetOrbitalOuterCount(7, "orbital_dance_final_3"), 4, "Base Orbital ring count excludes the separately applied authored extra satellite");
+        True(SphereEvolutionCombatRules.GetOrbitalAngularSpeed(7, "orbital_dance", "orbital_dance_final_2") > SphereEvolutionCombatRules.GetOrbitalAngularSpeed(7, null, null), "Hypercycle speed");
+        Near(SphereEvolutionCombatRules.GetOrbitalDamageMultiplier(7, "orbital_blade", "orbital_blade_final_3"), 0.95f * 1.30f, 0f, "Orbital Blade contact factor; branch damage is already in source modifier stats");
         Near(SphereEvolutionCombatRules.GetOrbitalAfterimageMultiplier("orbital_blade", "orbital_blade_final_2"), 0.25f, 0f, "Blade afterimage multiplier");
     }
 
@@ -666,7 +670,7 @@ internal static class Program
         Near(SphereEvolutionCombatRules.GetOrbitalResonanceBonus(7, "orbital_halo_final_1"), 1f, 0f, "Halo Resonance final bonus");
         Near(SphereEvolutionCombatRules.GetOrbitalResonanceBonus(6, null), 0.25f, 0f, "Halo level VI charge bonus");
         True(SphereEvolutionCombatRules.ShouldOrbitalGrantShieldCharge(3), "Halo Guard shield cadence");
-        True(!SphereEvolutionCombatRules.ShouldOrbitalGrantShieldCharge(2), "Halo Guard avoids charge on every pass");
+        True(SphereEvolutionCombatRules.ShouldOrbitalGrantShieldCharge(2), "Source Halo final III grants a charge on every new element contact");
     }
 
     private static void CheckSpherePlacementRules()

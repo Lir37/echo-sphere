@@ -21,3 +21,7 @@ dist-ssr
 *.sln
 *.sw?
 .env
+
+# Local C# validation outputs
+tools/**/bin/
+tools/**/obj/

@@ -3,6 +3,9 @@ import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
 const root = resolve('UnityProject');
+const readRuntime = () => readdirSync(join(root, 'Assets/EchoSphere/Scripts/Runtime'))
+  .filter(name => /^EchoSphere.*\.cs$/.test(name))
+  .map(name => readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime', name), 'utf8').replaceAll('\r\n', '\n')).join('\n');
 const required = [
   'ProjectSettings/ProjectVersion.txt',
   'Packages/manifest.json',
@@ -137,7 +140,7 @@ assert.ok(svgImporterSettings.includes('alphaIsTransparency = true'), 'authored 
 assert.ok(!svgImporterSettings.includes('SaveAndReimport') && !svgImporterSettings.includes('OnPostprocessAllAssets'), 'asset postprocessor must not start recursive import loops');
 
 
-const runtimeArt = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs'), 'utf8');
+const runtimeArt = readRuntime();
 assert.equal(
   (runtimeArt.split('public int GetSphereAuthoredModifierLevel(SphereId type, SphereAuthoredModifier modifier) =>').length - 1),
   1,
@@ -234,7 +237,7 @@ const activeStandardAssembly = sourceSphereRenderer.slice(
 assert.ok(activeStandardAssembly.includes('drawStandardSphereCore(ctx, coreRadius, energyPulse)') &&
   activeStandardAssembly.includes('drawStandardSphereRing(ctx, ringRadius, ringRotation') &&
   (activeStandardAssembly.match(/'sphere-standard-upper-crystal'/g) || []).length === 2 &&
-  activeStandardAssembly.includes('false,\n    true,' ) &&
+  /false,\s*true,/.test(activeStandardAssembly) &&
   !activeStandardAssembly.includes("'sphere-standard-core'") &&
   !activeStandardAssembly.includes("'sphere-standard-ring'") &&
   !activeStandardAssembly.includes("'sphere-standard-lower-crystal'"),
@@ -254,7 +257,7 @@ assert.ok(!existsSync(join(root, 'Assets/Resources/EchoSphere/Art/sphere-orbital
 
 assert.ok(bootstrap.includes('ApplyModifiedPropertiesWithoutUndo'), 'URP serialized renderer repairs must be applied');
 
-const runtime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs'), 'utf8');
+const runtime = readRuntime();
 assert.ok(runtime.includes('runtimeVfx.Initialize(this, agent)') && runtime.includes('public bool ResonanceEventActive =>'), 'Sphere VFX must be connected to live gameplay presentation');
 assert.ok(runtime.includes('GetEnemyVisualVariant(archetype)') && runtime.includes('GetEnemyVisualVariant(EnemyArchetype archetype)'), 'enemy spawn must wire source-mapped silhouette variants');
 const spriteFactory = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/RuntimeSpriteFactory.cs'), 'utf8');
@@ -266,10 +269,10 @@ const networkRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/Sph
 assert.ok(networkRules.includes('Analyze') && networkRules.includes('FindFractal') && networkRules.includes('GetFormationBonusMultiplier'), 'Network/Geometry analysis contract is missing');
 assert.ok(runtime.includes('RefreshNetworkState') && runtime.includes('UpdateNetworkLinkVisuals') && runtime.includes('GEOMETRY '), 'live Network links and Geometry HUD are missing');
 
-assert.ok(runtime.includes('RUN PAUSED') && runtime.includes('RESTART RUN'), 'pause overlay controls are missing');
-assert.ok(runtime.includes('DrawProgressBar') && runtime.includes('EXPERIENCE') && runtime.includes('_uiScale'), 'responsive color-coded HP/XP/Resonance HUD is missing');
+assert.ok(runtime.includes('DrawSourcePausePlanner()') && runtime.includes('BuildPauseStats') && runtime.includes('BuildPauseAbilities') && runtime.includes('BuildPauseArtifacts') && runtime.includes('BuildPauseSynergies') && runtime.includes('SaveCurrentRun(); SceneManager.LoadScene'), 'source four-tab pause planner, resume and save/return controls are missing');
+assert.ok(runtime.includes('DrawSourceGameplayHud') && runtime.includes('DrawProgressBar') && runtime.includes('_xp / _xpRequired') && runtime.includes('_uiScale'), 'source HP/XP/Resonance HUD bars and responsive layout are missing');
 const readMovement = runtime.slice(runtime.indexOf('private Vector2 ReadMovement()'), runtime.indexOf('private void ConfigureCamera()'));
-assert.ok(readMovement.includes('Screen.width * 0.5f') && !readMovement.includes('_uiWidth'), 'touch/mouse movement threshold must use the original right-half device input region');
+assert.ok(runtime.includes('Screen.width * 0.5f') && runtime.includes('HandleSourcePointer(touch.fingerId') && runtime.includes('drag.magnitude >= 12f') && readMovement.includes('_sourceJoystickDirection'), 'source handedness, independent pointer IDs and quantized joystick movement are missing');
 assert.ok(runtime.includes('GetAuthoredSphereArtwork(type)') && runtime.includes('return authored'), 'Sphere icon UI must prefer authored source art');
 assert.ok(spriteFactory.includes('CreatePolygonSprite'), 'procedural faceted silhouette generation is missing');
 assert.ok(spriteFactory.includes('Resources.Load<Sprite>') && runtime.includes('GetAuthoredSphereArtwork'), 'authored SVG runtime binding is missing');
@@ -317,11 +320,12 @@ assert.ok(runtime.includes('profile.XpReward * pocket.Xp * challengeXp') &&
   runtime.includes('hp *= 3f') && runtime.includes('damage *= 1.5f') &&
   runtime.includes('xpReward *= 5f') &&
   runtime.includes('ComboRules.GetExperienceOrbValue(xpReward, _comboMultiplier)') &&
-  runtime.includes('Initialize(this, _player, comboExperience)'),
+  runtime.includes('Initialize(this, _player, comboExperience, orbVelocity, orbRotation)'),
   'source enemy spawn stats, elite conversion or Combo-adjusted XP pickup wiring is missing');
 assert.ok(runtime.includes('GetFormationKey') && runtime.includes('AddResonanceChargeFromSource'), 'new-geometry Resonance charging is missing');
 
-const sphereAttack = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs'), 'utf8');
+const sphereAttack = ['SphereAttackAgent.cs', 'SphereSourceHitRules.cs', 'SphereSourceAreaRules.cs']
+  .map(name => readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime', name), 'utf8').replaceAll('\r\n', '\n')).join('\n');
 const spherePlacementRulesPath = 'Assets/EchoSphere/Scripts/Core/SpherePlacementRules.cs';
 assert.ok(existsSync(join(root, spherePlacementRulesPath)), 'source-mapped Sphere placement safety rules are missing');
 const spherePlacementRules = readFileSync(join(root, spherePlacementRulesPath), 'utf8');
@@ -329,15 +333,15 @@ for (const required of ['src/spaceCollision.ts','PlayerBuildGap','TowerPlacement
   'SphereCharacterId','GetSignatureSphere','GetCharacterSphereCopyCap','GetSameTypeCap','GetCopyDamageMultiplier','SphereCharacterId.Fractal'])
   assert.ok(spherePlacementRules.includes(required), 'source Sphere placement/copy-cap contract missing: ' + required);
 assert.ok(runtime.includes('GetCurrentMaxSpheres') &&
-  runtime.includes('SpherePlacementRules.GetMaxSpheres(0, PersistentUpgradeRules.GetExtraSpheres(GetShopUpgradeLevel("spheres")))') &&
+  runtime.includes('SpherePlacementRules.GetMaxSpheres(GetAbilityLevel(RunUpgradeKind.MaxSpheres), PersistentUpgradeRules.GetExtraSpheres(GetShopUpgradeLevel("spheres")))') &&
   !runtime.includes('LevelUpAbilityRules.CreateChoice(RunUpgradeKind.MaxSpheres, _maxSphereAbilityLevel)'),
-  'routine Level-Up must not expose the source passive maxspheres ability; Sphere capacity comes from the persistent shop');
+  'routine Level-Up excludes maxspheres, while source capacity still accounts for any saved passive ability level and the shop');
 assert.ok(runtime.includes('SpherePlacementRules.GetSameTypeCap') &&
   runtime.includes('_sphereCharacterId') && runtime.includes('_characterMasteryLevel') &&
   !runtime.includes('CountSpheresOfType(_selectedSphereType) >= SpherePlacementRules.MaxSameSphereCopies'),
   'signature Sphere copy limits must follow source character/mastery rules rather than a fixed two-copy runtime cap');
 assert.ok(runtime.includes('GetSphereCopyOutputMultiplier') &&
-  sphereAttack.includes('_runtime.GetSphereCopyOutputMultiplier(this)') &&
+  sphereAttack.includes('_runtime.GetSourceSphereAttackDamage(this)') && runtime.includes('modifiers.damage * GetSphereCopyOutputMultiplier(sphere)') &&
   spherePlacementRules.includes('sameTypeCopyIndex == 2 ? 0.85f : 0.70f'),
   'source duplicate signature Sphere output scaling is not applied to combat damage');
 assert.ok(spherePlacementRules.includes('ClampReposition') && runtime.includes('SpherePlacementRules.ClampReposition'),
@@ -371,10 +375,10 @@ assert.ok(sphereEnemy.includes('ApplyElementalStatus') && sphereEnemy.includes('
   sphereEnemy.includes('TryAdvanceElementalConduction') && sphereEnemy.includes('TryBeginFieldElementalReaction'),
   'elemental statuses and per-target Chain/Field cooldowns must run on live enemies');
 assert.ok(runtime.includes('GetSphereStatusDurationMultiplier') && runtime.includes('GetSphereStatusDamageMultiplier') &&
-  sphereAttack.includes('OnSphereHitApplied') && sphereProjectile.includes('_evolutionOwner.OnSphereHitApplied(enemy)'),
+  sphereAttack.includes('OnSphereHitApplied') && sphereProjectile.includes('_evolutionOwner.OnSphereHitApplied(enemy, _evolutionOwner.Type, _sourceElement)'),
   'element status rules must connect through Sphere attacks and projectile impacts');
-assert.ok(sphereElementalVfx.includes('return index == 2 ? 2 : index == 3 ? 3 : 1;'),
-  'Prism Spectrum presentation must match authored Fire / Freeze / Poison finals');
+assert.ok(readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/SourceElementalVisual2D.cs'), 'utf8').includes('SphereElementalRules.ResolveElement'),
+  'Prism Spectrum orbit must follow the final-dependent element in elementalVisual.ts');
 const spherePickerStart = runtime.indexOf('private void DrawSpherePicker()');
 const spherePickerEnd = runtime.indexOf('private void DrawSpherePickerGlyph(', spherePickerStart);
 assert.ok(spherePickerStart >= 0 && spherePickerEnd > spherePickerStart, 'source Sphere picker implementation is missing');
@@ -392,7 +396,6 @@ const sphereNetworkRules = readFileSync(join(root, sphereNetworkRulesPath), 'utf
 assert.ok(sphereNetworkRules.includes('DefaultLinkDistance = 3.85f'),
   'source 220 px Network link distance must use the current 720/12.6 camera calibration');
 
-console.log(`Unity project preflight: PASS (Unity ${version}, ${runtimeFiles.length} C# source files, URP, authored SVG and responsive HUD guards)`);
 
 const evolutionRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/SphereEvolutionCombatRules.cs'), 'utf8');
 assert.ok(sphereAttack.includes('VisualRotation') && sphereAttack.includes('targetDelta.y'), 'Sphere emitter presentation must track target direction without altering combat');
@@ -419,12 +422,12 @@ assert.ok(runtimeArt.includes('SpawnStellaChest(position)') && runtimeArt.includ
 assert.ok(runtimeArt.includes('ArtifactRewardRules.IsLegendaryStellaWindow') && runtimeArt.includes('PickChoices(_ownedArtifacts, _rng.NextFloat, true') && runtimeArt.includes('PickChoices(_ownedArtifacts, _rng.NextFloat, false'), 'Stella rarity-window selection/fallback is missing');
 assert.ok(runtimeArt.includes('GetStellaChoiceCount(_ownedArtifacts)') && artifactRules.includes('Contains(owned,"quantum_fold")'), 'Quantum Fold must add a fourth Stella choice');
 assert.ok(runtimeArt.includes('ChooseStellaReward(i)') && runtimeArt.includes('_stellaRewardPending'), 'Stella rewards must wait for explicit player selection');
-assert.ok(runtimeArt.includes('HealCoreFromDamage(damage)') && runtimeArt.includes('GetArtifactSphereFamilyDamageMultiplier') && runtimeArt.includes('SetDashCooldownMultiplier'), 'artifact combat/stat hooks are not connected');
+assert.ok(readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs'), 'utf8').includes('HealCoreFromDamage(actual)') && runtimeArt.includes('GetArtifactSphereFamilyDamageMultiplier') && runtimeArt.includes('SetDashCooldownMultiplier'), 'artifact combat/stat hooks are not connected');
 const playerCore = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/PlayerCoreController2D.cs'), 'utf8');
 assert.ok(playerCore.includes('CanReceiveDamageNow') && playerCore.includes('IncreaseMaxHp') && playerCore.includes('SetDashCooldownMultiplier'), 'player artifact stat hooks are missing');
 const enemyRuntime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs'), 'utf8');
 assert.ok(!enemyRuntime.includes('HealCoreFromDamage(appliedDamage)'), 'vampirism must not heal from arbitrary enemy/status damage');
-assert.ok(runtime.includes('if (GUI.Button(button, IsRussianUi ? "ВЫБРАТЬ ЗАБЕГ" : "SELECT RUN", _button))'),
+assert.ok(runtime.includes('DrawSourceMainHome();') && runtime.includes('"ВЫБРАТЬ ЗАБЕГ" : "SELECT RUN"'),
   'localized main-menu button must retain valid IMGUI call syntax');
 const regionFieldNamespaceCheck = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/RegionFieldVisuals.cs'), 'utf8');
 assert.ok(regionFieldNamespaceCheck.includes('using EchoSphere.Core;'), 'Region field must import the source Region id types');
@@ -437,7 +440,8 @@ for (const token of ['0.7f, 0.8f, 0.7f, 0.8f, 0.8f', '1.4f, 1.2f, 1.3f, 1.5f, 1.
 assert.ok(runtime.includes('GetShopSphereRadiusMultiplier()') && runtime.includes('PersistentUpgradeRules.GetStartingHpBonus') &&
   runtime.includes('GetShopUpgradeLevel("xp")') && runtime.includes('difficulty.EnemyHpMultiplier') &&
   runtime.includes('difficulty.EnemySpeedMultiplier') && runtime.includes('CurrentDifficulty.SpawnRateMultiplier') &&
-  runtime.includes('CurrentDifficulty.EnemyDamageMultiplier'),
+  runtime.includes('difficulty.EnemyDamageMultiplier * GetRegionEnemyDamageMultiplier()') &&
+  !runtime.includes('GetArtifactDamageTakenMultiplier() * CurrentDifficulty.EnemyDamageMultiplier'),
   'persistent shop and Difficulty must affect live runtime paths');
 const sphereAttackShopRadiusCheck = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs'), 'utf8');
 assert.ok(sphereAttackShopRadiusCheck.includes('_runtime.GetShopSphereRadiusMultiplier()'), 'persistent Sphere Radius must affect live Sphere range');
@@ -459,12 +463,12 @@ const regionSchedule = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/R
 for (const sourceBoss of ['conductor','architect','null','aura','stella_warden']) assert.ok(regionSchedule.includes('"' + sourceBoss + '"'), 'Region schedule source boss missing: ' + sourceBoss);
 assert.ok(regionSchedule.includes('480f') && regionSchedule.includes('960f') && regionSchedule.includes('1620f') && regionSchedule.includes('1800f'), 'source Region boss/stabilization timing contract missing');
 assert.ok(runtimeArt.includes('AdvanceRegionBossSchedule') && runtimeArt.includes('RegionBossScheduleRules.Advance') && runtimeArt.includes('StartNextWave'), 'Region signal and source wave loop must be wired in live runtime');
-const regionClearWindow = runtimeArt.slice(runtimeArt.indexOf('TickCharacterMastery();'), runtimeArt.indexOf('_spawnTimer -= dt'));
+const regionClearWindow = runtimeArt.slice(runtimeArt.indexOf('ResolveSourceSpaceCollisions(dt);'), runtimeArt.indexOf('finally { _simulationFrame = false; }'));
 assert.ok(regionClearWindow.includes('if (_regionStabilized)') && regionClearWindow.includes('_gameOver = true;') &&
   regionClearWindow.includes('_paused = true;') && regionClearWindow.includes('FinalizeRunResult();'),
   'source Region clear must end the run and persist its final result instead of continuing gameplay');
 assert.ok(runtimeArt.includes('CountLivingNonBossEnemies') && runtimeArt.includes('HasActiveBoss'), 'next source wave must wait for living enemies and boss completion');
-const regionPoiRuntime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs'), 'utf8');
+const regionPoiRuntime = readRuntime();
 const enemyPoiRuntime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs'), 'utf8');
 const regionResonanceRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/RegionBossScheduleRules.cs'), 'utf8');
 assert.ok(regionResonanceRules.includes('GetResonanceMultiplier') &&
@@ -525,7 +529,7 @@ const sphereAttackRuntime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/R
 assert.ok(sphereAttackRuntime.includes('NetworkDisabled') && sphereAttackRuntime.includes('ApplyNetworkDisable') && sphereAttackRuntime.includes('DelayNextAttack'), 'boss-to-Sphere disruption contract missing');
 const sphereDisabledVfx = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/SphereRuntimeVfx2D.cs'), 'utf8');
 assert.ok(sphereDisabledVfx.includes('_agent.NetworkDisabled') && sphereDisabledVfx.includes('new Color(1f, 0.22f, 0.39f'), 'network-disabled Sphere overlay missing');
-assert.ok(sphereAttack.includes('GetOrbitalResonanceBonus') && sphereAttack.includes('ShouldOrbitalGrantShieldCharge'), 'Orbital Halo Resonance/Guard behavior is missing');
+assert.ok(runtime.includes('GetSourceSphereModifiers(source).resonantCharge / 2f') && sphereAttack.includes('ShouldOrbitalGrantShieldCharge'), 'Orbital Halo must use source modifier charge and grant a shield on each qualifying contact');
 assert.ok(evolutionRules.includes('ShouldTriggerStandardResonatorPulse'), 'Standard Resonator combat rules are missing');
 assert.ok(evolutionRules.includes('GetSniperAssassinDamageMultiplier'), 'Sniper Assassin combat rules are missing');
 assert.ok(evolutionRules.includes('GetSniperBeaconRadius'), 'Sniper Beacon combat rules are missing');
@@ -534,7 +538,7 @@ assert.ok(evolutionRules.includes('GetShotgunCataclysmSplash'), 'Shotgun Catacly
 assert.ok(evolutionRules.includes('GetShotgunBurstDamageMultiplier'), 'Shotgun Burst close-range rules are missing');
 assert.ok(evolutionRules.includes('GetShotgunCataclysmPierce'), 'Shotgun Cataclysm pierce rule is missing');
 assert.ok(evolutionRules.includes('GetShotgunHailBonusPellets'), 'Shotgun Hail multishot rule is missing');
-assert.ok(sphereAttack.includes('ShouldShotgunBurstApplySlow'), 'Shotgun Burst Impact slow is missing');
+assert.ok(sphereAttack.includes('mode == 2 && distance < 90f') && sphereAttack.includes('enemy.ExtendSlowStatus(.4f)'), 'Shotgun Burst final III must extend the existing slow timer at source close range');
 assert.ok(evolutionRules.includes('GetChainStormRadius') && evolutionRules.includes('GetChainLeechHealRatio'), 'Chain evolution combat rules are missing');
 assert.ok(evolutionRules.includes('GetAuraSanctumSlowDuration') && evolutionRules.includes('GetAuraOvergrowthAttackTimerReduction'), 'Aura evolution combat rules are missing');
 assert.ok(evolutionRules.includes('GetGravityWellPullDistance') && evolutionRules.includes('GetGravityTideDistance'), 'Gravity evolution combat rules are missing');
@@ -544,7 +548,7 @@ assert.ok(evolutionRules.includes('GetPrismBeamCount') && evolutionRules.include
   evolutionRules.includes('GetPrismReflectionCount') && evolutionRules.includes('GetPrismMirrorRicochetCount'),
   'Prism direct-beam, source-range and Network-refraction rules are missing');
 assert.ok(evolutionRules.includes('GetPulseWaveKnockbackDistance') && evolutionRules.includes('GetVoidExecutionChance'), 'Pulse/Void evolution combat rules are missing');
-assert.ok(sphereAttack.includes('OnProjectileHit') && sphereAttack.includes('standard_swarm'), 'Standard evolution hit dispatch is missing');
+assert.ok(sphereAttack.includes('ApplySourceBranchHit') && sphereAttack.includes('standard_swarm') && enemy.includes('owner.ApplySourceBranchHit'), 'common primary hit path must dispatch Standard evolution effects');
 assert.ok(sphereAttack.includes('sniper_oracle') && sphereAttack.includes('sniper_beacon'), 'Sniper evolution hit dispatch is missing');
 assert.ok(sphereAttack.includes('shotgun_cataclysm') && sphereAttack.includes('shotgun_hail'), 'Shotgun evolution hit dispatch is missing');
 assert.ok(sphereAttack.includes('chain_web') && sphereAttack.includes('chain_storm') && sphereAttack.includes('chain_leech'), 'Chain evolution hit dispatch is missing');
@@ -561,19 +565,19 @@ assert.ok(evolutionRules.includes('130f * SpherePlacementRules.SourcePixelsToWor
   sphereAttack.includes('GetPrismSourceRangeWorld()') &&
   !sphereAttack.includes('var beamRange = AttackRange'),
   'Prism must use source-calibrated direct-beam range rather than the placeholder 6.8-world range');
-assert.ok(sphereAttack.includes('pulse_wave') && sphereAttack.includes('pulse_burst') && sphereAttack.includes('void_execution'), 'Pulse/Void evolution runtime effects are missing');
+assert.ok(sphereAttack.includes('pulse_wave') && sphereAttack.includes('pulse_burst') && runtime.includes('ResolveSourceVoidHit') && runtime.includes('void_execution'), 'Pulse and shared primary/secondary Void hit effects must be wired');
 assert.ok(runtime.includes('SpawnVoidShards'), 'Void Reaper shard spawning is missing');
 assert.ok(runtime.includes('AddResonanceCharge') && runtime.includes('TriggerResonanceEvent') && runtime.includes('TickResonanceRing'), 'Resonance runtime event loop is missing');
 assert.ok(sphereAttack.includes('HasNetworkCandidateForSphere(SphereNetworkFormation.Triangle') &&
   sphereAttack.includes('ResonanceRules.NetworkCharge') && sphereAttack.includes('ChargeResonanceFromSource'),
   'Prism Spectrum triangle Network charge is missing');
-assert.ok(sphereAttack.includes('GetGravityClusterPullMultiplier') && runtime.includes('TriggerChainStorm(SphereAttackAgent source'), 'Gravity Cluster and Chain Storm Network routing are missing');
-assert.ok(sphereAttack.includes('clusterCandidate') && sphereAttack.includes('ChargeResonanceFromSource(ResonanceRules.GeometryCharge'), 'Pulse Burst Geometry charge is missing');
+assert.ok(sphereAttack.includes('.20f * cluster') && sphereAttack.includes('branch == "chain_storm"'), 'Gravity Cluster and Chain Storm routing are missing');
+assert.ok(sphereAttack.includes('HasNetworkCandidateForSphere(SphereNetworkFormation.Cluster, index)') && sphereAttack.includes('ChargeResonanceFromSource(ResonanceRules.GeometryCharge'), 'Pulse Burst Geometry charge is missing');
 
-assert.ok(sphereAttack.includes('AddResonanceCharge(1f)') && projectile.includes('AddResonanceCharge(1f)'), 'Sphere-hit Resonance charge routing is missing');
+assert.ok(enemy.includes('RegisterSphereHit(owner, this, actual)') && enemy.includes('ResonanceRules.SphereHitCharge'), 'all Sphere hits, including recursive hits, must charge Resonance in the common damage receiver');
 assert.ok(enemy.includes('ApplyDamageOverTime'), 'Timed status damage support is missing');
-assert.ok(projectile.includes('out var wasCritical'), 'projectile hit must expose critical-hit state to evolution mechanics');
-assert.ok(projectile.includes('_evolutionOwner.OnProjectileHit'), 'projectile hit callbacks must reach selected evolution behavior');
+assert.ok(enemy.includes('out wasCritical') && enemy.includes('ref wasCritical'), 'common damage path must pass critical state through Predator and branch mechanics');
+assert.ok(projectile.includes('enemy.ReceiveSphereDamage(_evolutionOwner.Type, _damage, false, _allowAuthoredProcs, _evolutionOwner)'), 'projectiles must use the common damage receiver with their real owner and proc flag');
 assert.ok(runtime.includes('TriggerStandardResonatorPulse') && runtime.includes('SpawnStandardSwarmShards'), 'Standard evolution runtime effects are missing');
 
 
@@ -588,9 +592,9 @@ assert.ok(!/UnityEngine\.Random|Random\.Range|_rng/.test(projectileVisual), 'pro
 
 const elementalVfxPath = 'Assets/EchoSphere/Scripts/Runtime/SphereElementalVfx2D.cs';
 assert.ok(existsSync(join(root, elementalVfxPath)), 'source-mapped elemental trace component is missing');
-const elementalVfx = readFileSync(join(root, elementalVfxPath), 'utf8');
+const elementalVfx = readFileSync(join(root, elementalVfxPath), 'utf8') + readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/SourceElementalVisual2D.cs'), 'utf8');
 assert.ok(elementalVfx.includes('src/spheres/elementalVisual.ts') && elementalVfx.includes('src/sphereProgression.ts') && elementalVfx.includes('ResolveElement'), 'elemental visuals must retain their source branch mapping');
-for (const branch of ['standard_resonator','standard_singularity','standard_swarm','sniper_oracle','sniper_assassin','sniper_beacon','shotgun_burst','shotgun_cataclysm','shotgun_hail','orbital_dance','orbital_halo','orbital_blade','prism_split','prism_spectrum','prism_mirror','void_hunger','void_reaper','void_execution','chain_web','chain_storm','chain_leech','aura_sanctum','aura_gravity','aura_overgrowth','gravity_well','gravity_tide','gravity_collapse','pulse_wave','pulse_resonator','pulse_burst']) assert.ok(elementalVfx.includes('"' + branch + '"'), 'elemental source branch mapping missing: ' + branch);
+for (const branch of ['standard_resonator','standard_singularity','standard_swarm','sniper_oracle','sniper_assassin','sniper_beacon','shotgun_burst','shotgun_cataclysm','shotgun_hail','orbital_dance','orbital_halo','orbital_blade','prism_split','prism_spectrum','prism_mirror','void_hunger','void_reaper','void_execution','chain_web','chain_storm','chain_leech','aura_sanctum','aura_gravity','aura_overgrowth','gravity_well','gravity_tide','gravity_collapse','pulse_wave','pulse_resonator','pulse_burst']) assert.ok(sphereElementalRules.includes('"' + branch + '"'), 'elemental source branch mapping missing: ' + branch);
 assert.ok(elementalVfx.includes('#ff743d') && elementalVfx.includes('#d9f6ff') && elementalVfx.includes('#72f08e') && elementalVfx.includes('MarkDynamic'), 'Fire/Freeze/Poison elemental trace signatures are missing');
 assert.ok(!/UnityEngine\.Random|Random\.Range|_rng/.test(elementalVfx), 'elemental presentation must not consume gameplay RNG');
 
@@ -612,10 +616,10 @@ for (const branch of ['chain_web','chain_storm','chain_leech','prism_split','pri
 assert.ok(combatArc.includes('MarkDynamic') && combatArc.includes('new List<Vector2>') && combatArc.includes('new List<Vector3>'), 'combat arc mesh and geometry buffers must be reused');
 assert.ok(!/UnityEngine\.Random|Random\.Range|_rng/.test(combatArc), 'combat arc presentation must not consume gameplay RNG');
 assert.ok(runtime.includes('SpawnCombatArc(Vector2 from, Vector2 to') && runtime.includes('arc.Initialize(this, from, to, family, branch, finalId, color, duration)'), 'combat arc visual entry point is missing');
-assert.ok(sphereAttack.includes('_runtime.SpawnCombatArc(origin, target.transform.position, SphereId.Chain'), 'Chain targets must connect to the live source-mapped arc');
+assert.ok(sphereAttack.includes('_runtime.SpawnCombatArc(i == 0 ? origin : (Vector2)primary.transform.position') && sphereAttack.includes('150f * SpherePlacementRules.SourcePixelsToWorld'), 'Chain must select sequential nearby jumps and connect them to the source-mapped arcs');
 assert.ok(runtime.includes('SpawnCombatArc(center, targets[i].transform.position, SphereId.Chain') && runtime.includes('SpawnCombatArc(primary.transform.position, target.transform.position, SphereId.Chain'), 'Chain Storm secondary and extra strikes need visual arcs');
 assert.ok(sphereAttack.includes('src/engineSpheres.ts:updatePrismSphere') &&
-  sphereAttack.includes('GetPrismBeamCount') && sphereAttack.includes('highestHp') &&
+  sphereAttack.includes('1 + (int)_sourceModifiers.multishot') && sphereAttack.includes('highestHp') &&
   sphereAttack.includes('ReceiveSphereDamage(SphereId.Prism') && sphereAttack.includes('0.10f'),
   'Prism attacks must use source-selected highest-HP targets and immediate direct beams');
 assert.ok(sphereAttack.includes('GetPrismFormationDamageMultiplier') &&
@@ -650,9 +654,9 @@ assert.ok(authoredModifiers.includes('AUTHORED_BASE_MODIFIERS') === false && aut
 assert.ok(authoredModifiers.includes('standard_resonator') && authoredModifiers.includes('void_execution_final_3') === false && authoredModifiers.includes('SphereAuthoredModifier.Gravitic'), 'canonical Sphere modifier mapping is incomplete');
 assert.ok(authoredModifiers.includes('BranchCount => BaseLevels.Count') && authoredModifiers.includes('FinalChoiceCount'), 'complete source modifier catalog counts must remain guarded');
 assert.ok(runtime.includes('GetSphereAuthoredDamageMultiplier') && runtime.includes('GetSphereAuthoredModifierLevel'), 'source-authored modifier catalogue is not exposed by the live runtime');
-assert.ok(runtime.includes('SphereAuthoredModifierRules.GetDamageMultiplier(branch, finalId)') &&
+assert.ok(runtime.includes('SourceSphereModifiersRules.Get') && runtime.includes('SourceSphereGlobalModifiers.Merge') && sphereAttack.includes('_initialDamage * _sourceModifiers.damage') &&
   runtime.includes('ResolveAuthoredSphereHitDamage') && enemy.includes('ReceiveSphereDamage(SphereAttackAgent owner'),
-  'source Overload/Shatter/Mark damage must be resolved in the shared Sphere hit pipeline');
+  'source Overload/Shatter/Mark stats must be transferred once before shared conditional hit modifiers');
 
 assert.ok(enemy.includes('ResolveAuthoredSphereHitDamage') && enemy.includes('ApplyAuthoredSphereHitEffects') &&
   enemy.includes('ReceiveSphereDamage(SphereAttackAgent owner'),
@@ -661,7 +665,7 @@ assert.ok(runtime.includes('SphereAuthoredModifierRules.GetExecuteDamageMultipli
   runtime.includes('SphereAuthoredModifierRules.GetCorruptDamageMultiplier') &&
   runtime.includes('SphereAuthoredModifierRules.GetImpactDistancePixels') &&
   runtime.includes('SphereAuthoredModifierRules.GetAnchorSlowMultiplier') &&
-  runtime.includes('SphereAuthoredModifierRules.GetVampiricHealFraction') &&
+  runtime.includes('damage * GetSourceSphereModifiers(source).healOnHit') &&
   runtime.includes('SphereAuthoredModifierRules.GetShatterDamageMultiplier'),
   'Execute/Mark/Corrupt or deterministic on-hit modifier effects are missing from runtime');
 assert.ok(enemy.includes('RegisterEnemyDeath(this, transform.position, _xpReward, sourceSphere)') &&
@@ -680,13 +684,13 @@ assert.ok(projectileAgent.includes('TrySplitAfterHit') && projectileAgent.includ
   projectileAgent.includes('350f * SpherePlacementRules.SourcePixelsToWorld') &&
   projectileAgent.includes('_remainingPierces > 0') && projectileAgent.includes('_remainingRicochets > 0'),
   'projectile hit/split/pierce/ricochet source order or hit exclusion is missing');
-assert.ok(runtime.includes('GetStaticChance(staticLevel)') && runtime.includes('GetEchoChance(echoLevel)') &&
+assert.ok(runtime.includes('GetSourceSphereModifiers(source).staticChance') && runtime.includes('GetSourceSphereModifiers(source).echoChance') &&
   runtime.includes('SphereAuthoredModifier.Static'),
   'source Echo/Static hit procs are not connected');
 assert.ok(sphereAttack.includes('SpawnAuthoredMainProjectile') &&
-  sphereAttack.includes('SphereAuthoredModifier.Multishot') &&
-  sphereAttack.includes('GetSphereProjectilePierceBonus(_type)') &&
-  sphereAttack.includes('GetPrismBeamCount'),
+  sphereAttack.includes('_sourceModifiers.multishot') &&
+  sphereAttack.includes('(int)_sourceModifiers.pierce') &&
+  sphereAttack.includes('1 + (int)_sourceModifiers.multishot'),
   'Sphere projectile emission and Prism direct-beam emission must retain their source modifier paths');
 assert.ok(evolutionRules.includes('GetProjectilePierceBonus("void_execution", finalId)') &&
   evolutionRules.includes('GetPrismBeamCount') &&
@@ -697,7 +701,7 @@ assert.ok(evolutionRules.includes('GetProjectilePierceBonus("void_execution", fi
 
 // Source menu/persistence migration contracts. These guard actual runtime call paths,
 // not just the presence of similarly named screen types.
-const menuRuntime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs'), 'utf8');
+const menuRuntime = readRuntime();
 assert.ok(menuRuntime.includes('DrawShopScreen') && menuRuntime.includes('DrawSettingsScreen') &&
   menuRuntime.includes('DrawLeaderboardScreen') && menuRuntime.includes('DrawAchievementsScreen'),
   'the source main-menu Shop/Settings/Leaderboard/Achievements destinations must be reachable from Unity IMGUI');
@@ -807,9 +811,9 @@ assert.ok(hunterEnemyRuntime.includes('_archetype = archetype') && hunterEnemyRu
   menuRuntime.includes('visualVariant, "", isElite, archetype') &&
   menuRuntime.includes('SelectEliteVariant(out eliteVariant)'),
   'Hunter target eligibility must use the actual selected enemy archetype and elite variant visuals');
-assert.ok(hunterProjectileRuntime.includes('RegisterCharacterSphereHit(_evolutionOwner.Type, enemy)') &&
-  hunterProjectileRuntime.includes('out var wasCritical, enemy'),
-  'projectile Hunter marks are applied before resolving a marked-target critical roll');
+assert.ok(hunterProjectileRuntime.includes('enemy.ReceiveSphereDamage(_evolutionOwner.Type, _damage') &&
+  hunterEnemyRuntime.indexOf('RegisterCharacterSphereHit(source, this)') < hunterEnemyRuntime.indexOf('out wasCritical, this'),
+  'common Sphere hit receiver must apply Hunter marks before resolving the marked-target critical roll');
 for (const token of [
     'sphere == SphereId.Sniper', 'sphere == SphereId.Chain', 'sphere == SphereId.Prism', 'sphere == SphereId.Void',
   'archetype == EnemyArchetype.Tank', 'masteryLevel >= 2 ? 6f : 5f',
@@ -888,7 +892,7 @@ assert.ok(menuRuntime.includes('TickEngineerRelay(dt)') &&
 assert.ok(sphereAttack.includes('EngineerRelayRules.ConsumesOnAttack(_type)') &&
   sphereAttack.includes('_runtime.ConsumeEngineerRelayBonus(this)') &&
   sphereAttack.includes('_runtime.TriggerEngineerRelay(this)') &&
-  sphereAttack.includes('private bool DamageArea') &&
+  sphereAttack.includes('private bool DamageSourceArea') &&
   sphereAttack.includes('if (hitSomething) _runtime.TriggerEngineerRelay(this)'),
   'Engineer relay must be applied once to eligible attacks and trigger from actual field/orbital activity');
 assert.ok(engineerRelayVfxSource.includes('src/renderer.ts:drawEnergyBolt') &&
@@ -953,7 +957,7 @@ assert.ok(menuRuntime.includes('if (_levelUpLockChoiceKey == selectedChoiceKey) 
 assert.ok(menuRuntime.includes('GetOracleRerollPreservationCount(_characterMasteryLevel)') &&
   menuRuntime.includes('oracleForecastChoices.Count > 0 && lockedChoiceIndex < 0') &&
   menuRuntime.includes('_oracleForecastRerollUsed = true') &&
-  menuRuntime.includes('GUI.Button(rerollRect, rerollLabel, _button)'),
+  menuRuntime.includes('rerollLabel, _button)') && menuRuntime.includes('RerollLevelUpChoices(); _upgradePickerScroll = Vector2.zero'),
   'Oracle preserves forecasted choices on its first eligible unlocked reroll; UI exposes functional Lock/Reroll controls');
 
 
@@ -1167,7 +1171,7 @@ assert.ok(artifactProtocolRulesSource.includes('completedSingularityPath && comb
 assert.equal((artifactProtocolRulesSource.match(/new ArtifactProtocolDefinition\(/g) || []).length, 12,
   'the protocol catalog must contain all twelve source definitions');
 assert.ok(runtimeArt.includes('MainMenuPage.Knowledge: DrawKnowledgeBaseScreen(); return;') &&
-  runtimeArt.includes('IsRussianUi ? "ЗНАНИЯ" : "KNOWLEDGE"') &&
+  runtimeArt.includes('MainMenuPage.Knowledge') && runtimeArt.includes('DrawSourceKnowledgeBaseScreen') &&
   runtimeArt.includes('private void DrawKnowledgeBaseScreen()'),
   'the main menu must open the Artifact Protocol encyclopedia');
 assert.ok(runtimeArt.includes('private void DrawArtifactProtocolOverlay()') &&
@@ -1196,7 +1200,7 @@ assert.ok(runtimeArt.includes('private GUIStyle _menuTitle, _comboTitleStyle, _c
   runtimeArt.includes('_combo >= 50') && runtimeArt.includes('_combo >= 25') &&
   runtimeArt.includes('_comboMultiplier.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)') &&
   runtimeArt.includes('Mathf.Clamp01(_comboTimer / ComboRules.WindowSeconds)') &&
-  runtimeArt.includes('const float comboTop = 270f;') &&
+  runtimeArt.includes('const float comboTop = 64f;') &&
   runtimeArt.includes('(_uiWidth - comboWidth) * 0.5f') &&
   runtimeArt.includes('new Color(1f, 0.72156864f, 0.3019608f, 1f)') &&
   runtimeArt.includes('new Color(1f, 0.41960785f, 0.41960785f, 1f)') &&
@@ -1285,7 +1289,7 @@ for (const ability of ['Blast', 'Shield', 'Teleport', 'FireTrail', 'Minion', 'Li
     'source active ability ' + ability + ' must have progression and a runtime activation path');
 }
 assert.ok(runtimeArt.includes('GetSphereRangeMultiplier()') &&
-  runtimeArt.includes('SPHERE RANGE increased.'),
+  runtimeArt.includes('case RunUpgradeKind.Range:') && runtimeArt.includes('_spheres[i].ApplyProgressionLevel(_spheres[i].ProgressionLevel)'),
   'Range upgrades refresh live Sphere range');
 assert.ok(runtimeArt.includes('IsCharacterPreferredActiveAbility') &&
   runtimeArt.includes('var characterAffinity = IsCharacterPreferredActiveAbility(choice.Kind) ? 0.75f : 0f;') &&
@@ -1413,7 +1417,7 @@ for (const [linkId, finalId] of sourceAbilitySynergyLinks) {
 
 // Link Breaker source parity: authored range/timers, disabled-target filtering and Stability scaling.
 const linkBreakerEnemy = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs'), 'utf8');
-const linkBreakerRuntime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs'), 'utf8');
+const linkBreakerRuntime = readRuntime();
 assert.ok(linkBreakerEnemy.includes('260f') && linkBreakerEnemy.includes('0.75f') &&
   linkBreakerEnemy.includes('0.30f') && linkBreakerEnemy.includes('6f') &&
   linkBreakerEnemy.includes('GetNetworkDisableDuration(2f)'),
@@ -1426,3 +1430,5 @@ assert.ok(linkBreakerRuntime.includes('FindNearestLinkBreakerTarget') &&
   linkBreakerRuntime.includes('GetAbilityLevel(RunUpgradeKind.Stability)') &&
   linkBreakerRuntime.includes('ShowTimedCombatMessage'),
   'Link Breaker must skip disabled Spheres and use the source Stability duration modifier');
+
+console.log(`Unity project preflight: PASS (Unity ${version}, ${runtimeFiles.length} C# source files, URP, authored SVG and responsive HUD guards)`);

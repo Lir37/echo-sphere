@@ -5,7 +5,7 @@ using EchoSphere.Core;
 namespace EchoSphere.Runtime
 {
     /// <summary>Source-mapped projectile body from renderer.ts:drawBossProjectile.</summary>
-    public sealed class BossProjectileAgent2D : MonoBehaviour
+    public sealed class BossProjectileAgent2D : MonoBehaviour, ISourceSimulationAgent
     {
         private static Material _sharedMaterial;
         private readonly List<Vector3> _vertices = new List<Vector3>(180);
@@ -18,11 +18,17 @@ namespace EchoSphere.Runtime
         private float _damage, _hitRadius, _time;
         private Color _color;
         private string _bossType = "";
+        private EnemyAgent2D _sourceOwner;
+        private bool _hasSourceOwner, _removed;
+        public bool HasSourceOwner => _hasSourceOwner;
+        public EnemyAgent2D SourceOwner => _sourceOwner;
+        public void SetSourceOwner(EnemyAgent2D owner) { _sourceOwner = owner; _hasSourceOwner = owner != null; }
 
         public void Initialize(EchoSphereRuntime runtime, Transform player, Vector2 velocity,
             float sourceRadius, float damage, string bossType, Color color)
         {
             _runtime = runtime;
+            _runtime.RegisterSimulationAgent(this);
             _player = player;
             _velocity = velocity;
             _damage = Mathf.Max(0f, damage);
@@ -62,22 +68,23 @@ namespace EchoSphere.Runtime
             }
         }
 
-        private void Update()
+        public void SimulationTick(float dt)
         {
-            if (_runtime == null || _runtime.IsGameplayPaused || _player == null) return;
-            var dt = Time.deltaTime;
+            if (_removed || _runtime == null || _runtime.IsGameplayPaused || _player == null) return;
             _time += dt;
             transform.position += (Vector3)(_velocity * dt);
             if (Vector2.Distance(transform.position, _player.position) < _hitRadius)
             {
                 _runtime.TryDamagePlayer(_damage);
+                _removed = true;
                 Destroy(gameObject);
                 return;
             }
 
             var delta = (Vector2)transform.position - (Vector2)_player.position;
-            if (Mathf.Abs(delta.x) > 20f || Mathf.Abs(delta.y) > 20f)
+            if (Mathf.Abs(delta.x) > 1000f * SpherePlacementRules.SourcePixelsToWorld || Mathf.Abs(delta.y) > 1000f * SpherePlacementRules.SourcePixelsToWorld)
             {
+                _removed = true;
                 Destroy(gameObject);
                 return;
             }

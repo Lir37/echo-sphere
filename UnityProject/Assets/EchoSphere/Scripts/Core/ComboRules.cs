@@ -27,7 +27,7 @@ namespace EchoSphere.Core
             Math.Max(0f, Math.Max(0f, remainingSeconds) - Math.Max(0f, deltaTime));
 
         /// <summary>Matches JavaScript Math.round for the non-negative XP orb values used by the source.</summary>
-        public static int GetExperienceOrbValue(int baseExperience, float multiplier)
+        public static int GetExperienceOrbValue(float baseExperience, float multiplier)
         {
             var scaled = Math.Max(0, baseExperience) * (double)Math.Max(0f, multiplier);
             return Math.Max(0, (int)Math.Floor(scaled + 0.5d));

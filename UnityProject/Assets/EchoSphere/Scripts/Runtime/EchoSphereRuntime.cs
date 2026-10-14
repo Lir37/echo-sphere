@@ -7,7 +7,8 @@ using UnityEngine.SceneManagement;
 namespace EchoSphere.Runtime
 {
     /// <summary>First-playable migration harness; intentionally not the full production game.</summary>
-    public sealed class EchoSphereRuntime : MonoBehaviour
+    [DefaultExecutionOrder(-100)]
+    public sealed partial class EchoSphereRuntime : MonoBehaviour
     {
         [System.Serializable]
         private sealed class ShopUpgradeData
@@ -229,7 +230,7 @@ namespace EchoSphere.Runtime
             SphereId.Orbital, SphereId.Prism, SphereId.Gravity, SphereId.Pulse, SphereId.Void
         };
 
-        private readonly List<EnemyAgent2D> _enemies = new List<EnemyAgent2D>();
+        private readonly SourceEntityList<EnemyAgent2D> _enemies = new SourceEntityList<EnemyAgent2D>();
         private readonly HashSet<string> _regionLoreDiscovered = new HashSet<string>();
         private int _regionXpReward, _regionGoldReward, _regionChallengeContractsCompleted, _regionMasteryChallengesCompleted;
         private readonly HashSet<SphereNetworkFormation> _regionMasteryGeometryTypes = new HashSet<SphereNetworkFormation>();
@@ -308,12 +309,12 @@ namespace EchoSphere.Runtime
         private Color _placementFlashColor = Color.white;
         private float _spawnTimer = 3f, _runTime, _messageTimer, _formationStrain;
         private Vec2 _lastDirection = Vec2.Zero;
-        private int _kills, _level = 1, _xp, _xpRequired = RunBalanceRules.GetXpToNextLevel(1);
+        private int _kills, _level = 1, _xpRequired = RunBalanceRules.GetXpToNextLevel(1);
+        private float _xp;
         private int _bossesDefeated, _wave, _waveEnemiesToSpawn;
         private bool _follow, _paused, _levelUp, _gameOver, _userPaused, _regionStabilized;
         private bool _stellaRewardPending, _stellaRewardIsLegendary;
         private float _swiftBootsTimer;
-        private float _runeAttackBuffUntil;
         // Source player.timestopTimer / teleportDamageBuffTimer. Time Stop now produces
         // its timer; the Teleport buff remains branch/final-specific and gated until those
         // ability evolution choices are ported. Artifact bonuses remain independently gated.
@@ -372,11 +373,11 @@ namespace EchoSphere.Runtime
         private SphereNetworkFormation _preferredSecondaryFormation = SphereNetworkFormation.None;
         private float _networkRefreshTimer;
 
-        public bool IsGameplayPaused => _paused;
+        public bool IsGameplayPaused => _mainMenu || (_paused && !_simulationFrame) || (!_simulationFrame && _playerCore != null && _playerCore.IsDead);
         public bool IsPresentationPaused => _mainMenu || _paused;
         public Vector2 PlayerPosition => _player == null ? Vector2.zero : (Vector2)_player.position;
         public bool IsDarkRitualOverloaded => _darkRitualOverloadTimer > 0f;
-        public bool IsCombatSimulationPaused => _mainMenu || _paused || _playerCore == null;
+        public bool IsCombatSimulationPaused => IsGameplayPaused || _playerCore == null;
         public float CurrentRunTime => _runTime;
         public int CurrentWave => _wave;
         public float GetEnemyAbilitySpeedMultiplier(float distanceToPlayer, float statusSlowMultiplier)
@@ -385,7 +386,7 @@ namespace EchoSphere.Runtime
             var slowRadius = 300f * SpherePlacementRules.SourcePixelsToWorld;
             return CombatRules.GetEnemySpeedMultiplier(statusSlowMultiplier, abilitySlow, distanceToPlayer, slowRadius);
         }
-        public float GetExperienceMagnetRadiusWorld() => LevelUpAbilityRules.GetMagnetRadiusWorld(GetAbilityLevel(RunUpgradeKind.Magnet));
+        public float GetExperienceMagnetRadiusWorld() => PlayerLoopRules.MagnetRadius(GetAbilityLevel(RunUpgradeKind.Magnet), GetGlobalSphereModifierLevel("magnetic")) * SpherePlacementRules.SourcePixelsToWorld;
         public bool RegionStabilized => _regionStabilized;
         public EchoRegionId SelectedRegion => _selectedRegion;
         public void RegisterRegionPoiCollected(string poiType)
@@ -507,7 +508,7 @@ namespace EchoSphere.Runtime
         public float GetRegionEnemyDamageMultiplier()
         {
             var pocketDamage = _player == null ? 1f :
-                RegionPocketRules.GetAt(_selectedRegion, _player.position.x, _player.position.y).Damage;
+                RegionPocketRules.GetAt(_selectedRegion, _player.position.x, -_player.position.y).Damage;
             if (_selectedRegion == EchoRegionId.ResonanceBasin && _regionChallengeId == "overload") return pocketDamage * 1.08f;
             if (_selectedRegion == EchoRegionId.SpectralRift && _regionChallengeId == "mirror_tide")
                 return pocketDamage * (Mathf.FloorToInt(_runTime / 36f) % 2 == 0 ? 0.94f : 1.16f);
@@ -525,15 +526,15 @@ namespace EchoSphere.Runtime
         public int GetShopUpgradeLevel(string id) { EnsureShopSaveLoaded(); return _shopSave.upgrades.Get(id); }
         public float GetShopSphereRadiusMultiplier() => PersistentUpgradeRules.GetPercentMultiplier(GetShopUpgradeLevel("radius"));
         private DifficultyProfile CurrentDifficulty => DifficultyRules.GetProfile(PlayerPrefs.GetString(DifficultyPreferenceKey, "normal"));
-        public float SphereDamageMultiplier => _damageMultiplier * (Time.time < _runeAttackBuffUntil ? 1.3f : 1f) *
+        public float SourceBuffDamageMultiplier => _buffTimer > 0f ? 1.3f : 1f;
+        public float SphereDamageMultiplier => _damageMultiplier * PlayerLoopRules.MutationDamage(_mutationStage) * ChaosOrbMultiplier("dmg") *
             (_teleportDamageBuffTimer > 0f ? 2f : 1f) *
-            (_timeStopTimer > 0f && GetAbilityBranch(RunUpgradeKind.TimeStop) == "timestop_echo_phase" ? 1.18f : 1f) *
+            (_timeStopTimer > 0f && _timeStopTimer <= 1f && GetAbilityFinalArchetype(RunUpgradeKind.TimeStop) == "timestop_temporal_core" ? 2f : 1f) *
 
             (_darkRitualOverloadTimer > 0f ? 1.25f + GetAbilityLevel(RunUpgradeKind.DarkRitual) * 0.04f : 1f) *
             LevelUpAbilityRules.GetSphereDamageMultiplier(GetAbilityLevel(RunUpgradeKind.Damage)) *
             PersistentUpgradeRules.GetPercentMultiplier(GetShopUpgradeLevel("dmg")) *
-            Mathf.Max(0.25f, 1f + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "sphereDamage")) *
-            GetCharacterGlobalSphereDamageMultiplier();
+            Mathf.Max(0.25f, 1f + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "sphereDamage"));
         public float AttackSpeedMultiplier => _attackSpeedMultiplier * (_darkRitualOverloadTimer > 0f ? 1f / 0.72f : 1f) *
             LevelUpAbilityRules.GetAttackSpeedMultiplier(GetAbilityLevel(RunUpgradeKind.AttackSpeed)) *
             GetCharacterAttackSpeedMultiplier() /
@@ -559,24 +560,15 @@ namespace EchoSphere.Runtime
             if (IsFireAlignedSphere(type) && _fireTrailTimer > 0f) multiplier *= 1f / 0.78f;
             return multiplier;
         }
-        public float GetSphereRadiusMultiplier() => LevelUpAbilityRules.GetSphereRadiusMultiplier(GetAbilityLevel(RunUpgradeKind.Radius));
+        public float GetSphereRadiusMultiplier() => LevelUpAbilityRules.GetSphereRadiusMultiplier(GetAbilityLevel(RunUpgradeKind.Radius)) * PlayerLoopRules.MutationRadius(_mutationStage) * ChaosOrbMultiplier("radius");
         public float GetSphereRangeMultiplier() => LevelUpAbilityRules.GetSphereRangeMultiplier(GetAbilityLevel(RunUpgradeKind.Range));
 
         // Source engineSpheres.ts:getSphereRadius + sphereModifiers(..., 'orbital').
-        // Chaos Orb and Mutation-stage radius effects are intentionally not guessed here:
-        // their source state has no confirmed equivalent in the current Unity runtime.
         public float GetOrbitalLiveRadiusPixels(int progressionLevel)
         {
-            var level = Mathf.Clamp(progressionLevel, 1, SphereProgressionRules.MaxLevel);
-            var multiplier = GetSphereRadiusMultiplier()
-                * GetSphereRangeMultiplier()
-                * GetShopSphereRadiusMultiplier()
-                * GetArtifactSphereRadiusMultiplier(SphereId.Orbital)
-                * GetCharacterSphereRadiusMultiplier();
-
-            if (level >= 2) multiplier *= 1.15f;
-            if (level >= 5) multiplier *= 1.06f;
-            if (level >= 7) multiplier *= 1.08f;
+            var multiplier = GetSphereRadiusMultiplier() * GetShopSphereRadiusMultiplier()
+                * GetArtifactSphereRadiusMultiplier(SphereId.Orbital) * GetCharacterSphereRadiusMultiplier()
+                * GetSourceSphereModifiers(SphereId.Orbital, progressionLevel).radius;
             // The source applies an additional Architect mastery radius factor
             // after getCharacterRadiusMultiplier has already been applied.
             if (_sphereCharacterId == SphereCharacterId.Architect && _characterMasteryLevel >= 3)
@@ -584,7 +576,7 @@ namespace EchoSphere.Runtime
 
             return 130f * multiplier;
         }
-        public float GetProjectileSpeedMultiplier() => LevelUpAbilityRules.GetProjectileSpeedMultiplier(GetAbilityLevel(RunUpgradeKind.ProjectileSpeed));
+        public float GetProjectileSpeedMultiplier() => 1f;
         public int SphereBoostDamageBonus => LevelUpAbilityRules.GetSphereBoostDamageBonus(_kills, GetAbilityLevel(RunUpgradeKind.SphereBoost));
         public float ResonanceCharge => _resonanceCharge;
         public bool ResonanceEventActive => _resonanceEventActive;
@@ -598,14 +590,14 @@ namespace EchoSphere.Runtime
         public bool HasArtifact(string artifactId) =>
             !string.IsNullOrEmpty(artifactId) && _ownedArtifacts.Contains(artifactId);
         public int GetSphereAuthoredModifierLevel(SphereId type, SphereAuthoredModifier modifier) =>
-            SphereAuthoredModifierRules.GetLevel(GetSphereBranch(type), GetSphereFinal(type), modifier);
+            GetSourceSphereModifierLevel(type, modifier);
         public int GetSphereProjectilePierceBonus(SphereId type) =>
             SphereAuthoredModifierRules.GetProjectilePierceBonus(GetSphereBranch(type), GetSphereFinal(type));
         public int GetSphereProjectileRicochetCount(SphereId type)
         {
             // Prism branches have a dedicated beam/refraction path that resolves their authored Ricochet.
             if (type == SphereId.Prism) return 0;
-            return SphereAuthoredModifierRules.GetProjectileRicochetCount(GetSphereBranch(type), GetSphereFinal(type));
+            return (int)GetSourceSphereModifiers(type).ricochet;
         }
 
         public float GetSphereAuthoredDamageMultiplier(SphereId type) =>
@@ -869,8 +861,7 @@ namespace EchoSphere.Runtime
             _expandedCharacterId = CharacterRules.ToSourceId(id);
             if (_mainMenu && _playerCore != null)
             {
-                var newMaxHp = 100f * (1f + definition.MaxHp) +
-                    PersistentUpgradeRules.GetStartingHpBonus(GetShopUpgradeLevel("hp"));
+                var newMaxHp = (100f + PersistentUpgradeRules.GetStartingHpBonus(GetShopUpgradeLevel("hp"))) * (1f + definition.MaxHp);
                 _playerCore.SetMaxHpForNewRun(newMaxHp);
                 for (var i = 0; i < _spheres.Count; i++)
                 {
@@ -904,8 +895,8 @@ namespace EchoSphere.Runtime
 
         private void FinalizeRunResult()
         {
+            ClearRunSnapshot();
             if (_runResultSaved) return;
-            SourceAudio2D.Play("gameover");
             _runResultSaved = true;
 
             var characterProfile = GetCharacterProfile(_sphereCharacterId);
@@ -917,7 +908,7 @@ namespace EchoSphere.Runtime
             SaveCharacterProfiles();
 
             var difficulty = CurrentDifficulty;
-            var goldFormula = _runTime * 0.15d + _bossesDefeated * 25d + _kills * 0.05d;
+            var goldFormula = System.Math.Floor(_runTime) * 0.15d + _bossesDefeated * 25d + _kills * 0.05d;
             _runGoldEarned = (int)System.Math.Floor(goldFormula * difficulty.GoldMultiplier);
             if (_regionStabilized)
             {
@@ -936,9 +927,13 @@ namespace EchoSphere.Runtime
                 date = System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
             };
             var isNewRecord = _leaderboardEntries.Count == 0 || entry.time > _leaderboardEntries[0].time;
+            _sourceResultNewRecord = isNewRecord;
             _leaderboardEntries.Add(entry);
-            _leaderboardEntries.Sort((a, b) => b.time.CompareTo(a.time));
+            var sourceOrder = new Dictionary<LeaderboardEntry, int>();
+            for (var i = 0; i < _leaderboardEntries.Count; i++) sourceOrder[_leaderboardEntries[i]] = i;
+            _leaderboardEntries.Sort((a, b) => a.time == b.time ? sourceOrder[a].CompareTo(sourceOrder[b]) : b.time.CompareTo(a.time));
             if (_leaderboardEntries.Count > 10) _leaderboardEntries.RemoveRange(10, _leaderboardEntries.Count - 10);
+            _sourceResultRank = _leaderboardEntries.IndexOf(entry) + 1;
             SaveLeaderboardEntries();
 
             UnlockAchievementIf(_kills >= 500, "kills_500");
@@ -960,6 +955,8 @@ namespace EchoSphere.Runtime
 
         private void ResetPersistentProgress()
         {
+            ClearRunSnapshot();
+            _knownKnowledgeIds.Clear();
             PlayerPrefs.DeleteKey(GoldPreferenceKey);
             PlayerPrefs.DeleteKey(ShopPreferenceKey);
             PlayerPrefs.DeleteKey(LeaderboardPreferenceKey);
@@ -1036,11 +1033,28 @@ namespace EchoSphere.Runtime
         private void Update()
         {
             PruneDestroyed();
+            if (!_mainMenu) TickSourceKnowledge(Mathf.Min(0.05f, Time.unscaledDeltaTime));
+            TickRunAutosave();
+            if (TickSourceDeath()) return;
             if (Input.GetKeyDown(KeyCode.Escape) && !_gameOver && !_levelUp && !_choosingEvolution && !_stellaRewardPending)
                 SetUserPaused(!_userPaused);
             if (_mainMenu || (_paused && !(_tutorialStep == 1 || _tutorialStep == 2)) || _playerCore == null) return;
-            var dt = Time.deltaTime;
+            _simulationFrame = true;
+            try
+            {
+            var dt = Mathf.Min(0.05f, Time.deltaTime);
+            SimulationDeltaTime = dt;
+            if (Input.GetKeyDown(KeyCode.Space)) TrySourceDash();
+            foreach (var binding in _activeAbilityHotkeys)
+                if (Input.GetKeyDown(binding.Value)) ActivateActiveAbility(binding.Key);
+            HandleSpherePointerInput();
             _runTime += dt;
+            TickRegionHudState(dt);
+            TickSourceRegionFrame(dt);
+            TickHunterCharacterState(dt);
+            TickEngineerRelay(dt);
+            _alchemistCatalystTimer = Mathf.Max(0f, _alchemistCatalystTimer - dt);
+            _playerCore.Heal(LevelUpAbilityRules.GetRegenPerSecond(GetAbilityLevel(RunUpgradeKind.Regen)) * dt);
             if (_comboTimer > 0f)
             {
                 _comboTimer = ComboRules.TickTimer(_comboTimer, dt);
@@ -1051,7 +1065,12 @@ namespace EchoSphere.Runtime
                 }
             }
             TickSphereArtAnimation(dt);
+            var dashWasActive = _playerCore.DashTimer > 0f;
             _playerCore.Tick(dt);
+            TickSourceEarlyPlayerState(dt, dashWasActive);
+            TickSimulationPhase<StellaChestAgent2D>(dt, true);
+            TickSimulationPhase<ArtifactChestAgent2D>(dt, true);
+            TickSourceMutation();
             _swiftBootsTimer = Mathf.Max(0f, _swiftBootsTimer - dt);
             _timeStopTimer = Mathf.Max(0f, _timeStopTimer - dt);
             _teleportDamageBuffTimer = Mathf.Max(0f, _teleportDamageBuffTimer - dt);
@@ -1069,13 +1088,9 @@ namespace EchoSphere.Runtime
             _shieldTimer = Mathf.Max(0f, _shieldTimer - dt);
             _shieldVisualPulse = Mathf.Max(0f, _shieldVisualPulse - dt);
             _activeAbilitySlots = _level >= 20 ? 3 : _level >= 12 ? 2 : _level >= 5 ? 1 : 0;
-            _alchemistCatalystTimer = Mathf.Max(0f, _alchemistCatalystTimer - dt);
             _conductorOverdriveTimer = Mathf.Max(0f, _conductorOverdriveTimer - dt);
             _oracleSourceFlashTimer = Mathf.Max(0f, _oracleSourceFlashTimer - dt);
             _characterScreenShakeIntensity = Mathf.Max(0f, _characterScreenShakeIntensity - dt);
-            TickHunterCharacterState(dt);
-            TickEngineerRelay(dt);
-            _playerCore.Heal((Mathf.Max(0f, ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "regen")) + LevelUpAbilityRules.GetRegenPerSecond(GetAbilityLevel(RunUpgradeKind.Regen))) * dt);
             if (_messageTimer > 0f) _messageTimer -= dt;
             _formationMemoryTimer = Mathf.Max(0f, _formationMemoryTimer - dt);
             _resonanceGeometryMemoryTimer = Mathf.Max(0f, _resonanceGeometryMemoryTimer - dt);
@@ -1085,11 +1100,6 @@ namespace EchoSphere.Runtime
                 _resonanceGeometryMemoryType = SphereNetworkFormation.None;
             }
             _placementFlashTimer = Mathf.Max(0f, _placementFlashTimer - dt);
-            if (Input.GetKeyDown(KeyCode.Space)) _playerCore.TryDash(_playerCore.LastMoveDirection);
-            foreach (var binding in _activeAbilityHotkeys)
-                if (Input.GetKeyDown(binding.Value)) ActivateActiveAbility(binding.Key);
-
-            HandleSpherePointerInput();
             var input = ReadMovement();
             var playerShell = _player != null ? _player.Find("Shell") : null;
             var playerSprite = playerShell != null ? playerShell.GetComponent<SpriteRenderer>() : null;
@@ -1102,19 +1112,20 @@ namespace EchoSphere.Runtime
             if (_follow) _formationStrain = FormationFollowRules.UpdateStrain(_formationStrain, _lastDirection, requested, dt, out _lastDirection);
             else { _formationStrain = 0f; _lastDirection = Vec2.Zero; }
 
-            _player.position += (Vector3)(_playerCore.GetVelocity(input, 3.6f * GetChallengeMovementMultiplier() * GetArtifactMoveSpeedMultiplier() *
+            _player.position += (Vector3)(_playerCore.GetVelocity(input, 180f * SpherePlacementRules.SourcePixelsToWorld * GetChallengeMovementMultiplier() * GetArtifactMoveSpeedMultiplier() *
                 LevelUpAbilityRules.GetMoveSpeedMultiplier(GetAbilityLevel(RunUpgradeKind.MoveSpeed)) *
                 LevelUpAbilityRules.GetMomentumSpeedMultiplier(GetAbilityLevel(RunUpgradeKind.Momentum), _playerCore.DashTimer > 0f) *
-                GetCharacterMoveSpeedMultiplier(), followMultiplier) * dt);
-            TickRegionHudState(dt);
-            _networkRefreshTimer -= dt;
-            if (_networkRefreshTimer <= 0f)
-            {
-                RefreshNetworkState();
-                _networkRefreshTimer = 0.12f;
-            }
-            TickCharacterSpecialRuntime(dt);
+                GetCharacterMoveSpeedMultiplier() * PlayerLoopRules.MutationSpeed(_mutationStage) *
+                (_sphereCharacterId == SphereCharacterId.Berserker && _characterMasteryLevel >= 5 && _buffTimer > 0f ? 1.05f : 1f), followMultiplier) * dt);
+            if (_follow) foreach (var sphere in _spheres) if (sphere != null) sphere.SyncFollowPosition();
+            _playerCore.Heal(Mathf.Max(0f, ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "regen")) * dt);
+            TickSourceLatePlayerState(dt);
+            RefreshNetworkState();
             TickResonanceRing(dt);
+            TickSimulationPhase<SphereAttackAgent>(dt);
+            TickSimulationPhase<ProjectileAgent>(dt, true);
+            TickCharacterSpecialRuntime(dt);
+            TickSimulationPhase<AbilityDroneAgent2D>(dt, true);
             var cameraTarget = new Vector3(_player.position.x, _player.position.y, -10f);
             var cameraBase = _camera.transform.position - _lastHunterScreenShakeOffset;
             cameraBase = Vector3.Lerp(cameraBase, cameraTarget, 1f - Mathf.Exp(-5f * dt));
@@ -1125,37 +1136,10 @@ namespace EchoSphere.Runtime
                 shakePixelsX * SpherePlacementRules.SourcePixelsToWorld,
                 shakePixelsY * SpherePlacementRules.SourcePixelsToWorld, 0f);
             _camera.transform.position = cameraBase + _lastHunterScreenShakeOffset;
-            if (_tutorialStep >= 0)
-            {
-                if (_tutorialStep == 1 && Vector2.Distance(_tutorialStartPosition, _player.position) >= 72f * SpherePlacementRules.SourcePixelsToWorld)
-                    SetTutorialStep(2);
-                else if (_tutorialStep == 2 && _spheres.Count >= 2)
-                    SetTutorialStep(3);
-                return;
-            }
-            TickRegionMastery(dt);
-            AdvanceRegionBossSchedule();
-            if (_playerCore.IsDead && !_gameOver)
-            {
-                _gameOver = true;
-                _paused = true;
-                FinalizeRunResult();
-                ShowMessage(IsRussianUi ? "ЯДРО РАЗРУШЕНО" : "CORE DESTROYED");
-                return;
-            }
             TickCharacterMastery();
-            if (_regionStabilized)
+            if (_tutorialStep < 0)
             {
-                // Source engineLoop.ts ends the run when updateRegion marks the Region cleared.
-                if (!_gameOver)
-                {
-                    _gameOver = true;
-                    _paused = true;
-                    FinalizeRunResult();
-                }
-                return;
-            }
-
+            SpawnSourceRegionBossForFrame();
             _spawnTimer -= dt;
             if (_spawnTimer <= 0f && _waveEnemiesToSpawn > 0)
             {
@@ -1168,44 +1152,26 @@ namespace EchoSphere.Runtime
                 _spawnTimer = 3f;
                 StartNextWave();
             }
-            if (_playerCore.IsDead && !_gameOver)
-            {
-                _gameOver = true;
-                _paused = true;
-                FinalizeRunResult();
-                ShowMessage(IsRussianUi ? "ЯДРО РАЗРУШЕНО" : "CORE DESTROYED");
+            TickSimulationPhase<EnemyAgent2D>(dt, true);
+            TickSourceUnownedEnemyProjectiles(dt);
+            _regionFieldVisuals.TickGameplayPois();
             }
+            TickSimulationPhase<ExperienceOrbAgent>(dt, true);
+            TickSimulationPhase<HealthPackAgent2D>(dt, true);
+            TickSimulationPhase<RuneAgent2D>(dt, true);
+            TickSimulationPhase<SourceParticle2D>(dt, true);
+            ResolveSourceSpaceCollisions(dt);
+            _camera.transform.position = new Vector3(_player.position.x, _player.position.y, -10f) + _lastHunterScreenShakeOffset;
+            if (_regionStabilized) { _gameOver = true; _paused = true; FinalizeRunResult(); }
+            }
+            finally { _simulationFrame = false; }
         }
 
         private Vector2 ReadMovement()
         {
-            var direction = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-            if (direction.sqrMagnitude > 0.0001f) return direction.normalized;
-
-            // new-desing/MobileControls.tsx places the movement joystick on
-            // the right half by default. The left half is used for Sphere
-            // placement and dragging, so those gestures must never move Core.
-            if (_spherePointerActive && !_spherePointerIsMovement) return Vector2.zero;
-
-            if (Input.touchCount > 0)
-            {
-                var touch = Input.GetTouch(0);
-                if (touch.phase == TouchPhase.Began) _touchStart = touch.position;
-                if (IsScreenPointOverUi(_touchStart)) return Vector2.zero;
-                if ((IsLeftHanded ? _touchStart.x < Screen.width * 0.5f : _touchStart.x >= Screen.width * 0.5f) && touch.phase != TouchPhase.Ended && touch.phase != TouchPhase.Canceled)
-                {
-                    var drag = touch.position - _touchStart;
-                    if (drag.sqrMagnitude > 100f) return Vector2.ClampMagnitude(drag / 90f, 1f);
-                }
-            }
-            if (Input.GetMouseButtonDown(0)) _touchStart = Input.mousePosition;
-            if (IsScreenPointOverUi(_touchStart)) return Vector2.zero;
-            if (Input.GetMouseButton(0) && (IsLeftHanded ? _touchStart.x < Screen.width * 0.5f : _touchStart.x >= Screen.width * 0.5f))
-            {
-                var drag = (Vector2)Input.mousePosition - _touchStart;
-                if (drag.sqrMagnitude > 100f) return Vector2.ClampMagnitude(drag / 90f, 1f);
-            }
-            return Vector2.zero;
+            var direction = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")) + _sourceJoystickDirection;
+            direction.x = Mathf.Clamp(direction.x, -1f, 1f); direction.y = Mathf.Clamp(direction.y, -1f, 1f);
+            return direction.sqrMagnitude > 0f ? direction.normalized : Vector2.zero;
         }
 
         private void ConfigureCamera()
@@ -1227,32 +1193,8 @@ namespace EchoSphere.Runtime
 
         private void CreateStarfield()
         {
-            // Presentation-only coordinates are deterministic and never consume the run RNG.
-            for (var i = 0; i < 4; i++)
-            {
-                var nebula = new GameObject("Nebula Haze");
-                nebula.transform.position = new Vector3((i % 2 == 0 ? -1f : 1f) * (3.4f + i * 0.7f), (i < 2 ? 1f : -1f) * (2.6f + i * 0.4f), 3f);
-                nebula.transform.localScale = Vector3.one * (5.8f + (i % 2) * 1.4f);
-                var haze = nebula.AddComponent<SpriteRenderer>();
-                haze.sprite = RuntimeSpriteFactory.Disc;
-                haze.color = i % 2 == 0 ? new Color(0.08f, 0.34f, 0.78f, 0.055f) : new Color(0.31f, 0.12f, 0.72f, 0.045f);
-                haze.sortingOrder = -30;
-            }
-
-            for (var i = 0; i < 104; i++)
-            {
-                var go = new GameObject("Background Star");
-                var x = Mathf.Repeat(i * 0.7548777f, 1f) * 27f - 13.5f;
-                var y = Mathf.Repeat(i * 0.5698403f + 0.173f, 1f) * 27f - 13.5f;
-                go.transform.position = new Vector3(x, y, 2f);
-                var size = 0.018f + Mathf.Repeat(i * 0.381966f, 1f) * 0.047f;
-                go.transform.localScale = Vector3.one * size;
-                var sr = go.AddComponent<SpriteRenderer>();
-                sr.sprite = RuntimeSpriteFactory.Disc;
-                var alpha = 0.12f + Mathf.Repeat(i * 0.217f, 1f) * 0.28f;
-                sr.color = i % 9 == 0 ? new Color(0.45f, 0.86f, 1f, alpha) : new Color(0.31f, 0.65f, 1f, alpha);
-                sr.sortingOrder = -20;
-            }
+            var field = new GameObject("Source Backdrop").AddComponent<SourceBackdrop2D>();
+            field.Initialize(this, _camera);
         }
 
         private void CreatePlayer()
@@ -1278,15 +1220,16 @@ namespace EchoSphere.Runtime
 
             _player = go.transform;
             _playerCore = go.AddComponent<PlayerCoreController2D>();
-            _playerCore.ApplyBaseMaxHpMultiplier(1f + CharacterRules.Get(_sphereCharacterId).MaxHp);
             _playerCore.IncreaseMaxHp(PersistentUpgradeRules.GetStartingHpBonus(GetShopUpgradeLevel("hp")));
+            _playerCore.ApplyBaseMaxHpMultiplier(1f + CharacterRules.Get(_sphereCharacterId).MaxHp);
+            go.AddComponent<SourcePlayerVisual2D>().Initialize(this, _playerCore);
         }
 
 
         private void CreateSpheres()
         {
             // Source engineState.ts starts with one unlevelled Standard Sphere
-            // 95 logical px below Core. Unlocking/levelling a Sphere is a
+            // 95 logical px above Core. Unlocking/levelling a Sphere is a
             // separate progression action from physically placing it.
             _sphereLevels[SphereId.Standard] = 0;
             CreateSphere(SphereId.Standard, 0, (Vector2)_player.position + new Vector2(0f, 95f * SpherePlacementRules.SourcePixelsToWorld));
@@ -1857,7 +1800,7 @@ namespace EchoSphere.Runtime
         {
             var angle = _rng.NextFloat() * Mathf.PI * 2f;
             var position = (Vector2)_player.position +
-                new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * BossCombatRules.BossSpawnDistanceWorld;
+                new Vector2(Mathf.Cos(angle), -Mathf.Sin(angle)) * BossCombatRules.BossSpawnDistanceWorld;
 
             // Match src/engineEnemies.ts RNG order: base archetype, base visual,
             // role, elite conversion, then elite variant (only when converted).
@@ -1869,7 +1812,7 @@ namespace EchoSphere.Runtime
             _rng.NextFloat();
             var roleRoll = _rng.NextRegionFloat();
             var role = RegionPocketRules.SelectRole(
-                _selectedRegion, _player.position.x, _player.position.y, roleRoll);
+                _selectedRegion, _player.position.x, -_player.position.y, roleRoll);
             var roleHp = 1f;
             var roleSpeed = 1f;
             var roleDamage = 1f;
@@ -1894,7 +1837,7 @@ namespace EchoSphere.Runtime
 
             var isPhaseRole = role == "phase";
             var difficulty = CurrentDifficulty;
-            var pocket = RegionPocketRules.GetAt(_selectedRegion, _player.position.x, _player.position.y);
+            var pocket = RegionPocketRules.GetAt(_selectedRegion, _player.position.x, -_player.position.y);
             var challengeHp = GetChallengeEnemyHpMultiplier();
             var challengeSpeed = GetChallengeEnemySpeedMultiplier();
             var challengeXp = GetChallengeEnemyXpMultiplier();
@@ -1945,9 +1888,8 @@ namespace EchoSphere.Runtime
                     break;
             }
 
-            var roundedXp = Mathf.Max(1, Mathf.FloorToInt(xpReward + 0.5f));
             var agent = go.AddComponent<EnemyAgent2D>();
-            agent.Initialize(this, _player, hp, speed, roundedXp,
+            agent.Initialize(this, _player, hp, speed, xpReward,
                 visualVariant, "", isElite, archetype, isPhaseRole,
                 role, roleDamage, roleRadius, eliteVariant, damage);
             _enemies.Add(agent);
@@ -1963,7 +1905,8 @@ namespace EchoSphere.Runtime
         {
             var count = 0;
             for (var i = 0; i < _enemies.Count; i++)
-                if (_enemies[i] != null && !_enemies[i].IsBoss && _enemies[i].IsAlive) count++;
+                // Source wave selection runs before updateEnemies removes deaths from this frame.
+                if (_enemies[i] != null && !_enemies[i].IsBoss) count++;
             return count;
         }
 
@@ -1971,27 +1914,21 @@ namespace EchoSphere.Runtime
         {
             _wave++;
             _waveEnemiesToSpawn = RunBalanceRules.GetEnemiesPerWave(_wave);
+            SourceAudio2D.Play("wave");
         }
 
         private void TickRegionMastery(float dt)
         {
             if (_regionStabilized || _playerCore == null) return;
-            var hp = _playerCore.CurrentHp;
-            if (_regionLastHp < 0f) _regionLastHp = hp;
-            else
-            {
-                if (hp < _regionLastHp) _regionDamageTaken += _regionLastHp - hp;
-                _regionLastHp = hp;
-            }
             var formation = _networkState == null ? null : _networkState.DominantFormation;
             if (formation == null) return;
             _regionMasteryGeometryTypes.Add(formation.Type);
             if (formation.Active) _regionMasteryDominantSeconds += dt;
         }
 
-        private void AdvanceRegionBossSchedule()
+        private void TickSourceRegionFracture()
         {
-            if (_regionChallengeId == "fractured_network" && !_regionEndlessMode)
+            if (_selectedRegion == EchoRegionId.ResonanceBasin && _regionChallengeId == "fractured_network")
             {
                 var interval = Mathf.FloorToInt(_runTime / 45f);
                 if (interval > _fractureIntervalIndex)
@@ -2007,12 +1944,16 @@ namespace EchoSphere.Runtime
                     if (eligibleSpheres.Count > 0)
                     {
                         var randomIndex = Mathf.Min(eligibleSpheres.Count - 1,
-                            Mathf.FloorToInt(_rng.NextFloat() * eligibleSpheres.Count));
+                            Mathf.FloorToInt(_rng.NextRegionFloat() * eligibleSpheres.Count));
                         eligibleSpheres[randomIndex].ApplyNetworkDisable(2.2f);
                         RefreshNetworkState();
                     }
                 }
             }
+        }
+
+        private void AdvanceRegionBossSchedule()
+        {
             if (_regionEndlessMode)
             {
                 if (_runTime >= _endlessNextBossAt && !HasActiveBoss())
@@ -2023,14 +1964,14 @@ namespace EchoSphere.Runtime
                     var bossType = types[Mathf.Min(_endlessBossesSpawned, types.Length - 1)];
                     _endlessBossesSpawned++;
                     _endlessNextBossAt += 150f;
-                    SpawnBossForRegionEvent(bossType, _wave);
+                    _sourceRegionBossForFrame = bossType;
                 }
                 return;
             }
             var signal = RegionBossScheduleRules.Advance(_regionSchedule, _runTime, HasActiveBoss());
             if (signal.Kind == RegionBossSignalKind.SpawnBoss)
             {
-                SpawnBossForRegionEvent(signal.BossType, _wave);
+                _sourceRegionBossForFrame = signal.BossType;
             }
             else if (signal.Kind == RegionBossSignalKind.RegionCleared)
             {
@@ -2064,7 +2005,7 @@ namespace EchoSphere.Runtime
 
             var angle = _rng.NextFloat() * Mathf.PI * 2f;
             var position = (Vector2)_player.position +
-                new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * BossCombatRules.BossSpawnDistanceWorld;
+                new Vector2(Mathf.Cos(angle), -Mathf.Sin(angle)) * BossCombatRules.BossSpawnDistanceWorld;
             var tint = Color.white;
             ColorUtility.TryParseHtmlString(BossCombatRules.GetColorHex(type), out tint);
             var difficulty = CurrentDifficulty;
@@ -2085,19 +2026,21 @@ namespace EchoSphere.Runtime
         public EnemyAgent2D SpawnBossMinion(Vector2 position, float hp, float moveSpeed, int xpReward, string visualVariant, Color tint)
         {
             if (_player == null || _gameOver) return null;
-            var difficulty = CurrentDifficulty;
             var root = CreateOrb("Boss Minion", position, 0.38f, tint, Color.white, 4);
             var agent = root.AddComponent<EnemyAgent2D>();
-            agent.Initialize(this, _player, hp * difficulty.EnemyHpMultiplier, moveSpeed * difficulty.EnemySpeedMultiplier, xpReward, visualVariant);
+            agent.Initialize(this, _player, hp, moveSpeed, xpReward, visualVariant, damage: 8f);
+            agent.SetSourceRadius(10f);
             _enemies.Add(agent);
             return agent;
         }
 
-        public void SpawnBossProjectile(Vector2 position, Vector2 velocity, float damage, float sourceRadius, string bossType, Color color)
+        public void SpawnBossProjectile(Vector2 position, Vector2 velocity, float damage, float sourceRadius, string bossType, Color color, EnemyAgent2D owner = null)
         {
             var projectile = new GameObject("Boss Projectile / " + bossType);
             projectile.transform.position = position;
-            projectile.AddComponent<BossProjectileAgent2D>().Initialize(this, _player, velocity, sourceRadius, damage, bossType, color);
+            var agent = projectile.AddComponent<BossProjectileAgent2D>();
+            agent.Initialize(this, _player, velocity, sourceRadius, damage, bossType, color);
+            agent.SetSourceOwner(owner);
         }
 
         public void DisableNearestNetworkSpheres(Vector2 origin, int count, float duration, bool includeCurrentlyDisabled)
@@ -2210,10 +2153,11 @@ namespace EchoSphere.Runtime
             return Mathf.Max(0.16f, 1f - GetAbilityLevel(RunUpgradeKind.Stability) * 0.12f) * Mathf.Max(0f, baseDuration);
         }
 
-        public void ShowTimedCombatMessage(string text, float duration)
+        public void ShowTimedCombatMessage(string text, float duration, string color = "#39d8ff", string kind = null)
         {
             _message = text ?? "";
             _messageTimer = Mathf.Max(0f, duration);
+            _sourceFlashColor = color; _sourceFlashKind = kind;
         }
 
         public void HealNearbyEnemies(EnemyAgent2D source, float radiusPixels, float maxHpFraction, int maxTargets)
@@ -2347,13 +2291,12 @@ namespace EchoSphere.Runtime
 
         public EnemyAgent2D TryHitEnemy(Vector2 position, float radius, HashSet<int> ignoredIds = null)
         {
-            var combined = radius + 0.27f;
-            var limit = combined * combined;
             for (var i = 0; i < _enemies.Count; i++)
             {
                 var e = _enemies[i];
+                var combined = radius + (e != null ? e.SourceRadius * SpherePlacementRules.SourcePixelsToWorld : 0f);
                 if (e != null && e.IsAlive && (ignoredIds == null || !ignoredIds.Contains(e.GetInstanceID())) &&
-                    ((Vector2)e.transform.position - position).sqrMagnitude <= limit) return e;
+                    ((Vector2)e.transform.position - position).sqrMagnitude < combined * combined) return e;
             }
             return null;
         }
@@ -2361,14 +2304,14 @@ namespace EchoSphere.Runtime
         public ProjectileAgent SpawnProjectile(
             Vector2 position, Vector2 direction, float damage, Color color,
             float speed = 8f, int pierce = 0, float critChanceBonus = 0f,
-            SphereAttackAgent evolutionOwner = null, int ricochets = 0, float lifetime = 2.5f,
-            bool allowAuthoredProcs = true, bool useEvolutionHitEffects = true, bool applyElementalStatus = true)
+            SphereAttackAgent evolutionOwner = null, int ricochets = 0, float lifetime = 2f,
+            bool allowAuthoredProcs = true, bool useEvolutionHitEffects = true, bool applyElementalStatus = true, float sourceRadius = 5f)
         {
             var go = new GameObject("Sphere Projectile");
             go.transform.position = position;
             var agent = go.AddComponent<ProjectileAgent>();
             agent.Initialize(this, direction, damage, color, speed, pierce, critChanceBonus,
-                evolutionOwner, ricochets, lifetime, allowAuthoredProcs, useEvolutionHitEffects, applyElementalStatus);
+                evolutionOwner, ricochets, lifetime, allowAuthoredProcs, useEvolutionHitEffects, applyElementalStatus, sourceRadius);
             var projectileVfx = go.AddComponent<ProjectileVfx2D>();
             projectileVfx.Initialize(this, direction, speed, color, evolutionOwner);
             return agent;
@@ -2379,7 +2322,7 @@ namespace EchoSphere.Runtime
 
         public void HealPlayer(float amount)
         {
-            if (_playerCore != null && !_playerCore.IsDead) _playerCore.Heal(Mathf.Max(0f, amount));
+            if (_playerCore != null) _playerCore.Heal(Mathf.Max(0f, amount));
         }
 
         public float ResolveAuthoredSphereHitDamage(SphereId source, EnemyAgent2D target, float damage)
@@ -2387,12 +2330,12 @@ namespace EchoSphere.Runtime
             if (target == null || !target.IsAlive) return 0f;
             var branch = GetSphereBranch(source);
             var finalId = GetSphereFinal(source);
-            damage *= SphereAuthoredModifierRules.GetDamageMultiplier(branch, finalId);
 
             var execute = GetSphereAuthoredModifierLevel(source, SphereAuthoredModifier.Execute);
             damage *= SphereAuthoredModifierRules.GetExecuteDamageMultiplier(execute, target.HpFraction);
             var mark = GetSphereAuthoredModifierLevel(source, SphereAuthoredModifier.Mark);
-            damage *= SphereAuthoredModifierRules.GetMarkedDamageMultiplier(mark, target.IsMarked);
+            if (mark > 0 && _sphereCharacterId != SphereCharacterId.Hunter && _hunterMarkTarget == target && _hunterMarkTimer > 0f)
+            { damage *= 1f + .15f * mark; _hunterMarkTimer = 0f; }
             var corrupt = GetSphereAuthoredModifierLevel(source, SphereAuthoredModifier.Corrupt);
             if (corrupt > 0) damage *= SphereAuthoredModifierRules.GetCorruptDamageMultiplier(corrupt, target.AddCorruptStack());
             return Mathf.Max(0f, damage);
@@ -2402,8 +2345,6 @@ namespace EchoSphere.Runtime
             bool allowAuthoredProcs, SphereAttackAgent owner = null)
         {
             if (target == null || _gameOver) return;
-            if (GetAbilityLevel(RunUpgradeKind.Vampire) > 0 && _playerCore != null)
-                HealPlayer(damage * GetAbilityLevel(RunUpgradeKind.Vampire) * 0.03f);
             var branch = GetSphereBranch(source);
             var finalId = GetSphereFinal(source);
             var origin = owner != null ? (Vector2)owner.transform.position : FindNearestSphereOrigin(source, target.transform.position);
@@ -2420,8 +2361,8 @@ namespace EchoSphere.Runtime
 
             var impact = GetSphereAuthoredModifierLevel(source, SphereAuthoredModifier.Impact);
             if (impact > 0)
-                target.KnockBackFrom(origin,
-                    SphereAuthoredModifierRules.GetImpactDistancePixels(impact) * SpherePlacementRules.SourcePixelsToWorld);
+                target.MoveSourceRadial(origin,
+                    SphereAuthoredModifierRules.GetImpactDistancePixels(impact) * SpherePlacementRules.SourcePixelsToWorld * GetRegionRepulsionMultiplier());
 
             var gravitic = GetSphereAuthoredModifierLevel(source, SphereAuthoredModifier.Gravitic);
             if (gravitic > 0)
@@ -2432,7 +2373,7 @@ namespace EchoSphere.Runtime
                 var nearby = FindEnemiesInRadius(center, radius);
                 for (var i = 0; i < nearby.Count; i++)
                     if (nearby[i] != target)
-                        nearby[i].PullByDistance(center, pullDistance);
+                        nearby[i].MoveSourceRadial(center, -pullDistance);
             }
 
             var anchor = GetSphereAuthoredModifierLevel(source, SphereAuthoredModifier.Anchor);
@@ -2442,16 +2383,16 @@ namespace EchoSphere.Runtime
                     SphereAuthoredModifierRules.GetAnchorSlowMultiplier(anchor));
 
             var vampiric = GetSphereAuthoredModifierLevel(source, SphereAuthoredModifier.Vampiric);
-            if (vampiric > 0) HealPlayer(damage * SphereAuthoredModifierRules.GetVampiricHealFraction(vampiric));
+            if (vampiric > 0) HealPlayer(damage * GetSourceSphereModifiers(source).healOnHit);
 
             var resonant = GetSphereAuthoredModifierLevel(source, SphereAuthoredModifier.Resonant);
             if (resonant > 0 && branch != "pulse_resonator")
-                ChargeResonanceFromSource(SphereAuthoredModifierRules.GetResonantCharge(resonant), false);
+                ChargeResonanceFromSource(Mathf.Max(1f, GetSourceSphereModifiers(source).resonantCharge / 2f), false);
 
             if (allowAuthoredProcs)
             {
                 var echoLevel = GetSphereAuthoredModifierLevel(source, SphereAuthoredModifier.Echo);
-                var echoChance = SphereAuthoredModifierRules.GetEchoChance(echoLevel);
+                var echoChance = GetSourceSphereModifiers(source).echoChance;
                 if (echoChance > 0f && RollCombatChance(echoChance))
                     target.ReceiveSphereDamage(source, damage * 0.22f, false, false, owner);
 
@@ -2466,12 +2407,12 @@ namespace EchoSphere.Runtime
                         damage * SphereAuthoredModifierRules.GetAfterimageDamageMultiplier(afterimageLevel),
                         new Color(0.85f, 0.76f, 1f, 0.9f),
                         250f * SpherePlacementRules.SourcePixelsToWorld, 0, 0f, owner,
-                        0, 0.42f, false, false, false);
+                        0, 0.42f, false, false, false, 4f);
                     if (projectile != null) projectile.IgnoreEnemy(target);
                 }
 
                 var staticLevel = GetSphereAuthoredModifierLevel(source, SphereAuthoredModifier.Static);
-                var staticChance = SphereAuthoredModifierRules.GetStaticChance(staticLevel);
+                var staticChance = GetSourceSphereModifiers(source).staticChance;
                 if (staticChance > 0f && RollCombatChance(staticChance))
                 {
                     var center = (Vector2)target.transform.position;
@@ -2495,16 +2436,15 @@ namespace EchoSphere.Runtime
 
             var mark = GetSphereAuthoredModifierLevel(source, SphereAuthoredModifier.Mark);
             if (mark > 0 && _sphereCharacterId != SphereCharacterId.Hunter)
-                target.ApplyMark(2.5f);
+            { _hunterMarkTarget = target; _hunterMarkTimer = Mathf.Max(_hunterMarkTimer, 2.5f); }
 
-            if (owner != null)
-                ApplyEchoArchitectureRelayOnSphereHit(owner);
+
         }
 
         // Source equivalent: engineCombat.ts Echo Architecture block inside
         // dealDamageToEnemy. Preserve its current counter test and first-linked
         // living-node selection; do not increment the source node per hit.
-        private void ApplyEchoArchitectureRelayOnSphereHit(SphereAttackAgent source)
+        public void ApplyEchoArchitectureRelayOnSphereHit(SphereAttackAgent source)
         {
             if (source == null || !FormationHitRules.HasCompletedEchoArchitecture(_ownedArtifacts) ||
                 !FormationHitRules.ShouldTriggerEchoArchitectureRelay(source.FormationHitCount)) return;
@@ -2544,12 +2484,8 @@ namespace EchoSphere.Runtime
         public void RegisterSphereHit(SphereAttackAgent owner, EnemyAgent2D target, float damage)
         {
             if (owner == null || target == null) return;
-            HealCoreFromDamage(damage);
             if (_resonanceEventActive) return;
-            var multiplier = 1f;
-            if (owner.Type == SphereId.Orbital && GetSphereBranch(SphereId.Orbital) == "orbital_halo")
-                multiplier += SphereEvolutionCombatRules.GetOrbitalResonanceBonus(owner.ProgressionLevel, GetSphereFinal(SphereId.Orbital));
-            AddResonanceChargeFromSource(ResonanceRules.SphereHitCharge * multiplier, false);
+            AddResonanceChargeFromSource(ResonanceRules.SphereHitCharge, false);
         }
 
         // Source equivalent: engineLoop.ts activateRune('resonance').
@@ -2597,7 +2533,7 @@ namespace EchoSphere.Runtime
         public bool ConsumeResonanceLineBurst()
         {
             if (_resonanceLineBurst <= 0) return false;
-            _resonanceLineBurst--;
+            _resonanceLineBurst = 0;
             return true;
         }
 
@@ -2909,15 +2845,15 @@ namespace EchoSphere.Runtime
             SpawnImpact(primary.transform.position, new Color(0.76f, 0.58f, 1f, 0.9f));
         }
 
-        public void SpawnVoidShards(EnemyAgent2D source, float damage, int count)
+        public void SpawnVoidShards(EnemyAgent2D source, float damage, int count, SphereAttackAgent owner = null)
         {
             if (source == null || count <= 0) return;
             var origin = (Vector2)source.transform.position;
             for (var i = 0; i < count; i++)
             {
                 var angle = i * Mathf.PI * 2f / count;
-                var direction = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
-                SpawnProjectile(origin, direction, damage, new Color(0.58f, 0.36f, 1f), 9.5f, 0, 0f);
+                var direction = new Vector2(Mathf.Cos(angle), -Mathf.Sin(angle));
+                SpawnProjectile(origin, direction, damage, new Color32(143, 99, 255, 255), 320f * SpherePlacementRules.SourcePixelsToWorld, 0, 0f, owner, 0, .65f, false, false, false, 4f);
             }
             SpawnImpact(origin, new Color(0.62f, 0.40f, 1f, 0.9f));
         }
@@ -3109,29 +3045,21 @@ namespace EchoSphere.Runtime
             SpawnImpact(center, new Color(0.68f, 0.52f, 1f, 0.85f));
         }
 
-        public void SpawnStandardSwarmShards(EnemyAgent2D hitTarget, Vector2 incomingDirection, int count, float damage)
+        public void SpawnStandardSwarmShards(EnemyAgent2D hitTarget, Vector2 incomingDirection, int count, float damage, SphereAttackAgent owner = null)
         {
             if (hitTarget == null || count <= 0) return;
             var origin = (Vector2)hitTarget.transform.position;
-            var candidates = FindNearestEnemies(origin, 5.5f, 12);
-            var targets = new List<EnemyAgent2D>();
-            for (var i = 0; i < candidates.Count; i++)
-                if (candidates[i] != hitTarget) targets.Add(candidates[i]);
-
+            var targets = FindNearestEnemies(origin, float.PositiveInfinity, int.MaxValue);
+            var other = targets.Find(enemy => enemy != hitTarget);
+            var baseAngle = other != null ? Mathf.Atan2(other.transform.position.y - origin.y, other.transform.position.x - origin.x) : -_rng.NextFloat() * Mathf.PI * 2f;
+            var final = GetSphereFinal(SphereId.Standard);
+            var angles = final == "standard_swarm_final_1" ? new[] { baseAngle } : final == "standard_swarm_final_2" ? new[] { baseAngle + .55f, baseAngle - .55f } : new[] { baseAngle + .7f, baseAngle, baseAngle - .7f };
             for (var i = 0; i < count; i++)
             {
-                Vector2 direction;
-                if (i < targets.Count)
-                    direction = ((Vector2)targets[i].transform.position - origin).normalized;
-                else
-                {
-                    var angle = (i - (count - 1) * 0.5f) * 22f * Mathf.Deg2Rad;
-                    var sin = Mathf.Sin(angle);
-                    var cos = Mathf.Cos(angle);
-                    direction = new Vector2(incomingDirection.x * cos - incomingDirection.y * sin,
-                        incomingDirection.x * sin + incomingDirection.y * cos).normalized;
-                }
-                SpawnProjectile(origin, direction, damage, new Color(0.36f, 0.9f, 1f), 9.5f, 0, 0f);
+                var angle = i < angles.Length ? angles[i] : -_rng.NextFloat() * Mathf.PI * 2f;
+                var direction = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+                var shard = SpawnProjectile(origin, direction, damage, new Color32(212, 148, 61, 255), 320f * SpherePlacementRules.SourcePixelsToWorld, final == "standard_swarm_final_3" ? 1 : 0, 0f, owner, 0, .55f, false, false, false, 4f);
+                shard.IgnoreEnemy(hitTarget);
             }
         }
 
@@ -3167,7 +3095,7 @@ namespace EchoSphere.Runtime
 
         public void CollectStellaChest(StellaChestAgent2D chest)
         {
-            if (chest == null || _gameOver || _stellaRewardPending || _levelUp || _choosingEvolution) return;
+            if (chest == null || _gameOver || (!_simulationFrame && (_stellaRewardPending || _levelUp || _choosingEvolution))) return;
             Destroy(chest.gameObject);
             _stellaRewardChoices.Clear();
             var count = ArtifactRewardRules.GetStellaChoiceCount(_ownedArtifacts);
@@ -3178,11 +3106,11 @@ namespace EchoSphere.Runtime
                 _stellaRewardChoices.AddRange(ArtifactRewardRules.PickChoices(_ownedArtifacts, _rng.NextFloat, false,
                     ArtifactRewardRules.BaseStellaChoiceCount));
             if (_stellaRewardChoices.Count == 0) { ShowMessage("STELLA CACHE EMPTY"); return; }
-            _runChestOpens++;
             _stellaRewardPending = true;
             _userPaused = false;
             _paused = true;
-            ShowMessage(_stellaRewardIsLegendary ? "LEGENDARY STELLA CACHE" : "STELLA ARTIFACT CACHE");
+            ShowTimedCombatMessage("STELLA",1.2f,"#ffb84d");
+            SourceAudio2D.Play("chest");
         }
 
         private void ChooseStellaReward(int choiceIndex)
@@ -3199,21 +3127,23 @@ namespace EchoSphere.Runtime
             _stellaRewardChoices.Clear();
             _paused = false;
             _userPaused = false;
-            ShowMessage("ARTIFACT ACQUIRED · " + choice.NameEnglish);
+            SourceAudio2D.Play("chest");
             OpenLevelUpIfReady();
         }
 
-        public void CollectHealthPack()
+        public void CollectHealthPack(Vector2? position = null)
         {
             if (_playerCore == null || _gameOver) return;
             _playerCore.Heal(20f);
-            ShowTimedCombatMessage("ЗДОРОВЬЕ +20", 0.8f);
+            for (var i = 0; i < 10; i++) SpawnSourceParticle(position ?? PlayerPosition,
+                new Vector2((_rng.NextFloat() * 2f - 1f) * 100f, -(_rng.NextFloat() * 2f - 1f) * 100f), .5f, 3f, "#5a8c4a", .5f);
         }
 
         public void CollectArtifactChest(ArtifactChestAgent2D chest)
         {
-            if (chest == null || _gameOver || _stellaRewardPending || _levelUp || _choosingEvolution) return;
+            if (chest == null || _gameOver || (!_simulationFrame && (_stellaRewardPending || _levelUp || _choosingEvolution))) return;
             Destroy(chest.gameObject);
+            _runChestOpens++;
             _stellaRewardChoices.Clear();
             _stellaRewardChoices.AddRange(ArtifactRewardRules.PickChoices(
                 _ownedArtifacts, _rng.NextFloat, false, ArtifactRewardRules.BaseStellaChoiceCount));
@@ -3223,11 +3153,10 @@ namespace EchoSphere.Runtime
                 return;
             }
             _stellaRewardIsLegendary = false;
-            _runChestOpens++;
             _stellaRewardPending = true;
             _userPaused = false;
             _paused = true;
-            ShowMessage("ARTIFACT CACHE");
+
         }
 
         public void ActivateRunePickup(string runeType, Vector2 position)
@@ -3245,10 +3174,8 @@ namespace EchoSphere.Runtime
                     _playerCore.GrantInvulnerability(1f);
                     break;
                 case "harvest":
-                    var orbs = FindObjectsOfType<ExperienceOrbAgent>();
-                    foreach (var orb in orbs)
-                        if (orb != null && Vector2.Distance(orb.transform.position, position) <= 450f * scale)
-                            orb.CollectForRune();
+                    for (var i = _simulationAgents.Count - 1; i >= 0; i--)
+                        if (_simulationAgents[i] is ExperienceOrbAgent orb && orb != null && Vector2.Distance(orb.transform.position,position) <= 450f*scale) orb.CollectForRune();
                     break;
                 case "purge":
                     foreach (var enemy in _enemies)
@@ -3289,7 +3216,7 @@ namespace EchoSphere.Runtime
                     break;
                 }
                 case "echo":
-                    _runeAttackBuffUntil = Mathf.Max(_runeAttackBuffUntil, Time.time + 4f);
+                    _buffTimer = Mathf.Max(_buffTimer, 4f);
                     break;
                 case "gravity":
                     foreach (var enemy in _enemies)
@@ -3307,8 +3234,12 @@ namespace EchoSphere.Runtime
             ShowTimedCombatMessage(RuneAgent2D.GetRuneNameRussian(runeType), 1f);
         }
 
-        public void RegisterEnemyDeath(EnemyAgent2D enemy, Vector2 position, int xpReward = 1, SphereId? sourceSphere = null)
+        public void RegisterEnemyDeath(EnemyAgent2D enemy, Vector2 position, float xpReward = 1f, SphereId? sourceSphere = null)
         {
+            if (enemy != null) RemoveSourceEnemyProjectiles(enemy);
+            var drain = sourceSphere.HasValue ? GetSphereAuthoredModifierLevel(sourceSphere.Value, SphereAuthoredModifier.Drain) : GetGlobalSphereModifierLevel("drain");
+            if (drain > 0 && _playerCore != null) HealPlayer(_playerCore.MaxHp * 0.03f * drain);
+            if (enemy == null || !enemy.IsBoss) _kills++;
             if (_sphereCharacterId == SphereCharacterId.Hunter && enemy != null)
             {
                 if (enemy.IsElite && _characterMasteryLevel >= 5 &&
@@ -3332,23 +3263,18 @@ namespace EchoSphere.Runtime
                 _comboTimer = ComboRules.WindowSeconds;
                 _comboMultiplier = ComboRules.GetExperienceMultiplier(_combo);
             }
-            _enemies.Remove(enemy);
-            if (sourceSphere.HasValue)
-            {
-                var drain = GetSphereAuthoredModifierLevel(sourceSphere.Value, SphereAuthoredModifier.Drain);
-                if (drain > 0 && _playerCore != null)
-                    HealPlayer(_playerCore.MaxHp * 0.03f * drain);
-            }
+            ApplySourceEnemyDeathEffects(enemy);
             if (_ownedArtifacts.Contains("swift_boots")) _swiftBootsTimer = 3f;
             if (enemy != null && enemy.IsBoss)
             {
                 _bossesDefeated++;
                 SpawnStellaChest(position);
-                ShowMessage("BOSS DEFEATED!");
+                ShowTimedCombatMessage("BOSS DEFEATED!",2f,"#d4943d");
+                SourceAudio2D.Play("boss");
+                SpawnSourceParticle(position,Vector2.zero,1.2f,9f,"#ffb84d",1.2f);
             }
-            if (enemy != null && enemy.IsElite) { _runEliteKills++; SourceAudio2D.Play("elite"); }
-            SourceAudio2D.Play("kill");
-            _kills++;
+            if (enemy != null && enemy.IsElite) _runEliteKills++;
+            SourceAudio2D.Play(enemy != null && enemy.IsBoss ? "explosion" : "kill");
             var go = new GameObject("Echo Shard");
             go.transform.position = position;
             go.transform.localScale = Vector3.one * (0.22f + Mathf.Min(0.12f, Mathf.Max(0, xpReward - 1) * 0.035f));
@@ -3357,7 +3283,9 @@ namespace EchoSphere.Runtime
             sr.color = xpReward >= 5 ? new Color(1f, 0.45f, 0.82f) : xpReward >= 3 ? new Color(0.76f, 0.55f, 1f) : new Color(0.26f, 0.91f, 1f);
             sr.sortingOrder = 7;
             var comboExperience = ComboRules.GetExperienceOrbValue(xpReward, _comboMultiplier);
-            go.AddComponent<ExperienceOrbAgent>().Initialize(this, _player, comboExperience);
+            var orbVelocity = new Vector2(-40f + _rng.NextFloat() * 80f, 40f - _rng.NextFloat() * 80f);
+            var orbRotation = _rng.NextFloat() * Mathf.PI * 2f;
+            go.AddComponent<ExperienceOrbAgent>().Initialize(this, _player, comboExperience, orbVelocity, orbRotation);
 
             // Match the source death-drop order and keep its seeded RNG consumption.
             var healthChance = enemy != null && enemy.IsBoss ? 1f : enemy != null && enemy.IsElite ? 0.5f : 0.04f;
@@ -3389,7 +3317,7 @@ namespace EchoSphere.Runtime
             }
 
             var chestChance = enemy != null && enemy.IsBoss ? 1f : enemy != null && enemy.IsElite ? 0.2f : 0.02f;
-            if (_rng.NextFloat() < chestChance && (enemy == null || !enemy.IsBoss))
+            if (_rng.NextFloat() < chestChance)
             {
                 var chest = new GameObject("Artifact Cache");
                 chest.transform.position = position;
@@ -3404,27 +3332,29 @@ namespace EchoSphere.Runtime
 
         public void AddExperience(int amount)
         {
-            if (_paused || _gameOver) return;
+            if ((_paused && !_simulationFrame) || _gameOver) return;
             var multiplier = Mathf.Max(0.5f, PersistentUpgradeRules.GetPercentMultiplier(GetShopUpgradeLevel("xp")) *
                 (1f + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "xpGain")));
-            _xp += Mathf.Max(0, (int)Mathf.Floor(Mathf.Max(0, amount) * multiplier + 0.5f));
+            _xp += Mathf.Max(0f, amount * multiplier);
             OpenLevelUpIfReady();
         }
 
         private void OpenLevelUpIfReady()
         {
-            if (_gameOver || _levelUp || _xp < _xpRequired) return;
-            SourceAudio2D.Play("levelup");
-            _xp -= _xpRequired;
-            _level++;
-            _activeAbilitySlots = _level >= 20 ? 3 : _level >= 12 ? 2 : _level >= 5 ? 1 : 0;
-            // Source new-desing grants +6 Max HP and restores up to +6 HP on every player level.
-            _playerCore?.IncreaseMaxHp(6f);
-            _xpRequired = RunBalanceRules.GetXpToNextLevel(_level);
-            BuildLevelUpChoices();
-            _levelUp = true;
-            _paused = true;
-            _message = "Choose one upgrade.";
+            if (_gameOver || _xp < _xpRequired) return;
+            while (_xp >= _xpRequired)
+            {
+                SourceAudio2D.Play("levelup");
+                _xp -= _xpRequired;
+                _level++;
+                _activeAbilitySlots = _level >= 20 ? 3 : _level >= 12 ? 2 : _level >= 5 ? 1 : 0;
+                // Source new-desing grants +6 Max HP and restores up to +6 HP on every player level.
+                _playerCore?.IncreaseMaxHp(6f);
+                _xpRequired = RunBalanceRules.GetXpToNextLevel(_level);
+                BuildLevelUpChoices();
+                _levelUp = true;
+                _paused = true;
+            }
         }
 
         public float ResolveProjectileDamage(float damage, float critChanceBonus = 0f)
@@ -3440,58 +3370,53 @@ namespace EchoSphere.Runtime
             var hunterCrit = GetHunterCriticalChanceBonus(target);
             var critChance = Mathf.Min(CombatRules.CritHardCap, CombatRules.CritBase +
                 Mathf.Max(0f, critChanceBonus + artifactCrit + abilityCrit + shopCrit + hunterCrit + GetArchitectFormationCritBonus()));
-            var result = CombatRules.ResolveDamage(damage, critChance, _rng.NextFloat(), CombatRules.CritMultiplierBase * LevelUpAbilityRules.GetCritPowerMultiplier(GetAbilityLevel(RunUpgradeKind.CritPower)));
+            var result = CombatRules.ResolveDamage(damage, critChance, _rng.NextFloat(), CombatRules.CritMultiplierBase);
             wasCritical = result.WasCritical;
             return result.Damage;
         }
 
         public void TryDamagePlayer(float damage)
         {
-            if (_playerCore == null || _playerCore.IsDead) return;
+            if (_playerCore == null || !_playerCore.CanReceiveDamageNow) return;
             var dodgeBonus = LevelUpAbilityRules.GetDodgeChance(
                 GetAbilityLevel(RunUpgradeKind.Dodge),
                 ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "dodgeChance"));
-            if (dodgeBonus > 0f && _playerCore.CanReceiveDamageNow && _rng.NextFloat() < dodgeBonus)
+            if (_rng.NextFloat() < dodgeBonus)
             {
-                ShowMessage("DODGED");
+                SpawnSourceParticle(PlayerPosition, new Vector2(0f, 60f), 0.5f, 3f, "#e8dcc0");
+
                 return;
             }
-            var received = Mathf.Max(0f, damage) * GetArtifactDamageTakenMultiplier() * CurrentDifficulty.EnemyDamageMultiplier;
+            var artifactDamage = Mathf.Max(0f, damage) * GetArtifactOnlyDamageTakenMultiplier();
+            if (_rng.NextFloat() < (_ownedArtifacts.Contains("mirror") ? 0.20f : 0f))
+            {
+                var reflected = FindNearestEnemy(PlayerPosition, 180f * SpherePlacementRules.SourcePixelsToWorld);
+                if (reflected != null) reflected.ReceiveDamage(artifactDamage * 1.25f);
+            }
+            var received = artifactDamage * GetCharacterDamageTakenMultiplier() * LevelUpAbilityRules.GetDamageTakenMultiplier(GetAbilityLevel(RunUpgradeKind.Armor));
             if (GetAbilityBranch(RunUpgradeKind.Shield) == "shield_bastion" && _shieldTimer > 0f)
                 received *= 0.70f;
-            if (_ownedArtifacts.Contains("mirror") && _playerCore.CanReceiveDamageNow && _rng.NextFloat() < 0.20f)
-            {
-                EnemyAgent2D nearest = null;
-                var nearestDistance = float.PositiveInfinity;
-                for (var i = 0; i < _enemies.Count; i++)
-                {
-                    var candidate = _enemies[i];
-                    if (candidate == null || !candidate.IsAlive) continue;
-                    var distance = Vector2.Distance(candidate.transform.position, _playerCore.transform.position);
-                    if (distance < nearestDistance) { nearestDistance = distance; nearest = candidate; }
-                }
-                if (nearest != null) nearest.ReceiveDamage(received * 1.25f);
-                return;
-            }
             var shieldsBefore = _playerCore.ShieldCharges;
             if (_playerCore.TryTakeDamage(received))
             {
+                if (_playerCore.IsDead) _deathTimer = PlayerLoopRules.DeathDuration;
                 ResetCombo();
-                ShowMessage("Core integrity damaged!");
+                _characterScreenShakeIntensity = Mathf.Min(0.4f, _characterScreenShakeIntensity + 0.2f);
+                SourceAudio2D.Play("damage");
                 if (_ownedArtifacts.Contains("stasis_core"))
                     for (var i = 0; i < _enemies.Count; i++)
                         if (_enemies[i] != null && _enemies[i].IsAlive) _enemies[i].ApplySlow(2f, 0.5f);
             }
             else if (_playerCore.ShieldCharges < shieldsBefore)
             {
-                ShowMessage("Shield charge absorbed impact!");
+
                 var shieldBranch = GetAbilityBranch(RunUpgradeKind.Shield);
                 var shieldFinal = GetAbilityFinalArchetype(RunUpgradeKind.Shield);
                 if (shieldFinal == "shield_resonant_guard") _playerCore.GrantShieldCharge(1);
                 if (shieldBranch == "shield_reflector")
                 {
                     var nearest = FindNearestEnemy(PlayerPosition, 220f * SpherePlacementRules.SourcePixelsToWorld);
-                    if (nearest != null) nearest.ReceiveDamage(Mathf.Max(0f, damage) * 0.75f);
+                    if (nearest != null) nearest.ReceiveDamage(artifactDamage * 0.75f);
                 }
                 if (shieldBranch == "shield_bastion")
                 {
@@ -3505,16 +3430,18 @@ namespace EchoSphere.Runtime
                         enemy.transform.position += (Vector3)(direction * (36f * SpherePlacementRules.SourcePixelsToWorld));
                     }
                 }
+                for (var i = 0; i < 12; i++) SpawnSourceParticle(PlayerPosition,
+                    new Vector2((_rng.NextFloat() * 2f - 1f) * 150f, -(_rng.NextFloat() * 2f - 1f) * 150f), 0.4f, 3f, "#4a7a8a");
             }
         }
 
         public void TryDamagePlayerOverTime(float damage)
         {
             if (_playerCore != null && !_playerCore.IsDead &&
-                _playerCore.TryTakeDotDamage(Mathf.Max(0f, damage) * GetArtifactDamageTakenMultiplier() * CurrentDifficulty.EnemyDamageMultiplier))
+                _playerCore.TryTakeDotDamage(Mathf.Max(0f, damage) * GetArtifactDamageTakenMultiplier()))
             {
-                ResetCombo();
-                ShowMessage("Core integrity damaged!");
+                if (_playerCore.IsDead) _deathTimer = PlayerLoopRules.DeathDuration;
+                _characterScreenShakeIntensity = Mathf.Min(0.25f, _characterScreenShakeIntensity + 0.04f);
             }
         }
 
@@ -3527,7 +3454,7 @@ namespace EchoSphere.Runtime
 
         public void HealCoreFromDamage(float damage)
         {
-            var vampire = Mathf.Max(0f, ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "vampire"));
+            var vampire = Mathf.Max(0f, ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "vampire") + GetAbilityLevel(RunUpgradeKind.Vampire) * 0.03f);
             if (_playerCore != null && !_playerCore.IsDead && vampire > 0f)
                 _playerCore.Heal(Mathf.Max(0f, damage) * vampire);
         }
@@ -3563,10 +3490,12 @@ namespace EchoSphere.Runtime
 
         private float GetArtifactDamageTakenMultiplier() =>
             GetCharacterDamageTakenMultiplier() *
-            Mathf.Max(0.25f, 1f - ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "damageTakenReduction")) *
-            ArtifactSynergyRules.GetGlassCannonDamageTakenMultiplier(
-                ArtifactSynergyRules.HasGlassCannonSynergy(_ownedArtifacts)) *
+            GetArtifactOnlyDamageTakenMultiplier() *
             LevelUpAbilityRules.GetDamageTakenMultiplier(GetAbilityLevel(RunUpgradeKind.Armor));
+
+        private float GetArtifactOnlyDamageTakenMultiplier() =>
+            Mathf.Max(0.45f, 1f - ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "damageTakenReduction")) *
+            ArtifactSynergyRules.GetGlassCannonDamageTakenMultiplier(ArtifactSynergyRules.HasGlassCannonSynergy(_ownedArtifacts));
 
         private float GetArtifactSphereFamilyDamageMultiplier(SphereId type)
         {
@@ -3869,7 +3798,7 @@ namespace EchoSphere.Runtime
             _levelUpLockChoiceKey = GetUpgradeChoiceKey(_levelUpChoices[choiceIndex]);
             _levelUpLocksRemaining--;
             _oracleSourceFlashTimer = 0f;
-            ShowMessage("LOCK");
+            ShowTimedCombatMessage("LOCK",.8f,"#d4943d");
             _messageTimer = 0.8f;
             return true;
         }
@@ -3965,7 +3894,7 @@ namespace EchoSphere.Runtime
             _levelUpChoices.AddRange(next);
             _levelUpRerollsRemaining--;
             _oracleSourceFlashTimer = 0f;
-            ShowMessage(lockedChoiceIndex >= 0 ? "LOCK + REROLL" : "REROLL");
+            ShowTimedCombatMessage(lockedChoiceIndex >= 0 ? "LOCK + REROLL" : "REROLL",.8f);
             _messageTimer = 0.8f;
             return true;
         }
@@ -4059,9 +3988,6 @@ namespace EchoSphere.Runtime
                 }
                 if (closeEnemy) multiplier += CharacterRules.GetBerserkerCloseDamageBonus(_characterMasteryLevel);
             }
-            if (_sphereCharacterId == SphereCharacterId.Architect && _networkState != null &&
-                _networkState.DominantFormation != null && _networkState.DominantFormation.Type == SphereNetworkFormation.Line)
-                multiplier *= GetArchitectFormationBonusScale(SphereNetworkFormation.Line) * 0.10f + 1f;
             return multiplier;
         }
 
@@ -4213,9 +4139,7 @@ namespace EchoSphere.Runtime
             if (_hunterHuntTimer <= 0f) _hunterHuntTarget = null;
             if (_sphereCharacterId != SphereCharacterId.Hunter)
             {
-                _hunterMarkTarget = null;
                 _hunterHuntTarget = null;
-                _hunterMarkTimer = 0f;
                 _hunterHuntTimer = 0f;
                 _hunterTrophyTimer = 0f;
                 _hunterHitCount = 0;
@@ -6385,7 +6309,7 @@ namespace EchoSphere.Runtime
                     foreach (var sphere in _spheres)
                         if (sphere != null && sphere.Type == choice.Sphere)
                             sphere.ApplyProgressionLevel(choice.NextLevel);
-                    ShowMessage(choice.Title + " upgraded.");
+
                     if (choice.NextLevel == 4 || choice.NextLevel == 7)
                     {
                         _pendingEvolutionSphere = choice.Sphere;
@@ -6399,14 +6323,14 @@ namespace EchoSphere.Runtime
                         _choosingEvolution = _evolutionChoices.Count > 0;
                         if (_choosingEvolution)
                         {
-                            ShowMessage(_pendingFinalEvolution ? "Choose final evolution." : "Choose mutation branch.");
+
                             return;
                         }
                     }
                     break;
                 case RunUpgradeKind.MaxSpheres:
                     _maxSphereAbilityLevel = choice.NextLevel;
-                    ShowMessage("MAX SPHERES: " + GetCurrentMaxSpheres());
+
                     break;
                 case RunUpgradeKind.Teleport:
                 case RunUpgradeKind.TimeStop:
@@ -6418,7 +6342,7 @@ namespace EchoSphere.Runtime
                 case RunUpgradeKind.DarkRitual:
                     _abilityLevels[choice.Kind] = choice.NextLevel;
                     if (choice.CurrentLevel == 0) AssignActiveAbilityHotkey(choice.Kind);
-                    ShowMessage(choice.Title + " acquired.");
+
                     if (choice.NextLevel == 4 || choice.NextLevel == 7)
                     {
                         _pendingEvolutionAbility = choice.Kind;
@@ -6432,7 +6356,7 @@ namespace EchoSphere.Runtime
                         _choosingEvolution = _evolutionChoices.Count > 0;
                         if (_choosingEvolution)
                         {
-                            ShowMessage(_pendingFinalEvolution ? "Choose active ability final evolution." : "Choose active ability branch.");
+
                             return;
                         }
                     }
@@ -6446,7 +6370,7 @@ namespace EchoSphere.Runtime
                     _abilityLevels[choice.Kind] = choice.NextLevel;
                     for (var i = 0; i < _spheres.Count; i++)
                         if (_spheres[i] != null) _spheres[i].ApplyProgressionLevel(_spheres[i].ProgressionLevel);
-                    ShowMessage(choice.Kind == RunUpgradeKind.Radius ? "SPHERE RADIUS increased." : "SPHERE RANGE increased.");
+
                     break;
                 case RunUpgradeKind.Dodge:
                 case RunUpgradeKind.Crit:
@@ -6459,12 +6383,12 @@ namespace EchoSphere.Runtime
                 case RunUpgradeKind.Cooldown:
                 case RunUpgradeKind.Momentum:
                     _abilityLevels[choice.Kind] = choice.NextLevel;
-                    ShowMessage(choice.Title + " upgraded.");
+
                     break;
                 case RunUpgradeKind.Vitality:
                     _abilityLevels[choice.Kind] = choice.NextLevel;
                     _playerCore?.IncreaseMaxHp(20f);
-                    ShowMessage("VITALITY: Core capacity increased.");
+
                     break;
             }
             if (_choosingEvolution) return;
@@ -6484,18 +6408,21 @@ namespace EchoSphere.Runtime
             {
                 if (_pendingFinalEvolution) _abilityFinals[_pendingEvolutionAbility] = option.Id;
                 else _abilityBranches[_pendingEvolutionAbility] = option.Id;
-                ShowMessage((_pendingFinalEvolution ? "Active ability final evolution: " : "Active ability branch: ") + option.Name);
+
             }
             else if (_pendingFinalEvolution)
             {
                 _sphereFinals[_pendingEvolutionSphere] = option.Id;
-                ShowMessage("Final evolution: " + option.Name);
+
             }
             else
             {
                 _sphereBranches[_pendingEvolutionSphere] = option.Id;
-                ShowMessage("Mutation branch: " + option.Name);
+
             }
+            var text=SourceEvolutionText(option);
+            ShowTimedCombatMessage(text?.nameRu ?? option.Name, 2.2f, _pendingFinalEvolution ? "#c4453d" : "#d4943d");
+            SourceAudio2D.Play("evolve");
             _runEvolutions++;
             _choosingEvolution = false;
             _pendingFinalEvolution = false;
@@ -6512,14 +6439,13 @@ namespace EchoSphere.Runtime
             for (var i = _spheres.Count - 1; i >= 0; i--) if (_spheres[i] == null) _spheres.RemoveAt(i);
         }
 
-        private void ShowMessage(string text) { _message = text; _messageTimer = 2.2f; }
+        private void ShowMessage(string text) { ShowTimedCombatMessage(text, 2.2f); }
 
         private void SetUserPaused(bool paused)
         {
             if (_gameOver || _levelUp || _choosingEvolution || _stellaRewardPending) return;
             _userPaused = paused;
             _paused = paused;
-            ShowMessage(paused ? "Run paused." : "Run resumed.");
         }
 
         public SphereNetworkState NetworkState => _networkState;
@@ -6541,15 +6467,7 @@ namespace EchoSphere.Runtime
         public float GetNetworkDamageMultiplier(SphereAttackAgent sphere)
         {
             if (sphere == null) return 1f;
-            var index = GetSphereIndex(sphere);
             var multiplier = 1f;
-            if (index >= 0)
-            {
-                multiplier += 0.10f * GetFormationBonus(SphereNetworkFormation.Line, index)
-                    + 0.15f * GetFormationBonus(SphereNetworkFormation.Fractal, index);
-                if (ConsumeResonanceLineBurst()) multiplier *= 1.60f;
-            }
-            multiplier *= GetCharacterNetworkDamageMultiplier(sphere);
             multiplier *= GetArtifactSphereFamilyDamageMultiplier(sphere.Type);
             return multiplier * GetArtifactSphereSynergyDamageMultiplier(sphere);
         }
@@ -7247,107 +7165,7 @@ namespace EchoSphere.Runtime
                 case MainMenuPage.Characters: DrawCharacterSelectScreen(); return;
                 case MainMenuPage.Knowledge: DrawKnowledgeBaseScreen(); return;
             }
-
-            var previousColor = GUI.color;
-            GUI.color = new Color(0.008f, 0.018f, 0.055f, 0.98f);
-            GUI.DrawTexture(new Rect(0f, 0f, _uiWidth, _uiHeight), _uiPanelTexture);
-            GUI.color = new Color(0.08f, 0.54f, 0.94f, 0.7f);
-            GUI.DrawTexture(new Rect(0f, 0f, _uiWidth, 3f), _uiAccentTexture);
-            GUI.DrawTexture(new Rect(0f, _uiHeight - 3f, _uiWidth, 3f), _uiAccentTexture);
-            GUI.color = previousColor;
-
-            var width = Mathf.Min(620f, _uiWidth - 32f);
-            var height = Mathf.Min(560f, _uiHeight - 28f);
-            var panel = new Rect((_uiWidth - width) * 0.5f, (_uiHeight - height) * 0.5f, width, height);
-            GUI.Box(panel, GUIContent.none, _box);
-            GUI.color = new Color(0.1f, 0.68f, 1f, 0.9f);
-            GUI.DrawTexture(new Rect(panel.x + 28f, panel.y + 24f, panel.width - 56f, 2f), _uiAccentTexture);
-            GUI.color = previousColor;
-
-            var logoSize = Mathf.Min(88f, height * 0.18f);
-            var coreLogo = RuntimeSpriteFactory.LoadAuthored("player") ?? RuntimeSpriteFactory.Faceted;
-            DrawSpriteIcon(new Rect(panel.center.x - logoSize * 0.5f, panel.y + 28f, logoSize, logoSize), coreLogo, Color.white);
-            DrawSpriteIcon(new Rect(panel.center.x - logoSize * 0.64f, panel.y + 23f, logoSize * 1.28f, logoSize * 1.28f), RuntimeSpriteFactory.Ring, new Color(0.22f, 0.67f, 1f, 0.8f));
-            GUI.Label(new Rect(panel.x + 24f, panel.y + 115f, panel.width - 48f, 42f), "ECHO SPHERE", _menuTitle);
-            GUI.Label(new Rect(panel.x + 24f, panel.y + 157f, panel.width - 48f, 23f),
-                IsRussianUi ? "СИСТЕМА ВЫЖИВАНИЯ РЕЗОНАНСА" : "RESONANCE SURVIVAL PROTOCOL", _label);
-
-            var characterArt = RuntimeSpriteFactory.LoadAuthored("character-spherist-3q");
-            if (characterArt != null)
-            {
-                DrawSpriteIcon(new Rect(panel.x + 34f, panel.y + 185f, 76f, 96f), characterArt, Color.white);
-                GUI.Label(new Rect(panel.x + 128f, panel.y + 198f, panel.width - 160f, 48f),
-                    IsRussianUi ? "СФЕРИСТ  /  УНИВЕРСАЛ" : "SPHERIST  /  ALL-ROUNDER", _label);
-                GUI.Label(new Rect(panel.x + 128f, panel.y + 229f, panel.width - 160f, 45f),
-                    IsRussianUi ? "Сохраняй Core. Собирай сеть Сфер. Меняй ход боя." : "Keep the Core alive. Build your Sphere network. Bend the battlefield.", _label);
-            }
-            else
-            {
-                GUI.Label(new Rect(panel.x + 34f, panel.y + 205f, panel.width - 68f, 48f),
-                    IsRussianUi ? "Сохраняй Core. Собирай сеть Сфер. Меняй ход боя." : "Keep the Core alive. Build your Sphere network. Bend the battlefield.", _label);
-            }
-
-            GUI.Label(new Rect(panel.x + 34f, panel.y + height - 276f, 76f, 26f), "ID", _label);
-            var enteredName = GUI.TextField(new Rect(panel.x + 100f, panel.y + height - 280f, panel.width - 134f, 30f), _playerName, 16, _button);
-            if (enteredName != _playerName)
-            {
-                _playerName = enteredName;
-                PlayerPrefs.SetString(NamePreferenceKey, _playerName);
-                PlayerPrefs.Save();
-            }
-
-            GUI.Label(new Rect(panel.x + 34f, panel.y + height - 238f, 96f, 28f),
-                IsRussianUi ? "СЛОЖНОСТЬ" : "DIFFICULTY", _label);
-            var difficultyIds = new[] { "easy", "normal", "hard", "nightmare" };
-            var difficultyLabels = IsRussianUi
-                ? new[] { "ЛЁГКАЯ", "ОБЫЧНАЯ", "СЛОЖНАЯ", "КОШМАР" }
-                : new[] { "EASY", "NORMAL", "HARD", "NIGHTMARE" };
-            var currentDifficulty = PlayerPrefs.GetString(DifficultyPreferenceKey, "normal");
-            var difficultyLeft = panel.x + 126f;
-            var difficultyWidth = (panel.width - 160f) / 4f;
-            for (var i = 0; i < difficultyIds.Length; i++)
-            {
-                var rect = new Rect(difficultyLeft + i * difficultyWidth, panel.y + height - 240f, difficultyWidth - 4f, 30f);
-                var oldColor = GUI.color;
-                GUI.color = currentDifficulty == difficultyIds[i] ? new Color(0.25f, 0.82f, 1f, 1f) : Color.white;
-                if (GUI.Button(rect, difficultyLabels[i], _button))
-                {
-                    PlayerPrefs.SetString(DifficultyPreferenceKey, difficultyIds[i]);
-                    PlayerPrefs.Save();
-                }
-                GUI.color = oldColor;
-            }
-
-            var buttonWidth = Mathf.Min(330f, panel.width - 60f);
-            var button = new Rect(panel.center.x - buttonWidth * 0.5f, panel.y + height - 188f, buttonWidth, 48f);
-            if (GUI.Button(button, IsRussianUi ? "ВЫБРАТЬ ЗАБЕГ" : "SELECT RUN", _button))
-            {
-                _regionSelect = true;
-            }
-
-            var navY = panel.y + height - 124f;
-            var navLeft = panel.x + 22f;
-            var navGap = 7f;
-            var navWidth = (panel.width - 44f - navGap * 5f) / 6f;
-            if (GUI.Button(new Rect(navLeft, navY, navWidth, 38f), IsRussianUi ? "МАГАЗИН" : "SHOP", _button))
-                _mainMenuPage = MainMenuPage.Shop;
-            if (GUI.Button(new Rect(navLeft + (navWidth + navGap), navY, navWidth, 38f), IsRussianUi ? "НАСТРОЙКИ" : "SETTINGS", _button))
-                _mainMenuPage = MainMenuPage.Settings;
-            if (GUI.Button(new Rect(navLeft + (navWidth + navGap) * 2f, navY, navWidth, 38f), IsRussianUi ? "РЕКОРДЫ" : "RECORDS", _button))
-                _mainMenuPage = MainMenuPage.Leaderboard;
-            if (GUI.Button(new Rect(navLeft + (navWidth + navGap) * 3f, navY, navWidth, 38f), IsRussianUi ? "ДОСТИЖЕНИЯ" : "ACHIEVEMENTS", _button))
-                _mainMenuPage = MainMenuPage.Achievements;
-            if (GUI.Button(new Rect(navLeft + (navWidth + navGap) * 4f, navY, navWidth, 38f), IsRussianUi ? "ПЕРСОНАЖИ" : "CHARACTERS", _button))
-                _mainMenuPage = MainMenuPage.Characters;
-            if (GUI.Button(new Rect(navLeft + (navWidth + navGap) * 5f, navY, navWidth, 38f), IsRussianUi ? "ЗНАНИЯ" : "KNOWLEDGE", _button))
-                _mainMenuPage = MainMenuPage.Knowledge;
-
-            GUI.Label(new Rect(panel.x + 24f, panel.y + height - 76f, panel.width - 48f, 34f),
-                IsRussianUi ? "Движение: правая часть экрана · Сферы: левая часть · Рывок: кнопка DASH" :
-                "Move: right half · Spheres: left half · Evade: DASH", _label);
-            GUI.color = new Color(0.33f, 0.76f, 1f, 0.6f);
-            GUI.DrawTexture(new Rect(panel.x + 28f, panel.y + height - 24f, panel.width - 56f, 1f), _uiAccentTexture);
-            GUI.color = previousColor;
+            DrawSourceMainHome();
         }
 
         private Rect DrawMenuScreenFrame(string title, string subtitle, float preferredHeight)
@@ -7475,7 +7293,7 @@ namespace EchoSphere.Runtime
                 var expanded = profile.unlocked && _expandedCharacterId == CharacterRules.ToSourceId(definition.Id);
                 contentHeight += 184f + (expanded ? definition.Mastery.Count * 36f + 10f : 0f) + 8f;
             }
-            GUI.BeginScrollView(viewport, _characterScrollPosition, new Rect(0f, 0f, contentWidth, contentHeight));
+            _characterScrollPosition = GUI.BeginScrollView(viewport, _characterScrollPosition, new Rect(0f, 0f, contentWidth, contentHeight));
             var cardY = 0f;
             for (var i = 0; i < CharacterRules.All.Count; i++)
             {
@@ -7569,130 +7387,7 @@ namespace EchoSphere.Runtime
                 _mainMenuPage = MainMenuPage.Home;
         }
 
-        private void DrawSettingsScreen()
-        {
-            var panel = DrawMenuScreenFrame(
-                IsRussianUi ? "НАСТРОЙКИ" : "SETTINGS",
-                IsRussianUi ? "ЯЗЫК · ЗВУК · УПРАВЛЕНИЕ · ПРОГРЕСС" : "LANGUAGE · SOUND · CONTROLS · PROGRESS", 570f);
-
-            GUI.Label(new Rect(panel.x + 28f, panel.y + 112f, 150f, 28f),
-                IsRussianUi ? "ЯЗЫК / LANGUAGE" : "LANGUAGE", _label);
-            var ruRect = new Rect(panel.x + 198f, panel.y + 106f, 190f, 40f);
-            var enRect = new Rect(panel.x + 402f, panel.y + 106f, 190f, 40f);
-            var lang = PlayerPrefs.GetString(LanguagePreferenceKey, Application.systemLanguage == SystemLanguage.English ? "en" : "ru");
-            var oldColor = GUI.color;
-            GUI.color = lang == "ru" ? new Color(0.25f, 0.82f, 1f, 1f) : Color.white;
-            if (GUI.Button(ruRect, "Русский", _button)) { PlayerPrefs.SetString(LanguagePreferenceKey, "ru"); PlayerPrefs.Save(); }
-            GUI.color = lang == "en" ? new Color(0.25f, 0.82f, 1f, 1f) : Color.white;
-            if (GUI.Button(enRect, "English", _button)) { PlayerPrefs.SetString(LanguagePreferenceKey, "en"); PlayerPrefs.Save(); }
-            GUI.color = oldColor;
-
-            GUI.Label(new Rect(panel.x + 28f, panel.y + 170f, 150f, 28f),
-                IsRussianUi ? "СЛОЖНОСТЬ" : "DIFFICULTY", _label);
-            var difficultyIds = new[] { "easy", "normal", "hard", "nightmare" };
-            var difficultyLabels = IsRussianUi
-                ? new[] { "ЛЁГКАЯ", "ОБЫЧНАЯ", "СЛОЖНАЯ", "КОШМАР" }
-                : new[] { "EASY", "NORMAL", "HARD", "NIGHTMARE" };
-            var currentDifficulty = PlayerPrefs.GetString(DifficultyPreferenceKey, "normal");
-            var difficultyLeft = panel.x + 198f;
-            var difficultyWidth = (panel.width - 226f) / 4f;
-            for (var i = 0; i < difficultyIds.Length; i++)
-            {
-                var rect = new Rect(difficultyLeft + i * difficultyWidth, panel.y + 164f, difficultyWidth - 5f, 40f);
-                oldColor = GUI.color;
-                GUI.color = currentDifficulty == difficultyIds[i] ? new Color(0.25f, 0.82f, 1f, 1f) : Color.white;
-                if (GUI.Button(rect, difficultyLabels[i], _button))
-                {
-                    PlayerPrefs.SetString(DifficultyPreferenceKey, difficultyIds[i]);
-                    PlayerPrefs.Save();
-                }
-                GUI.color = oldColor;
-            }
-
-            GUI.Label(new Rect(panel.x + 28f, panel.y + 232f, 150f, 26f),
-                IsRussianUi ? "ИМЯ ИГРОКА" : "PLAYER NAME", _label);
-            var nameValue = GUI.TextField(new Rect(panel.x + 198f, panel.y + 225f, panel.width - 228f, 34f), _playerName, 16, _button);
-            if (nameValue != _playerName)
-            {
-                _playerName = nameValue;
-                PlayerPrefs.SetString(NamePreferenceKey, _playerName);
-                PlayerPrefs.Save();
-            }
-
-            GUI.Label(new Rect(panel.x + 28f, panel.y + 332f, 150f, 28f),
-                IsRussianUi ? "ЗВУК" : "SOUND", _label);
-            var soundEnabled = PlayerPrefs.GetInt(SoundPreferenceKey, 1) != 0;
-            oldColor = GUI.color;
-            GUI.color = soundEnabled ? new Color(0.25f, 0.82f, 1f, 1f) : Color.white;
-            if (GUI.Button(new Rect(panel.x + 198f, panel.y + 326f, 190f, 40f),
-                IsRussianUi ? "ВКЛЮЧЁН" : "ON", _button))
-            {
-                PlayerPrefs.SetInt(SoundPreferenceKey, 1);
-                PlayerPrefs.Save();
-                SourceAudio2D.SetEnabled(true);
-            }
-            GUI.color = !soundEnabled ? new Color(0.25f, 0.82f, 1f, 1f) : Color.white;
-            if (GUI.Button(new Rect(panel.x + 402f, panel.y + 326f, 190f, 40f),
-                IsRussianUi ? "ВЫКЛЮЧЕН" : "OFF", _button))
-            {
-                PlayerPrefs.SetInt(SoundPreferenceKey, 0);
-                PlayerPrefs.Save();
-                SourceAudio2D.SetEnabled(false);
-            }
-            GUI.color = oldColor;
-
-            GUI.Label(new Rect(panel.x + 28f, panel.y + 385f, 150f, 28f),
-                IsRussianUi ? "РАСПОЛОЖЕНИЕ УПРАВЛЕНИЯ" : "HANDEDNESS", _label);
-            var leftHanded = IsLeftHanded;
-            oldColor = GUI.color;
-            GUI.color = !leftHanded ? new Color(0.25f, 0.82f, 1f, 1f) : Color.white;
-            if (GUI.Button(new Rect(panel.x + 198f, panel.y + 379f, 190f, 40f),
-                IsRussianUi ? "ПРАВОЙ РУКОЙ" : "RIGHT-HANDED", _button))
-            {
-                PlayerPrefs.SetString(HandednessPreferenceKey, "right");
-                PlayerPrefs.Save();
-            }
-            GUI.color = leftHanded ? new Color(0.25f, 0.82f, 1f, 1f) : Color.white;
-            if (GUI.Button(new Rect(panel.x + 402f, panel.y + 379f, 190f, 40f),
-                IsRussianUi ? "ЛЕВОЙ РУКОЙ" : "LEFT-HANDED", _button))
-            {
-                PlayerPrefs.SetString(HandednessPreferenceKey, "left");
-                PlayerPrefs.Save();
-            }
-            GUI.color = oldColor;
-
-            GUI.Label(new Rect(panel.x + 28f, panel.y + 286f, panel.width - 56f, 38f),
-                IsRussianUi
-                    ? (IsLeftHanded ? "Движение: левая часть экрана. Размещение и перемещение Сфер: правая часть. DASH выполняет рывок." : "Движение: правая часть экрана. Размещение и перемещение Сфер: левая часть. DASH выполняет рывок.")
-                    : (IsLeftHanded ? "Movement: left half of the screen. Sphere placement and dragging: right half. DASH performs a quick evade." : "Movement: right half of the screen. Sphere placement and dragging: left half. DASH performs a quick evade."),
-                _sphereDescriptionStyle);
-
-            if (!_settingsResetPending)
-            {
-                if (GUI.Button(new Rect(panel.center.x - 165f, panel.y + 435f, 330f, 44f),
-                    IsRussianUi ? "СБРОСИТЬ ВЕСЬ ПРОГРЕСС" : "RESET ALL PROGRESS", _button))
-                    _settingsResetPending = true;
-            }
-            else
-            {
-                GUI.Label(new Rect(panel.x + 30f, panel.y + 423f, panel.width - 60f, 34f),
-                    IsRussianUi ? "Удалить золото, улучшения, рекорды и достижения?" :
-                    "Delete gold, upgrades, records and achievements?", _label);
-                if (GUI.Button(new Rect(panel.center.x - 175f, panel.y + 462f, 165f, 42f),
-                    IsRussianUi ? "ОТМЕНА" : "CANCEL", _button))
-                    _settingsResetPending = false;
-                if (GUI.Button(new Rect(panel.center.x + 10f, panel.y + 462f, 165f, 42f),
-                    IsRussianUi ? "ПОДТВЕРДИТЬ" : "CONFIRM", _button))
-                    ResetPersistentProgress();
-            }
-
-            if (GUI.Button(new Rect(panel.x + 22f, panel.yMax - 48f, 132f, 34f),
-                IsRussianUi ? "НАЗАД" : "BACK", _button))
-            {
-                _settingsResetPending = false;
-                _mainMenuPage = MainMenuPage.Home;
-            }
-        }
+        private void DrawSettingsScreen() => DrawSourceSettings();
 
         private void DrawLeaderboardScreen()
         {
@@ -7737,51 +7432,7 @@ namespace EchoSphere.Runtime
 
         private void DrawKnowledgeBaseScreen()
         {
-            EnsureArtifactProtocolKnowledgeLoaded();
-            var panel = DrawMenuScreenFrame(
-                IsRussianUi ? "БАЗА ЗНАНИЙ" : "KNOWLEDGE BASE",
-                (IsRussianUi ? "ПРОТОКОЛЫ ОТКРЫТЫ" : "PROTOCOLS DISCOVERED") + "  " +
-                    _knownArtifactProtocolIds.Count + "/" + ArtifactProtocolRules.Protocols.Count,
-                650f);
-
-            var view = new Rect(panel.x + 18f, panel.y + 99f, panel.width - 36f, panel.height - 151f);
-            var columns = panel.width >= 590f ? 2 : 1;
-            var gap = 10f;
-            var cellWidth = (view.width - (columns - 1) * gap - 18f) / columns;
-            const float rowHeight = 100f;
-            var rowCount = (ArtifactProtocolRules.Protocols.Count + columns - 1) / columns;
-            var contentHeight = rowCount * (rowHeight + gap);
-            _knowledgeScrollPosition = GUI.BeginScrollView(
-                view, _knowledgeScrollPosition, new Rect(0f, 0f, view.width - 18f, contentHeight));
-
-            for (var i = 0; i < ArtifactProtocolRules.Protocols.Count; i++)
-            {
-                var protocol = ArtifactProtocolRules.Protocols[i];
-                var unlocked = _knownArtifactProtocolIds.Contains(protocol.Id);
-                var column = i % columns;
-                var row = i / columns;
-                var card = new Rect(column * (cellWidth + gap), row * (rowHeight + gap), cellWidth, rowHeight - 4f);
-                GUI.Box(card, GUIContent.none, _box);
-                var title = unlocked
-                    ? (IsRussianUi ? protocol.NameRussian : protocol.NameEnglish)
-                    : (IsRussianUi ? "ЗАПИСЬ НЕ ОТКРЫТА" : "ENTRY LOCKED");
-                var description = unlocked
-                    ? (IsRussianUi ? protocol.DescriptionRussian : protocol.DescriptionEnglish)
-                    : (IsRussianUi ? "Завершите соответствующий набор артефактов, чтобы открыть запись."
-                        : "Complete the corresponding Artifact Set to unlock this entry.");
-                GUI.Label(new Rect(card.x + 10f, card.y + 7f, card.width - 20f, 25f), title, _label);
-                var previousColor = GUI.color;
-                GUI.color = unlocked ? new Color(0.33f, 0.91f, 1f, 1f) : new Color(0.52f, 0.68f, 0.82f, 0.72f);
-                GUI.Label(new Rect(card.x + 10f, card.y + 31f, card.width - 20f, 17f),
-                    unlocked ? (IsRussianUi ? "ОТКРЫТО" : "DISCOVERED") : (IsRussianUi ? "ЗАКРЫТО" : "LOCKED"), _sphereDescriptionStyle);
-                GUI.color = previousColor;
-                GUI.Label(new Rect(card.x + 10f, card.y + 51f, card.width - 20f, card.height - 55f), description, _sphereDescriptionStyle);
-            }
-
-            GUI.EndScrollView();
-            if (GUI.Button(new Rect(panel.x + 22f, panel.yMax - 46f, 142f, 32f),
-                IsRussianUi ? "НАЗАД" : "BACK", _button))
-                _mainMenuPage = MainMenuPage.Home;
+            DrawSourceKnowledgeBaseScreen();
         }
 
         private void DrawArtifactProtocolOverlay()
@@ -7875,154 +7526,7 @@ namespace EchoSphere.Runtime
                 _mainMenuPage = MainMenuPage.Home;
         }
 
-        private void DrawRegionSelect()
-        {
-            var previousColor = GUI.color;
-            GUI.color = new Color(0.008f, 0.018f, 0.055f, 0.98f);
-            GUI.DrawTexture(new Rect(0f, 0f, _uiWidth, _uiHeight), _uiPanelTexture);
-            GUI.color = new Color(0.08f, 0.54f, 0.94f, 0.7f);
-            GUI.DrawTexture(new Rect(0f, 0f, _uiWidth, 3f), _uiAccentTexture);
-            GUI.color = previousColor;
-
-            var width = Mathf.Min(760f, _uiWidth - 28f);
-            var height = Mathf.Min(540f, _uiHeight - 24f);
-            var panel = new Rect((_uiWidth - width) * 0.5f, (_uiHeight - height) * 0.5f, width, height);
-            GUI.Box(panel, GUIContent.none, _box);
-            GUI.Label(new Rect(panel.x + 24f, panel.y + 18f, panel.width - 48f, 42f),
-                IsRussianUi ? "РЕГИОНЫ ЭХА" : "ECHO REGIONS", _menuTitle);
-            GUI.Label(new Rect(panel.x + 24f, panel.y + 61f, panel.width - 48f, 24f),
-                IsRussianUi ? "СТАБИЛИЗИРУЙ  /  ИССЛЕДУЙ" : "STABILIZE  /  EXPLORE", _label);
-            GUI.Label(new Rect(panel.x + 24f, panel.y + 91f, panel.width - 48f, 34f),
-                IsRussianUi ? "Выбери регион для забега." : "Choose a region for this run.", _label);
-
-            var cardGap = 14f;
-            var cardWidth = (panel.width - 60f - cardGap) * 0.5f;
-            var cardTop = panel.y + 140f;
-            var cardHeight = Mathf.Min(220f, panel.height - 250f);
-            var basin = new Rect(panel.x + 20f, cardTop, cardWidth, cardHeight);
-            var rift = new Rect(basin.xMax + cardGap, cardTop, cardWidth, cardHeight);
-            var basinSelected = _selectedRegion == EchoRegionId.ResonanceBasin;
-            var riftSelected = _selectedRegion == EchoRegionId.SpectralRift;
-            var riftAvailable = IsRegionAvailable(EchoRegionId.SpectralRift);
-
-            GUI.Box(basin, GUIContent.none, _box);
-            GUI.color = new Color(0.25f, 0.9f, 0.76f, 0.95f);
-            GUI.DrawTexture(new Rect(basin.x + 12f, basin.y + 12f, 3f, basin.height - 24f), _uiAccentTexture);
-            GUI.color = previousColor;
-            GUI.Label(new Rect(basin.x + 26f, basin.y + 18f, basin.width - 40f, 20f),
-                IsRussianUi ? "РЕГИОН 01  /  ДОСТУПЕН" : "REGION 01  /  AVAILABLE", _label);
-            GUI.Label(new Rect(basin.x + 26f, basin.y + 48f, basin.width - 40f, 48f),
-                IsRussianUi ? "РЕЗОНАНСНЫЙ БАССЕЙН" : "RESONANCE BASIN", _title);
-            GUI.Label(new Rect(basin.x + 26f, basin.y + 98f, basin.width - 40f, 45f),
-                IsRussianUi ? "ПЕРВЫЙ СТАБИЛЬНЫЙ ECHO" : "THE FIRST STABLE ECHO", _label);
-            GUI.Label(new Rect(basin.x + 26f, basin.y + 148f, basin.width - 40f, 38f),
-                IsRussianUi ? "Маршрут стабилизации · 30:00" : "Stabilization route · 30:00", _label);
-            var basinButtonLabel = basinSelected
-                ? (IsRussianUi ? "ВЫБРАНО" : "SELECTED")
-                : (IsRussianUi ? "ВЫБРАТЬ РЕГИОН" : "SELECT REGION");
-            if (GUI.Button(new Rect(basin.x + 20f, basin.yMax - 58f, basin.width - 40f, 42f), basinButtonLabel, _button))
-            {
-                _selectedRegion = EchoRegionId.ResonanceBasin;
-                _regionChallengeId = "none";
-                _regionEndlessMode = false;
-            }
-
-            GUI.Box(rift, GUIContent.none, _box);
-            GUI.color = new Color(0.66f, 0.52f, 1f, riftAvailable ? 0.95f : 0.55f);
-            GUI.DrawTexture(new Rect(rift.x + 12f, rift.y + 12f, 3f, rift.height - 24f), _uiAccentTexture);
-            GUI.color = previousColor;
-            GUI.Label(new Rect(rift.x + 26f, rift.y + 18f, rift.width - 40f, 20f),
-                riftAvailable
-                    ? (IsRussianUi ? "РЕГИОН 02  /  ДОСТУПЕН" : "REGION 02  /  AVAILABLE")
-                    : (IsRussianUi ? "РЕГИОН 02  /  ЗАКРЫТ" : "REGION 02  /  LOCKED"), _label);
-            GUI.Label(new Rect(rift.x + 26f, rift.y + 48f, rift.width - 40f, 48f),
-                IsRussianUi ? "СПЕКТРАЛЬНЫЙ РАЗЛОМ" : "SPECTRAL RIFT", _title);
-            GUI.Label(new Rect(rift.x + 26f, rift.y + 98f, rift.width - 40f, 45f),
-                IsRussianUi ? "ЗОНА ПЕРЕПИСАННЫХ РАССТОЯНИЙ" : "ZONE OF REWRITTEN DISTANCE", _label);
-            GUI.Label(new Rect(rift.x + 26f, rift.y + 148f, rift.width - 40f, 38f),
-                riftAvailable
-                    ? (IsRussianUi ? "Маршрут стабилизации · 30:00" : "Stabilization route · 30:00")
-                    : (IsRussianUi ? "Откроется после стабилизации Резонансного Бассейна." : "Unlocks after Resonance Basin is stabilized."), _label);
-
-            var previousEnabled = GUI.enabled;
-            GUI.enabled = riftAvailable;
-            var riftButtonLabel = !riftAvailable
-                ? (IsRussianUi ? "ЗАКРЫТО" : "LOCKED")
-                : riftSelected
-                    ? (IsRussianUi ? "ВЫБРАНО" : "SELECTED")
-                    : (IsRussianUi ? "ВЫБРАТЬ РЕГИОН" : "SELECT REGION");
-            if (GUI.Button(new Rect(rift.x + 20f, rift.yMax - 58f, rift.width - 40f, 42f), riftButtonLabel, _button) && riftAvailable)
-            {
-                _selectedRegion = EchoRegionId.SpectralRift;
-                _regionChallengeId = "none";
-                _regionEndlessMode = false;
-            }
-            GUI.enabled = previousEnabled;
-
-            var selectedRegionStabilized = IsRegionStabilized(_selectedRegion);
-            var challengeIds = _selectedRegion == EchoRegionId.ResonanceBasin
-                ? new[] { "none", "fractured_network", "overload", "low_gravity" }
-                : new[] { "none", "mirror_tide", "volatile_core", "phase_drift" };
-            var challengeNames = _selectedRegion == EchoRegionId.ResonanceBasin
-                ? (IsRussianUi
-                    ? new[] { "БАЗОВАЯ", "РАЗЛОМ СЕТИ", "ПЕРЕГРУЗКА", "НИЗКАЯ ГРАВИТАЦИЯ" }
-                    : new[] { "BASE", "FRACTURED NETWORK", "OVERLOAD", "LOW GRAVITY" })
-                : (IsRussianUi
-                    ? new[] { "БАЗОВАЯ", "ЗЕРКАЛЬНЫЙ ПРИЛИВ", "НЕСТАБИЛЬНОЕ ЯДРО", "ФАЗОВЫЙ СДВИГ" }
-                    : new[] { "BASE", "MIRROR TIDE", "VOLATILE CORE", "PHASE DRIFT" });
-            var challengeRowY = panel.y + 365f;
-            var challengeGap = 5f;
-            var challengeButtonWidth = (panel.width - 52f - challengeGap * 3f) / 4f;
-            var completedChallenges = GetCompletedRegionChallenges(_selectedRegion);
-            for (var challengeIndex = 0; challengeIndex < challengeIds.Length; challengeIndex++)
-            {
-                var challengeId = challengeIds[challengeIndex];
-                var isChallenge = challengeId != "none";
-                var done = Array.IndexOf(completedChallenges, challengeId) >= 0;
-                var buttonLabel = (done ? "✓ " : "") + challengeNames[challengeIndex];
-                GUI.enabled = !isChallenge || selectedRegionStabilized;
-                var buttonRect = new Rect(panel.x + 26f + challengeIndex * (challengeButtonWidth + challengeGap),
-                    challengeRowY, challengeButtonWidth, 28f);
-                if (GUI.Button(buttonRect, buttonLabel, _button))
-                {
-                    _regionChallengeId = challengeId;
-                    _regionEndlessMode = false;
-                }
-            }
-            GUI.enabled = previousEnabled;
-            var challengeProgress = completedChallenges.Length;
-            var endlessUnlocked = IsRegionEndlessUnlocked(_selectedRegion);
-            GUI.enabled = endlessUnlocked;
-            var endlessLabel = endlessUnlocked
-                ? (IsRussianUi ? "∞  БЕСКОНЕЧНОСТЬ · ОТКРЫТО" : "∞  ENDLESS · UNLOCKED")
-                : (IsRussianUi ? $"∞  БЕСКОНЕЧНОСТЬ · ИСПЫТАНИЯ {challengeProgress}/3" : $"∞  ENDLESS · CHALLENGES {challengeProgress}/3");
-            if (GUI.Button(new Rect(panel.center.x - 160f, panel.y + 397f, 320f, 28f), endlessLabel, _button))
-            {
-                _regionChallengeId = "none";
-                _regionEndlessMode = true;
-            }
-            GUI.enabled = previousEnabled;
-
-            GUI.color = new Color(0.60f, 0.80f, 1f, 0.6f);
-            GUI.DrawTexture(new Rect(panel.x + 26f, panel.yMax - 104f, panel.width - 52f, 1f), _uiAccentTexture);
-            GUI.color = previousColor;
-            GUI.Label(new Rect(panel.x + 142f, panel.yMax - 96f, panel.width - 284f, 22f),
-                IsRussianUi
-                    ? "Регион влияет на состав врагов и расписание боссов."
-                    : "Region changes enemy composition and boss schedule.", _label);
-
-            var actionWidth = Mathf.Min(330f, panel.width - 80f);
-            var selectedName = _selectedRegion == EchoRegionId.SpectralRift
-                ? (IsRussianUi ? "СПЕКТРАЛЬНЫЙ РАЗЛОМ" : "SPECTRAL RIFT")
-                : (IsRussianUi ? "РЕЗОНАНСНЫЙ БАССЕЙН" : "RESONANCE BASIN");
-            if (GUI.Button(new Rect(panel.center.x - actionWidth * 0.5f, panel.yMax - 70f, actionWidth, 42f),
-                IsRussianUi ? "НАЧАТЬ: " + selectedName : "START: " + selectedName, _button))
-                BeginSelectedRegionRun();
-
-            if (GUI.Button(new Rect(panel.x + 18f, panel.yMax - 68f, 110f, 36f),
-                IsRussianUi ? "НАЗАД" : "BACK", _button))
-                _regionSelect = false;
-        }
+        private void DrawRegionSelect() => DrawSourceRegionSelect();
 
         private void BeginSelectedRegionRun()
         {
@@ -8061,6 +7565,9 @@ namespace EchoSphere.Runtime
             _userPaused = false;
             _messageTimer = 0f;
             _runTime = 0f;
+            _rng.Reset(PlayerLoopRules.CreateRunSeed(_playerName, PlayerPrefs.GetString(DifficultyPreferenceKey, "normal"), DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()));
+            _mutationStage = 0; _chaosOrbTimer = _chaosOrbBuffTimer = _buffTimer = _deathTimer = 0f; _chaosOrbBuff = null;
+            ClearRunSnapshot();
             _regionLoreDiscovered.Clear();
             _regionXpReward = _regionGoldReward = _regionChallengeContractsCompleted = _regionMasteryChallengesCompleted = 0;
             _regionMasteryGeometryTypes.Clear();
@@ -8104,7 +7611,6 @@ namespace EchoSphere.Runtime
             _wave = 0;
             _waveEnemiesToSpawn = 0;
             _spawnTimer = 3f;
-            StartNextWave();
         }
 
 
@@ -8149,23 +7655,8 @@ namespace EchoSphere.Runtime
         private bool IsScreenPointOverUi(Vector2 screenPoint)
         {
             if (_uiWidth <= 0f || _uiHeight <= 0f) return false;
-            var scale = Mathf.Max(1f, _uiScale);
-            var point = new Vector2(screenPoint.x / scale, _uiHeight - screenPoint.y / scale);
-            if (new Rect(18f, 18f, 310f, 210f).Contains(point)) return true;
-
-            var activeCount = Mathf.Min(_spheres.Count, 10);
-            if (activeCount > 0)
-            {
-                var rosterWidth = activeCount * 56f + 12f;
-                if (new Rect(_uiWidth - rosterWidth - 18f, 18f, rosterWidth, 110f).Contains(point)) return true;
-            }
-
-            if (GetSpherePickerRect().Contains(point)) return true;
-            var bottomY = _uiHeight - 76f;
-            if (new Rect(18f, bottomY, 215f, 54f).Contains(point)) return true;
-            if (new Rect(_uiWidth - 176f, bottomY, 158f, 54f).Contains(point)) return true;
-            if (new Rect(_uiWidth - 158f, 140f, 140f, 36f).Contains(point)) return true;
-            return false;
+            var point = new Vector2(screenPoint.x / Mathf.Max(1f, _uiScale), _uiHeight - screenPoint.y / Mathf.Max(1f, _uiScale));
+            return IsSourceHudPoint(point);
         }
 
         private float GetSpherePickerDescriptionHeight()
@@ -8181,10 +7672,9 @@ namespace EchoSphere.Runtime
         {
             // Source MobileControls uses a 5-column grid of compact type glyphs,
             // with the selected type's name/description directly above it.
-            var width = Mathf.Min(252f, _uiWidth - 36f);
+            var width = Mathf.Min(244f, _uiWidth - 24f);
             var height = GetSpherePickerDescriptionHeight() + 103f;
-            var bottomControlsY = _uiHeight - 76f;
-            return new Rect(IsLeftHanded ? _uiWidth - width - 18f : 18f, bottomControlsY - height - 10f, width, height);
+            return new Rect(IsLeftHanded ? _uiWidth - width - 12f : 12f, _uiHeight - 16f - height, width, height);
         }
 
         private Vector2 ScreenToWorldPoint(Vector2 screenPoint)
@@ -8202,40 +7692,20 @@ namespace EchoSphere.Runtime
 
         private void HandleSpherePointerInput()
         {
-            if (_mainMenu) return;
-            if (_paused || _gameOver || _levelUp || _choosingEvolution || _stellaRewardPending)
-            {
-                if (_spherePointerActive) ClearSpherePointer();
-                return;
-            }
-
+            if (_mainMenu || _paused || _gameOver || _levelUp || _choosingEvolution || _stellaRewardPending)
+            { ClearSourcePointers(); return; }
             if (Input.touchCount > 0)
             {
-                var touch = Input.GetTouch(0);
-                if (!_spherePointerActive && touch.phase == TouchPhase.Began)
-                    BeginSpherePointer(touch.position, true, touch.fingerId);
-
-                if (_spherePointerActive && _spherePointerFromTouch && touch.fingerId == _spherePointerTouchId)
+                for (var i = 0; i < Input.touchCount; i++)
                 {
-                    if (touch.phase == TouchPhase.Moved || touch.phase == TouchPhase.Stationary || touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled)
-                        MoveSpherePointer(touch.position);
-                    if (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled)
-                        FinishSpherePointer(touch.position);
+                    var touch = Input.GetTouch(i);
+                    HandleSourcePointer(touch.fingerId, touch.position, touch.phase == TouchPhase.Began,
+                        touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled);
                 }
                 return;
             }
-
-            if (_spherePointerActive && _spherePointerFromTouch) ClearSpherePointer();
-            if (Input.GetMouseButtonDown(0)) BeginSpherePointer(Input.mousePosition, false, -1);
-            if (_spherePointerActive && !_spherePointerFromTouch)
-            {
-                if (Input.GetMouseButton(0)) MoveSpherePointer(Input.mousePosition);
-                if (Input.GetMouseButtonUp(0))
-                {
-                    MoveSpherePointer(Input.mousePosition);
-                    FinishSpherePointer(Input.mousePosition);
-                }
-            }
+            if (Input.GetMouseButtonDown(0) || Input.GetMouseButton(0) || Input.GetMouseButtonUp(0))
+                HandleSourcePointer(-1, Input.mousePosition, Input.GetMouseButtonDown(0), Input.GetMouseButtonUp(0));
         }
 
         private void BeginSpherePointer(Vector2 screenPoint, bool fromTouch, int touchId)
@@ -8251,6 +7721,7 @@ namespace EchoSphere.Runtime
             _spherePointerMoved = false;
             _spherePointerIsMovement = false;
             _spherePointerIsPlacing = false;
+            _sourceLockedSphereTouch = false;
             _spherePointerTarget = null;
             _spherePointerPositionValid = false;
             _spherePointerPreview = null;
@@ -8259,20 +7730,21 @@ namespace EchoSphere.Runtime
 
             CaptureSpherePointerOriginalFormation();
             var hit = FindSphereAtWorld(_spherePointerWorld, 34f * SpherePlacementRules.SourcePixelsToWorld);
-            if (hit != null)
+            if (hit != null && _tutorialStep != 1 && _tutorialStep != 2)
             {
                 if (!_sphereMovementLocked) _spherePointerTarget = hit;
+                else _sourceLockedSphereTouch = true;
                 return;
             }
 
-            _spherePointerIsMovement = IsLeftHanded ? screenPoint.x < Screen.width * 0.5f : screenPoint.x >= Screen.width * 0.5f;
-            _spherePointerIsPlacing = !_spherePointerIsMovement
+            _spherePointerIsMovement = _tutorialStep != 2 && !_sourceJoystickId.HasValue && (IsLeftHanded ? screenPoint.x < Screen.width * 0.5f : screenPoint.x >= Screen.width * 0.5f);
+            _spherePointerIsPlacing = _tutorialStep != 1 && !_spherePointerIsMovement
                 && _spheres.Count < GetCurrentMaxSpheres();
         }
 
         private void MoveSpherePointer(Vector2 screenPoint)
         {
-            if (!_spherePointerActive) return;
+            if (!_spherePointerActive || _sourceLockedSphereTouch) return;
             _spherePointerWorld = ScreenToWorldPoint(screenPoint);
             var deadzone = 12f * Mathf.Max(1f, _uiScale);
             if ((screenPoint - _spherePointerStartScreen).sqrMagnitude > deadzone * deadzone)
@@ -8304,6 +7776,7 @@ namespace EchoSphere.Runtime
 
             if (!moved)
             {
+                if (_tutorialStep == 2 && FindSphereAtWorld(world, 26f * SpherePlacementRules.SourcePixelsToWorld) != null) { ClearSpherePointer(); return; }
                 if (target != null)
                     RemoveSphereAgent(target);
                 else
@@ -8321,11 +7794,11 @@ namespace EchoSphere.Runtime
                     target.SetFollowMode(_follow, (Vector2)_player.position);
                     RefreshNetworkState();
                     CaptureSphereFormationMemoryIfChanged();
-                    ShowMessage(GameCatalog.Spheres[(int)target.Type].DisplayName + " moved.");
+                    ShowTimedCombatMessage(IsRussianUi ? "Сфера перемещена" : "Sphere moved", .8f);
                 }
                 else
                 {
-                    ShowMessage("Invalid position.");
+                    ShowTimedCombatMessage(IsRussianUi ? "Недоступная позиция" : "Invalid position", .65f);
                 }
             }
             else if (placing)
@@ -8333,7 +7806,7 @@ namespace EchoSphere.Runtime
                 if (_spheres.Count < GetCurrentMaxSpheres() && CanPlaceSphereAt(world, null))
                     TryPlaceOrRemoveSphereAt(world);
                 else
-                    ShowMessage("Path blocked.");
+                    ShowTimedCombatMessage(IsRussianUi ? "Путь перекрыт" : "Path blocked", .8f);
             }
 
             ClearSpherePointer();
@@ -8406,7 +7879,7 @@ namespace EchoSphere.Runtime
         }
 
         private int GetCurrentMaxSpheres() =>
-            SpherePlacementRules.GetMaxSpheres(0, PersistentUpgradeRules.GetExtraSpheres(GetShopUpgradeLevel("spheres")));
+            SpherePlacementRules.GetMaxSpheres(GetAbilityLevel(RunUpgradeKind.MaxSpheres), PersistentUpgradeRules.GetExtraSpheres(GetShopUpgradeLevel("spheres")));
 
         private int CountSpheresOfType(SphereId type)
         {
@@ -8502,18 +7975,21 @@ namespace EchoSphere.Runtime
             _placementFlashTimer = 0.45f;
             RefreshNetworkState();
             CaptureSphereFormationMemoryIfChanged();
-            ShowMessage(GameCatalog.Spheres[(int)_selectedSphereType].DisplayName + " placed.");
+            for (var i = 0; i < 15; i++) EmitSourceRadialParticle(world, 120f, .5f, 3f, "#" + ColorUtility.ToHtmlStringRGB(SphereUiColor(_selectedSphereType)));
+            SourceAudio2D.Play("place");
         }
 
         private void RemoveSphereAgent(SphereAttackAgent sphere)
         {
             if (sphere == null) return;
             var removedType = sphere.Type;
+            var removedPosition = (Vector2)sphere.transform.position;
+            if (_engineerRelaySource == sphere) { _engineerRelaySource = null; _engineerRelayTimer = 0f; }
             _spheres.Remove(sphere);
             if (sphere.gameObject != null) Destroy(sphere.gameObject);
             RefreshNetworkState();
             CaptureSphereFormationMemoryIfChanged();
-            ShowMessage(GameCatalog.Spheres[(int)removedType].DisplayName + " removed.");
+            for (var i = 0; i < 15; i++) EmitSourceRadialParticle(removedPosition, 120f, .5f, 3f, "#b8475a");
         }
 
         private void BuildSphereNetworkPreview(Vector2 world, int movingSphereIndex, bool addingSphere)
@@ -8571,9 +8047,9 @@ namespace EchoSphere.Runtime
                 clipping = TextClipping.Clip
             };
             GUI.Label(new Rect(descriptionRect.x + 4f, descriptionRect.y + 1f, descriptionRect.width - 8f, 17f),
-                definition.DisplayName, titleStyle);
+                IsRussianUi ? definition.DisplayNameRu : definition.DisplayName, titleStyle);
             GUI.Label(new Rect(descriptionRect.x + 5f, descriptionRect.y + 17f, descriptionRect.width - 10f, descriptionRect.height - 17f),
-                definition.DescriptionEn, descriptionStyle);
+                IsRussianUi ? definition.DescriptionRu : definition.DescriptionEn, descriptionStyle);
 
             var buttonWidth = (panel.width - 12f) / 5f;
             const float buttonHeight = 42f;
@@ -8585,13 +8061,14 @@ namespace EchoSphere.Runtime
                 var rect = new Rect(panel.x + column * (buttonWidth + 3f),
                     panel.y + descriptionHeight + 5f + row * 43f, buttonWidth, buttonHeight);
                 var color = SphereUiColor(type);
-                if (GUI.Button(rect, GUIContent.none, _button)) _selectedSphereType = type;
+                if (SourceGuiButton(rect, GUIContent.none, _button)) { _selectedSphereType = type; SourceAudio2D.Play("place"); }
 
                 DrawSpherePickerGlyph(rect, type, color);
-                var preferredForSpherist = type == SphereId.Standard || type == SphereId.Orbital;
+                var character = CharacterRules.Get(_sphereCharacterId);
+                var preferredForSpherist = type == character.SignatureSphere || type == character.PartnerSphere;
                 if (preferredForSpherist)
                 {
-                    // Port of CHARACTER_DEFS.spherist.preferredSphereTypes.
+                    // Port of the selected CHARACTER_DEFS preferredSphereTypes.
                     var preferredColor = new Color(1f, 0.72f, 0.30f, 0.5f);
                     GUI.color = preferredColor;
                     GUI.DrawTexture(new Rect(rect.x + 2f, rect.y + 2f, rect.width - 4f, 1f), _uiAccentTexture);
@@ -9050,7 +8527,7 @@ namespace EchoSphere.Runtime
             if (_player == null) return;
 
             var sourceX = _player.position.x / (12.6f / 720f);
-            var sourceY = _player.position.y / (12.6f / 720f);
+            var sourceY = -_player.position.y / (12.6f / 720f);
             var pocketNames = _selectedRegion == EchoRegionId.SpectralRift
                 ? new[] { "prism", "shoal", "ember", "silent", "null" }
                 : new[] { "axis", "glass", "fracture", "hollow", "pressure" };
@@ -9074,14 +8551,13 @@ namespace EchoSphere.Runtime
                 if (distance < closestDistance) { closestDistance = distance; closest = i; }
             }
 
-            if (!string.IsNullOrEmpty(_regionHudPocketId) && _regionHudPocketId != pocketNames[closest])
+            if (_tutorialStep < 0 && !_regionStabilized && _runTime > 1f && _regionHudPocketId != pocketNames[closest])
             {
-                _regionPocketNotice = IsRussianUi
-                    ? ( _selectedRegion == EchoRegionId.SpectralRift
-                        ? new[] { "ПЕРЕХОД: ПРИЗМАТИЧЕСКИЙ СДВИГ", "ПЕРЕХОД: ЗЕРКАЛЬНАЯ МЕЛЬ", "ПЕРЕХОД: ТЛЕЮЩИЙ ИЗЛОМ", "ПЕРЕХОД: ТИХАЯ РЕШЁТКА", "ПЕРЕХОД: НУЛЕВОЙ САД" }
-                        : new[] { "ПЕРЕХОД: ОСЕВОЙ УЗЕЛ", "ПЕРЕХОД: СТЕКЛЯННЫЙ ПОТОК", "ПЕРЕХОД: РАЗЛОМ", "ПЕРЕХОД: ПУСТОЙ КОНТУР", "ПЕРЕХОД: ЗОНА ДАВЛЕНИЯ" })[closest]
-                    : "ENTERING: " + pocketLabelsEn[closest];
-                _regionPocketNoticeTimer = 1.35f;
+                EnsureKnowledgeLoaded();
+                var regionId = _selectedRegion == EchoRegionId.SpectralRift ? "spectral_rift" : "resonance_basin";
+                var pocket = PlannerEntry("region-pocket", regionId + "|" + pocketNames[closest]);
+                _regionPocketNotice = PlannerDesc(pocket); _regionPocketNoticeTimer = 1.35f;
+                ShowTimedCombatMessage(_regionPocketNotice, 1.35f, pocket?.color ?? "#39d8ff", "boundary");
             }
             _regionHudPocketId = pocketNames[closest];
         }
@@ -9150,119 +8626,10 @@ namespace EchoSphere.Runtime
                     return;
                 }
 
-                DrawHudBackdrop();
-                if (_artifactPanelOpen)
-                {
-                    DrawArtifactProtocolOverlay();
-                    return;
-                }
-
-                var hp = _playerCore == null ? 0f : _playerCore.CurrentHp;
-                var maxHp = _playerCore == null ? 100f : _playerCore.MaxHp;
-                var hpRatio = maxHp <= 0f ? 0f : Mathf.Clamp01(hp / maxHp);
-                var xpRatio = _xpRequired <= 0 ? 0f : Mathf.Clamp01(_xp / (float)_xpRequired);
-                var resonanceRatio = Mathf.Clamp01(_resonanceCharge / ResonanceRules.BaseCap);
-
-                GUI.Box(new Rect(18, 18, 310, 210), GUIContent.none, _box);
-                GUI.Label(new Rect(32, 25, 276, 28), "ECHO SPHERE  /  CORE SYSTEM", _title);
-                GUI.Label(new Rect(32, 56, 270, 20), $"CORE INTEGRITY   {Mathf.CeilToInt(hp)} / {Mathf.CeilToInt(maxHp)}", _label);
-                var hpColor = hpRatio > 0.55f
-                    ? new Color(0.25f, 0.92f, 0.73f, 1f)
-                    : hpRatio > 0.25f ? new Color(1f, 0.66f, 0.25f, 1f) : new Color(1f, 0.28f, 0.39f, 1f);
-                DrawProgressBar(new Rect(32, 79, 270, 9), hpRatio, hpColor);
-
-                GUI.Label(new Rect(32, 95, 278, 20), $"LV {_level}     KILLS {_kills}     {FormatTime(_runTime)}", _label);
-                var regionName = _selectedRegion == EchoRegionId.SpectralRift
-                    ? (IsRussianUi ? "СПЕКТРАЛЬНЫЙ РАЗЛОМ" : "SPECTRAL RIFT")
-                    : (IsRussianUi ? "РЕЗОНАНСНЫЙ БАССЕЙН" : "RESONANCE BASIN");
-                var pocketLabel = _selectedRegion == EchoRegionId.SpectralRift
-                    ? new[] { "ПРИЗМАТИЧЕСКИЙ СДВИГ", "ЗЕРКАЛЬНАЯ МЕЛЬ", "ТЛЕЮЩИЙ ИЗЛОМ", "ТИХАЯ РЕШЁТКА", "НУЛЕВОЙ САД" }
-                    : new[] { "ОСЕВОЙ УЗЕЛ", "СТЕКЛЯННЫЙ ПОТОК", "РАЗЛОМ", "ПУСТОЙ КОНТУР", "ЗОНА ДАВЛЕНИЯ" };
-                var pocketLabelEn = _selectedRegion == EchoRegionId.SpectralRift
-                    ? new[] { "PRISM SHIFT", "MIRROR SHOAL", "EMBER FAULT", "SILENT LATTICE", "NULL GARDEN" }
-                    : new[] { "AXIS NODE", "GLASS FLOW", "FRACTURE", "HOLLOW CONTOUR", "PRESSURE FIELD" };
-                var pocketIndex = Array.IndexOf(
-                    _selectedRegion == EchoRegionId.SpectralRift
-                        ? new[] { "prism", "shoal", "ember", "silent", "null" }
-                        : new[] { "axis", "glass", "fracture", "hollow", "pressure" }, _regionHudPocketId);
-                pocketIndex = Mathf.Clamp(pocketIndex, 0, 4);
-                GUI.Label(new Rect(32, 229, 276, 18), (IsRussianUi ? "РЕГИОН · " : "REGION · ") + regionName, _label);
-                GUI.Label(new Rect(32, 247, 276, 18), (IsRussianUi ? "ФАЗА · " : "PHASE · ") + GetRegionPhaseLabel(), _label);
-                GUI.Label(new Rect(32, 265, 276, 18), (IsRussianUi ? "КАРМАН · " : "POCKET · ") + (IsRussianUi ? pocketLabel[pocketIndex] : pocketLabelEn[pocketIndex]), _label);
-                if (_regionPocketNoticeTimer > 0f)
-                {
-                    var noticeRect = new Rect((_uiWidth - 360f) * 0.5f, 80f, 360f, 42f);
-                    GUI.Box(noticeRect, GUIContent.none, _box);
-                    var noticeStyle = new GUIStyle(_title) { fontSize = 15, alignment = TextAnchor.MiddleCenter };
-                    GUI.Label(noticeRect, _regionPocketNotice, noticeStyle);
-                }
-                GUI.Label(new Rect(32, 116, 270, 18), $"EXPERIENCE   {_xp} / {_xpRequired}", _label);
-                DrawProgressBar(new Rect(32, 136, 270, 8), xpRatio, new Color(0.58f, 0.48f, 1f, 1f));
-
-                GUI.Label(new Rect(32, 149, 276, 18), $"RESONANCE   {Mathf.FloorToInt(_resonanceCharge)} / 100   SHIELD {_playerCore?.ShieldCharges ?? 0}", _label);
-                var resonanceColor = Color.Lerp(new Color(0.25f, 0.86f, 1f, 1f), new Color(1f, 0.82f, 0.33f, 1f), resonanceRatio);
-                DrawProgressBar(new Rect(32, 169, 270, 8), resonanceRatio, resonanceColor);
-
-                var geometryLabel = _networkState != null && _networkState.DominantFormation != null
-                    ? "GEOMETRY " + _networkState.DominantFormation.Type.ToString().ToUpperInvariant()
-                    : "NETWORK DISCONNECTED";
-                if (GUI.Button(new Rect(32, 188, 132, 24), "MAIN: " + geometryLabel.Replace("GEOMETRY ", ""), _button))
-                    CycleDominantFormation();
-                var secondaryLabel = _networkState != null && _networkState.SecondaryFormation != null
-                    ? _networkState.SecondaryFormation.Type.ToString().ToUpperInvariant() : "AUTO";
-                if (GUI.Button(new Rect(170, 188, 132, 24), "SUB: " + secondaryLabel, _button))
-                    CycleSecondaryFormation();
-
-                var bottomY = _uiHeight - 76f;
-                if (GUI.Button(new Rect(18f, bottomY, 105f, 54f), _sphereMovementLocked ? "SPHERES LOCKED" : "MOVE SPHERES", _button))
-                    _sphereMovementLocked = !_sphereMovementLocked;
-                if (GUI.Button(new Rect(127f, bottomY, 106f, 54f), _follow ? "FOLLOW ON" : "FOLLOW OFF", _button))
-                    SetFormationFollowMode(!_follow);
-                if (GUI.Button(new Rect(_uiWidth - 176f, bottomY, 158f, 54f), "DASH", _button))
-                    _playerCore.TryDash(_playerCore.LastMoveDirection);
-                if (!_gameOver && !_levelUp && !_choosingEvolution && !_stellaRewardPending && !_artifactPanelOpen &&
-                    GUI.Button(new Rect(_uiWidth - 158f, 140f, 140f, 36f), _userPaused ? "RESUME" : "PAUSE", _button))
-                    SetUserPaused(!_userPaused);
-                if (!_userPaused && !_gameOver && !_levelUp && !_choosingEvolution && !_stellaRewardPending &&
-                    GUI.Button(new Rect(_uiWidth - 158f, 180f, 140f, 36f),
-                        IsRussianUi ? "АРТЕФАКТЫ / ПРОТОКОЛЫ" : "ARTIFACT PROTOCOLS", _button))
-                {
-                    _artifactPanelOpen = true;
-                    SetUserPaused(true);
-                }
-                if (_artifactPanelOpen)
-                {
-                    DrawArtifactProtocolOverlay();
-                    return;
-                }
-
-                DrawSphereRoster();
-                DrawSpherePicker();
-                DrawSpherePlacementOverlay();
-                var activeAbilityButtonRow = 0;
-                foreach (var key in SourceActiveAbilityKeys)
-                {
-                    var foundAbility = false;
-                    var activeKind = RunUpgradeKind.Teleport;
-                    foreach (var binding in _activeAbilityHotkeys)
-                        if (binding.Value == key)
-                        {
-                            activeKind = binding.Key;
-                            foundAbility = true;
-                            break;
-                        }
-                    if (!foundAbility) continue;
-                    var cooldown = GetActiveAbilityCooldown(activeKind);
-                    var cooldownLabel = cooldown > 0f ? Mathf.CeilToInt(cooldown) + "s" : "READY";
-                    var label = GetActiveAbilityShortLabel(activeKind);
-                    var buttonRect = new Rect(_uiWidth - 158f, 222f + activeAbilityButtonRow * 38f, 140f, 34f);
-                    if (GUI.Button(buttonRect, label + " [" + key + "]  " + cooldownLabel, _button))
-                        ActivateActiveAbility(activeKind);
-                    activeAbilityButtonRow++;
-                }
-
-                if (!string.IsNullOrEmpty(_message) && _messageTimer > 0f)
-                    GUI.Label(new Rect(18f, 236f, Mathf.Max(120f, Mathf.Min(_activeAbilityHotkeys.Count > 0 ? _uiWidth - 210f : 520f, _uiWidth - 36f)), 30f), _message, _label);
+                var hudEnabled = GUI.enabled;
+                GUI.enabled = !_userPaused && !_levelUp && !_stellaRewardPending && !_gameOver && !_artifactPanelOpen;
+                DrawSourceGameplayHud();
+                GUI.enabled = hudEnabled;
 
                 // Port of src/App.tsx's combo overlay. The first HUD row, roster,
                 // pause controls and transient message occupy the space above this
@@ -9271,7 +8638,7 @@ namespace EchoSphere.Runtime
                 {
                     var comboWidth = Mathf.Min(240f, Mathf.Max(1f, _uiWidth - 36f));
                     var comboLeft = (_uiWidth - comboWidth) * 0.5f;
-                    const float comboTop = 270f;
+                    const float comboTop = 64f;
                     var comboColor = _combo >= 50
                         ? new Color(1f, 0.72156864f, 0.3019608f, 1f)
                         : _combo >= 25
@@ -9299,176 +8666,20 @@ namespace EchoSphere.Runtime
                     GUI.color = previousComboGuiColor;
                 }
 
-                if (_stellaRewardPending)
-                {
-                    var count = _stellaRewardChoices.Count;
-                    var panelWidth = Mathf.Min(660f, _uiWidth - 32f);
-                    var panelHeight = 88f + count * 78f;
-                    var panelLeft = (_uiWidth - panelWidth) * 0.5f;
-                    var panelTop = (_uiHeight - panelHeight) * 0.5f;
-                    GUI.Box(new Rect(panelLeft, panelTop, panelWidth, panelHeight), GUIContent.none, _box);
-                    GUI.Label(new Rect(panelLeft + 24f, panelTop + 18f, panelWidth - 48f, 30f),
-                        _stellaRewardIsLegendary ? "STELLA / LEGENDARY ARTIFACT" : "STELLA / ARTIFACT CHOICE", _title);
-                    for (var i = 0; i < count; i++)
-                    {
-                        var choice = _stellaRewardChoices[i];
-                        var rect = new Rect(panelLeft + 22f, panelTop + 62f + i * 78f, panelWidth - 44f, 70f);
-                        if (GUI.Button(rect, GUIContent.none, _button)) ChooseStellaReward(i);
-                        GUI.Label(new Rect(rect.x + 12f, rect.y + 5f, rect.width - 24f, 24f),
-                            choice.NameEnglish + "  /  " + choice.Rarity.ToString().ToUpperInvariant(), _label);
-                        GUI.Label(new Rect(rect.x + 12f, rect.y + 29f, rect.width - 24f, 36f),
-                            choice.DescriptionEnglish, _button);
-                    }
-                }
+                if (_levelUp) DrawSourceUpgradePicker();
 
-                if (_levelUp)
-                {
-                    var left = _uiWidth * 0.5f - 220f;
-                    var top = _uiHeight * 0.5f - 170f;
-                    GUI.Box(new Rect(left, top, 440f, 340f), GUIContent.none, _box);
-                    GUI.Label(new Rect(left + 36f, top + 25f, 368f, 32f), _choosingEvolution
-                        ? (_pendingFinalEvolution ? "FINAL EVOLUTION / CHOOSE ONE" : "MUTATION BRANCH / CHOOSE ONE")
-                        : "LEVEL UP / CHOOSE ONE", _title);
-                    if (_choosingEvolution)
-                    {
-                        for (var i = 0; i < _evolutionChoices.Count; i++)
-                        {
-                            var yOffset = 70f + i * 78f;
-                            var choice = _evolutionChoices[i];
-                            var rect = new Rect(left + 35f, top + yOffset, 370f, 64f);
-                            if (GUI.Button(rect, GUIContent.none, _button)) ChooseEvolution(i);
-                            var evolutionIcon = _pendingEvolutionIsAbility ? RuntimeSpriteFactory.Faceted : GetSphereIcon(_pendingEvolutionSphere);
-                            var evolutionTint = _pendingEvolutionIsAbility
-                                ? (_pendingEvolutionAbility == RunUpgradeKind.Teleport ? new Color(0.45f, 0.9f, 0.55f) : new Color(0.7f, 0.62f, 1f))
-                                : SphereColor(_pendingEvolutionSphere);
-                            DrawSpriteIcon(new Rect(rect.x + 10f, rect.y + 10f, 42f, 42f), evolutionIcon, evolutionTint);
-                            GUI.Label(new Rect(rect.x + 60f, rect.y + 8f, 298f, 25f), choice.Name, _label);
-                            GUI.Label(new Rect(rect.x + 60f, rect.y + 31f, 298f, 29f), choice.Description, _button);
-                        }
-                    }
-                    else
-                    {
-                        for (var i = 0; i < _levelUpChoices.Count; i++)
-                        {
-                            var yOffset = 70f + i * 78f;
-                            var choice = _levelUpChoices[i];
-                            var rect = new Rect(left + 35f, top + yOffset, 370f, 64f);
-                            if (GUI.Button(new Rect(rect.x, rect.y, rect.width - 48f, rect.height),
-                                GUIContent.none, _button)) ChooseUpgrade(i);
-                            var icon = choice.Kind == RunUpgradeKind.Sphere ? GetSphereIcon(choice.Sphere)
-                                : choice.Kind == RunUpgradeKind.AttackSpeed || choice.Kind == RunUpgradeKind.MoveSpeed ? RuntimeSpriteFactory.Star
-                                : choice.Kind == RunUpgradeKind.Vitality || choice.Kind == RunUpgradeKind.Regen ? RuntimeSpriteFactory.Hexagon
-                                : RuntimeSpriteFactory.Faceted;
-                            var tint = choice.Kind == RunUpgradeKind.Sphere ? Color.white
-                                : choice.Kind == RunUpgradeKind.AttackSpeed || choice.Kind == RunUpgradeKind.Crit ? new Color(1f, 0.78f, 0.28f)
-                                : choice.Kind == RunUpgradeKind.Vitality || choice.Kind == RunUpgradeKind.Regen ? new Color(0.35f, 1f, 0.72f)
-                                : new Color(0.28f, 0.88f, 1f);
-                            DrawSpriteIcon(new Rect(rect.x + 10f, rect.y + 10f, 42f, 42f), icon, tint);
-                            var choiceKey = GetUpgradeChoiceKey(choice);
-                            var forecasted = _sphereCharacterId == SphereCharacterId.Oracle &&
-                                _oracleForecastKeys.Contains(choiceKey);
-                            var previousColor = GUI.color;
-                            GUI.Label(new Rect(rect.x + 60f, rect.y + 8f, forecasted ? 170f : 250f, 25f), choice.Title, _label);
-                            if (forecasted)
-                            {
-                                GUI.color = new Color(0.78f, 0.67f, 1f, 1f);
-                                GUI.Label(new Rect(rect.x + 233f, rect.y + 8f, 79f, 18f),
-                                    IsRussianUi ? "ПРОГНОЗ" : "FORECAST", _label);
-                            }
-                            GUI.color = previousColor;
-                            GUI.Label(new Rect(rect.x + 60f, rect.y + 31f, 250f, 29f), choice.Description, _button);
+                if (_stellaRewardPending) DrawSourceArtifactChoices();
 
-                            var isLocked = _levelUpLockChoiceKey == choiceKey;
-                            var lockRect = new Rect(rect.x + rect.width - 46f, rect.y + 4f, 44f, 22f);
-                            if (isLocked)
-                            {
-                                GUI.color = new Color(0.83f, 0.58f, 0.22f, 1f);
-                                GUI.Label(lockRect, IsRussianUi ? "ЗАКРЕП." : "LOCKED", _label);
-                                GUI.color = previousColor;
-                            }
-                            else
-                            {
-                                var wasEnabled = GUI.enabled;
-                                GUI.enabled = LevelUpChoiceRules.CanLockChoice(
-                                    _levelUpChoices.Count, _levelUpLocksRemaining,
-                                    !string.IsNullOrEmpty(_levelUpLockChoiceKey));
-                                if (GUI.Button(lockRect, IsRussianUi ? "ЗАКРЕП." : "LOCK", _button))
-                                    LockLevelUpChoice(i);
-                                GUI.enabled = wasEnabled;
-                            }
-                        }
+                if (_userPaused && !_artifactPanelOpen) DrawSourcePausePlanner();
 
-                        if (_levelUpChoices.Count == 3)
-                        {
-                            var wasEnabled = GUI.enabled;
-                            GUI.enabled = LevelUpChoiceRules.CanRerollChoices(
-                                _levelUpChoices.Count, _levelUpRerollsRemaining);
-                            var rerollRect = new Rect(left + 135f, top + 301f, 170f, 27f);
-                            var rerollLabel = (IsRussianUi ? "ПЕРЕБРОСИТЬ" : "REROLL") +
-                                " · " + _levelUpRerollsRemaining;
-                            if (GUI.Button(rerollRect, rerollLabel, _button)) RerollLevelUpChoices();
-                            GUI.enabled = wasEnabled;
-                        }
+                if (_gameOver) DrawSourceRunResult();
+                DrawTutorialOverlay();
 
-                        if (_oracleSourceFlashTimer > 0f && !string.IsNullOrEmpty(_oracleSourceFlashText))
-                        {
-                            var previousColor = GUI.color;
-                            GUI.color = new Color(0.71f, 0.55f, 1f, Mathf.Clamp01(_oracleSourceFlashTimer / 0.65f));
-                            GUI.Label(new Rect(left + 235f, top + 6f, 165f, 18f), _oracleSourceFlashText, _label);
-                            GUI.color = previousColor;
-                        }
-                    }
-                }
-
-                if (_userPaused && !_artifactPanelOpen)
-                {
-                    var pauseLeft = _uiWidth * 0.5f - 190f;
-                    var pauseTop = _uiHeight * 0.5f - 105f;
-                    GUI.Box(new Rect(pauseLeft, pauseTop, 380f, 210f), GUIContent.none, _box);
-                    GUI.Label(new Rect(pauseLeft + 40f, pauseTop + 25f, 300f, 34f), "RUN PAUSED", _title);
-                    GUI.Label(new Rect(pauseLeft + 40f, pauseTop + 62f, 300f, 28f), "Your run is safe. Resume when ready.", _label);
-                    if (GUI.Button(new Rect(pauseLeft + 30f, pauseTop + 112f, 150f, 52f), "RESUME", _button))
-                        SetUserPaused(false);
-                    if (GUI.Button(new Rect(pauseLeft + 200f, pauseTop + 112f, 150f, 52f), "RESTART RUN", _button))
-                    {
-                        _userPaused = false;
-                        _paused = false;
-                        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-                    }
-                }
-
-                if (_gameOver)
-                {
-                    var left = _uiWidth * 0.5f - 210f;
-                    var top = _uiHeight * 0.5f - 112f;
-                    GUI.Box(new Rect(left, top, 420f, 224f), GUIContent.none, _box);
-                    GUI.Label(new Rect(left + 30f, top + 20f, 360f, 32f),
-                        _regionStabilized
-                            ? (IsRussianUi ? "РЕГИОН СТАБИЛИЗИРОВАН" : "REGION STABILIZED")
-                            : (IsRussianUi ? "ЯДРО РАЗРУШЕНО" : "CORE DESTROYED"), _title);
-                    GUI.Label(new Rect(left + 30f, top + 58f, 360f, 28f),
-                        _regionStabilized
-                            ? (IsRussianUi ? $"Бассейн сохранён · боссов: {_bossesDefeated}" : $"Region secured · bosses: {_bossesDefeated}")
-                            : (IsRussianUi ? $"Выживание {FormatTime(_runTime)} · убийств: {_kills}" : $"Survived {FormatTime(_runTime)} · kills: {_kills}"), _label);
-                    GUI.Label(new Rect(left + 30f, top + 88f, 360f, 24f),
-                        (IsRussianUi ? "ЗОЛОТО ПОЛУЧЕНО" : "GOLD EARNED") + ": " + _runGoldEarned, _label);
-                    if (GUI.Button(new Rect(left + 24f, top + 142f, 176f, 46f),
-                        IsRussianUi ? "В МЕНЮ" : "MAIN MENU", _button))
-                        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-                    if (GUI.Button(new Rect(left + 220f, top + 142f, 176f, 46f),
-                        IsRussianUi ? "НАЧАТЬ ЗАНОВО" : "RESTART", _button))
-                    {
-                        PlayerPrefs.SetInt("echo-sphere:start_selected_region_after_reload", 1);
-                        PlayerPrefs.Save();
-                        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-                    }
-                }
             }
             finally
             {
                 GUI.matrix = previousMatrix;
             }
-            DrawTutorialOverlay();
         }
 
         private void SetTutorialStep(int step)
@@ -9486,7 +8697,12 @@ namespace EchoSphere.Runtime
             if (_tutorialStep == 4 && !_tutorialUpgradeOpened)
             {
                 _tutorialUpgradeOpened = true;
+                _level++;
+                _playerCore?.IncreaseMaxHp(6f);
+                _xp = 0f;
+                _xpRequired = RunBalanceRules.GetXpToNextLevel(_level);
                 BuildLevelUpChoices();
+                SourceAudio2D.Play("levelup");
                 if (_levelUpChoices.Count > 0)
                 {
                     _levelUp = true;
@@ -9506,6 +8722,7 @@ namespace EchoSphere.Runtime
             _levelUpChoices.Clear();
             _paused = false;
             _userPaused = false;
+            _wave = 0; _waveEnemiesToSpawn = 0; _runTime = 0f;
             _spawnTimer = 3f;
             PlayerPrefs.SetInt(TutorialCompletedPreferenceKey, 1);
             PlayerPrefs.Save();
@@ -9516,14 +8733,9 @@ namespace EchoSphere.Runtime
         {
             if (_tutorialStep < 0 || _mainMenu || _gameOver) return;
 
-            var previousColor = GUI.color;
-            var panelWidth = Mathf.Min(480f, _uiWidth - 28f);
-            var panelHeight = _tutorialStep == 1 || _tutorialStep == 2 ? 232f : 218f;
-            var panelY = _tutorialStep == 4 ? 10f : Mathf.Clamp(_uiHeight * 0.5f - panelHeight * 0.5f, 12f, _uiHeight - panelHeight - 12f);
-            var panel = new Rect((_uiWidth - panelWidth) * 0.5f, panelY, panelWidth, panelHeight);
-            GUI.color = new Color(0f, 0.025f, 0.07f, 0.92f);
-            GUI.color = new Color(0.39f, 0.9f, 1f, 1f);
-            GUI.Box(panel, GUIContent.none, _box);
+            DrawSourceTutorialSpotlight();
+            var panel = SourceTutorialCard;
+            SourceUiRect(panel, new Color(3f/255f,10f/255f,20f/255f,.95f));
             var title = IsRussianUi
                 ? new[] { "Добро пожаловать в Эхо", "Управляй ядром", "Размести сферу", "Смотри на Сеть", "Первый выбор", "Теперь ты у руля" }[_tutorialStep]
                 : new[] { "Welcome to Echo", "Control the Core", "Place a Sphere", "Read the Network", "First Choice", "You are in control" }[_tutorialStep];
@@ -9545,48 +8757,27 @@ namespace EchoSphere.Runtime
                     "The real run starts now. Build the Network, evolve Spheres, and discover powerful synergies."
                 }[_tutorialStep];
 
-            GUI.color = Color.white;
-            GUI.Label(new Rect(panel.x + 20f, panel.y + 16f, panel.width - 40f, 22f),
-                (IsRussianUi ? "ОБУЧЕНИЕ · " : "TUTORIAL · ") + (_tutorialStep + 1) + "/6", _label);
-            GUI.Label(new Rect(panel.x + 20f, panel.y + 43f, panel.width - 40f, 30f), title, _title);
-            var bodyStyle = new GUIStyle(_label) { wordWrap = true, fontSize = 13, alignment = TextAnchor.UpperLeft };
-            GUI.Label(new Rect(panel.x + 20f, panel.y + 80f, panel.width - 40f, 58f), body, bodyStyle);
-
-            if (_tutorialStep == 1 || _tutorialStep == 2)
+            SourceUiLabel(new Rect(panel.x+16f,panel.y+16f,panel.width-32f,12f), (IsRussianUi ? "ОБУЧЕНИЕ · " : "TUTORIAL · ")+(_tutorialStep+1)+"/6",9,"#63e6ff",false,true);
+            SourceUiLabel(new Rect(panel.x+16f,panel.y+29f,panel.width-32f,26f),title,18,"#dcecff",false,true);
+            SourceUiLabel(new Rect(panel.x+16f,panel.y+63f,panel.width-32f,58f),body,12,"#a9c0d2");
+            var ready = _tutorialStep != 1 && _tutorialStep != 2 || (_tutorialStep == 1 ? Vector2.Distance(_tutorialStartPosition,_player.position)>=72f*SpherePlacementRules.SourcePixelsToWorld : _spheres.Count>=2);
+            if (_tutorialStep == 1 || _tutorialStep == 2 || _tutorialStep == 4)
             {
-                var ready = _tutorialStep == 1
-                    ? Vector2.Distance(_tutorialStartPosition, _player != null ? _player.position : Vector3.zero) >= 72f * SpherePlacementRules.SourcePixelsToWorld
-                    : _spheres.Count >= 2;
-                var instruction = IsRussianUi
-                    ? (ready ? (_tutorialStep == 1 ? "Отлично. Движение освоено." : "Сфера установлена.") : "Выполни действие, чтобы продолжить.")
-                    : (ready ? (_tutorialStep == 1 ? "Great. Movement learned." : "Sphere placed.") : "Perform the action to continue.");
-                GUI.Label(new Rect(panel.x + 20f, panel.y + 143f, panel.width - 40f, 24f), instruction, _label);
+                var action = _tutorialStep == 4 ? (IsRussianUi ? "Выбери одну карту. Обучение продолжится после выбора." : "Choose one card. The tutorial continues after your choice.")
+                    : ready ? (IsRussianUi ? _tutorialStep == 1 ? "Отлично. Движение освоено." : "Сфера установлена." : _tutorialStep == 1 ? "Great. Movement learned." : "Sphere placed.")
+                    : IsRussianUi ? "Выполни действие, чтобы продолжить." : "Perform the action to continue.";
+                var actionRect = new Rect(panel.x+16f,panel.y+133f,panel.width-32f,34f);
+                SourceUiRect(actionRect, _tutorialStep == 4 ? new Color(.71f,.55f,1f,.10f) : ready ? new Color(.33f,.90f,.76f,.10f) : new Color32(9,18,31,255));
+                SourceUiLabel(new Rect(actionRect.x+12f,actionRect.y+8f,actionRect.width-24f,25f),action,10,_tutorialStep == 4 ? "#dbcfff" : ready ? "#b9ffe8" : "#7089a0",false,true);
             }
-            else if (_tutorialStep == 4)
+            if (SourceUiButton(new Rect(panel.x+16f,panel.yMax-51f,110f,35f),IsRussianUi ? "ПРОПУСТИТЬ" : "SKIP",9,Color.clear,"#718aa1")) { FinishTutorial(true); return; }
+            if (_tutorialStep != 4)
             {
-                GUI.Label(new Rect(panel.x + 20f, panel.y + 143f, panel.width - 40f, 24f),
-                    IsRussianUi ? "Выбери одну карту. Обучение продолжится после выбора." : "Choose one card. The tutorial continues after your choice.", _label);
+                var enabled = GUI.enabled; GUI.enabled = ready;
+                if (SourceUiButton(new Rect(panel.xMax-116f,panel.yMax-51f,100f,35f),IsRussianUi ? "ДАЛЕЕ" : "NEXT",10,new Color(.39f,.90f,1f,.10f),"#dffaff"))
+                { if (_tutorialStep < 5) SetTutorialStep(_tutorialStep+1); else FinishTutorial(false); }
+                GUI.enabled = enabled;
             }
-
-            var skipRect = new Rect(panel.x + 18f, panel.yMax - 48f, 130f, 34f);
-            if (GUI.Button(skipRect, IsRussianUi ? "ПРОПУСТИТЬ" : "SKIP", _button))
-            {
-                FinishTutorial(true);
-                GUI.color = previousColor;
-                return;
-            }
-
-            if (_tutorialStep == 0 || _tutorialStep == 3 || _tutorialStep == 5)
-            {
-                if (GUI.Button(new Rect(panel.xMax - 154f, panel.yMax - 48f, 136f, 34f),
-                    IsRussianUi ? (_tutorialStep == 5 ? "НАЧАТЬ" : "ДАЛЕЕ") : (_tutorialStep == 5 ? "START" : "NEXT"), _button))
-                {
-                    if (_tutorialStep == 0) SetTutorialStep(1);
-                    else if (_tutorialStep == 3) SetTutorialStep(4);
-                    else FinishTutorial(false);
-                }
-            }
-            GUI.color = previousColor;
         }
 
         private void DrawSphereRoster()

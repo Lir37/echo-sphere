@@ -3,14 +3,14 @@ using UnityEngine;
 
 namespace EchoSphere.Runtime
 {
-    public sealed class EnemyAgent2D : MonoBehaviour
+    public sealed class EnemyAgent2D : MonoBehaviour, ISourceSimulationAgent
     {
         private EchoSphereRuntime _runtime;
         private Transform _player;
         private SpriteRenderer _shell;
         private float _hp;
         private float _maxHp;
-        private int _xpReward = 1;
+        private float _xpReward = 1f;
         private float _moveSpeed;
         private float _damage = 9f;
         private bool _dead;
@@ -19,6 +19,16 @@ namespace EchoSphere.Runtime
         private string _role = "grunt";
         private float _roleDamageMultiplier = 1f;
         private float _roleRadiusMultiplier = 1f;
+        private float _sourceRadiusOverride;
+        public float SourceRadius => _sourceRadiusOverride > 0f ? _sourceRadiusOverride :
+            ((IsBoss ? 34f : _archetype == EnemyArchetype.Fast ? 15f : _archetype == EnemyArchetype.Tank ? 26f : 19f) * _roleRadiusMultiplier + (_isElite ? 4f : 0f));
+        public float SourceSpeed => _moveSpeed / SpherePlacementRules.SourcePixelsToWorld;
+        public float CollisionMass => IsBoss ? 8f : _isElite ? 1f : _archetype == EnemyArchetype.Tank ? 2.5f : _archetype == EnemyArchetype.Fast ? 0.7f : 1f;
+        public string Role => _role;
+        public string EliteVariant => _eliteVariant;
+        public float ContactDamage => _damage;
+        public string SourceColorHtml => IsBoss ? "#" + ColorUtility.ToHtmlStringRGB(_baseColor) : _isElite ? "#b8475a" : _archetype == EnemyArchetype.Fast ? "#d4a830" : _archetype == EnemyArchetype.Tank ? "#8a5a8a" : "#4a7a8a";
+        public void SetSourceRadius(float radius) => _sourceRadiusOverride = radius;
         private float _roleActionTimer;
         private EnemyArchetype _archetype = EnemyArchetype.Normal;
         private float _slowTimer;
@@ -31,6 +41,8 @@ namespace EchoSphere.Runtime
         private float _dotDamagePerSecond;
         private float _fireTimer, _fireDps, _fireTickTimer, _fireTickInterval;
         private float _poisonTimer, _poisonDps, _poisonTickTimer, _poisonTickInterval;
+        private float _fireDamageNumberTimer = 0.25f, _poisonDamageNumberTimer = 0.25f;
+        private float _fireDamageNumberAccumulator, _poisonDamageNumberAccumulator;
         private float _freezeTimer, _freezeVulnerabilityTimer, _elementalReactionTimer;
         private float _linkBreakerCooldownTimer, _linkBreakerTelegraphTimer, _linkBreakerImpactTimer;
         private string _eliteVariant = "";
@@ -51,8 +63,7 @@ namespace EchoSphere.Runtime
         public bool IsElite => _isElite;
         public bool IsPhaseRole => _isPhaseRole;
         public bool IsTank => _archetype == EnemyArchetype.Tank;
-        public float SourceRadius => (_archetype == EnemyArchetype.Fast ? 15f
-            : _archetype == EnemyArchetype.Tank ? 26f : 19f) * _roleRadiusMultiplier + (_isElite ? 4f : 0f);
+        public string SourceMonsterType => _isElite ? "elite" : _archetype == EnemyArchetype.Fast ? "fast" : _archetype == EnemyArchetype.Tank ? "tank" : "normal";
         public EnemyArchetype Archetype => _archetype;
         public string BossType => _bossType;
         public float MaxHp => _maxHp;
@@ -89,20 +100,39 @@ namespace EchoSphere.Runtime
         }
 
         public float ReceiveSphereDamage(SphereId source, float damage, bool authoredDamageResolved = false,
-            bool allowAuthoredProcs = true, SphereAttackAgent owner = null, bool characterHitRegistered = false)
+            bool allowAuthoredProcs = true, SphereAttackAgent owner = null, bool characterHitRegistered = false, bool wasCritical = false)
         {
             if (_dead) return 0f;
             if (_runtime != null && !characterHitRegistered) _runtime.RegisterCharacterSphereHit(source, this);
+            _runtime?.ApplySourceTimeStopFreeze(this);
+            var contextualDamage = owner == null || _runtime == null ? damage : damage * _runtime.GetSourceCharacterDamageMultiplier(owner);
             var authoredDamage = authoredDamageResolved || _runtime == null
-                ? damage : _runtime.ResolveAuthoredSphereHitDamage(source, this, damage);
+                ? contextualDamage : _runtime.ResolveAuthoredSphereHitDamage(source, this, contextualDamage);
             var characterMultiplier = _runtime == null ? 1f : _runtime.GetHunterMarkedTargetDamageMultiplier(source, this);
             var actual = authoredDamage * characterMultiplier * IncomingSphereDamageMultiplier(source);
+            if (_eliteVariant == "mirror_warden") actual *= 0.88f;
+            actual *= _runtime == null ? 1f : _runtime.GetSourceTimeStopHitMultiplier();
+            if (!authoredDamageResolved && _runtime != null)
+                actual = _runtime.ResolveProjectileDamage(actual, source == SphereId.Sniper && _runtime.GetSphereProgressionLevel(source) >= 3 ? 0.15f : 0f, out wasCritical, this);
+            if (owner != null) actual = _runtime.ApplySourceBeforeModifierProcs(owner, this, actual, allowAuthoredProcs, ref wasCritical);
+            if (_runtime != null) _runtime.ApplyAuthoredSphereHitEffects(source, this, actual, allowAuthoredProcs, owner);
+            if (source == SphereId.Shotgun && owner != null && _runtime.GetSphereProgressionLevel(source) >= 2 &&
+                Vector2.Distance(transform.position, owner.transform.position) < 110f * SpherePlacementRules.SourcePixelsToWorld) actual *= 1.20f;
+            if (source == SphereId.Void) actual = _runtime.ResolveSourceVoidHit(this, actual, owner);
+            if (owner != null && allowAuthoredProcs) actual = owner.ApplySourceBranchHit(this, actual, wasCritical);
+            actual *= _runtime == null ? 1f : _runtime.SourceBuffDamageMultiplier;
+            _hp -= Mathf.Max(0f, actual);
+            RefreshReceivedDamageVisuals();
             if (_eliteVariant == "mirror_warden" && actual > 0f && _runtime != null)
                 _runtime.TryDamagePlayer(actual * 0.12f);
-            if (_runtime != null) _runtime.ApplyAuthoredSphereHitEffects(source, this, actual, allowAuthoredProcs, owner);
-            ReceiveDamage(actual, source);
+            if (owner != null) _runtime.RegisterSphereHit(owner, this, actual);
+            else _runtime?.ChargeResonanceFromSource(ResonanceRules.SphereHitCharge, false);
             if (_runtime != null && owner != null)
                 _runtime.RegisterCharacterHitProcs(owner, actual, allowAuthoredProcs);
+            if (owner != null) _runtime.ApplySourceAfterHitGeometry(owner, this, actual);
+            _runtime?.EmitSourceHitFeedback(this, actual, true, allowAuthoredProcs, wasCritical, source);
+            _runtime?.HealCoreFromDamage(actual);
+            FinishReceivedDamage(source, owner, actual);
             return actual;
         }
 
@@ -118,7 +148,6 @@ namespace EchoSphere.Runtime
             if (_dead) return;
             _fireTimer = Mathf.Max(_fireTimer, Mathf.Max(0f, duration));
             _fireDps = Mathf.Max(_fireDps, Mathf.Max(0f, damagePerSecond));
-            if (_fireTickInterval <= 0f) _fireTickInterval = 0.5f;
         }
 
         public void ExtendFireStatus(float duration)
@@ -130,6 +159,7 @@ namespace EchoSphere.Runtime
         {
             if (!_dead) _slowTimer = Mathf.Max(_slowTimer, Mathf.Max(0f, duration));
         }
+        public void ExtendPoisonStatus(float duration) { if (!_dead) _poisonTimer = Mathf.Max(_poisonTimer, duration); }
 
         public void ApplySourceSlow(float duration, float multiplier)
         {
@@ -303,6 +333,13 @@ namespace EchoSphere.Runtime
             transform.position += (Vector3)(away * Mathf.Max(0f, distance) * _runtime.GetRegionRepulsionMultiplier());
         }
 
+        public void MoveSourceRadial(Vector2 center, float signedDistance)
+        {
+            var delta = (Vector2)transform.position - center;
+            var distance = delta.magnitude;
+            if (distance > 0f) transform.position += (Vector3)(delta / distance * signedDistance);
+        }
+
         public void PullByDistance(Vector2 center, float distance)
         {
             if (_dead || _runtime == null || _runtime.IsGameplayPaused) return;
@@ -315,12 +352,13 @@ namespace EchoSphere.Runtime
             transform.position = Vector2.MoveTowards(transform.position, center, Mathf.Max(0f, distance) * 0.22f);
         }
 
-        public void Initialize(EchoSphereRuntime runtime, Transform player, float hp, float moveSpeed, int xpReward = 1,
+        public void Initialize(EchoSphereRuntime runtime, Transform player, float hp, float moveSpeed, float xpReward = 1f,
             string visualVariant = "wisp", string bossType = "", bool isElite = false, EnemyArchetype archetype = EnemyArchetype.Normal,
             bool isPhaseRole = false, string role = "grunt", float roleDamageMultiplier = 1f, float roleRadiusMultiplier = 1f,
             string eliteVariant = "", float damage = 9f)
         {
             _runtime = runtime;
+            _runtime.RegisterSimulationAgent(this);
             _player = player;
             _bossType = bossType ?? "";
             _isElite = isElite;
@@ -352,10 +390,9 @@ namespace EchoSphere.Runtime
             }
         }
 
-        private void Update()
+        public void SimulationTick(float dt)
         {
             if (_dead || _runtime == null || _runtime.IsGameplayPaused || _player == null) return;
-            var dt = Time.deltaTime;
             _elementalReactionTimer = Mathf.Max(0f, _elementalReactionTimer - dt);
             if (_freezeVulnerabilityTimer > 0f)
             {
@@ -378,6 +415,7 @@ namespace EchoSphere.Runtime
 
             if (_fireTimer > 0f)
             {
+                _fireDamageNumberTimer = Mathf.Max(0f, _fireDamageNumberTimer - dt);
                 _fireTimer = Mathf.Max(0f, _fireTimer - dt);
                 var damage = 0f;
                 if (_fireTickInterval > 0f)
@@ -386,6 +424,7 @@ namespace EchoSphere.Runtime
                     if (_fireTickTimer <= 0f) { _fireTickTimer = _fireTickInterval; damage = _fireDps * _fireTickInterval; }
                 }
                 else damage = _fireDps * dt;
+                TickStatusFeedback(damage, true, _fireTimer, _fireTickInterval, ref _fireDamageNumberTimer, ref _fireDamageNumberAccumulator);
                 ApplyStatusDamage(damage);
                 if (_dead) return;
                 if (_fireTimer <= 0f) { _fireDps = 0f; _fireTickInterval = 0f; _fireTickTimer = 0f; }
@@ -393,6 +432,7 @@ namespace EchoSphere.Runtime
 
             if (_poisonTimer > 0f)
             {
+                _poisonDamageNumberTimer = Mathf.Max(0f, _poisonDamageNumberTimer - dt);
                 _poisonTimer = Mathf.Max(0f, _poisonTimer - dt);
                 var damage = 0f;
                 if (_poisonTickInterval > 0f)
@@ -401,6 +441,7 @@ namespace EchoSphere.Runtime
                     if (_poisonTickTimer <= 0f) { _poisonTickTimer = _poisonTickInterval; damage = _poisonDps * _poisonTickInterval; }
                 }
                 else damage = _poisonDps * dt;
+                TickStatusFeedback(damage, false, _poisonTimer, _poisonTickInterval, ref _poisonDamageNumberTimer, ref _poisonDamageNumberAccumulator);
                 ApplyStatusDamage(damage);
                 if (_dead) return;
                 if (_poisonTimer <= 0f) { _poisonDps = 0f; _poisonTickInterval = 0f; _poisonTickTimer = 0f; }
@@ -410,7 +451,7 @@ namespace EchoSphere.Runtime
 
             if (_markTimer > 0f)
             {
-                _markTimer = Mathf.Max(0f, _markTimer - Time.deltaTime);
+                _markTimer = Mathf.Max(0f, _markTimer - _runtime.SimulationDeltaTime);
                 if (_markTimer <= 0f)
                 {
                     if (_shell != null) _shell.color = _baseColor;
@@ -421,14 +462,14 @@ namespace EchoSphere.Runtime
             {
                 _freezeTimer = Mathf.Max(0f, _freezeTimer - dt);
                 RefreshElementalStatusVfx();
-                if (_freezeTimer > 0f) return;
+                return;
             }
             if (_slowTimer > 0f) _slowTimer = Mathf.Max(0f, _slowTimer - dt);
             else _slowMultiplier = 1f;
             var target = (Vector2)_player.position;
             if (_bossCombat != null)
             {
-                _bossCombat.Tick(Time.deltaTime);
+                _bossCombat.Tick(_runtime.SimulationDeltaTime);
                 if (_creatureVisual != null) _creatureVisual.SetFacing(target - (Vector2)transform.position);
                 return;
             }
@@ -458,7 +499,8 @@ namespace EchoSphere.Runtime
                     var projectileDamage = sniper ? 10f : 6f;
                     _runtime.SpawnBossProjectile(transform.position, direction * projectileSpeed, projectileDamage,
                         sniper ? 5f : 6f, sniper ? "enemy_sniper" : "enemy_ranged",
-                        sniper ? new Color(1f, 0.55f, 0.30f) : new Color(0.35f, 0.85f, 1f));
+                        sniper ? new Color(1f, 0.55f, 0.30f) : new Color(0.35f, 0.85f, 1f), this);
+                    SourceAudio2D.Play("shoot");
                 }
             }
             else if (_role == "healer")
@@ -480,12 +522,10 @@ namespace EchoSphere.Runtime
                 }
             }
 
+            _runtime.TickSourceEnemyProjectiles(this, dt);
             TickEliteVariant(dt, distanceToPlayer);
 
-            var sourceEnemyRadius = _archetype == EnemyArchetype.Fast ? 15f
-                : _archetype == EnemyArchetype.Tank ? 26f : 19f;
-            var sourceContactRadius = (sourceEnemyRadius * _roleRadiusMultiplier +
-                (_isElite ? 4f : 0f) + 16f) * SpherePlacementRules.SourcePixelsToWorld;
+            var sourceContactRadius = (SourceRadius + 16f) * SpherePlacementRules.SourcePixelsToWorld;
             if (distanceToPlayer < sourceContactRadius)
             {
                 // Source damage is resolved at spawn, including difficulty, role and region multipliers.
@@ -499,6 +539,22 @@ namespace EchoSphere.Runtime
                 if (awayFromPlayer.sqrMagnitude > 0.0001f)
                     transform.position += (Vector3)(awayFromPlayer * 10f * SpherePlacementRules.SourcePixelsToWorld);
             }
+        }
+
+        private void TickStatusFeedback(float damage, bool fire, float remaining, float interval, ref float timer, ref float accumulator)
+        {
+            accumulator += damage;
+            if (timer <= 0f && accumulator > 0f)
+            {
+                _runtime.AddSourceStatusDamageNumber(this, accumulator, fire ? "fire" : "poison");
+                accumulator = 0f; timer = 0.28f;
+            }
+            if (remaining <= 0f && accumulator > 0f)
+            {
+                _runtime.AddSourceStatusDamageNumber(this, accumulator, fire ? "fire" : "poison");
+                accumulator = 0f;
+            }
+            _runtime.EmitSourceStatusParticle(this, fire, interval);
         }
 
         private void ApplyStatusDamage(float damage)
@@ -519,15 +575,29 @@ namespace EchoSphere.Runtime
             _hp *= multiplier;
         }
 
-        public void ReceiveDamage(float damage, SphereId? sourceSphere = null)
+        public void ReceiveDamage(float damage, SphereId? sourceSphere = null, bool emitFeedback = true)
         {
             if (_dead) return;
+            _runtime?.ApplySourceTimeStopFreeze(this);
+            damage *= _runtime == null ? 1f : _runtime.SourceBuffDamageMultiplier;
             _hp -= Mathf.Max(0f, damage);
+            RefreshReceivedDamageVisuals();
+            if (emitFeedback) _runtime.EmitSourceHitFeedback(this, damage, false, false, false, sourceSphere);
+            FinishReceivedDamage(sourceSphere);
+        }
+
+        private void RefreshReceivedDamageVisuals()
+        {
             if (_shell != null) _shell.color = IsMarked ? new Color(0.5f, 0.82f, 1f, 1f) : _baseColor;
             if (_creatureVisual != null) _creatureVisual.PulseHit();
             _runtime.SpawnImpact(transform.position, new Color(1f, 0.26f, 0.34f));
-            if (_hp <= 0f)
+        }
+        private void FinishReceivedDamage(SphereId? sourceSphere, SphereAttackAgent owner = null, float damage = 0f)
+        {
+            if (_hp <= 0f && !_dead)
             {
+                if (_runtime.HasArtifact("vampire_ring")) _runtime.HealPlayer(5f);
+                _runtime.ApplySourceVoidReaperKill(this, owner, damage);
                 _dead = true;
                 _runtime.RegisterEnemyDeath(this, transform.position, _xpReward, sourceSphere);
                 Destroy(gameObject);

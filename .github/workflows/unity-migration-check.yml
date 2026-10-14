@@ -8,6 +8,9 @@ on:
       - 'UnityProject/**'
       - 'tools/EchoSphere.CoreChecks/**'
       - 'scripts/check-unity-project.mjs'
+      - 'scripts/export-unity-*.mjs'
+      - 'tests/**'
+      - 'src/**'
       - '.github/workflows/unity-migration-check.yml'
       - '.github/workflows/unity-android-apk.yml'
       - 'GPT/ECHO_SPHERE_UNITY_MIGRATION_AUDIT_v1.0.txt'
@@ -34,3 +37,10 @@ jobs:
           node-version: 22
       - name: Validate Unity project structure and runtime boundaries
         run: node scripts/check-unity-project.mjs
+      - name: Check data transferred directly from new-desing
+        run: |
+          node --experimental-strip-types scripts/export-unity-source-catalog.mjs --check
+          node --experimental-strip-types scripts/export-unity-sphere-modifiers.mjs --check
+          node --experimental-strip-types scripts/export-unity-parity-fixtures.mjs --check
+      - name: Run source game regression tests
+        run: node --experimental-strip-types --test tests/*.test.mjs

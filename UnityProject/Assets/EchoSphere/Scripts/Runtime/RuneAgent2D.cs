@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace EchoSphere.Runtime
 {
-    public sealed class RuneAgent2D : MonoBehaviour
+    public sealed class RuneAgent2D : MonoBehaviour, ISourceSimulationAgent
     {
         public static readonly string[] AllTypes =
         {
@@ -19,6 +19,7 @@ namespace EchoSphere.Runtime
         public void Initialize(EchoSphereRuntime runtime, string type, Vector2 position, float lifetime)
         {
             _runtime = runtime;
+            _runtime.RegisterSimulationAgent(this);
             _type = type;
             _life = Mathf.Max(0f, lifetime);
             _origin = new Vector3(position.x, position.y, transform.position.z);
@@ -26,18 +27,18 @@ namespace EchoSphere.Runtime
             if (_renderer != null) _renderer.color = GetRuneColor(type);
         }
 
-        private void Update()
+        public void SimulationTick(float dt)
         {
             if (_runtime == null || _runtime.IsGameplayPaused) return;
-            _life -= Time.deltaTime;
+            _life -= _runtime.SimulationDeltaTime;
             if (_life <= 0f)
             {
                 Destroy(gameObject);
                 return;
             }
 
-            var phase = Time.time * 3f;
-            transform.position = _origin + Vector3.up * (Mathf.Sin(phase) * 0.035f);
+            var phase = (_runtime.CurrentRunTime + _runtime.GetSimulationOrdinal(this)) * 3f;
+            transform.position -= Vector3.up * (Mathf.Sin(phase) * dt * 3f * EchoSphere.Core.SpherePlacementRules.SourcePixelsToWorld);
             var pulse = 1f + Mathf.Sin(phase * 1.35f) * 0.08f;
             transform.localScale = Vector3.one * (0.26f * pulse);
             if (_renderer != null)
@@ -46,7 +47,7 @@ namespace EchoSphere.Runtime
                 tint.a = Mathf.Clamp01(Mathf.Min(1f, _life / 2f));
                 _renderer.color = tint;
             }
-            if (Vector2.Distance(transform.position, _runtime.PlayerPosition) <= 0.34f)
+            if (Vector2.Distance(transform.position, _runtime.PlayerPosition) <= 31f * EchoSphere.Core.SpherePlacementRules.SourcePixelsToWorld)
             {
                 _runtime.ActivateRunePickup(_type, transform.position);
                 Destroy(gameObject);

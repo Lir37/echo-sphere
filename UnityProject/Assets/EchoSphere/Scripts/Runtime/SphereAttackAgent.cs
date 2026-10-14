@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace EchoSphere.Runtime
 {
-    public sealed class SphereAttackAgent : MonoBehaviour
+    public sealed partial class SphereAttackAgent : MonoBehaviour, ISourceSimulationAgent
     {
         private EchoSphereRuntime _runtime;
         private Transform _player;
@@ -24,6 +24,8 @@ namespace EchoSphere.Runtime
         private Vector3 _initialScale = Vector3.one;
         private int _progressionLevel = 1;
         private SphereLevelStats _levelStats;
+        private SourceSphereModifiers _sourceModifiers;
+        private bool _sourceLineBurstAttack;
         private int _branchHitCount;
         private int _chainStormCycle;
         private int _gravityTideHits;
@@ -50,12 +52,30 @@ namespace EchoSphere.Runtime
 
         public float BaseDamage { get; private set; } = 12f;
         public float AttackDelay { get; private set; } = 1.2f;
-        public float AttackRange { get; private set; } = 6.8f;
+        public float AttackRange { get; private set; } = (130f * SpherePlacementRules.SourcePixelsToWorld);
         public int PierceCount => _levelStats.Pierce;
+        public float GetSourceDpsEstimate(float damage, float delay)
+        {
+            var multishot = _sourceModifiers.multishot;
+            if (_type == SphereId.Orbital)
+            {
+                GetOrbitalElementCounts(out var inner, out var outer);
+                var rotation = (1.8f + Mathf.Min(2.4f, Mathf.Max(1, _progressionLevel) * 0.28f)) * _sourceModifiers.rotationSpeed;
+                return damage * 0.95f * (inner + outer) * rotation / (Mathf.PI * 2f);
+            }
+            if (_type == SphereId.Prism) return damage * Mathf.Max(1, 1 + multishot) / delay;
+            if (_type == SphereId.Pulse) return damage * (_runtime.HasArtifact("pulse_crown") ? 2f : 1f) * 4f / Mathf.Max(0.08f, GetSourceCadenceInterval() / _runtime.GetSphereAttackSpeedMultiplier(_type));
+            if (_type == SphereId.Gravity) return damage * 4f / Mathf.Max(0.08f, GetSourceCadenceInterval() / _runtime.GetSphereAttackSpeedMultiplier(_type));
+            if (_type == SphereId.Chain) return damage * (1f + _sourceModifiers.chainTargets * 0.7f) / delay;
+            if (_type == SphereId.Void) return damage * (_progressionLevel >= 2 ? 1.30f : 1.15f) / delay;
+            if (_profile.Aura) return damage / delay;
+            return damage * (1 + multishot) * _profile.Pellets / delay;
+        }
 
         public void Initialize(EchoSphereRuntime runtime, Transform player, SphereId type, float damage)
         {
             _runtime = runtime;
+            _runtime.RegisterSimulationAgent(this);
             _player = player;
             _type = type;
             _profile = SphereCombatRules.GetProfile(type);
@@ -63,9 +83,9 @@ namespace EchoSphere.Runtime
             _initialDelay = 1.2f * _profile.DelayMultiplier;
             _initialScale = transform.localScale;
             ApplyProgressionLevel(1);
-            AttackRange = 6.8f * _profile.RangeMultiplier * _runtime.GetSphereRadiusMultiplier() * _runtime.GetSphereRangeMultiplier() * _runtime.GetArtifactSphereRadiusMultiplier(type) *
+            AttackRange = (130f * SpherePlacementRules.SourcePixelsToWorld) * _profile.RangeMultiplier * _runtime.GetSphereRadiusMultiplier() * _runtime.GetSphereRangeMultiplier() * _runtime.GetArtifactSphereRadiusMultiplier(type) *
                 _runtime.GetShopSphereRadiusMultiplier() * _runtime.GetCharacterSphereRadiusMultiplier();
-            _attackTimer = type == SphereId.Aura || type == SphereId.Gravity || type == SphereId.Pulse ? 0f : 0.25f;
+            _attackTimer = 0f;
             _orbitAngle = type == SphereId.Orbital ? 0f : 0f;
             Color tint;
             if (ColorUtility.TryParseHtmlString(GetColor(type), out tint))
@@ -89,9 +109,15 @@ namespace EchoSphere.Runtime
             _levelStats = _progressionLevel == 0
                 ? SphereLevelRules.GetUnlevelledStats()
                 : SphereLevelRules.GetStats(_type, _progressionLevel);
-            BaseDamage = _initialDamage * _levelStats.DamageMultiplier;
-            AttackDelay = Mathf.Max(0.12f, _initialDelay * _levelStats.DelayMultiplier);
-            AttackRange = 6.8f * _profile.RangeMultiplier * _levelStats.RangeMultiplier * _runtime.GetSphereRadiusMultiplier() * _runtime.GetSphereRangeMultiplier() * _runtime.GetArtifactSphereRadiusMultiplier(_type) *
+            RefreshSourceModifiers();
+        }
+
+        private void RefreshSourceModifiers()
+        {
+            _sourceModifiers = _runtime.GetSourceSphereModifiers(_type, _progressionLevel);
+            BaseDamage = _initialDamage * _sourceModifiers.damage;
+            AttackDelay = Mathf.Max(0.05f, _initialDelay * _sourceModifiers.delay);
+            AttackRange = (130f * SpherePlacementRules.SourcePixelsToWorld) * _profile.RangeMultiplier * _sourceModifiers.radius * _runtime.GetSphereRadiusMultiplier() * _runtime.GetArtifactSphereRadiusMultiplier(_type) *
                 _runtime.GetShopSphereRadiusMultiplier() * _runtime.GetCharacterSphereRadiusMultiplier();
         }
 
@@ -101,32 +127,32 @@ namespace EchoSphere.Runtime
             if (enabled) _followOffset = (Vector2)transform.position - playerPosition;
         }
 
-        private void LateUpdate()
+        public void SyncFollowPosition()
         {
-            if (_runtime == null || _runtime.IsGameplayPaused || _player == null) return;
-            if (_type == SphereId.Orbital)
-            {
-                if (_followEnabled) transform.position = (Vector2)_player.position + _followOffset;
-                UpdateOrbitalElements(Time.deltaTime);
-                return;
-            }
-            if (!_followEnabled) return;
-            transform.position = (Vector2)_player.position + _followOffset;
+            if (_followEnabled && _player != null) transform.position = (Vector2)_player.position + _followOffset;
         }
 
-        private void Update()
+        private void LateUpdate()
+        {
+            if (_runtime != null && !_runtime.IsGameplayPaused) SyncFollowPosition();
+        }
+
+        public void SimulationTick(float dt)
         {
             if (_runtime == null || _runtime.IsGameplayPaused) return;
-            var dt = Time.deltaTime;
+            RefreshSourceModifiers();
             _contactTimer = Mathf.Max(0f, _contactTimer - dt);
             _networkDisabledTimer = Mathf.Max(0f, _networkDisabledTimer - dt);
             _resonancePulseTimer = Mathf.Max(0f, _resonancePulseTimer - dt);
 
             if (_type == SphereId.Orbital)
             {
+                UpdateOrbitalElements(dt);
                 UpdateOrbitalContacts(dt);
                 return;
             }
+
+            if (_type == SphereId.Gravity) VisualRotation += dt * (_runtime.GetSphereBranch(_type) == "gravity_tide" ? 1.9f : .9f);
 
             // Source Aura uses its authored auraPulse interval directly.
             // Gravity/Pulse use special cadence intervals scaled by the global attack-speed path.
@@ -136,26 +162,14 @@ namespace EchoSphere.Runtime
 
             var origin = (Vector2)transform.position;
             var targetRange = _type == SphereId.Prism ? GetPrismSourceRangeWorld() : AttackRange;
-            var target = _runtime.FindNearestEnemy(origin, targetRange);
+            var target = _runtime.FindSourceSphereTarget(_type, origin, targetRange);
             if (target != null)
             {
                 var targetDelta = (Vector2)target.transform.position - origin;
                 if (targetDelta.sqrMagnitude > 0.0001f) VisualRotation = Mathf.Atan2(targetDelta.y, targetDelta.x);
             }
-            var damage = (BaseDamage + _runtime.SphereBoostDamageBonus) * _runtime.GetSphereDamageMultiplier(_type) * _runtime.GetNetworkDamageMultiplier(this) *
-                _runtime.GetSphereCopyOutputMultiplier(this);
-            if (target != null && _runtime.ConsumeResonanceLineBurst()) damage *= 1.60f;
-            if (_type == SphereId.Shotgun && target != null)
-            {
-                var targetDistance = Vector2.Distance(origin, target.transform.position);
-                if (targetDistance <= 1.5f) damage *= _levelStats.CloseRangeDamageMultiplier;
-                var shotgunBranch = _runtime.GetSphereBranch(_type);
-                var shotgunFinal = _runtime.GetSphereFinal(_type);
-                if (shotgunBranch == "shotgun_burst")
-                    damage *= SphereEvolutionCombatRules.GetShotgunBurstDamageMultiplier(_progressionLevel, shotgunFinal, targetDistance);
-                else if (shotgunBranch == "shotgun_cataclysm")
-                    damage *= 1.12f;
-            }
+            var damage = _runtime.GetSourceSphereAttackDamage(this);
+            _sourceLineBurstAttack = target != null && (_type == SphereId.Standard || _type == SphereId.Sniper || _type == SphereId.Shotgun || _type == SphereId.Chain || _type == SphereId.Void) && _runtime.ConsumeResonanceLineBurst();
 
             if (target != null && EngineerRelayRules.ConsumesOnAttack(_type))
                 damage *= _runtime.ConsumeEngineerRelayBonus(this);
@@ -179,7 +193,7 @@ namespace EchoSphere.Runtime
                     triggeredEngineerRelay = target != null;
                     break;
                 case SphereId.Aura:
-                    triggeredEngineerRelay = DamageArea(origin, _profile.AuraRadius / 100f, damage, ColorFor(_type), false);
+                    triggeredEngineerRelay = DamageSourceArea(origin, _profile.AuraRadius * SpherePlacementRules.SourcePixelsToWorld, damage, dt);
                     break;
                 case SphereId.Prism:
                     FireAtMultiple(origin, damage);
@@ -188,13 +202,13 @@ namespace EchoSphere.Runtime
                     triggeredEngineerRelay = true;
                     break;
                 case SphereId.Gravity:
-                    DamageArea(origin, _profile.AuraRadius / 100f, damage, ColorFor(_type), true);
+                    DamageSourceArea(origin, _profile.AuraRadius * SpherePlacementRules.SourcePixelsToWorld, damage, dt);
                     // The source Gravity pulse triggers Relay on its own cadence,
                     // independently of whether an enemy is caught in the field.
                     triggeredEngineerRelay = true;
                     break;
                 case SphereId.Pulse:
-                    DamageArea(origin, _profile.AuraRadius / 100f, damage, ColorFor(_type), false);
+                    DamageSourceArea(origin, _profile.AuraRadius * SpherePlacementRules.SourcePixelsToWorld, damage, dt);
                     // The source Pulse cadence triggers Relay even in an empty field.
                     triggeredEngineerRelay = true;
                     break;
@@ -205,6 +219,7 @@ namespace EchoSphere.Runtime
             }
 
             if (triggeredEngineerRelay) _runtime.TriggerEngineerRelay(this);
+            if (target != null && (_type == SphereId.Standard || _type == SphereId.Sniper || _type == SphereId.Shotgun || _type == SphereId.Chain || _type == SphereId.Void)) SourceAudio2D.Play("shoot");
             _attackTimer = GetSourceCadenceInterval();
         }
 
@@ -215,23 +230,22 @@ namespace EchoSphere.Runtime
             switch (_type)
             {
                 case SphereId.Aura:
-                    var auraInterval = 0.5f * _levelStats.AuraPulseMultiplier;
-                    if (branch == "aura_sanctum" && finalId == "aura_sanctum_final_1")
-                        auraInterval *= 0.80f;
+                    var auraInterval = _sourceModifiers.auraPulse;
                     return Mathf.Max(0.05f, auraInterval);
                 case SphereId.Gravity:
-                    var gravityInterval = 0.80f * _levelStats.AuraPulseMultiplier;
+                    var gravityInterval = 0.80f * _sourceModifiers.auraPulse;
                     if (_runtime.HasArtifact("gravity_hook")) gravityInterval *= 0.92f;
-                    if (branch == "gravity_tide") gravityInterval *= 0.90f;
                     gravityInterval *= 1f - 0.10f * _runtime.GetFormationBonus(
                         SphereNetworkFormation.Cluster, _runtime.GetSphereIndex(this));
-                    return Mathf.Max(0.08f, gravityInterval);
+                    return Mathf.Max(.08f * _runtime.GetSphereAttackSpeedMultiplier(_type), gravityInterval);
                 case SphereId.Pulse:
-                    var pulseInterval = 1.15f * _levelStats.AuraPulseMultiplier;
+                    var pulseInterval = 1.15f * _sourceModifiers.auraPulse;
                     if (_runtime.HasArtifact("pulse_driver")) pulseInterval *= 0.90f;
                     pulseInterval *= 1f - 0.10f * _runtime.GetFormationBonus(
                         SphereNetworkFormation.Cluster, _runtime.GetSphereIndex(this));
-                    return Mathf.Max(0.08f, pulseInterval);
+                    return Mathf.Max(.08f * _runtime.GetSphereAttackSpeedMultiplier(_type), pulseInterval);
+                case SphereId.Prism:
+                    return Mathf.Max(.14f * _runtime.GetSphereAttackSpeedMultiplier(_type), AttackDelay);
                 default:
                     return Mathf.Max(0.05f, AttackDelay);
             }
@@ -239,33 +253,41 @@ namespace EchoSphere.Runtime
 
         public void OnSphereHitApplied(EnemyAgent2D target) => OnSphereHitApplied(target, _type);
 
-        public void OnSphereHitApplied(EnemyAgent2D target, SphereId statusSource)
+        public void OnSphereHitApplied(EnemyAgent2D target, SphereId statusSource, SphereElement? effectOverride = null)
         {
             if (target == null || !target.IsAlive || _runtime == null) return;
             var branch = _runtime.GetSphereBranch(_type);
             var finalId = _runtime.GetSphereFinal(_type);
             var element = SphereElementalRules.ResolveElement(branch, finalId);
+            if (element == SphereElement.None) element = _sourceModifiers.fire > 0f ? SphereElement.Fire : _sourceModifiers.freeze > 0f ? SphereElement.Freeze : _sourceModifiers.poison > 0f ? SphereElement.Poison : SphereElement.None;
+            if (effectOverride.HasValue) element = effectOverride.Value;
             if (element == SphereElement.None) return;
             var sourceBranch = _runtime.GetSphereBranch(statusSource);
             var sourceFinalId = _runtime.GetSphereFinal(statusSource);
             var masteryId = SphereElementalRules.GetMasteryId(sourceBranch, sourceFinalId);
+            // applyDirectSphereStatus gates direct mastery by the branch element,
+            // even when Prism Spectrum's final changes the emitted status.
+            if (!SphereElementalRules.IsChainBranch(sourceBranch) && !SphereElementalRules.IsFieldBranch(sourceBranch) &&
+                SphereElementalRules.ResolveElement(sourceBranch) != element) masteryId = null;
             var damageMultiplier = _runtime.GetSphereStatusDamageMultiplier() * _runtime.GetSphereElementalMasteryDamageMultiplier();
+            var statusModifiers = _runtime.GetSourceSphereModifiers(statusSource);
+            var statusLevel = (int)(element == SphereElement.Fire ? statusModifiers.fire : element == SphereElement.Freeze ? statusModifiers.freeze : statusModifiers.poison);
+            if (SphereElementalRules.ResolveElement(sourceBranch) == element) statusLevel = Mathf.Max(1, statusLevel);
 
             if (_type == SphereId.Chain && SphereElementalRules.IsChainBranch(branch))
             {
                 if (!target.TryAdvanceElementalConduction(_type,
                     SphereElementalRules.GetConductionThreshold(masteryId), SphereElementalRules.GetConductionCooldown(masteryId))) return;
-                var baseDamage = BaseDamage * _runtime.GetSphereDamageMultiplier(_type) *
-                    _runtime.GetNetworkDamageMultiplier(this) * _runtime.GetSphereCopyOutputMultiplier(this);
-                target.ReceiveSphereDamage(_type, baseDamage * SphereElementalRules.GetConductionDamageMultiplier(masteryId));
+                var baseDamage = _initialDamage;
+                target.ReceiveSphereDamage(_type, baseDamage * SphereElementalRules.GetConductionDamageMultiplier(masteryId), false, false, this);
                 if (target.IsAlive)
                 {
                     var durationMultiplier = _runtime.GetSphereStatusDurationMultiplier(element);
                     var status = SphereElementalRules.CreateStatus(element, masteryId, SphereElementalMode.Conduction,
-                        durationMultiplier, damageMultiplier);
+                        durationMultiplier, damageMultiplier, statusLevel);
                     target.ApplyElementalStatus(status, statusSource);
                 }
-                _runtime.SpawnImpact(target.transform.position, ElementColor(element));
+                if (target.IsAlive) _runtime.SpawnSourceParticle(target.transform.position, new Vector2(0f, 18f), .38f, 5f, "#" + ColorUtility.ToHtmlStringRGB(ElementColor(element)), .38f);
                 return;
             }
 
@@ -275,14 +297,15 @@ namespace EchoSphere.Runtime
                 if (!target.TryBeginFieldElementalReaction(SphereElementalRules.GetFieldCooldown(masteryId))) return;
                 var durationMultiplier = _runtime.GetSphereStatusDurationMultiplier(element);
                 var status = SphereElementalRules.CreateStatus(element, masteryId, SphereElementalMode.Field,
-                    durationMultiplier, damageMultiplier);
+                    durationMultiplier, damageMultiplier, statusLevel);
                 target.ApplyElementalStatus(status, statusSource);
+                _runtime.SpawnSourceParticle(target.transform.position, new Vector2(0f, 14f), .34f, 4f, "#" + ColorUtility.ToHtmlStringRGB(ElementColor(element)), .34f);
                 return;
             }
 
             var directDurationMultiplier = _runtime.GetSphereStatusDurationMultiplier(element);
             var directStatus = SphereElementalRules.CreateStatus(element, masteryId, SphereElementalMode.Direct,
-                directDurationMultiplier, damageMultiplier);
+                directDurationMultiplier, damageMultiplier, statusLevel);
             target.ApplyElementalStatus(directStatus, statusSource);
         }
 
@@ -290,9 +313,9 @@ namespace EchoSphere.Runtime
         {
             switch (element)
             {
-                case SphereElement.Fire: return new Color(1f, 0.45f, 0.24f, 0.95f);
-                case SphereElement.Freeze: return new Color(0.85f, 0.96f, 1f, 0.95f);
-                case SphereElement.Poison: return new Color(0.45f, 0.94f, 0.56f, 0.95f);
+                case SphereElement.Fire: return new Color32(255, 116, 61, 255);
+                case SphereElement.Freeze: return new Color32(217, 246, 255, 255);
+                case SphereElement.Poison: return new Color32(114, 240, 142, 255);
                 default: return Color.white;
             }
         }
@@ -333,7 +356,7 @@ namespace EchoSphere.Runtime
                 + (ringBonus > 0f ? 0.12f * ringBonus : 0f)
                 + Mathf.Min(0.20f, linkedNeighbourCount * 0.03f);
             var orbitalBranch = _runtime.GetSphereBranch(SphereId.Orbital);
-            _orbitAngle += dt * SphereEvolutionCombatRules.GetOrbitalAngularSpeed(_progressionLevel, orbitalBranch, finalId) * _levelStats.OrbitSpeedMultiplier;
+            _orbitAngle += dt * (1.8f + Mathf.Min(2.4f, Mathf.Max(1, _progressionLevel) * 0.28f)) * _sourceModifiers.rotationSpeed;
             for (var i = 0; i < _orbitalElements.Count; i++)
             {
                 var inner = i < innerCount;
@@ -345,7 +368,7 @@ namespace EchoSphere.Runtime
                 var liveRadiusMultiplier = liveSphereRadiusPixels / 130f;
                 var sourceOrbitRadiusPixels = bodyRadiusPixels * (inner ? 1.68f : 2.02f) * liveRadiusMultiplier;
                 var radius = sourceOrbitRadiusPixels * SpherePlacementRules.SourcePixelsToWorld * networkRadiusMultiplier;
-                _orbitalElements[i].localPosition = new Vector3(Mathf.Cos(angle) * radius, Mathf.Sin(angle) * radius, -0.08f);
+                _orbitalElements[i].position = transform.position + new Vector3(Mathf.Cos(angle) * radius, -Mathf.Sin(angle) * radius, -0.08f);
             }
         }
 
@@ -380,7 +403,7 @@ namespace EchoSphere.Runtime
             if (_orbitalContactCheckTimer > 0f) return;
             var cadenceMultiplier = clusterBonusForCadence > 0f ? 1f - 0.10f * clusterBonusForCadence : 1f;
             _orbitalContactCheckTimer = Mathf.Max(0.08f,
-                0.21f * cadenceMultiplier / Mathf.Max(0.01f, _runtime.GetSphereAttackSpeedMultiplier(SphereId.Orbital)));
+                0.42f * _sourceModifiers.auraPulse * cadenceMultiplier / Mathf.Max(0.01f, _runtime.GetSphereAttackSpeedMultiplier(SphereId.Orbital)));
 
             var hitSomething = false;
             var staleLatchEnemies = new List<EnemyAgent2D>();
@@ -416,7 +439,7 @@ namespace EchoSphere.Runtime
 
                 var delta = (Vector2)enemy.transform.position - (Vector2)transform.position;
                 var distance = delta.magnitude;
-                var enemyAngle = Mathf.Atan2(delta.y, delta.x);
+                var enemyAngle = Mathf.Atan2(-delta.y, delta.x);
                 var contactBand = Mathf.Max(contactBandPixels,
                     enemy.SourceRadius + Mathf.Max(6f, bodyRadiusPixels * 0.24f)) * contactScale;
                 var touchedElements = new HashSet<int>();
@@ -434,7 +457,7 @@ namespace EchoSphere.Runtime
                     var ringCount = inner ? innerCount : outerCount;
                     var element = _orbitalElements[elementIndex];
                     if (element == null) continue;
-                    var orbitRadius = element.localPosition.magnitude;
+                    var orbitRadius = ((Vector2)element.position - (Vector2)transform.position).magnitude;
                     if (Mathf.Abs(distance - orbitRadius) > contactBand) continue;
 
                     var direction = inner ? 1 : -1;
@@ -444,27 +467,24 @@ namespace EchoSphere.Runtime
                         + ringIndex * Mathf.PI * 2f / Mathf.Max(1, ringCount);
                     if (!IsAngleOnOrbitalSweep(enemyAngle, startAngle, endAngle, direction, angularTolerance)) continue;
 
-                    touchedElements.Add(elementIndex);
+                    var contactKey = inner ? ringIndex : 1024 + ringIndex;
+                    touchedElements.Add(contactKey);
                     // One hit per individual orbit element per continuous contact episode.
-                    if (!latch.Add(elementIndex)) continue;
+                    if (!latch.Add(contactKey)) continue;
                     newContactHit = true;
 
                     var damageMultiplier = SphereEvolutionCombatRules.GetOrbitalDamageMultiplier(_progressionLevel, branch, finalId);
-                    var damage = BaseDamage * _runtime.GetSphereDamageMultiplier(_type) * _runtime.GetNetworkDamageMultiplier(this) *
-                        _runtime.GetSphereCopyOutputMultiplier(this) * damageMultiplier;
-                    enemy.ReceiveSphereDamage(this, damage);
+                    var damage = _runtime.GetSourceSphereAttackDamage(this) * damageMultiplier * (1f + .08f * _runtime.GetFormationBonus(SphereNetworkFormation.Cluster, _runtime.GetSphereIndex(this)));
+                    var dealtDamage = enemy.ReceiveSphereDamage(this, damage);
+
                     OnSphereHitApplied(enemy);
                     _orbitalHitCount++;
 
                     if (branch == "orbital_halo")
                     {
-                        var bonusCharge = SphereEvolutionCombatRules.GetOrbitalResonanceBonus(_progressionLevel, finalId);
-                        if (bonusCharge > 0f) _runtime.AddResonanceCharge(bonusCharge);
-                        if (finalId == "orbital_halo_final_3") _runtime.GrantPlayerShieldCharge(1);
+                        if (finalId == "orbital_halo_final_3" && SphereEvolutionCombatRules.ShouldOrbitalGrantShieldCharge(_orbitalHitCount)) _runtime.GrantPlayerShieldCharge(1);
                     }
                     _runtime.SpawnImpact(enemy.transform.position, new Color(0.56f, 0.94f, 1f));
-                    var afterimage = SphereEvolutionCombatRules.GetOrbitalAfterimageMultiplier(branch, finalId);
-                    if (afterimage > 0f) _runtime.TriggerOrbitalAfterimage(enemy, damage * afterimage, 0.65f);
                 }
 
                 // Leaving the swept interval re-arms this individual orbit element.
@@ -526,85 +546,85 @@ namespace EchoSphere.Runtime
         {
             if (target == null) return;
             var direction = ((Vector2)target.transform.position - origin).normalized;
-            var count = 1 + _runtime.GetSphereAuthoredModifierLevel(_type, SphereAuthoredModifier.Multishot);
-            var pierce = _levelStats.Pierce + _runtime.GetSphereProjectilePierceBonus(_type);
-            var spread = _profile.Spread * _levelStats.SpreadMultiplier;
-            if (spread <= 0.0001f) spread = 0.15f;
+            var count = 1 + (int)_sourceModifiers.multishot;
+            var pierce = (int)_sourceModifiers.pierce;
+            var spread = _profile.Spread * _sourceModifiers.spreadMult / Mathf.Max(1, count - 1);
+            if (spread == 0f) spread = .15f;
             for (var i = 0; i < count; i++)
             {
-                var t = count == 1 ? 0f : (float)i / (count - 1) - 0.5f;
-                SpawnAuthoredMainProjectile(origin, Rotate(direction, t * spread * Mathf.Rad2Deg), damage,
-                    tint, 8f * _profile.ProjectileSpeedMultiplier, pierce, _levelStats.CritChanceBonus);
+                var angle = count == 1 ? 0f : (i - (count - 1) * .5f) * spread;
+                SpawnAuthoredMainProjectile(origin, Rotate(direction, -angle * Mathf.Rad2Deg), damage,
+                    tint, 350f * SpherePlacementRules.SourcePixelsToWorld * _profile.ProjectileSpeedMultiplier, pierce, _levelStats.CritChanceBonus);
             }
         }
 
         private void SpawnAuthoredMainProjectile(Vector2 origin, Vector2 direction, float damage,
             Color tint, float speed, int pierce, float critChanceBonus)
         {
+            var element = SphereElementalRules.ResolveElement(_runtime.GetSphereBranch(_type));
+            if (element == SphereElement.None) element = _sourceModifiers.fire > 0f ? SphereElement.Fire : _sourceModifiers.freeze > 0f ? SphereElement.Freeze : _sourceModifiers.poison > 0f ? SphereElement.Poison : SphereElement.None;
+            if (element != SphereElement.None) tint = ElementColor(element);
             var ricochets = _runtime.GetSphereProjectileRicochetCount(_type);
-            _runtime.SpawnProjectile(origin, direction, damage, tint, speed * _runtime.GetProjectileSpeedMultiplier(), pierce, critChanceBonus,
+            pierce = _runtime.GetSourceMainProjectilePierce(this, pierce);
+            _runtime.SpawnProjectile(origin, direction, damage * (_sourceLineBurstAttack ? 1.60f : 1f), tint, speed * _runtime.GetProjectileSpeedMultiplier(), pierce, critChanceBonus,
                 this, ricochets, 2.0f, true, true, true);
 
             var echoLevel = _runtime.GetSphereAuthoredModifierLevel(_type, SphereAuthoredModifier.Echo);
-            var echoChance = SphereAuthoredModifierRules.GetEchoChance(echoLevel);
+            var echoChance = _sourceModifiers.echoChance;
             if (echoChance <= 0f || !_runtime.RollCombatChance(echoChance)) return;
-            var echoAngle = (_runtime.NextRunRandom() - 0.5f) * 10.31324f;
+            var echoAngle = -(_runtime.NextRunRandom() - 0.5f) * 10.31324f;
             _runtime.SpawnProjectile(origin, Rotate(direction, echoAngle), damage * 0.28f, tint,
-                speed, 0, 0f, this, 0, 1.1f, false, false, false);
+                speed, 0, 0f, this, 0, 1.1f, false, false, false, 4f);
         }
 
         private void FireSpread(EnemyAgent2D target, Vector2 origin, float damage)
         {
             if (target == null) return;
             var direction = ((Vector2)target.transform.position - origin).normalized;
-            var targetDistance = Vector2.Distance(origin, target.transform.position);
-            var branch = _runtime.GetSphereBranch(_type);
-            var finalId = _runtime.GetSphereFinal(_type);
-            var count = Mathf.Max(1, _profile.Pellets + _levelStats.Pellets - 3);
-            if (branch == "shotgun_hail")
-                count += SphereEvolutionCombatRules.GetShotgunHailBonusPellets(finalId);
-            else if (branch == "shotgun_burst")
-                count += SphereEvolutionCombatRules.GetShotgunBurstExtraPellets(_progressionLevel, finalId, targetDistance);
-            count += _runtime.GetSphereAuthoredModifierLevel(_type, SphereAuthoredModifier.Multishot);
-            var pierce = branch == "shotgun_cataclysm"
-                ? SphereEvolutionCombatRules.GetShotgunCataclysmPierce(_levelStats.Pierce, finalId)
-                : _levelStats.Pierce;
-            pierce += _runtime.GetSphereProjectilePierceBonus(_type);
+            var count = Mathf.Max(1, _profile.Pellets + (int)_sourceModifiers.multishot);
+            var pierce = (int)_sourceModifiers.pierce;
             for (var i = 0; i < count; i++)
             {
                 var t = count == 1 ? 0f : (float)i / (count - 1) - 0.5f;
-                var angle = t * _profile.Spread * _levelStats.SpreadMultiplier * Mathf.Rad2Deg;
-                var shot = Rotate(direction, angle);
-                SpawnAuthoredMainProjectile(origin, shot, damage, ColorFor(_type), 8f, pierce, 0f);
+                var angle = t * _profile.Spread * _sourceModifiers.spreadMult * Mathf.Rad2Deg;
+                var shot = Rotate(direction, -angle);
+                SpawnAuthoredMainProjectile(origin, shot, damage, ColorFor(_type), 350f * SpherePlacementRules.SourcePixelsToWorld * _profile.ProjectileSpeedMultiplier, pierce, 0f);
             }
         }
 
         private void ChainTargets(Vector2 origin, float damage)
         {
-            var targets = _runtime.FindNearestEnemies(origin, AttackRange, _levelStats.ChainTargets);
+            var primary = _runtime.FindSourceSphereTarget(_type, origin, AttackRange);
+            if (primary == null) return;
+            var targets = new List<EnemyAgent2D> { primary };
+            var used = new HashSet<EnemyAgent2D> { primary };
+            var current = primary;
+            for (var jump = 0; jump < (int)_sourceModifiers.chainTargets; jump++)
+            {
+                EnemyAgent2D next = null;
+                foreach (var candidate in _runtime.FindNearestEnemies(current.transform.position, 150f * SpherePlacementRules.SourcePixelsToWorld, int.MaxValue))
+                    if (!used.Contains(candidate)) { next = candidate; break; }
+                if (next == null) break;
+                targets.Add(next); used.Add(next); current = next;
+            }
+            var branch = _runtime.GetSphereBranch(_type); var final = _runtime.GetSphereFinal(_type);
             for (var i = 0; i < targets.Count; i++)
             {
                 var target = targets[i];
-                _runtime.SpawnCombatArc(origin, target.transform.position, SphereId.Chain,
+                _runtime.SpawnCombatArc(i == 0 ? origin : (Vector2)primary.transform.position, target.transform.position, SphereId.Chain,
                     _runtime.GetSphereBranch(_type), _runtime.GetSphereFinal(_type), ColorFor(_type));
-                _runtime.RegisterCharacterSphereHit(_type, target);
-                var hitDamage = _runtime.ResolveProjectileDamage(damage * Mathf.Pow(0.72f, i), _levelStats.CritChanceBonus, out var wasCritical, target);
-                var direction = ((Vector2)target.transform.position - origin).normalized;
-                hitDamage = _runtime.ResolveAuthoredSphereHitDamage(_type, target, hitDamage);
-                hitDamage = OnProjectileHit(target, direction, hitDamage, wasCritical);
-                hitDamage = target.ReceiveSphereDamage(_type, hitDamage, true, true, this, true);
+                var multiplier = i == 0 ? 1f : .7f * (branch == "chain_storm" ? 1f + (i - 1) * .15f : 1f) * (final == branch + "_final_1" ? 1.15f : 1f);
+                var hitDamage = target.ReceiveSphereDamage(_type, damage * multiplier, false, true, this);
+                if (i > 0 && _runtime.HasSourceChainToxicNetwork()) { target.ExtendFireStatus(1.5f); target.ExtendPoisonStatus(1.5f); }
                 OnSphereHitApplied(target);
-                _runtime.RegisterSphereHit(this, target, hitDamage);
+
                 _runtime.SpawnImpact(target.transform.position, ColorFor(_type));
             }
         }
 
         // Source mapping: new-desing/src/engineSpheres.ts:updatePrismSphere.
         // Prism resolves each beam immediately; it is not a travelling projectile.
-        private float GetPrismSourceRangeWorld() =>
-            SphereEvolutionCombatRules.GetPrismRangeWorld(
-                _progressionLevel, _runtime.GetSphereBranch(SphereId.Prism),
-                _runtime.GetArtifactSphereRadiusMultiplier(SphereId.Prism));
+        private float GetPrismSourceRangeWorld() => AttackRange;
 
         private void FireAtMultiple(Vector2 origin, float damage)
         {
@@ -614,9 +634,7 @@ namespace EchoSphere.Runtime
             var candidates = _runtime.FindEnemiesInRadius(origin, beamRange);
             if (candidates.Count == 0) return;
 
-            var targetCount = SphereEvolutionCombatRules.GetPrismBeamCount(
-                _levelStats.PrismDirections, branch, finalId,
-                _runtime.GetSphereAuthoredModifierLevel(_type, SphereAuthoredModifier.Multishot));
+            var targetCount = Mathf.Max(1, 1 + (int)_sourceModifiers.multishot) + (branch == "prism_split" && finalId == "prism_split_final_3" ? 1 : 0);
             var hasActiveStatus = SphereElementalRules.ResolveElement(branch, finalId) != SphereElement.None;
             var sphereIndex = _runtime.GetSphereIndex(this);
             var formationMultiplier = SphereEvolutionCombatRules.GetPrismFormationDamageMultiplier(
@@ -670,12 +688,9 @@ namespace EchoSphere.Runtime
         private void DealPrismBeamHit(EnemyAgent2D target, float damage)
         {
             if (target == null || !target.IsAlive || _runtime == null) return;
-            _runtime.RegisterCharacterSphereHit(SphereId.Prism, target);
-            var resolvedDamage = _runtime.ResolveProjectileDamage(damage, _levelStats.CritChanceBonus, out _, target);
-            resolvedDamage = _runtime.ResolveAuthoredSphereHitDamage(SphereId.Prism, target, resolvedDamage);
-            var dealtDamage = target.ReceiveSphereDamage(SphereId.Prism, resolvedDamage, true, true, this, true);
+            var dealtDamage = target.ReceiveSphereDamage(SphereId.Prism, damage, false, true, this);
             OnSphereHitApplied(target);
-            _runtime.RegisterSphereHit(this, target, dealtDamage);
+
         }
 
         private void ResolvePrismNetworkRefraction(
@@ -757,293 +772,19 @@ namespace EchoSphere.Runtime
             var prismDamageFactor = _runtime.GetSphereAuthoredDamageMultiplier(SphereId.Prism);
             var relayDamageFactor = _runtime.GetSphereAuthoredDamageMultiplier(relay.Type);
             var damage = sourceDamage * prismDamageFactor / Mathf.Max(0.0001f, relayDamageFactor);
-            _runtime.RegisterCharacterSphereHit(relay.Type, target);
-            damage = _runtime.ResolveProjectileDamage(damage, relay._levelStats.CritChanceBonus, out _, target);
-            damage = _runtime.ResolveAuthoredSphereHitDamage(relay.Type, target, damage);
-            var dealtDamage = target.ReceiveSphereDamage(relay.Type, damage, true, false, relay, true);
+            var dealtDamage = target.ReceiveSphereDamage(relay.Type, damage, false, false, relay);
             OnSphereHitApplied(target, relay.Type);
-            _runtime.RegisterSphereHit(relay, target, dealtDamage);
+
             return dealtDamage;
-        }
-
-        private bool DamageArea(Vector2 origin, float radius, float damage, Color tint, bool pull)
-        {
-            radius *= _levelStats.AuraRadiusMultiplier;
-            var branch = _runtime.GetSphereBranch(_type);
-            var finalId = _runtime.GetSphereFinal(_type);
-            if (_type == SphereId.Pulse && branch == "pulse_wave")
-                radius *= SphereEvolutionCombatRules.GetPulseWaveRadiusMultiplier(_progressionLevel, finalId);
-            var targets = _runtime.FindEnemiesInRadius(origin, radius);
-            var auraDamage = damage;
-
-            if (_type == SphereId.Pulse && branch == "pulse_wave")
-            {
-                var knockback = SphereEvolutionCombatRules.GetPulseWaveKnockbackDistance(_progressionLevel, finalId);
-                for (var i = 0; i < targets.Count; i++)
-                {
-                    targets[i].KnockBackFrom(origin, knockback);
-                    if (finalId == "pulse_wave_final_2" || finalId == "pulse_wave_final_3")
-                        targets[i].ApplySlow(0.8f, finalId == "pulse_wave_final_2" ? 0.42f : 0.58f);
-                }
-            }
-            else if (_type == SphereId.Pulse && branch == "pulse_burst")
-            {
-                if (finalId == "pulse_burst_final_2" || finalId == "pulse_burst_final_3")
-                    for (var i = 0; i < targets.Count; i++) targets[i].KnockBackFrom(origin, 0.35f);
-                if (SphereEvolutionCombatRules.ShouldPulseBurstDoubleWave(_progressionLevel, finalId))
-                {
-                    var secondTargets = _runtime.FindEnemiesInRadius(origin, radius * 0.68f);
-                    var secondDamage = damage * SphereEvolutionCombatRules.GetPulseBurstSecondaryDamageMultiplier(_progressionLevel, finalId);
-                    for (var i = 0; i < secondTargets.Count; i++)
-                    {
-                        if (finalId == "pulse_burst_final_3") secondTargets[i].KnockBackFrom(origin, 0.30f);
-                        var secondDealt = secondTargets[i].ReceiveSphereDamage(this, secondDamage);
-                        OnSphereHitApplied(secondTargets[i]);
-                        _runtime.RegisterSphereHit(this, secondTargets[i], secondDealt);
-                    }
-                    if (secondTargets.Count > 0) _runtime.SpawnImpact(origin, new Color(1f, 0.72f, 0.34f, 0.85f));
-                }
-            }
-            else if (_type == SphereId.Pulse && branch == "pulse_resonator")
-            {
-                var index = _runtime.GetSphereIndex(this);
-                var formationBonus = Mathf.Max(_runtime.GetFormationBonus(SphereNetworkFormation.Triangle, index),
-                    Mathf.Max(_runtime.GetFormationBonus(SphereNetworkFormation.Lattice, index), _runtime.GetFormationBonus(SphereNetworkFormation.Ring, index)));
-                if (formationBonus > 0f) _runtime.ChargeResonanceFromSource(ResonanceRules.NetworkCharge * formationBonus, true);
-                _runtime.SpawnImpact(origin, new Color(1f, 0.88f, 0.38f, 0.9f));
-            }
-            if (_type == SphereId.Pulse && branch == "pulse_burst")
-            {
-                var index = _runtime.GetSphereIndex(this);
-                var network = _runtime.NetworkState;
-                var clusterCandidate = false;
-                if (network != null)
-                    for (var i = 0; i < network.FormationCandidates.Count; i++)
-                        if (network.FormationCandidates[i].Type == SphereNetworkFormation.Cluster &&
-                            network.FormationCandidates[i].Contains(index))
-                        {
-                            clusterCandidate = true;
-                            break;
-                        }
-                if (clusterCandidate)
-                    _runtime.ChargeResonanceFromSource(ResonanceRules.GeometryCharge, true);
-            }
-
-            var gravityIndex = _runtime.GetSphereIndex(this);
-            var clusterBonus = _runtime.GetFormationBonus(SphereNetworkFormation.Cluster, gravityIndex);
-            var clusterPullMultiplier = SphereEvolutionCombatRules.GetGravityClusterPullMultiplier(clusterBonus);
-            if (_type == SphereId.Gravity && branch == "gravity_well")
-            {
-                var control = SphereEvolutionCombatRules.GetGravityWellSlow(finalId);
-                _runtime.ApplyGravityWellControl(origin, SphereEvolutionCombatRules.GetGravityWellRadius(_progressionLevel, finalId), SphereEvolutionCombatRules.GetGravityWellPullDistance(_progressionLevel, finalId) * clusterPullMultiplier, control.duration, control.multiplier);
-            }
-            else if (_type == SphereId.Gravity && branch == "gravity_tide")
-            {
-                _gravityTideHits++;
-                var mode = finalId == "gravity_tide_final_1" ? -1 : finalId == "gravity_tide_final_2" ? 1 : finalId == "gravity_tide_final_3" ? (_gravityTideHits % 2 == 0 ? 1 : -1) : 1;
-                _runtime.ApplyGravityTidePulse(origin, SphereEvolutionCombatRules.GetGravityTideRadius(finalId), SphereEvolutionCombatRules.GetGravityTideDistance(_progressionLevel) * clusterPullMultiplier, mode);
-            }
-            else if (_type == SphereId.Gravity && branch == "gravity_collapse")
-            {
-                var grouped = targets.Count;
-                var multiplier = 1f;
-                if (grouped >= 4) multiplier *= finalId == "gravity_collapse_final_3" ? 1.25f : 1.20f;
-                for (var i = 0; i < targets.Count; i++)
-                    if (targets[i].HpFraction < 0.45f)
-                        multiplier = Mathf.Max(multiplier, finalId == "gravity_collapse_final_1" ? 1.30f : 1.12f);
-                if (finalId == "gravity_collapse_final_3" && grouped >= 4)
-                    _runtime.TriggerGravityCollapse(origin, damage * 0.30f, radius * 1.25f);
-                auraDamage *= multiplier;
-                _runtime.ApplyGravityWellControl(origin, radius, 0.32f * clusterPullMultiplier, 0f, 1f);
-            }
-            else if (_type == SphereId.Aura && branch == "aura_sanctum")
-            {
-                var slowDuration = SphereEvolutionCombatRules.GetAuraSanctumSlowDuration(finalId);
-                var slowMultiplier = SphereEvolutionCombatRules.GetAuraSanctumSlowMultiplier(finalId);
-                for (var i = 0; i < targets.Count; i++) targets[i].ApplySlow(slowDuration, slowMultiplier);
-                auraDamage *= finalId == "aura_sanctum_final_3" ? 1.12f : 1f;
-                _runtime.AccelerateNearbySpheres(this, 2.4f, 0.12f);
-            }
-            else if (_type == SphereId.Aura && branch == "aura_gravity")
-            {
-                _runtime.ApplyAuraGravityControl(origin,
-                    SphereEvolutionCombatRules.GetAuraGravityPullRadius(_progressionLevel, finalId),
-                    SphereEvolutionCombatRules.GetAuraGravityPullDistance(_progressionLevel, finalId),
-                    finalId == "aura_gravity_final_2");
-                if (finalId == "aura_gravity_final_3") auraDamage *= 1.18f;
-            }
-            else if (_type == SphereId.Aura && branch == "aura_overgrowth")
-            {
-                var boostRadius = SphereEvolutionCombatRules.GetAuraOvergrowthRadius(_progressionLevel, finalId);
-                var reduction = SphereEvolutionCombatRules.GetAuraOvergrowthAttackTimerReduction(_progressionLevel, finalId);
-                _runtime.AccelerateNearbySpheres(this, boostRadius, reduction);
-                if (finalId == "aura_overgrowth_final_3") auraDamage *= 1.12f;
-            }
-
-            for (var i = 0; i < targets.Count; i++)
-            {
-                if (pull && !(_type == SphereId.Gravity && !string.IsNullOrEmpty(branch))) targets[i].PullToward(origin, 1.8f * _levelStats.PullMultiplier);
-                var dealtDamage = targets[i].ReceiveSphereDamage(this, auraDamage);
-                OnSphereHitApplied(targets[i]);
-                _runtime.RegisterSphereHit(this, targets[i], dealtDamage);
-            }
-            if (targets.Count > 0) _runtime.SpawnImpact(origin, tint);
-            return targets.Count > 0;
         }
 
         private void FireVoid(Vector2 origin, float damage)
         {
-            var targets = _runtime.FindNearestEnemies(origin, AttackRange, 3);
-            if (targets.Count == 0) return;
-            targets.Sort((a, b) => a.HpFraction.CompareTo(b.HpFraction));
-            var target = targets[0];
-            var multiplier = target.HpFraction <= 0.25f ? 2.5f * _levelStats.WeakenedDamageMultiplier : 1f;
-            var direction = ((Vector2)target.transform.position - origin).normalized;
-            var voidPierce = SphereEvolutionCombatRules.GetVoidExecutionPierce(_levelStats.Pierce, _runtime.GetSphereFinal(_type));
-            SpawnAuthoredMainProjectile(origin, direction, damage * multiplier, ColorFor(_type),
-                8f * _profile.ProjectileSpeedMultiplier, voidPierce, 0f);
+            var target = _runtime.FindSourceSphereTarget(SphereId.Void, origin, AttackRange);
+            if (target == null) return;
+            FireAt(target, origin, damage, ColorFor(_type));
         }
 
-
-        public float OnProjectileHit(EnemyAgent2D target, Vector2 direction, float dealtDamage, bool wasCritical)
-        {
-            if (target == null || _runtime == null) return dealtDamage;
-            var branch = _runtime.GetSphereBranch(_type);
-            if (string.IsNullOrEmpty(branch)) return dealtDamage;
-            var finalId = _runtime.GetSphereFinal(_type);
-            _branchHitCount++;
-
-            if (_type == SphereId.Standard && branch == "standard_resonator")
-            {
-                if (SphereEvolutionCombatRules.ShouldTriggerStandardResonatorPulse(_branchHitCount))
-                {
-                    var pulseDamage = dealtDamage * SphereEvolutionCombatRules.GetStandardResonatorPulseDamageMultiplier(_progressionLevel, finalId);
-                    var radius = SphereEvolutionCombatRules.GetStandardResonatorPulseRadius(_progressionLevel, finalId);
-                    _runtime.TriggerStandardResonatorPulse(target.transform.position, pulseDamage, radius, finalId);
-                }
-                return dealtDamage;
-            }
-            if (_type == SphereId.Standard && branch == "standard_singularity")
-            {
-                var pull = SphereEvolutionCombatRules.GetStandardSingularityPullDistance(_progressionLevel);
-                var slow = SphereEvolutionCombatRules.GetStandardSingularitySlowDuration(_progressionLevel);
-                if (finalId == "standard_singularity_final_1" || finalId == "standard_singularity_final_3") pull *= 1.25f;
-                if (finalId == "standard_singularity_final_2") slow = Mathf.Max(slow, 1.8f);
-                var receivesCollapseBonus = finalId == "standard_singularity_final_3" && target.HpFraction <= 0.5f;
-                _runtime.TriggerStandardSingularity(target, pull, slow);
-                if (receivesCollapseBonus && target != null) target.ReceiveSphereDamage(_type, dealtDamage * 0.15f);
-                return dealtDamage;
-            }
-            if (_type == SphereId.Standard && branch == "standard_swarm")
-            {
-                var count = SphereEvolutionCombatRules.GetStandardSwarmShardCount(_progressionLevel, finalId);
-                _runtime.SpawnStandardSwarmShards(target, direction, count, dealtDamage * SphereEvolutionCombatRules.GetStandardSwarmShardDamageMultiplier(_progressionLevel));
-                return dealtDamage;
-            }
-            if (_type == SphereId.Void && branch == "void_hunger")
-            {
-                return dealtDamage * SphereEvolutionCombatRules.GetVoidHungerDamageMultiplier(_progressionLevel, finalId, target.HpFraction);
-            }
-            if (_type == SphereId.Void && branch == "void_reaper")
-            {
-                var multiplier = target.HpFraction <= 0.25f ? (finalId == "void_reaper_final_1" ? 1.25f : 1.12f) : 1f;
-                var expectedKill = dealtDamage * multiplier >= target.CurrentHp;
-                if (expectedKill)
-                {
-                    _runtime.HealPlayer(SphereEvolutionCombatRules.GetVoidReaperKillHeal(_progressionLevel, finalId));
-                    _runtime.SpawnVoidShards(target, Mathf.Max(4f, dealtDamage * SphereEvolutionCombatRules.GetVoidReaperShardDamageMultiplier(finalId)), SphereEvolutionCombatRules.GetVoidReaperShardCount(_progressionLevel, finalId));
-                }
-                return dealtDamage * multiplier;
-            }
-            if (_type == SphereId.Void && branch == "void_execution")
-            {
-                var threshold = SphereEvolutionCombatRules.GetVoidExecutionThreshold(_progressionLevel, finalId);
-                var chance = SphereEvolutionCombatRules.GetVoidExecutionChance(_progressionLevel, finalId);
-                if (target.HpFraction <= threshold && _runtime.RollCombatChance(chance))
-                    return Mathf.Max(dealtDamage, target.CurrentHp + 1f);
-                return dealtDamage;
-            }
-            if (_type == SphereId.Chain && branch == "chain_web")
-            {
-                var slowDuration = SphereEvolutionCombatRules.GetChainWebSlowDuration(_progressionLevel, finalId);
-                var slowMultiplier = SphereEvolutionCombatRules.GetChainWebSlowMultiplier(_progressionLevel, finalId);
-                target.ApplySlow(slowDuration, slowMultiplier);
-                var nearby = _runtime.FindEnemiesInRadius(target.transform.position, 1.8f);
-                for (var i = 0; i < nearby.Count; i++)
-                    if (nearby[i] != target) nearby[i].ApplySlow(slowDuration * 0.65f, slowMultiplier);
-                return dealtDamage * (finalId == "chain_web_final_3" ? 1.25f : 1f);
-            }
-            if (_type == SphereId.Chain && branch == "chain_storm")
-            {
-                _runtime.TriggerChainStorm(this, target, dealtDamage, _progressionLevel, finalId);
-                _chainStormCycle++;
-                if (finalId == "chain_storm_final_3" && _chainStormCycle % 3 == 0)
-                    _runtime.TriggerChainStormExtraStrike(target, dealtDamage * 0.38f);
-                return dealtDamage;
-            }
-            if (_type == SphereId.Chain && branch == "chain_leech")
-            {
-                var healRatio = SphereEvolutionCombatRules.GetChainLeechHealRatio(_progressionLevel, finalId);
-                _runtime.HealPlayer(dealtDamage * healRatio);
-                return dealtDamage * (finalId == "chain_leech_final_3" && target.HpFraction < 0.40f ? 1.20f : 1f);
-            }
-            if (_type == SphereId.Shotgun && branch == "shotgun_burst")
-            {
-                var targetDistance = Vector2.Distance(transform.position, target.transform.position);
-                if (SphereEvolutionCombatRules.ShouldShotgunBurstApplySlow(_progressionLevel, finalId, targetDistance))
-                    target.ApplySlow(0.8f, 0.62f);
-                return dealtDamage;
-            }
-            if (_type == SphereId.Shotgun && branch == "shotgun_cataclysm")
-            {
-                _runtime.TriggerShotgunCataclysm(target, dealtDamage, _progressionLevel, finalId);
-                return dealtDamage;
-            }
-            if (_type == SphereId.Shotgun && branch == "shotgun_hail")
-            {
-                var shardCount = SphereEvolutionCombatRules.GetShotgunHailShardCount(_progressionLevel, finalId);
-                var chance = SphereEvolutionCombatRules.GetShotgunHailChance(_progressionLevel, finalId);
-                if (_runtime.RollCombatChance(chance))
-                    _runtime.TriggerShotgunHail(target, direction, dealtDamage, _progressionLevel, finalId, shardCount);
-                return dealtDamage * (finalId == "shotgun_hail_final_3" ? 1.08f : 1f);
-            }
-            if (_type == SphereId.Sniper && branch == "sniper_oracle")
-            {
-                var alreadyMarked = target.IsMarked;
-                var multiplier = alreadyMarked && wasCritical ? SphereEvolutionCombatRules.GetSniperOracleCriticalMultiplier(finalId) : 1f;
-                if (finalId == "sniper_oracle_final_3" && target.HpFraction <= 0.30f) multiplier *= 1.22f;
-                target.ApplyMark(SphereEvolutionCombatRules.GetSniperOracleMarkDuration(finalId));
-                if (finalId == "sniper_oracle_final_3" && alreadyMarked && wasCritical)
-                    _runtime.TriggerSniperOracleSplash(target, dealtDamage * 0.22f, 1.15f);
-                return dealtDamage * multiplier;
-            }
-            if (_type == SphereId.Sniper && branch == "sniper_assassin")
-            {
-                var threshold = SphereEvolutionCombatRules.GetSniperAssassinThreshold(finalId, _progressionLevel);
-                var multiplier = SphereEvolutionCombatRules.GetSniperAssassinDamageMultiplier(_progressionLevel, finalId, target.HpFraction);
-                var expectedKill = dealtDamage * multiplier >= target.CurrentHp;
-                if (finalId == "sniper_assassin_final_1" && target.HpFraction <= threshold) target.ApplyMark(1.1f);
-                if (finalId == "sniper_assassin_final_3" && expectedKill && target.HpFraction <= threshold)
-                    _runtime.HealPlayer(SphereEvolutionCombatRules.GetSniperAssassinKillHeal(finalId));
-                return dealtDamage * multiplier;
-            }
-            if (_type == SphereId.Sniper && branch == "sniper_beacon")
-            {
-                var duration = SphereEvolutionCombatRules.GetSniperBeaconMarkDuration(_progressionLevel, finalId);
-                var radius = SphereEvolutionCombatRules.GetSniperBeaconRadius(_progressionLevel, finalId);
-                var slowMultiplier = SphereEvolutionCombatRules.GetSniperBeaconSlowMultiplier(finalId);
-                target.ApplyMark(duration);
-                var nearby = _runtime.FindEnemiesInRadius(target.transform.position, radius);
-                for (var i = 0; i < nearby.Count; i++)
-                {
-                    nearby[i].ApplyMark(duration);
-                    nearby[i].ApplySlow(duration, slowMultiplier);
-                }
-                _runtime.SpawnImpact(target.transform.position, new Color(0.55f, 0.78f, 1f, 0.85f));
-                return dealtDamage * (finalId == "sniper_beacon_final_2" ? 1.15f : 1f);
-            }
-            return dealtDamage;
-        }
 
         private static Vector2 Rotate(Vector2 direction, float degrees)
         {

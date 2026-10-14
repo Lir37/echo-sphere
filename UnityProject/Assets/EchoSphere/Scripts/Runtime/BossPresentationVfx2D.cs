@@ -57,7 +57,7 @@ namespace EchoSphere.Runtime
             var labelObject = new GameObject("Boss Nameplate");
             labelObject.transform.SetParent(_overlayRoot, false);
             _label = labelObject.AddComponent<TextMesh>();
-            _label.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            _label.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             _label.fontSize = 24;
             _label.characterSize = 0.0055f;
             _label.anchor = TextAnchor.MiddleCenter;

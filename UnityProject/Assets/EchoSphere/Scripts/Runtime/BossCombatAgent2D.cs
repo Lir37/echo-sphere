@@ -52,7 +52,7 @@ namespace EchoSphere.Runtime
             var toPlayer = playerPos - (Vector2)transform.position;
             var distance = toPlayer.magnitude;
             transform.position = Vector2.MoveTowards(transform.position, playerPos, _moveSpeed * _agent.MovementSlowMultiplier * dt);
-            var dashDamageApplied = false;
+            if (distance < _agent.SourceRadius * SpherePlacementRules.SourcePixelsToWorld + BossCombatRules.PlayerRadiusWorld) _runtime.TryDamagePlayer(_damage);
 
             if (_bossType == "charger")
             {
@@ -67,7 +67,6 @@ namespace EchoSphere.Runtime
                             _runtime.TryDamagePlayer(_damage * 1.5f);
                             _isCharging = false;
                             _chargeTimer = 4f;
-                            dashDamageApplied = true;
                         }
                     }
                     if (_isCharging && _chargeTimer <= 0f)
@@ -89,10 +88,7 @@ namespace EchoSphere.Runtime
             if (_bossType == "aura" && Vector2.Distance(transform.position, playerPos) < _auraRadius)
                 _runtime.TryDamagePlayerOverTime(_auraDps * dt);
 
-            if (!dashDamageApplied && Vector2.Distance(transform.position, playerPos) <
-                BossCombatRules.BossRadiusWorld + BossCombatRules.PlayerRadiusWorld)
-                _runtime.TryDamagePlayer(_damage);
-
+            _runtime.TickSourceEnemyProjectiles(_agent, dt);
             PushPresentationState();
         }
 
@@ -111,7 +107,7 @@ namespace EchoSphere.Runtime
                         for (var i = 0; i < 3; i++)
                         {
                             var a = _runtime.NextRunRandom() * Mathf.PI * 2f;
-                            var at = (Vector2)transform.position + new Vector2(Mathf.Cos(a), Mathf.Sin(a)) * BossCombatRules.ToWorldUnits(60f);
+                            var at = (Vector2)transform.position + new Vector2(Mathf.Cos(a), -Mathf.Sin(a)) * BossCombatRules.ToWorldUnits(60f);
                             _runtime.SpawnBossMinion(at, 20f + _wave * 4f, BossCombatRules.ToWorldUnits(100f), 2, "wisp", ParseColor("#8a5a8a"));
                         }
                     }
@@ -145,7 +141,7 @@ namespace EchoSphere.Runtime
                     {
                         _summonTimer = 7f;
                         var a = _runtime.NextRunRandom() * Mathf.PI * 2f;
-                        transform.position = playerPos + new Vector2(Mathf.Cos(a), Mathf.Sin(a)) * BossCombatRules.ToWorldUnits(360f);
+                        transform.position = playerPos + new Vector2(Mathf.Cos(a), -Mathf.Sin(a)) * BossCombatRules.ToWorldUnits(360f);
                         _runtime.DrainResonance(12f);
                         _runtime.ShowBossMessage("GEOMETRY SHIFT");
                     }
@@ -184,7 +180,7 @@ namespace EchoSphere.Runtime
                         for (var i = 0; i < 2; i++)
                         {
                             var a = _runtime.NextRunRandom() * Mathf.PI * 2f;
-                            var at = (Vector2)transform.position + new Vector2(Mathf.Cos(a), Mathf.Sin(a)) * BossCombatRules.ToWorldUnits(55f);
+                            var at = (Vector2)transform.position + new Vector2(Mathf.Cos(a), -Mathf.Sin(a)) * BossCombatRules.ToWorldUnits(55f);
                             _runtime.SpawnBossMinion(at, 18f + _wave * 3f, BossCombatRules.ToWorldUnits(85f), 3, "moth", ParseColor("#d4943d"));
                         }
                         _runtime.ShowBossMessage("STELLA GUARD");
@@ -209,8 +205,8 @@ namespace EchoSphere.Runtime
             for (var i = 0; i < count; i++)
             {
                 var offset = (i - (count - 1) * 0.5f) * step;
-                var dir = new Vector2(Mathf.Cos(angle + offset), Mathf.Sin(angle + offset));
-                _runtime.SpawnBossProjectile(transform.position, dir * BossCombatRules.ToWorldUnits(sourceSpeed), damage, sourceRadius, visualType, _color);
+                var dir = new Vector2(Mathf.Cos(angle - offset), Mathf.Sin(angle - offset));
+                _runtime.SpawnBossProjectile(transform.position, dir * BossCombatRules.ToWorldUnits(sourceSpeed), damage, sourceRadius, visualType, _color, _agent);
             }
         }
 
@@ -222,8 +218,8 @@ namespace EchoSphere.Runtime
             for (var i = 0; i < count; i++)
             {
                 var a = i * Mathf.PI * 2f / count + _rotation * phaseMultiplier;
-                var dir = new Vector2(Mathf.Cos(a), Mathf.Sin(a));
-                _runtime.SpawnBossProjectile(transform.position, dir * BossCombatRules.ToWorldUnits(sourceSpeed), damage, sourceRadius, "architect", _color);
+                var dir = new Vector2(Mathf.Cos(a), -Mathf.Sin(a));
+                _runtime.SpawnBossProjectile(transform.position, dir * BossCombatRules.ToWorldUnits(sourceSpeed), damage, sourceRadius, "architect", _color, _agent);
             }
         }
 

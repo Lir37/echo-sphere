@@ -1,11 +1,13 @@
 namespace EchoSphere.Core
 {
-    /// <summary>Deterministic port of the current TypeScript run RNG. Cosmetic VFX must not consume it.</summary>
+    /// <summary>Deterministic port of the TypeScript run RNG, including the source's particle draws. Unity-only presentation uses a separate RNG.</summary>
     public sealed class SeededRng
     {
         private uint _state;
         public uint State => _state;
         public SeededRng(uint seed) { _state = seed == 0u ? 1u : seed; }
+        public void Reset(uint seed) { _state = seed == 0u ? 1u : seed; }
+        public void RestoreState(uint state) { _state = state; }
         public float NextFloat()
         {
             unchecked
@@ -24,6 +26,6 @@ namespace EchoSphere.Core
             return _state / 4294967296f;
         }
 
-        public int NextInt(int maxExclusive) => maxExclusive <= 0 ? 0 : (int)(NextFloat() * maxExclusive);
+        public int NextInt(int maxExclusive) => maxExclusive <= 0 ? 0 : System.Math.Min(maxExclusive - 1, (int)(NextFloat() * maxExclusive));
     }
 }

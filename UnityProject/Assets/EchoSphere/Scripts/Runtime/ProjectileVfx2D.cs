@@ -25,6 +25,11 @@ namespace EchoSphere.Runtime
         private Color _color;
         private SphereId _type;
         private string _branch, _final;
+        public void SetSourceMotion(Vector2 direction, float speed)
+        {
+            _direction = direction; _speed = speed;
+            if (_visualRoot != null) _visualRoot.localRotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg);
+        }
 
         public void Initialize(EchoSphereRuntime runtime, Vector2 direction, float speed, Color color, SphereAttackAgent owner)
         {

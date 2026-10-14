@@ -2,34 +2,44 @@ using UnityEngine;
 
 namespace EchoSphere.Runtime
 {
-    public sealed class ExperienceOrbAgent : MonoBehaviour
+    public sealed class ExperienceOrbAgent : MonoBehaviour, ISourceSimulationAgent
     {
         private EchoSphereRuntime _runtime;
         private Transform _player;
         private int _amount = 1;
         private bool _collected;
-        public void Initialize(EchoSphereRuntime runtime, Transform player, int amount)
+        private Vector2 _velocity;
+        private float _rotation;
+        public void Initialize(EchoSphereRuntime runtime, Transform player, int amount, Vector2 sourceVelocity = default, float rotation = 0f)
         {
             _runtime = runtime;
+            _runtime.RegisterSimulationAgent(this);
             _player = player;
             _amount = Mathf.Max(1, amount);
+            _velocity = sourceVelocity * EchoSphere.Core.SpherePlacementRules.SourcePixelsToWorld;
+            _rotation = rotation;
         }
         public void CollectForRune()
         {
             if (_collected || _runtime == null) return;
             _collected = true;
-            SourceAudio2D.Play("pickup");
             _runtime.AddExperience(_amount);
             Destroy(gameObject);
         }
 
-        private void Update()
+        public void SimulationTick(float dt)
         {
             if (_runtime == null || _runtime.IsGameplayPaused || _player == null) return;
+            if (_collected) return;
+            _rotation += dt * 1.4f;
+            transform.rotation = Quaternion.Euler(0f, 0f, -_rotation * Mathf.Rad2Deg);
+            transform.position += (Vector3)(_velocity * dt);
+            _velocity *= 0.9f;
             var distance = Vector2.Distance(transform.position, _player.position);
-            if (distance < _runtime.GetExperienceMagnetRadiusWorld()) transform.position = Vector2.MoveTowards(transform.position, _player.position, 4.5f * Time.deltaTime);
-            if (distance < 0.32f)
+            if (distance < _runtime.GetExperienceMagnetRadiusWorld()) transform.position += (_player.position - transform.position) * Mathf.Min(1f, 20f * dt);
+            if (distance < EchoSphere.Core.PlayerLoopRules.OrbPickupRadiusPixels * EchoSphere.Core.SpherePlacementRules.SourcePixelsToWorld)
             {
+                _collected = true;
                 SourceAudio2D.Play("pickup");
                 _runtime.AddExperience(_amount);
                 Destroy(gameObject);

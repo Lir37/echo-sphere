@@ -36,6 +36,7 @@ namespace EchoSphere.Runtime
         private MeshRenderer _meshRenderer;
         private Painter _p;
         private string _variant = "wisp";
+        public string SourceVariant => _variant;
         private string _bossType = "";
         private Color _baseColor = new Color(0.29f, 0.478f, 0.541f, 1f);
         private Vector2 _facing = Vector2.right;

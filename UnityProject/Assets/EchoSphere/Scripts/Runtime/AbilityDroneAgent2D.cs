@@ -4,7 +4,7 @@ using EchoSphere.Core;
 namespace EchoSphere.Runtime
 {
     /// <summary>Temporary minion that follows the source anchor Sphere and uses its source attack profile.</summary>
-    public sealed class AbilityDroneAgent2D : MonoBehaviour
+    public sealed class AbilityDroneAgent2D : MonoBehaviour, ISourceSimulationAgent
     {
         private EchoSphereRuntime _runtime;
         private SphereId _anchorType;
@@ -23,6 +23,7 @@ namespace EchoSphere.Runtime
             float duration, string branch, string final, int ordinal)
         {
             _runtime = runtime;
+            _runtime.RegisterSimulationAgent(this);
             _anchorType = anchorType;
             _abilityLevel = Mathf.Max(0, abilityLevel);
             _remaining = Mathf.Max(0.1f, duration);
@@ -32,10 +33,9 @@ namespace EchoSphere.Runtime
             _rotation = 0f;
         }
 
-        private void Update()
+        public void SimulationTick(float dt)
         {
             if (_runtime == null || _runtime.IsGameplayPaused) return;
-            var dt = Time.deltaTime;
             _remaining -= dt;
             if (_remaining <= 0f) { Destroy(gameObject); return; }
 

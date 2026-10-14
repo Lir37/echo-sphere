@@ -4,7 +4,7 @@ using EchoSphere.Core;
 
 namespace EchoSphere.Runtime
 {
-    public sealed class ProjectileAgent : MonoBehaviour
+    public sealed class ProjectileAgent : MonoBehaviour, ISourceSimulationAgent
     {
         private EchoSphereRuntime _runtime;
         private Vector2 _direction;
@@ -20,13 +20,16 @@ namespace EchoSphere.Runtime
         private bool _allowAuthoredProcs = true;
         private bool _useEvolutionHitEffects = true;
         private bool _applyElementalStatus = true;
+        private float _sourceRadius = 5f;
+        private SphereElement _sourceElement;
 
         public void Initialize(EchoSphereRuntime runtime, Vector2 direction, float damage, Color color,
             float speed = 8f, int pierce = 0, float critChanceBonus = 0f, SphereAttackAgent evolutionOwner = null,
             int ricochets = 0, float lifetime = 2.5f, bool allowAuthoredProcs = true,
-            bool useEvolutionHitEffects = true, bool applyElementalStatus = true)
+            bool useEvolutionHitEffects = true, bool applyElementalStatus = true, float sourceRadius = 5f)
         {
             _runtime = runtime;
+            _runtime.RegisterSimulationAgent(this);
             _direction = direction.sqrMagnitude <= 0.0001f ? Vector2.right : direction.normalized;
             _damage = Mathf.Max(0f, damage);
             _speed = Mathf.Max(0f, speed);
@@ -36,15 +39,23 @@ namespace EchoSphere.Runtime
             _impactColor = color;
             _evolutionOwner = evolutionOwner;
             _life = Mathf.Max(0.01f, lifetime);
+            _sourceRadius = sourceRadius;
             _allowAuthoredProcs = allowAuthoredProcs;
             _useEvolutionHitEffects = useEvolutionHitEffects;
             _applyElementalStatus = applyElementalStatus;
+            if (applyElementalStatus && evolutionOwner != null)
+            {
+                _sourceElement = SphereElementalRules.ResolveElement(runtime.GetSphereBranch(evolutionOwner.Type), runtime.GetSphereFinal(evolutionOwner.Type));
+                var modifiers = runtime.GetSourceSphereModifiers(evolutionOwner.Type);
+                if (_sourceElement == SphereElement.None) _sourceElement = modifiers.fire > 0f ? SphereElement.Fire : modifiers.freeze > 0f ? SphereElement.Freeze : modifiers.poison > 0f ? SphereElement.Poison : SphereElement.None;
+            }
         }
 
         public void IgnoreEnemy(EnemyAgent2D enemy)
         {
             if (enemy != null) _hitEnemyIds.Add(enemy.GetInstanceID());
         }
+        public void ResetRestoredSourceReferences() { _evolutionOwner = null; _hitEnemyIds.Clear(); }
 
         public void CopyIgnoredEnemiesFrom(ProjectileAgent source)
         {
@@ -52,39 +63,26 @@ namespace EchoSphere.Runtime
             foreach (var id in source._hitEnemyIds) _hitEnemyIds.Add(id);
         }
 
-        private void Update()
+        public void SimulationTick(float dt)
         {
             if (_runtime == null || _runtime.IsGameplayPaused) return;
-            var deltaTime = Time.deltaTime;
+            var deltaTime = dt;
             transform.position += (Vector3)(_direction * (_speed * deltaTime));
             _life -= deltaTime;
-            var enemy = _runtime.TryHitEnemy(transform.position, 0.22f, _hitEnemyIds);
+            var enemy = _runtime.TryHitEnemy(transform.position, _sourceRadius * SpherePlacementRules.SourcePixelsToWorld, _hitEnemyIds);
             if (enemy != null)
             {
                 _hitEnemyIds.Add(enemy.GetInstanceID());
                 if (_evolutionOwner != null)
-                    _runtime.RegisterCharacterSphereHit(_evolutionOwner.Type, enemy);
-                var resolvedDamage = _runtime.ResolveProjectileDamage(_damage, _critChanceBonus, out var wasCritical, enemy);
-                if (_evolutionOwner != null)
-                {
-                    resolvedDamage = _runtime.ResolveAuthoredSphereHitDamage(_evolutionOwner.Type, enemy, resolvedDamage);
-                    if (_useEvolutionHitEffects)
-                        resolvedDamage = _evolutionOwner.OnProjectileHit(enemy, _direction, resolvedDamage, wasCritical);
-                    resolvedDamage = enemy.ReceiveSphereDamage(
-                        _evolutionOwner.Type, resolvedDamage, true, _allowAuthoredProcs, _evolutionOwner, true);
-                    if (_useEvolutionHitEffects && _applyElementalStatus)
-                        _evolutionOwner.OnSphereHitApplied(enemy);
-                    if (_allowAuthoredProcs && _useEvolutionHitEffects)
-                        _runtime.RegisterSphereHit(_evolutionOwner, enemy, resolvedDamage);
-                }
+                    enemy.ReceiveSphereDamage(_evolutionOwner.Type, _damage, false, _allowAuthoredProcs, _evolutionOwner);
                 else
-                {
-                    enemy.ReceiveDamage(resolvedDamage);
-                }
+                    enemy.ReceiveDamage(_damage);
 
+                _runtime.EmitSourceProjectileImpact(transform.position, _impactColor);
+                if (_evolutionOwner != null && _useEvolutionHitEffects && _applyElementalStatus)
+                    _evolutionOwner.OnSphereHitApplied(enemy, _evolutionOwner.Type, _sourceElement);
                 if (_allowAuthoredProcs)
                 {
-                    _runtime.AddResonanceCharge(1f);
                     TrySplitAfterHit();
                 }
                 _runtime.SpawnImpact(transform.position, _impactColor);
@@ -102,6 +100,7 @@ namespace EchoSphere.Runtime
                         _direction = ((Vector2)next.transform.position - (Vector2)transform.position).normalized;
                         if (_direction.sqrMagnitude <= 0.0001f) _direction = Vector2.right;
                         _speed = 350f * SpherePlacementRules.SourcePixelsToWorld;
+                        GetComponent<ProjectileVfx2D>()?.SetSourceMotion(_direction, _speed);
                     }
                     else
                     {
@@ -122,16 +121,16 @@ namespace EchoSphere.Runtime
         {
             if (_evolutionOwner == null) return;
             var level = _runtime.GetSphereAuthoredModifierLevel(_evolutionOwner.Type, SphereAuthoredModifier.Split);
-            var chance = SphereAuthoredModifierRules.GetSplitChance(level);
+            var chance = _runtime.GetSourceSphereModifiers(_evolutionOwner.Type).splitChance;
             if (chance <= 0f || !_runtime.RollCombatChance(chance)) return;
 
             var direction = _direction.sqrMagnitude <= 0.0001f ? Vector2.right : _direction.normalized;
             var damage = _damage * 0.30f;
             var speed = 290f * SpherePlacementRules.SourcePixelsToWorld;
-            var left = _runtime.SpawnProjectile(transform.position, Rotate(direction, -0.34f), damage, _impactColor,
-                speed, 0, 0f, _evolutionOwner, 0, 0.9f, false, false, false);
-            var right = _runtime.SpawnProjectile(transform.position, Rotate(direction, 0.34f), damage, _impactColor,
-                speed, 0, 0f, _evolutionOwner, 0, 0.9f, false, false, false);
+            var left = _runtime.SpawnProjectile(transform.position, Rotate(direction, 0.34f), damage, _impactColor,
+                speed, 0, 0f, _evolutionOwner, 0, 0.9f, false, false, false, 3.5f);
+            var right = _runtime.SpawnProjectile(transform.position, Rotate(direction, -0.34f), damage, _impactColor,
+                speed, 0, 0f, _evolutionOwner, 0, 0.9f, false, false, false, 3.5f);
             if (left != null) left.CopyIgnoredEnemiesFrom(this);
             if (right != null) right.CopyIgnoredEnemiesFrom(this);
         }

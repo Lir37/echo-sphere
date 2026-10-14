@@ -8,7 +8,7 @@ namespace EchoSphere.Runtime
     /// Source-mapped Stella world pickup: renderer.ts:drawStellaChest and
     /// engineLoop.ts chest proximity collection. Rendering is presentation-only.
     /// </summary>
-    public sealed class StellaChestAgent2D : MonoBehaviour
+    public sealed class StellaChestAgent2D : MonoBehaviour, ISourceSimulationAgent
     {
         private static Material _material;
         private readonly List<Vector3> _vertices = new List<Vector3>(360);
@@ -23,7 +23,8 @@ namespace EchoSphere.Runtime
 
         public void Initialize(EchoSphereRuntime runtime, Vector2 position)
         {
-            _runtime=runtime;
+            _runtime = runtime;
+            _runtime.RegisterSimulationAgent(this);
             transform.position=position;
             _mesh=new Mesh { name="ECHO SPHERE Stella Cache Mesh" };
             _mesh.MarkDynamic();
@@ -38,7 +39,7 @@ namespace EchoSphere.Runtime
             labelObject.transform.SetParent(transform,false);
             labelObject.transform.localPosition=new Vector3(0f,-0.49f,-0.01f);
             _label=labelObject.AddComponent<TextMesh>();
-            _label.font=Resources.GetBuiltinResource<Font>("Arial.ttf");
+            _label.font=Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             _label.fontSize=32;
             _label.characterSize=0.014f;
             _label.anchor=TextAnchor.MiddleCenter;
@@ -70,10 +71,10 @@ namespace EchoSphere.Runtime
             }
         }
 
-        private void Update()
+        public void SimulationTick(float dt)
         {
             if(_collected||_runtime==null||_runtime.IsGameplayPaused)return;
-            _time+=Time.deltaTime;
+            _time+=_runtime.SimulationDeltaTime;
             var pulse=1f+Mathf.Sin(_time*2.6f)*0.08f;
             transform.localScale=Vector3.one*pulse;
             Rebuild();

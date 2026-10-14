@@ -39,6 +39,24 @@ namespace EchoSphere.Runtime
             public LineRenderer Diamond;
             public TextMesh Label;
         }
+        [Serializable] public sealed class PoiState
+        { public int id; public string type; public Vector2 position; public float expiresAt; }
+        [Serializable] public sealed class PoiSnapshot
+        { public float nextPoiAt; public List<PoiState> pois = new List<PoiState>(); }
+        public PoiSnapshot CapturePoiState()
+        {
+            var save = new PoiSnapshot { nextPoiAt = _nextPoiAt };
+            foreach (var poi in _pois) save.pois.Add(new PoiState { id = poi.Id, type = poi.Type, position = poi.Position, expiresAt = poi.ExpiresAt });
+            return save;
+        }
+        public void RestorePoiState(PoiSnapshot save)
+        {
+            if (save == null) return;
+            _nextPoiAt = save.nextPoiAt;
+            foreach (var poi in new List<PoiVisual>(_pois)) RemovePoi(poi);
+            _pois.Clear();
+            foreach (var poi in save.pois) CreatePoi(poi.id, poi.type, poi.position, poi.expiresAt);
+        }
 
         private readonly List<PocketVisual> _pockets = new List<PocketVisual>();
         private readonly List<PoiVisual> _pois = new List<PoiVisual>();
@@ -78,6 +96,9 @@ namespace EchoSphere.Runtime
                 _radarPixel.SetPixel(0, 0, Color.white);
                 _radarPixel.Apply();
                 _initialized = true;
+                var sourceLayer = new GameObject("Source Region Layer");
+                sourceLayer.transform.SetParent(transform, false);
+                sourceLayer.AddComponent<SourceRegionVisual2D>().Initialize(runtime);
             }
             SetRegion(regionId);
         }
@@ -119,12 +140,13 @@ namespace EchoSphere.Runtime
         private void AddPocket(string id, float sourceX, float sourceY, float sourceRadius, string htmlColor, bool active)
         {
             if (!ColorUtility.TryParseHtmlString(htmlColor, out var accent)) return;
-            var center = new Vector2(sourceX * SourcePixelsToWorld, sourceY * SourcePixelsToWorld);
+            var center = new Vector2(sourceX * SourcePixelsToWorld, -sourceY * SourcePixelsToWorld);
             var radius = sourceRadius * SourcePixelsToWorld;
             var pocket = new PocketVisual { Center = center, Radius = radius, Accent = accent, Active = active };
 
             var ring = CreateLine(id + " / Boundary", WithAlpha(accent, active ? 0.13f : 0.035f),
                 active ? 0.0315f : 0.0175f, -18, true);
+            ring.gameObject.SetActive(false);
             ring.positionCount = CircleSegments;
             for (var i = 0; i < CircleSegments; i++)
             {
@@ -148,6 +170,8 @@ namespace EchoSphere.Runtime
                 pocket.Markers.Add(sprite);
             }
 
+            foreach (var seam in pocket.Seams) seam.gameObject.SetActive(false);
+            foreach (var marker in pocket.Markers) marker.gameObject.SetActive(false);
             _pockets.Add(pocket);
         }
 
@@ -171,43 +195,7 @@ namespace EchoSphere.Runtime
             return line;
         }
 
-        private void Update()
-        {
-            if (!_initialized || _runtime == null || _runtime.IsPresentationPaused) return;
-            _seamTime += Time.deltaTime * 0.65f;
-
-            foreach (var pocket in _pockets)
-            {
-                for (var i = 0; i < pocket.Seams.Count; i++)
-                {
-                    var angle = i * Mathf.PI / 3f
-                        + _seamTime * (i % 2 == 0 ? 0.08f : -0.06f)
-                        + pocket.Center.x * 0.0001f;
-                    var span = 0.10f + (pocket.Active ? 0.045f : 0.02f);
-                    var seamRadius = pocket.Radius - 4f * SourcePixelsToWorld + (i % 2) * 2f * SourcePixelsToWorld;
-                    var line = pocket.Seams[i];
-                    line.positionCount = SeamSegments;
-                    for (var j = 0; j < SeamSegments; j++)
-                    {
-                        var a = angle + span * j / (SeamSegments - 1f);
-                        line.SetPosition(j, pocket.Center + new Vector2(Mathf.Cos(a), Mathf.Sin(a)) * seamRadius);
-                    }
-                }
-
-                for (var i = 0; i < pocket.Markers.Count; i++)
-                {
-                    var angle = i * Mathf.PI / 4f + _seamTime * 0.08f;
-                    var position = pocket.Center + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * pocket.Radius;
-                    var marker = pocket.Markers[i].transform;
-                    marker.position = position;
-                    marker.rotation = Quaternion.Euler(0f, 0f, angle * Mathf.Rad2Deg - 90f);
-                }
-            }
-
-            UpdateRegionPois();
-        }
-
-        private void UpdateRegionPois()
+        public void TickSourceRegionState()
         {
             var time = _runtime.CurrentRunTime;
             if (!_runtime.RegionStabilized && time >= _nextPoiAt)
@@ -216,18 +204,19 @@ namespace EchoSphere.Runtime
                 _nextPoiAt += 38f;
             }
 
-            for (var i = _pois.Count - 1; i >= 0; i--)
+            for (var i = _pois.Count - 1; i >= 0; i--) if (time >= _pois[i].ExpiresAt) { RemovePoi(_pois[i]); _pois.RemoveAt(i); }
+        }
+        public void TickGameplayPois()
+        {
+            var time = _runtime.CurrentRunTime;
+            var collected = false;
+            for (var i = 0; i < _pois.Count; i++)
             {
                 var poi = _pois[i];
-                if (time >= poi.ExpiresAt ||
-                    Vector2.Distance(_runtime.PlayerPosition, poi.Position) <= 42f * SourcePixelsToWorld)
+                if (!collected && Vector2.Distance(_runtime.PlayerPosition, poi.Position) <= 42f * SourcePixelsToWorld)
                 {
-                    if (time < poi.ExpiresAt &&
-                        Vector2.Distance(_runtime.PlayerPosition, poi.Position) <= 42f * SourcePixelsToWorld)
-                        _runtime.RegisterRegionPoiCollected(poi.Type);
-                    RemovePoi(poi);
-                    _pois.RemoveAt(i);
-                    continue;
+                    _runtime.RegisterRegionPoiCollected(poi.Type);
+                    RemovePoi(poi); _pois.RemoveAt(i--); collected = true; continue;
                 }
 
                 var color = GetPoiColor(poi.Type);
@@ -267,7 +256,12 @@ namespace EchoSphere.Runtime
                 "elite_nest", "rupture", "boss_trace"
             };
             var type = types[(id - 1) % types.Length];
-            var position = pocket.Center + directions[id % directions.Length] * pocket.Radius * 0.62f;
+            var sourceDirection = directions[id % directions.Length];
+            var position = pocket.Center + new Vector2(sourceDirection.x, -sourceDirection.y) * pocket.Radius * 0.62f;
+            CreatePoi(id, type, position, time + (type == "boss_trace" ? 45f : 70f));
+        }
+        private void CreatePoi(int id, string type, Vector2 position, float expiresAt)
+        {
             var color = GetPoiColor(type);
 
             var root = new GameObject("Region POI / " + type);
@@ -292,18 +286,19 @@ namespace EchoSphere.Runtime
             label.text = GetPoiLabel(type);
             label.anchor = TextAnchor.MiddleCenter;
             label.alignment = TextAlignment.Center;
-            label.fontSize = 100;
-            label.characterSize = 0.12f;
+            label.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            label.fontSize = 32;
+            label.characterSize = 10f * SourcePixelsToWorld / 32f;
             label.color = WithAlpha(color, 0.86f);
             var labelRenderer = label.GetComponent<MeshRenderer>();
-            if (labelRenderer != null) labelRenderer.sortingOrder = 6;
+            if (labelRenderer != null) { labelRenderer.sharedMaterial = label.font.material; labelRenderer.sortingOrder = 6; }
 
             _pois.Add(new PoiVisual
             {
                 Id = id,
                 Type = type,
                 Position = position,
-                ExpiresAt = time + (type == "boss_trace" ? 45f : 70f),
+                ExpiresAt = expiresAt,
                 Root = root,
                 Glow = glow,
                 Diamond = diamond,
@@ -378,35 +373,34 @@ namespace EchoSphere.Runtime
             return texture;
         }
 
-        private void OnGUI()
+        public void DrawSourceRadar(Rect radar)
         {
-            if (!_initialized || _runtime == null || _radarTexture == null || _radarPixel == null ||
-                _runtime.IsPresentationPaused) return;
+            if (!_initialized || _runtime == null || _radarTexture == null || _radarPixel == null) return;
+            var previousMatrix = GUI.matrix; var previousColor = GUI.color;
+            GUI.matrix = previousMatrix * Matrix4x4.TRS(new Vector3(radar.x, radar.y, 0f), Quaternion.identity, new Vector3(radar.width / 100f, radar.height / 100f, 1f));
+            radar = new Rect(0f, 0f, 100f, 100f);
 
-            var scale = Mathf.Clamp(Screen.height / 720f, 1f, 1.5f);
-            var width = Screen.width / scale;
-            const float size = 100f;
-            var radar = new Rect(width - 118f, 310f, size, size);
-            var previousMatrix = GUI.matrix;
-            var previousColor = GUI.color;
-            GUI.matrix = previousMatrix * Matrix4x4.Scale(new Vector3(scale, scale, 1f));
-
-            GUI.color = new Color(0.015f, 0.035f, 0.075f, 0.78f);
-            GUI.DrawTexture(new Rect(radar.x - 5f, radar.y - 17f, radar.width + 10f, radar.height + 22f), _radarPixel);
-            GUI.color = new Color(0.55f, 0.82f, 0.93f, 0.72f);
-            GUI.Label(new Rect(radar.x, radar.y - 17f, radar.width, 15f), "REGION SIGNALS");
             GUI.color = Color.white;
             GUI.DrawTexture(radar, _radarTexture);
 
             var player = _runtime.PlayerPosition;
             const float sourceRadius = 900f * SourcePixelsToWorld;
-            for (var i = 0; i < _pois.Count; i++)
+            var visibleEnemies = 0;
+            foreach (var enemy in _runtime.SourceRadarEnemies)
+            {
+                if (enemy == null || !enemy.IsAlive) continue; if (visibleEnemies++ >= 40) break;
+                var delta = (Vector2)enemy.transform.position - player; var angle = Mathf.Atan2(-delta.y, delta.x);
+                var radius = Mathf.Min(1f, delta.magnitude / sourceRadius) * 25f;
+                var point = new Vector2(50f + Mathf.Cos(angle) * radius, 50f + Mathf.Sin(angle) * radius);
+                _runtime.DrawSourceRadarDot(point, enemy.IsBoss ? 2.5f : enemy.IsElite ? 1.5f : 1f, enemy.IsBoss ? new Color32(255, 106, 95, 255) : enemy.IsElite ? new Color32(230, 108, 255, 255) : new Color32(107, 233, 255, 255));
+            }
+            for (var i = 0; i < Mathf.Min(12, _pois.Count); i++)
             {
                 var poi = _pois[i];
                 if (poi.Root == null || _runtime.CurrentRunTime >= poi.ExpiresAt) continue;
                 var delta = poi.Position - player;
                 var distance = delta.magnitude;
-                var angle = Mathf.Atan2(delta.y, delta.x);
+                var angle = Mathf.Atan2(-delta.y, delta.x);
                 var outside = distance > sourceRadius;
                 var radius = outside ? 42f : Mathf.Min(25f, distance / sourceRadius * 25f);
                 var point = new Vector2(radar.x + 50f + Mathf.Cos(angle) * radius,

@@ -131,13 +131,13 @@ namespace EchoSphere.Core
         public static float GetFieldCooldown(string masteryId) => masteryId == "field_frequency" ? 1.25f : 1.8f;
 
         public static SphereElementalStatus CreateStatus(SphereElement element, string masteryId,
-            SphereElementalMode mode, float characterDurationMultiplier = 1f, float characterDamageMultiplier = 1f)
+            SphereElementalMode mode, float characterDurationMultiplier = 1f, float characterDamageMultiplier = 1f, int sourceModifierLevel = 1)
         {
             if (element == SphereElement.None)
                 return new SphereElementalStatus(SphereElement.None, 0f, 0f, 0f, false, 0f, 1f);
 
-            var duration = element == SphereElement.Fire ? 3f : element == SphereElement.Freeze ? 0.8f : 4f;
-            var damagePerSecond = element == SphereElement.Fire ? 8f : element == SphereElement.Poison ? 5f : 0f;
+            var duration = element == SphereElement.Fire ? 3f : element == SphereElement.Freeze ? 0.5f + 0.3f * sourceModifierLevel : 4f;
+            var damagePerSecond = element == SphereElement.Fire ? 5f + 3f * sourceModifierLevel : element == SphereElement.Poison ? 3f + 2f * sourceModifierLevel : 0f;
             var tickInterval = 0f;
             var vulnerability = false;
             var slowDuration = 0f;

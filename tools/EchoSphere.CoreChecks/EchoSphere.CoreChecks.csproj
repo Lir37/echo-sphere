@@ -7,6 +7,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="source-parity-fixtures.json" CopyToOutputDirectory="PreserveNewest" />
     <Compile Include="../../UnityProject/Assets/EchoSphere/Scripts/Core/*.cs" Link="Core/%(Filename)%(Extension)" />
   </ItemGroup>
 </Project>

@@ -1,0 +1,6 @@
+<linker>
+  <assembly fullname="Assembly-CSharp">
+    <type fullname="EchoSphere.Core.*" preserve="all" />
+    <type fullname="EchoSphere.Runtime.*" preserve="all" />
+  </assembly>
+</linker>

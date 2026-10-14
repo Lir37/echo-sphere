@@ -78,7 +78,7 @@ test('Elemental orbit matches the flattened Sphere orbit grammar and counters it
 test('Projectile effect follows selected branch element', () => {
   assert.match(engineSpheres, /const branchElement = getSphereElementForBranch/);
   assert.match(engineSpheres, /let effect: 'none' | 'fire' | 'freeze' | 'poison' = branchElement ?? 'none'/);
-  assert.ok(engineSpheres.includes('effect,\n              ricochet:'));
+  assert.match(engineSpheres, /effect,\r?\n              ricochet:/);
 });
 
 
