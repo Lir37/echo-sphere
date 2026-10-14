@@ -32,8 +32,15 @@ namespace EchoSphere.Runtime
             SourceUiLabel(new Rect(15f, 37f, _uiWidth - 30f, 13f), IsRussianUi ? "СИСТЕМА ВЫЖИВАНИЯ РЕЗОНАНСА" : "RESONANCE SURVIVAL SYSTEM", 7, "#5d8da8");
             SourceUiRect(new Rect(0f, 57f, _uiWidth, 1f), new Color(.33f, .72f, .91f, .10f));
             var compact = _uiHeight < 700f;
-            var artSize = compact ? Mathf.Min(155f, _uiHeight * .35f) : Mathf.Min(270f, _uiWidth * .48f);
             var save = LoadRunSnapshot();
+            // Keep the central core and its menu controls inside the usable viewport on
+            // short phones. The previous width-only cap could push the loadout behind the
+            // fixed bottom navigation on narrow/short aspect ratios.
+            var reservedHeight = 58f + 58f + (compact ? 166f : 209f) + (save != null ? 50f : 0f) + 100f;
+            var availableArtHeight = Mathf.Max(96f, _uiHeight - reservedHeight);
+            var artSize = compact
+                ? Mathf.Min(155f, _uiHeight * .35f, availableArtHeight)
+                : Mathf.Min(270f, _uiWidth * .48f, availableArtHeight);
             var totalHeight = artSize + (compact ? 166f : 209f) + (save != null ? 50f : 0f);
             var top = 58f + Mathf.Max(8f, (_uiHeight - 118f - totalHeight) * .5f);
             var center = _uiWidth * .5f;
