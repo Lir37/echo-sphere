@@ -1798,8 +1798,20 @@ namespace EchoSphere.Runtime
                 if (interval > _fractureIntervalIndex)
                 {
                     _fractureIntervalIndex = interval;
-                    if (_spheres.Count > 0)
-                        DisableNearestNetworkSpheres(_player != null ? (Vector2)_player.position : Vector2.zero, 1, 2.2f, false);
+                    var eligibleSpheres = new List<SphereAttackAgent>();
+                    for (var sphereIndex = 0; sphereIndex < _spheres.Count; sphereIndex++)
+                    {
+                        var sphere = _spheres[sphereIndex];
+                        if (sphere != null && sphere.gameObject.activeInHierarchy && !sphere.NetworkDisabled)
+                            eligibleSpheres.Add(sphere);
+                    }
+                    if (eligibleSpheres.Count > 0)
+                    {
+                        var randomIndex = Mathf.Min(eligibleSpheres.Count - 1,
+                            Mathf.FloorToInt(_rng.NextFloat() * eligibleSpheres.Count));
+                        eligibleSpheres[randomIndex].ApplyNetworkDisable(2.2f);
+                        RefreshNetworkState();
+                    }
                 }
             }
             if (_regionEndlessMode)
