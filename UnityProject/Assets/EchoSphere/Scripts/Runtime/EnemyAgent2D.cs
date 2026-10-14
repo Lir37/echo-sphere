@@ -15,6 +15,10 @@ namespace EchoSphere.Runtime
         private bool _dead;
         private bool _isElite;
         private bool _isPhaseRole;
+        private string _role = "grunt";
+        private float _roleDamageMultiplier = 1f;
+        private float _roleRadiusMultiplier = 1f;
+        private float _roleActionTimer;
         private EnemyArchetype _archetype = EnemyArchetype.Normal;
         private float _slowTimer;
         private float _slowMultiplier = 1f;
@@ -61,6 +65,7 @@ namespace EchoSphere.Runtime
         public float CurrentHp => Mathf.Max(0f, _hp);
         public bool IsAlive => !_dead && _hp > 0f;
         public float HpFraction => _maxHp <= 0f ? 0f : Mathf.Clamp01(_hp / _maxHp);
+        public void HealByFraction(float fraction) { if (!_dead) _hp = Mathf.Min(_maxHp, _hp + _maxHp * Mathf.Max(0f, fraction)); }
         public bool IsFrozen => _freezeTimer > 0f;
         public bool HasFireStatus => _fireTimer > 0f;
         public bool HasFreezeStatus => _freezeTimer > 0f;
@@ -295,7 +300,8 @@ namespace EchoSphere.Runtime
         }
 
         public void Initialize(EchoSphereRuntime runtime, Transform player, float hp, float moveSpeed, int xpReward = 1,
-            string visualVariant = "wisp", string bossType = "", bool isElite = false, EnemyArchetype archetype = EnemyArchetype.Normal, bool isPhaseRole = false)
+            string visualVariant = "wisp", string bossType = "", bool isElite = false, EnemyArchetype archetype = EnemyArchetype.Normal,
+            bool isPhaseRole = false, string role = "grunt", float roleDamageMultiplier = 1f, float roleRadiusMultiplier = 1f)
         {
             _runtime = runtime;
             _player = player;
@@ -304,6 +310,10 @@ namespace EchoSphere.Runtime
             _linkBreakerCooldownTimer = isElite ? 5f : 0f;
             _archetype = archetype;
             _isPhaseRole = isPhaseRole;
+            _role = role ?? "grunt";
+            _roleDamageMultiplier = Mathf.Max(0f, roleDamageMultiplier);
+            _roleRadiusMultiplier = Mathf.Max(0.01f, roleRadiusMultiplier);
+            _roleActionTimer = 0f;
             _hp = hp;
             _maxHp = Mathf.Max(1f, hp);
             _moveSpeed = Mathf.Max(0f, moveSpeed);
@@ -411,10 +421,57 @@ namespace EchoSphere.Runtime
                 if (_creatureVisual != null) _creatureVisual.SetFacing(target - (Vector2)transform.position);
                 return;
             }
-            transform.position = Vector2.MoveTowards(transform.position, target, _moveSpeed * _slowMultiplier * _runtime.GetEnemyAbilitySpeedMultiplier() * (_isPhaseRole ? 1.12f : 1f) * Time.deltaTime);
+            var speedMultiplier = _slowMultiplier * _runtime.GetEnemyAbilitySpeedMultiplier() * (_isPhaseRole ? 1.12f : 1f);
+            if (_role == "scavenger" && _hp / Mathf.Max(1f, _maxHp) < 0.5f) speedMultiplier *= 1.30f;
+            transform.position = Vector2.MoveTowards(transform.position, target, _moveSpeed * speedMultiplier * Time.deltaTime);
             if (_creatureVisual != null) _creatureVisual.SetFacing(target - (Vector2)transform.position);
-            if (Vector2.Distance(transform.position, target) < 0.54f * (_isPhaseRole ? 0.90f : 1f))
-                _runtime.TryDamagePlayer(9f * _runtime.GetRegionEnemyDamageMultiplier());
+
+            var distanceToPlayer = Vector2.Distance(transform.position, target);
+            if (_role == "leech" && distanceToPlayer < 160f * SpherePlacementRules.SourcePixelsToWorld)
+                _hp = Mathf.Min(_maxHp, _hp + 3f * dt);
+
+            if (_role == "ranged" || _role == "sniper")
+            {
+                _roleActionTimer -= dt;
+                if (_roleActionTimer <= 0f && distanceToPlayer > 240f * SpherePlacementRules.SourcePixelsToWorld &&
+                    distanceToPlayer < 620f * SpherePlacementRules.SourcePixelsToWorld)
+                {
+                    var sniper = _role == "sniper";
+                    _roleActionTimer = sniper ? 2.2f : 3.2f;
+                    var direction = (target - (Vector2)transform.position).normalized;
+                    var projectileSpeed = BossCombatRules.ToWorldUnits(sniper ? 320f : 245f);
+                    var projectileDamage = (sniper ? 10f : 6f) * _roleDamageMultiplier;
+                    _runtime.SpawnBossProjectile(transform.position, direction * projectileSpeed, projectileDamage,
+                        sniper ? 5f : 6f, sniper ? "enemy_sniper" : "enemy_ranged",
+                        sniper ? new Color(1f, 0.55f, 0.30f) : new Color(0.35f, 0.85f, 1f));
+                }
+            }
+            else if (_role == "healer")
+            {
+                _roleActionTimer -= dt;
+                if (_roleActionTimer <= 0f)
+                {
+                    _roleActionTimer = 4.5f;
+                    _runtime.HealNearbyEnemies(this, 120f, 0.08f, 3);
+                }
+            }
+            else if (_role == "disruptor")
+            {
+                _roleActionTimer -= dt;
+                if (_roleActionTimer <= 0f)
+                {
+                    _roleActionTimer = 6f;
+                    _runtime.TryDisruptNearestSphere(transform.position, 280f);
+                }
+            }
+
+            if (distanceToPlayer < 0.54f * _roleRadiusMultiplier)
+            {
+                var contactDamage = 9f * _runtime.GetRegionEnemyDamageMultiplier() * _roleDamageMultiplier;
+                if (_role == "charger") contactDamage *= 1.20f;
+                _runtime.TryDamagePlayer(contactDamage);
+                if (_role == "corruptor") _runtime.DrainResonance(4f);
+            }
         }
 
         private void ApplyStatusDamage(float damage)
