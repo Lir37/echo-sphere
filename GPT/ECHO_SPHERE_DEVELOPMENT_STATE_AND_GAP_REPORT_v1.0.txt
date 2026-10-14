@@ -2793,3 +2793,29 @@ Next: continue auditing Orbital sweep/contact timing and then the remaining Sphe
 ======================================================================
 END UNITY ORBITAL RESONANCE SOURCE-PARITY CORRECTION
 ======================================================================
+
+======================================================================
+[2026-10-14] UNITY ORBITAL SOURCE-PARITY FOLLOW-UP
+======================================================================
+
+Code HEAD: f13467ca058b2fd496e83ce403ceeebfca24dc00
+Source baseline: new-desing 737ef2af4a877e0995db5f92331d536d2f29a934
+
+Additional source-confirmed corrections:
+- Orbital no longer gains an unconditional +1 Resonance charge per contact;
+  the source grants charge only through authored resonance effects/modifiers.
+- Owning the source artifact orbital_crown now adds one Orbital combat element.
+  Its assignment balances the inner/outer counter-rotating rings in the same
+  way as source getOrbitalRingCounts() extra-element distribution.
+
+CI status query: 0 reported commit status checks. No Unity Editor compile, APK build or device parity is claimed from an empty status list.
+
+Still open from this audit:
+- Orbital swept-contact/timing and network-dependent orbit geometry need a
+  full source comparison; do not mark Orbital parity complete.
+- Continue source-confirmed Sphere/evolution and Artifact/Protocol gaps.
+- new-desing remains unchanged.
+
+======================================================================
+END UNITY ORBITAL SOURCE-PARITY FOLLOW-UP
+======================================================================
