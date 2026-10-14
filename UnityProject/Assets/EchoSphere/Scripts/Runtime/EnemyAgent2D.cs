@@ -51,6 +51,8 @@ namespace EchoSphere.Runtime
         public bool IsElite => _isElite;
         public bool IsPhaseRole => _isPhaseRole;
         public bool IsTank => _archetype == EnemyArchetype.Tank;
+        public float SourceRadius => (_archetype == EnemyArchetype.Fast ? 15f
+            : _archetype == EnemyArchetype.Tank ? 26f : 19f) * _roleRadiusMultiplier + (_isElite ? 4f : 0f);
         public EnemyArchetype Archetype => _archetype;
         public string BossType => _bossType;
         public float MaxHp => _maxHp;
