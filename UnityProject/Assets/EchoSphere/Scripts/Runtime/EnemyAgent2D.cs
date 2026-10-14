@@ -14,6 +14,7 @@ namespace EchoSphere.Runtime
         private float _moveSpeed;
         private bool _dead;
         private bool _isElite;
+        private bool _isPhaseRole;
         private EnemyArchetype _archetype = EnemyArchetype.Normal;
         private float _slowTimer;
         private float _slowMultiplier = 1f;
@@ -41,6 +42,7 @@ namespace EchoSphere.Runtime
         public void ApplyRuneMark(float duration) => _markTimer = Mathf.Max(_markTimer, Mathf.Max(0f, duration));
         public bool IsBoss => !string.IsNullOrEmpty(_bossType);
         public bool IsElite => _isElite;
+        public bool IsPhaseRole => _isPhaseRole;
         public bool IsTank => _archetype == EnemyArchetype.Tank;
         public EnemyArchetype Archetype => _archetype;
         public string BossType => _bossType;
@@ -293,7 +295,7 @@ namespace EchoSphere.Runtime
         }
 
         public void Initialize(EchoSphereRuntime runtime, Transform player, float hp, float moveSpeed, int xpReward = 1,
-            string visualVariant = "wisp", string bossType = "", bool isElite = false, EnemyArchetype archetype = EnemyArchetype.Normal)
+            string visualVariant = "wisp", string bossType = "", bool isElite = false, EnemyArchetype archetype = EnemyArchetype.Normal, bool isPhaseRole = false)
         {
             _runtime = runtime;
             _player = player;
@@ -301,6 +303,7 @@ namespace EchoSphere.Runtime
             _isElite = isElite;
             _linkBreakerCooldownTimer = isElite ? 5f : 0f;
             _archetype = archetype;
+            _isPhaseRole = isPhaseRole;
             _hp = hp;
             _maxHp = Mathf.Max(1f, hp);
             _moveSpeed = Mathf.Max(0f, moveSpeed);
@@ -408,7 +411,7 @@ namespace EchoSphere.Runtime
                 if (_creatureVisual != null) _creatureVisual.SetFacing(target - (Vector2)transform.position);
                 return;
             }
-            transform.position = Vector2.MoveTowards(transform.position, target, _moveSpeed * _slowMultiplier * _runtime.GetEnemyAbilitySpeedMultiplier() * Time.deltaTime);
+            transform.position = Vector2.MoveTowards(transform.position, target, _moveSpeed * _slowMultiplier * _runtime.GetEnemyAbilitySpeedMultiplier() * (_isPhaseRole ? 1.12f : 1f) * Time.deltaTime);
             if (_creatureVisual != null) _creatureVisual.SetFacing(target - (Vector2)transform.position);
             if (Vector2.Distance(transform.position, target) < 0.54f)
                 _runtime.TryDamagePlayer(9f * _runtime.GetRegionEnemyDamageMultiplier());
