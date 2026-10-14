@@ -27,7 +27,6 @@ namespace EchoSphere.Runtime
         private int _chainStormCycle;
         private int _gravityTideHits;
         private readonly List<Transform> _orbitalElements = new List<Transform>();
-        private readonly List<float> _orbitalContactTimers = new List<float>();
         private int _orbitalHitCount;
         private float _orbitalNetworkArcTimer;
         private float _networkDisabledTimer;
@@ -319,13 +318,18 @@ namespace EchoSphere.Runtime
                 glowRenderer.color = new Color(0.35f, 0.82f, 1f, 0.30f);
                 glowRenderer.sortingOrder = 12;
                 _orbitalElements.Add(go.transform);
-                _orbitalContactTimers.Add(0f);
             }
         }
 
         private void UpdateOrbitalContacts(float dt)
         {
             var hitSomething = false;
+            var staleLatchEnemies = new List<EnemyAgent2D>();
+            foreach (var entry in _orbitalContactLatch)
+                if (entry.Key == null || !entry.Key.IsAlive) staleLatchEnemies.Add(entry.Key);
+            for (var i = 0; i < staleLatchEnemies.Count; i++)
+                _orbitalContactLatch.Remove(staleLatchEnemies[i]);
+
             var branch = _runtime.GetSphereBranch(SphereId.Orbital);
             var finalId = _runtime.GetSphereFinal(SphereId.Orbital);
             GetOrbitalElementCounts(out var innerCount, out var outerCount);
