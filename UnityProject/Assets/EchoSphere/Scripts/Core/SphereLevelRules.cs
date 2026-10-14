@@ -9,16 +9,16 @@ namespace EchoSphere.Core
     public readonly struct SphereLevelStats
     {
         public readonly float DamageMultiplier, RangeMultiplier, DelayMultiplier, SpreadMultiplier;
-        public readonly float AuraRadiusMultiplier, OrbitRadiusMultiplier, OrbitSpeedMultiplier, PullMultiplier;
+        public readonly float AuraRadiusMultiplier, AuraPulseMultiplier, OrbitRadiusMultiplier, OrbitSpeedMultiplier, PullMultiplier;
         public readonly float CloseRangeDamageMultiplier, WeakenedDamageMultiplier, CritChanceBonus;
         public readonly int Pierce, Pellets, ChainTargets, PrismDirections;
 
         public SphereLevelStats(float damage, float range, float delay, float spread, float auraRadius,
-            float orbitRadius, float orbitSpeed, float pull, float closeDamage, float weakenedDamage,
+            float auraPulse, float orbitRadius, float orbitSpeed, float pull, float closeDamage, float weakenedDamage,
             float critChanceBonus, int pierce, int pellets, int chainTargets, int prismDirections)
         {
             DamageMultiplier = damage; RangeMultiplier = range; DelayMultiplier = delay;
-            SpreadMultiplier = spread; AuraRadiusMultiplier = auraRadius; OrbitRadiusMultiplier = orbitRadius;
+            SpreadMultiplier = spread; AuraRadiusMultiplier = auraRadius; AuraPulseMultiplier = auraPulse; OrbitRadiusMultiplier = orbitRadius;
             OrbitSpeedMultiplier = orbitSpeed; PullMultiplier = pull; CloseRangeDamageMultiplier = closeDamage;
             WeakenedDamageMultiplier = weakenedDamage; CritChanceBonus = critChanceBonus;
             Pierce = pierce; Pellets = pellets; ChainTargets = chainTargets; PrismDirections = prismDirections;
@@ -28,13 +28,13 @@ namespace EchoSphere.Core
     public static class SphereLevelRules
     {
         public static SphereLevelStats GetUnlevelledStats() =>
-            new SphereLevelStats(1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 0f, 0, 3, 3, 1);
+            new SphereLevelStats(1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 0f, 0, 3, 3, 1);
 
         public static SphereLevelStats GetStats(SphereId id, int level)
         {
             var l = Math.Max(1, Math.Min(7, level));
             var damage = 1f; var range = 1f; var delay = 1f; var spread = 1f;
-            var aura = 1f; var orbitRadius = 1f; var orbitSpeed = 1f; var pull = 1f;
+            var aura = 1f; var auraPulse = 1f; var orbitRadius = 1f; var orbitSpeed = 1f; var pull = 1f;
             var closeDamage = 1f; var weakenedDamage = 1f; var crit = 0f;
             var pierce = 0; var pellets = 3; var chainTargets = 3; var prismDirections = 1;
 
@@ -62,7 +62,7 @@ namespace EchoSphere.Core
                     break;
                 case SphereId.Aura:
                     if (l >= 1) aura *= 1.20f;
-                    if (l >= 2) delay *= 0.90f;
+                    if (l >= 2) auraPulse *= 0.90f;
                     if (l >= 3) damage *= 1.10f;
                     break;
                 case SphereId.Orbital:
@@ -77,13 +77,13 @@ namespace EchoSphere.Core
                     break;
                 case SphereId.Gravity:
                     if (l >= 1) pull *= 1.20f;
-                    if (l >= 2) aura *= 1.15f;
-                    if (l >= 3) delay *= 0.85f;
+                    if (l >= 2) range *= 1.15f;
+                    if (l >= 3) auraPulse *= 0.85f;
                     break;
                 case SphereId.Pulse:
                     if (l >= 1) damage *= 1.20f;
-                    if (l >= 2) aura *= 1.15f;
-                    if (l >= 3) delay *= 0.88f;
+                    if (l >= 2) range *= 1.15f;
+                    if (l >= 3) auraPulse *= 0.88f;
                     break;
                 case SphereId.Void:
                     if (l >= 1) weakenedDamage *= 1.20f;
@@ -96,10 +96,10 @@ namespace EchoSphere.Core
             // damage multipliers to every Sphere, independently of its type-specific
             // level I-III effect and branch/final combat rules.
             if (l >= 4) damage *= 1.12f;
-            if (l >= 5) damage *= 1.06f;
-            if (l >= 7) damage *= 1.18f;
+            if (l >= 5) { damage *= 1.06f; range *= 1.06f; }
+            if (l >= 7) { damage *= 1.18f; range *= 1.08f; }
 
-            return new SphereLevelStats(damage, range, delay, spread, aura, orbitRadius, orbitSpeed, pull,
+            return new SphereLevelStats(damage, range, delay, spread, aura, auraPulse, orbitRadius, orbitSpeed, pull,
                 closeDamage, weakenedDamage, crit, pierce, pellets, chainTargets, prismDirections);
         }
     }
