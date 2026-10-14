@@ -215,6 +215,7 @@ namespace EchoSphere.Runtime
         };
 
         private readonly List<EnemyAgent2D> _enemies = new List<EnemyAgent2D>();
+        private readonly HashSet<string> _regionLoreDiscovered = new HashSet<string>();
         private readonly List<SphereAttackAgent> _spheres = new List<SphereAttackAgent>();
         private readonly List<AbilityDroneAgent2D> _abilityDrones = new List<AbilityDroneAgent2D>();
         private readonly List<string> _ownedArtifacts = new List<string>();
@@ -360,6 +361,10 @@ namespace EchoSphere.Runtime
         public float GetExperienceMagnetRadiusWorld() => LevelUpAbilityRules.GetMagnetRadiusWorld(GetAbilityLevel(RunUpgradeKind.Magnet));
         public bool RegionStabilized => _regionStabilized;
         public EchoRegionId SelectedRegion => _selectedRegion;
+        public void RegisterRegionPoiCollected(string poiType)
+        {
+            if (!string.IsNullOrEmpty(poiType)) _regionLoreDiscovered.Add(poiType);
+        }
         public bool IsRegionAvailable(EchoRegionId region) =>
             RegionUnlockRules.IsAvailable(region, PlayerPrefs.GetInt(BasinStabilizedPreferenceKey, 0) == 1);
         public float GetRegionRepulsionMultiplier()
@@ -7594,6 +7599,7 @@ namespace EchoSphere.Runtime
             _userPaused = false;
             _messageTimer = 0f;
             _runTime = 0f;
+            _regionLoreDiscovered.Clear();
             _combo = 0;
             _comboTimer = 0f;
             _comboMultiplier = 1f;
