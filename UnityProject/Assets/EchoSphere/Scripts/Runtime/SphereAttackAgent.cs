@@ -268,15 +268,19 @@ namespace EchoSphere.Runtime
         private void GetOrbitalElementCounts(out int innerCount, out int outerCount)
         {
             var finalId = _runtime.GetSphereFinal(SphereId.Orbital);
+            var branch = _runtime.GetSphereBranch(SphereId.Orbital);
             innerCount = SphereEvolutionCombatRules.GetOrbitalInnerCount(_progressionLevel, finalId);
             outerCount = SphereEvolutionCombatRules.GetOrbitalOuterCount(_progressionLevel, finalId);
-            // Source engineSpheres.ts adds one combat element for orbital_crown
-            // and distributes extra elements between the two counter-rotating rings.
-            if (_runtime.HasArtifact("orbital_crown"))
+            // Source engineSpheres.ts adds extras in authored order: orbital_crown,
+            // then Orbital Dance final III. Balance each extra across both rings.
+            var extraElements = (_runtime.HasArtifact("orbital_crown") ? 1 : 0)
+                + (branch == "orbital_dance" && finalId == "orbital_dance_final_3" ? 1 : 0);
+            for (var extra = 0; extra < extraElements; extra++)
             {
                 if (outerCount < innerCount) outerCount++;
                 else if (innerCount < outerCount) innerCount++;
-                else outerCount++;
+                else if (extra % 2 == 0) outerCount++;
+                else innerCount++;
             }
         }
 
