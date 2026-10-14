@@ -131,4 +131,86 @@ namespace EchoSphere.Core
 
         private static bool IsFinite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
     }
+
+    /// <summary>
+    /// Exact regional ecology multipliers and nearest-pocket selection from
+    /// src/region.ts. Source coordinates use the same 720px-to-world conversion
+    /// as RegionFieldVisuals; pocket selection is by nearest center, not radius.
+    /// </summary>
+    public readonly struct RegionPocketMultipliers
+    {
+        public readonly float Hp;
+        public readonly float Speed;
+        public readonly float Damage;
+        public readonly float Xp;
+
+        public RegionPocketMultipliers(float hp, float speed, float damage, float xp)
+        {
+            Hp = hp;
+            Speed = speed;
+            Damage = damage;
+            Xp = xp;
+        }
+    }
+
+    public static class RegionPocketRules
+    {
+        private const float SourcePixelsToWorld = 12.6f / 720f;
+
+        private readonly struct Pocket
+        {
+            public readonly float X;
+            public readonly float Y;
+            public readonly int Ecology;
+
+            public Pocket(float x, float y, int ecology)
+            {
+                X = x * SourcePixelsToWorld;
+                Y = y * SourcePixelsToWorld;
+                Ecology = ecology;
+            }
+        }
+
+        // Ecology IDs: 0 flow, 1 swarm, 2 pressure, 3 fracture, 4 hollow.
+        private static readonly Pocket[] Basin =
+        {
+            new Pocket(0f, 0f, 0), new Pocket(520f, -260f, 1),
+            new Pocket(500f, 430f, 3), new Pocket(-480f, 430f, 4),
+            new Pocket(-520f, -300f, 2)
+        };
+
+        private static readonly Pocket[] Rift =
+        {
+            new Pocket(0f, 0f, 0), new Pocket(520f, -270f, 1),
+            new Pocket(470f, 450f, 2), new Pocket(-500f, 430f, 3),
+            new Pocket(-520f, -290f, 4)
+        };
+
+        public static RegionPocketMultipliers GetAt(EchoRegionId region, Vector2 worldPosition)
+        {
+            var pockets = region == EchoRegionId.SpectralRift ? Rift : Basin;
+            var nearest = pockets[0];
+            var nearestDistance = float.PositiveInfinity;
+            for (var i = 0; i < pockets.Length; i++)
+            {
+                var dx = pockets[i].X - worldPosition.x;
+                var dy = pockets[i].Y - worldPosition.y;
+                var distance = dx * dx + dy * dy;
+                if (distance < nearestDistance)
+                {
+                    nearestDistance = distance;
+                    nearest = pockets[i];
+                }
+            }
+
+            switch (nearest.Ecology)
+            {
+                case 1: return new RegionPocketMultipliers(0.82f, 1.22f, 0.88f, 1.05f);
+                case 2: return new RegionPocketMultipliers(1.28f, 0.86f, 1.18f, 1.22f);
+                case 3: return new RegionPocketMultipliers(0.94f, 1.10f, 1.08f, 1.15f);
+                case 4: return new RegionPocketMultipliers(1.08f, 0.96f, 1.12f, 1.18f);
+                default: return new RegionPocketMultipliers(1f, 1f, 1f, 1f);
+            }
+        }
+    }
 }
