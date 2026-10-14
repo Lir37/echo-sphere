@@ -242,3 +242,11 @@ Implementation base: `eada83f5e92f452d19961835f4ef6df894199a26`.
 - Added a structural regression assertion for the radius formula and Orbital-specific core pulse selection.
 
 Unity Editor/APK/device rendering remains unverified; structural CI is not proof of full visual parity. `new-desing` was not modified.
+
+## Standard Sphere attack VFX compile fix — 2026-10-14
+
+- Fixed the missing `EchoSphere.Core` namespace import in `StandardSphereAttackVfx2D.cs`. The class uses `SpherePlacementRules.SourcePixelsToWorld`, whose declaration is in the `EchoSphere.Core` namespace; without the import, C# reports CS0103 for the unresolved identifier.
+- Added a structural regression guard for the namespace import and source-pixel calibration reference.
+- This is a compile-scope correction only. Charge timing, muzzle geometry, rotation, colors, attack logic and damage are unchanged.
+
+Unity Editor compilation and APK/device validation still require their own verification. Structural CI does not prove Unity compilation. `new-desing` remains unchanged.
