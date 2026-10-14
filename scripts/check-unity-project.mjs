@@ -767,8 +767,9 @@ assert.ok(hunterEnemyRuntime.includes('RegisterCharacterSphereHit(source, this)'
   menuRuntime.includes('GetHunterCriticalChanceBonus(target)'),
   'Hunter Mark and damage/critical multipliers must run through live enemy damage');
 assert.ok(hunterEnemyRuntime.includes('_archetype = archetype') && hunterEnemyRuntime.includes('public bool IsTank => _archetype == EnemyArchetype.Tank') &&
-  menuRuntime.includes('GetEnemyVisualVariant(archetype), "", archetype == EnemyArchetype.Elite, archetype'),
-  'Hunter target eligibility must use the actual selected enemy archetype');
+  menuRuntime.includes('visualVariant, "", archetype == EnemyArchetype.Elite, archetype') &&
+  menuRuntime.includes('SelectEliteVariant(out eliteVariant)'),
+  'Hunter target eligibility must use the actual selected enemy archetype and elite variant visuals');
 assert.ok(hunterProjectileRuntime.includes('RegisterCharacterSphereHit(_evolutionOwner.Type, enemy)') &&
   hunterProjectileRuntime.includes('out var wasCritical, enemy'),
   'projectile Hunter marks are applied before resolving a marked-target critical roll');
