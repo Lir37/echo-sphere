@@ -174,6 +174,14 @@ namespace EchoSphere.Runtime
             var facing = _agent.VisualRotation;
             switch (_type)
             {
+                case SphereId.Standard:
+                    // The source Standard Sphere is assembled from a core, stabilisation ring,
+                    // and separate upper/lower crystals. The source crystal PNG is unreadable
+                    // in this migration, so preserve its two-part silhouette with the same
+                    // faceted terminal geometry already used by the authored Orbital family.
+                    DrawTerminal(_detail, new Vector2(0f, -R * 0.66f), R * 0.92f, color, disabled ? .14f : .92f, _time);
+                    DrawTerminal(_detail, new Vector2(0f, R * 0.66f), R * 0.92f, color, disabled ? .12f : .78f, -_time);
+                    break;
                 case SphereId.Sniper:
                     DrawEmitter(_detail, R, color, facing, 0, 0f, disabled, _time);
                     var scan = _time * .46f + _phase;
