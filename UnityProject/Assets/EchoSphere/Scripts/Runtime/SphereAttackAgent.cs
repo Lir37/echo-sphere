@@ -223,10 +223,14 @@ namespace EchoSphere.Runtime
                     var gravityInterval = 0.80f * _levelStats.AuraPulseMultiplier;
                     if (_runtime.HasArtifact("gravity_hook")) gravityInterval *= 0.92f;
                     if (branch == "gravity_tide") gravityInterval *= 0.90f;
+                    gravityInterval *= 1f - 0.10f * _runtime.GetFormationBonus(
+                        SphereNetworkFormation.Cluster, _runtime.GetSphereIndex(this));
                     return Mathf.Max(0.08f, gravityInterval);
                 case SphereId.Pulse:
                     var pulseInterval = 1.15f * _levelStats.AuraPulseMultiplier;
                     if (_runtime.HasArtifact("pulse_driver")) pulseInterval *= 0.90f;
+                    pulseInterval *= 1f - 0.10f * _runtime.GetFormationBonus(
+                        SphereNetworkFormation.Cluster, _runtime.GetSphereIndex(this));
                     return Mathf.Max(0.08f, pulseInterval);
                 default:
                     return Mathf.Max(0.05f, AttackDelay);
