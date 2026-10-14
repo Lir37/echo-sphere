@@ -18,6 +18,7 @@ namespace EchoSphere.Runtime
         {
             if (_collected || _runtime == null) return;
             _collected = true;
+            SourceAudio2D.Play("pickup");
             _runtime.AddExperience(_amount);
             Destroy(gameObject);
         }
@@ -29,6 +30,7 @@ namespace EchoSphere.Runtime
             if (distance < _runtime.GetExperienceMagnetRadiusWorld()) transform.position = Vector2.MoveTowards(transform.position, _player.position, 4.5f * Time.deltaTime);
             if (distance < 0.32f)
             {
+                SourceAudio2D.Play("pickup");
                 _runtime.AddExperience(_amount);
                 Destroy(gameObject);
             }

@@ -20,7 +20,10 @@ namespace EchoSphere.Runtime
             transform.position = _origin + Vector3.up * (Mathf.Sin(Time.time * 2f) * 0.02f);
             transform.localScale = Vector3.one * (0.28f * pulse);
             if (Vector2.Distance(transform.position, _runtime.PlayerPosition) <= 0.36f)
+            {
+                SourceAudio2D.Play("chest");
                 _runtime.CollectArtifactChest(this);
+            }
         }
     }
 }

@@ -21,6 +21,7 @@ namespace EchoSphere.Runtime
             transform.localScale = Vector3.one * (0.22f * pulse);
             if (Vector2.Distance(transform.position, _runtime.PlayerPosition) <= 0.34f)
             {
+                SourceAudio2D.Play("health");
                 _runtime.CollectHealthPack();
                 Destroy(gameObject);
             }

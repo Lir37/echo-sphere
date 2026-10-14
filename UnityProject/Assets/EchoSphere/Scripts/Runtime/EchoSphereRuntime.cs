@@ -712,6 +712,7 @@ namespace EchoSphere.Runtime
         private void FinalizeRunResult()
         {
             if (_runResultSaved) return;
+            SourceAudio2D.Play("gameover");
             _runResultSaved = true;
 
             var characterProfile = GetCharacterProfile(_sphereCharacterId);
@@ -1713,6 +1714,7 @@ namespace EchoSphere.Runtime
         /// </summary>
         public EnemyAgent2D SpawnBossForRegionEvent(string forcedBossType, int wave)
         {
+            SourceAudio2D.Play("boss");
             if (_player == null || _mainMenu || _gameOver) return null;
             var type = string.IsNullOrEmpty(forcedBossType)
                 ? BossCombatRules.GetTypeForDefeatedCount(_bossesDefeated)
@@ -2931,7 +2933,8 @@ namespace EchoSphere.Runtime
                 SpawnStellaChest(position);
                 ShowMessage("BOSS DEFEATED!");
             }
-            if (enemy != null && enemy.IsElite) _runEliteKills++;
+            if (enemy != null && enemy.IsElite) { _runEliteKills++; SourceAudio2D.Play("elite"); }
+            SourceAudio2D.Play("kill");
             _kills++;
             var go = new GameObject("Echo Shard");
             go.transform.position = position;
@@ -2998,6 +3001,7 @@ namespace EchoSphere.Runtime
         private void OpenLevelUpIfReady()
         {
             if (_gameOver || _levelUp || _xp < _xpRequired) return;
+            SourceAudio2D.Play("levelup");
             _xp -= _xpRequired;
             _level++;
             _activeAbilitySlots = _level >= 20 ? 3 : _level >= 12 ? 2 : _level >= 5 ? 1 : 0;
