@@ -3123,3 +3123,49 @@ validation remain open.
 ======================================================================
 END ORBITAL SOURCE PARITY + SHARED SPHERE SCALING
 ======================================================================
+
+======================================================================
+[2026-10-14] SOURCE-ALIGNED SPECIAL SPHERE CADENCE + RANGE
+======================================================================
+
+Code HEAD: d172a104e6e9f7874ad3ad931600e95aee947b2e
+Source baseline: new-desing 737ef2af4a877e0995db5f92331d536d2f29a934
+
+Additional source-confirmed parity corrections:
+- Orbital Dance/Halo angular-speed modifiers and Orbital Blade source branch
+  damage are now separate from the source's contact damage factor.
+- Shared Sphere damage scaling at levels IV/V/VII is applied to every Sphere.
+- Sphere range now includes both the Radius and Range run-upgrade multipliers.
+- Added an explicit AuraPulseMultiplier to SphereLevelStats:
+  Aura II now changes pulse cadence rather than generic attack delay;
+  Gravity II and Pulse II change source radius/range rather than field radius;
+  Gravity III and Pulse III modify their special cadence rather than generic
+  attack delay.
+- Aura now follows source's 0.5-second authored cadence (including Aura Sanctum
+  final I's 0.8 factor) without applying global attack speed to that timer.
+- Gravity and Pulse use their source special intervals, including Gravity Hook,
+  Gravity Tide, Pulse Driver and Cluster cadence factors, plus the global
+  attack-speed path. These spheres begin with their source's immediate first
+  pulse instead of an invented startup wait.
+- Existing source-level Sniper III crit and Shotgun II close-range effects were
+  retained after checking engineCombat.ts; they are not treated as inventions.
+
+Chaos Orb radius (+20% while its radius buff timer is active) and Mutation
+Stage II radius (+15%) are present in source engineSpheres.ts. The inspected
+Unity runtime, RunUpgradeKind/SphereProgressionRules and artifact/ability
+state contain no matching Chaos Orb buff state/timer or global Mutation-stage
+state. No placeholder mechanics were added; port those actual systems before
+wiring the two modifiers.
+
+Validation for code HEAD:
+- Combined status checks: 0.
+- PR-triggered workflow runs returned: 0.
+- No CI outcome is exposed by these responses. Unity Editor compile, APK build
+  and device parity remain unverified. new-desing remains unchanged.
+
+Continue auditing remaining Sphere families from source. Do not mark migration
+complete or source-identical until the actual build/device gates are verified.
+
+======================================================================
+END SOURCE-ALIGNED SPECIAL SPHERE CADENCE + RANGE
+======================================================================
