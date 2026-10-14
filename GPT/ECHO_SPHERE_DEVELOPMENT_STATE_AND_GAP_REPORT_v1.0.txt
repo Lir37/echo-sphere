@@ -2883,3 +2883,39 @@ geometry, followed by remaining Sphere/evolution and Artifact/Protocol gaps.
 ======================================================================
 END ORBITAL HALO FINAL SHIELD-CADENCE CORRECTION
 ======================================================================
+
+======================================================================
+[2026-10-14] ORBITAL SWEPT-CONTACT PARITY PASS
+======================================================================
+
+Code HEAD: 875ab2481901afdd2998134b40ab99b8a0c41559
+Source baseline: new-desing 737ef2af4a877e0995db5f92331d536d2f29a934
+
+Ported the source Orbital swept-contact model into Unity:
+- Exposed source enemy collision radius from the existing base archetype,
+  regional-role radius multiplier and elite radius adjustment.
+- Orbital contacts now test the angular sweep between successive orbit angles
+  and the enemy's radial distance from the visible orbit, rather than sampling
+  only each satellite's current position.
+- Added per-enemy/per-element contact latches so each element damages once per
+  continuous contact episode and rearms after leaving the sweep interval.
+- Removed the obsolete per-element fixed contact cooldown and prune latches for
+  dead/removed enemies.
+- Retained source-gated Orbital Crown extra element, Halo final shield/Resonance
+  effects, and Orbital Blade + Prism Filter Ring relay visual.
+
+Still open:
+- Compare the exact source cadence and network-dependent orbit-radius formula;
+  Unity Editor/device behavior remains unverified.
+- Continue remaining Sphere/evolution and Artifact/Protocol gaps.
+- new-desing remains unchanged.
+
+Validation:
+- Combined commit status checks: 0.
+- PR-triggered workflow runs returned: 0.
+- No CI success can be claimed from these empty responses. This cycle still
+  needs a real CI result and Unity compilation/APK/device verification.
+
+======================================================================
+END ORBITAL SWEPT-CONTACT PARITY PASS
+======================================================================
