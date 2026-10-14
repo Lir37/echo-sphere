@@ -3082,3 +3082,44 @@ then auditing other Sphere families against their current implementations.
 ======================================================================
 END ORBITAL LIVE RADIUS + FINAL ELEMENT PARITY
 ======================================================================
+
+======================================================================
+[2026-10-14] ORBITAL SOURCE PARITY + SHARED SPHERE SCALING
+======================================================================
+
+Code HEAD: fe282f9eb468af5a2b3b5be9300dd5372652f896
+Source baseline: new-desing 737ef2af4a877e0995db5f92331d536d2f29a934
+
+Confirmed source-to-Unity corrections:
+- Orbital angular speed now applies source Orbital Dance branch factors:
+  final I/III x1.28, final II x1.55, plus pre-final level V x1.10 / VI x1.20.
+  Orbital Halo applies x1.08. Level III x1.15 remains in SphereLevelRules and
+  is not duplicated.
+- Orbital Blade contact damage now combines its source sphereModifiers branch
+  damage (final I x1.15, final II x1.05, final III/pre-final x1.20) with the
+  separate source contact factor (x1.15, or x1.30 for final III, with the
+  source pre-final V/VI factor).
+- Added source shared post-evolution damage scaling for all Sphere families:
+  level IV x1.12, level V x1.06, level VII x1.18, independent of the
+  type-specific level I-III stats and branch/contact factors.
+- Chaos Orb radius buff (+20% while its timer is active) and Mutation Stage II
+  radius (+15%) were traced in source engineSpheres.ts. No matching state,
+  timer, upgrade kind or runtime API exists in the inspected Unity runtime,
+  RunUpgradeKind/SphereProgressionRules or artifact/ability state. These are
+  not fabricated; their actual source systems must be ported before these
+  radius terms can be wired in.
+
+Validation:
+- Combined status checks for code HEAD: 0.
+- PR-triggered workflow runs returned: 0.
+- No CI result is exposed by the returned responses. Unity Editor compile, APK
+  build and device parity remain unverified. new-desing unchanged.
+
+Next audit: continue source-to-Unity comparisons for the remaining Sphere
+families and port only verified differences. Orbital is not declared fully
+source-identical while Chaos Orb/Mutation radius state and runtime/device
+validation remain open.
+
+======================================================================
+END ORBITAL SOURCE PARITY + SHARED SPHERE SCALING
+======================================================================
