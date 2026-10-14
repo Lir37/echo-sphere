@@ -1245,6 +1245,12 @@ namespace EchoSphere.Runtime
             ApplySphereVisual(go, type, level);
             var agent = go.AddComponent<SphereAttackAgent>();
             agent.Initialize(this, _player, type, 12f);
+            if (type == SphereId.Standard)
+            {
+                // Source renderer.ts:drawStandardAttackVfx is a transient charge muzzle,
+                // separate from the Standard core/ring assembly and combat simulation.
+                go.AddComponent<StandardSphereAttackVfx2D>().Initialize(agent);
+            }
             if (type != SphereId.Standard)
             {
                 var runtimeVfx = go.AddComponent<SphereRuntimeVfx2D>();

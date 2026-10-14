@@ -176,3 +176,16 @@ Implementation base: `unity-migration` `fbe71bdc27b06a6bb47d9d27364b7268a97c3cc1
 - Added structural checks so the Unity migration guard verifies the source-specific shard, outline, highlight and fixed-size path.
 
 No Level-Up rules were changed. Unity Editor/APK and device rendering remain unverified; structural CI does not establish full visual parity. `new-desing` was not modified.
+
+## Standard Sphere charge-weapon visual — 2026-10-14
+
+Source baseline: `new-desing` `737ef2af4a877e0995db5f92331d536d2f29a934`.
+Implementation base: `unity-migration` `7666334e8dca871f9b545600c7c661752bb6b9ac`.
+
+- Compared active `src/renderer.ts:drawModernSphere()` with `EchoSphereRuntime.CreateSphere()` and `SphereRuntimeVfx2D`.
+- Confirmed source Standard has a separate `drawStandardAttackVfx()`: a cyan, rotation-facing charge muzzle, two curved energy contours, an arc and a white emitter highlight, shown as the existing `attackTimer` approaches its 1.2-second firing point.
+- Unity previously created no equivalent visual component for Standard (unlike the other Sphere families). Added presentation-only `StandardSphereAttackVfx2D`, driven by the existing `SphereAttackAgent.AttackTimer` and `VisualRotation`. It does not alter combat cadence, damage, target selection, RNG or state.
+- Added a structural guard for the source mapping and live runtime wiring.
+- The Standard crystal PNG is unavailable in the Unity art folder and the existing code explicitly documents the source image payload as corrupt, so this change does not invent or substitute crystal artwork. The source core/ring fallback remains unchanged.
+
+Unity Editor/APK and device rendering remain unverified; contract CI does not prove visual identity. `new-desing` was not modified.

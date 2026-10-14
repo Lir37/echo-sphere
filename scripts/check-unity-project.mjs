@@ -195,6 +195,16 @@ assert.ok(sphereVisual.includes('private Mesh _orbitMesh, _coreMesh, _detailMesh
   sphereVisual.includes('RadialGlow(') && sphereVisual.includes('CoreOutline') &&
   sphereVisual.includes('private void DisablePrototypeSphereLayers()'),
   'source-matched glowing core must replace the prototype SVG body');
+const standardAttackVfxPath = 'Assets/EchoSphere/Scripts/Runtime/StandardSphereAttackVfx2D.cs';
+assert.ok(existsSync(join(root, standardAttackVfxPath)), 'Standard Sphere attack charge visual is missing');
+const standardAttackVfx = readFileSync(join(root, standardAttackVfxPath), 'utf8');
+assert.ok(runtime.includes('StandardSphereAttackVfx2D') &&
+  standardAttackVfx.includes('drawStandardAttackVfx') &&
+  standardAttackVfx.includes('_agent.AttackTimer / 1.2f') &&
+  standardAttackVfx.includes('_agent.VisualRotation') &&
+  standardAttackVfx.includes('new Color(99f / 255f, 230f / 255f, 1f, 1f)') &&
+  standardAttackVfx.includes('FilledCircle('),
+  'Standard Sphere must port source charge muzzle geometry and use existing attack timer/rotation without changing combat');
 assert.ok(sphereVisual.includes('private static void DrawSourceOrbit(') &&
   sphereVisual.includes('mode == SphereId.Chain') && sphereVisual.includes('mode == SphereId.Void') &&
   sphereVisual.includes('mode == SphereId.Prism'),
