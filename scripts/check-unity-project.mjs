@@ -210,6 +210,9 @@ assert.ok(sphereVisual.includes('private Mesh _orbitMesh, _coreMesh, _detailMesh
   sphereVisual.includes('RadialGlow(') && sphereVisual.includes('CoreOutline') &&
   sphereVisual.includes('private void DisablePrototypeSphereLayers()'),
   'source-matched glowing core must replace the prototype SVG body');
+assert.ok(sphereVisual.includes('coreRadius * .58f * (1f + corePulse * .035f)') &&
+  sphereVisual.includes('var corePulse = _type == SphereId.Orbital ? (disabled ? .5f : orbitalOrbitPulse) : pulse;'),
+  'Sphere core glow radius must preserve the source pulse expansion and Orbital-specific pulse');
 const standardAttackVfxPath = 'Assets/EchoSphere/Scripts/Runtime/StandardSphereAttackVfx2D.cs';
 assert.ok(existsSync(join(root, standardAttackVfxPath)), 'Standard Sphere attack charge visual is missing');
 const standardAttackVfx = readFileSync(join(root, standardAttackVfxPath), 'utf8');
