@@ -4584,3 +4584,26 @@ not by itself establish final device visual parity.
 ======================================================================
 END STANDARD SPHERE VISUAL PARITY FIX
 ======================================================================
+
+
+======================================================================
+STANDARD SPHERE ASSET VALIDATION CORRECTION — 2026-10-14
+======================================================================
+
+The first attempted visual fix tried importing the exact source
+`public/art/standard-sphere/upper-crystal.png` and mirroring it at runtime.
+CI #534 correctly rejected the file: `scripts/check-unity-project.mjs` documents
+that this upstream PNG fails PNG/DEFLATE validation on both branches. The import
+and runtime SpriteRenderer change were removed rather than weakening the guard or
+shipping an invalid texture. Source `renderer.ts` does describe the intended
+upper/lower crystal composition, but the current source image cannot be safely
+imported into Unity. The existing core/orbit rendering remains unchanged.
+
+Next action for this visual discrepancy: locate a validated, source-authored
+version of the crystal art in repository history or another existing source
+asset, then port that asset without redrawing or inventing geometry. Do not claim
+the crystal silhouette is fixed until this is resolved and visually verified.
+
+======================================================================
+END STANDARD SPHERE ASSET VALIDATION CORRECTION
+======================================================================

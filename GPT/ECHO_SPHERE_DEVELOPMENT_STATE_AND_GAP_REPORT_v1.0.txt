@@ -2755,3 +2755,19 @@ not claimed until separately verified.
 ======================================================================
 END STANDARD SPHERE VISUAL UPDATE
 ======================================================================
+
+
+======================================================================
+STANDARD SPHERE VISUAL BLOCKER — 2026-10-14
+======================================================================
+
+Attempted to import the source standard-sphere upper crystal and mirror it for
+the lower crystal. CI #534 failed because the exact upstream PNG is documented
+as invalid PNG/DEFLATE data on both branches. Removed the bad asset and runtime
+change; the structural guard was not weakened. Core/orbit rendering remains as
+before. Standard Sphere crystal silhouette remains an unresolved visual gap
+until a valid source-authored asset is found. No substitute art was invented.
+
+======================================================================
+END STANDARD SPHERE VISUAL BLOCKER
+======================================================================

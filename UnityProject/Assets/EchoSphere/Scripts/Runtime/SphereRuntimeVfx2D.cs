@@ -27,8 +27,6 @@ namespace EchoSphere.Runtime
         private SpriteRenderer _glowSprite;
         private Color _baseColor;
         private float _time, _phase;
-        private Transform _standardUpperCrystal, _standardLowerCrystal;
-        private static Sprite _standardCrystalSprite;
 
         public void Initialize(EchoSphereRuntime runtime, SphereAttackAgent agent)
         {
@@ -50,7 +48,6 @@ namespace EchoSphere.Runtime
             CreateLayer("Sphere Runtime Orbit", 7, out _orbitMesh);
             CreateLayer("Sphere Runtime Core", 8, out _coreMesh);
             CreateLayer("Sphere Runtime Details", 10, out _detailMesh);
-            InitializeStandardCrystalVisuals();
             Rebuild();
         }
 
@@ -258,56 +255,6 @@ namespace EchoSphere.Runtime
                 _detail.Arc(Vector2.zero, R * 1.25f, R * 0.82f, _time * 2.1f, Mathf.PI * 1.4f, disabledColor, 0.016f, 0.62f);
             }
             Upload(_detailMesh, _detail);
-            UpdateStandardCrystalVisuals(pulse);
-        }
-
-        private void InitializeStandardCrystalVisuals()
-        {
-            if (_type != SphereId.Standard) return;
-            if (_standardCrystalSprite == null)
-            {
-                var texture = Resources.Load<Texture2D>("EchoSphere/Art/standard-sphere/upper-crystal");
-                if (texture == null) return;
-                _standardCrystalSprite = Sprite.Create(texture,
-                    new Rect(0f, 0f, texture.width, texture.height), new Vector2(.5f, .5f), 100f);
-                _standardCrystalSprite.name = "Standard Sphere Upper Crystal";
-            }
-
-            var upper = new GameObject("Standard Sphere Upper Crystal");
-            upper.transform.SetParent(transform, false);
-            _standardUpperCrystal = upper.transform;
-            var upperRenderer = upper.AddComponent<SpriteRenderer>();
-            upperRenderer.sprite = _standardCrystalSprite;
-            upperRenderer.sortingOrder = 11;
-            upperRenderer.color = Color.white;
-
-            var lower = new GameObject("Standard Sphere Lower Crystal");
-            lower.transform.SetParent(transform, false);
-            _standardLowerCrystal = lower.transform;
-            var lowerRenderer = lower.AddComponent<SpriteRenderer>();
-            lowerRenderer.sprite = _standardCrystalSprite;
-            lowerRenderer.flipY = true;
-            lowerRenderer.sortingOrder = 11;
-            lowerRenderer.color = Color.white;
-        }
-
-        private void UpdateStandardCrystalVisuals(float pulse)
-        {
-            if (_type != SphereId.Standard || _standardUpperCrystal == null || _standardLowerCrystal == null || _standardCrystalSprite == null) return;
-            var energyPulse = 0.5f + 0.5f * Mathf.Sin(_time * 4.6f + transform.position.y * .009f / SpherePlacementRules.SourcePixelsToWorld);
-            var crystalPulse = 1f + energyPulse * .022f;
-            var targetPulse = 0f;
-            var attackScale = 1f + targetPulse * .025f;
-            var breathe = Mathf.Sin(_time * 2.2f + transform.position.x * .013f / SpherePlacementRules.SourcePixelsToWorld) * .028f;
-            var maxDimension = Mathf.Max(_standardCrystalSprite.rect.width, _standardCrystalSprite.rect.height);
-            var baseScale = R * 1.34f * 100f / maxDimension * crystalPulse;
-            var scaleX = attackScale + breathe * .18f;
-            var scaleY = attackScale - breathe * .12f;
-            _standardUpperCrystal.localPosition = new Vector3(0f, -R * .62f - energyPulse * R * .010f, -.001f);
-            _standardLowerCrystal.localPosition = new Vector3(0f, R * .66f + energyPulse * R * .010f, -.001f);
-            _standardUpperCrystal.localScale = new Vector3(baseScale * scaleX, baseScale * scaleY, 1f);
-            _standardLowerCrystal.localScale = new Vector3(baseScale * scaleX, baseScale * scaleY, 1f);
-        }
 
         private void Upload(Mesh mesh, Painter painter)
         {
