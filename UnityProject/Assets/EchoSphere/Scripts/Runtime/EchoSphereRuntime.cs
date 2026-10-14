@@ -2146,6 +2146,13 @@ namespace EchoSphere.Runtime
             switch (archetype) { case EnemyArchetype.Fast: return new Color(0.831f, 0.659f, 0.188f); case EnemyArchetype.Tank: return new Color(0.541f, 0.353f, 0.541f); case EnemyArchetype.Elite: return new Color(0.722f, 0.278f, 0.353f); default: return new Color(0.290f, 0.478f, 0.541f); }
         }
 
+        public int ActiveEnemyCount => _enemies.Count;
+
+        public EnemyAgent2D GetActiveEnemyAt(int index)
+        {
+            return index >= 0 && index < _enemies.Count ? _enemies[index] : null;
+        }
+
         public EnemyAgent2D FindNearestEnemy(Vector2 from, float range)
         {
             EnemyAgent2D best = null;
