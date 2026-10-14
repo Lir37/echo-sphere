@@ -4506,3 +4506,55 @@ Next:
 ======================================================================
 END HUNTER MASTERY XP PARITY FIX
 ======================================================================
+
+
+======================================================================
+2026-10-14 — SOURCE-PARITY IMPLEMENTATION PASS
+======================================================================
+
+Implementation HEAD before this report-only commit:
+aacb00b85d4d18f7199ca837c8cd9d6e892dc0fb
+Source branch new-desing was not modified.
+
+Source-confirmed corrections and ports:
+1. Hunter mastery XP now includes +1.5/sec while Mark is active and +2.25/sec
+   while Hunt is active. Oracle mastery XP now includes +0.9/sec while forecast
+   keys are active.
+2. Regional enemy role selection now preserves the source RNG order: consume the
+   fallback role draw, then advance the shared state using src/region.ts nextR()
+   LCG before selecting from the regional ecology pool.
+3. Enemy Slow Level-Up now applies only inside the source 300-pixel radius and
+   combines with status slow using min(statusSlow, abilitySlow), not multiplication.
+4. Regional boss contact damage now includes the selected difficulty multiplier.
+5. Ported source Voidwalker Phantom Node and Fractal Recursive Echo runtime
+   behavior, including source timers, pulse radii/damage modifiers, slow, cooldown,
+   formation history, and mastery XP.
+6. Ported source Spherist Chorus and Berserker Redline hit procs, thresholds,
+   attack timer resets/resonance pulses, Redline damage pulse and deterministic
+   source particle RNG consumption.
+7. Wired Region POI gameplay effects: resonance cache, echo relay, breach node,
+   rupture, lost signal metadata, elite nest and boss trace message.
+8. Region resonance gains now use the source periodic multiplier and Volatile Core
+   charge thresholds.
+9. Region completion now ends the run and finalizes the result, matching
+   engineLoop.ts. Removed the unsupported conversion of region XP reward metadata
+   into player XP. Region XP/gold and mastery completion metadata are tracked
+   source-equivalently.
+
+Validation on implementation HEAD:
+- Unity Migration Contracts #532: SUCCESS.
+- Pure C# gameplay contracts: PASS (1193 assertions).
+- Unity project preflight: PASS (Unity 6000.3.24f1, 64 C# source files).
+- This workflow does not compile the full Unity Editor project, build an APK,
+  or prove device visual/gameplay parity.
+
+Remaining audit work:
+- Finish source-to-runtime comparison for all sphere/evolution branches, passive
+  upgrades, artifact/set/protocol effects, all region challenge interactions,
+  persistence, screen navigation and visual parity.
+- Unity Editor compile, APK build from current HEAD and manual device verification
+  remain separate required checks.
+
+======================================================================
+END SOURCE-PARITY IMPLEMENTATION PASS
+======================================================================

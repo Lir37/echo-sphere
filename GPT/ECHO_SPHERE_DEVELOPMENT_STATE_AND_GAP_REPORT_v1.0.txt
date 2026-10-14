@@ -2699,3 +2699,43 @@ Continue by porting the source mechanics, not by simulating absent states.
 ======================================================================
 END HUNTER MASTERY XP UPDATE
 ======================================================================
+
+
+======================================================================
+2026-10-14 — CONTINUED UNITY PARITY WORK
+======================================================================
+
+Code HEAD before this report-only commit:
+aacb00b85d4d18f7199ca837c8cd9d6e892dc0fb.
+
+Confirmed source parity fixes:
+- Restored Hunter Mark/Hunt and Oracle forecast mastery XP.
+- Preserved the source's two-stage RNG advancement for regional enemy role
+  selection (fallback draw followed by region.ts LCG draw).
+- Corrected Slow Level-Up range to 300 source pixels and slow stacking to the
+  source minimum rule.
+- Applied selected difficulty to regional boss contact damage.
+- Implemented source Voidwalker Phantom Node and Fractal Recursive Echo behavior
+  and mastery XP.
+- Implemented Spherist Chorus and Berserker Redline combat procs.
+- Wired all seven source Region POI collection effects and lore recording.
+- Applied the region resonance gain multiplier, including Volatile Core's 70
+  charge threshold.
+- Region clear now ends/finalizes the run. Region XP reward is retained as source
+  metadata, not incorrectly granted as player XP.
+- Added region damage, mastery geometry/hold-time checks, challenge completion,
+  gold reward and XP reward metadata.
+
+CI #532: SUCCESS. Core contracts: 1193 assertions passed. Unity project preflight
+passed for Unity 6000.3.24f1 and 64 C# source files.
+
+Not yet verified by this workflow: full Unity Editor compile, APK build from the
+current HEAD, or manual device behavior/visual parity.
+
+Continue exact transfer from new-desing only. Do not add new rules. Highest
+remaining work: exhaustive sphere/evolution and artifact/protocol parity, then
+persistence/UI integration and device verification.
+
+======================================================================
+END CONTINUED UNITY PARITY WORK
+======================================================================
