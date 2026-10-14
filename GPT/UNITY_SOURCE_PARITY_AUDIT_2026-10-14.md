@@ -189,3 +189,16 @@ Implementation base: `unity-migration` `7666334e8dca871f9b545600c7c661752bb6b9ac
 - The Standard crystal PNG is unavailable in the Unity art folder and the existing code explicitly documents the source image payload as corrupt, so this change does not invent or substitute crystal artwork. The source core/ring fallback remains unchanged.
 
 Unity Editor/APK and device rendering remain unverified; contract CI does not prove visual identity. `new-desing` was not modified.
+
+## Orbital satellite visual parity — 2026-10-14
+
+Source baseline: `new-desing` `737ef2af4a877e0995db5f92331d536d2f29a934`.
+Implementation base: `8ba034f7738e0834f66dfb3d9e2416b46d83ae05`.
+
+- Compared `src/spheres/orbitalVisual.ts:renderOrbitalSphereAttackersVfx/drawSatellite` and `drawOrbitalElementTrail` against `SphereAttackAgent.UpdateOrbitalElements/EnsureOrbitalElements` and `SphereRuntimeVfx2D`.
+- Confirmed mismatch: Unity's live Orbital combat elements were oversized generic Disc sprites with large Disc glows, while the source draws compact faceted dark satellites with a cyan/element-colored outline and white highlight; Blade uses its narrow blade silhouette.
+- Replaced only the Orbital element presentation with source-scaled mesh geometry at the already-simulated element transforms. The existing combat element positions, count, collision/contact logic, hit cadence, damage, RNG and branch rules are unchanged.
+- Ported the source's Fire/Freeze/Poison satellite accents and trails using existing `SphereElementalRules.ResolveElement` mapping and source colors.
+- Added a structural check to guard the source-mapped satellite renderer and live transform access.
+
+Remaining visual checks: compare the complete Orbital body/core and intersecting ring ellipses at device scale; verify the source's brief contact flash timing against Unity's existing orbital hit events. Unity Editor/APK/device rendering are not verified by this structural change. `new-desing` was not modified.

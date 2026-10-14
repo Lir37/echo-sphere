@@ -191,6 +191,13 @@ for (const family of ['Sniper','Chain','Shotgun','Aura','Orbital','Prism','Gravi
 assert.ok(sphereVisual.includes('DrawSourceOrbit(') && sphereVisual.includes('OrbitPoint(') &&
   sphereVisual.includes('DrawDiamond') && sphereVisual.includes('ResonanceEventActive'),
   'Sphere family source-orbit geometry, outward accents and Resonance state must be wired');
+assert.ok(sphereVisual.includes('DrawOrbitalSatellites(') &&
+  sphereVisual.includes('src/spheres/orbitalVisual.ts:drawSatellite') &&
+  sphereVisual.includes('ElementVisualColor') &&
+  sphereVisual.includes('renderer.enabled = false') &&
+  readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs'), 'utf8').includes('OrbitalElementCount') &&
+  readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs'), 'utf8').includes('glowRenderer.enabled = false'),
+  'Orbital satellites must use source-mapped faceted/elemental geometry at existing combat positions');
 assert.ok(sphereVisual.includes('private Mesh _orbitMesh, _coreMesh, _detailMesh') &&
   sphereVisual.includes('RadialGlow(') && sphereVisual.includes('CoreOutline') &&
   sphereVisual.includes('private void DisablePrototypeSphereLayers()'),
