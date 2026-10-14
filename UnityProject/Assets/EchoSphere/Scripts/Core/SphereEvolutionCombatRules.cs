@@ -173,9 +173,6 @@ namespace EchoSphere.Core
             var inner = 1; var outer = 1;
             for (var currentLevel = 2; currentLevel <= effectiveLevel; currentLevel++)
                 if (currentLevel % 2 == 0) outer++; else inner++;
-            var extras = finalId == "orbital_dance_final_3" ? 1 : 0;
-            for (var extra = 0; extra < extras; extra++)
-                if (outer < inner) outer++; else if (inner < outer) inner++; else if (extra % 2 == 0) outer++; else inner++;
             return new[] { inner, outer };
         }
         public static int GetOrbitalInnerCount(int level, string finalId) => GetOrbitalRingCounts(level, finalId)[0];
