@@ -280,7 +280,8 @@ namespace EchoSphere.Runtime
         // this method does not move elements or participate in hit detection.
         private void DrawOrbitalSatellites(Painter p, bool disabled, bool resonance)
         {
-            if (_agent == null || _runtime == null) return;
+            // Source renderOrbitalSphereAttackersVfx returns while the Sphere is disabled.
+            if (_agent == null || _runtime == null || disabled) return;
             var branch = _runtime.GetSphereBranch(SphereId.Orbital);
             var blade = branch == "orbital_blade";
             var element = SphereElementalRules.ResolveElement(branch, _runtime.GetSphereFinal(SphereId.Orbital));
