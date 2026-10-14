@@ -198,7 +198,8 @@ assert.ok(sphereVisual.includes('private Mesh _orbitMesh, _coreMesh, _detailMesh
 const standardAttackVfxPath = 'Assets/EchoSphere/Scripts/Runtime/StandardSphereAttackVfx2D.cs';
 assert.ok(existsSync(join(root, standardAttackVfxPath)), 'Standard Sphere attack charge visual is missing');
 const standardAttackVfx = readFileSync(join(root, standardAttackVfxPath), 'utf8');
-assert.ok(runtime.includes('StandardSphereAttackVfx2D') &&
+const standardRuntimeSource = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs'), 'utf8');
+assert.ok(standardRuntimeSource.includes('StandardSphereAttackVfx2D') &&
   standardAttackVfx.includes('drawStandardAttackVfx') &&
   standardAttackVfx.includes('_agent.AttackTimer / 1.2f') &&
   standardAttackVfx.includes('_agent.VisualRotation') &&
