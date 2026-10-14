@@ -15,6 +15,9 @@ namespace EchoSphere.Runtime
         private SphereCombatProfile _profile;
         private SphereId _type;
         private float _orbitAngle;
+        private float _previousOrbitAngle;
+        private readonly Dictionary<EnemyAgent2D, HashSet<int>> _orbitalContactLatch =
+            new Dictionary<EnemyAgent2D, HashSet<int>>();
         private float _initialDamage;
         private float _initialDelay;
         private Vector3 _initialScale = Vector3.one;
@@ -263,11 +266,11 @@ namespace EchoSphere.Runtime
             }
         }
 
-        private void UpdateOrbitalElements(float dt)
+        private void GetOrbitalElementCounts(out int innerCount, out int outerCount)
         {
             var finalId = _runtime.GetSphereFinal(SphereId.Orbital);
-            var innerCount = SphereEvolutionCombatRules.GetOrbitalInnerCount(_progressionLevel, finalId);
-            var outerCount = SphereEvolutionCombatRules.GetOrbitalOuterCount(_progressionLevel, finalId);
+            innerCount = SphereEvolutionCombatRules.GetOrbitalInnerCount(_progressionLevel, finalId);
+            outerCount = SphereEvolutionCombatRules.GetOrbitalOuterCount(_progressionLevel, finalId);
             // Source engineSpheres.ts adds one combat element for orbital_crown
             // and distributes extra elements between the two counter-rotating rings.
             if (_runtime.HasArtifact("orbital_crown"))
@@ -276,7 +279,14 @@ namespace EchoSphere.Runtime
                 else if (innerCount < outerCount) innerCount++;
                 else outerCount++;
             }
+        }
+
+        private void UpdateOrbitalElements(float dt)
+        {
+            var finalId = _runtime.GetSphereFinal(SphereId.Orbital);
+            GetOrbitalElementCounts(out var innerCount, out var outerCount);
             EnsureOrbitalElements(innerCount + outerCount);
+            _previousOrbitAngle = _orbitAngle;
             _orbitAngle += dt * SphereEvolutionCombatRules.GetOrbitalAngularSpeed(_progressionLevel, finalId) * _levelStats.OrbitSpeedMultiplier;
             for (var i = 0; i < _orbitalElements.Count; i++)
             {
@@ -318,32 +328,91 @@ namespace EchoSphere.Runtime
             var hitSomething = false;
             var branch = _runtime.GetSphereBranch(SphereId.Orbital);
             var finalId = _runtime.GetSphereFinal(SphereId.Orbital);
-            var contactRadius = SphereEvolutionCombatRules.GetOrbitalContactRadius(finalId);
-            var damageMultiplier = SphereEvolutionCombatRules.GetOrbitalDamageMultiplier(_progressionLevel, branch, finalId);
-            for (var i = 0; i < _orbitalElements.Count; i++)
+            GetOrbitalElementCounts(out var innerCount, out var outerCount);
+
+            var finalIndex = finalId != null && finalId.EndsWith("_final_1") ? 0
+                : finalId != null && finalId.EndsWith("_final_2") ? 1
+                : finalId != null && finalId.EndsWith("_final_3") ? 2 : -1;
+            var preFinalPower = _progressionLevel >= 6 ? 1.30f : _progressionLevel >= 5 ? 1.15f : 1f;
+            var contactBandPixels = finalIndex == 1 ? 26f
+                : finalIndex == 0 ? 24f
+                : finalIndex < 0 ? 23f * preFinalPower : 19f;
+            var angularTolerance = finalIndex == 1 ? 0.30f : 0.22f;
+            var bodyRadiusPixels = Mathf.Clamp(130f * 0.19f + _progressionLevel * 0.8f, 15f, 25f);
+            var contactScale = SpherePlacementRules.SourcePixelsToWorld;
+            var innerSweepStart = _previousOrbitAngle;
+            var outerSweepStart = _previousOrbitAngle;
+            var innerSweepEnd = _orbitAngle;
+            var outerSweepEnd = _orbitAngle;
+
+            for (var enemyIndex = 0; enemyIndex < _runtime.ActiveEnemyCount; enemyIndex++)
             {
-                _orbitalContactTimers[i] = Mathf.Max(0f, _orbitalContactTimers[i] - dt);
-                if (_orbitalContactTimers[i] > 0f) continue;
-                var contact = _runtime.TryHitEnemy(_orbitalElements[i].position, contactRadius);
-                if (contact == null) continue;
-                hitSomething = true;
-                var damage = BaseDamage * _runtime.GetSphereDamageMultiplier(_type) * _runtime.GetNetworkDamageMultiplier(this) *
-                    _runtime.GetSphereCopyOutputMultiplier(this) * damageMultiplier;
-                var dealtDamage = contact.ReceiveSphereDamage(this, damage);
-                OnSphereHitApplied(contact);
-                _orbitalHitCount++;
-                if (branch == "orbital_halo")
+                var enemy = _runtime.GetActiveEnemyAt(enemyIndex);
+                if (enemy == null || !enemy.IsAlive) continue;
+
+                var delta = (Vector2)enemy.transform.position - (Vector2)transform.position;
+                var distance = delta.magnitude;
+                var enemyAngle = Mathf.Atan2(delta.y, delta.x);
+                var contactBand = Mathf.Max(contactBandPixels,
+                    enemy.SourceRadius + Mathf.Max(6f, bodyRadiusPixels * 0.24f)) * contactScale;
+                var touchedElements = new HashSet<int>();
+                if (!_orbitalContactLatch.TryGetValue(enemy, out var latch))
                 {
-                    var bonusCharge = SphereEvolutionCombatRules.GetOrbitalResonanceBonus(_progressionLevel, finalId);
-                    if (bonusCharge > 0f) _runtime.AddResonanceCharge(bonusCharge);
-                    if (finalId == "orbital_halo_final_3")
-                        _runtime.GrantPlayerShieldCharge(1);
+                    latch = new HashSet<int>();
+                    _orbitalContactLatch[enemy] = latch;
                 }
-                _runtime.SpawnImpact(contact.transform.position, new Color(0.56f, 0.94f, 1f));
-                var afterimage = SphereEvolutionCombatRules.GetOrbitalAfterimageMultiplier(branch, finalId);
-                if (afterimage > 0f) _runtime.TriggerOrbitalAfterimage(contact, damage * afterimage, 0.65f);
-                _orbitalContactTimers[i] = 0.28f;
+                var newContactHit = false;
+
+                for (var elementIndex = 0; elementIndex < innerCount + outerCount; elementIndex++)
+                {
+                    var inner = elementIndex < innerCount;
+                    var ringIndex = inner ? elementIndex : elementIndex - innerCount;
+                    var ringCount = inner ? innerCount : outerCount;
+                    var element = _orbitalElements[elementIndex];
+                    if (element == null) continue;
+                    var orbitRadius = element.localPosition.magnitude;
+                    if (Mathf.Abs(distance - orbitRadius) > contactBand) continue;
+
+                    var direction = inner ? 1 : -1;
+                    var startAngle = (inner ? innerSweepStart : outerSweepStart) * direction
+                        + ringIndex * Mathf.PI * 2f / Mathf.Max(1, ringCount);
+                    var endAngle = (inner ? innerSweepEnd : outerSweepEnd) * direction
+                        + ringIndex * Mathf.PI * 2f / Mathf.Max(1, ringCount);
+                    if (!IsAngleOnOrbitalSweep(enemyAngle, startAngle, endAngle, direction, angularTolerance)) continue;
+
+                    touchedElements.Add(elementIndex);
+                    // One hit per individual orbit element per continuous contact episode.
+                    if (!latch.Add(elementIndex)) continue;
+                    newContactHit = true;
+
+                    var damageMultiplier = SphereEvolutionCombatRules.GetOrbitalDamageMultiplier(_progressionLevel, branch, finalId);
+                    var damage = BaseDamage * _runtime.GetSphereDamageMultiplier(_type) * _runtime.GetNetworkDamageMultiplier(this) *
+                        _runtime.GetSphereCopyOutputMultiplier(this) * damageMultiplier;
+                    enemy.ReceiveSphereDamage(this, damage);
+                    OnSphereHitApplied(enemy);
+                    _orbitalHitCount++;
+
+                    if (branch == "orbital_halo")
+                    {
+                        var bonusCharge = SphereEvolutionCombatRules.GetOrbitalResonanceBonus(_progressionLevel, finalId);
+                        if (bonusCharge > 0f) _runtime.AddResonanceCharge(bonusCharge);
+                        if (finalId == "orbital_halo_final_3") _runtime.GrantPlayerShieldCharge(1);
+                    }
+                    _runtime.SpawnImpact(enemy.transform.position, new Color(0.56f, 0.94f, 1f));
+                    var afterimage = SphereEvolutionCombatRules.GetOrbitalAfterimageMultiplier(branch, finalId);
+                    if (afterimage > 0f) _runtime.TriggerOrbitalAfterimage(enemy, damage * afterimage, 0.65f);
+                }
+
+                // Leaving the swept interval re-arms this individual orbit element.
+                var stale = new List<int>();
+                foreach (var latchedElement in latch)
+                    if (!touchedElements.Contains(latchedElement)) stale.Add(latchedElement);
+                for (var i = 0; i < stale.Count; i++) latch.Remove(stale[i]);
+                if (newContactHit) hitSomething = true;
             }
+
+            if (hitSomething) _runtime.TriggerEngineerRelay(this);
+
             // Source engineSpheres.ts: orbital_blade + prism_filter relay a
             // visual bolt to the first linked Sphere while this node participates in Ring.
             if (_runtime.HasArtifact("orbital_blade") && _runtime.HasArtifact("prism_filter"))
@@ -361,8 +430,7 @@ namespace EchoSphere.Runtime
                             if (linked == null || !linked.gameObject.activeInHierarchy) continue;
                             var tint = new Color(105f / 255f, 235f / 255f, 1f, 0.9f);
                             _runtime.SpawnCombatArc(transform.position, linked.transform.position,
-                                SphereId.Orbital, _runtime.GetSphereBranch(SphereId.Orbital),
-                                _runtime.GetSphereFinal(SphereId.Orbital), tint, 0.18f);
+                                SphereId.Orbital, branch, finalId, tint, 0.18f);
                             break;
                         }
                     }
@@ -371,8 +439,27 @@ namespace EchoSphere.Runtime
                 }
             }
             else _orbitalNetworkArcTimer = 0f;
+        }
 
-            if (hitSomething) _runtime.TriggerEngineerRelay(this);
+        private static bool IsAngleOnOrbitalSweep(float targetAngle, float startAngle, float endAngle,
+            int direction, float tolerance)
+        {
+            const float tau = Mathf.PI * 2f;
+            var safeTolerance = Mathf.Max(0f, tolerance);
+            var travelled = direction == 1
+                ? NormalizeAnglePositive(endAngle - startAngle)
+                : NormalizeAnglePositive(startAngle - endAngle);
+            var targetTravel = direction == 1
+                ? NormalizeAnglePositive(targetAngle - startAngle)
+                : NormalizeAnglePositive(startAngle - targetAngle);
+            if (travelled >= tau - safeTolerance) return true;
+            return targetTravel <= travelled + safeTolerance || targetTravel >= tau - safeTolerance;
+        }
+
+        private static float NormalizeAnglePositive(float angle)
+        {
+            const float tau = Mathf.PI * 2f;
+            return (angle % tau + tau) % tau;
         }
 
         private void FireAt(EnemyAgent2D target, Vector2 origin, float damage, Color tint)
