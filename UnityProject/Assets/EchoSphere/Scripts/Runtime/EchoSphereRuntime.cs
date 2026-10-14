@@ -320,6 +320,10 @@ namespace EchoSphere.Runtime
         private int _alchemistReactionCount;
         private RegionBossScheduleState _regionSchedule;
         private RegionFieldVisuals _regionFieldVisuals;
+        private string _regionHudPocketId = "";
+        private float _regionPocketNoticeTimer;
+        private string _regionPocketNotice = "";
+
         private bool _mainMenu = true;
         private bool _regionSelect;
         private EchoRegionId _selectedRegion = EchoRegionId.ResonanceBasin;
@@ -1010,6 +1014,7 @@ namespace EchoSphere.Runtime
                 LevelUpAbilityRules.GetMoveSpeedMultiplier(GetAbilityLevel(RunUpgradeKind.MoveSpeed)) *
                 LevelUpAbilityRules.GetMomentumSpeedMultiplier(GetAbilityLevel(RunUpgradeKind.Momentum), _playerCore.DashTimer > 0f) *
                 GetCharacterMoveSpeedMultiplier(), followMultiplier) * dt);
+            TickRegionHudState(dt);
             _networkRefreshTimer -= dt;
             if (_networkRefreshTimer <= 0f)
             {
@@ -8627,6 +8632,59 @@ namespace EchoSphere.Runtime
             GUI.color = previousColor;
         }
 
+
+        private void TickRegionHudState(float dt)
+        {
+            _regionPocketNoticeTimer = Mathf.Max(0f, _regionPocketNoticeTimer - dt);
+            if (_player == null) return;
+
+            var sourceX = _player.position.x / (12.6f / 720f);
+            var sourceY = _player.position.y / (12.6f / 720f);
+            var pocketNames = _selectedRegion == EchoRegionId.SpectralRift
+                ? new[] { "prism", "shoal", "ember", "silent", "null" }
+                : new[] { "axis", "glass", "fracture", "hollow", "pressure" };
+            var pocketLabelsRu = _selectedRegion == EchoRegionId.SpectralRift
+                ? new[] { "ПРИЗМАТИЧЕСКИЙ СДВИГ", "ЗЕРКАЛЬНАЯ МЕЛЬ", "ТЛЕЮЩИЙ ИЗЛОМ", "ТИХАЯ РЕШЁТКА", "НУЛЕВОЙ САД" }
+                : new[] { "ОСЕВОЙ УЗЕЛ", "СТЕКЛЯННЫЙ ПОТОК", "РАЗЛОМ", "ПУСТОЙ КОНТУР", "ЗОНА ДАВЛЕНИЯ" };
+            var pocketLabelsEn = _selectedRegion == EchoRegionId.SpectralRift
+                ? new[] { "PRISM SHIFT", "MIRROR SHOAL", "EMBER FAULT", "SILENT LATTICE", "NULL GARDEN" }
+                : new[] { "AXIS NODE", "GLASS FLOW", "FRACTURE", "HOLLOW CONTOUR", "PRESSURE FIELD" };
+            var pocketX = _selectedRegion == EchoRegionId.SpectralRift
+                ? new[] { 0f, 520f, 470f, -500f, -520f } : new[] { 0f, 520f, 500f, -480f, -520f };
+            var pocketY = _selectedRegion == EchoRegionId.SpectralRift
+                ? new[] { 0f, -270f, 450f, 430f, -290f } : new[] { 0f, -260f, 430f, 430f, -300f };
+            var closest = 0;
+            var closestDistance = float.MaxValue;
+            for (var i = 0; i < pocketNames.Length; i++)
+            {
+                var dx = sourceX - pocketX[i];
+                var dy = sourceY - pocketY[i];
+                var distance = dx * dx + dy * dy;
+                if (distance < closestDistance) { closestDistance = distance; closest = i; }
+            }
+
+            if (!string.IsNullOrEmpty(_regionHudPocketId) && _regionHudPocketId != pocketNames[closest])
+            {
+                _regionPocketNotice = IsRussianUi
+                    ? ( _selectedRegion == EchoRegionId.SpectralRift
+                        ? new[] { "ПЕРЕХОД: ПРИЗМАТИЧЕСКИЙ СДВИГ", "ПЕРЕХОД: ЗЕРКАЛЬНАЯ МЕЛЬ", "ПЕРЕХОД: ТЛЕЮЩИЙ ИЗЛОМ", "ПЕРЕХОД: ТИХАЯ РЕШЁТКА", "ПЕРЕХОД: НУЛЕВОЙ САД" }
+                        : new[] { "ПЕРЕХОД: ОСЕВОЙ УЗЕЛ", "ПЕРЕХОД: СТЕКЛЯННЫЙ ПОТОК", "ПЕРЕХОД: РАЗЛОМ", "ПЕРЕХОД: ПУСТОЙ КОНТУР", "ПЕРЕХОД: ЗОНА ДАВЛЕНИЯ" })[closest]
+                    : "ENTERING: " + pocketLabelsEn[closest];
+                _regionPocketNoticeTimer = 1.35f;
+            }
+            _regionHudPocketId = pocketNames[closest];
+        }
+
+        private string GetRegionPhaseLabel()
+        {
+            if (_runTime < 300f) return IsRussianUi ? "ОРИЕНТАЦИЯ" : "ORIENTATION";
+            if (_runTime < 600f) return IsRussianUi ? "ПЕРВЫЙ РЕЗОНАНС" : "FIRST RESONANCE";
+            if (_runTime < 900f) return IsRussianUi ? "СПЕЦИАЛИЗАЦИЯ" : "SPECIALIZATION";
+            if (_runTime < 1500f) return IsRussianUi ? "ЭСКАЛАЦИЯ" : "ESCALATION";
+            if (_runTime < 1620f) return IsRussianUi ? "СХОДИМОСТЬ" : "CONVERGENCE";
+            return IsRussianUi ? "СТАБИЛИЗАЦИЯ" : "STABILIZATION";
+        }
+
         private void OnGUI()
         {
             var previousMatrix = GUI.matrix;
@@ -8703,6 +8761,30 @@ namespace EchoSphere.Runtime
                 DrawProgressBar(new Rect(32, 79, 270, 9), hpRatio, hpColor);
 
                 GUI.Label(new Rect(32, 95, 278, 20), $"LV {_level}     KILLS {_kills}     {FormatTime(_runTime)}", _label);
+                var regionName = _selectedRegion == EchoRegionId.SpectralRift
+                    ? (IsRussianUi ? "СПЕКТРАЛЬНЫЙ РАЗЛОМ" : "SPECTRAL RIFT")
+                    : (IsRussianUi ? "РЕЗОНАНСНЫЙ БАССЕЙН" : "RESONANCE BASIN");
+                var pocketLabel = _selectedRegion == EchoRegionId.SpectralRift
+                    ? new[] { "ПРИЗМАТИЧЕСКИЙ СДВИГ", "ЗЕРКАЛЬНАЯ МЕЛЬ", "ТЛЕЮЩИЙ ИЗЛОМ", "ТИХАЯ РЕШЁТКА", "НУЛЕВОЙ САД" }
+                    : new[] { "ОСЕВОЙ УЗЕЛ", "СТЕКЛЯННЫЙ ПОТОК", "РАЗЛОМ", "ПУСТОЙ КОНТУР", "ЗОНА ДАВЛЕНИЯ" };
+                var pocketLabelEn = _selectedRegion == EchoRegionId.SpectralRift
+                    ? new[] { "PRISM SHIFT", "MIRROR SHOAL", "EMBER FAULT", "SILENT LATTICE", "NULL GARDEN" }
+                    : new[] { "AXIS NODE", "GLASS FLOW", "FRACTURE", "HOLLOW CONTOUR", "PRESSURE FIELD" };
+                var pocketIndex = Array.IndexOf(
+                    _selectedRegion == EchoRegionId.SpectralRift
+                        ? new[] { "prism", "shoal", "ember", "silent", "null" }
+                        : new[] { "axis", "glass", "fracture", "hollow", "pressure" }, _regionHudPocketId);
+                pocketIndex = Mathf.Clamp(pocketIndex, 0, 4);
+                GUI.Label(new Rect(32, 229, 276, 18), (IsRussianUi ? "РЕГИОН · " : "REGION · ") + regionName, _label);
+                GUI.Label(new Rect(32, 247, 276, 18), (IsRussianUi ? "ФАЗА · " : "PHASE · ") + GetRegionPhaseLabel(), _label);
+                GUI.Label(new Rect(32, 265, 276, 18), (IsRussianUi ? "КАРМАН · " : "POCKET · ") + (IsRussianUi ? pocketLabel[pocketIndex] : pocketLabelEn[pocketIndex]), _label);
+                if (_regionPocketNoticeTimer > 0f)
+                {
+                    var noticeRect = new Rect((_uiWidth - 360f) * 0.5f, 80f, 360f, 42f);
+                    GUI.Box(noticeRect, GUIContent.none, _box);
+                    var noticeStyle = new GUIStyle(_title) { fontSize = 15, alignment = TextAnchor.MiddleCenter };
+                    GUI.Label(noticeRect, _regionPocketNotice, noticeStyle);
+                }
                 GUI.Label(new Rect(32, 116, 270, 18), $"EXPERIENCE   {_xp} / {_xpRequired}", _label);
                 DrawProgressBar(new Rect(32, 136, 270, 8), xpRatio, new Color(0.58f, 0.48f, 1f, 1f));
 
