@@ -2819,3 +2819,36 @@ Still open from this audit:
 ======================================================================
 END UNITY ORBITAL SOURCE-PARITY FOLLOW-UP
 ======================================================================
+
+======================================================================
+[2026-10-14] ORBITAL ARTIFACT / NETWORK RELAY PARITY
+======================================================================
+
+Code HEAD: f15a88f614a95cbc0bd1be2eea96a9bafd3b10de
+Source baseline: new-desing 737ef2af4a877e0995db5f92331d536d2f29a934
+
+Implemented from src/engineSpheres.ts and src/renderer.ts:
+- orbital_crown adds one extra Orbital combat element, balanced between inner
+  and outer rings.
+- Removed the non-source unconditional +1 Resonance per Orbital contact.
+- When both orbital_blade and prism_filter are owned, an Orbital participating
+  in Ring emits a visual relay bolt to its first linked active Sphere.
+- Relay cadence follows the source 0.42-second special-sphere interval scaled
+  by the Sphere attack-speed multiplier; tint uses the source energy-bolt cyan
+  (#69ebff). The relay is visual-only, matching the source lightning event.
+
+Validation:
+- Combined commit status query: 0 reported checks.
+- PR-triggered workflow lookup: 0 runs returned.
+- These connector queries have not exposed a CI result for this branch HEAD.
+  Unity Editor compilation, APK build and device parity remain unverified.
+- new-desing was not modified.
+
+Still open:
+- Orbital swept-contact/timing and network-dependent orbit geometry.
+- Remaining Sphere/evolution and Artifact/Protocol parity.
+Continue only with source-confirmed behavior.
+
+======================================================================
+END ORBITAL ARTIFACT / NETWORK RELAY PARITY
+======================================================================
