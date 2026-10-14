@@ -2240,8 +2240,6 @@ namespace EchoSphere.Runtime
             ShowTimedCombatMessage("DISRUPTOR", 0.5f);
         }
 
-        public void DrainResonance(float amount) => _resonanceCharge = Mathf.Max(0f, _resonanceCharge - Mathf.Max(0f, amount));
-
         public float TimeStopTimer => _timeStopTimer;
         public float TeleportDamageBuffTimer => _teleportDamageBuffTimer;
 
