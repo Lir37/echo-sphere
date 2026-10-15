@@ -69,6 +69,14 @@ namespace EchoSphere.Runtime
             _meshRenderer.sortingOrder = string.IsNullOrEmpty(_bossType) ? 5 : 7;
             _meshRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             _meshRenderer.receiveShadows = false;
+
+            // Match the source Canvas radius (normal 19 px, fast 15 px, tank 26 px,
+            // boss 34 px). The legacy orb root has its own archetype scale, but the
+            // source-mapped creature mesh must not inherit that prototype scale.
+            var enemy = GetComponent<EnemyAgent2D>();
+            var sourceRadius = enemy != null ? enemy.SourceRadius : 19f;
+            var visualScale = sourceRadius * SpherePlacementRules.SourcePixelsToWorld / R;
+            _visualRoot.localScale = Vector3.one * visualScale;
             Rebuild();
         }
 
