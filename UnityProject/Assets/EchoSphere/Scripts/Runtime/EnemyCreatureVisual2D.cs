@@ -74,12 +74,19 @@ namespace EchoSphere.Runtime
             // Match the source Canvas radius (normal 19 px, fast 15 px, tank 26 px,
             // boss 34 px). The legacy orb root has its own archetype scale, but the
             // source-mapped creature mesh must not inherit that prototype scale.
+            RefreshSourceRadius();
+            Rebuild();
+        }
+
+        public void RefreshSourceRadius()
+        {
             var enemy = GetComponent<EnemyAgent2D>();
             var sourceRadius = enemy != null ? enemy.SourceRadius : 19f;
-            var visualScale = sourceRadius * SpherePlacementRules.SourcePixelsToWorld / R;
-            _baseVisualScale = visualScale;
-            _visualRoot.localScale = Vector3.one * _baseVisualScale;
-            Rebuild();
+            // Convert source pixels to world units and compensate for the legacy
+            // prototype root scale, which remains in place for gameplay components.
+            var parentScale = Mathf.Max(0.0001f, transform.lossyScale.x);
+            _baseVisualScale = sourceRadius * SpherePlacementRules.SourcePixelsToWorld / (R * parentScale);
+            if (_visualRoot != null) _visualRoot.localScale = Vector3.one * _baseVisualScale;
         }
 
         private static Material SharedMaterial
