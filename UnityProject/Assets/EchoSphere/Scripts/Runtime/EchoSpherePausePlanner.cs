@@ -71,7 +71,7 @@ namespace EchoSphere.Runtime
             var statGridCount = _pausePlannerTab == 0 ? Mathf.Min(8, cards.Count) : 0;
             var statWidth = (view.width - 18f - 18f) / 4f;
             var sectionStyle = new GUIStyle(_sphereDescriptionStyle) { fontSize = 10, fontStyle = FontStyle.Bold };
-            var heights = new List<float>(); var total = statGridCount > 0 ? 130f : 0f; var cardWidth = view.width - 18f;
+            var heights = new List<float>(); var total = statGridCount > 0 ? 152f : 0f; var cardWidth = view.width - 18f;
             for (var i = 0; i < cards.Count; i++)
             {
                 if (i < statGridCount) { heights.Add(46f); continue; }
@@ -80,12 +80,13 @@ namespace EchoSphere.Runtime
                 heights.Add(size); total += size + 9f;
             }
             _pausePlannerScroll = GUI.BeginScrollView(view, _pausePlannerScroll, new Rect(0f, 0f, cardWidth, total));
-            var y = statGridCount > 0 ? 104f : 0f;
+            var y = statGridCount > 0 ? 126f : 0f;
             for (var i = 0; i < cards.Count; i++)
             {
                 if (i < statGridCount)
                 {
-                    var statRect = new Rect((i % 4) * (statWidth + 6f), (i / 4) * 52f, statWidth, 46f);
+                    if (i == 0) GUI.Label(new Rect(0f, 0f, cardWidth, 20f), IsRussianUi ? "Персонаж" : "Character", sectionStyle);
+                    var statRect = new Rect((i % 4) * (statWidth + 6f), 22f + (i / 4) * 52f, statWidth, 46f);
                     GUI.Box(statRect, GUIContent.none, _box);
                     GUI.Label(new Rect(statRect.x + 8f, statRect.y + 3f, statRect.width - 16f, 16f), cards[i].Key, statLabelStyle);
                     GUI.Label(new Rect(statRect.x + 8f, statRect.y + 19f, statRect.width - 16f, 24f), cards[i].Value, statValueStyle);
