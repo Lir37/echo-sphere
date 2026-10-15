@@ -20,6 +20,7 @@ on:
       - 'src/**'
       - 'package-lock.json'
       - 'package.json'
+      - 'global.json'
       - 'tsconfig*.json'
       - 'vite.config.ts'
       - 'tailwind.config.js'
@@ -56,7 +57,7 @@ jobs:
         with:
           node-version: 22
       - name: Install locked source dependencies
-        run: npm ci --ignore-scripts
+        run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Typecheck original game and Vite configuration
         run: |
           npm run typecheck

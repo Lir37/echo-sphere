@@ -1,6 +1,7 @@
 # Unity API typecheck without starting Unity
 
-Requires .NET SDK 8 and Python 3.9+. Run from the repository root:
+Requires .NET SDK 8.0.4xx and Python 3.9+. The repository's `global.json` selects
+the .NET 8 compiler even when a newer SDK is also installed. Run from the repository root:
 
 ```sh
 python3 scripts/prepare-unity-typecheck-references.py --output /tmp/echo-unity-references
