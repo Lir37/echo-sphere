@@ -4728,3 +4728,22 @@ The current HEAD must pass a fresh run before this cycle is accepted.
 ======================================================================
 END HUD SCALE CORRECTION
 ======================================================================
+
+
+======================================================================
+2026-10-15 — MOBILE CONTROL SCALE / SPHERE PICKER CARD PARITY
+======================================================================
+
+The source MobileControls layout uses a 64 px dash control, 48 px pause and
+movement/follow controls, 44 px Sphere buttons and a 220 px description card.
+Unity's GUI uses a lower-resolution logical coordinate space plus its own
+framebuffer scale; the controls were recalibrated to that coordinate system
+after comparing the retained portrait screenshots. The dash, pause, movement
+and follow hit targets now match the source physical proportions, while the
+Sphere picker card, two-row icon grid and glyphs preserve separate source-like
+widths and spacing. Pointer/selection actions and gameplay behavior are
+unchanged.
+
+======================================================================
+END MOBILE CONTROL SCALE / SPHERE PICKER CARD PARITY
+======================================================================
