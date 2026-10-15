@@ -172,13 +172,13 @@ namespace EchoSphere.Runtime
                 _sourceMenuCoreTexture = new Texture2D(size, size, TextureFormat.RGBA32, false);
                 var stops = new[] { 0f, .05f, .13f, .29f, .53f, .73f, 1f };
                 var hex = new[] { "#ffffff", "#ffffff", "#c7f8ff", "#5bdcff", "#26558c", "#070d19", "#010309" };
-                var colors = new Color[hex.Length]; for (var i = 0; i < hex.Length; i++) ColorUtility.TryParseHtmlString(hex[i], out colors[i]);
+                var gradientColors = new Color[hex.Length]; for (var i = 0; i < hex.Length; i++) ColorUtility.TryParseHtmlString(hex[i], out gradientColors[i]);
                 for (var y = 0; y < size; y++) for (var x = 0; x < size; x++)
                 {
                     var point = new Vector2(x / (size - 1f), 1f - y / (size - 1f));
                     var r = Vector2.Distance(point, new Vector2(.33f, .27f)); var segment = 1;
                     while (segment < stops.Length - 1 && r > stops[segment]) segment++;
-                    var color = Color.Lerp(colors[segment - 1], colors[segment], Mathf.InverseLerp(stops[segment - 1], stops[segment], r));
+                    var color = Color.Lerp(gradientColors[segment - 1], gradientColors[segment], Mathf.InverseLerp(stops[segment - 1], stops[segment], r));
                     color.a = Mathf.Clamp01((.5f - Vector2.Distance(point, new Vector2(.5f, .5f))) * size);
                     _sourceMenuCoreTexture.SetPixel(x, y, color);
                 }
