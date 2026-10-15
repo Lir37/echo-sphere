@@ -365,14 +365,16 @@ namespace EchoSphere.Runtime
         private readonly List<int> _resonanceRingNodes = new List<int>();
         private string _message = "RIGHT HALF: MOVE. LEFT HALF: PLACE / DRAG SPHERES. TAP SPHERE: REMOVE.";
         private GUIStyle _box, _label, _button, _title, _sphereDescriptionStyle;
+        private readonly List<LineRenderer> _networkGlowRenderers = new List<LineRenderer>();
         private readonly List<LineRenderer> _networkLinkRenderers = new List<LineRenderer>();
+        private readonly List<LineRenderer> _networkHighlightRenderers = new List<LineRenderer>();
         private readonly List<NetworkCometVisual> _networkComets = new List<NetworkCometVisual>();
         private Material _networkLineMaterial;
 
         private sealed class NetworkCometVisual
         {
             public SpriteRenderer Head;
-            public LineRenderer Tail;
+            public SpriteRenderer Tail;
         }
         private SphereNetworkState _networkState;
         private SphereNetworkFormation _previousDominantFormation = SphereNetworkFormation.None;
@@ -7121,25 +7123,19 @@ namespace EchoSphere.Runtime
 
             while (_networkLinkRenderers.Count < _networkState.Links.Count)
             {
-                var go = new GameObject("Sphere Network Link");
-                go.transform.SetParent(transform, false);
-                var line = go.AddComponent<LineRenderer>();
-                line.useWorldSpace = true;
-                line.positionCount = 25;
-                line.startWidth = 0.020f;
-                line.endWidth = 0.020f;
-                line.numCapVertices = 2;
-                line.sortingOrder = 5;
-                if (_networkLineMaterial != null) line.sharedMaterial = _networkLineMaterial;
-                _networkLinkRenderers.Add(line);
+                _networkGlowRenderers.Add(CreateNetworkLineRenderer("Sphere Network Glow", 4));
+                _networkLinkRenderers.Add(CreateNetworkLineRenderer("Sphere Network Link", 5));
+                _networkHighlightRenderers.Add(CreateNetworkLineRenderer("Sphere Network Highlight", 6));
             }
 
             for (var i = 0; i < _networkLinkRenderers.Count; i++)
             {
                 var line = _networkLinkRenderers[i];
+                var glowLine = _networkGlowRenderers[i];
+                var highlightLine = _networkHighlightRenderers[i];
                 if (i >= _networkState.Links.Count)
                 {
-                    line.enabled = false;
+                    line.enabled = glowLine.enabled = highlightLine.enabled = false;
                     continue;
                 }
 
@@ -7147,33 +7143,37 @@ namespace EchoSphere.Runtime
                 if (!TryGetNetworkNodePosition(link.A, out var from) ||
                     !TryGetNetworkNodePosition(link.B, out var to))
                 {
-                    line.enabled = false;
+                    line.enabled = glowLine.enabled = highlightLine.enabled = false;
                     continue;
                 }
 
-                line.enabled = true;
+                line.enabled = glowLine.enabled = highlightLine.enabled = true;
                 const int segments = 24;
-                line.positionCount = segments + 1;
-
-                // Port src/renderer.ts:drawWavyNetworkLink. The source network is a
-                // live energy filament, not a straight static wire.
+                line.positionCount = glowLine.positionCount = highlightLine.positionCount = segments + 1;
                 var delta = to - from;
                 var length = Mathf.Max(0.0001f, delta.magnitude);
                 var normal = new Vector2(-delta.y / length, delta.x / length);
-                var amplitude = Mathf.Min(6.2f * SpherePlacementRules.SourcePixelsToWorld,
-                    2.2f * SpherePlacementRules.SourcePixelsToWorld + length * 0.008f);
-                var isLine = IsFormationLink(_networkState.GetFormation(SphereNetworkFormation.Line), link.A, link.B);
-                var isSquare = IsFormationLink(_networkState.GetFormation(SphereNetworkFormation.Square), link.A, link.B);
-                var isTriangle = IsFormationLink(_networkState.GetFormation(SphereNetworkFormation.Triangle), link.A, link.B);
-                var isCluster = IsFormationLink(_networkState.GetFormation(SphereNetworkFormation.Cluster), link.A, link.B);
+                var pixelScale = SpherePlacementRules.SourcePixelsToWorld;
+                var amplitude = Mathf.Min(6.2f * pixelScale, 2.2f * pixelScale + length * 0.008f);
+                var lineShape = _networkState.GetFormation(SphereNetworkFormation.Line);
+                var squareShape = _networkState.GetFormation(SphereNetworkFormation.Square);
+                var triangleShape = _networkState.GetFormation(SphereNetworkFormation.Triangle);
+                var clusterShape = _networkState.GetFormation(SphereNetworkFormation.Cluster);
+                var isLine = lineShape != null && lineShape.Active && IsFormationLink(lineShape, link.A, link.B);
+                var isSquare = IsFormationLink(squareShape, link.A, link.B);
+                var isTriangle = triangleShape != null && triangleShape.Active && IsFormationLink(triangleShape, link.A, link.B);
+                var isCluster = IsFormationLink(clusterShape, link.A, link.B);
                 var active = isLine || isSquare || isTriangle || isCluster;
-                var phase = _runTime * (active ? 1.9f : 1.35f) + link.A * 17.13f + link.B * 29.71f;
+                var seed = link.A * 17.13f + link.B * 29.71f;
+                var phase = _runTime * (active ? 1.9f : 1.35f) + seed;
                 for (var point = 0; point <= segments; point++)
                 {
                     var p = point / (float)segments;
                     var wave = Mathf.Sin(phase + p * Mathf.PI * 4.2f) * amplitude * Mathf.Sin(Mathf.PI * p);
                     var position = from + delta * p + normal * wave;
                     line.SetPosition(point, position);
+                    glowLine.SetPosition(point, position);
+                    highlightLine.SetPosition(point, position);
                 }
 
                 var pulse = 0.82f + Mathf.Sin(_runTime * 4.2f) * 0.10f;
@@ -7182,13 +7182,33 @@ namespace EchoSphere.Runtime
                 else if (isSquare) color = new Color(0.412f, 0.718f, 1f, 0.48f * pulse);
                 else if (isTriangle) color = new Color(1f, 0.722f, 0.302f, 0.54f * pulse);
                 else if (isCluster) color = new Color(0.702f, 0.549f, 1f, 0.44f * pulse);
-                var sourceWidth = active ? 2.55f : 1.95f;
-                line.startWidth = sourceWidth * SpherePlacementRules.SourcePixelsToWorld;
-                line.endWidth = sourceWidth * SpherePlacementRules.SourcePixelsToWorld;
-                line.startColor = color;
-                line.endColor = color;
-                UpdateNetworkCometVisuals(i, from, to, color, active, link.A * 17.13f + link.B * 29.71f, amplitude);
+
+                var glowColor = color; glowColor.a *= active ? 0.22f : 0.12f;
+                var mainColor = color; mainColor.a *= active ? 0.82f : 0.64f;
+                var highlightColor = color; highlightColor.a *= active ? 0.72f : 0.58f;
+                glowLine.startWidth = glowLine.endWidth = (active ? 5.8f : 3.6f) * pixelScale;
+                line.startWidth = line.endWidth = (active ? 2.55f : 1.95f) * pixelScale;
+                highlightLine.startWidth = highlightLine.endWidth = (active ? 0.92f : 0.70f) * pixelScale;
+                glowLine.startColor = glowLine.endColor = glowColor;
+                line.startColor = line.endColor = mainColor;
+                highlightLine.startColor = highlightLine.endColor = highlightColor;
+                UpdateNetworkCometVisuals(i, from, to, color, active, seed, amplitude);
             }
+        }
+
+        private LineRenderer CreateNetworkLineRenderer(string objectName, int sortingOrder)
+        {
+            var go = new GameObject(objectName);
+            go.transform.SetParent(transform, false);
+            var line = go.AddComponent<LineRenderer>();
+            line.useWorldSpace = true;
+            line.positionCount = 25;
+            line.startWidth = 0.020f;
+            line.endWidth = 0.020f;
+            line.numCapVertices = 2;
+            line.sortingOrder = sortingOrder;
+            if (_networkLineMaterial != null) line.sharedMaterial = _networkLineMaterial;
+            return line;
         }
 
         private void EnsureNetworkCometVisuals(int count)
@@ -7198,17 +7218,15 @@ namespace EchoSphere.Runtime
                 var headObject = new GameObject("Sphere Network Comet Head");
                 headObject.transform.SetParent(transform, false);
                 var head = headObject.AddComponent<SpriteRenderer>();
-                head.sprite = RuntimeSpriteFactory.Diamond;
-                head.sortingOrder = 7;
+                head.sprite = RuntimeSpriteFactory.NetworkCometHead;
+                head.sortingOrder = 8;
                 head.enabled = false;
+
                 var tailObject = new GameObject("Sphere Network Comet Tail");
                 tailObject.transform.SetParent(transform, false);
-                var tail = tailObject.AddComponent<LineRenderer>();
-                tail.useWorldSpace = true;
-                tail.positionCount = 2;
-                tail.numCapVertices = 2;
-                tail.sortingOrder = 6;
-                if (_networkLineMaterial != null) tail.sharedMaterial = _networkLineMaterial;
+                var tail = tailObject.AddComponent<SpriteRenderer>();
+                tail.sprite = RuntimeSpriteFactory.NetworkCometTail;
+                tail.sortingOrder = 7;
                 tail.enabled = false;
                 _networkComets.Add(new NetworkCometVisual { Head = head, Tail = tail });
             }
@@ -7238,21 +7256,18 @@ namespace EchoSphere.Runtime
                 var headPosition = from + delta * p + normal * headWave;
                 var tailPosition = from + delta * tailP + normal * tailWave;
                 var angle = Mathf.Atan2(headPosition.y - tailPosition.y, headPosition.x - tailPosition.x) * Mathf.Rad2Deg;
-                visual.Head.enabled = true;
-                visual.Head.transform.position = new Vector3(headPosition.x, headPosition.y, -0.04f);
+                var direction = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+                visual.Head.enabled = visual.Tail.enabled = true;
+                visual.Head.transform.position = new Vector3(headPosition.x + direction.x * 1.15f * pixelScale, headPosition.y + direction.y * 1.15f * pixelScale, -0.04f);
                 visual.Head.transform.rotation = Quaternion.Euler(0f, 0f, angle);
-                visual.Head.transform.localScale = new Vector3(7.5f * pixelScale, 4.8f * pixelScale, 1f);
-                visual.Head.color = new Color(0.97f, 1f, 1f, (active ? 0.86f : 0.62f) * alpha);
-                visual.Tail.enabled = true;
-                visual.Tail.SetPosition(0, new Vector3(tailPosition.x, tailPosition.y, -0.035f));
-                visual.Tail.SetPosition(1, new Vector3(headPosition.x, headPosition.y, -0.035f));
-                visual.Tail.startWidth = (active ? 2.4f : 1.8f) * pixelScale;
-                visual.Tail.endWidth = 0.35f * pixelScale;
+                visual.Head.transform.localScale = new Vector3(12.7f * pixelScale, 6f * pixelScale, 1f);
+                visual.Head.color = new Color(0.973f, 1f, 1f, (active ? 0.86f : 0.62f) * alpha);
+                var tailSpritePosition = headPosition - direction * (8.25f * pixelScale);
+                visual.Tail.transform.position = new Vector3(tailSpritePosition.x, tailSpritePosition.y, -0.035f);
+                visual.Tail.transform.rotation = Quaternion.Euler(0f, 0f, angle);
+                visual.Tail.transform.localScale = new Vector3(13.5f * pixelScale, 3.4f * pixelScale, 1f);
                 var tailColor = linkColor; tailColor.a *= active ? 0.48f : 0.34f;
-                var headColor = linkColor; headColor.a *= active ? 0.75f : 0.58f;
-                visual.Tail.startColor = tailColor;
-                visual.Tail.endColor = headColor;
-                if (_networkLineMaterial != null) visual.Tail.sharedMaterial = _networkLineMaterial;
+                visual.Tail.color = tailColor;
             }
         }
 
