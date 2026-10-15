@@ -38,6 +38,8 @@ namespace EchoSphere.Presentation
         }
         public void Set(string name,V value){Node.Properties[name]=value;if(name=="value"&&Element is TextField field)field.SetValueWithoutNotify(value.Text);_document.Dirty=true;}
         internal static SourceUiElement Target(VisualElement element){for(var current=element;current!=null;current=current.parent)if(current.userData is SourceUiElement host)return host;return null;}
+        // Preserve the source DOM preventDefault contract; Unity marks this API obsolete but still exposes no equivalent for arbitrary default actions.
+#pragma warning disable 618
         internal void Send(string name,EventBase source)
         {
             var callback=Node.Properties[name];if(!(callback.Raw is Func<V[],V>))return;
@@ -46,6 +48,7 @@ namespace EchoSphere.Presentation
             if(source is IKeyboardEvent keyboard){evt["key"]=keyboard.keyCode==KeyCode.Return||keyboard.keyCode==KeyCode.KeypadEnter?"Enter":keyboard.keyCode==KeyCode.Escape?"Escape":keyboard.character.ToString();evt["ctrlKey"]=keyboard.ctrlKey;evt["shiftKey"]=keyboard.shiftKey;}
             evt["nativeEvent"]=evt;_document.Environment.Invoke(callback,evt);_document.EventCompleted();
         }
+#pragma warning restore 618
         internal void Change(string value)
         {var evt=VisualJs.Obj("target",VisualJs.Obj("value",value),"currentTarget",new V(this));foreach(var name in new[]{"onInput","onChange"})if(Node.Properties[name].Raw is Func<V[],V>)_document.Environment.Invoke(Node.Properties[name],evt);_document.EventCompleted();}
     }
