@@ -7797,15 +7797,15 @@ namespace EchoSphere.Runtime
             // The source description expands naturally for Orbital's multi-line
             // text instead of clipping its last lines.
             var lines = Mathf.Max(1, Mathf.CeilToInt(definition.DescriptionEn.Length / 42f));
-            return Mathf.Max(43f, 21f + lines * 12f);
+            return Mathf.Max(64f, 30f + lines * 18f);
         }
 
         private Rect GetSpherePickerRect()
         {
             // Source MobileControls uses a 5-column grid of compact type glyphs,
             // with the selected type's name/description directly above it.
-            var width = Mathf.Min(420f, _uiWidth - 24f);
-            var height = GetSpherePickerDescriptionHeight() + 132f;
+            var width = Mathf.Min(340f, _uiWidth - 24f);
+            var height = GetSpherePickerDescriptionHeight() + 135f;
             return new Rect(IsLeftHanded ? _uiWidth - width - 12f : 12f, _uiHeight - 16f - height, width, height);
         }
 
@@ -8163,11 +8163,12 @@ namespace EchoSphere.Runtime
             // Source UI: selected type/description card above five columns of
             // SphereTypeGlyph controls. No invented abbreviations or asset-list labels.
             var descriptionHeight = GetSpherePickerDescriptionHeight();
-            var descriptionRect = new Rect(panel.x, panel.y, panel.width, descriptionHeight);
+            var descriptionWidth = Mathf.Min(panel.width, 310f);
+            var descriptionRect = new Rect(panel.center.x - descriptionWidth * .5f, panel.y, descriptionWidth, descriptionHeight);
             GUI.Box(descriptionRect, GUIContent.none, _box);
             var titleStyle = new GUIStyle(_label)
             {
-                fontSize = 12,
+                fontSize = 16,
                 fontStyle = FontStyle.Bold,
                 alignment = TextAnchor.MiddleCenter,
                 clipping = TextClipping.Clip
@@ -8175,12 +8176,13 @@ namespace EchoSphere.Runtime
             var descriptionStyle = new GUIStyle(_sphereDescriptionStyle ?? _label)
             {
                 alignment = TextAnchor.MiddleCenter,
+                fontSize = 12,
                 wordWrap = true,
                 clipping = TextClipping.Clip
             };
-            GUI.Label(new Rect(descriptionRect.x + 4f, descriptionRect.y + 1f, descriptionRect.width - 8f, 17f),
+            GUI.Label(new Rect(descriptionRect.x + 4f, descriptionRect.y + 1f, descriptionRect.width - 8f, 22f),
                 IsRussianUi ? definition.DisplayNameRu : definition.DisplayName, titleStyle);
-            GUI.Label(new Rect(descriptionRect.x + 5f, descriptionRect.y + 17f, descriptionRect.width - 10f, descriptionRect.height - 17f),
+            GUI.Label(new Rect(descriptionRect.x + 5f, descriptionRect.y + 23f, descriptionRect.width - 10f, descriptionRect.height - 23f),
                 IsRussianUi ? definition.DescriptionRu : definition.DescriptionEn, descriptionStyle);
 
             var buttonWidth = (panel.width - 24f) / 5f;
@@ -8190,8 +8192,8 @@ namespace EchoSphere.Runtime
                 var type = SpherePickerOrder[i];
                 var column = i % 5;
                 var row = i / 5;
-                var rect = new Rect(panel.x + 5f + column * (buttonWidth + 3.5f),
-                    panel.y + descriptionHeight + 8f + row * 64f, buttonWidth, buttonHeight);
+                var rect = new Rect(panel.x + 10f + column * (buttonWidth + 3.5f),
+                    panel.y + descriptionHeight + 11f + row * 64f, buttonWidth, buttonHeight);
                 var color = SphereUiColor(type);
                 var transparentButton = new GUIStyle(GUI.skin.button);
                 transparentButton.normal.background = transparentButton.hover.background = transparentButton.active.background = transparentButton.focused.background = null;
