@@ -3169,3 +3169,16 @@ complete or source-identical until the actual build/device gates are verified.
 ======================================================================
 END SOURCE-ALIGNED SPECIAL SPHERE CADENCE + RANGE
 ======================================================================
+
+
+======================================================================
+UNITY MIGRATION UPDATE — 2026-10-15
+======================================================================
+
+Fixed compile errors reported during local Unity import:
+- SourceCanvas.shader: renamed the HLSL identifier `point` to `samplePosition` to avoid the compiler-reserved interpolation token and its cascading parser/function-argument errors.
+- EchoSphereSourceUiBridge.cs: copied the `V` struct values out of indexers, mutated the copies, then assigned them back, resolving CS1612 for player state and upgrade choice entries.
+- SourceUiDocument.cs: explicitly cast Color32 constants to Color in the confirmation button style assignment, resolving Color32-to-StyleColor conversion failure.
+
+Commit sequence culminated in 5dd80687cc00cd5207c3c2b0749fbd3b65500715 on `unity-migration`.
+The Unity Migration Contracts CI was running at the time of this note. This CI validates repository contracts/structure only; it does not prove Unity Editor shader compilation, APK build, or full gameplay/visual parity. Those still require a local Unity import/build and device verification.
