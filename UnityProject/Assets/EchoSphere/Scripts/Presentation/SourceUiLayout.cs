@@ -166,7 +166,7 @@ namespace EchoSphere.Presentation
             var origin=VisualCss.Split(S(node,"transform-origin","50% 50%"),' ').Where(part=>part.Length>0).ToArray();
             float Origin(string value,double reference)=>value=="center"?(float)reference*.5f:value=="left"||value=="top"?0f:value=="right"||value=="bottom"?(float)reference:(float)Sheet.Length(value,reference,FontSize(node));
             element.style.transformOrigin=new TransformOrigin(new Length(origin.Length>0?Origin(origin[0],node.Width):(float)node.Width*.5f),new Length(origin.Length>1?Origin(origin[1],node.Height):(float)node.Height*.5f),0f);
-            element.transform.position=position;element.transform.rotation=rotation;element.transform.scale=scale;
+            element.transform.position=position;element.transform.rotation=rotation;element.style.scale=new Scale(scale);
         }
     }
 }
