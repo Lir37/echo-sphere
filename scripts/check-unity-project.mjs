@@ -305,6 +305,8 @@ assert.ok(runtime.includes('UpdateNetworkCometVisuals') && runtime.includes('var
   'network links must preserve source moving-comet packets and tapered trails');
 
 assert.ok(runtime.includes('DrawSourcePausePlanner()') && runtime.includes('BuildPauseStats') && runtime.includes('BuildPauseAbilities') && runtime.includes('BuildPauseArtifacts') && runtime.includes('BuildPauseSynergies') && runtime.includes('SaveCurrentRun(); SceneManager.LoadScene'), 'source four-tab pause planner, resume and save/return controls are missing');
+const pausePlannerUi = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSpherePausePlanner.cs'), 'utf8').replaceAll('\\r\\n', '\\n');
+assert.ok(pausePlannerUi.includes('DrawPauseTabIcon') && pausePlannerUi.includes('var statGridCount = _pausePlannerTab == 0') && pausePlannerUi.includes('PauseCard(cards, "HP"') && pausePlannerUi.includes('PauseCard(cards, IsRussianUi ? "Уклонение" : "Dodge"'), 'pause planner must preserve source line-art tabs and compact character stat grid');
 assert.ok(runtime.includes('DrawSourceGameplayHud') && runtime.includes('DrawProgressBar') && runtime.includes('_xp / _xpRequired') && runtime.includes('_uiScale'), 'source HP/XP/Resonance HUD bars and responsive layout are missing');
 const readMovement = runtime.slice(runtime.indexOf('private Vector2 ReadMovement()'), runtime.indexOf('private void ConfigureCamera()'));
 assert.ok(runtime.includes('Screen.width * 0.5f') && runtime.includes('HandleSourcePointer(touch.fingerId') && runtime.includes('drag.magnitude >= 12f') && readMovement.includes('_sourceJoystickDirection'), 'source handedness, independent pointer IDs and quantized joystick movement are missing');
