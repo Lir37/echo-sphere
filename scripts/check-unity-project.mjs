@@ -301,7 +301,10 @@ const networkRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/Sph
 assert.ok(networkRules.includes('Analyze') && networkRules.includes('FindFractal') && networkRules.includes('GetFormationBonusMultiplier'), 'Network/Geometry analysis contract is missing');
 assert.ok(runtime.includes('RefreshNetworkState') && runtime.includes('UpdateNetworkLinkVisuals') && runtime.includes('GEOMETRY '), 'live Network links and Geometry HUD are missing');
 assert.ok(runtime.includes('UpdateNetworkCometVisuals') && runtime.includes('var packetSpeed = active ? 0.34f : 0.27f') &&
-  runtime.includes('var tailDistance = active ? 0.075f : 0.06f') && runtime.includes('RuntimeSpriteFactory.Diamond'),
+  runtime.includes('var tailDistance = active ? 0.075f : 0.06f') &&
+  runtime.includes('RuntimeSpriteFactory.NetworkCometHead') && runtime.includes('RuntimeSpriteFactory.NetworkCometTail') &&
+  runtime.includes('glowLine.startWidth = glowLine.endWidth = (active ? 5.8f : 3.6f) * pixelScale') &&
+  runtime.includes('highlightLine.startWidth = highlightLine.endWidth = (active ? 0.92f : 0.70f) * pixelScale'),
   'network links must preserve source moving-comet packets and tapered trails');
 
 assert.ok(runtime.includes('DrawSourcePausePlanner()') && runtime.includes('BuildPauseStats') && runtime.includes('BuildPauseAbilities') && runtime.includes('BuildPauseArtifacts') && runtime.includes('BuildPauseSynergies') && runtime.includes('SaveCurrentRun(); SceneManager.LoadScene'), 'source four-tab pause planner, resume and save/return controls are missing');
