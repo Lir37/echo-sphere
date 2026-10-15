@@ -5,7 +5,7 @@ Shader "EchoSphere/SourceUiBackdrop"
   Cull Off ZWrite Off ZTest Always Blend Off
   HLSLINCLUDE
   #include "UnityCG.cginc"
-  sampler2D _MainTex,_ClipMask;float4 _MainTex_TexelSize,_CaptureRect,_VerticalRect;float _Sigma;
+  sampler2D _MainTex,_ClipMask;float4 _MainTex_TexelSize,_CaptureOrigin,_CaptureAxisX,_CaptureAxisY,_HorizontalStep,_VerticalRect;float _Sigma;
   float4 Read(float2 uv,bool capture){float4 c=tex2D(_MainTex,uv);
   #ifndef UNITY_COLORSPACE_GAMMA
    if(capture)c.rgb=LinearToGammaSpace(c.rgb);
@@ -17,7 +17,7 @@ Shader "EchoSphere/SourceUiBackdrop"
    HLSLPROGRAM
    #pragma vertex vert_img
    #pragma fragment horizontal
-   float4 horizontal(v2f_img i):SV_Target {float2 uv=_CaptureRect.xy+i.uv*_CaptureRect.zw;return Blur(uv,float2(_MainTex_TexelSize.x,0),true);}
+   float4 horizontal(v2f_img i):SV_Target {float2 uv=_CaptureOrigin.xy+i.uv.x*_CaptureAxisX.xy+i.uv.y*_CaptureAxisY.xy;return Blur(uv,_HorizontalStep.xy,true);}
    ENDHLSL
   }
   Pass {

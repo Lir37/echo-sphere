@@ -1,0 +1,15 @@
+{
+  "reference": "Windows browser CSS cursor:pointer / user32 IDC_HAND (32649)",
+  "file": "cursor-pointer.png",
+  "width": 32,
+  "height": 32,
+  "hotspotX": 6,
+  "hotspotY": 0,
+  "sha256": "b52c28191c80b299df02a89aeb3abfb36a716da120244de8b7033efa341da4e5",
+  "sources": {
+    "src/conceptStyle.css": "e3675e611a916cba082578f98452c4a3189a3624bee98fd880b1e7ebc236abe5",
+    "src/index.css": "2ab2d020f8cb8576666ed851456fb90976dc920c9c6e703c3c4ea375d293028a",
+    "tools/EchoSphere.NativeControlArt/Program.cs": "e76194515b7e1b130c5bbb1f5eef9a6646ceee0617e18b2917a2a4579a5dea71",
+    "tools/EchoSphere.NativeControlArt/EchoSphere.NativeControlArt.csproj": "8b9b299ff83e2f80838687888c68f7d41ae6b0157b99470c6ea2ab4d66692b62"
+  }
+}

@@ -8,6 +8,7 @@ on:
       - 'UnityProject/**'
       - 'tools/EchoSphere.CoreChecks/**'
       - 'tools/EchoSphere.VisualChecks/**'
+      - 'tools/EchoSphere.NativeControlArt/**'
       - 'scripts/check-unity-project.mjs'
       - 'scripts/check-unity-visual-provenance.mjs'
       - 'scripts/export-unity-*'
@@ -57,6 +58,7 @@ jobs:
           node scripts/export-unity-ui-styles.mjs --check
           node scripts/export-unity-canvas-art.cjs --check
           node scripts/export-unity-control-art.cjs --check
+          node scripts/export-unity-control-cursor.cjs --check
           node scripts/export-unity-presentation-meta.mjs --check
           node scripts/check-unity-visual-provenance.mjs
       - name: Run source game regression tests

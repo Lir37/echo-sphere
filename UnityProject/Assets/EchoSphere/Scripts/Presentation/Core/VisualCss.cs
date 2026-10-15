@@ -60,7 +60,7 @@ namespace EchoSphere.Presentation
         public readonly V Keyframes;
         public double Width,Height,SafeLeft,SafeRight,SafeTop,SafeBottom;
         private double _conditionsWidth=double.NaN,_conditionsHeight=double.NaN;
-        private static readonly HashSet<string> Inherited=new HashSet<string>{"color","font-family","font-size","font-weight","font-style","line-height","letter-spacing","text-align","text-transform","white-space","visibility","cursor","font-feature-settings","font-variation-settings"};
+        private static readonly HashSet<string> Inherited=new HashSet<string>{"color","font-family","font-size","font-weight","font-style","line-height","letter-spacing","word-spacing","text-align","text-transform","text-shadow","white-space","visibility","cursor","pointer-events","user-select","overflow-wrap","font-feature-settings","font-variation-settings"};
         public VisualCss(V data)
         {
             Keyframes=data["keyframes"];var order=0;

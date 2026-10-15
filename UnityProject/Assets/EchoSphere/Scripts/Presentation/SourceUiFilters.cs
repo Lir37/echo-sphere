@@ -38,7 +38,7 @@ namespace EchoSphere.Presentation
                         var function=new FilterFunction(Define("source-drop-shadow",2,4));function.AddParameter(new FilterParameter(lengths.Length>0?lengths[0]:0));function.AddParameter(new FilterParameter(lengths.Length>1?lengths[1]:0));function.AddParameter(new FilterParameter(lengths.Length>2?lengths[2]:0));function.AddParameter(new FilterParameter(new Color((float)cssColor.R,(float)cssColor.G,(float)cssColor.B,(float)cssColor.A)));filters.Add(function);continue;
                     }
                     var amount=argument.EndsWith("%",StringComparison.Ordinal)?float.Parse(argument.TrimEnd('%'),CultureInfo.InvariantCulture)*.01f:name=="blur"?(float)sheet.Length(argument,node.Width):float.Parse(argument,CultureInfo.InvariantCulture);
-                    if(name=="saturate"||name=="brightness"){var custom=new FilterFunction(Define("source-"+name,name=="saturate"?0:1,1));custom.AddParameter(new FilterParameter(amount));filters.Add(custom);continue;}
+                    if(name=="saturate"||name=="brightness"||name=="contrast"){var custom=new FilterFunction(Define("source-"+name,name=="saturate"?0:name=="brightness"?1:3,1));custom.AddParameter(new FilterParameter(amount));filters.Add(custom);continue;}
                     var enumName=name=="hue-rotate"?"HueRotate":char.ToUpperInvariant(name[0])+name.Substring(1);
                     if(!Enum.TryParse<FilterFunctionType>(enumName,out var kind)&&!Enum.TryParse("Builtin"+enumName,out kind))throw new InvalidOperationException("Unimplemented authored source filter "+name);
                     var builtin=new FilterFunction(kind);builtin.AddParameter(new FilterParameter(amount));filters.Add(builtin);

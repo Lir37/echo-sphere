@@ -21,7 +21,7 @@ namespace EchoSphere.Presentation
             var weight=sheet.Get(node,"font-weight","400");
             var italic=sheet.Get(node,"font-style","normal")!="normal";
             var height=sheet.Get(node,"line-height","normal");
-            var ratio=height=="normal"?0d:double.TryParse(height,NumberStyles.Float,CultureInfo.InvariantCulture,out var number)?number:sheet.Length(height,size,size)/size;
+            var ratio=height=="normal"?double.NaN:double.TryParse(height,NumberStyles.Float,CultureInfo.InvariantCulture,out var number)?number:sheet.Length(height,size,size)/size;
             var key=family+"/"+weight+"/"+italic+"/"+ratio.ToString("R",CultureInfo.InvariantCulture);
             if(Fonts.TryGetValue(key,out var existing))return existing;
             if(!_initialized){FontEngine.InitializeFontEngine();_initialized=true;}
@@ -42,7 +42,7 @@ namespace EchoSphere.Presentation
                     asset=FontAsset.CreateFontAsset(name,style,90);if(asset==null)continue;
                     asset.name="Source CSS "+assetKey;asset.getFontFeatures=true;
                     SetLineHeight(asset,ratio);
-                    if(primary==null)foreach(var inlineWeight in new[]{400,700,900}){
+                    if(primary==null)foreach(var inlineWeight in new[]{100,200,300,400,500,600,700,800,900}){
                         var inlineStyle=Face(name,inlineWeight.ToString(CultureInfo.InvariantCulture),italic);if(inlineStyle==null)continue;
                         var faceKey="inline:"+name+"/"+inlineStyle+"/"+ratio.ToString("R",CultureInfo.InvariantCulture);
                         if(!Fonts.TryGetValue(faceKey,out var typeface)){typeface=FontAsset.CreateFontAsset(name,inlineStyle,90);if(typeface==null)continue;typeface.getFontFeatures=true;SetLineHeight(typeface,ratio);Fonts[faceKey]=typeface;}
@@ -57,7 +57,7 @@ namespace EchoSphere.Presentation
         }
         private static void SetLineHeight(FontAsset asset,double ratio)
         {
-            if(ratio<=0d||double.IsNaN(ratio))return;var face=asset.faceInfo;var target=(float)(face.pointSize*ratio);var leading=target-(face.ascentLine-face.descentLine);face.ascentLine+=leading*.5f;face.descentLine-=leading*.5f;face.lineHeight=target;asset.faceInfo=face;
+            if(ratio<0d||double.IsNaN(ratio))return;var face=asset.faceInfo;var target=(float)(face.pointSize*ratio);var leading=target-(face.ascentLine-face.descentLine);face.ascentLine+=leading*.5f;face.descentLine-=leading*.5f;face.lineHeight=target;asset.faceInfo=face;
         }
         private static string Face(string family,string weight,bool italic)
         {

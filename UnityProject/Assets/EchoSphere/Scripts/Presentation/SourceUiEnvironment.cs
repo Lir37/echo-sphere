@@ -77,8 +77,9 @@ namespace EchoSphere.Presentation
             _documentObject=VisualJs.Obj("querySelector",VisualJs.Fn(args=>_document.Query(args[0].Text)),"querySelectorAll",VisualJs.Fn(args=>_document.Query(args[0].Text,null,true)),"elementFromPoint",VisualJs.Fn(args=>_document.ElementFromPoint((float)args[0].Number,(float)args[1].Number)),"addEventListener",add,"removeEventListener",remove,"visibilityState","visible");
             _window["location"]=Get("location");_window["confirm"]=Get("confirm");_window["navigator"]=Get("navigator");_window["performance"]=VisualJs.PerformanceObject;_window["localStorage"]=_storage;_window["document"]=_documentObject;
         }
-        public void Tick(double milliseconds){_window["innerWidth"]=_document.Sheet.Width;_window["innerHeight"]=_document.Sheet.Height;_window["devicePixelRatio"]=_document.Scale;_timers.Tick(milliseconds);}
-        public void Dispatch(string name){if(_listeners.TryGetValue(name,out var callbacks))foreach(var callback in callbacks.ToArray())callback.Call();}
+        private void UpdateViewport(){_window["innerWidth"]=_document.Sheet.Width;_window["innerHeight"]=_document.Sheet.Height;_window["devicePixelRatio"]=_document.Scale;}
+        public void Tick(double milliseconds){UpdateViewport();_timers.Tick(milliseconds);}
+        public void Dispatch(string name){UpdateViewport();if(_listeners.TryGetValue(name,out var callbacks))foreach(var callback in callbacks.ToArray())callback.Call();}
         public V Get(string name)
         {
             if(!_window[name].Undefined)return _window[name];

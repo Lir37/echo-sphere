@@ -57,5 +57,13 @@ Shader "EchoSphere/SourceUiFilters"
    }
    ENDHLSL
   }
+  Pass {
+   HLSLPROGRAM
+   #pragma vertex effectVertex
+   #pragma fragment fragmentContrast
+   #pragma multi_compile _ _UIE_OUTPUT_LINEAR
+   float4 fragmentContrast(effectOutput i):SV_Target {float4 c=Read(i.uv);float3 rgb=c.a>0?c.rgb/c.a:0;c.rgb=saturate((rgb-.5)*_Amount+.5)*c.a;return Finish(c);}
+   ENDHLSL
+  }
  }
 }

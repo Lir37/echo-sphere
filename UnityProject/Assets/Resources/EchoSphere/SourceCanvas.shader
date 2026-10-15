@@ -9,7 +9,7 @@ Shader "EchoSphere/SourceCanvas"
             #pragma fragment frag
             #pragma target 3.5
             #include "UnityCG.cginc"
-            sampler2D _Paints,_ImageTex;float4 _Paints_TexelSize;
+            sampler2D _Paints,_ImageTex;float4 _Paints_TexelSize,_ImageTex_TexelSize;
             struct appdata {float4 vertex:POSITION;float4 color:COLOR;float4 uv:TEXCOORD0;};
             struct v2f {float4 vertex:SV_POSITION;float4 color:COLOR;float4 uv:TEXCOORD0;};
             v2f vert(appdata v) {v2f o;o.vertex=UnityObjectToClipPos(v.vertex);o.color=v.color;o.uv=v.uv;return o;}
@@ -36,16 +36,29 @@ Shader "EchoSphere/SourceCanvas"
                 }
                 return previous;
             }
+            float4 imagePixel(float2 uv)
+            {
+                float4 c=tex2Dlod(_ImageTex,float4(uv,0,0));
+                #ifndef UNITY_COLORSPACE_GAMMA
+                c.rgb=LinearToGammaSpace(c.rgb);
+                #endif
+                return float4(c.rgb*c.a,c.a);
+            }
+            float4 imageSample(float2 uv)
+            {
+                // Canvas interpolates image pixels with premultiplied alpha.
+                // Hardware interpolation of straight RGB darkens transparent
+                // sprite edges and lets invisible RGB bleed into the result.
+                float2 point=uv*_ImageTex_TexelSize.zw-.5;float2 fraction=frac(point);float2 first=(floor(point)+.5)*_ImageTex_TexelSize.xy;
+                return lerp(lerp(imagePixel(first),imagePixel(first+float2(_ImageTex_TexelSize.x,0)),fraction.x),lerp(imagePixel(first+float2(0,_ImageTex_TexelSize.y)),imagePixel(first+_ImageTex_TexelSize.xy),fraction.x),fraction.y);
+            }
             float4 frag(v2f input):SV_Target
             {
                 float4 color=input.color;
                 if(input.uv.z>.5)color*=gradient(input.uv.xy,input.uv.z-1);
                 if(input.uv.z<-.5) {
-                    float4 image=tex2D(_ImageTex,input.uv.xy);
-                    #ifndef UNITY_COLORSPACE_GAMMA
-                    image.rgb=LinearToGammaSpace(image.rgb);
-                    #endif
-                    color*=image;
+                    float4 image=imageSample(input.uv.xy);float opacity=saturate(color.a);
+                    return float4(image.rgb*color.rgb*opacity,image.a*opacity);
                 }
                 float alpha=saturate(color.a);return float4(color.rgb*alpha,alpha);
             }

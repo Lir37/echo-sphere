@@ -131,19 +131,24 @@ namespace EchoSphere.Presentation
             var projection=GL.GetGPUProjectionMatrix(Matrix4x4.Ortho(_viewport.xMin,_viewport.xMax,_viewport.yMin,_viewport.yMax,-1f,1f),true);
             _commands.SetViewProjectionMatrices(Matrix4x4.identity,projection);
             var mask=Shader.PropertyToID("_SourceShadowMask");var ping=Shader.PropertyToID("_SourceShadowPing");var blur=Shader.PropertyToID("_SourceShadowBlur");
-            _commands.GetTemporaryRT(mask,_target.width,_target.height,0,FilterMode.Bilinear,RenderTextureFormat.ARGB32,RenderTextureReadWrite.Linear,4);
-            _commands.GetTemporaryRT(ping,_target.width,_target.height,0,FilterMode.Bilinear,RenderTextureFormat.ARGB32,RenderTextureReadWrite.Linear);
-            _commands.GetTemporaryRT(blur,_target.width,_target.height,0,FilterMode.Bilinear,RenderTextureFormat.ARGB32,RenderTextureReadWrite.Linear);
+            var paddingX=0;var paddingY=0;foreach(var batch in _batches)if(batch.Shadow.a>0f){paddingX=Math.Max(paddingX,VisualCanvasShadowViewport.Padding(batch.Blur,batch.X));paddingY=Math.Max(paddingY,VisualCanvasShadowViewport.Padding(batch.Blur,batch.Y));}
+            var shadowViewport=new VisualCanvasShadowViewport(_target.width,_target.height,paddingX,paddingY);
+            var pixelX=_viewport.width/_target.width;var pixelY=_viewport.height/_target.height;
+            var shadowProjection=GL.GetGPUProjectionMatrix(Matrix4x4.Ortho(_viewport.xMin-paddingX*pixelX,_viewport.xMax+paddingX*pixelX,_viewport.yMin-paddingY*pixelY,_viewport.yMax+paddingY*pixelY,-1f,1f),true);
+            _commands.GetTemporaryRT(mask,shadowViewport.Width,shadowViewport.Height,0,FilterMode.Bilinear,RenderTextureFormat.ARGB32,RenderTextureReadWrite.Linear,4);
+            _commands.GetTemporaryRT(ping,shadowViewport.Width,shadowViewport.Height,0,FilterMode.Bilinear,RenderTextureFormat.ARGB32,RenderTextureReadWrite.Linear);
+            _commands.GetTemporaryRT(blur,shadowViewport.Width,shadowViewport.Height,0,FilterMode.Bilinear,RenderTextureFormat.ARGB32,RenderTextureReadWrite.Linear);
             for(var i=0;i<_batches.Count;i++) {
-                var batch=_batches[i];var props=new MaterialPropertyBlock();props.SetTexture("_ImageTex",batch.Texture!=null?batch.Texture:Texture2D.whiteTexture);
+                var batch=_batches[i];var props=new MaterialPropertyBlock();var image=batch.Texture!=null?batch.Texture:Texture2D.whiteTexture;props.SetTexture("_ImageTex",image);props.SetVector("_ImageTex_TexelSize",new Vector4(1f/image.width,1f/image.height,image.width,image.height));
                 if(batch.Shadow.a>0f&&(batch.Blur>0f||batch.X!=0f||batch.Y!=0f)) {
-                    _commands.SetRenderTarget(mask);_commands.ClearRenderTarget(false,true,Color.clear);_commands.SetViewProjectionMatrices(Matrix4x4.identity,projection);
+                    _commands.SetRenderTarget(mask);_commands.ClearRenderTarget(false,true,Color.clear);_commands.SetViewProjectionMatrices(Matrix4x4.identity,shadowProjection);
                     _commands.DrawMesh(_mesh,Matrix4x4.identity,_material,i,0,props);
-                    _commands.SetGlobalFloat("_SourceShadowSigma",batch.Blur*.5f*_dpr);
-                    _commands.SetGlobalVector("_SourceShadowDirection",new Vector4(1f/_target.width,0f,0f,0f));_commands.Blit(mask,ping,_blurMaterial,0);
-                    _commands.SetGlobalVector("_SourceShadowDirection",new Vector4(0f,1f/_target.height,0f,0f));_commands.Blit(ping,blur,_blurMaterial,0);
+                    _commands.SetGlobalFloat("_SourceShadowSigma",(float)VisualCanvasShadowViewport.Sigma(batch.Blur));
+                    _commands.SetGlobalVector("_SourceShadowDirection",new Vector4(1f/shadowViewport.Width,0f,0f,0f));_commands.Blit(mask,ping,_blurMaterial,0);
+                    _commands.SetGlobalVector("_SourceShadowDirection",new Vector4(0f,1f/shadowViewport.Height,0f,0f));_commands.Blit(ping,blur,_blurMaterial,0);
                     _commands.SetGlobalColor("_SourceShadowColor",batch.Shadow);
-                    _commands.SetGlobalVector("_SourceShadowOffset",new Vector4(batch.X*_dpr/_target.width,-batch.Y*_dpr/_target.height,0f,0f));
+                    _commands.SetGlobalVector("_SourceShadowOffset",new Vector4(batch.X/shadowViewport.Width,-batch.Y/shadowViewport.Height,0f,0f));
+                    _commands.SetGlobalVector("_SourceShadowRect",new Vector4((float)shadowViewport.U,(float)shadowViewport.V,(float)shadowViewport.UWidth,(float)shadowViewport.VHeight));
                     _commands.Blit(blur,_target,_blurMaterial,batch.Blend=="lighter"?2:batch.Blend=="screen"?3:1);
                     _commands.SetViewProjectionMatrices(Matrix4x4.identity,projection);
                 }
@@ -282,7 +287,7 @@ namespace EchoSphere.Presentation
             // Dynamic legacy fonts can rebuild their atlas while later text is
             // requested. Resolve every required glyph before retaining any UVs.
             var dirty=false;void Rebuilt(Font font){dirty=true;}Font.textureRebuilt+=Rebuilt;
-            try{var attempts=0;do{dirty=false;foreach(var batch in _batches)if(batch.Text!=null){var font=SourceCanvasTypography.Resolve(batch.TextState.Font,out var size,out var style);SourceCanvasTypography.Vertices(font,batch.Text,size,style);}if(++attempts>8&&dirty)throw new InvalidOperationException("Source font atlas could not retain the frame's glyphs");}while(dirty);}
+            try{var attempts=0;do{dirty=false;foreach(var batch in _batches)if(batch.Text!=null){var font=SourceCanvasTypography.Resolve(batch.TextState.Font,out var size,out var style,TextRasterScale(batch.TextState));SourceCanvasTypography.Vertices(font,batch.Text,size,style);}if(++attempts>8&&dirty)throw new InvalidOperationException("Source font atlas could not retain the frame's glyphs");}while(dirty);}
             finally{Font.textureRebuilt-=Rebuilt;}
             var previous=_state;
             try{foreach(var batch in _batches)if(batch.Text!=null){_state=batch.TextState;EmitText(batch);}}
@@ -291,7 +296,7 @@ namespace EchoSphere.Presentation
         private void EmitText(Batch batch)
         {
             var text=batch.Text;var x=batch.TextX;var y=batch.TextY;var maxWidth=batch.TextWidth;
-            var font=SourceCanvasTypography.Resolve(_state.Font,out var size,out var style);var fontScale=SourceCanvasTypography.Size(_state.Font)/size;var width=SourceCanvasTypography.Width(font,text,size,style)*fontScale;
+            var font=SourceCanvasTypography.Resolve(_state.Font,out var size,out var style,TextRasterScale(_state));var fontScale=SourceCanvasTypography.Size(_state.Font)/size;var width=SourceCanvasTypography.Width(font,text,size,style)*fontScale;
             var scale=width>maxWidth?maxWidth/width:1f;
             if(_state.Align=="center")x-=width*scale*.5f;else if(_state.Align=="right"||_state.Align=="end")x-=width*scale;
             var sampleAscent=font.ascent*(float)size/font.fontSize;var ascent=sampleAscent*fontScale;var lineHeight=font.lineHeight*(float)size/font.fontSize*fontScale;
@@ -307,6 +312,7 @@ namespace EchoSphere.Presentation
             }
             batch.Start=start;batch.Count=_triangles.Count-start;batch.Texture=_image;_image=null;
         }
+        private float TextRasterScale(State state)=>Mathf.Max(.0001f,_dpr*Mathf.Max(state.Matrix.MultiplyVector(Vector3.right).magnitude,state.Matrix.MultiplyVector(Vector3.up).magnitude));
         private void Ellipse(float x,float y,float rx,float ry,float rotation,float start,float end,bool anticlockwise)
         {
             if(rx<0f||ry<0f)throw new ArgumentOutOfRangeException("Source Canvas ellipse radius");

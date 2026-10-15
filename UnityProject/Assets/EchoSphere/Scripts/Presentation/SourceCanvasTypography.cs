@@ -11,10 +11,10 @@ namespace EchoSphere.Presentation
         private static readonly TextGenerator Generator=new TextGenerator();
         internal static float Size(string declaration)
         {var match=Regex.Match(declaration,@"([\d.]+)px\s+");return match.Success?Mathf.Max(.01f,float.Parse(match.Groups[1].Value,CultureInfo.InvariantCulture)):10f;}
-        internal static Font Resolve(string declaration,out int size,out FontStyle style)
+        internal static Font Resolve(string declaration,out int size,out FontStyle style,float rasterScale=1f)
         {
             var match=Regex.Match(declaration,@"([\d.]+)px\s+(.+)$");
-            size=Mathf.Max(1,Mathf.CeilToInt(Size(declaration)));
+            size=Mathf.Max(1,Mathf.CeilToInt(Size(declaration)*rasterScale));
             style=declaration.Contains("bold")||Regex.IsMatch(declaration,@"(?:^|\s)[6-9]00(?:\s|$)")?FontStyle.Bold:FontStyle.Normal;
             if(declaration.Contains("italic"))style=style==FontStyle.Bold?FontStyle.BoldAndItalic:FontStyle.Italic;
             var family=match.Success?match.Groups[2].Value:"sans-serif";

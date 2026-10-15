@@ -16,6 +16,7 @@ namespace EchoSphere.Presentation
             public SourceUiElement Host;
             public readonly VisualCssAnimation Motion=new VisualCssAnimation();
             public readonly Dictionary<string,string> BaseStyle=new Dictionary<string,string>();
+            public readonly HashSet<int> ActivePointers=new HashSet<int>();
             public string PaintKey,SvgKey;
             public Texture2D Paint;
             public Texture Svg;
@@ -61,6 +62,9 @@ namespace EchoSphere.Presentation
             _document=gameObject.AddComponent<UIDocument>();_document.panelSettings=_panel;
             _document.rootVisualElement.style.position=Position.Absolute;_document.rootVisualElement.style.left=0;_document.rootVisualElement.style.right=0;_document.rootVisualElement.style.top=0;_document.rootVisualElement.style.bottom=0;
             _document.rootVisualElement.pickingMode=PickingMode.Ignore;
+            _document.rootVisualElement.RegisterCallback<PointerDownEvent>(evt=>{if(evt.button==0)BeginActivePointer(evt.target as VisualElement,evt.pointerId);},TrickleDown.TrickleDown);
+            _document.rootVisualElement.RegisterCallback<PointerUpEvent>(evt=>EndActivePointer(evt.pointerId),TrickleDown.TrickleDown);
+            _document.rootVisualElement.RegisterCallback<PointerCancelEvent>(evt=>EndActivePointer(evt.pointerId),TrickleDown.TrickleDown);
             Environment=new SourceUiEnvironment(this);
             VisualDom.Changed=()=>Dirty=true;
         }
@@ -95,7 +99,7 @@ namespace EchoSphere.Presentation
                 element.generateVisualContent+=context=>Paint(entry,context);
                 element.RegisterCallback<GeometryChangedEvent>(evt=>{UpdateBounds(entry.Node,entry.Element);entry.PaintKey=null;FrameVersion++;});
             }
-            entry.Used=true;entry.Node=node;entry.Host.Node=node;node.Native=entry.Element;
+            entry.Used=true;entry.Node=node;entry.Host.Node=node;node.Native=entry.Element;node.Active=entry.ActivePointers.Count>0;
             if(entry.Element is ScrollView scrolling)scrolling.mode=scrollX?scrollY?ScrollViewMode.VerticalAndHorizontal:ScrollViewMode.Horizontal:ScrollViewMode.Vertical;
             UpdateBounds(node,entry.Element);if(node.Parent==null){node.Width=_sheet.Width;node.Height=_sheet.Height;}
             if(entry.Element.parent!=parent)parent.Add(entry.Element);
@@ -132,10 +136,10 @@ namespace EchoSphere.Presentation
         private void InstallEvents(Entry entry)
         {
             var element=entry.Element;
-            element.RegisterCallback<PointerDownEvent>(evt=>{entry.Node.Active=true;Dirty=true;entry.Host.Send("onPointerDown",evt);});
+            element.RegisterCallback<PointerDownEvent>(evt=>entry.Host.Send("onPointerDown",evt));
             element.RegisterCallback<PointerMoveEvent>(evt=>entry.Host.Send("onPointerMove",evt));
-            element.RegisterCallback<PointerUpEvent>(evt=>{entry.Node.Active=false;Dirty=true;entry.Host.Send("onPointerUp",evt);});
-            element.RegisterCallback<PointerCancelEvent>(evt=>{entry.Node.Active=false;Dirty=true;entry.Host.Send("onPointerCancel",evt);});
+            element.RegisterCallback<PointerUpEvent>(evt=>{EndActivePointer(evt.pointerId);entry.Host.Send("onPointerUp",evt);});
+            element.RegisterCallback<PointerCancelEvent>(evt=>{EndActivePointer(evt.pointerId);entry.Host.Send("onPointerCancel",evt);});
             element.RegisterCallback<ClickEvent>(evt=>entry.Host.Send("onClick",evt));
             element.RegisterCallback<KeyDownEvent>(evt=>entry.Host.Send("onKeyDown",evt));
             element.RegisterCallback<NavigationSubmitEvent>(evt=>{if(entry.Node.Tag=="button"&&!entry.Node.Properties["disabled"].Truth){entry.Host.Send("onClick",evt);evt.StopPropagation();}});
@@ -145,6 +149,12 @@ namespace EchoSphere.Presentation
             if(element is TextField input)input.RegisterValueChangedCallback(evt=>{entry.Node.Properties["value"]=evt.newValue;entry.Host.Change(evt.newValue);});
             if(element is Slider slider)slider.RegisterValueChangedCallback(evt=>{var step=entry.Node.Properties["step"].Number;var value=step>0d?slider.lowValue+Math.Round((evt.newValue-slider.lowValue)/step)*step:evt.newValue;slider.SetValueWithoutNotify((float)value);entry.Node.Properties["value"]=value;entry.Host.Change(VisualJs.NumberText(value));});
         }
+        private void BeginActivePointer(VisualElement target,int pointer)
+        {for(var current=target;current!=null;current=current.parent)if(_elementEntries.TryGetValue(current,out var entry)){entry.ActivePointers.Add(pointer);entry.Node.Active=true;Dirty=true;}}
+        private void EndActivePointer(int pointer)
+        {foreach(var entry in _entries.Values)if(entry.ActivePointers.Remove(pointer)){entry.Node.Active=entry.ActivePointers.Count>0;Dirty=true;}}
+        private void OnApplicationFocus(bool focused)
+        {if(!focused)foreach(var entry in _entries.Values)if(entry.ActivePointers.Count>0){entry.ActivePointers.Clear();entry.Node.Active=false;Dirty=true;}}
         private void UpdateLayout(VisualCssNode node)
         {if(node.Native is VisualElement element){var oldBounds=(node.X,node.Y,node.Width,node.Height);UpdateBounds(node,element);if(oldBounds!=(node.X,node.Y,node.Width,node.Height))FrameVersion++;_layout.Apply(node,element);var entry=_elementEntries[element];if(node.Tag=="svg")SourceUiSvg.Text(node,_sheet,element,entry.SvgTexts);if(DepthAncestor(node)==null&&(_sheet.Get(node,"filter","none").Trim()!="none"||_sheet.Get(node,"opacity","1")!="1")){if(entry.Filters==null)entry.Filters=new SourceUiFilters();entry.Filters.Apply(_sheet,node,element,_scale,IsDepthRoot(node));}else element.style.filter=new List<FilterFunction>();var backdrop=System.Text.RegularExpressions.Regex.Match(_sheet.Get(node,"backdrop-filter","none"),@"blur\(([^)]+)\)");if(backdrop.Success){if(entry.Backdrop==null)entry.Backdrop=new SourceUiBackdrop(this);if(entry.Backdrop.parent!=element.parent)element.parent.Insert(element.parent.IndexOf(element),entry.Backdrop);entry.Backdrop.Update(node,element,(float)_sheet.Length(backdrop.Groups[1].Value,node.Width));}else if(entry.Backdrop!=null){entry.Backdrop.Dispose();entry.Backdrop=null;}element.MarkDirtyRepaint();}foreach(var child in node.Children)UpdateLayout(child);}
         private static void UpdateBounds(VisualCssNode node,VisualElement element)
@@ -154,6 +164,7 @@ namespace EchoSphere.Presentation
             var node=entry.Node;if(node.Width<=0d||node.Height<=0d)return;
             if(DepthAncestor(node)!=null)return;
             if(IsDepthRoot(node)){PaintDepth(entry,context);return;}
+            if(entry.Backdrop!=null)Quad(context,entry.Backdrop.Texture,new Rect(0,0,(float)node.Width,(float)node.Height));
             EnsureBrush(entry);
             Quad(context,entry.Paint,entry.PaintRect);
             if(entry.Element is Slider slider)SourceUiRange.Paint(slider,context);

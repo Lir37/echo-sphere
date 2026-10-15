@@ -70,6 +70,7 @@ namespace EchoSphere.Presentation
             }else if(S(node,"position")=="relative"){style.left=Dimension(node,"left",parentWidth);style.right=Dimension(node,"right",parentWidth);style.top=Dimension(node,"top",parentHeight);style.bottom=Dimension(node,"bottom",parentHeight);}else {style.left=StyleKeyword.Auto;style.right=StyleKeyword.Auto;style.top=StyleKeyword.Auto;style.bottom=StyleKeyword.Auto;}
             style.overflow=S(node,"overflow")=="hidden"||S(node,"overflow-x")=="hidden"||S(node,"overflow-y")=="hidden"?Overflow.Hidden:Overflow.Visible;
             style.visibility=S(node,"visibility")=="hidden"?Visibility.Hidden:Visibility.Visible;
+            SourceUiCursor.Apply(style,S(node,"cursor","auto"));
             style.opacity=F(S(node,"opacity","1"),1f);
             element.pickingMode=S(node,"pointer-events")=="none"?PickingMode.Ignore:PickingMode.Position;
             element.focusable=node.Pseudo==null&&(node.Tag=="input"||node.Tag=="button"||node.Properties["tabIndex"].Number>=0);
@@ -87,6 +88,9 @@ namespace EchoSphere.Presentation
             if(node.Parent==null){style.width=(float)Sheet.Width;style.height=(float)Sheet.Height;style.flexShrink=0;}
             if(node.Tag=="svg"){if(!node.Style.ContainsKey("width")&&!node.Properties["width"].Undefined)style.width=(float)node.Properties["width"].Number;if(!node.Style.ContainsKey("height")&&!node.Properties["height"].Undefined)style.height=(float)node.Properties["height"].Number;style.flexShrink=0;}
             if(element is TextElement text){
+                var insideButton=false;for(var ancestor=node;ancestor!=null;ancestor=ancestor.Parent)if(ancestor.Tag=="button"){insideButton=true;break;}
+                text.selection.isSelectable=!insideButton&&S(node,"user-select","auto")!="none"&&S(node,"pointer-events","auto")!="none";
+                text.focusable=node.Properties["tabIndex"].Number>=0||node.Tag=="button";
                 if(SourceUiInline.CanMerge(Sheet,node)&&node.Children.Any(child=>child.Tag!="#text")){text.enableRichText=true;text.text=SourceUiInline.Text(Sheet,node);}
                 else {var content=node.Tag=="#text"?node.Text:string.Concat(node.Children.Where(child=>child.Tag=="#text").Select(child=>child.Text));if(S(node,"white-space")!="pre"&&S(node,"white-space")!="pre-wrap")content=Regex.Replace(content,@"\s+"," ");if(S(node,"text-transform")=="uppercase")content=content.ToUpperInvariant();else if(S(node,"text-transform")=="lowercase")content=content.ToLowerInvariant();text.text=content;text.enableRichText=false;}
             }
@@ -135,10 +139,19 @@ namespace EchoSphere.Presentation
             var gap=VisualCss.Split(S(node,"gap","0"),' ').Where(part=>part.Length>0).ToArray();var rowGap=gap.Length>0?(float)Sheet.Length(gap[0],contentWidth,FontSize(node)):0f;var columnGap=gap.Length>1?(float)Sheet.Length(gap[1],contentWidth,FontSize(node)):rowGap;
             if(float.IsNaN(rowGap))rowGap=0;if(float.IsNaN(columnGap))columnGap=0;
             var usedWidth=0f;var row=0;var column=0;
+            void LeadingGap(VisualCssNode child,VisualCssNode previous,bool horizontal,float spacing){
+                var leading=horizontal?"margin-left":"margin-top";var trailing=horizontal?"margin-right":"margin-bottom";var native=(VisualElement)child.Native;
+                if(S(child,leading)=="auto"){
+                    if(horizontal)native.style.marginLeft=StyleKeyword.Auto;else native.style.marginTop=StyleKeyword.Auto;
+                    // Gap remains fixed space; an auto margin still consumes
+                    // free space. Put that gap on the preceding fixed margin.
+                    if(previous?.Native is VisualElement before&&spacing>0f){if(horizontal)before.style.marginRight=Length(previous,trailing,contentWidth)+spacing;else before.style.marginBottom=Length(previous,trailing,contentWidth)+spacing;}
+                }else if(horizontal)native.style.marginLeft=Length(child,leading,contentWidth)+spacing;else native.style.marginTop=Length(child,leading,contentWidth)+spacing;
+            }
             for(var index=0;index<children.Count;index++) {
                 var child=children[index];var native=(VisualElement)child.Native;
-                if(S(node,"flex-direction",S(node,"display")=="flex"||S(node,"display")=="inline-flex"?"row":"column").StartsWith("column",StringComparison.Ordinal)){if(index>0)native.style.marginTop=Length(child,"margin-top",contentWidth)+rowGap;}
-                else {var width=native.layout.width+Length(child,"margin-left",contentWidth)+Length(child,"margin-right",contentWidth);if(S(node,"flex-wrap")=="wrap"&&column>0&&usedWidth+columnGap+width>contentWidth+.001d){row++;column=0;usedWidth=0f;}native.style.marginLeft=Length(child,"margin-left",contentWidth)+(column>0?columnGap:0f);native.style.marginTop=Length(child,"margin-top",contentWidth)+(row>0?rowGap:0f);usedWidth+=width+(column>0?columnGap:0f);column++;}
+                if(S(node,"flex-direction",S(node,"display")=="flex"||S(node,"display")=="inline-flex"?"row":"column").StartsWith("column",StringComparison.Ordinal)){if(index>0)LeadingGap(child,children[index-1],false,rowGap);}
+                else {var width=native.layout.width+Length(child,"margin-left",contentWidth)+Length(child,"margin-right",contentWidth);if(S(node,"flex-wrap")=="wrap"&&column>0&&usedWidth+columnGap+width>contentWidth+.001d){row++;column=0;usedWidth=0f;}LeadingGap(child,column>0?children[index-1]:null,true,column>0?columnGap:0f);if(S(child,"margin-top")!="auto")native.style.marginTop=Length(child,"margin-top",contentWidth)+(row>0?rowGap:0f);usedWidth+=width+(column>0?columnGap:0f);column++;}
             }
             foreach(var child in node.Children)Tracks(child);
         }
