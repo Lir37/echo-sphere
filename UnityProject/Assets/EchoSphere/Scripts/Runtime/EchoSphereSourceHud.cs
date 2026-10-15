@@ -103,11 +103,13 @@ namespace EchoSphere.Runtime
         }
         private void DrawSourceRunControls()
         {
-            var picker = GetSpherePickerRect(); var x = picker.x; var y = picker.y - 73f;
+            var picker = GetSpherePickerRect(); var x = picker.x + 4f; var y = picker.y - 101f;
             var enabled = GUI.enabled; GUI.enabled = !_follow && !_paused && !_gameOver && !_levelUp && !_stellaRewardPending;
             var dash = _playerCore.DashCooldown > 0f ? Mathf.CeilToInt(_playerCore.DashCooldown) + "s" : "DASH";
-            DrawSphereGuiFilledCircle(new Vector2(x + 32f, y + 32f), 32f, new Color32(255, 184, 77, 217));
-            if (SourceUiButton(new Rect(x, y, 64f, 64f), "ϟ\n" + dash, 11, Color.clear, "#dcecff")) TrySourceDash(true);
+            DrawSphereGuiFilledCircle(new Vector2(x + 45f, y + 45f), 45f, new Color32(255, 184, 77, 217));
+            if (SourceUiButton(new Rect(x, y, 90f, 90f), "", 1, Color.clear, "#dcecff")) TrySourceDash(true);
+            SourceUiLabel(new Rect(x, y + 12f, 90f, 48f), "ϟ", 24, "#dcecff", true, true);
+            SourceUiLabel(new Rect(x, y + 57f, 90f, 22f), dash, 8, "#dcecff", true, true);
             GUI.enabled = enabled; y -= 8f;
             var row = 0; var column = 0;
             foreach (var key in SourceActiveAbilityKeys)
@@ -117,17 +119,17 @@ namespace EchoSphere.Runtime
                 if (!found) continue;
                 var entry = PlannerEntry("ability-evolution", GetAbilityFinal(kind)) ?? PlannerEntry("ability-evolution", GetAbilityBranch(kind)) ?? PlannerEntry("active", SourceAbilityId(kind));
                 var cooldown = GetActiveAbilityCooldown(kind); GUI.enabled = !_paused && !_gameOver && !_levelUp && !_stellaRewardPending && !(_follow && kind == RunUpgradeKind.Teleport);
-                if (SourceUiButton(new Rect(x + column * 70f, y - 48f - row * 54f, 64f, 48f), PlannerName(entry) + "\n" + (cooldown > 0f ? Mathf.CeilToInt(cooldown) + "s" : IsRussianUi ? "ГОТОВО" : "READY"), 9, new Color32(13, 23, 38, 230), "#b6c9de")) ActivateActiveAbility(kind);
+                if (SourceUiButton(new Rect(x + column * 98f, y - 67f - row * 76f, 90f, 67f), PlannerName(entry) + "\n" + (cooldown > 0f ? Mathf.CeilToInt(cooldown) + "s" : IsRussianUi ? "ГОТОВО" : "READY"), 12, new Color32(13, 23, 38, 230), "#b6c9de")) ActivateActiveAbility(kind);
                 GUI.enabled = enabled; column++; if (column == 2) { column = 0; row++; }
             }
-            var abilityRows = Mathf.Ceil(_activeAbilityHotkeys.Count / 2f); y -= abilityRows * 54f + 48f;
-            if (SourceUiButton(new Rect(x, y, 48f, 40f), _sphereMovementLocked ? (IsRussianUi ? "ЗАБЛОКИРОВАНО" : "LOCKED") : IsRussianUi ? "ПЕРЕМЕЩЕНИЕ" : "MOVE", 7, new Color32(13, 23, 38, 230), "#b6c9de")) _sphereMovementLocked = !_sphereMovementLocked;
+            var abilityRows = Mathf.Ceil(_activeAbilityHotkeys.Count / 2f); y -= abilityRows * 76f + 67f;
+            if (SourceUiButton(new Rect(x, y, 68f, 56f), _sphereMovementLocked ? (IsRussianUi ? "ЗАБЛОКИРОВАНО" : "LOCKED") : IsRussianUi ? "ПЕРЕМЕЩЕНИЕ" : "MOVE", 10, new Color32(13, 23, 38, 230), "#b6c9de")) _sphereMovementLocked = !_sphereMovementLocked;
             var nodes = new List<FormationNode>(); foreach (var sphere in _spheres) if (sphere != null) nodes.Add(new FormationNode(new Vec2(sphere.transform.position.x, sphere.transform.position.y), true));
             GUI.enabled = _follow || FormationFollowRules.CanActivate(new Vec2(_player.position.x, _player.position.y), nodes);
-            if (SourceUiButton(new Rect(x + 54f, y, 48f, 40f), _follow ? (IsRussianUi ? "СЛЕД" : "FOLLOWING") : "FOLLOW", 8, new Color32(13, 23, 38, 230), "#b6c9de")) SetFormationFollowMode(!_follow);
-            GUI.enabled = enabled; y -= 56f;
-            if (_tutorialStep < 0 && SourceUiButton(new Rect(x, y, 48f, 48f), "Ⅱ", 20, new Color32(13, 23, 38, 230), "#b6c9de")) SetUserPaused(!_userPaused);
-            if (_follow) SourceUiLabel(new Rect(x + 75f, picker.y - 43f, picker.width - 75f, 25f), (IsRussianUi ? "НАГРУЗКА СЕТИ " : "NETWORK STRAIN ") + Mathf.RoundToInt(_formationStrain) + "%", 8, "#7f9bb8", false, true);
+            if (SourceUiButton(new Rect(x + 76f, y, 68f, 56f), _follow ? (IsRussianUi ? "СЛЕД" : "FOLLOWING") : "FOLLOW" , 11, new Color32(13, 23, 38, 230), "#b6c9de")) SetFormationFollowMode(!_follow);
+            GUI.enabled = enabled; y -= 84f;
+            if (_tutorialStep < 0 && SourceUiButton(new Rect(x, y, 68f, 68f), "Ⅱ", 28, new Color32(13, 23, 38, 230), "#b6c9de")) SetUserPaused(!_userPaused);
+            if (_follow) SourceUiLabel(new Rect(x + 105f, picker.y - 58f, picker.width - 105f, 32f), (IsRussianUi ? "НАГРУЗКА СЕТИ " : "NETWORK STRAIN ") + Mathf.RoundToInt(_formationStrain) + "%", 11, "#7f9bb8", false, true);
         }
         private void DrawSourceNetworkTooltip()
         {
