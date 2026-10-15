@@ -10,22 +10,33 @@ namespace EchoSphere.Core
     [Serializable]
     public sealed class SnapshotValue
     {
+        // Flat node storage avoids Unity JsonUtility's nested-serialization depth limit.
+        // parentIndex points to another entry in nodes; -1 identifies the root.
+        public List<SnapshotNode> nodes = new List<SnapshotNode>();
+        public int rootIndex;
+    }
+
+    [Serializable]
+    public sealed class SnapshotNode
+    {
         public string name, kind, text;
-        public List<SnapshotValue> items = new List<SnapshotValue>();
+        public int parentIndex;
     }
 
     // JsonUtility-compatible representation of the source's JSON run snapshot.
-    // Only declared value fields and collections are stored. Engine object references,
-    // identity-based hit sets and renderer resources are intentionally excluded.
+    // The serialized representation is flat; capture/restore still follows the
+    // original object/list/map hierarchy without recursively serializing objects.
     public static class RunSnapshotCodec
     {
         private const BindingFlags Fields = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
+
         public static bool IsEngineObject(Type type)
         {
             for (var current = type; current != null; current = current.BaseType)
                 if (current.FullName == "UnityEngine.Object") return true;
             return false;
         }
+
         private static bool CanStore(Type type)
         {
             if (IsEngineObject(type) || typeof(Delegate).IsAssignableFrom(type)) return false;
@@ -36,71 +47,134 @@ namespace EchoSphere.Core
                 type.Namespace == "EchoSphere.Core" || type.Namespace == "EchoSphere.Runtime" ||
                 type.Namespace == "System.Collections.Generic";
         }
+
         public static SnapshotValue Capture(object value, Func<FieldInfo, bool> select = null)
         {
-            var node = new SnapshotValue();
-            if (value == null) { node.kind = "null"; return node; }
+            var snapshot = new SnapshotValue();
+            snapshot.nodes.Add(new SnapshotNode { parentIndex = -1 });
+            CaptureInto(snapshot, 0, value, select);
+            return snapshot;
+        }
+
+        private static void CaptureInto(SnapshotValue snapshot, int index, object value, Func<FieldInfo, bool> select)
+        {
+            var node = snapshot.nodes[index];
+            if (value == null) { node.kind = "null"; return; }
+
             var type = value.GetType();
             if (type == typeof(string) || type.IsPrimitive || type.IsEnum)
             {
                 node.kind = "scalar";
-                node.text = value is float f ? f.ToString("R", CultureInfo.InvariantCulture) : value is double d ? d.ToString("R", CultureInfo.InvariantCulture) : Convert.ToString(value, CultureInfo.InvariantCulture);
-                return node;
+                node.text = value is float f ? f.ToString("R", CultureInfo.InvariantCulture) :
+                    value is double d ? d.ToString("R", CultureInfo.InvariantCulture) :
+                    Convert.ToString(value, CultureInfo.InvariantCulture);
+                return;
             }
+
             if (value is IDictionary map)
             {
                 node.kind = "map";
                 foreach (DictionaryEntry entry in map)
-                { node.items.Add(Capture(entry.Key)); node.items.Add(Capture(entry.Value)); }
-                return node;
+                {
+                    var keyIndex = AddNode(snapshot, index, null);
+                    CaptureInto(snapshot, keyIndex, entry.Key, null);
+                    var valueIndex = AddNode(snapshot, index, null);
+                    CaptureInto(snapshot, valueIndex, entry.Value, null);
+                }
+                return;
             }
+
             if (value is IEnumerable sequence)
             {
                 node.kind = "list";
-                foreach (var item in sequence) node.items.Add(Capture(item));
-                return node;
+                foreach (var item in sequence)
+                {
+                    var itemIndex = AddNode(snapshot, index, null);
+                    CaptureInto(snapshot, itemIndex, item, null);
+                }
+                return;
             }
+
             node.kind = "object";
             foreach (var field in type.GetFields(Fields))
             {
                 if (field.IsStatic || !CanStore(field.FieldType) || (select != null && !select(field))) continue;
-                var item = Capture(field.GetValue(value)); item.name = field.Name; node.items.Add(item);
+                var childIndex = AddNode(snapshot, index, field.Name);
+                CaptureInto(snapshot, childIndex, field.GetValue(value), select);
             }
-            return node;
         }
-        public static SnapshotValue Field(SnapshotValue node, string name) => node?.items?.Find(x => x.name == name);
+
+        private static int AddNode(SnapshotValue snapshot, int parentIndex, string name)
+        {
+            var index = snapshot.nodes.Count;
+            snapshot.nodes.Add(new SnapshotNode { name = name, parentIndex = parentIndex });
+            return index;
+        }
+
+        public static SnapshotValue Field(SnapshotValue node, string name)
+        {
+            if (node == null || node.nodes == null || node.rootIndex < 0 || node.rootIndex >= node.nodes.Count) return null;
+            for (var i = 0; i < node.nodes.Count; i++)
+                if (node.nodes[i].parentIndex == node.rootIndex && node.nodes[i].name == name)
+                    return View(node, i);
+            return null;
+        }
+
         public static T Read<T>(SnapshotValue node, string field, T fallback = default)
         {
             var value = Field(node, field);
             return value == null ? fallback : (T)Restore(value, typeof(T));
         }
+
+        private static SnapshotValue View(SnapshotValue source, int rootIndex) =>
+            new SnapshotValue { nodes = source.nodes, rootIndex = rootIndex };
+
         public static object Restore(SnapshotValue node, Type type, object existing = null)
         {
-            if (node == null || node.kind == "null") return null;
+            if (node == null || node.nodes == null || node.rootIndex < 0 || node.rootIndex >= node.nodes.Count) return null;
+            return RestoreNode(node, node.rootIndex, type, existing);
+        }
+
+        private static object RestoreNode(SnapshotValue snapshot, int index, Type type, object existing)
+        {
+            var node = snapshot.nodes[index];
+            if (node.kind == "null") return null;
             var nullable = Nullable.GetUnderlyingType(type);
             if (nullable != null) type = nullable;
-            if (node.kind == "scalar") return type.IsEnum ? Enum.Parse(type, node.text) : Convert.ChangeType(node.text, type, CultureInfo.InvariantCulture);
+            if (node.kind == "scalar")
+                return type.IsEnum ? Enum.Parse(type, node.text) : Convert.ChangeType(node.text, type, CultureInfo.InvariantCulture);
+
             if (type.IsArray)
             {
-                var element = type.GetElementType(); var array = Array.CreateInstance(element, node.items.Count);
-                for (var i = 0; i < node.items.Count; i++) array.SetValue(Restore(node.items[i], element), i);
+                var element = type.GetElementType();
+                var children = Children(snapshot, index);
+                var array = Array.CreateInstance(element, children.Count);
+                for (var i = 0; i < children.Count; i++) array.SetValue(RestoreNode(snapshot, children[i], element, null), i);
                 return array;
             }
+
             if (node.kind == "map")
             {
-                var map = (IDictionary)(existing ?? Activator.CreateInstance(type, true)); map.Clear();
+                var map = (IDictionary)(existing ?? Activator.CreateInstance(type, true));
+                map.Clear();
                 var args = type.GetGenericArguments();
-                for (var i = 0; i < node.items.Count; i += 2) map.Add(Restore(node.items[i], args[0]), Restore(node.items[i + 1], args[1]));
+                var children = Children(snapshot, index);
+                for (var i = 0; i + 1 < children.Count; i += 2)
+                    map.Add(RestoreNode(snapshot, children[i], args[0], null), RestoreNode(snapshot, children[i + 1], args[1], null));
                 return map;
             }
+
             if (node.kind == "list")
             {
                 var sequence = existing ?? Activator.CreateInstance(type, true);
                 type.GetMethod("Clear").Invoke(sequence, null);
-                var argument = type.GetGenericArguments()[0]; var add = type.GetMethod("Add");
-                foreach (var item in node.items) add.Invoke(sequence, new[] { Restore(item, argument) });
+                var argument = type.GetGenericArguments()[0];
+                var add = type.GetMethod("Add");
+                foreach (var child in Children(snapshot, index))
+                    add.Invoke(sequence, new[] { RestoreNode(snapshot, child, argument, null) });
                 return sequence;
             }
+
             if (existing == null)
             {
                 if (type.IsValueType) existing = Activator.CreateInstance(type);
@@ -112,13 +186,23 @@ namespace EchoSphere.Core
 #pragma warning restore SYSLIB0050
                 }
             }
-            foreach (var item in node.items)
+
+            foreach (var childIndex in Children(snapshot, index))
             {
-                var field = type.GetField(item.name, Fields);
+                var child = snapshot.nodes[childIndex];
+                var field = type.GetField(child.name, Fields);
                 if (field == null || !CanStore(field.FieldType)) continue;
-                field.SetValue(existing, Restore(item, field.FieldType, field.GetValue(existing)));
+                field.SetValue(existing, RestoreNode(snapshot, childIndex, field.FieldType, field.GetValue(existing)));
             }
             return existing;
+        }
+
+        private static List<int> Children(SnapshotValue snapshot, int parentIndex)
+        {
+            var children = new List<int>();
+            for (var i = 0; i < snapshot.nodes.Count; i++)
+                if (snapshot.nodes[i].parentIndex == parentIndex) children.Add(i);
+            return children;
         }
     }
 }
