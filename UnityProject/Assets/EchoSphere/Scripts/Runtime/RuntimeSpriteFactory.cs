@@ -6,7 +6,7 @@ namespace EchoSphere.Runtime
     /// <summary>Cached procedural silhouettes for the migration prototype, not final production art.</summary>
     internal static class RuntimeSpriteFactory
     {
-        private static Sprite _disc, _ring, _standardCoreGlow, _standardCoreOutline, _standardOrbitRing, _faceted, _diamond, _hexagon, _prism, _shard, _star, _experienceShard, _experienceShardOutline;
+        private static Sprite _disc, _ring, _standardCoreGlow, _standardCoreOutline, _standardOrbitRing, _faceted, _diamond, _hexagon, _prism, _shard, _star, _experienceShard, _experienceShardOutline, _networkCometHead, _networkCometTail;
         private static readonly Dictionary<string, Sprite> AuthoredCache = new Dictionary<string, Sprite>();
         public static Sprite Disc { get { if (_disc == null) _disc = CreateSprite(false); return _disc; } }
         public static Sprite Ring { get { if (_ring == null) _ring = CreateSprite(true); return _ring; } }
@@ -21,6 +21,8 @@ namespace EchoSphere.Runtime
         public static Sprite Star { get { if (_star == null) _star = CreatePolygonSprite("ES_Star", RegularPolygon(10,0.9f,0.52f)); return _star; } }
         public static Sprite ExperienceShard { get { if (_experienceShard == null) _experienceShard = CreateFlatPolygonSprite("ES_ExperienceShard", ExperienceShardPoints()); return _experienceShard; } }
         public static Sprite ExperienceShardOutline { get { if (_experienceShardOutline == null) _experienceShardOutline = CreatePolygonOutlineSprite("ES_ExperienceShardOutline", ExperienceShardPoints(), 0.045f); return _experienceShardOutline; } }
+        public static Sprite NetworkCometHead { get { if (_networkCometHead == null) _networkCometHead = CreateFlatPolygonSprite("ES_NetworkCometHead", new[] { new Vector2(1f, 0f), new Vector2(-0.496f, -1f), new Vector2(-1f, 0f), new Vector2(-0.496f, 1f) }); return _networkCometHead; } }
+        public static Sprite NetworkCometTail { get { if (_networkCometTail == null) _networkCometTail = CreateFlatPolygonSprite("ES_NetworkCometTail", new[] { new Vector2(1f, 0f), new Vector2(-0.333f, -1f), new Vector2(-1f, 0f), new Vector2(-0.333f, 1f) }); return _networkCometTail; } }
 
         /// <summary>Loads an authored SVG sprite from Resources. A missing import allows the procedural fallback to work.</summary>
         public static Sprite LoadAuthored(string assetName)
