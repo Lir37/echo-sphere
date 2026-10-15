@@ -4607,3 +4607,28 @@ the crystal silhouette is fixed until this is resolved and visually verified.
 ======================================================================
 END STANDARD SPHERE ASSET VALIDATION CORRECTION
 ======================================================================
+
+======================================================================
+2026-10-15 — UNITY EDITOR COMPILE / PACKAGE MANAGER DIAGNOSTICS
+======================================================================
+
+[FIXED IN CODE]
+- EchoSphereSourceHome.cs: renamed the inner menu-core gradient palette
+  from `colors` to `gradientColors`, avoiding CS0136 with the later
+  orbit palette declared in the same method.
+- SourceAudio2D.cs: replaced obsolete FindObjectOfType<T>() with
+  FindFirstObjectByType<T>() to remove CS0618 on supported Unity versions.
+
+[EDITOR ENVIRONMENT, NOT A SOURCE-CODE DEFECT]
+- Package Manager online search returned an authentication-credentials
+  error for packages.unity.com. This does not identify a C# compilation
+  defect. Unity Hub/Editor authentication and Package Manager registry
+  access must be checked in the affected local Editor session.
+- “URP Global Settings Asset has been created for you” is an informational
+  URP asset-creation message, not a warning/error requiring code changes.
+- Unity Editor compilation and local Package Manager recovery have not
+  been independently verified by this repository-side change.
+
+======================================================================
+END UNITY EDITOR COMPILE / PACKAGE MANAGER DIAGNOSTICS
+======================================================================
