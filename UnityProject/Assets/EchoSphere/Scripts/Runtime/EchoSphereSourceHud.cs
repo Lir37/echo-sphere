@@ -27,11 +27,23 @@ namespace EchoSphere.Runtime
         }
         private bool IsSourceHudPoint(Vector2 point) => (_tutorialStep >= 0 && SourceTutorialCard.Contains(point)) || SourceHudLeft.Contains(point) || SourceHudRight.Contains(point) || SourceControlsRect.Contains(SourceControlsAnchor + (point - SourceControlsAnchor) / SourceInterfaceScale) ||
             (!string.IsNullOrEmpty(_sourceHudTooltip) && _sourceHudTooltipRect.Contains(point));
+        private void DrawSourceHudPanel(Rect rect)
+        {
+            SourceUiRect(rect, new Color32(6, 17, 29, 235));
+            var edge = new Color(0.31f, 0.69f, 0.88f, 0.18f);
+            var softEdge = new Color(0.31f, 0.69f, 0.88f, 0.08f);
+            SourceUiRect(new Rect(rect.x, rect.y, rect.width, 1f), edge);
+            SourceUiRect(new Rect(rect.x, rect.yMax - 1f, rect.width, 1f), softEdge);
+            SourceUiRect(new Rect(rect.x, rect.y, 1f, rect.height), softEdge);
+            SourceUiRect(new Rect(rect.xMax - 1f, rect.y, 1f, rect.height), softEdge);
+            SourceUiRect(new Rect(rect.x + 1f, rect.y + 1f, rect.width * 0.28f, 1f), new Color(0.39f, 0.90f, 1f, 0.18f));
+        }
+
         private void DrawSourceGameplayHud()
         {
             EnsureKnowledgeLoaded(); DrawSourceDamageNumbers();
             var left = SourceHudLeft; var right = SourceHudRight;
-            SourceUiRect(left, new Color32(6, 17, 29, 235)); SourceUiRect(right, new Color32(6, 17, 29, 235));
+            DrawSourceHudPanel(left); DrawSourceHudPanel(right);
             var width = left.width - 18f;
             SourceUiLabel(new Rect(left.x + 9f, left.y + 7f, width * .5f, 18f), (IsRussianUi ? "Уровень " : "Level ") + _level, 11, "#dcecff", false, true);
             SourceUiLabel(new Rect(left.x + left.width * .5f, left.y + 7f, width * .5f, 18f), Mathf.CeilToInt(_playerCore.CurrentHp) + "/" + Mathf.CeilToInt(_playerCore.MaxHp), 10, "#dcecff", true, true);
