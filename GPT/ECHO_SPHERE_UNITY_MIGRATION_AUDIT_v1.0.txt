@@ -4789,3 +4789,8 @@ stabilization, challenge and endless rules are unchanged.
 ======================================================================
 END REGION SELECT SOURCE LAYOUT
 ======================================================================
+
+
+The region-select scroll extent was trimmed to the actual intro, card, spacing
+and footer content; a structural guard now pins the source-sized card/challenge
+geometry and line-art lock/action marks.
