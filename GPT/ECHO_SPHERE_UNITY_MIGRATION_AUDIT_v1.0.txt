@@ -4809,3 +4809,24 @@ The home-menu source-geometry guard was refreshed after the final scale pass:
 it now asserts the 20 px icon slot and 27 px label row used by the current
 three-column/two-row mobile navigation. The prior CI failure was the guard's
 stale expectation of the previous 24 px icon and 40 px label slot.
+
+
+======================================================================
+2026-10-15 — EXACT NETWORK COMET GEOMETRY
+======================================================================
+
+A source-code recheck found the first Unity comet approximation still differed
+from `drawWavyNetworkLink()`: it used a diamond head and a variable-length
+LineRenderer tail. Replaced those with the source's exact normalized four-point
+head and tail silhouettes, fixed 12.7 x 6 px / 13.5 x 3.4 px geometry, source
+tail offset, white head and colored tail alpha. The network filament now has
+all three source stroke layers (broad low-alpha glow, main filament, thin
+highlight) with the source widths and opacity multipliers. Formation activity
+checks now match the source's active/inactive handling.
+
+The structural guard pins the source packet timing, both comet silhouettes and
+all three filament widths. Device visual parity remains pending a fresh APK.
+
+======================================================================
+END EXACT NETWORK COMET GEOMETRY
+======================================================================
