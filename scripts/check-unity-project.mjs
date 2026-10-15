@@ -1491,7 +1491,7 @@ assert.ok(sourceHomeUi.includes('var radii = new[] { .41f, .28f, .19f, .35f, .11
 assert.ok(sourceHomeUi.includes('DrawSourceMenuNavIcon') &&
   ['UserRound', 'Store', 'Trophy', 'Award', 'BookOpen', 'Settings'].every(icon => sourceHomeUi.includes(icon)) &&
   sourceHomeUi.includes('SourceUiNavCircle') && sourceHomeUi.includes('SourceUiNavStroke') &&
-  sourceHomeUi.includes('rect.center.x - 12f') && sourceHomeUi.includes('rect.y + 40f') &&
+  sourceHomeUi.includes('rect.center.x - 10f') && sourceHomeUi.includes('rect.y + 27f') &&
   sourceHomeUi.includes('var narrowPhone = _uiWidth <= 1100f') &&
   sourceHomeUi.includes('var navColumns = narrowPhone ? 3 : 6') &&
   sourceHomeUi.includes('var navButtonHeight = narrowPhone ? 46f : 42f'),
