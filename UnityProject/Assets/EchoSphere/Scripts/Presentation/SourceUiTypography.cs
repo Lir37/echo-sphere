@@ -52,7 +52,14 @@ namespace EchoSphere.Presentation
                 }
                 if(primary==null)primary=asset;else if(asset!=primary)fallbacks.Add(asset);
             }
-            if(primary==null){var declaration=weight+" "+size.ToString(CultureInfo.InvariantCulture)+"px "+family;primary=FontAsset.CreateFontAsset(SourceCanvasTypography.Resolve(declaration,out _,out _));}
+            if(primary==null){
+                var declaration=weight+" "+size.ToString(CultureInfo.InvariantCulture)+"px "+family;
+                var legacy=SourceCanvasTypography.Resolve(declaration,out _,out _);
+                if(legacy!=null)primary=FontAsset.CreateFontAsset(legacy);
+            }
+            // Some devices do not expose any requested system face to FontEngine.
+            // Leave UI Toolkit default font in place instead of dereferencing a null asset.
+            if(primary==null)return null;
             primary.fallbackFontAssetTable=fallbacks;Fonts[key]=primary;return primary;
         }
         private static void SetLineHeight(FontAsset asset,double ratio)
@@ -81,7 +88,9 @@ namespace EchoSphere.Presentation
         }
         internal static void Apply(VisualCss sheet,VisualCssNode node,VisualElement element,float size)
         {
-            element.style.unityFontDefinition=FontDefinition.FromSDFFont(Resolve(sheet,node,size));
+            var asset=Resolve(sheet,node,size);
+            if(asset==null)return;
+            element.style.unityFontDefinition=FontDefinition.FromSDFFont(asset);
             element.style.unityFontStyleAndWeight=FontStyle.Normal;
         }
     }
