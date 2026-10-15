@@ -3254,3 +3254,25 @@ CI is not a substitute for that validation.
 ======================================================================
 END UI TEXTURE RENDER-PASS / AUDIO LISTENER CORRECTION
 ======================================================================
+
+
+======================================================================
+RUN SNAPSHOT SERIALIZATION DEPTH FIX (2026-10-15)
+======================================================================
+
+Fixed Unity JsonUtility's "Serialization depth limit 10 exceeded" warning
+for SavedEntity.state and the runtime/player snapshots. SnapshotValue no longer
+contains recursively nested SnapshotValue.items. It now stores a flat list of
+SnapshotNode records, each with integer child indexes; capture/read/restore
+preserve the original field, list, and map traversal semantics without a
+recursive serialized object graph.
+
+SavedRun schema version is now 2. A legacy version-1 run snapshot is rejected
+and cleared by the existing invalid-snapshot path instead of being restored
+against the incompatible flat schema. No gameplay rules or new mechanics were
+added. Unity Editor resume/save validation remains required; contract CI alone
+does not prove JsonUtility runtime behavior.
+
+======================================================================
+END RUN SNAPSHOT SERIALIZATION DEPTH FIX
+======================================================================
