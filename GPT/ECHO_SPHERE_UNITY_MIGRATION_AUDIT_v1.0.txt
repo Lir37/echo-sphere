@@ -4674,3 +4674,34 @@ Visual pass follow-up (2026-10-15):
   source formation links use source-width emphasis.
 - These follow-up corrections are visual only. CI and Unity Editor/APK/device
   validation remain unconfirmed until checked on the final HEAD.
+
+
+======================================================================
+2026-10-15 — NETWORK COMET / SPHERE PICKER / HOME MENU VISUAL PARITY
+======================================================================
+
+Source baseline remains `new-desing` 737ef2af4a877e0995db5f92331d536d2f29a934.
+
+Source reference inspected: `GPT/new-desing 1.jpg`, `GPT/new-desing2.jpg`;
+Unity references: `GPT/unity-migration 1.jpg`, `GPT/unity-migration 2.jpg`,
+`GPT/unity-migration 3.jpg`.
+
+Confirmed visual mismatches and changes on `unity-migration`:
+- Ported the source `drawWavyNetworkLink` moving packets: three continuously
+  moving comet heads with tapered colored tails per valid network link, using
+  the source packet direction/speed/seed and the same animated wave path.
+- Replaced the compact rectangular sphere picker with a two-row circular
+  control layout and enlarged source-mapped glyphs. Selection remains on the
+  existing sphere type; no placement/selection rules changed.
+- Corrected the main-menu responsive breakpoint for the actual portrait
+  framebuffer, enlarged the core art and loadout, restored the source-like
+  three-column/two-row bottom navigation, and enlarged its Lucide-style icons.
+
+These are presentation-only changes. `new-desing` was not modified. The
+repository screenshots are reference snapshots, not a substitute for testing
+this new HEAD in Unity Editor and on Android. CI must be checked separately;
+visual parity remains unconfirmed until a fresh APK is inspected.
+
+======================================================================
+END NETWORK COMET / SPHERE PICKER / HOME MENU VISUAL PARITY
+======================================================================

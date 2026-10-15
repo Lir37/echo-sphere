@@ -366,7 +366,14 @@ namespace EchoSphere.Runtime
         private string _message = "RIGHT HALF: MOVE. LEFT HALF: PLACE / DRAG SPHERES. TAP SPHERE: REMOVE.";
         private GUIStyle _box, _label, _button, _title, _sphereDescriptionStyle;
         private readonly List<LineRenderer> _networkLinkRenderers = new List<LineRenderer>();
+        private readonly List<NetworkCometVisual> _networkComets = new List<NetworkCometVisual>();
         private Material _networkLineMaterial;
+
+        private sealed class NetworkCometVisual
+        {
+            public SpriteRenderer Head;
+            public LineRenderer Tail;
+        }
         private SphereNetworkState _networkState;
         private SphereNetworkFormation _previousDominantFormation = SphereNetworkFormation.None;
         private SphereNetworkFormation _preferredDominantFormation = SphereNetworkFormation.None;
@@ -7104,6 +7111,14 @@ namespace EchoSphere.Runtime
                 if (shader != null) _networkLineMaterial = new Material(shader);
             }
 
+            EnsureNetworkCometVisuals(_networkState.Links.Count * 3);
+            for (var cometIndex = 0; cometIndex < _networkComets.Count; cometIndex++)
+            {
+                var comet = _networkComets[cometIndex];
+                if (comet.Head != null) comet.Head.enabled = false;
+                if (comet.Tail != null) comet.Tail.enabled = false;
+            }
+
             while (_networkLinkRenderers.Count < _networkState.Links.Count)
             {
                 var go = new GameObject("Sphere Network Link");
@@ -7172,6 +7187,72 @@ namespace EchoSphere.Runtime
                 line.endWidth = sourceWidth * SpherePlacementRules.SourcePixelsToWorld;
                 line.startColor = color;
                 line.endColor = color;
+                UpdateNetworkCometVisuals(i, from, to, color, active, link.A * 17.13f + link.B * 29.71f, amplitude);
+            }
+        }
+
+        private void EnsureNetworkCometVisuals(int count)
+        {
+            while (_networkComets.Count < count)
+            {
+                var headObject = new GameObject("Sphere Network Comet Head");
+                headObject.transform.SetParent(transform, false);
+                var head = headObject.AddComponent<SpriteRenderer>();
+                head.sprite = RuntimeSpriteFactory.Diamond;
+                head.sortingOrder = 7;
+                head.enabled = false;
+                var tailObject = new GameObject("Sphere Network Comet Tail");
+                tailObject.transform.SetParent(transform, false);
+                var tail = tailObject.AddComponent<LineRenderer>();
+                tail.useWorldSpace = true;
+                tail.positionCount = 2;
+                tail.numCapVertices = 2;
+                tail.sortingOrder = 6;
+                if (_networkLineMaterial != null) tail.sharedMaterial = _networkLineMaterial;
+                tail.enabled = false;
+                _networkComets.Add(new NetworkCometVisual { Head = head, Tail = tail });
+            }
+        }
+
+        private void UpdateNetworkCometVisuals(int linkIndex, Vector2 from, Vector2 to, Color linkColor, bool active, float seed, float amplitude)
+        {
+            var delta = to - from;
+            var length = Mathf.Max(0.0001f, delta.magnitude);
+            var normal = new Vector2(-delta.y / length, delta.x / length);
+            var packetSpeed = active ? 0.34f : 0.27f;
+            var tailDistance = active ? 0.075f : 0.06f;
+            var alpha = linkColor.a;
+            var pixelScale = SpherePlacementRules.SourcePixelsToWorld;
+            for (var packet = 0; packet < 3; packet++)
+            {
+                var index = linkIndex * 3 + packet;
+                if (index < 0 || index >= _networkComets.Count) continue;
+                var visual = _networkComets[index];
+                if (visual.Head == null || visual.Tail == null) continue;
+                var raw = ((_runTime * packetSpeed + seed * 0.027f + packet / 3f) % 1f + 1f) % 1f;
+                var p = packet % 2 == 0 ? raw : 1f - raw;
+                var tailP = Mathf.Max(0f, p - tailDistance);
+                var phase = _runTime * (active ? 1.9f : 1.35f) + seed;
+                var headWave = Mathf.Sin(phase + p * Mathf.PI * 4.2f) * amplitude * Mathf.Sin(Mathf.PI * p);
+                var tailWave = Mathf.Sin(phase + tailP * Mathf.PI * 4.2f) * amplitude * Mathf.Sin(Mathf.PI * tailP);
+                var headPosition = from + delta * p + normal * headWave;
+                var tailPosition = from + delta * tailP + normal * tailWave;
+                var angle = Mathf.Atan2(headPosition.y - tailPosition.y, headPosition.x - tailPosition.x) * Mathf.Rad2Deg;
+                visual.Head.enabled = true;
+                visual.Head.transform.position = new Vector3(headPosition.x, headPosition.y, -0.04f);
+                visual.Head.transform.rotation = Quaternion.Euler(0f, 0f, angle);
+                visual.Head.transform.localScale = new Vector3(7.5f * pixelScale, 4.8f * pixelScale, 1f);
+                visual.Head.color = new Color(0.97f, 1f, 1f, (active ? 0.86f : 0.62f) * alpha);
+                visual.Tail.enabled = true;
+                visual.Tail.SetPosition(0, new Vector3(tailPosition.x, tailPosition.y, -0.035f));
+                visual.Tail.SetPosition(1, new Vector3(headPosition.x, headPosition.y, -0.035f));
+                visual.Tail.startWidth = (active ? 2.4f : 1.8f) * pixelScale;
+                visual.Tail.endWidth = 0.35f * pixelScale;
+                var tailColor = linkColor; tailColor.a *= active ? 0.48f : 0.34f;
+                var headColor = linkColor; headColor.a *= active ? 0.75f : 0.58f;
+                visual.Tail.startColor = tailColor;
+                visual.Tail.endColor = headColor;
+                if (_networkLineMaterial != null) visual.Tail.sharedMaterial = _networkLineMaterial;
             }
         }
 
@@ -7723,8 +7804,8 @@ namespace EchoSphere.Runtime
         {
             // Source MobileControls uses a 5-column grid of compact type glyphs,
             // with the selected type's name/description directly above it.
-            var width = Mathf.Min(244f, _uiWidth - 24f);
-            var height = GetSpherePickerDescriptionHeight() + 103f;
+            var width = Mathf.Min(420f, _uiWidth - 24f);
+            var height = GetSpherePickerDescriptionHeight() + 132f;
             return new Rect(IsLeftHanded ? _uiWidth - width - 12f : 12f, _uiHeight - 16f - height, width, height);
         }
 
@@ -8102,18 +8183,25 @@ namespace EchoSphere.Runtime
             GUI.Label(new Rect(descriptionRect.x + 5f, descriptionRect.y + 17f, descriptionRect.width - 10f, descriptionRect.height - 17f),
                 IsRussianUi ? definition.DescriptionRu : definition.DescriptionEn, descriptionStyle);
 
-            var buttonWidth = (panel.width - 12f) / 5f;
-            const float buttonHeight = 42f;
+            var buttonWidth = (panel.width - 24f) / 5f;
+            const float buttonHeight = 58f;
             for (var i = 0; i < SpherePickerOrder.Length; i++)
             {
                 var type = SpherePickerOrder[i];
                 var column = i % 5;
                 var row = i / 5;
-                var rect = new Rect(panel.x + column * (buttonWidth + 3f),
-                    panel.y + descriptionHeight + 5f + row * 43f, buttonWidth, buttonHeight);
+                var rect = new Rect(panel.x + 5f + column * (buttonWidth + 3.5f),
+                    panel.y + descriptionHeight + 8f + row * 64f, buttonWidth, buttonHeight);
                 var color = SphereUiColor(type);
-                if (SourceGuiButton(rect, GUIContent.none, _button)) { _selectedSphereType = type; SourceAudio2D.Play("place"); }
-
+                var transparentButton = new GUIStyle(GUI.skin.button);
+                transparentButton.normal.background = transparentButton.hover.background = transparentButton.active.background = transparentButton.focused.background = null;
+                transparentButton.normal.textColor = transparentButton.hover.textColor = transparentButton.active.textColor = Color.white;
+                if (SourceGuiButton(rect, GUIContent.none, transparentButton)) { _selectedSphereType = type; SourceAudio2D.Play("place"); }
+                var center = rect.center;
+                var circleRadius = Mathf.Min(rect.width, rect.height) * 0.44f;
+                DrawSpriteIcon(new Rect(center.x - circleRadius, center.y - circleRadius, circleRadius * 2f, circleRadius * 2f), RuntimeSpriteFactory.Disc, new Color(0.035f, 0.075f, 0.12f, 0.96f));
+                DrawSphereGuiCircle(center, circleRadius, new Color(0.24f, 0.39f, 0.52f, 0.58f), 1.1f);
+                if (type == _selectedSphereType) DrawSphereGuiCircle(center, circleRadius + 2f, color, 1.8f);
                 DrawSpherePickerGlyph(rect, type, color);
                 var character = CharacterRules.Get(_sphereCharacterId);
                 var preferredForSpherist = type == character.SignatureSphere || type == character.PartnerSphere;
@@ -8158,8 +8246,8 @@ namespace EchoSphere.Runtime
                 GUI.color = previousColor;
                 var points = new[]
                 {
-                    new Vector2(center.x, center.y - 8f), new Vector2(center.x + 8f, center.y),
-                    new Vector2(center.x, center.y + 8f), new Vector2(center.x - 8f, center.y)
+                    new Vector2(center.x, center.y - 11f), new Vector2(center.x + 11f, center.y),
+                    new Vector2(center.x, center.y + 11f), new Vector2(center.x - 11f, center.y)
                 };
                 for (var i = 0; i < points.Length; i++)
                     DrawSphereGuiLine(points[i], points[(i + 1) % points.Length], color, 2f);
@@ -8168,7 +8256,7 @@ namespace EchoSphere.Runtime
 
             if (type == SphereId.Shotgun)
             {
-                var chamber = new Rect(center.x - 10f, center.y - 4f, 12f, 8f);
+                var chamber = new Rect(center.x - 13f, center.y - 5f, 15f, 10f);
                 GUI.color = fill;
                 GUI.DrawTexture(chamber, _uiAccentTexture);
                 GUI.color = color;
@@ -8176,9 +8264,9 @@ namespace EchoSphere.Runtime
                 DrawSphereGuiLine(new Vector2(chamber.xMax, chamber.yMin), new Vector2(chamber.xMax, chamber.yMax), color, 2f);
                 DrawSphereGuiLine(new Vector2(chamber.xMax, chamber.yMax), new Vector2(chamber.xMin, chamber.yMax), color, 2f);
                 DrawSphereGuiLine(new Vector2(chamber.xMin, chamber.yMax), new Vector2(chamber.xMin, chamber.yMin), color, 2f);
-                DrawSphereGuiLine(new Vector2(center.x + 2f, center.y - 8f), new Vector2(center.x + 10f, center.y - 8f), color, 2f);
-                DrawSphereGuiLine(new Vector2(center.x + 10f, center.y - 8f), new Vector2(center.x + 10f, center.y + 8f), color, 2f);
-                DrawSphereGuiLine(new Vector2(center.x + 10f, center.y + 8f), new Vector2(center.x + 2f, center.y + 8f), color, 2f);
+                DrawSphereGuiLine(new Vector2(center.x + 2f, center.y - 10f), new Vector2(center.x + 13f, center.y - 10f), color, 2f);
+                DrawSphereGuiLine(new Vector2(center.x + 13f, center.y - 10f), new Vector2(center.x + 13f, center.y + 10f), color, 2f);
+                DrawSphereGuiLine(new Vector2(center.x + 13f, center.y + 10f), new Vector2(center.x + 2f, center.y + 10f), color, 2f);
                 GUI.color = originalGuiColor;
                 return;
             }
@@ -8187,25 +8275,25 @@ namespace EchoSphere.Runtime
             {
                 for (var i = 0; i < 3; i++)
                 {
-                    var node = new Vector2(center.x + (i - 1) * 12f, center.y);
-                    DrawSpriteIcon(new Rect(node.x - 5f, node.y - 5f, 10f, 10f), RuntimeSpriteFactory.Disc, fill);
-                    DrawSphereGuiCircle(node, 5f, color, 2f);
+                    var node = new Vector2(center.x + (i - 1) * 14f, center.y);
+                    DrawSpriteIcon(new Rect(node.x - 6f, node.y - 6f, 12f, 12f), RuntimeSpriteFactory.Disc, fill);
+                    DrawSphereGuiCircle(node, 6f, color, 2f);
                 }
                 return;
             }
 
             if (type == SphereId.Aura)
             {
-                DrawSphereGuiCircle(center, 13f, new Color(color.r, color.g, color.b, 0.13f), 1.5f);
-                DrawSphereGuiCircle(center, 10f, color, 2f);
+                DrawSphereGuiCircle(center, 15f, new Color(color.r, color.g, color.b, 0.13f), 1.5f);
+                DrawSphereGuiCircle(center, 11f, color, 2f);
                 return;
             }
 
             // Source glyphs for Standard, Orbital, Prism, Gravity, Pulse and Void
             // share the same filled circular mark.
             var defaultFill = new Color(color.r, color.g, color.b, 0.27f);
-            DrawSpriteIcon(new Rect(center.x - 8f, center.y - 8f, 16f, 16f), RuntimeSpriteFactory.Disc, defaultFill);
-            DrawSphereGuiCircle(center, 8f, color, 2f);
+            DrawSpriteIcon(new Rect(center.x - 11f, center.y - 11f, 22f, 22f), RuntimeSpriteFactory.Disc, defaultFill);
+            DrawSphereGuiCircle(center, 11f, color, 2f);
         }
 
         private void DrawSpherePlacementOverlay()
