@@ -156,7 +156,12 @@ namespace EchoSphere.Presentation
         private void OnApplicationFocus(bool focused)
         {if(!focused)foreach(var entry in _entries.Values)if(entry.ActivePointers.Count>0){entry.ActivePointers.Clear();entry.Node.Active=false;Dirty=true;}}
         private void UpdateLayout(VisualCssNode node)
-        {if(node.Native is VisualElement element){var oldBounds=(node.X,node.Y,node.Width,node.Height);UpdateBounds(node,element);if(oldBounds!=(node.X,node.Y,node.Width,node.Height))FrameVersion++;_layout.Apply(node,element);var entry=_elementEntries[element];if(node.Tag=="svg")SourceUiSvg.Text(node,_sheet,element,entry.SvgTexts);if(DepthAncestor(node)==null&&(_sheet.Get(node,"filter","none").Trim()!="none"||_sheet.Get(node,"opacity","1")!="1")){if(entry.Filters==null)entry.Filters=new SourceUiFilters();entry.Filters.Apply(_sheet,node,element,_scale,IsDepthRoot(node));}else element.style.filter=new List<FilterFunction>();var backdrop=System.Text.RegularExpressions.Regex.Match(_sheet.Get(node,"backdrop-filter","none"),@"blur\(([^)]+)\)");if(backdrop.Success){if(entry.Backdrop==null)entry.Backdrop=new SourceUiBackdrop(this);if(entry.Backdrop.parent!=element.parent)element.parent.Insert(element.parent.IndexOf(element),entry.Backdrop);entry.Backdrop.Update(node,element,(float)_sheet.Length(backdrop.Groups[1].Value,node.Width));}else if(entry.Backdrop!=null){entry.Backdrop.Dispose();entry.Backdrop=null;}element.MarkDirtyRepaint();}foreach(var child in node.Children)UpdateLayout(child);}
+        {if(node.Native is VisualElement element){var oldBounds=(node.X,node.Y,node.Width,node.Height);UpdateBounds(node,element);if(oldBounds!=(node.X,node.Y,node.Width,node.Height))FrameVersion++;_layout.Apply(node,element);var entry=_elementEntries[element];if(node.Tag=="svg")SourceUiSvg.Text(node,_sheet,element,entry.SvgTexts);if(DepthAncestor(node)==null&&(_sheet.Get(node,"filter","none").Trim()!="none"||_sheet.Get(node,"opacity","1")!="1")){if(entry.Filters==null)entry.Filters=new SourceUiFilters();entry.Filters.Apply(_sheet,node,element,_scale,IsDepthRoot(node));}else element.style.filter=new List<FilterFunction>();// UI Toolkit ImmediateModeElement repaint runs inside the active render pass.
+                // Capturing CurrentActive and executing blur blits there triggers D3D12
+                // UploadTexture2D / GrabIntoRenderTexture warnings and can stall/overlay
+                // menu controls. Keep the authored element's own translucent background;
+                // do not create a sibling backdrop capture until a safe pre-render path exists.
+                if(entry.Backdrop!=null){entry.Backdrop.Dispose();entry.Backdrop=null;}element.MarkDirtyRepaint();}foreach(var child in node.Children)UpdateLayout(child);}
         private static void UpdateBounds(VisualCssNode node,VisualElement element)
         {var bounds=element.worldBound;node.X=bounds.x;node.Y=bounds.y;node.Width=float.IsNaN(element.layout.width)?0d:element.layout.width;node.Height=float.IsNaN(element.layout.height)?0d:element.layout.height;}
         private void Paint(Entry entry,MeshGenerationContext context)
@@ -164,7 +169,7 @@ namespace EchoSphere.Presentation
             var node=entry.Node;if(node.Width<=0d||node.Height<=0d)return;
             if(DepthAncestor(node)!=null)return;
             if(IsDepthRoot(node)){Quad(context,entry.DepthTexture,entry.DepthRect);return;}
-            if(entry.Backdrop!=null)Quad(context,entry.Backdrop.Texture,new Rect(0,0,(float)node.Width,(float)node.Height));
+            // Backdrop blur is intentionally not rendered through ImmediateModeElement: see UpdateLayout.
             Quad(context,entry.Paint,entry.PaintRect);
             if(entry.Element is Slider slider)SourceUiRange.Paint(slider,context);
             if(node.Tag=="canvas")Quad(context,CanvasTexture?.Invoke(),new Rect(0,0,(float)node.Width,(float)node.Height));
