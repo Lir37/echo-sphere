@@ -3301,3 +3301,30 @@ runtime rendering correctness.
 ======================================================================
 END D3D12 UI RENDER-PASS WARNING FOLLOW-UP
 ======================================================================
+
+
+======================================================================
+2026-10-15 — UNITY SVG RGB COLOR PARSING FIX
+======================================================================
+
+Observed Unity Editor exception:
+SVGFormatException: Invalid rgb() color specification, raised while
+SourceUiSvg.Rasterize imports the serialized SVG.
+
+Correction on unity-migration:
+- SourceUiSvg now canonicalizes RGB/RGBA color functions into the legacy
+  comma-separated rgb(r,g,b) syntax accepted by Unity.VectorGraphics.
+- Space-separated CSS Color 4 channels, slash alpha, and percentage channels
+  are normalized; alpha is carried into fill-opacity/stroke-opacity rather
+  than silently discarded.
+- Explicit fill-opacity/stroke-opacity values are multiplied by the color's
+  alpha when present.
+- Source branch new-desing and gameplay behavior are unchanged.
+
+Validation limitation: this code-level correction must still be checked in
+Unity Editor against the reported SVGFormatException. CI success is not proof
+that all runtime SVG assets import or that visual parity is complete.
+
+======================================================================
+END UNITY SVG RGB COLOR PARSING FIX
+======================================================================
