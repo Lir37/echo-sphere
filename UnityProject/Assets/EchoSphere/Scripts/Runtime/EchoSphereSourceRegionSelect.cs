@@ -20,8 +20,9 @@ namespace EchoSphere.Runtime
             var view = new Rect(left, 74f, width, _uiHeight - 92f);
             if (_sourceKnowledge?.planner == null) return;
             var regions = _sourceKnowledge.planner.FindAll(entry => entry.category == "region");
-            var total = 72f;
-            foreach (var region in regions) total += IsRegionAvailable(region.id == "spectral_rift" ? EchoRegionId.SpectralRift : EchoRegionId.ResonanceBasin) ? 367f : 150f;
+            var total = 64f;
+            foreach (var region in regions) total += (IsRegionAvailable(region.id == "spectral_rift" ? EchoRegionId.SpectralRift : EchoRegionId.ResonanceBasin) ? 367f : 150f) + 12f;
+            total += 28f;
             _sourceRegionScroll = GUI.BeginScrollView(view, _sourceRegionScroll, new Rect(0f, 0f, width, total));
             var contentWidth = width; var y = 0f;
             SourceUiLabel(new Rect(0f, y, contentWidth, 10f), IsRussianUi ? "ВЫБОР ОБЛАСТИ" : "REGION SELECT", 7, "#7f9bb8");
@@ -60,7 +61,7 @@ namespace EchoSphere.Runtime
                 DrawSphereGuiLine(new Vector2(baseRect.x + 35f, baseRect.y + 15f), new Vector2(baseRect.x + 17f, baseRect.y + 32f), accent, 1.8f);
                 SourceUiLabel(new Rect(baseRect.x + 52f, baseRect.y + 6f, baseRect.width - 82f, 15f), baseLabel, 9, "#e8fbff", false, true);
                 SourceUiLabel(new Rect(baseRect.x + 52f, baseRect.y + 24f, baseRect.width - 80f, 15f), baseCopy, 7, "#7593a7");
-                DrawSphereGuiLine(new Vector2(baseRect.xMax - 22f, baseRect.center.y - 4f), new Vector2(baseRect.xMax - 16f, baseRect.center.y), "#dcecff".Length > 0 ? new Color(.86f, .96f, 1f, 1f) : Color.white, 1.6f);
+                DrawSphereGuiLine(new Vector2(baseRect.xMax - 22f, baseRect.center.y - 4f), new Vector2(baseRect.xMax - 16f, baseRect.center.y), new Color(.86f, .96f, 1f, 1f), 1.6f);
                 DrawSphereGuiLine(new Vector2(baseRect.xMax - 16f, baseRect.center.y), new Vector2(baseRect.xMax - 22f, baseRect.center.y + 4f), new Color(.86f, .96f, 1f, 1f), 1.6f);
 
                 SourceUiLabel(new Rect(12f, y + 143f, contentWidth - 24f, 10f), (IsRussianUi ? "ИСПЫТАНИЯ" : "CHALLENGES") + " · " + completed.Length + "/3", 7, "#648299", false, true);
