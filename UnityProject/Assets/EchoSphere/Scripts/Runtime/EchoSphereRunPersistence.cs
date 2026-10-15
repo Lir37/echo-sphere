@@ -42,6 +42,7 @@ namespace EchoSphere.Runtime
             "_sourceRegionBossForFrame", "_sourceSettingsScroll", "_sourceLockedSphereTouch", "_sourceUiTouchFrame", "_sourceUiTouches",
             "_sourceArtifactScroll", "_sourceSetDetailScroll", "_sourceResultRank", "_sourceResultNewRecord",
             "_sourcePointers", "_sourceJoystickId", "_sourceJoystickStart", "_sourceJoystickDrag", "_sourceJoystickDirection", "_sourceTouchLastDirection",
+            "_networkGlowRenderers", "_networkLinkRenderers", "_networkHighlightRenderers", "_networkComets", "_networkLineMaterial",
             "_sourceRenderState", "_sourceRenderEntities", "_sourceUi", "_sourceUiStateRef", "_sourceUiCanvasRef", "_sourceUiTutorialRef", "_sourceUiSavedRunTime", "_sourceCanvas", "_sourceHudTooltip", "_sourceHudTooltipUntil", "_sourceHudDragSlot", "_sourceHudTooltipRect"
         };
         private void TickRunAutosave()
@@ -124,6 +125,8 @@ namespace EchoSphere.Runtime
             }
             _spheres.Clear(); _enemies.Clear(); _abilityDrones.Clear();
             RunSnapshotCodec.Restore(save.runtime, GetType(), this);
+            // JSON keeps lightning positions/lifetime but drops sourceSphere.
+            foreach(var lightning in _sourceLightningVisuals)lightning.sphereType=null;
             RunSnapshotCodec.Restore(save.player, typeof(PlayerCoreController2D), _playerCore);
             _player.position = save.playerPosition;
             _regionFieldVisuals.SetRegion(_selectedRegion);

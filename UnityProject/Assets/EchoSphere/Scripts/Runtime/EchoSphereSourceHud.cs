@@ -11,9 +11,9 @@ namespace EchoSphere.Runtime
         private float _sourceHudTooltipUntil;
         private int _sourceHudDragSlot = -1;
         private Rect _sourceHudTooltipRect;
-        private float SourceHudWidth => _uiWidth <= 700f ? Mathf.Min(_uiWidth * .5f - 18f, 255f) : Mathf.Clamp(_uiWidth * .31f, 164f, 300f);
-        private Rect SourceHudLeft => new Rect(12f, 12f, SourceHudWidth, _uiWidth <= 700f ? 136f : 140f);
-        private Rect SourceHudRight => new Rect(_uiWidth - 12f - SourceHudWidth, 12f, SourceHudWidth, _uiWidth <= 700f ? 136f : 140f);
+        private float SourceHudWidth => _uiWidth <= 1100f ? Mathf.Min(_uiWidth * .48f, 380f) : Mathf.Clamp(_uiWidth * .455f, 164f, 380f);
+        private Rect SourceHudLeft => new Rect(12f, 12f, SourceHudWidth, _uiWidth <= 1100f ? 288f : 280f);
+        private Rect SourceHudRight => new Rect(_uiWidth - 12f - SourceHudWidth, 12f, SourceHudWidth, _uiWidth <= 1100f ? 288f : 280f);
         public IList<EnemyAgent2D> SourceRadarEnemies => _enemies;
         public void DrawSourceRadarDot(Vector2 position, float radius, Color color) => DrawSphereGuiFilledCircle(position, radius, color);
         private Rect SourceControlsRect
@@ -21,33 +21,45 @@ namespace EchoSphere.Runtime
             get
             {
                 var picker = GetSpherePickerRect();
-                var abilities = Mathf.Ceil(_activeAbilityHotkeys.Count / 2f) * 54f;
-                return new Rect(picker.x, picker.y - 166f - abilities, picker.width, picker.height + 166f + abilities);
+                var abilities = Mathf.Ceil(_activeAbilityHotkeys.Count / 2f) * 100f;
+                return new Rect(picker.x, picker.y - 360f - abilities, picker.width, picker.height + 360f + abilities);
             }
         }
         private bool IsSourceHudPoint(Vector2 point) => (_tutorialStep >= 0 && SourceTutorialCard.Contains(point)) || SourceHudLeft.Contains(point) || SourceHudRight.Contains(point) || SourceControlsRect.Contains(SourceControlsAnchor + (point - SourceControlsAnchor) / SourceInterfaceScale) ||
             (!string.IsNullOrEmpty(_sourceHudTooltip) && _sourceHudTooltipRect.Contains(point));
+        private void DrawSourceHudPanel(Rect rect)
+        {
+            SourceUiRect(rect, new Color32(6, 17, 29, 235));
+            var edge = new Color(0.31f, 0.69f, 0.88f, 0.18f);
+            var softEdge = new Color(0.31f, 0.69f, 0.88f, 0.08f);
+            SourceUiRect(new Rect(rect.x, rect.y, rect.width, 1f), edge);
+            SourceUiRect(new Rect(rect.x, rect.yMax - 1f, rect.width, 1f), softEdge);
+            SourceUiRect(new Rect(rect.x, rect.y, 1f, rect.height), softEdge);
+            SourceUiRect(new Rect(rect.xMax - 1f, rect.y, 1f, rect.height), softEdge);
+            SourceUiRect(new Rect(rect.x + 1f, rect.y + 1f, rect.width * 0.28f, 1f), new Color(0.39f, 0.90f, 1f, 0.18f));
+        }
+
         private void DrawSourceGameplayHud()
         {
             EnsureKnowledgeLoaded();
             var left = SourceHudLeft; var right = SourceHudRight;
-            SourceUiRect(left, new Color32(6, 17, 29, 235)); SourceUiRect(right, new Color32(6, 17, 29, 235));
+            DrawSourceHudPanel(left); DrawSourceHudPanel(right);
             var width = left.width - 18f;
-            SourceUiLabel(new Rect(left.x + 9f, left.y + 7f, width * .5f, 18f), (IsRussianUi ? "Уровень " : "Level ") + _level, 11, "#dcecff", false, true);
-            SourceUiLabel(new Rect(left.x + left.width * .5f, left.y + 7f, width * .5f, 18f), Mathf.CeilToInt(_playerCore.CurrentHp) + "/" + Mathf.CeilToInt(_playerCore.MaxHp), 10, "#dcecff", true, true);
-            DrawProgressBar(new Rect(left.x + 9f, left.y + 30f, width, 6f), _xpRequired > 0 ? _xp / _xpRequired : 0f, new Color32(57, 216, 255, 255));
-            DrawProgressBar(new Rect(left.x + 9f, left.y + 40f, width, 5f), _playerCore.CurrentHp / Mathf.Max(1f, _playerCore.MaxHp), new Color32(85, 230, 193, 255));
-            SourceUiLabel(new Rect(left.x + 9f, left.y + 51f, width, 12f), (IsRussianUi ? "РЕЗОНАНС" : "RESONANCE") + "    " + Mathf.FloorToInt(_resonanceCharge) + "/100", 7, "#7f9bb8", false, true);
-            DrawProgressBar(new Rect(left.x + 9f, left.y + 65f, width, 5f), _resonanceCharge / 100f, _resonanceCharge >= 100f ? new Color32(255, 184, 77, 255) : new Color32(57, 216, 255, 255));
-            SourceUiLabel(new Rect(left.x + 9f, left.y + 77f, width, 14f), (IsRussianUi ? "СФЕРЫ " : "SPHERES ") + _spheres.Count + "/" + GetCurrentMaxSpheres() + (IsRussianUi ? "     ВОЛНА " : "     WAVE ") + _wave, 8, "#7f9bb8");
-            SourceUiLabel(new Rect(left.x + 9f, left.y + 95f, width, 12f), (IsRussianUi ? "АКТИВНЫЕ СВЯЗИ " : "ACTIVE LINKS ") + (_networkState?.Links.Count ?? 0), 7, "#7f9bb8", false, true);
+            SourceUiLabel(new Rect(left.x + 12f, left.y + 12f, width * .5f, 28f), (IsRussianUi ? "Уровень " : "Level ") + _level, 16, "#dcecff", false, true);
+            SourceUiLabel(new Rect(left.x + left.width * .5f, left.y + 12f, width * .5f, 28f), Mathf.CeilToInt(_playerCore.CurrentHp) + "/" + Mathf.CeilToInt(_playerCore.MaxHp), 15, "#dcecff", true, true);
+            DrawProgressBar(new Rect(left.x + 12f, left.y + 58f, width, 9f), _xpRequired > 0 ? _xp / _xpRequired : 0f, new Color32(57, 216, 255, 255));
+            DrawProgressBar(new Rect(left.x + 12f, left.y + 79f, width, 8f), _playerCore.CurrentHp / Mathf.Max(1f, _playerCore.MaxHp), new Color32(85, 230, 193, 255));
+            SourceUiLabel(new Rect(left.x + 12f, left.y + 99f, width, 20f), (IsRussianUi ? "РЕЗОНАНС" : "RESONANCE") + "    " + Mathf.FloorToInt(_resonanceCharge) + "/100", 12, "#7f9bb8", false, true);
+            DrawProgressBar(new Rect(left.x + 12f, left.y + 126f, width, 8f), _resonanceCharge / 100f, _resonanceCharge >= 100f ? new Color32(255, 184, 77, 255) : new Color32(57, 216, 255, 255));
+            SourceUiLabel(new Rect(left.x + 12f, left.y + 155f, width, 24f), (IsRussianUi ? "СФЕРЫ " : "SPHERES ") + _spheres.Count + "/" + GetCurrentMaxSpheres() + (IsRussianUi ? "     ВОЛНА " : "     WAVE ") + _wave, 13, "#7f9bb8");
+            SourceUiLabel(new Rect(left.x + 12f, left.y + 195f, width, 22f), (IsRussianUi ? "АКТИВНЫЕ СВЯЗИ " : "ACTIVE LINKS ") + (_networkState?.Links.Count ?? 0), 12, "#7f9bb8", false, true);
             DrawSourceFormationChips(left);
-            _regionFieldVisuals.DrawSourceRadar(new Rect(right.xMax - 67f, right.y + 7f, 58f, 58f));
-            SourceUiLabel(new Rect(right.x + 9f, right.y + 68f, right.width - 18f, 16f), "•  " + FormatTime(_runTime) + "  •", 11, "#dcecff", true, true);
+            _regionFieldVisuals.DrawSourceRadar(new Rect(right.xMax - 145f, right.y + 14f, 130f, 130f));
+            SourceUiLabel(new Rect(right.x + 12f, right.y + 150f, right.width - 24f, 28f), "•  " + FormatTime(_runTime) + "  •", 17, "#dcecff", true, true);
             var regionId = _selectedRegion == EchoRegionId.SpectralRift ? "spectral_rift" : "resonance_basin";
-            SourceUiLabel(new Rect(right.x + 9f, right.y + 91f, right.width - 18f, 15f), PlannerName(PlannerEntry("region", regionId)), 8, "#66dfc7", false, true);
-            SourceUiLabel(new Rect(right.x + 9f, right.y + 107f, right.width - 18f, 14f), GetRegionPhaseLabel(), 9, "#e0eff5");
-            SourceUiLabel(new Rect(right.x + 9f, right.y + 122f, right.width - 18f, 17f), GetSourcePocketName(_regionHudPocketId) + " · " + (_regionEndlessMode ? IsRussianUi ? "БЕСКОНЕЧНЫЙ" : "ENDLESS" : IsRussianUi ? "СТАБИЛИЗАЦИЯ" : "STABILIZATION"), 7, "#7a96aa");
+            SourceUiLabel(new Rect(right.x + 12f, right.y + 195f, right.width - 24f, 22f), PlannerName(PlannerEntry("region", regionId)), 13, "#66dfc7", false, true);
+            SourceUiLabel(new Rect(right.x + 12f, right.y + 222f, right.width - 24f, 20f), GetRegionPhaseLabel(), 13, "#e0eff5");
+            SourceUiLabel(new Rect(right.x + 12f, right.y + 248f, right.width - 24f, 24f), GetSourcePocketName(_regionHudPocketId) + " · " + (_regionEndlessMode ? IsRussianUi ? "БЕСКОНЕЧНЫЙ" : "ENDLESS" : IsRussianUi ? "СТАБИЛИЗАЦИЯ" : "STABILIZATION"), 11, "#7a96aa");
             DrawSourceJoystick();
             var matrix = GUI.matrix; var anchor = SourceControlsAnchor;
             GUI.matrix = matrix * Matrix4x4.Translate(anchor) * Matrix4x4.Scale(new Vector3(SourceInterfaceScale, SourceInterfaceScale, 1f)) * Matrix4x4.Translate(-anchor);
@@ -70,14 +82,14 @@ namespace EchoSphere.Runtime
         private void DrawSourceFormationChips(Rect panel)
         {
             var formations = new[] { _networkState?.DominantFormation, _networkState?.SecondaryFormation };
-            var rects = new[] { new Rect(panel.x + 9f, panel.y + 112f, (panel.width - 28f) * .5f, 20f), new Rect(panel.x + panel.width * .5f + 4f, panel.y + 112f, (panel.width - 28f) * .5f, 20f) };
-            if (formations[0] == null && formations[1] == null) { SourceUiLabel(new Rect(panel.x + 9f, panel.y + 112f, panel.width - 18f, 18f), IsRussianUi ? "ФОРМАЦИЯ НЕ АКТИВНА" : "NO FORMATION", 7, "#7f9bb8"); return; }
-            SourceUiLabel(new Rect(panel.center.x - 5f, panel.y + 112f, 10f, 20f), "+", 9, "#7f9bb8", true);
+            var rects = new[] { new Rect(panel.x + 12f, panel.y + 224f, (panel.width - 36f) * .5f, 40f), new Rect(panel.x + panel.width * .5f + 6f, panel.y + 224f, (panel.width - 36f) * .5f, 40f) };
+            if (formations[0] == null && formations[1] == null) { SourceUiLabel(new Rect(panel.x + 12f, panel.y + 224f, panel.width - 24f, 28f), IsRussianUi ? "ФОРМАЦИЯ НЕ АКТИВНА" : "NO FORMATION", 12, "#7f9bb8"); return; }
+            SourceUiLabel(new Rect(panel.center.x - 8f, panel.y + 224f, 16f, 40f), "+", 14, "#7f9bb8", true);
             for (var i = 0; i < formations.Length; i++)
             {
                 if (formations[i] == null) continue;
                 var color = !formations[i].Active ? "#ff8a9f" : i == 0 ? "#ffb84d" : "#39d8ff";
-                SourceUiRect(rects[i], new Color(.05f, .11f, .18f)); SourceUiLabel(rects[i], SourceFormationName(formations[i].Type), 8, color, true, true);
+                SourceUiRect(rects[i], new Color(.05f, .11f, .18f)); SourceUiLabel(rects[i], SourceFormationName(formations[i].Type), 12, color, true, true);
                 if (GUI.enabled && Event.current.type == EventType.MouseDown && rects[i].Contains(Event.current.mousePosition))
                 { _sourceHudDragSlot = i; _sourceHudTooltip = formations[i].Type.ToString(); _sourceHudTooltipUntil = Time.unscaledTime + 5f; Event.current.Use(); }
                 if (GUI.enabled && Event.current.type == EventType.MouseUp && _sourceHudDragSlot >= 0 && rects[i].Contains(Event.current.mousePosition))
@@ -91,11 +103,13 @@ namespace EchoSphere.Runtime
         }
         private void DrawSourceRunControls()
         {
-            var picker = GetSpherePickerRect(); var x = picker.x; var y = picker.y - 73f;
+            var picker = GetSpherePickerRect(); var x = picker.x + 4f; var y = picker.y - 101f;
             var enabled = GUI.enabled; GUI.enabled = !_follow && !_paused && !_gameOver && !_levelUp && !_stellaRewardPending;
             var dash = _playerCore.DashCooldown > 0f ? Mathf.CeilToInt(_playerCore.DashCooldown) + "s" : "DASH";
-            DrawSphereGuiFilledCircle(new Vector2(x + 32f, y + 32f), 32f, new Color32(255, 184, 77, 217));
-            if (SourceUiButton(new Rect(x, y, 64f, 64f), "ϟ\n" + dash, 11, Color.clear, "#dcecff")) TrySourceDash(true);
+            DrawSphereGuiFilledCircle(new Vector2(x + 45f, y + 45f), 45f, new Color32(255, 184, 77, 217));
+            if (SourceUiButton(new Rect(x, y, 90f, 90f), "", 1, Color.clear, "#dcecff")) TrySourceDash(true);
+            SourceUiLabel(new Rect(x, y + 12f, 90f, 48f), "ϟ", 24, "#dcecff", true, true);
+            SourceUiLabel(new Rect(x, y + 57f, 90f, 22f), dash, 8, "#dcecff", true, true);
             GUI.enabled = enabled; y -= 8f;
             var row = 0; var column = 0;
             foreach (var key in SourceActiveAbilityKeys)
@@ -105,17 +119,17 @@ namespace EchoSphere.Runtime
                 if (!found) continue;
                 var entry = PlannerEntry("ability-evolution", GetAbilityFinal(kind)) ?? PlannerEntry("ability-evolution", GetAbilityBranch(kind)) ?? PlannerEntry("active", SourceAbilityId(kind));
                 var cooldown = GetActiveAbilityCooldown(kind); GUI.enabled = !_paused && !_gameOver && !_levelUp && !_stellaRewardPending && !(_follow && kind == RunUpgradeKind.Teleport);
-                if (SourceUiButton(new Rect(x + column * 70f, y - 48f - row * 54f, 64f, 48f), PlannerName(entry) + "\n" + (cooldown > 0f ? Mathf.CeilToInt(cooldown) + "s" : IsRussianUi ? "ГОТОВО" : "READY"), 9, new Color32(13, 23, 38, 230), "#b6c9de")) ActivateActiveAbility(kind);
+                if (SourceUiButton(new Rect(x + column * 98f, y - 67f - row * 76f, 90f, 67f), PlannerName(entry) + "\n" + (cooldown > 0f ? Mathf.CeilToInt(cooldown) + "s" : IsRussianUi ? "ГОТОВО" : "READY"), 12, new Color32(13, 23, 38, 230), "#b6c9de")) ActivateActiveAbility(kind);
                 GUI.enabled = enabled; column++; if (column == 2) { column = 0; row++; }
             }
-            var abilityRows = Mathf.Ceil(_activeAbilityHotkeys.Count / 2f); y -= abilityRows * 54f + 48f;
-            if (SourceUiButton(new Rect(x, y, 48f, 40f), _sphereMovementLocked ? (IsRussianUi ? "ЗАБЛОКИРОВАНО" : "LOCKED") : IsRussianUi ? "ПЕРЕМЕЩЕНИЕ" : "MOVE", 7, new Color32(13, 23, 38, 230), "#b6c9de")) _sphereMovementLocked = !_sphereMovementLocked;
+            var abilityRows = Mathf.Ceil(_activeAbilityHotkeys.Count / 2f); y -= abilityRows * 76f + 67f;
+            if (SourceUiButton(new Rect(x, y, 68f, 56f), _sphereMovementLocked ? (IsRussianUi ? "ЗАБЛОКИРОВАНО" : "LOCKED") : IsRussianUi ? "ПЕРЕМЕЩЕНИЕ" : "MOVE", 10, new Color32(13, 23, 38, 230), "#b6c9de")) _sphereMovementLocked = !_sphereMovementLocked;
             var nodes = new List<FormationNode>(); foreach (var sphere in _spheres) if (sphere != null) nodes.Add(new FormationNode(new Vec2(sphere.transform.position.x, sphere.transform.position.y), true));
             GUI.enabled = _follow || FormationFollowRules.CanActivate(new Vec2(_player.position.x, _player.position.y), nodes);
-            if (SourceUiButton(new Rect(x + 54f, y, 48f, 40f), _follow ? (IsRussianUi ? "СЛЕД" : "FOLLOWING") : "FOLLOW", 8, new Color32(13, 23, 38, 230), "#b6c9de")) SetFormationFollowMode(!_follow);
-            GUI.enabled = enabled; y -= 56f;
-            if (_tutorialStep < 0 && SourceUiButton(new Rect(x, y, 48f, 48f), "Ⅱ", 20, new Color32(13, 23, 38, 230), "#b6c9de")) SetUserPaused(!_userPaused);
-            if (_follow) SourceUiLabel(new Rect(x + 75f, picker.y - 43f, picker.width - 75f, 25f), (IsRussianUi ? "НАГРУЗКА СЕТИ " : "NETWORK STRAIN ") + Mathf.RoundToInt(_formationStrain) + "%", 8, "#7f9bb8", false, true);
+            if (SourceUiButton(new Rect(x + 76f, y, 68f, 56f), _follow ? (IsRussianUi ? "СЛЕД" : "FOLLOWING") : "FOLLOW" , 11, new Color32(13, 23, 38, 230), "#b6c9de")) SetFormationFollowMode(!_follow);
+            GUI.enabled = enabled; y -= 84f;
+            if (_tutorialStep < 0 && SourceUiButton(new Rect(x, y, 68f, 68f), "Ⅱ", 28, new Color32(13, 23, 38, 230), "#b6c9de")) SetUserPaused(!_userPaused);
+            if (_follow) SourceUiLabel(new Rect(x + 105f, picker.y - 58f, picker.width - 105f, 32f), (IsRussianUi ? "НАГРУЗКА СЕТИ " : "NETWORK STRAIN ") + Mathf.RoundToInt(_formationStrain) + "%", 11, "#7f9bb8", false, true);
         }
         private void DrawSourceNetworkTooltip()
         {

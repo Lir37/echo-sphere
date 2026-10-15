@@ -192,10 +192,42 @@ for (const family of ['Sniper','Chain','Shotgun','Aura','Orbital','Prism','Gravi
 assert.ok(sphereVisual.includes('DrawSourceOrbit(') && sphereVisual.includes('OrbitPoint(') &&
   sphereVisual.includes('DrawDiamond') && sphereVisual.includes('ResonanceEventActive'),
   'Sphere family source-orbit geometry, outward accents and Resonance state must be wired');
+assert.ok(sphereVisual.includes('DrawOrbitalSatellites(') &&
+  sphereVisual.includes('src/spheres/orbitalVisual.ts:drawSatellite') &&
+  sphereVisual.includes('ElementVisualColor') &&
+  sphereVisual.includes('renderer.enabled = false') &&
+  readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs'), 'utf8').includes('OrbitalElementCount') &&
+  readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs'), 'utf8').includes('glowRenderer.enabled = false'),
+  'Orbital satellites must use source-mapped faceted/elemental geometry at existing combat positions');
+const sphereAttackRuntimeVfx = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs'), 'utf8');
+assert.ok(sphereVisual.includes('Mathf.Repeat(sourceX * .011f + sourceY * .007f, Tau)') &&
+  sphereVisual.includes('sourceX * .008f + sourceY * .006f') &&
+  sphereVisual.includes('var spin = _time * OrbitSpeed(_type)') &&
+  sphereVisual.includes('var scan = _time * .46f;') &&
+  sphereVisual.includes('DrawOrbitalAttackFlash(') &&
+  sphereAttackRuntimeVfx.includes('OrbitalAttackFlashTimer'),
+  'Sphere visual phases and source-time orbit rotations must use the source formulas');
 assert.ok(sphereVisual.includes('private Mesh _orbitMesh, _coreMesh, _detailMesh') &&
   sphereVisual.includes('RadialGlow(') && sphereVisual.includes('CoreOutline') &&
   sphereVisual.includes('private void DisablePrototypeSphereLayers()'),
   'source-matched glowing core must replace the prototype SVG body');
+assert.ok(sphereVisual.includes('coreRadius * .58f * (1f + corePulse * .035f)') &&
+  sphereVisual.includes('var corePulse = _type == SphereId.Orbital ? (disabled ? .5f : orbitalOrbitPulse) : pulse;'),
+  'Sphere core glow radius must preserve the source pulse expansion and Orbital-specific pulse');
+const standardAttackVfxPath = 'Assets/EchoSphere/Scripts/Runtime/StandardSphereAttackVfx2D.cs';
+assert.ok(existsSync(join(root, standardAttackVfxPath)), 'Standard Sphere attack charge visual is missing');
+const standardAttackVfx = readFileSync(join(root, standardAttackVfxPath), 'utf8');
+const standardRuntimeSource = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs'), 'utf8');
+assert.ok(standardAttackVfx.includes('using EchoSphere.Core;') &&
+  standardAttackVfx.includes('SpherePlacementRules.SourcePixelsToWorld'),
+  'Standard Sphere attack VFX must import the Core namespace for source-pixel calibration');
+assert.ok(standardRuntimeSource.includes('StandardSphereAttackVfx2D') &&
+  standardAttackVfx.includes('drawStandardAttackVfx') &&
+  standardAttackVfx.includes('_agent.AttackTimer / 1.2f') &&
+  standardAttackVfx.includes('_agent.VisualRotation') &&
+  standardAttackVfx.includes('new Color(99f / 255f, 230f / 255f, 1f, 1f)') &&
+  standardAttackVfx.includes('FilledCircle('),
+  'Standard Sphere must port source charge muzzle geometry and use existing attack timer/rotation without changing combat');
 assert.ok(sphereVisual.includes('private static void DrawSourceOrbit(') &&
   sphereVisual.includes('mode == SphereId.Chain') && sphereVisual.includes('mode == SphereId.Void') &&
   sphereVisual.includes('mode == SphereId.Prism'),
@@ -269,8 +301,18 @@ assert.ok(runtime.includes('SetUserPaused'), 'pause/resume state handling is mis
 const networkRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/SphereNetworkRules.cs'), 'utf8');
 assert.ok(networkRules.includes('Analyze') && networkRules.includes('FindFractal') && networkRules.includes('GetFormationBonusMultiplier'), 'Network/Geometry analysis contract is missing');
 assert.ok(runtime.includes('RefreshNetworkState') && runtime.includes('UpdateNetworkLinkVisuals') && runtime.includes('GEOMETRY '), 'live Network links and Geometry HUD are missing');
+assert.ok(runtime.includes('UpdateNetworkCometVisuals') && runtime.includes('var packetSpeed = active ? 0.34f : 0.27f') &&
+  runtime.includes('var tailDistance = active ? 0.075f : 0.06f') &&
+  runtime.includes('var raw = ((_runTime * packetSpeed + seed + packet / 3f) % 1f + 1f) % 1f') &&
+  runtime.includes('var pulse = 0.84f + Mathf.Sin(_runTime * 4.2f) * 0.10f') &&
+  runtime.includes('RuntimeSpriteFactory.NetworkCometHead') && runtime.includes('RuntimeSpriteFactory.NetworkCometTail') &&
+  runtime.includes('glowLine.startWidth = glowLine.endWidth = (active ? 5.8f : 3.6f) * pixelScale') &&
+  runtime.includes('highlightLine.startWidth = highlightLine.endWidth = (active ? 0.92f : 0.70f) * pixelScale'),
+  'network links must preserve source moving-comet packets and tapered trails');
 
 assert.ok(runtime.includes('DrawSourcePausePlanner()') && runtime.includes('BuildPauseStats') && runtime.includes('BuildPauseAbilities') && runtime.includes('BuildPauseArtifacts') && runtime.includes('BuildPauseSynergies') && runtime.includes('SaveCurrentRun(); SceneManager.LoadScene'), 'source four-tab pause planner, resume and save/return controls are missing');
+const pausePlannerUi = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSpherePausePlanner.cs'), 'utf8').replaceAll('\\r\\n', '\\n');
+assert.ok(pausePlannerUi.includes('DrawPauseTabIcon') && pausePlannerUi.includes('var statGridCount = _pausePlannerTab == 0') && pausePlannerUi.includes('PauseCard(cards, "HP"') && pausePlannerUi.includes('PauseCard(cards, IsRussianUi ? "Уклонение" : "Dodge"'), 'pause planner must preserve source line-art tabs and compact character stat grid');
 assert.ok(runtime.includes('DrawSourceGameplayHud') && runtime.includes('DrawProgressBar') && runtime.includes('_xp / _xpRequired') && runtime.includes('_uiScale'), 'source HP/XP/Resonance HUD bars and responsive layout are missing');
 const readMovement = runtime.slice(runtime.indexOf('private Vector2 ReadMovement()'), runtime.indexOf('private void ConfigureCamera()'));
 assert.ok(runtime.includes('Screen.width * 0.5f') && runtime.includes('HandleSourcePointer(touch.fingerId') && runtime.includes('drag.magnitude >= 12f') && readMovement.includes('_sourceJoystickDirection'), 'source handedness, independent pointer IDs and quantized joystick movement are missing');
@@ -357,6 +399,7 @@ assert.ok(runtime.includes('BuildSphereNetworkPreview') && runtime.includes('Dra
   runtime.includes('DrawSphereGuiDashedCircle') && runtime.includes('GetSphereFormationDisplayName'),
   'Ghost Snap candidate links, predicted formation contour, or formation-memory presentation is not wired');
 assert.ok(runtime.includes('DrawSpherePickerGlyph') && runtime.includes('SphereId.Sniper') &&
+  runtime.includes('const float buttonHeight = 58f') && runtime.includes('circleRadius = Mathf.Min(rect.width, rect.height) * 0.44f') &&
   runtime.includes('SphereId.Shotgun') && runtime.includes('SphereId.Chain') && runtime.includes('SphereId.Aura'),
   'Sphere picker must port the actual MobileControls glyphs instead of invented text abbreviations');
 assert.ok(runtime.includes('GetSpherePickerDescriptionHeight') && runtime.includes('definition.DescriptionEn.Length'),
@@ -515,6 +558,18 @@ assert.ok(runtime.includes('IncreaseMaxHp(6f)') && runtime.includes('IncreaseMax
   'Level-Up must retain source per-level HP behavior, exclude unselected passive choices, and not add Fortune to the cache-drop formula');
 const experienceOrb = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/ExperienceOrbAgent.cs'), 'utf8');
 assert.ok(experienceOrb.includes('GetExperienceMagnetRadiusWorld()'), 'Magnet Level-Up must affect XP orb attraction');
+const xpOrbVisualRuntime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs'), 'utf8');
+const xpSpriteFactory = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/RuntimeSpriteFactory.cs'), 'utf8');
+assert.ok(xpOrbVisualRuntime.includes('RuntimeSpriteFactory.ExperienceShard') &&
+  xpOrbVisualRuntime.includes('RuntimeSpriteFactory.ExperienceShardOutline') &&
+  xpOrbVisualRuntime.includes('XP Shard Highlight') &&
+  xpOrbVisualRuntime.includes('2.2f * 6f * SpherePlacementRules.SourcePixelsToWorld') &&
+  !xpOrbVisualRuntime.includes('xpReward >= 5 ? RuntimeSpriteFactory.Star'),
+  'XP pickup visual must match the source fixed-size cyan shard, near-white outline and highlight rather than XP-tier-dependent generic sprites');
+assert.ok(xpSpriteFactory.includes('CreateFlatPolygonSprite("ES_ExperienceShard"') &&
+  xpSpriteFactory.includes('CreatePolygonOutlineSprite("ES_ExperienceShardOutline"') &&
+  xpSpriteFactory.includes('0.62f / 1.1f') && xpSpriteFactory.includes('0.52f / 1.1f'),
+  'XP shard shape must retain the six-point source renderer geometry');
 const enemyAbilitySlowCheck = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs'), 'utf8');
 const enemySlowCombatRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/CombatRules.cs'), 'utf8');
 assert.ok(enemyAbilitySlowCheck.includes('GetEnemyAbilitySpeedMultiplier(distanceToPlayer, _slowMultiplier)') &&
@@ -1433,4 +1488,32 @@ assert.ok(linkBreakerRuntime.includes('FindNearestLinkBreakerTarget') &&
   linkBreakerRuntime.includes('ShowTimedCombatMessage'),
   'Link Breaker must skip disabled Spheres and use the source Stability duration modifier');
 
+const sourceHomeUi = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceHome.cs'), 'utf8').replaceAll('\r\n', '\n');
+assert.ok(sourceHomeUi.includes('var radii = new[] { .41f, .28f, .19f, .35f, .11f }') &&
+  sourceHomeUi.includes('var verticalScales = new[] { .391f, .469f, .375f, .438f, .423f }') &&
+  sourceHomeUi.includes('var baseRotations = new[] { 18f, 24f, -34f, -16f, -24f }') &&
+  sourceHomeUi.includes('Time.unscaledTime * 360f / periods[ring]') &&
+  sourceHomeUi.includes('new Color(163f / 255f, 124f / 255f, 255f / 255f, .20f)'),
+  'main-menu core orbit/ring geometry, tilt, color and rotation must match final source CSS');
+assert.ok(sourceHomeUi.includes('DrawSourceMenuNavIcon') &&
+  ['UserRound', 'Store', 'Trophy', 'Award', 'BookOpen', 'Settings'].every(icon => sourceHomeUi.includes(icon)) &&
+  sourceHomeUi.includes('SourceUiNavCircle') && sourceHomeUi.includes('SourceUiNavStroke') &&
+  sourceHomeUi.includes('rect.center.x - 10f') && sourceHomeUi.includes('rect.y + 27f') &&
+  sourceHomeUi.includes('var narrowPhone = _uiWidth <= 1100f') &&
+  sourceHomeUi.includes('var navColumns = narrowPhone ? 3 : 6') &&
+  sourceHomeUi.includes('var navButtonHeight = narrowPhone ? 46f : 42f'),
+  'main-menu navigation must preserve all six source icon identities as line-art alongside the live destinations');
+const knowledgeRuntime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereKnowledge.cs'), 'utf8').replaceAll('\r\n', '\n');
+const sourceCatalogPath = join(root, 'Assets/Resources/EchoSphere/SourceCatalog.json');
+assert.ok(existsSync(sourceCatalogPath) &&
+  knowledgeRuntime.includes('nameRu, nameEn, descRu, descEn, detailsRu, detailsEn') &&
+  knowledgeRuntime.includes('Resources.Load<TextAsset>("EchoSphere/SourceCatalog")') &&
+  ['basics', 'spheres', 'monsters', 'bosses', 'abilities', 'artifacts', 'evolutions'].every(section => knowledgeRuntime.includes(section)),
+  'Unity knowledge base must load source-catalog localized names, descriptions and details for all source sections');
+const regionSelectUi = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceRegionSelect.cs'), 'utf8').replaceAll('\\r\\n', '\\n');
+assert.ok(regionSelectUi.includes('var cardHeight = available ? 367f : 150f') &&
+  regionSelectUi.includes('DrawRegionLockIcon') &&
+  regionSelectUi.includes('var baseRect = new Rect(12f, y + 80f, contentWidth - 24f, 52f)') &&
+  regionSelectUi.includes('var challengeRect = new Rect(12f, y + 164f + j * 43f, contentWidth - 24f, 38f)'),
+  'region selection must preserve source card, challenge and line-icon proportions');
 console.log(`Unity project preflight: PASS (Unity ${version}, ${runtimeFiles.length} C# source files, URP, authored SVG and responsive HUD guards)`);

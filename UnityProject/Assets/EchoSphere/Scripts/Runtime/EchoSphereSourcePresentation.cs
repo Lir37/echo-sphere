@@ -55,7 +55,7 @@ namespace EchoSphere.Runtime
             void Field(string source,string field)=>VisualJs.Assign(view,source,"=",RenderValue(RenderField(entity,field)));
             if(entity is SphereAttackAgent sphere) {
                 view["type"]=sphere.Type.ToString().ToLowerInvariant();view["radius"]=130;view["visualTier"]=sphere.ProgressionLevel;
-                view["damage"]=12;view["attackDelay"]=1.2;view["attackTimer"]=sphere.AttackTimer;view["auraTimer"]=sphere.AttackTimer;
+                view["damage"]=12;view["attackDelay"]=1.2;view["attackTimer"]=sphere.AttackTimer;view["auraTimer"]=sphere.Type==SphereId.Orbital?RenderValue(RenderField(sphere,"_orbitalContactCheckTimer")):new V(sphere.AttackTimer);
                 view["rotation"]=sphere.Type==SphereId.Orbital?RenderValue(RenderField(sphere,"_orbitAngle")):new V(sphere.Type==SphereId.Gravity?sphere.VisualRotation:-sphere.VisualRotation);
                 Field("networkDisabledTimer","_networkDisabledTimer");view["formationHitCount"]=sphere.FormationHitCount;view["resonancePulseTimer"]=sphere.ResonancePulseTimer;
             } else if(entity is EnemyAgent2D enemy) {

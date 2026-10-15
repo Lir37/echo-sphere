@@ -17,6 +17,7 @@ namespace EchoSphere.Runtime
         private float _orbitAngle;
         private float _orbitalLastSweepAngle;
         private float _orbitalContactCheckTimer;
+        private float _orbitalAttackFlashTimer;
         private readonly Dictionary<EnemyAgent2D, HashSet<int>> _orbitalContactLatch =
             new Dictionary<EnemyAgent2D, HashSet<int>>();
         private float _initialDamage;
@@ -49,6 +50,12 @@ namespace EchoSphere.Runtime
         public SphereId Type => _type;
         public float VisualRotation { get; private set; }
         public int ProgressionLevel => _progressionLevel;
+        // Read-only presentation access: gameplay owns and positions these elements.
+        public int OrbitalElementCount => _orbitalElements.Count;
+        public float OrbitalAttackFlashTimer => _orbitalAttackFlashTimer;
+        public float OrbitalRotation => _orbitAngle;
+        public Transform GetOrbitalElementAt(int index) =>
+            index >= 0 && index < _orbitalElements.Count ? _orbitalElements[index] : null;
 
         public float BaseDamage { get; private set; } = 12f;
         public float AttackDelay { get; private set; } = 1.2f;
@@ -144,6 +151,7 @@ namespace EchoSphere.Runtime
             _contactTimer = Mathf.Max(0f, _contactTimer - dt);
             _networkDisabledTimer = Mathf.Max(0f, _networkDisabledTimer - dt);
             _resonancePulseTimer = Mathf.Max(0f, _resonancePulseTimer - dt);
+            _orbitalAttackFlashTimer = Mathf.Max(0f, _orbitalAttackFlashTimer - dt);
 
             if (_type == SphereId.Orbital)
             {
@@ -381,6 +389,9 @@ namespace EchoSphere.Runtime
                 go.transform.SetParent(transform, false);
                 go.transform.localScale = Vector3.one * (index % 2 == 0 ? 0.24f : 0.20f);
                 var renderer = go.AddComponent<SpriteRenderer>();
+                // The source-mapped mesh in SphereRuntimeVfx2D owns this visual; keep
+                // the legacy Disc prototype disabled as elements are created at runtime.
+                renderer.enabled = false;
                 renderer.sprite = RuntimeSpriteFactory.Disc;
                 renderer.color = new Color(0.45f, 0.94f, 1f, 1f);
                 renderer.sortingOrder = 13;
@@ -388,6 +399,7 @@ namespace EchoSphere.Runtime
                 glow.transform.SetParent(go.transform, false);
                 glow.transform.localScale = Vector3.one * 2.2f;
                 var glowRenderer = glow.AddComponent<SpriteRenderer>();
+                glowRenderer.enabled = false;
                 glowRenderer.sprite = RuntimeSpriteFactory.Disc;
                 glowRenderer.color = new Color(0.35f, 0.82f, 1f, 0.30f);
                 glowRenderer.sortingOrder = 12;
@@ -404,6 +416,8 @@ namespace EchoSphere.Runtime
             var cadenceMultiplier = clusterBonusForCadence > 0f ? 1f - 0.10f * clusterBonusForCadence : 1f;
             _orbitalContactCheckTimer = Mathf.Max(0.08f,
                 0.42f * _sourceModifiers.auraPulse * cadenceMultiplier / Mathf.Max(0.01f, _runtime.GetSphereAttackSpeedMultiplier(SphereId.Orbital)));
+            // Source orbitalVisual.ts detects the auraTimer reset and runs a 0.28 s attack flash.
+            _orbitalAttackFlashTimer = Mathf.Max(0f, 0.28f - dt);
 
             var hitSomething = false;
             var staleLatchEnemies = new List<EnemyAgent2D>();

@@ -38,18 +38,25 @@ namespace EchoSphere.Runtime
             GUI.Box(panel, GUIContent.none, _box);
             var character = CharacterRules.Get(_sphereCharacterId);
             GUI.Label(new Rect(panel.x + 16f, panel.y + 12f, width - 70f, 18f), IsRussianUi ? "Билд забега" : "Run Build", _sphereDescriptionStyle);
-            GUI.Label(new Rect(panel.x + 16f, panel.y + 32f, width - 70f, 30f), (IsRussianUi ? "Пауза · " + character.NameRu : "Pause · " + character.NameEn), _menuTitle);
+            var pauseTitleStyle = new GUIStyle(_title) { fontSize = 21, alignment = TextAnchor.MiddleLeft };
+            GUI.Label(new Rect(panel.x + 16f, panel.y + 32f, width - 70f, 30f), (IsRussianUi ? "Пауза · " + character.NameRu : "Pause · " + character.NameEn), pauseTitleStyle);
             GUI.Label(new Rect(panel.x + 16f, panel.y + 63f, width - 32f, 24f),
                 (IsRussianUi ? character.RoleRu + " · уровень " : character.RoleEn + " · level ") + _level + (IsRussianUi ? " · Волна " : " · Wave ") + _wave, _sphereDescriptionStyle);
             if (GUI.Button(new Rect(panel.xMax - 49f, panel.y + 19f, 33f, 33f), "×", _button)) SetUserPaused(false);
             var labels = IsRussianUi ? new[] { "Показатели", "Способности", "Артефакты", "Синергии" } : new[] { "Stats", "Abilities", "Artifacts", "Synergies" };
             var tabWidth = (width - 32f) / 4f;
+            var tabLabelStyle = new GUIStyle(_label) { fontSize = 11, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter };
             for (var i = 0; i < 4; i++)
             {
+                var tabRect = new Rect(panel.x + 16f + i * tabWidth, panel.y + 93f, tabWidth - 6f, 33f);
                 previous = GUI.color; if (i == _pausePlannerTab) GUI.color = new Color(0.22f, 0.85f, 1f);
-                if (GUI.Button(new Rect(panel.x + 16f + i * tabWidth, panel.y + 93f, tabWidth - 6f, 33f), labels[i], _button))
+                if (GUI.Button(tabRect, GUIContent.none, _button))
                 { _pausePlannerTab = i; _pausePlannerScroll = Vector2.zero; _pauseArtifactSetId = null; }
                 GUI.color = previous;
+                var iconColor = i == _pausePlannerTab ? new Color(0.22f, 0.85f, 1f, 1f) : new Color(0.50f, 0.63f, 0.75f, 1f);
+                DrawPauseTabIcon(new Rect(tabRect.x + 9f, tabRect.y + 8f, 18f, 18f), i, iconColor);
+                tabLabelStyle.normal.textColor = i == _pausePlannerTab ? new Color(0.86f, 0.97f, 1f, 1f) : new Color(0.50f, 0.63f, 0.75f, 1f);
+                GUI.Label(new Rect(tabRect.x + 29f, tabRect.y + 1f, tabRect.width - 34f, tabRect.height - 2f), labels[i], tabLabelStyle);
             }
             var view = new Rect(panel.x + 16f, panel.y + 139f, width - 32f, height - 207f);
             var cards = new List<KeyValuePair<string, string>>();
@@ -59,17 +66,37 @@ namespace EchoSphere.Runtime
             else BuildPauseSynergies(cards);
             var titleStyle = new GUIStyle(_label) { fontStyle = FontStyle.Bold, fontSize = 14, wordWrap = true };
             var bodyStyle = new GUIStyle(_sphereDescriptionStyle) { fontSize = 11, wordWrap = true };
-            var heights = new List<float>(); var total = 0f; var cardWidth = view.width - 18f;
-            foreach (var card in cards)
+            var statLabelStyle = new GUIStyle(_sphereDescriptionStyle) { fontSize = 10, alignment = TextAnchor.MiddleLeft };
+            var statValueStyle = new GUIStyle(_label) { fontSize = 14, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleLeft };
+            var statGridCount = _pausePlannerTab == 0 ? Mathf.Min(8, cards.Count) : 0;
+            var statWidth = (view.width - 18f - 18f) / 4f;
+            var sectionStyle = new GUIStyle(_sphereDescriptionStyle) { fontSize = 10, fontStyle = FontStyle.Bold };
+            var heights = new List<float>(); var total = statGridCount > 0 ? 152f : 0f; var cardWidth = view.width - 18f;
+            for (var i = 0; i < cards.Count; i++)
             {
-                var size = 30f + titleStyle.CalcHeight(new GUIContent(card.Key), cardWidth - 24f) + bodyStyle.CalcHeight(new GUIContent(card.Value), cardWidth - 24f);
+                if (i < statGridCount) { heights.Add(46f); continue; }
+                var size = 30f + titleStyle.CalcHeight(new GUIContent(cards[i].Key), cardWidth - 24f) + bodyStyle.CalcHeight(new GUIContent(cards[i].Value), cardWidth - 24f);
                 if (_pausePlannerTab == 2 && heights.Count > 0 && heights.Count <= _ownedArtifacts.Count) size += 65f + SourceArtifactBadgeHeight(_ownedArtifacts[heights.Count - 1], cardWidth - 24f);
                 heights.Add(size); total += size + 9f;
             }
             _pausePlannerScroll = GUI.BeginScrollView(view, _pausePlannerScroll, new Rect(0f, 0f, cardWidth, total));
-            var y = 0f;
+            var y = statGridCount > 0 ? 126f : 0f;
             for (var i = 0; i < cards.Count; i++)
             {
+                if (i < statGridCount)
+                {
+                    if (i == 0) GUI.Label(new Rect(0f, 0f, cardWidth, 20f), IsRussianUi ? "Персонаж" : "Character", sectionStyle);
+                    var statRect = new Rect((i % 4) * (statWidth + 6f), 22f + (i / 4) * 52f, statWidth, 46f);
+                    GUI.Box(statRect, GUIContent.none, _box);
+                    GUI.Label(new Rect(statRect.x + 8f, statRect.y + 3f, statRect.width - 16f, 16f), cards[i].Key, statLabelStyle);
+                    GUI.Label(new Rect(statRect.x + 8f, statRect.y + 19f, statRect.width - 16f, 24f), cards[i].Value, statValueStyle);
+                    continue;
+                }
+                if (_pausePlannerTab == 0 && i == 8)
+                {
+                    GUI.Label(new Rect(0f, y + 2f, cardWidth, 20f), IsRussianUi ? "Сферы" : "Spheres", sectionStyle);
+                    y += 26f;
+                }
                 GUI.Box(new Rect(0f, y, cardWidth, heights[i]), GUIContent.none, _box);
                 var titleHeight = titleStyle.CalcHeight(new GUIContent(cards[i].Key), cardWidth - 24f);
                 GUI.Label(new Rect(12f, y + 10f, cardWidth - 24f, titleHeight), cards[i].Key, titleStyle);
@@ -92,6 +119,46 @@ namespace EchoSphere.Runtime
             GUI.enabled = contentEnabled;
             if (!string.IsNullOrEmpty(_pauseArtifactSetId)) DrawPauseArtifactSetDetails(panel);
         }
+        private void DrawPauseTabIcon(Rect rect, int index, Color color)
+        {
+            var c = rect.center;
+            if (index == 0)
+            {
+                DrawSphereGuiLine(new Vector2(rect.x + 1f, rect.yMax - 1f), new Vector2(rect.xMax - 1f, rect.yMax - 1f), color, 1.4f);
+                DrawSphereGuiLine(new Vector2(rect.x + 3f, rect.yMax - 2f), new Vector2(rect.x + 3f, rect.y + 8f), color, 2f);
+                DrawSphereGuiLine(new Vector2(rect.x + 8f, rect.yMax - 2f), new Vector2(rect.x + 8f, rect.y + 4f), color, 2f);
+                DrawSphereGuiLine(new Vector2(rect.x + 13f, rect.yMax - 2f), new Vector2(rect.x + 13f, rect.y + 1f), color, 2f);
+            }
+            else if (index == 1)
+            {
+                DrawSphereGuiLine(new Vector2(c.x, rect.y), new Vector2(c.x, rect.yMax), color, 1.4f);
+                DrawSphereGuiLine(new Vector2(rect.x, c.y), new Vector2(rect.xMax, c.y), color, 1.4f);
+                DrawSphereGuiLine(new Vector2(rect.x + 3f, rect.y + 3f), new Vector2(rect.xMax - 3f, rect.yMax - 3f), color, 1.4f);
+                DrawSphereGuiLine(new Vector2(rect.x + 3f, rect.yMax - 3f), new Vector2(rect.xMax - 3f, rect.y + 3f), color, 1.4f);
+            }
+            else if (index == 2)
+            {
+                DrawSphereGuiLine(new Vector2(rect.x + 2f, rect.y + 5f), new Vector2(c.x, rect.y + 1f), color, 1.4f);
+                DrawSphereGuiLine(new Vector2(c.x, rect.y + 1f), new Vector2(rect.xMax - 2f, rect.y + 5f), color, 1.4f);
+                DrawSphereGuiLine(new Vector2(rect.x + 2f, rect.y + 5f), new Vector2(rect.x + 2f, rect.yMax - 2f), color, 1.4f);
+                DrawSphereGuiLine(new Vector2(rect.xMax - 2f, rect.y + 5f), new Vector2(rect.xMax - 2f, rect.yMax - 2f), color, 1.4f);
+                DrawSphereGuiLine(new Vector2(rect.x + 2f, rect.yMax - 2f), new Vector2(rect.xMax - 2f, rect.yMax - 2f), color, 1.4f);
+                DrawSphereGuiLine(new Vector2(c.x, rect.y + 3f), new Vector2(c.x, rect.yMax - 2f), color, 1.4f);
+            }
+            else
+            {
+                var a = new Vector2(rect.x + 3f, rect.y + 4f);
+                var b = new Vector2(rect.xMax - 3f, rect.y + 4f);
+                var d = new Vector2(c.x, rect.yMax - 3f);
+                DrawSphereGuiLine(a, b, color, 1.4f);
+                DrawSphereGuiLine(a, d, color, 1.4f);
+                DrawSphereGuiLine(b, d, color, 1.4f);
+                DrawSphereGuiCircle(a, 2.5f, color, 1.3f);
+                DrawSphereGuiCircle(b, 2.5f, color, 1.3f);
+                DrawSphereGuiCircle(d, 2.5f, color, 1.3f);
+            }
+        }
+
         private static void PauseCard(List<KeyValuePair<string, string>> cards, string title, string body) => cards.Add(new KeyValuePair<string, string>(title, body));
         private void BuildPauseStats(List<KeyValuePair<string, string>> cards)
         {
@@ -101,11 +168,14 @@ namespace EchoSphere.Runtime
             var dodge = LevelUpAbilityRules.GetDodgeChance(GetAbilityLevel(RunUpgradeKind.Dodge), ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "dodgeChance"));
             var vampire = ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "vampire") + GetAbilityLevel(RunUpgradeKind.Vampire) * 0.03f;
             var xp = PersistentUpgradeRules.GetPercentMultiplier(GetShopUpgradeLevel("xp")) + ArtifactRewardRules.GetEffectTotal(_ownedArtifacts, "xpGain");
-            PauseCard(cards, IsRussianUi ? "Персонаж" : "Character", "HP " + Mathf.CeilToInt(_playerCore.CurrentHp) + " / " + Mathf.CeilToInt(_playerCore.MaxHp) +
-                (IsRussianUi ? "\nСкорость " : "\nSpeed ") + Mathf.FloorToInt(speed + 0.5f) + (IsRussianUi ? " · Крит " : " · Crit ") + Mathf.FloorToInt(crit * 100f + 0.5f) + "%" +
-                (IsRussianUi ? "\nУклонение " : "\nDodge ") + Mathf.FloorToInt(dodge * 100f + 0.5f) + "%" + (IsRussianUi ? " · Вампиризм " : " · Lifesteal ") + Mathf.FloorToInt(vampire * 100f + 0.5f) + "%" +
-                (IsRussianUi ? "\nСфер " : "\nSpheres ") + _spheres.Count + " / " + GetCurrentMaxSpheres() + (IsRussianUi ? " · Убийства " : " · Kills ") + _kills +
-                (IsRussianUi ? "\nМножитель XP " : "\nXP Mult ") + Mathf.FloorToInt(xp * 100f + 0.5f) + "%");
+            PauseCard(cards, "HP", Mathf.CeilToInt(_playerCore.CurrentHp) + " / " + Mathf.CeilToInt(_playerCore.MaxHp));
+            PauseCard(cards, IsRussianUi ? "Скорость" : "Speed", Mathf.FloorToInt(speed + 0.5f).ToString());
+            PauseCard(cards, IsRussianUi ? "Крит" : "Crit", Mathf.FloorToInt(crit * 100f + 0.5f) + "%");
+            PauseCard(cards, IsRussianUi ? "Уклонение" : "Dodge", Mathf.FloorToInt(dodge * 100f + 0.5f) + "%");
+            PauseCard(cards, IsRussianUi ? "Вампиризм" : "Lifesteal", Mathf.FloorToInt(vampire * 100f + 0.5f) + "%");
+            PauseCard(cards, IsRussianUi ? "Сфер" : "Spheres", _spheres.Count + " / " + GetCurrentMaxSpheres());
+            PauseCard(cards, IsRussianUi ? "Убийства" : "Kills", _kills.ToString());
+            PauseCard(cards, IsRussianUi ? "Множитель XP" : "XP Mult", Mathf.FloorToInt(xp * 100f + 0.5f) + "%");
             if (_sourceKnowledge?.planner == null) return;
             foreach (var entry in _sourceKnowledge.planner)
             {

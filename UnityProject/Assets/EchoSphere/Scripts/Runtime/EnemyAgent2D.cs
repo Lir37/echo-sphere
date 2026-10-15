@@ -28,7 +28,11 @@ namespace EchoSphere.Runtime
         public string EliteVariant => _eliteVariant;
         public float ContactDamage => _damage;
         public string SourceColorHtml => IsBoss ? "#" + ColorUtility.ToHtmlStringRGB(_baseColor) : _isElite ? "#b8475a" : _archetype == EnemyArchetype.Fast ? "#d4a830" : _archetype == EnemyArchetype.Tank ? "#8a5a8a" : "#4a7a8a";
-        public void SetSourceRadius(float radius) => _sourceRadiusOverride = radius;
+        public void SetSourceRadius(float radius)
+        {
+            _sourceRadiusOverride = radius;
+            if (_creatureVisual != null) _creatureVisual.RefreshSourceRadius();
+        }
         private float _roleActionTimer;
         private EnemyArchetype _archetype = EnemyArchetype.Normal;
         private float _slowTimer;

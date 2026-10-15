@@ -41,6 +41,7 @@ namespace EchoSphere.Runtime
         private Color _baseColor = new Color(0.29f, 0.478f, 0.541f, 1f);
         private Vector2 _facing = Vector2.right;
         private float _time;
+        private float _baseVisualScale = 1f;
         private float _hitFlash;
         private bool _marked;
         private float _fireRemaining, _poisonRemaining, _freezeRemaining;
@@ -69,7 +70,23 @@ namespace EchoSphere.Runtime
             _meshRenderer.sortingOrder = string.IsNullOrEmpty(_bossType) ? 5 : 7;
             _meshRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             _meshRenderer.receiveShadows = false;
+
+            // Match the source Canvas radius (normal 19 px, fast 15 px, tank 26 px,
+            // boss 34 px). The legacy orb root has its own archetype scale, but the
+            // source-mapped creature mesh must not inherit that prototype scale.
+            RefreshSourceRadius();
             Rebuild();
+        }
+
+        public void RefreshSourceRadius()
+        {
+            var enemy = GetComponent<EnemyAgent2D>();
+            var sourceRadius = enemy != null ? enemy.SourceRadius : 19f;
+            // Convert source pixels to world units and compensate for the legacy
+            // prototype root scale, which remains in place for gameplay components.
+            var parentScale = Mathf.Max(0.0001f, transform.lossyScale.x);
+            _baseVisualScale = sourceRadius * SpherePlacementRules.SourcePixelsToWorld / (R * parentScale);
+            if (_visualRoot != null) _visualRoot.localScale = Vector3.one * _baseVisualScale;
         }
 
         private static Material SharedMaterial
@@ -111,7 +128,7 @@ namespace EchoSphere.Runtime
             var hit = Mathf.Clamp01(_hitFlash / HitFlashDuration);
             var sourceX = transform.position.x / SpherePlacementRules.SourcePixelsToWorld;
             var pulse = 1f + Mathf.Sin(_time * 5f + sourceX * 0.01f) * 0.025f;
-            _visualRoot.localScale = Vector3.one * (pulse + hit * 0.05f);
+            _visualRoot.localScale = Vector3.one * (_baseVisualScale * (pulse + hit * 0.05f));
             _visualRoot.localRotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(_facing.y, _facing.x) * Mathf.Rad2Deg);
             Rebuild();
         }

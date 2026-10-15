@@ -365,8 +365,17 @@ namespace EchoSphere.Runtime
         private readonly List<int> _resonanceRingNodes = new List<int>();
         private string _message = "RIGHT HALF: MOVE. LEFT HALF: PLACE / DRAG SPHERES. TAP SPHERE: REMOVE.";
         private GUIStyle _box, _label, _button, _title, _sphereDescriptionStyle;
+        private readonly List<LineRenderer> _networkGlowRenderers = new List<LineRenderer>();
         private readonly List<LineRenderer> _networkLinkRenderers = new List<LineRenderer>();
+        private readonly List<LineRenderer> _networkHighlightRenderers = new List<LineRenderer>();
+        private readonly List<NetworkCometVisual> _networkComets = new List<NetworkCometVisual>();
         private Material _networkLineMaterial;
+
+        private sealed class NetworkCometVisual
+        {
+            public SpriteRenderer Head;
+            public SpriteRenderer Tail;
+        }
         private SphereNetworkState _networkState;
         private SphereNetworkFormation _previousDominantFormation = SphereNetworkFormation.None;
         private SphereNetworkFormation _preferredDominantFormation = SphereNetworkFormation.None;
@@ -1248,6 +1257,12 @@ namespace EchoSphere.Runtime
             ApplySphereVisual(go, type, level);
             var agent = go.AddComponent<SphereAttackAgent>();
             agent.Initialize(this, _player, type, 12f);
+            if (type == SphereId.Standard)
+            {
+                // Source renderer.ts:drawStandardAttackVfx is a transient charge muzzle,
+                // separate from the Standard core/ring assembly and combat simulation.
+                go.AddComponent<StandardSphereAttackVfx2D>().Initialize(agent);
+            }
             if (type != SphereId.Standard)
             {
                 var runtimeVfx = go.AddComponent<SphereRuntimeVfx2D>();
@@ -3269,11 +3284,30 @@ namespace EchoSphere.Runtime
             SourceAudio2D.Play(enemy != null && enemy.IsBoss ? "explosion" : "kill");
             var go = new GameObject("Echo Shard");
             go.transform.position = position;
-            go.transform.localScale = Vector3.one * (0.22f + Mathf.Min(0.12f, Mathf.Max(0, xpReward - 1) * 0.035f));
+            // Source drawModernXp uses radius 6 for every orb, regardless of XP value.
+            go.transform.localScale = Vector3.one * (2.2f * 6f * SpherePlacementRules.SourcePixelsToWorld);
             var sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = xpReward >= 5 ? RuntimeSpriteFactory.Star : xpReward >= 3 ? RuntimeSpriteFactory.Hexagon : RuntimeSpriteFactory.Disc;
-            sr.color = xpReward >= 5 ? new Color(1f, 0.45f, 0.82f) : xpReward >= 3 ? new Color(0.76f, 0.55f, 1f) : new Color(0.26f, 0.91f, 1f);
+            sr.sprite = RuntimeSpriteFactory.ExperienceShard;
+            sr.color = new Color(99f / 255f, 230f / 255f, 1f);
             sr.sortingOrder = 7;
+
+            var outline = new GameObject("XP Shard Outline");
+            outline.transform.SetParent(go.transform, false);
+            var outlineRenderer = outline.AddComponent<SpriteRenderer>();
+            outlineRenderer.sprite = RuntimeSpriteFactory.ExperienceShardOutline;
+            outlineRenderer.color = new Color(230f / 255f, 253f / 255f, 1f, 0.82f);
+            outlineRenderer.sortingOrder = 8;
+
+            var highlight = new GameObject("XP Shard Highlight");
+            highlight.transform.SetParent(go.transform, false);
+            highlight.transform.localPosition = new Vector3(-0.0909f, 0.1364f, -0.01f);
+            highlight.transform.localScale = Vector3.one * 0.12f;
+            var highlightRenderer = highlight.AddComponent<SpriteRenderer>();
+            highlightRenderer.sprite = RuntimeSpriteFactory.Disc;
+            highlightRenderer.color = new Color(1f, 1f, 1f, 0.58f);
+            highlightRenderer.sortingOrder = 9;
+
+            // The source rounds enemy XP * combo multiplier once, at orb creation.
             var comboExperience = ComboRules.GetExperienceOrbValue(xpReward, _comboMultiplier);
             var orbVelocity = new Vector2(-40f + _rng.NextFloat() * 80f, 40f - _rng.NextFloat() * 80f);
             var orbRotation = _rng.NextFloat() * Mathf.PI * 2f;
@@ -7065,27 +7099,29 @@ namespace EchoSphere.Runtime
                 if (shader != null) _networkLineMaterial = new Material(shader);
             }
 
+            EnsureNetworkCometVisuals(_networkState.Links.Count * 3);
+            for (var cometIndex = 0; cometIndex < _networkComets.Count; cometIndex++)
+            {
+                var comet = _networkComets[cometIndex];
+                if (comet.Head != null) comet.Head.enabled = false;
+                if (comet.Tail != null) comet.Tail.enabled = false;
+            }
+
             while (_networkLinkRenderers.Count < _networkState.Links.Count)
             {
-                var go = new GameObject("Sphere Network Link");
-                go.transform.SetParent(transform, false);
-                var line = go.AddComponent<LineRenderer>();
-                line.useWorldSpace = true;
-                line.positionCount = 2;
-                line.startWidth = 0.022f;
-                line.endWidth = 0.022f;
-                line.numCapVertices = 2;
-                line.sortingOrder = 5;
-                if (_networkLineMaterial != null) line.sharedMaterial = _networkLineMaterial;
-                _networkLinkRenderers.Add(line);
+                _networkGlowRenderers.Add(CreateNetworkLineRenderer("Sphere Network Glow", 4));
+                _networkLinkRenderers.Add(CreateNetworkLineRenderer("Sphere Network Link", 5));
+                _networkHighlightRenderers.Add(CreateNetworkLineRenderer("Sphere Network Highlight", 6));
             }
 
             for (var i = 0; i < _networkLinkRenderers.Count; i++)
             {
                 var line = _networkLinkRenderers[i];
+                var glowLine = _networkGlowRenderers[i];
+                var highlightLine = _networkHighlightRenderers[i];
                 if (i >= _networkState.Links.Count)
                 {
-                    line.enabled = false;
+                    line.enabled = glowLine.enabled = highlightLine.enabled = false;
                     continue;
                 }
 
@@ -7093,20 +7129,132 @@ namespace EchoSphere.Runtime
                 if (!TryGetNetworkNodePosition(link.A, out var from) ||
                     !TryGetNetworkNodePosition(link.B, out var to))
                 {
-                    line.enabled = false;
+                    line.enabled = glowLine.enabled = highlightLine.enabled = false;
                     continue;
                 }
 
-                line.enabled = true;
-                line.SetPosition(0, from);
-                line.SetPosition(1, to);
-                var color = new Color(0.20f, 0.72f, 0.88f, 0.40f);
-                if (IsFormationLink(_networkState.DominantFormation, link.A, link.B))
-                    color = new Color(1f, 0.77f, 0.34f, 0.82f);
-                else if (IsFormationLink(_networkState.SecondaryFormation, link.A, link.B))
-                    color = new Color(0.63f, 0.52f, 1f, 0.70f);
-                line.startColor = color;
-                line.endColor = color;
+                line.enabled = glowLine.enabled = highlightLine.enabled = true;
+                const int segments = 24;
+                line.positionCount = glowLine.positionCount = highlightLine.positionCount = segments + 1;
+                var delta = to - from;
+                var length = Mathf.Max(0.0001f, delta.magnitude);
+                var normal = new Vector2(-delta.y / length, delta.x / length);
+                var pixelScale = SpherePlacementRules.SourcePixelsToWorld;
+                var amplitude = Mathf.Min(6.2f * pixelScale, 2.2f * pixelScale + length * 0.008f);
+                var lineShape = _networkState.GetFormation(SphereNetworkFormation.Line);
+                var squareShape = _networkState.GetFormation(SphereNetworkFormation.Square);
+                var triangleShape = _networkState.GetFormation(SphereNetworkFormation.Triangle);
+                var clusterShape = _networkState.GetFormation(SphereNetworkFormation.Cluster);
+                var isLine = lineShape != null && lineShape.Active && IsFormationLink(lineShape, link.A, link.B);
+                var isSquare = IsFormationLink(squareShape, link.A, link.B);
+                var isTriangle = triangleShape != null && triangleShape.Active && IsFormationLink(triangleShape, link.A, link.B);
+                var isCluster = IsFormationLink(clusterShape, link.A, link.B);
+                var active = isLine || isSquare || isTriangle || isCluster;
+                var seed = link.A * 17.13f + link.B * 29.71f;
+                var phase = _runTime * (active ? 1.9f : 1.35f) + seed;
+                for (var point = 0; point <= segments; point++)
+                {
+                    var p = point / (float)segments;
+                    var wave = Mathf.Sin(phase + p * Mathf.PI * 4.2f) * amplitude * Mathf.Sin(Mathf.PI * p);
+                    var position = from + delta * p + normal * wave;
+                    line.SetPosition(point, position);
+                    glowLine.SetPosition(point, position);
+                    highlightLine.SetPosition(point, position);
+                }
+
+                var pulse = 0.84f + Mathf.Sin(_runTime * 4.2f) * 0.10f;
+                var color = new Color(0.388f, 0.725f, 1f, 0.27f * pulse);
+                if (isLine) color = new Color(0.388f, 0.902f, 1f, 0.50f * pulse);
+                else if (isTriangle) color = new Color(1f, 0.722f, 0.302f, 0.54f * pulse);
+                else if (isCluster) color = new Color(0.702f, 0.549f, 1f, 0.44f * pulse);
+                else if (isSquare) color = new Color(0.412f, 0.718f, 1f, 0.48f * pulse);
+
+                var glowColor = color; glowColor.a *= active ? 0.22f : 0.12f;
+                var mainColor = color; mainColor.a *= active ? 0.82f : 0.64f;
+                var highlightColor = color; highlightColor.a *= active ? 0.72f : 0.58f;
+                glowLine.startWidth = glowLine.endWidth = (active ? 5.8f : 3.6f) * pixelScale;
+                line.startWidth = line.endWidth = (active ? 2.55f : 1.95f) * pixelScale;
+                highlightLine.startWidth = highlightLine.endWidth = (active ? 0.92f : 0.70f) * pixelScale;
+                glowLine.startColor = glowLine.endColor = glowColor;
+                line.startColor = line.endColor = mainColor;
+                highlightLine.startColor = highlightLine.endColor = highlightColor;
+                UpdateNetworkCometVisuals(i, from, to, color, active, seed, amplitude);
+            }
+        }
+
+        private LineRenderer CreateNetworkLineRenderer(string objectName, int sortingOrder)
+        {
+            var go = new GameObject(objectName);
+            go.transform.SetParent(transform, false);
+            var line = go.AddComponent<LineRenderer>();
+            line.useWorldSpace = true;
+            line.positionCount = 25;
+            line.startWidth = 0.020f;
+            line.endWidth = 0.020f;
+            line.numCapVertices = 2;
+            line.numCornerVertices = 2;
+            line.sortingOrder = sortingOrder;
+            if (_networkLineMaterial != null) line.sharedMaterial = _networkLineMaterial;
+            return line;
+        }
+
+        private void EnsureNetworkCometVisuals(int count)
+        {
+            while (_networkComets.Count < count)
+            {
+                var headObject = new GameObject("Sphere Network Comet Head");
+                headObject.transform.SetParent(transform, false);
+                var head = headObject.AddComponent<SpriteRenderer>();
+                head.sprite = RuntimeSpriteFactory.NetworkCometHead;
+                head.sortingOrder = 8;
+                head.enabled = false;
+
+                var tailObject = new GameObject("Sphere Network Comet Tail");
+                tailObject.transform.SetParent(transform, false);
+                var tail = tailObject.AddComponent<SpriteRenderer>();
+                tail.sprite = RuntimeSpriteFactory.NetworkCometTail;
+                tail.sortingOrder = 7;
+                tail.enabled = false;
+                _networkComets.Add(new NetworkCometVisual { Head = head, Tail = tail });
+            }
+        }
+
+        private void UpdateNetworkCometVisuals(int linkIndex, Vector2 from, Vector2 to, Color linkColor, bool active, float seed, float amplitude)
+        {
+            var delta = to - from;
+            var length = Mathf.Max(0.0001f, delta.magnitude);
+            var normal = new Vector2(-delta.y / length, delta.x / length);
+            var packetSpeed = active ? 0.34f : 0.27f;
+            var tailDistance = active ? 0.075f : 0.06f;
+            var alpha = linkColor.a;
+            var pixelScale = SpherePlacementRules.SourcePixelsToWorld;
+            for (var packet = 0; packet < 3; packet++)
+            {
+                var index = linkIndex * 3 + packet;
+                if (index < 0 || index >= _networkComets.Count) continue;
+                var visual = _networkComets[index];
+                if (visual.Head == null || visual.Tail == null) continue;
+                var raw = ((_runTime * packetSpeed + seed + packet / 3f) % 1f + 1f) % 1f;
+                var p = packet % 2 == 0 ? raw : 1f - raw;
+                var tailP = Mathf.Max(0f, p - tailDistance);
+                var phase = _runTime * (active ? 1.9f : 1.35f) + seed;
+                var headWave = Mathf.Sin(phase + p * Mathf.PI * 4.2f) * amplitude * Mathf.Sin(Mathf.PI * p);
+                var tailWave = Mathf.Sin(phase + tailP * Mathf.PI * 4.2f) * amplitude * Mathf.Sin(Mathf.PI * tailP);
+                var headPosition = from + delta * p + normal * headWave;
+                var tailPosition = from + delta * tailP + normal * tailWave;
+                var angle = Mathf.Atan2(headPosition.y - tailPosition.y, headPosition.x - tailPosition.x) * Mathf.Rad2Deg;
+                var direction = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+                visual.Head.enabled = visual.Tail.enabled = true;
+                visual.Head.transform.position = new Vector3(headPosition.x + direction.x * 1.15f * pixelScale, headPosition.y + direction.y * 1.15f * pixelScale, -0.04f);
+                visual.Head.transform.rotation = Quaternion.Euler(0f, 0f, angle);
+                visual.Head.transform.localScale = new Vector3(12.7f * pixelScale, 6f * pixelScale, 1f);
+                visual.Head.color = new Color(0.973f, 1f, 1f, (active ? 0.86f : 0.62f) * alpha);
+                var tailSpritePosition = headPosition - direction * (8.25f * pixelScale);
+                visual.Tail.transform.position = new Vector3(tailSpritePosition.x, tailSpritePosition.y, -0.035f);
+                visual.Tail.transform.rotation = Quaternion.Euler(0f, 0f, angle);
+                visual.Tail.transform.localScale = new Vector3(13.5f * pixelScale, 3.4f * pixelScale, 1f);
+                var tailColor = linkColor; tailColor.a *= active ? 0.48f : 0.34f;
+                visual.Tail.color = tailColor;
             }
         }
 
@@ -7654,15 +7802,15 @@ namespace EchoSphere.Runtime
             // The source description expands naturally for Orbital's multi-line
             // text instead of clipping its last lines.
             var lines = Mathf.Max(1, Mathf.CeilToInt(definition.DescriptionEn.Length / 42f));
-            return Mathf.Max(43f, 21f + lines * 12f);
+            return Mathf.Max(64f, 30f + lines * 18f);
         }
 
         private Rect GetSpherePickerRect()
         {
             // Source MobileControls uses a 5-column grid of compact type glyphs,
             // with the selected type's name/description directly above it.
-            var width = Mathf.Min(244f, _uiWidth - 24f);
-            var height = GetSpherePickerDescriptionHeight() + 103f;
+            var width = Mathf.Min(340f, _uiWidth - 24f);
+            var height = GetSpherePickerDescriptionHeight() + 135f;
             return new Rect(IsLeftHanded ? _uiWidth - width - 12f : 12f, _uiHeight - 16f - height, width, height);
         }
 
@@ -8020,11 +8168,12 @@ namespace EchoSphere.Runtime
             // Source UI: selected type/description card above five columns of
             // SphereTypeGlyph controls. No invented abbreviations or asset-list labels.
             var descriptionHeight = GetSpherePickerDescriptionHeight();
-            var descriptionRect = new Rect(panel.x, panel.y, panel.width, descriptionHeight);
+            var descriptionWidth = Mathf.Min(panel.width, 310f);
+            var descriptionRect = new Rect(panel.center.x - descriptionWidth * .5f, panel.y, descriptionWidth, descriptionHeight);
             GUI.Box(descriptionRect, GUIContent.none, _box);
             var titleStyle = new GUIStyle(_label)
             {
-                fontSize = 12,
+                fontSize = 16,
                 fontStyle = FontStyle.Bold,
                 alignment = TextAnchor.MiddleCenter,
                 clipping = TextClipping.Clip
@@ -8032,26 +8181,34 @@ namespace EchoSphere.Runtime
             var descriptionStyle = new GUIStyle(_sphereDescriptionStyle ?? _label)
             {
                 alignment = TextAnchor.MiddleCenter,
+                fontSize = 12,
                 wordWrap = true,
                 clipping = TextClipping.Clip
             };
-            GUI.Label(new Rect(descriptionRect.x + 4f, descriptionRect.y + 1f, descriptionRect.width - 8f, 17f),
+            GUI.Label(new Rect(descriptionRect.x + 4f, descriptionRect.y + 1f, descriptionRect.width - 8f, 22f),
                 IsRussianUi ? definition.DisplayNameRu : definition.DisplayName, titleStyle);
-            GUI.Label(new Rect(descriptionRect.x + 5f, descriptionRect.y + 17f, descriptionRect.width - 10f, descriptionRect.height - 17f),
+            GUI.Label(new Rect(descriptionRect.x + 5f, descriptionRect.y + 23f, descriptionRect.width - 10f, descriptionRect.height - 23f),
                 IsRussianUi ? definition.DescriptionRu : definition.DescriptionEn, descriptionStyle);
 
-            var buttonWidth = (panel.width - 12f) / 5f;
-            const float buttonHeight = 42f;
+            var buttonWidth = (panel.width - 24f) / 5f;
+            const float buttonHeight = 58f;
             for (var i = 0; i < SpherePickerOrder.Length; i++)
             {
                 var type = SpherePickerOrder[i];
                 var column = i % 5;
                 var row = i / 5;
-                var rect = new Rect(panel.x + column * (buttonWidth + 3f),
-                    panel.y + descriptionHeight + 5f + row * 43f, buttonWidth, buttonHeight);
+                var rect = new Rect(panel.x + 10f + column * (buttonWidth + 3.5f),
+                    panel.y + descriptionHeight + 11f + row * 64f, buttonWidth, buttonHeight);
                 var color = SphereUiColor(type);
-                if (SourceGuiButton(rect, GUIContent.none, _button)) { _selectedSphereType = type; SourceAudio2D.Play("place"); }
-
+                var transparentButton = new GUIStyle(GUI.skin.button);
+                transparentButton.normal.background = transparentButton.hover.background = transparentButton.active.background = transparentButton.focused.background = null;
+                transparentButton.normal.textColor = transparentButton.hover.textColor = transparentButton.active.textColor = Color.white;
+                if (SourceGuiButton(rect, GUIContent.none, transparentButton)) { _selectedSphereType = type; SourceAudio2D.Play("place"); }
+                var center = rect.center;
+                var circleRadius = Mathf.Min(rect.width, rect.height) * 0.44f;
+                DrawSpriteIcon(new Rect(center.x - circleRadius, center.y - circleRadius, circleRadius * 2f, circleRadius * 2f), RuntimeSpriteFactory.Disc, new Color(0.035f, 0.075f, 0.12f, 0.96f));
+                DrawSphereGuiCircle(center, circleRadius, new Color(0.24f, 0.39f, 0.52f, 0.58f), 1.1f);
+                if (type == _selectedSphereType) DrawSphereGuiCircle(center, circleRadius + 2f, color, 1.8f);
                 DrawSpherePickerGlyph(rect, type, color);
                 var character = CharacterRules.Get(_sphereCharacterId);
                 var preferredForSpherist = type == character.SignatureSphere || type == character.PartnerSphere;
@@ -8096,8 +8253,8 @@ namespace EchoSphere.Runtime
                 GUI.color = previousColor;
                 var points = new[]
                 {
-                    new Vector2(center.x, center.y - 8f), new Vector2(center.x + 8f, center.y),
-                    new Vector2(center.x, center.y + 8f), new Vector2(center.x - 8f, center.y)
+                    new Vector2(center.x, center.y - 11f), new Vector2(center.x + 11f, center.y),
+                    new Vector2(center.x, center.y + 11f), new Vector2(center.x - 11f, center.y)
                 };
                 for (var i = 0; i < points.Length; i++)
                     DrawSphereGuiLine(points[i], points[(i + 1) % points.Length], color, 2f);
@@ -8106,7 +8263,7 @@ namespace EchoSphere.Runtime
 
             if (type == SphereId.Shotgun)
             {
-                var chamber = new Rect(center.x - 10f, center.y - 4f, 12f, 8f);
+                var chamber = new Rect(center.x - 13f, center.y - 5f, 15f, 10f);
                 GUI.color = fill;
                 GUI.DrawTexture(chamber, _uiAccentTexture);
                 GUI.color = color;
@@ -8114,9 +8271,9 @@ namespace EchoSphere.Runtime
                 DrawSphereGuiLine(new Vector2(chamber.xMax, chamber.yMin), new Vector2(chamber.xMax, chamber.yMax), color, 2f);
                 DrawSphereGuiLine(new Vector2(chamber.xMax, chamber.yMax), new Vector2(chamber.xMin, chamber.yMax), color, 2f);
                 DrawSphereGuiLine(new Vector2(chamber.xMin, chamber.yMax), new Vector2(chamber.xMin, chamber.yMin), color, 2f);
-                DrawSphereGuiLine(new Vector2(center.x + 2f, center.y - 8f), new Vector2(center.x + 10f, center.y - 8f), color, 2f);
-                DrawSphereGuiLine(new Vector2(center.x + 10f, center.y - 8f), new Vector2(center.x + 10f, center.y + 8f), color, 2f);
-                DrawSphereGuiLine(new Vector2(center.x + 10f, center.y + 8f), new Vector2(center.x + 2f, center.y + 8f), color, 2f);
+                DrawSphereGuiLine(new Vector2(center.x + 2f, center.y - 10f), new Vector2(center.x + 13f, center.y - 10f), color, 2f);
+                DrawSphereGuiLine(new Vector2(center.x + 13f, center.y - 10f), new Vector2(center.x + 13f, center.y + 10f), color, 2f);
+                DrawSphereGuiLine(new Vector2(center.x + 13f, center.y + 10f), new Vector2(center.x + 2f, center.y + 10f), color, 2f);
                 GUI.color = originalGuiColor;
                 return;
             }
@@ -8125,25 +8282,25 @@ namespace EchoSphere.Runtime
             {
                 for (var i = 0; i < 3; i++)
                 {
-                    var node = new Vector2(center.x + (i - 1) * 12f, center.y);
-                    DrawSpriteIcon(new Rect(node.x - 5f, node.y - 5f, 10f, 10f), RuntimeSpriteFactory.Disc, fill);
-                    DrawSphereGuiCircle(node, 5f, color, 2f);
+                    var node = new Vector2(center.x + (i - 1) * 14f, center.y);
+                    DrawSpriteIcon(new Rect(node.x - 6f, node.y - 6f, 12f, 12f), RuntimeSpriteFactory.Disc, fill);
+                    DrawSphereGuiCircle(node, 6f, color, 2f);
                 }
                 return;
             }
 
             if (type == SphereId.Aura)
             {
-                DrawSphereGuiCircle(center, 13f, new Color(color.r, color.g, color.b, 0.13f), 1.5f);
-                DrawSphereGuiCircle(center, 10f, color, 2f);
+                DrawSphereGuiCircle(center, 15f, new Color(color.r, color.g, color.b, 0.13f), 1.5f);
+                DrawSphereGuiCircle(center, 11f, color, 2f);
                 return;
             }
 
             // Source glyphs for Standard, Orbital, Prism, Gravity, Pulse and Void
             // share the same filled circular mark.
             var defaultFill = new Color(color.r, color.g, color.b, 0.27f);
-            DrawSpriteIcon(new Rect(center.x - 8f, center.y - 8f, 16f, 16f), RuntimeSpriteFactory.Disc, defaultFill);
-            DrawSphereGuiCircle(center, 8f, color, 2f);
+            DrawSpriteIcon(new Rect(center.x - 11f, center.y - 11f, 22f, 22f), RuntimeSpriteFactory.Disc, defaultFill);
+            DrawSphereGuiCircle(center, 11f, color, 2f);
         }
 
         private void DrawSpherePlacementOverlay()

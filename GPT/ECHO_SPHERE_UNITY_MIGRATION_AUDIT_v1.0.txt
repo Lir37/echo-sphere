@@ -4607,3 +4607,233 @@ the crystal silhouette is fixed until this is resolved and visually verified.
 ======================================================================
 END STANDARD SPHERE ASSET VALIDATION CORRECTION
 ======================================================================
+
+======================================================================
+2026-10-15 — UNITY EDITOR COMPILE / PACKAGE MANAGER DIAGNOSTICS
+======================================================================
+
+[FIXED IN CODE]
+- EchoSphereSourceHome.cs: renamed the inner menu-core gradient palette
+  from `colors` to `gradientColors`, avoiding CS0136 with the later
+  orbit palette declared in the same method.
+- SourceAudio2D.cs: replaced obsolete FindObjectOfType<T>() with
+  FindFirstObjectByType<T>() to remove CS0618 on supported Unity versions.
+
+[EDITOR ENVIRONMENT, NOT A SOURCE-CODE DEFECT]
+- Package Manager online search returned an authentication-credentials
+  error for packages.unity.com. This does not identify a C# compilation
+  defect. Unity Hub/Editor authentication and Package Manager registry
+  access must be checked in the affected local Editor session.
+- “URP Global Settings Asset has been created for you” is an informational
+  URP asset-creation message, not a warning/error requiring code changes.
+- Unity Editor compilation and local Package Manager recovery have not
+  been independently verified by this repository-side change.
+
+======================================================================
+END UNITY EDITOR COMPILE / PACKAGE MANAGER DIAGNOSTICS
+======================================================================
+
+======================================================================
+2026-10-15 — ENEMY / NETWORK / HUD VISUAL PARITY PASS
+======================================================================
+
+Source baseline: new-desing 737ef2af4a877e0995db5f92331d536d2f29a934
+
+Visual-only changes on unity-migration:
+- EnemyCreatureVisual2D now scales its source-mapped creature mesh from
+  EnemyAgent2D.SourceRadius and SourcePixelsToWorld instead of inheriting
+  the old prototype orb's root scale. The base scale is preserved during
+  the existing animation pulse. No enemy stats or collision rules changed.
+- Sphere network links now use 25 sampled positions for the animated
+  source-style wavy filament, with source-mapped pulse timing and distinct
+  line / square / triangle / cluster colors. Link topology and network
+  gameplay rules are unchanged.
+- Gameplay HUD panels now have restrained cyan edge framing consistent with
+  the current dark sci-fi UI palette. HUD data, layout, and interaction
+  behavior are unchanged.
+
+Validation status:
+- Source and Unity implementation sections were compared for enemy radius,
+  network filament and HUD presentation.
+- Changed file sections were re-fetched from GitHub after edits.
+- Unity Editor compile, APK build, and device visual parity are not verified.
+- CI status must be checked on the resulting branch HEAD; do not treat this
+  visual pass as proof of complete source parity.
+
+======================================================================
+END ENEMY / NETWORK / HUD VISUAL PARITY PASS
+======================================================================
+
+Visual pass follow-up (2026-10-15):
+- Enemy mesh scaling explicitly compensates for the legacy parent orb scale,
+  so the final rendered body radius maps to SourceRadius * SourcePixelsToWorld.
+- SetSourceRadius refreshes the creature scale after runtime radius overrides
+  (including small boss minions).
+- Network filament amplitude and core width are calibrated through the
+  actual 720 px / 12.6 world-unit SourcePixelsToWorld conversion; active
+  source formation links use source-width emphasis.
+- These follow-up corrections are visual only. CI and Unity Editor/APK/device
+  validation remain unconfirmed until checked on the final HEAD.
+
+
+======================================================================
+2026-10-15 — NETWORK COMET / SPHERE PICKER / HOME MENU VISUAL PARITY
+======================================================================
+
+Source baseline remains `new-desing` 737ef2af4a877e0995db5f92331d536d2f29a934.
+
+Source reference inspected: `GPT/new-desing 1.jpg`, `GPT/new-desing2.jpg`;
+Unity references: `GPT/unity-migration 1.jpg`, `GPT/unity-migration 2.jpg`,
+`GPT/unity-migration 3.jpg`.
+
+Confirmed visual mismatches and changes on `unity-migration`:
+- Ported the source `drawWavyNetworkLink` moving packets: three continuously
+  moving comet heads with tapered colored tails per valid network link, using
+  the source packet direction/speed/seed and the same animated wave path.
+- Replaced the compact rectangular sphere picker with a two-row circular
+  control layout and enlarged source-mapped glyphs. Selection remains on the
+  existing sphere type; no placement/selection rules changed.
+- Corrected the main-menu responsive breakpoint for the actual portrait
+  framebuffer, enlarged the core art and loadout, restored the source-like
+  three-column/two-row bottom navigation, and enlarged its Lucide-style icons.
+
+These are presentation-only changes. `new-desing` was not modified. The
+repository screenshots are reference snapshots, not a substitute for testing
+this new HEAD in Unity Editor and on Android. CI must be checked separately;
+visual parity remains unconfirmed until a fresh APK is inspected.
+
+======================================================================
+END NETWORK COMET / SPHERE PICKER / HOME MENU VISUAL PARITY
+======================================================================
+
+
+======================================================================
+2026-10-15 — HUD SCALE CORRECTION AFTER SCREENSHOT COMPARISON
+======================================================================
+
+A second comparison of the saved portrait screenshots showed the gameplay
+HUD was still materially undersized: the source panels are approximately
+380 x 288 px, while the Unity panel implementation capped panel width at
+300 px and used a 140 px height. The HUD panel dimensions, text/bar spacing,
+radar, timer, region labels and formation chips are now scaled to the source
+composition. Hit-testing and gameplay data remain unchanged.
+
+CI #600 initially failed because its structural guard expected the old
+14 px navigation icon slot and did not account for the deliberate source
+framebuffer scaling. The guard was updated to assert the new icon geometry,
+portrait navigation layout and moving-comet source timings, while retaining
+the existing checks for all six line-art icon identities and destinations.
+The current HEAD must pass a fresh run before this cycle is accepted.
+
+======================================================================
+END HUD SCALE CORRECTION
+======================================================================
+
+
+======================================================================
+2026-10-15 — MOBILE CONTROL SCALE / SPHERE PICKER CARD PARITY
+======================================================================
+
+The source MobileControls layout uses a 64 px dash control, 48 px pause and
+movement/follow controls, 44 px Sphere buttons and a 220 px description card.
+Unity's GUI uses a lower-resolution logical coordinate space plus its own
+framebuffer scale; the controls were recalibrated to that coordinate system
+after comparing the retained portrait screenshots. The dash, pause, movement
+and follow hit targets now match the source physical proportions, while the
+Sphere picker card, two-row icon grid and glyphs preserve separate source-like
+widths and spacing. Pointer/selection actions and gameplay behavior are
+unchanged.
+
+======================================================================
+END MOBILE CONTROL SCALE / SPHERE PICKER CARD PARITY
+======================================================================
+
+
+======================================================================
+2026-10-15 — PAUSE PLANNER SOURCE LAYOUT
+======================================================================
+
+The four pause tabs now retain the source line-art identities (statistics,
+abilities, artifacts, network) rather than plain text-only navigation. The
+Stats tab now starts with the source's eight compact character StatBoxes in a
+four-column/two-row grid, followed by the Sphere cards, instead of combining
+all character values into one multiline card. Header scale and spacing were
+aligned to the source modal. Artifact/ability/synergy tab contents and their
+existing actions remain in place.
+
+This remains a code-level layout port. No Unity Editor/APK visual parity is
+claimed until the updated screen is inspected on-device.
+
+======================================================================
+END PAUSE PLANNER SOURCE LAYOUT
+======================================================================
+
+
+The Stats tab's Character section heading and source spacing above the grid are
+also now present. The Unity structural check explicitly guards the line-art
+tab icons and compact character stat grid so these source-layout details are
+not silently lost in later edits.
+
+
+======================================================================
+2026-10-15 — REGION SELECT SOURCE LAYOUT
+======================================================================
+
+The region-selection screen was brought back to the source EchoMapScreen
+composition: centered compact header with a full back label, source-sized
+typography, a single-column region list, smaller card headers and challenge
+rows, separate title/description typography inside primary/challenge/endless
+actions, and line-art action/lock marks. Existing region availability,
+stabilization, challenge and endless rules are unchanged.
+
+======================================================================
+END REGION SELECT SOURCE LAYOUT
+======================================================================
+
+
+The region-select scroll extent was trimmed to the actual intro, card, spacing
+and footer content; a structural guard now pins the source-sized card/challenge
+geometry and line-art lock/action marks.
+
+
+A screenshot-to-CSS scale recheck found the first home-menu enlargement had
+overshot the source loadout and navigation dimensions. Those values are now
+calibrated against the active final CSS: the loadout is back near the source
+420 px design width after framebuffer scaling, the character/difficulty rows
+are compact again, and the two-row mobile nav uses source-sized buttons/icons
+instead of oversized 86 px logical buttons. The portrait breakpoint remains
+corrected for the Unity framebuffer.
+
+
+The home-menu source-geometry guard was refreshed after the final scale pass:
+it now asserts the 20 px icon slot and 27 px label row used by the current
+three-column/two-row mobile navigation. The prior CI failure was the guard's
+stale expectation of the previous 24 px icon and 40 px label slot.
+
+
+======================================================================
+2026-10-15 — EXACT NETWORK COMET GEOMETRY
+======================================================================
+
+A source-code recheck found the first Unity comet approximation still differed
+from `drawWavyNetworkLink()`: it used a diamond head and a variable-length
+LineRenderer tail. Replaced those with the source's exact normalized four-point
+head and tail silhouettes, fixed 12.7 x 6 px / 13.5 x 3.4 px geometry, source
+tail offset, white head and colored tail alpha. The network filament now has
+all three source stroke layers (broad low-alpha glow, main filament, thin
+highlight) with the source widths and opacity multipliers. Formation activity
+checks now match the source's active/inactive handling.
+
+The structural guard pins the source packet timing, both comet silhouettes and
+all three filament widths. Device visual parity remains pending a fresh APK.
+
+======================================================================
+END EXACT NETWORK COMET GEOMETRY
+======================================================================
+
+
+A final source comparison corrected two remaining packet details: the packet
+phase now adds the source seed directly before modulo (not a scaled seed), and
+the shared line pulse uses the source 0.84 base. Formation color precedence is
+also now line, triangle, cluster, square, as in the original renderer; Line
+Renderer corner joins use round caps/joins.

@@ -59,7 +59,7 @@ namespace EchoSphere.Runtime
         private static void EnsureInstance()
         {
             if (_instance != null) return;
-            _instance = FindObjectOfType<SourceAudio2D>();
+            _instance = FindFirstObjectByType<SourceAudio2D>();
             if (_instance == null)
             {
                 var go = new GameObject("ECHO SPHERE Source Audio");
