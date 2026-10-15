@@ -4663,3 +4663,14 @@ Validation status:
 ======================================================================
 END ENEMY / NETWORK / HUD VISUAL PARITY PASS
 ======================================================================
+
+Visual pass follow-up (2026-10-15):
+- Enemy mesh scaling explicitly compensates for the legacy parent orb scale,
+  so the final rendered body radius maps to SourceRadius * SourcePixelsToWorld.
+- SetSourceRadius refreshes the creature scale after runtime radius overrides
+  (including small boss minions).
+- Network filament amplitude and core width are calibrated through the
+  actual 720 px / 12.6 world-unit SourcePixelsToWorld conversion; active
+  source formation links use source-width emphasis.
+- These follow-up corrections are visual only. CI and Unity Editor/APK/device
+  validation remain unconfirmed until checked on the final HEAD.
