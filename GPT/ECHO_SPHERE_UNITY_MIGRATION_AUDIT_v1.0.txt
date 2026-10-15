@@ -4952,3 +4952,25 @@ END RUN SNAPSHOT SERIALIZATION DEPTH FIX
 ======================================================================
 END D3D12 UI RENDER-PASS WARNING FOLLOW-UP
 ======================================================================
+
+
+======================================================================
+2026-10-15 — SVGFormatException: MODERN rgb() COLOR NORMALIZATION
+======================================================================
+
+Unity runtime reported Invalid rgb() color specification from
+SourceUiSvg.Rasterize -> SVGParser.ImportSVG.
+
+SourceUiSvg.Serialize now converts RGB color functions to Unity
+VectorGraphics-compatible comma-separated rgb(r,g,b), supporting modern
+space-separated channels, slash alpha, and percentage channels. Alpha is
+preserved through fill-opacity/stroke-opacity, combined with explicit opacity
+where present. No gameplay rules or new-desing files changed.
+
+OPEN: reproduce the original SVG import in Unity Editor and confirm the
+exception is gone; inspect any next SVGFormatException rather than claiming
+full SVG/runtime parity from CI alone.
+
+======================================================================
+END SVGFormatException COLOR NORMALIZATION
+======================================================================
