@@ -166,11 +166,16 @@ namespace EchoSphere.Runtime
             }
             var dpr=SourceDevicePixelRatio;var width=Mathf.Max(1f,Mathf.Floor(Mathf.Min(1280f,Screen.width/dpr)+.5f));var height=Mathf.Max(1f,Mathf.Floor(Mathf.Min(800f,Screen.height/dpr)+.5f));
             _camera.orthographicSize=Screen.height/dpr*SpherePlacementRules.SourcePixelsToWorld*.5f;
-            UpdateSourceRenderState();_sourceCanvas.SetViewport(width,height,dpr);
+            UpdateSourceRenderState();
+            // Menu screens have no game Canvas. Keep their authored CSS
+            // animation running, without drawing an unused world texture.
+            if(!_mainMenu||_sourceUi==null||!_sourceUi.Query("canvas").Null){
+            _sourceCanvas.SetViewport(width,height,dpr);
             _sourceCanvas.transform.position=new Vector3(_camera.transform.position.x,_camera.transform.position.y,0f);
             _sourceCanvas.Begin(new Vector2(width*.5f,height*.5f));
             _sourceCanvas.Canvas.Set("canvas",VisualJs.Obj("nativeViewport",VisualJs.Obj("cssWidth",width,"cssHeight",height,"dpr",1)));
             Visual_renderer.Scope["render"].Call(_sourceCanvas.Canvas.Value,_sourceRenderState,width,height);_sourceCanvas.End();
+            }
             // The canvas is an authored DOM element, underneath the original
             // HUD and overlays. Its CSS filter is applied by that element.
             DrawSourceDocument();
@@ -192,5 +197,11 @@ namespace EchoSphere.Runtime
         private static float _sourceDensity,_sourceDensityDpi;
         private static int _sourceDensityWidth,_sourceDensityHeight;
 #endif
+        private static void InvalidateSourceDensity()
+        {
+#if UNITY_ANDROID && !UNITY_EDITOR
+            _sourceDensity=0f;
+#endif
+        }
     }
 }

@@ -1,5 +1,6 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Security.Cryptography;
 using System.Text.Json;
 
@@ -50,6 +51,13 @@ foreach (var configuration in new[] { "Android player", "Android editor runtime"
     var imported = Path.Combine(project,"Library","ScriptAssemblies");
     if (!Directory.Exists(packages) && Directory.Exists(imported)) files.AddRange(Directory.GetFiles(imported,"Unity.*.dll").Where(file => editorAssembly || !Path.GetFileName(file).Contains("Editor")));
     var references = files.Distinct().Select(file => MetadataReference.CreateFromFile(file)).Cast<MetadataReference>().ToList();
+    if(configuration=="Android player")
+    {
+        var probe=CSharpSyntaxTree.ParseText("sealed class Probe : UnityEngine.MonoBehaviour { UnityEngine.Rendering.CommandBuffer immediate = new UnityEngine.Rendering.CommandBuffer(); System.Func<UnityEngine.Rendering.CommandBuffer> deferred = () => new UnityEngine.Rendering.CommandBuffer(); }",parse);
+        var check=CSharpCompilation.Create("InitializationGuardProbe",new[]{probe},references,new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+        if(NativeInitializers(check).Count()!=1)throw new InvalidOperationException("Native initialization guard must reject immediate construction and allow a deferred factory.");
+        Console.WriteLine("Native initialization guard: PASS (immediate field construction rejected; deferred factory allowed).");
+    }
     if (editorAssembly)
     {
         if (runtimeImage == null) { Console.Error.WriteLine("Editor assembly check requires a successful editor runtime compilation."); failures++; continue; }
@@ -58,7 +66,7 @@ foreach (var configuration in new[] { "Android player", "Android editor runtime"
     var compilation = CSharpCompilation.Create(editorAssembly ? "Assembly-CSharp-Editor" : "Assembly-CSharp", trees, references,
         new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, optimizationLevel: OptimizationLevel.Release, warningLevel: 4, allowUnsafe: false));
     using var output = new MemoryStream();
-    var diagnostics = compilation.Emit(output).Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error || d.Severity == DiagnosticSeverity.Warning).OrderBy(d => d.Location.SourceTree?.FilePath).ThenBy(d => d.Location.SourceSpan.Start).ToArray();
+    var diagnostics = compilation.Emit(output).Diagnostics.Concat(NativeInitializers(compilation)).Where(d => d.Severity == DiagnosticSeverity.Error || d.Severity == DiagnosticSeverity.Warning).OrderBy(d => d.Location.SourceTree?.FilePath).ThenBy(d => d.Location.SourceSpan.Start).ToArray();
     var errors = diagnostics.Count(d => d.Severity == DiagnosticSeverity.Error);
     var warnings = diagnostics.Length - errors;
     failures += errors + warnings;
@@ -70,3 +78,27 @@ foreach (var configuration in new[] { "Android player", "Android editor runtime"
 }
 if (args.Length > 2) File.WriteAllText(args[2], JsonSerializer.Serialize(results, new JsonSerializerOptions { WriteIndented = true }));
 return failures == 0 ? 0 : 1;
+
+static IEnumerable<Diagnostic> NativeInitializers(CSharpCompilation compilation)
+{
+    var rule=new DiagnosticDescriptor("ES1001","Unity native initialization","Initialize native Unity object '{0}' in Awake/Initialize, not a MonoBehaviour field initializer","Unity lifecycle",DiagnosticSeverity.Error,true);
+    foreach(var tree in compilation.SyntaxTrees)
+    {
+        var model=compilation.GetSemanticModel(tree);
+        foreach(var field in tree.GetRoot().DescendantNodes().OfType<FieldDeclarationSyntax>())
+        {
+            if(field.Modifiers.Any(SyntaxKind.StaticKeyword))continue;
+            var owner=model.GetDeclaredSymbol(field.Declaration.Variables[0])?.ContainingType;
+            var mono=false;for(var type=owner;type!=null;type=type.BaseType)if(type.ToDisplayString()=="UnityEngine.MonoBehaviour"){mono=true;break;}
+            if(!mono)continue;
+            foreach(var variable in field.Declaration.Variables)
+            foreach(var creation in variable.Initializer?.Value.DescendantNodesAndSelf().OfType<ObjectCreationExpressionSyntax>()??Enumerable.Empty<ObjectCreationExpressionSyntax>())
+            {
+                if(creation.Ancestors().OfType<AnonymousFunctionExpressionSyntax>().Any())continue;
+                var type=model.GetTypeInfo(creation).Type;
+                if(type!=null&&!type.IsValueType&&type.ContainingNamespace.ToDisplayString().StartsWith("UnityEngine",StringComparison.Ordinal))
+                    yield return Diagnostic.Create(rule,creation.GetLocation(),type.ToDisplayString());
+            }
+        }
+    }
+}

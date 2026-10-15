@@ -3169,3 +3169,203 @@ complete or source-identical until the actual build/device gates are verified.
 ======================================================================
 END SOURCE-ALIGNED SPECIAL SPHERE CADENCE + RANGE
 ======================================================================
+
+
+======================================================================
+UNITY MIGRATION UPDATE — 2026-10-15
+======================================================================
+
+Fixed compile errors reported during local Unity import:
+- SourceCanvas.shader: renamed the HLSL identifier `point` to `samplePosition` to avoid the compiler-reserved interpolation token and its cascading parser/function-argument errors.
+- EchoSphereSourceUiBridge.cs: copied the `V` struct values out of indexers, mutated the copies, then assigned them back, resolving CS1612 for player state and upgrade choice entries.
+- SourceUiDocument.cs: explicitly cast Color32 constants to Color in the confirmation button style assignment, resolving Color32-to-StyleColor conversion failure.
+
+Commit sequence culminated in 5dd80687cc00cd5207c3c2b0749fbd3b65500715 on `unity-migration`.
+The Unity Migration Contracts CI was running at the time of this note. This CI validates repository contracts/structure only; it does not prove Unity Editor shader compilation, APK build, or full gameplay/visual parity. Those still require a local Unity import/build and device verification.
+
+Follow-up fix — 2026-10-15: corrected the remaining CS0029 at SourceUiDocument.cs line 263. The `backgroundColor` ternary used `Color32`, which UI Toolkit could not implicitly convert to `StyleColor`; it now uses normalized `Color` values. Commit: 298745fb502621a9488881e542a6d9c26eef73a2. Unity Editor compilation still needs confirmation.
+
+
+======================================================================
+UNITY RUNTIME FIX — SOURCE CANVAS INITIALIZATION (2026-10-15)
+======================================================================
+
+Fixed the reported runtime initialization chain in SourceCanvasSurface:
+- CommandBuffer is now created by Initialize(), not a MonoBehaviour field initializer, avoiding Unity's InitBuffer constructor restriction.
+- Gradient paint texture height is clamped to at least 1 before Texture2D creation; viewport dimensions are also clamped before render-target allocation.
+- Surface initialization is guarded against duplicate calls, Begin reports a clear initialization failure, and OnDestroy safely handles an uncreated CommandBuffer.
+
+The follow-on Begin/OnDestroy NullReferenceExceptions were downstream effects of failed initialization. This change addresses their cause without changing Canvas drawing behavior.
+
+CI and Unity Editor/device validation are pending for this change. Contract CI does not establish runtime rendering correctness. new-desing remains unchanged.
+
+======================================================================
+END UNITY RUNTIME FIX — SOURCE CANVAS INITIALIZATION
+======================================================================
+
+
+======================================================================
+UNITY RUNTIME FIX — SYSTEM FONT RESOLUTION NULL (2026-10-15)
+======================================================================
+
+Fixed SourceUiTypography.Resolve null dereference at the fallback path. If the requested CSS/system font family cannot be loaded by Unity FontEngine and the legacy font resolver also returns no Font, Resolve now returns null safely rather than accessing primary.fallbackFontAssetTable. Apply leaves UI Toolkit's default font untouched when no FontAsset can be resolved.
+
+This is a defensive fallback for unavailable system fonts, not a new font choice or gameplay/UI behavior. It avoids crashing the full recursive SourceUiDocument reconciliation. Device typography fidelity still requires runtime verification.
+
+CI is pending for this change. Contract CI does not prove Unity runtime font availability or visual parity. new-desing remains unchanged.
+
+======================================================================
+END UNITY RUNTIME FIX — SYSTEM FONT RESOLUTION NULL
+======================================================================
+
+
+======================================================================
+2026-10-15 — UI TEXTURE WORK OUTSIDE RENDER PASS / AUDIO LISTENER
+======================================================================
+
+Observed runtime warnings:
+- GfxDeviceD3D12::UploadTexture2D forbidden during a render pass.
+- GfxDeviceD3D12::GrabIntoRenderTexture forbidden during a render pass.
+- The generated prototype scene also reported no AudioListener.
+
+Source-code diagnosis:
+SourceUiDocument's UI Toolkit generateVisualContent callback could lazily
+create/update CSS paint textures, rasterize SVG textures, and render 3D/depth
+layers into RenderTextures. These GPU-resource operations are now prepared
+from SourceUiDocument.Draw after layout reconciliation, before UI Toolkit's
+render callback. The render callback now submits cached textures/meshes only.
+Depth-layer rendering remains cached by the existing content fingerprint.
+
+The runtime creates its Main Camera when the bootstrap-generated empty scene
+has no camera. ConfigureCamera now also ensures an enabled AudioListener exists
+on that camera if the scene has no active listener; it reuses an existing
+camera listener and does not add a second active listener when another one is
+already present.
+
+Changed files:
+- UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceUiDocument.cs
+- UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs
+
+No gameplay rules, sound content, colors, icon definitions, or new-desing files
+were changed. This is a code-level correction; the D3D12 warnings and actual
+visual/audio scene state still require Unity Editor runtime validation. Contract
+CI is not a substitute for that validation.
+
+======================================================================
+END UI TEXTURE RENDER-PASS / AUDIO LISTENER CORRECTION
+======================================================================
+
+
+======================================================================
+RUN SNAPSHOT SERIALIZATION DEPTH FIX (2026-10-15)
+======================================================================
+
+Fixed Unity JsonUtility's "Serialization depth limit 10 exceeded" warning
+for SavedEntity.state and the runtime/player snapshots. SnapshotValue no longer
+contains recursively nested SnapshotValue.items. It now stores a flat list of
+SnapshotNode records, each with integer child indexes; capture/read/restore
+preserve the original field, list, and map traversal semantics without a
+recursive serialized object graph.
+
+SavedRun schema version is now 2. A legacy version-1 run snapshot is rejected
+and cleared by the existing invalid-snapshot path instead of being restored
+against the incompatible flat schema. No gameplay rules or new mechanics were
+added. Unity Editor resume/save validation remains required; contract CI alone
+does not prove JsonUtility runtime behavior.
+
+======================================================================
+END RUN SNAPSHOT SERIALIZATION DEPTH FIX
+======================================================================
+
+
+======================================================================
+2026-10-15 — D3D12 UI RENDER-PASS WARNING FOLLOW-UP
+======================================================================
+
+The D3D12 UploadTexture2D / GrabIntoRenderTexture warnings persisted after
+moving CSS/SVG/depth preparation out of generateVisualContent. Further source
+inspection identified SourceUiBackdrop.ImmediateRepaint as another unsafe path:
+it copied CurrentActive and executed blur command-buffer blits while UI Toolkit
+was repainting inside the active render pass. The same path could repeatedly
+capture and blur the menu framebuffer, adding load/render cost and producing
+stale or visually overlapping control backgrounds.
+
+SourceUiDocument no longer creates SourceUiBackdrop siblings or draws their
+textures. Authored elements retain their own CSS background; backdrop-filter
+blur is temporarily not rendered by this Unity adapter until a safe pre-render
+capture path is implemented. This is a targeted rendering fallback, not a
+change to new-desing. Unity Editor validation must confirm both D3D12 warnings
+and menu overlap/loading behavior after this commit. CI does not establish
+runtime rendering correctness.
+
+======================================================================
+END D3D12 UI RENDER-PASS WARNING FOLLOW-UP
+======================================================================
+
+
+======================================================================
+2026-10-15 — UNITY SVG RGB COLOR PARSING FIX
+======================================================================
+
+Observed Unity Editor exception:
+SVGFormatException: Invalid rgb() color specification, raised while
+SourceUiSvg.Rasterize imports the serialized SVG.
+
+Correction on unity-migration:
+- SourceUiSvg now canonicalizes RGB/RGBA color functions into the legacy
+  comma-separated rgb(r,g,b) syntax accepted by Unity.VectorGraphics.
+- Space-separated CSS Color 4 channels, slash alpha, and percentage channels
+  are normalized; alpha is carried into fill-opacity/stroke-opacity rather
+  than silently discarded.
+- Explicit fill-opacity/stroke-opacity values are multiplied by the color's
+  alpha when present.
+- Source branch new-desing and gameplay behavior are unchanged.
+
+Validation limitation: this code-level correction must still be checked in
+Unity Editor against the reported SVGFormatException. CI success is not proof
+that all runtime SVG assets import or that visual parity is complete.
+
+======================================================================
+END UNITY SVG RGB COLOR PARSING FIX
+======================================================================
+
+
+======================================================================
+2026-10-15 — UNITY WARNING CLEANUP PASS (SHADERS / UI TOOLKIT / GENERATED CS)
+======================================================================
+
+Addressed warning groups reported from Unity Editor:
+
+- SourceCanvas.shader: removed duplicate global vertex/fragment pragmas from
+  HLSLINCLUDE; each pass owns its entry-point pragmas and shader target.
+- SourceUiBackdrop.shader and SourceUiSurfaceFilters.shader: explicitly
+  initialize blur accumulators and assign normalized results before return.
+  Unity platform shader compilation still needs to confirm whether this
+  removes the mobile D3D11/GLES3/Vulkan warnings.
+- SourceUiDocument.cs: stopped reading the obsolete MeshWriteData.uvRegion.
+  Quads now use normalized source UVs; UI Toolkit performs atlas remapping.
+- SourceUiLayout.cs and SourceUiBackdrop.cs: use the current UI Toolkit
+  scale style/resolved-style API rather than obsolete ITransform.scale.
+- SourceUiEnvironment.cs: scoped CS0618 suppression to the one legacy
+  EventBase.PreventDefault call to preserve the adapter's existing DOM
+  preventDefault behavior; it was not replaced with StopPropagation.
+- UnityProject/Assets/csc.rsp suppresses CS0162 only. The generated Visual_*.cs
+  transpiler emits a defensive return after block-bodied callbacks even when
+  the source callback already returns. This warning is generated-code noise,
+  not evidence that runtime statements should be deleted by hand.
+
+Performance note:
+These warning cleanups are not a performance fix. The phone's severe slowdown
+still needs a Profiler/runtime investigation. In particular, measure SVG
+rasterization, SourceUiDocument.PreparePaintResources, canvas generation and
+per-frame UI tree rebuilding before changing behavior.
+
+Validation boundary:
+CI checks do not compile Unity shaders for all phone graphics APIs and do not
+confirm an APK's frame time. Confirm the warnings in Unity Editor/device after
+reimport/build. Do not report the shader warnings cleared until reproduced
+cleanly on the affected backends.
+
+======================================================================
+END WARNING CLEANUP PASS
+======================================================================

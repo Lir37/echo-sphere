@@ -4837,3 +4837,175 @@ phase now adds the source seed directly before modulo (not a scaled seed), and
 the shared line pulse uses the source 0.84 base. Formation color precedence is
 also now line, triangle, cluster, square, as in the original renderer; Line
 Renderer corner joins use round caps/joins.
+
+
+======================================================================
+2026-10-15 — SOURCE UI FONT FALLBACK / D3D12 RENDER-PASS GUARD
+======================================================================
+
+Observed Unity Editor log:
+- "Unable to find a font file with the specified Family Name [Roboto] and
+  Style [Regular]."
+- "Use of GfxDeviceD3D12::GrabIntoRenderTexture is forbidden during a render pass!"
+The stack traced the latter to SourceUiTypography.Resolve -> legacy
+SourceCanvasTypography.Resolve -> FontAsset.CreateFontAsset(UnityEngine.Font).
+
+Correction on unity-migration:
+- Removed the legacy dynamic Font -> FontAsset conversion from the UI draw path.
+  That conversion could trigger a RenderTexture capture during an active render
+  pass.
+- When an explicitly requested family such as Roboto is unavailable, the
+  resolver now tries the platform's generic system-ui/sans-serif family stack
+  before falling back to UI Toolkit's default font.
+- If no supported font asset can be created, the resolver safely leaves the
+  UI Toolkit default font in place. It does not synthesize a new legacy asset
+  during Draw.
+- No gameplay logic, colors, icon definitions, or source branch files changed.
+
+Code commit: 0768db8941ad12c91c42e81b3597880bac1d24a6.
+This is a code-level correction only. Unity Editor/device validation is still
+required to confirm that the D3D12 warning disappears and that the white icon
+appearance and overall UI behavior are corrected. Green contract CI alone does
+not establish visual parity.
+
+======================================================================
+END SOURCE UI FONT FALLBACK / D3D12 RENDER-PASS GUARD
+======================================================================
+
+
+======================================================================
+2026-10-15 — UI TEXTURE WORK OUTSIDE RENDER PASS / AUDIO LISTENER
+======================================================================
+
+Observed runtime warnings:
+- GfxDeviceD3D12::UploadTexture2D forbidden during a render pass.
+- GfxDeviceD3D12::GrabIntoRenderTexture forbidden during a render pass.
+- The generated prototype scene also reported no AudioListener.
+
+Source-code diagnosis:
+SourceUiDocument's UI Toolkit generateVisualContent callback could lazily
+create/update CSS paint textures, rasterize SVG textures, and render 3D/depth
+layers into RenderTextures. These GPU-resource operations are now prepared
+from SourceUiDocument.Draw after layout reconciliation, before UI Toolkit's
+render callback. The render callback now submits cached textures/meshes only.
+Depth-layer rendering remains cached by the existing content fingerprint.
+
+The runtime creates its Main Camera when the bootstrap-generated empty scene
+has no camera. ConfigureCamera now also ensures an enabled AudioListener exists
+on that camera if the scene has no active listener; it reuses an existing
+camera listener and does not add a second active listener when another one is
+already present.
+
+Changed files:
+- UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceUiDocument.cs
+- UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs
+
+No gameplay rules, sound content, colors, icon definitions, or new-desing files
+were changed. This is a code-level correction; the D3D12 warnings and actual
+visual/audio scene state still require Unity Editor runtime validation. Contract
+CI is not a substitute for that validation.
+
+======================================================================
+END UI TEXTURE RENDER-PASS / AUDIO LISTENER CORRECTION
+======================================================================
+
+
+Operational status note: the matching Development State & Gap Report addendum
+was recorded in commit aa8c614fdffd440f6abfdd401cc84705c3656dd6. The implementation
+and audit content tested by CI #646 were unchanged by that report-only commit.
+This follow-up note intentionally triggers a fresh contract run against the
+latest branch HEAD so the full cycle has a current green CI result.
+
+
+======================================================================
+RUN SNAPSHOT SERIALIZATION DEPTH FIX (2026-10-15)
+======================================================================
+
+[DONE] SnapshotValue serialization changed from recursive nested items to a
+       flat SnapshotNode table with integer child indexes, removing the
+       JsonUtility serialization-depth-10 composition chain.
+[DONE] Capture/field lookup/restore now traverse the flat representation.
+[DONE] SavedRun schema version advanced to 2; legacy v1 snapshots are rejected
+       through the existing invalid-snapshot cleanup path.
+[OPEN] Validate autosave + Continue Saved Run in Unity Editor. CI contract
+       success does not establish runtime persistence correctness.
+
+======================================================================
+END RUN SNAPSHOT SERIALIZATION DEPTH FIX
+======================================================================
+
+
+======================================================================
+2026-10-15 — D3D12 UI RENDER-PASS WARNING FOLLOW-UP
+======================================================================
+
+[FIX] Removed the unsafe SourceUiBackdrop sibling path from SourceUiDocument.
+      ImmediateRepaint had copied CurrentActive and executed blur blits inside
+      UI Toolkit's active render pass, matching the D3D12 warning source.
+[FIX] Backdrop-filter no longer adds an extra overlay element or framebuffer
+      capture work. The authored element background remains visible.
+[TRADE-OFF] Backdrop blur is temporarily omitted in Unity until it can be
+      captured safely before the UI render pass.
+[OPEN] Verify D3D12 warnings, menu loading time, and control overlap in Unity
+      Editor. Automated CI cannot prove these runtime outcomes.
+
+======================================================================
+END D3D12 UI RENDER-PASS WARNING FOLLOW-UP
+======================================================================
+
+
+======================================================================
+2026-10-15 — SVGFormatException: MODERN rgb() COLOR NORMALIZATION
+======================================================================
+
+Unity runtime reported Invalid rgb() color specification from
+SourceUiSvg.Rasterize -> SVGParser.ImportSVG.
+
+SourceUiSvg.Serialize now converts RGB color functions to Unity
+VectorGraphics-compatible comma-separated rgb(r,g,b), supporting modern
+space-separated channels, slash alpha, and percentage channels. Alpha is
+preserved through fill-opacity/stroke-opacity, combined with explicit opacity
+where present. No gameplay rules or new-desing files changed.
+
+OPEN: reproduce the original SVG import in Unity Editor and confirm the
+exception is gone; inspect any next SVGFormatException rather than claiming
+full SVG/runtime parity from CI alone.
+
+======================================================================
+END SVGFormatException COLOR NORMALIZATION
+======================================================================
+
+
+======================================================================
+2026-10-15 — UNITY WARNING CLEANUP PASS
+======================================================================
+
+Reported warning groups: shader Blur potentially-uninitialized warnings on
+D3D11/GLES3/Vulkan; duplicate SourceCanvas entry-point pragmas; generated
+CS0162 warnings; obsolete UI Toolkit MeshWriteData.uvRegion and
+ITransform.scale; obsolete EventBase.PreventDefault.
+
+Changes on unity-migration:
+- SourceCanvas entry-point pragmas moved to the individual passes.
+- Both blur shaders use explicitly initialized accumulators and normalized
+  return values.
+- SourceUiDocument.Quad uses normalized source UVs and lets UI Toolkit perform
+  renderer atlas remapping.
+- UI Toolkit scale writes/read now use style.scale/resolvedStyle.scale.
+- Legacy PreventDefault remains intentionally in place, with CS0618 scoped
+  suppression to preserve existing DOM adapter semantics.
+- UnityProject/Assets/csc.rsp suppresses only CS0162, caused by defensive
+  generated return statements after explicit returns in Visual_*.cs.
+
+OPEN VALIDATION:
+- Reimport/compile shaders in Unity Editor and verify D3D11, GLES3 and Vulkan
+  warnings have actually disappeared.
+- Verify C# compilation has no remaining targeted obsolete warnings.
+- CI is not a substitute for Unity Editor shader compilation or phone runtime.
+- Severe mobile slowdown remains unresolved. Next diagnostic should measure
+  per-frame UI/visual generation and SVG rasterization using Unity Profiler;
+  don't optimize by deleting visual features without measured evidence.
+
+======================================================================
+END WARNING CLEANUP PASS
+======================================================================

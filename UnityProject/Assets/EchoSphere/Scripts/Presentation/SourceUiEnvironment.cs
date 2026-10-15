@@ -38,10 +38,19 @@ namespace EchoSphere.Presentation
         }
         public void Set(string name,V value){Node.Properties[name]=value;if(name=="value"&&Element is TextField field)field.SetValueWithoutNotify(value.Text);_document.Dirty=true;}
         internal static SourceUiElement Target(VisualElement element){for(var current=element;current!=null;current=current.parent)if(current.userData is SourceUiElement host)return host;return null;}
+        private void PreventBrowserDefault(EventBase source)
+        {
+            Element.focusController?.IgnoreEvent(source);
+            // Retain the DOM compatibility flag for existing default-action
+            // consumers; IgnoreEvent is the supported Unity 6 focus mechanism.
+#pragma warning disable CS0618
+            source.PreventDefault();
+#pragma warning restore CS0618
+        }
         internal void Send(string name,EventBase source)
         {
             var callback=Node.Properties[name];if(!(callback.Raw is Func<V[],V>))return;
-            var target=Target(source.target as VisualElement);var evt=VisualJs.Obj("target",target==null?VisualJs.Null:new V(target),"currentTarget",new V(this),"stopPropagation",VisualJs.Fn(args=>{source.StopPropagation();return default;}),"preventDefault",VisualJs.Fn(args=>{Element.focusController?.IgnoreEvent(source);return default;}));
+            var target=Target(source.target as VisualElement);var evt=VisualJs.Obj("target",target==null?VisualJs.Null:new V(target),"currentTarget",new V(this),"stopPropagation",VisualJs.Fn(args=>{source.StopPropagation();return default;}),"preventDefault",VisualJs.Fn(args=>{PreventBrowserDefault(source);return default;}));
             if(source is IPointerEvent pointer){evt["pointerId"]=pointer.pointerId;evt["clientX"]=pointer.position.x;evt["clientY"]=pointer.position.y;evt["button"]=pointer.button;evt["buttons"]=pointer.pressedButtons;evt["pointerType"]=pointer.pointerType;}
             if(source is IKeyboardEvent keyboard){evt["key"]=keyboard.keyCode==KeyCode.Return||keyboard.keyCode==KeyCode.KeypadEnter?"Enter":keyboard.keyCode==KeyCode.Escape?"Escape":keyboard.character.ToString();evt["ctrlKey"]=keyboard.ctrlKey;evt["shiftKey"]=keyboard.shiftKey;}
             evt["nativeEvent"]=evt;_document.Environment.Invoke(callback,evt);_document.EventCompleted();

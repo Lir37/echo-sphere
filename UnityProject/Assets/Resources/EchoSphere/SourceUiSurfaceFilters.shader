@@ -12,7 +12,7 @@ Shader "EchoSphere/SourceUiSurfaceFilters"
     c.rgb=LinearToGammaSpace(c.rgb);
    #endif
    c.rgb*=c.a;}return c;}
-  float4 Blur(float2 uv){if(_Sigma<.001)return Sample(uv);int radius=(int)ceil(4*_Sigma);float4 sum=0;float total=0;[loop]for(int x=-radius;x<=radius;x++){float weight=exp(-.5*x*(float)x/(_Sigma*_Sigma));sum+=Sample(uv+_Direction.xy*x)*weight;total+=weight;}return sum/max(.000001,total);}
+  float4 Blur(float2 uv){float4 result=float4(0,0,0,0);if(_Sigma<.001){result=Sample(uv);return result;}int radius=(int)ceil(4*_Sigma);float total=0;[loop]for(int x=-radius;x<=radius;x++){float weight=exp(-.5*x*(float)x/(_Sigma*_Sigma));result+=Sample(uv+_Direction.xy*x)*weight;total+=weight;}result/=max(.000001,total);return result;}
   float4 ColorBlur(v2f_img i):SV_Target{return Blur(i.uv);}
   float4 AlphaBlur(v2f_img i):SV_Target{return Blur(i.uv).aaaa;}
   float4 Shadow(v2f_img i):SV_Target {float alpha=Sample(i.uv-_Offset.xy).a*_ShadowColor.a;float4 shadow=float4(_ShadowColor.rgb*alpha,alpha);float4 original=tex2D(_Original,i.uv);return original+shadow*(1-original.a);}

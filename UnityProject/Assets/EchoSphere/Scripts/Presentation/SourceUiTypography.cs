@@ -26,6 +26,10 @@ namespace EchoSphere.Presentation
             if(Fonts.TryGetValue(key,out var existing))return existing;
             if(!_initialized){FontEngine.InitializeFontEngine();_initialized=true;}
             var names=SourceCanvasTypography.Families(family);
+            // CSS falls back to the platform's generic sans-serif faces when an
+            // explicitly requested family (for example Roboto on Windows) is absent.
+            foreach(var fallback in SourceCanvasTypography.Families("system-ui,sans-serif"))
+                if(!names.Contains(fallback))names.Add(fallback);
             // The last families are the browser's platform glyph fallbacks.
 #if UNITY_ANDROID && !UNITY_EDITOR
             names.Add("Noto Sans");names.Add("Noto Color Emoji");names.Add("Noto Sans Symbols");
@@ -52,7 +56,11 @@ namespace EchoSphere.Presentation
                 }
                 if(primary==null)primary=asset;else if(asset!=primary)fallbacks.Add(asset);
             }
-            if(primary==null){var declaration=weight+" "+size.ToString(CultureInfo.InvariantCulture)+"px "+family;primary=FontAsset.CreateFontAsset(SourceCanvasTypography.Resolve(declaration,out _,out _));}
+            // Do not convert a legacy dynamic Font to FontAsset here. That path
+            // may capture into a RenderTexture while UI is being drawn and can
+            // trigger D3D12's "GrabIntoRenderTexture ... during a render pass" error.
+            // If no system face is available, leave UI Toolkit's default font intact.
+            if(primary==null)return null;
             primary.fallbackFontAssetTable=fallbacks;Fonts[key]=primary;return primary;
         }
         private static void SetLineHeight(FontAsset asset,double ratio)
@@ -81,7 +89,9 @@ namespace EchoSphere.Presentation
         }
         internal static void Apply(VisualCss sheet,VisualCssNode node,VisualElement element,float size)
         {
-            element.style.unityFontDefinition=FontDefinition.FromSDFFont(Resolve(sheet,node,size));
+            var asset=Resolve(sheet,node,size);
+            if(asset==null)return;
+            element.style.unityFontDefinition=FontDefinition.FromSDFFont(asset);
             element.style.unityFontStyleAndWeight=FontStyle.Normal;
         }
     }

@@ -26,6 +26,11 @@ Any compiler error or warning fails the command. Project code and native Unity
 DLLs are not executed. The .NET Standard references come from the official
 targeting pack included with the .NET SDK.
 
+The checker also rejects direct native Unity object creation in instance field
+initializers of MonoBehaviours (`ES1001`); those resources must be created in
+`Awake`/`Initialize`. One scoped compatibility exception remains for the source
+DOM preventDefault flag; its legacy call suppresses CS0618 on that line only.
+
 An installed matching editor's `Editor/Data` directory can also be passed as the
 second argument. Imported project package DLLs are read from
 `UnityProject/Library/ScriptAssemblies` when `PackageReferences` is absent.

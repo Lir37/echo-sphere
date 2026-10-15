@@ -11,7 +11,7 @@ Shader "EchoSphere/SourceUiBackdrop"
    if(capture)c.rgb=LinearToGammaSpace(c.rgb);
   #endif
    c.rgb*=c.a;return c;}
-  float4 Blur(float2 uv,float2 direction,bool capture){if(_Sigma<.001){float4 c=Read(uv,capture);c.rgb/=max(.000001,c.a);return c;}int radius=(int)ceil(4*_Sigma);float4 color=0;float total=0;[loop]for(int offset=-radius;offset<=radius;offset++){float weight=exp(-offset*(float)offset/(2*_Sigma*_Sigma));color+=Read(uv+direction*offset,capture)*weight;total+=weight;}color/=max(.000001,total);color.rgb/=max(.000001,color.a);return color;}
+  float4 Blur(float2 uv,float2 direction,bool capture){float4 result=float4(0,0,0,0);if(_Sigma<.001){result=Read(uv,capture);result.rgb/=max(.000001,result.a);return result;}int radius=(int)ceil(4*_Sigma);float total=0;[loop]for(int offset=-radius;offset<=radius;offset++){float weight=exp(-offset*(float)offset/(2*_Sigma*_Sigma));result+=Read(uv+direction*offset,capture)*weight;total+=weight;}result/=max(.000001,total);result.rgb/=max(.000001,result.a);return result;}
   ENDHLSL
   Pass {
    HLSLPROGRAM
