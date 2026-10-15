@@ -7110,9 +7110,9 @@ namespace EchoSphere.Runtime
                 go.transform.SetParent(transform, false);
                 var line = go.AddComponent<LineRenderer>();
                 line.useWorldSpace = true;
-                line.positionCount = 2;
-                line.startWidth = 0.022f;
-                line.endWidth = 0.022f;
+                line.positionCount = 25;
+                line.startWidth = 0.020f;
+                line.endWidth = 0.020f;
                 line.numCapVertices = 2;
                 line.sortingOrder = 5;
                 if (_networkLineMaterial != null) line.sharedMaterial = _networkLineMaterial;
@@ -7137,13 +7137,35 @@ namespace EchoSphere.Runtime
                 }
 
                 line.enabled = true;
-                line.SetPosition(0, from);
-                line.SetPosition(1, to);
-                var color = new Color(0.20f, 0.72f, 0.88f, 0.40f);
-                if (IsFormationLink(_networkState.DominantFormation, link.A, link.B))
-                    color = new Color(1f, 0.77f, 0.34f, 0.82f);
-                else if (IsFormationLink(_networkState.SecondaryFormation, link.A, link.B))
-                    color = new Color(0.63f, 0.52f, 1f, 0.70f);
+                const int segments = 24;
+                line.positionCount = segments + 1;
+
+                // Port src/renderer.ts:drawWavyNetworkLink. The source network is a
+                // live energy filament, not a straight static wire.
+                var delta = to - from;
+                var length = Mathf.Max(0.0001f, delta.magnitude);
+                var normal = new Vector2(-delta.y / length, delta.x / length);
+                var amplitude = Mathf.Min(0.062f, 0.022f + length * 0.008f);
+                var isLine = IsFormationLink(_networkState.GetFormation(SphereNetworkFormation.Line), link.A, link.B);
+                var isSquare = IsFormationLink(_networkState.GetFormation(SphereNetworkFormation.Square), link.A, link.B);
+                var isTriangle = IsFormationLink(_networkState.GetFormation(SphereNetworkFormation.Triangle), link.A, link.B);
+                var isCluster = IsFormationLink(_networkState.GetFormation(SphereNetworkFormation.Cluster), link.A, link.B);
+                var active = isLine || isSquare || isTriangle || isCluster;
+                var phase = _runTime * (active ? 1.9f : 1.35f) + link.A * 17.13f + link.B * 29.71f;
+                for (var point = 0; point <= segments; point++)
+                {
+                    var p = point / (float)segments;
+                    var wave = Mathf.Sin(phase + p * Mathf.PI * 4.2f) * amplitude * Mathf.Sin(Mathf.PI * p);
+                    var position = from + delta * p + normal * wave;
+                    line.SetPosition(point, position);
+                }
+
+                var pulse = 0.82f + Mathf.Sin(_runTime * 4.2f) * 0.10f;
+                var color = new Color(0.388f, 0.725f, 1f, 0.27f * pulse);
+                if (isLine) color = new Color(0.388f, 0.902f, 1f, 0.50f * pulse);
+                else if (isSquare) color = new Color(0.412f, 0.718f, 1f, 0.48f * pulse);
+                else if (isTriangle) color = new Color(1f, 0.722f, 0.302f, 0.54f * pulse);
+                else if (isCluster) color = new Color(0.702f, 0.549f, 1f, 0.44f * pulse);
                 line.startColor = color;
                 line.endColor = color;
             }
