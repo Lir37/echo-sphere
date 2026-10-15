@@ -21,8 +21,8 @@ namespace EchoSphere.Runtime
             get
             {
                 var picker = GetSpherePickerRect();
-                var abilities = Mathf.Ceil(_activeAbilityHotkeys.Count / 2f) * 72f;
-                return new Rect(picker.x, picker.y - 220f - abilities, picker.width, picker.height + 220f + abilities);
+                var abilities = Mathf.Ceil(_activeAbilityHotkeys.Count / 2f) * 100f;
+                return new Rect(picker.x, picker.y - 360f - abilities, picker.width, picker.height + 360f + abilities);
             }
         }
         private bool IsSourceHudPoint(Vector2 point) => (_tutorialStep >= 0 && SourceTutorialCard.Contains(point)) || SourceHudLeft.Contains(point) || SourceHudRight.Contains(point) || SourceControlsRect.Contains(SourceControlsAnchor + (point - SourceControlsAnchor) / SourceInterfaceScale) ||
