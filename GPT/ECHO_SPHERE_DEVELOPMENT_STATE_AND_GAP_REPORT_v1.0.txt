@@ -3217,3 +3217,40 @@ CI is pending for this change. Contract CI does not prove Unity runtime font ava
 ======================================================================
 END UNITY RUNTIME FIX — SYSTEM FONT RESOLUTION NULL
 ======================================================================
+
+
+======================================================================
+2026-10-15 — UI TEXTURE WORK OUTSIDE RENDER PASS / AUDIO LISTENER
+======================================================================
+
+Observed runtime warnings:
+- GfxDeviceD3D12::UploadTexture2D forbidden during a render pass.
+- GfxDeviceD3D12::GrabIntoRenderTexture forbidden during a render pass.
+- The generated prototype scene also reported no AudioListener.
+
+Source-code diagnosis:
+SourceUiDocument's UI Toolkit generateVisualContent callback could lazily
+create/update CSS paint textures, rasterize SVG textures, and render 3D/depth
+layers into RenderTextures. These GPU-resource operations are now prepared
+from SourceUiDocument.Draw after layout reconciliation, before UI Toolkit's
+render callback. The render callback now submits cached textures/meshes only.
+Depth-layer rendering remains cached by the existing content fingerprint.
+
+The runtime creates its Main Camera when the bootstrap-generated empty scene
+has no camera. ConfigureCamera now also ensures an enabled AudioListener exists
+on that camera if the scene has no active listener; it reuses an existing
+camera listener and does not add a second active listener when another one is
+already present.
+
+Changed files:
+- UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceUiDocument.cs
+- UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs
+
+No gameplay rules, sound content, colors, icon definitions, or new-desing files
+were changed. This is a code-level correction; the D3D12 warnings and actual
+visual/audio scene state still require Unity Editor runtime validation. Contract
+CI is not a substitute for that validation.
+
+======================================================================
+END UI TEXTURE RENDER-PASS / AUDIO LISTENER CORRECTION
+======================================================================
