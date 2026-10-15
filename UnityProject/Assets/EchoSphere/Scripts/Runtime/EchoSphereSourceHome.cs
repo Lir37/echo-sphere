@@ -33,52 +33,52 @@ namespace EchoSphere.Runtime
             SourceUiRect(new Rect(0f, 57f, _uiWidth, 1f), new Color(.33f, .72f, .91f, .10f));
             var compact = _uiHeight < 700f;
             var narrowPhone = _uiWidth <= 1100f;
-            var navHeight = narrowPhone ? 248f : 88f;
+            var navHeight = narrowPhone ? 130f : 88f;
             var save = LoadRunSnapshot();
             // Keep the central core and its menu controls inside the usable viewport on
             // short phones. The source menu uses a two-row, three-column bottom navigation
             // on narrow screens, so reserve its real height before sizing the central art.
-            var reservedHeight = 58f + navHeight + (compact ? 350f : 425f) + (save != null ? 50f : 0f) + 100f;
+            var reservedHeight = 58f + navHeight + (compact ? 260f : 384f) + (save != null ? 50f : 0f) + 100f;
             var availableArtHeight = Mathf.Max(96f, _uiHeight - reservedHeight);
             var artSize = compact
                 ? Mathf.Min(210f, _uiHeight * .35f, availableArtHeight)
                 : Mathf.Min(narrowPhone ? 270f : 340f, _uiWidth * .48f, availableArtHeight);
-            var totalHeight = artSize + (compact ? 350f : 425f) + (save != null ? 50f : 0f);
-            var top = 58f + Mathf.Max(8f, (_uiHeight - 118f - totalHeight) * .433f);
+            var totalHeight = artSize + (compact ? 260f : 384f) + (save != null ? 50f : 0f);
+            var top = 58f + Mathf.Max(8f, (_uiHeight - 118f - totalHeight) * .5f);
             var center = _uiWidth * .5f;
             SourceUiLabel(new Rect(center - 180f, top, 360f, 16f), "ECHO CORE // " + (IsRussianUi ? "ГОТОВ" : "READY"), 8, "#5d8da8", true, true);
             var art = new Rect(center - artSize * .5f, top + 19f, artSize, artSize);
             DrawSourceMenuCore(art);
             var map = new Rect(art.x, art.y, art.width, art.height + 44f);
             if (SourceUiButton(map, "", 1, Color.clear, "#e7f4ff")) _regionSelect = true;
-            var yNext = art.yMax + 70f;
+            var yNext = art.yMax;
             SourceUiLabel(new Rect(center - 180f, yNext, 360f, 26f), IsRussianUi ? "РЕГИОНЫ ЭХА" : "ECHO REGIONS", 19, "#e7f4ff", true, true);
             SourceUiLabel(new Rect(center - 180f, yNext + 27f, 360f, 13f), IsRussianUi ? "ВЫБРАТЬ ЗАБЕГ" : "SELECT RUN", 7, "#5e849a", true);
-            yNext += 75f;
+            yNext += 52f;
             if (!compact)
             {
                 SourceUiLabel(new Rect(center - 165f, yNext, 330f, 32f), IsRussianUi ? "Выбери область, стабилизируй её, открой испытания и доберись до Бесконечности." : "Choose a region, stabilize it, unlock challenges and reach Endless.", 9, "#63849c", true);
-                yNext += 49f;
+                yNext += 32f;
             }
-            var width = Mathf.Min(760f, _uiWidth * .88f);
-            var loadout = new Rect(center - width * .5f, yNext + (compact ? 5f : 11f), width, 180f);
+            var width = Mathf.Min(530f, _uiWidth * .88f);
+            var loadout = new Rect(center - width * .5f, yNext + (compact ? 5f : 11f), width, 104f);
             SourceUiRect(loadout, new Color(4f / 255f, 11f / 255f, 19f / 255f, .7f));
             CharacterRules.TryParseSourceId(PlayerPrefs.GetString(CharacterPreferenceKey, "spherist"), out var id);
             var character = CharacterRules.Get(id);
-            if (SourceUiButton(new Rect(loadout.x + 12f, loadout.y + 8f, loadout.width - 24f, 76f), "", 10, Color.clear, "#e8f5ff")) _mainMenuPage = MainMenuPage.Characters;
-            SourceUiLabel(new Rect(loadout.x + 22f, loadout.y + 10f, 44f, 54f), "✦", 34, character.ColorHex, true);
-            SourceUiLabel(new Rect(loadout.x + 78f, loadout.y + 13f, width - 100f, 28f), IsRussianUi ? character.NameRu : character.NameEn, 18, "#dcefff", false, true);
-            SourceUiLabel(new Rect(loadout.x + 78f, loadout.y + 40f, width - 100f, 22f), IsRussianUi ? character.RoleRu : character.RoleEn, 12, "#68879d");
-            SourceUiLabel(new Rect(loadout.x + 18f, loadout.y + 110f, 100f, 28f), IsRussianUi ? "СЛОЖНОСТЬ" : "DIFFICULTY", 10, "#63849c");
+            if (SourceUiButton(new Rect(loadout.x + 8f, loadout.y + 7f, loadout.width - 16f, 48f), "", 10, Color.clear, "#e8f5ff")) _mainMenuPage = MainMenuPage.Characters;
+            SourceUiLabel(new Rect(loadout.x + 16f, loadout.y + 9f, 36f, 40f), "✦", 18, character.ColorHex, true);
+            SourceUiLabel(new Rect(loadout.x + 62f, loadout.y + 10f, width - 84f, 20f), IsRussianUi ? character.NameRu : character.NameEn, 13, "#dcefff", false, true);
+            SourceUiLabel(new Rect(loadout.x + 62f, loadout.y + 30f, width - 84f, 16f), IsRussianUi ? character.RoleRu : character.RoleEn, 9, "#68879d");
+            SourceUiLabel(new Rect(loadout.x + 16f, loadout.y + 69f, 100f, 20f), IsRussianUi ? "СЛОЖНОСТЬ" : "DIFFICULTY", 9, "#63849c");
             var difficultyIds = new[] { "easy", "normal", "hard", "nightmare" };
             var difficultyNames = IsRussianUi ? new[] { "Лёгкая", "Обычная", "Сложная", "Кошмар" } : new[] { "Easy", "Normal", "Hard", "Nightmare" };
             var currentDifficulty = PlayerPrefs.GetString(DifficultyPreferenceKey, "normal");
             var buttonWidth = (width - 142f) / 4f;
             for (var i = 0; i < difficultyIds.Length; i++)
-                if (SourceUiButton(new Rect(loadout.x + 132f + i * buttonWidth, loadout.y + 104f, buttonWidth - 5f, 52f), difficultyNames[i], 12,
+                if (SourceUiButton(new Rect(loadout.x + 132f + i * buttonWidth, loadout.y + 66f, buttonWidth - 5f, 20f), difficultyNames[i], 9,
                     currentDifficulty == difficultyIds[i] ? new Color(.13f, .42f, .53f, .25f) : new Color(.03f, .07f, .12f, .76f), currentDifficulty == difficultyIds[i] ? "#e8fbff" : "#68879d"))
                 { PlayerPrefs.SetString(DifficultyPreferenceKey, difficultyIds[i]); PlayerPrefs.Save(); }
-            var nameRect = new Rect(loadout.x, loadout.yMax + 8f, width, 40f);
+            var nameRect = new Rect(loadout.x, loadout.yMax + 6f, width, 44f);
             SourceUiLabel(new Rect(nameRect.x + 5f, nameRect.y, 24f, nameRect.height), "ID", 9, "#63849c");
             var name = GUI.TextField(new Rect(nameRect.x + 32f, nameRect.y, width - 32f, nameRect.height), _playerName, 16, new GUIStyle(_button) { fontSize = 10 });
             if (name != _playerName) { _playerName = name; PlayerPrefs.SetString(NamePreferenceKey, name); PlayerPrefs.Save(); }
@@ -90,12 +90,12 @@ namespace EchoSphere.Runtime
             SourceUiRect(new Rect(0f, navTop, _uiWidth, navHeight), new Color(2f / 255f, 7f / 255f, 13f / 255f, .88f));
             var navColumns = narrowPhone ? 3 : 6;
             var navRows = Mathf.CeilToInt(pages.Length / (float)navColumns);
-            var navGap = narrowPhone ? 10f : 8f;
+            var navGap = narrowPhone ? 6f : 8f;
             var navWidth = (_uiWidth - 28f - (navColumns - 1) * navGap) / navColumns;
-            var navButtonHeight = narrowPhone ? 86f : 72f;
-            var navVerticalGap = narrowPhone ? 8f : 4f;
+            var navButtonHeight = narrowPhone ? 46f : 42f;
+            var navVerticalGap = narrowPhone ? 6f : 4f;
             var navContentHeight = navRows * navButtonHeight + (navRows - 1) * navVerticalGap;
-            var navStartY = navTop + Mathf.Max(4f, (navHeight - navContentHeight) * .5f) + 24f;
+            var navStartY = navTop + Mathf.Max(4f, (navHeight - navContentHeight) * .5f);
             for (var i = 0; i < pages.Length; i++)
             {
                 var column = i % navColumns;
@@ -103,8 +103,8 @@ namespace EchoSphere.Runtime
                 var rect = new Rect(10f + column * (navWidth + navGap), navStartY + row * (navButtonHeight + navVerticalGap), navWidth, navButtonHeight);
                 if (SourceUiButton(rect, "", 7, Color.clear, "#66869d")) _mainMenuPage = pages[i];
                 var iconColor = new Color(102f / 255f, 134f / 255f, 157f / 255f, 1f);
-                DrawSourceMenuNavIcon(new Rect(rect.center.x - 12f, rect.y + 8f, 24f, 24f), i, iconColor);
-                SourceUiLabel(new Rect(rect.x + 3f, rect.y + 40f, rect.width - 6f, 28f), labels[i], 10, "#66869d", true);
+                DrawSourceMenuNavIcon(new Rect(rect.center.x - 10f, rect.y + 5f, 20f, 20f), i, iconColor);
+                SourceUiLabel(new Rect(rect.x + 3f, rect.y + 27f, rect.width - 6f, 16f), labels[i], 9, "#66869d", true);
             }
         }
         // Matches the Lucide icon identities used by src/App.tsx. Presentation only.
