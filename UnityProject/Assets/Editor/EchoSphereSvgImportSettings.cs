@@ -17,7 +17,7 @@ namespace EchoSphere.Editor
         private void OnPreprocessAsset()
         {
             if (string.IsNullOrEmpty(assetPath) ||
-                !assetPath.StartsWith(ArtRoot, StringComparison.OrdinalIgnoreCase))
+                (!assetPath.StartsWith(ArtRoot, StringComparison.OrdinalIgnoreCase) && !assetPath.StartsWith("Assets/Resources/EchoSphere/CanvasArt/", StringComparison.OrdinalIgnoreCase)))
                 return;
 
             if (assetPath.EndsWith(".svg", StringComparison.OrdinalIgnoreCase))

@@ -42,7 +42,7 @@ namespace EchoSphere.Runtime
             "_sourceRegionBossForFrame", "_sourceSettingsScroll", "_sourceLockedSphereTouch", "_sourceUiTouchFrame", "_sourceUiTouches",
             "_sourceArtifactScroll", "_sourceSetDetailScroll", "_sourceResultRank", "_sourceResultNewRecord",
             "_sourcePointers", "_sourceJoystickId", "_sourceJoystickStart", "_sourceJoystickDrag", "_sourceJoystickDirection", "_sourceTouchLastDirection",
-            "_sourceHudTooltip", "_sourceHudTooltipUntil", "_sourceHudDragSlot", "_sourceHudTooltipRect"
+            "_sourceRenderState", "_sourceRenderEntities", "_sourceUi", "_sourceUiStateRef", "_sourceUiCanvasRef", "_sourceUiTutorialRef", "_sourceUiSavedRunTime", "_sourceCanvas", "_sourceHudTooltip", "_sourceHudTooltipUntil", "_sourceHudDragSlot", "_sourceHudTooltipRect"
         };
         private void TickRunAutosave()
         {

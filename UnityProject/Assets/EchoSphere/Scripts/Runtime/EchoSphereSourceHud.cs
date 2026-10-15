@@ -29,7 +29,7 @@ namespace EchoSphere.Runtime
             (!string.IsNullOrEmpty(_sourceHudTooltip) && _sourceHudTooltipRect.Contains(point));
         private void DrawSourceGameplayHud()
         {
-            EnsureKnowledgeLoaded(); DrawSourceDamageNumbers();
+            EnsureKnowledgeLoaded();
             var left = SourceHudLeft; var right = SourceHudRight;
             SourceUiRect(left, new Color32(6, 17, 29, 235)); SourceUiRect(right, new Color32(6, 17, 29, 235));
             var width = left.width - 18f;
@@ -52,7 +52,7 @@ namespace EchoSphere.Runtime
             var matrix = GUI.matrix; var anchor = SourceControlsAnchor;
             GUI.matrix = matrix * Matrix4x4.Translate(anchor) * Matrix4x4.Scale(new Vector3(SourceInterfaceScale, SourceInterfaceScale, 1f)) * Matrix4x4.Translate(-anchor);
             DrawSourceRunControls(); DrawSpherePicker(); GUI.matrix = matrix; DrawSpherePlacementOverlay();
-            DrawSourceFlashText();
+
             DrawSourceNetworkTooltip();
         }
         private string GetSourcePocketName(string id)

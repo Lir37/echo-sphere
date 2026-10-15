@@ -5,11 +5,11 @@ namespace EchoSphere.Runtime
     {
         private EchoSphereRuntime _runtime;
         private Vector2 _velocity;
-        private float _life, _maxLife;
+        private float _life, _maxLife, _sourceSize;
         private Color _color;
         private SpriteRenderer _renderer;
-        public void Initialize(EchoSphereRuntime runtime, Vector2 velocity, float life, Color color, float maxLife = 0f)
-        { _runtime = runtime;
+        public void Initialize(EchoSphereRuntime runtime, Vector2 velocity, float life, Color color, float maxLife = 0f,float sourceSize=0f)
+        { _sourceSize=sourceSize; _runtime = runtime;
             _runtime.RegisterSimulationAgent(this); _velocity = velocity; _life = life; _maxLife = maxLife > 0f ? maxLife : life; _color = color; _renderer = GetComponent<SpriteRenderer>(); }
         public void SimulationTick(float dt)
         {

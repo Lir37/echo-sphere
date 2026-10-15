@@ -2,5 +2,6 @@
   <assembly fullname="Assembly-CSharp">
     <type fullname="EchoSphere.Core.*" preserve="all" />
     <type fullname="EchoSphere.Runtime.*" preserve="all" />
+    <type fullname="EchoSphere.Presentation.*" preserve="all" />
   </assembly>
 </linker>

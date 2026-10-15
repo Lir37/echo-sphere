@@ -22,13 +22,15 @@ The scene keeps its historical `EchoSphere_Prototype` filename. It starts the mi
 
 Gameplay entities run through an ordered simulation frame instead of independent `Update` methods. Source coordinates use a downward Y axis and are converted to Unity world coordinates. The port includes source collision separation, dash/death timers, player mutations, fractional XP, Chaos Orb, Sphere branch/final hit effects, projectile ownership, field/network interactions and JSON run snapshots. Object references discarded by `src/runPersistence.ts` are also discarded on resume.
 
-The menu, bilingual Knowledge Base, HUD/radar/tooltips, upgrade cards, pause planner, artifact/set dialogs, regions, settings, tutorial and result screen use source content and layout. Catalog text and all 290 authored Sphere modifier states are exported directly from the TypeScript reference. Background, player silhouettes, regional seams and elemental particle paths use source geometry; existing authored art is imported by the editor bootstrap. Corrupt source PNG files are not replaced with newly designed images: the source's procedural core/ring/shield behavior is retained.
+The active presentation now translates the original Canvas drawing functions and TSX screen functions into native C#. It retains the source drawing order, per-family Sphere and mutation paths, articulated enemies/bosses, character animation state, original screen trees, Lucide icons, CSS cascade, gradients, masks, shadows, keyframes and transitions. The old procedural migration renderers and immediate-mode menu are disabled. See [the presentation audit](../GPT/UNITY_VISUAL_PORT_AUDIT_2026-10-15.md) for the source inventory, verification and remaining manual acceptance gates.
 
-Unity Editor compilation, shader execution, visual comparison, APK generation and device testing **have not been run** in this cycle, at the user's request. Passing the checks below establishes deterministic Core/data contracts and static project checks; it does not establish complete visual or device parity. Manual Unity inspection remains necessary.
+The browser can decode all 17 referenced source images. Four malformed upstream PNGs decode to entirely transparent pixels in the reference browser; the port includes validated PNG derivatives of that exact visible result. No replacement crystal or shield illustration was invented. Earlier audit entries describing these images as browser decode failures are superseded by this measured result.
+
+Unity Editor compilation, shader execution, Unity screenshot comparison, APK generation and device testing **have not been run** in this cycle, at the user's request. Portable checks compare translated drawing commands, complete screen trees, computed CSS, animation timelines, painted CSS pixels and actual React interaction sequences with the source. These checks do not compile the Unity-facing adapters or certify their final appearance/performance. Manual Unity inspection remains necessary.
 
 ## Development rules
 
-- Do not copy `node_modules`, `dist`, Capacitor's `android/`, or the old Canvas renderer into this project.
+- Do not copy `node_modules`, `dist` or Capacitor's `android/` into this project. The authored Canvas and TSX expressions are mechanically translated to C#; the player does not embed a browser or JavaScript runtime.
 - Preserve deterministic gameplay contracts, but do not mistake that work for a completed game port. Visual/UI work must map directly to the active `new-desing` source (`src/App.tsx`, `src/conceptStyle.css`, `src/renderer.ts`, `src/spheres/*Visual.ts`, `src/enemies/*`, and screen-specific components).
 - Runtime gameplay code must not depend on `UnityEditor`.
 - Keep the protected branch `new-desing` intact. Work only on `unity-migration` until functional and visual parity, Unity compilation, and human APK checks pass.
@@ -41,12 +43,21 @@ From repository root:
 ```bash
 node scripts/check-unity-project.mjs
 dotnet run --project tools/EchoSphere.CoreChecks/EchoSphere.CoreChecks.csproj --configuration Release
+dotnet run --project tools/EchoSphere.VisualChecks/EchoSphere.VisualChecks.csproj --configuration Release
+node scripts/check-unity-visual-provenance.mjs
+node scripts/export-unity-visual-code.mjs --check
+node scripts/export-unity-ui-styles.mjs --check
+node scripts/export-unity-canvas-art.cjs --check
+node scripts/export-unity-control-art.cjs --check
+node scripts/export-unity-presentation-meta.mjs --check
 node --experimental-strip-types scripts/export-unity-source-catalog.mjs --check
 node --experimental-strip-types scripts/export-unity-sphere-modifiers.mjs --check
 node --experimental-strip-types scripts/export-unity-parity-fixtures.mjs --check
 node --experimental-strip-types --test tests/*.test.mjs
 ```
 
-These checks validate project structure and deterministic core contracts. They do **not** replace opening the project in the actual Unity Editor, compiling all UnityEngine scripts, building an APK, or testing the APK on a phone.
+These checks validate project structure, deterministic core contracts and the portable presentation against recorded original-source references. They do **not** replace opening the project in the actual Unity Editor, compiling all UnityEngine scripts, building an APK, or testing the APK on a phone. A failed portable visual comparison exits with code 1 and writes `visual-checks-error.log` beside the checker executable; it no longer opens a Windows unhandled-exception dialog.
 
 The exporter scripts require Node.js 22.15 or newer. `Unity Migration Contracts` runs these checks on pushes to `unity-migration`; it does not invoke Unity or build an APK.
+
+Regenerating visual references requires Node.js 24.19+, the source-locked TypeScript 5.6.3 / React 18.3.1 / Tailwind 3.4.17 dependencies, React Test Renderer 18.3.1 and Playwright with an installed Chromium browser. Normal CI uses checked-in reference data and needs neither a browser nor npm dependencies. Set `ECHO_TYPESCRIPT_PATH`, `ECHO_UI_DEPENDENCIES`, `ECHO_PLAYWRIGHT_PATH` and `ECHO_ART_BROWSER` only when these dependencies live outside the checkout. Run the corresponding `export-unity-*-fixtures` scripts against the unchanged reference, then record their provenance with `node scripts/check-unity-visual-provenance.mjs --record`. Do not record provenance to hide an unexplained comparison failure.

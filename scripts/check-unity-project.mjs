@@ -81,8 +81,9 @@ const invalidUpstreamPngs = [
   'Assets/Resources/EchoSphere/Art/standard-sphere/lower-crystal.png',
   'Assets/Resources/EchoSphere/Art/standard-sphere/upper-crystal.png',
 ];
-// These exact upstream blobs fail PNG/DEFLATE validation on both branches.
-// Keep Unity from repeatedly emitting import errors until clean source assets exist.
+// These upstream blobs fail strict PNG/DEFLATE validation. The active CanvasArt
+// derivatives preserve their measured browser result (fully transparent pixels)
+// without asking Unity to import the malformed originals.
 for (const relative of invalidUpstreamPngs)
   assert.ok(!existsSync(join(root, relative)), `corrupt upstream PNG must not be imported by Unity: ${relative}`);
 
@@ -611,11 +612,12 @@ const combatArcPath = 'Assets/EchoSphere/Scripts/Runtime/CombatArcVfx2D.cs';
 assert.ok(existsSync(join(root, combatArcPath)), 'source-mapped chain lightning / Prism refraction component is missing');
 const combatArc = readFileSync(join(root, combatArcPath), 'utf8');
 assert.ok(combatArc.includes('src/spheres/mutationVisual.ts') && combatArc.includes('renderChainLightningVfx') && combatArc.includes('src/renderer.ts'), 'combat arcs must keep the Canvas source mapping');
-assert.ok(combatArc.includes('Chain Lightning Arc') || runtime.includes('Chain Lightning Arc'), 'chain-lightning runtime identity is missing');
+const sourcePresentation=readFileSync(join(root,'Assets/EchoSphere/Scripts/Runtime/EchoSphereSourcePresentation.cs'),'utf8');
+assert.ok(sourcePresentation.includes('AddSourceLightningVisual')&&sourcePresentation.includes('Add("lightnings",VisualJs.Obj'), 'chain-lightning events must enter the authored Canvas renderer');
 for (const branch of ['chain_web','chain_storm','chain_leech','prism_split','prism_mirror']) assert.ok(combatArc.includes('"' + branch + '"'), 'source-mapped arc branch missing: ' + branch);
 assert.ok(combatArc.includes('MarkDynamic') && combatArc.includes('new List<Vector2>') && combatArc.includes('new List<Vector3>'), 'combat arc mesh and geometry buffers must be reused');
 assert.ok(!/UnityEngine\.Random|Random\.Range|_rng/.test(combatArc), 'combat arc presentation must not consume gameplay RNG');
-assert.ok(runtime.includes('SpawnCombatArc(Vector2 from, Vector2 to') && runtime.includes('arc.Initialize(this, from, to, family, branch, finalId, color, duration)'), 'combat arc visual entry point is missing');
+assert.ok(runtime.includes('SpawnCombatArc(Vector2 from, Vector2 to') && runtime.includes('AddSourceLightningVisual(from,to,duration,family)'), 'combat arc events must feed the original Canvas drawing path');
 assert.ok(sphereAttack.includes('_runtime.SpawnCombatArc(i == 0 ? origin : (Vector2)primary.transform.position') && sphereAttack.includes('150f * SpherePlacementRules.SourcePixelsToWorld'), 'Chain must select sequential nearby jumps and connect them to the source-mapped arcs');
 assert.ok(runtime.includes('SpawnCombatArc(center, targets[i].transform.position, SphereId.Chain') && runtime.includes('SpawnCombatArc(primary.transform.position, target.transform.position, SphereId.Chain'), 'Chain Storm secondary and extra strikes need visual arcs');
 assert.ok(sphereAttack.includes('src/engineSpheres.ts:updatePrismSphere') &&

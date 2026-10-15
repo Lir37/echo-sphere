@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <NoWarn>CS0162</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="source-visual-fixtures.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="source-ui-fixtures.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="source-css-fixtures.json.gz" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="source-animation-fixtures.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="source-transition-fixtures.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="source-paint-fixtures.json.gz" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="source-ui-interactions.json.gz" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../UnityProject/Assets/Resources/EchoSphere/SourceUiStyles.json" Link="SourceUiStyles.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../UnityProject/Assets/Resources/EchoSphere/SourceUiIcons.json" Link="SourceUiIcons.json" CopyToOutputDirectory="PreserveNewest" />
+    <Compile Include="../../UnityProject/Assets/EchoSphere/Scripts/Presentation/Core/*.cs" Link="Core/%(Filename)%(Extension)" />
+    <Compile Include="../../UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/*.cs" Link="Generated/%(Filename)%(Extension)" />
+  </ItemGroup>
+</Project>

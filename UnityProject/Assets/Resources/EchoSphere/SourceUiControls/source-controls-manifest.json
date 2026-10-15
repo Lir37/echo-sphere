@@ -1,0 +1,47 @@
+{
+  "browser": "155.0.4283.45",
+  "scale": 2,
+  "range": {
+    "height": 16,
+    "thumbWidth": 16,
+    "captureWidth": 129
+  },
+  "sources": {
+    "src/interfaceScale.ts": "b2993563fc50dcf4658203826b13a864385ac9b3aac8889d9f7aa406c4c8368a",
+    "src/conceptStyle.css": "e3675e611a916cba082578f98452c4a3189a3624bee98fd880b1e7ebc236abe5",
+    "src/index.css": "2ab2d020f8cb8576666ed851456fb90976dc920c9c6e703c3c4ea375d293028a",
+    "UnityProject/Assets/Resources/EchoSphere/SourceUiStyles.json": "3e0632ca1d6170d699317a69b0446f2b6ba12022d85f0e0bed31606d244e0742"
+  },
+  "assets": [
+    {
+      "file": "range-filled.png",
+      "width": 16,
+      "height": 16,
+      "sha256": "10c1fb79f326af6c39df1b94d9336958bd4010b5d9df8f1e3575050d255067e7"
+    },
+    {
+      "file": "range-empty.png",
+      "width": 16,
+      "height": 16,
+      "sha256": "83d3a007148c647b6cad30716a877902f680b9acc33cc098385035902f8f6f6a"
+    },
+    {
+      "file": "range-left.png",
+      "width": 8,
+      "height": 16,
+      "sha256": "d551aa232e9d163d08eff551b08b83db4028b41ad89def8ae122aaa7c684d396"
+    },
+    {
+      "file": "range-right.png",
+      "width": 8,
+      "height": 16,
+      "sha256": "784fe96726b0d426f6634381dca45a50600d21fc05fa44a96420127790a8fbf5"
+    },
+    {
+      "file": "range-thumb.png",
+      "width": 17,
+      "height": 16,
+      "sha256": "03af47432d7a7758a61e32ee8de3d891637226a2d087d02f0b2f5ef7caa8070a"
+    }
+  ]
+}

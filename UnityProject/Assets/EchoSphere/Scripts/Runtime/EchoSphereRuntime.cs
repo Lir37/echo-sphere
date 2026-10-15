@@ -1022,9 +1022,12 @@ namespace EchoSphere.Runtime
             // Source new-desing starts with Formation Follow off. Players can
             // enable it from the existing control when they choose to.
             RefreshNetworkState();
+            if(PlayerPrefs.GetInt("echo-sphere:open_region_select",0)==1){PlayerPrefs.DeleteKey("echo-sphere:open_region_select");PlayerPrefs.Save();_regionSelect=true;}
             if (PlayerPrefs.GetInt("echo-sphere:start_selected_region_after_reload", 0) == 1)
             {
+                _regionChallengeId=PlayerPrefs.GetString("echo-sphere:pending_region_challenge","none");_regionEndlessMode=PlayerPrefs.GetInt("echo-sphere:pending_region_endless",0)==1;
                 PlayerPrefs.DeleteKey("echo-sphere:start_selected_region_after_reload");
+                PlayerPrefs.DeleteKey("echo-sphere:pending_region_challenge");PlayerPrefs.DeleteKey("echo-sphere:pending_region_endless");
                 PlayerPrefs.Save();
                 BeginSelectedRegionRun();
             }
@@ -1047,7 +1050,7 @@ namespace EchoSphere.Runtime
             if (Input.GetKeyDown(KeyCode.Space)) TrySourceDash();
             foreach (var binding in _activeAbilityHotkeys)
                 if (Input.GetKeyDown(binding.Value)) ActivateActiveAbility(binding.Key);
-            HandleSpherePointerInput();
+            if(_sourceUi==null)HandleSpherePointerInput();
             _runTime += dt;
             TickRegionHudState(dt);
             TickSourceRegionFrame(dt);
@@ -1064,7 +1067,7 @@ namespace EchoSphere.Runtime
                     _comboMultiplier = 1f;
                 }
             }
-            TickSphereArtAnimation(dt);
+
             var dashWasActive = _playerCore.DashTimer > 0f;
             _playerCore.Tick(dt);
             TickSourceEarlyPlayerState(dt, dashWasActive);
@@ -1159,7 +1162,7 @@ namespace EchoSphere.Runtime
             TickSimulationPhase<ExperienceOrbAgent>(dt, true);
             TickSimulationPhase<HealthPackAgent2D>(dt, true);
             TickSimulationPhase<RuneAgent2D>(dt, true);
-            TickSimulationPhase<SourceParticle2D>(dt, true);
+            TickSimulationPhase<SourceParticle2D>(dt, true); TickSourceLightningVisuals(dt);
             ResolveSourceSpaceCollisions(dt);
             _camera.transform.position = new Vector3(_player.position.x, _player.position.y, -10f) + _lastHunterScreenShakeOffset;
             if (_regionStabilized) { _gameOver = true; _paused = true; FinalizeRunResult(); }
@@ -1169,7 +1172,7 @@ namespace EchoSphere.Runtime
 
         private Vector2 ReadMovement()
         {
-            var direction = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")) + _sourceJoystickDirection;
+            var direction = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")) + (_sourceUi!=null?SourceUiMovement():_sourceJoystickDirection);
             direction.x = Mathf.Clamp(direction.x, -1f, 1f); direction.y = Mathf.Clamp(direction.y, -1f, 1f);
             return direction.sqrMagnitude > 0f ? direction.normalized : Vector2.zero;
         }
@@ -1891,7 +1894,7 @@ namespace EchoSphere.Runtime
             var agent = go.AddComponent<EnemyAgent2D>();
             agent.Initialize(this, _player, hp, speed, xpReward,
                 visualVariant, "", isElite, archetype, isPhaseRole,
-                role, roleDamage, roleRadius, eliteVariant, damage);
+                role, roleDamage, roleRadius, eliteVariant, damage); agent.SetSourceVisualTier(_bossesDefeated);
             _enemies.Add(agent);
         }
         private bool HasActiveBoss()
@@ -2015,7 +2018,7 @@ namespace EchoSphere.Runtime
             var root = CreateOrb("ECHO SPHERE Boss / " + type, position, 1.23f, tint, Color.white, 4);
             var agent = root.AddComponent<EnemyAgent2D>();
             agent.Initialize(this, _player, hp, speed, BossCombatRules.GetXpReward(wave),
-                BossCombatRules.GetVisualVariant(type), type);
+                BossCombatRules.GetVisualVariant(type), type); agent.SetSourceVisualTier(Mathf.FloorToInt(wave/10f));
             _enemies.Add(agent);
             var combat = root.AddComponent<BossCombatAgent2D>();
             combat.Initialize(this, _player, agent, type, wave, speed, damage, tint);
@@ -3063,20 +3066,9 @@ namespace EchoSphere.Runtime
             }
         }
 
-        public void SpawnEngineerRelayLightning(Vector2 from, Vector2 to, float duration = 0.12f)
-        {
-            var go = new GameObject("Energy Bolt");
-            var vfx = go.AddComponent<EngineerRelayVfx2D>();
-            vfx.Initialize(this, from, to, duration);
-        }
+        public void SpawnEngineerRelayLightning(Vector2 from, Vector2 to, float duration = 0.12f) { AddSourceLightningVisual(from,to,duration); }
 
-        public void SpawnCombatArc(Vector2 from, Vector2 to, SphereId family, string branch, string finalId, Color color, float duration = 0.30f)
-        {
-            if ((to - from).sqrMagnitude <= 0.000625f) return;
-            var go = new GameObject(family == SphereId.Chain ? "Chain Lightning Arc" : "Prism Refraction Arc");
-            var arc = go.AddComponent<CombatArcVfx2D>();
-            arc.Initialize(this, from, to, family, branch, finalId, color, duration);
-        }
+        public void SpawnCombatArc(Vector2 from, Vector2 to, SphereId family, string branch, string finalId, Color color, float duration = 0.30f) { AddSourceLightningVisual(from,to,duration,family); }
 
         public void SpawnImpact(Vector2 position, Color color)
         {
@@ -4176,13 +4168,7 @@ namespace EchoSphere.Runtime
             _hunterScreenShakeIntensity = Mathf.Min(0.16f, _hunterScreenShakeIntensity + 0.04f);
         }
 
-        private void SpawnHunterParticle(Vector2 worldPosition, Vector2 sourceVelocityPixels, float lifetime, float sourceSizePixels, Color color)
-        {
-            var go = new GameObject("Hunter Source Particle");
-            go.transform.position = worldPosition;
-            go.AddComponent<HunterParticleVfx2D>().Initialize(
-                this, sourceVelocityPixels, lifetime, sourceSizePixels, color);
-        }
+        private void SpawnHunterParticle(Vector2 worldPosition, Vector2 sourceVelocityPixels, float lifetime, float sourceSizePixels, Color color) { SpawnSourceParticle(worldPosition,new Vector2(sourceVelocityPixels.x,-sourceVelocityPixels.y),lifetime,sourceSizePixels,"#"+ColorUtility.ToHtmlStringRGB(color)); }
 
         public void RegisterCharacterHitProcs(SphereAttackAgent owner, float actualDamage, bool allowSphereProc)
         {
@@ -7129,7 +7115,8 @@ namespace EchoSphere.Runtime
 
         private void OnDestroy()
         {
-            if (_networkLineMaterial != null) Destroy(_networkLineMaterial);
+            if(_sourceUi!=null)Destroy(_sourceUi.gameObject);
+            if(_sourceCanvas!=null)Destroy(_sourceCanvas.gameObject); if (_networkLineMaterial != null) Destroy(_networkLineMaterial);
             if (_uiPanelTexture != null) Destroy(_uiPanelTexture);
             if (_uiButtonTexture != null) Destroy(_uiButtonTexture);
             if (_uiButtonHoverTexture != null) Destroy(_uiButtonHoverTexture);
@@ -7561,12 +7548,14 @@ namespace EchoSphere.Runtime
             _regionSelect = false;
             _mainMenuPage = MainMenuPage.Home;
             _mainMenu = false;
+            _tutorialStep=PlayerPrefs.GetInt(TutorialCompletedPreferenceKey,0)==0?0:-1;_tutorialUpgradeOpened=false;_tutorialStartPosition=_player!=null?_player.position:Vector3.zero;
             _paused = _tutorialStep >= 0 && _tutorialStep != 1 && _tutorialStep != 2;
             _userPaused = false;
             _messageTimer = 0f;
             _runTime = 0f;
+            _sourceRenderState=default;_sourceRenderEntities.Clear();
             _rng.Reset(PlayerLoopRules.CreateRunSeed(_playerName, PlayerPrefs.GetString(DifficultyPreferenceKey, "normal"), DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()));
-            _mutationStage = 0; _chaosOrbTimer = _chaosOrbBuffTimer = _buffTimer = _deathTimer = 0f; _chaosOrbBuff = null;
+            _sourceLightningVisuals.Clear(); _mutationStage = 0; _chaosOrbTimer = _chaosOrbBuffTimer = _buffTimer = _deathTimer = 0f; _chaosOrbBuff = null;
             ClearRunSnapshot();
             _regionLoreDiscovered.Clear();
             _regionXpReward = _regionGoldReward = _regionChallengeContractsCompleted = _regionMasteryChallengesCompleted = 0;
@@ -8572,10 +8561,10 @@ namespace EchoSphere.Runtime
             return IsRussianUi ? "СТАБИЛИЗАЦИЯ" : "STABILIZATION";
         }
 
-        private void OnGUI()
+        private void DrawPreviousMigrationInterface()
         {
             var previousMatrix = GUI.matrix;
-            _uiScale = Mathf.Clamp(Screen.height / 720f, 1f, 1.5f);
+            _uiScale = SourceDevicePixelRatio;
             _uiWidth = Screen.width / _uiScale;
             _uiHeight = Screen.height / _uiScale;
             GUI.matrix = previousMatrix * Matrix4x4.Scale(new Vector3(_uiScale, _uiScale, 1f));

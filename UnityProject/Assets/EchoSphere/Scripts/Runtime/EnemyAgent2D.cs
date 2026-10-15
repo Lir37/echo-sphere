@@ -8,7 +8,7 @@ namespace EchoSphere.Runtime
         private EchoSphereRuntime _runtime;
         private Transform _player;
         private SpriteRenderer _shell;
-        private float _hp;
+        private float _hp; private float _sourceHitFlash,_sourceVisualRotation; private int _sourceVisualTier; public void SetSourceVisualTier(int tier)=>_sourceVisualTier=tier; public int SourceVisualTier=>_sourceVisualTier;
         private float _maxHp;
         private float _xpReward = 1f;
         private float _moveSpeed;
@@ -393,7 +393,7 @@ namespace EchoSphere.Runtime
         public void SimulationTick(float dt)
         {
             if (_dead || _runtime == null || _runtime.IsGameplayPaused || _player == null) return;
-            _elementalReactionTimer = Mathf.Max(0f, _elementalReactionTimer - dt);
+            _sourceVisualRotation+=dt; if(_sourceHitFlash>0f)_sourceHitFlash-=dt; _elementalReactionTimer = Mathf.Max(0f, _elementalReactionTimer - dt);
             if (_freezeVulnerabilityTimer > 0f)
             {
                 _freezeVulnerabilityTimer = Mathf.Max(0f, _freezeVulnerabilityTimer - dt);
@@ -589,7 +589,7 @@ namespace EchoSphere.Runtime
         private void RefreshReceivedDamageVisuals()
         {
             if (_shell != null) _shell.color = IsMarked ? new Color(0.5f, 0.82f, 1f, 1f) : _baseColor;
-            if (_creatureVisual != null) _creatureVisual.PulseHit();
+            _sourceHitFlash=.15f; if (_creatureVisual != null) _creatureVisual.PulseHit();
             _runtime.SpawnImpact(transform.position, new Color(1f, 0.26f, 0.34f));
         }
         private void FinishReceivedDamage(SphereId? sourceSphere, SphereAttackAgent owner = null, float damage = 0f)

@@ -7,10 +7,17 @@ on:
     paths:
       - 'UnityProject/**'
       - 'tools/EchoSphere.CoreChecks/**'
+      - 'tools/EchoSphere.VisualChecks/**'
       - 'scripts/check-unity-project.mjs'
-      - 'scripts/export-unity-*.mjs'
+      - 'scripts/check-unity-visual-provenance.mjs'
+      - 'scripts/export-unity-*'
+      - 'scripts/source-ui-view.cjs'
+      - 'scripts/source-css-browser.cjs'
       - 'tests/**'
       - 'src/**'
+      - 'package-lock.json'
+      - 'tailwind.config.js'
+      - 'postcss.config.js'
       - '.github/workflows/unity-migration-check.yml'
       - '.github/workflows/unity-android-apk.yml'
       - 'GPT/ECHO_SPHERE_UNITY_MIGRATION_AUDIT_v1.0.txt'
@@ -31,6 +38,8 @@ jobs:
           dotnet-version: 8.0.x
       - name: Run pure C# gameplay contract checks
         run: dotnet run --project tools/EchoSphere.CoreChecks/EchoSphere.CoreChecks.csproj --configuration Release
+      - name: Compare native presentation with checked-in original TypeScript and browser references
+        run: dotnet run --project tools/EchoSphere.VisualChecks/EchoSphere.VisualChecks.csproj --configuration Release
       - name: Setup Node
         uses: actions/setup-node@v5
         with:
@@ -42,5 +51,13 @@ jobs:
           node --experimental-strip-types scripts/export-unity-source-catalog.mjs --check
           node --experimental-strip-types scripts/export-unity-sphere-modifiers.mjs --check
           node --experimental-strip-types scripts/export-unity-parity-fixtures.mjs --check
+      - name: Check source visuals, styles, artwork and reference provenance
+        run: |
+          node scripts/export-unity-visual-code.mjs --check
+          node scripts/export-unity-ui-styles.mjs --check
+          node scripts/export-unity-canvas-art.cjs --check
+          node scripts/export-unity-control-art.cjs --check
+          node scripts/export-unity-presentation-meta.mjs --check
+          node scripts/check-unity-visual-provenance.mjs
       - name: Run source game regression tests
         run: node --experimental-strip-types --test tests/*.test.mjs

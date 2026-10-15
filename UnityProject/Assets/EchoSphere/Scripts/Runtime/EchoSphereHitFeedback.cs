@@ -7,7 +7,7 @@ namespace EchoSphere.Runtime
     public sealed partial class EchoSphereRuntime
     {
         [Serializable] private sealed class SourceDamageNumber
-        { public Vector2 position, velocity; public float value, life, maxLife; public bool critical; public string element; }
+        { public Vector2 position, velocity; public float value, life, maxLife; public bool critical; public string element,sourceSphereType; }
         private readonly List<SourceDamageNumber> _damageNumbers = new List<SourceDamageNumber>();
         public int GetSphereProgressionLevel(SphereId type) => _sphereLevels.TryGetValue(type, out var level) ? level : 0;
         public EnemyAgent2D FindSourceSphereTarget(SphereId type, Vector2 position, float range)
@@ -45,7 +45,7 @@ namespace EchoSphere.Runtime
                 resolvedElement = mods.fire > 0f ? SphereElement.Fire : mods.freeze > 0f ? SphereElement.Freeze : mods.poison > 0f ? SphereElement.Poison : SphereElement.None;
             }
             var element = resolvedElement.ToString().ToLowerInvariant();
-            AddSourceDamageNumber(enemy, damage, critical, element, false);
+            AddSourceDamageNumber(enemy, damage, critical, element, false,source);
             SourceAudio2D.Play(critical ? "crit" : "hit");
         }
         public void AddSourceStatusDamageNumber(EnemyAgent2D enemy, float damage, string element)
@@ -66,14 +66,14 @@ namespace EchoSphere.Runtime
             var life = fire ? 0.3f : 0.4f;
             SpawnSourceParticle(position, new Vector2(0f, fire ? 30f : 20f), life, 2f, fire ? "#ff743d" : "#72f08e", life);
         }
-        private void AddSourceDamageNumber(EnemyAgent2D enemy, float damage, bool critical, string element, bool status)
+        private void AddSourceDamageNumber(EnemyAgent2D enemy, float damage, bool critical, string element, bool status,SphereId? source=null)
         {
             if (_damageNumbers.Count >= 72) _damageNumbers.RemoveRange(0, _damageNumbers.Count - 71);
             var jitter = status ? 6f : 8f; var velocity = status ? 18f : 30f;
             var scale = SpherePlacementRules.SourcePixelsToWorld;
             _damageNumbers.Add(new SourceDamageNumber { position = (Vector2)enemy.transform.position + new Vector2((-jitter + _rng.NextFloat() * jitter * 2f) * scale, (enemy.SourceRadius + (status ? 4f : 5f)) * scale),
                 velocity = new Vector2((-velocity + _rng.NextFloat() * velocity * 2f) * scale, (status ? 42f : 60f) * scale),
-                value = Mathf.Floor(damage + 0.5f), life = status ? 0.65f : 0.8f, maxLife = status ? 0.65f : 0.8f, critical = critical, element = element });
+                value = Mathf.Floor(damage + 0.5f), life = status ? 0.65f : 0.8f, maxLife = status ? 0.65f : 0.8f, critical = critical, element = element,sourceSphereType=source.HasValue?source.Value.ToString().ToLowerInvariant():null });
         }
         private void TickSourceDamageNumbers(float dt)
         {

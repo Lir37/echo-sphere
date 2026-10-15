@@ -14,7 +14,7 @@ namespace EchoSphere.Runtime
         private void TrySourceDash(bool useTouchDirection = false)
         {
             if (_follow) { ShowTimedCombatMessage("FOLLOW: DASH LOCKED", 0.55f); return; }
-            var direction = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")) + _sourceJoystickDirection;
+            var direction = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")) + (_sourceUi!=null?SourceUiMovement():_sourceJoystickDirection);
             if (useTouchDirection && _playerCore != null)
             {
                 var remembered = _sourceTouchLastDirection;
@@ -110,7 +110,7 @@ namespace EchoSphere.Runtime
             go.transform.localScale = Vector3.one * (size * 2f * SpherePlacementRules.SourcePixelsToWorld);
             var renderer = go.AddComponent<SpriteRenderer>(); renderer.sprite = RuntimeSpriteFactory.Disc;
             renderer.color = color; renderer.sortingOrder = 24;
-            go.AddComponent<SourceParticle2D>().Initialize(this, sourceVelocity * SpherePlacementRules.SourcePixelsToWorld, life, color, maxLife);
+            go.AddComponent<SourceParticle2D>().Initialize(this, sourceVelocity * SpherePlacementRules.SourcePixelsToWorld, life, color, maxLife,size);
         }
         private void SpawnSourceSplitChildren(EnemyAgent2D parent, bool elite)
         {
@@ -124,7 +124,7 @@ namespace EchoSphere.Runtime
                 var child = go.AddComponent<EnemyAgent2D>();
                 child.Initialize(this, _player, hp, parent.SourceSpeed * 1.15f * SpherePlacementRules.SourcePixelsToWorld,
                     elite ? 2 : 1, "skitter", "", false, EnemyArchetype.Fast, false, elite ? "grunt" : "swarmer", 1f, 1f, "", parent.ContactDamage * 0.45f);
-                child.SetSourceRadius(radius); _enemies.Add(child);
+                child.SetSourceRadius(radius);child.SetSourceVisualTier(parent.SourceVisualTier); _enemies.Add(child);
             }
             if (elite) ShowTimedCombatMessage("SPLITTER", 0.6f);
         }
