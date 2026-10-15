@@ -76,7 +76,7 @@ namespace EchoSphere.Presentation
             var safe=Screen.safeArea;_sheet.SafeLeft=safe.xMin/_scale;_sheet.SafeRight=(Screen.width-safe.xMax)/_scale;_sheet.SafeTop=(Screen.height-safe.yMax)/_scale;_sheet.SafeBottom=safe.yMin/_scale;
             Environment.Tick(Time.unscaledTimeAsDouble*1000d);
             if(Render==null)return;
-            if(!Dirty&&!Continuous&&_root!=null){AdvanceMotion(_root);UpdateLayout(_root);_layout.Tracks(_root);return;}
+            if(!Dirty&&!Continuous&&_root!=null){AdvanceMotion(_root);UpdateLayout(_root);PreparePaintResources(_root);_layout.Tracks(_root);return;}
             // Game values change each frame; stable native elements preserve focus,
             // scroll positions, pointer capture and CSS animation start times.
             FrameVersion++;Dirty=false;VisualDom.BeginFrame();var tree=Render();var nextRoot=VisualCssNode.Build(tree);CopyInteraction(_root,nextRoot);_root=nextRoot;_sheet.Apply(_root);
@@ -84,7 +84,7 @@ namespace EchoSphere.Presentation
             Reconcile(_root,_document.rootVisualElement,"root");
             foreach(var pair in _entries.Where(pair=>!pair.Value.Used).ToArray()){Dispose(pair.Value);_entries.Remove(pair.Key);}
             VisualDom.EndFrame();
-            UpdateLayout(_root);_layout.Tracks(_root);
+            UpdateLayout(_root);PreparePaintResources(_root);_layout.Tracks(_root);
         }
         private void Reconcile(VisualCssNode node,VisualElement parent,string path)
         {
@@ -163,13 +163,34 @@ namespace EchoSphere.Presentation
         {
             var node=entry.Node;if(node.Width<=0d||node.Height<=0d)return;
             if(DepthAncestor(node)!=null)return;
-            if(IsDepthRoot(node)){PaintDepth(entry,context);return;}
+            if(IsDepthRoot(node)){Quad(context,entry.DepthTexture,entry.DepthRect);return;}
             if(entry.Backdrop!=null)Quad(context,entry.Backdrop.Texture,new Rect(0,0,(float)node.Width,(float)node.Height));
-            EnsureBrush(entry);
             Quad(context,entry.Paint,entry.PaintRect);
             if(entry.Element is Slider slider)SourceUiRange.Paint(slider,context);
             if(node.Tag=="canvas")Quad(context,CanvasTexture?.Invoke(),new Rect(0,0,(float)node.Width,(float)node.Height));
-            PaintSvg(entry,context);
+            if(node.Tag=="svg")Quad(context,entry.Svg,entry.SvgRect);
+        }
+        // Texture uploads, SVG rasterization and depth RenderTexture work must
+        // happen during the document update, not inside UI Toolkit's render pass.
+        private void PreparePaintResources(VisualCssNode root)
+        {
+            void Prepare(VisualCssNode node)
+            {
+                if(node.Native is VisualElement element&&_elementEntries.TryGetValue(element,out var entry)&&node.Width>0d&&node.Height>0d)
+                {
+                    EnsureBrush(entry);
+                    if(node.Tag=="svg")PrepareSvg(entry);
+                }
+                foreach(var child in node.Children)Prepare(child);
+            }
+            Prepare(root);
+            void PrepareDepthRoots(VisualCssNode node)
+            {
+                if(node.Native is VisualElement element&&_elementEntries.TryGetValue(element,out var entry)&&IsDepthRoot(node)&&DepthAncestor(node)==null)
+                    PrepareDepth(entry);
+                foreach(var child in node.Children)PrepareDepthRoots(child);
+            }
+            PrepareDepthRoots(root);
         }
         private void EnsureBrush(Entry entry)
         {
@@ -182,25 +203,23 @@ namespace EchoSphere.Presentation
                 var pixels=new byte[raster.Pixels.Length];var stride=raster.Width*4;for(var y=0;y<raster.Height;y++)Buffer.BlockCopy(raster.Pixels,y*stride,pixels,(raster.Height-y-1)*stride,stride);entry.Paint.LoadRawTextureData(pixels);entry.Paint.Apply(false,true);entry.PaintRect=new Rect((float)raster.Left,(float)raster.Top,(float)(raster.Width/raster.Scale),(float)(raster.Height/raster.Scale));entry.PaintKey=fingerprint;
             }
         }
-        private void PaintSvg(Entry entry,MeshGenerationContext context)
+        private void PrepareSvg(Entry entry)
         {
             var node=entry.Node;
             if(node.Tag=="svg"){
                 var xml=SourceUiSvg.Serialize(node,_sheet);var key=xml+"/"+node.Width+"/"+node.Height+"/"+_scale;
                 if(entry.SvgKey!=key){if(entry.Svg!=null)Destroy(entry.Svg);entry.Svg=SourceUiSvg.Rasterize(xml,(float)node.Width,(float)node.Height,_scale,_svgMaterial,_sheet.Get(node,"overflow","visible")=="visible",out entry.SvgRect);entry.SvgKey=key;}
-                Quad(context,entry.Svg,entry.SvgRect);
             }
         }
         private bool IsDepthRoot(VisualCssNode node)=>_sheet.Get(node,"transform-style")=="preserve-3d";
         private VisualCssNode DepthAncestor(VisualCssNode node){VisualCssNode result=null;for(var parent=node.Parent;parent!=null;parent=parent.Parent)if(IsDepthRoot(parent))result=parent;return result;}
-        private void PaintDepth(Entry root,MeshGenerationContext context)
+        private void PrepareDepth(Entry root)
         {
             var perspective=0f;Vector2? eye=null;for(var ancestor=root.Node;ancestor!=null;ancestor=ancestor.Parent){var value=_sheet.Get(ancestor,"perspective","none");if(value!="none"){
                 perspective=(float)_sheet.Length(value,_sheet.Width);var origin=VisualCss.Split(_sheet.Get(ancestor,"perspective-origin","50% 50%"),' ').Where(part=>part.Length>0).ToArray();
                 float Position(string part,double dimension)=>part=="center"?(float)dimension*.5f:part=="left"||part=="top"?0f:part=="right"||part=="bottom"?(float)dimension:(float)_sheet.Length(part,dimension);
                 var point=new Vector3(Position(origin.Length>0?origin[0]:"50%",ancestor.Width),Position(origin.Length>1?origin[1]:"50%",ancestor.Height));if(ancestor.Native is VisualElement element)eye=root.Element.worldTransform.inverse.MultiplyPoint3x4(element.worldTransform.MultiplyPoint3x4(point));break;}}
             RenderDepthLayer(root,perspective,eye);
-            Quad(context,root.DepthTexture,root.DepthRect);
         }
         private bool ClipsDepth(VisualCssNode node)=>_sheet.Get(node,"overflow")=="hidden"||_sheet.Get(node,"overflow-x")=="hidden"||_sheet.Get(node,"overflow-y")=="hidden";
         private bool FlattensDepth(VisualCssNode node)=>ClipsDepth(node)||_sheet.Get(node,"transform-style","flat")!="preserve-3d"||_sheet.Get(node,"filter","none")!="none"||_sheet.Get(node,"opacity","1")!="1"||_sheet.Get(node,"isolation")=="isolate";
