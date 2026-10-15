@@ -21,7 +21,7 @@ namespace EchoSphere.Runtime
         }
         [Serializable] private sealed class SavedRun
         {
-            public int version = 1;
+            public int version = 2;
             public long savedAt;
             public float time;
             public Vector3 playerPosition;
@@ -68,7 +68,7 @@ namespace EchoSphere.Runtime
             try
             {
                 var save = JsonUtility.FromJson<SavedRun>(PlayerPrefs.GetString(RunSnapshotKey));
-                if (save == null || save.version != 1 || save.runtime == null || save.player == null || save.entities == null ||
+                if (save == null || save.version != 2 || save.runtime == null || save.player == null || save.entities == null ||
                     float.IsNaN(save.time) || float.IsInfinity(save.time) || RunSnapshotCodec.Read(save.runtime, "_gameOver", false))
                     throw new FormatException("Invalid run snapshot");
                 return save;
