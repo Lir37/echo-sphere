@@ -1201,6 +1201,12 @@ namespace EchoSphere.Runtime
             _camera.transform.position = new Vector3(0f, 0f, -10f);
             _lastHunterScreenShakeOffset = Vector3.zero;
             _camera.clearFlags = CameraClearFlags.SolidColor;
+            // The prototype scene is generated empty, so ensure the runtime
+            // camera supplies the single listener Unity expects. Do not add a
+            // duplicate if another active listener is already present.
+            if (FindObjectsByType<AudioListener>(FindObjectsSortMode.None).Length == 0 &&
+                _camera.GetComponent<AudioListener>() == null)
+                _camera.gameObject.AddComponent<AudioListener>();
         }
 
         private void CreateStarfield()
