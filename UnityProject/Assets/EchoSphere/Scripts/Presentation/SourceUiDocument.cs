@@ -258,7 +258,7 @@ namespace EchoSphere.Presentation
         }
         internal static void Quad(MeshGenerationContext context,Texture texture,Rect rect,Rect? source=null)
         {
-            if(texture==null)return;var mesh=context.Allocate(4,6,texture);var uv=mesh.uvRegion;if(source.HasValue){var part=source.Value;uv=new Rect(uv.x+part.x*uv.width,uv.y+part.y*uv.height,part.width*uv.width,part.height*uv.height);}var color=new Color32(255,255,255,255);
+            if(texture==null)return;var mesh=context.Allocate(4,6,texture);var uv=source??new Rect(0,0,1,1);var color=new Color32(255,255,255,255);
             mesh.SetNextVertex(new Vertex {position=new Vector3(rect.xMin,rect.yMin,Vertex.nearZ),tint=color,uv=new Vector2(uv.xMin,uv.yMax)});mesh.SetNextVertex(new Vertex {position=new Vector3(rect.xMax,rect.yMin,Vertex.nearZ),tint=color,uv=new Vector2(uv.xMax,uv.yMax)});mesh.SetNextVertex(new Vertex {position=new Vector3(rect.xMax,rect.yMax,Vertex.nearZ),tint=color,uv=new Vector2(uv.xMax,uv.yMin)});mesh.SetNextVertex(new Vertex {position=new Vector3(rect.xMin,rect.yMax,Vertex.nearZ),tint=color,uv=new Vector2(uv.xMin,uv.yMin)});
             foreach(var index in new ushort[]{0,1,2,2,3,0})mesh.SetNextIndex(index);
         }
