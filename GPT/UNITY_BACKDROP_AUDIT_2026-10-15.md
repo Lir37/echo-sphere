@@ -1,5 +1,8 @@
 # Безопасное размытие подложки панелей
 
+Последующий общий аудит и исправления коробок, clipping и трансформаций:
+[2026-10-16](UNITY_NATIVE_VISUAL_REAUDIT_2026-10-16.md).
+
 Источник: `new-desing`, `737ef2af4a877e0995db5f92331d536d2f29a934`.
 Начальное состояние `unity-migration`: `1f370ef`.
 Unity Editor, Unity ShaderCompiler и Unity/Android-сборки не запускались.

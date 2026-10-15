@@ -110,7 +110,19 @@ namespace EchoSphere.Presentation
             }
             return false;
         }
-        public static Raster Paint(VisualCss sheet,VisualCssNode node,double scale)
+        public struct Viewport {public double Left,Top,Right,Bottom;}
+        public static double ShadowOutset(VisualCss sheet,VisualCssNode node)
+        {
+            if(sheet.Get(node,"box-shadow","none")=="none")return 0d;
+            var result=0d;var font=sheet.Length(sheet.Get(node,"font-size","16px"),16d);
+            foreach(var source in VisualCss.Split(sheet.Get(node,"box-shadow","none"),',')){
+                var words=Words(source);if(words.Contains("inset"))continue;
+                var values=words.Where(word=>word!="none"&&!Color(word)).Select(word=>sheet.Length(word,node.Width,font)).ToArray();
+                if(values.Length<2)continue;result=Math.Max(result,Math.Max(Math.Abs(values[0]),Math.Abs(values[1]))+(values.Length>3?Math.Max(0,values[3]):0)+(values.Length>2?values[2]*2:0));
+            }
+            return result;
+        }
+        public static Raster Paint(VisualCss sheet,VisualCssNode node,double scale,Viewport? localViewport=null)
         {
             var width=node.Width;var height=node.Height;scale=Math.Max(.1d,scale);
             // Transparent layout/text containers have no brush pixels. Avoid
@@ -126,8 +138,15 @@ namespace EchoSphere.Presentation
                 var shadow=new Shadow {Inset=words.Contains("inset"),X=lengths.Length>0?lengths[0]:0d,Y=lengths.Length>1?lengths[1]:0d,Blur=lengths.Length>2?lengths[2]:0d,Spread=lengths.Length>3?lengths[3]:0d,Color=VisualCssColor.Parse(color,current)};shadows.Add(shadow);
                 if(!shadow.Inset)outset=Math.Max(outset,Math.Max(Math.Abs(shadow.X),Math.Abs(shadow.Y))+Math.Max(0d,shadow.Spread)+shadow.Blur*2d);
             }
-            // Huge tutorial cutout shadows are clipped to the viewport, as in the DOM.
-            var left=Math.Min(outset,Math.Max(0d,node.X));var top=Math.Min(outset,Math.Max(0d,node.Y));var right=Math.Min(outset,Math.Max(0d,sheet.Width-node.X-width));var bottom=Math.Min(outset,Math.Max(0d,sheet.Height-node.Y-height));
+            // Keep ordinary shadows complete: their box may later rotate, scale
+            // or move, revealing texels that an axis-aligned screen crop loses.
+            // Only enormous tutorial cutouts need a bounded allocation. Their
+            // viewport is inverse-transformed into this brush's local space.
+            var left=outset;var top=outset;var right=outset;var bottom=outset;
+            if(outset>Math.Max(sheet.Width,sheet.Height)){
+                var viewport=localViewport??new Viewport {Left=-node.X,Top=-node.Y,Right=sheet.Width-node.X,Bottom=sheet.Height-node.Y};
+                left=Math.Min(outset,Math.Max(0,-viewport.Left));top=Math.Min(outset,Math.Max(0,-viewport.Top));right=Math.Min(outset,Math.Max(0,viewport.Right-width));bottom=Math.Min(outset,Math.Max(0,viewport.Bottom-height));
+            }
             var raster=new Raster {Width=Math.Max(1,(int)Math.Ceiling((width+left+right)*scale)),Height=Math.Max(1,(int)Math.Ceiling((height+top+bottom)*scale)),Left=-left,Top=-top,Scale=scale};
             var count=checked(raster.Width*raster.Height);var pixels=new VisualCssColor[count];var hasInset=shadows.Any(shadow=>shadow.Inset);
             var ownPixels=hasInset?new VisualCssColor[count]:null;var borderPixels=hasInset?new VisualCssColor[count]:null;var shapes=hasInset?new double[count]:null;var innerShapes=hasInset?new double[count]:null;

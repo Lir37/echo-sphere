@@ -12,6 +12,15 @@ namespace EchoSphere.Presentation
         public static double[] Identity()=>new[]{1d,0d,0d,0d,0d,1d,0d,0d,0d,0d,1d,0d,0d,0d,0d,1d};
         public static double[] Multiply(double[] a,double[] b)
         {var result=new double[16];for(var c=0;c<4;c++)for(var r=0;r<4;r++)for(var k=0;k<4;k++)result[c*4+r]+=a[k*4+r]*b[c*4+k];return result;}
+        public static bool Is2D(double[] value)=>value[2]==0d&&value[3]==0d&&value[6]==0d&&value[7]==0d&&value[8]==0d&&value[9]==0d&&value[10]==1d&&value[11]==0d&&value[14]==0d&&value[15]==1d;
+        public static (double Rotation,double X,double Y,double ContentRotation) Native2D(double[] matrix)
+        {
+            var a=matrix[0];var b=matrix[1];var c=matrix[4];var d=matrix[5];var x=Math.Sqrt(a*a+b*b);var y=Math.Sqrt(c*c+d*d);
+            // A single TRS is exact for orthogonal columns, including mirrors.
+            // Nonuniform scale BEFORE rotation needs a second retained rotation.
+            if(Math.Abs(a*c+b*d)<=1e-12*Math.Max(1d,x*y))return x>1e-12?(Math.Atan2(b,a),x,(a*d-b*c)/x,0d):(Math.Atan2(-c,d),0d,y,0d);
+            var split=VisualBackdrop.Decompose(a,b,c,d);return (split.First,split.X,split.Y,split.Second);
+        }
         public static double[] Parse(VisualCss sheet,VisualCssNode node,string declaration=null,bool origin=false)
         {
             var matrix=Identity();

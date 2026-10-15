@@ -20,6 +20,7 @@ try {
 if(args.Contains("--audit-only")){PresentationAudit.Run();return 0;}
 if(args.Contains("--native-only")){NativeShadowChecks.Run();NativeImageChecks.Run();return 0;}
 if(args.Contains("--backdrop-only")){BackdropChecks.Run();return 0;}
+if(args.Contains("--native-layer-only")){NativeLayerChecks.Run();return 0;}
 if(args.Contains("--animations-only")){AnimationChecks.Run();TransitionChecks.Run();return 0;}
 if(args.Contains("--paint-only")){PaintChecks.Run();return 0;}
 if(args.Contains("--css-only")){CssChecks.Run();return 0;}
@@ -62,6 +63,7 @@ PaintChecks.Run();
 NativeShadowChecks.Run();
 NativeImageChecks.Run();
 BackdropChecks.Run();
+NativeLayerChecks.Run();
 UiInteractionChecks.Run();
 return 0;
 } catch(Exception error) {

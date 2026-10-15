@@ -20,12 +20,12 @@ namespace EchoSphere.Presentation
             }
             var input=slider.Q<VisualElement>(className:"unity-base-slider__input");if(input!=null){input.style.height=16;input.style.marginLeft=input.style.marginRight=input.style.marginTop=input.style.marginBottom=0;input.style.flexGrow=1;}
         }
-        internal static void Paint(Slider slider,MeshGenerationContext context)
+        internal static void Paint(Slider slider,MeshGenerationContext context,Matrix4x4? matrix=null)
         {
             var fraction=(slider.value-slider.lowValue)/Mathf.Max(.00001f,slider.highValue-slider.lowValue);
             foreach(var part in VisualRangeLayout.Build(slider.layout.width,fraction)){
                 if(!Parts.TryGetValue(part.Name,out var texture))continue;
-                SourceUiDocument.Quad(context,texture,new Rect((float)part.X,0,(float)part.Width,16),new Rect((float)part.U,0,(float)part.Uw,1));
+                SourceUiDocument.Quad(context,texture,new Rect((float)part.X,0,(float)part.Width,16),new Rect((float)part.U,0,(float)part.Uw,1),matrix);
             }
         }
     }

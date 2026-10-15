@@ -25,7 +25,7 @@ namespace EchoSphere.Presentation
             if(Regex.IsMatch(value,@"^[-\d.]+%$")&&S(node,"position")!="absolute"&&S(node,"position")!="fixed")return new StyleLength(new Length(F(value.TrimEnd('%')),LengthUnit.Percent));
             var number=Sheet.Length(value,reference,FontSize(node));return double.IsNaN(number)?new StyleLength(StyleKeyword.Auto):new StyleLength((float)number);
         }
-        internal void Apply(VisualCssNode node,VisualElement element)
+        internal float Apply(VisualCssNode node,VisualElement element,VisualElement layoutParent=null)
         {
             var positioned=S(node,"position")=="absolute"||S(node,"position")=="fixed";var block=positioned?VisualCssPosition.ContainingBlock(Sheet,node):null;
             var parentWidth=positioned?VisualCssPosition.Width(Sheet,block):node.Parent?.Width??Sheet.Width;var parentHeight=positioned?VisualCssPosition.Height(Sheet,block):node.Parent?.Height??Sheet.Height;var style=element.style;
@@ -60,11 +60,11 @@ namespace EchoSphere.Presentation
                 // Yoga's containing element is the immediate retained parent.
                 // CSS instead uses a positioned ancestor, or the viewport for
                 // fixed elements (unless an ancestor establishes a transform).
-                var offset=Vector2.zero;
-                if(element.parent!=null){var world=block?.Native is VisualElement containing?containing.worldTransform.MultiplyPoint3x4(new Vector3((float)VisualCssPosition.Border(Sheet,block,"left"),(float)VisualCssPosition.Border(Sheet,block,"top"),0f)):Vector3.zero;var local=element.parent.worldTransform.inverse.MultiplyPoint3x4(world);offset=new Vector2(local.x-element.parent.resolvedStyle.borderLeftWidth,local.y-element.parent.resolvedStyle.borderTopWidth);}
+                var offset=Vector2.zero;var parent=layoutParent??element.parent;
+                if(parent!=null){var containing=block?.Native as VisualElement;var coordinateBox=containing is SourceUiFrame frame?frame.Content:containing;var world=coordinateBox!=null?coordinateBox.worldTransform.MultiplyPoint3x4(new Vector3((float)VisualCssPosition.Border(Sheet,block,"left"),(float)VisualCssPosition.Border(Sheet,block,"top"),0f)):Vector3.zero;var local=parent.worldTransform.inverse.MultiplyPoint3x4(world);offset=new Vector2(local.x-parent.resolvedStyle.borderLeftWidth,local.y-parent.resolvedStyle.borderTopWidth);}
                 StyleLength Inset(string property,double reference,float extra){var value=Sheet.Length(S(node,property,"auto"),reference,FontSize(node));return double.IsNaN(value)?new StyleLength(StyleKeyword.Auto):new StyleLength((float)value+extra);}
-                var nativeWidth=element.parent?.layout.width??(float)Sheet.Width;var nativeHeight=element.parent?.layout.height??(float)Sheet.Height;
-                if(element.parent!=null){nativeWidth-=element.parent.resolvedStyle.borderLeftWidth+element.parent.resolvedStyle.borderRightWidth;nativeHeight-=element.parent.resolvedStyle.borderTopWidth+element.parent.resolvedStyle.borderBottomWidth;}
+                var nativeWidth=parent?.layout.width??(float)Sheet.Width;var nativeHeight=parent?.layout.height??(float)Sheet.Height;
+                if(parent!=null){nativeWidth-=parent.resolvedStyle.borderLeftWidth+parent.resolvedStyle.borderRightWidth;nativeHeight-=parent.resolvedStyle.borderTopWidth+parent.resolvedStyle.borderBottomWidth;}
                 style.left=Inset("left",parentWidth,offset.x);style.right=Inset("right",parentWidth,nativeWidth-offset.x-(float)parentWidth);style.top=Inset("top",parentHeight,offset.y);style.bottom=Inset("bottom",parentHeight,nativeHeight-offset.y-(float)parentHeight);
                 if(S(node,"width").EndsWith("%",StringComparison.Ordinal))style.width=Length(node,"width",parentWidth);if(S(node,"height").EndsWith("%",StringComparison.Ordinal))style.height=Length(node,"height",parentHeight);
             }else if(S(node,"position")=="relative"){style.left=Dimension(node,"left",parentWidth);style.right=Dimension(node,"right",parentWidth);style.top=Dimension(node,"top",parentHeight);style.bottom=Dimension(node,"bottom",parentHeight);}else {style.left=StyleKeyword.Auto;style.right=StyleKeyword.Auto;style.top=StyleKeyword.Auto;style.bottom=StyleKeyword.Auto;}
@@ -95,7 +95,7 @@ namespace EchoSphere.Presentation
                 else {var content=node.Tag=="#text"?node.Text:string.Concat(node.Children.Where(child=>child.Tag=="#text").Select(child=>child.Text));if(S(node,"white-space")!="pre"&&S(node,"white-space")!="pre-wrap")content=Regex.Replace(content,@"\s+"," ");if(S(node,"text-transform")=="uppercase")content=content.ToUpperInvariant();else if(S(node,"text-transform")=="lowercase")content=content.ToLowerInvariant();text.text=content;text.enableRichText=false;}
             }
             if(S(node,"min-width")=="max-content")style.minWidth=IntrinsicWidth(node);
-            ApplyTransform(node,element);
+            var contentRotation=ApplyTransform(node,element);
             if(element is Slider range)SourceUiRange.Apply(range);
             if(element is ScrollView scroll){
                 var hidden=S(node,"scrollbar-width")=="none";var both=S(node,"overflow")=="auto";
@@ -108,12 +108,14 @@ namespace EchoSphere.Presentation
                 style.paddingLeft=style.paddingRight=style.paddingTop=style.paddingBottom=0;
                 content.flexDirection=style.flexDirection;content.flexWrap=style.flexWrap;content.alignItems=style.alignItems;content.alignContent=style.alignContent;content.justifyContent=style.justifyContent;content.flexGrow=0;content.flexShrink=0;
             }
+            return contentRotation;
         }
         private float IntrinsicWidth(VisualCssNode node)
         {
             var reference=node.Parent?.Width??Sheet.Width;var authored=Sheet.Length(S(node,"width","auto"),reference,FontSize(node));if(!double.IsNaN(authored))return (float)authored;
             var edges=Length(node,"padding-left",reference)+Length(node,"padding-right",reference)+Length(node,"border-left-width",reference)+Length(node,"border-right-width",reference);
-            if(node.Native is TextElement text)return text.MeasureTextSize(text.text,0,VisualElement.MeasureMode.Undefined,0,VisualElement.MeasureMode.Undefined).x+edges;
+            var content=node.Native is VisualElement native&&native.userData is SourceUiElement host?host.Element:node.Native;
+            if(content is TextElement text)return text.MeasureTextSize(text.text,0,VisualElement.MeasureMode.Undefined,0,VisualElement.MeasureMode.Undefined).x+edges;
             if(node.Tag=="svg")return (float)(node.Properties["width"].Undefined?node.Width:node.Properties["width"].Number);
             var widths=node.Children.Where(child=>S(child,"display")!="none"&&S(child,"position")!="absolute"&&S(child,"position")!="fixed").Select(child=>IntrinsicWidth(child)+Length(child,"margin-left",reference)+Length(child,"margin-right",reference)).ToArray();
             var display=S(node,"display");var horizontal=S(node,"flex-direction",display=="flex"||display=="inline-flex"?"row":"column").StartsWith("row",StringComparison.Ordinal);
@@ -130,7 +132,7 @@ namespace EchoSphere.Presentation
             if(!(node.Native is VisualElement element))return;
             if(S(node,"display")=="grid"){
                 var grid=VisualCssGrid.Compute(Sheet,node);var borderLeft=Length(node,"border-left-width",node.Width);var borderTop=Length(node,"border-top-width",node.Width);
-                foreach(var cell in grid.Cells)if(cell.Node.Native is VisualElement child){child.style.position=Position.Absolute;child.style.left=(float)cell.X-borderLeft;child.style.top=(float)cell.Y-borderTop;child.style.right=StyleKeyword.Auto;child.style.bottom=StyleKeyword.Auto;child.style.width=(float)cell.Width;child.style.height=(float)cell.Height;child.style.marginLeft=0;child.style.marginRight=0;child.style.marginTop=0;child.style.marginBottom=0;}
+                foreach(var cell in grid.Cells)if(cell.Node.Native is VisualElement child){var parent=child.parent;child.style.position=Position.Absolute;child.style.left=(float)cell.X-(parent?.resolvedStyle.borderLeftWidth??borderLeft);child.style.top=(float)cell.Y-(parent?.resolvedStyle.borderTopWidth??borderTop);child.style.right=StyleKeyword.Auto;child.style.bottom=StyleKeyword.Auto;child.style.width=(float)cell.Width;child.style.height=(float)cell.Height;child.style.marginLeft=0;child.style.marginRight=0;child.style.marginTop=0;child.style.marginBottom=0;}
                 if(S(node,"height","auto")=="auto"){var height=(float)grid.Height;element.style.height=height;if(element.userData is SourceUiElement host)host.GridHeight=height;}
                 foreach(var child in node.Children)Tracks(child);return;
             }
@@ -155,18 +157,20 @@ namespace EchoSphere.Presentation
             }
             foreach(var child in node.Children)Tracks(child);
         }
-        private void ApplyTransform(VisualCssNode node,VisualElement element)
+        private float ApplyTransform(VisualCssNode node,VisualElement element)
         {
             // Multiply in CSS list order before decomposing the authored TRS.
             // Summing translations separately incorrectly turns scale().translate()
             // into translate().scale(). Intersecting 3D planes use the full matrix
             // in SourceUiDepth; the retained element receives the matching TRS.
             var source=VisualCssTransform.Parse(Sheet,node);var matrix=new Matrix4x4();for(var column=0;column<4;column++)for(var row=0;row<4;row++)matrix[row,column]=(float)source[column*4+row];
-            var position=new Vector3(matrix.m03,matrix.m13,matrix.m23);var scale=matrix.lossyScale;var rotation=matrix.rotation;
+            var position=new Vector3(matrix.m03,matrix.m13,matrix.m23);
             var origin=VisualCss.Split(S(node,"transform-origin","50% 50%"),' ').Where(part=>part.Length>0).ToArray();
             float Origin(string value,double reference)=>value=="center"?(float)reference*.5f:value=="left"||value=="top"?0f:value=="right"||value=="bottom"?(float)reference:(float)Sheet.Length(value,reference,FontSize(node));
             element.style.transformOrigin=new TransformOrigin(new Length(origin.Length>0?Origin(origin[0],node.Width):(float)node.Width*.5f),new Length(origin.Length>1?Origin(origin[1],node.Height):(float)node.Height*.5f),0f);
-            rotation.ToAngleAxis(out var angle,out var axis);element.style.translate=new Translate(position.x,position.y,position.z);element.style.rotate=new Rotate(new Angle(angle,AngleUnit.Degree),axis);element.style.scale=new Scale(scale);
+            element.style.translate=new Translate(position.x,position.y,position.z);
+            if(VisualCssTransform.Is2D(source)){var split=VisualCssTransform.Native2D(source);element.style.rotate=new Rotate((float)(split.Rotation*Mathf.Rad2Deg));element.style.scale=new Scale(new Vector3((float)split.X,(float)split.Y,1));return (float)(split.ContentRotation*Mathf.Rad2Deg);}
+            var rotation=matrix.rotation;rotation.ToAngleAxis(out var angle,out var axis);element.style.rotate=new Rotate(new Angle(angle,AngleUnit.Degree),axis);element.style.scale=new Scale(matrix.lossyScale);return 0f;
         }
     }
 }

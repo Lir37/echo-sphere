@@ -13,61 +13,7 @@ namespace EchoSphere.Presentation
 {
     internal static class SourceUiSvg
     {
-        private static string Escape(string text)=>text.Replace("&","&amp;").Replace("\"","&quot;").Replace("<","&lt;").Replace(">","&gt;");
-        private static readonly Regex RgbFunction=new Regex(@"(?i)^rgba?\(\s*([^)]*)\s*\)$",RegexOptions.Compiled);
-        private static string NormalizeSvgColor(string value,out float alpha)
-        {
-            alpha=1f;var match=RgbFunction.Match(value.Trim());if(!match.Success)return value;
-            // Unity.VectorGraphics accepts legacy comma-separated rgb(), not modern CSS Color 4 syntax.
-            var parts=Regex.Split(match.Groups[1].Value.Trim(),@"[,\s/]+").Where(part=>part.Length>0).ToArray();
-            if(parts.Length<3||parts.Length>4)return value;
-            float Channel(string part)
-            {
-                var percent=part.EndsWith("%",StringComparison.Ordinal);var numberText=percent?part.Substring(0,part.Length-1):part;
-                if(!float.TryParse(numberText,NumberStyles.Float,CultureInfo.InvariantCulture,out var number))return float.NaN;
-                return Mathf.Clamp(Mathf.RoundToInt(percent?number*2.55f:number),0,255);
-            }
-            var red=Channel(parts[0]);var green=Channel(parts[1]);var blue=Channel(parts[2]);
-            if(float.IsNaN(red)||float.IsNaN(green)||float.IsNaN(blue))return value;
-            if(parts.Length==4)
-            {
-                var alphaText=parts[3];var percent=alphaText.EndsWith("%",StringComparison.Ordinal);if(percent)alphaText=alphaText.Substring(0,alphaText.Length-1);
-                if(!float.TryParse(alphaText,NumberStyles.Float,CultureInfo.InvariantCulture,out alpha))return value;
-                if(percent)alpha/=100f;alpha=Mathf.Clamp01(alpha);
-            }
-            return string.Format(CultureInfo.InvariantCulture,"rgb({0},{1},{2})",(int)red,(int)green,(int)blue);
-        }
-        private static readonly HashSet<string> ExactNames=new HashSet<string>{"viewBox","preserveAspectRatio","gradientUnits","gradientTransform","spreadMethod","markerWidth","markerHeight","refX","refY","textLength","lengthAdjust"};
-        internal static string Serialize(VisualCssNode node,VisualCss sheet)
-        {
-            var result=new StringBuilder();
-            void Append(VisualCssNode item) {
-                if(item.Tag=="text")return; // Native text overlays preserve SVG baselines.
-                if(item.Tag=="#text"){result.Append(Escape(item.Text));return;}
-                result.Append('<').Append(item.Tag);
-                var attributes=((Dictionary<string,V>)item.Properties.Raw).Where(pair=>pair.Key!="children"&&pair.Key!="key"&&pair.Key!="ref"&&pair.Key!="className"&&pair.Key!="style"&&!pair.Key.StartsWith("on",StringComparison.Ordinal)&&!pair.Value.Undefined&&!pair.Value.Null).ToArray();
-                var fillAlpha=1f;var strokeAlpha=1f;
-                foreach(var pair in attributes) {
-                    var value=pair.Value.Text;if(value=="currentColor")value=sheet.Get(item,"color","#000000");
-                    if(pair.Key=="fill")NormalizeSvgColor(value,out fillAlpha);
-                    else if(pair.Key=="stroke")NormalizeSvgColor(value,out strokeAlpha);
-                }
-                var hasFillOpacity=attributes.Any(pair=>pair.Key=="fill-opacity");var hasStrokeOpacity=attributes.Any(pair=>pair.Key=="stroke-opacity");
-                foreach(var pair in attributes) {
-                    var name=ExactNames.Contains(pair.Key)?pair.Key:Regex.Replace(pair.Key,"[A-Z]",match=>"-"+match.Value.ToLowerInvariant());
-                    var value=pair.Value.Text;if(value=="currentColor")value=sheet.Get(item,"color","#000000");
-                    if(pair.Key=="fill"||pair.Key=="stroke")value=NormalizeSvgColor(value,out _);
-                    if(pair.Key=="fill-opacity"&&fillAlpha<1f&&float.TryParse(value,NumberStyles.Float,CultureInfo.InvariantCulture,out var existingFillOpacity))value=(existingFillOpacity*fillAlpha).ToString("0.######",CultureInfo.InvariantCulture);
-                    if(pair.Key=="stroke-opacity"&&strokeAlpha<1f&&float.TryParse(value,NumberStyles.Float,CultureInfo.InvariantCulture,out var existingStrokeOpacity))value=(existingStrokeOpacity*strokeAlpha).ToString("0.######",CultureInfo.InvariantCulture);
-                    result.Append(' ').Append(name).Append("=\"").Append(Escape(value)).Append('"');
-                }
-                if(fillAlpha<1f&&!hasFillOpacity)result.Append(" fill-opacity=\"").Append(fillAlpha.ToString("0.######",CultureInfo.InvariantCulture)).Append('"');
-                if(strokeAlpha<1f&&!hasStrokeOpacity)result.Append(" stroke-opacity=\"").Append(strokeAlpha.ToString("0.######",CultureInfo.InvariantCulture)).Append('"');
-                if(item==node){if(item.Properties["xmlns"].Undefined)result.Append(" xmlns=\"http://www.w3.org/2000/svg\"");if(item.Properties["width"].Undefined)result.Append(" width=\"").Append(item.Width.ToString(CultureInfo.InvariantCulture)).Append('"');if(item.Properties["height"].Undefined)result.Append(" height=\"").Append(item.Height.ToString(CultureInfo.InvariantCulture)).Append('"');if(item.Properties["viewBox"].Undefined)result.Append(" viewBox=\"0 0 ").Append(item.Width.ToString(CultureInfo.InvariantCulture)).Append(' ').Append(item.Height.ToString(CultureInfo.InvariantCulture)).Append('"');}
-                result.Append('>');foreach(var child in item.Children)Append(child);result.Append("</").Append(item.Tag).Append('>');
-            }
-            Append(node);return result.ToString();
-        }
+        internal static string Serialize(VisualCssNode node,VisualCss sheet)=>VisualSvg.Serialize(node,sheet);
         internal static Texture Rasterize(string xml,float width,float height,float scale,Material material,bool overflow,out Rect paintRect)
         {
             var scene=SVGParser.ImportSVG(new StringReader(xml));
@@ -100,7 +46,11 @@ namespace EchoSphere.Presentation
                 string Content(VisualCssNode item)=>item.Tag=="#text"?item.Text:string.Concat(item.Children.Select(Content));label.text=Content(node);
                 var size=Number(node.Properties["fontSize"].Text,(float)sheet.Length(sheet.Get(node,"font-size","16px"),16))*scale;
                 var typography=new VisualCssNode {Tag="span"};foreach(var pair in node.Style)typography.Style[pair.Key]=pair.Value;typography.Style["line-height"]="normal";if(!node.Properties["fontWeight"].Undefined)typography.Style["font-weight"]=node.Properties["fontWeight"].Text;
-                label.style.fontSize=size;SourceUiTypography.Apply(sheet,typography,label,size);var font=SourceUiTypography.Resolve(sheet,typography,size);var face=font.faceInfo;
+                label.style.fontSize=size;SourceUiTypography.Apply(sheet,typography,label,size);var font=SourceUiTypography.Resolve(sheet,typography,size)??label.resolvedStyle.unityFontDefinition.fontAsset;
+                // A newly attached label can await theme resolution. Retain its
+                // authored text and retry next update; do not dereference a null
+                // font or invent ascent metrics for a face that is unavailable.
+                if(font==null){label.style.display=DisplayStyle.None;continue;}var face=font.faceInfo;
                 var fill=VisualCssColor.Parse(node.Properties["fill"].Undefined?sheet.Get(node,"fill","#000000"):node.Properties["fill"].Text,sheet.Get(node,"color","#000000"));label.style.color=new Color((float)fill.R,(float)fill.G,(float)fill.B,(float)fill.A);label.style.whiteSpace=WhiteSpace.NoWrap;label.style.unityTextAlign=TextAnchor.UpperLeft;
                 var measured=label.MeasureTextSize(label.text,0,VisualElement.MeasureMode.Undefined,0,VisualElement.MeasureMode.Undefined);var anchor=node.Properties["textAnchor"].Text;
                 label.style.left=ox+(Number(node.Properties["x"].Text)-vx)*scale-(anchor=="middle"?measured.x*.5f:anchor=="end"?measured.x:0f);label.style.top=oy+(Number(node.Properties["y"].Text)-vy)*scale-size*face.ascentLine/face.pointSize;label.style.width=measured.x+1f;label.style.height=Math.Max(measured.y,size*(face.ascentLine-face.descentLine)/face.pointSize);

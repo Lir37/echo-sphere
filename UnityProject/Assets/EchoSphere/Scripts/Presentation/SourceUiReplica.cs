@@ -48,7 +48,7 @@ namespace EchoSphere.Presentation
             // own backdrop image and outer filter/opacity; those belong to the
             // live ancestor group. Use actual retained hierarchy paint order.
             foreach(var item in VisualBackdrop.PaintPrefix(root,stop,element=>element.hierarchy.childCount,(element,index)=>element.hierarchy[index],
-                element=>element.userData is SourceUiBackdrop.ClipTag clip&&(clip.Owner==root||!clip.Owner.worldBound.Overlaps(area))))
+                element=>element.userData is SourceUiBackdrop.ClipTag clip&&(clip.Owner==root||!SourceUiBackdrop.WorldBounds(clip.Owner).Overlaps(area))))
                 CopyNode(item.Node,item.Parent==null?parent:_copies[item.Parent].Element,item.Parent==null);
             foreach(var item in _copies.Where(pair=>!pair.Value.Used).ToArray()){item.Value.Element.RemoveFromHierarchy();_copies.Remove(item.Key);}
         }

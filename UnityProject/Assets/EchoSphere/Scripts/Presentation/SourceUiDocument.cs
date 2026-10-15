@@ -13,6 +13,7 @@ namespace EchoSphere.Presentation
         {
             public VisualCssNode Node;
             public VisualElement Element;
+            public SourceUiFrame Frame;
             public SourceUiElement Host;
             public readonly VisualCssAnimation Motion=new VisualCssAnimation();
             public readonly Dictionary<string,string> BaseStyle=new Dictionary<string,string>();
@@ -95,24 +96,23 @@ namespace EchoSphere.Presentation
             var key=path+":"+node.Tag+":"+kind;
             if(!_entries.TryGetValue(key,out var entry)) {
                 var element=kind=="input"?(VisualElement)new TextField {isDelayed=false}:kind=="range"?new Slider():kind=="scroll"?new ScrollView(scrollX?scrollY?ScrollViewMode.VerticalAndHorizontal:ScrollViewMode.Horizontal:ScrollViewMode.Vertical):kind=="label"?new Label():new VisualElement();
-                entry=new Entry {Element=element};entry.Host=new SourceUiElement(this,node,element);_entries.Add(key,entry);_elementEntries.Add(element,entry);element.userData=entry.Host;
+                entry=new Entry {Element=element,Frame=new SourceUiFrame(element)};entry.Host=new SourceUiElement(this,node,element);_entries.Add(key,entry);_elementEntries.Add(element,entry);_elementEntries.Add(entry.Frame,entry);element.userData=entry.Host;entry.Frame.userData=entry.Host;
                 InstallEvents(entry);
                 entry.PaintContent=context=>Paint(entry,context);
-                var nativePaint=element.generateVisualContent;
-                element.generateVisualContent=context=>{entry.PaintContent(context);nativePaint?.Invoke(context);};
-                element.RegisterCallback<GeometryChangedEvent>(evt=>{UpdateBounds(entry.Node,entry.Element);entry.PaintKey=null;FrameVersion++;});
+                entry.Frame.generateVisualContent=entry.PaintContent;
+                entry.Frame.RegisterCallback<GeometryChangedEvent>(evt=>{UpdateBounds(entry.Node,entry.Frame);entry.PaintKey=null;FrameVersion++;});
             }
-            entry.Used=true;entry.Node=node;entry.Host.Node=node;node.Native=entry.Element;node.Active=entry.ActivePointers.Count>0;
+            entry.Used=true;entry.Node=node;entry.Host.Node=node;node.Native=entry.Frame;node.Active=entry.ActivePointers.Count>0;
             if(entry.Element is ScrollView scrolling)scrolling.mode=scrollX?scrollY?ScrollViewMode.VerticalAndHorizontal:ScrollViewMode.Horizontal:ScrollViewMode.Vertical;
-            UpdateBounds(node,entry.Element);if(node.Parent==null){node.Width=_sheet.Width;node.Height=_sheet.Height;}
-            if(entry.Element.parent!=parent)parent.Add(entry.Element);
+            UpdateBounds(node,entry.Frame);if(node.Parent==null){node.Width=_sheet.Width;node.Height=_sheet.Height;}
+            if(entry.Frame.parent!=parent)parent.Add(entry.Frame);
             entry.BaseStyle.Clear();foreach(var pair in node.Style)entry.BaseStyle[pair.Key]=pair.Value;
             node.InheritAnimatedValues();entry.Motion.Apply(_sheet,node,Time.unscaledTimeAsDouble);
             if(label||node.Tag=="svg")InheritSubtree(node);
-            _layout.Apply(node,entry.Element);
+            var contentRotation=_layout.Apply(node,entry.Element,entry.Frame.parent);entry.Frame.ApplyOuterStyle(contentRotation);
             if(entry.Element is TextField input){var value=node.Properties["value"];if(!value.Undefined&&input.value!=value.Text)input.SetValueWithoutNotify(value.Text);input.maxLength=node.Properties["maxLength"].Undefined?-1:(int)node.Properties["maxLength"].Number;input.multiline=false;input.textEdition.placeholder=node.Properties["placeholder"].Undefined?"":node.Properties["placeholder"].Text;input.textEdition.hidePlaceholderOnFocus=false;input.textSelection.selectAllOnFocus=false;input.textSelection.selectAllOnMouseUp=false;var textInput=input.Q<VisualElement>("unity-text-input");if(textInput!=null){textInput.style.backgroundColor=Color.clear;textInput.style.paddingLeft=0;textInput.style.paddingRight=0;textInput.style.paddingTop=0;textInput.style.paddingBottom=0;if(input.value.Length==0&&!node.Properties["placeholder"].Undefined){var placeholder=new VisualCssNode {Tag="input",Pseudo="::placeholder",Parent=node};_sheet.Apply(placeholder);var tint=VisualCssColor.Parse(_sheet.Get(placeholder,"color",_sheet.Get(node,"color","#000000")));textInput.style.color=new Color((float)tint.R,(float)tint.G,(float)tint.B,(float)tint.A);}else textInput.style.color=entry.Element.style.color;textInput.style.fontSize=entry.Element.style.fontSize;textInput.style.unityFontDefinition=entry.Element.style.unityFontDefinition;textInput.style.unityFontStyleAndWeight=entry.Element.style.unityFontStyleAndWeight;textInput.style.borderLeftWidth=textInput.style.borderRightWidth=textInput.style.borderTopWidth=textInput.style.borderBottomWidth=0;textInput.style.marginLeft=textInput.style.marginRight=textInput.style.marginTop=textInput.style.marginBottom=0;textInput.style.flexGrow=1;}}
             if(entry.Element is Slider range){range.lowValue=(float)node.Properties["min"].Number;range.highValue=(float)node.Properties["max"].Number;if(!node.Properties["value"].Undefined)range.SetValueWithoutNotify((float)node.Properties["value"].Number);}
-            entry.Element.SetEnabled(!node.Properties["disabled"].Truth);
+            entry.Frame.SetEnabled(!node.Properties["disabled"].Truth);
             var reference=node.Properties["ref"];if(reference.Raw is Dictionary<string,V>)reference["current"]=new V(entry.Host);else if(reference.Raw is Func<V[],V>)reference.Call(new V(entry.Host));
             if(node.Tag=="svg"){SourceUiSvg.Text(node,_sheet,entry.Element,entry.SvgTexts);return;}
             if(label)return;
@@ -159,23 +159,24 @@ namespace EchoSphere.Presentation
         private void OnApplicationFocus(bool focused)
         {if(!focused)foreach(var entry in _entries.Values)if(entry.ActivePointers.Count>0){entry.ActivePointers.Clear();entry.Node.Active=false;Dirty=true;}}
         private void UpdateLayout(VisualCssNode node)
-        {if(node.Native is VisualElement element){var oldBounds=(node.X,node.Y,node.Width,node.Height);UpdateBounds(node,element);if(oldBounds!=(node.X,node.Y,node.Width,node.Height))FrameVersion++;_layout.Apply(node,element);var entry=_elementEntries[element];if(node.Tag=="svg")SourceUiSvg.Text(node,_sheet,element,entry.SvgTexts);if(DepthAncestor(node)==null&&(_sheet.Get(node,"filter","none").Trim()!="none"||_sheet.Get(node,"opacity","1")!="1")){if(entry.Filters==null)entry.Filters=new SourceUiFilters();entry.Filters.Apply(_sheet,node,element,_scale,IsDepthRoot(node));}else element.style.filter=new List<FilterFunction>();// UI Toolkit ImmediateModeElement repaint runs inside the active render pass.
+        {if(node.Native is VisualElement element){var oldBounds=(node.X,node.Y,node.Width,node.Height);UpdateBounds(node,element);if(oldBounds!=(node.X,node.Y,node.Width,node.Height))FrameVersion++;var entry=_elementEntries[element];var contentRotation=_layout.Apply(node,entry.Element,entry.Frame.parent);entry.Frame.ApplyOuterStyle(contentRotation);if(node.Tag=="svg")SourceUiSvg.Text(node,_sheet,entry.Element,entry.SvgTexts);if(DepthAncestor(node)==null&&(_sheet.Get(node,"filter","none").Trim()!="none"||_sheet.Get(node,"opacity","1")!="1")){if(entry.Filters==null)entry.Filters=new SourceUiFilters();entry.Filters.Apply(_sheet,node,element,_scale,IsDepthRoot(node));}else element.style.filter=new List<FilterFunction>();
                 // Backdrop helpers are retained children, prepared after brushes
                 // and depth surfaces. They issue no graphics commands at repaint.
                 if(VisualBackdrop.Sigma(_sheet,node)>=0d){if(entry.Backdrop==null){entry.Backdrop=new SourceUiBackdrop(element,entry.PaintContent,ReplicaPaint);_backdropForegrounds.Add(entry.Backdrop.Foreground,entry);}}
                 else if(entry.Backdrop!=null){_backdropForegrounds.Remove(entry.Backdrop.Foreground);entry.Backdrop.Dispose();entry.Backdrop=null;}
                 element.MarkDirtyRepaint();}foreach(var child in node.Children)UpdateLayout(child);}
         private static void UpdateBounds(VisualCssNode node,VisualElement element)
-        {var bounds=element.worldBound;node.X=bounds.x;node.Y=bounds.y;node.Width=float.IsNaN(element.layout.width)?0d:element.layout.width;node.Height=float.IsNaN(element.layout.height)?0d:element.layout.height;}
+        {var bounds=element is SourceUiFrame frame?frame.Content.worldBound:element.worldBound;node.X=bounds.x;node.Y=bounds.y;node.Width=float.IsNaN(element.layout.width)?0d:element.layout.width;node.Height=float.IsNaN(element.layout.height)?0d:element.layout.height;}
         private void Paint(Entry entry,MeshGenerationContext context)
         {
             var node=entry.Node;if(node.Width<=0d||node.Height<=0d)return;
             if(DepthAncestor(node)!=null)return;
-            if(IsDepthRoot(node)){Quad(context,entry.DepthTexture,entry.DepthRect);return;}
-            Quad(context,entry.Paint,entry.PaintRect);
-            if(entry.Element is Slider slider)SourceUiRange.Paint(slider,context);
-            if(node.Tag=="canvas")Quad(context,CanvasTexture?.Invoke(),new Rect(0,0,(float)node.Width,(float)node.Height));
-            if(node.Tag=="svg")Quad(context,entry.Svg,entry.SvgRect);
+            var matrix=entry.Frame.BrushMatrix;
+            if(IsDepthRoot(node)){Quad(context,entry.DepthTexture,entry.DepthRect,matrix:matrix);return;}
+            Quad(context,entry.Paint,entry.PaintRect,matrix:matrix);
+            if(entry.Element is Slider slider)SourceUiRange.Paint(slider,context,matrix);
+            if(node.Tag=="canvas")Quad(context,CanvasTexture?.Invoke(),new Rect(0,0,(float)node.Width,(float)node.Height),matrix:matrix);
+            if(node.Tag=="svg")Quad(context,entry.Svg,entry.SvgRect,matrix:matrix);
         }
         // Texture uploads, SVG rasterization and depth RenderTexture work must
         // happen during the document update, not inside UI Toolkit's render pass.
@@ -186,7 +187,7 @@ namespace EchoSphere.Presentation
                 if(node.Native is VisualElement element&&_elementEntries.TryGetValue(element,out var entry)&&node.Width>0d&&node.Height>0d)
                 {
                     EnsureBrush(entry);
-                    if(element is Slider)SourceUiRange.Prepare();
+                    if(entry.Element is Slider)SourceUiRange.Prepare();
                     if(node.Tag=="svg")PrepareSvg(entry);
                 }
                 foreach(var child in node.Children)Prepare(child);
@@ -199,12 +200,13 @@ namespace EchoSphere.Presentation
                 foreach(var child in node.Children)PrepareDepthRoots(child);
             }
             PrepareDepthRoots(root);
+            foreach(var entry in _entries.Values){var bounds=IsDepthRoot(entry.Node)?entry.DepthRect:entry.PaintRect;if(entry.Svg!=null)bounds=Rect.MinMaxRect(Mathf.Min(bounds.xMin,entry.SvgRect.xMin),Mathf.Min(bounds.yMin,entry.SvgRect.yMin),Mathf.Max(bounds.xMax,entry.SvgRect.xMax),Mathf.Max(bounds.yMax,entry.SvgRect.yMax));entry.Frame.SetPaintBounds(bounds);}
             // Native hierarchy order is the actual paint order (CSS z-index /
             // order and ScrollView containers included). Earlier backdrop copies
             // must be ready before a later panel takes its paint prefix.
             void Backdrops(VisualElement element)
             {
-                if(_elementEntries.TryGetValue(element,out var entry)&&entry.Backdrop!=null){
+                if(_elementEntries.TryGetValue(element,out var entry)&&element==entry.Frame&&entry.Backdrop!=null){
                     var ancestor=entry.Node.Parent;while(ancestor!=null&&!VisualBackdrop.IsRoot(_sheet,ancestor))ancestor=ancestor.Parent;
                     var backdropRoot=ancestor?.Native as VisualElement??_document.rootVisualElement;
                     entry.Backdrop.Prepare(backdropRoot,(float)VisualBackdrop.Sigma(_sheet,entry.Node));
@@ -221,15 +223,20 @@ namespace EchoSphere.Presentation
         {
             if(source.userData is SourceUiReplica.PaintTag tag)return tag.Paint;
             if(_backdropForegrounds.TryGetValue(source,out var foreground))return foreground.PaintContent;
-            return _elementEntries.TryGetValue(source,out var entry)&&entry.Backdrop==null?entry.PaintContent:null;
+            return _elementEntries.TryGetValue(source,out var entry)&&source==entry.Frame&&entry.Backdrop==null?entry.PaintContent:null;
         }
         private void EnsureBrush(Entry entry)
         {
             var node=entry.Node;
-            var viewportClipKey=_sheet.Get(node,"box-shadow","none")=="none"?"":node.X.ToString("R",CultureInfo.InvariantCulture)+"/"+node.Y.ToString("R",CultureInfo.InvariantCulture);
+            VisualCssPaint.Viewport? localViewport=null;
+            if(VisualCssPaint.ShadowOutset(_sheet,node)>Math.Max(_sheet.Width,_sheet.Height)){
+                var inverse=entry.Element.worldTransform.inverse;var p0=inverse.MultiplyPoint3x4(Vector3.zero);var p1=inverse.MultiplyPoint3x4(new Vector3((float)_sheet.Width,0,0));var p2=inverse.MultiplyPoint3x4(new Vector3(0,(float)_sheet.Height,0));var p3=inverse.MultiplyPoint3x4(new Vector3((float)_sheet.Width,(float)_sheet.Height,0));
+                localViewport=new VisualCssPaint.Viewport {Left=Math.Min(Math.Min(p0.x,p1.x),Math.Min(p2.x,p3.x)),Top=Math.Min(Math.Min(p0.y,p1.y),Math.Min(p2.y,p3.y)),Right=Math.Max(Math.Max(p0.x,p1.x),Math.Max(p2.x,p3.x)),Bottom=Math.Max(Math.Max(p0.y,p1.y),Math.Max(p2.y,p3.y))};
+            }
+            var viewportClipKey=localViewport.HasValue?localViewport.Value.Left.ToString("R",CultureInfo.InvariantCulture)+"/"+localViewport.Value.Top.ToString("R",CultureInfo.InvariantCulture)+"/"+localViewport.Value.Right.ToString("R",CultureInfo.InvariantCulture)+"/"+localViewport.Value.Bottom.ToString("R",CultureInfo.InvariantCulture):"";
             var fingerprint=viewportClipKey+"/"+node.Width.ToString("R",CultureInfo.InvariantCulture)+"/"+node.Height.ToString("R",CultureInfo.InvariantCulture)+"/"+_scale+"/"+string.Join(";",node.Style.Where(pair=>pair.Key.StartsWith("background",StringComparison.Ordinal)||pair.Key.StartsWith("border-",StringComparison.Ordinal)||pair.Key=="box-shadow"||pair.Key=="clip-path"||pair.Key=="mask-image"||pair.Key=="color"||pair.Key=="filter").OrderBy(pair=>pair.Key).Select(pair=>pair.Key+":"+pair.Value));
             if(entry.PaintKey!=fingerprint){
-                if(entry.Paint!=null)Destroy(entry.Paint);var raster=VisualCssPaint.Paint(_sheet,node,_scale);entry.Paint=new Texture2D(raster.Width,raster.Height,TextureFormat.RGBA32,false,false){name="Source CSS "+node.Tag,wrapMode=TextureWrapMode.Clamp,filterMode=FilterMode.Bilinear};
+                if(entry.Paint!=null)Destroy(entry.Paint);var raster=VisualCssPaint.Paint(_sheet,node,_scale,localViewport);entry.Paint=new Texture2D(raster.Width,raster.Height,TextureFormat.RGBA32,false,false){name="Source CSS "+node.Tag,wrapMode=TextureWrapMode.Clamp,filterMode=FilterMode.Bilinear};
                 // CSS raster rows run top-to-bottom; Unity texture rows bottom-to-top.
                 var pixels=new byte[raster.Pixels.Length];var stride=raster.Width*4;for(var y=0;y<raster.Height;y++)Buffer.BlockCopy(raster.Pixels,y*stride,pixels,(raster.Height-y-1)*stride,stride);entry.Paint.LoadRawTextureData(pixels);entry.Paint.Apply(false,true);entry.PaintRect=new Rect((float)raster.Left,(float)raster.Top,(float)(raster.Width/raster.Scale),(float)(raster.Height/raster.Scale));entry.PaintKey=fingerprint;
             }
@@ -282,10 +289,11 @@ namespace EchoSphere.Presentation
                 root.DepthKey=fingerprint;
             }
         }
-        internal static void Quad(MeshGenerationContext context,Texture texture,Rect rect,Rect? source=null)
+        internal static void Quad(MeshGenerationContext context,Texture texture,Rect rect,Rect? source=null,Matrix4x4? matrix=null)
         {
             if(texture==null)return;var mesh=context.Allocate(4,6,texture);var uv=source??new Rect(0,0,1,1);var color=new Color32(255,255,255,255);
-            mesh.SetNextVertex(new Vertex {position=new Vector3(rect.xMin,rect.yMin,Vertex.nearZ),tint=color,uv=new Vector2(uv.xMin,uv.yMax)});mesh.SetNextVertex(new Vertex {position=new Vector3(rect.xMax,rect.yMin,Vertex.nearZ),tint=color,uv=new Vector2(uv.xMax,uv.yMax)});mesh.SetNextVertex(new Vertex {position=new Vector3(rect.xMax,rect.yMax,Vertex.nearZ),tint=color,uv=new Vector2(uv.xMax,uv.yMin)});mesh.SetNextVertex(new Vertex {position=new Vector3(rect.xMin,rect.yMax,Vertex.nearZ),tint=color,uv=new Vector2(uv.xMin,uv.yMin)});
+            Vector3 Position(float x,float y){var point=new Vector3(x,y,Vertex.nearZ);return matrix.HasValue?matrix.Value.MultiplyPoint3x4(point):point;}
+            mesh.SetNextVertex(new Vertex {position=Position(rect.xMin,rect.yMin),tint=color,uv=new Vector2(uv.xMin,uv.yMax)});mesh.SetNextVertex(new Vertex {position=Position(rect.xMax,rect.yMin),tint=color,uv=new Vector2(uv.xMax,uv.yMax)});mesh.SetNextVertex(new Vertex {position=Position(rect.xMax,rect.yMax),tint=color,uv=new Vector2(uv.xMax,uv.yMin)});mesh.SetNextVertex(new Vertex {position=Position(rect.xMin,rect.yMax),tint=color,uv=new Vector2(uv.xMin,uv.yMin)});
             foreach(var index in new ushort[]{0,1,2,2,3,0})mesh.SetNextIndex(index);
         }
         internal V Query(string selector,VisualCssNode start=null,bool all=false)
@@ -305,7 +313,7 @@ namespace EchoSphere.Presentation
             foreach(var choice in new[]{false,true}){var accepted=choice;var button=new Button(()=>{overlay.RemoveFromHierarchy();answer(accepted);}) {text=choice?"OK":Application.systemLanguage==SystemLanguage.Russian?"Отмена":"Cancel"};button.style.minWidth=72;button.style.height=30;button.style.marginLeft=8;button.style.backgroundColor=choice?new Color(35f/255f,100f/255f,205f/255f,1f):new Color(235f/255f,235f/255f,235f/255f,1f);button.style.color=choice?(Color)Color.white:(Color)Color.black;button.style.unityTextAlign=TextAnchor.MiddleCenter;buttons.Add(button);}
             box.Add(buttons);overlay.Add(box);_document.rootVisualElement.Add(overlay);overlay.BringToFront();
         }
-        private void Dispose(Entry entry){_elementEntries.Remove(entry.Element);if(entry.Backdrop!=null)_backdropForegrounds.Remove(entry.Backdrop.Foreground);entry.Backdrop?.Dispose();entry.Element.RemoveFromHierarchy();if(entry.Paint!=null)Destroy(entry.Paint);if(entry.Svg!=null)Destroy(entry.Svg);if(entry.GroupClip!=null)Destroy(entry.GroupClip);entry.Depth?.Dispose();entry.SurfaceFilters?.Dispose();entry.Filters?.Dispose();}
+        private void Dispose(Entry entry){_elementEntries.Remove(entry.Element);_elementEntries.Remove(entry.Frame);if(entry.Backdrop!=null)_backdropForegrounds.Remove(entry.Backdrop.Foreground);entry.Backdrop?.Dispose();entry.Frame.RemoveFromHierarchy();if(entry.Paint!=null)Destroy(entry.Paint);if(entry.Svg!=null)Destroy(entry.Svg);if(entry.GroupClip!=null)Destroy(entry.GroupClip);entry.Depth?.Dispose();entry.SurfaceFilters?.Dispose();entry.Filters?.Dispose();}
         private void OnDestroy(){VisualDom.Reset();VisualDom.Changed=null;Environment?.Dispose();foreach(var entry in _entries.Values)Dispose(entry);_entries.Clear();if(_svgMaterial!=null)Destroy(_svgMaterial);if(_panel!=null)Destroy(_panel);}
     }
 }

@@ -60,12 +60,13 @@ namespace EchoSphere.Presentation
             _foreground.MarkDirtyRepaint();
             LocalBox(_clip,-resolved.borderLeftWidth,-resolved.borderTopWidth,box.width,box.height);
             _clip.style.borderTopLeftRadius=resolved.borderTopLeftRadius;_clip.style.borderTopRightRadius=resolved.borderTopRightRadius;_clip.style.borderBottomLeftRadius=resolved.borderBottomLeftRadius;_clip.style.borderBottomRightRadius=resolved.borderBottomRightRadius;
-            var matrix=_original.worldTransform;
+            var frame=_original as SourceUiFrame;var matrix=_original.worldTransform*(frame?.BrushMatrix??Matrix4x4.identity);
             var determinant=matrix.determinant;if(!Finite(determinant)||Mathf.Abs(determinant)<1e-8f){_clip.style.display=DisplayStyle.None;return;}
             _clip.style.display=DisplayStyle.Flex;
             // Blur in screen CSS coordinates, THEN invert the element transform
             // and clip to its rounded border box (CSS Filter Effects 2 §2.1).
-            var area=_original.worldBound;var padding=Mathf.Ceil(4f*sigma);area.xMin=Mathf.Floor(area.xMin-padding);area.yMin=Mathf.Floor(area.yMin-padding);area.xMax=Mathf.Ceil(area.xMax+padding);area.yMax=Mathf.Ceil(area.yMax+padding);
+            if(frame!=null){_clip.style.rotate=frame.Content.style.rotate;_clip.style.transformOrigin=frame.Content.style.transformOrigin;}
+            var area=WorldBounds(_original);var padding=Mathf.Ceil(4f*sigma);area.xMin=Mathf.Floor(area.xMin-padding);area.yMin=Mathf.Floor(area.yMin-padding);area.xMax=Mathf.Ceil(area.xMax+padding);area.yMax=Mathf.Ceil(area.yMax+padding);
             _area=area;_toScreen=matrix;_toPanel=matrix.inverse;_panelSize=new Vector2(box.width,box.height);
             SetMatrix(_placement,_placementRotation,matrix.inverse*Matrix4x4.Translate(new Vector3(area.x,area.y,0)));
             LocalBox(_crop,0,0,area.width,area.height);
@@ -83,6 +84,7 @@ namespace EchoSphere.Presentation
             properties.SetVector("_ToScreenX",new Vector4(_toScreen.m00,_toScreen.m01,_toScreen.m03,0));properties.SetVector("_ToScreenY",new Vector4(_toScreen.m10,_toScreen.m11,_toScreen.m13,0));
         }
         private static bool Finite(float value)=>!float.IsNaN(value)&&!float.IsInfinity(value);
+        internal static Rect WorldBounds(VisualElement element)=>element is SourceUiFrame frame?frame.Content.worldBound:element.worldBound;
         private static VisualElement Box(){var box=new VisualElement {pickingMode=PickingMode.Ignore,userData=ReplicaTag};LocalBox(box,0,0,0,0);box.style.overflow=Overflow.Visible;return box;}
         internal static void LocalBox(VisualElement element,float x,float y,float width,float height)
         {
