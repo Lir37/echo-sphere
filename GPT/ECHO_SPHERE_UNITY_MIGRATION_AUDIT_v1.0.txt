@@ -4705,3 +4705,26 @@ visual parity remains unconfirmed until a fresh APK is inspected.
 ======================================================================
 END NETWORK COMET / SPHERE PICKER / HOME MENU VISUAL PARITY
 ======================================================================
+
+
+======================================================================
+2026-10-15 — HUD SCALE CORRECTION AFTER SCREENSHOT COMPARISON
+======================================================================
+
+A second comparison of the saved portrait screenshots showed the gameplay
+HUD was still materially undersized: the source panels are approximately
+380 x 288 px, while the Unity panel implementation capped panel width at
+300 px and used a 140 px height. The HUD panel dimensions, text/bar spacing,
+radar, timer, region labels and formation chips are now scaled to the source
+composition. Hit-testing and gameplay data remain unchanged.
+
+CI #600 initially failed because its structural guard expected the old
+14 px navigation icon slot and did not account for the deliberate source
+framebuffer scaling. The guard was updated to assert the new icon geometry,
+portrait navigation layout and moving-comet source timings, while retaining
+the existing checks for all six line-art icon identities and destinations.
+The current HEAD must pass a fresh run before this cycle is accepted.
+
+======================================================================
+END HUD SCALE CORRECTION
+======================================================================

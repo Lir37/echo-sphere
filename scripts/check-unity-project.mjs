@@ -300,6 +300,9 @@ assert.ok(runtime.includes('SetUserPaused'), 'pause/resume state handling is mis
 const networkRules = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Core/SphereNetworkRules.cs'), 'utf8');
 assert.ok(networkRules.includes('Analyze') && networkRules.includes('FindFractal') && networkRules.includes('GetFormationBonusMultiplier'), 'Network/Geometry analysis contract is missing');
 assert.ok(runtime.includes('RefreshNetworkState') && runtime.includes('UpdateNetworkLinkVisuals') && runtime.includes('GEOMETRY '), 'live Network links and Geometry HUD are missing');
+assert.ok(runtime.includes('UpdateNetworkCometVisuals') && runtime.includes('var packetSpeed = active ? 0.34f : 0.27f') &&
+  runtime.includes('var tailDistance = active ? 0.075f : 0.06f') && runtime.includes('RuntimeSpriteFactory.Diamond'),
+  'network links must preserve source moving-comet packets and tapered trails');
 
 assert.ok(runtime.includes('DrawSourcePausePlanner()') && runtime.includes('BuildPauseStats') && runtime.includes('BuildPauseAbilities') && runtime.includes('BuildPauseArtifacts') && runtime.includes('BuildPauseSynergies') && runtime.includes('SaveCurrentRun(); SceneManager.LoadScene'), 'source four-tab pause planner, resume and save/return controls are missing');
 assert.ok(runtime.includes('DrawSourceGameplayHud') && runtime.includes('DrawProgressBar') && runtime.includes('_xp / _xpRequired') && runtime.includes('_uiScale'), 'source HP/XP/Resonance HUD bars and responsive layout are missing');
@@ -388,6 +391,7 @@ assert.ok(runtime.includes('BuildSphereNetworkPreview') && runtime.includes('Dra
   runtime.includes('DrawSphereGuiDashedCircle') && runtime.includes('GetSphereFormationDisplayName'),
   'Ghost Snap candidate links, predicted formation contour, or formation-memory presentation is not wired');
 assert.ok(runtime.includes('DrawSpherePickerGlyph') && runtime.includes('SphereId.Sniper') &&
+  runtime.includes('const float buttonHeight = 58f') && runtime.includes('circleRadius = Mathf.Min(rect.width, rect.height) * 0.44f') &&
   runtime.includes('SphereId.Shotgun') && runtime.includes('SphereId.Chain') && runtime.includes('SphereId.Aura'),
   'Sphere picker must port the actual MobileControls glyphs instead of invented text abbreviations');
 assert.ok(runtime.includes('GetSpherePickerDescriptionHeight') && runtime.includes('definition.DescriptionEn.Length'),
@@ -1485,7 +1489,10 @@ assert.ok(sourceHomeUi.includes('var radii = new[] { .41f, .28f, .19f, .35f, .11
 assert.ok(sourceHomeUi.includes('DrawSourceMenuNavIcon') &&
   ['UserRound', 'Store', 'Trophy', 'Award', 'BookOpen', 'Settings'].every(icon => sourceHomeUi.includes(icon)) &&
   sourceHomeUi.includes('SourceUiNavCircle') && sourceHomeUi.includes('SourceUiNavStroke') &&
-  sourceHomeUi.includes('rect.center.x - 7f') && sourceHomeUi.includes('rect.y + 21f'),
+  sourceHomeUi.includes('rect.center.x - 12f') && sourceHomeUi.includes('rect.y + 40f') &&
+  sourceHomeUi.includes('var narrowPhone = _uiWidth <= 1100f') &&
+  sourceHomeUi.includes('var navColumns = narrowPhone ? 3 : 6') &&
+  sourceHomeUi.includes('var navButtonHeight = narrowPhone ? 86f : 72f'),
   'main-menu navigation must preserve all six source icon identities as line-art alongside the live destinations');
 const knowledgeRuntime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereKnowledge.cs'), 'utf8').replaceAll('\r\n', '\n');
 const sourceCatalogPath = join(root, 'Assets/Resources/EchoSphere/SourceCatalog.json');
