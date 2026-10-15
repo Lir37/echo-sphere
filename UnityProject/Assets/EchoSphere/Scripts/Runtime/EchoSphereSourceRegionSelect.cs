@@ -77,7 +77,7 @@ namespace EchoSphere.Runtime
                     SourceUiRect(new Rect(challengeRect.x + 9f, challengeRect.y + 8f, 4f, 22f), challengeAccent);
                     SourceUiLabel(new Rect(challengeRect.x + 22f, challengeRect.y + 4f, challengeRect.width - 116f, 12f), PlannerName(challenge), 8, "#d7e9f4", false, true);
                     SourceUiLabel(new Rect(challengeRect.x + 22f, challengeRect.y + 17f, challengeRect.width - 116f, 16f), PlannerDesc(challenge), 7, "#718da2");
-                    if (done) SourceUiLabel(new Rect(challengeRect.xMax - 92f, challengeRect.y + 11f, 82f, 14f), status, 6, challengeAccent, true, true);
+                    if (done) SourceUiLabel(new Rect(challengeRect.xMax - 92f, challengeRect.y + 11f, 82f, 14f), status, 6, "#" + ColorUtility.ToHtmlStringRGB(challengeAccent), true, true);
                     else if (stable) DrawSphereGuiLine(new Vector2(challengeRect.xMax - 22f, challengeRect.center.y - 4f), new Vector2(challengeRect.xMax - 16f, challengeRect.center.y), challengeAccent, 1.5f);
                     else DrawRegionLockIcon(new Rect(challengeRect.xMax - 25f, challengeRect.y + 11f, 12f, 14f), new Color(.45f, .57f, .66f, .9f));
                     GUI.enabled = oldEnabled;
