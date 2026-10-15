@@ -71,12 +71,14 @@ Shader "EchoSphere/SourceCanvas"
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+            #pragma target 3.5
             ENDHLSL
         }
         Pass { ZWrite Off Cull Off Blend One OneMinusSrcColor, One OneMinusSrcAlpha
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+            #pragma target 3.5
             ENDHLSL
         }
     }
