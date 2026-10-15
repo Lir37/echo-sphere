@@ -21,6 +21,7 @@ namespace EchoSphere.Core
     {
         public string name, kind, text;
         public int parentIndex;
+        public List<int> children = new List<int>();
     }
 
     // JsonUtility-compatible representation of the source's JSON run snapshot.
@@ -100,7 +101,7 @@ namespace EchoSphere.Core
             {
                 if (field.IsStatic || !CanStore(field.FieldType) || (select != null && !select(field))) continue;
                 var childIndex = AddNode(snapshot, index, field.Name);
-                CaptureInto(snapshot, childIndex, field.GetValue(value), select);
+                CaptureInto(snapshot, childIndex, field.GetValue(value), null);
             }
         }
 
@@ -108,6 +109,7 @@ namespace EchoSphere.Core
         {
             var index = snapshot.nodes.Count;
             snapshot.nodes.Add(new SnapshotNode { name = name, parentIndex = parentIndex });
+            snapshot.nodes[parentIndex].children.Add(index);
             return index;
         }
 
@@ -197,12 +199,7 @@ namespace EchoSphere.Core
             return existing;
         }
 
-        private static List<int> Children(SnapshotValue snapshot, int parentIndex)
-        {
-            var children = new List<int>();
-            for (var i = 0; i < snapshot.nodes.Count; i++)
-                if (snapshot.nodes[i].parentIndex == parentIndex) children.Add(i);
-            return children;
-        }
+        private static List<int> Children(SnapshotValue snapshot, int parentIndex) =>
+            snapshot.nodes[parentIndex].children;
     }
 }
