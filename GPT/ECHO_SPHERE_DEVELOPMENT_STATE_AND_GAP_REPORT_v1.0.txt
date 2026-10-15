@@ -3184,3 +3184,21 @@ Commit sequence culminated in 5dd80687cc00cd5207c3c2b0749fbd3b65500715 on `unity
 The Unity Migration Contracts CI was running at the time of this note. This CI validates repository contracts/structure only; it does not prove Unity Editor shader compilation, APK build, or full gameplay/visual parity. Those still require a local Unity import/build and device verification.
 
 Follow-up fix — 2026-10-15: corrected the remaining CS0029 at SourceUiDocument.cs line 263. The `backgroundColor` ternary used `Color32`, which UI Toolkit could not implicitly convert to `StyleColor`; it now uses normalized `Color` values. Commit: 298745fb502621a9488881e542a6d9c26eef73a2. Unity Editor compilation still needs confirmation.
+
+
+======================================================================
+UNITY RUNTIME FIX — SOURCE CANVAS INITIALIZATION (2026-10-15)
+======================================================================
+
+Fixed the reported runtime initialization chain in SourceCanvasSurface:
+- CommandBuffer is now created by Initialize(), not a MonoBehaviour field initializer, avoiding Unity's InitBuffer constructor restriction.
+- Gradient paint texture height is clamped to at least 1 before Texture2D creation; viewport dimensions are also clamped before render-target allocation.
+- Surface initialization is guarded against duplicate calls, Begin reports a clear initialization failure, and OnDestroy safely handles an uncreated CommandBuffer.
+
+The follow-on Begin/OnDestroy NullReferenceExceptions were downstream effects of failed initialization. This change addresses their cause without changing Canvas drawing behavior.
+
+CI and Unity Editor/device validation are pending for this change. Contract CI does not establish runtime rendering correctness. new-desing remains unchanged.
+
+======================================================================
+END UNITY RUNTIME FIX — SOURCE CANVAS INITIALIZATION
+======================================================================
