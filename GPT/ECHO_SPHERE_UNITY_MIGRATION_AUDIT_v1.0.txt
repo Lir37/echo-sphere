@@ -4803,3 +4803,9 @@ calibrated against the active final CSS: the loadout is back near the source
 are compact again, and the two-row mobile nav uses source-sized buttons/icons
 instead of oversized 86 px logical buttons. The portrait breakpoint remains
 corrected for the Unity framebuffer.
+
+
+The home-menu source-geometry guard was refreshed after the final scale pass:
+it now asserts the 20 px icon slot and 27 px label row used by the current
+three-column/two-row mobile navigation. The prior CI failure was the guard's
+stale expectation of the previous 24 px icon and 40 px label slot.
