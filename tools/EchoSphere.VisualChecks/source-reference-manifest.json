@@ -19,7 +19,7 @@
     "scripts/export-unity-ui-fixtures.cjs": "9518e1068f6051ced762d18770ff14bc766eff1b138b4c5137d2a2b4f241aa20",
     "scripts/export-unity-ui-interactions.cjs": "8bb05706c6838e75a16ea3ce7b242034fc06e28d687c93d6af5d51415f4e8a76",
     "scripts/export-unity-ui-styles.mjs": "dc7a12554a16c099fa59f4e528107e6571f92f7a7ccb4d31b581a05d1d857f77",
-    "scripts/export-unity-visual-code.mjs": "8a57ab1d1e83d1e5db4c28fc1c51eaa5594d1138d3e49494933311845e8288e6",
+    "scripts/export-unity-visual-code.mjs": "2cc7bf24796ecf974c857f317b882c9892cb25bd21ef7e6c6f960848440046b7",
     "scripts/export-unity-visual-fixtures.mjs": "5f7980a7502a4be6eb4cfedce33f0b9e4ec48847d6c7b1d8ac7d0ba9a2b183c6",
     "scripts/source-css-browser.cjs": "ae418cb3e248b538d88ff39d3bec8ed1562737a13a6d2d10b99e9b3bc8e9a3f5",
     "scripts/source-ui-view.cjs": "820cffdda077369b13d33a2eb50258f2082f6106edb581b5b28d4cf4633ffa0b",

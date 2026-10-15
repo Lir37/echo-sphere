@@ -14,8 +14,7 @@ V v_picked_36 = v_types_35[new V("filter")].Call(VisualJs.Fn(args_37 => { V v_ty
 return new V(Visual_sphereProgression.Scope[new V("sphereLevel")].Call(v_s_34, v_type_38) > new V(0d)); }));
 return VisualJs.Obj(new V("ru"), v_picked_36[new V("map")].Call(VisualJs.Fn(args_39 => { V v_type_40 = VisualJs.Arg(args_39, 0);
 return (new V("") + Visual_gameData.Scope[new V("SPHERE_TYPES")][v_type_40][new V("name")][new V("ru")] + new V(" VII"))[new V("replace")].Call(new V(" VII"), (new V(" ") + Visual_sphereProgression.Scope[new V("sphereLevel")].Call(v_s_34, v_type_40) + new V(""))); })), new V("en"), v_picked_36[new V("map")].Call(VisualJs.Fn(args_41 => { V v_type_42 = VisualJs.Arg(args_41, 0);
-return (new V("") + Visual_gameData.Scope[new V("SPHERE_TYPES")][v_type_42][new V("name")][new V("en")] + new V(" ") + Visual_sphereProgression.Scope[new V("sphereLevel")].Call(v_s_34, v_type_42) + new V("")); })));
-return default; });
+return (new V("") + Visual_gameData.Scope[new V("SPHERE_TYPES")][v_type_42][new V("name")][new V("en")] + new V(" ") + Visual_sphereProgression.Scope[new V("sphereLevel")].Call(v_s_34, v_type_42) + new V("")); }))); });
 Scope[new V("hasAbility")] = VisualJs.Fn(args_43 => { V v_s_44 = VisualJs.Arg(args_43, 0);
 V v_id_45 = VisualJs.Arg(args_43, 1);
 return new V((VisualJs.Or(v_s_44[new V("player")][new V("abilities")][v_id_45], () => new V(0d))) > new V(0d)); });
@@ -34,7 +33,6 @@ if (VisualJs.And(new V(v_s_0[new V("player")][new V("hunterTrophyTimer")] > new 
 if (VisualJs.And(VisualJs.And(new V(Visual_characterRuntime.Scope[new V("getCharacterId")].Call(v_s_0) == new V("berserker")), () => new V(v_s_0[new V("player")][new V("characterMasteryLevel")] >= new V(5d))), () => new V(v_s_0[new V("player")][new V("buffTimer")] > new V(0d))).Truth) v_sp_1 *= new V(1.05d);
 if (VisualJs.And(v_s_0[new V("player")][new V("abilities")][new V("momentum")], () => new V(v_s_0[new V("player")][new V("dashTimer")] > new V(0d))).Truth) v_sp_1 *= (new V(1d) + ((v_s_0[new V("player")][new V("abilities")][new V("momentum")] * new V(0.05d))));
 return v_sp_1;
-return default;
 }
 private static V F_getBuildDiagnostics(V[] args) {
 V v_s_3 = VisualJs.Arg(args,0);
@@ -78,7 +76,6 @@ return v_set_26[new V("name")][new V("ru")]; })), v_activeProtocols_8[new V("map
 return v_protocol_28[new V("name")][new V("ru")]; })), ((v_charSynergies_11[new V("length")].Truth ? VisualJs.Arr((new V("Активных синергий сфер: ") + v_charSynergies_11[new V("length")] + new V(""))) : VisualJs.Arr()))), new V("en"), VisualJs.Concat(v_activeSets_5[new V("map")].Call(VisualJs.Fn(args_29 => { V v_set_30 = VisualJs.Arg(args_29, 0);
 return v_set_30[new V("name")][new V("en")]; })), v_activeProtocols_8[new V("map")].Call(VisualJs.Fn(args_31 => { V v_protocol_32 = VisualJs.Arg(args_31, 0);
 return v_protocol_32[new V("name")][new V("en")]; })), ((v_charSynergies_11[new V("length")].Truth ? VisualJs.Arr((new V("Active Sphere synergies: ") + v_charSynergies_11[new V("length")] + new V(""))) : VisualJs.Arr())))));
-return default;
 }
 }
 }

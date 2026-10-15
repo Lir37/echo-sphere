@@ -47,6 +47,15 @@ namespace EchoSphere.Presentation
         private static string[] Words(string value)=>VisualCss.Split(value.Trim(),' ').Where(word=>word.Length>0).ToArray();
         public static double Angle(string value)=>value.EndsWith("turn",StringComparison.Ordinal)?Number(value.Substring(0,value.Length-4))*Math.PI*2d:value.EndsWith("rad",StringComparison.Ordinal)?Number(value.Substring(0,value.Length-3)):Number(value.Replace("deg",""))*Math.PI/180d;
         private static bool Color(string value)=>value.StartsWith("#",StringComparison.Ordinal)||value.Contains("(")&&!value.StartsWith("calc(",StringComparison.Ordinal)||new[]{"transparent","currentColor","black","white"}.Contains(value);
+        private static readonly string[] BorderSides={"top","right","bottom","left"};
+        private static int NearestBorder(double top,double right,double bottom,double left)
+        {
+            var edge=0;var minimum=top;
+            if(!double.IsNaN(minimum)&&(double.IsNaN(right)||right<minimum)){edge=1;minimum=right;}
+            if(!double.IsNaN(minimum)&&(double.IsNaN(bottom)||bottom<minimum)){edge=2;minimum=bottom;}
+            if(!double.IsNaN(minimum)&&(double.IsNaN(left)||left<minimum))edge=3;
+            return edge;
+        }
         private static Gradient ParseGradient(VisualCss sheet,VisualCssNode node,string value,double width,double height)
         {
             var start=value.IndexOf('(');var kind=value.Substring(0,start);var args=VisualCss.Split(value.Substring(start+1,value.LastIndexOf(')')-start-1),',');
@@ -86,9 +95,29 @@ namespace EchoSphere.Presentation
         }
         private static VisualCssColor Over(VisualCssColor under,VisualCssColor over)
         {var alpha=over.A+under.A*(1d-over.A);return alpha<=0d?new VisualCssColor(0,0,0,0):new VisualCssColor((over.R*over.A+under.R*under.A*(1d-over.A))/alpha,(over.G*over.A+under.G*under.A*(1d-over.A))/alpha,(over.B*over.A+under.B*under.A*(1d-over.A))/alpha,alpha);}
+        public static bool HasVisibleBrush(VisualCss sheet,VisualCssNode node)
+        {
+            string S(string property,string fallback="")=>sheet.Get(node,property,fallback);
+            var current=S("color","#000000");
+            if(VisualCssColor.Parse(S("background-color","transparent"),current).A>0d||S("background-image","none")!="none")return true;
+            foreach(var side in new[]{"left","right","top","bottom"}){
+                var style=S("border-"+side+"-style","none");
+                if(style!="none"&&style!="hidden"&&sheet.Length(S("border-"+side+"-width","0"),node.Width)>0d&&VisualCssColor.Parse(S("border-"+side+"-color",current),current).A>0d)return true;
+            }
+            foreach(var shadow in VisualCss.Split(S("box-shadow","none"),',')){
+                if(shadow.Trim().Length==0||shadow.Trim()=="none")continue;
+                if(VisualCssColor.Parse(Words(shadow).FirstOrDefault(Color)??current,current).A>0d)return true;
+            }
+            return false;
+        }
         public static Raster Paint(VisualCss sheet,VisualCssNode node,double scale)
         {
             var width=node.Width;var height=node.Height;scale=Math.Max(.1d,scale);
+            // Transparent layout/text containers have no brush pixels. Avoid
+            // allocating viewport-sized color/mask arrays and oversized GPU
+            // textures for tall scrolling containers. Layout and children keep
+            // their original dimensions; only their empty own brush is compact.
+            if(!HasVisibleBrush(sheet,node))return new Raster {Width=1,Height=1,Scale=scale,Pixels=new byte[4]};
             string S(string property,string fallback="")=>sheet.Get(node,property,fallback);
             double L(string value,double reference)=>sheet.Length(value,reference,sheet.Length(S("font-size","16px"),16d));
             var current=S("color","#000000");var shadows=new List<Shadow>();var outset=0d;
@@ -100,7 +129,8 @@ namespace EchoSphere.Presentation
             // Huge tutorial cutout shadows are clipped to the viewport, as in the DOM.
             var left=Math.Min(outset,Math.Max(0d,node.X));var top=Math.Min(outset,Math.Max(0d,node.Y));var right=Math.Min(outset,Math.Max(0d,sheet.Width-node.X-width));var bottom=Math.Min(outset,Math.Max(0d,sheet.Height-node.Y-height));
             var raster=new Raster {Width=Math.Max(1,(int)Math.Ceiling((width+left+right)*scale)),Height=Math.Max(1,(int)Math.Ceiling((height+top+bottom)*scale)),Left=-left,Top=-top,Scale=scale};
-            var count=checked(raster.Width*raster.Height);var pixels=new VisualCssColor[count];var ownPixels=new VisualCssColor[count];var borderPixels=new VisualCssColor[count];var shapes=new double[count];var innerShapes=new double[count];
+            var count=checked(raster.Width*raster.Height);var pixels=new VisualCssColor[count];var hasInset=shadows.Any(shadow=>shadow.Inset);
+            var ownPixels=hasInset?new VisualCssColor[count]:null;var borderPixels=hasInset?new VisualCssColor[count]:null;var shapes=hasInset?new double[count]:null;var innerShapes=hasInset?new double[count]:null;
             var cornerNames=new[]{"top-left","top-right","bottom-right","bottom-left"};
             var corners=cornerNames.Select(corner=>L(Words(S("border-"+corner+"-radius","0"))[0],width)).ToArray();
             var cornersY=cornerNames.Select(corner=>{var words=Words(S("border-"+corner+"-radius","0"));return L(words.Length>1?words[1]:words[0],height);}).ToArray();
@@ -153,20 +183,23 @@ namespace EchoSphere.Presentation
             var polygon=ParsePolygon(S("clip-path","none"),width,height,sheet);Gradient mask=S("mask-image","none")=="none"?null:ParseGradient(sheet,node,S("mask-image"),width,height);
             for(var index=0;index<count;index++) {
                 var x=X(index);var y=Y(index);var shape=Shape(x,y);if(shape<=0d)continue;var color=Clipped(clips[(imageSources.Count-1)%clips.Count].Trim(),x,y)?new VisualCssColor(0,0,0,0):background;
-                foreach(var layer in layers.AsEnumerable().Reverse()){if(Clipped(layer.Clip,x,y))continue;var px=x-layer.X;var py=y-layer.Y;if(layer.RepeatX)px=(px%layer.Width+layer.Width)%layer.Width;if(layer.RepeatY)py=(py%layer.Height+layer.Height)%layer.Height;if(px>=0d&&py>=0d&&px<layer.Width&&py<layer.Height)color=Over(color,layer.Gradient.At(px,py));}
-                ownPixels[index]=color;shapes[index]=shape;
-                var distances=new[]{y/Math.Max(.00001d,borders[0]),(width-x)/Math.Max(.00001d,borders[1]),(height-y)/Math.Max(.00001d,borders[2]),x/Math.Max(.00001d,borders[3])};var edge=Array.IndexOf(distances,distances.Min());
+                for(var layerIndex=layers.Count-1;layerIndex>=0;layerIndex--){var layer=layers[layerIndex];if(Clipped(layer.Clip,x,y))continue;var px=x-layer.X;var py=y-layer.Y;if(layer.RepeatX)px=(px%layer.Width+layer.Width)%layer.Width;if(layer.RepeatY)py=(py%layer.Height+layer.Height)%layer.Height;if(px>=0d&&py>=0d&&px<layer.Width&&py<layer.Height)color=Over(color,layer.Gradient.At(px,py));}
+                if(hasInset){ownPixels[index]=color;shapes[index]=shape;}
+                var edge=NearestBorder(y/Math.Max(.00001d,borders[0]),(width-x)/Math.Max(.00001d,borders[1]),(height-y)/Math.Max(.00001d,borders[2]),x/Math.Max(.00001d,borders[3]));
                 var innerWidth=width-borders[1]-borders[3];var innerHeight=height-borders[0]-borders[2];var innerX=x-borders[3];var innerY=y-borders[0];
                 var corner=innerY<innerHeight*.5d?(innerX<innerWidth*.5d?0:1):innerX<innerWidth*.5d?3:2;
                 var rx=Math.Max(0d,corners[corner]-(corner==0||corner==3?borders[3]:borders[1]));var ry=Math.Max(0d,cornersY[corner]-(corner<2?borders[0]:borders[2]));
                 var cx=corner==0||corner==3?rx:innerWidth-rx;var cy=corner<2?ry:innerHeight-ry;
                 var innerDistance=Math.Max(Math.Max(-innerX,innerX-innerWidth),Math.Max(-innerY,innerY-innerHeight));
                 if(rx>0d&&ry>0d&&(innerX<rx||innerX>innerWidth-rx)&&(innerY<ry||innerY>innerHeight-ry)){var dx=innerX-cx;var dy=innerY-cy;var normalized=Math.Sqrt(dx*dx/(rx*rx)+dy*dy/(ry*ry));var gradient=normalized>0d?Math.Sqrt(dx*dx/(rx*rx*rx*rx)+dy*dy/(ry*ry*ry*ry))/normalized:1d/Math.Min(rx,ry);innerDistance=(normalized-1d)/Math.Max(.00001d,gradient);}
-                var inner=innerWidth<=0d||innerHeight<=0d?0d:Math.Max(0d,Math.Min(1d,.5d-innerDistance*scale));var borderCoverage=Math.Max(0d,shape-inner);innerShapes[index]=inner;
-                if(borders[edge]>0d&&borderCoverage>0d){var border=borderColors[edge];var side=new[]{"top","right","bottom","left"}[edge];var dashed=S("border-"+side+"-style")=="dashed";var dashPosition=dashPath!=null?dashPath.Position(x,y):edge%2==0?x:y;var dashLength=dashPath!=null?Math.Floor(dashPath.Length):edge%2==0?width:height;var coverage=dashed?DashCoverage(dashPosition,dashLength,borders[edge],dashPath!=null,scale):1d;borderPixels[index]=new VisualCssColor(border.R,border.G,border.B,border.A*coverage*borderCoverage/Math.Max(.00001d,shape));}
+                var inner=innerWidth<=0d||innerHeight<=0d?0d:Math.Max(0d,Math.Min(1d,.5d-innerDistance*scale));var borderCoverage=Math.Max(0d,shape-inner);if(hasInset)innerShapes[index]=inner;
+                var borderColor=default(VisualCssColor);
+                if(borders[edge]>0d&&borderCoverage>0d){var border=borderColors[edge];var side=BorderSides[edge];var dashed=S("border-"+side+"-style")=="dashed";var dashPosition=dashPath!=null?dashPath.Position(x,y):edge%2==0?x:y;var dashLength=dashPath!=null?Math.Floor(dashPath.Length):edge%2==0?width:height;var coverage=dashed?DashCoverage(dashPosition,dashLength,borders[edge],dashPath!=null,scale):1d;borderColor=new VisualCssColor(border.R,border.G,border.B,border.A*coverage*borderCoverage/Math.Max(.00001d,shape));}
+                if(hasInset)borderPixels[index]=borderColor;
+                else {var own=Over(color,borderColor);pixels[index]=Over(pixels[index],new VisualCssColor(own.R,own.G,own.B,own.A*shape));}
             }
             foreach(var shadow in shadows.Where(value=>value.Inset).Reverse())DrawShadow(shadow);
-            for(var index=0;index<count;index++){var own=Over(ownPixels[index],borderPixels[index]);pixels[index]=Over(pixels[index],new VisualCssColor(own.R,own.G,own.B,own.A*shapes[index]));}
+            if(hasInset)for(var index=0;index<count;index++){var own=Over(ownPixels[index],borderPixels[index]);pixels[index]=Over(pixels[index],new VisualCssColor(own.R,own.G,own.B,own.A*shapes[index]));}
             raster.Pixels=new byte[count*4];for(var i=0;i<count;i++){var c=pixels[i];var x=X(i);var y=Y(i);var alpha=c.A*(mask==null?1d:mask.At(x,y).A)*(polygon==null||Inside(polygon,x,y)?1d:0d);byte Byte(double value)=>(byte)Math.Max(0d,Math.Min(255d,Math.Round(value*255d)));raster.Pixels[i*4]=Byte(c.R);raster.Pixels[i*4+1]=Byte(c.G);raster.Pixels[i*4+2]=Byte(c.B);raster.Pixels[i*4+3]=Byte(alpha);}return raster;
         }
         public static void Blur(double[] values,int width,int height,double sigma,double outside=0d)

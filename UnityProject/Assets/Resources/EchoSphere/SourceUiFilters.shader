@@ -20,6 +20,7 @@ Shader "EchoSphere/SourceUiFilters"
    HLSLPROGRAM
    #pragma vertex effectVertex
    #pragma fragment fragmentSaturate
+   #pragma target 3.5
    #pragma multi_compile _ _UIE_OUTPUT_LINEAR
    float4 fragmentSaturate(effectOutput i):SV_Target {float4 c=Read(i.uv);float3 rgb=c.a>0?c.rgb/c.a:0;float luma=dot(rgb,float3(.213,.715,.072));c.rgb=saturate(lerp(luma.xxx,rgb,_Amount))*c.a;return Finish(c);}
    ENDHLSL
@@ -28,6 +29,7 @@ Shader "EchoSphere/SourceUiFilters"
    HLSLPROGRAM
    #pragma vertex effectVertex
    #pragma fragment fragmentBrightness
+   #pragma target 3.5
    #pragma multi_compile _ _UIE_OUTPUT_LINEAR
    float4 fragmentBrightness(effectOutput i):SV_Target {float4 c=Read(i.uv);c.rgb=min(c.a,max(0,c.rgb*_Amount));return Finish(c);}
    ENDHLSL
@@ -61,6 +63,7 @@ Shader "EchoSphere/SourceUiFilters"
    HLSLPROGRAM
    #pragma vertex effectVertex
    #pragma fragment fragmentContrast
+   #pragma target 3.5
    #pragma multi_compile _ _UIE_OUTPUT_LINEAR
    float4 fragmentContrast(effectOutput i):SV_Target {float4 c=Read(i.uv);float3 rgb=c.a>0?c.rgb/c.a:0;c.rgb=saturate((rgb-.5)*_Amount+.5)*c.a;return Finish(c);}
    ENDHLSL

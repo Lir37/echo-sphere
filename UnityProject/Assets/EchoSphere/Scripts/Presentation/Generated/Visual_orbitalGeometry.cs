@@ -23,7 +23,6 @@ for (V v_extra_6 = new V(0d); new V(v_extra_6 < VisualJs.MathObject[new V("max")
 if (new V(v_outer_4 < v_inner_3).Truth) v_outer_4 += new V(1d); else if (new V(v_inner_3 < v_outer_4).Truth) v_inner_3 += new V(1d); else if (new V((v_extra_6 % new V(2d)) == new V(0d)).Truth) v_outer_4 += new V(1d); else v_inner_3 += new V(1d);
 }
 return VisualJs.Obj(new V("inner"), v_inner_3, new V("outer"), v_outer_4);
-return default;
 }
 private static V F_orbitalElementAngle(V[] args) {
 V v_rotation_7 = VisualJs.Arg(args,0);
@@ -33,7 +32,6 @@ V v_count_10 = VisualJs.Arg(args,3);
 V v_safeCount_11 = VisualJs.MathObject[new V("max")].Call(new V(1d), v_count_10);
 V v_direction_12 = (new V(v_ring_8 == new V("inner")).Truth ? new V(1d) : (-new V(1d)));
 return ((v_rotation_7 * v_direction_12) + (v_index_9 * ((Scope[new V("TAU")] / v_safeCount_11))));
-return default;
 }
 }
 }

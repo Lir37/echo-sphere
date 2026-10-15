@@ -31,7 +31,6 @@ if (v_map_1.Truth) return v_map_1;
 v_map_1 = VisualJs.CreateMap(default(V),false);
 Scope[new V("GRADIENTS")][new V("set")].Call(v_ctx_0, v_map_1);
 return v_map_1;
-return default;
 }
 private static V F_coreGradientsOf(V[] args) {
 V v_ctx_2 = VisualJs.Arg(args,0);
@@ -40,14 +39,12 @@ if (v_map_3.Truth) return v_map_3;
 v_map_3 = VisualJs.CreateMap(default(V),false);
 Scope[new V("CORE_GRADIENTS")][new V("set")].Call(v_ctx_2, v_map_3);
 return v_map_3;
-return default;
 }
 private static V F_rgbaFromHex(V[] args) {
 V v_hex_4 = VisualJs.Arg(args,0);
 V v_alpha_5 = VisualJs.Arg(args,1);
 V v_n_6 = VisualJs.NumberObject[new V("parseInt")].Call(v_hex_4[new V("slice")].Call(new V(1d)), new V(16d));
 return (new V("rgba(") + (((v_n_6 >> (int)new V(16d).Number)) & new V(255d)) + new V(",") + (((v_n_6 >> (int)new V(8d).Number)) & new V(255d)) + new V(",") + (v_n_6 & new V(255d)) + new V(",") + v_alpha_5 + new V(")"));
-return default;
 }
 private static V F_stateColor(V[] args) {
 V v_sphere_7 = VisualJs.Arg(args,0);
@@ -57,7 +54,6 @@ V v_time_10 = VisualJs.Arg(args,3);
 V v_disabled_11 = VisualJs.Or(new V(v_sphere_7[new V("networkDisabledTimer")] > new V(0d)), () => (!v_sphere_7[new V("alive")]));
 V v_resonance_12 = VisualJs.And((!v_disabled_11), () => (!(!VisualJs.Chain(v_player_8,optional_13=>optional_13[new V("resonanceEventActive")]))));
 return VisualJs.Obj(new V("color"), (v_disabled_11.Truth ? Scope[new V("DISABLED")] : (v_resonance_12.Truth ? Scope[new V("RESONANCE")] : v_base_9)), new V("disabled"), v_disabled_11, new V("resonance"), v_resonance_12, new V("pulse"), (v_disabled_11.Truth ? new V(0.5d) : (new V(0.5d) + (new V(0.5d) * VisualJs.MathObject[new V("sin")].Call((((v_time_10 * new V(3.4d)) + (v_sphere_7[new V("pos")][new V("x")] * new V(0.008d))) + (v_sphere_7[new V("pos")][new V("y")] * new V(0.006d))))))), new V("animationTime"), (v_disabled_11.Truth ? new V(0d) : v_time_10));
-return default;
 }
 private static V F_glow(V[] args) {
 V v_ctx_14 = VisualJs.Arg(args,0);
@@ -122,7 +118,6 @@ V v_radiusX_26 = VisualJs.Arg(args,0);
 V v_radiusY_27 = VisualJs.Arg(args,1);
 V v_a_28 = VisualJs.Arg(args,2);
 return VisualJs.Obj(new V("x"), (VisualJs.MathObject[new V("cos")].Call(v_a_28) * v_radiusX_26), new V("y"), (VisualJs.MathObject[new V("sin")].Call(v_a_28) * v_radiusY_27));
-return default;
 }
 private static V F_drawEllipseTrace(V[] args) {
 V v_ctx_29 = VisualJs.Arg(args,0);
@@ -278,7 +273,6 @@ V v_flatten_80 = VisualJs.Arg(args,2).Undefined?new V(0.34d):VisualJs.Arg(args,2
 V v_radiusScale_81 = VisualJs.Arg(args,3).Undefined?new V(1.16d):VisualJs.Arg(args,3);
 V v_s_82 = VisualJs.MathObject[new V("sin")].Call(v_angle_79);
 return VisualJs.Obj(new V("x"), ((VisualJs.MathObject[new V("cos")].Call(v_angle_79) * v_radius_78) * v_radiusScale_81), new V("y"), (((v_s_82 * v_radius_78) * v_flatten_80) * v_radiusScale_81), new V("depth"), (new V(0.64d) + (new V(0.36d) * ((((v_s_82 + new V(1d))) * new V(0.5d))))));
-return default;
 }
 private static V F_finishDisabled(V[] args) {
 V v_ctx_83 = VisualJs.Arg(args,0);

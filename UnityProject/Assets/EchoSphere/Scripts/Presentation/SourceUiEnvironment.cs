@@ -41,7 +41,7 @@ namespace EchoSphere.Presentation
         internal void Send(string name,EventBase source)
         {
             var callback=Node.Properties[name];if(!(callback.Raw is Func<V[],V>))return;
-            var target=Target(source.target as VisualElement);var evt=VisualJs.Obj("target",target==null?VisualJs.Null:new V(target),"currentTarget",new V(this),"stopPropagation",VisualJs.Fn(args=>{source.StopPropagation();return default;}),"preventDefault",VisualJs.Fn(args=>{source.PreventDefault();return default;}));
+            var target=Target(source.target as VisualElement);var evt=VisualJs.Obj("target",target==null?VisualJs.Null:new V(target),"currentTarget",new V(this),"stopPropagation",VisualJs.Fn(args=>{source.StopPropagation();return default;}),"preventDefault",VisualJs.Fn(args=>{Element.focusController?.IgnoreEvent(source);return default;}));
             if(source is IPointerEvent pointer){evt["pointerId"]=pointer.pointerId;evt["clientX"]=pointer.position.x;evt["clientY"]=pointer.position.y;evt["button"]=pointer.button;evt["buttons"]=pointer.pressedButtons;evt["pointerType"]=pointer.pointerType;}
             if(source is IKeyboardEvent keyboard){evt["key"]=keyboard.keyCode==KeyCode.Return||keyboard.keyCode==KeyCode.KeypadEnter?"Enter":keyboard.keyCode==KeyCode.Escape?"Escape":keyboard.character.ToString();evt["ctrlKey"]=keyboard.ctrlKey;evt["shiftKey"]=keyboard.shiftKey;}
             evt["nativeEvent"]=evt;_document.Environment.Invoke(callback,evt);_document.EventCompleted();

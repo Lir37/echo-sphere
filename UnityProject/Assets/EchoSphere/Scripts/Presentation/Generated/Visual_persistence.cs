@@ -12,7 +12,6 @@ Scope[new V("CHARACTER_MASTERY_THRESHOLDS")] = (VisualJs.Arr(new V(0d), new V(25
 private static V F_getCharacterMasteryNextThreshold(V[] args) {
 V v_level_0 = VisualJs.Arg(args,0);
 return (new V(v_level_0 >= new V(10d)).Truth ? VisualJs.Null : Scope[new V("CHARACTER_MASTERY_THRESHOLDS")][v_level_0]);
-return default;
 }
 }
 }

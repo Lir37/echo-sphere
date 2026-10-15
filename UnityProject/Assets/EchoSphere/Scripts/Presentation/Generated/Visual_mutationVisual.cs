@@ -32,13 +32,11 @@ private static V F_rgbOf(V[] args) {
 V v_hex_0 = VisualJs.Arg(args,0);
 V v_n_1 = VisualJs.NumberObject[new V("parseInt")].Call(v_hex_0[new V("slice")].Call(new V(1d)), new V(16d));
 return ((((((((v_n_1 >> (int)new V(16d).Number)) & new V(255d))) + new V(",")) + ((((v_n_1 >> (int)new V(8d).Number)) & new V(255d)))) + new V(",")) + ((v_n_1 & new V(255d))));
-return default;
 }
 private static V F_branchOf(V[] args) {
 V v_p_2 = VisualJs.Arg(args,0);
 V v_t_3 = VisualJs.Arg(args,1);
 return VisualJs.Coalesce(((VisualJs.Chain(v_p_2[new V("sphereBranches")],optional_4=>optional_4[v_t_3]))), () => VisualJs.Null);
-return default;
 }
 private static V F_finalOf(V[] args) {
 V v_p_5 = VisualJs.Arg(args,0);
@@ -48,7 +46,6 @@ return v_x_9[new V("startsWith")].Call(((new V("sphere:") + v_t_6) + new V(":7:"
 if ((!v_id_7).Truth) return (-new V(1d));
 V v_n_10 = VisualJs.Number(v_id_7[new V("split")].Call(new V(":"))[new V("pop")].Call());
 return (VisualJs.NumberObject[new V("isFinite")].Call(v_n_10).Truth ? v_n_10 : (-new V(1d)));
-return default;
 }
 private static V F_glow(V[] args) {
 V v_ctx_11 = VisualJs.Arg(args,0);
@@ -214,7 +211,6 @@ V v_s_66 = VisualJs.Arg(args,0);
 V v_d_67 = VisualJs.MathObject[new V("max")].Call(new V(0.15d), VisualJs.Or(v_s_66[new V("attackDelay")], () => new V(1d)));
 V v_p_68 = VisualJs.MathObject[new V("max")].Call(new V(0d), VisualJs.MathObject[new V("min")].Call(new V(1d), (new V(1d) - (v_s_66[new V("attackTimer")] / v_d_67))));
 return VisualJs.MathObject[new V("exp")].Call((-VisualJs.MathObject[new V("pow")].Call((((v_p_68 - new V(0.95d))) / new V(0.07d)), new V(2d))));
-return default;
 }
 private static V F_emit(V[] args) {
 V v_ctx_69 = VisualJs.Arg(args,0);
@@ -938,7 +934,6 @@ v_ctx_257[new V("stroke")].Call();
 }
 v_ctx_257[new V("restore")].Call();
 return new V(true);
-return default;
 }
 }
 }

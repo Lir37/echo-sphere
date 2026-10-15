@@ -19,7 +19,6 @@ foreach (V v_minion_6 in v_minions_1.Items) {
 v_nodes_3[new V("push")].Call(VisualJs.Obj(new V("pos"), v_minion_6[new V("pos")], new V("alive"), new V(v_minion_6[new V("life")] > new V(0d))));
 }
 return v_nodes_3;
-return default;
 }
 }
 }

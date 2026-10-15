@@ -154,7 +154,7 @@ function expr(n,s) {
   if(ts.isArrowFunction(n)||ts.isFunctionExpression(n)) {
     const inner=scope(s),args='args_'+serial++;let setup='';
     n.parameters.forEach((p,i)=>{setup+=bind(p.name,p.initializer?`VisualJs.Arg(${args},${i}).Undefined?${expr(p.initializer,inner)}:VisualJs.Arg(${args},${i})`:`VisualJs.Arg(${args}, ${i})`,inner);});
-    const body=ts.isBlock(n.body)?n.body.statements.map(x=>stmt(x,inner)).join('\n')+'\nreturn default;':`return ${expr(n.body,inner)};`;
+    const body=ts.isBlock(n.body)?functionBody(n.body,inner):`return ${expr(n.body,inner)};`;
     return `VisualJs.Fn(${args} => { ${setup}${body} })`;
   }
   if(ts.isTypeOfExpression(n))return `VisualJs.TypeOf(${expr(n.expression,s)})`;
@@ -164,6 +164,16 @@ function declarations(list,s) { return list.declarations.map(d=>{
   if(ts.isObjectBindingPattern(d.name)||ts.isArrayBindingPattern(d.name))return bind(d.name,expr(d.initializer,s),s);
   const variable=name(d.name,s);return d.initializer&&(ts.isArrowFunction(d.initializer)||ts.isFunctionExpression(d.initializer))?`V ${variable} = default; ${variable} = ${expr(d.initializer,s)};`:`V ${variable} = ${expr(d.initializer,s)};`;
 }).join('\n'); }
+// A fallback return is required only when the authored function can reach its
+// end. Appending one after an unconditional source return creates CS0162 in Unity.
+function endsFunction(node) {
+  if(ts.isReturnStatement(node)||ts.isThrowStatement(node))return true;
+  if(ts.isBlock(node))return node.statements.some(endsFunction);
+  if(ts.isIfStatement(node))return !!node.elseStatement&&endsFunction(node.thenStatement)&&endsFunction(node.elseStatement);
+  if(ts.isSwitchStatement(node))return node.caseBlock.clauses.some(ts.isDefaultClause)&&node.caseBlock.clauses.every(clause=>clause.statements.some(endsFunction));
+  return false;
+}
+function functionBody(block,s) {return block.statements.map(node=>stmt(node,s)).join('\n')+(endsFunction(block)?'':'\nreturn default;');}
 function stmt(n,s) {
   if(ts.isFunctionDeclaration(n)&&n.name?.text==='drawRune')return ''; // Hoisted, unchanged source function.
   if(ts.isBlock(n)) {const inner=scope(s);return '{\n'+n.statements.map(x=>stmt(x,inner)).join('\n')+'\n}';}
@@ -266,7 +276,7 @@ for(const unit of units.values()) {
     if(ts.isFunctionDeclaration(n)&&unit.wanted.has(n.name.text)&&!isNative(unit.file,n.name.text)) {
       const inner=scope(s),fn='F_'+n.name.text;let body='';
       n.parameters.forEach((p,i)=>{body+=bind(p.name,p.initializer?`VisualJs.Arg(args,${i}).Undefined?${expr(p.initializer,inner)}:VisualJs.Arg(args,${i})`:`VisualJs.Arg(args,${i})`,inner);});
-      body+=n.body.statements.map(x=>stmt(x,inner)).join('\n')+'\nreturn default;';
+      body+=functionBody(n.body,inner);
       methods.push(`private static V ${fn}(V[] args) {\n${body}\n}`);
       initializers.push(`${lookup(n.name.text,s)} = VisualJs.Fn(${fn});`);
     }

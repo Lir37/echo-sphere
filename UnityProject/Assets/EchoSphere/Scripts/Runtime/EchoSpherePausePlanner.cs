@@ -11,9 +11,9 @@ namespace EchoSphere.Runtime
         // The four tabs and their contents follow PausePlanner in src/App.tsx.
         [Serializable] private sealed class SourcePlannerEntry
         {
-            public string category, id, nameRu, nameEn, descRu, descEn;
-            public string sphere, sphereBranch, ability, abilityFinal, color;
-            public string[] levelsRu, levelsEn, requires;
+            public string category=null, id=null, nameRu=null, nameEn=null, descRu=null, descEn=null;
+            public string sphere=null, sphereBranch=null, ability=null, abilityFinal=null, color=null;
+            public string[] levelsRu=null, levelsEn=null, requires=null;
         }
         private int _pausePlannerTab;
         private Vector2 _pausePlannerScroll;

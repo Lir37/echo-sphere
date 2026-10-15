@@ -27,7 +27,6 @@ v_result_1 = v_result_1[new V("replace")].Call(v_pattern_7, v_replacement_8);
 }
 }
 return v_result_1;
-return default;
 }
 }
 }

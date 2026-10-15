@@ -17,7 +17,6 @@ private static V F_getMaxSpheres(V[] args) {
 V v_s_0 = VisualJs.Arg(args,0);
 V v_m_1 = ((Visual_engineBalanceConstants.Scope[new V("DEFAULT_MAX_SPHERES")] + (VisualJs.Or(v_s_0[new V("player")][new V("abilities")][new V("maxspheres")], () => new V(0d)))) + (VisualJs.Or(v_s_0[new V("shopUpgrades")][new V("spheres")], () => new V(0d))));
 return VisualJs.MathObject[new V("min")].Call(v_m_1, Visual_engineBalanceConstants.Scope[new V("MAX_SPHERES_CAP")]);
-return default;
 }
 private static V F_getSphereRadius(V[] args) {
 V v_s_2 = VisualJs.Arg(args,0);
@@ -33,7 +32,6 @@ v_r_4 *= Visual_characterRuntime.Scope[new V("getCharacterRadiusMultiplier")].Ca
 v_r_4 *= VisualBindings.Get(new V("sphereProgression.ts"),new V("sphereModifiers")).Call(v_s_2, v_sphere_3[new V("type")])[new V("radius")];
 if (VisualJs.And(new V(Visual_characterRuntime.Scope[new V("getCharacterId")].Call(v_s_2) == new V("architect")), () => new V(v_s_2[new V("player")][new V("characterMasteryLevel")] >= new V(3d))).Truth) v_r_4 *= new V(1.02d);
 return v_r_4;
-return default;
 }
 private static V F_getSphereDamage(V[] args) {
 V v_s_6 = VisualJs.Arg(args,0);
@@ -70,7 +68,6 @@ V v_networkState_13 = VisualJs.Coalesce(v_network_8, () => VisualBindings.Get(ne
 V v_profile_14 = Visual_network.Scope[new V("getSphereNetworkProfile")].Call(v_networkState_13, v_s_6[new V("spheres")][new V("indexOf")].Call(v_sphere_7));
 }
 return v_d_9;
-return default;
 }
 private static V F_getSphereDpsEstimate(V[] args) {
 V v_s_15 = VisualJs.Arg(args,0);
@@ -104,7 +101,6 @@ if (new V(v_sphere_16[new V("type")] == new V("void")).Truth) return (((v_damage
 if (v_def_17[new V("aura")].Truth) return (v_damage_20 / v_delay_21);
 V v_shots_33 = (((new V(1d) + v_mods_18[new V("multishot")])) * v_def_17[new V("pellets")]);
 return (((v_damage_20 * v_shots_33)) / v_delay_21);
-return default;
 }
 private static V F_getSphereDelay(V[] args) {
 V v_s_34 = VisualJs.Arg(args,0);
@@ -124,7 +120,6 @@ V v_clusterBonus_41 = Visual_network.Scope[new V("getFormationBonusMultiplier")]
 if (new V(v_clusterBonus_41 > new V(0d)).Truth) v_d_37 *= (new V(1d) - (new V(0.1d) * v_clusterBonus_41));
 }
 return v_d_37;
-return default;
 }
 private static V F_getSpecialSphereCadence(V[] args) {
 V v_s_42 = VisualJs.Arg(args,0);
@@ -133,7 +128,6 @@ V v_baseInterval_44 = VisualJs.Arg(args,2);
 V v_network_45 = VisualJs.Arg(args,3);
 V v_delayRatio_46 = (Scope[new V("getSphereDelay")].Call(v_s_42, v_sphere_43, v_network_45) / Visual_engineBalanceConstants.Scope[new V("BASE_SPHERE_DELAY")]);
 return VisualJs.MathObject[new V("max")].Call(new V(0.08d), (v_baseInterval_44 * v_delayRatio_46));
-return default;
 }
 }
 }

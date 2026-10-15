@@ -92,7 +92,7 @@ namespace EchoSphere.Runtime
         {
             EnsureShopSaveLoaded();var scene=_sourceRenderState;
             var hotkeys=VisualJs.Obj();foreach(var pair in _activeAbilityHotkeys)hotkeys[pair.Value.ToString().Replace("Alpha","").ToLowerInvariant()]=SourceAbilityId(pair.Key);scene["activeKeyMap"]=hotkeys;
-            scene["selectedSphereType"]=_selectedSphereType.ToString().ToLowerInvariant();scene["player"]["sphereMovementLocked"]=_sphereMovementLocked;
+            scene["selectedSphereType"]=_selectedSphereType.ToString().ToLowerInvariant();var player=scene["player"];player["sphereMovementLocked"]=_sphereMovementLocked;
             scene["bossActive"]=VisualJs.Null;foreach(var enemy in _enemies)if(enemy!=null&&enemy.IsAlive&&enemy.IsBoss){scene["bossActive"]=RenderEntity(enemy);break;}
             var choices=new List<V>();
             if(_levelUp){
@@ -108,7 +108,7 @@ namespace EchoSphere.Runtime
                     choices.Add(value);
                 }
             }
-            for(var index=0;index<choices.Count;index++)choices[index]["nativeIndex"]=index;
+            for(var index=0;index<choices.Count;index++){var choice=choices[index];choice["nativeIndex"]=index;}
             scene["pendingUpgrade"]=_levelUp?VisualJs.Arr(choices.ToArray()):VisualJs.Null;
             scene["pendingArtifact"]=_stellaRewardPending?VisualJs.Arr(_stellaRewardChoices.Select(choice=>new V(choice.Id)).ToArray()):VisualJs.Null;scene["pendingStella"]=VisualJs.Null;
             scene["levelUpRerollsRemaining"]=_levelUpRerollsRemaining;scene["levelUpLocksRemaining"]=_levelUpLocksRemaining;

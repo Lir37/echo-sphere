@@ -128,6 +128,15 @@ for (const file of runtimeFiles) {
 const bootstrap = readFileSync(join(root, 'Assets/Editor/EchoSphereProjectBootstrap.cs'), 'utf8');
 assert.ok(bootstrap.includes('EchoSphere_Prototype.unity'), 'first-open scene generation contract missing');
 assert.ok(bootstrap.includes('com.lir37.echosphere'), 'Android application id contract missing');
+assert.ok(bootstrap.includes('SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP)'), 'Android ARM64 requires the IL2CPP backend');
+assert.ok(bootstrap.includes('AndroidArchitecture.ARMv7 | AndroidArchitecture.ARM64'), 'Android must retain ARMv7 support and include ARM64');
+assert.ok(bootstrap.includes('SetApiCompatibilityLevel(NamedBuildTarget.Android, ApiCompatibilityLevel.NET_Standard)'), 'Android runtime must use the typechecked .NET Standard profile');
+const sourceLinker = readFileSync(join(root, 'Assets/EchoSphere/link.xml'), 'utf8');
+for (const space of ['Core', 'Runtime', 'Presentation'])
+  assert.ok(sourceLinker.includes(`fullname="EchoSphere.${space}.*" preserve="all"`), `Retain the existing IL2CPP reflection/snapshot preservation until a player stripping test is available: ${space}`);
+const uiFilterShader = readFileSync(join(root, 'Assets/Resources/EchoSphere/SourceUiFilters.shader'), 'utf8');
+for (const program of uiFilterShader.matchAll(/HLSLPROGRAM([\s\S]*?)ENDHLSL/g))
+  assert.ok(program[1].includes('#pragma target 3.5'), 'UI filter rectangle indices require an explicit GLES3-compatible shader target');
 
 // Regression guard for the real Editor failure observed on 2026-10-09:
 // the URP asset can exist while its renderer-data slot is missing or its
@@ -1510,7 +1519,7 @@ assert.ok(sourceHomeUi.includes('DrawSourceMenuNavIcon') &&
 const knowledgeRuntime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereKnowledge.cs'), 'utf8').replaceAll('\r\n', '\n');
 const sourceCatalogPath = join(root, 'Assets/Resources/EchoSphere/SourceCatalog.json');
 assert.ok(existsSync(sourceCatalogPath) &&
-  knowledgeRuntime.includes('nameRu, nameEn, descRu, descEn, detailsRu, detailsEn') &&
+  ['nameRu', 'nameEn', 'descRu', 'descEn', 'detailsRu', 'detailsEn'].every(name => knowledgeRuntime.includes(name)) &&
   knowledgeRuntime.includes('Resources.Load<TextAsset>("EchoSphere/SourceCatalog")') &&
   ['basics', 'spheres', 'monsters', 'bosses', 'abilities', 'artifacts', 'evolutions'].every(section => knowledgeRuntime.includes(section)),
   'Unity knowledge base must load source-catalog localized names, descriptions and details for all source sections');

@@ -33,7 +33,6 @@ private static V F_getGeometryDominanceScore(V[] args) {
 V v_shape_0 = VisualJs.Arg(args,0);
 V v_sizeBonus_1 = VisualJs.MathObject[new V("min")].Call(new V(6d), (VisualJs.MathObject[new V("max")].Call(new V(0d), (v_shape_0[new V("nodes")][new V("length")] - new V(3d))) * new V(1.5d)));
 return (((v_shape_0[new V("strength")] * new V(100d)) + Scope[new V("GEOMETRY_SPECIFICITY")][v_shape_0[new V("type")]]) + v_sizeBonus_1);
-return default;
 }
 private static V F_rankGeometryCandidates(V[] args) {
 V v_candidates_2 = VisualJs.Arg(args,0);
@@ -54,7 +53,6 @@ return VisualJs.Concat(VisualJs.Arr(v_previous_14), v_filtered_4[new V("filter")
 return new V(v_shape_19[new V("type")] != v_previous_14[new V("type")]); })));
 }
 return v_filtered_4;
-return default;
 }
 private static V F_chooseSecondaryFormation(V[] args) {
 V v_ranked_20 = VisualJs.Arg(args,0);
@@ -72,7 +70,6 @@ return (!v_dominantNodes_27[new V("has")].Call(v_node_35)); }))); }));
 V v_overlappingCandidate_36 = v_ranked_20[new V("find")].Call(VisualJs.Fn(args_37 => { V v_shape_38 = VisualJs.Arg(args_37, 0);
 return VisualJs.And(new V(v_shape_38[new V("type")] != v_dominant_21[new V("type")]), () => new V(v_scoreGap_28.Call(v_shape_38) <= Scope[new V("SECONDARY_SCORE_GAP")])); }));
 return VisualJs.Or(VisualJs.Or(v_disjointCandidate_31, () => v_overlappingCandidate_36), () => VisualJs.Null);
-return default;
 }
 private static V F_selectActiveGeometry(V[] args) {
 V v_ranked_39 = VisualJs.Arg(args,0);
@@ -96,7 +93,6 @@ return new V(v_shape_55[new V("type")] != v_inactiveDominant_53[new V("type")]);
 V v_dominant_56 = VisualJs.Or(VisualJs.Or(v_selectedDominant_43, () => v_ranked_39[new V(0d)]), () => VisualJs.Null);
 if ((!v_dominant_56).Truth) return VisualJs.Obj(new V("dominant"), VisualJs.Null, new V("secondary"), VisualJs.Null);
 return VisualJs.Obj(new V("dominant"), v_dominant_56, new V("secondary"), Scope[new V("chooseSecondaryFormation")].Call(v_ranked_39, v_dominant_56, v_selection_40));
-return default;
 }
 private static V F_getFormationBonusMultiplier(V[] args) {
 V v_network_57 = VisualJs.Arg(args,0);
@@ -108,13 +104,11 @@ V v_efficiency_63 = VisualJs.MathObject[new V("max")].Call(new V(0d), VisualJs.M
 if (VisualJs.And(VisualJs.And(new V(VisualJs.Chain(v_network_57[new V("dominantFormation")],optional_64=>optional_64[new V("active")]) != new V(false)), () => new V(VisualJs.Chain(v_network_57[new V("dominantFormation")],optional_65=>optional_65[new V("type")]) == v_type_58)), () => v_includesNode_60.Call(v_network_57[new V("dominantFormation")])).Truth) return v_efficiency_63;
 if (VisualJs.And(new V(VisualJs.Chain(v_network_57[new V("secondaryFormation")],optional_66=>optional_66[new V("type")]) == v_type_58), () => v_includesNode_60.Call(v_network_57[new V("secondaryFormation")])).Truth) return (new V(0.5d) * v_efficiency_63);
 return new V(0d);
-return default;
 }
 private static V F_distance(V[] args) {
 V v_a_67 = VisualJs.Arg(args,0);
 V v_b_68 = VisualJs.Arg(args,1);
 return VisualJs.MathObject[new V("hypot")].Call((v_a_67[new V("x")] - v_b_68[new V("x")]), (v_a_67[new V("y")] - v_b_68[new V("y")]));
-return default;
 }
 private static V F_aliveIndexes(V[] args) {
 V v_nodes_69 = VisualJs.Arg(args,0);
@@ -123,7 +117,6 @@ for (V v_i_71 = new V(0d); new V(v_i_71 < v_nodes_69[new V("length")]).Truth; v_
 if (new V(v_nodes_69[v_i_71][new V("alive")] != new V(false)).Truth) v_result_70[new V("push")].Call(v_i_71);
 }
 return v_result_70;
-return default;
 }
 private static V F_combinations3(V[] args) {
 V v_values_72 = VisualJs.Arg(args,0);
@@ -136,7 +129,6 @@ v_result_73[new V("push")].Call(VisualJs.Arr(v_values_72[v_i_74], v_values_72[v_
 }
 }
 return v_result_73;
-return default;
 }
 private static V F_lineStrength(V[] args) {
 V v_nodes_77 = VisualJs.Arg(args,0);
@@ -162,7 +154,6 @@ V v_strength_92 = (new V(1d) - VisualJs.MathObject[new V("min")].Call(new V(1d),
 v_best_79 = VisualJs.MathObject[new V("max")].Call(v_best_79, v_strength_92);
 }
 return v_best_79;
-return default;
 }
 private static V F_triangleStrength(V[] args) {
 V v_nodes_93 = VisualJs.Arg(args,0);
@@ -182,7 +173,6 @@ V v_mean_103 = ((((v_ab_100 + v_bc_101) + v_ca_102)) / new V(3d));
 if (VisualJs.Or(new V(v_mean_103 < new V(65d)), () => new V(v_mean_103 > v_linkDistance_95)).Truth) return new V(0d);
 V v_variance_104 = ((((VisualJs.MathObject[new V("abs")].Call((v_ab_100 - v_mean_103)) + VisualJs.MathObject[new V("abs")].Call((v_bc_101 - v_mean_103))) + VisualJs.MathObject[new V("abs")].Call((v_ca_102 - v_mean_103)))) / ((new V(3d) * v_mean_103)));
 return (new V(1d) - VisualJs.MathObject[new V("min")].Call(new V(1d), (v_variance_104 * new V(2.2d))));
-return default;
 }
 private static V F_squareStrength(V[] args) {
 V v_nodes_105 = VisualJs.Arg(args,0);
@@ -214,7 +204,6 @@ V v_diagonalMean_133 = (((v_diagonals_122[new V(0d)] + v_diagonals_122[new V(1d)
 V v_diagonalVariance_134 = (VisualJs.MathObject[new V("abs")].Call((v_diagonals_122[new V(0d)] - v_diagonals_122[new V(1d)])) / VisualJs.MathObject[new V("max")].Call(new V(1d), v_diagonalMean_133));
 V v_rightAngleError_135 = (VisualJs.MathObject[new V("abs")].Call(((v_diagonalMean_133 / v_sideMean_123) - VisualJs.MathObject[new V("SQRT2")])) / VisualJs.MathObject[new V("SQRT2")]);
 return VisualJs.MathObject[new V("max")].Call(new V(0d), (new V(1d) - VisualJs.MathObject[new V("min")].Call(new V(1d), (((v_sideVariance_129 * new V(2d)) + v_diagonalVariance_134) + v_rightAngleError_135))));
-return default;
 }
 private static V F_clusterStrength(V[] args) {
 V v_nodes_136 = VisualJs.Arg(args,0);
@@ -236,7 +225,6 @@ V v_average_145 = (v_sum_139 / VisualJs.MathObject[new V("max")].Call(new V(1d),
 V v_compactness_146 = (new V(1d) - VisualJs.MathObject[new V("min")].Call(new V(1d), (VisualJs.MathObject[new V("max")].Call(new V(0d), (v_average_145 - new V(90d))) / new V(90d))));
 V v_connectivity_147 = (v_linkedPairs_141 / VisualJs.MathObject[new V("max")].Call(new V(1d), v_pairs_140));
 return ((v_compactness_146 * new V(0.65d)) + (v_connectivity_147 * new V(0.35d)));
-return default;
 }
 private static V F_ringShape(V[] args) {
 V v_nodes_148 = VisualJs.Arg(args,0);
@@ -268,7 +256,6 @@ V v_d_171 = VisualJs.Arg(args_169, 1);
 return (v_sum_170 + VisualJs.MathObject[new V("abs")].Call((v_d_171 - v_mean_164))); }), new V(0d)) / ((v_distances_159[new V("length")] * v_mean_164)));
 V v_strength_172 = (new V(1d) - VisualJs.MathObject[new V("min")].Call(new V(1d), (v_variance_168 * new V(2d))));
 return (new V(v_strength_172 >= new V(0.68d)).Truth ? VisualJs.Obj(new V("type"), new V("ring"), new V("strength"), v_strength_172, new V("nodes"), v_ordered_155) : VisualJs.Null);
-return default;
 }
 private static V F_isNodeSetConnected(V[] args) {
 V v_indexes_173 = VisualJs.Arg(args,0);
@@ -288,7 +275,6 @@ v_queue_177[new V("push")].Call(v_next_180);
 }
 }
 return new V(v_visited_176[new V("size")] == v_allowed_175[new V("size")]);
-return default;
 }
 private static V F_latticeShape(V[] args) {
 V v_nodes_181 = VisualJs.Arg(args,0);
@@ -320,7 +306,6 @@ if ((!v_shared_196).Truth) return VisualJs.Null;
 V v_strength_202 = VisualJs.MathObject[new V("min")].Call(new V(1d), (new V(0.55d) + VisualJs.MathObject[new V("min")].Call(new V(0.45d), (v_triangles_185[new V("length")] * new V(0.08d)))));
 V v_used_203 = VisualJs.Concat(VisualJs.NewSet(v_triangles_185[new V("flat")].Call()));
 return VisualJs.Obj(new V("type"), new V("lattice"), new V("strength"), v_strength_202, new V("nodes"), v_used_203);
-return default;
 }
 private static V F_analyzeSphereNetwork(V[] args) {
 V v_nodes_204 = VisualJs.Arg(args,0);
@@ -350,8 +335,7 @@ if (VisualJs.And(new V(v_strength_222 >= new V(0.8d)), () => (VisualJs.Or((!v_be
 v_best_220 = VisualJs.Obj(new V("type"), (new V("line")), new V("strength"), v_strength_222, new V("nodes"), VisualJs.Concat(v_combo_221));
 }
 }
-return v_best_220;
-return default; })).Call() : VisualJs.Null);
+return v_best_220; })).Call() : VisualJs.Null);
 V v_triangle_223 = VisualJs.Null;
 foreach (V v_combo_224 in Scope[new V("combinations3")].Call(v_indexes_210).Items) {
 V v_strength_225 = Scope[new V("triangleStrength")].Call(v_nodes_204, v_combo_224, v_linkDistance_205);
@@ -366,11 +350,9 @@ V v_combo_233 = VisualJs.Arr(v_indexes_210[v_i_229], v_indexes_210[v_j_230], v_i
 V v_strength_234 = Scope[new V("squareStrength")].Call(v_nodes_204, v_combo_233, v_linkDistance_205);
 if (VisualJs.And(new V(v_strength_234 >= new V(0.84d)), () => (VisualJs.Or((!v_best_228), () => new V(v_strength_234 > v_best_228[new V("strength")])))).Truth) v_best_228 = VisualJs.Obj(new V("type"), new V("square"), new V("strength"), v_strength_234, new V("nodes"), v_combo_233);
 }
-return v_best_228;
-return default; })).Call();
+return v_best_228; })).Call();
 V v_cluster_235 = (VisualJs.Fn(args_236 => { V v_strength_237 = Scope[new V("clusterStrength")].Call(v_nodes_204, v_indexes_210, v_linkDistance_205);
-return (new V(v_strength_237 >= new V(0.78d)).Truth ? VisualJs.Obj(new V("type"), (new V("cluster")), new V("strength"), v_strength_237, new V("nodes"), VisualJs.Concat(v_indexes_210)) : VisualJs.Null);
-return default; })).Call();
+return (new V(v_strength_237 >= new V(0.78d)).Truth ? VisualJs.Obj(new V("type"), (new V("cluster")), new V("strength"), v_strength_237, new V("nodes"), VisualJs.Concat(v_indexes_210)) : VisualJs.Null); })).Call();
 V v_ring_238 = Scope[new V("ringShape")].Call(v_nodes_204, v_indexes_210, v_linkDistance_205);
 V v_lattice_239 = Scope[new V("latticeShape")].Call(v_nodes_204, v_indexes_210, v_links_211, v_linkDistance_205);
 V v_fractalBase_240 = (VisualJs.Arr(v_ring_238, v_lattice_239, v_square_226, v_triangle_223)[new V("filter")].Call(VisualJs.Fn(a=>new V(VisualJs.Arg(a,0).Truth))));
@@ -389,7 +371,6 @@ V v_byType_256 = default; v_byType_256 = VisualJs.Fn(args_257 => { V v_type_258 
 return (v_activeTypes_251[new V("has")].Call(v_type_258).Truth ? VisualJs.Or(v_ranked_249[new V("find")].Call(VisualJs.Fn(args_259 => { V v_shape_260 = VisualJs.Arg(args_259, 0);
 return new V(v_shape_260[new V("type")] == v_type_258); })), () => VisualJs.Null) : VisualJs.Null); });
 return VisualJs.Obj(new V("linkDistance"), v_linkDistance_205, new V("nodes"), v_indexes_210, new V("links"), v_links_211, new V("formationEfficiency"), new V(1d), new V("formationCandidates"), v_ranked_249, new V("dominantFormation"), v_active_250[new V("dominant")], new V("secondaryFormation"), v_active_250[new V("secondary")], new V("line"), v_byType_256.Call(new V("line")), new V("triangle"), v_byType_256.Call(new V("triangle")), new V("square"), v_byType_256.Call(new V("square")), new V("cluster"), v_byType_256.Call(new V("cluster")), new V("ring"), v_byType_256.Call(new V("ring")), new V("lattice"), v_byType_256.Call(new V("lattice")), new V("fractal"), v_byType_256.Call(new V("fractal")));
-return default;
 }
 private static V F_getSphereNetworkProfile(V[] args) {
 V v_state_261 = VisualJs.Arg(args,0);
@@ -399,7 +380,6 @@ foreach (V v_link_264 in v_state_261[new V("links")].Items) {
 if (VisualJs.Or(new V(v_link_264[new V("a")] == v_sphereIndex_262), () => new V(v_link_264[new V("b")] == v_sphereIndex_262)).Truth) v_linkedNeighbours_263++;
 }
 return VisualJs.Obj(new V("linkedNeighbours"), v_linkedNeighbours_263, new V("line"), new V(VisualJs.Chain(v_state_261[new V("line")],optional_265=>optional_265[new V("nodes")][new V("includes")].Call(v_sphereIndex_262)).Truth), new V("triangle"), new V(VisualJs.Chain(v_state_261[new V("triangle")],optional_266=>optional_266[new V("nodes")][new V("includes")].Call(v_sphereIndex_262)).Truth), new V("square"), new V(VisualJs.Chain(v_state_261[new V("square")],optional_267=>optional_267[new V("nodes")][new V("includes")].Call(v_sphereIndex_262)).Truth), new V("cluster"), new V(VisualJs.Chain(v_state_261[new V("cluster")],optional_268=>optional_268[new V("nodes")][new V("includes")].Call(v_sphereIndex_262)).Truth), new V("ring"), new V(VisualJs.Chain(v_state_261[new V("ring")],optional_269=>optional_269[new V("nodes")][new V("includes")].Call(v_sphereIndex_262)).Truth), new V("lattice"), new V(VisualJs.Chain(v_state_261[new V("lattice")],optional_270=>optional_270[new V("nodes")][new V("includes")].Call(v_sphereIndex_262)).Truth), new V("fractal"), new V(VisualJs.Chain(v_state_261[new V("fractal")],optional_271=>optional_271[new V("nodes")][new V("includes")].Call(v_sphereIndex_262)).Truth));
-return default;
 }
 }
 }

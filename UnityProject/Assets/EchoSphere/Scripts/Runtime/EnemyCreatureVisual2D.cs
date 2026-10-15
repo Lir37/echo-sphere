@@ -52,6 +52,7 @@ namespace EchoSphere.Runtime
             _variant = string.IsNullOrEmpty(variant) ? "wisp" : variant;
             _bossType = bossType ?? "";
             _baseColor = color;
+            if (runtime != null && runtime.UsesSourcePresentation) { enabled = false; return; }
             _p = new Painter();
 
             // Remove the prototype shell/ring/node stack instead of layering it over the creature.

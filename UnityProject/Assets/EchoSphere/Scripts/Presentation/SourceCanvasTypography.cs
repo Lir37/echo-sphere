@@ -28,9 +28,9 @@ namespace EchoSphere.Presentation
             foreach(var part in family.Split(',')) {
                 var name=part.Trim().Trim('\'', '"');
                 if(name=="system-ui"||name=="ui-sans-serif"||name=="sans-serif"||name=="-apple-system"||name=="BlinkMacSystemFont") {
-#if UNITY_ANDROID
+#if UNITY_ANDROID && !UNITY_EDITOR
                     names.Add("Roboto");names.Add("Noto Sans");
-#elif UNITY_STANDALONE_OSX || UNITY_IOS
+#elif UNITY_STANDALONE_OSX || UNITY_IOS || UNITY_EDITOR_OSX
                     names.Add("Helvetica Neue");names.Add("Helvetica");
 #else
                     names.Add("Segoe UI");names.Add("Arial");

@@ -27,7 +27,6 @@ V v_character_0 = VisualJs.Arg(args,0);
 V v_sphereCount_1 = VisualJs.Arg(args,1);
 if (new V(v_character_0 != new V("spherist")).Truth) return new V(0d);
 return (VisualJs.MathObject[new V("max")].Call(new V(0d), (v_sphereCount_1 - new V(1d))) * new V(0.03d));
-return default;
 }
 private static V F_getCharacterSphereCopyCap(V[] args) {
 V v_character_2 = VisualJs.Arg(args,0);
@@ -38,7 +37,6 @@ if (new V(v_sphereType_3 != v_def_5[new V("signatureSphereType")]).Truth) return
 if (new V(v_masteryLevel_4 >= new V(10d)).Truth) return new V(4d);
 if (new V(v_masteryLevel_4 >= new V(5d)).Truth) return new V(3d);
 return new V(2d);
-return default;
 }
 private static V F_getBerserkerFuryBonus(V[] args) {
 V v_character_6 = VisualJs.Arg(args,0);
@@ -47,7 +45,6 @@ if (new V(v_character_6 != new V("berserker")).Truth) return VisualJs.Obj(new V(
 V v_missingRatio_8 = VisualJs.MathObject[new V("max")].Call(new V(0d), VisualJs.MathObject[new V("min")].Call(new V(1d), (new V(1d) - v_hpRatio_7)));
 V v_steps_9 = VisualJs.MathObject[new V("min")].Call(new V(4d), VisualJs.MathObject[new V("floor")].Call((v_missingRatio_8 / new V(0.2d))));
 return VisualJs.Obj(new V("damage"), (v_steps_9 * new V(0.07d)), new V("attackSpeed"), (v_steps_9 * new V(0.04d)));
-return default;
 }
 }
 }

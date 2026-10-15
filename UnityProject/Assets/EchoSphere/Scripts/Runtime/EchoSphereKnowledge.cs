@@ -8,9 +8,9 @@ namespace EchoSphere.Runtime
     public sealed partial class EchoSphereRuntime
     {
         [Serializable] private sealed class KnowledgeEntry
-        { public string section, id, group, nameRu, nameEn, descRu, descEn, detailsRu, detailsEn; }
+        { public string section=null, id=null, group=null, nameRu=null, nameEn=null, descRu=null, descEn=null, detailsRu=null, detailsEn=null; }
         [Serializable] private sealed class KnowledgeCatalog
-        { public string sourceCommit, sourceDigest; public List<KnowledgeEntry> entries; public List<SourcePlannerEntry> planner; }
+        { public string sourceCommit=null, sourceDigest=null; public List<KnowledgeEntry> entries=null; public List<SourcePlannerEntry> planner=null; }
         [Serializable] private sealed class KnowledgeSave { public List<string> ids = new List<string>(); }
         private KnowledgeCatalog _sourceKnowledge;
         private readonly HashSet<string> _knownKnowledgeIds = new HashSet<string>();

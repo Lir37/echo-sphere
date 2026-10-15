@@ -26,7 +26,6 @@ if ((!v_branch_7).Truth) return VisualJs.Arr();
 return v_branch_7[new V("final")][new V("slice")].Call(new V(0d), new V(3d))[new V("map")].Call(VisualJs.Fn(args_10 => { V v_finalChoice_11 = VisualJs.Arg(args_10, 0);
 V v_index_12 = VisualJs.Arg(args_10, 1);
 return (VisualJs.Obj(new V("type"), (new V("sphere")), new V("sphereType"), v_type_1, new V("sphereBranch"), v_branch_7[new V("id")], new V("sphereFinalIndex"), v_index_12, new V("sphereStage"), (new V("final")), new V("name"), VisualJs.Obj(new V("ru"), (Visual_sphereProgression.Scope[new V("getSphereElementMasteryForBranch")].Call(v_branch_7[new V("id")], v_index_12).Truth ? (new V("") + v_finalChoice_11[new V("name")][new V("ru")] + new V(" • ") + (Visual_sphereProgression.Scope[new V("getSphereElementMasteryForBranch")].Call(v_branch_7[new V("id")], v_index_12))[new V("name")][new V("ru")] + new V("")) : v_finalChoice_11[new V("name")][new V("ru")]), new V("en"), (Visual_sphereProgression.Scope[new V("getSphereElementMasteryForBranch")].Call(v_branch_7[new V("id")], v_index_12).Truth ? (new V("") + v_finalChoice_11[new V("name")][new V("en")] + new V(" • ") + (Visual_sphereProgression.Scope[new V("getSphereElementMasteryForBranch")].Call(v_branch_7[new V("id")], v_index_12))[new V("name")][new V("en")] + new V("")) : v_finalChoice_11[new V("name")][new V("en")])), new V("desc"), VisualJs.Obj(new V("ru"), (Visual_sphereProgression.Scope[new V("getSphereElementMasteryForBranch")].Call(v_branch_7[new V("id")], v_index_12).Truth ? (new V("") + v_finalChoice_11[new V("desc")][new V("ru")] + new V(" ") + (Visual_sphereProgression.Scope[new V("getSphereElementMasteryForBranch")].Call(v_branch_7[new V("id")], v_index_12))[new V("desc")][new V("ru")] + new V("")) : v_finalChoice_11[new V("desc")][new V("ru")]), new V("en"), (Visual_sphereProgression.Scope[new V("getSphereElementMasteryForBranch")].Call(v_branch_7[new V("id")], v_index_12).Truth ? (new V("") + v_finalChoice_11[new V("desc")][new V("en")] + new V(" ") + (Visual_sphereProgression.Scope[new V("getSphereElementMasteryForBranch")].Call(v_branch_7[new V("id")], v_index_12))[new V("desc")][new V("en")] + new V("")) : v_finalChoice_11[new V("desc")][new V("en")])), new V("currentLevel"), new V(7d), new V("newLevel"), new V(7d))); }));
-return default;
 }
 private static V F_getAbilityEvolutionChoices(V[] args) {
 V v_s_13 = VisualJs.Arg(args,0);
@@ -38,7 +37,6 @@ V v_pool_17 = (new V(v_level_15 == new V(4d)).Truth ? v_progression_16[new V("ev
 return v_pool_17[new V("slice")].Call(new V(0d), new V(3d))[new V("map")].Call(VisualJs.Fn(args_18 => { V v_evolution_19 = VisualJs.Arg(args_18, 0);
 V v_index_20 = VisualJs.Arg(args_18, 1);
 return (VisualJs.Obj(new V("type"), (new V("ability")), new V("ability"), v_ability_14, new V("abilityEvolutionIndex"), v_index_20, new V("abilityStage"), (new V(v_level_15 == new V(4d)).Truth ? (new V("branch")) : (new V("final"))), new V("name"), v_evolution_19[new V("name")], new V("desc"), v_evolution_19[new V("desc")], new V("currentLevel"), v_level_15, new V("newLevel"), v_level_15)); }));
-return default;
 }
 private static V F_getUpgradeChoiceKey(V[] args) {
 V v_choice_21 = VisualJs.Arg(args,0);
@@ -49,7 +47,6 @@ if (new V(v_choice_21[new V("type")] == new V("sphere")).Truth) {
 return VisualJs.Arr(new V("sphere"), VisualJs.Coalesce(v_choice_21[new V("sphereType")], () => new V("unknown")), VisualJs.Coalesce(v_choice_21[new V("sphereStage")], () => new V("upgrade")), v_choice_21[new V("currentLevel")], v_choice_21[new V("newLevel")], VisualJs.Coalesce(v_choice_21[new V("sphereBranch")], () => new V("")), VisualJs.Coalesce(v_choice_21[new V("sphereFinalIndex")], () => new V("")))[new V("join")].Call(new V(":"));
 }
 return VisualJs.Arr(new V("ability"), VisualJs.Coalesce(v_choice_21[new V("ability")], () => new V("unknown")), VisualJs.Coalesce(v_choice_21[new V("abilityStage")], () => new V("upgrade")), v_choice_21[new V("currentLevel")], v_choice_21[new V("newLevel")], VisualJs.Coalesce(v_choice_21[new V("abilityEvolutionIndex")], () => new V("")))[new V("join")].Call(new V(":"));
-return default;
 }
 }
 }

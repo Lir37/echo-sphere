@@ -17,7 +17,6 @@ V v_prefix_3 = ((((new V("ability:") + v_ability_1) + new V(":")) + v_stage_2) +
 V v_marker_4 = (VisualJs.Or(v_s_0[new V("player")][new V("evolutions")], () => VisualJs.Arr()))[new V("find")].Call(VisualJs.Fn(args_5 => { V v_x_6 = VisualJs.Arg(args_5, 0);
 return v_x_6[new V("startsWith")].Call(v_prefix_3); }));
 return (v_marker_4.Truth ? v_marker_4[new V("slice")].Call(v_prefix_3[new V("length")]) : VisualJs.Null);
-return default;
 }
 private static V F_getSphereFinalIndex(V[] args) {
 V v_s_7 = VisualJs.Arg(args,0);
@@ -27,7 +26,6 @@ return v_x_11[new V("startsWith")].Call(((new V("sphere:") + v_type_8) + new V("
 if ((!v_marker_9).Truth) return VisualJs.Null;
 V v_value_12 = VisualJs.Number(v_marker_9[new V("slice")].Call((v_marker_9[new V("lastIndexOf")].Call(new V(":")) + new V(1d))));
 return (VisualJs.NumberObject[new V("isFinite")].Call(v_value_12).Truth ? v_value_12 : VisualJs.Null);
-return default;
 }
 }
 }

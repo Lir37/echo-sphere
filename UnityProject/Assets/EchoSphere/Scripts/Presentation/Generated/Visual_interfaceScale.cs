@@ -18,7 +18,6 @@ private static V F_loadInterfaceScale(V[] args) {
 V v_raw_0 = VisualJs.Number(VisualUiBindings.Get("global","localStorage")[new V("getItem")].Call(Scope[new V("INTERFACE_SCALE_KEY")]));
 if ((!VisualJs.NumberObject[new V("isFinite")].Call(v_raw_0)).Truth) return Scope[new V("DEFAULT_SCALE")];
 return VisualJs.MathObject[new V("min")].Call(Scope[new V("MAX_SCALE")], VisualJs.MathObject[new V("max")].Call(Scope[new V("MIN_SCALE")], v_raw_0));
-return default;
 }
 private static V F_saveInterfaceScale(V[] args) {
 V v_value_1 = VisualJs.Arg(args,0);
@@ -29,7 +28,6 @@ return default;
 private static V F_formatInterfaceScale(V[] args) {
 V v_value_3 = VisualJs.Arg(args,0);
 return (new V("") + VisualJs.MathObject[new V("round")].Call((v_value_3 * new V(100d))) + new V("%"));
-return default;
 }
 }
 }

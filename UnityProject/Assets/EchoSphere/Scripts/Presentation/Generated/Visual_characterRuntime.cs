@@ -27,12 +27,10 @@ private static V F_distance(V[] args) {
 V v_a_0 = VisualJs.Arg(args,0);
 V v_b_1 = VisualJs.Arg(args,1);
 return VisualJs.MathObject[new V("hypot")].Call((v_a_0[new V("x")] - v_b_1[new V("x")]), (v_a_0[new V("y")] - v_b_1[new V("y")]));
-return default;
 }
 private static V F_runtimePlayer(V[] args) {
 V v_s_2 = VisualJs.Arg(args,0);
 return (v_s_2[new V("player")]);
-return default;
 }
 private static V F_getCharacterAttackSpeedMultiplier(V[] args) {
 V v_s_3 = VisualJs.Arg(args,0);
@@ -57,7 +55,6 @@ if (VisualJs.And(new V(v_character_4 == new V("architect")), () => new V(Scope[n
 v_multiplier_6 += Scope[new V("getFormationAttackSpeedBonus")].Call(v_s_3);
 }
 return v_multiplier_6;
-return default;
 }
 private static V F_getCharacterRadiusMultiplier(V[] args) {
 V v_s_10 = VisualJs.Arg(args,0);
@@ -74,13 +71,11 @@ if (new V(v_mastery_12 >= new V(3d)).Truth) v_multiplier_13 += new V(0.02d);
 }
 if (VisualJs.And(new V(v_character_11 == new V("engineer")), () => new V(Scope[new V("getEngineerNetworkSpheres")].Call(v_s_10)[new V("length")] >= new V(3d))).Truth) v_multiplier_13 += new V(0.08d);
 return v_multiplier_13;
-return default;
 }
 private static V F_getCharacterMoveSpeedMultiplier(V[] args) {
 V v_s_16 = VisualJs.Arg(args,0);
 V v_character_17 = Scope[new V("getCharacterId")].Call(v_s_16);
 return (new V(1d) + Visual_characters.Scope[new V("CHARACTER_DEFS")][v_character_17][new V("baseModifiers")][new V("moveSpeed")]);
-return default;
 }
 private static V F_getLocalCharacterSpheres(V[] args) {
 V v_s_18 = VisualJs.Arg(args,0);
@@ -89,7 +84,6 @@ return v_s_18[new V("spheres")][new V("filter")].Call(VisualJs.Fn(args_20 => { V
 return VisualJs.And(v_sphere_21[new V("alive")], () => new V(Scope[new V("distance")].Call(v_sphere_21[new V("pos")], v_s_18[new V("player")][new V("pos")]) <= v_radius_19)); }))[new V("sort")].Call(VisualJs.Fn(args_22 => { V v_a_23 = VisualJs.Arg(args_22, 0);
 V v_b_24 = VisualJs.Arg(args_22, 1);
 return (Scope[new V("distance")].Call(v_a_23[new V("pos")], v_s_18[new V("player")][new V("pos")]) - Scope[new V("distance")].Call(v_b_24[new V("pos")], v_s_18[new V("player")][new V("pos")])); }))[new V("slice")].Call(new V(0d), Scope[new V("CHARACTER_LOCAL_SPHERE_CAP")]);
-return default;
 }
 private static V F_getFormationAttackSpeedBonus(V[] args) {
 V v_s_25 = VisualJs.Arg(args,0);
@@ -97,7 +91,6 @@ if (new V(Scope[new V("getCharacterId")].Call(v_s_25) != new V("architect")).Tru
 V v_formation_26 = VisualBindings.Get(new V("characterRuntime.ts"),new V("getCharacterFormation")).Call(v_s_25);
 if (new V(v_formation_26[new V("type")] != new V("cluster")).Truth) return new V(0d);
 return (new V(0.15d) * Scope[new V("getArchitectFormationBonusScale")].Call(v_s_25, v_formation_26[new V("type")]));
-return default;
 }
 private static V F_getArchitectFormationBonusScale(V[] args) {
 V v_s_27 = VisualJs.Arg(args,0);
@@ -112,13 +105,11 @@ if (VisualJs.And(new V(v_mastery_31 >= new V(5d)), () => new V(Scope[new V("getL
 if (new V(v_mastery_31 >= new V(7d)).Truth) v_scale_30 *= new V(1.05d);
 if (VisualJs.And(new V(v_mastery_31 >= new V(10d)), () => new V(v_type_28 != new V("none"))).Truth) v_scale_30 *= new V(1.1d);
 return v_scale_30;
-return default;
 }
 private static V F_getEngineerNetworkRange(V[] args) {
 V v_s_32 = VisualJs.Arg(args,0);
 V v_mastery_33 = VisualJs.Or(Scope[new V("runtimePlayer")].Call(v_s_32)[new V("characterMasteryLevel")], () => new V(1d));
 return (new V(v_mastery_33 >= new V(6d)).Truth ? new V(260d) : (new V(v_mastery_33 >= new V(2d)).Truth ? new V(240d) : new V(220d)));
-return default;
 }
 private static V F_getEngineerNetworkSpheres(V[] args) {
 V v_s_34 = VisualJs.Arg(args,0);
@@ -131,13 +122,11 @@ V v_connected_39 = Scope[new V("getConnectedNetworkSizeFromPool")].Call(v_start_
 if (new V(v_connected_39[new V("length")] > v_best_37[new V("length")]).Truth) v_best_37 = v_connected_39;
 }
 return v_best_37;
-return default;
 }
 private static V F_getCharacterSphereCopyCap(V[] args) {
 V v_s_40 = VisualJs.Arg(args,0);
 V v_sphereType_41 = VisualJs.Arg(args,1);
 return Visual_characters.Scope[new V("getCharacterSphereCopyCap")].Call(Scope[new V("getCharacterId")].Call(v_s_40), v_sphereType_41, VisualJs.Or(Scope[new V("runtimePlayer")].Call(v_s_40)[new V("characterMasteryLevel")], () => new V(1d)));
-return default;
 }
 private static V F_getSphereCopyOutputMultiplier(V[] args) {
 V v_s_42 = VisualJs.Arg(args,0);
@@ -147,13 +136,11 @@ V v_copies_44 = v_s_42[new V("spheres")][new V("filter")].Call(VisualJs.Fn(args_
 return VisualJs.And(v_item_46[new V("alive")], () => new V(v_item_46[new V("type")] == v_sphere_43[new V("type")])); }));
 V v_index_47 = v_copies_44[new V("indexOf")].Call(v_sphere_43);
 return (new V(v_index_47 < new V(2d)).Truth ? new V(1d) : (new V(v_index_47 == new V(2d)).Truth ? new V(0.85d) : new V(0.7d)));
-return default;
 }
 private static V F_getCharacterId(V[] args) {
 V v_s_48 = VisualJs.Arg(args,0);
 V v_raw_49 = Scope[new V("runtimePlayer")].Call(v_s_48)[new V("characterId")];
 return (VisualJs.And(v_raw_49, () => VisualJs.Has(Visual_characters.Scope[new V("CHARACTER_DEFS")],v_raw_49)).Truth ? v_raw_49 : new V("spherist"));
-return default;
 }
 private static V F_getConnectedNetworkSizeFromPool(V[] args) {
 V v_start_50 = VisualJs.Arg(args,0);
@@ -172,7 +159,6 @@ v_queue_54[new V("push")].Call(v_neighbour_56);
 }
 }
 return VisualJs.Concat(v_visited_53);
-return default;
 }
 }
 }

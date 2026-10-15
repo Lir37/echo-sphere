@@ -49,7 +49,6 @@ V v_owned_1 = VisualJs.NewSet(v_s_0[new V("player")][new V("artifacts")]);
 return Scope[new V("ARTIFACT_SYNERGIES")][new V("filter")].Call(VisualJs.Fn(args_2 => { V v_synergy_3 = VisualJs.Arg(args_2, 0);
 return v_synergy_3[new V("requires")][new V("every")].Call(VisualJs.Fn(args_4 => { V v_id_5 = VisualJs.Arg(args_4, 0);
 return v_owned_1[new V("has")].Call(v_id_5); })); }));
-return default;
 }
 private static V F_getArtifactSynergiesAfterPick(V[] args) {
 V v_s_6 = VisualJs.Arg(args,0);
@@ -59,7 +58,6 @@ v_owned_8[new V("add")].Call(v_id_7);
 return Scope[new V("ARTIFACT_SYNERGIES")][new V("filter")].Call(VisualJs.Fn(args_9 => { V v_synergy_10 = VisualJs.Arg(args_9, 0);
 return v_synergy_10[new V("requires")][new V("every")].Call(VisualJs.Fn(args_11 => { V v_requiredId_12 = VisualJs.Arg(args_11, 0);
 return v_owned_8[new V("has")].Call(v_requiredId_12); })); }));
-return default;
 }
 private static V F_getArtifactSetArtifactProgress(V[] args) {
 V v_s_13 = VisualJs.Arg(args,0);
@@ -70,16 +68,13 @@ return VisualJs.Or(VisualJs.Chain(Scope[new V("ARTIFACT_SYNERGIES")][new V("find
 return new V(v_synergy_21[new V("id")] == v_synergyId_19); })),optional_22=>optional_22[new V("requires")]), () => VisualJs.Arr()); }))));
 V v_ownedArtifactIds_23 = v_artifactIds_17[new V("filter")].Call(VisualJs.Fn(args_24 => { V v_id_25 = VisualJs.Arg(args_24, 0);
 return v_owned_14[new V("has")].Call(v_id_25); }));
-return VisualJs.Obj(new V("setId"), v_set_16[new V("id")], new V("name"), v_set_16[new V("name")], new V("desc"), v_set_16[new V("desc")], new V("artifactIds"), v_artifactIds_17, new V("ownedArtifactIds"), v_ownedArtifactIds_23, new V("owned"), v_ownedArtifactIds_23[new V("length")], new V("total"), v_artifactIds_17[new V("length")], new V("complete"), new V(v_ownedArtifactIds_23[new V("length")] == v_artifactIds_17[new V("length")]));
-return default; }));
-return default;
+return VisualJs.Obj(new V("setId"), v_set_16[new V("id")], new V("name"), v_set_16[new V("name")], new V("desc"), v_set_16[new V("desc")], new V("artifactIds"), v_artifactIds_17, new V("ownedArtifactIds"), v_ownedArtifactIds_23, new V("owned"), v_ownedArtifactIds_23[new V("length")], new V("total"), v_artifactIds_17[new V("length")], new V("complete"), new V(v_ownedArtifactIds_23[new V("length")] == v_artifactIds_17[new V("length")])); }));
 }
 private static V F_getArtifactSetsForArtifact(V[] args) {
 V v_s_26 = VisualJs.Arg(args,0);
 V v_artifactId_27 = VisualJs.Arg(args,1);
 return Scope[new V("getArtifactSetArtifactProgress")].Call(v_s_26)[new V("filter")].Call(VisualJs.Fn(args_28 => { V v_set_29 = VisualJs.Arg(args_28, 0);
 return v_set_29[new V("artifactIds")][new V("includes")].Call(v_artifactId_27); }));
-return default;
 }
 private static V F_getArtifactSetProgress(V[] args) {
 V v_s_30 = VisualJs.Arg(args,0);
@@ -88,22 +83,18 @@ return v_synergy_33[new V("id")]; })));
 return Scope[new V("ARTIFACT_SETS")][new V("map")].Call(VisualJs.Fn(args_34 => { V v_set_35 = VisualJs.Arg(args_34, 0);
 V v_activeSynergies_36 = v_set_35[new V("synergyIds")][new V("filter")].Call(VisualJs.Fn(args_37 => { V v_id_38 = VisualJs.Arg(args_37, 0);
 return v_activeSynergyIds_31[new V("has")].Call(v_id_38); }))[new V("length")];
-return VisualJs.Obj(new V("id"), v_set_35[new V("id")], new V("name"), v_set_35[new V("name")], new V("desc"), v_set_35[new V("desc")], new V("activeSynergies"), v_activeSynergies_36, new V("totalSynergies"), v_set_35[new V("synergyIds")][new V("length")], new V("complete"), new V(v_activeSynergies_36 == v_set_35[new V("synergyIds")][new V("length")]));
-return default; }));
-return default;
+return VisualJs.Obj(new V("id"), v_set_35[new V("id")], new V("name"), v_set_35[new V("name")], new V("desc"), v_set_35[new V("desc")], new V("activeSynergies"), v_activeSynergies_36, new V("totalSynergies"), v_set_35[new V("synergyIds")][new V("length")], new V("complete"), new V(v_activeSynergies_36 == v_set_35[new V("synergyIds")][new V("length")])); }));
 }
 private static V F_getCompletedArtifactSets(V[] args) {
 V v_s_39 = VisualJs.Arg(args,0);
 return Scope[new V("getArtifactSetProgress")].Call(v_s_39)[new V("filter")].Call(VisualJs.Fn(args_40 => { V v_set_41 = VisualJs.Arg(args_40, 0);
 return v_set_41[new V("complete")]; }));
-return default;
 }
 private static V F_protocolSetComplete(V[] args) {
 V v_s_42 = VisualJs.Arg(args,0);
 V v_setId_43 = VisualJs.Arg(args,1);
 return Scope[new V("getArtifactSetProgress")].Call(v_s_42)[new V("some")].Call(VisualJs.Fn(args_44 => { V v_set_45 = VisualJs.Arg(args_44, 0);
 return VisualJs.And(new V(v_set_45[new V("id")] == v_setId_43), () => v_set_45[new V("complete")]); }));
-return default;
 }
 private static V F_getArtifactProtocolStates(V[] args) {
 V v_s_46 = VisualJs.Arg(args,0);
@@ -129,32 +120,26 @@ return new V(VisualJs.Number(v_level_73) > new V(0d)); })));
 return Scope[new V("ARTIFACT_PROTOCOLS")][new V("map")].Call(VisualJs.Fn(args_74 => { V v_protocol_75 = VisualJs.Arg(args_74, 0);
 V v_discovered_76 = Scope[new V("protocolSetComplete")].Call(v_s_46, v_protocol_75[new V("setId")]);
 V v_active_77 = (new V(v_protocol_75[new V("id")] == new V("triangle_resonance")).Truth ? VisualJs.And(v_discovered_76, () => v_triangle_55) : (new V(v_protocol_75[new V("id")] == new V("sphere_relay")).Truth ? VisualJs.And(v_discovered_76, () => new V(v_sphereTypes_47[new V("size")] >= new V(2d))) : (new V(v_protocol_75[new V("id")] == new V("critical_echo")).Truth ? VisualJs.And(v_discovered_76, () => new V(v_s_46[new V("player")][new V("combo")] >= new V(5d))) : (new V(v_protocol_75[new V("id")] == new V("geometry_circuit")).Truth ? VisualJs.And(v_discovered_76, () => VisualJs.Arr(new V("ring"), new V("lattice"), new V("fractal"))[new V("includes")].Call(v_geometry_58)) : (new V(v_protocol_75[new V("id")] == new V("void_horizon_protocol")).Truth ? VisualJs.And(v_discovered_76, () => v_voidPressure_60) : (new V(v_protocol_75[new V("id")] == new V("temporal_fold_protocol")).Truth ? VisualJs.And(v_discovered_76, () => v_timeControl_59) : (new V(v_protocol_75[new V("id")] == new V("status_circuit_protocol")).Truth ? VisualJs.And(v_discovered_76, () => v_statusBuild_71) : (new V(v_protocol_75[new V("id")] == new V("hunter_doctrine_protocol")).Truth ? VisualJs.And(v_discovered_76, () => v_priorityPressure_63) : (new V(v_protocol_75[new V("id")] == new V("pulse_engineering_protocol")).Truth ? VisualJs.And(v_discovered_76, () => v_densePressure_66) : (new V(v_protocol_75[new V("id")] == new V("prism_dominion_protocol")).Truth ? VisualJs.And(v_discovered_76, () => v_refractionPressure_69) : (new V(v_protocol_75[new V("id")] == new V("core_forge_protocol")).Truth ? VisualJs.And(v_discovered_76, () => new V(v_sphereTypes_47[new V("size")] >= new V(3d))) : (new V(v_protocol_75[new V("id")] == new V("network_legacy_protocol")).Truth ? VisualJs.And(v_discovered_76, () => v_networkLegacyPressure_70) : new V(false)))))))))))));
-return VisualJs.Merge(v_protocol_75, VisualJs.Obj(new V("discovered"),v_discovered_76), VisualJs.Obj(new V("active"),v_active_77));
-return default; }));
-return default;
+return VisualJs.Merge(v_protocol_75, VisualJs.Obj(new V("discovered"),v_discovered_76), VisualJs.Obj(new V("active"),v_active_77)); }));
 }
 private static V F_hasCompletedArtifactSet(V[] args) {
 V v_s_78 = VisualJs.Arg(args,0);
 V v_setId_79 = VisualJs.Arg(args,1);
 return Scope[new V("getCompletedArtifactSets")].Call(v_s_78)[new V("some")].Call(VisualJs.Fn(args_80 => { V v_set_81 = VisualJs.Arg(args_80, 0);
 return new V(v_set_81[new V("id")] == v_setId_79); }));
-return default;
 }
 private static V F_getArtifactSetBehavior(V[] args) {
 V v_s_82 = VisualJs.Arg(args,0);
 return VisualJs.Obj(new V("resonanceGrid"), Scope[new V("hasCompletedArtifactSet")].Call(v_s_82, new V("resonance_grid")), new V("echoArchitecture"), Scope[new V("hasCompletedArtifactSet")].Call(v_s_82, new V("echo_architecture")), new V("singularityPath"), Scope[new V("hasCompletedArtifactSet")].Call(v_s_82, new V("singularity_path")), new V("geometryCraft"), Scope[new V("hasCompletedArtifactSet")].Call(v_s_82, new V("geometry_craft")), new V("voidHorizon"), Scope[new V("hasCompletedArtifactSet")].Call(v_s_82, new V("void_horizon")), new V("temporalFold"), Scope[new V("hasCompletedArtifactSet")].Call(v_s_82, new V("temporal_fold")), new V("statusCircuit"), Scope[new V("hasCompletedArtifactSet")].Call(v_s_82, new V("status_circuit")), new V("hunterDoctrine"), Scope[new V("hasCompletedArtifactSet")].Call(v_s_82, new V("hunter_doctrine")), new V("pulseEngineering"), Scope[new V("hasCompletedArtifactSet")].Call(v_s_82, new V("pulse_engineering")), new V("coreForge"), Scope[new V("hasCompletedArtifactSet")].Call(v_s_82, new V("core_forge")), new V("prismDominion"), Scope[new V("hasCompletedArtifactSet")].Call(v_s_82, new V("prism_dominion")), new V("networkLegacy"), Scope[new V("hasCompletedArtifactSet")].Call(v_s_82, new V("network_legacy")));
-return default;
 }
 private static V F_artifactRarity(V[] args) {
 V v_id_83 = VisualJs.Arg(args,0);
 return Scope[new V("ARTIFACT_META")][v_id_83][new V("rarity")];
-return default;
 }
 private static V F_hasArtifact(V[] args) {
 V v_s_84 = VisualJs.Arg(args,0);
 V v_id_85 = VisualJs.Arg(args,1);
 return v_s_84[new V("player")][new V("artifacts")][new V("includes")].Call(v_id_85);
-return default;
 }
 private static V F_effectSum(V[] args) {
 V v_s_86 = VisualJs.Arg(args,0);
@@ -162,42 +147,34 @@ V v_key_87 = VisualJs.Arg(args,1);
 V v_total_88 = new V(0d);
 foreach (V v_id_89 in v_s_86[new V("player")][new V("artifacts")].Items) v_total_88 += VisualJs.Or(VisualJs.Chain(Scope[new V("ARTIFACT_META")][v_id_89],optional_90=>optional_90[new V("effects")][v_key_87]), () => new V(0d));
 return v_total_88;
-return default;
 }
 private static V F_getArtifactMoveSpeedMultiplier(V[] args) {
 V v_s_91 = VisualJs.Arg(args,0);
 return VisualJs.MathObject[new V("max")].Call(new V(0.5d), (new V(1d) + Scope[new V("effectSum")].Call(v_s_91, new V("moveSpeed"))));
-return default;
 }
 private static V F_getArtifactSphereRadiusMultiplier(V[] args) {
 V v_s_92 = VisualJs.Arg(args,0);
 return VisualJs.MathObject[new V("max")].Call(new V(0.5d), (new V(1d) + Scope[new V("effectSum")].Call(v_s_92, new V("sphereRadius"))));
-return default;
 }
 private static V F_getArtifactSphereDamageMultiplier(V[] args) {
 V v_s_93 = VisualJs.Arg(args,0);
 return VisualJs.MathObject[new V("max")].Call(new V(0.25d), (new V(1d) + Scope[new V("effectSum")].Call(v_s_93, new V("sphereDamage"))));
-return default;
 }
 private static V F_getArtifactSphereDelayMultiplier(V[] args) {
 V v_s_94 = VisualJs.Arg(args,0);
 return VisualJs.MathObject[new V("max")].Call(new V(0.5d), (new V(1d) + Scope[new V("effectSum")].Call(v_s_94, new V("sphereDelay"))));
-return default;
 }
 private static V F_getArtifactCritChanceBonus(V[] args) {
 V v_s_95 = VisualJs.Arg(args,0);
 return Scope[new V("effectSum")].Call(v_s_95, new V("critChance"));
-return default;
 }
 private static V F_getArtifactDodgeChanceBonus(V[] args) {
 V v_s_96 = VisualJs.Arg(args,0);
 return Scope[new V("effectSum")].Call(v_s_96, new V("dodgeChance"));
-return default;
 }
 private static V F_getArtifactVampireBonus(V[] args) {
 V v_s_97 = VisualJs.Arg(args,0);
 return Scope[new V("effectSum")].Call(v_s_97, new V("vampire"));
-return default;
 }
 private static V F_hasNearbysphere(V[] args) {
 V v_s_98 = VisualJs.Arg(args,0);
@@ -206,7 +183,6 @@ V v_maxDistance_100 = VisualJs.Arg(args,2);
 if ((!v_sphere_99).Truth) return new V(false);
 return (VisualJs.Or(v_s_98[new V("spheres")], () => VisualJs.Arr()))[new V("some")].Call(VisualJs.Fn(args_101 => { V v_other_102 = VisualJs.Arg(args_101, 0);
 return VisualJs.And(VisualJs.And(new V(v_other_102 != v_sphere_99), () => new V(v_other_102[new V("alive")] != new V(false))), () => new V(VisualJs.MathObject[new V("hypot")].Call((v_other_102[new V("pos")][new V("x")] - v_sphere_99[new V("pos")][new V("x")]), (v_other_102[new V("pos")][new V("y")] - v_sphere_99[new V("pos")][new V("y")])) <= v_maxDistance_100)); }));
-return default;
 }
 private static V F_formsTriangle(V[] args) {
 V v_s_103 = VisualJs.Arg(args,0);
@@ -224,7 +200,6 @@ if (VisualJs.And(VisualJs.And(new V(v_ab_112 <= new V(300d)), () => new V(v_as_1
 }
 }
 return new V(false);
-return default;
 }
 private static V F_getSphereArtifactDamageMultiplier(V[] args) {
 V v_s_115 = VisualJs.Arg(args,0);
@@ -257,7 +232,6 @@ return VisualJs.And(new V(v_other_138[new V("alive")] != new V(false)), () => ne
 if (new V(v_grouped_134[new V("length")] >= new V(3d)).Truth) v_multiplier_117 *= new V(1.15d);
 }
 return v_multiplier_117;
-return default;
 }
 }
 }

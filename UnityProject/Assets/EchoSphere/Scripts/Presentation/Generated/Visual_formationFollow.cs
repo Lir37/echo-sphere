@@ -12,7 +12,6 @@ Scope[new V("FOLLOW_MOVEMENT_ABILITIES")] = VisualJs.NewSet(VisualJs.Arr(new V("
 private static V F_isFormationFollowMovementAbility(V[] args) {
 V v_ability_0 = VisualJs.Arg(args,0);
 return Scope[new V("FOLLOW_MOVEMENT_ABILITIES")][new V("has")].Call(v_ability_0);
-return default;
 }
 }
 }

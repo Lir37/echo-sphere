@@ -21,5 +21,6 @@ assert.ok(!/\bvoid\s+OnGUI\s*\(/.test(runtime),'Legacy migration GUI must not ov
 const bridge=readFileSync('UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourcePresentation.cs','utf8');
 assert.ok(bridge.includes('Visual_renderer.Scope["render"].Call')&&bridge.includes('DrawSourceDocument();'),'The source renderer and source UI must both be on the active frame path');
 assert.ok(bridge.includes('renderer.enabled=false'),'Legacy native visual approximations must stay disabled');
+assert.ok(bridge.includes('_camera.cullingMask=0')&&!bridge.includes('FindObjectsByType<Renderer>'),'The source UI texture must replace scene rendering without a full-scene Renderer scan every frame');
 assert.ok(!code.filter(item=>item.file.includes('/Presentation/')).some(item=>/WebView|Jint|ClearScript|UnityEditor/.test(item.text)),'Source presentation must run as native runtime C#');
 console.log(`Visual reference provenance and native renderer wiring: PASS (${generated.size} translated modules, ${Object.keys(manifest.outputs).length} reference outputs).`);

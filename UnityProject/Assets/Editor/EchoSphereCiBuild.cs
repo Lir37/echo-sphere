@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using UnityEditor;
+using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
 
@@ -39,7 +40,7 @@ public static class EchoSphereCiBuild
             }
         }
 
-        PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android, ApplicationId);
+        PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, ApplicationId);
         EditorUserBuildSettings.buildAppBundle = false;
 
         var projectRoot = Directory.GetParent(Application.dataPath)?.FullName;

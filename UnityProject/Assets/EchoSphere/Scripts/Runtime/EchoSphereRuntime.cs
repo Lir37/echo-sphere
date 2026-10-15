@@ -380,7 +380,6 @@ namespace EchoSphere.Runtime
         private SphereNetworkFormation _previousDominantFormation = SphereNetworkFormation.None;
         private SphereNetworkFormation _preferredDominantFormation = SphereNetworkFormation.None;
         private SphereNetworkFormation _preferredSecondaryFormation = SphereNetworkFormation.None;
-        private float _networkRefreshTimer;
 
         public bool IsGameplayPaused => _mainMenu || (_paused && !_simulationFrame) || (!_simulationFrame && _playerCore != null && _playerCore.IsDead);
         public bool IsPresentationPaused => _mainMenu || _paused;

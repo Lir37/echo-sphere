@@ -31,7 +31,7 @@ namespace EchoSphere.Presentation
         internal void Update(VisualCssNode node,VisualElement original,float sigma)
         {
             _node=node;_original=original;_sigma=sigma;var box=original.layout;style.position=Position.Absolute;style.left=box.x;style.top=box.y;style.width=box.width;style.height=box.height;style.marginLeft=0;style.marginTop=0;
-            transform.position=original.transform.position;transform.rotation=original.transform.rotation;transform.scale=original.transform.scale;style.transformOrigin=original.style.transformOrigin;
+            style.translate=original.style.translate;style.rotate=original.style.rotate;style.scale=original.style.scale;style.transformOrigin=original.style.transformOrigin;
             style.display=original.style.display;style.visibility=original.style.visibility;if(node.Width>0&&node.Height>0)PrepareTargets();MarkDirtyRepaint();
         }
         private bool PrepareTargets()

@@ -25,7 +25,6 @@ V v_mods_0 = VisualJs.Arg(args,0);
 V v_kind_1 = VisualJs.Arg(args,1);
 V v_value_2 = VisualJs.Number(VisualJs.Coalesce(VisualJs.Chain(v_mods_0,optional_3=>optional_3[v_kind_1]), () => new V(0d)));
 return (VisualJs.NumberObject[new V("isFinite")].Call(v_value_2).Truth ? VisualJs.MathObject[new V("max")].Call(new V(0d), v_value_2) : new V(0d));
-return default;
 }
 private static V F_drawFlame(V[] args) {
 V v_ctx_4 = VisualJs.Arg(args,0);

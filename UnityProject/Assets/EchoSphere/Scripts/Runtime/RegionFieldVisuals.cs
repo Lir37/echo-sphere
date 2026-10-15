@@ -67,7 +67,6 @@ namespace EchoSphere.Runtime
         private Texture2D _radarPixel;
         private Transform _fieldRoot;
         private bool _initialized;
-        private float _seamTime;
         public EchoRegionId ActiveRegionId { get; private set; } = EchoRegionId.ResonanceBasin;
 
         public void Initialize(EchoSphereRuntime runtime, EchoRegionId regionId = EchoRegionId.ResonanceBasin)

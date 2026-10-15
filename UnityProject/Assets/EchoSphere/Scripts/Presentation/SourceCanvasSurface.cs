@@ -55,6 +55,7 @@ namespace EchoSphere.Presentation
         private readonly Dictionary<VisualGradient,int> _gradientIndices=new Dictionary<VisualGradient,int>();
         private Mesh _mesh;
         private Material _material;
+        private MaterialPropertyBlock _properties;
         private Texture2D _paintTexture;
         private Color[] _paintPixels;
         public VisualCanvas Canvas { get; private set; }
@@ -64,6 +65,7 @@ namespace EchoSphere.Presentation
         private int _paintHeight=32;
         public void Initialize(int sortingOrder)
         {
+            _properties=new MaterialPropertyBlock();
             Canvas=new VisualCanvas(this);_mesh=new Mesh {name="Source Canvas Paths",indexFormat=IndexFormat.UInt32};_mesh.MarkDynamic();
             _displayMesh=new Mesh {name="Source Canvas presentation"};gameObject.AddComponent<MeshFilter>().sharedMesh=_displayMesh;
             var renderer=gameObject.AddComponent<MeshRenderer>();renderer.sortingOrder=sortingOrder;
@@ -98,7 +100,7 @@ namespace EchoSphere.Presentation
             var scale=transform.parent!=null?transform.parent.lossyScale:Vector3.one;
             transform.localScale=new Vector3(1f/scale.x,1f/scale.y,1f/scale.z);
             _mesh.Clear();_mesh.SetVertices(_vertices);_mesh.SetColors(_colors);_mesh.SetUVs(0,_uv);_mesh.SetUVs(1,_data);_mesh.subMeshCount=_batches.Count;
-            for(var i=0;i<_batches.Count;i++)_mesh.SetTriangles(_triangles.GetRange(_batches[i].Start,_batches[i].Count),i,false);
+            for(var i=0;i<_batches.Count;i++)_mesh.SetTriangles(_triangles,_batches[i].Start,_batches[i].Count,i,false);
             _mesh.RecalculateBounds();
             while(_paintHeight<_gradients.Count) { _paintHeight*=2;ResizePaintTexture(); }
             for(var row=0;row<_gradients.Count;row++)
@@ -131,15 +133,15 @@ namespace EchoSphere.Presentation
             var projection=GL.GetGPUProjectionMatrix(Matrix4x4.Ortho(_viewport.xMin,_viewport.xMax,_viewport.yMin,_viewport.yMax,-1f,1f),true);
             _commands.SetViewProjectionMatrices(Matrix4x4.identity,projection);
             var mask=Shader.PropertyToID("_SourceShadowMask");var ping=Shader.PropertyToID("_SourceShadowPing");var blur=Shader.PropertyToID("_SourceShadowBlur");
-            var paddingX=0;var paddingY=0;foreach(var batch in _batches)if(batch.Shadow.a>0f){paddingX=Math.Max(paddingX,VisualCanvasShadowViewport.Padding(batch.Blur,batch.X));paddingY=Math.Max(paddingY,VisualCanvasShadowViewport.Padding(batch.Blur,batch.Y));}
+            var hasShadows=false;var paddingX=0;var paddingY=0;foreach(var batch in _batches)if(batch.Count>0&&batch.Shadow.a>0f&&(batch.Blur>0f||batch.X!=0f||batch.Y!=0f)){hasShadows=true;paddingX=Math.Max(paddingX,VisualCanvasShadowViewport.Padding(batch.Blur,batch.X));paddingY=Math.Max(paddingY,VisualCanvasShadowViewport.Padding(batch.Blur,batch.Y));}
             var shadowViewport=new VisualCanvasShadowViewport(_target.width,_target.height,paddingX,paddingY);
             var pixelX=_viewport.width/_target.width;var pixelY=_viewport.height/_target.height;
             var shadowProjection=GL.GetGPUProjectionMatrix(Matrix4x4.Ortho(_viewport.xMin-paddingX*pixelX,_viewport.xMax+paddingX*pixelX,_viewport.yMin-paddingY*pixelY,_viewport.yMax+paddingY*pixelY,-1f,1f),true);
-            _commands.GetTemporaryRT(mask,shadowViewport.Width,shadowViewport.Height,0,FilterMode.Bilinear,RenderTextureFormat.ARGB32,RenderTextureReadWrite.Linear,4);
+            if(hasShadows){_commands.GetTemporaryRT(mask,shadowViewport.Width,shadowViewport.Height,0,FilterMode.Bilinear,RenderTextureFormat.ARGB32,RenderTextureReadWrite.Linear,4);
             _commands.GetTemporaryRT(ping,shadowViewport.Width,shadowViewport.Height,0,FilterMode.Bilinear,RenderTextureFormat.ARGB32,RenderTextureReadWrite.Linear);
-            _commands.GetTemporaryRT(blur,shadowViewport.Width,shadowViewport.Height,0,FilterMode.Bilinear,RenderTextureFormat.ARGB32,RenderTextureReadWrite.Linear);
+            _commands.GetTemporaryRT(blur,shadowViewport.Width,shadowViewport.Height,0,FilterMode.Bilinear,RenderTextureFormat.ARGB32,RenderTextureReadWrite.Linear);}
             for(var i=0;i<_batches.Count;i++) {
-                var batch=_batches[i];var props=new MaterialPropertyBlock();var image=batch.Texture!=null?batch.Texture:Texture2D.whiteTexture;props.SetTexture("_ImageTex",image);props.SetVector("_ImageTex_TexelSize",new Vector4(1f/image.width,1f/image.height,image.width,image.height));
+                var batch=_batches[i];if(batch.Count==0)continue;var props=_properties;var image=batch.Texture!=null?batch.Texture:Texture2D.whiteTexture;props.SetTexture("_ImageTex",image);props.SetVector("_ImageTex_TexelSize",new Vector4(1f/image.width,1f/image.height,image.width,image.height));
                 if(batch.Shadow.a>0f&&(batch.Blur>0f||batch.X!=0f||batch.Y!=0f)) {
                     _commands.SetRenderTarget(mask);_commands.ClearRenderTarget(false,true,Color.clear);_commands.SetViewProjectionMatrices(Matrix4x4.identity,shadowProjection);
                     _commands.DrawMesh(_mesh,Matrix4x4.identity,_material,i,0,props);
@@ -155,7 +157,7 @@ namespace EchoSphere.Presentation
                 _commands.SetRenderTarget(_target);_commands.DrawMesh(_mesh,Matrix4x4.identity,_material,i,batch.Blend=="lighter"?1:batch.Blend=="screen"?2:0,props);
             }
             var previous=RenderTexture.active;var gamma=GL.sRGBWrite;
-            try{_commands.ReleaseTemporaryRT(mask);_commands.ReleaseTemporaryRT(ping);_commands.ReleaseTemporaryRT(blur);_commands.SetRenderTarget(previous!=null?new RenderTargetIdentifier(previous):new RenderTargetIdentifier(BuiltinRenderTextureType.CameraTarget));Graphics.ExecuteCommandBuffer(_commands);}
+            try{if(hasShadows){_commands.ReleaseTemporaryRT(mask);_commands.ReleaseTemporaryRT(ping);_commands.ReleaseTemporaryRT(blur);}_commands.SetRenderTarget(previous!=null?new RenderTargetIdentifier(previous):new RenderTargetIdentifier(BuiltinRenderTextureType.CameraTarget));Graphics.ExecuteCommandBuffer(_commands);}
             finally{RenderTexture.active=previous;GL.sRGBWrite=gamma;}
         }
         private void ResizePaintTexture()

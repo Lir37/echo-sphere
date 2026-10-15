@@ -6,7 +6,7 @@ namespace EchoSphere.Presentation
 {
     internal static class SourceUiCursor
     {
-        [Serializable] private sealed class Reference { public int hotspotX; public int hotspotY; }
+        [Serializable] private sealed class Reference { public int hotspotX=0; public int hotspotY=0; }
         private static Texture2D _pointer;
         private static Vector2 _hotspot;
         internal static void Apply(IStyle style,string cursor)

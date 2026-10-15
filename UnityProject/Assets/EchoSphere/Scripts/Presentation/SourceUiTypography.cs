@@ -27,9 +27,9 @@ namespace EchoSphere.Presentation
             if(!_initialized){FontEngine.InitializeFontEngine();_initialized=true;}
             var names=SourceCanvasTypography.Families(family);
             // The last families are the browser's platform glyph fallbacks.
-#if UNITY_ANDROID
+#if UNITY_ANDROID && !UNITY_EDITOR
             names.Add("Noto Sans");names.Add("Noto Color Emoji");names.Add("Noto Sans Symbols");
-#elif UNITY_STANDALONE_OSX || UNITY_IOS
+#elif UNITY_STANDALONE_OSX || UNITY_IOS || UNITY_EDITOR_OSX
             names.Add("Apple Color Emoji");names.Add("Apple Symbols");
 #else
             names.Add("Segoe UI Emoji");names.Add("Segoe UI Symbol");

@@ -70,18 +70,15 @@ private static V F_shopCost(V[] args) {
 V v_def_0 = VisualJs.Arg(args,0);
 V v_currentLevel_1 = VisualJs.Arg(args,1);
 return VisualJs.MathObject[new V("floor")].Call((v_def_0[new V("baseCost")] * VisualJs.MathObject[new V("pow")].Call(new V(3d), v_currentLevel_1)));
-return default;
 }
 private static V F_sphereUsesProjectileModifiers(V[] args) {
 V v_type_2 = VisualJs.Arg(args,0);
 return Scope[new V("PROJECTILE_SPHERE_TYPES")][new V("includes")].Call(v_type_2);
-return default;
 }
 private static V F_abilityName(V[] args) {
 V v_id_3 = VisualJs.Arg(args,0);
 V v_lang_4 = VisualJs.Arg(args,1);
 return Scope[new V("ABILITIES")][v_id_3][new V("name")][v_lang_4];
-return default;
 }
 }
 }

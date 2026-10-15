@@ -23,7 +23,6 @@ V v_hex_0 = VisualJs.Arg(args,0);
 V v_alpha_1 = VisualJs.Arg(args,1);
 V v_n_2 = VisualJs.NumberObject[new V("parseInt")].Call(v_hex_0[new V("slice")].Call(new V(1d)), new V(16d));
 return (new V("rgba(") + (((v_n_2 >> (int)new V(16d).Number)) & new V(255d)) + new V(",") + (((v_n_2 >> (int)new V(8d).Number)) & new V(255d)) + new V(",") + (v_n_2 & new V(255d)) + new V(",") + v_alpha_1 + new V(")"));
-return default;
 }
 private static V F_drawFlame(V[] args) {
 V v_ctx_3 = VisualJs.Arg(args,0);
@@ -109,7 +108,6 @@ V v_radiusX_27 = VisualJs.Arg(args,0);
 V v_radiusY_28 = VisualJs.Arg(args,1);
 V v_angle_29 = VisualJs.Arg(args,2);
 return VisualJs.Obj(new V("x"), (VisualJs.MathObject[new V("cos")].Call(v_angle_29) * v_radiusX_27), new V("y"), (VisualJs.MathObject[new V("sin")].Call(v_angle_29) * v_radiusY_28));
-return default;
 }
 private static V F_drawElementRing(V[] args) {
 V v_ctx_30 = VisualJs.Arg(args,0);

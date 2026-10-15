@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using EchoSphere.Runtime;
 using UnityEditor;
+using UnityEditor.Build;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -122,7 +123,13 @@ internal static class EchoSphereProjectBootstrap
         PlayerSettings.companyName = "Lir37";
         PlayerSettings.productName = "ECHO SPHERE";
         PlayerSettings.bundleVersion = "0.1.0";
-        PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android, ApplicationId);
+        PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, ApplicationId);
+        PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
+        PlayerSettings.SetApiCompatibilityLevel(NamedBuildTarget.Android, ApiCompatibilityLevel.NET_Standard);
+        // Keep 32-bit device support and include the required 64-bit player.
+        PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARMv7 | AndroidArchitecture.ARM64;
+        if ((int)PlayerSettings.Android.minSdkVersion < 25)
+            PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel25;
         // ECHO SPHERE is designed for upright portrait mobile play.
         // Keep Android from rotating into a landscape layout.
         PlayerSettings.defaultInterfaceOrientation = UIOrientation.Portrait;

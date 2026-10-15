@@ -23,20 +23,17 @@ private static V F_distance(V[] args) {
 V v_a_0 = VisualJs.Arg(args,0);
 V v_b_1 = VisualJs.Arg(args,1);
 return VisualJs.MathObject[new V("hypot")].Call((v_a_0[new V("x")] - v_b_1[new V("x")]), (v_a_0[new V("y")] - v_b_1[new V("y")]));
-return default;
 }
 private static V F_clampScalar(V[] args) {
 V v_value_2 = VisualJs.Arg(args,0);
 V v_min_3 = VisualJs.Arg(args,1);
 V v_max_4 = VisualJs.Arg(args,2);
 return VisualJs.MathObject[new V("max")].Call(v_min_3, VisualJs.MathObject[new V("min")].Call(v_max_4, v_value_2));
-return default;
 }
 private static V F_cellKey(V[] args) {
 V v_x_5 = VisualJs.Arg(args,0);
 V v_y_6 = VisualJs.Arg(args,1);
 return (new V("") + v_x_5 + new V(",") + v_y_6 + new V(""));
-return default;
 }
 private static V F_canPlaceSphere(V[] args) {
 V v_s_7 = VisualJs.Arg(args,0);
@@ -53,7 +50,6 @@ if (new V(v_enemy_12[new V("hp")] <= new V(0d)).Truth) continue;
 if (new V(Scope[new V("distance")].Call(VisualJs.Obj(new V("x"), v_x_8, new V("y"), v_y_9), v_enemy_12[new V("pos")]) < ((Scope[new V("TOWER_BODY_RADIUS")] + v_enemy_12[new V("radius")]) + Scope[new V("ENEMY_PLACEMENT_GAP")])).Truth) return new V(false);
 }
 return Scope[new V("hasRouteToOutside")].Call(v_s_7, VisualJs.Obj(new V("x"), v_x_8, new V("y"), v_y_9), v_ignoreSphere_10);
-return default;
 }
 private static V F_canRepositionSphere(V[] args) {
 V v_s_13 = VisualJs.Arg(args,0);
@@ -61,7 +57,6 @@ V v_sphere_14 = VisualJs.Arg(args,1);
 V v_x_15 = VisualJs.Arg(args,2);
 V v_y_16 = VisualJs.Arg(args,3);
 return Scope[new V("canPlaceSphere")].Call(v_s_13, v_x_15, v_y_16, v_sphere_14);
-return default;
 }
 private static V F_hasRouteToOutside(V[] args) {
 V v_s_17 = VisualJs.Arg(args,0);
@@ -80,8 +75,7 @@ V v_isBlocked_32 = default; v_isBlocked_32 = VisualJs.Fn(args_33 => { V v_cx_34 
 V v_cy_35 = VisualJs.Arg(args_33, 1);
 V v_center_36 = VisualJs.Obj(new V("x"), (v_minX_25 + (((v_cx_34 + new V(0.5d))) * Scope[new V("NAV_CELL_SIZE")])), new V("y"), (v_minY_26 + (((v_cy_35 + new V(0.5d))) * Scope[new V("NAV_CELL_SIZE")])));
 return v_obstacles_20[new V("some")].Call(VisualJs.Fn(args_37 => { V v_obstacle_38 = VisualJs.Arg(args_37, 0);
-return new V(Scope[new V("distance")].Call(v_center_36, v_obstacle_38) < (Scope[new V("TOWER_BODY_RADIUS")] + Scope[new V("ENEMY_NAV_RADIUS")])); }));
-return default; });
+return new V(Scope[new V("distance")].Call(v_center_36, v_obstacle_38) < (Scope[new V("TOWER_BODY_RADIUS")] + Scope[new V("ENEMY_NAV_RADIUS")])); })); });
 V v_start_39 = v_toCell_29.Call(v_s_17[new V("player")][new V("pos")]);
 if (v_isBlocked_32.Call(v_start_39[new V("x")], v_start_39[new V("y")]).Truth) return new V(false);
 V v_queue_40 = VisualJs.Arr(v_start_39);
@@ -107,7 +101,6 @@ v_queue_40[new V("push")].Call(VisualJs.Obj(new V("x"), v_nx_46, new V("y"), v_n
 }
 }
 return new V(false);
-return default;
 }
 }
 }

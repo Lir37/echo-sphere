@@ -12,7 +12,6 @@ Scope[new V("buildGhostSnapPreview")] = VisualJs.Fn(F_buildGhostSnapPreview);
 private static V F_getGhostSnapFormation(V[] args) {
 V v_network_0 = VisualJs.Arg(args,0);
 return VisualJs.Coalesce(v_network_0[new V("dominantFormation")], () => VisualJs.Null);
-return default;
 }
 private static V F_buildGhostSnapPreview(V[] args) {
 V v_spheres_1 = VisualJs.Arg(args,0);
@@ -36,7 +35,6 @@ return VisualJs.Or(new V(v_link_14[new V("a")] == v_candidateIndex_10), () => ne
 return (new V(v_link_16[new V("a")] == v_candidateIndex_10).Truth ? v_link_16[new V("b")] : v_link_16[new V("a")]); }));
 V v_formation_17 = Scope[new V("getGhostSnapFormation")].Call(v_network_11);
 return VisualJs.Obj(new V("candidate"), VisualJs.Merge(v_candidate_2), new V("candidateIndex"), v_candidateIndex_10, new V("network"), v_network_11, new V("nodes"), v_nodes_6, new V("linkedNodeIndexes"), v_linkedNodeIndexes_12, new V("formation"), v_formation_17);
-return default;
 }
 }
 }

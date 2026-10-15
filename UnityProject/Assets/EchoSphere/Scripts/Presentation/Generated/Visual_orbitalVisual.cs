@@ -27,7 +27,6 @@ if (v_v_1.Truth) return v_v_1;
 v_v_1 = VisualJs.Obj(new V("lastTime"), new V(0d), new V("lastAura"), (VisualJs.NumberObject[new V("isFinite")].Call(v_s_0[new V("auraTimer")]).Truth ? v_s_0[new V("auraTimer")] : new V(0d)), new V("attack"), new V(0d), new V("resonance"), new V(0d), new V("phase"), (((((((v_s_0[new V("pos")][new V("x")] * new V(0.011d)) + (v_s_0[new V("pos")][new V("y")] * new V(0.007d)))) % Scope[new V("TAU")]) + Scope[new V("TAU")])) % Scope[new V("TAU")]));
 Scope[new V("STATES")][new V("set")].Call(v_s_0, v_v_1);
 return v_v_1;
-return default;
 }
 private static V F_update(V[] args) {
 V v_s_2 = VisualJs.Arg(args,0);
@@ -47,7 +46,6 @@ if (VisualJs.Chain(v_p_3,optional_9=>optional_9[new V("resonanceEventActive")]).
 VisualJs.Assign(v_v_5,new V("resonance"),"=",VisualJs.MathObject[new V("max")].Call(new V(0d), (v_v_5[new V("resonance")] - v_dt_6)));
 }
 return v_v_5;
-return default;
 }
 private static V F_drawOrbitalTerminal(V[] args) {
 V v_ctx_10 = VisualJs.Arg(args,0);
@@ -90,7 +88,6 @@ V v_hex_16 = VisualJs.Arg(args,0);
 V v_alpha_17 = VisualJs.Arg(args,1);
 V v_n_18 = VisualJs.NumberObject[new V("parseInt")].Call(v_hex_16[new V("slice")].Call(new V(1d)), new V(16d));
 return (new V("rgba(") + (((v_n_18 >> (int)new V(16d).Number)) & new V(255d)) + new V(",") + (((v_n_18 >> (int)new V(8d).Number)) & new V(255d)) + new V(",") + (v_n_18 & new V(255d)) + new V(",") + v_alpha_17 + new V(")"));
-return default;
 }
 private static V F_drawOrbitalElementTrail(V[] args) {
 V v_ctx_19 = VisualJs.Arg(args,0);

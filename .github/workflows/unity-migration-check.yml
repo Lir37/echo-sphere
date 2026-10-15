@@ -9,6 +9,8 @@ on:
       - 'tools/EchoSphere.CoreChecks/**'
       - 'tools/EchoSphere.VisualChecks/**'
       - 'tools/EchoSphere.NativeControlArt/**'
+      - 'tools/EchoSphere.UnityTypeChecks/**'
+      - 'scripts/prepare-unity-typecheck-references.py'
       - 'scripts/check-unity-project.mjs'
       - 'scripts/check-unity-visual-provenance.mjs'
       - 'scripts/export-unity-*'
@@ -17,6 +19,9 @@ on:
       - 'tests/**'
       - 'src/**'
       - 'package-lock.json'
+      - 'package.json'
+      - 'tsconfig*.json'
+      - 'vite.config.ts'
       - 'tailwind.config.js'
       - 'postcss.config.js'
       - '.github/workflows/unity-migration-check.yml'
@@ -28,6 +33,34 @@ permissions:
   contents: read
 
 jobs:
+  unity-typecheck:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 8.0.x
+      - name: Extract hash-pinned API DLLs from the official Unity archive
+        run: python3 scripts/prepare-unity-typecheck-references.py --output "$RUNNER_TEMP/echo-unity-references"
+      - name: Typecheck Android player, editor runtime and separate editor assembly
+        run: dotnet run --project tools/EchoSphere.UnityTypeChecks --configuration Release -- UnityProject "$RUNNER_TEMP/echo-unity-references" "$RUNNER_TEMP/unity-typecheck.json"
+  source-typecheck:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Install locked source dependencies
+        run: npm ci --ignore-scripts
+      - name: Typecheck original game and Vite configuration
+        run: |
+          npm run typecheck
+          node node_modules/typescript/bin/tsc --noEmit -p tsconfig.node.json
   core-contracts:
     runs-on: ubuntu-24.04
     steps:

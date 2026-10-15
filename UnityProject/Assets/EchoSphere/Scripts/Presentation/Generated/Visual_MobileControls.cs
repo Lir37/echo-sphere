@@ -29,7 +29,6 @@ return default;
 private static V F_isBlockedByControl(V[] args) {
 V v_target_1 = VisualJs.Arg(args,0);
 return VisualJs.And(VisualUiBindings.Get("global","isElement").Call(v_target_1), () => new V(v_target_1[new V("closest")].Call(new V("[data-mobile-control=\"true\"]")).Truth));
-return default;
 }
 private static V F_MobileControls(V[] args) {
 V binding_2 = VisualJs.Arg(args,0);
@@ -103,8 +102,7 @@ V v_rect_49 = v_canvas_48[new V("getBoundingClientRect")].Call();
 if (VisualJs.Or(new V(v_rect_49[new V("width")] <= new V(0d)), () => new V(v_rect_49[new V("height")] <= new V(0d))).Truth) return VisualJs.Null;
 V v_logicalX_50 = (v_clientX_45 - v_rect_49[new V("left")]);
 V v_logicalY_51 = (v_clientY_46 - v_rect_49[new V("top")]);
-return Visual_renderScale.Scope[new V("cssPointToWorld")].Call(v_clientX_45, v_clientY_46, v_rect_49, v_st_47[new V("camera")][new V("x")], v_st_47[new V("camera")][new V("y")]);
-return default; });
+return Visual_renderScale.Scope[new V("cssPointToWorld")].Call(v_clientX_45, v_clientY_46, v_rect_49, v_st_47[new V("camera")][new V("x")], v_st_47[new V("camera")][new V("y")]); });
 V v_buildGhostPreview_52 = default; v_buildGhostPreview_52 = VisualJs.Fn(args_53 => { V v_st_54 = VisualJs.Arg(args_53, 0);
 V v_sphere_55 = VisualJs.Arg(args_53, 1);
 V v_sphereIndex_56 = VisualJs.Arg(args_53, 2);
@@ -113,15 +111,13 @@ V v_y_58 = VisualJs.Arg(args_53, 4);
 V v_preview_59 = Visual_networkPreview.Scope[new V("buildGhostSnapPreview")].Call(v_st_54[new V("spheres")], VisualJs.Obj(new V("x"), v_x_57, new V("y"), v_y_58), default(V), v_sphereIndex_56);
 V v_network_60 = VisualJs.Or(VisualJs.Chain(v_preview_59,optional_61=>optional_61[new V("network")]), () => Visual_network.Scope[new V("analyzeSphereNetwork")].Call(v_st_54[new V("spheres")][new V("map")].Call(VisualJs.Fn(args_62 => { V v_current_63 = VisualJs.Arg(args_62, 0);
 return (VisualJs.Obj(new V("pos"), v_current_63[new V("pos")], new V("alive"), v_current_63[new V("alive")], new V("networkDisabledTimer"), v_current_63[new V("networkDisabledTimer")])); }))));
-return VisualJs.Obj(new V("pointerId"), (-new V(1d)), new V("sphereIndex"), v_sphereIndex_56, new V("x"), v_x_57, new V("y"), v_y_58, new V("valid"), Visual_spaceCollision.Scope[new V("canRepositionSphere")].Call(v_st_54, v_sphere_55, v_x_57, v_y_58), new V("network"), v_network_60, new V("formation"), (VisualJs.Chain(v_preview_59,optional_64=>optional_64[new V("formation")]).Truth ? (Visual_networkPreview.Scope[new V("getGhostSnapFormation")].Call(v_network_60).Truth ? VisualJs.Obj(new V("type"), v_preview_59[new V("formation")][new V("type")], new V("nodes"), v_preview_59[new V("formation")][new V("nodes")], new V("strength"), v_preview_59[new V("formation")][new V("strength")]) : VisualJs.Null) : VisualJs.Null));
-return default; });
+return VisualJs.Obj(new V("pointerId"), (-new V(1d)), new V("sphereIndex"), v_sphereIndex_56, new V("x"), v_x_57, new V("y"), v_y_58, new V("valid"), Visual_spaceCollision.Scope[new V("canRepositionSphere")].Call(v_st_54, v_sphere_55, v_x_57, v_y_58), new V("network"), v_network_60, new V("formation"), (VisualJs.Chain(v_preview_59,optional_64=>optional_64[new V("formation")]).Truth ? (Visual_networkPreview.Scope[new V("getGhostSnapFormation")].Call(v_network_60).Truth ? VisualJs.Obj(new V("type"), v_preview_59[new V("formation")][new V("type")], new V("nodes"), v_preview_59[new V("formation")][new V("nodes")], new V("strength"), v_preview_59[new V("formation")][new V("strength")]) : VisualJs.Null) : VisualJs.Null)); });
 V v_buildNewSphereGhostPreview_65 = default; v_buildNewSphereGhostPreview_65 = VisualJs.Fn(args_66 => { V v_st_67 = VisualJs.Arg(args_66, 0);
 V v_x_68 = VisualJs.Arg(args_66, 1);
 V v_y_69 = VisualJs.Arg(args_66, 2);
 V v_preview_70 = Visual_networkPreview.Scope[new V("buildGhostSnapPreview")].Call(v_st_67[new V("spheres")], VisualJs.Obj(new V("x"), v_x_68, new V("y"), v_y_69));
 if ((!v_preview_70).Truth) return VisualJs.Null;
-return VisualJs.Obj(new V("pointerId"), (-new V(1d)), new V("sphereIndex"), v_preview_70[new V("candidateIndex")], new V("x"), v_x_68, new V("y"), v_y_69, new V("valid"), Visual_spaceCollision.Scope[new V("canPlaceSphere")].Call(v_st_67, v_x_68, v_y_69), new V("network"), v_preview_70[new V("network")], new V("formation"), (v_preview_70[new V("formation")].Truth ? VisualJs.Obj(new V("type"), v_preview_70[new V("formation")][new V("type")], new V("nodes"), v_preview_70[new V("formation")][new V("nodes")], new V("strength"), v_preview_70[new V("formation")][new V("strength")]) : VisualJs.Null));
-return default; });
+return VisualJs.Obj(new V("pointerId"), (-new V(1d)), new V("sphereIndex"), v_preview_70[new V("candidateIndex")], new V("x"), v_x_68, new V("y"), v_y_69, new V("valid"), Visual_spaceCollision.Scope[new V("canPlaceSphere")].Call(v_st_67, v_x_68, v_y_69), new V("network"), v_preview_70[new V("network")], new V("formation"), (v_preview_70[new V("formation")].Truth ? VisualJs.Obj(new V("type"), v_preview_70[new V("formation")][new V("type")], new V("nodes"), v_preview_70[new V("formation")][new V("nodes")], new V("strength"), v_preview_70[new V("formation")][new V("strength")]) : VisualJs.Null)); });
 V v_captureFormationMemory_71 = default; v_captureFormationMemory_71 = VisualJs.Fn(args_72 => { V v_st_73 = VisualJs.Arg(args_72, 0);
 V v_network_74 = VisualJs.Arg(args_72, 1);
 V v_formation_75 = Visual_networkPreview.Scope[new V("getGhostSnapFormation")].Call(v_network_74);
@@ -246,12 +242,10 @@ VisualDom.React("useEffect").Call(VisualJs.Fn(args_129 => { v_clearMovementKeys_
 v_setJoystick_15.Call(VisualJs.Null);
 VisualJs.Assign(v_joystickIdRef_11,new V("current"),"=",VisualJs.Null);
 v_pointersRef_10[new V("current")][new V("clear")].Call();
-return VisualJs.Fn(args_130 => { return v_clearMovementKeys_32.Call(); });
-return default; }), VisualJs.Arr(v_handedness_7));
+return VisualJs.Fn(args_130 => { return v_clearMovementKeys_32.Call(); }); }), VisualJs.Arr(v_handedness_7));
 VisualDom.React("useEffect").Call(VisualJs.Fn(args_131 => { if ((!v_placementFx_17).Truth) return default;
 V v_timer_132 = VisualUiBindings.Get("global","window")[new V("setTimeout")].Call(VisualJs.Fn(args_133 => { return v_setPlacementFx_18.Call(VisualJs.Null); }), new V(450d));
-return VisualJs.Fn(args_134 => { return VisualUiBindings.Get("global","window")[new V("clearTimeout")].Call(v_timer_132); });
-return default; }), VisualJs.Arr(v_placementFx_17));
+return VisualJs.Fn(args_134 => { return VisualUiBindings.Get("global","window")[new V("clearTimeout")].Call(v_timer_132); }); }), VisualJs.Arr(v_placementFx_17));
 VisualDom.React("useEffect").Call(VisualJs.Fn(args_135 => { if ((!v_formationMemory_23).Truth) return default;
 V v_started_136 = VisualJs.PerformanceObject[new V("now")].Call();
 V v_frame_137 = new V(0d);
@@ -261,8 +255,7 @@ return (v_current_142.Truth ? VisualJs.Merge(v_current_142, VisualJs.Obj(new V("
 if (new V(v_elapsed_140 < new V(0.9d)).Truth) v_frame_137 = VisualUiBindings.Get("global","requestAnimationFrame").Call(v_tick_138); else v_setFormationMemory_24.Call(VisualJs.Null);
 return default; });
 v_frame_137 = VisualUiBindings.Get("global","requestAnimationFrame").Call(v_tick_138);
-return VisualJs.Fn(args_143 => { return VisualUiBindings.Get("global","cancelAnimationFrame").Call(v_frame_137); });
-return default; }), VisualJs.Arr(VisualJs.Chain(v_formationMemory_23,optional_144=>optional_144[new V("id")])));
+return VisualJs.Fn(args_143 => { return VisualUiBindings.Get("global","cancelAnimationFrame").Call(v_frame_137); }); }), VisualJs.Arr(VisualJs.Chain(v_formationMemory_23,optional_144=>optional_144[new V("id")])));
 V v_activeAbilities_145 = (VisualJs.ObjectObject[new V("entries")].Call(VisualJs.Or(VisualJs.Chain(v_stateRef_5[new V("current")],optional_146=>optional_146[new V("activeKeyMap")]), () => VisualJs.Obj())));
 V v_types_147 = (VisualJs.ObjectObject[new V("keys")].Call(Visual_gameData.Scope[new V("SPHERE_TYPES")]));
 V v_selectedType_148 = VisualJs.Or(VisualJs.Chain(v_stateRef_5[new V("current")],optional_149=>optional_149[new V("selectedSphereType")]), () => new V("standard"));
@@ -376,8 +369,7 @@ if (VisualJs.Or(VisualJs.Or((!v_st_205), () => v_st_205[new V("gameOver")]), () 
 if (VisualJs.Or(v_st_205[new V("pendingUpgrade")], () => v_st_205[new V("pendingArtifact")]).Truth) return default;
 Scope[new V("haptic")].Call(new V(12d));
 VisualUiBindings.Get("engineAbilities.ts","activateByKey").Call(v_st_205, v_key_197);
-return default; }))), new V(""), VisualDom.Element("span",VisualJs.Merge(VisualJs.Obj(new V("className"),new V("text-[9px] text-[#7f9bb8] block truncate"))), VisualJs.Or(Visual_sphereProgression.Scope[new V("getAbilityDisplayName")].Call(v_stateRef_5[new V("current")], v_ability_198, v_lang_3), () => v_def_199[new V("name")][v_lang_3])), new V(""), VisualDom.Element("span",VisualJs.Merge(VisualJs.Obj(new V("className"),new V("text-[8px] text-[#b6c9de]/60"))), (new V(v_cd_200 > new V(0d)).Truth ? (new V("") + VisualJs.MathObject[new V("ceil")].Call(v_cd_200) + new V("s")) : v_t_4.Call(new V("ready")))), new V(""), VisualJs.And(new V(v_cd_200 > new V(0d)), () => VisualDom.Element("span",VisualJs.Merge(VisualJs.Obj(new V("className"),new V("absolute inset-x-0 bottom-0 h-1 bg-[#ff4d5d]/70")), VisualJs.Obj(new V("style"),VisualJs.Obj(new V("width"), (new V("") + VisualJs.MathObject[new V("min")].Call(new V(100d), (((v_cd_200 / Scope[new V("getAbilityMaxCooldown")].Call(v_ability_198))) * new V(100d))) + new V("%"))))))), new V(""));
-return default; })), new V("")), new V(""), VisualJs.And(VisualJs.Chain(v_stateRef_5[new V("current")],optional_206=>optional_206[new V("player")][new V("formationFollowActive")]), () => (VisualDom.Element("div",VisualJs.Merge(VisualJs.Obj(new V("className"),new V("pointer-events-none text-[8px] font-bold tracking-[0.16em] text-[#7f9bb8] bg-[#0d1726]/80 border border-[#243b55] rounded-md px-2 py-1"))), new V(""), (new V(v_lang_3 == new V("ru")).Truth ? new V("НАГРУЗКА СЕТИ") : new V("NETWORK STRAIN")), new V(" "), VisualJs.MathObject[new V("round")].Call(VisualJs.Or(VisualJs.Chain(v_stateRef_5[new V("current")],optional_207=>optional_207[new V("player")][new V("formationFollowStrain")]), () => new V(0d))), new V("%")))), new V(""), VisualDom.Element("button",VisualJs.Merge(VisualJs.Obj(new V("data-mobile-control"),new V("true")), VisualJs.Obj(new V("disabled"),new V(VisualJs.Chain(v_stateRef_5[new V("current")],optional_208=>optional_208[new V("player")][new V("formationFollowActive")]).Truth)), VisualJs.Obj(new V("className"),new V("pointer-events-auto w-16 h-16 rounded-full bg-[#ffb84d]/85 border border-[#ff6b6b] shadow-lg flex flex-col items-center justify-center text-[#dcecff] active:scale-95")), VisualJs.Obj(new V("onPointerDown"),VisualJs.Fn(args_209 => { V v_e_210 = VisualJs.Arg(args_209, 0);
+return default; }))), new V(""), VisualDom.Element("span",VisualJs.Merge(VisualJs.Obj(new V("className"),new V("text-[9px] text-[#7f9bb8] block truncate"))), VisualJs.Or(Visual_sphereProgression.Scope[new V("getAbilityDisplayName")].Call(v_stateRef_5[new V("current")], v_ability_198, v_lang_3), () => v_def_199[new V("name")][v_lang_3])), new V(""), VisualDom.Element("span",VisualJs.Merge(VisualJs.Obj(new V("className"),new V("text-[8px] text-[#b6c9de]/60"))), (new V(v_cd_200 > new V(0d)).Truth ? (new V("") + VisualJs.MathObject[new V("ceil")].Call(v_cd_200) + new V("s")) : v_t_4.Call(new V("ready")))), new V(""), VisualJs.And(new V(v_cd_200 > new V(0d)), () => VisualDom.Element("span",VisualJs.Merge(VisualJs.Obj(new V("className"),new V("absolute inset-x-0 bottom-0 h-1 bg-[#ff4d5d]/70")), VisualJs.Obj(new V("style"),VisualJs.Obj(new V("width"), (new V("") + VisualJs.MathObject[new V("min")].Call(new V(100d), (((v_cd_200 / Scope[new V("getAbilityMaxCooldown")].Call(v_ability_198))) * new V(100d))) + new V("%"))))))), new V("")); })), new V("")), new V(""), VisualJs.And(VisualJs.Chain(v_stateRef_5[new V("current")],optional_206=>optional_206[new V("player")][new V("formationFollowActive")]), () => (VisualDom.Element("div",VisualJs.Merge(VisualJs.Obj(new V("className"),new V("pointer-events-none text-[8px] font-bold tracking-[0.16em] text-[#7f9bb8] bg-[#0d1726]/80 border border-[#243b55] rounded-md px-2 py-1"))), new V(""), (new V(v_lang_3 == new V("ru")).Truth ? new V("НАГРУЗКА СЕТИ") : new V("NETWORK STRAIN")), new V(" "), VisualJs.MathObject[new V("round")].Call(VisualJs.Or(VisualJs.Chain(v_stateRef_5[new V("current")],optional_207=>optional_207[new V("player")][new V("formationFollowStrain")]), () => new V(0d))), new V("%")))), new V(""), VisualDom.Element("button",VisualJs.Merge(VisualJs.Obj(new V("data-mobile-control"),new V("true")), VisualJs.Obj(new V("disabled"),new V(VisualJs.Chain(v_stateRef_5[new V("current")],optional_208=>optional_208[new V("player")][new V("formationFollowActive")]).Truth)), VisualJs.Obj(new V("className"),new V("pointer-events-auto w-16 h-16 rounded-full bg-[#ffb84d]/85 border border-[#ff6b6b] shadow-lg flex flex-col items-center justify-center text-[#dcecff] active:scale-95")), VisualJs.Obj(new V("onPointerDown"),VisualJs.Fn(args_209 => { V v_e_210 = VisualJs.Arg(args_209, 0);
 v_e_210[new V("stopPropagation")].Call();
 V v_st_211 = v_stateRef_5[new V("current")];
 if (VisualJs.Or(VisualJs.Or(VisualJs.Or((!v_st_211), () => v_st_211[new V("gameOver")]), () => v_st_211[new V("paused")]), () => v_st_211[new V("player")][new V("formationFollowActive")]).Truth) return default;
@@ -403,9 +395,7 @@ V v_st_222 = v_stateRef_5[new V("current")];
 if ((!v_st_222).Truth) return default;
 Scope[new V("haptic")].Call(new V(6d));
 VisualUiBindings.Get("engineSpheres.ts","setSphereType").Call(v_st_222, v_type_216);
-return default; })), VisualJs.Obj(new V("aria-label"),(new V("") + v_def_217[new V("name")][v_lang_3] + new V(" — ") + v_def_217[new V("desc")][v_lang_3] + new V("")))), new V(""), VisualDom.Component("SphereTypeGlyph",Scope[new V("SphereTypeGlyph")],VisualDom.Props(VisualJs.Merge(VisualJs.Obj(new V("type"),v_type_216), VisualJs.Obj(new V("color"),v_def_217[new V("color")])))), new V(""));
-return default; })), new V("")), new V("")), new V("")));
-return default;
+return default; })), VisualJs.Obj(new V("aria-label"),(new V("") + v_def_217[new V("name")][v_lang_3] + new V(" — ") + v_def_217[new V("desc")][v_lang_3] + new V("")))), new V(""), VisualDom.Component("SphereTypeGlyph",Scope[new V("SphereTypeGlyph")],VisualDom.Props(VisualJs.Merge(VisualJs.Obj(new V("type"),v_type_216), VisualJs.Obj(new V("color"),v_def_217[new V("color")])))), new V("")); })), new V("")), new V("")), new V("")));
 }
 private static V F_SphereTypeGlyph(V[] args) {
 V binding_223 = VisualJs.Arg(args,0);
@@ -424,7 +414,6 @@ if (new V(v_type_224 == new V("aura")).Truth) {
 return VisualDom.Element("span",VisualJs.Merge(VisualJs.Obj(new V("className"),new V("w-5 h-5 rounded-full border-2")), VisualJs.Obj(new V("style"),VisualJs.Obj(new V("borderColor"), v_color_225, new V("boxShadow"), (new V("0 0 0 3px ") + v_color_225 + new V("22"))))));
 }
 return VisualDom.Element("span",VisualJs.Merge(VisualJs.Obj(new V("className"),new V("w-4 h-4 rounded-full border-2")), VisualJs.Obj(new V("style"),VisualJs.Obj(new V("borderColor"), v_color_225, new V("backgroundColor"), (new V("") + v_color_225 + new V("44"))))));
-return default;
 }
 private static V F_worldToScreen(V[] args) {
 V v_canvas_226 = VisualJs.Arg(args,0);
@@ -432,7 +421,6 @@ V v_camera_227 = VisualJs.Arg(args,1);
 V v_point_228 = VisualJs.Arg(args,2);
 V v_rect_229 = v_canvas_226[new V("getBoundingClientRect")].Call();
 return VisualJs.Obj(new V("x"), (v_rect_229[new V("left")] + ((((v_point_228[new V("x")] - v_camera_227[new V("x")]) + (v_canvas_226[new V("width")] / new V(2d)))) * ((v_rect_229[new V("width")] / v_canvas_226[new V("width")])))), new V("y"), (v_rect_229[new V("top")] + ((((v_point_228[new V("y")] - v_camera_227[new V("y")]) + (v_canvas_226[new V("height")] / new V(2d)))) * ((v_rect_229[new V("height")] / v_canvas_226[new V("height")])))));
-return default;
 }
 private static V F_GhostSnapOverlay(V[] args) {
 V binding_230 = VisualJs.Arg(args,0);
@@ -450,18 +438,15 @@ V v_links_240 = v_preview_233[new V("network")][new V("links")][new V("filter")]
 return VisualJs.Or(new V(v_link_242[new V("a")] == v_preview_233[new V("sphereIndex")]), () => new V(v_link_242[new V("b")] == v_preview_233[new V("sphereIndex")])); }));
 V v_points_243 = VisualJs.Or(VisualJs.Chain(v_preview_233[new V("formation")],optional_244=>optional_244[new V("nodes")][new V("map")].Call(VisualJs.Fn(args_245 => { V v_index_246 = VisualJs.Arg(args_245, 0);
 V v_node_247 = (new V(v_index_246 == v_preview_233[new V("sphereIndex")]).Truth ? VisualJs.Obj(new V("x"), v_preview_233[new V("x")], new V("y"), v_preview_233[new V("y")]) : VisualJs.Chain(v_st_237[new V("spheres")][v_index_246],optional_248=>optional_248[new V("pos")]));
-return (v_node_247.Truth ? Scope[new V("worldToScreen")].Call(v_canvas_236, v_st_237[new V("camera")], v_node_247) : VisualJs.Null);
-return default; }))[new V("filter")].Call(VisualJs.Fn(args_249 => { V v_x_250 = VisualJs.Arg(args_249, 0);
+return (v_node_247.Truth ? Scope[new V("worldToScreen")].Call(v_canvas_236, v_st_237[new V("camera")], v_node_247) : VisualJs.Null); }))[new V("filter")].Call(VisualJs.Fn(args_249 => { V v_x_250 = VisualJs.Arg(args_249, 0);
 return new V(v_x_250.Truth); }))), () => VisualJs.Arr());
 return VisualDom.Element("svg",VisualJs.Merge(VisualJs.Obj(new V("className"),new V("absolute inset-0 pointer-events-none z-10 overflow-visible"))), new V(""), v_links_240[new V("map")].Call(VisualJs.Fn(args_251 => { V v_link_252 = VisualJs.Arg(args_251, 0);
 V v_otherIndex_253 = (new V(v_link_252[new V("a")] == v_preview_233[new V("sphereIndex")]).Truth ? v_link_252[new V("b")] : v_link_252[new V("a")]);
 V v_other_254 = v_st_237[new V("spheres")][v_otherIndex_253];
 if ((!v_other_254).Truth) return VisualJs.Null;
 V v_p_255 = Scope[new V("worldToScreen")].Call(v_canvas_236, v_st_237[new V("camera")], v_other_254[new V("pos")]);
-return VisualDom.Element("line",VisualJs.Merge(VisualJs.Obj(new V("key"),(new V("ghost-link-") + v_otherIndex_253)), VisualJs.Obj(new V("x1"),v_ghost_238[new V("x")]), VisualJs.Obj(new V("y1"),v_ghost_238[new V("y")]), VisualJs.Obj(new V("x2"),v_p_255[new V("x")]), VisualJs.Obj(new V("y2"),v_p_255[new V("y")]), VisualJs.Obj(new V("stroke"),(v_preview_233[new V("valid")].Truth ? v_sphereColor_235 : new V("#ff4d5d"))), VisualJs.Obj(new V("strokeWidth"),(new V(2.2d) * v_scale_239)), VisualJs.Obj(new V("strokeDasharray"),new V("7 5")), VisualJs.Obj(new V("opacity"),new V(".9"))));
-return default; })), new V(""), VisualJs.And(new V(v_points_243[new V("length")] >= new V(2d)), () => VisualDom.Element("polyline",VisualJs.Merge(VisualJs.Obj(new V("points"),v_points_243[new V("map")].Call(VisualJs.Fn(args_256 => { V v_p_257 = VisualJs.Arg(args_256, 0);
+return VisualDom.Element("line",VisualJs.Merge(VisualJs.Obj(new V("key"),(new V("ghost-link-") + v_otherIndex_253)), VisualJs.Obj(new V("x1"),v_ghost_238[new V("x")]), VisualJs.Obj(new V("y1"),v_ghost_238[new V("y")]), VisualJs.Obj(new V("x2"),v_p_255[new V("x")]), VisualJs.Obj(new V("y2"),v_p_255[new V("y")]), VisualJs.Obj(new V("stroke"),(v_preview_233[new V("valid")].Truth ? v_sphereColor_235 : new V("#ff4d5d"))), VisualJs.Obj(new V("strokeWidth"),(new V(2.2d) * v_scale_239)), VisualJs.Obj(new V("strokeDasharray"),new V("7 5")), VisualJs.Obj(new V("opacity"),new V(".9")))); })), new V(""), VisualJs.And(new V(v_points_243[new V("length")] >= new V(2d)), () => VisualDom.Element("polyline",VisualJs.Merge(VisualJs.Obj(new V("points"),v_points_243[new V("map")].Call(VisualJs.Fn(args_256 => { V v_p_257 = VisualJs.Arg(args_256, 0);
 return ((v_p_257[new V("x")] + new V(",")) + v_p_257[new V("y")]); }))[new V("join")].Call(new V(" "))), VisualJs.Obj(new V("fill"),new V("none")), VisualJs.Obj(new V("stroke"),(v_preview_233[new V("valid")].Truth ? new V("#ffb84d") : new V("#ff4d5d"))), VisualJs.Obj(new V("strokeWidth"),(new V(2d) * v_scale_239)), VisualJs.Obj(new V("strokeDasharray"),new V("6 5")), VisualJs.Obj(new V("opacity"),new V(".82"))))), new V(""), VisualDom.Element("circle",VisualJs.Merge(VisualJs.Obj(new V("cx"),v_ghost_238[new V("x")]), VisualJs.Obj(new V("cy"),v_ghost_238[new V("y")]), VisualJs.Obj(new V("r"),(new V(25d) * v_scale_239)), VisualJs.Obj(new V("fill"),(v_preview_233[new V("valid")].Truth ? (v_sphereColor_235 + new V("18")) : new V("rgba(255,77,93,.12)"))), VisualJs.Obj(new V("stroke"),(v_preview_233[new V("valid")].Truth ? v_sphereColor_235 : new V("#ff4d5d"))), VisualJs.Obj(new V("strokeWidth"),(new V(2d) * v_scale_239)), VisualJs.Obj(new V("strokeDasharray"),new V("5 4")))), new V(""), VisualDom.Element("text",VisualJs.Merge(VisualJs.Obj(new V("x"),v_ghost_238[new V("x")]), VisualJs.Obj(new V("y"),(v_ghost_238[new V("y")] - (new V(31d) * v_scale_239))), VisualJs.Obj(new V("textAnchor"),new V("middle")), VisualJs.Obj(new V("fill"),(v_preview_233[new V("valid")].Truth ? new V("#dcecff") : new V("#ff7a86"))), VisualJs.Obj(new V("fontSize"),(new V(11d) * v_scale_239)), VisualJs.Obj(new V("fontWeight"),new V("700"))), (v_preview_233[new V("valid")].Truth ? ((v_preview_233[new V("formation")].Truth ? (new V(v_preview_233[new V("formation")][new V("type")] == new V("line")).Truth ? ((new V(v_lang_234 == new V("ru")).Truth ? new V("ЛИНИЯ") : new V("LINE"))) : (new V(v_preview_233[new V("formation")][new V("type")] == new V("triangle")).Truth ? ((new V(v_lang_234 == new V("ru")).Truth ? new V("ТРЕУГОЛЬНИК") : new V("TRIANGLE"))) : (new V(v_preview_233[new V("formation")][new V("type")] == new V("square")).Truth ? ((new V(v_lang_234 == new V("ru")).Truth ? new V("КВАДРАТ") : new V("SQUARE"))) : (new V(v_preview_233[new V("formation")][new V("type")] == new V("cluster")).Truth ? ((new V(v_lang_234 == new V("ru")).Truth ? new V("КЛАСТЕР") : new V("CLUSTER"))) : (new V(v_preview_233[new V("formation")][new V("type")] == new V("ring")).Truth ? ((new V(v_lang_234 == new V("ru")).Truth ? new V("КОЛЬЦО") : new V("RING"))) : (new V(v_preview_233[new V("formation")][new V("type")] == new V("lattice")).Truth ? ((new V(v_lang_234 == new V("ru")).Truth ? new V("РЕШЁТКА") : new V("LATTICE"))) : ((new V(v_lang_234 == new V("ru")).Truth ? new V("ФРАКТАЛ") : new V("FRACTAL"))))))))) : ((new V(v_lang_234 == new V("ru")).Truth ? new V("СЕТЬ") : new V("NETWORK"))))) : ((new V(v_lang_234 == new V("ru")).Truth ? new V("НЕДОСТУПНО") : new V("INVALID"))))), new V(""));
-return default;
 }
 private static V F_FormationMemoryOverlay(V[] args) {
 V binding_258 = VisualJs.Arg(args,0);
@@ -479,7 +464,6 @@ return VisualDom.Element("svg",VisualJs.Merge(VisualJs.Obj(new V("className"),ne
 return ((v_p_270[new V("x")] + new V(",")) + v_p_270[new V("y")]); }))[new V("join")].Call(new V(" "))), VisualJs.Obj(new V("fill"),new V("none")), VisualJs.Obj(new V("stroke"),new V("#b6c9de")), VisualJs.Obj(new V("strokeWidth"),new V("2")), VisualJs.Obj(new V("strokeDasharray"),new V("4 6")), VisualJs.Obj(new V("opacity"),v_alpha_264))), new V(""), VisualJs.And(VisualJs.And(v_closed_268, () => new V(v_points_265[new V("length")] > new V(2d))), () => VisualDom.Element("line",VisualJs.Merge(VisualJs.Obj(new V("x1"),v_points_265[(v_points_265[new V("length")] - new V(1d))][new V("x")]), VisualJs.Obj(new V("y1"),v_points_265[(v_points_265[new V("length")] - new V(1d))][new V("y")]), VisualJs.Obj(new V("x2"),v_points_265[new V(0d)][new V("x")]), VisualJs.Obj(new V("y2"),v_points_265[new V(0d)][new V("y")]), VisualJs.Obj(new V("stroke"),new V("#b6c9de")), VisualJs.Obj(new V("strokeWidth"),new V("1.5")), VisualJs.Obj(new V("strokeDasharray"),new V("4 6")), VisualJs.Obj(new V("opacity"),(v_alpha_264 * new V(0.75d)))))), new V(""), v_points_265[new V("map")].Call(VisualJs.Fn(args_271 => { V v_p_272 = VisualJs.Arg(args_271, 0);
 V v_index_273 = VisualJs.Arg(args_271, 1);
 return VisualDom.Element("circle",VisualJs.Merge(VisualJs.Obj(new V("key"),v_index_273), VisualJs.Obj(new V("cx"),v_p_272[new V("x")]), VisualJs.Obj(new V("cy"),v_p_272[new V("y")]), VisualJs.Obj(new V("r"),new V("9")), VisualJs.Obj(new V("fill"),new V("none")), VisualJs.Obj(new V("stroke"),new V("#b6c9de")), VisualJs.Obj(new V("strokeWidth"),new V("1.5")), VisualJs.Obj(new V("opacity"),v_alpha_264))); })), new V(""));
-return default;
 }
 private static V F_getAbilityCooldown(V[] args) {
 V v_st_274 = VisualJs.Arg(args,0);
@@ -487,13 +471,11 @@ V v_ability_275 = VisualJs.Arg(args,1);
 if ((!v_st_274).Truth) return new V(0d);
 V v_cooldownMap_276 = VisualJs.Obj(new V("blast"), v_st_274[new V("player")][new V("blastCooldown")], new V("shield"), v_st_274[new V("player")][new V("shieldCooldown")], new V("teleport"), v_st_274[new V("player")][new V("teleportCooldown")], new V("firetrail"), v_st_274[new V("player")][new V("fireTrailCooldown")], new V("minion"), v_st_274[new V("player")][new V("minionCooldown")], new V("lightning"), v_st_274[new V("player")][new V("lightningCooldown")], new V("timestop"), v_st_274[new V("player")][new V("timestopCooldown")], new V("darkritual"), v_st_274[new V("player")][new V("darkritualCooldown")]);
 return VisualJs.Or(v_cooldownMap_276[v_ability_275], () => new V(0d));
-return default;
 }
 private static V F_getAbilityMaxCooldown(V[] args) {
 V v_ability_277 = VisualJs.Arg(args,0);
 V v_map_278 = VisualJs.Obj(new V("blast"), new V(30d), new V("shield"), new V(20d), new V("teleport"), new V(15d), new V("firetrail"), new V(25d), new V("minion"), new V(30d), new V("lightning"), new V(20d), new V("timestop"), new V(40d), new V("darkritual"), new V(30d));
 return VisualJs.Or(v_map_278[v_ability_277], () => new V(1d));
-return default;
 }
 private static V F_stDashLabel(V[] args) {
 V v_st_279 = VisualJs.Arg(args,0);
@@ -501,7 +483,6 @@ V v_lang_280 = VisualJs.Arg(args,1);
 V v_t_281 = VisualJs.Arg(args,2);
 if ((!v_st_279).Truth) return v_t_281.Call(new V("dashCooldown"));
 return (new V(v_st_279[new V("player")][new V("dashCooldown")] > new V(0d)).Truth ? v_t_281.Call(new V("dashOnCooldown"))[new V("replace")].Call(new V("{sec}"), new V(VisualJs.MathObject[new V("ceil")].Call(v_st_279[new V("player")][new V("dashCooldown")]).Text)) : ((new V(v_lang_280 == new V("ru")).Truth ? new V("Рывок") : new V("Dash"))));
-return default;
 }
 }
 }

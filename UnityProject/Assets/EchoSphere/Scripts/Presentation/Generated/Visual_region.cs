@@ -24,12 +24,10 @@ private static V F_getRegionConfig(V[] args) {
 V v_id_0 = VisualJs.Arg(args,0).Undefined?new V("resonance_basin"):VisualJs.Arg(args,0);
 return VisualJs.Or(Scope[new V("REGION_CONFIGS")][new V("find")].Call(VisualJs.Fn(args_1 => { V v_x_2 = VisualJs.Arg(args_1, 0);
 return new V(v_x_2[new V("id")] == v_id_0); })), () => Scope[new V("REGION_CONFIGS")][new V(0d)]);
-return default;
 }
 private static V F_isRegionAvailable(V[] args) {
 V v_id_3 = VisualJs.Arg(args,0);
 return VisualJs.Or(new V(v_id_3 == new V("resonance_basin")), () => VisualUiBindings.Get("region.ts","loadRegionStabilized").Call(new V("resonance_basin")));
-return default;
 }
 private static V F_getRegionPhase(V[] args) {
 V v_t_4 = VisualJs.Arg(args,0);
@@ -39,7 +37,6 @@ if (new V(v_t_4 < new V(900d)).Truth) return VisualJs.Obj(new V("id"), new V(2d)
 if (new V(v_t_4 < new V(1500d)).Truth) return VisualJs.Obj(new V("id"), new V(3d), new V("name"), VisualJs.Obj(new V("ru"), new V("ЭСКАЛАЦИЯ"), new V("en"), new V("ESCALATION")));
 if (new V(v_t_4 < new V(1620d)).Truth) return VisualJs.Obj(new V("id"), new V(4d), new V("name"), VisualJs.Obj(new V("ru"), new V("СХОДИМОСТЬ"), new V("en"), new V("CONVERGENCE")));
 return VisualJs.Obj(new V("id"), new V(5d), new V("name"), VisualJs.Obj(new V("ru"), new V("СТАБИЛИЗАЦИЯ"), new V("en"), new V("STABILIZATION")));
-return default;
 }
 }
 }

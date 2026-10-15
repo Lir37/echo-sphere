@@ -31,6 +31,7 @@ namespace EchoSphere.Runtime
         public void Initialize(EchoSphereRuntime runtime, SphereAttackAgent agent)
         {
             _runtime = runtime; _agent = agent; _type = agent.Type;
+            if (runtime != null && runtime.UsesSourcePresentation) { enabled = false; return; }
             _baseColor = ColorFor(_type);
             // Source-pixel phase formulas from visualHelpers.ts and orbitalVisual.ts.
             var sourceX = transform.position.x / SpherePlacementRules.SourcePixelsToWorld;

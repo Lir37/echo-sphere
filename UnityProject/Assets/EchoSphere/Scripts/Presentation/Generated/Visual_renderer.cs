@@ -81,7 +81,6 @@ VisualJs.Assign(v_image_2,new V("decoding"),"=",new V("async"));
 Scope[new V("ART_CACHE")][new V("set")].Call(v_key_0, v_image_2);
 VisualJs.Assign(v_image_2,new V("src"),"=",Scope[new V("ART_PATHS")][v_key_0]);
 return VisualJs.Null;
-return default;
 }
 private static V F_drawArtSprite(V[] args) {
 V v_ctx_3 = VisualJs.Arg(args,0);
@@ -105,7 +104,6 @@ V v_dh_15 = (v_ih_12 * v_imageScale_13);
 v_ctx_3[new V("drawImage")].Call(v_image_10, ((-v_dw_14) / new V(2d)), ((-v_dh_15) / new V(2d)), v_dw_14, v_dh_15);
 v_ctx_3[new V("restore")].Call();
 return new V(true);
-return default;
 }
 private static V F_drawStandardSpherePart(V[] args) {
 V v_ctx_16 = VisualJs.Arg(args,0);
@@ -133,7 +131,6 @@ VisualJs.Assign(v_ctx_16,new V("globalCompositeOperation"),"=",new V("screen"));
 v_ctx_16[new V("drawImage")].Call(v_image_25, ((-v_dw_29) / new V(2d)), ((-v_dh_30) / new V(2d)), v_dw_29, v_dh_30);
 v_ctx_16[new V("restore")].Call();
 return new V(true);
-return default;
 }
 private static V F_drawStandardSphereCore(V[] args) {
 V v_ctx_31 = VisualJs.Arg(args,0);
@@ -227,7 +224,6 @@ v_ctx_39[new V("restore")].Call();
 }
 v_ctx_39[new V("restore")].Call();
 return new V(true);
-return default;
 }
 private static V F_getSpheristAnimationState(V[] args) {
 V v_p_57 = VisualJs.Arg(args,0);
@@ -243,7 +239,6 @@ V v_next_61 = default(V);
 if (new V(v_p_57[new V("hp")] <= new V(0d)).Truth) v_next_61 = new V("death"); else if (new V(v_p_57[new V("contactDamageCooldown")] > new V(0d)).Truth) v_next_61 = new V("hit"); else if (VisualJs.Or(new V(v_p_57[new V("shieldTimer")] > new V(0d)), () => new V(v_p_57[new V("shieldCharges")] > new V(0d))).Truth) v_next_61 = new V("shield"); else if (VisualJs.Or(new V(v_p_57[new V("dashTimer")] > new V(0d)), () => new V(VisualJs.MathObject[new V("hypot")].Call(v_vx_59, v_vy_60) > new V(0.06d))).Truth) v_next_61 = new V("move"); else v_next_61 = new V("idle");
 VisualJs.Assign(Scope,new V("SPHERIST_ANIMATION_STATE"),"=",v_next_61);
 return Scope[new V("SPHERIST_ANIMATION_STATE")];
-return default;
 }
 private static V F_render(V[] args) {
 V v_ctx_62 = VisualJs.Arg(args,0);
@@ -821,13 +816,11 @@ return default;
 private static V F_countStatusEffects(V[] args) {
 V v_enemy_239 = VisualJs.Arg(args,0);
 return ((VisualJs.Number(new V(v_enemy_239[new V("fireTimer")] > new V(0d))) + VisualJs.Number(new V(v_enemy_239[new V("freezeTimer")] > new V(0d)))) + VisualJs.Number(new V(v_enemy_239[new V("poisonTimer")] > new V(0d))));
-return default;
 }
 private static V F_dist2D(V[] args) {
 V v_a_240 = VisualJs.Arg(args,0);
 V v_b_241 = VisualJs.Arg(args,1);
 return VisualJs.MathObject[new V("hypot")].Call((v_a_240[new V("x")] - v_b_241[new V("x")]), (v_a_240[new V("y")] - v_b_241[new V("y")]));
-return default;
 }
 private static V F_drawPolyline(V[] args) {
 V v_ctx_242 = VisualJs.Arg(args,0);
@@ -1109,7 +1102,6 @@ private static V F_hexToRgb(V[] args) {
 V v_hex_331 = VisualJs.Arg(args,0);
 V v_h_332 = v_hex_331[new V("replace")].Call(new V("#"), new V(""));
 return (new V("") + VisualJs.NumberObject[new V("parseInt")].Call(v_h_332[new V("substring")].Call(new V(0d), new V(2d)), new V(16d)) + new V(",") + VisualJs.NumberObject[new V("parseInt")].Call(v_h_332[new V("substring")].Call(new V(2d), new V(4d)), new V(16d)) + new V(",") + VisualJs.NumberObject[new V("parseInt")].Call(v_h_332[new V("substring")].Call(new V(4d), new V(6d)), new V(16d)) + new V(""));
-return default;
 }
 private static V F_drawPlayer(V[] args) {
 V v_ctx_333 = VisualJs.Arg(args,0);
@@ -1347,7 +1339,6 @@ Scope[new V("ENEMY_FACING")][new V("set")].Call(v_e_373, v_e_373[new V("rotation
 }
 Scope[new V("ENEMY_LAST_POS")][new V("set")].Call(v_e_373, VisualJs.Obj(new V("x"), v_e_373[new V("pos")][new V("x")], new V("y"), v_e_373[new V("pos")][new V("y")]));
 return VisualJs.Coalesce(Scope[new V("ENEMY_FACING")][new V("get")].Call(v_e_373), () => new V(0d));
-return default;
 }
 private static V F_glowCircle(V[] args) {
 V v_ctx_377 = VisualJs.Arg(args,0);
@@ -1845,8 +1836,7 @@ V v_phase_501 = ((v_time_491 * ((v_active_493.Truth ? new V(1.9d) : new V(1.35d)
 V v_pointAt_502 = default; v_pointAt_502 = VisualJs.Fn(args_503 => { V v_p_504 = VisualJs.Arg(args_503, 0);
 V v_q_505 = VisualJs.MathObject[new V("max")].Call(new V(0d), VisualJs.MathObject[new V("min")].Call(new V(1d), v_p_504));
 V v_wave_506 = ((VisualJs.MathObject[new V("sin")].Call((v_phase_501 + ((v_q_505 * VisualJs.MathObject[new V("PI")]) * new V(4.2d)))) * v_amp_499) * VisualJs.MathObject[new V("sin")].Call((VisualJs.MathObject[new V("PI")] * v_q_505)));
-return VisualJs.Obj(new V("x"), ((v_from_487[new V("x")] + (v_dx_494 * v_q_505)) + (v_nx_497 * v_wave_506)), new V("y"), ((v_from_487[new V("y")] + (v_dy_495 * v_q_505)) + (v_ny_498 * v_wave_506)));
-return default; });
+return VisualJs.Obj(new V("x"), ((v_from_487[new V("x")] + (v_dx_494 * v_q_505)) + (v_nx_497 * v_wave_506)), new V("y"), ((v_from_487[new V("y")] + (v_dy_495 * v_q_505)) + (v_ny_498 * v_wave_506))); });
 V v_path_507 = default; v_path_507 = VisualJs.Fn(args_508 => { v_ctx_486[new V("beginPath")].Call();
 V v_first_509 = v_pointAt_502.Call(new V(0d));
 v_ctx_486[new V("moveTo")].Call(v_first_509[new V("x")], v_first_509[new V("y")]);

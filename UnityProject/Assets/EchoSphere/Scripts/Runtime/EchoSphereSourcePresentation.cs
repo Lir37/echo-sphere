@@ -11,6 +11,7 @@ namespace EchoSphere.Runtime
     public sealed partial class EchoSphereRuntime
     {
         private SourceCanvasSurface _sourceCanvas;
+        public bool UsesSourcePresentation=>true;
         private V _sourceRenderState;
         [Serializable] private sealed class SourceLightningVisual {public Vector2 from,to;public float life;public string sphereType;}
         private readonly List<SourceLightningVisual> _sourceLightningVisuals=new List<SourceLightningVisual>();
@@ -20,14 +21,18 @@ namespace EchoSphere.Runtime
         {for(var i=_sourceLightningVisuals.Count-1;i>=0;i--){_sourceLightningVisuals[i].life-=dt;if(_sourceLightningVisuals[i].life<=0f)_sourceLightningVisuals.RemoveAt(i);}if(_sourceLightningVisuals.Count>36)_sourceLightningVisuals.RemoveRange(0,_sourceLightningVisuals.Count-36);}
         private readonly Dictionary<MonoBehaviour,V> _sourceRenderEntities=new Dictionary<MonoBehaviour,V>();
         private static readonly Dictionary<Type,Dictionary<string,FieldInfo>> SourceRenderFields=new Dictionary<Type,Dictionary<string,FieldInfo>>();
-        private static object RenderField(object owner,string key)
+        private static Dictionary<string,FieldInfo> RenderFields(Type type)
         {
-            if(owner==null)return null;var type=owner.GetType();
             if(!SourceRenderFields.TryGetValue(type,out var fields)) {
                 fields=new Dictionary<string,FieldInfo>();
                 foreach(var field in type.GetFields(BindingFlags.Instance|BindingFlags.NonPublic|BindingFlags.Public))fields[field.Name]=field;
                 SourceRenderFields.Add(type,fields);
             }
+            return fields;
+        }
+        private static object RenderField(object owner,string key)
+        {
+            if(owner==null)return null;var type=owner.GetType();var fields=RenderFields(type);
             if(!fields.TryGetValue(key,out var result))throw new InvalidOperationException("Missing source presentation state: "+type.Name+"."+key);
             return result.GetValue(owner);
         }
@@ -95,9 +100,9 @@ namespace EchoSphere.Runtime
         {
             if(_sourceRenderState.Undefined)_sourceRenderState=VisualInitialState.Create();var scene=_sourceRenderState;var player=scene["player"];
             // Directly corresponding timers and counters keep their source names.
+            var runtimeFields=RenderFields(typeof(EchoSphereRuntime));
             foreach(var pair in new List<KeyValuePair<string,V>>((Dictionary<string,V>)player.Raw)) {
-                var field=typeof(EchoSphereRuntime).GetField("_"+pair.Key,BindingFlags.Instance|BindingFlags.NonPublic);
-                if(field!=null)player[pair.Key]=RenderValue(field.GetValue(this));
+                if(runtimeFields.TryGetValue("_"+pair.Key,out var field))player[pair.Key]=RenderValue(field.GetValue(this));
             }
             player["pos"]=SourcePoint(PlayerPosition);player["hp"]=_playerCore.CurrentHp;player["maxHp"]=_playerCore.MaxHp;
             player["characterId"]=CharacterRules.ToSourceId(_sphereCharacterId);player["characterMasteryLevel"]=_characterMasteryLevel;
@@ -154,6 +159,10 @@ namespace EchoSphere.Runtime
             if(_sourceCanvas==null) {
                 VisualJs.ImageFactory=()=>new V(new SourceCanvasImage());
                 _sourceCanvas=new GameObject("Source Canvas — renderer.ts").AddComponent<SourceCanvasSurface>();_sourceCanvas.Initialize(100);
+                // The game Canvas is consumed as a UI texture. Culling the
+                // unused scene presentation avoids scanning every Renderer on
+                // every frame and also covers newly spawned legacy objects.
+                _camera.cullingMask=0;var renderer=_sourceCanvas.GetComponent<Renderer>();renderer.enabled=false;
             }
             var dpr=SourceDevicePixelRatio;var width=Mathf.Max(1f,Mathf.Floor(Mathf.Min(1280f,Screen.width/dpr)+.5f));var height=Mathf.Max(1f,Mathf.Floor(Mathf.Min(800f,Screen.height/dpr)+.5f));
             _camera.orthographicSize=Screen.height/dpr*SpherePlacementRules.SourcePixelsToWorld*.5f;
@@ -165,17 +174,23 @@ namespace EchoSphere.Runtime
             // The canvas is an authored DOM element, underneath the original
             // HUD and overlays. Its CSS filter is applied by that element.
             DrawSourceDocument();
-            foreach(var renderer in FindObjectsByType<Renderer>(FindObjectsSortMode.None))renderer.enabled=false;
         }
         private static float SourceDevicePixelRatio
         {
             get {
 #if UNITY_ANDROID && !UNITY_EDITOR
-                using(var player=new AndroidJavaClass("com.unity3d.player.UnityPlayer"))using(var activity=player.GetStatic<AndroidJavaObject>("currentActivity"))using(var resources=activity.Call<AndroidJavaObject>("getResources"))using(var metrics=resources.Call<AndroidJavaObject>("getDisplayMetrics"))return Mathf.Max(1f,metrics.Get<float>("density"));
+                var width=Screen.width;var height=Screen.height;var dpi=Screen.dpi;
+                if(_sourceDensity>0f&&width==_sourceDensityWidth&&height==_sourceDensityHeight&&dpi==_sourceDensityDpi)return _sourceDensity;
+                using(var player=new AndroidJavaClass("com.unity3d.player.UnityPlayer"))using(var activity=player.GetStatic<AndroidJavaObject>("currentActivity"))using(var resources=activity.Call<AndroidJavaObject>("getResources"))using(var metrics=resources.Call<AndroidJavaObject>("getDisplayMetrics"))_sourceDensity=Mathf.Max(1f,metrics.Get<float>("density"));
+                _sourceDensityWidth=width;_sourceDensityHeight=height;_sourceDensityDpi=dpi;return _sourceDensity;
 #else
                 return 1f;
 #endif
             }
         }
+#if UNITY_ANDROID && !UNITY_EDITOR
+        private static float _sourceDensity,_sourceDensityDpi;
+        private static int _sourceDensityWidth,_sourceDensityHeight;
+#endif
     }
 }

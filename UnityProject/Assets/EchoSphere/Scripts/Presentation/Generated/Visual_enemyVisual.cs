@@ -43,7 +43,6 @@ private static V F_rgbOf(V[] args) {
 V v_hex_0 = VisualJs.Arg(args,0);
 V v_n_1 = VisualJs.NumberObject[new V("parseInt")].Call(v_hex_0[new V("slice")].Call(new V(1d)), new V(16d));
 return ((((((((v_n_1 >> (int)new V(16d).Number)) & new V(255d))) + new V(",")) + ((((v_n_1 >> (int)new V(8d).Number)) & new V(255d)))) + new V(",")) + ((v_n_1 & new V(255d))));
-return default;
 }
 private static V F_glow(V[] args) {
 V v_ctx_2 = VisualJs.Arg(args,0);
