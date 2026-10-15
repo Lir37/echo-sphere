@@ -4773,3 +4773,19 @@ The Stats tab's Character section heading and source spacing above the grid are
 also now present. The Unity structural check explicitly guards the line-art
 tab icons and compact character stat grid so these source-layout details are
 not silently lost in later edits.
+
+
+======================================================================
+2026-10-15 — REGION SELECT SOURCE LAYOUT
+======================================================================
+
+The region-selection screen was brought back to the source EchoMapScreen
+composition: centered compact header with a full back label, source-sized
+typography, a single-column region list, smaller card headers and challenge
+rows, separate title/description typography inside primary/challenge/endless
+actions, and line-art action/lock marks. Existing region availability,
+stabilization, challenge and endless rules are unchanged.
+
+======================================================================
+END REGION SELECT SOURCE LAYOUT
+======================================================================
