@@ -4974,3 +4974,38 @@ full SVG/runtime parity from CI alone.
 ======================================================================
 END SVGFormatException COLOR NORMALIZATION
 ======================================================================
+
+
+======================================================================
+2026-10-15 — UNITY WARNING CLEANUP PASS
+======================================================================
+
+Reported warning groups: shader Blur potentially-uninitialized warnings on
+D3D11/GLES3/Vulkan; duplicate SourceCanvas entry-point pragmas; generated
+CS0162 warnings; obsolete UI Toolkit MeshWriteData.uvRegion and
+ITransform.scale; obsolete EventBase.PreventDefault.
+
+Changes on unity-migration:
+- SourceCanvas entry-point pragmas moved to the individual passes.
+- Both blur shaders use explicitly initialized accumulators and normalized
+  return values.
+- SourceUiDocument.Quad uses normalized source UVs and lets UI Toolkit perform
+  renderer atlas remapping.
+- UI Toolkit scale writes/read now use style.scale/resolvedStyle.scale.
+- Legacy PreventDefault remains intentionally in place, with CS0618 scoped
+  suppression to preserve existing DOM adapter semantics.
+- UnityProject/Assets/csc.rsp suppresses only CS0162, caused by defensive
+  generated return statements after explicit returns in Visual_*.cs.
+
+OPEN VALIDATION:
+- Reimport/compile shaders in Unity Editor and verify D3D11, GLES3 and Vulkan
+  warnings have actually disappeared.
+- Verify C# compilation has no remaining targeted obsolete warnings.
+- CI is not a substitute for Unity Editor shader compilation or phone runtime.
+- Severe mobile slowdown remains unresolved. Next diagnostic should measure
+  per-frame UI/visual generation and SVG rasterization using Unity Profiler;
+  don't optimize by deleting visual features without measured evidence.
+
+======================================================================
+END WARNING CLEANUP PASS
+======================================================================
