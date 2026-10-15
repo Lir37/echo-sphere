@@ -3202,3 +3202,18 @@ CI and Unity Editor/device validation are pending for this change. Contract CI d
 ======================================================================
 END UNITY RUNTIME FIX — SOURCE CANVAS INITIALIZATION
 ======================================================================
+
+
+======================================================================
+UNITY RUNTIME FIX — SYSTEM FONT RESOLUTION NULL (2026-10-15)
+======================================================================
+
+Fixed SourceUiTypography.Resolve null dereference at the fallback path. If the requested CSS/system font family cannot be loaded by Unity FontEngine and the legacy font resolver also returns no Font, Resolve now returns null safely rather than accessing primary.fallbackFontAssetTable. Apply leaves UI Toolkit's default font untouched when no FontAsset can be resolved.
+
+This is a defensive fallback for unavailable system fonts, not a new font choice or gameplay/UI behavior. It avoids crashing the full recursive SourceUiDocument reconciliation. Device typography fidelity still requires runtime verification.
+
+CI is pending for this change. Contract CI does not prove Unity runtime font availability or visual parity. new-desing remains unchanged.
+
+======================================================================
+END UNITY RUNTIME FIX — SYSTEM FONT RESOLUTION NULL
+======================================================================
