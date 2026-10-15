@@ -15,6 +15,12 @@ namespace EchoSphere.Presentation
         public readonly List<VisualCssNode> Children=new List<VisualCssNode>();
         public readonly Dictionary<string,string> Style=new Dictionary<string,string>();
         public readonly HashSet<string> Important=new HashSet<string>();
+        public readonly HashSet<string> InheritedProperties=new HashSet<string>();
+        public void InheritAnimatedValues()
+        {
+            if(Parent==null)return;
+            foreach(var property in InheritedProperties)if(Parent.Style.TryGetValue(property,out var value))Style[property]=value;
+        }
         public bool Hover,Active,Focused;
         public object Native;
         public double X,Y,Width,Height;
@@ -76,9 +82,10 @@ namespace EchoSphere.Presentation
         {
             node.Style.Clear();
             node.Important.Clear();
-            if(node.Parent!=null){foreach(var pair in node.Parent.Style)if(pair.Key.StartsWith("--",StringComparison.Ordinal)||Inherited.Contains(pair.Key))node.Style[pair.Key]=pair.Value;}
+            node.InheritedProperties.Clear();
+            if(node.Parent!=null){foreach(var pair in node.Parent.Style)if(pair.Key.StartsWith("--",StringComparison.Ordinal)||Inherited.Contains(pair.Key)){node.Style[pair.Key]=pair.Value;node.InheritedProperties.Add(pair.Key);}}
             else {node.Style["font-size"]="16px";node.Style["font-family"]="system-ui,sans-serif";node.Style["line-height"]="normal";node.Style["color"]="#000000";}
-            if(node.Tag=="button"&&node.Pseudo==null)node.Style["text-align"]="center";
+            if(node.Tag=="button"&&node.Pseudo==null){node.Style["text-align"]="center";node.InheritedProperties.Remove("text-align");}
             node.Style["display"]=node.Pseudo!=null||new[]{"#text","span","b","small","i","strong","label","path","circle","ellipse","rect","line","polygon","polyline","g","defs","linearGradient","radialGradient","stop"}.Contains(node.Tag)?"inline":node.Tag=="svg"||node.Tag=="input"||node.Tag=="button"?"inline-block":"block";
             var owner=node.Pseudo==null?node:node.Parent;var candidates=new List<Rule>(_universalRules);if(_tagRules.TryGetValue(owner.Tag,out var tagRules))candidates.AddRange(tagRules);foreach(var name in owner.Classes)if(_classRules.TryGetValue(name,out var classRules))candidates.AddRange(classRules);
             var matches=candidates.Where(rule=>rule.Enabled&&Match(node,rule.Selector)).ToList();
@@ -86,8 +93,8 @@ namespace EchoSphere.Presentation
             foreach(var rule in matches)foreach(var d in rule.Declarations.Items)declarations.Add(Tuple.Create(d["important"].Truth?1:0,rule.Specificity,rule.Order,d["property"].Text,d["value"].Text));
             if(node.Properties["style"].Raw is Dictionary<string,V> inline)foreach(var pair in inline){var name=Regex.Replace(pair.Key,"[A-Z]",m=>"-"+m.Value.ToLowerInvariant());var value=pair.Value.Raw is double&&!name.StartsWith("--",StringComparison.Ordinal)&&name!="opacity"&&name!="font-weight"&&name!="z-index"&&name!="flex"&&name!="flex-grow"&&name!="flex-shrink"&&name!="order"&&name!="line-height"?pair.Value.Text+"px":pair.Value.Text;declarations.Add(Tuple.Create(0,100000,int.MaxValue,name,value));}
             declarations=declarations.OrderBy(d=>d.Item1).ThenBy(d=>d.Item2).ThenBy(d=>d.Item3).ToList();
-            foreach(var d in declarations)if(d.Item4.StartsWith("--",StringComparison.Ordinal))node.Style[d.Item4]=d.Item5;
-            foreach(var d in declarations)if(!d.Item4.StartsWith("--",StringComparison.Ordinal)){Expand(node.Style,d.Item4,Variables(d.Item5,node.Style));if(d.Item1==1){node.Important.Add(d.Item4);var expanded=new Dictionary<string,string>();Expand(expanded,d.Item4,d.Item5);foreach(var property in expanded.Keys)node.Important.Add(property);}}
+            foreach(var d in declarations)if(d.Item4.StartsWith("--",StringComparison.Ordinal)){node.Style[d.Item4]=d.Item5;node.InheritedProperties.Remove(d.Item4);}
+            foreach(var d in declarations)if(!d.Item4.StartsWith("--",StringComparison.Ordinal)){var expanded=new Dictionary<string,string>();Expand(expanded,d.Item4,Variables(d.Item5,node.Style));foreach(var property in expanded){node.Style[property.Key]=property.Value;if(property.Value=="inherit")node.InheritedProperties.Add(property.Key);else node.InheritedProperties.Remove(property.Key);}if(d.Item1==1){node.Important.Add(d.Item4);foreach(var property in expanded.Keys)node.Important.Add(property);}}
             foreach(var key in node.Style.Keys.ToArray())if(node.Style[key]=="inherit")node.Style[key]=node.Parent!=null&&node.Parent.Style.TryGetValue(key,out var inherited)?inherited:"initial";
             var parentFont=node.Parent==null?16d:Length(Get(node.Parent,"font-size","16px"),16d);var font=Length(Get(node,"font-size","16px"),parentFont,parentFont);if(double.IsNaN(font))font=16d;
             node.Style["font-size"]=VisualJs.NumberText(font)+"px";
@@ -199,6 +206,16 @@ namespace EchoSphere.Presentation
         private static void Expand(Dictionary<string,string> style,string property,string value)
         {
             var words=Split(value,' ').Where(word=>word.Length>0).ToArray();
+            if(property=="transition") {
+                var properties=new List<string>();var durations=new List<string>();var timings=new List<string>();var delays=new List<string>();
+                foreach(var item in Split(value,',')){
+                    var parts=Split(item.Trim(),' ').Where(part=>part.Length>0).ToArray();
+                    bool Time(string part)=>Regex.IsMatch(part,@"^[-\d.]+m?s$");
+                    bool Timing(string part)=>new[]{"linear","ease","ease-in","ease-out","ease-in-out","step-start","step-end"}.Contains(part)||part.StartsWith("cubic-bezier(",StringComparison.Ordinal)||part.StartsWith("steps(",StringComparison.Ordinal);
+                    var times=parts.Where(Time).ToArray();properties.Add(parts.FirstOrDefault(part=>!Time(part)&&!Timing(part))??"all");durations.Add(times.Length>0?times[0]:"0s");delays.Add(times.Length>1?times[1]:"0s");timings.Add(parts.FirstOrDefault(Timing)??"ease");
+                }
+                style[property]=value;style["transition-property"]=string.Join(", ",properties);style["transition-duration"]=string.Join(", ",durations);style["transition-timing-function"]=string.Join(", ",timings);style["transition-delay"]=string.Join(", ",delays);return;
+            }
             if(property=="background") {
                 var layers=Split(value,',');var images=layers.Where(layer=>layer.Contains("gradient(")||layer.Contains("url(")).ToArray();
                 style["background-image"]=images.Length==0?"none":string.Join(",",images);style["background-color"]="transparent";style["background-size"]="auto";style["background-position"]="0% 0%";style["background-repeat"]="repeat";

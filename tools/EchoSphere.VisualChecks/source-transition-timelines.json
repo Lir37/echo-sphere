@@ -1,0 +1,2162 @@
+[
+  {
+    "label": ".transition",
+    "declarations": [
+      {
+        "property": "transition-property",
+        "value": "color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter",
+        "important": false
+      },
+      {
+        "property": "transition-timing-function",
+        "value": "cubic-bezier(0.4, 0, 0.2, 1)",
+        "important": false
+      },
+      {
+        "property": "transition-duration",
+        "value": "150ms",
+        "important": false
+      }
+    ],
+    "from": {
+      "opacity": "1",
+      "transform": "none",
+      "background-color": "rgb(13,23,38)",
+      "border-top-color": "rgb(36,59,85)",
+      "color": "rgb(13,23,38)",
+      "display": "block"
+    },
+    "to": {
+      "opacity": ".5",
+      "transform": "scale(.95)",
+      "background-color": "rgb(57,216,255)",
+      "border-top-color": "rgb(57,216,255)",
+      "color": "rgb(57,216,255)",
+      "display": "flex"
+    },
+    "samples": [
+      {
+        "time": 0,
+        "style": {
+          "opacity": "1",
+          "transform": "matrix(1, 0, 0, 1, 0, 0)",
+          "background-color": "rgb(13, 23, 38)",
+          "border-top-color": "rgb(36, 59, 85)",
+          "color": "rgb(13, 23, 38)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(13, 23, 38)",
+        "matrix": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.031,
+        "style": {
+          "opacity": "0.92722",
+          "transform": "matrix(0.992722, 0, 0, 0.992722, 0, 0)",
+          "background-color": "rgb(19, 51, 70)",
+          "border-top-color": "rgb(39, 82, 110)",
+          "color": "rgb(19, 51, 70)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(19, 51, 70)",
+        "matrix": [
+          0.992722,
+          0,
+          0,
+          0,
+          0,
+          0.992722,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.075,
+        "style": {
+          "opacity": "0.612219",
+          "transform": "matrix(0.961222, 0, 0, 0.961222, 0, 0)",
+          "background-color": "rgb(47, 173, 206)",
+          "border-top-color": "rgb(52, 181, 217)",
+          "color": "rgb(47, 173, 206)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(47, 173, 206)",
+        "matrix": [
+          0.961222,
+          0,
+          0,
+          0,
+          0,
+          0.961222,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.149,
+        "style": {
+          "opacity": "0.500012",
+          "transform": "matrix(0.950001, 0, 0, 0.950001, 0, 0)",
+          "background-color": "rgb(57, 216, 255)",
+          "border-top-color": "rgb(57, 216, 255)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          0.950001,
+          0,
+          0,
+          0,
+          0,
+          0.950001,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.16,
+        "style": {
+          "opacity": "0.5",
+          "transform": "matrix(0.95, 0, 0, 0.95, 0, 0)",
+          "background-color": "rgb(57, 216, 255)",
+          "border-top-color": "rgb(57, 216, 255)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.4,
+        "style": {
+          "opacity": "0.5",
+          "transform": "matrix(0.95, 0, 0, 0.95, 0, 0)",
+          "background-color": "rgb(57, 216, 255)",
+          "border-top-color": "rgb(57, 216, 255)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      }
+    ]
+  },
+  {
+    "label": ".transition-all",
+    "declarations": [
+      {
+        "property": "transition-property",
+        "value": "all",
+        "important": false
+      },
+      {
+        "property": "transition-timing-function",
+        "value": "cubic-bezier(0.4, 0, 0.2, 1)",
+        "important": false
+      },
+      {
+        "property": "transition-duration",
+        "value": "150ms",
+        "important": false
+      }
+    ],
+    "from": {
+      "opacity": "1",
+      "transform": "none",
+      "background-color": "rgb(13,23,38)",
+      "border-top-color": "rgb(36,59,85)",
+      "color": "rgb(13,23,38)",
+      "display": "block"
+    },
+    "to": {
+      "opacity": ".5",
+      "transform": "scale(.95)",
+      "background-color": "rgb(57,216,255)",
+      "border-top-color": "rgb(57,216,255)",
+      "color": "rgb(57,216,255)",
+      "display": "flex"
+    },
+    "samples": [
+      {
+        "time": 0,
+        "style": {
+          "opacity": "1",
+          "transform": "matrix(1, 0, 0, 1, 0, 0)",
+          "background-color": "rgb(13, 23, 38)",
+          "border-top-color": "rgb(36, 59, 85)",
+          "color": "rgb(13, 23, 38)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(13, 23, 38)",
+        "matrix": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.031,
+        "style": {
+          "opacity": "0.92722",
+          "transform": "matrix(0.992722, 0, 0, 0.992722, 0, 0)",
+          "background-color": "rgb(19, 51, 70)",
+          "border-top-color": "rgb(39, 82, 110)",
+          "color": "rgb(19, 51, 70)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(19, 51, 70)",
+        "matrix": [
+          0.992722,
+          0,
+          0,
+          0,
+          0,
+          0.992722,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.075,
+        "style": {
+          "opacity": "0.612219",
+          "transform": "matrix(0.961222, 0, 0, 0.961222, 0, 0)",
+          "background-color": "rgb(47, 173, 206)",
+          "border-top-color": "rgb(52, 181, 217)",
+          "color": "rgb(47, 173, 206)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(47, 173, 206)",
+        "matrix": [
+          0.961222,
+          0,
+          0,
+          0,
+          0,
+          0.961222,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.149,
+        "style": {
+          "opacity": "0.500012",
+          "transform": "matrix(0.950001, 0, 0, 0.950001, 0, 0)",
+          "background-color": "rgb(57, 216, 255)",
+          "border-top-color": "rgb(57, 216, 255)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          0.950001,
+          0,
+          0,
+          0,
+          0,
+          0.950001,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.16,
+        "style": {
+          "opacity": "0.5",
+          "transform": "matrix(0.95, 0, 0, 0.95, 0, 0)",
+          "background-color": "rgb(57, 216, 255)",
+          "border-top-color": "rgb(57, 216, 255)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.4,
+        "style": {
+          "opacity": "0.5",
+          "transform": "matrix(0.95, 0, 0, 0.95, 0, 0)",
+          "background-color": "rgb(57, 216, 255)",
+          "border-top-color": "rgb(57, 216, 255)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      }
+    ]
+  },
+  {
+    "label": ".es-character-screen > div:first-child button,\r\n.es-list-screen button",
+    "declarations": [
+      {
+        "property": "transition",
+        "value": "160ms ease",
+        "important": false
+      }
+    ],
+    "from": {
+      "opacity": "1",
+      "transform": "none",
+      "background-color": "rgb(13,23,38)",
+      "border-top-color": "rgb(36,59,85)",
+      "color": "rgb(13,23,38)",
+      "display": "block"
+    },
+    "to": {
+      "opacity": ".5",
+      "transform": "scale(.95)",
+      "background-color": "rgb(57,216,255)",
+      "border-top-color": "rgb(57,216,255)",
+      "color": "rgb(57,216,255)",
+      "display": "flex"
+    },
+    "samples": [
+      {
+        "time": 0,
+        "style": {
+          "opacity": "1",
+          "transform": "matrix(1, 0, 0, 1, 0, 0)",
+          "background-color": "rgb(13, 23, 38)",
+          "border-top-color": "rgb(36, 59, 85)",
+          "color": "rgb(13, 23, 38)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(13, 23, 38)",
+        "matrix": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.031,
+        "style": {
+          "opacity": "0.859495",
+          "transform": "matrix(0.985949, 0, 0, 0.985949, 0, 0)",
+          "background-color": "rgb(25, 77, 99)",
+          "border-top-color": "rgb(42, 103, 133)",
+          "color": "rgb(25, 77, 99)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(25, 77, 99)",
+        "matrix": [
+          0.985949,
+          0,
+          0,
+          0,
+          0,
+          0.985949,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.075,
+        "style": {
+          "opacity": "0.615259",
+          "transform": "matrix(0.961526, 0, 0, 0.961526, 0, 0)",
+          "background-color": "rgb(47, 172, 205)",
+          "border-top-color": "rgb(52, 180, 216)",
+          "color": "rgb(47, 172, 205)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(47, 172, 205)",
+        "matrix": [
+          0.961526,
+          0,
+          0,
+          0,
+          0,
+          0.961526,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.149,
+        "style": {
+          "opacity": "0.501316",
+          "transform": "matrix(0.950132, 0, 0, 0.950132, 0, 0)",
+          "background-color": "rgb(57, 215, 254)",
+          "border-top-color": "rgb(57, 216, 255)",
+          "color": "rgb(57, 215, 254)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 215, 254)",
+        "matrix": [
+          0.950132,
+          0,
+          0,
+          0,
+          0,
+          0.950132,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.16,
+        "style": {
+          "opacity": "0.5",
+          "transform": "matrix(0.95, 0, 0, 0.95, 0, 0)",
+          "background-color": "rgb(57, 216, 255)",
+          "border-top-color": "rgb(57, 216, 255)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.4,
+        "style": {
+          "opacity": "0.5",
+          "transform": "matrix(0.95, 0, 0, 0.95, 0, 0)",
+          "background-color": "rgb(57, 216, 255)",
+          "border-top-color": "rgb(57, 216, 255)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      }
+    ]
+  },
+  {
+    "label": ".es-set-badge",
+    "declarations": [
+      {
+        "property": "transition",
+        "value": "border-color .15s ease, background .15s ease",
+        "important": false
+      }
+    ],
+    "from": {
+      "opacity": "1",
+      "transform": "none",
+      "background-color": "rgb(13,23,38)",
+      "border-top-color": "rgb(36,59,85)",
+      "color": "rgb(13,23,38)",
+      "display": "block"
+    },
+    "to": {
+      "opacity": ".5",
+      "transform": "scale(.95)",
+      "background-color": "rgb(57,216,255)",
+      "border-top-color": "rgb(57,216,255)",
+      "color": "rgb(57,216,255)",
+      "display": "flex"
+    },
+    "samples": [
+      {
+        "time": 0,
+        "style": {
+          "opacity": "0.5",
+          "transform": "matrix(0.95, 0, 0, 0.95, 0, 0)",
+          "background-color": "rgb(13, 23, 38)",
+          "border-top-color": "rgb(36, 59, 85)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.031,
+        "style": {
+          "opacity": "0.5",
+          "transform": "matrix(0.95, 0, 0, 0.95, 0, 0)",
+          "background-color": "rgb(27, 83, 105)",
+          "border-top-color": "rgb(43, 108, 138)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.075,
+        "style": {
+          "opacity": "0.5",
+          "transform": "matrix(0.95, 0, 0, 0.95, 0, 0)",
+          "background-color": "rgb(48, 178, 212)",
+          "border-top-color": "rgb(53, 185, 221)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.149,
+        "style": {
+          "opacity": "0.5",
+          "transform": "matrix(0.95, 0, 0, 0.95, 0, 0)",
+          "background-color": "rgb(57, 216, 255)",
+          "border-top-color": "rgb(57, 216, 255)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.16,
+        "style": {
+          "opacity": "0.5",
+          "transform": "matrix(0.95, 0, 0, 0.95, 0, 0)",
+          "background-color": "rgb(57, 216, 255)",
+          "border-top-color": "rgb(57, 216, 255)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.4,
+        "style": {
+          "opacity": "0.5",
+          "transform": "matrix(0.95, 0, 0, 0.95, 0, 0)",
+          "background-color": "rgb(57, 216, 255)",
+          "border-top-color": "rgb(57, 216, 255)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      }
+    ]
+  },
+  {
+    "label": ".es-network-formation-chip",
+    "declarations": [
+      {
+        "property": "transition",
+        "value": "opacity .15s ease, transform .15s ease, border-color .15s ease, background .15s ease, box-shadow .15s ease",
+        "important": false
+      }
+    ],
+    "from": {
+      "opacity": "1",
+      "transform": "none",
+      "background-color": "rgb(13,23,38)",
+      "border-top-color": "rgb(36,59,85)",
+      "color": "rgb(13,23,38)",
+      "display": "block"
+    },
+    "to": {
+      "opacity": ".5",
+      "transform": "scale(.95)",
+      "background-color": "rgb(57,216,255)",
+      "border-top-color": "rgb(57,216,255)",
+      "color": "rgb(57,216,255)",
+      "display": "flex"
+    },
+    "samples": [
+      {
+        "time": 0,
+        "style": {
+          "opacity": "1",
+          "transform": "matrix(1, 0, 0, 1, 0, 0)",
+          "background-color": "rgb(13, 23, 38)",
+          "border-top-color": "rgb(36, 59, 85)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.031,
+        "style": {
+          "opacity": "0.844761",
+          "transform": "matrix(0.984476, 0, 0, 0.984476, 0, 0)",
+          "background-color": "rgb(27, 83, 105)",
+          "border-top-color": "rgb(43, 108, 138)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          0.984476,
+          0,
+          0,
+          0,
+          0,
+          0.984476,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.075,
+        "style": {
+          "opacity": "0.598798",
+          "transform": "matrix(0.95988, 0, 0, 0.95988, 0, 0)",
+          "background-color": "rgb(48, 178, 212)",
+          "border-top-color": "rgb(53, 185, 221)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          0.95988,
+          0,
+          0,
+          0,
+          0,
+          0.95988,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.149,
+        "style": {
+          "opacity": "0.500012",
+          "transform": "matrix(0.950001, 0, 0, 0.950001, 0, 0)",
+          "background-color": "rgb(57, 216, 255)",
+          "border-top-color": "rgb(57, 216, 255)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          0.950001,
+          0,
+          0,
+          0,
+          0,
+          0.950001,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.16,
+        "style": {
+          "opacity": "0.5",
+          "transform": "matrix(0.95, 0, 0, 0.95, 0, 0)",
+          "background-color": "rgb(57, 216, 255)",
+          "border-top-color": "rgb(57, 216, 255)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.4,
+        "style": {
+          "opacity": "0.5",
+          "transform": "matrix(0.95, 0, 0, 0.95, 0, 0)",
+          "background-color": "rgb(57, 216, 255)",
+          "border-top-color": "rgb(57, 216, 255)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      }
+    ]
+  },
+  {
+    "label": ".es-map-camera",
+    "declarations": [
+      {
+        "property": "transition",
+        "value": "transform .95s cubic-bezier(.2,.74,.18,1)",
+        "important": false
+      }
+    ],
+    "from": {
+      "opacity": "1",
+      "transform": "none",
+      "background-color": "rgb(13,23,38)",
+      "border-top-color": "rgb(36,59,85)",
+      "color": "rgb(13,23,38)",
+      "display": "block"
+    },
+    "to": {
+      "opacity": ".5",
+      "transform": "scale(.95)",
+      "background-color": "rgb(57,216,255)",
+      "border-top-color": "rgb(57,216,255)",
+      "color": "rgb(57,216,255)",
+      "display": "flex"
+    },
+    "samples": [
+      {
+        "time": 0,
+        "style": {
+          "opacity": "0.5",
+          "transform": "matrix(1, 0, 0, 1, 0, 0)",
+          "background-color": "rgb(57, 216, 255)",
+          "border-top-color": "rgb(57, 216, 255)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.031,
+        "style": {
+          "opacity": "0.5",
+          "transform": "matrix(0.993832, 0, 0, 0.993832, 0, 0)",
+          "background-color": "rgb(57, 216, 255)",
+          "border-top-color": "rgb(57, 216, 255)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          0.993832,
+          0,
+          0,
+          0,
+          0,
+          0.993832,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.075,
+        "style": {
+          "opacity": "0.5",
+          "transform": "matrix(0.984891, 0, 0, 0.984891, 0, 0)",
+          "background-color": "rgb(57, 216, 255)",
+          "border-top-color": "rgb(57, 216, 255)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          0.984891,
+          0,
+          0,
+          0,
+          0,
+          0.984891,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.149,
+        "style": {
+          "opacity": "0.5",
+          "transform": "matrix(0.971808, 0, 0, 0.971808, 0, 0)",
+          "background-color": "rgb(57, 216, 255)",
+          "border-top-color": "rgb(57, 216, 255)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          0.971808,
+          0,
+          0,
+          0,
+          0,
+          0.971808,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.16,
+        "style": {
+          "opacity": "0.5",
+          "transform": "matrix(0.970271, 0, 0, 0.970271, 0, 0)",
+          "background-color": "rgb(57, 216, 255)",
+          "border-top-color": "rgb(57, 216, 255)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          0.970271,
+          0,
+          0,
+          0,
+          0,
+          0.970271,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.4,
+        "style": {
+          "opacity": "0.5",
+          "transform": "matrix(0.954733, 0, 0, 0.954733, 0, 0)",
+          "background-color": "rgb(57, 216, 255)",
+          "border-top-color": "rgb(57, 216, 255)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          0.954733,
+          0,
+          0,
+          0,
+          0,
+          0.954733,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      }
+    ]
+  },
+  {
+    "label": ".transition + .es-character-screen > div:first-child button,\r\n.es-list-screen button",
+    "declarations": [
+      {
+        "property": "transition-property",
+        "value": "color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter",
+        "important": false
+      },
+      {
+        "property": "transition-timing-function",
+        "value": "cubic-bezier(0.4, 0, 0.2, 1)",
+        "important": false
+      },
+      {
+        "property": "transition-duration",
+        "value": "150ms",
+        "important": false
+      },
+      {
+        "property": "transition",
+        "value": "160ms ease",
+        "important": false
+      }
+    ],
+    "from": {
+      "opacity": "1",
+      "transform": "none",
+      "background-color": "rgb(13,23,38)",
+      "border-top-color": "rgb(36,59,85)",
+      "color": "rgb(13,23,38)",
+      "display": "block"
+    },
+    "to": {
+      "opacity": ".5",
+      "transform": "scale(.95)",
+      "background-color": "rgb(57,216,255)",
+      "border-top-color": "rgb(57,216,255)",
+      "color": "rgb(57,216,255)",
+      "display": "flex"
+    },
+    "samples": [
+      {
+        "time": 0,
+        "style": {
+          "opacity": "1",
+          "transform": "matrix(1, 0, 0, 1, 0, 0)",
+          "background-color": "rgb(13, 23, 38)",
+          "border-top-color": "rgb(36, 59, 85)",
+          "color": "rgb(13, 23, 38)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(13, 23, 38)",
+        "matrix": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.031,
+        "style": {
+          "opacity": "0.859495",
+          "transform": "matrix(0.985949, 0, 0, 0.985949, 0, 0)",
+          "background-color": "rgb(25, 77, 99)",
+          "border-top-color": "rgb(42, 103, 133)",
+          "color": "rgb(25, 77, 99)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(25, 77, 99)",
+        "matrix": [
+          0.985949,
+          0,
+          0,
+          0,
+          0,
+          0.985949,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.075,
+        "style": {
+          "opacity": "0.615259",
+          "transform": "matrix(0.961526, 0, 0, 0.961526, 0, 0)",
+          "background-color": "rgb(47, 172, 205)",
+          "border-top-color": "rgb(52, 180, 216)",
+          "color": "rgb(47, 172, 205)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(47, 172, 205)",
+        "matrix": [
+          0.961526,
+          0,
+          0,
+          0,
+          0,
+          0.961526,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.149,
+        "style": {
+          "opacity": "0.501316",
+          "transform": "matrix(0.950132, 0, 0, 0.950132, 0, 0)",
+          "background-color": "rgb(57, 215, 254)",
+          "border-top-color": "rgb(57, 216, 255)",
+          "color": "rgb(57, 215, 254)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 215, 254)",
+        "matrix": [
+          0.950132,
+          0,
+          0,
+          0,
+          0,
+          0.950132,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.16,
+        "style": {
+          "opacity": "0.5",
+          "transform": "matrix(0.95, 0, 0, 0.95, 0, 0)",
+          "background-color": "rgb(57, 216, 255)",
+          "border-top-color": "rgb(57, 216, 255)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.4,
+        "style": {
+          "opacity": "0.5",
+          "transform": "matrix(0.95, 0, 0, 0.95, 0, 0)",
+          "background-color": "rgb(57, 216, 255)",
+          "border-top-color": "rgb(57, 216, 255)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      }
+    ]
+  },
+  {
+    "label": ".transition + .es-set-badge",
+    "declarations": [
+      {
+        "property": "transition-property",
+        "value": "color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter",
+        "important": false
+      },
+      {
+        "property": "transition-timing-function",
+        "value": "cubic-bezier(0.4, 0, 0.2, 1)",
+        "important": false
+      },
+      {
+        "property": "transition-duration",
+        "value": "150ms",
+        "important": false
+      },
+      {
+        "property": "transition",
+        "value": "border-color .15s ease, background .15s ease",
+        "important": false
+      }
+    ],
+    "from": {
+      "opacity": "1",
+      "transform": "none",
+      "background-color": "rgb(13,23,38)",
+      "border-top-color": "rgb(36,59,85)",
+      "color": "rgb(13,23,38)",
+      "display": "block"
+    },
+    "to": {
+      "opacity": ".5",
+      "transform": "scale(.95)",
+      "background-color": "rgb(57,216,255)",
+      "border-top-color": "rgb(57,216,255)",
+      "color": "rgb(57,216,255)",
+      "display": "flex"
+    },
+    "samples": [
+      {
+        "time": 0,
+        "style": {
+          "opacity": "0.5",
+          "transform": "matrix(0.95, 0, 0, 0.95, 0, 0)",
+          "background-color": "rgb(13, 23, 38)",
+          "border-top-color": "rgb(36, 59, 85)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.031,
+        "style": {
+          "opacity": "0.5",
+          "transform": "matrix(0.95, 0, 0, 0.95, 0, 0)",
+          "background-color": "rgb(27, 83, 105)",
+          "border-top-color": "rgb(43, 108, 138)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.075,
+        "style": {
+          "opacity": "0.5",
+          "transform": "matrix(0.95, 0, 0, 0.95, 0, 0)",
+          "background-color": "rgb(48, 178, 212)",
+          "border-top-color": "rgb(53, 185, 221)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.149,
+        "style": {
+          "opacity": "0.5",
+          "transform": "matrix(0.95, 0, 0, 0.95, 0, 0)",
+          "background-color": "rgb(57, 216, 255)",
+          "border-top-color": "rgb(57, 216, 255)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.16,
+        "style": {
+          "opacity": "0.5",
+          "transform": "matrix(0.95, 0, 0, 0.95, 0, 0)",
+          "background-color": "rgb(57, 216, 255)",
+          "border-top-color": "rgb(57, 216, 255)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.4,
+        "style": {
+          "opacity": "0.5",
+          "transform": "matrix(0.95, 0, 0, 0.95, 0, 0)",
+          "background-color": "rgb(57, 216, 255)",
+          "border-top-color": "rgb(57, 216, 255)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      }
+    ]
+  },
+  {
+    "label": ".transition + .es-network-formation-chip",
+    "declarations": [
+      {
+        "property": "transition-property",
+        "value": "color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter",
+        "important": false
+      },
+      {
+        "property": "transition-timing-function",
+        "value": "cubic-bezier(0.4, 0, 0.2, 1)",
+        "important": false
+      },
+      {
+        "property": "transition-duration",
+        "value": "150ms",
+        "important": false
+      },
+      {
+        "property": "transition",
+        "value": "opacity .15s ease, transform .15s ease, border-color .15s ease, background .15s ease, box-shadow .15s ease",
+        "important": false
+      }
+    ],
+    "from": {
+      "opacity": "1",
+      "transform": "none",
+      "background-color": "rgb(13,23,38)",
+      "border-top-color": "rgb(36,59,85)",
+      "color": "rgb(13,23,38)",
+      "display": "block"
+    },
+    "to": {
+      "opacity": ".5",
+      "transform": "scale(.95)",
+      "background-color": "rgb(57,216,255)",
+      "border-top-color": "rgb(57,216,255)",
+      "color": "rgb(57,216,255)",
+      "display": "flex"
+    },
+    "samples": [
+      {
+        "time": 0,
+        "style": {
+          "opacity": "1",
+          "transform": "matrix(1, 0, 0, 1, 0, 0)",
+          "background-color": "rgb(13, 23, 38)",
+          "border-top-color": "rgb(36, 59, 85)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.031,
+        "style": {
+          "opacity": "0.844761",
+          "transform": "matrix(0.984476, 0, 0, 0.984476, 0, 0)",
+          "background-color": "rgb(27, 83, 105)",
+          "border-top-color": "rgb(43, 108, 138)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          0.984476,
+          0,
+          0,
+          0,
+          0,
+          0.984476,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.075,
+        "style": {
+          "opacity": "0.598798",
+          "transform": "matrix(0.95988, 0, 0, 0.95988, 0, 0)",
+          "background-color": "rgb(48, 178, 212)",
+          "border-top-color": "rgb(53, 185, 221)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          0.95988,
+          0,
+          0,
+          0,
+          0,
+          0.95988,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.149,
+        "style": {
+          "opacity": "0.500012",
+          "transform": "matrix(0.950001, 0, 0, 0.950001, 0, 0)",
+          "background-color": "rgb(57, 216, 255)",
+          "border-top-color": "rgb(57, 216, 255)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          0.950001,
+          0,
+          0,
+          0,
+          0,
+          0.950001,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.16,
+        "style": {
+          "opacity": "0.5",
+          "transform": "matrix(0.95, 0, 0, 0.95, 0, 0)",
+          "background-color": "rgb(57, 216, 255)",
+          "border-top-color": "rgb(57, 216, 255)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.4,
+        "style": {
+          "opacity": "0.5",
+          "transform": "matrix(0.95, 0, 0, 0.95, 0, 0)",
+          "background-color": "rgb(57, 216, 255)",
+          "border-top-color": "rgb(57, 216, 255)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          0.95,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      }
+    ]
+  },
+  {
+    "label": ".transition + .es-map-camera",
+    "declarations": [
+      {
+        "property": "transition-property",
+        "value": "color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter",
+        "important": false
+      },
+      {
+        "property": "transition-timing-function",
+        "value": "cubic-bezier(0.4, 0, 0.2, 1)",
+        "important": false
+      },
+      {
+        "property": "transition-duration",
+        "value": "150ms",
+        "important": false
+      },
+      {
+        "property": "transition",
+        "value": "transform .95s cubic-bezier(.2,.74,.18,1)",
+        "important": false
+      }
+    ],
+    "from": {
+      "opacity": "1",
+      "transform": "none",
+      "background-color": "rgb(13,23,38)",
+      "border-top-color": "rgb(36,59,85)",
+      "color": "rgb(13,23,38)",
+      "display": "block"
+    },
+    "to": {
+      "opacity": ".5",
+      "transform": "scale(.95)",
+      "background-color": "rgb(57,216,255)",
+      "border-top-color": "rgb(57,216,255)",
+      "color": "rgb(57,216,255)",
+      "display": "flex"
+    },
+    "samples": [
+      {
+        "time": 0,
+        "style": {
+          "opacity": "0.5",
+          "transform": "matrix(1, 0, 0, 1, 0, 0)",
+          "background-color": "rgb(57, 216, 255)",
+          "border-top-color": "rgb(57, 216, 255)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.031,
+        "style": {
+          "opacity": "0.5",
+          "transform": "matrix(0.993832, 0, 0, 0.993832, 0, 0)",
+          "background-color": "rgb(57, 216, 255)",
+          "border-top-color": "rgb(57, 216, 255)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          0.993832,
+          0,
+          0,
+          0,
+          0,
+          0.993832,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.075,
+        "style": {
+          "opacity": "0.5",
+          "transform": "matrix(0.984891, 0, 0, 0.984891, 0, 0)",
+          "background-color": "rgb(57, 216, 255)",
+          "border-top-color": "rgb(57, 216, 255)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          0.984891,
+          0,
+          0,
+          0,
+          0,
+          0.984891,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.149,
+        "style": {
+          "opacity": "0.5",
+          "transform": "matrix(0.971808, 0, 0, 0.971808, 0, 0)",
+          "background-color": "rgb(57, 216, 255)",
+          "border-top-color": "rgb(57, 216, 255)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          0.971808,
+          0,
+          0,
+          0,
+          0,
+          0.971808,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.16,
+        "style": {
+          "opacity": "0.5",
+          "transform": "matrix(0.970271, 0, 0, 0.970271, 0, 0)",
+          "background-color": "rgb(57, 216, 255)",
+          "border-top-color": "rgb(57, 216, 255)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          0.970271,
+          0,
+          0,
+          0,
+          0,
+          0.970271,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "time": 0.4,
+        "style": {
+          "opacity": "0.5",
+          "transform": "matrix(0.954733, 0, 0, 0.954733, 0, 0)",
+          "background-color": "rgb(57, 216, 255)",
+          "border-top-color": "rgb(57, 216, 255)",
+          "color": "rgb(57, 216, 255)",
+          "display": "flex"
+        },
+        "inheritedColor": "rgb(57, 216, 255)",
+        "matrix": [
+          0.954733,
+          0,
+          0,
+          0,
+          0,
+          0.954733,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      }
+    ]
+  }
+]

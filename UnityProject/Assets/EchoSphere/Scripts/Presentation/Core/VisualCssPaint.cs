@@ -26,6 +26,23 @@ namespace EchoSphere.Presentation
         }
         private sealed class Shadow {public double X,Y,Blur,Spread;public VisualCssColor Color;public bool Inset;}
         private sealed class Layer {public Gradient Gradient;public double Width,Height,X,Y;public bool RepeatX,RepeatY;public string Clip;}
+        private sealed class DashPath
+        {
+            private readonly List<(double X,double Y,double Length)> _points=new List<(double,double,double)>();
+            public double Length=>_points[_points.Count-1].Length;
+            public void Add(double x,double y){var length=0d;if(_points.Count>0){var previous=_points[_points.Count-1];length=previous.Length+Math.Sqrt((x-previous.X)*(x-previous.X)+(y-previous.Y)*(y-previous.Y));}_points.Add((x,y,length));}
+            public double Position(double x,double y){var closest=double.PositiveInfinity;var position=0d;for(var i=1;i<_points.Count;i++){var a=_points[i-1];var b=_points[i];var dx=b.X-a.X;var dy=b.Y-a.Y;var square=dx*dx+dy*dy;if(square==0d)continue;var t=Math.Max(0d,Math.Min(1d,((x-a.X)*dx+(y-a.Y)*dy)/square));var px=a.X+dx*t;var py=a.Y+dy*t;var distance=(x-px)*(x-px)+(y-py)*(y-py);if(distance<closest){closest=distance;position=a.Length+(b.Length-a.Length)*t;}}return position;}
+        }
+        private static double DashCoverage(double position,double length,double thickness,bool closed,double scale)
+        {
+            var dash=thickness*(thickness>=3d?2d:3d);var gap=thickness*(thickness>=3d?1d:2d);
+            if(length<=dash*2d)return 1d;
+            var two=2d*dash+(closed?2d:1d)*gap;
+            if(length<=two){var ratio=length/two;dash*=ratio;gap*=ratio;}
+            else {var count=Math.Floor((length+(closed?0d:gap))/(dash+gap));var first=(length-count*dash)/(closed?count:count-1d);var second=(length-(count+1d)*dash)/(closed?count+1d:count);gap=second<=0d||Math.Abs(first-gap)<Math.Abs(second-gap)?first:second;}
+            var phase=(position%(dash+gap)+(dash+gap))%(dash+gap);var distance=phase<=dash?-Math.Min(phase,dash-phase):Math.Min(phase-dash,dash+gap-phase);
+            return Math.Max(0d,Math.Min(1d,.5d-distance*scale));
+        }
         private static double Number(string value)=>double.Parse(value,NumberStyles.Float,CultureInfo.InvariantCulture);
         private static string[] Words(string value)=>VisualCss.Split(value.Trim(),' ').Where(word=>word.Length>0).ToArray();
         public static double Angle(string value)=>value.EndsWith("turn",StringComparison.Ordinal)?Number(value.Substring(0,value.Length-4))*Math.PI*2d:value.EndsWith("rad",StringComparison.Ordinal)?Number(value.Substring(0,value.Length-3)):Number(value.Replace("deg",""))*Math.PI/180d;
@@ -112,6 +129,14 @@ namespace EchoSphere.Presentation
             foreach(var shadow in shadows.Where(value=>!value.Inset).Reverse())DrawShadow(shadow);
             var borders=new[]{"top","right","bottom","left"}.Select(side=>S("border-"+side+"-style","none")=="none"?0d:L(S("border-"+side+"-width","0"),width)).ToArray();var borderColors=new[]{"top","right","bottom","left"}.Select(side=>VisualCssColor.Parse(S("border-"+side+"-color",current),current)).ToArray();
             var padding=new[]{"top","right","bottom","left"}.Select(side=>L(S("padding-"+side,"0"),width)).ToArray();
+            DashPath dashPath=null;
+            if(corners.Any(radius=>radius>0d)&&new[]{"top","right","bottom","left"}.Any(side=>S("border-"+side+"-style")=="dashed")){
+                dashPath=new DashPath();var ix=Math.Floor(borders[3]*.5d);var iy=Math.Floor(borders[0]*.5d);var iw=width-ix-Math.Floor(borders[1]*.5d);var ih=height-iy-Math.Floor(borders[2]*.5d);
+                var rx=corners.Select((radius,i)=>Math.Max(0d,radius-Math.Floor(borders[i==0||i==3?3:1]*.5d))).ToArray();var ry=cornersY.Select((radius,i)=>Math.Max(0d,radius-Math.Floor(borders[i<2?0:2]*.5d))).ToArray();
+                dashPath.Add(ix+rx[0],iy);
+                foreach(var cornerIndex in new[]{1,2,3,0}){var cx=ix+(cornerIndex==0||cornerIndex==3?rx[cornerIndex]:iw-rx[cornerIndex]);var cy=iy+(cornerIndex<2?ry[cornerIndex]:ih-ry[cornerIndex]);var start=(cornerIndex-2)*Math.PI*.5d;
+                    for(var step=0;step<=64;step++){var angle=start+step*Math.PI/128d;dashPath.Add(cx+rx[cornerIndex]*Math.Cos(angle),cy+ry[cornerIndex]*Math.Sin(angle));}}
+            }
             var background=VisualCssColor.Parse(S("background-color","transparent"),current);var layers=new List<Layer>();
             var imageSources=VisualCss.Split(S("background-image","none"),',');var sizes=VisualCss.Split(S("background-size","auto"),',');var positions=VisualCss.Split(S("background-position","0% 0%"),',');var repeats=VisualCss.Split(S("background-repeat","repeat"),',');
             var origins=VisualCss.Split(S("background-origin","padding-box"),',');var clips=VisualCss.Split(S("background-clip","border-box"),',');
@@ -138,7 +163,7 @@ namespace EchoSphere.Presentation
                 var innerDistance=Math.Max(Math.Max(-innerX,innerX-innerWidth),Math.Max(-innerY,innerY-innerHeight));
                 if(rx>0d&&ry>0d&&(innerX<rx||innerX>innerWidth-rx)&&(innerY<ry||innerY>innerHeight-ry)){var dx=innerX-cx;var dy=innerY-cy;var normalized=Math.Sqrt(dx*dx/(rx*rx)+dy*dy/(ry*ry));var gradient=normalized>0d?Math.Sqrt(dx*dx/(rx*rx*rx*rx)+dy*dy/(ry*ry*ry*ry))/normalized:1d/Math.Min(rx,ry);innerDistance=(normalized-1d)/Math.Max(.00001d,gradient);}
                 var inner=innerWidth<=0d||innerHeight<=0d?0d:Math.Max(0d,Math.Min(1d,.5d-innerDistance*scale));var borderCoverage=Math.Max(0d,shape-inner);innerShapes[index]=inner;
-                if(borders[edge]>0d&&borderCoverage>0d){var border=borderColors[edge];var side=new[]{"top","right","bottom","left"}[edge];var dashed=S("border-"+side+"-style")=="dashed";var dashPosition=edge%2==0?x:y;var visible=!dashed||dashPosition%(6d*borders[edge])<3d*borders[edge];if(visible)borderPixels[index]=new VisualCssColor(border.R,border.G,border.B,border.A*borderCoverage/Math.Max(.00001d,shape));}
+                if(borders[edge]>0d&&borderCoverage>0d){var border=borderColors[edge];var side=new[]{"top","right","bottom","left"}[edge];var dashed=S("border-"+side+"-style")=="dashed";var dashPosition=dashPath!=null?dashPath.Position(x,y):edge%2==0?x:y;var dashLength=dashPath!=null?Math.Floor(dashPath.Length):edge%2==0?width:height;var coverage=dashed?DashCoverage(dashPosition,dashLength,borders[edge],dashPath!=null,scale):1d;borderPixels[index]=new VisualCssColor(border.R,border.G,border.B,border.A*coverage*borderCoverage/Math.Max(.00001d,shape));}
             }
             foreach(var shadow in shadows.Where(value=>value.Inset).Reverse())DrawShadow(shadow);
             for(var index=0;index<count;index++){var own=Over(ownPixels[index],borderPixels[index]);pixels[index]=Over(pixels[index],new VisualCssColor(own.R,own.G,own.B,own.A*shapes[index]));}

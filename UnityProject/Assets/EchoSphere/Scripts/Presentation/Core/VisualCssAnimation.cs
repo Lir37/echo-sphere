@@ -18,24 +18,29 @@ namespace EchoSphere.Presentation
         private static readonly Regex Tokens=new Regex(@"#[a-fA-F0-9]{3,8}\b|rgba?\([^)]*\)|color\([^)]*\)|[-+]?(?:\d*\.\d+|\d+\.?\d*)(?:e[-+]?\d+)?(?:px|%|deg|rad|turn|em|rem|vw|vh)?",RegexOptions.CultureInvariant);
         public void Apply(VisualCss sheet,VisualCssNode node,double now)
         {
-            var style=node.Style;var transition=sheet.Get(node,"transition","none");
+            var style=node.Style;var transition=sheet.Get(node,"transition","all 0s ease 0s");
+            string Entry(string property,int index,string fallback){var values=VisualCss.Split(sheet.Get(node,property,fallback),',');return values[index%values.Count].Trim();}
             // Computed initial values also participate when a pseudo class adds
             // a property for the first time (or removes it on pointer leave).
             foreach(var property in new[]{"transform","filter","box-shadow","text-shadow"})if(!style.ContainsKey(property))style[property]="none";
             if(!style.ContainsKey("opacity"))style["opacity"]="1";
             if(!style.ContainsKey("background-color"))style["background-color"]="transparent";
             foreach(var property in new[]{"box-shadow","text-shadow"})if(style[property]!="none")style[property]=Shadow(style[property],property=="box-shadow",sheet.Get(node,"color","#000000"));
-            foreach(var declaration in VisualCss.Split(transition,',')) {
+            var transitionDefaults=VisualCss.Split(transition,',');var transitionProperties=VisualCss.Split(sheet.Get(node,"transition-property",string.Join(",",transitionDefaults.Select(declaration=>Words(declaration).FirstOrDefault(word=>!IsTime(word)&&!IsTiming(word))??"all"))),',');
+            for(var index=0;index<transitionProperties.Count;index++) {
+                var declaration=transitionDefaults[index%transitionDefaults.Count];
                 var words=Words(declaration);var property=words.FirstOrDefault(word=>!IsTime(word)&&!IsTiming(word))??"all";
                 var times=words.Where(IsTime).Select(Seconds).ToArray();var duration=times.Length>0?times[0]:0d;var delay=times.Length>1?times[1]:0d;var timing=words.FirstOrDefault(IsTiming)??"ease";
+                property=transitionProperties[index].Trim();duration=Seconds(Entry("transition-duration",index,VisualJs.NumberText(duration)+"s"));delay=Seconds(Entry("transition-delay",index,VisualJs.NumberText(delay)+"s"));timing=Entry("transition-timing-function",index,timing);
                 if(duration<=0d||property=="none")continue;
-                foreach(var pair in style.ToArray())if((property=="all"||property==pair.Key||property=="background"&&pair.Key.StartsWith("background-",StringComparison.Ordinal)||property=="border-color"&&pair.Key.StartsWith("border-",StringComparison.Ordinal)&&pair.Key.EndsWith("-color",StringComparison.Ordinal))&&_previous.TryGetValue(pair.Key,out var before)&&before!=pair.Value) {
+                foreach(var pair in style.ToArray())if(Animatable(pair.Key)&&(property=="all"||property==pair.Key||property=="background"&&pair.Key.StartsWith("background-",StringComparison.Ordinal)||property=="border-color"&&pair.Key.StartsWith("border-",StringComparison.Ordinal)&&pair.Key.EndsWith("-color",StringComparison.Ordinal))&&_previous.TryGetValue(pair.Key,out var before)&&before!=pair.Value) {
                     var active=_transitions.LastOrDefault(motion=>motion.Property==pair.Key);var from=active==null?before:Sample(active,now);
                     var shortening=1d;var reversingStart=from;
                     if(active!=null&&active.ReversingStart==pair.Value){var progress=Math.Max(0d,Math.Min(1d,(now-active.Start-active.Delay)/active.Duration));shortening=Math.Min(1d,Math.Abs(Ease(active.Timing,progress)*active.Shortening+1d-active.Shortening));reversingStart=active.To;}
                     _transitions.RemoveAll(motion=>motion.Property==pair.Key);_transitions.Add(new Motion {Property=pair.Key,From=from,To=pair.Value,ReversingStart=reversingStart,Shortening=shortening,Start=now,Duration=duration*shortening,Delay=delay<0d?delay*shortening:delay,Timing=timing});
                 }
             }
+            foreach(var active in _transitions.ToArray())if(!transitionProperties.Any(property=>property.Trim()=="all"||property.Trim()==active.Property||property.Trim()=="background"&&active.Property.StartsWith("background-",StringComparison.Ordinal)||property.Trim()=="border-color"&&active.Property.StartsWith("border-",StringComparison.Ordinal)&&active.Property.EndsWith("-color",StringComparison.Ordinal)))_transitions.Remove(active);
             _previous.Clear();foreach(var pair in style)_previous[pair.Key]=pair.Value;
             var animation=sheet.Get(node,"animation","none");
             var signature=animation+"|"+sheet.Get(node,"animation-duration")+"|"+sheet.Get(node,"animation-direction")+"|"+sheet.Get(node,"animation-delay");
@@ -78,6 +83,7 @@ namespace EchoSphere.Presentation
         }
         private static string Sample(Motion motion,double now)=>motion.Duration<=0d?motion.To:Interpolate(motion.From,motion.To,Ease(motion.Timing,Math.Max(0d,Math.Min(1d,(now-motion.Start-motion.Delay)/motion.Duration))),motion.Property);
         private static string[] Words(string value)=>VisualCss.Split(value,' ').Where(word=>word.Length>0).ToArray();
+        private static bool Animatable(string property)=>property.EndsWith("color",StringComparison.Ordinal)||property.EndsWith("-radius",StringComparison.Ordinal)||property.EndsWith("-width",StringComparison.Ordinal)||new[]{"opacity","transform","transform-origin","filter","backdrop-filter","box-shadow","text-shadow","width","height","min-width","max-width","min-height","max-height","left","right","top","bottom","font-size","font-weight","line-height","letter-spacing","word-spacing","gap","row-gap","column-gap","flex-grow","flex-shrink","flex-basis","padding-left","padding-right","padding-top","padding-bottom","margin-left","margin-right","margin-top","margin-bottom"}.Contains(property);
         private static bool IsTime(string value)=>Regex.IsMatch(value,@"^[-\d.]+m?s$");
         private static bool IsTiming(string value)=>new[]{"linear","ease","ease-in","ease-out","ease-in-out","step-start","step-end"}.Contains(value)||value.StartsWith("cubic-bezier(",StringComparison.Ordinal)||value.StartsWith("steps(",StringComparison.Ordinal);
         private static double Parse(string value)=>double.TryParse(value,NumberStyles.Float,CultureInfo.InvariantCulture,out var result)?result:0d;

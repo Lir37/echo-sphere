@@ -12,6 +12,8 @@
     <None Include="source-css-fixtures.json.gz" CopyToOutputDirectory="PreserveNewest" />
     <None Include="source-animation-fixtures.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="source-transition-fixtures.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="source-transition-timelines.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="source-grid-tracks.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="source-paint-fixtures.json.gz" CopyToOutputDirectory="PreserveNewest" />
     <None Include="source-ui-interactions.json.gz" CopyToOutputDirectory="PreserveNewest" />
     <None Include="../../UnityProject/Assets/Resources/EchoSphere/SourceUiStyles.json" Link="SourceUiStyles.json" CopyToOutputDirectory="PreserveNewest" />

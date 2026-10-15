@@ -72,7 +72,7 @@ namespace EchoSphere.Presentation
             var safe=Screen.safeArea;_sheet.SafeLeft=safe.xMin/_scale;_sheet.SafeRight=(Screen.width-safe.xMax)/_scale;_sheet.SafeTop=(Screen.height-safe.yMax)/_scale;_sheet.SafeBottom=safe.yMin/_scale;
             Environment.Tick(Time.unscaledTimeAsDouble*1000d);
             if(Render==null)return;
-            if(!Dirty&&!Continuous&&_root!=null){foreach(var entry in _entries.Values){var before=_sheet.Get(entry.Node,"transform")+"/"+_sheet.Get(entry.Node,"opacity")+"/"+_sheet.Get(entry.Node,"filter");entry.Node.Style.Clear();foreach(var pair in entry.BaseStyle)entry.Node.Style[pair.Key]=pair.Value;entry.Motion.Apply(_sheet,entry.Node,Time.unscaledTimeAsDouble);if(before!=_sheet.Get(entry.Node,"transform")+"/"+_sheet.Get(entry.Node,"opacity")+"/"+_sheet.Get(entry.Node,"filter"))FrameVersion++;}UpdateLayout(_root);_layout.Tracks(_root);return;}
+            if(!Dirty&&!Continuous&&_root!=null){AdvanceMotion(_root);UpdateLayout(_root);_layout.Tracks(_root);return;}
             // Game values change each frame; stable native elements preserve focus,
             // scroll positions, pointer capture and CSS animation start times.
             FrameVersion++;Dirty=false;VisualDom.BeginFrame();var tree=Render();var nextRoot=VisualCssNode.Build(tree);CopyInteraction(_root,nextRoot);_root=nextRoot;_sheet.Apply(_root);
@@ -100,7 +100,8 @@ namespace EchoSphere.Presentation
             UpdateBounds(node,entry.Element);if(node.Parent==null){node.Width=_sheet.Width;node.Height=_sheet.Height;}
             if(entry.Element.parent!=parent)parent.Add(entry.Element);
             entry.BaseStyle.Clear();foreach(var pair in node.Style)entry.BaseStyle[pair.Key]=pair.Value;
-            entry.Motion.Apply(_sheet,node,Time.unscaledTimeAsDouble);
+            node.InheritAnimatedValues();entry.Motion.Apply(_sheet,node,Time.unscaledTimeAsDouble);
+            if(label||node.Tag=="svg")InheritSubtree(node);
             _layout.Apply(node,entry.Element);
             if(entry.Element is TextField input){var value=node.Properties["value"];if(!value.Undefined&&input.value!=value.Text)input.SetValueWithoutNotify(value.Text);input.maxLength=node.Properties["maxLength"].Undefined?-1:(int)node.Properties["maxLength"].Number;input.multiline=false;input.textEdition.placeholder=node.Properties["placeholder"].Undefined?"":node.Properties["placeholder"].Text;input.textEdition.hidePlaceholderOnFocus=false;input.textSelection.selectAllOnFocus=false;input.textSelection.selectAllOnMouseUp=false;var textInput=input.Q<VisualElement>("unity-text-input");if(textInput!=null){textInput.style.backgroundColor=Color.clear;textInput.style.paddingLeft=0;textInput.style.paddingRight=0;textInput.style.paddingTop=0;textInput.style.paddingBottom=0;if(input.value.Length==0&&!node.Properties["placeholder"].Undefined){var placeholder=new VisualCssNode {Tag="input",Pseudo="::placeholder",Parent=node};_sheet.Apply(placeholder);var tint=VisualCssColor.Parse(_sheet.Get(placeholder,"color",_sheet.Get(node,"color","#000000")));textInput.style.color=new Color((float)tint.R,(float)tint.G,(float)tint.B,(float)tint.A);}else textInput.style.color=entry.Element.style.color;textInput.style.fontSize=entry.Element.style.fontSize;textInput.style.unityFontDefinition=entry.Element.style.unityFontDefinition;textInput.style.unityFontStyleAndWeight=entry.Element.style.unityFontStyleAndWeight;textInput.style.borderLeftWidth=textInput.style.borderRightWidth=textInput.style.borderTopWidth=textInput.style.borderBottomWidth=0;textInput.style.marginLeft=textInput.style.marginRight=textInput.style.marginTop=textInput.style.marginBottom=0;textInput.style.flexGrow=1;}}
             if(entry.Element is Slider range){range.lowValue=(float)node.Properties["min"].Number;range.highValue=(float)node.Properties["max"].Number;if(!node.Properties["value"].Undefined)range.SetValueWithoutNotify((float)node.Properties["value"].Number);}
@@ -116,6 +117,18 @@ namespace EchoSphere.Presentation
         }
         private static void CopyInteraction(VisualCssNode before,VisualCssNode after)
         {if(before==null||before.Tag!=after.Tag)return;after.Hover=before.Hover;after.Active=before.Active;after.Focused=before.Focused;var previous=before.Children.Where(child=>child.Pseudo==null).ToList();for(var index=0;index<after.Children.Count;index++){var child=after.Children[index];var key=child.Properties["key"];var match=key.Undefined?index<previous.Count?previous[index]:null:previous.FirstOrDefault(candidate=>candidate.Properties["key"]==key);CopyInteraction(match,child);}}
+        private static void InheritSubtree(VisualCssNode node)
+        {foreach(var child in node.Children){child.InheritAnimatedValues();InheritSubtree(child);}}
+        private void AdvanceMotion(VisualCssNode node)
+        {
+            var before=new Dictionary<string,string>(node.Style);
+            if(node.Native is VisualElement element&&_elementEntries.TryGetValue(element,out var entry)){
+                node.Style.Clear();foreach(var pair in entry.BaseStyle)node.Style[pair.Key]=pair.Value;
+                node.InheritAnimatedValues();entry.Motion.Apply(_sheet,node,Time.unscaledTimeAsDouble);
+            }else node.InheritAnimatedValues();
+            if(before.Count!=node.Style.Count||before.Any(pair=>!node.Style.TryGetValue(pair.Key,out var value)||value!=pair.Value))FrameVersion++;
+            foreach(var child in node.Children)AdvanceMotion(child);
+        }
         private void InstallEvents(Entry entry)
         {
             var element=entry.Element;
@@ -133,7 +146,7 @@ namespace EchoSphere.Presentation
             if(element is Slider slider)slider.RegisterValueChangedCallback(evt=>{var step=entry.Node.Properties["step"].Number;var value=step>0d?slider.lowValue+Math.Round((evt.newValue-slider.lowValue)/step)*step:evt.newValue;slider.SetValueWithoutNotify((float)value);entry.Node.Properties["value"]=value;entry.Host.Change(VisualJs.NumberText(value));});
         }
         private void UpdateLayout(VisualCssNode node)
-        {if(node.Native is VisualElement element){var oldBounds=(node.X,node.Y,node.Width,node.Height);UpdateBounds(node,element);if(oldBounds!=(node.X,node.Y,node.Width,node.Height))FrameVersion++;_layout.Apply(node,element);var entry=_elementEntries[element];if(DepthAncestor(node)==null&&(_sheet.Get(node,"filter","none").Trim()!="none"||_sheet.Get(node,"opacity","1")!="1")){if(entry.Filters==null)entry.Filters=new SourceUiFilters();entry.Filters.Apply(_sheet,node,element,_scale,IsDepthRoot(node));}else element.style.filter=new List<FilterFunction>();var backdrop=System.Text.RegularExpressions.Regex.Match(_sheet.Get(node,"backdrop-filter","none"),@"blur\(([^)]+)\)");if(backdrop.Success){if(entry.Backdrop==null)entry.Backdrop=new SourceUiBackdrop(this);if(entry.Backdrop.parent!=element.parent)element.parent.Insert(element.parent.IndexOf(element),entry.Backdrop);entry.Backdrop.Update(node,element,(float)_sheet.Length(backdrop.Groups[1].Value,node.Width));}else if(entry.Backdrop!=null){entry.Backdrop.Dispose();entry.Backdrop=null;}element.MarkDirtyRepaint();}foreach(var child in node.Children)UpdateLayout(child);}
+        {if(node.Native is VisualElement element){var oldBounds=(node.X,node.Y,node.Width,node.Height);UpdateBounds(node,element);if(oldBounds!=(node.X,node.Y,node.Width,node.Height))FrameVersion++;_layout.Apply(node,element);var entry=_elementEntries[element];if(node.Tag=="svg")SourceUiSvg.Text(node,_sheet,element,entry.SvgTexts);if(DepthAncestor(node)==null&&(_sheet.Get(node,"filter","none").Trim()!="none"||_sheet.Get(node,"opacity","1")!="1")){if(entry.Filters==null)entry.Filters=new SourceUiFilters();entry.Filters.Apply(_sheet,node,element,_scale,IsDepthRoot(node));}else element.style.filter=new List<FilterFunction>();var backdrop=System.Text.RegularExpressions.Regex.Match(_sheet.Get(node,"backdrop-filter","none"),@"blur\(([^)]+)\)");if(backdrop.Success){if(entry.Backdrop==null)entry.Backdrop=new SourceUiBackdrop(this);if(entry.Backdrop.parent!=element.parent)element.parent.Insert(element.parent.IndexOf(element),entry.Backdrop);entry.Backdrop.Update(node,element,(float)_sheet.Length(backdrop.Groups[1].Value,node.Width));}else if(entry.Backdrop!=null){entry.Backdrop.Dispose();entry.Backdrop=null;}element.MarkDirtyRepaint();}foreach(var child in node.Children)UpdateLayout(child);}
         private static void UpdateBounds(VisualCssNode node,VisualElement element)
         {var bounds=element.worldBound;node.X=bounds.x;node.Y=bounds.y;node.Width=float.IsNaN(element.layout.width)?0d:element.layout.width;node.Height=float.IsNaN(element.layout.height)?0d:element.layout.height;}
         private void Paint(Entry entry,MeshGenerationContext context)

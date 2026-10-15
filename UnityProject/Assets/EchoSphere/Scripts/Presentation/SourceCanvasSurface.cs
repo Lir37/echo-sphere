@@ -203,7 +203,7 @@ namespace EchoSphere.Presentation
                 case "ellipse":Ellipse(N(0),N(1),N(2),N(3),N(4),N(5),N(6),args.Length>7&&args[7].Truth);break;
                 case "rect":Rectangle(N(0),N(1),N(2),N(3));break;
                 case "roundRect":RoundRectangle(N(0),N(1),N(2),N(3),args.Length>4?args[4]:new V(0d));break;
-                case "measureText":var measured=SourceCanvasTypography.Resolve(_state.Font,out var fontSize,out var fontStyle);return VisualJs.Obj("width",SourceCanvasTypography.Width(measured,args[0].Text,fontSize,fontStyle));
+                case "measureText":var measured=SourceCanvasTypography.Resolve(_state.Font,out var fontSize,out var fontStyle);return VisualJs.Obj("width",SourceCanvasTypography.Width(measured,args[0].Text,fontSize,fontStyle)*SourceCanvasTypography.Size(_state.Font)/fontSize);
                 case "fillText":Text(args[0].Text,N(1),N(2),args.Length>3?N(3):float.PositiveInfinity);break;
                 case "drawImage":Image(args);break;
                 case "fill":Paint(false,args.Length>0&&args[0].Text=="evenodd");break;
@@ -282,7 +282,7 @@ namespace EchoSphere.Presentation
             // Dynamic legacy fonts can rebuild their atlas while later text is
             // requested. Resolve every required glyph before retaining any UVs.
             var dirty=false;void Rebuilt(Font font){dirty=true;}Font.textureRebuilt+=Rebuilt;
-            try{var attempts=0;do{dirty=false;foreach(var batch in _batches)if(batch.Text!=null){var font=SourceCanvasTypography.Resolve(batch.TextState.Font,out var size,out var style);font.RequestCharactersInTexture(batch.Text,size,style);}if(++attempts>8&&dirty)throw new InvalidOperationException("Source font atlas could not retain the frame's glyphs");}while(dirty);}
+            try{var attempts=0;do{dirty=false;foreach(var batch in _batches)if(batch.Text!=null){var font=SourceCanvasTypography.Resolve(batch.TextState.Font,out var size,out var style);SourceCanvasTypography.Vertices(font,batch.Text,size,style);}if(++attempts>8&&dirty)throw new InvalidOperationException("Source font atlas could not retain the frame's glyphs");}while(dirty);}
             finally{Font.textureRebuilt-=Rebuilt;}
             var previous=_state;
             try{foreach(var batch in _batches)if(batch.Text!=null){_state=batch.TextState;EmitText(batch);}}
@@ -291,16 +291,19 @@ namespace EchoSphere.Presentation
         private void EmitText(Batch batch)
         {
             var text=batch.Text;var x=batch.TextX;var y=batch.TextY;var maxWidth=batch.TextWidth;
-            var font=SourceCanvasTypography.Resolve(_state.Font,out var size,out var style);var width=SourceCanvasTypography.Width(font,text,size,style);
+            var font=SourceCanvasTypography.Resolve(_state.Font,out var size,out var style);var fontScale=SourceCanvasTypography.Size(_state.Font)/size;var width=SourceCanvasTypography.Width(font,text,size,style)*fontScale;
             var scale=width>maxWidth?maxWidth/width:1f;
             if(_state.Align=="center")x-=width*scale*.5f;else if(_state.Align=="right"||_state.Align=="end")x-=width*scale;
-            var ascent=font.ascent*(float)size/font.fontSize;var lineHeight=font.lineHeight*(float)size/font.fontSize;
+            var sampleAscent=font.ascent*(float)size/font.fontSize;var ascent=sampleAscent*fontScale;var lineHeight=font.lineHeight*(float)size/font.fontSize*fontScale;
             if(_state.Baseline=="top"||_state.Baseline=="hanging")y+=ascent;
             else if(_state.Baseline=="middle")y+=ascent-lineHeight*.5f;
             else if(_state.Baseline=="bottom"||_state.Baseline=="ideographic")y-=lineHeight-ascent;
             var color=ParseColor(_state.Fill.Text);color.a*=_state.Alpha;var start=_triangles.Count;_image=font.material.mainTexture;
-            foreach(var character in text)if(font.GetCharacterInfo(character,out var glyph,size,style)) {
-                Quad(new Vector2(x+glyph.minX*scale,y-glyph.maxY),new Vector2(x+glyph.maxX*scale,y-glyph.maxY),new Vector2(x+glyph.maxX*scale,y-glyph.minY),new Vector2(x+glyph.minX*scale,y-glyph.minY),glyph.uvTopLeft,glyph.uvTopRight,glyph.uvBottomRight,glyph.uvBottomLeft,color);x+=glyph.advance*scale;
+            var vertices=SourceCanvasTypography.Vertices(font,text,size,style);
+            Vector2 Position(UIVertex vertex)=>new Vector2(x+vertex.position.x*fontScale*scale,y-(vertex.position.y+sampleAscent)*fontScale);
+            for(var index=0;index+3<vertices.Length;index+=4) {
+                var a=vertices[index];var b=vertices[index+1];var c=vertices[index+2];var d=vertices[index+3];
+                Quad(Position(a),Position(b),Position(c),Position(d),a.uv0,b.uv0,c.uv0,d.uv0,color);
             }
             batch.Start=start;batch.Count=_triangles.Count-start;batch.Texture=_image;_image=null;
         }

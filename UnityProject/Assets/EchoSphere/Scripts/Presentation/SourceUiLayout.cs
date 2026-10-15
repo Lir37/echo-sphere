@@ -22,12 +22,13 @@ namespace EchoSphere.Presentation
         private StyleLength Dimension(VisualCssNode node,string property,double reference)
         {
             var value=S(node,property,"auto");if(value=="auto"||value=="initial"||value=="none"||value=="max-content"||value=="min-content"||value=="fit-content")return new StyleLength(StyleKeyword.Auto);
-            if(Regex.IsMatch(value,@"^[-\d.]+%$"))return new StyleLength(new Length(F(value.TrimEnd('%')),LengthUnit.Percent));
+            if(Regex.IsMatch(value,@"^[-\d.]+%$")&&S(node,"position")!="absolute"&&S(node,"position")!="fixed")return new StyleLength(new Length(F(value.TrimEnd('%')),LengthUnit.Percent));
             var number=Sheet.Length(value,reference,FontSize(node));return double.IsNaN(number)?new StyleLength(StyleKeyword.Auto):new StyleLength((float)number);
         }
         internal void Apply(VisualCssNode node,VisualElement element)
         {
-            var parentWidth=node.Parent?.Width??Sheet.Width;var parentHeight=node.Parent?.Height??Sheet.Height;var style=element.style;
+            var positioned=S(node,"position")=="absolute"||S(node,"position")=="fixed";var block=positioned?VisualCssPosition.ContainingBlock(Sheet,node):null;
+            var parentWidth=positioned?VisualCssPosition.Width(Sheet,block):node.Parent?.Width??Sheet.Width;var parentHeight=positioned?VisualCssPosition.Height(Sheet,block):node.Parent?.Height??Sheet.Height;var style=element.style;
             style.width=Dimension(node,"width",parentWidth);style.height=Dimension(node,"height",parentHeight);
             if(S(node,"display")=="grid"&&S(node,"height","auto")=="auto"&&element.userData is SourceUiElement gridHost&&!float.IsNaN(gridHost.GridHeight))style.height=gridHost.GridHeight;
             style.minWidth=Dimension(node,"min-width",parentWidth);style.minHeight=Dimension(node,"min-height",parentHeight);
@@ -41,9 +42,10 @@ namespace EchoSphere.Presentation
             style.borderLeftColor=style.borderRightColor=style.borderTopColor=style.borderBottomColor=Color.clear;
             style.borderTopLeftRadius=Dimension(node,"border-top-left-radius",node.Width);style.borderTopRightRadius=Dimension(node,"border-top-right-radius",node.Width);style.borderBottomLeftRadius=Dimension(node,"border-bottom-left-radius",node.Width);style.borderBottomRightRadius=Dimension(node,"border-bottom-right-radius",node.Width);
             style.backgroundColor=Color.clear;style.backgroundImage=new StyleBackground(StyleKeyword.None);
-            style.flexGrow=F(S(node,"flex-grow","0"));style.flexShrink=F(S(node,"flex-shrink","1"));style.flexBasis=Dimension(node,"flex-basis",parentWidth);
+            var flexItem=node.Parent!=null&&(S(node.Parent,"display")=="flex"||S(node.Parent,"display")=="inline-flex");
+            style.flexGrow=flexItem?F(S(node,"flex-grow","0")):0f;style.flexShrink=flexItem?F(S(node,"flex-shrink","1")):0f;style.flexBasis=flexItem?Dimension(node,"flex-basis",parentWidth):new StyleLength(StyleKeyword.Auto);
             var display=S(node,"display","block");style.display=display=="none"?DisplayStyle.None:DisplayStyle.Flex;
-            var direction=S(node,"flex-direction",display=="flex"?"row":"column");
+            var direction=S(node,"flex-direction",display=="flex"||display=="inline-flex"?"row":"column");
             if(display=="inline")direction="row";
             if(display=="grid")direction=GridColumns(node)>1?"row":"column";
             style.flexDirection=direction=="row"?FlexDirection.Row:direction=="row-reverse"?FlexDirection.RowReverse:direction=="column-reverse"?FlexDirection.ColumnReverse:FlexDirection.Column;
@@ -53,8 +55,19 @@ namespace EchoSphere.Presentation
             style.alignContent=Alignment(S(node,"align-content","stretch"));
             var justify=S(node,"justify-content",display=="grid"?S(node,"place-items","start"):"start");
             style.justifyContent=justify=="center"?Justify.Center:justify=="end"||justify=="flex-end"?Justify.FlexEnd:justify=="space-between"?Justify.SpaceBetween:justify=="space-around"?Justify.SpaceAround:Justify.FlexStart;
-            style.position=S(node,"position")=="absolute"||S(node,"position")=="fixed"?Position.Absolute:Position.Relative;
-            if(style.position.value==Position.Absolute){style.left=Dimension(node,"left",parentWidth);style.right=Dimension(node,"right",parentWidth);style.top=Dimension(node,"top",parentHeight);style.bottom=Dimension(node,"bottom",parentHeight);}else {style.left=StyleKeyword.Auto;style.right=StyleKeyword.Auto;style.top=StyleKeyword.Auto;style.bottom=StyleKeyword.Auto;}
+            style.position=positioned?Position.Absolute:Position.Relative;
+            if(positioned){
+                // Yoga's containing element is the immediate retained parent.
+                // CSS instead uses a positioned ancestor, or the viewport for
+                // fixed elements (unless an ancestor establishes a transform).
+                var offset=Vector2.zero;
+                if(element.parent!=null){var world=block?.Native is VisualElement containing?containing.worldTransform.MultiplyPoint3x4(new Vector3((float)VisualCssPosition.Border(Sheet,block,"left"),(float)VisualCssPosition.Border(Sheet,block,"top"),0f)):Vector3.zero;var local=element.parent.worldTransform.inverse.MultiplyPoint3x4(world);offset=new Vector2(local.x-element.parent.resolvedStyle.borderLeftWidth,local.y-element.parent.resolvedStyle.borderTopWidth);}
+                StyleLength Inset(string property,double reference,float extra){var value=Sheet.Length(S(node,property,"auto"),reference,FontSize(node));return double.IsNaN(value)?new StyleLength(StyleKeyword.Auto):new StyleLength((float)value+extra);}
+                var nativeWidth=element.parent?.layout.width??(float)Sheet.Width;var nativeHeight=element.parent?.layout.height??(float)Sheet.Height;
+                if(element.parent!=null){nativeWidth-=element.parent.resolvedStyle.borderLeftWidth+element.parent.resolvedStyle.borderRightWidth;nativeHeight-=element.parent.resolvedStyle.borderTopWidth+element.parent.resolvedStyle.borderBottomWidth;}
+                style.left=Inset("left",parentWidth,offset.x);style.right=Inset("right",parentWidth,nativeWidth-offset.x-(float)parentWidth);style.top=Inset("top",parentHeight,offset.y);style.bottom=Inset("bottom",parentHeight,nativeHeight-offset.y-(float)parentHeight);
+                if(S(node,"width").EndsWith("%",StringComparison.Ordinal))style.width=Length(node,"width",parentWidth);if(S(node,"height").EndsWith("%",StringComparison.Ordinal))style.height=Length(node,"height",parentHeight);
+            }else if(S(node,"position")=="relative"){style.left=Dimension(node,"left",parentWidth);style.right=Dimension(node,"right",parentWidth);style.top=Dimension(node,"top",parentHeight);style.bottom=Dimension(node,"bottom",parentHeight);}else {style.left=StyleKeyword.Auto;style.right=StyleKeyword.Auto;style.top=StyleKeyword.Auto;style.bottom=StyleKeyword.Auto;}
             style.overflow=S(node,"overflow")=="hidden"||S(node,"overflow-x")=="hidden"||S(node,"overflow-y")=="hidden"?Overflow.Hidden:Overflow.Visible;
             style.visibility=S(node,"visibility")=="hidden"?Visibility.Hidden:Visibility.Visible;
             style.opacity=F(S(node,"opacity","1"),1f);
@@ -77,6 +90,7 @@ namespace EchoSphere.Presentation
                 if(SourceUiInline.CanMerge(Sheet,node)&&node.Children.Any(child=>child.Tag!="#text")){text.enableRichText=true;text.text=SourceUiInline.Text(Sheet,node);}
                 else {var content=node.Tag=="#text"?node.Text:string.Concat(node.Children.Where(child=>child.Tag=="#text").Select(child=>child.Text));if(S(node,"white-space")!="pre"&&S(node,"white-space")!="pre-wrap")content=Regex.Replace(content,@"\s+"," ");if(S(node,"text-transform")=="uppercase")content=content.ToUpperInvariant();else if(S(node,"text-transform")=="lowercase")content=content.ToLowerInvariant();text.text=content;text.enableRichText=false;}
             }
+            if(S(node,"min-width")=="max-content")style.minWidth=IntrinsicWidth(node);
             ApplyTransform(node,element);
             if(element is Slider range)SourceUiRange.Apply(range);
             if(element is ScrollView scroll){
@@ -90,6 +104,17 @@ namespace EchoSphere.Presentation
                 style.paddingLeft=style.paddingRight=style.paddingTop=style.paddingBottom=0;
                 content.flexDirection=style.flexDirection;content.flexWrap=style.flexWrap;content.alignItems=style.alignItems;content.alignContent=style.alignContent;content.justifyContent=style.justifyContent;content.flexGrow=0;content.flexShrink=0;
             }
+        }
+        private float IntrinsicWidth(VisualCssNode node)
+        {
+            var reference=node.Parent?.Width??Sheet.Width;var authored=Sheet.Length(S(node,"width","auto"),reference,FontSize(node));if(!double.IsNaN(authored))return (float)authored;
+            var edges=Length(node,"padding-left",reference)+Length(node,"padding-right",reference)+Length(node,"border-left-width",reference)+Length(node,"border-right-width",reference);
+            if(node.Native is TextElement text)return text.MeasureTextSize(text.text,0,VisualElement.MeasureMode.Undefined,0,VisualElement.MeasureMode.Undefined).x+edges;
+            if(node.Tag=="svg")return (float)(node.Properties["width"].Undefined?node.Width:node.Properties["width"].Number);
+            var widths=node.Children.Where(child=>S(child,"display")!="none"&&S(child,"position")!="absolute"&&S(child,"position")!="fixed").Select(child=>IntrinsicWidth(child)+Length(child,"margin-left",reference)+Length(child,"margin-right",reference)).ToArray();
+            var display=S(node,"display");var horizontal=S(node,"flex-direction",display=="flex"||display=="inline-flex"?"row":"column").StartsWith("row",StringComparison.Ordinal);
+            var gap=VisualCss.Split(S(node,"gap","0"),' ').Where(part=>part.Length>0).ToArray();var columnGap=gap.Length>1?gap[1]:gap.Length>0?gap[0]:"0";var spacing=Sheet.Length(S(node,"column-gap",columnGap),reference,FontSize(node));
+            return edges+(horizontal?widths.Sum()+(float)(double.IsNaN(spacing)?0d:spacing)*Math.Max(0,widths.Length-1):widths.DefaultIfEmpty(0f).Max());
         }
         private static Align Alignment(string value)=>value=="center"?Align.Center:value=="start"||value=="flex-start"?Align.FlexStart:value=="end"||value=="flex-end"?Align.FlexEnd:value=="baseline"?Align.FlexStart:Align.Stretch;
         internal int GridColumns(VisualCssNode node)
@@ -112,7 +137,7 @@ namespace EchoSphere.Presentation
             var usedWidth=0f;var row=0;var column=0;
             for(var index=0;index<children.Count;index++) {
                 var child=children[index];var native=(VisualElement)child.Native;
-                if(S(node,"flex-direction",S(node,"display")=="flex"?"row":"column").StartsWith("column",StringComparison.Ordinal)){if(index>0)native.style.marginTop=Length(child,"margin-top",contentWidth)+rowGap;}
+                if(S(node,"flex-direction",S(node,"display")=="flex"||S(node,"display")=="inline-flex"?"row":"column").StartsWith("column",StringComparison.Ordinal)){if(index>0)native.style.marginTop=Length(child,"margin-top",contentWidth)+rowGap;}
                 else {var width=native.layout.width+Length(child,"margin-left",contentWidth)+Length(child,"margin-right",contentWidth);if(S(node,"flex-wrap")=="wrap"&&column>0&&usedWidth+columnGap+width>contentWidth+.001d){row++;column=0;usedWidth=0f;}native.style.marginLeft=Length(child,"margin-left",contentWidth)+(column>0?columnGap:0f);native.style.marginTop=Length(child,"margin-top",contentWidth)+(row>0?rowGap:0f);usedWidth+=width+(column>0?columnGap:0f);column++;}
             }
             foreach(var child in node.Children)Tracks(child);

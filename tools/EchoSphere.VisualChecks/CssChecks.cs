@@ -14,13 +14,14 @@ internal static class CssChecks
         var ui=Read("source-ui-fixtures.json").Items.ToDictionary(value=>value["label"].Text,value=>value["tree"]);
         using var compressed=File.OpenRead(Path.Combine(AppContext.BaseDirectory,"source-css-fixtures.json.gz"));using var decompressed=new System.IO.Compression.GZipStream(compressed,System.IO.Compression.CompressionMode.Decompress);using var reader=new StreamReader(decompressed);var fixtures=VisualJson.Parse(reader.ReadToEnd());
         var sheet=new VisualCss(Read("SourceUiStyles.json"));
-        var errors=new List<string>();var gridErrors=new List<string>();var comparisons=0;var grids=0;var screens=0;
+        var errors=new List<string>();var gridErrors=new List<string>();var comparisons=0;var grids=0;var screens=0;var containingBlocks=0;
         foreach(var fixture in fixtures.Items){
             var root=VisualCssNode.Build(Tree(ui[fixture["ui"].Text]));var nodes=Nodes(root);sheet.Width=fixture["viewport"]["width"].Number;sheet.Height=fixture["viewport"]["height"].Number;
             void Bounds(){foreach(var expected in fixture["nodes"].Items)if(nodes.TryGetValue(expected["path"].Text,out var node)){var rect=expected["rect"];var layout=expected["layout"];node.X=rect["x"].Number;node.Y=rect["y"].Number;node.Width=layout.Undefined?rect["width"].Number:layout["width"].Number;node.Height=layout.Undefined?rect["height"].Number:layout["height"].Number;}}
             Bounds();sheet.Apply(root);nodes=Nodes(root);Bounds();
             foreach(var expected in fixture["nodes"].Items){
                 if(!nodes.TryGetValue(expected["path"].Text,out var node)){errors.Add(fixture["label"].Text+" "+expected["path"].Text+": missing element "+expected["tag"].Text);continue;}
+                if(node.Pseudo==null&&expected["rect"]["width"].Number>0d&&new[]{"absolute","fixed"}.Contains(sheet.Get(node,"position"))){var block=VisualCssPosition.ContainingBlock(sheet,node);var blockPath=block==null?null:nodes.First(pair=>pair.Value==block).Key;var wanted=expected["offsetParent"].Null?null:expected["offsetParent"].Text;if(blockPath!=wanted&&!(block==null&&sheet.Get(node,"position")=="absolute"&&wanted=="0/0"))errors.Add(fixture["label"].Text+" "+expected["path"].Text+" containing block: "+blockPath+" != "+wanted);containingBlocks++;}
                 foreach(var property in (Dictionary<string,V>)expected["style"].Raw){
                     var key=property.Key;var wanted=property.Value.Text;var actual=sheet.Get(node,key,Default(key));var same=actual==wanted;
                     try{
@@ -46,7 +47,9 @@ internal static class CssChecks
         }
         if(errors.Count>0){File.WriteAllLines(Path.Combine(AppContext.BaseDirectory,"failed-css-styles.txt"),errors);throw new InvalidOperationException($"Source CSS differs in {errors.Count} / {comparisons} computed properties. First: {errors[0]}");}
         Console.WriteLine($"Browser CSS → native cascade: PASS ({comparisons} computed properties / {screens} screen-viewports).");
+        Console.WriteLine($"Browser CSS containing blocks → native positioned/fixed elements: PASS ({containingBlocks} elements).");
         if(gridErrors.Count>0){File.WriteAllLines(Path.Combine(AppContext.BaseDirectory,"failed-grid-layouts.txt"),gridErrors);throw new InvalidOperationException($"Source grid differs in {gridErrors.Count} / {grids} cells: {gridErrors[0]}");}
         Console.WriteLine($"Browser CSS grid → native track placement: PASS ({grids} cells, browser intrinsic-size inputs).");
+        GridTrackChecks.Run();
     }
 }
