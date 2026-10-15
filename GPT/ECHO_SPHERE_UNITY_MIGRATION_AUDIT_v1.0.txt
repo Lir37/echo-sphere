@@ -4915,3 +4915,21 @@ was recorded in commit aa8c614fdffd440f6abfdd401cc84705c3656dd6. The implementat
 and audit content tested by CI #646 were unchanged by that report-only commit.
 This follow-up note intentionally triggers a fresh contract run against the
 latest branch HEAD so the full cycle has a current green CI result.
+
+
+======================================================================
+RUN SNAPSHOT SERIALIZATION DEPTH FIX (2026-10-15)
+======================================================================
+
+[DONE] SnapshotValue serialization changed from recursive nested items to a
+       flat SnapshotNode table with integer child indexes, removing the
+       JsonUtility serialization-depth-10 composition chain.
+[DONE] Capture/field lookup/restore now traverse the flat representation.
+[DONE] SavedRun schema version advanced to 2; legacy v1 snapshots are rejected
+       through the existing invalid-snapshot cleanup path.
+[OPEN] Validate autosave + Continue Saved Run in Unity Editor. CI contract
+       success does not establish runtime persistence correctness.
+
+======================================================================
+END RUN SNAPSHOT SERIALIZATION DEPTH FIX
+======================================================================
