@@ -1204,9 +1204,12 @@ namespace EchoSphere.Runtime
             // The prototype scene is generated empty, so ensure the runtime
             // camera supplies the single listener Unity expects. Do not add a
             // duplicate if another active listener is already present.
-            if (FindObjectsByType<AudioListener>(FindObjectsSortMode.None).Length == 0 &&
-                _camera.GetComponent<AudioListener>() == null)
-                _camera.gameObject.AddComponent<AudioListener>();
+            if (FindObjectsByType<AudioListener>(FindObjectsSortMode.None).Length == 0)
+            {
+                var listener = _camera.GetComponent<AudioListener>();
+                if (listener == null) listener = _camera.gameObject.AddComponent<AudioListener>();
+                listener.enabled = true;
+            }
         }
 
         private void CreateStarfield()
