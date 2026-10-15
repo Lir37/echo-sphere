@@ -4,7 +4,6 @@
     "com.unity.vectorgraphics": "3.0.0-preview.7",
     "com.unity.modules.audio": "1.0.0",
     "com.unity.modules.uielements": "1.0.0",
-    "com.unity.modules.textrendering": "1.0.0",
     "com.unity.modules.androidjni": "1.0.0"
   }
 }

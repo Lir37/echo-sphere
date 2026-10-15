@@ -101,6 +101,10 @@ const version = versionText.match(/m_EditorVersion:\s*(\S+)/)?.[1] ?? '';
 assert.ok(/^6000\.3\./.test(version), `Unity editor pin must stay on 6000.3 stream, got ${version}`);
 
 const manifest = JSON.parse(readFileSync(join(root, 'Packages/manifest.json'), 'utf8'));
+// UnityEngine.TextRenderingModule is an engine assembly, not a resolvable
+// com.unity.modules.textrendering UPM package. The latter blocks project import.
+assert.ok(!Object.hasOwn(manifest.dependencies ?? {}, 'com.unity.modules.textrendering'),
+  'invalid UPM dependency: com.unity.modules.textrendering does not exist; UnityEngine.TextRenderingModule is an engine assembly');
 assert.ok(manifest.dependencies?.['com.unity.render-pipelines.universal'], 'URP dependency is required');
 assert.equal(manifest.dependencies['com.unity.render-pipelines.universal'], '17.3.0', 'review URP pin if the editor stream changes');
 assert.equal(manifest.dependencies['com.unity.vectorgraphics'], '3.0.0-preview.7', 'authored SVG Sprite importer pin must match Unity 6.3');
