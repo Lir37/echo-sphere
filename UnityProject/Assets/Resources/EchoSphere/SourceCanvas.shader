@@ -5,10 +5,7 @@ Shader "EchoSphere/SourceCanvas"
     {
         Tags {"Queue"="Transparent" "RenderType"="Transparent" "RenderPipeline"="UniversalPipeline"}
         HLSLINCLUDE
-            #pragma vertex vert
-            #pragma fragment frag
-            #pragma target 3.5
-            #include "UnityCG.cginc"
+                        #include "UnityCG.cginc"
             sampler2D _Paints,_ImageTex;float4 _Paints_TexelSize,_ImageTex_TexelSize;
             struct appdata {float4 vertex:POSITION;float4 color:COLOR;float4 uv:TEXCOORD0;};
             struct v2f {float4 vertex:SV_POSITION;float4 color:COLOR;float4 uv:TEXCOORD0;};
@@ -67,6 +64,7 @@ Shader "EchoSphere/SourceCanvas"
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+            #pragma target 3.5
             ENDHLSL
         }
         Pass { ZWrite Off Cull Off Blend One One
