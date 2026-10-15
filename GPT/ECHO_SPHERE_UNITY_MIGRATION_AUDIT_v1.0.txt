@@ -4830,3 +4830,10 @@ all three filament widths. Device visual parity remains pending a fresh APK.
 ======================================================================
 END EXACT NETWORK COMET GEOMETRY
 ======================================================================
+
+
+A final source comparison corrected two remaining packet details: the packet
+phase now adds the source seed directly before modulo (not a scaled seed), and
+the shared line pulse uses the source 0.84 base. Formation color precedence is
+also now line, triangle, cluster, square, as in the original renderer; Line
+Renderer corner joins use round caps/joins.
