@@ -302,6 +302,8 @@ assert.ok(networkRules.includes('Analyze') && networkRules.includes('FindFractal
 assert.ok(runtime.includes('RefreshNetworkState') && runtime.includes('UpdateNetworkLinkVisuals') && runtime.includes('GEOMETRY '), 'live Network links and Geometry HUD are missing');
 assert.ok(runtime.includes('UpdateNetworkCometVisuals') && runtime.includes('var packetSpeed = active ? 0.34f : 0.27f') &&
   runtime.includes('var tailDistance = active ? 0.075f : 0.06f') &&
+  runtime.includes('var raw = ((_runTime * packetSpeed + seed + packet / 3f) % 1f + 1f) % 1f') &&
+  runtime.includes('var pulse = 0.84f + Mathf.Sin(_runTime * 4.2f) * 0.10f') &&
   runtime.includes('RuntimeSpriteFactory.NetworkCometHead') && runtime.includes('RuntimeSpriteFactory.NetworkCometTail') &&
   runtime.includes('glowLine.startWidth = glowLine.endWidth = (active ? 5.8f : 3.6f) * pixelScale') &&
   runtime.includes('highlightLine.startWidth = highlightLine.endWidth = (active ? 0.92f : 0.70f) * pixelScale'),
