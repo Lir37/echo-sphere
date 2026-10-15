@@ -26,6 +26,10 @@ namespace EchoSphere.Presentation
             if(Fonts.TryGetValue(key,out var existing))return existing;
             if(!_initialized){FontEngine.InitializeFontEngine();_initialized=true;}
             var names=SourceCanvasTypography.Families(family);
+            // CSS falls back to the platform's generic sans-serif faces when an
+            // explicitly requested family (for example Roboto on Windows) is absent.
+            foreach(var fallback in SourceCanvasTypography.Families("system-ui,sans-serif"))
+                if(!names.Contains(fallback))names.Add(fallback);
             // The last families are the browser's platform glyph fallbacks.
 #if UNITY_ANDROID
             names.Add("Noto Sans");names.Add("Noto Color Emoji");names.Add("Noto Sans Symbols");
@@ -52,13 +56,10 @@ namespace EchoSphere.Presentation
                 }
                 if(primary==null)primary=asset;else if(asset!=primary)fallbacks.Add(asset);
             }
-            if(primary==null){
-                var declaration=weight+" "+size.ToString(CultureInfo.InvariantCulture)+"px "+family;
-                var legacy=SourceCanvasTypography.Resolve(declaration,out _,out _);
-                if(legacy!=null)primary=FontAsset.CreateFontAsset(legacy);
-            }
-            // Some devices do not expose any requested system face to FontEngine.
-            // Leave UI Toolkit default font in place instead of dereferencing a null asset.
+            // Do not convert a legacy dynamic Font to FontAsset here. That path
+            // may capture into a RenderTexture while UI is being drawn and can
+            // trigger D3D12's "GrabIntoRenderTexture ... during a render pass" error.
+            // If no system face is available, leave UI Toolkit's default font intact.
             if(primary==null)return null;
             primary.fallbackFontAssetTable=fallbacks;Fonts[key]=primary;return primary;
         }
