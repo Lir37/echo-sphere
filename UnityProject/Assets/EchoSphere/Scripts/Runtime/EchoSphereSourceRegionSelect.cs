@@ -22,7 +22,6 @@ namespace EchoSphere.Runtime
             var regions = _sourceKnowledge.planner.FindAll(entry => entry.category == "region");
             var total = 64f;
             foreach (var region in regions) total += (IsRegionAvailable(region.id == "spectral_rift" ? EchoRegionId.SpectralRift : EchoRegionId.ResonanceBasin) ? 367f : 150f) + 12f;
-            total += 28f;
             _sourceRegionScroll = GUI.BeginScrollView(view, _sourceRegionScroll, new Rect(0f, 0f, width, total));
             var contentWidth = width; var y = 0f;
             SourceUiLabel(new Rect(0f, y, contentWidth, 10f), IsRussianUi ? "ВЫБОР ОБЛАСТИ" : "REGION SELECT", 7, "#7f9bb8");
