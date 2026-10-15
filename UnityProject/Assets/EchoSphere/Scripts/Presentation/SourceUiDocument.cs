@@ -32,15 +32,16 @@ namespace EchoSphere.Presentation
             public string GroupClipKey;
             public SourceUiFilters Filters;
             public SourceUiBackdrop Backdrop;
+            public Action<MeshGenerationContext> PaintContent;
             public bool Used;
         }
         private UIDocument _document;
         private PanelSettings _panel;
-        private RenderTexture _backdropCapture;
         private VisualCss _sheet;
         private SourceUiLayout _layout;
         private readonly Dictionary<string,Entry> _entries=new Dictionary<string,Entry>();
         private readonly Dictionary<VisualElement,Entry> _elementEntries=new Dictionary<VisualElement,Entry>();
+        private readonly Dictionary<VisualElement,Entry> _backdropForegrounds=new Dictionary<VisualElement,Entry>();
         private VisualCssNode _root;
         private float _scale=1f;
         private Material _svgMaterial;
@@ -96,7 +97,9 @@ namespace EchoSphere.Presentation
                 var element=kind=="input"?(VisualElement)new TextField {isDelayed=false}:kind=="range"?new Slider():kind=="scroll"?new ScrollView(scrollX?scrollY?ScrollViewMode.VerticalAndHorizontal:ScrollViewMode.Horizontal:ScrollViewMode.Vertical):kind=="label"?new Label():new VisualElement();
                 entry=new Entry {Element=element};entry.Host=new SourceUiElement(this,node,element);_entries.Add(key,entry);_elementEntries.Add(element,entry);element.userData=entry.Host;
                 InstallEvents(entry);
-                element.generateVisualContent+=context=>Paint(entry,context);
+                entry.PaintContent=context=>Paint(entry,context);
+                var nativePaint=element.generateVisualContent;
+                element.generateVisualContent=context=>{entry.PaintContent(context);nativePaint?.Invoke(context);};
                 element.RegisterCallback<GeometryChangedEvent>(evt=>{UpdateBounds(entry.Node,entry.Element);entry.PaintKey=null;FrameVersion++;});
             }
             entry.Used=true;entry.Node=node;entry.Host.Node=node;node.Native=entry.Element;node.Active=entry.ActivePointers.Count>0;
@@ -117,7 +120,7 @@ namespace EchoSphere.Presentation
             foreach(var child in node.Children){var authoredKey=child.Properties["key"];var part=child.Pseudo??(!authoredKey.Undefined?"key="+authoredKey.Text:(childIndex++).ToString(CultureInfo.InvariantCulture));Reconcile(child,container,key+"/"+part);}
             // CSS order and z-index affect native paint / picking order without
             // changing the authored tree used by selectors and DOM queries.
-            foreach(var child in node.Children.Where(child=>child.Native is VisualElement).OrderBy(child=>_sheet.Length(_sheet.Get(child,"order","0"),1d)).ThenBy(child=>_sheet.Length(_sheet.Get(child,"z-index","0"),1d))){var native=(VisualElement)child.Native;_elementEntries[native].Backdrop?.BringToFront();native.BringToFront();}
+            foreach(var child in node.Children.Where(child=>child.Native is VisualElement).OrderBy(child=>_sheet.Length(_sheet.Get(child,"order","0"),1d)).ThenBy(child=>_sheet.Length(_sheet.Get(child,"z-index","0"),1d)))((VisualElement)child.Native).BringToFront();
         }
         private static void CopyInteraction(VisualCssNode before,VisualCssNode after)
         {if(before==null||before.Tag!=after.Tag)return;after.Hover=before.Hover;after.Active=before.Active;after.Focused=before.Focused;var previous=before.Children.Where(child=>child.Pseudo==null).ToList();for(var index=0;index<after.Children.Count;index++){var child=after.Children[index];var key=child.Properties["key"];var match=key.Undefined?index<previous.Count?previous[index]:null:previous.FirstOrDefault(candidate=>candidate.Properties["key"]==key);CopyInteraction(match,child);}}
@@ -157,11 +160,11 @@ namespace EchoSphere.Presentation
         {if(!focused)foreach(var entry in _entries.Values)if(entry.ActivePointers.Count>0){entry.ActivePointers.Clear();entry.Node.Active=false;Dirty=true;}}
         private void UpdateLayout(VisualCssNode node)
         {if(node.Native is VisualElement element){var oldBounds=(node.X,node.Y,node.Width,node.Height);UpdateBounds(node,element);if(oldBounds!=(node.X,node.Y,node.Width,node.Height))FrameVersion++;_layout.Apply(node,element);var entry=_elementEntries[element];if(node.Tag=="svg")SourceUiSvg.Text(node,_sheet,element,entry.SvgTexts);if(DepthAncestor(node)==null&&(_sheet.Get(node,"filter","none").Trim()!="none"||_sheet.Get(node,"opacity","1")!="1")){if(entry.Filters==null)entry.Filters=new SourceUiFilters();entry.Filters.Apply(_sheet,node,element,_scale,IsDepthRoot(node));}else element.style.filter=new List<FilterFunction>();// UI Toolkit ImmediateModeElement repaint runs inside the active render pass.
-                // Capturing CurrentActive and executing blur blits there triggers D3D12
-                // UploadTexture2D / GrabIntoRenderTexture warnings and can stall/overlay
-                // menu controls. Keep the authored element's own translucent background;
-                // do not create a sibling backdrop capture until a safe pre-render path exists.
-                if(entry.Backdrop!=null){entry.Backdrop.Dispose();entry.Backdrop=null;}element.MarkDirtyRepaint();}foreach(var child in node.Children)UpdateLayout(child);}
+                // Backdrop helpers are retained children, prepared after brushes
+                // and depth surfaces. They issue no graphics commands at repaint.
+                if(VisualBackdrop.Sigma(_sheet,node)>=0d){if(entry.Backdrop==null){entry.Backdrop=new SourceUiBackdrop(element,entry.PaintContent,ReplicaPaint);_backdropForegrounds.Add(entry.Backdrop.Foreground,entry);}}
+                else if(entry.Backdrop!=null){_backdropForegrounds.Remove(entry.Backdrop.Foreground);entry.Backdrop.Dispose();entry.Backdrop=null;}
+                element.MarkDirtyRepaint();}foreach(var child in node.Children)UpdateLayout(child);}
         private static void UpdateBounds(VisualCssNode node,VisualElement element)
         {var bounds=element.worldBound;node.X=bounds.x;node.Y=bounds.y;node.Width=float.IsNaN(element.layout.width)?0d:element.layout.width;node.Height=float.IsNaN(element.layout.height)?0d:element.layout.height;}
         private void Paint(Entry entry,MeshGenerationContext context)
@@ -169,7 +172,6 @@ namespace EchoSphere.Presentation
             var node=entry.Node;if(node.Width<=0d||node.Height<=0d)return;
             if(DepthAncestor(node)!=null)return;
             if(IsDepthRoot(node)){Quad(context,entry.DepthTexture,entry.DepthRect);return;}
-            // Backdrop blur is intentionally not rendered through ImmediateModeElement: see UpdateLayout.
             Quad(context,entry.Paint,entry.PaintRect);
             if(entry.Element is Slider slider)SourceUiRange.Paint(slider,context);
             if(node.Tag=="canvas")Quad(context,CanvasTexture?.Invoke(),new Rect(0,0,(float)node.Width,(float)node.Height));
@@ -184,6 +186,7 @@ namespace EchoSphere.Presentation
                 if(node.Native is VisualElement element&&_elementEntries.TryGetValue(element,out var entry)&&node.Width>0d&&node.Height>0d)
                 {
                     EnsureBrush(entry);
+                    if(element is Slider)SourceUiRange.Prepare();
                     if(node.Tag=="svg")PrepareSvg(entry);
                 }
                 foreach(var child in node.Children)Prepare(child);
@@ -196,6 +199,29 @@ namespace EchoSphere.Presentation
                 foreach(var child in node.Children)PrepareDepthRoots(child);
             }
             PrepareDepthRoots(root);
+            // Native hierarchy order is the actual paint order (CSS z-index /
+            // order and ScrollView containers included). Earlier backdrop copies
+            // must be ready before a later panel takes its paint prefix.
+            void Backdrops(VisualElement element)
+            {
+                if(_elementEntries.TryGetValue(element,out var entry)&&entry.Backdrop!=null){
+                    var ancestor=entry.Node.Parent;while(ancestor!=null&&!VisualBackdrop.IsRoot(_sheet,ancestor))ancestor=ancestor.Parent;
+                    var backdropRoot=ancestor?.Native as VisualElement??_document.rootVisualElement;
+                    entry.Backdrop.Prepare(backdropRoot,(float)VisualBackdrop.Sigma(_sheet,entry.Node));
+                }
+                // Helpers themselves contain replicas; never traverse them as
+                // live DOM entries or turn a replica into another capture source.
+                for(var index=0;index<element.hierarchy.childCount;index++){
+                    var child=element.hierarchy[index];if(child.userData==SourceUiBackdrop.ReplicaTag||child.userData is SourceUiBackdrop.ClipTag)continue;Backdrops(child);
+                }
+            }
+            Backdrops(_document.rootVisualElement);
+        }
+        private Action<MeshGenerationContext> ReplicaPaint(VisualElement source)
+        {
+            if(source.userData is SourceUiReplica.PaintTag tag)return tag.Paint;
+            if(_backdropForegrounds.TryGetValue(source,out var foreground))return foreground.PaintContent;
+            return _elementEntries.TryGetValue(source,out var entry)&&entry.Backdrop==null?entry.PaintContent:null;
         }
         private void EnsureBrush(Entry entry)
         {
@@ -267,14 +293,6 @@ namespace EchoSphere.Presentation
             var results=new List<V>();void Visit(VisualCssNode node){if(node==null)return;if(node.Native is VisualElement element&&element.userData is SourceUiElement host&&VisualCss.Match(node,selector))results.Add(new V(host));foreach(var child in node.Children)Visit(child);}Visit(start??_root);return all?VisualJs.Arr(results.ToArray()):results.Count>0?results[0]:VisualJs.Null;
         }
         internal VisualCss Sheet=>_sheet;
-        internal RenderTexture BackdropCapture()
-        {
-            if(_backdropCapture==null||_backdropCapture.width!=Screen.width||_backdropCapture.height!=Screen.height){
-                if(_backdropCapture!=null){_backdropCapture.Release();Destroy(_backdropCapture);}
-                _backdropCapture=new RenderTexture(Screen.width,Screen.height,0,RenderTextureFormat.ARGB32,RenderTextureReadWrite.Linear){name="Source shared backdrop capture",filterMode=FilterMode.Bilinear,wrapMode=TextureWrapMode.Clamp};_backdropCapture.Create();
-            }
-            return _backdropCapture;
-        }
         internal V ElementFromPoint(float x,float y){var element=_document.rootVisualElement.panel?.Pick(new Vector2(x,y));var host=SourceUiElement.Target(element);return host==null?VisualJs.Null:new V(host);}
         internal void EventCompleted(){Dirty=true;AfterEvent?.Invoke();}
         internal void ShowConfirmation(string message,Action<bool> answer)
@@ -287,7 +305,7 @@ namespace EchoSphere.Presentation
             foreach(var choice in new[]{false,true}){var accepted=choice;var button=new Button(()=>{overlay.RemoveFromHierarchy();answer(accepted);}) {text=choice?"OK":Application.systemLanguage==SystemLanguage.Russian?"Отмена":"Cancel"};button.style.minWidth=72;button.style.height=30;button.style.marginLeft=8;button.style.backgroundColor=choice?new Color(35f/255f,100f/255f,205f/255f,1f):new Color(235f/255f,235f/255f,235f/255f,1f);button.style.color=choice?(Color)Color.white:(Color)Color.black;button.style.unityTextAlign=TextAnchor.MiddleCenter;buttons.Add(button);}
             box.Add(buttons);overlay.Add(box);_document.rootVisualElement.Add(overlay);overlay.BringToFront();
         }
-        private void Dispose(Entry entry){_elementEntries.Remove(entry.Element);entry.Backdrop?.Dispose();entry.Element.RemoveFromHierarchy();if(entry.Paint!=null)Destroy(entry.Paint);if(entry.Svg!=null)Destroy(entry.Svg);if(entry.GroupClip!=null)Destroy(entry.GroupClip);entry.Depth?.Dispose();entry.SurfaceFilters?.Dispose();entry.Filters?.Dispose();}
-        private void OnDestroy(){VisualDom.Reset();VisualDom.Changed=null;Environment?.Dispose();foreach(var entry in _entries.Values)Dispose(entry);_entries.Clear();if(_backdropCapture!=null){_backdropCapture.Release();Destroy(_backdropCapture);}if(_svgMaterial!=null)Destroy(_svgMaterial);if(_panel!=null)Destroy(_panel);}
+        private void Dispose(Entry entry){_elementEntries.Remove(entry.Element);if(entry.Backdrop!=null)_backdropForegrounds.Remove(entry.Backdrop.Foreground);entry.Backdrop?.Dispose();entry.Element.RemoveFromHierarchy();if(entry.Paint!=null)Destroy(entry.Paint);if(entry.Svg!=null)Destroy(entry.Svg);if(entry.GroupClip!=null)Destroy(entry.GroupClip);entry.Depth?.Dispose();entry.SurfaceFilters?.Dispose();entry.Filters?.Dispose();}
+        private void OnDestroy(){VisualDom.Reset();VisualDom.Changed=null;Environment?.Dispose();foreach(var entry in _entries.Values)Dispose(entry);_entries.Clear();if(_svgMaterial!=null)Destroy(_svgMaterial);if(_panel!=null)Destroy(_panel);}
     }
 }

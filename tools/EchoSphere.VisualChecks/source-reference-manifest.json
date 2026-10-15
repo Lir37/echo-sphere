@@ -6,6 +6,7 @@
     "package-lock.json": "b512e2a82a25f41c0b8197fb3c3b37dbf3b03b2665f725042a6f9f2cec80fa97",
     "postcss.config.js": "e32657baf631d7c5f4dc67b4b2ee0ec8e7d5b3c41860e09cddce7c0377cd80bc",
     "scripts/export-unity-animation-fixtures.cjs": "02cbc748698647f308d6a47dd54b47af2aa05b76c1194f54b26336cdc03993be",
+    "scripts/export-unity-backdrop-fixtures.cjs": "4bab47a9220d7c01be6823195133368f5789845a54bac26efc3b0db0297974fb",
     "scripts/export-unity-canvas-art.cjs": "0c81a1c142f04ecd0c42b98931eccc5fd2c4eb30bc83fb1f5847600b3cd43cf5",
     "scripts/export-unity-canvas-image-fixtures.cjs": "3c610d35caca442af20d84d05707bea7bf3e0577a32de40414f1e780e15af0b1",
     "scripts/export-unity-canvas-shadow-fixtures.cjs": "9952632deac1913524c45df1f9aee01cc32f48e2ef3a56809fb90f9d303ba9ab",
@@ -97,6 +98,7 @@
   "outputs": {
     "UnityProject/Assets/Resources/EchoSphere/SourceUiIcons.json": "2e92b9c2045cbcf29f7ec7b1bdcdc3c9e4583c9d5c4ddfec8e251e2262a8451c",
     "tools/EchoSphere.VisualChecks/source-animation-fixtures.json": "2bc0a5702f0864e720c2a2b9cc33b12cfaa542755676094569037cb984470855",
+    "tools/EchoSphere.VisualChecks/source-backdrop-fixtures.json.gz": "49f959df6e6ef75ee5ca5d512fb67ad9004ba238c44e752c4f9e552d3a37821d",
     "tools/EchoSphere.VisualChecks/source-canvas-image-fixtures.json": "786ddc22b2f3578fbce696cc862d4d70027a35aec05424441adddaee3fdb2540",
     "tools/EchoSphere.VisualChecks/source-canvas-shadow-fixtures.json.gz": "320736daa89892b56827f53e8946c6b7e3401528fdfb69aea09a60ab03aa4cfa",
     "tools/EchoSphere.VisualChecks/source-css-fixtures.json.gz": "b63d61340b88cf91de67e9931ef412e0ea94adc8daab1b87ec2ec4d59c590dad",

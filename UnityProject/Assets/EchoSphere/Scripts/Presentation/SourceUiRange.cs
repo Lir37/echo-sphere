@@ -7,6 +7,8 @@ namespace EchoSphere.Presentation
     internal static class SourceUiRange
     {
         private static readonly Dictionary<string,Texture2D> Parts=new Dictionary<string,Texture2D>();
+        internal static void Prepare()
+        {foreach(var name in new[]{"range-left","range-filled","range-empty","range-right","range-thumb"})if(!Parts.ContainsKey(name))Parts.Add(name,Resources.Load<Texture2D>("EchoSphere/SourceUiControls/"+name));}
         internal static void Apply(Slider slider)
         {
             slider.style.height=16;slider.pageSize=0;
@@ -22,7 +24,7 @@ namespace EchoSphere.Presentation
         {
             var fraction=(slider.value-slider.lowValue)/Mathf.Max(.00001f,slider.highValue-slider.lowValue);
             foreach(var part in VisualRangeLayout.Build(slider.layout.width,fraction)){
-                if(!Parts.TryGetValue(part.Name,out var texture)){texture=Resources.Load<Texture2D>("EchoSphere/SourceUiControls/"+part.Name);Parts.Add(part.Name,texture);}
+                if(!Parts.TryGetValue(part.Name,out var texture))continue;
                 SourceUiDocument.Quad(context,texture,new Rect((float)part.X,0,(float)part.Width,16),new Rect((float)part.U,0,(float)part.Uw,1));
             }
         }

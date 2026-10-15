@@ -6,11 +6,13 @@ Shader "EchoSphere/SourceUiFilters"
   HLSLINCLUDE
   #include "UnityCG.cginc"
   #include "UnityUIEFilter.cginc"
-  sampler2D _MainTex;float4 _MainTex_ST,_MainTex_TexelSize;float _Amount,_OffsetX,_OffsetY,_Sigma,_CssDpr,_CssReadsGamma,_CssWritesGamma;float4 _CssColor;
-  struct effectOutput {float4 vertex:SV_POSITION;float2 uv:TEXCOORD0;uint rectIndex:TEXCOORD1;};
+  sampler2D _MainTex;float4 _MainTex_ST,_MainTex_TexelSize;float _Amount,_OffsetX,_OffsetY,_Sigma,_CssDpr,_CssReadsGamma;float4 _CssColor;
+  struct effectOutput {float4 vertex:SV_POSITION;float2 uv:TEXCOORD0;nointerpolation uint rectIndex:TEXCOORD1;};
   effectOutput effectVertex(FilterVertexInput v){effectOutput o;o.vertex=UnityObjectToClipPos(v.vertex);o.uv=TRANSFORM_TEX(v.uv,_MainTex);o.rectIndex=GetFilterRectIndex(v);return o;}
   float4 Finish(float4 c){
-   if(_CssWritesGamma<.5)c.rgb=c.a>0?GammaToLinearSpace(c.rgb/c.a)*c.a:0;
+   #if defined(_UIE_OUTPUT_LINEAR) && !defined(UNITY_COLORSPACE_GAMMA)
+    c.rgb=GammaToLinearSpace(c.rgb);
+   #endif
    return c;
   }
   float Alpha(float2 uv,float4 rect){return any(uv<rect.xy)||any(uv>rect.xy+rect.zw)?0:tex2D(_MainTex,uv).a;}
@@ -52,9 +54,7 @@ Shader "EchoSphere/SourceUiFilters"
      alpha/=max(.000001,normalization);
     }
     float4 color=_CssColor;
-    #ifndef UNITY_COLORSPACE_GAMMA
-     color.rgb=LinearToGammaSpace(color.rgb);
-    #endif
+    // The adapter supplies the authored CSS color as an sRGB vector.
     alpha*=color.a;float4 shadow=float4(color.rgb*alpha,alpha);return Finish(original+shadow*(1-original.a));
    }
    ENDHLSL

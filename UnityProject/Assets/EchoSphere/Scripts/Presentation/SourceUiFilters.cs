@@ -22,7 +22,13 @@ namespace EchoSphere.Presentation
             definition.parameters=Enumerable.Range(0,parameters).Select(index=>new FilterParameterDeclaration {name="value"+index,interpolationDefaultValue=index==3?new FilterParameter(Color.clear):new FilterParameter(index==0?1f:0f)}).ToArray();
             var effect=new PostProcessingPass {material=_material,passIndex=pass,parameterBindings=pass==2?new[]{new ParameterBinding {index=0,name="_OffsetX"},new ParameterBinding {index=1,name="_OffsetY"},new ParameterBinding {index=2,name="_Sigma"},new ParameterBinding {index=3,name="_CssColor"}}:new[]{new ParameterBinding {index=0,name="_Amount"}}};
             if(pass==2){PostProcessingMargins Margins(FilterFunction function){var sigma=function.GetParameter(2).floatValue*4f;var x=function.GetParameter(0).floatValue;var y=function.GetParameter(1).floatValue;return new PostProcessingMargins {left=Mathf.Max(0,sigma-x),right=Mathf.Max(0,sigma+x),top=Mathf.Max(0,sigma-y),bottom=Mathf.Max(0,sigma+y)};}effect.computeRequiredReadMarginsCallback=Margins;effect.computeRequiredWriteMarginsCallback=Margins;}
-            effect.applySettingsCallback=(properties,context)=>{properties.SetFloat("_CssDpr",context.scaledPixelsPerPoint);properties.SetFloat("_CssReadsGamma",context.readsGamma?1f:0f);properties.SetFloat("_CssWritesGamma",context.writesGamma?1f:0f);};
+            effect.applySettingsCallback=(properties,context)=>{
+                properties.SetFloat("_CssDpr",context.scaledPixelsPerPoint);properties.SetFloat("_CssReadsGamma",context.readsGamma?1f:0f);
+                // Unity 6.3 calls this callback INSTEAD OF parameterBindings.
+                var function=context.filterFunction;
+                if(pass==2){properties.SetFloat("_OffsetX",function.GetParameter(0).floatValue);properties.SetFloat("_OffsetY",function.GetParameter(1).floatValue);properties.SetFloat("_Sigma",function.GetParameter(2).floatValue);properties.SetVector("_CssColor",function.GetParameter(3).colorValue);}
+                else properties.SetFloat("_Amount",function.GetParameter(0).floatValue);
+            };
             definition.passes=new[]{effect};_definitions.Add(definition);_namedDefinitions[name]=definition;return definition;
         }
         internal void Apply(VisualCss sheet,VisualCssNode node,VisualElement element,float dpr,bool surfaceFiltered=false)
