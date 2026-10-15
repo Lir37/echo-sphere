@@ -7145,7 +7145,8 @@ namespace EchoSphere.Runtime
                 var delta = to - from;
                 var length = Mathf.Max(0.0001f, delta.magnitude);
                 var normal = new Vector2(-delta.y / length, delta.x / length);
-                var amplitude = Mathf.Min(0.062f, 0.022f + length * 0.008f);
+                var amplitude = Mathf.Min(6.2f * SpherePlacementRules.SourcePixelsToWorld,
+                    2.2f * SpherePlacementRules.SourcePixelsToWorld + length * 0.008f);
                 var isLine = IsFormationLink(_networkState.GetFormation(SphereNetworkFormation.Line), link.A, link.B);
                 var isSquare = IsFormationLink(_networkState.GetFormation(SphereNetworkFormation.Square), link.A, link.B);
                 var isTriangle = IsFormationLink(_networkState.GetFormation(SphereNetworkFormation.Triangle), link.A, link.B);
@@ -7166,6 +7167,9 @@ namespace EchoSphere.Runtime
                 else if (isSquare) color = new Color(0.412f, 0.718f, 1f, 0.48f * pulse);
                 else if (isTriangle) color = new Color(1f, 0.722f, 0.302f, 0.54f * pulse);
                 else if (isCluster) color = new Color(0.702f, 0.549f, 1f, 0.44f * pulse);
+                var sourceWidth = active ? 2.55f : 1.95f;
+                line.startWidth = sourceWidth * SpherePlacementRules.SourcePixelsToWorld;
+                line.endWidth = sourceWidth * SpherePlacementRules.SourcePixelsToWorld;
                 line.startColor = color;
                 line.endColor = color;
             }
