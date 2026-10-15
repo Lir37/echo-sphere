@@ -1494,7 +1494,7 @@ assert.ok(sourceHomeUi.includes('DrawSourceMenuNavIcon') &&
   sourceHomeUi.includes('rect.center.x - 12f') && sourceHomeUi.includes('rect.y + 40f') &&
   sourceHomeUi.includes('var narrowPhone = _uiWidth <= 1100f') &&
   sourceHomeUi.includes('var navColumns = narrowPhone ? 3 : 6') &&
-  sourceHomeUi.includes('var navButtonHeight = narrowPhone ? 86f : 72f'),
+  sourceHomeUi.includes('var navButtonHeight = narrowPhone ? 46f : 42f'),
   'main-menu navigation must preserve all six source icon identities as line-art alongside the live destinations');
 const knowledgeRuntime = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereKnowledge.cs'), 'utf8').replaceAll('\r\n', '\n');
 const sourceCatalogPath = join(root, 'Assets/Resources/EchoSphere/SourceCatalog.json');
