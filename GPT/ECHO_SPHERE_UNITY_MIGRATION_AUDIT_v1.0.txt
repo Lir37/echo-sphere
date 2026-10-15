@@ -4632,3 +4632,34 @@ END STANDARD SPHERE ASSET VALIDATION CORRECTION
 ======================================================================
 END UNITY EDITOR COMPILE / PACKAGE MANAGER DIAGNOSTICS
 ======================================================================
+
+======================================================================
+2026-10-15 — ENEMY / NETWORK / HUD VISUAL PARITY PASS
+======================================================================
+
+Source baseline: new-desing 737ef2af4a877e0995db5f92331d536d2f29a934
+
+Visual-only changes on unity-migration:
+- EnemyCreatureVisual2D now scales its source-mapped creature mesh from
+  EnemyAgent2D.SourceRadius and SourcePixelsToWorld instead of inheriting
+  the old prototype orb's root scale. The base scale is preserved during
+  the existing animation pulse. No enemy stats or collision rules changed.
+- Sphere network links now use 25 sampled positions for the animated
+  source-style wavy filament, with source-mapped pulse timing and distinct
+  line / square / triangle / cluster colors. Link topology and network
+  gameplay rules are unchanged.
+- Gameplay HUD panels now have restrained cyan edge framing consistent with
+  the current dark sci-fi UI palette. HUD data, layout, and interaction
+  behavior are unchanged.
+
+Validation status:
+- Source and Unity implementation sections were compared for enemy radius,
+  network filament and HUD presentation.
+- Changed file sections were re-fetched from GitHub after edits.
+- Unity Editor compile, APK build, and device visual parity are not verified.
+- CI status must be checked on the resulting branch HEAD; do not treat this
+  visual pass as proof of complete source parity.
+
+======================================================================
+END ENEMY / NETWORK / HUD VISUAL PARITY PASS
+======================================================================
