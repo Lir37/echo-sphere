@@ -3276,3 +3276,28 @@ does not prove JsonUtility runtime behavior.
 ======================================================================
 END RUN SNAPSHOT SERIALIZATION DEPTH FIX
 ======================================================================
+
+
+======================================================================
+2026-10-15 — D3D12 UI RENDER-PASS WARNING FOLLOW-UP
+======================================================================
+
+The D3D12 UploadTexture2D / GrabIntoRenderTexture warnings persisted after
+moving CSS/SVG/depth preparation out of generateVisualContent. Further source
+inspection identified SourceUiBackdrop.ImmediateRepaint as another unsafe path:
+it copied CurrentActive and executed blur command-buffer blits while UI Toolkit
+was repainting inside the active render pass. The same path could repeatedly
+capture and blur the menu framebuffer, adding load/render cost and producing
+stale or visually overlapping control backgrounds.
+
+SourceUiDocument no longer creates SourceUiBackdrop siblings or draws their
+textures. Authored elements retain their own CSS background; backdrop-filter
+blur is temporarily not rendered by this Unity adapter until a safe pre-render
+capture path is implemented. This is a targeted rendering fallback, not a
+change to new-desing. Unity Editor validation must confirm both D3D12 warnings
+and menu overlap/loading behavior after this commit. CI does not establish
+runtime rendering correctness.
+
+======================================================================
+END D3D12 UI RENDER-PASS WARNING FOLLOW-UP
+======================================================================
