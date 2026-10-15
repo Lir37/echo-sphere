@@ -1503,4 +1503,10 @@ assert.ok(existsSync(sourceCatalogPath) &&
   knowledgeRuntime.includes('Resources.Load<TextAsset>("EchoSphere/SourceCatalog")') &&
   ['basics', 'spheres', 'monsters', 'bosses', 'abilities', 'artifacts', 'evolutions'].every(section => knowledgeRuntime.includes(section)),
   'Unity knowledge base must load source-catalog localized names, descriptions and details for all source sections');
+const regionSelectUi = readFileSync(join(root, 'Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceRegionSelect.cs'), 'utf8').replaceAll('\\r\\n', '\\n');
+assert.ok(regionSelectUi.includes('var cardHeight = available ? 367f : 150f') &&
+  regionSelectUi.includes('DrawRegionLockIcon') &&
+  regionSelectUi.includes('var baseRect = new Rect(12f, y + 80f, contentWidth - 24f, 52f)') &&
+  regionSelectUi.includes('var challengeRect = new Rect(12f, y + 164f + j * 43f, contentWidth - 24f, 38f)'),
+  'region selection must preserve source card, challenge and line-icon proportions');
 console.log(`Unity project preflight: PASS (Unity ${version}, ${runtimeFiles.length} C# source files, URP, authored SVG and responsive HUD guards)`);
