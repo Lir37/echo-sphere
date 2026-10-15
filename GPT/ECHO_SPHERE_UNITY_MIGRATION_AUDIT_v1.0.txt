@@ -4794,3 +4794,12 @@ END REGION SELECT SOURCE LAYOUT
 The region-select scroll extent was trimmed to the actual intro, card, spacing
 and footer content; a structural guard now pins the source-sized card/challenge
 geometry and line-art lock/action marks.
+
+
+A screenshot-to-CSS scale recheck found the first home-menu enlargement had
+overshot the source loadout and navigation dimensions. Those values are now
+calibrated against the active final CSS: the loadout is back near the source
+420 px design width after framebuffer scaling, the character/difficulty rows
+are compact again, and the two-row mobile nav uses source-sized buttons/icons
+instead of oversized 86 px logical buttons. The portrait breakpoint remains
+corrected for the Unity framebuffer.
