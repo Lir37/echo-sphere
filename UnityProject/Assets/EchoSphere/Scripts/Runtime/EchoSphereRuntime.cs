@@ -7176,12 +7176,12 @@ namespace EchoSphere.Runtime
                     highlightLine.SetPosition(point, position);
                 }
 
-                var pulse = 0.82f + Mathf.Sin(_runTime * 4.2f) * 0.10f;
+                var pulse = 0.84f + Mathf.Sin(_runTime * 4.2f) * 0.10f;
                 var color = new Color(0.388f, 0.725f, 1f, 0.27f * pulse);
                 if (isLine) color = new Color(0.388f, 0.902f, 1f, 0.50f * pulse);
-                else if (isSquare) color = new Color(0.412f, 0.718f, 1f, 0.48f * pulse);
                 else if (isTriangle) color = new Color(1f, 0.722f, 0.302f, 0.54f * pulse);
                 else if (isCluster) color = new Color(0.702f, 0.549f, 1f, 0.44f * pulse);
+                else if (isSquare) color = new Color(0.412f, 0.718f, 1f, 0.48f * pulse);
 
                 var glowColor = color; glowColor.a *= active ? 0.22f : 0.12f;
                 var mainColor = color; mainColor.a *= active ? 0.82f : 0.64f;
@@ -7206,6 +7206,7 @@ namespace EchoSphere.Runtime
             line.startWidth = 0.020f;
             line.endWidth = 0.020f;
             line.numCapVertices = 2;
+            line.numCornerVertices = 2;
             line.sortingOrder = sortingOrder;
             if (_networkLineMaterial != null) line.sharedMaterial = _networkLineMaterial;
             return line;
@@ -7247,7 +7248,7 @@ namespace EchoSphere.Runtime
                 if (index < 0 || index >= _networkComets.Count) continue;
                 var visual = _networkComets[index];
                 if (visual.Head == null || visual.Tail == null) continue;
-                var raw = ((_runTime * packetSpeed + seed * 0.027f + packet / 3f) % 1f + 1f) % 1f;
+                var raw = ((_runTime * packetSpeed + seed + packet / 3f) % 1f + 1f) % 1f;
                 var p = packet % 2 == 0 ? raw : 1f - raw;
                 var tailP = Mathf.Max(0f, p - tailDistance);
                 var phase = _runTime * (active ? 1.9f : 1.35f) + seed;
