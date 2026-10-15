@@ -4747,3 +4747,23 @@ unchanged.
 ======================================================================
 END MOBILE CONTROL SCALE / SPHERE PICKER CARD PARITY
 ======================================================================
+
+
+======================================================================
+2026-10-15 — PAUSE PLANNER SOURCE LAYOUT
+======================================================================
+
+The four pause tabs now retain the source line-art identities (statistics,
+abilities, artifacts, network) rather than plain text-only navigation. The
+Stats tab now starts with the source's eight compact character StatBoxes in a
+four-column/two-row grid, followed by the Sphere cards, instead of combining
+all character values into one multiline card. Header scale and spacing were
+aligned to the source modal. Artifact/ability/synergy tab contents and their
+existing actions remain in place.
+
+This remains a code-level layout port. No Unity Editor/APK visual parity is
+claimed until the updated screen is inspected on-device.
+
+======================================================================
+END PAUSE PLANNER SOURCE LAYOUT
+======================================================================
