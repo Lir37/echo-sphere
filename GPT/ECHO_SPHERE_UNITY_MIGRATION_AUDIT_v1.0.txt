@@ -4767,3 +4767,9 @@ claimed until the updated screen is inspected on-device.
 ======================================================================
 END PAUSE PLANNER SOURCE LAYOUT
 ======================================================================
+
+
+The Stats tab's Character section heading and source spacing above the grid are
+also now present. The Unity structural check explicitly guards the line-art
+tab icons and compact character stat grid so these source-layout details are
+not silently lost in later edits.
