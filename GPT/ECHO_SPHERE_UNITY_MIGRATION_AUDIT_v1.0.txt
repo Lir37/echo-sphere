@@ -4933,3 +4933,22 @@ RUN SNAPSHOT SERIALIZATION DEPTH FIX (2026-10-15)
 ======================================================================
 END RUN SNAPSHOT SERIALIZATION DEPTH FIX
 ======================================================================
+
+
+======================================================================
+2026-10-15 — D3D12 UI RENDER-PASS WARNING FOLLOW-UP
+======================================================================
+
+[FIX] Removed the unsafe SourceUiBackdrop sibling path from SourceUiDocument.
+      ImmediateRepaint had copied CurrentActive and executed blur blits inside
+      UI Toolkit's active render pass, matching the D3D12 warning source.
+[FIX] Backdrop-filter no longer adds an extra overlay element or framebuffer
+      capture work. The authored element background remains visible.
+[TRADE-OFF] Backdrop blur is temporarily omitted in Unity until it can be
+      captured safely before the UI render pass.
+[OPEN] Verify D3D12 warnings, menu loading time, and control overlap in Unity
+      Editor. Automated CI cannot prove these runtime outcomes.
+
+======================================================================
+END D3D12 UI RENDER-PASS WARNING FOLLOW-UP
+======================================================================
