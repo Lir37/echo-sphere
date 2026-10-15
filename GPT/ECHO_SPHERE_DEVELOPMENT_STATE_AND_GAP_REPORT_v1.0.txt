@@ -3328,3 +3328,44 @@ that all runtime SVG assets import or that visual parity is complete.
 ======================================================================
 END UNITY SVG RGB COLOR PARSING FIX
 ======================================================================
+
+
+======================================================================
+2026-10-15 — UNITY WARNING CLEANUP PASS (SHADERS / UI TOOLKIT / GENERATED CS)
+======================================================================
+
+Addressed warning groups reported from Unity Editor:
+
+- SourceCanvas.shader: removed duplicate global vertex/fragment pragmas from
+  HLSLINCLUDE; each pass owns its entry-point pragmas and shader target.
+- SourceUiBackdrop.shader and SourceUiSurfaceFilters.shader: explicitly
+  initialize blur accumulators and assign normalized results before return.
+  Unity platform shader compilation still needs to confirm whether this
+  removes the mobile D3D11/GLES3/Vulkan warnings.
+- SourceUiDocument.cs: stopped reading the obsolete MeshWriteData.uvRegion.
+  Quads now use normalized source UVs; UI Toolkit performs atlas remapping.
+- SourceUiLayout.cs and SourceUiBackdrop.cs: use the current UI Toolkit
+  scale style/resolved-style API rather than obsolete ITransform.scale.
+- SourceUiEnvironment.cs: scoped CS0618 suppression to the one legacy
+  EventBase.PreventDefault call to preserve the adapter's existing DOM
+  preventDefault behavior; it was not replaced with StopPropagation.
+- UnityProject/Assets/csc.rsp suppresses CS0162 only. The generated Visual_*.cs
+  transpiler emits a defensive return after block-bodied callbacks even when
+  the source callback already returns. This warning is generated-code noise,
+  not evidence that runtime statements should be deleted by hand.
+
+Performance note:
+These warning cleanups are not a performance fix. The phone's severe slowdown
+still needs a Profiler/runtime investigation. In particular, measure SVG
+rasterization, SourceUiDocument.PreparePaintResources, canvas generation and
+per-frame UI tree rebuilding before changing behavior.
+
+Validation boundary:
+CI checks do not compile Unity shaders for all phone graphics APIs and do not
+confirm an APK's frame time. Confirm the warnings in Unity Editor/device after
+reimport/build. Do not report the shader warnings cleared until reproduced
+cleanly on the affected backends.
+
+======================================================================
+END WARNING CLEANUP PASS
+======================================================================
