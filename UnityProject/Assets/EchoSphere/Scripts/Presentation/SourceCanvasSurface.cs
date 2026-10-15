@@ -46,7 +46,8 @@ namespace EchoSphere.Presentation
         private RenderTexture _target;
         private RenderTexture _uiTarget;
         public Texture UiTexture=>_uiTarget;
-        private readonly CommandBuffer _commands=new CommandBuffer {name="Authored source Canvas"};
+        private CommandBuffer _commands;
+        private bool _initialized;
         private Rect _viewport;
         private float _dpr=1f;
         private readonly List<VisualGradient> _gradients=new List<VisualGradient>();
@@ -64,6 +65,9 @@ namespace EchoSphere.Presentation
         private int _paintHeight=32;
         public void Initialize(int sortingOrder)
         {
+            if(_initialized)return;
+            _commands=new CommandBuffer {name="Authored source Canvas"};
+            _paintHeight=Mathf.Max(1,_paintHeight);
             Canvas=new VisualCanvas(this);_mesh=new Mesh {name="Source Canvas Paths",indexFormat=IndexFormat.UInt32};_mesh.MarkDynamic();
             _displayMesh=new Mesh {name="Source Canvas presentation"};gameObject.AddComponent<MeshFilter>().sharedMesh=_displayMesh;
             var renderer=gameObject.AddComponent<MeshRenderer>();renderer.sortingOrder=sortingOrder;
@@ -72,9 +76,12 @@ namespace EchoSphere.Presentation
             _displayMaterial=new Material(Resources.Load<Shader>("EchoSphere/SourceCanvasPresent"));renderer.sharedMaterial=_displayMaterial;
             _blurMaterial=new Material(Resources.Load<Shader>("EchoSphere/SourceCanvasShadow"));
             ResizePaintTexture();
+            _initialized=true;
         }
         public void SetViewport(float width,float height,float dpr)
         {
+            if(!_initialized)return;
+            width=Mathf.Max(1f,width);height=Mathf.Max(1f,height);
             _viewport=new Rect(-width*.5f*SpherePlacementRules.SourcePixelsToWorld,-height*.5f*SpherePlacementRules.SourcePixelsToWorld,width*SpherePlacementRules.SourcePixelsToWorld,height*SpherePlacementRules.SourcePixelsToWorld);
             _dpr=Mathf.Min(dpr,1.75f);
             var w=Mathf.Max(1,Mathf.FloorToInt(width*_dpr+.5f));var h=Mathf.Max(1,Mathf.FloorToInt(height*_dpr+.5f));
@@ -89,6 +96,7 @@ namespace EchoSphere.Presentation
         }
         public void Begin(Vector2 sourceOrigin)
         {
+            if(!_initialized)throw new InvalidOperationException("Source Canvas surface is not initialized.");
             SourceOrigin=sourceOrigin;_vertices.Clear();_colors.Clear();_uv.Clear();_data.Clear();_triangles.Clear();
             _gradients.Clear();_gradientIndices.Clear();_path.Clear();_contour=null;_stack.Clear();_batches.Clear();_image=null;
         }
@@ -160,8 +168,9 @@ namespace EchoSphere.Presentation
         }
         private void ResizePaintTexture()
         {
+            _paintHeight=Mathf.Max(1,_paintHeight);
             if(_paintTexture!=null)Destroy(_paintTexture);
-            _paintTexture=new Texture2D(PaintWidth,_paintHeight,TextureFormat.RGBAFloat,false,true) {filterMode=FilterMode.Point,wrapMode=TextureWrapMode.Clamp,name="Source Canvas Gradient Stops"};
+            _paintTexture=new Texture2D(Mathf.Max(1,PaintWidth),_paintHeight,TextureFormat.RGBAFloat,false,true) {filterMode=FilterMode.Point,wrapMode=TextureWrapMode.Clamp,name="Source Canvas Gradient Stops"};
             _paintPixels=new Color[PaintWidth*_paintHeight];_material.SetTexture("_Paints",_paintTexture);
         }
         public void Set(string name,V value)
@@ -377,6 +386,6 @@ namespace EchoSphere.Presentation
             }
             throw new InvalidOperationException("Unsupported authored Canvas color: "+text);
         }
-        private void OnDestroy(){_commands.Release();if(_target!=null){_target.Release();Destroy(_target);}if(_uiTarget!=null){_uiTarget.Release();Destroy(_uiTarget);}if(_displayMesh!=null)Destroy(_displayMesh);if(_displayMaterial!=null)Destroy(_displayMaterial);if(_blurMaterial!=null)Destroy(_blurMaterial);if(_mesh!=null)Destroy(_mesh);if(_material!=null)Destroy(_material);if(_paintTexture!=null)Destroy(_paintTexture);}
+        private void OnDestroy(){if(_commands!=null)_commands.Release();if(_target!=null){_target.Release();Destroy(_target);}if(_uiTarget!=null){_uiTarget.Release();Destroy(_uiTarget);}if(_displayMesh!=null)Destroy(_displayMesh);if(_displayMaterial!=null)Destroy(_displayMaterial);if(_blurMaterial!=null)Destroy(_blurMaterial);if(_mesh!=null)Destroy(_mesh);if(_material!=null)Destroy(_material);if(_paintTexture!=null)Destroy(_paintTexture);}
     }
 }
