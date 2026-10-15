@@ -14,13 +14,13 @@ Shader "EchoSphere/SourceCanvas"
             struct v2f {float4 vertex:SV_POSITION;float4 color:COLOR;float4 uv:TEXCOORD0;};
             v2f vert(appdata v) {v2f o;o.vertex=UnityObjectToClipPos(v.vertex);o.color=v.color;o.uv=v.uv;return o;}
             float4 paintPixel(float x,float row) {return tex2Dlod(_Paints,float4((x+.5)*_Paints_TexelSize.x,(row+.5)*_Paints_TexelSize.y,0,0));}
-            float4 gradient(float2 point,float row)
+            float4 gradient(float2 samplePosition,float row)
             {
                 float4 a=paintPixel(0,row),b=paintPixel(1,row);float t;
-                if(a.w>1.5) {float2 d=b.xy-a.xy;float square=dot(d,d);if(square<1e-12)return 0;t=dot(point-a.xy,d)/square;}
+                if(a.w>1.5) {float2 d=b.xy-a.xy;float square=dot(d,d);if(square<1e-12)return 0;t=dot(samplePosition-a.xy,d)/square;}
                 else
                 {
-                    float2 d=b.xy-a.xy,p=point-a.xy;float dr=b.z-a.z;
+                    float2 d=b.xy-a.xy,p=samplePosition-a.xy;float dr=b.z-a.z;
                     float aa=dot(d,d)-dr*dr,bb=-2*(dot(p,d)+a.z*dr),cc=dot(p,p)-a.z*a.z;
                     if(abs(aa)<1e-12) {if(abs(bb)<1e-12)return 0;t=-cc/bb;}
                     else {float disc=bb*bb-4*aa*cc;if(disc<0)return 0;float root=sqrt(disc);float t0=(-bb-root)/(2*aa),t1=(-bb+root)/(2*aa);t=max(t0,t1);if(a.z+t*dr<0)t=min(t0,t1);if(a.z+t*dr<0)return 0;}
@@ -49,7 +49,7 @@ Shader "EchoSphere/SourceCanvas"
                 // Canvas interpolates image pixels with premultiplied alpha.
                 // Hardware interpolation of straight RGB darkens transparent
                 // sprite edges and lets invisible RGB bleed into the result.
-                float2 point=uv*_ImageTex_TexelSize.zw-.5;float2 fraction=frac(point);float2 first=(floor(point)+.5)*_ImageTex_TexelSize.xy;
+                float2 samplePosition=uv*_ImageTex_TexelSize.zw-.5;float2 fraction=frac(samplePosition);float2 first=(floor(samplePosition)+.5)*_ImageTex_TexelSize.xy;
                 return lerp(lerp(imagePixel(first),imagePixel(first+float2(_ImageTex_TexelSize.x,0)),fraction.x),lerp(imagePixel(first+float2(0,_ImageTex_TexelSize.y)),imagePixel(first+_ImageTex_TexelSize.xy),fraction.x),fraction.y);
             }
             float4 frag(v2f input):SV_Target
