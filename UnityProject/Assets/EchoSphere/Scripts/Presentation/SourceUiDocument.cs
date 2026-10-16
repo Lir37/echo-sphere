@@ -137,7 +137,7 @@ namespace EchoSphere.Presentation
                 InstallEvents(entry);
                 entry.PaintContent=context=>Paint(entry,context);
                 entry.Frame.generateVisualContent=entry.PaintContent;
-                entry.Frame.RegisterCallback<GeometryChangedEvent>(evt=>{UpdateBounds(entry.Node,entry.Frame);entry.PaintKey=null;FrameVersion++;});
+                entry.Frame.RegisterCallback<GeometryChangedEvent>(evt=>{UpdateBounds(entry.Node,entry.Frame);FrameVersion++;});
             }
             entry.Used=true;entry.Node=node;entry.Host.Node=node;node.Native=entry.Frame;node.Active=entry.ActivePointers.Count>0;
             if(entry.Element is ScrollView scrolling)scrolling.mode=scrollX?scrollY?ScrollViewMode.VerticalAndHorizontal:ScrollViewMode.Horizontal:ScrollViewMode.Vertical;
