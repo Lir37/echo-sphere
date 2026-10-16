@@ -115,3 +115,17 @@ Code `1725f2a5fca6cca27ddde2aa695a4768548b5797`, caller `67ce3746281be5a3f347dab
 
 ## 2026-10-16 — Geometry-event CSS repaint invalidation
 Baseline `a4591e37df5b27482cf2bbc232d1b8b563a8f662`; protected source unchanged. Verified source `SourceUiDocument` unconditionally reset `entry.PaintKey=null` on every `GeometryChangedEvent`, even though `EnsureBrush` already derives its fingerprint from dimensions, scale, viewport clip and relevant CSS style. This caused redundant CSS texture rasterization after geometry callbacks for unchanged brush inputs. The event still updates node bounds and increments FrameVersion, but no longer forces PaintKey null. Fingerprint-driven redraw, generated visual content, effects, layout and render order remain in place. Code `3893ab16b37e346f039f4cc522443c35a3c0ace6`, regression guard `f4419caafe55a6106bea4bd0a3a9d97c92dc7dd3`. CI and Editor performance/visual verification required. P1/P2 NOT accepted, menu 1–2 FPS and initial label placement still unverified/open; no APK.
+
+
+## 2026-10-16 — Actual Windows Unity Editor menu diagnosis
+
+Entry unity-migration HEAD: 6fdce69c6940e638c311c0fb89efc172db11a2e2.
+Unity MCP connection to the local 6000.3.24f1 Editor verified; compile and Play Mode exercised.
+See GPT/UNITY_EDITOR_MENU_DIAGNOSTICS_2026-10-16.md for measured evidence and remaining gates.
+Fixed repeated native sprite-index copies, unresolved Grid auto-row projection, the menu's
+self-reinforcing intrinsic-column heights, and redundant backdrop hierarchy/style writes.
+Native Editor checks and full portable C#/Node tests passed. Performance remains unacceptable;
+final 480x854 sample averaged 118.312 ms/frame and about 5.51 MB main-thread GC.Alloc/frame.
+The existing z-index/flex-flow coupling still places the sphere entry below the controls.
+P1/P2 remain PARTIAL. Console has earlier repaint assertions; texture index=3 was not reproduced.
+No gameplay changes or APK. User local settings/import changes preserved. Check resulting CI.

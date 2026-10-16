@@ -66,7 +66,7 @@ namespace EchoSphere.Runtime
                         var point=new Vector2(source[i].x,-source[i].y)*scale; if(moving&&velocity.x>=0f) point.x=-point.x; if(_core.IsDead) point=Rotate(point,fold*.25f);
                         point=Pose(point)*SpherePlacementRules.SourcePixelsToWorld; points[i]=new Vector3(point.x,-point.y,0f); colors[i]=new Color(1f,1f,1f,1f-progress*.92f);
                     }
-                    var indices=new int[sprite.triangles.Length]; for(var i=0;i<indices.Length;i++) indices[i]=sprite.triangles[i];
+                    var triangles=sprite.triangles; var indices=new int[triangles.Length]; for(var i=0;i<indices.Length;i++) indices[i]=triangles[i];
                     _spriteMesh.Clear(); _spriteMesh.vertices=points; _spriteMesh.colors=colors; _spriteMesh.uv=sprite.uv; _spriteMesh.triangles=indices; _spriteMesh.RecalculateBounds(); _spriteMaterial.mainTexture=sprite.texture;
                     _body.Pose=Pose;
                     if(_core.IsDead)

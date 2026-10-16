@@ -30,7 +30,7 @@ namespace EchoSphere.Presentation
             var positioned=S(node,"position")=="absolute"||S(node,"position")=="fixed";var block=positioned?VisualCssPosition.ContainingBlock(Sheet,node):null;
             var parentWidth=positioned?VisualCssPosition.Width(Sheet,block):node.Parent?.Width??Sheet.Width;var parentHeight=positioned?VisualCssPosition.Height(Sheet,block):node.Parent?.Height??Sheet.Height;var style=element.style;
             style.width=Dimension(node,"width",parentWidth);style.height=Dimension(node,"height",parentHeight);
-            if(S(node,"display")=="grid"&&S(node,"height","auto")=="auto"&&element.userData is SourceUiElement gridHost&&!float.IsNaN(gridHost.GridHeight))style.height=gridHost.GridHeight;
+            if(S(node,"display")=="grid"&&!NativeAutoColumn(node)&&S(node,"height","auto")=="auto"&&element.userData is SourceUiElement gridHost&&!float.IsNaN(gridHost.GridHeight))style.height=gridHost.GridHeight;
             style.minWidth=Dimension(node,"min-width",parentWidth);style.minHeight=Dimension(node,"min-height",parentHeight);
             style.maxWidth=Dimension(node,"max-width",parentWidth);style.maxHeight=Dimension(node,"max-height",parentHeight);
             var ratio=S(node,"aspect-ratio","auto");var ratioParts=ratio.Split('/');style.aspectRatio=ratio=="auto"?new StyleRatio(StyleKeyword.Auto):new StyleRatio(new Ratio(F(ratioParts[0],1f)/(ratioParts.Length>1?F(ratioParts[1],1f):1f)));
@@ -127,10 +127,38 @@ namespace EchoSphere.Presentation
         {
             return VisualCssGrid.Columns(Sheet,node);
         }
+        // A single full-width column with intrinsic rows is exactly a native
+        // vertical flow. Do not feed its previous assigned heights back into
+        // auto-track sizing: that freezes initial or stretched measurements.
+        internal bool NativeAutoColumn(VisualCssNode node)
+        {
+            if(S(node,"display")!="grid"||S(node,"grid-template-columns","none")!="1fr"||
+                S(node,"grid-template-rows","auto")!="auto"||S(node,"height","auto")!="auto"||
+                S(node,"min-height","0")!="0"||S(node,"max-height","none")!="none"||
+                S(node,"align-items","stretch")!="stretch"||S(node,"justify-items","stretch")!="stretch"||
+                S(node,"place-items","stretch")!="stretch"||S(node,"align-content","normal")!="normal"||
+                S(node,"justify-content","start")!="start"||S(node,"flex-direction","column")!="column")return false;
+            foreach(var child in node.Children){
+                if(S(child,"display")=="none"||S(child,"position")=="absolute"||S(child,"position")=="fixed")continue;
+                if(S(child,"align-self","auto")!="auto"||S(child,"justify-self","auto")!="auto"||
+                    S(child,"grid-row","auto")!="auto"||S(child,"grid-column","auto")!="auto"||
+                    (S(child,"z-index","auto")!="auto"&&S(child,"z-index")!="0"))return false;
+            }
+            return true;
+        }
         internal void Tracks(VisualCssNode node)
         {
             if(!(node.Native is VisualElement element))return;
-            if(S(node,"display")=="grid"){
+            if(S(node,"display")=="grid"&&!NativeAutoColumn(node)){
+                // Auto tracks need the first native intrinsic measurement.
+                // Projecting the initial unresolved bounds as zero makes those
+                // children absolute/zero-height before Yoga can measure them.
+                if(float.IsNaN(element.layout.width)||float.IsNaN(element.layout.height)||
+                    node.Children.Any(child=>child.Native is VisualElement pending&&
+                        S(child,"display")!="none"&&float.IsNaN(pending.layout.height))){
+                    foreach(var child in node.Children)Tracks(child);
+                    return;
+                }
                 var grid=VisualCssGrid.Compute(Sheet,node);var borderLeft=Length(node,"border-left-width",node.Width);var borderTop=Length(node,"border-top-width",node.Width);
                 foreach(var cell in grid.Cells)if(cell.Node.Native is VisualElement child){var parent=child.parent;child.style.position=Position.Absolute;child.style.left=(float)cell.X-(parent?.resolvedStyle.borderLeftWidth??borderLeft);child.style.top=(float)cell.Y-(parent?.resolvedStyle.borderTopWidth??borderTop);child.style.right=StyleKeyword.Auto;child.style.bottom=StyleKeyword.Auto;child.style.width=(float)cell.Width;child.style.height=(float)cell.Height;child.style.marginLeft=0;child.style.marginRight=0;child.style.marginTop=0;child.style.marginBottom=0;}
                 if(S(node,"height","auto")=="auto"){var height=(float)grid.Height;element.style.height=height;if(element.userData is SourceUiElement host)host.GridHeight=height;}

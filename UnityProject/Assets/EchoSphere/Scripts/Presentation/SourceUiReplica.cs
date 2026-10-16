@@ -13,10 +13,12 @@ namespace EchoSphere.Presentation
         internal sealed class PaintTag { internal Action<MeshGenerationContext> Paint; }
         private sealed class Copy { internal VisualElement Element;internal Action<MeshGenerationContext> TextPaint,Painter;internal readonly PaintTag Tag=new PaintTag();internal bool Used,HasText; }
         private readonly Dictionary<VisualElement,Copy> _copies=new Dictionary<VisualElement,Copy>();
+        private readonly Dictionary<VisualElement,int> _childOrder=new Dictionary<VisualElement,int>();
         private readonly Func<VisualElement,Action<MeshGenerationContext>> _paint;
         internal SourceUiReplica(Func<VisualElement,Action<MeshGenerationContext>> paint){_paint=paint;}
         internal void Update(VisualElement root,VisualElement stop,VisualElement parent,Rect area)
         {
+            _childOrder.Clear();
             foreach(var copy in _copies.Values)copy.Used=false;
             void CopyNode(VisualElement source,VisualElement container,bool isRoot=false)
             {
@@ -28,10 +30,10 @@ namespace EchoSphere.Presentation
                     element.name=source.name;foreach(var name in source.GetClasses())element.AddToClassList(name);
                 }
                 copy.Used=true;var target=copy.Element;target.SetEnabled(source.enabledSelf);
-                Appearance(source,target);
                 var helper=source.userData==SourceUiBackdrop.ReplicaTag||source.userData is SourceUiBackdrop.ClipTag||source.userData is PaintTag;
                 if(helper)InlineGeometry(source,target);
                 else {
+                    Appearance(source,target);
                     var bounds=source.layout;var border=source.parent?.resolvedStyle;
                     SourceUiBackdrop.LocalBox(target,isRoot?0:bounds.x-(border?.borderLeftWidth??0),isRoot?0:bounds.y-(border?.borderTopWidth??0),bounds.width,bounds.height);
                     var transform=source.resolvedStyle;target.style.translate=new Translate(transform.translate.x,transform.translate.y,transform.translate.z);target.style.rotate=transform.rotate;target.style.scale=transform.scale;target.style.transformOrigin=new TransformOrigin(transform.transformOrigin.x,transform.transformOrigin.y,transform.transformOrigin.z);
@@ -41,7 +43,13 @@ namespace EchoSphere.Presentation
                 copy.Tag.Paint=_paint(source);copy.HasText=source.generateVisualContent!=null&&copy.TextPaint!=null;
                 target.userData=source.userData is SourceUiBackdrop.ClipTag?source.userData:copy.Tag;
                 target.generateVisualContent=copy.Tag.Paint==null&&!copy.HasText?null:copy.Painter;
-                if(target.parent!=container)container.hierarchy.Add(target);target.BringToFront();target.MarkDirtyRepaint();
+                // Preserve the paint-prefix order without rotating every retained
+                // sibling through the end of its hierarchy on every frame.
+                _childOrder.TryGetValue(container,out var childIndex);
+                if(target.parent!=container||container.hierarchy.IndexOf(target)!=childIndex)
+                    container.hierarchy.Insert(childIndex,target);
+                _childOrder[container]=childIndex+1;
+                target.MarkDirtyRepaint();
             }
             // Stop BEFORE the target (its background, foreground, descendants
             // and this replica itself). The nearest backdrop root excludes its
