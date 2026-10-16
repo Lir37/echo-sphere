@@ -5079,3 +5079,9 @@ Validation boundary: CI must pass before acceptance. Exact device-scale spacing,
 - Kept the source UI document active and advancing behind the native Settings `UIDocument`; the native screen now owns its full-screen dark backdrop, preventing duplicate source Settings controls from showing through.
 - Removed the experimental source-container hiding hook. The previous approach could hide the only Settings root without guaranteeing a separate menu backdrop was present.
 - This is a safer single-visible-screen overlay, not a claim of exact backdrop/blur parity. Native Settings visuals and touch/focus behavior still require actual Editor/device inspection.
+
+
+### Native Settings pilot follow-up — interface scale
+
+- Applied the saved interface-scale multiplier to the native panel scale and logical viewport sizing, so the existing slider affects the pilot screen itself as well as persisted settings.
+- The source `saveInterfaceScale` binding remains the writer; no separate preference key or new scale rule was introduced.

@@ -16,6 +16,8 @@ test('Settings pilot uses native UI Toolkit controls and existing runtime callba
   assert.doesNotMatch(bridge, /SetSourceScreenHidden/);
   assert.match(screen, /_root\.style\.backgroundColor=Hex\("#02050d"\)/);
   assert.match(bridge, /SourceUiBinding\("persistence\.ts","resetAll"\)\.Call\(\)/);
+  assert.match(bridge, /_nativeSettingsScreen\.Show\(SourceDevicePixelRatio\*interfaceScale/);
+
   assert.match(screen, /_confirmation\.Add\(row\)/);
   assert.match(screen, /_content\.Add\(language\);_activeRow=null/);
 

@@ -39,7 +39,7 @@ namespace EchoSphere.Runtime
                 var lang=IsRussianUi?"ru":"en";
                 string T(string key)=>Visual_i18n.Scope["translations"][lang][key].Text;
                 var interfaceScale=(float)Visual_interfaceScale.Scope["loadInterfaceScale"].Call().Number;
-                _nativeSettingsScreen.Show(SourceDevicePixelRatio,IsRussianUi,SourceAudio2D.IsEnabled,IsLeftHanded,interfaceScale,_settingsResetPending,T,
+                _nativeSettingsScreen.Show(SourceDevicePixelRatio*interfaceScale,IsRussianUi,SourceAudio2D.IsEnabled,IsLeftHanded,interfaceScale,_settingsResetPending,T,
                     value=>{PlayerPrefs.SetString(LanguagePreferenceKey,value);PlayerPrefs.Save();},
                     value=>{PlayerPrefs.SetInt(SoundPreferenceKey,value?1:0);SourceAudio2D.SetEnabled(value);PlayerPrefs.Save();},
                     value=>{PlayerPrefs.SetString(HandednessPreferenceKey,value?"left":"right");PlayerPrefs.Save();ClearSourcePointers();},
