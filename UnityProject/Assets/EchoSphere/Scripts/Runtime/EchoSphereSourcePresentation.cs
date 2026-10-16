@@ -186,7 +186,10 @@ namespace EchoSphere.Runtime
 #if UNITY_ANDROID && !UNITY_EDITOR
                 var width=Screen.width;var height=Screen.height;var dpi=Screen.dpi;
                 if(_sourceDensity>0f&&width==_sourceDensityWidth&&height==_sourceDensityHeight&&dpi==_sourceDensityDpi)return _sourceDensity;
-                using(var player=new AndroidJavaClass("com.unity3d.player.UnityPlayer"))using(var activity=player.GetStatic<AndroidJavaObject>("currentActivity"))using(var resources=activity.Call<AndroidJavaObject>("getResources"))using(var metrics=resources.Call<AndroidJavaObject>("getDisplayMetrics"))_sourceDensity=Mathf.Max(1f,metrics.Get<float>("density"));
+                using(var player=new AndroidJavaClass("com.unity3d.player.UnityPlayer"))using(var activity=player.GetStatic<AndroidJavaObject>("currentActivity"))using(var resources=activity.Call<AndroidJavaObject>("getResources"))using(var metrics=resources.Call<AndroidJavaObject>("getDisplayMetrics")){
+                    var density=metrics.Get<float>("density");
+                    _sourceDensity=density>0f&&!float.IsInfinity(density)?density:1f;
+                }
                 _sourceDensityWidth=width;_sourceDensityHeight=height;_sourceDensityDpi=dpi;return _sourceDensity;
 #else
                 return 1f;

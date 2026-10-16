@@ -52,7 +52,7 @@
     "src/TutorialOverlay.tsx": "fcbaf8e953003e58fee957fec589c713b2f983b764ea68f9df42be7651af2ac4",
     "src/i18n.ts": "d8edeadb23257a3dfcea62faed69c00fbe878a0509ce7c273ddd544face9d305",
     "src/canvasLocale.ts": "1ea3cc18318e080c433cdcd966a80ce921b2a36555a30827f99e8f49b9936660",
-    "scripts/export-unity-visual-code.mjs": "2cc7bf24796ecf974c857f317b882c9892cb25bd21ef7e6c6f960848440046b7",
+    "scripts/export-unity-visual-code.mjs": "1e5b521f3b5ce0c938be1c4a61a722ed4edc30b6700779d5a892a7c687332a85",
     "scripts/source-ui-view.cjs": "820cffdda077369b13d33a2eb50258f2082f6106edb581b5b28d4cf4633ffa0b",
     "package-lock.json": "b512e2a82a25f41c0b8197fb3c3b37dbf3b03b2665f725042a6f9f2cec80fa97"
   },
@@ -75,7 +75,7 @@
     "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_voidVisual.cs": "6e8d160f41506589a3c34788202be5e6f823e386599a28b8b6c4039abbc80499",
     "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_enemyVisual.cs": "7c784442733407b91709b8672eeb6e12365146fee598aa93589d80fa2f480de5",
     "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_renderer.cs": "40a261b32720c2594d4044c6d1353b8cc7cb68e7a8c1222ec0744f734a1583fb",
-    "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_renderScale.cs": "4e28802e9acf1a5252c63cb5c5b599661b2b7a16e54b6dc3d2c9f2ec0bd85b69",
+    "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_renderScale.cs": "6744ea3349d07aa561fd172bd8fcd718b93033c167baa0b8439011773e7ea836",
     "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_region.cs": "3f5c2073ae38116e04a35836a6154afcf275cef264a7a6b3ea89057248dea5a3",
     "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_characterRuntime.cs": "9d9d21858c7bcb631c5b1c508050a1312aded64a9f0d97c5378afa3d4b89d2ad",
     "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_characters.cs": "eaeb0011ff2ea3a0e688a688aa9481c9a6642bfbb87cae70f5d16eef91099d85",

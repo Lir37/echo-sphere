@@ -1,0 +1,772 @@
+{
+  "sourceBranch": "new-desing",
+  "sourceCommit": "737ef2af4a877e0995db5f92331d536d2f29a934",
+  "startCommit": "06548ea",
+  "unityExecuted": false,
+  "native": [
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Core/VisualBackdrop.cs",
+      "status": "reviewed",
+      "evidence": "Сверены используемые CSS, текст, ввод, range, фильтры и backdrop; новых подтверждённых расхождений не найдено.",
+      "sha256": "cc465849f274b3c72daa60631b1908b470ed8a42482d9a062127ca04eb1901bd"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Core/VisualBindings.cs",
+      "status": "reviewed",
+      "evidence": "Сверены используемые JS-операции, хуки, таймеры, сериализация и привязки с исходными модулями; полные эталоны прошли.",
+      "sha256": "4b2dc1ab93db916ef8e684369b65567095163783738dcdb409b72bbea64db5e6"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Core/VisualCanvas.cs",
+      "status": "reviewed",
+      "evidence": "Сверены изображения, шрифты, Canvas API и аргументы, состояния paint и DPR; 137737 исходных операций, максимум 5 gradient stops.",
+      "sha256": "c3788dfda735cae648b6a78cd408772aa6d7cc3015f64dcbe62260e1b100992e"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Core/VisualCanvasShadowViewport.cs",
+      "status": "reviewed",
+      "evidence": "Сверены изображения, шрифты, Canvas API и аргументы, состояния paint и DPR; 137737 исходных операций, максимум 5 gradient stops.",
+      "sha256": "4ec464c93b085be9818d690f7874de8fc326117a2d5d9f8ad85964e241641ae7"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Core/VisualCss.cs",
+      "status": "reviewed",
+      "evidence": "Сверены каскад, используемые свойства, наследование, timeline, геометрия и цвета; grid-column старого меню отсутствует в текущих деревьях.",
+      "sha256": "fec8cbd95561b2ae2b24096e20f20634a153530c22c1241efcd2e25f81506270"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Core/VisualCssAnimation.cs",
+      "status": "reviewed",
+      "evidence": "Сверены каскад, используемые свойства, наследование, timeline, геометрия и цвета; grid-column старого меню отсутствует в текущих деревьях.",
+      "sha256": "b9315546a9dda9dd17cb36fe936db552cb9730199a6f2e1962a0d487a25e5361"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Core/VisualCssColor.cs",
+      "status": "reviewed",
+      "evidence": "Сверены каскад, используемые свойства, наследование, timeline, геометрия и цвета; grid-column старого меню отсутствует в текущих деревьях.",
+      "sha256": "ac959417964954b4a413c9a88f61d8279c4de07e948364fa752b254ea3a86ae3"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Core/VisualCssGrid.cs",
+      "status": "reviewed",
+      "evidence": "Сверены каскад, используемые свойства, наследование, timeline, геометрия и цвета; grid-column старого меню отсутствует в текущих деревьях.",
+      "sha256": "e353fb3c4947efa15294758f0f8b01a814edb5d6eeb9c7fe9405338f75c9844f"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Core/VisualCssPaint.cs",
+      "status": "reviewed",
+      "evidence": "Сверены CSS-кисти, SVG-атрибуты, исходные Lucide icons, альфа, text overlay, clipping и atlas-контракт Vector Graphics 3.0.0-preview.7.",
+      "sha256": "0996f82947de8918c10b69c819ab84b6a3f335a1ea0530c79f131eb575a6d2bb"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Core/VisualCssPosition.cs",
+      "status": "reviewed",
+      "evidence": "Сверены каскад, используемые свойства, наследование, timeline, геометрия и цвета; grid-column старого меню отсутствует в текущих деревьях.",
+      "sha256": "10d34684895e4aa046e05caa876a6c0a9884f2ae0ad02fc5e001033323a272dd"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Core/VisualCssTransform.cs",
+      "status": "reviewed",
+      "evidence": "Сверены каскад, используемые свойства, наследование, timeline, геометрия и цвета; grid-column старого меню отсутствует в текущих деревьях.",
+      "sha256": "2262310d4d5ea58dbda1424bac6cb2d9df0c6bf859e8f0e37d7a7afb6045c246"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Core/VisualDateHost.cs",
+      "status": "reviewed",
+      "evidence": "Сверены используемые JS-операции, хуки, таймеры, сериализация и привязки с исходными модулями; полные эталоны прошли.",
+      "sha256": "8b444ee095ea5fd9f4c288ca5596c9478e308af43bccce5a471401f93d176dd9"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Core/VisualDom.cs",
+      "status": "reviewed",
+      "evidence": "Сверены используемые JS-операции, хуки, таймеры, сериализация и привязки с исходными модулями; полные эталоны прошли.",
+      "sha256": "55396cbb80d4861d1620ab373e8baaf19e57bca43bc16adb5ce9e62c5d3aabb5"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Core/VisualJson.cs",
+      "status": "reviewed",
+      "evidence": "Сверены используемые JS-операции, хуки, таймеры, сериализация и привязки с исходными модулями; полные эталоны прошли.",
+      "sha256": "01b1c1ad3182cc69383b2b9a5d6a6f670d95d5408ea8febb3a55a8ebda6eb8e7"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Core/VisualRangeLayout.cs",
+      "status": "reviewed",
+      "evidence": "Сверены изображения, шрифты, Canvas API и аргументы, состояния paint и DPR; 137737 исходных операций, максимум 5 gradient stops.",
+      "sha256": "2ad4184ddd6828dd5a52f6dd23f410085f48147eda8a92be03c239f2103571c2"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Core/VisualSourceIcons.cs",
+      "status": "reviewed",
+      "evidence": "Сверены CSS-кисти, SVG-атрибуты, исходные Lucide icons, альфа, text overlay, clipping и atlas-контракт Vector Graphics 3.0.0-preview.7.",
+      "sha256": "4426852ce84dc7f8249763798adc577ef385d28f594295f7ff2993a82cda8bb3"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Core/VisualSvg.cs",
+      "status": "reviewed",
+      "evidence": "Сверены CSS-кисти, SVG-атрибуты, исходные Lucide icons, альфа, text overlay, clipping и atlas-контракт Vector Graphics 3.0.0-preview.7.",
+      "sha256": "c38cd53b323f39a7d12b402ddf83beb869dd17dcf2706d55469634701efd2d8a"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Core/VisualTimers.cs",
+      "status": "reviewed",
+      "evidence": "Сверены используемые JS-операции, хуки, таймеры, сериализация и привязки с исходными модулями; полные эталоны прошли.",
+      "sha256": "b28e518cd72f00ce745ffbf14115c68bef075c8bab6c830f578fabbf6714c74d"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Core/VisualTrace.cs",
+      "status": "reviewed",
+      "evidence": "Сверены используемые JS-операции, хуки, таймеры, сериализация и привязки с исходными модулями; полные эталоны прошли.",
+      "sha256": "1c727fdf39537984de33f85936a68b9262dcb03a9dab0fac5faae5a9c9282cf7"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Core/VisualValue.cs",
+      "status": "reviewed",
+      "evidence": "Сверены используемые JS-операции, хуки, таймеры, сериализация и привязки с исходными модулями; полные эталоны прошли.",
+      "sha256": "6ad2857ea9297d9ef7ee185855ec472318455db4d312831a6563b738bd041a63"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceCanvasImage.cs",
+      "status": "reviewed",
+      "evidence": "Сверены изображения, шрифты, Canvas API и аргументы, состояния paint и DPR; 137737 исходных операций, максимум 5 gradient stops.",
+      "sha256": "7f9627af478084758cf511c6bb0502a9c59f407fbf58ad3e45827b986a34f3f5"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceCanvasSurface.cs",
+      "status": "reviewed",
+      "evidence": "Исправлено Android density ниже 1: CSS сохраняет плотность, Canvas отдельно использует calculateBackingSize из src/renderScale.ts; повторный C# typecheck прошёл.",
+      "sha256": "7d5edefe7b4d78ebb96d1048d9216cd759ffdef02e70fa43fd10710029280043"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceCanvasTypography.cs",
+      "status": "reviewed",
+      "evidence": "Сверены изображения, шрифты, Canvas API и аргументы, состояния paint и DPR; 137737 исходных операций, максимум 5 gradient stops.",
+      "sha256": "bb55b0ad7c0a7be6cb29b3c24720fbd2de73573e3555c806235b07afe57739bb"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceUiBackdrop.cs",
+      "status": "reviewed",
+      "evidence": "Сверены box-content split, clipping, transforms, draw prefix, depth-группы и подготовка ресурсов до repaint.",
+      "sha256": "0247547e87dfe8124163755537c9221607077bb8a2fcdae2a060e5427489fe62"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceUiCursor.cs",
+      "status": "reviewed",
+      "evidence": "Сверены используемые CSS, текст, ввод, range, фильтры и backdrop; новых подтверждённых расхождений не найдено.",
+      "sha256": "4e815f9a9ba01f7c54e0da35cda2d079a55ab11a0ccf70e86a921c5d575dd31a"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceUiDepth.cs",
+      "status": "reviewed",
+      "evidence": "Сверены box-content split, clipping, transforms, draw prefix, depth-группы и подготовка ресурсов до repaint.",
+      "sha256": "73e58e8975c9cdd569f7e6137d980193337f6c683572729f531cdffccca942ee"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceUiDocument.cs",
+      "status": "reviewed",
+      "evidence": "Сверены box-content split, clipping, transforms, draw prefix, depth-группы и подготовка ресурсов до repaint.",
+      "sha256": "2f648fe4b9d3cd378839d6e662ecdd7b125327abbf09d23ca36db1c60bca0bac"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceUiEnvironment.cs",
+      "status": "reviewed",
+      "evidence": "Сверены используемые CSS, текст, ввод, range, фильтры и backdrop; новых подтверждённых расхождений не найдено.",
+      "sha256": "e517fb8b4bcab63894765f5a2121da2379cef61849f367487c01ef8900ac3e6a"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceUiFilters.cs",
+      "status": "reviewed",
+      "evidence": "Сверены используемые CSS, текст, ввод, range, фильтры и backdrop; новых подтверждённых расхождений не найдено.",
+      "sha256": "6a68c1232d6383af9862cb76e26bfedbd3ac692cbf14c070d9b10ae72a9befef"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceUiFrame.cs",
+      "status": "reviewed",
+      "evidence": "Сверены box-content split, clipping, transforms, draw prefix, depth-группы и подготовка ресурсов до repaint.",
+      "sha256": "36c01feb6fd254bcfe15ef8f7b43232b861243d6085da1f4a6ad57ac257a7ab7"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceUiInline.cs",
+      "status": "reviewed",
+      "evidence": "Сверены используемые CSS, текст, ввод, range, фильтры и backdrop; новых подтверждённых расхождений не найдено.",
+      "sha256": "5f9371b3fc71e22cc8063c3d14f3d092c187a651416a8f615e33d1780c45faac"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceUiLayout.cs",
+      "status": "reviewed",
+      "evidence": "Сверены используемые CSS, текст, ввод, range, фильтры и backdrop; новых подтверждённых расхождений не найдено.",
+      "sha256": "4313643bdf6984077d31a74eab1a419e18801ad5c3ce9c34b8824a4e2f5ded1e"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceUiRange.cs",
+      "status": "reviewed",
+      "evidence": "Сверены используемые CSS, текст, ввод, range, фильтры и backdrop; новых подтверждённых расхождений не найдено.",
+      "sha256": "f5eeb91325c8eb582348d071ad44eb838900c4c93c60a7268a247059f8205865"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceUiReplica.cs",
+      "status": "reviewed",
+      "evidence": "Сверены box-content split, clipping, transforms, draw prefix, depth-группы и подготовка ресурсов до repaint.",
+      "sha256": "eac3949b91b5d9e4d982bf31c67f8405444e9d1b7ef8848ec3137e66b650bdd8"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceUiSurfaceFilters.cs",
+      "status": "reviewed",
+      "evidence": "Сверены используемые CSS, текст, ввод, range, фильтры и backdrop; новых подтверждённых расхождений не найдено.",
+      "sha256": "3b9be697d57c31ebe5179d6c3b058a1693ccb0e8b764f4f67106792e8c43e361"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceUiSvg.cs",
+      "status": "reviewed",
+      "evidence": "Сверены CSS-кисти, SVG-атрибуты, исходные Lucide icons, альфа, text overlay, clipping и atlas-контракт Vector Graphics 3.0.0-preview.7.",
+      "sha256": "732b1e29cd21ac9bca3ac24946c634fadfda7758d24239b43e31755925f9b3e7"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceUiTypography.cs",
+      "status": "reviewed",
+      "evidence": "Сверены используемые CSS, текст, ввод, range, фильтры и backdrop; новых подтверждённых расхождений не найдено.",
+      "sha256": "f9bbd3ca49c53db70fbe234dfe7a5dbf97d19e24111aa5e72db6c36f7bd7df89"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
+      "status": "reviewed",
+      "evidence": "Проверен визуальный путь: DrawPreviousMigrationInterface не вызывается, камера имеет cullingMask=0; прежние приближённые Mesh/VFX не участвуют в текущем отображении.",
+      "sha256": "ce1abab2a9005e098331c0ca7fc08417a38937ab5a200d74b30e176021bdb534"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceLoop.cs",
+      "status": "reviewed",
+      "evidence": "Сверены активный renderer.ts, состояния сущностей, пути UI, локаль и масштаб; fireTrails не создаётся также в исходнике, добавлять эффект нельзя.",
+      "sha256": "f272c781a78069c6aba942b35e07e915235b07e3b6e1a959d4c54458cc2dc3a6"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourcePresentation.cs",
+      "status": "reviewed",
+      "evidence": "Исправлено Android density ниже 1: CSS сохраняет плотность, Canvas отдельно использует calculateBackingSize из src/renderScale.ts; повторный C# typecheck прошёл.",
+      "sha256": "440224fa4c5f9422191abb31a461fc738a6cbbaae1e860d2303a4f2b670c4215"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceUiBridge.cs",
+      "status": "reviewed",
+      "evidence": "Сверены активный renderer.ts, состояния сущностей, пути UI, локаль и масштаб; fireTrails не создаётся также в исходнике, добавлять эффект нельзя.",
+      "sha256": "4bbe8980360dc08356557d26504d1e005c90b0bc42c0e3a9fed7d29e9655619f"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SourceCanvasMesh.cs",
+      "status": "reviewed",
+      "evidence": "Проверен визуальный путь: DrawPreviousMigrationInterface не вызывается, камера имеет cullingMask=0; прежние приближённые Mesh/VFX не участвуют в текущем отображении.",
+      "sha256": "98a537d8427225b1f6fd339202f578798921e1de44b3d094d0ab86484fe924ab"
+    },
+    {
+      "file": "UnityProject/Assets/Resources/EchoSphere/SourceBackdrop.shader",
+      "status": "reviewed",
+      "evidence": "Прочитаны шейдеры, сверены blend, alpha, gamma, atlas UV и параметры C#; SourceBackdrop и первый CanvasPresent pass не рисуют активный UI. ShaderCompiler и GPU не запускались.",
+      "sha256": "19536316c68d8560aec62780d10001c28f537deb9b31e316193c748fa82a947a"
+    },
+    {
+      "file": "UnityProject/Assets/Resources/EchoSphere/SourceCanvas.shader",
+      "status": "reviewed",
+      "evidence": "Прочитаны шейдеры, сверены blend, alpha, gamma, atlas UV и параметры C#; SourceBackdrop и первый CanvasPresent pass не рисуют активный UI. ShaderCompiler и GPU не запускались.",
+      "sha256": "90e155ddda70b4fa7214a5a5b033477e9e53dc4f90a0c01cd1a9ac4db4b40bc4"
+    },
+    {
+      "file": "UnityProject/Assets/Resources/EchoSphere/SourceCanvasPresent.shader",
+      "status": "reviewed",
+      "evidence": "Прочитаны шейдеры, сверены blend, alpha, gamma, atlas UV и параметры C#; SourceBackdrop и первый CanvasPresent pass не рисуют активный UI. ShaderCompiler и GPU не запускались.",
+      "sha256": "0732f3acdf70c3fb00d2b0a2b2c753def0ac39c2dac51f90288e9c67d7b5653d"
+    },
+    {
+      "file": "UnityProject/Assets/Resources/EchoSphere/SourceCanvasShadow.shader",
+      "status": "reviewed",
+      "evidence": "Прочитаны шейдеры, сверены blend, alpha, gamma, atlas UV и параметры C#; SourceBackdrop и первый CanvasPresent pass не рисуют активный UI. ShaderCompiler и GPU не запускались.",
+      "sha256": "8eaceaeacf2cf847637c97cda755e7e2334f44b9ac3d2f1028b21a15e2e305d9"
+    },
+    {
+      "file": "UnityProject/Assets/Resources/EchoSphere/SourceUiBackdrop.shader",
+      "status": "reviewed",
+      "evidence": "Прочитаны шейдеры, сверены blend, alpha, gamma, atlas UV и параметры C#; SourceBackdrop и первый CanvasPresent pass не рисуют активный UI. ShaderCompiler и GPU не запускались.",
+      "sha256": "ff55521de1c9495bdbdbdf6453238979482114ada38e5d570385fb7adc8944b5"
+    },
+    {
+      "file": "UnityProject/Assets/Resources/EchoSphere/SourceUiDepth.shader",
+      "status": "reviewed",
+      "evidence": "Прочитаны шейдеры, сверены blend, alpha, gamma, atlas UV и параметры C#; SourceBackdrop и первый CanvasPresent pass не рисуют активный UI. ShaderCompiler и GPU не запускались.",
+      "sha256": "dacd47318893bd16d12e4e739cc180f4701e5d1b4133d4e51c100ee2d78dcac3"
+    },
+    {
+      "file": "UnityProject/Assets/Resources/EchoSphere/SourceUiFilters.shader",
+      "status": "reviewed",
+      "evidence": "Прочитаны шейдеры, сверены blend, alpha, gamma, atlas UV и параметры C#; SourceBackdrop и первый CanvasPresent pass не рисуют активный UI. ShaderCompiler и GPU не запускались.",
+      "sha256": "d36164d1edad53b108e2a7c22c63fab76d5ea016403f790ef455b1922e9d9426"
+    },
+    {
+      "file": "UnityProject/Assets/Resources/EchoSphere/SourceUiSurfaceFilters.shader",
+      "status": "reviewed",
+      "evidence": "Прочитаны шейдеры, сверены blend, alpha, gamma, atlas UV и параметры C#; SourceBackdrop и первый CanvasPresent pass не рисуют активный UI. ShaderCompiler и GPU не запускались.",
+      "sha256": "0d643fb5a9bd72bc9f967d9da37ee0bb5a0547b8f10dfea8a3f4ed9a692de5f0"
+    },
+    {
+      "file": "UnityProject/Assets/Resources/EchoSphere/SourceUiVector.shader",
+      "status": "reviewed",
+      "evidence": "Прочитаны шейдеры, сверены blend, alpha, gamma, atlas UV и параметры C#; SourceBackdrop и первый CanvasPresent pass не рисуют активный UI. ShaderCompiler и GPU не запускались.",
+      "sha256": "6ae13e78cbf60d09ef2f586587aee36407a60fd688aa9c6c436927f910791d66"
+    }
+  ],
+  "generated": [
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/SourceCanvasArtIndex.cs",
+      "status": "verified",
+      "evidence": "export-unity-canvas-art.cjs --check; исходные пути, размеры и производные изображения совпадают.",
+      "sha256": "b3594b7632704cf86ce4ccb39f8989e29b1afa25aa6a843469af23ada6527008"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/VisualInitialState.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "b584de90cfe60fc5274e4012de0196ac0e282aecf2919342a5bc8c434a04c326"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_App.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "aa3db8fc03af796136eeb2545763992092ada9b4b19fc770b0ca78d207a490c8",
+      "source": "src/App.tsx",
+      "sourceSha256": "ad84a07fde428ef02ac578ed34aaff0d644c41da99bdaafe4e994f47d3de3cf0"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_CharacterSelect.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "eadf8fd75b7cd6e293a708d8767b39d4d30f42ed6119b6ca7945aaec85a7cb55",
+      "source": "src/CharacterSelect.tsx",
+      "sourceSha256": "95829e78d5dddf0b1d313fc783b0517ac611a12393977343e7808a2fce163599"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_EchoMapScreen.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "073c6469005d465a2bd5f8d2967d9e98ac1f740b7e1bc7ba7028a333da134122",
+      "source": "src/EchoMapScreen.tsx",
+      "sourceSha256": "4c9c3b7b2b67f95f175b4612c47dc1bbe3f3e038a4117a397b762bce748b2fb3"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_KnowledgeBase.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "2a77a76635f99e80bdcd875635ee1fdc1319017452251fae7d7ad9005fac5e0c",
+      "source": "src/KnowledgeBase.tsx",
+      "sourceSha256": "21698232173d04527976e731a7ab8b5e89bfe637a017cc0e1d0b7842f376475f"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_MobileControls.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "a851989e6535f1bf3096845afb431b46f74c0e2a4219fd31056cbc7610c658c4",
+      "source": "src/MobileControls.tsx",
+      "sourceSha256": "0e11e0339075151f0e5f1e37254fcff045b2842b218c0da7cbf0262c1f9b8bad"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_TutorialOverlay.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "723ee7418589c3b5ef31eae285f452c58f33b4f72133ccc313c091a1273c1906",
+      "source": "src/TutorialOverlay.tsx",
+      "sourceSha256": "fcbaf8e953003e58fee957fec589c713b2f983b764ea68f9df42be7651af2ac4"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_artifactSystem.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "1b5252c2fc5dff4efe937e5d0b0638a1b4fcbb082c3b2a856f8d587ac20c823d",
+      "source": "src/artifactSystem.ts",
+      "sourceSha256": "d28d45c1adea81bd6d3376aad0fcad70bfb21be2a4c3dd8a933b8707008be96c"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_auraVisual.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "a29589e484b9bfd7598d39e8b428edb6e0ce98814424baccf53d4c74e501bec3",
+      "source": "src/spheres/auraVisual.ts",
+      "sourceSha256": "397363af140f3e82fff9c26b20517d12ad013c919fca687cf80e3b5779c90b51"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_bossBalance.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "093313ee2e8254d5c8e2de1eb67a8fd112ff367873bbdc5e8cd752404b725759",
+      "source": "src/bossBalance.ts",
+      "sourceSha256": "2389625a32b78059ab102c2d7e95ad11bd17bb3404e8fe10c38e68258537b11e"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_canvasLocale.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "395c6a9580c4f08db0560bfcfca5d3e6ae2ee900efa7e4b500c650dad41e9d54",
+      "source": "src/canvasLocale.ts",
+      "sourceSha256": "1ea3cc18318e080c433cdcd966a80ce921b2a36555a30827f99e8f49b9936660"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_chainVisual.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "f82b39622e33ce53ecaa0a2c5e9fd08c8dffd47cae29e54a77eaf857a3d9f789",
+      "source": "src/spheres/chainVisual.ts",
+      "sourceSha256": "d9958a454ad932d84d432f58770aef490b1714b481f29411af091e068eedd716"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_characterRuntime.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "9d9d21858c7bcb631c5b1c508050a1312aded64a9f0d97c5378afa3d4b89d2ad",
+      "source": "src/characterRuntime.ts",
+      "sourceSha256": "369ee8da88dda85bdfd10f517b53427ee238997230e457bb682bee96ff648e2c"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_characters.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "eaeb0011ff2ea3a0e688a688aa9481c9a6642bfbb87cae70f5d16eef91099d85",
+      "source": "src/characters.ts",
+      "sourceSha256": "d690371ee4683cc456f551f17826b0bfc43308b7515535668ef95dda6055ddd9"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_combatRules.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "d9f9d900af3546b58396f5b779bc585a5909e0eed87d66d30dfd06759b51fa76",
+      "source": "src/combatRules.ts",
+      "sourceSha256": "969bb49720daa3f6bc78936d1b069563dc3a37c4ea405f9554d6fbd46579988e"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_elementalVisual.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "b539e3f2522b521015a7e993af87ca1ce0fd9d5966fe028f58125be9d7a0c66e",
+      "source": "src/spheres/elementalVisual.ts",
+      "sourceSha256": "bf1eb3f594fb42019064c227d0b690aede810df4c2391a72f958add6b526cee5"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_eliteBalance.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "c953abd051df1a50d927e985222d1c3896bf6720faf42fe745512f6f94916a2f",
+      "source": "src/eliteBalance.ts",
+      "sourceSha256": "441ea7ce2718d378eac434d6696bf57ad01a9f79cf8feee38655ceb7477fd08e"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_enemyVisual.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "7c784442733407b91709b8672eeb6e12365146fee598aa93589d80fa2f480de5",
+      "source": "src/enemies/enemyVisual.ts",
+      "sourceSha256": "237da35ae87e4bc71f640107e1b8fa2d5d3050828a12d2a85b0ceae8846c2288"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_engine.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "86d94bca109453678b527871bf35ad579f877b8fd9dc9e4f127cdda5e8095d2b",
+      "source": "src/engine.ts",
+      "sourceSha256": "851bfa3d02c7af232a02a787b074e20c14af31dd696e89bea308ccd38116bb7f"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_engineBalanceConstants.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "80c6cb2962c057c066a6ffa276ec394a16023ab1a6b5dc0348c2f738b3ab17a7",
+      "source": "src/engineBalanceConstants.ts",
+      "sourceSha256": "412c575c9fd05fc2223785425c1800cd92befea103272567df3d002eb809459a"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_engineCombat.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "015e148f3ce9816b87a7f3e09ee9d43f25aa71de423d5cdfe5fe83181e3f924b",
+      "source": "src/engineCombat.ts",
+      "sourceSha256": "a4129556873bcf8d6afb05aad0cc7145edc1431e6bf9c14af3dd619fd5f9cf5b"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_engineProgression.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "26ba510cab505c05434bed66d5bfa7e95e98c4bff2e21f7b719d66b954db02a7",
+      "source": "src/engineProgression.ts",
+      "sourceSha256": "d330c4ba740b03ba036a184f743661d39720dbb5ed01dd90d1b4279ddf374f05"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_engineRuntime.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "b5e6281dd63804f2be1601e7841f2bbba36d41e6f046e8cdf5a5cb909e18d0ad",
+      "source": "src/engineRuntime.ts",
+      "sourceSha256": "baeaf14c2cc4905833d0e7423c17b03f50c03125935d731543eae6ec08b9463d"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_engineSpheres.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "20101166b33efc6889e141614664e443638c8d6da7afcc0ad85014403f544b07",
+      "source": "src/engineSpheres.ts",
+      "sourceSha256": "1af6fed80e20293361c8e0195053bf58846385c4079064b84a38382f22d05fbc"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_engineState.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "4c82333c6c49dfd860f5d58c19f0523d6a981d1e6a77777653ae13cc6896d381",
+      "source": "src/engineState.ts",
+      "sourceSha256": "aff957a53f8b5e124afc33f07225991189c79381417b8bdf40506bf6ab55e671"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_engineStats.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "5aa630f2a2f7d8c0d63f85dedf397308235cee12f6f36614f4717a539128c3b2",
+      "source": "src/engineStats.ts",
+      "sourceSha256": "ea07863b529fa8531ff5b5f56f529200d8edf3b2473ceff1d3c0f7c8bbd09800"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_formationFollow.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "a3efb2d0667ffd6b0e621eac776012846c83dd6bbaaadb0f68e80d69235eb0a1",
+      "source": "src/formationFollow.ts",
+      "sourceSha256": "d4d0fdbf1db1a5d2a89ddc68f4f2fe1f9edf538bbce8c85fe016590c89756e40"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_gameData.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "523bc3e5e83461b426ef95b3421a73f5b6afb1707aaa2c9e7c7d5e412aeae3fe",
+      "source": "src/gameData.ts",
+      "sourceSha256": "58891f5f96ae1f9556bdbe814ee5e3b4326bedb63b79328304df06e42395f181"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_gravityVisual.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "305a4f2ef3fb1679b57b8b7a27dd0f682545ed7d4251b89b018581f86c1c3dcf",
+      "source": "src/spheres/gravityVisual.ts",
+      "sourceSha256": "dc851b56c7044eb7985933817ef1af70f84b3a0d9bbf75cdadd6c9fcca2583a1"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_i18n.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "06cf22a0130bc82cb83acd6fb6605695452e6f3e6e01e4ed62e06f51c486181c",
+      "source": "src/i18n.ts",
+      "sourceSha256": "d8edeadb23257a3dfcea62faed69c00fbe878a0509ce7c273ddd544face9d305"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_interfaceScale.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "ad7c015e6a60d7574ed2997ae1448cce16962e5ad43f8f56f99586d9b6270360",
+      "source": "src/interfaceScale.ts",
+      "sourceSha256": "b2993563fc50dcf4658203826b13a864385ac9b3aac8889d9f7aa406c4c8368a"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_modifierVisual.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "a3cc48f020671c1a9645c81e04324aa58d3baaa0668ce4d1f2b95dae80d2e00a",
+      "source": "src/spheres/modifierVisual.ts",
+      "sourceSha256": "2e9e5cc4dce10a8d2c68c4c4b53c42ea58760f6b713da212d62e0a189eba7c9c"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_mutationVisual.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "0b7637b2ada298a910d6ca5ebabb4537eddc27248fed5b6f551380dffb3a8217",
+      "source": "src/spheres/mutationVisual.ts",
+      "sourceSha256": "1a770c3b29ff7ab749c951a8737e5a265954fc2e8dc586e4474130351ce4b654"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_network.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "8c9c87905c60b8e3e06f479a4d6b047fe3d489aa35d4fa4cf0a4f45cec370790",
+      "source": "src/network.ts",
+      "sourceSha256": "b3220bdab74739b11e247ebbe987954e323a1aba2f059ca17d5cdcccb455c177"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_networkPreview.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "03b781f4a49a9e6f947cc5de11f0492a8c2d6f2f2a0e29fbec52be9ef03a6c0b",
+      "source": "src/networkPreview.ts",
+      "sourceSha256": "5e0286db542c85de38635a79d7491bd620bd78092208fdcb65941933e1c21074"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_networkRender.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "9762ebc4ce070aeddf7e225139ce9da04da4dbd2a20cf660998963c9e74f8f2f",
+      "source": "src/networkRender.ts",
+      "sourceSha256": "a340d4e26bf4da771f7ff73b90d35901331eb35727ff5a36f67cf8550141ece9"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_networkRuntime.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "2155c94f3c6658f8baec916247c811e120884f474b96298e89d1fdef83819035",
+      "source": "src/networkRuntime.ts",
+      "sourceSha256": "af1a1d204c876801e1ffb221e383a4abe159e305c411bbccd067e4785d4e9a8b"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_orbitalGeometry.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "9c64348d61fc440b5968cb7c433cec9eed6412f4af5308491ebab990f97566b3",
+      "source": "src/spheres/orbitalGeometry.ts",
+      "sourceSha256": "19a7e978d861afeed8c7d27f3275842b5d595bdfd3e3988b7e4fff17cfe1fcaf"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_orbitalVisual.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "03016f0110218728ba59e0ad2de8b4392a221a4050a5d624726e4cd9a46029cb",
+      "source": "src/spheres/orbitalVisual.ts",
+      "sourceSha256": "5f6a998ffb026a4c89085cf636725b199c3d3ce5c31a039fe1fbfd20ce49a101"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_persistence.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "7b8f30078670875a447d5b17694df560f4e4ddf7360e5066aaa8d6eda179debc",
+      "source": "src/persistence.ts",
+      "sourceSha256": "3c0774dd38bb536b94f5a47b0e59b8d66a8ebbb1c244b7c9edeb39c8f81d7cd1"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_prismVisual.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "97e61601d44683cc0375d0e32b6c7479d50b06c8b8bd102dbb09c0a0cc2355df",
+      "source": "src/spheres/prismVisual.ts",
+      "sourceSha256": "f596abdee3d79802a2692ae220ca109285ff9f966db606a6cf1cda6cf93539c3"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_pulseVisual.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "116116ad7b08325a193891b007d99b2ff52fadd8e0196eb536d533849c9881b1",
+      "source": "src/spheres/pulseVisual.ts",
+      "sourceSha256": "8eec4eeb885b50f2912e49c4a502bed3005978569ca8751a9f10aaba855c5337"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_region.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "3f5c2073ae38116e04a35836a6154afcf275cef264a7a6b3ea89057248dea5a3",
+      "source": "src/region.ts",
+      "sourceSha256": "7798bf19d72af9ee4a8df78db99e52eb381ec17b600b219e43abaee25e6c37e3"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_renderScale.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "6744ea3349d07aa561fd172bd8fcd718b93033c167baa0b8439011773e7ea836",
+      "source": "src/renderScale.ts",
+      "sourceSha256": "485ba817b4abe2101a849d138cf2b170725ac0b7b582dee2848fbe5b42d49a2d"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_renderer.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "40a261b32720c2594d4044c6d1353b8cc7cb68e7a8c1222ec0744f734a1583fb",
+      "source": "src/renderer.ts",
+      "sourceSha256": "291bf47ec7e2408e4aa0acac7e70a9bcdaedc95936c59adc9f8ca95d711ec29d"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_runPersistence.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "725ab757d63805db827ca8c1027baaa468b0f44918baf31995ca24073921b952",
+      "source": "src/runPersistence.ts",
+      "sourceSha256": "127fb7d906ca8a5019aa17b8141409ca92f44e47589e0d3c2176c43306235d55"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_runes.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "466cd51c572418cb5660e017df217307ba7caaeae4a52fafcfa3ba4937b934e7",
+      "source": "src/runes.ts",
+      "sourceSha256": "20799fa29440f0aa4df2d90a5e56e9c88fe0cb5fe4d38df2cf6077b0aef31502"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_shotgunVisual.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "4f9a33add864db1448cef4d1a5fddb76460c1e8e253dcb65838dbc85967d72a2",
+      "source": "src/spheres/shotgunVisual.ts",
+      "sourceSha256": "74371764d179af03329a80d554a560e1d71cb8fe7af85b5dbf318d7cf90c5a6c"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_sniperVisual.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "0066f3329e5859dbedf0a8e56f43d0b25249d083d9492e058d9f37d952f0a531",
+      "source": "src/spheres/sniperVisual.ts",
+      "sourceSha256": "0f9d191bdeac6be5a3403bbece3d3f6e904ad78a8dd69257dec8e6436533f86a"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_spaceCollision.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "0c7ad8d41343fe836da2d1cd6e2d24db11cedf4d4bab6837ea8d2e6c0efa0a37",
+      "source": "src/spaceCollision.ts",
+      "sourceSha256": "dd3b9ab788a6210a95af074d45cdb35d8394b6771a7ed9e5db23cf8131aaed6e"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_sphereProgression.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "05d34df5f0bcb0b18e81609346682b52ac5cfc8b3d1206026ee94613ea73f9f6",
+      "source": "src/sphereProgression.ts",
+      "sourceSha256": "20bc16678de11155362bf04c90520a7849db402b8e3d1b6558cc51a00d3a8b86"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_visualHelpers.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "73e33c1d061e0d021c762f36581a0e1ed62eaacec86042b8ec92d4f7bc8b95bf",
+      "source": "src/spheres/visualHelpers.ts",
+      "sourceSha256": "caf1d9731fd4c76c955e329fd0c8ac96dd42bbb3bfd997f03a33ba95b2423e4d"
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_voidVisual.cs",
+      "status": "verified",
+      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
+      "sha256": "6e8d160f41506589a3c34788202be5e6f823e386599a28b8b6c4039abbc80499",
+      "source": "src/spheres/voidVisual.ts",
+      "sourceSha256": "f08f03434a25ec804f07608e518ecfadcb0cfc169059392469c6f567811ac142"
+    }
+  ],
+  "findings": [
+    "Исправлено подтверждённое расхождение для Android density ниже 1. Например, при 480 физических px и density 0.75 исходный CSS viewport имеет ширину 640 px, прежний нативный код давал 480 px. Теперь CSS/UI получает исходную положительную density, а разрешение Canvas отдельно применяет исходный clampDpr 1..1.75.",
+    "Расчёт Canvas больше не дублируется вручную: calculateBackingSize и clampDpr механически экспортируются из неизменённого src/renderScale.ts и вызываются SourceCanvasSurface. Реэкспортирован весь граф из 52 модулей; содержательно изменился только Visual_renderScale.cs. Добавлены проверки DPR 0.75/1.25/3/NaN/Infinity. После исправления других подтверждённых расхождений в проверенном коде не осталось.",
+    "Добавлены проверки CanvasStateChecks: фактически используемые overloads drawImage, положительные размеры изображений, solid fillText, поддерживаемые baseline, конечные координаты и достаточный буфер gradient stops. Они выполняются над теми же исходными 2663 сценариями.",
+    "Расширен NativeLayerChecks: исходные mask/clip относятся к собственным кистям без потомков, screen находится внутри depth-композитора, multiply-виньетки используют только чёрный. Новый исходный случай потребует явного адаптера вместо молчаливого упрощения.",
+    "Перепроверены подозрительные ограничения: Canvas shadows с нулевыми blur/offset не рисуются и в Chromium; фактический максимум gradient stops равен 5 при буфере 16; старые grid-column правила не используются текущими деревьями; fireTrails не заполняется также в исходнике. Эти случаи не исправлялись по предположению.",
+    "Прежняя приближённая презентация не является активным визуалом: DrawPreviousMigrationInterface не вызывается, scene renderers скрыты cullingMask=0, текущий Canvas/UI рисуется исходными модулями."
+  ],
+  "checks": [
+    "C# на настоящих DLL Unity 6000.3.24f1: Android player 193 файла, Android runtime с UNITY_EDITOR 193 файла, отдельная Editor assembly 3 файла; во всех конфигурациях 0 ошибок и 0 предупреждений компилятора. Unity не исполнялась.",
+    "TypeScript: tsconfig.app.json и tsconfig.node.json проходят.",
+    "235 Node-регрессий: PASS; Core: 1193 assertions и 47 339 TypeScript-сравнений: PASS.",
+    "Полный VisualChecks: PASS — 2663 потока команд, 76 деревьев UI, 674 640 CSS-свойств, 228 screen/viewport вариантов, 912 positioned элементов, 1784 и 672 grid-ячеек, 189 keyframe samples, 2682 интерполяции, 60 transition кадров, 99 CSS-кистей, Canvas-тени/изображения, backdrop и 68 кадров React-событий.",
+    "CanvasStateChecks: PASS — 137 737 paint operations, 713 drawImage, 384 fillText, максимум 5/16 gradient stops, 0 nonfinite calls, 36 997 состояний shadow с нулевыми blur/offset; исходный расчёт backing size при DPR 0.75/1.25/3/NaN/Infinity.",
+    "NativeLayerChecks: PASS — 38 694 исходных 2D-позы, 1580 shear-случаев, 5000 дополнительных матриц, 934 clipped кисти, 1230 SVG, 4 динамических SVG-текста; 302 собственные маски, 6 screen-поверхностей в depth и 42 чёрные multiply-виньетки.",
+    "Chromium probe: нулевые blur/offset не создают shadow, центральные пиксели [0,0,255,128]; при offsetX=1 [85,0,170,192], что подтверждает пропуск нулевой тени в адаптере.",
+    "Generated visuals/CSS/keyframes, Canvas art, native control art, cursor, meta, visual reference provenance и Unity preflight: PASS. src/, public/, package/lock и tsconfigs по Git совпадают с origin/new-desing."
+  ],
+  "progress": {
+    "reviewed": 105,
+    "total": 105,
+    "nativeReviewed": 51,
+    "nativeTotal": 51,
+    "generatedVerified": 54,
+    "generatedTotal": 54
+  },
+  "completed": true,
+  "fingerprintFormat": "sha256 of UTF-8 text, CRLF normalized to LF"
+}

@@ -9,7 +9,7 @@ internal static class NativeLayerChecks
     internal static void Run()
     {
         var sheet=new VisualCss(VisualJson.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory,"SourceUiStyles.json"))));
-        var surfaces=0;var shears=0;var clippedBrushes=0;var svgCount=0;var textCount=0;var depthText=0;var declarations=new HashSet<string>();
+        var surfaces=0;var shears=0;var clippedBrushes=0;var svgCount=0;var textCount=0;var depthText=0;var masks=0;var screens=0;var multiplies=0;var declarations=new HashSet<string>();
         void Inspect(V tree){var root=VisualCssNode.Build(Tree(tree));sheet.Apply(root);
             void Visit(VisualCssNode node){
                 var matrix=VisualCssTransform.Parse(sheet,node);
@@ -18,6 +18,19 @@ internal static class NativeLayerChecks
                     Require(new[]{0,1,4,5}.All(index=>Math.Abs(first[index]-matrix[index])<1e-9),"native pose changed "+sheet.Get(node,"transform"));surfaces++;if(Math.Abs(split.ContentRotation)>1e-9){shears++;declarations.Add(sheet.Get(node,"transform"));}
                 }
                 if(sheet.Get(node,"overflow")=="hidden"&&VisualCssPaint.HasVisibleBrush(sheet,node))clippedBrushes++;
+                if(sheet.Get(node,"mask-image","none")!="none"||sheet.Get(node,"clip-path","none")!="none"){
+                    masks++;
+                    Require(node.Children.Count==0,"authored mask/clip now affects descendants; the own-brush raster alone is insufficient: "+node.Attribute("className"));
+                }
+                if(sheet.Get(node,"mix-blend-mode","normal")=="screen"){
+                    screens++;var depth=false;for(var ancestor=node;ancestor!=null;ancestor=ancestor.Parent)if(sheet.Get(ancestor,"transform-style")=="preserve-3d")depth=true;
+                    Require(depth,"authored screen blend now lies outside the depth compositor: "+node.Attribute("className"));
+                }
+                if(sheet.Get(node,"mix-blend-mode","normal")=="multiply"){
+                    multiplies++;var source=sheet.Get(node,"background-image","none")+" "+sheet.Get(node,"background-color","transparent");
+                    var colors=System.Text.RegularExpressions.Regex.Matches(source,@"rgba?\([^)]*\)|#[a-fA-F0-9]{3,8}\b|\btransparent\b");
+                    Require(colors.Count>0&&colors.All(match=>{var color=VisualCssColor.Parse(match.Value);return color.A==0||color.R==0&&color.G==0&&color.B==0;}),"multiply brush is no longer black-only; source-over would change its color");
+                }
                 if(node.Tag=="#text"&&!string.IsNullOrWhiteSpace(node.Text)){for(var ancestor=node.Parent;ancestor!=null;ancestor=ancestor.Parent)if(sheet.Get(ancestor,"transform-style")=="preserve-3d"){depthText++;break;}}
                 if(node.Tag=="svg"){
                     node.Width=78;node.Height=78;var xml=XElement.Parse(VisualSvg.Serialize(node,sheet));Require(!xml.DescendantsAndSelf().SelectMany(item=>item.Attributes()).Any(attribute=>attribute.Name.LocalName=="fillOpacity"||attribute.Name.LocalName=="strokeOpacity"),"React opacity names escaped into SVG");svgCount++;
@@ -54,5 +67,7 @@ internal static class NativeLayerChecks
         Console.WriteLine($"Native layer contracts: PASS ({surfaces} source 2D poses, {shears} shear cases; 5000 additional matrices; {clippedBrushes} clipped brushes; {svgCount} SVGs, {textCount} dynamic SVG text nodes; alpha/shadow bounds).");
         Console.WriteLine("Authored non-TRS transforms: "+string.Join(" | ",declarations.OrderBy(value=>value)));
         Require(depthText==0,"source now has text inside preserve-3d; depth text surfaces need an explicit adapter: "+depthText);
+        Require(masks>0&&screens>0&&multiplies>0,"missing authored mask and blend coverage");
+        Console.WriteLine($"Authored mask/blend contracts: PASS ({masks} own-brush masks, {screens} depth screen surfaces, {multiplies} black-only multiply vignettes).");
     }
 }

@@ -15,7 +15,7 @@ const uiRoots=new Map([
 ]);
 const withUi=!process.argv.includes('--canvas-only');if(withUi)sourceFiles.push(...uiRoots.keys());
 const rendererRoots=['render','drawModernSphere','drawModernEnemy','drawPlayer','drawPlayerShield','drawCharacterVfx','drawCharacterWorldIndicators','drawCharacterTargetIndicators','drawSphereNetwork','drawFormationMemory','drawModernXp','drawModernHealth','drawModernMinion','drawStellaChest','drawRune','drawEnergyBolt','drawRegionLayer','drawVoidField','drawVoidAmbient'];
-sourceFiles.push('src/canvasLocale.ts');
+sourceFiles.push('src/canvasLocale.ts','src/renderScale.ts');
 const nativeBindings=new Set(['engineRuntime.ts:getNetworkFrame','renderScale.ts:getRenderViewport','sphereProgression.ts:sphereModifiers','characterRuntime.ts:getCharacterFormation']);
 nativeBindings.add('canvasLocale.ts:getLocale');
 const uiActions=new Set(['activateByKey','activateDash','placeSphere','setSphereType','canActivateFormationFollow','setFormationFollow','repositionSphere']);
@@ -229,7 +229,7 @@ function include(unit,name) {
   }
   ts.forEachChild(node,walk);
 }
-for(const file of sourceFiles) {const unit=load(file);for(const name of file==='src/renderer.ts'?rendererRoots:file==='src/canvasLocale.ts'?['localizeCanvasText']:uiRoots.get(file)||unit.definitions.keys())include(unit,name);}
+for(const file of sourceFiles) {const unit=load(file);for(const name of file==='src/renderer.ts'?rendererRoots:file==='src/canvasLocale.ts'?['localizeCanvasText']:file==='src/renderScale.ts'?['clampDpr','calculateBackingSize']:uiRoots.get(file)||unit.definitions.keys())include(unit,name);}
 // Preserve source initialization passes (e.g. authored ability final variants).
 // Include a pass only when it reads or writes a retained top-level declaration.
 let expanded=true;

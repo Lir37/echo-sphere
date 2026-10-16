@@ -32,7 +32,7 @@ VisualJs.Assign(VisualJs.PerformanceObject,"now","=",VisualJs.Fn(a=>0d));
 VisualJs.ImageFactory=()=>new V(new FixtureImage());
 foreach(var fixture in json.RootElement.EnumerateArray())
 {
-    var trace=new VisualTrace();var canvas=new VisualCanvas(trace);
+    var trace=new VisualTrace();var canvas=new VisualCanvas(new CanvasStateChecks(trace,fixture.GetProperty("label").GetString()));
     canvas.Set("canvas",VisualJs.Obj("nativeViewport",VisualJs.Obj("cssWidth",390,"cssHeight",844,"dpr",1)));trace.Clear();
     var arguments=new List<V>{canvas.Value};arguments.AddRange(fixture.GetProperty("args").EnumerateArray().Select(Value));
     var module=fixture.GetProperty("module").GetString();var method=fixture.GetProperty("name").GetString();
@@ -55,6 +55,8 @@ foreach(var fixture in json.RootElement.EnumerateArray())
     count++;
 }
 Console.WriteLine($"Source TypeScript → native C# drawing command streams: PASS ({count} scenarios). No Unity compilation.");
+CanvasStateChecks.Report();
+if(args.Contains("--canvas-state-only"))return 0;
 UiChecks.Run();
 CssChecks.Run();
 AnimationChecks.Run();

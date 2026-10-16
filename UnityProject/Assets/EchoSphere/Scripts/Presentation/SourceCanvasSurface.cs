@@ -85,8 +85,11 @@ namespace EchoSphere.Presentation
             if(!_initialized)return;
             width=Mathf.Max(1f,width);height=Mathf.Max(1f,height);
             _viewport=new Rect(-width*.5f*SpherePlacementRules.SourcePixelsToWorld,-height*.5f*SpherePlacementRules.SourcePixelsToWorld,width*SpherePlacementRules.SourcePixelsToWorld,height*SpherePlacementRules.SourcePixelsToWorld);
-            _dpr=Mathf.Min(dpr,1.75f);
-            var w=Mathf.Max(1,Mathf.FloorToInt(width*_dpr+.5f));var h=Mathf.Max(1,Mathf.FloorToInt(height*_dpr+.5f));
+            // Canvas backing pixels have their own source clamp. CSS viewport
+            // density may be below one on Android and must remain unchanged.
+            var backing=Visual_renderScale.Scope["calculateBackingSize"].Call(width,height,dpr);
+            _dpr=(float)backing["dpr"].Number;
+            var w=(int)backing["width"].Number;var h=(int)backing["height"].Number;
             if(_target!=null&&_target.width==w&&_target.height==h)return;
             if(_target!=null){_target.Release();Destroy(_target);}
             if(_uiTarget!=null){_uiTarget.Release();Destroy(_uiTarget);}
