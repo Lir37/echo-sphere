@@ -81,6 +81,11 @@ namespace EchoSphere.Presentation
         // keeping CSS animation, layout and paint-resource work frame-driven.
         public float RefreshInterval;
         private double _nextRenderAt;
+        private bool _firstLayoutVisible;
+        private bool _firstChildLayoutSeen;
+        private int _firstLayoutStablePasses;
+        private int _firstLayoutChanges;
+        private int _observedFirstLayoutChanges;
         internal int FrameVersion {get;private set;}
         internal float Scale=>_scale;
         public void Initialize()
@@ -93,6 +98,8 @@ namespace EchoSphere.Presentation
             _document=gameObject.AddComponent<UIDocument>();_document.panelSettings=_panel;
             _document.rootVisualElement.style.position=Position.Absolute;_document.rootVisualElement.style.left=0;_document.rootVisualElement.style.right=0;_document.rootVisualElement.style.top=0;_document.rootVisualElement.style.bottom=0;
             _document.rootVisualElement.pickingMode=PickingMode.Ignore;
+            // UI Toolkit lays out new labels asynchronously; hide their unresolved origin positions.
+            _document.rootVisualElement.style.visibility=Visibility.Hidden;
             _document.rootVisualElement.RegisterCallback<PointerDownEvent>(evt=>{if(evt.button==0)BeginActivePointer(evt.target as VisualElement,evt.pointerId);},TrickleDown.TrickleDown);
             _document.rootVisualElement.RegisterCallback<PointerUpEvent>(evt=>EndActivePointer(evt.pointerId),TrickleDown.TrickleDown);
             _document.rootVisualElement.RegisterCallback<PointerCancelEvent>(evt=>EndActivePointer(evt.pointerId),TrickleDown.TrickleDown);
@@ -107,6 +114,7 @@ namespace EchoSphere.Presentation
             var safe=Screen.safeArea;_sheet.SafeLeft=safe.xMin/_scale;_sheet.SafeRight=(Screen.width-safe.xMax)/_scale;_sheet.SafeTop=(Screen.height-safe.yMax)/_scale;_sheet.SafeBottom=safe.yMin/_scale;
             Environment.Tick(Time.unscaledTimeAsDouble*1000d);
             if(Render==null)return;
+            RevealAfterFirstLayout();
             var now=Time.unscaledTimeAsDouble;
             if(!Dirty&&!Continuous&&_root!=null&&RefreshInterval>0f&&now>=_nextRenderAt)Dirty=true;
             if(!Dirty&&!Continuous&&_root!=null){AdvanceMotion(_root);UpdateLayout(_root);PreparePaintResources(_root);_layout.Tracks(_root);return;}
@@ -121,6 +129,20 @@ namespace EchoSphere.Presentation
             VisualDom.EndFrame();
             UpdateLayout(_root);PreparePaintResources(_root);_layout.Tracks(_root);
         }
+        private void RevealAfterFirstLayout()
+        {
+            if(_firstLayoutVisible||!_firstChildLayoutSeen||_root==null)return;
+            if(_observedFirstLayoutChanges!=_firstLayoutChanges)
+            {
+                _observedFirstLayoutChanges=_firstLayoutChanges;
+                _firstLayoutStablePasses=0;
+                return;
+            }
+            // Two quiet update passes allow resolved parent layout to reach absolute children.
+            if(++_firstLayoutStablePasses<2)return;
+            _document.rootVisualElement.style.visibility=Visibility.Visible;
+            _firstLayoutVisible=true;
+        }
         private void Reconcile(VisualCssNode node,VisualElement parent,string path)
         {
             var label=node.Tag=="#text"||SourceUiInline.CanMerge(_sheet,node);
@@ -133,7 +155,7 @@ namespace EchoSphere.Presentation
                 InstallEvents(entry);
                 entry.PaintContent=context=>Paint(entry,context);
                 entry.Frame.generateVisualContent=entry.PaintContent;
-                entry.Frame.RegisterCallback<GeometryChangedEvent>(evt=>{UpdateBounds(entry.Node,entry.Frame);entry.PaintKey=null;FrameVersion++;});
+                entry.Frame.RegisterCallback<GeometryChangedEvent>(evt=>{UpdateBounds(entry.Node,entry.Frame);entry.PaintKey=null;FrameVersion++;if(!_firstLayoutVisible){_firstChildLayoutSeen=true;_firstLayoutChanges++;}});
             }
             entry.Used=true;entry.Node=node;entry.Host.Node=node;node.Native=entry.Frame;node.Active=entry.ActivePointers.Count>0;
             if(entry.Element is ScrollView scrolling)scrolling.mode=scrollX?scrollY?ScrollViewMode.VerticalAndHorizontal:ScrollViewMode.Horizontal:ScrollViewMode.Vertical;
