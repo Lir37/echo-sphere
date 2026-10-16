@@ -56,3 +56,12 @@ CI #702 revealed C# CS0173/CS0021: `V.Items` is an `IEnumerable<V>`, not an inde
 - `SourceUiDocument.CopyInteraction` constructed a filtered child list via `Where(...).ToList()` every recursive invocation. Replaced it with direct filtered iteration over the pre-existing child collection. For unkeyed children the previous after-index mapping (including index gaps for pseudo children) is preserved; keyed children still select the first matching non-pseudo source child. Hover/Active/Focused copying and recursive walk remain unchanged.
 - Code `ede508af1cad9e3a307c5821964816330d65ffe1`, structural guard `10529ff2a6c894a8eeffc88eb627f8cbb1f5af44`. Runtime state parity and reduction of GC remain subject to Editor validation.
 - CI needs to be verified for this code/test checkpoint. No native Settings, source gameplay or APK changes. P1/P2 remain PARTIAL, P3 remains OPEN.
+
+
+## 2026-10-16 — Retained Canvas dash scratch (P2)
+
+Entry HEAD: `e492ebbc117ac7eb20a4df835c12f5ff527db850`. Source baseline remains protected.
+- Verified `SourceCanvasSurface.Call("setLineDash")` was allocating a temporary `List<float>` each call and then an independent `float[]` snapshot. Kept `State.Dash` as a distinct owned array, preserving the behavior of `save/restore` and prior snapshots, while reusing an instance-owned `_dashScratch` for collecting source values and doubling odd sequences.
+- This is an allocation-only source-backed change, not a renderer replacement, shader-effect reduction, or new gameplay behavior.
+- Code commit `78f3b0721f3b66c144a89fe330d02fc0fa66973a`, updated test `2859f73919068b840d145a1b5f9d1dda779676c1`.
+- Confirm via current CI and Editor Profiler. P1/P2 remain PARTIAL; P3 remains OPEN. APK deferred.
