@@ -11,6 +11,7 @@ namespace EchoSphere.Runtime
     public sealed partial class EchoSphereRuntime
     {
         private SourceUiDocument _sourceUi;
+        private SourceSettingsToolkitScreen _nativeSettingsScreen;
         private V _sourceUiStateRef,_sourceUiCanvasRef,_sourceUiTutorialRef;
         private V _sourceUiSavedRunTime;
         private void DrawSourceDocument()
@@ -28,6 +29,27 @@ namespace EchoSphere.Runtime
                 environment.Reload=()=>SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
                 VisualUiBindings.Resolve=SourceUiBinding;
             }
+            if(_mainMenu&&_mainMenuPage==MainMenuPage.Settings)
+            {
+                if(_sourceUi.gameObject.activeSelf)_sourceUi.gameObject.SetActive(false);
+                if(_nativeSettingsScreen==null)_nativeSettingsScreen=new GameObject("Native Settings UI Toolkit").AddComponent<SourceSettingsToolkitScreen>();
+                var lang=IsRussianUi?"ru":"en";
+                string T(string key)=>Visual_i18n.Scope["translations"][lang][key].Text;
+                var interfaceScale=(float)Visual_interfaceScale.Scope["loadInterfaceScale"].Call().Number;
+                _nativeSettingsScreen.Show(SourceDevicePixelRatio,IsRussianUi,SourceAudio2D.IsEnabled,IsLeftHanded,interfaceScale,_settingsResetPending,T,
+                    value=>{PlayerPrefs.SetString(LanguagePreferenceKey,value);PlayerPrefs.Save();},
+                    value=>{PlayerPrefs.SetInt(SoundPreferenceKey,value?1:0);SourceAudio2D.SetEnabled(value);PlayerPrefs.Save();},
+                    value=>{PlayerPrefs.SetString(HandednessPreferenceKey,value?"left":"right");PlayerPrefs.Save();ClearSourcePointers();},
+                    value=>Visual_interfaceScale.Scope["saveInterfaceScale"].Call(VisualJs.NumberText(value)),
+                    ()=>{_mainMenuPage=MainMenuPage.Home;_settingsResetPending=false;},
+                    ()=>{PlayerPrefs.SetInt(TutorialCompletedPreferenceKey,0);PlayerPrefs.Save();_mainMenuPage=MainMenuPage.Home;},
+                    ()=>_settingsResetPending=true,
+                    ()=>_settingsResetPending=false,
+                    ()=>{SourceUiBinding("persistence.ts","resetAll").Call();SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);});
+                return;
+            }
+            if(!_sourceUi.gameObject.activeSelf){_sourceUi.gameObject.SetActive(true);_sourceUi.Dirty=true;}
+            if(_nativeSettingsScreen!=null)_nativeSettingsScreen.Hide();
             _sourceUiStateRef["current"]=_sourceRenderState;UpdateSourceUiState();
             // The source HUD projection updates at 10 Hz; pointer/resize/state
             // invalidations still rebuild immediately and CSS motion stays per-frame.

@@ -5046,3 +5046,15 @@ Protected source: `new-desing` `737ef2af4a877e0995db5f92331d536d2f29a934`.
 - Kept source projection keys, enum casing, coordinate/radius conversion, entity caching, source colors and current simulation fields. No gameplay logic, RNG, timing constants or source-branch files changed.
 
 Validation boundary: CI must pass. Device visuals, Unity Editor startup and APK behavior still need independent validation.
+
+
+## 2026-10-16 — Native UI Toolkit Settings pilot
+
+Implementation base: `unity-migration` `3c998f236f9b24ed1e6baf5000621c078fabb850`.
+Protected source: `new-desing` `737ef2af4a877e0995db5f92331d536d2f29a934`.
+
+- Added a dedicated native `UIDocument` Settings screen using Unity UI Toolkit `Button`, `Slider`, `ScrollView` and `Label` controls. While Settings is active, the existing source-UI document is hidden rather than rendered underneath; it is reactivated and marked dirty when returning to the original menu path.
+- Wired language, sound, handedness, interface scale, replay tutorial, back navigation, and reset confirmation to the existing PlayerPrefs/source persistence/runtime callbacks. No new settings or gameplay rules were added.
+- Kept the existing source Canvas visible behind the transparent native screen. Labels are read from the current source localization table; selected states and scale values refresh without rebuilding the screen every frame.
+
+Validation boundary: CI must pass before acceptance. Exact device-scale spacing, transitions, localization key availability, touch/focus behavior and visual parity still require Editor/device observation. This does not establish a complete replacement of the remaining CSS/DOM adapter.
