@@ -5185,3 +5185,10 @@ Next validation step: open the current branch in Unity Editor and on device, ins
 - After CI #691 SUCCESS, SourceUiDocument.RenderDepthLayer now reuses per-root SourceUiDepth.PlaneImage records instead of allocating two new record shapes for every nested or plain plane, on every rebuilt depth layer. The root's cursor resets at the start of RenderDepthLayer; each record overwrites Texture, Rect, Matrix, Opacity, Clip, ClipRect and Blend before being appended.
 - Nested depth renders use their own per-entry pools; parent plane records are not mutated by nested children. Plane ordering, authored blend lookup, clipping behavior, fingerprint, preserve-depth traversal and render target ownership are unchanged.
 - Regression guard added. Native Editor/Profiler validation pending; APK still deferred as requested.
+
+
+## 2026-10-16 — P2 native Canvas gradient stop ordering buffer
+
+- Inspected SourceCanvasSurface.End and VisualGradient.Stops. Each gradient uploaded to the existing native RGBA paint texture previously allocated an OrderBy(...).ToList() result. A per-surface List<(double Key,int Index)> is now cleared/reused for stable key sorting, with original authored index breaking ties to preserve LINQ OrderBy's stable ordering.
+- PaintTexture data layout, 16-stop constraint, parsing and colors, shader coordinates, native mesh submission and gameplay are unchanged. This does not alter authored gradient resolution/precision or convert gameplay rendering.
+- Regression guard added. CI required; Unity Profiler GPU/CPU and visual parity remain open.

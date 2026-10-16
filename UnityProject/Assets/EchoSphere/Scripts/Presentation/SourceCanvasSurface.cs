@@ -51,6 +51,8 @@ namespace EchoSphere.Presentation
         private Rect _viewport;
         private float _dpr=1f;
         private readonly List<VisualGradient> _gradients=new List<VisualGradient>();
+        // Stable authored stop order with reusable native Canvas gradient indices.
+        private readonly List<(double Key,int Index)> _gradientStopOrder=new List<(double Key,int Index)>();
         private sealed class GradientSpace {public Matrix4x4 Inverse;}
         private readonly System.Runtime.CompilerServices.ConditionalWeakTable<VisualGradient,GradientSpace> _gradientSpaces=new System.Runtime.CompilerServices.ConditionalWeakTable<VisualGradient,GradientSpace>();
         private readonly Dictionary<VisualGradient,int> _gradientIndices=new Dictionary<VisualGradient,int>();
@@ -120,8 +122,14 @@ namespace EchoSphere.Presentation
                 _paintPixels[offset]=gradient.Kind=="createRadialGradient"?new Color((float)p[0],(float)p[1],(float)p[2],1f):new Color((float)p[0],(float)p[1],0f,2f);
                 _paintPixels[offset+1]=gradient.Kind=="createRadialGradient"?new Color((float)p[3],(float)p[4],(float)p[5],gradient.Stops.Count):new Color((float)p[2],(float)p[3],0f,gradient.Stops.Count);
                 if(gradient.Stops.Count>16)throw new InvalidOperationException("Source gradient exceeds its native stop buffer.");
-                var stops=gradient.Stops.OrderBy(stop=>stop.Key).ToList();
-                for(var i=0;i<stops.Count;i++) {_paintPixels[offset+2+i*2]=ParseColor(stops[i].Value);_paintPixels[offset+3+i*2]=new Color((float)stops[i].Key,0f,0f,0f);}
+                _gradientStopOrder.Clear();
+                for(var i=0;i<gradient.Stops.Count;i++)_gradientStopOrder.Add((gradient.Stops[i].Key,i));
+                _gradientStopOrder.Sort((a,b)=>{var order=a.Key.CompareTo(b.Key);return order!=0?order:a.Index.CompareTo(b.Index);});
+                for(var i=0;i<_gradientStopOrder.Count;i++){
+                    var stop=gradient.Stops[_gradientStopOrder[i].Index];
+                    _paintPixels[offset+2+i*2]=ParseColor(stop.Value);
+                    _paintPixels[offset+3+i*2]=new Color((float)stop.Key,0f,0f,0f);
+                }
             }
             if(_gradients.Count>0){_paintTexture.SetPixels(_paintPixels);_paintTexture.Apply(false,false);}
             RenderCanvas();
