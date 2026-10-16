@@ -6,6 +6,7 @@ using EchoSphere.Core;
 using Unity.VectorGraphics;
 using UnityEngine;
 using UnityEngine.Rendering;
+using Unity.Profiling;
 
 namespace EchoSphere.Presentation
 {
@@ -13,6 +14,15 @@ namespace EchoSphere.Presentation
     // fill rules, dashes, caps, joins, gradient stops and source-over/lighter order.
     public sealed class SourceCanvasSurface : MonoBehaviour, IVisualCanvasSink
     {
+        private static readonly ProfilerMarker CanvasEndMarker=new ProfilerMarker("EchoSphere.Canvas.EndFrame");
+        private static readonly ProfilerMarker CanvasTextMarker=new ProfilerMarker("EchoSphere.Canvas.PrepareText");
+        private static readonly ProfilerMarker CanvasMeshMarker=new ProfilerMarker("EchoSphere.Canvas.MeshUpload");
+        private static readonly ProfilerMarker CanvasGradientMarker=new ProfilerMarker("EchoSphere.Canvas.GradientUpload");
+        private static readonly ProfilerMarker CanvasDrawMarker=new ProfilerMarker("EchoSphere.Canvas.DrawBatches");
+        private static readonly ProfilerMarker CanvasPresentMarker=new ProfilerMarker("EchoSphere.Canvas.Present");
+        private static readonly int ShadowMaskId=Shader.PropertyToID("_SourceShadowMask");
+        private static readonly int ShadowPingId=Shader.PropertyToID("_SourceShadowPing");
+        private static readonly int ShadowBlurId=Shader.PropertyToID("_SourceShadowBlur");
         private sealed class State
         {
             public Matrix4x4 Matrix=Matrix4x4.identity;
@@ -109,12 +119,15 @@ namespace EchoSphere.Presentation
         }
         public void End()
         {
-            PrepareText();
+            using var endSample=CanvasEndMarker.Auto();
+            using(CanvasTextMarker.Auto())PrepareText();
             var scale=transform.parent!=null?transform.parent.lossyScale:Vector3.one;
             transform.localScale=new Vector3(1f/scale.x,1f/scale.y,1f/scale.z);
+            using(var meshSample=CanvasMeshMarker.Auto()){
             _mesh.Clear();_mesh.SetVertices(_vertices);_mesh.SetColors(_colors);_mesh.SetUVs(0,_uv);_mesh.SetUVs(1,_data);_mesh.subMeshCount=_batches.Count;
             for(var i=0;i<_batches.Count;i++)_mesh.SetTriangles(_triangles,_batches[i].Start,_batches[i].Count,i,false);
-            _mesh.RecalculateBounds();
+            _mesh.RecalculateBounds();}
+            using(var gradientSample=CanvasGradientMarker.Auto()){
             while(_paintHeight<_gradients.Count) { _paintHeight*=2;ResizePaintTexture(); }
             for(var row=0;row<_gradients.Count;row++)
             {
@@ -131,9 +144,10 @@ namespace EchoSphere.Presentation
                     _paintPixels[offset+3+i*2]=new Color((float)stop.Key,0f,0f,0f);
                 }
             }
-            if(_gradients.Count>0){_paintTexture.SetPixels(_paintPixels);_paintTexture.Apply(false,false);}
-            RenderCanvas();
-            var previous=RenderTexture.active;var gamma=GL.sRGBWrite;try{GL.sRGBWrite=QualitySettings.activeColorSpace==ColorSpace.Linear;Graphics.Blit(_target,_uiTarget,_displayMaterial,1);}finally{RenderTexture.active=previous;GL.sRGBWrite=gamma;}
+            if(_gradients.Count>0){_paintTexture.SetPixels(_paintPixels);_paintTexture.Apply(false,false);}}
+            using(CanvasDrawMarker.Auto())RenderCanvas();
+            using(var presentSample=CanvasPresentMarker.Auto()){
+            var previous=RenderTexture.active;var gamma=GL.sRGBWrite;try{GL.sRGBWrite=QualitySettings.activeColorSpace==ColorSpace.Linear;Graphics.Blit(_target,_uiTarget,_displayMaterial,1);}finally{RenderTexture.active=previous;GL.sRGBWrite=gamma;}}
         }
         private void CompletePaint(int first)
         {
@@ -151,7 +165,7 @@ namespace EchoSphere.Presentation
             _commands.Clear();_commands.SetRenderTarget(_target);_commands.ClearRenderTarget(false,true,Color.clear);
             var projection=GL.GetGPUProjectionMatrix(Matrix4x4.Ortho(_viewport.xMin,_viewport.xMax,_viewport.yMin,_viewport.yMax,-1f,1f),true);
             _commands.SetViewProjectionMatrices(Matrix4x4.identity,projection);
-            var mask=Shader.PropertyToID("_SourceShadowMask");var ping=Shader.PropertyToID("_SourceShadowPing");var blur=Shader.PropertyToID("_SourceShadowBlur");
+            var mask=ShadowMaskId;var ping=ShadowPingId;var blur=ShadowBlurId;
             var hasShadows=false;var paddingX=0;var paddingY=0;foreach(var batch in _batches)if(batch.Count>0&&batch.Shadow.a>0f&&(batch.Blur>0f||batch.X!=0f||batch.Y!=0f)){hasShadows=true;paddingX=Math.Max(paddingX,VisualCanvasShadowViewport.Padding(batch.Blur,batch.X));paddingY=Math.Max(paddingY,VisualCanvasShadowViewport.Padding(batch.Blur,batch.Y));}
             var shadowViewport=new VisualCanvasShadowViewport(_target.width,_target.height,paddingX,paddingY);
             var pixelX=_viewport.width/_target.width;var pixelY=_viewport.height/_target.height;

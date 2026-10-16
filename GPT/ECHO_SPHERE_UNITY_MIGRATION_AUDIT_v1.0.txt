@@ -5255,3 +5255,11 @@ VALIDATION REQUIRED BEFORE NEXT ARCHITECTURAL ACCEPTANCE:
 The six implementation commits in this cycle and their per-change guards are
 recorded above. CI #688, #689, #690, #691, #692, #693: SUCCESS.
 ======================================================================
+
+
+## 2026-10-16 — P2 Canvas CPU/GC measurement markers and shader IDs
+
+- Resumed after confirmed CI #694 SUCCESS and current source HEAD. The Codex checkpoint lists P1/P2 as partial and P3 as not accepted; avoided repeating already completed BSP, plane, gradient and UI allocation patches.
+- Instrumented SourceCanvasSurface.End with static Unity ProfilerMarker scopes for text preparation, native Mesh upload, gradient buffer preparation/upload, Canvas command buffer assembly/execution, final present Blit and total EndFrame. These sections retain original ordering and frame cadence; samples allow Unity Profiler CPU/GC measurements on the real Editor run.
+- Cached the three fixed shadow temporary RenderTexture shader property IDs as static readonly values rather than calling Shader.PropertyToID per RenderCanvas invocation. No temporary RT dimensions, allocation/release order, shader passes or visual parameters changed.
+- Added structural guards. CI does not execute Unity Editor or quantify FPS. The user has accepted the Settings UI and intentionally defers APK until Editor performance is acceptable. Actual Profiler captures remain an open criterion before replacing remaining renderer paths.
