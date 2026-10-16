@@ -17,6 +17,9 @@ namespace EchoSphere.Presentation
         private static readonly ProfilerMarker UiBackdropMarker=new ProfilerMarker("EchoSphere.UI.PrepareBackdrops");
         private static readonly ProfilerMarker UiSvgMarker=new ProfilerMarker("EchoSphere.UI.RasterizeSvg");
         private static readonly ProfilerMarker UiCssMarker=new ProfilerMarker("EchoSphere.UI.RasterizeCss");
+        private static readonly ProfilerMarker UiBuildMarker=new ProfilerMarker("EchoSphere.UI.BuildTree");
+        private static readonly ProfilerMarker UiReconcileMarker=new ProfilerMarker("EchoSphere.UI.Reconcile");
+        private static readonly ProfilerMarker UiLayoutMarker=new ProfilerMarker("EchoSphere.UI.Layout");
         private sealed class Entry
         {
             public VisualCssNode Node;
@@ -117,17 +120,18 @@ namespace EchoSphere.Presentation
             RevealAfterFirstLayout();
             var now=Time.unscaledTimeAsDouble;
             if(!Dirty&&!Continuous&&_root!=null&&RefreshInterval>0f&&now>=_nextRenderAt)Dirty=true;
-            if(!Dirty&&!Continuous&&_root!=null){AdvanceMotion(_root);UpdateLayout(_root);PreparePaintResources(_root);_layout.Tracks(_root);return;}
+            if(!Dirty&&!Continuous&&_root!=null){AdvanceMotion(_root);using(UiLayoutMarker.Auto())UpdateLayout(_root);PreparePaintResources(_root);_layout.Tracks(_root);return;}
             // Reconcile source state only when dirty or the configured projection
             // interval elapses. CSS motion/layout/paint still advance every frame.
-            FrameVersion++;Dirty=false;_nextRenderAt=now+Math.Max(0d,RefreshInterval);VisualDom.BeginFrame();var tree=Render();var nextRoot=VisualCssNode.Build(tree);CopyInteraction(_root,nextRoot);_root=nextRoot;_sheet.Apply(_root);
+            FrameVersion++;Dirty=false;_nextRenderAt=now+Math.Max(0d,RefreshInterval);VisualDom.BeginFrame();VisualCssNode nextRoot;
+            using(UiBuildMarker.Auto()){var tree=Render();nextRoot=VisualCssNode.Build(tree);CopyInteraction(_root,nextRoot);_root=nextRoot;_sheet.Apply(_root);}
             foreach(var entry in _entries.Values)entry.Used=false;
-            Reconcile(_root,_document.rootVisualElement,"root");
+            using(UiReconcileMarker.Auto())Reconcile(_root,_document.rootVisualElement,"root");
             _staleEntryKeys.Clear();
             foreach(var pair in _entries)if(!pair.Value.Used)_staleEntryKeys.Add(pair.Key);
             foreach(var key in _staleEntryKeys){var entry=_entries[key];Dispose(entry);_entries.Remove(key);}
             VisualDom.EndFrame();
-            UpdateLayout(_root);PreparePaintResources(_root);_layout.Tracks(_root);
+            using(UiLayoutMarker.Auto())UpdateLayout(_root);PreparePaintResources(_root);_layout.Tracks(_root);
         }
         private void RevealAfterFirstLayout()
         {
