@@ -155,7 +155,33 @@ namespace EchoSphere.Presentation
             foreach(var child in node.Children.Where(child=>child.Native is VisualElement).OrderBy(child=>_sheet.Length(_sheet.Get(child,"order","0"),1d)).ThenBy(child=>_sheet.Length(_sheet.Get(child,"z-index","0"),1d)))((VisualElement)child.Native).BringToFront();
         }
         private static void CopyInteraction(VisualCssNode before,VisualCssNode after)
-        {if(before==null||before.Tag!=after.Tag)return;after.Hover=before.Hover;after.Active=before.Active;after.Focused=before.Focused;var previous=before.Children.Where(child=>child.Pseudo==null).ToList();for(var index=0;index<after.Children.Count;index++){var child=after.Children[index];var key=child.Properties["key"];var match=key.Undefined?index<previous.Count?previous[index]:null:previous.FirstOrDefault(candidate=>candidate.Properties["key"]==key);CopyInteraction(match,child);}}
+        {
+            if(before==null||before.Tag!=after.Tag)return;
+            after.Hover=before.Hover;after.Active=before.Active;after.Focused=before.Focused;
+            for(var index=0;index<after.Children.Count;index++)
+            {
+                var child=after.Children[index];var key=child.Properties["key"];VisualCssNode match=null;
+                if(key.Undefined)
+                {
+                    var ordinal=0;
+                    foreach(var candidate in before.Children)
+                    {
+                        if(candidate.Pseudo!=null)continue;
+                        if(ordinal==index){match=candidate;break;}
+                        ordinal++;
+                    }
+                }
+                else
+                {
+                    foreach(var candidate in before.Children)
+                    {
+                        if(candidate.Pseudo!=null)continue;
+                        if(candidate.Properties["key"]==key){match=candidate;break;}
+                    }
+                }
+                CopyInteraction(match,child);
+            }
+        }
         private static void InheritSubtree(VisualCssNode node)
         {foreach(var child in node.Children){child.InheritAnimatedValues();InheritSubtree(child);}}
         private void AdvanceMotion(VisualCssNode node)
