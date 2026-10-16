@@ -5058,3 +5058,10 @@ Protected source: `new-desing` `737ef2af4a877e0995db5f92331d536d2f29a934`.
 - Kept the existing source Canvas visible behind the transparent native screen. Labels are read from the current source localization table; selected states and scale values refresh without rebuilding the screen every frame.
 
 Validation boundary: CI must pass before acceptance. Exact device-scale spacing, transitions, localization key availability, touch/focus behavior and visual parity still require Editor/device observation. This does not establish a complete replacement of the remaining CSS/DOM adapter.
+
+
+### Native Settings pilot follow-up — row wiring
+
+- Corrected native Settings layout ownership so each pair of options is attached to its own row and the reset-confirmation buttons are children of the confirmation panel.
+- Applied the source's existing transparent Back, cyan Replay Tutorial and red Reset button treatments. This is a layout/wiring correction only; callbacks and game state rules are unchanged.
+- CI for the correction must pass before treating the pilot as structurally valid; visual parity remains unverified until Editor/device observation.

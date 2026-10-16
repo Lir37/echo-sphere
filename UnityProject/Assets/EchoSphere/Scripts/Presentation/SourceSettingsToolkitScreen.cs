@@ -69,12 +69,12 @@ namespace EchoSphere.Presentation
             _content.style.paddingLeft=24;_content.style.paddingRight=24;_content.style.paddingTop=28;_content.style.paddingBottom=32;_scroll.Add(_content);
 
             AddButton("back",()=>_back?.Invoke(),"← ");var title=AddLabel("settingsTitle",24,Main,true);title.style.unityTextAlign=TextAnchor.MiddleCenter;title.style.marginTop=12;title.style.marginBottom=24;
-            AddSection("language");var language=Pair();AddButton("ru",()=>_setLanguage?.Invoke("ru"));AddButton("en",()=>_setLanguage?.Invoke("en"));_content.Add(language); // Buttons are attached by AddButton to the current row below.
-            AddSection("sound");var sound=Pair();AddButton("soundOn",()=>_setSound?.Invoke(true));AddButton("soundOff",()=>_setSound?.Invoke(false));_content.Add(sound);
-            AddSection("handedness");var hand=Pair();AddButton("rightHanded",()=>_setHandedness?.Invoke(false));AddButton("leftHanded",()=>_setHandedness?.Invoke(true));_content.Add(hand);
+            AddSection("language");var language=Pair();AddButton("ru",()=>_setLanguage?.Invoke("ru"));AddButton("en",()=>_setLanguage?.Invoke("en"));_content.Add(language);_activeRow=null; // Buttons are attached by AddButton to the current row below.
+            AddSection("sound");var sound=Pair();AddButton("soundOn",()=>_setSound?.Invoke(true));AddButton("soundOff",()=>_setSound?.Invoke(false));_content.Add(sound);_activeRow=null;
+            AddSection("handedness");var hand=Pair();AddButton("rightHanded",()=>_setHandedness?.Invoke(false));AddButton("leftHanded",()=>_setHandedness?.Invoke(true));_content.Add(hand);_activeRow=null;
             AddSection("interfaceScale");var scaleRow=Pair();var low=new Label("75%");low.style.color=Muted;scaleRow.Add(low);
             _scale=new Slider(.75f,1.25f);_scale.style.flexGrow=1;_scale.style.marginLeft=10;_scale.style.marginRight=10;scaleRow.Add(_scale);
-            var high=new Label("125%");high.style.color=Muted;scaleRow.Add(high);_content.Add(scaleRow);
+            var high=new Label("125%");high.style.color=Muted;scaleRow.Add(high);_content.Add(scaleRow);_activeRow=null;
             _scaleValue=new Label();_scaleValue.style.color=Main;_scaleValue.style.unityTextAlign=TextAnchor.MiddleCenter;_scaleValue.style.marginBottom=20;_content.Add(_scaleValue);
             _scale.RegisterValueChangedCallback(evt=>{_scaleValueNow=evt.newValue;_scaleValue.text=Mathf.RoundToInt(evt.newValue*100f)+"%";_setScale?.Invoke(evt.newValue);});
             AddSection("controls");var card=new VisualElement();card.style.flexDirection=FlexDirection.Column;card.style.backgroundColor=Panel;
@@ -84,7 +84,7 @@ namespace EchoSphere.Presentation
             AddButton("replayTutorial",()=>_replay?.Invoke(),"▷ ");AddButton("reset",()=>_reset?.Invoke());
             _confirmation=new VisualElement();_confirmation.style.flexDirection=FlexDirection.Column;_confirmation.style.marginTop=16;_confirmation.style.paddingTop=12;_confirmation.style.paddingBottom=12;
             _resetPrompt=new Label();_resetPrompt.style.color=Main;_resetPrompt.style.whiteSpace=WhiteSpace.Normal;_resetPrompt.style.marginBottom=12;_confirmation.Add(_resetPrompt);
-            var row=Pair();AddButton("cancel",()=>_cancel?.Invoke());AddButton("ok",()=>_confirm?.Invoke());_content.Add(_confirmation);_built=true;
+            var row=Pair();AddButton("cancel",()=>_cancel?.Invoke());AddButton("ok",()=>_confirm?.Invoke());_confirmation.Add(row);_activeRow=null;_content.Add(_confirmation);_built=true;
         }
 
         private VisualElement _activeRow;
@@ -97,7 +97,9 @@ namespace EchoSphere.Presentation
             button.style.marginRight=8;button.style.fontSize=13;button.style.color=Main;button.style.backgroundColor=Panel;SetBorder(button,Border);
             button.style.borderTopLeftRadius=12;button.style.borderTopRightRadius=12;button.style.borderBottomLeftRadius=12;button.style.borderBottomRightRadius=12;
             button.clicked+=action;_buttons[key]=button;
-            if(prefix.Length>0)_labels["prefix:"+key]=new Label(prefix);
+            if(key=="back"){button.style.backgroundColor=Color.clear;button.style.borderLeftWidth=button.style.borderRightWidth=button.style.borderTopWidth=button.style.borderBottomWidth=0;button.style.color=Muted;button.style.alignSelf=Align.FlexStart;button.style.paddingLeft=0;}
+            else if(key=="replayTutorial"){button.style.backgroundColor=new Color(Cyan.r,Cyan.g,Cyan.b,.05f);SetBorder(button,new Color(Cyan.r,Cyan.g,Cyan.b,.3f));button.style.color=Hex("#9fefff");button.style.marginBottom=12;}
+            else if(key=="reset"){button.style.backgroundColor=new Color(Red.r,Red.g,Red.b,.10f);SetBorder(button,new Color(Red.r,Red.g,Red.b,.3f));button.style.color=Red;}
             if(_activeRow!=null)_activeRow.Add(button);else _content.Add(button);
         }
         private VisualElement Pair()

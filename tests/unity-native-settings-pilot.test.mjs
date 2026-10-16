@@ -14,4 +14,7 @@ test('Settings pilot uses native UI Toolkit controls and existing runtime callba
   assert.match(screen, /new ScrollView/);
   assert.match(bridge, /_sourceUi\.gameObject\.SetActive\(false\)/);
   assert.match(bridge, /SourceUiBinding\("persistence\.ts","resetAll"\)\.Call\(\)/);
+  assert.match(screen, /_confirmation\.Add\(row\)/);
+  assert.match(screen, /_content\.Add\(language\);_activeRow=null/);
+
 });
