@@ -288,9 +288,11 @@ namespace EchoSphere.Presentation
         {Move(new Vector2(x,y));Line(new Vector2(x+width,y));Line(new Vector2(x+width,y+height));Line(new Vector2(x,y+height));Close();}
         private void RoundRectangle(float x,float y,float width,float height,V radii)
         {
-            var radiuses=new List<float>();if(radii.Raw is List<V>)foreach(var radius in radii.Items)radiuses.Add((float)radius.Number);else radiuses.Add((float)radii.Number);
-            if(radiuses.Count==0||radiuses.Count>4)throw new ArgumentOutOfRangeException(nameof(radii));
-            var a=radiuses[0];var b=radiuses.Count>1?radiuses[1]:a;var c=radiuses.Count>2?radiuses[2]:a;var d=radiuses.Count>3?radiuses[3]:b;
+            var radiusList=radii.Raw is List<V> ? radii.Items : null;
+            var count=radiusList==null?1:radiusList.Count;
+            if(count==0||count>4)throw new ArgumentOutOfRangeException(nameof(radii));
+            float RadiusAt(int index)=>radiusList==null?(float)radii.Number:(float)radiusList[index].Number;
+            var a=RadiusAt(0);var b=count>1?RadiusAt(1):a;var c=count>2?RadiusAt(2):a;var d=count>3?RadiusAt(3):b;
             if(width<0f){x+=width;width=-width;var swap=a;a=b;b=swap;swap=c;c=d;d=swap;}
             if(height<0f){y+=height;height=-height;var swap=a;a=d;d=swap;swap=b;b=c;c=swap;}
             var shrink=Mathf.Min(1f,width/Mathf.Max(a+b,c+d),height/Mathf.Max(a+d,b+c));a*=shrink;b*=shrink;c*=shrink;d*=shrink;
