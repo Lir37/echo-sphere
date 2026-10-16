@@ -288,7 +288,7 @@ namespace EchoSphere.Presentation
         {Move(new Vector2(x,y));Line(new Vector2(x+width,y));Line(new Vector2(x+width,y+height));Line(new Vector2(x,y+height));Close();}
         private void RoundRectangle(float x,float y,float width,float height,V radii)
         {
-            var radiusList=radii.Raw is List<V> ? radii.Items : null;
+            var radiusList=radii.Raw as List<V>;
             var count=radiusList==null?1:radiusList.Count;
             if(count==0||count>4)throw new ArgumentOutOfRangeException(nameof(radii));
             var a=radiusList==null?(float)radii.Number:(float)radiusList[0].Number;
