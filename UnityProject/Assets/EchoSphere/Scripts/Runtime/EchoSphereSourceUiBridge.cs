@@ -34,7 +34,7 @@ namespace EchoSphere.Runtime
             {
                 if(_nativeSettingsScreen==null)_nativeSettingsScreen=new GameObject("Native Settings UI Toolkit").AddComponent<SourceSettingsToolkitScreen>();
                 // Keep the source document alive for its animated menu backdrop; hide only its Settings page. 
-                _sourceUi.Continuous=false;_sourceUi.RefreshInterval=0f;_sourceUi.Draw(SourceDevicePixelRatio);_sourceUi.SetSourceScreenHidden(".es-list-screen");
+                _sourceUi.Continuous=false;_sourceUi.RefreshInterval=0f;_sourceUi.Draw(SourceDevicePixelRatio);
                 _nativeSettingsWasActive=true;
                 var lang=IsRussianUi?"ru":"en";
                 string T(string key)=>Visual_i18n.Scope["translations"][lang][key].Text;

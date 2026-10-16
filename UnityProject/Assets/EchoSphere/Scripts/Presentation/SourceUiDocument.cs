@@ -306,15 +306,6 @@ namespace EchoSphere.Presentation
         {
             var results=new List<V>();void Visit(VisualCssNode node){if(node==null)return;if(node.Native is VisualElement element&&element.userData is SourceUiElement host&&VisualCss.Match(node,selector))results.Add(new V(host));foreach(var child in node.Children)Visit(child);}Visit(start??_root);return all?VisualJs.Arr(results.ToArray()):results.Count>0?results[0]:VisualJs.Null;
         }
-        internal void SetSourceScreenHidden(string selector)
-        {
-            var result=Query(selector);
-            if(result.Raw is SourceUiElement host&&host.Node?.Native is VisualElement frame)
-            {
-                frame.style.opacity=0f;
-                frame.SetEnabled(false);
-            }
-        }
         internal VisualCss Sheet=>_sheet;
         internal V ElementFromPoint(float x,float y){var element=_document.rootVisualElement.panel?.Pick(new Vector2(x,y));var host=SourceUiElement.Target(element);return host==null?VisualJs.Null:new V(host);}
         internal void EventCompleted(){Dirty=true;AfterEvent?.Invoke();}

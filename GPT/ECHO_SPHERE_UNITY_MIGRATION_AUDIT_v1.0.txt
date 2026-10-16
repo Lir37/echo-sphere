@@ -5072,3 +5072,10 @@ Validation boundary: CI must pass before acceptance. Exact device-scale spacing,
 - Kept the existing source UI document active while the native Settings screen is shown. The source Settings container is hidden after each UI update, while the rest of the source tree continues to advance its CSS animation and retain the original menu backdrop.
 - Returning from native Settings marks the source tree dirty so the existing menu screen is reconciled again. This avoids disabling the source document and accidentally removing its background.
 - This addresses structural layering only; exact visual parity, focus, touch and transition behavior remain device/editor acceptance checks.
+
+
+### Native Settings pilot follow-up — full-screen background ownership
+
+- Kept the source UI document active and advancing behind the native Settings `UIDocument`; the native screen now owns its full-screen dark backdrop, preventing duplicate source Settings controls from showing through.
+- Removed the experimental source-container hiding hook. The previous approach could hide the only Settings root without guaranteeing a separate menu backdrop was present.
+- This is a safer single-visible-screen overlay, not a claim of exact backdrop/blur parity. Native Settings visuals and touch/focus behavior still require actual Editor/device inspection.

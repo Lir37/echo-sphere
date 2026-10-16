@@ -57,7 +57,7 @@ namespace EchoSphere.Presentation
             _document=gameObject.AddComponent<UIDocument>();_document.panelSettings=_panel;
             var panelRoot=_document.rootVisualElement;panelRoot.style.position=Position.Absolute;panelRoot.style.left=0;panelRoot.style.right=0;panelRoot.style.top=0;panelRoot.style.bottom=0;panelRoot.pickingMode=PickingMode.Ignore;
             _root=new VisualElement();_root.name="native-settings-root";_root.pickingMode=PickingMode.Ignore;
-            _root.style.position=Position.Absolute;_root.style.left=0;_root.style.right=0;_root.style.top=0;_root.style.bottom=0;_root.style.backgroundColor=Color.clear;_root.style.display=DisplayStyle.None;
+            _root.style.position=Position.Absolute;_root.style.left=0;_root.style.right=0;_root.style.top=0;_root.style.bottom=0;_root.style.backgroundColor=Hex("#02050d");_root.style.display=DisplayStyle.None;
             panelRoot.Add(_root);
         }
 
