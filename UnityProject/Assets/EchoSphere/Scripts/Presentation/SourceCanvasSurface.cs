@@ -56,6 +56,7 @@ namespace EchoSphere.Presentation
         private readonly List<Contour> _path=new List<Contour>();
         // Reusable save buffer for fillRect/strokeRect, which temporarily replace the current path.
         private readonly List<Contour> _rectSavedPath=new List<Contour>();
+        private readonly List<float> _dashScratch=new List<float>();
         private Contour _contour;
         private readonly List<Vector3> _vertices=new List<Vector3>();
         private readonly List<Color> _colors=new List<Color>();
@@ -267,7 +268,7 @@ namespace EchoSphere.Presentation
                      _rectSavedPath.Clear();_rectSavedPath.AddRange(_path);var oldContour=_contour;_path.Clear();_contour=null;
                     try{Rectangle(N(0),N(1),N(2),N(3));Paint(name=="strokeRect",false);}
                     finally{_path.Clear();_path.AddRange(_rectSavedPath);_rectSavedPath.Clear();_contour=oldContour;}break;
-                case "setLineDash":var dash=new List<float>();foreach(var x in args[0].Items)dash.Add((float)x.Number);if(dash.Count%2==1){var count=dash.Count;for(var i=0;i<count;i++)dash.Add(dash[i]);}_state.Dash=dash.ToArray();break;
+                case "setLineDash":_dashScratch.Clear();foreach(var x in args[0].Items)_dashScratch.Add((float)x.Number);if(_dashScratch.Count%2==1){var count=_dashScratch.Count;for(var i=0;i<count;i++)_dashScratch.Add(_dashScratch[i]);}_state.Dash=_dashScratch.ToArray();break;
                 case "createRadialGradient":case "createLinearGradient":var gradient=new VisualGradient(name,args);_gradientSpaces.Add(gradient,new GradientSpace {Inverse=_state.Matrix.inverse});return new V(gradient);
                 default:throw new InvalidOperationException("Unimplemented Canvas command in authored drawing: "+name);
             }
