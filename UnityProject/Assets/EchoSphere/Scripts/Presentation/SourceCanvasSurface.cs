@@ -299,16 +299,16 @@ namespace EchoSphere.Presentation
             Line(new Vector2(x+d,y+height));Ellipse(x+d,y+height-d,d,d,0f,Mathf.PI*.5f,Mathf.PI,false);
             Line(new Vector2(x,y+a));Ellipse(x+a,y+a,a,a,0f,Mathf.PI,Mathf.PI*1.5f,false);Close();
         }
+        private void AddQuadCorner(Vector2 point,Vector2 uv,Color color)
+        {
+            var p=Point(point)-SourceOrigin;
+            _vertices.Add(new Vector3(p.x*SpherePlacementRules.SourcePixelsToWorld,-p.y*SpherePlacementRules.SourcePixelsToWorld,0f));
+            _colors.Add(color);_uv.Add(new Vector4(uv.x,uv.y,-1f,0f));_data.Add(Vector4.zero);
+        }
         private void Quad(Vector2 a,Vector2 b,Vector2 c,Vector2 d,Vector2 ua,Vector2 ub,Vector2 uc,Vector2 ud,Color color)
         {
             var first=_vertices.Count;
-            void AddCorner(Vector2 point,Vector2 uv)
-            {
-                var p=Point(point)-SourceOrigin;
-                _vertices.Add(new Vector3(p.x*SpherePlacementRules.SourcePixelsToWorld,-p.y*SpherePlacementRules.SourcePixelsToWorld,0f));
-                _colors.Add(color);_uv.Add(new Vector4(uv.x,uv.y,-1f,0f));_data.Add(Vector4.zero);
-            }
-            AddCorner(a,ua);AddCorner(b,ub);AddCorner(c,uc);AddCorner(d,ud);
+            AddQuadCorner(a,ua,color);AddQuadCorner(b,ub,color);AddQuadCorner(c,uc,color);AddQuadCorner(d,ud,color);
             _triangles.Add(first);_triangles.Add(first+1);_triangles.Add(first+2);_triangles.Add(first);_triangles.Add(first+2);_triangles.Add(first+3);
         }
         private void Image(V[] args)
