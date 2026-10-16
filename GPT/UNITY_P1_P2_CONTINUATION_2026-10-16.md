@@ -26,3 +26,6 @@ Starting HEAD: `5d8d0aa3b543dad702a370104dcc4b67b6ab7d7c`.
 - A Node structural regression guard protects ordering and the absence of these two allocation patterns.
 - Code: `f166e5bfc79e880107165ef5745a24c2d98045bf`; test: `b2d50836f0510d0910e2725790847e90e9f8f7e8`.
 - No effects removed, no gameplay changes, no source branch modifications. Remaining P1/P2 and Profiler acceptance gates are unchanged. CI status must be verified from Actions.
+
+## Quad allocation hardening
+Replaced the quad-local corner writer with a noncapturing instance method `AddQuadCorner`, avoiding a possible compiler-generated closure in addition to the former two temporary arrays. Corner order, transforms, colors, UVs and triangle indices are unchanged. Fix commit `843e36d756aeaf10858837045a42dcc39f83746e`; test adjustment `095c5f2334ce1d3386c0a08407e941d3db85a202`. Final CI must be checked independently.
