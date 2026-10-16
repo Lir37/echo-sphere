@@ -14,7 +14,7 @@ namespace EchoSphere.Presentation
     internal static class SourceUiSvg
     {
         internal static string Serialize(VisualCssNode node,VisualCss sheet)=>VisualSvg.Serialize(node,sheet);
-        internal static Texture Rasterize(string xml,float width,float height,float scale,Material material,bool overflow,out Rect paintRect)
+        internal static Texture Rasterize(string xml,float width,float height,float scale,Material material,bool overflow,out Rect paintRect,RenderTexture reuse=null)
         {
             var scene=SVGParser.ImportSVG(new StringReader(xml));
             var geometry=VectorUtils.TessellateScene(scene.Scene,new VectorUtils.TessellationOptions {StepDistance=1f,MaxCordDeviation=.1f,MaxTanAngleDeviation=.1f,SamplingStepSize=.01f},scene.NodeOpacity);
@@ -24,13 +24,13 @@ namespace EchoSphere.Presentation
             var atlas=VectorUtils.GenerateAtlasAndFillUVs(geometry,128);
             var pixelsWide=Math.Max(1,Mathf.CeilToInt(paintRect.width*scale));var pixelsHigh=Math.Max(1,Mathf.CeilToInt(paintRect.height*scale));
             var raw=RenderTexture.GetTemporary(pixelsWide,pixelsHigh,0,RenderTextureFormat.ARGB32,RenderTextureReadWrite.Linear,4);
-            var result=new RenderTexture(pixelsWide,pixelsHigh,0,RenderTextureFormat.ARGB32,RenderTextureReadWrite.sRGB){name="Source SVG",filterMode=FilterMode.Bilinear,wrapMode=TextureWrapMode.Clamp};result.Create();
+            var result=reuse!=null&&reuse.width==pixelsWide&&reuse.height==pixelsHigh?reuse:new RenderTexture(pixelsWide,pixelsHigh,0,RenderTextureFormat.ARGB32,RenderTextureReadWrite.sRGB){name="Source SVG",filterMode=FilterMode.Bilinear,wrapMode=TextureWrapMode.Clamp};if(!result.IsCreated())result.Create();
             var previous=RenderTexture.active;var gamma=GL.sRGBWrite;var oldTexture=material.mainTexture;GL.PushMatrix();
             try{
                 RenderTexture.active=raw;GL.sRGBWrite=false;GL.Clear(false,true,Color.clear);GL.LoadOrtho();material.mainTexture=atlas?.Texture;material.SetFloat("_HasAtlas",atlas!=null?1f:0f);material.SetPass(0);GL.Begin(GL.TRIANGLES);
                 foreach(var item in geometry)foreach(var index in item.Indices){var point=item.WorldTransform*item.Vertices[index];var uv=item.UVs!=null?item.UVs[index]:Vector2.zero;GL.Color(item.Color);GL.TexCoord2(uv.x,uv.y);GL.MultiTexCoord2(2,item.SettingIndex,0);GL.Vertex3((point.x-bounds.x)/bounds.width,1f-(point.y-bounds.y)/bounds.height,0);}
                 GL.End();GL.sRGBWrite=QualitySettings.activeColorSpace==ColorSpace.Linear;Graphics.Blit(raw,result,material,1);return result;
-            }catch{result.Release();UnityEngine.Object.Destroy(result);throw;}
+            }catch{if(result!=reuse){result.Release();UnityEngine.Object.Destroy(result);}throw;}
             finally{material.mainTexture=oldTexture;RenderTexture.active=previous;GL.sRGBWrite=gamma;GL.PopMatrix();RenderTexture.ReleaseTemporary(raw);if(atlas?.Texture!=null)UnityEngine.Object.Destroy(atlas.Texture);}
         }
         internal static void Text(VisualCssNode root,VisualCss sheet,VisualElement container,List<Label> labels,List<VisualCssNode> texts)
