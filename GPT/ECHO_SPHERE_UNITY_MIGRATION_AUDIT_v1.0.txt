@@ -5142,3 +5142,10 @@ Next validation step: open the current branch in Unity Editor and on device, ins
 
 - CI #685 failed in core-contracts because the new negative regex scanned all of SourceUiDocument, matching the unrelated existing GroupClip raster pixel buffer. Source and Unity typechecks passed. The assertion was narrowed to the EnsureBrush method under test; production code is unchanged by this follow-up.
 - Re-run CI is required before acceptance. No claims of measured FPS or Unity Editor parity are made.
+
+
+## 2026-10-16 — Retained preserve-3D plane and clip upload buffers
+
+- In SourceUiDocument.RenderDepthLayer, each retained root Entry now clears and reuses its own DepthImages list instead of allocating a List<SourceUiDepth.PlaneImage> for each render. Nested depth roots use their own separate buffers, so recursive calls do not overwrite parent lists. Image addition, fingerprint calculation, source depth sorting and render call remain unchanged.
+- In DepthClip, retained entry-owned DepthClipUploadPixels storage replaces temporary per-raster byte array allocations. Reallocation occurs only when the byte count changes. Original CSS mask rasterization, bottom-up row flip, Texture2D upload and corner-radius keys remain unchanged.
+- Added scoped structural regression tests. CI cannot establish Unity Editor runtime parity or a measured allocation/FPS improvement; Unity Profiler validation remains pending. The Settings screen is already accepted in Editor by the user. APK is deferred at the user's request.

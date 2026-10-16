@@ -27,6 +27,8 @@ namespace EchoSphere.Presentation
             public readonly List<VisualCssNode> SvgTextNodes=new List<VisualCssNode>();
             public readonly List<FilterFunction> EmptyFilters=new List<FilterFunction>();
             public byte[] PaintUploadPixels;
+            public byte[] DepthClipUploadPixels;
+            public readonly List<SourceUiDepth.PlaneImage> DepthImages=new List<SourceUiDepth.PlaneImage>();
             public Rect PaintRect;
             public Rect SvgRect;
             public SourceUiDepth Depth;
@@ -288,14 +290,14 @@ namespace EchoSphere.Presentation
             var node=entry.Node;var corners=new[]{"border-top-left-radius","border-top-right-radius","border-bottom-left-radius","border-bottom-right-radius"};var key=node.Width+"/"+node.Height+"/"+_scale+"/"+string.Join("/",corners.Select(corner=>_sheet.Get(node,corner,"0")));
             if(key!=entry.GroupClipKey){
                 if(entry.GroupClip!=null)Destroy(entry.GroupClip);var clip=new VisualCssNode {Tag="div",Width=node.Width,Height=node.Height};clip.Style["background-color"]="#ffffff";foreach(var corner in corners)clip.Style[corner]=_sheet.Get(node,corner,"0");
-                var raster=VisualCssPaint.Paint(_sheet,clip,_scale);var pixels=new byte[raster.Pixels.Length];var stride=raster.Width*4;for(var y=0;y<raster.Height;y++)Buffer.BlockCopy(raster.Pixels,y*stride,pixels,(raster.Height-y-1)*stride,stride);
-                entry.GroupClip=new Texture2D(raster.Width,raster.Height,TextureFormat.RGBA32,false,true){wrapMode=TextureWrapMode.Clamp,filterMode=FilterMode.Bilinear};entry.GroupClip.LoadRawTextureData(pixels);entry.GroupClip.Apply(false,true);entry.GroupClipKey=key;
+                var raster=VisualCssPaint.Paint(_sheet,clip,_scale);if(entry.DepthClipUploadPixels==null||entry.DepthClipUploadPixels.Length!=raster.Pixels.Length)entry.DepthClipUploadPixels=new byte[raster.Pixels.Length];var stride=raster.Width*4;for(var y=0;y<raster.Height;y++)Buffer.BlockCopy(raster.Pixels,y*stride,entry.DepthClipUploadPixels,(raster.Height-y-1)*stride,stride);
+                entry.GroupClip=new Texture2D(raster.Width,raster.Height,TextureFormat.RGBA32,false,true){wrapMode=TextureWrapMode.Clamp,filterMode=FilterMode.Bilinear};entry.GroupClip.LoadRawTextureData(entry.DepthClipUploadPixels);entry.GroupClip.Apply(false,true);entry.GroupClipKey=key;
             }
             return entry.GroupClip;
         }
         private void RenderDepthLayer(Entry root,float perspective,Vector2? eye=null)
         {
-            var images=new List<SourceUiDepth.PlaneImage>();var clip=ClipsDepth(root.Node)?DepthClip(root):null;var clipRect=new Rect(0,0,(float)root.Node.Width,(float)root.Node.Height);
+            var images=root.DepthImages;images.Clear();var clip=ClipsDepth(root.Node)?DepthClip(root):null;var clipRect=new Rect(0,0,(float)root.Node.Width,(float)root.Node.Height);
             void Add(VisualCssNode node,Matrix4x4 matrix,float opacity){
                 if(!(node.Native is VisualElement element)||_sheet.Get(node,"display")=="none"||_sheet.Get(node,"visibility")=="hidden"||node.Width<=0||node.Height<=0)return;
                 var entry=_elementEntries[element];var nested=node!=root.Node&&(node.Children.Any(child=>child.Native is VisualElement)&&FlattensDepth(node)||_sheet.Get(node,"filter","none")!="none");
