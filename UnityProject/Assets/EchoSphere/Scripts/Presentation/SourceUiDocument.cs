@@ -330,7 +330,7 @@ namespace EchoSphere.Presentation
             var node=entry.Node;
             if(node.Tag=="svg"){
                 var xml=SourceUiSvg.Serialize(node,_sheet);var key=xml+"/"+node.Width+"/"+node.Height+"/"+_scale;
-                if(entry.SvgKey!=key){using var svgSample=UiSvgMarker.Auto();if(entry.Svg!=null)Destroy(entry.Svg);entry.Svg=SourceUiSvg.Rasterize(xml,(float)node.Width,(float)node.Height,_scale,_svgMaterial,_sheet.Get(node,"overflow","visible")=="visible",out entry.SvgRect);entry.SvgKey=key;}
+                if(entry.SvgKey!=key){using var svgSample=UiSvgMarker.Auto();var previous=entry.Svg;var updated=SourceUiSvg.Rasterize(xml,(float)node.Width,(float)node.Height,_scale,_svgMaterial,_sheet.Get(node,"overflow","visible")=="visible",out entry.SvgRect,previous as RenderTexture);if(previous!=null&&previous!=updated)Destroy(previous);entry.Svg=updated;entry.SvgKey=key;}
             }
         }
         private bool IsDepthRoot(VisualCssNode node)=>_sheet.Get(node,"transform-style")=="preserve-3d";
