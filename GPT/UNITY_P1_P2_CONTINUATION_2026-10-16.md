@@ -92,3 +92,11 @@ Code-level CI must be checked for these commits. P1/P2 remain PARTIAL and P3 OPE
 
 ### CI regression guard correction
 CI #717 and #718 failed in core-contracts because the existing `unity-ui-refresh-cadence.test.mjs` required a literal `AdvanceMotion;UpdateLayout;...` sequence, now separated only by the new `UiLayoutMarker.Auto()` scope. Source and Unity typechecks passed. Updated the regex guard to verify the identical call ordering with the measurement scope included; implementation unchanged. Test correction commit `68d40f412df1fc14b0bba5713a00f90e49cfb794`. Await CI for the corrected checkpoint. Editor run remains the required acceptance check for visible startup and reported severe FPS loss.
+
+
+## 2026-10-16 — UI Toolkit unallocated texture diagnostic and brush handle reuse
+Starting HEAD `ff6781c3f9a406c8894e9bb597e7738a244563d5`; source branch unchanged. User reports Unity UI Toolkit error `Attempted to get a texture (index=3) that is not allocated`, continued top-left first-menu text, and ~1–2 FPS. The previous initial visibility gate has **not** resolved the user's symptoms. This is a user-confirmed observation, not a Profiler measurement.
+
+Confirmed code-level lifetime risk: `SourceUiDocument.EnsureBrush` destroyed/recreated every CSS brush `Texture2D` when the paint key changed, even when dimensions stayed identical. Native UI Toolkit meshes could still reference the previous brush handle. Change: retain the same `Texture2D` at identical width and height, rewrite the existing pixel storage via `LoadRawTextureData`, use `Apply(false,false)` so its CPU storage remains available for later updates. On dimension changes a replacement is still necessary; this and other SVG/depth texture lifetimes require separate Editor confirmation. The possibility of incremental repaints, retained UI meshes and their texture references motivates this targeted change; **it is not yet proven to resolve the exact error**.
+
+Commits `dec224f07f8a6eca0c8b0321895ef9431fd3eb74` and regression test `de85616e394c8b627481117d6a01e1029728fcad`. Check Actions CI separately. Severe menu FPS issue remains OPEN; gather Unity Profiler CPU Timeline, GC Alloc and render texture diagnostics; do not claim FPS gains. P1/P2 partial, P3 open, APK deferred.
