@@ -12,6 +12,7 @@ namespace EchoSphere.Runtime
     {
         private SourceUiDocument _sourceUi;
         private SourceSettingsToolkitScreen _nativeSettingsScreen;
+        private bool _nativeSettingsWasActive;
         private V _sourceUiStateRef,_sourceUiCanvasRef,_sourceUiTutorialRef;
         private V _sourceUiSavedRunTime;
         private void DrawSourceDocument()
@@ -31,8 +32,10 @@ namespace EchoSphere.Runtime
             }
             if(_mainMenu&&_mainMenuPage==MainMenuPage.Settings)
             {
-                if(_sourceUi.gameObject.activeSelf)_sourceUi.gameObject.SetActive(false);
                 if(_nativeSettingsScreen==null)_nativeSettingsScreen=new GameObject("Native Settings UI Toolkit").AddComponent<SourceSettingsToolkitScreen>();
+                // Keep the source document alive for its animated menu backdrop; hide only its Settings page. 
+                _sourceUi.Continuous=false;_sourceUi.RefreshInterval=0f;_sourceUi.Draw(SourceDevicePixelRatio);_sourceUi.SetSourceScreenHidden(".es-list-screen");
+                _nativeSettingsWasActive=true;
                 var lang=IsRussianUi?"ru":"en";
                 string T(string key)=>Visual_i18n.Scope["translations"][lang][key].Text;
                 var interfaceScale=(float)Visual_interfaceScale.Scope["loadInterfaceScale"].Call().Number;
@@ -48,8 +51,8 @@ namespace EchoSphere.Runtime
                     ()=>{SourceUiBinding("persistence.ts","resetAll").Call();SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);});
                 return;
             }
-            if(!_sourceUi.gameObject.activeSelf){_sourceUi.gameObject.SetActive(true);_sourceUi.Dirty=true;}
             if(_nativeSettingsScreen!=null)_nativeSettingsScreen.Hide();
+            if(_nativeSettingsWasActive){_sourceUi.Dirty=true;_nativeSettingsWasActive=false;}
             _sourceUiStateRef["current"]=_sourceRenderState;UpdateSourceUiState();
             // The source HUD projection updates at 10 Hz; pointer/resize/state
             // invalidations still rebuild immediately and CSS motion stays per-frame.

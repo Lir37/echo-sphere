@@ -5065,3 +5065,10 @@ Validation boundary: CI must pass before acceptance. Exact device-scale spacing,
 - Corrected native Settings layout ownership so each pair of options is attached to its own row and the reset-confirmation buttons are children of the confirmation panel.
 - Applied the source's existing transparent Back, cyan Replay Tutorial and red Reset button treatments. This is a layout/wiring correction only; callbacks and game state rules are unchanged.
 - CI for the correction must pass before treating the pilot as structurally valid; visual parity remains unverified until Editor/device observation.
+
+
+### Native Settings pilot follow-up — preserve the source backdrop
+
+- Kept the existing source UI document active while the native Settings screen is shown. The source Settings container is hidden after each UI update, while the rest of the source tree continues to advance its CSS animation and retain the original menu backdrop.
+- Returning from native Settings marks the source tree dirty so the existing menu screen is reconciled again. This avoids disabling the source document and accidentally removing its background.
+- This addresses structural layering only; exact visual parity, focus, touch and transition behavior remain device/editor acceptance checks.
