@@ -5034,3 +5034,15 @@ Protected source: `new-desing` `737ef2af4a877e0995db5f92331d536d2f29a934`.
 - This slice does not yet remove reflection from individual entity projection; the entity accessor pass remains part of P1. No gameplay rules, timings, visual coefficients, RNG or source-branch files were changed.
 
 Validation boundary: CI must pass before accepting this change. CI is not proof of Unity Editor/APK/device visual parity.
+
+
+## 2026-10-16 — Typed entity projection completion
+
+Implementation base: `unity-migration` `418e1f42738985f681346250e974e226136b9995`.
+Protected source: `new-desing` `737ef2af4a877e0995db5f92331d536d2f29a934`.
+
+- Replaced private-field reflection in the live entity projection for Spheres, enemies, normal/boss projectiles, ability drones, XP orbs, Runes and source particles with explicit read-only accessors owned by those components.
+- Combined with the preceding typed runtime-state slice, the known hot projection paths no longer use `FieldInfo.GetValue` to read the live runtime/entity fields. Generic serialization fallback remains available for non-hot or unclassified data; this is not a claim that reflection has been removed from the entire project.
+- Kept source projection keys, enum casing, coordinate/radius conversion, entity caching, source colors and current simulation fields. No gameplay logic, RNG, timing constants or source-branch files changed.
+
+Validation boundary: CI must pass. Device visuals, Unity Editor startup and APK behavior still need independent validation.

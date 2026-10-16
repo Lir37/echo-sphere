@@ -4,6 +4,7 @@ namespace EchoSphere.Runtime
 {
     public sealed class ExperienceOrbAgent : MonoBehaviour, ISourceSimulationAgent
     {
+        internal float SourceProjectionRotation => _rotation;
         private EchoSphereRuntime _runtime;
         private Transform _player;
         private int _amount = 1;

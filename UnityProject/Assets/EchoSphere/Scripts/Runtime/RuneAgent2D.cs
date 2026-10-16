@@ -4,6 +4,8 @@ namespace EchoSphere.Runtime
 {
     public sealed class RuneAgent2D : MonoBehaviour, ISourceSimulationAgent
     {
+        internal string SourceProjectionType => _type;
+        internal float SourceProjectionLife => _life;
         public static readonly string[] AllTypes =
         {
             "overdrive", "phase", "harvest", "purge", "resonance",

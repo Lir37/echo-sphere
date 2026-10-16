@@ -6,6 +6,16 @@ namespace EchoSphere.Runtime
 {
     public sealed class ProjectileAgent : MonoBehaviour, ISourceSimulationAgent
     {
+        internal float SourceProjectionLife => _life;
+        internal float SourceProjectionRadius => _sourceRadius;
+        internal Color SourceProjectionImpactColor => _impactColor;
+        internal float SourceProjectionDamage => _damage;
+        internal int SourceProjectionRemainingPierces => _remainingPierces;
+        internal int SourceProjectionRemainingRicochets => _remainingRicochets;
+        internal SphereAttackAgent SourceProjectionEvolutionOwner => _evolutionOwner;
+        internal Vector2 SourceProjectionDirection => _direction;
+        internal float SourceProjectionSpeed => _speed;
+        internal SphereElement SourceProjectionElement => _sourceElement;
         private EchoSphereRuntime _runtime;
         private Vector2 _direction;
         private float _damage;

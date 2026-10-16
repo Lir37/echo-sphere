@@ -3,6 +3,11 @@ namespace EchoSphere.Runtime
 {
     public sealed class SourceParticle2D : MonoBehaviour, ISourceSimulationAgent
     {
+        internal float SourceProjectionLife => _life;
+        internal float SourceProjectionMaxLife => _maxLife;
+        internal Vector2 SourceProjectionVelocity => _velocity;
+        internal Color SourceProjectionColor => _color;
+        internal float SourceProjectionSize => _sourceSize;
         private EchoSphereRuntime _runtime;
         private Vector2 _velocity;
         private float _life, _maxLife, _sourceSize;

@@ -7,6 +7,9 @@ namespace EchoSphere.Runtime
     /// <summary>Source-mapped projectile body from renderer.ts:drawBossProjectile.</summary>
     public sealed class BossProjectileAgent2D : MonoBehaviour, ISourceSimulationAgent
     {
+        internal Vector2 SourceProjectionVelocity => _velocity;
+        internal float SourceProjectionHitRadius => _hitRadius;
+        internal string SourceProjectionBossType => _bossType;
         private static Material _sharedMaterial;
         private readonly List<Vector3> _vertices = new List<Vector3>(180);
         private readonly List<Color> _colors = new List<Color>(180);

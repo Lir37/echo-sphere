@@ -68,34 +68,34 @@ namespace EchoSphere.Runtime
             if(entity==null)return VisualJs.Null;
             if(!_sourceRenderEntities.TryGetValue(entity,out var view)){view=VisualJs.Obj();_sourceRenderEntities.Add(entity,view);}
             view["pos"]=SourcePoint((Vector2)entity.transform.position);view["alive"]=entity.gameObject.activeInHierarchy;
-            void Field(string source,string field)=>VisualJs.Assign(view,source,"=",RenderValue(RenderField(entity,field)));
             if(entity is SphereAttackAgent sphere) {
                 view["type"]=sphere.Type.ToString().ToLowerInvariant();view["radius"]=130;view["visualTier"]=sphere.ProgressionLevel;
-                view["damage"]=12;view["attackDelay"]=1.2;view["attackTimer"]=sphere.AttackTimer;view["auraTimer"]=sphere.Type==SphereId.Orbital?RenderValue(RenderField(sphere,"_orbitalContactCheckTimer")):new V(sphere.AttackTimer);
-                view["rotation"]=sphere.Type==SphereId.Orbital?RenderValue(RenderField(sphere,"_orbitAngle")):new V(sphere.Type==SphereId.Gravity?sphere.VisualRotation:-sphere.VisualRotation);
-                Field("networkDisabledTimer","_networkDisabledTimer");view["formationHitCount"]=sphere.FormationHitCount;view["resonancePulseTimer"]=sphere.ResonancePulseTimer;
+                view["damage"]=12;view["attackDelay"]=1.2;view["attackTimer"]=sphere.AttackTimer;view["auraTimer"]=sphere.Type==SphereId.Orbital?sphere.SourceProjectionOrbitalContactCheckTimer:new V(sphere.AttackTimer);
+                view["rotation"]=sphere.Type==SphereId.Orbital?sphere.SourceProjectionOrbitAngle:new V(sphere.Type==SphereId.Gravity?sphere.VisualRotation:-sphere.VisualRotation);
+                view["networkDisabledTimer"]=sphere.SourceProjectionNetworkDisabledTimer;view["formationHitCount"]=sphere.FormationHitCount;view["resonancePulseTimer"]=sphere.ResonancePulseTimer;
             } else if(entity is EnemyAgent2D enemy) {
                 view["hp"]=enemy.CurrentHp;view["maxHp"]=enemy.MaxHp;view["radius"]=enemy.SourceRadius;view["color"]=enemy.SourceColorHtml;
                 view["type"]=enemy.SourceMonsterType;view["isBoss"]=enemy.IsBoss;view["isElite"]=enemy.IsElite;view["bossType"]=enemy.BossType;view["role"]=enemy.Role;view["eliteVariant"]=enemy.EliteVariant;
-                var visual=(EnemyCreatureVisual2D)RenderField(enemy,"_creatureVisual");view["visualVariant"]=visual==null?VisualJs.Null:new V(visual.SourceVariant);
-                Field("hitFlash","_sourceHitFlash");Field("tier","_sourceVisualTier");Field("freezeTimer","_freezeTimer");Field("fireTimer","_fireTimer");Field("poisonTimer","_poisonTimer");
-                Field("rotation","_sourceVisualRotation");
-                Field("elitePulseTelegraphTimer","_linkBreakerTelegraphTimer");Field("elitePulseTarget","_linkBreakerTarget");
+                var visual=enemy.SourceProjectionCreatureVisual;view["visualVariant"]=visual==null?VisualJs.Null:new V(visual.SourceVariant);
+                view["hitFlash"]=enemy.SourceProjectionHitFlash;view["tier"]=enemy.SourceVisualTier;view["freezeTimer"]=enemy.SourceProjectionFreezeTimer;view["fireTimer"]=enemy.SourceProjectionFireTimer;view["poisonTimer"]=enemy.SourceProjectionPoisonTimer;
+                view["rotation"]=enemy.SourceProjectionRotation;
+                view["elitePulseTelegraphTimer"]=enemy.SourceProjectionLinkBreakerTelegraphTimer;view["elitePulseTarget"]=enemy.SourceProjectionLinkBreakerTarget==null?VisualJs.Null:RenderEntity(enemy.SourceProjectionLinkBreakerTarget);
                 view["bossProjectiles"]=VisualJs.Arr();
-                var combat=(BossCombatAgent2D)RenderField(enemy,"_bossCombat");
+                var combat=enemy.SourceProjectionBossCombat;
                 if(combat!=null){view["bossShootTimer"]=combat.ShootTimer;view["summonTimer"]=combat.SummonTimer;view["chargeTimer"]=combat.ChargeTimer;view["isCharging"]=combat.IsCharging;view["chargeDir"]=SourcePoint(combat.ChargeDirection*SpherePlacementRules.SourcePixelsToWorld);view["auraRadius"]=combat.AuraRadius/SpherePlacementRules.SourcePixelsToWorld;}
-            } else if(entity is ProjectileAgent) {
-                Field("life","_life");Field("radius","_sourceRadius");Field("color","_impactColor");Field("damage","_damage");Field("pierce","_remainingPierces");Field("ricochet","_remainingRicochets");Field("sourceSphere","_evolutionOwner");
-                view["vel"]=SourcePoint((Vector2)RenderField(entity,"_direction")*(float)RenderField(entity,"_speed"));
-                var element=(SphereElement)RenderField(entity,"_sourceElement");view["effect"]=element==SphereElement.None?VisualJs.Null:new V(element.ToString().ToLowerInvariant());
+            } else if(entity is ProjectileAgent projectile) {
+                view["life"]=projectile.SourceProjectionLife;view["radius"]=projectile.SourceProjectionRadius;view["color"]=RenderValue(projectile.SourceProjectionImpactColor);view["damage"]=projectile.SourceProjectionDamage;
+                view["pierce"]=projectile.SourceProjectionRemainingPierces;view["ricochet"]=projectile.SourceProjectionRemainingRicochets;view["sourceSphere"]=projectile.SourceProjectionEvolutionOwner==null?VisualJs.Null:RenderEntity(projectile.SourceProjectionEvolutionOwner);
+                view["vel"]=SourcePoint(projectile.SourceProjectionDirection*projectile.SourceProjectionSpeed);
+                var element=projectile.SourceProjectionElement;view["effect"]=element==SphereElement.None?VisualJs.Null:new V(element.ToString().ToLowerInvariant());
             } else if(entity is BossProjectileAgent2D bullet) {
-                Field("vel","_velocity");view["radius"]=((float)RenderField(bullet,"_hitRadius")-BossCombatRules.PlayerRadiusWorld)/SpherePlacementRules.SourcePixelsToWorld;
-                var kind=(string)RenderField(bullet,"_bossType");view["visualType"]=kind;
-            } else if(entity is AbilityDroneAgent2D) {
-                Field("life","_remaining");Field("rotation","_rotation");Field("anchorType","_anchorType");view["radius"]=12;
-            } else if(entity is ExperienceOrbAgent) {view["radius"]=6;Field("rotation","_rotation");}
-            else if(entity is RuneAgent2D){Field("type","_type");Field("life","_life");}
-            else if(entity is SourceParticle2D) {Field("life","_life");Field("maxLife","_maxLife");Field("vel","_velocity");Field("color","_color");Field("size","_sourceSize");}
+                view["vel"]=SourcePoint(bullet.SourceProjectionVelocity);view["radius"]=(bullet.SourceProjectionHitRadius-BossCombatRules.PlayerRadiusWorld)/SpherePlacementRules.SourcePixelsToWorld;
+                view["visualType"]=bullet.SourceProjectionBossType;
+            } else if(entity is AbilityDroneAgent2D drone) {
+                view["life"]=drone.SourceProjectionRemaining;view["rotation"]=drone.SourceProjectionRotation;view["anchorType"]=drone.SourceProjectionAnchorType.ToString().ToLowerInvariant();view["radius"]=12;
+            } else if(entity is ExperienceOrbAgent orb) {view["radius"]=6;view["rotation"]=orb.SourceProjectionRotation;}
+            else if(entity is RuneAgent2D rune){view["type"]=rune.SourceProjectionType;view["life"]=rune.SourceProjectionLife;}
+            else if(entity is SourceParticle2D particle) {view["life"]=particle.SourceProjectionLife;view["maxLife"]=particle.SourceProjectionMaxLife;view["vel"]=SourcePoint(particle.SourceProjectionVelocity);view["color"]=RenderValue(particle.SourceProjectionColor);view["size"]=particle.SourceProjectionSize;}
             return view;
         }
         private static V RenderShape(SphereNetworkShape shape)=>shape==null?VisualJs.Null:VisualJs.Obj("type",shape.Type.ToString().ToLowerInvariant(),"strength",shape.Strength,"dominanceScore",shape.DominanceScore,"nodes",VisualJs.Arr(shape.NodeIndexes.ConvertAll(x=>new V((double)x)).ToArray()),"active",shape.Active);

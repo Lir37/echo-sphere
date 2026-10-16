@@ -6,6 +6,9 @@ namespace EchoSphere.Runtime
 {
     public sealed partial class SphereAttackAgent : MonoBehaviour, ISourceSimulationAgent
     {
+        internal float SourceProjectionOrbitalContactCheckTimer => _orbitalContactCheckTimer;
+        internal float SourceProjectionOrbitAngle => _orbitAngle;
+        internal float SourceProjectionNetworkDisabledTimer => _networkDisabledTimer;
         private EchoSphereRuntime _runtime;
         private Transform _player;
         private Vector2 _followOffset;

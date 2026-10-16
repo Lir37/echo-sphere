@@ -6,6 +6,9 @@ namespace EchoSphere.Runtime
     /// <summary>Temporary minion that follows the source anchor Sphere and uses its source attack profile.</summary>
     public sealed class AbilityDroneAgent2D : MonoBehaviour, ISourceSimulationAgent
     {
+        internal float SourceProjectionRemaining => _remaining;
+        internal float SourceProjectionRotation => _rotation;
+        internal SphereId SourceProjectionAnchorType => _anchorType;
         private EchoSphereRuntime _runtime;
         private SphereId _anchorType;
         private float _remaining;
