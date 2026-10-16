@@ -29,3 +29,13 @@ Starting HEAD: `5d8d0aa3b543dad702a370104dcc4b67b6ab7d7c`.
 
 ## Quad allocation hardening
 Replaced the quad-local corner writer with a noncapturing instance method `AddQuadCorner`, avoiding a possible compiler-generated closure in addition to the former two temporary arrays. Corner order, transforms, colors, UVs and triangle indices are unchanged. Fix commit `843e36d756aeaf10858837045a42dcc39f83746e`; test adjustment `095c5f2334ce1d3386c0a08407e941d3db85a202`. Final CI must be checked independently.
+
+
+## 2026-10-16 continuation: Canvas roundRect radius allocations
+
+Entry HEAD: `8615aec42b52b090d586b8d2cbbcfebd169f883e`. Baseline `new-desing@737ef2af4a877e0995db5f92331d536d2f29a934` unchanged.
+- SourceCanvasSurface.RoundRectangle previously allocated a List<float> on each call for one to four radii. It now reads existing List<V> entries directly, or the scalar V.Number, maintaining the original CSS-style radius fallback mapping (a, b, c, d), invalid-count guard, negative dimensions, shrink calculation and ellipse sequence.
+- The intermediate captured local helper was removed to avoid introducing a possible closure allocation.
+- Regression test `tests/unity-canvas-roundrect-allocation.test.mjs` guards these invariants.
+- Code commits: `038b5b84076be1e6a88f3afe83364ee5b222da99`, `c54e6537c129846d31ed455b7a438589cc5e0ea2`; test `7178cc24d15ac978c5c9d4a14b3caec6a6c6de63`.
+- Static/code tests are not evidence of reduced measured GC, Editor correctness or APK parity. P1/P2 PARTIAL, P3 OPEN. Profiler sampling remains the next decision gate; APK is deferred.
