@@ -65,3 +65,12 @@ Entry HEAD: `e492ebbc117ac7eb20a4df835c12f5ff527db850`. Source baseline remains 
 - This is an allocation-only source-backed change, not a renderer replacement, shader-effect reduction, or new gameplay behavior.
 - Code commit `78f3b0721f3b66c144a89fe330d02fc0fa66973a`, updated test `2859f73919068b840d145a1b5f9d1dda779676c1`.
 - Confirm via current CI and Editor Profiler. P1/P2 remain PARTIAL; P3 remains OPEN. APK deferred.
+
+
+## 2026-10-16 — P1 retained UI paint-order sorting
+
+Starting HEAD: `ab07259c02d691f49de185dc29aa0f18e6192858`; source `new-desing@737ef2af4a877e0995db5f92331d536d2f29a934` not changed.
+
+`SourceUiDocument.Reconcile` previously ran `Where(...).OrderBy(...).ThenBy(...)` for each element's native paint/picking reordering. It now fills and clears a document-owned `List<(VisualElement, double, double, int)>`, sorts by the same CSS `order` and `z-index` values with original child index as an explicit stable tie-break, and calls `BringToFront` in the same order. The scratch list is filled only after recursive children have been reconciled. No change to CSS property formulas, layout, input event handlers, gameplay, source or visual effects is intended.
+
+Code commit: `50d9d5931490b4ac041b1a6be30a5610b64fd47c`. Structural guard: `9ec588d611b1f20f3c761f9fa36b87bb92186faa`. Unity Editor CPU/GC impact and resulting pick/render-order parity remain to be confirmed; static CI does not prove either. P1/P2 partial, P3 open, APK deferred.
