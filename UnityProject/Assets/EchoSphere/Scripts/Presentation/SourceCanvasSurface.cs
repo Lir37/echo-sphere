@@ -23,6 +23,17 @@ namespace EchoSphere.Presentation
         private static readonly int ShadowMaskId=Shader.PropertyToID("_SourceShadowMask");
         private static readonly int ShadowPingId=Shader.PropertyToID("_SourceShadowPing");
         private static readonly int ShadowBlurId=Shader.PropertyToID("_SourceShadowBlur");
+        private static readonly ProfilerMarker CanvasTessellationMarker=new ProfilerMarker("EchoSphere.Canvas.Tessellate");
+        private static readonly ProfilerMarker CanvasShadowCommandsMarker=new ProfilerMarker("EchoSphere.Canvas.ShadowCommands");
+        private static readonly ProfilerMarker CanvasExecuteMarker=new ProfilerMarker("EchoSphere.Canvas.ExecuteCommands");
+        private static readonly int ImageTexId=Shader.PropertyToID("_ImageTex");
+        private static readonly int ImageTexelSizeId=Shader.PropertyToID("_ImageTex_TexelSize");
+        private static readonly int PaintsId=Shader.PropertyToID("_Paints");
+        private static readonly int ShadowSigmaId=Shader.PropertyToID("_SourceShadowSigma");
+        private static readonly int ShadowDirectionId=Shader.PropertyToID("_SourceShadowDirection");
+        private static readonly int ShadowColorId=Shader.PropertyToID("_SourceShadowColor");
+        private static readonly int ShadowOffsetId=Shader.PropertyToID("_SourceShadowOffset");
+        private static readonly int ShadowRectId=Shader.PropertyToID("_SourceShadowRect");
         private sealed class State
         {
             public Matrix4x4 Matrix=Matrix4x4.identity;
@@ -176,23 +187,24 @@ namespace EchoSphere.Presentation
             _commands.GetTemporaryRT(ping,shadowViewport.Width,shadowViewport.Height,0,FilterMode.Bilinear,RenderTextureFormat.ARGB32,RenderTextureReadWrite.Linear);
             _commands.GetTemporaryRT(blur,shadowViewport.Width,shadowViewport.Height,0,FilterMode.Bilinear,RenderTextureFormat.ARGB32,RenderTextureReadWrite.Linear);}
             for(var i=0;i<_batches.Count;i++) {
-                var batch=_batches[i];if(batch.Count==0)continue;var props=_properties;var image=batch.Texture!=null?batch.Texture:Texture2D.whiteTexture;props.SetTexture("_ImageTex",image);props.SetVector("_ImageTex_TexelSize",new Vector4(1f/image.width,1f/image.height,image.width,image.height));
+                var batch=_batches[i];if(batch.Count==0)continue;var props=_properties;var image=batch.Texture!=null?batch.Texture:Texture2D.whiteTexture;props.SetTexture(ImageTexId,image);props.SetVector(ImageTexelSizeId,new Vector4(1f/image.width,1f/image.height,image.width,image.height));
                 if(batch.Shadow.a>0f&&(batch.Blur>0f||batch.X!=0f||batch.Y!=0f)) {
+                    using var shadowSample=CanvasShadowCommandsMarker.Auto();
                     _commands.SetRenderTarget(mask);_commands.ClearRenderTarget(false,true,Color.clear);_commands.SetViewProjectionMatrices(Matrix4x4.identity,shadowProjection);
                     _commands.DrawMesh(_mesh,Matrix4x4.identity,_material,i,0,props);
-                    _commands.SetGlobalFloat("_SourceShadowSigma",(float)VisualCanvasShadowViewport.Sigma(batch.Blur));
-                    _commands.SetGlobalVector("_SourceShadowDirection",new Vector4(1f/shadowViewport.Width,0f,0f,0f));_commands.Blit(mask,ping,_blurMaterial,0);
-                    _commands.SetGlobalVector("_SourceShadowDirection",new Vector4(0f,1f/shadowViewport.Height,0f,0f));_commands.Blit(ping,blur,_blurMaterial,0);
-                    _commands.SetGlobalColor("_SourceShadowColor",batch.Shadow);
-                    _commands.SetGlobalVector("_SourceShadowOffset",new Vector4(batch.X/shadowViewport.Width,-batch.Y/shadowViewport.Height,0f,0f));
-                    _commands.SetGlobalVector("_SourceShadowRect",new Vector4((float)shadowViewport.U,(float)shadowViewport.V,(float)shadowViewport.UWidth,(float)shadowViewport.VHeight));
+                    _commands.SetGlobalFloat(ShadowSigmaId,(float)VisualCanvasShadowViewport.Sigma(batch.Blur));
+                    _commands.SetGlobalVector(ShadowDirectionId,new Vector4(1f/shadowViewport.Width,0f,0f,0f));_commands.Blit(mask,ping,_blurMaterial,0);
+                    _commands.SetGlobalVector(ShadowDirectionId,new Vector4(0f,1f/shadowViewport.Height,0f,0f));_commands.Blit(ping,blur,_blurMaterial,0);
+                    _commands.SetGlobalColor(ShadowColorId,batch.Shadow);
+                    _commands.SetGlobalVector(ShadowOffsetId,new Vector4(batch.X/shadowViewport.Width,-batch.Y/shadowViewport.Height,0f,0f));
+                    _commands.SetGlobalVector(ShadowRectId,new Vector4((float)shadowViewport.U,(float)shadowViewport.V,(float)shadowViewport.UWidth,(float)shadowViewport.VHeight));
                     _commands.Blit(blur,_target,_blurMaterial,batch.Blend=="lighter"?2:batch.Blend=="screen"?3:1);
                     _commands.SetViewProjectionMatrices(Matrix4x4.identity,projection);
                 }
                 _commands.SetRenderTarget(_target);_commands.DrawMesh(_mesh,Matrix4x4.identity,_material,i,batch.Blend=="lighter"?1:batch.Blend=="screen"?2:0,props);
             }
             var previous=RenderTexture.active;var gamma=GL.sRGBWrite;
-            try{if(hasShadows){_commands.ReleaseTemporaryRT(mask);_commands.ReleaseTemporaryRT(ping);_commands.ReleaseTemporaryRT(blur);}_commands.SetRenderTarget(previous!=null?new RenderTargetIdentifier(previous):new RenderTargetIdentifier(BuiltinRenderTextureType.CameraTarget));Graphics.ExecuteCommandBuffer(_commands);}
+            try{if(hasShadows){_commands.ReleaseTemporaryRT(mask);_commands.ReleaseTemporaryRT(ping);_commands.ReleaseTemporaryRT(blur);}_commands.SetRenderTarget(previous!=null?new RenderTargetIdentifier(previous):new RenderTargetIdentifier(BuiltinRenderTextureType.CameraTarget));using(CanvasExecuteMarker.Auto())Graphics.ExecuteCommandBuffer(_commands);}
             finally{RenderTexture.active=previous;GL.sRGBWrite=gamma;}
         }
         private void ResizePaintTexture()
@@ -200,7 +212,7 @@ namespace EchoSphere.Presentation
             _paintHeight=Mathf.Max(1,_paintHeight);
             if(_paintTexture!=null)Destroy(_paintTexture);
             _paintTexture=new Texture2D(Mathf.Max(1,PaintWidth),_paintHeight,TextureFormat.RGBAFloat,false,true) {filterMode=FilterMode.Point,wrapMode=TextureWrapMode.Clamp,name="Source Canvas Gradient Stops"};
-            _paintPixels=new Color[PaintWidth*_paintHeight];_material.SetTexture("_Paints",_paintTexture);
+            _paintPixels=new Color[PaintWidth*_paintHeight];_material.SetTexture(PaintsId,_paintTexture);
         }
         public void Set(string name,V value)
         {
@@ -395,7 +407,8 @@ namespace EchoSphere.Presentation
             else shape.Fill=new SolidFill {Color=Color.white,Mode=evenOdd?FillMode.OddEven:FillMode.NonZero};
             var scene=new Scene {Root=new SceneNode {Shapes=new List<Shape>{shape}}};
             var options=new VectorUtils.TessellationOptions {StepDistance=float.MaxValue,MaxCordDeviation=.02f,MaxTanAngleDeviation=.08f,SamplingStepSize=.01f};
-            var geometries=VectorUtils.TessellateScene(scene,options);
+            List<VectorUtils.Geometry> geometries;
+            using(CanvasTessellationMarker.Auto())geometries=VectorUtils.TessellateScene(scene,options);
             var paint=stroke?_state.Stroke:_state.Fill;var index=-1;var color=Color.white;
             if(paint.Raw is VisualGradient gradient)
             {if(!_gradientIndices.TryGetValue(gradient,out index)){index=_gradients.Count;_gradientIndices.Add(gradient,index);_gradients.Add(gradient);}}
