@@ -5137,3 +5137,8 @@ Next validation step: open the current branch in Unity Editor and on device, ins
 - Replaced per-frame creation of an empty UI Toolkit FilterFunction list for unfiltered UI nodes with an entry-owned reusable empty list. Existing filter construction and application are unchanged when CSS filter/opacity requires them.
 - Replaced the per-rasterization temporary flipped RGBA byte array in SourceUiDocument.EnsureBrush with an entry-owned upload buffer resized only when the pixel count changes. The same Buffer.BlockCopy row inversion and Texture2D.LoadRawTextureData/Apply calls remain. Rasterizer calculations, CSS brush keys, pixel values and texture configuration are unchanged.
 - Added regression guards and retained the existing reconciliation/UI-animation/SVG buffer tests. User confirmed native Settings in Unity Editor; APK testing remains deferred. Runtime allocation and FPS effects still need Unity Profiler measurements; CI is not a visual/parity or performance benchmark.
+
+### CI #685 follow-up: test scope correction
+
+- CI #685 failed in core-contracts because the new negative regex scanned all of SourceUiDocument, matching the unrelated existing GroupClip raster pixel buffer. Source and Unity typechecks passed. The assertion was narrowed to the EnsureBrush method under test; production code is unchanged by this follow-up.
+- Re-run CI is required before acceptance. No claims of measured FPS or Unity Editor parity are made.

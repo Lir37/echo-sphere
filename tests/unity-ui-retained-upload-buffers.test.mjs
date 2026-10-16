@@ -13,5 +13,6 @@ test('CSS raster keeps the original flipped pixels but reuses the upload buffer'
  assert.match(code,/entry\.PaintUploadPixels=new byte\[raster\.Pixels\.Length\]/);
  assert.match(code,/Buffer\.BlockCopy\(raster\.Pixels,y\*stride,entry\.PaintUploadPixels,\(raster\.Height-y-1\)\*stride,stride\)/);
  assert.match(code,/entry\.Paint\.LoadRawTextureData\(entry\.PaintUploadPixels\)/);
- assert.doesNotMatch(code,/var pixels=new byte\[raster\.Pixels\.Length\]/);
+ const brush=code.split('private void EnsureBrush(Entry entry)')[1].split('private void PrepareSvg(Entry entry)')[0];
+ assert.doesNotMatch(brush,/var pixels=new byte\[raster\.Pixels\.Length\]/);
 });
