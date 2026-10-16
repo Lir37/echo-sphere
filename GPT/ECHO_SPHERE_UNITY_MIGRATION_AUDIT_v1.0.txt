@@ -5130,3 +5130,10 @@ Next validation step: open the current branch in Unity Editor and on device, ins
 - Reused a per-entry List<VisualCssNode> during SourceUiSvg.Text traversal, rather than allocating a new list for every SVG text layout refresh. Both invocation paths in SourceUiDocument use the retained list and each traversal clears it before collection.
 - SVG labels, source text, font sizing, transform, draw order, control behavior and gameplay are unchanged. Other SVG rasterization and layout costs remain; this is not a claim that the SVG subsystem has been replaced by native Unity vector rendering.
 - Structural regression guard added. User verified Settings inside Unity Editor; APK validation intentionally deferred. Profiler measurements and complete Editor performance validation remain open.
+
+
+## 2026-10-16 — Retained UI filter and CSS texture upload buffers
+
+- Replaced per-frame creation of an empty UI Toolkit FilterFunction list for unfiltered UI nodes with an entry-owned reusable empty list. Existing filter construction and application are unchanged when CSS filter/opacity requires them.
+- Replaced the per-rasterization temporary flipped RGBA byte array in SourceUiDocument.EnsureBrush with an entry-owned upload buffer resized only when the pixel count changes. The same Buffer.BlockCopy row inversion and Texture2D.LoadRawTextureData/Apply calls remain. Rasterizer calculations, CSS brush keys, pixel values and texture configuration are unchanged.
+- Added regression guards and retained the existing reconciliation/UI-animation/SVG buffer tests. User confirmed native Settings in Unity Editor; APK testing remains deferred. Runtime allocation and FPS effects still need Unity Profiler measurements; CI is not a visual/parity or performance benchmark.

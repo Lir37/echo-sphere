@@ -25,6 +25,8 @@ namespace EchoSphere.Presentation
             public Texture Svg;
             public readonly List<Label> SvgTexts=new List<Label>();
             public readonly List<VisualCssNode> SvgTextNodes=new List<VisualCssNode>();
+            public readonly List<FilterFunction> EmptyFilters=new List<FilterFunction>();
+            public byte[] PaintUploadPixels;
             public Rect PaintRect;
             public Rect SvgRect;
             public SourceUiDepth Depth;
@@ -177,7 +179,7 @@ namespace EchoSphere.Presentation
         private void OnApplicationFocus(bool focused)
         {if(!focused)foreach(var entry in _entries.Values)if(entry.ActivePointers.Count>0){entry.ActivePointers.Clear();entry.Node.Active=false;Dirty=true;}}
         private void UpdateLayout(VisualCssNode node)
-        {if(node.Native is VisualElement element){var oldBounds=(node.X,node.Y,node.Width,node.Height);UpdateBounds(node,element);if(oldBounds!=(node.X,node.Y,node.Width,node.Height))FrameVersion++;var entry=_elementEntries[element];var contentRotation=_layout.Apply(node,entry.Element,entry.Frame.parent);entry.Frame.ApplyOuterStyle(contentRotation);if(node.Tag=="svg")SourceUiSvg.Text(node,_sheet,entry.Element,entry.SvgTexts,entry.SvgTextNodes);if(DepthAncestor(node)==null&&(_sheet.Get(node,"filter","none").Trim()!="none"||_sheet.Get(node,"opacity","1")!="1")){if(entry.Filters==null)entry.Filters=new SourceUiFilters();entry.Filters.Apply(_sheet,node,element,_scale,IsDepthRoot(node));}else element.style.filter=new List<FilterFunction>();
+        {if(node.Native is VisualElement element){var oldBounds=(node.X,node.Y,node.Width,node.Height);UpdateBounds(node,element);if(oldBounds!=(node.X,node.Y,node.Width,node.Height))FrameVersion++;var entry=_elementEntries[element];var contentRotation=_layout.Apply(node,entry.Element,entry.Frame.parent);entry.Frame.ApplyOuterStyle(contentRotation);if(node.Tag=="svg")SourceUiSvg.Text(node,_sheet,entry.Element,entry.SvgTexts,entry.SvgTextNodes);if(DepthAncestor(node)==null&&(_sheet.Get(node,"filter","none").Trim()!="none"||_sheet.Get(node,"opacity","1")!="1")){if(entry.Filters==null)entry.Filters=new SourceUiFilters();entry.Filters.Apply(_sheet,node,element,_scale,IsDepthRoot(node));}else element.style.filter=entry.EmptyFilters;
                 // Backdrop helpers are retained children, prepared after brushes
                 // and depth surfaces. They issue no graphics commands at repaint.
                 if(VisualBackdrop.Sigma(_sheet,node)>=0d){if(entry.Backdrop==null){entry.Backdrop=new SourceUiBackdrop(element,entry.PaintContent,ReplicaPaint);_backdropForegrounds.Add(entry.Backdrop.Foreground,entry);}}
@@ -256,7 +258,9 @@ namespace EchoSphere.Presentation
             if(entry.PaintKey!=fingerprint){
                 if(entry.Paint!=null)Destroy(entry.Paint);var raster=VisualCssPaint.Paint(_sheet,node,_scale,localViewport);entry.Paint=new Texture2D(raster.Width,raster.Height,TextureFormat.RGBA32,false,false){name="Source CSS "+node.Tag,wrapMode=TextureWrapMode.Clamp,filterMode=FilterMode.Bilinear};
                 // CSS raster rows run top-to-bottom; Unity texture rows bottom-to-top.
-                var pixels=new byte[raster.Pixels.Length];var stride=raster.Width*4;for(var y=0;y<raster.Height;y++)Buffer.BlockCopy(raster.Pixels,y*stride,pixels,(raster.Height-y-1)*stride,stride);entry.Paint.LoadRawTextureData(pixels);entry.Paint.Apply(false,true);entry.PaintRect=new Rect((float)raster.Left,(float)raster.Top,(float)(raster.Width/raster.Scale),(float)(raster.Height/raster.Scale));entry.PaintKey=fingerprint;
+                if(entry.PaintUploadPixels==null||entry.PaintUploadPixels.Length!=raster.Pixels.Length)
+                    entry.PaintUploadPixels=new byte[raster.Pixels.Length];
+                var stride=raster.Width*4;for(var y=0;y<raster.Height;y++)Buffer.BlockCopy(raster.Pixels,y*stride,entry.PaintUploadPixels,(raster.Height-y-1)*stride,stride);entry.Paint.LoadRawTextureData(entry.PaintUploadPixels);entry.Paint.Apply(false,true);entry.PaintRect=new Rect((float)raster.Left,(float)raster.Top,(float)(raster.Width/raster.Scale),(float)(raster.Height/raster.Scale));entry.PaintKey=fingerprint;
             }
         }
         private void PrepareSvg(Entry entry)
