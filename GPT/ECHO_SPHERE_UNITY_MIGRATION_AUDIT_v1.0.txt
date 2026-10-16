@@ -5277,3 +5277,7 @@ final 480x854 sample averaged 118.312 ms/frame and about 5.51 MB main-thread GC.
 The existing z-index/flex-flow coupling still places the sphere entry below the controls.
 P1/P2 remain PARTIAL. Console has earlier repaint assertions; texture index=3 was not reproduced.
 No gameplay changes or APK. User local settings/import changes preserved. Check resulting CI.
+Implementation checkpoint 574ddbcdeaf127f3caa5741165838d7bdfae1d32:
+Unity Migration Contracts #731 SUCCESS (https://github.com/Lir37/echo-sphere/actions/runs/38961184855).
+Actual Editor compile/tests and remaining performance/layout gates are documented in
+GPT/UNITY_EDITOR_MENU_DIAGNOSTICS_2026-10-16.md. P1/P2 remain PARTIAL; no APK.

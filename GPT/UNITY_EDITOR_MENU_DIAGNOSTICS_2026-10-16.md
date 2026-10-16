@@ -81,3 +81,12 @@ startup FontResolve timing were not established.
 - Remaining native screen migration and renderer modernization are not complete.
 - No gameplay/balance/RNG/source branch changes. No APK build.
 - GitHub Actions outcome must be read on the resulting commit; local PASS is not CI SUCCESS.
+## CI checkpoint
+
+Implementation `574ddbcdeaf127f3caa5741165838d7bdfae1d32`: Unity Migration Contracts
+[run #731](https://github.com/Lir37/echo-sphere/actions/runs/38961184855) SUCCESS.
+This passed all three jobs (Unity API typecheck, source typecheck, core/visual/regression checks).
+The Editor was left stopped with Profiler recording off. Temporary diagnostic Game View sizes
+were removed and the previous size restored. Generated screenshot assets were moved out of
+UnityProject/Assets into session working materials. Pre-existing user edits remain uncommitted.
+The documentation closeout commit requires its own CI result; P1/P2 acceptance remains open.
