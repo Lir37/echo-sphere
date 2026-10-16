@@ -34,12 +34,19 @@ namespace EchoSphere.Presentation
         // Reuse only after the previous depth frame has finished.
         private readonly List<List<Point>> _pointPool=new List<List<Point>>();
         private readonly List<Polygon> _polygonPool=new List<Polygon>();
-        private int _pointCursor,_polygonCursor;
+        private readonly List<Branch> _branchPool=new List<Branch>();
+        private int _pointCursor,_polygonCursor,_branchCursor;
         private static readonly Vector2[] UnitUvs={new Vector2(0,1),new Vector2(1,1),new Vector2(1,0),new Vector2(0,0)};
         private List<Point> RentPoints()
         {
             if(_pointCursor==_pointPool.Count)_pointPool.Add(new List<Point>(4));
             var points=_pointPool[_pointCursor++];points.Clear();return points;
+        }
+        private Branch RentBranch(Vector3 normal,Vector3 position)
+        {
+            if(_branchCursor==_branchPool.Count)_branchPool.Add(new Branch());
+            var branch=_branchPool[_branchCursor++];branch.Normal=normal;branch.Position=position;
+            branch.Front=null;branch.Back=null;branch.Coplanar.Clear();return branch;
         }
         private Polygon RentPolygon(List<Point> points,PlaneImage image)
         {
@@ -59,7 +66,7 @@ namespace EchoSphere.Presentation
         private void Add(ref Branch branch,Polygon polygon)
         {
             if(polygon.Points.Count<3)return;
-            if(branch==null){var normal=Vector3.Cross(polygon.Points[1].Position-polygon.Points[0].Position,polygon.Points[2].Position-polygon.Points[0].Position);if(normal.sqrMagnitude<.0000001f)return;branch=new Branch {Normal=normal.normalized,Position=polygon.Points[0].Position};branch.Coplanar.Add(polygon);return;}
+            if(branch==null){var normal=Vector3.Cross(polygon.Points[1].Position-polygon.Points[0].Position,polygon.Points[2].Position-polygon.Points[0].Position);if(normal.sqrMagnitude<.0000001f)return;branch=RentBranch(normal.normalized,polygon.Points[0].Position);branch.Coplanar.Add(polygon);return;}
             var front=RentPoints();var back=RentPoints();var hasFront=false;var hasBack=false;
             for(var index=0;index<polygon.Points.Count;index++){
                 var a=polygon.Points[index];var b=polygon.Points[(index+1)%polygon.Points.Count];var da=Vector3.Dot(branch.Normal,a.Position-branch.Position);var db=Vector3.Dot(branch.Normal,b.Position-branch.Position);
@@ -73,7 +80,7 @@ namespace EchoSphere.Presentation
         internal Texture Render(List<PlaneImage> images,float width,float height,float scale,float perspective,Vector2? eyeCenter=null,bool preserveDepth=true)
         {
             using var depthSample=DepthRenderMarker.Auto();
-            _pointCursor=0;_polygonCursor=0;
+            _pointCursor=0;_polygonCursor=0;_branchCursor=0;
             Branch tree=null;var paintOrder=_paintOrder;paintOrder.Clear();var min=new Vector2(float.PositiveInfinity,float.PositiveInfinity);var max=new Vector2(float.NegativeInfinity,float.NegativeInfinity);var center=eyeCenter??new Vector2(width*.5f,height*.5f);
             foreach(var image in images){var r=image.Rect;var points=RentPoints();
                 for(var index=0;index<4;index++){

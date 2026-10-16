@@ -5171,3 +5171,10 @@ Next validation step: open the current branch in Unity Editor and on device, ins
 - After CI #688/#689 passed, SourceUiDepth still created two temporary List<Point> objects at each BSP split, a fresh Polygon at each split, and arrays for each plane's four local corners and UVs. Added renderer-local reusable pools of point lists and polygon records, reset only at the start of the next complete SourceUiDepth.Render call, after previous frame traversal and mesh population have finished.
 - The existing recursive plane classifications, intersection test, epsilon, interpolation, front/back/copanar branching and painter ordering are unchanged. Four source rectangle corners and four UVs retain the same authored order; the two temporary per-image arrays are eliminated in favor of the same calculated coordinates and a static immutable UV array.
 - Pools are private to a SourceUiDepth instance, including nested depth renderers. No gameplay rules or shader/color/texture changes. Added structural guards. Unity Editor parity and Profiler CPU/GC metrics are not established by CI; actual validation remains open, APK deferred.
+
+
+## 2026-10-16 — P2 retained BSP branch nodes
+
+- Completed the next source-depth allocation slice after CI #690 succeeded. A SourceUiDepth instance now reuses the Branch tree nodes as well as its existing point/polygon buffers. Branch node normal and position are overwritten when leased, previous children are set to null and the coplanar list is cleared before any insertion. The cursor is reset only on the next complete Render.
+- The same normal normalization, degenerate-plane threshold, epsilon classifications, BSP child recursion and painter traversal remain in place. No shaders, source CSS, gameplay or frame cadence were changed.
+- Regression guard added. Native Editor/Profiler behavior and worst-case retained-memory high-watermark remain open measurements, not assertions of acceptance. APK deferred.
