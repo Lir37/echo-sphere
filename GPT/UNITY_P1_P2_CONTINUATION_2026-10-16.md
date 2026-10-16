@@ -89,3 +89,6 @@ Additional diagnostic work: `EchoSphere.UI.BuildTree`, `EchoSphere.UI.Reconcile`
 
 Commits: `e53ec991f739498b6f0bbce20dddf0c54206c05e` initial presentation gate; `d69e56b13f0f85e5fa55ac5066475d316aa1552f` gate test; `b7ccb452dc4d040bb8fcbd5863245c1be4e69447` new markers; `4dbd834c00e8b42914ab0356087a32ee828aa8ca` marker guard.
 Code-level CI must be checked for these commits. P1/P2 remain PARTIAL and P3 OPEN; actual Unity Editor initial-menu behavior and FPS are not yet verified; APK remains deferred.
+
+### CI regression guard correction
+CI #717 and #718 failed in core-contracts because the existing `unity-ui-refresh-cadence.test.mjs` required a literal `AdvanceMotion;UpdateLayout;...` sequence, now separated only by the new `UiLayoutMarker.Auto()` scope. Source and Unity typechecks passed. Updated the regex guard to verify the identical call ordering with the measurement scope included; implementation unchanged. Test correction commit `68d40f412df1fc14b0bba5713a00f90e49cfb794`. Await CI for the corrected checkpoint. Editor run remains the required acceptance check for visible startup and reported severe FPS loss.
