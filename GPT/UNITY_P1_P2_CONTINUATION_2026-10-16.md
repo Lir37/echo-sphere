@@ -17,3 +17,12 @@ Regression guard commit: `a540f2b8ccea1d76db5d062f1b5e1121dbf299a9`.
 P1/P2 remain PARTIAL and P3 OPEN. The current code is still hybrid; source-backed native screen/visual replacement must proceed incrementally. Use actual Unity Profiler captures (including EchoSphere.UI.* and EchoSphere.Canvas.*) to identify next hotspots. Check Editor focus/input, visual fidelity and retained memory. APK remains deferred until the user's final combined check. Green CI is not proof of Unity Editor compilation, FPS, or device parity.
 
 CI state is determined by the actual GitHub Actions runs on each commit, not this note. Update the main audit once broader acceptance is available.
+
+
+## Follow-up: native Canvas allocations
+Starting HEAD: `5d8d0aa3b543dad702a370104dcc4b67b6ab7d7c`.
+- `SourceCanvasSurface.Quad` no longer allocates temporary four-element point and UV arrays. It emits the same four vertices in the same order, preserving the original UV assignments and triangles.
+- `setLineDash` duplicates an odd dash sequence into the already allocated dash list instead of allocating a second intermediate list. This retains the original doubled pattern and state assignment.
+- A Node structural regression guard protects ordering and the absence of these two allocation patterns.
+- Code: `f166e5bfc79e880107165ef5745a24c2d98045bf`; test: `b2d50836f0510d0910e2725790847e90e9f8f7e8`.
+- No effects removed, no gameplay changes, no source branch modifications. Remaining P1/P2 and Profiler acceptance gates are unchanged. CI status must be verified from Actions.
