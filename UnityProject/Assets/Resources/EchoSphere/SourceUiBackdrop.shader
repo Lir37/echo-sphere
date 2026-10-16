@@ -17,8 +17,8 @@ Shader "EchoSphere/SourceUiBackdrop"
    // mix unrelated pixels just outside a panel into the panel's edge.
    panel=_PanelSize.xy-abs(_PanelSize.xy-frac(panel/(2*_PanelSize.xy))*(2*_PanelSize.xy));
    screen=float2(dot(_ToScreenX.xyz,float3(panel,1)),dot(_ToScreenY.xyz,float3(panel,1)));
-   float2 point=(screen-_Roi.xy)/_Roi.zw;
-   return rect.xy+float2(point.x,1-point.y)*rect.zw;
+   float2 screenUv=(screen-_Roi.xy)/_Roi.zw;
+   return rect.xy+float2(screenUv.x,1-screenUv.y)*rect.zw;
   }
   float4 Read(float2 uv,float4 rect,bool mirror){
    if(mirror)uv=Mirror(uv,rect);
