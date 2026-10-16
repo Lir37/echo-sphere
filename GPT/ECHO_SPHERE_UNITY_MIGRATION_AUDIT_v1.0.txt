@@ -5009,3 +5009,16 @@ OPEN VALIDATION:
 ======================================================================
 END WARNING CLEANUP PASS
 ======================================================================
+
+
+## 2026-10-16 — Source UI reconciliation cadence
+
+Implementation base: `unity-migration` `0225b16db32e010240357f8594e5c86502e8d89e`.
+Protected source: `new-desing` `737ef2af4a877e0995db5f92331d536d2f29a934`.
+
+- Added a configurable refresh interval to `SourceUiDocument`. While the game view is active, the logical source-derived UI tree is reconciled at 0.10-second intervals instead of every rendered frame.
+- Explicit UI invalidations still reconcile immediately. CSS motion, layout, paint-resource preparation, and the Canvas renderer continue to advance each frame; this change does not intentionally reduce authored animation cadence or alter gameplay state.
+- Main-menu screens remain event-driven as before. No source branch files were changed.
+- Added a regression test for the refresh cadence and retained per-frame motion path.
+
+Status boundary: this is one bounded P1 optimization, not completion of the full P1 program. Typed projection work and the dedicated native UI Toolkit Settings pilot remain open. CI and source-level tests must pass for this commit; Unity Editor/APK/device behavior still requires separate validation.

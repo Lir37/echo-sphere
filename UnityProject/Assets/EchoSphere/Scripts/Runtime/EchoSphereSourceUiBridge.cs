@@ -28,7 +28,10 @@ namespace EchoSphere.Runtime
                 environment.Reload=()=>SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
                 VisualUiBindings.Resolve=SourceUiBinding;
             }
-            _sourceUiStateRef["current"]=_sourceRenderState;UpdateSourceUiState();_sourceUi.Continuous=!_mainMenu;_sourceUi.Draw(SourceDevicePixelRatio);
+            _sourceUiStateRef["current"]=_sourceRenderState;UpdateSourceUiState();
+            // The source HUD projection updates at 10 Hz; pointer/resize/state
+            // invalidations still rebuild immediately and CSS motion stays per-frame.
+            _sourceUi.Continuous=false;_sourceUi.RefreshInterval=_mainMenu?0f:0.1f;_sourceUi.Draw(SourceDevicePixelRatio);
         }
         private V SourceUiTree()
         {

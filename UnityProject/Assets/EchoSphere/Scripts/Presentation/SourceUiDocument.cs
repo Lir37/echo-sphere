@@ -52,6 +52,10 @@ namespace EchoSphere.Presentation
         public Action AfterEvent;
         public bool Dirty=true;
         public bool Continuous;
+        // Rebuild the source-derived logical tree at a bounded cadence while
+        // keeping CSS animation, layout and paint-resource work frame-driven.
+        public float RefreshInterval;
+        private double _nextRenderAt;
         internal int FrameVersion {get;private set;}
         internal float Scale=>_scale;
         public void Initialize()
@@ -78,10 +82,12 @@ namespace EchoSphere.Presentation
             var safe=Screen.safeArea;_sheet.SafeLeft=safe.xMin/_scale;_sheet.SafeRight=(Screen.width-safe.xMax)/_scale;_sheet.SafeTop=(Screen.height-safe.yMax)/_scale;_sheet.SafeBottom=safe.yMin/_scale;
             Environment.Tick(Time.unscaledTimeAsDouble*1000d);
             if(Render==null)return;
+            var now=Time.unscaledTimeAsDouble;
+            if(!Dirty&&!Continuous&&_root!=null&&RefreshInterval>0f&&now>=_nextRenderAt)Dirty=true;
             if(!Dirty&&!Continuous&&_root!=null){AdvanceMotion(_root);UpdateLayout(_root);PreparePaintResources(_root);_layout.Tracks(_root);return;}
-            // Game values change each frame; stable native elements preserve focus,
-            // scroll positions, pointer capture and CSS animation start times.
-            FrameVersion++;Dirty=false;VisualDom.BeginFrame();var tree=Render();var nextRoot=VisualCssNode.Build(tree);CopyInteraction(_root,nextRoot);_root=nextRoot;_sheet.Apply(_root);
+            // Reconcile source state only when dirty or the configured projection
+            // interval elapses. CSS motion/layout/paint still advance every frame.
+            FrameVersion++;Dirty=false;_nextRenderAt=now+Math.Max(0d,RefreshInterval);VisualDom.BeginFrame();var tree=Render();var nextRoot=VisualCssNode.Build(tree);CopyInteraction(_root,nextRoot);_root=nextRoot;_sheet.Apply(_root);
             foreach(var entry in _entries.Values)entry.Used=false;
             Reconcile(_root,_document.rootVisualElement,"root");
             foreach(var pair in _entries.Where(pair=>!pair.Value.Used).ToArray()){Dispose(pair.Value);_entries.Remove(pair.Key);}
