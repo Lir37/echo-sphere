@@ -37,6 +37,13 @@ namespace EchoSphere.Presentation
             public byte[] PaintUploadPixels;
             public byte[] DepthClipUploadPixels;
             public readonly List<SourceUiDepth.PlaneImage> DepthImages=new List<SourceUiDepth.PlaneImage>();
+            public readonly List<SourceUiDepth.PlaneImage> DepthImagePool=new List<SourceUiDepth.PlaneImage>();
+            public int DepthImageCursor;
+            public SourceUiDepth.PlaneImage RentDepthImage()
+            {
+                if(DepthImageCursor==DepthImagePool.Count)DepthImagePool.Add(new SourceUiDepth.PlaneImage());
+                return DepthImagePool[DepthImageCursor++];
+            }
             public Rect PaintRect;
             public Rect SvgRect;
             public SourceUiDepth Depth;
@@ -306,12 +313,17 @@ namespace EchoSphere.Presentation
         }
         private void RenderDepthLayer(Entry root,float perspective,Vector2? eye=null)
         {
-            var images=root.DepthImages;images.Clear();var clip=ClipsDepth(root.Node)?DepthClip(root):null;var clipRect=new Rect(0,0,(float)root.Node.Width,(float)root.Node.Height);
+            var images=root.DepthImages;images.Clear();root.DepthImageCursor=0;var clip=ClipsDepth(root.Node)?DepthClip(root):null;var clipRect=new Rect(0,0,(float)root.Node.Width,(float)root.Node.Height);
+            void Append(Texture texture,Rect rect,Matrix4x4 matrix,float opacity,Texture mask,string blend)
+            {
+                var image=root.RentDepthImage();image.Texture=texture;image.Rect=rect;image.Matrix=matrix;image.Opacity=opacity;
+                image.Clip=mask;image.ClipRect=clipRect;image.Blend=blend;images.Add(image);
+            }
             void Add(VisualCssNode node,Matrix4x4 matrix,float opacity){
                 if(!(node.Native is VisualElement element)||_sheet.Get(node,"display")=="none"||_sheet.Get(node,"visibility")=="hidden"||node.Width<=0||node.Height<=0)return;
                 var entry=_elementEntries[element];var nested=node!=root.Node&&(node.Children.Any(child=>child.Native is VisualElement)&&FlattensDepth(node)||_sheet.Get(node,"filter","none")!="none");
-                if(nested){RenderDepthLayer(entry,0f);images.Add(new SourceUiDepth.PlaneImage {Texture=entry.DepthTexture,Rect=entry.DepthRect,Matrix=matrix,Opacity=opacity,Clip=clip,ClipRect=clipRect,Blend=_sheet.Get(node,"mix-blend-mode","normal")});return;}
-                EnsureBrush(entry);images.Add(new SourceUiDepth.PlaneImage {Texture=entry.Paint,Rect=entry.PaintRect,Matrix=matrix,Opacity=opacity,Clip=node==root.Node?null:clip,ClipRect=clipRect,Blend=_sheet.Get(node,"mix-blend-mode","normal")});
+                if(nested){RenderDepthLayer(entry,0f);Append(entry.DepthTexture,entry.DepthRect,matrix,opacity,clip,_sheet.Get(node,"mix-blend-mode","normal"));return;}
+                EnsureBrush(entry);Append(entry.Paint,entry.PaintRect,matrix,opacity,node==root.Node?null:clip,_sheet.Get(node,"mix-blend-mode","normal"));
                 foreach(var child in node.Children)if(child.Native is VisualElement native){var position=native.layout.position;var alpha=float.TryParse(_sheet.Get(child,"opacity","1"),NumberStyles.Float,CultureInfo.InvariantCulture,out var value)?value:1f;Add(child,matrix*Matrix4x4.Translate(new Vector3(position.x,position.y,0))*SourceUiDepth.Transform(_sheet,child),opacity*alpha);}
             }
             Add(root.Node,Matrix4x4.identity,1f);var fingerprint=perspective+"/"+eye+"/"+string.Join(";",images.Select(image=>(image.Texture!=null?image.Texture.GetInstanceID():0)+":"+image.Matrix.ToString("R")+":"+image.Opacity.ToString("R",CultureInfo.InvariantCulture)+":"+image.Blend+":"+(image.Clip!=null?image.Clip.GetInstanceID():0)));

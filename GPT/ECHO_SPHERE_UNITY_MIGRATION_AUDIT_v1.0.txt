@@ -5178,3 +5178,10 @@ Next validation step: open the current branch in Unity Editor and on device, ins
 - Completed the next source-depth allocation slice after CI #690 succeeded. A SourceUiDepth instance now reuses the Branch tree nodes as well as its existing point/polygon buffers. Branch node normal and position are overwritten when leased, previous children are set to null and the coplanar list is cleared before any insertion. The cursor is reset only on the next complete Render.
 - The same normal normalization, degenerate-plane threshold, epsilon classifications, BSP child recursion and painter traversal remain in place. No shaders, source CSS, gameplay or frame cadence were changed.
 - Regression guard added. Native Editor/Profiler behavior and worst-case retained-memory high-watermark remain open measurements, not assertions of acceptance. APK deferred.
+
+
+## 2026-10-16 — P2 retained UI depth plane records
+
+- After CI #691 SUCCESS, SourceUiDocument.RenderDepthLayer now reuses per-root SourceUiDepth.PlaneImage records instead of allocating two new record shapes for every nested or plain plane, on every rebuilt depth layer. The root's cursor resets at the start of RenderDepthLayer; each record overwrites Texture, Rect, Matrix, Opacity, Clip, ClipRect and Blend before being appended.
+- Nested depth renders use their own per-entry pools; parent plane records are not mutated by nested children. Plane ordering, authored blend lookup, clipping behavior, fingerprint, preserve-depth traversal and render target ownership are unchanged.
+- Regression guard added. Native Editor/Profiler validation pending; APK still deferred as requested.
