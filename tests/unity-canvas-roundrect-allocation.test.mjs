@@ -5,7 +5,7 @@ const s=readFileSync('UnityProject/Assets/EchoSphere/Scripts/Presentation/Source
 const start=s.indexOf('private void RoundRectangle('), end=s.indexOf('private void AddQuadCorner(');
 const method=s.slice(start,end);
 test('Canvas roundRect reads one to four source radii without allocating a list',()=>{
- assert.match(method,/var radiusList=radii\.Raw is List<V> \? radii\.Items : null;/);
+ assert.match(method,/var radiusList=radii\.Raw as List<V>;/);
  assert.match(method,/if\(count==0\|\|count>4\)throw new ArgumentOutOfRangeException\(nameof\(radii\)\)/);
  assert.match(method,/var a=radiusList==null\?\(float\)radii\.Number:\(float\)radiusList\[0\]\.Number;/);
  assert.match(method,/var b=count>1\?\(float\)radiusList\[1\]\.Number:a;/);
