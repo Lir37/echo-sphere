@@ -20,6 +20,14 @@ namespace EchoSphere.Presentation
         private readonly Material _material;
         private readonly CommandBuffer _commands=new CommandBuffer {name="Source CSS preserve-3d"};
         private readonly List<Mesh> _meshes=new List<Mesh>();
+        // Buffers for Unity Mesh.SetVertices/SetUVs/SetTriangles: these native
+        // setters copy the data; there is no reason to allocate per polygon.
+        private readonly List<Vector3> _meshVertices=new List<Vector3>();
+        private readonly List<Vector2> _meshUvs=new List<Vector2>();
+        private readonly List<int> _meshTriangles=new List<int>();
+        private readonly List<MaterialPropertyBlock> _meshProperties=new List<MaterialPropertyBlock>();
+        private readonly List<Polygon> _paintOrder=new List<Polygon>();
+        private readonly List<Polygon> _ordered=new List<Polygon>();
         private RenderTexture _premultiplied,_result;
         internal Rect Bounds;
         internal SourceUiDepth(){_material=new Material(Resources.Load<Shader>("EchoSphere/SourceUiDepth"));}
@@ -46,7 +54,7 @@ namespace EchoSphere.Presentation
         {if(branch==null)return;var positive=Vector3.Dot(branch.Normal,eye-branch.Position)>=0f;Traverse(positive?branch.Back:branch.Front,eye,ordered);ordered.AddRange(branch.Coplanar);Traverse(positive?branch.Front:branch.Back,eye,ordered);}
         internal Texture Render(List<PlaneImage> images,float width,float height,float scale,float perspective,Vector2? eyeCenter=null,bool preserveDepth=true)
         {
-            Branch tree=null;var paintOrder=new List<Polygon>();var min=new Vector2(float.PositiveInfinity,float.PositiveInfinity);var max=new Vector2(float.NegativeInfinity,float.NegativeInfinity);var center=eyeCenter??new Vector2(width*.5f,height*.5f);
+            Branch tree=null;var paintOrder=_paintOrder;paintOrder.Clear();var min=new Vector2(float.PositiveInfinity,float.PositiveInfinity);var max=new Vector2(float.NegativeInfinity,float.NegativeInfinity);var center=eyeCenter??new Vector2(width*.5f,height*.5f);
             foreach(var image in images){var r=image.Rect;var positions=new[]{new Vector2(r.xMin,r.yMin),new Vector2(r.xMax,r.yMin),new Vector2(r.xMax,r.yMax),new Vector2(r.xMin,r.yMax)};var points=new List<Point>();var uvs=new[]{new Vector2(0,1),new Vector2(1,1),new Vector2(1,0),new Vector2(0,0)};
                 for(var index=0;index<4;index++){var p=image.Matrix.MultiplyPoint3x4(positions[index]);points.Add(new Point {Position=p,Uv=uvs[index]});var w=perspective>0f?1f-p.z/perspective:1f;var projected=center+((Vector2)p-center)/Mathf.Max(.00001f,w);min=Vector2.Min(min,projected);max=Vector2.Max(max,projected);}var polygon=new Polygon {Points=points,Image=image};paintOrder.Add(polygon);Add(ref tree,polygon);}
             if(tree==null)return null;Bounds=Rect.MinMaxRect(Mathf.Floor(min.x*scale)/scale-1f,Mathf.Floor(min.y*scale)/scale-1f,Mathf.Ceil(max.x*scale)/scale+1f,Mathf.Ceil(max.y*scale)/scale+1f);
@@ -55,10 +63,16 @@ namespace EchoSphere.Presentation
             // CSS grouping properties (including the source core's filter)
             // force the used transform-style to flat. They retain paint order
             // even when the authored declaration says preserve-3d.
-            var ordered=new List<Polygon>();if(preserveDepth)Traverse(tree,new Vector3(center.x,center.y,perspective>0f?perspective:1000000f),ordered);else ordered.AddRange(paintOrder);
+            var ordered=_ordered;ordered.Clear();if(preserveDepth)Traverse(tree,new Vector3(center.x,center.y,perspective>0f?perspective:1000000f),ordered);else ordered.AddRange(paintOrder);
             _commands.Clear();_commands.SetRenderTarget(_premultiplied);_commands.ClearRenderTarget(false,true,Color.clear);
-            var meshIndex=0;foreach(var polygon in ordered){if(meshIndex>=_meshes.Count)_meshes.Add(new Mesh {name="Source CSS split plane"});var mesh=_meshes[meshIndex++];mesh.Clear();mesh.vertices=polygon.Points.Select(point=>point.Position).ToArray();mesh.uv=polygon.Points.Select(point=>point.Uv).ToArray();var triangles=new List<int>();for(var i=1;i<polygon.Points.Count-1;i++)triangles.AddRange(new[]{0,i,i+1});mesh.triangles=triangles.ToArray();
-                var properties=new MaterialPropertyBlock();properties.SetTexture("_MainTex",polygon.Image.Texture);properties.SetFloat("_Opacity",polygon.Image.Opacity);properties.SetVector("_Bounds",new Vector4(Bounds.x,Bounds.y,Bounds.width,Bounds.height));properties.SetVector("_Eye",new Vector4(center.x,center.y,perspective>0f?perspective:100000000f,0));
+            var meshIndex=0;foreach(var polygon in ordered){
+                if(meshIndex>=_meshes.Count){_meshes.Add(new Mesh {name="Source CSS split plane"});_meshProperties.Add(new MaterialPropertyBlock());}
+                var mesh=_meshes[meshIndex];var properties=_meshProperties[meshIndex];meshIndex++;
+                _meshVertices.Clear();_meshUvs.Clear();_meshTriangles.Clear();
+                foreach(var point in polygon.Points){_meshVertices.Add(point.Position);_meshUvs.Add(point.Uv);}
+                for(var i=1;i<polygon.Points.Count-1;i++){_meshTriangles.Add(0);_meshTriangles.Add(i);_meshTriangles.Add(i+1);}
+                mesh.Clear();mesh.SetVertices(_meshVertices);mesh.SetUVs(0,_meshUvs);mesh.SetTriangles(_meshTriangles,0);
+                properties.Clear();properties.SetTexture("_MainTex",polygon.Image.Texture);properties.SetFloat("_Opacity",polygon.Image.Opacity);properties.SetVector("_Bounds",new Vector4(Bounds.x,Bounds.y,Bounds.width,Bounds.height));properties.SetVector("_Eye",new Vector4(center.x,center.y,perspective>0f?perspective:100000000f,0));
                 properties.SetTexture("_ClipMask",polygon.Image.Clip??Texture2D.whiteTexture);properties.SetFloat("_ClipEnabled",polygon.Image.Clip!=null?1f:0f);var clip=polygon.Image.ClipRect;properties.SetVector("_ClipRect",new Vector4(clip.x,clip.y,Math.Max(.00001f,clip.width),Math.Max(.00001f,clip.height)));
                 _commands.DrawMesh(mesh,Matrix4x4.identity,_material,0,polygon.Image.Blend=="screen"?2:0,properties);}
             var previous=RenderTexture.active;var gamma=GL.sRGBWrite;

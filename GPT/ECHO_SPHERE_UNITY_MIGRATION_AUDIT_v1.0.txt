@@ -5149,3 +5149,11 @@ Next validation step: open the current branch in Unity Editor and on device, ins
 - In SourceUiDocument.RenderDepthLayer, each retained root Entry now clears and reuses its own DepthImages list instead of allocating a List<SourceUiDepth.PlaneImage> for each render. Nested depth roots use their own separate buffers, so recursive calls do not overwrite parent lists. Image addition, fingerprint calculation, source depth sorting and render call remain unchanged.
 - In DepthClip, retained entry-owned DepthClipUploadPixels storage replaces temporary per-raster byte array allocations. Reallocation occurs only when the byte count changes. Original CSS mask rasterization, bottom-up row flip, Texture2D upload and corner-radius keys remain unchanged.
 - Added scoped structural regression tests. CI cannot establish Unity Editor runtime parity or a measured allocation/FPS improvement; Unity Profiler validation remains pending. The Settings screen is already accepted in Editor by the user. APK is deferred at the user's request.
+
+
+## 2026-10-16 — Codex P2 audit follow-up: native Mesh retained buffers
+
+- Rechecked the approved Codex modernization sequence P0→P1→P2→P3, the three gameplay documents, native visual re-audit, and actual SourceUiDepth code. The implementation is still HYBRID; the present slice is an allocation reduction inside P2, not a complete migration to Unity-native presentation.
+- SourceUiDepth.Render previously allocated new vertex/UV/triangle arrays and a MaterialPropertyBlock for each ordered split polygon. It now fills retained List<Vector3>, List<Vector2>, List<int> scratch buffers and uses Unity Mesh.SetVertices, SetUVs and SetTriangles (native mesh setters); material property blocks remain distinct per retained mesh and are cleared/repopulated each call. Polygon fan indices, sort order, source textures, opacity, clipping, blend pass, command buffer execution and render targets are unchanged.
+- Reused retained ordered/paint-order polygon lists per SourceUiDepth instance. These lists are not shared between nested depth renderers. Existing split tree behavior is unchanged.
+- Added structural regression tests. CI/Unity API typecheck must pass. No Unity Editor runtime or Profiler run was performed; GPU/frame-time and parity are still unverified. User accepted Settings in Unity; APK remains deferred until final validation.
