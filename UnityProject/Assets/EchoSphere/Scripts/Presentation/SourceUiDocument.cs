@@ -340,11 +340,11 @@ namespace EchoSphere.Presentation
             var fingerprint=viewportClipKey+"/"+node.Width.ToString("R",CultureInfo.InvariantCulture)+"/"+node.Height.ToString("R",CultureInfo.InvariantCulture)+"/"+_scale+"/"+string.Join(";",node.Style.Where(pair=>pair.Key.StartsWith("background",StringComparison.Ordinal)||pair.Key.StartsWith("border-",StringComparison.Ordinal)||pair.Key=="box-shadow"||pair.Key=="clip-path"||pair.Key=="mask-image"||pair.Key=="color"||pair.Key=="filter").OrderBy(pair=>pair.Key).Select(pair=>pair.Key+":"+pair.Value));
             if(entry.PaintKey!=fingerprint){
                 using var cssSample=UiCssMarker.Auto();
-                if(entry.Paint!=null)Destroy(entry.Paint);var raster=VisualCssPaint.Paint(_sheet,node,_scale,localViewport);entry.Paint=new Texture2D(raster.Width,raster.Height,TextureFormat.RGBA32,false,false){name="Source CSS "+node.Tag,wrapMode=TextureWrapMode.Clamp,filterMode=FilterMode.Bilinear};
+                var raster=VisualCssPaint.Paint(_sheet,node,_scale,localViewport);if(entry.Paint==null||entry.Paint.width!=raster.Width||entry.Paint.height!=raster.Height){if(entry.Paint!=null)Destroy(entry.Paint);entry.Paint=new Texture2D(raster.Width,raster.Height,TextureFormat.RGBA32,false,false){name="Source CSS "+node.Tag,wrapMode=TextureWrapMode.Clamp,filterMode=FilterMode.Bilinear};}
                 // CSS raster rows run top-to-bottom; Unity texture rows bottom-to-top.
                 if(entry.PaintUploadPixels==null||entry.PaintUploadPixels.Length!=raster.Pixels.Length)
                     entry.PaintUploadPixels=new byte[raster.Pixels.Length];
-                var stride=raster.Width*4;for(var y=0;y<raster.Height;y++)Buffer.BlockCopy(raster.Pixels,y*stride,entry.PaintUploadPixels,(raster.Height-y-1)*stride,stride);entry.Paint.LoadRawTextureData(entry.PaintUploadPixels);entry.Paint.Apply(false,true);entry.PaintRect=new Rect((float)raster.Left,(float)raster.Top,(float)(raster.Width/raster.Scale),(float)(raster.Height/raster.Scale));entry.PaintKey=fingerprint;
+                var stride=raster.Width*4;for(var y=0;y<raster.Height;y++)Buffer.BlockCopy(raster.Pixels,y*stride,entry.PaintUploadPixels,(raster.Height-y-1)*stride,stride);entry.Paint.LoadRawTextureData(entry.PaintUploadPixels);entry.Paint.Apply(false,false);entry.PaintRect=new Rect((float)raster.Left,(float)raster.Top,(float)(raster.Width/raster.Scale),(float)(raster.Height/raster.Scale));entry.PaintKey=fingerprint;
             }
         }
         private void PrepareSvg(Entry entry)
