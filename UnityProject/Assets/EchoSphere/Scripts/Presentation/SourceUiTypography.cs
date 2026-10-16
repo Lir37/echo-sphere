@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.TextCore.LowLevel;
 using UnityEngine.TextCore.Text;
 using UnityEngine.UIElements;
+using Unity.Profiling;
 
 namespace EchoSphere.Presentation
 {
@@ -12,6 +13,7 @@ namespace EchoSphere.Presentation
     // just as in the browser; no replacement font artwork is bundled.
     internal static class SourceUiTypography
     {
+        private static readonly ProfilerMarker FontResolveMarker=new ProfilerMarker("EchoSphere.UI.FontResolve");
         private static readonly Dictionary<string,FontAsset> Fonts=new Dictionary<string,FontAsset>();
         private static readonly Dictionary<string,string> Faces=new Dictionary<string,string>();
         private static bool _initialized;
@@ -24,6 +26,7 @@ namespace EchoSphere.Presentation
             var ratio=height=="normal"?double.NaN:double.TryParse(height,NumberStyles.Float,CultureInfo.InvariantCulture,out var number)?number:sheet.Length(height,size,size)/size;
             var key=family+"/"+weight+"/"+italic+"/"+ratio.ToString("R",CultureInfo.InvariantCulture);
             if(Fonts.TryGetValue(key,out var existing))return existing;
+            using var fontResolveSample=FontResolveMarker.Auto();
             if(!_initialized){FontEngine.InitializeFontEngine();_initialized=true;}
             var names=SourceCanvasTypography.Families(family);
             // CSS falls back to the platform's generic sans-serif faces when an
