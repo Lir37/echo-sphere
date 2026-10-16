@@ -321,8 +321,10 @@
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/VisualInitialState.cs",
       "status": "verified",
-      "evidence": "export-unity-visual-code.mjs --check; воспроизводимый экспорт и полный VisualChecks проходят.",
-      "sha256": "b584de90cfe60fc5274e4012de0196ac0e282aecf2919342a5bc8c434a04c326"
+      "evidence": "export-unity-visual-fixtures.mjs --check: начальное состояние заново получено из engineState.ts:createInitialState и точно совпадает с C#-экспортом; исходные Canvas fixtures также совпали.",
+      "sha256": "b584de90cfe60fc5274e4012de0196ac0e282aecf2919342a5bc8c434a04c326",
+      "source": "src/engineState.ts",
+      "sourceSha256": "aff957a53f8b5e124afc33f07225991189c79381417b8bdf40506bf6ab55e671"
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_App.cs",
@@ -757,7 +759,8 @@
     "CanvasStateChecks: PASS — 137 737 paint operations, 713 drawImage, 384 fillText, максимум 5/16 gradient stops, 0 nonfinite calls, 36 997 состояний shadow с нулевыми blur/offset; исходный расчёт backing size при DPR 0.75/1.25/3/NaN/Infinity.",
     "NativeLayerChecks: PASS — 38 694 исходных 2D-позы, 1580 shear-случаев, 5000 дополнительных матриц, 934 clipped кисти, 1230 SVG, 4 динамических SVG-текста; 302 собственные маски, 6 screen-поверхностей в depth и 42 чёрные multiply-виньетки.",
     "Chromium probe: нулевые blur/offset не создают shadow, центральные пиксели [0,0,255,128]; при offsetX=1 [85,0,170,192], что подтверждает пропуск нулевой тени в адаптере.",
-    "Generated visuals/CSS/keyframes, Canvas art, native control art, cursor, meta, visual reference provenance и Unity preflight: PASS. src/, public/, package/lock и tsconfigs по Git совпадают с origin/new-desing."
+    "Generated visuals/CSS/keyframes, Canvas art, native control art, cursor, meta, visual reference provenance и Unity preflight: PASS. src/, public/, package/lock и tsconfigs по Git совпадают с origin/new-desing.",
+    "Дополнительно заново вычислены исходные TypeScript Canvas fixtures и начальное состояние: export-unity-visual-fixtures.mjs --check PASS, 2656 fixture entries с дополнительными stateful кадрами в полном прогоне."
   ],
   "progress": {
     "reviewed": 105,
