@@ -42,3 +42,11 @@ Entry HEAD: `8615aec42b52b090d586b8d2cbbcfebd169f883e`. Baseline `new-desing@737
 
 ### CI correction for RoundRectangle
 CI #702 revealed C# CS0173/CS0021: `V.Items` is an `IEnumerable<V>`, not an indexable list. Corrected the direct access to use `radii.Raw as List<V>`, matching the original source type guard. Fixed code `e7a2f87ee08be6fef9230a94b7d67e661f65cf16`, corrected test `86b55c99d33cb87b3e94be74eddef31bc004b355`. Re-run CI required. No changes to radius values or rendering behavior.
+
+
+## 2026-10-16 — Canvas shader property and profiler scope slice
+- Entry HEAD `f6a4bde9c41dad6c4419ca0f3e75591a2f8f277b`; protected source unchanged.
+- Converted eight repeatedly assigned Canvas shader properties from string identifiers to static `Shader.PropertyToID` integers, using Unity's existing integer overloads in MaterialPropertyBlock, Material and CommandBuffer. Shadow temporary RenderTexture IDs remain unchanged.
+- Added `EchoSphere.Canvas.Tessellate`, `EchoSphere.Canvas.ShadowCommands` and `EchoSphere.Canvas.ExecuteCommands` markers so an Editor capture can distinguish path tessellation, shadow command generation and command buffer execution from prior EndFrame/DrawBatches markers. These do not establish GPU timings on their own.
+- Original shader property names, rendering arguments, command order, mesh data, visuals and gameplay are unchanged.
+- Code commit `cc89be7494c88674599f7348409b55b24bf512dc`; structural guard `945e104fa0709ee7ca9c4162f31ab74f2507ace9`. CI status must be verified against Actions, including Unity typecheck. P1/P2 PARTIAL; P3 OPEN; APK deferred.
