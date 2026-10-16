@@ -5085,3 +5085,26 @@ Validation boundary: CI must pass before acceptance. Exact device-scale spacing,
 
 - Applied the saved interface-scale multiplier to the native panel scale and logical viewport sizing, so the existing slider affects the pilot screen itself as well as persisted settings.
 - The source `saveInterfaceScale` binding remains the writer; no separate preference key or new scale rule was introduced.
+
+
+## P0/P1 cycle closeout — 2026-10-16
+
+Implementation baseline: `unity-migration` `37ff2d2f974ccd994521d02e9dfe647350664c6c`.
+Protected source baseline: `new-desing` `737ef2af4a877e0995db5f92331d536d2f29a934` (unchanged during this cycle).
+CI #680 on the implementation baseline: SUCCESS — source typecheck, Unity typecheck and core contract checks.
+
+P0 outcome:
+- Exact remote branch heads, source baseline, required GPT documents, recent project audit context and CI were rechecked before implementation.
+- No claim is made about a local working tree state; this cycle operated against the committed remote branch through GitHub.
+
+P1 implementation outcome:
+- Source UI logical-tree reconciliation is bounded to 0.10 seconds during gameplay; explicit UI invalidations remain immediate and motion/layout/paint preparation continue per frame.
+- Known hot runtime and entity projection paths now use explicit typed assignments/accessors instead of private-field reflection. Generic fallback remains for unclassified/non-hot values.
+- Added a native UI Toolkit Settings pilot with existing localization and persistence callbacks, sound, handedness, interface scale, tutorial replay, navigation and reset confirmation. The native screen overlays the source document; it does not replace the whole presentation architecture.
+
+Acceptance still open:
+- Unity Editor launch/compile and APK build were not run by this CI.
+- No device screenshot/manual interaction pass was available in this cycle. Settings visual parity, transition/focus/touch behavior, background/blur fidelity and gameplay visual parity are not confirmed.
+- Typed projection has structural regression guards but has not yet been compared against live old/new runtime snapshots in Unity. CI success is not proof of gameplay identity.
+
+Next validation step: open the current branch in Unity Editor and on device, inspect the Settings pilot and gameplay HUD at multiple scales/languages, then fix only observed discrepancies. Do not broaden the native UI migration until this pilot is accepted.
