@@ -10,6 +10,9 @@ test('native Canvas Quad emits corners in original source order without temporar
  assert.doesNotMatch(quad,/new\[\]\s*\{/);
 });
 test('odd Canvas dash arrays repeat their original values without a temporary list',()=>{
- assert.match(source,/if\(dash\.Count%2==1\)\{var count=dash\.Count;for\(var i=0;i<count;i\+\+\)dash\.Add\(dash\[i\]\);\}/);
- assert.doesNotMatch(source,/new List<float>\(dash\)/);
+ assert.match(source,/if\(_dashScratch\.Count%2==1\)\{var count=_dashScratch\.Count;for\(var i=0;i<count;i\+\+\)_dashScratch\.Add\(_dashScratch\[i\]\);\}/);
+ assert.match(source,/private readonly List<float> _dashScratch=new List<float>\(\);/);
+ assert.match(source,/case "setLineDash":_dashScratch.Clear\(\);/);
+ assert.match(source,/_state.Dash=_dashScratch.ToArray\(\);/);
+ assert.doesNotMatch(source,/case "setLineDash":var dash=new List<float>\(\)/);
 });
