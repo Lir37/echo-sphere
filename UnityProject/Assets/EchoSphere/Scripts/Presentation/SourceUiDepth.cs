@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.Rendering;
+using Unity.Profiling;
 
 namespace EchoSphere.Presentation
 {
@@ -13,6 +14,7 @@ namespace EchoSphere.Presentation
     // of the authored menu rings and their transparent glows.
     internal sealed class SourceUiDepth : IDisposable
     {
+        private static readonly ProfilerMarker DepthRenderMarker=new ProfilerMarker("EchoSphere.UI.DepthMeshAndRender");
         internal sealed class PlaneImage {public Texture Texture,Clip;public Rect Rect,ClipRect;public Matrix4x4 Matrix;public float Opacity;public string Blend;}
         private struct Point {public Vector3 Position;public Vector2 Uv;}
         private sealed class Polygon {public List<Point> Points;public PlaneImage Image;}
@@ -54,6 +56,7 @@ namespace EchoSphere.Presentation
         {if(branch==null)return;var positive=Vector3.Dot(branch.Normal,eye-branch.Position)>=0f;Traverse(positive?branch.Back:branch.Front,eye,ordered);ordered.AddRange(branch.Coplanar);Traverse(positive?branch.Front:branch.Back,eye,ordered);}
         internal Texture Render(List<PlaneImage> images,float width,float height,float scale,float perspective,Vector2? eyeCenter=null,bool preserveDepth=true)
         {
+            using var depthSample=DepthRenderMarker.Auto();
             Branch tree=null;var paintOrder=_paintOrder;paintOrder.Clear();var min=new Vector2(float.PositiveInfinity,float.PositiveInfinity);var max=new Vector2(float.NegativeInfinity,float.NegativeInfinity);var center=eyeCenter??new Vector2(width*.5f,height*.5f);
             foreach(var image in images){var r=image.Rect;var positions=new[]{new Vector2(r.xMin,r.yMin),new Vector2(r.xMax,r.yMin),new Vector2(r.xMax,r.yMax),new Vector2(r.xMin,r.yMax)};var points=new List<Point>();var uvs=new[]{new Vector2(0,1),new Vector2(1,1),new Vector2(1,0),new Vector2(0,0)};
                 for(var index=0;index<4;index++){var p=image.Matrix.MultiplyPoint3x4(positions[index]);points.Add(new Point {Position=p,Uv=uvs[index]});var w=perspective>0f?1f-p.z/perspective:1f;var projected=center+((Vector2)p-center)/Mathf.Max(.00001f,w);min=Vector2.Min(min,projected);max=Vector2.Max(max,projected);}var polygon=new Polygon {Points=points,Image=image};paintOrder.Add(polygon);Add(ref tree,polygon);}

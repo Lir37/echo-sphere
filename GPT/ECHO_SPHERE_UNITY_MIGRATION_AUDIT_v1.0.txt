@@ -5157,3 +5157,10 @@ Next validation step: open the current branch in Unity Editor and on device, ins
 - SourceUiDepth.Render previously allocated new vertex/UV/triangle arrays and a MaterialPropertyBlock for each ordered split polygon. It now fills retained List<Vector3>, List<Vector2>, List<int> scratch buffers and uses Unity Mesh.SetVertices, SetUVs and SetTriangles (native mesh setters); material property blocks remain distinct per retained mesh and are cleared/repopulated each call. Polygon fan indices, sort order, source textures, opacity, clipping, blend pass, command buffer execution and render targets are unchanged.
 - Reused retained ordered/paint-order polygon lists per SourceUiDepth instance. These lists are not shared between nested depth renderers. Existing split tree behavior is unchanged.
 - Added structural regression tests. CI/Unity API typecheck must pass. No Unity Editor runtime or Profiler run was performed; GPU/frame-time and parity are still unverified. User accepted Settings in Unity; APK remains deferred until final validation.
+
+
+## 2026-10-16 — P2 Unity Profiler sample instrumentation
+
+- Introduced static Unity.Profiling.ProfilerMarker samples around SourceUiDocument brush/SVG preparation, depth-root preparation, and backdrop preparation, with separate samples around actual CSS paint rasterization and SVG rasterization on cache misses. SourceUiDepth.Render is sampled as a single mesh + graphics command preparation/render region.
+- No UI frequency, gameplay values, render resolution, shader passes, visual art or events were changed. Markers are named EchoSphere.UI.* for straightforward filtering in the Unity Profiler CPU timeline; they are not profiling results themselves.
+- Added structural guard and ran CI. Actual Unity Editor/Player allocation and CPU time captures remain required to establish bottleneck shares. APK is deferred as requested.

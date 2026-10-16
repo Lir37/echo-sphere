@@ -4,11 +4,19 @@ using System.Globalization;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Unity.Profiling;
 
 namespace EchoSphere.Presentation
 {
     public sealed class SourceUiDocument : MonoBehaviour
     {
+        // These samples expose hot paths in the Unity Profiler without altering
+        // the source UI's update cadence or adding frame-driven allocations.
+        private static readonly ProfilerMarker UiBrushesMarker=new ProfilerMarker("EchoSphere.UI.PrepareBrushesAndSvg");
+        private static readonly ProfilerMarker UiDepthMarker=new ProfilerMarker("EchoSphere.UI.PrepareDepth");
+        private static readonly ProfilerMarker UiBackdropMarker=new ProfilerMarker("EchoSphere.UI.PrepareBackdrops");
+        private static readonly ProfilerMarker UiSvgMarker=new ProfilerMarker("EchoSphere.UI.RasterizeSvg");
+        private static readonly ProfilerMarker UiCssMarker=new ProfilerMarker("EchoSphere.UI.RasterizeCss");
         private sealed class Entry
         {
             public VisualCssNode Node;
@@ -214,14 +222,14 @@ namespace EchoSphere.Presentation
                 }
                 foreach(var child in node.Children)Prepare(child);
             }
-            Prepare(root);
+            using(UiBrushesMarker.Auto())Prepare(root);
             void PrepareDepthRoots(VisualCssNode node)
             {
                 if(node.Native is VisualElement element&&_elementEntries.TryGetValue(element,out var entry)&&IsDepthRoot(node)&&DepthAncestor(node)==null)
                     PrepareDepth(entry);
                 foreach(var child in node.Children)PrepareDepthRoots(child);
             }
-            PrepareDepthRoots(root);
+            using(UiDepthMarker.Auto())PrepareDepthRoots(root);
             foreach(var entry in _entries.Values){var bounds=IsDepthRoot(entry.Node)?entry.DepthRect:entry.PaintRect;if(entry.Svg!=null)bounds=Rect.MinMaxRect(Mathf.Min(bounds.xMin,entry.SvgRect.xMin),Mathf.Min(bounds.yMin,entry.SvgRect.yMin),Mathf.Max(bounds.xMax,entry.SvgRect.xMax),Mathf.Max(bounds.yMax,entry.SvgRect.yMax));entry.Frame.SetPaintBounds(bounds);}
             // Native hierarchy order is the actual paint order (CSS z-index /
             // order and ScrollView containers included). Earlier backdrop copies
@@ -239,7 +247,7 @@ namespace EchoSphere.Presentation
                     var child=element.hierarchy[index];if(child.userData==SourceUiBackdrop.ReplicaTag||child.userData is SourceUiBackdrop.ClipTag)continue;Backdrops(child);
                 }
             }
-            Backdrops(_document.rootVisualElement);
+            using(UiBackdropMarker.Auto())Backdrops(_document.rootVisualElement);
         }
         private Action<MeshGenerationContext> ReplicaPaint(VisualElement source)
         {
@@ -258,6 +266,7 @@ namespace EchoSphere.Presentation
             var viewportClipKey=localViewport.HasValue?localViewport.Value.Left.ToString("R",CultureInfo.InvariantCulture)+"/"+localViewport.Value.Top.ToString("R",CultureInfo.InvariantCulture)+"/"+localViewport.Value.Right.ToString("R",CultureInfo.InvariantCulture)+"/"+localViewport.Value.Bottom.ToString("R",CultureInfo.InvariantCulture):"";
             var fingerprint=viewportClipKey+"/"+node.Width.ToString("R",CultureInfo.InvariantCulture)+"/"+node.Height.ToString("R",CultureInfo.InvariantCulture)+"/"+_scale+"/"+string.Join(";",node.Style.Where(pair=>pair.Key.StartsWith("background",StringComparison.Ordinal)||pair.Key.StartsWith("border-",StringComparison.Ordinal)||pair.Key=="box-shadow"||pair.Key=="clip-path"||pair.Key=="mask-image"||pair.Key=="color"||pair.Key=="filter").OrderBy(pair=>pair.Key).Select(pair=>pair.Key+":"+pair.Value));
             if(entry.PaintKey!=fingerprint){
+                using var cssSample=UiCssMarker.Auto();
                 if(entry.Paint!=null)Destroy(entry.Paint);var raster=VisualCssPaint.Paint(_sheet,node,_scale,localViewport);entry.Paint=new Texture2D(raster.Width,raster.Height,TextureFormat.RGBA32,false,false){name="Source CSS "+node.Tag,wrapMode=TextureWrapMode.Clamp,filterMode=FilterMode.Bilinear};
                 // CSS raster rows run top-to-bottom; Unity texture rows bottom-to-top.
                 if(entry.PaintUploadPixels==null||entry.PaintUploadPixels.Length!=raster.Pixels.Length)
@@ -270,7 +279,7 @@ namespace EchoSphere.Presentation
             var node=entry.Node;
             if(node.Tag=="svg"){
                 var xml=SourceUiSvg.Serialize(node,_sheet);var key=xml+"/"+node.Width+"/"+node.Height+"/"+_scale;
-                if(entry.SvgKey!=key){if(entry.Svg!=null)Destroy(entry.Svg);entry.Svg=SourceUiSvg.Rasterize(xml,(float)node.Width,(float)node.Height,_scale,_svgMaterial,_sheet.Get(node,"overflow","visible")=="visible",out entry.SvgRect);entry.SvgKey=key;}
+                if(entry.SvgKey!=key){using var svgSample=UiSvgMarker.Auto();if(entry.Svg!=null)Destroy(entry.Svg);entry.Svg=SourceUiSvg.Rasterize(xml,(float)node.Width,(float)node.Height,_scale,_svgMaterial,_sheet.Get(node,"overflow","visible")=="visible",out entry.SvgRect);entry.SvgKey=key;}
             }
         }
         private bool IsDepthRoot(VisualCssNode node)=>_sheet.Get(node,"transform-style")=="preserve-3d";
