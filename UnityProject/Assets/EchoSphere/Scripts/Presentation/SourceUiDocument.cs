@@ -67,6 +67,7 @@ namespace EchoSphere.Presentation
         private readonly Dictionary<VisualElement,Entry> _backdropForegrounds=new Dictionary<VisualElement,Entry>();
         // Reuse the removal buffer across UI reconciliations to avoid per-pass LINQ arrays.
         private readonly List<string> _staleEntryKeys=new List<string>();
+        private readonly List<(VisualElement Element,double Order,double Z,int Index)> _paintOrderScratch=new List<(VisualElement,double,double,int)>();
         private VisualCssNode _root;
         private float _scale=1f;
         private Material _svgMaterial;
@@ -152,7 +153,20 @@ namespace EchoSphere.Presentation
             foreach(var child in node.Children){var authoredKey=child.Properties["key"];var part=child.Pseudo??(!authoredKey.Undefined?"key="+authoredKey.Text:(childIndex++).ToString(CultureInfo.InvariantCulture));Reconcile(child,container,key+"/"+part);}
             // CSS order and z-index affect native paint / picking order without
             // changing the authored tree used by selectors and DOM queries.
-            foreach(var child in node.Children.Where(child=>child.Native is VisualElement).OrderBy(child=>_sheet.Length(_sheet.Get(child,"order","0"),1d)).ThenBy(child=>_sheet.Length(_sheet.Get(child,"z-index","0"),1d)))((VisualElement)child.Native).BringToFront();
+            _paintOrderScratch.Clear();
+            for(var i=0;i<node.Children.Count;i++)
+            {
+                var child=node.Children[i];
+                if(!(child.Native is VisualElement element))continue;
+                _paintOrderScratch.Add((element,_sheet.Length(_sheet.Get(child,"order","0"),1d),_sheet.Length(_sheet.Get(child,"z-index","0"),1d),i));
+            }
+            _paintOrderScratch.Sort((a,b)=>{
+                var order=a.Order.CompareTo(b.Order);
+                if(order!=0)return order;
+                var z=a.Z.CompareTo(b.Z);
+                return z!=0?z:a.Index.CompareTo(b.Index);
+            });
+            foreach(var item in _paintOrderScratch)item.Element.BringToFront();
         }
         private static void CopyInteraction(VisualCssNode before,VisualCssNode after)
         {
