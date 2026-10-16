@@ -5022,3 +5022,15 @@ Protected source: `new-desing` `737ef2af4a877e0995db5f92331d536d2f29a934`.
 - Added a regression test for the refresh cadence and retained per-frame motion path.
 
 Status boundary: this is one bounded P1 optimization, not completion of the full P1 program. Typed projection work and the dedicated native UI Toolkit Settings pilot remain open. CI and source-level tests must pass for this commit; Unity Editor/APK/device behavior still requires separate validation.
+
+
+## 2026-10-16 — Typed runtime-state projection slice
+
+Implementation base: `unity-migration` `dd086c7a99a4ed49c26f0d0c2b287b1194a6d708`.
+Protected source: `new-desing` `737ef2af4a877e0995db5f92331d536d2f29a934`.
+
+- Replaced the per-frame `FieldInfo.GetValue` loop for live player/runtime values with explicit typed assignments. The projected keys and source value conversions are preserved.
+- Added explicit serializers for the two custom data types encountered on the live path: `SourceSphereModifiers` and `FractalFormationSnapshot`.
+- This slice does not yet remove reflection from individual entity projection; the entity accessor pass remains part of P1. No gameplay rules, timings, visual coefficients, RNG or source-branch files were changed.
+
+Validation boundary: CI must pass before accepting this change. CI is not proof of Unity Editor/APK/device visual parity.

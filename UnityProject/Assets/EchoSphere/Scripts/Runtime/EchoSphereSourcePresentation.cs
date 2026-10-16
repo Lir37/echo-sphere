@@ -46,6 +46,17 @@ namespace EchoSphere.Runtime
             if(value is Vector2 point)return SourcePoint(point);if(value is Vector3 point3)return SourcePoint((Vector2)point3);if(value is Vec2 vector)return SourcePoint(vector);
             if(value is Color color)return "#"+ColorUtility.ToHtmlStringRGB(color);
             if(value is MonoBehaviour entity)return RenderEntity(entity);
+            if(value is SourceSphereModifiers modifiers)return VisualJs.Obj(
+                "damage",modifiers.damage,"radius",modifiers.radius,"delay",modifiers.delay,"pierce",modifiers.pierce,"multishot",modifiers.multishot,
+                "chainTargets",modifiers.chainTargets,"auraRadius",modifiers.auraRadius,"auraPulse",modifiers.auraPulse,"spreadMult",modifiers.spreadMult,
+                "splitChance",modifiers.splitChance,"echoChance",modifiers.echoChance,"staticChance",modifiers.staticChance,"resonantCharge",modifiers.resonantCharge,
+                "healOnHit",modifiers.healOnHit,"healOnKill",modifiers.healOnKill,"knockback",modifiers.knockback,"rotationSpeed",modifiers.rotationSpeed,
+                "fire",modifiers.fire,"freeze",modifiers.freeze,"poison",modifiers.poison,"breach",modifiers.breach,"overload",modifiers.overload,
+                "split",modifiers.split,"shatter",modifiers.shatter,"execute",modifiers.execute,"ricochet",modifiers.ricochet,"mark",modifiers.mark,
+                "echo",modifiers.echo,"anchor",modifiers.anchor,"phase",modifiers.phase,"static",modifiers.@static,"resonant",modifiers.resonant,
+                "magnetic",modifiers.magnetic,"vampiric",modifiers.vampiric,"corrupt",modifiers.corrupt,"drain",modifiers.drain,"afterimage",modifiers.afterimage,
+                "impact",modifiers.impact,"gravitic",modifiers.gravitic);
+            if(value is FractalFormationSnapshot snapshot)return VisualJs.Obj("type",snapshot.Type.ToString().ToLowerInvariant(),"nodes",RenderValue(snapshot.Nodes));
             if(value is Enum enumeration)return enumeration.ToString().ToLowerInvariant();
             if(value is IDictionary dictionary) {var result=VisualJs.Obj();foreach(DictionaryEntry entry in dictionary)result[RenderValue(entry.Key)]=RenderValue(entry.Value);return result;}
             if(value is IEnumerable list) {var result=new List<V>();foreach(var item in list)result.Add(RenderValue(item));return VisualJs.Arr(result.ToArray());}
@@ -100,10 +111,20 @@ namespace EchoSphere.Runtime
         {
             if(_sourceRenderState.Undefined)_sourceRenderState=VisualInitialState.Create();var scene=_sourceRenderState;var player=scene["player"];
             // Directly corresponding timers and counters keep their source names.
-            var runtimeFields=RenderFields(typeof(EchoSphereRuntime));
-            foreach(var pair in new List<KeyValuePair<string,V>>((Dictionary<string,V>)player.Raw)) {
-                if(runtimeFields.TryGetValue("_"+pair.Key,out var field))player[pair.Key]=RenderValue(field.GetValue(this));
-            }
+            // Explicit typed projection for live runtime fields; avoid per-frame FieldInfo.GetValue.
+            player["xp"]=_xp;player["activeAbilitySlots"]=_activeAbilitySlots;player["kills"]=_kills;
+            player["resonanceCharge"]=_resonanceCharge;player["resonanceEventActive"]=_resonanceEventActive;player["resonanceGeometryKey"]=_resonanceGeometryKey;
+            player["resonanceEventsTriggered"]=_resonanceEventsTriggered;player["spheristChorusHits"]=_spheristChorusHits;
+            player["fireTrailTimer"]=_fireTrailTimer;player["blastCooldown"]=_blastCooldown;player["teleportCooldown"]=_teleportCooldown;
+            player["swiftBootsTimer"]=_swiftBootsTimer;player["sphereMovementLocked"]=_sphereMovementLocked;player["combo"]=_combo;player["comboTimer"]=_comboTimer;
+            player["characterMasteryLevel"]=_characterMasteryLevel;
+            player["hunterMarkTarget"]=_hunterMarkTarget==null?VisualJs.Null:RenderEntity(_hunterMarkTarget);player["hunterMarkTimer"]=_hunterMarkTimer;player["hunterHitCount"]=_hunterHitCount;
+            player["hunterHuntTarget"]=_hunterHuntTarget==null?VisualJs.Null:RenderEntity(_hunterHuntTarget);player["hunterHuntTimer"]=_hunterHuntTimer;player["hunterTrophyTimer"]=_hunterTrophyTimer;
+            player["engineerRelaySource"]=_engineerRelaySource==null?VisualJs.Null:RenderEntity(_engineerRelaySource);player["engineerRelayTimer"]=_engineerRelayTimer;
+            player["alchemistCatalystTimer"]=_alchemistCatalystTimer;player["alchemistReactionCount"]=_alchemistReactionCount;player["conductorOverdriveTimer"]=_conductorOverdriveTimer;
+            player["oracleForecastKeys"]=RenderValue(_oracleForecastKeys);player["oracleForecastRerollUsed"]=_oracleForecastRerollUsed;
+            player["fractalFormationHistory"]=RenderValue(_fractalFormationHistory);player["fractalEchoTimer"]=_fractalEchoTimer;player["fractalEchoNodes"]=RenderValue(_fractalEchoNodes);
+            player["voidPhantomTimer"]=_voidPhantomTimer;player["voidPhantomPulseCount"]=_voidPhantomPulseCount;player["voidPhantomSource"]=_voidPhantomSource==null?VisualJs.Null:RenderEntity(_voidPhantomSource);
             player["pos"]=SourcePoint(PlayerPosition);player["hp"]=_playerCore.CurrentHp;player["maxHp"]=_playerCore.MaxHp;
             player["characterId"]=CharacterRules.ToSourceId(_sphereCharacterId);player["characterMasteryLevel"]=_characterMasteryLevel;
             player["contactDamageCooldown"]=_playerCore.ContactGraceTimer;player["invulnerableTimer"]=_playerCore.InvulnerableTimer;player["shieldCharges"]=_playerCore.ShieldCharges;
