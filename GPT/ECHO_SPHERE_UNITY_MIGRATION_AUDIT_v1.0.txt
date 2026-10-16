@@ -5164,3 +5164,10 @@ Next validation step: open the current branch in Unity Editor and on device, ins
 - Introduced static Unity.Profiling.ProfilerMarker samples around SourceUiDocument brush/SVG preparation, depth-root preparation, and backdrop preparation, with separate samples around actual CSS paint rasterization and SVG rasterization on cache misses. SourceUiDepth.Render is sampled as a single mesh + graphics command preparation/render region.
 - No UI frequency, gameplay values, render resolution, shader passes, visual art or events were changed. Markers are named EchoSphere.UI.* for straightforward filtering in the Unity Profiler CPU timeline; they are not profiling results themselves.
 - Added structural guard and ran CI. Actual Unity Editor/Player allocation and CPU time captures remain required to establish bottleneck shares. APK is deferred as requested.
+
+
+## 2026-10-16 — P2 retained BSP point/polygon pools
+
+- After CI #688/#689 passed, SourceUiDepth still created two temporary List<Point> objects at each BSP split, a fresh Polygon at each split, and arrays for each plane's four local corners and UVs. Added renderer-local reusable pools of point lists and polygon records, reset only at the start of the next complete SourceUiDepth.Render call, after previous frame traversal and mesh population have finished.
+- The existing recursive plane classifications, intersection test, epsilon, interpolation, front/back/copanar branching and painter ordering are unchanged. Four source rectangle corners and four UVs retain the same authored order; the two temporary per-image arrays are eliminated in favor of the same calculated coordinates and a static immutable UV array.
+- Pools are private to a SourceUiDepth instance, including nested depth renderers. No gameplay rules or shader/color/texture changes. Added structural guards. Unity Editor parity and Profiler CPU/GC metrics are not established by CI; actual validation remains open, APK deferred.
