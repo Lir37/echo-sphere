@@ -43,6 +43,8 @@ namespace EchoSphere.Presentation
         private readonly Dictionary<string,Entry> _entries=new Dictionary<string,Entry>();
         private readonly Dictionary<VisualElement,Entry> _elementEntries=new Dictionary<VisualElement,Entry>();
         private readonly Dictionary<VisualElement,Entry> _backdropForegrounds=new Dictionary<VisualElement,Entry>();
+        // Reuse the removal buffer across UI reconciliations to avoid per-pass LINQ arrays.
+        private readonly List<string> _staleEntryKeys=new List<string>();
         private VisualCssNode _root;
         private float _scale=1f;
         private Material _svgMaterial;
@@ -90,7 +92,9 @@ namespace EchoSphere.Presentation
             FrameVersion++;Dirty=false;_nextRenderAt=now+Math.Max(0d,RefreshInterval);VisualDom.BeginFrame();var tree=Render();var nextRoot=VisualCssNode.Build(tree);CopyInteraction(_root,nextRoot);_root=nextRoot;_sheet.Apply(_root);
             foreach(var entry in _entries.Values)entry.Used=false;
             Reconcile(_root,_document.rootVisualElement,"root");
-            foreach(var pair in _entries.Where(pair=>!pair.Value.Used).ToArray()){Dispose(pair.Value);_entries.Remove(pair.Key);}
+            _staleEntryKeys.Clear();
+            foreach(var pair in _entries)if(!pair.Value.Used)_staleEntryKeys.Add(pair.Key);
+            foreach(var key in _staleEntryKeys){var entry=_entries[key];Dispose(entry);_entries.Remove(key);}
             VisualDom.EndFrame();
             UpdateLayout(_root);PreparePaintResources(_root);_layout.Tracks(_root);
         }

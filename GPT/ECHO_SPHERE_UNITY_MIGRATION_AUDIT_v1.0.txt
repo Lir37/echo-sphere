@@ -5108,3 +5108,11 @@ Acceptance still open:
 - Typed projection has structural regression guards but has not yet been compared against live old/new runtime snapshots in Unity. CI success is not proof of gameplay identity.
 
 Next validation step: open the current branch in Unity Editor and on device, inspect the Settings pilot and gameplay HUD at multiple scales/languages, then fix only observed discrepancies. Do not broaden the native UI migration until this pilot is accepted.
+
+
+## 2026-10-16 — UI reconciliation removal-buffer allocation
+
+- Replaced the per-reconciliation `_entries.Where(...).ToArray()` temporary allocation with a retained list of stale entry keys in `SourceUiDocument`. Existing `Dispose` and dictionary removal remain in the same order, after the entry-usage marking pass.
+- No changes to UI layout, authored effects, gameplay formulas, input callbacks, render cadence, or source `new-desing`.
+- User confirmed the native Settings pilot works in Unity Editor. APK testing is explicitly postponed until Unity Editor behavior and performance are satisfactory.
+- Validation boundary: structural regression test and CI check the implementation. Reduced allocations in an actual Unity Profiler capture and complete Editor/gameplay performance remain to be verified; CI alone does not establish frame-time improvement or runtime parity.
