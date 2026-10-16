@@ -291,8 +291,10 @@ namespace EchoSphere.Presentation
             var radiusList=radii.Raw is List<V> ? radii.Items : null;
             var count=radiusList==null?1:radiusList.Count;
             if(count==0||count>4)throw new ArgumentOutOfRangeException(nameof(radii));
-            float RadiusAt(int index)=>radiusList==null?(float)radii.Number:(float)radiusList[index].Number;
-            var a=RadiusAt(0);var b=count>1?RadiusAt(1):a;var c=count>2?RadiusAt(2):a;var d=count>3?RadiusAt(3):b;
+            var a=radiusList==null?(float)radii.Number:(float)radiusList[0].Number;
+            var b=count>1?(float)radiusList[1].Number:a;
+            var c=count>2?(float)radiusList[2].Number:a;
+            var d=count>3?(float)radiusList[3].Number:b;
             if(width<0f){x+=width;width=-width;var swap=a;a=b;b=swap;swap=c;c=d;d=swap;}
             if(height<0f){y+=height;height=-height;var swap=a;a=d;d=swap;swap=b;b=c;c=swap;}
             var shrink=Mathf.Min(1f,width/Mathf.Max(a+b,c+d),height/Mathf.Max(a+d,b+c));a*=shrink;b*=shrink;c*=shrink;d*=shrink;
