@@ -17,6 +17,8 @@ namespace EchoSphere.Presentation
             public SourceUiElement Host;
             public readonly VisualCssAnimation Motion=new VisualCssAnimation();
             public readonly Dictionary<string,string> BaseStyle=new Dictionary<string,string>();
+            // Reused each animation tick instead of allocating one dictionary per element per frame.
+            public readonly Dictionary<string,string> MotionStyleSnapshot=new Dictionary<string,string>();
             public readonly HashSet<int> ActivePointers=new HashSet<int>();
             public string PaintKey,SvgKey;
             public Texture2D Paint;
@@ -138,8 +140,13 @@ namespace EchoSphere.Presentation
         {foreach(var child in node.Children){child.InheritAnimatedValues();InheritSubtree(child);}}
         private void AdvanceMotion(VisualCssNode node)
         {
-            var before=new Dictionary<string,string>(node.Style);
-            if(node.Native is VisualElement element&&_elementEntries.TryGetValue(element,out var entry)){
+            // Retained native entries make up the frame-driven UI motion path.
+            // Preserve the original comparison, but reuse the snapshot storage.
+            Entry entry=null;
+            if(node.Native is VisualElement element)_elementEntries.TryGetValue(element,out entry);
+            var before=entry!=null?entry.MotionStyleSnapshot:new Dictionary<string,string>();
+            before.Clear();foreach(var pair in node.Style)before[pair.Key]=pair.Value;
+            if(entry!=null){
                 node.Style.Clear();foreach(var pair in entry.BaseStyle)node.Style[pair.Key]=pair.Value;
                 node.InheritAnimatedValues();entry.Motion.Apply(_sheet,node,Time.unscaledTimeAsDouble);
             }else node.InheritAnimatedValues();
