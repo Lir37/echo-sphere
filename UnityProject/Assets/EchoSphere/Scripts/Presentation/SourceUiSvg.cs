@@ -33,9 +33,9 @@ namespace EchoSphere.Presentation
             }catch{result.Release();UnityEngine.Object.Destroy(result);throw;}
             finally{material.mainTexture=oldTexture;RenderTexture.active=previous;GL.sRGBWrite=gamma;GL.PopMatrix();RenderTexture.ReleaseTemporary(raw);if(atlas?.Texture!=null)UnityEngine.Object.Destroy(atlas.Texture);}
         }
-        internal static void Text(VisualCssNode root,VisualCss sheet,VisualElement container,List<Label> labels)
+        internal static void Text(VisualCssNode root,VisualCss sheet,VisualElement container,List<Label> labels,List<VisualCssNode> texts)
         {
-            var texts=new List<VisualCssNode>();void Collect(VisualCssNode node){if(node.Tag=="text")texts.Add(node);else foreach(var child in node.Children)Collect(child);}Collect(root);
+            texts.Clear();void Collect(VisualCssNode node){if(node.Tag=="text")texts.Add(node);else foreach(var child in node.Children)Collect(child);}Collect(root);
             var viewBox=root.Properties["viewBox"].Text;var parts=Regex.Split(viewBox.Trim(),@"[\s,]+");
             float Number(string value,float fallback=0f)=>float.TryParse(value,NumberStyles.Float,CultureInfo.InvariantCulture,out var result)?result:fallback;
             var vx=parts.Length==4?Number(parts[0]):0f;var vy=parts.Length==4?Number(parts[1]):0f;var vw=parts.Length==4?Number(parts[2]):(float)root.Width;var vh=parts.Length==4?Number(parts[3]):(float)root.Height;

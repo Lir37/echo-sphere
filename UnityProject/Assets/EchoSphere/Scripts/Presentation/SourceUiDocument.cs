@@ -24,6 +24,7 @@ namespace EchoSphere.Presentation
             public Texture2D Paint;
             public Texture Svg;
             public readonly List<Label> SvgTexts=new List<Label>();
+            public readonly List<VisualCssNode> SvgTextNodes=new List<VisualCssNode>();
             public Rect PaintRect;
             public Rect SvgRect;
             public SourceUiDepth Depth;
@@ -126,7 +127,7 @@ namespace EchoSphere.Presentation
             if(entry.Element is Slider range){range.lowValue=(float)node.Properties["min"].Number;range.highValue=(float)node.Properties["max"].Number;if(!node.Properties["value"].Undefined)range.SetValueWithoutNotify((float)node.Properties["value"].Number);}
             entry.Frame.SetEnabled(!node.Properties["disabled"].Truth);
             var reference=node.Properties["ref"];if(reference.Raw is Dictionary<string,V>)reference["current"]=new V(entry.Host);else if(reference.Raw is Func<V[],V>)reference.Call(new V(entry.Host));
-            if(node.Tag=="svg"){SourceUiSvg.Text(node,_sheet,entry.Element,entry.SvgTexts);return;}
+            if(node.Tag=="svg"){SourceUiSvg.Text(node,_sheet,entry.Element,entry.SvgTexts,entry.SvgTextNodes);return;}
             if(label)return;
             var container=entry.Element is ScrollView view?view.contentContainer:entry.Element;var childIndex=0;
             foreach(var child in node.Children){var authoredKey=child.Properties["key"];var part=child.Pseudo??(!authoredKey.Undefined?"key="+authoredKey.Text:(childIndex++).ToString(CultureInfo.InvariantCulture));Reconcile(child,container,key+"/"+part);}
@@ -176,7 +177,7 @@ namespace EchoSphere.Presentation
         private void OnApplicationFocus(bool focused)
         {if(!focused)foreach(var entry in _entries.Values)if(entry.ActivePointers.Count>0){entry.ActivePointers.Clear();entry.Node.Active=false;Dirty=true;}}
         private void UpdateLayout(VisualCssNode node)
-        {if(node.Native is VisualElement element){var oldBounds=(node.X,node.Y,node.Width,node.Height);UpdateBounds(node,element);if(oldBounds!=(node.X,node.Y,node.Width,node.Height))FrameVersion++;var entry=_elementEntries[element];var contentRotation=_layout.Apply(node,entry.Element,entry.Frame.parent);entry.Frame.ApplyOuterStyle(contentRotation);if(node.Tag=="svg")SourceUiSvg.Text(node,_sheet,entry.Element,entry.SvgTexts);if(DepthAncestor(node)==null&&(_sheet.Get(node,"filter","none").Trim()!="none"||_sheet.Get(node,"opacity","1")!="1")){if(entry.Filters==null)entry.Filters=new SourceUiFilters();entry.Filters.Apply(_sheet,node,element,_scale,IsDepthRoot(node));}else element.style.filter=new List<FilterFunction>();
+        {if(node.Native is VisualElement element){var oldBounds=(node.X,node.Y,node.Width,node.Height);UpdateBounds(node,element);if(oldBounds!=(node.X,node.Y,node.Width,node.Height))FrameVersion++;var entry=_elementEntries[element];var contentRotation=_layout.Apply(node,entry.Element,entry.Frame.parent);entry.Frame.ApplyOuterStyle(contentRotation);if(node.Tag=="svg")SourceUiSvg.Text(node,_sheet,entry.Element,entry.SvgTexts,entry.SvgTextNodes);if(DepthAncestor(node)==null&&(_sheet.Get(node,"filter","none").Trim()!="none"||_sheet.Get(node,"opacity","1")!="1")){if(entry.Filters==null)entry.Filters=new SourceUiFilters();entry.Filters.Apply(_sheet,node,element,_scale,IsDepthRoot(node));}else element.style.filter=new List<FilterFunction>();
                 // Backdrop helpers are retained children, prepared after brushes
                 // and depth surfaces. They issue no graphics commands at repaint.
                 if(VisualBackdrop.Sigma(_sheet,node)>=0d){if(entry.Backdrop==null){entry.Backdrop=new SourceUiBackdrop(element,entry.PaintContent,ReplicaPaint);_backdropForegrounds.Add(entry.Backdrop.Foreground,entry);}}

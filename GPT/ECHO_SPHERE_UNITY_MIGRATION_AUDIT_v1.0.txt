@@ -5123,3 +5123,10 @@ Next validation step: open the current branch in Unity Editor and on device, ins
 - In SourceUiDocument.AdvanceMotion, retained native UI entries now reuse one MotionStyleSnapshot dictionary rather than allocating a new copied dictionary on every frame for each retained element. The comparison against the prior style and FrameVersion invalidation are unchanged. Unmatched/transient nodes retain the original per-call comparison behavior.
 - No changes to animation formulas, CSS rules, visual assets, controls or gameplay. User accepted the native Settings pilot inside Unity; APK validation remains deferred as requested.
 - Added a structural regression test. CI checks source/Unity contract correctness but does not measure allocation reduction or FPS in Unity Profiler; that runtime validation remains open.
+
+
+## 2026-10-16 — SVG text traversal scratch allocation
+
+- Reused a per-entry List<VisualCssNode> during SourceUiSvg.Text traversal, rather than allocating a new list for every SVG text layout refresh. Both invocation paths in SourceUiDocument use the retained list and each traversal clears it before collection.
+- SVG labels, source text, font sizing, transform, draw order, control behavior and gameplay are unchanged. Other SVG rasterization and layout costs remain; this is not a claim that the SVG subsystem has been replaced by native Unity vector rendering.
+- Structural regression guard added. User verified Settings inside Unity Editor; APK validation intentionally deferred. Profiler measurements and complete Editor performance validation remain open.
