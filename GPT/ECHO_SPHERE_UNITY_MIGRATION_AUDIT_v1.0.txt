@@ -5192,3 +5192,66 @@ Next validation step: open the current branch in Unity Editor and on device, ins
 - Inspected SourceCanvasSurface.End and VisualGradient.Stops. Each gradient uploaded to the existing native RGBA paint texture previously allocated an OrderBy(...).ToList() result. A per-surface List<(double Key,int Index)> is now cleared/reused for stable key sorting, with original authored index breaking ties to preserve LINQ OrderBy's stable ordering.
 - PaintTexture data layout, 16-stop constraint, parsing and colors, shader coordinates, native mesh submission and gameplay are unchanged. This does not alter authored gradient resolution/precision or convert gameplay rendering.
 - Regression guard added. CI required; Unity Profiler GPU/CPU and visual parity remain open.
+
+
+======================================================================
+2026-10-16 — CODEX NATIVE MODERNIZATION PLAN: CURRENT CHECKPOINT
+======================================================================
+
+Approved order remains P0 -> P1 -> P2 -> P3. The status below is based on
+current unity-migration code and successful CI through #693, not a claim of
+Editor, Android device, Profiler or screenshot parity. Source new-desing
+737ef2af4a877e0995db5f92331d536d2f29a934 remains unchanged.
+
+P0 — BASELINE / SAFETY: DONE FOR CODE-LEVEL WORK
+- Branch baselines and source docs verified; isolated changes on
+  unity-migration; structural/contract/type checks run after each slice.
+- Runtime timings, frame comparisons and Unity Editor validation are NOT
+  included in this completed code-level prerequisite.
+
+P1 — STATE / UI: PARTIAL
+- Known hot runtime/entity projection paths no longer rely on reflection;
+  reconciliation is bounded to 0.10 sec while explicit invalidations still
+  trigger immediate updates; source UI CSS motion still advances each frame.
+- Native UI Toolkit Settings user-tested successfully in Unity Editor.
+- SourceUiDocument + VisualCss/VisualDom/VisualJs adapters still own most
+  screens (home/shop/leaderboard/achievements/characters/knowledge/region/HUD).
+  Need per-screen native replacements verified against source state, events,
+  layouts, focus, text and touch BEFORE retiring the source path. No blanket
+  P1-complete claim.
+
+P2 — NATIVE VISUAL / PERFORMANCE: PARTIAL
+- SourceCanvasSurface already owns native Unity Mesh/RenderTextures, but
+  authored Canvas 2D commands still pass through custom adapter/shaders.
+- This cycle (#688-#693): native preserve-3d Mesh buffers & material blocks;
+  retained ordered lists, BSP point/polygon/branch pools and UI plane records;
+  Unity Profiler markers for CSS/SVG/depth/backdrop; stable reused native
+  Canvas gradient-stop order. Previous cycles: UI/filter/CSS/SVG/depth buffers.
+- Remaining: verify measured CPU/GC/GPU hotspots in Unity Profiler, then
+  investigate unnecessary texture uploads, SVG raster cache behavior,
+  RenderTexture/Blit costs, stock Unity VFX/particles and sprite/mesh paths
+  case by case. Preserve alpha, blur, layering, trajectories, lifetimes and
+  all authored effects. Do not delete the original renderer merely because
+  some native Mesh/GPU APIs are now used.
+
+P3 — PERSISTENCE / CLEANUP: NOT ACCEPTED
+- PlayerPrefs, source persistence.ts compatibility and VisualJs/V projection
+  bridges still exist; no validated replacement of the full save schema with
+  typed DTOs. Do NOT remove compatibility layer or generated source-derived
+  presentation until end-to-end behavioral/state parity is shown.
+
+VALIDATION REQUIRED BEFORE NEXT ARCHITECTURAL ACCEPTANCE:
+1. In Unity Editor capture CPU Timeline/Hierarchy and GC Alloc with the
+   EchoSphere.UI.* markers, including idle menu, rotating menu visual,
+   gameplay stress, and transitions. Check retained-memory high-watermark
+   for each new pool; static tests cannot prove peak RAM is acceptable.
+2. Compare native Settings/remaining UI and preserved depth/gradient visual
+   output with the exact new-desing original; confirm interaction/focus.
+3. Continue P1/P2 only where source-backed behavior and runtime evidence
+   justify a precise change; P3 cleanup requires actual equivalence first.
+4. APK test intentionally postponed at user's request until the Unity Editor
+   experience is stable and performant. CI green is NOT APK/Editor FPS proof.
+
+The six implementation commits in this cycle and their per-change guards are
+recorded above. CI #688, #689, #690, #691, #692, #693: SUCCESS.
+======================================================================
