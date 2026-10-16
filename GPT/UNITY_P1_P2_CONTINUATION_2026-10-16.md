@@ -50,3 +50,9 @@ CI #702 revealed C# CS0173/CS0021: `V.Items` is an `IEnumerable<V>`, not an inde
 - Added `EchoSphere.Canvas.Tessellate`, `EchoSphere.Canvas.ShadowCommands` and `EchoSphere.Canvas.ExecuteCommands` markers so an Editor capture can distinguish path tessellation, shadow command generation and command buffer execution from prior EndFrame/DrawBatches markers. These do not establish GPU timings on their own.
 - Original shader property names, rendering arguments, command order, mesh data, visuals and gameplay are unchanged.
 - Code commit `cc89be7494c88674599f7348409b55b24bf512dc`; structural guard `945e104fa0709ee7ca9c4162f31ab74f2507ace9`. CI status must be verified against Actions, including Unity typecheck. P1/P2 PARTIAL; P3 OPEN; APK deferred.
+
+
+## 2026-10-16 — P1 UI interaction carry-over allocation
+- `SourceUiDocument.CopyInteraction` constructed a filtered child list via `Where(...).ToList()` every recursive invocation. Replaced it with direct filtered iteration over the pre-existing child collection. For unkeyed children the previous after-index mapping (including index gaps for pseudo children) is preserved; keyed children still select the first matching non-pseudo source child. Hover/Active/Focused copying and recursive walk remain unchanged.
+- Code `ede508af1cad9e3a307c5821964816330d65ffe1`, structural guard `10529ff2a6c894a8eeffc88eb627f8cbb1f5af44`. Runtime state parity and reduction of GC remain subject to Editor validation.
+- CI needs to be verified for this code/test checkpoint. No native Settings, source gameplay or APK changes. P1/P2 remain PARTIAL, P3 remains OPEN.
