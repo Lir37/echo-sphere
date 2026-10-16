@@ -39,3 +39,6 @@ Entry HEAD: `8615aec42b52b090d586b8d2cbbcfebd169f883e`. Baseline `new-desing@737
 - Regression test `tests/unity-canvas-roundrect-allocation.test.mjs` guards these invariants.
 - Code commits: `038b5b84076be1e6a88f3afe83364ee5b222da99`, `c54e6537c129846d31ed455b7a438589cc5e0ea2`; test `7178cc24d15ac978c5c9d4a14b3caec6a6c6de63`.
 - Static/code tests are not evidence of reduced measured GC, Editor correctness or APK parity. P1/P2 PARTIAL, P3 OPEN. Profiler sampling remains the next decision gate; APK is deferred.
+
+### CI correction for RoundRectangle
+CI #702 revealed C# CS0173/CS0021: `V.Items` is an `IEnumerable<V>`, not an indexable list. Corrected the direct access to use `radii.Raw as List<V>`, matching the original source type guard. Fixed code `e7a2f87ee08be6fef9230a94b7d67e661f65cf16`, corrected test `86b55c99d33cb87b3e94be74eddef31bc004b355`. Re-run CI required. No changes to radius values or rendering behavior.
