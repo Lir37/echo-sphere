@@ -74,3 +74,18 @@ Starting HEAD: `ab07259c02d691f49de185dc29aa0f18e6192858`; source `new-desing@73
 `SourceUiDocument.Reconcile` previously ran `Where(...).OrderBy(...).ThenBy(...)` for each element's native paint/picking reordering. It now fills and clears a document-owned `List<(VisualElement, double, double, int)>`, sorts by the same CSS `order` and `z-index` values with original child index as an explicit stable tie-break, and calls `BringToFront` in the same order. The scratch list is filled only after recursive children have been reconciled. No change to CSS property formulas, layout, input event handlers, gameplay, source or visual effects is intended.
 
 Code commit: `50d9d5931490b4ac041b1a6be30a5610b64fd47c`. Structural guard: `9ec588d611b1f20f3c761f9fa36b87bb92186faa`. Unity Editor CPU/GC impact and resulting pick/render-order parity remain to be confirmed; static CI does not prove either. P1/P2 partial, P3 open, APK deferred.
+
+
+## 2026-10-16 — main-menu first layout jump and severe startup stutter (user observation)
+
+Baseline `unity-migration@dd8d46280780d31344b1b6ef92624237d4aec97c`, protected `new-desing@737ef2af4a877e0995db5f92331d536d2f29a934`.
+User observed in Unity Editor: first menu text appears clustered at top-left and then moves to its intended coordinates, together with approximately 1–2 FPS at startup. This is a user-reported runtime observation, not a captured Profiler trace.
+
+Source-level finding: `SourceUiDocument.Draw` builds a new UI Toolkit tree and computes positioned-element offsets in `SourceUiLayout.Apply` before UI Toolkit's asynchronous first Yoga geometry pass. Existing `GeometryChangedEvent` callbacks then update element bounds in later frames. Initial unresolved coordinates can therefore be displayed while layout converges.
+
+Change: UI root starts with `Visibility.Hidden`, which preserves layout computation rather than using `DisplayStyle.None`. The existing child `GeometryChangedEvent` observes initial geometry. Once no further geometry changes are observed for two document update passes, `RevealAfterFirstLayout` switches the document root to `Visibility.Visible`. UI update/layout, source animation logic, painting, source effects and input handlers remain in place. This specifically prevents unresolved initial placement from being drawn; actual Editor validation is necessary to check that the menu becomes visible promptly and navigation works correctly. It is NOT a proven fix for 1–2 FPS.
+
+Additional diagnostic work: `EchoSphere.UI.BuildTree`, `EchoSphere.UI.Reconcile` and `EchoSphere.UI.Layout` Profiler markers split the first UI update work from existing `PrepareBrushesAndSvg`, `PrepareDepth`, `PrepareBackdrops`, `RasterizeCss`, and `RasterizeSvg`. Original operation order is preserved. Capture first-menu CPU Timeline/GC Alloc in Unity Editor to determine the cause of severe stutter before attempting broad renderer replacement.
+
+Commits: `e53ec991f739498b6f0bbce20dddf0c54206c05e` initial presentation gate; `d69e56b13f0f85e5fa55ac5066475d316aa1552f` gate test; `b7ccb452dc4d040bb8fcbd5863245c1be4e69447` new markers; `4dbd834c00e8b42914ab0356087a32ee828aa8ca` marker guard.
+Code-level CI must be checked for these commits. P1/P2 remain PARTIAL and P3 OPEN; actual Unity Editor initial-menu behavior and FPS are not yet verified; APK remains deferred.
