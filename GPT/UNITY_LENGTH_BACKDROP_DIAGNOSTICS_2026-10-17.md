@@ -34,3 +34,9 @@ Final PrepareBackdrops 25.81 ms, PrepareBrushesAndSvg 6.64 ms, PrepareDepth 1.87
 ## Next
 
 Menu remains too slow. Continue architectural reduction of backdrop prefix replication/native UI update costs without removing blur/effects; record CPU Timeline/UI Toolkit/Rendering evidence and memory tradeoffs. Continue remaining P1/P2 audit gates only with real Editor verification. Current group requires its own CI SUCCESS; local tests are not CI or full gameplay acceptance. Five recent project chats were inspected in the preceding cycle; constraints remain unchanged.
+
+## Follow-up static allocation cleanup (2026-10-17)
+
+- `SourceUiReplica.Update` previously ran LINQ `Where(...).ToArray()` to collect stale backdrop copies each pass. It now reuses a retained `List<VisualElement>` for the stale source keys and removes copies in the same order. Paint order, blur, child traversal, and per-frame copy semantics are unchanged.
+- This is source-level allocation removal only. No Editor FPS/GC measurement or visual parity confirmation was performed for this follow-up; P1/P2 remain PARTIAL.
+- It does not address the dominant cost of thousands of active replica updates. Retain that task for source-guided architectural redesign and Editor validation.
