@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -14,6 +13,7 @@ namespace EchoSphere.Presentation
         private sealed class Copy { internal VisualElement Element;internal IStyle Style;internal Action<MeshGenerationContext> TextPaint,Painter;internal readonly PaintTag Tag=new PaintTag();internal bool Used,HasText; }
         private readonly Dictionary<VisualElement,Copy> _copies=new Dictionary<VisualElement,Copy>();
         private readonly Dictionary<VisualElement,int> _childOrder=new Dictionary<VisualElement,int>();
+        private readonly List<VisualElement> _staleSources=new List<VisualElement>();
         private readonly Func<VisualElement,Action<MeshGenerationContext>> _paint;
         private readonly SourceUiReplicaSnapshotCache _snapshots;
         internal SourceUiReplica(Func<VisualElement,Action<MeshGenerationContext>> paint):this(paint,null){}
@@ -62,7 +62,10 @@ namespace EchoSphere.Presentation
             foreach(var item in VisualBackdrop.PaintPrefix(root,stop,element=>element.hierarchy.childCount,(element,index)=>element.hierarchy[index],
                 element=>element.style.display==DisplayStyle.None||element.userData is SourceUiBackdrop.ClipTag clip&&(clip.Owner==root||!SourceUiBackdrop.WorldBounds(clip.Owner).Overlaps(area))))
                 CopyNode(item.Node,item.Parent==null?parent:_copies[item.Parent].Element,item.Parent==null);
-            foreach(var item in _copies.Where(pair=>!pair.Value.Used).ToArray()){item.Value.Element.RemoveFromHierarchy();_copies.Remove(item.Key);}
+            _staleSources.Clear();
+            foreach(var pair in _copies)if(!pair.Value.Used)_staleSources.Add(pair.Key);
+            foreach(var source in _staleSources){_copies[source].Element.RemoveFromHierarchy();_copies.Remove(source);}
+            _staleSources.Clear();
         }
         internal static void Appearance(VisualElement source,VisualElement target)
             =>CopyAppearance(source,target.style);
