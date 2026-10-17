@@ -73,6 +73,9 @@ namespace EchoSphere.Presentation
         private readonly Dictionary<VisualElement,Entry> _backdropForegrounds=new Dictionary<VisualElement,Entry>();
         // Reuse the removal buffer across UI reconciliations to avoid per-pass LINQ arrays.
         private readonly List<string> _staleEntryKeys=new List<string>();
+        // Non-native logical nodes share this scratch buffer during depth-first
+        // motion updates; no nested call occurs before each comparison completes.
+        private readonly Dictionary<string,string> _motionFallbackSnapshot=new Dictionary<string,string>();
         private readonly List<(VisualElement Element,double Order,double Z,int Index)> _paintOrderScratch=new List<(VisualElement,double,double,int)>();
         private VisualCssNode _root;
         private float _scale=1f;
@@ -211,7 +214,7 @@ namespace EchoSphere.Presentation
             // Preserve the original comparison, but reuse the snapshot storage.
             Entry entry=null;
             if(node.Native is VisualElement element)_elementEntries.TryGetValue(element,out entry);
-            var before=entry!=null?entry.MotionStyleSnapshot:new Dictionary<string,string>();
+            var before=entry!=null?entry.MotionStyleSnapshot:_motionFallbackSnapshot;
             before.Clear();foreach(var pair in node.Style)before[pair.Key]=pair.Value;
             if(entry!=null){
                 node.Style.Clear();foreach(var pair in entry.BaseStyle)node.Style[pair.Key]=pair.Value;
