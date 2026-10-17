@@ -58,7 +58,10 @@ namespace EchoSphere.Presentation
                 // Preserve the paint-prefix order without rotating every retained
                 // sibling through the end of its hierarchy on every frame.
                 _childOrder.TryGetValue(container,out var childIndex);
-                if(target.parent!=container||container.hierarchy.IndexOf(target)!=childIndex)
+                // The expected slot is known from the paint-prefix traversal. A direct
+                // hierarchy lookup avoids a linear IndexOf scan for each retained
+                // replica while preserving the exact same insertion condition.
+                if(target.parent!=container||childIndex>=container.hierarchy.childCount||container.hierarchy[childIndex]!=target)
                     container.hierarchy.Insert(childIndex,target);
                 _childOrder[container]=childIndex+1;
                 target.MarkDirtyRepaint();
