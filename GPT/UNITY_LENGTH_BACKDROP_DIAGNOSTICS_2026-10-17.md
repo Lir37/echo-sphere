@@ -51,3 +51,8 @@ Menu remains too slow. Continue architectural reduction of backdrop prefix repli
 - In `SourceUiReplica.CopyNode`, the native `SetEnabled` propagation is now invoked only when `enabledSelf` changes. Backdrop copies are non-interactive, but the hierarchy remains native and unchanged.
 - `generateVisualContent` now keeps the previously assigned `copy.Painter` delegate when it is still the selected callback, instead of reassigning that property for every replicated source on every pass. Its mutable `PaintTag` and existing `MarkDirtyRepaint` behavior remain intact, preserving per-frame custom drawing and animation.
 - Neither change reduces the number of replicas, suppresses blur or changes layout order. Source-only review is complete; Unity Editor compilation, Play Mode visuals and measured CPU/GC remain acceptance gates. P1/P2 stay PARTIAL.
+
+## Logical-node animation scratch reuse (2026-10-17)
+
+- `SourceUiDocument.AdvanceMotion` created a new `Dictionary<string,string>` every animation tick for each logical UI node without a retained native entry. This is now one reused scratch dictionary owned by the document. The traversal completes each node's compare before descending to children, so successive logical nodes never need concurrent snapshots. Retained entries continue using their own per-entry dictionaries. Key/value comparison and frame invalidation are unchanged.
+- Source-level allocation reduction, not a switch in animation cadence or UI output. Editor compilation, CPU/GC measurements and visual checks remain pending; this does not close the architecture/backend replica gate or prove FPS improvement.
