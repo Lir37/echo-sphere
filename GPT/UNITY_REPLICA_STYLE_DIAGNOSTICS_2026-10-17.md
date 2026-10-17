@@ -69,3 +69,9 @@ Gameplay, balance, RNG, authored visual assets and protected new-desing unchange
 Existing user package/settings/import/scene changes remain outside the commit.
 Recent 5–15 project chats were not accessible through available tools.
 Check CI on the resulting commit; local/Editor PASS is separate from CI SUCCESS.
+
+CI #733 on b72ccbed65cce0bd2806433837bb8aaeea055150 passed source typecheck
+and core contracts, but the strict Unity API job failed on two obsolete-member
+warnings (zero compile errors). The required legacy IStyle alias implementation
+now carries Obsolete like Unity's interface, without disabling warning checks.
+The corrected commit requires a new CI result.

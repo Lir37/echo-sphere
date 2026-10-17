@@ -280,6 +280,7 @@ namespace EchoSphere.Presentation
         private UnityEngine.UIElements.StyleLength _wordSpacing;
         public UnityEngine.UIElements.StyleLength wordSpacing {get=>_target.wordSpacing;set {if(_wordSpacing.Equals(value))return;_target.wordSpacing=value;_wordSpacing=value;}}
         // This legacy alias changes several background properties at once.
+        [System.Obsolete("Use background-* properties instead.")]
         public UnityEngine.UIElements.StyleEnum<UnityEngine.ScaleMode> unityBackgroundScaleMode {get=>_target.unityBackgroundScaleMode;set {_target.unityBackgroundScaleMode=value;Read();}}
     }
 }
