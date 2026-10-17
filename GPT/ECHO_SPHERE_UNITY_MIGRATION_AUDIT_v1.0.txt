@@ -5281,3 +5281,15 @@ Implementation checkpoint 574ddbcdeaf127f3caa5741165838d7bdfae1d32:
 Unity Migration Contracts #731 SUCCESS (https://github.com/Lir37/echo-sphere/actions/runs/38961184855).
 Actual Editor compile/tests and remaining performance/layout gates are documented in
 GPT/UNITY_EDITOR_MENU_DIAGNOSTICS_2026-10-16.md. P1/P2 remain PARTIAL; no APK.
+## 2026-10-17 — Measured backdrop style-write reduction
+Entry HEAD f54dd70a39737ef2372016a51bdf868b08d2b5f0 (CI #732 SUCCESS).
+Added a retained inline-style writer only for owned backdrop replicas; unchanged
+value requests no longer repeat native style writes. Mutable lists still pass
+through and getters preserve Unity canonicalization. No effects/cadence removed.
+Same-state Editor A/B: full paint preparation 51–61 ms native vs 32–34 ms retained
+at 1260x542 with 1979 copies. This is not an FPS measurement.
+Final Editor compile, 66305 property comparisons, previous Editor checks, full
+portable core/visual checks and 272 Node tests PASS. Settings event navigation
+exercised. See GPT/UNITY_REPLICA_STYLE_DIAGNOSTICS_2026-10-17.md for captures,
+limits and Console diagnostics. P1/P2 remain PARTIAL: menu performance and
+z-index/flex-order bug still open. No APK. Check resulting commit CI separately.

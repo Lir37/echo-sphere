@@ -87,11 +87,13 @@ namespace EchoSphere.Presentation
         internal static Rect WorldBounds(VisualElement element)=>element is SourceUiFrame frame?frame.Content.worldBound:element.worldBound;
         private static VisualElement Box(){var box=new VisualElement {pickingMode=PickingMode.Ignore,userData=ReplicaTag};LocalBox(box,0,0,0,0);box.style.overflow=Overflow.Visible;return box;}
         internal static void LocalBox(VisualElement element,float x,float y,float width,float height)
+            =>LocalBox(element.style,x,y,width,height);
+        internal static void LocalBox(IStyle style,float x,float y,float width,float height)
         {
             // Newly attached / display:none nodes can be unlaid out. Do not
             // forward NaN Yoga bounds into inline styles or native render data.
-            if(!Finite(x)||!Finite(y)||!Finite(width)||!Finite(height)){element.style.display=DisplayStyle.None;x=y=width=height=0;}
-            var style=element.style;style.position=Position.Absolute;style.left=x;style.top=y;style.right=StyleKeyword.Auto;style.bottom=StyleKeyword.Auto;style.width=width;style.height=height;
+            if(!Finite(x)||!Finite(y)||!Finite(width)||!Finite(height)){style.display=DisplayStyle.None;x=y=width=height=0;}
+            style.position=Position.Absolute;style.left=x;style.top=y;style.right=StyleKeyword.Auto;style.bottom=StyleKeyword.Auto;style.width=width;style.height=height;
             style.minWidth=0;style.minHeight=0;style.maxWidth=StyleKeyword.None;style.maxHeight=StyleKeyword.None;style.aspectRatio=StyleKeyword.Auto;style.flexShrink=0;
             style.marginLeft=style.marginRight=style.marginTop=style.marginBottom=0;
         }

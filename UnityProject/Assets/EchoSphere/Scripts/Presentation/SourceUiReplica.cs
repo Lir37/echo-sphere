@@ -11,7 +11,7 @@ namespace EchoSphere.Presentation
     internal sealed class SourceUiReplica : IDisposable
     {
         internal sealed class PaintTag { internal Action<MeshGenerationContext> Paint; }
-        private sealed class Copy { internal VisualElement Element;internal Action<MeshGenerationContext> TextPaint,Painter;internal readonly PaintTag Tag=new PaintTag();internal bool Used,HasText; }
+        private sealed class Copy { internal VisualElement Element;internal IStyle Style;internal Action<MeshGenerationContext> TextPaint,Painter;internal readonly PaintTag Tag=new PaintTag();internal bool Used,HasText; }
         private readonly Dictionary<VisualElement,Copy> _copies=new Dictionary<VisualElement,Copy>();
         private readonly Dictionary<VisualElement,int> _childOrder=new Dictionary<VisualElement,int>();
         private readonly Func<VisualElement,Action<MeshGenerationContext>> _paint;
@@ -24,21 +24,21 @@ namespace EchoSphere.Presentation
             {
                 if(!_copies.TryGetValue(source,out var copy)){
                     var element=source is TextElement?(VisualElement)new Label():new VisualElement();
-                    copy=new Copy {Element=element,TextPaint=element.generateVisualContent};_copies.Add(source,copy);
+                    copy=new Copy {Element=element,Style=new SourceUiReplicaStyle(element.style),TextPaint=element.generateVisualContent};_copies.Add(source,copy);
                     var retained=copy;copy.Painter=context=>{retained.Tag.Paint?.Invoke(context);if(retained.HasText)retained.TextPaint?.Invoke(context);};
                     element.pickingMode=PickingMode.Ignore;element.focusable=false;
                     element.name=source.name;foreach(var name in source.GetClasses())element.AddToClassList(name);
                 }
-                copy.Used=true;var target=copy.Element;target.SetEnabled(source.enabledSelf);
+                copy.Used=true;var target=copy.Element;var style=copy.Style;target.SetEnabled(source.enabledSelf);
                 var helper=source.userData==SourceUiBackdrop.ReplicaTag||source.userData is SourceUiBackdrop.ClipTag||source.userData is PaintTag;
-                if(helper)InlineGeometry(source,target);
+                if(helper)CopyInlineGeometry(source,style);
                 else {
-                    Appearance(source,target);
+                    CopyAppearance(source,style);
                     var bounds=source.layout;var border=source.parent?.resolvedStyle;
-                    SourceUiBackdrop.LocalBox(target,isRoot?0:bounds.x-(border?.borderLeftWidth??0),isRoot?0:bounds.y-(border?.borderTopWidth??0),bounds.width,bounds.height);
-                    var transform=source.resolvedStyle;target.style.translate=new Translate(transform.translate.x,transform.translate.y,transform.translate.z);target.style.rotate=transform.rotate;target.style.scale=transform.scale;target.style.transformOrigin=new TransformOrigin(transform.transformOrigin.x,transform.transformOrigin.y,transform.transformOrigin.z);
+                    SourceUiBackdrop.LocalBox(style,isRoot?0:bounds.x-(border?.borderLeftWidth??0),isRoot?0:bounds.y-(border?.borderTopWidth??0),bounds.width,bounds.height);
+                    var transform=source.resolvedStyle;style.translate=new Translate(transform.translate.x,transform.translate.y,transform.translate.z);style.rotate=transform.rotate;style.scale=transform.scale;style.transformOrigin=new TransformOrigin(transform.transformOrigin.x,transform.transformOrigin.y,transform.transformOrigin.z);
                 }
-                if(isRoot){target.style.translate=new Translate(0,0);target.style.rotate=new Rotate(0);target.style.scale=new Scale(Vector3.one);target.style.opacity=1;target.style.filter=StyleKeyword.Null;}
+                if(isRoot){style.translate=new Translate(0,0);style.rotate=new Rotate(0);style.scale=new Scale(Vector3.one);style.opacity=1;style.filter=StyleKeyword.Null;}
                 if(target is TextElement text&&source is TextElement original){text.text=original.text;text.enableRichText=original.enableRichText;text.selection.isSelectable=false;}
                 copy.Tag.Paint=_paint(source);copy.HasText=source.generateVisualContent!=null&&copy.TextPaint!=null;
                 target.userData=source.userData is SourceUiBackdrop.ClipTag?source.userData:copy.Tag;
@@ -61,8 +61,10 @@ namespace EchoSphere.Presentation
             foreach(var item in _copies.Where(pair=>!pair.Value.Used).ToArray()){item.Value.Element.RemoveFromHierarchy();_copies.Remove(item.Key);}
         }
         internal static void Appearance(VisualElement source,VisualElement target)
+            =>CopyAppearance(source,target.style);
+        private static void CopyAppearance(VisualElement source,IStyle style)
         {
-            var value=source.resolvedStyle;var style=target.style;
+            var value=source.resolvedStyle;
             style.display=value.display;style.visibility=value.visibility;style.opacity=value.opacity;style.filter=source.style.filter;style.overflow=source.style.overflow;
             style.backgroundColor=value.backgroundColor;style.backgroundImage=value.backgroundImage;style.backgroundPositionX=value.backgroundPositionX;style.backgroundPositionY=value.backgroundPositionY;style.backgroundRepeat=value.backgroundRepeat;style.backgroundSize=value.backgroundSize;
             style.borderLeftWidth=value.borderLeftWidth;style.borderRightWidth=value.borderRightWidth;style.borderTopWidth=value.borderTopWidth;style.borderBottomWidth=value.borderBottomWidth;
@@ -75,10 +77,12 @@ namespace EchoSphere.Presentation
             style.unityBackgroundImageTintColor=value.unityBackgroundImageTintColor;style.unitySliceLeft=value.unitySliceLeft;style.unitySliceRight=value.unitySliceRight;style.unitySliceTop=value.unitySliceTop;style.unitySliceBottom=value.unitySliceBottom;style.unitySliceScale=value.unitySliceScale;style.unitySliceType=value.unitySliceType;style.unityMaterial=value.unityMaterial;
         }
         private static void InlineGeometry(VisualElement source,VisualElement target)
+            =>CopyInlineGeometry(source,target.style);
+        private static void CopyInlineGeometry(VisualElement source,IStyle style)
         {
             // Helper styles were prepared this frame, before Yoga's next pass.
             // Reading helper.layout here would introduce a one-frame blur lag.
-            var value=source.style;var style=target.style;
+            var value=source.style;
             style.position=value.position;style.left=value.left;style.top=value.top;style.right=value.right;style.bottom=value.bottom;style.width=value.width;style.height=value.height;
             style.minWidth=value.minWidth;style.minHeight=value.minHeight;style.maxWidth=value.maxWidth;style.maxHeight=value.maxHeight;style.aspectRatio=value.aspectRatio;style.flexShrink=0;
             style.marginLeft=style.marginRight=style.marginTop=style.marginBottom=0;

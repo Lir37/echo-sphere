@@ -129,3 +129,15 @@ final 480x854 sample averaged 118.312 ms/frame and about 5.51 MB main-thread GC.
 The existing z-index/flex-flow coupling still places the sphere entry below the controls.
 P1/P2 remain PARTIAL. Console has earlier repaint assertions; texture index=3 was not reproduced.
 No gameplay changes or APK. User local settings/import changes preserved. Check resulting CI.
+## 2026-10-17 — Measured backdrop style-write reduction
+Entry HEAD f54dd70a39737ef2372016a51bdf868b08d2b5f0 (CI #732 SUCCESS).
+Added a retained inline-style writer only for owned backdrop replicas; unchanged
+value requests no longer repeat native style writes. Mutable lists still pass
+through and getters preserve Unity canonicalization. No effects/cadence removed.
+Same-state Editor A/B: full paint preparation 51–61 ms native vs 32–34 ms retained
+at 1260x542 with 1979 copies. This is not an FPS measurement.
+Final Editor compile, 66305 property comparisons, previous Editor checks, full
+portable core/visual checks and 272 Node tests PASS. Settings event navigation
+exercised. See GPT/UNITY_REPLICA_STYLE_DIAGNOSTICS_2026-10-17.md for captures,
+limits and Console diagnostics. P1/P2 remain PARTIAL: menu performance and
+z-index/flex-order bug still open. No APK. Check resulting commit CI separately.
