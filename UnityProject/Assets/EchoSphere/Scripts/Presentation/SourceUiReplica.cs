@@ -57,8 +57,10 @@ namespace EchoSphere.Presentation
             // and this replica itself). The nearest backdrop root excludes its
             // own backdrop image and outer filter/opacity; those belong to the
             // live ancestor group. Use actual retained hierarchy paint order.
+            // Explicit inline display:none suppresses the entire subtree in Unity.
+            // Read the current inline value, not last frame's resolved layout.
             foreach(var item in VisualBackdrop.PaintPrefix(root,stop,element=>element.hierarchy.childCount,(element,index)=>element.hierarchy[index],
-                element=>element.userData is SourceUiBackdrop.ClipTag clip&&(clip.Owner==root||!SourceUiBackdrop.WorldBounds(clip.Owner).Overlaps(area))))
+                element=>element.style.display==DisplayStyle.None||element.userData is SourceUiBackdrop.ClipTag clip&&(clip.Owner==root||!SourceUiBackdrop.WorldBounds(clip.Owner).Overlaps(area))))
                 CopyNode(item.Node,item.Parent==null?parent:_copies[item.Parent].Element,item.Parent==null);
             foreach(var item in _copies.Where(pair=>!pair.Value.Used).ToArray()){item.Value.Element.RemoveFromHierarchy();_copies.Remove(item.Key);}
         }
