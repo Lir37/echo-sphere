@@ -31,7 +31,10 @@ namespace EchoSphere.Presentation
                     element.pickingMode=PickingMode.Ignore;element.focusable=false;
                     element.name=source.name;foreach(var name in source.GetClasses())element.AddToClassList(name);
                 }
-                copy.Used=true;var target=copy.Element;var style=copy.Style;target.SetEnabled(source.enabledSelf);
+                copy.Used=true;var target=copy.Element;var style=copy.Style;
+                // Retained replicas are non-interactive; avoid native enable-state
+                // propagation through their descendants when the state is stable.
+                if(target.enabledSelf!=source.enabledSelf)target.SetEnabled(source.enabledSelf);
                 var helper=source.userData==SourceUiBackdrop.ReplicaTag||source.userData is SourceUiBackdrop.ClipTag||source.userData is PaintTag;
                 if(helper){if(_snapshots==null)CopyInlineGeometry(source,style);else _snapshots.Apply(source,style,true);}
                 else {
@@ -50,7 +53,8 @@ namespace EchoSphere.Presentation
                 }
                 copy.Tag.Paint=_paint(source);copy.HasText=source.generateVisualContent!=null&&copy.TextPaint!=null;
                 target.userData=source.userData is SourceUiBackdrop.ClipTag?source.userData:copy.Tag;
-                target.generateVisualContent=copy.Tag.Paint==null&&!copy.HasText?null:copy.Painter;
+                var nextPainter=copy.Tag.Paint==null&&!copy.HasText?null:copy.Painter;
+                if(target.generateVisualContent!=nextPainter)target.generateVisualContent=nextPainter;
                 // Preserve the paint-prefix order without rotating every retained
                 // sibling through the end of its hierarchy on every frame.
                 _childOrder.TryGetValue(container,out var childIndex);
