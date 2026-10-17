@@ -242,14 +242,25 @@ namespace EchoSphere.Presentation
             }
             style[property]=value;
         }
+        // Cache syntax only: viewport, font and percentage references are live.
+        // Bounded per sheet because animated values may generate new literals.
+        private readonly Dictionary<string,(double Number,string Unit)> _lengthLiterals=new Dictionary<string,(double,string)>();
+        private static readonly string[] LengthFunctions={"min","max","clamp"};
         public double Length(string value,double reference,double font=16d)
         {
             if(value==null||value=="auto"||value=="none"||value=="normal"||value=="initial"||value=="fit-content"||value=="min-content"||value=="max-content")return double.NaN;
-            value=value.Trim();if(value.StartsWith("calc(",StringComparison.Ordinal))return Sum(value.Substring(5,value.Length-6),reference,font);
-            foreach(var function in new[]{"min","max","clamp"})if(value.StartsWith(function+"(",StringComparison.Ordinal)){var args=Split(value.Substring(function.Length+1,value.Length-function.Length-2),',').Select(arg=>Length(arg.Trim(),reference,font)).ToArray();return function=="min"?args.Min():function=="max"?args.Max():Math.Max(args[0],Math.Min(args[2],args[1]));}
+            value=value.Trim();if(_lengthLiterals.TryGetValue(value,out var literal))return ResolveLength(literal.Number,literal.Unit,reference,font);if(value.StartsWith("calc(",StringComparison.Ordinal))return Sum(value.Substring(5,value.Length-6),reference,font);
+            foreach(var function in LengthFunctions)if(value.StartsWith(function+"(",StringComparison.Ordinal)){var args=Split(value.Substring(function.Length+1,value.Length-function.Length-2),',').Select(arg=>Length(arg.Trim(),reference,font)).ToArray();return function=="min"?args.Min():function=="max"?args.Max():Math.Max(args[0],Math.Min(args[2],args[1]));}
             if(value.StartsWith("env(",StringComparison.Ordinal)){var name=value.Substring(4,value.Length-5);return name=="safe-area-inset-left"?SafeLeft:name=="safe-area-inset-right"?SafeRight:name=="safe-area-inset-top"?SafeTop:SafeBottom;}
-            var match=Regex.Match(value,@"^([-+]?(?:\d*\.\d+|\d+\.?\d*)(?:[eE][-+]?\d+)?)(px|rem|em|vw|vh|dvh|svh|lvh|vmin|vmax|%)?$");if(!match.Success)return double.NaN;
-            var number=double.Parse(match.Groups[1].Value,CultureInfo.InvariantCulture);switch(match.Groups[2].Value){case "%":return number*reference*.01d;case "rem":return number*16d;case "em":return number*font;case "vw":return number*Width*.01d;case "vh":case "dvh":case "svh":case "lvh":return number*Height*.01d;case "vmin":return number*Math.Min(Width,Height)*.01d;case "vmax":return number*Math.Max(Width,Height)*.01d;default:return number;}
+            var match=Regex.Match(value,@"^([-+]?(?:\d*\.\d+|\d+\.?\d*)(?:[eE][-+]?\d+)?)(px|rem|em|vw|vh|dvh|svh|lvh|vmin|vmax|%)?$");var number=match.Success?double.Parse(match.Groups[1].Value,CultureInfo.InvariantCulture):double.NaN;
+            var unit=match.Success?match.Groups[2].Value:"";
+            if(_lengthLiterals.Count>=4096)_lengthLiterals.Clear();
+            _lengthLiterals[value]=(number,unit);
+            return ResolveLength(number,unit,reference,font);
+        }
+        private double ResolveLength(double number,string unit,double reference,double font)
+        {
+            switch(unit){case "%":return number*reference*.01d;case "rem":return number*16d;case "em":return number*font;case "vw":return number*Width*.01d;case "vh":case "dvh":case "svh":case "lvh":return number*Height*.01d;case "vmin":return number*Math.Min(Width,Height)*.01d;case "vmax":return number*Math.Max(Width,Height)*.01d;default:return number;}
         }
         private double Sum(string value,double reference,double font)
         {

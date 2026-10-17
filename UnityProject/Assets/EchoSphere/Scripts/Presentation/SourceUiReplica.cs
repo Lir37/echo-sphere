@@ -15,7 +15,9 @@ namespace EchoSphere.Presentation
         private readonly Dictionary<VisualElement,Copy> _copies=new Dictionary<VisualElement,Copy>();
         private readonly Dictionary<VisualElement,int> _childOrder=new Dictionary<VisualElement,int>();
         private readonly Func<VisualElement,Action<MeshGenerationContext>> _paint;
-        internal SourceUiReplica(Func<VisualElement,Action<MeshGenerationContext>> paint){_paint=paint;}
+        private readonly SourceUiReplicaSnapshotCache _snapshots;
+        internal SourceUiReplica(Func<VisualElement,Action<MeshGenerationContext>> paint):this(paint,null){}
+        internal SourceUiReplica(Func<VisualElement,Action<MeshGenerationContext>> paint,SourceUiReplicaSnapshotCache snapshots){_paint=paint;_snapshots=snapshots;}
         internal void Update(VisualElement root,VisualElement stop,VisualElement parent,Rect area)
         {
             _childOrder.Clear();
@@ -31,9 +33,9 @@ namespace EchoSphere.Presentation
                 }
                 copy.Used=true;var target=copy.Element;var style=copy.Style;target.SetEnabled(source.enabledSelf);
                 var helper=source.userData==SourceUiBackdrop.ReplicaTag||source.userData is SourceUiBackdrop.ClipTag||source.userData is PaintTag;
-                if(helper)CopyInlineGeometry(source,style);
+                if(helper){if(_snapshots==null)CopyInlineGeometry(source,style);else _snapshots.Apply(source,style,true);}
                 else {
-                    CopyAppearance(source,style);
+                    if(_snapshots==null)CopyAppearance(source,style);else _snapshots.Apply(source,style,false);
                     var bounds=source.layout;var border=source.parent?.resolvedStyle;
                     SourceUiBackdrop.LocalBox(style,isRoot?0:bounds.x-(border?.borderLeftWidth??0),isRoot?0:bounds.y-(border?.borderTopWidth??0),bounds.width,bounds.height);
                     var transform=source.resolvedStyle;style.translate=new Translate(transform.translate.x,transform.translate.y,transform.translate.z);style.rotate=transform.rotate;style.scale=transform.scale;style.transformOrigin=new TransformOrigin(transform.transformOrigin.x,transform.transformOrigin.y,transform.transformOrigin.z);
@@ -62,7 +64,7 @@ namespace EchoSphere.Presentation
         }
         internal static void Appearance(VisualElement source,VisualElement target)
             =>CopyAppearance(source,target.style);
-        private static void CopyAppearance(VisualElement source,IStyle style)
+        internal static void CopyAppearance(VisualElement source,IStyle style)
         {
             var value=source.resolvedStyle;
             style.display=value.display;style.visibility=value.visibility;style.opacity=value.opacity;style.filter=source.style.filter;style.overflow=source.style.overflow;
@@ -78,7 +80,7 @@ namespace EchoSphere.Presentation
         }
         private static void InlineGeometry(VisualElement source,VisualElement target)
             =>CopyInlineGeometry(source,target.style);
-        private static void CopyInlineGeometry(VisualElement source,IStyle style)
+        internal static void CopyInlineGeometry(VisualElement source,IStyle style)
         {
             // Helper styles were prepared this frame, before Yoga's next pass.
             // Reading helper.layout here would introduce a one-frame blur lag.

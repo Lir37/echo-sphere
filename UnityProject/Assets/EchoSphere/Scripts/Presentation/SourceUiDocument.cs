@@ -67,6 +67,7 @@ namespace EchoSphere.Presentation
         private VisualCss _sheet;
         private SourceUiLayout _layout;
         private readonly SourceUiFlow _flow=new SourceUiFlow();
+        private readonly SourceUiReplicaSnapshotCache _replicaSnapshots=new SourceUiReplicaSnapshotCache();
         private readonly Dictionary<string,Entry> _entries=new Dictionary<string,Entry>();
         private readonly Dictionary<VisualElement,Entry> _elementEntries=new Dictionary<VisualElement,Entry>();
         private readonly Dictionary<VisualElement,Entry> _backdropForegrounds=new Dictionary<VisualElement,Entry>();
@@ -245,7 +246,7 @@ namespace EchoSphere.Presentation
         {if(node.Native is VisualElement element){var oldBounds=(node.X,node.Y,node.Width,node.Height);UpdateBounds(node,element);if(oldBounds!=(node.X,node.Y,node.Width,node.Height))FrameVersion++;var entry=_elementEntries[element];var contentRotation=_layout.Apply(node,entry.Element,entry.Frame.parent);entry.Frame.ApplyOuterStyle(contentRotation);if(node.Tag=="svg")SourceUiSvg.Text(node,_sheet,entry.Element,entry.SvgTexts,entry.SvgTextNodes);if(DepthAncestor(node)==null&&(_sheet.Get(node,"filter","none").Trim()!="none"||_sheet.Get(node,"opacity","1")!="1")){if(entry.Filters==null)entry.Filters=new SourceUiFilters();entry.Filters.Apply(_sheet,node,element,_scale,IsDepthRoot(node));}else element.style.filter=entry.EmptyFilters;
                 // Backdrop helpers are retained children, prepared after brushes
                 // and depth surfaces. They issue no graphics commands at repaint.
-                if(VisualBackdrop.Sigma(_sheet,node)>=0d){if(entry.Backdrop==null){entry.Backdrop=new SourceUiBackdrop(element,entry.PaintContent,ReplicaPaint);_backdropForegrounds.Add(entry.Backdrop.Foreground,entry);}}
+                if(VisualBackdrop.Sigma(_sheet,node)>=0d){if(entry.Backdrop==null){entry.Backdrop=new SourceUiBackdrop(element,entry.PaintContent,ReplicaPaint,_replicaSnapshots);_backdropForegrounds.Add(entry.Backdrop.Foreground,entry);}}
                 else if(entry.Backdrop!=null){_backdropForegrounds.Remove(entry.Backdrop.Foreground);entry.Backdrop.Dispose();entry.Backdrop=null;}
                 element.MarkDirtyRepaint();}foreach(var child in node.Children)UpdateLayout(child);}
         private static void UpdateBounds(VisualCssNode node,VisualElement element)
@@ -301,7 +302,7 @@ namespace EchoSphere.Presentation
                     var child=element.hierarchy[index];if(child.userData==SourceUiBackdrop.ReplicaTag||child.userData is SourceUiBackdrop.ClipTag)continue;Backdrops(child);
                 }
             }
-            using(UiBackdropMarker.Auto())Backdrops(_document.rootVisualElement);
+            using(UiBackdropMarker.Auto()){_replicaSnapshots.Begin();try{Backdrops(_document.rootVisualElement);}finally{_replicaSnapshots.End();}}
         }
         private Action<MeshGenerationContext> ReplicaPaint(VisualElement source)
         {
