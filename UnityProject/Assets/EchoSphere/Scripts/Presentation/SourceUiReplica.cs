@@ -41,7 +41,13 @@ namespace EchoSphere.Presentation
                     var transform=source.resolvedStyle;style.translate=new Translate(transform.translate.x,transform.translate.y,transform.translate.z);style.rotate=transform.rotate;style.scale=transform.scale;style.transformOrigin=new TransformOrigin(transform.transformOrigin.x,transform.transformOrigin.y,transform.transformOrigin.z);
                 }
                 if(isRoot){style.translate=new Translate(0,0);style.rotate=new Rotate(0);style.scale=new Scale(Vector3.one);style.opacity=1;style.filter=StyleKeyword.Null;}
-                if(target is TextElement text&&source is TextElement original){text.text=original.text;text.enableRichText=original.enableRichText;text.selection.isSelectable=false;}
+                if(target is TextElement text&&source is TextElement original){
+                    // Preserve live text and rich-text state without asking UI Toolkit
+                    // to regenerate unchanged replica text on every backdrop pass.
+                    if(text.text!=original.text)text.text=original.text;
+                    if(text.enableRichText!=original.enableRichText)text.enableRichText=original.enableRichText;
+                    if(text.selection.isSelectable)text.selection.isSelectable=false;
+                }
                 copy.Tag.Paint=_paint(source);copy.HasText=source.generateVisualContent!=null&&copy.TextPaint!=null;
                 target.userData=source.userData is SourceUiBackdrop.ClipTag?source.userData:copy.Tag;
                 target.generateVisualContent=copy.Tag.Paint==null&&!copy.HasText?null:copy.Painter;
