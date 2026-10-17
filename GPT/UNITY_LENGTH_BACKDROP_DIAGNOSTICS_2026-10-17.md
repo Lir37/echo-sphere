@@ -40,3 +40,8 @@ Menu remains too slow. Continue architectural reduction of backdrop prefix repli
 - `SourceUiReplica.Update` previously ran LINQ `Where(...).ToArray()` to collect stale backdrop copies each pass. It now reuses a retained `List<VisualElement>` for the stale source keys and removes copies in the same order. Paint order, blur, child traversal, and per-frame copy semantics are unchanged.
 - This is source-level allocation removal only. No Editor FPS/GC measurement or visual parity confirmation was performed for this follow-up; P1/P2 remain PARTIAL.
 - It does not address the dominant cost of thousands of active replica updates. Retain that task for source-guided architectural redesign and Editor validation.
+
+## Static native text update guard (2026-10-17)
+
+- In `SourceUiReplica.CopyNode`, retained text copies now update `TextElement.text`, `enableRichText`, and text selection only when values differ. Previously these native properties were assigned on every backdrop pass, even for unchanged menu labels. `MarkDirtyRepaint` is deliberately preserved for animated/custom paint paths; this change does not freeze moving visuals or alter blur passes.
+- Source-only change. Unity compile, layout parity and CPU/GC benefit require Editor verification. No FPS improvement is claimed; P1/P2 remain PARTIAL.
