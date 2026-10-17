@@ -30,7 +30,7 @@ namespace EchoSphere.Presentation
             var positioned=S(node,"position")=="absolute"||S(node,"position")=="fixed";var block=positioned?VisualCssPosition.ContainingBlock(Sheet,node):null;
             var parentWidth=positioned?VisualCssPosition.Width(Sheet,block):node.Parent?.Width??Sheet.Width;var parentHeight=positioned?VisualCssPosition.Height(Sheet,block):node.Parent?.Height??Sheet.Height;var style=element.style;
             style.width=Dimension(node,"width",parentWidth);style.height=Dimension(node,"height",parentHeight);
-            if(S(node,"display")=="grid"&&!NativeAutoColumn(node)&&S(node,"height","auto")=="auto"&&element.userData is SourceUiElement gridHost&&!float.IsNaN(gridHost.GridHeight))style.height=gridHost.GridHeight;
+            if(S(node,"display")=="grid"&&!NativeAutoColumn(node)&&!NativeCenteredCell(node)&&S(node,"height","auto")=="auto"&&element.userData is SourceUiElement gridHost&&!float.IsNaN(gridHost.GridHeight))style.height=gridHost.GridHeight;
             style.minWidth=Dimension(node,"min-width",parentWidth);style.minHeight=Dimension(node,"min-height",parentHeight);
             style.maxWidth=Dimension(node,"max-width",parentWidth);style.maxHeight=Dimension(node,"max-height",parentHeight);
             var ratio=S(node,"aspect-ratio","auto");var ratioParts=ratio.Split('/');style.aspectRatio=ratio=="auto"?new StyleRatio(StyleKeyword.Auto):new StyleRatio(new Ratio(F(ratioParts[0],1f)/(ratioParts.Length>1?F(ratioParts[1],1f):1f)));
@@ -55,6 +55,7 @@ namespace EchoSphere.Presentation
             style.alignContent=Alignment(S(node,"align-content","stretch"));
             var justify=S(node,"justify-content",display=="grid"?S(node,"place-items","start"):"start");
             style.justifyContent=justify=="center"?Justify.Center:justify=="end"||justify=="flex-end"?Justify.FlexEnd:justify=="space-between"?Justify.SpaceBetween:justify=="space-around"?Justify.SpaceAround:Justify.FlexStart;
+            if(NativeCenteredCell(node)){style.flexDirection=FlexDirection.Column;style.alignItems=Align.Center;style.justifyContent=Justify.Center;}
             style.position=positioned?Position.Absolute:Position.Relative;
             if(positioned){
                 // Yoga's containing element is the immediate retained parent.
@@ -146,10 +147,30 @@ namespace EchoSphere.Presentation
             }
             return true;
         }
+        // A single centered intrinsic item needs no explicit grid track. Native
+        // alignment remeasures it after resize instead of feeding a previously
+        // assigned absolute height back into the next intrinsic calculation.
+        internal bool NativeCenteredCell(VisualCssNode node)
+        {
+            if(S(node,"display")!="grid"||
+                S(node,"align-items",S(node,"place-items"))!="center"||S(node,"justify-items",S(node,"place-items"))!="center"||
+                S(node,"grid-auto-rows","auto")!="auto"||S(node,"grid-auto-columns","auto")!="auto")return false;
+            var columns=S(node,"grid-template-columns","none");var rows=S(node,"grid-template-rows","none");
+            if((columns!="none"&&columns!="1fr")||(rows!="none"&&rows!="auto"&&rows!="1fr"))return false;
+            var align=S(node,"align-content","normal");var justify=S(node,"justify-content","normal");
+            if((align!="normal"&&align!="stretch"&&align!="center")||(justify!="normal"&&justify!="stretch"&&justify!="center"))return false;
+            var count=0;
+            foreach(var child in node.Children){
+                if(S(child,"display")=="none"||S(child,"position")=="absolute"||S(child,"position")=="fixed")continue;
+                if(++count>1||S(child,"align-self","auto")!="auto"||S(child,"justify-self","auto")!="auto"||
+                    S(child,"grid-row","auto")!="auto"||S(child,"grid-column","auto")!="auto")return false;
+            }
+            return count==1;
+        }
         internal void Tracks(VisualCssNode node)
         {
             if(!(node.Native is VisualElement element))return;
-            if(S(node,"display")=="grid"&&!NativeAutoColumn(node)){
+            if(S(node,"display")=="grid"&&!NativeAutoColumn(node)&&!NativeCenteredCell(node)){
                 // Auto tracks need the first native intrinsic measurement.
                 // Projecting the initial unresolved bounds as zero makes those
                 // children absolute/zero-height before Yoga can measure them.

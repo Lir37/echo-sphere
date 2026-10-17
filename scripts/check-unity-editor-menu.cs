@@ -96,4 +96,21 @@ foreach (var property in new[] { "align-self", "justify-self", "grid-row", "grid
     if ((bool)nativeColumn.Invoke(layout, new object[] { grid })) throw new System.Exception("Specialized item wrongly accepted: " + property);
     cell.Style.Remove(property); gridChecks++;
 }
+var centered = layoutType.GetMethod("NativeCenteredCell", instanceFlags);
+grid.Style.Clear(); grid.Style["display"]="grid";
+grid.Style["align-items"]="center"; grid.Style["justify-items"]="center";
+grid.Style["justify-content"]="center";
+if (!(bool)centered.Invoke(layout,new object[]{grid})) throw new System.Exception("Expanded centered cell should use native alignment");
+gridChecks++;
+foreach(var pair in new[]{new[]{"grid-template-columns","1fr 1fr"},new[]{"grid-template-rows","40px"},new[]{"align-items","stretch"},new[]{"justify-items","end"},new[]{"grid-auto-rows","50px"},new[]{"justify-content","end"}}){
+    grid.Style.TryGetValue(pair[0],out var previous);grid.Style[pair[0]]=pair[1];
+    if((bool)centered.Invoke(layout,new object[]{grid}))throw new System.Exception("Specialized centered grid accepted: "+pair[0]);
+    if(previous==null)grid.Style.Remove(pair[0]);else grid.Style[pair[0]]=previous;gridChecks++;
+}
+var extraCell=new EchoSphere.Presentation.VisualCssNode {Tag="div",Parent=grid};grid.Children.Add(extraCell);
+if((bool)centered.Invoke(layout,new object[]{grid}))throw new System.Exception("Multiple centered cells accepted");gridChecks++;
+extraCell.Style["position"]="absolute";
+if(!(bool)centered.Invoke(layout,new object[]{grid}))throw new System.Exception("Absolute overlay must not count as a grid cell");gridChecks++;
+cell.Style["grid-row"]="2";
+if((bool)centered.Invoke(layout,new object[]{grid}))throw new System.Exception("Explicit centered grid placement accepted");gridChecks++;
 return new { orderChecks, styleChecks, indexChecks, gridChecks, result = "PASS", scope = "Native retained hierarchy, helper styles, grid eligibility and imported sprite topology; not full visual/gameplay acceptance" };

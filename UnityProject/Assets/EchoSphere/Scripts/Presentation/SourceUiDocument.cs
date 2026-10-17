@@ -20,6 +20,7 @@ namespace EchoSphere.Presentation
         private static readonly ProfilerMarker UiBuildMarker=new ProfilerMarker("EchoSphere.UI.BuildTree");
         private static readonly ProfilerMarker UiReconcileMarker=new ProfilerMarker("EchoSphere.UI.Reconcile");
         private static readonly ProfilerMarker UiLayoutMarker=new ProfilerMarker("EchoSphere.UI.Layout");
+        private static readonly ProfilerMarker UiFlowMarker=new ProfilerMarker("EchoSphere.UI.FlowOrder");
         private sealed class Entry
         {
             public VisualCssNode Node;
@@ -65,6 +66,7 @@ namespace EchoSphere.Presentation
         private PanelSettings _panel;
         private VisualCss _sheet;
         private SourceUiLayout _layout;
+        private readonly SourceUiFlow _flow=new SourceUiFlow();
         private readonly Dictionary<string,Entry> _entries=new Dictionary<string,Entry>();
         private readonly Dictionary<VisualElement,Entry> _elementEntries=new Dictionary<VisualElement,Entry>();
         private readonly Dictionary<VisualElement,Entry> _backdropForegrounds=new Dictionary<VisualElement,Entry>();
@@ -263,6 +265,7 @@ namespace EchoSphere.Presentation
         // happen during the document update, not inside UI Toolkit's render pass.
         private void PreparePaintResources(VisualCssNode root)
         {
+            using(UiFlowMarker.Auto())_flow.Apply(_sheet,root);
             void Prepare(VisualCssNode node)
             {
                 if(node.Native is VisualElement element&&_elementEntries.TryGetValue(element,out var entry)&&node.Width>0d&&node.Height>0d)
