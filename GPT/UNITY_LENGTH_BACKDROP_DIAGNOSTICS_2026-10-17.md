@@ -45,3 +45,9 @@ Menu remains too slow. Continue architectural reduction of backdrop prefix repli
 
 - In `SourceUiReplica.CopyNode`, retained text copies now update `TextElement.text`, `enableRichText`, and text selection only when values differ. Previously these native properties were assigned on every backdrop pass, even for unchanged menu labels. `MarkDirtyRepaint` is deliberately preserved for animated/custom paint paths; this change does not freeze moving visuals or alter blur passes.
 - Source-only change. Unity compile, layout parity and CPU/GC benefit require Editor verification. No FPS improvement is claimed; P1/P2 remain PARTIAL.
+
+## Retained UI Toolkit callback and enable-state guard (2026-10-17)
+
+- In `SourceUiReplica.CopyNode`, the native `SetEnabled` propagation is now invoked only when `enabledSelf` changes. Backdrop copies are non-interactive, but the hierarchy remains native and unchanged.
+- `generateVisualContent` now keeps the previously assigned `copy.Painter` delegate when it is still the selected callback, instead of reassigning that property for every replicated source on every pass. Its mutable `PaintTag` and existing `MarkDirtyRepaint` behavior remain intact, preserving per-frame custom drawing and animation.
+- Neither change reduces the number of replicas, suppresses blur or changes layout order. Source-only review is complete; Unity Editor compilation, Play Mode visuals and measured CPU/GC remain acceptance gates. P1/P2 stay PARTIAL.
