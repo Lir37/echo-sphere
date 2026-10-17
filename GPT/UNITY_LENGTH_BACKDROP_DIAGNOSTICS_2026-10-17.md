@@ -56,3 +56,8 @@ Menu remains too slow. Continue architectural reduction of backdrop prefix repli
 
 - `SourceUiDocument.AdvanceMotion` created a new `Dictionary<string,string>` every animation tick for each logical UI node without a retained native entry. This is now one reused scratch dictionary owned by the document. The traversal completes each node's compare before descending to children, so successive logical nodes never need concurrent snapshots. Retained entries continue using their own per-entry dictionaries. Key/value comparison and frame invalidation are unchanged.
 - Source-level allocation reduction, not a switch in animation cadence or UI output. Editor compilation, CPU/GC measurements and visual checks remain pending; this does not close the architecture/backend replica gate or prove FPS improvement.
+
+## Ordered native sibling lookup (2026-10-17)
+
+- `SourceUiReplica.Update` previously called `container.hierarchy.IndexOf(target)` for every retained replica, a linear scan over sibling elements on each backdrop pass. The paint-prefix traversal already tracks each sibling's expected index; the implementation now tests `container.hierarchy[childIndex]` directly (with a child-count guard) and performs the same `Insert` if parent or position differs. This keeps native UI Toolkit hierarchy and exact order semantics while eliminating repeated sibling scans in the unchanged-order case.
+- No blur, layout, paint callback, source state, or replica lifetime rules changed. This is a source-level algorithmic improvement; Unity Editor compilation, repaint/layout acceptance and CPU measurements are outstanding. P1/P2 remain PARTIAL; reducing active replica count requires a separate evidence-backed design.
