@@ -52,7 +52,8 @@ namespace EchoSphere.Presentation
                     if(text.selection.isSelectable)text.selection.isSelectable=false;
                 }
                 copy.Tag.Paint=_paint(source);copy.HasText=source.generateVisualContent!=null&&copy.TextPaint!=null;
-                target.userData=source.userData is SourceUiBackdrop.ClipTag?source.userData:copy.Tag;
+                var nextTag=source.userData is SourceUiBackdrop.ClipTag?source.userData:copy.Tag;
+                if(!ReferenceEquals(target.userData,nextTag))target.userData=nextTag;
                 var nextPainter=copy.Tag.Paint==null&&!copy.HasText?null:copy.Painter;
                 if(target.generateVisualContent!=nextPainter)target.generateVisualContent=nextPainter;
                 // Preserve the paint-prefix order without rotating every retained
