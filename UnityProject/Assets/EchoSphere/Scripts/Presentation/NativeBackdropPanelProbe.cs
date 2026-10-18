@@ -37,10 +37,12 @@ namespace EchoSphere.Presentation
         public long TargetBytes=>3L*Size*Size*4;
         public bool ClickVerified {get;private set;}
         private bool _ready;
+        private bool _externalPrefix;
 
-        public void Initialize()
+        public void Initialize(int backgroundOrder=2101,bool externalPrefix=false)
         {
             if(_ready)return;
+            _externalPrefix=externalPrefix;
             _pattern=new Texture2D(Size,Size,TextureFormat.RGBA32,false,false){name="Native backdrop probe animated pattern",filterMode=FilterMode.Point,wrapMode=TextureWrapMode.Clamp};
             _referenceRead=new Texture2D(Size,Size,TextureFormat.RGBA32,false,false);
             _candidateRead=new Texture2D(Size,Size,TextureFormat.RGBA32,false,false);
@@ -53,7 +55,7 @@ namespace EchoSphere.Presentation
             _referenceGlass=Glass();_referenceRoot.Add(_referenceGlass);
             _reference=new SourceUiBackdrop(_referenceGlass,context=>{},source=>null,null);
 
-            var background=Panel("Native background",2101,_backgroundTarget);
+            var background=Panel("Native background",backgroundOrder,_backgroundTarget);
             Pattern(background);
             var candidate=Panel("Native composite",2102,_candidateTarget);
             var baseImage=TextureImage(_backgroundTarget);candidate.Add(baseImage);
@@ -113,12 +115,14 @@ namespace EchoSphere.Presentation
         {element.style.borderTopLeftRadius=element.style.borderTopRightRadius=element.style.borderBottomLeftRadius=element.style.borderBottomRightRadius=radius;}
         private void NativeBlur(VisualElement image)
         {
-            _material=new Material(Resources.Load<Shader>("EchoSphere/SourceUiBackdrop"));
+            var shader=_externalPrefix?UnityEditor.AssetDatabase.LoadAssetAtPath<Shader>("Assets/Editor/EchoSphereNativeBackdropExternalProbe.shader"):Resources.Load<Shader>("EchoSphere/SourceUiBackdrop");
+            _material=new Material(shader);
             _definition=ScriptableObject.CreateInstance<FilterFunctionDefinition>();_definition.name=_definition.filterName="native-panel-prefix-probe";
             _definition.parameters=new[]{new FilterParameterDeclaration {name="sigma",interpolationDefaultValue=new FilterParameter(8f)}};
             var passes=new PostProcessingPass[2];
             for(int axis=0;axis<2;axis++)passes[axis]=new PostProcessingPass {material=_material,passIndex=axis,applySettingsCallback=(properties,context)=>{
                 properties.SetFloat("_Sigma",context.filterFunction.GetParameter(0).floatValue);properties.SetFloat("_CssDpr",context.scaledPixelsPerPoint);properties.SetFloat("_CssReadsGamma",context.readsGamma?1:0);
+                if(_externalPrefix){properties.SetTexture("_PrefixTex",_backgroundTarget);properties.SetVector("_PrefixSize",new Vector4(Size,Size,0,0));}
                 properties.SetVector("_Roi",new Vector4(BlurArea.x,BlurArea.y,BlurArea.width,BlurArea.height));properties.SetVector("_PanelSize",new Vector4(PanelRect.width,PanelRect.height,0,0));
                 properties.SetVector("_ToPanelX",new Vector4(1,0,-PanelRect.x,0));properties.SetVector("_ToPanelY",new Vector4(0,1,-PanelRect.y,0));
                 properties.SetVector("_ToScreenX",new Vector4(1,0,PanelRect.x,0));properties.SetVector("_ToScreenY",new Vector4(0,1,PanelRect.y,0));

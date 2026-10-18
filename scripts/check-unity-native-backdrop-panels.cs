@@ -1,7 +1,9 @@
 if(!UnityEditor.EditorApplication.isPlaying)throw new System.Exception("Play Mode required");
 if(UnityEngine.Object.FindFirstObjectByType<EchoSphere.Presentation.NativeBackdropPanelProbe>()!=null)throw new System.Exception("Probe already running");
 var owner=new UnityEngine.GameObject("Native panel backdrop architecture probe");
-var probe=owner.AddComponent<EchoSphere.Presentation.NativeBackdropPanelProbe>();probe.Initialize();
+var backgroundOrder=UnityEditor.SessionState.GetInt("EchoNativeBackdropBackgroundOrder",2101);
+var externalPrefix=UnityEditor.SessionState.GetBool("EchoNativeBackdropExternalPrefix",false);
+var probe=owner.AddComponent<EchoSphere.Presentation.NativeBackdropPanelProbe>();probe.Initialize(backgroundOrder,externalPrefix);
 int first=UnityEngine.Time.frameCount,last=first;
 var comparisons=new System.Collections.Generic.List<string>();
 var deadline=UnityEditor.EditorApplication.timeSinceStartup+120;
@@ -19,7 +21,7 @@ tick=()=>{
   var sample=probe.Compare();
   comparisons.Add(sample);
   if(probe.SampleCount<32)return;
-  var result=new{status=probe.MaximumMeanError<=.01&&probe.MaximumChannelError<=1&&probe.ClickVerified?"PASS limited composition fixture":"FAIL pixel parity; production remains unchanged",samples=probe.SampleCount,probe.MaximumMeanError,probe.MaximumChannelError,probe.DifferentPixels,probe.ReferenceCopies,probe.CandidateReplicaCount,probe.TargetBytes,probe.ClickVerified,last=sample,comparisons};
+  var result=new{status=probe.MaximumMeanError<=.01&&probe.MaximumChannelError<=1&&probe.ClickVerified?"PASS limited composition fixture":"FAIL pixel parity; production remains unchanged",backgroundOrder,externalPrefix,samples=probe.SampleCount,probe.MaximumMeanError,probe.MaximumChannelError,probe.DifferentPixels,probe.ReferenceCopies,probe.CandidateReplicaCount,probe.TargetBytes,probe.ClickVerified,last=sample,comparisons};
   UnityEditor.SessionState.SetString("EchoNativeBackdropProbe",Newtonsoft.Json.JsonConvert.SerializeObject(result));
   UnityEditor.EditorApplication.update-=tick;UnityEngine.Application.runInBackground=wasBackground;probe.Animate=false;UnityEditor.EditorApplication.isPaused=true;
  }catch(System.Exception e){UnityEditor.SessionState.SetString("EchoNativeBackdropProbe","FAIL "+e);UnityEditor.EditorApplication.update-=tick;UnityEngine.Application.runInBackground=wasBackground;probe.Animate=false;UnityEditor.EditorApplication.isPaused=true;}

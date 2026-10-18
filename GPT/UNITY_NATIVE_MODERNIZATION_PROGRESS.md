@@ -2,7 +2,7 @@
 
 Current progress report, 2026-10-18. This is the single current status entry point;
 older dated reports retain historical evidence rather than defining completion.
-Entry HEAD: `06af60364e5c68e35ddd66d4bda87ac60f34f046`, branch `unity-migration`.
+Entry HEAD: `0501e783fd3bfdc1120b138fae1d3ca64a753da5`, branch `unity-migration`.
 Protected source: `new-desing@737ef2af4a877e0995db5f92331d536d2f29a934`.
 Implementation HEAD is the commit containing this report (`git log -1 --format=%H`).
 
@@ -135,6 +135,40 @@ maximum mean<=0.01 AND maximum channel error<=1 plus the input callback, focuses
 Game View and temporarily enables background execution with restoration. It has
 a120-second deadline. A mean-only threshold could conceal important local errors.
 Static acceptance does not imply animation, full-menu or viewport acceptance.
+
+### Inter-panel scheduling investigation (continuation)
+
+Production UI/gameplay remains unchanged in this group. Tested in the actual
+Editor with32-frame comparisons, unchanged sigma8/four-sigma kernel, native
+label, rounded clip and input fixture:
+
+| Experiment | Result at transitions | Decision |
+|---|---|---|
+| Notify both mutable Texture2D pattern panels with RuntimePanelUtils.SetTextureDirty | Same maximum mean1.79863, channel73 | Does not resolve this fixture; ineffective change removed |
+| Background sorting2101, reference2100, composite2102 | Existing one-frame mismatch | Baseline remains rejected |
+| Background sorting2099, before both other panels | Same mean1.79863/channel73 | Earlier sorting alone does not resolve it |
+| Background sorting2199, after composite | Mean18.27803/channel89;46160 pixels differ at transitions | Ordinary composition also becomes stale; retain causal ordering |
+| First filter pass directly samples shared RT instead of its UI filter input copy; sorting2101 | Same mean1.79863/channel73 | Bypassing the input copy alone does not resolve it |
+
+In all variants, settled frames still agree within one channel level on3–5pixels.
+Native button submission passes. No FPS improvement or full-menu acceptance is
+claimed. These comparisons separate ordinary panel ordering from the remaining
+filter dependency, but do not identify the engine's exact internal pass. Public
+RuntimePanelUtils and filter APIs were inspected in installed6000.3.24f1; no
+private render invocation, internal reflection workaround or frame delay ships.
+
+The Editor-only probe now accepts backgroundOrder/externalPrefix parameters;
+the driver reads EchoNativeBackdropBackgroundOrder (default2101) and
+EchoNativeBackdropExternalPrefix (defaultfalse) from Editor SessionState and
+records both in results. Defaults were restored after experiments. The external
+input shader resides under Assets/Editor, uses the existing Gaussian support,
+mirror mapping and color conversion, and is never selected by production UI.
+It is a diagnostic alternative, not an accepted fallback or a second game renderer.
+
+Next architecture experiment must establish same-frame production of the shared
+prefix before native filtering, with explicit frame/phase evidence. Do not repeat
+sorting/atlas-invalidation experiments as assumed fixes, relax pixel thresholds,
+delay animation or switch the complete menu based on settled frames alone.
 
 Three explicit 256x256 RGBA RTs total 786432 bytes in the comparison fixture;
 candidate's two explicit RTs are 524288 bytes. This excludes UI filter atlases,
