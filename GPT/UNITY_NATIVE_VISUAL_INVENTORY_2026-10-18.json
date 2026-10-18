@@ -1,8 +1,8 @@
 {
-  "entryHead": "0be716daf3b003bbfac7ca0db9931e5e125cc887",
+  "entryHead": "c1e9187642af39a5f444a765b4986009f7359e17",
   "protectedSource": "new-desing@737ef2af4a877e0995db5f92331d536d2f29a934",
   "scope": "Every C# file under Assets/EchoSphere/Scripts, including files without visual/UI/Canvas names. Discovery metadata is not a semantic parity or native-migration acceptance claim.",
-  "scannedFiles": 202,
+  "scannedFiles": 204,
   "entries": [
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Core/AlchemistReactionRules.cs",
@@ -1265,6 +1265,41 @@
       ]
     },
     {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/NativeMenuArtwork.cs",
+      "sha256": "1ac44f1c03aa217e26dd02feac15f4b22f79d8f2d8c70be7271c2c30ac62c424",
+      "lines": 86,
+      "discoveryTags": [
+        "ui",
+        "geometry"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": [
+        77,
+        82
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/NativeMenuBrush.cs",
+      "sha256": "dce7eaea42d3d502776a5a51bdcda1fe58f8273f55d5c353ed37234b71b9319b",
+      "lines": 92,
+      "discoveryTags": [
+        "gpu"
+      ],
+      "creationLines": [
+        39,
+        68
+      ],
+      "updateLines": [
+        60
+      ],
+      "releaseLines": [
+        87,
+        88,
+        89
+      ]
+    },
+    {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceCanvasGeometryCache.cs",
       "sha256": "1660c0dcf0c3f7283c3a8338e6d3b0841e2974f5f46f08e7d5596bc85fc8cc70",
       "lines": 82,
@@ -1551,20 +1586,20 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceUiSurfaceFilters.cs",
-      "sha256": "0b1a9a30de490836d01efc221d6b9903db845113dacca15066db752f2e77d642",
-      "lines": 53,
+      "sha256": "042fc61df27b5b7658d18bcf47a969f78683e782cffd5c48d9a422cc5e117246",
+      "lines": 70,
       "discoveryTags": [
         "gpu",
         "compatibility"
       ],
       "creationLines": [
         15,
-        22
+        39
       ],
       "updateLines": [],
       "releaseLines": [
-        22,
-        50
+        39,
+        67
       ]
     },
     {

@@ -2,7 +2,7 @@
 
 Current progress report, 2026-10-18. This is the single current status entry point;
 older dated reports retain historical evidence rather than defining completion.
-Entry HEAD: `0be716daf3b003bbfac7ca0db9931e5e125cc887`, branch `unity-migration`.
+Entry HEAD: `c1e9187642af39a5f444a765b4986009f7359e17`, branch `unity-migration`.
 Protected source: `new-desing@737ef2af4a877e0995db5f92331d536d2f29a934`.
 Implementation HEAD is the commit containing this report (`git log -1 --format=%H`).
 
@@ -10,7 +10,7 @@ Implementation HEAD is the commit containing this report (`git log -1 --format=%
 
 **PARTIAL. P1/P2 and full native modernization are not DONE.** Menu performance
 remains unacceptable. New retained native menu controls/layout and a native GPU
-background pass their bounded Editor checks; full menu fidelity and production
+background and core GPU artwork pass their bounded Editor checks; full menu fidelity and production
 selection remain pending. Earlier cross-panel/early-prefix composition experiments
 are limited fixtures, not a completed menu migration.
 No gameplay, balance, formulas, RNG, visual quality settings, protected branch or
@@ -23,6 +23,37 @@ content is not treated as implementation evidence. Current source and actual
 Editor results take precedence over obsolete audit descriptions.
 
 ## Current native menu implementation group, 2026-10-18
+
+### Native core/orbits/GPU shadows continuation
+
+Added NativeMenuBrush and shader: typed ellipse/rounded fills, premultiplied
+gradients, borders, Gaussian outer/inset shadows on the GPU. No CSS parsing or
+CPU image rasterization on this path. Added NativeMenuArtwork: retained native
+geometry for five orbit planes/dots, core and blurred highlight; reuses the
+existing Unity Mesh depth compositor and a typed entry to its GPU blur backend.
+Artwork rebuilds only after geometry/DPR changes. The final source important
+transforms override orbit animation tracks; no new rotation was introduced.
+
+Actual Editor GPU/source brush comparison PASS in 12 cases: core, all five ring
+colors, dot/glow, highlight, avatar and fractional scales .75/1.75. Maximum
+premultiplied RGB/alpha difference 1/255, mean <=.01545/255; visible straight
+RGB difference <=1/255. Corrected a retained 1px core border/background origin,
+missing shader input texture bindings and the fractional-scale gradient seam.
+These were discrepancies in the new candidate, not identified production FPS
+causes. The acceptance thresholds were not relaxed.
+
+Actual Play Mode native artwork fixture PASS: Yoga geometry, intersecting depth
+planes, blur, 120 repeated Prepare calls without repaint/texture replacement,
+155→210 resize and DPR1→1.75 (one repaint per change), and disposal invocation.
+Captured native artwork inspected. This proves bounded native rendering/cache
+behavior, not source-identical full composition or Android performance.
+
+The native artwork component is not production-selected or attached to the menu
+owner yet. Full source/native composition, avatar glyph/font metrics, text
+shadows and overlapping button/nav backdrop acceptance remain open. P1/P2 remain
+PARTIAL; no new FPS/GC before/after measurement. Native gameplay views remain
+the following phase. Baseline CI #753 SUCCESS at c1e9187; this group's CI must
+be checked on its resulting commit separately.
 
 User clarified the target: finish the native Unity architecture, not browser/Edge
 experiments. No browser was used in this group. The preceding uncommitted browser
@@ -62,6 +93,12 @@ PASS. Final Console ground truth zero errors/warnings, no new error after cursor
 Materials or acceptance owner remain. Core1193 +47339 parity, Node272, full
 VisualChecks and project/provenance/meta/icon-export checks PASS. CI is checked
 separately on the resulting implementation commit.
+
+Continuation verification: actual Editor C# recompile SUCCESS, zero compiler
+errors/warnings. Core1193 +47339 source parity, Node272, full VisualChecks,
+project/provenance/meta/icon checks PASS. Large shadow kernels are computed in
+the shader rather than uploading a 513-vector fragment uniform array; the same
+12 GPU cases pass afterward. No Android device GPU acceptance is claimed.
 
 **Not selected by production yet.** Core/orbits/highlight, avatar, full text/shadow
 metrics, native backdrop composition, safe-area/input/device acceptance and whole

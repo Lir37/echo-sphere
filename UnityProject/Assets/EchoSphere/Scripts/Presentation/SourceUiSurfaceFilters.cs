@@ -16,6 +16,23 @@ namespace EchoSphere.Presentation
         private readonly List<RenderTexture> _targets=new List<RenderTexture>();
         private int _cursor;
         internal Rect Bounds;
+        // Typed native entry point for authored menu artwork. Uses the same
+        // proven GPU passes, with no CSS sheet, nodes or runtime filter parser.
+        internal Texture Blur(Texture source,Rect bounds,float sigma,float scale)
+        {
+            _cursor=0;Bounds=bounds;var previous=RenderTexture.active;var gamma=GL.sRGBWrite;
+            try{
+                GL.sRGBWrite=false;_material.SetVector("_SourceRect",new Vector4(0,0,1,1));_material.SetFloat("_StraightInput",1);
+                var input=Target(source.width,source.height);Graphics.Blit(source,input,_material,0);_material.SetFloat("_StraightInput",0);
+                var padding=Mathf.Ceil(4*sigma*scale)/scale;Bounds=Rect.MinMaxRect(bounds.xMin-padding,bounds.yMin-padding,bounds.xMax+padding,bounds.yMax+padding);
+                var width=Mathf.CeilToInt(Bounds.width*scale);var height=Mathf.CeilToInt(Bounds.height*scale);var padded=Target(width,height);
+                _material.SetVector("_SourceRect",new Vector4((bounds.xMin-Bounds.xMin)/Bounds.width,(Bounds.yMax-bounds.yMax)/Bounds.height,bounds.width/Bounds.width,bounds.height/Bounds.height));Graphics.Blit(input,padded,_material,0);_material.SetVector("_SourceRect",new Vector4(0,0,1,1));
+                var horizontal=Target(width,height);var vertical=Target(width,height);_material.SetFloat("_Sigma",sigma*scale);
+                _material.SetVector("_Direction",new Vector4(1f/width,0,0,0));Graphics.Blit(padded,horizontal,_material,1);
+                _material.SetVector("_Direction",new Vector4(0,1f/height,0,0));Graphics.Blit(horizontal,vertical,_material,1);
+                var result=Target(width,height,true);GL.sRGBWrite=QualitySettings.activeColorSpace==ColorSpace.Linear;Graphics.Blit(vertical,result,_material,5);return result;
+            }finally{RenderTexture.active=previous;GL.sRGBWrite=gamma;}
+        }
         private RenderTexture Target(int width,int height,bool srgb=false)
         {
             var index=_cursor++;if(index==_targets.Count)_targets.Add(null);var target=_targets[index];
