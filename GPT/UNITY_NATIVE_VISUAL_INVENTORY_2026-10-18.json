@@ -1,5 +1,5 @@
 {
-  "entryHead": "316ff7a72bd130bc1b42b0785a40ccb1a1eed0fb",
+  "entryHead": "06af60364e5c68e35ddd66d4bda87ac60f34f046",
   "protectedSource": "new-desing@737ef2af4a877e0995db5f92331d536d2f29a934",
   "scope": "Every C# file under Assets/EchoSphere/Scripts, including files without visual/UI/Canvas names. Discovery metadata is not a semantic parity or native-migration acceptance claim.",
   "scannedFiles": 199,
@@ -1359,32 +1359,32 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceUiDocument.cs",
-      "sha256": "8258b79550225fa01a2d9f33aad0137d56f5532c85370d2a351af8eae306ae9c",
-      "lines": 416,
+      "sha256": "bd16236d0ff5d4bf117f940a4bf64a54cc020579b93ef9300cffcadb3ec4e2b9",
+      "lines": 434,
       "discoveryTags": [
         "ui",
         "gpu",
         "compatibility"
       ],
       "creationLines": [
-        99,
-        102,
-        328,
-        361
+        114,
+        117,
+        346,
+        379
       ],
       "updateLines": [
-        95,
-        111,
-        273
+        110,
+        126,
+        291
       ],
       "releaseLines": [
-        130,
-        253,
-        328,
-        340,
-        359,
-        412,
-        413
+        148,
+        271,
+        346,
+        358,
+        377,
+        430,
+        431
       ]
     },
     {
@@ -1955,8 +1955,8 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceUiBridge.cs",
-      "sha256": "e578572fd59bc119a57c421499753cdf8c6504c214fcbf54aa230c691f2ac725",
-      "lines": 196,
+      "sha256": "ed5b5a874675c2f0ec6aaffc74c0445d0d8c84233ba4848573c724e719b8a92b",
+      "lines": 199,
       "discoveryTags": [
         "compatibility"
       ],

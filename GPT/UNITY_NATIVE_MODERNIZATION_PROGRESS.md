@@ -2,7 +2,7 @@
 
 Current progress report, 2026-10-18. This is the single current status entry point;
 older dated reports retain historical evidence rather than defining completion.
-Entry HEAD: `316ff7a72bd130bc1b42b0785a40ccb1a1eed0fb`, branch `unity-migration`.
+Entry HEAD: `06af60364e5c68e35ddd66d4bda87ac60f34f046`, branch `unity-migration`.
 Protected source: `new-desing@737ef2af4a877e0995db5f92331d536d2f29a934`.
 Implementation HEAD is the commit containing this report (`git log -1 --format=%H`).
 
@@ -50,7 +50,7 @@ KEEP = appropriate existing native/game logic; BLOCKED = missing acceptance proo
 | Subsystem | Actual path / proposed native target | Decision | Status and gate |
 |---|---|---|---|
 | Home menu, animated background, glass panels | TSX/CSS → retained UI Toolkit; native controls + shared native panel composition | PILOT | BLOCKED: composition pixels differ; full menu not switched |
-| Settings | Existing SourceSettingsToolkitScreen native controls over old document | KEEP / MIGRATE hidden work | PARTIAL: opaque native root still has old document updating behind it; suspend only after lifecycle/input/resize proof |
+| Settings | Existing SourceSettingsToolkitScreen native controls over old document | KEEP / MIGRATE hidden work | DONE bounded hidden-work removal: suspend paint/layout, keep timers/viewport; actual Editor checks and identical screenshot; complete original-screen acceptance remains PARTIAL |
 | Map/region selection | Generated EchoMapScreen → source document | PILOT | NEXT: native retained view with original transitions and unlock state |
 | Shop | Generated ShopScreen → source document | PILOT | NEXT: preserve purchases, prices, persistence and scroll |
 | Characters | Generated CharacterSelect → source document | PILOT | NEXT: original selection, previews and persistence |
@@ -145,13 +145,57 @@ screen transitions, resource teardown, hot reload and texture-index exception.
 
 ## Measured baseline and limits
 
+### Native Settings hidden-work removal (continuation)
+
+SourceSettingsToolkitScreen has an existing opaque fullscreen #02050d root above
+the source document. Previously the hidden document still reconciled/laid out and
+prepared brushes/backdrop replicas. The bridge now renders the source Settings
+page once on entry, retaining its hook transition/unmount behavior, then suspends
+only source presentation. SourceUiDocument keeps Environment.Tick, viewport/safe
+area and resize dispatch live. The source root becomes transparent and disabled
+without detaching/recreating its UIDocument or collapsing layout. On exit, exact
+inline opacity/enabled state is restored and the current page is rebuilt dirty.
+Active pointer style is cleared as on focus loss. Native controls, graphics,
+gameplay/state projection and all other pages remain on their existing paths.
+
+Controlled short Editor captures in this continuation, both1260x542, same harness,
+hardware and production Settings state, no heavy local suite running:
+
+| Settings | Frames | Frame ms / FPS | Main-thread GC bytes/frame | PlayerLoop |
+|---|---:|---:|---:|---:|
+| Before suspension | 67 | 41.7267 / 23.9655 | 1558392 | 39.4479ms |
+| After suspension | 177 | 16.6851 / 59.9336 | 105231 | 2.13245ms |
+
+Before: Layout4.6726ms, brushes/SVG3.5884ms, backdrops14.1228ms.
+After: those EchoSphere.UI preparation markers are absent. Roughly60FPS is this
+Editor's observed frame pacing, not a measured uncapped/device limit. Renderer
+count remains8. Editor memory still includes retained resources; no total memory
+or GPU timing improvement is claimed. This fixes Settings hidden work, not Home
+menu or active gameplay performance.
+
+Before/after1260x542 screenshots are byte-identical: SHA256
+`74288A735AC777811B267CD94D3D9D8329BBEA15F3350686DA77F014D4349F2C`.
+Native Editor diagnostic PASS in landscape and480x854 portrait: no hidden Render
+callback even when dirty; scheduled timer executes through actual player frames;
+viewport stays current; resume restores root and rebuilds. Back navigation,
+portrait-to-landscape return and reopening Settings were checked; screenshots
+inspected. Events were dispatched through native UI events, not physical touch.
+Language/sound/handedness/scale persistence callbacks are unchanged and were not
+written during this group. Full device/touch acceptance is still open.
+
+Harness corrections: one initial synchronous timer assertion ran while Editor
+was paused; it now waits three actual player frames. A separate return check used
+the numeric payload of inline opacity=Null; resolved opacity was1 and enabled was
+true, so that assertion did not indicate a production failure. An interrupted
+capture was discarded; the table uses completed67/177-frame captures only.
+
 Unity6000.3.24f1; local Pipeline7800; CLI beta.12; AMD Radeon760M;
 Game View1260x542. No heavy contract suite ran during these captures. Harness
 warms 12 actual player frames, records three seconds, reads main-thread Profiler
 data and pauses. Inclusive marker times must not be added together. Editor and
 Profiler overhead are included. GPU timings are unavailable.
 
-| Current scenario | Frames | Frame ms / FPS | Main-thread GC bytes/frame | Selected inclusive work |
+| Earlier baseline, before Settings suspension | Frames | Frame ms / FPS | Main-thread GC bytes/frame | Selected inclusive work |
 |---|---:|---:|---:|---|
 | Home menu | 14 | 157.96 / 6.33 | 1940185 | Layout10.92ms; brushes/SVG8.49ms; depth2.46ms; backdrops33.78ms |
 | Native Settings over source document | 70 | 40.25 / 24.84 | 1558379 | Layout4.23ms; brushes/SVG3.21ms; backdrops13.96ms |
@@ -167,7 +211,7 @@ not its label. Active run was explicitly resumed and its label/state agree.
 Production gameplay capture inspected: player, two spheres, wavy link, enemies,
 background and HUD remain present. This does not establish complete visual parity.
 Overall Editor allocated memory was approximately595MB/760MB respectively, not
-scene GPU memory. These are current baselines, not controlled before/after proof
+scene GPU memory. These earlier baselines are not controlled before/after proof
 for the guards, nor evidence that menu performance has been fixed.
 
 Previous active gameplay capture and exact geometry-cache benchmark are retained
@@ -199,8 +243,9 @@ Next work, in order:
    changing blur quality or delaying animation; test render scheduling/dependency
    before selecting a cross-panel architecture. Static crop mapping now matches;
    then build the complete native menu pilot and compare all viewport/input states.
-2. Eliminate old-document work behind opaque native Settings with explicit
-   lifecycle/input/resize tests; preserve hook timers and return-to-menu behavior.
+2. Settings hidden work is removed and checked; retain lifecycle/resize checks
+   while extending native migration to other screens. Do not suspend transparent
+   overlays or visible animated backgrounds by analogy.
 3. Replace dynamic gameplay V/Canvas projection with typed retained native views,
    starting with measured tessellation and HUD tree costs; preserve exact shapes.
 4. Run equal-condition active scenarios, Rendering/UI Toolkit/Memory diagnostics
@@ -209,7 +254,8 @@ Next work, in order:
 Short continuation prompt: Continue ECHO SPHERE on unity-migration from the commit
 containing this report. Read the three required GPT documents and this report;
 preserve user changes and new-desing. Hidden duplicate producers/210-star cleanup
-are verified; native panel crop matches settled pixels but transitions lag one
+are verified; Settings now ~60FPS vs24FPS in short Editor captures with identical
+screenshots and live timers/resize. Native panel crop matches settled pixels but transitions lag one
 frame, so pilot remains blocked and is not production. Start with native panel
 render/filter scheduling, then full native menu and dynamic gameplay
 projection. P1/P2 remain PARTIAL. Check actual HEAD, Editor and CI; no APK.

@@ -63,6 +63,21 @@ namespace EchoSphere.Presentation
             public bool Used;
         }
         private UIDocument _document;
+        private bool _presentationSuspended,_presentationWasEnabled;
+        private StyleFloat _presentationOpacity;
+        public void SetPresentationSuspended(bool suspended)
+        {
+            if(_presentationSuspended==suspended)return;
+            var root=_document.rootVisualElement;
+            if(suspended){
+                _presentationOpacity=root.style.opacity;_presentationWasEnabled=root.enabledSelf;
+                root.style.opacity=0;root.SetEnabled(false);
+                OnApplicationFocus(false);
+            }else{
+                root.style.opacity=_presentationOpacity;root.SetEnabled(_presentationWasEnabled);Dirty=true;
+            }
+            _presentationSuspended=suspended;
+        }
         private PanelSettings _panel;
         private VisualCss _sheet;
         private SourceUiLayout _layout;
@@ -115,6 +130,9 @@ namespace EchoSphere.Presentation
             if(_sheet.Width!=width||_sheet.Height!=height){_sheet.Width=width;_sheet.Height=height;Dirty=true;Environment.Dispatch("resize");}
             var safe=Screen.safeArea;_sheet.SafeLeft=safe.xMin/_scale;_sheet.SafeRight=(Screen.width-safe.xMax)/_scale;_sheet.SafeTop=(Screen.height-safe.yMax)/_scale;_sheet.SafeBottom=safe.yMin/_scale;
             Environment.Tick(Time.unscaledTimeAsDouble*1000d);
+            // An opaque native screen owns presentation and input. Keep hooks,
+            // timers and viewport events alive without rebuilding hidden paint.
+            if(_presentationSuspended)return;
             if(Render==null)return;
             var now=Time.unscaledTimeAsDouble;
             if(!Dirty&&!Continuous&&_root!=null&&RefreshInterval>0f&&now>=_nextRenderAt)Dirty=true;

@@ -33,8 +33,11 @@ namespace EchoSphere.Runtime
             if(_mainMenu&&_mainMenuPage==MainMenuPage.Settings)
             {
                 if(_nativeSettingsScreen==null)_nativeSettingsScreen=new GameObject("Native Settings UI Toolkit").AddComponent<SourceSettingsToolkitScreen>();
-                // Keep the source document alive for its animated menu backdrop; hide only its Settings page. 
-                _sourceUi.Continuous=false;_sourceUi.RefreshInterval=0f;_sourceUi.Draw(SourceDevicePixelRatio);
+                // Enter the source page once so hook cleanup/lifecycle still runs.
+                // The native Settings root is opaque and covers the full viewport.
+                _sourceUi.Continuous=false;_sourceUi.RefreshInterval=0f;
+                if(!_nativeSettingsWasActive){_sourceUi.Dirty=true;_sourceUi.Draw(SourceDevicePixelRatio);_sourceUi.SetPresentationSuspended(true);}
+                else _sourceUi.Draw(SourceDevicePixelRatio);
                 _nativeSettingsWasActive=true;
                 var lang=IsRussianUi?"ru":"en";
                 string T(string key)=>Visual_i18n.Scope["translations"][lang][key].Text;
@@ -52,7 +55,7 @@ namespace EchoSphere.Runtime
                 return;
             }
             if(_nativeSettingsScreen!=null)_nativeSettingsScreen.Hide();
-            if(_nativeSettingsWasActive){_sourceUi.Dirty=true;_nativeSettingsWasActive=false;}
+            if(_nativeSettingsWasActive){_sourceUi.SetPresentationSuspended(false);_sourceUi.Dirty=true;_nativeSettingsWasActive=false;}
             _sourceUiStateRef["current"]=_sourceRenderState;UpdateSourceUiState();
             // The source HUD projection updates at 10 Hz; pointer/resize/state
             // invalidations still rebuild immediately and CSS motion stays per-frame.
