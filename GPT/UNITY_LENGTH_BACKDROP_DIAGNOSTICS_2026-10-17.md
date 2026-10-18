@@ -61,3 +61,8 @@ Menu remains too slow. Continue architectural reduction of backdrop prefix repli
 
 - `SourceUiReplica.Update` previously called `container.hierarchy.IndexOf(target)` for every retained replica, a linear scan over sibling elements on each backdrop pass. The paint-prefix traversal already tracks each sibling's expected index; the implementation now tests `container.hierarchy[childIndex]` directly (with a child-count guard) and performs the same `Insert` if parent or position differs. This keeps native UI Toolkit hierarchy and exact order semantics while eliminating repeated sibling scans in the unchanged-order case.
 - No blur, layout, paint callback, source state, or replica lifetime rules changed. This is a source-level algorithmic improvement; Unity Editor compilation, repaint/layout acceptance and CPU measurements are outstanding. P1/P2 remain PARTIAL; reducing active replica count requires a separate evidence-backed design.
+
+## Retained replica userData identity guard (2026-10-18)
+
+- `SourceUiReplica.CopyNode` previously re-assigned `target.userData` on every backdrop update, even when the existing reference was unchanged. The target now receives a new reference only when `ReferenceEquals` differs. `ClipTag` references and the retained `PaintTag` object are preserved; no paint, clipping, blur or ordering rule changes.
+- This is a narrowly scoped source-level change, not a reduction in replica count. Editor compilation, visual parity, performance measurements and CI remain to be verified. P1/P2 are PARTIAL.
