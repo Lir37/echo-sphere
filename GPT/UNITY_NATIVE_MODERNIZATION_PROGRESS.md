@@ -2,15 +2,17 @@
 
 Current progress report, 2026-10-18. This is the single current status entry point;
 older dated reports retain historical evidence rather than defining completion.
-Entry HEAD: `0501e783fd3bfdc1120b138fae1d3ca64a753da5`, branch `unity-migration`.
+Entry HEAD: `9dac7200454494423a6a5007e4c9e926063f4042`, branch `unity-migration`.
 Protected source: `new-desing@737ef2af4a877e0995db5f92331d536d2f29a934`.
 Implementation HEAD is the commit containing this report (`git log -1 --format=%H`).
 
 ## Acceptance status
 
 **PARTIAL. P1/P2 and full native modernization are not DONE.** Menu performance
-remains unacceptable. The replica-free composition experiment failed image parity;
-it is Editor-only, opt-in, and is not connected to the production menu.
+remains unacceptable. The original cross-panel experiment fails transition parity;
+an early-prefix variant now passes the bounded animated-pattern/static-text
+fixture. Full menu fidelity is not accepted. Both variants are Editor-only,
+opt-in, and are not connected to the production menu.
 No gameplay, balance, formulas, RNG, visual quality settings, protected branch or
 APK build changed in this group. User's preceding committed improvements remain.
 
@@ -49,7 +51,7 @@ KEEP = appropriate existing native/game logic; BLOCKED = missing acceptance proo
 
 | Subsystem | Actual path / proposed native target | Decision | Status and gate |
 |---|---|---|---|
-| Home menu, animated background, glass panels | TSX/CSS → retained UI Toolkit; native controls + shared native panel composition | PILOT | BLOCKED: composition pixels differ; full menu not switched |
+| Home menu, animated background, glass panels | TSX/CSS → retained UI Toolkit; native controls + shared native composition | PILOT | PARTIAL: early prefix passes bounded pattern/static-text fixture; full menu and live animated layers remain unaccepted, not switched |
 | Settings | Existing SourceSettingsToolkitScreen native controls over old document | KEEP / MIGRATE hidden work | DONE bounded hidden-work removal: suspend paint/layout, keep timers/viewport; actual Editor checks and identical screenshot; complete original-screen acceptance remains PARTIAL |
 | Map/region selection | Generated EchoMapScreen → source document | PILOT | NEXT: native retained view with original transitions and unlock state |
 | Shop | Generated ShopScreen → source document | PILOT | NEXT: preserve purchases, prices, persistence and scroll |
@@ -175,6 +177,51 @@ prefix before native filtering, with explicit frame/phase evidence. Do not repea
 sorting/atlas-invalidation experiments as assumed fixes, relax pixel thresholds,
 delay animation or switch the complete menu based on settled frames alone.
 
+### Early native prefix producer — bounded temporal gate passed
+
+New Editor-only variant produces the changing background RT in LateUpdate, before
+native UI filtering, using Graphics.Blit and a native material. Static label pixels
+come from a separate native UI Toolkit target. The output RT has a single writer;
+it is no longer simultaneously the target of a later background UIDocument.
+Graphics state (active target/sRGB writes) is restored in finally. Rendering is
+not issued from generateVisualContent, filter callbacks or UI repaint.
+
+Actual Editor comparison, unchanged threshold(mean<=0.01, every channel<=1),
+sigma8 and four-sigma support, no replicas on candidate:
+
+| Native early prefix | Samples | Maximum mean /255 | Maximum channel error |
+|---|---:|---:|---:|
+| Pattern changes every4 actual frames | 32 | 0.000354766846 | 1 |
+| Pattern changes every actual frame, phases12–43 | 32 | 0.000354766846 | 1 |
+
+Both runs PASS the limited fixture including transitions; button submit passes.
+Negative control with earlyPrefix=false and a phase change every frame FAILS all
+32 samples: maximum mean1.798633575/channel73,21410–21411 differing pixels.
+The unchanged oracle therefore still detects the original temporal problem.
+81–91 pixels differ by at most one level, rather than21410+ transition pixels
+with maximum73 in the old arrangement. This demonstrates that producing the
+changing RT before filtering resolves the tested temporal mismatch; it does not
+identify every internal Unity pass or establish full-game parity/performance.
+The driver exposes EchoNativeBackdropEarlyPrefix(defaultfalse) and
+EchoNativeBackdropPhaseFrames(default4). The early variant owns four explicit
+256x256 RGBA targets total1048576bytes including reference; candidate uses three.
+Native filter atlases, CPU/readback textures and Editor memory are excluded.
+After positive/negative runs and Play Mode teardown, native resource lookup found
+zero RenderTextures with the probe's ownership prefix. No new Console errors
+after cursor1216; current Console counts zero errors/warnings. Probe defaults
+restored, Profiler/Play Mode stopped, screenshot moved outside Assets. Local
+Core1193/47339, Node272, project preflight, visual provenance and metadata pass;
+actual Editor C# compilation and shader execution passed. CI remains a separate
+check on the containing commit.
+
+Limits: the label is static and warmed before comparison. Dynamic text, moving
+native UI, multiple/transformed panels, real menu orb/background, opacity groups,
+resize/DPI and physical input are not accepted by these runs. The screenshot
+shows matching grey-looking panels in both fixture arms; comparison against this
+Unity reference does not validate original browser/CSS appearance. Preserve
+browser-oracle and full-menu visual gates. No production renderer or FPS claim.
+Do not reuse a previous-frame label cache for changing text without new evidence.
+
 Three explicit 256x256 RGBA RTs total 786432 bytes in the comparison fixture;
 candidate's two explicit RTs are 524288 bytes. This excludes UI filter atlases,
 readback/CPU buffers, driver and Editor memory. It is not a total memory claim.
@@ -278,10 +325,11 @@ All six original game PlayerPrefs values were restored and verified after stop;
 diagnostic captures were moved outside Assets. No user save changes are shipped.
 
 Next work, in order:
-1. Resolve the one-frame shared-RT/native-filter transition discrepancy without
-   changing blur quality or delaying animation; test render scheduling/dependency
-   before selecting a cross-panel architecture. Static crop mapping now matches;
-   then build the complete native menu pilot and compare all viewport/input states.
+1. Validate the fixture against the browser/CSS oracle and resolve the grey panel
+   before claiming appearance acceptance. Then extend early native production to
+   the real menu background/orb and prove dynamic text/layers update in the same
+   frame. Retain the failing cross-panel control; check viewport/input/ownership
+   before building/switching the complete native menu.
 2. Settings hidden work is removed and checked; retain lifecycle/resize checks
    while extending native migration to other screens. Do not suspend transparent
    overlays or visible animated backgrounds by analogy.
@@ -294,7 +342,9 @@ Short continuation prompt: Continue ECHO SPHERE on unity-migration from the comm
 containing this report. Read the three required GPT documents and this report;
 preserve user changes and new-desing. Hidden duplicate producers/210-star cleanup
 are verified; Settings now ~60FPS vs24FPS in short Editor captures with identical
-screenshots and live timers/resize. Native panel crop matches settled pixels but transitions lag one
-frame, so pilot remains blocked and is not production. Start with native panel
-render/filter scheduling, then full native menu and dynamic gameplay
+screenshots and live timers/resize. Early native prefix production passes32-frame
+animated-pattern/static-label checks, including a change every frame; full menu
+and browser appearance are NOT accepted, production remains unchanged. Start with
+browser/CSS validation of the grey fixture, then real native background/orb and
+dynamic text/layer fidelity, then dynamic gameplay
 projection. P1/P2 remain PARTIAL. Check actual HEAD, Editor and CI; no APK.

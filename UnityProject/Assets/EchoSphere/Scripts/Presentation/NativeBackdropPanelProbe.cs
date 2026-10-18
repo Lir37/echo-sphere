@@ -24,9 +24,12 @@ namespace EchoSphere.Presentation
         private VisualElement _referenceRoot,_referenceGlass;
         private SourceUiBackdrop _reference;
         private Material _material;
+        private Material _prefixMaterial;
+        private RenderTexture _labelTarget;
         private FilterFunctionDefinition _definition;
         private int _phase;
         public bool Animate {get;set;}=true;
+        public int PhaseFrames {get;set;}=4;
         public int Phase=>_phase;
         public int ReferenceCopies {get;private set;}
         public int CandidateReplicaCount=>0;
@@ -34,15 +37,17 @@ namespace EchoSphere.Presentation
         public double MaximumMeanError {get;private set;}
         public int MaximumChannelError {get;private set;}
         public int DifferentPixels {get;private set;}
-        public long TargetBytes=>3L*Size*Size*4;
+        public long TargetBytes=>(long)_targets.Count*Size*Size*4;
         public bool ClickVerified {get;private set;}
         private bool _ready;
         private bool _externalPrefix;
+        private bool _earlyPrefix;
 
-        public void Initialize(int backgroundOrder=2101,bool externalPrefix=false)
+        public void Initialize(int backgroundOrder=2101,bool externalPrefix=false,bool earlyPrefix=false)
         {
             if(_ready)return;
             _externalPrefix=externalPrefix;
+            _earlyPrefix=earlyPrefix;
             _pattern=new Texture2D(Size,Size,TextureFormat.RGBA32,false,false){name="Native backdrop probe animated pattern",filterMode=FilterMode.Point,wrapMode=TextureWrapMode.Clamp};
             _referenceRead=new Texture2D(Size,Size,TextureFormat.RGBA32,false,false);
             _candidateRead=new Texture2D(Size,Size,TextureFormat.RGBA32,false,false);
@@ -55,8 +60,13 @@ namespace EchoSphere.Presentation
             _referenceGlass=Glass();_referenceRoot.Add(_referenceGlass);
             _reference=new SourceUiBackdrop(_referenceGlass,context=>{},source=>null,null);
 
-            var background=Panel("Native background",backgroundOrder,_backgroundTarget);
-            Pattern(background);
+            if(_earlyPrefix){
+                _labelTarget=Target("Static native text");
+                Label(Panel("Native static text",backgroundOrder,_labelTarget));
+                var prefixShader=Shader.Find("Hidden/EchoSphere/NativePrefixProducerProbe");
+                if(prefixShader==null)throw new InvalidOperationException("Early prefix diagnostic shader unavailable");
+                _prefixMaterial=new Material(prefixShader);_prefixMaterial.SetTexture("_LabelTex",_labelTarget);
+            }else Pattern(Panel("Native background",backgroundOrder,_backgroundTarget));
             var candidate=Panel("Native composite",2102,_candidateTarget);
             var baseImage=TextureImage(_backgroundTarget);candidate.Add(baseImage);
             var clip=new VisualElement();Box(clip,PanelRect.x,PanelRect.y,PanelRect.width,PanelRect.height);
@@ -97,6 +107,10 @@ namespace EchoSphere.Presentation
         private void Pattern(VisualElement root)
         {
             var image=new VisualElement();Box(image,0,0,Size,Size);image.style.backgroundImage=new StyleBackground(_pattern);root.Add(image);
+            Label(root);
+        }
+        private void Label(VisualElement root)
+        {
             var label=new Label("ECHO / native prefix");Box(label,60,80,140,28);label.style.fontSize=12;label.style.color=Color.white;root.Add(label);
         }
         private static VisualElement Glass()
@@ -142,11 +156,18 @@ namespace EchoSphere.Presentation
         private void Update()
         {
             if(!_ready)return;
-            if(Time.frameCount%4==0&&Animate)SetPhase(_phase+1);
+            if(Time.frameCount%Mathf.Max(1,PhaseFrames)==0&&Animate)SetPhase(_phase+1);
         }
         private void LateUpdate()
         {
             if(!_ready)return;
+            if(_earlyPrefix){
+                // Produce the changing texture before UI filtering. The label is
+                // deliberately static; this does not accept animated text/layers.
+                var previous=RenderTexture.active;var srgb=GL.sRGBWrite;
+                try{GL.sRGBWrite=QualitySettings.activeColorSpace==ColorSpace.Linear;Graphics.Blit(_pattern,_backgroundTarget,_prefixMaterial);}
+                finally{GL.sRGBWrite=srgb;RenderTexture.active=previous;}
+            }
             _reference.Prepare(_referenceRoot,8);
             // Only diagnostic reflection; the candidate does not access replicas.
             var flags=System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic;
@@ -179,6 +200,7 @@ namespace EchoSphere.Presentation
             foreach(var target in _targets)if(target!=null)Destroy(target);
             if(_pattern!=null)Destroy(_pattern);if(_referenceRead!=null)Destroy(_referenceRead);if(_candidateRead!=null)Destroy(_candidateRead);
             if(_definition!=null)Destroy(_definition);if(_material!=null)Destroy(_material);
+            if(_prefixMaterial!=null)Destroy(_prefixMaterial);
         }
     }
 }
