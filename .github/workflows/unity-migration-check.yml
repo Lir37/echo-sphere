@@ -93,6 +93,7 @@ jobs:
           node scripts/export-unity-canvas-art.cjs --check
           node scripts/export-unity-control-art.cjs --check
           node scripts/export-unity-control-cursor.cjs --check
+          node scripts/export-unity-native-menu-icons.mjs --check
           node scripts/export-unity-presentation-meta.mjs --check
           node scripts/check-unity-visual-provenance.mjs
       - name: Run source game regression tests

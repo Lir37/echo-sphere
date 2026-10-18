@@ -1,0 +1,55 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+  <ui:VisualElement name="menu-shell" class="menu-shell">
+    <ui:VisualElement name="background-artwork" class="background-artwork" picking-mode="Ignore" />
+    <ui:VisualElement class="topbar">
+      <ui:Label name="menu-logo" text="ECHO SPHERE" class="logo" />
+      <ui:Label name="menu-subtitle" class="subtitle" />
+    </ui:VisualElement>
+    <ui:VisualElement class="stage">
+      <ui:VisualElement name="menu-core" class="core">
+        <ui:Label name="core-caption" class="caption" />
+        <ui:Button name="open-map" class="map-entry">
+          <ui:VisualElement name="core-artwork" class="core-artwork" picking-mode="Ignore" />
+          <ui:Label name="core-title" class="core-title" picking-mode="Ignore" />
+          <ui:Label name="select-run" class="select-run" picking-mode="Ignore" />
+        </ui:Button>
+        <ui:Label name="core-copy" class="core-copy" />
+        <ui:VisualElement class="loadout">
+          <ui:Button name="open-character" class="character">
+            <ui:VisualElement name="character-avatar" class="avatar" picking-mode="Ignore" />
+            <ui:VisualElement class="character-description" picking-mode="Ignore">
+              <ui:Label name="character-name" class="character-name" />
+              <ui:Label name="character-role" class="character-role" />
+            </ui:VisualElement>
+            <ui:VisualElement name="character-icon" class="character-icon" picking-mode="Ignore" />
+          </ui:Button>
+          <ui:VisualElement class="difficulty-row">
+            <ui:Label name="difficulty-title" class="difficulty-title" />
+            <ui:VisualElement class="difficulty-options">
+              <ui:Button name="difficulty-easy" class="difficulty" />
+              <ui:Button name="difficulty-normal" class="difficulty" />
+              <ui:Button name="difficulty-hard" class="difficulty" />
+              <ui:Button name="difficulty-nightmare" class="difficulty" />
+            </ui:VisualElement>
+          </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement class="name-row">
+          <ui:Label text="ID" class="name-label" />
+          <ui:TextField name="player-name" class="player-name" max-length="16" />
+        </ui:VisualElement>
+        <ui:Button name="continue-run" class="continue-run">
+          <ui:Label name="continue-title" class="continue-title" picking-mode="Ignore" />
+          <ui:Label name="continue-time" class="continue-time" picking-mode="Ignore" />
+        </ui:Button>
+      </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:VisualElement name="menu-navigation" class="navigation">
+      <ui:Button name="nav-0" class="nav-button"><ui:VisualElement name="nav-icon-0" class="nav-icon" picking-mode="Ignore" /><ui:Label name="nav-label-0" picking-mode="Ignore" /></ui:Button>
+      <ui:Button name="nav-1" class="nav-button"><ui:VisualElement name="nav-icon-1" class="nav-icon" picking-mode="Ignore" /><ui:Label name="nav-label-1" picking-mode="Ignore" /></ui:Button>
+      <ui:Button name="nav-2" class="nav-button"><ui:VisualElement name="nav-icon-2" class="nav-icon" picking-mode="Ignore" /><ui:Label name="nav-label-2" picking-mode="Ignore" /></ui:Button>
+      <ui:Button name="nav-3" class="nav-button"><ui:VisualElement name="nav-icon-3" class="nav-icon" picking-mode="Ignore" /><ui:Label name="nav-label-3" picking-mode="Ignore" /></ui:Button>
+      <ui:Button name="nav-4" class="nav-button"><ui:VisualElement name="nav-icon-4" class="nav-icon" picking-mode="Ignore" /><ui:Label name="nav-label-4" picking-mode="Ignore" /></ui:Button>
+      <ui:Button name="nav-5" class="nav-button"><ui:VisualElement name="nav-icon-5" class="nav-icon" picking-mode="Ignore" /><ui:Label name="nav-label-5" picking-mode="Ignore" /></ui:Button>
+    </ui:VisualElement>
+  </ui:VisualElement>
+</ui:UXML>

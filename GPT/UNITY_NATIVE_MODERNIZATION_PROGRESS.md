@@ -2,17 +2,17 @@
 
 Current progress report, 2026-10-18. This is the single current status entry point;
 older dated reports retain historical evidence rather than defining completion.
-Entry HEAD: `519ad8e9b946ff338fb874c52402cdc99557c0f3`, branch `unity-migration`.
+Entry HEAD: `0be716daf3b003bbfac7ca0db9931e5e125cc887`, branch `unity-migration`.
 Protected source: `new-desing@737ef2af4a877e0995db5f92331d536d2f29a934`.
 Implementation HEAD is the commit containing this report (`git log -1 --format=%H`).
 
 ## Acceptance status
 
 **PARTIAL. P1/P2 and full native modernization are not DONE.** Menu performance
-remains unacceptable. The original cross-panel experiment fails transition parity;
-an early-prefix variant now passes the bounded animated-pattern/static-text
-fixture. Full menu fidelity is not accepted. Both variants are Editor-only,
-opt-in, and are not connected to the production menu.
+remains unacceptable. New retained native menu controls/layout and a native GPU
+background pass their bounded Editor checks; full menu fidelity and production
+selection remain pending. Earlier cross-panel/early-prefix composition experiments
+are limited fixtures, not a completed menu migration.
 No gameplay, balance, formulas, RNG, visual quality settings, protected branch or
 APK build changed in this group. User's preceding committed improvements remain.
 
@@ -21,6 +21,53 @@ addenda were consulted. Seven recent project conversations were checked; some
 assistant content was represented only by opaque references, so unavailable chat
 content is not treated as implementation evidence. Current source and actual
 Editor results take precedence over obsolete audit descriptions.
+
+## Current native menu implementation group, 2026-10-18
+
+User clarified the target: finish the native Unity architecture, not browser/Edge
+experiments. No browser was used in this group. The preceding uncommitted browser
+experiment additions were removed; committed historical fixtures are retained.
+
+- Added NativeMainMenu.uxml/.uss: retained UI Toolkit control/layout assets for
+  App.tsx Menu, with actual source labels, difficulty IDs, 16-UTF-16-unit name
+  limit, saved-run visibility/time, language changes and responsive breakpoints.
+- NativeMainMenuView uses a typed change-only state, native Button/TextField,
+  native Yoga layout and explicit ownership/Dispose. It does not build DOM trees,
+  evaluate CSS or use generated React components. Runtime owner API reads existing
+  character/save/preferences and binds existing map/page/continue actions. Read the
+  model on entry/state change, not each frame. No new navigation/game rules.
+- Six original Lucide icons are imported VectorImage assets; runtime performs no
+  SVG parsing/rasterization for this view. Export drift is checked in CI.
+- NativeMainMenuBackground + GPU shader replace the source menu background's
+  gradients, 42-CSS-pixel grid, group opacity and radial mask. The owned render
+  texture paints only on viewport/DPR changes. Preserve fractional final texels,
+  source repeating-gradient seams and alpha; no effect was disabled. The owner
+  must invoke GPU production before UI rendering, outside paint/filter callbacks.
+
+Actual Editor controls check PASS: 9 navigation events, 4 source difficulties,
+name truncation including programmatic changes, silent binding, RU/EN, save
+presence, retained tree, 1260x542 → 480x854 → 1260x542 logical containers, and
+idempotent cleanup. This is layout/control acceptance, not a full visual test.
+Actual GPU background/source-CSS check PASS for 320x240@1, 480x854@1,
+1260x542@1, 320x240@1.75, 480x854@.75: 1,635,600 pixels, maximum channel
+difference 1/255, mean .00764–.01198/255. Same-viewport calls reuse the texture
+and do not paint (120 calls per case). Native/source background images inspected.
+Native control first-pass navigation wrapping and external name truncation were
+corrected. GPU fractional-DPR seam/last-texel differences were corrected without
+relaxing gates. Edit-mode ownership cleanup was fixed; earlier acceptance errors
+and warnings are historical diagnostics, not clean Console evidence.
+Final Editor recompile SUCCESS (zero compiler errors/warnings); both bounded checks
+PASS. Final Console ground truth zero errors/warnings, no new error after cursor
+8939. Play stopped; zero owned background/probe RenderTextures, background
+Materials or acceptance owner remain. Core1193 +47339 parity, Node272, full
+VisualChecks and project/provenance/meta/icon-export checks PASS. CI is checked
+separately on the resulting implementation commit.
+
+**Not selected by production yet.** Core/orbits/highlight, avatar, full text/shadow
+metrics, native backdrop composition, safe-area/input/device acceptance and whole
+menu image/control parity remain before switching. Artwork slots are not accepted
+visual replacements. Main menu/gameplay performance is not fixed by these tests;
+no new FPS/GC measurements or Android/APK acceptance are claimed. P1/P2 PARTIAL.
 
 ## Architecture actually in use
 
@@ -39,7 +86,7 @@ SourceBackdrop2D and legacy network line visuals. Active source rendering uses
 runtime/agent state, not these generated meshes. Enemy appearance metadata and
 combat state setters are retained. Network analysis/combat are unchanged.
 
-`UNITY_NATIVE_VISUAL_INVENTORY_2026-10-18.json` records all 199 C# files below
+`UNITY_NATIVE_VISUAL_INVENTORY_2026-10-18.json` records all 202 C# files below
 Assets/EchoSphere/Scripts, including names without visual/UI/Canvas keywords,
 with content hashes and resource/update/release discovery locations. Discovery
 tags are not proof that every path has undergone semantic or image acceptance.
@@ -51,7 +98,7 @@ KEEP = appropriate existing native/game logic; BLOCKED = missing acceptance proo
 
 | Subsystem | Actual path / proposed native target | Decision | Status and gate |
 |---|---|---|---|
-| Home menu, animated background, glass panels | TSX/CSS → retained UI Toolkit; native controls + shared native composition | PILOT | PARTIAL: early prefix passes bounded pattern/static-text fixture; full menu and live animated layers remain unaccepted, not switched |
+| Home menu, animated background, glass panels | TSX/CSS → retained UI Toolkit; native controls + shared native composition | PILOT | PARTIAL: UXML/USS controls, 6 native vector icons and GPU background implemented/checked; core/artwork, blur, full composition and device acceptance pending; not switched |
 | Settings | Existing SourceSettingsToolkitScreen native controls over old document | KEEP / MIGRATE hidden work | DONE bounded hidden-work removal: suspend paint/layout, keep timers/viewport; actual Editor checks and identical screenshot; complete original-screen acceptance remains PARTIAL |
 | Map/region selection | Generated EchoMapScreen → source document | PILOT | NEXT: native retained view with original transitions and unlock state |
 | Shop | Generated ShopScreen → source document | PILOT | NEXT: preserve purchases, prices, persistence and scroll |
@@ -355,11 +402,11 @@ All six original game PlayerPrefs values were restored and verified after stop;
 diagnostic captures were moved outside Assets. No user save changes are shipped.
 
 Next work, in order:
-1. Validate the corrected stencil-backed fixture against the browser/CSS oracle
-   before claiming appearance acceptance. Then extend early native production to
-   the real menu background/orb and prove dynamic text/layers update in the same
-   frame. Retain the failing cross-panel control; check viewport/input/ownership
-   before building/switching the complete native menu.
+1. Finish the real native menu composition around the new UXML/USS controls,
+   VectorImage icons and GPU background: source-faithful core/orbits, avatar,
+   text/shadows and blur. Prove dynamic layers update in the same frame; verify
+   safe areas, input and ownership before production selection. Use local source
+   and actual Unity Editor; do not resume browser experiments as the main task.
 2. Settings hidden work is removed and checked; retain lifecycle/resize checks
    while extending native migration to other screens. Do not suspend transparent
    overlays or visible animated backgrounds by analogy.
@@ -369,12 +416,10 @@ Next work, in order:
    and portrait/landscape checks. Keep blocked gates visible until measured.
 
 Short continuation prompt: Continue ECHO SPHERE on unity-migration from the commit
-containing this report. Read the three required GPT documents and this report;
-preserve user changes and new-desing. Hidden duplicate producers/210-star cleanup
-are verified; Settings now ~60FPS vs24FPS in short Editor captures with identical
-screenshots and live timers/resize. Early native prefix production passes32-frame
-animated-pattern/static-label checks, including a change every frame; full menu
-and browser appearance are NOT accepted, production remains unchanged. Start with
-browser/CSS validation of the stencil-backed fixture, then real native background/orb and
-dynamic text/layer fidelity, then dynamic gameplay
-projection. P1/P2 remain PARTIAL. Check actual HEAD, Editor and CI; no APK.
+containing this report (resolve actual HEAD). Read the three GPT documents and
+this report; preserve user changes/new-desing. Native main-menu UXML/USS controls,
+6 VectorImage icons and GPU background are implemented; Editor controls and five
+GPU background cases pass. They are not production-selected: finish source-faithful
+core/orbits/avatar, text/shadows and native blur, then verify/switch complete menu.
+Continue typed native gameplay views afterward. P1/P2 PARTIAL; no new FPS/GC claim,
+no browser experiment priority and no APK. Check actual Editor and wait for CI.

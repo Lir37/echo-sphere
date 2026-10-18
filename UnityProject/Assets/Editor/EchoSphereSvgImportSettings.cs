@@ -16,6 +16,11 @@ namespace EchoSphere.Editor
 
         private void OnPreprocessAsset()
         {
+            if(!string.IsNullOrEmpty(assetPath)&&assetPath.StartsWith("Assets/Resources/EchoSphere/NativeMenuIcons/",StringComparison.Ordinal)&&assetPath.EndsWith(".svg",StringComparison.OrdinalIgnoreCase)){
+                var nativeIcon=assetImporter as SVGImporter;
+                if(nativeIcon!=null)nativeIcon.SvgType=SVGType.VectorImage;
+                return;
+            }
             if (string.IsNullOrEmpty(assetPath) ||
                 (!assetPath.StartsWith(ArtRoot, StringComparison.OrdinalIgnoreCase) && !assetPath.StartsWith("Assets/Resources/EchoSphere/CanvasArt/", StringComparison.OrdinalIgnoreCase)))
                 return;

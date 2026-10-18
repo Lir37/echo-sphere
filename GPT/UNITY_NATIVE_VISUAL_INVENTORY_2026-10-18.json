@@ -1,8 +1,8 @@
 {
-  "entryHead": "519ad8e9b946ff338fb874c52402cdc99557c0f3",
+  "entryHead": "0be716daf3b003bbfac7ca0db9931e5e125cc887",
   "protectedSource": "new-desing@737ef2af4a877e0995db5f92331d536d2f29a934",
   "scope": "Every C# file under Assets/EchoSphere/Scripts, including files without visual/UI/Canvas names. Discovery metadata is not a semantic parity or native-migration acceptance claim.",
-  "scannedFiles": 199,
+  "scannedFiles": 202,
   "entries": [
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Core/AlchemistReactionRules.cs",
@@ -1201,7 +1201,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/NativeBackdropPanelProbe.cs",
-      "sha256": "1aaf498a20e639779b3ba1cf9efc8069a5069fcfd4112c340a8d743b03f00e49",
+      "sha256": "a2c899b3045e2ffd73284530259484fd16e58389b1eb066616ded606e9854688",
       "lines": 215,
       "discoveryTags": [
         "ui",
@@ -1230,6 +1230,38 @@
         208,
         209,
         210
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/NativeMainMenuBackground.cs",
+      "sha256": "a0c129371027c11b22738e1e295146bd02fe99b246065d6be2a74141dbbd9694",
+      "lines": 68,
+      "discoveryTags": [
+        "ui",
+        "gpu"
+      ],
+      "creationLines": [
+        29,
+        47
+      ],
+      "updateLines": [],
+      "releaseLines": [
+        61,
+        63,
+        64
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/NativeMainMenuView.cs",
+      "sha256": "5f6ec78ba78a8ef68fbb5ee63ed4e86f4456afa2be009f5798253a74cdf56952",
+      "lines": 149,
+      "discoveryTags": [
+        "ui"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": [
+        141
       ]
     },
     {
@@ -1692,6 +1724,17 @@
       "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereKnowledge.cs",
       "sha256": "73ae14c1b50fc75f87b3f4f65adafe4877abd61593da50cbcfb5ec046fbcd11c",
       "lines": 129,
+      "discoveryTags": [
+        "ui"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeMainMenu.cs",
+      "sha256": "953f1004ec58fc464e64e90d1e1c255b452788b6be7852850aea4796c18be464",
+      "lines": 52,
       "discoveryTags": [
         "ui"
       ],

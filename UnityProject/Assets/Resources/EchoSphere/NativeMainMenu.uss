@@ -1,0 +1,57 @@
+/* App.tsx Menu + final conceptStyle.css .es-main-menu-legacy rules.
+   Native controls/layout only. Backdrop, shadows, avatar, icons and core art
+   belong to the composition owner; missing artwork is not a fallback design. */
+.menu-host, .menu-shell { position: absolute; left: 0; right: 0; top: 0; bottom: 0; color: #dcecff; }
+.menu-shell { overflow: hidden; }
+.background-artwork { position: absolute; left: 0; right: 0; top: 0; bottom: 0; }
+.menu-host Button { margin: 0; padding: 0; border-width: 0; border-radius: 0; background-color: transparent; color: #dcecff; -unity-text-align: middle-center; }
+.topbar { flex-shrink: 0; padding: 12px 15px 8px; border-bottom-width: 1px; border-bottom-color: rgba(85,183,233,0.10); }
+.menu-host Label { margin: 0; padding: 0; }
+.logo { color: #e8f8ff; -unity-font-style: normal; letter-spacing: 9.18px; }
+.subtitle { margin-top: 3px; color: #4d7690; font-size: 7px; letter-spacing: 2.66px; }
+.stage { flex-grow: 1; flex-shrink: 1; min-height: 0; padding: 8px 18px 18px; align-items: center; justify-content: center; }
+.core { max-height: 100%; flex-shrink: 0; align-items: center; justify-content: center; }
+.caption { color: #5d8da8; font-size: 8px; -unity-font-style: bold; letter-spacing: 2px; }
+.map-entry { margin-top: 2px; flex-direction: column; align-items: center; flex-shrink: 0; }
+.core-artwork { margin-top: 3px; margin-bottom: -3px; flex-shrink: 0; }
+.core-title { color: #e8f8ff; -unity-font-style: bold; letter-spacing: 3.96px; }
+.select-run { margin-top: 3px; color: #5e849a; font-size: 7px; letter-spacing: 1.54px; }
+.core-copy { margin-top: 5px; max-width: 330px; color: #63849c; -unity-text-align: middle-center; font-size: 9px; white-space: normal; }
+.loadout { width: 100%; max-width: 420px; margin-top: 11px; padding: 7px; border-width: 1px; border-color: rgba(86,177,226,0.15); border-radius: 8px; background-color: rgba(4,11,19,0.70); }
+.menu-host .character { flex-direction: row; align-items: center; width: 100%; min-height: 40px; padding: 5px 8px; border-width: 1px; border-color: rgba(88,178,229,0.14); border-radius: 4px; background-color: rgba(5,15,26,0.78); color: #cfe9f7; }
+.menu-host .character:hover { border-color: rgba(91,220,255,0.44); color: #e8fbff; }
+.avatar { width: 29px; height: 29px; margin-right: 9px; flex-shrink: 0; }
+.character-description { flex-grow: 1; min-width: 0; }
+.character-name { font-size: 10px; -unity-font-style: bold; }
+.character-role { margin-top: 1px; color: #607f95; font-size: 7px; }
+.character-icon { width: 14px; height: 14px; margin-left: 9px; }
+.difficulty-row { flex-direction: row; align-items: center; justify-content: space-between; margin-top: 5px; padding: 3px 5px; }
+.difficulty-title { margin-right: 8px; color: #59778d; font-size: 7px; }
+.difficulty-options { flex-direction: row; flex-wrap: wrap; justify-content: flex-end; }
+.menu-host .difficulty { margin-left: 3px; padding: 4px 6px; border-width: 1px; border-color: rgba(82,170,220,0.13); border-radius: 4px; background-color: rgba(8,18,30,0.76); color: #68879d; font-size: 7px; }
+.menu-host .difficulty.is-active { color: #e8fbff; border-color: rgba(80,213,255,0.43); background-color: rgba(32,106,135,0.25); }
+.name-row { width: 100%; max-width: 420px; margin-top: 6px; padding: 0 8px; flex-direction: row; align-items: center; }
+.name-label { margin-right: 7px; color: #4e7188; font-size: 7px; -unity-font-style: bold; letter-spacing: 1px; }
+.player-name { margin: 0; padding: 0; min-width: 0; flex-grow: 1; height: 27px; }
+.player-name > .unity-text-field__input { margin: 0; padding: 0; border-width: 0; border-bottom-width: 1px; border-bottom-color: rgba(90,181,231,0.18); border-radius: 0; background-color: transparent; color: #dcefff; font-size: 9px; }
+.menu-host .continue-run { width: 100%; max-width: 420px; min-height: 42px; margin-top: 8px; flex-direction: row; align-items: center; justify-content: space-between; padding: 7px 10px; border-width: 1px; border-color: rgba(99,222,255,0.42); border-radius: 7px; color: #dffaff; }
+.continue-title { font-size: 10px; -unity-font-style: bold; letter-spacing: 1.2px; }
+.continue-time { color: #6f97ad; font-size: 7px; letter-spacing: 0.42px; }
+.navigation { flex-direction: row; flex-wrap: nowrap; flex-shrink: 0; padding: 7px 7.5px 8px; border-top-width: 1px; border-top-color: rgba(76,162,211,0.13); background-color: rgba(2,7,13,0.88); }
+.menu-host .nav-button { flex-basis: 0; flex-grow: 1; min-width: 0; min-height: 42px; padding: 0 2.5px; flex-direction: column; align-items: center; justify-content: center; border-width: 1px; border-color: transparent; border-radius: 5px; color: #66869d; font-size: 7px; }
+.menu-host .nav-button:hover { color: #dff8ff; border-color: rgba(77,201,247,0.18); background-color: rgba(31,89,119,0.12); }
+.nav-icon { width: 16px; height: 16px; margin-bottom: 3px; }
+.narrow .stage { padding: 3px 12px 9px; }
+.narrow .loadout { margin-top: 7px; }
+.narrow .navigation { flex-wrap: wrap; }
+.narrow .nav-button { width: 33.3333%; flex-basis: auto; flex-grow: 0; flex-shrink: 0; }
+.narrow .continue-run { min-height: 40px; }
+.narrow .continue-title { font-size: 9px; }
+.narrow .continue-time { font-size: 6px; }
+.short .core-artwork { margin-top: -2px; }
+.short .core-copy { display: none; }
+.short .loadout { margin-top: 5px; }
+.nav-icon { -unity-background-image-tint-color: #66869d; }
+.nav-button:hover .nav-icon { -unity-background-image-tint-color: #dff8ff; }
+.character-icon { -unity-background-image-tint-color: #cfe9f7; }
+.nav-button Label { letter-spacing: 0.7px; }
