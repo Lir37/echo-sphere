@@ -14,6 +14,7 @@ namespace EchoSphere.Presentation
     {
         private const int Size=256;
         private static readonly Rect PanelRect=new Rect(48,64,160,120);
+        private static readonly Rect BlurArea=new Rect(16,32,224,184); // Complete four-sigma support, as in SourceUiBackdrop.
         private readonly List<GameObject> _objects=new List<GameObject>();
         private readonly List<PanelSettings> _settings=new List<PanelSettings>();
         private readonly List<RenderTexture> _targets=new List<RenderTexture>();
@@ -58,8 +59,10 @@ namespace EchoSphere.Presentation
             var baseImage=TextureImage(_backgroundTarget);candidate.Add(baseImage);
             var clip=new VisualElement();Box(clip,PanelRect.x,PanelRect.y,PanelRect.width,PanelRect.height);
             clip.style.overflow=Overflow.Hidden;Radius(clip,12);candidate.Add(clip);
-            var blurred=TextureImage(_backgroundTarget);blurred.style.left=-PanelRect.x;blurred.style.top=-PanelRect.y;
-            clip.Add(blurred);NativeBlur(blurred);
+            var crop=new VisualElement();Box(crop,BlurArea.x-PanelRect.x,BlurArea.y-PanelRect.y,BlurArea.width,BlurArea.height);
+            crop.style.overflow=Overflow.Hidden;clip.Add(crop);
+            var blurred=TextureImage(_backgroundTarget);blurred.style.left=-BlurArea.x;blurred.style.top=-BlurArea.y;
+            crop.Add(blurred);NativeBlur(crop);
             candidate.Add(Glass());
 
             // A native control in the candidate panel verifies event ownership.
@@ -116,7 +119,7 @@ namespace EchoSphere.Presentation
             var passes=new PostProcessingPass[2];
             for(int axis=0;axis<2;axis++)passes[axis]=new PostProcessingPass {material=_material,passIndex=axis,applySettingsCallback=(properties,context)=>{
                 properties.SetFloat("_Sigma",context.filterFunction.GetParameter(0).floatValue);properties.SetFloat("_CssDpr",context.scaledPixelsPerPoint);properties.SetFloat("_CssReadsGamma",context.readsGamma?1:0);
-                properties.SetVector("_Roi",new Vector4(0,0,Size,Size));properties.SetVector("_PanelSize",new Vector4(PanelRect.width,PanelRect.height,0,0));
+                properties.SetVector("_Roi",new Vector4(BlurArea.x,BlurArea.y,BlurArea.width,BlurArea.height));properties.SetVector("_PanelSize",new Vector4(PanelRect.width,PanelRect.height,0,0));
                 properties.SetVector("_ToPanelX",new Vector4(1,0,-PanelRect.x,0));properties.SetVector("_ToPanelY",new Vector4(0,1,-PanelRect.y,0));
                 properties.SetVector("_ToScreenX",new Vector4(1,0,PanelRect.x,0));properties.SetVector("_ToScreenY",new Vector4(0,1,PanelRect.y,0));
             }};

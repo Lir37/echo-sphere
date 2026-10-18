@@ -2,7 +2,7 @@
 
 Current progress report, 2026-10-18. This is the single current status entry point;
 older dated reports retain historical evidence rather than defining completion.
-Entry HEAD: `ddfdb9d51cab64a0e444dee0853c33df0ff22131`, branch `unity-migration`.
+Entry HEAD: `316ff7a72bd130bc1b42b0785a40ccb1a1eed0fb`, branch `unity-migration`.
 Protected source: `new-desing@737ef2af4a877e0995db5f92331d536d2f29a934`.
 Implementation HEAD is the commit containing this report (`git log -1 --format=%H`).
 
@@ -107,11 +107,34 @@ button. Candidate background renders to one shared RT and is sampled by a second
 native panel. Candidate has zero backdrop replica nodes; reference uses three.
 The probe is a prerequisite fixture, not the complete proposed native menu.
 
-Actual 12-frame animated-pattern comparison: **FAIL pixel parity**.
+Initial 12-frame animated-pattern comparison: **FAIL pixel parity**.
 Maximum mean channel error 9.3716469/255; maximum channel error 73/255;
 34327 pixels differ in the last comparison. Native button submit callback passed.
 Visual inspection shows different blur coverage/clipping; the exact fault is not
 yet isolated. No accepted workaround, effect removal or production switch.
+
+Continuation experiment (same 256x256 surfaces): the candidate incorrectly
+filtered the entire 256x256 input instead of a cropped screen-space region with
+four-sigma support. It now filters a 224x184 crop at (16,32), inside the rounded
+160x120 border at (48,64), using the same ROI mapping as SourceUiBackdrop.
+No production shader or menu changes. Settled-frame error falls to at most five
+pixels differing by one channel level (maximum mean0.0000191/255).
+
+The extended 32-frame animated comparison still **FAILS**. At every phase change,
+the first frame has mean1.79860–1.79863/255 and maximum73/255; subsequent three
+frames at that phase return to mean0.0000114–0.0000191/255, maximum1. All eight
+recorded transitions show this pattern. This establishes a one-frame transition
+discrepancy in this inter-panel/filter arrangement; the engine's internal pass
+responsible has not been isolated. MarkDirtyRepaint on the native texture image
+was tested and did not remove the discrepancy; that ineffective change was
+removed. Do not hide the failing first frame by extending warmup or delaying
+animation. Candidate remains zero replicas; native button callback still passes.
+
+The driver now records all comparisons, tests32 frames rather than12, requires
+maximum mean<=0.01 AND maximum channel error<=1 plus the input callback, focuses
+Game View and temporarily enables background execution with restoration. It has
+a120-second deadline. A mean-only threshold could conceal important local errors.
+Static acceptance does not imply animation, full-menu or viewport acceptance.
 
 Three explicit 256x256 RGBA RTs total 786432 bytes in the comparison fixture;
 candidate's two explicit RTs are 524288 bytes. This excludes UI filter atlases,
@@ -172,7 +195,9 @@ All six original game PlayerPrefs values were restored and verified after stop;
 diagnostic captures were moved outside Assets. No user save changes are shipped.
 
 Next work, in order:
-1. Resolve replica-free panel composition mismatch without changing blur quality;
+1. Resolve the one-frame shared-RT/native-filter transition discrepancy without
+   changing blur quality or delaying animation; test render scheduling/dependency
+   before selecting a cross-panel architecture. Static crop mapping now matches;
    then build the complete native menu pilot and compare all viewport/input states.
 2. Eliminate old-document work behind opaque native Settings with explicit
    lifecycle/input/resize tests; preserve hook timers and return-to-menu behavior.
@@ -184,6 +209,7 @@ Next work, in order:
 Short continuation prompt: Continue ECHO SPHERE on unity-migration from the commit
 containing this report. Read the three required GPT documents and this report;
 preserve user changes and new-desing. Hidden duplicate producers/210-star cleanup
-are verified; native panel pilot fails pixel parity and is not production. Start
-with clipping/sampling/composition, then full native menu and dynamic gameplay
+are verified; native panel crop matches settled pixels but transitions lag one
+frame, so pilot remains blocked and is not production. Start with native panel
+render/filter scheduling, then full native menu and dynamic gameplay
 projection. P1/P2 remain PARTIAL. Check actual HEAD, Editor and CI; no APK.
