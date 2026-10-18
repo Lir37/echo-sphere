@@ -22,6 +22,8 @@ namespace EchoSphere.Presentation
         private readonly List<int> _key=new List<int>();
         private readonly int _maxEntries,_maxVertices,_maxIndices,_maxKeyWords;
         private int _vertices,_indices,_keyWords;
+        // Diagnostic A/B switch; normal rendering always leaves caching enabled.
+        internal bool Enabled=true;
         public long Hits { get; private set; }
         public long Misses { get; private set; }
         public int Count=>_age.Count;
@@ -64,6 +66,7 @@ namespace EchoSphere.Presentation
         public List<VectorUtils.Geometry> GetOrCreate(Shape shape,VectorUtils.TessellationOptions options)
         {
             if(shape==null)throw new ArgumentNullException(nameof(shape));
+            if(!Enabled){Misses++;return Tessellate(shape,options);}
             if(!BuildKey(shape,options)){Misses++;return Tessellate(shape,options);}
             int hash=17;unchecked{foreach(var word in _key)hash=hash*31+word;}
             if(_buckets.TryGetValue(hash,out var bucket))foreach(var candidate in bucket){if(candidate.Key.Length!=_key.Count)continue;int i=0;while(i<_key.Count&&candidate.Key[i]==_key[i])i++;if(i!=_key.Count)continue;Hits++;_age.Remove(candidate.Age);_age.AddLast(candidate.Age);return candidate.Geometry;}

@@ -65,7 +65,10 @@ namespace EchoSphere.Presentation
                 if(target.parent!=container||childIndex>=container.hierarchy.childCount||container.hierarchy[childIndex]!=target)
                     container.hierarchy.Insert(childIndex,target);
                 _childOrder[container]=childIndex+1;
-                target.MarkDirtyRepaint();
+                // Native text/styles already invalidate their own retained mesh.
+                // Custom painters may read a changing shared texture or Canvas,
+                // so those still repaint every pass even when styles are stable.
+                if(copy.Tag.Paint!=null)target.MarkDirtyRepaint();
             }
             // Stop BEFORE the target (its background, foreground, descendants
             // and this replica itself). The nearest backdrop root excludes its

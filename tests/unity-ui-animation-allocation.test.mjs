@@ -6,8 +6,9 @@ const source = readFileSync('UnityProject/Assets/EchoSphere/Scripts/Presentation
 
 test('native UI animation retains its style comparison snapshot across frames', () => {
   assert.match(source,/readonly Dictionary<string,string> MotionStyleSnapshot=new Dictionary<string,string>\(\)/);
-  assert.match(source,/var before=entry!=null\?entry\.MotionStyleSnapshot:new Dictionary<string,string>\(\)/);
+  assert.match(source,/var before=entry!=null\?entry\.MotionStyleSnapshot:_motionFallbackSnapshot/);
   assert.match(source,/before\.Clear\(\);foreach\(var pair in node\.Style\)before\[pair\.Key\]=pair\.Value/);
   assert.match(source,/if\(before\.Count!=node\.Style\.Count\|\|before\.Any\(pair=>!node\.Style\.TryGetValue/);
-  assert.doesNotMatch(source,/var before=new Dictionary<string,string>\(node\.Style\)/);
+  assert.match(source,/readonly Dictionary<string,string> _motionFallbackSnapshot=new Dictionary<string,string>\(\)/);
+  assert.doesNotMatch(source,/var before=.*new Dictionary<string,string>/);
 });

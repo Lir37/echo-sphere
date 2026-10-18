@@ -14,6 +14,7 @@ test('Canvas profiling distinguishes path tessellation, shadow commands and GPU 
   assert.ok(s.includes(field+'=new ProfilerMarker("'+label+'")'));
   assert.ok(s.includes(field+'.Auto()'));
  }
- assert.match(s,/VectorUtils\.TessellateScene\(scene,options\)/);
+ assert.match(s,/using\(CanvasTessellationMarker\.Auto\(\)\)geometries=_geometryCache\.GetOrCreate\(shape,options\)/);
+ assert.match(readFileSync('UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceCanvasGeometryCache.cs','utf8'),/VectorUtils\.TessellateScene/);
  assert.match(s,/Graphics\.ExecuteCommandBuffer\(_commands\)/);
 });

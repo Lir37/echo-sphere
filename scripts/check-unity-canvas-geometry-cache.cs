@@ -41,5 +41,6 @@ var native=Unity.VectorGraphics.VectorUtils.TessellateScene(new Unity.VectorGrap
 int vertexBudget=0,indexBudget=0;foreach(var g in native){vertexBudget+=g.Vertices.Length;indexBudget+=g.Indices.Length;}
 var bounded=Cache(32,System.Math.Max(1,vertexBudget),System.Math.Max(1,indexBudget),20000);
 for(int i=0;i<6;i++){var value=Filled();value.Contours[0]=Contour(i*.25f);Check(bounded,value,options);if((int)type.GetProperty("RetainedVertices").GetValue(bounded)>vertexBudget||(int)type.GetProperty("RetainedIndices").GetValue(bounded)>indexBudget)throw new System.Exception("Geometry budget exceeded");}
+type.GetField("Enabled",flags).SetValue(cache,false);Check(cache,Filled(),options);type.GetField("Enabled",flags).SetValue(cache,true);Check(cache,Filled(),options);
 type.GetMethod("Clear").Invoke(cache,null);Equal((int)type.GetProperty("Count").GetValue(cache),0,"clear count");Equal((int)type.GetProperty("RetainedVertices").GetValue(cache),0,"clear vertices");Equal((int)type.GetProperty("RetainedIndices").GetValue(cache),0,"clear indices");
 return "PASS exact native Canvas geometry cache: "+checks+" comparisons; curves, compound fills, strokes, dashes, mutations, options, eviction and oversized bypass";

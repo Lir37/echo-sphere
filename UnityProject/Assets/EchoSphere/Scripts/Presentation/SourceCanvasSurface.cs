@@ -51,6 +51,7 @@ namespace EchoSphere.Presentation
             public readonly List<BezierPathSegment> Segments=new List<BezierPathSegment>();
             public bool Closed;
         }
+        private readonly SourceCanvasGeometryCache _geometryCache=new SourceCanvasGeometryCache();
         private State _state=new State();
         private readonly Stack<State> _stack=new Stack<State>();
         private readonly List<Contour> _path=new List<Contour>();
@@ -406,10 +407,9 @@ namespace EchoSphere.Presentation
                     Stroke=new Stroke {Color=Color.white,HalfThickness=_state.Width*.5f,Pattern=_state.Dash,PatternOffset=_state.DashOffset,TippedCornerLimit=_state.Miter}};
             }
             else shape.Fill=new SolidFill {Color=Color.white,Mode=evenOdd?FillMode.OddEven:FillMode.NonZero};
-            var scene=new Scene {Root=new SceneNode {Shapes=new List<Shape>{shape}}};
             var options=new VectorUtils.TessellationOptions {StepDistance=float.MaxValue,MaxCordDeviation=.02f,MaxTanAngleDeviation=.08f,SamplingStepSize=.01f};
             List<VectorUtils.Geometry> geometries;
-            using(CanvasTessellationMarker.Auto())geometries=VectorUtils.TessellateScene(scene,options);
+            using(CanvasTessellationMarker.Auto())geometries=_geometryCache.GetOrCreate(shape,options);
             var paint=stroke?_state.Stroke:_state.Fill;var index=-1;var color=Color.white;
             if(paint.Raw is VisualGradient gradient)
             {if(!_gradientIndices.TryGetValue(gradient,out index)){index=_gradients.Count;_gradientIndices.Add(gradient,index);_gradients.Add(gradient);}}
