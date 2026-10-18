@@ -2,7 +2,7 @@
 
 Current progress report, 2026-10-18. This is the single current status entry point;
 older dated reports retain historical evidence rather than defining completion.
-Entry HEAD: `9dac7200454494423a6a5007e4c9e926063f4042`, branch `unity-migration`.
+Entry HEAD: `519ad8e9b946ff338fb874c52402cdc99557c0f3`, branch `unity-migration`.
 Protected source: `new-desing@737ef2af4a877e0995db5f92331d536d2f29a934`.
 Implementation HEAD is the commit containing this report (`git log -1 --format=%H`).
 
@@ -216,11 +216,41 @@ check on the containing commit.
 
 Limits: the label is static and warmed before comparison. Dynamic text, moving
 native UI, multiple/transformed panels, real menu orb/background, opacity groups,
-resize/DPI and physical input are not accepted by these runs. The screenshot
-shows matching grey-looking panels in both fixture arms; comparison against this
-Unity reference does not validate original browser/CSS appearance. Preserve
+resize/DPI and physical input are not accepted by these runs. The depth0 screenshot
+shows matching grey-looking panels in both fixture arms; those captures did not
+validate browser/CSS appearance (stencil correction follows). Preserve
 browser-oracle and full-menu visual gates. No production renderer or FPS claim.
 Do not reuse a previous-frame label cache for changing text without new evidence.
+
+### Fixture clipping correction: depth/stencil targets
+
+The grey opaque-looking panel above was a fixture artifact, not accepted CSS
+appearance. Probe RenderTextures originally requested depth0 while UI Toolkit's
+rounded clipping needed stencil in this setup. A controlled targetDepth24 run
+eliminated the grey fill and the blur outside the rounded panel in both arms.
+Actual AMD760M allocation reports depth32/D32_SFloat_S8_UInt, not24; requested
+depth and actual format are distinct. No production render target changed.
+
+Early prefix + requested depth24 + pattern change every frame:32 samples PASS,
+maximum mean0.00040435791015625/255, maximum channel1,84–105 pixels differ.
+Screenshot inspected: transparent tinted rounded panel, blurred text/background
+inside and sharp checkerboard outside. Browser/CSS oracle comparison remains open.
+This corrects the prior test's visual defect without relaxing pixel thresholds or
+changing the Gaussian kernel, support or production graphics quality.
+
+The probe/driver now default targetDepth to24, with0 retained as an explicit
+negative setup. EchoNativeBackdropTargetDepth controls the request. Results record
+actual DepthStencilFormat and separate colorTargetBytes/DepthStencilTargetBytes;
+the old TargetBytes count was color-only and must not be read as total GPU memory.
+Filter atlases/CPU textures/driver overhead remain excluded.
+Corrected-stencil negative control, earlyPrefix=false, phaseFrames1:32 samples
+FAIL, maximum mean0.66607666015625/channel57,18426–18428 differing pixels.
+Stencil repairs clipping/appearance but does not itself repair late production.
+The control reports786432color bytes and1572864depth/stencil bytes for3targets.
+The4target early variant has1048576color bytes plus2097152depth/stencil bytes
+with the observed D32/S8 format. These are descriptor/block-size estimates, not
+GPU residency or driver allocation measurements. Defaults were restored and
+teardown again found zero owned probe RenderTextures.
 
 Three explicit 256x256 RGBA RTs total 786432 bytes in the comparison fixture;
 candidate's two explicit RTs are 524288 bytes. This excludes UI filter atlases,
@@ -325,7 +355,7 @@ All six original game PlayerPrefs values were restored and verified after stop;
 diagnostic captures were moved outside Assets. No user save changes are shipped.
 
 Next work, in order:
-1. Validate the fixture against the browser/CSS oracle and resolve the grey panel
+1. Validate the corrected stencil-backed fixture against the browser/CSS oracle
    before claiming appearance acceptance. Then extend early native production to
    the real menu background/orb and prove dynamic text/layers update in the same
    frame. Retain the failing cross-panel control; check viewport/input/ownership
@@ -345,6 +375,6 @@ are verified; Settings now ~60FPS vs24FPS in short Editor captures with identica
 screenshots and live timers/resize. Early native prefix production passes32-frame
 animated-pattern/static-label checks, including a change every frame; full menu
 and browser appearance are NOT accepted, production remains unchanged. Start with
-browser/CSS validation of the grey fixture, then real native background/orb and
+browser/CSS validation of the stencil-backed fixture, then real native background/orb and
 dynamic text/layer fidelity, then dynamic gameplay
 projection. P1/P2 remain PARTIAL. Check actual HEAD, Editor and CI; no APK.

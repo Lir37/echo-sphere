@@ -38,16 +38,23 @@ namespace EchoSphere.Presentation
         public int MaximumChannelError {get;private set;}
         public int DifferentPixels {get;private set;}
         public long TargetBytes=>(long)_targets.Count*Size*Size*4;
+        public string DepthStencilFormat=>_targets.Count==0?"None":_targets[0].depthStencilFormat.ToString();
+        public long DepthStencilTargetBytes {
+            get{long bytes=0;foreach(var target in _targets)if(target.depthStencilFormat!=UnityEngine.Experimental.Rendering.GraphicsFormat.None)bytes+=(long)UnityEngine.Experimental.Rendering.GraphicsFormatUtility.GetBlockSize(target.depthStencilFormat)*Size*Size;return bytes;}
+        }
         public bool ClickVerified {get;private set;}
         private bool _ready;
         private bool _externalPrefix;
         private bool _earlyPrefix;
+        private int _targetDepth;
 
-        public void Initialize(int backgroundOrder=2101,bool externalPrefix=false,bool earlyPrefix=false)
+        public void Initialize(int backgroundOrder=2101,bool externalPrefix=false,bool earlyPrefix=false,int targetDepth=24)
         {
             if(_ready)return;
             _externalPrefix=externalPrefix;
             _earlyPrefix=earlyPrefix;
+            if(targetDepth!=0&&targetDepth!=24)throw new ArgumentOutOfRangeException(nameof(targetDepth));
+            _targetDepth=targetDepth;
             _pattern=new Texture2D(Size,Size,TextureFormat.RGBA32,false,false){name="Native backdrop probe animated pattern",filterMode=FilterMode.Point,wrapMode=TextureWrapMode.Clamp};
             _referenceRead=new Texture2D(Size,Size,TextureFormat.RGBA32,false,false);
             _candidateRead=new Texture2D(Size,Size,TextureFormat.RGBA32,false,false);
@@ -90,7 +97,7 @@ namespace EchoSphere.Presentation
         }
         private RenderTexture Target(string label)
         {
-            var target=new RenderTexture(Size,Size,0,RenderTextureFormat.ARGB32,RenderTextureReadWrite.sRGB){name="Native backdrop probe "+label,filterMode=FilterMode.Point,wrapMode=TextureWrapMode.Clamp};
+            var target=new RenderTexture(Size,Size,_targetDepth,RenderTextureFormat.ARGB32,RenderTextureReadWrite.sRGB){name="Native backdrop probe "+label,filterMode=FilterMode.Point,wrapMode=TextureWrapMode.Clamp};
             target.Create();_targets.Add(target);return target;
         }
         private VisualElement Panel(string label,int order,RenderTexture target)

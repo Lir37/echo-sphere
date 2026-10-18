@@ -1,5 +1,5 @@
 {
-  "entryHead": "9dac7200454494423a6a5007e4c9e926063f4042",
+  "entryHead": "519ad8e9b946ff338fb874c52402cdc99557c0f3",
   "protectedSource": "new-desing@737ef2af4a877e0995db5f92331d536d2f29a934",
   "scope": "Every C# file under Assets/EchoSphere/Scripts, including files without visual/UI/Canvas names. Discovery metadata is not a semantic parity or native-migration acceptance claim.",
   "scannedFiles": 199,
@@ -1201,35 +1201,35 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/NativeBackdropPanelProbe.cs",
-      "sha256": "b70389e8320644c386fbc6ef4505307f465e1a852cbbc0e4b403ac38981d64a6",
-      "lines": 208,
+      "sha256": "1aaf498a20e639779b3ba1cf9efc8069a5069fcfd4112c340a8d743b03f00e49",
+      "lines": 215,
       "discoveryTags": [
         "ui",
         "gpu"
       ],
       "creationLines": [
-        51,
-        52,
-        53,
-        68,
-        93,
-        102,
-        103,
-        134
+        58,
+        59,
+        60,
+        75,
+        100,
+        109,
+        110,
+        141
       ],
       "updateLines": [
-        46,
-        156,
-        161
+        51,
+        163,
+        168
       ],
       "releaseLines": [
-        197,
-        198,
-        199,
-        200,
-        201,
-        202,
-        203
+        204,
+        205,
+        206,
+        207,
+        208,
+        209,
+        210
       ]
     },
     {

@@ -4,7 +4,8 @@ var owner=new UnityEngine.GameObject("Native panel backdrop architecture probe")
 var backgroundOrder=UnityEditor.SessionState.GetInt("EchoNativeBackdropBackgroundOrder",2101);
 var externalPrefix=UnityEditor.SessionState.GetBool("EchoNativeBackdropExternalPrefix",false);
 var earlyPrefix=UnityEditor.SessionState.GetBool("EchoNativeBackdropEarlyPrefix",false);
-var probe=owner.AddComponent<EchoSphere.Presentation.NativeBackdropPanelProbe>();probe.Initialize(backgroundOrder,externalPrefix,earlyPrefix);
+var targetDepth=UnityEditor.SessionState.GetInt("EchoNativeBackdropTargetDepth",24);
+var probe=owner.AddComponent<EchoSphere.Presentation.NativeBackdropPanelProbe>();probe.Initialize(backgroundOrder,externalPrefix,earlyPrefix,targetDepth);
 var phaseFrames=UnityEngine.Mathf.Max(1,UnityEditor.SessionState.GetInt("EchoNativeBackdropPhaseFrames",4));probe.PhaseFrames=phaseFrames;
 int first=UnityEngine.Time.frameCount,last=first;
 var comparisons=new System.Collections.Generic.List<string>();
@@ -23,7 +24,7 @@ tick=()=>{
   var sample=probe.Compare();
   comparisons.Add(sample);
   if(probe.SampleCount<32)return;
-  var result=new{status=probe.MaximumMeanError<=.01&&probe.MaximumChannelError<=1&&probe.ClickVerified?"PASS limited composition fixture":"FAIL pixel parity; production remains unchanged",backgroundOrder,externalPrefix,earlyPrefix,phaseFrames,samples=probe.SampleCount,probe.MaximumMeanError,probe.MaximumChannelError,probe.DifferentPixels,probe.ReferenceCopies,probe.CandidateReplicaCount,probe.TargetBytes,probe.ClickVerified,last=sample,comparisons};
+  var result=new{status=probe.MaximumMeanError<=.01&&probe.MaximumChannelError<=1&&probe.ClickVerified?"PASS limited composition fixture":"FAIL pixel parity; production remains unchanged",backgroundOrder,externalPrefix,earlyPrefix,phaseFrames,targetDepth,probe.DepthStencilFormat,samples=probe.SampleCount,probe.MaximumMeanError,probe.MaximumChannelError,probe.DifferentPixels,probe.ReferenceCopies,probe.CandidateReplicaCount,colorTargetBytes=probe.TargetBytes,probe.DepthStencilTargetBytes,probe.ClickVerified,last=sample,comparisons};
   UnityEditor.SessionState.SetString("EchoNativeBackdropProbe",Newtonsoft.Json.JsonConvert.SerializeObject(result));
   UnityEditor.EditorApplication.update-=tick;UnityEngine.Application.runInBackground=wasBackground;probe.Animate=false;UnityEditor.EditorApplication.isPaused=true;
  }catch(System.Exception e){UnityEditor.SessionState.SetString("EchoNativeBackdropProbe","FAIL "+e);UnityEditor.EditorApplication.update-=tick;UnityEngine.Application.runInBackground=wasBackground;probe.Animate=false;UnityEditor.EditorApplication.isPaused=true;}
