@@ -17,7 +17,9 @@ namespace EchoSphere.Runtime
         private float _lastTime = -1f;
         public void Initialize(EchoSphereRuntime runtime, PlayerCoreController2D core)
         {
-            _runtime=runtime; _core=core; _material=new Material(Shader.Find("Sprites/Default")); _spriteMaterial=new Material(Shader.Find("Sprites/Default"));
+            _runtime=runtime; _core=core;
+            if (runtime != null && runtime.UsesSourcePresentation) { enabled = false; return; }
+            _material=new Material(Shader.Find("Sprites/Default")); _spriteMaterial=new Material(Shader.Find("Sprites/Default"));
             CreateLayer("Source Character Body",10,_material,out _bodyMesh); CreateLayer("Source Shield",8,_material,out _shieldMesh);
             _spriteRenderer=CreateLayer("Authored Spherist",10,_spriteMaterial,out _spriteMesh);
             var label=new GameObject("Shield Charges"); label.transform.SetParent(transform,false); _charges=label.AddComponent<TextMesh>();

@@ -14,6 +14,7 @@ namespace EchoSphere.Runtime
         private Mesh _boundsMesh;
         private Material _boundsMaterial;
         private GameObject _worldBounds;
+        private GameObject _starsRoot;
         private readonly List<SpriteRenderer> _ambient = new List<SpriteRenderer>();
         private Vector2 _viewport;
         public void Initialize(EchoSphereRuntime runtime, Camera camera)
@@ -21,6 +22,7 @@ namespace EchoSphere.Runtime
             _runtime = runtime; _camera = camera;
             var shader = Resources.Load<Shader>("EchoSphere/SourceBackdrop");
             if (shader == null) return;
+            _starsRoot = new GameObject("Source Backdrop Stars");
             _material = new Material(shader); _mesh = new Mesh { name = "Source Backdrop" };
             gameObject.AddComponent<MeshFilter>().sharedMesh = _mesh;
             var renderer = gameObject.AddComponent<MeshRenderer>(); renderer.sharedMaterial = _material; renderer.sortingOrder = -52;
@@ -49,8 +51,8 @@ namespace EchoSphere.Runtime
             LateUpdate();
         }
         private static Vector3 ToWorld(Vector2 point) => new Vector3(point.x * SpherePlacementRules.SourcePixelsToWorld, -point.y * SpherePlacementRules.SourcePixelsToWorld, 2f);
-        private static SpriteRenderer CreateStar(string name, int order)
-        { var renderer = new GameObject(name).AddComponent<SpriteRenderer>(); renderer.sprite = RuntimeSpriteFactory.Disc; renderer.sortingOrder = order; return renderer; }
+        private SpriteRenderer CreateStar(string name, int order)
+        { var renderer = new GameObject(name).AddComponent<SpriteRenderer>(); renderer.transform.SetParent(_starsRoot.transform, false); renderer.sprite = RuntimeSpriteFactory.Disc; renderer.sortingOrder = order; return renderer; }
         private void LateUpdate()
         {
             if (_runtime == null || _camera == null || _material == null) return;
@@ -83,6 +85,6 @@ namespace EchoSphere.Runtime
                 star.color = new Color(120f / 255f, 190f / 255f, 1f, (.28f + .22f * Mathf.Sin(_runtime.CurrentRunTime * 1.4f + i)) * .16f * attenuation);
             }
         }
-        private void OnDestroy() { if (_material != null) Destroy(_material); if (_mesh != null) Destroy(_mesh); if (_boundsMesh!=null) Destroy(_boundsMesh); if (_boundsMaterial!=null) Destroy(_boundsMaterial); if (_worldBounds!=null) Destroy(_worldBounds); }
+        private void OnDestroy() { if (_material != null) Destroy(_material); if (_mesh != null) Destroy(_mesh); if (_boundsMesh!=null) Destroy(_boundsMesh); if (_boundsMaterial!=null) Destroy(_boundsMaterial); if (_worldBounds!=null) Destroy(_worldBounds); if (_starsRoot!=null) Destroy(_starsRoot); }
     }
 }

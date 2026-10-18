@@ -22,9 +22,10 @@ namespace EchoSphere.Runtime
         private Mesh _mesh;
         private MeshRenderer _renderer;
 
-        public void Initialize(SphereAttackAgent agent)
+        public void Initialize(EchoSphereRuntime runtime, SphereAttackAgent agent)
         {
             _agent = agent;
+            if (runtime != null && runtime.UsesSourcePresentation) { enabled = false; return; }
             var layer = new GameObject("Standard Sphere Attack Charge");
             layer.transform.SetParent(transform, false);
             _mesh = new Mesh { name = "Standard Sphere Attack Charge Mesh" };

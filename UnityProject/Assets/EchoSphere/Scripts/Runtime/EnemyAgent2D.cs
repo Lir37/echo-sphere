@@ -399,7 +399,7 @@ namespace EchoSphere.Runtime
             {
                 _bossPresentation = GetComponent<BossPresentationVfx2D>();
                 if (_bossPresentation == null) _bossPresentation = gameObject.AddComponent<BossPresentationVfx2D>();
-                _bossPresentation.Initialize(this, bossType, _baseColor);
+                _bossPresentation.Initialize(_runtime, this, bossType, _baseColor);
             }
         }
 

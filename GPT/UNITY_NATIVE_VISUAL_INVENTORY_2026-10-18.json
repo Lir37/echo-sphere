@@ -1,0 +1,2547 @@
+{
+  "entryHead": "ddfdb9d51cab64a0e444dee0853c33df0ff22131",
+  "protectedSource": "new-desing@737ef2af4a877e0995db5f92331d536d2f29a934",
+  "scope": "Every C# file under Assets/EchoSphere/Scripts, including files without visual/UI/Canvas names. Discovery metadata is not a semantic parity or native-migration acceptance claim.",
+  "scannedFiles": 199,
+  "entries": [
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Core/AlchemistReactionRules.cs",
+      "sha256": "cbebf13c4f838bac60b90bf50e5de1c8933f9db9dde72d487560551247db4d6a",
+      "lines": 56,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Core/ArtifactProtocolRules.cs",
+      "sha256": "a791f211c0b6f33dd8eef20f11c2254a52be961918d76aa3843f816b55137a62",
+      "lines": 145,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Core/ArtifactRewardRules.cs",
+      "sha256": "c8b8bf7550cae1b3e9ec5c1d4a78af49e761cd6dcc3f56f903b57e53ed284f3b",
+      "lines": 198,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Core/ArtifactSetRules.cs",
+      "sha256": "17e5b70594c871a5018591d4249e842c8513c9ec93e82a33a58d914359277129",
+      "lines": 89,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Core/ArtifactSynergyRules.cs",
+      "sha256": "1f2a116e6fc42ba9f98faec4fd924eda26709519b0e935d2fdf2bf4e20081fb9",
+      "lines": 177,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Core/BossCombatRules.cs",
+      "sha256": "55802ca4c48ba2bb43efeca3e84512a669a0f460ea78cd262e0f7404a15d2985",
+      "lines": 102,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Core/CharacterRules.cs",
+      "sha256": "1cc6b048243850df69f5d3be4d336d262efbc04b1f66a7f15ccb5e45c160034b",
+      "lines": 367,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Core/CombatRules.cs",
+      "sha256": "59b54eaf2f3e3e356b696cb6bbab70455ca0035d6ed93d1d07ffb86a7ccb33f5",
+      "lines": 47,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Core/ComboRules.cs",
+      "sha256": "059bea024cb5a963e5f54b704bb8e1ab0a2f1af9633b87bc3f68aa034fb473f8",
+      "lines": 37,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Core/ConductorOverdriveRules.cs",
+      "sha256": "ead4125f565f5d32147f9e944e41191ed2fe03b50226d96b504b7af1e6c2a94e",
+      "lines": 37,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Core/DifficultyRules.cs",
+      "sha256": "d484b1caf97f1fe02609d644bc01616a0e7a4eca0d2201aeb3ca69ded111664a",
+      "lines": 33,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Core/EnemySpawnRules.cs",
+      "sha256": "56ea88ec1b7cb3cc57ea0feca5fd3170e28697a2d24944b9f4d951b350c35a97",
+      "lines": 72,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Core/EngineerRelayRules.cs",
+      "sha256": "e957606a04f1a6de22fb670a81416621fce3063150a3f59af48bb642c24f25ca",
+      "lines": 57,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Core/FormationFollowRules.cs",
+      "sha256": "7aa6be98afbab753c9dcd461b97b8f3a946d65ae9648f28f60a98086208d6748",
+      "lines": 84,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Core/FormationHitRules.cs",
+      "sha256": "8e5614292a65cd0824a2c92d5e4aadc7dbb7f1384334464b3c512a1ed9b3ae45",
+      "lines": 57,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Core/GameCatalog.cs",
+      "sha256": "bf20913f9727a3b49e70a23718be98376c6337fd247d5f4a3e63cab5fc99efaa",
+      "lines": 51,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Core/HunterCombatRules.cs",
+      "sha256": "b81cbffc9d4689f885de340461c03178bc275950fcb25292487bafd8efffbfbf",
+      "lines": 33,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Core/LevelUpAbilityRules.cs",
+      "sha256": "209f213121c5e3ec54b7dbfbee5d944464e872f12e65b2e34166cada1cc802d4",
+      "lines": 506,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Core/LevelUpChoiceRules.cs",
+      "sha256": "6b4adf48a4bb50f34bb22a092d4ad5cfc1f361d209819d438be9b8dda77f0d79",
+      "lines": 29,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Core/PersistentUpgradeRules.cs",
+      "sha256": "5e2438d052337ed40394f7a46dc214565f696a8b51e0c7951b5899f01ba2e109",
+      "lines": 44,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Core/PlayerLoopRules.cs",
+      "sha256": "39f4363a061e47855ba80a610307c0d98975ac2beae1de073b02f572f8f47a4d",
+      "lines": 29,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Core/RegionBossScheduleRules.cs",
+      "sha256": "ad0cfeeb5d84d4b47e98a37ffbaa67b9631d15d3acf62a5d139d695777fb1efa",
+      "lines": 269,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Core/RegionUnlockRules.cs",
+      "sha256": "c8a808740d719a51ae513ae9be33e715241c89264ad93b4b178bcc1939ddb82c",
+      "lines": 17,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Core/ResonanceGeometryMemoryRules.cs",
+      "sha256": "918d56fcd5fbfadbd72a46bd63d2e1e38a61aa1ce12f1a3c29065d63a7458c11",
+      "lines": 46,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Core/ResonanceRules.cs",
+      "sha256": "c9e6b13c0810c394ce056e37b94d554d925607c6d4a6eec591fd1398f2f68852",
+      "lines": 32,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Core/RewardedAdsRules.cs",
+      "sha256": "bb40f0019c67bc307712bebea8fb3003252dda28b5aeb8eeef19ac6d8599200e",
+      "lines": 19,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Core/RunBalanceRules.cs",
+      "sha256": "4417f84eb81d37e9040c55df75f8f24252c44ef8bba11a84ad5ca42681e4826a",
+      "lines": 54,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Core/RunSnapshotCodec.cs",
+      "sha256": "139cf7928e68542cb4f7ecd90efc48242fe843cf3113f0a757d8b7977d4342f1",
+      "lines": 206,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Core/SeededRng.cs",
+      "sha256": "a5ea27076acb5f0319cb01352fcb7382b12f5b390d58ebb65c8ddadfebf7df18",
+      "lines": 32,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Core/SourceEntityList.cs",
+      "sha256": "9d0536ccb51643c9ffe19fd4d3ea91f7251af492b3c82817db92e5b7c5c31d36",
+      "lines": 14,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Core/SourceSphereGlobalModifiers.cs",
+      "sha256": "63535d1afd1d17715a4a94d905618e7cf040f010cf1b9e90e79fb16bf42b5014",
+      "lines": 47,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Core/SourceSphereModifiersRules.cs",
+      "sha256": "cb76720f69c19bc8650d0130bb2d43535301284b1323f071a0244ce2fe8aa764",
+      "lines": 317,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Core/SpaceCollisionRules.cs",
+      "sha256": "6ff755b627dce1035303f9c602d006ee34b3f8915d99eab8ace86c412c875dd6",
+      "lines": 113,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Core/SphereAuthoredModifierRules.cs",
+      "sha256": "fb64fa4f7dc09bb2fc59f2e24390bde5cd207e61656ed3a8bfc9df5b84673ae2",
+      "lines": 180,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Core/SphereCombatRules.cs",
+      "sha256": "af22de1585fdaaf110675c3d63390bdba0a044c42525b51f05d9149e848483b2",
+      "lines": 54,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Core/SphereElementalRules.cs",
+      "sha256": "49e8363094cd723a79f93d9d7859e4d64dab58213ac4bd3c7632a013e0dcbed0",
+      "lines": 208,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Core/SphereEvolutionCatalog.cs",
+      "sha256": "4c5d7438d677cc1c5eaabd0c8c2500e60d89b84ee4d00ac6d8ee18e2c5bc5eef",
+      "lines": 76,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Core/SphereEvolutionCombatRules.cs",
+      "sha256": "e65e562f56e836bcc98c6820e844653ba4c7f2537c203f35c1301282e872562d",
+      "lines": 473,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Core/SphereLevelRules.cs",
+      "sha256": "ee016c164720590638689a7ea955d2c3827dba6550a469f60a2eb7c1b79c1b90",
+      "lines": 107,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Core/SphereNetworkRules.cs",
+      "sha256": "fea5232cc25ba57a03ab8d18966ee3f5479808b11cf38cac68c7d5f985382e7e",
+      "lines": 532,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Core/SpherePlacementRules.cs",
+      "sha256": "d340ae1adb702c5968ad8193e5c24557d67f990683aea793e3fdb1a98ac1fbc3",
+      "lines": 215,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Core/SphereProgressionRules.cs",
+      "sha256": "1feb1ce2cd376d1c57e393381f5e3d427c6ade5ed7361e387c22703159369a29",
+      "lines": 85,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Core/Vec2.cs",
+      "sha256": "5c38afb9cc35bbfd9d65f827996fa4f56cb7327b1058244a5706a301dd61a596",
+      "lines": 35,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Core/VisualBackdrop.cs",
+      "sha256": "c3db008e1301af01aa0abbd41857677cf5b922550c840329861a74f17c33b1e8",
+      "lines": 46,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Core/VisualBindings.cs",
+      "sha256": "0fc28d4e88d8001c7b6a24ca4cf208b93b6acce4ad19340e7ce3242f01b08e69",
+      "lines": 30,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Core/VisualCanvas.cs",
+      "sha256": "7f8bf07ab3f3bc3965a7a1e40f7ad5006e0fcdb322d77de623236232f8fc257a",
+      "lines": 51,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Core/VisualCanvasShadowViewport.cs",
+      "sha256": "9ea6ddfe151bbaf1c352ff957825d2765ce386291f7df1ee9d0786c176e601de",
+      "lines": 20,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Core/VisualCss.cs",
+      "sha256": "0db3c9852c2335c669b06c8467a73f301a6033cac9039ea67f963af245dc339d",
+      "lines": 273,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Core/VisualCssAnimation.cs",
+      "sha256": "23761e07cf4f63a0d2e33cd69524ffd67579c3a463d0ad794d51b858b6ea3b10",
+      "lines": 153,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Core/VisualCssColor.cs",
+      "sha256": "2c92285183fd4797c8430cf524ec8b40a9807f4f01edac1f9b63152c7918e505",
+      "lines": 45,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Core/VisualCssGrid.cs",
+      "sha256": "e3927926c6b081d65894789f7ec7367c8a0f9eef4ba181db1410eb4b5340da30",
+      "lines": 72,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Core/VisualCssPaint.cs",
+      "sha256": "19c35cf1d54414280479915dbf222486f9cc5a32962219e92e3c6b559925bcc5",
+      "lines": 243,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Core/VisualCssPosition.cs",
+      "sha256": "88eda765c70caa30f370ba0c3718b6967cd11d688b675ffe4ed3178130f82e72",
+      "lines": 21,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Core/VisualCssTransform.cs",
+      "sha256": "bf5b0aa9d6c3fd61274a0df319f792ef20f397bec4a0b0669d902f18fbd6a60b",
+      "lines": 57,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Core/VisualDateHost.cs",
+      "sha256": "49feba050565af0277656be791a9a8e3b0982515b072c0632f71218b361aed7d",
+      "lines": 23,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Core/VisualDom.cs",
+      "sha256": "36338c2cba21a77c7338986f0e8c3062056a74ad329518cfbaac707ee3f59337",
+      "lines": 72,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Core/VisualJson.cs",
+      "sha256": "d4cbbf4e47a69acde0b1cfcf150fa7b2120b5d55bfce7a26d52776549e3fcdcb",
+      "lines": 54,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Core/VisualRangeLayout.cs",
+      "sha256": "bc4a00846f50e0619a6a7e2d125dd13de7b0d8613f1aacdfce9674f75f4544ba",
+      "lines": 21,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Core/VisualSourceIcons.cs",
+      "sha256": "2b9bf81ee92c8fb1c876d98d625ca750d7895acede8ea41c11c0bb936af6b4ad",
+      "lines": 29,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Core/VisualSvg.cs",
+      "sha256": "c2ad2a18bd130444ce98bcb24a6c2fe15f955ee3c67ebbbf1659d84e19422bfb",
+      "lines": 78,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Core/VisualTimers.cs",
+      "sha256": "e2406d7cbc184906b2df9ccc79863d7841ea9791006502cb0774931349461904",
+      "lines": 31,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Core/VisualTrace.cs",
+      "sha256": "b8ebe37fe036b07bf48df4f88ba8fe1e5902079fe665e76f7042d99d88dc601b",
+      "lines": 47,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Core/VisualValue.cs",
+      "sha256": "b65b85184533a49e80c3171024c3b2c3b1acb46315b50a337a16fb5a223d71a8",
+      "lines": 204,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/SourceCanvasArtIndex.cs",
+      "sha256": "64ff461a175a2659fdbddaa49d5642f0f421c6df74949dc0e4ceaf7a38e06098",
+      "lines": 40,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/VisualInitialState.cs",
+      "sha256": "cfb6b992877684fd9f4224bedfa55d5e5b43f67f29640ccc25828c9bab451f34",
+      "lines": 3,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_App.cs",
+      "sha256": "a19e5dd20d6fd274663d76b70ee4ff957dfcaea54b2b89d56cf1d39b7ae27ae2",
+      "lines": 564,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_CharacterSelect.cs",
+      "sha256": "509d60eeee0d62323d8a6376450a96b28656844edb19097ccc79a7e7f1a5e4f3",
+      "lines": 90,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_EchoMapScreen.cs",
+      "sha256": "7d7e26e0bf0d7f26cfdd0c980214146ec2df023dff52a00b67d7bef3bd2ac856",
+      "lines": 32,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_KnowledgeBase.cs",
+      "sha256": "644b514f50d4992e67989ca39d78e9de1815a1aa9a418b24ce13734a12a80ee6",
+      "lines": 116,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_MobileControls.cs",
+      "sha256": "95b2d02c7eb93cd565914f9ca7bf043c884ad6577bce86c709ad7d853fe18a99",
+      "lines": 489,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_TutorialOverlay.cs",
+      "sha256": "56d5d6fde86b8fb6dd5c3b8179c60d8b171a333d0e883551adfb5783b34866a8",
+      "lines": 61,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_artifactSystem.cs",
+      "sha256": "2abcd6b199196d1ec94c5cc1f048b26668705cc370f2c6fe53dd144eb48e43a1",
+      "lines": 238,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_auraVisual.cs",
+      "sha256": "3c265f03ffcca9f4f4f4c34d41bd18449ff07136ecf69ad12fcd799dd061a46c",
+      "lines": 69,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_bossBalance.cs",
+      "sha256": "005330b1e8eacbd15c865719a536618d06f8135eb52b5623d3d2b3d43bef8a97",
+      "lines": 14,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_canvasLocale.cs",
+      "sha256": "759198fea6247a5dbbe14b76f8e68d7e1e07ebbd014ab082c1054ab65ab0801b",
+      "lines": 33,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_chainVisual.cs",
+      "sha256": "c82cff79d889b0b409cb47548a466b28b41a8ec94789efca1a80d6bef6cec00a",
+      "lines": 67,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_characterRuntime.cs",
+      "sha256": "1bf4c43c30fe44e0dea8b7a1ca9e860c3ece4a4ebf537266282072fca8aa75fa",
+      "lines": 165,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_characters.cs",
+      "sha256": "8eccb7d0dc56253ffc15007af789d81cbf9679a15e7728bb6f0228002d7b96b7",
+      "lines": 51,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_combatRules.cs",
+      "sha256": "5749e89601b3fbde9990ff4ac378ccb198f6e5d528eaab7630d417912479defc",
+      "lines": 14,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_elementalVisual.cs",
+      "sha256": "afcc7f9a854942459b77a5d0f533961f90410b0437909bce3c4022c5a473cf1d",
+      "lines": 282,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_eliteBalance.cs",
+      "sha256": "e777abcd88ae67e87d1359a594ffcd68e58864a6a2f5709d35bb2a722c5637db",
+      "lines": 15,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_enemyVisual.cs",
+      "sha256": "eb421113aab40cde2be6c7311e7b1a9aca4b14a8e8cb32ccce16dc89c2f502e8",
+      "lines": 646,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_engine.cs",
+      "sha256": "eaa57573bbf688ed7a93d62940885ddec0afaf70d800d39efee854eac30907b3",
+      "lines": 14,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_engineBalanceConstants.cs",
+      "sha256": "cda49355fb515af3d5eec3577ade75d4192bb596544b0c5d2d7af5c13095f0ec",
+      "lines": 18,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_engineCombat.cs",
+      "sha256": "0a9fd3724e2e42bdf9984acf76d7a6c3dd88810ef420f6f6ad5865c1bb1bd53b",
+      "lines": 34,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_engineProgression.cs",
+      "sha256": "ab63081d137a3bdef89f58dcbd6a1bc060e3edeeb0ba42474cb5c5f2586a59b9",
+      "lines": 53,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_engineRuntime.cs",
+      "sha256": "782c0abf6862c0c92a239c79efacaa545ee0c2bafdd8e716eb753f9edf0e904f",
+      "lines": 32,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_engineSpheres.cs",
+      "sha256": "87472529847ebfbc69d94fc496037714792aefde9274362f0343a0a908f8cc91",
+      "lines": 134,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_engineState.cs",
+      "sha256": "13006f59fd580a82ce44512c2dadf5ab2e63ef38de473688f302dd0aed03c18d",
+      "lines": 15,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_engineStats.cs",
+      "sha256": "f8981e462c62c4c08a3b0c78dbe25c2a1c25cfa1cef82f87ecc86ceb50a9563e",
+      "lines": 82,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_formationFollow.cs",
+      "sha256": "301d6c401ec85c5ed17765f3e8eb832763833b235cd3737b4cf770e5dfdfd3b3",
+      "lines": 18,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_gameData.cs",
+      "sha256": "55c64ebf369699a13117981650e2b337b56002f15a9a8368b8eb2743926cd7e6",
+      "lines": 85,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_gravityVisual.cs",
+      "sha256": "90c349d3c78ac208c0c8850da4f5e219124c0d17e18a91e1cdbf032871e2d431",
+      "lines": 69,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_i18n.cs",
+      "sha256": "60a35bfacc5f0691003b896479fbc0059370b71f8ad4a14f7875ebccf5b3fca2",
+      "lines": 14,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_interfaceScale.cs",
+      "sha256": "066c983ba69377eacba3caa121ea68400985e52034f753df0df4493edb5918dc",
+      "lines": 34,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_modifierVisual.cs",
+      "sha256": "6b89d81dae7aae4cef29b760e9cd78611de72cd60cc5d7b6d1a5bf65b9fe7392",
+      "lines": 185,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_mutationVisual.cs",
+      "sha256": "d5939ad15e54dd7c42466269abba4c53c62a20de65529466e6ec4a684ab4ab86",
+      "lines": 940,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_network.cs",
+      "sha256": "ca3111d60b2a86cde58cb8cbf01d5d5b45003305aec20768ed344c0f2404e061",
+      "lines": 386,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_networkPreview.cs",
+      "sha256": "40f5049417e5634f7f4228932d393ff770472a1dc4ab338b5f8ac113002e95de",
+      "lines": 41,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_networkRender.cs",
+      "sha256": "02f13e622f4bb191bdc76aed7a991fc141b6cacbfef5e00026fe9ea0969005f1",
+      "lines": 34,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_networkRuntime.cs",
+      "sha256": "a22eb5d41d063d129c7b48e4e21a13a6dae9b9065c9aa3cb5183dde35a04d4dd",
+      "lines": 25,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_orbitalGeometry.cs",
+      "sha256": "2c853bb0f2eabc068530185b2e32f686b9dc6e5ac0102ad2125825b34f26f4e9",
+      "lines": 38,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_orbitalVisual.cs",
+      "sha256": "fa471840870a266c2724130d1f976232fabd8106b8359b53be2f2b3a8703df9c",
+      "lines": 381,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_persistence.cs",
+      "sha256": "b178ef94f22565d38e65dce201e74ae9142ea8e98aaddf45f4eb6d37bbf24e79",
+      "lines": 18,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_prismVisual.cs",
+      "sha256": "b846064d073a3724d58fce50f52c96018154f5f111ee4276120d824dea10d13e",
+      "lines": 94,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_pulseVisual.cs",
+      "sha256": "78fc3a08240a5ddb1f6710324997425d464a24c3f9417351ed4526311b3daaa4",
+      "lines": 62,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_region.cs",
+      "sha256": "bf284610e3fa3f032773798bdb6055a3fdec77b387166b3e3d8845523004cc35",
+      "lines": 43,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_renderScale.cs",
+      "sha256": "dd2d17a2ff4165a76a3f9b8352594bb16b1ac71c0d2c66b5e784a61dd4f8a0cf",
+      "lines": 35,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_renderer.cs",
+      "sha256": "d8b58623d312f510903df2806f694ce952f4744a75a46983489fc3baa19f5266",
+      "lines": 2836,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_runPersistence.cs",
+      "sha256": "35010a52e741e85b9311908e019af70a196a665d4212ef2dbcf86464846d11fc",
+      "lines": 14,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_runes.cs",
+      "sha256": "9037a549bac29954fc07d72c58775e1e5b8e4ee73d954d4d187ff3b0b89ed462",
+      "lines": 14,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_shotgunVisual.cs",
+      "sha256": "db62fa55a0e593c9cbdd485ded2511334a8f46c3c990403c9976135b6b8f6a0a",
+      "lines": 89,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_sniperVisual.cs",
+      "sha256": "90244fe1b2a751d929e4f44ab448485bf94dd484eac99212468374dc6edd5c15",
+      "lines": 91,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_spaceCollision.cs",
+      "sha256": "5d248ec4294cb044a70367974463747746369cc010765e84e5d7b2ca36dac38c",
+      "lines": 107,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_sphereProgression.cs",
+      "sha256": "ce68d1608e8c53eb99f66fd31be4d49401917314bae3b30192d01b8df720f37e",
+      "lines": 247,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_visualHelpers.cs",
+      "sha256": "bfd477cf5eb198c07b2fab3c6633ead181af92cb62c1093e94cbd06ecce182c1",
+      "lines": 295,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_voidVisual.cs",
+      "sha256": "6dd525ba549e154873d01c614178ea8d7417a6493435cea7195ce2ab31a2a9d1",
+      "lines": 76,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/NativeBackdropPanelProbe.cs",
+      "sha256": "b973b2dd482230d4f8e0b4a37f804bc51f5c44b2806d32c00b2d8ac3175c7f97",
+      "lines": 178,
+      "discoveryTags": [
+        "ui",
+        "gpu"
+      ],
+      "creationLines": [
+        43,
+        44,
+        45,
+        78,
+        87,
+        88,
+        113
+      ],
+      "updateLines": [
+        40,
+        134,
+        139
+      ],
+      "releaseLines": [
+        168,
+        169,
+        170,
+        171,
+        172,
+        173
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceCanvasGeometryCache.cs",
+      "sha256": "1660c0dcf0c3f7283c3a8338e6d3b0841e2974f5f46f08e7d5596bc85fc8cc70",
+      "lines": 82,
+      "discoveryTags": [
+        "geometry"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceCanvasImage.cs",
+      "sha256": "4aabd14e46c2187dab384d13f3b1277d6ad2686fba432837cbec2bd545e82d66",
+      "lines": 32,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceCanvasSurface.cs",
+      "sha256": "99af5b90340adcd5b1375a4f807029170887bb38393e4dcb162eef74c9fb07a5",
+      "lines": 446,
+      "discoveryTags": [
+        "geometry",
+        "gpu",
+        "compatibility"
+      ],
+      "creationLines": [
+        97,
+        100,
+        101,
+        102,
+        104,
+        105,
+        106,
+        123,
+        124,
+        216
+      ],
+      "updateLines": [
+        94
+      ],
+      "releaseLines": [
+        121,
+        122,
+        215,
+        443
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceCanvasTypography.cs",
+      "sha256": "4b9bdf64f90abd01a1af9190028e6e10bd5f76c233831376ae4f494aef374c75",
+      "lines": 61,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceSettingsToolkitScreen.cs",
+      "sha256": "653a043182f9d4a4b863582fd0ac8839199234c6a532c24484eb6ec500c2d740",
+      "lines": 130,
+      "discoveryTags": [
+        "ui"
+      ],
+      "creationLines": [
+        57
+      ],
+      "updateLines": [],
+      "releaseLines": [
+        127
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceUiBackdrop.cs",
+      "sha256": "468d0ce805efdcf902da202c7878a2a6228c5d07d722fb9f71555bbb69eb016b",
+      "lines": 112,
+      "discoveryTags": [
+        "ui",
+        "gpu"
+      ],
+      "creationLines": [
+        40
+      ],
+      "updateLines": [
+        51
+      ],
+      "releaseLines": [
+        106,
+        108
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceUiCursor.cs",
+      "sha256": "3a41dff95f8e0f76be6a4a14aac2d82cdc9412e4c4a2c3fc81e306aa2fc9ffed",
+      "lines": 24,
+      "discoveryTags": [
+        "ui",
+        "gpu"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceUiDepth.cs",
+      "sha256": "efaf83f91db898cdf62f90110796db15f84f75f3918274ac147be21ae8eff6c0",
+      "lines": 117,
+      "discoveryTags": [
+        "geometry",
+        "gpu",
+        "compatibility"
+      ],
+      "creationLines": [
+        23,
+        58,
+        93,
+        100
+      ],
+      "updateLines": [],
+      "releaseLines": [
+        113,
+        114
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceUiDocument.cs",
+      "sha256": "8258b79550225fa01a2d9f33aad0137d56f5532c85370d2a351af8eae306ae9c",
+      "lines": 416,
+      "discoveryTags": [
+        "ui",
+        "gpu",
+        "compatibility"
+      ],
+      "creationLines": [
+        99,
+        102,
+        328,
+        361
+      ],
+      "updateLines": [
+        95,
+        111,
+        273
+      ],
+      "releaseLines": [
+        130,
+        253,
+        328,
+        340,
+        359,
+        412,
+        413
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceUiEnvironment.cs",
+      "sha256": "5094a3d5276d9f2c5067afd656afc60e8656d873cba56e5b4be082e3ba1b8d5a",
+      "lines": 112,
+      "discoveryTags": [
+        "ui",
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": [
+        109
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceUiFilters.cs",
+      "sha256": "b7c55991c325d077fdeb17fd4f8f16b2579aefccb84599a4a4c33c02f8fb68e4",
+      "lines": 62,
+      "discoveryTags": [
+        "ui",
+        "gpu",
+        "compatibility"
+      ],
+      "creationLines": [
+        17
+      ],
+      "updateLines": [],
+      "releaseLines": [
+        59
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceUiFlow.cs",
+      "sha256": "6108ca47148c4adc973ac5fc233393b12f5f574e8f484913b3ec16ae1509eb0f",
+      "lines": 88,
+      "discoveryTags": [
+        "ui",
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceUiFrame.cs",
+      "sha256": "3a1aa2fb1b6cec5dffe2d3339cb74fe919c39f5492b1c46cb2877b48a1a784ff",
+      "lines": 63,
+      "discoveryTags": [
+        "ui"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceUiInline.cs",
+      "sha256": "ae5586d9ef8dbc3281c679c5a8e41fdfbeb2880b5150f7ce142c1dbfda6163ef",
+      "lines": 41,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceUiLayout.cs",
+      "sha256": "3fbc710abc509025515309230ff7dc87b537378ffa0b890c21601e7b0c738ee9",
+      "lines": 226,
+      "discoveryTags": [
+        "ui",
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceUiRange.cs",
+      "sha256": "f4865639e1ba73fa93ce78b79764bb7d50cbca9667c28a99c738d780c95764ed",
+      "lines": 33,
+      "discoveryTags": [
+        "ui",
+        "gpu"
+      ],
+      "creationLines": [],
+      "updateLines": [
+        10
+      ],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceUiReplica.cs",
+      "sha256": "f5d4e6e2cd8504740e9476df12cf227bc10bf61d9798b156ab80b1d02d7ddf13",
+      "lines": 130,
+      "discoveryTags": [
+        "ui"
+      ],
+      "creationLines": [],
+      "updateLines": [
+        21
+      ],
+      "releaseLines": [
+        127
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceUiReplicaSnapshotCache.cs",
+      "sha256": "1c2714c30c0d97f1249eb270a393ab72abb569578128592a1a3f80753d0b5a98",
+      "lines": 247,
+      "discoveryTags": [
+        "ui"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceUiReplicaStyle.cs",
+      "sha256": "051c6f7755e174980749b2e475e1b2e0b40e263f38ff8f0d1ae876550a38eaea",
+      "lines": 287,
+      "discoveryTags": [
+        "ui"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceUiSurfaceFilters.cs",
+      "sha256": "0b1a9a30de490836d01efc221d6b9903db845113dacca15066db752f2e77d642",
+      "lines": 53,
+      "discoveryTags": [
+        "gpu",
+        "compatibility"
+      ],
+      "creationLines": [
+        15,
+        22
+      ],
+      "updateLines": [],
+      "releaseLines": [
+        22,
+        50
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceUiSvg.cs",
+      "sha256": "b15c4d2070ebf9a12b2ae4ef8ccc6755fd01791b528d1b74208474b932e3d535",
+      "lines": 62,
+      "discoveryTags": [
+        "ui",
+        "geometry",
+        "gpu",
+        "compatibility"
+      ],
+      "creationLines": [
+        27
+      ],
+      "updateLines": [],
+      "releaseLines": [
+        33,
+        34
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceUiTypography.cs",
+      "sha256": "bf59098df149b2463b069234a2f7bc9bb03611af712f7ef46301efa54e83b55e",
+      "lines": 102,
+      "discoveryTags": [
+        "ui",
+        "gpu",
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/AbilityDroneAgent2D.cs",
+      "sha256": "4b4c36c4854781e97964141ce270e769e5d2973e7be78be1a66644346656094a",
+      "lines": 148,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [
+        25
+      ],
+      "releaseLines": [
+        43
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/ArtifactChestAgent2D.cs",
+      "sha256": "d6d340a614402b85264eb4b75391501d064293bacc742e0c1e7f0c0e719db823",
+      "lines": 31,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [
+        10
+      ],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/BossCombatAgent2D.cs",
+      "sha256": "93c1ba692f511c281bafd3fe43c97c9fad1093ccc663ba77c60598e502ef65f2",
+      "lines": 234,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [
+        30
+      ],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/BossPresentationVfx2D.cs",
+      "sha256": "1f4ff902c2daba33a6b2ba653b2a341345b4f90bc859b23bd3fc68ec23c48701",
+      "lines": 262,
+      "discoveryTags": [
+        "ui",
+        "geometry",
+        "gpu"
+      ],
+      "creationLines": [
+        42,
+        48,
+        50,
+        52,
+        58,
+        60,
+        84
+      ],
+      "updateLines": [
+        36,
+        104
+      ],
+      "releaseLines": [
+        256,
+        257
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/BossProjectileAgent2D.cs",
+      "sha256": "a3035709aab5316040d64c1d71071c41768f43ea7d62181fd67c5785bf656b0d",
+      "lines": 199,
+      "discoveryTags": [
+        "geometry",
+        "gpu"
+      ],
+      "creationLines": [
+        45,
+        47,
+        48,
+        65
+      ],
+      "updateLines": [
+        30
+      ],
+      "releaseLines": [
+        83,
+        91,
+        193,
+        194
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/CombatArcVfx2D.cs",
+      "sha256": "c5a6198b84253c6c5b01e6f1ead6ce2fe38b94c3647c045f717c3c4b527037b4",
+      "lines": 298,
+      "discoveryTags": [
+        "geometry",
+        "gpu"
+      ],
+      "creationLines": [
+        50,
+        52,
+        54,
+        55,
+        72
+      ],
+      "updateLines": [
+        30,
+        81
+      ],
+      "releaseLines": [
+        87,
+        223
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereHitFeedback.cs",
+      "sha256": "02e2a17a5d3671fe499e243ab6bdf2814114196b81eb62885cc9c86707acae90",
+      "lines": 102,
+      "discoveryTags": [
+        "ui"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereKnowledge.cs",
+      "sha256": "73ae14c1b50fc75f87b3f4f65adafe4877abd61593da50cbcfb5ec046fbcd11c",
+      "lines": 129,
+      "discoveryTags": [
+        "ui"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSpherePausePlanner.cs",
+      "sha256": "fdaea1e5830f08031fbcacae8b8141c8680f92957d19f466246d70e8194bcc61",
+      "lines": 336,
+      "discoveryTags": [
+        "ui"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRunPersistence.cs",
+      "sha256": "69a47fc4705a818a109638b9e030d729c856d700b7a7ac76bc907017667b8654",
+      "lines": 227,
+      "discoveryTags": [
+        "geometry"
+      ],
+      "creationLines": [
+        160,
+        169,
+        181,
+        184,
+        192,
+        195,
+        198,
+        200,
+        202,
+        204,
+        208,
+        216
+      ],
+      "updateLines": [],
+      "releaseLines": [
+        124
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
+      "sha256": "cd5a16fe9c46d7f869b0dcfffc0046c08341426e8eca049c3b0c69194c724c34",
+      "lines": 8980,
+      "discoveryTags": [
+        "ui",
+        "geometry",
+        "gpu"
+      ],
+      "creationLines": [
+        1025,
+        1193,
+        1194,
+        1209,
+        1217,
+        1243,
+        1246,
+        1267,
+        1273,
+        1277,
+        1280,
+        1413
+      ],
+      "updateLines": [
+        1044
+      ],
+      "releaseLines": [
+        3115,
+        3161,
+        7276,
+        7277,
+        7278,
+        7279,
+        7280,
+        7281,
+        7282,
+        8136
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceArtifacts.cs",
+      "sha256": "b3b9a35c380b3c2b40f3ce114733630800ab9f87e8d0a506695c6b84a6853e3c",
+      "lines": 140,
+      "discoveryTags": [
+        "ui"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceChoiceText.cs",
+      "sha256": "c6bdb88fe8f2415fd5684c15c0883e6d76bafc5e2526cc0507525d507c887586",
+      "lines": 87,
+      "discoveryTags": [
+        "ui"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceEnemyProjectiles.cs",
+      "sha256": "38ed3e46e232badb642bc163f64234301bdd55351ecf332ae0d27284ba8198f4",
+      "lines": 28,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": [
+        24
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceFlash.cs",
+      "sha256": "4da47af2b892cddc78f0a15e4d2c56353a6f5717bbc2c14ab27f82e43da51ce6",
+      "lines": 42,
+      "discoveryTags": [
+        "ui"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceHitCadence.cs",
+      "sha256": "cec3d82ae4afc4d7561df71073762ad482e14edd237d14faedf91d1bb328d7eb",
+      "lines": 60,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceHome.cs",
+      "sha256": "6bec45e7e55688ca2154408c1b274adf666a8ae1c3a9d67d7a65570cb55c1bd4",
+      "lines": 219,
+      "discoveryTags": [
+        "ui",
+        "gpu"
+      ],
+      "creationLines": [
+        172
+      ],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceHud.cs",
+      "sha256": "4d58b601ae1470041b1b8c65e50bec8065d9c566bd019b694b70a133008ddae2",
+      "lines": 196,
+      "discoveryTags": [
+        "ui"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceInput.cs",
+      "sha256": "7bdf64885f9a5310f7993bfcee5b2bd780af12dcaf0819d4753451a845397ead",
+      "lines": 115,
+      "discoveryTags": [
+        "ui"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceLoop.cs",
+      "sha256": "c567deb7bc522c7e7d9c669e4b34f2e1226173b36ab399d277bc512cdec1e9a0",
+      "lines": 155,
+      "discoveryTags": [
+        "geometry"
+      ],
+      "creationLines": [
+        109,
+        111,
+        113,
+        124
+      ],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceModifiers.cs",
+      "sha256": "b545b80accf21074a596e6221addd4e0488f6cb42009feb2f091fe33c981276c",
+      "lines": 51,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourcePresentation.cs",
+      "sha256": "a3f6c58ac440b634852ec6b9a7b2503a2abf71440193d6bdb9308123e2d1d29a",
+      "lines": 232,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [
+        182
+      ],
+      "updateLines": [
+        176
+      ],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceRegionFrame.cs",
+      "sha256": "1c3980e3a6650edc385ee35748074e878665e8731653fa93bde15776a57d2271",
+      "lines": 28,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceRegionSelect.cs",
+      "sha256": "ea3610d7b6d6801f4517f202627d9e35218b5f087db98f22a09286ca97e4586f",
+      "lines": 112,
+      "discoveryTags": [
+        "ui"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceResult.cs",
+      "sha256": "f5dd5ae68900898d40fbdad962e0e95a155ccb8421337e9de327ba3bc36264ac",
+      "lines": 45,
+      "discoveryTags": [
+        "ui"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceSettings.cs",
+      "sha256": "55c9b425e8e84522b30faccd283d5a984ea708d997f7681e0edd80894845c8ca",
+      "lines": 51,
+      "discoveryTags": [
+        "ui"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceTutorial.cs",
+      "sha256": "1a279442502db105cdee9adacb31dfc31b9eed1346ef6d5a82fe354dd94b469f",
+      "lines": 45,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceUiBridge.cs",
+      "sha256": "e578572fd59bc119a57c421499753cdf8c6504c214fcbf54aa230c691f2ac725",
+      "lines": 196,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [
+        21,
+        35
+      ],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceVoid.cs",
+      "sha256": "2e24dead0eccea184f1548e771aef6b28360383b1dbbfe426edd298be925c068",
+      "lines": 40,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EnemyAgent2D.cs",
+      "sha256": "537573f754bc481e4892bd34f78393fdb340a29a24bef971919387eefc438cce",
+      "lines": 767,
+      "discoveryTags": [
+        "geometry",
+        "gpu"
+      ],
+      "creationLines": [
+        396,
+        401,
+        693,
+        698,
+        700
+      ],
+      "updateLines": [
+        368
+      ],
+      "releaseLines": [
+        581,
+        616
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EnemyCreatureVisual2D.cs",
+      "sha256": "fb2e62ae227b940011845a5f25c8126b0af92477e621fa4c10ad87df35a901d2",
+      "lines": 606,
+      "discoveryTags": [
+        "geometry",
+        "gpu"
+      ],
+      "creationLines": [
+        62,
+        66,
+        68,
+        69,
+        102
+      ],
+      "updateLines": [
+        49,
+        124
+      ],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EngineerRelayVfx2D.cs",
+      "sha256": "8dca001b34613dd24e09bb4859a0b46ebb610a5cf5c677b806f3b0a7da576ed0",
+      "lines": 111,
+      "discoveryTags": [
+        "geometry",
+        "gpu"
+      ],
+      "creationLines": [
+        45,
+        56,
+        58
+      ],
+      "updateLines": [
+        25,
+        75
+      ],
+      "releaseLines": [
+        82
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/ExperienceOrbAgent.cs",
+      "sha256": "ff2dc1b84f46bf5dba4d9720375137d06fb245486fecd2b64ce40cd5b01b8079",
+      "lines": 51,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [
+        14
+      ],
+      "releaseLines": [
+        28,
+        46
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/HealthPackAgent2D.cs",
+      "sha256": "94606a2d4deead216dbc34f3b0e00b3dec32a5c1e5e5adcdf9a16434799fd53c",
+      "lines": 32,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [
+        10
+      ],
+      "releaseLines": [
+        27
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/HunterParticleVfx2D.cs",
+      "sha256": "cd8aebfa238e8e150e455c897ab79b05ef7de90da29656b5474e09480aefecdc",
+      "lines": 121,
+      "discoveryTags": [
+        "geometry",
+        "gpu"
+      ],
+      "creationLines": [
+        36,
+        38,
+        40,
+        57
+      ],
+      "updateLines": [
+        26,
+        68
+      ],
+      "releaseLines": [
+        75,
+        117
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/ISourceSimulationAgent.cs",
+      "sha256": "77813fdb4613c8b311785cd0eafcf1425243a9a203a70ad85c7d460d5b7bed5b",
+      "lines": 43,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": [
+        23
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/ImpactVfx2D.cs",
+      "sha256": "79d6ac95d71baa104eae7394793b30ca185577dbf1d6a9d523dc2626007a1f7a",
+      "lines": 181,
+      "discoveryTags": [
+        "geometry",
+        "gpu"
+      ],
+      "creationLines": [
+        24,
+        26,
+        28,
+        29,
+        45
+      ],
+      "updateLines": [
+        19,
+        54
+      ],
+      "releaseLines": [
+        59,
+        101
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/PlayerCoreController2D.cs",
+      "sha256": "4404ba98b9a94a49b584dea8e5b35cf375be0ff705554deb39fcbc0a51029d8e",
+      "lines": 120,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/ProjectileAgent.cs",
+      "sha256": "a07657aab6e5d4652289b93a6f288c9a8edf30db52b264a6b79ff971eb601676",
+      "lines": 157,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [
+        36
+      ],
+      "releaseLines": [
+        117,
+        123,
+        127
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/ProjectileVfx2D.cs",
+      "sha256": "a6868c76c3c847bc119a0dbfb17edbfd6b0de211f4e1694303784402cbf6b4e1",
+      "lines": 359,
+      "discoveryTags": [
+        "geometry",
+        "gpu"
+      ],
+      "creationLines": [
+        49,
+        67,
+        78,
+        80,
+        82,
+        83
+      ],
+      "updateLines": [
+        34,
+        90
+      ],
+      "releaseLines": [
+        246,
+        247
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/PulseEffect2D.cs",
+      "sha256": "28a03c7a24f2c0eee11d564cbfe4419ec52b5c57e10cd3d6d8095f0fb1bfe434",
+      "lines": 38,
+      "discoveryTags": [
+        "geometry"
+      ],
+      "creationLines": [],
+      "updateLines": [
+        13,
+        23
+      ],
+      "releaseLines": [
+        34
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/RegionFieldVisuals.cs",
+      "sha256": "bb220adc69b1e9f924561c6c6da2d721eca4ec1940f3a5f97a151b94c510a046",
+      "lines": 474,
+      "discoveryTags": [
+        "ui",
+        "geometry",
+        "gpu"
+      ],
+      "creationLines": [
+        81,
+        86,
+        90,
+        98,
+        100,
+        162,
+        164,
+        179,
+        181,
+        266,
+        269,
+        271
+      ],
+      "updateLines": [
+        72
+      ],
+      "releaseLines": [
+        111,
+        112,
+        312,
+        313,
+        317,
+        318,
+        322,
+        323,
+        458,
+        459,
+        463,
+        464
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/RuneAgent2D.cs",
+      "sha256": "0eb0af1aa6b14afec70fc007c6e8a1d3a782ea0a9d34e7515ac6fd1c62b7a8aa",
+      "lines": 94,
+      "discoveryTags": [
+        "geometry"
+      ],
+      "creationLines": [],
+      "updateLines": [
+        21
+      ],
+      "releaseLines": [
+        38,
+        55
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/RuntimeSpriteFactory.cs",
+      "sha256": "6945f3ce9561723f233c82da1abe482b37f10dccbccec5e977f48c7a0226b54b",
+      "lines": 243,
+      "discoveryTags": [
+        "gpu"
+      ],
+      "creationLines": [
+        46,
+        77,
+        112,
+        161,
+        169,
+        194,
+        214
+      ],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SourceAudio2D.cs",
+      "sha256": "2558c58e51f42d615bcecfd7f63e243ec73abd23fead8ca0c2049b59ac84747c",
+      "lines": 170,
+      "discoveryTags": [],
+      "creationLines": [
+        65,
+        67,
+        83
+      ],
+      "updateLines": [
+        79
+      ],
+      "releaseLines": [
+        74
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SourceBackdrop2D.cs",
+      "sha256": "b6d2057ed3aec48042cd831478630daaec691f85e9e037a781de961f36b1c801",
+      "lines": 91,
+      "discoveryTags": [
+        "geometry",
+        "gpu"
+      ],
+      "creationLines": [
+        25,
+        26,
+        27,
+        28,
+        48,
+        49,
+        50,
+        55
+      ],
+      "updateLines": [
+        20,
+        56
+      ],
+      "releaseLines": [
+        88
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SourceCanvasMesh.cs",
+      "sha256": "ce05f48d5d096f395722655a434f24c99c0ca0507acea51abe339d73ee4eaa3e",
+      "lines": 60,
+      "discoveryTags": [
+        "geometry"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SourceElementalVisual2D.cs",
+      "sha256": "ec441d2421c1f0be51a58d4e89edd3fc864d455219f3b8523a1bd7e49ca9add0",
+      "lines": 115,
+      "discoveryTags": [
+        "geometry",
+        "gpu"
+      ],
+      "creationLines": [
+        21,
+        22,
+        23
+      ],
+      "updateLines": [
+        17,
+        28
+      ],
+      "releaseLines": [
+        112
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SourceParticle2D.cs",
+      "sha256": "2ae2f21cdc4d83a6418c1b89dbc9d361442ff7f4efc303ba9ec7740943ff15e0",
+      "lines": 28,
+      "discoveryTags": [
+        "geometry"
+      ],
+      "creationLines": [],
+      "updateLines": [
+        16
+      ],
+      "releaseLines": [
+        23
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SourcePlayerVisual2D.cs",
+      "sha256": "0d66d77e86e5b2b4bb1a23fbeff8a13203c0ec535b310a4219ed73de1bc6be21",
+      "lines": 142,
+      "discoveryTags": [
+        "ui",
+        "geometry",
+        "gpu"
+      ],
+      "creationLines": [
+        22,
+        25,
+        34,
+        35
+      ],
+      "updateLines": [
+        18,
+        39
+      ],
+      "releaseLines": [
+        132
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SourceRegionVisual2D.cs",
+      "sha256": "ff8069ec9abca48394c538d629519f795b7dbb64dd1afb811fc7d53a64cd6ee5",
+      "lines": 53,
+      "discoveryTags": [
+        "geometry",
+        "gpu"
+      ],
+      "creationLines": [
+        15,
+        16,
+        17,
+        18
+      ],
+      "updateLines": [
+        13,
+        21
+      ],
+      "releaseLines": [
+        46
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereAttackAgent.cs",
+      "sha256": "798c12164264d6a7699f49c1cb1f87581427ff9428b7cec71ed6b5c280f0d946",
+      "lines": 851,
+      "discoveryTags": [
+        "geometry"
+      ],
+      "creationLines": [
+        391,
+        394,
+        401,
+        404
+      ],
+      "updateLines": [
+        85,
+        145
+      ],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereElementalVfx2D.cs",
+      "sha256": "fc742f13d1f24f8a8a7b93e00911e615ca61ca29c40bcebfe9e5055a9ade4aa0",
+      "lines": 12,
+      "discoveryTags": [],
+      "creationLines": [
+        9
+      ],
+      "updateLines": [
+        8
+      ],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SpherePulseVfx2D.cs",
+      "sha256": "b821ae06681f46863330e0fe99550e0e39b0cb63c7d4f77dd364fec35bb6baf7",
+      "lines": 107,
+      "discoveryTags": [
+        "geometry",
+        "gpu"
+      ],
+      "creationLines": [
+        32,
+        34,
+        35,
+        51
+      ],
+      "updateLines": [
+        23,
+        60
+      ],
+      "releaseLines": [
+        65,
+        103
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereRuntimeVfx2D.cs",
+      "sha256": "2b45464bb7576fbef272b7cf42bf6ac666c463e617f63406072f04ea80392362",
+      "lines": 849,
+      "discoveryTags": [
+        "geometry",
+        "gpu"
+      ],
+      "creationLines": [
+        100,
+        111,
+        113,
+        115,
+        116
+      ],
+      "updateLines": [
+        31,
+        123
+      ],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereSourceAreaRules.cs",
+      "sha256": "d820bf7f27c98ca3de85897a23ab71e7aaa2535029845eec15a24c3fd91ee5a5",
+      "lines": 99,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/SphereSourceHitRules.cs",
+      "sha256": "fac180434a5015fba777062f1d558b3d4ca0b2907e6934f39b36f0b6ea2e1d26",
+      "lines": 164,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/StandardSphereAttackVfx2D.cs",
+      "sha256": "ea4fdd8b8552d15fb093a148927f9ec04c749c6b60150706fccba8eeec9e42d6",
+      "lines": 201,
+      "discoveryTags": [
+        "geometry",
+        "gpu"
+      ],
+      "creationLines": [
+        29,
+        31,
+        33,
+        34,
+        51
+      ],
+      "updateLines": [
+        25,
+        60
+      ],
+      "releaseLines": [
+        197
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/StellaChestAgent2D.cs",
+      "sha256": "c5c63bae6d94ce9f7487f68292c8c5dedb46ba0c307d810b45098c570dc2cc81",
+      "lines": 183,
+      "discoveryTags": [
+        "ui",
+        "geometry",
+        "gpu"
+      ],
+      "creationLines": [
+        29,
+        31,
+        32,
+        38,
+        41,
+        65
+      ],
+      "updateLines": [
+        24
+      ],
+      "releaseLines": [
+        179
+      ]
+    }
+  ]
+}

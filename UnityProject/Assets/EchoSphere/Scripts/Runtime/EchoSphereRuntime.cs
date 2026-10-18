@@ -1213,6 +1213,7 @@ namespace EchoSphere.Runtime
 
         private void CreateStarfield()
         {
+            if (UsesSourcePresentation) return;
             var field = new GameObject("Source Backdrop").AddComponent<SourceBackdrop2D>();
             field.Initialize(this, _camera);
         }
@@ -1269,7 +1270,7 @@ namespace EchoSphere.Runtime
             {
                 // Source renderer.ts:drawStandardAttackVfx is a transient charge muzzle,
                 // separate from the Standard core/ring assembly and combat simulation.
-                go.AddComponent<StandardSphereAttackVfx2D>().Initialize(agent);
+                go.AddComponent<StandardSphereAttackVfx2D>().Initialize(this, agent);
             }
             if (type != SphereId.Standard)
             {
@@ -7100,6 +7101,7 @@ namespace EchoSphere.Runtime
 
         private void UpdateNetworkLinkVisuals()
         {
+            if (UsesSourcePresentation) return;
             if (_networkState == null) return;
             if (_networkLineMaterial == null)
             {

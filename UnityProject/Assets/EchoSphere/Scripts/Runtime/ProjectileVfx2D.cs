@@ -35,6 +35,7 @@ namespace EchoSphere.Runtime
         {
             _runtime = runtime;
             _owner = owner;
+            if (runtime != null && runtime.UsesSourcePresentation) { enabled = false; return; }
             _direction = direction.sqrMagnitude > 0.0001f ? direction.normalized : Vector2.right;
             _speed = Mathf.Max(0f, speed);
             _color = color;

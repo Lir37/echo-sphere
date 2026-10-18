@@ -17,6 +17,7 @@ namespace EchoSphere.Runtime
         public void Initialize(EchoSphereRuntime runtime, SphereAttackAgent agent)
         {
             _runtime=runtime; _agent=agent;
+            if (runtime != null && runtime.UsesSourcePresentation) { enabled = false; return; }
             var layer=new GameObject("Source Elemental Layer"); layer.transform.SetParent(transform,false); _layer=layer.transform;
             _mesh=new Mesh { name="Source Elemental Trace" }; _mesh.MarkDynamic(); layer.AddComponent<MeshFilter>().sharedMesh=_mesh;
             _material=new Material(Shader.Find("Sprites/Default")); _renderer=layer.AddComponent<MeshRenderer>(); _renderer.sharedMaterial=_material; _renderer.sortingOrder=11;

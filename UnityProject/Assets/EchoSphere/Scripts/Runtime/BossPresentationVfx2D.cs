@@ -33,11 +33,12 @@ namespace EchoSphere.Runtime
         private float _auraRadius;
         private float _time;
 
-        public void Initialize(EnemyAgent2D agent, string bossType, Color color)
+        public void Initialize(EchoSphereRuntime runtime, EnemyAgent2D agent, string bossType, Color color)
         {
             _agent = agent;
             _bossType = bossType ?? "";
             _color = color;
+            if (runtime != null && runtime.UsesSourcePresentation) { enabled = false; return; }
             _overlayRoot = new GameObject("Boss HUD And Telegraph").transform;
             _overlayRoot.SetParent(transform, false);
             _overlayRoot.localPosition = Vector3.zero;
