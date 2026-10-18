@@ -164,6 +164,11 @@ records both in results. Defaults were restored after experiments. The external
 input shader resides under Assets/Editor, uses the existing Gaussian support,
 mirror mapping and color conversion, and is never selected by production UI.
 It is a diagnostic alternative, not an accepted fallback or a second game renderer.
+CI749 rejected the initial diagnostic shader loader's UnityEditor.AssetDatabase
+reference in Presentation (despite the probe's Editor-only compilation). The
+existing runtime-boundary check was kept intact; loading now uses Shader.Find,
+with explicit availability checking. Native Editor lookup/support and local
+visual provenance checks pass. Recheck CI on the corrective commit separately.
 
 Next architecture experiment must establish same-frame production of the shared
 prefix before native filtering, with explicit frame/phase evidence. Do not repeat

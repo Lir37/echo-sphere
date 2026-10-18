@@ -1201,8 +1201,8 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/NativeBackdropPanelProbe.cs",
-      "sha256": "c623d82dc22a4582281cdc0f8d95dff3efa1b7e7436871dd20a62ae95b0d4aab",
-      "lines": 185,
+      "sha256": "8b21bee0da21fdaba5483d1df6139c2396ea539fa61dcb38f93cf10f5a2076dd",
+      "lines": 186,
       "discoveryTags": [
         "ui",
         "gpu"
@@ -1214,20 +1214,20 @@
         83,
         92,
         93,
-        119
+        120
       ],
       "updateLines": [
         42,
-        141,
-        146
+        142,
+        147
       ],
       "releaseLines": [
-        175,
         176,
         177,
         178,
         179,
-        180
+        180,
+        181
       ]
     },
     {

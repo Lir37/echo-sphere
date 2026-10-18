@@ -115,7 +115,8 @@ namespace EchoSphere.Presentation
         {element.style.borderTopLeftRadius=element.style.borderTopRightRadius=element.style.borderBottomLeftRadius=element.style.borderBottomRightRadius=radius;}
         private void NativeBlur(VisualElement image)
         {
-            var shader=_externalPrefix?UnityEditor.AssetDatabase.LoadAssetAtPath<Shader>("Assets/Editor/EchoSphereNativeBackdropExternalProbe.shader"):Resources.Load<Shader>("EchoSphere/SourceUiBackdrop");
+            var shader=_externalPrefix?Shader.Find("Hidden/EchoSphere/NativeBackdropExternalProbe"):Resources.Load<Shader>("EchoSphere/SourceUiBackdrop");
+            if(shader==null)throw new InvalidOperationException("Native backdrop diagnostic shader is unavailable");
             _material=new Material(shader);
             _definition=ScriptableObject.CreateInstance<FilterFunctionDefinition>();_definition.name=_definition.filterName="native-panel-prefix-probe";
             _definition.parameters=new[]{new FilterParameterDeclaration {name="sigma",interpolationDefaultValue=new FilterParameter(8f)}};
