@@ -67,6 +67,12 @@ Core1193/47339 PASS; full local VisualChecks PASS; project/provenance PASS; Unit
 recompile SUCCESS without compiler errors/warnings. CI must be checked for the
 actual resulting implementation commit separately.
 
+CI#756 on48e6081 passed Unity/TypeScript compilation, core/visual/provenance
+checks, but its Node test expected the previous single-line BuildTree body.
+Updated that existing instrumentation test to accept child scopes while retaining
+operation order and checking all seven marker definitions/usages. No runtime fix
+or acceptance relaxation is implied; rerun all272 Node cases and the new CI.
+
 ## Next
 
 Use the new child markers and original SourceGameView/Hud/MobileControls/pause
