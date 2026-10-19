@@ -49,8 +49,15 @@ namespace EchoSphere.Presentation
         private sealed class Contour
         {
             public readonly List<BezierPathSegment> Segments=new List<BezierPathSegment>();
+            public readonly List<BezierPathSegment> LocalSegments=new List<BezierPathSegment>();
+            public Matrix4x4 ConstructionMatrix;
+            public bool HasLocalSegments=true;
             public bool Closed;
         }
+        // Preserve authored coordinates for Unity's exact geometry cache. A world/inverse
+        // roundtrip adds transform-dependent float noise to otherwise identical shapes.
+        // Mixed-transform paths still use the original Canvas world-space semantics.
+        private bool _retainLocalContours=true;
         private readonly SourceCanvasGeometryCache _geometryCache=new SourceCanvasGeometryCache();
         private State _state=new State();
         private readonly Stack<State> _stack=new Stack<State>();
@@ -277,25 +284,30 @@ namespace EchoSphere.Presentation
         }
         private Vector2 Point(Vector2 p)=>_state.Matrix.MultiplyPoint3x4(p);
         private void Move(Vector2 point)
-        { _contour=new Contour();_path.Add(_contour);var p=Point(point);_contour.Segments.Add(new BezierPathSegment {P0=p,P1=p,P2=p}); }
+        { _contour=new Contour {ConstructionMatrix=_state.Matrix};_path.Add(_contour);var p=Point(point);_contour.Segments.Add(new BezierPathSegment {P0=p,P1=p,P2=p});_contour.LocalSegments.Add(new BezierPathSegment {P0=point,P1=point,P2=point}); }
         private void Line(Vector2 point)
         {
             if(_contour==null){Move(point);return;}
             var p=Point(point);var index=_contour.Segments.Count-1;var previous=_contour.Segments[index];
             previous.P1=Vector2.Lerp(previous.P0,p,1f/3f);previous.P2=Vector2.Lerp(previous.P0,p,2f/3f);_contour.Segments[index]=previous;
             _contour.Segments.Add(new BezierPathSegment {P0=p,P1=p,P2=p});
+            if(_contour.HasLocalSegments&&!_contour.ConstructionMatrix.Equals(_state.Matrix))_contour.HasLocalSegments=false;
+            if(_contour.HasLocalSegments){var local=_contour.LocalSegments[index];local.P1=Vector2.Lerp(local.P0,point,1f/3f);local.P2=Vector2.Lerp(local.P0,point,2f/3f);_contour.LocalSegments[index]=local;_contour.LocalSegments.Add(new BezierPathSegment {P0=point,P1=point,P2=point});}
         }
         private void Cubic(Vector2 first,Vector2 second,Vector2 end)
         {
             if(_contour==null)Move(first);var index=_contour.Segments.Count-1;var previous=_contour.Segments[index];previous.P1=Point(first);previous.P2=Point(second);_contour.Segments[index]=previous;
             var p=Point(end);_contour.Segments.Add(new BezierPathSegment {P0=p,P1=p,P2=p});
+            if(_contour.HasLocalSegments&&!_contour.ConstructionMatrix.Equals(_state.Matrix))_contour.HasLocalSegments=false;
+            if(_contour.HasLocalSegments){var local=_contour.LocalSegments[index];local.P1=first;local.P2=second;_contour.LocalSegments[index]=local;_contour.LocalSegments.Add(new BezierPathSegment {P0=end,P1=end,P2=end});}
         }
         private void Close()
         {
             if(_contour==null||_contour.Segments.Count<2)return;
             var lastIndex=_contour.Segments.Count-1;var first=_contour.Segments[0].P0;var last=_contour.Segments[lastIndex];
-            if((last.P0-first).sqrMagnitude<.00000001f)_contour.Segments.RemoveAt(lastIndex);
-            else {last.P1=Vector2.Lerp(last.P0,first,1f/3f);last.P2=Vector2.Lerp(last.P0,first,2f/3f);_contour.Segments[lastIndex]=last;}
+            if((last.P0-first).sqrMagnitude<.00000001f){_contour.Segments.RemoveAt(lastIndex);if(_contour.HasLocalSegments)_contour.LocalSegments.RemoveAt(lastIndex);}
+            else {last.P1=Vector2.Lerp(last.P0,first,1f/3f);last.P2=Vector2.Lerp(last.P0,first,2f/3f);_contour.Segments[lastIndex]=last;
+                if(_contour.HasLocalSegments){var local=_contour.LocalSegments[lastIndex];var localFirst=_contour.LocalSegments[0].P0;local.P1=Vector2.Lerp(local.P0,localFirst,1f/3f);local.P2=Vector2.Lerp(local.P0,localFirst,2f/3f);_contour.LocalSegments[lastIndex]=local;}}
             _contour.Closed=true;
         }
         private void Rectangle(float x,float y,float width,float height)
@@ -395,7 +407,8 @@ namespace EchoSphere.Presentation
             foreach(var path in _path)
             {
                 if(path.Segments.Count<2)continue;var segments=new BezierPathSegment[path.Segments.Count];
-                for(var i=0;i<segments.Length;i++){var segment=path.Segments[i];segment.P0=inverse.MultiplyPoint3x4(segment.P0);segment.P1=inverse.MultiplyPoint3x4(segment.P1);segment.P2=inverse.MultiplyPoint3x4(segment.P2);segments[i]=segment;}
+                if(_retainLocalContours&&path.HasLocalSegments&&path.ConstructionMatrix.Equals(_state.Matrix))path.LocalSegments.CopyTo(segments);
+                else for(var i=0;i<segments.Length;i++){var segment=path.Segments[i];segment.P0=inverse.MultiplyPoint3x4(segment.P0);segment.P1=inverse.MultiplyPoint3x4(segment.P1);segment.P2=inverse.MultiplyPoint3x4(segment.P2);segments[i]=segment;}
                 contours.Add(new BezierContour {Segments=segments,Closed=path.Closed});
             }
             if(contours.Count==0)return;

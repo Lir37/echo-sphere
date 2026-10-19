@@ -1,0 +1,251 @@
+{
+  "micro": {
+    "checks": 10,
+    "rows": [
+      {
+        "enabled": false,
+        "hits": 0,
+        "misses": 80,
+        "ms": 26.359
+      },
+      {
+        "enabled": true,
+        "hits": 79,
+        "misses": 1,
+        "ms": 1.7015
+      }
+    ],
+    "scope": "Real Unity tessellation microbenchmark; not gameplay FPS"
+  },
+  "frozen": {
+    "rows": [
+      {
+        "enabled": false,
+        "ms": 10.434800000000001,
+        "hits": 448,
+        "misses": 448,
+        "entries": 448
+      },
+      {
+        "enabled": true,
+        "ms": 12.952300000000001,
+        "hits": 464,
+        "misses": 432,
+        "entries": 432
+      }
+    ],
+    "meanByteError": 3.660750893223218E-07,
+    "maxByteError": 1,
+    "differentPixels": 1,
+    "scope": "Frozen actual saved-run Canvas, not active gameplay FPS"
+  },
+  "profiler": {
+    "status": "PASS paired Editor saved-run Canvas CPU timeline/GC capture",
+    "summaries": [
+      {
+        "name": "source",
+        "count": 15,
+        "frameMs": 389.6942118326823,
+        "fps": 2.56611458327063,
+        "gcBytes": 60195559.866666667,
+        "width": 1260,
+        "height": 542,
+        "markers": {
+          "UIR.Free": 0.00054666666934887571,
+          "EchoSphere.Canvas.Tessellate": 0.91070666433467218,
+          "EchoSphere.Canvas.EndFrame": 1.6638200044631959,
+          "EchoSphere.Canvas.PrepareText": 0.017186666528383892,
+          "EchoSphere.Canvas.MeshUpload": 0.798146665096283,
+          "EchoSphere.Canvas.GradientUpload": 0.0967266653974851,
+          "EchoSphere.Canvas.DrawBatches": 0.73183333476384482,
+          "EchoSphere.Canvas.ShadowCommands": 0.0062200000121568639,
+          "EchoSphere.Canvas.ExecuteCommands": 0.31125333110491432,
+          "EchoSphere.Canvas.Present": 0.011579999886453151,
+          "EchoSphere.UI.BuildTree": 210.97378540039063,
+          "EchoSphere.UI.Reconcile": 47.648372904459634,
+          "EchoSphere.UI.Layout": 20.504879760742188,
+          "EchoSphere.UI.FlowOrder": 0.50173333684603372,
+          "EchoSphere.UI.PrepareBrushesAndSvg": 16.221166610717773,
+          "EchoSphere.UI.PrepareDepth": 0.17879333545764287,
+          "EchoSphere.UI.PrepareBackdrops": 22.878813425699871,
+          "UIR.ShaderInfoStorage.GetTextureData": 0.0058400000135103861,
+          "UIR.AdvanceFrame": 0.80746665519351757,
+          "UIR.GenerateEntries": 9.0626066346478176,
+          "UIR.MeshGenerationContext.Allocate": 0.68154666180877632,
+          "UIR.ConvertEntriesToCommands": 5.4224466497020334,
+          "UIR.Allocate": 1.226693318564988,
+          "UIR.Job.ConvertMesh": 0.12489333168584077,
+          "UIR.Job.CopyMesh": 0.0056799999161739837,
+          "UIR.TextureBlitter.Commit": 0.066259999821583426,
+          "UIR.ShaderInfoStorage.UpdateTexture": 0.015299999962250392,
+          "UIR.BeforeDraw": 0.011513333263186118,
+          "UIR.DrawChain": 1.4492333269057174,
+          "UIR.DrawRanges": 0.10873333016497781
+        },
+        "native": false
+      },
+      {
+        "name": "native",
+        "count": 15,
+        "frameMs": 384.42331746419273,
+        "fps": 2.6012990226409602,
+        "gcBytes": 60184961.333333336,
+        "width": 1260,
+        "height": 542,
+        "markers": {
+          "UIR.Free": 0.0004133333267721658,
+          "EchoSphere.Canvas.Tessellate": 0.87466666506370527,
+          "EchoSphere.Canvas.EndFrame": 1.6086666663487752,
+          "EchoSphere.Canvas.PrepareText": 0.015493333277602991,
+          "EchoSphere.Canvas.MeshUpload": 0.81131333510080972,
+          "EchoSphere.Canvas.GradientUpload": 0.087126666307449335,
+          "EchoSphere.Canvas.DrawBatches": 0.676366662979126,
+          "EchoSphere.Canvas.ShadowCommands": 0.0058266666562606893,
+          "EchoSphere.Canvas.ExecuteCommands": 0.28738666375478111,
+          "EchoSphere.Canvas.Present": 0.011026666748027008,
+          "EchoSphere.UI.BuildTree": 208.55172017415364,
+          "EchoSphere.UI.Reconcile": 49.821773783365884,
+          "EchoSphere.UI.Layout": 19.887499872843424,
+          "EchoSphere.UI.FlowOrder": 0.52991333206494651,
+          "EchoSphere.UI.PrepareBrushesAndSvg": 15.999233118693034,
+          "EchoSphere.UI.PrepareDepth": 0.1823533316453298,
+          "EchoSphere.UI.PrepareBackdrops": 23.909286626180013,
+          "UIR.ShaderInfoStorage.GetTextureData": 0.0050133332920571172,
+          "UIR.AdvanceFrame": 1.0380266553411881,
+          "UIR.GenerateEntries": 8.9826266415553011,
+          "UIR.MeshGenerationContext.Allocate": 0.67051332859652268,
+          "UIR.ConvertEntriesToCommands": 5.122239988200211,
+          "UIR.Allocate": 1.1033466526200451,
+          "UIR.Job.ConvertMesh": 0.11461333133726535,
+          "UIR.Job.CopyMesh": 0.0063999999634688724,
+          "UIR.TextureBlitter.Commit": 0.062133333583672838,
+          "UIR.ShaderInfoStorage.UpdateTexture": 0.014679999897877376,
+          "UIR.BeforeDraw": 0.010759999952279031,
+          "UIR.DrawChain": 1.3303533320936063,
+          "UIR.DrawRanges": 0.071373331218395231
+        },
+        "native": true
+      }
+    ]
+  },
+  "scope": "Unity Editor saved run with simulation paused; not active gameplay or Android FPS",
+  "profileWithChildMarkers": {
+    "status": "PASS paired Editor paused-simulation Canvas CPU timeline/GC capture",
+    "summaries": [
+      {
+        "name": "world roundtrip",
+        "count": 15,
+        "frameMs": 379.60706380208336,
+        "fps": 2.6343029288869411,
+        "gcBytes": 60185372.666666664,
+        "width": 1260,
+        "height": 542,
+        "markers": {
+          "UIR.Free": 0.0003199999899758647,
+          "EchoSphere.Canvas.Tessellate": 0.89316666484034313,
+          "EchoSphere.Canvas.EndFrame": 1.4036266644795736,
+          "EchoSphere.Canvas.PrepareText": 0.013873333297669887,
+          "EchoSphere.Canvas.MeshUpload": 0.61088666915893552,
+          "EchoSphere.Canvas.GradientUpload": 0.085566666722297666,
+          "EchoSphere.Canvas.DrawBatches": 0.67389333645502725,
+          "EchoSphere.Canvas.ShadowCommands": 0.0060733332686747112,
+          "EchoSphere.Canvas.ExecuteCommands": 0.28312666614850363,
+          "EchoSphere.Canvas.Present": 0.01163333331545194,
+          "EchoSphere.UI.BuildTree": 203.27553507486979,
+          "EchoSphere.UI.ProjectTree": 9.7262332598368335,
+          "EchoSphere.UI.BuildCssNodes": 0.58709333141644793,
+          "EchoSphere.UI.CopyInteraction": 0.15400666693846385,
+          "EchoSphere.UI.ResolveCss": 192.80662943522137,
+          "EchoSphere.UI.Reconcile": 42.837000528971352,
+          "EchoSphere.UI.Layout": 21.333833058675129,
+          "EchoSphere.UI.FlowOrder": 0.51373999516169233,
+          "EchoSphere.UI.PrepareBrushesAndSvg": 17.077000172932944,
+          "EchoSphere.UI.PrepareDepth": 0.18461333364248275,
+          "EchoSphere.UI.PrepareBackdrops": 23.033059946695964,
+          "UIR.ShaderInfoStorage.GetTextureData": 0.0050600000346700353,
+          "UIR.AdvanceFrame": 0.832493334201475,
+          "UIR.GenerateEntries": 9.46242663290274,
+          "UIR.MeshGenerationContext.Allocate": 0.74075332900004776,
+          "UIR.ConvertEntriesToCommands": 5.1189999890824156,
+          "UIR.Allocate": 1.1186599863208053,
+          "UIR.Job.ConvertMesh": 0.11954666503394644,
+          "UIR.Job.CopyMesh": 0.0059933332134581479,
+          "UIR.TextureBlitter.Commit": 0.062526667614777889,
+          "UIR.ShaderInfoStorage.UpdateTexture": 0.01564666653672854,
+          "UIR.BeforeDraw": 0.0096533333261807752,
+          "UIR.DrawChain": 1.4107666566967965,
+          "UIR.DrawRanges": 0.071686664718436072
+        },
+        "retainedLocalContours": false
+      },
+      {
+        "name": "retained local",
+        "count": 15,
+        "frameMs": 376.8154276529948,
+        "fps": 2.6538191555174038,
+        "gcBytes": 60185745.2,
+        "width": 1260,
+        "height": 542,
+        "markers": {
+          "UIR.Free": 0.0003599999889653797,
+          "EchoSphere.Canvas.Tessellate": 0.879879998920175,
+          "EchoSphere.Canvas.EndFrame": 1.4194199879964193,
+          "EchoSphere.Canvas.PrepareText": 0.014786666569610437,
+          "EchoSphere.Canvas.MeshUpload": 0.6413466691970825,
+          "EchoSphere.Canvas.GradientUpload": 0.0887933333714803,
+          "EchoSphere.Canvas.DrawBatches": 0.65641999642054238,
+          "EchoSphere.Canvas.ShadowCommands": 0.0059066665824502708,
+          "EchoSphere.Canvas.ExecuteCommands": 0.27925999760627745,
+          "EchoSphere.Canvas.Present": 0.010446666677792867,
+          "EchoSphere.UI.BuildTree": 199.81374613444009,
+          "EchoSphere.UI.ProjectTree": 10.158699989318848,
+          "EchoSphere.UI.BuildCssNodes": 0.62692667047182715,
+          "EchoSphere.UI.CopyInteraction": 0.14768666823705037,
+          "EchoSphere.UI.ResolveCss": 188.87900085449218,
+          "EchoSphere.UI.Reconcile": 51.993087514241537,
+          "EchoSphere.UI.Layout": 19.539773432413735,
+          "EchoSphere.UI.FlowOrder": 0.52908667524655661,
+          "EchoSphere.UI.PrepareBrushesAndSvg": 15.856499862670898,
+          "EchoSphere.UI.PrepareDepth": 0.19115999986728033,
+          "EchoSphere.UI.PrepareBackdrops": 23.163906606038413,
+          "UIR.ShaderInfoStorage.GetTextureData": 0.00449999999254942,
+          "UIR.AdvanceFrame": 0.8961399926959227,
+          "UIR.GenerateEntries": 8.800553301085408,
+          "UIR.MeshGenerationContext.Allocate": 0.76681999683787583,
+          "UIR.ConvertEntriesToCommands": 4.9661066556038955,
+          "UIR.Allocate": 1.1209999854647321,
+          "UIR.Job.ConvertMesh": 0.11539999818051001,
+          "UIR.Job.CopyMesh": 0.0046733332545651745,
+          "UIR.TextureBlitter.Commit": 0.0617466668287913,
+          "UIR.ShaderInfoStorage.UpdateTexture": 0.014686666677395504,
+          "UIR.BeforeDraw": 0.008160000018930684,
+          "UIR.DrawChain": 1.2872199989700068,
+          "UIR.DrawRanges": 0.066133331403640722
+        },
+        "retainedLocalContours": true
+      }
+    ]
+  },
+  "frozenRecheck": {
+    "rows": [
+      {
+        "enabled": false,
+        "ms": 9.9184,
+        "hits": 448,
+        "misses": 448,
+        "entries": 448
+      },
+      {
+        "enabled": true,
+        "ms": 11.2173,
+        "hits": 464,
+        "misses": 432,
+        "entries": 432
+      }
+    ],
+    "meanByteError": 3.660750893223218E-07,
+    "maxByteError": 1,
+    "differentPixels": 1,
+    "scope": "Frozen actual saved-run Canvas, not active gameplay FPS"
+  }
+}

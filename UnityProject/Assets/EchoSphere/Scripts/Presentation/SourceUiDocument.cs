@@ -18,6 +18,10 @@ namespace EchoSphere.Presentation
         private static readonly ProfilerMarker UiSvgMarker=new ProfilerMarker("EchoSphere.UI.RasterizeSvg");
         private static readonly ProfilerMarker UiCssMarker=new ProfilerMarker("EchoSphere.UI.RasterizeCss");
         private static readonly ProfilerMarker UiBuildMarker=new ProfilerMarker("EchoSphere.UI.BuildTree");
+        private static readonly ProfilerMarker UiProjectMarker=new ProfilerMarker("EchoSphere.UI.ProjectTree");
+        private static readonly ProfilerMarker UiCssNodesMarker=new ProfilerMarker("EchoSphere.UI.BuildCssNodes");
+        private static readonly ProfilerMarker UiInteractionMarker=new ProfilerMarker("EchoSphere.UI.CopyInteraction");
+        private static readonly ProfilerMarker UiResolveCssMarker=new ProfilerMarker("EchoSphere.UI.ResolveCss");
         private static readonly ProfilerMarker UiReconcileMarker=new ProfilerMarker("EchoSphere.UI.Reconcile");
         private static readonly ProfilerMarker UiLayoutMarker=new ProfilerMarker("EchoSphere.UI.Layout");
         private static readonly ProfilerMarker UiFlowMarker=new ProfilerMarker("EchoSphere.UI.FlowOrder");
@@ -152,7 +156,12 @@ namespace EchoSphere.Presentation
             // Reconcile source state only when dirty or the configured projection
             // interval elapses. CSS motion/layout/paint still advance every frame.
             FrameVersion++;Dirty=false;_nextRenderAt=now+Math.Max(0d,RefreshInterval);VisualDom.BeginFrame();VisualCssNode nextRoot;
-            using(UiBuildMarker.Auto()){var tree=Render();nextRoot=VisualCssNode.Build(tree);CopyInteraction(_root,nextRoot);_root=nextRoot;_sheet.Apply(_root);}
+            using(UiBuildMarker.Auto()){
+                V tree;using(UiProjectMarker.Auto())tree=Render();
+                using(UiCssNodesMarker.Auto())nextRoot=VisualCssNode.Build(tree);
+                using(UiInteractionMarker.Auto())CopyInteraction(_root,nextRoot);
+                _root=nextRoot;using(UiResolveCssMarker.Auto())_sheet.Apply(_root);
+            }
             foreach(var entry in _entries.Values)entry.Used=false;
             using(UiReconcileMarker.Auto())Reconcile(_root,_document.rootVisualElement,"root");
             _staleEntryKeys.Clear();

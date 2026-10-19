@@ -113,10 +113,21 @@ Earlier frozen-state Canvas generation 317.99→13.32 ms is not active gameplay 
 
 `GPT/UNITY_MENU_GAMEPLAY_PERFORMANCE_2026-10-18.md` retains the actual active-run
 ~2 FPS evidence and original markers (Canvas.Tessellate and UI.BuildTree dominate).
-Inspect the world→inverse-local path roundtrip before editing: unchanged local
-shapes can acquire differing float bits while moving/rotating. Preserve exact
-local data when all path operations share one transform, retaining the existing
-mixed-transform behavior. No quantization, simplified shapes or reduced quality.
+The world→inverse-local roundtrip is now bypassed when construction/paint matrices
+are exactly equal. Authored local Bezier coordinates feed the existing native
+VectorGraphics cache; mixed transforms retain the previous path. Actual Editor
+moving-curve check gives79hits/1miss vs0hits/80misses; paused saved-run raster
+differs in only one pixel by1/255. This is not complete typed native gameplay.
+
+Actual saved-run **paused simulation** A/B remains about2.6Editor FPS, GC60MB/frame;
+no material scene improvement is claimed from this contour change. Child markers
+identify the dominant cost: full ResolveCss189-193ms, ProjectTree about10ms,
+BuildCssNodes below1ms. Native retained HUD/pause UI, removing the CSS cascade,
+is the next architectural priority. Active simulation and Android need separate
+measurements. Menu implementation commitaba1b77 has CI#755SUCCESS.
+Details/raw evidence: UNITY_GAMEPLAY_NATIVE_CHECKPOINT_2026-10-19.md and
+UNITY_CANVAS_LOCAL_CONTOURS_EVIDENCE_2026-10-19.json. Preferences were restored
+and verified through Unity APIs after diagnostic Stop; recovery assets untouched.
 
 The inventory JSON scans every C# file, not only visual filenames. Discovery tags
 and hashes are not semantic parity or completion claims. Keep it current when
