@@ -1,0 +1,693 @@
+{
+  "entryHead": "26765b508a15ad3155b62e681af91d505e5cf7e8",
+  "unity": "6000.3.24f1",
+  "device": "AMD Radeon 760M Graphics",
+  "graphics": "Direct3D12",
+  "scope": "Windows Editor; bounded fixtures, not Android/device acceptance",
+  "coldNativeReady": true,
+  "coldCreatesSourceDocument": false,
+  "coldCreatesSourceCanvas": false,
+  "EchoNativeMenuRouting": "PASS 7 actual native page buttons and authored Back controls; legacy UIDocument recreated/populated on 6 source pages; Settings uses its existing native owner; preferences unchanged",
+  "EchoNativeMenuResponsive": {
+    "status": "PASS native composition/layout/cache/prefix coverage in 6 viewport/DPR cases; no game actions",
+    "results": [
+      {
+        "width": 1260.0,
+        "height": 542.0,
+        "dpr": 1.0,
+        "prepares": 2,
+        "safeInsets": false
+      },
+      {
+        "width": 480.0,
+        "height": 854.0,
+        "dpr": 1.0,
+        "prepares": 5,
+        "safeInsets": false
+      },
+      {
+        "width": 360.0,
+        "height": 800.0,
+        "dpr": 1.75,
+        "prepares": 8,
+        "safeInsets": true
+      },
+      {
+        "width": 854.0,
+        "height": 480.0,
+        "dpr": 3.0,
+        "prepares": 10,
+        "safeInsets": false
+      },
+      {
+        "width": 800.0,
+        "height": 360.0,
+        "dpr": 3.0,
+        "prepares": 13,
+        "safeInsets": false
+      },
+      {
+        "width": 320.0,
+        "height": 568.0,
+        "dpr": 2.0,
+        "prepares": 15,
+        "safeInsets": false
+      }
+    ]
+  },
+  "EchoNativeMainMenuControls": "PASS native controls/layout: 9 navigation events, 4 difficulties, 16-character name, silent model refresh, RU/EN, save presence, retained tree, 1260x542 → 480x854 → 1260x542, idempotent cleanup. Artwork/blur/visual parity NOT accepted.",
+  "EchoNativeMenuArtwork": "PASS native geometry/depth/blur/cache/resize/DPR/disposal; full source composition parity remains separate",
+  "EchoNativeMenuBrushes": {
+    "status": "PASS bounded native artwork brush GPU/source paint",
+    "results": [
+      {
+        "name": "body",
+        "width": 68.2,
+        "height": 68.2,
+        "dpr": 1.0,
+        "maximum": 1.0,
+        "mean": 0.0017743015950609053,
+        "visibleRaw": 1,
+        "worstX": 126,
+        "worstY": 76,
+        "worst": "expected=87,101,255,3 actual=RGBA(87, 101, 255, 2)"
+      },
+      {
+        "name": "ring",
+        "width": 127.0,
+        "height": 127.0,
+        "dpr": 1.0,
+        "maximum": 0.0,
+        "mean": 0.0,
+        "visibleRaw": 0,
+        "worstX": -1,
+        "worstY": -1,
+        "worst": ""
+      },
+      {
+        "name": "dot",
+        "width": 7.0,
+        "height": 7.0,
+        "dpr": 1.0,
+        "maximum": 1.0,
+        "mean": 0.004041122621888263,
+        "visibleRaw": 0,
+        "worstX": 29,
+        "worstY": 15,
+        "worst": "expected=85,223,255,3 actual=RGBA(85, 223, 255, 2)"
+      },
+      {
+        "name": "highlight",
+        "width": 37.0,
+        "height": 28.0,
+        "dpr": 1.0,
+        "maximum": 1.0,
+        "mean": 0.015444015444015444,
+        "visibleRaw": 0,
+        "worstX": 16,
+        "worstY": 0,
+        "worst": "expected=255,255,255,129 actual=RGBA(255, 255, 255, 128)"
+      },
+      {
+        "name": "avatar",
+        "width": 29.0,
+        "height": 29.0,
+        "dpr": 1.0,
+        "maximum": 1.0,
+        "mean": 0.0054460253847004435,
+        "visibleRaw": 1,
+        "worstX": 29,
+        "worstY": 20,
+        "worst": "expected=85,223,255,6 actual=RGBA(85, 223, 255, 5)"
+      },
+      {
+        "name": "body",
+        "width": 68.2,
+        "height": 68.2,
+        "dpr": 0.75,
+        "maximum": 1.0,
+        "mean": 0.002143842513859402,
+        "visibleRaw": 1,
+        "worstX": 99,
+        "worstY": 56,
+        "worst": "expected=87,101,255,3 actual=RGBA(87, 101, 255, 2)"
+      },
+      {
+        "name": "avatar",
+        "width": 29.0,
+        "height": 29.0,
+        "dpr": 1.75,
+        "maximum": 1.0,
+        "mean": 0.003293143283895585,
+        "visibleRaw": 1,
+        "worstX": 69,
+        "worstY": 26,
+        "worst": "expected=85,223,255,3 actual=RGBA(85, 223, 255, 2)"
+      },
+      {
+        "name": "ring",
+        "width": 127.0,
+        "height": 127.0,
+        "dpr": 1.75,
+        "maximum": 1.0,
+        "mean": 0.00016284339551742992,
+        "visibleRaw": 0,
+        "worstX": 141,
+        "worstY": 4,
+        "worst": "expected=100,216,255,43 actual=RGBA(100, 216, 255, 42)"
+      },
+      {
+        "name": "ring-b",
+        "width": 87.0,
+        "height": 87.0,
+        "dpr": 1.0,
+        "maximum": 0.0,
+        "mean": 0.0,
+        "visibleRaw": 0,
+        "worstX": -1,
+        "worstY": -1,
+        "worst": ""
+      },
+      {
+        "name": "ring-c",
+        "width": 59.0,
+        "height": 59.0,
+        "dpr": 1.0,
+        "maximum": 0.0,
+        "mean": 0.0,
+        "visibleRaw": 0,
+        "worstX": -1,
+        "worstY": -1,
+        "worst": ""
+      },
+      {
+        "name": "ring-d",
+        "width": 109.0,
+        "height": 109.0,
+        "dpr": 1.0,
+        "maximum": 0.0,
+        "mean": 0.0,
+        "visibleRaw": 0,
+        "worstX": -1,
+        "worstY": -1,
+        "worst": ""
+      },
+      {
+        "name": "ring-e",
+        "width": 35.0,
+        "height": 35.0,
+        "dpr": 1.0,
+        "maximum": 1.0,
+        "mean": 0.005160464185674266,
+        "visibleRaw": 0,
+        "worstX": 15,
+        "worstY": 0,
+        "worst": "expected=78,218,255,50 actual=RGBA(78, 218, 255, 49)"
+      }
+    ]
+  },
+  "EchoNativeMenuSurfaces": {
+    "status": "PASS native GPU menu surface/source paint",
+    "results": [
+      {
+        "kind": "Loadout",
+        "hover": false,
+        "selected": false,
+        "dpr": 1.0,
+        "maximum": 1.0,
+        "mean": 0.10402741466957033,
+        "raw": 1,
+        "alpha": 1,
+        "worst": "38,3 expected=5,13,22,180 actual=RGBA(5, 13, 22, 179)"
+      },
+      {
+        "kind": "Character",
+        "hover": false,
+        "selected": false,
+        "dpr": 1.0,
+        "maximum": 1.0,
+        "mean": 0.0006588073597494553,
+        "raw": 1,
+        "alpha": 1,
+        "worst": "88,50 expected=0,0,0,1 actual=RGBA(0, 0, 0, 0)"
+      },
+      {
+        "kind": "Character",
+        "hover": true,
+        "selected": false,
+        "dpr": 1.0,
+        "maximum": 1.0,
+        "mean": 0.004716435185185243,
+        "raw": 0,
+        "alpha": 1,
+        "worst": "88,50 expected=0,0,0,1 actual=RGBA(0, 0, 0, 0)"
+      },
+      {
+        "kind": "Difficulty",
+        "hover": false,
+        "selected": false,
+        "dpr": 1.0,
+        "maximum": 1.0,
+        "mean": 0.0027321222606689864,
+        "raw": 0,
+        "alpha": 1,
+        "worst": "3,0 expected=20,43,61,195 actual=RGBA(20, 43, 61, 194)"
+      },
+      {
+        "kind": "Difficulty",
+        "hover": false,
+        "selected": true,
+        "dpr": 1.0,
+        "maximum": 1.0,
+        "mean": 0.04362985390234492,
+        "raw": 0,
+        "alpha": 1,
+        "worst": "19,1 expected=36,116,146,69 actual=RGBA(36, 115, 146, 68)"
+      },
+      {
+        "kind": "Continue",
+        "hover": false,
+        "selected": false,
+        "dpr": 1.0,
+        "maximum": 1.0,
+        "mean": 0.005198435143288066,
+        "raw": 1,
+        "alpha": 1,
+        "worst": "61,27 expected=69,206,255,4 actual=RGBA(69, 206, 255, 3)"
+      },
+      {
+        "kind": "Continue",
+        "hover": true,
+        "selected": false,
+        "dpr": 1.0,
+        "maximum": 1.0,
+        "mean": 0.006011867353778992,
+        "raw": 1,
+        "alpha": 1,
+        "worst": "61,27 expected=69,206,255,4 actual=RGBA(69, 206, 255, 3)"
+      },
+      {
+        "kind": "Navigation",
+        "hover": false,
+        "selected": false,
+        "dpr": 1.0,
+        "maximum": 1.0,
+        "mean": 0.0005832248263888889,
+        "raw": 0,
+        "alpha": 1,
+        "worst": "51,106 expected=0,0,0,4 actual=RGBA(0, 0, 0, 3)"
+      },
+      {
+        "kind": "NavigationButton",
+        "hover": false,
+        "selected": false,
+        "dpr": 1.0,
+        "maximum": 0.0,
+        "mean": 0.0,
+        "raw": 0,
+        "alpha": 0,
+        "worst": ""
+      },
+      {
+        "kind": "NavigationButton",
+        "hover": true,
+        "selected": false,
+        "dpr": 1.0,
+        "maximum": 0.0,
+        "mean": 0.0,
+        "raw": 0,
+        "alpha": 0,
+        "worst": ""
+      },
+      {
+        "kind": "Continue",
+        "hover": false,
+        "selected": false,
+        "dpr": 1.75,
+        "maximum": 1.4274509803921518,
+        "mean": 0.004813840065940958,
+        "raw": 1,
+        "alpha": 1,
+        "worst": "63,83 expected=75,175,205,160 actual=RGBA(75, 175, 204, 159)"
+      },
+      {
+        "kind": "Navigation",
+        "hover": false,
+        "selected": false,
+        "dpr": 1.75,
+        "maximum": 1.0,
+        "mean": 0.0015330350890356132,
+        "raw": 0,
+        "alpha": 1,
+        "worst": "165,87 expected=0,0,0,1 actual=RGBA(0, 0, 0, 0)"
+      }
+    ]
+  },
+  "EchoNativeMenuGlassPhase": {
+    "status": "PASS",
+    "samples": 32,
+    "maximum": 0,
+    "worstMean": 0.0,
+    "scope": "256x256; rounded clip; sigma8 DPR1; changing native Image texture each frame"
+  },
+  "EchoNativeMenuGlassText": {
+    "status": "PASS",
+    "samples": 32,
+    "maximum": 0,
+    "worstMean": 0.0,
+    "scope": "256x256; overlapping native text + changing image; complete retained native prefix"
+  },
+  "EchoNativeMenuGlassGoldens": {
+    "status": "PASS 24 native GPU frozen pixel fixtures",
+    "gate": "Existing backdrop pixel gate: mean < 2/255, max < 10/255; premultiplied RGBA comparison",
+    "results": [
+      {
+        "index": 0,
+        "dpr": 1.0,
+        "filterDpr": 1.0,
+        "sigma": 4.0,
+        "transparent": false,
+        "maximum": 2,
+        "mean": 0.055013020833333336,
+        "actualCorner": "RGBA(18, 42, 122, 255)",
+        "expectedCorner": "18,42,122,255"
+      },
+      {
+        "index": 1,
+        "dpr": 1.0,
+        "filterDpr": 1.0,
+        "sigma": 6.0,
+        "transparent": false,
+        "maximum": 2,
+        "mean": 0.197998046875,
+        "actualCorner": "RGBA(18, 42, 116, 255)",
+        "expectedCorner": "18,42,116,255"
+      },
+      {
+        "index": 2,
+        "dpr": 1.0,
+        "filterDpr": 1.0,
+        "sigma": 8.0,
+        "transparent": false,
+        "maximum": 2,
+        "mean": 0.13623046875,
+        "actualCorner": "RGBA(18, 43, 124, 255)",
+        "expectedCorner": "18,43,125,255"
+      },
+      {
+        "index": 3,
+        "dpr": 1.0,
+        "filterDpr": 1.0,
+        "sigma": 12.0,
+        "transparent": false,
+        "maximum": 2,
+        "mean": 0.23966471354166666,
+        "actualCorner": "RGBA(21, 51, 135, 255)",
+        "expectedCorner": "21,52,136,255"
+      },
+      {
+        "index": 4,
+        "dpr": 1.0,
+        "filterDpr": 1.0,
+        "sigma": 4.0,
+        "transparent": true,
+        "maximum": 2,
+        "mean": 0.21492513020833334,
+        "actualCorner": "RGBA(9, 19, 73, 113)",
+        "expectedCorner": "20,43,165,113"
+      },
+      {
+        "index": 5,
+        "dpr": 1.0,
+        "filterDpr": 1.0,
+        "sigma": 6.0,
+        "transparent": true,
+        "maximum": 2,
+        "mean": 0.23958333333333334,
+        "actualCorner": "RGBA(9, 19, 71, 113)",
+        "expectedCorner": "20,43,160,113"
+      },
+      {
+        "index": 6,
+        "dpr": 1.0,
+        "filterDpr": 1.0,
+        "sigma": 8.0,
+        "transparent": true,
+        "maximum": 2,
+        "mean": 0.3045247395833333,
+        "actualCorner": "RGBA(9, 19, 73, 113)",
+        "expectedCorner": "20,43,165,113"
+      },
+      {
+        "index": 7,
+        "dpr": 1.0,
+        "filterDpr": 1.0,
+        "sigma": 12.0,
+        "transparent": true,
+        "maximum": 2,
+        "mean": 0.3881022135416667,
+        "actualCorner": "RGBA(11, 22, 77, 114)",
+        "expectedCorner": "25,49,172,114"
+      },
+      {
+        "index": 8,
+        "dpr": 1.75,
+        "filterDpr": 1.75,
+        "sigma": 4.0,
+        "transparent": false,
+        "maximum": 2,
+        "mean": 0.15462903911564627,
+        "actualCorner": "RGBA(18, 42, 129, 255)",
+        "expectedCorner": "18,42,129,255"
+      },
+      {
+        "index": 9,
+        "dpr": 1.75,
+        "filterDpr": 1.75,
+        "sigma": 6.0,
+        "transparent": false,
+        "maximum": 4,
+        "mean": 0.3552295918367347,
+        "actualCorner": "RGBA(18, 42, 119, 255)",
+        "expectedCorner": "18,42,120,255"
+      },
+      {
+        "index": 10,
+        "dpr": 1.75,
+        "filterDpr": 1.75,
+        "sigma": 8.0,
+        "transparent": false,
+        "maximum": 3,
+        "mean": 0.22701424319727892,
+        "actualCorner": "RGBA(18, 43, 126, 255)",
+        "expectedCorner": "18,43,127,255"
+      },
+      {
+        "index": 11,
+        "dpr": 1.75,
+        "filterDpr": 1.75,
+        "sigma": 12.0,
+        "transparent": false,
+        "maximum": 2,
+        "mean": 0.31882440476190477,
+        "actualCorner": "RGBA(21, 53, 136, 255)",
+        "expectedCorner": "22,54,135,255"
+      },
+      {
+        "index": 12,
+        "dpr": 1.75,
+        "filterDpr": 1.75,
+        "sigma": 4.0,
+        "transparent": true,
+        "maximum": 2,
+        "mean": 0.2264562074829932,
+        "actualCorner": "RGBA(9, 19, 75, 113)",
+        "expectedCorner": "20,43,169,113"
+      },
+      {
+        "index": 13,
+        "dpr": 1.75,
+        "filterDpr": 1.75,
+        "sigma": 6.0,
+        "transparent": true,
+        "maximum": 4,
+        "mean": 0.3503135629251701,
+        "actualCorner": "RGBA(9, 19, 72, 113)",
+        "expectedCorner": "20,43,162,113"
+      },
+      {
+        "index": 14,
+        "dpr": 1.75,
+        "filterDpr": 1.75,
+        "sigma": 8.0,
+        "transparent": true,
+        "maximum": 3,
+        "mean": 0.3052721088435374,
+        "actualCorner": "RGBA(9, 19, 73, 113)",
+        "expectedCorner": "20,43,167,113"
+      },
+      {
+        "index": 15,
+        "dpr": 1.75,
+        "filterDpr": 1.75,
+        "sigma": 12.0,
+        "transparent": true,
+        "maximum": 2,
+        "mean": 0.4247448979591837,
+        "actualCorner": "RGBA(12, 22, 76, 115)",
+        "expectedCorner": "27,49,169,115"
+      },
+      {
+        "index": 16,
+        "dpr": 3.0,
+        "filterDpr": 3.0,
+        "sigma": 4.0,
+        "transparent": false,
+        "maximum": 2,
+        "mean": 0.18992332175925927,
+        "actualCorner": "RGBA(18, 42, 122, 255)",
+        "expectedCorner": "18,42,121,255"
+      },
+      {
+        "index": 17,
+        "dpr": 3.0,
+        "filterDpr": 3.0,
+        "sigma": 6.0,
+        "transparent": false,
+        "maximum": 4,
+        "mean": 0.25341796875,
+        "actualCorner": "RGBA(18, 42, 116, 255)",
+        "expectedCorner": "18,42,116,255"
+      },
+      {
+        "index": 18,
+        "dpr": 3.0,
+        "filterDpr": 3.0,
+        "sigma": 8.0,
+        "transparent": false,
+        "maximum": 2,
+        "mean": 0.17769820601851852,
+        "actualCorner": "RGBA(18, 43, 124, 255)",
+        "expectedCorner": "18,43,125,255"
+      },
+      {
+        "index": 19,
+        "dpr": 3.0,
+        "filterDpr": 3.0,
+        "sigma": 12.0,
+        "transparent": false,
+        "maximum": 3,
+        "mean": 0.5634856047453703,
+        "actualCorner": "RGBA(21, 52, 135, 255)",
+        "expectedCorner": "22,54,136,255"
+      },
+      {
+        "index": 20,
+        "dpr": 3.0,
+        "filterDpr": 3.0,
+        "sigma": 4.0,
+        "transparent": true,
+        "maximum": 3,
+        "mean": 0.2367531105324074,
+        "actualCorner": "RGBA(9, 19, 73, 113)",
+        "expectedCorner": "20,43,162,113"
+      },
+      {
+        "index": 21,
+        "dpr": 3.0,
+        "filterDpr": 3.0,
+        "sigma": 6.0,
+        "transparent": true,
+        "maximum": 3,
+        "mean": 0.2972366898148148,
+        "actualCorner": "RGBA(9, 19, 71, 113)",
+        "expectedCorner": "20,43,160,113"
+      },
+      {
+        "index": 22,
+        "dpr": 3.0,
+        "filterDpr": 3.0,
+        "sigma": 8.0,
+        "transparent": true,
+        "maximum": 2,
+        "mean": 0.3067762586805556,
+        "actualCorner": "RGBA(9, 19, 73, 113)",
+        "expectedCorner": "20,43,165,113"
+      },
+      {
+        "index": 23,
+        "dpr": 3.0,
+        "filterDpr": 3.0,
+        "sigma": 12.0,
+        "transparent": true,
+        "maximum": 3,
+        "mean": 0.4969165943287037,
+        "actualCorner": "RGBA(11, 22, 76, 115)",
+        "expectedCorner": "27,49,169,115"
+      }
+    ]
+  },
+  "pairedProfiler": {
+    "status": "PASS paired Editor menu CPU timeline/GC capture",
+    "summaries": [
+      {
+        "name": "source",
+        "count": 14,
+        "frameMs": 150.37383706229073,
+        "fps": 6.650092991813202,
+        "gcBytes": 1944778.0,
+        "width": 1260,
+        "height": 542,
+        "markers": {
+          "UIR.Free": 0.001357142861317178,
+          "EchoSphere.UI.Layout": 12.062942777361188,
+          "EchoSphere.UI.FlowOrder": 0.16924285888671875,
+          "EchoSphere.UI.PrepareBrushesAndSvg": 17.58437177113124,
+          "EchoSphere.UI.PrepareDepth": 4.410321422985622,
+          "EchoSphere.UI.PrepareBackdrops": 38.18432807922363,
+          "UIR.AdvanceFrame": 0.490457139069414,
+          "UIR.NudgeVertices": 0.02544285702502488,
+          "UIR.Job.Nudge": 0.0017071428212927589,
+          "UIR.GenerateEntries": 5.624999979440223,
+          "UIR.MeshGenerationContext.Allocate": 0.7335499940298698,
+          "UIR.ConvertEntriesToCommands": 3.50583570267606,
+          "UIR.Job.ConvertMesh": 0.09149999906471099,
+          "UIR.BeforeDraw": 0.012678571108283774,
+          "UIR.DrawChain": 1.9036214186510603,
+          "UIR.DrawRanges": 0.3370499913310466
+        },
+        "native": false
+      },
+      {
+        "name": "native",
+        "count": 17,
+        "frameMs": 16.637482362634994,
+        "fps": 60.105247789523304,
+        "gcBytes": 2640.5882352941176,
+        "width": 1260,
+        "height": 542,
+        "markers": {
+          "UIR.Free": 0.0002529411670847741,
+          "EchoSphere.NativeMenu.PrepareComposition": 0.01328235283932265,
+          "UIR.AdvanceFrame": 0.011505882337908535,
+          "UIR.GenerateEntries": 0.008511764709563815,
+          "UIR.ConvertEntriesToCommands": 0.02756470550700803,
+          "UIR.Job.ConvertMesh": 0.0006058823440552634,
+          "UIR.BeforeDraw": 0.008099999941751937,
+          "UIR.DrawChain": 0.15812941029777422,
+          "UIR.DrawRanges": 0.011805882090223296
+        },
+        "native": true
+      }
+    ]
+  },
+  "finalConsoleCursor": 37462,
+  "finalConsoleNewErrors": 0,
+  "resourceLifecycle": {
+    "verifiedDate": "2026-10-19",
+    "historicalHotReloadOrphansReleased": 55,
+    "cleanPlayOwnedTargets": 78,
+    "cleanStopOwnedTargets": 0,
+    "cleanPlayNativeReady": true
+  }
+}

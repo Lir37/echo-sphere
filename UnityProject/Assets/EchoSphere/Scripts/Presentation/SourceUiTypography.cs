@@ -24,6 +24,12 @@ namespace EchoSphere.Presentation
             var italic=sheet.Get(node,"font-style","normal")!="normal";
             var height=sheet.Get(node,"line-height","normal");
             var ratio=height=="normal"?double.NaN:double.TryParse(height,NumberStyles.Float,CultureInfo.InvariantCulture,out var number)?number:sheet.Length(height,size,size)/size;
+            return Resolve(family,weight,italic,ratio);
+        }
+        // Typed native views share the established platform font resolver,
+        // without constructing CSS nodes or parsing styles at runtime.
+        internal static FontAsset Resolve(string family,string weight,bool italic,double ratio)
+        {
             var key=family+"/"+weight+"/"+italic+"/"+ratio.ToString("R",CultureInfo.InvariantCulture);
             if(Fonts.TryGetValue(key,out var existing))return existing;
             using var fontResolveSample=FontResolveMarker.Auto();

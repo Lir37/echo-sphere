@@ -65,16 +65,24 @@ namespace EchoSphere.Presentation
         private UIDocument _document;
         private bool _presentationSuspended,_presentationWasEnabled;
         private StyleFloat _presentationOpacity;
+        private StyleEnum<DisplayStyle> _presentationDisplay;
+        private VisualElement _configuredRoot;
         public void SetPresentationSuspended(bool suspended)
         {
             if(_presentationSuspended==suspended)return;
+            if(!suspended){_document.enabled=true;ConfigureDocumentRoot();}
             var root=_document.rootVisualElement;
             if(suspended){
-                _presentationOpacity=root.style.opacity;_presentationWasEnabled=root.enabledSelf;
-                root.style.opacity=0;root.SetEnabled(false);
+                _presentationOpacity=root.style.opacity;_presentationDisplay=root.style.display;_presentationWasEnabled=root.enabledSelf;
+                // An opaque native replacement owns all pixels/input here;
+                // exclude this hidden tree from rendering while hooks tick.
+                root.style.display=DisplayStyle.None;root.style.opacity=0;root.SetEnabled(false);
                 OnApplicationFocus(false);
+                // Removing the UIDocument releases its retained filter render
+                // chain. Merely hiding its root leaves offscreen GPU work alive.
+                _document.enabled=false;
             }else{
-                root.style.opacity=_presentationOpacity;root.SetEnabled(_presentationWasEnabled);Dirty=true;
+                root.style.display=_presentationDisplay;root.style.opacity=_presentationOpacity;root.SetEnabled(_presentationWasEnabled);Dirty=true;
             }
             _presentationSuspended=suspended;
         }
@@ -115,13 +123,17 @@ namespace EchoSphere.Presentation
             _panel=ScriptableObject.CreateInstance<PanelSettings>();_panel.name="Source CSS viewport";_panel.scaleMode=PanelScaleMode.ConstantPixelSize;_panel.sortingOrder=1000;_panel.forceGammaRendering=true;
             _panel.themeStyleSheet=Resources.Load<ThemeStyleSheet>("EchoSphere/SourceUiTheme");
             _document=gameObject.AddComponent<UIDocument>();_document.panelSettings=_panel;
-            _document.rootVisualElement.style.position=Position.Absolute;_document.rootVisualElement.style.left=0;_document.rootVisualElement.style.right=0;_document.rootVisualElement.style.top=0;_document.rootVisualElement.style.bottom=0;
-            _document.rootVisualElement.pickingMode=PickingMode.Ignore;
-            _document.rootVisualElement.RegisterCallback<PointerDownEvent>(evt=>{if(evt.button==0)BeginActivePointer(evt.target as VisualElement,evt.pointerId);},TrickleDown.TrickleDown);
-            _document.rootVisualElement.RegisterCallback<PointerUpEvent>(evt=>EndActivePointer(evt.pointerId),TrickleDown.TrickleDown);
-            _document.rootVisualElement.RegisterCallback<PointerCancelEvent>(evt=>EndActivePointer(evt.pointerId),TrickleDown.TrickleDown);
+            ConfigureDocumentRoot();
             Environment=new SourceUiEnvironment(this);
             VisualDom.Changed=()=>Dirty=true;
+        }
+        private void ConfigureDocumentRoot()
+        {
+            var root=_document.rootVisualElement;if(root==null||ReferenceEquals(root,_configuredRoot))return;_configuredRoot=root;
+            root.style.position=Position.Absolute;root.style.left=root.style.right=root.style.top=root.style.bottom=0;root.pickingMode=PickingMode.Ignore;
+            root.RegisterCallback<PointerDownEvent>(evt=>{if(evt.button==0)BeginActivePointer(evt.target as VisualElement,evt.pointerId);},TrickleDown.TrickleDown);
+            root.RegisterCallback<PointerUpEvent>(evt=>EndActivePointer(evt.pointerId),TrickleDown.TrickleDown);
+            root.RegisterCallback<PointerCancelEvent>(evt=>EndActivePointer(evt.pointerId),TrickleDown.TrickleDown);
         }
         public void Draw(float scale)
         {
@@ -415,7 +427,7 @@ namespace EchoSphere.Presentation
             var results=new List<V>();void Visit(VisualCssNode node){if(node==null)return;if(node.Native is VisualElement element&&element.userData is SourceUiElement host&&VisualCss.Match(node,selector))results.Add(new V(host));foreach(var child in node.Children)Visit(child);}Visit(start??_root);return all?VisualJs.Arr(results.ToArray()):results.Count>0?results[0]:VisualJs.Null;
         }
         internal VisualCss Sheet=>_sheet;
-        internal V ElementFromPoint(float x,float y){var element=_document.rootVisualElement.panel?.Pick(new Vector2(x,y));var host=SourceUiElement.Target(element);return host==null?VisualJs.Null:new V(host);}
+        internal V ElementFromPoint(float x,float y){var element=_document.rootVisualElement?.panel?.Pick(new Vector2(x,y));var host=SourceUiElement.Target(element);return host==null?VisualJs.Null:new V(host);}
         internal void EventCompleted(){Dirty=true;AfterEvent?.Invoke();}
         internal void ShowConfirmation(string message,Action<bool> answer)
         {

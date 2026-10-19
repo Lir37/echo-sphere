@@ -8,28 +8,62 @@ namespace EchoSphere.Runtime
 {
     public sealed partial class EchoSphereRuntime
     {
-        // Explicit owner API, not an automatic production renderer switch.
-        // The composition owner must supply accepted background/core/icon layers
-        // before replacing the currently selected menu.
+        private bool _nativeMainMenuEnabled=true;
+        private NativeMainMenuScreen _nativeMainMenuScreen;
+        private bool _nativeMainMenuWasActive;
+        private int _nativeMenuModelVersion,_nativeMenuShownVersion;
+        private NativeMainMenuView.State _nativeMenuState;
+        private Color _nativeMenuCharacterColor;
+        public bool UsesNativeMainMenu=>_nativeMainMenuWasActive&&_nativeMainMenuScreen!=null&&_nativeMainMenuScreen.Ready;
+        private bool TryDrawNativeMainMenu()
+        {
+            var home=_nativeMainMenuEnabled&&_mainMenu&&!_regionSelect&&_mainMenuPage==MainMenuPage.Home;
+            if(!home){
+                if(_nativeMainMenuWasActive){_nativeMainMenuScreen.Hide();if(_sourceUi!=null){_sourceUi.SetPresentationSuspended(false);_sourceUi.Dirty=true;}_nativeMainMenuWasActive=false;}
+                return false;
+            }
+            if(!_nativeMainMenuWasActive){
+                if(_nativeSettingsScreen!=null)_nativeSettingsScreen.Hide();
+                if(_sourceUi!=null){
+                    // Enter Home once to unmount the previous source page/hooks.
+                    _sourceUi.SetPresentationSuspended(false);_nativeSettingsWasActive=false;_sourceUi.Dirty=true;_sourceUi.Draw(SourceDevicePixelRatio);
+                }else{
+                    // Menu's original mount effect persists its loaded name.
+                    PlayerPrefs.SetString(NamePreferenceKey,_playerName);PlayerPrefs.Save();
+                }
+                if(_nativeMainMenuScreen==null){_nativeMainMenuScreen=new GameObject("Native Main Menu UI Toolkit").AddComponent<NativeMainMenuScreen>();_nativeMainMenuScreen.Initialize(CreateNativeMainMenuView);}
+                _nativeMenuState=ReadNativeMainMenuState();_nativeMenuShownVersion=_nativeMenuModelVersion;
+                ColorUtility.TryParseHtmlString(CharacterRules.Get(_sphereCharacterId).ColorHex,out _nativeMenuCharacterColor);
+                _nativeMainMenuWasActive=true;_camera.cullingMask=0;
+            }
+            if(_nativeMenuShownVersion!=_nativeMenuModelVersion){_nativeMenuState=ReadNativeMainMenuState(_nativeMenuState.SavedRunTime);_nativeMenuShownVersion=_nativeMenuModelVersion;}
+            _nativeMainMenuScreen.Show(_nativeMenuState,SourceDevicePixelRatio,_nativeMenuCharacterColor);
+            if(_sourceUi!=null&&_nativeMainMenuScreen.Ready){_sourceUi.SetPresentationSuspended(true);_sourceUi.Draw(SourceDevicePixelRatio);}
+            return true;
+        }
+        // The native owner supplies the full accepted background/core/icon layers.
         public NativeMainMenuView CreateNativeMainMenuView(VisualElement parent)
         {
             if(!_mainMenu||_regionSelect||_mainMenuPage!=MainMenuPage.Home)
                 throw new InvalidOperationException("Native main menu must be opened from the existing Home state");
             return new NativeMainMenuView(parent,NavigateNativeMainMenu,
-                value=>{_playerName=value;PlayerPrefs.SetString(NamePreferenceKey,value);PlayerPrefs.Save();},
-                value=>{PlayerPrefs.SetString(DifficultyPreferenceKey,value);PlayerPrefs.Save();});
+                value=>{_playerName=value;PlayerPrefs.SetString(NamePreferenceKey,value);PlayerPrefs.Save();_nativeMenuModelVersion++;},
+                value=>{PlayerPrefs.SetString(DifficultyPreferenceKey,value);PlayerPrefs.Save();_nativeMenuModelVersion++;});
         }
 
         // Read on entry or a real preference/save change, not on every frame.
         public NativeMainMenuView.State ReadNativeMainMenuState()
         {
+            var snapshot=LoadRunSnapshot();return ReadNativeMainMenuState(snapshot==null?(double?)null:Math.Floor(snapshot.time));
+        }
+        private NativeMainMenuView.State ReadNativeMainMenuState(double? savedRunTime)
+        {
             var ru=IsRussianUi;var lang=ru?"ru":"en";
             string T(string key)=>Visual_i18n.Scope["translations"][lang][key].Text;
             var character=CharacterRules.Get(_sphereCharacterId);
-            var snapshot=LoadRunSnapshot();
             return new NativeMainMenuView.State(ru,_playerName,ru?character.NameRu:character.NameEn,ru?character.RoleRu:character.RoleEn,
                 PlayerPrefs.GetString(DifficultyPreferenceKey,"normal"),T("difficulty"),T("namePlaceholder"),T("shop"),T("leaderboard"),T("achievements"),T("settings"),
-                snapshot==null?(double?)null:Math.Floor(snapshot.time));
+                savedRunTime);
         }
 
         private void NavigateNativeMainMenu(NativeMainMenuView.Destination destination)

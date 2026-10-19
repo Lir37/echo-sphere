@@ -35,6 +35,11 @@ namespace EchoSphere.Presentation
                 ring.style.borderLeftColor=ring.style.borderRightColor=ring.style.borderTopColor=ring.style.borderBottomColor=Color.clear;
                 parent.Add(ring);_ringPaint[i]=new NativeMenuBrush();
                 var dot=Box("native-menu-orbit-dot-"+i);_dots[i]=dot;dot.style.width=dot.style.height=7;ring.Add(dot);_dotPaint[i]=new NativeMenuBrush();
+                // Final legacy rules replace the dot paint, but retain the
+                // original orbit-specific positions from the earlier rules.
+                if(i==0){dot.style.left=Length.Percent(70);dot.style.top=Length.Percent(12);}
+                else if(i==1){dot.style.left=Length.Percent(16);dot.style.bottom=Length.Percent(3);}
+                else if(i==2){dot.style.left=Length.Percent(48);dot.style.top=Length.Percent(4);}
             }
             _body=Box("native-menu-core-body");_body.style.left=_body.style.right=_body.style.top=_body.style.bottom=Length.Percent(28);parent.Add(_body);
             _highlight=Box("native-menu-core-highlight");_highlight.style.left=Length.Percent(34);_highlight.style.top=Length.Percent(31);_highlight.style.width=Length.Percent(24);_highlight.style.height=Length.Percent(18);parent.Add(_highlight);

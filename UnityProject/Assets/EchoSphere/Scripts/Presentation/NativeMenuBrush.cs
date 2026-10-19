@@ -15,7 +15,7 @@ namespace EchoSphere.Presentation
         }
         public sealed class Paint
         {
-            public bool Ellipse,Linear;
+            public bool Ellipse,Linear,TopBorderOnly;
             public float Radius,Border;
             public Color Fill,BorderColor;
             public Vector2 Origin=new Vector2(.5f,.5f);
@@ -73,6 +73,7 @@ namespace EchoSphere.Presentation
                 _material.SetVector("_Size",new Vector4(width,height,scale,padding));_material.SetVector("_Pixels",new Vector4(w,h,0,0));
                 _material.SetVector("_Radius",paint.Ellipse?new Vector4(width*.5f,height*.5f,0,0):new Vector4(Mathf.Min(paint.Radius,width*.5f,height*.5f),Mathf.Min(paint.Radius,width*.5f,height*.5f),0,0));
                 _material.SetFloat("_Border",paint.Border);_material.SetVector("_Fill",V(paint.Fill));_material.SetVector("_BorderColor",V(paint.BorderColor));
+                _material.SetVector("_BorderInsets",paint.TopBorderOnly?new Vector4(0,paint.Border,0,0):new Vector4(paint.Border,paint.Border,paint.Border,paint.Border));
                 _material.SetVector("_Origin",new Vector4(paint.Origin.x,paint.Origin.y,0,0));_material.SetFloat("_Linear",paint.Linear?1:0);
                 for(int i=0;i<paint.Colors.Length;i++){_colors[i]=V(paint.Colors[i]);_stops[i]=paint.Stops[i];}
                 _material.SetVectorArray("_Colors",_colors);_material.SetFloatArray("_Stops",_stops);_material.SetInt("_StopCount",paint.Colors.Length);

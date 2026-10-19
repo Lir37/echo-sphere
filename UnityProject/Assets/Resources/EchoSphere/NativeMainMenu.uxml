@@ -5,6 +5,7 @@
       <ui:Label name="menu-logo" text="ECHO SPHERE" class="logo" />
       <ui:Label name="menu-subtitle" class="subtitle" />
     </ui:VisualElement>
+    <ui:VisualElement class="stage-track">
     <ui:VisualElement class="stage">
       <ui:VisualElement name="menu-core" class="core">
         <ui:Label name="core-caption" class="caption" />
@@ -42,6 +43,7 @@
           <ui:Label name="continue-time" class="continue-time" picking-mode="Ignore" />
         </ui:Button>
       </ui:VisualElement>
+    </ui:VisualElement>
     </ui:VisualElement>
     <ui:VisualElement name="menu-navigation" class="navigation">
       <ui:Button name="nav-0" class="nav-button"><ui:VisualElement name="nav-icon-0" class="nav-icon" picking-mode="Ignore" /><ui:Label name="nav-label-0" picking-mode="Ignore" /></ui:Button>

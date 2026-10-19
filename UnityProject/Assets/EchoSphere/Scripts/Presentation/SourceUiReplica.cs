@@ -25,7 +25,7 @@ namespace EchoSphere.Presentation
             void CopyNode(VisualElement source,VisualElement container,bool isRoot=false)
             {
                 if(!_copies.TryGetValue(source,out var copy)){
-                    var element=source is TextElement?(VisualElement)new Label():new VisualElement();
+                    var element=source is TextElement?(VisualElement)new Label():source is Image?new Image():new VisualElement();
                     copy=new Copy {Element=element,Style=new SourceUiReplicaStyle(element.style),TextPaint=element.generateVisualContent};_copies.Add(source,copy);
                     var retained=copy;copy.Painter=context=>{retained.Tag.Paint?.Invoke(context);if(retained.HasText)retained.TextPaint?.Invoke(context);};
                     element.pickingMode=PickingMode.Ignore;element.focusable=false;
@@ -50,6 +50,19 @@ namespace EchoSphere.Presentation
                     if(text.text!=original.text)text.text=original.text;
                     if(text.enableRichText!=original.enableRichText)text.enableRichText=original.enableRichText;
                     if(text.selection.isSelectable)text.selection.isSelectable=false;
+                }
+                if(target is Image image&&source is Image originalImage){
+                    if(originalImage.image!=null){if(image.image!=originalImage.image)image.image=originalImage.image;}
+                    else if(originalImage.sprite!=null){if(image.sprite!=originalImage.sprite)image.sprite=originalImage.sprite;}
+                    else if(originalImage.vectorImage!=null){if(image.vectorImage!=originalImage.vectorImage)image.vectorImage=originalImage.vectorImage;}
+                    else {
+                        if(image.image!=null)image.image=null;
+                        if(image.sprite!=null)image.sprite=null;
+                        if(image.vectorImage!=null)image.vectorImage=null;
+                    }
+                    if(image.uv!=originalImage.uv)image.uv=originalImage.uv;
+                    if(image.scaleMode!=originalImage.scaleMode)image.scaleMode=originalImage.scaleMode;
+                    if(image.tintColor!=originalImage.tintColor)image.tintColor=originalImage.tintColor;
                 }
                 copy.Tag.Paint=_paint(source);copy.HasText=source.generateVisualContent!=null&&copy.TextPaint!=null;
                 var nextTag=source.userData is SourceUiBackdrop.ClipTag?source.userData:copy.Tag;

@@ -8,7 +8,7 @@ Shader "EchoSphere/NativeMenuBrush"
         HLSLINCLUDE
         #include "UnityCG.cginc"
         sampler2D _MainTex,_OuterA,_OuterB,_Inner;
-        float4 _MainTex_TexelSize,_Size,_Pixels,_MaskSize,_Offset,_Direction,_Radius,_Fill,_BorderColor,_Origin,_ShadowA,_ShadowB,_ShadowInner;
+        float4 _MainTex_TexelSize,_Size,_Pixels,_MaskSize,_Offset,_Direction,_Radius,_Fill,_BorderColor,_BorderInsets,_Origin,_ShadowA,_ShadowB,_ShadowInner;
         float4 _Colors[8];float _Stops[8];int _KernelRadius,_StopCount;
         float _Outside,_Border,_Linear,_Sigma;
         float2 Pixel(float2 uv,float2 size){return floor(float2(uv.x,1-uv.y)*size)+.5;}
@@ -45,10 +45,10 @@ Shader "EchoSphere/NativeMenuBrush"
         {
             float2 p=(Pixel(input.uv,_Pixels.xy)-_Size.w*_Size.z)/_Size.z;
             float shape=Shape(p,_Size.xy,_Radius.xy);
-            float inner=Shape(p-_Border,_Size.xy-_Border*2,max(0,_Radius.xy-_Border));
+            float inner=Shape(p-_BorderInsets.xy,_Size.xy-_BorderInsets.xy-_BorderInsets.zw,max(0,_Radius.xy-_Border));
             float4 color=Premul(_Fill);
             if(_StopCount>0){
-                float2 period=max(.00001,_Size.xy-_Border*2); float2 local=p-_Border; float2 q=local-floor(local/period)*period;
+                float2 period=max(.00001,_Size.xy-_BorderInsets.xy-_BorderInsets.zw); float2 local=p-_BorderInsets.xy; float2 q=local-floor(local/period)*period;
                 float2 center=_Origin.xy*period;float extent=length(max(center,period-center));
                 float t=_Linear>0?q.y/period.y:length(q-center)/max(.00001,extent);
                 float4 gradient=Premul(_Colors[0]);

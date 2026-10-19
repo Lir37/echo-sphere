@@ -38,15 +38,28 @@ namespace EchoSphere.Presentation
         private readonly VisualElement _root,_parent;
         private readonly TextField _name;
         private readonly Button[] _difficulty=new Button[4];
+        private readonly Label[] _difficultyLabels=new Label[4];
         private readonly Button[] _navigation=new Button[6];
+        private readonly VisualElement[] _navigationRows=new VisualElement[2];
         private readonly Button _continue;
         private bool _disposed,_hasState;
         private State _shown;
+        private float _safeWidth=-1,_safeLeft=-1,_safeTop=-1,_safeBottom=-1;
         public VisualElement Root=>_root;
         public VisualElement Artwork=>_root.Q("core-artwork");
         public VisualElement Background=>_root.Q("background-artwork");
         public VisualElement Avatar=>_root.Q("character-avatar");
         public VisualElement Navigation=>_root.Q("menu-navigation");
+        public void SetSafeArea(float left,float top,float bottom)
+        {
+            var width=_parent.contentRect.width;
+            if(_safeWidth==width&&_safeLeft==left&&_safeTop==top&&_safeBottom==bottom)return;
+            _safeWidth=width;_safeLeft=left;_safeTop=top;_safeBottom=bottom;
+            _root.Q(className:"topbar").style.paddingTop=width<=480?Mathf.Max(9,top):12;
+            Navigation.style.paddingLeft=Navigation.style.paddingRight=Mathf.Max(10,left);
+            Navigation.style.paddingBottom=8+bottom;
+            LayoutNavigation(width);
+        }
 
         public NativeMainMenuView(VisualElement parent,Action<Destination> navigate,Action<string> setName,Action<string> setDifficulty)
         {
@@ -72,8 +85,15 @@ namespace EchoSphere.Presentation
             _continue=Bind("continue-run",Destination.Continue);
             var destinations=new[]{Destination.Characters,Destination.Shop,Destination.Leaderboard,Destination.Achievements,Destination.Knowledge,Destination.Settings};
             for(int i=0;i<destinations.Length;i++)_navigation[i]=Bind("nav-"+i,destinations[i]);
+            Navigation.style.flexDirection=FlexDirection.Column;Navigation.style.flexWrap=Wrap.NoWrap;
+            for(int i=0;i<2;i++){
+                var row=new VisualElement {name="native-menu-navigation-row-"+i};row.style.flexDirection=FlexDirection.Row;row.style.flexShrink=0;
+                row.style.marginTop=i==0?0:5;_navigationRows[i]=row;Navigation.Add(row);
+            }
             for(int i=0;i<DifficultyIds.Length;i++){
                 var id=DifficultyIds[i];var button=_root.Q<Button>("difficulty-"+id);_difficulty[i]=button;
+                var label=new Label {pickingMode=PickingMode.Ignore};label.style.marginLeft=label.style.marginRight=label.style.marginTop=label.style.marginBottom=0;
+                _difficultyLabels[i]=label;button.Add(label);
                 button.clicked+=()=>_setDifficulty(id);
             }
             _parent.Add(_root);_parent.RegisterCallback<GeometryChangedEvent>(ViewportChanged);
@@ -97,7 +117,7 @@ namespace EchoSphere.Presentation
                 _name.textEdition.hidePlaceholderOnFocus=false;_name.textSelection.selectAllOnFocus=false;_name.textSelection.selectAllOnMouseUp=false;
                 for(int i=0;i<DifficultyIds.Length;i++){
                     var profile=Core.DifficultyRules.GetProfile(DifficultyIds[i]);
-                    _difficulty[i].text=ru?profile.NameRu:profile.NameEn;
+                    _difficultyLabels[i].text=ru?profile.NameRu:profile.NameEn;
                     _difficulty[i].EnableInClassList("is-active",state.Difficulty==DifficultyIds[i]);
                 }
                 var labels=new[]{ru?"Персонажи":"Characters",state.ShopTitle,state.LeaderboardTitle,state.AchievementsTitle,ru?"Архив Эха":"Echo Archive",state.SettingsTitle};
@@ -130,6 +150,7 @@ namespace EchoSphere.Presentation
         {
             if(!float.IsFinite(width)||!float.IsFinite(height)||width<=0||height<=0)return;
             _root.EnableInClassList("narrow",width<=650);_root.EnableInClassList("short",height<=700);
+            _root.EnableInClassList("compact-height",height<=560);
             _root.Q("menu-core").style.width=Mathf.Min(520,width*.88f);
             var size=height<=700?Mathf.Min(155,height*.35f):Mathf.Min(width<=650?210:270,width*.48f);
             Artwork.style.width=size;Artwork.style.height=size;
@@ -137,6 +158,19 @@ namespace EchoSphere.Presentation
             var logoSize=Mathf.Clamp(width*.04f,18,27);var titleSize=Mathf.Clamp(width*.038f,15,22);
             logo.style.fontSize=logoSize;logo.style.letterSpacing=logoSize*(width<=650?.24f:.34f);
             title.style.fontSize=titleSize;title.style.letterSpacing=titleSize*.18f;
+            _root.Q("continue-title").style.letterSpacing=width<=650?1.08f:1.2f;
+            _root.Q("continue-time").style.letterSpacing=width<=650?.36f:.42f;
+            LayoutNavigation(width);
+        }
+        private void LayoutNavigation(float width)
+        {
+            var columns=width<=650?3:6;
+            _navigationRows[1].style.display=columns==3?DisplayStyle.Flex:DisplayStyle.None;
+            for(int i=0;i<_navigation.Length;i++){
+                var button=_navigation[i];var row=_navigationRows[i/columns];if(button.parent!=row)row.Add(button);
+                button.style.width=StyleKeyword.Auto;button.style.flexBasis=0;button.style.flexGrow=1;button.style.flexShrink=1;
+                button.style.marginRight=i%columns==columns-1?0:5;button.style.marginTop=0;
+            }
         }
         public void Dispose()
         {

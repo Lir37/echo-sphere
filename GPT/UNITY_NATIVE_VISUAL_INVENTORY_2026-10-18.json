@@ -1,8 +1,8 @@
 {
-  "entryHead": "c1e9187642af39a5f444a765b4986009f7359e17",
+  "entryHead": "26765b508a15ad3155b62e681af91d505e5cf7e8",
   "protectedSource": "new-desing@737ef2af4a877e0995db5f92331d536d2f29a934",
   "scope": "Every C# file under Assets/EchoSphere/Scripts, including files without visual/UI/Canvas names. Discovery metadata is not a semantic parity or native-migration acceptance claim.",
-  "scannedFiles": 204,
+  "scannedFiles": 207,
   "entries": [
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Core/AlchemistReactionRules.cs",
@@ -1252,22 +1252,54 @@
       ]
     },
     {
-      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/NativeMainMenuView.cs",
-      "sha256": "5f6ec78ba78a8ef68fbb5ee63ed4e86f4456afa2be009f5798253a74cdf56952",
-      "lines": 149,
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/NativeMainMenuComposition.cs",
+      "sha256": "852cc5ac67fd6d0ccaa523f5176f0212a68a838a0fec81a7f3126a255469c43e",
+      "lines": 154,
       "discoveryTags": [
         "ui"
       ],
       "creationLines": [],
       "updateLines": [],
       "releaseLines": [
-        141
+        145,
+        149,
+        150
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/NativeMainMenuScreen.cs",
+      "sha256": "f7879e81e59a7a5a7b6e332b9577b50d76a686b022446d84a58b221a7cba7475",
+      "lines": 45,
+      "discoveryTags": [
+        "ui"
+      ],
+      "creationLines": [
+        25
+      ],
+      "updateLines": [
+        19
+      ],
+      "releaseLines": [
+        42
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/NativeMainMenuView.cs",
+      "sha256": "fd7f60d6bbf39dec75ad61e8f93b8a55d085b994dba40be91c7f4a649006c4d7",
+      "lines": 183,
+      "discoveryTags": [
+        "ui"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": [
+        175
       ]
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/NativeMenuArtwork.cs",
-      "sha256": "1ac44f1c03aa217e26dd02feac15f4b22f79d8f2d8c70be7271c2c30ac62c424",
-      "lines": 86,
+      "sha256": "db620c11086588da8b71582cd876e098aed9119175fb8bd0b3047e0aec115641",
+      "lines": 91,
       "discoveryTags": [
         "ui",
         "geometry"
@@ -1275,14 +1307,14 @@
       "creationLines": [],
       "updateLines": [],
       "releaseLines": [
-        77,
-        82
+        82,
+        87
       ]
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/NativeMenuBrush.cs",
-      "sha256": "dce7eaea42d3d502776a5a51bdcda1fe58f8273f55d5c353ed37234b71b9319b",
-      "lines": 92,
+      "sha256": "08b4d593996e82b2e3020be7239926f4b8ba81a529979d836f14097d9db16214",
+      "lines": 93,
       "discoveryTags": [
         "gpu"
       ],
@@ -1294,9 +1326,35 @@
         60
       ],
       "releaseLines": [
-        87,
         88,
-        89
+        89,
+        90
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/NativeMenuGlass.cs",
+      "sha256": "fbb2feb1b551a32b67e6a2d50f87ce2964e27c01882fdfb509bf2920ddf418ab",
+      "lines": 111,
+      "discoveryTags": [
+        "ui",
+        "gpu"
+      ],
+      "creationLines": [
+        22,
+        33
+      ],
+      "updateLines": [
+        36,
+        96
+      ],
+      "releaseLines": [
+        32,
+        52,
+        102,
+        103,
+        105,
+        106,
+        107
       ]
     },
     {
@@ -1428,32 +1486,32 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceUiDocument.cs",
-      "sha256": "bd16236d0ff5d4bf117f940a4bf64a54cc020579b93ef9300cffcadb3ec4e2b9",
-      "lines": 434,
+      "sha256": "d934760abbd99dad75a1702dc1db85dff8c9571349246423913a3f8e5f2e35b4",
+      "lines": 446,
       "discoveryTags": [
         "ui",
         "gpu",
         "compatibility"
       ],
       "creationLines": [
-        114,
-        117,
-        346,
-        379
+        122,
+        125,
+        358,
+        391
       ],
       "updateLines": [
-        110,
-        126,
-        291
+        118,
+        138,
+        303
       ],
       "releaseLines": [
-        148,
-        271,
-        346,
+        160,
+        283,
         358,
-        377,
-        430,
-        431
+        370,
+        389,
+        442,
+        443
       ]
     },
     {
@@ -1549,8 +1607,8 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceUiReplica.cs",
-      "sha256": "f5d4e6e2cd8504740e9476df12cf227bc10bf61d9798b156ab80b1d02d7ddf13",
-      "lines": 130,
+      "sha256": "3fca2a750a1571acff23611db55b07fdfd802066b2b5a34f41a07ab2894665bc",
+      "lines": 143,
       "discoveryTags": [
         "ui"
       ],
@@ -1559,7 +1617,7 @@
         21
       ],
       "releaseLines": [
-        127
+        140
       ]
     },
     {
@@ -1623,8 +1681,8 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceUiTypography.cs",
-      "sha256": "bf59098df149b2463b069234a2f7bc9bb03611af712f7ef46301efa54e83b55e",
-      "lines": 102,
+      "sha256": "23c3761250d1a774360844690a7587a1e26298bcf6996fdbd37844c37aa61bfe",
+      "lines": 108,
       "discoveryTags": [
         "ui",
         "gpu",
@@ -1768,12 +1826,14 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeMainMenu.cs",
-      "sha256": "953f1004ec58fc464e64e90d1e1c255b452788b6be7852850aea4796c18be464",
-      "lines": 52,
+      "sha256": "863767c79c7c34ed11adfc07f70015276b57f5997fa30d66221b0e19ca743fc4",
+      "lines": 86,
       "discoveryTags": [
         "ui"
       ],
-      "creationLines": [],
+      "creationLines": [
+        34
+      ],
       "updateLines": [],
       "releaseLines": []
     },
@@ -1816,8 +1876,8 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
-      "sha256": "cd5a16fe9c46d7f869b0dcfffc0046c08341426e8eca049c3b0c69194c724c34",
-      "lines": 8980,
+      "sha256": "7824851de0b10115693230a197658ded01f719bae59ba789aae53ae457170523",
+      "lines": 8981,
       "discoveryTags": [
         "ui",
         "geometry",
@@ -1850,7 +1910,8 @@
         7280,
         7281,
         7282,
-        8136
+        7283,
+        8137
       ]
     },
     {
@@ -1969,13 +2030,13 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourcePresentation.cs",
-      "sha256": "a3f6c58ac440b634852ec6b9a7b2503a2abf71440193d6bdb9308123e2d1d29a",
-      "lines": 232,
+      "sha256": "52234f3a9ba9758b6c7a9c1e4c2b536afd998f71159d1aaf34f3b58919f1d3c7",
+      "lines": 233,
       "discoveryTags": [
         "compatibility"
       ],
       "creationLines": [
-        182
+        183
       ],
       "updateLines": [
         176
