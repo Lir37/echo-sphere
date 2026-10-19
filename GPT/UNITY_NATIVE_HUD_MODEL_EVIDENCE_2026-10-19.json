@@ -1,0 +1,35 @@
+{
+  "entryHead": "0962dec02ca99839391e766a70237038471003ab",
+  "model": {
+    "status": "PASS native HUD display model/text vs original source",
+    "cases": 26,
+    "checks": 420,
+    "frozenBrowserCases": 2,
+    "generatedSourceCases": 24,
+    "scope": "RU/EN, rounding, percentages, counters, timer, formations, boss, region modes/pocket fallback; synthetic display snapshots only; no gameplay state/preferences changed"
+  },
+  "typecheck": [
+    {
+      "configuration": "Android player",
+      "files": 213,
+      "errors": 0,
+      "warnings": 0,
+      "diagnostics": []
+    },
+    {
+      "configuration": "Android editor runtime",
+      "files": 213,
+      "errors": 0,
+      "warnings": 0,
+      "diagnostics": []
+    },
+    {
+      "configuration": "Android editor assembly",
+      "files": 3,
+      "errors": 0,
+      "warnings": 0,
+      "diagnostics": []
+    }
+  ],
+  "limitations": "Text/model parity is not complete pixel parity, source-overlay composition, actual gameplay drag, or device proof. HUD remains unselected."
+}

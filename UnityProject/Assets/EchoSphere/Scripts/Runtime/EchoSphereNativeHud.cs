@@ -19,7 +19,13 @@ namespace EchoSphere.Runtime
         public NativeHudView.State ReadNativeHudState()
         {
             if(_sourceRenderState.Undefined)throw new InvalidOperationException("Existing render snapshot required");
-            var scene=_sourceRenderState;var player=scene["player"];var network=scene["nativeNetwork"];var lang=IsRussianUi?"ru":"en";var ru=IsRussianUi;
+            return ProjectNativeHudState(_sourceRenderState,IsRussianUi);
+        }
+        // Explicit display inputs allow source parity checks without changing
+        // runtime state, language preferences or the authoritative simulation.
+        internal static NativeHudView.State ProjectNativeHudState(V scene,bool ru)
+        {
+            var player=scene["player"];var network=scene["nativeNetwork"];var lang=ru?"ru":"en";
             string T(string key)=>Visual_i18n.Scope["translations"][lang][key].Text;
             string N(double value)=>value.ToString(CultureInfo.InvariantCulture);
             float Percent(double value)=>(float)Math.Max(0,Math.Min(100,value));

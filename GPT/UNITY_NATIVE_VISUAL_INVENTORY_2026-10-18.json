@@ -1,5 +1,5 @@
 {
-  "entryHead": "a625334d1f1f4bdc37155b8f30e9596ac8eca37d",
+  "entryHead": "0962dec02ca99839391e766a70237038471003ab",
   "protectedSource": "new-desing@737ef2af4a877e0995db5f92331d536d2f29a934",
   "scope": "Every C# file under Assets/EchoSphere/Scripts, including files without visual/UI/Canvas names. Discovery metadata is not a semantic parity or native-migration acceptance claim.",
   "scannedFiles": 213,
@@ -1234,7 +1234,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/NativeHudDashBorder.cs",
-      "sha256": "377e62dec9ca72a867bc88010bd0f1d05da33646cdaf79dbd2332321682cbcf4",
+      "sha256": "e41853ca4aacf9712aefa99285a082ee7d28f18137d7f1cb51a0ef1e1dd56fa2",
       "lines": 32,
       "discoveryTags": [
         "ui",
@@ -1296,7 +1296,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/NativeHudView.cs",
-      "sha256": "44b1d9cbec1930698c5fa0315f16993cf4d52d4d622ea10574392bacd15f1260",
+      "sha256": "19e7693716595a9881687d9d324a0d05ec777ad1356ad8c230ad2975b670543f",
       "lines": 196,
       "discoveryTags": [
         "ui",
@@ -1413,8 +1413,8 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/NativeMenuGlass.cs",
-      "sha256": "fbb2feb1b551a32b67e6a2d50f87ce2964e27c01882fdfb509bf2920ddf418ab",
-      "lines": 111,
+      "sha256": "5e13c2b7e62b42e16b681fb8c48764611daf3769bacc6a118f5efa816b2e4a44",
+      "lines": 116,
       "discoveryTags": [
         "ui",
         "gpu"
@@ -1425,16 +1425,16 @@
       ],
       "updateLines": [
         36,
-        96
+        99
       ],
       "releaseLines": [
         32,
         52,
-        102,
-        103,
-        105,
-        106,
-        107
+        107,
+        108,
+        110,
+        111,
+        112
       ]
     },
     {
@@ -1906,8 +1906,8 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeHud.cs",
-      "sha256": "ea4b519d5ca43194ec9c4ffc1a5e3bfdb85d75a5c6eebe2c3041e2d92bfcbb0a",
-      "lines": 59,
+      "sha256": "85dfc6b77d07ba3afb874fed347caee0252374f0613e93d9471e895d08460fde",
+      "lines": 65,
       "discoveryTags": [
         "ui"
       ],

@@ -118,3 +118,20 @@ RTs. No new FPS/GC/Android claim; HUD still PILOT and unselected.
 Raw evidence: UNITY_NATIVE_HUD_VECTOR_BLUR_EVIDENCE_2026-10-19.json.
 Next: full RU/EN model/pixel parity, native gameplay composition preserving
 pause/mobile/modal order, then typed gameplay visuals and actual profiling.
+
+## Explicit HUD display projection / RU-EN oracle
+
+Entry0962dec02ca99839391e766a70237038471003ab, CI760 SUCCESS. The existing
+ReadNativeHudState now delegates to an explicit internal display projection
+(scene snapshot, language). This extracts the same expressions and source
+helpers without changing formulas or connecting the pilot to production.
+The Edit-mode oracle compares26 cases /420 checks:2 frozen original-source
+HUD fixtures and24 generated original Hud cases. RU/EN text, HP rounding,
+XP/HP/resonance clamping, resonance ready color/counter, sphere/wave counters,
+time, formation names, boss labels/visibility, region modes and pocket fallback
+match. Fixtures are cloned display data; no runtime GameState, preferences or
+active source hooks are modified. Script refuses Play or an existing hook tree.
+Real Editor compile and local player/editor C# typechecks pass without warnings.
+Raw evidence: UNITY_NATIVE_HUD_MODEL_EVIDENCE_2026-10-19.json. Full pixel parity,
+production gameplay composition and active performance measurements remain open.
+No new FPS/GC or Android claims; HUD remains PILOT, P1/P2 PARTIAL.
