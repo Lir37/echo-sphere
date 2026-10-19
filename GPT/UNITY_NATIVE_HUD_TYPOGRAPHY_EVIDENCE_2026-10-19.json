@@ -1,0 +1,3300 @@
+{
+  "entryHead": "959b619f3bca40fb886ed82dd5064a65d1c8f4f5",
+  "tracking": {
+    "status": "PASS native TextCore pixel tracking at three font sizes",
+    "rows": [
+      {
+        "size": 8,
+        "spacingPixels": 2,
+        "characters": 8,
+        "measuredAdvanceDelta": 14,
+        "expectedInterCharacterDelta": 14,
+        "error": 0
+      },
+      {
+        "size": 12,
+        "spacingPixels": 2,
+        "characters": 8,
+        "measuredAdvanceDelta": 14,
+        "expectedInterCharacterDelta": 14,
+        "error": 0
+      },
+      {
+        "size": 24,
+        "spacingPixels": 2,
+        "characters": 8,
+        "measuredAdvanceDelta": 14,
+        "expectedInterCharacterDelta": 14,
+        "error": 0
+      }
+    ]
+  },
+  "beforeOriginalGeometry": {
+    "status": "COMPLETE native geometry / preserved original full-game viewport comparison; inspect deltas before acceptance",
+    "maximum": 11.328125,
+    "rows": [
+      {
+        "fixture": "SourceGameView/ru/playing/390x844",
+        "deltas": [
+          {
+            "name": "hud-left",
+            "actual": {
+              "x": 8,
+              "y": 8,
+              "w": 177,
+              "h": 136
+            },
+            "expected": {
+              "x": 8,
+              "y": 8,
+              "w": 177,
+              "h": 136
+            },
+            "error": 0
+          },
+          {
+            "name": "hud-level",
+            "actual": {
+              "x": 19,
+              "y": 19,
+              "w": 45,
+              "h": 13
+            },
+            "expected": {
+              "x": 19,
+              "y": 19.25,
+              "w": 56.328125,
+              "h": 12
+            },
+            "error": 11.328125
+          },
+          {
+            "name": "hud-hp",
+            "actual": {
+              "x": 132,
+              "y": 17,
+              "w": 42,
+              "h": 17
+            },
+            "expected": {
+              "x": 129.796875,
+              "y": 17,
+              "w": 44.203125,
+              "h": 16.5
+            },
+            "error": 2.203125
+          },
+          {
+            "name": "hud-xp-bar",
+            "actual": {
+              "x": 19,
+              "y": 40,
+              "w": 155,
+              "h": 5
+            },
+            "expected": {
+              "x": 19,
+              "y": 39.5,
+              "w": 155,
+              "h": 5
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-hp-bar",
+            "actual": {
+              "x": 19,
+              "y": 49,
+              "w": 155,
+              "h": 4
+            },
+            "expected": {
+              "x": 19,
+              "y": 48.5,
+              "w": 155,
+              "h": 4
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-meta",
+            "actual": {
+              "x": 19,
+              "y": 86,
+              "w": 155,
+              "h": 11
+            },
+            "expected": {
+              "x": 19,
+              "y": 85,
+              "w": 155,
+              "h": 10.5
+            },
+            "error": 1
+          },
+          {
+            "name": "hud-links",
+            "actual": {
+              "x": 19,
+              "y": 102,
+              "w": 155,
+              "h": 10
+            },
+            "expected": {
+              "x": 19,
+              "y": 100.5,
+              "w": 155,
+              "h": 9
+            },
+            "error": 1.5
+          },
+          {
+            "name": "hud-right",
+            "actual": {
+              "x": 205,
+              "y": 8,
+              "w": 177,
+              "h": 136
+            },
+            "expected": {
+              "x": 205,
+              "y": 8,
+              "w": 177,
+              "h": 136
+            },
+            "error": 0
+          },
+          {
+            "name": "native-hud-radar",
+            "actual": {
+              "x": 310,
+              "y": 16,
+              "w": 62,
+              "h": 62
+            },
+            "expected": {
+              "x": 310,
+              "y": 16,
+              "w": 62,
+              "h": 62
+            },
+            "error": 0
+          },
+          {
+            "name": "hud-time",
+            "actual": {
+              "x": 332,
+              "y": 80,
+              "w": 32,
+              "h": 17
+            },
+            "expected": {
+              "x": 331.40625,
+              "y": 80,
+              "w": 32.59375,
+              "h": 16.5
+            },
+            "error": 0.59375
+          },
+          {
+            "name": "hud-region-title",
+            "actual": {
+              "x": 215,
+              "y": 104,
+              "w": 157,
+              "h": 10
+            },
+            "expected": {
+              "x": 215,
+              "y": 103.5,
+              "w": 157,
+              "h": 9.1875
+            },
+            "error": 0.8125
+          },
+          {
+            "name": "hud-region-phase",
+            "actual": {
+              "x": 215,
+              "y": 116,
+              "w": 157,
+              "h": 11
+            },
+            "expected": {
+              "x": 215,
+              "y": 114.6875,
+              "w": 157,
+              "h": 10.609375
+            },
+            "error": 1.3125
+          },
+          {
+            "name": "hud-region-pocket",
+            "actual": {
+              "x": 215,
+              "y": 129,
+              "w": 157,
+              "h": 10
+            },
+            "expected": {
+              "x": 215,
+              "y": 127.296875,
+              "w": 157,
+              "h": 9.4375
+            },
+            "error": 1.703125
+          }
+        ]
+      },
+      {
+        "fixture": "SourceGameView/en/playing/390x844",
+        "deltas": [
+          {
+            "name": "hud-left",
+            "actual": {
+              "x": 8,
+              "y": 8,
+              "w": 177,
+              "h": 136
+            },
+            "expected": {
+              "x": 8,
+              "y": 8,
+              "w": 177,
+              "h": 136
+            },
+            "error": 0
+          },
+          {
+            "name": "hud-level",
+            "actual": {
+              "x": 19,
+              "y": 19,
+              "w": 31,
+              "h": 13
+            },
+            "expected": {
+              "x": 19,
+              "y": 19.25,
+              "w": 39.4375,
+              "h": 12
+            },
+            "error": 8.4375
+          },
+          {
+            "name": "hud-hp",
+            "actual": {
+              "x": 132,
+              "y": 17,
+              "w": 42,
+              "h": 17
+            },
+            "expected": {
+              "x": 129.796875,
+              "y": 17,
+              "w": 44.203125,
+              "h": 16.5
+            },
+            "error": 2.203125
+          },
+          {
+            "name": "hud-xp-bar",
+            "actual": {
+              "x": 19,
+              "y": 40,
+              "w": 155,
+              "h": 5
+            },
+            "expected": {
+              "x": 19,
+              "y": 39.5,
+              "w": 155,
+              "h": 5
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-hp-bar",
+            "actual": {
+              "x": 19,
+              "y": 49,
+              "w": 155,
+              "h": 4
+            },
+            "expected": {
+              "x": 19,
+              "y": 48.5,
+              "w": 155,
+              "h": 4
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-meta",
+            "actual": {
+              "x": 19,
+              "y": 86,
+              "w": 155,
+              "h": 11
+            },
+            "expected": {
+              "x": 19,
+              "y": 85,
+              "w": 155,
+              "h": 10.5
+            },
+            "error": 1
+          },
+          {
+            "name": "hud-links",
+            "actual": {
+              "x": 19,
+              "y": 102,
+              "w": 155,
+              "h": 10
+            },
+            "expected": {
+              "x": 19,
+              "y": 100.5,
+              "w": 155,
+              "h": 9
+            },
+            "error": 1.5
+          },
+          {
+            "name": "hud-right",
+            "actual": {
+              "x": 205,
+              "y": 8,
+              "w": 177,
+              "h": 136
+            },
+            "expected": {
+              "x": 205,
+              "y": 8,
+              "w": 177,
+              "h": 136
+            },
+            "error": 0
+          },
+          {
+            "name": "native-hud-radar",
+            "actual": {
+              "x": 310,
+              "y": 16,
+              "w": 62,
+              "h": 62
+            },
+            "expected": {
+              "x": 310,
+              "y": 16,
+              "w": 62,
+              "h": 62
+            },
+            "error": 0
+          },
+          {
+            "name": "hud-time",
+            "actual": {
+              "x": 332,
+              "y": 80,
+              "w": 32,
+              "h": 17
+            },
+            "expected": {
+              "x": 331.40625,
+              "y": 80,
+              "w": 32.59375,
+              "h": 16.5
+            },
+            "error": 0.59375
+          },
+          {
+            "name": "hud-region-title",
+            "actual": {
+              "x": 215,
+              "y": 104,
+              "w": 157,
+              "h": 10
+            },
+            "expected": {
+              "x": 215,
+              "y": 103.5,
+              "w": 157,
+              "h": 9.1875
+            },
+            "error": 0.8125
+          },
+          {
+            "name": "hud-region-phase",
+            "actual": {
+              "x": 215,
+              "y": 116,
+              "w": 157,
+              "h": 11
+            },
+            "expected": {
+              "x": 215,
+              "y": 114.6875,
+              "w": 157,
+              "h": 10.609375
+            },
+            "error": 1.3125
+          },
+          {
+            "name": "hud-region-pocket",
+            "actual": {
+              "x": 215,
+              "y": 129,
+              "w": 157,
+              "h": 10
+            },
+            "expected": {
+              "x": 215,
+              "y": 127.296875,
+              "w": 157,
+              "h": 9.4375
+            },
+            "error": 1.703125
+          }
+        ]
+      },
+      {
+        "fixture": "SourceGameView/ru/playing/1280x720",
+        "deltas": [
+          {
+            "name": "hud-left",
+            "actual": {
+              "x": 8,
+              "y": 8,
+              "w": 300,
+              "h": 140
+            },
+            "expected": {
+              "x": 8,
+              "y": 8,
+              "w": 300,
+              "h": 140
+            },
+            "error": 0
+          },
+          {
+            "name": "hud-level",
+            "actual": {
+              "x": 19,
+              "y": 19,
+              "w": 45,
+              "h": 13
+            },
+            "expected": {
+              "x": 19,
+              "y": 19.25,
+              "w": 56.328125,
+              "h": 12
+            },
+            "error": 11.328125
+          },
+          {
+            "name": "hud-hp",
+            "actual": {
+              "x": 255,
+              "y": 17,
+              "w": 42,
+              "h": 17
+            },
+            "expected": {
+              "x": 252.796875,
+              "y": 17,
+              "w": 44.203125,
+              "h": 16.5
+            },
+            "error": 2.203125
+          },
+          {
+            "name": "hud-xp-bar",
+            "actual": {
+              "x": 19,
+              "y": 40,
+              "w": 278,
+              "h": 5
+            },
+            "expected": {
+              "x": 19,
+              "y": 39.5,
+              "w": 278,
+              "h": 5
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-hp-bar",
+            "actual": {
+              "x": 19,
+              "y": 49,
+              "w": 278,
+              "h": 4
+            },
+            "expected": {
+              "x": 19,
+              "y": 48.5,
+              "w": 278,
+              "h": 4
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-meta",
+            "actual": {
+              "x": 19,
+              "y": 86,
+              "w": 278,
+              "h": 11
+            },
+            "expected": {
+              "x": 19,
+              "y": 85,
+              "w": 278,
+              "h": 10.5
+            },
+            "error": 1
+          },
+          {
+            "name": "hud-links",
+            "actual": {
+              "x": 19,
+              "y": 102,
+              "w": 278,
+              "h": 10
+            },
+            "expected": {
+              "x": 19,
+              "y": 100.5,
+              "w": 278,
+              "h": 9
+            },
+            "error": 1.5
+          },
+          {
+            "name": "hud-right",
+            "actual": {
+              "x": 972,
+              "y": 8,
+              "w": 300,
+              "h": 140
+            },
+            "expected": {
+              "x": 972,
+              "y": 8,
+              "w": 300,
+              "h": 140
+            },
+            "error": 0
+          },
+          {
+            "name": "native-hud-radar",
+            "actual": {
+              "x": 1200,
+              "y": 16,
+              "w": 62,
+              "h": 62
+            },
+            "expected": {
+              "x": 1200,
+              "y": 16,
+              "w": 62,
+              "h": 62
+            },
+            "error": 0
+          },
+          {
+            "name": "hud-time",
+            "actual": {
+              "x": 1222,
+              "y": 80,
+              "w": 32,
+              "h": 17
+            },
+            "expected": {
+              "x": 1221.40625,
+              "y": 80,
+              "w": 32.59375,
+              "h": 16.5
+            },
+            "error": 0.59375
+          },
+          {
+            "name": "hud-region-title",
+            "actual": {
+              "x": 982,
+              "y": 104,
+              "w": 280,
+              "h": 10
+            },
+            "expected": {
+              "x": 982,
+              "y": 103.5,
+              "w": 280,
+              "h": 9.1875
+            },
+            "error": 0.8125
+          },
+          {
+            "name": "hud-region-phase",
+            "actual": {
+              "x": 982,
+              "y": 116,
+              "w": 280,
+              "h": 11
+            },
+            "expected": {
+              "x": 982,
+              "y": 114.6875,
+              "w": 280,
+              "h": 10.609375
+            },
+            "error": 1.3125
+          },
+          {
+            "name": "hud-region-pocket",
+            "actual": {
+              "x": 982,
+              "y": 129,
+              "w": 280,
+              "h": 10
+            },
+            "expected": {
+              "x": 982,
+              "y": 127.296875,
+              "w": 280,
+              "h": 9.4375
+            },
+            "error": 1.703125
+          }
+        ]
+      },
+      {
+        "fixture": "SourceGameView/en/playing/1280x720",
+        "deltas": [
+          {
+            "name": "hud-left",
+            "actual": {
+              "x": 8,
+              "y": 8,
+              "w": 300,
+              "h": 140
+            },
+            "expected": {
+              "x": 8,
+              "y": 8,
+              "w": 300,
+              "h": 140
+            },
+            "error": 0
+          },
+          {
+            "name": "hud-level",
+            "actual": {
+              "x": 19,
+              "y": 19,
+              "w": 31,
+              "h": 13
+            },
+            "expected": {
+              "x": 19,
+              "y": 19.25,
+              "w": 39.4375,
+              "h": 12
+            },
+            "error": 8.4375
+          },
+          {
+            "name": "hud-hp",
+            "actual": {
+              "x": 255,
+              "y": 17,
+              "w": 42,
+              "h": 17
+            },
+            "expected": {
+              "x": 252.796875,
+              "y": 17,
+              "w": 44.203125,
+              "h": 16.5
+            },
+            "error": 2.203125
+          },
+          {
+            "name": "hud-xp-bar",
+            "actual": {
+              "x": 19,
+              "y": 40,
+              "w": 278,
+              "h": 5
+            },
+            "expected": {
+              "x": 19,
+              "y": 39.5,
+              "w": 278,
+              "h": 5
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-hp-bar",
+            "actual": {
+              "x": 19,
+              "y": 49,
+              "w": 278,
+              "h": 4
+            },
+            "expected": {
+              "x": 19,
+              "y": 48.5,
+              "w": 278,
+              "h": 4
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-meta",
+            "actual": {
+              "x": 19,
+              "y": 86,
+              "w": 278,
+              "h": 11
+            },
+            "expected": {
+              "x": 19,
+              "y": 85,
+              "w": 278,
+              "h": 10.5
+            },
+            "error": 1
+          },
+          {
+            "name": "hud-links",
+            "actual": {
+              "x": 19,
+              "y": 102,
+              "w": 278,
+              "h": 10
+            },
+            "expected": {
+              "x": 19,
+              "y": 100.5,
+              "w": 278,
+              "h": 9
+            },
+            "error": 1.5
+          },
+          {
+            "name": "hud-right",
+            "actual": {
+              "x": 972,
+              "y": 8,
+              "w": 300,
+              "h": 140
+            },
+            "expected": {
+              "x": 972,
+              "y": 8,
+              "w": 300,
+              "h": 140
+            },
+            "error": 0
+          },
+          {
+            "name": "native-hud-radar",
+            "actual": {
+              "x": 1200,
+              "y": 16,
+              "w": 62,
+              "h": 62
+            },
+            "expected": {
+              "x": 1200,
+              "y": 16,
+              "w": 62,
+              "h": 62
+            },
+            "error": 0
+          },
+          {
+            "name": "hud-time",
+            "actual": {
+              "x": 1222,
+              "y": 80,
+              "w": 32,
+              "h": 17
+            },
+            "expected": {
+              "x": 1221.40625,
+              "y": 80,
+              "w": 32.59375,
+              "h": 16.5
+            },
+            "error": 0.59375
+          },
+          {
+            "name": "hud-region-title",
+            "actual": {
+              "x": 982,
+              "y": 104,
+              "w": 280,
+              "h": 10
+            },
+            "expected": {
+              "x": 982,
+              "y": 103.5,
+              "w": 280,
+              "h": 9.1875
+            },
+            "error": 0.8125
+          },
+          {
+            "name": "hud-region-phase",
+            "actual": {
+              "x": 982,
+              "y": 116,
+              "w": 280,
+              "h": 11
+            },
+            "expected": {
+              "x": 982,
+              "y": 114.6875,
+              "w": 280,
+              "h": 10.609375
+            },
+            "error": 1.3125
+          },
+          {
+            "name": "hud-region-pocket",
+            "actual": {
+              "x": 982,
+              "y": 129,
+              "w": 280,
+              "h": 10
+            },
+            "expected": {
+              "x": 982,
+              "y": 127.296875,
+              "w": 280,
+              "h": 9.4375
+            },
+            "error": 1.703125
+          }
+        ]
+      },
+      {
+        "fixture": "SourceGameView/ru/playing/360x520",
+        "deltas": [
+          {
+            "name": "hud-left",
+            "actual": {
+              "x": 8,
+              "y": 8,
+              "w": 162,
+              "h": 136
+            },
+            "expected": {
+              "x": 8,
+              "y": 8,
+              "w": 162,
+              "h": 136
+            },
+            "error": 0
+          },
+          {
+            "name": "hud-level",
+            "actual": {
+              "x": 14,
+              "y": 16,
+              "w": 45,
+              "h": 13
+            },
+            "expected": {
+              "x": 14,
+              "y": 16.25,
+              "w": 56.328125,
+              "h": 12
+            },
+            "error": 11.328125
+          },
+          {
+            "name": "hud-hp",
+            "actual": {
+              "x": 122,
+              "y": 14,
+              "w": 42,
+              "h": 17
+            },
+            "expected": {
+              "x": 119.796875,
+              "y": 14,
+              "w": 44.203125,
+              "h": 16.5
+            },
+            "error": 2.203125
+          },
+          {
+            "name": "hud-xp-bar",
+            "actual": {
+              "x": 14,
+              "y": 37,
+              "w": 150,
+              "h": 5
+            },
+            "expected": {
+              "x": 14,
+              "y": 36.5,
+              "w": 150,
+              "h": 5
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-hp-bar",
+            "actual": {
+              "x": 14,
+              "y": 46,
+              "w": 150,
+              "h": 4
+            },
+            "expected": {
+              "x": 14,
+              "y": 45.5,
+              "w": 150,
+              "h": 4
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-meta",
+            "actual": {
+              "x": 14,
+              "y": 83,
+              "w": 150,
+              "h": 11
+            },
+            "expected": {
+              "x": 14,
+              "y": 82,
+              "w": 150,
+              "h": 10.5
+            },
+            "error": 1
+          },
+          {
+            "name": "hud-links",
+            "actual": {
+              "x": 14,
+              "y": 99,
+              "w": 150,
+              "h": 10
+            },
+            "expected": {
+              "x": 14,
+              "y": 97.5,
+              "w": 150,
+              "h": 9
+            },
+            "error": 1.5
+          },
+          {
+            "name": "hud-right",
+            "actual": {
+              "x": 190,
+              "y": 8,
+              "w": 162,
+              "h": 136
+            },
+            "expected": {
+              "x": 190,
+              "y": 8,
+              "w": 162,
+              "h": 136
+            },
+            "error": 0
+          },
+          {
+            "name": "native-hud-radar",
+            "actual": {
+              "x": 280,
+              "y": 16,
+              "w": 62,
+              "h": 62
+            },
+            "expected": {
+              "x": 280,
+              "y": 16,
+              "w": 62,
+              "h": 62
+            },
+            "error": 0
+          },
+          {
+            "name": "hud-time",
+            "actual": {
+              "x": 302,
+              "y": 80,
+              "w": 32,
+              "h": 17
+            },
+            "expected": {
+              "x": 301.40625,
+              "y": 80,
+              "w": 32.59375,
+              "h": 16.5
+            },
+            "error": 0.59375
+          },
+          {
+            "name": "hud-region-title",
+            "actual": {
+              "x": 200,
+              "y": 104,
+              "w": 142,
+              "h": 10
+            },
+            "expected": {
+              "x": 200,
+              "y": 103.5,
+              "w": 142,
+              "h": 9.1875
+            },
+            "error": 0.8125
+          },
+          {
+            "name": "hud-region-phase",
+            "actual": {
+              "x": 200,
+              "y": 116,
+              "w": 142,
+              "h": 11
+            },
+            "expected": {
+              "x": 200,
+              "y": 114.6875,
+              "w": 142,
+              "h": 10.609375
+            },
+            "error": 1.3125
+          },
+          {
+            "name": "hud-region-pocket",
+            "actual": {
+              "x": 200,
+              "y": 129,
+              "w": 142,
+              "h": 10
+            },
+            "expected": {
+              "x": 200,
+              "y": 127.296875,
+              "w": 142,
+              "h": 9.4375
+            },
+            "error": 1.703125
+          }
+        ]
+      },
+      {
+        "fixture": "SourceGameView/en/playing/360x520",
+        "deltas": [
+          {
+            "name": "hud-left",
+            "actual": {
+              "x": 8,
+              "y": 8,
+              "w": 162,
+              "h": 136
+            },
+            "expected": {
+              "x": 8,
+              "y": 8,
+              "w": 162,
+              "h": 136
+            },
+            "error": 0
+          },
+          {
+            "name": "hud-level",
+            "actual": {
+              "x": 14,
+              "y": 16,
+              "w": 31,
+              "h": 13
+            },
+            "expected": {
+              "x": 14,
+              "y": 16.25,
+              "w": 39.4375,
+              "h": 12
+            },
+            "error": 8.4375
+          },
+          {
+            "name": "hud-hp",
+            "actual": {
+              "x": 122,
+              "y": 14,
+              "w": 42,
+              "h": 17
+            },
+            "expected": {
+              "x": 119.796875,
+              "y": 14,
+              "w": 44.203125,
+              "h": 16.5
+            },
+            "error": 2.203125
+          },
+          {
+            "name": "hud-xp-bar",
+            "actual": {
+              "x": 14,
+              "y": 37,
+              "w": 150,
+              "h": 5
+            },
+            "expected": {
+              "x": 14,
+              "y": 36.5,
+              "w": 150,
+              "h": 5
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-hp-bar",
+            "actual": {
+              "x": 14,
+              "y": 46,
+              "w": 150,
+              "h": 4
+            },
+            "expected": {
+              "x": 14,
+              "y": 45.5,
+              "w": 150,
+              "h": 4
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-meta",
+            "actual": {
+              "x": 14,
+              "y": 83,
+              "w": 150,
+              "h": 11
+            },
+            "expected": {
+              "x": 14,
+              "y": 82,
+              "w": 150,
+              "h": 10.5
+            },
+            "error": 1
+          },
+          {
+            "name": "hud-links",
+            "actual": {
+              "x": 14,
+              "y": 99,
+              "w": 150,
+              "h": 10
+            },
+            "expected": {
+              "x": 14,
+              "y": 97.5,
+              "w": 150,
+              "h": 9
+            },
+            "error": 1.5
+          },
+          {
+            "name": "hud-right",
+            "actual": {
+              "x": 190,
+              "y": 8,
+              "w": 162,
+              "h": 136
+            },
+            "expected": {
+              "x": 190,
+              "y": 8,
+              "w": 162,
+              "h": 136
+            },
+            "error": 0
+          },
+          {
+            "name": "native-hud-radar",
+            "actual": {
+              "x": 280,
+              "y": 16,
+              "w": 62,
+              "h": 62
+            },
+            "expected": {
+              "x": 280,
+              "y": 16,
+              "w": 62,
+              "h": 62
+            },
+            "error": 0
+          },
+          {
+            "name": "hud-time",
+            "actual": {
+              "x": 302,
+              "y": 80,
+              "w": 32,
+              "h": 17
+            },
+            "expected": {
+              "x": 301.40625,
+              "y": 80,
+              "w": 32.59375,
+              "h": 16.5
+            },
+            "error": 0.59375
+          },
+          {
+            "name": "hud-region-title",
+            "actual": {
+              "x": 200,
+              "y": 104,
+              "w": 142,
+              "h": 10
+            },
+            "expected": {
+              "x": 200,
+              "y": 103.5,
+              "w": 142,
+              "h": 9.1875
+            },
+            "error": 0.8125
+          },
+          {
+            "name": "hud-region-phase",
+            "actual": {
+              "x": 200,
+              "y": 116,
+              "w": 142,
+              "h": 11
+            },
+            "expected": {
+              "x": 200,
+              "y": 114.6875,
+              "w": 142,
+              "h": 10.609375
+            },
+            "error": 1.3125
+          },
+          {
+            "name": "hud-region-pocket",
+            "actual": {
+              "x": 200,
+              "y": 129,
+              "w": 142,
+              "h": 10
+            },
+            "expected": {
+              "x": 200,
+              "y": 127.296875,
+              "w": 142,
+              "h": 9.4375
+            },
+            "error": 1.703125
+          }
+        ]
+      }
+    ],
+    "directory": "C:/Users/toxik/Documents/GitHub/echo/UnityProject/Assets\\../Temp/native-hud-original-geometry\\20261019-105857-630"
+  },
+  "afterOriginalGeometry": {
+    "status": "COMPLETE native geometry / preserved original full-game viewport comparison; inspect deltas before acceptance",
+    "maximum": 2.40625,
+    "rows": [
+      {
+        "fixture": "SourceGameView/ru/playing/390x844",
+        "deltas": [
+          {
+            "name": "hud-left",
+            "typography": null,
+            "actual": {
+              "x": 8,
+              "y": 8,
+              "w": 177,
+              "h": 136
+            },
+            "expected": {
+              "x": 8,
+              "y": 8,
+              "w": 177,
+              "h": 136
+            },
+            "error": 0
+          },
+          {
+            "name": "hud-level",
+            "typography": {
+              "size": 8,
+              "expectedSize": 8,
+              "trackingPixels": 1.76,
+              "expectedTracking": 1.76,
+              "trackingError": 0
+            },
+            "actual": {
+              "x": 19,
+              "y": 19,
+              "w": 58,
+              "h": 12
+            },
+            "expected": {
+              "x": 19,
+              "y": 19.25,
+              "w": 56.328125,
+              "h": 12
+            },
+            "error": 1.671875
+          },
+          {
+            "name": "hud-hp",
+            "typography": {
+              "size": 11,
+              "expectedSize": 11,
+              "trackingPixels": 0.192,
+              "expectedTracking": 0.192,
+              "trackingError": 0
+            },
+            "actual": {
+              "x": 131,
+              "y": 17,
+              "w": 43,
+              "h": 17
+            },
+            "expected": {
+              "x": 129.796875,
+              "y": 17,
+              "w": 44.203125,
+              "h": 16.5
+            },
+            "error": 1.203125
+          },
+          {
+            "name": "hud-xp-bar",
+            "typography": null,
+            "actual": {
+              "x": 19,
+              "y": 40,
+              "w": 155,
+              "h": 5
+            },
+            "expected": {
+              "x": 19,
+              "y": 39.5,
+              "w": 155,
+              "h": 5
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-hp-bar",
+            "typography": null,
+            "actual": {
+              "x": 19,
+              "y": 49,
+              "w": 155,
+              "h": 4
+            },
+            "expected": {
+              "x": 19,
+              "y": 48.5,
+              "w": 155,
+              "h": 4
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-meta",
+            "typography": null,
+            "actual": {
+              "x": 19,
+              "y": 85,
+              "w": 155,
+              "h": 11
+            },
+            "expected": {
+              "x": 19,
+              "y": 85,
+              "w": 155,
+              "h": 10.5
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-spheres",
+            "typography": {
+              "size": 7,
+              "expectedSize": 7,
+              "trackingPixels": 0.91,
+              "expectedTracking": 0.91,
+              "trackingError": 0
+            },
+            "actual": {
+              "x": 19,
+              "y": 85,
+              "w": 74,
+              "h": 11
+            },
+            "expected": {
+              "x": 19,
+              "y": 85,
+              "w": 73.5,
+              "h": 10.5
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-wave",
+            "typography": {
+              "size": 7,
+              "expectedSize": 7,
+              "trackingPixels": 0.91,
+              "expectedTracking": 0.91,
+              "trackingError": 0
+            },
+            "actual": {
+              "x": 101,
+              "y": 85,
+              "w": 73,
+              "h": 11
+            },
+            "expected": {
+              "x": 100.5,
+              "y": 85,
+              "w": 73.5,
+              "h": 10.5
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-links",
+            "typography": null,
+            "actual": {
+              "x": 19,
+              "y": 101,
+              "w": 155,
+              "h": 9
+            },
+            "expected": {
+              "x": 19,
+              "y": 100.5,
+              "w": 155,
+              "h": 9
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-right",
+            "typography": null,
+            "actual": {
+              "x": 205,
+              "y": 8,
+              "w": 177,
+              "h": 136
+            },
+            "expected": {
+              "x": 205,
+              "y": 8,
+              "w": 177,
+              "h": 136
+            },
+            "error": 0
+          },
+          {
+            "name": "native-hud-radar",
+            "typography": null,
+            "actual": {
+              "x": 310,
+              "y": 16,
+              "w": 62,
+              "h": 62
+            },
+            "expected": {
+              "x": 310,
+              "y": 16,
+              "w": 62,
+              "h": 62
+            },
+            "error": 0
+          },
+          {
+            "name": "hud-time",
+            "typography": {
+              "size": 11,
+              "expectedSize": 11,
+              "trackingPixels": 1.1,
+              "expectedTracking": 1.1,
+              "trackingError": 0
+            },
+            "actual": {
+              "x": 329,
+              "y": 80,
+              "w": 35,
+              "h": 17
+            },
+            "expected": {
+              "x": 331.40625,
+              "y": 80,
+              "w": 32.59375,
+              "h": 16.5
+            },
+            "error": 2.40625
+          },
+          {
+            "name": "hud-region-title",
+            "typography": {
+              "size": 8,
+              "expectedSize": 8,
+              "trackingPixels": 1.12,
+              "expectedTracking": 1.12,
+              "trackingError": 0
+            },
+            "actual": {
+              "x": 215,
+              "y": 104,
+              "w": 157,
+              "h": 10
+            },
+            "expected": {
+              "x": 215,
+              "y": 103.5,
+              "w": 157,
+              "h": 9.1875
+            },
+            "error": 0.8125
+          },
+          {
+            "name": "hud-region-phase",
+            "typography": {
+              "size": 9,
+              "expectedSize": 9,
+              "trackingPixels": 0.192000017,
+              "expectedTracking": 0.192,
+              "trackingError": 1.49011612e-8
+            },
+            "actual": {
+              "x": 215,
+              "y": 116,
+              "w": 157,
+              "h": 11
+            },
+            "expected": {
+              "x": 215,
+              "y": 114.6875,
+              "w": 157,
+              "h": 10.609375
+            },
+            "error": 1.3125
+          },
+          {
+            "name": "hud-region-pocket",
+            "typography": {
+              "size": 7,
+              "expectedSize": 7,
+              "trackingPixels": 0.192,
+              "expectedTracking": 0.192,
+              "trackingError": 0
+            },
+            "actual": {
+              "x": 215,
+              "y": 129,
+              "w": 157,
+              "h": 10
+            },
+            "expected": {
+              "x": 215,
+              "y": 127.296875,
+              "w": 157,
+              "h": 9.4375
+            },
+            "error": 1.703125
+          }
+        ]
+      },
+      {
+        "fixture": "SourceGameView/en/playing/390x844",
+        "deltas": [
+          {
+            "name": "hud-left",
+            "typography": null,
+            "actual": {
+              "x": 8,
+              "y": 8,
+              "w": 177,
+              "h": 136
+            },
+            "expected": {
+              "x": 8,
+              "y": 8,
+              "w": 177,
+              "h": 136
+            },
+            "error": 0
+          },
+          {
+            "name": "hud-level",
+            "typography": {
+              "size": 8,
+              "expectedSize": 8,
+              "trackingPixels": 1.76,
+              "expectedTracking": 1.76,
+              "trackingError": 0
+            },
+            "actual": {
+              "x": 19,
+              "y": 19,
+              "w": 41,
+              "h": 12
+            },
+            "expected": {
+              "x": 19,
+              "y": 19.25,
+              "w": 39.4375,
+              "h": 12
+            },
+            "error": 1.5625
+          },
+          {
+            "name": "hud-hp",
+            "typography": {
+              "size": 11,
+              "expectedSize": 11,
+              "trackingPixels": 0.192,
+              "expectedTracking": 0.192,
+              "trackingError": 0
+            },
+            "actual": {
+              "x": 131,
+              "y": 17,
+              "w": 43,
+              "h": 17
+            },
+            "expected": {
+              "x": 129.796875,
+              "y": 17,
+              "w": 44.203125,
+              "h": 16.5
+            },
+            "error": 1.203125
+          },
+          {
+            "name": "hud-xp-bar",
+            "typography": null,
+            "actual": {
+              "x": 19,
+              "y": 40,
+              "w": 155,
+              "h": 5
+            },
+            "expected": {
+              "x": 19,
+              "y": 39.5,
+              "w": 155,
+              "h": 5
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-hp-bar",
+            "typography": null,
+            "actual": {
+              "x": 19,
+              "y": 49,
+              "w": 155,
+              "h": 4
+            },
+            "expected": {
+              "x": 19,
+              "y": 48.5,
+              "w": 155,
+              "h": 4
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-meta",
+            "typography": null,
+            "actual": {
+              "x": 19,
+              "y": 85,
+              "w": 155,
+              "h": 11
+            },
+            "expected": {
+              "x": 19,
+              "y": 85,
+              "w": 155,
+              "h": 10.5
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-spheres",
+            "typography": {
+              "size": 7,
+              "expectedSize": 7,
+              "trackingPixels": 0.91,
+              "expectedTracking": 0.91,
+              "trackingError": 0
+            },
+            "actual": {
+              "x": 19,
+              "y": 85,
+              "w": 74,
+              "h": 11
+            },
+            "expected": {
+              "x": 19,
+              "y": 85,
+              "w": 73.5,
+              "h": 10.5
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-wave",
+            "typography": {
+              "size": 7,
+              "expectedSize": 7,
+              "trackingPixels": 0.91,
+              "expectedTracking": 0.91,
+              "trackingError": 0
+            },
+            "actual": {
+              "x": 101,
+              "y": 85,
+              "w": 73,
+              "h": 11
+            },
+            "expected": {
+              "x": 100.5,
+              "y": 85,
+              "w": 73.5,
+              "h": 10.5
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-links",
+            "typography": null,
+            "actual": {
+              "x": 19,
+              "y": 101,
+              "w": 155,
+              "h": 9
+            },
+            "expected": {
+              "x": 19,
+              "y": 100.5,
+              "w": 155,
+              "h": 9
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-right",
+            "typography": null,
+            "actual": {
+              "x": 205,
+              "y": 8,
+              "w": 177,
+              "h": 136
+            },
+            "expected": {
+              "x": 205,
+              "y": 8,
+              "w": 177,
+              "h": 136
+            },
+            "error": 0
+          },
+          {
+            "name": "native-hud-radar",
+            "typography": null,
+            "actual": {
+              "x": 310,
+              "y": 16,
+              "w": 62,
+              "h": 62
+            },
+            "expected": {
+              "x": 310,
+              "y": 16,
+              "w": 62,
+              "h": 62
+            },
+            "error": 0
+          },
+          {
+            "name": "hud-time",
+            "typography": {
+              "size": 11,
+              "expectedSize": 11,
+              "trackingPixels": 1.1,
+              "expectedTracking": 1.1,
+              "trackingError": 0
+            },
+            "actual": {
+              "x": 329,
+              "y": 80,
+              "w": 35,
+              "h": 17
+            },
+            "expected": {
+              "x": 331.40625,
+              "y": 80,
+              "w": 32.59375,
+              "h": 16.5
+            },
+            "error": 2.40625
+          },
+          {
+            "name": "hud-region-title",
+            "typography": {
+              "size": 8,
+              "expectedSize": 8,
+              "trackingPixels": 1.12,
+              "expectedTracking": 1.12,
+              "trackingError": 0
+            },
+            "actual": {
+              "x": 215,
+              "y": 104,
+              "w": 157,
+              "h": 10
+            },
+            "expected": {
+              "x": 215,
+              "y": 103.5,
+              "w": 157,
+              "h": 9.1875
+            },
+            "error": 0.8125
+          },
+          {
+            "name": "hud-region-phase",
+            "typography": {
+              "size": 9,
+              "expectedSize": 9,
+              "trackingPixels": 0.192000017,
+              "expectedTracking": 0.192,
+              "trackingError": 1.49011612e-8
+            },
+            "actual": {
+              "x": 215,
+              "y": 116,
+              "w": 157,
+              "h": 11
+            },
+            "expected": {
+              "x": 215,
+              "y": 114.6875,
+              "w": 157,
+              "h": 10.609375
+            },
+            "error": 1.3125
+          },
+          {
+            "name": "hud-region-pocket",
+            "typography": {
+              "size": 7,
+              "expectedSize": 7,
+              "trackingPixels": 0.192,
+              "expectedTracking": 0.192,
+              "trackingError": 0
+            },
+            "actual": {
+              "x": 215,
+              "y": 129,
+              "w": 157,
+              "h": 10
+            },
+            "expected": {
+              "x": 215,
+              "y": 127.296875,
+              "w": 157,
+              "h": 9.4375
+            },
+            "error": 1.703125
+          }
+        ]
+      },
+      {
+        "fixture": "SourceGameView/ru/playing/1280x720",
+        "deltas": [
+          {
+            "name": "hud-left",
+            "typography": null,
+            "actual": {
+              "x": 8,
+              "y": 8,
+              "w": 300,
+              "h": 140
+            },
+            "expected": {
+              "x": 8,
+              "y": 8,
+              "w": 300,
+              "h": 140
+            },
+            "error": 0
+          },
+          {
+            "name": "hud-level",
+            "typography": {
+              "size": 8,
+              "expectedSize": 8,
+              "trackingPixels": 1.76,
+              "expectedTracking": 1.76,
+              "trackingError": 0
+            },
+            "actual": {
+              "x": 19,
+              "y": 19,
+              "w": 58,
+              "h": 12
+            },
+            "expected": {
+              "x": 19,
+              "y": 19.25,
+              "w": 56.328125,
+              "h": 12
+            },
+            "error": 1.671875
+          },
+          {
+            "name": "hud-hp",
+            "typography": {
+              "size": 11,
+              "expectedSize": 11,
+              "trackingPixels": 0.192,
+              "expectedTracking": 0.192,
+              "trackingError": 0
+            },
+            "actual": {
+              "x": 254,
+              "y": 17,
+              "w": 43,
+              "h": 17
+            },
+            "expected": {
+              "x": 252.796875,
+              "y": 17,
+              "w": 44.203125,
+              "h": 16.5
+            },
+            "error": 1.203125
+          },
+          {
+            "name": "hud-xp-bar",
+            "typography": null,
+            "actual": {
+              "x": 19,
+              "y": 40,
+              "w": 278,
+              "h": 5
+            },
+            "expected": {
+              "x": 19,
+              "y": 39.5,
+              "w": 278,
+              "h": 5
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-hp-bar",
+            "typography": null,
+            "actual": {
+              "x": 19,
+              "y": 49,
+              "w": 278,
+              "h": 4
+            },
+            "expected": {
+              "x": 19,
+              "y": 48.5,
+              "w": 278,
+              "h": 4
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-meta",
+            "typography": null,
+            "actual": {
+              "x": 19,
+              "y": 85,
+              "w": 278,
+              "h": 11
+            },
+            "expected": {
+              "x": 19,
+              "y": 85,
+              "w": 278,
+              "h": 10.5
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-spheres",
+            "typography": {
+              "size": 7,
+              "expectedSize": 7,
+              "trackingPixels": 0.91,
+              "expectedTracking": 0.91,
+              "trackingError": 0
+            },
+            "actual": {
+              "x": 19,
+              "y": 85,
+              "w": 135,
+              "h": 11
+            },
+            "expected": {
+              "x": 19,
+              "y": 85,
+              "w": 135,
+              "h": 10.5
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-wave",
+            "typography": {
+              "size": 7,
+              "expectedSize": 7,
+              "trackingPixels": 0.91,
+              "expectedTracking": 0.91,
+              "trackingError": 0
+            },
+            "actual": {
+              "x": 162,
+              "y": 85,
+              "w": 135,
+              "h": 11
+            },
+            "expected": {
+              "x": 162,
+              "y": 85,
+              "w": 135,
+              "h": 10.5
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-links",
+            "typography": null,
+            "actual": {
+              "x": 19,
+              "y": 101,
+              "w": 278,
+              "h": 9
+            },
+            "expected": {
+              "x": 19,
+              "y": 100.5,
+              "w": 278,
+              "h": 9
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-right",
+            "typography": null,
+            "actual": {
+              "x": 972,
+              "y": 8,
+              "w": 300,
+              "h": 140
+            },
+            "expected": {
+              "x": 972,
+              "y": 8,
+              "w": 300,
+              "h": 140
+            },
+            "error": 0
+          },
+          {
+            "name": "native-hud-radar",
+            "typography": null,
+            "actual": {
+              "x": 1200,
+              "y": 16,
+              "w": 62,
+              "h": 62
+            },
+            "expected": {
+              "x": 1200,
+              "y": 16,
+              "w": 62,
+              "h": 62
+            },
+            "error": 0
+          },
+          {
+            "name": "hud-time",
+            "typography": {
+              "size": 11,
+              "expectedSize": 11,
+              "trackingPixels": 1.1,
+              "expectedTracking": 1.1,
+              "trackingError": 0
+            },
+            "actual": {
+              "x": 1219,
+              "y": 80,
+              "w": 35,
+              "h": 17
+            },
+            "expected": {
+              "x": 1221.40625,
+              "y": 80,
+              "w": 32.59375,
+              "h": 16.5
+            },
+            "error": 2.40625
+          },
+          {
+            "name": "hud-region-title",
+            "typography": {
+              "size": 8,
+              "expectedSize": 8,
+              "trackingPixels": 1.12,
+              "expectedTracking": 1.12,
+              "trackingError": 0
+            },
+            "actual": {
+              "x": 982,
+              "y": 104,
+              "w": 280,
+              "h": 10
+            },
+            "expected": {
+              "x": 982,
+              "y": 103.5,
+              "w": 280,
+              "h": 9.1875
+            },
+            "error": 0.8125
+          },
+          {
+            "name": "hud-region-phase",
+            "typography": {
+              "size": 9,
+              "expectedSize": 9,
+              "trackingPixels": 0.192000017,
+              "expectedTracking": 0.192,
+              "trackingError": 1.49011612e-8
+            },
+            "actual": {
+              "x": 982,
+              "y": 116,
+              "w": 280,
+              "h": 11
+            },
+            "expected": {
+              "x": 982,
+              "y": 114.6875,
+              "w": 280,
+              "h": 10.609375
+            },
+            "error": 1.3125
+          },
+          {
+            "name": "hud-region-pocket",
+            "typography": {
+              "size": 7,
+              "expectedSize": 7,
+              "trackingPixels": 0.192,
+              "expectedTracking": 0.192,
+              "trackingError": 0
+            },
+            "actual": {
+              "x": 982,
+              "y": 129,
+              "w": 280,
+              "h": 10
+            },
+            "expected": {
+              "x": 982,
+              "y": 127.296875,
+              "w": 280,
+              "h": 9.4375
+            },
+            "error": 1.703125
+          }
+        ]
+      },
+      {
+        "fixture": "SourceGameView/en/playing/1280x720",
+        "deltas": [
+          {
+            "name": "hud-left",
+            "typography": null,
+            "actual": {
+              "x": 8,
+              "y": 8,
+              "w": 300,
+              "h": 140
+            },
+            "expected": {
+              "x": 8,
+              "y": 8,
+              "w": 300,
+              "h": 140
+            },
+            "error": 0
+          },
+          {
+            "name": "hud-level",
+            "typography": {
+              "size": 8,
+              "expectedSize": 8,
+              "trackingPixels": 1.76,
+              "expectedTracking": 1.76,
+              "trackingError": 0
+            },
+            "actual": {
+              "x": 19,
+              "y": 19,
+              "w": 41,
+              "h": 12
+            },
+            "expected": {
+              "x": 19,
+              "y": 19.25,
+              "w": 39.4375,
+              "h": 12
+            },
+            "error": 1.5625
+          },
+          {
+            "name": "hud-hp",
+            "typography": {
+              "size": 11,
+              "expectedSize": 11,
+              "trackingPixels": 0.192,
+              "expectedTracking": 0.192,
+              "trackingError": 0
+            },
+            "actual": {
+              "x": 254,
+              "y": 17,
+              "w": 43,
+              "h": 17
+            },
+            "expected": {
+              "x": 252.796875,
+              "y": 17,
+              "w": 44.203125,
+              "h": 16.5
+            },
+            "error": 1.203125
+          },
+          {
+            "name": "hud-xp-bar",
+            "typography": null,
+            "actual": {
+              "x": 19,
+              "y": 40,
+              "w": 278,
+              "h": 5
+            },
+            "expected": {
+              "x": 19,
+              "y": 39.5,
+              "w": 278,
+              "h": 5
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-hp-bar",
+            "typography": null,
+            "actual": {
+              "x": 19,
+              "y": 49,
+              "w": 278,
+              "h": 4
+            },
+            "expected": {
+              "x": 19,
+              "y": 48.5,
+              "w": 278,
+              "h": 4
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-meta",
+            "typography": null,
+            "actual": {
+              "x": 19,
+              "y": 85,
+              "w": 278,
+              "h": 11
+            },
+            "expected": {
+              "x": 19,
+              "y": 85,
+              "w": 278,
+              "h": 10.5
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-spheres",
+            "typography": {
+              "size": 7,
+              "expectedSize": 7,
+              "trackingPixels": 0.91,
+              "expectedTracking": 0.91,
+              "trackingError": 0
+            },
+            "actual": {
+              "x": 19,
+              "y": 85,
+              "w": 135,
+              "h": 11
+            },
+            "expected": {
+              "x": 19,
+              "y": 85,
+              "w": 135,
+              "h": 10.5
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-wave",
+            "typography": {
+              "size": 7,
+              "expectedSize": 7,
+              "trackingPixels": 0.91,
+              "expectedTracking": 0.91,
+              "trackingError": 0
+            },
+            "actual": {
+              "x": 162,
+              "y": 85,
+              "w": 135,
+              "h": 11
+            },
+            "expected": {
+              "x": 162,
+              "y": 85,
+              "w": 135,
+              "h": 10.5
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-links",
+            "typography": null,
+            "actual": {
+              "x": 19,
+              "y": 101,
+              "w": 278,
+              "h": 9
+            },
+            "expected": {
+              "x": 19,
+              "y": 100.5,
+              "w": 278,
+              "h": 9
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-right",
+            "typography": null,
+            "actual": {
+              "x": 972,
+              "y": 8,
+              "w": 300,
+              "h": 140
+            },
+            "expected": {
+              "x": 972,
+              "y": 8,
+              "w": 300,
+              "h": 140
+            },
+            "error": 0
+          },
+          {
+            "name": "native-hud-radar",
+            "typography": null,
+            "actual": {
+              "x": 1200,
+              "y": 16,
+              "w": 62,
+              "h": 62
+            },
+            "expected": {
+              "x": 1200,
+              "y": 16,
+              "w": 62,
+              "h": 62
+            },
+            "error": 0
+          },
+          {
+            "name": "hud-time",
+            "typography": {
+              "size": 11,
+              "expectedSize": 11,
+              "trackingPixels": 1.1,
+              "expectedTracking": 1.1,
+              "trackingError": 0
+            },
+            "actual": {
+              "x": 1219,
+              "y": 80,
+              "w": 35,
+              "h": 17
+            },
+            "expected": {
+              "x": 1221.40625,
+              "y": 80,
+              "w": 32.59375,
+              "h": 16.5
+            },
+            "error": 2.40625
+          },
+          {
+            "name": "hud-region-title",
+            "typography": {
+              "size": 8,
+              "expectedSize": 8,
+              "trackingPixels": 1.12,
+              "expectedTracking": 1.12,
+              "trackingError": 0
+            },
+            "actual": {
+              "x": 982,
+              "y": 104,
+              "w": 280,
+              "h": 10
+            },
+            "expected": {
+              "x": 982,
+              "y": 103.5,
+              "w": 280,
+              "h": 9.1875
+            },
+            "error": 0.8125
+          },
+          {
+            "name": "hud-region-phase",
+            "typography": {
+              "size": 9,
+              "expectedSize": 9,
+              "trackingPixels": 0.192000017,
+              "expectedTracking": 0.192,
+              "trackingError": 1.49011612e-8
+            },
+            "actual": {
+              "x": 982,
+              "y": 116,
+              "w": 280,
+              "h": 11
+            },
+            "expected": {
+              "x": 982,
+              "y": 114.6875,
+              "w": 280,
+              "h": 10.609375
+            },
+            "error": 1.3125
+          },
+          {
+            "name": "hud-region-pocket",
+            "typography": {
+              "size": 7,
+              "expectedSize": 7,
+              "trackingPixels": 0.192,
+              "expectedTracking": 0.192,
+              "trackingError": 0
+            },
+            "actual": {
+              "x": 982,
+              "y": 129,
+              "w": 280,
+              "h": 10
+            },
+            "expected": {
+              "x": 982,
+              "y": 127.296875,
+              "w": 280,
+              "h": 9.4375
+            },
+            "error": 1.703125
+          }
+        ]
+      },
+      {
+        "fixture": "SourceGameView/ru/playing/360x520",
+        "deltas": [
+          {
+            "name": "hud-left",
+            "typography": null,
+            "actual": {
+              "x": 8,
+              "y": 8,
+              "w": 162,
+              "h": 136
+            },
+            "expected": {
+              "x": 8,
+              "y": 8,
+              "w": 162,
+              "h": 136
+            },
+            "error": 0
+          },
+          {
+            "name": "hud-level",
+            "typography": {
+              "size": 8,
+              "expectedSize": 8,
+              "trackingPixels": 1.76,
+              "expectedTracking": 1.76,
+              "trackingError": 0
+            },
+            "actual": {
+              "x": 14,
+              "y": 16,
+              "w": 58,
+              "h": 12
+            },
+            "expected": {
+              "x": 14,
+              "y": 16.25,
+              "w": 56.328125,
+              "h": 12
+            },
+            "error": 1.671875
+          },
+          {
+            "name": "hud-hp",
+            "typography": {
+              "size": 11,
+              "expectedSize": 11,
+              "trackingPixels": 0.192,
+              "expectedTracking": 0.192,
+              "trackingError": 0
+            },
+            "actual": {
+              "x": 121,
+              "y": 14,
+              "w": 43,
+              "h": 17
+            },
+            "expected": {
+              "x": 119.796875,
+              "y": 14,
+              "w": 44.203125,
+              "h": 16.5
+            },
+            "error": 1.203125
+          },
+          {
+            "name": "hud-xp-bar",
+            "typography": null,
+            "actual": {
+              "x": 14,
+              "y": 37,
+              "w": 150,
+              "h": 5
+            },
+            "expected": {
+              "x": 14,
+              "y": 36.5,
+              "w": 150,
+              "h": 5
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-hp-bar",
+            "typography": null,
+            "actual": {
+              "x": 14,
+              "y": 46,
+              "w": 150,
+              "h": 4
+            },
+            "expected": {
+              "x": 14,
+              "y": 45.5,
+              "w": 150,
+              "h": 4
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-meta",
+            "typography": null,
+            "actual": {
+              "x": 14,
+              "y": 82,
+              "w": 150,
+              "h": 11
+            },
+            "expected": {
+              "x": 14,
+              "y": 82,
+              "w": 150,
+              "h": 10.5
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-spheres",
+            "typography": {
+              "size": 7,
+              "expectedSize": 7,
+              "trackingPixels": 0.91,
+              "expectedTracking": 0.91,
+              "trackingError": 0
+            },
+            "actual": {
+              "x": 14,
+              "y": 82,
+              "w": 71,
+              "h": 11
+            },
+            "expected": {
+              "x": 14,
+              "y": 82,
+              "w": 71,
+              "h": 10.5
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-wave",
+            "typography": {
+              "size": 7,
+              "expectedSize": 7,
+              "trackingPixels": 0.91,
+              "expectedTracking": 0.91,
+              "trackingError": 0
+            },
+            "actual": {
+              "x": 93,
+              "y": 82,
+              "w": 71,
+              "h": 11
+            },
+            "expected": {
+              "x": 93,
+              "y": 82,
+              "w": 71,
+              "h": 10.5
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-links",
+            "typography": null,
+            "actual": {
+              "x": 14,
+              "y": 98,
+              "w": 150,
+              "h": 9
+            },
+            "expected": {
+              "x": 14,
+              "y": 97.5,
+              "w": 150,
+              "h": 9
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-right",
+            "typography": null,
+            "actual": {
+              "x": 190,
+              "y": 8,
+              "w": 162,
+              "h": 136
+            },
+            "expected": {
+              "x": 190,
+              "y": 8,
+              "w": 162,
+              "h": 136
+            },
+            "error": 0
+          },
+          {
+            "name": "native-hud-radar",
+            "typography": null,
+            "actual": {
+              "x": 280,
+              "y": 16,
+              "w": 62,
+              "h": 62
+            },
+            "expected": {
+              "x": 280,
+              "y": 16,
+              "w": 62,
+              "h": 62
+            },
+            "error": 0
+          },
+          {
+            "name": "hud-time",
+            "typography": {
+              "size": 11,
+              "expectedSize": 11,
+              "trackingPixels": 1.1,
+              "expectedTracking": 1.1,
+              "trackingError": 0
+            },
+            "actual": {
+              "x": 299,
+              "y": 80,
+              "w": 35,
+              "h": 17
+            },
+            "expected": {
+              "x": 301.40625,
+              "y": 80,
+              "w": 32.59375,
+              "h": 16.5
+            },
+            "error": 2.40625
+          },
+          {
+            "name": "hud-region-title",
+            "typography": {
+              "size": 8,
+              "expectedSize": 8,
+              "trackingPixels": 1.12,
+              "expectedTracking": 1.12,
+              "trackingError": 0
+            },
+            "actual": {
+              "x": 200,
+              "y": 104,
+              "w": 142,
+              "h": 10
+            },
+            "expected": {
+              "x": 200,
+              "y": 103.5,
+              "w": 142,
+              "h": 9.1875
+            },
+            "error": 0.8125
+          },
+          {
+            "name": "hud-region-phase",
+            "typography": {
+              "size": 9,
+              "expectedSize": 9,
+              "trackingPixels": 0.192000017,
+              "expectedTracking": 0.192,
+              "trackingError": 1.49011612e-8
+            },
+            "actual": {
+              "x": 200,
+              "y": 116,
+              "w": 142,
+              "h": 11
+            },
+            "expected": {
+              "x": 200,
+              "y": 114.6875,
+              "w": 142,
+              "h": 10.609375
+            },
+            "error": 1.3125
+          },
+          {
+            "name": "hud-region-pocket",
+            "typography": {
+              "size": 7,
+              "expectedSize": 7,
+              "trackingPixels": 0.192,
+              "expectedTracking": 0.192,
+              "trackingError": 0
+            },
+            "actual": {
+              "x": 200,
+              "y": 129,
+              "w": 142,
+              "h": 10
+            },
+            "expected": {
+              "x": 200,
+              "y": 127.296875,
+              "w": 142,
+              "h": 9.4375
+            },
+            "error": 1.703125
+          }
+        ]
+      },
+      {
+        "fixture": "SourceGameView/en/playing/360x520",
+        "deltas": [
+          {
+            "name": "hud-left",
+            "typography": null,
+            "actual": {
+              "x": 8,
+              "y": 8,
+              "w": 162,
+              "h": 136
+            },
+            "expected": {
+              "x": 8,
+              "y": 8,
+              "w": 162,
+              "h": 136
+            },
+            "error": 0
+          },
+          {
+            "name": "hud-level",
+            "typography": {
+              "size": 8,
+              "expectedSize": 8,
+              "trackingPixels": 1.76,
+              "expectedTracking": 1.76,
+              "trackingError": 0
+            },
+            "actual": {
+              "x": 14,
+              "y": 16,
+              "w": 41,
+              "h": 12
+            },
+            "expected": {
+              "x": 14,
+              "y": 16.25,
+              "w": 39.4375,
+              "h": 12
+            },
+            "error": 1.5625
+          },
+          {
+            "name": "hud-hp",
+            "typography": {
+              "size": 11,
+              "expectedSize": 11,
+              "trackingPixels": 0.192,
+              "expectedTracking": 0.192,
+              "trackingError": 0
+            },
+            "actual": {
+              "x": 121,
+              "y": 14,
+              "w": 43,
+              "h": 17
+            },
+            "expected": {
+              "x": 119.796875,
+              "y": 14,
+              "w": 44.203125,
+              "h": 16.5
+            },
+            "error": 1.203125
+          },
+          {
+            "name": "hud-xp-bar",
+            "typography": null,
+            "actual": {
+              "x": 14,
+              "y": 37,
+              "w": 150,
+              "h": 5
+            },
+            "expected": {
+              "x": 14,
+              "y": 36.5,
+              "w": 150,
+              "h": 5
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-hp-bar",
+            "typography": null,
+            "actual": {
+              "x": 14,
+              "y": 46,
+              "w": 150,
+              "h": 4
+            },
+            "expected": {
+              "x": 14,
+              "y": 45.5,
+              "w": 150,
+              "h": 4
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-meta",
+            "typography": null,
+            "actual": {
+              "x": 14,
+              "y": 82,
+              "w": 150,
+              "h": 11
+            },
+            "expected": {
+              "x": 14,
+              "y": 82,
+              "w": 150,
+              "h": 10.5
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-spheres",
+            "typography": {
+              "size": 7,
+              "expectedSize": 7,
+              "trackingPixels": 0.91,
+              "expectedTracking": 0.91,
+              "trackingError": 0
+            },
+            "actual": {
+              "x": 14,
+              "y": 82,
+              "w": 71,
+              "h": 11
+            },
+            "expected": {
+              "x": 14,
+              "y": 82,
+              "w": 71,
+              "h": 10.5
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-wave",
+            "typography": {
+              "size": 7,
+              "expectedSize": 7,
+              "trackingPixels": 0.91,
+              "expectedTracking": 0.91,
+              "trackingError": 0
+            },
+            "actual": {
+              "x": 93,
+              "y": 82,
+              "w": 71,
+              "h": 11
+            },
+            "expected": {
+              "x": 93,
+              "y": 82,
+              "w": 71,
+              "h": 10.5
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-links",
+            "typography": null,
+            "actual": {
+              "x": 14,
+              "y": 98,
+              "w": 150,
+              "h": 9
+            },
+            "expected": {
+              "x": 14,
+              "y": 97.5,
+              "w": 150,
+              "h": 9
+            },
+            "error": 0.5
+          },
+          {
+            "name": "hud-right",
+            "typography": null,
+            "actual": {
+              "x": 190,
+              "y": 8,
+              "w": 162,
+              "h": 136
+            },
+            "expected": {
+              "x": 190,
+              "y": 8,
+              "w": 162,
+              "h": 136
+            },
+            "error": 0
+          },
+          {
+            "name": "native-hud-radar",
+            "typography": null,
+            "actual": {
+              "x": 280,
+              "y": 16,
+              "w": 62,
+              "h": 62
+            },
+            "expected": {
+              "x": 280,
+              "y": 16,
+              "w": 62,
+              "h": 62
+            },
+            "error": 0
+          },
+          {
+            "name": "hud-time",
+            "typography": {
+              "size": 11,
+              "expectedSize": 11,
+              "trackingPixels": 1.1,
+              "expectedTracking": 1.1,
+              "trackingError": 0
+            },
+            "actual": {
+              "x": 299,
+              "y": 80,
+              "w": 35,
+              "h": 17
+            },
+            "expected": {
+              "x": 301.40625,
+              "y": 80,
+              "w": 32.59375,
+              "h": 16.5
+            },
+            "error": 2.40625
+          },
+          {
+            "name": "hud-region-title",
+            "typography": {
+              "size": 8,
+              "expectedSize": 8,
+              "trackingPixels": 1.12,
+              "expectedTracking": 1.12,
+              "trackingError": 0
+            },
+            "actual": {
+              "x": 200,
+              "y": 104,
+              "w": 142,
+              "h": 10
+            },
+            "expected": {
+              "x": 200,
+              "y": 103.5,
+              "w": 142,
+              "h": 9.1875
+            },
+            "error": 0.8125
+          },
+          {
+            "name": "hud-region-phase",
+            "typography": {
+              "size": 9,
+              "expectedSize": 9,
+              "trackingPixels": 0.192000017,
+              "expectedTracking": 0.192,
+              "trackingError": 1.49011612e-8
+            },
+            "actual": {
+              "x": 200,
+              "y": 116,
+              "w": 142,
+              "h": 11
+            },
+            "expected": {
+              "x": 200,
+              "y": 114.6875,
+              "w": 142,
+              "h": 10.609375
+            },
+            "error": 1.3125
+          },
+          {
+            "name": "hud-region-pocket",
+            "typography": {
+              "size": 7,
+              "expectedSize": 7,
+              "trackingPixels": 0.192,
+              "expectedTracking": 0.192,
+              "trackingError": 0
+            },
+            "actual": {
+              "x": 200,
+              "y": 129,
+              "w": 142,
+              "h": 10
+            },
+            "expected": {
+              "x": 200,
+              "y": 127.296875,
+              "w": 142,
+              "h": 9.4375
+            },
+            "error": 1.703125
+          }
+        ]
+      }
+    ],
+    "directory": "C:/Users/toxik/Documents/GitHub/echo/UnityProject/Assets\\../Temp/native-hud-original-geometry\\20261019-110936-877"
+  },
+  "retainedHud": {
+    "status": "PASS bounded native HUD retained layout/pixels/pointer/timer across six viewports; full parity and production selection pending",
+    "results": [
+      {
+        "stage": 0,
+        "width": 1260,
+        "height": 542,
+        "dpr": 1,
+        "left": "(x:8.00, y:8.00, width:300.00, height:140.00)",
+        "right": "(x:952.00, y:8.00, width:300.00, height:140.00)",
+        "enemies": 2,
+        "pois": 0
+      },
+      {
+        "stage": 1,
+        "width": 1260,
+        "height": 542,
+        "dpr": 1,
+        "left": "(x:8.00, y:8.00, width:300.00, height:140.00)",
+        "right": "(x:952.00, y:8.00, width:300.00, height:140.00)",
+        "enemies": 2,
+        "pois": 3
+      },
+      {
+        "stage": 2,
+        "width": 1260,
+        "height": 542,
+        "dpr": 1,
+        "left": "(x:8.00, y:8.00, width:300.00, height:140.00)",
+        "right": "(x:952.00, y:8.00, width:300.00, height:140.00)",
+        "enemies": 2,
+        "pois": 3
+      },
+      {
+        "stage": 3,
+        "width": 360,
+        "height": 800,
+        "dpr": 2,
+        "left": "(x:10.00, y:26.00, width:162.00, height:136.00)",
+        "right": "(x:188.00, y:26.00, width:162.00, height:136.00)",
+        "enemies": 2,
+        "pois": 3
+      },
+      {
+        "stage": 4,
+        "width": 800,
+        "height": 360,
+        "dpr": 3,
+        "left": "(x:8.00, y:8.00, width:248.00, height:140.00)",
+        "right": "(x:544.00, y:8.00, width:248.00, height:140.00)",
+        "enemies": 2,
+        "pois": 3
+      },
+      {
+        "stage": 5,
+        "width": 320,
+        "height": 568,
+        "dpr": 2,
+        "left": "(x:8.00, y:8.00, width:142.00, height:136.00)",
+        "right": "(x:170.00, y:8.00, width:142.00, height:136.00)",
+        "enemies": 2,
+        "pois": 3
+      },
+      {
+        "stage": 6,
+        "width": 480,
+        "height": 854,
+        "dpr": 1,
+        "left": "(x:8.00, y:8.00, width:222.00, height:136.00)",
+        "right": "(x:250.00, y:8.00, width:222.00, height:136.00)",
+        "enemies": 2,
+        "pois": 3
+      },
+      {
+        "stage": 7,
+        "width": 854,
+        "height": 480,
+        "dpr": 3,
+        "left": "(x:8.00, y:8.00, width:264.67, height:140.00)",
+        "right": "(x:581.33, y:8.00, width:264.67, height:140.00)",
+        "enemies": 2,
+        "pois": 3
+      },
+      {
+        "tooltipAutoHideSeconds": 5.266386100003729
+      }
+    ],
+    "actions": 2,
+    "checks": 103,
+    "outputDirectory": "C:/Users/toxik/Documents/GitHub/echo/UnityProject/Assets\\../Temp/native-hud\\20261019-110959-050"
+  },
+  "model": {
+    "status": "PASS native HUD display model/text vs original source",
+    "cases": 26,
+    "checks": 420,
+    "frozenBrowserCases": 2,
+    "generatedSourceCases": 24,
+    "scope": "RU/EN, rounding, percentages, counters, timer, formations, boss, region modes/pocket fallback; synthetic display snapshots only; no gameplay state/preferences changed"
+  },
+  "typecheck": [
+    {
+      "configuration": "Android player",
+      "files": 213,
+      "errors": 0,
+      "warnings": 0,
+      "diagnostics": []
+    },
+    {
+      "configuration": "Android editor runtime",
+      "files": 213,
+      "errors": 0,
+      "warnings": 0,
+      "diagnostics": []
+    },
+    {
+      "configuration": "Android editor assembly",
+      "files": 3,
+      "errors": 0,
+      "warnings": 0,
+      "diagnostics": []
+    }
+  ],
+  "rejected": {
+    "sourceIsolation": "CSS isolated subtree produced unstable grid/painter output; not an acceptance oracle; experimental viewport adapter reverted",
+    "advancedText": "Rejected: disabled API first, then enabling feature corrupted existing dynamic SDF glyph rendering. Original false setting restored; own diagnostic settings file removed; no production setting change"
+  },
+  "cleanup": "Original six game preferences restored after Stop; no named HUD RTs; recording/background false; current Console 0 errors/0 warnings",
+  "limits": "No native HUD activation, full pixel parity, Android acceptance or FPS/GC improvement claim"
+}

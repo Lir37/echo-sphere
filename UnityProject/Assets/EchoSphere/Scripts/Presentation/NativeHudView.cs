@@ -72,9 +72,17 @@ namespace EchoSphere.Presentation
         {
             var label=new Label {name=name,pickingMode=PickingMode.Ignore,enableRichText=false};label.style.marginLeft=label.style.marginRight=label.style.marginTop=label.style.marginBottom=0;
             label.style.paddingLeft=label.style.paddingRight=label.style.paddingTop=label.style.paddingBottom=0;label.style.flexShrink=0;
-            label.style.fontSize=size;label.style.color=C(color);label.style.letterSpacing=spacing;label.style.whiteSpace=WhiteSpace.NoWrap;
+            label.style.fontSize=size;label.style.color=C(color);label.style.whiteSpace=WhiteSpace.NoWrap;label.style.height=(float)(size*line);
             var font=SourceUiTypography.Resolve(Family,weight,false,line);if(font!=null)label.style.unityFontDefinition=FontDefinition.FromSDFFont(font);label.style.unityFontStyleAndWeight=FontStyle.Normal;
+            SetSpacing(label,spacing,size);
             parent.Add(label);return label;
+        }
+        private static void SetSpacing(Label label,float pixels,float size)
+        {
+            // Standard TextCore characterSpacing uses hundredths of an em.
+            // Preserve authored CSS pixels independently of font size. The
+            // tracking fixture checks measured advances at 8/12/24px.
+            label.style.letterSpacing=size>0?pixels*100/size:pixels;
         }
         private NativeHudSurface Surface(VisualElement e,NativeMenuBrush.Paint paint){var s=new NativeHudSurface(e,paint);_surfaces.Add(s);return s;}
         private VisualElement Progress(VisualElement parent,string name,float height,float margin,float radius,Color fill,Color border,NativeMenuBrush.Paint foreground,out NativeHudSurface surface)
@@ -105,7 +113,7 @@ namespace EchoSphere.Presentation
             _resonanceTitle=Text(resonance,"hud-resonance-title",7,"#7f9bb8",spacing:.84f);_resonance=Text(resonance,"hud-resonance-value",7,"#dcecff","700",spacing:.84f);
             _resonanceNormal=new NativeMenuBrush.Paint {Fill=C("#39d8ff")};_resonanceReady=new NativeMenuBrush.Paint {Fill=C("#ffb84d")};
             _resonanceFill=Progress(_left,"hud-resonance-bar",6,2,999,C("#13243a"),C("#243b55"),_resonanceNormal,out _resonanceSurface);
-            var meta=Box(_left,"hud-meta",true);meta.style.marginTop=8;_spheres=Text(meta,"hud-spheres",7,"#66859f");_wave=Text(meta,"hud-wave",7,"#66859f");_spheres.enableRichText=_wave.enableRichText=true;_spheres.style.flexBasis=_wave.style.flexBasis=0;_spheres.style.flexGrow=_wave.style.flexGrow=1;_spheres.style.minWidth=_wave.style.minWidth=0;_spheres.style.marginRight=4;_wave.style.marginLeft=4;
+            var meta=Box(_left,"hud-meta",true);meta.style.marginTop=8;_spheres=Text(meta,"hud-spheres",7,"#66859f",spacing:.91f);_wave=Text(meta,"hud-wave",7,"#66859f",spacing:.91f);_spheres.enableRichText=_wave.enableRichText=true;_spheres.style.flexBasis=_wave.style.flexBasis=0;_spheres.style.flexGrow=_wave.style.flexGrow=1;_spheres.style.minWidth=_wave.style.minWidth=0;_spheres.style.marginRight=4;_wave.style.marginLeft=4;
             var links=Box(_left,"hud-links",true);links.style.marginTop=5;links.style.justifyContent=Justify.SpaceBetween;_linksTitle=Text(links,"hud-links-title",6,"#6f8da4","800",spacing:.72f);_links=Text(links,"hud-links-value",6,"#dcecff","900",spacing:.72f);
             var stack=Box(_left,"hud-formation-stack");stack.style.marginTop=3;stack.pickingMode=PickingMode.Position;
             _noFormation=Text(stack,"hud-no-formation",7,"#7f9bb8");_formationRow=Box(stack,"hud-formations",true);_formationRow.style.alignItems=Align.Center;
@@ -142,7 +150,7 @@ namespace EchoSphere.Presentation
             var timer=Box(timerRow,"hud-timer",true);timer.style.alignItems=Align.Center;
             for(int i=0;i<3;i++)if(i==1){_timer=Text(timer,"hud-time",11,"#eaf7ff","500",spacing:1.1f);_timer.style.marginLeft=_timer.style.marginRight=5;}else{var dot=Box(timer,"hud-timer-dot-"+i);dot.style.width=dot.style.height=3;Surface(dot,new NativeMenuBrush.Paint {Ellipse=true,Fill=C("#6be9ff"),OuterA=new NativeMenuBrush.Shadow(8,Vector2.zero,A(107,233,255,.65f))});}
             _region=Box(_rightClip,"hud-region");_region.style.marginTop=7;_regionTitle=Text(_region,"hud-region-title",8,"#66dfc7","900",1.15,1.12f);_phase=Text(_region,"hud-region-phase",9,"#e0eff5","400",1.18);_pocket=Text(_region,"hud-region-pocket",7,"#7a96aa","400",1.35);_phase.style.marginTop=_pocket.style.marginTop=2;
-            foreach(var label in new[]{_regionTitle,_phase,_pocket})label.style.whiteSpace=WhiteSpace.Normal;
+            foreach(var label in new[]{_regionTitle,_phase,_pocket}){label.style.whiteSpace=WhiteSpace.Normal;label.style.height=StyleKeyword.Auto;}
             _boss=Text(_rightClip,"hud-boss",7,"#ff7376",spacing:.98f);_boss.style.marginTop=6;_boss.style.paddingTop=5;_boss.style.borderTopWidth=1;_boss.style.borderTopColor=A(255,102,103,.15f);_boss.style.unityTextAlign=TextAnchor.UpperRight;
             _parent.RegisterCallback<GeometryChangedEvent>(Resize);Layout(_parent.contentRect.width);
         }
@@ -160,7 +168,7 @@ namespace EchoSphere.Presentation
             _rightClip.style.paddingTop=_rightClip.style.paddingBottom=7;_rightClip.style.paddingLeft=_rightClip.style.paddingRight=9;
             _tooltip.style.width=Mathf.Min(250,width*.74f);
             foreach(var button in _formationButtons){button.style.paddingTop=button.style.paddingBottom=width<=640?5:6;button.style.paddingLeft=button.style.paddingRight=width<=640?6:7;}
-            foreach(var label in _formationNames){label.style.fontSize=width<=640?8:9;label.style.letterSpacing=width<=640?.64f:.72f;}
+            foreach(var label in _formationNames){float size=width<=640?8:9;label.style.fontSize=size;label.style.height=size*1.5f;SetSpacing(label,width<=640?.64f:.72f,size);}
         }
         public void SetSafeArea(float left,float right,float top){if(left==_safeLeft&&right==_safeRight&&top==_safeTop)return;_safeLeft=left;_safeRight=right;_safeTop=top;Layout(_parent.contentRect.width);}
         private static void Set(Label label,string text){if(label.text!=text)label.text=text??"";}
@@ -185,7 +193,7 @@ namespace EchoSphere.Presentation
         {
             if(tip==null)return;Set(_tooltipTitle,tip.Title);Set(_tooltipEffect,tip.Effectiveness);var color=tip.Inactive?C("#ff8a9f"):tip.Secondary?C("#79dcff"):C("#ffcf7a");_tooltipTitle.style.color=_tooltipEffect.style.color=color;
             _tooltipHeading.style.borderBottomColor=tip.Inactive?A(255,77,112,.25f):tip.Secondary?A(121,220,255,.18f):A(143,223,255,.12f);
-            while(_tooltipRows.Count<tip.Lines.Count){var line=Text(_tooltipLines,"hud-tooltip-line-"+_tooltipRows.Count,8,"#7f9bb8","400",1.45);line.enableRichText=true;line.style.whiteSpace=WhiteSpace.Normal;line.style.marginTop=2;_tooltipRows.Add(line);}
+            while(_tooltipRows.Count<tip.Lines.Count){var line=Text(_tooltipLines,"hud-tooltip-line-"+_tooltipRows.Count,8,"#7f9bb8","400",1.45);line.enableRichText=true;line.style.whiteSpace=WhiteSpace.Normal;line.style.height=StyleKeyword.Auto;line.style.marginTop=2;_tooltipRows.Add(line);}
             for(int i=0;i<_tooltipRows.Count;i++){var line=_tooltipRows[i];line.style.display=i<tip.Lines.Count?DisplayStyle.Flex:DisplayStyle.None;if(i<tip.Lines.Count){var value=tip.Lines[i];Set(line,"<color="+(tip.Secondary?"#79dcff":"#ffcf7a")+"><font-weight=900><noparse>"+value.Active+"</noparse></font-weight></color><color=#7f9bb8bd><noparse>"+value.Rest+"</noparse></color>");}}
         }
         public void HideTooltip(){_hideTimer?.Pause();_hideTimer=null;_tooltipId=null;_tooltip.style.display=DisplayStyle.None;}

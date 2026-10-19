@@ -1,5 +1,5 @@
 {
-  "entryHead": "0962dec02ca99839391e766a70237038471003ab",
+  "entryHead": "959b619f3bca40fb886ed82dd5064a65d1c8f4f5",
   "protectedSource": "new-desing@737ef2af4a877e0995db5f92331d536d2f29a934",
   "scope": "Every C# file under Assets/EchoSphere/Scripts, including files without visual/UI/Canvas names. Discovery metadata is not a semantic parity or native-migration acceptance claim.",
   "scannedFiles": 213,
@@ -1296,20 +1296,20 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/NativeHudView.cs",
-      "sha256": "19e7693716595a9881687d9d324a0d05ec777ad1356ad8c230ad2975b670543f",
-      "lines": 196,
+      "sha256": "77a2f4df6573ea84fcbc907325b05bc819df04ef195df7a0e1df66c975821ceb",
+      "lines": 204,
       "discoveryTags": [
         "ui",
         "gpu"
       ],
       "creationLines": [
-        115
+        123
       ],
       "updateLines": [
-        192
+        200
       ],
       "releaseLines": [
-        193
+        201
       ]
     },
     {

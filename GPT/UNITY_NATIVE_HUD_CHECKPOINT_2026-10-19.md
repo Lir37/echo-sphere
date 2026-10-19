@@ -135,3 +135,15 @@ Real Editor compile and local player/editor C# typechecks pass without warnings.
 Raw evidence: UNITY_NATIVE_HUD_MODEL_EVIDENCE_2026-10-19.json. Full pixel parity,
 production gameplay composition and active performance measurements remain open.
 No new FPS/GC or Android claims; HUD remains PILOT, P1/P2 PARTIAL.
+
+### Native HUD pixel tracking / line boxes
+
+Entry959b619 (CI761 SUCCESS): corrected standard TextCore tracking units locally
+in NativeHudView, single-line boxes and source meta-counter0.13em spacing.
+Measured2px tracking gives exact14px advance on8 chars at8/12/24px. Six original
+full-game viewport cases give max geometry delta11.328→2.406px;48 authored
+font-size/tracking checks pass, remaining pixel/font geometry is still open.
+Six-viewport retained HUD pointer/timer fixture103checks and model420checks PASS.
+Native HUD remains unselected; no FPS/GC/device improvement claim. Rejected
+Advanced Text Generator and isolated source viewport experiments were reverted.
+See UNITY_NATIVE_HUD_TYPOGRAPHY_2026-10-19.md and its raw evidence JSON.
