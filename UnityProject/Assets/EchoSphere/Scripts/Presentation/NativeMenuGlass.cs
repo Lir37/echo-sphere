@@ -46,7 +46,7 @@ namespace EchoSphere.Presentation
             _prefixTexture=Target(_prefixTexture,width,height);_scratch=Target(_scratch,width,height);
             if(!PaintPrefix(root,_element.worldBound)){
                 _clip.style.display=DisplayStyle.None;
-                if(_retainedPrefix==null)_retainedPrefix=new SourceUiBackdrop(_element,context=>{},element=>null,null);
+                if(_retainedPrefix==null)_retainedPrefix=new SourceUiBackdrop(_element,context=>{},NativePainter,null);
                 _retainedPrefix.Prepare(root,sigma);PrepareCount++;return;
             }
             if(_retainedPrefix!=null){_retainedPrefix.Dispose();_retainedPrefix=null;}
@@ -78,6 +78,9 @@ namespace EchoSphere.Presentation
                     // Keep native UI Toolkit's complete retained prefix there;
                     // never omit text or invent a different responsive layout.
                     if(e is TextElement text&&!string.IsNullOrEmpty(text.text))return false;
+                    // The image compositor cannot reproduce native vector/custom
+                    // meshes. Keep their authored painter in the retained prefix.
+                    if(NativePainter(e)!=null)return false;
                     if(e is Image image){
                         if(image.image==null){if(image.sprite!=null||image.vectorImage!=null)return false;continue;}
                         if(image.scaleMode!=ScaleMode.StretchToFill)return false;
@@ -99,6 +102,8 @@ namespace EchoSphere.Presentation
             _prefixMaterial.SetVector("_LayerUv",new Vector4(uv.x,uv.y,uv.width,uv.height));_prefixMaterial.SetVector("_Tint",new Vector4(tint.r,tint.g,tint.b,tint.a*opacity));
             Graphics.Blit(_prefixTexture,_scratch,_prefixMaterial,0);var swap=_prefixTexture;_prefixTexture=_scratch;_scratch=swap;
         }
+        private static Action<MeshGenerationContext> NativePainter(VisualElement element)
+            =>element is TextElement||element is Image?null:element.generateVisualContent;
         internal void Visible(bool visible){_clip.style.display=visible?DisplayStyle.Flex:DisplayStyle.None;if(!visible&&_retainedPrefix!=null){_retainedPrefix.Dispose();_retainedPrefix=null;}}
         public void Dispose()
         {

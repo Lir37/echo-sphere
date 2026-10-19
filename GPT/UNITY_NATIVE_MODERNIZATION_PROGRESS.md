@@ -173,3 +173,21 @@ and repeated six-viewport HUD pointer/timer fixture PASS. Raw evidence is in
 UNITY_NATIVE_HUD_EDITOR_EVIDENCE_2026-10-19.json. Native HUD is still PILOT.
 Next: full RU/EN parity and gameplay composition with pause/mobile/overlay order;
 then typed gameplay views and actual CPU/GC measurements. No APK.
+
+## HUD vectors in native blur prefixes, 2026-10-19
+
+Entry47bac8b6, CI759 SUCCESS. NativeMenuGlass omitted custom Painter2D meshes
+from the fast image prefix and supplied no custom painter to the retained prefix.
+A real Editor GPU fixture with actual NativeHudPoiArrow/NativeHudDashBorder
+reproduced max170/255 and mean1.499 byte error before correction.
+The image path now delegates custom meshes to Unity's retained prefix and
+forwards their authored generateVisualContent; native Image/Text callbacks stay
+owned by their copied element to avoid double rendering. Blur stays enabled.
+After correction: eight changing-image samples each at DPR1/1.75/3, max0/mean0;
+existing text+changing-image regression32 samples max0/mean0. C# player/editor
+checks zero warnings/errors; Editor compile PASS; Node272/preflight/provenance
+PASS. Stop restores six original preference keys and leaves zero named prefix
+RTs. No new FPS/GC/Android claim; HUD still PILOT and unselected.
+Raw evidence: UNITY_NATIVE_HUD_VECTOR_BLUR_EVIDENCE_2026-10-19.json.
+Next: full RU/EN model/pixel parity, native gameplay composition preserving
+pause/mobile/modal order, then typed gameplay visuals and actual profiling.

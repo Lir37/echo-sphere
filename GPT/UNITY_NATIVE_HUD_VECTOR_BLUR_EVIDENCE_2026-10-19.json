@@ -1,0 +1,67 @@
+{
+  "entryHead": "47bac8b6defa693dbb3b7f3be8f5449a8237600e",
+  "before": {
+    "status": "FAIL GPU pixel parity",
+    "samples": 8,
+    "maximum": 170,
+    "worstMean": 1.4993553161621094,
+    "scope": "256x256; actual NativeHudPoiArrow + NativeHudDashBorder over changing image; retained native prefix"
+  },
+  "after": [
+    {
+      "status": "PASS",
+      "samples": 8,
+      "maximum": 0,
+      "worstMean": 0,
+      "scope": "256x256; actual NativeHudPoiArrow + NativeHudDashBorder over changing image; retained native prefix"
+    },
+    {
+      "status": "PASS",
+      "dpr": 1.75,
+      "samples": 8,
+      "maximum": 0,
+      "worstMean": 0,
+      "scope": "256x256; actual NativeHudPoiArrow + NativeHudDashBorder over changing image; retained native prefix"
+    },
+    {
+      "status": "PASS",
+      "dpr": 3,
+      "samples": 8,
+      "maximum": 0,
+      "worstMean": 0,
+      "scope": "256x256; actual NativeHudPoiArrow + NativeHudDashBorder over changing image; retained native prefix"
+    }
+  ],
+  "textRegression": {
+    "status": "PASS",
+    "samples": 32,
+    "maximum": 0,
+    "worstMean": 0,
+    "scope": "256x256; overlapping native text + changing image; complete retained native prefix"
+  },
+  "typecheck": [
+    {
+      "configuration": "Android player",
+      "files": 213,
+      "errors": 0,
+      "warnings": 0,
+      "diagnostics": []
+    },
+    {
+      "configuration": "Android editor runtime",
+      "files": 213,
+      "errors": 0,
+      "warnings": 0,
+      "diagnostics": []
+    },
+    {
+      "configuration": "Android editor assembly",
+      "files": 3,
+      "errors": 0,
+      "warnings": 0,
+      "diagnostics": []
+    }
+  ],
+  "cleanup": "Stop; six original preferences restored; zero Native menu image prefix RTs; profiler recording false",
+  "limits": "Offscreen real Unity GPU fixtures, no runtime HUD activation or scene performance/device claim"
+}
