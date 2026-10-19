@@ -147,3 +147,13 @@ Six-viewport retained HUD pointer/timer fixture103checks and model420checks PASS
 Native HUD remains unselected; no FPS/GC/device improvement claim. Rejected
 Advanced Text Generator and isolated source viewport experiments were reverted.
 See UNITY_NATIVE_HUD_TYPOGRAPHY_2026-10-19.md and its raw evidence JSON.
+
+### Native HUD in the real game pane (diagnostic opt-in)
+
+Entry69d7de1 /CI762 SUCCESS. Actual saved-scene same-pane island checks26PASS:
+source HUD73→2 nodes, paused tree442→371; source tutorial anchor, pause occlusion,
+custom painter in blur prefix, original resume/mobile-pause callbacks and
+disable/re-enable pass. Flag defaults false. Paused A/B/A/B: combined Editor
+3.49→3.89FPS, GC60.5→52.6MB/frame; ResolveCss still about123ms. Not normal
+gameplay performance or an active/device measurement. Source world, pause and
+mobile CSS/V remain. See UNITY_NATIVE_HUD_ISLAND_2026-10-19.md and evidence JSON.

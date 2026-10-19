@@ -7273,6 +7273,7 @@ namespace EchoSphere.Runtime
 
         private void OnDestroy()
         {
+            DisposeNativeHudIsland();
             if(_nativeMainMenuScreen!=null)Destroy(_nativeMainMenuScreen.gameObject);
             if(_sourceUi!=null)Destroy(_sourceUi.gameObject);
             if(_sourceCanvas!=null)Destroy(_sourceCanvas.gameObject); if (_networkLineMaterial != null) Destroy(_networkLineMaterial);

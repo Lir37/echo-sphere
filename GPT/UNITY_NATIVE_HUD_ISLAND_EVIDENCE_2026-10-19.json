@@ -1,0 +1,268 @@
+{
+  "entryHead": "69d7de168f0e8bc1753e7eac1718465f5947f0ca",
+  "island": {
+    "status": "PASS actual native HUD island hierarchy/picking/anchor/prefix, source resume/mobile pause callbacks, authoritative run advance and disable/re-enable lifecycle",
+    "checks": 26,
+    "rows": [
+      {
+        "stage": 0,
+        "baselineHudNodes": 73,
+        "hudNodes": 2,
+        "baselineTotal": 442,
+        "total": 371,
+        "nativeIndex": 5,
+        "mobileIndex": 2,
+        "pauseIndex": 6
+      },
+      {
+        "stage": 2,
+        "runAdvanced": true
+      },
+      {
+        "stage": 5,
+        "hudNodes": 2,
+        "total": 371,
+        "documents": 2
+      }
+    ],
+    "directory": "C:/Users/toxik/Documents/GitHub/echo/UnityProject/Assets\\../Temp/native-hud-island\\20261019-112804-913",
+    "limits": "Editor pane/picking/source callback and retained-prefix checks; no Android touch, FPS/GC or full visual parity claim; production default remains false"
+  },
+  "profile": {
+    "status": "PASS paused-scene native HUD ProfilerRecorder A/B/A/B",
+    "width": 1260,
+    "height": 542,
+    "scope": "Same saved scene, user pause ON, A/B/A/B; 10 warm frames +20 sampled frames per phase; ProfilerRecorder counters; existing Timeline capture retained; no active/device performance inference",
+    "rows": [
+      {
+        "phase": 0,
+        "native": false,
+        "count": 20,
+        "frameMs": 305.6732750002993,
+        "fps": 3.2714668954916677,
+        "counters": {
+          "GC Allocated In Frame": {
+            "mean": 60475315.2,
+            "unit": "Bytes",
+            "minimumRaw": 60176430,
+            "maximumRaw": 65821378,
+            "rawUnit": "Bytes"
+          },
+          "Main Thread": {
+            "mean": 305.66384,
+            "unit": "ms",
+            "minimumRaw": 230945100,
+            "maximumRaw": 563104200,
+            "rawUnit": "TimeNanoseconds"
+          },
+          "EchoSphere.Canvas.EndFrame": {
+            "mean": 1.381435,
+            "unit": "ms",
+            "minimumRaw": 1264800,
+            "maximumRaw": 1585100,
+            "rawUnit": "TimeNanoseconds"
+          },
+          "EchoSphere.UI.BuildTree": {
+            "mean": 149.031485,
+            "unit": "ms",
+            "minimumRaw": 102852500,
+            "maximumRaw": 417781200,
+            "rawUnit": "TimeNanoseconds"
+          },
+          "EchoSphere.UI.ProjectTree": {
+            "mean": 6.028705,
+            "unit": "ms",
+            "minimumRaw": 4225800,
+            "maximumRaw": 33658300,
+            "rawUnit": "TimeNanoseconds"
+          },
+          "EchoSphere.UI.ResolveCss": {
+            "mean": 142.505665,
+            "unit": "ms",
+            "minimumRaw": 98060100,
+            "maximumRaw": 380995200,
+            "rawUnit": "TimeNanoseconds"
+          }
+        }
+      },
+      {
+        "phase": 1,
+        "native": true,
+        "count": 20,
+        "frameMs": 255.5370000001858,
+        "fps": 3.913327619872163,
+        "counters": {
+          "GC Allocated In Frame": {
+            "mean": 52596156.95,
+            "unit": "Bytes",
+            "minimumRaw": 52298137,
+            "maximumRaw": 57943525,
+            "rawUnit": "Bytes"
+          },
+          "Main Thread": {
+            "mean": 255.51972,
+            "unit": "ms",
+            "minimumRaw": 202519200,
+            "maximumRaw": 625013200,
+            "rawUnit": "TimeNanoseconds"
+          },
+          "EchoSphere.Canvas.EndFrame": {
+            "mean": 1.3891,
+            "unit": "ms",
+            "minimumRaw": 1282600,
+            "maximumRaw": 1638100,
+            "rawUnit": "TimeNanoseconds"
+          },
+          "EchoSphere.UI.BuildTree": {
+            "mean": 130.283985,
+            "unit": "ms",
+            "minimumRaw": 88054700,
+            "maximumRaw": 418568100,
+            "rawUnit": "TimeNanoseconds"
+          },
+          "EchoSphere.UI.ProjectTree": {
+            "mean": 5.507615,
+            "unit": "ms",
+            "minimumRaw": 4485200,
+            "maximumRaw": 18375700,
+            "rawUnit": "TimeNanoseconds"
+          },
+          "EchoSphere.UI.ResolveCss": {
+            "mean": 124.454455,
+            "unit": "ms",
+            "minimumRaw": 83128100,
+            "maximumRaw": 413531300,
+            "rawUnit": "TimeNanoseconds"
+          }
+        }
+      },
+      {
+        "phase": 2,
+        "native": false,
+        "count": 20,
+        "frameMs": 267.1852250001393,
+        "fps": 3.742721926332111,
+        "counters": {
+          "GC Allocated In Frame": {
+            "mean": 60474809.35,
+            "unit": "Bytes",
+            "minimumRaw": 60176430,
+            "maximumRaw": 65821818,
+            "rawUnit": "Bytes"
+          },
+          "Main Thread": {
+            "mean": 267.168925,
+            "unit": "ms",
+            "minimumRaw": 229835000,
+            "maximumRaw": 347444700,
+            "rawUnit": "TimeNanoseconds"
+          },
+          "EchoSphere.Canvas.EndFrame": {
+            "mean": 1.423935,
+            "unit": "ms",
+            "minimumRaw": 1281000,
+            "maximumRaw": 1770500,
+            "rawUnit": "TimeNanoseconds"
+          },
+          "EchoSphere.UI.BuildTree": {
+            "mean": 137.354665,
+            "unit": "ms",
+            "minimumRaw": 103723300,
+            "maximumRaw": 220821100,
+            "rawUnit": "TimeNanoseconds"
+          },
+          "EchoSphere.UI.ProjectTree": {
+            "mean": 5.974805,
+            "unit": "ms",
+            "minimumRaw": 4335700,
+            "maximumRaw": 25963500,
+            "rawUnit": "TimeNanoseconds"
+          },
+          "EchoSphere.UI.ResolveCss": {
+            "mean": 130.89558,
+            "unit": "ms",
+            "minimumRaw": 99010000,
+            "maximumRaw": 215837600,
+            "rawUnit": "TimeNanoseconds"
+          }
+        }
+      },
+      {
+        "phase": 3,
+        "native": true,
+        "count": 20,
+        "frameMs": 258.7276900005236,
+        "fps": 3.865067554222651,
+        "counters": {
+          "GC Allocated In Frame": {
+            "mean": 52596879.7,
+            "unit": "Bytes",
+            "minimumRaw": 52298137,
+            "maximumRaw": 57943997,
+            "rawUnit": "Bytes"
+          },
+          "Main Thread": {
+            "mean": 258.714145,
+            "unit": "ms",
+            "minimumRaw": 203992600,
+            "maximumRaw": 682357400,
+            "rawUnit": "TimeNanoseconds"
+          },
+          "EchoSphere.Canvas.EndFrame": {
+            "mean": 1.458535,
+            "unit": "ms",
+            "minimumRaw": 1227200,
+            "maximumRaw": 2862600,
+            "rawUnit": "TimeNanoseconds"
+          },
+          "EchoSphere.UI.BuildTree": {
+            "mean": 128.904955,
+            "unit": "ms",
+            "minimumRaw": 87652400,
+            "maximumRaw": 491852300,
+            "rawUnit": "TimeNanoseconds"
+          },
+          "EchoSphere.UI.ProjectTree": {
+            "mean": 6.0206,
+            "unit": "ms",
+            "minimumRaw": 4470100,
+            "maximumRaw": 24698700,
+            "rawUnit": "TimeNanoseconds"
+          },
+          "EchoSphere.UI.ResolveCss": {
+            "mean": 122.559805,
+            "unit": "ms",
+            "minimumRaw": 82859700,
+            "maximumRaw": 465948600,
+            "rawUnit": "TimeNanoseconds"
+          }
+        }
+      }
+    ]
+  },
+  "typecheck": [
+    {
+      "configuration": "Android player",
+      "files": 213,
+      "errors": 0,
+      "warnings": 0,
+      "diagnostics": []
+    },
+    {
+      "configuration": "Android editor runtime",
+      "files": 213,
+      "errors": 0,
+      "warnings": 0,
+      "diagnostics": []
+    },
+    {
+      "configuration": "Android editor assembly",
+      "files": 3,
+      "errors": 0,
+      "warnings": 0,
+      "diagnostics": []
+    }
+  ],
+  "cleanup": "Stop; original six preferences restored; no named native HUD/menu brush RTs; background/recording false; Advanced Text flag false; current Console 0errors/0warnings; previous Timeline frame range35831..37830 retained",
+  "limits": "Diagnostic opt-in only; no active scene FPS, Android, full visual parity or real successful formation-swap acceptance claim"
+}

@@ -1,5 +1,5 @@
 {
-  "entryHead": "959b619f3bca40fb886ed82dd5064a65d1c8f4f5",
+  "entryHead": "69d7de168f0e8bc1753e7eac1718465f5947f0ca",
   "protectedSource": "new-desing@737ef2af4a877e0995db5f92331d536d2f29a934",
   "scope": "Every C# file under Assets/EchoSphere/Scripts, including files without visual/UI/Canvas names. Discovery metadata is not a semantic parity or native-migration acceptance claim.",
   "scannedFiles": 213,
@@ -1566,32 +1566,32 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceUiDocument.cs",
-      "sha256": "e01d6c18b9a3930a7e362629e398335045ad2bdfd4a2fab4d2f5b0d8fe2e407a",
-      "lines": 455,
+      "sha256": "10fc75509049a068d89f46c93d7e291548476a41959a6bfa18ca919bfe7259cf",
+      "lines": 460,
       "discoveryTags": [
         "ui",
         "gpu",
         "compatibility"
       ],
       "creationLines": [
-        126,
-        129,
-        367,
-        400
+        127,
+        130,
+        372,
+        405
       ],
       "updateLines": [
-        122,
-        142,
-        312
+        123,
+        143,
+        314
       ],
       "releaseLines": [
-        169,
-        292,
-        367,
-        379,
-        398,
-        451,
-        452
+        170,
+        293,
+        372,
+        384,
+        403,
+        456,
+        457
       ]
     },
     {
@@ -1906,14 +1906,17 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeHud.cs",
-      "sha256": "85dfc6b77d07ba3afb874fed347caee0252374f0613e93d9471e895d08460fde",
-      "lines": 65,
+      "sha256": "e451c24365ef0781054c530315905868adca8f2b442ec962d604dbcb47a7ee79",
+      "lines": 119,
       "discoveryTags": [
-        "ui"
+        "ui",
+        "compatibility"
       ],
       "creationLines": [],
       "updateLines": [],
-      "releaseLines": []
+      "releaseLines": [
+        26
+      ]
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativeMainMenu.cs",
@@ -1967,8 +1970,8 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
-      "sha256": "7824851de0b10115693230a197658ded01f719bae59ba789aae53ae457170523",
-      "lines": 8981,
+      "sha256": "ec2c7c478bccec3b4e9c87cddd8c5ec939399ffb3c9f382d7c1eadd41a86c5a4",
+      "lines": 8982,
       "discoveryTags": [
         "ui",
         "geometry",
@@ -1994,7 +1997,6 @@
       "releaseLines": [
         3115,
         3161,
-        7276,
         7277,
         7278,
         7279,
@@ -2002,7 +2004,8 @@
         7281,
         7282,
         7283,
-        8137
+        7284,
+        8138
       ]
     },
     {
@@ -2187,14 +2190,14 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceUiBridge.cs",
-      "sha256": "ed5b5a874675c2f0ec6aaffc74c0445d0d8c84233ba4848573c724e719b8a92b",
-      "lines": 199,
+      "sha256": "5cba9fb0d617506b7c3c41437572088be502fcc4ee2025937a5f5c2eec329e2c",
+      "lines": 200,
       "discoveryTags": [
         "compatibility"
       ],
       "creationLines": [
         21,
-        35
+        36
       ],
       "updateLines": [],
       "releaseLines": []

@@ -109,6 +109,7 @@ namespace EchoSphere.Presentation
         private Material _svgMaterial;
         public SourceUiEnvironment Environment {get;private set;}
         public Func<V> Render;
+        internal Action<VisualCssNode> BeforePaint;
         public Func<Texture> CanvasTexture;
         public Action AfterEvent;
         public bool Dirty=true;
@@ -309,6 +310,7 @@ namespace EchoSphere.Presentation
         private void PreparePaintResources(VisualCssNode root)
         {
             using(UiFlowMarker.Auto())_flow.Apply(_sheet,root);
+            BeforePaint?.Invoke(root);
             void Prepare(VisualCssNode node)
             {
                 if(node.Native is VisualElement element&&_elementEntries.TryGetValue(element,out var entry)&&node.Width>0d&&node.Height>0d)
@@ -350,7 +352,10 @@ namespace EchoSphere.Presentation
         {
             if(source.userData is SourceUiReplica.PaintTag tag)return tag.Paint;
             if(_backdropForegrounds.TryGetValue(source,out var foreground))return foreground.PaintContent;
-            return _elementEntries.TryGetValue(source,out var entry)&&source==entry.Frame&&entry.Backdrop==null?entry.PaintContent:null;
+            if(_elementEntries.TryGetValue(source,out var entry))return source==entry.Frame&&entry.Backdrop==null?entry.PaintContent:null;
+            // Native retained islands keep their own vector painters. Images and
+            // text are copied by their native element, avoiding a second draw.
+            return source is Image||source is TextElement?null:source.generateVisualContent;
         }
         private void EnsureBrush(Entry entry)
         {

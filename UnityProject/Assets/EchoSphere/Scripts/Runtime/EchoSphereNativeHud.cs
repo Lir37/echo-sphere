@@ -8,6 +8,60 @@ namespace EchoSphere.Runtime
 {
     public sealed partial class EchoSphereRuntime
     {
+        private bool _nativeHudPilot;
+        private NativeHudView _nativeHudIsland;
+        private int _nativeHudBoundVersion=-1;
+        private bool NativeHudRequested=>_nativeHudPilot&&!_mainMenu&&!_gameOver&&_sourceRenderState.Truth;
+        public bool UsesNativeHud=>NativeHudRequested&&_nativeHudIsland!=null&&_nativeHudIsland.Ready;
+        // Diagnostic opt-in only; no persisted preference or production switch.
+        public void SetNativeHudPilot(bool enabled)
+        {
+            if(_nativeHudPilot==enabled)return;
+            _nativeHudPilot=enabled;
+            if(!enabled)DisposeNativeHudIsland();
+            if(_sourceUi!=null)_sourceUi.Dirty=true;
+        }
+        private void DisposeNativeHudIsland()
+        {
+            _nativeHudIsland?.Dispose();_nativeHudIsland=null;_nativeHudBoundVersion=-1;
+        }
+        private V ProjectNativeHudIsland(V tree)
+        {
+            if(!UsesNativeHud)return tree;
+            void Visit(V value)
+            {
+                if(value.Raw is VisualDom.Node node){
+                    var classes=node.Properties["className"].Text??"";
+                    if(Array.IndexOf(classes.Split(' '),"es-hud-panel")>=0){
+                        // Keep the authored box and tutorial/query anchor while
+                        // the retained native island owns its pixels and input.
+                        node.Children.Clear();
+                        node.Properties["style"]=VisualJs.Merge(node.Properties["style"],VisualJs.Obj("visibility","hidden","pointerEvents","none"));
+                        return;
+                    }
+                    foreach(var child in node.Children)Visit(child);
+                }else if(value.Raw is System.Collections.Generic.List<V>)foreach(var child in value.Items)Visit(child);
+            }
+            Visit(tree);return tree;
+        }
+        private void PrepareNativeHudIsland(VisualCssNode root)
+        {
+            if(!NativeHudRequested){DisposeNativeHudIsland();return;}
+            VisualCssNode left=null,right=null;
+            void Find(VisualCssNode node){var classes=(node.Attribute("className")??"").Split(' ');if(Array.IndexOf(classes,"es-hud-panel")>=0){if(Array.IndexOf(classes,"es-top-left")>=0)left=node;else if(Array.IndexOf(classes,"es-top-right")>=0)right=node;}foreach(var child in node.Children)Find(child);}
+            Find(root);
+            if(!(left?.Native is VisualElement leftBox)||!(right?.Native is VisualElement rightBox)||leftBox.parent==null||leftBox.parent!=rightBox.parent){DisposeNativeHudIsland();return;}
+            var parent=leftBox.parent;
+            if(_nativeHudIsland==null||_nativeHudIsland.Root.parent!=parent){DisposeNativeHudIsland();_nativeHudIsland=CreateNativeHudCandidate(parent);}
+            // The native island shares the original pane and paint-prefix order:
+            // field/mobile controls below HUD, combo/modal/tutorial layers above.
+            _nativeHudIsland.Root.PlaceInFront(rightBox);
+            if(_nativeHudBoundVersion!=_sourceUi.FrameVersion){_nativeHudIsland.Bind(ReadNativeHudState());_nativeHudBoundVersion=_sourceUi.FrameVersion;}
+            var dpr=SourceDevicePixelRatio;var safe=Screen.safeArea;
+            _nativeHudIsland.SetSafeArea(safe.xMin/dpr,(Screen.width-safe.xMax)/dpr,(Screen.height-safe.yMax)/dpr);
+            var ready=_nativeHudIsland.Ready;_nativeHudIsland.Prepare(dpr);
+            if(_nativeHudIsland.Ready){leftBox.style.visibility=rightBox.style.visibility=Visibility.Hidden;if(!ready)_sourceUi.Dirty=true;}
+        }
         // Candidate factory only. SourceGameView remains the production owner until
         // HUD, overlays, controls, effects and navigation pass their acceptance.
         public NativeHudView CreateNativeHudCandidate(VisualElement parent)
