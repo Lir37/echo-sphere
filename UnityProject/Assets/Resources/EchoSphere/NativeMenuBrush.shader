@@ -50,7 +50,7 @@ Shader "EchoSphere/NativeMenuBrush"
             if(_StopCount>0){
                 float2 period=max(.00001,_Size.xy-_BorderInsets.xy-_BorderInsets.zw); float2 local=p-_BorderInsets.xy; float2 q=local-floor(local/period)*period;
                 float2 center=_Origin.xy*period;float extent=length(max(center,period-center));
-                float t=_Linear>0?q.y/period.y:length(q-center)/max(.00001,extent);
+                float t=_Linear>1?q.x/period.x:_Linear>0?q.y/period.y:length(q-center)/max(.00001,extent);
                 float4 gradient=Premul(_Colors[0]);
                 [loop]for(int i=1;i<_StopCount;i++){float span=_Stops[i]-_Stops[i-1];if(t>=_Stops[i])gradient=Premul(_Colors[i]);else{if(t>_Stops[i-1])gradient=lerp(Premul(_Colors[i-1]),Premul(_Colors[i]),span>0?(t-_Stops[i-1])/span:1);break;}}
                 color=Over(color,gradient);

@@ -129,13 +129,25 @@ Details/raw evidence: UNITY_GAMEPLAY_NATIVE_CHECKPOINT_2026-10-19.md and
 UNITY_CANVAS_LOCAL_CONTOURS_EVIDENCE_2026-10-19.json. Preferences were restored
 and verified through Unity APIs after diagnostic Stop; recovery assets untouched.
 
-The inventory JSON scans every C# file, not only visual filenames. Discovery tags
+Native HUD checkpoint (entry a625334, CI#757 SUCCESS): NativeHudView/RadarView/
+PoiArrow now provide retained native controls, bars, telemetry, vector POI arrows,
+Gaussian effects and pointer/timer behavior. This is a PILOT candidate and is
+**not selected by production**. Existing SourceGameView still owns gameplay UI;
+no full-scene FPS/GC improvement is claimed. Bounded Editor tests:4409 authored
+radar comparisons,39 GPU/source brush cases,9 native vector/drop-shadow cases,
+six viewport/DPR cases and actual pointer/timer checks. Shared menu brush defaults
+remain unchanged; its12 existing GPU cases pass. Complete parity, pause/mobile
+composition, gameplay integration and active measurements remain required.
+See UNITY_NATIVE_HUD_CHECKPOINT_2026-10-19.md and its raw evidence JSON.
+
+The inventory JSON now scans213 C# files, not only visual filenames. Discovery tags
 and hashes are not semantic parity or completion claims. Keep it current when
 adding native presentation classes.
 
 Next work:
-1. Typed native gameplay/path/mesh presentation, then retained native HUD bindings,
-   starting with the confirmed tessellation and UI tree costs.
+1. Complete/integrate the native HUD candidate with correct overlay ordering;
+   continue native PausePlanner/mobile controls and typed world presentation.
+   ResolveCss189-193ms remains the confirmed paused-interface bottleneck.
 2. Equal-condition active scene captures, CPU Timeline/GC, Rendering/UI/Memory and
    portrait/landscape controls after each meaningful group. Keep effects intact.
 3. Preserve native menu/Settings lifetime and navigation; retain explicit device
@@ -146,6 +158,8 @@ Short continuation prompt: Continue ECHO SPHERE on unity-migration at the actual
 HEAD containing this report. Read the three GPT gameplay documents and this file.
 Native Home is selected: complete native composition and Editor controls/GPU/
 responsive/navigation checks pass; paired Home capture is ~6.65→60.1 Editor FPS,
-GC1.94MB→2.64KB/frame, not device proof. Continue typed native gameplay/path and
-HUD migration from actual source and Profiler; preserve visuals/gameplay/RNG and
+GC1.94MB→2.64KB/frame, not device proof. Native HUD/radar candidate has bounded
+Editor/pixel/input checks but remains unselected. Read its 2026-10-19 checkpoint;
+complete parity and native gameplay/pause/mobile composition, then active profiling.
+Preserve visuals/gameplay/RNG and
 new-desing. P1/P2 PARTIAL; no APK or browser experiments. Check CI for actual HEAD.

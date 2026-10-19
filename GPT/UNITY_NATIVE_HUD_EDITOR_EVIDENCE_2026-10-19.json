@@ -1,0 +1,609 @@
+{
+  "entryHead": "a625334d1f1f4bdc37155b8f30e9596ac8eca37d",
+  "scope": "Bounded Editor candidate; production gameplay HUD remains source-backed, no FPS claim",
+  "EchoNativeHudView": {
+    "status": "PASS bounded native HUD retained layout/pixels/pointer/timer across six viewports; full parity and production selection pending",
+    "results": [
+      {
+        "stage": 0,
+        "width": 1260,
+        "height": 542.0,
+        "dpr": 1.0,
+        "left": "(x:8.00, y:8.00, width:300.00, height:140.00)",
+        "right": "(x:952.00, y:8.00, width:300.00, height:140.00)",
+        "enemies": 2,
+        "pois": 0
+      },
+      {
+        "stage": 1,
+        "width": 1260,
+        "height": 542.0,
+        "dpr": 1.0,
+        "left": "(x:8.00, y:8.00, width:300.00, height:140.00)",
+        "right": "(x:952.00, y:8.00, width:300.00, height:140.00)",
+        "enemies": 2,
+        "pois": 3
+      },
+      {
+        "stage": 2,
+        "width": 1260,
+        "height": 542.0,
+        "dpr": 1.0,
+        "left": "(x:8.00, y:8.00, width:300.00, height:140.00)",
+        "right": "(x:952.00, y:8.00, width:300.00, height:140.00)",
+        "enemies": 2,
+        "pois": 3
+      },
+      {
+        "stage": 3,
+        "width": 360,
+        "height": 800.0,
+        "dpr": 2.0,
+        "left": "(x:10.00, y:26.00, width:162.00, height:136.00)",
+        "right": "(x:188.00, y:26.00, width:162.00, height:136.00)",
+        "enemies": 2,
+        "pois": 3
+      },
+      {
+        "stage": 4,
+        "width": 800,
+        "height": 360.0,
+        "dpr": 3.0,
+        "left": "(x:8.00, y:8.00, width:248.00, height:140.00)",
+        "right": "(x:544.00, y:8.00, width:248.00, height:140.00)",
+        "enemies": 2,
+        "pois": 3
+      },
+      {
+        "stage": 5,
+        "width": 320,
+        "height": 568.0,
+        "dpr": 2.0,
+        "left": "(x:8.00, y:8.00, width:142.00, height:136.00)",
+        "right": "(x:170.00, y:8.00, width:142.00, height:136.00)",
+        "enemies": 2,
+        "pois": 3
+      },
+      {
+        "stage": 6,
+        "width": 480,
+        "height": 854.0,
+        "dpr": 1.0,
+        "left": "(x:8.00, y:8.00, width:222.00, height:136.00)",
+        "right": "(x:250.00, y:8.00, width:222.00, height:136.00)",
+        "enemies": 2,
+        "pois": 3
+      },
+      {
+        "stage": 7,
+        "width": 854,
+        "height": 480.0,
+        "dpr": 3.0,
+        "left": "(x:8.00, y:8.00, width:264.67, height:140.00)",
+        "right": "(x:581.33, y:8.00, width:264.67, height:140.00)",
+        "enemies": 2,
+        "pois": 3
+      },
+      {
+        "tooltipAutoHideSeconds": 5.4220171999986633
+      }
+    ],
+    "actions": 2,
+    "checks": 102,
+    "outputDirectory": "C:/Users/toxik/Documents/GitHub/echo/UnityProject/Assets\\../Temp/native-hud\\20261019-073728-544"
+  },
+  "EchoNativeRadarTriangle": {
+    "status": "PASS actual native arrow/Gaussian drop-shadow vs independent native primitive, 3 colors at DPR1/1.75/3; source geometry checked separately",
+    "rows": [
+      {
+        "dpr": 1.0,
+        "color": 0,
+        "maximum": 0.0,
+        "mean": 0.0
+      },
+      {
+        "dpr": 1.0,
+        "color": 1,
+        "maximum": 0.0,
+        "mean": 0.0
+      },
+      {
+        "dpr": 1.0,
+        "color": 2,
+        "maximum": 0.0,
+        "mean": 0.0
+      },
+      {
+        "dpr": 1.75,
+        "color": 0,
+        "maximum": 0.0,
+        "mean": 0.0
+      },
+      {
+        "dpr": 1.75,
+        "color": 1,
+        "maximum": 0.0,
+        "mean": 0.0
+      },
+      {
+        "dpr": 1.75,
+        "color": 2,
+        "maximum": 0.0,
+        "mean": 0.0
+      },
+      {
+        "dpr": 3.0,
+        "color": 0,
+        "maximum": 0.0,
+        "mean": 0.0
+      },
+      {
+        "dpr": 3.0,
+        "color": 1,
+        "maximum": 0.0,
+        "mean": 0.0
+      },
+      {
+        "dpr": 3.0,
+        "color": 2,
+        "maximum": 0.0,
+        "mean": 0.0
+      }
+    ]
+  },
+  "EchoNativeHudBrushes": {
+    "status": "PASS 39 native HUD GPU/source brush cases; triangle and complete UI parity are separate",
+    "results": [
+      {
+        "Name": "panel-left",
+        "scale": 1.0,
+        "maximum": 1.0,
+        "mean": 0.00027583120204603581,
+        "raw": 0,
+        "alpha": 1
+      },
+      {
+        "Name": "panel-right",
+        "scale": 1.0,
+        "maximum": 1.0,
+        "mean": 0.00027583120204603581,
+        "raw": 0,
+        "alpha": 1
+      },
+      {
+        "Name": "xp-track",
+        "scale": 1.0,
+        "maximum": 0.0,
+        "mean": 0.0,
+        "raw": 0,
+        "alpha": 0
+      },
+      {
+        "Name": "xp-horizontal",
+        "scale": 1.0,
+        "maximum": 1.0,
+        "mean": 0.00090892096437958847,
+        "raw": 1,
+        "alpha": 1
+      },
+      {
+        "Name": "hp-track",
+        "scale": 1.0,
+        "maximum": 0.0,
+        "mean": 0.0,
+        "raw": 0,
+        "alpha": 0
+      },
+      {
+        "Name": "hp-horizontal",
+        "scale": 1.0,
+        "maximum": 1.0,
+        "mean": 0.00096726190476190479,
+        "raw": 1,
+        "alpha": 0
+      },
+      {
+        "Name": "radar",
+        "scale": 1.0,
+        "maximum": 1.0,
+        "mean": 0.0022497259095217545,
+        "raw": 1,
+        "alpha": 1
+      },
+      {
+        "Name": "ring1",
+        "scale": 1.0,
+        "maximum": 0.0,
+        "mean": 0.0,
+        "raw": 0,
+        "alpha": 0
+      },
+      {
+        "Name": "ring2",
+        "scale": 1.0,
+        "maximum": 0.0,
+        "mean": 0.0,
+        "raw": 0,
+        "alpha": 0
+      },
+      {
+        "Name": "enemy-normal",
+        "scale": 1.0,
+        "maximum": 0.0,
+        "mean": 0.0,
+        "raw": 0,
+        "alpha": 0
+      },
+      {
+        "Name": "player",
+        "scale": 1.0,
+        "maximum": 1.0,
+        "mean": 0.0041666666666666683,
+        "raw": 0,
+        "alpha": 1
+      },
+      {
+        "Name": "elite",
+        "scale": 1.0,
+        "maximum": 0.0,
+        "mean": 0.0,
+        "raw": 0,
+        "alpha": 0
+      },
+      {
+        "Name": "boss",
+        "scale": 1.0,
+        "maximum": 1.0,
+        "mean": 0.0027538126361655773,
+        "raw": 0,
+        "alpha": 1
+      },
+      {
+        "Name": "panel-left",
+        "scale": 1.75,
+        "maximum": 1.0,
+        "mean": 0.00019461697722567288,
+        "raw": 0,
+        "alpha": 1
+      },
+      {
+        "Name": "panel-right",
+        "scale": 1.75,
+        "maximum": 1.0,
+        "mean": 0.00019461697722567288,
+        "raw": 0,
+        "alpha": 1
+      },
+      {
+        "Name": "xp-track",
+        "scale": 1.75,
+        "maximum": 1.0,
+        "mean": 0.00014047142927442523,
+        "raw": 0,
+        "alpha": 1
+      },
+      {
+        "Name": "xp-horizontal",
+        "scale": 1.75,
+        "maximum": 1.0,
+        "mean": 0.0041601780572368824,
+        "raw": 1,
+        "alpha": 1
+      },
+      {
+        "Name": "hp-track",
+        "scale": 1.75,
+        "maximum": 1.0,
+        "mean": 8.6851989255661409E-05,
+        "raw": 0,
+        "alpha": 1
+      },
+      {
+        "Name": "hp-horizontal",
+        "scale": 1.75,
+        "maximum": 1.0,
+        "mean": 0.0010111003861003856,
+        "raw": 1,
+        "alpha": 1
+      },
+      {
+        "Name": "radar",
+        "scale": 1.75,
+        "maximum": 1.0313725490196077,
+        "mean": 0.0030262473481923167,
+        "raw": 1,
+        "alpha": 1
+      },
+      {
+        "Name": "ring1",
+        "scale": 1.75,
+        "maximum": 0.0,
+        "mean": 0.0,
+        "raw": 0,
+        "alpha": 0
+      },
+      {
+        "Name": "ring2",
+        "scale": 1.75,
+        "maximum": 0.0,
+        "mean": 0.0,
+        "raw": 0,
+        "alpha": 0
+      },
+      {
+        "Name": "enemy-normal",
+        "scale": 1.75,
+        "maximum": 1.0,
+        "mean": 0.0010957703265395574,
+        "raw": 0,
+        "alpha": 1
+      },
+      {
+        "Name": "player",
+        "scale": 1.75,
+        "maximum": 1.0,
+        "mean": 0.0013605442176870743,
+        "raw": 0,
+        "alpha": 1
+      },
+      {
+        "Name": "elite",
+        "scale": 1.75,
+        "maximum": 1.0,
+        "mean": 0.0016490034030140974,
+        "raw": 0,
+        "alpha": 1
+      },
+      {
+        "Name": "boss",
+        "scale": 1.75,
+        "maximum": 1.0,
+        "mean": 0.00022338049143708107,
+        "raw": 0,
+        "alpha": 1
+      },
+      {
+        "Name": "panel-left",
+        "scale": 3.0,
+        "maximum": 1.0,
+        "mean": 0.00042914653784219004,
+        "raw": 0,
+        "alpha": 1
+      },
+      {
+        "Name": "panel-right",
+        "scale": 3.0,
+        "maximum": 1.0,
+        "mean": 0.00042914653784219004,
+        "raw": 0,
+        "alpha": 1
+      },
+      {
+        "Name": "xp-track",
+        "scale": 3.0,
+        "maximum": 0.0,
+        "mean": 0.0,
+        "raw": 0,
+        "alpha": 0
+      },
+      {
+        "Name": "xp-horizontal",
+        "scale": 3.0,
+        "maximum": 1.0,
+        "mean": 0.00080996488648532507,
+        "raw": 1,
+        "alpha": 1
+      },
+      {
+        "Name": "hp-track",
+        "scale": 3.0,
+        "maximum": 0.0,
+        "mean": 0.0,
+        "raw": 0,
+        "alpha": 0
+      },
+      {
+        "Name": "hp-horizontal",
+        "scale": 3.0,
+        "maximum": 1.0,
+        "mean": 0.0012253929349517591,
+        "raw": 1,
+        "alpha": 1
+      },
+      {
+        "Name": "radar",
+        "scale": 3.0,
+        "maximum": 1.0823529411764703,
+        "mean": 0.0022389455027078732,
+        "raw": 1,
+        "alpha": 1
+      },
+      {
+        "Name": "ring1",
+        "scale": 3.0,
+        "maximum": 0.0,
+        "mean": 0.0,
+        "raw": 0,
+        "alpha": 0
+      },
+      {
+        "Name": "ring2",
+        "scale": 3.0,
+        "maximum": 0.0,
+        "mean": 0.0,
+        "raw": 0,
+        "alpha": 0
+      },
+      {
+        "Name": "enemy-normal",
+        "scale": 3.0,
+        "maximum": 0.0,
+        "mean": 0.0,
+        "raw": 0,
+        "alpha": 0
+      },
+      {
+        "Name": "player",
+        "scale": 3.0,
+        "maximum": 1.0,
+        "mean": 0.00046296296296296314,
+        "raw": 0,
+        "alpha": 1
+      },
+      {
+        "Name": "elite",
+        "scale": 3.0,
+        "maximum": 0.0,
+        "mean": 0.0,
+        "raw": 0,
+        "alpha": 0
+      },
+      {
+        "Name": "boss",
+        "scale": 3.0,
+        "maximum": 1.0,
+        "mean": 0.00091793754538852619,
+        "raw": 0,
+        "alpha": 1
+      }
+    ]
+  },
+  "EchoNativeMenuSurfaces": {
+    "status": "PASS native GPU menu surface/source paint",
+    "results": [
+      {
+        "kind": "Loadout",
+        "hover": false,
+        "selected": false,
+        "dpr": 1.0,
+        "maximum": 1.0,
+        "mean": 0.10402741466957033,
+        "raw": 1,
+        "alpha": 1,
+        "worst": "38,3 expected=5,13,22,180 actual=RGBA(5, 13, 22, 179)"
+      },
+      {
+        "kind": "Character",
+        "hover": false,
+        "selected": false,
+        "dpr": 1.0,
+        "maximum": 1.0,
+        "mean": 0.00065880735974945535,
+        "raw": 1,
+        "alpha": 1,
+        "worst": "88,50 expected=0,0,0,1 actual=RGBA(0, 0, 0, 0)"
+      },
+      {
+        "kind": "Character",
+        "hover": true,
+        "selected": false,
+        "dpr": 1.0,
+        "maximum": 1.0,
+        "mean": 0.0047164351851852427,
+        "raw": 0,
+        "alpha": 1,
+        "worst": "88,50 expected=0,0,0,1 actual=RGBA(0, 0, 0, 0)"
+      },
+      {
+        "kind": "Difficulty",
+        "hover": false,
+        "selected": false,
+        "dpr": 1.0,
+        "maximum": 1.0,
+        "mean": 0.0027321222606689864,
+        "raw": 0,
+        "alpha": 1,
+        "worst": "3,0 expected=20,43,61,195 actual=RGBA(20, 43, 61, 194)"
+      },
+      {
+        "kind": "Difficulty",
+        "hover": false,
+        "selected": true,
+        "dpr": 1.0,
+        "maximum": 1.0,
+        "mean": 0.043629853902344917,
+        "raw": 0,
+        "alpha": 1,
+        "worst": "19,1 expected=36,116,146,69 actual=RGBA(36, 115, 146, 68)"
+      },
+      {
+        "kind": "Continue",
+        "hover": false,
+        "selected": false,
+        "dpr": 1.0,
+        "maximum": 1.0,
+        "mean": 0.0051984351432880658,
+        "raw": 1,
+        "alpha": 1,
+        "worst": "61,27 expected=69,206,255,4 actual=RGBA(69, 206, 255, 3)"
+      },
+      {
+        "kind": "Continue",
+        "hover": true,
+        "selected": false,
+        "dpr": 1.0,
+        "maximum": 1.0,
+        "mean": 0.0060118673537789919,
+        "raw": 1,
+        "alpha": 1,
+        "worst": "61,27 expected=69,206,255,4 actual=RGBA(69, 206, 255, 3)"
+      },
+      {
+        "kind": "Navigation",
+        "hover": false,
+        "selected": false,
+        "dpr": 1.0,
+        "maximum": 1.0,
+        "mean": 0.00058322482638888888,
+        "raw": 0,
+        "alpha": 1,
+        "worst": "51,106 expected=0,0,0,4 actual=RGBA(0, 0, 0, 3)"
+      },
+      {
+        "kind": "NavigationButton",
+        "hover": false,
+        "selected": false,
+        "dpr": 1.0,
+        "maximum": 0.0,
+        "mean": 0.0,
+        "raw": 0,
+        "alpha": 0,
+        "worst": ""
+      },
+      {
+        "kind": "NavigationButton",
+        "hover": true,
+        "selected": false,
+        "dpr": 1.0,
+        "maximum": 0.0,
+        "mean": 0.0,
+        "raw": 0,
+        "alpha": 0,
+        "worst": ""
+      },
+      {
+        "kind": "Continue",
+        "hover": false,
+        "selected": false,
+        "dpr": 1.75,
+        "maximum": 1.4274509803921518,
+        "mean": 0.0048138400659409582,
+        "raw": 1,
+        "alpha": 1,
+        "worst": "63,83 expected=75,175,205,160 actual=RGBA(75, 175, 204, 159)"
+      },
+      {
+        "kind": "Navigation",
+        "hover": false,
+        "selected": false,
+        "dpr": 1.75,
+        "maximum": 1.0,
+        "mean": 0.0015330350890356132,
+        "raw": 0,
+        "alpha": 1,
+        "worst": "165,87 expected=0,0,0,1 actual=RGBA(0, 0, 0, 0)"
+      }
+    ]
+  },
+  "radarGeometry": "PASS native radar / authored RadarHud: 4409 comparisons, 24 states, caps/filtering/positions/types/POI orientation/reuse"
+}
