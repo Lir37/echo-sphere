@@ -21,7 +21,7 @@ namespace EchoSphere.Presentation
             // Close a complete dash cycle, retaining a regular pattern at corners.
             var perimeter=2*(w+h-4*edge-4*radius)+2*Mathf.PI*radius;
             var count=Mathf.Max(1,Mathf.RoundToInt(perimeter/5));_pattern[0]=3;_pattern[1]=Mathf.Max(.01f,perimeter/count-3);
-            painter.dashPattern=_pattern;painter.dashOffset=0;painter.BeginPath();painter.MoveTo(new Vector2(edge+radius,edge));
+            painter.SetDashPattern(_pattern);painter.dashOffset=0;painter.BeginPath();painter.MoveTo(new Vector2(edge+radius,edge));
             painter.LineTo(new Vector2(w-edge-radius,edge));painter.ArcTo(new Vector2(w-edge,edge),new Vector2(w-edge,edge+radius),radius);
             painter.LineTo(new Vector2(w-edge,h-edge-radius));painter.ArcTo(new Vector2(w-edge,h-edge),new Vector2(w-edge-radius,h-edge),radius);
             painter.LineTo(new Vector2(edge+radius,h-edge));painter.ArcTo(new Vector2(edge,h-edge),new Vector2(edge,h-edge-radius),radius);

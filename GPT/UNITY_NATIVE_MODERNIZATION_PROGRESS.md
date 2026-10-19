@@ -163,3 +163,13 @@ Editor/pixel/input checks but remains unselected. Read its 2026-10-19 checkpoint
 complete parity and native gameplay/pause/mobile composition, then active profiling.
 Preserve visuals/gameplay/RNG and
 new-desing. P1/P2 PARTIAL; no APK or browser experiments. Check CI for actual HEAD.
+
+### HUD API correction, 2026-10-19
+
+CI758 rejected two obsolete UI Toolkit calls (warnings, not C# errors).
+SetDashPattern and FocusController.IgnoreEvent replace them without suppressing
+checks. Local real-Unity-DLL typechecks zero errors/warnings; Editor recompile
+and repeated six-viewport HUD pointer/timer fixture PASS. Raw evidence is in
+UNITY_NATIVE_HUD_EDITOR_EVIDENCE_2026-10-19.json. Native HUD is still PILOT.
+Next: full RU/EN parity and gameplay composition with pause/mobile/overlay order;
+then typed gameplay views and actual CPU/GC measurements. No APK.

@@ -87,3 +87,16 @@ Port PausePlanner's four tabs from actual source, without recreating its formula
 Then capture comparable active gameplay CPU Timeline/GC/rendering/memory. No APK
 until the final modernization stage. CI, compilation, Play, pixels and performance
 remain independent gates. Check Actions for the actual resulting HEAD.
+
+## API correction after CI758
+
+CI758 on72dad445 failed unity-typecheck because two obsolete API warnings are
+errors in this gate; core/source/visual jobs passed. Replaced dashPattern with
+SetDashPattern and PreventDefault with FocusController.IgnoreEvent. Pointer
+propagation and capture remain available. Local Android player/editor/runtime
+typechecks against installed real6000.3.24f1 DLLs now have zero errors/warnings
+(local harness copied to Temp/net10 because this laptop lacks the pinned SDK8;
+GitHub remains the pinned SDK8 gate). Editor recompile and repeated six-viewport
+HUD layout/pixel/pointer/cancel/rejection/timer fixture PASS,98 checks,2 fake
+callback attempts, auto-hide5.418s. Stop and restoration of six original game
+preference keys PASS. Native HUD remains unselected; no new FPS/GC claims.
