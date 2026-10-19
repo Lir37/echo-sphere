@@ -1,0 +1,155 @@
+{
+  "entryHead": "63b9b63f2530a66ee484f101507274497a9d578c",
+  "model": {
+    "status": "PASS typed native pause stats / original PausePlanner",
+    "cases": 18,
+    "checks": 1760,
+    "frozenCases": 2,
+    "generatedCases": 16,
+    "rows": [
+      {
+        "fixture": "PausePlanner/ru/stats",
+        "variant": 0,
+        "stats": 8,
+        "spheres": 10
+      },
+      {
+        "fixture": "PausePlanner/ru/stats",
+        "variant": 1,
+        "stats": 8,
+        "spheres": 10
+      },
+      {
+        "fixture": "PausePlanner/ru/stats",
+        "variant": 2,
+        "stats": 8,
+        "spheres": 10
+      },
+      {
+        "fixture": "PausePlanner/ru/stats",
+        "variant": 3,
+        "stats": 8,
+        "spheres": 10
+      },
+      {
+        "fixture": "PausePlanner/ru/stats",
+        "variant": 4,
+        "stats": 8,
+        "spheres": 10
+      },
+      {
+        "fixture": "PausePlanner/ru/stats",
+        "variant": 5,
+        "stats": 8,
+        "spheres": 10
+      },
+      {
+        "fixture": "PausePlanner/ru/skills",
+        "variant": 0,
+        "stats": 8,
+        "spheres": 10
+      },
+      {
+        "fixture": "PausePlanner/ru/artifacts",
+        "variant": 0,
+        "stats": 8,
+        "spheres": 10
+      },
+      {
+        "fixture": "PausePlanner/ru/synergies",
+        "variant": 0,
+        "stats": 8,
+        "spheres": 10
+      },
+      {
+        "fixture": "PausePlanner/en/stats",
+        "variant": 0,
+        "stats": 8,
+        "spheres": 10
+      },
+      {
+        "fixture": "PausePlanner/en/stats",
+        "variant": 1,
+        "stats": 8,
+        "spheres": 10
+      },
+      {
+        "fixture": "PausePlanner/en/stats",
+        "variant": 2,
+        "stats": 8,
+        "spheres": 10
+      },
+      {
+        "fixture": "PausePlanner/en/stats",
+        "variant": 3,
+        "stats": 8,
+        "spheres": 10
+      },
+      {
+        "fixture": "PausePlanner/en/stats",
+        "variant": 4,
+        "stats": 8,
+        "spheres": 10
+      },
+      {
+        "fixture": "PausePlanner/en/stats",
+        "variant": 5,
+        "stats": 8,
+        "spheres": 10
+      },
+      {
+        "fixture": "PausePlanner/en/skills",
+        "variant": 0,
+        "stats": 8,
+        "spheres": 10
+      },
+      {
+        "fixture": "PausePlanner/en/artifacts",
+        "variant": 0,
+        "stats": 8,
+        "spheres": 10
+      },
+      {
+        "fixture": "PausePlanner/en/synergies",
+        "variant": 0,
+        "stats": 8,
+        "spheres": 10
+      }
+    ],
+    "limits": "Model projection only; no native pause view activation, CSS removal, gameplay/RNG change, performance or device claim"
+  },
+  "live": {
+    "status": "PASS typed pause reader / actual saved-run pause UI",
+    "checks": 17,
+    "stats": 8,
+    "spheres": 10,
+    "liveCards": 1,
+    "nativeHudDefault": false,
+    "limits": "Real Editor display-reader validation only; native pause view not enabled; no formulas/RNG/settings changed"
+  },
+  "typecheck": [
+    {
+      "configuration": "Android player",
+      "files": 215,
+      "errors": 0,
+      "warnings": 0,
+      "diagnostics": []
+    },
+    {
+      "configuration": "Android editor runtime",
+      "files": 215,
+      "errors": 0,
+      "warnings": 0,
+      "diagnostics": []
+    },
+    {
+      "configuration": "Android editor assembly",
+      "files": 3,
+      "errors": 0,
+      "warnings": 0,
+      "diagnostics": []
+    }
+  ],
+  "limits": "Typed display-model foundation only. Native pause widgets/chrome and remaining three tabs are not implemented/selected; no additional performance claim. Existing presentation branch/final lookup behavior is preserved.",
+  "cleanup": "Stopped; original six game preferences restored; current Console0errors/0warnings; recovery untouched"
+}

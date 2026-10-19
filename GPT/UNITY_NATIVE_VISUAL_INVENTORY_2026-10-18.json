@@ -1,8 +1,8 @@
 {
-  "entryHead": "69d7de168f0e8bc1753e7eac1718465f5947f0ca",
+  "entryHead": "63b9b63f2530a66ee484f101507274497a9d578c",
   "protectedSource": "new-desing@737ef2af4a877e0995db5f92331d536d2f29a934",
   "scope": "Every C# file under Assets/EchoSphere/Scripts, including files without visual/UI/Canvas names. Discovery metadata is not a semantic parity or native-migration acceptance claim.",
-  "scannedFiles": 213,
+  "scannedFiles": 215,
   "entries": [
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Core/AlchemistReactionRules.cs",
@@ -1438,6 +1438,15 @@
       ]
     },
     {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/NativePauseStatsState.cs",
+      "sha256": "cd83f6c93389526ffd5bf7431a79186995b1b6b59eb0fe7fb5a7e7f98349a0a0",
+      "lines": 27,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/SourceCanvasGeometryCache.cs",
       "sha256": "1660c0dcf0c3f7283c3a8338e6d3b0841e2974f5f46f08e7d5596bc85fc8cc70",
       "lines": 82,
@@ -1928,6 +1937,17 @@
       "creationLines": [
         34
       ],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativePauseStats.cs",
+      "sha256": "98b6bee6280c77f585ab63f7ff84b8f1416dfdc7575a3b9f2eb67cdd04d7ee86",
+      "lines": 79,
+      "discoveryTags": [
+        "compatibility"
+      ],
+      "creationLines": [],
       "updateLines": [],
       "releaseLines": []
     },

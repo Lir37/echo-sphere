@@ -230,3 +230,11 @@ disable/re-enable pass. Flag defaults false. Paused A/B/A/B: combined Editor
 3.49→3.89FPS, GC60.5→52.6MB/frame; ResolveCss still about123ms. Not normal
 gameplay performance or an active/device measurement. Source world, pause and
 mobile CSS/V remain. See UNITY_NATIVE_HUD_ISLAND_2026-10-19.md and evidence JSON.
+
+### Typed pause-stats data
+
+Entry63b9b63: NativePauseStatsState /EchoSphereNativePauseStats now project8
+character stats and10 sphere cards without DOM/CSS or copied IMGUI formulas.
+18 original-source RU/EN cases /1760checks and actual saved-run17checks PASS.
+This is data foundation only: native pause widgets/other3 tabs remain open.
+See UNITY_NATIVE_PAUSE_STATS_2026-10-19.md and its raw evidence JSON.
