@@ -1,8 +1,8 @@
 {
-  "entryHead": "56a1c69a0cfd3252f36111ae49674748058817f4",
+  "entryHead": "5c881b224e5061b15dd9a10a83cb258d817b8876",
   "protectedSource": "new-desing@737ef2af4a877e0995db5f92331d536d2f29a934",
   "scope": "Every C# file under Assets/EchoSphere/Scripts, including files without visual/UI/Canvas names. Discovery metadata is not a semantic parity or native-migration acceptance claim.",
-  "scannedFiles": 219,
+  "scannedFiles": 222,
   "entries": [
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Core/AlchemistReactionRules.cs",
@@ -1200,6 +1200,23 @@
       "releaseLines": []
     },
     {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/NativeArtifactGlyph.cs",
+      "sha256": "53f4d75d0cf9096dddc856ee2498b94a4b0d5c7f5f6bac4751a53e3aa56db67c",
+      "lines": 57,
+      "discoveryTags": [
+        "ui",
+        "geometry"
+      ],
+      "creationLines": [],
+      "updateLines": [
+        43,
+        53
+      ],
+      "releaseLines": [
+        54
+      ]
+    },
+    {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/NativeBackdropPanelProbe.cs",
       "sha256": "a2c899b3045e2ffd73284530259484fd16e58389b1eb066616ded606e9854688",
       "lines": 215,
@@ -1393,22 +1410,22 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/NativeMenuBrush.cs",
-      "sha256": "9b92dcc3faa774092835934c8927db45c6fb1d835485f7b392edea60fb9f6f0c",
-      "lines": 93,
+      "sha256": "75a942ca99d549114bb0f5ba710863108f2ae025d5389ac546f98d4fd33f2ac1",
+      "lines": 95,
       "discoveryTags": [
         "gpu"
       ],
       "creationLines": [
-        39,
-        68
+        40,
+        69
       ],
       "updateLines": [
-        60
+        61
       ],
       "releaseLines": [
-        88,
-        89,
-        90
+        90,
+        91,
+        92
       ]
     },
     {
@@ -1460,6 +1477,15 @@
       "releaseLines": [
         91
       ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/NativePauseArtifactsState.cs",
+      "sha256": "c59d08acad53c6d9cb7fbd169bc1ccc84e9a01190f92cb70fb9588719c1ca1c7",
+      "lines": 23,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/NativePauseStatsState.cs",
@@ -1992,6 +2018,15 @@
       "releaseLines": [
         18
       ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativePauseArtifacts.cs",
+      "sha256": "199a79faae01f253bdf4262c73c55886469e0a70e0c6467abc3ee053dffc973a",
+      "lines": 40,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativePauseStats.cs",

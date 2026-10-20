@@ -259,3 +259,15 @@ wide card/list dimensions109/983px matched. Paused A/B/A/B3.59->6.01FPS and
 39.1->23.8MB/frame; system memory pressure limits absolute timing, no active or
 Android inference.219 C# files; defaultfalse, P1/P2 PARTIAL. Artifacts/synergies,
 mobile controls and world rendering remain. No APK or quality/gameplay changes.
+
+## Artifact groundwork and current native Home, 2026-10-20
+
+See UNITY_NATIVE_ARTIFACT_GROUNDWORK_2026-10-20.md. Original artifact/set/glyph
+data40 cases/10192 checks PASS (all82 artifacts). Native angled gradient5 GPU
+cases and12 existing menu brush cases PASS. NativeArtifactGlyph is an unwired
+candidate: paired DPR1/2 RGB means1.86%/4.42%; full visual gate NOT passed.
+Current production native Home:59.94FPS /202KB allocated-frame,120 samples at
+1260x542, Timeline off, no source UI document; current Editor measurement only.
+222 C# files, compile/typechecks/Node272/preflight/provenance PASS. Diagnostic
+source-glyph comparison caused one Pipeline timeout error; game renderer fix is
+not inferred. Artifact card/set badge composition, synergies/mobile/world remain.

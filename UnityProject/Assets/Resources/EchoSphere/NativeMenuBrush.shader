@@ -8,7 +8,7 @@ Shader "EchoSphere/NativeMenuBrush"
         HLSLINCLUDE
         #include "UnityCG.cginc"
         sampler2D _MainTex,_OuterA,_OuterB,_Inner;
-        float4 _MainTex_TexelSize,_Size,_Pixels,_MaskSize,_Offset,_Direction,_Radius,_Fill,_BorderColor,_BorderInsets,_Origin,_ShadowA,_ShadowB,_ShadowInner;
+        float4 _MainTex_TexelSize,_Size,_Pixels,_MaskSize,_Offset,_Direction,_Radius,_Fill,_BorderColor,_BorderInsets,_Origin,_ShadowA,_ShadowB,_ShadowInner,_GradientDirection;
         float4 _Colors[8];float _Stops[8];int _KernelRadius,_StopCount;
         float _Outside,_Border,_Linear,_Sigma;
         float2 Pixel(float2 uv,float2 size){return floor(float2(uv.x,1-uv.y)*size)+.5;}
@@ -50,7 +50,7 @@ Shader "EchoSphere/NativeMenuBrush"
             if(_StopCount>0){
                 float2 period=max(.00001,_Size.xy-_BorderInsets.xy-_BorderInsets.zw); float2 local=p-_BorderInsets.xy; float2 q=local-floor(local/period)*period;
                 float2 center=_Origin.xy*period;float extent=length(max(center,period-center));
-                float t=_Linear>1?q.x/period.x:_Linear>0?q.y/period.y:length(q-center)/max(.00001,extent);
+                float t=_Linear>2?dot(q-period*.5,_GradientDirection.xy)/max(.00001,dot(period,abs(_GradientDirection.xy)))+.5:_Linear>1?q.x/period.x:_Linear>0?q.y/period.y:length(q-center)/max(.00001,extent);
                 float4 gradient=Premul(_Colors[0]);
                 [loop]for(int i=1;i<_StopCount;i++){float span=_Stops[i]-_Stops[i-1];if(t>=_Stops[i])gradient=Premul(_Colors[i]);else{if(t>_Stops[i-1])gradient=lerp(Premul(_Colors[i-1]),Premul(_Colors[i]),span>0?(t-_Stops[i-1])/span:1);break;}}
                 color=Over(color,gradient);
