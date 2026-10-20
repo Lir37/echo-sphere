@@ -2,11 +2,53 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using EchoSphere.Presentation;
+using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace EchoSphere.Runtime
 {
     public sealed partial class EchoSphereRuntime
     {
+        private bool _nativePauseStatsPilot;
+        private NativePauseStatsView _nativePauseStatsIsland;
+        private int _nativePauseStatsBoundVersion=-1;
+        private bool NativePauseStatsRequested=>_nativePauseStatsPilot&&!_mainMenu&&!_gameOver&&_userPaused&&_pausePlannerTab==0&&_sourceRenderState.Truth&&!_sourceRenderState["pendingUpgrade"].Truth&&!_sourceRenderState["pendingArtifact"].Truth&&!_sourceRenderState["pendingStella"].Truth;
+        public bool UsesNativePauseStats=>NativePauseStatsRequested&&_nativePauseStatsIsland!=null&&_nativePauseStatsIsland.Ready;
+        public void SetNativePauseStatsPilot(bool enabled)
+        {
+            if(_nativePauseStatsPilot==enabled)return;_nativePauseStatsPilot=enabled;
+            if(!enabled)DisposeNativePauseStatsIsland();if(_sourceUi!=null)_sourceUi.Dirty=true;
+        }
+        private void DisposeNativePauseStatsIsland(){_nativePauseStatsIsland?.Dispose();_nativePauseStatsIsland=null;_nativePauseStatsBoundVersion=-1;}
+        private V ProjectNativePauseStatsIsland(V tree)
+        {
+            if(!UsesNativePauseStats)return tree;
+            void Visit(V value,bool pause){
+                if(value.Raw is VisualDom.Node node){var classes=(node.Properties["className"].Text??"").Split(' ');pause|=Array.IndexOf(classes,"es-pause-overlay")>=0;
+                    if(pause&&Array.IndexOf(classes,"overflow-y-auto")>=0&&Array.IndexOf(classes,"px-4")>=0&&Array.IndexOf(classes,"py-4")>=0&&Array.IndexOf(classes,"min-h-0")>=0){node.Children.Clear();return;}
+                    foreach(var child in node.Children)Visit(child,pause);
+                }else if(value.Raw is List<V>)foreach(var child in value.Items)Visit(child,pause);
+            }
+            Visit(tree,false);return tree;
+        }
+        private void PrepareNativePauseStatsIsland(VisualCssNode root)
+        {
+            if(!NativePauseStatsRequested){DisposeNativePauseStatsIsland();return;}
+            VisualCssNode body=null;
+            void Find(VisualCssNode node,bool pause){pause|=node.HasClass("es-pause-overlay");if(body==null&&pause&&node.HasClass("overflow-y-auto")&&node.HasClass("px-4")&&node.HasClass("py-4")&&node.HasClass("min-h-0")){body=node;return;}foreach(var child in node.Children)Find(child,pause);}
+            Find(root,false);
+            if(!(body?.Native is SourceUiFrame frame)||!(frame.Content is ScrollView scroll)){DisposeNativePauseStatsIsland();return;}
+            var parent=scroll.contentContainer;
+            if(_nativePauseStatsIsland==null||_nativePauseStatsIsland.Root.parent!=parent){DisposeNativePauseStatsIsland();_nativePauseStatsIsland=new NativePauseStatsView(parent);}
+            if(_nativePauseStatsBoundVersion!=_sourceUi.FrameVersion){_nativePauseStatsIsland.Bind(ReadNativePauseStatsState());_nativePauseStatsBoundVersion=_sourceUi.FrameVersion;}
+            bool ready=_nativePauseStatsIsland.Ready;_nativePauseStatsIsland.Prepare(SourceDevicePixelRatio,Screen.width/SourceDevicePixelRatio);
+            if(_nativePauseStatsIsland.Ready){
+                // Warm up absolutely over the old content, without doubling the
+                // scroll range. Native flow takes ownership only when ready.
+                foreach(var child in body.Children)if(child.Native is VisualElement element)element.style.display=DisplayStyle.None;
+                _nativePauseStatsIsland.UseFlowLayout(true);if(!ready)_sourceUi.Dirty=true;
+            }
+        }
         // Projection only, not selected by a production pause view yet. Use the
         // same existing UI/Core outputs as App.tsx, not the older IMGUI formulas.
         public NativePauseStatsState ReadNativePauseStatsState()

@@ -1,8 +1,8 @@
 # ECHO SPHERE — native visual modernization
 
-Current status entry point, 2026-10-19. Historical reports retain earlier evidence;
+Current status entry point, 2026-10-20. Historical reports retain earlier evidence;
 this file and UNITY_NATIVE_MENU_COMPOSITION_2026-10-18.md define this checkpoint.
-Entry HEAD: `26765b508a15ad3155b62e681af91d505e5cf7e8`, branch `unity-migration`.
+Entry HEAD: `402ecf291539624f7d223e4faa016706727abae2`, branch `unity-migration`.
 Protected source: `new-desing@737ef2af4a877e0995db5f92331d536d2f29a934`.
 Implementation HEAD is the commit containing this report (`git log -1 --format=%H`).
 
@@ -238,3 +238,14 @@ character stats and10 sphere cards without DOM/CSS or copied IMGUI formulas.
 18 original-source RU/EN cases /1760checks and actual saved-run17checks PASS.
 This is data foundation only: native pause widgets/other3 tabs remain open.
 See UNITY_NATIVE_PAUSE_STATS_2026-10-19.md and its raw evidence JSON.
+
+## Native pause stats content, 2026-10-20
+
+See UNITY_NATIVE_PAUSE_VIEW_2026-10-20.md and its evidence. Native retained
+content replaces stats descendants inside the existing ScrollView; default false.
+44 actual saved-scene checks and42 RU/EN viewport checks PASS. Paused A/B/A/B
+with native HUD held enabled: CSS nodes352->144, combined3.27->5.45FPS,
+GC50.8->27.6MB/frame. Still insufficient; no active/Android claim. Native HUD,
+stats and remaining gameplay views require further acceptance/migration.
+Editor reconnect/compile and new six-key prefs restoration confirmed; previous
+interrupted-session restoration cannot be confirmed. No APK/quality changes.

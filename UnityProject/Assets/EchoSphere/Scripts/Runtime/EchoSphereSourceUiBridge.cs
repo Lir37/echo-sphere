@@ -21,8 +21,8 @@ namespace EchoSphere.Runtime
                 _sourceUi=new GameObject("Source TSX interface").AddComponent<SourceUiDocument>();_sourceUi.Initialize();
                 _sourceUiStateRef=VisualJs.Obj("current",_sourceRenderState);_sourceUiCanvasRef=VisualJs.Obj("current",VisualJs.Null);_sourceUiTutorialRef=VisualJs.Obj("current",VisualJs.Null);
                 var saved=LoadRunSnapshot();_sourceUiSavedRunTime=saved==null?VisualJs.Null:new V(Math.Floor(saved.time));
-                _sourceUi.Render=()=>ProjectNativeHudIsland(SourceUiTree());_sourceUi.AfterEvent=ApplySourceUiWrites;
-                _sourceUi.BeforePaint=PrepareNativeHudIsland;
+                _sourceUi.Render=()=>ProjectNativePauseStatsIsland(ProjectNativeHudIsland(SourceUiTree()));_sourceUi.AfterEvent=ApplySourceUiWrites;
+                _sourceUi.BeforePaint=root=>{PrepareNativeHudIsland(root);PrepareNativePauseStatsIsland(root);};
                 _sourceUi.CanvasTexture=()=>_sourceCanvas.UiTexture;
                 var environment=_sourceUi.Environment;
                 environment.ReadStorage=key=>PlayerPrefs.HasKey(key)?new V(PlayerPrefs.GetString(key)):VisualJs.Null;

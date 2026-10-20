@@ -1,0 +1,113 @@
+{
+  "scope": "Saved-run Editor 1260x542, user-paused; native HUD held enabled; native stats off/on A/B/A/B; 10 warm and 20 sampled frames each; recorded 2026-10-19 before Editor restart",
+  "acceptance": {
+    "status": "PASS",
+    "checks": 44,
+    "sourceCssNodes": 352,
+    "nativeCssNodes": 144,
+    "restoredCssNodes": 352,
+    "nativeWidth": 710,
+    "nativeHeight": 1073,
+    "scrollOffset": 820,
+    "existingTabCallback": true
+  },
+  "profile": {
+    "status": "PASS",
+    "rows": [
+      {
+        "native": false,
+        "frameMs": 317.005485,
+        "fps": 3.15451955,
+        "gcBytes": 50410909.75,
+        "buildTreeMs": 143.851095,
+        "resolveCssMs": 137.509775
+      },
+      {
+        "native": true,
+        "frameMs": 208.84326,
+        "fps": 4.78827998,
+        "gcBytes": 27740132.6,
+        "buildTreeMs": 87.11188,
+        "resolveCssMs": 81.439725
+      },
+      {
+        "native": false,
+        "frameMs": 295.16579,
+        "fps": 3.38792649,
+        "gcBytes": 51240192.55,
+        "buildTreeMs": 137.759115,
+        "resolveCssMs": 131.07362
+      },
+      {
+        "native": true,
+        "frameMs": 158.45736,
+        "fps": 6.31084602,
+        "gcBytes": 27436961.9,
+        "buildTreeMs": 62.02539,
+        "resolveCssMs": 57.32919
+      }
+    ]
+  },
+  "limits": "Summary transcribed from successful CLI evidence before unexpected Editor restart cleared Temp. Existing Timeline was not cleared by tests. No active-play/Android or full pixel parity claim. Six-case layout fixture passed after reconnection. Prior SessionState preference backup lost on restart, so restoration for interrupted session cannot be confirmed. Production stats/HUD pilots remain false.",
+  "layout": {
+    "status": "PASS native pause stats six portrait/wide DPR and RU/EN layouts",
+    "checks": 42,
+    "rows": [
+      {
+        "viewport": 390,
+        "scale": 1.0,
+        "ru": true,
+        "width": 324.0,
+        "height": 1237.0,
+        "statWidth": 158.0,
+        "statHeight": 52.0
+      },
+      {
+        "viewport": 390,
+        "scale": 2.0,
+        "ru": false,
+        "width": 324.0,
+        "height": 1202.5,
+        "statWidth": 158.0,
+        "statHeight": 51.5
+      },
+      {
+        "viewport": 360,
+        "scale": 1.0,
+        "ru": false,
+        "width": 294.0,
+        "height": 1237.0,
+        "statWidth": 143.0,
+        "statHeight": 52.0
+      },
+      {
+        "viewport": 1280,
+        "scale": 1.0,
+        "ru": true,
+        "width": 710.0,
+        "height": 1073.0,
+        "statWidth": 172.0,
+        "statHeight": 52.0
+      },
+      {
+        "viewport": 1280,
+        "scale": 2.0,
+        "ru": false,
+        "width": 710.0,
+        "height": 1068.5,
+        "statWidth": 171.5,
+        "statHeight": 51.5
+      },
+      {
+        "viewport": 640,
+        "scale": 1.0,
+        "ru": false,
+        "width": 710.0,
+        "height": 1073.0,
+        "statWidth": 172.0,
+        "statHeight": 52.0
+      }
+    ],
+    "limits": "Retained Yoga layout and source-language data; no full screenshot equivalence"
+  }
+}
