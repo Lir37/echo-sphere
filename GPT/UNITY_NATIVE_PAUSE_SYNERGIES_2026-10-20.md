@@ -122,3 +122,20 @@ remaining source tab icons/text overlap and the shared ScrollView retains its
 Editor theme scrollbar. These are existing shell/scroll presentation limitations,
 not accepted full-pause parity. Native shell/control work must address the original
 authored appearance; current content-only pilots do not claim it is complete.
+
+## CI follow-up
+
+Implementation commit5d5f065: CI#769 passed source TypeScript and real Unity API
+compilation, but the visual provenance step failed because the separate CSS export
+manifest still contained the old App.tsx input hash. Local visual checks had not
+included that complete CI step. Regenerate with the locked dependency versions and
+verify the entire step; preserve the existing CSS output if byte-identical. This
+is a provenance repair, not a visual redesign. Final CI status is reported against
+the actual follow-up HEAD, never inferred from local checks.
+
+CSS regeneration completed with package-lock dependencies: all1,200 rules and22
+animation timelines are identical in exact order/content after canonical line
+ending comparison. The original CSS file was restored byte-for-byte; only App.tsx
+input hash in source-ui-style-manifest changes. The complete8-command CI visual
+provenance step and locked TypeScript5.6.3 typecheck now pass locally. This repairs
+the missing manifest update without changing CSS, reference pixels or runtime.

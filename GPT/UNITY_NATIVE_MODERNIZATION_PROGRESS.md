@@ -309,3 +309,8 @@ replaced. Sequential paused native captures before/after early skip:5.719->5.850
 29.089->27.022MB/frame, ProjectTree5.426->.934ms. BuildTree50.781ms includes
 ResolveCss49.702ms; do not add nested markers. Overall improvement limited and
 performance still unacceptable. P1/P2 remain PARTIAL. See synergies report/evidence.
+
+CI follow-up for5d5f065: #769 source and Unity typechecks succeeded, but CSS
+provenance failed on the old App.tsx input hash. Regenerated with locked packages;
+all1200 rules/22timelines identical, original CSS bytes retained. Complete visual
+CI step now passes locally; follow-up commit updates only the manifest and reports.
