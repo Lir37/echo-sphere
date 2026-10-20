@@ -194,6 +194,9 @@ function GameScreen({ lang, t, shop, difficulty, handedness, regionId, regionMod
   const [gameOverData, setGameOverData] = useState<{ time: number; wave: number; kills: number; gold: number; rank: number; isNewRecord: boolean; regionClear: boolean; masteryChallengesCompleted: number; challengeProgress: number; endlessUnlocked: boolean } | null>(null);
   const [paused, setPaused] = useState(false);
   const [pauseTab, setPauseTab] = useState<PauseTab>('stats');
+  // The Unity view bridge supplies this display-only ownership flag. The
+  // original renderer always builds its own pause content.
+  const nativePauseContent = false;
   const [selectedArtifactSetId, setSelectedArtifactSetId] = useState<string | null>(null);
   const [tutorialStep, setTutorialStep] = useState<TutorialStep | null>(() => loadTutorialCompleted() ? null : 0);
   const tutorialStepRef = useRef<TutorialStep | null>(tutorialStep);
@@ -425,6 +428,7 @@ function GameScreen({ lang, t, shop, difficulty, handedness, regionId, regionMod
               t={t}
               st={st}
               tab={pauseTab}
+              nativeContent={nativePauseContent}
               setTab={setPauseTab}
               onResume={() => { setPaused(false); st.paused = false; saveRunSnapshot(st); setSelectedArtifactSetId(null); }}
               onExit={onExit}
@@ -502,11 +506,12 @@ function Row({ label, value }: { label: string; value: string }) {
 
 type PauseTab = 'stats' | 'skills' | 'artifacts' | 'synergies';
 
-function PausePlanner({ lang, t, st, tab, setTab, onResume, onExit, selectedArtifactSetId, setSelectedArtifactSetId }: {
+function PausePlanner({ lang, t, st, tab, nativeContent, setTab, onResume, onExit, selectedArtifactSetId, setSelectedArtifactSetId }: {
   lang: Lang;
   t: (k: TranslationKey) => string;
   st: GameState;
   tab: PauseTab;
+  nativeContent?: boolean;
   setTab: (tab: PauseTab) => void;
   onResume: () => void;
   onExit: () => void;
@@ -546,7 +551,7 @@ function PausePlanner({ lang, t, st, tab, setTab, onResume, onExit, selectedArti
         </div>
 
         <div className="overflow-y-auto px-4 py-4 min-h-0">
-          {tab === 'stats' && (
+          {!nativeContent && tab === 'stats' && (
             <div className="space-y-4">
               <section>
                 <SectionTitle>{lang === 'ru' ? 'Персонаж' : 'Character'}</SectionTitle>
@@ -609,7 +614,7 @@ function PausePlanner({ lang, t, st, tab, setTab, onResume, onExit, selectedArti
             </div>
           )}
 
-          {tab === 'skills' && (
+          {!nativeContent && tab === 'skills' && (
             <div className="space-y-3">
               <SectionTitle>{lang === 'ru' ? 'Активные способности' : 'Active abilities'}</SectionTitle>
               {activeAbilities.map((id) => {
@@ -651,7 +656,7 @@ function PausePlanner({ lang, t, st, tab, setTab, onResume, onExit, selectedArti
             </div>
           )}
 
-          {tab === 'artifacts' && (
+          {!nativeContent && tab === 'artifacts' && (
             <div className="space-y-3">
               <SectionTitle>{lang === 'ru' ? `Собрано: ${st.player.artifacts.length}` : `Owned: ${st.player.artifacts.length}`}</SectionTitle>
               {st.player.artifacts.length === 0 ? (
@@ -684,7 +689,7 @@ function PausePlanner({ lang, t, st, tab, setTab, onResume, onExit, selectedArti
             </div>
           )}
 
-          {tab === 'synergies' && (
+          {!nativeContent && tab === 'synergies' && (
             <div className="space-y-4">
               <section>
                 <SectionTitle>{lang === 'ru' ? 'Сфера + ветка + способность' : 'Sphere + branch + ability'}</SectionTitle>

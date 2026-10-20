@@ -1,8 +1,8 @@
 {
-  "entryHead": "9da5bef9915fe92ae7c7e35670bce3d3fe2363b2",
+  "entryHead": "60fc8dedaab726b215d87c1164c14555e2a54479",
   "protectedSource": "new-desing@737ef2af4a877e0995db5f92331d536d2f29a934",
   "scope": "Every C# file under Assets/EchoSphere/Scripts, including files without visual/UI/Canvas names. Discovery metadata is not a semantic parity or native-migration acceptance claim.",
-  "scannedFiles": 225,
+  "scannedFiles": 228,
   "entries": [
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Core/AlchemistReactionRules.cs",
@@ -629,8 +629,8 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_App.cs",
-      "sha256": "a19e5dd20d6fd274663d76b70ee4ff957dfcaea54b2b89d56cf1d39b7ae27ae2",
-      "lines": 564,
+      "sha256": "f0a0ce3bff6721721a0a2ce10bb6f83f6434fd9118409007cc4dd5a13387432c",
+      "lines": 566,
       "discoveryTags": [
         "compatibility"
       ],
@@ -640,7 +640,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_CharacterSelect.cs",
-      "sha256": "509d60eeee0d62323d8a6376450a96b28656844edb19097ccc79a7e7f1a5e4f3",
+      "sha256": "eadf8fd75b7cd6e293a708d8767b39d4d30f42ed6119b6ca7945aaec85a7cb55",
       "lines": 90,
       "discoveryTags": [
         "compatibility"
@@ -651,7 +651,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_EchoMapScreen.cs",
-      "sha256": "7d7e26e0bf0d7f26cfdd0c980214146ec2df023dff52a00b67d7bef3bd2ac856",
+      "sha256": "073c6469005d465a2bd5f8d2967d9e98ac1f740b7e1bc7ba7028a333da134122",
       "lines": 32,
       "discoveryTags": [
         "compatibility"
@@ -662,7 +662,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_KnowledgeBase.cs",
-      "sha256": "644b514f50d4992e67989ca39d78e9de1815a1aa9a418b24ce13734a12a80ee6",
+      "sha256": "2a77a76635f99e80bdcd875635ee1fdc1319017452251fae7d7ad9005fac5e0c",
       "lines": 116,
       "discoveryTags": [
         "compatibility"
@@ -673,7 +673,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_MobileControls.cs",
-      "sha256": "95b2d02c7eb93cd565914f9ca7bf043c884ad6577bce86c709ad7d853fe18a99",
+      "sha256": "a851989e6535f1bf3096845afb431b46f74c0e2a4219fd31056cbc7610c658c4",
       "lines": 489,
       "discoveryTags": [
         "compatibility"
@@ -684,7 +684,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_TutorialOverlay.cs",
-      "sha256": "56d5d6fde86b8fb6dd5c3b8179c60d8b171a333d0e883551adfb5783b34866a8",
+      "sha256": "723ee7418589c3b5ef31eae285f452c58f33b4f72133ccc313c091a1273c1906",
       "lines": 61,
       "discoveryTags": [
         "compatibility"
@@ -695,7 +695,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_artifactSystem.cs",
-      "sha256": "2abcd6b199196d1ec94c5cc1f048b26668705cc370f2c6fe53dd144eb48e43a1",
+      "sha256": "1b5252c2fc5dff4efe937e5d0b0638a1b4fcbb082c3b2a856f8d587ac20c823d",
       "lines": 238,
       "discoveryTags": [
         "compatibility"
@@ -706,7 +706,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_auraVisual.cs",
-      "sha256": "3c265f03ffcca9f4f4f4c34d41bd18449ff07136ecf69ad12fcd799dd061a46c",
+      "sha256": "a29589e484b9bfd7598d39e8b428edb6e0ce98814424baccf53d4c74e501bec3",
       "lines": 69,
       "discoveryTags": [
         "compatibility"
@@ -717,7 +717,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_bossBalance.cs",
-      "sha256": "005330b1e8eacbd15c865719a536618d06f8135eb52b5623d3d2b3d43bef8a97",
+      "sha256": "093313ee2e8254d5c8e2de1eb67a8fd112ff367873bbdc5e8cd752404b725759",
       "lines": 14,
       "discoveryTags": [
         "compatibility"
@@ -728,7 +728,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_canvasLocale.cs",
-      "sha256": "759198fea6247a5dbbe14b76f8e68d7e1e07ebbd014ab082c1054ab65ab0801b",
+      "sha256": "395c6a9580c4f08db0560bfcfca5d3e6ae2ee900efa7e4b500c650dad41e9d54",
       "lines": 33,
       "discoveryTags": [
         "compatibility"
@@ -739,7 +739,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_chainVisual.cs",
-      "sha256": "c82cff79d889b0b409cb47548a466b28b41a8ec94789efca1a80d6bef6cec00a",
+      "sha256": "f82b39622e33ce53ecaa0a2c5e9fd08c8dffd47cae29e54a77eaf857a3d9f789",
       "lines": 67,
       "discoveryTags": [
         "compatibility"
@@ -750,7 +750,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_characterRuntime.cs",
-      "sha256": "1bf4c43c30fe44e0dea8b7a1ca9e860c3ece4a4ebf537266282072fca8aa75fa",
+      "sha256": "9d9d21858c7bcb631c5b1c508050a1312aded64a9f0d97c5378afa3d4b89d2ad",
       "lines": 165,
       "discoveryTags": [
         "compatibility"
@@ -761,7 +761,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_characters.cs",
-      "sha256": "8eccb7d0dc56253ffc15007af789d81cbf9679a15e7728bb6f0228002d7b96b7",
+      "sha256": "eaeb0011ff2ea3a0e688a688aa9481c9a6642bfbb87cae70f5d16eef91099d85",
       "lines": 51,
       "discoveryTags": [
         "compatibility"
@@ -772,7 +772,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_combatRules.cs",
-      "sha256": "5749e89601b3fbde9990ff4ac378ccb198f6e5d528eaab7630d417912479defc",
+      "sha256": "d9f9d900af3546b58396f5b779bc585a5909e0eed87d66d30dfd06759b51fa76",
       "lines": 14,
       "discoveryTags": [
         "compatibility"
@@ -783,7 +783,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_elementalVisual.cs",
-      "sha256": "afcc7f9a854942459b77a5d0f533961f90410b0437909bce3c4022c5a473cf1d",
+      "sha256": "b539e3f2522b521015a7e993af87ca1ce0fd9d5966fe028f58125be9d7a0c66e",
       "lines": 282,
       "discoveryTags": [
         "compatibility"
@@ -794,7 +794,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_eliteBalance.cs",
-      "sha256": "e777abcd88ae67e87d1359a594ffcd68e58864a6a2f5709d35bb2a722c5637db",
+      "sha256": "c953abd051df1a50d927e985222d1c3896bf6720faf42fe745512f6f94916a2f",
       "lines": 15,
       "discoveryTags": [
         "compatibility"
@@ -805,7 +805,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_enemyVisual.cs",
-      "sha256": "eb421113aab40cde2be6c7311e7b1a9aca4b14a8e8cb32ccce16dc89c2f502e8",
+      "sha256": "7c784442733407b91709b8672eeb6e12365146fee598aa93589d80fa2f480de5",
       "lines": 646,
       "discoveryTags": [
         "compatibility"
@@ -816,7 +816,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_engine.cs",
-      "sha256": "eaa57573bbf688ed7a93d62940885ddec0afaf70d800d39efee854eac30907b3",
+      "sha256": "86d94bca109453678b527871bf35ad579f877b8fd9dc9e4f127cdda5e8095d2b",
       "lines": 14,
       "discoveryTags": [
         "compatibility"
@@ -827,7 +827,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_engineBalanceConstants.cs",
-      "sha256": "cda49355fb515af3d5eec3577ade75d4192bb596544b0c5d2d7af5c13095f0ec",
+      "sha256": "80c6cb2962c057c066a6ffa276ec394a16023ab1a6b5dc0348c2f738b3ab17a7",
       "lines": 18,
       "discoveryTags": [
         "compatibility"
@@ -838,7 +838,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_engineCombat.cs",
-      "sha256": "0a9fd3724e2e42bdf9984acf76d7a6c3dd88810ef420f6f6ad5865c1bb1bd53b",
+      "sha256": "015e148f3ce9816b87a7f3e09ee9d43f25aa71de423d5cdfe5fe83181e3f924b",
       "lines": 34,
       "discoveryTags": [
         "compatibility"
@@ -849,7 +849,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_engineProgression.cs",
-      "sha256": "ab63081d137a3bdef89f58dcbd6a1bc060e3edeeb0ba42474cb5c5f2586a59b9",
+      "sha256": "26ba510cab505c05434bed66d5bfa7e95e98c4bff2e21f7b719d66b954db02a7",
       "lines": 53,
       "discoveryTags": [
         "compatibility"
@@ -860,7 +860,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_engineRuntime.cs",
-      "sha256": "782c0abf6862c0c92a239c79efacaa545ee0c2bafdd8e716eb753f9edf0e904f",
+      "sha256": "b5e6281dd63804f2be1601e7841f2bbba36d41e6f046e8cdf5a5cb909e18d0ad",
       "lines": 32,
       "discoveryTags": [
         "compatibility"
@@ -871,7 +871,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_engineSpheres.cs",
-      "sha256": "87472529847ebfbc69d94fc496037714792aefde9274362f0343a0a908f8cc91",
+      "sha256": "20101166b33efc6889e141614664e443638c8d6da7afcc0ad85014403f544b07",
       "lines": 134,
       "discoveryTags": [
         "compatibility"
@@ -882,7 +882,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_engineState.cs",
-      "sha256": "13006f59fd580a82ce44512c2dadf5ab2e63ef38de473688f302dd0aed03c18d",
+      "sha256": "4c82333c6c49dfd860f5d58c19f0523d6a981d1e6a77777653ae13cc6896d381",
       "lines": 15,
       "discoveryTags": [
         "compatibility"
@@ -893,7 +893,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_engineStats.cs",
-      "sha256": "f8981e462c62c4c08a3b0c78dbe25c2a1c25cfa1cef82f87ecc86ceb50a9563e",
+      "sha256": "5aa630f2a2f7d8c0d63f85dedf397308235cee12f6f36614f4717a539128c3b2",
       "lines": 82,
       "discoveryTags": [
         "compatibility"
@@ -904,7 +904,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_formationFollow.cs",
-      "sha256": "301d6c401ec85c5ed17765f3e8eb832763833b235cd3737b4cf770e5dfdfd3b3",
+      "sha256": "a3efb2d0667ffd6b0e621eac776012846c83dd6bbaaadb0f68e80d69235eb0a1",
       "lines": 18,
       "discoveryTags": [
         "compatibility"
@@ -915,7 +915,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_gameData.cs",
-      "sha256": "55c64ebf369699a13117981650e2b337b56002f15a9a8368b8eb2743926cd7e6",
+      "sha256": "523bc3e5e83461b426ef95b3421a73f5b6afb1707aaa2c9e7c7d5e412aeae3fe",
       "lines": 85,
       "discoveryTags": [
         "compatibility"
@@ -926,7 +926,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_gravityVisual.cs",
-      "sha256": "90c349d3c78ac208c0c8850da4f5e219124c0d17e18a91e1cdbf032871e2d431",
+      "sha256": "305a4f2ef3fb1679b57b8b7a27dd0f682545ed7d4251b89b018581f86c1c3dcf",
       "lines": 69,
       "discoveryTags": [
         "compatibility"
@@ -937,7 +937,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_i18n.cs",
-      "sha256": "60a35bfacc5f0691003b896479fbc0059370b71f8ad4a14f7875ebccf5b3fca2",
+      "sha256": "06cf22a0130bc82cb83acd6fb6605695452e6f3e6e01e4ed62e06f51c486181c",
       "lines": 14,
       "discoveryTags": [
         "compatibility"
@@ -948,7 +948,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_interfaceScale.cs",
-      "sha256": "066c983ba69377eacba3caa121ea68400985e52034f753df0df4493edb5918dc",
+      "sha256": "ad7c015e6a60d7574ed2997ae1448cce16962e5ad43f8f56f99586d9b6270360",
       "lines": 34,
       "discoveryTags": [
         "compatibility"
@@ -959,7 +959,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_modifierVisual.cs",
-      "sha256": "6b89d81dae7aae4cef29b760e9cd78611de72cd60cc5d7b6d1a5bf65b9fe7392",
+      "sha256": "a3cc48f020671c1a9645c81e04324aa58d3baaa0668ce4d1f2b95dae80d2e00a",
       "lines": 185,
       "discoveryTags": [
         "compatibility"
@@ -970,7 +970,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_mutationVisual.cs",
-      "sha256": "d5939ad15e54dd7c42466269abba4c53c62a20de65529466e6ec4a684ab4ab86",
+      "sha256": "0b7637b2ada298a910d6ca5ebabb4537eddc27248fed5b6f551380dffb3a8217",
       "lines": 940,
       "discoveryTags": [
         "compatibility"
@@ -981,7 +981,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_network.cs",
-      "sha256": "ca3111d60b2a86cde58cb8cbf01d5d5b45003305aec20768ed344c0f2404e061",
+      "sha256": "8c9c87905c60b8e3e06f479a4d6b047fe3d489aa35d4fa4cf0a4f45cec370790",
       "lines": 386,
       "discoveryTags": [
         "compatibility"
@@ -992,7 +992,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_networkPreview.cs",
-      "sha256": "40f5049417e5634f7f4228932d393ff770472a1dc4ab338b5f8ac113002e95de",
+      "sha256": "03b781f4a49a9e6f947cc5de11f0492a8c2d6f2f2a0e29fbec52be9ef03a6c0b",
       "lines": 41,
       "discoveryTags": [
         "compatibility"
@@ -1003,7 +1003,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_networkRender.cs",
-      "sha256": "02f13e622f4bb191bdc76aed7a991fc141b6cacbfef5e00026fe9ea0969005f1",
+      "sha256": "9762ebc4ce070aeddf7e225139ce9da04da4dbd2a20cf660998963c9e74f8f2f",
       "lines": 34,
       "discoveryTags": [
         "compatibility"
@@ -1014,7 +1014,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_networkRuntime.cs",
-      "sha256": "a22eb5d41d063d129c7b48e4e21a13a6dae9b9065c9aa3cb5183dde35a04d4dd",
+      "sha256": "2155c94f3c6658f8baec916247c811e120884f474b96298e89d1fdef83819035",
       "lines": 25,
       "discoveryTags": [
         "compatibility"
@@ -1025,7 +1025,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_orbitalGeometry.cs",
-      "sha256": "2c853bb0f2eabc068530185b2e32f686b9dc6e5ac0102ad2125825b34f26f4e9",
+      "sha256": "9c64348d61fc440b5968cb7c433cec9eed6412f4af5308491ebab990f97566b3",
       "lines": 38,
       "discoveryTags": [
         "compatibility"
@@ -1036,7 +1036,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_orbitalVisual.cs",
-      "sha256": "fa471840870a266c2724130d1f976232fabd8106b8359b53be2f2b3a8703df9c",
+      "sha256": "03016f0110218728ba59e0ad2de8b4392a221a4050a5d624726e4cd9a46029cb",
       "lines": 381,
       "discoveryTags": [
         "compatibility"
@@ -1047,7 +1047,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_persistence.cs",
-      "sha256": "b178ef94f22565d38e65dce201e74ae9142ea8e98aaddf45f4eb6d37bbf24e79",
+      "sha256": "7b8f30078670875a447d5b17694df560f4e4ddf7360e5066aaa8d6eda179debc",
       "lines": 18,
       "discoveryTags": [
         "compatibility"
@@ -1058,7 +1058,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_prismVisual.cs",
-      "sha256": "b846064d073a3724d58fce50f52c96018154f5f111ee4276120d824dea10d13e",
+      "sha256": "97e61601d44683cc0375d0e32b6c7479d50b06c8b8bd102dbb09c0a0cc2355df",
       "lines": 94,
       "discoveryTags": [
         "compatibility"
@@ -1069,7 +1069,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_pulseVisual.cs",
-      "sha256": "78fc3a08240a5ddb1f6710324997425d464a24c3f9417351ed4526311b3daaa4",
+      "sha256": "116116ad7b08325a193891b007d99b2ff52fadd8e0196eb536d533849c9881b1",
       "lines": 62,
       "discoveryTags": [
         "compatibility"
@@ -1080,7 +1080,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_region.cs",
-      "sha256": "bf284610e3fa3f032773798bdb6055a3fdec77b387166b3e3d8845523004cc35",
+      "sha256": "3f5c2073ae38116e04a35836a6154afcf275cef264a7a6b3ea89057248dea5a3",
       "lines": 43,
       "discoveryTags": [
         "compatibility"
@@ -1091,7 +1091,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_renderScale.cs",
-      "sha256": "dd2d17a2ff4165a76a3f9b8352594bb16b1ac71c0d2c66b5e784a61dd4f8a0cf",
+      "sha256": "6744ea3349d07aa561fd172bd8fcd718b93033c167baa0b8439011773e7ea836",
       "lines": 35,
       "discoveryTags": [
         "compatibility"
@@ -1102,7 +1102,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_renderer.cs",
-      "sha256": "d8b58623d312f510903df2806f694ce952f4744a75a46983489fc3baa19f5266",
+      "sha256": "40a261b32720c2594d4044c6d1353b8cc7cb68e7a8c1222ec0744f734a1583fb",
       "lines": 2836,
       "discoveryTags": [
         "compatibility"
@@ -1113,7 +1113,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_runPersistence.cs",
-      "sha256": "35010a52e741e85b9311908e019af70a196a665d4212ef2dbcf86464846d11fc",
+      "sha256": "725ab757d63805db827ca8c1027baaa468b0f44918baf31995ca24073921b952",
       "lines": 14,
       "discoveryTags": [
         "compatibility"
@@ -1124,7 +1124,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_runes.cs",
-      "sha256": "9037a549bac29954fc07d72c58775e1e5b8e4ee73d954d4d187ff3b0b89ed462",
+      "sha256": "466cd51c572418cb5660e017df217307ba7caaeae4a52fafcfa3ba4937b934e7",
       "lines": 14,
       "discoveryTags": [
         "compatibility"
@@ -1135,7 +1135,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_shotgunVisual.cs",
-      "sha256": "db62fa55a0e593c9cbdd485ded2511334a8f46c3c990403c9976135b6b8f6a0a",
+      "sha256": "4f9a33add864db1448cef4d1a5fddb76460c1e8e253dcb65838dbc85967d72a2",
       "lines": 89,
       "discoveryTags": [
         "compatibility"
@@ -1146,7 +1146,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_sniperVisual.cs",
-      "sha256": "90244fe1b2a751d929e4f44ab448485bf94dd484eac99212468374dc6edd5c15",
+      "sha256": "0066f3329e5859dbedf0a8e56f43d0b25249d083d9492e058d9f37d952f0a531",
       "lines": 91,
       "discoveryTags": [
         "compatibility"
@@ -1157,7 +1157,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_spaceCollision.cs",
-      "sha256": "5d248ec4294cb044a70367974463747746369cc010765e84e5d7b2ca36dac38c",
+      "sha256": "0c7ad8d41343fe836da2d1cd6e2d24db11cedf4d4bab6837ea8d2e6c0efa0a37",
       "lines": 107,
       "discoveryTags": [
         "compatibility"
@@ -1168,7 +1168,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_sphereProgression.cs",
-      "sha256": "ce68d1608e8c53eb99f66fd31be4d49401917314bae3b30192d01b8df720f37e",
+      "sha256": "05d34df5f0bcb0b18e81609346682b52ac5cfc8b3d1206026ee94613ea73f9f6",
       "lines": 247,
       "discoveryTags": [
         "compatibility"
@@ -1179,7 +1179,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_visualHelpers.cs",
-      "sha256": "bfd477cf5eb198c07b2fab3c6633ead181af92cb62c1093e94cbd06ecce182c1",
+      "sha256": "73e33c1d061e0d021c762f36581a0e1ed62eaacec86042b8ec92d4f7bc8b95bf",
       "lines": 295,
       "discoveryTags": [
         "compatibility"
@@ -1190,7 +1190,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/Generated/Visual_voidVisual.cs",
-      "sha256": "6dd525ba549e154873d01c614178ea8d7417a6493435cea7195ce2ab31a2a9d1",
+      "sha256": "6e8d160f41506589a3c34788202be5e6f823e386599a28b8b6c4039abbc80499",
       "lines": 76,
       "discoveryTags": [
         "compatibility"
@@ -1538,6 +1538,30 @@
       ],
       "releaseLines": [
         138
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/NativePauseSynergiesState.cs",
+      "sha256": "6ad5879717ad156d52c434ffa54e3a8acdc77d179a6a71627346f62e167b47a4",
+      "lines": 30,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/NativePauseSynergiesView.cs",
+      "sha256": "4600dc84e444b19bfd971c9f332d927d83a1ea10ceff413a3d8291dc325d5d7d",
+      "lines": 149,
+      "discoveryTags": [
+        "ui"
+      ],
+      "creationLines": [],
+      "updateLines": [
+        129
+      ],
+      "releaseLines": [
+        143
       ]
     },
     {
@@ -2074,8 +2098,8 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativePauseStats.cs",
-      "sha256": "a9db3b8761c512a1970fab22698d2a0395e41b44263d0b887717b68efda15002",
-      "lines": 121,
+      "sha256": "e8ec6e2b451bd9bc93ac421e5e6c7b1ec9b611032d9e6b21fbb3976759df422c",
+      "lines": 110,
       "discoveryTags": [
         "ui",
         "compatibility"
@@ -2084,6 +2108,19 @@
       "updateLines": [],
       "releaseLines": [
         22
+      ]
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativePauseSynergies.cs",
+      "sha256": "50bf6840880224fa8cf855b07969437bca1345e3c52e5b3c23aa6b11a218f69f",
+      "lines": 103,
+      "discoveryTags": [
+        "ui"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": [
+        17
       ]
     },
     {
@@ -2125,8 +2162,8 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
-      "sha256": "95448d394ddce8d0bfa38421df7a3c4d5c4bb857a6e925ee14bfb455714a2cd1",
-      "lines": 8985,
+      "sha256": "ba37c301c5368b57a319ab8104eae9aaa17d90a763614d3d7db00bf81ddb2f87",
+      "lines": 8986,
       "discoveryTags": [
         "ui",
         "geometry",
@@ -2152,7 +2189,6 @@
       "releaseLines": [
         3115,
         3161,
-        7280,
         7281,
         7282,
         7283,
@@ -2160,7 +2196,8 @@
         7285,
         7286,
         7287,
-        8141
+        7288,
+        8142
       ]
     },
     {
@@ -2345,8 +2382,8 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceUiBridge.cs",
-      "sha256": "b6b63cbde2fecd67f97d97a436782e9d928ac1182c67431a6e4b7c49c62d807c",
-      "lines": 200,
+      "sha256": "8d1c0662cffe440e9930db4389a34389fd28d0d9e31866d362773e0f9cfbb428",
+      "lines": 203,
       "discoveryTags": [
         "compatibility"
       ],

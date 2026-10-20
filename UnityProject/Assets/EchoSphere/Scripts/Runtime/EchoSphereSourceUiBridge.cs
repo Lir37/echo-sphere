@@ -21,8 +21,8 @@ namespace EchoSphere.Runtime
                 _sourceUi=new GameObject("Source TSX interface").AddComponent<SourceUiDocument>();_sourceUi.Initialize();
                 _sourceUiStateRef=VisualJs.Obj("current",_sourceRenderState);_sourceUiCanvasRef=VisualJs.Obj("current",VisualJs.Null);_sourceUiTutorialRef=VisualJs.Obj("current",VisualJs.Null);
                 var saved=LoadRunSnapshot();_sourceUiSavedRunTime=saved==null?VisualJs.Null:new V(Math.Floor(saved.time));
-                _sourceUi.Render=()=>ProjectNativePauseContentIslands(ProjectNativeHudIsland(SourceUiTree()));_sourceUi.AfterEvent=ApplySourceUiWrites;
-                _sourceUi.BeforePaint=root=>{PrepareNativeHudIsland(root);PrepareNativePauseStatsIsland(root);PrepareNativePauseAbilitiesIsland(root);PrepareNativePauseArtifactsIsland(root);};
+                _sourceUi.Render=()=>ProjectNativeHudIsland(SourceUiTree());_sourceUi.AfterEvent=ApplySourceUiWrites;
+                _sourceUi.BeforePaint=root=>{PrepareNativeHudIsland(root);PrepareNativePauseStatsIsland(root);PrepareNativePauseAbilitiesIsland(root);PrepareNativePauseArtifactsIsland(root);PrepareNativePauseSynergiesIsland(root);};
                 _sourceUi.CanvasTexture=()=>_sourceCanvas.UiTexture;
                 var environment=_sourceUi.Environment;
                 environment.ReadStorage=key=>PlayerPrefs.HasKey(key)?new V(PlayerPrefs.GetString(key)):VisualJs.Null;
@@ -100,6 +100,9 @@ namespace EchoSphere.Runtime
             props["transitionTutorial"]=Action(args=>{if(args[0].Null)FinishTutorial(false);else SetTutorialStep((int)args[0].Number);});
             props["setTutorialStep"]=Action(args=>{if(args[0].Null)FinishTutorial(true);else SetTutorialStep((int)args[0].Number);});
             var tabs=new[]{"stats","skills","artifacts","synergies"};props["pauseTab"]=tabs[_pausePlannerTab];props["setPauseTab"]=Action(args=>_pausePlannerTab=Math.Max(0,Array.IndexOf(tabs,args[0].Text)));
+            // Skip compatibility content before the generated component builds
+            // it. Post-build pruning alone still paid for every discarded card.
+            props["nativePauseContent"]=UsesNativePauseStats||UsesNativePauseAbilities||UsesNativePauseArtifacts||NativePauseSynergiesRequested;
             props["selectedArtifactSetId"]=_pauseArtifactSetId==null?VisualJs.Null:new V(_pauseArtifactSetId);props["setSelectedArtifactSetId"]=Action(args=>_pauseArtifactSetId=args[0].Null?null:args[0].Text);
             props["gameOverData"]=_gameOver?VisualJs.Obj("time",Math.Floor(_runTime),"wave",_wave,"kills",_kills,"gold",_runGoldEarned,"rank",_sourceResultRank,"isNewRecord",_sourceResultNewRecord,"regionClear",_regionStabilized,"challengeProgress",GetCompletedRegionChallenges(EchoRegionId.ResonanceBasin).Length,"endlessUnlocked",IsRegionEndlessUnlocked(EchoRegionId.ResonanceBasin),"masteryChallengesCompleted",_regionMasteryChallengesCompleted):VisualJs.Null;
             return VisualDom.Component("SourceGameView",Visual_App.Scope["SourceGameView"],props);

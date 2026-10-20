@@ -20,17 +20,6 @@ namespace EchoSphere.Runtime
             if(!enabled)DisposeNativePauseStatsIsland();if(_sourceUi!=null)_sourceUi.Dirty=true;
         }
         private void DisposeNativePauseStatsIsland(){_nativePauseStatsIsland?.Dispose();_nativePauseStatsIsland=null;_nativePauseStatsBoundVersion=-1;}
-        private V ProjectNativePauseContentIslands(V tree)
-        {
-            if(!UsesNativePauseStats&&!UsesNativePauseAbilities&&!UsesNativePauseArtifacts)return tree;
-            void Visit(V value,bool pause){
-                if(value.Raw is VisualDom.Node node){var classes=(node.Properties["className"].Text??"").Split(' ');pause|=Array.IndexOf(classes,"es-pause-overlay")>=0;
-                    if(pause&&Array.IndexOf(classes,"overflow-y-auto")>=0&&Array.IndexOf(classes,"px-4")>=0&&Array.IndexOf(classes,"py-4")>=0&&Array.IndexOf(classes,"min-h-0")>=0){node.Children.Clear();return;}
-                    foreach(var child in node.Children)Visit(child,pause);
-                }else if(value.Raw is List<V>)foreach(var child in value.Items)Visit(child,pause);
-            }
-            Visit(tree,false);return tree;
-        }
         private void PrepareNativePauseStatsIsland(VisualCssNode root)
         {
             if(!NativePauseStatsRequested){DisposeNativePauseStatsIsland();return;}

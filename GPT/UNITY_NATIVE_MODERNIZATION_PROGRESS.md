@@ -2,7 +2,7 @@
 
 Current status entry point, 2026-10-20. Historical reports retain earlier evidence;
 this file and UNITY_NATIVE_MENU_COMPOSITION_2026-10-18.md define this checkpoint.
-Entry HEAD: `402ecf291539624f7d223e4faa016706727abae2`, branch `unity-migration`.
+Entry HEAD: `60fc8dedaab726b215d87c1164c14555e2a54479`, branch `unity-migration`.
 Protected source: `new-desing@737ef2af4a877e0995db5f92331d536d2f29a934`.
 Implementation HEAD is the commit containing this report (`git log -1 --format=%H`).
 
@@ -282,3 +282,30 @@ Actual bound set callback opens original detail modal; Close/blocking verified,
 callback invoked directly because saved inventory is empty.225 C# sources,
 compile/typechecks/Node272/preflight/provenance PASS. NativeUiLineBoxes shared
 without behavior change. Full glyph/device/populated pointer gates remain.
+
+### 2026-10-20 — native pause synergies diagnostic candidate
+
+Entry60fc8dedaab726b215d87c1164c14555e2a54479. All five source sections now
+have a typed display model and retained native Yoga/TextCore card/tag view.
+Original helper oracle64 cases/41,440 checks; seven native RU/EN DPR1/2 layouts
+2,688 checks including201 CSS/native weighted pulse samples; actual saved-run
+same-pane scroll/original tab/disposal/restoration20 checks PASS. Native synergies
+body710x7360px; source stats352 -> native synergies144 -> source stats352 nodes.
+This is a cross-tab lifecycle count, NOT a synergies A/B measurement. Cold source
+synergies baseline stalled Editor requests >30sec; recovered by normal Stop and
+verified6 preference keys. Diagnostic route removes compatibility body before
+native warmup to avoid the cold source card rasterization. Flag defaults false;
+full pixel/transition/input/device parity still open. Actual Editor compile and
+real installed Unity APIs228C# checks PASS; Node272/preflight/provenance PASS.
+See UNITY_NATIVE_PAUSE_SYNERGIES_2026-10-20.md and three evidence JSONs.
+Native pause shell/mobile controls/world and artifact glyph gates remain next;
+P1/P2 PARTIAL, no protected source/gameplay/quality changes, no APK.
+
+The synergies group also removes confirmed discarded source-tree construction:
+Unity passes optional native body ownership before the original component builds
+its content; original GameScreen alwaysfalse. Mechanical C# regeneration and
+8RU/EN/all-tab exact-shell checks24assertions PASS. No browser or pixel references
+replaced. Sequential paused native captures before/after early skip:5.719->5.850FPS,
+29.089->27.022MB/frame, ProjectTree5.426->.934ms. BuildTree50.781ms includes
+ResolveCss49.702ms; do not add nested markers. Overall improvement limited and
+performance still unacceptable. P1/P2 remain PARTIAL. See synergies report/evidence.

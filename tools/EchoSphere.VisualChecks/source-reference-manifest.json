@@ -24,7 +24,7 @@
     "scripts/export-unity-visual-fixtures.mjs": "5f7980a7502a4be6eb4cfedce33f0b9e4ec48847d6c7b1d8ac7d0ba9a2b183c6",
     "scripts/source-css-browser.cjs": "ae418cb3e248b538d88ff39d3bec8ed1562737a13a6d2d10b99e9b3bc8e9a3f5",
     "scripts/source-ui-view.cjs": "820cffdda077369b13d33a2eb50258f2082f6106edb581b5b28d4cf4633ffa0b",
-    "src/App.tsx": "ad84a07fde428ef02ac578ed34aaff0d644c41da99bdaafe4e994f47d3de3cf0",
+    "src/App.tsx": "94d8a3129e0538c6fe2b93fc3ca6ac6553a115494a3e923f6d678d0243f2d39e",
     "src/CharacterSelect.tsx": "95829e78d5dddf0b1d313fc783b0517ac611a12393977343e7808a2fce163599",
     "src/EchoMapScreen.tsx": "4c9c3b7b2b67f95f175b4612c47dc1bbe3f3e038a4117a397b762bce748b2fb3",
     "src/KnowledgeBase.tsx": "21698232173d04527976e731a7ab8b5e89bfe637a017cc0e1d0b7842f376475f",
