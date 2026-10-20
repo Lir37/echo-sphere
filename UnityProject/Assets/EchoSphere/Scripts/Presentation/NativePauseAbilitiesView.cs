@@ -18,7 +18,7 @@ namespace EchoSphere.Presentation
         private readonly VisualElement _root,_active,_passive;
         private readonly Label _activeTitle,_passiveTitle;
         private readonly List<Card> _activeCards=new List<Card>(),_passiveCards=new List<Card>();
-        private readonly Dictionary<Label,(string Text,float Width)> _lineBoxes=new Dictionary<Label,(string,float)>();
+        private readonly NativeUiLineBoxes _lineBoxes=new NativeUiLineBoxes();
         private readonly NativeMenuBrush.Paint _locked=new NativeMenuBrush.Paint {Radius=3,Border=1,Fill=new Color(6/255f,17/255f,29/255f,.78f),BorderColor=new Color(76/255f,165/255f,214/255f,.16f)};
         private readonly NativeMenuBrush.Paint _acquired=new NativeMenuBrush.Paint {Radius=3,Border=1,Fill=new Color(6/255f,17/255f,29/255f,.78f),BorderColor=new Color(57/255f,216/255f,1,.3f)};
         private readonly NativeMenuBrush.Paint _passivePaint=new NativeMenuBrush.Paint {Radius=6,Border=1,Fill=new Color(6/255f,17/255f,29/255f,.78f),BorderColor=new Color(76/255f,165/255f,214/255f,.16f)};
@@ -77,16 +77,7 @@ namespace EchoSphere.Presentation
         }
         private void FitLineBox(Label label,float lineHeight)
         {
-            float width=label.contentRect.width;if(width<=0||!float.IsFinite(width))return;
-            if(_lineBoxes.TryGetValue(label,out var previous)&&previous.Text==label.text&&Mathf.Abs(previous.Width-width)<.01f)return;
-            // TextCore supplies wrapping, while the authored CSS supplies line
-            // boxes. Its intrinsic single-line extent includes extra leading.
-            var one=label.MeasureTextSize("M",0,VisualElement.MeasureMode.Undefined,0,VisualElement.MeasureMode.Undefined);
-            var all=label.MeasureTextSize(label.text,width,VisualElement.MeasureMode.Exactly,0,VisualElement.MeasureMode.Undefined);
-            if(one.y<=0||!float.IsFinite(one.y+all.y))return;
-            label.style.height=Mathf.Max(1,Mathf.RoundToInt(all.y/one.y))*lineHeight;
-            _geometryFrame=Time.frameCount;
-            _lineBoxes[label]=(label.text,width);
+            if(_lineBoxes.Fit(label,lineHeight))_geometryFrame=Time.frameCount;
         }
         public void Dispose(){if(_disposed)return;_disposed=true;_root.UnregisterCallback<GeometryChangedEvent>(GeometryChanged);foreach(var card in _activeCards)card.Surface.Dispose();foreach(var card in _passiveCards)card.Surface.Dispose();_root.RemoveFromHierarchy();}
     }

@@ -2,11 +2,31 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using EchoSphere.Presentation;
+using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace EchoSphere.Runtime
 {
     public sealed partial class EchoSphereRuntime
     {
+        private bool _nativePauseArtifactsPilot;
+        private NativePauseArtifactsView _nativePauseArtifactsIsland;
+        private int _nativePauseArtifactsBoundVersion=-1;
+        private bool NativePauseArtifactsRequested=>_nativePauseArtifactsPilot&&!_mainMenu&&!_gameOver&&_userPaused&&_pausePlannerTab==2&&_sourceRenderState.Truth&&!_sourceRenderState["pendingUpgrade"].Truth&&!_sourceRenderState["pendingArtifact"].Truth&&!_sourceRenderState["pendingStella"].Truth;
+        public bool UsesNativePauseArtifacts=>NativePauseArtifactsRequested&&_nativePauseArtifactsIsland!=null&&_nativePauseArtifactsIsland.Ready;
+        public void SetNativePauseArtifactsPilot(bool enabled){if(_nativePauseArtifactsPilot==enabled)return;_nativePauseArtifactsPilot=enabled;if(!enabled)DisposeNativePauseArtifactsIsland();if(_sourceUi!=null)_sourceUi.Dirty=true;}
+        private void DisposeNativePauseArtifactsIsland(){_nativePauseArtifactsIsland?.Dispose();_nativePauseArtifactsIsland=null;_nativePauseArtifactsBoundVersion=-1;}
+        private void PrepareNativePauseArtifactsIsland(VisualCssNode root)
+        {
+            if(!NativePauseArtifactsRequested){DisposeNativePauseArtifactsIsland();return;}
+            VisualCssNode body=null;void Find(VisualCssNode node,bool pause){pause|=node.HasClass("es-pause-overlay");if(body==null&&pause&&node.HasClass("overflow-y-auto")&&node.HasClass("px-4")&&node.HasClass("py-4")&&node.HasClass("min-h-0")){body=node;return;}foreach(var child in node.Children)Find(child,pause);}
+            Find(root,false);if(!(body?.Native is SourceUiFrame frame)||!(frame.Content is ScrollView scroll)){DisposeNativePauseArtifactsIsland();return;}
+            var parent=scroll.contentContainer;
+            if(_nativePauseArtifactsIsland==null||_nativePauseArtifactsIsland.Root.parent!=parent){DisposeNativePauseArtifactsIsland();_nativePauseArtifactsIsland=new NativePauseArtifactsView(parent,id=>{_pauseArtifactSetId=id;if(_sourceUi!=null)_sourceUi.Dirty=true;});}
+            if(_nativePauseArtifactsBoundVersion!=_sourceUi.FrameVersion){_nativePauseArtifactsIsland.Bind(ReadNativePauseArtifactsState());_nativePauseArtifactsBoundVersion=_sourceUi.FrameVersion;}
+            bool ready=_nativePauseArtifactsIsland.Ready;_nativePauseArtifactsIsland.Prepare(SourceDevicePixelRatio);
+            if(_nativePauseArtifactsIsland.Ready){foreach(var child in body.Children)if(child.Native is VisualElement element)element.style.display=DisplayStyle.None;_nativePauseArtifactsIsland.UseFlowLayout(true);if(!ready)_sourceUi.Dirty=true;}
+        }
         public NativePauseArtifactsState ReadNativePauseArtifactsState()
         {
             if(_sourceRenderState.Undefined)throw new InvalidOperationException("Existing render snapshot required");

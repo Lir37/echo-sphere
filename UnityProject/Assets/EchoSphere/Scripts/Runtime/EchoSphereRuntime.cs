@@ -7275,6 +7275,7 @@ namespace EchoSphere.Runtime
         {
             DisposeNativePauseStatsIsland();
             DisposeNativePauseAbilitiesIsland();
+            DisposeNativePauseArtifactsIsland();
             DisposeNativeHudIsland();
             if(_nativeMainMenuScreen!=null)Destroy(_nativeMainMenuScreen.gameObject);
             if(_sourceUi!=null)Destroy(_sourceUi.gameObject);

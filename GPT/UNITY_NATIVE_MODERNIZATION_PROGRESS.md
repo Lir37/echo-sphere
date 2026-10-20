@@ -271,3 +271,14 @@ Current production native Home:59.94FPS /202KB allocated-frame,120 samples at
 222 C# files, compile/typechecks/Node272/preflight/provenance PASS. Diagnostic
 source-glyph comparison caused one Pipeline timeout error; game renderer fix is
 not inferred. Artifact card/set badge composition, synergies/mobile/world remain.
+
+## Native artifact cards/set badges, 2026-10-20
+
+See UNITY_NATIVE_ARTIFACT_CONTENT_2026-10-20.md. Native retained cards/glyph
+candidate/set Buttons now compose in existing ScrollView, defaultfalse. Badge
+224checks, copied82-artifact/50-button seven-case862checks, abilities39-check
+regression and actual empty saved-run21checks PASS. Empty CSS149->144->149.
+Actual bound set callback opens original detail modal; Close/blocking verified,
+callback invoked directly because saved inventory is empty.225 C# sources,
+compile/typechecks/Node272/preflight/provenance PASS. NativeUiLineBoxes shared
+without behavior change. Full glyph/device/populated pointer gates remain.
