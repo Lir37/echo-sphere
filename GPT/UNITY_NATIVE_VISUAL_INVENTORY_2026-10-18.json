@@ -1,8 +1,8 @@
 {
-  "entryHead": "402ecf291539624f7d223e4faa016706727abae2",
+  "entryHead": "56a1c69a0cfd3252f36111ae49674748058817f4",
   "protectedSource": "new-desing@737ef2af4a877e0995db5f92331d536d2f29a934",
   "scope": "Every C# file under Assets/EchoSphere/Scripts, including files without visual/UI/Canvas names. Discovery metadata is not a semantic parity or native-migration acceptance claim.",
-  "scannedFiles": 216,
+  "scannedFiles": 219,
   "entries": [
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Core/AlchemistReactionRules.cs",
@@ -1438,6 +1438,30 @@
       ]
     },
     {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/NativePauseAbilitiesState.cs",
+      "sha256": "e1db4acd273a2f26cef7d5759d80ed04d166f63b0e9e181cacf873cdd3376c54",
+      "lines": 20,
+      "discoveryTags": [],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": []
+    },
+    {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/NativePauseAbilitiesView.cs",
+      "sha256": "25fb2567cf33614ad070edfa686c093e27f6329793adc13c964cc82a7e2b848e",
+      "lines": 94,
+      "discoveryTags": [
+        "ui"
+      ],
+      "creationLines": [],
+      "updateLines": [
+        69
+      ],
+      "releaseLines": [
+        91
+      ]
+    },
+    {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/NativePauseStatsState.cs",
       "sha256": "cd83f6c93389526ffd5bf7431a79186995b1b6b59eb0fe7fb5a7e7f98349a0a0",
       "lines": 27,
@@ -1448,7 +1472,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Presentation/NativePauseStatsView.cs",
-      "sha256": "ce93723c2363606c9d193a5b9ca698b9902a7123fc7bb53f4d62321e455a9a8f",
+      "sha256": "a7c980a87e7e92a9f60df0473ca1732a605c8470f59b090989fccbb345aea233",
       "lines": 141,
       "discoveryTags": [
         "ui"
@@ -1956,8 +1980,22 @@
       "releaseLines": []
     },
     {
+      "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativePauseAbilities.cs",
+      "sha256": "43bd0058a606c007032c97562a8992452ef2456d48e312b07341beecf6d47422",
+      "lines": 69,
+      "discoveryTags": [
+        "ui",
+        "compatibility"
+      ],
+      "creationLines": [],
+      "updateLines": [],
+      "releaseLines": [
+        18
+      ]
+    },
+    {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereNativePauseStats.cs",
-      "sha256": "007583416ebdd05c33c077fc925cf54754b63aca5a3d8445c747e73126e91b27",
+      "sha256": "6a4ab919ce838ddcc42d51f25c0c3130e46aaf0d9dff7b8757bc1dc95220f0e1",
       "lines": 121,
       "discoveryTags": [
         "ui",
@@ -2008,8 +2046,8 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereRuntime.cs",
-      "sha256": "544f18a8c93ae1bca1871dbcbe837d827d6b775f2b6cd34b5a159a4f4b530d56",
-      "lines": 8983,
+      "sha256": "e09dde28385af12e4417b8de759b6d0fe81ad6113d5d0c42f5986fbb7cf5b54f",
+      "lines": 8984,
       "discoveryTags": [
         "ui",
         "geometry",
@@ -2035,7 +2073,6 @@
       "releaseLines": [
         3115,
         3161,
-        7278,
         7279,
         7280,
         7281,
@@ -2043,7 +2080,8 @@
         7283,
         7284,
         7285,
-        8139
+        7286,
+        8140
       ]
     },
     {
@@ -2228,7 +2266,7 @@
     },
     {
       "file": "UnityProject/Assets/EchoSphere/Scripts/Runtime/EchoSphereSourceUiBridge.cs",
-      "sha256": "0625b4171b24c55a39df441c6d466d85608a31520f37e295eb7b28073000d2d3",
+      "sha256": "9d80aa005733c9f89f83d66c585e6bbfffa0894a130a5382528dcc2aee40800d",
       "lines": 200,
       "discoveryTags": [
         "compatibility"

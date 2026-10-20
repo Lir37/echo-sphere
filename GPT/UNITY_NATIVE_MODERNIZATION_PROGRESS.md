@@ -249,3 +249,13 @@ GC50.8->27.6MB/frame. Still insufficient; no active/Android claim. Native HUD,
 stats and remaining gameplay views require further acceptance/migration.
 Editor reconnect/compile and new six-key prefs restoration confirmed; previous
 interrupted-session restoration cannot be confirmed. No APK/quality changes.
+
+## Native pause abilities, 2026-10-20
+
+See UNITY_NATIVE_PAUSE_ABILITIES_2026-10-20.md. Verified original-helper model
+(56 cases/5944 checks), retained native ability/passive cards in existing pane.
+42 saved-scene,39 viewport and17 acquired/passive lifecycle checks PASS. Frozen
+wide card/list dimensions109/983px matched. Paused A/B/A/B3.59->6.01FPS and
+39.1->23.8MB/frame; system memory pressure limits absolute timing, no active or
+Android inference.219 C# files; defaultfalse, P1/P2 PARTIAL. Artifacts/synergies,
+mobile controls and world rendering remain. No APK or quality/gameplay changes.

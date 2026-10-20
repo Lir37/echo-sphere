@@ -36,12 +36,12 @@ namespace EchoSphere.Presentation
         public bool Ready {get;private set;}
         private static Color A(int r,int g,int b,float a)=>new Color(r/255f,g/255f,b/255f,a);
         private static Color C(string value){ColorUtility.TryParseHtmlString(value,out var color);return color;}
-        private static VisualElement Box(VisualElement parent,string name,bool row=false)
+        internal static VisualElement Box(VisualElement parent,string name,bool row=false)
         {
             var box=new VisualElement {name=name,pickingMode=PickingMode.Ignore};box.style.flexShrink=0;box.style.minWidth=0;
             if(row)box.style.flexDirection=FlexDirection.Row;parent.Add(box);return box;
         }
-        private static Label Text(VisualElement parent,string name,float size,string color,string weight="400",double line=1.5,float spacing=.192f,bool wrap=false)
+        internal static Label Text(VisualElement parent,string name,float size,string color,string weight="400",double line=1.5,float spacing=.192f,bool wrap=false)
         {
             var label=new Label {name=name,pickingMode=PickingMode.Ignore,enableRichText=false};
             label.style.marginLeft=label.style.marginRight=label.style.marginTop=label.style.marginBottom=0;
@@ -52,7 +52,7 @@ namespace EchoSphere.Presentation
             var font=SourceUiTypography.Resolve(Family,weight,false,line);if(font!=null)label.style.unityFontDefinition=FontDefinition.FromSDFFont(font);label.style.unityFontStyleAndWeight=FontStyle.Normal;
             parent.Add(label);return label;
         }
-        private static void Set(Label label,string value)
+        internal static void Set(Label label,string value)
         {
             if((string)label.userData==value)return;label.userData=value;
             label.text=Whitespace.Replace(value??""," ");
