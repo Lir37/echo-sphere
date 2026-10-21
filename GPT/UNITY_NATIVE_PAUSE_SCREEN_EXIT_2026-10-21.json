@@ -1,0 +1,6 @@
+{
+  "status": "PASS first-ready unified native Return invokes original map exit and scene reload",
+  "checks": 8,
+  "sceneLoaded": true,
+  "limits": "Actual native Return -> original clearSavedRun/map callback and scene reload; restore original preferences after Stop, no Android acceptance"
+}

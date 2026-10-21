@@ -18,13 +18,13 @@ namespace EchoSphere.Runtime
         private void PrepareNativePauseSynergiesIsland(VisualCssNode root)
         {
             if(!NativePauseSynergiesRequested){DisposeNativePauseSynergiesIsland();return;}
-            VisualCssNode body=null;void Find(VisualCssNode node,bool pause){pause|=node.HasClass("es-pause-overlay");if(body==null&&pause&&node.HasClass("overflow-y-auto")&&node.HasClass("px-4")&&node.HasClass("py-4")&&node.HasClass("min-h-0")){body=node;return;}foreach(var child in node.Children)Find(child,pause);}
-            Find(root,false);if(!(body?.Native is SourceUiFrame frame)||!(frame.Content is ScrollView scroll)){DisposeNativePauseSynergiesIsland();return;}
+            var scroll=NativePauseBody(root,out var body);
+            if(scroll==null){DisposeNativePauseSynergiesIsland();return;}
             var parent=scroll.contentContainer;
             if(_nativePauseSynergiesIsland==null||_nativePauseSynergiesIsland.Root.parent!=parent){DisposeNativePauseSynergiesIsland();_nativePauseSynergiesIsland=new NativePauseSynergiesView(parent);}
             if(_nativePauseSynergiesBoundVersion!=_sourceUi.FrameVersion){_nativePauseSynergiesIsland.Bind(ReadNativePauseSynergiesState());_nativePauseSynergiesBoundVersion=_sourceUi.FrameVersion;}
             bool ready=_nativePauseSynergiesIsland.Ready;_nativePauseSynergiesIsland.Prepare(SourceDevicePixelRatio);
-            if(_nativePauseSynergiesIsland.Ready){foreach(var child in body.Children)if(child.Native is VisualElement element)element.style.display=DisplayStyle.None;_nativePauseSynergiesIsland.UseFlowLayout(true);if(!ready)_sourceUi.Dirty=true;}
+            if(_nativePauseSynergiesIsland.Ready){foreach(var child in body?.Children ?? System.Linq.Enumerable.Empty<VisualCssNode>())if(child.Native is VisualElement element)element.style.display=DisplayStyle.None;_nativePauseSynergiesIsland.UseFlowLayout(true);if(!ready)_sourceUi.Dirty=true;}
         }
         public NativePauseSynergiesState ReadNativePauseSynergiesState()
         {

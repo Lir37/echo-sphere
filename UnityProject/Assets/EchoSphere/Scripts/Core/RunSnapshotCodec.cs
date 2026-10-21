@@ -131,13 +131,13 @@ namespace EchoSphere.Core
         private static SnapshotValue View(SnapshotValue source, int rootIndex) =>
             new SnapshotValue { nodes = source.nodes, rootIndex = rootIndex };
 
-        public static object Restore(SnapshotValue node, Type type, object existing = null)
+        public static object Restore(SnapshotValue node, Type type, object existing = null, Func<FieldInfo, bool> select = null)
         {
             if (node == null || node.nodes == null || node.rootIndex < 0 || node.rootIndex >= node.nodes.Count) return null;
-            return RestoreNode(node, node.rootIndex, type, existing);
+            return RestoreNode(node, node.rootIndex, type, existing, select);
         }
 
-        private static object RestoreNode(SnapshotValue snapshot, int index, Type type, object existing)
+        private static object RestoreNode(SnapshotValue snapshot, int index, Type type, object existing, Func<FieldInfo, bool> select = null)
         {
             var node = snapshot.nodes[index];
             if (node.kind == "null") return null;
@@ -193,7 +193,8 @@ namespace EchoSphere.Core
             {
                 var child = snapshot.nodes[childIndex];
                 var field = type.GetField(child.name, Fields);
-                if (field == null || !CanStore(field.FieldType)) continue;
+                // Selection applies to the owning object only, matching Capture.
+                if (field == null || !CanStore(field.FieldType) || (select != null && !select(field))) continue;
                 field.SetValue(existing, RestoreNode(snapshot, childIndex, field.FieldType, field.GetValue(existing)));
             }
             return existing;

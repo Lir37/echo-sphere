@@ -356,3 +356,26 @@ Six preferences restored; Console0errors, Profiler pressure warnings retained.
 P1/P2 PARTIAL. Read UNITY_NATIVE_PAUSE_BLUR_FIX_2026-10-21.md and BLUR_* evidence.
 Next: native pause shell/compositor and complete quality/input gates, then active
 world-view profiling/migration. Do not repeat the superseded empty-doc blur harness.
+
+### 2026-10-21 — unified pause layout, event invalidation, Continue ownership fix
+
+Entry4815395. One UI Toolkit screen now composes all four existing native pause
+bodies, header/footer and ScrollView; original detail/actions retained. Source shell
+is still a paint adapter, not a complete native compositor. Candidate OFF pending
+mobile/pixel acceptance. Production paused data invalidates on events rather than
+an unconditional100ms cadence; animations/layout/filters still tick every frame.
+
+Found old snapshots overwriting live native Home ownership and leaving Home visible
+over gameplay after Continue.33 UI fields now excluded on capture AND legacy restore;
+original gameplay/RNG unchanged. Actual Continue/hide/exclusion verified. API234+3,
+Node272, supplemental .NET10 core1193/source47339 PASS; CI must match containing HEAD.
+Post-fix paired Editor pause: periodic source2.68FPS/48.696MB GC, retained source
+7.22/8.036MB, unified native17.86/3.183MB; native HUD held constant, no device or full
+pixel parity claim. CSS/reconcile0 in idle retained captures. P1/P2 PARTIAL.
+See UNITY_NATIVE_PAUSE_SCREEN_2026-10-21.md and associated evidence; next compositor/
+mobile acceptance then gameplay views. No source branch/APK/user-file changes.
+
+Final pause lifecycle50 and cold first-ready Return/map reload8 checks PASS; original
+chrome oracle160cases/3040checks PASS. Bind original actions during geometry warmup
+and preserve them during construction. Editor Console current0errors/0warnings,
+Play/Profiler/background off,6 original preference keys restored and verified.

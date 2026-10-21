@@ -528,7 +528,8 @@ function PausePlanner({ lang, t, st, tab, nativeContent, nativeChrome, bindNativ
   const character = CHARACTER_DEFS[st.player.characterId];
   const activeAbilities = (Object.keys(ABILITIES) as AbilityType[]).filter((id) => ABILITIES[id].category === 'active');
   const acquiredAbilities = (Object.keys(ABILITIES) as AbilityType[]).filter((id) => (st.player.abilities[id] || 0) > 0);
-  if (nativeChrome && bindNativeChrome) bindNativeChrome(onResume, onExit, setTab);
+  // Supply original actions during native geometry warmup, before controls appear.
+  if (bindNativeChrome) bindNativeChrome(onResume, onExit, setTab);
 
   const tabDefs: Array<{ id: PauseTab; label: string; icon: React.ReactNode }> = [
     { id: 'stats', label: lang === 'ru' ? 'Показатели' : 'Stats', icon: <BarChart3 size={15} /> },

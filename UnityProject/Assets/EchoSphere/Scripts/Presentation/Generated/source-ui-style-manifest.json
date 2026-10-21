@@ -6,7 +6,7 @@
     "postcss.config.js": "e32657baf631d7c5f4dc67b4b2ee0ec8e7d5b3c41860e09cddce7c0377cd80bc",
     "package-lock.json": "b512e2a82a25f41c0b8197fb3c3b37dbf3b03b2665f725042a6f9f2cec80fa97",
     "scripts/export-unity-ui-styles.mjs": "dc7a12554a16c099fa59f4e528107e6571f92f7a7ccb4d31b581a05d1d857f77",
-    "src/App.tsx": "80b6a2289e14272e13a9a837eee3f0f4a39c4c3a63e661d44325ee395709d24b",
+    "src/App.tsx": "287cd5f80a6add34d33148a62c63293366d963c012c13a0db9d5490e4f6be100",
     "src/artifactSystem.ts": "d28d45c1adea81bd6d3376aad0fcad70bfb21be2a4c3dd8a933b8707008be96c",
     "src/audio.ts": "effb6a39819af54a5d7146db95095150c6337822ea30cbac78ff14858a618697",
     "src/bossBalance.ts": "2389625a32b78059ab102c2d7e95ad11bd17bb3404e8fe10c38e68258537b11e",

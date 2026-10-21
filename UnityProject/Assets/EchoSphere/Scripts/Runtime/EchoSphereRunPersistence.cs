@@ -31,6 +31,15 @@ namespace EchoSphere.Runtime
         }
         private static readonly HashSet<string> NonRunFields = new HashSet<string>
         {
+            "_nativeHudBoundVersion", "_nativeHudIsland", "_nativeHudPilot", "_nativeMainMenuEnabled", "_nativeMainMenuScreen",
+            "_nativeMainMenuWasActive", "_nativeMenuCharacterColor", "_nativeMenuModelVersion", "_nativeMenuShownVersion",
+            "_nativeMenuState", "_nativePauseAbilitiesBoundVersion", "_nativePauseAbilitiesIsland", "_nativePauseAbilitiesPilot",
+            "_nativePauseArtifactsBoundVersion", "_nativePauseArtifactsIsland", "_nativePauseArtifactsPilot",
+            "_nativePauseChromeComposition", "_nativePauseChromeExit", "_nativePauseChromeIsland", "_nativePauseChromePilot",
+            "_nativePauseChromeResume", "_nativePauseChromeSelect", "_nativePauseScreen", "_nativePauseScreenPilot",
+            "_nativePauseStatsBoundVersion", "_nativePauseStatsIsland", "_nativePauseStatsPilot",
+            "_nativePauseSynergiesBoundVersion", "_nativePauseSynergiesIsland", "_nativePauseSynergiesPilot",
+            "_nativeSettingsScreen", "_nativeSettingsWasActive", "_sourceUiWasPaused",
             "_shopSaveLoaded", "_characterProfiles", "_characterProfilesLoaded", "_leaderboardEntries", "_unlockedAchievementIds",
             "_knownArtifactProtocolIds", "_artifactProtocolKnowledgeLoaded", "_knownKnowledgeIds", "_knowledgeLoaded", "_sourceKnowledge",
             "_mainMenuPage", "_mainMenu", "_regionSelect", "_settingsResetPending", "_characterScrollPosition", "_expandedCharacterId",
@@ -124,7 +133,9 @@ namespace EchoSphere.Runtime
                 { agent.gameObject.SetActive(false); Destroy(agent.gameObject); }
             }
             _spheres.Clear(); _enemies.Clear(); _abilityDrones.Clear();
-            RunSnapshotCodec.Restore(save.runtime, GetType(), this);
+            // Old snapshots may contain UI ownership flags. Apply the same boundary
+            // while reading as while writing so a live menu cannot be orphaned.
+            RunSnapshotCodec.Restore(save.runtime, GetType(), this, field => !NonRunFields.Contains(field.Name));
             // JSON keeps lightning positions/lifetime but drops sourceSphere.
             foreach(var lightning in _sourceLightningVisuals)lightning.sphereType=null;
             RunSnapshotCodec.Restore(save.player, typeof(PlayerCoreController2D), _playerCore);

@@ -19,14 +19,13 @@ namespace EchoSphere.Runtime
         private void PrepareNativePauseAbilitiesIsland(VisualCssNode root)
         {
             if(!NativePauseAbilitiesRequested){DisposeNativePauseAbilitiesIsland();return;}
-            VisualCssNode body=null;
-            void Find(VisualCssNode node,bool pause){pause|=node.HasClass("es-pause-overlay");if(body==null&&pause&&node.HasClass("overflow-y-auto")&&node.HasClass("px-4")&&node.HasClass("py-4")&&node.HasClass("min-h-0")){body=node;return;}foreach(var child in node.Children)Find(child,pause);}
-            Find(root,false);if(!(body?.Native is SourceUiFrame frame)||!(frame.Content is ScrollView scroll)){DisposeNativePauseAbilitiesIsland();return;}
+            var scroll=NativePauseBody(root,out var body);
+            if(scroll==null){DisposeNativePauseAbilitiesIsland();return;}
             var parent=scroll.contentContainer;
             if(_nativePauseAbilitiesIsland==null||_nativePauseAbilitiesIsland.Root.parent!=parent){DisposeNativePauseAbilitiesIsland();_nativePauseAbilitiesIsland=new NativePauseAbilitiesView(parent);}
             if(_nativePauseAbilitiesBoundVersion!=_sourceUi.FrameVersion){_nativePauseAbilitiesIsland.Bind(ReadNativePauseAbilitiesState());_nativePauseAbilitiesBoundVersion=_sourceUi.FrameVersion;}
             bool ready=_nativePauseAbilitiesIsland.Ready;_nativePauseAbilitiesIsland.Prepare(SourceDevicePixelRatio);
-            if(_nativePauseAbilitiesIsland.Ready){foreach(var child in body.Children)if(child.Native is VisualElement element)element.style.display=DisplayStyle.None;_nativePauseAbilitiesIsland.UseFlowLayout(true);if(!ready)_sourceUi.Dirty=true;}
+            if(_nativePauseAbilitiesIsland.Ready){foreach(var child in body?.Children ?? System.Linq.Enumerable.Empty<VisualCssNode>())if(child.Native is VisualElement element)element.style.display=DisplayStyle.None;_nativePauseAbilitiesIsland.UseFlowLayout(true);if(!ready)_sourceUi.Dirty=true;}
         }
         public NativePauseAbilitiesState ReadNativePauseAbilitiesState()
         {

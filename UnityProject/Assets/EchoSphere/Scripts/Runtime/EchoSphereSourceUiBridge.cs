@@ -13,6 +13,7 @@ namespace EchoSphere.Runtime
         private SourceUiDocument _sourceUi;
         private SourceSettingsToolkitScreen _nativeSettingsScreen;
         private bool _nativeSettingsWasActive;
+        private bool _sourceUiWasPaused;
         private V _sourceUiStateRef,_sourceUiCanvasRef,_sourceUiTutorialRef;
         private V _sourceUiSavedRunTime;
         private void DrawSourceDocument()
@@ -21,8 +22,8 @@ namespace EchoSphere.Runtime
                 _sourceUi=new GameObject("Source TSX interface").AddComponent<SourceUiDocument>();_sourceUi.Initialize();
                 _sourceUiStateRef=VisualJs.Obj("current",_sourceRenderState);_sourceUiCanvasRef=VisualJs.Obj("current",VisualJs.Null);_sourceUiTutorialRef=VisualJs.Obj("current",VisualJs.Null);
                 var saved=LoadRunSnapshot();_sourceUiSavedRunTime=saved==null?VisualJs.Null:new V(Math.Floor(saved.time));
-                _sourceUi.Render=()=>ProjectNativeHudIsland(SourceUiTree());_sourceUi.AfterEvent=ApplySourceUiWrites;
-                _sourceUi.BeforePaint=root=>{PrepareNativeHudIsland(root);PrepareNativePauseChromeIsland(root);PrepareNativePauseStatsIsland(root);PrepareNativePauseAbilitiesIsland(root);PrepareNativePauseArtifactsIsland(root);PrepareNativePauseSynergiesIsland(root);};
+                _sourceUi.Render=()=>ProjectNativePauseScreen(ProjectNativeHudIsland(SourceUiTree()));_sourceUi.AfterEvent=ApplySourceUiWrites;
+                _sourceUi.BeforePaint=root=>{PrepareNativeHudIsland(root);PrepareNativePauseScreen(root);PrepareNativePauseChromeIsland(root);PrepareNativePauseStatsIsland(root);PrepareNativePauseAbilitiesIsland(root);PrepareNativePauseArtifactsIsland(root);PrepareNativePauseSynergiesIsland(root);CompleteNativePauseScreen();};
                 _sourceUi.CanvasTexture=()=>_sourceCanvas.UiTexture;
                 var environment=_sourceUi.Environment;
                 environment.ReadStorage=key=>PlayerPrefs.HasKey(key)?new V(PlayerPrefs.GetString(key)):VisualJs.Null;
@@ -57,10 +58,12 @@ namespace EchoSphere.Runtime
             }
             if(_nativeSettingsScreen!=null)_nativeSettingsScreen.Hide();
             if(_nativeSettingsWasActive){_sourceUi.SetPresentationSuspended(false);_sourceUi.Dirty=true;_nativeSettingsWasActive=false;}
+            if(_sourceUiWasPaused!=_userPaused){_sourceUiWasPaused=_userPaused;_sourceUi.Dirty=true;}
             _sourceUiStateRef["current"]=_sourceRenderState;UpdateSourceUiState();
-            // The source HUD projection updates at 10 Hz; pointer/resize/state
-            // invalidations still rebuild immediately and CSS motion stays per-frame.
-            _sourceUi.Continuous=false;_sourceUi.RefreshInterval=_mainMenu?0f:0.1f;_sourceUi.Draw(SourceDevicePixelRatio);
+            // Active HUD data updates at 10 Hz. Paused simulation data is stable;
+            // actions, pointer events and resize invalidate immediately. Motion,
+            // native controls, layout, world paint and backdrop filters still tick.
+            _sourceUi.Continuous=false;_sourceUi.RefreshInterval=_mainMenu||_userPaused?0f:0.1f;_sourceUi.Draw(SourceDevicePixelRatio);
         }
         private V SourceUiTree()
         {

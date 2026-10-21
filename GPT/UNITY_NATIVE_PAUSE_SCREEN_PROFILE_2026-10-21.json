@@ -1,0 +1,230 @@
+{
+  "status": "PASS paused A/B/C/A/B/C",
+  "width": 1260,
+  "height": 542,
+  "scope": "Editor wall frame times and ProfilerRecorder; A explicitly invalidates stable source UI every100ms to recreate previous cadence, B source event invalidation, C unified native screen event invalidation. HUD held native; original world, shell effects and button blur retained. No device/GPU/pixel parity claim. Warm10/sample20 frames each phase. Existing Timeline capture not cleared.",
+  "rows": [
+    {
+      "phase": 0,
+      "variant": "periodic source",
+      "count": 20,
+      "frameMs": 399.740840000004,
+      "fps": 2.50162080011637,
+      "counters": {
+        "GC Allocated In Frame": {
+          "mean": 48719065.6,
+          "unit": "Bytes"
+        },
+        "Main Thread": {
+          "mean": 399.71946,
+          "unit": "ms"
+        },
+        "EchoSphere.UI.BuildTree": {
+          "mean": 211.65227,
+          "unit": "ms"
+        },
+        "EchoSphere.UI.ResolveCss": {
+          "mean": 205.49637,
+          "unit": "ms"
+        },
+        "EchoSphere.UI.Reconcile": {
+          "mean": 50.463355,
+          "unit": "ms"
+        },
+        "EchoSphere.UI.PrepareBackdrops": {
+          "mean": 28.038195,
+          "unit": "ms"
+        },
+        "EchoSphere.Canvas.EndFrame": {
+          "mean": 1.555435,
+          "unit": "ms"
+        }
+      }
+    },
+    {
+      "phase": 1,
+      "variant": "retained source",
+      "count": 20,
+      "frameMs": 127.26775500000258,
+      "fps": 7.857449830870197,
+      "counters": {
+        "GC Allocated In Frame": {
+          "mean": 7891967.5,
+          "unit": "Bytes"
+        },
+        "Main Thread": {
+          "mean": 127.25454,
+          "unit": "ms"
+        },
+        "EchoSphere.UI.BuildTree": {
+          "mean": 0.0,
+          "unit": "ms"
+        },
+        "EchoSphere.UI.ResolveCss": {
+          "mean": 0.0,
+          "unit": "ms"
+        },
+        "EchoSphere.UI.Reconcile": {
+          "mean": 0.0,
+          "unit": "ms"
+        },
+        "EchoSphere.UI.PrepareBackdrops": {
+          "mean": 27.66887,
+          "unit": "ms"
+        },
+        "EchoSphere.Canvas.EndFrame": {
+          "mean": 1.334925,
+          "unit": "ms"
+        }
+      }
+    },
+    {
+      "phase": 2,
+      "variant": "unified native",
+      "count": 20,
+      "frameMs": 52.42864499999769,
+      "fps": 19.07354271696406,
+      "counters": {
+        "GC Allocated In Frame": {
+          "mean": 3044748.25,
+          "unit": "Bytes"
+        },
+        "Main Thread": {
+          "mean": 52.416055,
+          "unit": "ms"
+        },
+        "EchoSphere.UI.BuildTree": {
+          "mean": 0.0,
+          "unit": "ms"
+        },
+        "EchoSphere.UI.ResolveCss": {
+          "mean": 0.0,
+          "unit": "ms"
+        },
+        "EchoSphere.UI.Reconcile": {
+          "mean": 0.0,
+          "unit": "ms"
+        },
+        "EchoSphere.UI.PrepareBackdrops": {
+          "mean": 13.40643,
+          "unit": "ms"
+        },
+        "EchoSphere.Canvas.EndFrame": {
+          "mean": 1.33951,
+          "unit": "ms"
+        }
+      }
+    },
+    {
+      "phase": 3,
+      "variant": "periodic source",
+      "count": 20,
+      "frameMs": 346.71136499999875,
+      "fps": 2.88424349746944,
+      "counters": {
+        "GC Allocated In Frame": {
+          "mean": 48672002.85,
+          "unit": "Bytes"
+        },
+        "Main Thread": {
+          "mean": 346.696625,
+          "unit": "ms"
+        },
+        "EchoSphere.UI.BuildTree": {
+          "mean": 157.985495,
+          "unit": "ms"
+        },
+        "EchoSphere.UI.ResolveCss": {
+          "mean": 153.87804,
+          "unit": "ms"
+        },
+        "EchoSphere.UI.Reconcile": {
+          "mean": 50.12151,
+          "unit": "ms"
+        },
+        "EchoSphere.UI.PrepareBackdrops": {
+          "mean": 34.06861,
+          "unit": "ms"
+        },
+        "EchoSphere.Canvas.EndFrame": {
+          "mean": 1.42427,
+          "unit": "ms"
+        }
+      }
+    },
+    {
+      "phase": 4,
+      "variant": "retained source",
+      "count": 20,
+      "frameMs": 149.86692500000345,
+      "fps": 6.672586362868104,
+      "counters": {
+        "GC Allocated In Frame": {
+          "mean": 8179073.3,
+          "unit": "Bytes"
+        },
+        "Main Thread": {
+          "mean": 149.859215,
+          "unit": "ms"
+        },
+        "EchoSphere.UI.BuildTree": {
+          "mean": 0.0,
+          "unit": "ms"
+        },
+        "EchoSphere.UI.ResolveCss": {
+          "mean": 0.0,
+          "unit": "ms"
+        },
+        "EchoSphere.UI.Reconcile": {
+          "mean": 0.0,
+          "unit": "ms"
+        },
+        "EchoSphere.UI.PrepareBackdrops": {
+          "mean": 32.152495,
+          "unit": "ms"
+        },
+        "EchoSphere.Canvas.EndFrame": {
+          "mean": 1.69482,
+          "unit": "ms"
+        }
+      }
+    },
+    {
+      "phase": 5,
+      "variant": "unified native",
+      "count": 20,
+      "frameMs": 59.58063000000493,
+      "fps": 16.78397828287343,
+      "counters": {
+        "GC Allocated In Frame": {
+          "mean": 3321706.6,
+          "unit": "Bytes"
+        },
+        "Main Thread": {
+          "mean": 59.555395,
+          "unit": "ms"
+        },
+        "EchoSphere.UI.BuildTree": {
+          "mean": 0.0,
+          "unit": "ms"
+        },
+        "EchoSphere.UI.ResolveCss": {
+          "mean": 0.0,
+          "unit": "ms"
+        },
+        "EchoSphere.UI.Reconcile": {
+          "mean": 0.0,
+          "unit": "ms"
+        },
+        "EchoSphere.UI.PrepareBackdrops": {
+          "mean": 15.59014,
+          "unit": "ms"
+        },
+        "EchoSphere.Canvas.EndFrame": {
+          "mean": 1.634405,
+          "unit": "ms"
+        }
+      }
+    }
+  ]
+}

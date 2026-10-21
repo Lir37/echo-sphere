@@ -19,13 +19,13 @@ namespace EchoSphere.Runtime
         private void PrepareNativePauseArtifactsIsland(VisualCssNode root)
         {
             if(!NativePauseArtifactsRequested){DisposeNativePauseArtifactsIsland();return;}
-            VisualCssNode body=null;void Find(VisualCssNode node,bool pause){pause|=node.HasClass("es-pause-overlay");if(body==null&&pause&&node.HasClass("overflow-y-auto")&&node.HasClass("px-4")&&node.HasClass("py-4")&&node.HasClass("min-h-0")){body=node;return;}foreach(var child in node.Children)Find(child,pause);}
-            Find(root,false);if(!(body?.Native is SourceUiFrame frame)||!(frame.Content is ScrollView scroll)){DisposeNativePauseArtifactsIsland();return;}
+            var scroll=NativePauseBody(root,out var body);
+            if(scroll==null){DisposeNativePauseArtifactsIsland();return;}
             var parent=scroll.contentContainer;
             if(_nativePauseArtifactsIsland==null||_nativePauseArtifactsIsland.Root.parent!=parent){DisposeNativePauseArtifactsIsland();_nativePauseArtifactsIsland=new NativePauseArtifactsView(parent,id=>{_pauseArtifactSetId=id;if(_sourceUi!=null)_sourceUi.Dirty=true;});}
             if(_nativePauseArtifactsBoundVersion!=_sourceUi.FrameVersion){_nativePauseArtifactsIsland.Bind(ReadNativePauseArtifactsState());_nativePauseArtifactsBoundVersion=_sourceUi.FrameVersion;}
             bool ready=_nativePauseArtifactsIsland.Ready;_nativePauseArtifactsIsland.Prepare(SourceDevicePixelRatio);
-            if(_nativePauseArtifactsIsland.Ready){foreach(var child in body.Children)if(child.Native is VisualElement element)element.style.display=DisplayStyle.None;_nativePauseArtifactsIsland.UseFlowLayout(true);if(!ready)_sourceUi.Dirty=true;}
+            if(_nativePauseArtifactsIsland.Ready){foreach(var child in body?.Children ?? System.Linq.Enumerable.Empty<VisualCssNode>())if(child.Native is VisualElement element)element.style.display=DisplayStyle.None;_nativePauseArtifactsIsland.UseFlowLayout(true);if(!ready)_sourceUi.Dirty=true;}
         }
         public NativePauseArtifactsState ReadNativePauseArtifactsState()
         {

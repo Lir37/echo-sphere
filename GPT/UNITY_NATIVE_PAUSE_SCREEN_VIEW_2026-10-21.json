@@ -1,0 +1,23 @@
+{
+  "status": "PASS unified native pause screen, four native pointer tabs, original detail blocking/close, Resume/close and restoration",
+  "checks": 50,
+  "rows": [
+    {
+      "stage": 0,
+      "baseline": 144,
+      "nativeNodes": 83,
+      "headerWidth": 734.0,
+      "headerHeight": 106.0,
+      "footerHeight": 46.0,
+      "nativeHeaderHeight": 135.0,
+      "nativeFooterHeight": 71.0,
+      "screenHeight": 496.0
+    },
+    {
+      "stage": 11,
+      "restoredNodes": 352
+    }
+  ],
+  "directory": "C:/Users/toxik/Documents/GitHub/echo/UnityProject/Assets\\../Temp/native-pause-screen-view\\20261021-111420-607",
+  "limits": "Actual saved run, synthetic native pointer down/up and source callback forwarding, same pane/modal ordering; no physical pointer, Android, complete pixel parity or actual exit reload acceptance"
+}

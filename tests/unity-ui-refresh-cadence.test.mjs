@@ -12,5 +12,6 @@ test('Unity source UI bounds logical tree reconciliation while preserving frame-
   assert.match(document, /public float RefreshInterval;/);
   assert.match(document, /RefreshInterval>0f&&now>=_nextRenderAt/);
   assert.match(document, /AdvanceMotion\(_root\);using\(UiLayoutMarker\.Auto\(\)\)UpdateLayout\(_root\);PreparePaintResources\(_root\);_layout\.Tracks\(_root\);return;/);
-  assert.match(bridge, /_sourceUi\.Continuous=false;_sourceUi\.RefreshInterval=_mainMenu\?0f:0\.1f/);
+  assert.match(bridge, /if\(_sourceUiWasPaused!=_userPaused\)\{_sourceUiWasPaused=_userPaused;_sourceUi\.Dirty=true;\}/);
+  assert.match(bridge, /_sourceUi\.Continuous=false;_sourceUi\.RefreshInterval=_mainMenu\|\|_userPaused\?0f:0\.1f/);
 });

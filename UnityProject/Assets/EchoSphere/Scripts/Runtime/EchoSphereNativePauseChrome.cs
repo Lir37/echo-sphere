@@ -41,23 +41,27 @@ namespace EchoSphere.Runtime
                 foreach (var child in node.Children) Find(child, pause);
             }
             Find(root, false);
-            if (!(header?.Native is SourceUiFrame head) || !(footer?.Native is SourceUiFrame foot)) { DisposeNativePauseChromeIsland(); return; }
+            var head = _nativePauseScreen?.Header ?? (header?.Native as SourceUiFrame)?.Content;
+            var foot = _nativePauseScreen?.Footer ?? (footer?.Native as SourceUiFrame)?.Content;
+            if (head == null || foot == null) { DisposeNativePauseChromeIsland(); return; }
             if (_nativePauseChromeIsland == null)
             {
-                DisposeNativePauseChromeIsland();
-                _nativePauseChromeIsland = new NativePauseChromeView(head.Content, foot.Content,
+                // Original actions are already bound while source content is visible.
+                // Keep them through native warmup; Dispose would clear first-frame input.
+                _nativePauseChromeComposition?.Dispose(); _nativePauseChromeComposition = null;
+                _nativePauseChromeIsland = new NativePauseChromeView(head, foot,
                     () => DispatchNativePauseChrome(_nativePauseChromeResume), () => DispatchNativePauseChrome(_nativePauseChromeExit),
                     index => DispatchNativePauseChrome(_nativePauseChromeSelect, new V(new[] { "stats", "skills", "artifacts", "synergies" }[index])));
                 _nativePauseChromeComposition = new NativePauseChromeComposition(_nativePauseChromeIsland, _sourceUi);
             }
-            else _nativePauseChromeIsland.Reparent(head.Content, foot.Content);
+            else _nativePauseChromeIsland.Reparent(head, foot);
             _nativePauseChromeIsland.Bind(ReadNativePauseChromeState());
             bool ready = _nativePauseChromeIsland.Ready; _nativePauseChromeIsland.Prepare();
             _nativePauseChromeComposition.Prepare();
             if (_nativePauseChromeIsland.Ready)
             {
-                foreach (var child in header.Children) if (child.Native is VisualElement element) element.style.display = DisplayStyle.None;
-                foreach (var child in footer.Children) if (child.Native is VisualElement element) element.style.display = DisplayStyle.None;
+                foreach (var child in header?.Children ?? System.Linq.Enumerable.Empty<VisualCssNode>()) if (child.Native is VisualElement element) element.style.display = DisplayStyle.None;
+                foreach (var child in footer?.Children ?? System.Linq.Enumerable.Empty<VisualCssNode>()) if (child.Native is VisualElement element) element.style.display = DisplayStyle.None;
                 _nativePauseChromeIsland.UseFlowLayout(true); if (!ready) _sourceUi.Dirty = true;
             }
         }

@@ -86,11 +86,22 @@ internal static class SourceParityChecks
         var restored = (SnapshotFixture)RunSnapshotCodec.Restore(encoded, typeof(SnapshotFixture), new SnapshotFixture());
         Near(restored.xp, state.xp, "fractional snapshot XP"); Near(restored.geometry.Y, state.geometry.Y, "snapshot readonly Vec2");
         if (restored.seed != state.seed || restored.nullable != SphereId.Pulse || restored.levels[SphereId.Pulse] != 7 || restored.ids[0] != "pulse" || restored.choices[0].Id != "id") throw new InvalidOperationException("Snapshot collection/state roundtrip failed");
+        // A legacy snapshot must not overwrite live presentation ownership, while
+        // nested gameplay fields still restore with the original codec rules.
+        var liveUi = new SnapshotFixture { xp = 99, presentationVisible = true };
+        state.presentationVisible = false;
+        var legacy = RunSnapshotCodec.Capture(state);
+        RunSnapshotCodec.Restore(legacy, typeof(SnapshotFixture), liveUi, field => field.Name != "presentationVisible");
+        if (!liveUi.presentationVisible || liveUi.xp != state.xp || liveUi.geometry.Y != state.geometry.Y || liveUi.levels[SphereId.Pulse] != 7)
+            throw new InvalidOperationException("Restore field selection crossed the presentation/gameplay boundary");
+        var filtered = RunSnapshotCodec.Capture(state, field => field.Name != "presentationVisible");
+        if (RunSnapshotCodec.Field(filtered, "presentationVisible") != null || RunSnapshotCodec.Field(filtered, "xp") == null)
+            throw new InvalidOperationException("Capture field selection differs from restore");
         Console.WriteLine($"Direct TypeScript → C# parity: PASS ({_count} comparisons, snapshot collections roundtrip)");
     }
     private sealed class SnapshotFixture
     {
-        public float xp; public uint seed; public SphereId? nullable; public Vec2 geometry;
+        public bool presentationVisible; public float xp; public uint seed; public SphereId? nullable; public Vec2 geometry;
         public readonly Dictionary<SphereId, int> levels = new Dictionary<SphereId, int>();
         public readonly List<string> ids = new List<string>();
         public readonly List<SphereEvolutionOption> choices = new List<SphereEvolutionOption>();
