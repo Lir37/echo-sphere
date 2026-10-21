@@ -40,6 +40,11 @@ Unity meshes/materials. A typed ordered-mesh seam retains the current compositor
 camera/shake order. Entity/region/effect/text drawing and the overall renderer are
 still source-projected; this is a partial world migration, not a finished scene.
 
+The active regional world layer is now native as well: pocket rings/seams/markers,
+POI pulses/diamonds and localized world labels use Unity meshes, materials and
+Font/TextGenerator. Native and remaining source text share atlas stabilization to
+preserve glyph UVs and source interleaving. Entity/attack/effect migration remains.
+
 Current status entry point, 2026-10-20. Historical reports retain earlier evidence;
 this file and UNITY_NATIVE_MENU_COMPOSITION_2026-10-18.md define this checkpoint.
 Entry HEAD: `60fc8dedaab726b215d87c1164c14555e2a54479`, branch `unity-migration`.

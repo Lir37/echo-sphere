@@ -320,3 +320,33 @@ assertion still searched for the source-render call in EchoSphereSourcePresentat
 That call now lives inside EchoSphereNativeWorld. The same active-frame guard now
 checks the delegation, both native layers, remaining source render and source UI.
 Source reference hashes and the remaining validation requirements are unchanged.
+
+
+## Native region layer and world-label ownership
+
+Entry a4ee54b257c16699484cbe1856a9d8194b17e8eb, CI784 SUCCESS.
+NativeWorldRegion now owns the actual renderer.ts region layer: original REGION_POCKETS
+alias, active/inactive ring width/alpha, six moving seams and eight moving triangular
+markers per pocket. POI glow pulses and2px miter diamonds retain their original colors,
+sizes, timing and per-object paint order. Existing region gameplay/spawn state is read
+only; the dormant scene approximation is not enabled in place of the authored drawing.
+
+NativeWorldLabel owns localized POI captions through native Unity Font/TextGenerator,
+retained Mesh and glyph shader. It preserves bold8px sizing, centre/alphabetic baseline,
+platform family/fallback, raster density and atlas sampling. Typed font resolution shares
+the existing font owner without parsing a Canvas declaration. Atlas requests from native
+labels and remaining source text stabilize together before either emits geometry, so a
+later glyph request cannot silently invalidate the earlier layer's UVs. POI geometry and
+text stay interleaved per object; moving all text after all POIs would change overlaps.
+
+The original source region helper is bypassed during the ordered world frame and restored
+in finally. Only a non-painted current-path continuation remains for downstream source
+layers. Region labels no longer submit Canvas text commands. Native ring/arc geometry
+uses analytic antialiased shapes; diamond/triangle edges retain the shared4x target.
+No gameplay rules, density, visual effects, quality settings or protected source changes.
+
+Actual Editor C# compilation: zero errors/warnings. New region/label shader messages:
+empty; scriptCompilationFailed=false. These are compile/import checks, not Play/device
+or FPS/GC acceptance. No new profiling/test campaign or APK. Remaining work: entity,
+attack/effect/text layers, source render coordinator, UI shell and data/compositor bridge.
+Full native migration and P1/P2 remain PARTIAL; CI must match the containing commit.

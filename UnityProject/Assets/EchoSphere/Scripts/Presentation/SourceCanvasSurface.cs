@@ -70,7 +70,7 @@ namespace EchoSphere.Presentation
         private readonly List<Color> _colors=new List<Color>();
         private readonly List<Vector4> _uv=new List<Vector4>(),_data=new List<Vector4>();
         private readonly List<int> _triangles=new List<int>();
-        private sealed class Batch { public int Start,Count;public Texture Texture;public string Blend;public float Blur,X,Y;public Color Shadow;public string Text;public float TextX,TextY,TextWidth;public State TextState;public Mesh NativeMesh;public Material NativeMaterial;public Matrix4x4 NativeMatrix;public MaterialPropertyBlock NativeProperties; }
+        private sealed class Batch { public int Start,Count;public Texture Texture;public string Blend;public float Blur,X,Y;public Color Shadow;public string Text;public float TextX,TextY,TextWidth;public State TextState;public Mesh NativeMesh;public Material NativeMaterial;public Matrix4x4 NativeMatrix;public MaterialPropertyBlock NativeProperties;public Action NativePrepareGlyphs,NativeEmitGlyphs; }
         private readonly List<Batch> _batches=new List<Batch>();
         private Texture _image;
         private Mesh _displayMesh;
@@ -179,6 +179,11 @@ namespace EchoSphere.Presentation
             properties.SetFloat("_NativeOpacity",_state.Alpha);
             var matrix=Matrix4x4.Translate(new Vector3(-SourceOrigin.x*unit,SourceOrigin.y*unit,0))*Matrix4x4.Scale(new Vector3(unit,-unit,1))*_state.Matrix;
             _batches.Add(new Batch {NativeMesh=mesh,NativeMaterial=material,NativeMatrix=matrix,NativeProperties=properties,Blend="source-over"});
+        }
+        internal float NativeTextRasterScale=>TextRasterScale(_state);
+        internal void DrawNativeTextMesh(Mesh mesh,Material material,MaterialPropertyBlock properties,Action prepareGlyphs,Action emitGlyphs)
+        {
+            DrawNativeMesh(mesh,material,properties);var batch=_batches[_batches.Count-1];batch.NativePrepareGlyphs=prepareGlyphs;batch.NativeEmitGlyphs=emitGlyphs;
         }
         private void CompletePaint(int first)
         {
@@ -373,10 +378,10 @@ namespace EchoSphere.Presentation
             // Dynamic legacy fonts can rebuild their atlas while later text is
             // requested. Resolve every required glyph before retaining any UVs.
             var dirty=false;void Rebuilt(Font font){dirty=true;}Font.textureRebuilt+=Rebuilt;
-            try{var attempts=0;do{dirty=false;foreach(var batch in _batches)if(batch.Text!=null){var font=SourceCanvasTypography.Resolve(batch.TextState.Font,out var size,out var style,TextRasterScale(batch.TextState));SourceCanvasTypography.Vertices(font,batch.Text,size,style);}if(++attempts>8&&dirty)throw new InvalidOperationException("Source font atlas could not retain the frame's glyphs");}while(dirty);}
+            try{var attempts=0;do{dirty=false;foreach(var batch in _batches){batch.NativePrepareGlyphs?.Invoke();if(batch.Text!=null){var font=SourceCanvasTypography.Resolve(batch.TextState.Font,out var size,out var style,TextRasterScale(batch.TextState));SourceCanvasTypography.Vertices(font,batch.Text,size,style);}}if(++attempts>8&&dirty)throw new InvalidOperationException("Source font atlas could not retain the frame's glyphs");}while(dirty);}
             finally{Font.textureRebuilt-=Rebuilt;}
             var previous=_state;
-            try{foreach(var batch in _batches)if(batch.Text!=null){_state=batch.TextState;EmitText(batch);}}
+            try{foreach(var batch in _batches){batch.NativeEmitGlyphs?.Invoke();if(batch.Text!=null){_state=batch.TextState;EmitText(batch);}}}
             finally{_state=previous;_image=null;}
         }
         private void EmitText(Batch batch)

@@ -18,6 +18,12 @@ namespace EchoSphere.Presentation
             style=declaration.Contains("bold")||Regex.IsMatch(declaration,@"(?:^|\s)[6-9]00(?:\s|$)")?FontStyle.Bold:FontStyle.Normal;
             if(declaration.Contains("italic"))style=style==FontStyle.Bold?FontStyle.BoldAndItalic:FontStyle.Italic;
             var family=match.Success?match.Groups[2].Value:"sans-serif";
+            return ResolveFamily(family,size);
+        }
+        // Typed native world text uses the same platform family/fallback owner,
+        // without constructing or parsing a Canvas font declaration.
+        internal static Font ResolveFamily(string family,int size)
+        {
             if(Fonts.TryGetValue(family,out var font))return font;
             var names=Families(family);
             font=Font.CreateDynamicFontFromOSFont(names.ToArray(),size);Fonts.Add(family,font);return font;
