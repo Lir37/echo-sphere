@@ -27,7 +27,8 @@ Shader "EchoSphere/NativeMenuBrush"
         float maskFragment(v2f_img input):SV_Target
         {
             float2 p=(Pixel(input.uv,_MaskSize.xy)-_MaskSize.z)/_Size.z-_Size.w;
-            float shape=Shape(p-_Offset.xy,_Size.xy,_Radius.xy);
+            float spread=_Offset.z*(_MaskSize.w>0?-1:1);
+            float shape=Shape(p-_Offset.xy+spread,_Size.xy+2*spread,max(0,_Radius.xy+spread));
             return _MaskSize.w>0?1-shape:shape;
         }
         float blurFragment(v2f_img input):SV_Target

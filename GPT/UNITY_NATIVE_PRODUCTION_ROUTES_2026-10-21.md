@@ -153,3 +153,52 @@ world presentation remain next.
 
 Editor compilation: zero errors/warnings. No new benchmark or dedicated Play/pixel
 campaign; no visual/device acceptance claim. CI must match the containing commit.
+
+
+## Following implementation group — artifacts, tutorial and mobile dock
+
+Entry 097b196feb4f82688d7f118e9483b58b3adbd577, CI779 SUCCESS.
+NativeArtifactRewardView owns reward cards, mechanic labels, newly activated synergy
+hints and pick input. NativeArtifactSetDetailView owns the set popup in rewards and
+pause: conic header, progress count, owned/unowned rows, native glyphs, scroll and
+close/outside input. The shared artifact display projection now accepts candidate
+IDs while retaining actual inventory for set progress. Existing ChooseStellaReward
+and save/write synchronization remain authoritative.
+
+NativeTutorialView implements all six original steps/translations/advance guards,
+target sampling every120ms, native spotlight shader, native card layout and original
+two-second ring pulse via AnimationCurve. Movement distance uses the same72 source
+pixels; placement checks the same spheres.length. Upgrade step still advances only
+through the actual choice handler. No extra tutorial rules were introduced.
+
+NativeMobileControlsView owns Pause, movement Lock, Follow, ability/cooldown buttons,
+Dash, selected sphere information and the ten sphere selectors as UI Toolkit controls.
+Source-important visual rules remain: rectangular controls, circular selectors,
+normal/pressed gradient and shadows, native VectorImage icons and native glyph alpha
+shadows. Brush shadow spread now supports the original aura and negative-spread
+information panel shadows, preserving the previous three-argument API.
+
+The mobile dock captures the original pointer callbacks before source-tree projection.
+This intentionally preserves lastDirectionRef, original haptics, guards and existing
+follow/dash/ability handlers rather than approximating input. A semantic native-button
+marker preserves the original closest(data-mobile-control) placement guard, including
+disabled buttons. Original dock positioning/scale frame and outer gesture root remain;
+this is native button presentation, not source-free input ownership. Source joystick,
+ghost preview, formation-memory and placement effects still need native owners.
+
+All replaced source children are removed after native geometry warmup. Outer source
+black/blur shells, source tree/data projection and ordered compositor remain explicit
+dependencies. Upgrade title spacing and original text shadow are also retained.
+
+Editor recompilation: zero errors/warnings. No dedicated tests, Play/profiling campaign,
+FPS/GC or device parity claims. No APK; protected source and user ProjectSettings /
+Recovery files untouched. CI must match the containing commit.
+
+Next: replace mobile feedback and gesture ownership, gameplay/world drawing and remaining
+source overlay/compositor dependencies. Full migration and P1/P2 remain PARTIAL.
+Short handoff: Continue ECHO SPHERE on unity-migration at the containing commit
+(git log -1 --format=%H). Read the three GPT documents and this report. Native menu,
+pause/HUD, results/upgrade, artifact rewards/detail, tutorial and combat dock are
+selected; continue mobile feedback/input and world rendering, then remove source-shell
+and projection dependencies. Preserve original behavior/quality, no APK. Compile/CI;
+performance and dedicated acceptance follow implementation per user instruction.

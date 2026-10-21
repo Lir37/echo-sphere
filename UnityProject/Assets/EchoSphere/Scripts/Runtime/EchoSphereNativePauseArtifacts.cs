@@ -33,9 +33,11 @@ namespace EchoSphere.Runtime
             return ProjectNativePauseArtifactsState(_sourceRenderState,IsRussianUi);
         }
         internal static NativePauseArtifactsState ProjectNativePauseArtifactsState(V scene,bool ru)
+            =>ProjectNativeArtifacts(scene,ru,scene["player"]["artifacts"].Items);
+        private static NativePauseArtifactsState ProjectNativeArtifacts(V scene,bool ru,IEnumerable<V> ids)
         {
             var lang=ru?"ru":"en";var artifacts=new List<NativePauseArtifactsState.Artifact>();
-            foreach(var id in scene["player"]["artifacts"].Items){
+            foreach(var id in ids){
                 var rarity=Visual_artifactSystem.Scope["artifactRarity"].Call(id).Text;
                 var definition=Visual_gameData.Scope["ARTIFACT_MAP"][id];
                 var sets=new List<NativePauseArtifactsState.Set>();

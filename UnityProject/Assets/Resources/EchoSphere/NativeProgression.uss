@@ -14,3 +14,4 @@
 .character-card { transition-property: translate; transition-duration: 160ms; transition-timing-function: ease; }
 #archive-query { margin: 0; padding: 0; border-width: 0; background-color: transparent; }
 #archive-query .unity-text-field__input { margin: 0; padding: 0; border-width: 0; background-color: transparent; color: #dcefff; }
+.native-artifact-reward-card { transition-property: scale; transition-duration: 150ms; transition-timing-function: ease-in-out; }

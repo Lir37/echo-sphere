@@ -10,8 +10,9 @@ namespace EchoSphere.Presentation
     {
         public readonly struct Shadow
         {
-            public readonly float Blur; public readonly Vector2 Offset; public readonly Color Color;
-            public Shadow(float blur,Vector2 offset,Color color){Blur=blur;Offset=offset;Color=color;}
+            public readonly float Blur,Spread; public readonly Vector2 Offset; public readonly Color Color;
+            public Shadow(float blur,Vector2 offset,Color color):this(blur,offset,color,0){}
+            public Shadow(float blur,Vector2 offset,Color color,float spread){Blur=blur;Offset=offset;Color=color;Spread=spread;}
         }
         public sealed class Paint
         {
@@ -44,10 +45,10 @@ namespace EchoSphere.Presentation
         private static Vector4 V(Color color)=>new Vector4(color.r,color.g,color.b,color.a);
         private RenderTexture ShadowMask(Shadow shadow,bool inset,int width,int height,float scale,float padding)
         {
-            var sigma=shadow.Blur*.5f*scale;var extra=Mathf.CeilToInt(shadow.Blur*2f*scale);
+            var sigma=shadow.Blur*.5f*scale;var extra=Mathf.CeilToInt((shadow.Blur*2f+Mathf.Max(0,shadow.Spread))*scale);
             int w=width+extra*2,h=height+extra*2;
             var mask=Temporary(w,h);_material.SetVector("_MaskSize",new Vector4(w,h,extra,inset?1:0));
-            _material.SetVector("_Offset",new Vector4(shadow.Offset.x,shadow.Offset.y,0,0));
+            _material.SetVector("_Offset",new Vector4(shadow.Offset.x,shadow.Offset.y,shadow.Spread,0));
             Graphics.Blit(Texture2D.blackTexture,mask,_material,0);
             if(sigma>0){
                 int radius=Mathf.Max(1,Mathf.CeilToInt(4*sigma));
@@ -64,7 +65,7 @@ namespace EchoSphere.Presentation
             if(width<=0||height<=0||scale<=0||!float.IsFinite(width+height+scale))throw new ArgumentOutOfRangeException(nameof(width));
             if(paint.Colors.Length!=paint.Stops.Length||paint.Colors.Length>8)throw new ArgumentException("Native gradient stop count");
             float padding=0;
-            foreach(var shadow in new[]{paint.OuterA,paint.OuterB})if(shadow.HasValue)padding=Mathf.Max(padding,Mathf.Max(Mathf.Abs(shadow.Value.Offset.x),Mathf.Abs(shadow.Value.Offset.y))+shadow.Value.Blur*2);
+            foreach(var shadow in new[]{paint.OuterA,paint.OuterB})if(shadow.HasValue)padding=Mathf.Max(padding,Mathf.Max(Mathf.Abs(shadow.Value.Offset.x),Mathf.Abs(shadow.Value.Offset.y))+shadow.Value.Blur*2+Mathf.Max(0,shadow.Value.Spread));
             int w=Mathf.CeilToInt((width+padding*2)*scale),h=Mathf.CeilToInt((height+padding*2)*scale);
             if(_target==null||_target.width!=w||_target.height!=h){ReleaseTarget();_target=new RenderTexture(w,h,0,RenderTextureFormat.ARGB32,RenderTextureReadWrite.sRGB){name="Native menu brush",hideFlags=HideFlags.DontSave,filterMode=FilterMode.Bilinear,wrapMode=TextureWrapMode.Clamp};if(!_target.Create())throw new InvalidOperationException("Native menu brush target allocation failed");}
             Bounds=new Rect(-padding,-padding,w/scale,h/scale);

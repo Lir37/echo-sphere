@@ -38,7 +38,7 @@ namespace EchoSphere.Presentation
         {
             if(Signature==state.Signature&&!_consumed)return;
             bool shown=Ready;Clear();_state=state;Signature=state.Signature;_consumed=false;Ready=false;
-            var title=Text(_content,"upgrade-title",state.Title,24,"#39d8ff","700",true,32d/24);title.style.marginBottom=24;title.style.unityTextAlign=TextAnchor.MiddleCenter;title.PlaceBehind(_grid);
+            var title=Text(_content,"upgrade-title",state.Title,24,"#39d8ff","700",true,32d/24);title.style.marginBottom=24;title.style.unityTextAlign=TextAnchor.MiddleCenter;title.style.letterSpacing=8;title.style.textShadow=new TextShadow {color=C("#48d3ff2e"),blurRadius=20,offset=Vector2.zero};title.PlaceBehind(_grid);
             foreach(var choice in state.Choices)BuildChoice(choice);
             if(state.ShowReroll){var row=Box(_content,"upgrade-reroll-row",true);row.style.marginTop=16;row.style.justifyContent=Justify.Center;
                 var button=Button(row,"upgrade-reroll",()=>Consume(_reroll));button.SetEnabled(state.CanReroll);button.style.opacity=state.CanReroll?1:.3f;button.style.paddingLeft=button.style.paddingRight=16;button.style.paddingTop=button.style.paddingBottom=8;Border(button,8);
