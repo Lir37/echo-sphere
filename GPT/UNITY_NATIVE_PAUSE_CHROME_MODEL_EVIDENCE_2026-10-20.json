@@ -1,0 +1,1 @@
+{"status":"PASS native pause chrome model, original callbacks and unchanged body/shell","cases":160,"checks":3040,"limits":"Data and source-tree ownership oracle; native layout/input/visual/performance separate"}

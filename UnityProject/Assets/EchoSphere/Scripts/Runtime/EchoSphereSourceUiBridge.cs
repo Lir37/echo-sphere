@@ -22,7 +22,7 @@ namespace EchoSphere.Runtime
                 _sourceUiStateRef=VisualJs.Obj("current",_sourceRenderState);_sourceUiCanvasRef=VisualJs.Obj("current",VisualJs.Null);_sourceUiTutorialRef=VisualJs.Obj("current",VisualJs.Null);
                 var saved=LoadRunSnapshot();_sourceUiSavedRunTime=saved==null?VisualJs.Null:new V(Math.Floor(saved.time));
                 _sourceUi.Render=()=>ProjectNativeHudIsland(SourceUiTree());_sourceUi.AfterEvent=ApplySourceUiWrites;
-                _sourceUi.BeforePaint=root=>{PrepareNativeHudIsland(root);PrepareNativePauseStatsIsland(root);PrepareNativePauseAbilitiesIsland(root);PrepareNativePauseArtifactsIsland(root);PrepareNativePauseSynergiesIsland(root);};
+                _sourceUi.BeforePaint=root=>{PrepareNativeHudIsland(root);PrepareNativePauseChromeIsland(root);PrepareNativePauseStatsIsland(root);PrepareNativePauseAbilitiesIsland(root);PrepareNativePauseArtifactsIsland(root);PrepareNativePauseSynergiesIsland(root);};
                 _sourceUi.CanvasTexture=()=>_sourceCanvas.UiTexture;
                 var environment=_sourceUi.Environment;
                 environment.ReadStorage=key=>PlayerPrefs.HasKey(key)?new V(PlayerPrefs.GetString(key)):VisualJs.Null;
@@ -103,6 +103,8 @@ namespace EchoSphere.Runtime
             // Skip compatibility content before the generated component builds
             // it. Post-build pruning alone still paid for every discarded card.
             props["nativePauseContent"]=UsesNativePauseStats||UsesNativePauseAbilities||UsesNativePauseArtifacts||NativePauseSynergiesRequested;
+            props["nativePauseChrome"]=UsesNativePauseChrome;
+            props["bindNativePauseChrome"]=Action(args=>{_nativePauseChromeResume=args[0];_nativePauseChromeExit=args[1];_nativePauseChromeSelect=args[2];});
             props["selectedArtifactSetId"]=_pauseArtifactSetId==null?VisualJs.Null:new V(_pauseArtifactSetId);props["setSelectedArtifactSetId"]=Action(args=>_pauseArtifactSetId=args[0].Null?null:args[0].Text);
             props["gameOverData"]=_gameOver?VisualJs.Obj("time",Math.Floor(_runTime),"wave",_wave,"kills",_kills,"gold",_runGoldEarned,"rank",_sourceResultRank,"isNewRecord",_sourceResultNewRecord,"regionClear",_regionStabilized,"challengeProgress",GetCompletedRegionChallenges(EchoRegionId.ResonanceBasin).Length,"endlessUnlocked",IsRegionEndlessUnlocked(EchoRegionId.ResonanceBasin),"masteryChallengesCompleted",_regionMasteryChallengesCompleted):VisualJs.Null;
             return VisualDom.Component("SourceGameView",Visual_App.Scope["SourceGameView"],props);

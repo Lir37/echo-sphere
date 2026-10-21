@@ -13,9 +13,9 @@ function element(node){
  return `<${node.tag}${Object.entries(properties).map(([name,value])=>` ${names[name]??name}="${escape(value)}"`).join('')}>${node.children.map(element).join('')}</${node.tag}>`;
 }
 if(!process.argv.includes('--check'))mkdirSync(directory,{recursive:true});
-for(const name of ['UserRound','Store','Trophy','Award','BookOpen','Settings']){
+for(const name of ['UserRound','Store','Trophy','Award','BookOpen','Settings','BarChart3','Sparkles','Package','Network','X']){
  const expected=element(icons[name])+'\n',file=directory+'/'+name+'.svg';
  if(process.argv.includes('--check'))assert.equal(readFileSync(file,'utf8').replaceAll('\r\n','\n'),expected,'Native icon drift: '+name);
  else writeFileSync(file,expected);
 }
-console.log('Native menu icons: 6 source geometries '+(process.argv.includes('--check')?'verified':'exported'));
+console.log('Native menu/pause icons: 11 source geometries '+(process.argv.includes('--check')?'verified':'exported'));

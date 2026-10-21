@@ -314,3 +314,21 @@ CI follow-up for5d5f065: #769 source and Unity typechecks succeeded, but CSS
 provenance failed on the old App.tsx input hash. Regenerated with locked packages;
 all1200 rules/22timelines identical, original CSS bytes retained. Complete visual
 CI step now passes locally; follow-up commit updates only the manifest and reports.
+
+### 2026-10-21 — native pause header/footer candidate, off by default
+
+Entry608b30f929aaa3e0741a2c11e5532f63518f7130. Native labels/seven Buttons/five
+source VectorImages and exact original callbacks replace only owned chrome children.
+Fixed retained host reparenting when original detail changes footer source path.
+Source144 ->86 ->144; model160cases/3040checks, view-only layout509checks,
+actual blur-enabled lifecycle47checks, original Return/map reload7checks.
+
+Full cascade inspection caught missing button blur8 and two footer shadows.
+Restored seven filters through the existing backdrop pipeline and footer artwork
+through existing NativeMenuBrush. This is PARTIAL, not a fully native compositor.
+Earlier performance captures without blur or footer shadows are PROVISIONAL and
+excluded from equal-quality acceptance. Isolated/actual-panel pixel capture failed;
+no pixel parity claimed. Pilot remains false; Android/mobile, scrollbar, full
+composition/effects and world views remain. No gameplay/protected branch/APK changes.
+See UNITY_NATIVE_PAUSE_CHROME_2026-10-20.md and associated evidence for current gates.
+Latest actual-panel contrast control now passes; sigma8 candidate still fails smoothing (.854902 contrast). Blur gate OPEN/FAIL, production off. Final Editor lifecycle47 and Return/reload7 PASS; six preferences restored; Console0errors/1warning. Candidate paused CPU5.04->6.29FPS, GC24.57->17.72MB/frame; no equal-quality acceptance.232 C# and272 Node checks pass. Next: fix/validate blur before pause activation, then native shell/world migration.

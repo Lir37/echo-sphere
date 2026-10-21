@@ -197,6 +197,8 @@ function GameScreen({ lang, t, shop, difficulty, handedness, regionId, regionMod
   // The Unity view bridge supplies this display-only ownership flag. The
   // original renderer always builds its own pause content.
   const nativePauseContent = false;
+  const nativePauseChrome = false;
+  const bindNativePauseChrome: PauseChromeBinder | undefined = undefined;
   const [selectedArtifactSetId, setSelectedArtifactSetId] = useState<string | null>(null);
   const [tutorialStep, setTutorialStep] = useState<TutorialStep | null>(() => loadTutorialCompleted() ? null : 0);
   const tutorialStepRef = useRef<TutorialStep | null>(tutorialStep);
@@ -429,6 +431,8 @@ function GameScreen({ lang, t, shop, difficulty, handedness, regionId, regionMod
               st={st}
               tab={pauseTab}
               nativeContent={nativePauseContent}
+              nativeChrome={nativePauseChrome}
+              bindNativeChrome={bindNativePauseChrome}
               setTab={setPauseTab}
               onResume={() => { setPaused(false); st.paused = false; saveRunSnapshot(st); setSelectedArtifactSetId(null); }}
               onExit={onExit}
@@ -505,13 +509,16 @@ function Row({ label, value }: { label: string; value: string }) {
 }
 
 type PauseTab = 'stats' | 'skills' | 'artifacts' | 'synergies';
+type PauseChromeBinder = (resume: () => void, exit: () => void, select: (tab: PauseTab) => void) => void;
 
-function PausePlanner({ lang, t, st, tab, nativeContent, setTab, onResume, onExit, selectedArtifactSetId, setSelectedArtifactSetId }: {
+function PausePlanner({ lang, t, st, tab, nativeContent, nativeChrome, bindNativeChrome, setTab, onResume, onExit, selectedArtifactSetId, setSelectedArtifactSetId }: {
   lang: Lang;
   t: (k: TranslationKey) => string;
   st: GameState;
   tab: PauseTab;
   nativeContent?: boolean;
+  nativeChrome?: boolean;
+  bindNativeChrome?: PauseChromeBinder;
   setTab: (tab: PauseTab) => void;
   onResume: () => void;
   onExit: () => void;
@@ -521,6 +528,7 @@ function PausePlanner({ lang, t, st, tab, nativeContent, setTab, onResume, onExi
   const character = CHARACTER_DEFS[st.player.characterId];
   const activeAbilities = (Object.keys(ABILITIES) as AbilityType[]).filter((id) => ABILITIES[id].category === 'active');
   const acquiredAbilities = (Object.keys(ABILITIES) as AbilityType[]).filter((id) => (st.player.abilities[id] || 0) > 0);
+  if (nativeChrome && bindNativeChrome) bindNativeChrome(onResume, onExit, setTab);
 
   const tabDefs: Array<{ id: PauseTab; label: string; icon: React.ReactNode }> = [
     { id: 'stats', label: lang === 'ru' ? 'Показатели' : 'Stats', icon: <BarChart3 size={15} /> },
@@ -533,21 +541,21 @@ function PausePlanner({ lang, t, st, tab, nativeContent, setTab, onResume, onExi
     <div className="es-pause-overlay absolute inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center z-50 p-3">
       <div className="es-modal-shell w-full max-w-3xl max-h-[92vh] rounded-2xl overflow-hidden flex flex-col">
         <div className="px-4 pt-4 pb-3 border-b border-[#243b55] shrink-0">
-          <div className="flex items-center justify-between gap-3">
+          {!nativeChrome && (<div className="flex items-center justify-between gap-3">
             <div className="min-w-0">
               <div className="text-[10px] uppercase tracking-[0.2em] text-[#7f9bb8]">{lang === 'ru' ? 'Билд забега' : 'Run Build'}</div>
               <div className="text-xl font-bold truncate">{t('pauseTitle')} · {character.name[lang]}</div>
               <div className="text-xs text-[#7f9bb8] mt-0.5">{character.role[lang]} · {lang === 'ru' ? 'уровень' : 'level'} {st.player.level} · {t('wave')} {st.wave}</div>
             </div>
             <button onClick={onResume} className="w-9 h-9 rounded-full bg-[#0d1726] border border-[#243b55] flex items-center justify-center" aria-label={t('resume')}><X size={18} /></button>
-          </div>
-          <div className="grid grid-cols-4 gap-1.5 mt-3">
+          </div>)}
+          {!nativeChrome && (<div className="grid grid-cols-4 gap-1.5 mt-3">
             {tabDefs.map((item) => (
               <button key={item.id} onClick={() => setTab(item.id)} className={`flex items-center justify-center gap-1 px-2 py-2 rounded-lg border text-[10px] font-bold transition ${tab === item.id ? 'bg-[#39d8ff]/15 border-[#39d8ff]/50 text-[#dcecff]' : 'bg-[#0d1726] border-[#243b55] text-[#7f9bb8]'}`}>
                 {item.icon}{item.label}
               </button>
             ))}
-          </div>
+          </div>)}
         </div>
 
         <div className="overflow-y-auto px-4 py-4 min-h-0">
@@ -812,10 +820,10 @@ function PausePlanner({ lang, t, st, tab, nativeContent, setTab, onResume, onExi
         )}
 
         <div className="shrink-0 px-4 py-3 border-t border-[#243b55] bg-[#06111d]">
-          <div className="flex gap-2 justify-center">
+          {!nativeChrome && (<div className="flex gap-2 justify-center">
             <button onClick={onResume} className="px-5 py-2.5 rounded-xl bg-[#39d8ff] border border-[#3a6a7a] text-white font-bold">{t('resume')}</button>
             <button onClick={onExit} className="px-5 py-2.5 rounded-xl bg-[#0d1726] border border-[#243b55] text-[#b6c9de]">{t('return')}</button>
-          </div>
+          </div>)}
         </div>
       </div>
     </div>

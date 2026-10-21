@@ -1,0 +1,18 @@
+.native-pause-chrome Button {
+    margin: 0; padding: 0; border-width: 1px;
+    border-color: rgba(76,165,214,.16);
+    background-color: rgba(6,17,29,.78);
+    -unity-text-align: middle-center;
+    flex-direction: row; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+.native-pause-chrome .pause-chrome-close { width: 36px; height: 36px; border-radius: 5px; }
+.native-pause-chrome .pause-chrome-tab {
+    flex-grow: 1; flex-shrink: 1; flex-basis: 0; min-width: 0;
+    padding: 8px; border-radius: 6px;
+}
+.native-pause-chrome .pause-chrome-resume {
+    padding: 10px 20px; border-radius: 3px;
+    background-color: rgb(57,216,255); border-color: rgb(58,106,122);
+}
+.native-pause-chrome .pause-chrome-return { padding: 10px 20px; border-radius: 3px; }
