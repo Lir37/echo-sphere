@@ -379,3 +379,19 @@ Final pause lifecycle50 and cold first-ready Return/map reload8 checks PASS; ori
 chrome oracle160cases/3040checks PASS. Bind original actions during geometry warmup
 and preserve them during construction. Editor Console current0errors/0warnings,
 Play/Profiler/background off,6 original preference keys restored and verified.
+
+### 2026-10-21 — runtime native UIR capture and current-frame composition
+
+Entry1ba7359. NativeUiCapturePanel now provides public-API world UIDocument/camera
+capture, without prefix tree cloning. Native stencil alpha mask is a runtime shader
+pass; existing Gaussian/quality unchanged. Actual Editor authored Inter bold Cyrillic
+text and pattern changing every frame:96 samples at DPR1/2/3 PASS, maxchannel1,
+meanmax.000207901; candidate replicas0. Capture ordering resolves observed text and
+background frame lag. This is an isolated fixture, not real pause/menu acceptance.
+
+Editor compile0/0, shader supported/messages0, Console ground truth0/0; capture
+resources0 after cleanup and6 prefs restored. API235+3, TS, Node272 and provenance/
+preflight PASS. No new game FPS/GC measurement. Production candidate remains OFF.
+P1/P2 PARTIAL. Next multiple dependent glass layers and transparent alpha proof,
+then actual pause/menu compositor wiring, mobile/input/performance and world views.
+See UNITY_NATIVE_WORLD_COMPOSITION_2026-10-21.md and adjacent JSON evidence.

@@ -55,5 +55,13 @@ Shader "EchoSphere/NativeMenuPrefix"
    float4 vertical(v2f_img i):SV_Target{return Blur(i,false);}
    ENDCG
   }
+ // Persistent native stencil masks retain UI Toolkit's exact rounded clip.
+ Pass {
+  CGPROGRAM
+  #pragma vertex vert_img
+  #pragma fragment MaskAlpha
+  float4 MaskAlpha(v2f_img i):SV_Target {float4 color=tex2D(_MainTex,i.uv);color.a*=tex2D(_LayerTex,i.uv).a;return color;}
+  ENDCG
+ }
  }
 }

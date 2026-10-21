@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
+using UnityEngine.Rendering;
 
 namespace EchoSphere.Presentation
 {
@@ -13,6 +14,9 @@ namespace EchoSphere.Presentation
     public sealed class NativeBackdropPanelProbe : MonoBehaviour
     {
         private const int Size=256;
+        public int Dpr {get;private set;}=1;
+        public bool AuthoredText {get;private set;}
+        private int PixelSize=>Size*Dpr;
         private static readonly Rect PanelRect=new Rect(48,64,160,120);
         private static readonly Rect BlurArea=new Rect(16,32,224,184); // Complete four-sigma support, as in SourceUiBackdrop.
         private readonly List<GameObject> _objects=new List<GameObject>();
@@ -25,7 +29,10 @@ namespace EchoSphere.Presentation
         private SourceUiBackdrop _reference;
         private Material _material;
         private Material _prefixMaterial;
-        private RenderTexture _labelTarget;
+        private RenderTexture _labelTarget,_worldHorizontal,_worldBlur,_worldMasked,_worldMask;
+        private Material _worldBlurMaterial,_worldMaskMaterial;
+        private bool _worldComposition;
+        public bool WorldComposition=>_worldComposition;
         private FilterFunctionDefinition _definition;
         private int _phase;
         public bool Animate {get;set;}=true;
@@ -37,27 +44,34 @@ namespace EchoSphere.Presentation
         public double MaximumMeanError {get;private set;}
         public int MaximumChannelError {get;private set;}
         public int DifferentPixels {get;private set;}
-        public long TargetBytes=>(long)_targets.Count*Size*Size*4;
+        public long TargetBytes {get{long bytes=0;foreach(var target in _targets)bytes+=(long)target.width*target.height*4;return bytes;}}
         public string DepthStencilFormat=>_targets.Count==0?"None":_targets[0].depthStencilFormat.ToString();
         public long DepthStencilTargetBytes {
-            get{long bytes=0;foreach(var target in _targets)if(target.depthStencilFormat!=UnityEngine.Experimental.Rendering.GraphicsFormat.None)bytes+=(long)UnityEngine.Experimental.Rendering.GraphicsFormatUtility.GetBlockSize(target.depthStencilFormat)*Size*Size;return bytes;}
+            get{long bytes=0;foreach(var target in _targets)if(target.depthStencilFormat!=UnityEngine.Experimental.Rendering.GraphicsFormat.None)bytes+=(long)UnityEngine.Experimental.Rendering.GraphicsFormatUtility.GetBlockSize(target.depthStencilFormat)*target.width*target.height;return bytes;}
         }
         public bool ClickVerified {get;private set;}
         private bool _ready;
         private bool _externalPrefix;
         private bool _earlyPrefix;
         private int _targetDepth;
+        private bool _worldPrefix, _renderingWorld;
+        private NativeUiCapturePanel _worldCapture,_worldSuffix;
+        private readonly List<Label> _dynamicLabels=new List<Label>();
+        public int WorldRenderCount {get;private set;}
+        public int WorldStage {get;set;}=1; //0 LateUpdate,1 BeforeRender,2 BeginContext
+        public string WorldBounds=>_worldCapture==null?"missing":_worldCapture.Bounds.ToString();
 
-        public void Initialize(int backgroundOrder=2101,bool externalPrefix=false,bool earlyPrefix=false,int targetDepth=24)
+        public void Initialize(int backgroundOrder=2101,bool externalPrefix=false,bool earlyPrefix=false,int targetDepth=24,bool worldPrefix=false,bool worldComposition=false,int dpr=1,bool authoredText=false)
         {
             if(_ready)return;
-            _externalPrefix=externalPrefix;
+            if(dpr<1||dpr>3)throw new ArgumentOutOfRangeException(nameof(dpr));Dpr=dpr;AuthoredText=authoredText;
+            _externalPrefix=externalPrefix;_worldPrefix=worldPrefix;_worldComposition=worldPrefix&&worldComposition;
             _earlyPrefix=earlyPrefix;
             if(targetDepth!=0&&targetDepth!=24)throw new ArgumentOutOfRangeException(nameof(targetDepth));
             _targetDepth=targetDepth;
             _pattern=new Texture2D(Size,Size,TextureFormat.RGBA32,false,false){name="Native backdrop probe animated pattern",filterMode=FilterMode.Point,wrapMode=TextureWrapMode.Clamp};
-            _referenceRead=new Texture2D(Size,Size,TextureFormat.RGBA32,false,false);
-            _candidateRead=new Texture2D(Size,Size,TextureFormat.RGBA32,false,false);
+            _referenceRead=new Texture2D(PixelSize,PixelSize,TextureFormat.RGBA32,false,false);
+            _candidateRead=new Texture2D(PixelSize,PixelSize,TextureFormat.RGBA32,false,false);
             SetPhase(0);
             _referenceTarget=Target("Reference prefix");
             _backgroundTarget=Target("Native shared prefix");
@@ -67,7 +81,8 @@ namespace EchoSphere.Presentation
             _referenceGlass=Glass();_referenceRoot.Add(_referenceGlass);
             _reference=new SourceUiBackdrop(_referenceGlass,context=>{},source=>null,null);
 
-            if(_earlyPrefix){
+            if(_worldPrefix) InitializeWorldPrefix();
+            else if(_earlyPrefix){
                 _labelTarget=Target("Static native text");
                 Label(Panel("Native static text",backgroundOrder,_labelTarget));
                 var prefixShader=Shader.Find("Hidden/EchoSphere/NativePrefixProducerProbe");
@@ -80,8 +95,16 @@ namespace EchoSphere.Presentation
             clip.style.overflow=Overflow.Hidden;Radius(clip,12);candidate.Add(clip);
             var crop=new VisualElement();Box(crop,BlurArea.x-PanelRect.x,BlurArea.y-PanelRect.y,BlurArea.width,BlurArea.height);
             crop.style.overflow=Overflow.Hidden;clip.Add(crop);
-            var blurred=TextureImage(_backgroundTarget);blurred.style.left=-BlurArea.x;blurred.style.top=-BlurArea.y;
-            crop.Add(blurred);NativeBlur(crop);
+            if(_worldComposition){
+                _worldHorizontal=Target("Native world horizontal blur",depth:false);_worldBlur=Target("Native world output blur",depth:false);_worldMasked=Target("Native world masked blur",depth:false);
+                _worldBlurMaterial=new Material(Resources.Load<Shader>("EchoSphere/NativeMenuPrefix"));
+                _worldMaskMaterial=new Material(Resources.Load<Shader>("EchoSphere/NativeMenuPrefix"));
+                _worldMask=Target("Native cached stencil mask");var maskRoot=Panel("Native cached mask",2101,_worldMask);
+                var mask=new VisualElement();Box(mask,PanelRect.x,PanelRect.y,PanelRect.width,PanelRect.height);Radius(mask,12);mask.style.overflow=Overflow.Hidden;maskRoot.Add(mask);
+                var white=new VisualElement();Box(white,-PanelRect.x,-PanelRect.y,Size,Size);white.style.backgroundColor=Color.white;mask.Add(white);
+            }
+            var blurred=TextureImage(_worldComposition?_worldMasked:_backgroundTarget);blurred.style.left=-BlurArea.x;blurred.style.top=-BlurArea.y;
+            crop.Add(blurred);if(!_worldComposition)NativeBlur(crop);
             candidate.Add(Glass());
 
             // A native control in the candidate panel verifies event ownership.
@@ -95,17 +118,53 @@ namespace EchoSphere.Presentation
             var right=TextureImage(_candidateTarget);Box(right,Size+16,8,Size,Size);display.Add(right);
             _ready=true;
         }
-        private RenderTexture Target(string label)
+        private void InitializeWorldPrefix()
         {
-            var target=new RenderTexture(Size,Size,_targetDepth,RenderTextureFormat.ARGB32,RenderTextureReadWrite.sRGB){name="Native backdrop probe "+label,filterMode=FilterMode.Point,wrapMode=TextureWrapMode.Clamp};
-            target.Create();_targets.Add(target);return target;
+            _worldCapture=new NativeUiCapturePanel(transform,"Native world prefix",31,new Vector2(Size,Size),Resources.Load<ThemeStyleSheet>("EchoSphere/SourceUiTheme"));
+            Pattern(_worldCapture.Root);
+            RenderPipelineManager.beginContextRendering+=WorldBeginFrame;
+            Application.onBeforeRender+=WorldBeforeRender;
+        }
+        private void WorldBeginFrame(ScriptableRenderContext context,List<Camera> cameras) {if(WorldStage==2)RenderWorldPrefix();}
+        private void WorldBeforeRender() {if(WorldStage==1)RenderWorldPrefix();}
+        private void RenderWorldPrefix()
+        {
+            if(!_ready||_renderingWorld)return;
+            if(_worldCapture==null||!_worldCapture.Ready||(_worldComposition&&(_worldSuffix==null||!_worldSuffix.Ready)))return;
+            _renderingWorld=true;
+            try{
+                if(!_worldCapture.TryRender(_backgroundTarget))return;WorldRenderCount++;
+                if(_worldComposition){
+                    // Explicit owned textures, after native text is ready. No UIR
+                    // filter prepass can sample the producer's previous frame.
+                    var previous=RenderTexture.active;bool srgb=GL.sRGBWrite;
+                    try{GL.sRGBWrite=false;_worldBlurMaterial.SetVector("_Pixels",new Vector4(PixelSize,PixelSize,0,0));_worldBlurMaterial.SetFloat("_Sigma",8*Dpr);
+                        _worldBlurMaterial.SetVector("_Panel",new Vector4(PanelRect.x*Dpr,PanelRect.y*Dpr,PanelRect.width*Dpr,PanelRect.height*Dpr));
+                        Graphics.Blit(_backgroundTarget,_worldHorizontal,_worldBlurMaterial,1);Graphics.Blit(_worldHorizontal,_worldBlur,_worldBlurMaterial,2);
+                        _worldMaskMaterial.SetTexture("_LayerTex",_worldMask);Graphics.Blit(_worldBlur,_worldMasked,_worldMaskMaterial,3);
+                        // Native UIR draws clipping, background and border over
+                        // the newly produced textures; no filter prepass or copy tree.
+                        _worldSuffix.TryRender(_candidateTarget);
+                    }finally{GL.sRGBWrite=srgb;RenderTexture.active=previous;}
+                }
+            }
+            finally{_renderingWorld=false;}
+        }
+        private RenderTexture Target(string label,int width=Size,int height=Size,bool depth=true)
+        {
+            var target=new RenderTexture(width*Dpr,height*Dpr,depth?_targetDepth:0,RenderTextureFormat.ARGB32,RenderTextureReadWrite.sRGB){name="Native backdrop probe "+label,filterMode=FilterMode.Point,wrapMode=TextureWrapMode.Clamp};
+            if(!target.Create()){Destroy(target);throw new InvalidOperationException("Native backdrop target allocation failed");}_targets.Add(target);return target;
         }
         private VisualElement Panel(string label,int order,RenderTexture target)
         {
+            if(_worldComposition&&label=="Native composite"){
+                _worldSuffix=new NativeUiCapturePanel(transform,"Native world composite",30,new Vector2(Size,Size),Resources.Load<ThemeStyleSheet>("EchoSphere/SourceUiTheme"));return _worldSuffix.Root;
+            }
             var settings=ScriptableObject.CreateInstance<PanelSettings>();settings.name="Native backdrop probe "+label;
-            settings.scaleMode=PanelScaleMode.ConstantPixelSize;settings.scale=1;settings.sortingOrder=order;settings.forceGammaRendering=true;
+            settings.scaleMode=PanelScaleMode.ConstantPixelSize;settings.scale=Dpr;settings.sortingOrder=order;settings.forceGammaRendering=true;
             settings.themeStyleSheet=Resources.Load<ThemeStyleSheet>("EchoSphere/SourceUiTheme");
-            settings.targetTexture=target;settings.clearColor=true;settings.colorClearValue=Color.clear;_settings.Add(settings);
+            settings.targetTexture=target;
+            settings.clearColor=true;settings.colorClearValue=Color.clear;_settings.Add(settings);
             var owner=new GameObject(settings.name);owner.transform.SetParent(transform,false);_objects.Add(owner);
             var doc=owner.AddComponent<UIDocument>();doc.panelSettings=settings;
             var root=doc.rootVisualElement;Box(root,0,0,Size,Size);root.pickingMode=PickingMode.Ignore;
@@ -118,7 +177,9 @@ namespace EchoSphere.Presentation
         }
         private void Label(VisualElement root)
         {
-            var label=new Label("ECHO / native prefix");Box(label,60,80,140,28);label.style.fontSize=12;label.style.color=Color.white;root.Add(label);
+            var label=AuthoredText?NativePauseStatsView.Text(root,"native-prefix-authored-label",12,"#ffffff","700"):new Label("ECHO / native prefix");
+            Box(label,60,80,140,28);label.style.fontSize=12;label.style.color=Color.white;
+            if(label.parent==null)root.Add(label);if(_worldPrefix)_dynamicLabels.Add(label);
         }
         private static VisualElement Glass()
         {
@@ -128,8 +189,14 @@ namespace EchoSphere.Presentation
             element.style.borderLeftColor=element.style.borderRightColor=element.style.borderTopColor=element.style.borderBottomColor=new Color(.3f,.7f,1,.5f);
             return element;
         }
-        private static Image TextureImage(Texture texture)
-        {var image=new Image {image=texture,scaleMode=ScaleMode.StretchToFill,pickingMode=PickingMode.Ignore};Box(image,0,0,Size,Size);return image;}
+        private Image TextureImage(Texture texture)
+        {
+            var image=new Image {scaleMode=ScaleMode.StretchToFill,pickingMode=PickingMode.Ignore};
+            // The native background path samples RenderTextures correctly in world panels.
+            if(_worldComposition&&texture is RenderTexture render){image.style.backgroundImage=Background.FromRenderTexture(render);image.style.backgroundSize=new BackgroundSize(BackgroundSizeType.Cover);}
+            else image.image=texture;
+            Box(image,0,0,Size,Size);return image;
+        }
         private static void Box(VisualElement element,float x,float y,float width,float height)
         {element.style.position=Position.Absolute;element.style.left=x;element.style.top=y;element.style.width=width;element.style.height=height;element.style.flexShrink=0;}
         private static void Radius(VisualElement element,float radius)
@@ -159,6 +226,7 @@ namespace EchoSphere.Presentation
                 _pixels[y*Size+x]=odd?new Color32(22,68,118,255):new Color32(111,32,71,255);
             }
             _pattern.SetPixels32(_pixels);_pattern.Apply(false,false);
+            if(_worldPrefix)foreach(var label in _dynamicLabels)label.text=(AuthoredText?"ПАУЗА / кадр ":"ECHO / frame ")+phase.ToString("D6");
         }
         private void Update()
         {
@@ -168,11 +236,12 @@ namespace EchoSphere.Presentation
         private void LateUpdate()
         {
             if(!_ready)return;
-            if(_earlyPrefix){
+            if(_worldPrefix&&WorldStage==0)RenderWorldPrefix();
+            if(_earlyPrefix&&!_worldPrefix){
                 // Produce the changing texture before UI filtering. The label is
                 // deliberately static; this does not accept animated text/layers.
                 var previous=RenderTexture.active;var srgb=GL.sRGBWrite;
-                try{GL.sRGBWrite=QualitySettings.activeColorSpace==ColorSpace.Linear;Graphics.Blit(_pattern,_backgroundTarget,_prefixMaterial);}
+                try{GL.sRGBWrite=QualitySettings.activeColorSpace==ColorSpace.Linear;Graphics.Blit(_pattern,_backgroundTarget,_prefixMaterial,0);}
                 finally{GL.sRGBWrite=srgb;RenderTexture.active=previous;}
             }
             _reference.Prepare(_referenceRoot,8);
@@ -185,29 +254,32 @@ namespace EchoSphere.Presentation
         {
             var previous=RenderTexture.active;
             try{
-                RenderTexture.active=_referenceTarget;_referenceRead.ReadPixels(new Rect(0,0,Size,Size),0,0,false);_referenceRead.Apply(false,false);
-                RenderTexture.active=_candidateTarget;_candidateRead.ReadPixels(new Rect(0,0,Size,Size),0,0,false);_candidateRead.Apply(false,false);
+                RenderTexture.active=_referenceTarget;_referenceRead.ReadPixels(new Rect(0,0,PixelSize,PixelSize),0,0,false);_referenceRead.Apply(false,false);
+                RenderTexture.active=_candidateTarget;_candidateRead.ReadPixels(new Rect(0,0,PixelSize,PixelSize),0,0,false);_candidateRead.Apply(false,false);
             }finally{RenderTexture.active=previous;}
             var reference=_referenceRead.GetPixels32();var candidate=_candidateRead.GetPixels32();
             long total=0;int maximum=0,different=0;
             // The event-test control is outside both render targets.
-            for(int y=0;y<Size;y++)for(int x=0;x<Size;x++){
-                var i=y*Size+x;var a=reference[i];var b=candidate[i];
+            for(int y=0;y<PixelSize;y++)for(int x=0;x<PixelSize;x++){
+                var i=y*PixelSize+x;var a=reference[i];var b=candidate[i];
                 int r=Math.Abs(a.r-b.r),g=Math.Abs(a.g-b.g),blue=Math.Abs(a.b-b.b),alpha=Math.Abs(a.a-b.a);
                 int error=Math.Max(Math.Max(r,g),Math.Max(blue,alpha));if(error!=0)different++;maximum=Math.Max(maximum,error);total+=r+g+blue+alpha;
             }
-            var mean=total/((double)Size*Size*4);SampleCount++;MaximumMeanError=Math.Max(MaximumMeanError,mean);MaximumChannelError=Math.Max(MaximumChannelError,maximum);DifferentPixels=different;
+            var mean=total/((double)PixelSize*PixelSize*4);SampleCount++;MaximumMeanError=Math.Max(MaximumMeanError,mean);MaximumChannelError=Math.Max(MaximumChannelError,maximum);DifferentPixels=different;
             return "phase="+_phase+", mean="+mean+", max="+maximum+", different="+different+", reference copies="+ReferenceCopies+", candidate copies=0";
         }
         private void OnDestroy()
         {
+            RenderPipelineManager.beginContextRendering-=WorldBeginFrame;
+            Application.onBeforeRender-=WorldBeforeRender;
+            _worldCapture?.Dispose();_worldSuffix?.Dispose();
             _reference?.Dispose();
             foreach(var owner in _objects)if(owner!=null){var document=owner.GetComponent<UIDocument>();if(document!=null)document.enabled=false;Destroy(owner);}
             foreach(var settings in _settings)if(settings!=null){settings.targetTexture=null;Destroy(settings);}
-            foreach(var target in _targets)if(target!=null)Destroy(target);
+            foreach(var target in _targets)if(target!=null){target.Release();Destroy(target);}
             if(_pattern!=null)Destroy(_pattern);if(_referenceRead!=null)Destroy(_referenceRead);if(_candidateRead!=null)Destroy(_candidateRead);
             if(_definition!=null)Destroy(_definition);if(_material!=null)Destroy(_material);
-            if(_prefixMaterial!=null)Destroy(_prefixMaterial);
+            if(_prefixMaterial!=null)Destroy(_prefixMaterial);if(_worldBlurMaterial!=null)Destroy(_worldBlurMaterial);if(_worldMaskMaterial!=null)Destroy(_worldMaskMaterial);
         }
     }
 }

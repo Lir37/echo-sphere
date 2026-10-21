@@ -1,0 +1,23 @@
+[
+  {
+    "configuration": "Android player",
+    "files": 235,
+    "errors": 0,
+    "warnings": 0,
+    "diagnostics": []
+  },
+  {
+    "configuration": "Android editor runtime",
+    "files": 235,
+    "errors": 0,
+    "warnings": 0,
+    "diagnostics": []
+  },
+  {
+    "configuration": "Android editor assembly",
+    "files": 3,
+    "errors": 0,
+    "warnings": 0,
+    "diagnostics": []
+  }
+]

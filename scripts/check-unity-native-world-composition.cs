@@ -1,0 +1,17 @@
+// Isolated native capture/blur/composition prerequisite; no game routing or prefs.
+if(!UnityEditor.EditorApplication.isPlaying)throw new System.Exception("Play required");
+if(UnityEngine.Object.FindFirstObjectByType<EchoSphere.Presentation.NativeBackdropPanelProbe>()!=null)throw new System.Exception("Existing probe must be disposed first");
+var oldBackground=UnityEngine.Application.runInBackground;var oldRecording=UnityEditorInternal.ProfilerDriver.enabled;var oldPause=UnityEditor.EditorApplication.isPaused;
+UnityEngine.Application.runInBackground=true;UnityEditorInternal.ProfilerDriver.enabled=false;UnityEditor.EditorApplication.isPaused=false;
+var rows=new System.Collections.Generic.List<object>();int stage=0,first=0,last=-1;var start=UnityEditor.EditorApplication.timeSinceStartup;
+EchoSphere.Presentation.NativeBackdropPanelProbe probe=null;UnityEditor.EditorApplication.CallbackFunction tick=null;
+void Begin(){var go=new UnityEngine.GameObject("Native world composition acceptance");try{probe=go.AddComponent<EchoSphere.Presentation.NativeBackdropPanelProbe>();probe.Initialize(2101,false,false,24,true,true,stage+1,true);probe.WorldStage=1;probe.PhaseFrames=1;first=UnityEngine.Time.frameCount;UnityEditor.SessionState.SetString("EchoNativeWorldComposition","WARM DPR"+(stage+1));}catch{UnityEngine.Object.DestroyImmediate(go);throw;}}
+void DisposeProbe(){if(probe!=null)UnityEngine.Object.DestroyImmediate(probe.gameObject);probe=null;}
+void Finish(string status){UnityEditor.EditorApplication.update-=tick;DisposeProbe();UnityEngine.Application.runInBackground=oldBackground;UnityEditorInternal.ProfilerDriver.enabled=oldRecording;UnityEditor.EditorApplication.isPaused=oldPause;var json=Newtonsoft.Json.JsonConvert.SerializeObject(new{status,scope="Isolated 256 logical-pixel fixture at DPR1/2/3. Authored Inter bold Cyrillic text and pattern change each frame; native world UIR capture, unchanged sigma8/four-sigma Gaussian, cached native stencil mask and native foreground. No real pause/menu, device, rotation, multiple dependent glass layers or performance acceptance.",rows});UnityEditor.SessionState.SetString("EchoNativeWorldComposition",json);System.IO.File.WriteAllText(UnityEngine.Application.dataPath+"/../Temp/native-world-composition-evidence.json",json);}
+Begin();tick=()=>{try{
+ if(!UnityEditor.EditorApplication.isPlaying||UnityEditor.EditorApplication.timeSinceStartup-start>180)throw new System.Exception("Play ended/deadline");
+ if(last==UnityEngine.Time.frameCount)return;last=UnityEngine.Time.frameCount;if(last<first+12)return;
+ probe.Compare();if(probe.SampleCount<32)return;
+ rows.Add(new{dpr=probe.Dpr,authored=probe.AuthoredText,samples=probe.SampleCount,pass=probe.MaximumMeanError<=.01&&probe.MaximumChannelError<=1&&probe.ClickVerified,probe.MaximumMeanError,probe.MaximumChannelError,probe.DifferentPixels,probe.WorldRenderCount,probe.ReferenceCopies,probe.CandidateReplicaCount,probe.ClickVerified,probe.TargetBytes,probe.DepthStencilTargetBytes,probe.DepthStencilFormat});
+ DisposeProbe();if(++stage==3){bool pass=rows.All(row=>(bool)row.GetType().GetProperty("pass").GetValue(row));Finish(pass?"PASS native authored text composition DPR1/2/3":"FAIL pixel parity; production unchanged");return;}Begin();
+}catch(System.Exception e){Finish("FAIL "+e);}};UnityEditor.EditorApplication.update+=tick;return "Started native world composition three-DPR matrix";
