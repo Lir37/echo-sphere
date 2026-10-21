@@ -70,7 +70,7 @@ namespace EchoSphere.Presentation
         private readonly List<Color> _colors=new List<Color>();
         private readonly List<Vector4> _uv=new List<Vector4>(),_data=new List<Vector4>();
         private readonly List<int> _triangles=new List<int>();
-        private sealed class Batch { public int Start,Count;public Texture Texture;public string Blend;public float Blur,X,Y;public Color Shadow;public string Text;public float TextX,TextY,TextWidth;public State TextState; }
+        private sealed class Batch { public int Start,Count;public Texture Texture;public string Blend;public float Blur,X,Y;public Color Shadow;public string Text;public float TextX,TextY,TextWidth;public State TextState;public Mesh NativeMesh;public Material NativeMaterial;public Matrix4x4 NativeMatrix;public MaterialPropertyBlock NativeProperties; }
         private readonly List<Batch> _batches=new List<Batch>();
         private Texture _image;
         private Mesh _displayMesh;
@@ -171,13 +171,22 @@ namespace EchoSphere.Presentation
             using(var presentSample=CanvasPresentMarker.Auto()){
             var previous=RenderTexture.active;var gamma=GL.sRGBWrite;try{GL.sRGBWrite=QualitySettings.activeColorSpace==ColorSpace.Linear;Graphics.Blit(_target,_uiTarget,_displayMaterial,1);}finally{RenderTexture.active=previous;GL.sRGBWrite=gamma;}}
         }
+        // Migration seam: native world owners submit Unity meshes in the exact
+        // existing layer order, without constructing Canvas paths or paint values.
+        internal void DrawNativeMesh(Mesh mesh,Material material,MaterialPropertyBlock properties)
+        {
+            float unit=SpherePlacementRules.SourcePixelsToWorld;
+            properties.SetFloat("_NativeOpacity",_state.Alpha);
+            var matrix=Matrix4x4.Translate(new Vector3(-SourceOrigin.x*unit,SourceOrigin.y*unit,0))*Matrix4x4.Scale(new Vector3(unit,-unit,1))*_state.Matrix;
+            _batches.Add(new Batch {NativeMesh=mesh,NativeMaterial=material,NativeMatrix=matrix,NativeProperties=properties,Blend="source-over"});
+        }
         private void CompletePaint(int first)
         {
             var count=_triangles.Count-first;if(count==0)return;
             var batch=new Batch {Start=first,Count=count,Texture=_image,Blend=_state.Blend,Blur=_state.ShadowBlur,X=_state.ShadowX,Y=_state.ShadowY,Shadow=_state.Shadow};
             if(batch.Shadow.a<=0f&&_batches.Count>0) {
                 var previous=_batches[_batches.Count-1];
-                if(previous.Text==null&&previous.Shadow.a<=0f&&previous.Texture==batch.Texture&&previous.Blend==batch.Blend){previous.Count+=count;return;}
+                if(previous.NativeMesh==null&&previous.Text==null&&previous.Shadow.a<=0f&&previous.Texture==batch.Texture&&previous.Blend==batch.Blend){previous.Count+=count;return;}
             }
             _batches.Add(batch);
         }
@@ -196,7 +205,9 @@ namespace EchoSphere.Presentation
             _commands.GetTemporaryRT(ping,shadowViewport.Width,shadowViewport.Height,0,FilterMode.Bilinear,RenderTextureFormat.ARGB32,RenderTextureReadWrite.Linear);
             _commands.GetTemporaryRT(blur,shadowViewport.Width,shadowViewport.Height,0,FilterMode.Bilinear,RenderTextureFormat.ARGB32,RenderTextureReadWrite.Linear);}
             for(var i=0;i<_batches.Count;i++) {
-                var batch=_batches[i];if(batch.Count==0)continue;var props=_properties;var image=batch.Texture!=null?batch.Texture:Texture2D.whiteTexture;props.SetTexture(ImageTexId,image);props.SetVector(ImageTexelSizeId,new Vector4(1f/image.width,1f/image.height,image.width,image.height));
+                var batch=_batches[i];
+                if(batch.NativeMesh!=null){_commands.DrawMesh(batch.NativeMesh,batch.NativeMatrix,batch.NativeMaterial,0,0,batch.NativeProperties);continue;}
+                if(batch.Count==0)continue;var props=_properties;var image=batch.Texture!=null?batch.Texture:Texture2D.whiteTexture;props.SetTexture(ImageTexId,image);props.SetVector(ImageTexelSizeId,new Vector4(1f/image.width,1f/image.height,image.width,image.height));
                 if(batch.Shadow.a>0f&&(batch.Blur>0f||batch.X!=0f||batch.Y!=0f)) {
                     using var shadowSample=CanvasShadowCommandsMarker.Auto();
                     _commands.SetRenderTarget(mask);_commands.ClearRenderTarget(false,true,Color.clear);_commands.SetViewProjectionMatrices(Matrix4x4.identity,shadowProjection);

@@ -202,7 +202,7 @@ namespace EchoSphere.Runtime
             _sourceCanvas.transform.position=new Vector3(_camera.transform.position.x,_camera.transform.position.y,0f);
             _sourceCanvas.Begin(new Vector2(width*.5f,height*.5f));
             _sourceCanvas.Canvas.Set("canvas",VisualJs.Obj("nativeViewport",VisualJs.Obj("cssWidth",width,"cssHeight",height,"dpr",1)));
-            Visual_renderer.Scope["render"].Call(_sourceCanvas.Canvas.Value,_sourceRenderState,width,height);_sourceCanvas.End();
+            RenderNativeWorldFrame(width,height);_sourceCanvas.End();
             }
             // The canvas is an authored DOM element, underneath the original
             // HUD and overlays. Its CSS filter is applied by that element.

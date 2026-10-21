@@ -9,7 +9,7 @@ namespace EchoSphere.Presentation
     // this view owns only layout, text and paint.
     internal sealed class NativeMobileControlsView : IDisposable
     {
-        internal sealed class Control {internal string Id,Name,Detail,Tooltip,Icon,Color;internal bool Disabled;internal float Cooldown;}
+        internal sealed class Control {internal string Id,Name,Detail,Icon,Color;internal bool Disabled;internal float Cooldown;}
         internal sealed class State {internal bool Right;internal string Name,Description,Strain;internal readonly List<Control> Controls=new List<Control>();}
         private sealed class Item {internal Button Button;internal Label Name,Detail;internal VisualElement Icon,Bar;internal NativeHudSurface Surface;internal NativeMenuBrush.Paint Normal,Pressed;internal bool Disabled;}
         internal VisualElement Root {get;}

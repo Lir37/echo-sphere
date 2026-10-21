@@ -273,3 +273,43 @@ Short handoff: Continue ECHO SPHERE unity-migration at the containing commit
 Native mobile input/state no longer runs the generated MobileControls component.
 Continue gameplay/world drawing and remaining source layout/data/compositor removal;
 preserve gameplay/quality, no APK. Compile/CI now, measurement/acceptance afterwards.
+
+
+## Native gameplay-world field and ambient layers
+
+Entry f27fa20189a100b48b0c9d5358bf0554aef7cbd3. CI782 exposed one CS0649 warning
+for the now-unused mobile Tooltip field; it is removed in this group. CI otherwise
+reported zero C# errors and green core/source checks. CI must match the new containing
+commit before claiming SUCCESS.
+
+NativeWorldField now owns the active drawVoidField artwork as retained Unity meshes
+and shaders: exact two-circle gradient stops, three nebula disks, four near-field
+plates, eight horizon lines and120 stars. Player focus updates shader uniforms;
+geometry rebuilds only on field dimensions/origin changes. NativeWorldAmbient owns
+the existing capped mote count, positions, wrap, sizes and pulse in a Unity vertex/
+fragment shader. No RNG or gameplay state is introduced. Source's apparent circular
+arena code is one commented line containing literal backslash-n sequences; it is
+inactive and is intentionally not invented as visible geometry.
+
+SourceCanvasSurface.DrawNativeMesh is the temporary ordered submission seam. Native
+Unity meshes/materials are inserted between the original layers with the exact source
+transform, camera shake and inherited opacity. Native entries are protected from legacy
+paint-batch merging and bypass Canvas path tessellation/gradient-stop upload. The
+source backend still owns the final target/composition. A minimal context continuation
+preserves each replaced helper's final current path/fill for remaining source layers;
+it emits no Canvas paint for the native world field or ambient drawing.
+
+Premultiplied blending and native circle antialias fringes are retained. No quality
+settings, effects, density, gameplay formulas or source branch are changed. Both new
+shaders were checked through the actual Editor ShaderUtil messages after import:
+no diagnostics. Editor C# recompile: zero errors/warnings and scriptCompilationFailed
+false. This is compile/import confirmation, not Play/device or measured performance
+acceptance. No APK and no new standalone measurement/test campaign.
+
+Next: region/entity/attack/effect/text rendering, then remove the remaining source
+render coordinator, UI shell, V projection and compositor fallback. Full native/P1/P2
+remain PARTIAL. Short handoff: Continue ECHO SPHERE unity-migration at the containing
+commit (git log -1 --format=%H). Read the three GPT docs and modernization reports.
+Native mobile input/state and world field/ambient are implemented. Continue the actual
+region/entity/effect renderer; preserve behavior/quality, no APK. Compile/CI now;
+performance and dedicated acceptance after implementation.

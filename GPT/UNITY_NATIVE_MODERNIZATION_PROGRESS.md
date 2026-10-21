@@ -34,6 +34,12 @@ state are bypassed. Outer source overlay/layout and shared game-data projection
 remain explicit migration work. Native alpha shadows and
 brush spread support preserve authored glyph and panel shadows.
 
+Native gameplay-world migration has started: the active field gradient, nebulae,
+near-field/horizon lines,120 static stars and animated ambient motes now use retained
+Unity meshes/materials. A typed ordered-mesh seam retains the current compositor and
+camera/shake order. Entity/region/effect/text drawing and the overall renderer are
+still source-projected; this is a partial world migration, not a finished scene.
+
 Current status entry point, 2026-10-20. Historical reports retain earlier evidence;
 this file and UNITY_NATIVE_MENU_COMPOSITION_2026-10-18.md define this checkpoint.
 Entry HEAD: `60fc8dedaab726b215d87c1164c14555e2a54479`, branch `unity-migration`.
