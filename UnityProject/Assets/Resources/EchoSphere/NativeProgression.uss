@@ -11,3 +11,4 @@
 .progression-button:disabled { opacity: 1; background-color: transparent; }
 .back:hover #back-text { color: #dcecff; }
 .purchase { border-radius: 5px; }
+.character-card { transition-property: translate; transition-duration: 160ms; transition-timing-function: ease; }

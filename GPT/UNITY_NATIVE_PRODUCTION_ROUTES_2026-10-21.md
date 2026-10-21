@@ -62,7 +62,7 @@ explicit remaining migration work, not reclassified as fully native architecture
 
 ## Continue implementation
 
-1. Replace character selection and archive with typed native Unity screens.
+1. Replace archive with a typed native Unity screen (character selection completed in the following group).
 2. Move remaining upgrade/artifact/detail/result/tutorial/mobile controls out of TSX.
 3. Replace pause outer shell and retained-prefix fallback with the native compositor.
 4. Replace generated gameplay Canvas execution with native entity views and Unity
@@ -73,7 +73,29 @@ No gameplay/balance/RNG changes, no new mechanics, no protected branch edits, no
 ProjectSettings.asset and _Recovery remain user-owned and outside this change.
 
 Short handoff: continue unity-migration at the containing HEAD. Native Home/map/shop/
-records/achievements/Settings routes are selected; native HUD/four-tab pause now
-default on. Complete characters/archive, overlays and gameplay views, then native
+records/achievements/characters/Settings routes are selected; native HUD/four-tab pause now
+default on. Complete archive, overlays and gameplay views, then native
 shell/compositor. Implementation first; defer profiling/standalone fixtures. Preserve
 gameplay, visuals, new-desing and user changes; no APK.
+
+## Following implementation group — character selection
+
+Entry bccdfd283ccf6ddc38ba420912fd7790cda570e5. NativeCharacterScreen now owns
+character selection, unlock error, signature/partner tags, mastery progress, expandable
+ten-level descriptions, next-level XP and completion display. Typed CharacterRules/
+GameCatalog definitions and existing profile saves supply the model; no generated
+CharacterSelect component is invoked by this route. Native glyph/vector, original
+card paints/shadows, hover movement and global button blur remain implemented.
+
+Selection/unlock follows the actual TSX + persistence binding. The old IMGUI helper
+was deliberately not reused: it additionally rewrites prepared HP/starter spheres,
+while the actual source CharacterSelect does not. Unlock charges the original cost
+once; selection persists the same ID and mastery level. The source previous-threshold
+calculation is retained for the displayed progress bar. State changes rebuild native
+controls only on actions; normal frames retain them, including scroll position.
+
+Editor compilation passes with zero errors/warnings; no new Play/Profiler or pixel
+campaign was run. CI776 had passed API and TypeScript checks but failed an old Settings
+structural test that searched the former bridge file for moved callbacks. The same
+assertions now inspect EchoSphereNativeSettings.cs; the targeted existing test passes.
+The containing commit still requires a new complete CI result. No mechanics/APK changes.

@@ -13,7 +13,7 @@ function element(node){
  return `<${node.tag}${Object.entries(properties).map(([name,value])=>` ${names[name]??name}="${escape(value)}"`).join('')}>${node.children.map(element).join('')}</${node.tag}>`;
 }
 if(!process.argv.includes('--check'))mkdirSync(directory,{recursive:true});
-const selected=['UserRound','Store','Trophy','Award','BookOpen','Settings','BarChart3','Sparkles','Package','Network','X','ArrowLeft','ChevronRight','Infinity','LockKeyhole','Swords','Target'];
+const selected=['UserRound','Store','Trophy','Award','BookOpen','Settings','BarChart3','Sparkles','Package','Network','X','ArrowLeft','ChevronRight','Infinity','LockKeyhole','Swords','Target','Check','Lock'];
 for(const name of selected){
  const expected=element(icons[name])+'\n',file=directory+'/'+name+'.svg';
  if(process.argv.includes('--check'))assert.equal(readFileSync(file,'utf8').replaceAll('\r\n','\n'),expected,'Native icon drift: '+name);
