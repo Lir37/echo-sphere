@@ -38,6 +38,8 @@ namespace EchoSphere.Runtime
             "_nativeRunResult",
             "_nativeUpgradeView", "_nativeUpgradeBoundVersion",
             "_nativeArtifactRewards", "_nativeRewardSetDetail", "_nativePauseSetDetail", "_nativeRewardSetId", "_nativeArtifactRewardVersion",
+            "_nativeGhostNetwork", "_nativeFormationMemory", "_nativeGhostNetworkState", "_nativeFormationMemoryState",
+            "_nativeJoystickFeedback", "_nativePlacementFeedback", "_nativeJoystickState", "_nativePlacementState",
             "_nativeMobileDock", "_nativeMobileDockState", "_nativeMobileDockActions",
             "_nativeTutorial", "_nativeTutorialTarget", "_nativeTutorialTargetAt", "_nativeTutorialTargetKey",
             "_nativeHudBoundVersion", "_nativeHudIsland", "_nativeHudPilot", "_nativeMainMenuEnabled", "_nativeMainMenuScreen",

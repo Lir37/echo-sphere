@@ -202,3 +202,38 @@ pause/HUD, results/upgrade, artifact rewards/detail, tutorial and combat dock ar
 selected; continue mobile feedback/input and world rendering, then remove source-shell
 and projection dependencies. Preserve original behavior/quality, no APK. Compile/CI;
 performance and dedicated acceptance follow implementation per user instruction.
+
+
+## Following implementation group — complete mobile feedback geometry
+
+Entry 5adcaeffd59ea9724b53b6c3adb2b8d7d64add9e, CI780 SUCCESS
+(run39643220694). NativeMobileFeedbackView owns the joystick base/knob and placement
+rings, including the original ordered2px backdrop blur, knob opacity/glow and
+placement ping via a native weighted AnimationCurve. The existing450ms placement
+lifetime and interface-scale/position frame remain authoritative. Source-important
+border specificity is preserved: the thin inner ring and joystick circles use the
+authored cyan border override, while the thick ping retains the selected sphere tint.
+
+NativeMobileNetworkView owns the ghost network links, formation polyline, valid/
+invalid marker and localized caption, plus formation-memory paths and circles.
+Unity Painter2D performs native path tessellation, exact dash patterns, circle arcs,
+fill and stroke. A native TextCore Label retains the original font/anchor/baseline.
+The view consumes explicit computed display coordinates from the existing component,
+not a runtime SVG/path parser. Original preview validity, topology, world projection,
+colors, widths and memory alpha remain unchanged. Replaced generated shapes/texts
+are removed after native warmup.
+
+The remaining source mobile root still owns gesture state, timers and display-data
+projection. Layout/order frames remain source-owned; native geometry does not yet
+mean source-free controls. The world renderer, gesture/controller owner and remaining
+source UI shell/compositor are still unfinished. P1/P2/full native migration PARTIAL.
+Editor compilation passes without errors/warnings. No new tests, profiling, Play or
+Android acceptance campaign; no measured FPS/GC claim. No APK or source-branch edits.
+
+Short handoff: Continue ECHO SPHERE unity-migration at the containing commit
+(git log -1 --format=%H). Read the three GPT documents, modernization progress and
+this report. Native menus, pause/HUD, result/upgrade, artifacts/detail, tutorial,
+mobile button dock and all mobile feedback geometry are selected. Continue with
+native gesture/controller ownership, gameplay/world drawing and removing the remaining
+source-shell/data-projection/compositor dependencies. Keep gameplay and visual quality;
+no APK. Compile/CI only; dedicated measurement/acceptance follows implementation.

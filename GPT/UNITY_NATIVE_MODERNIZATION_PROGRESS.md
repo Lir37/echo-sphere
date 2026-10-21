@@ -14,7 +14,7 @@ region reload handoff, saves and gameplay remain authoritative.
 Actual Editor compilation passes with zero errors/warnings. No new profiling,
 pixel comparison, Play acceptance or device validation was performed for this group
 at the user's direction. CI is a separate check on the containing commit. Full native
-migration remains incomplete: gameplay drawing, mobile gesture/feedback presentation,
+migration remains incomplete: gameplay drawing, mobile gesture ownership,
 and the remaining CSS shell/compositor
 and retained-prefix fallback must still be replaced. Native controls being selected
 does not mean the whole game is native or visual/device parity has been accepted.
@@ -29,8 +29,9 @@ implementation, not combined Play/device acceptance. See the latest report adden
 Artifact rewards, artifact set detail (reward and pause), six-step tutorial and the
 mobile combat button dock now have retained native Unity views. The dock forwards
 the original pointer handlers to preserve joystick direction refs, haptics and
-guards. Gesture recognition, joystick/ghost/memory/placement feedback and the outer
-source overlay/layout remain explicit migration work. Native alpha shadows and
+guards. Native joystick, placement pulse, ghost network and formation-memory geometry are
+also implemented. Gesture recognition and the outer source overlay/layout remain
+explicit migration work. Native alpha shadows and
 brush spread support preserve authored glyph and panel shadows.
 
 Current status entry point, 2026-10-20. Historical reports retain earlier evidence;

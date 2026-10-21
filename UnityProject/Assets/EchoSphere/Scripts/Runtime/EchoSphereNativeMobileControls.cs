@@ -18,14 +18,14 @@ namespace EchoSphere.Runtime
         private V BuildNativeSourceUiTree()
         {
             var tree=SourceUiTree();CaptureNativeMobileDock(tree);
-            return ProjectNativeMobileDock(ProjectNativeTutorial(ProjectNativeArtifactRewards(ProjectNativeUpgrade(ProjectNativeRunResult(ProjectNativePauseScreen(ProjectNativeHudIsland(tree)))))));
+            return ProjectNativeMobileNetwork(ProjectNativeMobileFeedback(ProjectNativeMobileDock(ProjectNativeTutorial(ProjectNativeArtifactRewards(ProjectNativeUpgrade(ProjectNativeRunResult(ProjectNativePauseScreen(ProjectNativeHudIsland(tree)))))))));
         }
         private void CaptureNativeMobileDock(V tree)
         {
             _nativeMobileDockState=null;_nativeMobileDockActions.Clear();
             string Plain(V v){if(v.Raw is VisualDom.Node n)return n.Tag=="svg"?"":string.Concat(n.Children.Select(Plain));if(v.Raw is List<V>)return string.Concat(v.Items.Select(Plain));return v.Null||v.Undefined||v.Raw is bool?"":v.Text;}
             IEnumerable<VisualDom.Node> Nodes(V value){if(value.Raw is VisualDom.Node node){yield return node;foreach(var child in node.Children)foreach(var n in Nodes(child))yield return n;}else if(value.Raw is List<V>)foreach(var child in value.Items)foreach(var n in Nodes(child))yield return n;}
-            var mobile=Nodes(tree).FirstOrDefault(n=>NativeClasses(n.Properties["className"].Text,"es-mobile-controls"));if(mobile==null)return;
+            var mobile=Nodes(tree).FirstOrDefault(n=>NativeClasses(n.Properties["className"].Text,"es-mobile-controls"));CaptureNativeMobileFeedback(mobile);CaptureNativeMobileNetwork(mobile);if(mobile==null)return;
             var dock=Nodes(new V(mobile)).FirstOrDefault(n=>NativeDockClass(n.Properties["className"].Text));if(dock==null)return;
             var state=new NativeMobileControlsView.State {Right=IsLeftHanded};string lang=IsRussianUi?"ru":"en";
             string T(string key)=>Visual_i18n.Scope["translations"][lang][key].Text;

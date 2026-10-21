@@ -7285,6 +7285,8 @@ namespace EchoSphere.Runtime
             DisposeNativeArtifactRewards();DisposeNativePauseSetDetail();
             DisposeNativeTutorial();
             DisposeNativeMobileDock();
+            DisposeNativeMobileFeedback();
+            DisposeNativeMobileNetwork();
             if(_nativeMainMenuScreen!=null)Destroy(_nativeMainMenuScreen.gameObject);
             if(_nativeProgressionScreen!=null)Destroy(_nativeProgressionScreen.gameObject);
             if(_nativeSettingsScreen!=null)Destroy(_nativeSettingsScreen.gameObject);
