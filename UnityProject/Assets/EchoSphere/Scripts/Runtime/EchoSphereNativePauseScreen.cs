@@ -7,7 +7,7 @@ namespace EchoSphere.Runtime
 {
     public sealed partial class EchoSphereRuntime
     {
-        private bool _nativePauseScreenPilot;
+        private bool _nativePauseScreenPilot=true;
         private NativePauseScreenView _nativePauseScreen;
         public bool UsesNativePauseScreen => NativePauseChromeRequested && _nativePauseScreenPilot && _nativePauseScreen != null && _nativePauseScreen.Ready;
         public void SetNativePauseScreenPilot(bool enabled)

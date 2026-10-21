@@ -9,7 +9,7 @@ namespace EchoSphere.Runtime
 {
     public sealed partial class EchoSphereRuntime
     {
-        private bool _nativePauseAbilitiesPilot;
+        private bool _nativePauseAbilitiesPilot=true;
         private NativePauseAbilitiesView _nativePauseAbilitiesIsland;
         private int _nativePauseAbilitiesBoundVersion=-1;
         private bool NativePauseAbilitiesRequested=>_nativePauseAbilitiesPilot&&!_mainMenu&&!_gameOver&&_userPaused&&_pausePlannerTab==1&&_sourceRenderState.Truth&&!_sourceRenderState["pendingUpgrade"].Truth&&!_sourceRenderState["pendingArtifact"].Truth&&!_sourceRenderState["pendingStella"].Truth;

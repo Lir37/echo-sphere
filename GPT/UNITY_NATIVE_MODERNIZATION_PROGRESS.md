@@ -1,5 +1,25 @@
 # ECHO SPHERE — native visual modernization
 
+## Latest implementation direction — 2026-10-21
+
+User explicitly prioritizes completing native Unity migration before further
+measurement or standalone acceptance fixtures. Older performance-gated pilot notes
+below are historical. Current production now selects native HUD and the unified
+four-tab pause content/chrome. Native Home, region selection, shop, leaderboard,
+achievements and Settings route directly to UI Toolkit owners. Settings no longer
+constructs a source document/Canvas first. Achievements use a native ScriptableObject
+catalog imported from the locked original definitions. Existing prices, progression,
+region reload handoff, saves and gameplay remain authoritative.
+
+Actual Editor compilation passes with zero errors/warnings. No new profiling,
+pixel comparison, Play acceptance or device validation was performed for this group
+at the user's direction. CI is a separate check on the containing commit. Full native
+migration remains incomplete: characters/archive, gameplay drawing, overlay/picker/
+result/tutorial/mobile-control presentation and the remaining CSS shell/compositor
+and retained-prefix fallback must still be replaced. Native controls being selected
+does not mean the whole game is native or visual/device parity has been accepted.
+See UNITY_NATIVE_PRODUCTION_ROUTES_2026-10-21.md.
+
 Current status entry point, 2026-10-20. Historical reports retain earlier evidence;
 this file and UNITY_NATIVE_MENU_COMPOSITION_2026-10-18.md define this checkpoint.
 Entry HEAD: `60fc8dedaab726b215d87c1164c14555e2a54479`, branch `unity-migration`.

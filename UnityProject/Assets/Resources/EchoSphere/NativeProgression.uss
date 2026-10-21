@@ -1,0 +1,13 @@
+.progression-button {
+ margin: 0; padding: 0; border-width: 0; border-radius: 0;
+ background-color: transparent; -unity-background-image-tint-color: white;
+ min-width: 0; min-height: 0; flex-shrink: 0;
+ color: #dcefff;
+ transition-property: color, opacity; transition-duration: 160ms; transition-timing-function: ease;
+}
+.progression-button:hover { background-color: transparent; }
+.progression-button:active { background-color: transparent; }
+.progression-button:focus { border-color: transparent; }
+.progression-button:disabled { opacity: 1; background-color: transparent; }
+.back:hover #back-text { color: #dcecff; }
+.purchase { border-radius: 5px; }

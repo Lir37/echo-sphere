@@ -1,0 +1,81 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4fb884a941627deeefcc87727a7b85a7, type: 3}
+  m_Name: NativeProgressionCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::EchoSphere.Presentation.NativeProgressionCatalog
+  SourceCommit: 737ef2af4a877e0995db5f92331d536d2f29a934
+  Achievements:
+  - Id: kills_500
+    NameRu: "\u041F\u0430\u043B\u0430\u0447"
+    NameEn: Executioner
+    DescriptionRu: "\u0423\u0431\u0438\u0442\u044C 500 \u0432\u0440\u0430\u0433\u043E\u0432"
+    DescriptionEn: Kill 500 enemies
+  - Id: kills_1000
+    NameRu: "\u041C\u044F\u0441\u043D\u0438\u043A"
+    NameEn: Butcher
+    DescriptionRu: "\u0423\u0431\u0438\u0442\u044C 1000 \u0432\u0440\u0430\u0433\u043E\u0432"
+    DescriptionEn: Kill 1000 enemies
+  - Id: wave_30
+    NameRu: "\u0412\u044B\u0436\u0438\u0432\u0448\u0438\u0439"
+    NameEn: Survivor
+    DescriptionRu: "\u0414\u043E\u0441\u0442\u0438\u0447\u044C \u0432\u043E\u043B\u043D\u044B
+      30"
+    DescriptionEn: Reach wave 30
+  - Id: wave_50
+    NameRu: "\u041B\u0435\u0433\u0435\u043D\u0434\u0430"
+    NameEn: Legend
+    DescriptionRu: "\u0414\u043E\u0441\u0442\u0438\u0447\u044C \u0432\u043E\u043B\u043D\u044B
+      50"
+    DescriptionEn: Reach wave 50
+  - Id: boss_5
+    NameRu: "\u041E\u0445\u043E\u0442\u043D\u0438\u043A"
+    NameEn: Hunter
+    DescriptionRu: "\u0423\u0431\u0438\u0442\u044C 5 \u0431\u043E\u0441\u0441\u043E\u0432"
+    DescriptionEn: Kill 5 bosses
+  - Id: boss_10
+    NameRu: "\u0413\u0435\u0440\u043E\u0439"
+    NameEn: Hero
+    DescriptionRu: "\u0423\u0431\u0438\u0442\u044C 10 \u0431\u043E\u0441\u0441\u043E\u0432"
+    DescriptionEn: Kill 10 bosses
+  - Id: evolve_1
+    NameRu: "\u042D\u0432\u043E\u043B\u044E\u0446\u0438\u044F"
+    NameEn: Evolution
+    DescriptionRu: "\u042D\u0432\u043E\u043B\u044E\u0446\u0438\u043E\u043D\u0438\u0440\u043E\u0432\u0430\u0442\u044C
+      \u0441\u043F\u043E\u0441\u043E\u0431\u043D\u043E\u0441\u0442\u044C"
+    DescriptionEn: Evolve an ability
+  - Id: evolve_3
+    NameRu: "\u0421\u043E\u0432\u0435\u0440\u0448\u0435\u043D\u0441\u0442\u0432\u043E"
+    NameEn: Perfection
+    DescriptionRu: "3 \u044D\u0432\u043E\u043B\u044E\u0446\u0438\u0438 \u0437\u0430
+      \u0437\u0430\u0431\u0435\u0433"
+    DescriptionEn: 3 evolutions in one run
+  - Id: elite_10
+    NameRu: "\u042D\u043B\u0438\u0442\u043D\u044B\u0439 \u043E\u0445\u043E\u0442\u043D\u0438\u043A"
+    NameEn: Elite Hunter
+    DescriptionRu: "\u0423\u0431\u0438\u0442\u044C 10 \u044D\u043B\u0438\u0442\u043D\u044B\u0445
+      \u0432\u0440\u0430\u0433\u043E\u0432"
+    DescriptionEn: Kill 10 elite enemies
+  - Id: combo_50
+    NameRu: "\u041C\u0430\u0441\u0442\u0435\u0440 \u043A\u043E\u043C\u0431\u043E"
+    NameEn: Combo Master
+    DescriptionRu: "\u041A\u043E\u043C\u0431\u043E x50"
+    DescriptionEn: Reach combo x50
+  - Id: chest_5
+    NameRu: "\u0421\u043E\u043A\u0440\u043E\u0432\u0438\u0449\u043D\u0438\u0446\u0430"
+    NameEn: Treasure Hunter
+    DescriptionRu: "\u041E\u0442\u043A\u0440\u044B\u0442\u044C 5 \u0441\u0443\u043D\u0434\u0443\u043A\u043E\u0432"
+    DescriptionEn: Open 5 chests
+  - Id: dash_50
+    NameRu: "\u041F\u0440\u0438\u0437\u0440\u0430\u043A"
+    NameEn: Phantom
+    DescriptionRu: "50 \u0440\u044B\u0432\u043A\u043E\u0432 \u0437\u0430 \u0437\u0430\u0431\u0435\u0433"
+    DescriptionEn: 50 dashes in one run

@@ -32,32 +32,6 @@ namespace EchoSphere.Runtime
                 environment.Reload=()=>SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
                 VisualUiBindings.Resolve=SourceUiBinding;
             }
-            if(_mainMenu&&_mainMenuPage==MainMenuPage.Settings)
-            {
-                if(_nativeSettingsScreen==null)_nativeSettingsScreen=new GameObject("Native Settings UI Toolkit").AddComponent<SourceSettingsToolkitScreen>();
-                // Enter the source page once so hook cleanup/lifecycle still runs.
-                // The native Settings root is opaque and covers the full viewport.
-                _sourceUi.Continuous=false;_sourceUi.RefreshInterval=0f;
-                if(!_nativeSettingsWasActive){_sourceUi.Dirty=true;_sourceUi.Draw(SourceDevicePixelRatio);_sourceUi.SetPresentationSuspended(true);}
-                else _sourceUi.Draw(SourceDevicePixelRatio);
-                _nativeSettingsWasActive=true;
-                var lang=IsRussianUi?"ru":"en";
-                string T(string key)=>Visual_i18n.Scope["translations"][lang][key].Text;
-                var interfaceScale=(float)Visual_interfaceScale.Scope["loadInterfaceScale"].Call().Number;
-                _nativeSettingsScreen.Show(SourceDevicePixelRatio*interfaceScale,IsRussianUi,SourceAudio2D.IsEnabled,IsLeftHanded,interfaceScale,_settingsResetPending,T,
-                    value=>{PlayerPrefs.SetString(LanguagePreferenceKey,value);PlayerPrefs.Save();},
-                    value=>{PlayerPrefs.SetInt(SoundPreferenceKey,value?1:0);SourceAudio2D.SetEnabled(value);PlayerPrefs.Save();},
-                    value=>{PlayerPrefs.SetString(HandednessPreferenceKey,value?"left":"right");PlayerPrefs.Save();ClearSourcePointers();},
-                    value=>Visual_interfaceScale.Scope["saveInterfaceScale"].Call(VisualJs.NumberText(value)),
-                    ()=>{_mainMenuPage=MainMenuPage.Home;_settingsResetPending=false;},
-                    ()=>{PlayerPrefs.SetInt(TutorialCompletedPreferenceKey,0);PlayerPrefs.Save();_mainMenuPage=MainMenuPage.Home;},
-                    ()=>_settingsResetPending=true,
-                    ()=>_settingsResetPending=false,
-                    ()=>{SourceUiBinding("persistence.ts","resetAll").Call();SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);});
-                return;
-            }
-            if(_nativeSettingsScreen!=null)_nativeSettingsScreen.Hide();
-            if(_nativeSettingsWasActive){_sourceUi.SetPresentationSuspended(false);_sourceUi.Dirty=true;_nativeSettingsWasActive=false;}
             if(_sourceUiWasPaused!=_userPaused){_sourceUiWasPaused=_userPaused;_sourceUi.Dirty=true;}
             _sourceUiStateRef["current"]=_sourceRenderState;UpdateSourceUiState();
             // Active HUD data updates at 10 Hz. Paused simulation data is stable;

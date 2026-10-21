@@ -177,7 +177,11 @@ namespace EchoSphere.Runtime
         {
             if(_playerCore==null||_camera==null)return;
             VisualBindings.Locale=IsRussianUi?"ru":"en";
-            if(TryDrawNativeMainMenu())return;
+            bool nativeHome=TryDrawNativeMainMenu();
+            bool nativeProgression=TryDrawNativeProgression();
+            bool nativeSettings=TryDrawNativeSettings();
+            bool nativeRegions=TryDrawNativeRegions();
+            if(nativeHome||nativeProgression||nativeSettings||nativeRegions)return;
             if(_sourceCanvas==null) {
                 VisualJs.ImageFactory=()=>new V(new SourceCanvasImage());
                 _sourceCanvas=new GameObject("Source Canvas — renderer.ts").AddComponent<SourceCanvasSurface>();_sourceCanvas.Initialize(100);

@@ -22,7 +22,7 @@ namespace EchoSphere.Presentation
             public Vector2 Origin=new Vector2(.5f,.5f);
             public Color[] Colors=Array.Empty<Color>();
             public float[] Stops=Array.Empty<float>();
-            public Shadow? OuterA,OuterB,Inset;
+            public Shadow? OuterA,OuterB,Inset,InsetB;
         }
         private readonly Material _material;
         private readonly Vector4[] _colors=new Vector4[8];
@@ -82,7 +82,9 @@ namespace EchoSphere.Presentation
                 var a=paint.OuterA.HasValue?ShadowMask(paint.OuterA.Value,false,w,h,scale,padding):null;
                 var b=paint.OuterB.HasValue?ShadowMask(paint.OuterB.Value,false,w,h,scale,padding):null;
                 var inner=paint.Inset.HasValue?ShadowMask(paint.Inset.Value,true,w,h,scale,padding):null;
+                var innerB=paint.InsetB.HasValue?ShadowMask(paint.InsetB.Value,true,w,h,scale,padding):null;
                 _material.SetTexture("_OuterA",a!=null?(Texture)a:Texture2D.blackTexture);_material.SetTexture("_OuterB",b!=null?(Texture)b:Texture2D.blackTexture);_material.SetTexture("_Inner",inner!=null?(Texture)inner:Texture2D.blackTexture);
+                _material.SetTexture("_InnerB",innerB!=null?(Texture)innerB:Texture2D.blackTexture);_material.SetVector("_ShadowInnerB",V(paint.InsetB?.Color??Color.clear));
                 _material.SetVector("_ShadowA",V(paint.OuterA?.Color??Color.clear));_material.SetVector("_ShadowB",V(paint.OuterB?.Color??Color.clear));_material.SetVector("_ShadowInner",V(paint.Inset?.Color??Color.clear));
                 Graphics.Blit(Texture2D.blackTexture,_target,_material,2);PaintCount++;
             }finally{RenderTexture.active=previous;GL.sRGBWrite=srgb;foreach(var texture in _temporary)RenderTexture.ReleaseTemporary(texture);_temporary.Clear();}

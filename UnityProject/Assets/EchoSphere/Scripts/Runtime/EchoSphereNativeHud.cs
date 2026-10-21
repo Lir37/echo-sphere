@@ -8,12 +8,12 @@ namespace EchoSphere.Runtime
 {
     public sealed partial class EchoSphereRuntime
     {
-        private bool _nativeHudPilot;
+        private bool _nativeHudPilot=true;
         private NativeHudView _nativeHudIsland;
         private int _nativeHudBoundVersion=-1;
         private bool NativeHudRequested=>_nativeHudPilot&&!_mainMenu&&!_gameOver&&_sourceRenderState.Truth;
         public bool UsesNativeHud=>NativeHudRequested&&_nativeHudIsland!=null&&_nativeHudIsland.Ready;
-        // Diagnostic opt-in only; no persisted preference or production switch.
+        // Native production default; retained override for existing diagnostics.
         public void SetNativeHudPilot(bool enabled)
         {
             if(_nativeHudPilot==enabled)return;

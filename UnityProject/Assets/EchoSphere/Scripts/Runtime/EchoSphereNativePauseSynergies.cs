@@ -8,7 +8,7 @@ namespace EchoSphere.Runtime
 {
     public sealed partial class EchoSphereRuntime
     {
-        private bool _nativePauseSynergiesPilot;
+        private bool _nativePauseSynergiesPilot=true;
         private NativePauseSynergiesView _nativePauseSynergiesIsland;
         private int _nativePauseSynergiesBoundVersion=-1;
         private bool NativePauseSynergiesRequested=>_nativePauseSynergiesPilot&&!_mainMenu&&!_gameOver&&_userPaused&&_pausePlannerTab==3&&_sourceRenderState.Truth&&!_sourceRenderState["pendingUpgrade"].Truth&&!_sourceRenderState["pendingArtifact"].Truth&&!_sourceRenderState["pendingStella"].Truth;

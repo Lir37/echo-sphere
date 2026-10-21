@@ -21,10 +21,10 @@ namespace EchoSphere.Presentation
         public int PaintCount {get;private set;}
         public RenderTexture Texture=>_target;
 
-        public NativeMainMenuBackground(VisualElement parent)
+        public NativeMainMenuBackground(VisualElement parent,string resource="EchoSphere/NativeMainMenuBackground")
         {
             if(parent==null)throw new ArgumentNullException(nameof(parent));
-            var shader=Resources.Load<Shader>("EchoSphere/NativeMainMenuBackground");
+            var shader=Resources.Load<Shader>(resource);
             if(shader==null)throw new InvalidOperationException("Native menu background shader missing");
             _material=new Material(shader){name="Native menu background",hideFlags=HideFlags.DontSave};
             _image=new Image {name="native-menu-background-image",pickingMode=PickingMode.Ignore,scaleMode=ScaleMode.StretchToFill};

@@ -7,9 +7,10 @@ Shader "EchoSphere/NativeMenuBrush"
         Cull Off ZWrite Off ZTest Always Blend Off
         HLSLINCLUDE
         #include "UnityCG.cginc"
-        sampler2D _MainTex,_OuterA,_OuterB,_Inner;
+        sampler2D _MainTex,_OuterA,_OuterB,_Inner,_InnerB;
         float4 _MainTex_TexelSize,_Size,_Pixels,_MaskSize,_Offset,_Direction,_Radius,_Fill,_BorderColor,_BorderInsets,_Origin,_ShadowA,_ShadowB,_ShadowInner,_GradientDirection;
         float4 _Colors[8];float _Stops[8];int _KernelRadius,_StopCount;
+        float4 _ShadowInnerB;
         float _Outside,_Border,_Linear,_Sigma;
         float2 Pixel(float2 uv,float2 size){return floor(float2(uv.x,1-uv.y)*size)+.5;}
         float Shape(float2 p,float2 size,float2 radius)
@@ -55,6 +56,7 @@ Shader "EchoSphere/NativeMenuBrush"
                 [loop]for(int i=1;i<_StopCount;i++){float span=_Stops[i]-_Stops[i-1];if(t>=_Stops[i])gradient=Premul(_Colors[i]);else{if(t>_Stops[i-1])gradient=lerp(Premul(_Colors[i-1]),Premul(_Colors[i]),span>0?(t-_Stops[i-1])/span:1);break;}}
                 color=Over(color,gradient);
             }
+            float4 shadowB=Premul(_ShadowInnerB);shadowB*=tex2D(_InnerB,input.uv).r*inner/max(.00001,shape);color=Over(color,shadowB);
             float4 shadow=Premul(_ShadowInner);shadow*=tex2D(_Inner,input.uv).r*inner/max(.00001,shape);color=Over(color,shadow);
             float4 border=Premul(_BorderColor);border*=max(0,shape-inner)/max(.00001,shape);color=Over(color,border)*shape;
             float4 a=Premul(_ShadowA)*tex2D(_OuterA,input.uv).r*(1-shape);

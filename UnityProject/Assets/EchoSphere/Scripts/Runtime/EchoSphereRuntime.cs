@@ -7281,6 +7281,9 @@ namespace EchoSphere.Runtime
             DisposeNativePauseScreen();
             DisposeNativeHudIsland();
             if(_nativeMainMenuScreen!=null)Destroy(_nativeMainMenuScreen.gameObject);
+            if(_nativeProgressionScreen!=null)Destroy(_nativeProgressionScreen.gameObject);
+            if(_nativeSettingsScreen!=null)Destroy(_nativeSettingsScreen.gameObject);
+            if(_nativeRegionScreen!=null)Destroy(_nativeRegionScreen.gameObject);
             if(_sourceUi!=null)Destroy(_sourceUi.gameObject);
             if(_sourceCanvas!=null)Destroy(_sourceCanvas.gameObject); if (_networkLineMaterial != null) Destroy(_networkLineMaterial);
             if (_uiPanelTexture != null) Destroy(_uiPanelTexture);

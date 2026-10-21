@@ -7,7 +7,7 @@ namespace EchoSphere.Runtime
 {
     public sealed partial class EchoSphereRuntime
     {
-        private bool _nativePauseChromePilot;
+        private bool _nativePauseChromePilot=true;
         private NativePauseChromeView _nativePauseChromeIsland;
         private NativePauseChromeComposition _nativePauseChromeComposition;
         private V _nativePauseChromeResume, _nativePauseChromeExit, _nativePauseChromeSelect;
