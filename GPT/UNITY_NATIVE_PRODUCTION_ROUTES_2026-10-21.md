@@ -313,3 +313,10 @@ commit (git log -1 --format=%H). Read the three GPT docs and modernization repor
 Native mobile input/state and world field/ambient are implemented. Continue the actual
 region/entity/effect renderer; preserve behavior/quality, no APK. Compile/CI now;
 performance and dedicated acceptance after implementation.
+
+
+CI wiring follow-up: CI783 passed Unity C# typecheck but its legacy provenance
+assertion still searched for the source-render call in EchoSphereSourcePresentation.
+That call now lives inside EchoSphereNativeWorld. The same active-frame guard now
+checks the delegation, both native layers, remaining source render and source UI.
+Source reference hashes and the remaining validation requirements are unchanged.
