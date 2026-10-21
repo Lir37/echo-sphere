@@ -76,4 +76,4 @@ Different Editor session/load: do not compare these with prior-session provision
 captures as a controlled change. Pixel parity remains open, so this is measured
 candidate performance, not accepted equal-quality or Android improvement.
 
-Final actual Return/reload7 checks PASS; Stop restored six preferences. Console ground truth0 errors/1 warning. Latest actual-panel blur fixture: FAIL contrast .854902 with sigma8 configured; native pilot MUST remain false. CI pending on the implementation commit.
+Final actual Return/reload7 checks PASS; Stop restored six preferences. Console ground truth0 errors/1 warning. Latest actual-panel blur fixture: FAIL contrast .854902 with sigma8 configured; native pilot MUST remain false. Implementation commit46e844e996702cf8b3da528abd8e43fc48f48d6b: GitHub Actions#771 SUCCESS, run39545733207. CI does not close the blur/pixel/device gates.

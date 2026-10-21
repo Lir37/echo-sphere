@@ -332,3 +332,5 @@ no pixel parity claimed. Pilot remains false; Android/mobile, scrollbar, full
 composition/effects and world views remain. No gameplay/protected branch/APK changes.
 See UNITY_NATIVE_PAUSE_CHROME_2026-10-20.md and associated evidence for current gates.
 Latest actual-panel contrast control now passes; sigma8 candidate still fails smoothing (.854902 contrast). Blur gate OPEN/FAIL, production off. Final Editor lifecycle47 and Return/reload7 PASS; six preferences restored; Console0errors/1warning. Candidate paused CPU5.04->6.29FPS, GC24.57->17.72MB/frame; no equal-quality acceptance.232 C# and272 Node checks pass. Next: fix/validate blur before pause activation, then native shell/world migration.
+
+Implementation46e844e996702cf8b3da528abd8e43fc48f48d6b: CI#771 SUCCESS (39545733207); blur gate remains failed/open, pilot false. Next starts by diagnosing native effect host/crop preparation, then pause shell/world migration. No gameplay/APK changes.
