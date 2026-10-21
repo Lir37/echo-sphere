@@ -14,11 +14,17 @@ region reload handoff, saves and gameplay remain authoritative.
 Actual Editor compilation passes with zero errors/warnings. No new profiling,
 pixel comparison, Play acceptance or device validation was performed for this group
 at the user's direction. CI is a separate check on the containing commit. Full native
-migration remains incomplete: gameplay drawing, overlay/picker/
-result/tutorial/mobile-control presentation and the remaining CSS shell/compositor
+migration remains incomplete: gameplay drawing, artifact picker/detail,
+tutorial/mobile-control presentation and the remaining CSS shell/compositor
 and retained-prefix fallback must still be replaced. Native controls being selected
 does not mean the whole game is native or visual/device parity has been accepted.
 See UNITY_NATIVE_PRODUCTION_ROUTES_2026-10-21.md.
+
+Native result content and upgrade/evolution picker controls are also selected now.
+They retain the original game overlay frame and registered backdrop order. Lock,
+Reroll, evolution, Oracle and mutation-hint display use existing state/actions;
+the native result uses Unity AnimationCurve for the original record pulse. This is
+implementation, not combined Play/device acceptance. See the latest report addendum.
 
 Current status entry point, 2026-10-20. Historical reports retain earlier evidence;
 this file and UNITY_NATIVE_MENU_COMPOSITION_2026-10-18.md define this checkpoint.

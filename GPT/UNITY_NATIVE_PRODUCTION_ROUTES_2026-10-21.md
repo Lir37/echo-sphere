@@ -121,3 +121,35 @@ fallback; its removal remains separate native compositor work.
 Editor compilation passes with zero errors/warnings; import completed with 305 entries.
 No Play/Profiler/pixel campaign was run. CI must match the containing archive commit.
 No new gameplay rules, unlock conditions, source branch edits or APK.
+
+## Following implementation group — results and upgrade picker
+
+Entry c92e2b082547bd76e4f859c2b966e1802f93805a, CI778 SUCCESS.
+NativeRunResultView now owns final statistics, record text/pulse and Return input.
+Original result values and its default Basin challenge/Endless accessors are retained.
+Return preserves the existing clear-snapshot/open-region-select/reload handoff.
+The record pulse uses native weighted AnimationCurve tangents for the original
+cubic-bezier(.4,0,.6,1), including the original two-second timing.
+
+NativeUpgradeView now owns upgrade/evolution cards, element badges, Oracle forecast,
+Lock/Reroll controls, future-synergy hints and their orbit artwork. Existing runtime
+ChooseUpgrade/ChooseEvolution/LockLevelUpChoice/RerollLevelUpChoices handlers remain
+authoritative. Their source-write synchronization is retained. Presentation helpers
+still supply original names, descriptions and compatibility hints; this group does
+not rewrite gameplay progression or the remaining data projection.
+
+Card state is retained while its signature is unchanged. Input is consumed once per
+bound choice update; a no-op action can rebind on the next source frame rather than
+leave controls permanently disabled. Original responsive 1/3-column choice layout and
+disabled/locked visibility semantics are implemented. Existing tutorial wrapper target
+remains available. Native buttons register with the existing ordered backdrop owner.
+
+These controls are attached to the existing game overlay frame. The source black
+overlay, world prefix, CSS shell and their compositor dependencies are explicitly
+still present. Original generated content is removed after native geometry is ready;
+fallback content supplies initial layout warmup. This is not a completed source-free
+game UI or complete gameplay renderer migration. Artifact/detail/tutorial/mobile and
+world presentation remain next.
+
+Editor compilation: zero errors/warnings. No new benchmark or dedicated Play/pixel
+campaign; no visual/device acceptance claim. CI must match the containing commit.

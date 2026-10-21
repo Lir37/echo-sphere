@@ -35,6 +35,8 @@ namespace EchoSphere.Runtime
             "_nativeRegionScreen", "_nativeRegionState", "_nativeRegionWasActive",
             "_nativeCharacterScreen", "_nativeCharacterState", "_nativeCharacterWasActive", "_nativeCharacterMessage",
             "_nativeArchiveCatalog", "_nativeArchiveScreen", "_nativeArchiveState", "_nativeArchiveWasActive",
+            "_nativeRunResult",
+            "_nativeUpgradeView", "_nativeUpgradeBoundVersion",
             "_nativeHudBoundVersion", "_nativeHudIsland", "_nativeHudPilot", "_nativeMainMenuEnabled", "_nativeMainMenuScreen",
             "_nativeMainMenuWasActive", "_nativeMenuCharacterColor", "_nativeMenuModelVersion", "_nativeMenuShownVersion",
             "_nativeMenuState", "_nativePauseAbilitiesBoundVersion", "_nativePauseAbilitiesIsland", "_nativePauseAbilitiesPilot",

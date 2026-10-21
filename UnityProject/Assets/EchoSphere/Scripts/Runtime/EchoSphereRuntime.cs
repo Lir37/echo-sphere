@@ -7280,6 +7280,8 @@ namespace EchoSphere.Runtime
             DisposeNativePauseChromeIsland();
             DisposeNativePauseScreen();
             DisposeNativeHudIsland();
+            DisposeNativeRunResult();
+            DisposeNativeUpgrade();
             if(_nativeMainMenuScreen!=null)Destroy(_nativeMainMenuScreen.gameObject);
             if(_nativeProgressionScreen!=null)Destroy(_nativeProgressionScreen.gameObject);
             if(_nativeSettingsScreen!=null)Destroy(_nativeSettingsScreen.gameObject);

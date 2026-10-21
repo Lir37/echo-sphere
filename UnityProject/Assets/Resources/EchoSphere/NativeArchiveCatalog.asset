@@ -15,8 +15,8 @@ MonoBehaviour:
   SourceCommit: 737ef2af4a877e0995db5f92331d536d2f29a934
   Entries:
   - section: basics
-    id: 
-    group: 
+    id:
+    group:
     nameRu: "\u0427\u0442\u043E \u0442\u0430\u043A\u043E\u0435 Echo Sphere?"
     nameEn: What is Echo Sphere?
     descRu: "\u0422\u044B \u0441\u0442\u0440\u043E\u0438\u0448\u044C \u0431\u043E\u0435\u0432\u0443\u044E
@@ -52,8 +52,8 @@ MonoBehaviour:
       Resonance: The Network charge.
       Reach 100 to trigger a formation event.'
   - section: basics
-    id: 
-    group: 
+    id:
+    group:
     nameRu: "\u26A1 \u0420\u0435\u0437\u043E\u043D\u0430\u043D\u0441: \u0437\u0430\u0447\u0435\u043C
       \u0435\u0433\u043E \u043A\u043E\u043F\u0438\u0442\u044C"
     nameEn: "\u26A1 Resonance: why charge it"
@@ -106,8 +106,8 @@ MonoBehaviour:
       Triangle can fire along real links, Cluster can knock enemies back, and Line
       can empower the next shot.'
   - section: basics
-    id: 
-    group: 
+    id:
+    group:
     nameRu: "\u041A\u0430\u043A \u0447\u0438\u0442\u0430\u0442\u044C \u0441\u0435\u0442\u044C"
     nameEn: How to read the Network
     descRu: "\u0411\u043B\u0438\u0437\u043E\u0441\u0442\u044C \u0441\u0444\u0435\u0440
@@ -124,11 +124,11 @@ MonoBehaviour:
     descEn: Nearby Spheres create links. Ghost Snap previews future links before
       you commit a move. If a Link Breaker disables a node, Geometry and network
       effects can change.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: spheres
     id: sphere:standard
-    group: 
+    group:
     nameRu: "\u0421\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u043D\u0430\u044F"
     nameEn: Standard
     descRu: "\u0420\u043E\u043B\u044C: \u0443\u043D\u0438\u0432\u0435\u0440\u0441\u0430\u043B\u044C\u043D\u044B\u0439
@@ -141,7 +141,7 @@ MonoBehaviour:
     detailsEn: This entry unlocks when the Sphere first appears in your run.
   - section: spheres
     id: sphere:sniper
-    group: 
+    group:
     nameRu: "\u0421\u043D\u0430\u0439\u043F\u0435\u0440"
     nameEn: Sniper
     descRu: "\u0420\u043E\u043B\u044C: \u0434\u0430\u043B\u044C\u043D\u044F\u044F
@@ -154,7 +154,7 @@ MonoBehaviour:
     detailsEn: This entry unlocks when the Sphere first appears in your run.
   - section: spheres
     id: sphere:shotgun
-    group: 
+    group:
     nameRu: "\u0414\u0440\u043E\u0431\u043E\u0432\u0438\u043A"
     nameEn: Shotgun
     descRu: "\u0420\u043E\u043B\u044C: \u0431\u043B\u0438\u0436\u043D\u0438\u0439
@@ -167,7 +167,7 @@ MonoBehaviour:
     detailsEn: This entry unlocks when the Sphere first appears in your run.
   - section: spheres
     id: sphere:chain
-    group: 
+    group:
     nameRu: "\u0426\u0435\u043F\u043D\u0430\u044F"
     nameEn: Chain
     descRu: "\u0420\u043E\u043B\u044C: \u043F\u0435\u0440\u0435\u043D\u043E\u0441
@@ -180,7 +180,7 @@ MonoBehaviour:
     detailsEn: This entry unlocks when the Sphere first appears in your run.
   - section: spheres
     id: sphere:aura
-    group: 
+    group:
     nameRu: "\u0410\u0443\u0440\u0430"
     nameEn: Aura
     descRu: "\u0420\u043E\u043B\u044C: \u043B\u043E\u043A\u0430\u043B\u044C\u043D\u043E\u0435
@@ -193,7 +193,7 @@ MonoBehaviour:
     detailsEn: This entry unlocks when the Sphere first appears in your run.
   - section: spheres
     id: sphere:orbital
-    group: 
+    group:
     nameRu: "\u041E\u0440\u0431\u0438\u0442\u0430\u043B\u044C\u043D\u0430\u044F"
     nameEn: Orbital
     descRu: "\u0420\u043E\u043B\u044C: \u0441\u043F\u0435\u0446\u0438\u0430\u043B\u0438\u0437\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u044B\u0439
@@ -206,7 +206,7 @@ MonoBehaviour:
     detailsEn: This entry unlocks when the Sphere first appears in your run.
   - section: spheres
     id: sphere:prism
-    group: 
+    group:
     nameRu: "\u041F\u0440\u0438\u0437\u043C\u0430"
     nameEn: Prism
     descRu: "\u0420\u043E\u043B\u044C: \u0441\u043F\u0435\u0446\u0438\u0430\u043B\u0438\u0437\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u044B\u0439
@@ -219,7 +219,7 @@ MonoBehaviour:
     detailsEn: This entry unlocks when the Sphere first appears in your run.
   - section: spheres
     id: sphere:gravity
-    group: 
+    group:
     nameRu: "\u0413\u0440\u0430\u0432\u0438\u0442\u0430\u0446\u0438\u043E\u043D\u043D\u0430\u044F"
     nameEn: Gravity
     descRu: "\u0420\u043E\u043B\u044C: \u0441\u043F\u0435\u0446\u0438\u0430\u043B\u0438\u0437\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u044B\u0439
@@ -232,7 +232,7 @@ MonoBehaviour:
     detailsEn: This entry unlocks when the Sphere first appears in your run.
   - section: spheres
     id: sphere:pulse
-    group: 
+    group:
     nameRu: "\u0418\u043C\u043F\u0443\u043B\u044C\u0441\u043D\u0430\u044F"
     nameEn: Pulse
     descRu: "\u0420\u043E\u043B\u044C: \u0441\u043F\u0435\u0446\u0438\u0430\u043B\u0438\u0437\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u044B\u0439
@@ -245,7 +245,7 @@ MonoBehaviour:
     detailsEn: This entry unlocks when the Sphere first appears in your run.
   - section: spheres
     id: sphere:void
-    group: 
+    group:
     nameRu: "\u041F\u0443\u0441\u0442\u043E\u0442\u043D\u0430\u044F"
     nameEn: Void
     descRu: "\u0420\u043E\u043B\u044C: \u0441\u043F\u0435\u0446\u0438\u0430\u043B\u0438\u0437\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u044B\u0439
@@ -258,7 +258,7 @@ MonoBehaviour:
     detailsEn: This entry unlocks when the Sphere first appears in your run.
   - section: monsters
     id: monster:normal
-    group: 
+    group:
     nameRu: "\u041E\u0431\u044B\u0447\u043D\u044B\u0439"
     nameEn: Normal
     descRu: "\u0411\u0430\u0437\u043E\u0432\u044B\u0439 \u043F\u0440\u043E\u0442\u0438\u0432\u043D\u0438\u043A.
@@ -271,7 +271,7 @@ MonoBehaviour:
     detailsEn: Moves toward the player and deals contact damage.
   - section: monsters
     id: monster:fast
-    group: 
+    group:
     nameRu: "\u0421\u0442\u0440\u0435\u043C\u0438\u0442\u0435\u043B\u044C\u043D\u044B\u0439"
     nameEn: Fast
     descRu: "\u0411\u044B\u0441\u0442\u0440\u044B\u0439 \u043F\u0440\u043E\u0442\u0438\u0432\u043D\u0438\u043A,
@@ -287,7 +287,7 @@ MonoBehaviour:
       from the Network.
   - section: monsters
     id: monster:tank
-    group: 
+    group:
     nameRu: "\u0422\u0430\u043D\u043A"
     nameEn: Tank
     descRu: "\u041C\u0435\u0434\u043B\u0435\u043D\u043D\u044B\u0439 \u0442\u044F\u0436\u0451\u043B\u044B\u0439
@@ -300,7 +300,7 @@ MonoBehaviour:
     detailsEn: Moves slowly but takes substantially more damage to bring down.
   - section: monsters
     id: monster:elite
-    group: 
+    group:
     nameRu: "\u0420\u0430\u0437\u0440\u044B\u0432\u0430\u0442\u0435\u043B\u044C \u0441\u0432\u044F\u0437\u0435\u0439"
     nameEn: Link Breaker
     descRu: "\u042D\u043B\u0438\u0442\u043D\u044B\u0439 \u0432\u0440\u0430\u0433,
@@ -316,7 +316,7 @@ MonoBehaviour:
     detailsEn: Telegraphs a target, then temporarily removes a Sphere from the Network.
   - section: bosses
     id: boss:shooter
-    group: 
+    group:
     nameRu: "\u0421\u0442\u0440\u0435\u043B\u043E\u043A"
     nameEn: Shooter
     descRu: "\u0421\u0442\u0440\u0435\u043B\u043E\u043A: \u0434\u0435\u0440\u0436\u0438\u0442
@@ -324,22 +324,22 @@ MonoBehaviour:
       \u0432\u044B\u043F\u0443\u0441\u043A\u0430\u0435\u0442 \u0432\u0435\u0435\u0440
       \u0441\u043D\u0430\u0440\u044F\u0434\u043E\u0432."
     descEn: 'Shooter: keeps distance and periodically fires a spread of projectiles.'
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: bosses
     id: boss:charger
-    group: 
+    group:
     nameRu: "\u0417\u0430\u0440\u044F\u0434\u043D\u0438\u043A"
     nameEn: Charger
     descRu: "\u0417\u0430\u0440\u044F\u0434\u043D\u0438\u043A: \u0442\u0435\u043B\u0435\u0433\u0440\u0430\u0444\u0438\u0440\u0443\u0435\u0442
       \u0440\u044B\u0432\u043E\u043A, \u0437\u0430\u0442\u0435\u043C \u0441\u043E\u0432\u0435\u0440\u0448\u0430\u0435\u0442
       \u043E\u043F\u0430\u0441\u043D\u044B\u0439 \u043F\u0440\u043E\u0440\u044B\u0432."
     descEn: 'Charger: telegraphs a charge, then commits to a dangerous dash.'
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: bosses
     id: boss:summoner
-    group: 
+    group:
     nameRu: "\u041F\u0440\u0438\u0437\u044B\u0432\u0430\u0442\u0435\u043B\u044C"
     nameEn: Summoner
     descRu: "\u041F\u0440\u0438\u0437\u044B\u0432\u0430\u0442\u0435\u043B\u044C:
@@ -347,11 +347,11 @@ MonoBehaviour:
       \u0438 \u043E\u0434\u043D\u043E\u0432\u0440\u0435\u043C\u0435\u043D\u043D\u043E
       \u0430\u0442\u0430\u043A\u0443\u0435\u0442 \u0441\u043D\u0430\u0440\u044F\u0434\u0430\u043C\u0438."
     descEn: 'Summoner: creates minions while also attacking with projectiles.'
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: bosses
     id: boss:aura
-    group: 
+    group:
     nameRu: "\u0410\u0443\u0440\u0430"
     nameEn: Aura
     descRu: "\u0410\u0443\u0440\u0430: \u0441\u043E\u0437\u0434\u0430\u0451\u0442
@@ -359,22 +359,22 @@ MonoBehaviour:
       \u0441\u0435\u0431\u044F \u0438 \u0434\u043E\u043F\u043E\u043B\u043D\u0438\u0442\u0435\u043B\u044C\u043D\u043E
       \u0441\u0442\u0440\u0435\u043B\u044F\u0435\u0442."
     descEn: 'Aura: creates a dangerous zone around itself and also fires projectiles.'
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: bosses
     id: boss:conductor
-    group: 
+    group:
     nameRu: "\u041A\u043E\u043D\u0434\u0443\u043A\u0442\u043E\u0440"
     nameEn: Conductor
     descRu: "\u041A\u043E\u043D\u0434\u0443\u043A\u0442\u043E\u0440: \u043F\u0435\u0440\u0435\u0433\u0440\u0443\u0436\u0430\u0435\u0442
       \u0441\u0435\u0442\u044C \u0438 \u0441\u043E\u0437\u0434\u0430\u0451\u0442
       \u043D\u0430\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u043D\u044B\u0439 \u0437\u0430\u043B\u043F."
     descEn: 'Conductor: overloads the Network and creates a directed barrage.'
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: bosses
     id: boss:architect
-    group: 
+    group:
     nameRu: "\u0410\u0440\u0445\u0438\u0442\u0435\u043A\u0442\u043E\u0440"
     nameEn: Architect
     descRu: "\u0410\u0440\u0445\u0438\u0442\u0435\u043A\u0442\u043E\u0440: \u043C\u0435\u043D\u044F\u0435\u0442
@@ -382,22 +382,22 @@ MonoBehaviour:
       \u043D\u0430\u0440\u0443\u0448\u0430\u0435\u0442 \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u0443
       \u0441\u0435\u0442\u0438."
     descEn: 'Architect: relocates and temporarily disrupts the Network structure.'
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: bosses
     id: boss:null
-    group: 
+    group:
     nameRu: "\u041D\u0443\u043B\u044C"
     nameEn: Null
     descRu: "\u041D\u0443\u043B\u044C: \u043F\u043E\u0434\u0430\u0432\u043B\u044F\u0435\u0442
       \u0420\u0435\u0437\u043E\u043D\u0430\u043D\u0441 \u0438 \u0441\u043E\u0437\u0434\u0430\u0451\u0442
       \u043F\u043E\u043B\u0435 \u043E\u0431\u043D\u0443\u043B\u0435\u043D\u0438\u044F."
     descEn: 'Null: suppresses Resonance and creates a nullification field.'
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: bosses
     id: boss:stella_warden
-    group: 
+    group:
     nameRu: "\u0421\u0442\u0440\u0430\u0436 \u0421\u0442\u0435\u043B\u043B\u044B"
     nameEn: Stella Warden
     descRu: "\u0421\u0442\u0440\u0430\u0436 \u0421\u0442\u0435\u043B\u043B\u044B:
@@ -405,47 +405,47 @@ MonoBehaviour:
       \u0438 \u0443\u0441\u0438\u043B\u0438\u0432\u0430\u0435\u0442 \u0431\u043B\u0438\u0436\u043D\u044E\u044E
       \u0443\u0433\u0440\u043E\u0437\u0443."
     descEn: 'Stella Warden: summons reinforcements and amplifies close-range pressure.'
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: abilities
     id: ability:radius
-    group: 
+    group:
     nameRu: "\u0420\u0430\u0434\u0438\u0443\u0441 \u0441\u0444\u0435\u0440"
     nameEn: Sphere Radius
     descRu: "+15% \u0440\u0430\u0434\u0438\u0443\u0441\u0430"
     descEn: +15% radius
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: abilities
     id: ability:damage
-    group: 
+    group:
     nameRu: "\u0423\u0440\u043E\u043D \u0441\u0444\u0435\u0440"
     nameEn: Sphere Damage
     descRu: "+15% \u0443\u0440\u043E\u043D\u0430"
     descEn: +15% damage
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: abilities
     id: ability:attackspeed
-    group: 
+    group:
     nameRu: "\u0421\u043A\u043E\u0440\u043E\u0441\u0442\u044C \u0430\u0442\u0430\u043A\u0438"
     nameEn: Attack Speed
     descRu: "-7% \u0437\u0430\u0434\u0435\u0440\u0436\u043A\u0438"
     descEn: -7% delay
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: abilities
     id: ability:maxspheres
-    group: 
+    group:
     nameRu: "+1 \u0421\u0444\u0435\u0440\u0430"
     nameEn: +1 Sphere
     descRu: "+1 \u043C\u0430\u043A\u0441. \u0441\u0444\u0435\u0440"
     descEn: +1 max spheres
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: abilities
     id: ability:blast
-    group: 
+    group:
     nameRu: "\u042D\u0445\u043E-\u0438\u043C\u043F\u0443\u043B\u044C\u0441"
     nameEn: Echo Pulse
     descRu: "\u0418\u043C\u043F\u0443\u043B\u044C\u0441 \u043F\u0440\u043E\u0445\u043E\u0434\u0438\u0442
@@ -462,7 +462,7 @@ MonoBehaviour:
     detailsEn: 'Max level: 7. Separate evolution choices appear at IV and VII.'
   - section: abilities
     id: ability:shield
-    group: 
+    group:
     nameRu: "\u0421\u0444\u0435\u0440\u043D\u044B\u0439 \u0431\u0430\u0440\u044C\u0435\u0440"
     nameEn: Sphere Barrier
     descRu: "\u0421\u0444\u0435\u0440\u044B \u0441\u043E\u0437\u0434\u0430\u044E\u0442
@@ -481,7 +481,7 @@ MonoBehaviour:
     detailsEn: 'Max level: 7. Separate evolution choices appear at IV and VII.'
   - section: abilities
     id: ability:teleport
-    group: 
+    group:
     nameRu: "\u042D\u0445\u043E-\u043F\u0440\u044B\u0436\u043E\u043A"
     nameEn: Echo Jump
     descRu: "\u0422\u0435\u043B\u0435\u043F\u043E\u0440\u0442 \u043F\u0435\u0440\u0435\u043C\u0435\u0449\u0430\u0435\u0442
@@ -496,34 +496,34 @@ MonoBehaviour:
     detailsEn: 'Max level: 7. Separate evolution choices appear at IV and VII.'
   - section: abilities
     id: ability:movespeed
-    group: 
+    group:
     nameRu: "\u0421\u043A\u043E\u0440\u043E\u0441\u0442\u044C \u0434\u0432\u0438\u0436\u0435\u043D\u0438\u044F"
     nameEn: Move Speed
     descRu: "+10% \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438"
     descEn: +10% speed
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: abilities
     id: ability:slow
-    group: 
+    group:
     nameRu: "\u0417\u0430\u043C\u0435\u0434\u043B\u0435\u043D\u0438\u0435 \u0432\u0440\u0430\u0433\u043E\u0432"
     nameEn: Enemy Slow
     descRu: "-10% \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438 \u0432\u0440\u0430\u0433\u043E\u0432"
     descEn: -10% enemy speed
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: abilities
     id: ability:vitality
-    group: 
+    group:
     nameRu: "\u0416\u0438\u0432\u0443\u0447\u0435\u0441\u0442\u044C"
     nameEn: Vitality
     descRu: "+20 \u043C\u0430\u043A\u0441. HP"
     descEn: +20 max HP
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: abilities
     id: ability:firetrail
-    group: 
+    group:
     nameRu: "\u041F\u0435\u0440\u0435\u0433\u0440\u0435\u0432"
     nameEn: Overheat
     descRu: "\u041F\u0435\u0440\u0435\u0433\u0440\u0443\u0436\u0430\u0435\u0442 \u0441\u0444\u0435\u0440\u044B
@@ -538,7 +538,7 @@ MonoBehaviour:
     detailsEn: 'Max level: 7. Separate evolution choices appear at IV and VII.'
   - section: abilities
     id: ability:minion
-    group: 
+    group:
     nameRu: "\u042D\u0445\u043E-\u0434\u0440\u043E\u043D"
     nameEn: Echo Drone
     descRu: "\u0421\u043E\u0437\u0434\u0430\u0451\u0442 1 Echo Drone \u043D\u0430
@@ -554,16 +554,16 @@ MonoBehaviour:
     detailsEn: 'Max level: 7. Separate evolution choices appear at IV and VII.'
   - section: abilities
     id: ability:vampire
-    group: 
+    group:
     nameRu: "\u0412\u0430\u043C\u043F\u0438\u0440\u0438\u0437\u043C"
     nameEn: Vampirism
     descRu: "3% \u0443\u0440\u043E\u043D\u0430 -> HP"
     descEn: 3% damage -> HP
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: abilities
     id: ability:lightning
-    group: 
+    group:
     nameRu: "\u0426\u0435\u043F\u043D\u043E\u0439 \u0440\u0430\u0437\u0440\u044F\u0434"
     nameEn: Chain Lightning
     descRu: "\u0420\u0430\u0437\u0440\u044F\u0434 \u043F\u0440\u043E\u0445\u043E\u0434\u0438\u0442
@@ -580,25 +580,25 @@ MonoBehaviour:
     detailsEn: 'Max level: 7. Separate evolution choices appear at IV and VII.'
   - section: abilities
     id: ability:dodge
-    group: 
+    group:
     nameRu: "\u0423\u043A\u043B\u043E\u043D\u0435\u043D\u0438\u0435"
     nameEn: Dodge
     descRu: "10% \u0448\u0430\u043D\u0441"
     descEn: 10% chance
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: abilities
     id: ability:crit
-    group: 
+    group:
     nameRu: "\u041A\u0440\u0438\u0442\u0438\u0447\u0435\u0441\u043A\u0438\u0439 \u0443\u0440\u043E\u043D"
     nameEn: Critical Hit
     descRu: "10% \u0448\u0430\u043D\u0441 x2"
     descEn: 10% chance x2
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: abilities
     id: ability:timestop
-    group: 
+    group:
     nameRu: "\u042D\u0445\u043E-\u0437\u0430\u043C\u043E\u0440\u043E\u0437\u043A\u0430"
     nameEn: Echo Freeze
     descRu: "\u0421\u0435\u0442\u044C \u043E\u0441\u0442\u0430\u043D\u0430\u0432\u043B\u0438\u0432\u0430\u0435\u0442
@@ -614,25 +614,25 @@ MonoBehaviour:
     detailsEn: 'Max level: 7. Separate evolution choices appear at IV and VII.'
   - section: abilities
     id: ability:magnet
-    group: 
+    group:
     nameRu: "\u041C\u0430\u0433\u043D\u0438\u0442 \u043E\u043F\u044B\u0442\u0430"
     nameEn: XP Magnet
     descRu: "+20% \u0440\u0430\u0434\u0438\u0443\u0441 \u043F\u043E\u0434\u0431\u043E\u0440\u0430"
     descEn: +20% pickup radius
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: abilities
     id: ability:sphereboost
-    group: 
+    group:
     nameRu: "\u0423\u0441\u0438\u043B\u0435\u043D\u0438\u0435 \u0441\u0444\u0435\u0440"
     nameEn: Sphere Boost
     descRu: "+1 \u0443\u0440\u043E\u043D \u0437\u0430 100 \u0443\u0431\u0438\u0439\u0441\u0442\u0432"
     descEn: +1 dmg per 100 kills
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: abilities
     id: ability:darkritual
-    group: 
+    group:
     nameRu: "\u041F\u0435\u0440\u0435\u0433\u0440\u0443\u0437\u043A\u0430"
     nameEn: Overload
     descRu: "\u0416\u0435\u0440\u0442\u0432\u0443\u0435\u0442\u0435 20% \u043C\u0430\u043A\u0441\u0438\u043C\u0430\u043B\u044C\u043D\u043E\u0433\u043E
@@ -649,197 +649,197 @@ MonoBehaviour:
     detailsEn: 'Max level: 7. Separate evolution choices appear at IV and VII.'
   - section: abilities
     id: ability:armor
-    group: 
+    group:
     nameRu: "\u0421\u0442\u0430\u0431\u0438\u043B\u044C\u043D\u044B\u0439 \u043A\u043E\u0440\u043F\u0443\u0441"
     nameEn: Stable Hull
     descRu: "-4% \u043F\u043E\u043B\u0443\u0447\u0430\u0435\u043C\u043E\u0433\u043E
       \u0443\u0440\u043E\u043D\u0430"
     descEn: -4% damage taken
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: abilities
     id: ability:regen
-    group: 
+    group:
     nameRu: "\u0420\u0435\u0433\u0435\u043D\u0435\u0440\u0430\u0446\u0438\u044F"
     nameEn: Regeneration
     descRu: "+0.6 HP/\u0441"
     descEn: +0.6 HP/sec
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: abilities
     id: ability:resonance
-    group: 
+    group:
     nameRu: "\u0420\u0435\u0437\u043E\u043D\u0430\u0442\u043E\u0440"
     nameEn: Resonator
     descRu: "+8% \u043A \u043F\u043E\u043B\u0443\u0447\u0435\u043D\u0438\u044E \u0420\u0435\u0437\u043E\u043D\u0430\u043D\u0441\u0430"
     descEn: +8% Resonance gain
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: abilities
     id: ability:cooldown
-    group: 
+    group:
     nameRu: "\u0425\u0440\u043E\u043D\u043E-\u044F\u0434\u0440\u043E"
     nameEn: Chrono Core
     descRu: "-4% \u043F\u0435\u0440\u0435\u0437\u0430\u0440\u044F\u0434\u043A\u0438"
     descEn: -4% cooldowns
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: abilities
     id: ability:critpower
-    group: 
+    group:
     nameRu: "\u041A\u0440\u0438\u0442\u0438\u0447\u0435\u0441\u043A\u0438\u0439 \u0440\u0435\u0437\u043E\u043D\u0430\u043D\u0441"
     nameEn: Critical Resonance
     descRu: "+8% \u043A\u0440\u0438\u0442\u0438\u0447\u0435\u0441\u043A\u043E\u0433\u043E
       \u043C\u043D\u043E\u0436\u0438\u0442\u0435\u043B\u044F"
     descEn: +8% critical multiplier
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: abilities
     id: ability:range
-    group: 
+    group:
     nameRu: "\u0424\u043E\u043A\u0443\u0441 \u043F\u043E\u043B\u044F"
     nameEn: Field Focus
     descRu: "+5% \u0440\u0430\u0434\u0438\u0443\u0441\u0430/\u0434\u0430\u043B\u044C\u043D\u043E\u0441\u0442\u0438
       \u0441\u0444\u0435\u0440"
     descEn: +5% Sphere range
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: abilities
     id: ability:proj_speed
-    group: 
+    group:
     nameRu: "\u0418\u043C\u043F\u0443\u043B\u044C\u0441\u043D\u044B\u0439 \u0432\u0435\u043A\u0442\u043E\u0440"
     nameEn: Vector Drive
     descRu: "+8% \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438 \u0441\u043D\u0430\u0440\u044F\u0434\u043E\u0432"
     descEn: +8% projectile speed
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: abilities
     id: ability:momentum
-    group: 
+    group:
     nameRu: "\u0418\u043C\u043F\u0443\u043B\u044C\u0441"
     nameEn: Momentum
     descRu: "+5% \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438 \u043F\u043E\u0441\u043B\u0435
       Dash"
     descEn: +5% speed after Dash
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: abilities
     id: ability:fortune
-    group: 
+    group:
     nameRu: "\u0423\u0434\u0430\u0447\u0430"
     nameEn: Fortune
     descRu: "+2% \u043A \u0448\u0430\u043D\u0441\u0430\u043C \u0440\u0435\u0434\u043A\u0438\u0445
       \u0432\u044B\u043F\u0430\u0434\u0435\u043D\u0438\u0439"
     descEn: +2% rare drop chance
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: abilities
     id: ability:stability
-    group: 
+    group:
     nameRu: "\u0421\u0442\u0430\u0431\u0438\u043B\u044C\u043D\u0430\u044F \u0441\u0435\u0442\u044C"
     nameEn: Network Stability
     descRu: "-12% \u0432\u0440\u0435\u043C\u0435\u043D\u0438 \u0441\u0435\u0442\u0435\u0432\u043E\u0433\u043E
       \u043E\u0442\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u044F"
     descEn: -12% network-disable duration
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:crystal_speed
-    group: 
+    group:
     nameRu: "\u041A\u0440\u0438\u0441\u0442\u0430\u043B\u043B \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438"
     nameEn: Crystal of Speed
     descRu: "+15% \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438 \u0434\u0432\u0438\u0436\u0435\u043D\u0438\u044F"
     descEn: +15% move speed
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:amulet_hp
-    group: 
+    group:
     nameRu: "\u0410\u043C\u0443\u043B\u0435\u0442 \u0437\u0434\u043E\u0440\u043E\u0432\u044C\u044F"
     nameEn: Health Amulet
     descRu: "+30 \u043C\u0430\u043A\u0441. HP"
     descEn: +30 max HP
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:ring_xp
-    group: 
+    group:
     nameRu: "\u041A\u043E\u043B\u044C\u0446\u043E \u043E\u043F\u044B\u0442\u0430"
     nameEn: XP Ring
     descRu: "+20% \u043F\u043E\u043B\u0443\u0447\u0430\u0435\u043C\u043E\u0433\u043E
       \u043E\u043F\u044B\u0442\u0430"
     descEn: +20% XP gained
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:regen_stone
-    group: 
+    group:
     nameRu: "\u041A\u0430\u043C\u0435\u043D\u044C \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u044F"
     nameEn: Regen Stone
     descRu: "+1 HP/\u0441\u0435\u043A"
     descEn: +1 HP/sec
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:radius_shard
-    group: 
+    group:
     nameRu: "\u041E\u0441\u043A\u043E\u043B\u043E\u043A \u0440\u0430\u0434\u0438\u0443\u0441\u0430"
     nameEn: Radius Shard
     descRu: "+10% \u0440\u0430\u0434\u0438\u0443\u0441\u0430 \u0441\u0444\u0435\u0440"
     descEn: +10% sphere radius
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:vampire_ring
-    group: 
+    group:
     nameRu: "\u041A\u043E\u043B\u044C\u0446\u043E \u0432\u0430\u043C\u043F\u0438\u0440\u0430"
     nameEn: Vampire Ring
     descRu: "+3% \u0432\u0430\u043C\u043F\u0438\u0440\u0438\u0437\u043C\u0430"
     descEn: +3% lifesteal
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:swift_boots
-    group: 
+    group:
     nameRu: "\u0411\u043E\u0442\u0438\u043D\u043A\u0438 \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438"
     nameEn: Swift Boots
     descRu: "\u043F\u043E\u0441\u043B\u0435 \u0443\u0431\u0438\u0439\u0441\u0442\u0432\u0430
       +10% \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438 \u043D\u0430 3\u0441"
     descEn: kills grant +10% speed for 3s
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:luck_talisman
-    group: 
+    group:
     nameRu: "\u0422\u0430\u043B\u0438\u0441\u043C\u0430\u043D \u0443\u0434\u0430\u0447\u0438"
     nameEn: Luck Talisman
     descRu: "+15% \u0448\u0430\u043D\u0441 \u043A\u0440\u0438\u0442\u0430"
     descEn: +15% crit chance
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:mage_pendant
-    group: 
+    group:
     nameRu: "\u041A\u0443\u043B\u043E\u043D \u043C\u0430\u0433\u0430"
     nameEn: Mage Pendant
     descRu: "-10% \u043F\u0435\u0440\u0435\u0437\u0430\u0440\u044F\u0434\u043A\u0438
       \u0441\u043F\u043E\u0441\u043E\u0431\u043D\u043E\u0441\u0442\u0435\u0439"
     descEn: -10% ability cooldowns
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:long_lens
-    group: 
+    group:
     nameRu: "\u0414\u0430\u043B\u044C\u043D\u044F\u044F \u043B\u0438\u043D\u0437\u0430"
     nameEn: Long Lens
     descRu: "+18% \u0440\u0430\u0434\u0438\u0443\u0441\u0430 \u0441\u043D\u0430\u0439\u043F\u0435\u0440\u0441\u043A\u043E\u0439
       \u0441\u0444\u0435\u0440\u044B"
     descEn: +18% sniper range
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:stasis_core
-    group: 
+    group:
     nameRu: "\u042F\u0434\u0440\u043E \u0441\u0442\u0430\u0437\u0438\u0441\u0430"
     nameEn: Stasis Core
     descRu: "\u043F\u0440\u0438 \u043F\u043E\u043B\u0443\u0447\u0435\u043D\u0438\u0438
@@ -847,98 +847,98 @@ MonoBehaviour:
       \u0432\u0441\u0435\u0445 \u0432\u0440\u0430\u0433\u043E\u0432 \u043D\u0430
       2 \u0441\u0435\u043A\u0443\u043D\u0434\u044B"
     descEn: taking damage slows all enemies for 2s
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:dragon_heart
-    group: 
+    group:
     nameRu: "\u0421\u0435\u0440\u0434\u0446\u0435 \u0434\u0440\u0430\u043A\u043E\u043D\u0430"
     nameEn: Dragon Heart
     descRu: "+50 HP, -10% \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438"
     descEn: +50 HP, -10% speed
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:mirror
-    group: 
+    group:
     nameRu: "\u0417\u0435\u0440\u043A\u0430\u043B\u043E"
     nameEn: Mirror
     descRu: "20% \u043F\u043E\u043B\u0443\u0447\u0435\u043D\u043D\u043E\u0433\u043E
       \u0443\u0440\u043E\u043D\u0430 \u043E\u0442\u0440\u0430\u0436\u0430\u0435\u0442\u0441\u044F
       \u0431\u043B\u0438\u0436\u0430\u0439\u0448\u0435\u043C\u0443 \u0432\u0440\u0430\u0433\u0443"
     descEn: 20% of incoming damage is reflected
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:predator_claw
-    group: 
+    group:
     nameRu: "\u041A\u043E\u0433\u043E\u0442\u044C \u0445\u0438\u0449\u043D\u0438\u043A\u0430"
     nameEn: Predator Claw
     descRu: "+8% \u0443\u0440\u043E\u043D\u0430 \u0441\u0444\u0435\u0440"
     descEn: +8% sphere damage
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:foresight_eye
-    group: 
+    group:
     nameRu: "\u041E\u043A\u043E \u043F\u0440\u0435\u0434\u0432\u0438\u0434\u0435\u043D\u0438\u044F"
     nameEn: Foresight Eye
     descRu: "+10% \u043A\u0440\u0438\u0442\u0430 \u0438 +8% \u0443\u0440\u043E\u043D\u0430
       \u0441\u043D\u0430\u0439\u043F\u0435\u0440\u0441\u043A\u043E\u0439 \u0441\u0444\u0435\u0440\u044B"
     descEn: +10% crit and +8% sniper damage
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:echo_conductor
-    group: 
+    group:
     nameRu: "\u041F\u0440\u043E\u0432\u043E\u0434\u043D\u0438\u043A \u042D\u0445\u0430"
     nameEn: Echo Conductor
     descRu: "+12% \u0443\u0440\u043E\u043D\u0430 \u0446\u0435\u043F\u043D\u043E\u0439
       \u0441\u0444\u0435\u0440\u044B"
     descEn: +12% chain sphere damage
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:heavy_core
-    group: 
+    group:
     nameRu: "\u0422\u044F\u0436\u0451\u043B\u043E\u0435 \u044F\u0434\u0440\u043E"
     nameEn: Heavy Core
     descRu: "+15% \u0443\u0440\u043E\u043D\u0430 \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u043D\u043E\u0439
       \u0441\u0444\u0435\u0440\u044B"
     descEn: +15% standard sphere damage
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:scattering_matrix
-    group: 
+    group:
     nameRu: "\u041C\u0430\u0442\u0440\u0438\u0446\u0430 \u0440\u0430\u0441\u0441\u0435\u0438\u0432\u0430\u043D\u0438\u044F"
     nameEn: Scattering Matrix
     descRu: "+12% \u0443\u0440\u043E\u043D\u0430 \u0434\u0440\u043E\u0431\u043E\u0432\u0438\u043A\u0430"
     descEn: +12% shotgun damage
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:aura_lens
-    group: 
+    group:
     nameRu: "\u041B\u0438\u043D\u0437\u0430 \u0430\u0443\u0440\u044B"
     nameEn: Aura Lens
     descRu: "+18% \u0440\u0430\u0434\u0438\u0443\u0441\u0430 \u0430\u0443\u0440\u044B"
     descEn: +18% aura radius
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:network_relay
-    group: 
+    group:
     nameRu: "\u0421\u0435\u0442\u0435\u0432\u043E\u0439 \u0440\u0435\u043B\u0435"
     nameEn: Network Relay
     descRu: "\u043F\u0440\u0438 2+ \u0442\u0438\u043F\u0430\u0445 \u0441\u0444\u0435\u0440
       +5% \u0443\u0440\u043E\u043D\u0430 \u0441\u0435\u0442\u0438"
     descEn: with 2+ sphere types, +5% network damage
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:chaos_orb
-    group: 
+    group:
     nameRu: "\u041C\u0430\u0442\u0440\u0438\u0446\u0430 \u0441\u0442\u0430\u0431\u0438\u043B\u044C\u043D\u043E\u0441\u0442\u0438"
     nameEn: Stability Matrix
     descRu: "\u043A\u0430\u0436\u0434\u044B\u0435 10 \u0441\u0435\u043A\u0443\u043D\u0434
@@ -946,22 +946,22 @@ MonoBehaviour:
       \u0431\u043E\u043D\u0443\u0441 \u0443\u0440\u043E\u043D\u0430 \u0438\u043B\u0438
       \u0440\u0430\u0434\u0438\u0443\u0441\u0430 \u043D\u0430 3 \u0441\u0435\u043A\u0443\u043D\u0434\u044B"
     descEn: every 10s grants a random damage or radius buff for 3s
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:resonance_core
-    group: 
+    group:
     nameRu: "\u0421\u0435\u0440\u0434\u0446\u0435 \u0440\u0435\u0437\u043E\u043D\u0430\u043D\u0441\u0430"
     nameEn: Resonance Core
     descRu: "\u0441\u0444\u0435\u0440\u0430 \u0440\u044F\u0434\u043E\u043C \u0441
       \u0434\u0440\u0443\u0433\u043E\u0439 \u0441\u0444\u0435\u0440\u043E\u0439 \u043F\u043E\u043B\u0443\u0447\u0430\u0435\u0442
       +12% \u0443\u0440\u043E\u043D\u0430"
     descEn: nearby spheres deal +12% damage
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:lone_bastion
-    group: 
+    group:
     nameRu: "\u041E\u0434\u0438\u043D\u043E\u043A\u0438\u0439 \u0431\u0430\u0441\u0442\u0438\u043E\u043D"
     nameEn: Lone Bastion
     descRu: "\u0435\u0441\u043B\u0438 \u0430\u043A\u0442\u0438\u0432\u0435\u043D
@@ -969,125 +969,125 @@ MonoBehaviour:
       \u0441\u0444\u0435\u0440\u044B, \u043E\u043D \u043F\u043E\u043B\u0443\u0447\u0430\u0435\u0442
       +30% \u0443\u0440\u043E\u043D\u0430"
     descEn: with one sphere type, it gains +30% damage
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:fivefold_resonance
-    group: 
+    group:
     nameRu: "\u0420\u0435\u0437\u043E\u043D\u0430\u043D\u0441 \u043F\u044F\u0442\u0438"
     nameEn: Fivefold Resonance
     descRu: "\u043A\u0430\u0436\u0434\u044B\u0439 \u0443\u043D\u0438\u043A\u0430\u043B\u044C\u043D\u044B\u0439
       \u0442\u0438\u043F \u0441\u0444\u0435\u0440\u044B \u0434\u0430\u0451\u0442
       +4% \u0443\u0440\u043E\u043D\u0430 \u0441\u0435\u0442\u0438"
     descEn: each unique sphere type grants +4% network damage
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:relay_matrix
-    group: 
+    group:
     nameRu: "\u0420\u0435\u043B\u0435\u0439\u043D\u0430\u044F \u043C\u0430\u0442\u0440\u0438\u0446\u0430"
     nameEn: Relay Matrix
     descRu: "\u043D\u0430\u043B\u0438\u0447\u0438\u0435 \u0441\u0444\u0435\u0440\u044B
       VII \u0443\u0440\u043E\u0432\u043D\u044F \u0443\u0441\u0438\u043B\u0438\u0432\u0430\u0435\u0442
       \u043E\u0441\u0442\u0430\u043B\u044C\u043D\u044B\u0435 \u043D\u0430 +10%"
     descEn: a level VII sphere empowers the network by +10%
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:triangle_circuit
-    group: 
+    group:
     nameRu: "\u0422\u0440\u0435\u0443\u0433\u043E\u043B\u044C\u043D\u044B\u0439 \u043A\u043E\u043D\u0442\u0443\u0440"
     nameEn: Triangle Circuit
     descRu: "\u0441\u0444\u0435\u0440\u044B \u0432\u043D\u0443\u0442\u0440\u0438
       \u0442\u0440\u0435\u0443\u0433\u043E\u043B\u044C\u043D\u043E\u0439 \u0441\u0435\u0442\u0438
       \u043F\u043E\u043B\u0443\u0447\u0430\u044E\u0442 +15% \u0443\u0440\u043E\u043D\u0430"
     descEn: spheres in a triangular network deal +15% damage
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:overclock
-    group: 
+    group:
     nameRu: "\u0420\u0430\u0437\u0433\u043E\u043D \u044F\u0434\u0440\u0430"
     nameEn: Overclock
     descRu: "-12% \u0437\u0430\u0434\u0435\u0440\u0436\u043A\u0438 \u0441\u0444\u0435\u0440,
       \u043D\u043E \u043D\u0435\u0431\u043E\u043B\u044C\u0448\u0430\u044F \u043F\u043E\u0442\u0435\u0440\u044F
       \u044D\u0444\u0444\u0435\u043A\u0442\u0438\u0432\u043D\u043E\u0441\u0442\u0438"
     descEn: -12% sphere delay with a small efficiency cost
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:soul_engine
-    group: 
+    group:
     nameRu: "\u0414\u0432\u0438\u0433\u0430\u0442\u0435\u043B\u044C \u0434\u0443\u0448"
     nameEn: Soul Engine
     descRu: "+5% \u0443\u0440\u043E\u043D\u0430 \u0441\u0444\u0435\u0440 \u0438 +10%
       \u043E\u043F\u044B\u0442\u0430"
     descEn: +5% sphere damage and +10% XP
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:time_anchor
-    group: 
+    group:
     nameRu: "\u042F\u043A\u043E\u0440\u044C \u0432\u0440\u0435\u043C\u0435\u043D\u0438"
     nameEn: Time Anchor
     descRu: "-12% \u043F\u0435\u0440\u0435\u0437\u0430\u0440\u044F\u0434\u043A\u0438
       \u0441\u043F\u043E\u0441\u043E\u0431\u043D\u043E\u0441\u0442\u0435\u0439"
     descEn: -12% ability cooldowns
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:void_contract
-    group: 
+    group:
     nameRu: "\u041A\u043E\u043D\u0442\u0440\u0430\u043A\u0442 \u043F\u0443\u0441\u0442\u043E\u0442\u044B"
     nameEn: Void Contract
     descRu: "+22% \u0443\u0440\u043E\u043D\u0430 \u0441\u0444\u0435\u0440, \u043D\u043E
       +15% \u043F\u043E\u043B\u0443\u0447\u0430\u0435\u043C\u043E\u0433\u043E \u0443\u0440\u043E\u043D\u0430"
     descEn: +22% Sphere damage, but +15% damage taken
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:mirror_network
-    group: 
+    group:
     nameRu: "\u0417\u0435\u0440\u043A\u0430\u043B\u044C\u043D\u0430\u044F \u0441\u0435\u0442\u044C"
     nameEn: Mirror Network
     descRu: "\u0434\u0432\u0435 \u0438 \u0431\u043E\u043B\u0435\u0435 \u0441\u0444\u0435\u0440\u044B
       \u0434\u0430\u044E\u0442 \u0441\u0435\u0442\u0438 +12% \u0443\u0440\u043E\u043D\u0430"
     descEn: two or more sphere types grant +12% network damage
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:singularity_engine
-    group: 
+    group:
     nameRu: "\u0414\u0432\u0438\u0433\u0430\u0442\u0435\u043B\u044C \u0441\u0438\u043D\u0433\u0443\u043B\u044F\u0440\u043D\u043E\u0441\u0442\u0438"
     nameEn: Singularity Engine
     descRu: "\u0431\u0438\u043B\u0434 \u0438\u0437 1\u20132 \u0442\u0438\u043F\u043E\u0432
       \u0441\u0444\u0435\u0440 \u043F\u043E\u043B\u0443\u0447\u0430\u0435\u0442 \u0435\u0449\u0451
       +18% \u0443\u0440\u043E\u043D\u0430"
     descEn: "a 1\u20132 sphere-type build gains +18% damage"
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:quantum_core
-    group: 
+    group:
     nameRu: "\u041A\u0432\u0430\u043D\u0442\u043E\u0432\u043E\u0435 \u044F\u0434\u0440\u043E"
     nameEn: Quantum Core
     descRu: "+8% \u0443\u0440\u043E\u043D\u0430 \u0441\u0444\u0435\u0440 \u0438 +8%
       \u0443\u043A\u043B\u043E\u043D\u0435\u043D\u0438\u044F"
     descEn: +8% sphere damage and +8% dodge
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:zero_sphere
-    group: 
+    group:
     nameRu: "\u041D\u0443\u043B\u0435\u0432\u0430\u044F \u0441\u0444\u0435\u0440\u0430"
     nameEn: Zero Sphere
     descRu: "+35% \u0443\u0440\u043E\u043D\u0430 \u0441\u0444\u0435\u0440"
     descEn: +35% Sphere damage
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:unified_mind
-    group: 
+    group:
     nameRu: "\u0415\u0434\u0438\u043D\u044B\u0439 \u0440\u0430\u0437\u0443\u043C"
     nameEn: Unified Mind
     descRu: "\u0441\u0430\u043C\u044B\u0439 \u0432\u044B\u0441\u043E\u043A\u0438\u0439
@@ -1095,452 +1095,452 @@ MonoBehaviour:
       3% \u0437\u0430 \u0443\u0440\u043E\u0432\u0435\u043D\u044C \u0432\u0441\u0435\u0439
       \u0441\u0435\u0442\u0438"
     descEn: the highest sphere level grants 3% damage per level
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:network_anchor
-    group: 
+    group:
     nameRu: "\u042F\u043A\u043E\u0440\u044C \u0441\u0435\u0442\u0438"
     nameEn: Network Anchor
     descRu: "+4% \u0443\u0440\u043E\u043D\u0430 \u0441\u0444\u0435\u0440"
     descEn: +4% Sphere damage
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:pulse_lens
-    group: 
+    group:
     nameRu: "\u041B\u0438\u043D\u0437\u0430 \u0438\u043C\u043F\u0443\u043B\u044C\u0441\u0430"
     nameEn: Pulse Lens
     descRu: "+10% \u043A \u0440\u0430\u0434\u0438\u0443\u0441\u0443 \u0438\u043C\u043F\u0443\u043B\u044C\u0441\u043E\u0432"
     descEn: +10% Pulse radius
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:orbit_charm
-    group: 
+    group:
     nameRu: "\u0422\u0430\u043B\u0438\u0441\u043C\u0430\u043D \u043E\u0440\u0431\u0438\u0442\u044B"
     nameEn: Orbit Charm
     descRu: "+12% \u043A \u0441\u0438\u043B\u0435 \u043E\u0440\u0431\u0438\u0442"
     descEn: +12% Orbital strength
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:prism_shard
-    group: 
+    group:
     nameRu: "\u041E\u0441\u043A\u043E\u043B\u043E\u043A \u043F\u0440\u0438\u0437\u043C\u044B"
     nameEn: Prism Shard
     descRu: "+10% \u043A \u0443\u0440\u043E\u043D\u0443 \u041F\u0440\u0438\u0437\u043C\u044B"
     descEn: +10% Prism damage
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:gravity_bead
-    group: 
+    group:
     nameRu: "\u0413\u0440\u0430\u0432\u0438\u0442\u0430\u0446\u0438\u043E\u043D\u043D\u0430\u044F
       \u0431\u0443\u0441\u0438\u043D\u0430"
     nameEn: Gravity Bead
     descRu: "+12% \u043A \u0441\u0438\u043B\u0435 \u0433\u0440\u0430\u0432\u0438\u0442\u0430\u0446\u0438\u0438"
     descEn: +12% Gravity pull strength
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:void_ink
-    group: 
+    group:
     nameRu: "\u0427\u0435\u0440\u043D\u0438\u043B\u0430 \u043F\u0443\u0441\u0442\u043E\u0442\u044B"
     nameEn: Void Ink
     descRu: "+10% \u043A \u0443\u0440\u043E\u043D\u0443 \u041F\u0443\u0441\u0442\u043E\u0442\u044B"
     descEn: +10% Void damage
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:echo_thread
-    group: 
+    group:
     nameRu: "\u041D\u0438\u0442\u044C \u042D\u0445\u0430"
     nameEn: Echo Thread
     descRu: "+5% \u043A \u0443\u0440\u043E\u043D\u0443 \u0441\u0432\u044F\u0437\u0430\u043D\u043D\u044B\u0445
       \u0421\u0444\u0435\u0440"
     descEn: +5% damage from linked Spheres
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:folded_core
-    group: 
+    group:
     nameRu: "\u0421\u043A\u043B\u0430\u0434\u043D\u043E\u0435 \u044F\u0434\u0440\u043E"
     nameEn: Folded Core
     descRu: "+8% \u043A \u0443\u0440\u043E\u043D\u0443 \u0432\u0441\u0435\u0445 \u0421\u0444\u0435\u0440"
     descEn: +8% damage for all Spheres
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:paper_ward
-    group: 
+    group:
     nameRu: "\u0411\u0443\u043C\u0430\u0436\u043D\u044B\u0439 \u0449\u0438\u0442"
     nameEn: Paper Ward
     descRu: "+4% \u0443\u0440\u043E\u043D\u0430 \u0441\u0444\u0435\u0440"
     descEn: +4% Sphere damage
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:mirror_dust
-    group: 
+    group:
     nameRu: "\u0417\u0435\u0440\u043A\u0430\u043B\u044C\u043D\u0430\u044F \u043F\u044B\u043B\u044C"
     nameEn: Mirror Dust
     descRu: "+8% \u043A \u0448\u0430\u043D\u0441\u0443 \u043E\u0442\u0440\u0430\u0436\u0435\u043D\u0438\u044F"
     descEn: +8% reflection chance
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:resonant_leaf
-    group: 
+    group:
     nameRu: "\u0420\u0435\u0437\u043E\u043D\u0430\u043D\u0441\u043D\u044B\u0439 \u043B\u0438\u0441\u0442"
     nameEn: Resonant Leaf
     descRu: "+10% \u043A \u0420\u0435\u0437\u043E\u043D\u0430\u043D\u0441\u0443"
     descEn: +10% Resonance effects
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:signal_knot
-    group: 
+    group:
     nameRu: "\u0421\u0438\u0433\u043D\u0430\u043B\u044C\u043D\u044B\u0439 \u0443\u0437\u0435\u043B"
     nameEn: Signal Knot
     descRu: "+5% \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438 \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u044F
       \u0441\u0435\u0442\u0438"
     descEn: +5% Network recovery speed
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:lattice_chip
-    group: 
+    group:
     nameRu: "\u0427\u0438\u043F \u0440\u0435\u0448\u0451\u0442\u043A\u0438"
     nameEn: Lattice Chip
     descRu: "+10% \u0441\u0438\u043B\u044B \u0420\u0435\u0448\u0451\u0442\u043A\u0438"
     descEn: +10% Lattice strength
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:fractal_seed
-    group: 
+    group:
     nameRu: "\u0424\u0440\u0430\u043A\u0442\u0430\u043B\u044C\u043D\u043E\u0435 \u0441\u0435\u043C\u044F"
     nameEn: Fractal Seed
     descRu: "+10% \u0441\u0438\u043B\u044B \u0424\u0440\u0430\u043A\u0442\u0430\u043B\u0430"
     descEn: +10% Fractal strength
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:sniper_scope
-    group: 
+    group:
     nameRu: "\u041F\u0440\u0438\u0446\u0435\u043B \u043E\u0445\u043E\u0442\u043D\u0438\u043A\u0430"
     nameEn: Sniper Scope
     descRu: "+10% \u0443\u0440\u043E\u043D\u0430 \u0421\u043D\u0430\u0439\u043F\u0435\u0440\u0430"
     descEn: +10% Sniper damage
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:chain_battery
-    group: 
+    group:
     nameRu: "\u0426\u0435\u043F\u043D\u043E\u0439 \u0430\u043A\u043A\u0443\u043C\u0443\u043B\u044F\u0442\u043E\u0440"
     nameEn: Chain Battery
     descRu: "+10% \u0443\u0440\u043E\u043D\u0430 \u0426\u0435\u043F\u0438"
     descEn: +10% Chain damage
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:shotgun_shell
-    group: 
+    group:
     nameRu: "\u0414\u0440\u043E\u0431\u044C \u0443\u0441\u0438\u043B\u0435\u043D\u0438\u044F"
     nameEn: Shotgun Shell
     descRu: "+10% \u0443\u0440\u043E\u043D\u0430 \u0414\u0440\u043E\u0431\u043E\u0432\u0438\u043A\u0430"
     descEn: +10% Shotgun damage
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:aura_mist
-    group: 
+    group:
     nameRu: "\u0422\u0443\u043C\u0430\u043D \u0430\u0443\u0440\u044B"
     nameEn: Aura Mist
     descRu: "+10% \u0440\u0430\u0434\u0438\u0443\u0441\u0430 \u0410\u0443\u0440\u044B"
     descEn: +10% Aura radius
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:orbital_blade
-    group: 
+    group:
     nameRu: "\u041E\u0440\u0431\u0438\u0442\u0430\u043B\u044C\u043D\u044B\u0439 \u043A\u043B\u0438\u043D\u043E\u043A"
     nameEn: Orbital Blade
     descRu: "+10% \u0443\u0440\u043E\u043D\u0430 \u041E\u0440\u0431\u0438\u0442\u0430\u043B\u044C\u043D\u043E\u0439"
     descEn: +10% Orbital damage
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:prism_filter
-    group: 
+    group:
     nameRu: "\u041F\u0440\u0438\u0437\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438\u0439
       \u0444\u0438\u043B\u044C\u0442\u0440"
     nameEn: Prism Filter
     descRu: "+10% \u043F\u0440\u043E\u0431\u0438\u0442\u0438\u044F \u041F\u0440\u0438\u0437\u043C\u044B"
     descEn: +10% Prism pierce
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:gravity_hook
-    group: 
+    group:
     nameRu: "\u0413\u0440\u0430\u0432\u0438\u0442\u0430\u0446\u0438\u043E\u043D\u043D\u044B\u0439
       \u043A\u0440\u044E\u043A"
     nameEn: Gravity Hook
     descRu: "+10% \u043A\u043E\u043D\u0442\u0440\u043E\u043B\u044F \u0413\u0440\u0430\u0432\u0438\u0442\u0430\u0446\u0438\u043E\u043D\u043D\u043E\u0439"
     descEn: +10% Gravity control
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:pulse_driver
-    group: 
+    group:
     nameRu: "\u0418\u043C\u043F\u0443\u043B\u044C\u0441\u043D\u044B\u0439 \u0434\u0440\u0430\u0439\u0432\u0435\u0440"
     nameEn: Pulse Driver
     descRu: "+10% \u0447\u0430\u0441\u0442\u043E\u0442\u044B \u0418\u043C\u043F\u0443\u043B\u044C\u0441\u043D\u043E\u0439"
     descEn: +10% Pulse frequency
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:void_mark
-    group: 
+    group:
     nameRu: "\u041C\u0435\u0442\u043A\u0430 \u043F\u0443\u0441\u0442\u043E\u0442\u044B"
     nameEn: Void Mark
     descRu: "+10% \u0443\u0440\u043E\u043D\u0430 \u043F\u043E \u043E\u0441\u043B\u0430\u0431\u043B\u0435\u043D\u043D\u044B\u043C"
     descEn: +10% damage to weakened targets
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:formation_compass
-    group: 
+    group:
     nameRu: "\u041A\u043E\u043C\u043F\u0430\u0441 \u0444\u043E\u0440\u043C\u0430\u0446\u0438\u0438"
     nameEn: Formation Compass
     descRu: "\u0443\u0432\u0435\u043B\u0438\u0447\u0438\u0432\u0430\u0435\u0442 \u0440\u0430\u0434\u0438\u0443\u0441
       \u0441\u0444\u0435\u0440 \u043D\u0430 8%"
     descEn: increases Sphere radius by 8%
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:geometry_die
-    group: 
+    group:
     nameRu: "\u041A\u0443\u0431 \u0433\u0435\u043E\u043C\u0435\u0442\u0440\u0438\u0438"
     nameEn: Geometry Die
     descRu: "+8% \u0443\u0440\u043E\u043D\u0430 \u0441\u0444\u0435\u0440 \u0432\u043E
       \u0432\u0440\u0435\u043C\u044F \u0430\u043A\u0442\u0438\u0432\u043D\u043E\u0439
       \u0413\u0435\u043E\u043C\u0435\u0442\u0440\u0438\u0438"
     descEn: increases Sphere damage by 8% during active Geometry
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:network_coil
-    group: 
+    group:
     nameRu: "\u0421\u0435\u0442\u0435\u0432\u0430\u044F \u043A\u0430\u0442\u0443\u0448\u043A\u0430"
     nameEn: Network Coil
     descRu: "+8% \u0443\u0440\u043E\u043D\u0430 \u043F\u0440\u0438 2+ \u0442\u0438\u043F\u0430\u0445
       \u0441\u0444\u0435\u0440"
     descEn: +8% damage with 2+ Sphere types
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:crit_sigil
-    group: 
+    group:
     nameRu: "\u041A\u0440\u0438\u0442\u0438\u0447\u0435\u0441\u043A\u0430\u044F \u043F\u0435\u0447\u0430\u0442\u044C"
     nameEn: Crit Sigil
     descRu: "+5% \u0448\u0430\u043D\u0441\u0430 \u043A\u0440\u0438\u0442\u0438\u0447\u0435\u0441\u043A\u043E\u0433\u043E
       \u0443\u0434\u0430\u0440\u0430"
     descEn: +5% critical chance
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:tempo_ring
-    group: 
+    group:
     nameRu: "\u041A\u043E\u043B\u044C\u0446\u043E \u0442\u0435\u043C\u043F\u0430"
     nameEn: Tempo Ring
     descRu: "-8% \u0437\u0430\u0434\u0435\u0440\u0436\u043A\u0438 \u0441\u0444\u0435\u0440"
     descEn: -8% Sphere attack delay
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:triangle_engine
-    group: 
+    group:
     nameRu: "\u0414\u0432\u0438\u0433\u0430\u0442\u0435\u043B\u044C \u0442\u0440\u0435\u0443\u0433\u043E\u043B\u044C\u043D\u0438\u043A\u0430"
     nameEn: Triangle Engine
     descRu: "+12% \u0441\u0438\u043B\u044B \u0422\u0440\u0435\u0443\u0433\u043E\u043B\u044C\u043D\u0438\u043A\u0430"
     descEn: +12% Triangle strength
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:ring_engine
-    group: 
+    group:
     nameRu: "\u0414\u0432\u0438\u0433\u0430\u0442\u0435\u043B\u044C \u043A\u043E\u043B\u044C\u0446\u0430"
     nameEn: Ring Engine
     descRu: "+12% \u0441\u0438\u043B\u044B \u041A\u043E\u043B\u044C\u0446\u0430"
     descEn: +12% Ring strength
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:lattice_engine
-    group: 
+    group:
     nameRu: "\u0414\u0432\u0438\u0433\u0430\u0442\u0435\u043B\u044C \u0440\u0435\u0448\u0451\u0442\u043A\u0438"
     nameEn: Lattice Engine
     descRu: "+12% \u0441\u0438\u043B\u044B \u0420\u0435\u0448\u0451\u0442\u043A\u0438"
     descEn: +12% Lattice strength
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:fractal_engine
-    group: 
+    group:
     nameRu: "\u0414\u0432\u0438\u0433\u0430\u0442\u0435\u043B\u044C \u0444\u0440\u0430\u043A\u0442\u0430\u043B\u0430"
     nameEn: Fractal Engine
     descRu: "+12% \u0441\u0438\u043B\u044B \u0424\u0440\u0430\u043A\u0442\u0430\u043B\u0430"
     descEn: +12% Fractal strength
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:resonance_lattice
-    group: 
+    group:
     nameRu: "\u0420\u0435\u0437\u043E\u043D\u0430\u043D\u0441\u043D\u0430\u044F \u0440\u0435\u0448\u0451\u0442\u043A\u0430"
     nameEn: Resonance Lattice
     descRu: "+15% \u044D\u0444\u0444\u0435\u043A\u0442\u043E\u0432 \u0420\u0435\u0437\u043E\u043D\u0430\u043D\u0441\u0430"
     descEn: +15% Resonance effects
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:echo_weaver
-    group: 
+    group:
     nameRu: "\u0422\u043A\u0430\u0447 \u042D\u0445\u0430"
     nameEn: Echo Weaver
     descRu: "\u043A\u0430\u0436\u0434\u0430\u044F \u0441\u0432\u044F\u0437\u044C
       \u0434\u0430\u0451\u0442 \u043D\u0435\u0431\u043E\u043B\u044C\u0448\u043E\u0439
       \u0431\u043E\u043D\u0443\u0441"
     descEn: Each active Network link grants a small bonus
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:gravity_crown
-    group: 
+    group:
     nameRu: "\u041A\u043E\u0440\u043E\u043D\u0430 \u0433\u0440\u0430\u0432\u0438\u0442\u0430\u0446\u0438\u0438"
     nameEn: Gravity Crown
     descRu: "\u0413\u0440\u0430\u0432\u0438\u0442\u0430\u0446\u0438\u043E\u043D\u043D\u0430\u044F
       \u043F\u043E\u043B\u0443\u0447\u0430\u0435\u0442 +20% \u0440\u0430\u0434\u0438\u0443\u0441\u0430"
     descEn: Gravity gains +20% radius
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:void_lantern
-    group: 
+    group:
     nameRu: "\u0424\u043E\u043D\u0430\u0440\u044C \u043F\u0443\u0441\u0442\u043E\u0442\u044B"
     nameEn: Void Lantern
     descRu: "\u041F\u0443\u0441\u0442\u043E\u0442\u043D\u0430\u044F \u043F\u043E\u043B\u0443\u0447\u0430\u0435\u0442
       +20% \u0443\u0440\u043E\u043D\u0430 \u0434\u043E\u0431\u0438\u0432\u0430\u043D\u0438\u044F"
     descEn: Void gains +20% execution damage
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:prism_crown
-    group: 
+    group:
     nameRu: "\u041A\u043E\u0440\u043E\u043D\u0430 \u043F\u0440\u0438\u0437\u043C\u044B"
     nameEn: Prism Crown
     descRu: "\u041F\u0440\u0438\u0437\u043C\u0430 \u043F\u043E\u043B\u0443\u0447\u0430\u0435\u0442
       +1 \u043E\u0442\u0440\u0430\u0436\u0435\u043D\u0438\u0435"
     descEn: Prism gains +1 reflection
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:orbital_crown
-    group: 
+    group:
     nameRu: "\u041A\u043E\u0440\u043E\u043D\u0430 \u043E\u0440\u0431\u0438\u0442\u044B"
     nameEn: Orbital Crown
     descRu: "\u041E\u0440\u0431\u0438\u0442\u0430\u043B\u044C\u043D\u0430\u044F \u043F\u043E\u043B\u0443\u0447\u0430\u0435\u0442
       +1 \u0441\u043F\u0443\u0442\u043D\u0438\u043A"
     descEn: Orbital gains +1 satellite
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:pulse_crown
-    group: 
+    group:
     nameRu: "\u041A\u043E\u0440\u043E\u043D\u0430 \u0438\u043C\u043F\u0443\u043B\u044C\u0441\u0430"
     nameEn: Pulse Crown
     descRu: "\u0418\u043C\u043F\u0443\u043B\u044C\u0441\u043D\u0430\u044F \u043F\u043E\u043B\u0443\u0447\u0430\u0435\u0442
       +1 \u0432\u043E\u043B\u043D\u0443"
     descEn: Pulse gains +1 wave
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:chain_crown
-    group: 
+    group:
     nameRu: "\u041A\u043E\u0440\u043E\u043D\u0430 \u0446\u0435\u043F\u0438"
     nameEn: Chain Crown
     descRu: "\u0426\u0435\u043F\u043D\u0430\u044F \u043F\u043E\u043B\u0443\u0447\u0430\u0435\u0442
       +1 \u043F\u0435\u0440\u0435\u0441\u043A\u043E\u043A"
     descEn: Chain gains +1 jump
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:sniper_crown
-    group: 
+    group:
     nameRu: "\u041A\u043E\u0440\u043E\u043D\u0430 \u0441\u043D\u0430\u0439\u043F\u0435\u0440\u0430"
     nameEn: Sniper Crown
     descRu: "\u0421\u043D\u0430\u0439\u043F\u0435\u0440\u0441\u043A\u0430\u044F \u043F\u043E\u043B\u0443\u0447\u0430\u0435\u0442
       +10% \u0434\u0430\u043B\u044C\u043D\u043E\u0441\u0442\u0438"
     descEn: Sniper gains +10% range
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:time_splitter
-    group: 
+    group:
     nameRu: "\u0420\u0430\u0437\u0434\u0435\u043B\u0438\u0442\u0435\u043B\u044C \u0432\u0440\u0435\u043C\u0435\u043D\u0438"
     nameEn: Time Splitter
     descRu: "\u043F\u043E\u0441\u043B\u0435 \u0432\u0440\u0435\u043C\u0435\u043D\u043D\u043E\u0439
       \u043E\u0441\u0442\u0430\u043D\u043E\u0432\u043A\u0438 +15% \u0443\u0440\u043E\u043D\u0430"
     descEn: +15% damage after Time Stop
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:stasis_mandala
-    group: 
+    group:
     nameRu: "\u041C\u0430\u043D\u0434\u0430\u043B\u0430 \u0441\u0442\u0430\u0437\u0438\u0441\u0430"
     nameEn: stasis mandala
     descRu: "\u043F\u043E\u043B\u0443\u0447\u0435\u043D\u043D\u044B\u0439 \u0443\u0440\u043E\u043D
       \u0447\u0430\u0441\u0442\u0438\u0447\u043D\u043E \u043F\u0440\u0435\u0432\u0440\u0430\u0449\u0430\u0435\u0442\u0441\u044F
       \u0432 \u0449\u0438\u0442"
     descEn: Part of damage taken becomes a shield charge
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:quantum_fold
-    group: 
+    group:
     nameRu: "\u041A\u0432\u0430\u043D\u0442\u043E\u0432\u044B\u0439 \u0441\u0433\u0438\u0431"
     nameEn: quantum fold
     descRu: "\u0421\u0442\u0435\u043B\u043B\u0430 \u043F\u043E\u044F\u0432\u043B\u044F\u0435\u0442\u0441\u044F
       \u0441 \u0434\u043E\u043F\u043E\u043B\u043D\u0438\u0442\u0435\u043B\u044C\u043D\u044B\u043C
       \u0432\u044B\u0431\u043E\u0440\u043E\u043C"
     descEn: Stella rewards gain one additional choice
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:void_star
-    group: 
+    group:
     nameRu: "\u0417\u0432\u0435\u0437\u0434\u0430 \u043F\u0443\u0441\u0442\u043E\u0442\u044B"
     nameEn: void star
     descRu: "\u041F\u0443\u0441\u0442\u043E\u0442\u0430 \u043F\u043E\u043B\u0443\u0447\u0430\u0435\u0442
       \u0434\u043E\u043F\u043E\u043B\u043D\u0438\u0442\u0435\u043B\u044C\u043D\u044B\u0439
       \u0448\u0430\u043D\u0441 \u0434\u043E\u0431\u0438\u0432\u0430\u043D\u0438\u044F"
     descEn: Void gains an additional execution chance
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:axiom_core
-    group: 
+    group:
     nameRu: "\u0410\u043A\u0441\u0438\u043E\u043C\u0430 \u044F\u0434\u0440\u0430"
     nameEn: axiom core
     descRu: "+5% \u043A\u043E \u0432\u0441\u0435\u043C \u043A\u043B\u044E\u0447\u0435\u0432\u044B\u043C
       \u044D\u0444\u0444\u0435\u043A\u0442\u0430\u043C"
     descEn: +5% to key combat effects
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: artifacts
     id: artifact:universal_fold
-    group: 
+    group:
     nameRu: "\u0423\u043D\u0438\u0432\u0435\u0440\u0441\u0430\u043B\u044C\u043D\u044B\u0439
       \u0441\u0433\u0438\u0431"
     nameEn: universal fold
@@ -1549,8 +1549,8 @@ MonoBehaviour:
       \u043D\u0435\u0431\u043E\u043B\u044C\u0448\u043E\u0439 \u0441\u0438\u043D\u0435\u0440\u0433\u0435\u0442\u0438\u0447\u0435\u0441\u043A\u0438\u0439
       \u0431\u043E\u043D\u0443\u0441"
     descEn: All assembled systems gain a small synergy bonus
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-branch:standard_resonator
     group: sphere-branches
@@ -1563,8 +1563,8 @@ MonoBehaviour:
       \u0442\u0430\u043A\u0436\u0435 \u043F\u043E\u0434\u043F\u0438\u0442\u044B\u0432\u0430\u044E\u0442
       Resonance"
     descEn: Every third hit releases a pulse, while hits also feed Resonance.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:standard:standard_resonator:0
     group: sphere-finals
@@ -1578,8 +1578,8 @@ MonoBehaviour:
       \u0440\u0430\u0434\u0438\u0443\u0441 115."
     descEn: 'Every third hit creates an empowered pulse around the target: 65% damage,
       radius 115.'
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:standard:standard_resonator:1
     group: sphere-finals
@@ -1594,8 +1594,8 @@ MonoBehaviour:
       \u0431\u043B\u0438\u0436\u0430\u0439\u0448\u0438\u0445 \u0432\u0440\u0430\u0433\u043E\u0432."
     descEn: 'Every third hit creates an area pulse: 45% damage in radius 100 and
       knocks back nearby enemies.'
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:standard:standard_resonator:2
     group: sphere-finals
@@ -1610,8 +1610,8 @@ MonoBehaviour:
       \u043D\u0430 0.8 \u0441."
     descEn: 'Every third hit creates a pulse: 35% damage in radius 90 and slows nearby
       enemies for 0.8s.'
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-branch:standard_singularity
     group: sphere-branches
@@ -1621,8 +1621,8 @@ MonoBehaviour:
     descRu: "\u041F\u043E\u043F\u0430\u0434\u0430\u043D\u0438\u044F \u043F\u0440\u0438\u0442\u044F\u0433\u0438\u0432\u0430\u044E\u0442
       \u0432\u0440\u0430\u0433\u043E\u0432"
     descEn: Develops the Standard Singularity branch and its signature behavior.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:standard:standard_singularity:0
     group: sphere-finals
@@ -1636,8 +1636,8 @@ MonoBehaviour:
       \u0446\u0435\u043B\u044C \u0437\u0430\u043C\u0435\u0434\u043B\u0435\u043D\u043D\u043E\u0439
       \u043D\u0430 1.2 \u0441."
     descEn: Hits pull nearby enemies harder and keep the target slowed for 1.2s.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:standard:standard_singularity:1
     group: sphere-finals
@@ -1652,8 +1652,8 @@ MonoBehaviour:
       \u0433\u0440\u0443\u043F\u043F\u044B."
     descEn: Hits keep the target slowed for longer, up to 1.8s, strengthening control
       of dense groups.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:standard:standard_singularity:2
     group: sphere-finals
@@ -1666,8 +1666,8 @@ MonoBehaviour:
       \u0446\u0435\u043B\u0438 \u043D\u0438\u0436\u0435 50% HP \u043F\u043E\u043B\u0443\u0447\u0430\u044E\u0442
       +15% \u0443\u0440\u043E\u043D\u0430."
     descEn: Hits pull enemies harder, and targets below 50% HP take 15% more damage.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-branch:standard_swarm
     group: sphere-branches
@@ -1677,8 +1677,8 @@ MonoBehaviour:
     descRu: "\u041F\u043E\u043F\u0430\u0434\u0430\u043D\u0438\u044F \u0432\u044B\u043F\u0443\u0441\u043A\u0430\u044E\u0442
       \u043E\u0441\u043A\u043E\u043B\u043A\u0438"
     descEn: Develops the Standard Swarm branch and its signature behavior.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:standard:standard_swarm:0
     group: sphere-finals
@@ -1692,8 +1692,8 @@ MonoBehaviour:
       \u0438\u0449\u0435\u0442 \u0431\u043B\u0438\u0436\u0430\u0439\u0448\u0443\u044E
       \u0434\u0440\u0443\u0433\u0443\u044E \u0446\u0435\u043B\u044C."
     descEn: After a hit, one shard seeks the nearest different target.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:standard:standard_swarm:1
     group: sphere-finals
@@ -1706,8 +1706,8 @@ MonoBehaviour:
       \u043E\u0441\u043A\u043E\u043B\u043A\u0430 \u043F\u043E \u0440\u0430\u0441\u0445\u043E\u0434\u044F\u0449\u0438\u043C\u0441\u044F
       \u0442\u0440\u0430\u0435\u043A\u0442\u043E\u0440\u0438\u044F\u043C."
     descEn: After a hit, creates two side shards on diverging trajectories.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:standard:standard_swarm:2
     group: sphere-finals
@@ -1722,8 +1722,8 @@ MonoBehaviour:
       \u0432\u043E\u043A\u0440\u0443\u0433 \u0446\u0435\u043B\u0438."
     descEn: After a hit, creates three fan-shaped shards that saturate the area around
       the target.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-branch:sniper_oracle
     group: sphere-branches
@@ -1733,8 +1733,8 @@ MonoBehaviour:
       \u0443\u0440\u043E\u043D \u043F\u043E \u043E\u0442\u043C\u0435\u0447\u0435\u043D\u043D\u044B\u043C
       \u0446\u0435\u043B\u044F\u043C"
     descEn: Develops the Sniper Oracle branch and its signature behavior.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:sniper:sniper_oracle:0
     group: sphere-finals
@@ -1744,8 +1744,8 @@ MonoBehaviour:
     descRu: "\u041A\u0440\u0438\u0442 \u043F\u043E \u043E\u0442\u043C\u0435\u0447\u0435\u043D\u043D\u043E\u0439
       \u0446\u0435\u043B\u0438 \u043D\u0430\u043D\u043E\u0441\u0438\u0442 +50% \u0443\u0440\u043E\u043D\u0430."
     descEn: Critical hits against marked targets deal 50% more damage.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:sniper:sniper_oracle:1
     group: sphere-finals
@@ -1760,8 +1760,8 @@ MonoBehaviour:
       \u0437\u0430\u0440\u044F\u0436\u0430\u0435\u0442 Resonance."
     descEn: Critical hits against marked targets deal 30% more damage, and every
       hit against the marked target grants additional Resonance.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:sniper:sniper_oracle:2
     group: sphere-finals
@@ -1778,8 +1778,8 @@ MonoBehaviour:
       30% HP."
     descEn: Critical hits against marked targets deal 22% more damage, also damage
       nearby enemies, and gain stronger Execute pressure below 30% HP.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-branch:sniper_assassin
     group: sphere-branches
@@ -1788,8 +1788,8 @@ MonoBehaviour:
     descRu: "\u0423\u0441\u0438\u043B\u0438\u0432\u0430\u0435\u0442 \u0443\u0440\u043E\u043D
       \u043F\u043E \u0441\u043B\u0430\u0431\u044B\u043C \u0446\u0435\u043B\u044F\u043C"
     descEn: Develops the Sniper Assassin branch and its signature behavior.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:sniper:sniper_assassin:0
     group: sphere-finals
@@ -1804,8 +1804,8 @@ MonoBehaviour:
       \u043A\u0430\u0437\u043D\u0438."
     descEn: Attacks against targets below 45% HP gain execution pressure and apply
       a brief execution mark.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:sniper:sniper_assassin:1
     group: sphere-finals
@@ -1820,8 +1820,8 @@ MonoBehaviour:
       \u043F\u0440\u0438\u043E\u0440\u0438\u0442\u0435\u0442\u043D\u043E\u0439."
     descEn: Targets below 20% HP receive a powerful finishing strike; on kill, the
       next target below 35% HP becomes the priority.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:sniper:sniper_assassin:2
     group: sphere-finals
@@ -1835,8 +1835,8 @@ MonoBehaviour:
       \u0434\u0440\u0443\u0433\u043E\u0439 \u0446\u0435\u043B\u0438."
     descEn: Killing a weakened target restores HP and releases a hunting pulse toward
       the nearest other target.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-branch:sniper_beacon
     group: sphere-branches
@@ -1845,8 +1845,8 @@ MonoBehaviour:
     descRu: "\u041F\u043E\u043C\u0435\u0447\u0430\u0435\u0442 \u0446\u0435\u043B\u044C
       \u0434\u043B\u044F \u0432\u0441\u0435\u0439 \u0441\u0435\u0442\u0438"
     descEn: Develops the Sniper Beacon branch and its signature behavior.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:sniper:sniper_beacon:0
     group: sphere-finals
@@ -1861,8 +1861,8 @@ MonoBehaviour:
       \u044D\u0444\u0444\u0435\u043A\u0442 Anchor."
     descEn: Marked targets are slowed, and the area around them gains a stable network
       anchor.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:sniper:sniper_beacon:1
     group: sphere-finals
@@ -1877,8 +1877,8 @@ MonoBehaviour:
       \u043C\u0430\u0440\u043A\u0438\u0440\u043E\u0432\u043A\u0438."
     descEn: The mark lasts longer, affects a wider area, and strengthens the marking
       damage effect.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:sniper:sniper_beacon:2
     group: sphere-finals
@@ -1891,8 +1891,8 @@ MonoBehaviour:
       \u0432\u043E\u043A\u0440\u0443\u0433 \u0446\u0435\u043B\u0438."
     descEn: The mark and network anchor work together, spreading slow across the
       area around the target.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-branch:shotgun_burst
     group: sphere-branches
@@ -1904,8 +1904,8 @@ MonoBehaviour:
       \u0434\u043E\u043F\u043E\u043B\u043D\u0438\u0442\u0435\u043B\u044C\u043D\u0443\u044E
       \u0434\u0440\u043E\u0431\u044C"
     descEn: Develops the Shotgun Burst branch and its signature behavior.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:shotgun:shotgun_burst:0
     group: sphere-finals
@@ -1919,8 +1919,8 @@ MonoBehaviour:
       \u0441\u043D\u0430\u0440\u044F\u0434\u0430."
     descEn: At up to 150 range, the hit deals 30% more damage and gains 2 additional
       projectiles.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:shotgun:shotgun_burst:1
     group: sphere-finals
@@ -1931,8 +1931,8 @@ MonoBehaviour:
       \u0434\u043E 180 \u043D\u0430\u043D\u043E\u0441\u0438\u0442\u0441\u044F +50%
       \u0443\u0440\u043E\u043D\u0430."
     descEn: At up to 180 range, the hit deals 50% more damage.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:shotgun:shotgun_burst:2
     group: sphere-finals
@@ -1948,8 +1948,8 @@ MonoBehaviour:
       \u0437\u0430\u043C\u0435\u0434\u043B\u044F\u044E\u0442\u0441\u044F."
     descEn: At up to 150 range, the hit deals 22% more damage, gains 2 additional
       projectiles, and slows targets within 90 range.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-branch:shotgun_cataclysm
     group: sphere-branches
@@ -1958,8 +1958,8 @@ MonoBehaviour:
     descRu: "\u0422\u044F\u0436\u0451\u043B\u044B\u0435 \u043F\u0440\u043E\u0431\u0438\u0432\u043D\u044B\u0435
       \u0441\u043D\u0430\u0440\u044F\u0434\u044B"
     descEn: Develops the Shotgun Cataclysm branch and its signature behavior.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:shotgun:shotgun_cataclysm:0
     group: sphere-finals
@@ -1973,8 +1973,8 @@ MonoBehaviour:
       \u043F\u043E\u043B\u0443\u0447\u0430\u0435\u0442 Shatter."
     descEn: Hits create a blast with radius 60, dealing 45% of the hit damage to
       nearby enemies; the blast gains Shatter.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:shotgun:shotgun_cataclysm:1
     group: sphere-finals
@@ -1988,8 +1988,8 @@ MonoBehaviour:
       \u043F\u043E\u043B\u0443\u0447\u0430\u0435\u0442 Impact."
     descEn: Hits create a large blast with radius 85, dealing 65% of the hit damage
       to nearby enemies and gains Impact.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:shotgun:shotgun_cataclysm:2
     group: sphere-finals
@@ -2004,8 +2004,8 @@ MonoBehaviour:
       \u043F\u043E\u0440\u0430\u0436\u0451\u043D\u043D\u044B\u0445 \u0432\u0440\u0430\u0433\u043E\u0432."
     descEn: Hits create a blast with radius 55, dealing 35% secondary damage, Shatter/Impact,
       and slowing affected enemies.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-branch:shotgun_hail
     group: sphere-branches
@@ -2014,8 +2014,8 @@ MonoBehaviour:
     descRu: "\u041C\u043D\u043E\u0433\u043E \u0434\u043E\u043F\u043E\u043B\u043D\u0438\u0442\u0435\u043B\u044C\u043D\u044B\u0445
       \u0441\u043D\u0430\u0440\u044F\u0434\u043E\u0432"
     descEn: Develops the Shotgun Hail branch and its signature behavior.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:shotgun:shotgun_hail:0
     group: sphere-finals
@@ -2029,8 +2029,8 @@ MonoBehaviour:
       \u0437\u043E\u043D\u0443."
     descEn: A hit can create a ring of 6 shards around the target, saturating the
       nearby zone.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:shotgun:shotgun_hail:1
     group: sphere-finals
@@ -2044,8 +2044,8 @@ MonoBehaviour:
       \u0437\u0430\u043B\u043F\u0443."
     descEn: Each triggered hail releases 8 shards and adds two projectiles to the
       next volley.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:shotgun:shotgun_hail:2
     group: sphere-finals
@@ -2060,8 +2060,8 @@ MonoBehaviour:
       \u0432\u0435\u0435\u0440 \u043E\u0445\u043E\u0442\u044B."
     descEn: Shards select nearby different targets and diverge toward them, turning
       Hail into a guided hunting fan.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-branch:chain_web
     group: sphere-branches
@@ -2071,8 +2071,8 @@ MonoBehaviour:
       \u043F\u043E\u043B\u0443\u0447\u0430\u044E\u0442 \u0443\u0441\u0438\u043B\u0435\u043D\u043D\u043E\u0435
       \u0437\u0430\u043C\u0435\u0434\u043B\u0435\u043D\u0438\u0435"
     descEn: Develops the Chain Web branch and its signature behavior.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:chain:chain_web:0
     group: sphere-finals
@@ -2086,8 +2086,8 @@ MonoBehaviour:
       \u0437\u043E\u043D\u0435 \u043A\u043E\u043D\u0442\u0440\u043E\u043B\u044F."
     descEn: Chain hits apply stronger slow, while the network anchor stabilizes the
       control zone.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:chain:chain_web:1
     group: sphere-finals
@@ -2102,8 +2102,8 @@ MonoBehaviour:
       \u0446\u0435\u043B\u044C."
     descEn: Chain hits keep slow active longer and can also relay a static strike
       to a nearby target.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:chain:chain_web:2
     group: sphere-finals
@@ -2117,8 +2117,8 @@ MonoBehaviour:
       \u0437\u043E\u043D\u0443 \u043A\u043E\u043D\u0442\u0440\u043E\u043B\u044F."
     descEn: The anchor and static strike work together, turning the chain into a
       dense control zone.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-branch:chain_storm
     group: sphere-branches
@@ -2129,8 +2129,8 @@ MonoBehaviour:
       \u0432\u0441\u043F\u043B\u0435\u0441\u043A \u0438 \u0434\u043E\u043F\u043E\u043B\u043D\u0438\u0442\u0435\u043B\u044C\u043D\u043E
       \u0437\u0430\u0440\u044F\u0436\u0430\u0435\u0442 Resonance"
     descEn: Develops the Chain Storm branch, adds transition surges and extra Resonance.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:chain:chain_storm:0
     group: sphere-finals
@@ -2143,8 +2143,8 @@ MonoBehaviour:
       \u043E\u0431\u043B\u0430\u0441\u0442\u0438 \u0432\u043E\u043A\u0440\u0443\u0433
       \u043A\u0430\u0436\u0434\u043E\u0439 \u0446\u0435\u043B\u0438."
     descEn: Transitions create extra arc hits around each target.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:chain:chain_storm:1
     group: sphere-finals
@@ -2158,8 +2158,8 @@ MonoBehaviour:
       \u043F\u043E \u0441\u0435\u0442\u0438."
     descEn: Transitions feed Resonance and make the next discharge travel deeper
       through the network.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:chain:chain_storm:2
     group: sphere-finals
@@ -2174,8 +2174,8 @@ MonoBehaviour:
       \u0432\u0442\u043E\u0440\u043E\u0439 \u043A\u043E\u043D\u0442\u0443\u0440 \u0446\u0435\u043F\u0438."
     descEn: Every third transition launches a separate strike at a new nearby target,
       creating a second chain circuit.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-branch:chain_leech
     group: sphere-branches
@@ -2184,8 +2184,8 @@ MonoBehaviour:
     descRu: "\u0426\u0435\u043F\u044C \u0432\u043E\u0437\u0432\u0440\u0430\u0449\u0430\u0435\u0442
       \u0447\u0430\u0441\u0442\u044C \u0443\u0440\u043E\u043D\u0430"
     descEn: Develops the Chain Leech branch and its signature behavior.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:chain:chain_leech:0
     group: sphere-finals
@@ -2197,8 +2197,8 @@ MonoBehaviour:
       \u043D\u0430\u043D\u0435\u0441\u0451\u043D\u043D\u043E\u0433\u043E \u0443\u0440\u043E\u043D\u0430
       \u0432 HP."
     descEn: Each hit returns part of the damage dealt as HP.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:chain:chain_leech:1
     group: sphere-finals
@@ -2209,8 +2209,8 @@ MonoBehaviour:
       \u0441\u0444\u0435\u0440\u043E\u0439 \u0432\u043E\u0437\u0432\u0440\u0430\u0449\u0430\u044E\u0442
       HP."
     descEn: Kills with the Chain Sphere restore HP.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:chain:chain_leech:2
     group: sphere-finals
@@ -2225,8 +2225,8 @@ MonoBehaviour:
       \u0443\u0440\u043E\u043D."
     descEn: Hits heal, kills heal more, and targets below 40% HP take additional
       damage.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-branch:aura_sanctum
     group: sphere-branches
@@ -2237,8 +2237,8 @@ MonoBehaviour:
       \u0443\u0441\u0438\u043B\u0438\u0432\u0430\u044F \u0431\u043B\u0438\u0436\u0430\u0439\u0448\u0438\u0435
       \u0441\u0444\u0435\u0440\u044B"
     descEn: Develops the Aura Sanctum branch and its signature behavior.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:aura:aura_sanctum:0
     group: sphere-finals
@@ -2249,8 +2249,8 @@ MonoBehaviour:
       \u0441\u0438\u043B\u044C\u043D\u0435\u0435 \u0437\u0430\u043C\u0435\u0434\u043B\u044F\u0435\u0442
       \u0432\u0440\u0430\u0433\u043E\u0432 \u0432 \u0437\u043E\u043D\u0435."
     descEn: The Aura slows enemies in its zone for longer and with greater strength.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:aura:aura_sanctum:1
     group: sphere-finals
@@ -2263,8 +2263,8 @@ MonoBehaviour:
       \u0434\u043E 2 \u0441."
     descEn: The Aura gains a stronger network anchor and can hold enemies for up
       to 2s.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:aura:aura_sanctum:2
     group: sphere-finals
@@ -2275,8 +2275,8 @@ MonoBehaviour:
       \u0432\u043C\u0435\u0441\u0442\u0435, \u0430 \u0441\u0430\u043C\u0430 \u0430\u0443\u0440\u0430
       \u043F\u043E\u043B\u0443\u0447\u0430\u0435\u0442 +12% \u0443\u0440\u043E\u043D\u0430."
     descEn: Slow and anchor work together, and the Aura gains 12% damage.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-branch:aura_gravity
     group: sphere-branches
@@ -2285,8 +2285,8 @@ MonoBehaviour:
     descRu: "\u0421\u0442\u044F\u0433\u0438\u0432\u0430\u0435\u0442 \u0432\u0440\u0430\u0433\u043E\u0432
       \u043A \u0446\u0435\u043D\u0442\u0440\u0443"
     descEn: Develops the Aura Gravity branch and its signature behavior.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:aura:aura_gravity:0
     group: sphere-finals
@@ -2298,8 +2298,8 @@ MonoBehaviour:
       \u0441 \u0443\u0441\u0438\u043B\u0435\u043D\u043D\u043E\u0439 \u0441\u0438\u043B\u043E\u0439
       \u043F\u0440\u0438\u0442\u044F\u0436\u0435\u043D\u0438\u044F."
     descEn: The Aura pulls enemies toward its center with increased force.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:aura:aura_gravity:1
     group: sphere-finals
@@ -2313,8 +2313,8 @@ MonoBehaviour:
       \u0437\u043E\u043D\u0443 \u0443\u0434\u0435\u0440\u0436\u0430\u043D\u0438\u044F."
     descEn: The Aura pulls enemies inward while slowing them, turning the center
       into a stable hold zone.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:aura:aura_gravity:2
     group: sphere-finals
@@ -2328,8 +2328,8 @@ MonoBehaviour:
       \u0438\u043C\u043F\u0443\u043B\u044C\u0441\u043D\u044B\u0439 \u0443\u0440\u043E\u043D."
     descEn: Strong pull and Anchor combine; the gathered group takes an empowered
       pulse hit.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-branch:aura_overgrowth
     group: sphere-branches
@@ -2338,8 +2338,8 @@ MonoBehaviour:
     descRu: "\u0423\u0441\u0438\u043B\u0438\u0432\u0430\u0435\u0442 \u0441\u0444\u0435\u0440\u044B
       \u0432\u043D\u0443\u0442\u0440\u0438 \u0430\u0443\u0440\u044B"
     descEn: Develops the Aura Overgrowth branch and its signature behavior.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:aura:aura_overgrowth:0
     group: sphere-finals
@@ -2352,8 +2352,8 @@ MonoBehaviour:
       \u0446\u0438\u043A\u043B\u0430 \u0430\u0442\u0430\u043A."
     descEn: Spheres inside the Aura gain persistent acceleration for their next attack
       cycle.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:aura:aura_overgrowth:1
     group: sphere-finals
@@ -2367,8 +2367,8 @@ MonoBehaviour:
       \u0432 \u0441\u0435\u0442\u0438."
     descEn: When a Sphere inside the Aura attacks, its acceleration transfers to
       the next nearest Sphere in the network.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:aura:aura_overgrowth:2
     group: sphere-finals
@@ -2382,8 +2382,8 @@ MonoBehaviour:
       \u0430\u0442\u0430\u043A\u0443 \u043F\u043E\u0447\u0442\u0438 \u0441\u0438\u043D\u0445\u0440\u043E\u043D\u043D\u043E."
     descEn: All Spheres inside the Aura reduce delay together and fire their next
       attack in near-synchrony.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-branch:orbital_dance
     group: sphere-branches
@@ -2396,8 +2396,8 @@ MonoBehaviour:
       \u0442\u0440\u0430\u0435\u043A\u0442\u043E\u0440\u0438\u0438 \u0438 \u043E\u0441\u0442\u0430\u0432\u043B\u044F\u044E\u0442
       Afterimage-\u0441\u043B\u0435\u0434\u044B."
     descEn: Develops the Orbital Dance branch and its signature behavior.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:orbital:orbital_dance:0
     group: sphere-finals
@@ -2409,8 +2409,8 @@ MonoBehaviour:
       \u043F\u043E\u0437\u0430\u0434\u0438 \u0442\u0440\u0430\u0435\u043A\u0442\u043E\u0440\u0438\u0438
       \u0441\u043F\u0443\u0442\u043D\u0438\u043A\u0430."
     descEn: Hits leave a repeating afterimage strike behind the satellite path.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:orbital:orbital_dance:1
     group: sphere-finals
@@ -2423,8 +2423,8 @@ MonoBehaviour:
       \u043F\u043E\u043F\u0430\u0434\u0430\u043D\u0438\u044F \u043D\u0430 \u0442\u0440\u0430\u0435\u043A\u0442\u043E\u0440\u0438\u0438."
     descEn: The orbital cycle runs at 1.55x speed and widens the hit window along
       its path.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:orbital:orbital_dance:2
     group: sphere-finals
@@ -2438,8 +2438,8 @@ MonoBehaviour:
       \u043F\u0435\u0440\u0435\u0441\u0435\u0447\u0435\u043D\u0438\u044F."
     descEn: The Orbital gains an extra satellite, creating a second intersecting
       trajectory.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-branch:orbital_halo
     group: sphere-branches
@@ -2450,8 +2450,8 @@ MonoBehaviour:
       \u043F\u0440\u043E\u0445\u043E\u0434 \u043E\u0440\u0431\u0438\u0442\u044B \u0434\u043E\u043F\u043E\u043B\u043D\u0438\u0442\u0435\u043B\u044C\u043D\u043E
       \u0437\u0430\u0440\u044F\u0436\u0430\u0435\u0442 Resonance."
     descEn: Develops the Orbital Halo branch and its signature behavior.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:orbital:orbital_halo:0
     group: sphere-finals
@@ -2462,8 +2462,8 @@ MonoBehaviour:
       \u0434\u043E\u043F\u043E\u043B\u043D\u0438\u0442\u0435\u043B\u044C\u043D\u043E
       \u0437\u0430\u0440\u044F\u0436\u0430\u0435\u0442 Resonance."
     descEn: Passing satellites grant additional Resonance charge.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:orbital:orbital_halo:1
     group: sphere-finals
@@ -2475,8 +2475,8 @@ MonoBehaviour:
       \u0434\u0435\u043B\u0430\u044F \u043E\u0440\u0431\u0438\u0442\u0430\u043B\u044C\u043D\u044B\u0439
       \u043F\u0440\u043E\u0445\u043E\u0434 \u0441\u0442\u0430\u0431\u0438\u043B\u044C\u043D\u0435\u0435."
     descEn: The satellite hit window becomes wider, making orbital passes more reliable.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:orbital:orbital_halo:2
     group: sphere-finals
@@ -2490,8 +2490,8 @@ MonoBehaviour:
       \u0437\u0430\u0440\u044F\u0434 \u0449\u0438\u0442\u0430."
     descEn: Resonance charges faster, and a successful orbital pass restores a shield
       charge.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-branch:orbital_blade
     group: sphere-branches
@@ -2504,8 +2504,8 @@ MonoBehaviour:
       \u0438 \u043C\u043E\u0433\u0443\u0442 \u043E\u0441\u0442\u0430\u0432\u043B\u044F\u0442\u044C
       Afterimage-\u0441\u043B\u0435\u0434\u044B."
     descEn: Develops the Orbital Blade branch and its signature behavior.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:orbital:orbital_blade:0
     group: sphere-finals
@@ -2517,8 +2517,8 @@ MonoBehaviour:
       Impact \u0438 \u0441\u0438\u043B\u044C\u043D\u0435\u0435 \u0431\u044C\u044E\u0442
       \u043F\u043E \u0442\u0440\u0430\u0435\u043A\u0442\u043E\u0440\u0438\u0438."
     descEn: Combat blades gain an Impact effect and hit harder along their path.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:orbital:orbital_blade:1
     group: sphere-finals
@@ -2531,8 +2531,8 @@ MonoBehaviour:
       \u043E\u0440\u0431\u0438\u0442\u0430\u043B\u0438."
     descEn: Blade trails gain an Afterimage effect, strengthening repeated orbital
       attacks.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:orbital:orbital_blade:2
     group: sphere-finals
@@ -2545,8 +2545,8 @@ MonoBehaviour:
       \u0432\u043E\u0437\u0440\u0430\u0441\u0442\u0430\u0435\u0442 \u0435\u0449\u0451
       \u0441\u0438\u043B\u044C\u043D\u0435\u0435."
     descEn: Impact and Afterimage work together, and blade damage increases further.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-branch:prism_split
     group: sphere-branches
@@ -2557,8 +2557,8 @@ MonoBehaviour:
       \u043B\u0443\u0447\u0438 \u043F\u043E \u0434\u0440\u0443\u0433\u0438\u043C
       \u0446\u0435\u043B\u044F\u043C."
     descEn: Develops the Prism Split branch and its signature behavior.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:prism:prism_split:0
     group: sphere-finals
@@ -2572,8 +2572,8 @@ MonoBehaviour:
       \u043E\u0434\u043D\u043E\u0432\u0440\u0435\u043C\u0435\u043D\u043D\u043E."
     descEn: The beam creates a fan of additional directions to cover several targets
       at once.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:prism:prism_split:1
     group: sphere-finals
@@ -2586,8 +2586,8 @@ MonoBehaviour:
       \u043F\u0435\u0440\u0432\u0443\u044E \u0446\u0435\u043B\u044C \u043D\u0430\u0441\u043A\u0432\u043E\u0437\u044C."
     descEn: After splitting, the main beam keeps its energy and pierces through the
       first target.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:prism:prism_split:2
     group: sphere-finals
@@ -2601,8 +2601,8 @@ MonoBehaviour:
       \u043F\u043E\u043F\u0430\u0434\u0430\u043D\u0438\u044F."
     descEn: After splitting, the beams ricochet and can retarget after the first
       hit.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-branch:prism_spectrum
     group: sphere-branches
@@ -2615,8 +2615,8 @@ MonoBehaviour:
       \u0437\u0430\u0440\u044F\u0436\u0430\u0435\u0442 Resonance."
     descEn: Develops the Prism Spectrum branch, transfers elemental status and feeds
       Resonance.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:prism:prism_spectrum:0
     group: sphere-finals
@@ -2627,8 +2627,8 @@ MonoBehaviour:
       \u043E\u0433\u043D\u0435\u043D\u043D\u044B\u0439 \u0441\u0442\u0430\u0442\u0443\u0441
       \u0434\u043B\u044F \u0431\u043E\u0435\u0432\u044B\u0445 \u0440\u0435\u0430\u043A\u0446\u0438\u0439."
     descEn: Prism gains a Fire status for combat reactions.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:prism:prism_spectrum:1
     group: sphere-finals
@@ -2640,8 +2640,8 @@ MonoBehaviour:
       \u0441\u0442\u0430\u0442\u0443\u0441 \u0434\u043B\u044F \u0431\u043E\u0435\u0432\u044B\u0445
       \u0440\u0435\u0430\u043A\u0446\u0438\u0439."
     descEn: Prism gains a Freeze status for combat reactions.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:prism:prism_spectrum:2
     group: sphere-finals
@@ -2652,8 +2652,8 @@ MonoBehaviour:
       \u0442\u043E\u043A\u0441\u0438\u0447\u0435\u0441\u043A\u0438\u0439 \u0441\u0442\u0430\u0442\u0443\u0441
       \u0434\u043B\u044F \u0431\u043E\u0435\u0432\u044B\u0445 \u0440\u0435\u0430\u043A\u0446\u0438\u0439."
     descEn: Prism gains a Poison status for combat reactions.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-branch:prism_mirror
     group: sphere-branches
@@ -2664,8 +2664,8 @@ MonoBehaviour:
       \u043B\u0443\u0447\u0438, \u043F\u043E\u0432\u0442\u043E\u0440\u044F\u044E\u0449\u0438\u0435
       \u043E\u0441\u043D\u043E\u0432\u043D\u043E\u0439 \u0443\u0434\u0430\u0440."
     descEn: Develops the Prism Mirror branch and its signature behavior.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:prism:prism_mirror:0
     group: sphere-finals
@@ -2677,8 +2677,8 @@ MonoBehaviour:
       \u0446\u0435\u043B\u044C \u043F\u043E\u0441\u043B\u0435 \u043F\u0435\u0440\u0432\u043E\u0433\u043E
       \u043F\u043E\u043F\u0430\u0434\u0430\u043D\u0438\u044F."
     descEn: The reflected beam retargets once after its first hit.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:prism:prism_mirror:1
     group: sphere-finals
@@ -2691,8 +2691,8 @@ MonoBehaviour:
       \u043E\u0442\u0434\u0435\u043B\u044C\u043D\u044B\u0435 \u0442\u0440\u0430\u0435\u043A\u0442\u043E\u0440\u0438\u0438
       \u043E\u0442\u0440\u0430\u0436\u0435\u043D\u0438\u0439."
     descEn: The reflected beam retargets twice, preserving separate reflection paths.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:prism:prism_mirror:2
     group: sphere-finals
@@ -2706,8 +2706,8 @@ MonoBehaviour:
       \u0440\u0430\u0437\u043D\u044B\u0445 \u0443\u0437\u043B\u0430\u0445."
     descEn: The reflection routes through the linked network and can finish across
       two different nodes.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-branch:gravity_well
     group: sphere-branches
@@ -2720,8 +2720,8 @@ MonoBehaviour:
       \u0442\u0435\u043C \u0441\u0438\u043B\u044C\u043D\u0435\u0435 \u0435\u0433\u043E
       \u0442\u044F\u043D\u0435\u0442."
     descEn: Develops the Gravity Well branch and its signature behavior.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:gravity:gravity_well:0
     group: sphere-finals
@@ -2734,8 +2734,8 @@ MonoBehaviour:
       \u0432\u0440\u0430\u0433\u043E\u0432 \u0432 \u0437\u043E\u043D\u0435 \u043F\u0440\u0438\u0442\u044F\u0436\u0435\u043D\u0438\u044F."
     descEn: The Sphere gains a strong network anchor that holds enemies inside the
       pull zone.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:gravity:gravity_well:1
     group: sphere-finals
@@ -2748,8 +2748,8 @@ MonoBehaviour:
       \u0443\u0441\u0438\u043B\u0438\u0432\u0430\u0435\u0442\u0441\u044F, \u0443\u0432\u0435\u043B\u0438\u0447\u0438\u0432\u0430\u044F
       \u043A\u043E\u043D\u0442\u0440\u043E\u043B\u044C \u0446\u0435\u043D\u0442\u0440\u0430."
     descEn: Pull strength is increased further, improving control of the center.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:gravity:gravity_well:2
     group: sphere-finals
@@ -2764,8 +2764,8 @@ MonoBehaviour:
       \u0442\u043E\u0447\u043A\u0443."
     descEn: Anchor and stronger pull work together, turning the center into a stable
       control point.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-branch:gravity_tide
     group: sphere-branches
@@ -2778,8 +2778,8 @@ MonoBehaviour:
       \u0441\u043E\u0437\u0434\u0430\u0451\u0442 \u043E\u0431\u0440\u0430\u0442\u043D\u0443\u044E
       \u0432\u043E\u043B\u043D\u0443."
     descEn: Develops the Gravity Tide branch and its signature behavior.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:gravity:gravity_tide:0
     group: sphere-finals
@@ -2792,8 +2792,8 @@ MonoBehaviour:
       \u0432\u0440\u0430\u0433\u043E\u0432 \u043E\u0442 \u0413\u0440\u0430\u0432\u0438\u0442\u0430\u0446\u0438\u043E\u043D\u043D\u043E\u0439
       \u0441\u0444\u0435\u0440\u044B."
     descEn: Each pulse strongly knocks enemies away from the Gravity Sphere.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:gravity:gravity_tide:1
     group: sphere-finals
@@ -2807,8 +2807,8 @@ MonoBehaviour:
       \u0433\u0440\u0443\u043F\u043F\u0443."
     descEn: Each pulse pulls enemies toward the Gravity Sphere and compresses the
       group.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:gravity:gravity_tide:2
     group: sphere-finals
@@ -2821,8 +2821,8 @@ MonoBehaviour:
       \u043F\u0440\u043E\u0441\u0442\u0440\u0430\u043D\u0441\u0442\u0432\u0430."
     descEn: Pulses alternate between pull and knockback, creating a spatial-control
       rhythm.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-branch:gravity_collapse
     group: sphere-branches
@@ -2834,8 +2834,8 @@ MonoBehaviour:
       \u0434\u043E\u043F\u043E\u043B\u043D\u0438\u0442\u0435\u043B\u044C\u043D\u044B\u0439
       \u0443\u0440\u043E\u043D \u043E\u0442 \u0441\u0436\u0430\u0442\u0438\u044F."
     descEn: Develops the Gravity Collapse branch and its signature behavior.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:gravity:gravity_collapse:0
     group: sphere-finals
@@ -2847,8 +2847,8 @@ MonoBehaviour:
       \u0441\u0438\u043B\u044C\u043D\u043E\u0435 \u0434\u043E\u0431\u0438\u0432\u0430\u043D\u0438\u0435,
       \u043A\u043E\u0433\u0434\u0430 \u0438\u0445 HP \u0443\u0436\u0435 \u0441\u043D\u0438\u0436\u0435\u043D\u043E."
     descEn: Grouped enemies are easier to execute when their HP is already reduced.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:gravity:gravity_collapse:1
     group: sphere-finals
@@ -2860,8 +2860,8 @@ MonoBehaviour:
       \u0443\u0441\u0438\u043B\u0438\u0432\u0430\u0435\u0442 \u043F\u043B\u043E\u0442\u043D\u043E\u0441\u0442\u044C
       \u0433\u0440\u0443\u043F\u043F\u044B \u043F\u0435\u0440\u0435\u0434 \u043A\u043E\u043B\u043B\u0430\u043F\u0441\u043E\u043C."
     descEn: Gravitational pull further increases group density before the collapse.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:gravity:gravity_collapse:2
     group: sphere-finals
@@ -2877,8 +2877,8 @@ MonoBehaviour:
       \u0432\u0437\u0440\u044B\u0432."
     descEn: Execution and compression work together, and dense groups also trigger
       a pulse blast.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-branch:pulse_wave
     group: sphere-branches
@@ -2889,8 +2889,8 @@ MonoBehaviour:
       \u0438 \u043E\u0442\u0431\u0440\u0430\u0441\u044B\u0432\u0430\u0435\u0442 \u0432\u0440\u0430\u0433\u043E\u0432
       \u043E\u0442 \u0441\u0444\u0435\u0440\u044B."
     descEn: Develops the Pulse Wave branch and its signature behavior.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:pulse:pulse_wave:0
     group: sphere-finals
@@ -2901,8 +2901,8 @@ MonoBehaviour:
       \u0441\u0438\u043B\u044C\u043D\u0435\u0435 \u043E\u0442\u0431\u0440\u0430\u0441\u044B\u0432\u0430\u0435\u0442
       \u0432\u0440\u0430\u0433\u043E\u0432 \u043E\u0442 \u0441\u0444\u0435\u0440\u044B."
     descEn: Each pulse knocks enemies away more strongly.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:pulse:pulse_wave:1
     group: sphere-finals
@@ -2914,8 +2914,8 @@ MonoBehaviour:
       \u0441\u0442\u0430\u0442\u0443\u0441 \u0438 \u0440\u0430\u0441\u0448\u0438\u0440\u044F\u0435\u0442
       \u0440\u0430\u0434\u0438\u0443\u0441 \u0432\u043E\u043B\u043D\u044B."
     descEn: The pulse gains a Freeze status and a wider wave radius.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:pulse:pulse_wave:2
     group: sphere-finals
@@ -2928,8 +2928,8 @@ MonoBehaviour:
       \u0432\u043E\u043B\u043D\u0443 \u0432 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442
       \u043A\u043E\u043D\u0442\u0440\u043E\u043B\u044F."
     descEn: Knockback and Freeze work together, turning the wave into a control tool.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-branch:pulse_resonator
     group: sphere-branches
@@ -2939,8 +2939,8 @@ MonoBehaviour:
       Resonance \u0438 \u0443\u0441\u0438\u043B\u0438\u0432\u0430\u044E\u0442 \u0441\u0435\u0442\u044C
       \u043F\u0440\u0438 \u0430\u043A\u0442\u0438\u0432\u043D\u043E\u0439 \u0433\u0435\u043E\u043C\u0435\u0442\u0440\u0438\u0438."
     descEn: Develops the Pulse Resonator branch and its signature behavior.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:pulse:pulse_resonator:0
     group: sphere-finals
@@ -2951,8 +2951,8 @@ MonoBehaviour:
       \u0437\u0430\u0440\u044F\u0436\u0430\u044E\u0442 Resonance \u043F\u0440\u0438
       \u0430\u043A\u0442\u0438\u0432\u043D\u043E\u0439 \u0433\u0435\u043E\u043C\u0435\u0442\u0440\u0438\u0438."
     descEn: Pulse attacks generate more Resonance while active geometry is present.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:pulse:pulse_resonator:1
     group: sphere-finals
@@ -2965,8 +2965,8 @@ MonoBehaviour:
       \u043A\u043E\u043D\u0442\u0440\u043E\u043B\u044F \u0432\u0440\u0430\u0433\u043E\u0432."
     descEn: The stronger Resonance interaction is combined with an Impact effect
       for better control.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:pulse:pulse_resonator:2
     group: sphere-finals
@@ -2979,8 +2979,8 @@ MonoBehaviour:
       \u0431\u043E\u0435\u0432\u043E\u0433\u043E \u0438\u043C\u043F\u0443\u043B\u044C\u0441\u0430."
     descEn: The stronger Resonance interaction is combined with Shatter for stronger
       pulse damage.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-branch:pulse_burst
     group: sphere-branches
@@ -2991,8 +2991,8 @@ MonoBehaviour:
       \u0434\u043E\u043F\u043E\u043B\u043D\u0438\u0442\u0435\u043B\u044C\u043D\u044B\u0439
       \u0440\u0430\u0437\u0440\u044F\u0434 \u043F\u043E \u0446\u0435\u043D\u0442\u0440\u0443."
     descEn: Develops the Pulse Burst branch and its signature behavior.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:pulse:pulse_burst:0
     group: sphere-finals
@@ -3003,8 +3003,8 @@ MonoBehaviour:
       \u043F\u043E\u043B\u0443\u0447\u0430\u0435\u0442 \u0443\u0441\u0438\u043B\u0435\u043D\u0438\u0435
       Shatter."
     descEn: The main pulse gains a Shatter effect.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:pulse:pulse_burst:1
     group: sphere-finals
@@ -3016,8 +3016,8 @@ MonoBehaviour:
       Impact \u0438 \u043B\u0443\u0447\u0448\u0435 \u043E\u0442\u0431\u0440\u0430\u0441\u044B\u0432\u0430\u0435\u0442
       \u0432\u0440\u0430\u0433\u043E\u0432."
     descEn: The main pulse gains an Impact effect and knocks enemies away more effectively.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:pulse:pulse_burst:2
     group: sphere-finals
@@ -3029,8 +3029,8 @@ MonoBehaviour:
       \u0434\u043E\u043F\u043E\u043B\u043D\u0438\u0442\u0435\u043B\u044C\u043D\u0443\u044E
       \u0432\u043E\u043B\u043D\u0443."
     descEn: Shatter and Impact combine, and Burst creates an additional wave.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-branch:void_hunger
     group: sphere-branches
@@ -3042,8 +3042,8 @@ MonoBehaviour:
       \u0443\u0441\u0438\u043B\u0438\u0432\u0430\u0435\u0442 \u043F\u043E\u0441\u043B\u0435\u0434\u0443\u044E\u0449\u0438\u0435
       \u043F\u043E\u043F\u0430\u0434\u0430\u043D\u0438\u044F."
     descEn: Develops the Void Hunger branch and its signature behavior.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:void:void_hunger:0
     group: sphere-finals
@@ -3055,8 +3055,8 @@ MonoBehaviour:
       \u0440\u0430\u0431\u043E\u0442\u044B \u043F\u043E \u043E\u0441\u043B\u0430\u0431\u043B\u0435\u043D\u043D\u044B\u043C
       \u0446\u0435\u043B\u044F\u043C."
     descEn: Void gains a Corrupt effect for working against weakened targets.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:void:void_hunger:1
     group: sphere-finals
@@ -3067,8 +3067,8 @@ MonoBehaviour:
       \u0430 \u043F\u043E\u043F\u0430\u0434\u0430\u043D\u0438\u044F \u0434\u043E\u043F\u043E\u043B\u043D\u0438\u0442\u0435\u043B\u044C\u043D\u043E
       \u0437\u0430\u0440\u044F\u0436\u0430\u044E\u0442 Resonance."
     descEn: Corruption remains active, and hits also grant additional Resonance.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:void:void_hunger:2
     group: sphere-finals
@@ -3084,8 +3084,8 @@ MonoBehaviour:
       12%."
     descEn: Corruption combines with HP restoration on kills, and hits against targets
       below 30% HP gain an additional 12% multiplier.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-branch:void_reaper
     group: sphere-branches
@@ -3096,8 +3096,8 @@ MonoBehaviour:
       \u043F\u0443\u0441\u0442\u043E\u0442\u044B \u0434\u043B\u044F \u043F\u0440\u043E\u0434\u043E\u043B\u0436\u0435\u043D\u0438\u044F
       \u0430\u0442\u0430\u043A\u0438."
     descEn: Develops the Void Reaper branch and its signature behavior.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:void:void_reaper:0
     group: sphere-finals
@@ -3109,8 +3109,8 @@ MonoBehaviour:
       \u0432\u043E\u0441\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u0435
       HP."
     descEn: Hits and kills provide stronger HP sustain.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:void:void_reaper:1
     group: sphere-finals
@@ -3122,8 +3122,8 @@ MonoBehaviour:
       \u043F\u043E\u0434\u0434\u0435\u0440\u0436\u0438\u0432\u0430\u044E\u0442 \u0446\u0438\u043A\u043B
       \u041F\u0443\u0441\u0442\u043E\u0442\u044B."
     descEn: Kills restore significantly more HP and sustain the Void loop.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:void:void_reaper:2
     group: sphere-finals
@@ -3138,8 +3138,8 @@ MonoBehaviour:
       \u043E\u0441\u043A\u043E\u043B\u043A\u043E\u0432 \u043F\u0443\u0441\u0442\u043E\u0442\u044B."
     descEn: Hit healing and kill healing combine, and executions create more Void
       shards.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-branch:void_execution
     group: sphere-branches
@@ -3153,8 +3153,8 @@ MonoBehaviour:
       \u043F\u043E\u0432\u044B\u0448\u0430\u0435\u0442 \u043F\u043E\u0440\u043E\u0433
       \u0438\u0441\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u044F."
     descEn: Develops the Void Execution branch and its signature behavior.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:void:void_execution:0
     group: sphere-finals
@@ -3166,8 +3166,8 @@ MonoBehaviour:
       \u043F\u043E \u043E\u0441\u043B\u0430\u0431\u043B\u0435\u043D\u043D\u044B\u043C
       \u0446\u0435\u043B\u044F\u043C \u043F\u043E\u0432\u044B\u0448\u0430\u044E\u0442\u0441\u044F."
     descEn: Execute chance and damage against weakened targets are increased.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:void:void_execution:1
     group: sphere-finals
@@ -3178,8 +3178,8 @@ MonoBehaviour:
       Phase, \u0434\u043E\u0431\u0430\u0432\u043B\u044F\u044E\u0449\u0438\u0439 \u043F\u0440\u043E\u0431\u0438\u0442\u0438\u0435
       \u0430\u0442\u0430\u043A\u0430\u043C."
     descEn: The Sphere gains Phase, adding penetration to its attacks.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: sphere-final:void:void_execution:2
     group: sphere-finals
@@ -3193,8 +3193,8 @@ MonoBehaviour:
       HP."
     descEn: Execute and Phase combine; Phase adds penetration, and the execution
       threshold rises to 30% HP.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:blast_resonance
     group: ability-evolutions
@@ -3205,8 +3205,8 @@ MonoBehaviour:
       \u0434\u043E\u043F\u043E\u043B\u043D\u0438\u0442\u0435\u043B\u044C\u043D\u044B\u0439
       \u0438\u043C\u043F\u0443\u043B\u044C\u0441."
     descEn: After passing through a Standard Sphere, it releases an additional pulse.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:blast_network
     group: ability-evolutions
@@ -3217,8 +3217,8 @@ MonoBehaviour:
       \u0431\u043B\u0438\u0436\u0430\u0439\u0448\u0438\u0435 \u0441\u0432\u044F\u0437\u0430\u043D\u043D\u044B\u0435
       \u0441\u0444\u0435\u0440\u044B."
     descEn: The pulse travels sequentially through the nearest linked Spheres.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:blast_core
     group: ability-evolutions
@@ -3231,8 +3231,8 @@ MonoBehaviour:
       \u0440\u044F\u0434\u043E\u043C \u0441 \u0438\u0433\u0440\u043E\u043A\u043E\u043C."
     descEn: The network center gets an empowered pulse and extra damage to nearby
       enemies.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:blast_echo_network
     group: ability-evolutions
@@ -3245,8 +3245,8 @@ MonoBehaviour:
       \u0443\u0437\u043B\u0435."
     descEn: The wave travels along the Sphere chain and grows stronger at each visited
       node.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:blast_resonant_core
     group: ability-evolutions
@@ -3257,8 +3257,8 @@ MonoBehaviour:
       \u0434\u043E\u043F\u043E\u043B\u043D\u0438\u0442\u0435\u043B\u044C\u043D\u044B\u0439
       \u0440\u0435\u0437\u043E\u043D\u0430\u043D\u0441\u043D\u044B\u0439 \u0438\u043C\u043F\u0443\u043B\u044C\u0441."
     descEn: Each Standard Sphere adds an additional resonance pulse to the wave.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:blast_infinite_pulse
     group: ability-evolutions
@@ -3270,8 +3270,8 @@ MonoBehaviour:
       \u0432\u043E\u043B\u043D\u0443 \u0447\u0435\u0440\u0435\u0437 \u0441\u0435\u0442\u044C."
     descEn: The last node creates a reverse pulse that sends the wave back through
       the network.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:shield_echo_guard
     group: ability-evolutions
@@ -3282,8 +3282,8 @@ MonoBehaviour:
       \u043E\u0434\u0438\u043D \u0437\u0430\u0440\u044F\u0434 \u0437\u0430\u0449\u0438\u0442\u043D\u043E\u043C\u0443
       \u0449\u0438\u0442\u0443 \u0441\u0435\u0442\u0438."
     descEn: Every two nearby Spheres add one charge to the network shield.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:shield_reflector
     group: ability-evolutions
@@ -3294,8 +3294,8 @@ MonoBehaviour:
       \u0447\u0435\u0440\u0435\u0437 \u0431\u043B\u0438\u0436\u0430\u0439\u0448\u0443\u044E
       \u0441\u0444\u0435\u0440\u0443."
     descEn: A blocked hit is partially reflected through the nearest Sphere.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:shield_bastion
     group: ability-evolutions
@@ -3306,8 +3306,8 @@ MonoBehaviour:
       \u0435\u0434\u0438\u043D\u044B\u0439 \u0437\u0430\u0449\u0438\u0442\u043D\u044B\u0439
       \u043A\u043E\u043D\u0442\u0443\u0440."
     descEn: Spheres around the player form a unified defensive circuit.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:shield_network_guard
     group: ability-evolutions
@@ -3318,8 +3318,8 @@ MonoBehaviour:
       \u0437\u0430\u0440\u044F\u0434\u043E\u0432 \u0437\u0430\u0449\u0438\u0442\u043D\u043E\u0433\u043E
       \u0449\u0438\u0442\u0430."
     descEn: Linked Spheres increase the shield charge capacity.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:shield_iron_dome
     group: ability-evolutions
@@ -3331,8 +3331,8 @@ MonoBehaviour:
       \u0437\u0430\u043F\u0430\u0441 \u0437\u0430\u0440\u044F\u0434\u043E\u0432 \u0449\u0438\u0442\u0430."
     descEn: The number of nearby Spheres increases the shield's additional charge
       capacity.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:shield_resonant_guard
     group: ability-evolutions
@@ -3344,8 +3344,8 @@ MonoBehaviour:
       \u0443\u0434\u0435\u0440\u0436\u0438\u0432\u0430\u044F \u0437\u0430\u0449\u0438\u0442\u0443
       \u0432 \u0440\u0435\u0437\u043E\u043D\u0430\u043D\u0441\u0435."
     descEn: A blocked hit restores one shield charge, keeping the defense in resonance.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:teleport_echo_jump
     group: ability-evolutions
@@ -3355,8 +3355,8 @@ MonoBehaviour:
       \u0431\u043B\u0438\u0436\u0430\u0439\u0448\u0443\u044E \u0441\u0444\u0435\u0440\u0443
       \u043A\u0430\u043A \u0442\u043E\u0447\u043A\u0443 \u043D\u0430\u0437\u043D\u0430\u0447\u0435\u043D\u0438\u044F."
     descEn: The jump uses the nearest Sphere as the destination.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:teleport_beacon
     group: ability-evolutions
@@ -3366,8 +3366,8 @@ MonoBehaviour:
       \u0443\u0441\u0438\u043B\u0438\u0432\u0430\u0435\u0442 \u0441\u043B\u0435\u0434\u0443\u044E\u0449\u0443\u044E
       \u0430\u0442\u0430\u043A\u0443."
     descEn: Jumping to a Sphere empowers the next attack.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:teleport_phase
     group: ability-evolutions
@@ -3377,8 +3377,8 @@ MonoBehaviour:
       \u0438\u0433\u0440\u043E\u043A \u043F\u043E\u043B\u0443\u0447\u0430\u0435\u0442
       \u043A\u0440\u0430\u0442\u043A\u043E\u0435 \u043E\u043A\u043D\u043E \u043D\u0435\u0443\u044F\u0437\u0432\u0438\u043C\u043E\u0441\u0442\u0438."
     descEn: After the jump, the player gains a brief invulnerability window.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:teleport_spatial_network
     group: ability-evolutions
@@ -3390,8 +3390,8 @@ MonoBehaviour:
       \u0441\u0435\u0442\u0435\u0432\u044B\u043C \u0440\u0435\u043B\u0435."
     descEn: Teleport connects the origin and destination nodes with a visual network
       relay.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:teleport_hunter_beacon
     group: ability-evolutions
@@ -3401,8 +3401,8 @@ MonoBehaviour:
       \u0443\u0441\u0438\u043B\u0438\u0432\u0430\u0435\u0442 \u0441\u043B\u0435\u0434\u0443\u044E\u0449\u0443\u044E
       \u0430\u0442\u0430\u043A\u0443."
     descEn: Jumping to a Sniper Sphere empowers the next attack.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:teleport_phase_break
     group: ability-evolutions
@@ -3413,8 +3413,8 @@ MonoBehaviour:
       \u0434\u043E\u043F\u043E\u043B\u043D\u0438\u0442\u0435\u043B\u044C\u043D\u044B\u0435
       \u0438\u043C\u043F\u0443\u043B\u044C\u0441\u044B."
     descEn: Spheres between the jump points create additional pulses.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:firetrail_overdrive
     group: ability-evolutions
@@ -3425,8 +3425,8 @@ MonoBehaviour:
       \u0443\u0441\u043A\u043E\u0440\u0435\u043D\u0438\u0435 \u0430\u0442\u0430\u043A
       \u0438 \u0443\u0440\u043E\u043D\u0430."
     descEn: Fire-aligned Spheres gain additional attack speed and damage.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:firetrail_ignition
     group: ability-evolutions
@@ -3437,8 +3437,8 @@ MonoBehaviour:
       \u0443\u0436\u0435 \u0438\u043C\u0435\u044E\u0449\u0438\u0445 \u0434\u0440\u0443\u0433\u043E\u0439
       \u0441\u0442\u0430\u0442\u0443\u0441."
     descEn: Overheat instantly ignites enemies that already have another status.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:firetrail_sanctum
     group: ability-evolutions
@@ -3449,8 +3449,8 @@ MonoBehaviour:
       \u0438 \u0435\u0451 \u0441\u043B\u0435\u0434\u0443\u044E\u0449\u0438\u0439
       \u0438\u043C\u043F\u0443\u043B\u044C\u0441."
     descEn: Overheat instantly empowers an Aura Sphere and its next pulse.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:firetrail_network
     group: ability-evolutions
@@ -3460,8 +3460,8 @@ MonoBehaviour:
       \u043C\u0435\u0436\u0434\u0443 \u0441\u0432\u044F\u0437\u0430\u043D\u043D\u044B\u043C\u0438
       \u0443\u0437\u043B\u0430\u043C\u0438."
     descEn: Overheat is transmitted between linked nodes.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:firetrail_catalyst
     group: ability-evolutions
@@ -3471,8 +3471,8 @@ MonoBehaviour:
       \u0443\u0441\u0438\u043B\u0438\u0432\u0430\u0435\u0442 \u0441\u043B\u0435\u0434\u0443\u044E\u0449\u0438\u0439
       \u043E\u0433\u043D\u0435\u043D\u043D\u044B\u0439 \u0438\u043C\u043F\u0443\u043B\u044C\u0441."
     descEn: A status reaction empowers the next fire pulse.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:firetrail_inferno
     group: ability-evolutions
@@ -3482,8 +3482,8 @@ MonoBehaviour:
       \u043F\u0435\u0440\u0435\u0433\u0440\u0435\u0442\u044B\u0439 \u0443\u0437\u0435\u043B
       \u0443\u0441\u0438\u043B\u0438\u0432\u0430\u0435\u0442 \u043F\u0440\u0435\u0434\u044B\u0434\u0443\u0449\u0438\u0435."
     descEn: Each newly overheated node strengthens the previous ones.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:minion_echo_drone
     group: ability-evolutions
@@ -3494,8 +3494,8 @@ MonoBehaviour:
       \u043A \u0431\u043B\u0438\u0436\u0430\u0439\u0448\u0435\u043C\u0443 \u0443\u0437\u043B\u0443
       \u0441\u0435\u0442\u0438."
     descEn: A temporary additional Sphere connects to the nearest network node.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:minion_relay_drone
     group: ability-evolutions
@@ -3506,8 +3506,8 @@ MonoBehaviour:
       \u043E\u0442 \u043E\u0434\u043D\u043E\u0439 \u0441\u0444\u0435\u0440\u044B
       \u043A \u0434\u0440\u0443\u0433\u043E\u0439."
     descEn: The drone regularly transfers a pulse from one Sphere to another.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:minion_guardian
     group: ability-evolutions
@@ -3518,8 +3518,8 @@ MonoBehaviour:
       \u0441\u0444\u0435\u0440\u044B \u0438 \u0443\u0441\u043A\u043E\u0440\u044F\u0435\u0442
       \u0435\u0451 \u0441\u043B\u0435\u0434\u0443\u044E\u0449\u0438\u0439 \u0446\u0438\u043A\u043B."
     descEn: The drone stays near the nearest Sphere and accelerates its next cycle.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:minion_echo_swarm
     group: ability-evolutions
@@ -3529,8 +3529,8 @@ MonoBehaviour:
       \u0434\u043E\u043F\u043E\u043B\u043D\u0438\u0442\u0435\u043B\u044C\u043D\u044B\u0435
       \u0443\u0437\u043B\u044B \u0441\u0435\u0442\u0438."
     descEn: Drones form additional network nodes.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:minion_network_nodes
     group: ability-evolutions
@@ -3539,8 +3539,8 @@ MonoBehaviour:
     descRu: "\u041A\u0430\u0436\u0434\u044B\u0439 \u0434\u0440\u043E\u043D \u0441\u0432\u044F\u0437\u044B\u0432\u0430\u0435\u0442
       \u0434\u0432\u0435 \u0431\u043B\u0438\u0436\u0430\u0439\u0448\u0438\u0435 \u0441\u0444\u0435\u0440\u044B."
     descEn: Each drone links the two nearest Spheres.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:minion_sphere_guard
     group: ability-evolutions
@@ -3550,8 +3550,8 @@ MonoBehaviour:
       \u0441\u0444\u0435\u0440\u044B, \u043A\u043E\u0442\u043E\u0440\u044B\u0435
       \u0437\u0430\u0449\u0438\u0449\u0430\u044E\u0442."
     descEn: Drones empower the Spheres they protect.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:lightning_echo_storm
     group: ability-evolutions
@@ -3563,8 +3563,8 @@ MonoBehaviour:
       \u0446\u0435\u043B\u0438."
     descEn: The discharge travels through every Chain Sphere before striking the
       target.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:lightning_relay
     group: ability-evolutions
@@ -3574,8 +3574,8 @@ MonoBehaviour:
       \u043C\u0435\u0436\u0434\u0443 \u0441\u0432\u044F\u0437\u0430\u043D\u043D\u044B\u043C\u0438
       \u0441\u0444\u0435\u0440\u0430\u043C\u0438."
     descEn: The discharge jumps between linked Spheres.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:lightning_overload
     group: ability-evolutions
@@ -3585,8 +3585,8 @@ MonoBehaviour:
       \u0441\u0435\u0440\u0438\u0438 \u043D\u0430\u043D\u043E\u0441\u0438\u0442 \u0434\u043E\u043F\u043E\u043B\u043D\u0438\u0442\u0435\u043B\u044C\u043D\u044B\u0439
       \u0443\u0440\u043E\u043D."
     descEn: The last discharge in the sequence deals additional damage.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:lightning_storm_network
     group: ability-evolutions
@@ -3596,8 +3596,8 @@ MonoBehaviour:
       \u043F\u043E\u0441\u043B\u0435\u0434\u043E\u0432\u0430\u0442\u0435\u043B\u044C\u043D\u044B\u0435
       \u0440\u0430\u0437\u0440\u044F\u0434\u044B \u043C\u0435\u0436\u0434\u0443 \u0443\u0437\u043B\u0430\u043C\u0438."
     descEn: The network creates sequential discharges between nodes.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:lightning_thunder_chain
     group: ability-evolutions
@@ -3607,8 +3607,8 @@ MonoBehaviour:
       \u0434\u043E\u0431\u0430\u0432\u043B\u044F\u0435\u0442 \u0434\u043E\u043F\u043E\u043B\u043D\u0438\u0442\u0435\u043B\u044C\u043D\u044B\u0439
       \u043F\u0435\u0440\u0435\u0445\u043E\u0434."
     descEn: Each Chain Sphere adds an additional jump.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:lightning_overload_core
     group: ability-evolutions
@@ -3618,8 +3618,8 @@ MonoBehaviour:
       \u0437\u0430\u043A\u0430\u043D\u0447\u0438\u0432\u0430\u0435\u0442\u0441\u044F
       \u043C\u043E\u0449\u043D\u044B\u043C \u0440\u0430\u0437\u0440\u044F\u0434\u043E\u043C."
     descEn: A complete network cycle ends with a powerful discharge.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:timestop_echo_phase
     group: ability-evolutions
@@ -3632,8 +3632,8 @@ MonoBehaviour:
       \u0438\u0445 \u0443\u0440\u043E\u043D \u0443\u0432\u0435\u043B\u0438\u0447\u0435\u043D
       \u043D\u0430 18%."
     descEn: Spheres continue attacking during the time stop.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:timestop_closed_time
     group: ability-evolutions
@@ -3643,8 +3643,8 @@ MonoBehaviour:
       \u0440\u0430\u0441\u0448\u0438\u0440\u044F\u0435\u0442\u0441\u044F \u0447\u0435\u0440\u0435\u0437
       \u0441\u0435\u0442\u044C."
     descEn: The stop zone expands through the network.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:timestop_time_anchor
     group: ability-evolutions
@@ -3654,8 +3654,8 @@ MonoBehaviour:
       \u0432\u0440\u0430\u0433\u043E\u0432 \u0432\u043E\u043A\u0440\u0443\u0433 \u0431\u043B\u0438\u0436\u0430\u0439\u0448\u0435\u0439
       \u0441\u0444\u0435\u0440\u044B."
     descEn: The stop anchors enemies around the nearest Sphere.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:timestop_outside_time
     group: ability-evolutions
@@ -3666,8 +3666,8 @@ MonoBehaviour:
       \u0432\u0440\u0430\u0433\u043E\u0432 \u0432\u043E \u0432\u0440\u0435\u043C\u044F
       \u043E\u0441\u0442\u0430\u043D\u043E\u0432\u043A\u0438."
     descEn: Sphere hits refresh enemy freeze during the stop.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:timestop_closed_network
     group: ability-evolutions
@@ -3678,8 +3678,8 @@ MonoBehaviour:
       \u044D\u0444\u0444\u0435\u043A\u0442 \u043E\u0441\u0442\u0430\u043D\u043E\u0432\u043A\u0438
       \u043C\u0435\u0436\u0434\u0443 \u0443\u0437\u043B\u0430\u043C\u0438."
     descEn: The network preserves the time-stop effect between nodes.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:timestop_temporal_core
     group: ability-evolutions
@@ -3689,8 +3689,8 @@ MonoBehaviour:
       \u043E\u0441\u0442\u0430\u043D\u043E\u0432\u043A\u0438 \u0443\u0434\u0432\u0430\u0438\u0432\u0430\u0435\u0442
       \u0441\u0438\u043B\u0443 \u0430\u043A\u0442\u0438\u0432\u043D\u043E\u0439 \u0441\u0435\u0442\u0438."
     descEn: The final second of the stop doubles the active network's strength.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:darkritual_blood_link
     group: ability-evolutions
@@ -3700,8 +3700,8 @@ MonoBehaviour:
       \u043F\u0435\u0440\u0435\u0434\u0430\u0451\u0442\u0441\u044F \u0431\u043B\u0438\u0436\u0430\u0439\u0448\u0435\u0439
       Standard-\u0441\u0444\u0435\u0440\u0435."
     descEn: Part of the overload is transferred to the nearest Standard Sphere.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:darkritual_sacrifice
     group: ability-evolutions
@@ -3712,8 +3712,8 @@ MonoBehaviour:
       \u0438\u043C\u043F\u0443\u043B\u044C\u0441 \u0432\u043E\u043A\u0440\u0443\u0433
       \u0431\u043B\u0438\u0436\u0430\u0439\u0448\u0435\u0439 \u0441\u0444\u0435\u0440\u044B."
     descEn: Lost HP creates an additional pulse around the nearest Sphere.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:darkritual_void_pact
     group: ability-evolutions
@@ -3723,8 +3723,8 @@ MonoBehaviour:
       \u0434\u043E\u043B\u044C\u0448\u0435 \u0434\u043B\u0438\u0442\u0441\u044F \u043F\u0435\u0440\u0435\u0433\u0440\u0443\u0437\u043A\u0430
       \u0441\u0435\u0442\u0438."
     descEn: The lower the HP, the longer the network overload lasts.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:darkritual_blood_network
     group: ability-evolutions
@@ -3734,8 +3734,8 @@ MonoBehaviour:
       \u0437\u0430\u0440\u044F\u0434 \u043C\u0435\u0436\u0434\u0443 \u0441\u0432\u044F\u0437\u0430\u043D\u043D\u044B\u043C\u0438
       Standard-\u0441\u0444\u0435\u0440\u0430\u043C\u0438."
     descEn: The overload transfers charge between linked Standard Spheres.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:darkritual_sacrifice_core
     group: ability-evolutions
@@ -3746,8 +3746,8 @@ MonoBehaviour:
       \u0432\u043E\u043A\u0440\u0443\u0433 \u0431\u043B\u0438\u0436\u0430\u0439\u0448\u0435\u0439
       \u0441\u0444\u0435\u0440\u044B."
     descEn: HP sacrifice creates an empowered pulse around the nearest Sphere.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
   - section: evolutions
     id: ability-evolution:darkritual_void_engine
     group: ability-evolutions
@@ -3759,5 +3759,5 @@ MonoBehaviour:
       \u0432\u0441\u0435\u0439 \u0441\u0435\u0442\u0438."
     descEn: At low HP, the overload lasts longer and increases the damage of the
       entire network.
-    detailsRu: 
-    detailsEn: 
+    detailsRu:
+    detailsEn:
