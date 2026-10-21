@@ -39,7 +39,7 @@ namespace EchoSphere.Presentation
         private sealed class ShopRow { internal Label Owned,Price; internal Button Button; internal ShopItem State; }
         private static Color C(string hex){ColorUtility.TryParseHtmlString(hex,out var c);return c;}
         private static Color A(int r,int g,int b,float a)=>new Color(r/255f,g/255f,b/255f,a);
-        private static NativeMenuBrush.Paint CardPaint(bool concept,Color fill,Color border,float radius=12)=>concept?new NativeMenuBrush.Paint {
+        internal static NativeMenuBrush.Paint CardPaint(bool concept,Color fill,Color border,float radius=12)=>concept?new NativeMenuBrush.Paint {
             Radius=5,Border=1,BorderColor=A(86,182,238,.20f),LinearAngle=145,
             Colors=new[]{A(9,23,39,.91f),A(2,8,15,.97f)},Stops=new[]{0f,1f},
             Inset=new NativeMenuBrush.Shadow(0,new Vector2(0,1),A(155,225,255,.025f)),

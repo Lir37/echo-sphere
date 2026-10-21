@@ -62,7 +62,7 @@ explicit remaining migration work, not reclassified as fully native architecture
 
 ## Continue implementation
 
-1. Replace archive with a typed native Unity screen (character selection completed in the following group).
+1. Top-level menu screens are implemented natively, including characters and archive in following groups; continue with gameplay overlays.
 2. Move remaining upgrade/artifact/detail/result/tutorial/mobile controls out of TSX.
 3. Replace pause outer shell and retained-prefix fallback with the native compositor.
 4. Replace generated gameplay Canvas execution with native entity views and Unity
@@ -73,8 +73,8 @@ No gameplay/balance/RNG changes, no new mechanics, no protected branch edits, no
 ProjectSettings.asset and _Recovery remain user-owned and outside this change.
 
 Short handoff: continue unity-migration at the containing HEAD. Native Home/map/shop/
-records/achievements/characters/Settings routes are selected; native HUD/four-tab pause now
-default on. Complete archive, overlays and gameplay views, then native
+records/achievements/characters/archive/Settings routes are selected; native HUD/four-tab pause now
+default on. Complete overlays and gameplay views, then native
 shell/compositor. Implementation first; defer profiling/standalone fixtures. Preserve
 gameplay, visuals, new-desing and user changes; no APK.
 
@@ -99,3 +99,25 @@ campaign was run. CI776 had passed API and TypeScript checks but failed an old S
 structural test that searched the former bridge file for moved callbacks. The same
 assertions now inspect EchoSphereNativeSettings.cs; the targeted existing test passes.
 The containing commit still requires a new complete CI result. No mechanics/APK changes.
+
+## Following implementation group — archive
+
+Entry b8bd6865b66b5715951d5c5a690f932619707c6c, CI777 SUCCESS. NativeArchiveScreen
+now owns all seven archive sections, native TextField search without rebuilding the
+focused field, responsive navigation/two-column cards, locked entries, concept cards,
+Resonance paragraphs and the three evolution groups. Existing knowledge IDs and
+unlock-count semantics remain authoritative. Evolution queries intentionally retain
+the source behavior (the source does not filter that section).
+
+NativeArchiveCatalog.asset contains 305 typed native entries. The content importer
+uses exact source strings, and corrects the generic catalog's ability descriptions
+from the original progression level-I descriptions, matching KnowledgeBase.tsx's
+actual fallback order. Original seven-level/evolution explanatory copy is retained.
+The player archive does not execute generated TSX or dynamic progression functions.
+Its main surface belongs to the ScrollView viewport, not a texture spanning the full
+height of every archive entry. Native button blur still shares the documented prefix
+fallback; its removal remains separate native compositor work.
+
+Editor compilation passes with zero errors/warnings; import completed with 305 entries.
+No Play/Profiler/pixel campaign was run. CI must match the containing archive commit.
+No new gameplay rules, unlock conditions, source branch edits or APK.

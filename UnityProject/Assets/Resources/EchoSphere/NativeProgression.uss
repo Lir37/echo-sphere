@@ -12,3 +12,5 @@
 .back:hover #back-text { color: #dcecff; }
 .purchase { border-radius: 5px; }
 .character-card { transition-property: translate; transition-duration: 160ms; transition-timing-function: ease; }
+#archive-query { margin: 0; padding: 0; border-width: 0; background-color: transparent; }
+#archive-query .unity-text-field__input { margin: 0; padding: 0; border-width: 0; background-color: transparent; color: #dcefff; }

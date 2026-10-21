@@ -7285,6 +7285,7 @@ namespace EchoSphere.Runtime
             if(_nativeSettingsScreen!=null)Destroy(_nativeSettingsScreen.gameObject);
             if(_nativeRegionScreen!=null)Destroy(_nativeRegionScreen.gameObject);
             if(_nativeCharacterScreen!=null)Destroy(_nativeCharacterScreen.gameObject);
+            if(_nativeArchiveScreen!=null)Destroy(_nativeArchiveScreen.gameObject);
             if(_sourceUi!=null)Destroy(_sourceUi.gameObject);
             if(_sourceCanvas!=null)Destroy(_sourceCanvas.gameObject); if (_networkLineMaterial != null) Destroy(_networkLineMaterial);
             if (_uiPanelTexture != null) Destroy(_uiPanelTexture);

@@ -182,7 +182,8 @@ namespace EchoSphere.Runtime
             bool nativeSettings=TryDrawNativeSettings();
             bool nativeRegions=TryDrawNativeRegions();
             bool nativeCharacters=TryDrawNativeCharacters();
-            if(nativeHome||nativeProgression||nativeSettings||nativeRegions||nativeCharacters)return;
+            bool nativeArchive=TryDrawNativeArchive();
+            if(nativeHome||nativeProgression||nativeSettings||nativeRegions||nativeCharacters||nativeArchive)return;
             if(_sourceCanvas==null) {
                 VisualJs.ImageFactory=()=>new V(new SourceCanvasImage());
                 _sourceCanvas=new GameObject("Source Canvas — renderer.ts").AddComponent<SourceCanvasSurface>();_sourceCanvas.Initialize(100);
