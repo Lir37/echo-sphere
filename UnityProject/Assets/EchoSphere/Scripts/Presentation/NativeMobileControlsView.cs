@@ -5,8 +5,8 @@ using UnityEngine.UIElements;
 
 namespace EchoSphere.Presentation
 {
-    // Retained combat dock. Gesture recognition remains with its existing owner;
-    // each button forwards the original pointer callback, including its refs.
+    // Retained combat dock. The native runtime controller owns pointer actions;
+    // this view owns only layout, text and paint.
     internal sealed class NativeMobileControlsView : IDisposable
     {
         internal sealed class Control {internal string Id,Name,Detail,Tooltip,Icon,Color;internal bool Disabled;internal float Cooldown;}

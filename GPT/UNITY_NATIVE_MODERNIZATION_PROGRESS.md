@@ -14,8 +14,7 @@ region reload handoff, saves and gameplay remain authoritative.
 Actual Editor compilation passes with zero errors/warnings. No new profiling,
 pixel comparison, Play acceptance or device validation was performed for this group
 at the user's direction. CI is a separate check on the containing commit. Full native
-migration remains incomplete: gameplay drawing, mobile gesture ownership,
-and the remaining CSS shell/compositor
+migration remains incomplete: gameplay drawing, and the remaining CSS shell/compositor
 and retained-prefix fallback must still be replaced. Native controls being selected
 does not mean the whole game is native or visual/device parity has been accepted.
 See UNITY_NATIVE_PRODUCTION_ROUTES_2026-10-21.md.
@@ -27,11 +26,12 @@ the native result uses Unity AnimationCurve for the original record pulse. This 
 implementation, not combined Play/device acceptance. See the latest report addendum.
 
 Artifact rewards, artifact set detail (reward and pause), six-step tutorial and the
-mobile combat button dock now have retained native Unity views. The dock forwards
-the original pointer handlers to preserve joystick direction refs, haptics and
-guards. Native joystick, placement pulse, ghost network and formation-memory geometry are
-also implemented. Gesture recognition and the outer source overlay/layout remain
-explicit migration work. Native alpha shadows and
+mobile combat button dock now have retained native Unity views. The dock now calls a native C# gesture/action owner preserving direction, haptics
+and guards. Native joystick, placement pulse, ghost network and formation-memory geometry are
+also implemented. Gesture recognition, pointer capture, timers and typed mobile view models now have
+a native C# owner. The generated MobileControls component and its hook/DOM-event
+state are bypassed. Outer source overlay/layout and shared game-data projection
+remain explicit migration work. Native alpha shadows and
 brush spread support preserve authored glyph and panel shadows.
 
 Current status entry point, 2026-10-20. Historical reports retain earlier evidence;

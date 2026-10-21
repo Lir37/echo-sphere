@@ -7284,6 +7284,7 @@ namespace EchoSphere.Runtime
             DisposeNativeUpgrade();
             DisposeNativeArtifactRewards();DisposeNativePauseSetDetail();
             DisposeNativeTutorial();
+            DetachNativeMobileGestures();
             DisposeNativeMobileDock();
             DisposeNativeMobileFeedback();
             DisposeNativeMobileNetwork();

@@ -23,7 +23,7 @@ namespace EchoSphere.Runtime
                 _sourceUiStateRef=VisualJs.Obj("current",_sourceRenderState);_sourceUiCanvasRef=VisualJs.Obj("current",VisualJs.Null);_sourceUiTutorialRef=VisualJs.Obj("current",VisualJs.Null);
                 var saved=LoadRunSnapshot();_sourceUiSavedRunTime=saved==null?VisualJs.Null:new V(Math.Floor(saved.time));
                 _sourceUi.Render=BuildNativeSourceUiTree;_sourceUi.AfterEvent=ApplySourceUiWrites;
-                _sourceUi.BeforePaint=root=>{PrepareNativeHudIsland(root);PrepareNativePauseScreen(root);PrepareNativePauseChromeIsland(root);PrepareNativePauseStatsIsland(root);PrepareNativePauseAbilitiesIsland(root);PrepareNativePauseArtifactsIsland(root);PrepareNativePauseSynergiesIsland(root);CompleteNativePauseScreen();PrepareNativeRunResult(root);PrepareNativeUpgrade(root);PrepareNativeArtifactRewards(root);PrepareNativePauseSetDetail(root);PrepareNativeTutorial(root);PrepareNativeMobileDock(root);PrepareNativeMobileFeedback(root);PrepareNativeMobileNetwork(root);};
+                _sourceUi.BeforePaint=root=>{PrepareNativeHudIsland(root);PrepareNativePauseScreen(root);PrepareNativePauseChromeIsland(root);PrepareNativePauseStatsIsland(root);PrepareNativePauseAbilitiesIsland(root);PrepareNativePauseArtifactsIsland(root);PrepareNativePauseSynergiesIsland(root);CompleteNativePauseScreen();PrepareNativeRunResult(root);PrepareNativeUpgrade(root);PrepareNativeArtifactRewards(root);PrepareNativePauseSetDetail(root);PrepareNativeTutorial(root);PrepareNativeMobileGestures(root);PrepareNativeMobileDock(root);PrepareNativeMobileFeedback(root);PrepareNativeMobileNetwork(root);};
                 _sourceUi.CanvasTexture=()=>_sourceCanvas.UiTexture;
                 var environment=_sourceUi.Environment;
                 environment.ReadStorage=key=>PlayerPrefs.HasKey(key)?new V(PlayerPrefs.GetString(key)):VisualJs.Null;
@@ -37,7 +37,7 @@ namespace EchoSphere.Runtime
             // Active HUD data updates at 10 Hz. Paused simulation data is stable;
             // actions, pointer events and resize invalidate immediately. Motion,
             // native controls, layout, world paint and backdrop filters still tick.
-            _sourceUi.Continuous=false;_sourceUi.RefreshInterval=_mainMenu||_userPaused?0f:0.1f;_sourceUi.Draw(SourceDevicePixelRatio);
+            _sourceUi.Continuous=false;_sourceUi.RefreshInterval=_mainMenu||_userPaused?0f:0.1f;TickNativeMobileTransients();_sourceUi.Draw(SourceDevicePixelRatio);
         }
         private V SourceUiTree()
         {
@@ -84,7 +84,9 @@ namespace EchoSphere.Runtime
             props["bindNativePauseChrome"]=Action(args=>{_nativePauseChromeResume=args[0];_nativePauseChromeExit=args[1];_nativePauseChromeSelect=args[2];});
             props["selectedArtifactSetId"]=_pauseArtifactSetId==null?VisualJs.Null:new V(_pauseArtifactSetId);props["setSelectedArtifactSetId"]=Action(args=>_pauseArtifactSetId=args[0].Null?null:args[0].Text);
             props["gameOverData"]=_gameOver?VisualJs.Obj("time",Math.Floor(_runTime),"wave",_wave,"kills",_kills,"gold",_runGoldEarned,"rank",_sourceResultRank,"isNewRecord",_sourceResultNewRecord,"regionClear",_regionStabilized,"challengeProgress",GetCompletedRegionChallenges(EchoRegionId.ResonanceBasin).Length,"endlessUnlocked",IsRegionEndlessUnlocked(EchoRegionId.ResonanceBasin),"masteryChallengesCompleted",_regionMasteryChallengesCompleted):VisualJs.Null;
-            return VisualDom.Component("SourceGameView",Visual_App.Scope["SourceGameView"],props);
+            var mobile=Visual_MobileControls.Scope["MobileControls"];
+            try{Visual_MobileControls.Scope["MobileControls"]=VisualJs.Fn(BuildNativeMobileComponent);return VisualDom.Component("SourceGameView",Visual_App.Scope["SourceGameView"],props);}
+            finally{Visual_MobileControls.Scope["MobileControls"]=mobile;}
         }
         private void InstallSourceScaleControl(V tree)
         {

@@ -237,3 +237,39 @@ mobile button dock and all mobile feedback geometry are selected. Continue with
 native gesture/controller ownership, gameplay/world drawing and removing the remaining
 source-shell/data-projection/compositor dependencies. Keep gameplay and visual quality;
 no APK. Compile/CI only; dedicated measurement/acceptance follows implementation.
+
+
+## Native mobile gesture/controller ownership
+
+Entry d69cd0bb6ffe68757f782077c57f1fc42cd54bc0, CI781 SUCCESS.
+EchoSphereNativeMobileGestures now owns the pointer dictionary, Unity pointer capture,
+joystick direction, dragging/placement decisions, locked touches, tap completion,
+formation-memory and placement timers. NativeMobileControl handles the actual dock
+input. Existing SourceUiBinding actions, collision validation and network preview
+helpers remain authoritative; their gameplay formulas and Core implementations are
+not rewritten. Original12px deadzone,26px tap and34px drag tolerances, joystick side,
+tutorial exceptions, pending guards, haptics and last-direction dash are preserved.
+PointerCancel deliberately retains the original completion behavior.
+
+EchoSphereNativeMobileState supplies typed dock/feedback/network models directly.
+The original generated MobileControls component is replaced only for the synchronous
+SourceGameView composition call, restoring the module entry in finally. It no longer
+runs its React-style hooks, timers, generated button callbacks or SVG construction.
+The remaining thin layout placeholders preserve source scale, position, z-order and
+tutorial anchor while native views own their contents. Ghost and memory containers
+are now ordinary layout boxes; no empty SVG parser/rasterization dependency remains.
+DOM scans, callback capture, semantic pseudo-DOM buttons and source mobile projection
+passes have been removed. Native button class markers protect placement even when a
+control is disabled. Transient controller fields are excluded from run snapshots.
+
+Still incomplete: native gameplay/world rendering, outer game/pause/overlay layout,
+shared V/data projection and ordered shell/compositor fallback. Pure source display
+helpers/catalogs remain transitional. No APK or protected-source change. Dedicated
+Play, visual/device acceptance and performance measurement remain deferred by user.
+Editor compile and CI are technical gates only; full migration/P1/P2 remain PARTIAL.
+
+Short handoff: Continue ECHO SPHERE unity-migration at the containing commit
+(git log -1 --format=%H). Read the three GPT documents and native modernization reports.
+Native mobile input/state no longer runs the generated MobileControls component.
+Continue gameplay/world drawing and remaining source layout/data/compositor removal;
+preserve gameplay/quality, no APK. Compile/CI now, measurement/acceptance afterwards.
