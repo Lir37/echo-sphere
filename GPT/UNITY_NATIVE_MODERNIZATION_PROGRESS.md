@@ -334,3 +334,25 @@ See UNITY_NATIVE_PAUSE_CHROME_2026-10-20.md and associated evidence for current 
 Latest actual-panel contrast control now passes; sigma8 candidate still fails smoothing (.854902 contrast). Blur gate OPEN/FAIL, production off. Final Editor lifecycle47 and Return/reload7 PASS; six preferences restored; Console0errors/1warning. Candidate paused CPU5.04->6.29FPS, GC24.57->17.72MB/frame; no equal-quality acceptance.232 C# and272 Node checks pass. Next: fix/validate blur before pause activation, then native shell/world migration.
 
 Implementation46e844e996702cf8b3da528abd8e43fc48f48d6b: CI#771 SUCCESS (39545733207); blur gate remains failed/open, pilot false. Next starts by diagnosing native effect host/crop preparation, then pause shell/world migration. No gameplay/APK changes.
+
+### 2026-10-21 — shared backdrop mirror coordinates corrected
+
+Entry814befe44f2d043a46ba877aac19e5708a4f81e3. The previous functional blur FAIL
+is superseded: atlas UV normalization did not map to the CSS ROI. Use local PANEL
+quad coordinates (already logical at DPR2), then reflect per-sample screen deltas
+through the original matrices and convert to texels. No effect/kernel/gamma reduction.
+Production shader corrected; pause chrome still off pending full-screen/device gates.
+
+Actual-panel DPR1/1.5/2/3 plus rotated controls:12cases/42checks PASS; white edge
+against black:4cases/16checks PASS. Original controls47 and Return/map reload7 PASS.
+Fixture cleanup restores callback/runtime/scale/Profiler/background and0 filters.
+Early native prefix32 changing-frame samples PASS(maxchannel1); known late-panel
+negative control still fails first changed frame. This is not full compositor proof.
+
+Paused A/B/A/B with corrected blur:7.70->9.65FPS, GC24.557->14.671MB/frame, still
+unacceptable. CPU Timeline confirms source CSS52–67ms and backdrop preparation~14ms;
+BuildTree includes CSS. API232+3, TS, Node272 and all8 provenance checks PASS.
+Six preferences restored; Console0errors, Profiler pressure warnings retained.
+P1/P2 PARTIAL. Read UNITY_NATIVE_PAUSE_BLUR_FIX_2026-10-21.md and BLUR_* evidence.
+Next: native pause shell/compositor and complete quality/input gates, then active
+world-view profiling/migration. Do not repeat the superseded empty-doc blur harness.

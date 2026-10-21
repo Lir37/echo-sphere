@@ -43,7 +43,8 @@ namespace EchoSphere.Presentation
             var passes=new PostProcessingPass[2];
             for(var axis=0;axis<2;axis++){
                 // The crop already includes the complete 4-sigma support, so
-                // filter margins stay zero: atlas UV bounds map exactly to ROI.
+                // filter margins stay zero. The shader derives CSS coordinates
+                // from quad pixels, independently of the atlas UV allocation.
                 passes[axis]=new PostProcessingPass {material=_material,passIndex=axis,applySettingsCallback=ApplySettings};
             }
             _definition.passes=passes;

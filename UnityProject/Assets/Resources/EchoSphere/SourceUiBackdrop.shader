@@ -8,20 +8,20 @@ Shader "EchoSphere/SourceUiBackdrop"
   #include "UnityUIEFilter.cginc"
   sampler2D _MainTex;float4 _MainTex_ST,_MainTex_TexelSize;float _Sigma,_CssDpr,_CssReadsGamma;
   float4 _Roi,_PanelSize,_ToPanelX,_ToPanelY,_ToScreenX,_ToScreenY;
-  struct effectOutput {float4 vertex:SV_POSITION;float2 uv:TEXCOORD0;nointerpolation uint rectIndex:TEXCOORD1;};
-  effectOutput effectVertex(FilterVertexInput v){effectOutput o;o.vertex=UnityObjectToClipPos(v.vertex);o.uv=TRANSFORM_TEX(v.uv,_MainTex);o.rectIndex=GetFilterRectIndex(v);return o;}
-  float2 Mirror(float2 uv,float4 rect){
-   float2 screen=_Roi.xy+float2((uv.x-rect.x)/rect.z,1-(uv.y-rect.y)/rect.w)*_Roi.zw;
+  struct effectOutput {float4 vertex:SV_POSITION;float2 uv:TEXCOORD0;nointerpolation uint rectIndex:TEXCOORD1;float2 css:TEXCOORD2;};
+  effectOutput effectVertex(FilterVertexInput v){effectOutput o;o.vertex=UnityObjectToClipPos(v.vertex);o.uv=TRANSFORM_TEX(v.uv,_MainTex);o.rectIndex=GetFilterRectIndex(v);o.css=_Roi.xy+v.vertex.xy;return o;}
+  float2 Mirror(float2 uv,float2 screen){
+   // Unity's filter quad uses local panel coordinates. Its atlas UV domain can
+   // include allocator padding, so it is not the CSS capture rectangle.
    float2 panel=float2(dot(_ToPanelX.xyz,float3(screen,1)),dot(_ToPanelY.xyz,float3(screen,1)));
    // CSS backdrop blur mirrors at the transformed border quad. It must not
    // mix unrelated pixels just outside a panel into the panel's edge.
    panel=_PanelSize.xy-abs(_PanelSize.xy-frac(panel/(2*_PanelSize.xy))*(2*_PanelSize.xy));
-   screen=float2(dot(_ToScreenX.xyz,float3(panel,1)),dot(_ToScreenY.xyz,float3(panel,1)));
-   float2 screenUv=(screen-_Roi.xy)/_Roi.zw;
-   return rect.xy+float2(screenUv.x,1-screenUv.y)*rect.zw;
+   float2 reflected=float2(dot(_ToScreenX.xyz,float3(panel,1)),dot(_ToScreenY.xyz,float3(panel,1)));
+   return uv+(reflected-screen)*float2(1,-1)*_CssDpr*_MainTex_TexelSize.xy;
   }
-  float4 Read(float2 uv,float4 rect,bool mirror){
-   if(mirror)uv=Mirror(uv,rect);
+  float4 Read(float2 uv,float4 rect,bool mirror,float2 screen){
+   if(mirror)uv=Mirror(uv,screen);
    // UI Toolkit packs independent filter surfaces into an atlas. Never sample
    // neighbouring panels. UIR supplies premultiplied pixels, not straight RGBA.
    if(any(uv<rect.xy)||any(uv>rect.xy+rect.zw))return float4(0,0,0,0);
@@ -31,13 +31,14 @@ Shader "EchoSphere/SourceUiBackdrop"
   }
   float4 Blur(effectOutput i,float2 axis,bool mirror){
    float4 rect=GetFilterUVRect(i.rectIndex);float sigma=max(0,_Sigma*_CssDpr);float4 result=float4(0,0,0,0);
-   if(sigma<.001)result=Read(i.uv,rect,mirror);
+   if(sigma<.001)result=Read(i.uv,rect,mirror,i.css);
    else {
-    int radius=(int)ceil(4*sigma);float normalization=1;result=Read(i.uv,rect,mirror);
+    int radius=(int)ceil(4*sigma);float normalization=1;result=Read(i.uv,rect,mirror,i.css);
     [loop]for(int offset=1;offset<=radius;offset++){
      float weight=exp(-offset*(float)offset/(2*sigma*sigma));
      float2 delta=axis*_MainTex_TexelSize.xy*offset;
-     result+=(Read(i.uv+delta,rect,mirror)+Read(i.uv-delta,rect,mirror))*weight;normalization+=2*weight;
+     float2 step=float2(axis.x,-axis.y)*offset/_CssDpr;
+     result+=(Read(i.uv+delta,rect,mirror,i.css+step)+Read(i.uv-delta,rect,mirror,i.css-step))*weight;normalization+=2*weight;
     }
     result/=max(.000001,normalization);
    }

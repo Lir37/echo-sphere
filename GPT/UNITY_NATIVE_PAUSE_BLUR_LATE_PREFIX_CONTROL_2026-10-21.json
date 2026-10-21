@@ -1,0 +1,12 @@
+{
+  "requestedDepth": 24,
+  "phaseFrames": 4,
+  "earlyPrefix": false,
+  "nativeClickVerified": true,
+  "maximumChannelError": 57,
+  "status": "EXPECTED FAIL: late cross-panel control",
+  "limits": "Actual Editor negative control; first frame after pattern change differs, stable frames max1. Matches prior baseline0be716d; not production activation or performance evidence.",
+  "maximumMeanError": 0.66607666015625,
+  "samples": 32,
+  "actualDepthStencil": "D32_SFloat_S8_UInt"
+}

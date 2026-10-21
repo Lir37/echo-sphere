@@ -1,5 +1,10 @@
 # Native pause header/footer candidate — 2026-10-21
 
+Follow-up: functional blur gates now PASS after the shared shader correction. See
+UNITY_NATIVE_PAUSE_BLUR_FIX_2026-10-21.md. The failures/captures below are historical;
+full-screen/mobile gates remain open and chrome still defaults false.
+
+
 Entry HEAD: 608b30f929aaa3e0741a2c11e5532f63518f7130, unity-migration.
 Implementation HEAD is the commit containing this report. P1/P2 remain PARTIAL.
 The pilot defaults false. No gameplay/RNG/formula, protected new-desing or APK changes.
