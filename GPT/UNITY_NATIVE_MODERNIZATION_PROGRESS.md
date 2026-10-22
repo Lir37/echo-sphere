@@ -1,5 +1,17 @@
 # ECHO SPHERE — native visual modernization
 
+2026-10-23: The complete active drawModernEnemy representation now has a native
+C# owner: all ten creature anatomies and four bosses, movement-facing memory,
+pose/hit pulse, tier/elite crests, fire/poison/freeze, Link Breaker, all original boss
+attack telegraphs and boss health/name labels. Shared additive discs, ground shadows
+and the disabled-network glyph/ring also submit native meshes. Unity Vector Graphics
+owns curves; materials own radial creature/core glows. Simulation/RNG/balance remain
+unchanged. Dynamic anatomy/effect meshes are retained but still retessellated when
+shape changes; this is migration work, not a measured performance result. Actual
+Editor compile and glow shader validation pass. Play/device acceptance is deferred.
+Player/sphere procedural views, other VFX and source coordinator/UI/data/compositor
+bridges remain incomplete. See the latest production-routes addendum.
+
 2026-10-23: All six hostile projectile presentations are now selected through a
 native C# owner: ranged/sniper and shooter/charger/summoner/aura boss variants.
 Retained Unity Vector Graphics meshes preserve authored bodies, tails, outlines,

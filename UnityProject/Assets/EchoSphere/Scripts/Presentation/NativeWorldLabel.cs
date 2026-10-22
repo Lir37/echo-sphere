@@ -17,11 +17,11 @@ namespace EchoSphere.Presentation
         private Font _font;private string _text;private int _size;private bool _dirty=true;
         internal NativeWorldLabel(){_material=new Material(Resources.Load<Shader>("EchoSphere/NativeWorldLabel")){name="Native world label",hideFlags=HideFlags.DontSave};Font.textureRebuilt+=Rebuilt;}
         private void Rebuilt(Font font){if(font==_font)_dirty=true;}
-        internal void Draw(SourceCanvasSurface surface,string text,Vector2 position,Color color)
+        internal void Draw(SourceCanvasSurface surface,string text,Vector2 position,Color color,Color? shadow=null,bool inheritShadowOffsets=false)
         {
             int size=Mathf.Max(1,Mathf.CeilToInt(8*surface.NativeTextRasterScale));if(size!=_size||text!=_text){_size=size;_text=text;_dirty=true;}
             _font=SourceCanvasTypography.ResolveFamily("system-ui,sans-serif",size);_properties.SetVector("_LabelOffset",new Vector4(position.x,position.y,0,0));_properties.SetVector("_LabelColor",new Vector4(color.r,color.g,color.b,color.a));
-            surface.DrawNativeTextMesh(_mesh,_material,_properties,Prepare,Emit);
+            surface.DrawNativeTextMesh(_mesh,_material,_properties,Prepare,Emit,shadow,inheritShadowOffsets);
         }
         private void Prepare(){SourceCanvasTypography.Vertices(_font,_text,_size,FontStyle.Bold);}
         private void Emit()

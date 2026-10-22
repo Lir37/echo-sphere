@@ -453,3 +453,47 @@ Short handoff: Continue ECHO SPHERE unity-migration at containing HEAD (git log 
 projectile painting is native for all six variants. Continue actual enemy creature
 geometry and remaining player/sphere/telegraph/VFX owners, then remove transitional
 source bridges. Preserve gameplay and quality; no APK; measurements after migration.
+
+
+### 2026-10-23 — complete active enemy representation and associated effects
+
+Entry HEAD31f27283a0cf45bf4fa01d7e0eff80447f202f1f, CI #788 SUCCESS.
+NativeWorldCreatures now owns the production drawModernEnemy route rather than
+enabling the older scene approximation. Typed anatomy retains all ten enemy variants
+and four bosses from enemyVisual.ts: quadratic body/wing/segment contours, articulated
+legs, tails, eyes, cores and boss frame arcs. Unity Vector Graphics owns tessellation,
+Unity meshes/materials own drawing, a dedicated native radial shader retains original
+creature/core gradient stops and additive composition. Static art is retained;
+animated segments/effects reuse mesh instances and retessellate when needed. This
+has not established FPS/GC improvement and can still need native batching work.
+
+Native movement-facing memory uses weak object identity with the original .04
+threshold and initial rotation rule. Freeze affects the original outer/tier/bar
+colors without recoloring the original creature body. Hit scale/cross, tier rays,
+elite crest, all fire/poison/freeze paints, Link Breaker target warning and disabled
+network glyph/ring preserve original constants, paint order, alpha assignment,
+shadow offsets/blur, caps/joins and multi-contour strokes. Boss telegraph windows
+come from the existing source balance constants; no new rules or timing values.
+Boss health bars/name labels retain unrotated placement, health ratio, original
+names/localization and Unity Font atlas synchronization. Native helper interception
+is restored in finally; view ownership is excluded from saves and disposed.
+
+Shared glowCircle (two additive discs, not a new gradient) and drawGroundShadow
+(two solid ellipses; original unused blur argument stays unused) are also native.
+Current-path continuation preserves the source painter state between remaining
+layers, including multi-contour glyphs and rectangle/text path preservation.
+No gameplay, visual-quality settings, source branch or APK modifications.
+
+Actual Editor compilation: zero errors/warnings; scriptCompilationFailed=false;
+NativeWorldCreatureGlow shader supported with no diagnostics. Play/device visual
+acceptance and measurements remain deferred at the user's implementation-first
+direction. CI for the containing commit is checked independently after push.
+Full migration remains PARTIAL: player/sphere procedural views, other VFX and the
+source renderer/UI/data/compositor bridges remain.
+
+Short handoff: Continue ECHO SPHERE unity-migration at containing HEAD (git log -1
+--format=%H). Read three GPT documents and native modernization reports. Complete
+active enemy representation, all 14 anatomies, associated statuses/telegraphs/bars,
+shared glow/shadow helpers and disabled-network indicator are now native. Continue
+player/sphere procedural views and remaining world effects, then remove transitional
+source bridges. Preserve behavior/quality; no APK; measurements after implementation.

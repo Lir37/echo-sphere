@@ -185,13 +185,22 @@ namespace EchoSphere.Presentation
         {var matrix=_state.Matrix;try{_state.Matrix*=local;_path.Clear();_contour=null;Ellipse(center.x,center.y,radius,radius,0,0,Mathf.PI*2,false);}finally{_state.Matrix=matrix;}}
         internal void ContinueNativePolygon(Vector2[] points,Matrix4x4 local,bool closed=true)
         {var matrix=_state.Matrix;try{_state.Matrix*=local;_path.Clear();_contour=null;for(int i=0;i<points.Length;i++)if(i==0)Move(points[i]);else Line(points[i]);if(closed)Close();}finally{_state.Matrix=matrix;}}
+        internal void ContinueNativeContour(BezierContour contour,Matrix4x4 local)
+        {
+            var matrix=_state.Matrix*local;_path.Clear();_contour=new Contour {ConstructionMatrix=matrix,Closed=contour.Closed};_path.Add(_contour);
+            foreach(var segment in contour.Segments){_contour.LocalSegments.Add(segment);_contour.Segments.Add(new BezierPathSegment {P0=matrix.MultiplyPoint3x4(segment.P0),P1=matrix.MultiplyPoint3x4(segment.P1),P2=matrix.MultiplyPoint3x4(segment.P2)});}
+        }
+        internal void ContinueNativeContours(BezierContour[] contours,Matrix4x4 local)
+        {
+            var matrix=_state.Matrix*local;_path.Clear();foreach(var contour in contours){_contour=new Contour {ConstructionMatrix=matrix,Closed=contour.Closed};_path.Add(_contour);foreach(var segment in contour.Segments){_contour.LocalSegments.Add(segment);_contour.Segments.Add(new BezierPathSegment {P0=matrix.MultiplyPoint3x4(segment.P0),P1=matrix.MultiplyPoint3x4(segment.P1),P2=matrix.MultiplyPoint3x4(segment.P2)});}}
+        }
         internal PathEnding NativeStrokeEnding=>_state.Cap=="round"?PathEnding.Round:_state.Cap=="square"?PathEnding.Square:PathEnding.Chop;
         internal PathCorner NativeStrokeCorner=>_state.Join=="round"?PathCorner.Round:_state.Join=="bevel"?PathCorner.Beveled:PathCorner.Tipped;
         internal float NativeStrokeMiter=>_state.Miter;
         internal float NativeTextRasterScale=>TextRasterScale(_state);
-        internal void DrawNativeTextMesh(Mesh mesh,Material material,MaterialPropertyBlock properties,Action prepareGlyphs,Action emitGlyphs)
+        internal void DrawNativeTextMesh(Mesh mesh,Material material,MaterialPropertyBlock properties,Action prepareGlyphs,Action emitGlyphs,Color? shadow=null,bool inheritShadowOffsets=false)
         {
-            DrawNativeMesh(mesh,material,properties);var batch=_batches[_batches.Count-1];batch.NativePrepareGlyphs=prepareGlyphs;batch.NativeEmitGlyphs=emitGlyphs;
+            DrawNativeMesh(mesh,material,properties,shadow:shadow,inheritShadowOffsets:inheritShadowOffsets);var batch=_batches[_batches.Count-1];batch.NativePrepareGlyphs=prepareGlyphs;batch.NativeEmitGlyphs=emitGlyphs;
         }
         private void CompletePaint(int first)
         {
