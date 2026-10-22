@@ -391,3 +391,38 @@ menus/input, field/region/world labels, XP/health, summons and fallback energy b
 are implemented. Next: player/enemy/sphere views, projectiles, remaining combat VFX
 and source renderer/UI/data/compositor removal. Preserve gameplay and visual quality,
 no APK; compile/CI now, dedicated measurement/acceptance after implementation.
+
+
+## Native imported artwork layer —2026-10-23
+
+Entry89ae4344a40d9c803058ded9d07e17bd5edc7ea3, CI786 SUCCESS.
+NativeWorldSprites replaces the actual drawArtSprite and drawStandardSpherePart
+painting path with Unity imported Sprite assets, retained UV meshes, pooled property
+blocks and a native image material. It covers the shared player/Spherist/shield art,
+sphere silhouettes and Standard Sphere production parts at their existing call sites.
+No artwork was regenerated, decoded differently or substituted.
+
+The original getArtImage availability gate remains, including first-call false and
+procedural fallback. Aspect fitting uses the same original image dimensions; sprite UVs
+use the existing textureRect. Local rotation, parent/shear/scale, mirrored part axes,
+alpha assignment (including invalid-value semantics), inherited shadow blur/offset,
+source-over/lighter and forced-screen part blending are retained. The native shader
+uses the same premultiplied bilinear sampling and gamma conversion as the current
+image compositor to preserve transparent edges. Sprite drawing does not alter the
+current Canvas path. Imported asset ownership remains with Unity Resources; the view
+disposes only its own meshes/material.
+
+This removes Canvas drawImage/transform command submission for the shared artwork,
+not all player/sphere presentation. Original animation/death selection, procedural
+fallback, standard core/rings and surrounding VFX still need native owners. The source
+renderer coordinator, data projection and final compositor remain transitional.
+No gameplay, graphics-quality setting, source branch or APK changes. Editor compile:
+zero errors/warnings; scriptCompilationFailed=false and sprite shader diagnostics empty.
+Play/device/performance acceptance remains deferred; CI is a separate technical gate.
+
+Short handoff: Continue ECHO SPHERE unity-migration at the containing commit
+(git log -1 --format=%H). Read three GPT docs and modernization reports. Native menus,
+input, field/region/labels, pickups, summons, fallback energy bolts and the shared
+player/sphere artwork painting layer are implemented. Continue actual player/enemy/
+sphere representation and combat VFX, then remove source UI/render/data/compositor
+bridges. Preserve behavior/quality, no APK. Dedicated measurement after implementation.
