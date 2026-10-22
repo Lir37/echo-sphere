@@ -45,6 +45,12 @@ POI pulses/diamonds and localized world labels use Unity meshes, materials and
 Font/TextGenerator. Native and remaining source text share atlas stabilization to
 preserve glyph UVs and source interleaving. Entity/attack/effect migration remains.
 
+2026-10-23: Native XP crystals, health packs, summoned minions and fallback energy
+bolts are now selected. Static art uses retained Unity Vector Graphics meshes;
+animated bolts update pooled Unity meshes. Ordered native shadow submissions preserve
+all four health-pack paints, blur and overlaps. Special mutation-specific lightning,
+player/enemy/sphere representations and other combat effects remain unfinished.
+
 Current status entry point, 2026-10-20. Historical reports retain earlier evidence;
 this file and UNITY_NATIVE_MENU_COMPOSITION_2026-10-18.md define this checkpoint.
 Entry HEAD: `60fc8dedaab726b215d87c1164c14555e2a54479`, branch `unity-migration`.

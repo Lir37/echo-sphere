@@ -173,13 +173,19 @@ namespace EchoSphere.Presentation
         }
         // Migration seam: native world owners submit Unity meshes in the exact
         // existing layer order, without constructing Canvas paths or paint values.
-        internal void DrawNativeMesh(Mesh mesh,Material material,MaterialPropertyBlock properties)
+        internal void DrawNativeMesh(Mesh mesh,Material material,MaterialPropertyBlock properties,Matrix4x4? localTransform=null,Color? shadow=null,float shadowBlur=0,bool inheritBlend=false)
         {
             float unit=SpherePlacementRules.SourcePixelsToWorld;
             properties.SetFloat("_NativeOpacity",_state.Alpha);
-            var matrix=Matrix4x4.Translate(new Vector3(-SourceOrigin.x*unit,SourceOrigin.y*unit,0))*Matrix4x4.Scale(new Vector3(unit,-unit,1))*_state.Matrix;
-            _batches.Add(new Batch {NativeMesh=mesh,NativeMaterial=material,NativeMatrix=matrix,NativeProperties=properties,Blend="source-over"});
+            var matrix=Matrix4x4.Translate(new Vector3(-SourceOrigin.x*unit,SourceOrigin.y*unit,0))*Matrix4x4.Scale(new Vector3(unit,-unit,1))*_state.Matrix*(localTransform??Matrix4x4.identity);
+            _batches.Add(new Batch {NativeMesh=mesh,NativeMaterial=material,NativeMatrix=matrix,NativeProperties=properties,Blend=inheritBlend?_state.Blend:"source-over",Shadow=shadow??Color.clear,Blur=shadowBlur});
         }
+        internal void ContinueNativeCircle(Vector2 center,float radius,Matrix4x4 local)
+        {var matrix=_state.Matrix;try{_state.Matrix*=local;_path.Clear();_contour=null;Ellipse(center.x,center.y,radius,radius,0,0,Mathf.PI*2,false);}finally{_state.Matrix=matrix;}}
+        internal void ContinueNativePolygon(Vector2[] points,Matrix4x4 local,bool closed=true)
+        {var matrix=_state.Matrix;try{_state.Matrix*=local;_path.Clear();_contour=null;for(int i=0;i<points.Length;i++)if(i==0)Move(points[i]);else Line(points[i]);if(closed)Close();}finally{_state.Matrix=matrix;}}
+        internal PathCorner NativeStrokeCorner=>_state.Join=="round"?PathCorner.Round:_state.Join=="bevel"?PathCorner.Beveled:PathCorner.Tipped;
+        internal float NativeStrokeMiter=>_state.Miter;
         internal float NativeTextRasterScale=>TextRasterScale(_state);
         internal void DrawNativeTextMesh(Mesh mesh,Material material,MaterialPropertyBlock properties,Action prepareGlyphs,Action emitGlyphs)
         {
@@ -202,7 +208,7 @@ namespace EchoSphere.Presentation
             var projection=GL.GetGPUProjectionMatrix(Matrix4x4.Ortho(_viewport.xMin,_viewport.xMax,_viewport.yMin,_viewport.yMax,-1f,1f),true);
             _commands.SetViewProjectionMatrices(Matrix4x4.identity,projection);
             var mask=ShadowMaskId;var ping=ShadowPingId;var blur=ShadowBlurId;
-            var hasShadows=false;var paddingX=0;var paddingY=0;foreach(var batch in _batches)if(batch.Count>0&&batch.Shadow.a>0f&&(batch.Blur>0f||batch.X!=0f||batch.Y!=0f)){hasShadows=true;paddingX=Math.Max(paddingX,VisualCanvasShadowViewport.Padding(batch.Blur,batch.X));paddingY=Math.Max(paddingY,VisualCanvasShadowViewport.Padding(batch.Blur,batch.Y));}
+            var hasShadows=false;var paddingX=0;var paddingY=0;foreach(var batch in _batches)if((batch.Count>0||batch.NativeMesh!=null)&&batch.Shadow.a>0f&&(batch.Blur>0f||batch.X!=0f||batch.Y!=0f)){hasShadows=true;paddingX=Math.Max(paddingX,VisualCanvasShadowViewport.Padding(batch.Blur,batch.X));paddingY=Math.Max(paddingY,VisualCanvasShadowViewport.Padding(batch.Blur,batch.Y));}
             var shadowViewport=new VisualCanvasShadowViewport(_target.width,_target.height,paddingX,paddingY);
             var pixelX=_viewport.width/_target.width;var pixelY=_viewport.height/_target.height;
             var shadowProjection=GL.GetGPUProjectionMatrix(Matrix4x4.Ortho(_viewport.xMin-paddingX*pixelX,_viewport.xMax+paddingX*pixelX,_viewport.yMin-paddingY*pixelY,_viewport.yMax+paddingY*pixelY,-1f,1f),true);
@@ -211,12 +217,12 @@ namespace EchoSphere.Presentation
             _commands.GetTemporaryRT(blur,shadowViewport.Width,shadowViewport.Height,0,FilterMode.Bilinear,RenderTextureFormat.ARGB32,RenderTextureReadWrite.Linear);}
             for(var i=0;i<_batches.Count;i++) {
                 var batch=_batches[i];
-                if(batch.NativeMesh!=null){_commands.DrawMesh(batch.NativeMesh,batch.NativeMatrix,batch.NativeMaterial,0,0,batch.NativeProperties);continue;}
-                if(batch.Count==0)continue;var props=_properties;var image=batch.Texture!=null?batch.Texture:Texture2D.whiteTexture;props.SetTexture(ImageTexId,image);props.SetVector(ImageTexelSizeId,new Vector4(1f/image.width,1f/image.height,image.width,image.height));
+                if(batch.Count==0&&batch.NativeMesh==null)continue;var props=batch.NativeMesh!=null?batch.NativeProperties:_properties;
+                if(batch.NativeMesh==null){var image=batch.Texture!=null?batch.Texture:Texture2D.whiteTexture;props.SetTexture(ImageTexId,image);props.SetVector(ImageTexelSizeId,new Vector4(1f/image.width,1f/image.height,image.width,image.height));}
                 if(batch.Shadow.a>0f&&(batch.Blur>0f||batch.X!=0f||batch.Y!=0f)) {
                     using var shadowSample=CanvasShadowCommandsMarker.Auto();
                     _commands.SetRenderTarget(mask);_commands.ClearRenderTarget(false,true,Color.clear);_commands.SetViewProjectionMatrices(Matrix4x4.identity,shadowProjection);
-                    _commands.DrawMesh(_mesh,Matrix4x4.identity,_material,i,0,props);
+                    if(batch.NativeMesh!=null)_commands.DrawMesh(batch.NativeMesh,batch.NativeMatrix,batch.NativeMaterial,0,0,props);else _commands.DrawMesh(_mesh,Matrix4x4.identity,_material,i,0,props);
                     _commands.SetGlobalFloat(ShadowSigmaId,(float)VisualCanvasShadowViewport.Sigma(batch.Blur));
                     _commands.SetGlobalVector(ShadowDirectionId,new Vector4(1f/shadowViewport.Width,0f,0f,0f));_commands.Blit(mask,ping,_blurMaterial,0);
                     _commands.SetGlobalVector(ShadowDirectionId,new Vector4(0f,1f/shadowViewport.Height,0f,0f));_commands.Blit(ping,blur,_blurMaterial,0);
@@ -226,7 +232,7 @@ namespace EchoSphere.Presentation
                     _commands.Blit(blur,_target,_blurMaterial,batch.Blend=="lighter"?2:batch.Blend=="screen"?3:1);
                     _commands.SetViewProjectionMatrices(Matrix4x4.identity,projection);
                 }
-                _commands.SetRenderTarget(_target);_commands.DrawMesh(_mesh,Matrix4x4.identity,_material,i,batch.Blend=="lighter"?1:batch.Blend=="screen"?2:0,props);
+                _commands.SetRenderTarget(_target);int pass=batch.Blend=="lighter"?1:batch.Blend=="screen"?2:0;if(batch.NativeMesh!=null)_commands.DrawMesh(batch.NativeMesh,batch.NativeMatrix,batch.NativeMaterial,0,pass,props);else _commands.DrawMesh(_mesh,Matrix4x4.identity,_material,i,pass,props);
             }
             var previous=RenderTexture.active;var gamma=GL.sRGBWrite;
             try{if(hasShadows){_commands.ReleaseTemporaryRT(mask);_commands.ReleaseTemporaryRT(ping);_commands.ReleaseTemporaryRT(blur);}_commands.SetRenderTarget(previous!=null?new RenderTargetIdentifier(previous):new RenderTargetIdentifier(BuiltinRenderTextureType.CameraTarget));using(CanvasExecuteMarker.Auto())Graphics.ExecuteCommandBuffer(_commands);}

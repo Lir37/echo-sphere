@@ -350,3 +350,44 @@ empty; scriptCompilationFailed=false. These are compile/import checks, not Play/
 or FPS/GC acceptance. No new profiling/test campaign or APK. Remaining work: entity,
 attack/effect/text layers, source render coordinator, UI shell and data/compositor bridge.
 Full native migration and P1/P2 remain PARTIAL; CI must match the containing commit.
+
+
+## Native pickups, summoned minions and fallback energy bolts —2026-10-23
+
+Entry a83295e146b3877fdc2a282bbfacc37db33f381b, CI785 SUCCESS.
+Completed the previously uncommitted pickup/minion group, including its C# declaration
+fix. NativeWorldPickups owns the original XP crystal silhouette, outline, highlight,
+radius and rotation. Health packs retain their cross, pulse, stroke and white bars.
+Their four separate4px shadows are preserved in the original per-paint order, including
+both overlapping white rectangles. Native shadow batches share the existing exact
+padding/blur/composition owner rather than flattening or omitting those effects.
+
+NativeWorldMinions owns the actual drawModernMinion artwork: two source ground-shadow
+ellipses, bob, rotation, body/outline, three animated rays and two core circles. The
+original ground helper's blur argument is unused; no new blur is invented. Radius-
+dependent immutable art is retained. NativeWorldShapes uses Unity Vector Graphics
+with the same contour/stroke/tessellation parameters, not a Canvas-command interpreter.
+
+NativeWorldEnergyBolts owns only drawEnergyBolt (the fallback when the mutation-specific
+chain renderer declines). The original seven-segment wave, timing, wobble, round caps,
+inherited corners/miter and7px/1.5px paint layers remain. Meshes/property blocks are
+pooled; inherited source-over/lighter/screen composition is retained by native shader
+passes. Special mutation-specific lightning and the existing draw-stride policy are
+unchanged. This is not a completed migration of all lightning or combat effects.
+
+All these helpers are bypassed in the active synchronous render coordinator and restored
+in finally. No spawning, pickups, summon logic, damage, RNG or gameplay formula changed.
+The shared final render target and original per-layer ordering remain transitional;
+non-painted current-path continuation is retained for downstream source drawing.
+
+Actual Unity Editor recompilation reports zero errors/warnings; EditorUtility confirms
+scriptCompilationFailed=false and NativeWorldSolid shader messages are empty. No new
+Play/Profiler/device acceptance, FPS/GC numbers or APK. CI must match the containing
+commit. Full native migration and P1/P2 remain PARTIAL.
+
+Short handoff: Continue ECHO SPHERE unity-migration at the containing commit
+(git log -1 --format=%H). Read three GPT docs and native modernization reports. Native
+menus/input, field/region/world labels, XP/health, summons and fallback energy bolts
+are implemented. Next: player/enemy/sphere views, projectiles, remaining combat VFX
+and source renderer/UI/data/compositor removal. Preserve gameplay and visual quality,
+no APK; compile/CI now, dedicated measurement/acceptance after implementation.
