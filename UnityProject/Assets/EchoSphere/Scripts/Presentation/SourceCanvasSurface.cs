@@ -173,18 +173,19 @@ namespace EchoSphere.Presentation
         }
         // Migration seam: native world owners submit Unity meshes in the exact
         // existing layer order, without constructing Canvas paths or paint values.
-        internal void DrawNativeMesh(Mesh mesh,Material material,MaterialPropertyBlock properties,Matrix4x4? localTransform=null,Color? shadow=null,float shadowBlur=0,bool inheritBlend=false,float? opacity=null,bool inheritShadow=false,bool screen=false)
+        internal void DrawNativeMesh(Mesh mesh,Material material,MaterialPropertyBlock properties,Matrix4x4? localTransform=null,Color? shadow=null,float shadowBlur=0,bool inheritBlend=false,float? opacity=null,bool inheritShadow=false,bool screen=false,bool additive=false,bool inheritShadowOffsets=false)
         {
             float unit=SpherePlacementRules.SourcePixelsToWorld;
             properties.SetFloat("_NativeOpacity",opacity??_state.Alpha);
             var matrix=Matrix4x4.Translate(new Vector3(-SourceOrigin.x*unit,SourceOrigin.y*unit,0))*Matrix4x4.Scale(new Vector3(unit,-unit,1))*_state.Matrix*(localTransform??Matrix4x4.identity);
-            _batches.Add(new Batch {NativeMesh=mesh,NativeMaterial=material,NativeMatrix=matrix,NativeProperties=properties,Blend=screen?"screen":inheritBlend?_state.Blend:"source-over",Shadow=inheritShadow?_state.Shadow:shadow??Color.clear,Blur=inheritShadow?_state.ShadowBlur:shadowBlur,X=inheritShadow?_state.ShadowX:0,Y=inheritShadow?_state.ShadowY:0});
+            _batches.Add(new Batch {NativeMesh=mesh,NativeMaterial=material,NativeMatrix=matrix,NativeProperties=properties,Blend=additive?"lighter":screen?"screen":inheritBlend?_state.Blend:"source-over",Shadow=inheritShadow?_state.Shadow:shadow??Color.clear,Blur=inheritShadow?_state.ShadowBlur:shadowBlur,X=inheritShadow||inheritShadowOffsets?_state.ShadowX:0,Y=inheritShadow||inheritShadowOffsets?_state.ShadowY:0});
         }
         internal float NativeOpacity=>_state.Alpha;
         internal void ContinueNativeCircle(Vector2 center,float radius,Matrix4x4 local)
         {var matrix=_state.Matrix;try{_state.Matrix*=local;_path.Clear();_contour=null;Ellipse(center.x,center.y,radius,radius,0,0,Mathf.PI*2,false);}finally{_state.Matrix=matrix;}}
         internal void ContinueNativePolygon(Vector2[] points,Matrix4x4 local,bool closed=true)
         {var matrix=_state.Matrix;try{_state.Matrix*=local;_path.Clear();_contour=null;for(int i=0;i<points.Length;i++)if(i==0)Move(points[i]);else Line(points[i]);if(closed)Close();}finally{_state.Matrix=matrix;}}
+        internal PathEnding NativeStrokeEnding=>_state.Cap=="round"?PathEnding.Round:_state.Cap=="square"?PathEnding.Square:PathEnding.Chop;
         internal PathCorner NativeStrokeCorner=>_state.Join=="round"?PathCorner.Round:_state.Join=="bevel"?PathCorner.Beveled:PathCorner.Tipped;
         internal float NativeStrokeMiter=>_state.Miter;
         internal float NativeTextRasterScale=>TextRasterScale(_state);

@@ -1,5 +1,13 @@
 # ECHO SPHERE — native visual modernization
 
+2026-10-23: All six hostile projectile presentations are now selected through a
+native C# owner: ranged/sniper and shooter/charger/summoner/aura boss variants.
+Retained Unity Vector Graphics meshes preserve authored bodies, tails, outlines,
+orbiting satellites and animated arcs; native materials preserve over/additive
+passes and existing shadows. Projectile simulation is unchanged. Actual Editor
+compile passes; Play/device/performance acceptance remains deferred. Enemy creatures,
+other combat VFX and source renderer/UI/data/compositor bridges remain incomplete.
+
 ## Latest implementation direction — 2026-10-21
 
 User explicitly prioritizes completing native Unity migration before further

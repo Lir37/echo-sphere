@@ -426,3 +426,30 @@ input, field/region/labels, pickups, summons, fallback energy bolts and the shar
 player/sphere artwork painting layer are implemented. Continue actual player/enemy/
 sphere representation and combat VFX, then remove source UI/render/data/compositor
 bridges. Preserve behavior/quality, no APK. Dedicated measurement after implementation.
+
+
+### 2026-10-23 — native hostile projectile presentation
+
+Entry HEAD 1b216fbec576c99c265c1c8b9910ca34f69c0d00 (CI #787 SUCCESS).
+NativeWorldProjectiles replaces drawEnemyProjectile and drawBossProjectile paint
+submission for both enemy variants and all four original boss variants. Typed
+Unity Vector Graphics meshes retain body/outline/tail geometry by radius, variant
+and inherited stroke settings. Pooled property blocks carry colors and transforms;
+rotating arcs, five summoner satellites and pulsing additive cores retain the source
+constants/order. Source-over/lighter, seven-pixel enemy shadows and inherited boss
+shadows/offsets remain ordered through the existing compositor. Final current-path
+circle is continued without repainting. Owners are disposed and excluded from saves;
+helper replacements are restored in finally. No projectile simulation, collisions,
+RNG, damage or spawn changes. No approximate creature renderers were enabled.
+
+Editor C# compilation: zero errors and warnings. This is implementation validation;
+no Play/device acceptance or FPS/GC claim. Full migration remains PARTIAL: creature,
+player/sphere procedural representations, telegraphs/VFX and source UI/data/render/
+compositor bridges still need native owners. No APK or protected-branch changes.
+CI status belongs to the containing commit and is checked separately after push.
+
+Short handoff: Continue ECHO SPHERE unity-migration at containing HEAD (git log -1
+--format=%H). Read three GPT documents and native modernization reports. Hostile
+projectile painting is native for all six variants. Continue actual enemy creature
+geometry and remaining player/sphere/telegraph/VFX owners, then remove transitional
+source bridges. Preserve gameplay and quality; no APK; measurements after migration.
