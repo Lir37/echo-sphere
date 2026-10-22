@@ -9,6 +9,23 @@ namespace EchoSphere.Presentation
     // animated paths can upload into an existing Unity mesh.
     internal static class NativeWorldShapes
     {
+        internal static BezierContour EllipseContour(Vector2 center,float rx,float ry,float start=0,float end=Mathf.PI*2)
+        {
+            float delta=end-start,tau=Mathf.PI*2;delta=delta>=tau?tau:Mathf.Repeat(delta,tau);int count=Mathf.Max(1,Mathf.CeilToInt(delta/(Mathf.PI*.25f)));float step=delta/count;var segments=new BezierPathSegment[count+1];
+            Vector2 Point(float a)=>center+new Vector2(Mathf.Cos(a)*rx,Mathf.Sin(a)*ry);Vector2 Tangent(float a)=>new Vector2(-Mathf.Sin(a)*rx,Mathf.Cos(a)*ry);
+            for(int i=0;i<count;i++){float a=start+i*step,b=a+step,k=4f/3*Mathf.Tan(step*.25f);segments[i]=new BezierPathSegment {P0=Point(a),P1=Point(a)+Tangent(a)*k,P2=Point(b)-Tangent(b)*k};}var last=Point(end);segments[count]=new BezierPathSegment {P0=last,P1=last,P2=last};return new BezierContour {Segments=segments,Closed=false};
+        }
+        internal static BezierContour QuadraticContour(Vector2 start,bool closed,params Vector2[] controlsAndEnds)
+        {
+            int count=controlsAndEnds.Length/2;var segments=new BezierPathSegment[count+1];var previous=start;
+            for(int i=0;i<count;i++){var c=controlsAndEnds[i*2];var end=controlsAndEnds[i*2+1];segments[i]=new BezierPathSegment {P0=previous,P1=previous+(c-previous)*(2f/3),P2=end+(c-end)*(2f/3)};previous=end;}
+            segments[count]=new BezierPathSegment {P0=previous,P1=previous,P2=previous};if(closed){if((previous-start).sqrMagnitude<.00000001f)Array.Resize(ref segments,count);else{segments[count].P1=Vector2.Lerp(previous,start,1f/3);segments[count].P2=Vector2.Lerp(previous,start,2f/3);}}
+            return new BezierContour {Segments=segments,Closed=closed};
+        }
+        internal static BezierContour PolylineContour(bool closed,params Vector2[] points)
+        {
+            var segments=new BezierPathSegment[points.Length];for(int i=0;i<points.Length;i++){var a=points[i];var b=points[closed?(i+1)%points.Length:Math.Min(i+1,points.Length-1)];segments[i]=new BezierPathSegment {P0=a,P1=Vector2.Lerp(a,b,1f/3),P2=Vector2.Lerp(a,b,2f/3)};}return new BezierContour {Segments=segments,Closed=closed};
+        }
         internal static Mesh Rectangle(float x,float y,float w,float h)=>Polygon(new[]{new Vector2(x,y),new Vector2(x+w,y),new Vector2(x+w,y+h),new Vector2(x,y+h)});
         internal static Mesh Polygon(Vector2[] points,float width=0,PathCorner corners=PathCorner.Tipped,float miter=10)
         {

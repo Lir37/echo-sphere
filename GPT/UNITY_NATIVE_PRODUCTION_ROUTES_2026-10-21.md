@@ -497,3 +497,39 @@ active enemy representation, all 14 anatomies, associated statuses/telegraphs/ba
 shared glow/shadow helpers and disabled-network indicator are now native. Continue
 player/sphere procedural views and remaining world effects, then remove transitional
 source bridges. Preserve behavior/quality; no APK; measurements after implementation.
+
+
+### 2026-10-23 — Standard Sphere procedural details and world pickables
+
+Entry HEADf04cb64858882be638c2591d5e6e3dc92433bad7, CI #789 SUCCESS.
+NativeWorldStandardSphere replaces drawStandardSphereCore, drawStandardSphereRing
+and drawStandardAttackVfx. Native retained Vector Graphics meshes and pooled animated
+meshes retain the original body, two elliptical ring contours, caps/joins, three-pixel
+shadows, alpha assignments and additive/over ordering. NativeWorldStandardCore shader
+uses the original two-circle focal radial solution and five authored gradient stops;
+no substitute flat glow or quality reduction. Attack charging uses the existing
+1.2-second display calculation and original three curves/arc/white core; gameplay
+attack timers, damage, range and targeting are untouched. Source assembly and other
+families' specialized VFX remain migration work.
+
+NativeWorldPickableViews replaces all rune drawing branches (phase, harvest, purge,
+resonance, fortify, hunt, echo, gravity, original fallback) and both ordinary/Stella
+chests. Native Vector Graphics retains paths, source open/closed contour semantics,
+animated rings/rays, multi-contour strokes, pulse, blur and per-paint ordering.
+Stella text uses native Font/TextGenerator with original local transform, raster
+scale, shadow and atlas synchronization. Existing rune definitions supply colors;
+collection/spawn/reward behavior is unchanged. Shared text submission now accepts
+an optional local transform and shadow settings, keeping old callers unchanged.
+View owners are disposed and excluded from saves; scopes restored in finally.
+
+Actual Editor compile: zero errors/warnings. Standard core shader supported with
+empty diagnostics; scriptCompilationFailed=false. No Play/device or FPS/GC claim.
+No source branch, user settings/Recovery or APK changes. Full migration remains
+PARTIAL: player views, specialized sphere and remaining combat effects, source
+assembly/coordinator/UI/data/compositor bridges. CI is verified on containing commit.
+
+Short handoff: Continue ECHO SPHERE unity-migration at containing HEAD (git log -1
+--format=%H). Read three GPT docs and modernization reports. Full enemy views,
+Standard Sphere core/rings/attack, all rune graphics and both chest views are native.
+Continue player views and remaining sphere/combat VFX, then remove source bridges.
+Preserve original gameplay/quality; no APK; measurements after implementation.

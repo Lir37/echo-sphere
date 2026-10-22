@@ -1,5 +1,14 @@
 # ECHO SPHERE — native visual modernization
 
+2026-10-23: Standard Sphere core, full/partial orbital rings and attack charge VFX
+now have a native Unity owner. The original focal radial gradient, additive passes,
+three-pixel ring shadows and charge curves remain. All original rune presentations
+and ordinary/Stella chests also use retained native meshes/materials and Unity world
+labels. Collection, reward and sphere attack rules remain unchanged. Editor compile
+passes; Standard core shader is supported with no diagnostics. No Play/FPS/GC/device
+acceptance is claimed. Assembly/state dispatch, other sphere/player VFX and source
+bridges remain explicit work.
+
 2026-10-23: The complete active drawModernEnemy representation now has a native
 C# owner: all ten creature anatomies and four bosses, movement-facing memory,
 pose/hit pulse, tier/elite crests, fire/poison/freeze, Link Breaker, all original boss
