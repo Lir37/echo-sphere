@@ -19,10 +19,10 @@ namespace EchoSphere.Presentation
             _surface=surface;var root=parent??Matrix4x4.identity;var outer=Get(0,radius,radius,0,()=>Oval(radius,radius));Paint(outer,root,color,null,(float)(alpha*.16),true);
             double r=radius*.52;var inner=Get(0,r,r,0,()=>Oval(r,r));Paint(inner,root,color,null,(float)(alpha*.55),true);FinishPath();
         }
-        internal void DrawGroundShadow(SourceCanvasSurface surface,double rx,double ry)
+        internal void DrawGroundShadow(SourceCanvasSurface surface,double rx,double ry,Matrix4x4? parent=null)
         {
-            _surface=surface;var outer=Get(0,rx,ry,0,()=>Oval(rx,ry));Paint(outer,T(y:5),C(0,0,0,.34),null,.42f);
-            double x=rx*.72,y=ry*.68;var inner=Get(0,x,y,0,()=>Oval(x,y));Paint(inner,T(y:5),C(0,0,0,.34),null,.16f);FinishPath();
+            _surface=surface;var root=parent??Matrix4x4.identity;var outer=Get(0,rx,ry,0,()=>Oval(rx,ry));Paint(outer,root*T(y:5),C(0,0,0,.34),null,.42f);
+            double x=rx*.72,y=ry*.68;var inner=Get(0,x,y,0,()=>Oval(x,y));Paint(inner,root*T(y:5),C(0,0,0,.34),null,.16f);FinishPath();
         }
         internal void DrawElite(SourceCanvasSurface surface,double r,Color color,double t,Matrix4x4? parent=null)
         {

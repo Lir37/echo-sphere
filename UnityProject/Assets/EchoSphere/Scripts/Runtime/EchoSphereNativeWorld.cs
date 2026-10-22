@@ -15,6 +15,7 @@ namespace EchoSphere.Runtime
         private NativeWorldCreatures _nativeWorldCreatures;
         private NativeWorldStandardSphere _nativeWorldStandardSphere;
         private NativeWorldPickableViews _nativeWorldPickableViews;
+        private NativeWorldPlayer _nativeWorldPlayer;
         private void RenderNativeWorldFrame(float width,float height)
         {
             if(_nativeWorldField==null)_nativeWorldField=new NativeWorldField();
@@ -27,7 +28,10 @@ namespace EchoSphere.Runtime
             if(_nativeWorldCreatures==null)_nativeWorldCreatures=new NativeWorldCreatures();_nativeWorldCreatures.BeginFrame();
             if(_nativeWorldStandardSphere==null)_nativeWorldStandardSphere=new NativeWorldStandardSphere();_nativeWorldStandardSphere.BeginFrame();
             if(_nativeWorldPickableViews==null)_nativeWorldPickableViews=new NativeWorldPickableViews();_nativeWorldPickableViews.BeginFrame();
+            if(_nativeWorldPlayer==null)_nativeWorldPlayer=new NativeWorldPlayer();_nativeWorldPlayer.BeginFrame();
+            var sourcePlayer=Visual_renderer.Scope["drawPlayer"];var sourceCharacterVfx=Visual_renderer.Scope["drawCharacterVfx"];
             var sourceRune=Visual_renderer.Scope["drawRune"];var sourceChest=Visual_renderer.Scope["drawChest"];var sourceStella=Visual_renderer.Scope["drawStellaChest"];
+            var sourceAssembly=Visual_renderer.Scope["drawStandardSphereAssembly"];
             var sourceCore=Visual_renderer.Scope["drawStandardSphereCore"];var sourceRing=Visual_renderer.Scope["drawStandardSphereRing"];var sourceAttack=Visual_renderer.Scope["drawStandardAttackVfx"];
             var sourceEnemy=Visual_renderer.Scope["drawModernEnemy"];var sourceDisabled=Visual_renderer.Scope["drawNetworkDisabledIndicator"];
             var sourceElite=Visual_renderer.Scope["drawEliteCrest"];var sourceStatus=Visual_renderer.Scope["drawEnemyStatusVfx"];var sourceBossSignal=Visual_renderer.Scope["drawBossAttackTelegraph"];
@@ -41,6 +45,9 @@ namespace EchoSphere.Runtime
             var sourceArt=Visual_renderer.Scope["drawArtSprite"];var sourcePart=Visual_renderer.Scope["drawStandardSpherePart"];
             var sourceMinion=Visual_renderer.Scope["drawModernMinion"];var sourceEnergy=Visual_renderer.Scope["drawEnergyBolt"];
             try{
+                Visual_renderer.Scope["drawStandardSphereAssembly"]=VisualJs.Fn(args=>DrawNativeStandardAssembly(args));
+                Visual_renderer.Scope["drawPlayer"]=VisualJs.Fn(args=>{_nativeWorldPlayer.Draw(_sourceCanvas,NativePlayerState(args[1]),_nativeWorldSprites,_nativeWorldCreatures,ResolveNativePlayerArt);return default;});
+                Visual_renderer.Scope["drawCharacterVfx"]=VisualJs.Fn(args=>{_nativeWorldPlayer.DrawCharacterEffects(_sourceCanvas,NativePlayerState(args[1]));return default;});
                 Visual_renderer.Scope["drawRune"]=VisualJs.Fn(args=>{var rune=args[1];ColorUtility.TryParseHtmlString(Visual_runes.Scope["RUNE_DEFS"][rune["type"]]["color"].Text,out var color);_nativeWorldPickableViews.DrawRune(_sourceCanvas,rune["pos"]["x"].Number,rune["pos"]["y"].Number,rune["type"].Text,color,_sourceRenderState["time"].Number);return default;});
                 Visual_renderer.Scope["drawChest"]=VisualJs.Fn(args=>{var chest=args[1];_nativeWorldPickableViews.DrawChest(_sourceCanvas,chest["pos"]["x"].Number,chest["pos"]["y"].Number,_sourceRenderState["time"].Number,false,null);return default;});
                 Visual_renderer.Scope["drawStellaChest"]=VisualJs.Fn(args=>{var chest=args[1];string label="STELLA";if(_sourceCanvas.LocalizeCanvasText)label=Visual_canvasLocale.Scope["localizeCanvasText"].Call(label).Text;_nativeWorldPickableViews.DrawChest(_sourceCanvas,chest["pos"]["x"].Number,chest["pos"]["y"].Number,_sourceRenderState["time"].Number,true,label);return default;});
@@ -68,8 +75,20 @@ namespace EchoSphere.Runtime
                 Visual_renderer.Scope["drawArtSprite"]=VisualJs.Fn(args=>DrawNativeSprite(args,false));
                 Visual_renderer.Scope["drawStandardSpherePart"]=VisualJs.Fn(args=>DrawNativeSprite(args,true));
                 Visual_renderer.Scope["render"].Call(_sourceCanvas.Canvas.Value,_sourceRenderState,width,height);
-            }finally{Visual_renderer.Scope["drawRune"]=sourceRune;Visual_renderer.Scope["drawChest"]=sourceChest;Visual_renderer.Scope["drawStellaChest"]=sourceStella;Visual_renderer.Scope["drawStandardSphereCore"]=sourceCore;Visual_renderer.Scope["drawStandardSphereRing"]=sourceRing;Visual_renderer.Scope["drawStandardAttackVfx"]=sourceAttack;Visual_renderer.Scope["drawModernEnemy"]=sourceEnemy;Visual_renderer.Scope["drawNetworkDisabledIndicator"]=sourceDisabled;Visual_renderer.Scope["drawEliteCrest"]=sourceElite;Visual_renderer.Scope["drawEnemyStatusVfx"]=sourceStatus;Visual_renderer.Scope["drawBossAttackTelegraph"]=sourceBossSignal;Visual_renderer.Scope["glowCircle"]=sourceOuterGlow;Visual_renderer.Scope["drawGroundShadow"]=sourceGround;Visual_enemyVisual.Scope["drawEnemyCreature"]=sourceCreature;Visual_enemyVisual.Scope["drawBossCreature"]=sourceBossCreature;Visual_renderer.Scope["drawEnemyProjectile"]=sourceProjectile;Visual_renderer.Scope["drawBossProjectile"]=sourceBossProjectile;Visual_renderer.Scope["drawVoidField"]=sourceField;Visual_renderer.Scope["drawVoidAmbient"]=sourceAmbient;Visual_renderer.Scope["drawRegionLayer"]=sourceRegion;Visual_renderer.Scope["drawModernXp"]=sourceXp;Visual_renderer.Scope["drawModernHealth"]=sourceHealth;Visual_renderer.Scope["drawModernMinion"]=sourceMinion;Visual_renderer.Scope["drawEnergyBolt"]=sourceEnergy;Visual_renderer.Scope["drawArtSprite"]=sourceArt;Visual_renderer.Scope["drawStandardSpherePart"]=sourcePart;}
+            }finally{Visual_renderer.Scope["drawStandardSphereAssembly"]=sourceAssembly;Visual_renderer.Scope["drawPlayer"]=sourcePlayer;Visual_renderer.Scope["drawCharacterVfx"]=sourceCharacterVfx;Visual_renderer.Scope["drawRune"]=sourceRune;Visual_renderer.Scope["drawChest"]=sourceChest;Visual_renderer.Scope["drawStellaChest"]=sourceStella;Visual_renderer.Scope["drawStandardSphereCore"]=sourceCore;Visual_renderer.Scope["drawStandardSphereRing"]=sourceRing;Visual_renderer.Scope["drawStandardAttackVfx"]=sourceAttack;Visual_renderer.Scope["drawModernEnemy"]=sourceEnemy;Visual_renderer.Scope["drawNetworkDisabledIndicator"]=sourceDisabled;Visual_renderer.Scope["drawEliteCrest"]=sourceElite;Visual_renderer.Scope["drawEnemyStatusVfx"]=sourceStatus;Visual_renderer.Scope["drawBossAttackTelegraph"]=sourceBossSignal;Visual_renderer.Scope["glowCircle"]=sourceOuterGlow;Visual_renderer.Scope["drawGroundShadow"]=sourceGround;Visual_enemyVisual.Scope["drawEnemyCreature"]=sourceCreature;Visual_enemyVisual.Scope["drawBossCreature"]=sourceBossCreature;Visual_renderer.Scope["drawEnemyProjectile"]=sourceProjectile;Visual_renderer.Scope["drawBossProjectile"]=sourceBossProjectile;Visual_renderer.Scope["drawVoidField"]=sourceField;Visual_renderer.Scope["drawVoidAmbient"]=sourceAmbient;Visual_renderer.Scope["drawRegionLayer"]=sourceRegion;Visual_renderer.Scope["drawModernXp"]=sourceXp;Visual_renderer.Scope["drawModernHealth"]=sourceHealth;Visual_renderer.Scope["drawModernMinion"]=sourceMinion;Visual_renderer.Scope["drawEnergyBolt"]=sourceEnergy;Visual_renderer.Scope["drawArtSprite"]=sourceArt;Visual_renderer.Scope["drawStandardSpherePart"]=sourcePart;}
         }
+        private V DrawNativeStandardAssembly(V[] args)
+        {
+            var scene=args[1];var sphere=args[2];double x=sphere["pos"]["x"].Number,y=sphere["pos"]["y"].Number,range=sphere["radius"].Number*Visual_gameData.Scope["SPHERE_TYPES"][sphere["type"]]["rangeMult"].Number;bool target=false;
+            foreach(var enemy in scene["enemies"].Items){double dx=enemy["pos"]["x"].Number-x,dy=enemy["pos"]["y"].Number-y;if(enemy["hp"].Number>0&&System.Math.Sqrt(dx*dx+dy*dy)<range){target=true;break;}}
+            var tier=sphere["visualTier"];return _nativeWorldStandardSphere.DrawAssembly(_sourceCanvas,x,y,args[3].Number,tier.Truth?tier.Number:0,args[4].Number,target,_nativeWorldSprites,ResolveNativePlayerArt);
+        }
+        private NativeWorldPlayer.State NativePlayerState(V player)
+        {
+            var definitions=Visual_characters.Scope["CHARACTER_DEFS"];var raw=player["characterId"];string id=raw.Truth&&definitions[raw].Truth?raw.Text:"spherist";ColorUtility.TryParseHtmlString(definitions[id]["color"].Text,out var color);
+            return new NativeWorldPlayer.State {X=player["pos"]["x"].Number,Y=player["pos"]["y"].Number,Radius=Visual_engineState.Scope["PLAYER_RADIUS"].Number,Time=_sourceRenderState["time"].Number,Hp=player["hp"].Number,ContactCooldown=player["contactDamageCooldown"].Number,ShieldTimer=player["shieldTimer"].Number,ShieldCharges=player["shieldCharges"].Number,DashTimer=player["dashTimer"].Number,DeathTimer=player["deathTimer"].Number,Character=id,Color=color};
+        }
+        private static SourceCanvasImage ResolveNativePlayerArt(string key)=>Visual_renderer.Scope["getArtImage"].Call(key).Raw as SourceCanvasImage;
         private static NativeWorldCreatures.BossSignal NativeBossSignal(V e,V target)
         {
             var windows=Visual_bossBalance.Scope["BOSS_TELEGRAPH_WINDOWS"];
@@ -91,6 +110,6 @@ namespace EchoSphere.Runtime
             var rotation=VisualJs.Arg(args,5);var opacity=VisualJs.Arg(args,6);
             return _nativeWorldSprites.Draw(_sourceCanvas,sprite,args[2].Number,args[3].Number,args[4].Number,rotation.Undefined?0:rotation.Number,opacity.Undefined?1:opacity.Number,part,part&&VisualJs.Arg(args,7).Truth,part&&VisualJs.Arg(args,8).Truth);
         }
-        private void DisposeNativeWorld(){_nativeWorldField?.Dispose();_nativeWorldField=null;_nativeWorldAmbient?.Dispose();_nativeWorldAmbient=null;_nativeWorldRegion?.Dispose();_nativeWorldRegion=null;_nativeWorldPickups?.Dispose();_nativeWorldPickups=null;_nativeWorldMinions?.Dispose();_nativeWorldMinions=null;_nativeWorldEnergyBolts?.Dispose();_nativeWorldEnergyBolts=null;_nativeWorldSprites?.Dispose();_nativeWorldSprites=null;_nativeWorldProjectiles?.Dispose();_nativeWorldProjectiles=null;_nativeWorldCreatures?.Dispose();_nativeWorldCreatures=null;_nativeWorldStandardSphere?.Dispose();_nativeWorldStandardSphere=null;_nativeWorldPickableViews?.Dispose();_nativeWorldPickableViews=null;}
+        private void DisposeNativeWorld(){_nativeWorldField?.Dispose();_nativeWorldField=null;_nativeWorldAmbient?.Dispose();_nativeWorldAmbient=null;_nativeWorldRegion?.Dispose();_nativeWorldRegion=null;_nativeWorldPickups?.Dispose();_nativeWorldPickups=null;_nativeWorldMinions?.Dispose();_nativeWorldMinions=null;_nativeWorldEnergyBolts?.Dispose();_nativeWorldEnergyBolts=null;_nativeWorldSprites?.Dispose();_nativeWorldSprites=null;_nativeWorldProjectiles?.Dispose();_nativeWorldProjectiles=null;_nativeWorldCreatures?.Dispose();_nativeWorldCreatures=null;_nativeWorldStandardSphere?.Dispose();_nativeWorldStandardSphere=null;_nativeWorldPickableViews?.Dispose();_nativeWorldPickableViews=null;_nativeWorldPlayer?.Dispose();_nativeWorldPlayer=null;}
     }
 }

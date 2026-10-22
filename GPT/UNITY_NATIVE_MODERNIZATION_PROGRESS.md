@@ -1,5 +1,16 @@
 # ECHO SPHERE — native visual modernization
 
+2026-10-23: The active player representation is now native C#: original Spherist
+animation-state priority, front/side selection, movement mirror, double pulse,
+death fold/shear/fragments and sprite availability fallback, plus all original
+procedural character silhouettes/cores and character-specific accents. Imported
+Sprite art is unchanged. Standard Sphere assembly is also native, retaining target
+pulse/range display predicate, breathing, the original upper crystal mirrored for
+the lower part and accent. Source specialized sphere mutation/element/modifier/
+family VFX, overall renderer/UI/data/compositor bridges remain incomplete. Actual
+Editor compile and all three new world shader diagnostics pass; no Play/FPS/GC/
+device parity claim. No APK, source-branch or user-file changes.
+
 2026-10-23: Standard Sphere core, full/partial orbital rings and attack charge VFX
 now have a native Unity owner. The original focal radial gradient, additive passes,
 three-pixel ring shadows and charge curves remain. All original rune presentations

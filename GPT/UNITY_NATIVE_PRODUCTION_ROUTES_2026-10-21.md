@@ -533,3 +533,45 @@ Short handoff: Continue ECHO SPHERE unity-migration at containing HEAD (git log 
 Standard Sphere core/rings/attack, all rune graphics and both chest views are native.
 Continue player views and remaining sphere/combat VFX, then remove source bridges.
 Preserve original gameplay/quality; no APK; measurements after implementation.
+
+
+### 2026-10-23 — complete active player view and Standard Sphere assembly
+
+Entry HEADd764c2ebba3532fa0916a96c8121af353489ced2, CI #790 SUCCESS.
+NativeWorldPlayer replaces drawPlayer and drawCharacterVfx. The native owner retains
+the original Spherist dt/velocity history and death > hit > shield > move > idle
+priority, authored front/side selection, movement mirror, original double pulse,
+death fold/shear/opacity and eight fragments. It keeps getArtImage availability
+(including first-call fallback), approved Sprite art and aspect. Native sprite
+submission now accepts an optional parent matrix and explicit over mode; existing
+callers retain their defaults. No replacement artwork or new animation behavior.
+
+All original procedural player silhouettes (hunter, engineer, berserker, alchemist,
+architect and existing default) retain their source paths/colors and 5px shadows;
+the native player core shader retains its focal two-circle gradient, four stops
+and 6px shadow. Native per-character scan, squares, chevron, motes and cross marks
+retain placement and source alpha. fillRect-only accents preserve the current path.
+Animated fallback rays/chevrons reuse pooled meshes, disposed only with the view.
+No containment/orbit/status decorations were added to the player.
+
+Standard Sphere assembly now also has a typed native owner: original visual target
+predicate (living enemy strictly inside existing display range), breathing and
+target/energy pulses, local anisotropic scale, core/rings, two original upper-crystal
+Sprite draws (lower mirrored vertically), and target accent. Existing mutation,
+elemental/modifier and specialized family VFX dispatch still needs migration. This
+changes display ownership, not sphere targeting, damage, RNG or attack rules.
+
+Actual Editor compilation: zero errors/warnings; scriptCompilationFailed=false.
+NativeWorldPlayerCore is supported with empty diagnostics; Standard core and creature
+glow shader diagnostics are also empty. No Play/device acceptance or FPS/GC claim.
+No APK, protected-branch or user settings/Recovery changes. CI for this containing
+commit is checked independently. Overall migration remains PARTIAL: specialized
+sphere and remaining combat/network/character-world effects, source renderer/UI/data/
+compositor bridges remain. Implementation-first direction remains in force.
+
+Short handoff: Continue ECHO SPHERE unity-migration at containing HEAD (git log -1
+--format=%H). Read three GPT documents and modernization reports. Native active
+player and enemy views, Standard Sphere assembly/core/rings/attack, runes/chests and
+associated enemy indicators are implemented. Continue specialized sphere mutation/
+element/modifier/family and remaining combat/network VFX, then remove source renderer,
+UI/data/compositor bridges. Preserve behavior/quality; no APK; measurements later.
