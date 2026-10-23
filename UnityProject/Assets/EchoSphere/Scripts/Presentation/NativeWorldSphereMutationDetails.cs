@@ -30,9 +30,9 @@ namespace EchoSphere.Presentation
             _surface=surface;var root=T(x,y,angle);Paint(Get(501,size,0,Math.Max(.6,size*.14),()=>new[]{QuadraticContour(P(-size,0),false,P(0,-size*.55),P(size,0),P(0,size*.55),P(-size,0))}),root,null,color,.9,true);
             Paint(Get(502,size,0,0,()=>new[]{EllipseContour(Vector2.zero,(float)(size*.23),(float)(size*.48))},true),root,Color.white,null,.9,true);Paint(Get(503,size,0,0,()=>new[]{EllipseContour(Vector2.zero,(float)(size*.10),(float)(size*.32))},true),root,color,null,.9,true);Finish();
         }
-        internal void MutationGlow(SourceCanvasSurface surface,double radius,Color color,double alpha)
+        internal void MutationGlow(SourceCanvasSurface surface,double radius,Color color,double alpha,Matrix4x4? parent=null)
         {
-            _surface=surface;var art=Circle(radius);var p=Properties(color);p.SetFloat("_Radius",(float)radius);float Rounded(double n)=>float.Parse(n.ToString("F3",CultureInfo.InvariantCulture),CultureInfo.InvariantCulture);p.SetVector("_StopAlphas",new Vector4(Mathf.Clamp01(Rounded(alpha*3.4)),Mathf.Clamp01(Rounded(alpha*1.15)),Mathf.Clamp01(Rounded(alpha*.25)),0));surface.DrawNativeMesh(art.Fill,_mutationGlow,p,inheritShadow:true,additive:true);_last=art.Paths;_lastMatrix=Matrix4x4.identity;Finish();
+            _surface=surface;var art=Circle(radius);var p=Properties(color);p.SetFloat("_Radius",(float)radius);float Rounded(double n)=>float.Parse(n.ToString("F3",CultureInfo.InvariantCulture),CultureInfo.InvariantCulture);p.SetVector("_StopAlphas",new Vector4(Mathf.Clamp01(Rounded(alpha*3.4)),Mathf.Clamp01(Rounded(alpha*1.15)),Mathf.Clamp01(Rounded(alpha*.25)),0));surface.DrawNativeMesh(art.Fill,_mutationGlow,p,parent,inheritShadow:true,additive:true);_last=art.Paths;_lastMatrix=parent??Matrix4x4.identity;Finish();
         }
         internal struct ProjectileView
         {internal double X,Y,Vx,Vy,Radius,Final;internal string Family,Branch;internal Color Color;}

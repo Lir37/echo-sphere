@@ -686,3 +686,32 @@ chain lightning and shared mutation primitives are native. Continue mutation bra
 silhouette/final-expansion/emitter/emit inline views and remaining combat/network
 layers, then remove source coordinator/UI/data/compositor bridges. Preserve gameplay/
 quality; no APK; measurements after implementation.
+
+
+### 2026-10-23 — complete mutation coordinator and inline authored views
+
+Entry HEADa2f888ffead89049949680acdb7b3e11ff006f22, CI #794 SUCCESS.
+renderSphereMutationVfx now routes directly to a native typed view. Native layers
+retain the original silhouette, final-expansion, persistent-emitter and attack emit
+order for all source branches. Round versus inherited caps/joins and over versus
+additive/inherited composition are explicit per authored layer. Unity Vector Graphics
+owns contours and tessellation; pooled meshes own variable curves, rings and lobed
+paths. Final-mode core/cascade/apex thresholds, counts, source extra direction turn,
+original inherited fill alpha and F3 glow stops are retained. No new designer rules.
+The exact attackPeak display expression and finite/.03 guard are unchanged; attack
+simulation, delay/timer updates, damage/RNG/balance are untouched.
+
+The remaining legacy helper adapter also now accepts CSS rgba via the existing CSS
+color parser: source Pulse apex uses an rgba stroke color, which HTML-only parsing
+could not retain. Main native view carries that same .95 color alpha directly.
+No source TS/generated code, protected branch, user settings/Recovery or APK edits.
+Editor compile zero errors/warnings. No Play/device/performance claim. CI is checked
+separately on containing commit. Overall migration remains PARTIAL: remaining combat,
+network/character-world overlays and source renderer/UI/data/compositor bridges.
+
+Short handoff: Continue ECHO SPHERE unity-migration at containing HEAD (git log -1
+--format=%H). Read three GPT docs and modernization reports. Full mutation coordinator,
+all branch silhouettes/final modes/emitters/attack accents are native, alongside the
+previous sphere/player/enemy views. Continue remaining combat/network/character-world
+effects, then source coordinator/UI/data/compositor removal. Preserve behavior and
+quality; no APK; measurements later.

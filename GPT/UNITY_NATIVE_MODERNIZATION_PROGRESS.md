@@ -1,5 +1,15 @@
 # ECHO SPHERE — native visual modernization
 
+2026-10-23: The complete renderSphereMutationVfx entry point now has a typed native
+C# owner: all original branch silhouettes, three final expansion modes, persistent
+emitters and attack-peak accents. It retains source paint order, caps/joins, inherited
+opacity, branch/final metadata and the extra final-form rotation where authored.
+The display attack-peak calculation and .03 gate are unchanged. Legacy mutation
+primitive adapters now parse CSS rgba as well as HEX (the Pulse apex arc uses rgba).
+Actual Editor compile: zero errors/warnings. Play/device/FPS/GC acceptance remains
+deferred. Other combat/network/character-world effects and source renderer/UI/data/
+compositor bridges remain; full modernization is still PARTIAL. No APK/gameplay change.
+
 2026-10-23: Sphere projectile tails/energy cores and all original family/branch
 projectile variants now have a native owner. Specialized Chain Lightning (web/storm/
 leech and original branch fallback) is native and retains the original false return
