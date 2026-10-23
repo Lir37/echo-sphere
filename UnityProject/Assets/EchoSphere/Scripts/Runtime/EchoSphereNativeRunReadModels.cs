@@ -17,7 +17,7 @@ namespace EchoSphere.Runtime
         private static double NativeXpPlannerMultiplier(V scene)
         {
             var xp=scene["shopUpgrades"]["xp"];double mult=1+(xp.Truth?xp.Number:0)*.05;
-            foreach(var id in scene["player"]["artifacts"].Items){var effect=Visual_artifactSystem.Scope["ARTIFACT_META"][id]["effects"]["xpGain"];if(effect.Truth)mult+=effect.Number;}
+            foreach(var id in scene["player"]["artifacts"].Items){var artifact=NativeRunCatalog.Instance.GetArtifact(id.Text);if(artifact!=null)mult+=artifact.Effect("xpGain");}
             return mult;
         }
         private static IReadOnlyList<NativeHudView.TooltipLine> NativeNetworkTooltipLines(string label,V scene,bool ru,V network)

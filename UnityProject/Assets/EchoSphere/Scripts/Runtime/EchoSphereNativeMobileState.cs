@@ -49,13 +49,13 @@ namespace EchoSphere.Runtime
             state.Controls.Add(new NativeMobileControlsView.Control {Id="follow",Icon="Move",Name=follow?(IsRussianUi?"СЛЕД":"FOLLOWING"):"FOLLOW",Disabled=!follow&&!NativeCanActivateFollow()});
             foreach(var pair in (Dictionary<string,V>)s["activeKeyMap"].Raw){
                 V ability=pair.Value;double cd=NativeMobileCooldown(player,ability.Text),max=NativeMobileMaxCooldown(ability.Text);
-                var name=Visual_sphereProgression.Scope["getAbilityDisplayName"].Call(s,ability,lang);string label=name.Truth?name.Text:Visual_gameData.Scope["ABILITIES"][ability]["name"][lang].Text;
+                string label=NativeAbilityName(s,ability.Text,IsRussianUi);
                 state.Controls.Add(new NativeMobileControlsView.Control {Id="ability:"+pair.Key+"-"+ability.Text,Name=label,Detail=cd>0?VisualJs.NumberText(Math.Ceiling(cd))+"s":NativeMobileText("ready"),Cooldown=cd>0?(float)Math.Min(100,cd/max*100):0,Disabled=follow&&ability.Text=="teleport"});
             }
             if(follow)state.Strain=(IsRussianUi?"НАГРУЗКА СЕТИ":"NETWORK STRAIN")+" "+VisualJs.NumberText(Math.Floor((player["formationFollowStrain"].Truth?player["formationFollowStrain"].Number:0)+.5))+"%";
             state.Controls.Add(new NativeMobileControlsView.Control {Id="dash",Icon="Zap",Name=NativeMobileDashLabel(player,IsRussianUi),Disabled=follow});
-            var definitions=Visual_gameData.Scope["SPHERE_TYPES"];var selected=definitions[s["selectedSphereType"].Truth?s["selectedSphereType"]:new V("standard")];state.Name=selected["name"][lang].Text;state.Description=selected["desc"][lang].Text;
-            foreach(var pair in (Dictionary<string,V>)definitions.Raw)state.Controls.Add(new NativeMobileControlsView.Control {Id="sphere:"+pair.Key,Color=pair.Value["color"].Text});
+            var definitions=NativeRunCatalog.Instance.Spheres;var selected=NativeRunCatalog.Instance.GetSphere(s["selectedSphereType"].Truth?s["selectedSphereType"].Text:"standard");state.Name=selected.Name(IsRussianUi);state.Description=selected.Description(IsRussianUi);
+            foreach(var sphere in definitions)state.Controls.Add(new NativeMobileControlsView.Control {Id="sphere:"+sphere.Id,Color=sphere.Color});
             _nativeMobileDockState=state;
             _nativeJoystickState=_nativeMobileJoystickId.HasValue?new NativeMobileFeedbackView.State {Joystick=true,KnobX=34+(float)_nativeMobileDx,KnobY=34+(float)_nativeMobileDy,Active=_nativeMobileJoystickActive}:null;
             _nativePlacementState=_nativeMobilePlacementColor!=null?new NativeMobileFeedbackView.State {Id=VisualJs.NumberText(_nativeMobilePlacementAt),Color=_nativeMobilePlacementColor}:null;
@@ -72,7 +72,7 @@ namespace EchoSphere.Runtime
             _nativeGhostNetworkState=_nativeFormationMemoryState=null;if(_nativeRunField==null)return;var rect=_nativeRunField.worldBound;var texture=_worldSurface.UiTexture;double pixelWidth=texture!=null?texture.width:300,pixelHeight=texture!=null?texture.height:150;var camera=NativeMobileScene["camera"];
             Vector2 ScreenPoint(double x,double y)=>new Vector2((float)((double)rect.xMin+(x-camera["x"].Number+pixelWidth/2)*((double)rect.width/pixelWidth)),(float)((double)rect.yMin+(y-camera["y"].Number+pixelHeight/2)*((double)rect.height/pixelHeight)));
             var ghost=_nativeMobileGhost;if(ghost!=null){
-                double scale=(double)rect.width/pixelWidth;var center=ScreenPoint(ghost.X,ghost.Y);ColorUtility.TryParseHtmlString(Visual_gameData.Scope["SPHERE_TYPES"][NativeMobileScene["selectedSphereType"]]["color"].Text,out var color);
+                double scale=(double)rect.width/pixelWidth;var center=ScreenPoint(ghost.X,ghost.Y);ColorUtility.TryParseHtmlString(NativeRunCatalog.Instance.GetSphere(NativeMobileScene["selectedSphereType"].Text).Color,out var color);
                 var state=new NativeMobileNetworkView.State {Center=center,Valid=ghost.Valid,SphereColor=color,Radius=(float)(25*scale),RingWidth=(float)(2*scale),FormationWidth=(float)(2*scale),FontSize=(float)(11*scale),CaptionPosition=center-new Vector2(0,(float)(31*scale))};
                 foreach(var link in ghost.Network["links"].Items){int a=(int)link["a"].Number,b=(int)link["b"].Number;if(a!=ghost.Index&&b!=ghost.Index)continue;var other=NativeMobileScene["spheres"][a==ghost.Index?b:a];if(!other.Truth)continue;state.Links.Add(new NativeMobileNetworkView.Link(center,ScreenPoint(other["pos"]["x"].Number,other["pos"]["y"].Number),(float)(2.2*scale)));}
                 var points=new List<Vector2>();if(ghost.Formation.Truth)foreach(var index in ghost.Formation["nodes"].Items){var p=(int)index.Number==ghost.Index?VisualJs.Obj("x",ghost.X,"y",ghost.Y):NativeMobileScene["spheres"][index]["pos"];if(p.Truth)points.Add(ScreenPoint(p["x"].Number,p["y"].Number));}state.Points=points.ToArray();

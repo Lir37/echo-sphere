@@ -13,7 +13,7 @@ namespace EchoSphere.Runtime
         private void DrawNativeSphereMutation(V[] args)
         {
             var sphere=args[1];var player=args[2];var branch=player["sphereBranches"][sphere["type"]];if(!branch.Truth)return;var scale=VisualJs.Arg(args,4);double rotation=sphere["rotation"].Truth?sphere["rotation"].Number:0;double finite=sphere["rotation"].Raw is double&&!double.IsNaN(rotation)&&!double.IsInfinity(rotation)?rotation:0;
-            _nativeWorldSphereFamilies.DrawMutation(_worldSurface,new NativeWorldSphereFamilies.MutationView {X=sphere["pos"]["x"].Number,Y=sphere["pos"]["y"].Number,Radius=24*(scale.Undefined?1:scale.Number),Time=args[3].Number,Rotation=rotation,FiniteRotation=finite,Final=NativeMutationFinal(player,sphere["type"].Text),AttackDelay=sphere["attackDelay"].Truth?sphere["attackDelay"].Number:1,AttackTimer=sphere["attackTimer"].Number,Branch=branch.Text,Color=NativeMutationColor(Visual_gameData.Scope["SPHERE_TYPES"][sphere["type"]]["color"].Text),Directed=Visual_gameData.Scope["sphereUsesProjectileModifiers"].Call(sphere["type"]).Truth,Emitter=Visual_gameData.Scope["sphereUsesProjectileModifiers"].Call(branch.Text.Split('_')[0]).Truth});
+            _nativeWorldSphereFamilies.DrawMutation(_worldSurface,new NativeWorldSphereFamilies.MutationView {X=sphere["pos"]["x"].Number,Y=sphere["pos"]["y"].Number,Radius=24*(scale.Undefined?1:scale.Number),Time=args[3].Number,Rotation=rotation,FiniteRotation=finite,Final=NativeMutationFinal(player,sphere["type"].Text),AttackDelay=sphere["attackDelay"].Truth?sphere["attackDelay"].Number:1,AttackTimer=sphere["attackTimer"].Number,Branch=branch.Text,Color=NativeMutationColor(NativeRunCatalog.Instance.GetSphere(sphere["type"].Text).Color),Directed=NativeRunCatalog.Instance.GetSphere(sphere["type"].Text).Projectile,Emitter=(NativeRunCatalog.Instance.GetSphere(branch.Text.Split('_')[0])?.Projectile??false)});
         }
         private void DrawNativeSphereProjectile(V[] args)
         {
@@ -21,7 +21,7 @@ namespace EchoSphere.Runtime
         }
         private V DrawNativeChainLightning(V[] args)
         {
-            var bolt=args[1];var player=args[2];var sphere=bolt["sourceSphere"];var branch=player["sphereBranches"]["chain"];if(!sphere.Truth||sphere["type"].Text!="chain"||!branch.Truth)return false;ColorUtility.TryParseHtmlString(Visual_gameData.Scope["SPHERE_TYPES"]["chain"]["color"].Text,out var color);return _nativeWorldSphereFamilies.DrawChainLightning(_worldSurface,bolt["from"]["x"].Number,bolt["from"]["y"].Number,bolt["to"]["x"].Number,bolt["to"]["y"].Number,color,branch.Text,NativeMutationFinal(player,"chain"),args[3].Number,args[4].Number);
+            var bolt=args[1];var player=args[2];var sphere=bolt["sourceSphere"];var branch=player["sphereBranches"]["chain"];if(!sphere.Truth||sphere["type"].Text!="chain"||!branch.Truth)return false;ColorUtility.TryParseHtmlString(NativeRunCatalog.Instance.GetSphere("chain").Color,out var color);return _nativeWorldSphereFamilies.DrawChainLightning(_worldSurface,bolt["from"]["x"].Number,bolt["from"]["y"].Number,bolt["to"]["x"].Number,bolt["to"]["y"].Number,color,branch.Text,NativeMutationFinal(player,"chain"),args[3].Number,args[4].Number);
         }
         private static double MutationArg(V[] args,int index,double fallback){var v=VisualJs.Arg(args,index);return v.Undefined?fallback:v.Number;}
         private void DrawNativeMutationPrimitive(string name,V[] a)

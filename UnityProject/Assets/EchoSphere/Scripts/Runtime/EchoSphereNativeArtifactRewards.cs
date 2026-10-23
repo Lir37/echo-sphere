@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using EchoSphere.Presentation;
 using UnityEngine;
@@ -44,9 +45,9 @@ namespace EchoSphere.Runtime
         }
         private NativeArtifactRewardView.State ReadNativeArtifactRewardState()
         {
-            bool ru=IsRussianUi;string lang=ru?"ru":"en";var choices=new List<NativeArtifactRewardView.Choice>();var active=new HashSet<string>();foreach(var synergy in Visual_artifactSystem.Scope["getActiveArtifactSynergies"].Call(_sourceRenderState).Items)active.Add(synergy["id"].Text);
+            bool ru=IsRussianUi;string lang=ru?"ru":"en";var choices=new List<NativeArtifactRewardView.Choice>();var active=new HashSet<string>();foreach(var synergy in NativeArtifactSynergies(_sourceRenderState))active.Add(synergy.Id);
             var projected=ProjectNativeArtifacts(_sourceRenderState,ru,_sourceRenderState["pendingArtifact"].Items);var signature=new StringBuilder(lang);
-            foreach(var artifact in projected.Artifacts){var newSynergies=new List<string>();foreach(var synergy in Visual_artifactSystem.Scope["getArtifactSynergiesAfterPick"].Call(_sourceRenderState,artifact.Id).Items)if(!active.Contains(synergy["id"].Text))newSynergies.Add(synergy["name"][lang].Text);string mechanic=Visual_artifactSystem.Scope["ARTIFACT_META"][artifact.Id]["mechanic"].Text;choices.Add(new NativeArtifactRewardView.Choice {Artifact=artifact,Mechanic=NativeArtifactMechanic(mechanic,ru),Synergies=newSynergies});signature.Append('|').Append(artifact.Id);}
+            foreach(var artifact in projected.Artifacts){var newSynergies=new List<string>();foreach(var synergy in NativeArtifactSynergies(_sourceRenderState,artifact.Id))if(!active.Contains(synergy.Id))newSynergies.Add(synergy.Name(ru));string mechanic=NativeRunCatalog.Instance.GetArtifact(artifact.Id).Mechanic;choices.Add(new NativeArtifactRewardView.Choice {Artifact=artifact,Mechanic=NativeArtifactMechanic(mechanic,ru),Synergies=newSynergies});signature.Append('|').Append(artifact.Id);}
             foreach(var id in _sourceRenderState["player"]["artifacts"].Items)signature.Append('|').Append(id.Text);
             return new NativeArtifactRewardView.State {Russian=ru,Signature=signature.ToString(),Choices=choices};
         }
@@ -56,9 +57,10 @@ namespace EchoSphere.Runtime
         }
         private NativeArtifactSetDetailView.State ReadNativeArtifactSetDetail(string id)
         {
-            string lang=IsRussianUi?"ru":"en";V found=VisualJs.Null;foreach(var set in Visual_artifactSystem.Scope["getArtifactSetArtifactProgress"].Call(_sourceRenderState).Items)if(set["setId"].Text==id){found=set;break;}if(!found.Truth)return null;
-            var owned=new HashSet<string>();foreach(var item in found["ownedArtifactIds"].Items)owned.Add(item.Text);var items=new List<NativeArtifactSetDetailView.Item>();foreach(var artifact in ProjectNativeArtifacts(_sourceRenderState,IsRussianUi,found["artifactIds"].Items).Artifacts)items.Add(new NativeArtifactSetDetailView.Item {Artifact=artifact,Owned=owned.Contains(artifact.Id)});
-            return new NativeArtifactSetDetailView.State {Id=id,Name=found["name"][lang].Text,Description=found["desc"][lang].Text,Owned=(int)found["owned"].Number,Total=(int)found["total"].Number,Russian=IsRussianUi,Items=items};
+            var found=NativeRunCatalog.Instance.Sets.FirstOrDefault(set=>set.Id==id);if(found==null)return null;
+            var owned=new HashSet<string>(_sourceRenderState["player"]["artifacts"].Items.Select(item=>item.Text),StringComparer.Ordinal);
+            var items=new List<NativeArtifactSetDetailView.Item>();foreach(var artifact in ProjectNativeArtifacts(_sourceRenderState,IsRussianUi,found.ArtifactIds.Select(item=>new V(item))).Artifacts)items.Add(new NativeArtifactSetDetailView.Item {Artifact=artifact,Owned=owned.Contains(artifact.Id)});
+            return new NativeArtifactSetDetailView.State {Id=id,Name=found.Name(IsRussianUi),Description=found.Description(IsRussianUi),Owned=found.ArtifactIds.Count(owned.Contains),Total=found.ArtifactIds.Count,Russian=IsRussianUi,Items=items};
         }
     }
 }

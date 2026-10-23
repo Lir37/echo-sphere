@@ -62,36 +62,36 @@ namespace EchoSphere.Runtime
                     new NativePauseStatsState.Stat(ru?"Крит":"Crit",Percent(Visual_engineCombat.Scope["getCritChance"].Call(scene))),
                     new NativePauseStatsState.Stat(ru?"Уклонение":"Dodge",Percent(Visual_engineCombat.Scope["getDodgeChance"].Call(scene))),
                     new NativePauseStatsState.Stat(ru?"Вампиризм":"Lifesteal",Percent(Visual_engineCombat.Scope["getVampirePercent"].Call(scene))),
-                    new NativePauseStatsState.Stat(ru?"Сфер":"Spheres",scene["spheres"]["length"].Text+" / "+Visual_engineSpheres.Scope["getMaxSpheres"].Call(scene).Text),
+                    new NativePauseStatsState.Stat(ru?"Сфер":"Spheres",scene["spheres"]["length"].Text+" / "+VisualJs.NumberText(NativeMaximumSphereCount(scene))),
                     new NativePauseStatsState.Stat(ru?"Убийства":"Kills",player["kills"].Text),
                     new NativePauseStatsState.Stat(ru?"Множитель XP":"XP Mult",Percent(new V(NativeXpPlannerMultiplier(scene))))
                 }
             };
             var cards=new List<NativePauseStatsState.Sphere>();
-            foreach(var type in VisualJs.ObjectObject["keys"].Call(Visual_gameData.Scope["SPHERE_TYPES"]).Items){
-                var definition=Visual_gameData.Scope["SPHERE_TYPES"][type];
+            foreach(var definition in NativeRunCatalog.Instance.Spheres){
+                var type=new V(definition.Id);
                 var placed=scene["spheres"].Items.Where(sphere=>sphere["type"]==type&&sphere["alive"].Truth).ToList();
                 var live=placed.Count>0?placed[0]:VisualJs.Null;
-                var branch=player["sphereBranches"][type];V branchChoice=VisualJs.Null,finalChoice=VisualJs.Null;
+                var branch=player["sphereBranches"][type];NativeRunCatalog.Choice branchChoice=null;NativeRunCatalog.Definition finalChoice=null;
                 if(branch.Truth){
-                    branchChoice=Visual_sphereProgression.Scope["SPHERE_PROGRESSION"][type]["evolution4Choices"].Items.FirstOrDefault(item=>item["id"]==branch);
-                    if(branchChoice.Truth){
+                    branchChoice=definition.Branches.FirstOrDefault(item=>item.Id==branch.Text);
+                    if(branchChoice!=null){
                         // Preserve the source presentation lookup, including its
                         // empty-string Number conversion. Do not invent a level
                         // gate or change actual evolution state in a UI reader.
                         var prefix="sphere:"+type.Text+":7:";
                         var evolution=player["evolutions"].Items.FirstOrDefault(item=>(item.Text??"").StartsWith(prefix,StringComparison.Ordinal));
                         var index=VisualJs.Number(new V((evolution.Truth?evolution.Text:"").Split(':').Last()));
-                        finalChoice=branchChoice["final"][index];
+                        double finalIndex=index.Number;if(finalIndex==Math.Truncate(finalIndex)&&finalIndex>=0&&finalIndex<branchChoice.Finals.Count)finalChoice=branchChoice.Finals[(int)finalIndex];
                     }
                 }
                 var card=new NativePauseStatsState.Sphere {
-                    Id=type.Text,Color=definition["color"].Text,Name=definition["name"][lang].Text,
-                    Level=(ru?"ур. ":"lvl ")+Visual_sphereProgression.Scope["sphereLevel"].Call(scene,type).Text,
+                    Id=type.Text,Color=definition.Color,Name=definition.Name(ru),
+                    Level=(ru?"ур. ":"lvl ")+VisualJs.NumberText(NativeSphereLevel(scene,type.Text)),
                     OnField=live.Truth,Placement=placed.Count>0?(ru?"на поле ×":"field ×")+placed.Count:(ru?"не установлена":"not placed"),
-                    Description=live.Truth?null:definition["desc"][lang].Text,
-                    HasBranch=branch.Truth,BranchLabel=ru?"Ветка:":"Branch:",BranchName=branchChoice.Truth?branchChoice["name"][lang].Text:"",
-                    FinalName=finalChoice.Truth?finalChoice["name"][lang].Text:null
+                    Description=live.Truth?null:definition.Description(ru),
+                    HasBranch=branch.Truth,BranchLabel=ru?"Ветка:":"Branch:",BranchName=branchChoice!=null?branchChoice.Name(ru):"",
+                    FinalName=finalChoice!=null?finalChoice.Name(ru):null
                 };
                 if(live.Truth)card.Metrics=new[] {
                     new NativePauseStatsState.Stat(ru?"урон":"damage",Round(Visual_engineSpheres.Scope["getSphereDamage"].Call(scene,live))+(live["type"].Text=="aura"?"/имп.":"")),

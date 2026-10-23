@@ -44,7 +44,7 @@ namespace EchoSphere.Runtime
             foreach(var chest in s["stellaChests"].Items)if(chest["alive"].Truth)NativeFrameView("drawStellaChest",chest);
             foreach(var sphere in s["spheres"].Items)DrawNativeSphereFrame(s,sphere,time);
             foreach(var p in s["sphereProjectiles"].Items)DrawNativeSphereProjectile(new V[]{ctx,p,player,time});
-            foreach(var m in s["minions"].Items){var color=Visual_gameData.Scope["SPHERE_TYPES"][m["anchorType"]]["color"];NativeFrameView("drawModernMinion",m["pos"]["x"],m["pos"]["y"],m["radius"],m["rotation"],color.Truth?color:new V("#ffb84d"));}
+            foreach(var m in s["minions"].Items){string color=NativeRunCatalog.Instance.GetSphere(m["anchorType"].Text)?.Color;NativeFrameView("drawModernMinion",m["pos"]["x"],m["pos"]["y"],m["radius"],m["rotation"],new V(string.IsNullOrEmpty(color)?"#ffb84d":color));}
             foreach(var e in s["enemies"].Items)NativeFrameView("drawModernEnemy",e,player["pos"]);
             foreach(var sphere in s["spheres"].Items)if(sphere["alive"].Truth&&sphere["type"].Text=="orbital"){
                 double tier=sphere["visualTier"].Truth?sphere["visualTier"].Number:0,scale=Math.Max(15,Math.Min(25,sphere["radius"].Number*.19+tier*.8))/24;

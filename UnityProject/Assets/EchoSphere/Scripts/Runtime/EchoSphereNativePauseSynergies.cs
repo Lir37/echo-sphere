@@ -35,27 +35,19 @@ namespace EchoSphere.Runtime
         internal static NativePauseSynergiesState ProjectNativePauseSynergiesState(V scene, bool ru)
         {
             string lang = ru ? "ru" : "en";
-            var progression = Visual_sphereProgression.Scope;
-            var data = Visual_gameData.Scope;
-            var artifacts = Visual_artifactSystem.Scope;
-            var sections = new List<NativePauseSynergiesState.Section>();
-            var cards = new List<NativePauseSynergiesState.Card>();
-            foreach (var link in progression["SPHERE_ABILITY_SYNERGIES"].Items)
-            {
-                bool sphereOk = progression["sphereLevel"].Call(scene, link["sphere"]).Number >= 7;
-                bool abilityOk = scene["player"]["abilities"][link["ability"]].Number >= 7;
-                bool selected = scene["player"]["sphereBranches"][link["sphere"]] == link["sphereBranch"];
-                bool active = sphereOk && abilityOk && selected;
-                bool inProgress = selected && !active;
-                bool eligible = !selected && sphereOk;
-                string branch = link["sphereBranch"].Text;
-                foreach (var choice in progression["SPHERE_PROGRESSION"][link["sphere"]]["evolution4Choices"].Items)
-                    if (choice["id"] == link["sphereBranch"]) { branch = choice["name"][lang].Text; break; }
+            var catalog=NativeRunCatalog.Instance;
+            var artifacts=Visual_artifactSystem.Scope;
+            var sections=new List<NativePauseSynergiesState.Section>();var cards=new List<NativePauseSynergiesState.Card>();
+            foreach(var link in catalog.SphereAbilityLinks){
+                bool sphereOk=NativeSphereLevel(scene,link.Sphere)>=7,abilityOk=scene["player"]["abilities"][link.Ability].Number>=7;
+                bool selected=scene["player"]["sphereBranches"][link.Sphere].Text==link.Branch;
+                bool active=sphereOk&&abilityOk&&selected,inProgress=selected&&!active,eligible=!selected&&sphereOk;
+                string branch=catalog.GetSphereBranch(link.Branch)?.Name(ru)??link.Branch;
                 cards.Add(new NativePauseSynergiesState.Card {
-                    Id = link["id"].Text, Name = link["name"][lang].Text, Description = link["desc"][lang].Text,
-                    Status = active ? (ru ? "АКТИВНА" : "ACTIVE") : inProgress ? (ru ? "В ПРОЦЕССЕ" : "IN PROGRESS") : eligible ? (ru ? "ДОСТУПНА" : "ELIGIBLE") : (ru ? "ЗАКРЫТА" : "LOCKED"),
-                    Tone = active ? "purple" : selected ? "cyan" : "base",
-                    Hint = data["SPHERE_TYPES"][link["sphere"]]["name"][lang].Text + " · " + branch + " · VII " + (sphereOk ? "✓" : "•") + " · " + data["ABILITIES"][link["ability"]]["name"][lang].Text + " VII " + (abilityOk ? "✓" : "•")
+                    Id=link.Id,Name=link.Name(ru),Description=link.Description(ru),
+                    Status=active?(ru?"АКТИВНА":"ACTIVE"):inProgress?(ru?"В ПРОЦЕССЕ":"IN PROGRESS"):eligible?(ru?"ДОСТУПНА":"ELIGIBLE"):(ru?"ЗАКРЫТА":"LOCKED"),
+                    Tone=active?"purple":selected?"cyan":"base",
+                    Hint=catalog.GetSphere(link.Sphere).Name(ru)+" · "+branch+" · VII "+(sphereOk?"✓":"•")+" · "+catalog.GetAbility(link.Ability).Name(ru)+" VII "+(abilityOk?"✓":"•")
                 });
             }
             sections.Add(new NativePauseSynergiesState.Section { Id = "sphere", Heading = ru ? "Сфера + ветка + способность" : "Sphere + branch + ability", Cards = cards });
@@ -70,10 +62,9 @@ namespace EchoSphere.Runtime
             }
             sections.Add(new NativePauseSynergiesState.Section { Id = "diagnostics", Heading = ru ? "Диагностика билда" : "Build Diagnostics", Cards = cards });
             cards = new List<NativePauseSynergiesState.Card>();
-            foreach (var set in artifacts["getArtifactSetProgress"].Call(scene).Items)
-            {
-                bool complete = set["complete"].Truth;
-                cards.Add(new NativePauseSynergiesState.Card { Id = set["id"].Text, Name = complete ? set["name"][lang].Text : "???", Description = complete ? set["desc"][lang].Text : (ru ? "Сет ещё не открыт." : "Set not discovered yet."), Status = set["activeSynergies"].Text + "/" + set["totalSynergies"].Text, Tone = complete ? "gold" : "base", Pulse = complete });
+            var activeSynergies=new HashSet<string>();foreach(var synergy in NativeArtifactSynergies(scene))activeSynergies.Add(synergy.Id);
+            foreach(var set in catalog.Sets){int count=0;foreach(var id in set.SynergyIds)if(activeSynergies.Contains(id))count++;bool complete=count==set.SynergyIds.Count;
+                cards.Add(new NativePauseSynergiesState.Card {Id=set.Id,Name=complete?set.Name(ru):"???",Description=complete?set.Description(ru):(ru?"Сет ещё не открыт.":"Set not discovered yet."),Status=count+"/"+set.SynergyIds.Count,Tone=complete?"gold":"base",Pulse=complete});
             }
             sections.Add(new NativePauseSynergiesState.Section { Id = "sets", Heading = ru ? "Наборы артефактов" : "Artifact Sets", Cards = cards });
             cards = new List<NativePauseSynergiesState.Card>();
@@ -84,16 +75,10 @@ namespace EchoSphere.Runtime
             }
             sections.Add(new NativePauseSynergiesState.Section { Id = "protocols", Heading = ru ? "Протоколы" : "Protocols", Cards = cards });
             cards = new List<NativePauseSynergiesState.Card>();
-            foreach (var synergy in artifacts["ARTIFACT_SYNERGIES"].Items)
-            {
-                var tags = new List<NativePauseSynergiesState.Tag>(); int owned = 0;
-                foreach (var id in synergy["requires"].Items)
-                {
-                    bool has = false; foreach (var item in scene["player"]["artifacts"].Items) if (item == id) { has = true; break; }
-                    if (has) owned++;
-                    tags.Add(new NativePauseSynergiesState.Tag { Id = id.Text, Text = data["ARTIFACT_MAP"][id]["name"][lang].Text, Owned = has });
-                }
-                cards.Add(new NativePauseSynergiesState.Card { Id = synergy["id"].Text, Name = synergy["name"][lang].Text, Description = synergy["desc"][lang].Text, Status = owned + "/" + tags.Count, Tone = owned == tags.Count ? "purple" : "base", Tags = tags });
+            var ownedIds=new HashSet<string>();foreach(var item in scene["player"]["artifacts"].Items)ownedIds.Add(item.Text);
+            foreach(var synergy in catalog.Synergies){var tags=new List<NativePauseSynergiesState.Tag>();int owned=0;
+                foreach(string id in synergy.Requires){bool has=ownedIds.Contains(id);if(has)owned++;tags.Add(new NativePauseSynergiesState.Tag {Id=id,Text=catalog.GetArtifact(id).Name(ru),Owned=has});}
+                cards.Add(new NativePauseSynergiesState.Card {Id=synergy.Id,Name=synergy.Name(ru),Description=synergy.Description(ru),Status=owned+"/"+tags.Count,Tone=owned==tags.Count?"purple":"base",Tags=tags});
             }
             sections.Add(new NativePauseSynergiesState.Section { Id = "artifacts", Heading = ru ? "Синергии артефактов" : "Artifact synergies", Cards = cards });
             return new NativePauseSynergiesState { Sections = sections, EmptySignals = ru ? "Признаки пока не сформированы" : "No active signals yet" };

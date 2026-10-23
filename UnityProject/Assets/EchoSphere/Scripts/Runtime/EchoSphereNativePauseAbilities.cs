@@ -34,30 +34,25 @@ namespace EchoSphere.Runtime
         }
         internal static NativePauseAbilitiesState ProjectNativePauseAbilitiesState(V scene,bool ru)
         {
-            var lang=ru?"ru":"en";
-            var definitions=Visual_gameData.Scope["ABILITIES"];
             var active=new List<NativePauseAbilitiesState.Ability>();
             var passive=new List<NativePauseAbilitiesState.Ability>();
-            foreach(var id in VisualJs.ObjectObject["keys"].Call(definitions).Items){
-                var definition=definitions[id];var raw=scene["player"]["abilities"][id];var level=raw.Truth?raw:new V(0);
-                if(definition["category"].Text=="active"){
-                    var progression=Visual_sphereProgression.Scope["ABILITY_PROGRESSION"][id];
-                    var branch=Visual_sphereProgression.Scope["getAbilityEvolutionChoice"].Call(scene,id,new V(4));
-                    var final=Visual_sphereProgression.Scope["getAbilityEvolutionChoice"].Call(scene,id,new V(7));
-                    string Names(V choices)=>string.Join(" · ",choices.Items.Select(choice=>choice["name"][lang].Text));
+            foreach(var definition in NativeRunCatalog.Instance.Abilities){
+                string id=definition.Id;var raw=scene["player"]["abilities"][id];var level=raw.Truth?raw:new V(0);
+                if(definition.Category=="active"){
+                    var branch=NativeAbilityChoice(scene,id,4);var final=NativeAbilityChoice(scene,id,7);
+                    string Names(IEnumerable<NativeRunCatalog.Definition> choices)=>string.Join(" · ",choices.Select(choice=>choice.Name(ru)));
                     active.Add(new NativePauseAbilitiesState.Ability {
-                        Id=id.Text,Acquired=level.Truth,Level=level.Text+"/7",
-                        Name=level.Truth?Visual_sphereProgression.Scope["getAbilityDisplayName"].Call(scene,id,new V(lang)).Text:definition["name"][lang].Text,
-                        Description=level.Truth?Visual_sphereProgression.Scope["getAbilityDisplayDesc"].Call(scene,id,new V(lang)).Text:definition["desc"][lang].Call(new V(1)).Text,
-                        HasProgression=progression.Truth,
-                        Branch=progression.Truth?(branch.Truth?branch["name"][lang].Text:Names(progression["evolution4"])):null,
-                        Final=progression.Truth?(final.Truth?final["name"][lang].Text:Names(progression["evolution7"])):null
+                        Id=id,Acquired=level.Truth,Level=level.Text+"/7",
+                        Name=level.Truth?NativeAbilityName(scene,id,ru):definition.Name(ru),
+                        Description=level.Truth?NativeAbilityDescription(scene,id,ru):NativeBaseAbilityDescription(definition,1,ru),
+                        HasProgression=definition.HasProgression,
+                        Branch=definition.HasProgression?(branch!=null?branch.Name(ru):Names(definition.Branches)):null,
+                        Final=definition.HasProgression?(final!=null?final.Name(ru):Names(definition.FallbackFinals)):null
                     });
-                }else if(definition["category"].Text=="passive"&&level.Number>0){
+                }else if(definition.Category=="passive"&&level.Number>0){
                     passive.Add(new NativePauseAbilitiesState.Ability {
-                        Id=id.Text,Acquired=true,Level=raw.Text+"/7",
-                        Name=Visual_gameData.Scope["abilityName"].Call(id,new V(lang)).Text,
-                        Description=definition["desc"][lang].Call(level.Truth?level:new V(1)).Text
+                        Id=id,Acquired=true,Level=raw.Text+"/7",Name=definition.Name(ru),
+                        Description=NativeBaseAbilityDescription(definition,level.Truth?level.Number:1,ru)
                     });
                 }
             }

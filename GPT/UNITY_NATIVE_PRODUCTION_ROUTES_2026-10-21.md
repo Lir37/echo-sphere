@@ -1110,3 +1110,22 @@ world snapshot/dispatch V and comprehensive control/modal/device acceptance.
 This is an implementation checkpoint within the continuing full-transfer cycle,
 not a declaration that P1/P2 or full modernization is DONE. No APK.
 
+## Native run catalog integration (2026-10-23)
+
+Unity ScriptableObject NativeRunCatalog now supplies 10 spheres, 30 abilities,
+82 artifacts, 22 artifact synergies, 12 sets, element metadata and mutation links.
+Pause abilities/artifacts/stats, artifact rewards and set details, mobile labels,
+upgrade hints and world sphere colors/ranges use typed catalog entries instead of
+translated metadata helpers. Ability evolution selection and descriptions are
+native C# read models, preserving first-marker selection and source fallback order.
+Artifact ownership/set membership and reward synergy previews use native collections.
+The serializer schema has finite branch/final depth; no recursive Choice list.
+
+Validation: Editor compile 0 errors/warnings; catalog/source 6140 comparisons;
+existing pause ability/artifact/stats/synergy projection checks PASS; 272 Node tests
+PASS. Bounded paused Play Mode exercised four tabs, SourceUiDocument instances 0;
+after stop current Editor Console 0 errors/0 warnings. No FPS/GC/device claim.
+
+Remaining: translated build diagnostics/protocol-state reads, numerical stat reads,
+mobile collision/network preview adapters and V snapshot/world dispatch boundaries.
+Full native migration and Android acceptance remain open. No APK built.

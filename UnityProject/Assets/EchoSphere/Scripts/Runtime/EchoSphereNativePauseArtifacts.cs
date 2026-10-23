@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using EchoSphere.Presentation;
 using UnityEngine;
@@ -36,14 +37,14 @@ namespace EchoSphere.Runtime
             =>ProjectNativeArtifacts(scene,ru,scene["player"]["artifacts"].Items);
         private static NativePauseArtifactsState ProjectNativeArtifacts(V scene,bool ru,IEnumerable<V> ids)
         {
-            var lang=ru?"ru":"en";var artifacts=new List<NativePauseArtifactsState.Artifact>();
+            var catalog=NativeRunCatalog.Instance;var artifacts=new List<NativePauseArtifactsState.Artifact>();
+            var ownedIds=new HashSet<string>(scene["player"]["artifacts"].Items.Select(item=>item.Text),StringComparer.Ordinal);
             foreach(var id in ids){
-                var rarity=Visual_artifactSystem.Scope["artifactRarity"].Call(id).Text;
-                var definition=Visual_gameData.Scope["ARTIFACT_MAP"][id];
+                var definition=catalog.GetArtifact(id.Text);var rarity=definition.Rarity;
                 var sets=new List<NativePauseArtifactsState.Set>();
-                foreach(var set in Visual_artifactSystem.Scope["getArtifactSetsForArtifact"].Call(scene,id).Items){
-                    bool complete=set["complete"].Truth;var owned=(int)set["owned"].Number;var total=(int)set["total"].Number;
-                    sets.Add(new NativePauseArtifactsState.Set {Id=set["setId"].Text,Name=set["name"][lang].Text,Owned=owned,Total=total,Count=owned+"/"+total,Complete=complete,
+                foreach(var set in catalog.Sets.Where(set=>set.ArtifactIds.Contains(id.Text))){
+                    int owned=set.ArtifactIds.Count(ownedIds.Contains),total=set.ArtifactIds.Count;bool complete=owned==total;
+                    sets.Add(new NativePauseArtifactsState.Set {Id=set.Id,Name=set.Name(ru),Owned=owned,Total=total,Count=owned+"/"+total,Complete=complete,
                         Status=(ru?"СЕТ":"SET")+" · "+(complete?(ru?"СОБРАН":"COMPLETE"):(ru?"ПРОГРЕСС":"PROGRESS"))});
                 }
                 // Exact presentation-only ArtifactGlyph mapping from App.tsx.
@@ -52,8 +53,8 @@ namespace EchoSphere.Runtime
                 string[] glyphs={"◇","✦","◈","△","⬡","✧","⊙","✺","⌬","✹","◌","⟡"};
                 string glyphColor=rarity=="legendary"?"#ffb84d":rarity=="special"?"#ff6b6b":rarity=="epic"?"#a98cff":rarity=="rare"?"#39d8ff":"#7f9bb8";
                 string border=rarity=="legendary"?"#ffb84d":rarity=="special"?"#ff6b6b":rarity=="epic"?"#8064a8":rarity=="rare"?"#39d8ff":"#243b55";
-                artifacts.Add(new NativePauseArtifactsState.Artifact {Id=id.Text,Name=definition["name"][lang].Text,Description=definition["desc"][lang].Text,Rarity=rarity,
-                    RarityLabel=Visual_artifactSystem.Scope["RARITY_LABELS"][rarity][lang].Text,BorderColor=border,GlyphColor=glyphColor,Glyph=glyphs[sum%glyphs.Length],Sets=sets});
+                artifacts.Add(new NativePauseArtifactsState.Artifact {Id=id.Text,Name=definition.Name(ru),Description=definition.Description(ru),Rarity=rarity,
+                    RarityLabel=catalog.RarityLabel(rarity,ru),BorderColor=border,GlyphColor=glyphColor,Glyph=glyphs[sum%glyphs.Length],Sets=sets});
             }
             return new NativePauseArtifactsState {Heading=(ru?"Собрано: ":"Owned: ")+scene["player"]["artifacts"]["length"].Text,Empty=ru?"Артефактов пока нет.":"No artifacts yet.",Artifacts=artifacts};
         }

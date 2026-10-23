@@ -37,7 +37,7 @@ namespace EchoSphere.Runtime
         }
         private V DrawNativeStandardAssembly(V[] args)
         {
-            var scene=args[1];var sphere=args[2];double x=sphere["pos"]["x"].Number,y=sphere["pos"]["y"].Number,range=sphere["radius"].Number*Visual_gameData.Scope["SPHERE_TYPES"][sphere["type"]]["rangeMult"].Number;bool target=false;
+            var scene=args[1];var sphere=args[2];double x=sphere["pos"]["x"].Number,y=sphere["pos"]["y"].Number,range=sphere["radius"].Number*NativeRunCatalog.Instance.GetSphere(sphere["type"].Text).RangeMultiplier;bool target=false;
             foreach(var enemy in scene["enemies"].Items){double dx=enemy["pos"]["x"].Number-x,dy=enemy["pos"]["y"].Number-y;if(enemy["hp"].Number>0&&System.Math.Sqrt(dx*dx+dy*dy)<range){target=true;break;}}
             var tier=sphere["visualTier"];return _nativeWorldStandardSphere.DrawAssembly(_worldSurface,x,y,args[3].Number,tier.Truth?tier.Number:0,args[4].Number,target,_nativeWorldSprites,ResolveNativePlayerArt);
         }

@@ -76,7 +76,7 @@ namespace EchoSphere.Runtime
             if(spheres["length"].Number>=NativeMobileMaximum)return;
             if(!NativeMobileCanPlace(wx,wy)){NativeMobileFlash("Путь перекрыт","Path blocked",.8,"#ff4d5d");NativeMobileHaptic(35);return;}
             int count=(int)spheres["length"].Number;NativePlaceOrRemoveSphere(wx,wy);
-            if(NativeMobileScene["spheres"]["length"].Number>count){NativeMobileHaptic(8);_nativeMobilePlacement=new Vector2((float)x,(float)y);_nativeMobilePlacementAt=Time.unscaledTimeAsDouble;_nativeMobilePlacementColor=Visual_gameData.Scope["SPHERE_TYPES"][NativeMobileScene["selectedSphereType"]]["color"].Text;}
+            if(NativeMobileScene["spheres"]["length"].Number>count){NativeMobileHaptic(8);_nativeMobilePlacement=new Vector2((float)x,(float)y);_nativeMobilePlacementAt=Time.unscaledTimeAsDouble;_nativeMobilePlacementColor=NativeRunCatalog.Instance.GetSphere(NativeMobileScene["selectedSphereType"].Text).Color;}
         }
         private NativeMobileGhost NativeMobilePreview(V sphere,double x,double y)
         {
@@ -112,7 +112,7 @@ namespace EchoSphere.Runtime
             _nativeMobilePointers.TryGetValue(id,out var p);_nativeMobilePointers.Remove(id);
             if(p!=null&&p.Sphere.Truth){
                 if(!p.Moved){NativePlaceOrRemoveSphere(p.Sphere["pos"]["x"].Number,p.Sphere["pos"]["y"].Number);_nativeMobileGhost=null;NativeMobileHaptic(10);}
-                else if(p.Repositioned){var old=NativeMobileNetwork();if(NativeMobileWorld(x,y,out double wx,out double wy)&&NativeMobileCanMove(p.Sphere,wx,wy)){NativeRepositionSphere(NativeSphereForView(p.Sphere),wx,wy);NativeMobileRememberChange(old);NativeMobileFlash("Сфера перемещена","Sphere moved",.8,Visual_gameData.Scope["SPHERE_TYPES"][p.Sphere["type"]]["color"].Text);}_nativeMobileGhost=null;NativeMobileHaptic(12);}
+                else if(p.Repositioned){var old=NativeMobileNetwork();if(NativeMobileWorld(x,y,out double wx,out double wy)&&NativeMobileCanMove(p.Sphere,wx,wy)){NativeRepositionSphere(NativeSphereForView(p.Sphere),wx,wy);NativeMobileRememberChange(old);NativeMobileFlash("Сфера перемещена","Sphere moved",.8,NativeRunCatalog.Instance.GetSphere(p.Sphere["type"].Text).Color);}_nativeMobileGhost=null;NativeMobileHaptic(12);}
                 else {NativeMobileFlash("Недоступная позиция","Invalid position",.65,"#ff4d5d");_nativeMobileGhost=null;NativeMobileHaptic(22);}return;
             }
             if(p!=null&&p.Placing){
