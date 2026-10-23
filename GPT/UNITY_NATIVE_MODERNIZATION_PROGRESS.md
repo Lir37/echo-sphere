@@ -1,5 +1,15 @@
 # ECHO SPHERE — native visual modernization
 
+2026-10-23: Sphere network rendering is now a typed native Unity mesh owner:
+25-point wavy links and three moving packets, external Echo Drone links, all seven
+formation views, triangle charge/pulse ticks and fading formation memory. Existing
+network/frame/filter helpers still own membership and gameplay. Paint order,
+per-layer shadows/blur, dashes, alpha, source double display math and final path
+continuation are retained; no unused formation tags added. Actual Editor compile:
+zero errors/warnings. CI is checked on containing commit. Full migration remains
+PARTIAL: inline combat feedback and source renderer/UI/data/compositor bridges.
+Play/device/FPS/GC deferred; no APK or quality/gameplay change.
+
 2026-10-23: Player shield, Engineer links, Architect formations, Hunter target marks,
 Alchemist reaction labels and Berserker range are now native world views. Existing
 formation/range/target data remain authoritative. Original dashes, colors, shadow and

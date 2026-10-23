@@ -748,3 +748,28 @@ Short handoff: Continue ECHO SPHERE unity-migration at containing HEAD (git log 
 and character indicators are native. Continue network/formation links and remaining
 combat feedback, then source renderer/UI/data/compositor removal. Preserve gameplay/
 quality; no APK; measurements later.
+
+
+## 2026-10-23: Complete native sphere network views
+
+NativeWorldNetwork / NativeWorldNetworkFormations own wavy connections (three stroke
+layers and three animated packet pairs), seven formation bodies, charge and resonance
+indicators and formation memory. External drone positions still come from the
+existing buildRuntimeNetworkNodes; getSphereVisualNetwork still filters sphere
+membership. Runtime adapters preserve strict active !== false behavior and existing
+link color priority. No graph, range, charge, bonus or gameplay rule is replaced.
+
+Original triangle first-three hull vs all-node center, inactive triangle fade,
+per-node shadow/width state through charge/flash/ticks, square scaling, cluster
+spoke alpha, raw inherited shadows and explicit zero-blur ring/fractal shadows are
+preserved. Original drawFormationTag is unused, so no new labels were introduced.
+Native owners are frame-pooled, disposed and excluded from run persistence. The
+three source helper overrides are always restored in finally. Editor compile is
+zero errors/warnings; Play/device/performance acceptance remains deferred. Full
+modernization remains PARTIAL. CI success is tracked on containing commit.
+
+Short handoff: Continue ECHO SPHERE unity-migration at containing HEAD (git log -1
+--format=%H). Read three GPT docs and modernization reports. Mutations, shield,
+character indicators and complete network views are native. Continue inline combat
+feedback and source renderer/UI/data/compositor removal. Preserve gameplay/quality;
+no APK, measurements later.
