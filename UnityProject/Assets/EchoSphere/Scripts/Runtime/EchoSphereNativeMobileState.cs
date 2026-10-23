@@ -78,16 +78,16 @@ namespace EchoSphere.Runtime
         }
         private void ReadNativeMobileNetworkState()
         {
-            _nativeGhostNetworkState=_nativeFormationMemoryState=null;if(_nativeRunField==null)return;var rect=_nativeRunField.worldBound;var texture=_worldSurface.UiTexture;double pixelWidth=texture!=null?texture.width:300,pixelHeight=texture!=null?texture.height:150;var camera=NativeMobileScene["camera"];
-            Vector2 ScreenPoint(double x,double y)=>new Vector2((float)((double)rect.xMin+(x-camera["x"].Number+pixelWidth/2)*((double)rect.width/pixelWidth)),(float)((double)rect.yMin+(y-camera["y"].Number+pixelHeight/2)*((double)rect.height/pixelHeight)));
+            _nativeGhostNetworkState=_nativeFormationMemoryState=null;if(_nativeRunField==null)return;var rect=_nativeRunField.worldBound;var texture=_worldSurface.UiTexture;double pixelWidth=texture!=null?texture.width:300,pixelHeight=texture!=null?texture.height:150;var camera=NativeSourcePixels((Vector2)(_camera.transform.position-_lastHunterScreenShakeOffset));
+            Vector2 ScreenPoint(double x,double y)=>new Vector2((float)((double)rect.xMin+(x-camera.x+pixelWidth/2)*((double)rect.width/pixelWidth)),(float)((double)rect.yMin+(y-camera.y+pixelHeight/2)*((double)rect.height/pixelHeight)));
             var ghost=_nativeMobileGhost;if(ghost!=null){
-                double scale=(double)rect.width/pixelWidth;var center=ScreenPoint(ghost.X,ghost.Y);ColorUtility.TryParseHtmlString(NativeRunCatalog.Instance.GetSphere(NativeMobileScene["selectedSphereType"].Text).Color,out var color);
+                double scale=(double)rect.width/pixelWidth;var center=ScreenPoint(ghost.X,ghost.Y);ColorUtility.TryParseHtmlString(NativeRunCatalog.Instance.GetSphere(_selectedSphereType.ToString().ToLowerInvariant()).Color,out var color);
                 var state=new NativeMobileNetworkView.State {Center=center,Valid=ghost.Valid,SphereColor=color,Radius=(float)(25*scale),RingWidth=(float)(2*scale),FormationWidth=(float)(2*scale),FontSize=(float)(11*scale),CaptionPosition=center-new Vector2(0,(float)(31*scale))};
-                foreach(var link in ghost.Network["links"].Items){int a=(int)link["a"].Number,b=(int)link["b"].Number;if(a!=ghost.Index&&b!=ghost.Index)continue;var other=NativeMobileScene["spheres"][a==ghost.Index?b:a];if(!other.Truth)continue;state.Links.Add(new NativeMobileNetworkView.Link(center,ScreenPoint(other["pos"]["x"].Number,other["pos"]["y"].Number),(float)(2.2*scale)));}
-                var points=new List<Vector2>();if(ghost.Formation.Truth)foreach(var index in ghost.Formation["nodes"].Items){var p=(int)index.Number==ghost.Index?VisualJs.Obj("x",ghost.X,"y",ghost.Y):NativeMobileScene["spheres"][index]["pos"];if(p.Truth)points.Add(ScreenPoint(p["x"].Number,p["y"].Number));}state.Points=points.ToArray();
-                string type=ghost.Formation.Truth?ghost.Formation["type"].Text:null;
+                foreach(var link in ghost.Network.Links){int a=link.A,b=link.B;if(a!=ghost.Index&&b!=ghost.Index)continue;if(!NativeMobileSpherePoint(a==ghost.Index?b:a,out double ox,out double oy))continue;state.Links.Add(new NativeMobileNetworkView.Link(center,ScreenPoint(ox,oy),(float)(2.2*scale)));}
+                var points=new List<Vector2>();if(ghost.Formation!=null)foreach(var index in ghost.Formation.NodeIndexes){if(index==ghost.Index)points.Add(ScreenPoint(ghost.X,ghost.Y));else if(NativeMobileSpherePoint(index,out double px,out double py))points.Add(ScreenPoint(px,py));}state.Points=points.ToArray();
+                string type=ghost.Formation?.Type.ToString().ToLowerInvariant();
                 string[] ids={"line","triangle","square","cluster","ring","lattice"},ru={"ЛИНИЯ","ТРЕУГОЛЬНИК","КВАДРАТ","КЛАСТЕР","КОЛЬЦО","РЕШЁТКА"},en={"LINE","TRIANGLE","SQUARE","CLUSTER","RING","LATTICE"};int i=Array.IndexOf(ids,type);
-                state.Caption=!ghost.Valid?(IsRussianUi?"НЕДОСТУПНО":"INVALID"):!ghost.Formation.Truth?(IsRussianUi?"СЕТЬ":"NETWORK"):i>=0?(IsRussianUi?ru[i]:en[i]):(IsRussianUi?"ФРАКТАЛ":"FRACTAL");_nativeGhostNetworkState=state;
+                state.Caption=!ghost.Valid?(IsRussianUi?"НЕДОСТУПНО":"INVALID"):ghost.Formation==null?(IsRussianUi?"СЕТЬ":"NETWORK"):i>=0?(IsRussianUi?ru[i]:en[i]):(IsRussianUi?"ФРАКТАЛ":"FRACTAL");_nativeGhostNetworkState=state;
             }
             if(_nativeMobileMemory!=null)_nativeFormationMemoryState=new NativeMobileNetworkView.State {Memory=true,Closed=_nativeMobileMemoryClosed,Alpha=(float)Math.Min(.55,Math.Max(0,.9-(Time.unscaledTimeAsDouble-_nativeMobileMemoryAt))/.9),Points=_nativeMobileMemory.Select(p=>ScreenPoint(p.x,p.y)).ToArray()};
         }

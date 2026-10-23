@@ -1085,3 +1085,24 @@ and final visual/control/device acceptance. Full migration not marked DONE.
 Android C# compile after sphere/mobile changes: PASS (20 assemblies), no APK.
 272 Node tests plus preflight/provenance/metadata PASS. CI checked on containing
 commit separately from Unity Editor/Android script compilation.
+
+### Typed Ghost Snap and formation-memory graphs (2026-10-24)
+
+Production preview/current graphs and captured formation selection now use Core
+SphereNetworkState/SphereNetworkShape and native node records. No graph serialization
+into V dictionaries is needed for Ghost Snap or formation-memory comparisons.
+Current-graph disabled behavior and preview-only disabled filtering are preserved
+as separate existing source policies; logical axes, float conversion order, candidate
+selection, ordered membership and first-sphere empty-preview behavior are unchanged.
+Native graph rendering reads sphere/camera positions directly and keeps existing
+pointer geometry/thresholds/placement gates. V pointer handles/keys remain for the
+next controller boundary; their action semantics are not guessed or rewritten.
+
+Checks: typed graph vs previous Core-backed adapter, 231 complete exact graph
+comparisons PASS. Existing original TypeScript UI geometry parity: 105 cases PASS;
+99 unused strength/distance float differences remain explicitly acknowledged, not
+claimed bitwise original-TS identity. Editor compile 0 errors/warnings; Android C#
+compile 20 assemblies PASS without APK. Previous sphere/mobile commit
+387ab14493d7150a2442622e4f9b694d9b246897 CI #825 SUCCESS.
+Remaining: gesture pointer/keys, planner/modal data and Orbital radius adapter;
+final visual/control/device acceptance. Full modernization remains incomplete.
