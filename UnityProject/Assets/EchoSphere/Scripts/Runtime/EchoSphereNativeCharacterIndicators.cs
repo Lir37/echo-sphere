@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using EchoSphere.Core;
 using EchoSphere.Presentation;
 using UnityEngine;
 
@@ -10,27 +11,33 @@ namespace EchoSphere.Runtime
         private const double NativePlayerRadiusPixels=16;
         private string NativeCharacterCanvasText(string text)=>_worldSurface.LocalizeCanvasText?NativeLocalizationCatalog.Instance.CanvasText(text,IsRussianUi):text;
         private static string NativeCharacterWorldId(V scene)
-        {var raw=scene["player"]["characterId"];return raw.Truth&&EchoSphere.Core.CharacterRules.TryParseSourceId(raw.Text,out _)?raw.Text:"spherist";}
-        private static NativeWorldCharacterIndicators.Point[] NativeAliveSpherePoints(V scene)
+        {var raw=scene["player"]["characterId"];return raw.Truth&&CharacterRules.TryParseSourceId(raw.Text,out _)?raw.Text:"spherist";}
+        private NativeWorldCharacterIndicators.Point[] NativeAliveSpherePoints()
         {
-            var points=new List<NativeWorldCharacterIndicators.Point>();foreach(var sphere in scene["spheres"].Items)if(sphere["alive"].Truth)points.Add(new NativeWorldCharacterIndicators.Point {X=sphere["pos"]["x"].Number,Y=sphere["pos"]["y"].Number});return points.ToArray();
+            var points=new List<NativeWorldCharacterIndicators.Point>();foreach(var sphere in _spheres)if(sphere!=null&&sphere.gameObject.activeInHierarchy){var point=NativeSourcePixels(sphere.transform.position);points.Add(new NativeWorldCharacterIndicators.Point {X=point.x,Y=point.y});}return points.ToArray();
         }
-        private void DrawNativeCharacterIndicator(string name,V scene)
+        private void DrawNativeCharacterWorldIndicators(V scene)
         {
-            var player=scene["player"];
-            if(name=="drawCharacterWorldIndicators"){string id=NativeCharacterWorldId(scene);if(id=="engineer")DrawNativeCharacterIndicator("drawEngineerLinks",scene);else if(id=="architect")DrawNativeCharacterIndicator("drawArchitectFormation",scene);else if(id=="berserker")DrawNativeCharacterIndicator("drawBerserkerRange",scene);return;}
-            if(name=="drawCharacterTargetIndicators"){string id=NativeCharacterWorldId(scene);if(id=="hunter")DrawNativeCharacterIndicator("drawHunterTarget",scene);else if(id=="alchemist")DrawNativeCharacterIndicator("drawAlchemistReactions",scene);return;}
-            if(name=="drawEngineerLinks")_nativeWorldCharacterIndicators.DrawEngineer(_worldSurface,NativeAliveSpherePoints(scene),EchoSphere.Core.EngineerRelayRules.GetNetworkRangePixels((int)scene["player"]["characterMasteryLevel"].Number));
-            else if(name=="drawArchitectFormation"){
-                _nativeWorldCharacterIndicators.DrawFormation(_worldSurface,NativeCharacterFormationKind(scene),NativeAliveSpherePoints(scene),new NativeWorldCharacterIndicators.Point {X=player["pos"]["x"].Number,Y=player["pos"]["y"].Number});
-            }else if(name=="drawHunterTarget"){
-                var target=player["hunterMarkTarget"];if(!target.Truth||!(target["hp"].Number>0)||!(player["hunterMarkTimer"].Number>0))return;bool hunt=player["hunterHuntTarget"].Equals(target)&&player["hunterHuntTimer"].Number>0;_nativeWorldCharacterIndicators.DrawHunter(_worldSurface,target["pos"]["x"].Number,target["pos"]["y"].Number,target["radius"].Number,hunt,NativeCharacterCanvasText(hunt?"HUNT":"MARK"));
-            }else if(name=="drawAlchemistReactions"){
-                var reactions=new List<NativeWorldCharacterIndicators.Reaction>();foreach(var enemy in scene["enemies"].Items){if(enemy["hp"].Number<=0)continue;bool fire=enemy["fireTimer"].Number>0,freeze=enemy["freezeTimer"].Number>0,poison=enemy["poisonTimer"].Number>0;if((fire?1:0)+(freeze?1:0)+(poison?1:0)<2)continue;string symbol=fire&&poison?"TP":freeze&&poison?"CP":fire&&freeze?"TS":"✦";reactions.Add(new NativeWorldCharacterIndicators.Reaction {X=enemy["pos"]["x"].Number,Y=enemy["pos"]["y"].Number,Radius=enemy["radius"].Number,Symbol=NativeCharacterCanvasText(symbol)});}_nativeWorldCharacterIndicators.DrawAlchemist(_worldSurface,reactions.ToArray());
-            }else if(name=="drawBerserkerRange")_nativeWorldCharacterIndicators.DrawBerserker(_worldSurface,player["pos"]["x"].Number,player["pos"]["y"].Number,player["hp"].Number,player["maxHp"].Number);
-            else if(name=="drawPlayerShield"){
-                var charges=player["shieldCharges"];var timer=player["shieldTimer"];var pulse=player["shieldVisualPulse"];double count=charges.Truth?charges.Number:0;_nativeWorldCharacterIndicators.DrawShield(_worldSurface,new NativeWorldCharacterIndicators.Shield {X=player["pos"]["x"].Number,Y=player["pos"]["y"].Number,PlayerRadius=NativePlayerRadiusPixels,Charges=count,Timer=System.Math.Max(0,timer.Truth?timer.Number:0),Pulse=pulse.Truth?pulse.Number:0,Time=_sourceRenderState["time"].Number,Spherist=NativeCharacterWorldId(scene)=="spherist",Label=NativeCharacterCanvasText(VisualJs.NumberText(count))},_nativeWorldSprites,ResolveNativePlayerArt);
+            var point=NativeSourcePixels(PlayerPosition);
+            switch(_sphereCharacterId){
+                case SphereCharacterId.Engineer:_nativeWorldCharacterIndicators.DrawEngineer(_worldSurface,NativeAliveSpherePoints(),EngineerRelayRules.GetNetworkRangePixels(_characterMasteryLevel));break;
+                case SphereCharacterId.Architect:_nativeWorldCharacterIndicators.DrawFormation(_worldSurface,NativeCharacterFormationKind(scene),NativeAliveSpherePoints(),new NativeWorldCharacterIndicators.Point {X=point.x,Y=point.y});break;
+                case SphereCharacterId.Berserker:_nativeWorldCharacterIndicators.DrawBerserker(_worldSurface,point.x,point.y,_playerCore.CurrentHp,_playerCore.MaxHp);break;
             }
+        }
+        private void DrawNativeCharacterTargetIndicators()
+        {
+            if(_sphereCharacterId==SphereCharacterId.Hunter){
+                var target=_hunterMarkTarget;if(target==null||!(target.CurrentHp>0)||!(_hunterMarkTimer>0))return;bool hunt=_hunterHuntTarget==target&&_hunterHuntTimer>0;var point=NativeSourcePixels(target.transform.position);_nativeWorldCharacterIndicators.DrawHunter(_worldSurface,point.x,point.y,target.SourceRadius,hunt,NativeCharacterCanvasText(hunt?"HUNT":"MARK"));
+            }else if(_sphereCharacterId==SphereCharacterId.Alchemist){
+                var reactions=new List<NativeWorldCharacterIndicators.Reaction>();foreach(var enemy in _enemies){if(enemy==null||!enemy.IsAlive)continue;bool fire=enemy.SourceProjectionFireTimer>0,freeze=enemy.SourceProjectionFreezeTimer>0,poison=enemy.SourceProjectionPoisonTimer>0;if((fire?1:0)+(freeze?1:0)+(poison?1:0)<2)continue;string symbol=fire&&poison?"TP":freeze&&poison?"CP":fire&&freeze?"TS":"✦";var point=NativeSourcePixels(enemy.transform.position);reactions.Add(new NativeWorldCharacterIndicators.Reaction {X=point.x,Y=point.y,Radius=enemy.SourceRadius,Symbol=NativeCharacterCanvasText(symbol)});}_nativeWorldCharacterIndicators.DrawAlchemist(_worldSurface,reactions.ToArray());
+            }
+        }
+        private void DrawNativePlayerShield()
+        {
+            var point=NativeSourcePixels(PlayerPosition);double count=_playerCore.ShieldCharges;
+            // Previous display snapshot never updated shieldTimer/shieldVisualPulse.
+            _nativeWorldCharacterIndicators.DrawShield(_worldSurface,new NativeWorldCharacterIndicators.Shield {X=point.x,Y=point.y,PlayerRadius=NativePlayerRadiusPixels,Charges=count,Timer=0,Pulse=0,Time=_runTime,Spherist=_sphereCharacterId==SphereCharacterId.Spherist,Label=NativeCharacterCanvasText(VisualJs.NumberText(count))},_nativeWorldSprites,ResolveNativePlayerArt);
         }
     }
 }

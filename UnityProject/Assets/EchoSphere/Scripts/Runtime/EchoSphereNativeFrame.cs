@@ -34,7 +34,7 @@ namespace EchoSphere.Runtime
             DrawNativeViewVoidField(s["worldWidth"],s["worldHeight"],VisualJs.Null,-s["worldWidth"].Number/2,-s["worldHeight"].Number/2,player["pos"]["x"],player["pos"]["y"]);DrawNativeViewRegionLayer(s);
             _worldSurface.Shadow=NativeWorldBorderShadow;_worldSurface.ShadowBlur=0;_worldSurface.SetDash(new[]{10f,8f});
             _nativeWorldFeedback.Rectangle(-s["worldWidth"].Number/2,-s["worldHeight"].Number/2,s["worldWidth"].Number,s["worldHeight"].Number,1.5,NativeWorldBorder);_worldSurface.SetDash(Array.Empty<float>());
-            DrawNativeViewCharacterWorldIndicators(s);
+            DrawNativeCharacterWorldIndicators(s);
             foreach(var ft in s["fireTrails"].Items){double alpha=Math.Max(0,Math.Min(1,ft["life"].Number/ft["maxLife"].Number));_worldSurface.Save();NativeWorldTranslate(ft["pos"]["x"],ft["pos"]["y"]);_nativeWorldFeedback.FireTrail(ft["pos"]["x"].Number,time,alpha,_nativeWorldCreatures);_worldSurface.Restore();}
             DrawNativeViewFormationMemory(s);DrawNativeViewSphereNetwork(s);
             DrawNativeExperienceLayer();
@@ -51,7 +51,7 @@ namespace EchoSphere.Runtime
                 double multiplier=NativeOrbitalNetworkMultiplier(_networkState,orbitalIndex),radius=NativePlannerSphereRadius(s,sphere)/Math.Max(1,sphere["radius"].Number)*multiplier;
                 DrawNativeOrbitalSphere(new V[]{ctx,sphere,player,time,scale,s["enemies"],radius},true);
             }
-            DrawNativeViewPlayerShield(s);DrawNativeViewPlayer(player);DrawNativeViewCharacterTargetIndicators(s);
+            DrawNativePlayerShield();_nativeWorldPlayer.Draw(_worldSurface,NativePlayerState(),_nativeWorldSprites,_nativeWorldCreatures,ResolveNativePlayerArt);DrawNativeCharacterTargetIndicators();
             DrawNativeEnemyProjectileLayer();
             DrawNativeParticleLayer(fxStride);
             _worldSurface.SetOpacity(1);int damageIndex=0;

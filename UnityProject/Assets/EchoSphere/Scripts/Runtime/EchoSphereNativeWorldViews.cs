@@ -16,19 +16,11 @@ namespace EchoSphere.Runtime
         {DrawNativeFormationMemory(arg1);return default;}
         private V DrawNativeViewSphereNetwork(V arg1)
         {DrawNativeNetwork(arg1);return default;}
-        private V DrawNativeViewPlayer(V arg1)
-        {_nativeWorldPlayer.Draw(_worldSurface,NativePlayerState(arg1),_nativeWorldSprites,_nativeWorldCreatures,ResolveNativePlayerArt);return default;}
         private V DrawNativeViewGroundShadow(V arg1,V arg2,V arg3)
         {_nativeWorldCreatures.DrawGroundShadow(_worldSurface,arg1.Number,arg2.Number);return default;}
         private V DrawNativeViewNetworkDisabledIndicator(V arg1,V arg2)
         {var timer=arg1["networkDisabledTimer"];_nativeWorldCreatures.DrawDisabledNetwork(_worldSurface,timer.Truth?timer.Number:0,2,arg2.Number);return default;}
         private V DrawNativeViewStandardAttackVfx(V arg1,V arg2,V arg3)
         {var sphere=arg1;_nativeWorldStandardSphere.DrawAttack(_worldSurface,sphere["pos"]["x"].Number,sphere["pos"]["y"].Number,sphere["rotation"].Truth?sphere["rotation"].Number:0,arg2.Number,sphere["attackTimer"].Number);return default;}
-        private V DrawNativeViewCharacterWorldIndicators(V scene)
-        {DrawNativeCharacterIndicator("drawCharacterWorldIndicators",scene);return default;}
-        private V DrawNativeViewCharacterTargetIndicators(V scene)
-        {DrawNativeCharacterIndicator("drawCharacterTargetIndicators",scene);return default;}
-        private V DrawNativeViewPlayerShield(V scene)
-        {DrawNativeCharacterIndicator("drawPlayerShield",scene);return default;}
     }
 }

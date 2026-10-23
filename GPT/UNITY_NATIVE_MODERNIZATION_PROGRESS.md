@@ -952,3 +952,24 @@ Remaining: typed player/sphere/region/character overlay read models and retireme
 of remaining plain V display data. Some stateless authored CSS/geometry math remains
 shared by native graphics. Full visual/control/device acceptance remains open;
 no FPS/GC measurement or full migration completion is claimed.
+
+### Direct player and character indicator views (2026-10-23)
+
+Player artwork now reads a typed State directly from PlayerCore/runtime, bypassing
+its V dictionary projector. Engineer/Architect/Berserker world indicators and
+Hunter/Alchemist target indicators read existing Unity sphere/enemy components.
+Removed the string-dispatched character drawing bridge. Shield reads native
+charges directly. Previous shieldTimer/shieldVisualPulse/deathTimer presentation
+values were never updated by the old snapshot path; their zero behavior is
+explicitly preserved, without adding new gameplay or animation wiring.
+
+Validation: all 10 character player views, 120 exact field comparisons PASS in
+paused real Editor, with character field restored. Editor compile 0 errors/warnings.
+The legacy player projector remains Editor-only for read-model comparisons.
+CI #819 on 65465fc00eee0fd8342efc55e9566f7b91a19287 failed its warnings-as-errors
+policy: production exclusion exposed two never-assigned depth-plane clip fields.
+Native menu plane creation now explicitly initializes their existing null/default
+values. Local actual-Unity-API typecheck: Android player 0 errors/0 warnings;
+Editor configurations checked separately below/on CI. No visual behavior change.
+Remaining: sphere/region and remaining run UI plain V data boundaries, plus final
+visual/control/device acceptance. Full migration is still not marked DONE.

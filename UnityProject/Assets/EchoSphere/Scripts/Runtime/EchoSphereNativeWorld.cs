@@ -41,11 +41,20 @@ namespace EchoSphere.Runtime
             foreach(var enemy in scene["enemies"].Items){double dx=enemy["pos"]["x"].Number-x,dy=enemy["pos"]["y"].Number-y;if(enemy["hp"].Number>0&&System.Math.Sqrt(dx*dx+dy*dy)<range){target=true;break;}}
             var tier=sphere["visualTier"];return _nativeWorldStandardSphere.DrawAssembly(_worldSurface,x,y,args[3].Number,tier.Truth?tier.Number:0,args[4].Number,target,_nativeWorldSprites,ResolveNativePlayerArt);
         }
-        private NativeWorldPlayer.State NativePlayerState(V player)
+        private NativeWorldPlayer.State NativePlayerState()
+        {
+            string id=EchoSphere.Core.CharacterRules.ToSourceId(_sphereCharacterId);var point=NativeSourcePixels(PlayerPosition);ColorUtility.TryParseHtmlString(EchoSphere.Core.CharacterRules.Get(_sphereCharacterId).ColorHex,out var color);
+            // These two presentation timers were constant zero in the previous
+            // snapshot path. Preserve that behavior; do not invent runtime wiring.
+            return new NativeWorldPlayer.State {X=point.x,Y=point.y,Radius=NativePlayerRadiusPixels,Time=_runTime,Hp=_playerCore.CurrentHp,ContactCooldown=_playerCore.ContactGraceTimer,ShieldTimer=0,ShieldCharges=_playerCore.ShieldCharges,DashTimer=_playerCore.DashTimer,DeathTimer=0,Character=id,Color=color};
+        }
+#if UNITY_EDITOR
+        private NativeWorldPlayer.State LegacyPlayerState(V player)
         {
             var raw=player["characterId"];string id=raw.Truth&&EchoSphere.Core.CharacterRules.TryParseSourceId(raw.Text,out _)?raw.Text:"spherist";EchoSphere.Core.CharacterRules.TryParseSourceId(id,out var character);ColorUtility.TryParseHtmlString(EchoSphere.Core.CharacterRules.Get(character).ColorHex,out var color);
             return new NativeWorldPlayer.State {X=player["pos"]["x"].Number,Y=player["pos"]["y"].Number,Radius=NativePlayerRadiusPixels,Time=_sourceRenderState["time"].Number,Hp=player["hp"].Number,ContactCooldown=player["contactDamageCooldown"].Number,ShieldTimer=player["shieldTimer"].Number,ShieldCharges=player["shieldCharges"].Number,DashTimer=player["dashTimer"].Number,DeathTimer=player["deathTimer"].Number,Character=id,Color=color};
         }
+#endif
         private static INativeWorldSprite ResolveNativePlayerArt(string key)=>NativeWorldArtLibrary.Resolve(key);
         private void DrawNativeEnemyWorld(EnemyAgent2D enemy)
         {

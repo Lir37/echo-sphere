@@ -57,7 +57,7 @@ namespace EchoSphere.Presentation
         public static NativeMenuBrush.Paint AvatarPaint(Color color)=>new NativeMenuBrush.Paint {Ellipse=true,Origin=new Vector2(.35f,.30f),Colors=new[]{Color.white,Color.white,color,C("#163a5c"),C("#02060d")},Stops=new[]{0f,.06f,.20f,.52f,.76f},OuterA=new NativeMenuBrush.Shadow(13,Vector2.zero,new Color(color.r,color.g,color.b,.3f))};
         private static Matrix4x4 Pose(VisualElement node,float x,float z)
         {var r=node.layout;var center=new Vector3(r.width*.5f,r.height*.5f,0);return Matrix4x4.Translate(new Vector3(r.x,r.y,0)+center)*Matrix4x4.Rotate(Quaternion.AngleAxis(x,Vector3.right))*Matrix4x4.Rotate(Quaternion.AngleAxis(z,Vector3.forward))*Matrix4x4.Translate(-center);}
-        private static SourceUiDepth.PlaneImage Plane(Texture texture,Rect rect,Matrix4x4 matrix)=>new SourceUiDepth.PlaneImage {Texture=texture,Rect=rect,Matrix=matrix,Opacity=1,Blend="normal"};
+        private static SourceUiDepth.PlaneImage Plane(Texture texture,Rect rect,Matrix4x4 matrix)=>new SourceUiDepth.PlaneImage {Texture=texture,Clip=null,Rect=rect,ClipRect=default,Matrix=matrix,Opacity=1,Blend="normal"};
         public bool Prepare(float scale)
         {
             if(_disposed)throw new ObjectDisposedException(nameof(NativeMenuArtwork));
