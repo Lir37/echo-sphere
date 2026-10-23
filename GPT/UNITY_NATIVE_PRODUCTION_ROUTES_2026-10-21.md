@@ -915,3 +915,34 @@ effect or vibration behavior changed. Active read/haptic calls to translated
 Visual_MobileControls are removed; the temporary legacy root component override
 still exists until UI root ownership is migrated. Editor compile zero errors/warnings;
 CI on containing commit required. Native input/visual/device acceptance remains.
+
+
+## 2026-10-23: Native UI backdrop provider boundary
+
+NativeUiBackdropRegistry owns native registrations, prepare calls and binding
+lifetime. NativeArtifactRewardView, NativeArtifactSetDetailView,
+NativeMobileFeedbackView, NativePauseChromeComposition, NativeRunResultView,
+NativeTutorialView and NativeUpgradeView accept INativeUiBackdrops rather than
+SourceUiDocument. No native view/composition class retains that concrete document
+as a blur provider. The document delegates into the same registry through the
+interface, retaining shared replica snapshots, original paint callbacks, ancestor
+prefix roots and hierarchy preparation order. This is an ownership extraction,
+not a change to the blur shader, sigma, padding, masks, foreground or clipping.
+
+Editor compile zero errors/warnings. In actual Editor Play Mode, initialized game
+state rendered a pause frame while menu/userPaused/paused flags were temporarily
+set/restored within one main-thread eval. The registry contained seven native
+backdrop bindings. No run was started/saved/replaced; Play stopped; current Console
+zero errors/warnings. Frame creation/registration is a smoke check, not full blur
+pixel, input or device parity acceptance. CI verified on containing HEAD separately.
+
+Remaining: source document still owns DOM/slot anchoring and prefix-root resolution;
+V model/read helpers and game root composition still need migration. The interface
+allows a standalone native root to provide the same service without coupling every
+view to the legacy document, but that root is not declared finished.
+
+Short handoff: Continue ECHO SPHERE unity-migration at containing HEAD (git log -1
+--format=%H). Read three GPT docs and modernization reports. Native world compositor,
+typed run controls, mobile read/haptics and independent backdrop registry are active.
+Next migrate standalone UI root/anchors/prefix ownership and V models. Preserve
+original gameplay/quality; no APK; full positive-input/visual/device acceptance remains.

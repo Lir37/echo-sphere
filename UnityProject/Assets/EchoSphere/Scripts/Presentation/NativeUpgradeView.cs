@@ -16,7 +16,7 @@ namespace EchoSphere.Presentation
         public VisualElement Root {get;}
         public bool Ready {get;private set;}
         public string Signature {get;private set;}
-        private readonly SourceUiDocument _document;
+        private readonly INativeUiBackdrops _document;
         private readonly Action<int> _pick,_lock;
         private readonly Action _reroll;
         private readonly VisualElement _content,_grid;
@@ -27,7 +27,7 @@ namespace EchoSphere.Presentation
         private State _state;private int _geometryFrame;private bool _disposed,_consumed;
         private static Color C(string hex){ColorUtility.TryParseHtmlString(hex,out var c);return c;}
         private string L(string ru,string en)=>_state.Russian?ru:en;
-        public NativeUpgradeView(VisualElement parent,SourceUiDocument document,Action<int> pick,Action<int> lockChoice,Action reroll)
+        public NativeUpgradeView(VisualElement parent,INativeUiBackdrops document,Action<int> pick,Action<int> lockChoice,Action reroll)
         {
             _document=document;_pick=pick;_lock=lockChoice;_reroll=reroll;
             Root=Box(parent,"native-upgrade-picker");Root.style.position=Position.Absolute;Root.style.left=Root.style.right=Root.style.top=Root.style.bottom=0;Root.style.alignItems=Align.Center;Root.style.justifyContent=Justify.Center;Root.style.opacity=0;

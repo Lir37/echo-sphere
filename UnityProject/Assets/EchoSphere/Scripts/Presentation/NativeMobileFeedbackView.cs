@@ -19,7 +19,7 @@ namespace EchoSphere.Presentation
         private string _id,_color;private float _started;private int _created;
         private static Color C(string s){ColorUtility.TryParseHtmlString(s,out var c);return c;}
         private static Color A(int r,int g,int b,float a)=>new Color(r/255f,g/255f,b/255f,a);
-        internal NativeMobileFeedbackView(VisualElement parent,SourceUiDocument document,bool joystick)
+        internal NativeMobileFeedbackView(VisualElement parent,INativeUiBackdrops document,bool joystick)
         {
             _joystick=joystick;Root=Box(parent,joystick?"native-joystick":"native-placement");Fill(Root);Root.style.opacity=0;
             _outer=Box(Root,"outer");Fill(_outer);_inner=Box(Root,"inner");_inner.style.position=Position.Absolute;

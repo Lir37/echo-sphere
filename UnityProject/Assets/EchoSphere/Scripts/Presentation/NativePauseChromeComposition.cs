@@ -29,7 +29,7 @@ namespace EchoSphere.Presentation
             internal void Restore(Button button)
             { var s=button.style;s.marginLeft=Left;s.marginRight=Right;s.width=Width;s.flexBasis=Basis;s.flexGrow=Grow;s.flexShrink=Shrink; }
         }
-        internal NativePauseChromeComposition(NativePauseChromeView view, SourceUiDocument document)
+        internal NativePauseChromeComposition(NativePauseChromeView view, INativeUiBackdrops document)
         {
             _view = view ?? throw new ArgumentNullException(nameof(view));
             if (document == null) throw new ArgumentNullException(nameof(document));

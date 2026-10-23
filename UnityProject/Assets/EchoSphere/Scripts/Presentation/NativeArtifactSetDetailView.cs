@@ -19,7 +19,7 @@ namespace EchoSphere.Presentation
         private readonly int _createdFrame;
         private bool _disposed;
         private static Color C(string hex){ColorUtility.TryParseHtmlString(hex,out var c);return c;}
-        public NativeArtifactSetDetailView(VisualElement parent,State state,SourceUiDocument document,Action close,bool dim=true)
+        public NativeArtifactSetDetailView(VisualElement parent,State state,INativeUiBackdrops document,Action close,bool dim=true)
         {
             Id=state.Id;string L(string a,string b)=>state.Russian?a:b;
             Root=Box(parent,"native-artifact-set-detail");Root.pickingMode=PickingMode.Position;Root.style.position=Position.Absolute;Root.style.left=Root.style.right=Root.style.top=Root.style.bottom=0;Root.style.alignItems=Align.Center;Root.style.justifyContent=Justify.Center;Root.style.opacity=0;

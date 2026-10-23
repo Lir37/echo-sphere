@@ -28,7 +28,7 @@ namespace EchoSphere.Presentation
         private readonly float _start;
         private bool _disposed;
         private static Color C(string hex){ColorUtility.TryParseHtmlString(hex,out var c);return c;}
-        public NativeRunResultView(VisualElement parent,State state,SourceUiDocument document,Action exit)
+        public NativeRunResultView(VisualElement parent,State state,INativeUiBackdrops document,Action exit)
         {
             Root=NativePauseStatsView.Box(parent,"native-run-result");Root.style.position=Position.Absolute;Root.style.left=Root.style.right=Root.style.top=Root.style.bottom=0;Root.style.alignItems=Align.Center;Root.style.justifyContent=Justify.Center;Root.style.opacity=0;
             _panel=NativePauseStatsView.Box(Root,"native-result-content");_panel.style.maxWidth=384;_panel.style.flexShrink=1;_panel.style.paddingLeft=_panel.style.paddingRight=24;

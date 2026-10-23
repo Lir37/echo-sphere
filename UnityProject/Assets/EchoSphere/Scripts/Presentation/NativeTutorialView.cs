@@ -23,7 +23,7 @@ namespace EchoSphere.Presentation
         private Rect _cut;private float _scale=-1,_width=-1,_height=-1,_pulseStart;
         private bool _hasCut,_disposed;private readonly int _createdFrame;private State _state;
         private static Color C(string hex){ColorUtility.TryParseHtmlString(hex,out var c);return c;}
-        public NativeTutorialView(VisualElement parent,SourceUiDocument document,Action next,Action skip)
+        public NativeTutorialView(VisualElement parent,INativeUiBackdrops document,Action next,Action skip)
         {
             Root=Box(parent,"native-tutorial");Fill(Root);Root.style.opacity=0;
             // CSS lists the huge black shadow above the cyan glow, then paints

@@ -12,7 +12,7 @@ namespace EchoSphere.Presentation
         public VisualElement Root {get;}
         public bool Ready {get;private set;}
         public string Signature {get;private set;}
-        private readonly SourceUiDocument _document;
+        private readonly INativeUiBackdrops _document;
         private readonly Action<string> _pick,_selectSet;
         private readonly VisualElement _content,_grid;
         private readonly List<VisualElement> _cards=new List<VisualElement>();
@@ -24,7 +24,7 @@ namespace EchoSphere.Presentation
         private State _state;private bool _consumed,_disposed;private int _geometryFrame;
         private static Color C(string hex){ColorUtility.TryParseHtmlString(hex,out var c);return c;}
         private string L(string ru,string en)=>_state.Russian?ru:en;
-        public NativeArtifactRewardView(VisualElement parent,SourceUiDocument document,Action<string> pick,Action<string> selectSet)
+        public NativeArtifactRewardView(VisualElement parent,INativeUiBackdrops document,Action<string> pick,Action<string> selectSet)
         {
             _document=document;_pick=pick;_selectSet=selectSet;Root=Box(parent,"native-artifact-rewards");Root.style.position=Position.Absolute;Root.style.left=Root.style.right=Root.style.top=Root.style.bottom=0;Root.style.alignItems=Align.Center;Root.style.justifyContent=Justify.Center;Root.style.opacity=0;Root.styleSheets.Add(Resources.Load<StyleSheet>("EchoSphere/NativeProgression"));
             _content=Box(Root,"artifact-reward-content");_content.style.width=Length.Percent(100);_content.style.maxWidth=1024;_content.style.paddingLeft=_content.style.paddingRight=24;_grid=Box(_content,"artifact-reward-grid");

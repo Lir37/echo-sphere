@@ -8,7 +8,7 @@ using Unity.Profiling;
 
 namespace EchoSphere.Presentation
 {
-    public sealed class SourceUiDocument : MonoBehaviour
+    public sealed class SourceUiDocument : MonoBehaviour,INativeUiBackdrops
     {
         // These samples expose hot paths in the Unity Profiler without altering
         // the source UI's update cadence or adding frame-driven allocations.
@@ -98,26 +98,9 @@ namespace EchoSphere.Presentation
         private readonly Dictionary<string,Entry> _entries=new Dictionary<string,Entry>();
         private readonly Dictionary<VisualElement,Entry> _elementEntries=new Dictionary<VisualElement,Entry>();
         private readonly Dictionary<VisualElement,Entry> _backdropForegrounds=new Dictionary<VisualElement,Entry>();
-        private sealed class NativeBackdrop : IDisposable
-        {
-            internal SourceUiDocument Owner;
-            internal VisualElement Element;
-            internal SourceUiBackdrop Backdrop;
-            internal float Sigma;
-            public void Dispose()
-            {
-                if(Owner==null)return;
-                if(Owner._nativeBackdrops.Remove(Element))Backdrop.Dispose();
-                Owner=null;
-            }
-        }
-        private readonly Dictionary<VisualElement,NativeBackdrop> _nativeBackdrops=new Dictionary<VisualElement,NativeBackdrop>();
-        internal IDisposable RegisterNativeBackdrop(VisualElement element,float sigma)
-        {
-            if(_nativeBackdrops.ContainsKey(element))throw new InvalidOperationException("Native backdrop already registered");
-            var binding=new NativeBackdrop {Owner=this,Element=element,Sigma=sigma,Backdrop=new SourceUiBackdrop(element,context=>{},ReplicaPaint,_replicaSnapshots)};
-            _nativeBackdrops.Add(element,binding);return binding;
-        }
+        private NativeUiBackdropRegistry _nativeBackdrops;
+        public IDisposable RegisterNativeBackdrop(VisualElement element,float sigma)
+        {if(_nativeBackdrops==null)throw new InvalidOperationException("UI backdrop provider is not initialized");return _nativeBackdrops.RegisterNativeBackdrop(element,sigma);}
         // Reuse the removal buffer across UI reconciliations to avoid per-pass LINQ arrays.
         private readonly List<string> _staleEntryKeys=new List<string>();
         // Non-native logical nodes share this scratch buffer during depth-first
@@ -142,6 +125,7 @@ namespace EchoSphere.Presentation
         internal float Scale=>_scale;
         public void Initialize()
         {
+            _nativeBackdrops=new NativeUiBackdropRegistry(ReplicaPaint,_replicaSnapshots);
             _sheet=new VisualCss(VisualJson.Parse(Resources.Load<TextAsset>("EchoSphere/SourceUiStyles").text));_layout=new SourceUiLayout(_sheet);
             VisualSourceIcons.Data=VisualJson.Parse(Resources.Load<TextAsset>("EchoSphere/SourceUiIcons").text);
             _svgMaterial=new Material(Resources.Load<Shader>("EchoSphere/SourceUiVector"));
@@ -360,11 +344,11 @@ namespace EchoSphere.Presentation
                     var backdropRoot=ancestor?.Native as VisualElement??_document.rootVisualElement;
                     entry.Backdrop.Prepare(backdropRoot,(float)VisualBackdrop.Sigma(_sheet,entry.Node));
                 }
-                if(_nativeBackdrops.TryGetValue(element,out var native)){
+                if(_nativeBackdrops.Contains(element)){
                     var backdropRoot=_document.rootVisualElement;
                     for(var parent=element.parent;parent!=null;parent=parent.parent)
                         if(_elementEntries.TryGetValue(parent,out var ancestor)&&VisualBackdrop.IsRoot(_sheet,ancestor.Node)){backdropRoot=ancestor.Frame;break;}
-                    native.Backdrop.Prepare(backdropRoot,native.Sigma);
+                    _nativeBackdrops.Prepare(element,backdropRoot);
                 }
                 // Helpers themselves contain replicas; never traverse them as
                 // live DOM entries or turn a replica into another capture source.
@@ -480,6 +464,6 @@ namespace EchoSphere.Presentation
             box.Add(buttons);overlay.Add(box);_document.rootVisualElement.Add(overlay);overlay.BringToFront();
         }
         private void Dispose(Entry entry){_elementEntries.Remove(entry.Element);_elementEntries.Remove(entry.Frame);if(entry.Backdrop!=null)_backdropForegrounds.Remove(entry.Backdrop.Foreground);entry.Backdrop?.Dispose();entry.Frame.RemoveFromHierarchy();if(entry.Paint!=null)Destroy(entry.Paint);if(entry.Svg!=null)Destroy(entry.Svg);if(entry.GroupClip!=null)Destroy(entry.GroupClip);entry.Depth?.Dispose();entry.SurfaceFilters?.Dispose();entry.Filters?.Dispose();}
-        private void OnDestroy(){VisualDom.Reset();VisualDom.Changed=null;Environment?.Dispose();foreach(var binding in _nativeBackdrops.Values){binding.Backdrop.Dispose();binding.Owner=null;}_nativeBackdrops.Clear();foreach(var entry in _entries.Values)Dispose(entry);_entries.Clear();if(_svgMaterial!=null)Destroy(_svgMaterial);if(_panel!=null)Destroy(_panel);}
+        private void OnDestroy(){VisualDom.Reset();VisualDom.Changed=null;Environment?.Dispose();_nativeBackdrops?.Dispose();foreach(var entry in _entries.Values)Dispose(entry);_entries.Clear();if(_svgMaterial!=null)Destroy(_svgMaterial);if(_panel!=null)Destroy(_panel);}
     }
 }

@@ -1,5 +1,16 @@
 # ECHO SPHERE — native visual modernization
 
+2026-10-23: Seven native UI view/composition classes no longer depend on concrete
+SourceUiDocument for blur registration. INativeUiBackdrops and NativeUiBackdropRegistry
+own registration/prepare/disposal independently; the legacy document supplies the
+existing paint-prefix resolver and shared snapshot cache. Traversal order, prefix
+root selection, sigma, replica-skip and blur renderer are unchanged. Actual Editor
+compile zero errors/warnings. Play Mode rendered an actual-runtime pause frame with
+7 registered native backdrops; temporary menu/pause flags restored, Play stopped,
+current Console zero errors/warnings. This does not prove all blur pixels/input or
+remove the old UI root: DOM anchors, prefix resolution and V model adapters remain.
+CI checked on containing commit; no APK or gameplay/quality changes.
+
 2026-10-23: Native mobile cooldown/max-cooldown/dash-label/strain display logic
 now runs directly in C# with the original constants, fallback and rounding. Haptics
 call Unity Handheld.Vibrate under the same Android/iOS gate as the former navigator
