@@ -46,6 +46,16 @@ namespace EchoSphere.Runtime
             }
             NativeMobileEventCompleted();
         }
+        private static double NativeMobileCooldown(V player,string ability)
+        {
+            string field;
+            switch(ability){case "blast":field="blastCooldown";break;case "shield":field="shieldCooldown";break;case "teleport":field="teleportCooldown";break;case "firetrail":field="fireTrailCooldown";break;case "minion":field="minionCooldown";break;case "lightning":field="lightningCooldown";break;case "timestop":field="timestopCooldown";break;case "darkritual":field="darkritualCooldown";break;default:return 0;}
+            var value=player[field];return value.Truth?value.Number:0;
+        }
+        private static double NativeMobileMaxCooldown(string ability)
+        {switch(ability){case "blast":case "minion":case "darkritual":return 30;case "shield":case "lightning":return 20;case "teleport":return 15;case "firetrail":return 25;case "timestop":return 40;default:return 1;}}
+        private string NativeMobileDashLabel(V player,bool russian)
+        {double cooldown=player["dashCooldown"].Number;return cooldown>0?NativeMobileText("dashOnCooldown").Replace("{sec}",VisualJs.NumberText(Math.Ceiling(cooldown))):russian?"Рывок":"Dash";}
         private void ReadNativeMobileState()
         {
             var s=NativeMobileScene;var player=s["player"];string lang=IsRussianUi?"ru":"en";bool follow=player["formationFollowActive"].Truth,locked=player["sphereMovementLocked"].Truth;
@@ -54,12 +64,12 @@ namespace EchoSphere.Runtime
             state.Controls.Add(new NativeMobileControlsView.Control {Id="lock",Icon=locked?"Lock":"Unlock",Name=locked?(IsRussianUi?"ЗАБЛОКИРОВАНО":"LOCKED"):(IsRussianUi?"ПЕРЕМЕЩЕНИЕ":"MOVE")});
             state.Controls.Add(new NativeMobileControlsView.Control {Id="follow",Icon="Move",Name=follow?(IsRussianUi?"СЛЕД":"FOLLOWING"):"FOLLOW",Disabled=!follow&&!NativeCanActivateFollow()});
             foreach(var pair in (Dictionary<string,V>)s["activeKeyMap"].Raw){
-                V ability=pair.Value;double cd=Visual_MobileControls.Scope["getAbilityCooldown"].Call(s,ability).Number,max=Visual_MobileControls.Scope["getAbilityMaxCooldown"].Call(ability).Number;
+                V ability=pair.Value;double cd=NativeMobileCooldown(player,ability.Text),max=NativeMobileMaxCooldown(ability.Text);
                 var name=Visual_sphereProgression.Scope["getAbilityDisplayName"].Call(s,ability,lang);string label=name.Truth?name.Text:Visual_gameData.Scope["ABILITIES"][ability]["name"][lang].Text;
-                state.Controls.Add(new NativeMobileControlsView.Control {Id="ability:"+pair.Key+"-"+ability.Text,Name=label,Detail=cd>0?VisualJs.NumberText(Math.Ceiling(cd))+"s":NativeMobileText("ready"),Cooldown=cd>0?(float)Math.Min(100,cd/max*100):0,Disabled=follow&&Visual_formationFollow.Scope["isFormationFollowMovementAbility"].Call(ability).Truth});
+                state.Controls.Add(new NativeMobileControlsView.Control {Id="ability:"+pair.Key+"-"+ability.Text,Name=label,Detail=cd>0?VisualJs.NumberText(Math.Ceiling(cd))+"s":NativeMobileText("ready"),Cooldown=cd>0?(float)Math.Min(100,cd/max*100):0,Disabled=follow&&ability.Text=="teleport"});
             }
-            if(follow)state.Strain=(IsRussianUi?"НАГРУЗКА СЕТИ":"NETWORK STRAIN")+" "+VisualJs.MathObject["round"].Call(player["formationFollowStrain"].Truth?player["formationFollowStrain"]:new V(0)).Text+"%";
-            state.Controls.Add(new NativeMobileControlsView.Control {Id="dash",Icon="Zap",Name=Visual_MobileControls.Scope["stDashLabel"].Call(s,lang,VisualJs.Fn(a=>NativeMobileText(a[0].Text))).Text,Disabled=follow});
+            if(follow)state.Strain=(IsRussianUi?"НАГРУЗКА СЕТИ":"NETWORK STRAIN")+" "+VisualJs.NumberText(Math.Floor((player["formationFollowStrain"].Truth?player["formationFollowStrain"].Number:0)+.5))+"%";
+            state.Controls.Add(new NativeMobileControlsView.Control {Id="dash",Icon="Zap",Name=NativeMobileDashLabel(player,IsRussianUi),Disabled=follow});
             var definitions=Visual_gameData.Scope["SPHERE_TYPES"];var selected=definitions[s["selectedSphereType"].Truth?s["selectedSphereType"]:new V("standard")];state.Name=selected["name"][lang].Text;state.Description=selected["desc"][lang].Text;
             foreach(var pair in (Dictionary<string,V>)definitions.Raw)state.Controls.Add(new NativeMobileControlsView.Control {Id="sphere:"+pair.Key,Color=pair.Value["color"].Text});
             _nativeMobileDockState=state;

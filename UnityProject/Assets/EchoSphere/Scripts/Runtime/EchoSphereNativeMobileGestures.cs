@@ -30,7 +30,14 @@ namespace EchoSphere.Runtime
         private Vector2 _nativeMobilePlacement;
         private VisualElement _nativeMobileGestureRoot;
         private V NativeMobileScene=>_sourceRenderState;
-        private void NativeMobileHaptic(int duration)=>Visual_MobileControls.Scope["haptic"].Call(duration);
+        private void NativeMobileHaptic(int duration)
+        {
+            // The existing navigator adapter also ignored duration and invoked
+            // this exact Unity API only on Android/iOS. Preserve that behavior.
+#if UNITY_ANDROID || UNITY_IOS
+            Handheld.Vibrate();
+#endif
+        }
         private void NativeMobileClearKeys(){var keys=NativeMobileScene["keys"];if(!(keys.Raw is Dictionary<string,V>))return;foreach(var key in new[]{"w","a","s","d","arrowup","arrowleft","arrowdown","arrowright"})keys[key]=false;}
         private void ResetNativeMobileGestures(bool unmount)
         {

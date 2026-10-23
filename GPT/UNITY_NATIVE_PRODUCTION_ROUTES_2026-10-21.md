@@ -901,3 +901,17 @@ Short handoff: Continue ECHO SPHERE unity-migration at containing HEAD (git log 
 is active; pause/HUD/mobile run actions now use typed C# commands. Continue V read
 models and standalone UI root/anchors/backdrop ownership; do not call migration done.
 Keep gameplay/quality and no APK; full input/visual/device acceptance remains.
+
+
+## 2026-10-23: Native mobile display and haptics
+
+Cooldown field lookup, max-cooldown display constants, dash label and strain rounding
+are now direct C# presentation logic copied from MobileControls.tsx. Falsy cooldown
+values still display zero; unknown max cooldown remains one. Only teleport is muted
+as a movement ability during follow, matching the original set. Haptic calls use
+Unity Handheld.Vibrate under the original UNITY_ANDROID || UNITY_IOS gate; the former
+navigator implementation already ignored duration. No gameplay cooldown formula,
+effect or vibration behavior changed. Active read/haptic calls to translated
+Visual_MobileControls are removed; the temporary legacy root component override
+still exists until UI root ownership is migrated. Editor compile zero errors/warnings;
+CI on containing commit required. Native input/visual/device acceptance remains.

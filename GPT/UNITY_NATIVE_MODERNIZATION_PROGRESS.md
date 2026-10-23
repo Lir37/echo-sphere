@@ -1,5 +1,13 @@
 # ECHO SPHERE — native visual modernization
 
+2026-10-23: Native mobile cooldown/max-cooldown/dash-label/strain display logic
+now runs directly in C# with the original constants, fallback and rounding. Haptics
+call Unity Handheld.Vibrate under the same Android/iOS gate as the former navigator
+adapter (duration was already ignored). No active mobile read/haptic calls remain
+into the translated MobileControls module. Ability-name/catalogue, V data and root
+layout adapters still remain. Actual Editor compile zero errors/warnings; CI checked
+on containing commit. No gameplay/cooldown formula/quality change or APK.
+
 2026-10-23: Native run controls now call typed C# commands directly. Pause chrome
 resume/exit/tab actions no longer retain generated V callbacks or a binder. Mobile
 follow/dash/type/hotkey/place/reposition actions no longer route through SourceUiBinding
