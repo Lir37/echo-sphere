@@ -575,3 +575,40 @@ player and enemy views, Standard Sphere assembly/core/rings/attack, runes/chests
 associated enemy indicators are implemented. Continue specialized sphere mutation/
 element/modifier/family and remaining combat/network VFX, then remove source renderer,
 UI/data/compositor bridges. Preserve behavior/quality; no APK; measurements later.
+
+
+### 2026-10-23 — specialized sphere families, shared family art and modifiers
+
+Entry HEAD2523b000577464103a77bf80bb40ecfa9fbac00d, CI #791 SUCCESS.
+NativeWorldSphereFamilies replaces the complete specialized render entry points for
+Sniper, Shotgun, Chain, Aura, Prism, Gravity, Pulse and Void. It retains source state
+colors, disabled/resonance priority, pulses, rotation behavior, emitter/anchor/plate/
+conductor geometry, depths, timing and over/additive ordering. Prism Spectrum color
+uses the original branch/evolution lookup and element catalog; no new branch rules.
+
+Shared visualHelpers core/drawSphereOrbit/glow/finishDisabled also route to native
+owners, including calls from remaining Orbital code. Family core uses original focal
+Standard-derived geometry/five stops with parameterized family color. All ten orbit
+modes retain authored 43-point traces, lightning jitter, Void wobble/fragments, Prism
+pattern and caps/joins. Cached glow preserves the original first-creation transform
+per color, rather than silently changing its anchoring. Native materials/MPBs own
+rendering; static art is retained and variable art reuses meshes. Performance is
+unmeasured and dynamic tessellation/batching remains follow-up work.
+
+All six modifier glyphs (multishot, pierce, ricochet, fire, freeze, poison), level
+marks and original round stroke settings are now native. Existing authored levels
+and sphereUsesProjectileModifiers remain the data authority. Disabled state freezes
+motion while glyph alpha still follows its own original assignment; no extra fade
+was invented. Native fields are excluded from saves/disposed; scoped interception
+is restored in finally. Source gameplay/RNG/formulas/quality and protected branch
+are unchanged; no APK. Editor compile: zero errors/warnings; family glow and updated
+core shader diagnostics empty. Play/device/FPS/GC acceptance deferred. CI is checked
+independently on the containing commit. Full migration remains PARTIAL: Orbital
+specific body/attackers, elemental, mutation/projectile/lightning VFX and source
+renderer/UI/data/compositor bridges remain.
+
+Short handoff: Continue ECHO SPHERE unity-migration at containing HEAD (git log -1
+--format=%H). Read three GPT docs and modernization reports. Eight family views,
+shared core/orbits/glow/disabled arc and six modifier glyphs are native. Continue
+Orbital-specific views, elemental and mutation/projectile/lightning effects, then
+remove source bridges. Preserve behavior/quality; no APK; measurements later.

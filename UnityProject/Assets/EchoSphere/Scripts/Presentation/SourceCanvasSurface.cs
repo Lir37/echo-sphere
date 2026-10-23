@@ -180,6 +180,8 @@ namespace EchoSphere.Presentation
             var matrix=Matrix4x4.Translate(new Vector3(-SourceOrigin.x*unit,SourceOrigin.y*unit,0))*Matrix4x4.Scale(new Vector3(unit,-unit,1))*_state.Matrix*(localTransform??Matrix4x4.identity);
             _batches.Add(new Batch {NativeMesh=mesh,NativeMaterial=material,NativeMatrix=matrix,NativeProperties=properties,Blend=additive?"lighter":screen?"screen":inheritBlend?_state.Blend:"source-over",Shadow=inheritShadow?_state.Shadow:shadow??Color.clear,Blur=inheritShadow?_state.ShadowBlur:shadowBlur,X=inheritShadow||inheritShadowOffsets?_state.ShadowX:0,Y=inheritShadow||inheritShadowOffsets?_state.ShadowY:0});
         }
+        internal Matrix4x4 NativePaintMatrix=>_state.Matrix;
+        internal float NativeDashOffset=>_state.DashOffset;
         internal float NativeOpacity=>_state.Alpha;
         internal void ContinueNativeCircle(Vector2 center,float radius,Matrix4x4 local)
         {var matrix=_state.Matrix;try{_state.Matrix*=local;_path.Clear();_contour=null;Ellipse(center.x,center.y,radius,radius,0,0,Mathf.PI*2,false);}finally{_state.Matrix=matrix;}}

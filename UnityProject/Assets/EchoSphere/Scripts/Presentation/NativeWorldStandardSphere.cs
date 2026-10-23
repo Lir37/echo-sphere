@@ -34,11 +34,11 @@ namespace EchoSphere.Presentation
         private static Color C(int r,int g,int b,double a=1)=>new Color(r/255f,g/255f,b/255f,(float)a);
         private static Vector2 P(double x,double y)=>new Vector2((float)x,(float)y);
         private static Matrix4x4 Transform(double x=0,double y=0,double angle=0)=>Matrix4x4.TRS(new Vector3((float)x,(float)y,0),Quaternion.Euler(0,0,(float)angle*Mathf.Rad2Deg),Vector3.one);
-        internal void DrawCore(SourceCanvasSurface s,double radius,double pulse,Matrix4x4? parent=null)
+        internal void DrawCore(SourceCanvasSurface s,double radius,double pulse,Matrix4x4? parent=null,Color? familyColor=null)
         {
-            var root=parent??Matrix4x4.identity;float r=(float)radius,opacity=(float)(.82+pulse*.14);var rig=Get(s,r);float rad=(float)(radius*.58*(1+pulse*.035));var glow=Dynamic(s,EllipseContour(Vector2.zero,rad,rad));var p=Properties(Color.white);p.SetFloat("_Radius",r);
+            var root=parent??Matrix4x4.identity;float r=(float)radius,opacity=(float)(.82+pulse*.14);var rig=Get(s,r);float rad=(float)(radius*.58*(1+pulse*.035));var glow=Dynamic(s,EllipseContour(Vector2.zero,rad,rad));var p=Properties(Color.white);p.SetFloat("_Radius",r);p.SetFloat("_Family",familyColor.HasValue?1:0);if(familyColor.HasValue){var c=familyColor.Value;p.SetVector("_NativeColor",new Vector4(c.r,c.g,c.b,c.a));}
             s.DrawNativeMesh(glow,_glow,p,root,opacity:opacity,inheritShadow:true,additive:true);
-            s.DrawNativeMesh(rig.Core,_solid,Properties(C(30,135,232,.72)),root,opacity:opacity,inheritShadow:true);s.DrawNativeMesh(rig.Outline,_solid,Properties(C(182,247,255,.90)),root,opacity:opacity,inheritShadow:true);s.ContinueNativeContour(rig.CorePath,root);
+            s.DrawNativeMesh(rig.Core,_solid,Properties(familyColor.HasValue?new Color(familyColor.Value.r,familyColor.Value.g,familyColor.Value.b,.72f):C(30,135,232,.72)),root,opacity:opacity,inheritShadow:true);s.DrawNativeMesh(rig.Outline,_solid,Properties(C(182,247,255,.90)),root,opacity:opacity,inheritShadow:true);s.ContinueNativeContour(rig.CorePath,root);
         }
         internal void DrawRing(SourceCanvasSurface s,double radius,double rotation,double opacity,Matrix4x4? parent=null)
         {

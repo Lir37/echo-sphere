@@ -1,5 +1,16 @@
 # ECHO SPHERE — native visual modernization
 
+2026-10-23: Eight specialized family views (Sniper, Shotgun, Chain, Aura, Prism,
+Gravity, Pulse, Void) now use native C# owners and Unity Vector Graphics meshes.
+Shared family cores, all ten authored orbit modes, glow and disabled arc are native
+(including use by remaining source Orbital code). The source 43-point traces,
+lightning jitter, Prism dash and inherited alpha/blend/gradient creation-space rules
+are retained. All six modifier glyphs and level marks are native as well; existing
+authored modifier levels/projectile applicability remain authoritative. Actual Editor
+compile and shader diagnostics pass. Orbital-specific body/attackers, elemental and
+mutation/projectile/lightning VFX plus source coordinator/UI/data/compositor bridges
+remain incomplete. No Play/device/FPS/GC acceptance is claimed.
+
 2026-10-23: The active player representation is now native C#: original Spherist
 animation-state priority, front/side selection, movement mirror, double pulse,
 death fold/shear/fragments and sprite availability fallback, plus all original
