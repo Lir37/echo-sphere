@@ -7,10 +7,10 @@ namespace EchoSphere.Runtime
     {
         private void DrawNativeSphereFrame(V scene,V sphere,double time)
         {
-            var tier=sphere["visualTier"];double r=Math.Max(15,Math.Min(25,sphere["radius"].Number*.19+(tier.Truth?tier.Number:0)*.8)),scale=r/24;var ctx=_sourceCanvas.Canvas.Value;var args=new V[]{ctx,sphere,scene["player"],time,scale};string type=sphere["type"].Text;
+            var tier=sphere["visualTier"];double r=Math.Max(15,Math.Min(25,sphere["radius"].Number*.19+(tier.Truth?tier.Number:0)*.8)),scale=r/24;var ctx=VisualJs.Null;var args=new V[]{ctx,sphere,scene["player"],time,scale};string type=sphere["type"].Text;
             if(type=="standard"){
                 if(!DrawNativeStandardAssembly(new V[]{ctx,scene,sphere,r,time}).Truth){
-                    NativeFrameView("drawGroundShadow",r*1.05,r*.24,4);NativeFrameCall("save");NativeFrameCall("translate",sphere["pos"]["x"],sphere["pos"]["y"]);_nativeWorldFeedback.StandardFallback(r);NativeFrameCall("restore");
+                    NativeFrameView("drawGroundShadow",r*1.05,r*.24,4);_worldSurface.Save();NativeWorldTranslate(sphere["pos"]["x"],sphere["pos"]["y"]);_nativeWorldFeedback.StandardFallback(r);_worldSurface.Restore();
                 }
                 DrawNativeSphereMutation(args);NativeFrameView("drawStandardAttackVfx",sphere,r,time);DrawNativeSphereElements(args);DrawNativeSphereModifiers(args);NativeFrameView("drawNetworkDisabledIndicator",sphere,time);return;
             }
@@ -22,8 +22,9 @@ namespace EchoSphere.Runtime
                 DrawNativeSphereFamily(type,args);DrawNativeSphereMutation(args);
             }else{
                 NativeFrameView("drawNetworkDisabledIndicator",sphere,time);
-                // Preserve the original defensive fallback for noncatalogue data.
-                Visual_renderer.Scope["drawSphereVfx"].Call(ctx,sphere,Visual_gameData.Scope["SPHERE_TYPES"][sphere["type"]]["color"],r,time);return;
+                // The catalogue contains only the ten supported types. Invalid
+                // type data failed the original definition/color lookup as well.
+                throw new InvalidOperationException("Unknown sphere presentation type: "+type);
             }
             DrawNativeSphereElements(args);DrawNativeSphereModifiers(args);NativeFrameView("drawNetworkDisabledIndicator",sphere,time);
         }

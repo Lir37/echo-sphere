@@ -24,7 +24,7 @@ namespace EchoSphere.Runtime
                 var saved=LoadRunSnapshot();_sourceUiSavedRunTime=saved==null?VisualJs.Null:new V(Math.Floor(saved.time));
                 _sourceUi.Render=BuildNativeSourceUiTree;_sourceUi.AfterEvent=ApplySourceUiWrites;
                 _sourceUi.BeforePaint=root=>{PrepareNativeHudIsland(root);PrepareNativePauseScreen(root);PrepareNativePauseChromeIsland(root);PrepareNativePauseStatsIsland(root);PrepareNativePauseAbilitiesIsland(root);PrepareNativePauseArtifactsIsland(root);PrepareNativePauseSynergiesIsland(root);CompleteNativePauseScreen();PrepareNativeRunResult(root);PrepareNativeUpgrade(root);PrepareNativeArtifactRewards(root);PrepareNativePauseSetDetail(root);PrepareNativeTutorial(root);PrepareNativeMobileGestures(root);PrepareNativeMobileDock(root);PrepareNativeMobileFeedback(root);PrepareNativeMobileNetwork(root);};
-                _sourceUi.CanvasTexture=()=>_sourceCanvas.UiTexture;
+                _sourceUi.CanvasTexture=()=>_worldSurface.UiTexture;
                 var environment=_sourceUi.Environment;
                 environment.ReadStorage=key=>PlayerPrefs.HasKey(key)?new V(PlayerPrefs.GetString(key)):VisualJs.Null;
                 environment.WriteStorage=(key,value)=>{PlayerPrefs.SetString(key,value.Text);PlayerPrefs.Save();};

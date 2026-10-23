@@ -13,7 +13,7 @@ namespace EchoSphere.Presentation
         private readonly Material _material;
         internal NativeWorldSprites(){var shader=Resources.Load<Shader>("EchoSphere/NativeWorldSprite");if(shader==null||!shader.isSupported)throw new InvalidOperationException("Native world sprite shader unavailable");_material=new Material(shader){name="Native world sprites",hideFlags=HideFlags.DontSave};}
         internal void BeginFrame(){_used=0;}
-        internal bool Draw(SourceCanvasSurface surface,SourceCanvasImage image,double x,double y,double size,double rotation,double opacity,bool part,bool mirrorX,bool mirrorY,Matrix4x4? parent=null,bool forceOver=false,bool additive=false)
+        internal bool Draw(NativeWorldSurface surface,SourceCanvasImage image,double x,double y,double size,double rotation,double opacity,bool part,bool mirrorX,bool mirrorY,Matrix4x4? parent=null,bool forceOver=false,bool additive=false)
         {
             if(image?.Sprite==null)return false;var sprite=image.Sprite;var texture=sprite.texture;
             if(!_meshes.TryGetValue(sprite,out var mesh)){var r=sprite.textureRect;mesh=new Mesh {name="Native world sprite "+sprite.name};mesh.vertices=new[]{new Vector3(-.5f,-.5f,0),new Vector3(.5f,-.5f,0),new Vector3(.5f,.5f,0),new Vector3(-.5f,.5f,0)};mesh.uv=new[]{new Vector2(r.xMin/texture.width,r.yMax/texture.height),new Vector2(r.xMax/texture.width,r.yMax/texture.height),new Vector2(r.xMax/texture.width,r.yMin/texture.height),new Vector2(r.xMin/texture.width,r.yMin/texture.height)};mesh.triangles=new[]{0,1,2,0,2,3};mesh.RecalculateBounds();_meshes.Add(sprite,mesh);}

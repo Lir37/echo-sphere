@@ -32,9 +32,9 @@ namespace EchoSphere.Presentation
         private readonly List<MaterialPropertyBlock> _properties=new List<MaterialPropertyBlock>();
         private readonly Material _solid,_radial;
         private int _used,_segmentUsed,_dynamicUsed;
-        private SourceCanvasSurface _surface;
-        private Art _last;
-        private Matrix4x4 _lastTransform;
+        private NativeWorldSurface _surface;
+
+
         internal NativeWorldCreatures()
         {
             _solid=new Material(Resources.Load<Shader>("EchoSphere/NativeWorldSolid")){name="Native creature anatomy",hideFlags=HideFlags.DontSave};
@@ -57,7 +57,7 @@ namespace EchoSphere.Presentation
         {
             if(fill.HasValue)_surface.DrawNativeMesh(art.Fill,_solid,Properties(fill.Value),transform,inheritBlend:!forceOver,inheritShadow:!shadow.HasValue,opacity:opacity,additive:additive,shadow:shadow,shadowBlur:shadowBlur,inheritShadowOffsets:shadow.HasValue);
             if(stroke.HasValue)_surface.DrawNativeMesh(art.Stroke,_solid,Properties(stroke.Value),transform,inheritBlend:!forceOver,inheritShadow:!shadow.HasValue,opacity:opacity,additive:additive,shadow:shadow,shadowBlur:shadowBlur,inheritShadowOffsets:shadow.HasValue);
-            _last=art;_lastTransform=transform;
+
         }
         private Art Get(int kind,double a,double b,double width,Func<BezierContour> create,bool fill=true)
         {
@@ -87,7 +87,7 @@ namespace EchoSphere.Presentation
         private void Glow(Matrix4x4 m,double radius,Color color,double alpha,bool core=false)
         {
             var art=Get(0,radius,radius,0,()=>Oval(radius,radius));var p=Properties(color);p.SetFloat("_Radius",(float)radius);p.SetFloat("_GlowAlpha",(float)alpha);p.SetFloat("_Core",core?1:0);
-            _surface.DrawNativeMesh(art.Fill,_radial,p,m,inheritShadow:true,additive:true);_last=art;_lastTransform=m;
+            _surface.DrawNativeMesh(art.Fill,_radial,p,m,inheritShadow:true,additive:true);
         }
         private void Body(Matrix4x4 m,double r,Color color,double rotation=0,double scaleY=1)
         {
@@ -122,11 +122,11 @@ namespace EchoSphere.Presentation
         }
         private void Frame(Matrix4x4 m,double r,Color color,double t)
         {var art=Get(3,r,0,Math.Max(.8,r*.025),()=>Oval(r*1.16,r*1.16,4.9),false);Paint(art,m*T(angle:t*.2),null,A(color,.30));}
-        internal void Draw(SourceCanvasSurface surface,double radius,Color color,double time,string variant,bool boss,Matrix4x4? parent=null)
+        internal void Draw(NativeWorldSurface surface,double radius,Color color,double time,string variant,bool boss,Matrix4x4? parent=null)
         {
-            _surface=surface;_last=null;var root=parent??Matrix4x4.identity;Glow(root,radius*(boss?2.55:2.15),color,boss?.085:.065);
+            _surface=surface;var root=parent??Matrix4x4.identity;Glow(root,radius*(boss?2.55:2.15),color,boss?.085:.065);
             if(boss)Boss(root,radius,color,time,variant);else Creature(root,radius,color,time,variant);
-            FinishPath();
+
         }
         private static void Destroy(UnityEngine.Object value){if(value!=null)UnityEngine.Object.Destroy(value);}
         public void Dispose(){foreach(var art in _art.Values)art.Dispose();foreach(var art in _segments)art.Dispose();foreach(var art in _dynamic)art.Dispose();_art.Clear();_segments.Clear();_dynamic.Clear();foreach(var label in _bossLabels)label.Dispose();_bossLabels.Clear();Destroy(_solid);Destroy(_radial);}

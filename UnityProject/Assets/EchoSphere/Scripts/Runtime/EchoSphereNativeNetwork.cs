@@ -15,12 +15,12 @@ namespace EchoSphere.Runtime
             var runtime=Visual_networkRuntime.Scope["buildRuntimeNetworkNodes"].Call(scene["spheres"],scene["minions"],scene["player"]["abilities"]["minion"].Number>=3);
             var visual=Visual_networkRender.Scope["getSphereVisualNetwork"].Call(source,scene["spheres"]["length"]);var network=visual["network"];
             var nodes=scene["spheres"].Items.Select(s=>new NativeWorldNetwork.Node {X=s["pos"]["x"].Number,Y=s["pos"]["y"].Number,Charge=s["formationHitCount"].Number,Pulse=s["resonancePulseTimer"].Number}).ToArray();
-            _nativeWorldNetwork.Draw(_sourceCanvas,new NativeWorldNetwork.Network {NodeCount=(int)network["nodes"]["length"].Number,Spheres=nodes,Links=NativeNetworkLinks(network["links"]),Line=NativeNetworkFormation(network["line"]),Triangle=NativeNetworkFormation(network["triangle"]),Square=NativeNetworkFormation(network["square"]),Cluster=NativeNetworkFormation(network["cluster"]),Ring=NativeNetworkFormation(network["ring"]),Lattice=NativeNetworkFormation(network["lattice"]),Fractal=NativeNetworkFormation(network["fractal"])},runtime.Items.Select(n=>n["pos"].Truth?(NativeWorldNetwork.Node?)NativeNetworkPoint(n["pos"]):null).ToArray(),NativeNetworkLinks(visual["externalLinks"]),scene["time"].Number);
+            _nativeWorldNetwork.Draw(_worldSurface,new NativeWorldNetwork.Network {NodeCount=(int)network["nodes"]["length"].Number,Spheres=nodes,Links=NativeNetworkLinks(network["links"]),Line=NativeNetworkFormation(network["line"]),Triangle=NativeNetworkFormation(network["triangle"]),Square=NativeNetworkFormation(network["square"]),Cluster=NativeNetworkFormation(network["cluster"]),Ring=NativeNetworkFormation(network["ring"]),Lattice=NativeNetworkFormation(network["lattice"]),Fractal=NativeNetworkFormation(network["fractal"])},runtime.Items.Select(n=>n["pos"].Truth?(NativeWorldNetwork.Node?)NativeNetworkPoint(n["pos"]):null).ToArray(),NativeNetworkLinks(visual["externalLinks"]),scene["time"].Number);
         }
         private void DrawNativeFormationMemory(V scene)
         {
             var memory=scene["formationMemory"];if(!memory.Truth)return;
-            _nativeWorldNetwork.DrawMemory(_sourceCanvas,memory["type"].Text,memory["nodes"].Items.Select(NativeNetworkPoint).ToArray(),memory["expiresAt"].Number,scene["time"].Number);
+            _nativeWorldNetwork.DrawMemory(_worldSurface,memory["type"].Text,memory["nodes"].Items.Select(NativeNetworkPoint).ToArray(),memory["expiresAt"].Number,scene["time"].Number);
         }
     }
 }

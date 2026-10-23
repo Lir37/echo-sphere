@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
 using EchoSphere.Core;
 using EchoSphere.Presentation;
 using UnityEngine;
@@ -10,7 +9,7 @@ namespace EchoSphere.Runtime
 {
     public sealed partial class EchoSphereRuntime
     {
-        private SourceCanvasSurface _sourceCanvas;
+        private NativeWorldSurface _worldSurface;
         public bool UsesSourcePresentation=>true;
         private V _sourceRenderState;
         [Serializable] private sealed class SourceLightningVisual {public Vector2 from,to;public float life;public string sphereType;}
@@ -20,22 +19,6 @@ namespace EchoSphere.Runtime
         private void TickSourceLightningVisuals(float dt)
         {for(var i=_sourceLightningVisuals.Count-1;i>=0;i--){_sourceLightningVisuals[i].life-=dt;if(_sourceLightningVisuals[i].life<=0f)_sourceLightningVisuals.RemoveAt(i);}if(_sourceLightningVisuals.Count>36)_sourceLightningVisuals.RemoveRange(0,_sourceLightningVisuals.Count-36);}
         private readonly Dictionary<MonoBehaviour,V> _sourceRenderEntities=new Dictionary<MonoBehaviour,V>();
-        private static readonly Dictionary<Type,Dictionary<string,FieldInfo>> SourceRenderFields=new Dictionary<Type,Dictionary<string,FieldInfo>>();
-        private static Dictionary<string,FieldInfo> RenderFields(Type type)
-        {
-            if(!SourceRenderFields.TryGetValue(type,out var fields)) {
-                fields=new Dictionary<string,FieldInfo>();
-                foreach(var field in type.GetFields(BindingFlags.Instance|BindingFlags.NonPublic|BindingFlags.Public))fields[field.Name]=field;
-                SourceRenderFields.Add(type,fields);
-            }
-            return fields;
-        }
-        private static object RenderField(object owner,string key)
-        {
-            if(owner==null)return null;var type=owner.GetType();var fields=RenderFields(type);
-            if(!fields.TryGetValue(key,out var result))throw new InvalidOperationException("Missing source presentation state: "+type.Name+"."+key);
-            return result.GetValue(owner);
-        }
         private static V SourcePoint(Vector2 world)=>VisualJs.Obj("x",world.x/SpherePlacementRules.SourcePixelsToWorld,"y",-world.y/SpherePlacementRules.SourcePixelsToWorld);
         private static V SourcePoint(Vec2 world)=>VisualJs.Obj("x",world.X/SpherePlacementRules.SourcePixelsToWorld,"y",-world.Y/SpherePlacementRules.SourcePixelsToWorld);
         private V RenderValue(object value)
@@ -61,7 +44,10 @@ namespace EchoSphere.Runtime
             if(value is IDictionary dictionary) {var result=VisualJs.Obj();foreach(DictionaryEntry entry in dictionary)result[RenderValue(entry.Key)]=RenderValue(entry.Value);return result;}
             if(value is IEnumerable list) {var result=new List<V>();foreach(var item in list)result.Add(RenderValue(item));return VisualJs.Arr(result.ToArray());}
             if(value is IConvertible)return new V(Convert.ToDouble(value,System.Globalization.CultureInfo.InvariantCulture));
-            var members=VisualJs.Obj();foreach(var field in value.GetType().GetFields(BindingFlags.Instance|BindingFlags.Public))members[char.ToLowerInvariant(field.Name[0])+field.Name.Substring(1)]=RenderValue(field.GetValue(value));return members;
+            if(value is ShopUpgradeData shop)return VisualJs.Obj("dmg",shop.dmg,"radius",shop.radius,"speed",shop.speed,"spheres",shop.spheres,"hp",shop.hp,"crit",shop.crit,"xp",shop.xp);
+            if(value is LeaderboardEntry leaderboard)return VisualJs.Obj("name",leaderboard.name,"time",leaderboard.time,"wave",leaderboard.wave,"date",(double)leaderboard.date);
+            if(value is CharacterProfileData profile)return VisualJs.Obj("id",profile.id,"masteryLevel",profile.masteryLevel,"masteryXp",profile.masteryXp,"unlocked",profile.unlocked);
+            throw new InvalidOperationException("Unmapped presentation model: "+value.GetType().Name);
         }
         private V RenderEntity(MonoBehaviour entity)
         {
@@ -184,13 +170,13 @@ namespace EchoSphere.Runtime
             bool nativeCharacters=TryDrawNativeCharacters();
             bool nativeArchive=TryDrawNativeArchive();
             if(nativeHome||nativeProgression||nativeSettings||nativeRegions||nativeCharacters||nativeArchive)return;
-            if(_sourceCanvas==null) {
+            if(_worldSurface==null) {
                 VisualJs.ImageFactory=()=>new V(new SourceCanvasImage());
-                _sourceCanvas=new GameObject("Source Canvas — renderer.ts").AddComponent<SourceCanvasSurface>();_sourceCanvas.Initialize(100);
+                _worldSurface=new GameObject("Native world compositor").AddComponent<NativeWorldSurface>();_worldSurface.Initialize();
                 // The game Canvas is consumed as a UI texture. Culling the
                 // unused scene presentation avoids scanning every Renderer on
                 // every frame and also covers newly spawned legacy objects.
-                _camera.cullingMask=0;var renderer=_sourceCanvas.GetComponent<Renderer>();renderer.enabled=false;
+                _camera.cullingMask=0;
             }
             var dpr=SourceDevicePixelRatio;var width=Mathf.Max(1f,Mathf.Floor(Mathf.Min(1280f,Screen.width/dpr)+.5f));var height=Mathf.Max(1f,Mathf.Floor(Mathf.Min(800f,Screen.height/dpr)+.5f));
             _camera.orthographicSize=Screen.height/dpr*SpherePlacementRules.SourcePixelsToWorld*.5f;
@@ -198,11 +184,10 @@ namespace EchoSphere.Runtime
             // Menu screens have no game Canvas. Keep their authored CSS
             // animation running, without drawing an unused world texture.
             if(!_mainMenu||_sourceUi==null||!_sourceUi.Query("canvas").Null){
-            _sourceCanvas.SetViewport(width,height,dpr);
-            _sourceCanvas.transform.position=new Vector3(_camera.transform.position.x,_camera.transform.position.y,0f);
-            _sourceCanvas.Begin(new Vector2(width*.5f,height*.5f));
-            _sourceCanvas.Canvas.Set("canvas",VisualJs.Obj("nativeViewport",VisualJs.Obj("cssWidth",width,"cssHeight",height,"dpr",1)));
-            RenderNativeWorldFrame(width,height);_sourceCanvas.End();
+            _worldSurface.SetViewport(width,height,dpr);
+            _worldSurface.transform.position=new Vector3(_camera.transform.position.x,_camera.transform.position.y,0f);
+            _worldSurface.Begin(new Vector2(width*.5f,height*.5f));
+            RenderNativeWorldFrame(width,height);_worldSurface.End();
             }
             // The canvas is an authored DOM element, underneath the original
             // HUD and overlays. Its CSS filter is applied by that element.

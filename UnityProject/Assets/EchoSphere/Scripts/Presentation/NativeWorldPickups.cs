@@ -25,17 +25,17 @@ namespace EchoSphere.Presentation
         }
         internal void BeginFrame(){_used=0;}
         private MaterialPropertyBlock Properties(Color color){if(_used==_properties.Count)_properties.Add(new MaterialPropertyBlock());var p=_properties[_used++];p.SetVector("_NativeColor",new Vector4(color.r,color.g,color.b,color.a));return p;}
-        internal void DrawXp(SourceCanvasSurface surface,float x,float y,float radius,Color color,float rotation)
+        internal void DrawXp(NativeWorldSurface surface,float x,float y,float radius,Color color,float rotation)
         {
             if(!_xp.TryGetValue(radius,out var art)){art=new XpArt(radius);_xp.Add(radius,art);}var transform=Matrix4x4.TRS(new Vector3(x,y,0),Quaternion.Euler(0,0,rotation*Mathf.Rad2Deg),Vector3.one);
-            surface.DrawNativeMesh(art.Fill,_material,Properties(color),transform);surface.DrawNativeMesh(art.Outline,_material,Properties(A(230,253,255,.82f)),transform);surface.DrawNativeMesh(art.Highlight,_material,Properties(A(255,255,255,.58f)),transform);surface.ContinueNativeCircle(art.HighlightCenter,art.HighlightRadius,transform);
+            surface.DrawNativeMesh(art.Fill,_material,Properties(color),transform);surface.DrawNativeMesh(art.Outline,_material,Properties(A(230,253,255,.82f)),transform);surface.DrawNativeMesh(art.Highlight,_material,Properties(A(255,255,255,.58f)),transform);
         }
-        internal void DrawHealth(SourceCanvasSurface surface,float x,float y,Color color,double time)
+        internal void DrawHealth(NativeWorldSurface surface,float x,float y,Color color,double time)
         {
             float pulse=(float)(1+Math.Sin(time*5)*.07);var transform=Matrix4x4.TRS(new Vector3(x,y,0),Quaternion.identity,new Vector3(pulse,pulse,1));
             // All four source paints cast their own4px shadow, including each
             // white rectangle. Combining them would change overlap and glow.
-            surface.DrawNativeMesh(_healthFill,_material,Properties(A(7,13,22,.94f)),transform,color,4);surface.DrawNativeMesh(_healthOutline,_material,Properties(A(255,125,150,.90f)),transform,color,4);surface.DrawNativeMesh(_healthVertical,_material,Properties(Color.white),transform,color,4);surface.DrawNativeMesh(_healthHorizontal,_material,Properties(Color.white),transform,color,4);surface.ContinueNativePolygon(HealthPath,transform);
+            surface.DrawNativeMesh(_healthFill,_material,Properties(A(7,13,22,.94f)),transform,color,4);surface.DrawNativeMesh(_healthOutline,_material,Properties(A(255,125,150,.90f)),transform,color,4);surface.DrawNativeMesh(_healthVertical,_material,Properties(Color.white),transform,color,4);surface.DrawNativeMesh(_healthHorizontal,_material,Properties(Color.white),transform,color,4);
         }
         private static void Destroy(UnityEngine.Object value){UnityEngine.Object.Destroy(value);}
         public void Dispose(){foreach(var art in _xp.Values)art.Dispose();_xp.Clear();Destroy(_healthFill);Destroy(_healthOutline);Destroy(_healthVertical);Destroy(_healthHorizontal);Destroy(_material);}

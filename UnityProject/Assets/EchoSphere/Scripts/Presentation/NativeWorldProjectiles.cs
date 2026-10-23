@@ -43,7 +43,7 @@ namespace EchoSphere.Presentation
         private MaterialPropertyBlock Properties(Color c){if(_used==_properties.Count)_properties.Add(new MaterialPropertyBlock());var p=_properties[_used++];p.SetVector("_NativeColor",new Vector4(c.r,c.g,c.b,c.a));return p;}
         private static Color Alpha(Color c,float a){c.a=a;return c;}
         private static Color Html(string value){ColorUtility.TryParseHtmlString(value,out var c);return c;}
-        internal void Draw(SourceCanvasSurface surface,float x,float y,float r,double vx,double vy,int kind,Color color,double time)
+        internal void Draw(NativeWorldSurface surface,float x,float y,float r,double vx,double vy,int kind,Color color,double time)
         {
             var key=(r,kind,surface.NativeStrokeEnding,surface.NativeStrokeCorner,surface.NativeStrokeMiter);if(!_art.TryGetValue(key,out var art)){art=new Art(r,kind,key.Item3,key.Item4,key.Item5);_art.Add(key,art);}
             bool enemy=kind<2;var transform=Matrix4x4.TRS(new Vector3(x,y,0),Quaternion.Euler(0,0,(float)Math.Atan2(vy,vx)*Mathf.Rad2Deg),Vector3.one);
@@ -55,7 +55,7 @@ namespace EchoSphere.Presentation
             if(kind==3)foreach(var mesh in art.Arcs)Paint(mesh,new Color(1,232/255f,190/255f,.72f));
             if(kind==4)for(int i=0;i<5;i++){double q=time*2.6+i*Math.PI*2/5;var local=Matrix4x4.Translate(new Vector3((float)(Math.Cos(q)*r*1.15),(float)(Math.Sin(q)*r*1.15),0));Paint(art.Orbit,Html("#d9c7ff"),local);Paint(art.Arcs[0],Alpha(color,.6f),local);}
             float coreR=enemy?1:(float)(r*.22*(1+.12*Math.Sin(time*10)));var coreTransform=enemy?Matrix4x4.identity:Matrix4x4.TRS(new Vector3(r*.35f,0,0),Quaternion.identity,new Vector3(coreR,coreR,1));Paint(art.Core,enemy?Color.white:Alpha(color,.65f),coreTransform,!enemy);
-            surface.ContinueNativeCircle(new Vector2(r*.35f,0),enemy?Mathf.Max(1.4f,r*.24f):coreR,transform);
+
         }
         private static void Destroy(UnityEngine.Object value){if(value!=null)UnityEngine.Object.Destroy(value);}
         public void Dispose(){foreach(var art in _art.Values)art.Dispose();_art.Clear();Destroy(_material);}

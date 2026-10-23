@@ -32,9 +32,9 @@ namespace EchoSphere.Presentation
                 Stroke(331,()=>new[]{Connected(EllipseContour(P(size*(.10-variant*.04),-size*(.50+variant*.04)),(float)(size*(.11+variant*.02)),(float)(size*(.11+variant*.02))),EllipseContour(P(-size*.22,-size*.42),(float)(size*.07),(float)(size*.07)))});
             }
         }
-        internal void DrawElements(SourceCanvasSurface surface,double x,double y,double direction,double time,double scale,string family,string element,Color color,bool active)
+        internal void DrawElements(NativeWorldSurface surface,double x,double y,double direction,double time,double scale,string family,string element,Color color,bool active)
         {
-            _surface=surface;_last=null;double r=24*scale*(family=="orbital"?1.46:1.34),rx=r*1.16,ry=r*.34,spin=-time*.18,particleSpin=-time*.34,alpha=active?.78:.20,width=Math.Max(1,r*.040);Matrix4x4 root=T(x,y),orbit=root*T(angle:spin);
+            _surface=surface;double r=24*scale*(family=="orbital"?1.46:1.34),rx=r*1.16,ry=r*.34,spin=-time*.18,particleSpin=-time*.34,alpha=active?.78:.20,width=Math.Max(1,r*.040);Matrix4x4 root=T(x,y),orbit=root*T(angle:spin);
             Paint(Get(340,r,0,Math.Max(2,width*3),()=>new[]{EllipseContour(Vector2.zero,(float)rx,(float)ry)}),orbit,null,A(color,alpha*.18),additive:true);
             Paint(Get(341,r,0,width,()=>new[]{EllipseContour(Vector2.zero,(float)rx,(float)ry,Mathf.PI,Mathf.PI*2)}),orbit,null,A(color,alpha*.58),additive:true);
             Paint(Get(342,r,0,width,()=>new[]{EllipseContour(Vector2.zero,(float)rx,(float)ry,0,Mathf.PI)}),orbit,null,A(color,alpha),additive:true);
@@ -55,7 +55,7 @@ namespace EchoSphere.Presentation
                 ElementGlyph(local,element,weaponRadius*(element=="fire"?.12:element=="freeze"?.11:.10),0,color,Math.Max(.85,1.1*scale),opacity);
                 double rad=weaponRadius*.10;Paint(Get(344,rad,0,0,()=>new[]{EllipseContour(P(rad,0),(float)rad,(float)rad)},true),local,A(color,.16),null,opacity*.56,true);
             }
-            Finish();
+
         }
     }
 }

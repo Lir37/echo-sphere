@@ -29,7 +29,7 @@ namespace EchoSphere.Presentation
         private readonly List<MaterialPropertyBlock> _properties=new List<MaterialPropertyBlock>();
         private readonly Material _solid=new Material(Resources.Load<Shader>("EchoSphere/NativeWorldSolid")){name="Native sphere family art",hideFlags=HideFlags.DontSave};
         private readonly Material _glow=new Material(Resources.Load<Shader>("EchoSphere/NativeWorldFamilyGlow")){name="Native sphere family glow",hideFlags=HideFlags.DontSave};
-        private SourceCanvasSurface _surface;private BezierContour[] _last;private Matrix4x4 _lastMatrix;
+        private NativeWorldSurface _surface;
         internal void BeginFrame(){_used=0;_dynamicUsed=0;}
         private static Vector2 P(double x,double y)=>new Vector2((float)x,(float)y);
         private static Matrix4x4 T(double x=0,double y=0,double angle=0,double scale=1)=>Matrix4x4.TRS(new Vector3((float)x,(float)y,0),Quaternion.Euler(0,0,(float)angle*Mathf.Rad2Deg),new Vector3((float)scale,(float)scale,1));
@@ -42,30 +42,30 @@ namespace EchoSphere.Presentation
         {if(_dynamicUsed==_dynamic.Count)_dynamic.Add(new Art());var art=_dynamic[_dynamicUsed++];art.Build(paths,(float)width,fill,cap??_surface.NativeStrokeEnding,corner??_surface.NativeStrokeCorner,_surface.NativeStrokeMiter,dash,_surface.NativeDashOffset);return art;}
         private Art Circle(double radius,double width=0)=>Get(0,radius,0,width,()=>new[]{EllipseContour(Vector2.zero,(float)radius,(float)radius)},true);
         private void Paint(Art art,Matrix4x4 matrix,Color? fill,Color? stroke,double? opacity=null,bool additive=false,bool inheritBlend=false)
-        {if(fill.HasValue)_surface.DrawNativeMesh(art.Fill,_solid,Properties(fill.Value),matrix,opacity:opacity.HasValue?(float?)opacity.Value:null,additive:additive,inheritBlend:inheritBlend,inheritShadow:true);if(stroke.HasValue)_surface.DrawNativeMesh(art.Stroke,_solid,Properties(stroke.Value),matrix,opacity:opacity.HasValue?(float?)opacity.Value:null,additive:additive,inheritBlend:inheritBlend,inheritShadow:true);_last=art.Paths;_lastMatrix=matrix;}
-        private void Finish(){if(_last!=null)_surface.ContinueNativeContours(_last,_lastMatrix);}
+        {if(fill.HasValue)_surface.DrawNativeMesh(art.Fill,_solid,Properties(fill.Value),matrix,opacity:opacity.HasValue?(float?)opacity.Value:null,additive:additive,inheritBlend:inheritBlend,inheritShadow:true);if(stroke.HasValue)_surface.DrawNativeMesh(art.Stroke,_solid,Properties(stroke.Value),matrix,opacity:opacity.HasValue?(float?)opacity.Value:null,additive:additive,inheritBlend:inheritBlend,inheritShadow:true);}
+
         private static BezierContour Line(double x1,double y1,double x2,double y2)=>PolylineContour(false,P(x1,y1),P(x2,y2));
         private static (double x,double y,double depth) Point(double r,double angle,double flatten=.34,double radiusScale=1.16)
         {double sine=Math.Sin(angle);return(Math.Cos(angle)*r*radiusScale,sine*r*flatten*radiusScale,.64+.36*((sine+1)*.5));}
-        internal void DrawGlow(SourceCanvasSurface surface,double radius,Color color,double alpha,Matrix4x4? parent=null,bool additive=false)
+        internal void DrawGlow(NativeWorldSurface surface,double radius,Color color,double alpha,Matrix4x4? parent=null,bool additive=false)
         {
             _surface=surface;var root=parent??Matrix4x4.identity;if(!_glowSpaces.TryGetValue(color,out var inverse)){inverse=(surface.NativePaintMatrix*root).inverse;_glowSpaces.Add(color,inverse);}
             var matrix=root*T(scale:radius);var art=Circle(1);var p=Properties(color);p.SetMatrix("_GradientMap",inverse*surface.NativePaintMatrix*matrix);
-            surface.DrawNativeMesh(art.Fill,_glow,p,matrix,opacity:(float)alpha,inheritShadow:true,inheritBlend:!additive,additive:additive);_last=art.Paths;_lastMatrix=matrix;Finish();
+            surface.DrawNativeMesh(art.Fill,_glow,p,matrix,opacity:(float)alpha,inheritShadow:true,inheritBlend:!additive,additive:additive);
         }
-        internal void DrawDisabled(SourceCanvasSurface surface,double radius,Color color,bool disabled,Matrix4x4? parent=null,double inheritedOpacity=1)
-        {if(!disabled)return;_surface=surface;var art=Get(1,radius,0,1.7,()=>new[]{EllipseContour(Vector2.zero,(float)(radius*1.18),(float)(radius*1.18),Mathf.PI*.20f,Mathf.PI*.80f)});Paint(art,parent??Matrix4x4.identity,null,color,.42,inheritBlend:true);Finish();}
+        internal void DrawDisabled(NativeWorldSurface surface,double radius,Color color,bool disabled,Matrix4x4? parent=null,double inheritedOpacity=1)
+        {if(!disabled)return;_surface=surface;var art=Get(1,radius,0,1.7,()=>new[]{EllipseContour(Vector2.zero,(float)(radius*1.18),(float)(radius*1.18),Mathf.PI*.20f,Mathf.PI*.80f)});Paint(art,parent??Matrix4x4.identity,null,color,.42,inheritBlend:true);}
         private static BezierContour Trace(double rx,double ry,double start,double end,double wobble=0)
         {var points=new Vector2[43];for(int i=0;i<=42;i++){double a=start+(end-start)*i/42,n=wobble!=0?Math.Sin(a*7+.35)*wobble:0;points[i]=P(Math.Cos(a)*(rx+n),Math.Sin(a)*(ry+n*.34));}return PolylineContour(false,points);}
-        internal void DrawOrbit(SourceCanvasSurface surface,double radius,Color color,double rotation,double opacity,string mode,double pulse,Matrix4x4? parent=null,bool lightningAdditive=false)
+        internal void DrawOrbit(NativeWorldSurface surface,double radius,Color color,double rotation,double opacity,string mode,double pulse,Matrix4x4? parent=null,bool lightningAdditive=false)
         {
             _surface=surface;double rx=radius*1.16,ry=radius*.34;var root=(parent??Matrix4x4.identity)*T(angle:rotation);bool lightning=mode=="lightning";
             void Stroke(Art art,double alpha)=>Paint(art,root,null,color,alpha,additive:!lightning||lightningAdditive,inheritBlend:lightning&&!lightningAdditive);
-            if(lightning){for(int ring=0;ring<2;ring++){double x=ring==0?rx:radius*.98,y=ring==0?ry:radius*.28,q=pulse+ring*.5;var points=new Vector2[21];for(int i=0;i<=20;i++){double a=i/20.0*Math.PI*2,j=Math.Sin(i*3.7+q*5.2)*x*.025;points[i]=P(Math.Cos(a)*(x+j),Math.Sin(a)*(y+j*.34));}Stroke(Dynamic(new[]{PolylineContour(false,points)},Math.Max(.8,x*.028)),opacity*(ring==0?1:.36));}Finish();return;}
+            if(lightning){for(int ring=0;ring<2;ring++){double x=ring==0?rx:radius*.98,y=ring==0?ry:radius*.28,q=pulse+ring*.5;var points=new Vector2[21];for(int i=0;i<=20;i++){double a=i/20.0*Math.PI*2,j=Math.Sin(i*3.7+q*5.2)*x*.025;points[i]=P(Math.Cos(a)*(x+j),Math.Sin(a)*(y+j*.34));}Stroke(Dynamic(new[]{PolylineContour(false,points)},Math.Max(.8,x*.028)),opacity*(ring==0?1:.36));}return;}
             if(mode=="void"){
                 for(int i=0;i<7;i++){int index=i;double a=i*Math.PI*2/7+.08;Stroke(Get(10+i,radius,0,Math.Max(.8,radius*.030),()=>new[]{Trace(rx,ry,a,a+(index%2==0?.58:.34),.70)},cap:PathEnding.Round),opacity*(i%3==0?.94:.72));}
                 Stroke(Get(17,radius,0,Math.Max(.55,radius*.018),()=>new[]{Trace(radius*1.03,radius*.295,Math.PI*.16,Math.PI*1.84,.35)},cap:PathEnding.Round),opacity*.42);
-                var diamond=Get(18,radius,0,0,()=>new[]{PolylineContour(true,P(radius*.10,0),P(0,radius*.055),P(-radius*.10,0),P(0,-radius*.055))},true);for(int i=0;i<3;i++){double a=-rotation*.72+i*Math.PI*2/3;Paint(diamond,root*T(Math.Cos(a)*rx*.99,Math.Sin(a)*ry*.99),color,null,opacity*.72,true);}Finish();return;
+                var diamond=Get(18,radius,0,0,()=>new[]{PolylineContour(true,P(radius*.10,0),P(0,radius*.055),P(-radius*.10,0),P(0,-radius*.055))},true);for(int i=0;i<3;i++){double a=-rotation*.72+i*Math.PI*2/3;Paint(diamond,root*T(Math.Cos(a)*rx*.99,Math.Sin(a)*ry*.99),color,null,opacity*.72,true);}return;
             }
             Stroke(Get(20,radius,0,Math.Max(.9,radius*.040),()=>new[]{Trace(rx,ry,0,Math.PI*2)},cap:PathEnding.Round),opacity);
             Stroke(Get(21,radius,0,Math.Max(.55,radius*.022),()=>new[]{Trace(radius,radius*.285,Math.PI*.10,Math.PI*1.92)},cap:PathEnding.Round),opacity*.44);
@@ -77,7 +77,7 @@ namespace EchoSphere.Presentation
                 case "gravity":Stroke(Get(50,radius,0,Math.Max(.7,radius*.026),()=>new[]{Trace(rx*.88,ry*.78,.25,Math.PI*1.78)},cap:PathEnding.Round),opacity*.56);Stroke(Get(51,radius,0,Math.Max(.7,radius*.026),()=>new[]{Trace(rx*1.05,ry*.86,Math.PI*1.08,Math.PI*2.64)},cap:PathEnding.Round),opacity*.56);break;
                 case "orbital":Stroke(Get(52,radius,0,Math.Max(.65,radius*.022),()=>new[]{Trace(rx*.92,ry*.84,Math.PI*.12,Math.PI*1.86)},cap:PathEnding.Round),opacity*.52);break;
             }
-            Finish();
+
         }
         private static void Destroy(UnityEngine.Object value){if(value!=null)UnityEngine.Object.Destroy(value);}
         public void Dispose(){foreach(var art in _art.Values)art.Dispose();foreach(var art in _dynamic)art.Dispose();_art.Clear();_dynamic.Clear();_glowSpaces.Clear();Destroy(_solid);Destroy(_glow);Destroy(_mutationGlow);}

@@ -44,14 +44,14 @@ namespace EchoSphere.Presentation
             var glyph=Multi(41,0,2,()=>new[]{Open(P(-16,-10),P(-5,0),P(-16,10)),Open(P(16,-10),P(5,0),P(16,10))});var local=root*T(dx,dy,Math.Atan2(dy,dx));Paint(glyph,local,null,red,(float)(.55+.35*pulse),forceOver:true,shadow:red,shadowBlur:4);
             var bars=Multi(42,0,1,()=>new[]{Straight(P(-9,-15),P(9,-15)),Straight(P(-9,15),P(9,15))});Paint(bars,local,null,red,.32f,forceOver:true,shadow:red,shadowBlur:4);
         }
-        internal void DrawDisabledNetwork(SourceCanvasSurface surface,double timer,double window,double t)
+        internal void DrawDisabledNetwork(NativeWorldSurface surface,double timer,double window,double t)
         {
             if(timer<=0)return;_surface=surface;double remaining=Clamp(timer/window),pulse=.6+.4*Math.Sin(t*13);var red=C(255,77,112);
             var glyph=Multi(43,0,2.2,()=>new[]{Open(P(-17,-10),P(-4,0),P(-17,10)),Open(P(17,-10),P(4,0),P(17,10))});Paint(glyph,Matrix4x4.identity,null,red,(float)(.55+.35*pulse),forceOver:true,shadow:red,shadowBlur:4);
             // The source arc retains a zero-length path when remaining == 1.
-            var arc=Dynamic(Oval(27,27,(1-remaining)*Math.PI*2),1.2,false);Paint(arc,T(angle:-Math.PI/2),null,red,.28f,forceOver:true,shadow:red,shadowBlur:4);FinishPath();
+            var arc=Dynamic(Oval(27,27,(1-remaining)*Math.PI*2),1.2,false);Paint(arc,T(angle:-Math.PI/2),null,red,.28f,forceOver:true,shadow:red,shadowBlur:4);
         }
-        internal void DrawEnemy(SourceCanvasSurface surface,EnemyView e,double t)
+        internal void DrawEnemy(NativeWorldSurface surface,EnemyView e,double t)
         {
             _surface=surface;double facing=FacingAngle(e),hit=Clamp(e.HitFlash/.15),pulse=1+Math.Sin(t*5+e.X*.01)*.025,scale=pulse+hit*.05;var root=T(e.X,e.Y,facing,scale,scale);var statusColor=e.Freeze?C(105,214,255):e.Color;
             DrawOuterGlow(surface,e.Radius*(e.Boss?1.65:1.15),statusColor,e.Boss?.21:.10,root);
@@ -62,12 +62,10 @@ namespace EchoSphere.Presentation
                 LinkBreaker(root,e,t);if(e.Fire||e.Poison||e.Freeze)DrawStatus(surface,e.Radius,t,e.Fire,e.Poison,e.Freeze,root);
                 if(hit>0){var cross=Multi(45,e.Radius,2,()=>new[]{Straight(P(-e.Radius*.8,-e.Radius*.8),P(e.Radius*.8,e.Radius*.8)),Straight(P(e.Radius*.8,-e.Radius*.8),P(-e.Radius*.8,e.Radius*.8))});Paint(cross,root,null,C(255,255,255,hit*.75));}
             }
-            // Canvas rectangles/text preserve the preceding path. Retain it while
-            // drawing the original boss health bar outside the body rotation.
-            var last=_last;var lastTransform=_lastTransform;
+
             if(e.Boss){double w=Math.Max(110,e.Radius*1.55),ratio=Clamp(e.Hp/Math.Max(1,e.MaxHp)),x=e.X-w/2,y=e.Y-e.Radius-30;var bar=Get(46,w,6,1,()=>Poly(Vector2.zero,P(w,0),P(w,6),P(0,6)));Paint(bar,T(x,y),C(2,7,18,.88),null,shadow:statusColor);Paint(bar,T(x,y,sx:ratio),statusColor,null,shadow:statusColor);Paint(bar,T(x,y),null,C(220,250,255,.68),shadow:statusColor);
                 if(_labelUsed==_bossLabels.Count)_bossLabels.Add(new NativeWorldLabel());_bossLabels[_labelUsed++].Draw(surface,e.BossName,P(e.X,y-4),C(230,250,255,.78),statusColor,true);}
-            _last=last;_lastTransform=lastTransform;FinishPath();
+
         }
     }
 }

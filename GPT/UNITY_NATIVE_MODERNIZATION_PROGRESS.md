@@ -1,5 +1,21 @@
 # ECHO SPHERE — native visual modernization
 
+2026-10-23: The active world now renders through NativeWorldSurface, a dedicated
+Unity CommandBuffer mesh compositor. SourceCanvasSurface is no longer instantiated
+by the game frame. Native world owners no longer construct/retain Canvas current
+paths, generic paint tables or Canvas calls; typed transforms/opacity/dashes replace
+frame command dispatch. Existing native meshes/materials, shared glyph stabilization,
+MSAA4, ordered alpha/additive/screen, shadow masks/blur/padding and presentation
+color conversion are retained. Backing size uses the original finite DPR cap and
+rounding. Reflection field discovery/value reads were removed from presentation;
+remaining profile/leaderboard/shop records have explicit typed mappings.
+Actual Editor compile zero errors/warnings. Actual-state Play Mode frame rendered
+through NativeWorldSurface; 1260x542 texture captured and inspected, no blank/error
+output. Current Console zero errors/warnings; menu restored, Play Mode stopped.
+This does NOT establish all-effect/device/visual/performance acceptance. CI checked
+on containing commit. Remaining: V snapshot/helper-data adapters and source UI
+DOM/model/hooks/slot-layout bridge. Full migration remains PARTIAL, no APK.
+
 2026-10-23: Active world frame orchestration is now authored C# rather than
 Visual_renderer.render. Sphere layer ordering for all ten catalogue types is native
 as well. Per-frame capture/replacement/restoration of translated drawing functions

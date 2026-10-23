@@ -28,15 +28,15 @@ namespace EchoSphere.Presentation
             if(v.LastTime==s.Time&&v.LastTime!=0)return v;double dt=v.LastTime>0?Math.Min(.05,Math.Max(0,s.Time-v.LastTime)):0;v.LastTime=s.Time;
             if(!s.Disabled){double aura=Finite(input.AuraTimer)?input.AuraTimer:0;if(aura>v.LastAura+.12)v.Attack=.28;v.LastAura=aura;v.Attack=Math.Max(0,v.Attack-dt);if(s.Resonance)v.Resonance=1.15;v.Resonance=Math.Max(0,v.Resonance-dt);}return v;
         }
-        internal void DrawOrbital(SourceCanvasSurface surface,NativeWorldStandardSphere cores,OrbitalInput input,bool attackers)
+        internal void DrawOrbital(NativeWorldSurface surface,NativeWorldStandardSphere cores,OrbitalInput input,bool attackers)
         {
-            var s=input.View;if(attackers&&s.Disabled)return;_surface=surface;_last=null;var v=UpdateOrbital(input);double r=24*s.Scale,t=s.Time,mult=Finite(input.RadiusScale)&&input.RadiusScale>0?input.RadiusScale:1;bool resonance=!s.Disabled&&v.Resonance>0;Color color=s.Disabled?C(255,77,112):resonance?C(255,209,102):C(142,240,255);var root=T(s.X,s.Y);
-            if(attackers){OrbitalAttackers(root,input,v,r,color);Finish();return;}
+            var s=input.View;if(attackers&&s.Disabled)return;_surface=surface;var v=UpdateOrbital(input);double r=24*s.Scale,t=s.Time,mult=Finite(input.RadiusScale)&&input.RadiusScale>0?input.RadiusScale:1;bool resonance=!s.Disabled&&v.Resonance>0;Color color=s.Disabled?C(255,77,112):resonance?C(255,209,102):C(142,240,255);var root=T(s.X,s.Y);
+            if(attackers){OrbitalAttackers(root,input,v,r,color);return;}
             DrawGlow(surface,r*2.55,color,s.Disabled?.05:.13,root,true);DrawOrbit(surface,r*1.05*mult,color,t*.18+v.Phase,s.Disabled?.12:.66,"orbital",.5+.5*Math.Sin(t*3+v.Phase),root);DrawOrbit(surface,r*.88*mult,color,-t*.22+v.Phase*.5,s.Disabled?.08:.38,"orbital",.5,root);cores.DrawCore(surface,r*.70,s.Disabled?.5:.5+.5*Math.Sin(t*3+v.Phase),root,color);
             var terminal=Get(400,r,0,1,()=>new[]{PolylineContour(true,P(0,-r*.28),P(r*.16,-r*.05),P(r*.11,r*.24),P(0,r*.31),P(-r*.11,r*.24),P(-r*.16,-r*.05))},true);var inset=Get(401,r,0,0,()=>new[]{PolylineContour(true,P(0,-r*.16),P(r*.07,0),P(0,r*.14),P(-r*.07,0))},true);
             for(int i=0;i<2;i++){double a=s.Disabled?(i==0?.20:.16):(i==0?.76:.62);var local=root*T(0,(i==0?-1:1)*r*1.02,(i==0?t:-t)*.08);Paint(terminal,local,C(7,17,29),color,a);Paint(inset,local,Color.white,null,a*.72);}
             if(resonance)Paint(Get(402,r,0,1,()=>new[]{EllipseContour(Vector2.zero,(float)(r*1.34),(float)(r*1.34),0,Mathf.PI*1.15f)}),root*T(angle:t*.65),null,C(255,209,102),.42);
-            if(s.Disabled){Paint(Get(403,r,0,1.5,()=>new[]{Line(-r*.72,-r*.72,r*.72,r*.72),Line(r*.72,-r*.72,-r*.72,r*.72)}),root,null,C(255,77,112),.50);Paint(Get(1,r,0,1.7,()=>new[]{EllipseContour(Vector2.zero,(float)(r*1.18),(float)(r*1.18),Mathf.PI*.20f,Mathf.PI*.80f)}),root,null,color,.42);}Finish();
+            if(s.Disabled){Paint(Get(403,r,0,1.5,()=>new[]{Line(-r*.72,-r*.72,r*.72,r*.72),Line(r*.72,-r*.72,-r*.72,r*.72)}),root,null,C(255,77,112),.50);Paint(Get(1,r,0,1.7,()=>new[]{EllipseContour(Vector2.zero,(float)(r*1.18),(float)(r*1.18),Mathf.PI*.20f,Mathf.PI*.80f)}),root,null,color,.42);}
         }
         private void Satellite(Matrix4x4 root,double size,Color color,double alpha,double angle,bool blade)
         {

@@ -14,7 +14,7 @@ namespace EchoSphere.Presentation
         {
             internal Mesh Fill,Stroke;
             internal BezierContour[] Paths;
-            internal void Build(BezierContour[] paths,float width,SourceCanvasSurface surface,bool fill)
+            internal void Build(BezierContour[] paths,float width,NativeWorldSurface surface,bool fill)
             {Paths=paths;if(fill)Fill=Tessellate(paths[0],0,Fill,contours:paths);if(width>0)Stroke=Tessellate(paths[0],width,Stroke,cap:surface.NativeStrokeEnding,corners:surface.NativeStrokeCorner,miter:surface.NativeStrokeMiter,contours:paths);}
             public void Dispose(){Destroy(Fill);Destroy(Stroke);}
         }
@@ -24,7 +24,7 @@ namespace EchoSphere.Presentation
         private readonly List<NativeWorldLabel> _labels=new List<NativeWorldLabel>();
         private int _dynamicUsed,_propertyUsed,_labelUsed;
         private readonly Material _material=new Material(Resources.Load<Shader>("EchoSphere/NativeWorldSolid")){name="Native world pickables",hideFlags=HideFlags.DontSave};
-        private SourceCanvasSurface _surface;private Art _last;private Matrix4x4 _lastMatrix;
+        private NativeWorldSurface _surface;
         internal void BeginFrame(){_dynamicUsed=0;_propertyUsed=0;_labelUsed=0;}
         private static Vector2 P(double x,double y)=>new Vector2((float)x,(float)y);
         private static Color C(int r,int g,int b,double a=1)=>new Color(r/255f,g/255f,b/255f,(float)a);
@@ -38,22 +38,22 @@ namespace EchoSphere.Presentation
         private MaterialPropertyBlock Properties(Color c)
         {if(_propertyUsed==_properties.Count)_properties.Add(new MaterialPropertyBlock());var p=_properties[_propertyUsed++];p.SetVector("_NativeColor",new Vector4(c.r,c.g,c.b,c.a));return p;}
         private void Paint(Art art,Matrix4x4 root,Color? fill,Color? stroke,Color? shadow,float blur,float? opacity=null)
-        {if(fill.HasValue)_surface.DrawNativeMesh(art.Fill,_material,Properties(fill.Value),root,shadow,blur,opacity:opacity,inheritShadow:!shadow.HasValue,inheritShadowOffsets:shadow.HasValue);if(stroke.HasValue)_surface.DrawNativeMesh(art.Stroke,_material,Properties(stroke.Value),root,shadow,blur,opacity:opacity,inheritShadow:!shadow.HasValue,inheritShadowOffsets:shadow.HasValue);_last=art;_lastMatrix=root;}
-        private void Finish(){if(_last!=null)_surface.ContinueNativeContours(_last.Paths,_lastMatrix);}
+        {if(fill.HasValue)_surface.DrawNativeMesh(art.Fill,_material,Properties(fill.Value),root,shadow,blur,opacity:opacity,inheritShadow:!shadow.HasValue,inheritShadowOffsets:shadow.HasValue);if(stroke.HasValue)_surface.DrawNativeMesh(art.Stroke,_material,Properties(stroke.Value),root,shadow,blur,opacity:opacity,inheritShadow:!shadow.HasValue,inheritShadowOffsets:shadow.HasValue);}
+
         private void Ground(Matrix4x4 root,float rx,float ry)
         {Paint(Ellipse(rx,ry),root*T(y:5),C(0,0,0,.34),null,null,0,.42f);Paint(Ellipse(rx*.72f,ry*.68f),root*T(y:5),C(0,0,0,.34),null,null,0,.16f);}
-        internal void DrawChest(SourceCanvasSurface surface,double x,double y,double t,bool stella,string label)
+        internal void DrawChest(NativeWorldSurface surface,double x,double y,double t,bool stella,string label)
         {
             _surface=surface;var root=T(x,y,scale:1+Math.Sin(t*(stella?2.6:3.2))*(stella?.08:.05));var shadow=stella?C(255,184,77):C(169,138,255);float blur=stella?13:10;Ground(root,stella?24:18,stella?7:6);
             var body=Get(stella?2:1,0,0,stella?2:1.4f,()=>new[]{stella?PolylineContour(true,P(0,-23),P(18,-9),P(20,10),P(0,23),P(-20,10),P(-18,-9)):PolylineContour(true,P(-17,7),P(-13,-8),P(0,-14),P(13,-8),P(17,7),P(0,14))});Paint(body,root,stella?C(24,12,2,.96):C(4,10,19,.96),stella?shadow:C(194,160,255,.86),shadow,blur);
             if(stella){for(int i=0;i<4;i++){int index=i;var line=Get(10+i,0,0,1.4f,()=>new[]{PolylineContour(false,P(-17+index*4,-8),P(17-index*4,8))},false);Paint(line,root*T(angle:t*.25),null,C(255,240,191),shadow,blur);}Paint(Oval(5),root,C(255,248,223),null,shadow,blur);
                 if(_labelUsed==_labels.Count)_labels.Add(new NativeWorldLabel());_labels[_labelUsed++].Draw(surface,label,P(0,37),C(255,210,126),shadow,true,root,blur);}
             else{var folds=Get(3,0,0,1.4f,()=>new[]{PolylineContour(false,P(-13,-8),P(0,-2),P(13,-8)),PolylineContour(false,P(0,-2),P(0,10))},false);Paint(folds,root,null,C(111,224,255,.55),shadow,blur);Paint(Oval(3),root*T(y:-2),Color.white,null,shadow,blur);}
-            Finish();
+
         }
-        internal void DrawRune(SourceCanvasSurface surface,double x,double y,string type,Color color,double t)
+        internal void DrawRune(NativeWorldSurface surface,double x,double y,string type,Color color,double t)
         {
-            _surface=surface;_last=null;var root=T(x,y,scale:1+Math.Sin(t*4)*.06);var dark=C(5,12,22,.96);
+            _surface=surface;var root=T(x,y,scale:1+Math.Sin(t*4)*.06);var dark=C(5,12,22,.96);
             void Draw(Art art,Color? fill,Color? stroke,Matrix4x4? local=null)=>Paint(art,root*(local??Matrix4x4.identity),fill,stroke,color,8);
             switch(type)
             {
@@ -77,7 +77,7 @@ namespace EchoSphere.Presentation
                 default:
                     Draw(Get(28,0,0,1.5f,()=>new[]{PolylineContour(true,P(0,-15),P(13,0),P(0,15),P(-13,0))}),dark,color);Draw(Oval(3.5f),Color.white,null);break;
             }
-            Finish();
+
         }
         private static void Destroy(UnityEngine.Object value){if(value!=null)UnityEngine.Object.Destroy(value);}
         public void Dispose(){foreach(var art in _art.Values)art.Dispose();foreach(var art in _dynamic)art.Dispose();foreach(var label in _labels)label.Dispose();_art.Clear();_dynamic.Clear();_labels.Clear();Destroy(_material);}

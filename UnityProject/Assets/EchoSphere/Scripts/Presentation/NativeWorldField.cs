@@ -41,17 +41,12 @@ namespace EchoSphere.Presentation
             _gradientMaterial=Material("EchoSphere/NativeWorldField","Native world field gradient");_shapeMaterial=Material("EchoSphere/NativeWorldGeometry","Native world field geometry");
         }
         private static Material Material(string path,string name){var shader=Resources.Load<Shader>(path);if(shader==null||!shader.isSupported)throw new InvalidOperationException("Native world shader unavailable: "+path);return new Material(shader){name=name,hideFlags=HideFlags.DontSave};}
-        internal void Draw(SourceCanvasSurface surface,float w,float h,float ox,float oy,float focusX,float focusY)
+        internal void Draw(NativeWorldSurface surface,float w,float h,float ox,float oy,float focusX,float focusY)
         {
             if(w!=_w||h!=_h||ox!=_ox||oy!=_oy){_w=w;_h=h;_ox=ox;_oy=oy;Build();}
             _properties.SetVector("_Field",new Vector4(w,h,focusX,focusY));
             surface.DrawNativeMesh(_gradient,_gradientMaterial,_properties);surface.DrawNativeMesh(_nebulae,_shapeMaterial,_properties);surface.DrawNativeMesh(_details,_shapeMaterial,_properties);
-            // Compatibility continuation only. Preserve the authored context's
-            // final fill and current path for subsequent, not-yet-ported layers;
-            // these values produce no Canvas paint batch for this native field.
-            var gradient=surface.Call("createRadialGradient",new V[]{focusX,focusY-h*.14,10,focusX,focusY,Math.Max(w,h)*.78});
-            var stops=(VisualGradient)gradient.Raw;stops.Stops.Add(new KeyValuePair<double,string>(0,"rgba(41,84,142,0.18)"));stops.Stops.Add(new KeyValuePair<double,string>(.26,"rgba(58,37,121,0.10)"));stops.Stops.Add(new KeyValuePair<double,string>(.62,"rgba(3,10,23,0.18)"));stops.Stops.Add(new KeyValuePair<double,string>(1,"rgba(0,0,0,0.82)"));surface.Canvas.Set("fillStyle",gradient);
-            surface.Call("beginPath",Array.Empty<V>());surface.Call("arc",new V[]{ox+119*137.31%w,oy+119*71.93%h,.35+119%3*.18,0,Math.PI*2});
+
         }
         private void Build()
         {

@@ -7,9 +7,9 @@ namespace EchoSphere.Presentation
 {
     internal sealed partial class NativeWorldSphereFamilies
     {
-        internal void DrawModifiers(SourceCanvasSurface surface,double x,double y,double time,double scale,bool disabled,double[] levels)
+        internal void DrawModifiers(NativeWorldSurface surface,double x,double y,double time,double scale,bool disabled,double[] levels)
         {
-            _surface=surface;_last=null;double radius=24*scale*1.38,active=disabled?0:time;var root=T(x,y);
+            _surface=surface;double radius=24*scale*1.38,active=disabled?0:time;var root=T(x,y);
             for(int kind=0;kind<6;kind++){
                 double value=levels[kind];if(value<=0)continue;double strength=Math.Min(1,value/2),size=Math.Max(2.8,3.8*scale+strength*1.25*scale),angle=-Math.PI/2+kind*Math.PI*2/6+active*.11,width=Math.Max(.85,1.05*scale),alpha=.56+strength*.25;
                 var local=root*T(Math.Cos(angle)*radius,Math.Sin(angle)*radius*.86,angle+Math.PI/2+active*.18);Color color;
@@ -31,7 +31,7 @@ namespace EchoSphere.Presentation
                 }
                 if(value>=2){double rad=Math.Max(.65,.8*scale);for(int i=0;i<Math.Min(3,Math.Floor(value));i++){double xx=-size*.82+i*size*.42;var mark=Get(249+i,size,rad,width,()=>new[]{EllipseContour(P(xx,size*1.28),(float)rad,(float)rad)},cap:PathEnding.Round,corner:PathCorner.Round);Stroke(mark,.34+strength*.22);}}
             }
-            Finish();
+
         }
     }
 }

@@ -40,10 +40,10 @@ namespace EchoSphere.Presentation
             {double dx=ex-sx,dy=ey-sy,len=Math.Sqrt(dx*dx+dy*dy);if(len==0)len=1;double offset=bend+Math.Sin(phase)*width*2;Stroke(QuadraticContour(P(sx,sy),false,P((sx+ex)/2-dy/len*offset,(sy+ey)/2+dx/len*offset),P(ex,ey)),color,width,alpha,PathEnding.Round);}
             internal void Pulse(double r,Color color,double t,double scale=1){double q=(t*.62)%1;Arc(r*(.72+q*1.02),color,Math.Max(.7,r*.028),0,Math.PI*2,.44*(1-q)*scale);}
         }
-        internal void DrawMutation(SourceCanvasSurface surface,MutationView s)
+        internal void DrawMutation(NativeWorldSurface surface,MutationView s)
         {
-            if(string.IsNullOrEmpty(s.Branch))return;_surface=surface;_last=null;var root=T(s.X,s.Y,s.Directed?s.Rotation:0);MutationGlow(surface,s.Radius*1.75,s.Color,.055,root);
-            MutationSilhouette(new MutationRig(this,root,false,true),s);MutationExpansion(new MutationRig(this,root,true,true),s);if(s.Emitter)MutationEmitter(new MutationRig(this,root,false,false,true),s);MutationAttack(new MutationRig(this,root,true,false),s);Finish();
+            if(string.IsNullOrEmpty(s.Branch))return;_surface=surface;var root=T(s.X,s.Y,s.Directed?s.Rotation:0);MutationGlow(surface,s.Radius*1.75,s.Color,.055,root);
+            MutationSilhouette(new MutationRig(this,root,false,true),s);MutationExpansion(new MutationRig(this,root,true,true),s);if(s.Emitter)MutationEmitter(new MutationRig(this,root,false,false,true),s);MutationAttack(new MutationRig(this,root,true,false),s);
         }
         private void MutationSilhouette(MutationRig rig,MutationView s)
         {

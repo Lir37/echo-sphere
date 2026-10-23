@@ -251,7 +251,7 @@ namespace EchoSphere.Runtime
         private float _fireTrailTimer, _fireCatalystTimer, _darkRitualOverloadTimer, _shieldTimer, _shieldVisualPulse;
         private bool _applyingActiveAbilitySynergyRiders;
         private float _activeAbilitySynergyPower = 1f;
-        
+
         private readonly List<string> _recentUpgradeChoiceKeys = new List<string>();
         private readonly List<string> _oracleForecastKeys = new List<string>();
         private int _levelUpAbilityPity, _levelUpSpherePity;
@@ -7296,7 +7296,7 @@ namespace EchoSphere.Runtime
             if(_nativeCharacterScreen!=null)Destroy(_nativeCharacterScreen.gameObject);
             if(_nativeArchiveScreen!=null)Destroy(_nativeArchiveScreen.gameObject);
             if(_sourceUi!=null)Destroy(_sourceUi.gameObject);
-            if(_sourceCanvas!=null)Destroy(_sourceCanvas.gameObject); if (_networkLineMaterial != null) Destroy(_networkLineMaterial);
+            if(_worldSurface!=null)Destroy(_worldSurface.gameObject); if (_networkLineMaterial != null) Destroy(_networkLineMaterial);
             if (_uiPanelTexture != null) Destroy(_uiPanelTexture);
             if (_uiButtonTexture != null) Destroy(_uiButtonTexture);
             if (_uiButtonHoverTexture != null) Destroy(_uiButtonHoverTexture);

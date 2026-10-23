@@ -39,7 +39,7 @@ namespace EchoSphere.Presentation
         internal NativeWorldRegion(){var shader=Resources.Load<Shader>("EchoSphere/NativeWorldRegion");if(shader==null||!shader.isSupported)throw new InvalidOperationException("Native region shader unavailable");_material=new Material(shader){name="Native region geometry",hideFlags=HideFlags.DontSave};}
         private static Color Alpha(Color color,float alpha){color.a*=alpha;return color;}
         private static Vector2 Offset(double angle,double radius)=>new Vector2((float)(Math.Cos(angle)*radius),(float)(Math.Sin(angle)*radius));
-        internal void Draw(SourceCanvasSurface surface,State state)
+        internal void Draw(NativeWorldSurface surface,State state)
         {
             _pockets.Clear();double seam=state.Time*.65;
             foreach(var pocket in state.Pockets){bool active=pocket.Id==state.Active;float width=active?1.8f:1;

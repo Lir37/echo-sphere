@@ -15,8 +15,8 @@ namespace EchoSphere.Presentation
         private readonly Material _backgroundMaterial=new Material(Resources.Load<Shader>("EchoSphere/NativeWorldFrameBackground")){name="Native frame background",hideFlags=HideFlags.DontSave};
         private readonly MaterialPropertyBlock _backgroundProperties=new MaterialPropertyBlock();private double _width=-1,_height=-1;
         private readonly List<Art> _art=new List<Art>();private readonly List<MaterialPropertyBlock> _properties=new List<MaterialPropertyBlock>();private readonly List<NativeWorldLabel> _labels=new List<NativeWorldLabel>();
-        private int _used,_labelUsed;private SourceCanvasSurface _surface;
-        internal void BeginFrame(SourceCanvasSurface surface){_used=0;_labelUsed=0;_surface=surface;}
+        private int _used,_labelUsed;private NativeWorldSurface _surface;
+        internal void BeginFrame(NativeWorldSurface surface){_used=0;_labelUsed=0;_surface=surface;}
         private static Vector2 P(double x,double y)=>new Vector2((float)x,(float)y);
         private static Color C(int r,int g,int b,double a=1)=>new Color(r/255f,g/255f,b/255f,(float)a);
         private static Matrix4x4 T(double x=0,double y=0,double angle=0)=>Matrix4x4.TRS(new Vector3((float)x,(float)y,0),Quaternion.Euler(0,0,(float)(angle*180/Math.PI)),Vector3.one);
@@ -25,7 +25,7 @@ namespace EchoSphere.Presentation
             if(_used==_art.Count){_art.Add(new Art());_properties.Add(new MaterialPropertyBlock());}var art=_art[_used];var props=_properties[_used++];art.Paths[0]=contour;
             art.Mesh=Tessellate(contour,(float)width,art.Mesh,cap:_surface.NativeStrokeEnding,corners:_surface.NativeStrokeCorner,miter:_surface.NativeStrokeMiter,dash:_surface.NativeStrokeDash,dashOffset:_surface.NativeDashOffset);
             props.SetVector("_NativeColor",new Vector4(color.r,color.g,color.b,color.a));_surface.DrawNativeMesh(art.Mesh,_solid,props,root,inheritBlend:true,inheritShadow:true);
-            if(continuePath)_surface.ContinueNativeContours(art.Paths,root);
+
         }
         internal void Background(double w,double h,Color center,Color middle)
         {

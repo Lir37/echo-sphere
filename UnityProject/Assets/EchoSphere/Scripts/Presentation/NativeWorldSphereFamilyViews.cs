@@ -6,9 +6,9 @@ namespace EchoSphere.Presentation
 {
     internal sealed partial class NativeWorldSphereFamilies
     {
-        internal void DrawFamily(SourceCanvasSurface surface,NativeWorldStandardSphere cores,State s)
+        internal void DrawFamily(NativeWorldSurface surface,NativeWorldStandardSphere cores,State s)
         {
-            _surface=surface;_last=null;double r=24*s.Scale,t=s.Time,pulse=s.Disabled?.5:.5+.5*Math.Sin(t*3.4+s.X*.008+s.Y*.006);Color color;
+            _surface=surface;double r=24*s.Scale,t=s.Time,pulse=s.Disabled?.5:.5+.5*Math.Sin(t*3.4+s.X*.008+s.Y*.006);Color color;
             switch(s.Family){case "sniper":color=C(232,108,255);break;case "shotgun":color=C(255,143,61);break;case "chain":color=C(255,226,91);break;case "aura":color=C(87,230,180);break;case "prism":color=C(255,141,225);break;case "gravity":color=C(165,140,255);break;case "pulse":color=C(255,211,90);break;default:color=C(194,140,255);break;}
             if(s.Disabled)color=C(255,77,112);else if(s.Resonance)color=C(255,209,102);else if(s.Family=="prism"&&s.HasPrismElement)color=s.PrismElement;
             double glowSize=2.4,glowAlpha=.12,orbitSize=1.03,rotation=0,opacity=.66;string mode=s.Family;
@@ -44,7 +44,7 @@ namespace EchoSphere.Presentation
                     for(int i=0;i<4;i++){int index=i;double a=-t*(.22+i*.025)+i*Math.PI/2;var p=Point(r,a,.34,1.11);Paint(Get(172+i,r,0,.9,()=>new[]{EllipseContour(Vector2.zero,(float)(r*(.07+index*.012)),(float)(r*(.07+index*.012)),Mathf.PI*.2f,Mathf.PI*1.8f)}),aim*T(p.x,p.y),null,color,d?.05:.32*p.depth);}break;}
             }
             if(d){var art=Get(1,r,0,1.7,()=>new[]{EllipseContour(Vector2.zero,(float)(r*1.18),(float)(r*1.18),Mathf.PI*.20f,Mathf.PI*.80f)});Paint(art,(s.Family=="sniper"||s.Family=="shotgun"||s.Family=="prism"||s.Family=="void")?aim:root,null,color,.42);}
-            Finish();
+
         }
     }
 }

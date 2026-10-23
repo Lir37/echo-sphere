@@ -817,3 +817,49 @@ Short handoff: Continue ECHO SPHERE unity-migration at containing HEAD (git log 
 all ten sphere layer orders and inline feedback are native; per-frame Scope patching
 is removed. Next migrate V/reflection data and source UI/compositor bridges. Preserve
 original gameplay/quality; no APK. Full visual/device/performance acceptance remains.
+
+
+## 2026-10-23: Dedicated native world compositor and typed record projection
+
+NativeWorldSurface now owns the production world output. All native world owners
+submit directly to its Unity CommandBuffer; the runtime no longer creates a
+SourceCanvasSurface. No Canvas command host, generic paint table, gradient-upload
+texture, path accumulation, source text painting or disabled scene MeshRenderer is
+created for world rendering. Typed state methods handle transform stack, dash,
+opacity, blend and shadows. Current-path continuation APIs and owner bookkeeping
+were deleted because no native paint consumes a Canvas current path.
+
+The original native mesh matrix, layer order, per-batch shadow color/offsets, padded
+mask, separable blur, over/additive/screen passes, MSAA4, font-atlas stabilization and
+premultiplied-to-UI color conversion remain. Existing shadow/present shaders are
+reused; their historical resource names do not mean Canvas commands are executing.
+Backing dimensions retain finite DPR [1,1.75] and positive JavaScript-style rounding.
+The only unsupported-type sphere route now fails explicitly, matching the original
+missing-definition failure; all ten catalogue types keep native routes.
+
+Presentation RenderField/cache and arbitrary public-field reflection fallback were
+removed. Existing entity projections were already typed. LeaderboardEntry,
+CharacterProfileData and ShopUpgradeData now map their exact former fields directly;
+unknown record types fail rather than silently inventing a projection. The V value/
+snapshot adapter remains for source UI models/helpers and is NOT declared removed.
+
+Verification: actual Editor compile zero errors/warnings. One real initialized
+runtime frame rendered via LateUpdate with only _mainMenu temporarily bypassed and
+restored in finally (no active-run simulation/save replacement). Its NativeWorldSurface
+UI texture was captured at 1260x542 under Library/native-world-compositor-smoke.png
+and inspected: authored world background, player and initial sphere render. Current
+Console counters zero errors/warnings; Play Mode stopped. No all-effect visual,
+Android/device or FPS/GC acceptance is claimed. CI checked on containing commit.
+Protected new-desing, user ProjectSettings/Recovery and source TypeScript unchanged.
+
+Still PARTIAL: V snapshot/helper data adapters and source UI DOM/model/hooks/slot
+layout. Native UI islands still rely on that document for anchors, ordering and
+some callbacks. Removing those requires replacing their root/presenter ownership,
+not renaming files or claiming that native pixel owners removed the model bridge.
+
+Short handoff: Continue ECHO SPHERE unity-migration at containing HEAD (git log -1
+--format=%H). Read three GPT docs and modernization reports. World frame/sphere
+coordination, feedback and dedicated mesh compositor are native; active world
+Canvas and reflection projection are removed. Next replace V model adapters and
+source UI root/presenter/hooks/slot layout. Preserve gameplay and visual quality;
+no APK. Full visual/device/performance acceptance remains.
