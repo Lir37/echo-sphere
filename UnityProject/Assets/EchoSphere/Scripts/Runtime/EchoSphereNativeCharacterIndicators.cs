@@ -16,14 +16,18 @@ namespace EchoSphere.Runtime
         {
             var points=new List<NativeWorldCharacterIndicators.Point>();foreach(var sphere in _spheres)if(sphere!=null&&sphere.gameObject.activeInHierarchy){var point=NativeSourcePixels(sphere.transform.position);points.Add(new NativeWorldCharacterIndicators.Point {X=point.x,Y=point.y});}return points.ToArray();
         }
-        private void DrawNativeCharacterWorldIndicators(V scene)
+        private void DrawNativeCharacterWorldIndicators()
         {
             var point=NativeSourcePixels(PlayerPosition);
             switch(_sphereCharacterId){
                 case SphereCharacterId.Engineer:_nativeWorldCharacterIndicators.DrawEngineer(_worldSurface,NativeAliveSpherePoints(),EngineerRelayRules.GetNetworkRangePixels(_characterMasteryLevel));break;
-                case SphereCharacterId.Architect:_nativeWorldCharacterIndicators.DrawFormation(_worldSurface,NativeCharacterFormationKind(scene),NativeAliveSpherePoints(),new NativeWorldCharacterIndicators.Point {X=point.x,Y=point.y});break;
+                case SphereCharacterId.Architect:_nativeWorldCharacterIndicators.DrawFormation(_worldSurface,NativeWorldArchitectFormation(),NativeAliveSpherePoints(),new NativeWorldCharacterIndicators.Point {X=point.x,Y=point.y});break;
                 case SphereCharacterId.Berserker:_nativeWorldCharacterIndicators.DrawBerserker(_worldSurface,point.x,point.y,_playerCore.CurrentHp,_playerCore.MaxHp);break;
             }
+        }
+        private string NativeWorldArchitectFormation()
+        {
+            var kind=_networkState?.DominantFormation?.Type;return kind==SphereNetworkFormation.Line||kind==SphereNetworkFormation.Triangle||kind==SphereNetworkFormation.Square||kind==SphereNetworkFormation.Cluster?kind.Value.ToString().ToLowerInvariant():"none";
         }
         private void DrawNativeCharacterTargetIndicators()
         {

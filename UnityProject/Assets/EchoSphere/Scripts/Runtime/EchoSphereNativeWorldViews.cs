@@ -1,22 +1,12 @@
-using System;
-using EchoSphere.Presentation;
-using UnityEngine;
-
 namespace EchoSphere.Runtime
 {
     public sealed partial class EchoSphereRuntime
     {
-        private V DrawNativeViewVoidAmbient(V arg1,V arg2,V arg3)
-        {_nativeWorldAmbient.Draw(_worldSurface,(float)arg1.Number,(float)arg2.Number,arg3.Number);return default;}
-        private V DrawNativeViewVoidField(V arg1,V arg2,V arg3,V arg4,V arg5,V arg6,V arg7)
-        {_nativeWorldField.Draw(_worldSurface,(float)arg1.Number,(float)arg2.Number,(float)arg4.Number,(float)arg5.Number,(float)arg6.Number,(float)arg7.Number);return default;}
-        private V DrawNativeViewRegionLayer(V arg1)
-        {DrawNativeRegionWorld();return default;}
-        private V DrawNativeViewFormationMemory(V arg1)
-        {DrawNativeFormationMemory(arg1);return default;}
-        private V DrawNativeViewSphereNetwork(V arg1)
-        {DrawNativeNetwork(arg1);return default;}
-        private V DrawNativeViewGroundShadow(V arg1,V arg2,V arg3)
-        {_nativeWorldCreatures.DrawGroundShadow(_worldSurface,arg1.Number,arg2.Number);return default;}
+        private void DrawNativeViewVoidAmbient(double width,double height,double time)=>_nativeWorldAmbient.Draw(_worldSurface,(float)width,(float)height,time);
+        private void DrawNativeViewVoidField(double width,double height,double x,double y,double playerX,double playerY)=>_nativeWorldField.Draw(_worldSurface,(float)width,(float)height,(float)x,(float)y,(float)playerX,(float)playerY);
+        private void DrawNativeViewRegionLayer()=>DrawNativeRegionWorld();
+        private void DrawNativeViewFormationMemory()=>DrawNativeFormationMemory();
+        private void DrawNativeViewSphereNetwork()=>DrawNativeNetwork();
+        private void DrawNativeViewGroundShadow(double width,double height,double unused)=>_nativeWorldCreatures.DrawGroundShadow(_worldSurface,width,height);
     }
 }

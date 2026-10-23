@@ -1167,3 +1167,29 @@ C# compile 20 assemblies PASS, no APK. Previous 8baecffe90821681a972e5e45e7b7f6d
 CI #827 SUCCESS. Remaining: gesture sphere handles, remaining scene/overlay and
 read-only stats/abilities/synergy models, final visual/control/device acceptance.
 Full migration not marked DONE; no FPS/GC values claimed.
+
+### Native world-frame and overlay inputs (2026-10-24)
+
+RenderNativeFrameContents/overlay orchestration no longer references V or the
+compatibility scene snapshot. Camera/player positions, world bounds, shake, alive
+enemy count, message/banner and boss-arrow inputs are typed native data. World
+network nodes read sphere components directly; formation memory reads its native
+points/timer/type; Architect world geometry reads the cached Core formation.
+Existing mesh/shader/opacity/ordering and cosmetic Random stream are unchanged.
+
+Removed unreachable iteration over the old fireTrails segment array after checking
+all source/native references: current source only initializes an empty array and
+ages/removes entries; no producer exists. Native source simulation likewise never
+writes that list. The native segment drawing primitive remains available; a guard
+rejects added direct source segment producers until their live layer is ported.
+Existing FireTrail ability/buff rules and their visuals are untouched.
+
+Checks: 32 frame-input scenarios / 560 exact scalar/camera/shake/message/arrow and
+world-network input comparisons PASS, including zero-direction boss arrow and NaN
+message-timer truth behavior. Temporary boss, flags, camera and artifact list restored.
+Android C# compile 20 assemblies PASS. Actual paused Editor: 12 stepped frames,
+native pause/chrome/stats Ready=true, legacy documents 0; original flags/autosave
+accumulator restored. Bounded layout/activation smoke only, not full visual/control
+acceptance or FPS/GC measurement. Previous 024160ceb13b5e8e28debe7aad18b43853a23e02
+CI #828 SUCCESS. Remaining: gesture sphere handles and stats/abilities/synergy read
+models, final visual/control/device acceptance. Full modernization not marked DONE.

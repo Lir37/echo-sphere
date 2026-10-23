@@ -7,7 +7,9 @@ namespace EchoSphere.Runtime
     public sealed partial class EchoSphereRuntime
     {
         private NativeWorldNetwork _nativeWorldNetwork;
+        #if UNITY_EDITOR
         private static NativeWorldNetwork.Node NativeNetworkPoint(V position)=>new NativeWorldNetwork.Node {X=position["x"].Number,Y=position["y"].Number};
+        #endif
         internal static SphereNetworkState NativeAnalyzeSphereNetwork(V spheres)
         {
             // Logical source axes keep preview perimeter ordering; lengths use
@@ -20,12 +22,13 @@ namespace EchoSphere.Runtime
             double cluster=SphereNetworkRules.GetFormationBonusMultiplier(state,SphereNetworkFormation.Cluster,index),ring=SphereNetworkRules.GetFormationBonusMultiplier(state,SphereNetworkFormation.Ring,index);int neighbours=state==null?0:state.Links.Count(link=>link.A==index||link.B==index);
             return 1+(cluster>0?.08*cluster:0)+(ring>0?.12*ring:0)+System.Math.Min(.20,neighbours*.03);
         }
-        private void DrawNativeNetwork(V scene)
+        internal NativeWorldNetwork.Node[] ProjectNativeWorldNetworkNodes()=>_spheres.Where(sphere=>sphere!=null&&sphere.gameObject.activeInHierarchy).Select(sphere=>{var point=NativeSourcePixels(sphere.transform.position);return new NativeWorldNetwork.Node {X=point.x,Y=point.y,Charge=sphere.FormationHitCount,Pulse=sphere.ResonancePulseTimer};}).ToArray();
+        private void DrawNativeNetwork()
         {
-            var spheres=scene["spheres"].Items.Select(s=>new NativeWorldNetwork.Node {X=s["pos"]["x"].Number,Y=s["pos"]["y"].Number,Charge=s["formationHitCount"].Number,Pulse=s["resonancePulseTimer"].Number}).ToArray();
+            var spheres=ProjectNativeWorldNetworkNodes();
             var positions=spheres.Select(sphere=>(NativeWorldNetwork.Node?)new NativeWorldNetwork.Node {X=sphere.X,Y=sphere.Y}).ToList();if(GetAbilityLevel(RunUpgradeKind.Minion)>=3)foreach(var agent in _simulationAgents)if(agent is AbilityDroneAgent2D drone&&drone!=null&&drone.gameObject.activeInHierarchy){var point=NativeSourcePixels(drone.transform.position);positions.Add(new NativeWorldNetwork.Node {X=point.x,Y=point.y});}
             var projected=ProjectNativeNetworkState(_networkState,spheres);
-            _nativeWorldNetwork.Draw(_worldSurface,projected.Network,positions.ToArray(),projected.ExternalLinks,scene["time"].Number);
+            _nativeWorldNetwork.Draw(_worldSurface,projected.Network,positions.ToArray(),projected.ExternalLinks,_runTime);
         }
         internal static (NativeWorldNetwork.Network Network,NativeWorldNetwork.Link[] ExternalLinks) ProjectNativeNetworkState(SphereNetworkState state,NativeWorldNetwork.Node[] spheres)
         {
@@ -49,10 +52,10 @@ namespace EchoSphere.Runtime
             return (new NativeWorldNetwork.Network {NodeCount=source["nodes"].Items.Count(SphereIndex),Spheres=nodes,Links=source["links"].Items.Where(SphereLink).Select(Link).ToArray(),Line=Formation("line"),Triangle=Formation("triangle"),Square=Formation("square"),Cluster=Formation("cluster"),Ring=Formation("ring"),Lattice=Formation("lattice"),Fractal=Formation("fractal")},positions.Select(position=>position.Truth?(NativeWorldNetwork.Node?)NativeNetworkPoint(position):null).ToArray(),source["links"].Items.Where(link=>!SphereLink(link)).Select(Link).ToArray());
         }
 #endif
-        private void DrawNativeFormationMemory(V scene)
+        private void DrawNativeFormationMemory()
         {
-            var memory=scene["formationMemory"];if(!memory.Truth)return;
-            _nativeWorldNetwork.DrawMemory(_worldSurface,memory["type"].Text,memory["nodes"].Items.Select(NativeNetworkPoint).ToArray(),memory["expiresAt"].Number,scene["time"].Number);
+            if(!(_formationMemoryTimer>0)||_formationMemoryPoints==null)return;var nodes=_formationMemoryPoints.Select(position=>{var point=NativeSourcePixels(position);return new NativeWorldNetwork.Node {X=point.x,Y=point.y};}).ToArray();
+            _nativeWorldNetwork.DrawMemory(_worldSurface,_formationMemoryType.ToString().ToLowerInvariant(),nodes,_runTime+_formationMemoryTimer,_runTime);
         }
     }
 }
